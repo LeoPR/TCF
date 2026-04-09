@@ -25,6 +25,10 @@ output/
 # Experiment results (large, regenerable)
 experiments/results/
 experiments/scratch/
+experiments/data/
+experiments/images/
+experiments/models_local.json
+experiments/eval_plan.json
 
 # OS
 Thumbs.db
