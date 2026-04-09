@@ -1,0 +1,5 @@
+{
+  "pessoas": "pessoas.csv#id",
+  "produtos": "produtos.csv#id",
+  "vendas":   "vendas.csv#pessoas=id_pessoa,produtos=id_produto"
+}

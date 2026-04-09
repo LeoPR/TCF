@@ -1,0 +1,34 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+.venv/
+venv/
+*.egg
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Test / pytest
+.pytest_cache/
+htmlcov/
+.coverage
+
+# Output artifacts (generated, not source)
+output/
+
+# Experiment results (large, regenerable)
+experiments/results/
+experiments/scratch/
+
+# OS
+Thumbs.db
+.DS_Store
+output*
+restored*/
+*.tcf
