@@ -32,10 +32,10 @@ legibilidade. Alternativas possiveis a investigar:
 
 | Tecnica | Descricao | Legivel? | Compressao | Status |
 |---------|-----------|----------|------------|--------|
-| **RLE** | `N:val` | Sim | Alta com repeticao | **Implementado** |
+| **RLE** | `N*val` | Sim | Alta com repeticao | **Implementado** |
 | Delta encoding | `base + deltas` | Media | Boa para sequencias | A investigar |
 | Dictionary refs | `@1=Ana, @2=Bruno; @1 @2` | Sim | Boa para strings | Parcial (DICT mode) |
-| Frequency prefix | `val(N)` ao inves de `N:val` | Sim | Igual ao RLE | Alternativa notacional |
+| Frequency prefix | `val(N)` ao inves de `N*val` | Sim | Igual ao RLE | Alternativa notacional |
 | Bitmap | `1100110` para presenca/ausencia | Nao | Alta para booleanos | Nao para LLMs |
 | Elias gamma | Codificacao de inteiros | Nao | Otima para inteiros | Nao para LLMs |
 
@@ -140,7 +140,7 @@ Preserva ordem posicional E comprime.
 ### Conclusao sobre alternativas
 
 RLE e a melhor primeira opcao porque:
-1. Simples de explicar em 1 linha (`N:val = val repeated N times`)
+1. Simples de explicar em 1 linha (`N*val = val repeated N times`)
 2. LLMs ja entendem (confirmado por Phase 1+2)
 3. Eficiente com dados categoricos (FK, status, etc)
 

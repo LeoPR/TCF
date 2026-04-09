@@ -3,109 +3,141 @@
 ## 3.1 Design e Motivacao
 
 TCF e um formato de serializacao textual **orientado a colunas**, construido como
-sublinguagem de Markdown. A escolha de Markdown como base se justifica pela
-**familiaridade** — LLMs foram treinados em bilhoes de documentos Markdown
-(READMEs, wikis, documentacao tecnica). Headers `##`, listas e notacao inline
-sao padroes que modelos ja "sabem ler".
+sublinguagem de Markdown. LLMs foram treinadas em bilhoes de documentos Markdown
+— headers `##`, listas e blocos de codigo sao padroes familiares.
 
-A compactacao usa tecnicas inspiradas em bancos de dados colunares:
-- **Orientacao columnar:** todos os valores de um campo em uma unica linha
-- **RLE (Run-Length Encoding):** repeticoes compactadas como `N:val`
-- **Colunas sorted:** versao ordenada para revelar distribuicao
-- **Modos FK:** diferentes formas de representar relacoes entre tabelas
+A compactacao usa tecnicas de bancos colunares adaptadas para legibilidade textual:
+- **Orientacao columnar:** todos os valores de uma coluna agrupados
+- **RLE (Run-Length Encoding):** repeticoes consecutivas compactadas
+- **Ordenacao por melhor coluna:** maximiza runs consecutivos para RLE
+- **Dictionary encoding:** strings longas substituidas por indices curtos
 
-## 3.2 Sintaxe
+## 3.2 Sintaxe v0.2
 
-### Header global
+### Header
 ```
-# TCF v0.1
-> N:val = val repeated N times consecutively. No prefix = single occurrence.
-> Columns marked [sorted] are sorted.
-> Columns marked [key] are primary keys.
+# TCF v0.2 level=2
+# N*val = val repeated N times
 ```
 
 ### Bloco de tabela
 ```
-## nome_tabela n=N
-coluna[key]: val1 val2 val3 ...
-coluna: val1 val2 val3 ...
-coluna[sorted]: N1:val1 N2:val2 ...
+## vendas n=41 sorted_by=produto
 ```
 
-### Notacao RLE
+### Coluna de dados
 ```
-id_loja[sorted]: 7:1 3:2
+pessoa:
+3*Ana
+2*Bruno
+Carla
 ```
-Equivale a: `1 1 1 1 1 1 1 2 2 2` (10 valores em 2 tokens)
+Cada valor (ou grupo RLE) em sua propria linha. `3*Ana` = Ana repetido 3 vezes.
 
-### Stats opcionais
+### Stats (opcional)
 ```
-# STATS vl n=41 sum=217.6 min=1 max=12.4 avg=5.306
-# STATS nome n=30 distinct=30 mode=Ana(1)
+# STATS total: n=41 sum=217.6 min=1 max=12.4 avg=5.31
 ```
+Hints pre-computados para a LLM. Overhead < 5%.
 
-## 3.3 Variantes de Encoding
-
-### Numeric encoding
-
-| Variante | Descricao | Exemplo | Reversivel |
-|----------|-----------|---------|------------|
-| `raw_float` | Floats compactos | `2.5 11 1 3.75` | Sim (lossless) |
-| `int_scaled` | Multiplicar por scale, emitir inteiro | `250 1100 100 375` (scale=100) | Sim (lossless) |
-| `bins_16` | Quantizar em N bins uniformes | `3 15 0 5` (indices de bin) | Nao (lossy) |
-
-### FK representation
-
-| Modo | Descricao | Exemplo |
-|------|-----------|---------|
-| `id_raw` | ID numerico original | `id_pessoa: 1 2 1 3` |
-| `dict` | Bloco DICT antes da tabela | `## DICT pessoas: 1=Ana 2=Bruno` |
-| `hint` | Comentario apos a coluna FK | `> id_pessoa: 1=Ana, 2=Bruno` |
-| `inline` | Nomes resolvidos (JOIN) | `pessoa: Ana Bruno Ana Carla` |
-
-### Sort mode
-
-| Modo | Descricao | Overhead |
-|------|-----------|----------|
-| `sorted=True` | Emite coluna[sorted] com RLE | +5-15% (beneficio com repeticao) |
-| `sorted=False` | Omite colunas sorted | Baseline |
-
-### Supertable mode (planejado)
-
-JOIN de todas as tabelas em uma unica supertabela desnormalizada.
-IDs eliminados, nomes resolvidos, RLE sobre nomes repetidos.
-
+### Dictionary (level 3)
 ```
-## compras n=41 (from: pessoas=pessoa, produtos=produto)
-pessoa: Ana Bruno Ana Carla ...
-produto: Caneta Caderno Lapiz Caneta ...
-vl: 2.5 11 1 3.75 ...
-pessoa[sorted]: Alice 3:Ana Bianca 2:Bruno ...
-produto[sorted]: 3:Apontador 4:Borracha 5:Caneta ...
+# dict pessoa: Ana,Bruno,Carla
+# dict produto: Caneta,Lapis,Borracha
+```
+No corpo, indices numericos referenciam o dicionario (0=primeiro, 1=segundo).
+
+## 3.3 Niveis de Compressao
+
+| Level | Descricao | RLE? | Sort? | Dict? | Reversivel |
+|-------|-----------|------|-------|-------|------------|
+| 0 | Expanded (1 valor/linha) | Nao | Nao | Nao | Sim |
+| 1 | RLE em consecutivos | Sim | Nao | Nao | Sim |
+| 2 | Ordena + RLE | Sim | Sim | Nao | Sim |
+| 3 | Dict + ordena + RLE | Sim | Sim | Sim | Sim |
+
+**Level 2 e recomendado para LLMs** — melhor tradeoff accuracy vs compressao.
+**Level 3 e o mais compacto** mas indices numericos podem confundir modelos.
+
+## 3.4 Exemplo Completo (Level 2)
+
+Dados originais (3 tabelas CSV):
+```
+pessoas.csv: id,nome → 20 clientes
+produtos.csv: id,nome,preco → 15 produtos
+vendas.csv: id_cliente,id_produto,dt,qtd,total → 200 orders
 ```
 
-## 3.4 Complexidade e Compressao
+TCF v0.2 Level 2 (saida):
+```
+# TCF v0.2 level=2
+# N*val = val repeated N times
 
-### Compressao teorica
+## vendas n=486 sorted_by=produto
+# STATS total: n=486 sum=51234.5 min=0.95 max=423.1 avg=105.4
+pessoa:
+12*Ana
+8*Bruno
+6*Carla
+...
+produto:
+45*Borracha
+38*Caderno
+52*Caneta
+...
+dt:
+2024-01-03
+2024-01-15
+...
+total:
+12.5
+3.0
+28.9
+...
+```
 
-Para uma coluna com N valores e K valores distintos:
-- **CSV/JSONL:** O(N) tokens
-- **TCF raw:** O(N) tokens (mesma cardinalidade)
-- **TCF sorted+RLE:** O(K) tokens (compressao N/K)
+**Nota:** Tabelas de referencia (pessoas, produtos) sao eliminadas.
+FKs resolvidos para nomes. IDs descartados. Dados flat em 1 tabela.
 
-RLE e eficiente quando K << N (muita repeticao):
-- 1000 vendas, 30 clientes → pessoa[sorted]: O(30) vs O(1000) = **33x**
-- 1000 vendas, 12 produtos → produto[sorted]: O(12) vs O(1000) = **83x**
+## 3.5 Compressao: TCF vs Outros Formatos
+
+Para detalhes completos de cada formato, ver apendice [D-format-comparison.md](appendices/D-format-comparison.md).
+
+Resumo (retail_sales 200 orders, ~500 vendas):
+
+| Formato | Tamanho | vs CSV | Tipo |
+|---------|---------|--------|------|
+| JSONL | ~62KB | 3.5x maior | Row, chaves repetidas |
+| CSV | ~18KB | baseline | Row |
+| TCF L0 | ~20KB | 1.1x | Column, expanded |
+| TCF L2 | ~18KB | 1.0x | Column, sorted+RLE |
+| **TCF L3** | **~12KB** | **0.68x** | Column, dict+sorted+RLE |
+
+TCF L3 e **32% menor que CSV** e **81% menor que JSONL** com dados realistas.
+Detalhes em [article/05-results-e1-e2.md](05-results-e1-e2.md).
+
+## 3.6 Compressao Teorica
+
+Para coluna com N valores e K valores unicos:
+- **CSV/JSONL:** O(N) tokens por coluna
+- **TCF L0:** O(N) tokens (columnar sem compressao)
+- **TCF L2 sorted+RLE:** O(K) tokens (1 grupo RLE por valor unico)
+- **TCF L3 dict+RLE:** O(K) tokens com strings curtas (indices)
+
+RLE e eficiente quando K << N:
+- 1000 vendas, 20 produtos → O(20) ao inves de O(1000) = **50x**
+- 1000 vendas, 200 clientes → O(200) = 5x (menos repeticao)
 - Dados unicos (K=N) → RLE nao ajuda (ratio 1.0x)
 
-### Overhead do header
+## 3.7 Notacao RLE: Escolha e Alternativas
 
-TCF tem overhead fixo por tabela (~200-300 bytes de header).
-Isso faz TCF ser **maior que CSV** para tabelas pequenas (<200 linhas).
-A partir de ~1000 linhas, o header e amortizado e TCF e ~3% menor que CSV.
+Notacao escolhida: `N*val` ("N vezes val").
 
-### TCF vs JSONL
+| Notacao | Exemplo | Familiaridade LLM | Status |
+|---------|---------|-------------------|--------|
+| `N*val` | `3*Ana` | Media (multiplicacao) | **Implementado** |
+| `N:val` | `3:Ana` | Baixa (parece IP/hora) | Descartado |
+| `(N)val` | `(3)Ana` | Media | Alternativa |
 
-TCF e **sempre** menor que JSONL (17-83% menor em todos os cenarios testados).
-JSONL repete nomes de campo em cada linha — overhead proporcional a N*K.
-TCF emite nomes de campo uma vez — overhead fixo O(K).
+Investigacao em andamento (G37): testar se code fences, XML tags e
+few-shot examples melhoram a compreensao. Ver [tickets/open/H-G37](../tickets/open/H-G37-notacao-decoracao.md).

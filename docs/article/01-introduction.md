@@ -33,7 +33,7 @@ orientado a colunas com compressao RLE, construido como sublinguagem de Markdown
 Contribuicoes especificas:
 
 1. **Primeiro formato columnar** proposto para consumo por LLMs
-2. **RLE como compressao natural** — `N:val` e legivel por humanos e maquinas
+2. **RLE como compressao natural** — `N*val` e legivel por humanos e maquinas
 3. **Metodologia diagnostica 3-layer** que separa capacidade aritmetica,
    compreensao de formato e capacidade computacional
 4. **Ablacao sistematica** de componentes (numeric encoding, FK mode, sort mode)

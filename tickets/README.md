@@ -3,9 +3,63 @@
 **Projeto:** Textual Columnar Format -- encoder/decoder compacto para LLMs.
 **Objetivo:** Paper cientifico comparando formatos de dados para raciocinio de LLMs.
 
+## Estrutura
+
+```
+tickets/
+  README.md        Este arquivo (indice geral)
+  open/            Tickets em andamento ou planejados
+  closed/          Tickets concluidos
+```
+
+**Prefixos de tipo:**
+- `H-` Hipotese (algo a comprovar/refutar por experimento)
+- `E-` Experimento (teste com dados/modelos)
+- `P-` Pesquisa (investigacao, survey, busca de referencias)
+- `T-` Tarefa tecnica (implementacao, infra, entregavel)
+- `R-` Resultado/finding (achado comprovado por experimento)
+
 ---
 
-## Grupos de Trabalho
+## Open (14)
+
+| Ticket | Tipo | Titulo |
+|--------|------|--------|
+| [E-G22](open/E-G22-decode-reverso.md) | experiment | LLMs geram CSV a partir de TCF v0.2? |
+| [E-G23](open/E-G23-perguntas-progressivas.md) | experiment | Perguntas progressivas orientam LLMs? |
+| [E-G24](open/E-G24-multi-step.md) | experiment | Perguntas complexas (argmax, filter) |
+| [H-G30](open/H-G30-hiperparametros.md) | hypothesis | Temperature, thinking, context — IN PROGRESS |
+| [H-G31](open/H-G31-thinking-mode.md) | hypothesis | Thinking on/off/scaled afeta accuracy? |
+| [E-G32](open/E-G32-escala.md) | experiment | Dados maiores + APIs externas |
+| [P-G33](open/P-G33-metodologia.md) | research | CoT, PoT, repeticoes, survey |
+| [P-G34](open/P-G34-dados-reais.md) | research | Datasets canonicos, representatividade |
+| [P-G35](open/P-G35-modelos-llm.md) | research | Selecao por familia/tier |
+| [H-G36](open/H-G36-idioma-perguntas.md) | hypothesis | Sensibilidade a idioma + forma |
+| [H-G37](open/H-G37-notacao-decoracao.md) | hypothesis | Sintaxe RLE, code fences, exemplos |
+| [T-G40](open/T-G40-paper.md) | task | Analise, figuras, artigo |
+| [T-G41](open/T-G41-cli-lib.md) | task | CLI/Lib pip package |
+| [T-G42](open/T-G42-input-adapters.md) | task | SQLite, Parquet, SQL |
+
+## Closed (12)
+
+| Ticket | Tipo | Titulo |
+|--------|------|--------|
+| [E-G01](closed/E-G01-encode-decode-v01.md) | experiment | Encode/decode v0.1 — 7/7 PASS |
+| [E-G01b](closed/E-G01b-compression-v01.md) | experiment | Compression benchmark v0.1 |
+| [E-G02](closed/E-G02-comprehension-v01.md) | experiment | Phase 1 v0.1 — 210 combos |
+| [E-G03](closed/E-G03-ablation-v01.md) | experiment | Phase 2 v0.1 — 720 combos |
+| [E-G04](closed/E-G04-stats-v01.md) | experiment | Stats ablation v0.1 |
+| [T-G20](closed/T-G20-encoder-v02.md) | task | Encoder v0.2 implementado |
+| [E-G20b](closed/E-G20b-benchmark-v02.md) | experiment | Compression benchmark v0.2 |
+| [E-G21](closed/E-G21-llm-v02.md) | experiment | LLM accuracy v0.2 — 288 combos |
+| [R-F30](closed/R-F30-tcf-escala.md) | finding | TCF escala, CSV colapsa |
+| [R-F51](closed/R-F51-gemma3-melhor.md) | finding | gemma3:12b melhor modelo |
+| [P-H01](closed/P-H01-reversibility.md) | hypothesis | Reversibilidade — 7/7 PASS |
+| [T-P04](closed/T-P04-encoder-variants.md) | task | 24 variantes implementadas |
+
+---
+
+## Grupos de Trabalho (resumo)
 
 ```
 --- HISTORICO v0.1 (baseline, experimentos concluidos) ---

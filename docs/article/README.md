@@ -38,6 +38,7 @@ por experimentos sao registradas como definitivas.
 | A | [appendices/A-tcf-spec.md](appendices/A-tcf-spec.md) | Especificacao TCF | Placeholder |
 | B | [appendices/B-prompts.md](appendices/B-prompts.md) | Prompts utilizados | Placeholder |
 | C | [appendices/C-full-tables.md](appendices/C-full-tables.md) | Tabelas completas | Placeholder |
+| D | [appendices/D-format-comparison.md](appendices/D-format-comparison.md) | Comparacao de formatos lado a lado | Completo |
 
 ## Como usar
 

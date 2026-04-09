@@ -50,11 +50,17 @@ Outros arquivos            →  Referenciam a fonte, nao copiam o valor
 | Findings (F1-F14) | Cap 5-7 (onde sao descobertos) | 00-innovations.md, cap 8 |
 | Conclusions (C1-C5) | [05-results-e1-e2.md](article/05-results-e1-e2.md) | 00-innovations.md |
 
+### Formato e Comparacao
+
+| Dado | Fonte Primaria | Quem Referencia |
+|------|---------------|-----------------|
+| Comparacao de formatos (lado a lado) | [D-format-comparison.md](article/appendices/D-format-comparison.md) | article/03, ARCHITECTURE |
+
 ### Codigo e Configuracao
 
 | Dado | Fonte Primaria | Quem Referencia |
 |------|---------------|-----------------|
-| EncoderConfig (variantes) | `src/tcf/encoder.py` | ARCHITECTURE.md, article/03 |
+| EncodeConfig (niveis 0-3) | `src/tcf/encoder_v02.py` | ARCHITECTURE.md, article/03 |
 | Perguntas (Q1-Q10) | `experiments/eval/llm_eval/prompts.py` | article/04-methodology.md |
 | Ground truth | `experiments/eval/llm_eval/ground_truth.py` | article/04-methodology.md |
 | System prompts | `experiments/eval/llm_eval/prompts.py` | appendix B |
@@ -67,7 +73,7 @@ Outros arquivos            →  Referenciam a fonte, nao copiam o valor
 README.md                    Porta de entrada (links para tudo)
   │
   ├── docs/ARCHITECTURE.md   Pilar conceitual (intencoes, NUNCA resultados)
-  │     └── refs: EXPERIMENT_DESIGN, encoder.py, prompts.py
+  │     └── refs: EXPERIMENT_DESIGN, encoder_v02.py, prompts.py
   │
   ├── docs/EXPERIMENT_DESIGN.md   Metodologia (fases, criterios)
   │     └── refs: prompts.py, ground_truth.py

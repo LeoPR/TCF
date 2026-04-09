@@ -1,5 +1,11 @@
 # TCF -- Design Experimental em Fases (Ablacao Progressiva)
 
+> **Nota:** Este documento descreve a metodologia geral de ablacao progressiva.
+> As fases originais (Phase 0-3) foram executadas com o encoder v0.1.
+> O encoder v0.2 segue a mesma logica mas com Etapas renomeadas
+> (ver [ARCHITECTURE.md](ARCHITECTURE.md) secao 4).
+> Resultados atuais em [article/07-results-e4-e8.md](article/07-results-e4-e8.md).
+
 ## Principio
 
 O pipeline experimental segue uma logica de **ablacao progressiva**:
