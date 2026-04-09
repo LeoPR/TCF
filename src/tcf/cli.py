@@ -22,15 +22,15 @@ from pathlib import Path
 # ---------------------------------------------------------------------------
 
 def cmd_encode(args: argparse.Namespace) -> None:
-    from .encoder_v02 import encode_v02, V02Config
+    from .encoder import encode, EncodeConfig
 
-    config = V02Config(
+    config = EncodeConfig(
         level=args.level,
         include_stats=not args.no_stats,
         precision=args.precision,
     )
 
-    text = encode_v02(
+    text = encode(
         meta_path=Path(args.meta),
         data_dir=Path(args.data_dir),
         config=config,
@@ -47,12 +47,12 @@ def cmd_encode(args: argparse.Namespace) -> None:
 
 
 def cmd_decode(args: argparse.Namespace) -> None:
-    from .decoder_v02 import decode_v02
+    from .decoder import decode
 
     tcf_path = Path(args.file)
     text = tcf_path.read_text(encoding="utf-8")
 
-    tables = decode_v02(text, normalize=not args.flat_only)
+    tables = decode(text, normalize=not args.flat_only)
 
     out_dir = Path(args.out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -72,12 +72,12 @@ def cmd_decode(args: argparse.Namespace) -> None:
 
 
 def cmd_info(args: argparse.Namespace) -> None:
-    from .decoder_v02 import decode_v02
+    from .decoder import decode
 
     tcf_path = Path(args.file)
     text = tcf_path.read_text(encoding="utf-8")
     tcf_bytes = tcf_path.stat().st_size
-    tables = decode_v02(text, normalize=False)
+    tables = decode(text, normalize=False)
 
     print(f"File:   {args.file}")
     print(f"Size:   {tcf_bytes:,} bytes ({len(text):,} chars)")

@@ -25,22 +25,23 @@ tickets/
 
 | Ticket | Tipo | Titulo |
 |--------|------|--------|
-| [E-G22](open/E-G22-decode-reverso.md) | experiment | LLMs geram CSV a partir de TCF v0.2? |
-| [E-G23](open/E-G23-perguntas-progressivas.md) | experiment | Perguntas progressivas orientam LLMs? |
-| [E-G24](open/E-G24-multi-step.md) | experiment | Perguntas complexas (argmax, filter) |
-| [H-G30](open/H-G30-hiperparametros.md) | hypothesis | Temperature, thinking, context — IN PROGRESS |
-| [H-G31](open/H-G31-thinking-mode.md) | hypothesis | Thinking on/off/scaled afeta accuracy? |
-| [E-G32](open/E-G32-escala.md) | experiment | Dados maiores + APIs externas |
-| [P-G33](open/P-G33-metodologia.md) | research | CoT, PoT, repeticoes, survey |
-| [P-G34](open/P-G34-dados-reais.md) | research | Datasets canonicos, representatividade |
-| [P-G35](open/P-G35-modelos-llm.md) | research | Selecao por familia/tier |
-| [H-G36](open/H-G36-idioma-perguntas.md) | hypothesis | Sensibilidade a idioma + forma |
-| [H-G37](open/H-G37-notacao-decoracao.md) | hypothesis | Sintaxe RLE, code fences, exemplos |
-| [T-G40](open/T-G40-paper.md) | task | Analise, figuras, artigo |
-| [T-G41](open/T-G41-cli-lib.md) | task | CLI/Lib pip package |
-| [T-G42](open/T-G42-input-adapters.md) | task | SQLite, Parquet, SQL |
+| [H-G30](open/H-G30-hiperparametros.md) | hypothesis | Temperature, thinking, context — DONE |
+| [H-compress](open/H-compression-layers.md) | hypothesis | Niveis progressivos, reversibilidade |
+| [H-3layer](open/H-diagnostic-3layer-v02.md) | hypothesis | Diagnostico 3 camadas — DONE (F80-F84) |
+| [E-decompress](open/E-llm-decompress.md) | experiment | LLM descomprime TCF → CSV |
+| [E-scale](open/E-scale-progression.md) | experiment | Escalabilidade 20→1000 rows — DONE (F85-F89) |
+| [E-stats](open/E-stats-ablation.md) | experiment | STATS ablation — IN PROGRESS (critico) |
+| [E-prompt](open/E-prompt-presentation.md) | experiment | Ablacao: idioma, decoracao, sintaxe |
+| [P-G33](open/P-G33-metodologia.md) | research | CoT, PoT, repeticoes — REVIEWED |
+| [P-G34](open/P-G34-dados-reais.md) | research | Datasets canonicos |
+| [P-G35](open/P-G35-modelos-llm.md) | research | Selecao de modelos |
+| [P-formats](open/P-competing-formats.md) | research | TOON e formatos concorrentes |
+| [P-questions](open/P-question-bank-review.md) | research | Revisar banco de perguntas — REVIEWED |
+| [T-G41](open/T-G41-cli-lib.md) | task | CLI/Lib pip |
+| [T-G42](open/T-G42-input-adapters.md) | task | SQLite, Parquet |
+| [T-figures](open/T-figures-analysis.md) | task | Figuras e analise estatistica |
 
-## Closed (12)
+## Closed (25)
 
 | Ticket | Tipo | Titulo |
 |--------|------|--------|
@@ -56,6 +57,21 @@ tickets/
 | [R-F51](closed/R-F51-gemma3-melhor.md) | finding | gemma3:12b melhor modelo |
 | [P-H01](closed/P-H01-reversibility.md) | hypothesis | Reversibilidade — 7/7 PASS |
 | [T-P04](closed/T-P04-encoder-variants.md) | task | 24 variantes implementadas |
+| | | |
+| **Consolidados (2026-04-09):** | | |
+| [E-G22](closed/E-G22-decode-reverso.md) | experiment | → absorvido por E-llm-decompress |
+| [E-G23](closed/E-G23-perguntas-progressivas.md) | experiment | → absorvido por P-question-bank-review |
+| [E-G24](closed/E-G24-multi-step.md) | experiment | → absorvido por P-question-bank-review |
+| [E-G32](closed/E-G32-escala.md) | experiment | → absorvido por E-scale-progression |
+| [E-pareto](closed/E-pareto-accuracy-tokens.md) | experiment | → absorvido por T-figures-analysis Fig 4 |
+| [H-G31](closed/H-G31-thinking-mode.md) | hypothesis | → absorvido por H-G30-hiperparametros |
+| [H-G36](closed/H-G36-idioma-perguntas.md) | hypothesis | → absorvido por E-prompt-presentation |
+| [H-G37](closed/H-G37-notacao-decoracao.md) | hypothesis | → absorvido por E-prompt-presentation |
+| [T-G40](closed/T-G40-paper.md) | task | → absorvido por T-figures-analysis |
+| [T-naming](closed/T-cleanup-naming.md) | task | Renomeado _v02 → nomes limpos |
+| [P-transport](closed/P-transport-compression.md) | research | TCF+gzip 29% menor que CSV+gzip |
+| [R-F70](closed/R-F70-transport-compression.md) | finding | TCF+gzip comprime mais que CSV+gzip (F70-F73) |
+| [R-F80](closed/R-F80-stats-shortcut.md) | finding | STATS como shortcut cognitivo (F80-F84) |
 
 ---
 
@@ -73,22 +89,19 @@ G04  Stats Ablation v0.1 Hints +12pp global, -22pp em FK queries   CLOSED
 G20  Formato v0.2        Encoder/decoder com 4 niveis compressao   CLOSED
 G20b Benchmark v0.2      L3: 26% < CSV, 84-89% < JSONL             CLOSED
 G21  Compressao LLM      L0=49% > L2=36% > CSV=19% (12 modelos)   CLOSED
-G22  Decode Reverso       LLMs geram CSV a partir de TCF v0.2?     OPEN
-G23  Progressiva          Perguntas progressivas orientam LLMs?     OPEN
-G24  Multi-step           Perguntas complexas (argmax, filter)      OPEN
+E-decompress             LLMs descomprimem TCF → CSV (D1-D4)      OPEN
+E-scale                  Escalabilidade 20→1000 rows               OPEN
+E-prompt                 Ablacao: idioma + decoracao + sintaxe      OPEN
 
 --- INFRAESTRUTURA (ortogonal a versao) ---
-G30  Hiperparametros      Temp, thinking, context — CRITICO         OPEN
-G31  Thinking             Modos de pensamento (on/off/scaled)       OPEN
-G32  Escala               Dados maiores + interacoes + APIs         OPEN
+G30  Hiperparametros      think ON+t0=100% L0; L2 max 67%          DONE
+H-3layer                 Diagnostico 3 camadas v0.2                OPEN
 G34  Dados Reais          Datasets canonicos, representatividade   OPEN
-G35  Modelos LLM          Selecao por familia/tier, sem API registry OPEN
+G35  Modelos LLM          Selecao por familia/tier                 OPEN
 G33  Metodologia          Prompting, CoT, PoT, repeticoes, survey  OPEN
-G36  Idioma e Perguntas   Sensibilidade a idioma + forma de perguntar OPEN
-G37  Notacao e Decoracao  Variar sintaxe RLE, code fences, exemplos  OPEN
 
 --- ENTREGAVEIS ---
-G40  Paper                Analise, figuras, artigo, guia            OPEN
+T-figures                Figuras + analise estatistica (7 figs)    OPEN
 G41  CLI/Lib UX           Modos auto/niveis/grouped, pip            OPEN
 G42  Input Adapters       SQLite, Parquet, SQL direto -> TCF        OPEN
 ```

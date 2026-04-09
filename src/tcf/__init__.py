@@ -15,8 +15,8 @@ Compression levels (--level):
     3  Dictionary + sorted + RLE (strings become indices)
 """
 
-from .encoder_v02 import encode_v02 as encode, V02Config as EncodeConfig
-from .decoder_v02 import decode_v02 as decode
+from .encoder import encode, EncodeConfig
+from .decoder import decode
 
 __version__ = "0.2.0"
 __all__ = ["encode", "decode", "EncodeConfig"]

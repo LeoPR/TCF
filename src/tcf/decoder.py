@@ -1,4 +1,4 @@
-"""Decoder for TCF v0.2 — all compression levels.
+"""TCF decoder — all compression levels.
 
 Auto-detects level from header and reverses compression:
     - RLE: `3*ana` -> ["ana", "ana", "ana"]
@@ -6,14 +6,14 @@ Auto-detects level from header and reverses compression:
     - Normalize: extracts reference tables from unique text values
 
 Usage:
-    from tcf.decoder_v02 import decode_v02
+    from tcf import decode
 
     # Flat table only
-    tables = decode_v02(tcf_text, normalize=False)
+    tables = decode(tcf_text, normalize=False)
     # {"vendas": [{"pessoa": "Ana", "produto": "Caneta", "vl": "2.5"}, ...]}
 
     # Rebuild reference tables
-    tables = decode_v02(tcf_text, normalize=True)
+    tables = decode(tcf_text, normalize=True)
     # {"pessoa": [...], "produto": [...], "vendas": [...]}
 """
 
@@ -28,11 +28,11 @@ _TABLE_RE = re.compile(r"^##\s+(\w+)\s+n=(\d+)")
 _DICT_RE = re.compile(r"^#\s+dict\s+(\w+):\s*(.*)")
 
 
-def decode_v02(
+def decode(
     tcf_text: str,
     normalize: bool = True,
 ) -> dict[str, list[dict[str, str]]]:
-    """Decode TCF v0.2 text back to tables.
+    """Decode TCF text back to tables.
 
     Args:
         tcf_text:  TCF v0.2 text (any level)

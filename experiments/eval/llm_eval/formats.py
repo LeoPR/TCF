@@ -142,11 +142,10 @@ def format_tcf(tcf_text: str) -> str:
     header = _render_header(
         "TCF",
         (
-            "Textual Columnar Format v0.1.",
-            "Cada linha representa uma coluna inteira da tabela.",
-            "N:val = val repetido N vezes consecutivamente. Sem prefixo = ocorrência única.",
-            "Colunas [sorted] estão ordenadas — posição NÃO correlaciona com outras colunas.",
-            "Colunas [key] são chaves primárias.",
+            "Textual Columnar Format.",
+            "Cada bloco começa com nome da coluna seguido de ':'.",
+            "N*val = val repetido N vezes consecutivamente.",
+            "Dados podem estar ordenados para agrupar repetições.",
         ),
     )
     return header + "\n" + tcf_text.strip()

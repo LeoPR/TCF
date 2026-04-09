@@ -31,11 +31,22 @@ SYSTEM_PROMPTS: Dict[str, str] = {
     ),
     "tcf": (
         "Você receberá dados no formato TCF (Textual Columnar Format)."
-        " Nesse formato, cada linha representa uma coluna inteira da tabela."
-        " A notação N:val significa que val se repete N vezes consecutivamente."
-        " Sem prefixo numérico = ocorrência única."
-        " Colunas marcadas [sorted] estão ordenadas e NÃO têm posição correlacionada às outras colunas."
+        " Nesse formato, cada bloco começa com o nome da coluna seguido de ':' e os valores vêm um por linha."
+        " A notação N*val significa que val se repete N vezes consecutivamente."
+        " Dados podem estar ordenados para agrupar repetições."
         " Use apenas os dados fornecidos para responder."
+    ),
+    "tcf_L0": (
+        "Você receberá dados em formato colunar."
+        " Cada bloco começa com nome da coluna seguido de ':'."
+        " Valores um por linha, mesma ordem entre colunas."
+        " Responda com base apenas nos dados."
+    ),
+    "tcf_L2": (
+        "Você receberá dados em formato colunar comprimido."
+        " N*val = val repetido N vezes."
+        " Dados ordenados para agrupar repetições."
+        " Responda com base apenas nos dados."
     ),
     "csv": (
         "Você receberá dados no formato CSV."

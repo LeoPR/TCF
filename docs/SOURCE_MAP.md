@@ -1,151 +1,102 @@
 # TCF -- Mapa de Fontes (Source of Truth)
 
-Este arquivo define **qual documento e a fonte primaria** de cada tipo de informacao.
-Quando um dado muda, a fonte primaria e atualizada primeiro, e os outros documentos
-**referenciam** a fonte ao inves de duplicar o valor.
+Define qual documento e a fonte primaria de cada tipo de informacao.
+Quando um dado muda, atualizar APENAS a fonte. Outros referenciam.
 
-## Principio
+## Regra de ouro
 
-```
-Fonte Primaria (1 arquivo)  →  Referenciado por N arquivos
-Se o dado muda             →  Atualizar APENAS a fonte
-Outros arquivos            →  Referenciam a fonte, nao copiam o valor
-```
+**Numeros experimentais vivem em UM UNICO lugar (a fonte).
+Todos os outros arquivos referenciam com link, nunca copiam o valor.**
 
-**Se um arquivo precisa mostrar um numero (ex: "TCF 67%"), deve indicar a fonte:**
-> TCF accuracy com dict mode: 67% (fonte: [06-results-e3.md](article/06-results-e3.md))
+Exemplo correto:
+> TCF L0 accuracy: ver [article/07](article/07-results-e4-e8.md) Etapa 2
 
----
-
-## Mapa de Fontes por Tipo de Dado
-
-### Resultados Experimentais (numeros, tabelas, accuracy)
-
-| Dado | Fonte Primaria | Quem Referencia |
-|------|---------------|-----------------|
-| Phase 0 reversibility | [05-results-e1-e2.md](article/05-results-e1-e2.md) | tickets/README.md |
-| Compression benchmark (C1-C5) | [05-results-e1-e2.md](article/05-results-e1-e2.md) | tickets/README.md |
-| Phase 1 results (F1-F7) | [06-results-e3.md](article/06-results-e3.md) | tickets/README.md (status apenas) |
-| Phase 2 ablation (F8-F11) | [07-results-e4-e8.md](article/07-results-e4-e8.md) | tickets/README.md (status apenas) |
-| G04 stats ablation (F12-F14) | [07-results-e4-e8.md](article/07-results-e4-e8.md) | tickets/README.md (status apenas) |
-| Dados brutos (JSONL) | `experiments/results/phaseN/` | Capitulos de resultados |
-
-### Estrutura e Intencoes
-
-| Dado | Fonte Primaria | Quem Referencia |
-|------|---------------|-----------------|
-| Arquitetura de software | [ARCHITECTURE.md](ARCHITECTURE.md) | README.md (resumo) |
-| Design experimental (fases) | [EXPERIMENT_DESIGN.md](EXPERIMENT_DESIGN.md) | ARCHITECTURE.md, article/04 |
-| Testes unitarios (fixtures, coverage) | [TESTS.md](TESTS.md) | tickets/README.md (contagem) |
-| Roadmap e status | [tickets/README.md](../tickets/README.md) | README.md (resumo) |
-
-### Artigo Cientifico
-
-| Dado | Fonte Primaria | Quem Referencia |
-|------|---------------|-----------------|
-| Inovacoes comprovadas (I1-I12) | [00-innovations.md](article/00-innovations.md) | Capitulos 1, 3, 8, 9 |
-| Related work e referencias | [02-related-work.md](article/02-related-work.md) | Cap 1 (intro) |
-| Formato TCF (spec) | [03-tcf-format.md](article/03-tcf-format.md) | ARCHITECTURE.md, appendix A |
-| Metodologia | [04-methodology.md](article/04-methodology.md) | EXPERIMENT_DESIGN.md |
-| Findings (F1-F14) | Cap 5-7 (onde sao descobertos) | 00-innovations.md, cap 8 |
-| Conclusions (C1-C5) | [05-results-e1-e2.md](article/05-results-e1-e2.md) | 00-innovations.md |
-
-### Formato e Comparacao
-
-| Dado | Fonte Primaria | Quem Referencia |
-|------|---------------|-----------------|
-| Comparacao de formatos (lado a lado) | [D-format-comparison.md](article/appendices/D-format-comparison.md) | article/03, ARCHITECTURE |
-
-### Codigo e Configuracao
-
-| Dado | Fonte Primaria | Quem Referencia |
-|------|---------------|-----------------|
-| EncodeConfig (niveis 0-3) | `src/tcf/encoder_v02.py` | ARCHITECTURE.md, article/03 |
-| Perguntas (Q1-Q10) | `experiments/eval/llm_eval/prompts.py` | article/04-methodology.md |
-| Ground truth | `experiments/eval/llm_eval/ground_truth.py` | article/04-methodology.md |
-| System prompts | `experiments/eval/llm_eval/prompts.py` | appendix B |
+Exemplo errado:
+> TCF L0 accuracy: 49% ← numero copiado, vai ficar obsoleto
 
 ---
 
-## Hierarquia de Documentos
+## Fontes Primarias
 
-```
-README.md                    Porta de entrada (links para tudo)
-  │
-  ├── docs/ARCHITECTURE.md   Pilar conceitual (intencoes, NUNCA resultados)
-  │     └── refs: EXPERIMENT_DESIGN, encoder_v02.py, prompts.py
-  │
-  ├── docs/EXPERIMENT_DESIGN.md   Metodologia (fases, criterios)
-  │     └── refs: prompts.py, ground_truth.py
-  │
-  ├── docs/TESTS.md          Registro de testes (fixtures, coverage)
-  │     └── refs: test_g01_*, fixtures/
-  │
-  ├── docs/SOURCE_MAP.md     ESTE ARQUIVO (mapa de rastreabilidade)
-  │
-  ├── docs/article/          Artigo cientifico (RESULTADOS aqui)
-  │     ├── 00-innovations.md   Inovacoes comprovadas (I-series)
-  │     ├── 01-09              Capitulos do artigo
-  │     │     └── refs: dados em experiments/results/
-  │     └── appendices/        Material de suporte
-  │
-  ├── tickets/README.md             Roadmap operacional (status, nao dados)
-  │     └── refs: cada G/H/P ticket aponta para secao do artigo
-  │
-  └── experiments/results/   Dados brutos (fonte ultima)
-        ├── phase0/          reversibility.json
-        ├── phase1/          manifest.jsonl, summary.json, survivors.json
-        ├── phase2/          manifest.jsonl, ablation.json, top_configs.json
-        └── g04_stats/       manifest.jsonl, summary.json
-```
+### Resultados experimentais
 
----
+| Dado | Fonte Primaria | Referenciado por |
+|------|---------------|-----------------|
+| Compression benchmark v0.2 (C1-C6) | [article/05](article/05-results-e1-e2.md) | tickets closed |
+| Etapa 1: formato x escala (F30-F34) | [article/07](article/07-results-e4-e8.md) sec 7.3 | tickets closed |
+| Etapa 2: modelos x formato (F50-F55) | [article/07](article/07-results-e4-e8.md) sec 7.4 | tickets closed |
+| G30 hiperparametros | [article/07](article/07-results-e4-e8.md) (quando fechar) | tickets |
+| Dados brutos (JSONL) | `experiments/results/*/manifest.jsonl` | capitulos de resultados |
 
-## Regras de Propagacao
+### Estrutura e conceito
 
-### Quando um resultado muda (ex: re-rodar Phase 1)
+| Dado | Fonte Primaria | Referenciado por |
+|------|---------------|-----------------|
+| Arquitetura geral | [ARCHITECTURE.md](ARCHITECTURE.md) | README.md |
+| Formato TCF (spec + comparacao) | [article/03](article/03-tcf-format.md) | ARCHITECTURE.md |
+| Comparacao formatos (lado a lado) | [appendix D](article/appendices/D-format-comparison.md) | article/03 |
+| Inovacoes comprovadas | [article/00](article/00-innovations.md) | caps 1, 8, 9 |
+| Related work + referencias | [article/02](article/02-related-work.md) | cap 1 |
+| Metodologia | [EXPERIMENT_DESIGN.md](EXPERIMENT_DESIGN.md) | article/04 |
+| Como rodar testes | [TESTS.md](TESTS.md) | - |
 
-1. Dados brutos atualizam automaticamente (`experiments/results/phase1/`)
-2. Rodar `analyze_phase1.py` → atualiza `summary.json`
-3. Atualizar **fonte primaria**: `docs/article/06-results-e3.md` (tabelas, findings)
-4. `tickets/README.md`: atualizar apenas STATUS (ex: "JSONL 63%" no resumo)
-5. `00-innovations.md`: atualizar se muda uma inovacao comprovada
-6. NAO atualizar ARCHITECTURE.md (nunca tem resultados)
+### Codigo
 
-### Quando um experimento novo completa
+| Dado | Fonte Primaria | Referenciado por |
+|------|---------------|-----------------|
+| Encoder (niveis 0-3) | `src/tcf/encoder.py` * | ARCHITECTURE, article/03 |
+| Decoder | `src/tcf/decoder.py` * | ARCHITECTURE |
+| Compressao (RLE, dict, sort) | `src/tcf/compression.py` | article/03 |
+| Schema (metadata.json) | `src/tcf/schema.py` | - |
+| Perguntas LLM | `experiments/eval/llm_eval/prompts.py` | article/04, appendix B |
+| Ground truth | `experiments/eval/llm_eval/ground_truth.py` | article/04 |
 
-1. Dados gravados em `experiments/results/gNN_*/`
-2. Criar/atualizar capitulo correspondente em `docs/article/07-results-e4-e8.md`
-3. Se inovacao comprovada: adicionar em `00-innovations.md`
-4. Atualizar tickets/README.md: marcar grupo como CLOSED + resumo 1 linha
-5. NAO duplicar tabelas de dados em ARCHITECTURE.md ou README.md
+\* Sera renomeado para `encoder.py` / `decoder.py` — ver ticket T-cleanup-naming.
 
-### Quando a arquitetura muda
+### Tickets e roadmap
 
-1. Atualizar `docs/ARCHITECTURE.md` (fonte primaria)
-2. Se muda CLI: atualizar README.md (quick start)
-3. Se muda pipeline: atualizar EXPERIMENT_DESIGN.md
-4. NAO colocar detalhes de implementacao nos capitulos do artigo
+| Dado | Fonte Primaria | Referenciado por |
+|------|---------------|-----------------|
+| Roadmap geral | [tickets/README.md](../tickets/README.md) | README.md |
+| Tickets individuais | `tickets/open/*.md` e `tickets/closed/*.md` | tickets/README.md |
 
 ---
 
-## Referencia Cruzada: Findings (F-series)
+## Fluxo de atualizacao
 
-| Finding | Definido em | Referenciado por |
-|---------|------------|-----------------|
-| F1-F7 | article/06-results-e3.md | 00-innovations, 02-related-work, 04-methodology, 08-discussion |
-| F8-F11 | article/07-results-e4-e8.md | 00-innovations |
-| F12-F14 | article/07-results-e4-e8.md | 00-innovations |
+```
+Experimento completa
+    │
+    ├─> Atualizar FONTE PRIMARIA (article/05 ou 07)
+    │     - Numeros, tabelas, findings (F-series)
+    │
+    ├─> Atualizar ticket (mover open → closed)
+    │
+    ├─> Se inovacao comprovada: atualizar article/00-innovations.md
+    │
+    └─> NAO atualizar: ARCHITECTURE, README, EXPERIMENT_DESIGN
+          (esses so mudam se a ESTRUTURA muda, nao os numeros)
+```
 
-## Referencia Cruzada: Conclusions (C-series)
+## Hierarquia de documentos
 
-| Conclusion | Definido em | Referenciado por |
-|------------|------------|-----------------|
-| C1-C5 | article/05-results-e1-e2.md | 00-innovations |
-
-## Referencia Cruzada: Innovations (I-series)
-
-| Innovation | Definido em | Comprovado por |
-|------------|------------|----------------|
-| I1-I5 | article/00-innovations.md | Caps 5-7 (dados) |
-| I6-I12 | article/00-innovations.md | Pendente |
+```
+README.md                     Porta de entrada (links, sem numeros)
+  │
+  ├── docs/ARCHITECTURE.md    Estrutura e fluxo (sem numeros de resultado)
+  │
+  ├── docs/article/           FONTE PRIMARIA de todos os resultados
+  │     ├── 00-innovations    Inovacoes comprovadas
+  │     ├── 03-tcf-format     Spec do formato + comparacao
+  │     ├── 05-results-*      Benchmark compressao
+  │     ├── 07-results-*      Etapas 1, 2, G30, etc
+  │     └── appendices/D      Comparacao lado a lado
+  │
+  ├── docs/SOURCE_MAP.md      ESTE ARQUIVO
+  │
+  ├── tickets/                Roadmap operacional
+  │     ├── open/             Tarefas ativas
+  │     └── closed/           Tarefas concluidas
+  │
+  └── experiments/results/    Dados brutos (fonte ultima)
+```

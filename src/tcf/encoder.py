@@ -1,4 +1,4 @@
-"""TCF v0.2 encoder — real columnar compression with progressive levels.
+"""TCF encoder — columnar compression with progressive levels.
 
 Levels:
     0  Expanded (no compression, baseline)
@@ -7,12 +7,12 @@ Levels:
     3  Dictionary encoding + sort + RLE (replace strings with indices)
 
 All levels produce a flat supertable (JOIN of all tables).
-All levels are fully reversible via decoder_v02.
+All levels are fully reversible via decode().
 
 Usage:
-    from tcf.encoder_v02 import encode_v02
+    from tcf import encode, EncodeConfig
 
-    text = encode_v02("data/metadata.json", "data/", level=2)
+    text = encode("data/metadata.json", "data/")
 """
 
 from __future__ import annotations
@@ -30,8 +30,8 @@ from .compression import (
 
 
 @dataclass
-class V02Config:
-    """Configuration for v0.2 encoder."""
+class EncodeConfig:
+    """Configuration for TCF encoder."""
     level: int = 2            # 0=expanded, 1=rle, 2=sorted+rle, 3=dict+rle
     include_stats: bool = True
     precision: int | None = None  # decimal places (None = auto-compact)
@@ -111,23 +111,23 @@ def _stats_line(col: str, vals: list[str]) -> str | None:
 # Encoder
 # ---------------------------------------------------------------------------
 
-def encode_v02(
+def encode(
     meta_path: str | Path,
     data_dir: str | Path,
-    config: V02Config | None = None,
+    config: EncodeConfig | None = None,
 ) -> str:
     """Encode tables as a flat TCF with progressive compression.
 
     Args:
         meta_path: Path to metadata.json
         data_dir:  Directory with CSV files
-        config:    V02Config (default: level=2, stats=True)
+        config:    EncodeConfig (default: level=2, stats=True)
 
     Returns:
-        TCF v0.2 formatted string
+        TCF formatted string
     """
     if config is None:
-        config = V02Config()
+        config = EncodeConfig()
 
     meta_path = Path(meta_path)
     data_dir = Path(data_dir)

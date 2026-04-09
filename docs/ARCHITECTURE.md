@@ -32,8 +32,8 @@ A compactacao usa tecnicas de bancos colunares adaptadas para texto legivel:
 ```
 TCF/
 ├── src/tcf/                 Biblioteca (encode, decode, EncodeConfig)
-│   ├── encoder_v02.py       Encoder com 4 niveis de compressao
-│   ├── decoder_v02.py       Decoder (auto-detecta nivel)
+│   ├── encoder.py           Encoder com 4 niveis de compressao
+│   ├── decoder.py           Decoder (auto-detecta nivel)
 │   ├── compression.py       Primitivas: RLE, dict, sort
 │   ├── schema.py            Parser de metadata.json
 │   └── cli.py               CLI: encode, decode, info
