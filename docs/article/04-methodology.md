@@ -1,116 +1,199 @@
 # 4. Metodologia
 
-## 4.1 Dataset de Referencia
+## 4.1 Dataset de Referencia — retail_sales v2
 
-Dataset relacional pequeno representando um cenario de e-commerce:
+Dataset sintetico relacional inspirado em TPC-H, gerado por
+`tests/fixtures/synthetic_v2.py`:
 
-| Tabela | Colunas | Linhas | Descricao |
-|--------|---------|--------|-----------|
-| pessoas | id, nome | 30 | Clientes |
-| produtos | id, nome | 12 | Catalogo |
-| vendas | id_pessoa, id_produto, vl | 41 | Transacoes |
+| Tabela | Colunas | Descricao |
+|--------|---------|-----------|
+| clientes | id, nome | Clientes (nomes pt-BR) |
+| produtos | id, nome | Catalogo (20 produtos) |
+| vendas | id, id_cliente, id_produto, dt, qtd, preco_unit, total | Transacoes |
 
-Escolha justificada:
-- Pequeno o suficiente para caber no contexto de todos os modelos
-- Relacional (FKs) para testar resolucao de nomes
-- Valores numericos (vl) para testar raciocinio matematico
-- Distribuicao realista (algumas pessoas compram mais que outras)
+**Parametros ajustaveis:**
+- `n_orders`: numero de pedidos (20, 50, 100, 200, 500, 1000, 5000)
+- `n_customers`: default = n_orders/10 (ratio 1:10 cliente:pedido, Zipf s=1.0)
+- `n_products`: 20 (frequencia Zipf)
+- `seed`: 42 (reproducibilidade determinista)
+- `null_rate`: 5% (simula dados reais com missing values)
 
-## 4.2 Banco de Perguntas (3 Camadas Diagnosticas)
+**Por que este dataset:**
+- **Zipf s=1.0:** reproduz distribuicao realista de frequencia (Pareto 80/20)
+- **Ratio 1:10:** cada cliente faz em media 10 pedidos (realista em retail)
+- **FKs reais:** id_cliente e id_produto referenciam tabelas separadas
+- **Tipos mistos:** datetime, int, float, string
+- **Nullable:** preco_unit pode ser null (5%)
+- **Expansao por pedido:** cada order gera 1-5 line items (Poisson λ=2.5)
 
-### Layer 0: math_control (capacidade aritmetica)
-Aritmetica pura sem formato. Isola se o modelo sabe fazer contas.
+Uma chamada `retail_sales(200)` gera ~509 linhas de vendas, 20 clientes,
+20 produtos. Tamanhos tipicos:
 
-| Pergunta | Tipo | Ground Truth |
-|----------|------|-------------|
-| math_control_sum | Somar lista de numeros | sum(vl) = 217.55 |
-| math_control_count | Contar numeros na lista | count = 41 |
+| Formato | 50 orders | 200 orders | 1000 orders | 5000 orders |
+|---------|-----------|------------|-------------|-------------|
+| CSV | 5K | 21K | 104K | 545K |
+| JSONL | 14K | 60K | 295K | 1.5M |
+| TCF L0 | 5K | 22K | 104K | 545K |
+| TCF L2 | 3.5K | 19K | 93K | 486K |
+| TCF L3 | 3K | 12K | 55K | 265K |
 
-### Layer 1: decode_only (compreensao de formato)
-Ler o formato e listar valores. Isola se o modelo entende a estrutura.
+## 4.2 Banco de Perguntas
 
-| Pergunta | Tipo | Ground Truth |
-|----------|------|-------------|
-| decode_vl | Listar todos os valores de vl | 41 floats em ordem |
+### Layer 2: compute (8 questoes, usado em todos os experimentos)
 
-### Layer 2: compute (pipeline completo)
-Formato + operacao. Testa a capacidade combinada.
+| ID | Pergunta | Tipo | Categoria |
+|----|----------|------|-----------|
+| q1_sum | Soma de 'total' | numeric | aggregate |
+| q2_avg | Media de 'total' | numeric | aggregate |
+| q3_max | Maximo de 'total' | numeric | lookup |
+| q4_min | Minimo de 'total' | numeric | lookup |
+| q5_count | Numero de linhas | count | aggregate |
+| q6_top_product | Produto mais frequente | string | argmax freq |
+| q7_top_spender | Cliente que mais gastou | string | argmax agg |
+| q8_distinct | Clientes distintos | count | aggregate |
 
-| Pergunta | Tipo | Complexidade | Ground Truth |
-|----------|------|-------------|-------------|
-| q1_sum_vl | Soma | Dificil | 217.55 |
-| q2_avg_vl | Media | Dificil | 5.3061 |
-| q3_max_vl | Maximo | Facil | 12.4 |
-| q4_min_vl | Minimo | Facil | 1.0 |
-| q5_count_rows | Contagem | Dificil* | 41 |
-| q6_count_ana | FK + contagem | Media | 3 |
-| q7_sum_ana | FK + soma | Dificil | 8.7 |
-| q8_top_product | Lookup nome | Facil | Caneta |
-| q9_distinct_pessoa | Count distinct | Media | 30 |
-| q10_top_spender | FK + argmax | Media | Isabela |
+### Layer 0 e 1 (diagnostico 3-layer)
 
-*q5 surpreendentemente dificil em TCF multi-tabela (gpt-oss respondeu 83=30+12+41)
+**Layer 0 (math_control):** aritmetica pura sem formato
+- "Some estes valores: 2.5 11 1 3.75 ..." (sem header, sem formato)
+
+**Layer 1 (decode_only):** ler formato sem calcular
+- "Liste todos os valores da coluna 'total', separados por espaco"
+
+### Questoes pendentes (P-question-bank-review)
+
+- q11_filter (filter por valor especifico: "total de vendas de Caneta")
+- q12_threshold (condicional: "quantos pedidos acima de R$50?")
 
 ## 4.3 Ground Truth Programatico
 
-Ground truth NUNCA e hardcoded. Derivado de `ground_truth.compute(data_dir)`:
-- Le CSVs fonte
-- Calcula todas as respostas esperadas
-- Se o dataset mudar, ground truth se ajusta automaticamente
+Ground truth NUNCA e hardcoded. Derivado dinamicamente de cada chamada
+`retail_sales(seed=42)`:
 
-## 4.4 Metricas
+```python
+def compute_ground_truth(tables):
+    clientes = {c["id"]: c["nome"] for c in tables["clientes"]}
+    produtos = {p["id"]: p["nome"] for p in tables["produtos"]}
+    vendas = tables["vendas"]
+    totals = [float(v["total"]) for v in vendas if v["total"]]
+    return {
+        "sum_total": round(sum(totals), 2),
+        "avg_total": round(sum(totals) / len(vendas), 2),
+        "max_total": max(totals),
+        "min_total": min(totals),
+        "count": len(vendas),
+        "top_product": produtos[Counter(v["id_produto"] for v in vendas).most_common(1)[0][0]],
+        "top_spender": max(person_totals, key=person_totals.get),
+        "distinct_customers": len(set(v["id_cliente"] for v in vendas)),
+    }
+```
+
+Se o dataset mudar (nova seed, mais rows), ground truth ajusta automaticamente.
+
+## 4.4 Metricas e Scoring
 
 ### Accuracy
-- Numerico: tolerancia de 1% ou 0.1 (o que for maior)
-- Contagem: exact match (inteiro)
-- Nome: substring match (case-insensitive)
+- **Numerico (sum, avg, max, min):** tolerancia 2% ou 0.5 (o que for maior)
+- **Count:** exact match (inteiro)
+- **String (top_product, top_spender):** substring match (case-insensitive)
 
 ### Classificacao de Erro (7 categorias)
-```
-correct | list_instead_of_agg | wrong_count |
-hallucinated | arithmetic_error | refusal | parse_failure
+
+| Categoria | Descricao |
+|-----------|-----------|
+| `correct` | Resposta exata ou dentro da tolerancia |
+| `arithmetic_error` | Numero parseavel mas fora da tolerancia |
+| `wrong_count` | Inteiro plausivel mas errado |
+| `wrong_name` | String sem substring esperada |
+| `list_instead_of_agg` | Listou valores ao inves de agregar (>5 numeros na resposta) |
+| `hallucinated` | Valor fora da ordem de grandeza |
+| `parse_failure` / `refusal` | Nao conseguiu extrair resposta |
+| `exception` | Erro de rede / timeout |
+
+### Telemetria registrada
+
+```json
+{
+  "model": "gemma3:12b",
+  "format": "tcf_L0",
+  "question": "q1_sum",
+  "correct": true,
+  "error_type": "correct",
+  "response": "147445.47",
+  "latency_s": 16.2,
+  "prompt_chars": 21954
+}
 ```
 
-### Telemetria
-- `latency_s`: tempo wall-clock (inclui rede)
-- `total_duration_s`: tempo Ollama total
-- `load_duration_s`: tempo de carga do modelo
-- `prompt_eval_s`: tempo de processar prompt (prefill)
-- `eval_s`: tempo de gerar resposta (decode)
-- `prompt_tokens`: tokens do prompt
-- `response_tokens`: tokens gerados
+## 4.5 Design Experimental — Ablacao Progressiva
 
-## 4.5 Design Experimental em Fases (Ablacao Progressiva)
+Cada experimento **elimina hipoteses** para o proximo:
 
 ```
-Phase 0 (gate)     →  Encode/decode reversivel? (sem LLM, 0 calls)
-Phase 1 (formato)  →  CSV vs JSONL vs TCF × N modelos (~210 calls)
-                       Filtra modelos: accuracy >= 30% → survivors
-Phase 2 (ablacao)  →  24 variantes TCF × survivors (~720 calls)
-                       Seleciona top configs → top_configs.json
-Phase 3+ (avancado)→  Supertable, deduction, decode reverso, CoT/PoT
+[1] Encode/Decode roundtrip      → valida reversibilidade (sem LLM)
+[2] Compression benchmark        → quantifica compressao (sem LLM)
+[3] Etapa 1 (qwen3 + 5 formatos) → isola efeito do formato
+[4] Etapa 2 (12 modelos + 3 formatos) → isola efeito do modelo
+[5] G30 (hiperparametros)        → isola thinking e temperature
+[6] 3-layer diagnostic            → ATRIBUI causalidade (formato vs calculo vs STATS)
+[7] Stats ablation                → QUANTIFICA o papel dos STATS
+[8] Scale progression             → caracteriza sweet spot de escala
+[9] Transport compression         → valida ganho em gzip (sem LLM)
 ```
 
-Cada fase **reduz** o espaco da proxima. Estimativa total: ~1.600-2.000 calls
-(vs 7.000-9.000 de um design flat sem ablacao).
+Cada etapa produz findings que reinterpretam etapas anteriores.
+Exemplo: o diagnostic 3-layer (etapa 6) revelou que os altos scores
+de gemma3 em Etapa 2 (etapa 4) vinham de leitura de STATS, nao de
+compreensao real do formato.
 
 ## 4.6 Formatos Comparados
 
-| Formato | Tipo | Dados enviados |
-|---------|------|---------------|
-| CSV | Row, desnormalizado | pessoa,produto,vl (JOIN pronto) |
-| JSONL | Row, desnormalizado | {"pessoa":"Ana","produto":"Caneta","vl":2.5} |
-| TCF (id_raw) | Column, normalizado | 3 tabelas com IDs numericos |
-| TCF (inline) | Column, desnormalizado | 1+ tabelas com nomes resolvidos |
-| TCF (supertable) | Column, desnormalizado | 1 tabela unica (planejado) |
+| Formato | Tipo | Descricao |
+|---------|------|-----------|
+| CSV | Row, flat | Desnormalizado (JOIN resolvido) |
+| JSONL | Row, self-describing | Desnormalizado, chaves repetidas por linha |
+| TCF L0 | Column, expanded | Supertable flat, STATS opcional, sem RLE |
+| TCF L1 | Column, RLE | RLE em runs consecutivos naturais |
+| TCF L2 | Column, sorted+RLE | Sort pela melhor coluna + RLE |
+| TCF L3 | Column, dict+sorted+RLE | Dict encoding + sorted + RLE |
 
-**Nota metodologica (F7):** Phase 1 compara CSV/JSONL desnormalizados vs TCF
-normalizado. Isso e um vies documentado. Phase 2 inline corrige.
+**Unificacao metodologica:** todos os formatos recebem **os mesmos
+dados desnormalizados** (supertable). Nao ha vies de normalizacao —
+TCF nao "ganha" por ter multiplas tabelas.
 
-## 4.7 Configuracao Experimental
+## 4.7 Modelos Avaliados
 
-- **temperature=0, seed=42** para reproducibilidade
-- **stream=False** para timing preciso
+**Criterios de selecao:**
+1. **Cobertura de tamanho:** 0.75B a 20.9B (log scale)
+2. **Cobertura de familia:** qwen3, gemma3, gemma2, llama, phi, deepseek, gpt-oss, mistral
+3. **Excluir obsoletos:** versoes superadas por novas (phi3 < phi4, qwen2.5 < qwen3)
+4. **GPU constraint:** max ~14B Q4_K_M (RTX 3060 12GB), excecao gpt-oss 20B MXFP4
+5. **Thinking coverage:** incluir modelos com e sem thinking
+
+Ver [P-G35-modelos-llm](../../tickets/open/P-G35-modelos-llm.md) para catalogo completo.
+
+## 4.8 Configuracao Ollama
+
+```python
+LLM_OPTIONS = {
+    "temperature": 0,     # deterministic (confirmado ideal por G30)
+    "seed": 42,           # reproducibility
+}
+```
+
+- `stream=False` para timing preciso
+- `num_ctx`: auto-expande (Ollama nao trunca)
 - **Warmup:** 1 chamada trivial por modelo antes dos testes
 - **Idempotencia:** manifest tracking permite interromper e retomar
-- **Modelos:** auto-discovery via Ollama, ordenados por tamanho (menores primeiro)
+  (cada combo identificado por `key=model|scale|format|question`)
+
+## 4.9 Reproducibilidade
+
+Todos os experimentos sao reproduziveis:
+- Encoder deterministico (mesmo input = mesmo output byte-a-byte)
+- Dataset deterministico (seed=42 fixo)
+- Ollama com temperature=0 e seed=42
+- Ground truth computado, nunca hardcoded
+- Cada runner salva manifest JSONL — rerun pula combos completados
+
+Versionamento via git (`.gitconfig`, `.gitignore`, commits com findings).
