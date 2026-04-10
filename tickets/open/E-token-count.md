@@ -15,14 +15,73 @@ parent: G-utility-analysis
 Todos os nossos experimentos usam `prompt_chars` (numero de caracteres).
 Mas LLMs cobram e processam por **tokens**, nao caracteres.
 
-**Relacao char → token varia por formato:**
-- Texto ingles: ~4 chars por token (tiktoken gpt-4)
-- Codigo: ~3 chars por token
-- Numeros: 1-3 chars por token
-- Strings com sequencias repetidas: mais compressivel pelo BPE
+## Por que tokens e nao chars — razoes concretas
 
-TCF tem muitos caracteres especiais (`*`, `:`, `#`) que podem tokenizar
-diferente de texto comum.
+### 1. Cobranca real e em tokens
+OpenAI GPT-4: $2.50/1M **tokens** input. Se medimos em chars, nao temos
+como estimar custo real. Uma economia de 30% em chars pode ser apenas
+15% em tokens — ou 45%, dependendo do formato.
+
+### 2. BPE agrupa de forma nao-linear
+Byte Pair Encoding pre-computa merges de pares frequentes durante o
+treinamento do tokenizer. Consequencias:
+- Palavras comuns em ingles: **1 token**
+- `Ana`, `Bruno`, `Carla`: provavelmente **1 token cada** (nomes comuns)
+- `2.50`: **2-3 tokens** (`2`, `.`, `50` ou `2.5`, `0`)
+- `3*Ana`: **3 tokens** (`3`, `*`, `Ana`) — pior que esperado
+- `# STATS total: n=509`: **~8 tokens** — tokens de marcacao sao caros
+- `8*Ana\n12*Bruno`: pode tokenizar melhor que `Ana\nAna\nAna\n...` **OU PIOR**
+
+### 3. Contexto e medido em tokens
+`num_ctx=4096` = 4096 tokens, nao caracteres. Quando dizemos que "TCF
+cabe no contexto a 200 rows", isso precisa ser verificado em tokens
+reais para cada tokenizer (GPT vs Llama vs Gemma).
+
+### 4. Cada familia de modelo usa tokenizer diferente
+- **GPT-4/GPT-4o:** tiktoken `cl100k_base` / `o200k_base`
+- **Llama 2/3:** SentencePiece com vocab de 32K
+- **Gemma:** SentencePiece com vocab de 256K
+- **Qwen:** tokenizer proprio com vocab ~150K
+- **Phi:** tiktoken adaptado
+
+Mesmo texto → contagens diferentes. Um formato pode ser otimo em GPT
+e ruim em Llama. **Nao ha um "numero universal de tokens"**.
+
+### 5. Caracteres especiais tokenizam mal
+TCF usa `*`, `#`, `:`, `\n` com frequencia. Muitos tokenizers nao
+aprenderam merges para essas sequencias → 1 token por caractere.
+CSV usa principalmente `,` e `\n` — padroes super comuns, super
+otimizados no BPE.
+
+**Possivel resultado:** CSV pode ter ratio token/char melhor que TCF,
+anulando parte da compressao textual.
+
+### 6. Numeros sao instaveis
+Numeros podem tokenizar como:
+- 1 token (inteiros pequenos: `1`, `2`, `100`)
+- 2-3 tokens (floats: `2`, `.`, `5`)
+- 4+ tokens (numeros grandes: `147`, `445`, `.`, `47`)
+
+E aqui e o ponto critico: `147445.47` vira muitos tokens mesmo
+sendo so 9 chars. Se TCF tem valores numericos grandes em STATS,
+paga caro em tokens.
+
+## Riscos concretos para findings F30-F94
+
+Todos nossos findings usam `prompt_chars`. Quando medirmos em tokens:
+
+| Finding | Risco | Por que |
+|---------|-------|---------|
+| F30-F34 (escala) | Baixo | Gap e grande (62% vs 12%) |
+| F50 (TCF 2.5x CSV) | **Medio** | Pode reduzir gap |
+| F70-F73 (transport) | Baixo | gzip ja passa por bytes, nao tokens |
+| F85-F89 (scale curve) | **Alto** | Numeros exatos de crossover mudam |
+| F90-F94 (STATS) | Baixo | Comparacao interna (mesmo formato) |
+
+**Possibilidades invertidas (TCF pode ganhar mais):**
+- Se `3*Ana` tokenizar bem (nomes repetidos comprimem), TCF ganha
+- Se L3 dict (`# dict pessoa: Ana,Bruno,Carla`) tokenizar eficientemente
+- Se as linhas curtas do TCF tokenizarem melhor que as longas do JSONL
 
 ## Hipotese
 

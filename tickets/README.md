@@ -21,7 +21,7 @@ tickets/
 
 ---
 
-## Open (32)
+## Open (33)
 
 Agrupado por area de interesse (atualizado 2026-04-10).
 
@@ -56,7 +56,8 @@ Agrupado por area de interesse (atualizado 2026-04-10).
 | [H-compress](open/H-compression-layers.md) | hypothesis | Niveis progressivos L0-L3 |
 | [E-direct](open/E-direct-conversion.md) | experiment | **NOVO** SQL/Parquet/DF → TCF direto (sem CSV intermediario) |
 | [E-memory](open/E-memory-profiling.md) | experiment | **NOVO** Peak RAM durante encode/decode (dim 7) |
-| [E-tokens](open/E-token-count.md) | experiment | **NOVO** Tokens LLM reais (tiktoken + llama) — revalidar findings |
+| [E-tokens](open/E-token-count.md) | experiment | Tokens LLM reais (tiktoken + llama) — revalidar findings |
+| [H-advanced-enc](open/H-advanced-encodings.md) | hypothesis | **NOVO** Delta, FOR, value encoding (SQL Server-style) |
 
 ### Formato & Schema (3) [1 NOVO 2026-04-10]
 | Ticket | Tipo | Descricao |
