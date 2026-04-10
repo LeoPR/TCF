@@ -21,7 +21,7 @@ A pergunta que precisamos responder com evidencia:
 Se a resposta for sim → publicar o paper.
 Se a resposta for nao → documentar por que nao, e reposicionar.
 
-## Competidor revelado: TOON nao e obscuro
+## Competidor revelado: TOON (row-oriented) evoluiu
 
 Pesquisa 2026-04-10 revelou que TOON evoluiu significativamente desde
 outubro 2024:
@@ -35,11 +35,24 @@ outubro 2024:
   TypeScript SDK, site oficial, docs
 - **LogRocket, Medium, dev.to:** ampla cobertura em blogs de eng
 
-**Consequencia:** TCF nao pode mais posicionar TOON como "nicho obscuro".
-TOON e o competidor DIRETO e mais maduro. Precisamos:
-1. Reconhecer TOON como estado da arte atual
-2. Identificar onde TCF e melhor que TOON, se existir
-3. Se nao, pivotar narrativa
+### IMPORTANTE: TOON nao e columnar
+
+TOON e row-oriented (schema declarado uma vez, depois rows).
+Sintaxe:
+```
+users[3]{id,name,email}:
+  1,Alice,alice@ex.com
+  2,Bob,bob@ex.com
+```
+
+TCF continua sendo o **unico formato textual columnar para LLMs**.
+TOON ataca o overhead de JSON, mas NAO reorienta dados.
+
+**Consequencias corretas:**
+1. TOON e um competidor serio **para o uso JSON → tabular**
+2. TCF e unico em **agrupar por coluna** (permite RLE, sort, dict)
+3. TCF pode ter vantagens em dados COM REPETICAO que TOON nao explora
+4. TCF e TOON podem coexistir em nichos diferentes
 
 ## Pontos fracos conhecidos do TOON (oportunidade para TCF)
 

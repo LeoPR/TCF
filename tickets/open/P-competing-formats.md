@@ -69,6 +69,55 @@ para LLMs, comparar com TCF de forma honesta, e incorporar no artigo.
 - **SDK TypeScript** + site com benchmarks
 - **Blogs tecnicos:** LogRocket, Medium, dev.to (cobertura ampla)
 
+### IMPORTANTE: TOON e row-oriented, NAO columnar
+
+**Correcao de erro anterior.** Em round anterior, descrevi TOON como
+"row-oriented" ambiguamente. Confirmado pela documentacao oficial
+([toonformat.dev](https://toonformat.dev/guide/format-overview),
+[DeepWiki spec](https://deepwiki.com/toon-format/toon/2.1-format-syntax-and-structure)):
+
+**Sintaxe TOON real:**
+```
+users[3]{id,name,email,active}:
+  1,Alice Smith,alice@ex.com,true
+  2,Bob Jones,bob@ex.com,true
+  3,Carol White,carol@ex.com,false
+```
+
+- `users[3]` — nome da tabela + contagem
+- `{id,name,email,active}` — **fields declarados uma vez** no header
+- Cada linha subsequente = **um objeto completo** (uma row)
+- Delimitador: vargula, tab, ou pipe
+
+**Isso e CSV + header tipado.** Row-oriented, nao columnar.
+Cada linha representa um registro. Campos nao sao agrupados.
+
+### Reframing correto: TCF ainda e o unico columnar
+
+| Formato | Orientacao | Como agrupa |
+|---------|-----------|-------------|
+| CSV | Row | Um registro por linha |
+| JSON/JSONL | Row | Um objeto por linha (com chaves repetidas) |
+| Markdown Table | Row | Um registro por linha (com delimitadores visuais) |
+| **TOON** | **Row** | **Um registro por linha (schema declarado uma vez)** |
+| **TCF** | **Column** | **Todos os valores de uma coluna agrupados** |
+
+**TCF continua sendo o primeiro formato textual COLUNAR para LLMs.**
+TOON otimiza row-oriented (elimina repeticao de keys), mas mantem
+a estrutura "um registro por linha".
+
+### Implicacoes para o posicionamento
+
+**Antes (round 3, incorreto):**
+- "TOON e row-oriented" era acidentalmente correto mas sem enfase
+- Reframing excessivo sugerindo que TCF talvez nao fosse unico
+
+**Agora (correto):**
+- TCF e unico em agrupar valores por coluna (`pessoa:\n8*Ana\n12*Bruno...`)
+- TOON e o "CSV melhorado" — mantem row orientation
+- TCF pode combinar RLE em colunas (impossivel em TOON sem quebrar estrutura)
+- TCF tem STATS embutidos (TOON tambem nao tem)
+
 ### Benchmarks oficiais do TOON (do projeto)
 
 - **54% reducao media de tokens** vs JSON (benchmarks em 50 datasets)
@@ -86,23 +135,31 @@ para LLMs, comparar com TCF de forma honesta, e incorporar no artigo.
 - **So benchmarks do proprio projeto** — validacao independente limitada
 - **Sem compressao textual interna** (RLE, dict, sort)
 - **Sem hints meta-cognitivos** (nada equivalente aos STATS)
+- **Row-oriented:** repete delimitadores em cada linha; RLE nao se aplica
 
-### Oportunidades concretas para TCF vs TOON
+### TCF vs TOON — comparacao honesta
 
-| Dimensao | TOON | TCF | Oportunidade? |
-|----------|------|-----|---------------|
-| Token efficiency | -54% vs JSON | ? (medir — ver E-token-count) | INCERTO |
-| Accuracy | 76% | 88% (gemma3, com STATS) | TCF provavelmente melhor |
-| Escala (rows) | Benchmarks ~100-500 rows | Testamos ate 5000 | TCF forca em grande |
-| Repeticao de dados | Sem compressao | RLE + dict + sort | TCF para dados repetitivos |
-| Wide tables (>100 cols) | Nao testado | Nao testado | Ambos a investigar |
-| Hints meta-cognitivos | Nao tem | STATS (F81-F94) | **TCF unico com isso** |
-| Parsing hierarquias | Bom (se alinhado) | Nao aplica (flat) | TOON para nested |
-| Peer review | Arxiv | Em preparacao | Empate |
+| Dimensao | TOON | TCF | Vantagem |
+|----------|------|-----|----------|
+| Orientacao | Row (schema-aware) | **Column** | TCF unico |
+| Compressao textual | Nao (elimina keys JSON) | **Sim (RLE, sort, dict)** | TCF |
+| STATS meta-cognitivos | Nao | **Sim** | TCF |
+| Token efficiency | -54% vs JSON | ? (ver E-token-count) | INCERTO |
+| Accuracy tabular | 76% | 88% (gemma3+STATS) | TCF (mas confounded) |
+| Accuracy sem hints | ? | 62% (gemma3-STATS) | Empate esperado |
+| Escala (rows) | Benchmarks ~100-500 | Testamos ate 5000 | TCF forca em grande |
+| Repeticao de dados | Sem compressao | **RLE 10-40x** | TCF |
+| Wide tables (>100 cols) | Degrada | Nao testado | Investigar |
+| Nested/hierarchy | Bom se alinhado | Nao aplica (flat) | TOON para nested |
+| Peer review | Arxiv 2026 | Em preparacao | TOON |
+| Adocao | Crescendo (SDK TS) | Inicio | TOON |
 
-**Conclusao:** TOON e forte em tokens e accuracy mas **nao** tem RLE,
-nao tem STATS, e ainda nao foi testado em escala ou wide tables.
-Essas sao as brechas reais do TCF.
+**Conclusao:** TCF e TOON atacam problemas diferentes:
+- **TOON:** "JSON com menos overhead" para dados tabulares em APIs
+- **TCF:** "Formato columnar com compressao e hints" para LLM reasoning
+  em escala com dados repetitivos
+
+**Nao sao substitutos diretos.** Sao complementares em nichos diferentes.
 
 ## Sui et al. (2024) — Table Meets LLM
 
