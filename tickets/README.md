@@ -21,7 +21,7 @@ tickets/
 
 ---
 
-## Open (33)
+## Open (35)
 
 Agrupado por area de interesse (atualizado 2026-04-10).
 
@@ -57,7 +57,9 @@ Agrupado por area de interesse (atualizado 2026-04-10).
 | [E-direct](open/E-direct-conversion.md) | experiment | **NOVO** SQL/Parquet/DF → TCF direto (sem CSV intermediario) |
 | [E-memory](open/E-memory-profiling.md) | experiment | **NOVO** Peak RAM durante encode/decode (dim 7) |
 | [E-tokens](open/E-token-count.md) | experiment | Tokens LLM reais (tiktoken + llama) — revalidar findings |
-| [H-advanced-enc](open/H-advanced-encodings.md) | hypothesis | **NOVO** Delta, FOR, value encoding (SQL Server-style) |
+| [H-advanced-enc](open/H-advanced-encodings.md) | hypothesis | Delta, FOR, value encoding (SQL Server-style) |
+| [H-streaming](open/H-streaming-encoder.md) | hypothesis | **NOVO** Streaming/chunked encoder (memoria O(1), TTFB baixo) |
+| [H-tk-format](open/H-token-friendly-format.md) | hypothesis | **NOVO** Formato otimizado empiricamente para BPE tokenizers |
 
 ### Formato & Schema (3) [1 NOVO 2026-04-10]
 | Ticket | Tipo | Descricao |
