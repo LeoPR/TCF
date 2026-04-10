@@ -21,7 +21,7 @@ tickets/
 
 ---
 
-## Open (14)
+## Open (15)
 
 | Ticket | Tipo | Titulo |
 |--------|------|--------|
@@ -31,6 +31,7 @@ tickets/
 | [E-decompress](open/E-llm-decompress.md) | experiment | LLM descomprime TCF → CSV |
 | [E-scale](open/E-scale-progression.md) | experiment | Escalabilidade 20→1000 rows — DONE (F85-F89) |
 | [E-stats](open/E-stats-ablation.md) | experiment | STATS ablation — IN PROGRESS (critico) |
+| [E-plan](open/E-benchmark-plan.md) | experiment | Plano combinatorio completo — 332 combos |
 | [E-prompt](open/E-prompt-presentation.md) | experiment | Ablacao: idioma, decoracao, sintaxe |
 | [P-G33](open/P-G33-metodologia.md) | research | CoT, PoT, repeticoes — REVIEWED |
 | [P-G34](open/P-G34-dados-reais.md) | research | Datasets canonicos |
