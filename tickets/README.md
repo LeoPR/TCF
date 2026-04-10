@@ -21,7 +21,7 @@ tickets/
 
 ---
 
-## Open (24)
+## Open (28)
 
 Agrupado por area de interesse (atualizado 2026-04-10):
 
@@ -34,17 +34,20 @@ Agrupado por area de interesse (atualizado 2026-04-10):
 | [E-stats](open/E-stats-ablation.md) | experiment | STATS ablation — DONE (F90-F94) |
 | [E-prompt](open/E-prompt-presentation.md) | experiment | Idioma, decoracao, wording |
 
-### LLM Advanced — alem de Q&A (3) [NOVOS 2026-04-10]
+### LLM Advanced — alem de Q&A (4) [1 NOVO 2026-04-10]
 | Ticket | Tipo | Descricao |
 |--------|------|-----------|
 | [E-qualitative](open/E-qualitative-reasoning.md) | experiment | Perguntas aproximadas, intuicao, tendencias |
 | [E-codegen](open/E-code-generation.md) | experiment | LLM gera codigo validador (PoT sobre TCF) |
 | [E-decompress](open/E-llm-decompress.md) | experiment | LLM descomprime TCF → CSV |
+| [E-speed](open/E-speed-tradeoffs.md) | experiment | **NOVO** Speed vs accuracy: modelo, quant, thinking, ctx |
 
-### Protocolo & Compressao (2) [NOVO 2026-04-10]
+### Protocolo & Compressao (4) [3 NOVOS 2026-04-10]
 | Ticket | Tipo | Descricao |
 |--------|------|-----------|
 | [E-http](open/E-http-protocol.md) | experiment | TCF como substituto JSON/CSV em HTTP (brotli, zstd, overhead) |
+| [E-standalone](open/E-standalone-use-cases.md) | experiment | **NOVO** TCF sem LLM: escala minima, incremental, casos reais |
+| [P-rle-gzip](open/P-rle-vs-gzip.md) | research | **NOVO** RLE textual e util ou gzip ja faz? |
 | [H-compress](open/H-compression-layers.md) | hypothesis | Niveis progressivos L0-L3 |
 
 ### Formato & Schema (3) [1 NOVO 2026-04-10]
@@ -61,10 +64,11 @@ Agrupado por area de interesse (atualizado 2026-04-10):
 | [T-G41](open/T-G41-cli-lib.md) | task | pip package + CLI (expandido) |
 | [T-G42](open/T-G42-input-adapters.md) | task | SQLite, Parquet, Pandas (expandido) |
 
-### Metodologia & Pesquisa (5) [1 NOVO 2026-04-10]
+### Metodologia & Pesquisa (6) [2 NOVOS 2026-04-10]
 | Ticket | Tipo | Descricao |
 |--------|------|-----------|
-| [M-stability](open/M-stability-testing.md) | methodology | **NOVO** N>=3 runs para separar sinal de ruido |
+| [M-stability](open/M-stability-testing.md) | methodology | N>=3 runs para separar sinal de ruido |
+| [M-scope](open/M-llm-scope.md) | methodology | **NOVO** Mapa "onde LLM ajuda de fato" (consolidador) |
 | [P-G33](open/P-G33-metodologia.md) | research | CoT, PoT, repeticoes — REVIEWED |
 | [P-G34](open/P-G34-dados-reais.md) | research | Datasets reais (TPC-H, WikiTableQA) |
 | [P-G35](open/P-G35-modelos-llm.md) | research | Selecao de modelos — REVISADO |

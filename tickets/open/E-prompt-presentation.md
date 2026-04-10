@@ -27,6 +27,36 @@ nao os dados nem o modelo. Consolidadas aqui.
 - TCF em tag XML (<data>...</data>)
 - TCF com header explicativo ("The following is TCF format where N*val means...")
 
+### 2b. Nivel de explicacao da compressao (NOVO 2026-04-10)
+
+Sub-ablacao especifica para a **quantidade de explicacao** no system prompt:
+
+| Nivel | Prompt do formato | Tamanho |
+|-------|-------------------|---------|
+| **E0: Zero** | "Voce recebera dados." | ~30 chars |
+| **E1: Nome so** | "Voce recebera dados em formato TCF. Responda baseado nos dados." | ~80 chars |
+| **E2: Mencao RLE** | "Voce recebera dados em formato TCF (colunar com RLE)." | ~90 chars |
+| **E3: Notacao explicita (atual)** | "Voce recebera dados em formato colunar comprimido. N*val = val repetido N vezes. Dados ordenados para agrupar repeticoes." | ~200 chars |
+| **E4: Detalhado** | E3 + "STATS lines dao sum, avg, count pre-computados. Dict lines mapeiam indices para valores. Colunas sao listadas uma por bloco." | ~400 chars |
+| **E5: Tutorial completo** | E4 + exemplo pequeno de entrada e como interpreta-lo. | ~800 chars |
+
+**Hipoteses:**
+- **H-explain-1:** E0 → muitos FAIL (modelo nao entende N*val)
+- **H-explain-2:** E3 (atual) e suficiente — E4/E5 tem diminishing returns
+- **H-explain-3:** E5 ajuda modelos menores (<4B) mas nao modelos grandes (>12B)
+
+**Teste:**
+- 3 modelos (gemma3:1b, gemma3:4b, gemma3:12b) × 6 niveis E0-E5 × 3 questoes
+- Total: 54 combos
+- Accuracy esperada: crescente ate certo ponto, depois platea
+
+**Sub-dimensao: misturar contextos (mais complexo)**
+- E3-markdown: TCF dentro de bloco MD explicando contexto em volta
+- E3-csv-compare: mostrar primeiro CSV e depois TCF "e o mesmo em TCF"
+- E3-llm-style: prompt no estilo dos exemplos da Anthropic/OpenAI
+
+Relacionado a Sui 2024 self-augmentation (+3.26%).
+
 ### 3. Sintaxe RLE
 - `3*Ana` (atual)
 - `Ana x3`
