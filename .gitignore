@@ -36,3 +36,12 @@ Thumbs.db
 output*
 restored*/
 *.tcf
+
+# Archive (legacy materials kept locally for history, not for public repo)
+archive/legacy_results/
+archive/old_tokenizer/
+archive/rascunhos/
+archive/tickets_v01/
+archive/v01/src/
+archive/v01/tests/
+# Note: archive/v01/experiments/ and archive/misc/ are tracked (referenced by docs)
