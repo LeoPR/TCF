@@ -197,6 +197,8 @@ def run(models: list[str], endpoint: str) -> None:
                         "correct": correct, "error_type": error_type,
                         "response": response[:200], "latency_s": round(latency, 1),
                         "prompt_chars": len(prompt),
+                        "prompt_tokens": gen.get("prompt_tokens", 0),
+                        "response_tokens": gen.get("response_tokens", 0),
                     }
                 except KeyboardInterrupt:
                     print("\n[interrupted]")
