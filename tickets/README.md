@@ -40,7 +40,7 @@ Outros ~18 datasets pesquisados estao documentados em
 [docs/research-notes/2026-04-10-canonical-datasets.md](../docs/research-notes/2026-04-10-canonical-datasets.md)
 como backlog futuro.
 
-## Open (12) — ordem de execucao
+## Open (13) — ordem de execucao
 
 ### Meta-ticket
 
@@ -61,6 +61,7 @@ como backlog futuro.
 | 7 | [08-T-datasets-csv-jsonl](open/08-T-datasets-csv-jsonl.md) | task | Derivar CSV/JSONL/MD |
 | 8 | [09-T-datasets-questions](open/09-T-datasets-questions.md) | task | Banco de perguntas + ground truth SQL |
 | 9 | [10-T-datasets-cleanup](open/10-T-datasets-cleanup.md) | task | Mover retail_sales para poor-reference |
+| 10 | [11-T-telemetry](open/11-T-telemetry.md) | task | Modulo de timing honesto (`src/tcf/timing.py`) |
 
 ### Findings DONE (mantidos como referencia)
 

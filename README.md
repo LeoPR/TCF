@@ -132,14 +132,22 @@ experiments/eval/           # Pipeline de avaliacao cientifica (Ollama)
 tests/                      # 112 testes deterministicos
 tests/fixtures/             # Geradores sinteticos (retail, logs, survey)
 
-docs/
-  ARCHITECTURE.md           # Arquitetura do projeto
-  SOURCE_MAP.md             # Rastreabilidade entre documentos
+docs/                       # Hub de documentacao — "a Meca"
+  README.md                 # Indice geral
+  architecture/             # Arquitetura do projeto (overview, storage, telemetry)
+  datasets/                 # Manuais por dataset
+  methodology/              # Design experimental e testes
   article/                  # Artigo cientifico em capitulos
+  research-notes/           # Pesquisas datadas
+  reference/                # Glossarios e referencias rapidas
 
 tickets/                    # Tickets de pesquisa (rastreabilidade)
-  open/                     # Em andamento
+  open/                     # Fase atual (numerados por prioridade)
+  frozen/                   # Futuro trabalho (congelados)
   closed/                   # Concluidos + findings
+
+config/                     # Configs locais (gitignored)
+  storage.json.example      # template
 ```
 
 ## Dependencias
@@ -161,13 +169,16 @@ para discussao completa.
 
 ## Documentacao
 
-| Documento | Descricao |
-|-----------|-----------|
-| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Arquitetura do projeto |
-| [docs/SOURCE_MAP.md](docs/SOURCE_MAP.md) | Rastreabilidade entre documentos |
-| [docs/article/README.md](docs/article/README.md) | Meta-artigo cientifico |
-| [docs/article/00-innovations.md](docs/article/00-innovations.md) | Inovacoes comprovadas (I1-I7) |
-| [tickets/README.md](tickets/README.md) | Roadmap e status de experimentos |
+Toda a documentacao vive em **[docs/](docs/README.md)** — o hub central.
+
+**Atalhos rapidos:**
+- [docs/README.md](docs/README.md) — indice completo
+- [docs/architecture/overview.md](docs/architecture/overview.md) — arquitetura
+- [docs/architecture/storage.md](docs/architecture/storage.md) — storage (git / disco / archive)
+- [docs/architecture/telemetry.md](docs/architecture/telemetry.md) — timing honesto de benchmarks
+- [docs/article/README.md](docs/article/README.md) — artigo cientifico
+- [docs/article/00-innovations.md](docs/article/00-innovations.md) — inovacoes (I1-I7)
+- [tickets/README.md](tickets/README.md) — roadmap e fase atual
 
 ## Status do Projeto
 

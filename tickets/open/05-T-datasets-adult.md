@@ -43,26 +43,37 @@ Origem: US Census Bureau 1994, via UCI Machine Learning Repository.
 
 ## Como obter
 
+Download vai direto para o disco externo configurado.
+
 ```python
 # scripts/setup_adult.py
-from sklearn.datasets import fetch_openml
-import pandas as pd
 from pathlib import Path
+import sys
 
-OUTPUT = Path("datasets/canonical/adult-census")
-OUTPUT.mkdir(parents=True, exist_ok=True)
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from _paths import external_dir, ensure_dirs
 
-print("Downloading Adult dataset from OpenML...")
+from sklearn.datasets import fetch_openml
+
+ensure_dirs()
+output = external_dir("adult-census")
+output.mkdir(parents=True, exist_ok=True)
+print(f"Downloading Adult dataset to {output}")
+
 data = fetch_openml("adult", version=2, as_frame=True)
 df = data.frame
 
 print(f"Downloaded: {len(df)} rows, {len(df.columns)} columns")
-print(f"Dtypes: {df.dtypes.to_dict()}")
 
-# Save as CSV
-csv_path = OUTPUT / "adult.csv"
+csv_path = output / "adult.csv"
 df.to_csv(csv_path, index=False)
 print(f"Saved to {csv_path}")
+
+# Sample para git (primeiras 100 rows)
+sample_dst = Path("datasets/samples/adult-census/adult-sample.csv")
+sample_dst.parent.mkdir(parents=True, exist_ok=True)
+df.head(100).to_csv(sample_dst, index=False)
+print(f"Sample saved: {sample_dst}")
 ```
 
 ## Metadata
