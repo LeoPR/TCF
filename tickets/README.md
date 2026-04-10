@@ -21,9 +21,14 @@ tickets/
 
 ---
 
-## Open (28)
+## Open (32)
 
-Agrupado por area de interesse (atualizado 2026-04-10):
+Agrupado por area de interesse (atualizado 2026-04-10).
+
+### GUIA MESTRE [NOVO]
+| Ticket | Tipo | Descricao |
+|--------|------|-----------|
+| [G-utility](open/G-utility-analysis.md) | guide | **NOVO** Analise honesta de utilidade do TCF (10 dimensoes) — orquestra sub-tickets |
 
 ### LLM Understanding — core do paper (5)
 | Ticket | Tipo | Status |
@@ -42,13 +47,16 @@ Agrupado por area de interesse (atualizado 2026-04-10):
 | [E-decompress](open/E-llm-decompress.md) | experiment | LLM descomprime TCF → CSV |
 | [E-speed](open/E-speed-tradeoffs.md) | experiment | **NOVO** Speed vs accuracy: modelo, quant, thinking, ctx |
 
-### Protocolo & Compressao (4) [3 NOVOS 2026-04-10]
+### Protocolo & Compressao (7) [3 NOVOS round 3]
 | Ticket | Tipo | Descricao |
 |--------|------|-----------|
 | [E-http](open/E-http-protocol.md) | experiment | TCF como substituto JSON/CSV em HTTP (brotli, zstd, overhead) |
-| [E-standalone](open/E-standalone-use-cases.md) | experiment | **NOVO** TCF sem LLM: escala minima, incremental, casos reais |
-| [P-rle-gzip](open/P-rle-vs-gzip.md) | research | **NOVO** RLE textual e util ou gzip ja faz? |
+| [E-standalone](open/E-standalone-use-cases.md) | experiment | TCF sem LLM: escala minima, incremental, casos reais |
+| [P-rle-gzip](open/P-rle-vs-gzip.md) | research | RLE textual e util ou gzip ja faz? |
 | [H-compress](open/H-compression-layers.md) | hypothesis | Niveis progressivos L0-L3 |
+| [E-direct](open/E-direct-conversion.md) | experiment | **NOVO** SQL/Parquet/DF → TCF direto (sem CSV intermediario) |
+| [E-memory](open/E-memory-profiling.md) | experiment | **NOVO** Peak RAM durante encode/decode (dim 7) |
+| [E-tokens](open/E-token-count.md) | experiment | **NOVO** Tokens LLM reais (tiktoken + llama) — revalidar findings |
 
 ### Formato & Schema (3) [1 NOVO 2026-04-10]
 | Ticket | Tipo | Descricao |

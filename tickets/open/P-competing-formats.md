@@ -55,32 +55,101 @@ para LLMs, comparar com TCF de forma honesta, e incorporar no artigo.
    - **Accuracy LLM** (mesmas perguntas)
    - **Escalabilidade** (como se comporta com 200+ rows)
 
-## Resultado da pesquisa (2026-04-09)
+## Resultado da pesquisa — ATUALIZADO 2026-04-10
 
-**TOON:** Projeto obscuro (github.com/toon-format/toon), sem paper academico,
-sem pip package, sem adocao relevante. Formato: JSON com `columns` + `rows` matrix.
-Row-oriented, sem compressao. Nos nossos testes legados: 50% accuracy gemma3 (= JSONL).
+### TOON evoluiu significativamente desde outubro 2024
 
-**Sui et al. (2024):** Testaram CSV, JSON, Markdown, HTML, NL. Todos row-oriented.
-Markdown e HTML performaram melhor. Diferenca < 10-15pp. Modelo importa mais que formato.
-**Nenhum formato columnar testado.**
+**Nao e mais "obscuro".** Pesquisa de 2026-04-10 revelou:
 
-**Hegselmann (2023):** Templates de texto para classificacao. Nenhum formato novo proposto.
+- **Papers arxiv:**
+  - [2603.03306](https://arxiv.org/abs/2603.03306) (fev 2026) — "TOON vs JSON: Plain and Constrained Decoding"
+  - [2601.12014](https://arxiv.org/abs/2601.12014) (jan 2026) — "Are LLMs Ready for TOON?"
+- **Projeto ativo:** [github.com/toon-format/toon](https://github.com/toon-format/toon)
+- **Site oficial:** [toonformat.dev](https://toonformat.dev/guide/benchmarks)
+- **SDK TypeScript** + site com benchmarks
+- **Blogs tecnicos:** LogRocket, Medium, dev.to (cobertura ampla)
 
-**Conclusao:** TCF e o **primeiro formato columnar com compressao para LLMs**.
-Nao ha concorrente direto. A comparacao mais honesta e:
-- TCF vs CSV (row baseline, familiar)
-- TCF vs JSONL (row, self-describing)
-- TCF vs Markdown Table (row, familiar, visual)
-- TCF vs TOON (row, header tipado, nicho)
+### Benchmarks oficiais do TOON (do projeto)
 
-## Hipoteses
+- **54% reducao media de tokens** vs JSON (benchmarks em 50 datasets)
+- **76.4% accuracy** (vs JSON 75.0%)
+- **27.7 acc%/1K tokens** (vs JSON 16.4) — melhor ratio
+- **Ate 73.4% reducao** em casos otimos (tabular, surveys)
 
-- TOON e JSON compacto — accuracy provavelmente similar a JSONL
-- MD Table familiar para LLMs — pode performar melhor que CSV em escala
-- **TCF e o unico com compressao** — posicionamento forte no paper
-- A comparacao honesta mostra que TCF traz algo novo (columnar + RLE),
-  nao que "e melhor em tudo" — pode perder em familiaridade
+### Pontos fracos conhecidos do TOON (arxiv independente)
+
+- **Colapsa em estruturas nao-alinhadas:** 0% accuracy em casos de hierarquias
+  profundas (precisa retries, final 48.6%)
+- **"Prompt tax":** instrucao explicativa do TOON consome tokens
+  em contextos curtos, reduzindo a economia
+- **Sem testes em wide tables (>100 colunas)**
+- **So benchmarks do proprio projeto** — validacao independente limitada
+- **Sem compressao textual interna** (RLE, dict, sort)
+- **Sem hints meta-cognitivos** (nada equivalente aos STATS)
+
+### Oportunidades concretas para TCF vs TOON
+
+| Dimensao | TOON | TCF | Oportunidade? |
+|----------|------|-----|---------------|
+| Token efficiency | -54% vs JSON | ? (medir — ver E-token-count) | INCERTO |
+| Accuracy | 76% | 88% (gemma3, com STATS) | TCF provavelmente melhor |
+| Escala (rows) | Benchmarks ~100-500 rows | Testamos ate 5000 | TCF forca em grande |
+| Repeticao de dados | Sem compressao | RLE + dict + sort | TCF para dados repetitivos |
+| Wide tables (>100 cols) | Nao testado | Nao testado | Ambos a investigar |
+| Hints meta-cognitivos | Nao tem | STATS (F81-F94) | **TCF unico com isso** |
+| Parsing hierarquias | Bom (se alinhado) | Nao aplica (flat) | TOON para nested |
+| Peer review | Arxiv | Em preparacao | Empate |
+
+**Conclusao:** TOON e forte em tokens e accuracy mas **nao** tem RLE,
+nao tem STATS, e ainda nao foi testado em escala ou wide tables.
+Essas sao as brechas reais do TCF.
+
+## Sui et al. (2024) — Table Meets LLM
+
+Testaram CSV, JSON, Markdown, HTML, NL. Todos row-oriented.
+Markdown e HTML performaram melhor. Diferenca < 10-15pp. Modelo importa
+mais que formato.
+**Nenhum formato columnar testado.** Nenhum formato com hints embutidos.
+
+## Posicionamento honesto do TCF
+
+**NAO podemos mais dizer:**
+- ~~"TCF e o primeiro formato columnar textual para LLMs"~~ (provavel, mas validar)
+- ~~"TOON e um projeto obscuro"~~ (falso — tem papers, benchmarks, adocao)
+- ~~"TCF e mais eficiente em tokens que todos"~~ (precisa medir vs TOON)
+
+**PODEMOS dizer (com evidencia):**
+- "TCF e o primeiro formato a combinar colunar + RLE + hints meta-cognitivos"
+- "TCF tem melhor accuracy que TOON em dados >500 rows" (se confirmado)
+- "TCF e o unico formato textual com STATS embutidos que compensam limitacoes
+  aritmeticas dos LLMs"
+- "TCF + gzip tem melhor ratio que JSONL + gzip (29% menor em 5000 rows)"
+  (F70-F73 ja comprovado)
+
+## Hipoteses TESTAVEIS (nova redacao)
+
+**H-vs-toon-1:** TCF L0 com STATS > TOON em accuracy para agregacoes
+(sum, avg, count), porque so TCF tem hints.
+
+**H-vs-toon-2:** TCF L2/L3 > TOON em compressao apos gzip para dados
+com alta repeticao (retail, logs).
+
+**H-vs-toon-3:** TCF escala melhor que TOON — accuracy mantida em 500-1000 rows
+enquanto TOON degrada (precisa verificar com benchmarks reais).
+
+**H-vs-toon-4:** Para estruturas nao-tabulares (nested, wide), TOON
+ou JSON sao melhores. TCF e especialista em tabular flat, nao generalista.
+
+## Tarefas atualizadas
+
+- [x] Pesquisar papers/repos do TOON (feito 2026-04-10)
+- [x] Pesquisar outros formatos para LLMs 2023-2026 (feito)
+- [ ] Implementar encoder TOON real (o stub atual nao e real)
+- [ ] Rodar Etapa 2 com TOON incluido (12 modelos × 8 questoes)
+- [ ] Comparar TCF+STATS vs TOON em accuracy de agregacoes (H-vs-toon-1)
+- [ ] Comparar TCF+gzip vs TOON+gzip em compressao (H-vs-toon-2)
+- [ ] Comparar escalabilidade (H-vs-toon-3)
+- [ ] Documentar honestamente no paper: onde TCF > TOON, onde TOON > TCF
 
 ## Referencias adicionais (2025-2026)
 
