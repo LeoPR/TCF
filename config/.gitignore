@@ -1,0 +1,7 @@
+# Config local com caminhos especificos do usuario
+storage.json
+
+# Outros configs futuros com secrets/paths locais
+*.local.json
+.env
+.env.*

@@ -1,0 +1,14 @@
+{
+  "_comment": "Copie este arquivo como 'storage.json' (gitignored) e ajuste os caminhos para seu ambiente local.",
+  "_documentation": "Ver docs/architecture/storage.md para explicacao completa das 3 camadas.",
+
+  "data_root": "Z:/tcf-data",
+
+  "_fallback_note": "Se voce nao criar storage.json, scripts/_paths.py usa 'data-local/' dentro do projeto como fallback.",
+  "_structure": {
+    "external": "data_root/external/ — dados raw baixados (imutavel apos download)",
+    "interim": "data_root/interim/ — SQLite hub tipado (PK, FK, tipos)",
+    "processed": "data_root/processed/ — derivacoes (CSV, JSONL, MD, TCF)",
+    "archives": "data_root/archives/ — LZMA ultra para backup frio"
+  }
+}

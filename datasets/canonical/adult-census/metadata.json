@@ -1,0 +1,17 @@
+{
+  "_note": "PLACEHOLDER. Sera preenchido com o schema completo no ticket 05-T-datasets-adult.",
+  "name": "adult-census",
+  "source": "UCI ML Repository (via OpenML id=1590)",
+  "origin": "https://archive.ics.uci.edu/dataset/2/adult",
+  "license": "CC BY 4.0",
+  "citation": "Becker, B. and Kohavi, R. (1996). Adult. UCI Machine Learning Repository. https://doi.org/10.24432/C5XW20",
+  "openml_id": 1590,
+  "status": "stub",
+  "tables": {
+    "adult": {
+      "pk": null,
+      "columns": {},
+      "missing_value_marker": "?"
+    }
+  }
+}

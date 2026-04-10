@@ -1,10 +1,37 @@
 ---
 title: Estrutura de storage — config, pastas git, disco externo
 type: task
-status: OPEN
+status: DONE
 priority: 1
 parent: 01-M-datasets-setup
+completed: 2026-04-10
 ---
+
+## STATUS: COMPLETO (2026-04-10)
+
+**Criados:**
+- `config/storage.json.example` — template em git
+- `config/.gitignore` — ignora storage.json real
+- `config/storage.json` — config local (Z:/tcf-data) — **NAO no git**
+- `scripts/_paths.py` — resolvedor de caminhos com fallback
+- `datasets/` — estrutura completa (canonical, samples, quality-reports, questions, poor-reference)
+- `datasets/README.md` — explicacao da estrutura
+- `datasets/canonical/tpch-sf001/README.md` + `metadata.json` (stubs)
+- `datasets/canonical/adult-census/README.md` + `metadata.json` (stubs)
+- `datasets/poor-reference/retail-sales-synthetic/README.md`
+- `data-local/` com README (fallback)
+- `.gitignore` raiz atualizado com regras de datasets
+
+**Testado:**
+- `python scripts/_paths.py` → imprime Z:/tcf-data correto
+- `ensure_dirs()` → criou `Z:\tcf-data\{external,interim,processed,archives}`
+- `git check-ignore config/storage.json` → ignorado corretamente
+- `git check-ignore config/storage.json.example` → NAO ignorado (ok)
+
+**Prxxximos tickets habilitados:** 03 (deps), 04 (TPC-H), 05 (Adult).
+
+---
+
 
 # Estrutura de Storage
 

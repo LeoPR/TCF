@@ -45,3 +45,37 @@ archive/tickets_v01/
 archive/v01/src/
 archive/v01/tests/
 # Note: archive/v01/experiments/ and archive/misc/ are tracked (referenced by docs)
+
+# === Datasets storage (Phase 1+) ===
+# Config local with user-specific paths
+config/storage.json
+config/*.local.json
+config/.env
+config/.env.*
+
+# Fallback local storage (data-local/) — only README and .gitkeep are tracked
+data-local/**
+!data-local/.gitkeep
+!data-local/README.md
+
+# Raw downloaded datasets (live in data_root/external/, not in project)
+# Belt-and-suspenders: if someone drops CSVs in datasets/canonical/, ignore
+datasets/canonical/*/*.csv
+datasets/canonical/*/*.tsv
+datasets/canonical/*/*.db
+datasets/canonical/*/*.parquet
+datasets/canonical/*/*.jsonl
+
+# SQLite hub and derivations (live in data_root/interim/ and processed/)
+datasets/sqlite/
+datasets/derivations/
+
+# Whitelist small files we DO want to track
+!datasets/canonical/*/metadata.json
+!datasets/canonical/*/README.md
+!datasets/canonical/*/schema.sql
+!datasets/samples/**/*.csv
+!datasets/samples/**/*.md
+!datasets/samples/**/.gitkeep
+!datasets/quality-reports/*.md
+!datasets/questions/*.json
