@@ -126,10 +126,77 @@ Um modelo em Q2_K vs Q4_K_M vs Q8_0 vs FP16
 Se Q2 degrada TCF mais que CSV → RLE precisa de mais precisao de pesos.
 Obs: quantizacoes menores podem ficar MAIS lentas (overhead de dequant).
 
+## Candidatos prioritarios nao testados (2026-04)
+
+### Modelos novos que merecem avaliacao
+
+| Modelo | Tamanho | Por que testar | Prioridade |
+|--------|---------|----------------|------------|
+| **phi4-reasoning** | 14B | Phi4 com thinking — pode ser o melhor |
+| **phi4-mini** | 3.8B | Phi4 pequeno — comparar com phi3 obsoleto |
+| **qwen3.5** | 0.8B-27B | Sucessor do qwen3, testar quando maduro |
+| **gemma4 (e2b, e4b)** | 3.8B-4B | Google novissimo — gemma3 ja e nosso melhor |
+| **gemma4:26b / 31b** | 26-31B | Nao cabe Q4 na GPU, testar quantizacao menor |
+| **llama4** | ?B | Se aparecer em tamanho util |
+| **nemotron** (NVIDIA) | variavel | Modelos NVIDIA — podem ser otimos em reasoning |
+| **olmo2 / olmo3** | 7B-13B | AI2 — modelos abertos com treinamento documentado |
+| **granite4** (IBM) | 3B-13B | IBM — treinamento em dados empresariais |
+
+### Hipotese H-reasoning
+
+Modelos com "reasoning" treinado (phi4-reasoning, deepseek-r1, qwen3 thinking)
+podem ser fundamentalmente diferentes de modelos "chat" (gemma3, llama3.2).
+
+**Teste:** comparar phi4 vs phi4-reasoning (mesma familia, mesmo tamanho,
+diferenca e o training).
+
+Se phi4-reasoning > phi4 em L0 math (diagnostic 3-layer), confirma que
+reasoning training mais importa que formato.
+
+## Criterio de estabilidade — quais modelos incluir
+
+Ver **M-stability-testing** para metodologia. Um modelo so entra no
+benchmark principal se:
+
+1. **Accuracy reprodutivel:** 3 runs do mesmo combo com variancia < 20%
+2. **Respostas bem formadas:** < 30% de `exception` ou `parse_failure`
+3. **Sem respostas vazias:** < 20% de `FAIL 0s` (respostas instantaneas invalidas)
+
+Modelos que falham estes criterios:
+- Vao para "unstable" — testados mas reportados separadamente
+- Nao contribuem para findings centrais
+- Exemplo: qwen3:8b teve varios `FAIL 0s` em L2 no G30 — precisa investigar
+
+## Ordem de eliminacao
+
+Em vez de "testar todos os 12", eliminar por etapas:
+
+### Etapa 2a — baseline rapido (1 questao, 1 formato)
+Rodar so q1_sum em TCF L0 com os 12 modelos.
+Elimina modelos que nao sabem nem ler STATS (gemma2).
+
+### Etapa 2b — core (3 questoes representativas)
+q1_sum (aggregate), q3_max (lookup), q6_top_product (argmax) em TCF L0+L2.
+Elimina modelos com accuracy < 30%.
+
+### Etapa 2c — full (8 questoes, sobreviventes)
+Todos os q1-q8, com os modelos que passaram 2b.
+
+### Etapa 2d — estabilidade (top 4 com N=3)
+So os melhores, mas com 3 repeticoes para validar.
+
+Economia: em vez de 12×3×8 = 288 combos, pode ser 12 (2a) + 8×2×3 (2b)
++ 4×3×8 (2c) + 4×3×8×3 (2d) = 12 + 48 + 96 + 288 = 444 combos,
+mas com conhecimento dedutivo: cada etapa INFORMA a proxima.
+
 ## Tarefas
 
-- [ ] Instalar 5 modelos faltantes
-- [ ] Rodar Etapa 2 expandida (12 modelos × 3 formatos × 8 questoes = 288 combos)
+- [x] Instalar 5 modelos faltantes (feito)
+- [ ] Etapa 2a: 12 modelos × q1_sum × TCF L0 (baseline rapido)
+- [ ] Etapa 2b: eliminar modelos < 30% no baseline
+- [ ] Etapa 2c: full benchmark com sobreviventes
+- [ ] Etapa 2d: estabilidade com N=3 (top 4)
+- [ ] Testar phi4-reasoning se disponivel (H-reasoning)
 - [ ] Gerar curva accuracy vs log(params) por familia
-- [ ] Opcionalmente: deepseek-coder ablacao
-- [ ] Opcionalmente: quantizacao ablacao
+- [ ] Opcionalmente: deepseek-coder ablacao (H-coder)
+- [ ] Opcionalmente: quantizacao ablacao (H-quant)

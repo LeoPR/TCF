@@ -21,26 +21,61 @@ tickets/
 
 ---
 
-## Open (15)
+## Open (24)
 
-| Ticket | Tipo | Titulo |
+Agrupado por area de interesse (atualizado 2026-04-10):
+
+### LLM Understanding — core do paper (5)
+| Ticket | Tipo | Status |
 |--------|------|--------|
-| [H-G30](open/H-G30-hiperparametros.md) | hypothesis | Temperature, thinking, context — DONE |
-| [H-compress](open/H-compression-layers.md) | hypothesis | Niveis progressivos, reversibilidade |
-| [H-3layer](open/H-diagnostic-3layer-v02.md) | hypothesis | Diagnostico 3 camadas — DONE (F80-F84) |
+| [H-G30](open/H-G30-hiperparametros.md) | hypothesis | Thinking/temp — DONE (F60-F63) |
+| [H-3layer](open/H-diagnostic-3layer-v02.md) | hypothesis | Diagnostic 3-layer — DONE (F80-F84) |
+| [E-scale](open/E-scale-progression.md) | experiment | Scale 20→1000 — DONE (F85-F89) |
+| [E-stats](open/E-stats-ablation.md) | experiment | STATS ablation — DONE (F90-F94) |
+| [E-prompt](open/E-prompt-presentation.md) | experiment | Idioma, decoracao, wording |
+
+### LLM Advanced — alem de Q&A (3) [NOVOS 2026-04-10]
+| Ticket | Tipo | Descricao |
+|--------|------|-----------|
+| [E-qualitative](open/E-qualitative-reasoning.md) | experiment | Perguntas aproximadas, intuicao, tendencias |
+| [E-codegen](open/E-code-generation.md) | experiment | LLM gera codigo validador (PoT sobre TCF) |
 | [E-decompress](open/E-llm-decompress.md) | experiment | LLM descomprime TCF → CSV |
-| [E-scale](open/E-scale-progression.md) | experiment | Escalabilidade 20→1000 rows — DONE (F85-F89) |
-| [E-stats](open/E-stats-ablation.md) | experiment | STATS ablation — IN PROGRESS (critico) |
-| [E-plan](open/E-benchmark-plan.md) | experiment | Plano combinatorio completo — 332 combos |
-| [E-prompt](open/E-prompt-presentation.md) | experiment | Ablacao: idioma, decoracao, sintaxe |
+
+### Protocolo & Compressao (2) [NOVO 2026-04-10]
+| Ticket | Tipo | Descricao |
+|--------|------|-----------|
+| [E-http](open/E-http-protocol.md) | experiment | TCF como substituto JSON/CSV em HTTP (brotli, zstd, overhead) |
+| [H-compress](open/H-compression-layers.md) | hypothesis | Niveis progressivos L0-L3 |
+
+### Formato & Schema (3) [1 NOVO 2026-04-10]
+| Ticket | Tipo | Descricao |
+|--------|------|-----------|
+| [P-data-types](open/P-data-types.md) | research | Tipos: base64, binario, datas, nulls |
+| [P-schema](open/P-schema-extension.md) | research | **NOVO** Schema completo (PK, FK, constraints) |
+| [H-rounding](open/H-smart-rounding.md) | hypothesis | **NOVO** Arredondamento com % erro |
+
+### Implementacao & Distribuicao (3) [1 NOVO 2026-04-10]
+| Ticket | Tipo | Descricao |
+|--------|------|-----------|
+| [T-multi-lang](open/T-multi-lang.md) | task | **NOVO** JS, C, Go, Rust decoders |
+| [T-G41](open/T-G41-cli-lib.md) | task | pip package + CLI (expandido) |
+| [T-G42](open/T-G42-input-adapters.md) | task | SQLite, Parquet, Pandas (expandido) |
+
+### Metodologia & Pesquisa (5) [1 NOVO 2026-04-10]
+| Ticket | Tipo | Descricao |
+|--------|------|-----------|
+| [M-stability](open/M-stability-testing.md) | methodology | **NOVO** N>=3 runs para separar sinal de ruido |
 | [P-G33](open/P-G33-metodologia.md) | research | CoT, PoT, repeticoes — REVIEWED |
-| [P-G34](open/P-G34-dados-reais.md) | research | Datasets canonicos |
-| [P-G35](open/P-G35-modelos-llm.md) | research | Selecao de modelos |
-| [P-formats](open/P-competing-formats.md) | research | TOON e formatos concorrentes |
-| [P-questions](open/P-question-bank-review.md) | research | Revisar banco de perguntas — REVIEWED |
-| [T-G41](open/T-G41-cli-lib.md) | task | CLI/Lib pip |
-| [T-G42](open/T-G42-input-adapters.md) | task | SQLite, Parquet |
-| [T-figures](open/T-figures-analysis.md) | task | Figuras e analise estatistica |
+| [P-G34](open/P-G34-dados-reais.md) | research | Datasets reais (TPC-H, WikiTableQA) |
+| [P-G35](open/P-G35-modelos-llm.md) | research | Selecao de modelos — REVISADO |
+| [P-questions](open/P-question-bank-review.md) | research | Banco de perguntas — REVIEWED |
+
+### Formatos concorrentes & Analise (3)
+| Ticket | Tipo | Descricao |
+|--------|------|-----------|
+| [P-formats](open/P-competing-formats.md) | research | TOON, MD Table |
+| [E-plan](open/E-benchmark-plan.md) | experiment | Plano combinatorio completo |
+| [T-figures](open/T-figures-analysis.md) | task | Figuras + analise estatistica |
 
 ## Closed (25)
 
