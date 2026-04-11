@@ -1,10 +1,68 @@
 ---
 title: Derivacoes — gerar CSV, JSONL, Markdown a partir do SQLite
 type: task
-status: OPEN
+status: DONE
 priority: 7
 parent: 01-M-datasets-setup
+completed: 2026-04-11
 ---
+
+## STATUS: COMPLETO (2026-04-11)
+
+**Arquitetura aplicada:** 3 writers modulares + 1 orquestrador.
+Writers recebem `list[dict]` generico — nao sabem de SQLite nem pandas.
+Isso e a mesma separacao que o TCF core vai ter: aceita estruturas
+Python, nao depende de fonte especifica.
+
+**Criado:** `scripts/writers/` (modulo)
+- `__init__.py` — expoe `write_csv`, `write_jsonl`, `write_markdown`
+- `csv_writer.py` (~35 linhas) — stdlib csv, `NULL → ""`
+- `jsonl_writer.py` (~35 linhas) — stdlib json, preserva tipos reais
+- `markdown_writer.py` (~50 linhas) — tabela pipe, truncagem >500 rows
+
+**Criado:** `scripts/derive_formats.py` (~100 linhas)
+- Usa `DatasetReader.iter_rows()` (streaming para evitar OOM em lineitem)
+- Orquestra reader + writers
+- CLI: `--formats csv jsonl markdown` ou subset
+
+**Executado para ambos datasets:**
+```
+adult-census:
+  csv      48,842 rows   5.2 MB  (1.06s)
+  jsonl    48,842 rows  16.4 MB  (1.18s)  ← 3.1x CSV
+  markdown    500 rows  69.2 KB  (truncado de 48,842)
+
+tpch-sf001 (8 tables, 86,805 rows total):
+  lineitem.csv     60,175 rows   7.2 MB  (1.47s)
+  lineitem.jsonl   60,175 rows  23.0 MB  (1.62s)  ← 3.2x CSV
+  [outras 7 tabelas todas geradas em <0.1s cada]
+```
+
+**Storage verificado:**
+- 61 MB em `Z:\tcf-data\processed\` (gitignored)
+- 0 arquivos derivados no git (so scripts)
+
+**Observacoes ja visiveis sem LLM:**
+- **JSONL e 3x pior que CSV** em tamanho para dados tabulares reais
+  (confirma o que assumimos, agora com dados canonicos)
+- **Markdown e invivel** para tabelas grandes (truncado em 500 rows)
+- **TPC-H partsupp, orders, lineitem** sao os candidatos para testar
+  compressao columnar (maiores, mais repeticao)
+
+**Reproducivel:**
+```
+python scripts/derive_formats.py                          # tudo
+python scripts/derive_formats.py tpch-sf001               # um dataset
+python scripts/derive_formats.py --formats csv jsonl      # subset
+```
+
+**Nao fizemos ainda (intencional):**
+- TCF derivation — e TCF vai precisar do encoder real apos definirmos
+  a pergunta cientifica nuclear. Por enquanto os writers sao baseline.
+- TOON — mesma razao. Ticket futuro.
+
+---
+
 
 # Derivacoes a partir do SQLite
 
