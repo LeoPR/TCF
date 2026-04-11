@@ -1,10 +1,58 @@
 ---
 title: Quality reports — relatorios de qualidade por dataset
 type: task
-status: OPEN
+status: DONE
 priority: 6
 parent: 01-M-datasets-setup
+completed: 2026-04-11
 ---
+
+## STATUS: COMPLETO (2026-04-11)
+
+**Separacao arquitetural aplicada:** criamos um modulo reader
+reutilizavel (`dataset_reader.py`) que sera usado tambem por
+derivations (ticket 08) e questions (ticket 09). Este e um
+**client de suporte**, nao parte do core TCF.
+
+**Criado:** `scripts/dataset_reader.py` (~330 linhas)
+- Classe `DatasetReader` com:
+  * `tables`, `schema()`, `pk()`, `fk()`, `row_count()`
+  * `rows()` / `iter_rows()` — row-oriented (list[dict])
+  * `columns()` — column-oriented (dict[col, list])
+  * `query()` — SQL arbitrario (para ground truth)
+  * `column_stats()` — estatisticas numericas ou categoricas
+- Helpers `is_numeric()`, `is_text()`
+- Context manager `open_dataset()`
+- Self-test executavel direto
+
+**Criado:** `scripts/quality_report.py` (~180 linhas)
+- Gera markdown legivel em `datasets/quality-reports/{name}.md`
+- Schema summary (PK, FK, tipos)
+- Estatisticas por coluna (numericas vs categoricas)
+- Top-K values + entropia (categoricas)
+- Sample rows (head)
+
+**Reports gerados:**
+- `adult-census.md` (2.7 KB) — 15 colunas, 48K rows, missing values documentados
+- `tpch-sf001.md` (14.7 KB) — 8 tabelas, 86K rows, todas as FKs documentadas
+
+**Achados interessantes (ja visiveis):**
+- Adult: workclass dominado por "Private" (69.4%), baixa entropia (1.4 bits)
+- Adult: `native-country` tem 41 valores distintos mas `United-States` provavelmente domina (detalhe no report)
+- TPC-H: cardinalidades exatas por tabela
+- TPC-H lineitem tem 16 cols, 3 FKs, composite PK — caso complexo
+
+**Reproducivel:**
+- `python scripts/quality_report.py` (todos)
+- `python scripts/quality_report.py tpch-sf001` (um)
+
+**Reusabilidade do reader:**
+Tickets 08 (derivations), 09 (questions) e 07 compartilham o mesmo
+`DatasetReader`. Se amanha trocarmos SQLite por Parquet, so o reader
+muda — scripts de consumo continuam iguais.
+
+---
+
 
 # Quality Reports
 
