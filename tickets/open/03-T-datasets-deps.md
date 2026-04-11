@@ -1,10 +1,34 @@
 ---
 title: Adicionar dependencias opcionais para datasets
 type: task
-status: OPEN
+status: DONE
 priority: 2
 parent: 01-M-datasets-setup
+completed: 2026-04-10
 ---
+
+## STATUS: COMPLETO (2026-04-10)
+
+**pyproject.toml atualizado:**
+- Version bump: 0.1.0 → 0.2.0
+- Adicionado grupo `datasets` com duckdb>=1.0, scikit-learn>=1.3, pandas>=2.0
+- Adicionado grupo `all` = datasets + dev + eval
+
+**Testado via `pip install -e ".[datasets]"`:**
+- duckdb 1.5.1 instalado
+- scikit-learn 1.8.0 instalado
+- scipy 1.17.1 (dep transitiva de sklearn)
+- joblib 1.5.3 (dep transitiva)
+- pandas 2.3.3 (ja estava)
+
+**Verificado:**
+- `import duckdb` funciona
+- `import sklearn.datasets.fetch_openml` funciona
+- `duckdb.connect(':memory:').execute("INSTALL tpch; LOAD tpch")` funciona
+- Testes existentes: 112/112 passam (sem regressao)
+
+---
+
 
 # Dependencias opcionais
 

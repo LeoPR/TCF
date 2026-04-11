@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "tcf"
-version = "0.1.0"
+version = "0.2.0"
 description = "Textual Columnar Format — compact relational data encoding for LLMs"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -15,6 +15,19 @@ dependencies = []
 [project.optional-dependencies]
 dev = ["pytest>=7"]
 eval = ["requests>=2.28"]  # for Ollama client (experiments only)
+
+# Datasets tools — for downloading and processing canonical benchmarks
+# Install with: pip install -e ".[datasets]"
+datasets = [
+    "duckdb>=1.0",        # TPC-H generation via tpch extension
+    "scikit-learn>=1.3",  # fetch_openml for UCI datasets (Adult, etc)
+    "pandas>=2.0",        # DataFrame manipulation
+]
+
+# Convenience meta-group: install everything
+all = [
+    "tcf[dev,eval,datasets]",
+]
 
 [project.scripts]
 tcf = "tcf.cli:main"
