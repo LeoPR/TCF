@@ -1,10 +1,71 @@
 ---
 title: SQLite hub — converter datasets canonicos para SQLite com tipos
 type: task
-status: OPEN
+status: DONE
 priority: 5
 parent: 01-M-datasets-setup
+completed: 2026-04-11
 ---
+
+## STATUS: COMPLETO (2026-04-11)
+
+**Criado:** `scripts/csv_to_sqlite.py` (~230 linhas)
+- Le metadata.json de cada dataset para schema (PK, FK, tipos)
+- Le CSVs de `data_root/external/{name}/`
+- Gera SQLite em `data_root/interim/{name}.db`
+- Type conversion automatico (int, float, string, date, bool)
+- NULL markers configurveis (`` `?` `NA` `NaN` `null` `None``)
+- Batched insert (5000 rows por batch)
+- PRAGMA foreign_keys OFF durante load (perf) e ON na verificacao
+- FK check automatico no final
+
+**Executado:**
+```
+[sqlite] adult-census  : 48,842 rows in 0.57s (5.2 MB, FK OK)
+[sqlite] tpch-sf001    : 86,805 rows in 1.12s (12 MB, FK OK)
+  - region      5 rows
+  - nation      25
+  - supplier    100
+  - customer    1,500
+  - part        2,000
+  - partsupp    8,000 (composite PK)
+  - orders      15,000
+  - lineitem    60,175 (composite PK + 3 FKs)
+```
+
+**Validacoes:**
+- Schema tipado verificado via PRAGMA table_info (INTEGER/REAL/TEXT)
+- Composite PKs funcionam (lineitem: l_orderkey + l_linenumber)
+- Multi-FK funciona (lineitem: 3 FKs para supplier/part/orders)
+- JOINs SQL funcionam (customer + nation + region)
+- NULLs preservados no Adult (2799/2809/857 missing convertidos de `?`)
+- Agregacoes (SUM, AVG, COUNT, GROUP BY) funcionam
+
+**Query de exemplo (sanidade):**
+```sql
+-- TPC-H
+SELECT COUNT(*), MIN(l_extendedprice), MAX(l_extendedprice), AVG(l_extendedprice)
+FROM lineitem;
+-- 60175, 904.00, 94949.50, 35765.51
+
+-- Adult
+SELECT class, AVG(age) FROM adult GROUP BY class;
+-- <=50K: 36.9 avg age (37,155 rows)
+-- >50K:  44.3 avg age (11,687 rows)
+```
+
+**Storage:**
+- DBs ficam em `Z:\tcf-data\interim\` (nao no git, regeneravel)
+- ~17 MB total para ambos os datasets
+
+**Reproducivel:**
+```
+python scripts/csv_to_sqlite.py              # todos
+python scripts/csv_to_sqlite.py tpch-sf001   # so um
+```
+
+---
+
 
 # SQLite Hub
 
