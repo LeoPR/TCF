@@ -1,10 +1,69 @@
 ---
 title: Modulo de telemetria (timing honesto por fase)
 type: task
-status: OPEN
+status: DONE
 priority: 10
 parent: 01-M-datasets-setup
+completed: 2026-04-11
 ---
+
+## STATUS: COMPLETO (2026-04-11)
+
+**Criado:** `src/tcf/timing.py` (~170 linhas)
+
+Importante: este e o PRIMEIRO modulo que vive no core TCF
+(`src/tcf/`), nao em `scripts/`. A razao: `Timings` e util para
+qualquer usuario do TCF fazer seus proprios benchmarks, enquanto
+`dataset_reader`, writers e scripts sao ferramentas internas.
+
+**API:**
+```python
+from tcf.timing import Timings, repeat_with_stats
+
+# Medicao de fases
+t = Timings()
+with t.measure("io_read"):
+    raw = path.read_bytes()
+with t.measure("tcf_encode"):
+    tcf_text = tcf.encode(rows)
+
+t.to_dict(unit="ms")  # {"io_read": 2.1, "tcf_encode": 12.7}
+t.total(unit="ms")    # 14.8
+
+# Estatisticas multi-run
+stats = repeat_with_stats(fn, n=5, warmup=1)
+# {"phase_a": {"median_ms": ..., "p95_ms": ..., "stdev_ms": ..., "n": 5}}
+```
+
+**Caracteristicas:**
+- Zero dependencias (stdlib only: `time`, `statistics`, `contextlib`)
+- Nanosegundo via `perf_counter_ns()` (monotonic, mais preciso que `time.time()`)
+- 4 unidades suportadas: ns, us, ms, s
+- `Timings.record()` para gravar duracao ja calculada (timers externos)
+- `repeat_with_stats()` com warmup + median/mean/p95/min/max/stdev
+
+**Testes:** `tests/test_timing.py` (12 tests, todos passando)
+- Medicao basica
+- Multi-fase ordering
+- Unidades (ns/us/ms/s)
+- Erros de uso (unit invalida, n<1)
+- `repeat_with_stats` com valores deterministicos (valida matematica)
+
+**Regression check:** 124/124 tests passando (112 existentes + 12 novos)
+
+**Por que no core (src/tcf/) e nao em scripts/:**
+- Usuarios do TCF vao querer medir seus proprios pipelines
+- Nao depende de dataset_reader, writers, ou estrutura de scripts
+- `from tcf.timing import Timings` e o caminho natural
+- Os proximos experimentos (fora desta fase) vao importar isso
+
+**Nao fizemos ainda:**
+- Integracao com runners antigos (etapa1, etapa2, etc) — eles estao
+  congelados e nao vamos tocar neles
+- Integracao com scripts atuais — sera feita quando comecarmos os
+  benchmarks reais (fase 2+)
+---
+
 
 # Modulo de Telemetria
 

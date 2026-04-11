@@ -1,5 +1,28 @@
 """Synthetic data generators v2 — realistic distributions and types.
 
+============================================================================
+**STATUS: LEGACY / POOR-REFERENCE**
+
+Este modulo gera dados sinteticos minimalistas (Ana, Bruno, Caneta) que
+foram usados como baseline nos experimentos preliminares do projeto
+(findings F30-F103 registrados em docs/article/07-results.md).
+
+Em 2026-04-10 decidimos usar DATASETS CANONICOS como base principal:
+  - TPC-H SF=0.01        (datasets/canonical/tpch-sf001/)
+  - Adult Census (UCI)   (datasets/canonical/adult-census/)
+
+Este arquivo continua existindo porque:
+  1. E usado pelos tests existentes (roundtrip, compression benchmark)
+  2. E comparacao com papers que usam dados "pobres" similares
+  3. Preserva a historia dos experimentos legacy
+
+**NAO use este modulo para novos experimentos cientificos.**
+Use os datasets canonicos via `scripts/dataset_reader.py`.
+
+Ver: docs/research-notes/2026-04-10-critical-review.md
+     datasets/poor-reference/retail-sales-synthetic/README.md
+============================================================================
+
 Improvements over v1:
   - Realistic cardinality ratios (customer:order 1:5-1:20, inspired by TPC-H)
   - Date column (essential: ~10% of enterprise data)

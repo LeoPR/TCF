@@ -1,5 +1,11 @@
 """Synthetic data generators for compression benchmarks.
 
+**STATUS: LEGACY / POOR-REFERENCE.**
+See tests/fixtures/synthetic_v2.py for the full status header.
+This v1 module is kept only for the compression benchmark tests
+that still import it. Do NOT use for new experiments.
+Canonical datasets: datasets/canonical/ (TPC-H, Adult).
+
 Each generator creates a realistic dataset with controlled parameters:
   - n_rows: number of transaction rows
   - n_fk_values: cardinality of FK columns (controls RLE potential)

@@ -1,10 +1,52 @@
 ---
 title: Cleanup — mover retail_sales antigo para poor-reference
 type: task
-status: OPEN
+status: DONE
 priority: 9
 parent: 01-M-datasets-setup
+completed: 2026-04-11
 ---
+
+## STATUS: COMPLETO (2026-04-11)
+
+**Decisao:** NAO renomear/mover o codigo de synthetic_v2.py
+(continua usado por tests legacy de compression benchmark). Apenas
+marcar claramente como **legacy / poor-reference** no docstring.
+
+**Feito:**
+1. Adicionado header de status "LEGACY / POOR-REFERENCE" em:
+   - `tests/fixtures/synthetic_v2.py` (principal)
+   - `tests/fixtures/synthetic.py` (v1 ainda mais legacy)
+   Headers apontam para:
+   - `datasets/canonical/` como fonte principal
+   - `datasets/poor-reference/retail-sales-synthetic/README.md`
+   - `docs/research-notes/2026-04-10-critical-review.md`
+
+2. Verificado: `datasets/poor-reference/retail-sales-synthetic/README.md`
+   ja existia (criado no ticket 02) explicando o contexto.
+
+3. Regression check: 112/112 tests passando (nao quebrou nada).
+
+**O que NAO foi feito (intencional):**
+- NAO movemos `tests/fixtures/synthetic_v2.py` fisicamente.
+  Razao: isso quebraria imports em `tests/test_compression_benchmark.py`
+  e outros tests legacy que ainda rodam como baseline metodologico.
+  A historia do retail_sales esta preservada, mas qualquer novo
+  experimento deve usar `scripts/dataset_reader.py` apontando para
+  TPC-H ou Adult.
+
+- NAO reescrevemos docs/article/07-results.md. Os findings F30-F103
+  continuam registrados la como baseline metodologico. Quando
+  rodarmos experimentos novos com datasets canonicos, vamos
+  complementar o capitulo, nao reescrever.
+
+**Quando o cleanup "fisico" completo vira?**
+Em uma fase futura, se decidirmos remover completamente o caminho
+legacy, podemos mover synthetic_v2.py para archive/v01/. Mas isso
+requer atualizar multiplos tests, e nao e prioritario agora.
+
+---
+
 
 # Cleanup do dataset antigo
 
