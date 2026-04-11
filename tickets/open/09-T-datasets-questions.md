@@ -1,10 +1,83 @@
 ---
 title: Banco de perguntas canonicas por dataset
 type: task
-status: OPEN
+status: DONE
 priority: 8
 parent: 01-M-datasets-setup
+completed: 2026-04-11
 ---
+
+## STATUS: COMPLETO (2026-04-11)
+
+**Criado:** `datasets/questions/tpch-sf001.json` (15 questoes)
+**Criado:** `datasets/questions/adult-census.json` (10 questoes)
+
+Ambos com:
+- Texto bilingue (pt-BR + en-US)
+- SQL executavel (ground truth autoritativo)
+- Categorias (aggregation, lookup, filter_aggregation, group_by, join, distinct)
+- Operacoes (sum, avg, max, min, count, argmax_count, count_by_group, etc)
+- Dificuldade (easy/medium/hard)
+- Answer type (numeric, count, string, pairs)
+
+**Criado:** `scripts/compute_ground_truth.py`
+- Usa `DatasetReader.query()` para executar SQL
+- Normaliza resultados (scalar vs pairs)
+- Suporta `--preview` (dry-run)
+- Salva JSON com ground_truth populado
+
+**Executado — 25 ground truths populados:**
+
+TPC-H (15):
+```
+q1_sum_extendedprice            [numeric] 2152189760.47
+q2_avg_discount                 [numeric] 0.04993003739094308
+q3_max_totalprice               [numeric] 466001.28
+q4_min_acctbal                  [numeric] -994.79
+q5_count_lineitem               [count]   60175
+q6_distinct_mktsegment          [count]   5
+q7_filter_sum_returnflag_r      [numeric] 534594445.35
+q8_count_returnflag_n           [count]   30397
+q9_top_mktsegment               [string]  BUILDING
+q10_orders_by_priority          [pairs]   (5 pairs)
+q11_join_customers_by_nation    [pairs]   MOROCCO, IRAN, CANADA, BRAZIL, SAUDI...
+q12_join_top_region_by_supplier [string]  ASIA (3-table join!)
+q13_avg_orderprice_by_status    [pairs]   F/O/P
+q14_quantity_above_threshold    [count]   12056
+q15_sum_extendedprice_shipmode  [numeric] 303207759.31
+```
+
+Adult (10):
+```
+q1_avg_age                 [numeric] 38.64
+q2_count_rows              [count]   48842
+q3_max_hours               [numeric] 99
+q4_distinct_education      [count]   16
+q5_missing_workclass       [count]   2799    ← bate com metadata!
+q6_count_high_income       [count]   11687
+q7_avg_age_high_income     [numeric] 44.28
+q8_group_count_by_sex      [pairs]   Female/Male
+q9_top_occupation          [string]  Prof-specialty
+q10_avg_hours_by_class     [pairs]   <=50K:38.84, >50K:45.45
+```
+
+**Cobertura por categoria:**
+- Easy (lookup simples): 8 perguntas
+- Medium (filter, group-by): 13 perguntas
+- Hard (joins 2-3 tabelas): 4 perguntas
+
+**Reproducivel:**
+```
+python scripts/compute_ground_truth.py              # ambos
+python scripts/compute_ground_truth.py tpch-sf001   # so um
+python scripts/compute_ground_truth.py --preview    # dry-run
+```
+
+**Tudo em git:** os JSONs de perguntas + ground_truth (pequenos, ~11KB total).
+SQL e a "unica fonte de verdade" — se os dados mudam, roda o script e re-gera.
+
+---
+
 
 # Banco de Perguntas Canonicas
 

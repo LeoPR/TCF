@@ -1,0 +1,232 @@
+{
+  "dataset": "tpch-sf001",
+  "version": "1.0",
+  "generated_by": "manual authoring; ground_truth computed via scripts/compute_ground_truth.py",
+  "notes": [
+    "Questions are authored in Portuguese and English.",
+    "SQL is the authoritative ground truth — executed via sqlite3 on the interim DB.",
+    "Difficulty: easy = single table lookup/agg; medium = filter or 1 join; hard = multi-join or subquery."
+  ],
+  "questions": [
+    {
+      "id": "q1_sum_extendedprice",
+      "category": "aggregation",
+      "operation": "sum",
+      "difficulty": "easy",
+      "answer_type": "numeric",
+      "text_pt": "Qual a soma de l_extendedprice em lineitem?",
+      "text_en": "What is the sum of l_extendedprice across all lineitems?",
+      "sql": "SELECT SUM(l_extendedprice) FROM lineitem",
+      "ground_truth": 2152189760.47
+    },
+    {
+      "id": "q2_avg_discount",
+      "category": "aggregation",
+      "operation": "avg",
+      "difficulty": "easy",
+      "answer_type": "numeric",
+      "text_pt": "Qual a media de l_discount em lineitem?",
+      "text_en": "What is the average l_discount across all lineitems?",
+      "sql": "SELECT AVG(l_discount) FROM lineitem",
+      "ground_truth": 0.04993003739094308
+    },
+    {
+      "id": "q3_max_totalprice",
+      "category": "lookup",
+      "operation": "max",
+      "difficulty": "easy",
+      "answer_type": "numeric",
+      "text_pt": "Qual o maior o_totalprice em orders?",
+      "text_en": "What is the highest o_totalprice in the orders table?",
+      "sql": "SELECT MAX(o_totalprice) FROM orders",
+      "ground_truth": 466001.28
+    },
+    {
+      "id": "q4_min_acctbal",
+      "category": "lookup",
+      "operation": "min",
+      "difficulty": "easy",
+      "answer_type": "numeric",
+      "text_pt": "Qual o menor c_acctbal em customer?",
+      "text_en": "What is the lowest c_acctbal in the customer table?",
+      "sql": "SELECT MIN(c_acctbal) FROM customer",
+      "ground_truth": -994.79
+    },
+    {
+      "id": "q5_count_lineitem",
+      "category": "aggregation",
+      "operation": "count",
+      "difficulty": "easy",
+      "answer_type": "count",
+      "text_pt": "Quantas linhas existem em lineitem?",
+      "text_en": "How many rows are in the lineitem table?",
+      "sql": "SELECT COUNT(*) FROM lineitem",
+      "ground_truth": 60175
+    },
+    {
+      "id": "q6_distinct_mktsegment",
+      "category": "distinct",
+      "operation": "distinct_count",
+      "difficulty": "easy",
+      "answer_type": "count",
+      "text_pt": "Quantos segmentos de mercado distintos existem em customer?",
+      "text_en": "How many distinct market segments are there in the customer table?",
+      "sql": "SELECT COUNT(DISTINCT c_mktsegment) FROM customer",
+      "ground_truth": 5
+    },
+    {
+      "id": "q7_filter_sum_returnflag_r",
+      "category": "filter_aggregation",
+      "operation": "sum_filtered",
+      "difficulty": "medium",
+      "answer_type": "numeric",
+      "text_pt": "Qual a soma de l_extendedprice para lineitems com l_returnflag = 'R'?",
+      "text_en": "What is the sum of l_extendedprice for lineitems where l_returnflag = 'R'?",
+      "sql": "SELECT SUM(l_extendedprice) FROM lineitem WHERE l_returnflag = 'R'",
+      "ground_truth": 534594445.35
+    },
+    {
+      "id": "q8_count_returnflag_n",
+      "category": "filter_aggregation",
+      "operation": "count_filtered",
+      "difficulty": "medium",
+      "answer_type": "count",
+      "text_pt": "Quantos lineitems tem l_returnflag = 'N'?",
+      "text_en": "How many lineitems have l_returnflag = 'N'?",
+      "sql": "SELECT COUNT(*) FROM lineitem WHERE l_returnflag = 'N'",
+      "ground_truth": 30397
+    },
+    {
+      "id": "q9_top_mktsegment",
+      "category": "group_by_argmax",
+      "operation": "argmax_count",
+      "difficulty": "medium",
+      "answer_type": "string",
+      "text_pt": "Qual segmento de mercado (c_mktsegment) tem mais clientes?",
+      "text_en": "Which market segment (c_mktsegment) has the most customers?",
+      "sql": "SELECT c_mktsegment FROM customer GROUP BY c_mktsegment ORDER BY COUNT(*) DESC LIMIT 1",
+      "ground_truth": "BUILDING"
+    },
+    {
+      "id": "q10_orders_by_priority",
+      "category": "group_by",
+      "operation": "count_by_group",
+      "difficulty": "medium",
+      "answer_type": "pairs",
+      "text_pt": "Quantos pedidos existem por o_orderpriority?",
+      "text_en": "How many orders are there per o_orderpriority?",
+      "sql": "SELECT o_orderpriority, COUNT(*) FROM orders GROUP BY o_orderpriority ORDER BY o_orderpriority",
+      "ground_truth": [
+        [
+          "1-URGENT",
+          3020
+        ],
+        [
+          "2-HIGH",
+          3065
+        ],
+        [
+          "3-MEDIUM",
+          2941
+        ],
+        [
+          "4-NOT SPECIFIED",
+          3024
+        ],
+        [
+          "5-LOW",
+          2950
+        ]
+      ]
+    },
+    {
+      "id": "q11_join_customers_by_nation",
+      "category": "join_group_by",
+      "operation": "count_by_group",
+      "difficulty": "hard",
+      "answer_type": "pairs",
+      "text_pt": "Quantos clientes ha em cada pais (nation)? (limitar aos 5 maiores)",
+      "text_en": "How many customers are in each nation? (top 5 only)",
+      "sql": "SELECT n.n_name, COUNT(*) FROM customer c JOIN nation n ON c.c_nationkey = n.n_nationkey GROUP BY n.n_name ORDER BY COUNT(*) DESC LIMIT 5",
+      "ground_truth": [
+        [
+          "MOROCCO",
+          72
+        ],
+        [
+          "IRAN",
+          72
+        ],
+        [
+          "CANADA",
+          69
+        ],
+        [
+          "BRAZIL",
+          68
+        ],
+        [
+          "SAUDI ARABIA",
+          67
+        ]
+      ]
+    },
+    {
+      "id": "q12_join_top_region_by_supplier",
+      "category": "join_group_by_argmax",
+      "operation": "argmax_count",
+      "difficulty": "hard",
+      "answer_type": "string",
+      "text_pt": "Qual regiao tem mais fornecedores (supplier)?",
+      "text_en": "Which region has the most suppliers?",
+      "sql": "SELECT r.r_name FROM supplier s JOIN nation n ON s.s_nationkey = n.n_nationkey JOIN region r ON n.n_regionkey = r.r_regionkey GROUP BY r.r_name ORDER BY COUNT(*) DESC LIMIT 1",
+      "ground_truth": "ASIA"
+    },
+    {
+      "id": "q13_avg_orderprice_by_status",
+      "category": "group_by",
+      "operation": "avg_by_group",
+      "difficulty": "medium",
+      "answer_type": "pairs",
+      "text_pt": "Qual a media de o_totalprice por o_orderstatus?",
+      "text_en": "What is the average o_totalprice per o_orderstatus?",
+      "sql": "SELECT o_orderstatus, ROUND(AVG(o_totalprice), 2) FROM orders GROUP BY o_orderstatus ORDER BY o_orderstatus",
+      "ground_truth": [
+        [
+          "F",
+          141796.42
+        ],
+        [
+          "O",
+          140239.51
+        ],
+        [
+          "P",
+          174488.91
+        ]
+      ]
+    },
+    {
+      "id": "q14_quantity_above_threshold",
+      "category": "filter_aggregation",
+      "operation": "count_filtered",
+      "difficulty": "medium",
+      "answer_type": "count",
+      "text_pt": "Quantos lineitems tem l_quantity maior que 40?",
+      "text_en": "How many lineitems have l_quantity greater than 40?",
+      "sql": "SELECT COUNT(*) FROM lineitem WHERE l_quantity > 40",
+      "ground_truth": 12056
+    },
+    {
+      "id": "q15_sum_extendedprice_shipmode_air",
+      "category": "filter_aggregation",
+      "operation": "sum_filtered",
+      "difficulty": "medium",
+      "answer_type": "numeric",
+      "text_pt": "Qual a soma de l_extendedprice para lineitems com l_shipmode = 'AIR'?",
+      "text_en": "What is the sum of l_extendedprice for lineitems with l_shipmode = 'AIR'?",
+      "sql": "SELECT SUM(l_extendedprice) FROM lineitem WHERE l_shipmode = 'AIR'",
+      "ground_truth": 303207759.31
+    }
+  ]
+}

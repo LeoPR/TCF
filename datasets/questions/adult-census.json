@@ -1,0 +1,139 @@
+{
+  "dataset": "adult-census",
+  "version": "1.0",
+  "generated_by": "manual authoring; ground_truth computed via scripts/compute_ground_truth.py",
+  "notes": [
+    "Adult is a flat table — no joins. Questions cover aggregation, filtering, and missing-value awareness.",
+    "Column names use hyphens (e.g. 'education-num'), so they MUST be quoted in SQL."
+  ],
+  "questions": [
+    {
+      "id": "q1_avg_age",
+      "category": "aggregation",
+      "operation": "avg",
+      "difficulty": "easy",
+      "answer_type": "numeric",
+      "text_pt": "Qual a idade media em adult?",
+      "text_en": "What is the average age in the adult table?",
+      "sql": "SELECT ROUND(AVG(age), 2) FROM adult",
+      "ground_truth": 38.64
+    },
+    {
+      "id": "q2_count_rows",
+      "category": "aggregation",
+      "operation": "count",
+      "difficulty": "easy",
+      "answer_type": "count",
+      "text_pt": "Quantas linhas existem em adult?",
+      "text_en": "How many rows are in the adult table?",
+      "sql": "SELECT COUNT(*) FROM adult",
+      "ground_truth": 48842
+    },
+    {
+      "id": "q3_max_hours",
+      "category": "lookup",
+      "operation": "max",
+      "difficulty": "easy",
+      "answer_type": "numeric",
+      "text_pt": "Qual o maior valor de 'hours-per-week'?",
+      "text_en": "What is the maximum 'hours-per-week' value?",
+      "sql": "SELECT MAX(\"hours-per-week\") FROM adult",
+      "ground_truth": 99
+    },
+    {
+      "id": "q4_distinct_education",
+      "category": "distinct",
+      "operation": "distinct_count",
+      "difficulty": "easy",
+      "answer_type": "count",
+      "text_pt": "Quantos niveis de education distintos existem?",
+      "text_en": "How many distinct education levels are there?",
+      "sql": "SELECT COUNT(DISTINCT education) FROM adult",
+      "ground_truth": 16
+    },
+    {
+      "id": "q5_missing_workclass",
+      "category": "filter",
+      "operation": "count_null",
+      "difficulty": "easy",
+      "answer_type": "count",
+      "text_pt": "Quantas linhas tem workclass nulo (missing)?",
+      "text_en": "How many rows have workclass NULL (missing)?",
+      "sql": "SELECT COUNT(*) FROM adult WHERE workclass IS NULL",
+      "ground_truth": 2799
+    },
+    {
+      "id": "q6_count_high_income",
+      "category": "filter_aggregation",
+      "operation": "count_filtered",
+      "difficulty": "medium",
+      "answer_type": "count",
+      "text_pt": "Quantas pessoas tem class = '>50K'?",
+      "text_en": "How many people have class = '>50K'?",
+      "sql": "SELECT COUNT(*) FROM adult WHERE class = '>50K'",
+      "ground_truth": 11687
+    },
+    {
+      "id": "q7_avg_age_high_income",
+      "category": "filter_aggregation",
+      "operation": "avg_filtered",
+      "difficulty": "medium",
+      "answer_type": "numeric",
+      "text_pt": "Qual a idade media das pessoas com class = '>50K'?",
+      "text_en": "What is the average age of people with class = '>50K'?",
+      "sql": "SELECT ROUND(AVG(age), 2) FROM adult WHERE class = '>50K'",
+      "ground_truth": 44.28
+    },
+    {
+      "id": "q8_group_count_by_sex",
+      "category": "group_by",
+      "operation": "count_by_group",
+      "difficulty": "medium",
+      "answer_type": "pairs",
+      "text_pt": "Quantas pessoas ha por sex?",
+      "text_en": "How many people per sex?",
+      "sql": "SELECT sex, COUNT(*) FROM adult GROUP BY sex ORDER BY sex",
+      "ground_truth": [
+        [
+          "Female",
+          16192
+        ],
+        [
+          "Male",
+          32650
+        ]
+      ]
+    },
+    {
+      "id": "q9_top_occupation",
+      "category": "group_by_argmax",
+      "operation": "argmax_count",
+      "difficulty": "medium",
+      "answer_type": "string",
+      "text_pt": "Qual a occupation mais comum (excluindo nulos)?",
+      "text_en": "What is the most common occupation (excluding NULLs)?",
+      "sql": "SELECT occupation FROM adult WHERE occupation IS NOT NULL GROUP BY occupation ORDER BY COUNT(*) DESC LIMIT 1",
+      "ground_truth": "Prof-specialty"
+    },
+    {
+      "id": "q10_avg_hours_by_class",
+      "category": "group_by",
+      "operation": "avg_by_group",
+      "difficulty": "medium",
+      "answer_type": "pairs",
+      "text_pt": "Qual a media de 'hours-per-week' para cada class?",
+      "text_en": "What is the average 'hours-per-week' per class?",
+      "sql": "SELECT class, ROUND(AVG(\"hours-per-week\"), 2) FROM adult GROUP BY class ORDER BY class",
+      "ground_truth": [
+        [
+          "<=50K",
+          38.84
+        ],
+        [
+          ">50K",
+          45.45
+        ]
+      ]
+    }
+  ]
+}
