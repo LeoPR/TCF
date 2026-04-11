@@ -1,10 +1,54 @@
 ---
 title: Download e setup TPC-H SF=0.01
 type: task
-status: OPEN
+status: DONE
 priority: 3
 parent: 01-M-datasets-setup
+completed: 2026-04-11
 ---
+
+## STATUS: COMPLETO (2026-04-11)
+
+**Criado:** `scripts/setup_tpch.py` (~300 linhas)
+- Schema hard-coded com PK, FK, tipos por tabela (TPC-H spec v3.0.1)
+- Usa `_paths.ensure_dirs()` e `_paths.external_dir()` para storage
+- Download via DuckDB tpch extension (~0.2s para SF=0.01)
+- Gera `datasets/canonical/tpch-sf001/metadata.json` completo
+- Gera samples em `datasets/samples/tpch-sf001/` para git
+
+**Rodado:**
+```
+python scripts/setup_tpch.py
+[tpch] SF=0.01 -> Z:\tcf-data\external\tpch-sf001
+[tpch] dbgen completed in 0.2s
+[tpch]   region    :        5 rows  (     0.4 KB)
+[tpch]   nation    :       25 rows  (     2.2 KB)
+[tpch]   supplier  :      100 rows  (    13.7 KB)
+[tpch]   customer  :    1,500 rows  (   238.6 KB)
+[tpch]   part      :    2,000 rows  (   237.7 KB)
+[tpch]   partsupp  :    8,000 rows  ( 1,132.4 KB)
+[tpch]   orders    :   15,000 rows  ( 1,640.1 KB)
+[tpch]   lineitem  :   60,175 rows  ( 7,222.7 KB)
+86,805 total rows, ~10.4 MB raw, 8 tables.
+```
+
+**Storage 3-camadas verificado:**
+- Camada B (disco): 10MB em Z:\tcf-data\external\tpch-sf001\
+- Camada A (git): metadata.json + 6 samples (~23KB total)
+- Nenhum CSV grande no git
+
+**Samples gerados (em git):**
+- region.csv (inteiro, 5 rows, 415B)
+- nation.csv (inteiro, 25 rows, 2.2KB)
+- supplier-sample.csv (20 rows, 2.7KB)
+- customer-sample.csv (20 rows, 3.3KB)
+- orders-sample.csv (20 rows, 2.4KB)
+- lineitem-sample.csv (100 rows, 11.9KB)
+
+**Reproducivel:** `python scripts/setup_tpch.py --sf 0.01` (ou outro SF)
+
+---
+
 
 # TPC-H SF=0.01
 
