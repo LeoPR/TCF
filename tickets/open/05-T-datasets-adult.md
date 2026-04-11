@@ -1,10 +1,44 @@
 ---
 title: Download e setup Adult (Census Income)
 type: task
-status: OPEN
+status: DONE
 priority: 4
 parent: 01-M-datasets-setup
+completed: 2026-04-11
 ---
+
+## STATUS: COMPLETO (2026-04-11)
+
+**Criado:** `scripts/setup_adult.py`
+- Schema Adult hard-coded (14 colunas + target "class")
+- Usa `_paths.external_dir("adult-census")` para storage
+- Download via sklearn `fetch_openml(id=1590, version=2)`
+- Gera `datasets/canonical/adult-census/metadata.json` com:
+  * Schema completo (tipos, nullable, notes)
+  * Missing values counts (automatico via pandas isna)
+  * Citation (Becker & Kohavi 1996)
+
+**Rodado:**
+```
+python scripts/setup_adult.py
+[adult] downloaded: 48842 rows x 15 columns
+[adult] saved: Z:\tcf-data\external\adult-census\adult.csv (5195.2 KB)
+[adult] missing values: workclass=2799, occupation=2809, native-country=857
+[adult] sample: adult-sample.csv (10.8 KB, 100 rows)
+```
+
+**Storage verificado:**
+- Camada B (disco): 5.2 MB em Z:\tcf-data\external\adult-census\
+- Camada A (git): metadata.json (com tipos + missing counts) + 1 sample (~11KB)
+
+**Missing values reais** detectados automaticamente. Isso e IMPORTANTE:
+diferente do retail_sales sintetico, Adult tem valores ausentes naturais
+que sao uma propriedade do mundo real.
+
+**Reproducivel:** `python scripts/setup_adult.py`
+
+---
+
 
 # Adult (Census Income)
 

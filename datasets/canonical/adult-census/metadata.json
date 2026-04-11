@@ -1,17 +1,95 @@
 {
-  "_note": "PLACEHOLDER. Sera preenchido com o schema completo no ticket 05-T-datasets-adult.",
   "name": "adult-census",
   "source": "UCI ML Repository (via OpenML id=1590)",
   "origin": "https://archive.ics.uci.edu/dataset/2/adult",
+  "openml_url": "https://www.openml.org/d/1590",
   "license": "CC BY 4.0",
   "citation": "Becker, B. and Kohavi, R. (1996). Adult. UCI Machine Learning Repository. https://doi.org/10.24432/C5XW20",
-  "openml_id": 1590,
-  "status": "stub",
+  "downloaded_via": "sklearn.datasets.fetch_openml",
+  "row_counts": {
+    "adult": 48842
+  },
+  "column_count": 15,
+  "missing_values_per_column": {
+    "workclass": 2799,
+    "occupation": 2809,
+    "native-country": 857
+  },
   "tables": {
     "adult": {
       "pk": null,
-      "columns": {},
-      "missing_value_marker": "?"
+      "fk": {},
+      "missing_value_marker": "?",
+      "columns": {
+        "age": {
+          "type": "int",
+          "nullable": false
+        },
+        "workclass": {
+          "type": "string",
+          "nullable": true,
+          "note": "? means missing"
+        },
+        "fnlwgt": {
+          "type": "int",
+          "nullable": false,
+          "note": "Census final weight"
+        },
+        "education": {
+          "type": "string",
+          "nullable": false
+        },
+        "education-num": {
+          "type": "int",
+          "nullable": false,
+          "note": "Years of education"
+        },
+        "marital-status": {
+          "type": "string",
+          "nullable": false
+        },
+        "occupation": {
+          "type": "string",
+          "nullable": true,
+          "note": "? means missing"
+        },
+        "relationship": {
+          "type": "string",
+          "nullable": false
+        },
+        "race": {
+          "type": "string",
+          "nullable": false
+        },
+        "sex": {
+          "type": "string",
+          "nullable": false,
+          "note": "Male or Female"
+        },
+        "capital-gain": {
+          "type": "int",
+          "nullable": false
+        },
+        "capital-loss": {
+          "type": "int",
+          "nullable": false
+        },
+        "hours-per-week": {
+          "type": "int",
+          "nullable": false
+        },
+        "native-country": {
+          "type": "string",
+          "nullable": true,
+          "note": "? means missing"
+        },
+        "class": {
+          "type": "string",
+          "nullable": false,
+          "note": "Target: >50K or <=50K",
+          "target": true
+        }
+      }
     }
   }
 }
