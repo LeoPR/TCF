@@ -10,6 +10,7 @@ comece aqui.
 Como o projeto e organizado, onde dados vivem, como medimos coisas.
 
 - [architecture/overview.md](architecture/overview.md) — visao geral da arquitetura
+- [architecture/boundaries.md](architecture/boundaries.md) — **fronteiras: TCF core vs support vs experiments**
 - [architecture/storage.md](architecture/storage.md) — estrategia de storage (git / disco / archive)
 - [architecture/telemetry.md](architecture/telemetry.md) — medicao honesta de tempo (IO / parse / TCF)
 - [architecture/source-map.md](architecture/source-map.md) — rastreabilidade entre documentos
