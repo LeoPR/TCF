@@ -40,7 +40,7 @@ Outros ~18 datasets pesquisados estao documentados em
 [docs/research-notes/2026-04-10-canonical-datasets.md](../docs/research-notes/2026-04-10-canonical-datasets.md)
 como backlog futuro.
 
-## Open (13) — ordem de execucao
+## Open (20) — ordem de execucao
 
 ### Meta-ticket
 
@@ -62,6 +62,45 @@ como backlog futuro.
 | 8 | [09-T-datasets-questions](open/09-T-datasets-questions.md) | task | Banco de perguntas + ground truth SQL |
 | 9 | [10-T-datasets-cleanup](open/10-T-datasets-cleanup.md) | task | Mover retail_sales para poor-reference |
 | 10 | [11-T-telemetry](open/11-T-telemetry.md) | task | Modulo de timing honesto (`src/tcf/timing.py`) |
+
+---
+
+## PROXIMA FASE: 1.5 — Dataset Shaper
+
+**Motivacao (2026-04-12):** antes de testar qualquer formato, precisamos de um
+**sampler multidimensional** que extrai subsets controlados dos datasets
+canonicos segundo: volume, schema complexity, join level, ordering,
+stratification e compressibility.
+
+Pesquisa completa em
+[docs/research-notes/2026-04-12-dataset-shaper.md](../docs/research-notes/2026-04-12-dataset-shaper.md).
+
+### Meta-ticket
+
+| Prioridade | Ticket | Tipo | Descricao |
+|-----------|--------|------|-----------|
+| 11 | [12-M-dataset-shaper](open/12-M-dataset-shaper.md) | meta | **Guia da Fase 1.5** |
+
+### Sub-tickets Fase 1.5a (minimo viavel)
+
+| Prioridade | Ticket | Tipo | Descricao |
+|-----------|--------|------|-----------|
+| 12 | [13-T-shaper-request](open/13-T-shaper-request.md) | task | ShapeRequest + ShapeResult dataclasses |
+| 13 | [14-T-shaper-pipeline](open/14-T-shaper-pipeline.md) | task | Pipeline executor + Strategy protocol |
+| 14 | [15-T-shaper-volume](open/15-T-shaper-volume.md) | task | Volume (N absoluto ou fraction) |
+| 15 | [16-T-shaper-schema](open/16-T-shaper-schema.md) | task | Schema levels (minimal, core, chain, full) |
+| 16 | [17-T-shaper-ordering](open/17-T-shaper-ordering.md) | task | Ordering (natural, random, sorted, reverse) |
+| 17 | [18-T-shaper-e2e](open/18-T-shaper-e2e.md) | task | End-to-end tests (Adult + TPC-H) |
+
+### Sub-tickets Fase 1.5b (extensoes, apos 1.5a)
+
+Serao criados quando 1.5a estiver concluida:
+- 19: Stratification (por coluna)
+- 20: Compressibility (score de raridade + cache)
+- 21: Join level (normalized vs flat via SQL)
+- 22: Testes combinatoriais (pairwise)
+
+---
 
 ### Findings DONE (mantidos como referencia)
 
