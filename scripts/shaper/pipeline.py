@@ -57,21 +57,13 @@ def _load_builtin_strategies() -> None:
         return  # already loaded
 
     # Import in pipeline order — each module registers itself
-    try:
-        from .strategies import schema as _schema  # noqa: F401
-    except ImportError:
-        pass
-    # join — future (ticket 21)
-    # compressibility — future (ticket 20)
-    # stratify — future (ticket 19)
-    try:
-        from .strategies import volume as _volume  # noqa: F401
-    except ImportError:
-        pass
-    try:
-        from .strategies import ordering as _ordering  # noqa: F401
-    except ImportError:
-        pass
+    # Import in pipeline order — each module registers itself via register_strategy()
+    # Order: schema → join → compressibility → stratify → volume → ordering
+    for _mod in ("schema", "join", "compressibility", "stratify", "volume", "ordering"):
+        try:
+            __import__(f"shaper.strategies.{_mod}", fromlist=[_mod])
+        except ImportError:
+            pass  # strategy not yet implemented — skip
 
 
 class Shaper:

@@ -201,3 +201,212 @@ class TestShaperTPCH:
         # Each table gets 10 rows independently
         assert r.tables["customer"] == r.tables["customer"][:10] or len(r.tables["customer"]) == 10
         assert len(r.tables["orders"]) == 10
+
+
+# ---------------------------------------------------------------------------
+# Stratification (ticket 19)
+# ---------------------------------------------------------------------------
+
+class TestShaperStratify:
+    @pytest.fixture(autouse=True)
+    def _check_db(self):
+        _needs_db("adult-census")
+
+    def test_stratify_by_sex(self, shaper):
+        r = shaper.apply(ShapeRequest(
+            dataset="adult-census", volume=40, stratify_by="sex",
+        ))
+        sexes = {}
+        for row in r.tables["adult"]:
+            sexes[row["sex"]] = sexes.get(row["sex"], 0) + 1
+        # Both sexes should be represented
+        assert "Male" in sexes and "Female" in sexes
+        assert r.total_rows == 40
+
+    def test_stratify_proportional(self, shaper):
+        r = shaper.apply(ShapeRequest(
+            dataset="adult-census", volume=100, stratify_by="sex",
+        ))
+        sexes = {}
+        for row in r.tables["adult"]:
+            sexes[row["sex"]] = sexes.get(row["sex"], 0) + 1
+        # Should be ~50/50 (proportional to 2 groups)
+        assert sexes["Male"] == 50
+        assert sexes["Female"] == 50
+
+    def test_stratify_without_volume_returns_all(self, shaper):
+        r = shaper.apply(ShapeRequest(
+            dataset="adult-census", stratify_by="sex",
+        ))
+        assert r.total_rows == 48842
+
+    def test_stratify_nonexistent_column_warns(self, shaper):
+        r = shaper.apply(ShapeRequest(
+            dataset="adult-census", volume=10, stratify_by="nonexistent",
+        ))
+        assert any("WARNING" in t for t in r.trace)
+
+
+# ---------------------------------------------------------------------------
+# Compressibility (ticket 20)
+# ---------------------------------------------------------------------------
+
+class TestShaperCompressibility:
+    @pytest.fixture(autouse=True)
+    def _check_db(self):
+        _needs_db("adult-census")
+
+    def test_easy_vs_hard_direction(self, shaper):
+        r_easy = shaper.apply(ShapeRequest(
+            dataset="adult-census", compressibility_range=(0.0, 0.2),
+        ))
+        r_hard = shaper.apply(ShapeRequest(
+            dataset="adult-census", compressibility_range=(0.8, 1.0),
+        ))
+        # Both should return non-empty results
+        assert r_easy.total_rows > 0
+        assert r_hard.total_rows > 0
+
+    def test_full_range_returns_all(self, shaper):
+        r = shaper.apply(ShapeRequest(
+            dataset="adult-census", compressibility_range=(0.0, 1.0),
+        ))
+        assert r.total_rows == 48842
+
+    def test_with_volume(self, shaper):
+        r = shaper.apply(ShapeRequest(
+            dataset="adult-census", compressibility_range=(0.0, 0.5), volume=50,
+        ))
+        assert r.total_rows <= 50
+
+    def test_trace_shows_scores(self, shaper):
+        r = shaper.apply(ShapeRequest(
+            dataset="adult-census", compressibility_range=(0.5, 1.0),
+        ))
+        assert any("compressibility" in t for t in r.trace)
+        assert any("avg_score" in t for t in r.trace)
+
+
+# ---------------------------------------------------------------------------
+# Join level (ticket 21)
+# ---------------------------------------------------------------------------
+
+class TestShaperJoin:
+    @pytest.fixture(autouse=True)
+    def _check_db(self):
+        _needs_db("tpch-sf001")
+
+    def test_normalized_keeps_separate(self, shaper):
+        r = shaper.apply(ShapeRequest(
+            dataset="tpch-sf001", schema="core", join_level="normalized",
+        ))
+        assert "customer" in r.table_names
+        assert "orders" in r.table_names
+
+    def test_flat_produces_single_table(self, shaper):
+        r = shaper.apply(ShapeRequest(
+            dataset="tpch-sf001", schema="core", join_level="flat",
+        ))
+        assert len(r.table_names) == 1
+        flat_name = r.table_names[0]
+        assert "flat" in flat_name
+
+    def test_flat_resolves_fk_names(self, shaper):
+        r = shaper.apply(ShapeRequest(
+            dataset="tpch-sf001", schema="core", join_level="flat", volume=3,
+        ))
+        flat_name = r.table_names[0]
+        cols = list(r.tables[flat_name][0].keys())
+        # Should have a resolved customer name column
+        assert any("c_name" in c for c in cols)
+
+    def test_flat_single_table_passthrough(self, shaper):
+        r = shaper.apply(ShapeRequest(
+            dataset="tpch-sf001", schema="minimal", join_level="flat",
+        ))
+        # Only 1 table selected, flat has no effect
+        assert r.total_rows == 1500
+
+    def test_flat_with_volume(self, shaper):
+        r = shaper.apply(ShapeRequest(
+            dataset="tpch-sf001", schema="core", join_level="flat", volume=10,
+        ))
+        assert r.total_rows == 10
+
+    def test_flat_adult_no_effect(self, shaper):
+        _needs_db("adult-census")
+        r = shaper.apply(ShapeRequest(
+            dataset="adult-census", join_level="flat",
+        ))
+        # Adult is 1 table, flat has no joins to do
+        assert r.total_rows == 48842
+
+
+# ---------------------------------------------------------------------------
+# Combined / edge cases (ticket 22)
+# ---------------------------------------------------------------------------
+
+class TestShaperCombined:
+    @pytest.fixture(autouse=True)
+    def _check_db(self):
+        _needs_db("adult-census")
+
+    def test_stratify_plus_compressibility(self, shaper):
+        r = shaper.apply(ShapeRequest(
+            dataset="adult-census",
+            volume=50,
+            stratify_by="sex",
+            compressibility_range=(0.3, 0.7),
+        ))
+        assert r.total_rows <= 50
+        # Both sexes should still be represented
+        sexes = set(row["sex"] for row in r.tables["adult"])
+        assert len(sexes) == 2
+
+    def test_all_dimensions_adult(self, shaper):
+        r = shaper.apply(ShapeRequest(
+            dataset="adult-census",
+            volume=20,
+            schema="full",
+            join_level="normalized",
+            order="sorted:age",
+            stratify_by="sex",
+            compressibility_range=(0.2, 0.8),
+            seed=99,
+        ))
+        assert r.total_rows <= 20
+        ages = [row["age"] for row in r.tables["adult"]]
+        assert ages == sorted(ages)
+
+    def test_all_dimensions_tpch(self, shaper):
+        _needs_db("tpch-sf001")
+        r = shaper.apply(ShapeRequest(
+            dataset="tpch-sf001",
+            volume=10,
+            schema="core",
+            join_level="flat",
+            order="random",
+            seed=42,
+        ))
+        assert r.total_rows == 10
+        assert len(r.table_names) == 1  # flat
+
+    def test_invariant_never_more_than_requested(self, shaper):
+        for vol in [1, 5, 10, 50, 100]:
+            r = shaper.apply(ShapeRequest(
+                dataset="adult-census", volume=vol, order="random",
+            ))
+            assert r.total_rows <= vol
+
+    def test_determinism_across_all_dimensions(self, shaper):
+        req = ShapeRequest(
+            dataset="adult-census",
+            volume=15,
+            stratify_by="sex",
+            compressibility_range=(0.3, 0.7),
+            order="random",
+            seed=42,
+        )
+        r1 = shaper.apply(req)
+        r2 = shaper.apply(req)
+        assert r1.tables["adult"] == r2.tables["adult"]
