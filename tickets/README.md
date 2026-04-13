@@ -40,7 +40,7 @@ Outros ~18 datasets pesquisados estao documentados em
 [docs/research-notes/2026-04-10-canonical-datasets.md](../docs/research-notes/2026-04-10-canonical-datasets.md)
 como backlog futuro.
 
-## Open (20) — ordem de execucao
+## Open (30) — ordem de execucao
 
 ### Meta-ticket
 
@@ -109,15 +109,40 @@ Serao criados quando 1.5a estiver concluida:
 | [H-diagnostic-3layer-v02](open/H-diagnostic-3layer-v02.md) | hypothesis | **DONE** (F80-F84) |
 | [E-stats-ablation](open/E-stats-ablation.md) | experiment | **DONE** (F90-F94) |
 
-## Proxima fase (ainda nao definida)
+## FASE 2: Refatorar TCF Encoder + Benchmarks Reais
 
-Apos a Fase 1 estar completa, reavaliaremos para decidir **Fase 2**.
-Opcoes provaveis:
-- STATS-based hints como contribuicao central (usando os dados novos)
-- Comparacao honesta de formatos (CSV, JSONL, TCF, TOON) com dados canonicos
-- Outra direcao que surgir da analise dos dados novos
+**Motivacao (2026-04-12):** Fases 1 e 1.5 prontas. Refatorar o encoder
+para aceitar dados genericos do shaper, depois medir compressao e tokens
+reais em dados canonicos.
 
-**Nao pensar em Fase 2 agora.** Focar em concluir Fase 1.
+### Meta-ticket
+
+| Prioridade | Ticket | Tipo | Descricao |
+|-----------|--------|------|-----------|
+| 23 | [24-M-phase2-tcf-refactor](open/24-M-phase2-tcf-refactor.md) | meta | **Guia da Fase 2** |
+
+### Etapa A — Refatorar encoder (proxima)
+
+| Prioridade | Ticket | Tipo | Descricao |
+|-----------|--------|------|-----------|
+| 24 | [25-T-encode-columns](open/25-T-encode-columns.md) | task | `encode_columns()` core puro (dict[str,list]) |
+| 25 | [26-T-encode-rows](open/26-T-encode-rows.md) | task | `encode_rows()` converte list[dict] |
+| 26 | [27-T-encode-compat](open/27-T-encode-compat.md) | task | `encode()` wrapper (backwards compat) |
+| 27 | [28-T-encode-tests](open/28-T-encode-tests-canonical.md) | task | Roundtrip com dados canonicos |
+
+### Etapas B-E (futuras, apos A)
+
+Definidas em [24-M-phase2-tcf-refactor](open/24-M-phase2-tcf-refactor.md):
+- B: Compression benchmark (TCF vs CSV vs JSONL)
+- C: TOON encoder + format comparison
+- D: LLM accuracy com dados canonicos
+- E: Numeric precision (shaper + TCF)
+
+### Pesquisa
+
+| Prioridade | Ticket | Descricao |
+|-----------|--------|-----------|
+| 22 | [23-P-numeric-precision](open/23-P-numeric-precision.md) | Arredondamento controlado (shaper + TCF) |
 
 ---
 
