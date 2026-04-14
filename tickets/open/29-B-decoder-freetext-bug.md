@@ -45,35 +45,97 @@ if line.endswith(":") and not line[0].isdigit():
 Isso e uma heuristica que funciona para dados estruturados mas falha
 com texto livre.
 
-## Possiveis solucoes
+## Pesquisa: como formatos consagrados resolvem isso (2026-04-13)
 
-### A. Escapar ':' no encoder (simples, quebraria legibilidade)
-Encoder poderia escapar `:` no final de valores, mas isso complica o formato.
+### CSV (RFC 4180) — padrao de ouro
 
-### B. Usar contagem de colunas (robusta)
-Decoder sabe quantas colunas esperar (do header `## table n=X`). Depois
-de ler N colunas, parar de procurar headers. Requer refactoring do decoder.
+Regra simples e universal (20+ anos):
+- Se valor contem `,`, `"`, ou `\n` → envolve em aspas duplas
+- Se valor contem `"` → duplica para `""`
+- Caso contrario → valor cru
 
-### C. Marcar fim de dados explicitamente
-Adicionar marcador `# END` ou usar blank line dupla entre colunas.
-Mudaria o formato mas seria mais robusto.
+```
+"pending requests:"              ← aspas protegem o ':'
+"campo com ""aspas"" dentro"     ← aspas duplicadas
+normal sem aspas                 ← valor seguro, sem aspas
+```
 
-### D. Usar prefixo no header de coluna
-Em vez de `col_name:`, usar `@col_name:` ou `> col_name:`. Distingue
-de texto livre. Mudaria formato.
+### TSV — proibe caracteres especiais
 
-### E. Excluir colunas de texto livre (workaround)
-Nao encodar colunas com texto livre longo (c_comment, etc).
-Workaround, nao solucao.
+TAB e newline sao **proibidos** dentro dos valores.
+Escape: `\t`, `\n`, `\\`. Parsing trivial (`split('\t')`).
 
-## Decisao para agora
+### JSON — backslash universal
 
-**Workaround E** nos testes: excluir colunas _comment. Registrar bug como
-ticket aberto. A solucao real (B ou C) sera implementada quando refatorarmos
-o formato TCF v0.3.
+`\"`, `\\`, `\n`, `\t`, `\uXXXX`. Robusto mas verboso.
 
-## Workaround aplicado
+### Parquet/Arrow — binario com length prefix
 
-Em `tests/test_encode_canonical.py`, colunas terminadas em `_comment` sao
-excluidas dos testes de roundtrip. Isso nao afeta os testes de compressao
-(que sao sobre dados estruturados, nao texto livre).
+Nao aplicavel ao TCF (textual).
+
+## Solucoes avaliadas para TCF
+
+### A. Quoting estilo CSV ← RECOMENDADA
+
+Se o valor contem `:` no final, newline, ou comeca com digito+`*`:
+→ envolve em aspas duplas. Aspas internas duplicadas.
+
+```
+c_comment:
+"accounts use carefully"
+"pending requests:"              ← aspas protegem o ':'
+"campo com ""aspas"" dentro"     ← aspas duplicadas
+normal sem aspas
+```
+
+**Pros:** consagrado (RFC 4180), LLMs entendem (treinados em bilhoes de CSVs)
+**Contras:** adiciona 2 chars por valor que precisa (+1% overhead estimado)
+
+### B. Escape com backslash
+
+`pending requests\:` — compacto mas nao e padrao CSV, confuso em Windows.
+
+### C. Prefixo no header de coluna
+
+`> c_comment` em vez de `c_comment:` — resolve 100% sem tocar nos valores.
+Mas muda o formato (quebra v0.2).
+
+### D. Length prefix
+
+`c_comment[27]: ...` — zero ambiguidade, mas feio e verboso.
+
+### E. Excluir colunas de texto livre (workaround atual)
+
+Nao encodar colunas `_comment`. Workaround, nao solucao.
+
+## Decisao
+
+**Solucao A (quoting CSV)** sera implementada quando fizermos TCF v0.3.
+Razoes:
+1. Consagrada (RFC 4180, 20+ anos)
+2. Minima mudanca no encoder (adicionar `_quote_if_needed()`)
+3. Minima mudanca no decoder (detectar aspas no inicio)
+4. Compativel com formato atual (aspas sao transparentes para valores simples)
+5. LLMs entendem aspas (treinados em CSVs)
+
+**Por agora:** workaround E nos testes. Os testes de roundtrip excluem
+colunas `_comment` (que sao texto livre). Isso nao afeta testes de
+compressao nem accuracy de LLM (texto livre nao e agregavel).
+
+## Impacto estimado nos dados reais
+
+| Dataset | Campos afetados | % valores que precisam de aspas |
+|---------|----------------|-------------------------------|
+| TPC-H customer | c_comment | ~13% (200 de 1500) |
+| TPC-H lineitem | l_comment | ~5% (3000 de 60K) |
+| TPC-H supplier | s_comment | ~10% |
+| Adult | nenhum | 0% |
+
+Overhead total estimado: <1% do tamanho do TCF.
+
+## Referencias
+
+- [RFC 4180 (CSV)](https://datatracker.ietf.org/doc/html/rfc4180)
+- [Handling Special Characters in CSV](https://inventivehq.com/blog/handling-special-characters-in-csv-files)
+- [TSV spec v2.0 (GitHub)](https://gist.github.com/rain-1/e6293ec0113c193ecc23d5529461d322)
+- [Linear TSV — Open Knowledge Foundation](http://dataprotocols.org/linear-tsv/)
