@@ -31,6 +31,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from _paths import PROJECT_ROOT, data_root  # noqa: E402
 from dataset_reader import DatasetReader  # noqa: E402
+from writers.toon_writer import encode_toon  # noqa: E402
 
 sys.path.insert(0, str(PROJECT_ROOT / "src"))
 from tcf import encode_columns, EncodeConfig  # noqa: E402
@@ -132,6 +133,27 @@ def benchmark_table(
             "chars": len(jsonl_text), "bytes": len(jsonl_bytes),
             "gzip": jsonl_gz, "brotli": jsonl_br,
             "encode_ms": t.to_dict()["jsonl_encode"],
+            "cols": len(col_names),
+        })
+
+        # --- TOON ---
+        t = Timings()
+        # TOON needs rows without excluded columns
+        safe_rows = [
+            {c: row[c] for c in col_names}
+            for row in rows
+        ]
+        with t.measure("toon_encode"):
+            toon_text = encode_toon(table, col_names, safe_rows)
+        toon_bytes = toon_text.encode("utf-8")
+        toon_gz = len(gzip.compress(toon_bytes))
+        toon_br = _try_brotli(toon_bytes)
+
+        results.append({
+            "table": table, "scale": n, "format": "toon",
+            "chars": len(toon_text), "bytes": len(toon_bytes),
+            "gzip": toon_gz, "brotli": toon_br,
+            "encode_ms": t.to_dict()["toon_encode"],
             "cols": len(col_names),
         })
 
