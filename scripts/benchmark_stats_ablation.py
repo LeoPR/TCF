@@ -232,7 +232,7 @@ def run(models, endpoint):
                     with RESULTS_PATH.open("a", encoding="utf-8") as f:
                         f.write(json.dumps(result, ensure_ascii=False) + "\n")
                     completed.add(key)
-                    print(f"{tier} err={rel_error} {result['latency_s']}s")
+                    print(f"{result['tier']} err={result.get('rel_error')} {result['latency_s']}s")
 
     reader.close()
 
