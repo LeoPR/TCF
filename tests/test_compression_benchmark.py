@@ -24,8 +24,8 @@ ROOT = Path(__file__).parent.parent
 sys.path.insert(0, str(ROOT / "src"))
 
 from tcf import encode, decode, EncodeConfig
-from tests.fixtures import _write_fixture
-from tests.fixtures.synthetic import (
+from fixtures import _write_fixture
+from fixtures.synthetic import (
     crm_sales,
     service_logs,
     survey_likert,
