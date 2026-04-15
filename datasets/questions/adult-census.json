@@ -1,10 +1,12 @@
 {
   "dataset": "adult-census",
-  "version": "1.0",
+  "version": "2.0",
   "generated_by": "manual authoring; ground_truth computed via scripts/compute_ground_truth.py",
   "notes": [
-    "Adult is a flat table — no joins. Questions cover aggregation, filtering, and missing-value awareness.",
-    "Column names use hyphens (e.g. 'education-num'), so they MUST be quoted in SQL."
+    "Adult is a flat table — no joins.",
+    "Column names use hyphens (e.g. 'education-num'), so they MUST be quoted in SQL.",
+    "Version 2.0 adds stats_answerable field and reasoning/heuristic questions.",
+    "Question categories: descriptive (D), reasoning (R), heuristic (H) per BI analytics framework."
   ],
   "questions": [
     {
@@ -13,6 +15,8 @@
       "operation": "avg",
       "difficulty": "easy",
       "answer_type": "numeric",
+      "stats_answerable": true,
+      "analytics_level": "descriptive",
       "text_pt": "Qual a idade media em adult?",
       "text_en": "What is the average age in the adult table?",
       "sql": "SELECT ROUND(AVG(age), 2) FROM adult",
@@ -24,6 +28,8 @@
       "operation": "count",
       "difficulty": "easy",
       "answer_type": "count",
+      "stats_answerable": true,
+      "analytics_level": "descriptive",
       "text_pt": "Quantas linhas existem em adult?",
       "text_en": "How many rows are in the adult table?",
       "sql": "SELECT COUNT(*) FROM adult",
@@ -35,6 +41,8 @@
       "operation": "max",
       "difficulty": "easy",
       "answer_type": "numeric",
+      "stats_answerable": true,
+      "analytics_level": "descriptive",
       "text_pt": "Qual o maior valor de 'hours-per-week'?",
       "text_en": "What is the maximum 'hours-per-week' value?",
       "sql": "SELECT MAX(\"hours-per-week\") FROM adult",
@@ -46,6 +54,8 @@
       "operation": "distinct_count",
       "difficulty": "easy",
       "answer_type": "count",
+      "stats_answerable": false,
+      "analytics_level": "descriptive",
       "text_pt": "Quantos niveis de education distintos existem?",
       "text_en": "How many distinct education levels are there?",
       "sql": "SELECT COUNT(DISTINCT education) FROM adult",
@@ -57,6 +67,8 @@
       "operation": "count_null",
       "difficulty": "easy",
       "answer_type": "count",
+      "stats_answerable": false,
+      "analytics_level": "descriptive",
       "text_pt": "Quantas linhas tem workclass nulo (missing)?",
       "text_en": "How many rows have workclass NULL (missing)?",
       "sql": "SELECT COUNT(*) FROM adult WHERE workclass IS NULL",
@@ -68,6 +80,8 @@
       "operation": "count_filtered",
       "difficulty": "medium",
       "answer_type": "count",
+      "stats_answerable": false,
+      "analytics_level": "descriptive",
       "text_pt": "Quantas pessoas tem class = '>50K'?",
       "text_en": "How many people have class = '>50K'?",
       "sql": "SELECT COUNT(*) FROM adult WHERE class = '>50K'",
@@ -79,6 +93,8 @@
       "operation": "avg_filtered",
       "difficulty": "medium",
       "answer_type": "numeric",
+      "stats_answerable": false,
+      "analytics_level": "diagnostic",
       "text_pt": "Qual a idade media das pessoas com class = '>50K'?",
       "text_en": "What is the average age of people with class = '>50K'?",
       "sql": "SELECT ROUND(AVG(age), 2) FROM adult WHERE class = '>50K'",
@@ -90,6 +106,8 @@
       "operation": "count_by_group",
       "difficulty": "medium",
       "answer_type": "pairs",
+      "stats_answerable": false,
+      "analytics_level": "descriptive",
       "text_pt": "Quantas pessoas ha por sex?",
       "text_en": "How many people per sex?",
       "sql": "SELECT sex, COUNT(*) FROM adult GROUP BY sex ORDER BY sex",
@@ -110,6 +128,8 @@
       "operation": "argmax_count",
       "difficulty": "medium",
       "answer_type": "string",
+      "stats_answerable": false,
+      "analytics_level": "diagnostic",
       "text_pt": "Qual a occupation mais comum (excluindo nulos)?",
       "text_en": "What is the most common occupation (excluding NULLs)?",
       "sql": "SELECT occupation FROM adult WHERE occupation IS NOT NULL GROUP BY occupation ORDER BY COUNT(*) DESC LIMIT 1",
@@ -121,6 +141,8 @@
       "operation": "avg_by_group",
       "difficulty": "medium",
       "answer_type": "pairs",
+      "stats_answerable": false,
+      "analytics_level": "diagnostic",
       "text_pt": "Qual a media de 'hours-per-week' para cada class?",
       "text_en": "What is the average 'hours-per-week' per class?",
       "sql": "SELECT class, ROUND(AVG(\"hours-per-week\"), 2) FROM adult GROUP BY class ORDER BY class",
@@ -134,6 +156,162 @@
           45.45
         ]
       ]
+    },
+    {
+      "id": "r1_count_age_above_50",
+      "category": "filter_aggregation",
+      "operation": "count_filtered",
+      "difficulty": "medium",
+      "answer_type": "count",
+      "stats_answerable": false,
+      "analytics_level": "descriptive",
+      "text_pt": "Quantas pessoas tem age maior que 50?",
+      "text_en": "How many people have age greater than 50?",
+      "sql": "SELECT COUNT(*) FROM adult WHERE age > 50",
+      "ground_truth": 9808
+    },
+    {
+      "id": "r2_avg_age_bachelors",
+      "category": "filter_aggregation",
+      "operation": "avg_filtered",
+      "difficulty": "medium",
+      "answer_type": "numeric",
+      "stats_answerable": false,
+      "analytics_level": "diagnostic",
+      "text_pt": "Qual a idade media de pessoas com education = 'Bachelors'?",
+      "text_en": "What is the average age of people with education = 'Bachelors'?",
+      "sql": "SELECT ROUND(AVG(age), 2) FROM adult WHERE education = 'Bachelors'",
+      "ground_truth": 38.9
+    },
+    {
+      "id": "r3_count_over40h",
+      "category": "filter_aggregation",
+      "operation": "count_filtered",
+      "difficulty": "medium",
+      "answer_type": "count",
+      "stats_answerable": false,
+      "analytics_level": "descriptive",
+      "text_pt": "Quantas pessoas trabalham mais de 40 horas por semana?",
+      "text_en": "How many people work more than 40 hours per week?",
+      "sql": "SELECT COUNT(*) FROM adult WHERE \"hours-per-week\" > 40",
+      "ground_truth": 14352
+    },
+    {
+      "id": "r4_pct_high_income",
+      "category": "proportion",
+      "operation": "percentage",
+      "difficulty": "hard",
+      "answer_type": "numeric",
+      "stats_answerable": false,
+      "analytics_level": "diagnostic",
+      "text_pt": "Qual a porcentagem de pessoas que ganham >50K?",
+      "text_en": "What percentage of people earn >50K?",
+      "sql": "SELECT ROUND(100.0 * SUM(CASE WHEN class = '>50K' THEN 1 ELSE 0 END) / COUNT(*), 2) FROM adult",
+      "ground_truth": 23.93
+    },
+    {
+      "id": "r5_males_more_hours",
+      "category": "comparison",
+      "operation": "compare_groups",
+      "difficulty": "hard",
+      "answer_type": "string",
+      "stats_answerable": false,
+      "analytics_level": "diagnostic",
+      "text_pt": "Homens (Male) trabalham em media mais horas por semana que mulheres (Female)? Responda Yes ou No.",
+      "text_en": "Do males work more hours per week on average than females? Answer Yes or No.",
+      "sql": "SELECT CASE WHEN (SELECT AVG(\"hours-per-week\") FROM adult WHERE sex='Male') > (SELECT AVG(\"hours-per-week\") FROM adult WHERE sex='Female') THEN 'Yes' ELSE 'No' END",
+      "ground_truth": "Yes"
+    },
+    {
+      "id": "r6_top3_education",
+      "category": "group_by_topk",
+      "operation": "top_k",
+      "difficulty": "hard",
+      "answer_type": "pairs",
+      "stats_answerable": false,
+      "analytics_level": "diagnostic",
+      "text_pt": "Quais sao os 3 niveis de education mais comuns?",
+      "text_en": "What are the 3 most common education levels?",
+      "sql": "SELECT education, COUNT(*) as n FROM adult GROUP BY education ORDER BY n DESC LIMIT 3",
+      "ground_truth": [
+        [
+          "HS-grad",
+          15784
+        ],
+        [
+          "Some-college",
+          10878
+        ],
+        [
+          "Bachelors",
+          8025
+        ]
+      ]
+    },
+    {
+      "id": "r7_avg_age_per_education_top3",
+      "category": "group_by",
+      "operation": "avg_by_group",
+      "difficulty": "hard",
+      "answer_type": "pairs",
+      "stats_answerable": false,
+      "analytics_level": "diagnostic",
+      "text_pt": "Qual a idade media para os 3 niveis de education mais comuns?",
+      "text_en": "What is the average age for the 3 most common education levels?",
+      "sql": "SELECT education, ROUND(AVG(age), 1) FROM adult WHERE education IN (SELECT education FROM adult GROUP BY education ORDER BY COUNT(*) DESC LIMIT 3) GROUP BY education ORDER BY education",
+      "ground_truth": [
+        [
+          "Bachelors",
+          38.9
+        ],
+        [
+          "HS-grad",
+          39.1
+        ],
+        [
+          "Some-college",
+          35.7
+        ]
+      ]
+    },
+    {
+      "id": "h1_private_dominates",
+      "category": "heuristic",
+      "operation": "dominance",
+      "difficulty": "easy",
+      "answer_type": "string",
+      "stats_answerable": false,
+      "analytics_level": "diagnostic",
+      "text_pt": "'Private' e a classe de trabalho (workclass) mais comum? Responda Yes ou No.",
+      "text_en": "Is 'Private' the most common workclass? Answer Yes or No.",
+      "sql": "SELECT CASE WHEN (SELECT workclass FROM adult WHERE workclass IS NOT NULL GROUP BY workclass ORDER BY COUNT(*) DESC LIMIT 1) = 'Private' THEN 'Yes' ELSE 'No' END",
+      "ground_truth": "Yes"
+    },
+    {
+      "id": "h2_income_imbalanced",
+      "category": "heuristic",
+      "operation": "balance",
+      "difficulty": "medium",
+      "answer_type": "string",
+      "stats_answerable": false,
+      "analytics_level": "diagnostic",
+      "text_pt": "A maioria das pessoas (mais de 60%) ganha <=50K? Responda Yes ou No.",
+      "text_en": "Do the majority of people (more than 60%) earn <=50K? Answer Yes or No.",
+      "sql": "SELECT CASE WHEN (100.0 * SUM(CASE WHEN class = '<=50K' THEN 1 ELSE 0 END) / COUNT(*)) > 60 THEN 'Yes' ELSE 'No' END FROM adult",
+      "ground_truth": "Yes"
+    },
+    {
+      "id": "h3_older_earn_more",
+      "category": "heuristic",
+      "operation": "correlation",
+      "difficulty": "medium",
+      "answer_type": "string",
+      "stats_answerable": false,
+      "analytics_level": "diagnostic",
+      "text_pt": "Pessoas que ganham >50K sao em media mais velhas que as que ganham <=50K? Responda Yes ou No.",
+      "text_en": "Are people earning >50K on average older than those earning <=50K? Answer Yes or No.",
+      "sql": "SELECT CASE WHEN (SELECT AVG(age) FROM adult WHERE class='>50K') > (SELECT AVG(age) FROM adult WHERE class='<=50K') THEN 'Yes' ELSE 'No' END",
+      "ground_truth": "Yes"
     }
   ]
 }
