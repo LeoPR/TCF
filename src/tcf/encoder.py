@@ -29,6 +29,7 @@ Usage:
 
 from __future__ import annotations
 import csv
+import math
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -40,20 +41,38 @@ from .compression import (
 )
 
 
+_Z_SCORES: dict[float, float] = {0.90: 1.645, 0.95: 1.960, 0.99: 2.576}
+
+
 @dataclass
 class EncodeConfig:
     """Configuration for TCF encoder."""
     level: int = 2            # 0=expanded, 1=rle, 2=sorted+rle, 3=dict+rle
     include_stats: bool = True
     precision: int | None = None  # decimal places (None = auto-compact)
+    full_n: int | None = None     # total rows in source (enables sampling CI)
+    stats_ci: float = 0.95        # confidence level: 0.90, 0.95, or 0.99
+    stats_compact: bool = False   # compact "avg~err%" vs verbose "err=X% full_n=N"
 
 
 # ---------------------------------------------------------------------------
 # Stats (shared by all encode paths)
 # ---------------------------------------------------------------------------
 
-def _stats_line(col: str, vals: list[str]) -> str | None:
-    """Build STATS line for numeric column."""
+def _stats_line(
+    col: str,
+    vals: list[str],
+    full_n: int | None = None,
+    ci: float = 0.95,
+    compact: bool = False,
+) -> str | None:
+    """Build STATS line for numeric column.
+
+    When full_n is set and full_n > n (truncated dataset), appends a
+    confidence interval for the mean:
+        verbose:  err=X.X% full_n=N
+        compact:  avg~X% (replaces avg value)
+    """
     floats = []
     for v in vals:
         try:
@@ -64,11 +83,28 @@ def _stats_line(col: str, vals: list[str]) -> str | None:
         return None
     n = len(floats)
     s = sum(floats)
+    mn = min(floats)
+    mx = max(floats)
+    avg = s / n
 
     def _c(f: float) -> str:
         return str(int(f)) if f == int(f) else f"{f:.4g}"
 
-    return f"# STATS {col}: n={n} sum={_c(s)} min={_c(min(floats))} max={_c(max(floats))} avg={_c(s / n)}"
+    base = f"# STATS {col}: n={n} sum={_c(s)} min={_c(mn)} max={_c(mx)}"
+
+    if full_n is not None and full_n > n and n >= 2 and avg != 0:
+        variance = sum((x - avg) ** 2 for x in floats) / (n - 1)
+        std = math.sqrt(variance)
+        z = _Z_SCORES.get(ci, 1.960)
+        margin = z * std / math.sqrt(n)
+        err_pct = abs(margin / avg) * 100
+        if compact:
+            avg_part = f"{_c(avg)}~{err_pct:.0f}%"
+            return f"{base} avg={avg_part}"
+        else:
+            return f"{base} avg={_c(avg)} err={err_pct:.1f}% full_n={full_n}"
+
+    return f"{base} avg={_c(avg)}"
 
 
 # ---------------------------------------------------------------------------
@@ -168,7 +204,7 @@ def encode_columns(
         for col in col_names:
             vals = cols[col]
             if col not in dicts and is_numeric_column(vals):
-                stat = _stats_line(col, vals)
+                stat = _stats_line(col, vals, full_n=config.full_n, ci=config.stats_ci, compact=config.stats_compact)
                 if stat:
                     lines.append(stat)
 
