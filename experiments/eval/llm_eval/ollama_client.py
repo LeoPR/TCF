@@ -25,28 +25,38 @@ class OllamaClient:
     # Core generation
     # ------------------------------------------------------------------
 
+    # Keys that Ollama expects at top-level of /api/generate, not inside options.
+    # See Ollama 0.21+ API: think/keep_alive/format are first-class request fields.
+    _TOPLEVEL_KEYS = ("think", "keep_alive", "format", "raw", "system", "template")
+
     def generate(
         self,
         model: str,
         prompt: str,
         options: dict[str, Any] | None = None,
         auto_pull: bool = True,
+        timeout: int = 7200,  # 2h — CPU thinking on 14-20B can exceed 1h
     ) -> GenerateResult:
         """Send a prompt to the model and return text + token metrics.
 
-        If auto_pull=True and model is not found, pulls it automatically.
-
-        Returns a GenerateResult dict with full Ollama timing breakdown.
+        Options dict may include top-level keys like `think`, `keep_alive`, `format`;
+        these are auto-routed to the request body (not inside "options").
+        Default timeout=3600s (1h) — CPU thinking on 14B can exceed 10min.
         """
         url = f"{self.endpoint}/api/generate"
         payload: dict[str, Any] = {"model": model, "prompt": prompt, "stream": False}
         if options:
-            payload["options"] = options
-        r = requests.post(url, json=payload, timeout=600)
+            opts = dict(options)
+            for k in self._TOPLEVEL_KEYS:
+                if k in opts:
+                    payload[k] = opts.pop(k)
+            if opts:
+                payload["options"] = opts
+        r = requests.post(url, json=payload, timeout=timeout)
         # Auto-pull if model not found
         if r.status_code == 404 and auto_pull:
             self.pull(model)
-            r = requests.post(url, json=payload, timeout=600)
+            r = requests.post(url, json=payload, timeout=timeout)
         r.raise_for_status()
         data = r.json()
         return GenerateResult(

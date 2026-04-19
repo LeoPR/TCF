@@ -80,7 +80,15 @@ from llm_eval.metrics import extract_number, strip_think
 
 
 RESULTS_DIR = ROOT / "experiments" / "results" / "frontier_search"
-LLM_OPTIONS = {"temperature": 0, "seed": 42}
+LLM_OPTIONS = {
+    "temperature": 0,
+    "seed": 42,
+    # keep_alive: mantem modelo carregado 30min apos call; evita reload
+    # quando percorremos as questoes de um mesmo modelo em sequencia.
+    "keep_alive": "30m",
+    # think: None = default do modelo (qwen3/deepseek-r1/gpt-oss = ON).
+    # Substituir por False aqui forca desativacao global; usar --no-think CLI.
+}
 
 # Canonical 12-model panel from ticket P-G35-modelos-llm.md (2026-04-09)
 # Covers 0.6B → 20B across 5 families (Qwen3, Gemma3, Llama, Phi4, DeepSeek-R1, GPT-OSS)
@@ -283,15 +291,25 @@ def _score(q: dict, response: str, gt: dict) -> tuple[bool, str]:
 # ---------------------------------------------------------------------------
 
 def load_completed(manifest_path: Path) -> set[str]:
+    """Keys already completed (successful OR scored-as-wrong).
+
+    Records with reason='exception' are NOT treated as completed: those are
+    transient failures (timeout, server crash, disconnect) that should be
+    re-tried automatically when the script is re-run.
+    """
     if not manifest_path.exists():
         return set()
     completed: set[str] = set()
     for line in manifest_path.read_text(encoding="utf-8").splitlines():
-        if line.strip():
-            try:
-                completed.add(json.loads(line)["key"])
-            except Exception:
-                pass
+        if not line.strip():
+            continue
+        try:
+            r = json.loads(line)
+        except Exception:
+            continue
+        if r.get("reason") == "exception":
+            continue
+        completed.add(r["key"])
     return completed
 
 
@@ -325,9 +343,14 @@ def phase_acc(records: list[dict], group_key: str) -> dict[str, tuple[int, int]]
 # ---------------------------------------------------------------------------
 
 def _warm(client: OllamaClient, model: str, llm_options: dict) -> None:
-    opts = {**llm_options, "num_predict": 2}
+    """Quick warmup: just load model weights into memory.
+
+    Force think=False (else qwen3 warmup runs full thinking on 'ok' prompt)
+    and num_predict=2 to short-circuit generation. Short timeout.
+    """
+    opts = {**llm_options, "num_predict": 2, "think": False}
     try:
-        client.generate(model, "ok", options=opts)
+        client.generate(model, "ok", options=opts, timeout=300)
     except Exception as e:
         print(f"  warm failed: {e}", file=sys.stderr)
 
@@ -356,15 +379,26 @@ def run_combos(
         elapsed = time.time() - t_start
         print(f"  [{i}/{len(pending)} el={elapsed:.0f}s] {combo['key']}", end=" ", flush=True)
 
-        try:
-            result = client.generate(model, combo["prompt"], options=llm_options)
-            response = result["text"]
-            ok, reason = _score(combo["q"], response, combo["gt"])
-            print(f"{'OK' if ok else 'NO'} ({reason}) ans={response[:40]!r}")
-        except Exception as e:
-            print(f"ERROR: {e}")
-            response, ok, reason = f"ERROR:{e}", False, "exception"
-            result = {"prompt_tokens": 0, "response_tokens": 0, "total_duration_ns": 0}
+        response, ok, reason, result = None, False, "exception", None
+        for attempt in (1, 2):
+            try:
+                result = client.generate(model, combo["prompt"], options=llm_options)
+                response = result["text"]
+                ok, reason = _score(combo["q"], response, combo["gt"])
+                print(f"{'OK' if ok else 'NO'} ({reason}) ans={response[:40]!r}")
+                break
+            except Exception as e:
+                es = str(e)
+                transient = any(x in es for x in ("RemoteDisconnected", "ConnectionError",
+                                                   "ConnectionAborted", "ReadTimeout"))
+                if transient and attempt == 1:
+                    print(f"TRANSIENT ({type(e).__name__}); sleeping 30s then retry...", flush=True)
+                    time.sleep(30)
+                    continue
+                print(f"ERROR: {e}")
+                response = f"ERROR:{e}"
+                result = {"prompt_tokens": 0, "response_tokens": 0, "total_duration_ns": 0}
+                break
 
         record = {
             "key": combo["key"],
@@ -608,6 +642,9 @@ def main() -> None:
                         help="Override n_optimal (n_orders) for phase 4")
     parser.add_argument("--dry-run", action="store_true",
                         help="Build combos and print size estimates without calling models")
+    parser.add_argument("--no-think", action="store_true",
+                        help="Disable thinking for models that support it (qwen3, deepseek-r1, gpt-oss). "
+                             "Default: thinking stays at each model's native default (usually ON).")
     args = parser.parse_args()
 
     RESULTS_DIR.mkdir(parents=True, exist_ok=True)
@@ -627,6 +664,9 @@ def main() -> None:
         llm_options["num_gpu"] = 0
     if args.num_thread is not None:
         llm_options["num_thread"] = args.num_thread
+    if args.no_think:
+        llm_options["think"] = False  # routed to top-level of Ollama payload
+        print("[frontier] think=False (disabled for all models)")
 
     completed = load_completed(manifest_path)
 
