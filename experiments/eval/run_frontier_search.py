@@ -57,11 +57,33 @@ from llm_eval.metrics import extract_number, strip_think
 RESULTS_DIR = ROOT / "experiments" / "results" / "frontier_search"
 LLM_OPTIONS = {"temperature": 0, "seed": 42}
 
+# Canonical 12-model panel from ticket P-G35-modelos-llm.md (2026-04-09)
+# Covers 0.6B → 20B across 5 families (Qwen3, Gemma3, Llama, Phi4, DeepSeek-R1, GPT-OSS)
+# Explicitly EXCLUDED (superseded or redundant): phi3, mistral:latest,
+#   qwen2.5:latest, qwen2.5-coder:7b, llama3.1:8b (see ticket for rationale)
 DEFAULT_MODELS = [
-    "gemma3:4b",
-    "qwen2.5:7b",
-    "qwen2.5-coder:7b",
+    # Tier: tiny (<4B) — capacity floor
+    "qwen3:0.6b",          # 0.6B minimum viable
+    "gemma3:1b",           # 1B Gemma scalability
+    "qwen3:1.7b",          # 1.7B thinking-small
+    "llama3.2:latest",     # 3.2B Meta baseline
+    # Tier: small (4-5B)
+    "gemma3:4b",           # 4.3B Gemma scalability (prior survivor)
+    # Tier: medium (7-9B)
+    "qwen3:8b",            # 8.2B Qwen3 latest-gen thinking
+    "gemma2:9b",           # 9.2B control (historically 0% on TCF E2)
+    # Tier: large (12-15B)
+    "gemma3:12b",          # 12.2B historically BEST (88% TCF L0)
+    "phi4:latest",         # 14.7B Microsoft math/reasoning
+    "qwen3:14b",           # 14.8B Qwen3 thinking-large
+    "deepseek-r1:14b",     # 14.8B reasoning specialist
+    # Tier: xl (20B+) — CPU limit
+    "gpt-oss:latest",      # 20.9B OpenAI-style, slowest
 ]
+
+# Historically-excluded subset we already have cached results for — kept
+# accessible via --models flag but not in the canonical panel by default.
+LEGACY_MODELS = ["qwen2.5:latest", "qwen2.5-coder:7b"]
 
 # ---------------------------------------------------------------------------
 # RLE notation variants
@@ -127,6 +149,7 @@ def _compute_gt(tables: dict) -> dict:
         "top_customer": clientes.get(top_cid, top_cid),
         "distinct_customers": len(set(v["id_cliente"] for v in vendas)),
         "max_buyer": clientes.get(max_venda["id_cliente"], max_venda["id_cliente"]),
+        "max_total_row": float(max_venda["total"]) if max_venda["total"] else 0.0,
     }
 
 
@@ -155,11 +178,21 @@ QUESTIONS: dict[str, dict] = {
         "text": "Qual e a soma de todos os valores da coluna total? Responda apenas com um numero.",
         "key": "sum_total", "type": "numeric",
     },
-    # Cross-table lookup: max(total) -> id_cliente -> nome
-    # Cannot be answered from STATS or header; requires data comprehension
+    # Cross-table lookup by name: max(total) -> id_cliente -> nome
+    # KNOWN CONFOUND: at n_orders in {5,50,100,200} seed=42, max_buyer==top_customer
+    # (Rodrigo dominates). A model using frequency heuristic looks correct at those
+    # scales. Use q_lookup_value to disambiguate.
     "q_lookup": {
         "text": "Qual cliente realizou a maior venda individual? Responda apenas com o nome do cliente.",
         "key": "max_buyer", "type": "string",
+    },
+    # Cross-table lookup by value: max(total) as a number
+    # Disambiguator for q_lookup — cannot be solved by frequency heuristic.
+    # If a model answers q_lookup correctly but gets q_lookup_value wrong,
+    # it was using the frequency shortcut.
+    "q_lookup_value": {
+        "text": "Qual e o maior valor individual da coluna total? Responda apenas com um numero.",
+        "key": "max_total_row", "type": "numeric",
     },
     # Averaging
     "q_avg": {
@@ -169,10 +202,15 @@ QUESTIONS: dict[str, dict] = {
 }
 
 PHASE_QUESTIONS: dict[int, list[str]] = {
+    # Phase 0 ≈ Etapa 2a (ticket P-G35): fast screen, all models, 2 canary questions
     0: ["q_count", "q_top_product"],
-    1: ["q_count", "q_top_product", "q_distinct", "q_lookup"],
+    # Phase 1 ≈ Etapa 2b: rank survivors + disambiguate frequency-heuristic via dual lookup
+    1: ["q_count", "q_top_product", "q_distinct", "q_lookup", "q_lookup_value"],
+    # Phase 2: data sweep, boundary finder
     2: ["q_top_product", "q_lookup"],
+    # Phase 3: notation sweep
     3: ["q_count", "q_top_product"],
+    # Phase 4 ≈ Etapa 2c: full question set on pilot at n_optimal
     4: list(QUESTIONS.keys()),
 }
 
