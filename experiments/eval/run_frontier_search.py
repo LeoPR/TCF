@@ -1,5 +1,30 @@
 """Sequential frontier search — model capacity × data size × notation × task complexity.
 
+Research strategy (2026-04-19): robustness-first format evaluation.
+-------------------------------------------------------------------
+We evaluate TCF formats on *local* open-source models (Ollama, CPU-only by default)
+first, NOT on commercial models. Rationale:
+
+  (a) Reproducibility: local model weights are frozen and versioned; commercial
+      models change silently. Any finding on Claude/GPT-5 today may not hold tomorrow.
+  (b) Robustness hypothesis: if a format gives signal (non-random accuracy) on a
+      weak local model, it has structural properties a capable parser can exploit.
+      Commercial models, being stronger parsers, should perform *at least as well*
+      on the same format. The reverse is not guaranteed — a format that works only
+      on commercial models may be exploiting emergent capabilities we cannot audit.
+  (c) Cost: CPU-local eval is free and debuggable; commercial runs should be
+      reserved for validation of the best format(s) identified locally.
+
+Workflow:
+  1. Local panel (this script) -> identify best format + level + notation
+  2. Recommend the strongest local model that reliably parses that format
+  3. (Future) Validate on 2-3 commercial models (Claude/GPT/Gemini) as a
+     separate confirmation step, with the best-local-format only.
+
+GPU is disabled (--cpu-only) while the workstation's VRAM is occupied by
+another process; the script supports GPU by dropping that flag (num_gpu then
+follows Ollama's default auto-offload).
+
 Instead of full factorial (M × N × Q × T = hundreds of combos), this script runs
 5 sequential phases, each building on the previous finding:
 
