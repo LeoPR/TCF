@@ -327,25 +327,30 @@ def run_combos(
 # Phase builders
 # ---------------------------------------------------------------------------
 
-def _l3_data(n: int) -> tuple[str, dict]:
-    tables, meta = retail_sales(n_orders=n, seed=42)
+def _l3_data(n_orders: int) -> tuple[str, dict, int]:
+    """Returns (tcf_text, ground_truth, actual_n_rows)."""
+    tables, meta = retail_sales(n_orders=n_orders, seed=42)
     gt = _compute_gt(tables)
     mp, dd = _write_fixture(tables, meta)
     data_text = tcf_encode(str(mp), str(dd), EncodeConfig(level=3, include_stats=False))
-    return data_text, gt
+    return data_text, gt, len(tables["vendas"])
 
 
-def _l2_data(n: int) -> tuple[str, dict]:
-    tables, meta = retail_sales(n_orders=n, seed=42)
+def _l2_data(n_orders: int) -> tuple[str, dict, int]:
+    tables, meta = retail_sales(n_orders=n_orders, seed=42)
     gt = _compute_gt(tables)
     mp, dd = _write_fixture(tables, meta)
     data_text = tcf_encode(str(mp), str(dd), EncodeConfig(level=2, include_stats=False))
-    return data_text, gt
+    return data_text, gt, len(tables["vendas"])
+
+
+def _make_meta(n_orders: int, n_rows: int, level: int, notation: str) -> dict:
+    return {"n_orders": n_orders, "n_rows": n_rows, "level": level, "notation": notation}
 
 
 def build_phase0(models: list[str]) -> list[dict]:
-    n = 20
-    data_text, gt = _l3_data(n)
+    n_orders = 20
+    data_text, gt, n_rows = _l3_data(n_orders)
     combos = []
     for model in models:
         for q_name in PHASE_QUESTIONS[0]:
@@ -353,14 +358,15 @@ def build_phase0(models: list[str]) -> list[dict]:
             key = f"p0|{model}|{q_name}"
             prompt = f"{SYS_L3}\n\n{q['text']}\n\n{data_text}"
             combos.append({"key": key, "phase": 0, "model": model, "prompt": prompt,
-                           "q": q, "gt": gt, "meta": {"n": n, "level": 3, "notation": "N_star_val"}})
-    print(f"[P0 Pilot] n={n}, L3 integer, {len(models)} models × {len(PHASE_QUESTIONS[0])} q = {len(combos)} combos")
+                           "q": q, "gt": gt, "meta": _make_meta(n_orders, n_rows, 3, "N_star_val")})
+    print(f"[P0 Pilot] n_orders={n_orders} ({n_rows} vendas), L3 int, "
+          f"{len(models)} models × {len(PHASE_QUESTIONS[0])} q = {len(combos)} combos")
     return combos
 
 
 def build_phase1(models: list[str]) -> list[dict]:
-    n = 50
-    data_text, gt = _l3_data(n)
+    n_orders = 50
+    data_text, gt, n_rows = _l3_data(n_orders)
     combos = []
     for model in models:
         for q_name in PHASE_QUESTIONS[1]:
@@ -368,29 +374,32 @@ def build_phase1(models: list[str]) -> list[dict]:
             key = f"p1|{model}|{q_name}"
             prompt = f"{SYS_L3}\n\n{q['text']}\n\n{data_text}"
             combos.append({"key": key, "phase": 1, "model": model, "prompt": prompt,
-                           "q": q, "gt": gt, "meta": {"n": n, "level": 3, "notation": "N_star_val"}})
-    print(f"[P1 Model sweep] n={n}, L3 integer, {len(models)} models × {len(PHASE_QUESTIONS[1])} q = {len(combos)} combos")
+                           "q": q, "gt": gt, "meta": _make_meta(n_orders, n_rows, 3, "N_star_val")})
+    print(f"[P1 Model sweep] n_orders={n_orders} ({n_rows} vendas), L3 int, "
+          f"{len(models)} models × {len(PHASE_QUESTIONS[1])} q = {len(combos)} combos")
     return combos
 
 
 def build_phase2(pilot: str) -> list[dict]:
-    ns = [5, 10, 20, 50, 100, 200, 500]
+    # n_orders -> actual vendas: 5->11, 10->23, 20->42, 50->115, 100->255, 200->509
+    # Capped at 200 to keep CPU time reasonable (509 vendas already ~5k token prompt)
+    ns = [5, 10, 20, 50, 100, 200]
     combos = []
-    for n in ns:
-        data_text, gt = _l3_data(n)
+    for n_orders in ns:
+        data_text, gt, n_rows = _l3_data(n_orders)
         for q_name in PHASE_QUESTIONS[2]:
             q = QUESTIONS[q_name]
-            key = f"p2|{pilot}|n{n}|{q_name}"
+            key = f"p2|{pilot}|n{n_orders}|{q_name}"
             prompt = f"{SYS_L3}\n\n{q['text']}\n\n{data_text}"
             combos.append({"key": key, "phase": 2, "model": pilot, "prompt": prompt,
-                           "q": q, "gt": gt, "meta": {"n": n, "level": 3, "notation": "N_star_val"}})
+                           "q": q, "gt": gt, "meta": _make_meta(n_orders, n_rows, 3, "N_star_val")})
     print(f"[P2 Data sweep] pilot={pilot}, {len(ns)} scales × {len(PHASE_QUESTIONS[2])} q = {len(combos)} combos")
     return combos
 
 
 def build_phase3(pilot: str) -> list[dict]:
-    n = 50
-    base_text, gt = _l2_data(n)
+    n_orders = 50
+    base_text, gt, n_rows = _l2_data(n_orders)
     combos = []
     for notation_name, notation_cfg in NOTATIONS.items():
         data_text = rewrite_notation(base_text, notation_cfg["rewrite"])
@@ -400,21 +409,22 @@ def build_phase3(pilot: str) -> list[dict]:
             key = f"p3|{pilot}|{notation_name}|{q_name}"
             prompt = f"{sys_prompt}\n\n{q['text']}\n\n{data_text}"
             combos.append({"key": key, "phase": 3, "model": pilot, "prompt": prompt,
-                           "q": q, "gt": gt, "meta": {"n": n, "level": 2, "notation": notation_name}})
-    print(f"[P3 Notation] pilot={pilot}, {len(NOTATIONS)} notations × {len(PHASE_QUESTIONS[3])} q = {len(combos)} combos")
+                           "q": q, "gt": gt, "meta": _make_meta(n_orders, n_rows, 2, notation_name)})
+    print(f"[P3 Notation] pilot={pilot}, n_orders={n_orders} ({n_rows} vendas), "
+          f"{len(NOTATIONS)} notations × {len(PHASE_QUESTIONS[3])} q = {len(combos)} combos")
     return combos
 
 
-def build_phase4(pilot: str, n_opt: int) -> list[dict]:
-    data_text, gt = _l3_data(n_opt)
+def build_phase4(pilot: str, n_orders: int) -> list[dict]:
+    data_text, gt, n_rows = _l3_data(n_orders)
     combos = []
     for q_name in PHASE_QUESTIONS[4]:
         q = QUESTIONS[q_name]
-        key = f"p4|{pilot}|n{n_opt}|{q_name}"
+        key = f"p4|{pilot}|n{n_orders}|{q_name}"
         prompt = f"{SYS_L3}\n\n{q['text']}\n\n{data_text}"
         combos.append({"key": key, "phase": 4, "model": pilot, "prompt": prompt,
-                       "q": q, "gt": gt, "meta": {"n": n_opt, "level": 3, "notation": "N_star_val"}})
-    print(f"[P4 Task sweep] pilot={pilot}, n={n_opt}, {len(combos)} questions")
+                       "q": q, "gt": gt, "meta": _make_meta(n_orders, n_rows, 3, "N_star_val")})
+    print(f"[P4 Task sweep] pilot={pilot}, n_orders={n_orders} ({n_rows} vendas), {len(combos)} questions")
     return combos
 
 
@@ -436,19 +446,36 @@ def pick_pilot(records: list[dict]) -> str:
 
 
 def pick_n_optimal(records: list[dict]) -> int:
-    by_n: dict[int, list] = defaultdict(list)
+    """Return largest n_orders where model got q_top_product correct.
+
+    Uses q_top_product (not q_lookup) as the boundary indicator because
+    q_lookup requires tracking row position through RLE runs, which TCF's
+    column-independent sort makes unreliable even for capable models.
+    """
+    by_n: dict[int, dict] = defaultdict(lambda: {"top": None, "lookup": None})
     for r in records:
+        n = r.get("n_orders", r.get("n"))  # backward compat
         if r["question"] == "top_product":
-            by_n[r["n"]].append(r["ok"])
+            by_n[n]["top"] = r["ok"]
+        elif r["question"] == "max_buyer":
+            by_n[n]["lookup"] = r["ok"]
     if not by_n:
-        print("  No top_product data in phase 2 — using n=50")
+        print("  No phase-2 data — using n_orders=50")
         return 50
-    good_ns = sorted([n for n, oks in by_n.items() if all(oks)])
+
+    print("  n_orders | q_top_product | q_lookup")
+    for n in sorted(by_n):
+        d = by_n[n]
+        top_s = "OK" if d["top"] else ("NO" if d["top"] is False else "-")
+        lk_s = "OK" if d["lookup"] else ("NO" if d["lookup"] is False else "-")
+        print(f"    n={n:<4}  {top_s:<12}  {lk_s}")
+
+    good_ns = [n for n, d in by_n.items() if d["top"] is True]
     if not good_ns:
-        print("  Model never got top_product right — using n=10")
-        return 10
+        print("  Model never got top_product right — using smallest tested n")
+        return min(by_n)
     n_opt = max(good_ns)
-    print(f"  n_optimal = {n_opt} (largest n with all top_product correct)")
+    print(f"  n_optimal = {n_opt} (largest n_orders with q_top_product correct)")
     return n_opt
 
 
@@ -479,12 +506,17 @@ def print_summary(manifest_path: Path) -> None:
                 print(f"  {model:<28} [{bar}] {c/t*100:>4.0f}%  ({c}/{t})")
         elif ph == 2:
             by_n: dict[int, list] = defaultdict(list)
+            n_rows_of: dict[int, int] = {}
             for r in recs:
-                by_n[r["n"]].append(r["ok"])
+                n = r.get("n_orders", r.get("n"))
+                by_n[n].append(r["ok"])
+                if "n_rows" in r:
+                    n_rows_of[n] = r["n_rows"]
             for n in sorted(by_n):
                 oks = by_n[n]
                 bar = "#" * sum(oks) + "." * (len(oks) - sum(oks))
-                print(f"  n={n:<5} [{bar}] {sum(oks)/len(oks)*100:>4.0f}%  ({sum(oks)}/{len(oks)})")
+                nr = f" ({n_rows_of[n]} vendas)" if n in n_rows_of else ""
+                print(f"  n_orders={n:<4}{nr:<16} [{bar}] {sum(oks)/len(oks)*100:>4.0f}%  ({sum(oks)}/{len(oks)})")
         elif ph == 3:
             for notation, (c, t) in sorted(phase_acc(recs, "notation").items()):
                 bar = "#" * c + "." * (t - c)
@@ -510,7 +542,9 @@ def main() -> None:
     parser.add_argument("--pilot-model", default=None,
                         help="Override auto-selected pilot for phases 2,3,4")
     parser.add_argument("--n-override", type=int, default=None,
-                        help="Override n_optimal for phase 4")
+                        help="Override n_optimal (n_orders) for phase 4")
+    parser.add_argument("--dry-run", action="store_true",
+                        help="Build combos and print size estimates without calling models")
     args = parser.parse_args()
 
     RESULTS_DIR.mkdir(parents=True, exist_ok=True)
@@ -544,14 +578,28 @@ def main() -> None:
         print("[Auto-pilot] No prior phase data — using default model")
         return DEFAULT_MODELS[0]
 
+    def _dry(combos: list[dict]) -> None:
+        print(f"\n[Dry-run] {len(combos)} combos, "
+              f"{len([c for c in combos if c['key'] not in completed])} would run")
+        # Print prompt size stats
+        sizes = [len(c["prompt"]) for c in combos]
+        print(f"  Prompt chars: min={min(sizes)} avg={sum(sizes)//len(sizes)} max={max(sizes)}")
+        print(f"  Sample key: {combos[0]['key']}")
+        print(f"  Sample prompt head:")
+        for line in combos[0]["prompt"].splitlines()[:15]:
+            print(f"    {line}")
+        print("    ...")
+
     if args.phase == 0:
         combos = build_phase0(args.models)
+        if args.dry_run: _dry(combos); return
         run_combos(client, combos, manifest_path, completed, llm_options)
         print("\n[P0 Results]")
         print_summary(manifest_path)
 
     elif args.phase == 1:
         combos = build_phase1(args.models)
+        if args.dry_run: _dry(combos); return
         run_combos(client, combos, manifest_path, completed, llm_options)
         print("\n[P1 Results — pick pilot for phase 2]")
         recs = [r for r in read_manifest(manifest_path) if r["phase"] == 1]
@@ -560,6 +608,7 @@ def main() -> None:
     elif args.phase == 2:
         pilot = _pilot()
         combos = build_phase2(pilot)
+        if args.dry_run: _dry(combos); return
         run_combos(client, combos, manifest_path, completed, llm_options)
         print("\n[P2 Results — n-boundary]")
         recs = [r for r in read_manifest(manifest_path) if r["phase"] == 2]
@@ -569,6 +618,7 @@ def main() -> None:
     elif args.phase == 3:
         pilot = _pilot()
         combos = build_phase3(pilot)
+        if args.dry_run: _dry(combos); return
         run_combos(client, combos, manifest_path, completed, llm_options)
         print("\n[P3 Results — notation ranking]")
         recs = [r for r in read_manifest(manifest_path) if r["phase"] == 3]
@@ -583,6 +633,7 @@ def main() -> None:
             recs_p2 = [r for r in read_manifest(manifest_path) if r["phase"] == 2]
             n_opt = pick_n_optimal(recs_p2) if recs_p2 else 50
         combos = build_phase4(pilot, n_opt)
+        if args.dry_run: _dry(combos); return
         run_combos(client, combos, manifest_path, completed, llm_options)
         print("\n[P4 Results — full task profile]")
         print_summary(manifest_path)
