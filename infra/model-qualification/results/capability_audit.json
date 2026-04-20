@@ -1,5 +1,5 @@
 {
-  "timestamp": 1776719030.7611048,
+  "timestamp": 1776724757.5420594,
   "ollama_version": {
     "version": "0.21.0"
   },
@@ -145,6 +145,26 @@
       "family": "gptoss"
     }
   ],
-  "currently_loaded": [],
+  "currently_loaded": [
+    {
+      "name": "deepseek-r1:14b",
+      "model": "deepseek-r1:14b",
+      "size": 15789520896,
+      "digest": "c333b7232bdb521236694ffbb5f5a6b11cc45d98e9142c73123b670fca400b09",
+      "details": {
+        "parent_model": "",
+        "format": "gguf",
+        "family": "qwen2",
+        "families": [
+          "qwen2"
+        ],
+        "parameter_size": "14.8B",
+        "quantization_level": "Q4_K_M"
+      },
+      "expires_at": "2026-04-20T22:49:15.617966483Z",
+      "size_vram": 10189264896,
+      "context_length": 32768
+    }
+  ],
   "endpoint": "http://localhost:11434"
 }
