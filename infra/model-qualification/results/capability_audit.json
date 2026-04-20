@@ -1,0 +1,150 @@
+{
+  "timestamp": 1776719030.7611048,
+  "ollama_version": {
+    "version": "0.21.0"
+  },
+  "installed_models": [
+    {
+      "name": "qwen3:0.6b",
+      "size_gb": 0.5,
+      "params": "751.63M",
+      "quant": "Q4_K_M",
+      "family": "qwen3"
+    },
+    {
+      "name": "gemma3:1b",
+      "size_gb": 0.8,
+      "params": "999.89M",
+      "quant": "Q4_K_M",
+      "family": "gemma3"
+    },
+    {
+      "name": "qwen3:1.7b",
+      "size_gb": 1.4,
+      "params": "2.0B",
+      "quant": "Q4_K_M",
+      "family": "qwen3"
+    },
+    {
+      "name": "llama3.2:latest",
+      "size_gb": 2.0,
+      "params": "3.2B",
+      "quant": "Q4_K_M",
+      "family": "llama"
+    },
+    {
+      "name": "phi3:latest",
+      "size_gb": 2.2,
+      "params": "3.8B",
+      "quant": "Q4_0",
+      "family": "phi3"
+    },
+    {
+      "name": "gemma3:4b",
+      "size_gb": 3.3,
+      "params": "4.3B",
+      "quant": "Q4_K_M",
+      "family": "gemma3"
+    },
+    {
+      "name": "mistral:latest",
+      "size_gb": 4.4,
+      "params": "7.2B",
+      "quant": "Q4_K_M",
+      "family": "llama"
+    },
+    {
+      "name": "qwen2.5-coder:7b",
+      "size_gb": 4.7,
+      "params": "7.6B",
+      "quant": "Q4_K_M",
+      "family": "qwen2"
+    },
+    {
+      "name": "deepseek-r1:7b",
+      "size_gb": 4.7,
+      "params": "7.6B",
+      "quant": "Q4_K_M",
+      "family": "qwen2"
+    },
+    {
+      "name": "qwen2.5:latest",
+      "size_gb": 4.7,
+      "params": "7.6B",
+      "quant": "Q4_K_M",
+      "family": "qwen2"
+    },
+    {
+      "name": "llama3.1:8b",
+      "size_gb": 4.9,
+      "params": "8.0B",
+      "quant": "Q4_K_M",
+      "family": "llama"
+    },
+    {
+      "name": "qwen3:8b",
+      "size_gb": 5.2,
+      "params": "8.2B",
+      "quant": "Q4_K_M",
+      "family": "qwen3"
+    },
+    {
+      "name": "gemma2:9b",
+      "size_gb": 5.4,
+      "params": "9.2B",
+      "quant": "Q4_0",
+      "family": "gemma2"
+    },
+    {
+      "name": "qwen3-vl:8b",
+      "size_gb": 6.1,
+      "params": "8.8B",
+      "quant": "Q4_K_M",
+      "family": "qwen3vl"
+    },
+    {
+      "name": "llama3.2-vision:11b",
+      "size_gb": 7.8,
+      "params": "10.7B",
+      "quant": "Q4_K_M",
+      "family": "mllama"
+    },
+    {
+      "name": "gemma3:12b",
+      "size_gb": 8.1,
+      "params": "12.2B",
+      "quant": "Q4_K_M",
+      "family": "gemma3"
+    },
+    {
+      "name": "deepseek-r1:14b",
+      "size_gb": 9.0,
+      "params": "14.8B",
+      "quant": "Q4_K_M",
+      "family": "qwen2"
+    },
+    {
+      "name": "phi4:latest",
+      "size_gb": 9.1,
+      "params": "14.7B",
+      "quant": "Q4_K_M",
+      "family": "phi3"
+    },
+    {
+      "name": "qwen3:14b",
+      "size_gb": 9.3,
+      "params": "14.8B",
+      "quant": "Q4_K_M",
+      "family": "qwen3"
+    },
+    {
+      "name": "gpt-oss:latest",
+      "size_gb": 13.8,
+      "params": "20.9B",
+      "quant": "MXFP4",
+      "family": "gptoss"
+    }
+  ],
+  "currently_loaded": [],
+  "endpoint": "http://localhost:11434"
+}

@@ -1,0 +1,87 @@
+{
+  "schema_version": 1,
+  "description": "Canonical literature-based QA tests for LLM qualification. TCF-agnostic. Each question has deterministic verification.",
+  "seeds": [42, 7, 123],
+  "questions": [
+    {
+      "id": "factual_br",
+      "category": "factual_recall",
+      "prompt_pt": "Qual a capital do Brasil? Responda apenas com o nome da cidade.",
+      "prompt_en": "What is the capital of Brazil? Answer with just the city name.",
+      "expected_substrings": ["bras\u00edlia", "brasilia"],
+      "scoring": "substring_ci",
+      "max_latency_s": 120,
+      "notes": "Basic geographical fact in Portuguese and English. Most models >1B should know this."
+    },
+    {
+      "id": "factual_fr",
+      "category": "factual_recall",
+      "prompt_pt": "Qual a capital da Fran\u00e7a? Responda apenas com o nome da cidade.",
+      "prompt_en": "What is the capital of France? Answer with just the city name.",
+      "expected_substrings": ["paris"],
+      "scoring": "substring_ci",
+      "max_latency_s": 120,
+      "notes": "Even more universal fact. Canary for basic knowledge."
+    },
+    {
+      "id": "arithmetic_add",
+      "category": "arithmetic",
+      "prompt_pt": "Quanto \u00e9 17 + 28? Responda apenas com o n\u00famero.",
+      "prompt_en": "What is 17 + 28? Answer with just the number.",
+      "expected_number": 45,
+      "scoring": "extract_number_exact",
+      "max_latency_s": 120,
+      "notes": "Simple two-digit addition. Tests numerical reasoning."
+    },
+    {
+      "id": "arithmetic_mul",
+      "category": "arithmetic",
+      "prompt_pt": "Quanto \u00e9 12 vezes 8? Responda apenas com o n\u00famero.",
+      "prompt_en": "What is 12 times 8? Answer with just the number.",
+      "expected_number": 96,
+      "scoring": "extract_number_exact",
+      "max_latency_s": 120,
+      "notes": "Single-digit times two-digit. Tests multiplication."
+    },
+    {
+      "id": "instruction_yes",
+      "category": "instruction_following",
+      "prompt_pt": "Responda apenas com a palavra 'sim', sem nada mais.",
+      "prompt_en": "Reply only with the word 'yes', nothing else.",
+      "expected_substrings_pt": ["sim"],
+      "expected_substrings_en": ["yes"],
+      "scoring": "substring_ci_short",
+      "max_length_tokens": 5,
+      "max_latency_s": 60,
+      "notes": "Tests whether model respects format constraints. Verbose models may fail."
+    },
+    {
+      "id": "counting_words",
+      "category": "counting",
+      "prompt_pt": "Quantas palavras h\u00e1 na frase entre aspas: 'A raposa marrom pula'? Responda apenas com o n\u00famero.",
+      "prompt_en": "How many words are in the sentence in quotes: 'The quick brown fox'? Answer with just the number.",
+      "expected_number": 4,
+      "scoring": "extract_number_exact",
+      "max_latency_s": 120,
+      "notes": "Simple counting. Tests basic structured reasoning."
+    },
+    {
+      "id": "list_colors",
+      "category": "structured_output",
+      "prompt_pt": "Liste 3 cores separadas por v\u00edrgula. Responda apenas com a lista.",
+      "prompt_en": "List 3 colors separated by commas. Answer with just the list.",
+      "expected_count_separator": ",",
+      "expected_count": 3,
+      "scoring": "comma_separated_count",
+      "max_latency_s": 120,
+      "notes": "Tests structured output. Useful for TCF which relies on structured outputs."
+    }
+  ],
+  "qualification_criteria": {
+    "min_correct_per_category": 2,
+    "min_categories_passed": 4,
+    "max_load_time_s": 300,
+    "max_hang_time_s": 120,
+    "min_seeds_agreement": 2
+  }
+}
