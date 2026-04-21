@@ -90,33 +90,54 @@ LLM_OPTIONS = {
     # Substituir por False aqui forca desativacao global; usar --no-think CLI.
 }
 
-# Canonical 12-model panel from ticket P-G35-modelos-llm.md (2026-04-09)
-# Covers 0.6B → 20B across 5 families (Qwen3, Gemma3, Llama, Phi4, DeepSeek-R1, GPT-OSS)
-# Explicitly EXCLUDED (superseded or redundant): phi3, mistral:latest,
-#   qwen2.5:latest, qwen2.5-coder:7b, llama3.1:8b (see ticket for rationale)
-DEFAULT_MODELS = [
-    # Tier: tiny (<4B) — capacity floor
-    "qwen3:0.6b",          # 0.6B minimum viable
-    "gemma3:1b",           # 1B Gemma scalability
-    "qwen3:1.7b",          # 1.7B thinking-small
-    "llama3.2:latest",     # 3.2B Meta baseline
-    # Tier: small (4-5B)
-    "gemma3:4b",           # 4.3B Gemma scalability (prior survivor)
-    # Tier: medium (7-9B)
-    "qwen3:8b",            # 8.2B Qwen3 latest-gen thinking
-    "gemma2:9b",           # 9.2B control (historically 0% on TCF E2)
-    # Tier: large (12-15B)
-    "gemma3:12b",          # 12.2B historically BEST (88% TCF L0)
-    "phi4:latest",         # 14.7B Microsoft math/reasoning
-    "qwen3:14b",           # 14.8B Qwen3 thinking-large
-    "deepseek-r1:14b",     # 14.8B reasoning specialist
-    # Tier: xl (20B+) — CPU limit
-    "gpt-oss:latest",      # 20.9B OpenAI-style, slowest
-]
+# Model panel is sourced from infra/model-qualification/results/qualified_models.json
+# (populated by the Model Qualification Suite — infra/model-qualification/).
+# That file is the single source of truth for which models can run reliably on
+# this hardware. See docs/methodology/llm-research-rigor.md for rationale.
+#
+# Fallback to canonical 12-model panel from P-G35 ticket if qualification
+# hasn't run yet (bootstrap).
+_QUALIFIED_PATH = ROOT / "infra" / "model-qualification" / "results" / "qualified_models.json"
+
+
+def _load_qualified_models() -> list[str]:
+    if _QUALIFIED_PATH.exists():
+        data = json.loads(_QUALIFIED_PATH.read_text(encoding="utf-8"))
+        # qualified_models.json keys are model names; values are metadata dicts
+        return sorted(data.keys())
+    # Bootstrap fallback — the pre-qualification panel from P-G35 (2026-04-09).
+    # This list exists so experiments can run before qualification; once
+    # qualification runs, qualified_models.json takes over.
+    return [
+        "qwen3:0.6b", "gemma3:1b", "qwen3:1.7b", "llama3.2:latest",
+        "gemma3:4b", "qwen3:8b", "gemma2:9b", "llama3.2-vision:11b",
+        "gemma3:12b", "phi4:latest", "qwen3:14b", "deepseek-r1:14b",
+        "gpt-oss:latest",
+    ]
+
+
+DEFAULT_MODELS = _load_qualified_models()
 
 # Historically-excluded subset we already have cached results for — kept
 # accessible via --models flag but not in the canonical panel by default.
 LEGACY_MODELS = ["qwen2.5:latest", "qwen2.5-coder:7b"]
+
+# Thinking-capable models for Phase 5 (ablation). Source-of-truth is the
+# model_thinking_catalog.json in the qualification suite; this list is a
+# runtime cache of models where category in {toggle, intrinsic, graded}.
+_THINKING_CATALOG_PATH = ROOT / "infra" / "model-qualification" / "model_thinking_catalog.json"
+
+
+def _load_thinking_capable() -> list[str]:
+    if not _THINKING_CATALOG_PATH.exists():
+        return ["qwen3:0.6b", "qwen3:1.7b", "qwen3:8b", "qwen3:14b",
+                "deepseek-r1:14b", "gpt-oss:latest"]
+    catalog = json.loads(_THINKING_CATALOG_PATH.read_text(encoding="utf-8"))
+    return [m for m, entry in catalog.get("models", {}).items()
+            if entry.get("category") in ("toggle", "intrinsic", "graded")]
+
+
+THINKING_CAPABLE = _load_thinking_capable()
 
 # ---------------------------------------------------------------------------
 # RLE notation variants
@@ -245,6 +266,8 @@ PHASE_QUESTIONS: dict[int, list[str]] = {
     3: ["q_count", "q_top_product"],
     # Phase 4 ≈ Etapa 2c: full question set on pilot at n_optimal
     4: list(QUESTIONS.keys()),
+    # Phase 5: thinking ablation — Phase 1 questions but thinking-capable models ONLY with think=ON
+    5: ["q_count", "q_top_product", "q_distinct", "q_lookup", "q_lookup_value"],
 }
 
 SYS_L3 = (
@@ -512,6 +535,30 @@ def build_phase3(pilot: str) -> list[dict]:
     return combos
 
 
+def build_phase5(models: list[str]) -> list[dict]:
+    """Phase 5 — thinking ablation.
+
+    Runs thinking-capable models with thinking ON (no --no-think flag),
+    same questions and data as Phase 1. Compare per-model:
+      Phase 1 (no think) vs Phase 5 (think ON)
+    Keys are prefixed p5| to avoid collision with p1| cache.
+    """
+    n_orders = 50
+    data_text, gt, n_rows = _l3_data(n_orders)
+    thinking_models = [m for m in models if m in THINKING_CAPABLE]
+    combos = []
+    for model in thinking_models:
+        for q_name in PHASE_QUESTIONS[5]:
+            q = QUESTIONS[q_name]
+            key = f"p5|{model}|{q_name}"
+            prompt = f"{SYS_L3}\n\n{q['text']}\n\n{data_text}"
+            combos.append({"key": key, "phase": 5, "model": model, "prompt": prompt,
+                           "q": q, "gt": gt, "meta": _make_meta(n_orders, n_rows, 3, "N_star_val")})
+    print(f"[P5 Thinking ablation] n_orders={n_orders} ({n_rows} vendas), L3 int, "
+          f"{len(thinking_models)} thinking-capable × {len(PHASE_QUESTIONS[5])} q = {len(combos)} combos")
+    return combos
+
+
 def build_phase4(pilot: str, n_orders: int) -> list[dict]:
     data_text, gt, n_rows = _l3_data(n_orders)
     combos = []
@@ -630,7 +677,7 @@ def print_summary(manifest_path: Path) -> None:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Sequential frontier search ablation")
-    parser.add_argument("--phase", type=int, choices=[0, 1, 2, 3, 4], help="Run a specific phase")
+    parser.add_argument("--phase", type=int, choices=[0, 1, 2, 3, 4, 5], help="Run a specific phase")
     parser.add_argument("--summary", action="store_true", help="Print all results and exit")
     parser.add_argument("--models", nargs="+", default=DEFAULT_MODELS)
     parser.add_argument("--endpoint", default="http://localhost:11434")
@@ -740,6 +787,37 @@ def main() -> None:
         run_combos(client, combos, manifest_path, completed, llm_options)
         print("\n[P4 Results — full task profile]")
         print_summary(manifest_path)
+
+    elif args.phase == 5:
+        # Phase 5 = thinking ablation. Only thinking-capable models.
+        # thinking ON by default (uses model native default); --no-think can disable for sanity.
+        combos = build_phase5(args.models)
+        if args.dry_run: _dry(combos); return
+        if args.no_think:
+            print("[P5 WARNING] --no-think passed — thinking ablation with thinking OFF. Keys still p5|.")
+        run_combos(client, combos, manifest_path, completed, llm_options)
+        print("\n[P5 Results — thinking ablation vs Phase 1 no-think]")
+        recs_p5 = [r for r in read_manifest(manifest_path) if r["phase"] == 5]
+        recs_p1 = [r for r in read_manifest(manifest_path) if r["phase"] == 1]
+        p1_by_model = defaultdict(list)
+        p5_by_model = defaultdict(list)
+        for r in recs_p1:
+            if r["model"] in THINKING_CAPABLE and r.get("reason") != "exception":
+                p1_by_model[r["model"]].append(r["ok"])
+        for r in recs_p5:
+            if r.get("reason") != "exception":
+                p5_by_model[r["model"]].append(r["ok"])
+        print(f"  {'Model':<24} {'P1 (no-think)':<18} {'P5 (think)':<18} Δ")
+        for m in sorted(set(p1_by_model) | set(p5_by_model)):
+            p1 = p1_by_model.get(m, [])
+            p5 = p5_by_model.get(m, [])
+            p1s = f"{sum(p1)}/{len(p1)} = {sum(p1)/max(len(p1),1)*100:.0f}%" if p1 else "—"
+            p5s = f"{sum(p5)}/{len(p5)} = {sum(p5)/max(len(p5),1)*100:.0f}%" if p5 else "—"
+            delta = ""
+            if p1 and p5:
+                d = sum(p5)/len(p5) - sum(p1)/len(p1)
+                delta = f"{d*100:+.0f}pp"
+            print(f"  {m:<24} {p1s:<18} {p5s:<18} {delta}")
 
 
 if __name__ == "__main__":
