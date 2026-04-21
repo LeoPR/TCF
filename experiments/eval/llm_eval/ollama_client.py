@@ -7,14 +7,17 @@ from typing import Any, TypedDict
 
 
 class GenerateResult(TypedDict):
-    text: str            # model response text
-    prompt_tokens: int   # tokens used by the prompt  (prompt_eval_count)
-    response_tokens: int # tokens generated            (eval_count)
-    total_duration_ns: int  # wall-clock in nanoseconds (total_duration)
-    load_duration_ns: int   # model load time in ns (disk/cache -> GPU)
-    prompt_eval_ns: int     # prompt processing time in ns (prefill)
-    eval_ns: int            # response generation time in ns (decode)
-    done_reason: str        # "stop", "length", etc.
+    text: str            # `response` field — post-</think> content
+    thinking: str        # `thinking` field — pre-</think> content (empty if no thinking)
+    thinking_length: int # len(thinking) chars — easy truncation heuristic
+    prompt_tokens: int   # prompt_eval_count
+    response_tokens: int # eval_count — TOTAL tokens generated (thinking + response combined!)
+    total_duration_ns: int  # wall-clock in nanoseconds
+    load_duration_ns: int   # model load time in ns
+    prompt_eval_ns: int     # prompt processing time (prefill)
+    eval_ns: int            # generation time (thinking + response decoding)
+    done_reason: str        # "stop" | "length" | "unload" | "load"
+    truncated: bool         # convenience: done_reason == "length"
 
 
 class OllamaClient:
@@ -59,15 +62,20 @@ class OllamaClient:
             r = requests.post(url, json=payload, timeout=timeout)
         r.raise_for_status()
         data = r.json()
+        thinking = data.get("thinking", "") or ""  # may be missing or None
+        done_reason = data.get("done_reason", "")
         return GenerateResult(
             text=data.get("response", ""),
+            thinking=thinking,
+            thinking_length=len(thinking),
             prompt_tokens=data.get("prompt_eval_count", 0),
             response_tokens=data.get("eval_count", 0),
             total_duration_ns=data.get("total_duration", 0),
             load_duration_ns=data.get("load_duration", 0),
             prompt_eval_ns=data.get("prompt_eval_duration", 0),
             eval_ns=data.get("eval_duration", 0),
-            done_reason=data.get("done_reason", ""),
+            done_reason=done_reason,
+            truncated=(done_reason == "length"),
         )
 
     # ------------------------------------------------------------------

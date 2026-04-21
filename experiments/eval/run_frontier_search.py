@@ -472,7 +472,13 @@ def run_combos(
                 result = client.generate(model, combo["prompt"], options=call_options)
                 response = result["text"]
                 ok, reason = _score(combo["q"], response, combo["gt"])
-                print(f"{'OK' if ok else 'NO'} ({reason}) ans={response[:40]!r}")
+                # Flag truncation in output — critical signal from F-Q finding
+                trunc_flag = ""
+                if result.get("truncated"):
+                    trunc_flag = f" [TRUNCATED done=length think={result.get('thinking_length',0)}c]"
+                elif result.get("thinking_length", 0) > 5000:
+                    trunc_flag = f" [LONG_THINK {result['thinking_length']}c]"
+                print(f"{'OK' if ok else 'NO'} ({reason}){trunc_flag} ans={response[:40]!r}")
                 break
             except Exception as e:
                 es = str(e)
@@ -499,6 +505,12 @@ def run_combos(
             "prompt_tokens": result.get("prompt_tokens", 0),
             "response_tokens": result.get("response_tokens", 0),
             "total_ms": result.get("total_duration_ns", 0) // 1_000_000,
+            # Thinking instrumentation (F-Q8 fix 2026-04-21)
+            "thinking_length": result.get("thinking_length", 0),
+            "done_reason": result.get("done_reason", ""),
+            "truncated": result.get("truncated", False),
+            "think_category": think_category,
+            "think_flag": think_flag,
             **combo["meta"],
         }
         append_record(manifest_path, record)
