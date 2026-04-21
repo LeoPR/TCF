@@ -99,14 +99,16 @@ LLM_OPTIONS = {
     # think: resolvido per-model via catalog (resolve_think). NAO setar aqui.
 }
 
-# Model panel is sourced from infra/model-qualification/results/qualified_models.json
-# (populated by the Model Qualification Suite — infra/model-qualification/).
-# That file is the single source of truth for which models can run reliably on
-# this hardware. See docs/methodology/llm-research-rigor.md for rationale.
+# Model panel is sourced from OllamaTuner (sibling project) — the Model
+# Qualification Suite that qualifies models on this hardware.
+# Override with OLLAMA_TUNER env var if installed elsewhere.
+# See docs/methodology/llm-research-rigor.md for rationale.
 #
-# Fallback to canonical 12-model panel from P-G35 ticket if qualification
-# hasn't run yet (bootstrap).
-_QUALIFIED_PATH = ROOT / "infra" / "model-qualification" / "results" / "qualified_models.json"
+# Fallback to canonical 12-model panel from P-G35 ticket if OllamaTuner
+# not found (bootstrap).
+import os
+_TUNER_ROOT = Path(os.environ.get("OLLAMA_TUNER", str(ROOT.parent / "OllamaTuner")))
+_QUALIFIED_PATH = _TUNER_ROOT / "qualification" / "results" / "qualified_models.json"
 
 
 def _load_qualified_models() -> list[str]:
@@ -132,9 +134,9 @@ DEFAULT_MODELS = _load_qualified_models()
 LEGACY_MODELS = ["qwen2.5:latest", "qwen2.5-coder:7b"]
 
 # Thinking-capable models for Phase 5 (ablation). Source-of-truth is the
-# model_thinking_catalog.json in the qualification suite; this list is a
-# runtime cache of models where category in {toggle, intrinsic, graded}.
-_THINKING_CATALOG_PATH = ROOT / "infra" / "model-qualification" / "model_thinking_catalog.json"
+# model_thinking_catalog.json in OllamaTuner (sibling project); this list is
+# a runtime cache of models where category in {toggle, intrinsic, graded}.
+_THINKING_CATALOG_PATH = _TUNER_ROOT / "qualification" / "model_thinking_catalog.json"
 
 
 def _load_thinking_capable() -> list[str]:
