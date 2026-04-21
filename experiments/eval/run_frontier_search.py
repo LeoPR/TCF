@@ -171,21 +171,30 @@ def load_thinking_policy(model: str) -> tuple[bool | None, str]:
     return (entry.get("default_think"), entry.get("category", "unknown"))
 
 
-def resolve_think(model: str, cli_no_think: bool) -> bool | None:
+def resolve_think(model: str, cli_no_think: bool, force_toggle_on: bool = False) -> bool | None:
     """Resolve the actual `think` flag for a model call.
 
     Rules:
       - intrinsic models: ALWAYS catalog default (usually None). --no-think ignored.
-      - toggle models: --no-think overrides to False; else use catalog default.
+      - toggle models: if force_toggle_on → True; elif cli_no_think → False;
+        else use catalog default.
       - none models: flag is irrelevant; return None.
       - unknown models: conservative — use catalog (likely None).
+
+    force_toggle_on: used by Phase 5 (thinking ablation) to force think=True
+    on toggle models regardless of catalog. Ensures Phase 5 actually ablates
+    thinking for toggle models whose catalog default is False.
     """
     think_default, category = load_thinking_policy(model)
     if category == "intrinsic":
         # NEVER disable thinking for intrinsic models — it breaks them.
         return think_default  # typically None
-    if category == "toggle" and cli_no_think:
-        return False
+    if category == "toggle":
+        if force_toggle_on:
+            return True
+        if cli_no_think:
+            return False
+        return think_default
     if category == "none":
         return None  # flag inert
     return think_default
@@ -443,6 +452,7 @@ def run_combos(
     completed: set[str],
     llm_options: dict,
     cli_no_think: bool = False,
+    force_toggle_on: bool = False,
 ) -> list[dict]:
     """Run combos, resolving thinking flag per-model from the catalog.
 
@@ -450,6 +460,8 @@ def run_combos(
     computes it per-model via resolve_think(). The `cli_no_think` parameter
     reflects the --no-think CLI flag; it only overrides for 'toggle' models,
     never for 'intrinsic' (which would break them).
+    `force_toggle_on`: Phase 5 ablation mode — forces toggle models to
+    think=True regardless of catalog default.
     """
     new_records = []
     warmed: set[str] = set()
@@ -460,7 +472,7 @@ def run_combos(
 
     for i, combo in enumerate(pending, 1):
         model = combo["model"]
-        think_flag = resolve_think(model, cli_no_think)
+        think_flag = resolve_think(model, cli_no_think, force_toggle_on=force_toggle_on)
         _, think_category = load_thinking_policy(model)
 
         if model not in warmed:
@@ -887,7 +899,8 @@ def main() -> None:
         if args.dry_run: _dry(combos); return
         if args.no_think:
             print("[P5 WARNING] --no-think passed — thinking ablation with thinking OFF. Keys still p5|.")
-        run_combos(client, combos, manifest_path, completed, llm_options, cli_no_think=args.no_think)
+        run_combos(client, combos, manifest_path, completed, llm_options,
+                   cli_no_think=args.no_think, force_toggle_on=not args.no_think)
         print("\n[P5 Results — thinking ablation vs Phase 1 no-think]")
         recs_p5 = [r for r in read_manifest(manifest_path) if r["phase"] == 5]
         recs_p1 = [r for r in read_manifest(manifest_path) if r["phase"] == 1]
@@ -899,7 +912,7 @@ def main() -> None:
         for r in recs_p5:
             if r.get("reason") != "exception":
                 p5_by_model[r["model"]].append(r["ok"])
-        print(f"  {'Model':<24} {'P1 (no-think)':<18} {'P5 (think)':<18} Δ")
+        print(f"  {'Model':<24} {'P1 (no-think)':<18} {'P5 (think)':<18} d")
         for m in sorted(set(p1_by_model) | set(p5_by_model)):
             p1 = p1_by_model.get(m, [])
             p5 = p5_by_model.get(m, [])
