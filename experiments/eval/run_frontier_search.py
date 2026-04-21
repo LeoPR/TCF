@@ -86,8 +86,17 @@ LLM_OPTIONS = {
     # keep_alive: mantem modelo carregado 30min apos call; evita reload
     # quando percorremos as questoes de um mesmo modelo em sequencia.
     "keep_alive": "30m",
-    # think: None = default do modelo (qwen3/deepseek-r1/gpt-oss = ON).
-    # Substituir por False aqui forca desativacao global; usar --no-think CLI.
+    # num_ctx: janela de contexto efetiva. 8192 cabe nosso maior prompt
+    # (~3100 tokens) + thinking chain generosa. Forca valor estavel entre
+    # calls (evita que Ollama auto-reduza por VRAM pressure para 4096).
+    # See docs/user-guide/llm-integration-guide.md Pitfall 2.3.
+    "num_ctx": 8192,
+    # num_predict: budget maximo de tokens gerados (thinking + response).
+    # 4096 permite thinking chain ate ~3500 tokens + resposta de ate ~500.
+    # Sem este setting, default do Ollama pode ser ~128 — truncando
+    # respostas pos-thinking em modelos reasoning. See F-Q8 (2026-04-21).
+    "num_predict": 4096,
+    # think: resolvido per-model via catalog (resolve_think). NAO setar aqui.
 }
 
 # Model panel is sourced from infra/model-qualification/results/qualified_models.json

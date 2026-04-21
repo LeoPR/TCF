@@ -232,6 +232,36 @@ When implementing a client for Ollama (esp. for reasoning models):
 - [ ] Check `len(thinking) > 10000` as a heuristic for "thinking consumed
       most budget" even if `done_reason=stop`
 
+## 6.1 Non-convergent thinking (specific-domain observation)
+
+**Warning**: narrow-scope observation, see
+[full caveats](../../docs/research-notes/2026-04-21-thinking-non-convergence.md).
+
+Small reasoning models (observed in `deepseek-r1:7b`, not yet tested
+broadly) may enter **non-convergent thinking loops** when facing prompts
+outside their training distribution. Symptoms:
+
+- `thinking_length` grows proportionally with `num_predict` budget,
+  without reaching `</think>` termination
+- `done_reason == "length"` on every retry at escalating budgets
+- Model eventually either (a) truncates with empty response, or
+  (b) emits wrong answer after exhausting budget
+- Task-specific: **same model+data on OTHER questions** converges
+  normally. Not a blanket failure.
+
+**Practical mitigation**:
+- Don't assume "just give more budget" — monotonic budget scaling
+  doesn't necessarily help
+- Consider prompt engineering (add "seja conciso") OR `reasoning_effort`
+- If persistent for your use case, **use a larger model** in same family
+  (14B in our case)
+- ALWAYS instrument `thinking_length` and `done_reason` to detect
+  this early
+
+**Do NOT conclude** that the affected model is "broken" or "unsuitable"
+generically — it likely works fine on most tasks. This is a niche
+failure mode triggered by specific prompt structures.
+
 ## 7. When official docs conflict with observations
 
 Prefer observations documented here. Submit bugs/questions to Ollama when
