@@ -36,7 +36,7 @@ duas primeiras. Exemplos reais:
 ### 2.1 Qualification first
 Antes de rodar experimentos de pesquisa (TCF) com qualquer modelo, ele
 precisa **passar a qualification suite**
-(`infra/model-qualification/`). Esta valida:
+(`../OllamaTuner/qualification/`). Esta valida:
 - Carregamento sem hang (<5min)
 - Accuracy em perguntas canônicas (≥2/3 em 4 das 5 categorias)
 - Latência característica documentada
@@ -57,7 +57,7 @@ todo script do projeto que escolhe modelos.
 
 ### 2.3 Respeitar thinking policy
 Modelos dividem-se em 4 categorias segundo o catálogo em
-`infra/model-qualification/model_thinking_catalog.json`:
+`../OllamaTuner/qualification/model_thinking_catalog.json`:
 
 | Categoria | Comportamento | Default flag |
 |-----------|---------------|--------------|
@@ -135,10 +135,10 @@ manter para ablações históricas se necessárias.
 Para qualquer pesquisa nova envolvendo LLMs locais neste projeto:
 
 ```
-1. python infra/model-qualification/qualify.py --audit-only
+1. python ../OllamaTuner/qualification/qualify.py --audit-only
    └── Confirmar estado do ambiente
 
-2. python infra/model-qualification/qualify.py (ou subset)
+2. python ../OllamaTuner/qualification/qualify.py (ou subset)
    └── Qualificar modelos novos / revalidar existentes
 
 3. Consultar qualified_models.json para escolher panel

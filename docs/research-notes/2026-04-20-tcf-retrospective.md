@@ -7,7 +7,7 @@ related:
   - docs/methodology/llm-research-rigor.md
   - docs/research-notes/2026-04-20-qualification-findings.md
   - experiments/results/frontier_search/manifest.jsonl
-  - infra/model-qualification/results/qualified_models.json
+  - ../OllamaTuner/qualification/results/qualified_models.json
 ---
 
 # Retrospectiva crítica — Phase 0/1/5 do TCF

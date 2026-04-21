@@ -4,9 +4,9 @@ date: 2026-04-21
 type: research-note
 status: OBSERVED_LIMITED_SCOPE
 related:
-  - infra/docs/ollama-server-behavior.md
+  - ../OllamaTuner/docs/ollama-server-behavior.md
   - docs/methodology/llm-research-rigor.md
-  - infra/model-qualification/results/probe_deepseek_budget.json
+  - ../TCF/experiments/results/probes/probe_deepseek_budget.json
 warnings:
   - "Findings limitados a UMA task domain específica. Não generalizar."
   - "Resultado PRECISA ser contextualizado em qualquer citação externa."
@@ -215,7 +215,7 @@ publica como standalone ferramenta/paper.
 
 ## Referências
 
-- `infra/model-qualification/results/probe_deepseek_budget.json` (raw data
+- `../TCF/experiments/results/probes/probe_deepseek_budget.json` (raw data
   deste experimento quando completar)
 - `docs/research-notes/2026-04-20-qualification-findings.md` F-Q1 (evidência
   anterior de comportamento de deepseek-r1)

@@ -34,7 +34,7 @@ reasoning-oriented training.** Below that, expect inconsistent results.
 
 If you will deploy TCF with a specific LLM:
 1. **First** run it through a qualification suite
-   (see `infra/model-qualification/` in this repo) to confirm it even
+   (see `../OllamaTuner/qualification/` in this repo) to confirm it even
    answers simple questions on your hardware.
 2. **Then** benchmark TCF-specific prompts — accuracy can drop dramatically
    vs simple questions even on "qualified" models.
@@ -216,8 +216,8 @@ Start with these diagnostics in order:
 ## 8. References
 
 ### Internal
-- [Model qualification suite](../../infra/model-qualification/README.md)
-- [Ollama server behavior reference](../../infra/docs/ollama-server-behavior.md)
+- [Model qualification suite](../../../OllamaTuner/qualification/README.md)
+- [Ollama server behavior reference](../../../OllamaTuner/docs/ollama-server-behavior.md)
 - [Research rigor methodology](../methodology/llm-research-rigor.md)
 - [Qualification findings F-Q1 to F-Q7](../research-notes/2026-04-20-qualification-findings.md)
 

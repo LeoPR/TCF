@@ -4,7 +4,7 @@ date: 2026-04-20
 type: research-note
 status: FINDINGS
 related:
-  - infra/model-qualification/
+  - ../OllamaTuner/qualification/
   - docs/methodology/llm-research-rigor.md
   - docs/research-notes/2026-04-20-tcf-retrospective.md
 ---
