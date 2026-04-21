@@ -1,5 +1,5 @@
 {
-  "timestamp": 1776724757.5420594,
+  "timestamp": 1776730262.628353,
   "ollama_version": {
     "version": "0.21.0"
   },
@@ -147,10 +147,10 @@
   ],
   "currently_loaded": [
     {
-      "name": "deepseek-r1:14b",
-      "model": "deepseek-r1:14b",
-      "size": 15789520896,
-      "digest": "c333b7232bdb521236694ffbb5f5a6b11cc45d98e9142c73123b670fca400b09",
+      "name": "deepseek-r1:7b",
+      "model": "deepseek-r1:7b",
+      "size": 6831947904,
+      "digest": "755ced02ce7befdb13b7ca74e1e4d08cddba4986afdb63a480f2c93d3140383f",
       "details": {
         "parent_model": "",
         "format": "gguf",
@@ -158,11 +158,11 @@
         "families": [
           "qwen2"
         ],
-        "parameter_size": "14.8B",
+        "parameter_size": "7.6B",
         "quantization_level": "Q4_K_M"
       },
-      "expires_at": "2026-04-20T22:49:15.617966483Z",
-      "size_vram": 10189264896,
+      "expires_at": "2026-04-21T00:17:15.105097291Z",
+      "size_vram": 6831947904,
       "context_length": 32768
     }
   ],

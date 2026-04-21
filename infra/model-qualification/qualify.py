@@ -39,12 +39,27 @@ from llm_eval.ollama_registry import OllamaRegistry
 HERE = Path(__file__).resolve().parent
 RESULTS_DIR = HERE / "results"
 QA_FILE = HERE / "canonical_qa.json"
+THINKING_CATALOG = HERE / "model_thinking_catalog.json"
 MANIFEST_PATH = RESULTS_DIR / "qualification.jsonl"
 AUDIT_PATH = RESULTS_DIR / "capability_audit.json"
 QUALIFIED_PATH = RESULTS_DIR / "qualified_models.json"
 
 OLLAMA_ENDPOINT = "http://localhost:11434"
-OPTIONS_BASE = {"temperature": 0, "keep_alive": "10m", "num_thread": 12, "think": False}
+OPTIONS_BASE = {"temperature": 0, "keep_alive": "10m", "num_thread": 12}
+
+
+def load_thinking_policy(model: str) -> tuple[bool | None, str]:
+    """Return (think_flag, category) for a model, based on catalog.
+
+    If model not in catalog: return (None, 'unknown') — use model's own default.
+    """
+    if not THINKING_CATALOG.exists():
+        return (None, "unknown")
+    catalog = json.loads(THINKING_CATALOG.read_text(encoding="utf-8"))
+    entry = catalog.get("models", {}).get(model)
+    if not entry:
+        return (None, "unknown")
+    return (entry.get("default_think"), entry.get("category", "unknown"))
 
 
 # ---------------------------------------------------------------------------
@@ -130,6 +145,20 @@ def score_answer(question: dict, language: str, response: str) -> tuple[bool, st
             return False, "no_number"
         return abs(val - expected) < 0.5, "correct" if abs(val - expected) < 0.5 else f"wrong_number({val})"
 
+    if scoring == "extract_number_with_variants":
+        # Primary expected + acceptable_variants both count as correct; mark which was answered
+        expected = float(question["expected_number"])
+        variants = {float(v) for v in question.get("acceptable_variants", [])}
+        val = _extract_number(response)
+        if val is None:
+            return False, "no_number"
+        if abs(val - expected) < 0.5:
+            return True, "correct"
+        for v in variants:
+            if abs(val - v) < 0.5:
+                return True, f"correct_variant({int(v)})"
+        return False, f"wrong_number({val})"
+
     if scoring == "comma_separated_count":
         sep = question.get("expected_count_separator", ",")
         expected = question["expected_count"]
@@ -198,7 +227,10 @@ def run_model_tests(
     new_records = []
     prompt_key = f"prompt_{language}"
 
-    print(f"\n[{model}] testing {len(questions)}q × {len(seeds)} seeds = {len(questions)*len(seeds)} calls")
+    # Consult thinking catalog for per-model policy
+    think_flag, think_category = load_thinking_policy(model)
+    print(f"\n[{model}] testing {len(questions)}q × {len(seeds)} seeds = {len(questions)*len(seeds)} calls"
+          f"  [thinking: {think_category} default={think_flag}]")
     warmed = False
 
     for question in questions:
@@ -210,14 +242,18 @@ def run_model_tests(
             if not warmed:
                 print(f"  warming {model}...")
                 try:
-                    client.generate(model, "ok",
-                                    options={**OPTIONS_BASE, "num_predict": 2}, timeout=300)
+                    warm_opts = {**OPTIONS_BASE, "num_predict": 2}
+                    if think_flag is not None:
+                        warm_opts["think"] = think_flag
+                    client.generate(model, "ok", options=warm_opts, timeout=300)
                     warmed = True
                 except Exception as e:
                     print(f"  warm failed: {e}")
                     warmed = True  # proceed anyway
 
             opts = {**OPTIONS_BASE, "seed": seed}
+            if think_flag is not None:
+                opts["think"] = think_flag
             prompt = question[prompt_key]
             max_latency = question.get("max_latency_s", 120)
             t0 = time.time()
@@ -241,9 +277,12 @@ def run_model_tests(
                 "language": language,
                 "seed": seed,
                 "response": resp,
+                "response_length": len(resp) if isinstance(resp, str) else 0,
                 "ok": ok,
                 "reason": reason,
                 "latency_s": round(latency_s, 2),
+                "think_flag": think_flag,
+                "think_category": think_category,
                 "timestamp": time.time(),
             }
             append_record(record)

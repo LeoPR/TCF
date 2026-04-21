@@ -1,6 +1,6 @@
 {
-  "schema_version": 1,
-  "description": "Canonical literature-based QA tests for LLM qualification. TCF-agnostic. Each question has deterministic verification.",
+  "schema_version": 2,
+  "description": "Canonical literature-based QA tests for LLM qualification. TCF-agnostic. Each question has deterministic verification. v2 (2026-04-20): fixed PT ambiguities discovered in V1 — 'cores' (colors vs CPU cores), 'palavras entre aspas' (scope unclear). Note: LLMs are English-biased; PT prompts may produce more complex tokenization and lower accuracy than EN equivalents. Changes should be re-applied to previously-tested models.",
   "seeds": [42, 7, 123],
   "questions": [
     {
@@ -58,23 +58,24 @@
     {
       "id": "counting_words",
       "category": "counting",
-      "prompt_pt": "Quantas palavras h\u00e1 na frase entre aspas: 'A raposa marrom pula'? Responda apenas com o n\u00famero.",
-      "prompt_en": "How many words are in the sentence in quotes: 'The quick brown fox'? Answer with just the number.",
+      "prompt_pt": "Conte apenas as palavras dentro das aspas, ignorando o resto do enunciado. Texto: \"A raposa marrom pula\". Responda somente com o n\u00famero de palavras do texto citado.",
+      "prompt_en": "Count only the words inside the quotes, ignoring the rest of the question. Text: \"The quick brown fox\". Answer with just the number of words in the quoted text.",
       "expected_number": 4,
-      "scoring": "extract_number_exact",
+      "acceptable_variants": [3],
+      "scoring": "extract_number_with_variants",
       "max_latency_s": 120,
-      "notes": "Simple counting. Tests basic structured reasoning."
+      "notes": "V2: explicit scope. V2.1: accept 3 as linguistic variant (PT articles excluded — 'A' not counted). Record answered value for downstream analysis — affects q_count interpretation in TCF."
     },
     {
       "id": "list_colors",
       "category": "structured_output",
-      "prompt_pt": "Liste 3 cores separadas por v\u00edrgula. Responda apenas com a lista.",
-      "prompt_en": "List 3 colors separated by commas. Answer with just the list.",
+      "prompt_pt": "Liste 3 nomes de cores (como vermelho, azul, amarelo), separados por v\u00edrgula. Responda apenas com os 3 nomes de cores.",
+      "prompt_en": "List 3 color names (like red, blue, yellow), separated by commas. Answer with just the 3 color names.",
       "expected_count_separator": ",",
       "expected_count": 3,
       "scoring": "comma_separated_count",
       "max_latency_s": 120,
-      "notes": "Tests structured output. Useful for TCF which relies on structured outputs."
+      "notes": "V2: examples given to disambiguate. V1 ambiguity: PT 'cores' collided with computer 'cores' (CPU) — models answered 'Intel i3, i5, i7' etc."
     }
   ],
   "qualification_criteria": {

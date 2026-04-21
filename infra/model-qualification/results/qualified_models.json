@@ -5,7 +5,7 @@
     "categories_total": 5,
     "hang_detected": false,
     "exception_count": 0,
-    "avg_latency_s": 2.17,
+    "avg_latency_s": 2.12,
     "category_stats": {
       "factual_recall": {
         "correct": 6,
@@ -98,7 +98,7 @@
     "categories_total": 5,
     "hang_detected": false,
     "exception_count": 0,
-    "avg_latency_s": 1.33,
+    "avg_latency_s": 1.31,
     "category_stats": {
       "factual_recall": {
         "correct": 6,
@@ -129,7 +129,7 @@
     "categories_total": 5,
     "hang_detected": false,
     "exception_count": 0,
-    "avg_latency_s": 1.63,
+    "avg_latency_s": 2.11,
     "category_stats": {
       "factual_recall": {
         "correct": 6,
@@ -160,7 +160,7 @@
     "categories_total": 5,
     "hang_detected": false,
     "exception_count": 0,
-    "avg_latency_s": 7.2,
+    "avg_latency_s": 7.11,
     "category_stats": {
       "factual_recall": {
         "correct": 6,
@@ -187,42 +187,11 @@
   },
   "qwen3:1.7b": {
     "qualified": true,
-    "categories_passed": 4,
-    "categories_total": 5,
-    "hang_detected": false,
-    "exception_count": 0,
-    "avg_latency_s": 1.19,
-    "category_stats": {
-      "factual_recall": {
-        "correct": 6,
-        "total": 6
-      },
-      "arithmetic": {
-        "correct": 6,
-        "total": 6
-      },
-      "instruction_following": {
-        "correct": 3,
-        "total": 3
-      },
-      "counting": {
-        "correct": 0,
-        "total": 3
-      },
-      "structured_output": {
-        "correct": 3,
-        "total": 3
-      }
-    },
-    "total_records": 21
-  },
-  "qwen3-vl:8b": {
-    "qualified": true,
     "categories_passed": 5,
     "categories_total": 5,
     "hang_detected": false,
     "exception_count": 0,
-    "avg_latency_s": 12.42,
+    "avg_latency_s": 1.25,
     "category_stats": {
       "factual_recall": {
         "correct": 6,
@@ -284,7 +253,7 @@
     "categories_total": 5,
     "hang_detected": false,
     "exception_count": 0,
-    "avg_latency_s": 2.21,
+    "avg_latency_s": 2.2,
     "category_stats": {
       "factual_recall": {
         "correct": 6,
@@ -311,11 +280,11 @@
   },
   "qwen3:14b": {
     "qualified": true,
-    "categories_passed": 4,
+    "categories_passed": 5,
     "categories_total": 5,
     "hang_detected": false,
     "exception_count": 0,
-    "avg_latency_s": 1.77,
+    "avg_latency_s": 1.75,
     "category_stats": {
       "factual_recall": {
         "correct": 6,
@@ -330,7 +299,7 @@
         "total": 3
       },
       "counting": {
-        "correct": 0,
+        "correct": 3,
         "total": 3
       },
       "structured_output": {
@@ -342,7 +311,7 @@
   },
   "deepseek-r1:14b": {
     "qualified": true,
-    "categories_passed": 4,
+    "categories_passed": 5,
     "categories_total": 5,
     "hang_detected": false,
     "exception_count": 0,
@@ -361,7 +330,38 @@
         "total": 3
       },
       "counting": {
-        "correct": 0,
+        "correct": 3,
+        "total": 3
+      },
+      "structured_output": {
+        "correct": 3,
+        "total": 3
+      }
+    },
+    "total_records": 21
+  },
+  "deepseek-r1:7b": {
+    "qualified": true,
+    "categories_passed": 5,
+    "categories_total": 5,
+    "hang_detected": false,
+    "exception_count": 0,
+    "avg_latency_s": 3.89,
+    "category_stats": {
+      "factual_recall": {
+        "correct": 6,
+        "total": 6
+      },
+      "arithmetic": {
+        "correct": 6,
+        "total": 6
+      },
+      "instruction_following": {
+        "correct": 3,
+        "total": 3
+      },
+      "counting": {
+        "correct": 3,
         "total": 3
       },
       "structured_output": {

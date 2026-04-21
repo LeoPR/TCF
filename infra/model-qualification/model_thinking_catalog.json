@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "description": "Per-model thinking capability and recommended flags. Consumed by qualify.py and TCF experiments to set the correct `think` flag per model. Avoids the bug where think=False breaks reasoning-native models.",
+  "categories": {
+    "none": "Model has no thinking capability; think flag is ignored/irrelevant",
+    "toggle": "Model supports think=true/false; can be disabled without breaking",
+    "intrinsic": "Model requires thinking (reasoning-native); disabling breaks output",
+    "graded": "Model supports thinking levels (low/medium/high) via reasoning_effort",
+    "unknown": "Not yet characterized — default to think=None (model's default)"
+  },
+  "models": {
+    "phi4:latest": {"category": "none", "default_think": null, "notes": "Base phi4 — no reasoning. phi4-reasoning is a separate model."},
+    "phi4-mini": {"category": "none", "default_think": null, "notes": "Small phi4, no reasoning"},
+    "phi4-reasoning": {"category": "intrinsic", "default_think": null, "notes": "Reasoning-trained variant of phi4"},
+    "phi3:latest": {"category": "none", "default_think": null, "notes": "OBSOLETE — use phi4"},
+    "gemma3:1b": {"category": "none", "default_think": null},
+    "gemma3:4b": {"category": "none", "default_think": null},
+    "gemma3:12b": {"category": "none", "default_think": null},
+    "gemma2:9b": {"category": "none", "default_think": null, "notes": "OBSOLETE — use gemma3"},
+    "llama3.2:latest": {"category": "none", "default_think": null},
+    "llama3.2-vision:11b": {"category": "none", "default_think": null, "notes": "Multimodal; visual encoder may interfere with text-only"},
+    "llama3.1:8b": {"category": "none", "default_think": null, "notes": "OBSOLETE — use llama3.2"},
+    "mistral:latest": {"category": "none", "default_think": null, "notes": "OBSOLETE — use mistral-small newer versions"},
+    "qwen2.5:latest": {"category": "none", "default_think": null, "notes": "OBSOLETE — use qwen3"},
+    "qwen2.5-coder:7b": {"category": "none", "default_think": null, "notes": "OBSOLETE — use qwen3"},
+    "qwen3:0.6b": {"category": "toggle", "default_think": false, "notes": "Small; thinking=on causes pathological loops on CPU. PROVISIONAL per 2026-04-20 phase 5 abort."},
+    "qwen3:1.7b": {"category": "toggle", "default_think": false, "notes": "Same as 0.6b — thinking on CPU is slow/unstable. Use false for qualification."},
+    "qwen3:8b": {"category": "toggle", "default_think": false, "notes": "Larger; thinking likely works on GPU. Keep false for consistency with baseline."},
+    "qwen3:14b": {"category": "toggle", "default_think": false, "notes": "Works well with think=false on GPU (Phase 1 data)."},
+    "qwen3-vl:8b": {"category": "toggle", "default_think": false, "notes": "Multimodal Qwen3; V2 list_colors prompt with color examples hangs. Likely vision encoder pathology on visual descriptors."},
+    "deepseek-r1:7b": {"category": "intrinsic", "default_think": null, "notes": "CONFIRMED 2026-04-20: think=False causes prompt-echo bug. Never use think=false. Let default (None) for thinking-on."},
+    "deepseek-r1:14b": {"category": "intrinsic", "default_think": null, "notes": "Larger; tolerates think=false with 100% in Phase 1, but canonical default to None for consistency. Thinking likely improves performance but wasn't tested at 100% ceiling."},
+    "gpt-oss:latest": {"category": "graded", "default_think": null, "reasoning_effort_default": "medium", "notes": "Supports reasoning_effort = low | medium | high. Default medium. In Phase 1 ran with think=false equivalent but still got 100%. Need dedicated ablation."}
+  },
+  "policy": {
+    "qualification_default": "Use catalog default_think per model. Only override with explicit --force-think-false for ablation.",
+    "tcf_experiments_default": "Same — use catalog default_think. When comparing thinking on/off, create separate phase with different key prefix.",
+    "unknown_models_default": "null (model's own default, typically on for reasoning-capable, off for others)"
+  }
+}

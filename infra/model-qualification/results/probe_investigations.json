@@ -1,0 +1,163 @@
+{
+  "timestamp": 1776729353.4023058,
+  "phase_a_deepseek": {
+    "model": "deepseek-r1:7b",
+    "prompt": "Qual a capital do Brasil? Responda apenas com o nome da cidade.",
+    "runs": [
+      {
+        "response": "Qual a capital do Brasil? Responda apenas com o nome da cidade.",
+        "thinking_chars": 0,
+        "elapsed_s": 23.27,
+        "done_reason": "stop",
+        "eval_count": 17,
+        "error": null,
+        "think": false,
+        "seed": 42
+      },
+      {
+        "response": "Qual a capital do Brasil? Responda apenas com o nome da cidade.",
+        "thinking_chars": 0,
+        "elapsed_s": 1.86,
+        "done_reason": "stop",
+        "eval_count": 17,
+        "error": null,
+        "think": false,
+        "seed": 7
+      },
+      {
+        "response": "Qual a capital do Brasil? Responda apenas com o nome da cidade.",
+        "thinking_chars": 0,
+        "elapsed_s": 1.86,
+        "done_reason": "stop",
+        "eval_count": 17,
+        "error": null,
+        "think": false,
+        "seed": 123
+      },
+      {
+        "response": "Qual a capital do Brasil? Responda apenas com o nome da cidade.",
+        "thinking_chars": 0,
+        "elapsed_s": 1.87,
+        "done_reason": "stop",
+        "eval_count": 17,
+        "error": null,
+        "think": false,
+        "seed": 999
+      },
+      {
+        "response": "Qual a capital do Brasil? Responda apenas com o nome da cidade.",
+        "thinking_chars": 0,
+        "elapsed_s": 1.87,
+        "done_reason": "stop",
+        "eval_count": 17,
+        "error": null,
+        "think": false,
+        "seed": 1
+      },
+      {
+        "response": "Brasília",
+        "thinking_chars": 442,
+        "elapsed_s": 3.27,
+        "done_reason": "stop",
+        "eval_count": 106,
+        "error": null,
+        "think": true,
+        "seed": 42
+      },
+      {
+        "response": "Brasília",
+        "thinking_chars": 442,
+        "elapsed_s": 3.25,
+        "done_reason": "stop",
+        "eval_count": 106,
+        "error": null,
+        "think": true,
+        "seed": 7
+      },
+      {
+        "response": "Brasília",
+        "thinking_chars": 442,
+        "elapsed_s": 3.27,
+        "done_reason": "stop",
+        "eval_count": 106,
+        "error": null,
+        "think": true,
+        "seed": 123
+      },
+      {
+        "response": "Brasília",
+        "thinking_chars": 442,
+        "elapsed_s": 3.27,
+        "done_reason": "stop",
+        "eval_count": 106,
+        "error": null,
+        "think": true,
+        "seed": 999
+      },
+      {
+        "response": "Brasília",
+        "thinking_chars": 442,
+        "elapsed_s": 3.24,
+        "done_reason": "stop",
+        "eval_count": 106,
+        "error": null,
+        "think": true,
+        "seed": 1
+      }
+    ],
+    "aggregate": {
+      "think_false_correct": 5,
+      "think_true_correct": 5
+    }
+  },
+  "phase_b_qwenvl": {
+    "model": "qwen3-vl:8b",
+    "variants": [
+      {
+        "response": null,
+        "elapsed_s": 45.01,
+        "error": "TimeoutError: timed out",
+        "variant": "b1_v2_original",
+        "prompt": "Liste 3 nomes de cores (como vermelho, azul, amarelo), separados por vírgula. Responda apenas com os 3 nomes de cores."
+      },
+      {
+        "response": null,
+        "elapsed_s": 45.0,
+        "error": "TimeoutError: timed out",
+        "variant": "b2_v2_sem_exemplos",
+        "prompt": "Liste 3 nomes de cores, separados por vírgula. Responda apenas com os 3 nomes de cores."
+      },
+      {
+        "response": null,
+        "elapsed_s": 45.0,
+        "error": "TimeoutError: timed out",
+        "variant": "b3_triple_quote",
+        "prompt": "\"\"\"\nListe 3 nomes de cores (como vermelho, azul, amarelo), separados por vírgula.\n\"\"\"\nResponda apenas com os 3 nomes de cores."
+      },
+      {
+        "response": null,
+        "elapsed_s": 45.01,
+        "error": "TimeoutError: timed out",
+        "variant": "b4_curto",
+        "prompt": "Liste 3 cores separadas por vírgula."
+      },
+      {
+        "response": "vermelho, azul, amarelo",
+        "thinking_chars": 5633,
+        "elapsed_s": 42.92,
+        "done_reason": "stop",
+        "eval_count": 1374,
+        "error": null,
+        "variant": "b5_v1_original",
+        "prompt": "Liste 3 cores separadas por vírgula. Responda apenas com a lista."
+      },
+      {
+        "response": null,
+        "elapsed_s": 45.0,
+        "error": "TimeoutError: timed out",
+        "variant": "b6_exemplos_en",
+        "prompt": "Liste 3 nomes de cores (like red, blue, green), separados por vírgula. Responda apenas com os 3 nomes de cores."
+      }
+    ]
+  }
+}
