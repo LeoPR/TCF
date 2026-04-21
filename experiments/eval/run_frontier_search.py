@@ -139,6 +139,46 @@ def _load_thinking_capable() -> list[str]:
 
 THINKING_CAPABLE = _load_thinking_capable()
 
+
+def load_thinking_policy(model: str) -> tuple[bool | None, str]:
+    """Return (think_flag, category) for a model, based on catalog.
+
+    Categories: 'none' | 'toggle' | 'intrinsic' | 'graded' | 'unknown'
+    think_flag: False = force off (only valid for 'none' or 'toggle')
+                None  = use model's own default (safe for all categories)
+                True  = force on (valid for 'toggle' and 'intrinsic')
+
+    For 'intrinsic' models (e.g., deepseek-r1), NEVER return False — that
+    breaks the model. See docs/research-notes/2026-04-20-qualification-findings.md F-Q1.
+    """
+    if not _THINKING_CATALOG_PATH.exists():
+        return (None, "unknown")
+    catalog = json.loads(_THINKING_CATALOG_PATH.read_text(encoding="utf-8"))
+    entry = catalog.get("models", {}).get(model)
+    if not entry:
+        return (None, "unknown")
+    return (entry.get("default_think"), entry.get("category", "unknown"))
+
+
+def resolve_think(model: str, cli_no_think: bool) -> bool | None:
+    """Resolve the actual `think` flag for a model call.
+
+    Rules:
+      - intrinsic models: ALWAYS catalog default (usually None). --no-think ignored.
+      - toggle models: --no-think overrides to False; else use catalog default.
+      - none models: flag is irrelevant; return None.
+      - unknown models: conservative — use catalog (likely None).
+    """
+    think_default, category = load_thinking_policy(model)
+    if category == "intrinsic":
+        # NEVER disable thinking for intrinsic models — it breaks them.
+        return think_default  # typically None
+    if category == "toggle" and cli_no_think:
+        return False
+    if category == "none":
+        return None  # flag inert
+    return think_default
+
 # ---------------------------------------------------------------------------
 # RLE notation variants
 # ---------------------------------------------------------------------------
@@ -368,10 +408,17 @@ def phase_acc(records: list[dict], group_key: str) -> dict[str, tuple[int, int]]
 def _warm(client: OllamaClient, model: str, llm_options: dict) -> None:
     """Quick warmup: just load model weights into memory.
 
-    Force think=False (else qwen3 warmup runs full thinking on 'ok' prompt)
-    and num_predict=2 to short-circuit generation. Short timeout.
+    Uses num_predict=2 to short-circuit generation.
+    Respects thinking policy from catalog: intrinsic models keep thinking on
+    (forcing False would break them); toggle/none models use False to avoid
+    spending time on 'ok' prompt thinking chain.
     """
-    opts = {**llm_options, "num_predict": 2, "think": False}
+    _, category = load_thinking_policy(model)
+    opts = {**llm_options, "num_predict": 2}
+    # Only force think=False for toggle/none; intrinsic needs default
+    if category in ("toggle", "none", "unknown"):
+        opts["think"] = False
+    # For intrinsic: don't override (let catalog default or None apply)
     try:
         client.generate(model, "ok", options=opts, timeout=300)
     except Exception as e:
@@ -384,7 +431,15 @@ def run_combos(
     manifest_path: Path,
     completed: set[str],
     llm_options: dict,
+    cli_no_think: bool = False,
 ) -> list[dict]:
+    """Run combos, resolving thinking flag per-model from the catalog.
+
+    `llm_options` should NOT contain a global `think` key — this function
+    computes it per-model via resolve_think(). The `cli_no_think` parameter
+    reflects the --no-think CLI flag; it only overrides for 'toggle' models,
+    never for 'intrinsic' (which would break them).
+    """
     new_records = []
     warmed: set[str] = set()
     t_start = time.time()
@@ -394,18 +449,27 @@ def run_combos(
 
     for i, combo in enumerate(pending, 1):
         model = combo["model"]
+        think_flag = resolve_think(model, cli_no_think)
+        _, think_category = load_thinking_policy(model)
+
         if model not in warmed:
-            print(f"  warming {model}...")
+            print(f"  warming {model} [think_category={think_category} call_flag={think_flag}]...")
             _warm(client, model, llm_options)
             warmed.add(model)
 
         elapsed = time.time() - t_start
         print(f"  [{i}/{len(pending)} el={elapsed:.0f}s] {combo['key']}", end=" ", flush=True)
 
+        # Build per-call options, applying catalog-resolved think
+        call_options = dict(llm_options)
+        if think_flag is not None:
+            call_options["think"] = think_flag
+        # If think_flag is None, don't set it — Ollama uses model default
+
         response, ok, reason, result = None, False, "exception", None
         for attempt in (1, 2):
             try:
-                result = client.generate(model, combo["prompt"], options=llm_options)
+                result = client.generate(model, combo["prompt"], options=call_options)
                 response = result["text"]
                 ok, reason = _score(combo["q"], response, combo["gt"])
                 print(f"{'OK' if ok else 'NO'} ({reason}) ans={response[:40]!r}")
@@ -711,9 +775,14 @@ def main() -> None:
         llm_options["num_gpu"] = 0
     if args.num_thread is not None:
         llm_options["num_thread"] = args.num_thread
+    # NOTE: 'think' is NOT set globally anymore. It's resolved per-model in
+    # run_combos via resolve_think(), consulting the thinking catalog.
+    # The --no-think CLI flag is passed through and only affects 'toggle'
+    # models — never 'intrinsic' (which would break them; see F-Q1 in
+    # docs/research-notes/2026-04-20-qualification-findings.md).
     if args.no_think:
-        llm_options["think"] = False  # routed to top-level of Ollama payload
-        print("[frontier] think=False (disabled for all models)")
+        print("[frontier] --no-think: toggle-capable models will be forced off; "
+              "intrinsic models (deepseek-r1, phi4-reasoning) keep thinking on.")
 
     completed = load_completed(manifest_path)
 
@@ -743,14 +812,14 @@ def main() -> None:
     if args.phase == 0:
         combos = build_phase0(args.models)
         if args.dry_run: _dry(combos); return
-        run_combos(client, combos, manifest_path, completed, llm_options)
+        run_combos(client, combos, manifest_path, completed, llm_options, cli_no_think=args.no_think)
         print("\n[P0 Results]")
         print_summary(manifest_path)
 
     elif args.phase == 1:
         combos = build_phase1(args.models)
         if args.dry_run: _dry(combos); return
-        run_combos(client, combos, manifest_path, completed, llm_options)
+        run_combos(client, combos, manifest_path, completed, llm_options, cli_no_think=args.no_think)
         print("\n[P1 Results — pick pilot for phase 2]")
         recs = [r for r in read_manifest(manifest_path) if r["phase"] == 1]
         pick_pilot(recs)
@@ -759,7 +828,7 @@ def main() -> None:
         pilot = _pilot()
         combos = build_phase2(pilot)
         if args.dry_run: _dry(combos); return
-        run_combos(client, combos, manifest_path, completed, llm_options)
+        run_combos(client, combos, manifest_path, completed, llm_options, cli_no_think=args.no_think)
         print("\n[P2 Results — n-boundary]")
         recs = [r for r in read_manifest(manifest_path) if r["phase"] == 2]
         n_opt = pick_n_optimal(recs)
@@ -769,7 +838,7 @@ def main() -> None:
         pilot = _pilot()
         combos = build_phase3(pilot)
         if args.dry_run: _dry(combos); return
-        run_combos(client, combos, manifest_path, completed, llm_options)
+        run_combos(client, combos, manifest_path, completed, llm_options, cli_no_think=args.no_think)
         print("\n[P3 Results — notation ranking]")
         recs = [r for r in read_manifest(manifest_path) if r["phase"] == 3]
         for notation, (c, t) in sorted(phase_acc(recs, "notation").items()):
@@ -784,7 +853,7 @@ def main() -> None:
             n_opt = pick_n_optimal(recs_p2) if recs_p2 else 50
         combos = build_phase4(pilot, n_opt)
         if args.dry_run: _dry(combos); return
-        run_combos(client, combos, manifest_path, completed, llm_options)
+        run_combos(client, combos, manifest_path, completed, llm_options, cli_no_think=args.no_think)
         print("\n[P4 Results — full task profile]")
         print_summary(manifest_path)
 
@@ -795,7 +864,7 @@ def main() -> None:
         if args.dry_run: _dry(combos); return
         if args.no_think:
             print("[P5 WARNING] --no-think passed — thinking ablation with thinking OFF. Keys still p5|.")
-        run_combos(client, combos, manifest_path, completed, llm_options)
+        run_combos(client, combos, manifest_path, completed, llm_options, cli_no_think=args.no_think)
         print("\n[P5 Results — thinking ablation vs Phase 1 no-think]")
         recs_p5 = [r for r in read_manifest(manifest_path) if r["phase"] == 5]
         recs_p1 = [r for r in read_manifest(manifest_path) if r["phase"] == 1]
