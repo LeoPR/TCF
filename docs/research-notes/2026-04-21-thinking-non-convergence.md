@@ -41,17 +41,41 @@ pensamento).
 
 Resultado:
 
-| num_predict | thinking chars | done_reason | resposta |
-|-------------|----------------|-------------|----------|
-| 4096 | 2121 | stop | "16" (errado, real=115) |
-| 8192 | **31950** | length | (vazio, truncado) |
-| 16384 | **70052** | length | (vazio, truncado) |
-| 32768 | ainda rodando | ? | ? |
+| num_predict | thinking chars | done_reason | resposta q_count (real=115) |
+|-------------|----------------|-------------|-----------------------------|
+| 4096 | 2121 | stop | "16" (errado) |
+| 8192 | 31950 | length | (vazio, truncado) |
+| 16384 | 70052 | length | (vazio, truncado) |
+| 32768 | **1917** | **stop** | **"100"** (errado, mas convergiu!) |
 
-**Padrão**: aumentar o budget **aumenta desproporcionalmente** o comprimento
-do thinking, sem convergência. Com 8x o budget (8k→16k), o thinking usa
-2.2x mais tokens. Se extrapolarmos linearmente, **nenhum budget razoável**
-faria o modelo convergir nessa tarefa específica.
+**Padrão não-monotônico** (surpreendente): thinking length cresceu com
+budget até 16k, **colapsou em 32k**. Hipótese: deepseek-r1 pode ter
+heurística interna que desiste quando budget é "grande demais".
+
+### Teste extendido (probe_deepseek_budget.py, 8 configs × 2 Qs)
+
+Testamos também:
+- **C_concise** (num_predict=4k + "seja conciso"): q_count think=4991c, TRUNC
+- **AC_combo_16k** (num_predict=16k + "seja conciso"): q_count think=1406c, stop, **"88"** (errado)
+- **effort_low** (num_predict=4k + `reasoning_effort="low"`): think=1917c,
+  stop, **"100"** — **IDÊNTICO ao baseline com seed=42**, indicando que
+  `reasoning_effort` foi **IGNORADO** pelo Ollama/deepseek-r1 (parâmetro
+  só é honrado pelo gpt-oss)
+
+### Constatação crítica: q_count NUNCA acertou
+
+Em 8 configs testadas com n=115 vendas, respostas foram:
+`16, TRUNC, TRUNC, 100, TRUNC, 88, 100, TRUNC`
+
+**Modelo erra por 15-99 mesmo quando converge.** Não é budget; é
+**capacidade representacional**. O 7B não consegue manter state de
+contagem ao expandir RLE mentalmente.
+
+### q_lookup inacessível em 8/8
+
+Todos os 8 configs truncaram em q_lookup (cliente com maior venda).
+**Thinking varia de 12k a 62k chars**, sempre incompleto. Task
+cross-column-join é inacessível ao 7B nesta representação.
 
 ### Comparação com modelo maior
 `deepseek-r1:14b` (mesmo family, 2x parâmetros) **acerta** essa pergunta
