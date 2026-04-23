@@ -187,9 +187,10 @@ para discussao completa.
 Toda a documentacao vive em **[docs/](docs/README.md)** — o hub central.
 
 **Atalhos rapidos:**
-- [docs/FINDINGS_SUMMARY.md](docs/FINDINGS_SUMMARY.md) — achados principais (A1-A6)
+- [docs/research-lines/README.md](docs/research-lines/README.md) — **as 2 linhas de pesquisa do projeto (ler primeiro)**
+- [docs/FINDINGS_SUMMARY.md](docs/FINDINGS_SUMMARY.md) — achados principais (A0-A6, por linha)
 - [docs/methodology/model-ranking.md](docs/methodology/model-ranking.md) — ranking modelos locais (accuracy, latencia, failure modes)
-- [docs/methodology/F-findings.md](docs/methodology/F-findings.md) — catalogo canonico de achados (F-Q1..F-Q21+)
+- [docs/methodology/F-findings.md](docs/methodology/F-findings.md) — catalogo canonico de achados (F-Q1..F-Q21+, tagueados por linha)
 - [docs/methodology/experimental-design.md](docs/methodology/experimental-design.md) — status M-series
 - [docs/research-notes/INDEX.md](docs/research-notes/INDEX.md) — indice de notas de pesquisa
 - [docs/article/README.md](docs/article/README.md) — artigo cientifico em capitulos

@@ -4,6 +4,14 @@ Este e o compendio central de toda a documentacao do projeto TCF
 (Textual Columnar Format). Se voce quer entender algo sobre o projeto,
 comece aqui.
 
+## Linhas de pesquisa (ler primeiro)
+
+O projeto investiga **duas abordagens distintas** para LLM + dados tabulares:
+
+- [research-lines/README.md](research-lines/README.md) — Overview das duas linhas
+- [research-lines/A-direct-reasoning.md](research-lines/A-direct-reasoning.md) — Linha A: LLM lê TCF e calcula
+- [research-lines/B-schema-carrier.md](research-lines/B-schema-carrier.md) — Linha B: TCF como schema + SQL (atual)
+
 ## Indice
 
 ### Arquitetura
@@ -73,7 +81,7 @@ Glossarios e referencias rapidas.
 → [architecture/storage.md](architecture/storage.md) → [methodology/experimental-design.md](methodology/experimental-design.md) → [datasets/](datasets/)
 
 **Quero ver os findings cientificos:**
-→ [methodology/F-findings.md](methodology/F-findings.md) (fonte primaria) → [article/07-results.md](article/07-results.md) (sintese paper)
+→ [research-lines/README.md](research-lines/README.md) (contexto) → [methodology/F-findings.md](methodology/F-findings.md) (fonte primaria) → [FINDINGS_SUMMARY.md](FINDINGS_SUMMARY.md) (top achados)
 
 **Quero contribuir ou extender:**
 → [architecture/overview.md](architecture/overview.md) → [../tickets/README.md](../tickets/README.md)
