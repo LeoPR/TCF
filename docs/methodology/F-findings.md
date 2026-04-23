@@ -585,6 +585,49 @@ Ver research-note: [2026-04-23-conservative-sql-flag.md](../research-notes/2026-
 
 ---
 
+## F-Q21 — Falhas de SQL se dividem em dois tipos: detectáveis por invariante e silenciosas
+
+**Conclusão:** De 39 falhas analisadas em M6/M6b/M7, **21% são Type A** (invariante
+matemático violado — detectáveis sem GT) e **79% são Type B** (resultado plausível
+mas errado — "falhas silenciosas"). Os dois tipos têm causas distintas e exigem
+estratégias de recuperação diferentes.
+
+| Tipo | Definição | % do total | Exemplo |
+|------|-----------|-----------|---------|
+| **Type A** | Resultado viola invariante conhecido | 21% (8/39) | SQL retorna ID numérico em vez de nome; SQL gera erro de coluna |
+| **Type B** | Resultado dentro dos limites mas errado | 79% (31/39) | q_having retorna `1` (≤ COUNT DISTINCT, mas incorreto) |
+
+**Por question type:**
+
+| Question | Type A | Type B | Detectabilidade |
+|---------|--------|--------|----------------|
+| q_having | 0% | 100% | 0% — falha completamente silenciosa |
+| q_top_e1_best_e2 | 100% | 0% | 100% — SQL error ou nome inválido |
+| q_e2_most_e1 | 40% | 60% | 40% — ID numérico é detectável |
+
+**Por que q_having é 0% detectável:** O modelo retorna `1` — matematicamente
+plausível (1 ≤ total_distinct_fk1), mas errado porque representa o COUNT por
+grupo e não o COUNT de grupos. O invariante `result ≤ COUNT(DISTINCT fk1)` é
+satisfeito e não sinaliza nada. É o tipo de falha que só GT ou análise estrutural
+de SQL detecta.
+
+**Por que q_top_e1_best_e2 é 100% detectável:** Modelo usa coluna errada na
+subquery interna → SQL lança `OperationalError`. O `executed_result` é uma
+mensagem de erro, não um nome de entidade — trivialmente detectável pelo
+invariante "resultado deve ser nome válido de dim2".
+
+**Implicação metodológica:**
+- Embedded invariants só ajudam em falhas de Type A — que em M6/M7 são minoria
+- Para o tipo mais frequente (q_having Type B), a única solução robusta é
+  fewshot ou diretiva de estilo (`--safe-sql`)
+- Na prática, invariant checking é útil como camada de sanidade adicional,
+  não como substituto para GT ou fewshot
+
+**Referência:** `experiments/eval/run_minv_invariant_check.py` (2026-04-23);
+análise sobre manifests m6_filter, m6b_having_fix, m7_complex.
+
+---
+
 ## Ordem de aplicação ao desenhar novo experimento
 
 1. **F-Q1, F-Q8, F-Q9** — antes de configurar cliente Ollama

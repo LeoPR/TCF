@@ -39,4 +39,4 @@ consolidados vivem em [F-findings.md](../methodology/F-findings.md).
 
 **Revisoes:** critical-review, general-review, tcf-retrospective, coverage-and-intermediate-forms, cpu-bench-findings
 
-**Hipoteses de pesquisa:** embedded-query-invariants
+**Hipoteses de pesquisa:** embedded-query-invariants, conservative-sql-flag

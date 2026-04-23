@@ -26,7 +26,8 @@ Datasets canonicos usados nos experimentos.
 ### Metodologia
 Como experimentos sao planejados e executados.
 
-- [methodology/F-findings.md](methodology/F-findings.md) — **FONTE PRIMARIA: achados cientificos F-Q1..F-Q19+**
+- [methodology/F-findings.md](methodology/F-findings.md) — **FONTE PRIMARIA: achados cientificos F-Q1..F-Q21+**
+- [methodology/model-ranking.md](methodology/model-ranking.md) — **ranking modelos locais: accuracy, latencia, failure modes**
 - [methodology/experimental-design.md](methodology/experimental-design.md) — design M-series (M1..M8+)
 - [methodology/llm-research-rigor.md](methodology/llm-research-rigor.md) — protocolo de rigor cientifico
 - [methodology/tests.md](methodology/tests.md) — registro de testes
