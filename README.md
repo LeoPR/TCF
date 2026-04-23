@@ -12,14 +12,18 @@ TCF e, ate onde sabemos, o **primeiro formato columnar textual com compressao
 proposto para LLMs**, e o **primeiro a embutir hints meta-cognitivos** (STATS)
 que compensam limitacoes aritmeticas dos modelos.
 
-## O que e TCF
+## A historia em tres atos
 
-TCF codifica tabelas relacionais em texto ASCII compacto usando Markdown como base:
+### Ato 1 — O problema de compressao
+
+Tabelas relacionais transmitidas como texto ficam grandes rapidamente.
+CSV row-oriented repete colunas de alta cardinalidade a cada linha.
+Com 500 linhas e 5 colunas, isso e ineficiente.
+
+TCF resolve isso com orientacao **columnar + RLE textual**:
 
 ```
 # TCF v0.2 level=2
-# N*val = val repeated N times
-
 ## vendas n=509 sorted_by=pessoa
 # STATS total: n=509 sum=147445.47 min=9.01 max=759.8 avg=289.68
 pessoa:
@@ -30,32 +34,40 @@ pessoa:
 produto:
 Caneta
 3*Lapis
-Borracha
-...
-total:
-2.5
-11.0
-1.0
 ...
 ```
 
-- **Orientacao columnar:** todos os valores de uma coluna agrupados
-- **RLE textual:** `N*val` = val repetido N vezes (legivel por humanos e LLMs)
-- **STATS opcionais:** hints pre-computados que LLMs usam como atalho
-- **4 niveis de compressao:** L0 (expanded) → L3 (dict + sorted + RLE)
-- **100% reversivel:** encode → decode produz os mesmos dados (112 testes)
+- `N*val` = val repetido N vezes (RLE legivel por humanos e LLMs)
+- Colunas de baixa cardinalidade comprimem 40-65% vs CSV
+- Schema (tipos, FK, stats) esta sempre no topo — visivel de imediato
 
-## Descoberta principal
+### Ato 2 — O problema de LLM sobre dados tabulares
 
-Experimentos com 12 modelos LLM open (Ollama) revelaram que TCF e mais
-eficaz que CSV/JSONL **porque combina** formato columnar compacto +
-hints meta-cognitivos. Sem os STATS, accuracy cai 25-62pp.
+LLMs falham em aritmetica direta sobre dados tabulares: calcular uma soma
+ou media lendo o CSV linha a linha produz ~40% de acuracia (erros de
+truncamento, contagem errada, alucinacao de valores).
 
-> **TCF e uma ESTRATEGIA COMPOSTA:**
-> formato columnar + hints que compensam limitacoes aritmeticas dos LLMs.
+TCF resolve parte disso com **STATS hints** — estatisticas pre-computadas
+que o LLM usa como atalho em vez de recalcular.
 
-Ver [docs/article/](docs/article/) para o artigo cientifico completo
-(v0.2, em andamento).
+### Ato 3 — A descoberta: TCF como schema carrier para SQL (H-TCF2)
+
+A descoberta mais importante nao foi prevista originalmente:
+
+> Quando TCF e usado como **portador de schema** (nao dos dados),
+> e o LLM gera SQL que o SQLite executa, a acuracia sobe para **96%+**.
+> Isso funciona em 3 dominios, 3 modelos, 5 seeds e 10+ tipos de query.
+
+O SQLite executa SQL com precisao exata — sem erros aritmeticos.
+TCF fornece o schema (tabelas, colunas, FK, cardinalidades) em formato
+compacto que cabe facilmente no contexto do LLM.
+
+**Isso significa:** TCF nao e so formato de serializacao. E um vetor de
+raciocinio estruturado que habilita modelos locais de 7-14B a responderem
+perguntas de BI com acuracia de 96%+.
+
+Ver [docs/FINDINGS_SUMMARY.md](docs/FINDINGS_SUMMARY.md) para os achados
+principais, ou [docs/article/](docs/article/) para o artigo completo.
 
 ## Quick Start
 
@@ -121,13 +133,16 @@ src/tcf/                    # Biblioteca (zero deps externas)
   schema.py                 # Parser de metadata.json
   cli.py                    # CLI: encode, decode, info
 
-experiments/eval/           # Pipeline de avaliacao cientifica (Ollama)
-  run_etapa1.py             # Formato x escala
-  run_etapa2.py             # Multiplos modelos
-  run_diagnostic_3layer.py  # Diagnostico aritmetica vs formato vs compute
-  run_stats_ablation.py     # Quantifica o impacto dos STATS hints
-  run_scale_progression.py  # Accuracy vs numero de linhas
-  run_transport_compression.py  # TCF+gzip vs CSV+gzip
+experiments/eval/           # Pipeline de avaliacao cientifica M-series (Ollama)
+  run_m1_codegen.py         # M1: schema carrier baseline (H-TCF2)
+  run_m2_codegen.py         # M2: fewshot ablation + scale invariance
+  run_m3_cross_domain.py    # M3: generalizacao cross-domain
+  run_m4_baseline.py        # M4: CSV vs JSON vs TCF
+  run_m5_intermediate.py    # M5: SQL vs Pandas vs Polars vs CoT
+  run_m6_filter_questions.py # M6: WHERE/HAVING/GROUP-BY
+  run_m6b_having_fix.py     # M6b: fix HAVING subquery fewshot
+  run_m7_complex_queries.py # M7: subquery/CTE/COUNT DISTINCT
+  analyze_results.py        # Analise unificada de qualquer manifest
 
 tests/                      # 112 testes deterministicos
 tests/fixtures/             # Geradores sinteticos (retail, logs, survey)
@@ -158,11 +173,11 @@ config/                     # Configs locais (gitignored)
 
 ## Questoes de Pesquisa
 
-- **RQ1:** Um formato columnar textual comprime mais que row-oriented?
-- **RQ2:** LLMs interpretam formato columnar com accuracy similar ou superior?
-- **RQ3:** Hints pre-computados (STATS) melhoram accuracy? Quanto?
-- **RQ4:** A capacidade aritmetica dos modelos e o gargalo, ou e o formato?
-- **RQ5:** Como accuracy escala com o tamanho do dataset?
+- **RQ1:** TCF como schema carrier + SQL execution supera leitura direta de dados?
+- **RQ2:** O ganho de acuracia e robusto a mudancas de dominio, modelo e escala?
+- **RQ3:** Qual nivel de complexidade de SQL os modelos locais conseguem gerar corretamente?
+- **RQ4:** TCF eficiente em tokens — qual nivel de compressao preserva acuracia?
+- **RQ5:** Como o sistema se compara a modelos comerciais (Claude, GPT-4o)?
 
 Ver [docs/article/01-introduction.md](docs/article/01-introduction.md)
 para discussao completa.
@@ -172,24 +187,25 @@ para discussao completa.
 Toda a documentacao vive em **[docs/](docs/README.md)** — o hub central.
 
 **Atalhos rapidos:**
-- [docs/README.md](docs/README.md) — indice completo
-- [docs/architecture/overview.md](docs/architecture/overview.md) — arquitetura
-- [docs/architecture/storage.md](docs/architecture/storage.md) — storage (git / disco / archive)
-- [docs/architecture/telemetry.md](docs/architecture/telemetry.md) — timing honesto de benchmarks
-- [docs/article/README.md](docs/article/README.md) — artigo cientifico
-- [docs/article/00-innovations.md](docs/article/00-innovations.md) — inovacoes (I1-I7)
-- [tickets/README.md](tickets/README.md) — roadmap e fase atual
+- [docs/FINDINGS_SUMMARY.md](docs/FINDINGS_SUMMARY.md) — achados principais (A1-A6)
+- [docs/methodology/F-findings.md](docs/methodology/F-findings.md) — catalogo canonico de achados (F-Q1..F-Q19+)
+- [docs/methodology/experimental-design.md](docs/methodology/experimental-design.md) — status M-series
+- [docs/research-notes/INDEX.md](docs/research-notes/INDEX.md) — indice de notas de pesquisa
+- [docs/article/README.md](docs/article/README.md) — artigo cientifico em capitulos
+- [docs/README.md](docs/README.md) — hub de documentacao
+- [tickets/README.md](tickets/README.md) — roadmap
 
 ## Status do Projeto
 
-**Versao:** 0.2.0 (em desenvolvimento — encoder estavel, artigo em redacao)
+**Versao:** 0.2.0 (encoder estavel, serie de experimentos M1-M7 em andamento)
 
-**Findings principais (v0.2):**
-- F30-F34: TCF escala, CSV/JSONL colapsam em > 200 rows
-- F70-F73: TCF+gzip 29% menor que CSV+gzip em 5000 rows
-- **F80-F84:** Diagnostic 3-layer revela que modelos usam STATS como atalho
-- F85-F89: Sweet spot de accuracy em 100-200 rows
-- **F90-F94:** STATS inflam accuracy em TODOS os modelos (25-62pp)
+**Achados principais (resumo — ver [docs/FINDINGS_SUMMARY.md](docs/FINDINGS_SUMMARY.md)):**
+- **A1:** H-TCF2 confirmada — schema carrier + SQL = 96%+ em perguntas de BI
+- **A2:** Fewshot e obrigatorio (0% sem → 96%+ com 1 exemplo)
+- **A3:** TCF ≈ JSON > CSV para SQL generation (96.8% vs 96.3% vs 93.7%)
+- **A4:** SQL >> Pandas >> Polars; CoT-SQL nao melhora (custa 2.4× mais)
+- **A5:** HAVING (2-level aggregation) = falha universal 93% (modelos locais 7-14B)
+- **A6:** Generalizacao cross-domain confirmada (retail, medical, financial)
 
 ## Contribuindo
 

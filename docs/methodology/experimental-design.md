@@ -2,9 +2,24 @@
 
 > **Nota:** Este documento descreve a metodologia geral de ablacao progressiva.
 > As fases originais (Phase 0-3) foram executadas com o encoder v0.1.
-> O encoder v0.2 segue a mesma logica mas com Etapas renomeadas
-> (ver [ARCHITECTURE.md](ARCHITECTURE.md) secao 4).
-> Resultados atuais em [article/07-results-e4-e8.md](article/07-results-e4-e8.md).
+> O encoder v0.2 usa M-series (M0..M8+) com a mesma logica de ablacao.
+> Achados consolidados: [F-findings.md](F-findings.md).
+> Sintese para paper: [article/07-results.md](../article/07-results.md).
+
+## Status M-series (2026-04-22)
+
+| Experimento | Status | Achados | Manifests |
+|-------------|--------|---------|-----------|
+| M0 (qualificacao) | DONE | F-Q10..F-Q12 | m0_qualification |
+| M1 (stats fewshot baseline) | DONE | F-Q7..F-Q9 | m1_stats_fs |
+| M2 (fewshot ablation) | DONE | F-Q6 (fewshot obrigatorio) | m2_fewshot_ablation |
+| M3 (cross-domain) | DONE | F-Q16 (generalizacao 3 dominios) | m3_cross_domain |
+| M4 (CSV vs JSON vs TCF) | DONE | F-Q17 (TCF~=JSON>CSV; FK topology) | m4_baseline |
+| M5 (SQL vs Pandas vs Polars vs CoT) | DONE | F-Q18 (SQL>Pandas>Polars; CoT nao ganha) | m5_intermediate |
+| M6 (WHERE/HAVING/GROUP-SUM) | DONE | F-Q19 (HAVING 7%; filtros 100%) | m6_filter |
+| M6b (HAVING+subquery fewshot) | PENDENTE | hipotese: 7%→90%+ | — |
+| M8 (modelos comerciais) | PENDENTE | — | — |
+| M_perf (benchmark timing) | PENDENTE | pre-publicacao | — |
 
 ## Principio
 

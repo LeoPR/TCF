@@ -22,11 +22,11 @@ Exemplo errado:
 
 | Dado | Fonte Primaria | Referenciado por |
 |------|---------------|-----------------|
-| Compression benchmark v0.2 (C1-C6) | [article/05](article/05-results-e1-e2.md) | tickets closed |
-| Etapa 1: formato x escala (F30-F34) | [article/07](article/07-results-e4-e8.md) sec 7.3 | tickets closed |
-| Etapa 2: modelos x formato (F50-F55) | [article/07](article/07-results-e4-e8.md) sec 7.4 | tickets closed |
-| G30 hiperparametros | [article/07](article/07-results-e4-e8.md) (quando fechar) | tickets |
-| Dados brutos (JSONL) | `experiments/results/*/manifest.jsonl` | capitulos de resultados |
+| Achados cientificos (F-Q1..F-Q19+) | [methodology/F-findings.md](../methodology/F-findings.md) | article/07, research-notes |
+| Compression benchmark v0.2 (C1-C6) | [article/05](../article/05-results-e1-e2.md) | tickets closed |
+| Etapa 1+2, M-series (F-Q1..F-Q19) | [article/07](../article/07-results.md) | F-findings, tickets closed |
+| Dados brutos (JSONL) | `experiments/results/*/manifest.jsonl` | F-findings, article/07 |
+| Notas de pesquisa (evidencia) | `docs/research-notes/*.md` | F-findings |
 
 ### Estrutura e conceito
 
@@ -37,21 +37,20 @@ Exemplo errado:
 | Comparacao formatos (lado a lado) | [appendix D](article/appendices/D-format-comparison.md) | article/03 |
 | Inovacoes comprovadas | [article/00](article/00-innovations.md) | caps 1, 8, 9 |
 | Related work + referencias | [article/02](article/02-related-work.md) | cap 1 |
-| Metodologia | [EXPERIMENT_DESIGN.md](EXPERIMENT_DESIGN.md) | article/04 |
-| Como rodar testes | [TESTS.md](TESTS.md) | - |
+| Metodologia (M-series) | [methodology/experimental-design.md](../methodology/experimental-design.md) | article/04 |
+| Rigor cientifico LLM | [methodology/llm-research-rigor.md](../methodology/llm-research-rigor.md) | article/04 |
+| Como rodar testes | [methodology/tests.md](../methodology/tests.md) | - |
 
 ### Codigo
 
 | Dado | Fonte Primaria | Referenciado por |
 |------|---------------|-----------------|
-| Encoder (niveis 0-3) | `src/tcf/encoder.py` * | ARCHITECTURE, article/03 |
-| Decoder | `src/tcf/decoder.py` * | ARCHITECTURE |
+| Encoder (niveis 0-3) | `src/tcf/encoder_v02.py` | ARCHITECTURE, article/03 |
+| Decoder | `src/tcf/decoder_v02.py` | ARCHITECTURE |
 | Compressao (RLE, dict, sort) | `src/tcf/compression.py` | article/03 |
 | Schema (metadata.json) | `src/tcf/schema.py` | - |
 | Perguntas LLM | `experiments/eval/llm_eval/prompts.py` | article/04, appendix B |
 | Ground truth | `experiments/eval/llm_eval/ground_truth.py` | article/04 |
-
-\* Sera renomeado para `encoder.py` / `decoder.py` — ver ticket T-cleanup-naming.
 
 ### Tickets e roadmap
 
@@ -67,36 +66,47 @@ Exemplo errado:
 ```
 Experimento completa
     │
-    ├─> Atualizar FONTE PRIMARIA (article/05 ou 07)
-    │     - Numeros, tabelas, findings (F-series)
+    ├─> Registrar achado em F-findings.md (FONTE PRIMARIA)
+    │     - Hipotese, resultado, evidencia, manifests referenciados
+    │
+    ├─> Adicionar research-note se metodologia nova ou alerta
+    │
+    ├─> Atualizar article/07-results.md (sintese para paper)
     │
     ├─> Atualizar ticket (mover open → closed)
     │
     ├─> Se inovacao comprovada: atualizar article/00-innovations.md
     │
-    └─> NAO atualizar: ARCHITECTURE, README, EXPERIMENT_DESIGN
+    └─> NAO atualizar: architecture/, README, experimental-design
           (esses so mudam se a ESTRUTURA muda, nao os numeros)
 ```
 
 ## Hierarquia de documentos
 
 ```
-README.md                     Porta de entrada (links, sem numeros)
+README.md                          Porta de entrada (links, sem numeros)
   │
-  ├── docs/ARCHITECTURE.md    Estrutura e fluxo (sem numeros de resultado)
+  ├── docs/architecture/overview   Estrutura e fluxo (sem numeros de resultado)
   │
-  ├── docs/article/           FONTE PRIMARIA de todos os resultados
-  │     ├── 00-innovations    Inovacoes comprovadas
-  │     ├── 03-tcf-format     Spec do formato + comparacao
-  │     ├── 05-results-*      Benchmark compressao
-  │     ├── 07-results-*      Etapas 1, 2, G30, etc
-  │     └── appendices/D      Comparacao lado a lado
+  ├── docs/methodology/
+  │     ├── F-findings.md          FONTE PRIMARIA de achados cientificos (F-Q1+)
+  │     ├── experimental-design.md  Design M-series
+  │     └── research-notes/*.md    Evidencias e diarios (referenciam F-findings)
   │
-  ├── docs/SOURCE_MAP.md      ESTE ARQUIVO
+  ├── docs/article/                Sintese para publicacao (referencia F-findings)
+  │     ├── 00-innovations         Inovacoes comprovadas (I1-I7+)
+  │     ├── 03-tcf-format          Spec do formato + comparacao
+  │     ├── 05-results-*           Benchmark compressao
+  │     ├── 07-results.md          Resultados LLM M-series
+  │     ├── appendices/D           Comparacao lado a lado
+  │     └── archive/article_v01/  Experimentos v0.1 (historico)
   │
-  ├── tickets/                Roadmap operacional
-  │     ├── open/             Tarefas ativas
-  │     └── closed/           Tarefas concluidas
+  ├── docs/architecture/source-map.md  ESTE ARQUIVO
   │
-  └── experiments/results/    Dados brutos (fonte ultima)
+  ├── tickets/                     Roadmap operacional
+  │     ├── open/                  Tarefas ativas
+  │     └── closed/                Tarefas concluidas
+  │
+  └── experiments/results/         Dados brutos (JSONL — fonte ultima)
+        └── */manifest.jsonl
 ```

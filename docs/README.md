@@ -26,7 +26,9 @@ Datasets canonicos usados nos experimentos.
 ### Metodologia
 Como experimentos sao planejados e executados.
 
-- [methodology/experimental-design.md](methodology/experimental-design.md) — design experimental em fases
+- [methodology/F-findings.md](methodology/F-findings.md) — **FONTE PRIMARIA: achados cientificos F-Q1..F-Q19+**
+- [methodology/experimental-design.md](methodology/experimental-design.md) — design M-series (M1..M8+)
+- [methodology/llm-research-rigor.md](methodology/llm-research-rigor.md) — protocolo de rigor cientifico
 - [methodology/tests.md](methodology/tests.md) — registro de testes
 
 ### Artigo cientifico
@@ -44,13 +46,14 @@ O paper em construcao, em capitulos separados.
 - [article/09-conclusion.md](article/09-conclusion.md) — conclusao (placeholder)
 
 ### Research Notes
-Pesquisas datadas com referencias. Cada arquivo e auto-suficiente,
-registrando o que foi pesquisado, quando, e onde encontrar as fontes.
+Evidencias e diarios de processo. Cada arquivo e auto-suficiente;
+os achados consolidados vivem em `methodology/F-findings.md`.
 
-- [research-notes/2026-04-10-canonical-datasets.md](research-notes/2026-04-10-canonical-datasets.md) — ~20 datasets avaliados
-- [research-notes/2026-04-10-compression-tokens-streaming.md](research-notes/2026-04-10-compression-tokens-streaming.md) — columnstore SQL Server, BPE, streaming
-- [research-notes/2026-04-10-critical-review.md](research-notes/2026-04-10-critical-review.md) — revisao critica TOON, gaps metodologicos
-- [research-notes/2026-04-10-storage-architecture.md](research-notes/2026-04-10-storage-architecture.md) — Cookiecutter DS, DVC, telemetria
+- [research-notes/INDEX.md](research-notes/INDEX.md) — **indice completo: nota → F-finding → manifest**
+- Principais:
+  - [research-notes/2026-04-20-tcf-retrospective.md](research-notes/2026-04-20-tcf-retrospective.md) — retrospectiva M1-M5
+  - [research-notes/2026-04-22-coverage-and-intermediate-forms.md](research-notes/2026-04-22-coverage-and-intermediate-forms.md) — Pandas/Polars/CoT
+  - [research-notes/2026-04-22-timing-measurement-methodology.md](research-notes/2026-04-22-timing-measurement-methodology.md) — ALERTA: timing M1-M5
 
 ### Reference
 Glossarios e referencias rapidas.
@@ -69,7 +72,7 @@ Glossarios e referencias rapidas.
 → [architecture/storage.md](architecture/storage.md) → [methodology/experimental-design.md](methodology/experimental-design.md) → [datasets/](datasets/)
 
 **Quero ver os findings cientificos:**
-→ [article/00-innovations.md](article/00-innovations.md) → [article/07-results.md](article/07-results.md)
+→ [methodology/F-findings.md](methodology/F-findings.md) (fonte primaria) → [article/07-results.md](article/07-results.md) (sintese paper)
 
 **Quero contribuir ou extender:**
 → [architecture/overview.md](architecture/overview.md) → [../tickets/README.md](../tickets/README.md)
@@ -88,8 +91,9 @@ Glossarios e referencias rapidas.
    Nao atualizamos retroativamente — criamos um novo arquivo datado se
    a situacao mudar.
 
-3. **Findings** (F##) sao cross-referenciados entre documentos. Um finding
-   e definido em UM lugar (ticket ou research note), outros apontam para ele.
+3. **Findings** (F-Q##) vivem em `methodology/F-findings.md` (fonte unica).
+   Research notes sao evidencias; article chapters sao sinteses. Nenhum dos
+   dois define — ambos referenciam F-findings.
 
 4. **Decisoes arquiteturais** vao em `architecture/`. Se uma decisao precisa
    de justificativa longa, vai em `research-notes/` e `architecture/` linka.

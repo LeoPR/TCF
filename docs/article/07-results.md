@@ -5,7 +5,7 @@ o encoder v0.2, dataset `retail_sales` sintetico realistas (Zipf s=1.0,
 ratio 1:10 cliente:pedido), em multiplos modelos e formatos.
 
 Experimentos anteriores com v0.1 (dataset 41 vendas, encoder pre-niveis)
-estao em [archive_v01/](archive_v01/) como registro historico.
+estao em [archive/article_v01/](../../archive/article_v01/) como registro historico.
 
 ---
 
