@@ -328,12 +328,23 @@ PHASE_QUESTIONS: dict[int, list[str]] = {
     4: list(QUESTIONS.keys()),
     # Phase 5: thinking ablation — Phase 1 questions but thinking-capable models ONLY with think=ON
     5: ["q_count", "q_top_product", "q_distinct", "q_lookup", "q_lookup_value"],
+    # Phase 6: full panel × full task sweep with optimal config (N_space_val, n_optimal, L3)
+    6: list(QUESTIONS.keys()),
 }
 
 SYS_L3 = (
     "Voce recebera dados em formato colunar comprimido (L3). "
     "Colunas com '# dict X: val0,val1,val2' tem valores substituidos pelo indice (0,1,2...). "
     "N*val = val repetido N vezes. "
+    "Para responder sobre um valor especifico, busque o indice no dict e conte ocorrencias. "
+    "Responda com base apenas nos dados."
+)
+
+# Phase 6: L3 + N_space_val (optimal notation from Phase 3)
+SYS_L3_SPACE = (
+    "Voce recebera dados em formato colunar comprimido (L3). "
+    "Colunas com '# dict X: val0,val1,val2' tem valores substituidos pelo indice (0,1,2...). "
+    "N val = val repetido N vezes. "
     "Para responder sobre um valor especifico, busque o indice no dict e conte ocorrencias. "
     "Responda com base apenas nos dados."
 )
@@ -658,6 +669,32 @@ def build_phase5(models: list[str]) -> list[dict]:
     return combos
 
 
+def build_phase6(models: list[str], n_orders: int) -> list[dict]:
+    """Phase 6 — Full panel x full task sweep with optimal config.
+
+    Optimal config from Phases 2+3: n_optimal=100, notation=N_space_val, level=L3.
+    All qualified models x all 7 questions.
+    Keys: p6|{model}|n{n_orders}|{q_name}
+    """
+    base_text, gt, n_rows = _l3_data(n_orders)
+    data_text = rewrite_notation(base_text, NOTATIONS["N_space_val"]["rewrite"])
+    # Also update the embedded header comment so it matches the notation
+    data_text = data_text.replace("# N*val = val repeated N times",
+                                   "# N val = val repeated N times")
+    q_names = list(QUESTIONS.keys())
+    combos = []
+    for model in models:
+        for q_name in q_names:
+            q = QUESTIONS[q_name]
+            key = f"p6|{model}|n{n_orders}|{q_name}"
+            prompt = f"{SYS_L3_SPACE}\n\n{q['text']}\n\n{data_text}"
+            combos.append({"key": key, "phase": 6, "model": model, "prompt": prompt,
+                           "q": q, "gt": gt, "meta": _make_meta(n_orders, n_rows, 3, "N_space_val")})
+    print(f"[P6 Full panel] n_orders={n_orders} ({n_rows} vendas), L3+N_space_val, "
+          f"{len(models)} models x {len(q_names)} q = {len(combos)} combos")
+    return combos
+
+
 def build_phase4(pilot: str, n_orders: int) -> list[dict]:
     data_text, gt, n_rows = _l3_data(n_orders)
     combos = []
@@ -738,7 +775,8 @@ def print_summary(manifest_path: Path) -> None:
 
     for ph in sorted(by_phase):
         recs = by_phase[ph]
-        labels = {0: "Pilot", 1: "Model sweep", 2: "Data sweep", 3: "Notation", 4: "Task sweep"}
+        labels = {0: "Pilot", 1: "Model sweep", 2: "Data sweep", 3: "Notation",
+                  4: "Task sweep", 5: "Thinking ablation", 6: "Full panel (optimal)"}
         print(f"\n{'='*62}")
         print(f"Phase {ph} — {labels.get(ph, '?')}  ({len(recs)} records)")
         print("-"*62)
@@ -768,6 +806,23 @@ def print_summary(manifest_path: Path) -> None:
             for q, (c, t) in sorted(phase_acc(recs, "question").items()):
                 status = "OK" if c == t else "NO"
                 print(f"  {q:<22} [{status}] ({c}/{t})")
+        elif ph == 6:
+            q_order = ["count", "top_product", "distinct_customers", "sum_total",
+                       "max_buyer", "max_total_row", "avg_total"]
+            q_short  = ["cnt", "top", "dst", "sum", "lkp", "val", "avg"]
+            by_mq: dict[str, dict[str, bool]] = defaultdict(dict)
+            for r in recs:
+                by_mq[r["model"]][r["question"]] = r["ok"]
+            totals = {m: sum(v.values()) for m, v in by_mq.items()}
+            models_s = sorted(by_mq, key=lambda m: -totals[m])
+            print(f"  {'Model':<26}" + "".join(f" {s:<4}" for s in q_short) + "  TOT")
+            print(f"  {'':-<26}" + "-----" * len(q_order) + "  ---")
+            for model in models_s:
+                cells = ""
+                for q in q_order:
+                    v = by_mq[model].get(q)
+                    cells += (" OK  " if v is True else " NO  " if v is False else "  -  ")
+                print(f"  {model:<26}{cells}  {totals[model]}/{len(q_order)}")
 
 
 # ---------------------------------------------------------------------------
@@ -776,7 +831,7 @@ def print_summary(manifest_path: Path) -> None:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Sequential frontier search ablation")
-    parser.add_argument("--phase", type=int, choices=[0, 1, 2, 3, 4, 5], help="Run a specific phase")
+    parser.add_argument("--phase", type=int, choices=[0, 1, 2, 3, 4, 5, 6], help="Run a specific phase")
     parser.add_argument("--summary", action="store_true", help="Print all results and exit")
     parser.add_argument("--models", nargs="+", default=DEFAULT_MODELS)
     parser.add_argument("--endpoint", default="http://localhost:11434")
@@ -890,6 +945,19 @@ def main() -> None:
         if args.dry_run: _dry(combos); return
         run_combos(client, combos, manifest_path, completed, llm_options, cli_no_think=args.no_think)
         print("\n[P4 Results — full task profile]")
+        print_summary(manifest_path)
+
+    elif args.phase == 6:
+        # Phase 6 = full panel with optimal config (N_space_val, n_optimal, L3, no-think default)
+        if args.n_override:
+            n_opt = args.n_override
+        else:
+            recs_p2 = [r for r in read_manifest(manifest_path) if r["phase"] == 2]
+            n_opt = pick_n_optimal(recs_p2) if recs_p2 else 100
+        combos = build_phase6(args.models, n_opt)
+        if args.dry_run: _dry(combos); return
+        run_combos(client, combos, manifest_path, completed, llm_options, cli_no_think=args.no_think)
+        print("\n[P6 Results — full panel optimal config]")
         print_summary(manifest_path)
 
     elif args.phase == 5:
