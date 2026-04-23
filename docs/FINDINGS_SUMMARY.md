@@ -147,6 +147,23 @@ locais 7-14B — não de formato (TCF, CSV, JSON falham igualmente).
 
 ---
 
+### A7 `{B}` — Style hints recuperam falhas SQL zero-shot; flags têm interferência
+
+**O que:** Diretiva de estilo SQL pura (sem exemplo de código) recupera
+q_having de **15% para 85%** (`safe_having` flag). Mas flags têm
+interferência cruzada — combinar todos **degrada** algumas perguntas:
+`safe_explicit_fk` regride q_top_e1_best_e2 em -11pp.
+
+**Por que importa:** Dois resultados em um:
+1. Style hints = mecanismo válido de recuperação zero-shot (sem fewshot
+   específico de cada padrão); comparável a efeito de exemplos concretos
+2. Flags DEVEM ser granulares — "safe-sql universal" é contraproducente
+   para modelos 7B; qwen2.5-coder regride para 0% em flags off-target
+
+**Evidência:** M8, 405 combinações, 3 modelos × 3 domínios × 3 questions × 5 variantes.
+
+**Referência:** F-Q22
+
 ### A6 `{B}` — Generalização cross-domain confirmada (F-Q16)
 
 **O que:** Modelo treinado (fewshot) em retail generaliza para medical e financial

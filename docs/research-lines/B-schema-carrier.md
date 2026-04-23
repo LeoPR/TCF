@@ -42,6 +42,7 @@ aritmética.
 | M6b | Fix HAVING via subquery fewshot | 27 | `m6b_having_fix` |
 | M7 | Perguntas L3 (subquery/CTE/COUNT DISTINCT) | 81 | `m7_complex` |
 | M_inv | Análise post-hoc de invariantes sobre falhas | — | (análise) |
+| M8 | Safe-SQL flags isolados (ablação de style hints) | 405 | `m8_safe_sql` |
 
 ## Achados canônicos desta linha
 
@@ -56,6 +57,7 @@ aritmética.
 | F-Q19 | HAVING com agregação aninhada falha universalmente em modelos 7-14B (fix via subquery fewshot) |
 | F-Q20 | Queries L3 (CTE/subquery) atingem 86% com fewshot adequado |
 | F-Q21 | Falhas SQL se dividem em detectáveis (21%) e silenciosas (79%) |
+| F-Q22 | Style hints recuperam falhas zero-shot (+70pp em q_having); flags têm interferência off-target |
 
 ## Níveis de complexidade SQL testados
 
@@ -76,7 +78,7 @@ aritmética.
 
 | ID | Hipótese | Status |
 |----|----------|--------|
-| `--safe-sql-*` | Flags específicos de estilo SQL para evitar padrões problemáticos | [nota](../research-notes/2026-04-23-conservative-sql-flag.md) |
+| `--safe-sql-*` | Style hints recuperam zero-shot (M8 validou); flags têm interferência | F-Q22 |
 | M_inv + invariant check | Detectar falhas via invariantes matemáticos embutidos | [nota](../research-notes/2026-04-23-embedded-query-invariants.md) |
 | M8 | Modelos comerciais (Claude, GPT-4o) — quebrar teto de L3? | Pendente |
 | M9 | Mais domínios (healthcare, logistics) para CI estreito | Pendente |

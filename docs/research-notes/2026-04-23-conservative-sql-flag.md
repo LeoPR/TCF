@@ -2,8 +2,16 @@
 title: Conservative SQL flag — guiar modelos para padrões SQL mais simples e equivalentes
 date: 2026-04-23
 type: research-note
-status: HIPÓTESE — experimento M8-variant proposto
+status: VALIDADO por M8 — ver F-Q22 em F-findings.md
 ---
+
+> **UPDATE 2026-04-23 (mesmo dia):** M8 rodou e validou a hipótese central.
+> `safe_having` sozinho recupera q_having de 15% → 85% (+70pp). Mas flags
+> têm interferência off-target: `safe_name_join` degrada q_having, `safe_explicit_fk`
+> degrada q_top_e1_best_e2. Agrupamento recomendado pelos dados:
+> `--safe-sql-low = {safe_having}`, sem combinação automática de todos.
+> Ver [F-Q22](../methodology/F-findings.md) para análise completa.
+
 
 # Conservative SQL: guiar LLMs para padrões SQL mais robustos via hint de prompt
 

@@ -30,7 +30,7 @@ entre as linhas.
 
 **`{shared}`:** F-Q1, F-Q2, F-Q3, F-Q4, F-Q5, F-Q6, F-Q7, F-Q8, F-Q9, F-Q10, F-Q11
 **`{A}`:** F-Q12
-**`{B}`:** F-Q13, F-Q14, F-Q15, F-Q16, F-Q17, F-Q18, F-Q19, F-Q20, F-Q21
+**`{B}`:** F-Q13, F-Q14, F-Q15, F-Q16, F-Q17, F-Q18, F-Q19, F-Q20, F-Q21, F-Q22
 
 ---
 
@@ -641,6 +641,69 @@ invariante "resultado deve ser nome válido de dim2".
 
 **Referência:** `experiments/eval/run_minv_invariant_check.py` (2026-04-23);
 análise sobre manifests m6_filter, m6b_having_fix, m7_complex.
+
+---
+
+## F-Q22 `{B}` — Style hints recuperam falhas SQL sem exemplos; flags têm interferência off-target
+
+**Conclusão:** Diretivas de estilo SQL no prompt (sem exemplos concretos) recuperam
+padrões de falha com magnitude comparável a fewshot com exemplo. O flag específico
+`safe_having` recupera q_having de **14.8% para 85.2%** (+70.4pp) apenas com uma
+diretiva "decomponha HAVING em subquery", sem precisar de exemplo de código.
+
+**Mas flags têm interferência cruzada (off-target):** combinar todos os style hints
+não soma os ganhos — alguns hints DEGRADAM outras questions.
+
+**Evidência (M8, 2026-04-23):** 3 modelos × 3 domínios × 3 questions × 5 variantes
+× 3 seeds = 405 combos.
+
+| Flag | q_having | q_top_e1_best_e2 | q_e2_most_e1 |
+|------|----------|------------------|--------------|
+| baseline (sem hint) | 14.8% | 51.9% | 74.1% |
+| **safe_having** | **85.2%** (+70.4) | 63.0% (+11.1) | 74.1% (=) |
+| safe_subquery_col | 44.4% (+29.6) | 66.7% (+14.8) | 77.8% (+3.7) |
+| safe_name_join | 11.1% (-3.7) | 70.4% (+18.5) | 85.2% (+11.1) |
+| safe_explicit_fk | 14.8% (=) | **40.7% (-11.1)** | 88.9% (+14.8) |
+
+**Interferências importantes:**
+1. `safe_name_join` **degrada q_having** (-3.7pp) — diretiva "sempre JOIN ao dim"
+   confunde query que não precisa de dim
+2. `safe_explicit_fk` **degrada q_top_e1_best_e2** (-11.1pp) — sem nota sobre
+   nomes completos de FK, modelo escreve `SELECT id FROM vendas` em vez de
+   `SELECT id_cliente FROM vendas`
+3. `safe_subquery_col` tem spillover positivo em q_having (+29.6pp) — ambos
+   dependem de scope correto de colunas em subquery
+
+**Sensibilidade por modelo (q_having):**
+
+| Flag | qwen3:14b | phi4:latest | qwen2.5-coder:7b |
+|------|-----------|-------------|------------------|
+| baseline | 11% | 22% | 11% |
+| safe_having | **100%** | 89% | 67% |
+| safe_subquery_col | 100% | 33% | 0% |
+| safe_name_join | 0% | 33% | 0% |
+| safe_explicit_fk | 11% | 33% | 0% |
+
+qwen3:14b responde limpo aos style hints; qwen2.5-coder:7b **regride para 0%** em
+hints não-alvo. Modelos menores são significativamente mais sensíveis a ruído
+de prompt — flags mal aplicados PIORAM resultado.
+
+**Implicação metodológica:**
+- Style hints são mecanismo válido de recuperação zero-shot (não precisam de
+  exemplo concreto)
+- Flags devem ser aplicados granularmente, não "tudo ligado por padrão"
+- Agrupamentos recomendados pelos dados:
+  - `--safe-sql-low` = `{safe_having}` — ganho grande, sem efeito colateral medido
+  - `--safe-sql-medium` = `{safe_having, safe_subquery_col}` — ambos positivos
+  - `--safe-sql-full` = NÃO recomendado — `safe_explicit_fk` regride nested subquery
+- Modelos menores (7B) requerem seleção mais conservadora de flags
+
+**Hipótese aberta:** M8b testaria combinações (ex: `safe_having+subquery_col`) para
+validar se os ganhos somam ou se há interferência entre flags positivos.
+
+**Referência:** `experiments/results/m8_safe_sql/manifest.jsonl` (2026-04-23).
+Ver [2026-04-23-conservative-sql-flag.md](../research-notes/2026-04-23-conservative-sql-flag.md)
+para a hipótese original.
 
 ---
 
