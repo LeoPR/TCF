@@ -17,7 +17,8 @@
 | M4 (CSV vs JSON vs TCF) | DONE | F-Q17 (TCF~=JSON>CSV; FK topology) | m4_baseline |
 | M5 (SQL vs Pandas vs Polars vs CoT) | DONE | F-Q18 (SQL>Pandas>Polars; CoT nao ganha) | m5_intermediate |
 | M6 (WHERE/HAVING/GROUP-SUM) | DONE | F-Q19 (HAVING 7%; filtros 100%) | m6_filter |
-| M6b (HAVING+subquery fewshot) | PENDENTE | hipotese: 7%→90%+ | — |
+| M6b (HAVING+subquery fewshot) | DONE | F-Q19b: 7%→88.9% (+81.9pp) | m6b_having_fix |
+| M7 (subquery/CTE/COUNT DISTINCT) | DONE | F-Q20: 86.4%; CTE=100%, nested=78% | m7_complex |
 | M8 (modelos comerciais) | PENDENTE | — | — |
 | M_perf (benchmark timing) | PENDENTE | pre-publicacao | — |
 

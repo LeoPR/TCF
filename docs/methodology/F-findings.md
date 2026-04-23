@@ -537,6 +537,52 @@ executa sem erro".
 
 **Referência:** `experiments/results/m6_filter/manifest.jsonl` (2026-04-22)
 
+**Atualização M6b (2026-04-23):** Adicionar exemplo de subquery ao fewshot
+corrigiu q_having de 7% → **88.9%** (24/27). As 3 falhas restantes são
+erro de FK no domínio financial (phi4: `t.titular` não existe) — não
+relacionado ao padrão HAVING. Subquery fewshot é o fix mínimo efetivo.
+
+---
+
+## F-Q20 — Queries L3 (CTE/subquery aninhada) alcançam 86% com fewshot adequado
+
+**Conclusão:** Queries de nível 3 de complexidade SQL — CTE com filtro em
+agregação (`q_above_avg`), subquery aninhada em WHERE (`q_top_e1_best_e2`),
+COUNT DISTINCT em GROUP BY (`q_e2_most_e1`) — alcançam **86.4% global**
+(70/81) com fewshot que inclui exemplos dos padrões. O padrão CTE é o mais
+confiável (100% em q_above_avg); falhas concentradas em dois tipos:
+
+1. **Column confusion em subquery** (`q_top_e1_best_e2`, 78%): modelo usa
+   coluna errada na subquery interna (ex: `SELECT id FROM consultas` em vez de
+   `SELECT id_paciente FROM consultas`). Erro de referência de coluna em query
+   com dois JOINs.
+
+2. **ID vs nome na saída** (`q_e2_most_e1`, 81%): modelo retorna FK/ID em vez
+   do nome da entidade — JOIN à tabela de dimensão ausente ou usa CTE que
+   seleciona `id_categoria` em vez de `d2.nome`.
+
+**Por que CTE > subquery aninhada:** CTEs tornam cada passo nomeado e
+rastreável. Modelos treinados em código Python têm viés para nomes explícitos.
+
+**Evidência (M7, 2026-04-23):** 3 modelos × 3 domínios × 3 questions × 3 seeds = 81 combos.
+
+| Question | Acurácia | Padrão SQL | Tipo de falha |
+|---------|---------|-----------|--------------|
+| q_above_avg | 27/27 (100%) | CTE + WHERE avg | — |
+| q_e2_most_e1 | 22/27 (81%) | COUNT DISTINCT GROUP BY | ID vs nome (5x) |
+| q_top_e1_best_e2 | 21/27 (78%) | subquery aninhada WHERE | coluna errada (6x) |
+
+**Implicação metodológica:**
+- CTEs com nomes explícitos são mais robustos que subqueries aninhadas
+- Falhas de "coluna errada" e "ID vs nome" são distintas das falhas de HAVING
+  (scope confusion) — são erros de *mapeamento de schema*, não de lógica
+- Fewshot com exemplos específicos de cada padrão é mais efetivo que hint geral
+- Hipótese `--safe-sql`: diretiva de estilo "prefira CTEs" pode generalizar
+  os ganhos do fewshot sem precisar de exemplo para cada tipo de query
+
+**Referência:** `experiments/results/m7_complex/manifest.jsonl` (2026-04-23)
+Ver research-note: [2026-04-23-conservative-sql-flag.md](../research-notes/2026-04-23-conservative-sql-flag.md)
+
 ---
 
 ## Ordem de aplicação ao desenhar novo experimento

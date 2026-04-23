@@ -25,6 +25,7 @@ consolidados vivem em [F-findings.md](../methodology/F-findings.md).
 | 2026-04-22 | [coverage-and-intermediate-forms](2026-04-22-coverage-and-intermediate-forms.md) | F-Q18 (Pandas/Polars/CoT) | m5_intermediate |
 | 2026-04-22 | [timing-measurement-methodology](2026-04-22-timing-measurement-methodology.md) | ALERTA perf (pre-M_perf) | m1..m6 |
 | 2026-04-23 | [embedded-query-invariants](2026-04-23-embedded-query-invariants.md) | HIPÓTESE M_inv — âncoras matemáticas | m6, m7 |
+| 2026-04-23 | [conservative-sql-flag](2026-04-23-conservative-sql-flag.md) | HIPÓTESE --safe-sql: CTE/decomposed vs HAVING | m6b, m7 |
 
 ## Notas por tema
 
