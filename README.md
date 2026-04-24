@@ -6,21 +6,15 @@
 ![Version](https://img.shields.io/badge/version-0.2.0-orange)
 
 Formato de serializacao textual **orientado a colunas** com compressao RLE,
-desenhado para raciocinio de LLMs sobre dados tabulares.
+desenhado como veiculo de raciocinio estruturado entre dados tabulares e LLMs.
 
-TCF e, ate onde sabemos, o **primeiro formato columnar textual com compressao
-proposto para LLMs**, e o **primeiro a embutir hints meta-cognitivos** (STATS)
-que compensam limitacoes aritmeticas dos modelos.
+---
 
-## A historia em tres atos
+## Parte 1 — O formato
 
-### Ato 1 — O problema de compressao
-
-Tabelas relacionais transmitidas como texto ficam grandes rapidamente.
-CSV row-oriented repete colunas de alta cardinalidade a cada linha.
-Com 500 linhas e 5 colunas, isso e ineficiente.
-
-TCF resolve isso com orientacao **columnar + RLE textual**:
+TCF codifica tabelas relacionais em texto ASCII columnar com compressao textual.
+Schema (tipos, FK, stats) fica no topo; valores de cada coluna sao agrupados;
+sequencias iguais sao codificadas como `N*val`.
 
 ```
 # TCF v0.2 level=2
@@ -34,185 +28,255 @@ pessoa:
 produto:
 Caneta
 3*Lapis
+Borracha
+...
+total:
+2.5
+11.0
+1.0
 ...
 ```
 
-- `N*val` = val repetido N vezes (RLE legivel por humanos e LLMs)
-- Colunas de baixa cardinalidade comprimem 40-65% vs CSV
-- Schema (tipos, FK, stats) esta sempre no topo — visivel de imediato
+Quatro niveis de compressao, todos reversiveis byte-a-byte:
 
-### Ato 2 — O problema de LLM sobre dados tabulares
+| Nivel | Tecnica | Uso recomendado |
+|-------|---------|-----------------|
+| L0 | Expanded (1 valor por linha) | Maxima legibilidade para LLM |
+| L1 | RLE em runs naturais | Quando ordem precisa ser preservada |
+| L2 | Sort + RLE | Default — melhor tradeoff |
+| L3 | Dict + Sort + RLE | Transporte e storage |
 
-LLMs falham em aritmetica direta sobre dados tabulares: calcular uma soma
-ou media lendo o CSV linha a linha produz ~40% de acuracia (erros de
-truncamento, contagem errada, alucinacao de valores).
+### Compressao comparada — 500 linhas, 3 tabelas
 
-TCF resolve parte disso com **STATS hints** — estatisticas pre-computadas
-que o LLM usa como atalho em vez de recalcular.
+Tamanho em bytes (raw = texto puro; gzip = apos compressao adicional):
 
-### Ato 3 — A descoberta: TCF como schema carrier para SQL (H-TCF2)
+| Formato | Raw bytes | vs CSV raw | Gzip bytes | vs CSV gzip |
+|---------|----------:|-----------:|-----------:|------------:|
+| CSV | 50 314 | 1.00× (baseline) | 12 681 | 1.00× |
+| JSONL | 144 591 | **2.87× maior** | 14 756 | 1.16× maior |
+| **TCF L0** | 50 525 | 1.00× | 11 110 | **0.88×** (12% menor) |
+| **TCF L2** | 45 109 | **0.90×** (10% menor) | 11 422 | **0.90×** |
+| **TCF L3** | 28 173 | **0.56×** (44% menor) | 10 440 | **0.82×** |
 
-A descoberta mais importante nao foi prevista originalmente:
+### A mesma comparacao em 5000 linhas
 
-> Quando TCF e usado como **portador de schema** (nao dos dados),
-> e o LLM gera SQL que o SQLite executa, a acuracia sobe para **96%+**.
-> Isso funciona em 3 dominios, 3 modelos, 5 seeds e 10+ tipos de query.
+| Formato | Raw bytes | Gzip bytes | Gzip vs CSV |
+|---------|----------:|-----------:|------------:|
+| CSV | 544 729 | 125 948 | 1.00× |
+| JSONL | 1 495 678 | 151 577 | 1.20× maior |
+| TCF L0 | 544 738 | 96 643 | **0.77×** |
+| TCF L2 | 485 615 | 100 963 | 0.80× |
+| **TCF L3** | **264 511** (51% menor) | **89 472** | **0.71×** (29% menor) |
 
-O SQLite executa SQL com precisao exata — sem erros aritmeticos.
-TCF fornece o schema (tabelas, colunas, FK, cardinalidades) em formato
-compacto que cabe facilmente no contexto do LLM.
+TCF L3 ganha da CSV mesmo pos-gzip porque a compressao interna ja removeu
+redundancia que o gzip nao capturaria do texto linha-a-linha.
 
-**Isso significa:** TCF nao e so formato de serializacao. E um vetor de
-raciocinio estruturado que habilita modelos locais de 7-14B a responderem
-perguntas de BI com acuracia de 96%+.
+---
 
-Ver [docs/FINDINGS_SUMMARY.md](docs/FINDINGS_SUMMARY.md) para os achados
-principais, ou [docs/article/](docs/article/) para o artigo completo.
+## Parte 2 — Geracao de SQL via schema
 
-## Quick Start
+Com TCF como *schema carrier* (nao dos dados completos), um LLM gera SQL que
+e executado em SQLite. O formato entrega o schema enxuto com cardinalidades,
+FKs e 3 exemplos por coluna. Em 3 dominios, 3 modelos e 10+ tipos de query,
+acuracia media foi de **86-100%** (vs ~40% em leitura direta).
+
+### Micro-exemplo — pergunta simples
+
+**Schema TCF (trecho):**
+```
+## vendas n=509
+# STATS total: sum=147445.47 avg=289.68
+id_cliente: int [FK -> clientes.id]
+id_produto: int [FK -> produtos.id]
+total: float
+```
+
+**Pergunta:** "Qual e a soma de todos os valores da coluna total em vendas?"
+
+**SQL gerado:**
+```sql
+SELECT SUM(total) FROM vendas
+```
+
+### Micro-exemplo — pergunta complexa (L3)
+
+**Pergunta:** "Quantos clientes distintos têm soma de total acima da media
+das somas por cliente?"
+
+**SQL gerado (phi4:latest, dominio financial, 100% em M7):**
+```sql
+WITH soma_por_titular AS (
+    SELECT c.titular, SUM(t.valor) AS soma_valor
+    FROM contas c
+    JOIN transacoes t ON c.id = t.id_conta
+    GROUP BY c.titular
+)
+SELECT COUNT(DISTINCT titular)
+FROM soma_por_titular
+WHERE soma_valor > (SELECT AVG(soma_valor) FROM soma_por_titular);
+```
+
+### Micro-exemplo — decomposicao em duas etapas
+
+**Pergunta:** "Para o cliente com mais registros, qual a categoria mais
+frequente de transacao?"
+
+**SQL gerado (phi4:latest, dominio financial):**
+```sql
+WITH por_titular AS (
+    SELECT c.titular, COUNT(*) AS num_transacoes
+    FROM contas c
+    JOIN transacoes t ON c.id = t.id_conta
+    GROUP BY c.titular
+),
+titular_mais_registros AS (
+    SELECT titular FROM por_titular
+    ORDER BY num_transacoes DESC LIMIT 1
+)
+SELECT cat.nome
+FROM transacoes t
+JOIN contas c ON t.id_conta = c.id
+JOIN categorias cat ON t.id_categoria = cat.id
+WHERE c.titular IN (SELECT titular FROM titular_mais_registros)
+GROUP BY cat.nome
+ORDER BY COUNT(*) DESC LIMIT 1;
+```
+
+### Modelos avaliados — 3 dominios, N=744 combos
+
+| Modelo | Accuracy global | Latencia media | Perfil |
+|--------|----------------:|---------------:|--------|
+| **qwen3:14b** | **85.8%** | ~6.4 s | Melhor balance accuracy+velocidade |
+| phi4:latest | 84.5% | ~13.7 s | Lidera em q_lookup; gera CTEs elaboradas |
+| qwen2.5-coder:7b | 82.0% | ~4.0 s | Mais rapido; fraco em subqueries L3 |
+
+Detalhes por nivel de complexidade SQL em
+[docs/methodology/model-ranking.md](docs/methodology/model-ranking.md).
+
+### Taxa de sucesso por complexidade
+
+| Nivel SQL | Tipo | Accuracy |
+|-----------|------|---------:|
+| L1 | COUNT, SUM, AVG, simple JOIN | ~95% |
+| L2 | WHERE, GROUP BY, HAVING (com fewshot) | ~96% |
+| L3 | CTE, subquery aninhada, COUNT DISTINCT | 86% |
+
+---
+
+## Parte 3 — Uso e integracao
+
+### Instalacao
 
 ```bash
-# Instalar em modo editavel
 pip install -e .
+```
 
-# Encode CSV -> TCF (levels 0, 1, 2, 3)
+Zero dependencias externas no core (stdlib only).
+
+### CLI
+
+```bash
+# CSV -> TCF em 4 niveis
 python -m tcf encode --meta data/metadata.json --data-dir data/ --level 2 --out output.tcf
 
-# Decode TCF -> CSV
+# TCF -> CSV (auto-detecta nivel)
 python -m tcf decode output.tcf --out-dir restored/
 
-# Info sobre um arquivo TCF
+# Metadados de um TCF
 python -m tcf info output.tcf
 ```
 
-## Uso como Biblioteca
+### API Python
 
 ```python
 from tcf import encode, decode, EncodeConfig
 
-# Encode com configuracao
 config = EncodeConfig(
-    level=2,              # 0=expanded, 1=rle, 2=sorted+rle, 3=dict+sorted+rle
+    level=2,              # 0=expanded, 1=rle, 2=sort+rle, 3=dict+sort+rle
     include_stats=True,   # STATS hints (recomendado para LLMs)
-    precision=None,       # casas decimais (None = auto)
+    precision=None,       # None = auto
 )
 tcf_text = encode("data/metadata.json", "data/", config=config)
 
-# Decode (auto-detecta o nivel)
+# Decode com normalizacao de tipos
 tables = decode(tcf_text, normalize=True)
 ```
 
-## Niveis de Compressao
+### Integracao com LLM (exemplo minimo)
 
-| Level | Descricao | Tamanho tipico | Uso recomendado |
-|-------|-----------|----------------|-----------------|
-| **L0** | Expanded (1 valor por linha) | Similar a CSV | Maxima legibilidade LLM |
-| **L1** | RLE em runs naturais | 5-15% menor | Quando ordem importa |
-| **L2** | Sort + RLE | 20-30% menor | Default, melhor tradeoff |
-| **L3** | Dict + sort + RLE | 40-65% menor | Transporte + storage |
+```python
+from tcf import encode, EncodeConfig
+import requests  # Ollama client
 
-## Testes
+tcf_text = encode(meta_path, data_dir, EncodeConfig(level=2))
+
+prompt = f"""Gere UMA query SQLite que responda a pergunta.
+Responda apenas com o SQL em bloco ```sql ... ```.
+
+{tcf_text}
+
+Pergunta: Quantos clientes distintos têm mais de 5 compras?
+"""
+
+response = requests.post("http://localhost:11434/api/generate",
+                         json={"model": "qwen3:14b", "prompt": prompt}).json()
+# Executar response['response'] no seu SQLite
+```
+
+### Bibliografia e referencias
+
+- **[docs/components/README.md](docs/components/README.md)** — 3 componentes do projeto (Core + LLM Interface + DB Extractor)
+- **[docs/FINDINGS_SUMMARY.md](docs/FINDINGS_SUMMARY.md)** — achados principais A0-A7
+- **[docs/methodology/F-findings.md](docs/methodology/F-findings.md)** — catalogo canonico F-Q1..F-Q23
+- **[docs/methodology/model-ranking.md](docs/methodology/model-ranking.md)** — ranking dos 3 modelos locais
+- **[docs/article/](docs/article/)** — artigo cientifico em capitulos
+- **[docs/research-notes/INDEX.md](docs/research-notes/INDEX.md)** — diario de pesquisa datado
+- **[tickets/README.md](tickets/README.md)** — roadmap operacional
+
+### Testes
 
 ```bash
-python -m pytest tests/ -v
-# 112 passed in ~15s
+python -m pytest tests/ -v    # 112 testes, ~15s
 ```
 
-- Roundtrip (encode→decode) para todos os 4 niveis
-- 12 cenarios sinteticos (retail, logs, survey, unique)
-- Benchmark de compressao
-- Infra (metrics, ground truth, parsers)
+Cobrem: roundtrip todos os niveis, 12 cenarios sinteticos, benchmark
+compressao, infra (metrics, GT, parsers).
 
-## Estrutura do Projeto
+---
 
-```
-src/tcf/                    # Biblioteca (zero deps externas)
-  encoder.py                # 4 niveis de compressao
-  decoder.py                # Auto-deteccao de nivel
-  compression.py            # RLE, dict, sort
-  schema.py                 # Parser de metadata.json
-  cli.py                    # CLI: encode, decode, info
+## Ambiente de desenvolvimento
 
-experiments/eval/           # Pipeline de avaliacao cientifica M-series (Ollama)
-  run_m1_codegen.py         # M1: schema carrier baseline (H-TCF2)
-  run_m2_codegen.py         # M2: fewshot ablation + scale invariance
-  run_m3_cross_domain.py    # M3: generalizacao cross-domain
-  run_m4_baseline.py        # M4: CSV vs JSON vs TCF
-  run_m5_intermediate.py    # M5: SQL vs Pandas vs Polars vs CoT
-  run_m6_filter_questions.py # M6: WHERE/HAVING/GROUP-BY
-  run_m6b_having_fix.py     # M6b: fix HAVING subquery fewshot
-  run_m7_complex_queries.py # M7: subquery/CTE/COUNT DISTINCT
-  analyze_results.py        # Analise unificada de qualquer manifest
+Experimentos foram conduzidos em:
 
-tests/                      # 112 testes deterministicos
-tests/fixtures/             # Geradores sinteticos (retail, logs, survey)
+- **Hardware:** CPU multi-core x86_64, GPU com VRAM suficiente para modelos 14B (~9 GB)
+- **Runtime LLM:** Ollama em Docker (localhost:11434)
+- **Modelos testados:** qwen3:14b, phi4:latest, qwen2.5-coder:7b (+ 9 descartados na qualificacao)
+- **Python:** 3.10+
+- **OS:** Windows 10 Pro (replicado em Linux)
 
-docs/                       # Hub de documentacao — "a Meca"
-  README.md                 # Indice geral
-  architecture/             # Arquitetura do projeto (overview, storage, telemetry)
-  datasets/                 # Manuais por dataset
-  methodology/              # Design experimental e testes
-  article/                  # Artigo cientifico em capitulos
-  research-notes/           # Pesquisas datadas
-  reference/                # Glossarios e referencias rapidas
+Metodologia de timing e limitacoes de benchmark em
+[docs/research-notes/2026-04-22-timing-measurement-methodology.md](docs/research-notes/2026-04-22-timing-measurement-methodology.md).
 
-tickets/                    # Tickets de pesquisa (rastreabilidade)
-  open/                     # Fase atual (numerados por prioridade)
-  frozen/                   # Futuro trabalho (congelados)
-  closed/                   # Concluidos + findings
+---
 
-config/                     # Configs locais (gitignored)
-  storage.json.example      # template
-```
+## Resumo de performance e recomendacoes de uso
 
-## Dependencias
+| Cenario | Recomendacao |
+|---------|--------------|
+| Transporte textual de tabelas grandes | **TCF L3** — 44-51% menor que CSV raw; 29% menor apos gzip em 5000 linhas |
+| Dados para LLM com contexto limitado | **TCF L2 + STATS** — bom tradeoff legibilidade/compressao |
+| Text-to-SQL production | **TCF schema-only + fewshot** — 96%+ accuracy em queries L1-L2 |
+| Queries L3 (CTE, subquery) | qwen3:14b com M7 fewshot — 86% accuracy global |
+| Queries com HAVING | Aplicar style hint `safe-sql-having` — recupera 15% para 85% |
+| Screening rapido (muitos combos) | qwen2.5-coder:7b — ~4s/query para L1-L2 |
+| Latencia minima com 14B | qwen3:14b ~6.4s/query; phi4 ~13.7s |
 
-- **Core:** Python >= 3.10, **stdlib only** (zero dependencias externas)
-- **Dev:** pytest >= 7
-- **Eval (opcional):** requests >= 2.28 (Ollama client)
+**Nao misture style hints** — combinacoes tendem a degradar (F-Q23);
+selecao **per-question-type** e mais robusta que "turn everything on".
 
-## Questoes de Pesquisa
-
-- **RQ1:** TCF como schema carrier + SQL execution supera leitura direta de dados?
-- **RQ2:** O ganho de acuracia e robusto a mudancas de dominio, modelo e escala?
-- **RQ3:** Qual nivel de complexidade de SQL os modelos locais conseguem gerar corretamente?
-- **RQ4:** TCF eficiente em tokens — qual nivel de compressao preserva acuracia?
-- **RQ5:** Como o sistema se compara a modelos comerciais (Claude, GPT-4o)?
-
-Ver [docs/article/01-introduction.md](docs/article/01-introduction.md)
-para discussao completa.
-
-## Documentacao
-
-Toda a documentacao vive em **[docs/](docs/README.md)** — o hub central.
-
-**Atalhos rapidos:**
-- [docs/components/README.md](docs/components/README.md) — **3 componentes do projeto (TCF Core + LLM Interface + DB Extractor)**
-- [docs/research-lines/README.md](docs/research-lines/README.md) — 2 linhas de pesquisa dentro do componente LLM Interface
-- [docs/FINDINGS_SUMMARY.md](docs/FINDINGS_SUMMARY.md) — achados principais (A0-A7)
-- [docs/methodology/model-ranking.md](docs/methodology/model-ranking.md) — ranking modelos locais
-- [docs/methodology/F-findings.md](docs/methodology/F-findings.md) — catalogo canonico (F-Q1..F-Q23+, tagueados por linha)
-- [docs/methodology/experimental-design.md](docs/methodology/experimental-design.md) — status M-series
-- [docs/research-notes/INDEX.md](docs/research-notes/INDEX.md) — indice de notas de pesquisa
-- [docs/article/README.md](docs/article/README.md) — artigo cientifico em capitulos
-- [docs/README.md](docs/README.md) — hub de documentacao
-- [tickets/README.md](tickets/README.md) — roadmap
-
-## Status do Projeto
-
-**Versao:** 0.2.0 (encoder estavel, serie de experimentos M1-M7 em andamento)
-
-**Achados principais (resumo — ver [docs/FINDINGS_SUMMARY.md](docs/FINDINGS_SUMMARY.md)):**
-- **A1:** H-TCF2 confirmada — schema carrier + SQL = 96%+ em perguntas de BI
-- **A2:** Fewshot e obrigatorio (0% sem → 96%+ com 1 exemplo)
-- **A3:** TCF ≈ JSON > CSV para SQL generation (96.8% vs 96.3% vs 93.7%)
-- **A4:** SQL >> Pandas >> Polars; CoT-SQL nao melhora (custa 2.4× mais)
-- **A5:** HAVING (2-level aggregation) = falha universal 93% (modelos locais 7-14B)
-- **A6:** Generalizacao cross-domain confirmada (retail, medical, financial)
+---
 
 ## Contribuindo
-
-Contribuicoes sao bem-vindas. Por favor:
 
 1. Fork o repositorio
 2. Criar branch (`git checkout -b feature/minha-feature`)
@@ -220,10 +284,14 @@ Contribuicoes sao bem-vindas. Por favor:
 4. Commit com mensagem descritiva
 5. Abrir Pull Request
 
+---
+
 ## License
 
 MIT License. Livre para uso, modificacao e distribuicao, desde que mantendo
 o aviso de copyright. Ver [LICENSE](LICENSE).
+
+---
 
 ## Citacao
 
