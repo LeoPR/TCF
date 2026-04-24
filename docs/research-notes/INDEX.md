@@ -31,6 +31,7 @@ Cada nota e tagueada com a linha de pesquisa que a motivou:
 | 2026-04-22 | `{shared}` | [timing-measurement-methodology](2026-04-22-timing-measurement-methodology.md) | ALERTA perf (pre-M_perf) | m1..m6 |
 | 2026-04-23 | `{B}` | [embedded-query-invariants](2026-04-23-embedded-query-invariants.md) | F-Q21 — âncoras matemáticas | m6, m7 |
 | 2026-04-23 | `{B}` | [conservative-sql-flag](2026-04-23-conservative-sql-flag.md) | F-Q22 — validado por M8 | m6b, m7, m8_safe_sql |
+| 2026-04-23 | `{B}` | [query-theory](2026-04-23-query-theory.md) | HIPÓTESES conceituais pré-SQL | — (pré-experimento) |
 
 ## Notas por tema
 

@@ -187,10 +187,11 @@ para discussao completa.
 Toda a documentacao vive em **[docs/](docs/README.md)** — o hub central.
 
 **Atalhos rapidos:**
-- [docs/research-lines/README.md](docs/research-lines/README.md) — **as 2 linhas de pesquisa do projeto (ler primeiro)**
-- [docs/FINDINGS_SUMMARY.md](docs/FINDINGS_SUMMARY.md) — achados principais (A0-A6, por linha)
-- [docs/methodology/model-ranking.md](docs/methodology/model-ranking.md) — ranking modelos locais (accuracy, latencia, failure modes)
-- [docs/methodology/F-findings.md](docs/methodology/F-findings.md) — catalogo canonico de achados (F-Q1..F-Q21+, tagueados por linha)
+- [docs/components/README.md](docs/components/README.md) — **3 componentes do projeto (TCF Core + LLM Interface + DB Extractor)**
+- [docs/research-lines/README.md](docs/research-lines/README.md) — 2 linhas de pesquisa dentro do componente LLM Interface
+- [docs/FINDINGS_SUMMARY.md](docs/FINDINGS_SUMMARY.md) — achados principais (A0-A7)
+- [docs/methodology/model-ranking.md](docs/methodology/model-ranking.md) — ranking modelos locais
+- [docs/methodology/F-findings.md](docs/methodology/F-findings.md) — catalogo canonico (F-Q1..F-Q23+, tagueados por linha)
 - [docs/methodology/experimental-design.md](docs/methodology/experimental-design.md) — status M-series
 - [docs/research-notes/INDEX.md](docs/research-notes/INDEX.md) — indice de notas de pesquisa
 - [docs/article/README.md](docs/article/README.md) — artigo cientifico em capitulos

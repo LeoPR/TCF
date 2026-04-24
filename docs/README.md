@@ -4,13 +4,20 @@ Este e o compendio central de toda a documentacao do projeto TCF
 (Textual Columnar Format). Se voce quer entender algo sobre o projeto,
 comece aqui.
 
-## Linhas de pesquisa (ler primeiro)
+## Componentes do projeto (ler primeiro)
 
-O projeto investiga **duas abordagens distintas** para LLM + dados tabulares:
+O projeto é organizado em **3 componentes**, com TCF ao centro:
 
-- [research-lines/README.md](research-lines/README.md) — Overview das duas linhas
-- [research-lines/A-direct-reasoning.md](research-lines/A-direct-reasoning.md) — Linha A: LLM lê TCF e calcula
-- [research-lines/B-schema-carrier.md](research-lines/B-schema-carrier.md) — Linha B: TCF como schema + SQL (atual)
+- [components/README.md](components/README.md) — Overview dos 3 componentes
+- [components/1-tcf-core.md](components/1-tcf-core.md) — Formato + compressão (roadmap: blocos/streaming)
+- [components/2-tcf-llm-interface.md](components/2-tcf-llm-interface.md) — Usar TCF com LLM (ativo)
+- [components/3-tcf-db-extractor.md](components/3-tcf-db-extractor.md) — DB real → TCF (roadmap)
+
+### Linhas de pesquisa (sub-estrutura dentro de Componente #2)
+
+- [research-lines/README.md](research-lines/README.md) — Linha A vs Linha B
+- [research-lines/A-direct-reasoning.md](research-lines/A-direct-reasoning.md) — LLM lê TCF e calcula
+- [research-lines/B-schema-carrier.md](research-lines/B-schema-carrier.md) — TCF como schema + SQL
 
 ## Indice
 
