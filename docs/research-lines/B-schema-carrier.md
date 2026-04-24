@@ -43,6 +43,7 @@ aritmética.
 | M7 | Perguntas L3 (subquery/CTE/COUNT DISTINCT) | 81 | `m7_complex` |
 | M_inv | Análise post-hoc de invariantes sobre falhas | — | (análise) |
 | M8 | Safe-SQL flags isolados (ablação de style hints) | 405 | `m8_safe_sql` |
+| M8b | Safe-SQL flags combinados (test de composicionalidade) | 405 | `m8b_safe_sql_combos` |
 
 ## Achados canônicos desta linha
 
@@ -58,6 +59,7 @@ aritmética.
 | F-Q20 | Queries L3 (CTE/subquery) atingem 86% com fewshot adequado |
 | F-Q21 | Falhas SQL se dividem em detectáveis (21%) e silenciosas (79%) |
 | F-Q22 | Style hints recuperam falhas zero-shot (+70pp em q_having); flags têm interferência off-target |
+| F-Q23 | Style hints SQL não são composicionais; 11 de 12 combinações ficam abaixo do modelo aditivo |
 
 ## Níveis de complexidade SQL testados
 

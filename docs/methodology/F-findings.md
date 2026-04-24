@@ -30,7 +30,7 @@ entre as linhas.
 
 **`{shared}`:** F-Q1, F-Q2, F-Q3, F-Q4, F-Q5, F-Q6, F-Q7, F-Q8, F-Q9, F-Q10, F-Q11
 **`{A}`:** F-Q12
-**`{B}`:** F-Q13, F-Q14, F-Q15, F-Q16, F-Q17, F-Q18, F-Q19, F-Q20, F-Q21, F-Q22
+**`{B}`:** F-Q13, F-Q14, F-Q15, F-Q16, F-Q17, F-Q18, F-Q19, F-Q20, F-Q21, F-Q22, F-Q23
 
 ---
 
@@ -704,6 +704,71 @@ validar se os ganhos somam ou se há interferência entre flags positivos.
 **Referência:** `experiments/results/m8_safe_sql/manifest.jsonl` (2026-04-23).
 Ver [2026-04-23-conservative-sql-flag.md](../research-notes/2026-04-23-conservative-sql-flag.md)
 para a hipótese original.
+
+---
+
+## F-Q23 `{B}` — Style hints SQL não são composicionais; flags isolados > combinações
+
+**Conclusão:** Style hints SQL combinados raramente somam seus ganhos individuais;
+**11 de 12 combinações testadas (92%) ficam abaixo do modelo aditivo** (interferência).
+A exceção é 1 sinergia específica (`having + name_join` em q_top_e1_best_e2:
++14.8pp acima do previsto). Isso refuta a intuição de "quanto mais hints, melhor"
+— cada hint adiciona pressão interpretativa, e pressões conflitantes degradam SQL.
+
+**Evidência (M8b, 2026-04-23):** 3 modelos × 3 domínios × 3 questions × 5 variantes
+de combinação × 3 seeds = 405 combos. Comparação com modelo aditivo usando M8
+single-flag como baseline.
+
+| Variante | q_having (pred) | q_top_e1_best_e2 (pred) | q_e2_most_e1 (pred) |
+|----------|-----------------|-------------------------|---------------------|
+| baseline | 11.1% | 51.9% | 74.1% |
+| having_plus_subq | 77.8% (pred 100, **−22.2**) | 66.7% (pred 77.8, **−11.1**) | 74.1% (pred 77.8, −3.7) |
+| having_plus_name | 51.9% (pred 81.5, **−29.6**) | **96.3%** (pred 81.5, **+14.8** 🟢) | 81.5% (pred 85.2, −3.7) |
+| triple_positive | 51.9% (pred 100, **−48.1**) | 92.6% (pred 96.3, −3.7) | 81.5% (pred 88.9, −7.4) |
+| all_flags | 51.9% (pred 100, **−48.1**) | 66.7% (pred 85.1, −18.4) | 81.5% (pred 100, −18.5) |
+
+**Mecanismo de interferência (verificado em SQLs gerados):**
+
+*Falha `having_plus_name` em q_having:* modelo gera
+```sql
+SELECT COUNT(*) FROM (SELECT v.id_cliente FROM vendas v GROUP BY v.id_cliente HAVING COUNT(v.id) > 25)
+```
+O hint `safe_name_join` pressiona uso explícito de JOINs/alias (`v.id`); ao
+combinar com `safe_having`, o modelo mistura padrões e referencia `v.id` que
+não existe em `vendas`. SQL error.
+
+*Falha `all_flags` em q_having:* modelo **volta ao padrão ERRADO pré-fix**
+```sql
+SELECT COUNT(DISTINCT c.id) FROM vendas v JOIN clientes c ON v.id_cliente=c.id GROUP BY c.id HAVING COUNT(*) > 25
+```
+4 hints conflitantes → modelo ignora a instrução de decomposição e volta ao
+default. "Muito ruído = hint principal é diluído."
+
+*Sinergia `having_plus_name` em q_top_e1_best_e2:* as duas pressões **alinham**
+— a query precisa tanto de subquery (pressure de having) quanto de JOIN-to-name
+(pressure de name_join). Resultado: 96.3%, sinérgico.
+
+**Taxas de SQL válido (executável) por combinação — q_having, qwen3:14b:**
+- safe_having sozinho (M8): 100% válido e correto
+- having_plus_subq: 100% (mas às vezes semanticamente errado)
+- having_plus_name: 56% (sql_error frequente — `v.id` inexistente)
+- all_flags: 22% (volta ao padrão errado)
+
+**Implicação metodológica:**
+- `safe-sql-high` (todos os flags) é **contraproducente** como default
+- Recomendação baseada em dados: `--safe-sql-low = {safe_having}` como default universal
+- Combinações só se justificam quando há **alinhamento semântico verificado**
+  (ex: `having_plus_name` para q_top_e1_best_e2)
+- Seleção de flag ideal é **per-question-type**, não universal
+- Prompt noise tem custo: >1000 chars de hints diluem a instrução principal
+
+**Lição para LLM+SQL em geral:** style hints funcionam como RECOVERY específico,
+não como "camada de robustez acumulável". A abordagem produção correta é
+**router-based**: identificar o padrão SQL esperado pela pergunta e ativar
+apenas o hint alinhado.
+
+**Referência:** `experiments/results/m8b_safe_sql_combos/manifest.jsonl` (2026-04-23).
+Ver também F-Q22 (flags isolados) como pré-requisito.
 
 ---
 

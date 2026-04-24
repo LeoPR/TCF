@@ -147,22 +147,33 @@ locais 7-14B — não de formato (TCF, CSV, JSON falham igualmente).
 
 ---
 
-### A7 `{B}` — Style hints recuperam falhas SQL zero-shot; flags têm interferência
+### A7 `{B}` — Style hints SQL: isolados recuperam; combinações interferem
 
-**O que:** Diretiva de estilo SQL pura (sem exemplo de código) recupera
-q_having de **15% para 85%** (`safe_having` flag). Mas flags têm
-interferência cruzada — combinar todos **degrada** algumas perguntas:
-`safe_explicit_fk` regride q_top_e1_best_e2 em -11pp.
+**O que (M8 — flags isolados):** Diretiva de estilo SQL pura (sem exemplo de
+código) recupera q_having de **15% → 85%** (`safe_having` flag). Style hint
+zero-shot comparável a fewshot com exemplo concreto (M6b: 89%).
 
-**Por que importa:** Dois resultados em um:
-1. Style hints = mecanismo válido de recuperação zero-shot (sem fewshot
-   específico de cada padrão); comparável a efeito de exemplos concretos
-2. Flags DEVEM ser granulares — "safe-sql universal" é contraproducente
-   para modelos 7B; qwen2.5-coder regride para 0% em flags off-target
+**O que (M8b — flags combinados):** Combinar flags RARAMENTE soma ganhos.
+11 de 12 combinações testadas ficam abaixo do modelo aditivo (interferência).
+`all_flags` (4 hints combinados) REGRIDE q_having para 52% — pior que
+`safe_having` sozinho (85%). Modelo volta ao padrão errado pré-fix quando
+recebe muitos hints conflitantes.
 
-**Evidência:** M8, 405 combinações, 3 modelos × 3 domínios × 3 questions × 5 variantes.
+**Exceção — 1 sinergia confirmada:** `safe_having + safe_name_join` em
+q_top_e1_best_e2 atinge **96.3%** (previsto aditivo: 81.5%, sinergia +14.8pp).
+Ocorre quando duas pressões de estilo se alinham com a estrutura da query.
 
-**Referência:** F-Q22
+**Por que importa (3 resultados publicáveis):**
+1. Style hints = mecanismo válido de recuperação zero-shot — comparável a
+   fewshot com exemplo concreto
+2. Style hints **não são composicionais** — prompt noise degrada a instrução
+   principal; "camada de robustez acumulável" é falsa
+3. Seleção ideal de hint é **per-question-type**, não universal; abordagem
+   produção correta é router-based (identificar padrão → ativar hint alinhado)
+
+**Evidência:** M8 (405 combos) + M8b (405 combos) = 810 combinações.
+
+**Referência:** F-Q22 (isolados), F-Q23 (combinações)
 
 ### A6 `{B}` — Generalização cross-domain confirmada (F-Q16)
 

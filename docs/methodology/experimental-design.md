@@ -20,7 +20,8 @@
 | M6b (HAVING+subquery fewshot) | DONE | F-Q19b: 7%→88.9% (+81.9pp) | m6b_having_fix |
 | M7 (subquery/CTE/COUNT DISTINCT) | DONE | F-Q20: 86.4%; CTE=100%, nested=78% | m7_complex |
 | M_inv (invariant classification) | DONE | F-Q21: 21% Type A, 79% Type B silent | (análise post-hoc) |
-| M8 (safe-sql flags isolados) | DONE | F-Q22: safe_having +70pp; flags interferem | m8_safe_sql |
+| M8 (safe-sql flags isolados) | DONE | F-Q22: safe_having +70pp; off-target interference | m8_safe_sql |
+| M8b (safe-sql combinações) | DONE | F-Q23: 11/12 combinações regridem vs aditivo | m8b_safe_sql_combos |
 | M8 (modelos comerciais) | PENDENTE | — | — |
 | M_perf (benchmark timing) | PENDENTE | pre-publicacao | — |
 
