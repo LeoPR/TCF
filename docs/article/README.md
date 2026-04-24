@@ -5,7 +5,7 @@ organizado por capitulos para facilitar leitura, revisao e derivacao
 em formatos academicos (IEEE, ACM, arXiv).
 
 **Versao atual:** v0.2 (encoder com 4 niveis de compressao, dataset retail_sales).
-Experimentos anteriores (v0.1) estao em [archive/article_v01/](../../archive/article_v01/) apenas
+Experimentos anteriores (v0.1) estao em [archive/article_v01/](../archive/article_v01/) apenas
 como registro historico — nao sao usados no paper.
 
 ---
@@ -47,8 +47,8 @@ por experimentos sao registradas como definitivas.
 
 | Cap | Destino | Motivo |
 |-----|---------|--------|
-| ~~6~~ | [archive/article_v01/06-results-e3-v01.md](../../archive/article_v01/06-results-e3-v01.md) | Phase 1 v0.1 (dataset 41 vendas) |
-| ~~7 antigo~~ | [archive/article_v01/07-mixed-v01-v02.md](../../archive/article_v01/07-mixed-v01-v02.md) | Misturava Phase 2 v0.1 com Etapa 1/2 v0.2 |
+| ~~6~~ | [archive/article_v01/06-results-e3-v01.md](../archive/article_v01/06-results-e3-v01.md) | Phase 1 v0.1 (dataset 41 vendas) |
+| ~~7 antigo~~ | [archive/article_v01/07-mixed-v01-v02.md](../archive/article_v01/07-mixed-v01-v02.md) | Misturava Phase 2 v0.1 com Etapa 1/2 v0.2 |
 
 ---
 

@@ -99,7 +99,7 @@ README.md                          Porta de entrada (links, sem numeros)
   │     ├── 05-results-*           Benchmark compressao
   │     ├── 07-results.md          Resultados LLM M-series
   │     ├── appendices/D           Comparacao lado a lado
-  │     └── archive/article_v01/  Experimentos v0.1 (historico)
+  │     └── (archive v0.1 movido para docs/archive/)
   │
   ├── docs/architecture/source-map.md  ESTE ARQUIVO
   │

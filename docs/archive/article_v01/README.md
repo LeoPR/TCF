@@ -57,4 +57,5 @@ Qualquer comparacao direta seria metodologicamente invalida.
 Para ver o historico completo de como chegamos aqui:
 - Git log: `git log --all --oneline`
 - Tickets v0.1 fechados: [../../../tickets/closed/](../../../tickets/closed/)
-- Archive source: [../../../archive/v01/](../../../archive/v01/)
+- Archive source: [../v01/](../v01/)
+- Historia consolidada: [../../history.md](../../history.md)

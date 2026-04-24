@@ -42,7 +42,7 @@ marcar claramente como **legacy / poor-reference** no docstring.
 
 **Quando o cleanup "fisico" completo vira?**
 Em uma fase futura, se decidirmos remover completamente o caminho
-legacy, podemos mover synthetic_v2.py para archive/v01/. Mas isso
+legacy, podemos mover synthetic_v2.py para docs/archive/v01/. Mas isso
 requer atualizar multiplos tests, e nao e prioritario agora.
 
 ---

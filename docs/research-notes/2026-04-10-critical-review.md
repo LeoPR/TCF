@@ -120,7 +120,7 @@ Ou seja, nao vendemos "colunar vence row-oriented". Vendemos **"hints cognitivos
 
 ### 3.2 Gap 2: TOON nao integrado no benchmark
 
-Tinhamos um "TOON stub" no formats.py legado (archive/v01). Nao ha encoder TOON real, nunca foi testado em Etapa 2.
+Tinhamos um "TOON stub" no formats.py legado (docs/archive/v01). Nao ha encoder TOON real, nunca foi testado em Etapa 2.
 
 **Impacto:** alto (paper precisa comparar contra TOON para ter credibilidade)
 **Correcao:** implementar encoder TOON real (2-3h)

@@ -111,5 +111,5 @@ tratam o formato como uma escolha atomica.
 - **Cap 9:** Conclusao
 
 Experimentos anteriores com encoder v0.1 (dataset 41 vendas,
-sem niveis de compressao) estao em [archive/article_v01/](../../archive/article_v01/)
+sem niveis de compressao) estao em [archive/article_v01/](../archive/article_v01/)
 como registro historico. O paper usa exclusivamente resultados v0.2.

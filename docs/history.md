@@ -2,15 +2,15 @@
 title: História do projeto TCF — origem, v0.0, v0.1, transição para v0.2
 date: 2026-04-24
 type: history
-status: consolidado — substitui archive/rascunhos, archive/tickets_v01, archive/legacy_results
+status: consolidado — substitui docs/archive/rascunhos, docs/archive/tickets_v01, docs/archive/legacy_results
 ---
 
 # História do projeto TCF
 
 Este documento consolida a trajetória do projeto desde o rascunho inicial
 até a estrutura atual (v0.2 + série M). Substitui arquivos originalmente em
-`archive/rascunhos/`, `archive/tickets_v01/` e `archive/legacy_results/`
-(removidos após consumo). As versões originais permanecem no git log.
+`docs/archive/rascunhos/`, `docs/archive/tickets_v01/` e
+`docs/archive/legacy_results/` (removidos após consumo). As versões originais permanecem no git log.
 
 ---
 
@@ -121,7 +121,7 @@ foram integralmente substituídos pela v0.2. Spec atual em
 ## Experimentos pré-M0 (novembro 2025 — março 2026)
 
 Antes da estruturação M-series, rodaram-se avaliações exploratórias em
-`archive/legacy_results/` (removido). Dataset: `vendas` do `consolidated.json`
+`docs/archive/legacy_results/` (removido). Dataset: `vendas` do `consolidated.json`
 (41 registros, 2 chunks de 40+1 linhas). Relatório inicial datado de
 **21/11/2025**.
 
@@ -177,6 +177,6 @@ removidos após este documento ser consolidado. Permanecem acessíveis em
 - `archive/tickets_v01/` — 22 tickets consolidados na seção 3 deste doc
 - `archive/legacy_results/` — resultados pré-M0 consolidados na seção 4 deste doc
 
-Mantidos em `archive/` (tier 3):
-- `archive/article_v01/` — capítulos v0.1 do paper (5 links vivos em docs/article)
-- `archive/v01/` — código v0.1 (reprodutibilidade dos achados v0.1)
+Mantidos em `docs/archive/` (2026-04-24 movido de `archive/` raiz):
+- `docs/archive/article_v01/` — capítulos v0.1 do paper (5 links vivos em docs/article)
+- `docs/archive/v01/` — código v0.1 (reprodutibilidade dos achados v0.1)

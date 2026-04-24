@@ -4,7 +4,7 @@ Este arquivo registra as inovacoes teoricas **comprovadas por experimentos**
 usando o encoder v0.2 e o dataset `retail_sales` (200 orders, 509 vendas).
 
 Experimentos anteriores (v0.1, dataset 41 vendas) estao em
-[archive/article_v01/](../../archive/article_v01/) apenas como registro historico.
+[archive/article_v01/](../archive/article_v01/) apenas como registro historico.
 
 ---
 
