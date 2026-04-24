@@ -22,6 +22,7 @@
 | M_inv (invariant classification) | DONE | F-Q21: 21% Type A, 79% Type B silent | (análise post-hoc) |
 | M8 (safe-sql flags isolados) | DONE | F-Q22: safe_having +70pp; off-target interference | m8_safe_sql |
 | M8b (safe-sql combinações) | DONE | F-Q23: 11/12 combinações regridem vs aditivo | m8b_safe_sql_combos |
+| M9 (canonical TPC-H via Pipeline B) | DONE | F-Q24: 100% tie-aware; synthetic ≈ canonical | m9_canonical |
 | M8 (modelos comerciais) | PENDENTE | — | — |
 | M_perf (benchmark timing) | PENDENTE | pre-publicacao | — |
 

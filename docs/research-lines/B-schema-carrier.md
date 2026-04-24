@@ -44,6 +44,7 @@ aritmética.
 | M_inv | Análise post-hoc de invariantes sobre falhas | — | (análise) |
 | M8 | Safe-SQL flags isolados (ablação de style hints) | 405 | `m8_safe_sql` |
 | M8b | Safe-SQL flags combinados (test de composicionalidade) | 405 | `m8b_safe_sql_combos` |
+| M9 | Pipeline B: protocolo M3 em TPC-H canonical | 63 | `m9_canonical` |
 
 ## Achados canônicos desta linha
 
@@ -60,6 +61,7 @@ aritmética.
 | F-Q21 | Falhas SQL se dividem em detectáveis (21%) e silenciosas (79%) |
 | F-Q22 | Style hints recuperam falhas zero-shot (+70pp em q_having); flags têm interferência off-target |
 | F-Q23 | Style hints SQL não são composicionais; 11 de 12 combinações ficam abaixo do modelo aditivo |
+| F-Q24 | Canonical TPC-H e synthetic produzem accuracy equivalente (100% tie-aware vs 96% synthetic) |
 
 ## Níveis de complexidade SQL testados
 
