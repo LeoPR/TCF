@@ -24,19 +24,23 @@ cliente, pergunta do usuário, resposta via TCF+LLM+SQL**.
 DB real (Postgres/MySQL/SQLite)
     │
     ▼
-[Schema Introspector]  ← lê information_schema, pg_catalog, sqlite_master
+[Schema Introspector]   ← lê information_schema, pg_catalog, sqlite_master
     │
     ▼
-Schema TCF mínimo (tabelas + colunas + tipos + FK + cardinalidades)
+[Schema Qualifier]      ← analisa qualidade: orfa, FK soltos, tipos heterogeneos
+    │                     emite warnings que viram hints no prompt da LLM
+    │                     (ver research-note 2026-04-24-schema-qualifier.md)
+    ▼
+Schema TCF + StatsPack + QualityReport
     │
     ▼
 + Pergunta BI do usuário (NL)
     │
     ▼
-[LLM com prompt TCF-schema]
+[LLM com prompt TCF-schema + warnings]
     │
     ▼
-SQL gerado
+SQL gerado (informado das limitacoes do schema)
     │
     ▼
 Executar NO DB ORIGINAL (mesmo engine, mesmos dados)
@@ -71,7 +75,39 @@ schema = introspect.from_dsn("postgresql://user@host/db")
 - MySQL: `information_schema.tables`, `information_schema.key_column_usage`
 - SQLite: `sqlite_master`, `PRAGMA foreign_key_list(table)`, `PRAGMA table_info(table)`
 
-### Módulo 2 — TCF Schema Generator
+### Módulo 2 — Schema Qualifier (NOVO — ver research-note)
+
+```python
+from tcf_db import qualify
+
+report = qualify.schema(schema)
+# Returns: QualityReport with orphan_tables, dangling_fks, implicit_fks,
+#          type_heterogeneity, cardinality_issues, etc.
+```
+
+**Detecta:**
+- Tabelas órfãs (sem FK entrando/saindo)
+- FKs danificados (apontam para alvo inexistente)
+- FKs implícitos não-declarados (coluna parece FK por nome)
+- PK com duplicatas; PK candidata não-declarada
+- Tipos heterogêneos (datas em formatos diferentes na mesma coluna)
+- Cardinality skew (99% null, 1 valor dominando 95%, etc.)
+
+**Saída integra-se ao prompt da LLM:**
+```
+## Notas de schema
+- Tabela `legacy_audit` é orfa. Nao incluir em JOINs sem confirmacao.
+- Coluna `customer_id` em `orders` parece FK para `customers.id` mas sem constraint.
+```
+
+**Validação meta:** rodar qualifier sobre TPC-H e Adult Census para
+calibrar (TPC-H deve passar limpo; Adult Census tem peculiaridades como `?`
+para missing).
+
+Documentação completa em
+[../research-notes/2026-04-24-schema-qualifier.md](../research-notes/2026-04-24-schema-qualifier.md).
+
+### Módulo 3 — TCF Schema Generator
 
 ```python
 from tcf_db import build_schema_payload
@@ -90,7 +126,7 @@ Gera payload TCF **só de schema** (sem dados completos):
 Isso é equivalente ao `build_payload_stats_fewshot` atual, mas alimentado
 por DB real em vez de fixtures.
 
-### Módulo 3 — Query Executor
+### Módulo 4 — Query Executor
 
 ```python
 from tcf_db import ask
@@ -121,11 +157,12 @@ Classifier simples (rule-based ou LLM auxiliar) decide qual flag usar.
 |-----------|--------|--------|
 | M_db0 | Design spec + interface | Em esboço (este doc) |
 | M_db1 | SQLite introspector (mais simples) | Não iniciado |
-| M_db2 | Schema → TCF payload generator | Não iniciado |
-| M_db3 | Query executor + safe-sql auto | Não iniciado |
-| M_db4 | Validar em DB público (Chinook, Northwind) | Não iniciado |
-| M_db5 | PostgreSQL/MySQL introspectors | Futuro |
-| M_db6 | Benchmark contra text-to-SQL state-of-the-art | Pré-paper |
+| M_db2 | Schema Qualifier (calibrar em TPC-H/Adult) | Não iniciado |
+| M_db3 | Schema → TCF payload generator (com warnings) | Não iniciado |
+| M_db4 | Query executor + safe-sql auto | Não iniciado |
+| M_db5 | Validar em DB público (Chinook, Northwind) | Não iniciado |
+| M_db6 | PostgreSQL/MySQL introspectors | Futuro |
+| M_db7 | Benchmark contra text-to-SQL state-of-the-art | Pré-paper |
 
 ## Decisões de design em aberto
 

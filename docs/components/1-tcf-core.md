@@ -7,6 +7,37 @@ status: v0.2 estável; roadmap v0.3 (blocos/streaming)
 
 # 1. TCF Core — formato textual columnar com compressão
 
+## Invariantes arquiteturais (não violar)
+
+**TCF Core é ingênuo por design.** Estes invariantes garantem que o componente
+permanece pequeno, testável e reusável fora deste projeto:
+
+1. **TCF não importa Shaper.** Shaper é ferramenta de extração; quem chama
+   Shaper e entrega `dict[table, list[dict]]` para TCF é o orquestrador (test
+   runner ou aplicação cliente).
+
+2. **TCF não importa DatasetReader, DB drivers, ou qualquer ferramenta de
+   ingestão.** TCF assume que o cliente já tem dados em memória.
+
+3. **TCF não valida FKs, não detecta tabelas órfãs, não opina sobre qualidade
+   do schema.** Confia no input. Falha rápida se o input for malformado.
+
+4. **TCF tem zero dependências externas no core** (`src/tcf/`). Apenas stdlib.
+   Cliente Ollama, Pandas, Polars vivem em `experiments/eval/llm_eval/` e
+   `scripts/`, nunca em `src/tcf/`.
+
+**Por que esta arquitetura:**
+- Permite uso standalone (qualquer dev com CSV/JSON pode comprimir)
+- Falha clara — dado errado entra, saída errada sai (sem mascaramento)
+- Componibilidade Unix — TCF, Shaper, Qualifier são irmãos coordenados pelo
+  orquestrador, não filhos um do outro
+- TCF resistente a complexidade de ambiente porque **não tenta** lidar com ela
+
+Se o desenvolvedor não souber preparar dados para TCF, ele tem ferramentas
+auxiliares disponíveis (Shaper para extração estratificada de DB, futuro
+Schema Qualifier para detectar problemas). Mas TCF em si nunca cresce para
+absorver essas responsabilidades.
+
 ## O que é
 
 TCF é um formato de serialização textual **orientado a colunas** com
