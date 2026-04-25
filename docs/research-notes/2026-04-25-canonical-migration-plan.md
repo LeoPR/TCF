@@ -38,6 +38,7 @@ synthetic como comparação.
 | M8 (safe-sql isolated) | ✅ 3 domínios | ❌ | F-Q22 |
 | M8b (safe-sql combos) | ✅ 3 domínios | ❌ | F-Q23 |
 | M9 (TPC-H baseline) | — | ✅ TPC-H | F-Q24 |
+| **M9-Adult** | — | ✅ Adult | **F-Q25** |
 | M_inv (invariants) | ✅ post-hoc | ❌ | F-Q21 |
 
 ## Plano de migração por experimento

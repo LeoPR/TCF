@@ -45,6 +45,7 @@ aritmética.
 | M8 | Safe-SQL flags isolados (ablação de style hints) | 405 | `m8_safe_sql` |
 | M8b | Safe-SQL flags combinados (test de composicionalidade) | 405 | `m8b_safe_sql_combos` |
 | M9 | Pipeline B: protocolo M3 em TPC-H canonical | 63 | `m9_canonical` |
+| M9-Adult | Pipeline B: H-TCF2 em Adult Census single-table | 63 | `m9_adult` |
 
 ## Achados canônicos desta linha
 
@@ -62,6 +63,7 @@ aritmética.
 | F-Q22 | Style hints recuperam falhas zero-shot (+70pp em q_having); flags têm interferência off-target |
 | F-Q23 | Style hints SQL não são composicionais; 11 de 12 combinações ficam abaixo do modelo aditivo |
 | F-Q24 | Canonical TPC-H e synthetic produzem accuracy equivalente (100% tie-aware vs 96% synthetic) |
+| F-Q25 | H-TCF2 generaliza para single-table real (Adult Census) com cols hifenadas — 100% accuracy |
 
 ## Níveis de complexidade SQL testados
 

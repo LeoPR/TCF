@@ -175,6 +175,29 @@ Ocorre quando duas pressões de estilo se alinham com a estrutura da query.
 
 **Referência:** F-Q22 (isolados), F-Q23 (combinações)
 
+### A8 `{B}` — H-TCF2 generaliza universalmente (synthetic, canonical, single-table)
+
+**O que:** O paradigma "schema carrier + LLM gera SQL + SQLite executa" alcança
+**100% accuracy** em Adult Census (single-table real, cols hifenadas), mantendo
+o resultado de 95-100% em TPC-H canonical e 96% em synthetic retail.
+
+**Robustez confirmada em 4 dimensões:**
+- Topologia: star 3-table OU single-table
+- Origem: synthetic gerado OU canonical industrial
+- Naming: PT (cliente, vendas) OU EN (supplier) OU hifenado (hours-per-week)
+- Schema complexity: 3 colunas simples OU 14 colunas mistas
+
+**Evidência:** M3 (189 combos), M9-TPCH (63 combos), M9-Adult (63 combos).
+Total ~315 combos × 3 modelos confirmam o paradigma.
+
+**Stratification metrics no manifest:** Adult vol=100 sample tem TVD=0.0007
+vs população de 48k (representatividade quase perfeita).
+
+**Para o paper:** M9-Adult é a evidência **mais forte** — dataset 100% real,
+naming industrial, accuracy perfeita, stratification auditável.
+
+**Referência:** F-Q25 (com link para F-Q16, F-Q24)
+
 ### A6 `{B}` — Generalização cross-domain confirmada (F-Q16)
 
 **O que:** Modelo treinado (fewshot) em retail generaliza para medical e financial

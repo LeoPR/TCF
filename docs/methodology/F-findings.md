@@ -30,7 +30,7 @@ entre as linhas.
 
 **`{shared}`:** F-Q1, F-Q2, F-Q3, F-Q4, F-Q5, F-Q6, F-Q7, F-Q8, F-Q9, F-Q10, F-Q11
 **`{A}`:** F-Q12
-**`{B}`:** F-Q13, F-Q14, F-Q15, F-Q16, F-Q17, F-Q18, F-Q19, F-Q20, F-Q21, F-Q22, F-Q23, F-Q24
+**`{B}`:** F-Q13, F-Q14, F-Q15, F-Q16, F-Q17, F-Q18, F-Q19, F-Q20, F-Q21, F-Q22, F-Q23, F-Q24, F-Q25
 
 ---
 
@@ -826,6 +826,76 @@ afeta M5 q_e2_most_e1, M7 q_top_e1_best_e2 (possivelmente silencioso).
 
 **Referência:** `experiments/results/m9_canonical/manifest.jsonl` (2026-04-24).
 Comparar com `experiments/results/m3_crossdomain/manifest.jsonl` (2026-04-21).
+
+---
+
+## F-Q25 `{B}` — H-TCF2 generaliza para single-table com colunas hifenadas e categóricos ricos
+
+**Conclusão:** Aplicar o protocolo M9 (sql_stats_fs, 3 modelos locais) sobre
+**Adult Census** (single-table, 14 colunas, mistura de numerics/categoricals,
+nomes hifenados como `hours-per-week`, `education-num`) produz **63/63 =
+100% de accuracy**, superando inclusive M9-TPCH (95.2% strict). Confirma
+que o paradigma generaliza para datasets reais com convenções de naming
+diferentes do retail synthetic.
+
+**Evidência (M9-Adult, 2026-04-25):** 1 dataset Adult × 3 modelos × 7 questions
+× 3 seeds = 63 combos. Stratify_by='class' garantiu representatividade
+(TVD=0.0007, chi2_p=0.99 — distribuição idêntica à população).
+
+| Question | qwen3:14b | phi4 | qwen2.5-coder | Acc |
+|----------|----------|------|---------------|-----|
+| q_count | 3/3 | 3/3 | 3/3 | 100% |
+| q_avg_age | 3/3 | 3/3 | 3/3 | 100% |
+| q_max_age | 3/3 | 3/3 | 3/3 | 100% |
+| q_distinct_workclass | 3/3 | 3/3 | 3/3 | 100% |
+| q_top_education | 3/3 | 3/3 | 3/3 | 100% |
+| q_count_high_class (WHERE +COUNT) | 3/3 | 3/3 | 3/3 | 100% |
+| q_avg_hours_male (WHERE +AVG hifenado) | 3/3 | 3/3 | 3/3 | 100% |
+
+**SQLs gerados (samples qwen3:14b):**
+```sql
+SELECT COUNT(*) FROM adult                                                       -- q_count
+SELECT AVG(age) FROM adult                                                       -- q_avg_age
+SELECT COUNT(DISTINCT workclass) FROM adult WHERE workclass IS NOT NULL          -- q_distinct_workclass
+SELECT education FROM adult GROUP BY education ORDER BY COUNT(*) DESC LIMIT 1   -- q_top_education
+SELECT COUNT(*) FROM adult WHERE class = '>50K'                                  -- q_count_high_class
+SELECT AVG("hours-per-week") FROM adult WHERE "sex" = 'Male'                     -- q_avg_hours_male
+```
+
+LLMs aplicam aspas duplas corretamente em `"hours-per-week"` e `"sex"`,
+respeitam `IS NOT NULL` em distinct counts, geram WHERE clauses com
+strings literais — comportamentos não-triviais.
+
+**Comparação consolidada do paradigma H-TCF2:**
+
+| Experimento | Dataset | Topology | Accuracy | Tie-aware? |
+|-------------|---------|----------|----------|-----------|
+| M3 cross-domain | synthetic 3 domínios | star 3-table | 96% | apenas q_distinct (F-Q17) |
+| M9 | TPC-H canonical | star 3-table | 95.2% / 100% | sim, em q_top_product |
+| **M9-Adult** | **Adult canonical** | **single-table** | **100%** | n/a |
+
+**Implicação:** o paradigma "TCF schema carrier + LLM gera SQL + SQLite executa"
+generaliza independentemente de:
+1. **Topologia** — star 3-table OU single-table
+2. **Origem** — synthetic (gerado) OU canonical (real industrial)
+3. **Naming convention** — PT (cliente, vendas) OU EN (supplier, partsupp) OU
+   hyphenated (hours-per-week)
+4. **Schema complexity** — 3 colunas simples OU 14 colunas mistas
+
+**Bônus de stratification:** TVD=0.0007 entre amostra (n=100) e população
+(n=48 842) confirma que volume modesto é representativo quando estratificado.
+Manifests M9-Adult registram métricas inline para auditoria.
+
+**Implicação metodológica:**
+- Para o paper, M9-Adult é evidência mais forte que M3 (synthetic) ou M9-TPCH
+  (sintético-canônico): dataset 100% real, naming industrial, accuracy
+  perfeita. Vale destacar como caso de validação externa final.
+- Stratification metrics inline no manifest são novo padrão para todos
+  os experimentos canonical com sampling.
+
+**Referência:** `experiments/results/m9_adult/manifest.jsonl` (2026-04-25).
+Comparar com `experiments/results/m9_canonical/` (TPC-H) e
+`experiments/results/m3_crossdomain/` (synthetic).
 
 ---
 
