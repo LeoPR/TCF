@@ -1007,12 +1007,15 @@ estratificação) é nossa, codificada em `CANONICAL_PROFILES` em
 
 | Estratégia | Status | O que faria quando implementada |
 |-----------|--------|--------------------------------|
-| `stratify` | ⚠️ PLACEHOLDER | Stratified sampling por uma coluna (ex: `stratify_by="nation"` em TPC-H mantém proporção de nações) |
+| `stratify` | ✅ ATIVO (2026-04-25) | Proportional allocation Neyman-style + min-1 por grupo; integrado com `fk_preserving` para sample estratificado de fact |
 | `compressibility` | ⚠️ PLACEHOLDER | Filtra rows por faixa de compressibilidade (alta cardinalidade vs baixa) |
 | `join` | ⚠️ PLACEHOLDER | Variantes de apresentação: normalized vs flat (denormalizado) |
 
-Implementar `stratify` é o **trabalho mais útil pendente** — corresponde
-ao que você descreveu como "estratificação proporcional".
+`stratify` foi implementado em 2026-04-25. Validação:
+- Adult Census volume=20 com `stratify_by='class'`: random std=9.7 (range 10-45%)
+  → stratify std=0.0 (consistente em 23.9-25%, próximo da população real)
+- Edge case 16 grupos `education`: cada grupo aparece com ≥1 row mantendo dominância dos majoritários
+- TPC-H regressão zero (mesmos 66/94/100 quando stratify_by=None)
 
 ### A "inteligência" do Shaper vem da configuração, não do código
 

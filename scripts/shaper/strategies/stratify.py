@@ -1,7 +1,13 @@
-"""Stratification strategy — sample with group representation.
+"""Stratification strategy — proportional allocation by group.
 
-Ensures at least one row per distinct value of `stratify_by` column.
-If combined with volume, distributes proportionally across groups.
+Per-table stratified sampling: distributes `volume` proportionally across
+distinct values of `stratify_by` column, preserving the original population
+distribution ("general representativeness").
+
+Min 1 row per group when budget allows (preserves categorical coverage).
+
+When `fk_preserving=True`, stratification is delegated to fk_preserving
+strategy (applied to fact table; dims filtered by FK afterwards).
 """
 
 from __future__ import annotations
@@ -17,6 +23,16 @@ def _apply(reader, tables, request, trace):
     col = request.stratify_by
     if col is None:
         return tables  # passthrough
+
+    # When fk_preserving is active, stratification is handled there
+    # (applied to fact table; dims are filtered by FK afterwards).
+    # Running stratify here would duplicate sampling.
+    if getattr(request, "fk_preserving", False):
+        trace.append(
+            f"stratify: SKIP (fk_preserving active, stratify_by='{col}' "
+            f"will be applied to fact table)"
+        )
+        return tables
 
     result = {}
     for name, rows in tables.items():
@@ -53,18 +69,36 @@ def _apply(reader, tables, request, trace):
         else:
             n_target = max(1, int(vol))
 
-        # Proportional allocation (at least 1 per group if possible)
-        per_group = max(1, n_target // n_groups)
-        remainder = n_target - per_group * n_groups
+        # Proportional allocation (Neyman-style) with min-1 per group
+        sorted_keys = sorted(groups.keys(), key=lambda k: (k is None, str(k)))
+        targets: dict = {}
+        for key in sorted_keys:
+            pop = len(groups[key])
+            share = round(n_target * pop / n_total)
+            if share == 0 and pop > 0:
+                share = 1
+            targets[key] = min(share, pop)
+
+        # Adjust to match n_target (rounding may produce ±k off)
+        diff = n_target - sum(targets.values())
+        if diff != 0:
+            keys_by_pop = sorted(sorted_keys, key=lambda k: -len(groups[k]))
+            i = 0
+            while diff != 0 and i < len(keys_by_pop) * 2:
+                k = keys_by_pop[i % len(keys_by_pop)]
+                if diff > 0 and targets[k] < len(groups[k]):
+                    targets[k] += 1
+                    diff -= 1
+                elif diff < 0 and targets[k] > 1:
+                    targets[k] -= 1
+                    diff += 1
+                i += 1
 
         rng = random.Random(request.seed)
         sampled = []
-        for i, key in enumerate(sorted(groups.keys(), key=lambda k: (k is None, str(k)))):
+        for key in sorted_keys:
             group_rows = groups[key]
-            # Some groups get +1 to use up remainder
-            n_take = per_group + (1 if i < remainder else 0)
-            n_take = min(n_take, len(group_rows))
-
+            n_take = targets[key]
             if n_take >= len(group_rows):
                 sampled.extend(group_rows)
             else:
@@ -72,9 +106,10 @@ def _apply(reader, tables, request, trace):
                 sampled.extend(group_rows[i] for i in indices)
 
         result[name] = sampled
+        summary = ", ".join(f"{k}:{targets[k]}/{len(groups[k])}" for k in sorted_keys)
         trace.append(
-            f"stratify: {name} by '{col}' ({n_groups} groups, "
-            f"~{per_group}/group, {len(sampled)} total from {n_total})"
+            f"stratify: {name} by '{col}' PROPORTIONAL "
+            f"({n_groups} groups, {len(sampled)}/{n_total}): {summary}"
         )
 
     return result

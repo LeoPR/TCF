@@ -56,8 +56,19 @@ def _load_canonical(
     seed: int = 42,
     schema: list[str] | None = None,
     fact_table: str | None = None,
+    stratify_by: str | None = None,
 ) -> tuple[dict, dict]:
-    """Load canonical dataset via Shaper with FK-preserving sampling."""
+    """Load canonical dataset via Shaper with FK-preserving sampling.
+
+    Args:
+        name: canonical dataset name (e.g. "tpch-sf001", "adult-census")
+        volume: rows to sample from fact table
+        seed: random seed for reproducibility
+        schema: list of tables (overrides profile default)
+        fact_table: name of fact table (overrides profile default)
+        stratify_by: column name in fact for proportional stratified sampling
+                     (when None, uses random sampling)
+    """
     from shaper import Shaper, ShapeRequest
 
     profile = CANONICAL_PROFILES.get(name, {})
@@ -71,6 +82,7 @@ def _load_canonical(
         seed=seed,
         fk_preserving=bool(effective_fact),
         fact_table=effective_fact,
+        stratify_by=stratify_by,
     )
     result = Shaper().apply(req)
     return result.tables, result.metadata

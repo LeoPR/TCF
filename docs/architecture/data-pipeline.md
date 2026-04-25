@@ -107,8 +107,8 @@ Estratégias (executadas em ordem pelo pipeline):
 - `schema_filter` — restringe ao subset de tabelas pedido
 - `join` — placeholder (no-op)
 - `compressibility` — placeholder (no-op)
-- `stratify` — placeholder (no-op)
-- `fk_preserving` — sample fact + filtra dims preservando FK integrity
+- `stratify` — proportional allocation por coluna (Neyman-style); skip se fk_preserving=True
+- `fk_preserving` — sample fact (random ou stratified) + filtra dims preservando FK integrity
 - `volume` — sample N rows (skip quando fk_preserving=True)
 - `ordering` — natural / random / sorted
 
