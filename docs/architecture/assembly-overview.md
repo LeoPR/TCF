@@ -950,10 +950,222 @@ samples. Rows completos são opção (caso A/B), não necessidade.
 
 ---
 
-### Aguardando próxima peça
+---
 
-Você mencionou: *"falta só mais uma coisinha, depois discutimos se tem mais alguma forma de uso que eu tenha esquecido"*.
+## Anexo D — Cenário 4 (Shaper / Sampler — peça experimental)
 
-Estou aguardando o cenário 4 antes de fechar o documento. Após receber e
-documentar, podemos fazer uma revisão final para identificar use cases
-faltantes.
+### Contexto
+
+**Shaper é nossa peça**, não do desenvolvedor. Serve para modular
+**quantidade** e **complexidade** de datasets canônicos para experimentos.
+
+Datasets canônicos cobrem domínios diferentes: comercial (TPC-H),
+demográfico (Adult), financeiro, ERP, CRM, didático. O Shaper produz
+amostras **estatisticamente estratificadas** — não aleatórias 10%, mas
+proporcionais que mantêm representatividade mesmo com JOINs.
+
+Também reduz **complexidade**: do dataset com N tabelas para subset com
+2-3 tabelas (níveis `minimal`, `core`, `chain`, `full` já definidos).
+
+### O eixo horizontal × vertical (confirmação da sua intuição)
+
+Sua proposta foi: *"a gente força os formatos horizontais, e o shaper cuida
+mais da parte vertical (estratificação de linhas)"*.
+
+**Está correta e é exatamente o que implementamos hoje.** Formalizando:
+
+| Dimensão | O que define | Quem decide | Como |
+|----------|-------------|-------------|------|
+| **Horizontal** (schema) | quais tabelas, quais colunas, quais joins | Nós (pesquisadores) | `schema=["partsupp","part","supplier"]` ou `schema_levels[name]["chain"]` |
+| **Vertical** (rows) | quantas linhas, qual ordem, estratificação | Shaper (mecanicamente) | strategies `volume`, `fk_preserving`, `stratify`, `ordering` |
+
+Resultado: **Shaper é "burro mas parametrizado"**. Não tenta adivinhar
+nada. Recebe configuração horizontal + parâmetros verticais, e executa.
+
+Isso responde sua pergunta diretamente:
+
+> *"Vale a pena deixar genérico e inteligente, ou fazer análise externa
+> e Shaper só executar?"*
+
+**Resposta: Shaper só executa.** A "análise" (que tabelas, qual chave de
+estratificação) é nossa, codificada em `CANONICAL_PROFILES` em
+`experiments/eval/data_sources.py` e `SCHEMA_LEVELS` em
+`scripts/shaper/strategies/schema.py`.
+
+### Estado atual do Shaper
+
+#### Estratégias implementadas e funcionais
+
+| Estratégia | Status | O que faz |
+|-----------|--------|-----------|
+| `schema_filter` | ✅ ATIVO | Restringe ao subset de tabelas pedido (horizontal) |
+| `fk_preserving` | ✅ ATIVO | Sample fact + filtra dims preservando FK integrity (vertical com integridade) |
+| `volume` | ✅ ATIVO | Sample N rows ou fração — só executa quando `fk_preserving=False` |
+| `ordering` | ✅ ATIVO | natural / random:seed / sorted:col / reverse:col |
+
+#### Estratégias placeholder (no-op hoje)
+
+| Estratégia | Status | O que faria quando implementada |
+|-----------|--------|--------------------------------|
+| `stratify` | ⚠️ PLACEHOLDER | Stratified sampling por uma coluna (ex: `stratify_by="nation"` em TPC-H mantém proporção de nações) |
+| `compressibility` | ⚠️ PLACEHOLDER | Filtra rows por faixa de compressibilidade (alta cardinalidade vs baixa) |
+| `join` | ⚠️ PLACEHOLDER | Variantes de apresentação: normalized vs flat (denormalizado) |
+
+Implementar `stratify` é o **trabalho mais útil pendente** — corresponde
+ao que você descreveu como "estratificação proporcional".
+
+### A "inteligência" do Shaper vem da configuração, não do código
+
+**Por dataset, definimos antes de qualquer experimento:**
+
+1. **Schema levels** — quais tabelas formam `minimal`/`core`/`chain`/`full`
+   (em `scripts/shaper/strategies/schema.py::SCHEMA_LEVELS`)
+2. **Fact table** — qual é a tabela onde a maior parte das FKs aponta
+   (em `experiments/eval/data_sources.py::CANONICAL_PROFILES`)
+3. **Stratify column** (futuro, quando implementar) — qual coluna mantém
+   representatividade quando reduzimos volume
+
+Exemplo TPC-H já configurado:
+
+```python
+# scripts/shaper/strategies/schema.py
+SCHEMA_LEVELS = {
+    "tpch-sf001": {
+        "minimal": ["customer"],
+        "core":    ["customer", "orders"],
+        "chain":   ["customer", "orders", "lineitem"],
+        "full":    ["region", "nation", ...],  # 8 tabelas
+    },
+}
+
+# experiments/eval/data_sources.py
+CANONICAL_PROFILES = {
+    "tpch-sf001": {
+        "schema": ["partsupp", "part", "supplier"],
+        "fact_table": "partsupp",
+    },
+}
+```
+
+**Isso é a análise externa que você mencionou.** Não está no Shaper —
+está em arquivos de configuração que **nós** criamos para cada dataset.
+
+Para um dataset novo (ex: Northwind), passos:
+1. Rodar Schema Introspector (futuro) ou ler manualmente metadata
+2. Decidir quais subsets fazem sentido por nível
+3. Adicionar entrada em `SCHEMA_LEVELS` e `CANONICAL_PROFILES`
+4. Pronto — Shaper já sabe o que fazer
+
+### Conexão Shaper → Qualifier (nosso uso meta)
+
+Você sugeriu: *"ele mesmo pode passar depois pelos filtros do
+qualificador por exemplo, para ver se tem algo errado"*.
+
+**Ótima ideia para validação meta-experimental.** Pipeline:
+
+```
+canonical DB → Shaper (subset) → Qualifier (verifica subset)
+                                     │
+                                     ▼
+                                WarningReport
+                                (subset pode ter perdido representatividade,
+                                 quebrado FK na samplagem, criado órfãs, etc.)
+```
+
+Casos onde isso seria útil:
+- Validar que `fk_preserving` realmente preservou todos os FKs
+- Detectar se sample volume=10 deixou alguma dim com 0 rows
+- Detectar se stratify_by produziu distribuição diferente da fonte
+- Smoke test: warnings em subset não devem aparecer se canonical estava ok
+
+Anota como uso meta-experimental — não bloqueia nada, mas é insurance.
+
+### Sobre "uso prático fora de experimento"
+
+Você disse: *"tudo isso só serve para o experimento e imagino que não
+tem uma utilidade prática"*.
+
+**Concordo no escopo do paper TCF.** Mas vale registrar que Shaper isolado
+tem usos potenciais fora de experimentos:
+
+| Uso fora de pesquisa | Aplicabilidade |
+|---------------------|----------------|
+| Gerar dataset de dev/test a partir de produção | Sim — sample estratificado mantém edge cases |
+| Anonimização parcial (dev recebe sample, não dump) | Possível — combinado com Privacy mode |
+| Smoke test de migrações de schema | Possível — sample pequeno mas representativo |
+| Demo dataset para clientes/parceiros | Sim — extrair vertical menor mantendo cardinalidade |
+
+Mas esses são casos potenciais — **não estão no escopo atual**. Documentado
+no [research-notes/2026-04-25-shaper-as-standalone-tool.md](../research-notes/2026-04-25-shaper-as-standalone-tool.md).
+
+### Os dois caminhos da sua pergunta — análise
+
+| Caminho | Descrição | Custo | Risco | Recomendação |
+|---------|-----------|-------|-------|--------------|
+| **A. Genérico e inteligente** | Shaper recebe DB desconhecido e adivinha estratificação (auto-detecta fact table, stratify column, complexity levels) | Alto — heurísticas frágeis, ML para auto-detect | Adivinhação errada produz amostras enviesadas; difícil debug | **Não recomendado** para o escopo atual |
+| **B. Configurado externamente** | Nós analisamos o canonical, codificamos em config; Shaper só executa | Baixo — já implementado | Adicionar dataset novo requer ~1 hora de análise manual | **Recomendado e atual** |
+
+**Justificativa B:**
+- Auto-detect tem precedente ruim em ferramentas de DB (ex: SQL ORMs que
+  adivinham FK quase sempre acertam mas erros são caros)
+- Para datasets canônicos, a análise manual é trivial (TPC-H tem
+  documentação de 1999)
+- Pesquisador deve **conhecer** os dados que está usando — auto-detect
+  esconde decisões que precisam ser explícitas no paper
+- Caminho A pode ser **paper futuro** (Shaper inteligente como contribuição
+  separada), mas hoje é overkill
+
+### Inventário de mudanças para fechar o Shaper
+
+#### Implementar (prioridade média, futuro)
+
+- [ ] `stratify` strategy — sampling proporcional por chave
+- [ ] `compressibility` strategy — filtra por faixa de cardinalidade
+- [ ] `join` strategy — flat vs normalized output
+
+#### Validação meta (depois de Qualifier existir)
+
+- [ ] Pipeline de validação: Shaper → Qualifier → relatório
+- [ ] Test que verifica zero warnings em canonical bem-formado
+- [ ] Test que verifica warnings esperados quando volume=10 quebra FKs
+
+#### Sem ação (status quo OK)
+
+- ✅ FK-preserving — já funciona (Etapa 1)
+- ✅ Configuração externa via SCHEMA_LEVELS + CANONICAL_PROFILES
+- ✅ data_sources.py como entry point unificado
+
+### O que NÃO fazer
+
+- Não fazer Shaper "inteligente" (auto-detect fact, auto-stratify) — vai
+  contra a separação config-vs-execução e adiciona variáveis ocultas no paper
+- Não acoplar Shaper ao Qualifier (são peças independentes; orquestrador
+  combina)
+- Não usar Shaper para dados de não-pesquisa por enquanto (escopo do paper)
+- Não tentar generalizar para "qualquer DB do dev" — Shaper é para datasets
+  canônicos onde temos análise prévia
+
+### Resposta direta às suas perguntas
+
+> *"Vale a pena deixar genérico e inteligente?"*
+Não no escopo atual. Manter config-driven (Caminho B).
+
+> *"Como e quem analisa os dados previamente?"*
+Nós, manualmente, codificando em `SCHEMA_LEVELS` (per-dataset, em
+strategies/schema.py) e `CANONICAL_PROFILES` (em data_sources.py).
+
+> *"Como ele estratifica?"*
+Hoje: por volume + FK-preserving (já implementado). Futuro:
+`stratify` strategy (placeholder hoje) implementará sampling
+proporcional por chave configurável.
+
+> *"Forçar horizontal, Shaper cuida do vertical"*
+**Confirmado.** É o design atual e está correto.
+
+---
+
+## Aguardando "uma coisinha"
+
+Você mencionou que ainda há uma peça/cenário a discutir. Pronto para
+receber. Após Anexo E, faremos a revisão final do documento e
+identificaremos use cases que ficaram de fora.
