@@ -355,3 +355,161 @@ Sugestão de leitura:
    visão do componente desenvolvedor
 4. [research-notes/2026-04-24-schema-qualifier.md](../research-notes/2026-04-24-schema-qualifier.md) —
    detalhe do Qualifier
+
+---
+
+## Anexo A — Cenário 1 (CSV/JSON → TCF) e a decisão "Opção D"
+
+### Contexto
+
+Cenário básico do desenvolvedor: tem dados em CSV/JSON/outros, quer
+**comprimir e descomprimir via TCF** — round-trip puro, sem LLM.
+
+### Estado atual investigado (2026-04-25)
+
+TCF Core (`src/tcf/encoder.py`) tem **3 entry points** em camadas:
+
+| API | Aceita | Status |
+|-----|--------|--------|
+| `encode_columns(name, dict[str, list[str]], config)` | colunas em memória | CORE PURO — sem IO, sem parsing, sem filesystem |
+| `encode_rows(name, list[dict], config)` | linhas em memória | conveniência — transpõe linhas → colunas |
+| `encode(meta_path, data_dir, config)` | CSV em disco + metadata.json | LEGACY — único ponto onde TCF "entende" um formato externo |
+
+Decoder (`src/tcf/decoder.py`):
+- `decode(text)` retorna `dict[table, list[dict]]` — entrega Python puro
+
+Outros formatos (JSON, JSONL, Markdown, TOON):
+- **Não há helpers** em `src/tcf/`
+- Writers existem em `scripts/writers/` mas são **fora do TCF Core**
+  (usados apenas em `derive_formats.py` para gerar comparativos)
+
+### Histórico verificado
+
+Não há remoção de funcionalidade no git (`git log --diff-filter=D src/tcf/`).
+O commit `2e990d5` (13/abril) refatorou em 3 camadas mas **adicionou**
+APIs puras (`encode_columns`/`encode_rows`); manteve `encode()` legacy.
+
+Se houve discussão sobre adicionar JSON nativo, foi informal e não virou
+código.
+
+### Decisão registrada: Opção D (manter ingenuidade + cookbook)
+
+**TCF Core não cresce para entender mais formatos.** O usuário com JSON,
+JSONL, Pandas, Parquet etc. parseia em 1-3 linhas e passa para
+`encode_rows()`. Documentação fornece o cookbook.
+
+**Razão:** o invariante "TCF é ingênuo" tem motivo prático — cada formato
+suportado nativamente arrasta dívidas (encoding, dialects, malformed data).
+Hoje o `encode()` legacy já carrega isso para CSV. Adicionar JSON nativo
+dobra a superfície sem ganho científico real.
+
+### Inventário de coisas que precisam mudar para alinhar com Opção D
+
+**Não muda código** — só vocabulário, ordem de apresentação e cookbook.
+
+#### Tier 1 — Documentação (alta prioridade, baixo risco)
+
+| Arquivo | Mudança |
+|---------|---------|
+| `README.md` (raiz) | Inverter ordem: `encode_columns`/`encode_rows` como API primária; `encode()` legacy como apêndice. Hoje features CSV+metadata.json no quick start, o que sugere falsamente que TCF "entende CSV" |
+| `docs/architecture/overview.md` | Mesmo ajuste — exemplo CLI atual sugere CSV-first |
+| `docs/architecture/boundaries.md` | Atualizar diagrama do encoder para mostrar 3 camadas, `encode()` legacy explícito |
+| `docs/architecture/data-pipeline.md` | No bloco "TCF Core" do diagrama, mostrar `encode_columns/rows` como entry, não `encode(meta_path, data_dir)` |
+| `docs/components/1-tcf-core.md` | Adicionar seção "API e formatos de entrada" depois da spec, antes da invariante |
+| `src/tcf/cli.py` (docstring) | Header atual diz `encode CSV + metadata.json -> TCF` — ajustar para `encode (legacy CSV mode) -> TCF` |
+| `src/tcf/encoder.py` (docstring de `encode()`) | Já diz "Legacy convenience wrapper" ✓ — só verificar consistência |
+
+#### Tier 2 — Cookbook unificado (criar uma vez, linkar de todo lado)
+
+Criar `docs/components/1-tcf-core-cookbook.md` (ou seção dentro de
+`1-tcf-core.md`) com snippets para cada formato comum:
+
+```python
+# CSV (sem metadata.json, sem JOIN automático)
+import csv
+with open("file.csv", encoding="utf-8") as f:
+    rows = list(csv.DictReader(f))
+text = encode_rows("my_table", rows)
+
+# JSON (lista de objetos)
+import json
+rows = json.load(open("file.json"))
+text = encode_rows("my_table", rows)
+
+# JSONL (NDJSON)
+with open("file.jsonl") as f:
+    rows = [json.loads(line) for line in f]
+text = encode_rows("my_table", rows)
+
+# Pandas
+text = encode_rows("my_table", df.to_dict("records"))
+
+# Polars
+text = encode_rows("my_table", df.to_dicts())
+
+# Parquet (via pandas)
+import pandas as pd
+text = encode_rows("my_table", pd.read_parquet("f.pq").to_dict("records"))
+
+# SQL query result (via cursor)
+cur.execute("SELECT * FROM t LIMIT 100")
+cols = [d[0] for d in cur.description]
+rows = [dict(zip(cols, r)) for r in cur.fetchall()]
+text = encode_rows("my_table", rows)
+```
+
+Cada snippet é 2-3 linhas. Honra a ingenuidade.
+
+#### Tier 3 — Decisão sobre CLI (decidir antes de mexer)
+
+CLI atual: `python -m tcf encode --meta X --data-dir Y` — só aceita CSV +
+metadata.json. **Pergunta em aberto:**
+
+- (a) Manter como está (CSV legacy é a única CLI; doc diz que API
+  Python é a forma moderna)
+- (b) Adicionar `python -m tcf encode-jsonl file.jsonl --name t` (e
+  similares) — vai contra Opção D porque adiciona parsers nativos
+- (c) Refatorar CLI para `python -m tcf encode --from csv|jsonl|json
+  --input file --name t` — adiciona parsing, vai contra D
+- (d) Deprecar CLI complexa, apontar para Python API + `python -c
+  "from tcf import encode_rows; ..."` — minimal, mais consistente com D
+
+**Sugestão:** **(a) manter**. CLI legacy continua útil para o caso CSV
+(que já é suportado); para JSON/Pandas/outros, README diz "use a API
+Python, é 3 linhas".
+
+#### Tier 4 — Futuro do `encode()` legacy (decidir antes de mexer)
+
+`encode(meta_path, data_dir)` é o único ponto onde TCF "entende CSV".
+Opções:
+
+- (a) Manter como wrapper conveniente — não adiciona, não remove
+- (b) Marcar como deprecated (DeprecationWarning) e remover em v0.3
+- (c) Mover para `scripts/tcf_csv_helper.py` ou similar — sai do core
+
+**Sugestão para discussão futura:** (a) por enquanto. Se a base de usuários
+do CSV-mode for pequena (apenas nosso quick start no README), considerar
+(b)/(c) numa versão major.
+
+### Checklist de execução (quando decidir fazer)
+
+Tudo abaixo é commit único, baixo risco, zero código novo:
+
+- [ ] Inverter ordem em `README.md` (Python API → Legacy CSV CLI)
+- [ ] Inverter ordem em `docs/architecture/overview.md`
+- [ ] Atualizar diagrama do encoder em `boundaries.md` (3 camadas)
+- [ ] Ajustar bloco TCF em `data-pipeline.md` (mostrar `encode_columns/rows`)
+- [ ] Adicionar seção "API e entrada de dados" em `1-tcf-core.md`
+- [ ] Criar/anexar cookbook (CSV, JSON, JSONL, Pandas, Polars, SQL, Parquet)
+- [ ] Ajustar header de `cli.py` para deixar claro que é legacy CSV mode
+- [ ] Verificar consistência em `__init__.py` (já está OK)
+
+### Não fazer (consequências da Opção D)
+
+- Não criar `encode_csv_file()`, `encode_json_file()`, `encode_jsonl_file()`
+- Não adicionar `--from json|jsonl` à CLI
+- Não importar `pandas`, `polars`, `pyarrow` em `src/tcf/`
+- Não criar pacote `tcf-io` ou `tcf-readers`
+
+Se um usuário pedir suporte nativo a JSON/Pandas, a resposta é o cookbook
+(3 linhas) + invariante (TCF Core fica pequeno e estável).
