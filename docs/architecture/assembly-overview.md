@@ -513,3 +513,199 @@ Tudo abaixo é commit único, baixo risco, zero código novo:
 
 Se um usuário pedir suporte nativo a JSON/Pandas, a resposta é o cookbook
 (3 linhas) + invariante (TCF Core fica pequeno e estável).
+
+---
+
+## Anexo B — Cenário 2 (TCF + Schema Qualifier opcional)
+
+### Contexto
+
+Dev tem 2-3 tabelas em CSV/JSON, já parseou para `dict[table, list[dict]]`,
+quer **inserir uma camada de Schema Qualifier antes do TCF** para detectar
+inconsistências (FKs soltos, dados vazios demais, outliers, etc.) sem
+bloquear o fluxo. Saída do Qualifier é **bypass + log paralelo**.
+
+### Análise crítica — está alinhado com o projeto?
+
+**Sim, e ainda corrige uma ambiguidade que tinhamos.** Antes, em
+`research-notes/2026-04-24-schema-qualifier.md` e
+`components/3-tcf-db-extractor.md`, o Qualifier estava descrito como
+**módulo dentro do TCF-DB-Extractor** — sequencial após o Schema Introspector.
+Sua descrição agora generaliza: o Qualifier opera sobre **qualquer
+`dict[table, list[dict]] + meta`**, não só sobre saída do Introspector.
+
+Isto é **mais correto**. O Qualifier é uma **camada genérica** com:
+- **Input:** o mesmo formato que TCF aceita (`tables, meta`)
+- **Output (data path):** bypass exato — entrega `tables, meta` idênticos
+- **Output (side channel):** `WarningReport` em log/variável/arquivo
+
+Resultado: pode rodar **antes de TCF** independente de onde os dados vieram
+(CSV via cookbook, JSON, Introspector, Shaper, qualquer coisa).
+
+### Por que esse design é elegante
+
+1. **Composability via input/output unificado** — Qualifier e TCF aceitam
+   o mesmo shape (`tables, meta`). Não precisa adapters entre as etapas.
+   Pode chamar `tcf.encode_rows(name, qualifier.check(rows).tables[name])`
+   ou ignorar Qualifier completamente.
+
+2. **Bypass como default** — não bloqueia nem corrompe pipeline. Dev
+   decide o que fazer com warnings (ignorar, logar, mostrar ao usuário,
+   abortar build). Qualifier nunca decide por ele.
+
+3. **Side channel para warnings** — TCF Core fica limpo (não conhece
+   warnings). Orquestrador decide injetar warnings no prompt LLM (caso C)
+   ou no log do dev (caso A/B).
+
+4. **Lib utils compartilhadas** — TCF Core já tem detecção de tipo,
+   cardinalidade, stats por coluna (em `src/tcf/encoder.py`:
+   `_detect_column_type`, stats numéricas). Qualifier reusa isso.
+   **Direção segura:** Qualifier importa de TCF; TCF não importa Qualifier.
+
+### Diagrama atualizado
+
+```
+            tables, meta (input — Python dict puro)
+                       │
+                       ▼
+              ┌──────────────────────┐
+              │  Schema Qualifier    │   (CAMADA OPCIONAL,
+              │  (camada genérica)   │    gateway entre fonte
+              │                      │    e TCF)
+              │  - detecta órfãs     │
+              │  - FKs soltos        │
+              │  - tipos heterogên.  │
+              │  - outliers (futuro) │
+              │  - junções suspeitas │
+              └────┬───────────┬─────┘
+                   │           │
+        bypass:    │           │  side channel:
+        igual ao   │           │  WarningReport
+        input      │           │  (log/var/file)
+                   │           │
+                   ▼           └──► consumido pelo
+              tables, meta          orquestrador/dev
+                   │
+                   │ (entra no TCF como se Qualifier não existisse)
+                   ▼
+        ┌───────────────────────┐
+        │      TCF Core         │   modo compressão:
+        │   encode/decode       │   tables → texto comprimido
+        └───────────────────────┘
+                  ou
+        ┌───────────────────────┐
+        │  Payload Builder      │   modo LLM:
+        │  (orquestrador)       │   tables + warnings + pergunta
+        │  - usa TCF L0         │   → prompt
+        │  - injeta warnings    │
+        │  - injeta pergunta    │
+        └───────────────────────┘
+```
+
+### O ponto da "saída pro formato TCF" — clarificação
+
+Você falou: *"a saída dele também é pro formato TCF"*. Tem duas leituras
+possíveis e a primeira é a correta:
+
+- **(✓ correta)** Saída em formato compatível com **input do TCF** —
+  `dict[table, list[dict]] + meta`. É o mesmo shape Python que TCF aceita.
+  "Qualifier emite o mesmo formato de input que TCF aceita" — composabilidade.
+
+- **(✗ incorreta)** Saída no formato TEXTUAL TCF (L0-L3 comprimido).
+  Qualifier não comprime — só verifica. Quem comprime é o TCF Core.
+
+Anotação para evitar confusão futura.
+
+### Posição na arquitetura geral
+
+Qualifier é **a 4ª peça neutra** (não-experimental) ao lado de:
+- TCF Core (compressão/codec)
+- Schema Introspector (DB → tables/meta) — futuro
+- TCF LLM-mode helper (tables/warnings/Q → prompt) — futuro
+
+Todas elas:
+- Aceitam ou produzem `dict[table, list[dict]] + meta` (formato comum)
+- Não conhecem Shaper, data_sources, orquestrador
+- Podem ser usadas standalone pelo dev
+
+### Sobre evolução futura (correções lógicas)
+
+Você mencionou: *"eventualmente ele poderia fazer algumas correções lógicas
+se o desenvolvedor quiser"*.
+
+**Sugestão arquitetural:** se Qualifier começar a corrigir, ele vira ETL.
+Isso é uma responsabilidade diferente.
+
+Manter Qualifier como **somente leitura** (warnings) e criar uma peça
+separada `Schema Repair` (ou `Data Cleaner`) que toma `(tables + warnings)`
+e produz `tables_corrigido`. Seria uma 5ª peça neutra, opcional, depois do
+Qualifier:
+
+```
+tables ──► Qualifier ─► tables (bypass) ──► [Repair opcional] ──► TCF
+                  │                          ▲
+                  └─► warnings ──────────────┘
+```
+
+Isto preserva o princípio "uma peça, uma responsabilidade".
+
+### Lib utils que Qualifier pode reusar do TCF Core (mapeamento concreto)
+
+| Util em `src/tcf/encoder.py` | Uso pelo Qualifier |
+|------------------------------|---------------------|
+| `_detect_column_type(values)` | detectar tipos heterogêneos (declarado != real) |
+| Cardinality counting (set + len) | PK com duplicatas, candidatos a PK |
+| Stats numéricas (min/max/mean) | outliers |
+| Null counting | "dados vazios demais" |
+| `_fk_hint(col, table_names)` heuristic | FKs implícitos (col `id_X` sem constraint) |
+
+**Caminho de extração futuro:** mover essas utils de
+`src/tcf/encoder.py` para `src/tcf/_column_utils.py` (módulo privado mas
+importável internamente). Qualifier (em `scripts/db/qualifier.py` ou onde
+for) importa de lá. TCF não importa Qualifier — direção segura.
+
+### Inventário de mudanças para implementar Qualifier (futuro)
+
+Tudo é trabalho de criação, baixo risco no que já existe.
+
+#### Novo
+
+- [ ] `src/tcf/_column_utils.py` — extrair utils que serão compartilhadas
+- [ ] `scripts/db/qualifier.py` — implementação core (input → bypass + warnings)
+- [ ] `scripts/db/__init__.py` — pacote
+- [ ] Tests em `tests/test_qualifier.py` cobrindo os 5+ tipos de warning
+- [ ] Doc `docs/components/qualifier.md` (ou seção em 3-tcf-db-extractor)
+
+#### Modificações (mínimas)
+
+- [ ] `src/tcf/encoder.py` — refatorar para usar `_column_utils` (sem
+  mudar comportamento; verificável por roundtrip)
+- [ ] Atualizar `data-pipeline.md` para mostrar Qualifier opcional na cadeia
+- [ ] Atualizar `assembly-overview.md` removendo "futuro" do Qualifier
+- [ ] Atualizar `components/3-tcf-db-extractor.md` esclarecendo que Qualifier
+  é peça neutra (pode ser usada sem o Extractor)
+- [ ] Atualizar `research-notes/2026-04-24-schema-qualifier.md` com generalização
+  (Qualifier não depende de DB — opera sobre qualquer tables/meta)
+
+### Não fazer (consequências da decisão)
+
+- Não mover Qualifier para dentro de `src/tcf/` — TCF Core continua ingênuo
+- Não fazer Qualifier corrigir dados (vira `Schema Repair` separado se for o caso)
+- Não acoplar Qualifier ao Introspector — eles são peças independentes
+- Não passar warnings para `tcf.encode_*()` — TCF nunca recebe warnings
+  (warnings vão para orquestrador via side channel)
+
+### Resposta direta às suas perguntas
+
+> *"Veja se faz sentido"*
+Faz total sentido e melhora a arquitetura — generaliza Qualifier de
+"módulo do Introspector" para "camada neutra opcional".
+
+> *"Estou fugindo do projeto?"*
+Não. Está exatamente alinhado com o que documentamos em
+`research-notes/2026-04-24-schema-qualifier.md` e nos casos A/B/C do fluxo
+dev em `assembly-overview.md` seções 5.1 a 5.4.
+
+> *"Manter assim é bom porque dá pra reaproveitar lib utils comuns"*
+Confirmado — mapeamento concreto de utils está acima. Direção da
+dependência é Qualifier → TCF (não o contrário), preservando invariante.
