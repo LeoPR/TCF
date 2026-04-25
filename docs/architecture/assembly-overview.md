@@ -1164,8 +1164,264 @@ proporcional por chave configurável.
 
 ---
 
-## Aguardando "uma coisinha"
+---
 
-Você mencionou que ainda há uma peça/cenário a discutir. Pronto para
-receber. Após Anexo E, faremos a revisão final do documento e
-identificaremos use cases que ficaram de fora.
+## Anexo E — Cenário 5 (Notação de grafo para schema + plano de validação em escala)
+
+Você chamou de "uma coisinha", mas tem duas coisas substantivas aqui:
+uma **nova hipótese de formato de payload** e uma **fase de validação em escala** que organiza todo o trabalho. Vou tratar separadamente.
+
+### Parte 1 — Notação de grafo para FKs do schema
+
+#### O formato que você descreveu
+
+```
+casa -> carro
+casa -> quarto
+carro -> rodas
+quarto -> cama
+quarto -> guarda roupa
+```
+
+Esse é tecnicamente conhecido como **edge list** (notação minimalista) ou
+**DOT language** (Graphviz, com wrapper `digraph { ... }`). Outras
+variantes próximas:
+- **Mermaid** — usado em docs modernas (`A --> B`)
+- **TGF** (Trivial Graph Format) — formato muito simples de grafo
+- **Cypher / Neo4j** — `(a)-[:rel]->(b)`
+
+Para schema, a versão mais útil seria:
+
+```
+# Schema graph (FK relationships)
+pedidos.id_cliente -> clientes.id
+pedidos.id_produto -> produtos.id
+itens.id_pedido    -> pedidos.id
+```
+
+Ou ainda mais minimalista:
+```
+pedidos -> clientes
+pedidos -> produtos
+itens -> pedidos
+```
+
+#### A hipótese de teste
+
+**LLMs entendem schema melhor com notação de grafo do que com FK inline?**
+
+Hoje TCF entrega FK inline na coluna:
+```
+### pedidos (509 rows)
+  id_cliente INTEGER [FK -> clientes.id], range=[1, 50]
+  id_produto INTEGER [FK -> produtos.id], range=[1, 100]
+  total REAL, range=[10.50, 980.00]
+```
+
+Com notação de grafo, FKs ficariam **centralizadas no topo**:
+```
+## Schema graph
+pedidos.id_cliente -> clientes.id
+pedidos.id_produto -> produtos.id
+
+### pedidos (509 rows)
+  id_cliente INTEGER, range=[1, 50]
+  id_produto INTEGER, range=[1, 100]
+  total REAL, range=[10.50, 980.00]
+```
+
+#### Análise crítica
+
+**Argumentos a favor:**
+- LLMs são treinadas em bilhões de linhas de docs Markdown/Mermaid/Graphviz
+  (provável familiaridade com `A -> B`)
+- Centraliza topologia FK em um bloco — modelo "vê o mapa" antes dos detalhes
+- Reduz redundância em schemas grandes (FK aparece 1x, não em cada coluna)
+- Compatível com notações visuais existentes (devs podem renderizar com Graphviz)
+
+**Argumentos contra:**
+- Em schemas pequenos (3 tabelas) pode ser overhead vs FK inline
+- LLM precisa correlacionar grafo separado + coluna (2 lookups vs 1)
+- Adiciona variável ao paper (mais um eixo experimental)
+
+**Onde se encaixa:**
+- É um **variante de payload formatting**, não mudança no TCF Core
+- Se encaixa em "TCF LLM-mode helper" (futuro)
+- Pode ser testado como ablação tipo M-series:
+  - Variant: `schema_inline` (atual)
+  - Variant: `schema_graph` (FKs no topo, colunas sem `[FK]`)
+  - Variant: `schema_both` (FKs no topo + inline — redundância proposital)
+
+#### Sugestão de experimento (M10 ou similar, futuro)
+
+```
+3 modelos × 3 variantes (inline/graph/both) × 7 questions × 3 seeds = 189 combos
+```
+
+Hipóteses de resultado:
+- **H1:** `schema_graph` ≥ `schema_inline` em queries L3 (subquery, JOIN
+  multi-tabela) — modelo se beneficia de "ver o mapa"
+- **H2:** `schema_graph` ≤ `schema_inline` em queries L1 (sem JOIN) —
+  overhead sem ganho
+- **H3:** `schema_both` é o melhor mas custo de tokens é maior — pareto
+  trade-off
+
+Variável bonus para investigar: **dialeto de grafo importa?**
+- DOT (`A -> B`)
+- Mermaid (`A --> B`)
+- Edge list simples (`A B` sem seta)
+
+#### Não fazer agora
+
+Esta hipótese vai para o **roadmap de experimentos futuros** (Parte 2
+abaixo). Não há urgência arquitetural. É um payload variant.
+
+---
+
+### Parte 2 — Plano de validação em escala
+
+Você descreveu o que vem **depois de fechar a arquitetura**:
+
+> *"Voltar tudo que fizemos repetir os experimentos em várias escalas,
+> melhorar os resultados, ou ao menos ver os índices de confiança de
+> resultados variados, com o shaper bem 'elástico'... testar os modos
+> de compressão, velocidade, comparar com outros formatos... além das
+> versões com tamanhos e complexidades diferentes do banco também para
+> ver o quanto a LLM consegue gerar consultas... além da questão do
+> grafo."*
+
+**Isto é a fase de validação rigorosa do paper.** Vale registrar como
+plano explícito.
+
+#### Eixos a varrer
+
+| Eixo | Variantes a testar |
+|------|--------------------|
+| **Compressão TCF** | L0, L1, L2, L3 |
+| **Compressão clássica** | gzip, brotli, zstd, lz4 (sobre CSV, JSON, TCF) |
+| **Compressão HTTP** | content-encoding: gzip, br, deflate |
+| **Formato base** | CSV, JSONL, Markdown, TOON, TCF (todos os L) |
+| **Scale (vertical)** | 50, 100, 200, 500, 1000, 5000 rows |
+| **Schema complexity (horizontal)** | minimal (1 tabela), core (2), chain (3-4), full (8+) |
+| **Notação de schema** | inline, graph (DOT/Mermaid), both |
+| **Modelos** | Locais (qwen3, phi4, qwen2.5-coder) + comerciais (Claude, GPT-4o) |
+| **Seeds** | mínimo 5 para CI estreito |
+
+#### Métricas a coletar
+
+| Métrica | Por quê |
+|---------|---------|
+| Accuracy SQL gerada | Qualidade do output LLM |
+| Bytes (raw + comprimido) | Eficiência de transporte |
+| Tokens (no prompt) | Custo direto LLM |
+| Tempo encode/decode | Performance do TCF |
+| Tempo LLM (latência) | UX e custo |
+| Wilson CI por (variant × question) | Significância estatística |
+| Pareto: accuracy × tokens | Trade-off principal do paper |
+
+#### Plano de execução em fases (depois da arquitetura fechar)
+
+**Fase V1 — Replicação básica em escala:**
+- Reproduzir M3 cross-domain em escalas 50/100/500/1000
+- 3 modelos locais × 3 domínios × 7 questions × 3 seeds × 4 escalas = 756 combos
+- Objetivo: validar que F-Q16 (cross-domain) é robusto a escala
+
+**Fase V2 — Compressão classics:**
+- Benchmark: TCF L0-L3 vs CSV+gzip vs JSON+gzip vs Markdown+gzip vs TOON
+- Sobre 2 datasets canônicos (TPC-H, Adult) em 3 escalas
+- Métricas: bytes raw, bytes gzip, tokens
+- Objetivo: posicionar TCF na fronteira Pareto
+
+**Fase V3 — Notação de schema (Parte 1 deste anexo):**
+- Variantes: inline / graph / both
+- 3 modelos × 3 dimensões de complexidade schema × 7 questions × 5 seeds
+- Objetivo: testar H1/H2/H3 do experimento M10
+
+**Fase V4 — Modelos comerciais (já no roadmap como M8 expandido):**
+- Claude Haiku/Sonnet, GPT-4o-mini/GPT-4o
+- Validar accuracy em commercial-grade
+- Objetivo: credibilidade do paper
+
+**Fase V5 — Final integration test:**
+- Rodar pipeline completo: canonical DB → Shaper → Qualifier → TCF LLM-mode
+  → Modelo → SQL → executar no DB original → validar resultado
+- Objetivo: prova de end-to-end funciona
+
+#### Pré-requisitos antes de começar V1-V5
+
+Lista das peças que precisam estar prontas antes da validação em escala:
+
+- [ ] Stratify strategy implementada no Shaper (Anexo D)
+- [ ] Schema Qualifier implementado (Anexo B + C)
+- [ ] Schema Introspector implementado (Anexo C)
+- [ ] TCF LLM-mode helper extraído (Anexo A passo Tier 2)
+- [ ] Pelo menos 2 datasets canônicos prontos (já temos: TPC-H + Adult)
+- [ ] M9 estendido para Adult Census (precisa profile no data_sources)
+
+#### Custo estimado
+
+Conservador, ~3000 combos × ~10s/call = ~10 horas de LLM local.
+Comerciais (V4): ~$50-100 em API costs.
+Tempo de engenharia: ~2-3 semanas para V1-V5 completos.
+
+#### O que NÃO fazer agora
+
+- Não começar V1 antes da arquitetura fechar (Anexos A-D + Schema Qualifier
+  + Introspector)
+- Não rodar V5 antes de V1-V3 (depende de tudo estar provado primeiro)
+- Não comprometer com escala fixa antes de smoke test (validar 1 escala
+  primeiro, expandir conforme resultado)
+
+#### Cronograma sugerido (high-level)
+
+```
+Hoje                 →  Anexo E fechado, plano registrado
++1-2 semanas         →  Implementar Anexos A (cookbook docs) + B (Qualifier)
++2-3 semanas         →  Implementar Anexo C (Introspector) + extrair LLM-mode
++3-4 semanas         →  Stratify strategy + M9 expandido
++4-6 semanas         →  Fase V1 (replicação em escala)
++6-8 semanas         →  Fases V2 + V3 (compressão + grafo)
++8-10 semanas        →  Fase V4 (comerciais) + V5 (integration)
++10-12 semanas       →  Paper draft com todos os números
+```
+
+Estimativas conservadoras. Course-correção esperada.
+
+### Resposta direta à sua pergunta
+
+> *"O que acha?"*
+
+**Da notação de grafo:** ideia válida, vai pro roadmap como variante de
+payload formatting (M10 futuro). Não bloqueia nada agora; pode produzir
+finding interessante para o paper se H1 se confirmar.
+
+**Do plano em escala:** **muito necessário**. Hoje temos confirmações em
+N=189 (M3) e N=63 (M9) — bom para significância de achado individual,
+mas o paper precisa de ablações em **múltiplas dimensões** para
+robustez. V1-V5 cobre exatamente isso.
+
+**Conexão com tudo que documentamos:** o plano em escala valida
+arquiteturalmente os componentes (TCF Core, Shaper, Qualifier, Introspector,
+LLM-mode helper) através de uso intensivo. Ou seja: arrumar a arquitetura
+**não é só limpeza**; é pré-requisito para a validação em escala não
+ficar travada por gambiarras.
+
+---
+
+## Revisão final pendente
+
+Anexos A-E cobrem os 5 cenários que você descreveu (mais o plano de validação
+em E.2). **Pronto para revisão final do documento.**
+
+Sugestão: você revisa os anexos, identificamos use cases faltantes (se
+houver), e depois decidimos por onde começar a execução. Candidatos
+naturais para próxima ação:
+
+1. **Tier 1 do Anexo A** — atualizar docs com Opção D (cookbook, ordem
+   Python-API-first). Baixo risco, alta organização.
+2. **Implementar `stratify` no Shaper** (Anexo D) — destrava experimentos
+   de proporcionalidade.
+3. **Estender M9 para Adult Census** — segundo dataset canonical, validação
+   adicional do Pipeline B.
+
+Sua escolha define ritmo do projeto.
