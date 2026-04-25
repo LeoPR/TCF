@@ -37,6 +37,7 @@ Cada nota e tagueada com a linha de pesquisa que a motivou:
 | 2026-04-25 | `{shared}` | [tabular-formats-literature](2026-04-25-tabular-formats-literature.md) | LIT REVIEW — formatos para LLM 2024-26 + lacunas | — (informa V2 futuro) |
 | 2026-04-25 | `{shared}` | [stratification-metrics](2026-04-25-stratification-metrics.md) | TVD/JSD/Hellinger/chi2/Wilson — implementado + validado | adult-census (3 casos) |
 | 2026-04-25 | `{shared}` | [canonical-migration-plan](2026-04-25-canonical-migration-plan.md) | ROADMAP — refazer M-series sobre canonical | — (Fases A-D propostas) |
+| 2026-04-25 | `{shared}` | [validation-master-plan](2026-04-25-validation-master-plan.md) | CHECKLIST CONSOLIDADO — gaps + redos com novas dimensões | — (~8 semanas para paper) |
 
 ## Notas por tema
 
