@@ -32,6 +32,7 @@ sys.path.insert(0, str(ROOT / "src"))
 sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
+from data_sources import load_dataset
 from run_m6_filter_questions import DOMAIN_CONFIGS
 
 
@@ -176,7 +177,7 @@ def run_minv() -> None:
             key = (domain, seed, n_orders)
             if key not in tables_cache:
                 cfg = DOMAIN_CONFIGS[domain]
-                tbls, _ = cfg["fixture"](n_orders=n_orders, seed=seed)
+                tbls, _ = load_dataset(cfg["source"], n_orders=n_orders, seed=seed)
                 tables_cache[key] = tbls
 
         for r in failures:

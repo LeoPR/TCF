@@ -29,7 +29,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from tcf import encode as tcf_encode, EncodeConfig
 from tests.fixtures import _write_fixture
-from tests.fixtures.synthetic_v2 import retail_sales
+from data_sources import load_dataset
 
 from llm_eval.ollama_client import OllamaClient
 
@@ -361,7 +361,7 @@ def run_m1(models: list[str], n_orders: int, variants: list[str], endpoint: str)
     RESULTS_DIR.mkdir(parents=True, exist_ok=True)
     manifest_path = RESULTS_DIR / "manifest.jsonl"
 
-    tables, meta = retail_sales(n_orders=n_orders, seed=42)
+    tables, meta = load_dataset("synthetic:retail_sales", n_orders=n_orders, seed=42)
     gt = _compute_gt(tables)
     conn = build_sqlite_from_tables(tables)
 
@@ -517,7 +517,7 @@ def main() -> None:
         return
 
     if args.dry_run:
-        tables, meta = retail_sales(n_orders=args.n_orders, seed=42)
+        tables, meta = load_dataset("synthetic:retail_sales", n_orders=args.n_orders, seed=42)
         for v in variants:
             payload = VARIANTS[v](tables, meta)
             prompt = PROMPT_TEMPLATE.format(payload=payload, question=QUESTIONS["q_sum"]["text"])

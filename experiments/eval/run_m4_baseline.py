@@ -23,8 +23,7 @@ sys.path.insert(0, str(ROOT / "src"))
 sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from tests.fixtures.synthetic_v2 import retail_sales
-from tests.fixtures.synthetic_domains import medical_consultations, financial_transactions
+from data_sources import load_dataset
 from llm_eval.ollama_client import OllamaClient
 
 # Reuse helpers from m1/m2/m3
@@ -46,7 +45,7 @@ RESULTS_DIR = ROOT / "experiments" / "results" / "m4_baseline"
 
 DOMAIN_CONFIGS: dict[str, dict] = {
     "retail": {
-        "fixture": retail_sales,
+        "source": "synthetic:retail_sales",
         "dim1": "clientes",
         "dim1_name_col": "nome",
         "dim2": "produtos",
@@ -60,7 +59,7 @@ DOMAIN_CONFIGS: dict[str, dict] = {
         "label_metric": "total",
     },
     "medical": {
-        "fixture": medical_consultations,
+        "source": "synthetic:medical_consultations",
         "dim1": "pacientes",
         "dim1_name_col": "nome",
         "dim2": "medicos",
@@ -74,7 +73,7 @@ DOMAIN_CONFIGS: dict[str, dict] = {
         "label_metric": "custo",
     },
     "financial": {
-        "fixture": financial_transactions,
+        "source": "synthetic:financial_transactions",
         "dim1": "contas",
         "dim1_name_col": "titular",
         "dim2": "categorias",
@@ -261,7 +260,7 @@ def run_m4(models: list[str], n_orders: int, domains: list[str],
     for domain in domains:
         cfg = DOMAIN_CONFIGS[domain]
         for seed in seeds:
-            tables, meta = cfg["fixture"](n_orders=n_orders, seed=seed)
+            tables, meta = load_dataset(cfg["source"], n_orders=n_orders, seed=seed)
             gt = compute_gt(tables, cfg)
             conn = build_sqlite_from_tables(tables)
             questions = build_questions(cfg)

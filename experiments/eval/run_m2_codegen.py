@@ -25,7 +25,7 @@ sys.path.insert(0, str(ROOT / "src"))
 sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from tests.fixtures.synthetic_v2 import retail_sales
+from data_sources import load_dataset
 from llm_eval.ollama_client import OllamaClient
 
 # Reuse M1 helpers
@@ -110,7 +110,7 @@ def run_m2(models: list[str], n_orders: int, variants: list[str],
     # Build ONCE per seed: (tables, gt, conn, payloads)
     per_seed: dict[int, dict] = {}
     for seed in seeds:
-        tables, meta = retail_sales(n_orders=n_orders, seed=seed)
+        tables, meta = load_dataset("synthetic:retail_sales", n_orders=n_orders, seed=seed)
         gt = _compute_gt(tables)
         conn = build_sqlite_from_tables(tables)
         payloads = {v: VARIANTS[v](tables, meta) for v in variants}
@@ -224,7 +224,7 @@ def run_scale_invariance(manifest_m2_path: Path, scales: list[int]) -> None:
 
     scale_results = defaultdict(lambda: {"tested": 0, "ok": 0})
     for scale in scales:
-        tables, meta = retail_sales(n_orders=scale, seed=42)
+        tables, meta = load_dataset("synthetic:retail_sales", n_orders=scale, seed=42)
         gt = _compute_gt(tables)
         conn = build_sqlite_from_tables(tables)
         print(f"\n  Scale n_orders={scale} ({len(tables['vendas'])} vendas)")

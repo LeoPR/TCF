@@ -32,8 +32,7 @@ sys.path.insert(0, str(ROOT / "src"))
 sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from tests.fixtures.synthetic_v2 import retail_sales
-from tests.fixtures.synthetic_domains import medical_consultations, financial_transactions
+from data_sources import load_dataset
 from llm_eval.ollama_client import OllamaClient
 from llm_eval.python_executor import extract_python, execute_python, score_python_result
 from llm_eval.sql_quality import score_sql_quality
@@ -50,7 +49,7 @@ RESULTS_DIR = ROOT / "experiments" / "results" / "m5_intermediate"
 
 DOMAIN_CONFIGS: dict[str, dict] = {
     "retail": {
-        "fixture": retail_sales,
+        "source": "synthetic:retail_sales",
         "dim1": "clientes", "dim1_name_col": "nome",
         "dim2": "produtos", "dim2_name_col": "nome",
         "fact": "vendas", "fact_fk1": "id_cliente", "fact_fk2": "id_produto",
@@ -58,7 +57,7 @@ DOMAIN_CONFIGS: dict[str, dict] = {
         "label_entity2": "produto", "label_metric": "total",
     },
     "medical": {
-        "fixture": medical_consultations,
+        "source": "synthetic:medical_consultations",
         "dim1": "pacientes", "dim1_name_col": "nome",
         "dim2": "medicos", "dim2_name_col": "nome",
         "fact": "consultas", "fact_fk1": "id_paciente", "fact_fk2": "id_medico",
@@ -66,7 +65,7 @@ DOMAIN_CONFIGS: dict[str, dict] = {
         "label_entity2": "medico", "label_metric": "custo",
     },
     "financial": {
-        "fixture": financial_transactions,
+        "source": "synthetic:financial_transactions",
         "dim1": "contas", "dim1_name_col": "titular",
         "dim2": "categorias", "dim2_name_col": "nome",
         "fact": "transacoes", "fact_fk1": "id_conta", "fact_fk2": "id_categoria",
@@ -275,7 +274,7 @@ def run_m5(
     for domain in domains:
         cfg = DOMAIN_CONFIGS[domain]
         for seed in seeds:
-            tables, meta = cfg["fixture"](n_orders=n_orders, seed=seed)
+            tables, meta = load_dataset(cfg["source"], n_orders=n_orders, seed=seed)
             gt = compute_gt(tables, cfg)
             conn = build_sqlite_from_tables(tables)
             questions = build_questions(cfg)

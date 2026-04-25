@@ -23,6 +23,7 @@ sys.path.insert(0, str(ROOT / "src"))
 sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
+from data_sources import load_dataset
 from llm_eval.ollama_client import OllamaClient
 from run_m1_codegen import LLM_OPTIONS, PROMPT_TEMPLATE, build_sqlite_from_tables, extract_sql, score_sql
 from run_m2_codegen import FEWSHOT_BLOCK, build_payload_stats
@@ -78,7 +79,7 @@ def run_m6b(models: list[str], n_orders: int, domains: list[str], seeds: list[in
     for domain in domains:
         cfg = DOMAIN_CONFIGS[domain]
         for seed in seeds:
-            tables, meta = cfg["fixture"](n_orders=n_orders, seed=seed)
+            tables, meta = load_dataset(cfg["source"], n_orders=n_orders, seed=seed)
             gt = compute_gt_m6(tables, cfg)
             conn = build_sqlite_from_tables(tables)
             questions = build_questions_m6(cfg, gt)
@@ -235,7 +236,7 @@ def main() -> None:
         from run_m6_filter_questions import compute_gt_m6, build_questions_m6
         for domain in args.domains:
             cfg = DOMAIN_CONFIGS[domain]
-            tables, meta = cfg["fixture"](n_orders=args.n_orders, seed=42)
+            tables, meta = load_dataset(cfg["source"], n_orders=args.n_orders, seed=42)
             gt = compute_gt_m6(tables, cfg)
             questions = build_questions_m6(cfg, gt)
             print(f"\n=== {domain} ===")

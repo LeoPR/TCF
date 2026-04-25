@@ -31,6 +31,7 @@ sys.path.insert(0, str(ROOT / "src"))
 sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
+from data_sources import load_dataset
 from llm_eval.ollama_client import OllamaClient
 from run_m1_codegen import LLM_OPTIONS, PROMPT_TEMPLATE, build_sqlite_from_tables, extract_sql, score_sql
 from run_m2_codegen import FEWSHOT_BLOCK, build_payload_stats
@@ -99,7 +100,7 @@ def run_m8b(
     for domain in domains:
         cfg = DOMAIN_CONFIGS[domain]
         for seed in seeds:
-            tables, meta = cfg["fixture"](n_orders=n_orders, seed=seed)
+            tables, meta = load_dataset(cfg["source"], n_orders=n_orders, seed=seed)
             questions, gt = build_m8_questions(cfg, tables)
             conn = build_sqlite_from_tables(tables)
             per_state[(domain, seed)] = {
