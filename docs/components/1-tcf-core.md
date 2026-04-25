@@ -67,10 +67,152 @@ Caneta
 
 - Spec completa: [../article/03-tcf-format.md](../article/03-tcf-format.md)
 - Apêndice A (formal): [../article/appendices/A-tcf-spec.md](../article/appendices/A-tcf-spec.md)
-- Encoder: `src/tcf/encoder_v02.py`
-- Decoder: `src/tcf/decoder_v02.py`
+- Encoder: `src/tcf/encoder.py`
+- Decoder: `src/tcf/decoder.py`
 - Compressão: `src/tcf/compression.py`
 - Schema parser: `src/tcf/schema.py`
+
+## API e formatos de entrada
+
+TCF Core expõe **3 entry points** em camadas, do mais puro ao mais
+conveniente:
+
+### `encode_columns(name, dict[str, list[str]], config)` — núcleo puro
+Sem IO, sem filesystem, sem parsing. Recebe dados já em memória Python.
+
+```python
+from tcf import encode_columns, EncodeConfig
+
+columns = {"name": ["Ana", "Bruno", "Carla"], "age": ["25", "30", "28"]}
+text = encode_columns("people", columns, EncodeConfig(level=2))
+```
+
+### `encode_rows(name, list[dict], config)` — conveniência
+Transpõe linhas → colunas, faz conversão de tipos básicos.
+
+```python
+from tcf import encode_rows
+
+rows = [{"name": "Ana", "age": 25}, {"name": "Bruno", "age": 30}]
+text = encode_rows("people", rows)
+```
+
+### `encode(meta_path, data_dir, config)` — wrapper legacy CSV
+Lê CSVs do disco + `metadata.json`, faz JOIN entre tabelas via FK.
+**Mantido para compatibilidade**; código novo deve usar `encode_columns`
+ou `encode_rows`.
+
+```python
+from tcf import encode
+
+text = encode("data/metadata.json", "data/")
+```
+
+### Decoder
+
+```python
+from tcf import decode
+
+tables = decode(text, normalize=True)  # dict[table, list[dict]]
+```
+
+## Cookbook — passar dados externos para TCF
+
+Por design (ver invariantes), TCF Core **não entende** JSON, JSONL,
+Parquet, Pandas, etc. nativamente. O usuário parseia em 1-3 linhas e
+chama `encode_rows()`. Aqui estão os snippets canônicos:
+
+### CSV (sem metadata.json)
+
+```python
+import csv
+from tcf import encode_rows
+
+with open("file.csv", encoding="utf-8") as f:
+    rows = list(csv.DictReader(f))
+text = encode_rows("my_table", rows)
+```
+
+### JSON (lista de objetos)
+
+```python
+import json
+from tcf import encode_rows
+
+rows = json.load(open("file.json"))
+text = encode_rows("my_table", rows)
+```
+
+### JSONL (NDJSON)
+
+```python
+import json
+from tcf import encode_rows
+
+with open("file.jsonl") as f:
+    rows = [json.loads(line) for line in f if line.strip()]
+text = encode_rows("my_table", rows)
+```
+
+### Pandas
+
+```python
+from tcf import encode_rows
+text = encode_rows("my_table", df.to_dict("records"))
+```
+
+### Polars
+
+```python
+from tcf import encode_rows
+text = encode_rows("my_table", df.to_dicts())
+```
+
+### Parquet (via pandas)
+
+```python
+import pandas as pd
+from tcf import encode_rows
+
+df = pd.read_parquet("file.parquet")
+text = encode_rows("my_table", df.to_dict("records"))
+```
+
+### Resultado de query SQL (cursor genérico)
+
+```python
+from tcf import encode_rows
+
+cur.execute("SELECT * FROM t LIMIT 100")
+cols = [d[0] for d in cur.description]
+rows = [dict(zip(cols, r)) for r in cur.fetchall()]
+text = encode_rows("my_table", rows)
+```
+
+### Por que TCF não traz parsers nativos
+
+Cada formato suportado nativamente arrasta dívida (encoding, dialects,
+malformed input). Ao manter TCF estritamente como compressor sobre
+estruturas Python já materializadas:
+
+- TCF Core fica pequeno e estável
+- Bugs de parsing ficam fora do escopo
+- Funciona com **qualquer** fonte (basta produzir `dict` ou `list[dict]`)
+
+Outras ferramentas existem para cuidar disso. TCF não compete com elas.
+
+## Outros formatos comparados (literatura e nossos benchmarks)
+
+Para contexto experimental — formatos que comparamos ou que a literatura
+recomenda investigar:
+
+| Formato | Status no projeto | Referência |
+|---------|------------------|-----------|
+| CSV, JSONL | Comparados em M4 | F-Q17 |
+| TOON | Implementado em `scripts/writers/toon_writer.py`, testado em Linha A; **falta Linha B** | [research-notes/2026-04-25-tabular-formats-literature.md](../research-notes/2026-04-25-tabular-formats-literature.md) |
+| HTML, Markdown-KV, YAML, XML | Não testados; literatura sugere ganhos | Improving Agents 2025; Sui 2024 |
+| ONTO (columnar peer-reviewed) | Não testado; é "primo" do TCF | arxiv:2604.17512 |
+| Notação de grafo (DOT/Mermaid) | Hipótese para M10 futuro | [Anexo E em assembly-overview.md](../architecture/assembly-overview.md) |
 
 ## Capacidades atuais
 

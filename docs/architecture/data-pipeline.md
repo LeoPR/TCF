@@ -64,8 +64,9 @@ Ver invariantes em [../components/1-tcf-core.md](../components/1-tcf-core.md).
                          │
             ┌────────────┴────────────┐
             ▼                         ▼
-   build_payload_*(tables, meta)   TCF.encode(meta_path, data_dir)
-   (constrói prompt LLM)            (compressão para storage/transmissão)
+   build_payload_*(tables, meta)   TCF.encode_columns/encode_rows(...)
+   (constrói prompt LLM)            (compressão para storage/transmissão;
+                                     legacy: encode(meta, data_dir) para CSV)
             │                         │
             ▼                         ▼
        LLM gera SQL              Texto TCF (L0-L3)

@@ -1,9 +1,18 @@
 """CLI entry point: `tcf` or `python -m tcf`.
 
 Commands:
-  encode  CSV + metadata.json -> TCF (with compression levels)
+  encode  CSV + metadata.json -> TCF  (legacy mode — CSV only)
   decode  TCF -> CSV files
   info    Show TCF file statistics
+
+The CLI's `encode` command is restricted to the CSV + metadata.json case.
+For other formats (JSON, JSONL, Pandas, Polars, Parquet, SQL queries),
+use the Python API directly:
+
+    from tcf import encode_rows
+    text = encode_rows("table", rows)
+
+See docs/components/1-tcf-core.md for the full cookbook.
 
 All commands print to console by default.
 Use --out / --out-dir to also save to files.

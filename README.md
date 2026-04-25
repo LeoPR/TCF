@@ -173,10 +173,42 @@ pip install -e .
 
 Zero dependencias externas no core (stdlib only).
 
-### CLI
+### API Python (recomendado)
+
+```python
+from tcf import encode_rows, decode, EncodeConfig
+
+# Voce traz os dados (qualquer fonte: CSV, JSON, Pandas, query SQL...)
+rows = [{"name": "Ana", "age": 25}, {"name": "Bruno", "age": 30}]
+
+config = EncodeConfig(
+    level=2,              # 0=expanded, 1=rle, 2=sort+rle, 3=dict+sort+rle
+    include_stats=True,   # STATS hints (recomendado para LLMs)
+    precision=None,       # None = auto
+)
+tcf_text = encode_rows("people", rows, config=config)
+
+# Decode com normalizacao de tipos
+tables = decode(tcf_text, normalize=True)
+```
+
+Se voce ja tem dados em formato columnar (`dict[col, list]`):
+```python
+from tcf import encode_columns
+columns = {"name": ["Ana", "Bruno"], "age": ["25", "30"]}
+tcf_text = encode_columns("people", columns, config=config)
+```
+
+**Cookbook completo** (CSV, JSON, JSONL, Pandas, Polars, Parquet, SQL):
+[docs/components/1-tcf-core.md#cookbook](docs/components/1-tcf-core.md#cookbook--passar-dados-externos-para-tcf).
+
+### CLI (legacy CSV mode)
+
+A CLI atual aceita apenas CSV + metadata.json — útil para o quick start
+mas restrita. Para outros formatos use a API Python.
 
 ```bash
-# CSV -> TCF em 4 niveis
+# CSV + metadata.json -> TCF
 python -m tcf encode --meta data/metadata.json --data-dir data/ --level 2 --out output.tcf
 
 # TCF -> CSV (auto-detecta nivel)
@@ -184,22 +216,6 @@ python -m tcf decode output.tcf --out-dir restored/
 
 # Metadados de um TCF
 python -m tcf info output.tcf
-```
-
-### API Python
-
-```python
-from tcf import encode, decode, EncodeConfig
-
-config = EncodeConfig(
-    level=2,              # 0=expanded, 1=rle, 2=sort+rle, 3=dict+sort+rle
-    include_stats=True,   # STATS hints (recomendado para LLMs)
-    precision=None,       # None = auto
-)
-tcf_text = encode("data/metadata.json", "data/", config=config)
-
-# Decode com normalizacao de tipos
-tables = decode(tcf_text, normalize=True)
 ```
 
 ### Integracao com LLM (exemplo minimo)

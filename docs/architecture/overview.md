@@ -90,7 +90,28 @@ total:
 ...
 ```
 
-### 3.3 CLI
+### 3.3 API Python (recomendado)
+
+```python
+from tcf import encode_rows, decode, EncodeConfig
+rows = [{"name": "Ana", "age": 25}, {"name": "Bruno", "age": 30}]
+text = encode_rows("people", rows, EncodeConfig(level=2))
+tables = decode(text)
+```
+
+Se ja tem dados columnar:
+```python
+from tcf import encode_columns
+columns = {"name": ["Ana", "Bruno"], "age": ["25", "30"]}
+text = encode_columns("people", columns)
+```
+
+Cookbook completo (CSV, JSON, JSONL, Pandas, Polars, Parquet, SQL) em
+[../components/1-tcf-core.md](../components/1-tcf-core.md).
+
+### 3.4 CLI (legacy CSV mode)
+
+CLI aceita apenas CSV + metadata.json. Para outros formatos use API Python.
 
 ```bash
 python -m tcf encode --meta data/metadata.json --data-dir data/ --level 2
@@ -98,15 +119,7 @@ python -m tcf decode arquivo.tcf --out-dir restored/
 python -m tcf info arquivo.tcf
 ```
 
-### 3.4 API Python
-
-```python
-from tcf import encode, decode, EncodeConfig
-text = encode("meta.json", "data/", EncodeConfig(level=2))
-tables = decode(text)
-```
-
-Para detalhes de cada formato comparado, ver [docs/article/03-tcf-format.md](article/03-tcf-format.md).
+Para detalhes de cada formato comparado, ver [docs/article/03-tcf-format.md](../article/03-tcf-format.md).
 
 ---
 
