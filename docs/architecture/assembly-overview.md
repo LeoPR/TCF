@@ -709,3 +709,251 @@ dev em `assembly-overview.md` seções 5.1 a 5.4.
 > *"Manter assim é bom porque dá pra reaproveitar lib utils comuns"*
 Confirmado — mapeamento concreto de utils está acima. Direção da
 dependência é Qualifier → TCF (não o contrário), preservando invariante.
+
+---
+
+## Anexo C — Cenário 3 (DB real → Schema Extractor → TCF LLM-mode)
+
+### Contexto
+
+Dev tem **um banco de dados real** (ou conjunto grande de arquivos) e
+**não conhece toda a estrutura**. Precisa de uma ferramenta que:
+
+1. Conecte no DB
+2. Vasculhe estruturas (tabelas, colunas, tipos, PK, FK declarados,
+   índices, cardinalidades)
+3. Produza um apanhado de schemas + estatísticas + conexões lógicas
+4. Funcione **mesmo em DBs mal-modelados** (sem PK/FK declarados),
+   apenas extraindo o que é fato observável — sem inferir
+
+Esta peça é o **Schema Extractor** (até agora chamado em outros docs de
+**Schema Introspector** — ver "Nota de nomenclatura" abaixo).
+
+### Análise crítica — está alinhado com o projeto?
+
+**Sim, e adiciona precisão a algo que estava implícito.** Concretamente:
+
+1. **Extractor é peça neutra independente** — não é módulo do
+   TCF-DB-Extractor (componente 3); é uma peça que **o componente 3
+   compõe**. Mesma lógica do Qualifier no Anexo B.
+
+2. **Distinção entre fato e opinião** — Extractor produz **fatos
+   observáveis** (`pedidos` tem coluna `id_usuario INT NOT NULL`).
+   Qualifier produz **opiniões/warnings** ("`id_usuario` parece FK
+   implícito mas não tem constraint declarada"). Separação correta.
+
+3. **DB mal-modelado é caso real, não exceção** — em produção, a maioria
+   dos DBs tem inconsistências. Tratar isso como cenário de primeira
+   classe é mais honesto cientificamente.
+
+4. **Não inferir relações sem evidência** — seu exemplo
+   (Usuarios/Produtos/Pedidos sem keys) é correto: sem PK/FK declarados
+   e sem nomes que sugiram FK, o Extractor não tem como ligar tabelas.
+   Resultado: 3 tabelas "órfãs" no relatório. Qualifier pode emitir
+   warning de "FK implícito por nome" se aplicável (ex: `id_usuario`),
+   mas como sugestão, não conclusão.
+
+### A invariante de uso que você levantou
+
+Você concluiu corretamente: **TCF compressão não se aplica neste cenário,
+só TCF LLM-mode.** Razão: não há rows completos para comprimir — só
+schema + stats.
+
+Vale registrar como **invariante de uso explícita**:
+
+> Quando o pipeline começa em "DB sem extração de rows completos", TCF
+> Core nunca é usado em modo compressão. Apenas o caminho LLM-mode
+> (formatação de payload) faz sentido.
+
+### Exceção parcial — "samples" não são "dados completos"
+
+Você mencionou: *"dependendo do sistema, até daria pra tirar alguns
+dados básicos para auxiliar na query da LLM"*.
+
+Isso é exatamente o que o sistema atual já faz no LLM-mode:
+
+```
+### vendas (509 rows)
+  pessoa TEXT, cardinality=24, samples=[Ana, Bruno, Carla]
+  total REAL, range=[9.01, 759.8], mean=289.68, cardinality=412
+```
+
+**3 valores por coluna** chegam ao LLM como exemplos — não como dataset.
+Eles servem para o modelo entender o **tipo de valor** ("essa coluna tem
+nomes brasileiros, não números de produto"). Privacidade e volume são
+preservados.
+
+Vale formalizar isso como **3 categorias** distintas:
+
+| Categoria | O que é | Volume | Onde aparece | Para quê |
+|-----------|---------|--------|--------------|----------|
+| **Dados completos (rows)** | Todos os valores de todas as linhas | N rows × M cols | TCF compressão | Round-trip exato |
+| **Stats** | min/max/mean/cardinality/null count por coluna | constante (~5 nums/col) | TCF LLM-mode | Dar contexto numérico ao modelo |
+| **Samples** | 3 valores ilustrativos por coluna | 3 × M cols | TCF LLM-mode | Dar contexto semântico ao modelo |
+
+No Cenário 3, **rows completos não passam**. Stats + samples sim.
+
+### Pipeline atualizado para Cenário 3
+
+```
+   DB do dev (Postgres/MySQL/SQLite)
+            │
+            │  scripts/db/introspector.py (futuro)
+            │  - lê information_schema/pg_catalog/sqlite_master
+            │  - lê PK/FK declarados
+            │  - calcula cardinalidades, null rates, min/max
+            │  - extrai samples (3 valores/coluna via SELECT LIMIT 3)
+            │  - NÃO extrai rows completos
+            ▼
+   schema_pack: dict[table, {columns, types, pk, fk, stats, samples}]
+            │
+            │  (peça opcional — bypass + side channel)
+            ▼
+   ┌─────────────────────────┐
+   │  Schema Qualifier       │
+   │  - sobre schema_pack    │
+   │  - emite warnings:      │
+   │    * tabelas órfãs      │
+   │    * FKs implícitos     │
+   │    * tipos heterogêneos │
+   │    * cardinalidade      │
+   │      suspeita           │
+   │  - bypass do schema_pack│
+   └────┬────────────┬───────┘
+        │            │
+        │ bypass     └────► WarningReport
+        │
+        ▼
+   schema_pack (igual)
+            │
+            │  (orquestrador junta com pergunta NL)
+            ▼
+   ┌──────────────────────────────────┐
+   │   TCF LLM-mode helper (futuro)   │
+   │   - usa TCF L0 para formatar     │
+   │     schema_pack como texto       │
+   │   - injeta warnings              │
+   │   - injeta pergunta NL do usuário│
+   │   → output: prompt string        │
+   └──────────────────┬───────────────┘
+                      │
+                      ▼
+                LLM externa
+                      │
+                      ▼
+                  SQL gerado
+                      │
+                      ▼
+   Orquestrador (app do dev) executa SQL no DB original
+```
+
+### Casos de qualidade do DB
+
+| Qualidade do DB | Extractor produz | Qualifier emite | Resultado prático |
+|----------------|------------------|-----------------|-------------------|
+| Bem-modelado (PK/FK declarados, tipos consistentes) | schema_pack rico | poucos/nenhum warning | LLM gera SQL com JOIN explícito, alta accuracy esperada |
+| Médio (alguns FKs implícitos, alguns NULLs) | schema_pack ok | warnings de FK implícito | LLM informada das incertezas; SQL mais defensivo |
+| Mal-modelado (sem keys, tabelas órfãs) | schema_pack com tabelas isoladas | muitos warnings; "órfã: X" | LLM sabe que não pode fazer JOIN entre X e Y |
+| Patológico (sem keys nem nomes sugestivos) | 3 tabelas isoladas | warnings de "sem relação observável" | LLM responde "não consigo correlacionar X e Y" — comportamento esperado e honesto |
+
+### Nota de nomenclatura — Extractor vs Introspector
+
+Em docs anteriores chamei essa peça de **Schema Introspector** (em
+`research-notes/2026-04-24-schema-qualifier.md` e
+`components/3-tcf-db-extractor.md`).
+
+Você usou **Schema Extractor** neste cenário. As duas palavras descrevem
+a mesma coisa, mas têm conotações sutis:
+
+- **Introspector:** sugere via system tables (`information_schema`,
+  `pg_catalog`, `sqlite_master`) — termo técnico de DB
+- **Extractor:** mais geral, sugere "tira informação de algum lugar"
+
+**Sugestão para alinhamento:** padronizar como **Schema Introspector**
+quando estamos falando do módulo técnico (sabe ler system tables).
+"Extractor" pode ser sinônimo coloquial — ambas terminologias funcionam.
+
+Aguardando confirmação ou contraproposta sua para definir nos docs.
+
+### Composição: Componente 3 (TCF-DB Extractor) é a soma das peças
+
+Importante: o **componente 3** documentado em
+`docs/components/3-tcf-db-extractor.md` é o **pacote integrado** que
+junta:
+
+- Schema Introspector (Cenário 3 sem Qualifier)
+- Schema Qualifier (Anexo B + Cenário 3 com warnings)
+- TCF LLM-mode helper (formata payload)
+- Query Executor (roda SQL no DB original)
+
+Cada peça **funciona standalone** (dev pode usar só Introspector se quer
+ver estrutura). O componente 3 é a **conveniência** de ter tudo
+empacotado para o caso "DB → pergunta NL → resultado".
+
+Diagrama mental:
+```
+TCF-DB Extractor (componente 3, pacote conveniência)
+   ├── Schema Introspector
+   ├── Schema Qualifier (opcional, importa de Introspector ou outra fonte)
+   ├── TCF LLM-mode helper
+   └── Query Executor
+```
+
+Cada peça tem doc próprio; componente 3 documenta a **integração**.
+
+### Inventário de mudanças para implementar Cenário 3
+
+Sobreposição parcial com Anexo B (Qualifier).
+
+#### Novo (acima do Anexo B)
+
+- [ ] `scripts/db/introspector.py` — interface comum + impl SQLite
+  primeiro, Postgres/MySQL depois
+- [ ] `scripts/db/__init__.py` — pacote (compartilhado com Qualifier)
+- [ ] Tests em `tests/test_introspector.py` (sample DB SQLite)
+- [ ] Doc `docs/components/introspector.md` (ou seção em 3-tcf-db-extractor)
+
+#### Decisões em aberto antes de implementar
+
+1. **Dialect support inicial:** SQLite primeiro? Sugestão: sim, é o que
+   já temos rodando em `Z:/tcf-data/interim/`.
+2. **Sample size:** 3 por coluna como hoje? Sugestão: parametrizável,
+   default 3.
+3. **Como tratar BLOBs/TEXT longos:** truncar em N chars ou skip?
+   Sugestão: skip se tamanho > limite configurável.
+4. **Privacy mode:** opção para hash/anonymize samples? Sugestão:
+   futuro, fora do MVP.
+5. **Caching:** introspection é caro em DBs grandes — cachear schema_pack?
+   Sugestão: futuro.
+
+### Não fazer (consequências)
+
+- Não ler rows completos no Cenário 3 (defeito o propósito)
+- Não inferir relações sem evidência (Extractor reporta fato; Qualifier
+  pode sugerir, nunca afirmar)
+- Não comprimir schema_pack via TCF compressão (não é o uso correto)
+- Não acoplar Introspector ao Qualifier (peças independentes)
+
+### Resposta direta às suas perguntas
+
+> *"Esse mecanismo poderia comprimir de fato? Só poderia ser usado para LLM, certo?"*
+Correto. Sem rows completos, TCF compressão não tem o que comprimir.
+Apenas TCF LLM-mode (formatação de payload) faz sentido.
+
+> *"Não ter dados é um pouco de exagero porque, dependendo do sistema, até daria pra tirar alguns dados básicos"*
+Sim — esses são os **samples** (3 valores/coluna), categoria diferente
+de "rows completos". Já estão na arquitetura.
+
+> *"Para o TCF no modo LLM ele é mais útil como schemático certo?"*
+Correto. TCF LLM-mode opera principalmente sobre schema + stats +
+samples. Rows completos são opção (caso A/B), não necessidade.
+
+---
+
+### Aguardando próxima peça
+
+Você mencionou: *"falta só mais uma coisinha, depois discutimos se tem mais alguma forma de uso que eu tenha esquecido"*.
+
+Estou aguardando o cenário 4 antes de fechar o documento. Após receber e
+documentar, podemos fazer uma revisão final para identificar use cases
+faltantes.
