@@ -25,7 +25,8 @@ O projeto é organizado em **3 componentes**, com TCF ao centro:
 Como o projeto e organizado, onde dados vivem, como medimos coisas.
 
 - [architecture/overview.md](architecture/overview.md) — visao geral da arquitetura
-- [architecture/data-pipeline.md](architecture/data-pipeline.md) — **fluxo unico de dados nos experimentos (pos-Etapa 2)**
+- [architecture/assembly-overview.md](architecture/assembly-overview.md) — **PEÇAS, FLUXOS E EMPACOTAMENTO (analise pos-Etapa 2)**
+- [architecture/data-pipeline.md](architecture/data-pipeline.md) — fluxo unico de dados nos experimentos
 - [architecture/boundaries.md](architecture/boundaries.md) — fronteiras: TCF core vs support vs experiments
 - [architecture/opacity-spectrum.md](architecture/opacity-spectrum.md) — espectro: LLM-readable → transport → archive
 - [architecture/storage.md](architecture/storage.md) — estrategia de storage (git / disco / archive)
