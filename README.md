@@ -226,8 +226,9 @@ response = requests.post("http://localhost:11434/api/generate",
 ### Bibliografia e referencias
 
 - **[docs/components/README.md](docs/components/README.md)** — 3 componentes do projeto (Core + LLM Interface + DB Extractor)
+- **[docs/architecture/data-pipeline.md](docs/architecture/data-pipeline.md)** — fluxo unico de dados (data_sources, Shaper, fixtures)
 - **[docs/FINDINGS_SUMMARY.md](docs/FINDINGS_SUMMARY.md)** — achados principais A0-A7
-- **[docs/methodology/F-findings.md](docs/methodology/F-findings.md)** — catalogo canonico F-Q1..F-Q23
+- **[docs/methodology/F-findings.md](docs/methodology/F-findings.md)** — catalogo canonico F-Q1..F-Q24
 - **[docs/methodology/model-ranking.md](docs/methodology/model-ranking.md)** — ranking dos 3 modelos locais
 - **[docs/article/](docs/article/)** — artigo cientifico em capitulos
 - **[docs/research-notes/INDEX.md](docs/research-notes/INDEX.md)** — diario de pesquisa datado

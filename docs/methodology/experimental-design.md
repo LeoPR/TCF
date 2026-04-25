@@ -6,7 +6,13 @@
 > Achados consolidados: [F-findings.md](F-findings.md).
 > Sintese para paper: [article/07-results.md](../article/07-results.md).
 
-## Status M-series (2026-04-22)
+## Status M-series (2026-04-25)
+
+> **Pós-Etapa 2 (2026-04-25):** todos os runners M-series passaram a usar
+> `experiments/eval/data_sources.load_dataset` como ponto único de carga
+> de dados. Imports diretos de `tests/fixtures/synthetic_*` foram eliminados.
+> Ver [../architecture/data-pipeline.md](../architecture/data-pipeline.md).
+
 
 | Experimento | Status | Achados | Manifests |
 |-------------|--------|---------|-----------|

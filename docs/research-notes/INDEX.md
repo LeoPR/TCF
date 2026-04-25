@@ -33,6 +33,7 @@ Cada nota e tagueada com a linha de pesquisa que a motivou:
 | 2026-04-23 | `{B}` | [conservative-sql-flag](2026-04-23-conservative-sql-flag.md) | F-Q22 — validado por M8 | m6b, m7, m8_safe_sql |
 | 2026-04-23 | `{B}` | [query-theory](2026-04-23-query-theory.md) | HIPÓTESES conceituais pré-SQL | — (pré-experimento) |
 | 2026-04-24 | `{shared}` | [schema-qualifier](2026-04-24-schema-qualifier.md) | ROADMAP — qualifier de schema antes do TCF | — (pré-implementação) |
+| 2026-04-25 | `{shared}` | [shaper-as-standalone-tool](2026-04-25-shaper-as-standalone-tool.md) | IDEIA — Shaper como biblioteca pública | — (pós-paper) |
 
 ## Notas por tema
 

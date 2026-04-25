@@ -100,10 +100,14 @@ em modelos state-of-the-art. Crítico para credibilidade do paper.
 
 ## Código e experimentos
 
-- Runners: `experiments/eval/run_m{1..8b}_*.py`
+- Runners: `experiments/eval/run_m{1..9}_*.py`
+- **Data manager (entry point único):** `experiments/eval/data_sources.py`
+  - `load_dataset("synthetic:retail_sales", n_orders=100, seed=42)`
+  - `load_dataset("canonical:tpch-sf001", volume=100, seed=42, ...)`
 - Infra: `experiments/eval/llm_eval/`
-- Resultados: `experiments/results/m{1..8b}_*/manifest.jsonl`
+- Resultados: `experiments/results/m{1..9}_*/manifest.jsonl`
 - Exemplos SQL: `experiments/results/sql_samples/` (apêndice fora da narrativa)
+- Pipeline detalhado: [../architecture/data-pipeline.md](../architecture/data-pipeline.md)
 
 ## Métricas e análise
 

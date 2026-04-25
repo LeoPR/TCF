@@ -49,6 +49,10 @@ Exemplo errado:
 | Decoder | `src/tcf/decoder_v02.py` | ARCHITECTURE |
 | Compressao (RLE, dict, sort) | `src/tcf/compression.py` | article/03 |
 | Schema (metadata.json) | `src/tcf/schema.py` | - |
+| Data manager (orquestrador) | `experiments/eval/data_sources.py` | data-pipeline.md, todos os run_m*.py |
+| Shaper (extracao estratificada) | `scripts/shaper/` | data-pipeline.md, data_sources.py |
+| DatasetReader (SQLite) | `scripts/dataset_reader.py` | shaper/pipeline.py |
+| Synthetic generators | `tests/fixtures/synthetic_v2.py`, `synthetic_domains.py` | data_sources.py |
 | Perguntas LLM | `experiments/eval/llm_eval/prompts.py` | article/04, appendix B |
 | Ground truth | `experiments/eval/llm_eval/ground_truth.py` | article/04 |
 

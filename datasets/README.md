@@ -8,6 +8,34 @@ voce configurar em `config/storage.json`). Ver
 [docs/architecture/storage.md](../docs/architecture/storage.md) para a
 estrategia de 3 camadas.
 
+## Como experimentos consomem estes datasets
+
+A partir de 2026-04-25, **TODO** acesso a dados em experimentos passa por
+um único ponto de entrada:
+
+```python
+from data_sources import load_dataset
+
+# Canonical via Shaper (FK-preserving sampling)
+tables, meta = load_dataset(
+    "canonical:tpch-sf001",
+    volume=100, seed=42,
+    schema=["partsupp", "part", "supplier"],
+    fact_table="partsupp",
+)
+
+# Synthetic via fixture generators (ablacoes controladas)
+tables, meta = load_dataset("synthetic:retail_sales", n_orders=100, seed=42)
+```
+
+Fluxo:
+- `canonical:*` → `scripts/shaper/` (com `fk_preserving` strategy) →
+  `scripts/dataset_reader.py` → `Z:/tcf-data/interim/*.db`
+- `synthetic:*` → `tests/fixtures/synthetic_v2.py` ou `synthetic_domains.py`
+
+Detalhes completos em
+[docs/architecture/data-pipeline.md](../docs/architecture/data-pipeline.md).
+
 ## Estrutura
 
 ```
