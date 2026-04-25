@@ -58,8 +58,9 @@ def _load_builtin_strategies() -> None:
 
     # Import in pipeline order — each module registers itself
     # Import in pipeline order — each module registers itself via register_strategy()
-    # Order: schema → join → compressibility → stratify → volume → ordering
-    for _mod in ("schema", "join", "compressibility", "stratify", "volume", "ordering"):
+    # Order: schema → join → compressibility → stratify → fk_preserving → volume → ordering
+    # fk_preserving runs BEFORE volume; when active, volume skips (mutually exclusive)
+    for _mod in ("schema", "join", "compressibility", "stratify", "fk_preserving", "volume", "ordering"):
         try:
             __import__(f"shaper.strategies.{_mod}", fromlist=[_mod])
         except ImportError:

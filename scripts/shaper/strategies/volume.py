@@ -18,6 +18,11 @@ from ..pipeline import register_strategy
 
 
 def _apply(reader, tables, request, trace):
+    # Skip when FK-preserving strategy is active — it handles volume with integrity
+    if getattr(request, "fk_preserving", False):
+        trace.append("volume: SKIP (fk_preserving active, handled by fk_preserving strategy)")
+        return tables
+
     vol = request.volume
 
     if vol is None:

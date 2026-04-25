@@ -26,7 +26,6 @@ column naming conventions.
 from __future__ import annotations
 import argparse
 import json
-import random
 import sys
 import time
 from collections import Counter, defaultdict
@@ -45,7 +44,7 @@ from run_m1_codegen import (
 )
 from run_m2_codegen import FEWSHOT_BLOCK
 
-from dataset_reader import DatasetReader
+from data_sources import load_dataset
 
 
 RESULTS_DIR = ROOT / "experiments" / "results" / "m9_canonical"
@@ -74,33 +73,19 @@ CANONICAL_CONFIGS: dict[str, dict] = {
 # ---------------------------------------------------------------------------
 
 def load_canonical_subset(dataset_name: str, volume: int, seed: int) -> tuple[dict, dict]:
-    """Load canonical dataset and sample the fact table preserving FK integrity.
+    """Load canonical dataset via data_sources.load_dataset (Shaper-backed).
 
-    Returns (tables dict, full metadata from datasets/canonical/.../metadata.json).
+    Delegates to the unified data manager. Shaper's fk_preserving strategy
+    handles the same FK-preserving sampling that was previously inline.
     """
     cfg = CANONICAL_CONFIGS[dataset_name]
-    reader = DatasetReader(dataset_name)
-    meta = reader.metadata
-
-    fact_all = reader.rows(cfg["fact"])
-    dim1_all = reader.rows(cfg["dim1"])
-    dim2_all = reader.rows(cfg["dim2"])
-
-    rng = random.Random(seed)
-    if volume >= len(fact_all):
-        fact = fact_all
-    else:
-        indices = sorted(rng.sample(range(len(fact_all)), volume))
-        fact = [fact_all[i] for i in indices]
-
-    fk1s = {r[cfg["fact_fk1"]] for r in fact}
-    fk2s = {r[cfg["fact_fk2"]] for r in fact}
-    dim1 = [r for r in dim1_all if r[cfg["dim1_id_col"]] in fk1s]
-    dim2 = [r for r in dim2_all if r[cfg["dim2_id_col"]] in fk2s]
-
-    reader.close()
-
-    return {cfg["fact"]: fact, cfg["dim1"]: dim1, cfg["dim2"]: dim2}, meta
+    return load_dataset(
+        f"canonical:{dataset_name}",
+        volume=volume,
+        seed=seed,
+        schema=cfg["tables"],
+        fact_table=cfg["fact"],
+    )
 
 
 # ---------------------------------------------------------------------------

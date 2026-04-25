@@ -59,6 +59,8 @@ class ShapeRequest:
     order: str = "natural"
     stratify_by: str | None = None
     compressibility_range: tuple[float, float] | None = None
+    fk_preserving: bool = False
+    fact_table: str | None = None
 
     def validate(self) -> list[str]:
         """Return list of validation errors. Empty list = valid."""
@@ -153,5 +155,9 @@ class ShapeRequest:
             parts.append(f"stratify={self.stratify_by}")
         if self.compressibility_range:
             parts.append(f"compress={self.compressibility_range}")
+        if self.fk_preserving:
+            parts.append(f"fk_preserving=True")
+            if self.fact_table:
+                parts.append(f"fact={self.fact_table}")
         parts.append(f"seed={self.seed}")
         return "ShapeRequest(" + ", ".join(parts) + ")"
