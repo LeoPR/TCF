@@ -50,3 +50,22 @@ class ShapeResult:
         if self.trace:
             lines.append(f"  trace: {len(self.trace)} steps")
         return "\n".join(lines)
+
+    def stratification_metrics(self) -> list[dict[str, Any]]:
+        """Extract structured stratification metrics from trace, if any.
+
+        Returns list of dicts (one per stratified table) with keys:
+          tvd, jsd, hellinger, chi2_pvalue, chi2_warn_low_n,
+          n_pop, n_sample, n_groups, groups, stratify_by, table
+
+        Empty list if no stratification was applied.
+        """
+        import json as _json
+        out = []
+        for line in self.trace:
+            if line.startswith("METRICS_JSON: "):
+                try:
+                    out.append(_json.loads(line[len("METRICS_JSON: "):]))
+                except _json.JSONDecodeError:
+                    pass
+        return out

@@ -85,7 +85,12 @@ def _load_canonical(
         stratify_by=stratify_by,
     )
     result = Shaper().apply(req)
-    return result.tables, result.metadata
+
+    # Expose stratification metrics in meta for runners to log into manifests.
+    # Empty list when no stratification was applied.
+    meta_out = dict(result.metadata)
+    meta_out["_stratification_metrics"] = result.stratification_metrics()
+    return result.tables, meta_out
 
 
 # ---------------------------------------------------------------------------

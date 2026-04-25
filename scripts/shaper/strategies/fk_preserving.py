@@ -33,6 +33,7 @@ from collections import defaultdict
 from typing import Any
 
 from ..pipeline import register_strategy
+from .._stratify_metrics import compute_stratification_metrics, format_metrics_summary
 
 
 def _stratified_sample_indices(rows, stratify_col, n_target, seed, trace, table_name):
@@ -107,6 +108,16 @@ def _stratified_sample_indices(rows, stratify_col, n_target, seed, trace, table_
         f"fk_preserving: fact '{table_name}' stratified PROPORTIONAL by "
         f"'{stratify_col}' ({len(sorted_keys)} groups, {len(indices)} rows): {summary}"
     )
+
+    # Compute and log representativeness metrics
+    pop_counts = {k: len(groups[k]) for k in sorted_keys}
+    sample_counts = {k: targets[k] for k in sorted_keys}
+    metrics = compute_stratification_metrics(pop_counts, sample_counts)
+    trace.append(f"stratify_metrics: {format_metrics_summary(metrics)}")
+    # Structured payload for programmatic extraction
+    import json as _json
+    trace.append(f"METRICS_JSON: {_json.dumps({'stratify_by': stratify_col, 'table': table_name, **metrics})}")
+
     return indices
 
 

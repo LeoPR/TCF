@@ -12,11 +12,13 @@ strategy (applied to fact table; dims filtered by FK afterwards).
 
 from __future__ import annotations
 
+import json
 import random
 from collections import defaultdict
 from typing import Any
 
 from ..pipeline import register_strategy
+from .._stratify_metrics import compute_stratification_metrics, format_metrics_summary
 
 
 def _apply(reader, tables, request, trace):
@@ -111,6 +113,13 @@ def _apply(reader, tables, request, trace):
             f"stratify: {name} by '{col}' PROPORTIONAL "
             f"({n_groups} groups, {len(sampled)}/{n_total}): {summary}"
         )
+
+        # Representativeness metrics
+        pop_counts = {k: len(groups[k]) for k in sorted_keys}
+        sample_counts = {k: targets[k] for k in sorted_keys}
+        metrics = compute_stratification_metrics(pop_counts, sample_counts)
+        trace.append(f"stratify_metrics: {format_metrics_summary(metrics)}")
+        trace.append(f"METRICS_JSON: {json.dumps({'stratify_by': col, 'table': name, **metrics})}")
 
     return result
 
