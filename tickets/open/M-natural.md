@@ -1,11 +1,15 @@
 ---
 title: M-natural — Taxonomia de naturalidade das perguntas (N0-N3)
 type: experiment
-status: PARTIAL — Adult Linha A+B locais DONE (F-Q29+F-Q30); pendentes: comerciais, TPC-H
+status: ADULT_DONE — Adult dataset 4 paradigmas DONE; TPC-H pendente (Phase 2.5)
 priority: 1
 date: 2026-04-26
 related: docs/research-notes/2026-04-26-consolidation-master.md
-findings: F-Q29 (Linha A local: NAO degrada), F-Q30 (Linha B local: DEGRADA seletivamente)
+findings:
+  - F-Q29 (Linha A local: naturalidade NAO degrada)
+  - F-Q30 (Linha B local: DEGRADA seletivamente)
+  - F-Q31 (Linha A comercial reasoning: quebra ceiling local; eixo eh REASONING)
+  - F-Q32 (Linha B comercial top: 100% imune a naturalidade; falhas remanescentes por ambiguidade schema)
 ---
 
 # M-natural — perguntas naturais vs schema-aware
@@ -102,8 +106,15 @@ records de runners participantes.
       em todos os niveis; qwen2.5-coder:7b -29pp em N1; phi4 -14pp em N3. 2 mecanismos:
       (a) ambiguidade "classe trabalhista" -> class vs workclass, (b) hint tecnico perdido.
       F-Q30 registrada.
-- [ ] Adult — comerciais (M-Acomm com naturalness=all)
-- [ ] TPC-H — questions catalog (apos comerciais)
+- [x] Adult — Linha A comercial (M-Acomm): 4 modelos OpenAI x 3s x 4lvl = 336 records.
+      gpt-5.4=95%, gpt-5.4-nano=87%, gpt-5.4-mini=82%, gpt-4o-mini=52%. Ceiling local
+      F-Q12/F-Q28 quebrado por modelos com REASONING (eixo limitante e reasoning, nao
+      tamanho). Custo: $0.82. F-Q31 registrada.
+- [x] Adult — Linha B comercial (M-Acomm-B): 4 modelos x 3s x 4lvl = 336 records.
+      gpt-5.4 e gpt-5.4-mini = 100% em N0/N1/N2/N3 (imunes); nano=90%, 4o-mini=86% flat.
+      Falhas remanescentes por ambiguidade workclass/occupation e cols hifenadas.
+      Custo: $0.25. F-Q32 registrada.
+- [ ] TPC-H — questions catalog (Phase 2.5 — multi-tabela com FK joins)
 
 ## Referências
 
