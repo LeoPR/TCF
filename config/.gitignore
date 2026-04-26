@@ -1,6 +1,9 @@
 # Config local com caminhos especificos do usuario
 storage.json
 
+# API keys — NUNCA commitar
+api_keys.json
+
 # Outros configs futuros com secrets/paths locais
 *.local.json
 .env

@@ -1,0 +1,8 @@
+{
+  "_comment": "Copie este arquivo como 'api_keys.json' (gitignored) e cole suas keys.",
+  "_alternative": "Pode tambem usar variaveis de ambiente: ANTHROPIC_API_KEY, OPENAI_API_KEY",
+  "_security": "NUNCA committar este arquivo com keys reais. Verifique config/.gitignore.",
+
+  "anthropic": "sk-ant-api03-...",
+  "openai": "sk-..."
+}
