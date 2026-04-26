@@ -1790,6 +1790,122 @@ alto?") explicita "valor" e recupera 100%.
 
 ---
 
+## F-Q34 `{B}` — Schema ambiguity em multi-tabela é UNIVERSAL: comerciais top também caem -43pp em N2
+
+**Conclusão:** A degradação dramática observada em F-Q33 (locais TPC-H N2
+caem 30-45pp) **não é específica de modelos locais** — comerciais top
+(gpt-5.4 e gpt-5.4-mini) também caem **-43pp em N2** (de 100% para 57%).
+**Schema linking permanece um problema aberto** mesmo para os melhores
+modelos disponíveis em janeiro 2026. F-Q32 (comerciais top imunes a
+naturalidade) **não generaliza para multi-tabela com schema ambíguo**.
+
+**Evidência (M-Acomm-B TPC-H, 2026-04-26):** 4 modelos OpenAI × 3 seeds
+× 4 níveis × 7 questões = **336 records** sobre TPC-H sf001 com mesmo
+protocolo SQL gen + execute de F-Q32.
+
+**Tabela central — modelo × naturalidade (Linha B em TPC-H):**
+
+| Modelo | N0 | N1 | N2 | N3 | Gap N0→N2 |
+|--------|----|----|----|----|----|
+| gpt-5.4 | 100% | 100% | **57%** | 86% | **-43pp** |
+| gpt-5.4-mini | 100% | 100% | **57%** | 86% | **-43pp** |
+| gpt-5.4-nano | 95% | 95% | **52%** | 81% | **-43pp** |
+| gpt-4o-mini | 95% | 81% | **48%** | 62% | -47pp |
+
+Hierarquia preservada (full ≈ mini > nano > 4o-mini), mas **gap N0→N2 é
+constante em -43pp em 3 dos 4 modelos**. Não é problema de capacidade
+de modelo — é estrutural do schema.
+
+**Comparação Adult Linha B × TPC-H Linha B (mesmas 4 modelos):**
+
+| Modelo | Adult Linha B | TPC-H Linha B | Δ |
+|--------|---------------|---------------|---|
+| gpt-5.4 | **100%** | 85.7% | -14pp |
+| gpt-5.4-mini | **100%** | 85.7% | -14pp |
+| gpt-5.4-nano | 90.5% | 81.0% | -10pp |
+| gpt-4o-mini | 85.7% | 71.4% | -14pp |
+
+Diferença de domínio é ~14pp para os 4 modelos — TPC-H é universalmente
+mais difícil que Adult em Linha B.
+
+**Per questão × naturalidade (todos 4 modelos comerciais):**
+
+| Question | N0 | N1 | N2 | N3 | Padrão |
+|----------|----|----|----|----|---------|
+| q_count, q_avg | 100% | 100% | 100% | 100% | Robusto |
+| q_distinct | 100% | 100% | 100% | 92% | Quase robusto |
+| q_top_product | 83% | 83% | 75% | 83% | Tie issue (igual N0) |
+| **q_sum** | 100% | 100% | **0%** | 0% | **Universal failure N2/N3** |
+| **q_lookup** | 100% | 75% | **0%** | 75% | **Universal failure N2** |
+| **q_lookup_value** | 100% | 100% | **0%** | 100% | **Universal failure N2** |
+
+**As mesmas 3 questões de F-Q33 falham em comerciais com a mesma
+mecânica.** Inspeção qualitativa confirma:
+- q_sum N2: gpt-5.4 também gera `SUM(ps_supplycost * ps_availqty)`
+- q_lookup N2: gpt-5.4 também usa `ORDER BY p_retailprice`
+- q_lookup_value N2: gpt-5.4 também retorna nome do part em vez do valor
+
+**Sub-finding contraintuitivo — comerciais MAIS suscetíveis em alguns casos:**
+
+| Question N2 | Locais (qwen3:14b) | Comerciais (gpt-5.4) |
+|--|--|--|
+| q_sum | 22% | **0%** |
+| q_lookup_value | 11% | **0%** |
+
+Comerciais top falham *mais consistentemente* em N2 que o melhor local
+(qwen3:14b). Hipótese: comerciais aplicam mais agressivamente
+interpretações business-level naturais (cost × qty), levando a respostas
+**business-correct mas GT-incorrect** com taxa maior. Locais às vezes
+geram SQL "menos sofisticado" que acidentalmente acerta o GT por
+literalismo.
+
+**N3 recupera (mas não totalmente):**
+
+q_sum N3 = 0% ainda. q_lookup_value N3 = 100%. q_lookup N3 = 75%.
+N3 wording introduz contexto operacional ("nossa operação", "fornecimento")
+que ajuda em algumas (lookup_value pede "valor" → recupera tipo), mas
+não em outras (q_sum N3 "total investido" continua sendo cost × qty).
+
+**Implicações fortes:**
+
+1. **F-Q32 (imunidade comercial) era specific Adult.** Não generaliza
+   para schemas com múltiplas colunas semanticamente próximas. F-Q32
+   precisa ser refinado: "comerciais top imunes a naturalidade em
+   single-table com cols inequívocas".
+
+2. **Schema linking continua problema aberto em 2026.** O paper pode
+   citar essa evidência junto a Luo et al. VLDB 2024 para validar a
+   importância do tema. Mesmo gpt-5.4 (frontier) não resolve.
+
+3. **Recomendação prática — wordings schema-aware obrigatório em
+   datasets ambíguos:**
+   - Se schema tem ≥2 colunas semanticamente próximas (custo,
+     preço, valor; data de pedido, data de envio, etc.) → forçar
+     N0 (mencionar coluna explícita) em interfaces NL2SQL
+   - N1-N3 são adequadas para schemas inequívocos (single-table ou
+     multi-table com colunas únicas)
+
+4. **F-Q34 + F-Q33 fecham o eixo de naturalidade do paper:** os 6
+   findings F-Q29..F-Q34 cobrem 4 paradigmas × 2 datasets × locais e
+   comerciais, com mecanismos identificados em cada falha.
+
+5. **Tabela 2D paper-ready:**
+
+   | | Single-table (Adult) | Multi-tabela (TPC-H) |
+   |--|---------------------|----------------------|
+   | Locais Linha A | Plano N0=N3 (F-Q29) | Não testado (filter+agg ceiling) |
+   | Locais Linha B | -15pp pior caso (F-Q30) | **-43pp em N2** (F-Q33) |
+   | Comerciais Linha A | Reasoning quebra ceiling (F-Q31) | Pendente |
+   | Comerciais Linha B | 100% imunes (F-Q32) | **-43pp em N2** (F-Q34) |
+
+**Custo:** $0.41 USD para 336 records. Cumulativo M-Acomm completo
+(Adult A+B + TPC-H B): **$1.48 USD / $30 budget (4.9% gasto)**.
+
+**Referência:** `experiments/results/m_acommB_tpch/manifest.jsonl`
+(2026-04-26, 336 records — gpt-5.4-nano, mini, full, gpt-4o-mini).
+
+---
+
 ## Ordem de aplicação ao desenhar novo experimento
 
 1. **F-Q1, F-Q8, F-Q9** — antes de configurar cliente Ollama
