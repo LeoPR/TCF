@@ -1654,6 +1654,142 @@ seria ~$5-6 USD; com cache 75-77% economia.
 
 ---
 
+## F-Q33 `{B}` — Naturalidade degrada Linha B em TPC-H multi-tabela DRAMATICAMENTE; mecanismo é schema ambiguity sistemática
+
+**Conclusão:** Em TPC-H (multi-tabela com colunas semanticamente sobrepostas),
+Linha B degrada **30-45pp** com naturalidade nível N2 em **todos** os
+modelos locais 7-14B testados — uma queda muito mais severa que em Adult
+(F-Q30, máximo -15pp). O mecanismo central é **schema ambiguity
+sistemática**: TPC-H tem 2+ colunas que são plausíveis interpretações de
+"preço/valor/custo" (ps_supplycost, p_retailprice) e wordings business
+(N2/N3) ativam consistentemente a interpretação errada do GT.
+
+**Evidência (M9-canonical naturalness all, 2026-04-26):** 3 modelos × 3
+seeds × 4 níveis × 7 questões = **252 records** sobre TPC-H sf001
+(partsupp + supplier + part). Mesmo protocolo SQL gen + SQLite execute
+de F-Q30; payload schema-only ~470 tokens.
+
+**Tabela central — modelo × naturalidade:**
+
+| Modelo | N0 | N1 | N2 | N3 | Gap N0→N2 |
+|--------|----|----|----|----|----|
+| qwen3:14b | 95% | 95% | **62%** | 95% | **-33pp** |
+| qwen2.5-coder:7b | 95% | 95% | **52%** | 67% | **-43pp** |
+| phi4:latest | 95% | 81% | **57%** | 52% | **-38pp** |
+
+Note que **qwen3:14b** — que era **imune em Adult Linha B (F-Q30)** — também
+degrada -33pp em N2 aqui. A imunidade observada em Adult não se sustenta
+quando o schema tem ambiguidade real entre colunas.
+
+**Por questão × naturalidade (todos os 3 modelos agregados):**
+
+| Question | N0 | N1 | N2 | N3 | Mecanismo |
+|----------|----|----|----|----|-----------|
+| q_count | 100% | 100% | 100% | 89% | Robusto |
+| q_avg | 100% | 100% | 100% | 100% | Robusto |
+| q_top_product | 67% | 67% | 67% | 78% | Tie issue (N0 também falha) |
+| q_distinct | 100% | 100% | 100% | **33%** | N3 ambiguidade |
+| **q_sum** | 100% | 67% | **22%** | 33% | **cost vs cost×qty** |
+| **q_lookup** | 100% | 100% | **0%** | 67% | **ps_supplycost vs p_retailprice** |
+| **q_lookup_value** | 100% | 100% | **11%** | 100% | **valor vs nome** |
+
+**Mecanismo 1 — Compromisso financeiro como `cost × qty` (q_sum N2):**
+
+Wording N2: *"Qual o valor total comprometido em fornecimento?"*
+
+SQL gerado por qwen2.5-coder:
+```sql
+SELECT SUM(ps_supplycost * ps_availqty) AS total_commitment FROM partsupp
+-- got: $230,405,853 (cost × quantity)
+-- expected: $47,795 (sum of cost only)
+```
+
+A interpretação `cost × qty` é **business-correct** ("valor comprometido
+em estoque"), mas diverge do GT. Em N0 ("soma da coluna ps_supplycost"),
+a coluna está explícita; em N2 o modelo escolhe a operação que mais faz
+sentido em business terms — e a tabela `partsupp` tem **ps_availqty**
+disponível justamente para essa operação semântica.
+
+**Mecanismo 2 — Catalog price vs supply cost (q_lookup N2/N3):**
+
+Wording N2: *"Qual fornecedor opera o item mais caro do nosso catálogo?"*
+
+SQL gerado:
+```sql
+SELECT s.s_name FROM supplier s
+JOIN partsupp ps ON s.s_suppkey = ps.ps_suppkey
+JOIN part p ON ps.ps_partkey = p.p_partkey
+ORDER BY p.p_retailprice DESC LIMIT 1
+-- got: supplier do max(retail_price)
+-- expected: supplier do max(supply_cost)
+```
+
+"Item mais caro do catálogo" → modelo interpreta como `part.p_retailprice`
+(preço de catálogo), não `partsupp.ps_supplycost` (custo de fornecimento).
+Ambas existem, ambas são plausíveis. **q_lookup N2 = 0/9 (0%) em todos
+os modelos** — o gradiente semântico é tão forte que NENHUM modelo
+preserva a interpretação N0.
+
+**Mecanismo 3 — Resposta do tipo errado (q_lookup_value N2):**
+
+Wording N2: *"Qual o item mais caro do nosso fornecimento?"*
+
+SQL gerado:
+```sql
+SELECT p.p_name, p.p_retailprice
+FROM part p JOIN partsupp ps ON p.p_partkey = ps.ps_partkey
+ORDER BY p.p_retailprice DESC LIMIT 1
+-- got: nome do part (string)
+-- expected: 998.83 (numeric value)
+```
+
+"Item mais caro" pede numeric value (GT.max_metric_value), mas wording
+business sugere "item" = nome. Modelo retorna o NOME do part, não o
+valor. **Tipo de resposta errado.** N3 ("Qual o valor unitário mais
+alto?") explicita "valor" e recupera 100%.
+
+**Comparação Adult × TPC-H Linha B local:**
+
+| | Adult (single-table) | TPC-H (multi-tabela) |
+|--|---------------------|----------------------|
+| N0 baseline | 86-100% | 95% (3 modelos) |
+| N2 worst case | 86% | **52%** (qwen2.5-coder) |
+| N3 worst case | 81% | **52%** (phi4) |
+| qwen3:14b | imune (100% todos) | -33pp em N2 |
+| Mecanismo | hint perdido + ambiguidade | **schema ambiguity sistemática** |
+
+**Implicações para o paper:**
+
+1. **F-Q30 não generaliza para multi-tabela:** a imunidade do qwen3:14b
+   em Adult Linha B foi específica de single-table. Em TPC-H, mesmo
+   modelos top locais quebram.
+
+2. **F-Q33 é o achado mais forte do eixo de naturalidade:**
+   degradação consistente em 3/3 modelos (CIs não sobrepõem em N2 vs N0).
+   H_natural-1 confirmada empiricamente em multi-tabela.
+
+3. **Naturalidade ⊥ schema ambiguity** — quanto mais colunas
+   semanticamente próximas existirem (ps_supplycost, p_retailprice,
+   ps_availqty), mais oportunidades para o modelo escolher caminho
+   alternativo plausível. Schema linking de literatura clássica é
+   exatamente isso.
+
+4. **Recomendação prática para BI:** dataset com colunas $ ambíguas
+   (preço de varejo vs custo de fornecimento) **devem ter wordings
+   schema-aware (N0)** em interfaces de NL2SQL — N2 sem âncora produz
+   60% de respostas business-plausíveis-mas-erradas.
+
+5. **Hipótese para comerciais TPC-H:** gpt-5.4 family pode preservar
+   accuracy mais alta (em Adult eles foram 100% em todos os níveis),
+   mas esperamos degradação MENOR que locais. Vale rodar para confirmar.
+
+**Custo:** $0 (modelos locais Ollama).
+
+**Referência:** `experiments/results/m9_canonical/manifest.jsonl`
+(2026-04-26, 252 records, qwen3:14b + qwen2.5-coder:7b + phi4:latest).
+
+---
+
 ## Ordem de aplicação ao desenhar novo experimento
 
 1. **F-Q1, F-Q8, F-Q9** — antes de configurar cliente Ollama

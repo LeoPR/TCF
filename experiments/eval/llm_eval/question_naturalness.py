@@ -195,14 +195,105 @@ ADULT_QUESTIONS: tuple[Question, ...] = (
 
 
 # ---------------------------------------------------------------------------
-# TPC-H subset (customer + orders + lineitem) — placeholder for Phase 2.5
+# TPC-H subset — 7 questions × 4 levels = 28 wordings
 #
-# The 7 questions used in M9-canonical are SQL-stats style and very
-# schema-aware. We will populate this catalog in a follow-up commit once
-# Adult-only M-natural runs and we know the protocol stabilizes.
+# Multi-table star schema:
+#   - partsupp (fact)  — has FK ps_suppkey -> supplier, ps_partkey -> part
+#   - supplier (dim1)  — s_suppkey, s_name
+#   - part (dim2)      — p_partkey, p_name
+# Metric column on fact: ps_supplycost.
+#
+# N0 wordings are byte-identical to build_questions_m9() in run_m9_canonical
+# so existing M9-canonical N0 records remain valid as cache.
 # ---------------------------------------------------------------------------
 
-TPCH_QUESTIONS: tuple[Question, ...] = ()
+TPCH_QUESTIONS: tuple[Question, ...] = (
+    Question(
+        name="q_count",
+        key="count",
+        type="count",
+        wordings={
+            NaturalnessLevel.N0: "Quantas linhas existem na tabela partsupp?",
+            NaturalnessLevel.N1: "Quantos registros temos no total de fornecimento de pecas?",
+            NaturalnessLevel.N2: "Quantos itens de fornecimento estamos rastreando?",
+            NaturalnessLevel.N3: "Quantas combinacoes peca-fornecedor estao ativas no nosso pipeline de suprimento?",
+        },
+    ),
+    Question(
+        name="q_top_product",
+        key="top_entity2",
+        type="string",
+        wordings={
+            NaturalnessLevel.N0: "Qual part aparece mais vezes em partsupp? Responda com o nome do part.",
+            NaturalnessLevel.N1: "Qual peca aparece em mais registros de fornecimento? Responda com o nome.",
+            NaturalnessLevel.N2: "Qual produto e o mais comum no nosso catalogo de fornecimento? Responda com o nome.",
+            NaturalnessLevel.N3: "Qual SKU aparece com maior frequencia nos contratos de fornecimento? Responda com o nome do produto.",
+        },
+        ambiguity_note=(
+            "GT e o nome literal de um product part (ex.: 'maroon papaya brown rosy red'). "
+            "Tres ou mais valores podem empatar — o scorer aceita qualquer dos top-tied."
+        ),
+    ),
+    Question(
+        name="q_distinct",
+        key="distinct_entity1",
+        type="count",
+        wordings={
+            NaturalnessLevel.N0: "Quantos supplier distintos aparecem na tabela partsupp?",
+            NaturalnessLevel.N1: "Quantos fornecedores diferentes aparecem nos registros de fornecimento?",
+            NaturalnessLevel.N2: "Quantos parceiros fornecedores diferentes temos?",
+            NaturalnessLevel.N3: "Quantos fornecedores ativos temos na nossa supply chain?",
+        },
+    ),
+    Question(
+        name="q_sum",
+        key="sum_metric",
+        type="numeric",
+        wordings={
+            NaturalnessLevel.N0: "Qual e a soma de todos os valores da coluna ps_supplycost em partsupp?",
+            NaturalnessLevel.N1: "Qual o custo total de fornecimento somado?",
+            NaturalnessLevel.N2: "Qual o valor total comprometido em fornecimento?",
+            NaturalnessLevel.N3: "Qual o total investido em fornecimento de pecas?",
+        },
+    ),
+    Question(
+        name="q_lookup",
+        key="max_entity1",
+        type="string",
+        wordings={
+            NaturalnessLevel.N0: "Qual supplier tem o maior valor individual de ps_supplycost em partsupp? Responda com o nome.",
+            NaturalnessLevel.N1: "Qual fornecedor tem o item de maior custo unitario? Responda com o nome.",
+            NaturalnessLevel.N2: "Qual fornecedor opera o item mais caro do nosso catalogo? Responda com o nome.",
+            NaturalnessLevel.N3: "Qual fornecedor tem o item de maior valor unitario na operacao? Responda com o nome.",
+        },
+        ambiguity_note=(
+            "Requer JOIN partsupp -> supplier para retornar s_name. "
+            "GT e o nome do supplier do registro com max(ps_supplycost)."
+        ),
+    ),
+    Question(
+        name="q_lookup_value",
+        key="max_metric_value",
+        type="numeric",
+        wordings={
+            NaturalnessLevel.N0: "Qual e o maior valor individual de ps_supplycost em partsupp?",
+            NaturalnessLevel.N1: "Qual o custo unitario mais alto registrado?",
+            NaturalnessLevel.N2: "Qual o item mais caro do nosso fornecimento?",
+            NaturalnessLevel.N3: "Qual o valor unitario mais alto da nossa operacao de fornecimento?",
+        },
+    ),
+    Question(
+        name="q_avg",
+        key="avg_metric",
+        type="numeric",
+        wordings={
+            NaturalnessLevel.N0: "Qual e a media da coluna ps_supplycost em partsupp?",
+            NaturalnessLevel.N1: "Qual o custo medio de fornecimento?",
+            NaturalnessLevel.N2: "Qual o preco medio do nosso fornecimento?",
+            NaturalnessLevel.N3: "Qual o ticket medio de custo unitario na nossa operacao?",
+        },
+    ),
+)
 
 
 # ---------------------------------------------------------------------------

@@ -38,6 +38,9 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 sys.path.insert(0, str(ROOT / "scripts"))
 
 from llm_eval.ollama_client import OllamaClient
+from llm_eval.question_naturalness import (
+    NaturalnessLevel, get_questions as get_natural_questions, iter_levels,
+)
 from run_m1_codegen import (
     LLM_OPTIONS, PROMPT_TEMPLATE, build_sqlite_from_tables,
     extract_sql, score_sql, _coerce_value, _detect_column_type,
@@ -235,6 +238,7 @@ def _load_completed(manifest_path: Path) -> set[str]:
 def run_m9(
     models: list[str], volume: int, datasets: list[str],
     seeds: list[int], endpoint: str,
+    naturalness: tuple[NaturalnessLevel, ...] = (NaturalnessLevel.N0,),
 ) -> None:
     RESULTS_DIR.mkdir(parents=True, exist_ok=True)
     manifest_path = RESULTS_DIR / "manifest.jsonl"
@@ -248,29 +252,35 @@ def run_m9(
             tables, meta = load_canonical_subset(dataset, volume, seed)
             gt = compute_gt_m9(tables, cfg)
             conn = build_sqlite_from_tables(tables)
-            questions = build_questions_m9(cfg)
             payload = build_payload_canonical(tables, meta)
             per_state[(dataset, seed)] = {
-                "gt": gt, "conn": conn, "questions": questions,
+                "gt": gt, "conn": conn,
                 "payload": payload, "cfg": cfg,
             }
 
     combos = []
     for dataset in datasets:
         for seed in seeds:
-            state = per_state[(dataset, seed)]
             for model in models:
-                for q_name, q in state["questions"].items():
-                    key = f"m9|{model}|{dataset}|sql_stats_fs|vol{volume}|s{seed}|{q_name}"
-                    if key in completed:
-                        continue
-                    combos.append({
-                        "key": key, "model": model, "dataset": dataset,
-                        "seed": seed, "q_name": q_name, "q": q,
-                    })
+                for nl in naturalness:
+                    questions = get_natural_questions("tpch", nl)
+                    for q_name, q in questions.items():
+                        # Backwards-compat: omit nl segment for N0 so existing M9 keys match.
+                        if nl == NaturalnessLevel.N0:
+                            key = f"m9|{model}|{dataset}|sql_stats_fs|vol{volume}|s{seed}|{q_name}"
+                        else:
+                            key = f"m9|{model}|{dataset}|sql_stats_fs|vol{volume}|s{seed}|{nl.value}|{q_name}"
+                        if key in completed:
+                            continue
+                        combos.append({
+                            "key": key, "model": model, "dataset": dataset,
+                            "seed": seed, "naturalness": nl,
+                            "q_name": q_name, "q": q,
+                        })
 
-    total = len(datasets) * len(seeds) * len(models) * 7
-    print(f"[M9] {len(datasets)}d x {len(models)}m x 7q x {len(seeds)}s = {total} combos")
+    total = len(datasets) * len(seeds) * len(models) * len(naturalness) * 7
+    levels_str = ",".join(nl.value for nl in naturalness)
+    print(f"[M9] {len(datasets)}d x {len(models)}m x 7q x {len(seeds)}s x {len(naturalness)}lvl ({levels_str}) = {total} combos")
     print(f"     {len(combos)} to run, {len(completed)} cached\n")
 
     for dataset in datasets[:1]:
@@ -329,8 +339,10 @@ def run_m9(
         record = {
             "key": c["key"], "phase": "m9", "model": model,
             "dataset": c["dataset"], "variant": "sql_stats_fs",
+            "naturalness_level": c["naturalness"].value,
             "question": c["q_name"], "question_key": c["q"]["key"],
             "question_type": c["q"]["type"],
+            "question_text": c["q"]["text"],
             "seed": c["seed"], "volume": volume,
             "response": response, "sql": sql, "executed_result": executed,
             "ok": ok, "reason": reason,
@@ -372,12 +384,46 @@ def print_summary(manifest_path: Path) -> None:
                  "q_top_product", "q_lookup", "q_lookup_value"]
     models = sorted(set(r["model"] for r in records))
 
+    levels = sorted({r.get("naturalness_level", "N0") for r in records})
+    multi_level = len(levels) > 1
+
     by_mq = defaultdict(list)
     by_q = defaultdict(list)
+    by_ml = defaultdict(list)
+    by_lq = defaultdict(list)
     for r in records:
+        nl = r.get("naturalness_level", "N0")
         by_mq[(r["model"], r["question"])].append(r["ok"])
         by_q[r["question"]].append(r["ok"])
+        by_ml[(r["model"], nl)].append(r["ok"])
+        by_lq[(nl, r["question"])].append(r["ok"])
 
+    if multi_level:
+        print("  Per (model x naturalness):")
+        print(f"  {'Model':<25}" + "  ".join(f"{l:<14}" for l in levels))
+        for m in models:
+            row = f"  {m:<25}"
+            for l in levels:
+                oks = by_ml.get((m, l), [])
+                if oks:
+                    row += f"  {sum(oks)}/{len(oks)} ({sum(oks)/len(oks)*100:.0f}%)    "
+                else:
+                    row += f"  {'-':<14}"
+            print(row)
+        print(f"\n  Per (naturalness x question):")
+        print(f"  {'Question':<25}" + "  ".join(f"{l:<14}" for l in levels))
+        for q in questions:
+            row = f"  {q:<25}"
+            for l in levels:
+                oks = by_lq.get((l, q), [])
+                if oks:
+                    row += f"  {sum(oks)}/{len(oks)} ({sum(oks)/len(oks)*100:.0f}%)    "
+                else:
+                    row += f"  {'-':<14}"
+            print(row)
+        print()
+
+    print(f"  Per (model x question)" + (" [aggregate over levels]" if multi_level else "") + ":")
     print(f"  {'Question':<18} " + " ".join(f"{m[:20]:>22}" for m in models) + "  Agg")
     print(f"  {'-'*18} " + " ".join(f"{'':->22}" for _ in models) + "  ---")
     for q in questions:
@@ -387,7 +433,7 @@ def print_summary(manifest_path: Path) -> None:
             if oks:
                 row += f"  {sum(oks)}/{len(oks):<3} ({sum(oks)/len(oks)*100:>4.0f}%)   "
             else:
-                row += f"  {'—':>22}"
+                row += f"  {'-':>22}"
         agg = by_q[q]
         row += f"  {sum(agg)}/{len(agg)} ({sum(agg)/len(agg)*100:.0f}%)" if agg else ""
         print(row)
@@ -415,6 +461,10 @@ def main() -> None:
     parser.add_argument("--seeds", nargs="+", type=int, default=[42, 123, 7])
     parser.add_argument("--volume", type=int, default=100)
     parser.add_argument("--endpoint", default="http://localhost:11434")
+    parser.add_argument(
+        "--naturalness", default="N0",
+        help="Naturalness level(s): N0|N1|N2|N3|all|comma-separated. Default: N0 (legacy).",
+    )
     parser.add_argument("--summary", action="store_true")
     parser.add_argument("--dry-run", action="store_true")
     args = parser.parse_args()
@@ -441,7 +491,9 @@ def main() -> None:
             print(payload[:800])
         return
 
-    run_m9(args.models, args.volume, args.datasets, args.seeds, args.endpoint)
+    levels = tuple(iter_levels(args.naturalness))
+    run_m9(args.models, args.volume, args.datasets, args.seeds, args.endpoint,
+           naturalness=levels)
 
 
 if __name__ == "__main__":
