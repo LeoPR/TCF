@@ -345,6 +345,35 @@ formal ↔ achado científico.
 
 ---
 
+## Adendum (2026-04-26): M-schema-scope
+
+Pergunta levantada após auditoria: **escopo horizontal de schema afeta
+accuracy?** Hoje todos os experimentos M-series fixam o schema em 1-3
+tabelas. Nunca variamos isolando o eixo horizontal.
+
+3 eixos ortogonais de complexidade:
+- Vertical (rows): testado em M-strat
+- Horizontal (tabelas): **gap — M-schema-scope endereça**
+- Depth (samples): parcialmente testado em M2
+
+F-Q14 (scale-invariant) é sobre rows, não tabelas — **não cobre eixo 2**.
+
+Hipóteses (ver ticket):
+- H_scope-1: pouco schema vence quando query é simples (menos ruído)
+- H_scope-2: muito schema vence quando query é ambígua (mais contexto)
+- H_scope-3: efeito moderado pela naturalidade — N0 indiferente, N2/N3 sensível
+
+Lacuna na literatura confirmada: Cortex Analyst e CHESS usam schema
+pruning empiricamente, mas nenhum paper mediu o efeito × naturalidade.
+Outra contribuição em aberto.
+
+Custo: 252-432 combos locais (~45-90min, $0). Pode rodar antes ou
+depois de M-natural.
+
+Ticket: [tickets/open/M-schema-scope.md](../../tickets/open/M-schema-scope.md)
+
+---
+
 ## TL;DR para sua revisão
 
 - 28 findings auditados; F-Q12 deprecated por F-Q28; outros active mas
