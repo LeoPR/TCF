@@ -3,6 +3,7 @@
 from __future__ import annotations
 import json
 import re
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
@@ -61,40 +62,103 @@ def classify_error(
     response: str,
     expected: float | int,
     question_key: str,
+    tol_rel: float = 0.01,
+    tol_abs: float = 0.1,
 ) -> str:
-    """Classify why a response is wrong (or confirm it is correct).
-
-    Args:
-        response:     Raw model response string.
-        expected:     Ground truth value.
-        question_key: One of "count", "sum_vl", "avg_vl", "max_vl", "min_vl", etc.
-    """
+    """Classify why a response is wrong (or confirm it is correct)."""
     nums = extract_all_numbers(response)
 
     if not nums:
         return "refusal" if len(strip_think(response).strip()) < 40 else "parse_failure"
 
-    # Check correctness first
     val = nums[-1]
     exp_f = float(expected)
-    tol = max(abs(exp_f) * 0.01, 0.1)
+    tol = max(abs(exp_f) * tol_rel, tol_abs)
     if abs(val - exp_f) <= tol:
         return "correct"
 
-    # More than 5 numbers in an aggregation question → listed instead of computing
     agg_questions = {"sum_vl", "avg_vl", "max_vl", "min_vl", "sum_field", "avg_field"}
     if len(nums) > 5 and question_key in agg_questions:
         return "list_instead_of_agg"
 
-    # Count question: plausible integer but wrong
     if question_key in ("count", "count_rows"):
         return "wrong_count"
 
-    # Value outside plausible range (10× the expected)
     if exp_f != 0 and (val < 0 or abs(val) > abs(exp_f) * 10):
         return "hallucinated"
 
     return "arithmetic_error"
+
+
+# ---------------------------------------------------------------------------
+# Scoring config
+# ---------------------------------------------------------------------------
+
+def _normalize_string(s: str) -> str:
+    """Normalize for lenient string matching.
+
+    Lowercases, replaces hyphens/underscores/slashes with spaces,
+    removes remaining punctuation, collapses whitespace.
+
+    Examples:
+        "Some-college"  -> "some college"
+        "HS-grad"       -> "hs grad"
+        ">50K"          -> "50k"
+    """
+    s = s.lower()
+    s = re.sub(r"[-_/]", " ", s)
+    s = re.sub(r"[^\w\s]", "", s)
+    s = re.sub(r"\s+", " ", s).strip()
+    return s
+
+
+@dataclass
+class ScoringConfig:
+    """Parameters that control how model responses are scored.
+
+    Attributes
+    ----------
+    string_match
+        Strategy for matching string-type answers:
+        - ``"strict"``: expected.lower() must appear as substring in response
+          (legacy behavior, safest for unambiguous categorical values).
+        - ``"normalized"``: also try normalized forms (hyphens→spaces, no
+          punctuation). Handles "Some College" matching "Some-college".
+        - ``"lenient"``: tries strict first, then normalized. Most permissive.
+    tol_rel
+        Relative tolerance for numeric answers (default 1%).
+        ``ok`` if ``|got - expected| <= max(|expected| * tol_rel, tol_abs)``.
+    tol_abs
+        Absolute tolerance floor for numeric answers (default 0.1).
+    count_exact
+        If True, integer count answers must match exactly (no tolerance).
+        Overrides tol_rel/tol_abs for count-type questions.
+    """
+
+    string_match: str = "lenient"
+    tol_rel: float = 0.01
+    tol_abs: float = 0.1
+    count_exact: bool = True
+
+    def as_dict(self) -> dict:
+        return {
+            "string_match": self.string_match,
+            "tol_rel": self.tol_rel,
+            "tol_abs": self.tol_abs,
+            "count_exact": self.count_exact,
+        }
+
+
+# Backwards-compatible default — matches legacy behaviour
+_LEGACY_CONFIG = ScoringConfig(
+    string_match="strict",
+    tol_rel=0.01,
+    tol_abs=0.1,
+    count_exact=True,
+)
+
+# Default for new experiments (more permissive on strings, same on numbers)
+DEFAULT_CONFIG = ScoringConfig()
 
 
 # ---------------------------------------------------------------------------
@@ -105,33 +169,64 @@ def score_response(
     response: str,
     expected: float | int | str,
     question_key: str,
+    config: ScoringConfig | None = None,
 ) -> tuple[bool, str]:
     """Score a single response against ground truth.
 
+    Args:
+        response:     Raw model response string.
+        expected:     Ground truth value (str, int, or float).
+        question_key: GT key used to select scoring mode for integers.
+        config:       :class:`ScoringConfig` instance. Defaults to
+                      ``DEFAULT_CONFIG`` (lenient string, 1% numeric tol).
+
     Returns:
-        (correct: bool, error_type: str)
+        ``(correct: bool, reason: str)`` where reason is one of
+        :data:`ERROR_TYPES`.
     """
+    if config is None:
+        config = DEFAULT_CONFIG
+
     if isinstance(expected, str):
-        # Name-match questions (e.g. top_product)
-        clean = strip_think(response).strip().lower()
-        ok = expected.lower() in clean
+        clean = strip_think(response).strip()
+        clean_lower = clean.lower()
+        exp_lower = expected.lower()
+
+        if config.string_match == "strict":
+            ok = exp_lower in clean_lower
+        elif config.string_match == "normalized":
+            norm_exp = _normalize_string(expected)
+            norm_clean = _normalize_string(clean)
+            ok = norm_exp in norm_clean
+        else:  # "lenient" — try strict first, then normalized
+            ok = exp_lower in clean_lower
+            if not ok:
+                norm_exp = _normalize_string(expected)
+                norm_clean = _normalize_string(clean)
+                ok = norm_exp in norm_clean
+
         return ok, ("correct" if ok else "parse_failure")
 
     val = extract_number(response)
     if val is None:
-        return False, "parse_failure" if len(strip_think(response).strip()) >= 40 else "refusal"
+        reason = "parse_failure" if len(strip_think(response).strip()) >= 40 else "refusal"
+        return False, reason
 
     exp_f = float(expected)
 
-    if question_key in ("count", "count_rows", "count_distinct_pessoa"):
+    count_keys = ("count", "count_rows", "count_distinct_pessoa",
+                  "distinct_workclass", "count_high_class",
+                  "max_age", "count_rows")
+    if config.count_exact and question_key in count_keys:
         ok = int(round(val)) == int(exp_f)
     else:
-        tol = max(abs(exp_f) * 0.01, 0.1)
+        tol = max(abs(exp_f) * config.tol_rel, config.tol_abs)
         ok = abs(val - exp_f) <= tol
 
     if ok:
         return True, "correct"
-    return False, classify_error(response, expected, question_key)
+    return False, classify_error(response, expected, question_key,
+                                 tol_rel=config.tol_rel, tol_abs=config.tol_abs)
 
 
 # ---------------------------------------------------------------------------
@@ -148,13 +243,11 @@ def score_decode(response: str, expected_values: list[float], tol_rel: float = 0
     total = len(expected_values)
     found = len(nums)
 
-    # Sum check: if the model listed the right numbers (possibly reordered), sum matches
     exp_sum = sum(expected_values)
     got_sum = sum(nums) if nums else 0.0
     sum_tol = max(abs(exp_sum) * tol_rel, 0.1)
     sum_ok = abs(got_sum - exp_sum) <= sum_tol
 
-    # Order check: values match position by position
     order_ok = (found == total) and all(
         abs(a - b) <= max(abs(b) * tol_rel, 0.01)
         for a, b in zip(nums, expected_values)
@@ -178,12 +271,12 @@ def score_decode(response: str, expected_values: list[float], tol_rel: float = 0
 def score_results(
     results_path: str,
     ground_truth: dict[str, dict[str, Any]],
+    config: ScoringConfig | None = None,
 ) -> dict[str, Any]:
-    """Score a JSONL results file against a ground truth dict.
+    """Score a JSONL results file against a ground truth dict."""
+    if config is None:
+        config = DEFAULT_CONFIG
 
-    results_path: JSONL with fields {chunk_id, question, response, rows, latency_s}
-    ground_truth: {chunk_id: {question_key: expected_value}}
-    """
     total = 0
     correct = 0
     latencies: list[float] = []
@@ -201,7 +294,7 @@ def score_results(
             error_type = "no_ground_truth"
 
             if expected is not None:
-                ok, error_type = score_response(resp, expected, q)
+                ok, error_type = score_response(resp, expected, q, config=config)
 
             latencies.append(row.get("latency_s", 0.0))
             prompt_chars.append(row.get("prompt_chars", 0))

@@ -33,7 +33,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 sys.path.insert(0, str(ROOT / "scripts"))
 
 from llm_eval.ollama_client import OllamaClient
-from llm_eval.metrics import score_response
+from llm_eval.metrics import score_response, _LEGACY_CONFIG
 from llm_eval.question_naturalness import (
     NaturalnessLevel, get_questions as get_natural_questions, iter_levels,
 )
@@ -150,7 +150,7 @@ def run_m_alocal(
                 prompt_tokens = result.get("prompt_tokens", 0)
                 response_tokens = result.get("response_tokens", 0)
                 expected = state["gt"][c["q"]["key"]]
-                ok, reason = score_response(response, expected, c["q"]["key"])
+                ok, reason = score_response(response, expected, c["q"]["key"], config=_LEGACY_CONFIG)
                 print(f"{'OK' if ok else 'NO'} ({reason})")
                 break
             except Exception as e:

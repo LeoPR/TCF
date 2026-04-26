@@ -35,7 +35,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 sys.path.insert(0, str(ROOT / "scripts"))
 
 from llm_eval.commercial_client import CommercialClient, PRICING, estimate_cost
-from llm_eval.metrics import score_response, strip_think, extract_number
+from llm_eval.metrics import score_response, strip_think, extract_number, DEFAULT_CONFIG, ScoringConfig
 from llm_eval.question_naturalness import (
     NaturalnessLevel, get_questions as get_natural_questions, iter_levels,
 )
@@ -227,7 +227,7 @@ def run_m_acomm(
 
             # Score: Linha A scoring uses metrics.score_response on natural-language answer
             expected = state["gt"][c["q"]["key"]]
-            ok, reason = score_response(response, expected, c["q"]["key"])
+            ok, reason = score_response(response, expected, c["q"]["key"], config=DEFAULT_CONFIG)
             print(f"{'OK' if ok else 'NO'} ({reason}) cost=${cost_usd:.4f}")
         except Exception as e:
             es = str(e)
