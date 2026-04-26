@@ -103,14 +103,14 @@ Framework de extração estratificada para datasets canônicos. **Standalone** �
 não depende de TCF, pode ser publicado como ferramenta independente
 (ver "Shaper como ferramenta independente" abaixo).
 
-Estratégias (executadas em ordem pelo pipeline):
+Estratégias (executadas em ordem pelo pipeline) — **todas implementadas**:
 - `schema_filter` — restringe ao subset de tabelas pedido
-- `join` — placeholder (no-op)
-- `compressibility` — placeholder (no-op)
+- `join` — normalized (default) ou flat (denormaliza via FK metadata)
+- `compressibility` — score por raridade categorical, filtra por quantil
 - `stratify` — proportional allocation por coluna (Neyman-style); skip se fk_preserving=True
 - `fk_preserving` — sample fact (random ou stratified) + filtra dims preservando FK integrity
 - `volume` — sample N rows (skip quando fk_preserving=True)
-- `ordering` — natural / random / sorted
+- `ordering` — natural / random:seed / sorted:col / reverse:col
 
 ### `scripts/dataset_reader.py`
 Cliente SQLite com API uniforme (`rows`, `columns`, `iter_rows`, `query`,

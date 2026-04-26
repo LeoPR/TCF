@@ -345,6 +345,47 @@ formal ↔ achado científico.
 
 ---
 
+## Adendum (2026-04-26): Audit completo concluído
+
+Audit sistemático de 22 tickets em `open/` (resultado consolidado):
+
+### Encontrado (correção do master original)
+
+- **`compressibility` e `join` strategies NÃO eram placeholders.** Ambos
+  estão implementados e funcionais (4.5KB e 4.9KB respectivamente).
+  Corrigido em `data-pipeline.md` e `assembly-overview.md`.
+- **Todas as 7 estratégias do Shaper estão ATIVAS** (não havia placeholder).
+
+### Bugs/issues que NÃO impactam resultados passados
+
+- **Bug 29 (decoder freetext com `:`):** afeta apenas roundtrip
+  encode→decode em Python para colunas de texto livre. **Não afeta**
+  Linha A (apenas encode) nem Linha B (SQL execute, não decode).
+  Workaround documentado já em uso. Resolução: TCF v0.3 (futuro).
+- **Issue 23 (numeric precision):** **research idea**, não bug. Feature
+  para v0.3.
+- **Bug 28 (encode tests canonical):** PARTIAL — testes existem mas
+  cobertura pode ser ampliada. Não invalida testes M-series existentes.
+
+### Decisão final
+
+**Nenhum ticket open atual invalida resultados passados.** F-Q1..F-Q28
+permanecem válidos. M-natural pode prosseguir.
+
+### Estado final dos tickets `open/`
+
+Após audit (6 tickets):
+- `M-natural.md` — priority 1 (próximo)
+- `M-schema-scope.md` — priority 2
+- `23-P-numeric-precision.md` — research idea v0.3
+- `29-B-decoder-freetext-bug.md` — known bug, fix em v0.3
+- `H-advanced-compression-v03.md` — futuro
+- `P-phase-closure.md` — meta paper
+
+17 tickets adicionais migrados para `closed/` em 2026-04-26 (audit).
+
+---
+
 ## Adendum (2026-04-26): M-schema-scope
 
 Pergunta levantada após auditoria: **escopo horizontal de schema afeta

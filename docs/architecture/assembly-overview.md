@@ -1003,13 +1003,13 @@ estratificação) é nossa, codificada em `CANONICAL_PROFILES` em
 | `volume` | ✅ ATIVO | Sample N rows ou fração — só executa quando `fk_preserving=False` |
 | `ordering` | ✅ ATIVO | natural / random:seed / sorted:col / reverse:col |
 
-#### Estratégias placeholder (no-op hoje)
+#### Todas as estratégias implementadas (audit 2026-04-26)
 
-| Estratégia | Status | O que faria quando implementada |
-|-----------|--------|--------------------------------|
-| `stratify` | ✅ ATIVO (2026-04-25) | Proportional allocation Neyman-style + min-1 por grupo; integrado com `fk_preserving` para sample estratificado de fact |
-| `compressibility` | ⚠️ PLACEHOLDER | Filtra rows por faixa de compressibilidade (alta cardinalidade vs baixa) |
-| `join` | ⚠️ PLACEHOLDER | Variantes de apresentação: normalized vs flat (denormalizado) |
+| Estratégia | Status | Notas |
+|-----------|--------|-------|
+| `stratify` | ✅ ATIVO (2026-04-25) | Proportional allocation Neyman-style + min-1 por grupo |
+| `compressibility` | ✅ ATIVO (audit 2026-04-26) | Score por raridade categorical (-log2 freq), filtra por quantil; cache em disco |
+| `join` | ✅ ATIVO (audit 2026-04-26) | normalized (default) ou flat (denormaliza via FK metadata) |
 
 `stratify` foi implementado em 2026-04-25. Validação:
 - Adult Census volume=20 com `stratify_by='class'`: random std=9.7 (range 10-45%)
