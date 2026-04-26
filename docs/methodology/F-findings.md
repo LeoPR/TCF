@@ -30,7 +30,7 @@ entre as linhas.
 
 **`{shared}`:** F-Q1, F-Q2, F-Q3, F-Q4, F-Q5, F-Q6, F-Q7, F-Q8, F-Q9, F-Q10, F-Q11
 **`{A}`:** F-Q12
-**`{B}`:** F-Q13, F-Q14, F-Q15, F-Q16, F-Q17, F-Q18, F-Q19, F-Q20, F-Q21, F-Q22, F-Q23, F-Q24, F-Q25, F-Q26
+**`{B}`:** F-Q13, F-Q14, F-Q15, F-Q16, F-Q17, F-Q18, F-Q19, F-Q20, F-Q21, F-Q22, F-Q23, F-Q24, F-Q25, F-Q26, F-Q27
 
 ---
 
@@ -642,6 +642,19 @@ invariante "resultado deve ser nome válido de dim2".
 **Referência:** `experiments/eval/run_minv_invariant_check.py` (2026-04-23);
 análise sobre manifests m6_filter, m6b_having_fix, m7_complex.
 
+**Update 2026-04-25 — M_inv-canonical:** estendido para M9, M9-Adult, M-strat.
+Resultado degenerado (e cientificamente significativo): **zero falhas para
+invariant analysis** em canonical:
+- M9 TPC-H: 3 falhas total — todas ties válidos em q_top_product (não erros
+  semânticos; ver F-Q24)
+- M9-Adult: 0 falhas
+- M-strat: 0 falhas (após re-run)
+
+Conclusão: F-Q21 (21% Type A, 79% Type B silent) é específica de **synthetic
+queries com bugs latentes** (FK collision em financial, scope confusion em
+HAVING). Em canonical com paradigma aplicado corretamente, falhas semânticas
+silenciosas **não ocorrem**. Reforça F-Q25 (universalidade do paradigma).
+
 ---
 
 ## F-Q22 `{B}` — Style hints recuperam falhas SQL sem exemplos; flags têm interferência off-target
@@ -949,6 +962,80 @@ antigos. **Corrigido em todos os 10 runners** para "last occurrence wins"
 
 **Referência:** `experiments/results/m_strat/manifest.jsonl` (2026-04-25,
 210 combos = 5 seeds × 3 models × 7 questions × 2 modes).
+
+---
+
+## F-Q27 `{B}` — Quality score estrutural correlaciona INVERSAMENTE com accuracy
+
+**Conclusão:** Análise post-hoc de **1551 SQLs** (todos os manifests Linha B
+M3-M_strat) usando `sql_quality.py` revela que **SQLs erradas têm quality
+score médio MAIS ALTO** (0.839) que **SQLs corretas** (0.753), diferença
+de -0.087 — o oposto do esperado intuitivamente.
+
+**Mecanismo identificado:** quality_score atual mede *complexidade
+estrutural* (JOIN explícito, ON correto, no SELECT *, single col, etc.),
+não *correção semântica*. Em queries difíceis (q_distinct com FK
+ambíguo em financial, q_having com scope de agregação), modelos geram
+SQL **estruturalmente sofisticada** (com JOIN+ON, ricas, ~1.0 quality)
+que **executa com erro** (`sql_error:OperationalError` por coluna
+inexistente). Em queries fáceis (q_count single-table, q_above_avg sem
+JOIN), modelos geram SQL simples (~0.25 quality) que acerta sempre.
+
+**Resultado: complexidade SQL é proxy de DIFICULDADE da query, não de
+qualidade.** Quanto mais difícil a question, mais elaborada a SQL, e
+mais provável de errar — anti-correlação acidental.
+
+**Evidência (M-quality, 2026-04-25):** 1551 SQLs analisadas em 9 fases
+(M3, M6, M6b, M7, M8, M8b, M9, M9-Adult, M-strat). Accuracy global 77.3%
+(1199/1551).
+
+**Componentes prevalência (proporção de SQLs com cada característica):**
+
+| Componente | % | Comentário |
+|-----------|---|-----------|
+| no_select_star | 100% | Modelos nunca usam SELECT * |
+| tables_exist | 96.9% | Maioria referencia tabelas válidas |
+| single_result_col | 91.7% | Retorno escalar, conforme pedido |
+| has_explicit_join | 54.1% | Metade usa JOIN (depende da query) |
+| join_uses_on | 49.6% | Quando há JOIN, quase sempre com ON |
+| has_subquery | 31.1% | Subqueries são minoria |
+| has_cte | 3.1% | CTEs são raras |
+
+**Discrepâncias notáveis:**
+- 241 SQLs com quality ≥ 0.85 mas falharam (16% do total) — mostram que
+  estrutura não garante correção
+- 17 SQLs com quality < 0.5 mas acertaram — geralmente queries triviais
+  sem JOIN
+
+**Por modelo (sem diferenciação significativa):**
+- qwen3:14b: quality 0.786 (n=517)
+- qwen2.5-coder:7b: quality 0.779 (n=517)
+- phi4:latest: quality 0.752 (n=517)
+
+**Implicações metodológicas:**
+
+1. **Quality score atual NÃO é métrica de qualidade SQL no sentido prático**
+   — é métrica de *complexidade estrutural*. Útil como **descritor**, não
+   como **avaliador**.
+
+2. **Métrica alternativa proposta — `quality_when_ok`:** computar
+   quality_mean APENAS sobre SQLs corretas. Proxy de "elegância": entre
+   SQLs que funcionam, quanto bem-estruturadas são. Métrica útil para
+   diferenciar modelos que acertam com SQL elaborado vs com SQL
+   simples-mas-correto.
+
+3. **Para comparar comerciais com locais (M-Acomm pendente):** reportar
+   quality_when_ok além de accuracy. Se comerciais mantêm accuracy ~100%
+   com SQLs estruturalmente complexas (CTEs, subqueries), isso indica
+   capacidade de construções avançadas além de funcionalidade.
+
+4. **Não publicar como "TCF gera SQL de alta qualidade"** — publicar como
+   **descoberta metodológica**: structural quality metrics underestimate
+   semantic correctness in LLM-generated SQL. Achado independente de TCF.
+
+**Referência:** `experiments/results/m_quality/per_record.jsonl`
+(1551 records), `report.json`, `summary.md`. Reproduzível via
+`python experiments/eval/run_m_quality.py`.
 
 ---
 
