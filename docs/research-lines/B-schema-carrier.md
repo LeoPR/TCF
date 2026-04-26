@@ -64,6 +64,7 @@ aritmética.
 | F-Q23 | Style hints SQL não são composicionais; 11 de 12 combinações ficam abaixo do modelo aditivo |
 | F-Q24 | Canonical TPC-H e synthetic produzem accuracy equivalente (100% tie-aware vs 96% synthetic) |
 | F-Q25 | H-TCF2 generaliza para single-table real (Adult Census) com cols hifenadas — 100% accuracy |
+| F-Q26 | Random ≈ Stratified em Adult vol=100 (floor effect); stratification é padrão metodológico, não diferencial de accuracy |
 
 ## Níveis de complexidade SQL testados
 

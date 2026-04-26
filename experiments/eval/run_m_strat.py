@@ -194,15 +194,13 @@ def print_summary(manifest_path: Path) -> None:
     if not manifest_path.exists():
         print("[M-strat] No records.")
         return
-    seen: set[str] = set()
-    records = []
+    by_key: dict[str, dict] = {}
     for line in manifest_path.read_text(encoding="utf-8").splitlines():
         if not line.strip():
             continue
         r = json.loads(line)
-        if r["key"] not in seen:
-            seen.add(r["key"])
-            records.append(r)
+        by_key[r["key"]] = r  # last occurrence wins (handles re-runs)
+    records = list(by_key.values())
 
     total = len(records)
     ok = sum(r["ok"] for r in records)
@@ -237,7 +235,7 @@ def print_summary(manifest_path: Path) -> None:
         d_std = mode_results["stratify"]["std"] - mode_results["random"]["std"]
         print(f"\n  Diff (stratify - random): mean={d_mean:+.2f}pp, std={d_std:+.2f}")
         print(f"  Interpretation:")
-        print(f"    H1 (mean ≈): {'CONFIRM' if abs(d_mean) < 2 else 'REJECT'} (|diff|={abs(d_mean):.2f}pp, threshold=2pp)")
+        print(f"    H1 (mean random ~ stratify): {'CONFIRM' if abs(d_mean) < 2 else 'REJECT'} (|diff|={abs(d_mean):.2f}pp, threshold=2pp)")
         print(f"    H2 (stratify std < random std): {'CONFIRM' if d_std < 0 else 'REJECT'} (diff={d_std:+.2f})")
 
     # Per-question per-mode (H3: class-sensitive)

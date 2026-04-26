@@ -30,6 +30,7 @@
 | M8b (safe-sql combinações) | DONE | F-Q23: 11/12 combinações regridem vs aditivo | m8b_safe_sql_combos |
 | M9 (canonical TPC-H via Pipeline B) | DONE | F-Q24: 100% tie-aware; synthetic ≈ canonical | m9_canonical |
 | M9-Adult (canonical Adult single-table) | DONE | F-Q25: 100% perfeito; hyphenated cols ok; stratify TVD=0.0007 | m9_adult |
+| M-strat (random vs stratified) | DONE | F-Q26: 100%/100% — floor effect; H1 OK, H2 não testável em Adult fácil | m_strat |
 | M8 (modelos comerciais) | PENDENTE | — | — |
 | M_perf (benchmark timing) | PENDENTE | pre-publicacao | — |
 

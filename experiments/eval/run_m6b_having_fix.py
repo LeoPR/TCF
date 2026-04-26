@@ -177,15 +177,13 @@ def print_summary(manifest_path: Path) -> None:
     if not manifest_path.exists():
         print("[M6b] No records.")
         return
-    seen: set[str] = set()
-    records = []
+    by_key: dict[str, dict] = {}
     for line in manifest_path.read_text(encoding="utf-8").splitlines():
         if not line.strip():
             continue
         r = json.loads(line)
-        if r["key"] not in seen:
-            seen.add(r["key"])
-            records.append(r)
+        by_key[r["key"]] = r  # last occurrence wins (handles re-runs)
+    records = list(by_key.values())
 
     total = len(records)
     ok_count = sum(r["ok"] for r in records)

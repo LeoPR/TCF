@@ -161,8 +161,7 @@ def run_minv() -> None:
                 r = json.loads(line)
             except Exception:
                 continue
-            if r["key"] not in seen:
-                seen[r["key"]] = r
+            seen[r["key"]] = r  # last occurrence wins (handles re-runs)
 
         records = list(seen.values())
         failures = [r for r in records if not r["ok"]]

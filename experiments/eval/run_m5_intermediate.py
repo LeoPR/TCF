@@ -389,14 +389,11 @@ def print_summary(manifest_path: Path) -> None:
         print("[M5] Empty.")
         return
 
-    # Deduplicate
-    seen: set[str] = set()
-    deduped = []
+    # Deduplicate by key (last occurrence wins — handles re-runs after Ollama crashes)
+    by_key: dict[str, dict] = {}
     for r in records:
-        if r["key"] not in seen:
-            seen.add(r["key"])
-            deduped.append(r)
-    records = deduped
+        by_key[r["key"]] = r
+    records = list(by_key.values())
 
     print(f"\n=== M5 Summary ({len(records)} records) ===\n")
 

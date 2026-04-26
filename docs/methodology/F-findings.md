@@ -30,7 +30,7 @@ entre as linhas.
 
 **`{shared}`:** F-Q1, F-Q2, F-Q3, F-Q4, F-Q5, F-Q6, F-Q7, F-Q8, F-Q9, F-Q10, F-Q11
 **`{A}`:** F-Q12
-**`{B}`:** F-Q13, F-Q14, F-Q15, F-Q16, F-Q17, F-Q18, F-Q19, F-Q20, F-Q21, F-Q22, F-Q23, F-Q24, F-Q25
+**`{B}`:** F-Q13, F-Q14, F-Q15, F-Q16, F-Q17, F-Q18, F-Q19, F-Q20, F-Q21, F-Q22, F-Q23, F-Q24, F-Q25, F-Q26
 
 ---
 
@@ -896,6 +896,59 @@ Manifests M9-Adult registram métricas inline para auditoria.
 **Referência:** `experiments/results/m9_adult/manifest.jsonl` (2026-04-25).
 Comparar com `experiments/results/m9_canonical/` (TPC-H) e
 `experiments/results/m3_crossdomain/` (synthetic).
+
+---
+
+## F-Q26 `{B}` — Random ≈ Stratified em Adult Census; "floor effect" do paradigma robusto
+
+**Conclusão:** Em Adult Census com volume=100 e 5 seeds, **random sampling
+e stratified sampling produzem accuracy idêntica (100%/100%, std=0)**. A
+hipótese de que stratification reduz variância (H2) **não pôde ser
+testada** — não há variância para reduzir. O paradigma TCF schema-carrier
+é tão robusto neste cenário que mesmo amostras aleatórias produzem 100%.
+
+**Evidência (M-strat, 2026-04-25):** 1 dataset Adult × 3 modelos × 7 questions
+× 2 modos (random/stratify) × 5 seeds = 210 combos. Após dedup correto
+(re-runs por crash de Ollama no meio): 210/210 = 100% em ambos modos.
+
+**Vereditos das 3 hipóteses:**
+
+| Hipótese | Resultado | Interpretação |
+|---------|-----------|---------------|
+| H1: mean(stratify) ≈ mean(random) | **CONFIRM** | Diferença = 0pp (threshold 2pp) |
+| H2: std(stratify) < std(random) | **REJECT** (floor effect) | Ambos com std=0 — não há variância |
+| H3: q_count_high_class diferenciado | **NÃO** | Todas 7 questions = 100% em ambos modos |
+
+**Stratification metrics (todos os 5 seeds idênticos):** TVD=0.0007,
+JSD=0.0, chi2_p=0.99 — distribuição preservada quase perfeitamente.
+
+**Implicação prática:**
+- **Em Adult vol=100:** random é suficiente; stratification não muda accuracy
+- **Onde stratification ainda agrega:** 
+  1. Auditabilidade científica (TVD/chi2_p registrados)
+  2. Casos com sample muito pequeno (vol<20) — ver pre-runs anteriores onde
+     std random=9.7 vs std stratify=0
+  3. Datasets com queries L3 (subquery, CTE) onde accuracy é menor
+  4. Reportabilidade — "amostra estratificada com TVD=X" é linguagem de paper
+
+**Importante:** este finding **não invalida F-Q25** — pelo contrário, reforça.
+A robustez do paradigma é tão alta em Adult que stratification não muda nada.
+F-Q25 (M9-Adult 100% com stratify) e F-Q26 (M-strat 100% com random + stratify)
+juntos = paradigma é independente de modo de sampling em Adult vol=100.
+
+**Para o paper:** stratification metrics no manifest são padrão metodológico
+mas accuracy é o veredito principal. Em datasets harder (queries L3, vol<20),
+stratification provavelmente diferencia. Próximos experimentos (V-series)
+devem testar isso.
+
+**Caveat metodológico — bug no print_summary corrigido:** durante crash de
+Ollama, 77 records de modo random ficaram como exception. Re-run completou,
+mas print_summary tinha bug de "first occurrence wins" — leu os exception
+antigos. **Corrigido em todos os 10 runners** para "last occurrence wins"
+(handles re-runs corretamente). Padrão para futuros experimentos.
+
+**Referência:** `experiments/results/m_strat/manifest.jsonl` (2026-04-25,
+210 combos = 5 seeds × 3 models × 7 questions × 2 modes).
 
 ---
 
