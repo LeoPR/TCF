@@ -30,6 +30,9 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 sys.path.insert(0, str(ROOT / "scripts"))
 
 from llm_eval.ollama_client import OllamaClient
+from llm_eval.question_naturalness import (
+    NaturalnessLevel, get_questions as get_natural_questions, iter_levels,
+)
 from run_m1_codegen import (
     LLM_OPTIONS, PROMPT_TEMPLATE, build_sqlite_from_tables,
     extract_sql, score_sql, _coerce_value, _detect_column_type,
@@ -196,6 +199,7 @@ def _load_completed(manifest_path: Path) -> set[str]:
 
 def run_m9_adult(
     models: list[str], volume: int, seeds: list[int], stratify: bool, endpoint: str,
+    naturalness: tuple[NaturalnessLevel, ...] = (NaturalnessLevel.N0,),
 ) -> None:
     RESULTS_DIR.mkdir(parents=True, exist_ok=True)
     manifest_path = RESULTS_DIR / "manifest.jsonl"
@@ -213,35 +217,41 @@ def run_m9_adult(
         )
         gt = compute_gt_adult(tables["adult"])
         conn = build_sqlite_from_tables(tables)
-        questions = build_questions_adult()
         payload = build_payload_adult(tables, meta)
         per_state[seed] = {
-            "gt": gt, "conn": conn, "questions": questions,
+            "gt": gt, "conn": conn,
             "payload": payload, "tables": tables, "meta": meta,
         }
 
     combos = []
     for seed in seeds:
-        state = per_state[seed]
         for model in models:
-            for q_name, q in state["questions"].items():
-                strat_tag = f"strat-{stratify_by}" if stratify_by else "random"
-                key = f"m9adult|{model}|sql_stats_fs|vol{volume}|s{seed}|{strat_tag}|{q_name}"
-                if key in completed:
-                    continue
-                combos.append({
-                    "key": key, "model": model, "seed": seed,
-                    "q_name": q_name, "q": q,
-                })
+            for nl in naturalness:
+                questions = get_natural_questions("adult-census", nl)
+                for q_name, q in questions.items():
+                    strat_tag = f"strat-{stratify_by}" if stratify_by else "random"
+                    # Backwards-compat: omit nl segment for N0 so existing keys/manifests match
+                    if nl == NaturalnessLevel.N0:
+                        key = f"m9adult|{model}|sql_stats_fs|vol{volume}|s{seed}|{strat_tag}|{q_name}"
+                    else:
+                        key = f"m9adult|{model}|sql_stats_fs|vol{volume}|s{seed}|{strat_tag}|{nl.value}|{q_name}"
+                    if key in completed:
+                        continue
+                    combos.append({
+                        "key": key, "model": model, "seed": seed,
+                        "naturalness": nl, "q_name": q_name, "q": q,
+                    })
 
-    total = len(seeds) * len(models) * len(build_questions_adult())
-    print(f"[M9-Adult] {len(models)}m x 7q x {len(seeds)}s = {total} combos")
+    total = len(seeds) * len(models) * len(naturalness) * 7
+    levels_str = ",".join(nl.value for nl in naturalness)
+    print(f"[M9-Adult] {len(models)}m x 7q x {len(seeds)}s x {len(naturalness)}lvl ({levels_str}) = {total} combos")
     print(f"           stratify_by={stratify_by!r}")
     print(f"           {len(combos)} to run, {len(completed)} cached\n")
 
     # Preview: first seed GT + stratification metrics
     state = per_state[seeds[0]]
     print(f"  GT preview (seed={seeds[0]}, vol={volume}): {state['gt']}")
+    print(f"  payload chars: {len(state['payload']):,}")
     sm = state["meta"].get("_stratification_metrics", [])
     if sm:
         m = sm[0]
@@ -299,8 +309,10 @@ def run_m9_adult(
         record = {
             "key": c["key"], "phase": "m9_adult", "model": model,
             "dataset": "adult-census", "variant": "sql_stats_fs",
+            "naturalness_level": c["naturalness"].value,
             "question": c["q_name"], "question_key": c["q"]["key"],
             "question_type": c["q"]["type"],
+            "question_text": c["q"]["text"],
             "seed": c["seed"], "volume": volume,
             "stratify_by": stratify_by,
             "stratification_metrics": strat_metrics[0] if strat_metrics else None,
@@ -344,12 +356,48 @@ def print_summary(manifest_path: Path) -> None:
                  "q_top_education", "q_count_high_class", "q_avg_hours_male"]
     models = sorted(set(r["model"] for r in records))
 
+    levels = sorted({r.get("naturalness_level", "N0") for r in records})
+    multi_level = len(levels) > 1
+
     by_mq = defaultdict(list)
     by_q = defaultdict(list)
+    by_ml = defaultdict(list)
+    by_lq = defaultdict(list)
     for r in records:
+        nl = r.get("naturalness_level", "N0")
         by_mq[(r["model"], r["question"])].append(r["ok"])
         by_q[r["question"]].append(r["ok"])
+        by_ml[(r["model"], nl)].append(r["ok"])
+        by_lq[(nl, r["question"])].append(r["ok"])
 
+    if multi_level:
+        from llm_eval.stats import wilson_ci
+        print("  Per (model x naturalness):")
+        print(f"  {'Model':<25}" + "  ".join(f"{l:<14}" for l in levels))
+        for m in models:
+            row = f"  {m:<25}"
+            for l in levels:
+                oks = by_ml.get((m, l), [])
+                if oks:
+                    row += f"  {sum(oks)}/{len(oks)} ({sum(oks)/len(oks)*100:.0f}%)    "
+                else:
+                    row += f"  {'-':<14}"
+            print(row)
+
+        print(f"\n  Per (naturalness x question):")
+        print(f"  {'Question':<25}" + "  ".join(f"{l:<14}" for l in levels))
+        for q in questions:
+            row = f"  {q:<25}"
+            for l in levels:
+                oks = by_lq.get((l, q), [])
+                if oks:
+                    row += f"  {sum(oks)}/{len(oks)} ({sum(oks)/len(oks)*100:.0f}%)    "
+                else:
+                    row += f"  {'-':<14}"
+            print(row)
+        print()
+
+    print(f"  Per (model x question)" + (" [aggregate over levels]" if multi_level else "") + ":")
     print(f"  {'Question':<25} " + " ".join(f"{m[:18]:>20}" for m in models) + "  Agg")
     print(f"  {'-'*25} " + " ".join(f"{'':->20}" for _ in models) + "  ---")
     for q in questions:
@@ -359,7 +407,7 @@ def print_summary(manifest_path: Path) -> None:
             if oks:
                 row += f"  {sum(oks)}/{len(oks):<3} ({sum(oks)/len(oks)*100:>4.0f}%)   "
             else:
-                row += f"  {'—':>20}"
+                row += f"  {'-':>20}"
         agg = by_q[q]
         row += f"  {sum(agg)}/{len(agg)} ({sum(agg)/len(agg)*100:.0f}%)" if agg else ""
         print(row)
@@ -395,6 +443,10 @@ def main() -> None:
     parser.add_argument("--no-stratify", action="store_true",
                         help="disable stratified sampling (use random)")
     parser.add_argument("--endpoint", default="http://localhost:11434")
+    parser.add_argument(
+        "--naturalness", default="N0",
+        help="Naturalness level(s): N0|N1|N2|N3|all|comma-separated. Default: N0 (legacy).",
+    )
     parser.add_argument("--summary", action="store_true")
     parser.add_argument("--dry-run", action="store_true")
     args = parser.parse_args()
@@ -427,8 +479,10 @@ def main() -> None:
             print(payload[:600])
         return
 
+    levels = tuple(iter_levels(args.naturalness))
     run_m9_adult(args.models, args.volume, args.seeds,
-                 stratify=not args.no_stratify, endpoint=args.endpoint)
+                 stratify=not args.no_stratify, endpoint=args.endpoint,
+                 naturalness=levels)
 
 
 if __name__ == "__main__":

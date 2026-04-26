@@ -1247,6 +1247,102 @@ experimento que define o valor científico do eixo de naturalidade.
 
 ---
 
+## F-Q30 `{B}` — Naturalidade DEGRADA Linha B seletivamente: ambiguidade semântica e perda de hints técnicos
+
+**Conclusão:** Em Linha B (LLM gera SQL → SQLite executa), naturalidade
+**degrada accuracy** em 2 dos 3 modelos testados, mas não uniformemente —
+depende do modelo e da questão específica. H_natural-1 é **parcialmente
+confirmada**: qwen3:14b é completamente resiliente (100% em todos os
+níveis); qwen2.5-coder:7b degrada até -29pp em N1. A degradação ocorre
+por **dois mecanismos distintos e reproduzíveis**.
+
+**Evidência (M9-Adult naturalness all, 2026-04-26):** 3 modelos × 3 seeds
+× 4 níveis × 7 questions = **252 combos** sobre Adult Census vol=100
+stratify_by=class. N0 idêntico ao M9-Adult original (F-Q25=100%).
+
+**Por modelo × naturalidade:**
+
+| Modelo | N0 | N1 | N2 | N3 | Min |
+|--------|----|----|----|----|-----|
+| qwen3:14b | **100%** | **100%** | **100%** | **100%** | **0pp gap** |
+| phi4:latest | 100% | 100% | 100% | **86%** | 14pp gap em N3 |
+| qwen2.5-coder:7b | 100% | **71%** | 86% | 81% | **29pp gap em N1** |
+
+**Por questão × naturalidade (todos os 3 modelos agregados):**
+
+| Question | N0 | N1 | N2 | N3 | Mecanismo da falha |
+|----------|----|----|----|----|-------------------|
+| q_count, q_max_age, q_top_education, q_count_high_class | 100% | 100% | 100% | 100% | Robusto — sem ambiguidade |
+| q_avg_age | 100% | 100% | 100% | 89% | phi4 falha 1/3 seeds em N3 |
+| **q_distinct_workclass** | 100% | **67%** | 100% | 100% | **Ambiguidade semântica** — ver abaixo |
+| **q_avg_hours_male** | 100% | **67%** | **67%** | **33%** | **Perda de hint técnico** — ver abaixo |
+
+**Mecanismo 1 — Ambiguidade semântica (q_distinct_workclass, N1):**
+
+Wording N1: *"Quantas categorias diferentes de classe trabalhista existem?"*
+
+O LLM mapeia "classe trabalhista" → coluna `class` (renda: <=50K / >50K)
+em vez de `workclass` (tipo de empregador). SQL gerado:
+```sql
+SELECT COUNT(DISTINCT class) FROM adult  -- retorna 2, correto é 6
+```
+N2 ("tipos distintos de vínculo empregatício") e N3 ("modalidades de
+trabalho") mapeiam corretamente para `workclass`. Apenas N1 cria
+ambiguidade. É **evidência direta** de que palavras naturais de domínio
+podem conflitar com nomes de colunas.
+
+**Mecanismo 2 — Perda de hint técnico (q_avg_hours_male, N1/N2/N3):**
+
+Wording N0: *"Qual e a media de hours-per-week para linhas com sex igual
+a 'Male'? **Use a coluna entre aspas duplas.**"*
+
+Wordings N1/N2/N3: não mencionam aspas. SQL gerado:
+```sql
+SELECT AVG(hours-per-week) FROM adult WHERE sex = 'Male'
+-- OperationalError: no such column: hours  (SQLite interpreta como subtração)
+```
+qwen2.5-coder falha em todos os 3 seeds × 3 níveis = 9/9 falhas. phi4 e
+qwen3:14b usam aspas naturalmente (`"hours-per-week"`) mesmo sem hint —
+revelando diferença de proficiência SQL entre modelos.
+
+**Contrates Linha A vs Linha B:**
+
+| | Linha A | Linha B |
+|--|---------|---------|
+| N0→N3 geral | **0-10pp** (ruído) | **0-29pp** (real) |
+| Mecanismo limitante | Aritmética sobre 100 valores | Mapeamento semântico fuzzy→SQL |
+| Natureza do ceiling | **Estrutural** (tipo de cálculo) | **Semântico** (modelo-dependente) |
+| H_natural-1 | **Rejeitada** | **Confirmada** para 2/3 modelos |
+
+**Por que qwen3:14b é imune?** Hipóteses (não testadas):
+1. Training maior e mais recente inclui mais exemplos de SQL com nomes hifenados.
+2. qwen3:14b aplica aspas duplas em colunas hifenadas por default.
+3. Maior capacidade de inferir schema intent de perguntas ambíguas.
+
+**Implicação para o paper:**
+
+1. **Eixo de naturalidade tem valor científico distinto para as duas linhas:**
+   Linha A = naturalidade indiferente (gargalo é aritmética); Linha B =
+   naturalidade importa (gargalo é mapeamento semântico).
+
+2. **F-Q30 completa o par assimétrico** com F-Q29. A assimetria é o
+   achado — não a degradação por si só.
+
+3. **Dois tipos de falha SQL identificados e separáveis:**
+   (a) Ambiguidade de nome: "classe trabalhista" → `class` vs `workclass`
+   (b) Hint técnico perdido: "use aspas duplas" → colunas hifenadas sem aspas
+
+4. **Recomendação prática que sai do paper:** wordings de pergunta para
+   NL2SQL devem incluir o nome exato da coluna quando há hifens ou
+   ambiguidade de domínio. Wording N0 (schema-aware) maximiza accuracy;
+   N2 (business-intent) é o ponto ótimo entre naturalidade e
+   reliability para `q_avg_hours_male`.
+
+**Referência:** `experiments/results/m9_adult/manifest.jsonl` (2026-04-26,
+252 records multi-level, 3 seeds × 3 modelos × 4 níveis × 7 questions).
+
+---
+
 ## Ordem de aplicação ao desenhar novo experimento
 
 1. **F-Q1, F-Q8, F-Q9** — antes de configurar cliente Ollama

@@ -1,11 +1,11 @@
 ---
 title: M-natural — Taxonomia de naturalidade das perguntas (N0-N3)
 type: experiment
-status: PARTIAL — Adult Linha A local DONE (F-Q29); pendentes: Linha B local, comerciais, TPC-H
+status: PARTIAL — Adult Linha A+B locais DONE (F-Q29+F-Q30); pendentes: comerciais, TPC-H
 priority: 1
 date: 2026-04-26
 related: docs/research-notes/2026-04-26-consolidation-master.md
-findings: F-Q29 (Linha A local: naturalidade NAO degrada)
+findings: F-Q29 (Linha A local: NAO degrada), F-Q30 (Linha B local: DEGRADA seletivamente)
 ---
 
 # M-natural — perguntas naturais vs schema-aware
@@ -98,8 +98,12 @@ records de runners participantes.
       mistral-nemo, granite3.3:8b — top 57% (deepseek-r1, qwen2.5-coder); gpt-oss anomalia 29%
 - [x] Adult — borda baixa (5 modelos 0.6-4B): qwen3:4b-thinking, qwen3:4b, gemma3:4b,
       qwen3:1.7b, qwen3:0.6b — qwen3:1.7b 46% (empata gemma3:12b!); qwen3:0.6b floor 7%
+- [x] Adult — Linha B local (SQL gen): H_natural-1 CONFIRMADA parcialmente. qwen3:14b=100%
+      em todos os niveis; qwen2.5-coder:7b -29pp em N1; phi4 -14pp em N3. 2 mecanismos:
+      (a) ambiguidade "classe trabalhista" -> class vs workclass, (b) hint tecnico perdido.
+      F-Q30 registrada.
 - [ ] Adult — comerciais (M-Acomm com naturalness=all)
-- [ ] TPC-H — questions catalog (defer ate Adult Linha B confirmar valor)
+- [ ] TPC-H — questions catalog (apos comerciais)
 
 ## Referências
 
