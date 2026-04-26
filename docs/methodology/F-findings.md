@@ -1298,19 +1298,26 @@ uma questão (q_count, q_distinct_workclass geram `FROM vendas/adultos` em N0/N3
 | **q_distinct_workclass** | 100% | **67%** | 100% | 100% | **Ambiguidade semântica** — ver abaixo |
 | **q_avg_hours_male** | **67%** | **67%** | **67%** | **33%** | **Limitação do modelo** — ver abaixo |
 
-**Mecanismo 1 — Ambiguidade semântica (q_distinct_workclass, N1):**
+**Mecanismo 1 — Ambiguidade semântica (q_distinct_workclass, N1 — corrigido):**
 
-Wording N1: *"Quantas categorias diferentes de classe trabalhista existem?"*
+Wording N1 original: *"Quantas categorias diferentes de classe trabalhista existem?"*
 
-O LLM mapeia "classe trabalhista" → coluna `class` (renda: <=50K / >50K)
+O LLM mapeava "classe trabalhista" → coluna `class` (renda: <=50K / >50K)
 em vez de `workclass` (tipo de empregador). SQL gerado:
 ```sql
 SELECT COUNT(DISTINCT class) FROM adult  -- retorna 2, correto é 6
 ```
-N2 ("tipos distintos de vínculo empregatício") e N3 ("modalidades de
-trabalho") mapeiam corretamente para `workclass`. Apenas N1 cria
-ambiguidade. É **evidência direta** de que palavras naturais de domínio
-podem conflitar com nomes de colunas.
+**Correção (2026-04-26):** N1 atualizado para *"Quantas categorias
+diferentes de tipo de trabalho existem nos dados?"* — sem "classe".
+Após correção: N1 passou de 67% para **89%** (9/9 = 100% em 3 baseline
+seeds × 3 modelos; 8/10 na borda, falhas remanescentes por capacidade,
+não semântica).
+
+Esta correção confirma que a falha era **exclusivamente o falso amigo
+"classe"** — um artefato de design da pergunta, não uma limitação geral
+de mapeamento semântico N1. O fenômeno ainda é válido como exemplo
+(palavras ambíguas de domínio conflitam com nomes de colunas), mas
+não representa degradação sistemática de N0→N1 com wording cuidadoso.
 
 **Mecanismo 2 — Limitação de modelo com colunas hifenadas (q_avg_hours_male):**
 

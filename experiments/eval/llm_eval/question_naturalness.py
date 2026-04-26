@@ -129,7 +129,7 @@ ADULT_QUESTIONS: tuple[Question, ...] = (
                 "Quantos valores distintos de workclass aparecem na tabela adult? "
                 "Ignore valores nulos."
             ),
-            NaturalnessLevel.N1: "Quantas categorias diferentes de classe trabalhista existem?",
+            NaturalnessLevel.N1: "Quantas categorias diferentes de tipo de trabalho existem nos dados?",
             NaturalnessLevel.N2: "Quantos tipos distintos de vinculo empregaticio temos na amostra?",
             NaturalnessLevel.N3: "Em quantas modalidades de trabalho as pessoas se enquadram?",
         },
