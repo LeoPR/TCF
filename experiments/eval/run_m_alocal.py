@@ -34,6 +34,9 @@ sys.path.insert(0, str(ROOT / "scripts"))
 
 from llm_eval.ollama_client import OllamaClient
 from llm_eval.metrics import score_response
+from llm_eval.question_naturalness import (
+    NaturalnessLevel, get_questions as get_natural_questions, iter_levels,
+)
 from run_m9_adult import compute_gt_adult, build_questions_adult
 from run_m_acomm import LINHA_A_PROMPT, build_payload_linha_a
 from data_sources import load_dataset
@@ -67,6 +70,7 @@ def _load_completed(manifest_path: Path) -> set[str]:
 
 def run_m_alocal(
     models: list[str], volume: int, seeds: list[int], level: int, endpoint: str,
+    naturalness: tuple[NaturalnessLevel, ...] = (NaturalnessLevel.N0,),
 ) -> None:
     RESULTS_DIR.mkdir(parents=True, exist_ok=True)
     manifest_path = RESULTS_DIR / "manifest.jsonl"
@@ -80,10 +84,9 @@ def run_m_alocal(
             volume=volume, seed=seed, stratify_by="class",
         )
         gt = compute_gt_adult(tables["adult"])
-        questions = build_questions_adult()
         payload = build_payload_linha_a(tables, level=level)
         per_seed[seed] = {
-            "gt": gt, "questions": questions, "payload": payload,
+            "gt": gt, "payload": payload,
             "meta": meta,
             "stratification_metrics": meta.get("_stratification_metrics", []),
         }
@@ -91,17 +94,20 @@ def run_m_alocal(
     combos = []
     for seed in seeds:
         for model in models:
-            for q_name, q in per_seed[seed]["questions"].items():
-                key = f"malocal|{model}|vol{volume}|L{level}|s{seed}|{q_name}"
-                if key in completed:
-                    continue
-                combos.append({
-                    "key": key, "model": model, "seed": seed,
-                    "q_name": q_name, "q": q,
-                })
+            for nl in naturalness:
+                questions = get_natural_questions("adult-census", nl)
+                for q_name, q in questions.items():
+                    key = f"malocal|{model}|vol{volume}|L{level}|s{seed}|{nl.value}|{q_name}"
+                    if key in completed:
+                        continue
+                    combos.append({
+                        "key": key, "model": model, "seed": seed,
+                        "naturalness": nl, "q_name": q_name, "q": q,
+                    })
 
-    total = len(seeds) * len(models) * 7
-    print(f"[M-Alocal] {len(models)}m x 7q x {len(seeds)}s = {total} combos")
+    total = len(seeds) * len(models) * len(naturalness) * 7
+    levels_str = ",".join(nl.value for nl in naturalness)
+    print(f"[M-Alocal] {len(models)}m x 7q x {len(seeds)}s x {len(naturalness)}lvl ({levels_str}) = {total} combos")
     print(f"           {len(combos)} to run, {len(completed)} cached\n")
 
     seed0 = seeds[0]
@@ -163,8 +169,10 @@ def run_m_alocal(
             "key": c["key"], "phase": "m_alocal", "model": model,
             "dataset": "adult-census", "variant": "linha_a_tcf_local",
             "tcf_level": level,
+            "naturalness_level": c["naturalness"].value,
             "question": c["q_name"], "question_key": c["q"]["key"],
             "question_type": c["q"]["type"],
+            "question_text": c["q"]["text"],
             "seed": c["seed"], "volume": volume,
             "stratify_by": "class",
             "stratification_metrics": (state["stratification_metrics"][0]
@@ -205,26 +213,63 @@ def print_summary(manifest_path: Path) -> None:
     questions = ["q_count", "q_avg_age", "q_max_age", "q_distinct_workclass",
                  "q_top_education", "q_count_high_class", "q_avg_hours_male"]
 
+    levels = sorted({r.get("naturalness_level", "N0") for r in records})
+    multi_level = len(levels) > 1
+    from llm_eval.stats import wilson_ci
+
     by_m = defaultdict(list)
     by_mq = defaultdict(list)
+    by_ml = defaultdict(list)
+    by_lq = defaultdict(list)
     for r in records:
+        nl = r.get("naturalness_level", "N0")
         by_m[r["model"]].append(r["ok"])
         by_mq[(r["model"], r["question"])].append(r["ok"])
+        by_ml[(r["model"], nl)].append(r["ok"])
+        by_lq[(nl, r["question"])].append(r["ok"])
 
     print("  Per model:")
     for m in sorted(by_m):
         oks = by_m[m]
-        from llm_eval.stats import wilson_ci
         lo, hi = wilson_ci(sum(oks), len(oks))
         print(f"    {m:<22} {sum(oks)}/{len(oks)} = {sum(oks)/len(oks)*100:>5.1f}%  CI [{lo*100:.1f}%, {hi*100:.1f}%]")
 
-    print(f"\n  Per (model x question):")
+    if multi_level:
+        print(f"\n  Per (model x naturalness):")
+        print(f"  {'Model':<25}" + "  ".join(f"{l:<14}" for l in levels))
+        for m in sorted(by_m):
+            row = f"  {m:<25}"
+            for l in levels:
+                oks = by_ml.get((m, l), [])
+                if oks:
+                    row += f"  {sum(oks)}/{len(oks)} ({sum(oks)/len(oks)*100:.0f}%)    "
+                else:
+                    row += f"  {'-':<14}"
+            print(row)
+
+        print(f"\n  Per (naturalness x question):")
+        print(f"  {'Question':<25}" + "  ".join(f"{l:<14}" for l in levels))
+        for q in questions:
+            row = f"  {q:<25}"
+            for l in levels:
+                oks = by_lq.get((l, q), [])
+                if oks:
+                    row += f"  {sum(oks)}/{len(oks)} ({sum(oks)/len(oks)*100:.0f}%)    "
+                else:
+                    row += f"  {'-':<14}"
+            print(row)
+
+    print(f"\n  Per (model x question)" + (" [N0 only]" if multi_level else "") + ":")
     models = sorted(set(r["model"] for r in records))
+    n0_records = [r for r in records if r.get("naturalness_level", "N0") == "N0"] if multi_level else records
+    by_mq_show = defaultdict(list)
+    for r in n0_records:
+        by_mq_show[(r["model"], r["question"])].append(r["ok"])
     print(f"  {'Question':<25}" + "  ".join(f"{m[:18]:<18}" for m in models))
     for q in questions:
         row = f"  {q:<25}"
         for m in models:
-            oks = by_mq.get((m, q), [])
+            oks = by_mq_show.get((m, q), [])
             if oks:
                 row += f"  {sum(oks)}/{len(oks)} ({sum(oks)/len(oks)*100:.0f}%)        "
             else:
@@ -239,6 +284,10 @@ def main() -> None:
     parser.add_argument("--volume", type=int, default=100)
     parser.add_argument("--level", type=int, default=2, choices=[0, 1, 2, 3])
     parser.add_argument("--endpoint", default="http://localhost:11434")
+    parser.add_argument(
+        "--naturalness", default="N0",
+        help="Naturalness level(s): N0|N1|N2|N3|all|comma-separated. Default: N0 (legacy).",
+    )
     parser.add_argument("--summary", action="store_true")
     args = parser.parse_args()
 
@@ -246,7 +295,9 @@ def main() -> None:
         print_summary(RESULTS_DIR / "manifest.jsonl")
         return
 
-    run_m_alocal(args.models, args.volume, args.seeds, args.level, args.endpoint)
+    levels = tuple(iter_levels(args.naturalness))
+    run_m_alocal(args.models, args.volume, args.seeds, args.level,
+                 args.endpoint, naturalness=levels)
 
 
 if __name__ == "__main__":
