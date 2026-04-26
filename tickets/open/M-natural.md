@@ -114,7 +114,27 @@ records de runners participantes.
       gpt-5.4 e gpt-5.4-mini = 100% em N0/N1/N2/N3 (imunes); nano=90%, 4o-mini=86% flat.
       Falhas remanescentes por ambiguidade workclass/occupation e cols hifenadas.
       Custo: $0.25. F-Q32 registrada.
-- [ ] TPC-H — questions catalog (Phase 2.5 — multi-tabela com FK joins)
+- [x] TPC-H Linha B local: F-Q33. N2 cai 30-45pp em todos os 3 modelos. qwen3:14b
+      perde imunidade. Mecanismo: schema ambiguity sistematica (cost x qty,
+      retail vs supply cost, nome vs valor). 252 records.
+- [x] TPC-H Linha B comercial: F-Q34. Universal -43pp em N2 (gpt-5.4 e mini
+      tambem caem!). Schema linking continua problema aberto em jan/2026.
+      Comerciais falham MAIS que qwen3:14b em q_sum N2 (business semantics
+      aplicado mais agressivamente). 336 records, $0.41.
+
+## Tabela 2D final paper-ready
+
+|  | Single-table (Adult) | Multi-tabela (TPC-H) |
+|--|---------------------|----------------------|
+| Locais Linha A | Plano N0=N3 (F-Q29) | Nao testado (filter+agg ceiling) |
+| Locais Linha B | -15pp pior caso (F-Q30) | **-43pp em N2** (F-Q33) |
+| Comerciais Linha A | Reasoning quebra ceiling (F-Q31) | Pendente |
+| Comerciais Linha B | 100% imunes (F-Q32) | **-43pp em N2** (F-Q34) |
+
+Achado central: schema ambiguity em multi-tabela e UNIVERSAL — mesmo
+comerciais frontier (gpt-5.4) nao resolvem. Recomendacao pratica: para
+schemas com >=2 colunas semanticamente proximas, forcar wordings N0
+(schema-aware) em interfaces NL2SQL.
 
 ## Referências
 
