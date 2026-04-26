@@ -38,6 +38,7 @@ Cada nota e tagueada com a linha de pesquisa que a motivou:
 | 2026-04-25 | `{shared}` | [stratification-metrics](2026-04-25-stratification-metrics.md) | TVD/JSD/Hellinger/chi2/Wilson — implementado + validado | adult-census (3 casos) |
 | 2026-04-25 | `{shared}` | [canonical-migration-plan](2026-04-25-canonical-migration-plan.md) | ROADMAP — refazer M-series sobre canonical | — (Fases A-D propostas) |
 | 2026-04-25 | `{shared}` | [validation-master-plan](2026-04-25-validation-master-plan.md) | CHECKLIST CONSOLIDADO — gaps + redos com novas dimensões | — (~8 semanas para paper) |
+| 2026-04-26 | `{shared}` | [consolidation-master](2026-04-26-consolidation-master.md) | AUDITORIA F-Q1..28 + taxonomia naturalidade N0-N3 + reorg tickets | — (proposta para aprovação) |
 
 ## Notas por tema
 
