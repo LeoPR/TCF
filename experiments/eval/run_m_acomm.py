@@ -47,13 +47,30 @@ from tcf import encode_rows, EncodeConfig
 
 RESULTS_DIR = ROOT / "experiments" / "results" / "m_acomm"
 
-# Default commercial models — mix de cheap + capable
+# Default commercial models — mix de cheap + capable + frontier (Apr/2026)
+# Pricing snapshot in commercial_client.PRICING.
 DEFAULT_MODELS = [
-    "claude-haiku-4-5",
-    "claude-sonnet-4-6",
-    "gpt-4o-mini",
-    "gpt-4o",
+    # Anthropic: 3 tiers
+    "claude-haiku-4-5",      # cheap   — $1   /$5     (cached $0.10)
+    "claude-sonnet-4-6",     # mid     — $3   /$15    (cached $0.30)
+    "claude-opus-4-7",       # frontier — $5  /$25    (cached $0.50)
+    # OpenAI: 3 tiers (5.4 family — gpt-4o is in deprecation path)
+    "gpt-5.4-nano",          # cheap   — $0.20/$1.25  (cached $0.02)
+    "gpt-5.4-mini",          # mid     — $0.75/$4.50  (cached $0.075)
+    "gpt-5.4",               # frontier — $2.5/$15    (cached $0.25)
 ]
+
+# Static prefix that is identical across all questions for a given (seed, level, dataset).
+# Splitting out helps Anthropic prompt caching: same TCF payload re-used across 7 questions
+# means 6 cache reads at 0.1× input price after the first WRITE.
+LINHA_A_SYSTEM_PROMPT = """Voce e um analista de dados. Os dados abaixo estao em formato TCF (Textual Columnar Format) nivel 2:
+- Cada coluna lista seus valores em sequencia
+- "N*val" significa val repetido N vezes consecutivas (RLE)
+- STATS no topo de cada tabela tem agregacoes pre-computadas
+
+Responda a pergunta do usuario com APENAS o valor numerico ou nome textual, sem explicacao nem formula.
+
+{payload}"""
 
 
 # ---------------------------------------------------------------------------
@@ -149,9 +166,13 @@ def run_m_acomm(
             "stratification_metrics": meta.get("_stratification_metrics", []),
         }
 
+    # Iteration order optimised for prompt caching:
+    # (model, seed) external -> (naturalness, question) internal.
+    # Same TCF payload is re-used across 28 calls per (model, seed) — Anthropic
+    # cache_prefix or OpenAI automatic cache catches the repetition.
     combos = []
-    for seed in seeds:
-        for model in available_models:
+    for model in available_models:
+        for seed in seeds:
             for nl in naturalness:
                 questions = get_natural_questions("adult-census", nl)
                 for q_name, q in questions.items():
@@ -168,17 +189,53 @@ def run_m_acomm(
     print(f"[M-Acomm] {len(available_models)}models x 7q x {len(seeds)}s x {len(naturalness)}lvl ({levels_str}) = {total} combos")
     print(f"          {len(combos)} to run, {len(completed)} cached")
 
-    # Cost estimate
+    # Pre-flight token count + cost projection using count_tokens API.
+    # We use seed[0] payload, the first available model per provider, and assume
+    # 50 output tokens per call (short answers).
     sample_payload_chars = per_seed[seeds[0]]["payload_chars"]
-    est_input_tokens = sample_payload_chars / 4  # rough char→token
-    est_output_tokens = 50  # short answers expected
-    est_cost = sum(
-        estimate_cost(m, int(est_input_tokens), int(est_output_tokens))
-        for m in available_models
-    ) * 7 * len(seeds) * len(naturalness)
-    print(f"          estimated cost: ~${est_cost:.2f} USD (payload {sample_payload_chars} chars)")
+    sample_system = LINHA_A_SYSTEM_PROMPT.format(payload=per_seed[seeds[0]]["payload"])
+    sample_user_q = "Quantas linhas existem na tabela adult?"  # representative
+    est_output_tokens = 50
+
+    print(f"\n  Pre-flight token counts (count_tokens API):")
+    cost_breakdown = {}
+    for m in available_models:
+        try:
+            tok_system = client.count_tokens(m, sample_system)
+            tok_user = client.count_tokens(m, sample_user_q)
+            tok_input_total = tok_system + tok_user
+        except Exception as e:
+            tok_system = sample_payload_chars // 4
+            tok_user = 20
+            tok_input_total = tok_system + tok_user
+            print(f"    {m:<22} count_tokens FAILED ({e}); falling back to chars/4")
+        n_calls_per_model = 7 * len(seeds) * len(naturalness)
+        # Without caching cost
+        nocache = estimate_cost(m, tok_input_total, est_output_tokens) * n_calls_per_model
+        # With caching: 1 write per (seed) at full price + (n-1) reads at cached price
+        n_seed_groups = len(seeds)  # 1 cache write per seed group
+        n_cache_reads = n_calls_per_model - n_seed_groups
+        write_cost = estimate_cost(m, tok_system, 0) * n_seed_groups
+        read_cost = (
+            estimate_cost(m, 0, 0, cached_input_tokens=tok_system)
+            * n_cache_reads if PRICING.get(m, (None,))[-1] is not None else
+            estimate_cost(m, tok_system, 0) * n_cache_reads
+        )
+        # Always pay user-question input + output for every call
+        per_call_extra = (
+            (tok_user / 1_000_000) * PRICING[m][0]
+            + (est_output_tokens / 1_000_000) * PRICING[m][1]
+        )
+        cached_cost = write_cost + read_cost + per_call_extra * n_calls_per_model
+        cost_breakdown[m] = (tok_input_total, nocache, cached_cost)
+        print(f"    {m:<22} system={tok_system:<5} user~={tok_user:<3} "
+              f"calls={n_calls_per_model:<3}  ${nocache:.3f} no-cache  ${cached_cost:.3f} cached")
+
+    total_no_cache = sum(v[1] for v in cost_breakdown.values())
+    total_cached = sum(v[2] for v in cost_breakdown.values())
+    print(f"\n  TOTAL projected: ${total_no_cache:.3f} no-cache  |  ${total_cached:.3f} with caching")
     if max_cost_usd:
-        print(f"          budget cap: ${max_cost_usd:.2f} USD")
+        print(f"  Budget cap: ${max_cost_usd:.2f} USD")
     print()
 
     # Preview
@@ -195,10 +252,21 @@ def run_m_acomm(
     for i, c in enumerate(combos, 1):
         model = c["model"]
         state = per_seed[c["seed"]]
+        provider = "anthropic" if model.startswith("claude") else "openai"
 
-        prompt = LINHA_A_PROMPT.format(
-            payload=state["payload"], question=c["q"]["text"],
-        )
+        # Build system + user. For Anthropic we pass the system as cache_prefix
+        # (cached). For OpenAI we keep prompt order: TCF (static) first, question last
+        # so the automatic cache catches it.
+        system_text = LINHA_A_SYSTEM_PROMPT.format(payload=state["payload"])
+        user_text = f"## Pergunta\n{c['q']['text']}\n\n## Resposta\n"
+
+        if provider == "anthropic":
+            prompt = user_text
+            cache_prefix = system_text
+        else:
+            prompt = system_text + "\n\n" + user_text
+            cache_prefix = None
+
         elapsed = time.time() - t_start
         print(f"  [{i}/{len(combos)} el={elapsed:.0f}s ${client.total_cost_usd:.3f}] {c['key']}",
               end=" ", flush=True)
@@ -209,6 +277,7 @@ def run_m_acomm(
         cost_usd = 0.0
         prompt_tokens = 0
         response_tokens = 0
+        cached_tokens = 0
         total_ms = 0
         cumulative_cost = client.total_cost_usd
 
@@ -217,24 +286,25 @@ def run_m_acomm(
                 model, prompt,
                 options={"temperature": 0, "num_predict": 256},
                 timeout=120,
+                cache_prefix=cache_prefix,
             )
             response = result["text"]
             total_ms = result["total_duration_ns"] // 1_000_000
             prompt_tokens = result["prompt_tokens"]
             response_tokens = result["response_tokens"]
+            cached_tokens = result.get("cached_tokens", 0)
             cost_usd = result["cost_usd"]
             cumulative_cost = result["cumulative_cost_usd"]
 
-            # Score: Linha A scoring uses metrics.score_response on natural-language answer
             expected = state["gt"][c["q"]["key"]]
             ok, reason = score_response(response, expected, c["q"]["key"], config=DEFAULT_CONFIG)
-            print(f"{'OK' if ok else 'NO'} ({reason}) cost=${cost_usd:.4f}")
+            cache_tag = f" cache={cached_tokens}" if cached_tokens > 0 else ""
+            print(f"{'OK' if ok else 'NO'} ({reason}) ${cost_usd:.4f}{cache_tag}")
         except Exception as e:
             es = str(e)
             print(f"ERROR: {es[:80]}")
             response = f"ERROR:{es}"
             if "Budget cap" in es:
-                # Stop early on budget exhaustion
                 print(f"\n[M-Acomm] BUDGET CAP HIT — stopping. Cumulative: ${client.total_cost_usd:.4f}")
                 break
 
@@ -255,6 +325,7 @@ def run_m_acomm(
             "expected": str(state["gt"][c["q"]["key"]]),
             "prompt_chars": len(prompt), "total_ms": total_ms,
             "prompt_tokens": prompt_tokens, "response_tokens": response_tokens,
+            "cached_tokens": cached_tokens,
             "cost_usd": cost_usd, "cumulative_cost_usd": cumulative_cost,
         }
         with open(manifest_path, "a", encoding="utf-8") as fh:
@@ -403,25 +474,100 @@ def main() -> None:
 
     if args.dry_run:
         client = CommercialClient()
+        levels = tuple(iter_levels(args.naturalness))
+        n_calls_per_model = 7 * len(args.seeds) * len(levels)
+        n_seed_groups = len(args.seeds)
+
         print("=== M-Acomm dry-run ===")
-        print(f"Models requested: {args.models}")
+        print(f"Models requested:    {args.models}")
+        print(f"Seeds:               {args.seeds}")
+        print(f"Naturalness levels:  {[l.value for l in levels]}")
+        print(f"Calls per model:     7q x {len(args.seeds)}s x {len(levels)}lvl = {n_calls_per_model}")
+        print()
         for m in args.models:
             avail = "OK" if client.is_available(m) else "MISSING API KEY"
-            pricing = PRICING.get(m, ("?", "?"))
-            print(f"  {m:<25} [{avail:<15}] pricing: input=${pricing[0]}/1M output=${pricing[1]}/1M")
-        for seed in args.seeds[:1]:
-            tables, meta = load_dataset(
-                "canonical:adult-census",
-                volume=args.volume, seed=seed, stratify_by="class",
-            )
-            gt = compute_gt_adult(tables["adult"])
-            payload = build_payload_linha_a(tables, level=args.level)
-            print(f"\n  Adult vol={args.volume} seed={seed} TCF L{args.level}:")
-            print(f"    payload chars: {len(payload):,}")
-            print(f"    estimated tokens: ~{len(payload)//4:,}")
-            print(f"    GT: {gt}")
-            print(f"\n  Payload preview (first 600 chars):")
-            print(payload[:600])
+            pricing = PRICING.get(m)
+            cached = pricing[2] if pricing else None
+            cached_str = f" cached=${cached}/1M" if cached is not None else " no-cache"
+            print(f"  {m:<22} [{avail:<15}] in=${pricing[0]}/1M out=${pricing[1]}/1M{cached_str}")
+        print()
+
+        seed = args.seeds[0]
+        tables, meta = load_dataset(
+            "canonical:adult-census",
+            volume=args.volume, seed=seed, stratify_by="class",
+        )
+        gt = compute_gt_adult(tables["adult"])
+        payload = build_payload_linha_a(tables, level=args.level)
+        system_text = LINHA_A_SYSTEM_PROMPT.format(payload=payload)
+        sample_q = "Quantas linhas existem na tabela adult?"
+
+        print(f"  Adult vol={args.volume} seed={seed} TCF L{args.level}:")
+        print(f"    payload chars: {len(payload):,}")
+        print(f"    GT: {gt}")
+        print()
+
+        print(f"  Per-model token counts + projected cost:")
+        print(f"  {'Model':<22} {'sys_tok':>8} {'q_tok':>6} {'no-cache':>10} {'cached':>10} {'savings':>9}")
+        print(f"  {'-'*22} {'-'*8} {'-'*6} {'-'*10} {'-'*10} {'-'*9}")
+        total_no_cache = 0.0
+        total_cached = 0.0
+        for m in args.models:
+            available = client.is_available(m)
+            try:
+                if available:
+                    tok_system = client.count_tokens(m, system_text)
+                    tok_user = client.count_tokens(m, sample_q)
+                else:
+                    # Fallback when no API key: tiktoken (OpenAI) works locally,
+                    # Anthropic count_tokens needs key — use chars/4 heuristic.
+                    if not m.startswith("claude"):
+                        tok_system = client.count_tokens(m, system_text)
+                        tok_user = client.count_tokens(m, sample_q)
+                    else:
+                        tok_system = len(system_text) // 4
+                        tok_user = len(sample_q) // 4
+            except Exception:
+                tok_system = len(system_text) // 4
+                tok_user = len(sample_q) // 4
+
+            tok_input = tok_system + tok_user
+            est_output = 50
+
+            no_cache_per_call = estimate_cost(m, tok_input, est_output)
+            no_cache_total = no_cache_per_call * n_calls_per_model
+
+            # With caching: tok_system cached after 1 write per seed group
+            pricing = PRICING.get(m, (0, 0, None))
+            if pricing[2] is not None:
+                # 1 cache write per seed (full price), n-1 reads at cached price
+                writes = estimate_cost(m, tok_system, 0) * n_seed_groups
+                reads = (
+                    (tok_system / 1_000_000) * pricing[2]
+                    * (n_calls_per_model - n_seed_groups)
+                )
+                per_call_extra = (
+                    (tok_user / 1_000_000) * pricing[0]
+                    + (est_output / 1_000_000) * pricing[1]
+                ) * n_calls_per_model
+                cached_total = writes + reads + per_call_extra
+            else:
+                cached_total = no_cache_total  # no caching tier
+
+            savings = (1 - cached_total / no_cache_total) * 100 if no_cache_total > 0 else 0
+            total_no_cache += no_cache_total
+            total_cached += cached_total
+
+            print(f"  {m:<22} {tok_system:>8} {tok_user:>6} ${no_cache_total:>9.3f} ${cached_total:>9.3f} {savings:>7.1f}%")
+
+        print(f"  {'-'*22} {'-'*8} {'-'*6} {'-'*10} {'-'*10} {'-'*9}")
+        print(f"  {'TOTAL':<22} {'':>8} {'':>6} ${total_no_cache:>9.3f} ${total_cached:>9.3f}")
+        if args.max_cost_usd:
+            print(f"\n  Budget cap: ${args.max_cost_usd:.2f}")
+            if total_cached > args.max_cost_usd:
+                print(f"  WARNING: cached estimate exceeds budget cap!")
+        print(f"\n  Payload preview (first 400 chars):")
+        print(payload[:400])
         return
 
     levels = tuple(iter_levels(args.naturalness))
