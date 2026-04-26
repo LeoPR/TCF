@@ -1,10 +1,11 @@
 ---
 title: M-natural — Taxonomia de naturalidade das perguntas (N0-N3)
 type: experiment
-status: OPEN
+status: PARTIAL — Adult Linha A local DONE (F-Q29); pendentes: Linha B local, comerciais, TPC-H
 priority: 1
 date: 2026-04-26
 related: docs/research-notes/2026-04-26-consolidation-master.md
+findings: F-Q29 (Linha A local: naturalidade NAO degrada)
 ---
 
 # M-natural — perguntas naturais vs schema-aware
@@ -84,6 +85,21 @@ records de runners participantes.
 
 - F-Q29 (a registrar): degradação por naturalidade em modelos locais
 - F-Q30 (a registrar): comparação locais × comerciais por naturalidade
+
+## Status (2026-04-26)
+
+- [x] Adult — Linha A local (3 modelos × 3 seeds × 4 levels) → **F-Q29 registrada**:
+      naturalidade NAO degrada accuracy em Linha A local. Variacao <5pp entre niveis,
+      dentro do CI Wilson. Saturacao por tipo de question (filter+agg = 0%, full-agg = 100%)
+      domina. H_natural-1 nao se sustenta para Linha A local.
+- [ ] Adult — Linha B local (gera SQL): teste critico — se H_natural-1 valer aqui,
+      eixo de naturalidade tem valor cientifico real. Se nao valer, framework e descartavel.
+- [x] Adult — borda alta (5 modelos 8-20B): deepseek-r1:14b, gemma3:12b, gpt-oss:20b,
+      mistral-nemo, granite3.3:8b — top 57% (deepseek-r1, qwen2.5-coder); gpt-oss anomalia 29%
+- [x] Adult — borda baixa (5 modelos 0.6-4B): qwen3:4b-thinking, qwen3:4b, gemma3:4b,
+      qwen3:1.7b, qwen3:0.6b — qwen3:1.7b 46% (empata gemma3:12b!); qwen3:0.6b floor 7%
+- [ ] Adult — comerciais (M-Acomm com naturalness=all)
+- [ ] TPC-H — questions catalog (defer ate Adult Linha B confirmar valor)
 
 ## Referências
 

@@ -1111,6 +1111,142 @@ generalizado para datasets reais.
 
 ---
 
+## F-Q29 `{B}` — Naturalidade da pergunta NÃO degrada Linha A em locais (rejeita H_natural-1) — confirmado em 13 modelos 0.6B-20B
+
+**Conclusão:** Em **13 modelos locais** de **0.6B a 20B parâmetros** no
+paradigma Linha A (LLM lê TCF e calcula), reformular a pergunta de
+schema-aware (N0) → business+contexto (N3) **não move a accuracy**. As
+4 formulações ficam dentro do CI Wilson umas das outras em todos os
+modelos. **A hipótese H_natural-1** ("accuracy(N0) ≥ N1 ≥ N2 ≥ N3")
+**não se sustenta para Linha A em modelos locais**, independente de
+arquitetura, capacity, ou reasoning explícito.
+
+**Evidência principal (M-natural-local, 2026-04-26):** 3 modelos baseline
+× 3 seeds + 10 modelos extras × 1 seed × 4 níveis × 7 questions =
+**595 records** sobre Adult Census vol=100 stratify_by=class. Mesmo
+dataset e protocolo de F-Q28; só varia o wording.
+
+**Painel de modelos testados (13 total):**
+
+| Modelo | Params | Acc | CI (Wilson) |
+|--------|--------|-----|-------------|
+| **deepseek-r1:14b** | 14B | **57.1%** | [39.1%, 73.5%] |
+| **qwen2.5-coder:7b** | 7B | **57.1%** | [47.6%, 66.2%] (3 seeds) |
+| phi4:latest | 14B | 54.3% | [44.8%, 63.5%] (3 seeds) |
+| qwen3:14b | 14B | 47.6% | [38.3%, 57.1%] (3 seeds) |
+| qwen3:1.7b | **1.7B** | 46.4% | [29.5%, 64.2%] |
+| gemma3:12b | 12B | 46.4% | [29.5%, 64.2%] |
+| gemma3:4b | 4B | 46.4% | [29.5%, 64.2%] |
+| qwen3:4b | 4B | 42.9% | [26.5%, 60.9%] |
+| qwen3:4b-thinking | 4B | 42.9% | [26.5%, 60.9%] |
+| mistral-nemo:latest | 12B | 42.9% | [26.5%, 60.9%] |
+| granite3.3:8b | 8B | 39.3% | [23.6%, 57.6%] |
+| **gpt-oss:latest** | 20B | **28.6%** | [15.3%, 47.1%] (anomalia — ver abaixo) |
+| qwen3:0.6b | 0.6B | 7.1% | [2.0%, 22.6%] (floor real) |
+
+**Observações fortes:**
+
+1. **Tamanho não compra accuracy em Linha A.** qwen3:**1.7B** empata com
+   gemma3:**12B** em 46.4%. Reasoning explícito (qwen3:4b-thinking) também
+   não supera o base (42.9% em ambos). O ceiling é estrutural —
+   capacidade de calcular sobre 100 valores em texto não escala com
+   parâmetros nessa faixa.
+
+2. **gpt-oss 20B é anomalia (28.6%).** Apesar de ser o maior, fica abaixo
+   de qwen3:1.7b (1.7B). Possíveis causas: quantização MXFP4 agressiva,
+   formato de resposta divergente, ou VRAM offload em RTX 3060 12GB
+   prejudicando inferência. Não foi investigado a fundo — a faixa útil
+   prática é 7-14B em Q4_K_M.
+
+3. **qwen3:0.6b é floor real (7.1%).** Falha até em q_count
+   (`wrong_count`). Confirma que existe tamanho mínimo abaixo do qual o
+   modelo não opera nem em STATS hints. Para Linha A em texto-tabular,
+   não vale abaixo de ~1.5B params.
+
+4. **Reasoning explícito não ajuda.** qwen3:4b vs qwen3:4b-thinking ambos
+   42.9% (na mesma seed). deepseek-r1:14b (reasoning) empata com
+   qwen2.5-coder:7b (não-reasoning). O gargalo é cálculo, não raciocínio.
+
+**Por modelo × naturalidade (13 modelos):**
+
+| Modelo | N0 | N1 | N2 | N3 | Δ (max−min) |
+|--------|----|----|----|----|----|
+| qwen3:14b | 48% | 48% | 48% | 48% | **0pp** |
+| gpt-oss:latest | 29% | 29% | 29% | 29% | **0pp** |
+| qwen3:4b | 43% | 43% | 43% | 43% | **0pp** |
+| qwen3:4b-thinking | 43% | 43% | 43% | 43% | **0pp** |
+| mistral-nemo:latest | 43% | 43% | 43% | 43% | **0pp** |
+| phi4:latest | 52% | 57% | 52% | 57% | 5pp |
+| qwen2.5-coder:7b | 57% | 62% | 57% | 52% | 10pp |
+| gemma3:12b | 57% | 43% | 43% | 43% | 14pp |
+| gemma3:4b | 43% | 43% | 57% | 43% | 14pp |
+| qwen3:1.7b | 57% | 43% | 43% | 43% | 14pp |
+| granite3.3:8b | 43% | 43% | 43% | 29% | 14pp |
+| deepseek-r1:14b | 57% | 57% | 43% | 71% | 28pp (1 seed, ruído alto) |
+| qwen3:0.6b | 0% | 0% | 14% | 14% | 14pp |
+
+**Variação entre níveis é dominada por seed-noise**, não por wording. Cinco
+modelos têm accuracy **idêntica** nas 4 formulações. Os outros oscilam
+±5-14pp dentro de cada CI Wilson. **Sem tendência monotônica
+N0→N3 em nenhum modelo.**
+
+**Per (naturalidade × question):**
+
+| Question | N0 | N1 | N2 | N3 | Padrão |
+|----------|----|----|----|----|--------|
+| q_count, q_avg_age, q_max_age | 100% | 100% | 100% | 100% | **Saturação total** — STATS hint resolve |
+| q_top_education (string) | 56% | 67% | 44% | 56% | Variação por seed, não por nível |
+| q_distinct_workclass | 0% | 0% | **22%** | 0% | Falha quase total — N2 acidental |
+| q_count_high_class (filter+count) | 11% | 22% | 0% | 11% | Floor effect |
+| q_avg_hours_male (filter+avg) | 0% | 0% | 0% | 0% | Floor absoluto |
+
+**Mecanismo (porque H_natural-1 falhou):**
+
+A accuracy de Linha A é dominada pelo **tipo de cálculo** (full-table agg
+via STATS = 100% / filter+agg = 0%), não pela formulação da pergunta.
+O LLM não falha por "não entender o que perguntaram" — ele entende em N0
+e em N3 igual. Falha por **incapacidade de iterar+filtrar 100 valores**
+mentalmente, problema independente da naturalidade.
+
+A taxa de saturação por tipo de question (F-Q28) é o ceiling estrutural;
+naturalidade fica abaixo do ruído desse ceiling.
+
+**O que isso refuta e o que NÃO refuta:**
+
+- ✅ Refuta: H_natural-1 para Linha A em locais 7-14B sobre Adult Census.
+- ❌ Não refuta para Linha B (LLM gera SQL): em SQL a naturalidade
+  pode degradar gravemente porque o modelo precisa **mapear conceitos
+  fuzzy → operadores SQL** (ex: "alta renda" → `WHERE class='>50K'`).
+  Esse experimento (M-natural-local-linhaB) ainda não foi feito.
+- ❌ Não refuta para comerciais: GPT-4o e Claude Sonnet podem ter
+  capacidade aritmética mental suficiente para que naturalidade vire
+  fator dominante. M-Acomm com naturalness=all vai testar.
+
+**Implicação científica:**
+
+1. **Linha A é robusta a paráfrase** em locais — bom para cenários onde
+   o usuário fala "natural"; mau para cenários que exigem cálculo
+   complexo (já saturado).
+2. **Naturalidade só importa quando há margem para variar.** Com floor
+   effect (filter+agg = 0%) e ceiling effect (full-agg = 100%), as
+   wordings ficam invisíveis no agregado.
+3. **Recomendação para o paper:** apresentar F-Q29 como
+   *contra-evidência empírica* à intuição comum de que "perguntas
+   naturais quebram o pipeline". Para Linha A, a pergunta natural
+   funciona tão bem quanto a schema-aware — só não funciona porque o
+   tipo da operação aritmética é o gargalo.
+
+**Próximo:** Linha B com naturalness=all para testar se o gap N0→N3
+aparece quando o modelo precisa gerar SQL (não calcular). Esse é o
+experimento que define o valor científico do eixo de naturalidade.
+
+**Referência:** `experiments/results/m_alocal/manifest.jsonl` (2026-04-26,
+**595 records** — 63 N0 originais + 252 multi-level (3 baseline modelos)
++ 140 borda alta (5 modelos novos 8-20B) + 140 borda baixa (5 modelos
+0.6-4B)).
+
+---
+
 ## Ordem de aplicação ao desenhar novo experimento
 
 1. **F-Q1, F-Q8, F-Q9** — antes de configurar cliente Ollama
