@@ -35,6 +35,17 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 sys.path.insert(0, str(ROOT / "scripts"))
 
 from llm_eval.commercial_client import CommercialClient, PRICING, estimate_cost
+from pydantic import BaseModel
+
+
+class AnswerCell(BaseModel):
+    """Structured output schema for Adult Census Linha A.
+
+    All answers fit a single field; scorer normalises numeric/string downstream.
+    Using a permissive ``str`` keeps the schema flexible across the 7 question
+    types (count, numeric mean, max, distinct count, top category name).
+    """
+    value: str
 from llm_eval.metrics import score_response, strip_think, extract_number, DEFAULT_CONFIG, ScoringConfig
 from llm_eval.question_naturalness import (
     NaturalnessLevel, get_questions as get_natural_questions, iter_levels,
@@ -254,24 +265,22 @@ def run_m_acomm(
         state = per_seed[c["seed"]]
         provider = "anthropic" if model.startswith("claude") else "openai"
 
-        # Build system + user. For Anthropic we pass the system as cache_prefix
-        # (cached). For OpenAI we keep prompt order: TCF (static) first, question last
-        # so the automatic cache catches it.
-        system_text = LINHA_A_SYSTEM_PROMPT.format(payload=state["payload"])
-        user_text = f"## Pergunta\n{c['q']['text']}\n\n## Resposta\n"
+        # cache_prefix is the static TCF system payload (re-used across the
+        # 28 questions for a given seed). prompt is the user question only.
+        # Both Anthropic (cache_control) and OpenAI (prompt_cache_key) cache it.
+        cache_prefix = LINHA_A_SYSTEM_PROMPT.format(payload=state["payload"])
+        prompt = f"## Pergunta\n{c['q']['text']}\n\n## Resposta\n"
 
-        if provider == "anthropic":
-            prompt = user_text
-            cache_prefix = system_text
-        else:
-            prompt = system_text + "\n\n" + user_text
-            cache_prefix = None
+        # cache_key keeps OpenAI cache routes attributed to (model, seed) — OpenAI
+        # binds prompt_cache_key to org+model+key for routing.
+        cache_key = f"macomm|{model}|s{c['seed']}|L{level}"
 
         elapsed = time.time() - t_start
         print(f"  [{i}/{len(combos)} el={elapsed:.0f}s ${client.total_cost_usd:.3f}] {c['key']}",
               end=" ", flush=True)
 
         response = ""
+        text_parsed = None
         ok = False
         reason = "exception"
         cost_usd = 0.0
@@ -282,13 +291,21 @@ def run_m_acomm(
         cumulative_cost = client.total_cost_usd
 
         try:
+            # Reasoning models eat the output budget for chain-of-thought.
+            # 2048 leaves room for 1500-1800 reasoning tokens + the answer cell.
+            num_predict = 2048 if provider == "openai" and (
+                model.startswith("gpt-5") or model.startswith("o")
+            ) else 256
             result = client.generate(
                 model, prompt,
-                options={"temperature": 0, "num_predict": 256},
-                timeout=120,
+                options={"temperature": 0, "num_predict": num_predict},
+                timeout=180,
                 cache_prefix=cache_prefix,
+                text_format=AnswerCell if provider == "openai" else None,
+                cache_key=cache_key,
             )
             response = result["text"]
+            text_parsed = result.get("text_parsed")
             total_ms = result["total_duration_ns"] // 1_000_000
             prompt_tokens = result["prompt_tokens"]
             response_tokens = result["response_tokens"]
@@ -296,8 +313,14 @@ def run_m_acomm(
             cost_usd = result["cost_usd"]
             cumulative_cost = result["cumulative_cost_usd"]
 
+            # When structured output gave us a parsed cell, score the .value
+            # directly; otherwise fall back to raw text.
+            answer_for_score = (text_parsed.value if text_parsed is not None
+                                else response)
             expected = state["gt"][c["q"]["key"]]
-            ok, reason = score_response(response, expected, c["q"]["key"], config=DEFAULT_CONFIG)
+            ok, reason = score_response(
+                answer_for_score, expected, c["q"]["key"], config=DEFAULT_CONFIG,
+            )
             cache_tag = f" cache={cached_tokens}" if cached_tokens > 0 else ""
             print(f"{'OK' if ok else 'NO'} ({reason}) ${cost_usd:.4f}{cache_tag}")
         except Exception as e:
@@ -320,7 +343,9 @@ def run_m_acomm(
             "stratify_by": "class",
             "stratification_metrics": (state["stratification_metrics"][0]
                                         if state["stratification_metrics"] else None),
-            "response": response, "executed_result": "",
+            "response": response,
+            "response_parsed": text_parsed.value if text_parsed is not None else None,
+            "executed_result": "",
             "ok": ok, "reason": reason,
             "expected": str(state["gt"][c["q"]["key"]]),
             "prompt_chars": len(prompt), "total_ms": total_ms,

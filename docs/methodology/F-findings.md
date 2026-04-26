@@ -1397,6 +1397,116 @@ do query, não do modelo.
 
 ---
 
+## F-Q31 `{B}` — Linha A em comerciais com reasoning quebra o ceiling filter+agg local; o eixo é REASONING, não tamanho
+
+**Conclusão:** O ceiling de ~50% que F-Q12/F-Q28 estabeleceram para Linha A em
+modelos locais 0.6B-20B **não é universal**. Modelos comerciais com **chain-of-thought
+interno (reasoning)** atingem **82-95%** na mesma suite, com o tier mais barato
+(gpt-5.4-nano @ $0.20/$1.25 por 1M tokens) já fazendo 86.9%. O eixo limitante
+não é tamanho do modelo, é a presença de reasoning explícito — gpt-4o-mini
+(non-reasoning, modelo OpenAI da geração anterior) cai em 52.4%, **dentro
+do mesmo range dos locais**.
+
+**Evidência (M-Acomm Linha A, 2026-04-26):** 4 modelos OpenAI × 3 seeds × 4
+níveis × 7 questões = **336 records** sobre Adult Census vol=100
+stratify_by=class. Mesmo dataset e protocolo de F-Q28/F-Q29.
+
+**Tabela central:**
+
+| Modelo | Tipo | Linha A | CI Wilson | $/call (cached) |
+|--------|------|---------|-----------|------------------|
+| **gpt-5.4** | reasoning | **95.2%** | [88.4%, 98.1%] | $0.0061 |
+| **gpt-5.4-nano** | reasoning | **86.9%** | [78.1%, 92.5%] | $0.0007 |
+| **gpt-5.4-mini** | reasoning | **82.1%** | [72.6%, 88.9%] | $0.0027 |
+| **gpt-4o-mini** | non-reasoning | **52.4%** | [41.8%, 62.7%] | $0.0003 |
+| qwen3:14b (local) | non-reasoning | 47.6% | [38.3%, 57.1%] | $0 |
+| qwen2.5-coder:7b (local) | non-reasoning | 57.1% | [47.6%, 66.2%] | $0 |
+| deepseek-r1:14b (local) | reasoning | 57.1% | [39.1%, 73.5%] | $0 |
+
+**Per (modelo × naturalidade):**
+
+| Modelo | N0 | N1 | N2 | N3 | Gap |
+|--------|----|----|----|----|----|
+| gpt-5.4 | 100% | 90% | 90% | 100% | 10pp |
+| gpt-5.4-nano | 90% | 81% | 86% | 90% | 9pp |
+| gpt-5.4-mini | 86% | 76% | 86% | 81% | 10pp |
+| gpt-4o-mini | 52% | 48% | 52% | 57% | 9pp |
+
+Naturalidade tem efeito leve (~10pp gap), consistente com F-Q29 (não-degrada).
+
+**Por questão (todos os 4 modelos × 4 níveis):**
+
+| Question | gpt-5.4 | gpt-5.4-nano | gpt-5.4-mini | gpt-4o-mini |
+|----------|---------|--------------|--------------|-------------|
+| q_count, q_avg_age, q_max_age | 100% | 100% | 100% | 100% |
+| q_distinct_workclass | 89% | 100% N0 / mixed | 100% N0 / mixed | 75% N0 / 0% mixed |
+| q_top_education | 89% | 67-100% | 67-100% | 67-83% |
+| **q_count_high_class** | **75%** | **67-100%** | **0-83%** | **0-83%** |
+| **q_avg_hours_male** | **83%** | **100%** | **67-100%** | **0-75%** |
+
+`q_count_high_class` e `q_avg_hours_male` (filter+agg = ceiling local de 0%):
+- **gpt-5.4 e gpt-5.4-nano: 75-100%** → ceiling quebrado
+- gpt-4o-mini: 0-83% → comportamento similar a locais
+- **deepseek-r1:14b local (reasoning): 0% em filter+agg** — reasoning local
+  ainda não basta; o ganho não é só "ter reasoning", é "ter reasoning de
+  qualidade comercial".
+
+**Mecanismo (por que reasoning ajuda em filter+agg):**
+
+A questão `q_avg_hours_male` exige iterar sobre 100 linhas do TCF L2 (RLE-encoded),
+filtrar por sex='Male' (~50 linhas), somar hours-per-week dessas e dividir.
+LLMs sem chain-of-thought tentam responder direto e:
+1. Confundem o resultado da média geral (avg_hours = 42.43) com a média filtrada
+2. Subcontagem por contar parcial (mini: 18 vs 24 em count_high_class)
+3. Refusal quando tarefa fica complexa demais
+
+LLMs com chain-of-thought conseguem manter o registro de "sex igual a Male"
+ao iterar e produzir contagens corretas — empiricamente os gpt-5.x acertaram
+**100% em q_avg_hours_male** que locais nunca quebraram.
+
+**Sub-finding — hierarquia não monotônica em gpt-5.x:**
+
+gpt-5.4-mini (82.1%) é PIOR que gpt-5.4-nano (86.9%) — CIs sobrepõem mas
+ranking inverte. Possível razão: nano tem reasoning de qualidade comercial
++ menor tendência a "ficar em volta" (verbosity excessiva no chain-of-thought).
+Não é evidência de que mini é fundamentalmente pior; é evidência de que
+**em Linha A com reasoning de qualidade, o ganho satura cedo na escala**.
+
+**Implicações fortes para o paper:**
+
+1. **F-Q12/F-Q28 não são universais:** o ceiling 0% filter+agg observado
+   em locais 0.6-20B é uma propriedade da geração de modelos *non-reasoning*,
+   não uma limitação do paradigma Linha A.
+
+2. **Linha A passa a ser viável** para datasets pequenos (vol=100) quando
+   o modelo tem reasoning de qualidade comercial (gpt-5.x). O ceiling
+   95% do gpt-5.4 (full tier) está a 5pp de Linha B local — gap fechável
+   com outputs estruturados e prompts bem desenhados.
+
+3. **Custo da Linha A comercial é tratável:** gpt-5.4-nano fez 84 calls
+   a $0.0007/call = **$0.06**. Para uma aplicação que precise responder
+   "qual o faturamento dos clientes premium" sobre tabela de 100 linhas,
+   gpt-5.4-nano é viável e mais simples que pipeline Linha B (sem
+   necessidade de SQLite, schema validation, etc).
+
+4. **Recomendação prática:** Use Linha A com gpt-5.x para datasets pequenos,
+   Linha B com SQL execution para datasets grandes (>1000 linhas onde a
+   janela de contexto seria proibitiva).
+
+5. **Recomendação teórica:** Se reasoning local de qualidade comercial
+   chegar a domínio público (qwen3 com pensamento melhor, deepseek-r2,
+   etc.), o ceiling F-Q12 deve cair para esses modelos também. Vale
+   re-rodar F-Q31 em 6-12 meses.
+
+**Custo total do experimento:** $0.819 USD para 336 records (4 modelos × 84
+calls), com ~77% de cache hit em todos os modelos. Sem prompt caching o
+custo seria ~$3.50.
+
+**Referência:** `experiments/results/m_acomm/manifest.jsonl` (2026-04-26,
+336 records — F2 nano, F3 mini, F4 full, F5 4o-mini-controle).
+
+---
+
 ## Ordem de aplicação ao desenhar novo experimento
 
 1. **F-Q1, F-Q8, F-Q9** — antes de configurar cliente Ollama

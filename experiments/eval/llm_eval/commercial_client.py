@@ -197,6 +197,11 @@ class CommercialClient:
                 return len(prompt) // 4
         return len(prompt) // 4
 
+    def _is_openai_reasoning(self, model: str) -> bool:
+        """OpenAI reasoning model family (gpt-5, o-series) require different params."""
+        return (model.startswith("gpt-5") or model.startswith("o1")
+                or model.startswith("o3") or model.startswith("o4"))
+
     def generate(
         self,
         model: str,
@@ -205,13 +210,37 @@ class CommercialClient:
         options: dict | None = None,
         timeout: float = 120.0,
         cache_prefix: str | None = None,
+        text_format: type | None = None,
+        cache_key: str | None = None,
     ) -> dict:
-        """Generate completion. Returns dict with text, tokens, cost, latency_ns.
+        """Generate a model response. Provider-aware routing.
 
-        ``cache_prefix`` (Anthropic only): if provided, the prompt is split into
-        a cached system block (cache_prefix) + a non-cached user message
-        (prompt). All subsequent calls within 5 minutes that pass the same
-        cache_prefix benefit from cache reads at 0.1× input price.
+        Args
+        ----
+        model
+            Provider-prefixed id (``claude-*``, ``gpt-*``, ``o3``, etc.).
+        prompt
+            User-side input (the variable part of the request).
+        options
+            ``num_predict`` (max output tokens) and ``temperature`` (only used
+            for non-reasoning models).
+        cache_prefix
+            Static prefix that will be cached. Anthropic: passed as ``system``
+            block with ``cache_control``. OpenAI: passed as ``instructions``
+            in the Responses API (cached automatically; ``cache_key`` recommended).
+        text_format
+            Pydantic ``BaseModel`` subclass. When provided, OpenAI uses
+            ``responses.parse`` and returns the parsed object in ``text_parsed``.
+            Ignored for Anthropic (use tools/structured outputs there separately).
+        cache_key
+            OpenAI-only ``prompt_cache_key`` to keep cache reads attributed to
+            this experiment. If None, defaults to model name.
+
+        Returns
+        -------
+        dict with: ``text`` (raw), ``text_parsed`` (Pydantic instance or None),
+        ``prompt_tokens``, ``response_tokens``, ``cached_tokens``, ``cost_usd``,
+        ``cumulative_cost_usd``, ``total_duration_ns``.
         """
         options = options or {}
         max_tokens = options.get("num_predict", 2048)
@@ -225,6 +254,7 @@ class CommercialClient:
         provider = _provider_for(model)
         t_start = time.time()
         cached_tokens = 0
+        text_parsed = None
 
         if provider == "anthropic":
             client = self._get_anthropic()
@@ -248,22 +278,51 @@ class CommercialClient:
             prompt_tokens = usage.input_tokens
             response_tokens = usage.output_tokens
             cached_tokens = getattr(usage, "cache_read_input_tokens", 0) or 0
-            # cache_creation_input_tokens are the WRITE — counted once at full price.
-            # We surface them but don't double-charge here; Anthropic bills them
-            # in the same input_tokens line on its billing summary.
         elif provider == "openai":
             client = self._get_openai()
-            resp = client.chat.completions.create(
-                model=model,
-                max_tokens=max_tokens,
-                temperature=temperature,
-                messages=[{"role": "user", "content": prompt}],
-            )
-            text = resp.choices[0].message.content or ""
+            is_reasoning = self._is_openai_reasoning(model)
+
+            # Build Responses API kwargs.
+            # cache_prefix → instructions (cached static prefix);
+            # prompt → input (varies per call).
+            kwargs = {
+                "model": model,
+                "input": prompt,
+                "max_output_tokens": max_tokens,
+            }
+            if cache_prefix is not None:
+                kwargs["instructions"] = cache_prefix
+            kwargs["prompt_cache_key"] = cache_key or f"tcf_{model}"
+
+            if is_reasoning:
+                # GPT-5 / o-series: no temperature / top_p / seed accepted.
+                # ``reasoning.effort='low'`` is the cheapest setting that still
+                # allows real chain-of-thought (which is required for tasks
+                # like distinct counts or filter+agg over RLE-encoded data).
+                # ``effort='none'`` produces faster but worse answers (we
+                # validated this empirically). Output budget bumped to fit
+                # reasoning tokens + answer.
+                kwargs["reasoning"] = {"effort": "low"}
+                kwargs["text"] = {"verbosity": "low"}
+                if max_tokens < 512:
+                    kwargs["max_output_tokens"] = 512
+            else:
+                # gpt-4o family supports temperature/top_p.
+                kwargs["temperature"] = temperature
+                kwargs["top_p"] = 1
+
+            if text_format is not None:
+                resp = client.responses.parse(text_format=text_format, **kwargs)
+                text_parsed = resp.output_parsed
+                text = resp.output_text
+            else:
+                resp = client.responses.create(**kwargs)
+                text = resp.output_text
+
             usage = resp.usage
-            prompt_tokens = usage.prompt_tokens
-            response_tokens = usage.completion_tokens
-            details = getattr(usage, "prompt_tokens_details", None)
+            prompt_tokens = usage.input_tokens
+            response_tokens = usage.output_tokens
+            details = getattr(usage, "input_tokens_details", None)
             cached_tokens = getattr(details, "cached_tokens", 0) if details else 0
         else:
             raise ValueError(f"Provider {provider!r} not implemented")
@@ -274,6 +333,7 @@ class CommercialClient:
 
         return {
             "text": text,
+            "text_parsed": text_parsed,
             "total_duration_ns": elapsed_ns,
             "prompt_tokens": prompt_tokens,
             "response_tokens": response_tokens,
