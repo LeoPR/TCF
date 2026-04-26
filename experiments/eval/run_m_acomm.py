@@ -221,7 +221,7 @@ def run_m_acomm(
 
             # Score: Linha A scoring uses metrics.score_response on natural-language answer
             expected = state["gt"][c["q"]["key"]]
-            ok, reason = score_response(c["q"], response, {c["q"]["key"]: expected})
+            ok, reason = score_response(response, expected, c["q"]["key"])
             print(f"{'OK' if ok else 'NO'} ({reason}) cost=${cost_usd:.4f}")
         except Exception as e:
             es = str(e)

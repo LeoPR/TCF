@@ -36,20 +36,31 @@ Cada achado abaixo é rotulado com sua linha.
 
 ## Achados de alto impacto — Linha A (LLM como analista direto)
 
-### A0 `{A}` — Aritmética sobre colunas longas tem teto em ~60-70% para modelos locais
+### A0 `{A}` — Linha A local é VIÁVEL para agregações simples; INVIÁVEL para filter+agg
 
-**O que:** Modelos 7-14B locais não ultrapassam ~60-70% de accuracy em perguntas
-que exigem somar/contar colunas com >100 valores — nem com TCF L3 compacto,
-nem com STATS hints embutidos. A limitação é de *capacity aritmética* do
-modelo, não do formato de entrada.
+**O que (refinado em F-Q28, 2026-04-25):** Modelos 7-14B locais em Linha A
+(LLM lê TCF e calcula) atingem **52% global em Adult Census canonical**, mas
+o número global esconde **decomposição dramática**:
 
-**Por que importa:** É o achado que **motiva cientificamente a Linha B**. Se o
-modelo não consegue ser o calculador confiável, precisa ser o gerador de plano
-— daí H-TCF2 (Linha B) onde SQLite faz o cálculo.
+| Tipo de question | Acc local | Mecanismo |
+|------------------|-----------|-----------|
+| Stats agregadas diretas (count/sum/avg/max sobre tabela inteira) | **100%** | LLM lê STATS hint pré-computada |
+| Lookup categórico | ~50% | LLM conta ocorrências |
+| **Filter + agregação** (WHERE + COUNT/AVG) | **0-11%** | LLM precisa **operar** sobre dados |
+| Distinct count manual | **0%** | LLM precisa coletar valores únicos |
 
-**Evidência:** phase1-6, scale_progression, frontier_search.
+**Por que importa:**
+1. **Refina F-Q12 antigo** (que dizia "60-70% ceiling"): em verdade é
+   bimodal — 100% em alguns casos, 0% em outros, tudo depende se a
+   question precisa de filter ou não.
+2. **Motivação cientificamente afiada para Linha B:** se 100% das queries
+   forem full-table agg, Linha A funciona. Para qualquer query com WHERE,
+   Linha B (SQL) é necessária. Linha B no mesmo dataset = **100%** (F-Q25).
 
-**Referência:** F-Q12 em [F-findings.md](methodology/F-findings.md)
+**Evidência:** F-Q12 antigo (synthetic), F-Q28 novo (canonical Adult, 63
+combos, 3 modelos × 7 questions × 3 seeds).
+
+**Referência:** F-Q12 + F-Q28 em [F-findings.md](methodology/F-findings.md)
 
 ### Achados secundários da Linha A
 

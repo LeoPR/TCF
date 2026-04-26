@@ -30,7 +30,7 @@ entre as linhas.
 
 **`{shared}`:** F-Q1, F-Q2, F-Q3, F-Q4, F-Q5, F-Q6, F-Q7, F-Q8, F-Q9, F-Q10, F-Q11
 **`{A}`:** F-Q12
-**`{B}`:** F-Q13, F-Q14, F-Q15, F-Q16, F-Q17, F-Q18, F-Q19, F-Q20, F-Q21, F-Q22, F-Q23, F-Q24, F-Q25, F-Q26, F-Q27
+**`{B}`:** F-Q13, F-Q14, F-Q15, F-Q16, F-Q17, F-Q18, F-Q19, F-Q20, F-Q21, F-Q22, F-Q23, F-Q24, F-Q25, F-Q26, F-Q27, F-Q28
 
 ---
 
@@ -1036,6 +1036,78 @@ mais provável de errar — anti-correlação acidental.
 **Referência:** `experiments/results/m_quality/per_record.jsonl`
 (1551 records), `report.json`, `summary.md`. Reproduzível via
 `python experiments/eval/run_m_quality.py`.
+
+---
+
+## F-Q28 `{B}` — Linha A local em canonical: 52% — STATS resolvem agregação simples, FALHAM em filter+agg
+
+**Conclusão:** Reproduzindo F-Q12 em **Adult Census canonical** com método
+moderno (stratify, dedup correto, scoring atualizado): modelos locais 7-14B
+em Linha A (LLM lê TCF e calcula) atingem **52.4% (33/63 combos)**.
+Decomposição por tipo de question é **dramática**:
+
+| Tipo de Question | Acc média | Mecanismo |
+|-----------------|-----------|-----------|
+| **Stats agregadas diretas** (count, sum, avg, max sobre tabela inteira) | **100%** | LLM lê STATS hint pré-computada no topo |
+| Lookup categórico (top_education) | 52% | LLM precisa contar ocorrências |
+| **Filter + agregação** (WHERE + COUNT/AVG) | **5-11%** | LLM precisa **operar** sobre dados |
+| Distinct count manual | **0%** | LLM precisa coletar valores únicos |
+
+**Evidência (M-Alocal, 2026-04-25):** 3 modelos locais × 7 questions × 3 seeds
+= 63 combos sobre Adult vol=100 stratified by class. Mesmo dataset que F-Q25
+(M9-Adult Linha B = 100%).
+
+**Per modelo (todos similares, ~50-57%):**
+- qwen2.5-coder:7b: 12/21 = 57.1%, CI [36.5%, 75.5%]
+- phi4:latest: 11/21 = 52.4%, CI [32.4%, 71.7%]
+- qwen3:14b: 10/21 = 47.6%, CI [28.3%, 67.6%]
+
+Sem diferenciação significativa entre modelos — **arquitetura/capacity não
+ajuda em questões filter+agg para 7-14B**. Wilson CIs sobrepõem.
+
+**Atualização vs F-Q12 antigo:**
+- F-Q12 sintético antigo: **~60-70% ceiling** (synthetic retail)
+- F-Q28 canonical novo: **52.4%** — **pior** que F-Q12 antigo
+
+Adult Census é mais difícil porque tem mais questões com filter (vs synthetic
+retail dominado por full-table aggregations). Logo F-Q12 era subestimado se
+generalizado para datasets reais.
+
+**Comparação direta com Linha B (mesmo dataset, mesmas 7 questions):**
+
+| Paradigma | Accuracy | Mecanismo |
+|-----------|----------|-----------|
+| Linha A (LLM calcula) | **52%** | TCF L2 + STATS + LLM como calculador |
+| Linha B (LLM gera SQL) | **100%** (F-Q25) | TCF schema + LLM gera SQL + SQLite executa |
+
+**Diferenciação clara:** 48pp de gap. Linha B vence Linha A em filter+agg.
+
+**Implicação científica fortalecida:**
+
+1. **STATS hints servem para "aritmética grátis"**, não para "raciocínio
+   condicional". Se a question é "soma total" → LLM lê STATS sum=. Se é
+   "soma para sex='Male'" → LLM precisaria iterar sobre rows e filtrar,
+   o que não funciona.
+
+2. **Linha A é VIÁVEL para um subset bem-definido** (questions sem WHERE
+   sobre tabela inteira). Para qualquer question com filter, Linha A é
+   inviável em modelos locais.
+
+3. **F-Q12 fica refinado:** não é "Linha A satura em 60-70%". É:
+   - Aritmética agregada com STATS: ~100%
+   - Filter+agg sem STATS: ~5%
+   - Mistura proporcional dependente da workload
+
+4. **Paper benefit:** decomposição por tipo de question é mais defensável
+   que average global. Permite recomendação prática: "Use Linha A se 100%
+   das suas queries são full-table aggregations; senão use Linha B."
+
+**Para M-Acomm (Linha A em comerciais):** baseline definitivo é
+**52.4% locais com filter heavy**. Comerciais precisam superar isso
+**em queries com filter** especificamente para refutar F-Q12 universal.
+
+**Referência:** `experiments/results/m_alocal/manifest.jsonl` (2026-04-25,
+63 combos × Adult × Linha A).
 
 ---
 

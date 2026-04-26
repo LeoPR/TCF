@@ -144,7 +144,7 @@ def run_m_alocal(
                 prompt_tokens = result.get("prompt_tokens", 0)
                 response_tokens = result.get("response_tokens", 0)
                 expected = state["gt"][c["q"]["key"]]
-                ok, reason = score_response(c["q"], response, {c["q"]["key"]: expected})
+                ok, reason = score_response(response, expected, c["q"]["key"])
                 print(f"{'OK' if ok else 'NO'} ({reason})")
                 break
             except Exception as e:

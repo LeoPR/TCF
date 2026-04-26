@@ -31,6 +31,8 @@
 | M9 (canonical TPC-H via Pipeline B) | DONE | F-Q24: 100% tie-aware; synthetic ≈ canonical | m9_canonical |
 | M9-Adult (canonical Adult single-table) | DONE | F-Q25: 100% perfeito; hyphenated cols ok; stratify TVD=0.0007 | m9_adult |
 | M-strat (random vs stratified) | DONE | F-Q26: 100%/100% — floor effect; H1 OK, H2 não testável em Adult fácil | m_strat |
+| M-quality (post-hoc SQL quality) | DONE | F-Q27: quality estrutural INVERTIDO; mede dificuldade não correção | m_quality |
+| M-Alocal (Linha A locais canonical) | DONE | F-Q28: 52% — STATS resolvem agg simples; filter+agg falha em locais | m_alocal |
 | M8 (modelos comerciais) | PENDENTE | — | — |
 | M_perf (benchmark timing) | PENDENTE | pre-publicacao | — |
 

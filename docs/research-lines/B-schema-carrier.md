@@ -65,6 +65,8 @@ aritmética.
 | F-Q24 | Canonical TPC-H e synthetic produzem accuracy equivalente (100% tie-aware vs 96% synthetic) |
 | F-Q25 | H-TCF2 generaliza para single-table real (Adult Census) com cols hifenadas — 100% accuracy |
 | F-Q26 | Random ≈ Stratified em Adult vol=100 (floor effect); stratification é padrão metodológico, não diferencial de accuracy |
+| F-Q27 | Quality SQL estrutural correlaciona INVERSAMENTE com accuracy — mede complexidade de query, não correção |
+| F-Q28 | Linha A locais em canonical: 52% — STATS resolvem full-table agg (100%) mas filter+agg falha (0-11%) |
 
 ## Níveis de complexidade SQL testados
 
