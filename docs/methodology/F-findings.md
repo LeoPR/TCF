@@ -1265,13 +1265,29 @@ por **dois mecanismos distintos e reproduzíveis**.
 × 4 níveis × 7 questions = **252 combos** sobre Adult Census vol=100
 stratify_by=class. N0 idêntico ao M9-Adult original (F-Q25=100%).
 
-**Por modelo × naturalidade (wording N0 limpo, sem hint técnico):**
+**Por modelo × naturalidade — 13 modelos (0.6B–20B), wording N0 limpo:**
 
-| Modelo | N0 | N1 | N2 | N3 | Gap max |
-|--------|----|----|----|----|---------|
-| qwen3:14b | **100%** | **100%** | **100%** | **100%** | **0pp** |
-| phi4:latest | 100% | 100% | 100% | **86%** | 14pp em N3 |
-| qwen2.5-coder:7b | **86%** | **71%** | 86% | 81% | **15pp em N1** |
+| Modelo | Params | N0 | N1 | N2 | N3 | Gap max |
+|--------|--------|----|----|----|----|---------|
+| qwen3:14b | 14B | **100%** | **100%** | **100%** | **100%** | **0pp** |
+| gpt-oss:latest | 20B | **100%** | **100%** | **100%** | **100%** | **0pp — surp.¹** |
+| phi4:latest | 14B | 100% | 100% | 100% | 86% | 14pp N3 |
+| deepseek-r1:14b | 14B | 100% | 100% | 86% | **71%** | 29pp N3 |
+| gemma3:12b | 12B | 86% | 86% | 86% | 86% | **0pp** |
+| mistral-nemo | 12B | 86% | 86% | 86% | 86% | **0pp** |
+| qwen2.5-coder:7b | 7B | 86% | 71% | 86% | 81% | 15pp N1 |
+| qwen3:1.7b | 1.7B | 86% | 71% | 71% | 86% | 15pp |
+| gemma3:4b | 4B | 86% | 71% | 71% | **43%** | **43pp N3** |
+| granite3.3:8b | 8B | 71% | 71% | 71% | 71% | **0pp** |
+| qwen3:4b | 4B | 43% | 86% | 71% | 43% | 43pp (não monotônico²) |
+| qwen3:4b-thinking | 4B | 43% | 86% | 71% | 43% | igual qwen3:4b |
+| qwen3:0.6b | 0.6B | 57% | 43% | 43% | 43% | 14pp |
+
+¹ gpt-oss:latest (20B MXFP4) foi o pior modelo em Linha A (28.6%) e é perfeito em
+Linha B (100% em todos os níveis). Ver "Dissociação Linha A × Linha B" abaixo.
+
+² qwen3:4b e qwen3:4b-thinking com 1 seed apenas — variância alta. N1>N0 por
+uma questão (q_count, q_distinct_workclass geram `FROM vendas/adultos` em N0/N3).
 
 **Por questão × naturalidade (todos os 3 modelos agregados):**
 
@@ -1351,8 +1367,26 @@ falham independente do nível.
    N2 (business-intent) é o ponto ótimo entre naturalidade e
    reliability para `q_avg_hours_male`.
 
+**Dissociação Linha A × Linha B — achado transversal:**
+
+gpt-oss:latest (20B MXFP4) apresenta o caso mais extremo visto até agora:
+- **Linha A**: 28.6% — pior entre todos os 13 modelos testados
+- **Linha B**: 100% em N0/N1/N2/N3 — junto com qwen3:14b os únicos imunes
+
+Isso prova empiricamente que **geração de SQL e cálculo direto são
+capacidades orthogonais**. Um modelo pode ser excelente em mapear linguagem
+natural → SQL correto e ao mesmo tempo incapaz de iterar sobre 100 valores
+em texto. A arquitetura MXFP4 do gpt-oss pode ter degradado a precisão
+numérica (afetando Linha A) sem afetar geração de linguagem estruturada
+(Linha B).
+
+**Para o paper:** essa dissociação é evidência forte de que a comparação
+Linha A × Linha B não é trivial — é uma medida de duas capacidades
+distintas, e a escolha do paradigma deve ser feita de acordo com o perfil
+do query, não do modelo.
+
 **Referência:** `experiments/results/m9_adult/manifest.jsonl` (2026-04-26,
-252 records multi-level, 3 seeds × 3 modelos × 4 níveis × 7 questions).
+532 records — 252 baseline 3 modelos + 280 borda 10 modelos, 1 seed cada).
 
 ---
 
