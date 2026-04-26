@@ -1906,6 +1906,131 @@ não em outras (q_sum N3 "total investido" continua sendo cost × qty).
 
 ---
 
+## F-Q35 `{B}` — Linha A comercial em multi-tabela: ceiling cai para 60-76%; schema ambiguity ataca paradigm-independent
+
+**Conclusão:** Em TPC-H multi-tabela, Linha A comercial (LLM lê TCF e
+calcula direto) **cai 11-21pp** vs Adult. Mesmo gpt-5.4 (que fez 95% em
+Adult) chega só a **74%** em TPC-H. Naturalidade N2 derruba os 4 modelos
+para 43-57% — **paradigm-independent**: o mesmo gradiente N0→N2 que
+crashou Linha B (F-Q33/F-Q34) crasha Linha A. Schema ambiguity não
+exige geração de SQL para causar dano; basta o modelo ter que escolher
+qual coluna $ usar.
+
+**Evidência (M-Acomm-A-TPCH, 2026-04-26):** 4 modelos OpenAI × 3 seeds
+× 4 níveis × 7 questões = **336 records** sobre TPC-H sf001 com payload
+TCF L2 de **33,649 chars (~8400 tokens)** — 2.5× maior que Adult.
+
+**Tabela central — modelo × naturalidade (Linha A em TPC-H):**
+
+| Modelo | N0 | N1 | N2 | N3 | Acc geral | Adult |
+|--------|----|----|----|----|-----------|-------|
+| **gpt-5.4-nano** | 86% | 81% | **57%** | 81% | **76.2%** | 86.9% |
+| gpt-5.4 | 86% | 86% | **52%** | 71% | 73.8% | 95.2% |
+| gpt-5.4-mini | 76% | 81% | **43%** | 62% | 65.5% | 82.1% |
+| gpt-4o-mini | 62% | 67% | **52%** | 57% | 59.5% | 52.4% |
+
+**Sub-finding contraintuitivo — gpt-5.4-nano > gpt-5.4 full em TPC-H Linha A.**
+
+CIs sobrepõem mas o ranking se inverte vs Adult. Possível explicação:
+gpt-5.4 full aplica reasoning mais elaborado, que em TPC-H multi-tabela
+abre espaço para "interpretações criativas" do schema (cost × qty,
+retail vs supply). gpt-5.4-nano com reasoning de baixa intensidade fica
+mais literal e acerta mais. **Tier mais barato venceu o frontier.**
+
+**Per (naturalidade × questão):**
+
+| Question | N0 | N1 | N2 | N3 | Mecanismo |
+|----------|----|----|----|----|-----------|
+| q_count | 100% | 100% | 100% | 100% | Robusto |
+| q_avg | 100% | 100% | 92% | 100% | Quase robusto |
+| q_distinct | 75% | 75% | 100% | 83% | Variação por contagem (s_suppkey distinct) |
+| **q_sum** | 100% | 92% | **42%** | 50% | cost × qty (paradigm-independent) |
+| **q_lookup_value** | 100% | 92% | **8%** | 75% | Retorna nome em vez de valor |
+| **q_lookup** | 50% | 58% | **0%** | 42% | retail vs supply (universal failure N2) |
+| **q_top_product** | 17% | 33% | 17% | 25% | **JOIN lógico em Linha A é catastrófico** |
+
+**Mecanismo paradigma-independente — q_lookup N2 = 0/12 universal:**
+
+A wording N2 *"Qual fornecedor opera o item mais caro do nosso catálogo?"*
+faz com que **tanto Linha B (F-Q34) quanto Linha A (esta finding)** caiam
+para 0% em todos os 4 modelos comerciais. O modelo escolhe `p_retailprice`
+(catálogo de varejo) consistentemente em vez de `ps_supplycost` (custo
+de fornecimento), gerando SQL errado em Linha B ou raciocínio errado
+em Linha A. **Schema ambiguity não é resolvida pelo paradigm.**
+
+**Sub-finding novo — q_top_product é o teto inferior em Linha A multi-tabela:**
+
+q_top_product Linha A TPC-H = 17-33%. Em Linha B = 75-83%. Diferença ~50pp.
+
+Mecanismo: q_top_product exige **agrupar partkeys, contar ocorrências,
+ordenar, mapear top → nome via JOIN com `part`**. Em Linha B isso é
+1 linha de SQL. Em Linha A o modelo precisa fazer manualmente:
+1. Iterar 100 valores de ps_partkey (RLE-encoded)
+2. Manter contagens em head
+3. Encontrar max de count
+4. Cruzar com 94 valores de p_partkey + p_name na outra tabela TCF
+
+Mesmo gpt-5.4 falha frequentemente — não é falta de capacidade aritmética,
+é capacidade limitada de manter **estado relacional cruzado** durante
+chain-of-thought.
+
+**Comparação Adult × TPC-H (Linha A comercial):**
+
+| Modelo | Adult | TPC-H | Δ | Razão da queda |
+|--------|-------|-------|---|----------------|
+| gpt-5.4 | 95.2% | 73.8% | **-21pp** | Schema ambiguity + JOIN lógico |
+| gpt-5.4-nano | 86.9% | 76.2% | **-11pp** | Mais resiliente; menor reasoning = mais literal |
+| gpt-5.4-mini | 82.1% | 65.5% | **-17pp** | Schema ambiguity hits hardest aqui |
+| gpt-4o-mini | 52.4% | 59.5% | **+7pp** | Subiu! Floor vs questions accessible |
+
+gpt-4o-mini é o único que **subiu de Adult para TPC-H em Linha A**.
+Hipótese: em Adult, gpt-4o-mini falhou em filter+agg (q_count_high_class,
+q_avg_hours_male). Em TPC-H não há filter+agg como question — todas as
+operações são full-table. As perguntas TPC-H mapeiam para STATS hints
+mais bem para o modelo non-reasoning.
+
+**Tabela 2D paper-ready FINAL (8 células):**
+
+|                    | Adult (single-table)         | TPC-H (multi-table)            |
+|--------------------|------------------------------|--------------------------------|
+| Locais Linha A     | Plano (F-Q29) ~50%           | Não testado*                   |
+| Locais Linha B     | -15pp (F-Q30) 86-100%        | **-43pp** (F-Q33) 52-95%       |
+| Comerciais Linha A | Reasoning quebra (F-Q31) 95% | **-21pp** (F-Q35) 60-76%       |
+| Comerciais Linha B | 100% imunes (F-Q32)          | **-43pp** (F-Q34) 48-86%       |
+
+\* Locais Linha A em TPC-H não testados — F-Q12/F-Q28 ceiling sugere
+~0-30% se o filter+agg dominar; vol=100 com 3 tabelas (33K char payload)
+provavelmente excede capacity de qwen3:14b context.
+
+**Implicações para o paper:**
+
+1. **Linha A não é solução universal.** Funciona bem para single-table com
+   colunas inequívocas (Adult, gpt-5.4 = 95%). Em multi-tabela com
+   ambiguidade, cai para 60-76%.
+
+2. **Linha B continua melhor que Linha A em TPC-H comercial:**
+   - Linha B: 71-86% (F-Q34)
+   - Linha A: 60-76% (F-Q35)
+   - Linha B vence por 10-15pp e custa **5× menos** (payload schema-only).
+
+3. **q_top_product é o caso limite** — 17% em Linha A vs 75% em Linha B.
+   Workloads que precisam JOIN lógico **devem usar Linha B** sem
+   discussão.
+
+4. **Schema ambiguity é paradigm-independent.** Resolver isso exige:
+   - Wordings schema-aware (N0) em interfaces NL2SQL com schemas ambíguos
+   - Few-shot examples ancorando interpretações
+   - Schema linking explícito como fase pre-execution
+   - **Não é algo que o LLM resolve por ser maior ou ter mais reasoning.**
+
+**Custo:** $1.68 USD para 336 records. **Cumulativo M-Acomm completo
+(Adult A+B + TPC-H A+B): $3.16 USD / $30 budget (10.5%).**
+
+**Referência:** `experiments/results/m_acommA_tpch/manifest.jsonl`
+(2026-04-26, 336 records — gpt-5.4-nano, mini, full, gpt-4o-mini).
+
+---
+
 ## Ordem de aplicação ao desenhar novo experimento
 
 1. **F-Q1, F-Q8, F-Q9** — antes de configurar cliente Ollama

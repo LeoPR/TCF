@@ -122,19 +122,35 @@ records de runners participantes.
       Comerciais falham MAIS que qwen3:14b em q_sum N2 (business semantics
       aplicado mais agressivamente). 336 records, $0.41.
 
-## Tabela 2D final paper-ready
+## Tabela 2D final paper-ready (todas as 8 celulas com 1 lacuna)
 
 |  | Single-table (Adult) | Multi-tabela (TPC-H) |
 |--|---------------------|----------------------|
 | Locais Linha A | Plano N0=N3 (F-Q29) | Nao testado (filter+agg ceiling) |
 | Locais Linha B | -15pp pior caso (F-Q30) | **-43pp em N2** (F-Q33) |
-| Comerciais Linha A | Reasoning quebra ceiling (F-Q31) | Pendente |
+| Comerciais Linha A | Reasoning quebra ceiling (F-Q31) | **-21pp em N2** (F-Q35) |
 | Comerciais Linha B | 100% imunes (F-Q32) | **-43pp em N2** (F-Q34) |
 
-Achado central: schema ambiguity em multi-tabela e UNIVERSAL — mesmo
-comerciais frontier (gpt-5.4) nao resolvem. Recomendacao pratica: para
-schemas com >=2 colunas semanticamente proximas, forcar wordings N0
-(schema-aware) em interfaces NL2SQL.
+Achados centrais:
+1. Schema ambiguity em multi-tabela e UNIVERSAL — mesmo comerciais
+   frontier (gpt-5.4) nao resolvem (F-Q33, F-Q34, F-Q35).
+2. **Schema ambiguity e paradigm-independent**: N2 quebra TANTO
+   Linha A quanto Linha B em TPC-H. Resolvendo um dos paradigmas
+   nao resolve o outro.
+3. Em Linha A TPC-H, gpt-5.4-nano (76%) > gpt-5.4 full (74%) —
+   reasoning agressivo abre espaco para interpretacoes criativas
+   que divergem do GT.
+4. Linha B vence Linha A em TPC-H por 10-15pp e custa 5x menos.
+5. q_top_product e teto inferior universal (17% Linha A vs 75% Linha B)
+   — JOIN logico em Linha A e catastrofico.
+
+Recomendacao pratica para o paper:
+- Schemas com cols ambiguas (>=2 colunas $ proximas) -> wordings N0
+  obrigatorios em interfaces NL2SQL
+- Workloads com JOIN logico -> Linha B sem excecao
+- Linha A util apenas para single-table com cols inequivocas
+
+Custo total M-Acomm: $3.16 / $30 (10.5%).
 
 ## Referências
 
