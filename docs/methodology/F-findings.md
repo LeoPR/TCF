@@ -1167,17 +1167,17 @@ dataset e protocolo de F-Q28; só varia o wording.
    42.9% (na mesma seed). deepseek-r1:14b (reasoning) empata com
    qwen2.5-coder:7b (não-reasoning). O gargalo é cálculo, não raciocínio.
 
-**Por modelo × naturalidade (13 modelos):**
+**Por modelo × naturalidade (13 modelos, wording N0 limpo — sem hint técnico):**
 
 | Modelo | N0 | N1 | N2 | N3 | Δ (max−min) |
 |--------|----|----|----|----|----|
-| qwen3:14b | 48% | 48% | 48% | 48% | **0pp** |
+| qwen3:14b | 51% | 48% | 48% | 48% | 3pp |
 | gpt-oss:latest | 29% | 29% | 29% | 29% | **0pp** |
 | qwen3:4b | 43% | 43% | 43% | 43% | **0pp** |
 | qwen3:4b-thinking | 43% | 43% | 43% | 43% | **0pp** |
 | mistral-nemo:latest | 43% | 43% | 43% | 43% | **0pp** |
-| phi4:latest | 52% | 57% | 52% | 57% | 5pp |
-| qwen2.5-coder:7b | 57% | 62% | 57% | 52% | 10pp |
+| phi4:latest | 56% | 57% | 52% | 57% | 5pp |
+| qwen2.5-coder:7b | 62% | 62% | 57% | 52% | 10pp |
 | gemma3:12b | 57% | 43% | 43% | 43% | 14pp |
 | gemma3:4b | 43% | 43% | 57% | 43% | 14pp |
 | qwen3:1.7b | 57% | 43% | 43% | 43% | 14pp |
@@ -1185,10 +1185,15 @@ dataset e protocolo de F-Q28; só varia o wording.
 | deepseek-r1:14b | 57% | 57% | 43% | 71% | 28pp (1 seed, ruído alto) |
 | qwen3:0.6b | 0% | 0% | 14% | 14% | 14pp |
 
-**Variação entre níveis é dominada por seed-noise**, não por wording. Cinco
+**Variação entre níveis é dominada por seed-noise**, não por wording. Quatro
 modelos têm accuracy **idêntica** nas 4 formulações. Os outros oscilam
 ±5-14pp dentro de cada CI Wilson. **Sem tendência monotônica
 N0→N3 em nenhum modelo.**
+
+*Nota: wording N0 de `q_avg_hours_male` foi corrigido em 2026-04-26 para
+remover hint técnico SQL ("use aspas duplas") que era cola não representativa
+de uso real. Resultado: `q_avg_hours_male` continua 0% em todos os níveis
+para Linha A — o gargalo é filter+agg, não o wording.*
 
 **Per (naturalidade × question):**
 
@@ -1247,7 +1252,7 @@ experimento que define o valor científico do eixo de naturalidade.
 
 ---
 
-## F-Q30 `{B}` — Naturalidade DEGRADA Linha B seletivamente: ambiguidade semântica e perda de hints técnicos
+## F-Q30 `{B}` — Naturalidade DEGRADA Linha B seletivamente: ambiguidade semântica e limitação de modelo com colunas hifenadas
 
 **Conclusão:** Em Linha B (LLM gera SQL → SQLite executa), naturalidade
 **degrada accuracy** em 2 dos 3 modelos testados, mas não uniformemente —
@@ -1260,13 +1265,13 @@ por **dois mecanismos distintos e reproduzíveis**.
 × 4 níveis × 7 questions = **252 combos** sobre Adult Census vol=100
 stratify_by=class. N0 idêntico ao M9-Adult original (F-Q25=100%).
 
-**Por modelo × naturalidade:**
+**Por modelo × naturalidade (wording N0 limpo, sem hint técnico):**
 
-| Modelo | N0 | N1 | N2 | N3 | Min |
-|--------|----|----|----|----|-----|
-| qwen3:14b | **100%** | **100%** | **100%** | **100%** | **0pp gap** |
-| phi4:latest | 100% | 100% | 100% | **86%** | 14pp gap em N3 |
-| qwen2.5-coder:7b | 100% | **71%** | 86% | 81% | **29pp gap em N1** |
+| Modelo | N0 | N1 | N2 | N3 | Gap max |
+|--------|----|----|----|----|---------|
+| qwen3:14b | **100%** | **100%** | **100%** | **100%** | **0pp** |
+| phi4:latest | 100% | 100% | 100% | **86%** | 14pp em N3 |
+| qwen2.5-coder:7b | **86%** | **71%** | 86% | 81% | **15pp em N1** |
 
 **Por questão × naturalidade (todos os 3 modelos agregados):**
 
@@ -1275,7 +1280,7 @@ stratify_by=class. N0 idêntico ao M9-Adult original (F-Q25=100%).
 | q_count, q_max_age, q_top_education, q_count_high_class | 100% | 100% | 100% | 100% | Robusto — sem ambiguidade |
 | q_avg_age | 100% | 100% | 100% | 89% | phi4 falha 1/3 seeds em N3 |
 | **q_distinct_workclass** | 100% | **67%** | 100% | 100% | **Ambiguidade semântica** — ver abaixo |
-| **q_avg_hours_male** | 100% | **67%** | **67%** | **33%** | **Perda de hint técnico** — ver abaixo |
+| **q_avg_hours_male** | **67%** | **67%** | **67%** | **33%** | **Limitação do modelo** — ver abaixo |
 
 **Mecanismo 1 — Ambiguidade semântica (q_distinct_workclass, N1):**
 
@@ -1291,19 +1296,27 @@ trabalho") mapeiam corretamente para `workclass`. Apenas N1 cria
 ambiguidade. É **evidência direta** de que palavras naturais de domínio
 podem conflitar com nomes de colunas.
 
-**Mecanismo 2 — Perda de hint técnico (q_avg_hours_male, N1/N2/N3):**
+**Mecanismo 2 — Limitação de modelo com colunas hifenadas (q_avg_hours_male):**
 
-Wording N0: *"Qual e a media de hours-per-week para linhas com sex igual
-a 'Male'? **Use a coluna entre aspas duplas.**"*
+A coluna `hours-per-week` requer aspas duplas no SQLite para ser tratada
+como identificador (sem aspas, `hours-per-week` é interpretado como
+subtração, gerando `OperationalError: no such column: hours`).
 
-Wordings N1/N2/N3: não mencionam aspas. SQL gerado:
-```sql
-SELECT AVG(hours-per-week) FROM adult WHERE sex = 'Male'
--- OperationalError: no such column: hours  (SQLite interpreta como subtração)
-```
-qwen2.5-coder falha em todos os 3 seeds × 3 níveis = 9/9 falhas. phi4 e
-qwen3:14b usam aspas naturalmente (`"hours-per-week"`) mesmo sem hint —
-revelando diferença de proficiência SQL entre modelos.
+**qwen2.5-coder:7b** não usa aspas em colunas hifenadas — falha em
+**todos os 4 níveis** (N0=N1=N2=0%, N3=0%). Wording não importa: é
+limitação do modelo, não da pergunta. qwen3:14b e phi4 usam aspas
+naturalmente (`"hours-per-week"`) em todos os níveis.
+
+**Correção experimental:** o wording N0 original incluía *"Use a coluna
+entre aspas duplas"* — hint SQL que mascarava a limitação do modelo
+(qwen2.5-coder passava 100% em N0 com hint; 0% sem). Após remoção do
+hint (2026-04-26), N0 de `q_avg_hours_male` fica em 67% (qwen3:14b 100%
++ phi4 ~75% + qwen2.5-coder 0%). Não há degradação N0→N1/N2 — apenas N3
+cai para 33% (phi4 falha 1/3 seeds em N3 também).
+
+Essa question separa modelos por **proficiência SQL com SQLite**: os que
+citam aspas corretamente são resilientes a wording; os que não citam
+falham independente do nível.
 
 **Contrates Linha A vs Linha B:**
 

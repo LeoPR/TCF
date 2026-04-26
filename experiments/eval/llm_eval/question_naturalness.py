@@ -181,8 +181,7 @@ ADULT_QUESTIONS: tuple[Question, ...] = (
         type="numeric",
         wordings={
             NaturalnessLevel.N0: (
-                "Qual e a media de hours-per-week para linhas com sex igual "
-                "a 'Male'? Use a coluna entre aspas duplas."
+                "Qual e a media de hours-per-week para linhas com sex igual a 'Male'?"
             ),
             NaturalnessLevel.N1: "Qual a media de horas trabalhadas por semana entre os homens?",
             NaturalnessLevel.N2: "Em media, quantas horas semanais os homens trabalham?",

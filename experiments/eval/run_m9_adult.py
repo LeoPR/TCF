@@ -119,7 +119,7 @@ def build_questions_adult() -> dict:
             "key": "count_high_class", "type": "count",
         },
         "q_avg_hours_male": {
-            "text": "Qual e a media de hours-per-week para linhas com sex igual a 'Male'? Use a coluna entre aspas duplas.",
+            "text": "Qual e a media de hours-per-week para linhas com sex igual a 'Male'?",
             "key": "avg_hours_male", "type": "numeric",
         },
     }
