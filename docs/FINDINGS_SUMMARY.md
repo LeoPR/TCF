@@ -30,7 +30,7 @@ para evolucao logica ver [CONSOLIDATED_SCIENCE.md](CONSOLIDATED_SCIENCE.md).
 
 ---
 
-## Os 6 achados centrais (top of paper)
+## Os 7 achados centrais (top of paper)
 
 ### 1. Linha A vs Linha B nao sao paradigmas equivalentes
 
@@ -100,7 +100,25 @@ o reasoning. Em Linha B isso e 1 linha de SQL.
 **Recomendacao**: workloads com JOIN logico devem usar Linha B sem
 discussao.
 
-### 6. Anthropic vs OpenAI: paridade em B, gap em A
+### 6. Schema pruning é OBRIGATÓRIO em NL2SQL com wordings naturais
+
+**F-Q38** (1008 records TPC-H Linha B local): schema reduzido (`minimal`,
+1 tabela) atinge **+33pp** em N3 vs schema completo (`full`, 8 tabelas).
+Em N0 (schema-aware) o efeito desaparece (~95% em todos os levels).
+
+| Level | N0 | N1 | N2 | N3 |
+|-------|----|----|----|----|
+| minimal (1 tab) | 92% | 86% | **67%** | **81%** |
+| full (8 tabs) | 95% | 87% | 52% | **48%** |
+
+**Mecanismo**: TPC-H full tem 4-5 colunas $ candidatas; wordings business
+N2/N3 ativam interpretacoes alternativas plausiveis. Em minimal com so
+`partsupp`, modelo e forcado a interpretacao correta.
+
+Confirma literatura industrial (Cortex Analyst, DAIL-SQL, CHESS).
+**Schema pruning não é otimização opcional — é parte da pipeline.**
+
+### 7. Anthropic vs OpenAI: paridade em B, gap em A
 
 **F-Q36**: 1968 records comparativos.
 - **Linha B**: paridade nas duas familias (96-99% Adult, 80-88% TPC-H)

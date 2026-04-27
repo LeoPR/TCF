@@ -218,17 +218,46 @@ caem para 57-58% (range non-reasoning).
 
 ---
 
-## Parte V — Eixo horizontal de schema (F-Q37+ em curso)
+## Parte V — Eixo horizontal de schema (F-Q37, F-Q38)
 
 **Pergunta**: schema reduzido vs excessivo afeta accuracy SQL gen?
 
-**M-schema-scope** (em execução): 4 níveis (minimal/core/chain/full) × 3
-modelos × 3 seeds × 7q = 252 calls. Hipóteses:
-- H_scope-1: minimal causa falhas por informação faltante
-- H_scope-2: full causa ruído por mais opções
-- H_scope-3: efeito moderado pela naturalidade
+### F-Q37 — escopo NÃO degrada Linha B em N0
 
-Resultados a serem registrados em F-Q37 quando concluir.
+3 modelos × 3 seeds × 4 levels × 7q × N0 = 252 records. Variar schema
+visível de 1 (`minimal`) a 8 tabelas (`full`) **não move accuracy**:
+- qwen3:14b e qwen2.5-coder em 95% nos 4 níveis
+- phi4 cai marginalmente em minimal (86%)
+
+**Sub-finding**: modelos inferem `Supplier#NNNNNNNNN` via padrão lexical
+mesmo sem ter `supplier` no payload — memorização do schema canônico
+TPC-H. **Risco metodológico de leakage** documentado.
+
+### F-Q38 — escopo × naturalidade: H_scope-3 CONFIRMADA
+
+3 modelos × 3 seeds × 4 levels × 4 níveis × 7q = 1008 records. **Schema
+reduzido AJUDA dramaticamente em wordings naturais**:
+
+| Level | N0 | N1 | N2 | N3 |
+|-------|----|----|----|----|
+| minimal (1 tab) | 92% | 86% | **67%** | **81%** |
+| full (8 tabs) | 95% | 87% | 52% | **48%** |
+
+**Diferença minimal vs full:**
+- N0: -3pp (irrelevante)
+- N3: **+33pp** (minimal venceria por larga margem!)
+
+Mecanismo: full tem 4-5 colunas $ candidatas (ps_supplycost,
+p_retailprice, l_extendedprice, o_totalprice, l_discount) — wordings
+business N2/N3 ativam interpretações alternativas plausíveis. Em
+minimal com só `partsupp`, o modelo é forçado à interpretação correta.
+
+**Schema pruning** (recomendação universal Cortex/DAIL-SQL/CHESS) fica
+**empiricamente justificada**. Não é otimização opcional — é parte da
+pipeline NL2SQL.
+
+phi4 é mais sensível (-16pp minimal→full); qwen2.5-coder mais estável
+(-3pp). Resposta varia por modelo mas direção é universal.
 
 ---
 

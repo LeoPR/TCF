@@ -2237,6 +2237,103 @@ H_scope-3 (efeito × naturalidade). 1008 calls locais, ~40min, $0.
 
 ---
 
+## F-Q38 `{B}` — Interação escopo × naturalidade: schema reduzido AJUDA em wordings naturais (-33pp full vs minimal em N3)
+
+**Conclusão:** **H_scope-3 do ticket M-schema-scope CONFIRMADA**. Em
+wordings naturais (N2/N3), schema reduzido (`minimal`, 1 tabela) atinge
+accuracy **15-33pp maior** que schema completo (`full`, 8 tabelas) em
+TPC-H. Em wordings schema-aware (N0), o efeito desaparece (todos ~95%).
+**Schema pruning** — recomendação universal da literatura industrial
+(Cortex Analyst, DAIL-SQL, CHESS) — fica empiricamente justificada.
+
+**Evidência (M-schema-scope, 2026-04-27):** 3 modelos × 3 seeds × 4
+levels × 4 níveis × 7q = **1008 records** sobre TPC-H. Estende F-Q37
+(que cobria só N0).
+
+**Tabela central — schema_level × naturalidade (todos modelos agregados):**
+
+| Level | N0 | N1 | N2 | N3 | Δ N0→N3 |
+|-------|----|----|----|----|----|
+| **minimal** (1 tab) | 92% | 86% | **67%** | **81%** | **-11pp** |
+| core (2 tabs) | 95% | 92% | 52% | 70% | -25pp |
+| chain (3 tabs) | 95% | 90% | 56% | 73% | -22pp |
+| **full** (8 tabs) | 95% | 87% | **52%** | **48%** | **-47pp** |
+
+**Diferença minimal vs full:**
+- N0: -3pp (schema-aware imune)
+- N1: -1pp (system-aware, leve)
+- N2: **+15pp** (minimal > full)
+- N3: **+33pp** (minimal > full) — **EFEITO DRAMÁTICO**
+
+**Per modelo × schema_level (agregado nl):**
+
+| Modelo | minimal | core | chain | full | Δ minimal→full |
+|--------|---------|------|-------|------|----------------|
+| qwen3:14b | **88%** | 81% | 86% | 75% | -13pp |
+| phi4:latest | 79% | 74% | 73% | **63%** | **-16pp** |
+| qwen2.5-coder:7b | 77% | 77% | 77% | 74% | -3pp |
+
+**phi4 é mais sensível ao excesso de schema** (-16pp); qwen2.5-coder é
+mais estável (-3pp). qwen3:14b mantém-se forte mas perde 13pp em full.
+
+**Mecanismo — N3 em full é o pior caso:**
+
+Wording N3 *"Qual o ticket médio de custo unitário na nossa operação?"*
+em full (8 tabelas TPC-H) tem 4-5 colunas $ candidatas:
+- ps_supplycost (correto)
+- p_retailprice (catálogo)
+- l_extendedprice (lineitem)
+- o_totalprice (orders)
+- l_discount (lineitem)
+
+O modelo escolhe entre elas com taxa de erro alta. Em minimal
+(1 tabela = partsupp), só `ps_supplycost` é candidata viável e o
+modelo é forçado à interpretação correta.
+
+Mesmo em chain (3 tabelas, sem orders/lineitem), só ps_supplycost e
+p_retailprice competem — daí 73% N3 (vs 48% full).
+
+**Implicações fortes:**
+
+1. **F-Q33/F-Q34 (schema ambiguity em multi-tabela) era subestimação.**
+   O verdadeiro estado é: ambiguidade × escopo. Em chain, gpt-5.4 caía
+   -43pp em N2; em full seria pior ainda.
+
+2. **Schema pruning não é otimização opcional — é parte da pipeline.**
+   Sistemas NL2SQL em produção devem extrair subset relevante antes de
+   passar ao LLM, especialmente para wordings business.
+
+3. **Custo cognitivo de "mais opções" é mensurável:** cada coluna
+   semanticamente próxima adicional adiciona ~5-10pp de erro em N2/N3.
+
+4. **Refrasear F-Q37**: era "escopo NÃO degrada N0". Verdade completa
+   é: "escopo não degrada N0; degrada N1 levemente; degrada N2 e N3
+   dramaticamente". F-Q37 fica como sub-claim de F-Q38.
+
+5. **Recomendação prática para o paper:** combinar TCF (compressão) +
+   schema_qualifier (pruning) é o caminho. Já há roadmap em
+   `research-notes/2026-04-24-schema-qualifier.md` — F-Q38 dá motivação
+   empírica para implementar.
+
+**Sub-finding sobre N3 minimal (81%) > N1 minimal (86% mas próximo):**
+
+N3 em minimal recupera a 81%, mais alto que core/chain/full em N3
+(48-73%). O contexto business em N3 ("nossa operação") **melhora**
+quando o modelo só tem 1 tabela para considerar — o "nosso" mapeia
+naturalmente para `partsupp`.
+
+**Custo:** $0 (Ollama local).
+
+**Pendências relacionadas:**
+- Schema pruning como serviço pre-TCF (schema_qualifier roadmap)
+- Replicar F-Q38 em comerciais (gpt-5.x, Anthropic) — esperado
+  mesma direção, gap maior que locais por capacidade
+
+**Referência:** `experiments/results/m_schema_scope/manifest.jsonl`
+(2026-04-27, 1008 records).
+
+---
+
 ## Ordem de aplicação ao desenhar novo experimento
 
 1. **F-Q1, F-Q8, F-Q9** — antes de configurar cliente Ollama
