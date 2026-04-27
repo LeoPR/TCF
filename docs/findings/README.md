@@ -2,17 +2,23 @@
 type: summary
 status: LIVING DOCUMENT — atualizado conforme M-series avanca
 last_updated: 2026-04-27
-source: docs/methodology/F-findings.md (fonte canonica completa)
 ---
 
 # TCF — Achados principais (resumo paper-ready)
 
 Este documento concentra os **achados de alto impacto** que serao o nucleo
-do paper. Catalogo completo em
-[methodology/F-findings.md](methodology/F-findings.md).
+do paper. Catalogo completo dividido por tema em arquivos vizinhos:
 
-Para evolucao operacional ver [CONSOLIDATED_DEVELOPMENT.md](CONSOLIDATED_DEVELOPMENT.md);
-para evolucao logica ver [CONSOLIDATED_SCIENCE.md](CONSOLIDATED_SCIENCE.md).
+| Bloco | Range | Tema |
+|-------|-------|------|
+| [01-origins](01-origins-Q01-Q12.md) | F-Q1..F-Q12 | Capacidades fundamentais |
+| [02-linha-b](02-linha-b-Q13-Q24.md) | F-Q13..F-Q24 | Linha B sintetica |
+| [03-protocol](03-protocol-Q25-Q28.md) | F-Q25..F-Q28 | Protocolo + canonical |
+| [04-naturalness](04-naturalness-Q29-Q36.md) | F-Q29..F-Q36 | Eixo naturalidade N0-N3 |
+| [05-schema-scope](05-schema-scope-Q37-Q38.md) | F-Q37..F-Q38 | Eixo horizontal schema |
+
+Para evolucao operacional ver [../workbench/DEVELOPMENT.md](../workbench/DEVELOPMENT.md);
+para evolucao logica ver [../workbench/SCIENCE.md](../workbench/SCIENCE.md).
 
 **Duas linhas de pesquisa**:
 - **Linha A** — LLM le TCF e calcula direto

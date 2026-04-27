@@ -79,3 +79,5 @@ datasets/derivations/
 !datasets/samples/**/.gitkeep
 !datasets/quality-reports/*.md
 !datasets/questions/*.json
+
+pergunta.md
