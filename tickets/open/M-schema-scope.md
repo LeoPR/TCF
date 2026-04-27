@@ -1,10 +1,11 @@
 ---
 title: M-schema-scope — efeito do escopo horizontal de schema em accuracy
 type: experiment
-status: OPEN
+status: PARTIAL — N0 DONE (F-Q37). N1/N2/N3 pendente para H_scope-3 completo
 priority: 2
-date: 2026-04-26
+date: 2026-04-27
 related: docs/research-notes/2026-04-26-consolidation-master.md
+findings: F-Q37 (escopo NAO degrada N0; modelos inferem nomes via padrao lexical)
 ---
 
 # M-schema-scope — pouco vs muito schema afeta accuracy?
