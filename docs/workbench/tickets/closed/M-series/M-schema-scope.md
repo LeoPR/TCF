@@ -1,7 +1,7 @@
 ---
 title: M-schema-scope — efeito do escopo horizontal de schema em accuracy
 type: experiment
-status: DONE — F-Q37 (N0) + F-Q38 (interacao escopo x naturalidade)
+status: CLOSED
 priority: 2
 date: 2026-04-27
 related: docs/research-notes/2026-04-26-consolidation-master.md

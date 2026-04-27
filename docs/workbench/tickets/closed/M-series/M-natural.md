@@ -1,7 +1,7 @@
 ---
 title: M-natural — Taxonomia de naturalidade das perguntas (N0-N3)
 type: experiment
-status: ADULT_DONE — Adult dataset 4 paradigmas DONE; TPC-H pendente (Phase 2.5)
+status: CLOSED
 priority: 1
 date: 2026-04-26
 related: docs/research-notes/2026-04-26-consolidation-master.md
