@@ -245,3 +245,26 @@ Nosso gerador (crm_sales) usa Zipf com s~0.8 para FKs. Ratios atuais
   year={2020}
 }
 ```
+
+---
+
+## Adendos — refs emergentes do M-Acomm (a integrar no paper)
+
+Os experimentos M-Acomm + M-schema-scope (abr/2026) revelaram que a
+literatura industrial recente sobre **schema linking e schema pruning**
+e mais relevante do que aparentava. Refs identificadas em
+[../workbench/research-notes/2026-04-25-tabular-formats-literature.md](../workbench/research-notes/2026-04-25-tabular-formats-literature.md):
+
+| Ref | Conexao com TCF |
+|-----|-----------------|
+| **DAIL-SQL** (Gao et al., 2023) | Confirma que schema linking degrada com complexidade — F-Q34/F-Q35 |
+| **CHESS** (Talaei et al., 2024) | Schema pruning agressivo melhora multi-tabela — F-Q38 confirma empiricamente |
+| **Cortex Analyst** (Snowflake) | Recomenda explicitamente schema pruning para wordings business — alinha F-Q38 |
+| **SiriusBI** (VLDB 2024) | Ambiguity recovery em BI — F-Q33 mostra mecanismo |
+| **Luo et al.** (VLDB 2024) | "Schema linking continua problema aberto" — F-Q34 confirma em janeiro 2026 |
+| **Spider 2.0** (2024) | Wordings naturais derrubam SQL gen accuracy — F-Q30 alinha |
+
+A versao final de Cap. 2 deve incluir essas refs + paragrafo dedicado
+a schema linking como problema aberto. Backlog completo (incluindo refs
+nao essenciais) em
+[../workbench/research-notes/2026-04-25-tabular-formats-literature.md](../workbench/research-notes/2026-04-25-tabular-formats-literature.md).
