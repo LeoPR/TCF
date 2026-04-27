@@ -1,70 +1,86 @@
-# Adult (Census Income) — UCI ML Repository
+# Adult Census Income — UCI ML Repository
 
-Placeholder para o dataset Adult. O download e metadata completo
-serao criados no ticket [05-T-datasets-adult](../../../tickets/open/05-T-datasets-adult.md).
+Single-table canonical dataset used in TCF M-series experiments
+(F-Q25..F-Q32 in [docs/findings/](../../../docs/findings/)).
 
-## Origem
+## Source
 
-- **Nome:** Adult (tambem conhecido como "Census Income")
-- **Origem:** US Census Bureau, 1994
-- **Curadores:** Ronny Kohavi e Barry Becker (Silicon Graphics)
-- **Disponibilizado por:** UCI Machine Learning Repository
-- **Via:** OpenML (id=1590)
+- **Name**: Adult, also known as "Census Income"
+- **Origin**: US Census Bureau, 1994 extract
+- **Curators**: Ronny Kohavi & Barry Becker (Silicon Graphics)
+- **License**: public domain (US gov)
+- **Citation**: Kohavi, R. (1996). "Scaling Up the Accuracy of Naive-Bayes
+  Classifiers: a Decision-Tree Hybrid". KDD-96.
+- **URL**: https://archive.ics.uci.edu/ml/datasets/adult
 
-## Licenca
+## Schema
 
-CC BY 4.0 — Creative Commons Attribution 4.0 International
-Uso academico e comercial permitido com atribuicao.
+15 columns × 48,842 rows (32,561 train + 16,281 test, merged here):
 
-## Como baixar
+| Column | Type | Notes |
+|--------|------|-------|
+| age | INTEGER | 17-90 |
+| workclass | TEXT | 9 categories incl. "?" (~6% null) |
+| fnlwgt | INTEGER | sampling weight (US Census methodology) |
+| education | TEXT | 16 ordinal categories |
+| education-num | INTEGER | 1-16 |
+| marital-status | TEXT | 7 categories |
+| occupation | TEXT | 15 categories incl. "?" |
+| relationship | TEXT | 6 categories |
+| race | TEXT | 5 categories |
+| sex | TEXT | Male / Female |
+| capital-gain | INTEGER | mostly 0; max 99,999 |
+| capital-loss | INTEGER | mostly 0 |
+| **hours-per-week** | INTEGER | hyphenated — requires `"hours-per-week"` quoting in SQLite |
+| native-country | TEXT | 42 countries incl. "?" |
+| **class** | TEXT | `<=50K` (76%) / `>50K` (24%) — target |
+
+## How to download
 
 ```bash
-pip install -e ".[datasets]"  # instala scikit-learn
-python scripts/setup_adult.py  # baixa para Z:\tcf-data\external\adult-census\
+# Run from repo root
+python scripts/setup_adult.py
 ```
 
-## Tamanho
+This downloads `adult.data` and `adult.test` from UCI, merges, cleans
+trailing whitespace, and writes to:
 
-- **Rows:** 48.842 (train + test combinados)
-- **Colunas:** 14 features + 1 target
-- **Tamanho CSV:** ~5MB
-- **Missing values:** sim (representados como `?` em 3 colunas)
+```
+$TCF_DATA_ROOT/external/adult-census/adult.csv
+```
 
-## Colunas
+`$TCF_DATA_ROOT` defaults to `Z:/tcf-data/` on Windows; configurable via
+`config/storage.json`. See
+[../../../docs/theory/architecture/storage.md](../../../docs/theory/architecture/storage.md).
 
-| # | Nome | Tipo | Descricao |
-|---|------|------|-----------|
-| 1 | age | int | Idade |
-| 2 | workclass | category | Tipo de emprego (nullable) |
-| 3 | fnlwgt | int | Peso amostral do Census |
-| 4 | education | category | Nivel educacional |
-| 5 | education-num | int | Anos de educacao |
-| 6 | marital-status | category | Estado civil |
-| 7 | occupation | category | Ocupacao (nullable) |
-| 8 | relationship | category | Relacao familiar |
-| 9 | race | category | Raca declarada |
-| 10 | sex | binary | Male/Female |
-| 11 | capital-gain | int | Ganho de capital anual |
-| 12 | capital-loss | int | Perda de capital anual |
-| 13 | hours-per-week | int | Horas trabalhadas por semana |
-| 14 | native-country | category | Pais de origem (nullable) |
-| 15 | **class** | binary | Target: `>50K` ou `<=50K` |
+## Build SQLite
 
-## Por que este dataset
+```bash
+python scripts/csv_to_sqlite.py adult-census
+```
 
-- **Real:** dados demograficos reais dos EUA (nao sintetico)
-- **Padrao academico:** usado em centenas de papers de classificacao e fairness
-- **Mixed types:** int, category, binary — testa multiplos tipos
-- **Missing values naturais:** `?` em workclass, occupation, native-country
-- **Tamanho:** 48K rows e realista para benchmarks sem ser excessivo
+Creates `$TCF_DATA_ROOT/interim/adult-census.db` with PK + FK + types
+declared per `metadata.json`.
 
-## Citacao
+## Use in experiments
 
-Becker, Barry and Kohavi, Ronny (1996). Adult. UCI Machine Learning
-Repository. https://doi.org/10.24432/C5XW20
+```python
+from experiments.eval.data_sources import load_dataset
 
-## Referencias
+tables, meta = load_dataset(
+    "canonical:adult-census",
+    volume=100, seed=42,
+    stratify_by="class",  # preserves 76/24 ratio
+)
+# meta["_stratification_metrics"] has TVD/JSD/Hellinger/Wilson CI
+```
 
-- [UCI ML Repository](https://archive.ics.uci.edu/dataset/2/adult)
-- [OpenML dataset 1590](https://www.openml.org/d/1590)
-- [scikit-learn fetch_openml docs](https://scikit-learn.org/stable/modules/generated/sklearn.datasets.fetch_openml.html)
+## Caveats
+
+- **`?` values** are textual nulls — code that uses `distinct_workclass`
+  must explicitly exclude them (`WHERE workclass != '?'`)
+- **`hours-per-week`, `marital-status`, etc.** require double-quoting
+  in SQLite. Some local models (qwen2.5-coder:7b) consistently fail
+  this — see manual [07-troubleshooting](../../../docs/manual/07-troubleshooting.md).
+- **Train + test merged**: we treat the full 48,842 as our population.
+  Use `stratify_by="class"` for fair sampling.

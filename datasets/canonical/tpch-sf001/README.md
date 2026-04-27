@@ -1,62 +1,98 @@
-# TPC-H Scale Factor 0.01
+# TPC-H sf001 — Industry-standard relational benchmark
 
-Placeholder para o dataset TPC-H SF=0.01. O download e metadata completo
-serao criados no ticket [04-T-datasets-tpch](../../../tickets/open/04-T-datasets-tpch.md).
+Multi-table canonical dataset used in TCF M-series experiments
+(F-Q24, F-Q33..F-Q38).
 
-## Origem
+## Source
 
-- **Nome:** TPC-H (Transaction Processing Performance Council — Decision Support)
-- **Versao:** especificacao 3.0.1
-- **Dominio:** wholesale retail / supply chain
-- **Padrao:** usado como benchmark de OLAP desde 1999
+- **Name**: TPC-H (Transaction Processing Council Benchmark H)
+- **Scale factor**: sf001 (~1 MB raw; ~17,000 rows on largest table
+  `lineitem` with our sampling)
+- **Generator**: DuckDB `tpch` extension (no licensing for research)
+- **License**: TPC fair-use for benchmarking
+- **Spec**: https://www.tpc.org/tpch/
 
-## Licenca
+## Schema (full 8 tables)
 
-TPC Fair Use Agreement — uso academico permitido sem restricao.
-Ver [www.tpc.org](https://www.tpc.org/information/about/documentation.asp)
-para o texto completo.
+| Table | Rows (sf001) | Role |
+|-------|--------------|------|
+| region | 5 | dim |
+| nation | 25 | dim |
+| supplier | 100 | dim |
+| customer | 1,500 | dim |
+| part | 2,000 | dim |
+| partsupp | 8,000 | fact |
+| orders | 15,000 | fact |
+| lineitem | 60,175 | fact (largest) |
 
-## Como baixar
+FKs follow the standard star/snowflake topology. See
+`metadata.json` for the full FK map.
+
+## How to generate
 
 ```bash
-pip install -e ".[datasets]"  # instala duckdb
-python scripts/setup_tpch.py  # baixa para Z:\tcf-data\external\tpch-sf001\
+# Run from repo root (requires duckdb pip package)
+python scripts/setup_tpch.py
 ```
 
-## Tamanho (SF=0.01)
+This:
+1. Spins up an in-memory DuckDB
+2. Calls `INSTALL tpch; LOAD tpch; CALL dbgen(sf=0.01);`
+3. Exports each of the 8 tables to CSV under
+   `$TCF_DATA_ROOT/external/tpch-sf001/`
 
-Estimativas (baseadas em DuckDB tpch extension):
+`$TCF_DATA_ROOT` defaults to `Z:/tcf-data/`. Configure via
+`config/storage.json`.
 
-| Tabela | Rows aproximadas | Tamanho CSV |
-|--------|------------------|-------------|
-| region | 5 | <1KB |
-| nation | 25 | ~2KB |
-| supplier | 100 | ~15KB |
-| customer | 1.500 | ~220KB |
-| part | 2.000 | ~250KB |
-| partsupp | 8.000 | ~1.2MB |
-| orders | 15.000 | ~1.8MB |
-| lineitem | 60.000 | ~7MB |
-| **Total** | ~87.000 | **~10MB** |
+## Build SQLite
 
-## Schema
-
-Ver `metadata.json` nesta pasta para o schema completo com PK, FK
-e tipos declarados.
-
-**Resumo das relacoes:**
-
-```
-region (r_regionkey) <- nation (n_regionkey)
-nation (n_nationkey) <- supplier, customer
-part (p_partkey) <- partsupp, lineitem
-supplier (s_suppkey) <- partsupp, lineitem
-customer (c_custkey) <- orders
-orders (o_orderkey) <- lineitem
+```bash
+python scripts/csv_to_sqlite.py tpch-sf001
 ```
 
-## Referencias
+Creates `$TCF_DATA_ROOT/interim/tpch-sf001.db` with all PK/FK declared.
 
-- [TPC-H specification](https://www.tpc.org/tpch/)
-- [DuckDB TPC-H extension](https://duckdb.org/docs/stable/core_extensions/tpch)
-- [ClickHouse TPC-H example](https://clickhouse.com/docs/getting-started/example-datasets/tpch)
+## Use in experiments
+
+```python
+from experiments.eval.data_sources import load_dataset
+
+# 100-row sample on the partsupp fact, FK-preserving on supplier+part
+tables, meta = load_dataset(
+    "canonical:tpch-sf001",
+    volume=100, seed=42,
+    schema=["partsupp", "part", "supplier"],
+    fact_table="partsupp",
+)
+```
+
+`schema` can be:
+- `["partsupp"]` — minimal (1 table)
+- `["partsupp", "part"]` — core (2 tables)
+- `["partsupp", "part", "supplier"]` — chain (3 tables, M9 baseline)
+- `["region", "nation", "supplier", "customer", "part", "partsupp",
+   "orders", "lineitem"]` — full (8 tables)
+
+These 4 levels are the M-schema-scope axis (F-Q37, F-Q38).
+
+## Schema ambiguity warning
+
+TPC-H has multiple `$` columns that LLM may confuse for natural-language
+wordings (F-Q33-F-Q38):
+- `ps_supplycost` (partsupp) — what suppliers charge us
+- `p_retailprice` (part) — list price
+- `l_extendedprice` (lineitem) — line-item value
+- `o_totalprice` (orders) — order total
+
+For wordings like *"the most expensive item"*, **N0 (schema-aware,
+mentioning `ps_supplycost`) is mandatory** — N2/N3 wordings drop to
+0% accuracy across all commercial top models. See
+[../../../docs/findings/05-schema-scope-Q37-Q38.md](../../../docs/findings/05-schema-scope-Q37-Q38.md).
+
+## Memorization caveat
+
+Most major LLMs trained pre-2026 know TPC-H by heart. They infer
+`Supplier#NNNNNNNNN` patterns even when the `supplier` table isn't
+in the payload (F-Q37 sub-finding). For methodologically clean
+results on a non-canonical dataset, prefer Adult Census or your own
+data.
