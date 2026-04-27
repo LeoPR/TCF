@@ -258,11 +258,32 @@ class CommercialClient:
 
         if provider == "anthropic":
             client = self._get_anthropic()
+            # Opus 4.7 deprecated `temperature` — newer Claude models use the
+            # ``thinking`` parameter instead for controlling reasoning effort.
+            # Sonnet 4.6 still accepts temperature as legacy parameter.
+            is_opus_47 = "opus-4-7" in model
+            uses_thinking = is_opus_47 or "haiku-4-5" in model or "sonnet-4-6" in model
+
             kwargs = {
                 "model": model,
-                "max_tokens": max_tokens,
-                "temperature": temperature,
+                "max_tokens": max(max_tokens, 2048),  # thinking eats output budget
             }
+            if not is_opus_47:
+                # Sonnet 4.6 and Haiku 4.5 still accept temperature
+                kwargs["temperature"] = temperature
+            if uses_thinking:
+                kwargs["max_tokens"] = max(kwargs["max_tokens"], 4096)
+                if is_opus_47:
+                    # Opus 4.7 uses the newer adaptive thinking API (Apr 2026).
+                    # Effort can be "low" / "medium" / "high"; pair with
+                    # ``output_config.effort`` to bound the cost.
+                    kwargs["thinking"] = {"type": "adaptive"}
+                    kwargs["output_config"] = {"effort": "low"}
+                else:
+                    # Sonnet 4.6 and Haiku 4.5 use the v1 explicit-budget API.
+                    kwargs["thinking"] = {"type": "enabled", "budget_tokens": 2048}
+                    if "temperature" in kwargs:
+                        kwargs["temperature"] = 1
             if cache_prefix is not None:
                 kwargs["system"] = [{
                     "type": "text",
@@ -273,6 +294,8 @@ class CommercialClient:
             else:
                 kwargs["messages"] = [{"role": "user", "content": prompt}]
             resp = client.messages.create(**kwargs)
+            # When thinking is enabled, the response has multiple content
+            # blocks: thinking blocks + text blocks. Concatenate only text.
             text = "".join(b.text for b in resp.content if hasattr(b, "text"))
             usage = resp.usage
             prompt_tokens = usage.input_tokens

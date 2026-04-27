@@ -150,7 +150,28 @@ Recomendacao pratica para o paper:
 - Workloads com JOIN logico -> Linha B sem excecao
 - Linha A util apenas para single-table com cols inequivocas
 
-Custo total M-Acomm: $3.16 / $30 (10.5%).
+## Anthropic completo (F-Q36)
+
+7 modelos comerciais × 4 paradigmas = 1968 records:
+- 3 OpenAI (gpt-5.4 family) + 1 controle (gpt-4o-mini)
+- 3 Anthropic (haiku 4.5, sonnet 4.6, opus 4.7) com thinking habilitado
+
+Achados:
+- Linha B Anthropic ≈ OpenAI (96-99% Adult, 80-88% TPC-H)
+- Linha A: OpenAI vence Adult (gpt-5.x 82-95% vs Anthropic 76-80%)
+- Sonnet 4.6 vence TPC-H Linha B (88.1% > gpt-5.4 85.7%)
+- Schema ambiguity F-Q33+F-Q34 confirmado em ambas familias
+- Thinking parameter obrigatorio Anthropic (+20pp ganho em Adult-A)
+- API divergente: opus 4.7 usa adaptive + output_config.effort;
+  haiku/sonnet usam enabled + budget_tokens
+
+Custo total M-Acomm (locais + comerciais):
+- OpenAI: $3.17 / $30 (10.6%)
+- Anthropic: $6.29 / $20 (31.5%)
+- **Total: $9.46** com cache; ~$35-40 sem cache (75% economia)
+
+Status: M-natural ENCERRADO. Tabela 2D paper-ready completa em todas
+8 celulas. F-Q29..F-Q36 documentados.
 
 ## Referências
 

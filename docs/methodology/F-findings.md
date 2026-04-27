@@ -2031,6 +2031,110 @@ provavelmente excede capacity de qwen3:14b context.
 
 ---
 
+## F-Q36 `{B}` — Anthropic vs OpenAI: paridade em Linha B, gap em Linha A; thinking obrigatório
+
+**Conclusão:** Replicação completa do M-Acomm com 3 modelos Anthropic
+(haiku 4.5, sonnet 4.6, opus 4.7) em Adult+TPC-H × Linha A+B = 1008
+records. Achados centrais:
+
+1. **Linha B Anthropic ≈ OpenAI** em ambos datasets (96-99% Adult,
+   80-88% TPC-H). Diferenças dentro do CI Wilson.
+2. **Linha A Adult: OpenAI vence** (gpt-5.x 82-95% vs Anthropic 76-80%).
+   Gap real de ~10-15pp.
+3. **Linha A TPC-H: paridade** (gpt-5.4 73.8% vs sonnet/opus 75%).
+4. **F-Q33/F-Q34 (schema ambiguity) confirmado em Anthropic.** q_sum N2 = 0%,
+   q_lookup_value N2 = 0% também em haiku/sonnet/opus.
+5. **Thinking parameter obrigatório** para Anthropic em Linha A — sem
+   thinking, haiku/sonnet caem para 57-58% (range non-reasoning).
+6. **API divergente dentro da família Anthropic**: opus 4.7 usa
+   `thinking.type=adaptive` + `output_config.effort`; haiku 4.5 e sonnet 4.6
+   usam `thinking.type=enabled` + `budget_tokens`. Implementação tem que
+   discriminar.
+
+**Tabela mestre — 7 modelos × 4 paradigmas (1968 records totais):**
+
+| Modelo | Adult-A | Adult-B | TPC-H-A | TPC-H-B | Custo total |
+|--------|---------|---------|---------|---------|-------------|
+| **gpt-5.4** | **95.2%** | **100%** | 73.8% | 85.7% | $2.14 |
+| **gpt-5.4-mini** | 82.1% | **100%** | 65.5% | 85.7% | $0.73 |
+| **gpt-5.4-nano** | 86.9% | 90.5% | **76.2%** | 81.0% | $0.18 |
+| gpt-4o-mini | 52.4% | 85.7% | 59.5% | 71.4% | $0.12 |
+| **claude-opus-4-7** | 76.2% | 96.4% | 75.0% | 83.3% | $2.49 |
+| **claude-sonnet-4-6** | 77.4% | 96.4% | 75.0% | **88.1%** | $2.42 |
+| **claude-haiku-4-5** | 79.8% | 98.8% | 63.1% | 79.8% | $1.39 |
+
+**Achados específicos da comparação:**
+
+**a) Hierarquia interna varia por paradigma+dataset:**
+
+- Adult Linha A: gpt-5.4 (95%) > nano (87%) > mini (82%) → **full melhor**
+- Adult Linha B: gpt-5.4/mini (100%) > haiku (99%) > sonnet/opus (96%) → **converge**
+- TPC-H Linha A: nano (76%) > full/sonnet/opus (74-76%) → **nano supera**
+- TPC-H Linha B: sonnet (88%) > gpt-5.4/mini (86%) > opus (83%) > haiku (80%) → **sonnet ganha**
+
+Não há "modelo melhor" universal. Escolha depende de paradigma + schema.
+
+**b) Sub-finding — sonnet 4.6 vence em TPC-H Linha B:**
+
+claude-sonnet-4-6 = **88.1%** [79.5%, 93.4%] supera gpt-5.4 (85.7%) em
+TPC-H Linha B. Gap dentro do CI mas é o único caso onde Anthropic claramente
+encabeça uma célula. Hipótese: sonnet 4.6 pode ter training melhor calibrado
+para SQL gen multi-tabela.
+
+**c) Sub-finding — haiku 4.5 é a oferta mais cost-effective Anthropic em Adult:**
+
+Adult Linha A: haiku 79.8% por $0.64. Adult Linha B: haiku 98.8% por $0.12.
+**Haiku é 2-5× mais barato que opus** com accuracy ≥ opus em ambos.
+Para datasets single-table, haiku é o sweet spot Anthropic.
+
+Análogo OpenAI: gpt-5.4-nano 86.9% Adult-A por $0.06 — **2-10× mais barato
+que haiku** com accuracy maior. Em Adult Linha A, OpenAI nano é
+insuperável em custo-eficiência.
+
+**d) Sub-finding — thinking parameter é diferencial decisivo Anthropic:**
+
+Sem thinking (default): haiku/sonnet caem para 57-58% em Adult-A — range
+non-reasoning, indistinguível dos locais. Com thinking: 79.8% / 77.4%.
+**+20pp de ganho com `thinking={"type":"enabled","budget_tokens":2048}`.**
+Não usar thinking em Anthropic é deixar 1/3 da capacidade do modelo na
+mesa para tarefas tabulares.
+
+**e) Sub-finding — F-Q34 (schema ambiguity) é UNIVERSAL entre famílias:**
+
+| Question N2 | OpenAI top | Anthropic top |
+|--|--|--|
+| q_sum (cost vs cost×qty) | 0% (gpt-5.4) | 0% (sonnet/opus) |
+| q_lookup (retail vs supply) | 0% | 0-10% |
+| q_lookup_value (nome vs valor) | 0% | 0-14% |
+
+Schema linking continua problema aberto independente do provider.
+
+**Custo total M-Acomm completo (7 modelos × 4 paradigmas × 1968 records):**
+
+- OpenAI: $3.17 USD ($30 budget, 10.6%)
+- Anthropic: $6.29 USD ($20 budget, 31.5%)
+- **Total: $9.46 USD** com prompt caching agressivo
+- Sem cache: ~$35-40 USD estimate (caching salvou ~75%)
+
+**Recomendação prática para o paper:**
+
+1. **Linha B é universal recomendation** para datasets reais — tanto
+   famílias chegam a 80-100% com custo 5× menor que Linha A.
+2. **OpenAI gpt-5.4-nano é o ponto Pareto** custo×accuracy em Linha A.
+3. **Anthropic sonnet 4.6 é melhor para SQL gen multi-tabela** com schema
+   complexo (88% TPC-H Linha B).
+4. **Schema ambiguity exige design de wording** (N0 obrigatório), não é
+   resolvida por escolha de modelo.
+
+**Custo cumulativo final M-natural (locais + comerciais):** $9.46 USD em
+2256 records (288 locais + 1968 comerciais) cobrindo 4 paradigmas × 2
+datasets × 7 modelos comerciais + 13 modelos locais.
+
+**Referência:** `experiments/results/m_acomm/`, `m_acomm_b/`,
+`m_acommA_tpch/`, `m_acommB_tpch/` (2026-04-26).
+
+---
+
 ## Ordem de aplicação ao desenhar novo experimento
 
 1. **F-Q1, F-Q8, F-Q9** — antes de configurar cliente Ollama
