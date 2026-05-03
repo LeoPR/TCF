@@ -4,13 +4,38 @@ type: hypothesis
 status: OPEN
 priority: HIGH
 created: 2026-04-27
+updated: 2026-04-27
 origin: Foco no nucleo TCF como compressor/descompressor (conversa pos-reorg)
-user_quote: "as compressoes novamente detalhar mais essa parte"
+user_quote_1: "as compressoes novamente detalhar mais essa parte"
+user_quote_2: "nao quero que o tcf tenha capacidade de server/client ou compressoes"
 see_also:
-  - docs/theory/components/4-compression-deep-dive.md (deep dive completo)
-  - docs/workbench/tickets/open/H-advanced-compression-v04.md (proposta antiga 2026-04-15)
+  - docs/theory/components/4-compression-deep-dive.md (deep dive v0.2)
+  - docs/theory/components/5-compression-map-v04.md (mapa v0.4)
+  - docs/theory/components/6-test-harness.md (meta-programa, FORA TCF)
+  - docs/theory/components/7-combination-study.md (estudo combinatorial)
   - docs/workbench/tickets/open/R-tcf-core-revisit.md (audit)
-  - docs/workbench/tickets/open/M-architecture-v04.md (split)
+  - docs/workbench/tickets/open/M-architecture-v03.md (split)
+  - docs/workbench/tickets/open/H-advanced-compression-v03.md (proposta antiga, superseded)
+---
+
+## Update 2026-04-27 (decisao do usuario)
+
+**Removido deste roadmap:**
+- ~~Transport layer~~ — vai para meta-programa (harness), fora do TCF
+- ~~Server/client APIs~~ — fora do TCF
+- ~~Compressao gzip/brotli embutida~~ — orquestrado pelo harness externo
+
+**Adicionado:**
+- DICT cross-column como **opcao** (era descartado); usuario controla
+  via `dict_scope` parameter
+- Estudo combinatorial de ordem (em vez de escolher teoricamente)
+- Granularidade expandida: 6 profiles × 9 eixos parametrizaveis
+- Foco cientifico: "TCF funciona em quais cenarios min/max?"
+
+**Refocado**: este ticket cobre apenas **mudancas internas no TCF**
+(`packages/tcf/src/tcf/`). Toda infraestrutura de teste/comparacao
+vai para tickets separados (T-test-harness-mvp, E-compression-combinations).
+
 ---
 
 # Roadmap de compressao para TCF v0.4

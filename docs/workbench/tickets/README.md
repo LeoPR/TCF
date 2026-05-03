@@ -34,26 +34,32 @@ tickets/
 2256 records, $9.46 USD). Repositorio reorganizado. Proximo bloco
 de trabalho: **finalizar paper + decidir rumo do core TCF**.
 
-### Open (10 tickets) — ordenados por prioridade
+### Open (13 tickets) — ordenados por prioridade
 
-**Foco atual** (decidido 2026-04-27): TCF como nucleo
-compressor/descompressor. **v0.4 = compressao repensada** (RLE/DICT/STATS,
-ordem, prioridades, transport-layer). Auxiliares como pacotes irmaos
-(extras). v0.3 fica como possivel espaco para split arquitetural sem
-quebra de formato.
+**Foco atual** (decidido 2026-04-27): TCF como nucleo PURO
+encoder/descodificador. **Compressores genericos (gzip/brotli),
+transport (HTTP/TCP/UDP), comparacoes com outros formatos = META-PROGRAMA
+externo**, fora do TCF.
+
+v0.4 = repensar internals do encoder (RLE/DICT/STATS/ordem) com base
+em estudo combinatorial empirico. Validacao cientifica via harness.
 
 | Pri | Ticket | Tipo | Resumo | Bloqueador? |
 |-----|--------|------|--------|-------------|
 | 🔵 1 | [M-architecture-v03](open/M-architecture-v03.md) | meta | Split TCF nucleo + extras (estilo SQLAlchemy) | orquestra |
-| 🔵 2 | [H-compression-v04-roadmap](open/H-compression-v04-roadmap.md) | hypothesis | Roadmap compressao v0.4 (repensar RLE/DICT/STATS + ordering + transport) | foco do nucleo |
-| 🟠 3 | [R-tcf-core-revisit](open/R-tcf-core-revisit.md) | review | Audit critico v0.3 vs v0.2 | input usuario |
-| 🟠 4 | [R-project-rename](open/R-project-rename.md) | review | Avaliar nome do projeto | antes de publicar |
-| 🔴 5 | [P-paper-cap8-discussion](open/P-paper-cap8-discussion.md) | paper | Escrever Cap 8 (Discussao) | bloqueia Cap 9 |
-| 🔴 6 | [P-paper-cap9-conclusion](open/P-paper-cap9-conclusion.md) | paper | Escrever Cap 9 (Conclusao) | bloqueia submissao |
-| 🟡 7 | [P-paper-appendices](open/P-paper-appendices.md) | paper | Apendices A/B/C | bloqueia submissao |
-| 🟡 8 | [P-paper-figures](open/P-paper-figures.md) | paper | Gerar figuras F1-F8 | melhora paper |
-| 🟢 9 | [H-advanced-compression-v03](open/H-advanced-compression-v03.md) | hypothesis | Delta/FOR/scale-int (subset de #2 acima) | superseded por #2 |
-| 🟢 10 | [P-phase-closure](open/P-phase-closure.md) | meta | Fechamento de fases + pip publish | meta |
+| 🔵 2 | [H-compression-v04-roadmap](open/H-compression-v04-roadmap.md) | hypothesis | Roadmap v0.4 internals (RLE/DICT/STATS/ordem) | foco do nucleo |
+| 🔵 3 | [T-test-harness-mvp](open/T-test-harness-mvp.md) | task | Meta-programa de validacao (FORA do TCF) | infra para experimentos |
+| 🔵 4 | [E-compression-combinations](open/E-compression-combinations.md) | experiment | Estudo empirico de ordem | precisa harness |
+| 🔵 5 | [E-format-comparison-bench](open/E-format-comparison-bench.md) | experiment | TCF vs CSV/JSON/TOON | precisa harness |
+| 🔵 6 | [E-min-max-scenarios](open/E-min-max-scenarios.md) | experiment | Onde TCF brilha vs apaga | precisa harness |
+| 🟠 7 | [R-tcf-core-revisit](open/R-tcf-core-revisit.md) | review | Audit critico v0.3 vs v0.2 | PARTIAL — decisoes em #1+#2 |
+| 🟠 8 | [R-project-rename](open/R-project-rename.md) | review | Avaliar nome do projeto | antes de publicar |
+| 🔴 9 | [P-paper-cap8-discussion](open/P-paper-cap8-discussion.md) | paper | Escrever Cap 8 (Discussao) | bloqueia Cap 9 |
+| 🔴 10 | [P-paper-cap9-conclusion](open/P-paper-cap9-conclusion.md) | paper | Escrever Cap 9 (Conclusao) | bloqueia submissao |
+| 🟡 11 | [P-paper-appendices](open/P-paper-appendices.md) | paper | Apendices A/B/C | bloqueia submissao |
+| 🟡 12 | [P-paper-figures](open/P-paper-figures.md) | paper | Gerar figuras F1-F8 | melhora paper |
+| 🟢 13 | [H-advanced-compression-v03](open/H-advanced-compression-v03.md) | hypothesis | Delta/FOR (subset superseded) | superseded por #2 |
+| 🟢 14 | [P-phase-closure](open/P-phase-closure.md) | meta | Fechamento de fases + pip publish | meta |
 
 ### Open — issues tecnicas em standby
 

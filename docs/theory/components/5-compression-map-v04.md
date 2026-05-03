@@ -9,6 +9,32 @@ Para o estado v0.2 atual e analise empirica ver
 
 ---
 
+## ESCOPO DO TCF (atualizado 2026-04-27)
+
+**Decisao do usuario**: TCF e *somente* encoder/decoder. Nao tem
+server/client, nao tem camada de transport, nao instala compressores.
+
+A validacao cientifica (gzip/brotli/comparacoes com CSV/JSON/TOON,
+HTTP/UDP/server-client) acontece em um **meta-programa de teste**
+externo que orquestra o pipeline:
+
+```
+[meta-programa de teste]
+  → chama tcf.encode(rows)
+  → chama gzip/brotli/etc (externos)
+  → simula transporte (memoria/disco/socket)
+  → chama gzip^-1/brotli^-1
+  → chama tcf.decode(text)
+  → compara com input original
+```
+
+Ver [6-test-harness.md](6-test-harness.md) para o design dessa
+infraestrutura.
+
+A pergunta cientifica que guia tudo:
+> "Em quais cenarios minimos e maximos o TCF funciona bem?
+>  Como ele se compara a CSV, JSON, TOON?"
+
 ## A pilha de compressao TCF — visao em camadas
 
 ```
@@ -43,8 +69,8 @@ Para o estado v0.2 atual e analise empirica ver
 ┌─────────────────────────────────────────┐
 │   ENCODING LAYER — RLE + DICT           │
 │   - RLE para runs                       │
-│   - DICT para repeticoes nao-contiguas  │
-│   - Ordem RLE-first ou DICT-first?      │
+│   - DICT por col, cross-col ou misto    │
+│   - Ordem das transformacoes a estudar  │
 └──────────────────┬──────────────────────┘
                    │
                    ▼
@@ -52,21 +78,19 @@ Para o estado v0.2 atual e analise empirica ver
 │   TEXT LAYER — emissao do TCF text      │
 │   - header + colunas + valores          │
 │   - human-readable, LLM-readable        │
-└──────────────────┬──────────────────────┘
-                   │
-                   ▼
-┌─────────────────────────────────────────┐
-│   TRANSPORT LAYER (v0.4 NEW)            │
-│   - gzip / brotli / zstd opt-in         │
-│   - content-encoding negotiation        │
-│   - server-client params                │
+│   - SAIDA FINAL DO TCF                  │
 └─────────────────────────────────────────┘
+
+(Transport, gzip/brotli, network, comparison
+ com outros formatos = META-PROGRAMA, fora daqui)
 ```
 
-A v0.2 atual cobre **Semantic, Ordering parcial, STATS basico,
-Encoding simples (RLE-only), Text**. Nao tem Transport.
+A v0.2 atual cobre Semantic, Ordering parcial, STATS basico,
+Encoding simples (RLE-only), Text. **Nao tem Transport e nem ira
+ter no core.**
 
-A v0.4 vai endurecer cada camada e adicionar Transport.
+A v0.4 vai endurecer cada camada existente. Transport fica em
+meta-programa externo.
 
 ---
 
@@ -169,43 +193,90 @@ Regra de decisao:
 Aplica RLE sobre os indices DICT. Como indices sao 1-2 chars,
 runs ainda menores se beneficiam. Threshold pode ser 2 sem ruido.
 
-### DICT cross-column (descartado v0.2; reavaliar v0.4)
+### DICT cross-column — opcional v0.4
 
-Se 2 colunas compartilham vocabulario (ex: `country_origin` e
-`country_dest`):
+**Decisao do usuario (2026-04-27)**: cross-column **e uma opcao**
+controlada por `dict_scope`. Default `auto` (encoder decide); usuario
+pode forcar `cross_column` ou `per_column` conforme o cenario.
 
 ```
-GLOBAL_DICT: [BR, US, AR, ...]
-country_origin: 0 1 0 2 1
-country_dest:   1 0 2 0 0
+# Per-column (default)
+"country_origin" DICT:[BR,US,AR]:
+0
+1
+0
+
+"country_dest" DICT:[US,BR,CN]:    ← DICT proprio
+1
+0
+2
 ```
 
-Pros: economia se overlap >= 50%
-Cons: reduz legibilidade LLM; complica decoder
+```
+# Cross-column (opt-in)
+GLOBAL_DICT: [BR, US, AR, CN, ...]
+"country_origin": 0 1 0 2 1        ← indices em DICT compartilhado
+"country_dest":   1 0 2 0 0
+```
 
-**Decisao tentativa v0.4**: NAO incluir cross-column. LLM perde
-contexto e o ganho marginal nao vale.
+| Cenario | Per-column | Cross-column |
+|---------|-----------|--------------|
+| 2 cols, overlap baixo | melhor | pior (DICT carrega valores nao usados) |
+| 2 cols, overlap alto | medio | **muito melhor** (DICT compartilhado) |
+| Muitas cols, overlap esparso | melhor | pior |
+| Muitas cols, overlap alto | medio | **melhor** |
+| LLM input | **melhor** (le valores) | pior (so indices) |
+| Compactacao maxima | medio | **melhor** quando overlap |
+
+Decisao automatica em `dict_scope="auto"`:
+- Calcula overlap medio entre colunas categoricas
+- Se overlap > 30% e ha 2+ cols com cardinalidade similar → cross_column
+- Senao → per_column
+
+Usuario pode sempre forcar com `dict_scope="cross_column"` ou
+`dict_scope="per_column"`.
+
+**Tipo composto**: `dict_columns=["country_origin", "country_dest"]`
+forca cross-column **so para essas duas colunas**, deixa as outras
+em per-column. Permite controle fino.
 
 ---
 
-## Pergunta 2 — A ORDEM da compressao
+## Pergunta 2 — A ORDEM da compressao (estudo combinatorial)
 
-A ordem importa porque transformacoes nao sao comutativas. Plot:
+A ordem importa porque transformacoes nao sao comutativas. **Decisao do
+usuario: estudar combinacoes empiricamente, nao decidir teoricamente.**
+
+Ver [7-combination-study.md](7-combination-study.md) para o plano
+completo do experimento combinatorial.
+
+### Combinacoes plausiveis
 
 ```
-A) sort_by → RLE → STATS → DICT
-B) STATS → sort_by → RLE → DICT
-C) DICT → sort_by → RLE → STATS
-D) sort_by → DICT → RLE → STATS  ← v0.4 proposta
+A) sort_by → RLE → STATS                       (v0.2 atual)
+B) sort_by → DICT → RLE → STATS                (proposta inicial)
+C) sort_by → RLE → DICT → STATS                (alternativa)
+D) DICT → sort_by → RLE → STATS                (DICT primeiro)
+E) STATS → sort_by → RLE → DICT                (STATS primeiro)
+F) sort_by → DICT_per_col → RLE → DICT_cross → STATS  (DICT em camadas)
+... varias outras possiveis
 ```
 
-**Argumento para D**:
+Nao escolheremos teoricamente. Em vez disso:
 
-1. **sort_by primeiro**: cria runs artificiais antes de tudo
-2. **DICT segundo**: substitui valores por indices curtos. Indices
-   continuam ordenados se sort era estavel
-3. **RLE terceiro**: aplica em indices DICT (mais barato)
-4. **STATS por ultimo**: emitido independente, anexado ao header
+1. Implementar pipeline configuravel (cada transformacao plugavel)
+2. Testar **N combinacoes × M datasets × K profiles**
+3. Medir bytes finais + accuracy LLM (subset) + decode time
+4. Reportar **melhor combinacao por cenario**
+
+Argumentos teoricos serao usados para **eliminar** combinacoes
+obviamente ruins (ex: STATS depois de RLE/DICT — nao faz sentido pois
+STATS opera sobre dados originais), nao para escolher a melhor.
+
+### Ordem das colunas dentro da tabela
+
+Independente da ordem das transformacoes acima, ha decisao sobre
+**como ordenar as colunas**:
 
 ```python
 # Algoritmo conceitual v0.4
@@ -294,91 +365,109 @@ encode_dataset(
 )
 ```
 
-### Profiles de prioridade
+### Profiles de prioridade — granularidade expandida
+
+Profiles sao **presets** de combinacoes pre-validadas. Usuario pode
+sempre **override individual** de qualquer parametro.
 
 ```python
 PROFILES = {
-    "compression": {     # menor payload possivel
-        "level": 3 if no_data_needed else 2,
-        "rle_aggressive": True,
-        "dict_enabled": True,
-        "stats_minimal": True,  # so cardinality, sem sum/min/max
-        "transport": "brotli-9",
+    "minimal_bytes": {       # payload minimo absoluto
+        "level": 3,           # schema-only
+        "rle_threshold": "aggressive",   # bytes-saved decision
+        "dict_scope": "cross_column",    # economia maxima
+        "stats": "cardinality_only",     # sem sum/avg
+        "column_ordering": "by_compressibility",
     },
-    "decode_speed": {    # cliente decode rapido
-        "level": 0,      # nada de RLE/DICT
-        "rle_aggressive": False,
-        "dict_enabled": False,
-        "stats_minimal": True,
-        "transport": "gzip-1",
-    },
-    "llm_accuracy": {    # max accuracy LLM
+    "compact_text": {        # compactacao mas legivel
         "level": 2,
-        "rle_aggressive": False,  # runs>=3 (LLM friendly)
-        "dict_enabled": False,    # LLM le valores diretos
-        "stats_aggressive": True, # incluindo stratified STATS
-        "transport": None,        # LLM nao decompressa
+        "rle_threshold": "adaptive",
+        "dict_scope": "per_column",
+        "stats": "global",
+        "column_ordering": "by_importance",
+    },
+    "balanced": {            # default v0.4
+        "level": 2,
+        "rle_threshold": "bytes_saved",
+        "dict_scope": "auto",   # decide por coluna
+        "stats": "global",
+        "column_ordering": "natural",
+    },
+    "llm_input": {           # max accuracy LLM (mantem F-Q33+)
+        "level": 2,
+        "rle_threshold": "conservative",   # runs>=3
+        "dict_scope": "none",              # LLM le valores diretos
+        "stats": "stratified",             # ataca filter+agg
+        "column_ordering": "schema_aware", # PK first, etc
+    },
+    "decode_speed": {        # parser rapido
+        "level": 0,
+        "rle_threshold": "off",
+        "dict_scope": "none",
+        "stats": "off",
+        "column_ordering": "natural",
+    },
+    "debug": {               # max human-readable
+        "level": 0,
+        "rle_threshold": "off",
+        "dict_scope": "none",
+        "stats": "verbose",   # tudo + samples + cardinality
+        "column_ordering": "natural",
     },
 }
 ```
 
-Usuario escolhe via `EncodeConfig(profile="llm_accuracy")` ou
-`profile="compression"`.
+### Parametros override (granularidade individual)
+
+Qualquer parametro pode ser overrided sem profile:
+
+```python
+EncodeConfig(
+    # Pode escolher um profile como base
+    profile="compact_text",
+    # E override individual
+    rle_threshold=4,           # forca threshold fixo
+    dict_scope="cross_column", # forca cross-col mesmo no profile
+    sort_by="region",          # ordem fixa
+    stats="stratified",        # ativa stratified mesmo se profile diz global
+)
+```
+
+Cada parametro mapeia para uma camada da pilha — usuario pode
+"misturar e combinar" ate encontrar o ponto otimo do seu cenario.
+
+### Decisoes paralelas (perpendiculares aos profiles)
+
+| Eixo | Valores | Default v0.4 |
+|------|---------|--------------|
+| `level` | 0, 1, 2, 3 | 2 |
+| `rle_threshold` | off / fixed N / adaptive / aggressive / bytes_saved | bytes_saved |
+| `dict_scope` | none / per_column / cross_column / auto | auto |
+| `dict_columns` | list[str] (subset para cross-col) | None |
+| `stats` | off / cardinality_only / global / stratified / verbose | global |
+| `stats_strata` | list[str] (categoricals para cruzar) | None |
+| `column_ordering` | natural / by_importance / by_compressibility / schema_aware | natural |
+| `sort_by` | None / col_name / "auto" | None |
+| `preserve_types` | bool (header com tipos) | False (compat v0.2) |
+
+**6 profiles × 9 eixos** = espaco grande para experimentar.
 
 ---
 
-## Pergunta 4 — Cenario server-client
+## Pergunta 4 — Cenario server-client (resolvido em meta-programa)
 
-```
-[server: dados] → TCF compress → transport compress → [client: parse]
-                                                    ↓
-                                        TCF decompress + transport decompress
-                                                    ↓
-                                                [client: dados]
-```
+A validacao server-client NAO entra no TCF core. Em vez disso, o
+meta-programa de teste simula esses cenarios. Ver
+[6-test-harness.md](6-test-harness.md).
 
-### Negociacao server-client
+A questao que importa para o TCF: **quanto sinergia ha entre TCF e
+compressores genericos** (gzip/brotli) em diferentes cenarios?
+Resposta vem de experimentos, nao de implementacao TCF.
 
-Inspirado em HTTP `Accept-Encoding`:
-
-```
-Client request:
-  Accept-Encoding: br, gzip
-  TCF-Profile: llm_accuracy
-  TCF-Level: 2
-  TCF-Stats: stratified
-
-Server response:
-  Content-Encoding: br
-  TCF-Format: 0.4
-  TCF-Profile-Used: llm_accuracy
-  Body: <tcf compactado + brotli>
-```
-
-Em Python:
-
-```python
-# Server side
-from tcf.transport import encode_with_negotiation
-
-response = encode_with_negotiation(
-    tables, profile="llm_accuracy",
-    accept_encoding=request.headers.get("Accept-Encoding"),
-)
-# response.body = bytes, response.headers includes Content-Encoding
-
-# Client side
-from tcf.transport import decode_with_negotiation
-tables = decode_with_negotiation(
-    response.body,
-    content_encoding=response.headers.get("Content-Encoding"),
-)
-```
-
-### Por que TCF + transport-compression nao e redundante
+### Por que TCF + compressao generica nao e redundante
 
 TCF e text-based. gzip/brotli em texto reduzem mais ainda. Mas tem
-sinergias e tradeoffs:
+sinergias e tradeoffs que precisamos medir:
 
 | Pipeline | Bytes (Adult vol=100) | LLM-readable? | Notes |
 |----------|----------------------|---------------|-------|
@@ -474,28 +563,40 @@ dados → TCF compress (max possivel) → transport compress → TCF decompress 
      - Ou seja: para LLM, TCF text e o produto final
      - Para outros casos, TCF text + transport bytes
 
-### Decisao de design
+### Decisao de design — TCF API minima
 
-**Proposta**: API em 3 niveis
+**TCF expoe somente 1 API**:
 
 ```python
-# Nivel 1 — text only (LLM input)
-text = tcf.encode(rows, config=EncodeConfig(level=2))
-
-# Nivel 2 — text + transport (HTTP/disk)
-bytes_ = tcf.encode_compressed(rows, config=..., transport="brotli")
-# = brotli.compress(tcf.encode(rows, config).encode("utf-8"))
-
-# Nivel 3 — full negotiation (servers)
-response = tcf.transport.serve(
-    rows, accept_encoding="br, gzip",
-    profile="compression",
-)
-# response.body, response.headers automatico
+# UNICA API do TCF
+text: str = tcf.encode(rows, config=EncodeConfig(...))
+rows = tcf.decode(text)
 ```
 
-Os 3 niveis sao **opt-in incremental**. Usuario simples usa nivel 1
-(igual v0.2). Nivel 3 fica em pacote separado `tcf-transport`.
+`encode_compressed`, `transport.serve` etc. **nao** existem no TCF.
+
+A validacao em multiplos cenarios (transport, network, comparacao com
+outros formatos) acontece no **meta-programa de teste**, em modulo
+separado:
+
+```python
+# Meta-programa (FORA do tcf core)
+from harness import simulate_pipeline, compare_formats
+
+result = simulate_pipeline(
+    rows,
+    encoder="tcf",         # OR "csv", "json", "toon"
+    config=tcf_config,
+    transport="brotli",    # OR "gzip", None (raw)
+    network="memory",      # OR "disk", "tcp", "udp" (futuro)
+)
+# result.bytes_total, result.encode_ms, result.decode_ms, ...
+```
+
+Isso garante:
+- TCF se mantem **encoder/decoder puro** sem dependencia em compressores
+- Comparacoes cientificas sao reproduziveis em qualquer formato
+- Trocar TCF por CSV/JSON/TOON e so mudar `encoder=`
 
 ---
 
