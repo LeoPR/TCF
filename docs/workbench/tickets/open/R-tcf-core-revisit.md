@@ -1,17 +1,46 @@
 ---
 title: Revisao critica do nucleo TCF (encoder/decoder/compression) pos-achados
 type: review
-status: OPEN
+status: PARTIAL — decisoes 1-3 endenadas em H-compression-v03-roadmap; 6-8 endenadas em M-architecture-v03
 priority: HIGH
 created: 2026-04-27
+updated: 2026-04-27
 origin: Conversa de reorganizacao (apos M-Acomm + M-schema-scope concluidos)
 user_quote: "vou querer refazer atividades do núcleo do TCF"
 see_also:
   - src/tcf/encoder.py, decoder.py, compression.py, schema.py
   - docs/findings/ (achados que justificam ou questionam decisoes do core)
-  - docs/workbench/tickets/open/H-advanced-compression-v03.md
+  - docs/workbench/tickets/open/H-compression-v03-roadmap.md (NOVO — roadmap compressao)
+  - docs/workbench/tickets/open/M-architecture-v03.md (NOVO — split nucleo+extras)
+  - docs/workbench/tickets/open/H-advanced-compression-v03.md (proposta antiga, superseded)
   - docs/workbench/tickets/open/23-P-numeric-precision.md
   - docs/workbench/tickets/open/29-B-decoder-freetext-bug.md
+  - docs/theory/components/4-compression-deep-dive.md (NOVO — analise tecnica)
+  - docs/workbench/research-notes/2026-04-27-architecture-v03.md (NOVO — proposta arquitetural)
+---
+
+## Update 2026-04-27 — direcao decidida
+
+Apos conversa sobre arquitetura, o usuario reafirmou foco no nucleo
+TCF como compressor/descompressor. Pontos deste audit foram
+distribuidos em:
+
+- **Pontos 1-3 (STATS, niveis, compressao avancada)**:
+  endenadas em [H-compression-v03-roadmap](H-compression-v03-roadmap.md)
+  com 7 propostas avaliadas + 3 selecionadas (A, B, F)
+- **Pontos 4-5 (numeric precision, decoder bug)**: incluidos no Sprint 1
+  do roadmap acima
+- **Ponto 6 (schema_qualifier)**: separar como camada externa, ver
+  [M-architecture-v03](M-architecture-v03.md) — decision: extras
+  package ou pos-paper
+- **Ponto 7 (API publica)**: type-preserving decode incluido no
+  H-compression-v03-roadmap
+- **Ponto 8 (escopo v0.3)**: definido em
+  [H-compression-v03-roadmap](H-compression-v03-roadmap.md) Sprint 1+2
+
+Este ticket fica como **referencia historica do audit**. Decisoes
+operacionais migraram para os 2 tickets acima.
+
 ---
 
 # Revisao critica do nucleo TCF (v0.3 candidate)

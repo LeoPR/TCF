@@ -34,18 +34,23 @@ tickets/
 2256 records, $9.46 USD). Repositorio reorganizado. Proximo bloco
 de trabalho: **finalizar paper + decidir rumo do core TCF**.
 
-### Open (8 tickets) — ordenados por prioridade
+### Open (10 tickets) — ordenados por prioridade
+
+**Foco atual** (decidido 2026-04-27): TCF como nucleo
+compressor/descompressor. Auxiliares como pacotes irmaos (extras).
 
 | Pri | Ticket | Tipo | Resumo | Bloqueador? |
 |-----|--------|------|--------|-------------|
-| 🔴 1 | [P-paper-cap8-discussion](open/P-paper-cap8-discussion.md) | paper | Escrever Cap 8 (Discussao) | bloqueia Cap 9 |
-| 🔴 2 | [P-paper-cap9-conclusion](open/P-paper-cap9-conclusion.md) | paper | Escrever Cap 9 (Conclusao) | bloqueia submissao |
-| 🟡 3 | [P-paper-appendices](open/P-paper-appendices.md) | paper | Apendices A/B/C | bloqueia submissao |
-| 🟡 4 | [P-paper-figures](open/P-paper-figures.md) | paper | Gerar figuras F1-F8 | melhora paper |
-| 🟠 5 | [R-tcf-core-revisit](open/R-tcf-core-revisit.md) | review | Audit critico v0.3 vs v0.2 | input usuario |
-| 🟠 6 | [R-project-rename](open/R-project-rename.md) | review | Avaliar nome do projeto | antes de publicar |
-| 🟢 7 | [H-advanced-compression-v03](open/H-advanced-compression-v03.md) | hypothesis | Delta/FOR/scale-int v0.3 | depende de R-tcf-core-revisit |
-| 🟢 8 | [P-phase-closure](open/P-phase-closure.md) | meta | Fechamento de fases + pip publish | meta |
+| 🔵 1 | [M-architecture-v03](open/M-architecture-v03.md) | meta | Split TCF nucleo + extras (estilo SQLAlchemy) | orquestra |
+| 🔵 2 | [H-compression-v03-roadmap](open/H-compression-v03-roadmap.md) | hypothesis | Roadmap compressao v0.3 (A/B/F + bug 29 + issue 23) | foco do nucleo |
+| 🟠 3 | [R-tcf-core-revisit](open/R-tcf-core-revisit.md) | review | Audit critico v0.3 vs v0.2 | input usuario |
+| 🟠 4 | [R-project-rename](open/R-project-rename.md) | review | Avaliar nome do projeto | antes de publicar |
+| 🔴 5 | [P-paper-cap8-discussion](open/P-paper-cap8-discussion.md) | paper | Escrever Cap 8 (Discussao) | bloqueia Cap 9 |
+| 🔴 6 | [P-paper-cap9-conclusion](open/P-paper-cap9-conclusion.md) | paper | Escrever Cap 9 (Conclusao) | bloqueia submissao |
+| 🟡 7 | [P-paper-appendices](open/P-paper-appendices.md) | paper | Apendices A/B/C | bloqueia submissao |
+| 🟡 8 | [P-paper-figures](open/P-paper-figures.md) | paper | Gerar figuras F1-F8 | melhora paper |
+| 🟢 9 | [H-advanced-compression-v03](open/H-advanced-compression-v03.md) | hypothesis | Delta/FOR/scale-int (subset de #2 acima) | superseded por #2 |
+| 🟢 10 | [P-phase-closure](open/P-phase-closure.md) | meta | Fechamento de fases + pip publish | meta |
 
 ### Open — issues tecnicas em standby
 
@@ -55,10 +60,11 @@ de trabalho: **finalizar paper + decidir rumo do core TCF**.
 | ⚪ — | [29-B-decoder-freetext-bug](open/29-B-decoder-freetext-bug.md) | bug | Nao afeta Linha A/B; v0.3 candidate |
 
 Legenda:
-- 🔴 critico para entrega
-- 🟡 importante para entrega
+- 🔵 foco atual (TCF nucleo + reorg arquitetural)
+- 🔴 critico para entrega de paper
+- 🟡 importante para entrega de paper
 - 🟠 decisao de direcao (input do usuario)
-- 🟢 candidatas a v0.3
+- 🟢 backlog v0.3
 - ⚪ backlog tecnico
 
 ---
