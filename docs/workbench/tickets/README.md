@@ -37,12 +37,15 @@ de trabalho: **finalizar paper + decidir rumo do core TCF**.
 ### Open (10 tickets) — ordenados por prioridade
 
 **Foco atual** (decidido 2026-04-27): TCF como nucleo
-compressor/descompressor. Auxiliares como pacotes irmaos (extras).
+compressor/descompressor. **v0.4 = compressao repensada** (RLE/DICT/STATS,
+ordem, prioridades, transport-layer). Auxiliares como pacotes irmaos
+(extras). v0.3 fica como possivel espaco para split arquitetural sem
+quebra de formato.
 
 | Pri | Ticket | Tipo | Resumo | Bloqueador? |
 |-----|--------|------|--------|-------------|
 | 🔵 1 | [M-architecture-v03](open/M-architecture-v03.md) | meta | Split TCF nucleo + extras (estilo SQLAlchemy) | orquestra |
-| 🔵 2 | [H-compression-v03-roadmap](open/H-compression-v03-roadmap.md) | hypothesis | Roadmap compressao v0.3 (A/B/F + bug 29 + issue 23) | foco do nucleo |
+| 🔵 2 | [H-compression-v04-roadmap](open/H-compression-v04-roadmap.md) | hypothesis | Roadmap compressao v0.4 (repensar RLE/DICT/STATS + ordering + transport) | foco do nucleo |
 | 🟠 3 | [R-tcf-core-revisit](open/R-tcf-core-revisit.md) | review | Audit critico v0.3 vs v0.2 | input usuario |
 | 🟠 4 | [R-project-rename](open/R-project-rename.md) | review | Avaliar nome do projeto | antes de publicar |
 | 🔴 5 | [P-paper-cap8-discussion](open/P-paper-cap8-discussion.md) | paper | Escrever Cap 8 (Discussao) | bloqueia Cap 9 |

@@ -1,5 +1,5 @@
 ---
-title: H-compression-v03-roadmap — propostas tecnicas de compressao para v0.3
+title: H-compression-v04-roadmap — propostas tecnicas de compressao para v0.4
 type: hypothesis
 status: OPEN
 priority: HIGH
@@ -8,14 +8,14 @@ origin: Foco no nucleo TCF como compressor/descompressor (conversa pos-reorg)
 user_quote: "as compressoes novamente detalhar mais essa parte"
 see_also:
   - docs/theory/components/4-compression-deep-dive.md (deep dive completo)
-  - docs/workbench/tickets/open/H-advanced-compression-v03.md (proposta antiga 2026-04-15)
+  - docs/workbench/tickets/open/H-advanced-compression-v04.md (proposta antiga 2026-04-15)
   - docs/workbench/tickets/open/R-tcf-core-revisit.md (audit)
-  - docs/workbench/tickets/open/M-architecture-v03.md (split)
+  - docs/workbench/tickets/open/M-architecture-v04.md (split)
 ---
 
-# Roadmap de compressao para TCF v0.3
+# Roadmap de compressao para TCF v0.4
 
-Substitui/refina o ticket antigo `H-advanced-compression-v03` (de
+Substitui/refina o ticket antigo `H-advanced-compression-v04` (de
 2026-04-15) com base nos achados de M-Acomm (F-Q28, F-Q31, F-Q38) e
 no novo foco arquitetural (TCF nucleo + extras).
 
@@ -49,7 +49,7 @@ condicionadas por categorical:
 # v0.2 atual:
 # STATS hours-per-week: n=100 sum=4243 min=7 max=99 avg=42.43
 
-# v0.3 proposta:
+# v0.4 proposta:
 # STATS hours-per-week: n=100 sum=4243 min=7 max=99 avg=42.43
 # STATS hours-per-week|sex=Male: n=68 avg=44.98
 # STATS hours-per-week|sex=Female: n=32 avg=37.21
@@ -102,7 +102,7 @@ text = encode_rows("t", rows, config=EncodeConfig(
 ))
 
 # text contem:
-# # TCF v0.3 level=2
+# # TCF v0.4 level=2
 # # TYPES id=int name=str age=int active=bool
 
 restored = decode(text)
@@ -120,7 +120,7 @@ Decoder le essa linha e converte com `int()`, `float()`, `bool()`,
 ### Backwards compat
 
 Sem `preserve_types=True`, formato fica identico ao v0.2. Decode
-funciona com tcf v0.2 e v0.3.
+funciona com tcf v0.2 e v0.4.
 
 ### Criterio de aceite
 
@@ -213,7 +213,7 @@ A:B           ← parse error
 multi
 line          ← split em 2 valores
 
-# v0.3 fix:
+# v0.4 fix:
 name:
 "A:B"           ← strings com chars conflitantes ficam quoted
 "3*foo"
@@ -268,13 +268,13 @@ roundtrip cientifico.
 
 ### Sprint 3 (validacao)
 - [ ] Test stratified STATS em Adult Linha A — verificar +50pp claim
-- [ ] Atualizar Apendice A (TCF spec) com v0.3
+- [ ] Atualizar Apendice A (TCF spec) com v0.4
 - [ ] Update CHANGELOG.md
-- [ ] Tag git `v0.3.0`
+- [ ] Tag git `v0.4.0`
 
 ## Total estimado
 
-3 semanas focadas para core v0.3.
+3 semanas focadas para core v0.4.
 
 ## Notas para revisar este ticket
 
@@ -282,12 +282,12 @@ Quando reabrir:
 - Snapshot deste arquivo no commit `<ts>`
 - Codigo atual: `src/tcf/encoder.py` v0.2
 - Tests atuais: `tests/test_encode_decode.py` (se existir)
-- Ticket relacionado [H-advanced-compression-v03](H-advanced-compression-v03.md)
+- Ticket relacionado [H-advanced-compression-v04](H-advanced-compression-v04.md)
   (proposta antiga, subset deste)
 
 ## Decisao para o usuario
 
-1. **Sprint 1 e suficiente** para v0.3, ou queres tudo (1+2+3)?
+1. **Sprint 1 e suficiente** para v0.4, ou queres tudo (1+2+3)?
 2. **Stratified STATS**: API exigir lista explicita ou auto-detect
    (igual sortedness)?
-3. **Bug 29 e Issue 23**: incluir em v0.3 ou postpor?
+3. **Bug 29 e Issue 23**: incluir em v0.4 ou postpor?
