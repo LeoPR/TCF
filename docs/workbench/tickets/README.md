@@ -1,199 +1,122 @@
 # TCF — Tickets de Pesquisa e Implementacao
 
-**Projeto:** Textual Columnar Format — encoder/decoder compacto para LLMs.
-**Objetivo:** Paper cientifico sobre serializacao tabular para raciocinio de LLMs.
+Indice de tickets ordenado por prioridade da fase atual.
+
+**Localizacao**: `docs/workbench/tickets/` (movido de `tickets/` raiz na
+reorganizacao 2026-04-27).
 
 ## Estrutura
 
 ```
 tickets/
-  README.md        Este arquivo — indice ordenado por prioridade
-  open/            Tickets ativos da fase atual
-  frozen/          Tickets congelados (futuro trabalho)
-  closed/          Tickets concluidos + findings
+  README.md   Este arquivo — indice ordenado por prioridade
+  open/       Tickets ativos
+  frozen/     Tickets congelados (futuro trabalho condicional)
+  closed/     Tickets concluidos + findings (com sub-pasta M-series/)
 ```
 
 ## Prefixos de tipo
 
-- `NN-` Numero de ordem/prioridade (ex: `01-`, `02-`)
-- `M-` Meta-ticket (guia de fase que orquestra sub-tickets)
-- `T-` Task (implementacao concreta)
-- `H-` Hypothesis (algo a comprovar/refutar)
-- `E-` Experiment (teste com dados/modelos)
-- `P-` Pesquisa (investigacao)
-- `R-` Resultado/finding
+- `NN-` — numero de ordem (legacy)
+- `M-` — meta-ticket (orquestra sub-tickets)
+- `T-` — task (implementacao concreta)
+- `H-` — hypothesis (a comprovar/refutar)
+- `E-` — experiment (teste com dados/modelos)
+- `P-` — paper / pesquisa documental
+- `R-` — review/refactor (audit ou rework)
+- `B-` — bug (issue tecnica)
 
 ---
 
-## FASE ATUAL: 1 — Setup de Datasets Canonicos
+## FASE ATUAL: Fechamento de Paper + Decisoes de Direcao (2026-04-27 →)
 
-**Motivacao (2026-04-10):** voltamos a prancheta. Antes de fazer qualquer
-experimento com formato, precisamos de **base de dados solida**. Nossos
-experimentos anteriores usaram `retail_sales` sintetico com nomes
-minimalistas (Ana, Bruno, Caneta), o que impede comparacao com literatura.
+**Contexto**: M-Acomm + M-schema-scope concluidos (38 findings,
+2256 records, $9.46 USD). Repositorio reorganizado. Proximo bloco
+de trabalho: **finalizar paper + decidir rumo do core TCF**.
 
-**Decidido:** comecar com 2 datasets canonicos:
-1. **TPC-H SF=0.01** (padrao da industria desde 1999, schema relacional)
-2. **Adult Census** (UCI ML, dados demograficos reais)
+### Open (8 tickets) — ordenados por prioridade
 
-Outros ~18 datasets pesquisados estao documentados em
-[docs/research-notes/2026-04-10-canonical-datasets.md](../docs/research-notes/2026-04-10-canonical-datasets.md)
-como backlog futuro.
+| Pri | Ticket | Tipo | Resumo | Bloqueador? |
+|-----|--------|------|--------|-------------|
+| 🔴 1 | [P-paper-cap8-discussion](open/P-paper-cap8-discussion.md) | paper | Escrever Cap 8 (Discussao) | bloqueia Cap 9 |
+| 🔴 2 | [P-paper-cap9-conclusion](open/P-paper-cap9-conclusion.md) | paper | Escrever Cap 9 (Conclusao) | bloqueia submissao |
+| 🟡 3 | [P-paper-appendices](open/P-paper-appendices.md) | paper | Apendices A/B/C | bloqueia submissao |
+| 🟡 4 | [P-paper-figures](open/P-paper-figures.md) | paper | Gerar figuras F1-F8 | melhora paper |
+| 🟠 5 | [R-tcf-core-revisit](open/R-tcf-core-revisit.md) | review | Audit critico v0.3 vs v0.2 | input usuario |
+| 🟠 6 | [R-project-rename](open/R-project-rename.md) | review | Avaliar nome do projeto | antes de publicar |
+| 🟢 7 | [H-advanced-compression-v03](open/H-advanced-compression-v03.md) | hypothesis | Delta/FOR/scale-int v0.3 | depende de R-tcf-core-revisit |
+| 🟢 8 | [P-phase-closure](open/P-phase-closure.md) | meta | Fechamento de fases + pip publish | meta |
 
-## Open (30) — ordem de execucao
+### Open — issues tecnicas em standby
 
-### Meta-ticket
+| Pri | Ticket | Tipo | Notas |
+|-----|--------|------|-------|
+| ⚪ — | [23-P-numeric-precision](open/23-P-numeric-precision.md) | research | Endereca em v0.3 ou WONTFIX |
+| ⚪ — | [29-B-decoder-freetext-bug](open/29-B-decoder-freetext-bug.md) | bug | Nao afeta Linha A/B; v0.3 candidate |
 
-| Prioridade | Ticket | Tipo | Descricao |
-|-----------|--------|------|-----------|
-| 0 | [01-M-datasets-setup](open/01-M-datasets-setup.md) | meta | **Guia da Fase 1** |
-
-### Sub-tickets (ordem sequencial)
-
-| Prioridade | Ticket | Tipo | Descricao |
-|-----------|--------|------|-----------|
-| 1 | [02-T-datasets-structure](open/02-T-datasets-structure.md) | task | Criar estrutura de pastas |
-| 2 | [03-T-datasets-deps](open/03-T-datasets-deps.md) | task | Dependencias opcionais (duckdb, sklearn) |
-| 3 | [04-T-datasets-tpch](open/04-T-datasets-tpch.md) | task | Download TPC-H via DuckDB |
-| 4 | [05-T-datasets-adult](open/05-T-datasets-adult.md) | task | Download Adult via sklearn |
-| 5 | [06-T-datasets-sqlite](open/06-T-datasets-sqlite.md) | task | SQLite hub com tipos/PK/FK |
-| 6 | [07-T-datasets-quality](open/07-T-datasets-quality.md) | task | Quality reports por dataset |
-| 7 | [08-T-datasets-csv-jsonl](open/08-T-datasets-csv-jsonl.md) | task | Derivar CSV/JSONL/MD |
-| 8 | [09-T-datasets-questions](open/09-T-datasets-questions.md) | task | Banco de perguntas + ground truth SQL |
-| 9 | [10-T-datasets-cleanup](open/10-T-datasets-cleanup.md) | task | Mover retail_sales para poor-reference |
-| 10 | [11-T-telemetry](open/11-T-telemetry.md) | task | Modulo de timing honesto (`src/tcf/timing.py`) |
+Legenda:
+- 🔴 critico para entrega
+- 🟡 importante para entrega
+- 🟠 decisao de direcao (input do usuario)
+- 🟢 candidatas a v0.3
+- ⚪ backlog tecnico
 
 ---
 
-## PROXIMA FASE: 1.5 — Dataset Shaper
+## Como rastrear este estado no futuro
 
-**Motivacao (2026-04-12):** antes de testar qualquer formato, precisamos de um
-**sampler multidimensional** que extrai subsets controlados dos datasets
-canonicos segundo: volume, schema complexity, join level, ordering,
-stratification e compressibility.
+Para revisar ou auditar este momento:
 
-Pesquisa completa em
-[docs/research-notes/2026-04-12-dataset-shaper.md](../docs/research-notes/2026-04-12-dataset-shaper.md).
+1. **Snapshot do indice**: este `README.md` no commit `<ts>` (data
+   acima)
+2. **Snapshot dos tickets**: `git log --follow docs/workbench/tickets/`
+3. **Snapshot dos findings**: catalogo em `docs/findings/` (38
+   findings F-Q1..F-Q38)
+4. **Snapshot do paper**: capitulos em `docs/article/`
+5. **Snapshot dos resultados**: manifests JSONL em
+   `experiments/results/m_*/manifest.jsonl`
 
-### Meta-ticket
-
-| Prioridade | Ticket | Tipo | Descricao |
-|-----------|--------|------|-----------|
-| 11 | [12-M-dataset-shaper](open/12-M-dataset-shaper.md) | meta | **Guia da Fase 1.5** |
-
-### Sub-tickets Fase 1.5a (minimo viavel)
-
-| Prioridade | Ticket | Tipo | Descricao |
-|-----------|--------|------|-----------|
-| 12 | [13-T-shaper-request](open/13-T-shaper-request.md) | task | ShapeRequest + ShapeResult dataclasses |
-| 13 | [14-T-shaper-pipeline](open/14-T-shaper-pipeline.md) | task | Pipeline executor + Strategy protocol |
-| 14 | [15-T-shaper-volume](open/15-T-shaper-volume.md) | task | Volume (N absoluto ou fraction) |
-| 15 | [16-T-shaper-schema](open/16-T-shaper-schema.md) | task | Schema levels (minimal, core, chain, full) |
-| 16 | [17-T-shaper-ordering](open/17-T-shaper-ordering.md) | task | Ordering (natural, random, sorted, reverse) |
-| 17 | [18-T-shaper-e2e](open/18-T-shaper-e2e.md) | task | End-to-end tests (Adult + TPC-H) |
-
-### Sub-tickets Fase 1.5b (extensoes, apos 1.5a)
-
-Serao criados quando 1.5a estiver concluida:
-- 19: Stratification (por coluna)
-- 20: Compressibility (score de raridade + cache)
-- 21: Join level (normalized vs flat via SQL)
-- 22: Testes combinatoriais (pairwise)
+Cada ticket aberto inclui secao "Notas de revisao futura" com pointers
+para reabrir o contexto.
 
 ---
 
-### Findings DONE (mantidos como referencia)
+## Tickets fechados — biblioteca de findings
 
-| Ticket | Tipo | Status |
-|--------|------|--------|
-| [H-diagnostic-3layer-v02](open/H-diagnostic-3layer-v02.md) | hypothesis | **DONE** (F80-F84) |
-| [E-stats-ablation](open/E-stats-ablation.md) | experiment | **DONE** (F90-F94) |
+[closed/README.md](closed/README.md) — 47+ tickets concluidos cobrindo
+v0.1 (G-series), v0.2 (M-series), e milestones M-natural + M-schema-scope.
 
-## FASE 2: Refatorar TCF Encoder + Benchmarks Reais
-
-**Motivacao (2026-04-12):** Fases 1 e 1.5 prontas. Refatorar o encoder
-para aceitar dados genericos do shaper, depois medir compressao e tokens
-reais em dados canonicos.
-
-### Meta-ticket
-
-| Prioridade | Ticket | Tipo | Descricao |
-|-----------|--------|------|-----------|
-| 23 | [24-M-phase2-tcf-refactor](open/24-M-phase2-tcf-refactor.md) | meta | **Guia da Fase 2** |
-
-### Etapa A — Refatorar encoder (proxima)
-
-| Prioridade | Ticket | Tipo | Descricao |
-|-----------|--------|------|-----------|
-| 24 | [25-T-encode-columns](open/25-T-encode-columns.md) | task | `encode_columns()` core puro (dict[str,list]) |
-| 25 | [26-T-encode-rows](open/26-T-encode-rows.md) | task | `encode_rows()` converte list[dict] |
-| 26 | [27-T-encode-compat](open/27-T-encode-compat.md) | task | `encode()` wrapper (backwards compat) |
-| 27 | [28-T-encode-tests](open/28-T-encode-tests-canonical.md) | task | Roundtrip com dados canonicos |
-
-### Etapas B-E (futuras, apos A)
-
-Definidas em [24-M-phase2-tcf-refactor](open/24-M-phase2-tcf-refactor.md):
-- B: Compression benchmark (TCF vs CSV vs JSONL)
-- C: TOON encoder + format comparison
-- D: LLM accuracy com dados canonicos
-- E: Numeric precision (shaper + TCF)
-
-### Pesquisa
-
-| Prioridade | Ticket | Descricao |
-|-----------|--------|-----------|
-| 22 | [23-P-numeric-precision](open/23-P-numeric-precision.md) | Arredondamento controlado (shaper + TCF) |
+**Pasta especial**: [closed/M-series/](closed/M-series/) — 18 milestones
+M01-M-Acomm/M-schema-scope cada um com finding(s) associado(s).
 
 ---
 
-## Frozen (34) — tickets congelados como "futuro trabalho"
+## Tickets congelados — futuro trabalho condicional
 
-Em 2026-04-10 decidimos congelar 34 tickets criados em rounds anteriores.
-Eles representam pesquisa valida mas prematura — ainda nao sabemos se
-sao essenciais para a pergunta cientifica nuclear.
+[frozen/README.md](frozen/README.md) — 34 tickets congelados em 2026-04
+representando pesquisa valida mas prematura (TCF advanced encodings,
+HTTP protocols, code-gen experiments, etc.).
 
-Ver [frozen/README.md](frozen/README.md) para listagem completa e
-criterio de descongelamento.
-
-Grupos congelados:
-- Formato TCF especifico (advanced encodings, streaming, token-friendly, etc)
-- Experimentos ambiciosos (http-protocol, code-gen, qualitative, speed)
-- Metodologia ampla (utility-analysis, llm-scope, stability, tokenizer)
-- Engenharia (cli-lib, adapters, multi-lang)
-
-**Principio:** nao apagar, so congelar. Se durante a Fase 1 descobrirmos
-que algum desses e essencial, descongelamos com justificativa.
+**Principio**: nao apagar, so congelar. Reactivar com justificativa.
 
 ---
 
-## Closed (26) — concluidos
+## Convencoes para novos tickets
 
-| Ticket | Tipo | Titulo |
-|--------|------|--------|
-| [E-G01](closed/E-G01-encode-decode-v01.md) | experiment | Encode/decode v0.1 |
-| [E-G01b](closed/E-G01b-compression-v01.md) | experiment | Compression v0.1 |
-| [E-G02](closed/E-G02-comprehension-v01.md) | experiment | Phase 1 v0.1 |
-| [E-G03](closed/E-G03-ablation-v01.md) | experiment | Phase 2 v0.1 |
-| [E-G04](closed/E-G04-stats-v01.md) | experiment | Stats v0.1 |
-| [E-G20b](closed/E-G20b-benchmark-v02.md) | experiment | Compression v0.2 |
-| [E-G21](closed/E-G21-llm-v02.md) | experiment | LLM accuracy v0.2 |
-| [E-G22](closed/E-G22-decode-reverso.md) | experiment | → absorvido |
-| [E-G23](closed/E-G23-perguntas-progressivas.md) | experiment | → absorvido |
-| [E-G24](closed/E-G24-multi-step.md) | experiment | → absorvido |
-| [E-G32](closed/E-G32-escala.md) | experiment | → absorvido |
-| [E-pareto](closed/E-pareto-accuracy-tokens.md) | experiment | → absorvido |
-| [H-G31](closed/H-G31-thinking-mode.md) | hypothesis | → absorvido |
-| [H-G36](closed/H-G36-idioma-perguntas.md) | hypothesis | → absorvido |
-| [H-G37](closed/H-G37-notacao-decoracao.md) | hypothesis | → absorvido |
-| [P-H01](closed/P-H01-reversibility.md) | hypothesis | Reversibilidade |
-| [P-transport](closed/P-transport-compression.md) | research | Transport gzip |
-| [R-F30](closed/R-F30-tcf-escala.md) | finding | TCF escala |
-| [R-F51](closed/R-F51-gemma3-melhor.md) | finding | gemma3 melhor |
-| [R-F70](closed/R-F70-transport-compression.md) | finding | TCF+gzip 29% < CSV+gzip |
-| [R-F80](closed/R-F80-stats-shortcut.md) | finding | STATS shortcut |
-| [R-F90](closed/R-F90-stats-confirmed.md) | finding | STATS inflates all models |
-| [R-F100](closed/R-F100-small-models.md) | finding | <2B unviable |
-| [T-G20](closed/T-G20-encoder-v02.md) | task | Encoder v0.2 |
-| [T-G40](closed/T-G40-paper.md) | task | → absorvido |
-| [T-cleanup-naming](closed/T-cleanup-naming.md) | task | Rename _v02 |
-| [T-P04](closed/T-P04-encoder-variants.md) | task | Variantes v0.1 |
+Use o frontmatter padrao:
+
+```yaml
+---
+title: <titulo claro>
+type: paper | meta | task | hypothesis | experiment | review | bug
+status: OPEN | PARTIAL | CLOSED | FROZEN
+priority: CRITICAL | HIGH | MEDIUM | LOW
+created: YYYY-MM-DD
+origin: <fato/conversa que originou>
+see_also:
+  - <links relacionados>
+---
+```
+
+E inclua secao **"Notas de revisao futura"** com pointers para
+reabrir o contexto do ticket sem precisar reler tudo.
