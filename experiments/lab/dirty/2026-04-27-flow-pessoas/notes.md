@@ -147,3 +147,172 @@ Esta pasta `dirty/2026-04-27-flow-pessoas/` cumpre seu papel:
 Quando promover para `clean/`: criar EXP-003 com hipotese mais clara
 e datasets adequados (multi-coluna + categoricos).
 
+---
+
+## CICLO 2 — analise critica das observacoes do usuario
+
+Rodado com `run-2.py`. Saida em `output-v2/`.
+
+### Achado 1 — Bug do CSV com line endings (cycle 1)
+
+**Causa**: `csv.DictWriter` default coloca `lineterminator='\r\n'`.
+Em Windows, `Path.write_text(text)` em modo texto **traduz cada `\n`
+para `\r\n`**. Resultado: cada `\r\n` no buffer vira `\r\r\n` ou `\r\n\n`
+no arquivo. **Cada linha ficava com 1 byte extra.**
+
+**Demonstracao** (10 linhas + header):
+
+| Variante | Bytes | Line endings observados |
+|----------|-------|------------------------|
+| **Bug ciclo 1** | 217B | `\r\n\n` (3 bytes/linha — bugado) |
+| LF puro | 195B | `\n` (1 byte/linha — Linux) |
+| CRLF puro | 206B | `\r\n` (2 bytes/linha — RFC 4180 / Windows) |
+
+**Solucao**: `io.StringIO(newline="")` + `csv.DictWriter(buf,
+lineterminator="\n")`. **Sempre forcar line ending explicito.**
+
+### Achado 2 — JSON variantes
+
+| Variante | Bytes | Uso |
+|----------|-------|-----|
+| `json.dumps(rows, separators=(",", ":"))` | 301B | producao / minimo |
+| `json.dumps(rows, indent=2)` | 422B | inspecao humana (+40%) |
+| JSONL (1 obj/linha) | 299B | streaming, append-friendly |
+
+**Boa pratica**: usar JSON compact por default (`separators=(",", ":")`).
+Pretty so quando humano vai ler. **JSONL e melhor que JSON array para
+datasets grandes** — permite append sem reler tudo.
+
+### Achado 3 — TCF L3 forcado vs SMART (auto-bypass) — IMPORTANTE
+
+**Caso atual** (10 strings unicas, 1 coluna):
+
+| Modo | Effective level | Bytes |
+|------|-----------------|-------|
+| TCF L0 | L0 | 229B |
+| TCF L2 (forcado) | L2 | 275B (+46B vs L0) |
+| TCF L3 (forcado) | L3 | 308B (+79B vs L0) |
+| **TCF L3 SMART** | **L0 (auto-bypass)** | **229B** |
+
+**Decisao**: encoder pediu L3 mas detectou que DICT **piora** o
+resultado nesse cenario. Fallback automatico para L0 mantendo o
+**conteudo mais compacto**.
+
+**Razao**: para 10 strings unicas, DICT inclui todos os 10 valores
+verbatim na linha de cabecalho + 10 indices na coluna. Bytes totais:
+overhead-cabecalho-DICT + bytes-indices > bytes-strings-diretas.
+
+**Proposta para v0.4**:
+```python
+EncodeConfig(level=3, auto_bypass=True)
+# Encoder tenta L3, mede; tenta L2, mede; usa o menor.
+# Marca o nivel efetivo no header: "level=2 (requested=3, auto-bypass)"
+```
+
+Conceito "compressao adaptativa" — usuario pede max, encoder usa
+inteligencia. Default `auto_bypass=True` em v0.4 talvez.
+
+### Achado 4 — Cabecalho v0.4 com encoding/line-ending
+
+**Proposta**:
+```
+# TCF v0.4 level=2 encoding=utf-8 line-ending=LF
+# (legacy v0.2 body follows)
+... corpo TCF v0.2 ...
+```
+
+**Por que**:
+- `encoding=utf-8` explicito permite consumidores em outras linguagens
+  (JS, Go, Rust) saber sem assumir
+- `line-ending=LF|CRLF|CR` permite consumidor saber se eh
+  Windows/Linux/Mac legacy
+- Versao explicita (`v0.4`) para tooling fazer parsing correto
+
+**Custo**: +59B no header. Pequeno em datasets reais (vol >100), mas
+pesado em datasets nano. Talvez:
+- v0.4 default: header expandido
+- Flag `--terse-header` para nano/micro: header so com `# TCF v0.4 L=2`
+
+### Achado 5 — Quando emitir cada line-ending
+
+Encoder TCF (v0.4) deveria aceitar:
+```python
+EncodeConfig(line_ending="auto")    # detect platform (default)
+EncodeConfig(line_ending="LF")       # Linux/macOS — recomendado
+EncodeConfig(line_ending="CRLF")     # Windows tools / RFC 4180
+EncodeConfig(line_ending="CR")       # Mac legacy (raramente)
+```
+
+`"auto"` na pratica deveria ser **LF** sempre — eh universal e mais
+compacto. CRLF so quando explicitamente pedido para integrar com
+ferramentas Windows-only.
+
+### Achado 6 — Tabela completa final (10 supplier names, 1 coluna)
+
+| Formato | Bytes | Observacao |
+|---------|-------|------------|
+| **CSV LF puro** | **195** | menor de todos |
+| CSV CRLF | 206 | RFC 4180 (Windows tools) |
+| CSV bug ciclo 1 | 217 | line endings duplicados (corrigir) |
+| TCF L0 | 229 | raw columnar |
+| TCF L3 SMART | 229 | auto-bypass para L0 (correto!) |
+| TCF L2 | 275 | RLE+STATS sem ganho aqui |
+| JSONL | 299 | stream-friendly |
+| JSON compact | 301 | overhead de keys |
+| TCF L3 forcado | 308 | DICT verbose (sem ganho real) |
+| TCF v0.4 c/ header | 334 | +cabecalho explicito |
+| JSON pretty | 422 | so para humanos |
+
+**CSV LF e ainda o vencedor neste cenario MIN** (1 coluna, 10 strings
+unicas). TCF nao deveria ser usado aqui — recomendacao do encoder
+inteligente: "para este dataset, considere CSV simples".
+
+### Decisoes para TCF v0.4 (lista consolidada)
+
+1. **auto_bypass=True por default**: encoder decide nivel real
+2. **line_ending="LF" por default** (universal, compacto)
+3. **encoding=utf-8 explicito** no cabecalho v0.4
+4. **terse_header=False por default**, mas opt-in para datasets nano
+5. **Documentar quando NAO usar TCF** (ex: 1 coluna single-row)
+6. Validacao: encoder pode emitir warning quando outputs sao maiores
+   que CSV equivalente
+
+### Compressao "interdados" (char-level overlap)
+
+Confirmado:
+- **TCF v0.2 atual nao captura** overlap "Supplier#" repetido
+- Capturar isso seria **char-level compression** (BWT, LZ77, suffix
+  arrays)
+- **Decisao**: NAO incluir no TCF core — gzip/brotli fazem isso bem
+  via meta-programa
+- Se quisermos no TCF, e v0.5+, nao v0.4
+
+### Quebras de linha — analise para v0.4
+
+CSV/TCF dependem de linhas como delimitador estrutural. Quebras de
+linha "bagunca" (mistura LF + CRLF + CR) **quebra parsers**. Logo:
+
+- **Encoder v0.4** deve sempre emitir line_ending **uniforme** (sem
+  mistura)
+- **Decoder v0.4** deve aceitar **qualquer line_ending** (ler tanto
+  LF quanto CRLF; CR legacy opcional)
+- **Cabecalho v0.4** declara qual o consumidor deve esperar
+
+Esta e a discrepancia entre **what we EMIT** vs **what we ACCEPT**.
+Robust principle (Postel's Law): "be conservative in what you do,
+liberal in what you accept".
+
+### Proximo ciclo (sugestao)
+
+Antes de virar EXP-003 formal:
+
+- **Workbench 3**: dataset com **categoricals repetidos** (ex: extrair
+  `s_nationkey` em vez de `s_name` — so 24 valores em 100 linhas).
+  Aqui RLE deveria realmente acionar e TCF L2 deveria vencer CSV.
+- **Workbench 4**: testar **multi-coluna** com tipos mistos. Validar
+  que CSV perde tipos no roundtrip mas JSON e TCF v0.4 (com `# TYPES`
+  header) preservam.
+
+Se workbenches 3+4 confirmarem hipoteses, ai sim promover para
+**EXP-003-format-comparison-real** com hipoteses limpas.
+
