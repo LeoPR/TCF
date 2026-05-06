@@ -316,3 +316,165 @@ Antes de virar EXP-003 formal:
 Se workbenches 3+4 confirmarem hipoteses, ai sim promover para
 **EXP-003-format-comparison-real** com hipoteses limpas.
 
+---
+
+## CICLO 3 — refinamento do cabecalho v0.4
+
+Rodado em `run-3.py`. Saida em `output-v3/`.
+
+### Decisoes do user respondidas
+
+#### 1. Bug do CSV — sumir do codigo
+
+DECISAO: bug NAO eh variante. Documentado nas notes. No proximo
+ciclo `run-N.py` o codigo NAO inclui mais a variante bugada.
+A `01a-csv-bug-CRLF+LF.csv` em `output-v2/` fica como artefato
+historico do que NAO fazer.
+
+**Encoder canonico** sempre usa:
+- `io.StringIO(newline="")`
+- `csv.DictWriter(buf, lineterminator="\n")` (LF puro)
+- `Path.write_bytes(text.encode("utf-8"))` (NUNCA write_text em CSV)
+
+#### 2. Linha "(legacy v0.2 body follows)" — sumir
+
+DECISAO: era so de lab. Em `run-3.py` ja foi removida. Cabecalho v0.4
+final NAO tem essa linha.
+
+#### 3. Instrucao "N*val = val repeated N times" — separar para LLM
+
+DECISAO: vai para **bloco de hints opcional** com marker
+`# @llm-hint:`. Decoder ignora. So aparece quando explicitamente
+pedido (`with_llm_hints=True`).
+
+**Core TCF** nao precisa dessa instrucao — RLE e implicito do formato
+para o parser.
+
+**Quando incluir hints**: na gerar payload para LLM (Linha A/B). LLM
+nao precisa decompactar via parser, le o texto cru. Hints ajudam
+a interpretar.
+
+```python
+# Para parser: sem hints (irrelevantes, +207B desperdicio)
+encode_v04(rows, with_llm_hints=False)
+
+# Para LLM: com hints (ajuda interpretar RLE)
+encode_v04(rows, with_llm_hints=True)
+```
+
+#### 4. Encoding (utf-8) — implicito por default
+
+ANALISE:
+- UTF-8 e self-describing (bytes BOM-less ainda detectaveis)
+- Decoder UTF-8 padrao consegue ler caracteres especiais (acentos,
+  CJK, emojis) **sem campo enc=utf-8 no header**
+- Casos onde precisa explicitar: arquivos legacy em latin1, utf-16,
+  cp1252 (raro em 2026)
+
+DECISAO:
+- **Default implicito**: utf-8. **Sem campo `enc=` no header.**
+- **Opt-in**: `# TCF v0.4 lv=2 enc=latin1` so quando NAO for utf-8
+- Spec: "se `enc=` ausente, decoder assume utf-8"
+
+#### 5. Line-ending — DEDUZIVEL, fora do header
+
+VALIDACAO empirica:
+- Detector trivial olha primeira ocorrencia de `\r\n` ou `\n`
+- 100% accuracy nos testes (LF -> LF, CRLF -> CRLF)
+- Custo: 1 funcao com 4 linhas
+
+DECISAO:
+- **NAO incluir line-ending no header**
+- Decoder detecta automaticamente
+- Encoder emite uniforme (sem misturar)
+- Postel principle: "be conservative in what you do (uniform),
+  liberal in what you accept (any)"
+
+#### 6. Cabecalho compacto com siglas curtas
+
+ANALISE bytes de variantes (corpo L2 igual = 226B aprox):
+
+| Variante | Header | Total | vs minimal |
+|----------|--------|-------|-----------|
+| `# TCF v0.4 lv=2` | 15B | 241B | **baseline** |
+| `# TCF v0.4 lv=2 enc=utf-8` | 26B | (n/a — nunca emite quando default) | — |
+| `# TCF v0.4 lv=2 enc=utf-8 le=LF` | 32B | 257B | +6.6% |
+| `# TCF v0.4 level=2 encoding=utf-8 line-ending=LF` | 49B | 303B | +25.7% |
+| **Com LLM hints** (3 linhas extras) | +207B | 448B | +85.9% |
+
+**Em dataset MIN** (200B payload): minimal eh 7% do total, verbose
+eh 25%. **DESPERDICIO em verbose**.
+
+**Em dataset MEDIUM** (50KB payload): minimal eh 0.03%, verbose 0.1%.
+**Irrelevante**.
+
+DECISAO: **minimo eh PRINCIPIO, nao otimizacao**. Cabecalho minimo
+forca disciplina de design.
+
+### Cabecalho TCF v0.4 — proposta final consolidada
+
+```
+# TCF v0.4 lv=<N>
+[opcional: # TCF v0.4 lv=<N> enc=<encoding> — so se NAO utf-8]
+[opcional: bloco @llm-hint: ... — so se with_llm_hints=True]
+... corpo TCF v0.2 (sem cabecalho duplicado) ...
+```
+
+#### Campos do cabecalho
+
+| Campo | Sigla | Default | Quando incluir |
+|-------|-------|---------|----------------|
+| Identificador | `TCF` | obrigatorio | sempre |
+| Versao | `v0.4` | obrigatorio | sempre |
+| Level | `lv=N` | obrigatorio | sempre (0..3) |
+| Encoding | `enc=...` | utf-8 implicito | **so se NAO utf-8** |
+| Line-ending | (nenhum) | deduzido | **nunca** (decoder detecta) |
+| LLM hints | `@llm-hint:` | nao | **so com `with_llm_hints=True`** |
+
+#### Regras formais
+
+1. **Linha 1 sempre**: `# TCF v<MAJ.MIN> lv=<N>[ enc=<enc>]`
+2. **Encoding ausente** = decoder assume utf-8
+3. **Line-ending nao no header**: decoder detecta pela primeira `\r\n`
+   ou `\n` apos linha 1
+4. **`# @llm-hint:` lines**: 0+ linhas de hints, **decoder pula** essas
+5. **Linha em branco** apos header marca inicio do corpo
+6. **Corpo**: formato v0.2 atual (sem o seu cabecalho original)
+
+#### Exemplo final concreto
+
+```
+# TCF v0.4 lv=2
+
+## data n=10 sorted_by=name
+# STATS name: cardinality=10 samples=[Supplier#000000001, Supplier#000000002, ...]
+name:
+Supplier#000000001
+Supplier#000000002
+...
+```
+
+### Decisoes consolidadas v0.4 (atualizadas pos-ciclo 3)
+
+1. ✅ `auto_bypass=True` por default (ciclo 2)
+2. ✅ `line_ending="LF"` por default emit (ciclo 2)
+3. ✅ Decoder aceita LF/CRLF/CR (Postel principle)
+4. ✅ **Encoding utf-8 implicito** (ciclo 3): so explicitar quando NAO
+5. ✅ **Line-ending NAO no header** (ciclo 3): deduzivel sempre
+6. ✅ **Cabecalho minimo**: `# TCF v0.4 lv=N`
+7. ✅ **Siglas curtas**: `lv=`, `enc=`, evita verbosidade
+8. ✅ **LLM hints opcionais**: bloco `# @llm-hint:` separado, opt-in
+9. ✅ Documentar quando NAO usar TCF (1-col single-strings)
+10. ✅ Validacao: warning quando outputs > CSV equivalente
+
+### Encerramento desta serie de workbenches
+
+Os 3 ciclos no mesmo workbench validaram:
+- Flow basico (ciclo 1): encode/decode/roundtrip OK
+- Bug + variantes (ciclo 2): line endings, smart L3, LLM separado
+- Cabecalho minimo (ciclo 3): proposta v0.4 consolidada
+
+**Proximo passo natural**: workbench 3 (categoricals repetidos)
+para validar cenario MAX onde TCF deveria brilhar. Adia decisao
+de promover para `clean/EXP-003` ate ter caso MAX confirmado.
+
