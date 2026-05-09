@@ -1,0 +1,59 @@
+{
+  "experiment": "EXP-003a-extension-csv-sorted",
+  "results": [
+    {
+      "dataset": "tpch-supplier-100",
+      "sort_col": "s_nationkey",
+      "bytes_csv_naive": 13848,
+      "bytes_csv_sorted": 13848,
+      "bytes_csv_naive_gz": 6343,
+      "bytes_csv_sorted_gz": 6353,
+      "diff_text_pct": 0.0,
+      "diff_gz_pct": 0.15765410688948212
+    },
+    {
+      "dataset": "adult-1k",
+      "sort_col": "age",
+      "bytes_csv_naive": 108226,
+      "bytes_csv_sorted": 108226,
+      "bytes_csv_naive_gz": 13169,
+      "bytes_csv_sorted_gz": 12343,
+      "diff_text_pct": 0.0,
+      "diff_gz_pct": -6.2723061735894925
+    },
+    {
+      "dataset": "categorical-heavy",
+      "sort_col": "qtd",
+      "bytes_csv_naive": 15243,
+      "bytes_csv_sorted": 15243,
+      "bytes_csv_naive_gz": 4564,
+      "bytes_csv_sorted_gz": 4428,
+      "diff_text_pct": 0.0,
+      "diff_gz_pct": -2.979842243645925
+    },
+    {
+      "dataset": "time-series",
+      "sort_col": "temperatura",
+      "bytes_csv_naive": 16829,
+      "bytes_csv_sorted": 16829,
+      "bytes_csv_naive_gz": 5684,
+      "bytes_csv_sorted_gz": 5649,
+      "diff_text_pct": 0.0,
+      "diff_gz_pct": -0.6157635467980316
+    },
+    {
+      "dataset": "mixed-relational",
+      "sort_col": "produto_nome",
+      "bytes_csv_naive": 37597,
+      "bytes_csv_sorted": 37597,
+      "bytes_csv_naive_gz": 9913,
+      "bytes_csv_sorted_gz": 9732,
+      "diff_text_pct": 0.0,
+      "diff_gz_pct": -1.8258852012508875
+    }
+  ],
+  "summary": {
+    "avg_diff_text_pct": 0.0,
+    "avg_diff_gz_pct": -2.307228611678971
+  }
+}

@@ -1,0 +1,109 @@
+{
+  "experiment": "EXP-003b-tcf-vs-gzip",
+  "results": [
+    {
+      "dataset": "tpch-supplier-100",
+      "n_rows": 100,
+      "n_cols": 7,
+      "bytes": {
+        "csv": 13848,
+        "csv_gz": 6343,
+        "tcf_raw": 13802,
+        "tcf_raw_gz": 6188,
+        "tcf_compact": 13674,
+        "tcf_compact_gz": 6141,
+        "tcf_smart": 11917,
+        "tcf_smart_gz": 5906
+      },
+      "decisions": {
+        "cross_dicts": [],
+        "pk_eliminated": "s_suppkey",
+        "sort_by": "s_nationkey"
+      }
+    },
+    {
+      "dataset": "adult-1k",
+      "n_rows": 1000,
+      "n_cols": 15,
+      "bytes": {
+        "csv": 108226,
+        "csv_gz": 13169,
+        "tcf_raw": 108746,
+        "tcf_raw_gz": 12846,
+        "tcf_compact": 63749,
+        "tcf_compact_gz": 11525,
+        "tcf_smart": 27268,
+        "tcf_smart_gz": 10146
+      },
+      "decisions": {
+        "cross_dicts": [],
+        "pk_eliminated": null,
+        "sort_by": "age"
+      }
+    },
+    {
+      "dataset": "categorical-heavy",
+      "n_rows": 500,
+      "n_cols": 7,
+      "bytes": {
+        "csv": 15243,
+        "csv_gz": 4564,
+        "tcf_raw": 15295,
+        "tcf_raw_gz": 4460,
+        "tcf_compact": 12374,
+        "tcf_compact_gz": 4098,
+        "tcf_smart": 8145,
+        "tcf_smart_gz": 2912
+      },
+      "decisions": {
+        "cross_dicts": [],
+        "pk_eliminated": "id",
+        "sort_by": "qtd"
+      }
+    },
+    {
+      "dataset": "time-series",
+      "n_rows": 500,
+      "n_cols": 5,
+      "bytes": {
+        "csv": 16829,
+        "csv_gz": 5684,
+        "tcf_raw": 16873,
+        "tcf_raw_gz": 5347,
+        "tcf_compact": 15567,
+        "tcf_compact_gz": 5011,
+        "tcf_smart": 15565,
+        "tcf_smart_gz": 5008
+      },
+      "decisions": {
+        "cross_dicts": [],
+        "pk_eliminated": null,
+        "sort_by": "temperatura"
+      }
+    },
+    {
+      "dataset": "mixed-relational",
+      "n_rows": 800,
+      "n_cols": 8,
+      "bytes": {
+        "csv": 37597,
+        "csv_gz": 9913,
+        "tcf_raw": 37649,
+        "tcf_raw_gz": 9336,
+        "tcf_compact": 28700,
+        "tcf_compact_gz": 8363,
+        "tcf_smart": 15870,
+        "tcf_smart_gz": 6229
+      },
+      "decisions": {
+        "cross_dicts": [],
+        "pk_eliminated": "pedido_id",
+        "sort_by": "produto_nome"
+      }
+    }
+  ],
+  "summary": {
+    "avg_smart_vs_compact_gz_pct": -14.06200103304603,
+    "avg_smart_vs_csv_gz_pct": -23.019516615461765
+  }
+}

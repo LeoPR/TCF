@@ -1,0 +1,59 @@
+{
+  "experiment": "EXP-003a-calibration",
+  "verification": "stream_vs_standalone",
+  "chunk_size": 1024,
+  "results": [
+    {
+      "dataset": "tpch-supplier-100",
+      "bytes_csv": 13848,
+      "M1_standalone": 6343,
+      "M2_stream_no_flush": 6343,
+      "M3_stream_flush_per_1KB": 6861,
+      "M2_diff_pct": 0.0,
+      "M3_diff_pct": 8.166482736875302
+    },
+    {
+      "dataset": "adult-1k",
+      "bytes_csv": 108226,
+      "M1_standalone": 13169,
+      "M2_stream_no_flush": 13169,
+      "M3_stream_flush_per_1KB": 16111,
+      "M2_diff_pct": 0.0,
+      "M3_diff_pct": 22.340344749031814
+    },
+    {
+      "dataset": "categorical-heavy",
+      "bytes_csv": 15243,
+      "M1_standalone": 4564,
+      "M2_stream_no_flush": 4564,
+      "M3_stream_flush_per_1KB": 4826,
+      "M2_diff_pct": 0.0,
+      "M3_diff_pct": 5.740578439964938
+    },
+    {
+      "dataset": "time-series",
+      "bytes_csv": 16829,
+      "M1_standalone": 5684,
+      "M2_stream_no_flush": 5684,
+      "M3_stream_flush_per_1KB": 5947,
+      "M2_diff_pct": 0.0,
+      "M3_diff_pct": 4.627023223082327
+    },
+    {
+      "dataset": "mixed-relational",
+      "bytes_csv": 37597,
+      "M1_standalone": 9913,
+      "M2_stream_no_flush": 9913,
+      "M3_stream_flush_per_1KB": 10693,
+      "M2_diff_pct": 0.0,
+      "M3_diff_pct": 7.8684555634015885
+    }
+  ],
+  "pending_real_tests": [
+    "HTTP/1.x Apache/Nginx com Content-Encoding: gzip",
+    "HTTP/2 + gzip body",
+    "HTTP/3 + QUIC + brotli",
+    "WebSocket per-message-deflate",
+    "gRPC gzip codec"
+  ]
+}

@@ -1,0 +1,709 @@
+# TCF v0.4 lv=raw
+## tpch-supplier-100 n=100
+s_suppkey:
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+s_name:
+Supplier#000000001
+Supplier#000000002
+Supplier#000000003
+Supplier#000000004
+Supplier#000000005
+Supplier#000000006
+Supplier#000000007
+Supplier#000000008
+Supplier#000000009
+Supplier#000000010
+Supplier#000000011
+Supplier#000000012
+Supplier#000000013
+Supplier#000000014
+Supplier#000000015
+Supplier#000000016
+Supplier#000000017
+Supplier#000000018
+Supplier#000000019
+Supplier#000000020
+Supplier#000000021
+Supplier#000000022
+Supplier#000000023
+Supplier#000000024
+Supplier#000000025
+Supplier#000000026
+Supplier#000000027
+Supplier#000000028
+Supplier#000000029
+Supplier#000000030
+Supplier#000000031
+Supplier#000000032
+Supplier#000000033
+Supplier#000000034
+Supplier#000000035
+Supplier#000000036
+Supplier#000000037
+Supplier#000000038
+Supplier#000000039
+Supplier#000000040
+Supplier#000000041
+Supplier#000000042
+Supplier#000000043
+Supplier#000000044
+Supplier#000000045
+Supplier#000000046
+Supplier#000000047
+Supplier#000000048
+Supplier#000000049
+Supplier#000000050
+Supplier#000000051
+Supplier#000000052
+Supplier#000000053
+Supplier#000000054
+Supplier#000000055
+Supplier#000000056
+Supplier#000000057
+Supplier#000000058
+Supplier#000000059
+Supplier#000000060
+Supplier#000000061
+Supplier#000000062
+Supplier#000000063
+Supplier#000000064
+Supplier#000000065
+Supplier#000000066
+Supplier#000000067
+Supplier#000000068
+Supplier#000000069
+Supplier#000000070
+Supplier#000000071
+Supplier#000000072
+Supplier#000000073
+Supplier#000000074
+Supplier#000000075
+Supplier#000000076
+Supplier#000000077
+Supplier#000000078
+Supplier#000000079
+Supplier#000000080
+Supplier#000000081
+Supplier#000000082
+Supplier#000000083
+Supplier#000000084
+Supplier#000000085
+Supplier#000000086
+Supplier#000000087
+Supplier#000000088
+Supplier#000000089
+Supplier#000000090
+Supplier#000000091
+Supplier#000000092
+Supplier#000000093
+Supplier#000000094
+Supplier#000000095
+Supplier#000000096
+Supplier#000000097
+Supplier#000000098
+Supplier#000000099
+Supplier#000000100
+s_address:
+sdrGnXCDRcfriBvY0KL,ipCanOTyK t NN1
+TRMhVHz3XiFuhapxucPo1
+BZ0kXcHUcHjx62L7CjZSql7gbWQ6RPn5X
+qGTQJXogS83a7MBnEweGHKevK
+lONEYAh9sFWAF75tO
+zaux5FTzToEg
+ 0W7IPdkpWycUbQ9Adp6B
+S8AWPqjYlanEQlcDO2WV 97uCVtxCk
+,gJ6K2MKveYxQTN 2EMG3pzg
+9QtKQKXK24fBTYIsb2
+iLv7z1f1 51re0Rp
+Rfi4rsA,j2O
+kgTZjbt4CAa4c3SlirlBLqIL41YbCj
+n3zDcWB7dHXI19E
+DF35PepL5saAKCGAZ70iN
+3HbVoWVsjn4fTfQGgYTsMaDvMINBIDXqeBwK
+PYN0m9j98GhX42DvBKvURcAd,B
+ckk5mWb4qewgn1vs
+NN17XNz0DpmnSFp47kM7G
+JtPqm19E7tF 152Rl1wQZ8j0H
+TZoQwNFFO i,baXpbpin02,hvuhE,GRVIKm 
+DGIIamGrSFFUm53Va,0PnOc
+ zMyxL7O3O0SUAFoTrY7gVO mnM8XsH
+pWDbwg 5EgcbQPlpH
+aoagce3elDACNssVvTLcQl55Up6EYA
+J50ejtquU1SXRxsmdGA,Se,QZsepLjU
+GoWoHhvdj6AUfWujBscphWdFjHl7K
+lpJwCaJ0T2jdr5
+VVSymB3fbwaNUuBmNAoY
+TWdEo, EaLd,LHXtGCPf8
+M9hIErTsOJuqBA9gjOaMDO5Bb
+uwCnX8y18u,zGadpgSQKHVP1F2fxK
+LLMgB3vXW,0g,8nuv3qU3QZaEBZvU2qRLX9
+F29MXhwqYcXFfWjKungGH b6nceg9o9B03BR
+btEEk4uH55bVcxqqo355 x0WMmrK6,bOU
+Fs8BpqhwPHOuX6g84XPfmMv9nUSnRZGqoSTS
+PAHtpWJZD5
+vmOuWWwn,l4j7TOSEw4l3
+2e0rD92Bmb5 ZtqmjQoR,AHlOJHHM6WMj
+ttiM4tPPBG85XTwFZDE8lpu8KOYgB
+lrZlgk9WXVsveglFty
+,2VFvnKBMXIYwP6q2HX8wfJgUZhFvmfyno
+2VEfxrC76mNg2VwZY5DDrWnSTrCUHlZfwe2EF3SJ
+Hm9uFgnDFi2hNdUVsqbjHFtf
+gOgDzRS3kyjc,429pTJGd jr Es9KZ
+N,6964Lnc2fNgMZV1VJV9ye9PtkE7z1nYOHRB
+Y3eZu1bOuAw0jgW4dFKPE1ePfKpjfq
+IK,6rmdbeaoxtxgx7Df34QfLX5FUcyddqUEbF4h
+ewArUFQOlWlyhws
+AkCPA9ee2s0n  bKok8
+AnGp3Q,ZbcjgHcvAIHUYyeScW
+5oGr3pj2sprZNwho8CFW2haaObd0
+JRwXrnz2oLggl6UciySIJJpcjqpXTtaTPXkoT9y
+iZz04vPVBK
+dAN28JcaMkXMkIUYU7H
+M65yF75QFrlIjpcy2C6as3aRdMdfa9YkF
+Qm4A6699rL0FPYC,S2
+0,Nmqoi1Co7f13K
+eSFgP3HeD5GmjE7c9EpKzfI3SA hu
+PP,SDzn7q9DWT4EEpO23y
+ds,eZBp9Ri
+Q8EFl36gpMazAhuwoRrs9UuBlOmLVHe7P
+eF5,cbtiCbxbGvVr2x4kDE30JLAEZ
+wS,hHEibrFlCfN6I9xyPxSZKkGAAB4XbapMdy826
+qzqDj7E8lqABBg f
+B2N xmhah23IgwDe5E2Lp5tN5qSPO41q406V8c5X
+U2 mgiDOjlHVnr4U1QALr35
+7MUdV0wjYowmWbbL7kfERy0IPl22FnDcPXubvyKP
+8YnFR1LRTMYXXM9yeIYss
+jd4djZv0cc5KdnA0q9oOqvceaPUbNloOW
+3lCSQETbUvJra
+FgBqhDHyQvHYQFA6Wr1mQhXbjYvL2AurqeSAkAZ
+kp1qZejw zwaou78HKrV4 L8clKe9geoMYCxm
+yeXt5WdcOUQVvdNCulURp4rSaxnuAwhxP9hzq
+ULXKdX bZFJwii
+ipJ8pRXOf2xdKj63y6jEzmoon
+w5yO 0yjXou 8I4ffzADq,R8tD06x1vbeMpLJF2
+StXc1Zo5rJl z avspT5Ys7ytLj5jFlX8nUu s
+C,xXyty836oYhSwmLfdlegz 9awTAt7y7p7r
+PhYej9mhZXAifY4IXnVIVJ9CX011Id73JAD
+9fFQOQJKBgF5Q0KmXzQ2xZYM,
+5t7gqU1BlZWyZQoeF7X
+59h6GtoD,V0 M5sWTCqLAPoxv
+oO2H4fI1kaBmgchJWvqEj5,SIHu
+pGFzRayFsg9l
+iZLKKWaQADe
+5ovT6anHSsD1TyApXOBEU
+uczJ2TvvseL8
+MJys1P8C JyNZ
+QbmU6KsZLYFXKv8le D9z0K0XLAXT WGuKBKAzzZ
+35WVnU7GLNbQDcc2TARavGtk6RB6ZCd46UAY
+EWS4tXaiXFFFS7Y,T G
+wNZNHIg370XspE
+Gg0BfcHqe5lhc3dT,sb1ydaHBpJFIm
+CYrYJqLjV7o
+gPuBX5iIBtNrCYv2EMZISIhu0v7yZeC
+f oaJRYkUDO3ZLBVoq
+DKjDSOB3pVb
+X8uG7kkYSD2 y7,1eD5lSj
+AiFdrGISsw5YYFY FPOusmobWMf
+s_nationkey:
+17
+5
+1
+15
+11
+14
+23
+17
+10
+24
+18
+8
+3
+15
+8
+22
+19
+16
+24
+3
+2
+4
+9
+0
+22
+21
+18
+0
+1
+16
+16
+23
+7
+10
+21
+13
+0
+4
+8
+22
+18
+22
+12
+7
+9
+24
+14
+14
+24
+9
+9
+19
+7
+12
+24
+16
+17
+16
+17
+8
+8
+19
+5
+24
+22
+23
+4
+21
+4
+6
+1
+18
+16
+20
+18
+14
+7
+5
+14
+21
+12
+18
+14
+24
+7
+19
+24
+11
+9
+6
+3
+2
+16
+4
+19
+12
+4
+21
+18
+21
+s_phone:
+27-918-335-1736
+15-679-861-2259
+11-383-516-1199
+25-843-787-7479
+21-151-690-3663
+24-696-997-4969
+33-990-965-2201
+27-498-742-3860
+20-403-398-8662
+34-852-489-8585
+28-613-996-1505
+18-179-925-7181
+13-727-620-7813
+25-656-247-5058
+18-453-357-6394
+32-822-502-4215
+29-601-884-9219
+26-729-551-1115
+34-278-310-2731
+13-715-945-6730
+12-253-590-5816
+14-144-830-2814
+19-559-422-5776
+10-620-939-2254
+32-431-945-3541
+31-758-894-4436
+28-708-999-2028
+10-538-384-8460
+11-555-705-5922
+26-940-594-4852
+26-515-530-4159
+33-484-637-7873
+17-138-897-9374
+20-519-982-2343
+31-720-790-5245
+23-273-493-3679
+10-470-144-1330
+14-361-296-6426
+18-851-856-5633
+32-231-247-6991
+28-739-447-2525
+32-698-298-6317
+22-421-568-4862
+17-713-930-5667
+19-189-635-8862
+34-748-308-3215
+24-810-354-4471
+24-722-551-9498
+34-211-567-6800
+19-561-560-7437
+19-475-537-1368
+29-974-934-4713
+17-886-101-6083
+22-966-435-7200
+34-876-912-6007
+26-471-195-5486
+27-681-514-6892
+26-659-969-5586
+27-249-395-9123
+18-550-360-2464
+18-396-489-9719
+29-603-653-2494
+15-781-401-3047
+34-278-790-7004
+32-444-835-2434
+33-300-836-9529
+14-563-538-1657
+31-267-327-4328
+14-491-707-8310
+16-821-608-1166
+11-743-919-7272
+28-113-898-6643
+26-758-310-7496
+30-166-486-1559
+28-716-704-8686
+24-228-763-7840
+17-281-345-4863
+15-670-998-6860
+24-402-227-9600
+31-646-289-1906
+22-535-310-6971
+28-177-572-9691
+24-529-559-2461
+34-869-118-7803
+17-167-806-8199
+29-903-665-7065
+34-860-229-1674
+21-191-938-9469
+19-259-876-1014
+16-380-123-9217
+13-604-986-9056
+12-701-432-8346
+26-528-528-1157
+14-728-888-8882
+29-142-539-1403
+22-888-654-7193
+14-618-678-1789
+31-914-775-1978
+28-272-909-1617
+31-351-324-5062
+s_acctbal:
+5755.94
+4032.68
+4192.4
+4641.08
+-283.84
+1365.79
+6820.35
+7627.85
+5302.37
+3891.91
+3393.08
+1432.69
+9107.22
+9189.82
+308.56
+2972.26
+1687.81
+7040.82
+6150.38
+530.82
+9365.8
+-966.2
+5926.41
+9170.71
+9198.31
+21.18
+1887.62
+-891.99
+-811.62
+8080.14
+5916.91
+3556.47
+8564.12
+237.31
+4381.41
+2371.51
+3017.47
+2512.41
+6115.65
+-290.06
+6942.67
+6565.11
+7773.41
+9759.38
+2944.23
+3580.35
+2958.09
+5630.62
+9915.24
+4515.87
+7241.4
+287.16
+6177.35
+2733.69
+7162.15
+-632.16
+-831.07
+92.44
+586.16
+4515.8
+6096.58
+9202.57
+5742.03
+1309.7
+-963.79
+2455.98
+3576.55
+5119.38
+8466.5
+9508.37
+8179.68
+7014.5
+3793.13
+4170.51
+-224.84
+2971.1
+4186.95
+1044.1
+1191.94
+-40.45
+166.32
+-724.31
+1467.77
+4780.93
+7174.74
+1883.37
+4746.66
+3086.13
+1638.02
+6201.77
+6255.87
+2470.84
+368.76
+2766.8
+2588.83
+3437.24
+6642.22
+5873.07
+3671.34
+3191.7
+s_comment:
+ instructions. slyly unusual
+ the pending packages. furiously expres
+ong the fluffily idle packages: bold foxes mold silent package
+al braids affix through the regular
+accounts. instructions ha
+ sleep fluffily against the blithely special dugouts. furiously express th
+ke across the slyly ironic packages. carefully special pinto beans wake blithely. even deposits los
+iously about the bold packages. 
+asymptotes cajole along the furiously bold deposits. iron
+ronic pinto beans. slyly even i
+efully across the furiously regular requests. pending, regular instructions against the bold, expre
+ending deposits. carefully express dependencies detect. blithely regular pla
+against the quickly ironic packages. slyly regular excuses wake since
+leep despite the fluffily thin accounts. caref
+nently against the bravely bold deposits. carefully ironic platelets are. pendi
+platelets thrash against the slyly special req
+se slyly furiously even notornis. furiously regular packa
+es wake above the slyly ironic pearls
+g the carefully regular packages. blithely unusual instructions sl
+es. fluffily ironic instructions nag slyly slyly pending realms. blithely final r
+thlessly bold accounts. slyly even accounts against the special requests boost slyly bl
+oxes among the special pains cajole furiously
+sual asymptotes affix quickly at the instructions. deposits 
+olphins. unusual deposits nag along the fluffily
+quickly pending accounts cajole blithely against the ironic, pending theodolites. even, silent reque
+ from the foxes. special deposits cajole blithely special theodolites-- quickly bold 
+permanently bold gifts. unusual instructions af
+ng the packages. even, regular asymptotes hang carefully. quietly express epitaphs are about the f
+ across the furiously final theodolites are against the quickly thin requests. instructio
+lyly pending requests run slyly furiously slow deposits. carefully regular deposits use. packages ar
+s use carefully according to the slyly regular accounts. packages among the st
+inments. silently final pinto beans among the 
+l packages cajole unusual, final packages. slyly express requests
+al packages wake blithely. quickly express accounts cajole packages. final ideas haggle 
+lyly above the furiously ironic attainments. pending dugouts was quic
+ithely even pinto beans. bold, express pinto beans according to the carefully r
+deposits. furiously ironic dolphins after the slyly even accounts haggle against the excuses. 
+inst the slyly final pinto beans. carefully un
+ts. special, final requests along the thinly regular accounts are across the bold pac
+ress deposits affix blithely ideas. final
+ss courts: blithely ironic excuses might haggl
+egular ideas haggle. furiously ironic acco
+y regular deposits-- requests in
+even deposits. furiously e
+ndencies detect quickly unusual foxes. special, 
+d somas use around the furious
+nd the packages; final, pending dependencie
+ecial excuses detect blithely. slyly regular requests 
+thely bold packages. final, pending instructions nod? even requests above the regular, 
+ furiously special ideas; regular dependencies wake furiously someti
+ording to the ironic accounts: express deposits nag daringly. slyly ironic packages grow daringly q
+arefully silent pinto beans use furiously furiously even deposits. regular packages are furious
+fully pending accounts. packages 
+ake quickly foxes. deposits boost furiously. carefully final packag
+al requests after the blithely express ideas affix carefully above the express, ironic 
+fully final accounts. even accounts across the thin, final notornis are slyly
+entiments boost. blithely regular fo
+d the fluffily even ideas. slyly final requests are quickly furi
+s impress furiously along the blithely ironic deposi
+y regular requests. final ideas a
+the quickly bold foxes. slyly ev
+egular packages. fluffily regular dolphins along the furiously sly packages integrate aro
+y. regular, special deposits integrate furiously unusual deposits. unusual, ironic dolphins
+ furiously ironic accounts wake against 
+regular asymptotes wake furiously furiously ironic packages. ideas sleep above t
+uests cajole blithely across t
+arefully pending accounts sl
+ronic notornis: furiously silent theodolites sno
+nusual packages wake furiously. furiously ironic frays along the quickly regular deposits bo
+n instructions are about the ironic, ironic excuses. instructions cajol
+ the quickly even ideas. accounts alongside of the even dependencies detect ruthlessly acr
+ccounts. blithely bold deposits use carefully ironic
+ along the instructions. dep
+ully about the even packages. blithely regular dependencies across the even platelets play daring
+platelets cajole. sentiments 
+ending foxes wake carefully blithely express accounts. final accounts u
+ainst the blithely ironic packages poach at the regul
+ccounts. evenly express deposits between the blithely pending instructions unwind regular ideas. bl
+ slyly. quietly slow instructions around the furiously ironic theodolites are am
+ring, even sentiments are. evenly even ideas wake fluffily blithely ironic packages. even platelets
+ven pinto beans run furiously. deposits use carefully across the slyly blithe packages. car
+e ironic accounts. furiously even accounts inside the reque
+ccounts are fluffily? blithely pending packages should haggle furiousl
+ironic warthogs. carefully final dependenci
+ckages. express requests haggle busy, regu
+ foxes boost after the carefully silent asymptotes. slyl
+ beans are silently idle requests. regular deposits above the requests slee
+dugouts haggle slyly deposits
+gular theodolites. deposits after the regular deposits 
+pinto beans. blithely final re
+pending pinto beans after the silent accounts boost fluffily quickly regular i
+sits unwind blithely. even, final gifts wake furiously of t
+instructions mold slyly special dolphins. quickly regular instru
+s are fluffily. bold accounts dazzle blithely regular packag
+iously special packages integrate. finally pendi
+ously quick deposits. furiously bold requests along
+riously even pains. quickly special depende
+ to the unusual accounts. carefully ironic
+ deposits sleep. quickly sp
+refully final, regular accounts. permanently ironic platelets wake blithely along the f

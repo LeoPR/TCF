@@ -1,0 +1,115 @@
+{
+  "experiment": "EXP-003a-calibration",
+  "datasets": [
+    {
+      "dataset": "tpch-supplier-100",
+      "n_rows": 100,
+      "n_cols": 7,
+      "bytes_csv": 13848,
+      "compressors": {
+        "gzip": {
+          "bytes": 6343,
+          "ratio": 0.45804448295782785,
+          "gain_pct": 54.195551704217216,
+          "status": "ok"
+        },
+        "brotli": {
+          "bytes": null,
+          "status": "missing: brotli not installed. Run: pip install brotli"
+        },
+        "zstd": {
+          "bytes": null,
+          "status": "missing: zstandard not installed. Run: pip install zstandard"
+        }
+      }
+    },
+    {
+      "dataset": "adult-1k",
+      "n_rows": 1000,
+      "n_cols": 15,
+      "bytes_csv": 108226,
+      "compressors": {
+        "gzip": {
+          "bytes": 13169,
+          "ratio": 0.12168055735220742,
+          "gain_pct": 87.83194426477927,
+          "status": "ok"
+        },
+        "brotli": {
+          "bytes": null,
+          "status": "missing: brotli not installed. Run: pip install brotli"
+        },
+        "zstd": {
+          "bytes": null,
+          "status": "missing: zstandard not installed. Run: pip install zstandard"
+        }
+      }
+    },
+    {
+      "dataset": "categorical-heavy",
+      "n_rows": 500,
+      "n_cols": 7,
+      "bytes_csv": 15243,
+      "compressors": {
+        "gzip": {
+          "bytes": 4564,
+          "ratio": 0.29941612543462576,
+          "gain_pct": 70.05838745653743,
+          "status": "ok"
+        },
+        "brotli": {
+          "bytes": null,
+          "status": "missing: brotli not installed. Run: pip install brotli"
+        },
+        "zstd": {
+          "bytes": null,
+          "status": "missing: zstandard not installed. Run: pip install zstandard"
+        }
+      }
+    },
+    {
+      "dataset": "time-series",
+      "n_rows": 500,
+      "n_cols": 5,
+      "bytes_csv": 16829,
+      "compressors": {
+        "gzip": {
+          "bytes": 5684,
+          "ratio": 0.337750311961495,
+          "gain_pct": 66.22496880385049,
+          "status": "ok"
+        },
+        "brotli": {
+          "bytes": null,
+          "status": "missing: brotli not installed. Run: pip install brotli"
+        },
+        "zstd": {
+          "bytes": null,
+          "status": "missing: zstandard not installed. Run: pip install zstandard"
+        }
+      }
+    },
+    {
+      "dataset": "mixed-relational",
+      "n_rows": 800,
+      "n_cols": 8,
+      "bytes_csv": 37597,
+      "compressors": {
+        "gzip": {
+          "bytes": 9913,
+          "ratio": 0.2636646540947416,
+          "gain_pct": 73.63353459052584,
+          "status": "ok"
+        },
+        "brotli": {
+          "bytes": null,
+          "status": "missing: brotli not installed. Run: pip install brotli"
+        },
+        "zstd": {
+          "bytes": null,
+          "status": "missing: zstandard not installed. Run: pip install zstandard"
+        }
+      }
+    }
+  ]
+}

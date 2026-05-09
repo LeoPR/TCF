@@ -1,6 +1,15 @@
-"""TCF -- Textual Columnar Format
+"""TCF -- Tabular Compact Format
 
-Compact columnar data encoding with RLE compression for LLM reasoning.
+Compact tabular data encoding with integrated compression techniques
+(RLE, DICT, XDICT, AFFIX, KEY-ELIM) and chunk-based emission.
+
+Significado redefinido em 2026-05-05 (v0.4 design):
+- T = Tabular (logico, multi-tabela)
+- C = Compact (compressao integrada)
+- F = Format (especificacao)
+
+Versoes anteriores (v0.2) referenciam "Textual Columnar Format" — sigla
+mantida; significado expandido para cobrir escopo v0.4.
 
 Quick start (core, no IO):
     from tcf import encode_columns, EncodeConfig
