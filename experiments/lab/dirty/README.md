@@ -79,7 +79,7 @@ Exploracao do **algoritmo de compressao de strings**. Cada lab tem
 `docs/workbench/research-notes/2026-05-12-dict-maleavel-unificado.md`
 e `2026-05-12-teoria-compressao-strings.md`.
 
-### Fase C — encadeamento + escala + fechamento (2026-05-20 a 2026-05-24)
+### Fase C — encadeamento + escala + fechamento (2026-05-20 a 2026-05-25)
 
 Refinamentos finais; validacao de escala; fechamento.
 
@@ -89,14 +89,25 @@ Refinamentos finais; validacao de escala; fechamento.
 | 2026-05-21-multi-afixo | Pre-declaracao topologica + encadeamento ativo | C7 -29% vs lab 20, C9 -61% vs literal |
 | 2026-05-22-deducoes | D1/D2/D3 (idx por contagem, alfabeto, omit eq) | Avg -0.62% — **deducoes nao escalam**; D2 tem ambiguidade |
 | 2026-05-23-escala | 7 cenarios N=100 a 1000 | **TCF+gz vence literal+gz em escala** (-8.47% avg) |
-| **2026-05-24-fechamento-multi-afixo-escala** | Multi-afixo (lab 21) + escala (lab 23) | **E7 -82% vs literal**; algoritmo canonico definido |
+| 2026-05-24-fechamento-multi-afixo-escala | Multi-afixo (lab 21) + escala (lab 23) | E7 -82% vs literal; encadeamento explicito |
+| **2026-05-25-markers-rle-revisao** | Markers clarificados + RLE adjacente + hibrido | **Avg -58.28%, 24/24 RT, algoritmo canonico final** |
 
-**Algoritmo canonico do dirty** (lab 24):
-- PATRICIA forward + reverse
-- Para cada string: `base` (prefix maior gain) + `ext` (encadeada com
-  ganho liquido positivo, ext-aware) + `suffix` (do reverse)
-- Header: bases (gain desc) → full_paths (com ext encadeada) → suffixes
-- Body: `<idx_full> mid <idx_suffix>`, repetidas via `=N`
+**Algoritmo canonico final do dirty** (lab 25 variante C — hibrido):
+1. Codifica em **modo INLINE** (estilo lab 18: idx-fragmento independente,
+   declaracoes inline `*<text>`, sem encadeamento)
+2. Codifica em **modo EXPLICITO** (estilo lab 24: header com `*N=text` e
+   `*N=P+ext`, com encadeamento)
+3. Aplica **RLE adjacente** (`<linha>~N` quando run_len >= 3) em ambos
+4. Retorna o de menor bytes (decisao empirica)
+
+**Sintaxe canonica de markers** (registrada no lab 25):
+- `*<text>` decl inline (idx-fragmento ++)
+- `*<N>=<text>` decl explicita
+- `*<N>=<P>+<ext>` decl encadeada
+- `=<N>` line-ref (linha N do body)
+- `<digits>` frag-ref
+- `_<text>` literal numerico
+- `<linha>~<N>` RLE adjacente
 
 ---
 
@@ -138,28 +149,39 @@ Refinamentos finais; validacao de escala; fechamento.
 - **Lab 24 rascunho v2** (corrigido): formula de gain ext-aware usava
   idx ~1 char; em E2 explodiu a 100+ idx (3 chars). Fixed: formula
   conservadora `ct*(len_ext-2) - (7+len_ext)`.
+- **Lab 25 rascunho v1** (corrigido): variante A inline usava `=N`
+  tanto para frag-ref quanto line-ref (ambiguidade). RT FAIL em
+  6/8. Fixed: dois espacos de idx separados — `<digits>` para
+  frag-ref, `=N` para line-ref. RT 24/24 OK na v2.
+- **Lab 25 v2** (refinado): hibrido por heuristica topologica
+  acertava sentido mas perdia 1-3pp em casos marginais. Fixed:
+  hibrido empirico (encoda ambos, retorna menor).
 
 ---
 
 ## Status de fechamento da fase dirty
 
-**FECHAMENTO RECOMENDADO** apos lab 24 (2026-05-10).
+**FECHAMENTO RECOMENDADO** apos lab 25 (2026-05-10).
 
 Criterios atendidos:
-- [x] Algoritmo unificado funcional (PATRICIA bidir + multi-afixo)
-- [x] 7/7 RT OK em escala (N=100 a 1000)
-- [x] -54.56% vs literal medio; E7 -82%
-- [x] Tese de complementaridade com gzip (-8% vs literal+gz em escala)
+- [x] Algoritmo unificado funcional (PATRICIA bidir + multi-afixo +
+      RLE adjacente + decisao automatica inline/explicito)
+- [x] 24/24 RT OK em 8 cenarios (N=84 a 1000)
+- [x] -58.28% vs literal medio; E7 -82%
+- [x] Tese de complementaridade com gzip mantida
 - [x] Bugs do dirty diagnosticados ou deferidos formalmente
+- [x] Markers clarificados e documentados (lab 25 notes.md)
+- [x] Sintaxe canonica registrada para portar ao clean
 
-Proximo passo: portar lab 24 para
-`experiments/lab/clean/EXP-007-...` com:
+Proximo passo: portar lab 25 (variante C hibrida) para
+`experiments/lab/clean/EXP-007-encoder-canonico/` com:
 - Header `#TCF.5 SRDM`
 - Roundtrip via test harness
 - Bench formal contra CSV/JSON/TOON
+- Multi-tabela e multi-coluna
 
 ---
 
 ## Conteudo atual
 
-26 sub-pastas (datas 2026-05-07 a 2026-05-24).
+27 sub-pastas (datas 2026-05-07 a 2026-05-25).
