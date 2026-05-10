@@ -211,6 +211,73 @@ TCF v0.5 compete por:
 **Implicacao**: empiricamente, esperamos perder de gzip+CSV em razao
 mas ganhar em propriedades estruturais.
 
+### 5.1 Criterio de escopo — estrutural vs estatistico
+
+**Adicionado 2026-05-19 apos reflexao sobre LZ77**:
+
+> Uma tecnica entra no TCF se explora ESTRUTURA SEMANTICA visivel
+> ao LLM/humano. Se so explora ESTATISTICA byte-level, deixar para
+> o gzip.
+
+| Tecnica | Estrutural ou estatistica? | TCF? |
+|---------|---------------------------|------|
+| RLE-linha (`=N`) | estrutural | sim |
+| DICT por valor | estrutural | sim |
+| Prefix/Suffix DICT | estrutural (afixo tem semantica) | sim |
+| PATRICIA bidir | estrutural (hierarquia explicita) | sim |
+| Multi-decl `**` | estrutural (cascata de afixos) | sim |
+| Dedução de marcadores | estrutural (omite redundancia visivel) | sim |
+| Substring com separadores semanticos | estrutural (`@`, `.`, `:`, `-`) | sim |
+| **LZ77 substring janela** | **estatistica** | **NAO — gzip faz** |
+| Huffman / arithmetic | estatistica pura | NAO — gzip faz |
+| BWT | estatistica binaria | NAO — bzip2 faz |
+
+**TCF e gzip sao COMPLEMENTARES, nao concorrentes**. TCF captura
+estrutura semantica; gzip captura redundancia estatistica residual.
+
+### 5.2 Substring estrutural vs LZ77 — distinção importante
+
+Substring matching **estrutural** explora pontos de quebra semanticos:
+- Email: parte antes/depois do `@`
+- URL: blocos separados por `/`, `?`, `#`
+- CPF: 4 grupos separados por `.` e `-`
+- IP: 4 octetos separados por `.`
+
+Isso **eh estrutural** (separadores tem significado) e cabe no TCF.
+
+Substring matching **estatistico** (LZ77) ignora semantica:
+- Janela deslizante de bytes
+- Match em qualquer posicao arbitraria
+- Captura "ababab" igual a "userN@gmail" se eles aparecerem com mesma freq
+
+**LZ77 nao cabe no TCF** porque sobrepoe gzip e perde legibilidade.
+
+### 5.3 Criterio empirico de validação
+
+Para confirmar que uma tecnica TCF **agrega valor sobre gzip**, rodar:
+
+```
+TCF + gzip < gzip(CSV)   → TCF agrega valor
+TCF + gzip ≈ gzip(CSV)   → TCF nao agrega (gzip sozinho ja resolve)
+TCF + gzip > gzip(CSV)   → TCF atrapalha (markers atrapalham gzip)
+```
+
+Em labs ate 2026-05-19, a maioria dos cenarios cai na categoria 3
+(TCF+gzip > gzip(CSV) por 5-22%) — **sinal de que markers estruturais
+custam mais que economizam apos gzip**.
+
+**Mas isso eh OK** se o objetivo eh legibilidade pra LLM (nao bytes
+maximos). TCF + gzip + LLM-readable >>> gzip(CSV) + LLM-illegible.
+
+A medicao certa eh:
+1. **Bytes pre-gzip** (TCF eh melhor — porque elimina redundancia visivel)
+2. **Legibilidade a olho** (so TCF tem)
+3. **Decoder simples** (so TCF tem)
+4. **Bytes pos-gzip** (gzip(CSV) tende a ganhar marginalmente)
+
+Para casos LLM, item 2 domina. Para storage puro, item 4 domina —
+nesses casos use Parquet.
+
 ---
 
 ## 6. Protocolo experimental realista
