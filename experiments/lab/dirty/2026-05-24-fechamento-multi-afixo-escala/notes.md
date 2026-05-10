@@ -117,6 +117,38 @@ Fase dirty PODE FECHAR:
 Proximo passo: portar para clean prototype com header `#TCF.5 SRDM`,
 roundtrip formal via harness, bench contra CSV/JSON/TOON.
 
+## Limitacoes conhecidas (registradas como tickets, nao corrigir aqui)
+
+### 1. Header explicito perde inline em datasets sem hierarquia
+
+Lab 23 (encoder lab 18) declarava INLINE (`*green` no body, idx
+implicito = numero da linha). Lab 24 declara em header explicito
+(`*1=green`) porque encadeamento `*N=P+ext` precisa de idx nomeado.
+
+Diff em E5 categoricas: 332B (inline) vs 348B (explicito) = +16B
+exatamente do `N=` extra em 4 declaracoes (4 × 2B).
+
+**Solucao** (deferida): decisao automatica entre os dois esquemas
+no port para clean. Ver
+[S-header-inline-vs-explicito](../../../../docs/workbench/tickets/open/S-header-inline-vs-explicito.md).
+
+### 2. Sem RLE adjacente
+
+Lab 24 usa line-ref (`=N`) mas nao RLE classico (`red×3`). Em E5
+categoricas, runs adjacentes (3-5 linhas iguais) nao sao
+comprimidos alem de `=N` repetido.
+
+**Solucao** (deferida): detector de runs no pre-pass, aplicar RLE
+quando run_len >= 3. Ver
+[S-rle-adjacente-strings](../../../../docs/workbench/tickets/open/S-rle-adjacente-strings.md).
+
+### 3. Marcadores nao deduzidos
+
+Marcadores explicitos `_`, `*`, `=` poderiam ser suprimidos em
+contextos onde o decoder consegue inferir do tipo da coluna ou
+posicao. Ver
+[S-supressao-implicita-marcadores](../../../../docs/workbench/tickets/open/S-supressao-implicita-marcadores.md).
+
 ## Status
 
 - [x] Algoritmo multi-afixo + ext-aware gain
@@ -125,3 +157,5 @@ roundtrip formal via harness, bench contra CSV/JSON/TOON.
 - [x] Avg -54.56% vs literal, -8.24% vs literal+gz
 - [x] Bugs do rascunho diagnosticados (find_node walk + gain absoluto)
 - [x] Algoritmo final documentado para portar ao clean prototype
+- [ ] Limitacoes registradas em 3 tickets (inline-vs-explicito, RLE
+      adjacente, supressao implicita) — corrigir no clean
