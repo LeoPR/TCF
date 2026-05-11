@@ -1,0 +1,108 @@
+================================================================================
+DATASET: D2-completo
+================================================================================
+linhas: 20  unicas: 12
+
+LOG ONLINE:
+  min_len = 3
+  
+  --- string 1: 'maria.silva@gmail.com' (len=21) ---
+    primeira string -> literal puro
+  
+  --- string 2: 'joao.souza@hotmail.com' (len=22) ---
+    melhor pref: len=0 de string 0
+    melhor suf:  len=8 de string 1
+    tokens: [L('joao.souza@hot') + S(1,8)]
+  
+  --- string 3: 'maria.silva@hotmail.com' (len=23) ---
+    melhor pref: len=12 de string 1
+    melhor suf:  len=13 de string 2
+    OVERLAP: 12 + 13 > 23
+    resolve: descarta pref
+    tokens: [L('maria.silv') + S(2,13)]
+  
+  --- string 4: 'ana.lima@gmail.com' (len=18) ---
+    melhor pref: len=0 de string 0
+    melhor suf:  len=11 de string 1
+    tokens: [L('ana.lim') + S(1,11)]
+  
+  --- string 5: 'joao.souza@gmail.com' (len=20) ---
+    melhor pref: len=11 de string 2
+    melhor suf:  len=11 de string 1
+    OVERLAP: 11 + 11 > 20
+    resolve: descarta suf
+    tokens: [P(2,11) + L('gmail.com')]
+  
+  --- string 6: 'pedro.alves@yahoo.com' (len=21) ---
+    melhor pref: len=0 de string 0
+    melhor suf:  len=4 de string 1
+    tokens: [L('pedro.alves@yahoo') + S(1,4)]
+  
+  --- string 7: 'ana.lima@hotmail.com' (len=20) ---
+    melhor pref: len=9 de string 4
+    melhor suf:  len=13 de string 2
+    OVERLAP: 9 + 13 > 20
+    resolve: descarta pref
+    tokens: [L('ana.lim') + S(2,13)]
+  
+  --- string 8: 'joao.souza@yahoo.com' (len=20) ---
+    melhor pref: len=11 de string 2
+    melhor suf:  len=10 de string 6
+    OVERLAP: 11 + 10 > 20
+    resolve: descarta suf
+    tokens: [P(2,11) + L('yahoo.com')]
+  
+  --- string 9: 'pedro.alves@gmail.com' (len=21) ---
+    melhor pref: len=12 de string 6
+    melhor suf:  len=10 de string 1
+    OVERLAP: 12 + 10 > 21
+    resolve: descarta suf
+    tokens: [P(6,12) + L('gmail.com')]
+  
+  --- string 10: 'maria.silva@yahoo.com' (len=21) ---
+    melhor pref: len=12 de string 1
+    melhor suf:  len=11 de string 8
+    OVERLAP: 12 + 11 > 21
+    resolve: descarta suf
+    tokens: [P(1,12) + L('yahoo.com')]
+  
+  --- string 11: 'ana.lima@yahoo.com' (len=18) ---
+    melhor pref: len=9 de string 4
+    melhor suf:  len=11 de string 8
+    OVERLAP: 9 + 11 > 18
+    resolve: descarta pref
+    tokens: [L('ana.lim') + S(8,11)]
+  
+  --- string 12: 'pedro.alves@hotmail.com' (len=23) ---
+    melhor pref: len=12 de string 6
+    melhor suf:  len=12 de string 2
+    OVERLAP: 12 + 12 > 23
+    resolve: descarta suf
+    tokens: [P(6,12) + L('hotmail.com')]
+
+TCF (478 bytes):
+  <body>
+    no1: "maria.silva@gmail.com"
+    no2: "joao.souza@hot" + no1[-8:]
+    no3: "maria.silv" + no2[-13:]
+    no4: "ana.lim" + no1[-11:]
+    no5: no2[0:11] + "gmail.com"
+    no6: "pedro.alves@yahoo" + no1[-4:]
+    ref:no1
+    no7: "ana.lim" + no2[-13:]
+    no8: no2[0:11] + "yahoo.com"
+    no9: no6[0:12] + "gmail.com"
+    no10: no1[0:12] + "yahoo.com"
+    ref:no4
+    ref:no2
+    ref:no6
+    ref:no1
+    no11: "ana.lim" + no8[-11:]
+    ref:no5
+    no12: no6[0:12] + "hotmail.com"
+    ref:no3
+    ref:no4
+  </body>
+
+Decomposicao: macro=15 ref=333 dados=130 (ref+dados=463)
+Roundtrip: OK

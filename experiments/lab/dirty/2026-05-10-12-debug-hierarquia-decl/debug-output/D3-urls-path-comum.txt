@@ -1,0 +1,22 @@
+====================================================================================
+DATASET: D3-urls-path-comum
+====================================================================================
+linhas: 20    unicas: 10
+tamanho ref+dados (exp 10): 372 bytes
+
+PREF texts com pai Patricia ignorado:
+  (nenhum)
+
+  decl folha (atual): 0 chars
+  decl filho_de + pais (0): 0 + 0 = 0 chars
+  delta liquido: +0 chars
+
+SUF texts com pai Patricia ignorado:
+  (nenhum)
+
+  decl folha (atual): 0 chars
+  decl filho_de + pais (0): 0 + 0 = 0 chars
+  delta liquido: +0 chars
+
+DELTA TOTAL (pref + suf) se decl fosse hierarquica: +0 chars
+  => PERDA de 0 chars (0.0% de exp 10)

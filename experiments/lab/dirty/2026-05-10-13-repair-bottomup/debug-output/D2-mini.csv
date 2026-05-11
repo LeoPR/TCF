@@ -1,0 +1,46 @@
+maria.silva@gmail.com
+maria.silva@hotmail.com
+maria.silva@yahoo.com
+joao.souza@gmail.com
+joao.souza@hotmail.com
+joao.souza@yahoo.com
+
+
+1 maria.silva@gmail.com # nada pra fazer
+2 maria.silva@hotmail.com
+  busca pedacos de (maria.silva@hotmail.com) em (maria.silva@gmail.com)
+  
+  1: maria.silva@
+    1.1: gmail.com
+    1.2: hotmail.com
+    #busca pedacos que não batem de (hotmail.com) em (gmail.com)
+    #aqui a busca é por caracter ou seja tem que 
+    # imagino que seria
+    # do gmail.com que é menor, e busca no hotmail.com, que não vai encontrar na primeira
+    # depois pega o mail.com, continuando depois do g, e procura m no hotmail.com e acha também
+    # como m do gmail.com e esta no hotmal.com, então basta ver até onde vai, aqui a coincidencia é que o mail.com é igual nos dois e termina
+    1.2.1-: g
+    1.2.2-: hot
+    # o 1.2.1 e 1.2.2 são diferenças
+    1.2.1+: mail.com
+    1.2.2+: mail.com
+      mail.com é o que sobra
+
+aqui temos uma estrutura
+  1 maria.silva@
+    1 g
+    2 hot
+          1,2 mail.com
+       
+
+3 maria.silva@yahoo.com
+  1 maria.silva@
+    1 g
+    2 hot 
+        1,2 mail.com (este é só uma referencia revisado)
+  3 maria.silva@
+    3 yahoo
+        1,2,3 mail (aqui o nó que era mail.com é resegmentado, depois ele será desfragmentado)
+              1,2,3 .com
+
+

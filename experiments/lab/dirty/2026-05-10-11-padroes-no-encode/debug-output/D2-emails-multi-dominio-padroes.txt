@@ -1,0 +1,40 @@
+================================================================================
+DATASET: D2-emails-multi-dominio
+================================================================================
+linhas: 20    unicas: 12
+tamanho ref+dados (exp 10): 655 bytes
+
+Decomposicoes (do exp 10):
+  maria.silva@gmail.com            pref='maria.silva@'   mid='g'        suf='mail.com'
+  joao.souza@hotmail.com           pref='joao.souza@'    mid='hot'      suf='mail.com'
+  maria.silva@hotmail.com          pref='maria.silva@'   mid='hot'      suf='mail.com'
+  ana.lima@gmail.com               pref='ana.lima@'      mid='g'        suf='mail.com'
+  joao.souza@gmail.com             pref='joao.souza@'    mid='g'        suf='mail.com'
+  pedro.alves@yahoo.com            pref='pedro.alves@'   mid='yahoo'    suf='.com'
+  ana.lima@hotmail.com             pref='ana.lima@'      mid='hot'      suf='mail.com'
+  joao.souza@yahoo.com             pref='joao.souza@'    mid='yahoo'    suf='.com'
+  pedro.alves@gmail.com            pref='pedro.alves@'   mid='g'        suf='mail.com'
+  maria.silva@yahoo.com            pref='maria.silva@'   mid='yahoo'    suf='.com'
+  ana.lima@yahoo.com               pref='ana.lima@'      mid='yahoo'    suf='.com'
+  pedro.alves@hotmail.com          pref='pedro.alves@'   mid='hot'      suf='mail.com'
+
+--------------------------------------------------------------------------------
+Padroes (mid, suf) com count >= 2:
+  count mid        suf            econ/oc custo_decl   ganho
+      4 'yahoo'    '.com'              15         25     +35
+      4 'hot'      'mail.com'          12         22     +26
+      4 'g'        'mail.com'          10         20     +20
+
+--------------------------------------------------------------------------------
+Padroes (pref, mid) com count >= 2:
+  (nenhum)
+
+--------------------------------------------------------------------------------
+Ganho potencial total (so padroes com ganho > 0):
+  (mid, suf): 81 bytes
+  (pref, mid): 0 bytes
+  SOMA: 81 bytes (12.4% de exp 10)
+
+ATENCAO: ganhos NAO sao aditivos diretos quando os mesmos pares
+se sobrepoem (mesma string pode ser fatorada por (mid,suf) ou
+(pref,mid), nao ambos). Limite superior, nao previsao exata.

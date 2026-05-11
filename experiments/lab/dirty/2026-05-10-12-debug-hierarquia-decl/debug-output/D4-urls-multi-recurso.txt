@@ -1,0 +1,27 @@
+====================================================================================
+DATASET: D4-urls-multi-recurso
+====================================================================================
+linhas: 20    unicas: 12
+tamanho ref+dados (exp 10): 505 bytes
+
+PREF texts com pai Patricia ignorado:
+  pref='https://api.example.com/v1/users/'      n=4
+    pai='https://api.example.com/v1/'  extra='users/'
+  pref='https://api.example.com/v1/orders/10'   n=5
+    pai='https://api.example.com/v1/'  extra='orders/10'
+  pref='https://api.example.com/v1/products/5'  n=3
+    pai='https://api.example.com/v1/'  extra='products/5'
+
+  decl folha (atual): 145 chars
+  decl filho_de + pais (1): 97 + 52 = 149 chars
+  delta liquido: +4 chars
+
+SUF texts com pai Patricia ignorado:
+  (nenhum)
+
+  decl folha (atual): 0 chars
+  decl filho_de + pais (0): 0 + 0 = 0 chars
+  delta liquido: +0 chars
+
+DELTA TOTAL (pref + suf) se decl fosse hierarquica: +4 chars
+  => PERDA de 4 chars (0.8% de exp 10)

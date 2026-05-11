@@ -1,0 +1,102 @@
+================================================================================
+DATASET: D4
+================================================================================
+min_len = 3
+
+--- string 1: 'https://api.example.com/v1/users/1' (len=34) ---
+  primeira string -> literal puro
+
+--- string 2: 'https://api.example.com/v1/orders/100' (len=37) ---
+  pref: len=27 de string 1
+  suf:  len=0 de string 0
+  cobertura: 27 de 37
+  tokens: [P(1,27) + L('orders/100')]
+
+--- string 3: 'https://api.example.com/v1/users/2' (len=34) ---
+  pref: len=33 de string 1
+  suf:  len=0 de string 0
+  cobertura: 33 de 34
+  tokens: [P(1,33) + L('2')]
+
+--- string 4: 'https://api.example.com/v1/orders/101' (len=37) ---
+  pref: len=36 de string 2
+  suf:  len=0 de string 0
+  cobertura: 36 de 37
+  tokens: [P(2,36) + L('1')]
+
+--- string 5: 'https://api.example.com/v1/products/50' (len=38) ---
+  pref: len=27 de string 1
+  suf:  len=0 de string 0
+  cobertura: 27 de 38
+  tokens: [P(1,27) + L('products/50')]
+
+--- string 6: 'https://api.example.com/v1/users/3' (len=34) ---
+  pref: len=33 de string 1
+  suf:  len=0 de string 0
+  cobertura: 33 de 34
+  tokens: [P(1,33) + L('3')]
+
+--- string 7: 'https://api.example.com/v1/products/51' (len=38) ---
+  pref: len=37 de string 5
+  suf:  len=0 de string 0
+  cobertura: 37 de 38
+  tokens: [P(5,37) + L('1')]
+
+--- string 8: 'https://api.example.com/v1/orders/102' (len=37) ---
+  pref: len=36 de string 2
+  suf:  len=0 de string 0
+  cobertura: 36 de 37
+  tokens: [P(2,36) + L('2')]
+
+--- string 9: 'https://api.example.com/v1/orders/103' (len=37) ---
+  pref: len=36 de string 2
+  suf:  len=0 de string 0
+  cobertura: 36 de 37
+  tokens: [P(2,36) + L('3')]
+
+--- string 10: 'https://api.example.com/v1/users/4' (len=34) ---
+  pref: len=33 de string 1
+  suf:  len=0 de string 0
+  cobertura: 33 de 34
+  tokens: [P(1,33) + L('4')]
+
+--- string 11: 'https://api.example.com/v1/products/52' (len=38) ---
+  pref: len=37 de string 5
+  suf:  len=0 de string 0
+  cobertura: 37 de 38
+  tokens: [P(5,37) + L('2')]
+
+--- string 12: 'https://api.example.com/v1/orders/104' (len=37) ---
+  pref: len=36 de string 2
+  suf:  len=0 de string 0
+  cobertura: 36 de 37
+  tokens: [P(2,36) + L('4')]
+
+
+TCF (414 bytes):
+  <body>
+    no1: "https://api.example.com/v1/users/1"
+    no2: no1[0:27] + "orders/100"
+    no3: no1[0:33] + "2"
+    no4: no2[0:36] + "1"
+    no5: no1[0:27] + "products/50"
+    ref:no1
+    ref:no2
+    no6: no1[0:33] + "3"
+    no7: no5[0:37] + "1"
+    no8: no2[0:36] + "2"
+    ref:no3
+    ref:no5
+    no9: no2[0:36] + "3"
+    no10: no1[0:33] + "4"
+    no11: no5[0:37] + "2"
+    ref:no2
+    ref:no1
+    ref:no7
+    no12: no2[0:36] + "4"
+    ref:no6
+  </body>
+
+Camadas: macro=15 ref=335 dados=64 (ref+dados=399)
+Unidades de informacao: 75
+Roundtrip: OK

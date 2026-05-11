@@ -1,0 +1,23 @@
+====================================================================================
+DATASET: D1-emails-um-dominio
+====================================================================================
+linhas: 20    unicas: 10
+tamanho ref+dados (exp 10): 494 bytes
+
+PREF texts com pai Patricia ignorado:
+  pref='user00'                                 n=9
+    pai='user0'  extra='0'
+
+  decl folha (atual): 19 chars
+  decl filho_de + pais (1): 25 + 30 = 55 chars
+  delta liquido: +36 chars
+
+SUF texts com pai Patricia ignorado:
+  (nenhum)
+
+  decl folha (atual): 0 chars
+  decl filho_de + pais (0): 0 + 0 = 0 chars
+  delta liquido: +0 chars
+
+DELTA TOTAL (pref + suf) se decl fosse hierarquica: +36 chars
+  => PERDA de 36 chars (7.3% de exp 10)

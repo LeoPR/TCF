@@ -1,0 +1,26 @@
+id,bool_card2,bool_alt_repr,sex_card2,mktsegment_card5,prioridade_prefixo,education_card16,uf_card27,pais_pareto,case_misto,com_vazio
+1,true,1,M,BUILDING,1-URGENT,Bachelors,SP,Brasil,Ativo,Private
+2,false,0,F,AUTOMOBILE,2-HIGH,HS-grad,RJ,Brasil,ATIVO,Private
+3,true,1,M,MACHINERY,3-MEDIUM,Some-college,MG,Brasil,ativo,Private
+4,false,0,F,HOUSEHOLD,4-NOT SPECIFIED,Masters,RS,Brasil,Inativo,Private
+5,true,sim,M,FURNITURE,5-LOW,Doctorate,PR,Brasil,Ativo,Private
+6,false,nao,F,BUILDING,1-URGENT,11th,SC,Brasil,Ativo,
+7,true,S,M,AUTOMOBILE,2-HIGH,Assoc-acdm,BA,Brasil,Ativo,Self-emp-not-inc
+8,false,N,F,MACHINERY,3-MEDIUM,Assoc-voc,CE,Brasil,ATIVO,Private
+9,true,1,M,HOUSEHOLD,4-NOT SPECIFIED,Bachelors,GO,Brasil,Inativo,
+10,false,0,F,FURNITURE,5-LOW,HS-grad,DF,Brasil,Ativo,Private
+11,true,1,M,BUILDING,1-URGENT,Some-college,PE,Brasil,Ativo,Local-gov
+12,false,0,F,AUTOMOBILE,2-HIGH,Masters,AM,Brasil,Ativo,Private
+13,true,Y,M,MACHINERY,3-MEDIUM,Doctorate,MA,Brasil,Ativo,Private
+14,false,N,F,HOUSEHOLD,4-NOT SPECIFIED,9th,PA,Brasil,Inativo,Federal-gov
+15,true,1,M,FURNITURE,5-LOW,10th,MT,Brasil,Ativo,Private
+16,false,0,F,BUILDING,1-URGENT,12th,MS,Brasil,Ativo,Private
+17,true,1,M,AUTOMOBILE,2-HIGH,Bachelors,RO,Brasil,Ativo,Private
+18,false,0,F,MACHINERY,3-MEDIUM,HS-grad,AC,Brasil,Inativo,Private
+19,true,1,M,HOUSEHOLD,4-NOT SPECIFIED,Some-college,RR,Brasil,Ativo,Private
+20,false,0,F,FURNITURE,5-LOW,Masters,AP,Brasil,Ativo,
+21,true,1,Male,BUILDING,1-URGENT,Bachelors,TO,Brasil,Ativo,Private
+22,false,0,Female,AUTOMOBILE,2-HIGH,HS-grad,SE,Brasil,Ativo,Private
+23,true,1,M,MACHINERY,3-MEDIUM,Some-college,AL,Brasil,Ativo,Private
+24,,,,,,,SP,Estados Unidos,,
+25,outros,?,outro,OUTROS,outros,Outros,XX,Outros,?,?

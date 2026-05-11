@@ -1,0 +1,35 @@
+================================================================================
+DATASET: D3-urls-path-comum
+================================================================================
+linhas: 20    unicas: 10
+tamanho ref+dados (exp 10): 372 bytes
+
+Decomposicoes (do exp 10):
+  https://api.example.com/v1/users/1 pref='https://api.example.com/v1/users/' mid='1'        suf='-'
+  https://api.example.com/v1/users/2 pref='https://api.example.com/v1/users/' mid='2'        suf='-'
+  https://api.example.com/v1/users/3 pref='https://api.example.com/v1/users/' mid='3'        suf='-'
+  https://api.example.com/v1/users/4 pref='https://api.example.com/v1/users/' mid='4'        suf='-'
+  https://api.example.com/v1/users/5 pref='https://api.example.com/v1/users/' mid='5'        suf='-'
+  https://api.example.com/v1/users/6 pref='https://api.example.com/v1/users/' mid='6'        suf='-'
+  https://api.example.com/v1/users/7 pref='https://api.example.com/v1/users/' mid='7'        suf='-'
+  https://api.example.com/v1/users/8 pref='https://api.example.com/v1/users/' mid='8'        suf='-'
+  https://api.example.com/v1/users/9 pref='https://api.example.com/v1/users/' mid='9'        suf='-'
+  https://api.example.com/v1/users/10 pref='https://api.example.com/v1/users/' mid='10'       suf='-'
+
+--------------------------------------------------------------------------------
+Padroes (mid, suf) com count >= 2:
+  (nenhum)
+
+--------------------------------------------------------------------------------
+Padroes (pref, mid) com count >= 2:
+  (nenhum)
+
+--------------------------------------------------------------------------------
+Ganho potencial total (so padroes com ganho > 0):
+  (mid, suf): 0 bytes
+  (pref, mid): 0 bytes
+  SOMA: 0 bytes (0.0% de exp 10)
+
+ATENCAO: ganhos NAO sao aditivos diretos quando os mesmos pares
+se sobrepoem (mesma string pode ser fatorada por (mid,suf) ou
+(pref,mid), nao ambos). Limite superior, nao previsao exata.

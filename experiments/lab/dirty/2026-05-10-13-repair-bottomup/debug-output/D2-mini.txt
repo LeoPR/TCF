@@ -1,0 +1,128 @@
+================================================================================
+DATASET: D2-mini
+================================================================================
+linhas: 6  unicas: 6
+
+LOG REPAIR:
+  Strings iniciais:
+    s1: 'maria.silva@gmail.com'
+    s2: 'maria.silva@hotmail.com'
+    s3: 'maria.silva@yahoo.com'
+    s4: 'joao.souza@gmail.com'
+    s5: 'joao.souza@hotmail.com'
+    s6: 'joao.souza@yahoo.com'
+  
+  ===== Iteracao 1 =====
+    top 12 candidatos (por ganho liquido):
+       gain len count  substring
+          8  12     3  'maria.silva@'
+          6  11     3  'aria.silva@'
+          6  11     3  'joao.souza@'
+          6  11     3  'maria.silva'
+          5   8     4  'mail.com'
+          4  10     3  'aria.silva'
+          4  10     3  'joao.souza'
+          4  10     3  'maria.silv'
+          4  10     3  'oao.souza@'
+          4  10     3  'ria.silva@'
+          2   9     3  'ao.souza@'
+          2   9     3  'aria.silv'
+    ESCOLHIDO: 'maria.silva@' (gain=8) -> S1
+    strings apos substituicao:
+      s1: [R1 + L('gmail.com')]
+      s2: [R1 + L('hotmail.com')]
+      s3: [R1 + L('yahoo.com')]
+      s4: [L('joao.souza@gmail.com')]
+      s5: [L('joao.souza@hotmail.com')]
+      s6: [L('joao.souza@yahoo.com')]
+  
+  ===== Iteracao 2 =====
+    top 12 candidatos (por ganho liquido):
+       gain len count  substring
+          6  11     3  'joao.souza@'
+          5   8     4  'mail.com'
+          4  10     3  'joao.souza'
+          4  10     3  'oao.souza@'
+          2   9     3  'ao.souza@'
+          2   9     3  'joao.souz'
+          2   9     3  'oao.souza'
+          2   7     4  'ail.com'
+          2   7     4  'mail.co'
+          0   8     3  'ao.souza'
+          0   8     3  'joao.sou'
+          0   8     3  'o.souza@'
+    ESCOLHIDO: 'joao.souza@' (gain=6) -> S2
+    strings apos substituicao:
+      s1: [R1 + L('gmail.com')]
+      s2: [R1 + L('hotmail.com')]
+      s3: [R1 + L('yahoo.com')]
+      s4: [R2 + L('gmail.com')]
+      s5: [R2 + L('hotmail.com')]
+      s6: [R2 + L('yahoo.com')]
+  
+  ===== Iteracao 3 =====
+    top 12 candidatos (por ganho liquido):
+       gain len count  substring
+          5   8     4  'mail.com'
+          2   7     4  'ail.com'
+          2   7     4  'mail.co'
+         -1   6     4  'ail.co'
+         -1   6     4  'il.com'
+         -1   6     4  'mail.c'
+         -2  11     2  'hotmail.com'
+         -3  10     2  'hotmail.co'
+         -3  10     2  'otmail.com'
+         -4   9     2  'gmail.com'
+         -4   9     2  'hotmail.c'
+         -4   9     2  'otmail.co'
+    ESCOLHIDO: 'mail.com' (gain=5) -> S3
+    strings apos substituicao:
+      s1: [R1 + L('g') + R3]
+      s2: [R1 + L('hot') + R3]
+      s3: [R1 + L('yahoo.com')]
+      s4: [R2 + L('g') + R3]
+      s5: [R2 + L('hot') + R3]
+      s6: [R2 + L('yahoo.com')]
+  
+  ===== Iteracao 4 =====
+    top 12 candidatos (por ganho liquido):
+       gain len count  substring
+         -4   9     2  'yahoo.com'
+         -5   8     2  'ahoo.com'
+         -5   8     2  'yahoo.co'
+         -6   7     2  'ahoo.co'
+         -6   7     2  'hoo.com'
+         -6   7     2  'yahoo.c'
+         -7   6     2  'ahoo.c'
+         -7   6     2  'hoo.co'
+         -7   6     2  'oo.com'
+         -7   6     2  'yahoo.'
+         -8   5     2  'ahoo.'
+         -8   5     2  'hoo.c'
+    melhor candidato gain=-4 < min=1. STOP.
+
+SIMBOLOS FINAIS:
+  S1 = 'maria.silva@'
+  S2 = 'joao.souza@'
+  S3 = 'mail.com'
+
+STRINGS UNICAS APOS REPAIR:
+  'maria.silva@gmail.com'                  -> [R1 + L('g') + R3]
+  'maria.silva@hotmail.com'                -> [R1 + L('hot') + R3]
+  'maria.silva@yahoo.com'                  -> [R1 + L('yahoo.com')]
+  'joao.souza@gmail.com'                   -> [R2 + L('g') + R3]
+  'joao.souza@hotmail.com'                 -> [R2 + L('hot') + R3]
+  'joao.souza@yahoo.com'                   -> [R2 + L('yahoo.com')]
+
+TCF (207 bytes):
+  <body>
+    no1: (no2="maria.silva@") + "g" + (no3="mail.com")
+    no4: no2 + "hot" + no3
+    no5: no2 + "yahoo.com"
+    no6: (no7="joao.souza@") + "g" + no3
+    no8: no7 + "hot" + no3
+    no9: no7 + "yahoo.com"
+  </body>
+
+Decomposicao: macro=15 ref=135 dados=57 (ref+dados=192)
+Roundtrip: OK

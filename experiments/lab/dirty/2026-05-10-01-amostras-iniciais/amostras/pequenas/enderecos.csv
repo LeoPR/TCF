@@ -1,0 +1,26 @@
+id,cep_fmt,cep_sem,logradouro,numero,complemento,bairro,cidade,uf,zip_us,state_us
+1,01310-100,01310100,Av. Paulista,1578,Apt 42,Bela Vista,São Paulo,SP,94103,CA
+2,01310-200,01310200,Av. Paulista,2000,,Bela Vista,São Paulo,SP,94104,CA
+3,01310-100,01310100,Av. Paulista,1578,Apt 43,Bela Vista,São Paulo,SP,94103,CA
+4,22640-100,22640100,Av. das Américas,500,Bloco A Apt 101,Barra da Tijuca,Rio de Janeiro,RJ,10001,NY
+5,30130-010,30130010,Av. Afonso Pena,1234,,Centro,Belo Horizonte,MG,60601,IL
+6,40020-000,40020000,Rua das Flores,42,Casa,Centro,Salvador,BA,77001,TX
+7,80010-000,80010000,Rua XV de Novembro,100,Sala 5,Centro,Curitiba,PR,98101,WA
+8,90010-150,90010150,Av. Borges de Medeiros,308,,Centro Histórico,Porto Alegre,RS,80202,CO
+9,01310-100,01310100,Av. Paulista,1578,Apt 42,Bela Vista,São Paulo,SP,94103,CA
+10,60110-000,60110000,Av. Beira Mar,3500,Apt 701,Meireles,Fortaleza,CE,33101,FL
+11,50050-000,50050000,Rua do Bom Jesus,150,Sobrado,Recife Antigo,Recife,PE,02101,MA
+12,70040-010,70040010,SQS 102,bloco B,casa 12,Asa Sul,Brasília,DF,20001,DC
+13,69050-010,69050010,Av. Eduardo Ribeiro,500,,Centro,Manaus,AM,99501,AK
+14,01310-100,01310100,Av. Paulista,1578,sem complemento,Bela Vista,São Paulo,SP,94103,CA
+15,01310-100,01310100,Av. Paulista,S/N,,Bela Vista,São Paulo,SP,,
+16,01310-100,01310100,Av. Paulista,1578,Casa Verde Apt 10,Bela Vista,São Paulo,SP,,
+17,22640-100,22640100,Av. das Américas,500,bloco A apt 101,Barra da Tijuca,Rio de Janeiro,RJ,,
+18,01310-100,01310100,Av. Paulista,1578,APT 42,BELA VISTA,SAO PAULO,SP,,
+19,1310-100,01310100,Av. Paulista,1578,Apt 42,Bela Vista,São Paulo,SP,,
+20,01310100,1310100,Av. Paulista,1578,Apt 42,Bela Vista,São Paulo,sp,,
+21,nao informado,,,,,,,,nao informado,
+22,,,,,,,,,,
+23,01310-100,01310100,Av. Paulista,1578,Apt 42,Bela Vista,São Paulo,SP,,
+24,30130-010,30130010,Av. Afonso Pena,1234,Apt 5,Centro,Belo Horizonte,MG,,
+25,40020-000,40020000,Rua das Flores,42,Casa,Centro,Salvador,BA,,

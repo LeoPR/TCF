@@ -1,0 +1,26 @@
+id,um_dominio,dois_dominios,multi_dominio,com_ponto,com_tag,com_underscore,com_subdominio,case_misto
+1,user001@gmail.com,user001@gmail.com,user001@gmail.com,john.doe@gmail.com,john.doe+promo@gmail.com,john_doe@gmail.com,user001@dept.empresa.com.br,User001@Gmail.com
+2,user002@gmail.com,user002@yahoo.com,user002@hotmail.com,jane.smith@gmail.com,jane.smith+news@gmail.com,jane_smith@gmail.com,user002@vendas.empresa.com.br,user002@YAHOO.com
+3,user003@gmail.com,user003@gmail.com,user003@outlook.com,maria.silva@gmail.com,maria.silva+spam@gmail.com,maria_silva@gmail.com,user003@dept.empresa.com.br,Maria.Silva@Gmail.com
+4,user004@gmail.com,user004@yahoo.com,user004@gmail.com,carlos.lima@gmail.com,carlos.lima+orders@gmail.com,carlos_lima@gmail.com,user004@vendas.empresa.com.br,carlos.LIMA@gmail.com
+5,user005@gmail.com,user005@gmail.com,user005@yahoo.com,ana.souza@gmail.com,ana.souza+work@gmail.com,ana_souza@gmail.com,user005@dept.empresa.com.br,ana.souza@gmail.com
+6,user006@gmail.com,user006@yahoo.com,user006@hotmail.com,pedro.santos@gmail.com,pedro.santos+test@gmail.com,pedro_santos@gmail.com,user006@vendas.empresa.com.br,Pedro.Santos@Gmail.com
+7,user007@gmail.com,user007@gmail.com,user007@outlook.com,jose.silva@gmail.com,jose.silva+t1@gmail.com,jose_silva@gmail.com,user007@suporte.empresa.com.br,JOSE.SILVA@GMAIL.COM
+8,user008@gmail.com,user008@yahoo.com,user008@uol.com.br,beatriz.costa@gmail.com,beatriz.costa+a@gmail.com,beatriz_costa@gmail.com,user008@dept.empresa.com.br,Beatriz.Costa@gmail.com
+9,user009@gmail.com,user009@gmail.com,user009@gmail.com,lucas.alves@gmail.com,lucas.alves+b@gmail.com,lucas_alves@gmail.com,user009@vendas.empresa.com.br,lucas.alves@gmail.com
+10,user010@gmail.com,user010@yahoo.com,user010@yahoo.com,julia.melo@gmail.com,julia.melo+c@gmail.com,julia_melo@gmail.com,user010@dept.empresa.com.br,julia.melo@yahoo.com
+11,user011@gmail.com,user011@gmail.com,user011@outlook.com,rafael.dias@gmail.com,rafael.dias+d@gmail.com,rafael_dias@gmail.com,user011@suporte.empresa.com.br,Rafael.Dias@gmail.com
+12,user012@gmail.com,user012@yahoo.com,user012@hotmail.com,paula.cruz@gmail.com,paula.cruz+e@gmail.com,paula_cruz@gmail.com,user012@vendas.empresa.com.br,Paula.Cruz@gmail.com
+13,user013@gmail.com,user013@gmail.com,user013@gmail.com,bruno.gomes@gmail.com,bruno.gomes+f@gmail.com,bruno_gomes@gmail.com,user013@dept.empresa.com.br,bruno.gomes@gmail.com
+14,user014@gmail.com,user014@yahoo.com,user014@yahoo.com,clara.paiva@gmail.com,clara.paiva+g@gmail.com,clara_paiva@gmail.com,user014@vendas.empresa.com.br,Clara.Paiva@yahoo.com
+15,user015@gmail.com,user015@gmail.com,user015@uol.com.br,diego.luz@gmail.com,diego.luz+h@gmail.com,diego_luz@gmail.com,user015@dept.empresa.com.br,diego.luz@uol.com.br
+16,user016@gmail.com,user016@yahoo.com,user016@outlook.com,erica.faria@gmail.com,erica.faria+i@gmail.com,erica_faria@gmail.com,user016@suporte.empresa.com.br,Erica.Faria@gmail.com
+17,user017@gmail.com,user017@gmail.com,user017@gmail.com,fabio.rocha@gmail.com,fabio.rocha+j@gmail.com,fabio_rocha@gmail.com,user017@vendas.empresa.com.br,fabio.rocha@gmail.com
+18,user018@gmail.com,user018@yahoo.com,user018@hotmail.com,gabi.assis@gmail.com,gabi.assis+k@gmail.com,gabi_assis@gmail.com,user018@dept.empresa.com.br,gabi.assis@hotmail.com
+19,user019@gmail.com,user019@gmail.com,user019@yahoo.com,heitor.farias@gmail.com,heitor.farias+l@gmail.com,heitor_farias@gmail.com,user019@vendas.empresa.com.br,Heitor.Farias@gmail.com
+20,user020@gmail.com,user020@yahoo.com,user020@gmail.com,igor.macedo@gmail.com,igor.macedo+m@gmail.com,igor_macedo@gmail.com,user020@dept.empresa.com.br,igor.macedo@gmail.com
+21,sem-arroba.com,user021@@gmail.com,@yahoo.com,.dot.start@gmail.com,user@@gmail.com,_underscore@gmail.com,@dept.empresa.com.br,USUARIO@GMAIL.COM
+22,user022@gmail,user022@.com,user022@gmail..com,user022@gmail.com,user022+@gmail.com,user022_@gmail.com,user022@.empresa.com.br,
+23,nao informado,,,,,,,
+24,user001@gmail.com,user001@gmail.com,user001@gmail.com,john.doe@gmail.com,john.doe+promo@gmail.com,john_doe@gmail.com,user001@dept.empresa.com.br,User001@Gmail.com
+25,user003@gmail.com,user003@gmail.com,user003@outlook.com,maria.silva@gmail.com,maria.silva+spam@gmail.com,maria_silva@gmail.com,user003@dept.empresa.com.br,Maria.Silva@Gmail.com

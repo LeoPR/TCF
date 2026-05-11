@@ -1,0 +1,347 @@
+======================================================================
+DATASET: D2-mini
+======================================================================
+linhas: 6
+min_prefixo: 3
+
+strings originais:
+    1. 'maria.silva@gmail.com'
+    2. 'maria.silva@hotmail.com'
+    3. 'maria.silva@yahoo.com'
+    4. 'joao.souza@gmail.com'
+    5. 'joao.souza@hotmail.com'
+    6. 'joao.souza@yahoo.com'
+
+strings unicas: 6
+
+==========================================================
+FASE A — ARVORE FORWARD (sobre strings originais)
+==========================================================
+
+folhas iniciais (6):
+  no1 = 'maria.silva@gmail.com'
+  no2 = 'maria.silva@hotmail.com'
+  no3 = 'maria.silva@yahoo.com'
+  no4 = 'joao.souza@gmail.com'
+  no5 = 'joao.souza@hotmail.com'
+  no6 = 'joao.souza@yahoo.com'
+
+  ===== Iteracao 1 =====
+  top-level: 6 nos
+    no1 = 'maria.silva@gmail.com'
+    no2 = 'maria.silva@hotmail.com'
+    no3 = 'maria.silva@yahoo.com'
+    no4 = 'joao.souza@gmail.com'
+    no5 = 'joao.souza@hotmail.com'
+    no6 = 'joao.souza@yahoo.com'
+  prefixos com count>=2 e len>=3: 19
+  top 15 (por len desc, count desc, lex):
+    len=12 count= 3  'maria.silva@'
+    len=11 count= 3  'joao.souza@'
+    len=11 count= 3  'maria.silva'
+    len=10 count= 3  'joao.souza'
+    len=10 count= 3  'maria.silv'
+    len= 9 count= 3  'joao.souz'
+    len= 9 count= 3  'maria.sil'
+    len= 8 count= 3  'joao.sou'
+    len= 8 count= 3  'maria.si'
+    len= 7 count= 3  'joao.so'
+    len= 7 count= 3  'maria.s'
+    len= 6 count= 3  'joao.s'
+    len= 6 count= 3  'maria.'
+    len= 5 count= 3  'joao.'
+    len= 5 count= 3  'maria'
+    ... +4 outros
+  ESCOLHIDO: 'maria.silva@' (len=12, count=3)
+  novo pai: no7 = 'maria.silva@'
+  folhas absorvidas: 3
+    no1: 'maria.silva@gmail.com' -> sufixo 'gmail.com'
+    no2: 'maria.silva@hotmail.com' -> sufixo 'hotmail.com'
+    no3: 'maria.silva@yahoo.com' -> sufixo 'yahoo.com'
+
+  ===== Iteracao 2 =====
+  top-level: 4 nos
+    no4 = 'joao.souza@gmail.com'
+    no5 = 'joao.souza@hotmail.com'
+    no6 = 'joao.souza@yahoo.com'
+    no7 = 'maria.silva@'
+  prefixos com count>=2 e len>=3: 9
+  top 9 (por len desc, count desc, lex):
+    len=11 count= 3  'joao.souza@'
+    len=10 count= 3  'joao.souza'
+    len= 9 count= 3  'joao.souz'
+    len= 8 count= 3  'joao.sou'
+    len= 7 count= 3  'joao.so'
+    len= 6 count= 3  'joao.s'
+    len= 5 count= 3  'joao.'
+    len= 4 count= 3  'joao'
+    len= 3 count= 3  'joa'
+  ESCOLHIDO: 'joao.souza@' (len=11, count=3)
+  novo pai: no8 = 'joao.souza@'
+  folhas absorvidas: 3
+    no4: 'joao.souza@gmail.com' -> sufixo 'gmail.com'
+    no5: 'joao.souza@hotmail.com' -> sufixo 'hotmail.com'
+    no6: 'joao.souza@yahoo.com' -> sufixo 'yahoo.com'
+
+  ===== Iteracao 3 =====
+  top-level: 2 nos
+    no7 = 'maria.silva@'
+    no8 = 'joao.souza@'
+  prefixos com count>=2 e len>=3: 0
+  top 0 (por len desc, count desc, lex):
+  STOP: sem candidatos
+
+==========================================================
+FASE B — ARVORE REVERSE (sobre strings invertidas)
+==========================================================
+nota: o algoritmo trabalha sobre as strings invertidas, o que
+equivale a detectar SUFIXOS comuns das strings originais.
+
+strings invertidas:
+  'maria.silva@gmail.com' -> 'moc.liamg@avlis.airam'
+  'maria.silva@hotmail.com' -> 'moc.liamtoh@avlis.airam'
+  'maria.silva@yahoo.com' -> 'moc.oohay@avlis.airam'
+  'joao.souza@gmail.com' -> 'moc.liamg@azuos.oaoj'
+  'joao.souza@hotmail.com' -> 'moc.liamtoh@azuos.oaoj'
+  'joao.souza@yahoo.com' -> 'moc.oohay@azuos.oaoj'
+
+  ===== Iteracao 1 =====
+  top-level: 6 nos
+    no1 = 'moc.liamg@avlis.airam'
+    no2 = 'moc.liamtoh@avlis.airam'
+    no3 = 'moc.oohay@avlis.airam'
+    no4 = 'moc.liamg@azuos.oaoj'
+    no5 = 'moc.liamtoh@azuos.oaoj'
+    no6 = 'moc.oohay@azuos.oaoj'
+  prefixos com count>=2 e len>=3: 21
+  top 15 (por len desc, count desc, lex):
+    len=13 count= 2  'moc.liamtoh@a'
+    len=12 count= 2  'moc.liamtoh@'
+    len=11 count= 2  'moc.liamg@a'
+    len=11 count= 2  'moc.liamtoh'
+    len=11 count= 2  'moc.oohay@a'
+    len=10 count= 2  'moc.liamg@'
+    len=10 count= 2  'moc.liamto'
+    len=10 count= 2  'moc.oohay@'
+    len= 9 count= 2  'moc.liamg'
+    len= 9 count= 2  'moc.liamt'
+    len= 9 count= 2  'moc.oohay'
+    len= 8 count= 4  'moc.liam'
+    len= 8 count= 2  'moc.ooha'
+    len= 7 count= 4  'moc.lia'
+    len= 7 count= 2  'moc.ooh'
+    ... +6 outros
+  ESCOLHIDO: 'moc.liamtoh@a' (len=13, count=2)
+  novo pai: no7 = 'moc.liamtoh@a'
+  folhas absorvidas: 2
+    no2: 'moc.liamtoh@avlis.airam' -> sufixo 'vlis.airam'
+    no5: 'moc.liamtoh@azuos.oaoj' -> sufixo 'zuos.oaoj'
+
+  ===== Iteracao 2 =====
+  top-level: 5 nos
+    no1 = 'moc.liamg@avlis.airam'
+    no3 = 'moc.oohay@avlis.airam'
+    no4 = 'moc.liamg@azuos.oaoj'
+    no6 = 'moc.oohay@azuos.oaoj'
+    no7 = 'moc.liamtoh@a'
+  prefixos com count>=2 e len>=3: 16
+  top 15 (por len desc, count desc, lex):
+    len=11 count= 2  'moc.liamg@a'
+    len=11 count= 2  'moc.oohay@a'
+    len=10 count= 2  'moc.liamg@'
+    len=10 count= 2  'moc.oohay@'
+    len= 9 count= 2  'moc.liamg'
+    len= 9 count= 2  'moc.oohay'
+    len= 8 count= 3  'moc.liam'
+    len= 8 count= 2  'moc.ooha'
+    len= 7 count= 3  'moc.lia'
+    len= 7 count= 2  'moc.ooh'
+    len= 6 count= 3  'moc.li'
+    len= 6 count= 2  'moc.oo'
+    len= 5 count= 3  'moc.l'
+    len= 5 count= 2  'moc.o'
+    len= 4 count= 5  'moc.'
+    ... +1 outros
+  ESCOLHIDO: 'moc.liamg@a' (len=11, count=2)
+  novo pai: no8 = 'moc.liamg@a'
+  folhas absorvidas: 2
+    no1: 'moc.liamg@avlis.airam' -> sufixo 'vlis.airam'
+    no4: 'moc.liamg@azuos.oaoj' -> sufixo 'zuos.oaoj'
+
+  ===== Iteracao 3 =====
+  top-level: 4 nos
+    no3 = 'moc.oohay@avlis.airam'
+    no6 = 'moc.oohay@azuos.oaoj'
+    no7 = 'moc.liamtoh@a'
+    no8 = 'moc.liamg@a'
+  prefixos com count>=2 e len>=3: 13
+  top 13 (por len desc, count desc, lex):
+    len=11 count= 2  'moc.oohay@a'
+    len=10 count= 2  'moc.oohay@'
+    len= 9 count= 2  'moc.oohay'
+    len= 8 count= 2  'moc.liam'
+    len= 8 count= 2  'moc.ooha'
+    len= 7 count= 2  'moc.lia'
+    len= 7 count= 2  'moc.ooh'
+    len= 6 count= 2  'moc.li'
+    len= 6 count= 2  'moc.oo'
+    len= 5 count= 2  'moc.l'
+    len= 5 count= 2  'moc.o'
+    len= 4 count= 4  'moc.'
+    len= 3 count= 4  'moc'
+  ESCOLHIDO: 'moc.oohay@a' (len=11, count=2)
+  novo pai: no9 = 'moc.oohay@a'
+  folhas absorvidas: 2
+    no3: 'moc.oohay@avlis.airam' -> sufixo 'vlis.airam'
+    no6: 'moc.oohay@azuos.oaoj' -> sufixo 'zuos.oaoj'
+
+  ===== Iteracao 4 =====
+  top-level: 3 nos
+    no7 = 'moc.liamtoh@a'
+    no8 = 'moc.liamg@a'
+    no9 = 'moc.oohay@a'
+  prefixos com count>=2 e len>=3: 6
+  top 6 (por len desc, count desc, lex):
+    len= 8 count= 2  'moc.liam'
+    len= 7 count= 2  'moc.lia'
+    len= 6 count= 2  'moc.li'
+    len= 5 count= 2  'moc.l'
+    len= 4 count= 3  'moc.'
+    len= 3 count= 3  'moc'
+  ESCOLHIDO: 'moc.liam' (len=8, count=2)
+  novo pai: no10 = 'moc.liam'
+  folhas absorvidas: 2
+    no7: 'moc.liamtoh@a' -> sufixo 'toh@a'
+    no8: 'moc.liamg@a' -> sufixo 'g@a'
+
+  ===== Iteracao 5 =====
+  top-level: 2 nos
+    no9 = 'moc.oohay@a'
+    no10 = 'moc.liam'
+  prefixos com count>=2 e len>=3: 2
+  top 2 (por len desc, count desc, lex):
+    len= 4 count= 2  'moc.'
+    len= 3 count= 2  'moc'
+  ESCOLHIDO: 'moc.' (len=4, count=2)
+  novo pai: no11 = 'moc.'
+  folhas absorvidas: 2
+    no9: 'moc.oohay@a' -> sufixo 'oohay@a'
+    no10: 'moc.liam' -> sufixo 'liam'
+
+  ===== Iteracao 6 =====
+  top-level: 1 nos
+    no11 = 'moc.'
+  STOP: 1 < min_grupo=2
+
+======================================================================
+ARVORE FORWARD FINAL (apos todas as iteracoes)
+======================================================================
+no7 = "maria.silva@"
+  no1 = pai(no7) + "gmail.com"  -> "maria.silva@gmail.com"
+  no2 = pai(no7) + "hotmail.com"  -> "maria.silva@hotmail.com"
+  no3 = pai(no7) + "yahoo.com"  -> "maria.silva@yahoo.com"
+no8 = "joao.souza@"
+  no4 = pai(no8) + "gmail.com"  -> "joao.souza@gmail.com"
+  no5 = pai(no8) + "hotmail.com"  -> "joao.souza@hotmail.com"
+  no6 = pai(no8) + "yahoo.com"  -> "joao.souza@yahoo.com"
+
+======================================================================
+ARVORE REVERSE FINAL (texto invertido — sufixos naturais)
+======================================================================
+(o algoritmo trabalha sobre strings invertidas. Para leitura:
+ cada 'fragmento' eh a parte invertida; o texto natural eh o reverso.)
+
+no11 = "moc."
+  no9 = pai(no11) + "oohay@a"  -> "moc.oohay@a"
+    no3 = pai(no9) + "vlis.airam"  -> "moc.oohay@avlis.airam"
+    no6 = pai(no9) + "zuos.oaoj"  -> "moc.oohay@azuos.oaoj"
+  no10 = pai(no11) + "liam"  -> "moc.liam"
+    no7 = pai(no10) + "toh@a"  -> "moc.liamtoh@a"
+      no2 = pai(no7) + "vlis.airam"  -> "moc.liamtoh@avlis.airam"
+      no5 = pai(no7) + "zuos.oaoj"  -> "moc.liamtoh@azuos.oaoj"
+    no8 = pai(no10) + "g@a"  -> "moc.liamg@a"
+      no1 = pai(no8) + "vlis.airam"  -> "moc.liamg@avlis.airam"
+      no4 = pai(no8) + "zuos.oaoj"  -> "moc.liamg@azuos.oaoj"
+
+======================================================================
+FASE C — DECOMPOSICAO POR STRING UNICA
+======================================================================
+
+--- decompor 'maria.silva@gmail.com' (len=21) ---
+  fwd: folha no1; pai imediato = no7 = 'maria.silva@' (len=12)
+  rev: folha no1; pai imediato = no8 = 'moc.liamg@a' (invertido) = 'a@gmail.com' (sufixo natural, len=11)
+  OVERLAP: len(p)=12 + len(x)=11 = 23 > len(s)=21
+  resolve: pref mais longo ou empate. Descarta suf.
+  FINAL: pref='maria.silva@' mid='gmail.com' suf=''
+
+--- decompor 'maria.silva@hotmail.com' (len=23) ---
+  fwd: folha no2; pai imediato = no7 = 'maria.silva@' (len=12)
+  rev: folha no2; pai imediato = no7 = 'moc.liamtoh@a' (invertido) = 'a@hotmail.com' (sufixo natural, len=13)
+  OVERLAP: len(p)=12 + len(x)=13 = 25 > len(s)=23
+  resolve: suf mais longo. Descarta pref.
+  FINAL: pref='' mid='maria.silv' suf='a@hotmail.com'
+
+--- decompor 'maria.silva@yahoo.com' (len=21) ---
+  fwd: folha no3; pai imediato = no7 = 'maria.silva@' (len=12)
+  rev: folha no3; pai imediato = no9 = 'moc.oohay@a' (invertido) = 'a@yahoo.com' (sufixo natural, len=11)
+  OVERLAP: len(p)=12 + len(x)=11 = 23 > len(s)=21
+  resolve: pref mais longo ou empate. Descarta suf.
+  FINAL: pref='maria.silva@' mid='yahoo.com' suf=''
+
+--- decompor 'joao.souza@gmail.com' (len=20) ---
+  fwd: folha no4; pai imediato = no8 = 'joao.souza@' (len=11)
+  rev: folha no4; pai imediato = no8 = 'moc.liamg@a' (invertido) = 'a@gmail.com' (sufixo natural, len=11)
+  OVERLAP: len(p)=11 + len(x)=11 = 22 > len(s)=20
+  resolve: pref mais longo ou empate. Descarta suf.
+  FINAL: pref='joao.souza@' mid='gmail.com' suf=''
+
+--- decompor 'joao.souza@hotmail.com' (len=22) ---
+  fwd: folha no5; pai imediato = no8 = 'joao.souza@' (len=11)
+  rev: folha no5; pai imediato = no7 = 'moc.liamtoh@a' (invertido) = 'a@hotmail.com' (sufixo natural, len=13)
+  OVERLAP: len(p)=11 + len(x)=13 = 24 > len(s)=22
+  resolve: suf mais longo. Descarta pref.
+  FINAL: pref='' mid='joao.souz' suf='a@hotmail.com'
+
+--- decompor 'joao.souza@yahoo.com' (len=20) ---
+  fwd: folha no6; pai imediato = no8 = 'joao.souza@' (len=11)
+  rev: folha no6; pai imediato = no9 = 'moc.oohay@a' (invertido) = 'a@yahoo.com' (sufixo natural, len=11)
+  OVERLAP: len(p)=11 + len(x)=11 = 22 > len(s)=20
+  resolve: pref mais longo ou empate. Descarta suf.
+  FINAL: pref='joao.souza@' mid='yahoo.com' suf=''
+
+======================================================================
+ANALISE — padroes intermediarios que Patricia greedy NAO capturou
+======================================================================
+
+Comparativo: substrings que aparecem em >= 2 strings unicas
+(metrica de cobertura). Inclui prefixos e sufixos detectados pelo
+Patricia, mas tambem substrings 'no meio' que ele nunca tenta capturar.
+
+top 20 substrings por ganho potencial (len * count, desc):
+  len count ganho  substring
+   12     3    36  'maria.silva@'
+   11     3    33  'aria.silva@'
+   11     3    33  'maria.silva'
+   11     3    33  'joao.souza@'
+    8     4    32  'mail.com'
+   10     3    30  'ria.silva@'
+   10     3    30  'aria.silva'
+   10     3    30  'maria.silv'
+   10     3    30  'oao.souza@'
+   10     3    30  'joao.souza'
+    7     4    28  'ail.com'
+    7     4    28  'mail.co'
+    9     3    27  'ia.silva@'
+    9     3    27  'maria.sil'
+    9     3    27  'aria.silv'
+    9     3    27  'ria.silva'
+    9     3    27  'joao.souz'
+    9     3    27  'ao.souza@'
+    9     3    27  'oao.souza'
+   13     2    26  'a@hotmail.com'
+
+Comentario: Patricia greedy considera apenas PREFIXOS das folhas
+top-level. Substrings que aparecem 'no meio' ou que sao prefixos
+de pais ja absorvidos nao sao re-avaliadas. Algumas das substrings
+acima podem ter sido capturadas (como prefixo ou sufixo); outras
+nao.

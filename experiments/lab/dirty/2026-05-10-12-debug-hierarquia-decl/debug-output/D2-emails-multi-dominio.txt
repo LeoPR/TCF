@@ -1,0 +1,23 @@
+====================================================================================
+DATASET: D2-emails-multi-dominio
+====================================================================================
+linhas: 20    unicas: 12
+tamanho ref+dados (exp 10): 655 bytes
+
+PREF texts com pai Patricia ignorado:
+  (nenhum)
+
+  decl folha (atual): 0 chars
+  decl filho_de + pais (0): 0 + 0 = 0 chars
+  delta liquido: +0 chars
+
+SUF texts com pai Patricia ignorado:
+  suf='mail.com'                               n=8
+    pai='.com'  extra='mail'
+
+  decl folha (atual): 21 chars
+  decl filho_de + pais (1): 28 + 29 = 57 chars
+  delta liquido: +36 chars
+
+DELTA TOTAL (pref + suf) se decl fosse hierarquica: +36 chars
+  => PERDA de 36 chars (5.5% de exp 10)

@@ -1,0 +1,35 @@
+================================================================================
+DATASET: D1-emails-um-dominio
+================================================================================
+linhas: 20    unicas: 10
+tamanho ref+dados (exp 10): 494 bytes
+
+Decomposicoes (do exp 10):
+  user001@gmail.com                pref='user00'         mid='1'        suf='@gmail.com'
+  user002@gmail.com                pref='user00'         mid='2'        suf='@gmail.com'
+  user003@gmail.com                pref='user00'         mid='3'        suf='@gmail.com'
+  user004@gmail.com                pref='user00'         mid='4'        suf='@gmail.com'
+  user005@gmail.com                pref='user00'         mid='5'        suf='@gmail.com'
+  user006@gmail.com                pref='user00'         mid='6'        suf='@gmail.com'
+  user007@gmail.com                pref='user00'         mid='7'        suf='@gmail.com'
+  user008@gmail.com                pref='user00'         mid='8'        suf='@gmail.com'
+  user009@gmail.com                pref='user00'         mid='9'        suf='@gmail.com'
+  user010@gmail.com                pref='user0'          mid='10'       suf='@gmail.com'
+
+--------------------------------------------------------------------------------
+Padroes (mid, suf) com count >= 2:
+  (nenhum)
+
+--------------------------------------------------------------------------------
+Padroes (pref, mid) com count >= 2:
+  (nenhum)
+
+--------------------------------------------------------------------------------
+Ganho potencial total (so padroes com ganho > 0):
+  (mid, suf): 0 bytes
+  (pref, mid): 0 bytes
+  SOMA: 0 bytes (0.0% de exp 10)
+
+ATENCAO: ganhos NAO sao aditivos diretos quando os mesmos pares
+se sobrepoem (mesma string pode ser fatorada por (mid,suf) ou
+(pref,mid), nao ambos). Limite superior, nao previsao exata.

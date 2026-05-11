@@ -1,0 +1,26 @@
+id,vazio,null_literal,na_curto,interrogacao,nao_informado,traco,whitespace,zero_falso_null,esparso_70pct
+1,valor_a,valor_a,valor_a,valor_a,valor_a,valor_a,valor_a,valor_a,
+2,,NULL,N/A,?,nao informado,-, ,0,
+3,valor_b,valor_b,valor_b,valor_b,valor_b,valor_b,valor_b,1,valor_3
+4,,null,NA,?,nao informado,-, ,0,
+5,valor_c,NULL,N/A,?,valor_c,valor_c,valor_c,valor_c,
+6,,NULL,N/A,?,nao informado,-, ,0,
+7,valor_d,valor_d,NA,?,nao informado,valor_d,valor_d,1,valor_7
+8,,null,N/A,?,nao informado,-, ,0,
+9,valor_e,NULL,valor_e,?,valor_e,-,valor_e,valor_e,
+10,,NULL,N/A,?,nao informado,-, ,0,
+11,valor_f,valor_f,N/A,valor_f,nao informado,-, ,0,valor_11
+12,,NULL,NA,?,nao informado,-, ,0,
+13,valor_g,null,N/A,?,valor_g,-,valor_g,1,
+14,,NULL,N/A,?,nao informado,valor_h, ,0,
+15,valor_i,valor_i,valor_i,valor_i,valor_i,valor_i,valor_i,valor_i,valor_15
+16,,NULL,N/A,?,nao informado,-, ,0,
+17,valor_j,NULL,N/A,?,nao informado,-, ,0,
+18,,null,NA,?,nao informado,-, ,0,
+19,valor_k,valor_k,valor_k,valor_k,valor_k,valor_k,valor_k,valor_k,
+20,,NULL,N/A,?,nao informado,-, ,0,
+21,,,,,,,,,
+22,valor_l,valor_l,valor_l,valor_l,valor_l,valor_l,valor_l,1,valor_22
+23,,NULL,N/A,?,nao informado,-, ,0,
+24,,NULL,N/A,?,nao informado,-, ,0,
+25,,NULL,N/A,?,nao informado,-, ,0,

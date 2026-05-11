@@ -1,0 +1,1001 @@
+id,comum_pt,comum_en,cientifico,com_variedade_pt
+1,Gato,Cat,Felis catus,Gato Siames
+2,Maca,Apple,Malus domestica,Maca Verde
+3,Banana,Banana,Musa acuminata,Banana Nanica
+4,Banana,Banana,Musa acuminata,Banana Prata
+5,Gato,Cat,Felis catus,Gato Maine Coon
+6,Cachorro,Dog,Canis lupus familiaris,Cachorro Labrador
+7,Cachorro,Dog,Canis lupus familiaris,Cachorro Poodle
+8,Maca,Apple,Malus domestica,Maca Fuji
+9,Maca,Apple,Malus domestica,Maca Gala
+10,Banana,Banana,Musa acuminata,Banana Prata
+11,Cachorro,Dog,Canis lupus familiaris,Cachorro Golden
+12,Gato,Cat,Felis catus,Gato Maine Coon
+13,Gato,Cat,Felis catus,Gato Maine Coon
+14,Limao,Lime,Citrus aurantifolia,Limao Tahiti
+15,Limao,Lime,Citrus aurantifolia,Limao Siciliano
+16,Laranja,Orange,Citrus sinensis,Laranja Pera
+17,Banana,Banana,Musa acuminata,Banana Ouro
+18,Laranja,Orange,Citrus sinensis,Laranja Bahia
+19,Banana,Banana,Musa acuminata,Banana Nanica
+20,Laranja,Orange,Citrus sinensis,Laranja Pera
+21,Maca,Apple,Malus domestica,Maca Argentina
+22,Maca,Apple,Malus domestica,Maca Verde
+23,Laranja,Orange,Citrus sinensis,Laranja Lima
+24,Laranja,Orange,Citrus sinensis,Laranja Pera
+25,Gato,Cat,Felis catus,Gato Persa
+26,Cachorro,Dog,Canis lupus familiaris,Cachorro Labrador
+27,Limao,Lime,Citrus aurantifolia,Limao Tahiti
+28,Cachorro,Dog,Canis lupus familiaris,Cachorro Pastor
+29,Gato,Cat,Felis catus,Gato Maine Coon
+30,Laranja,Orange,Citrus sinensis,Laranja Lima
+31,Banana,Banana,Musa acuminata,Banana Prata
+32,Maca,Apple,Malus domestica,Maca Gala
+33,Laranja,Orange,Citrus sinensis,Laranja Pera
+34,Banana,Banana,Musa acuminata,Banana Prata
+35,Limao,Lime,Citrus aurantifolia,Limao Galego
+36,Limao,Lime,Citrus aurantifolia,Limao Siciliano
+37,Laranja,Orange,Citrus sinensis,Laranja Pera
+38,Laranja,Orange,Citrus sinensis,Laranja Bahia
+39,Banana,Banana,Musa acuminata,Banana Maca
+40,Gato,Cat,Felis catus,Gato Maine Coon
+41,Gato,Cat,Felis catus,Gato Siames
+42,Cachorro,Dog,Canis lupus familiaris,Cachorro Golden
+43,Cachorro,Dog,Canis lupus familiaris,Cachorro Golden
+44,Banana,Banana,Musa acuminata,Banana Ouro
+45,Limao,Lime,Citrus aurantifolia,Limao Galego
+46,Gato,Cat,Felis catus,Gato Maine Coon
+47,Cachorro,Dog,Canis lupus familiaris,Cachorro Golden
+48,Gato,Cat,Felis catus,Gato Persa
+49,Maca,Apple,Malus domestica,Maca Gala
+50,Maca,Apple,Malus domestica,Maca Verde
+51,Limao,Lime,Citrus aurantifolia,Limao Galego
+52,Maca,Apple,Malus domestica,Maca Gala
+53,Cachorro,Dog,Canis lupus familiaris,Cachorro Pastor
+54,Banana,Banana,Musa acuminata,Banana Ouro
+55,Limao,Lime,Citrus aurantifolia,Limao Siciliano
+56,Limao,Lime,Citrus aurantifolia,Limao Tahiti
+57,Laranja,Orange,Citrus sinensis,Laranja Pera
+58,Banana,Banana,Musa acuminata,Banana Maca
+59,Gato,Cat,Felis catus,Gato Maine Coon
+60,Limao,Lime,Citrus aurantifolia,Limao Siciliano
+61,Limao,Lime,Citrus aurantifolia,Limao Galego
+62,Banana,Banana,Musa acuminata,Banana Nanica
+63,Cachorro,Dog,Canis lupus familiaris,Cachorro Poodle
+64,Maca,Apple,Malus domestica,Maca Fuji
+65,Maca,Apple,Malus domestica,Maca Gala
+66,Gato,Cat,Felis catus,Gato Siames
+67,Gato,Cat,Felis catus,Gato Persa
+68,Cachorro,Dog,Canis lupus familiaris,Cachorro Labrador
+69,Limao,Lime,Citrus aurantifolia,Limao Galego
+70,Cachorro,Dog,Canis lupus familiaris,Cachorro Poodle
+71,Cachorro,Dog,Canis lupus familiaris,Cachorro Pastor
+72,Cachorro,Dog,Canis lupus familiaris,Cachorro Labrador
+73,Gato,Cat,Felis catus,Gato Maine Coon
+74,Maca,Apple,Malus domestica,Maca Verde
+75,Gato,Cat,Felis catus,Gato Persa
+76,Maca,Apple,Malus domestica,Maca Verde
+77,Limao,Lime,Citrus aurantifolia,Limao Tahiti
+78,Limao,Lime,Citrus aurantifolia,Limao Tahiti
+79,Gato,Cat,Felis catus,Gato Maine Coon
+80,Laranja,Orange,Citrus sinensis,Laranja Lima
+81,Banana,Banana,Musa acuminata,Banana Prata
+82,Gato,Cat,Felis catus,Gato Persa
+83,Gato,Cat,Felis catus,Gato Maine Coon
+84,Cachorro,Dog,Canis lupus familiaris,Cachorro Golden
+85,Banana,Banana,Musa acuminata,Banana Maca
+86,Banana,Banana,Musa acuminata,Banana Prata
+87,Cachorro,Dog,Canis lupus familiaris,Cachorro Pastor
+88,Limao,Lime,Citrus aurantifolia,Limao Tahiti
+89,Maca,Apple,Malus domestica,Maca Verde
+90,Laranja,Orange,Citrus sinensis,Laranja Pera
+91,Maca,Apple,Malus domestica,Maca Gala
+92,Cachorro,Dog,Canis lupus familiaris,Cachorro Labrador
+93,Maca,Apple,Malus domestica,Maca Argentina
+94,Maca,Apple,Malus domestica,Maca Gala
+95,Banana,Banana,Musa acuminata,Banana Ouro
+96,Cachorro,Dog,Canis lupus familiaris,Cachorro Golden
+97,Laranja,Orange,Citrus sinensis,Laranja Lima
+98,Cachorro,Dog,Canis lupus familiaris,Cachorro Poodle
+99,Banana,Banana,Musa acuminata,Banana Nanica
+100,Gato,Cat,Felis catus,Gato Persa
+101,Limao,Lime,Citrus aurantifolia,Limao Siciliano
+102,Gato,Cat,Felis catus,Gato Persa
+103,Limao,Lime,Citrus aurantifolia,Limao Siciliano
+104,Limao,Lime,Citrus aurantifolia,Limao Tahiti
+105,Banana,Banana,Musa acuminata,Banana Nanica
+106,Maca,Apple,Malus domestica,Maca Verde
+107,Maca,Apple,Malus domestica,Maca Gala
+108,Cachorro,Dog,Canis lupus familiaris,Cachorro Golden
+109,Maca,Apple,Malus domestica,Maca Fuji
+110,Gato,Cat,Felis catus,Gato Maine Coon
+111,Maca,Apple,Malus domestica,Maca Gala
+112,Maca,Apple,Malus domestica,Maca Fuji
+113,Laranja,Orange,Citrus sinensis,Laranja Pera
+114,Cachorro,Dog,Canis lupus familiaris,Cachorro Golden
+115,Laranja,Orange,Citrus sinensis,Laranja Lima
+116,Limao,Lime,Citrus aurantifolia,Limao Tahiti
+117,Cachorro,Dog,Canis lupus familiaris,Cachorro Golden
+118,Gato,Cat,Felis catus,Gato Maine Coon
+119,Cachorro,Dog,Canis lupus familiaris,Cachorro Poodle
+120,Banana,Banana,Musa acuminata,Banana Ouro
+121,Limao,Lime,Citrus aurantifolia,Limao Tahiti
+122,Maca,Apple,Malus domestica,Maca Fuji
+123,Gato,Cat,Felis catus,Gato Persa
+124,Laranja,Orange,Citrus sinensis,Laranja Bahia
+125,Limao,Lime,Citrus aurantifolia,Limao Galego
+126,Gato,Cat,Felis catus,Gato Siames
+127,Gato,Cat,Felis catus,Gato Maine Coon
+128,Gato,Cat,Felis catus,Gato Siames
+129,Maca,Apple,Malus domestica,Maca Argentina
+130,Gato,Cat,Felis catus,Gato Persa
+131,Maca,Apple,Malus domestica,Maca Gala
+132,Banana,Banana,Musa acuminata,Banana Nanica
+133,Cachorro,Dog,Canis lupus familiaris,Cachorro Poodle
+134,Banana,Banana,Musa acuminata,Banana Ouro
+135,Banana,Banana,Musa acuminata,Banana Maca
+136,Limao,Lime,Citrus aurantifolia,Limao Tahiti
+137,Maca,Apple,Malus domestica,Maca Argentina
+138,Cachorro,Dog,Canis lupus familiaris,Cachorro Labrador
+139,Maca,Apple,Malus domestica,Maca Fuji
+140,Maca,Apple,Malus domestica,Maca Gala
+141,Banana,Banana,Musa acuminata,Banana Ouro
+142,Limao,Lime,Citrus aurantifolia,Limao Galego
+143,Banana,Banana,Musa acuminata,Banana Ouro
+144,Maca,Apple,Malus domestica,Maca Gala
+145,Limao,Lime,Citrus aurantifolia,Limao Tahiti
+146,Limao,Lime,Citrus aurantifolia,Limao Galego
+147,Limao,Lime,Citrus aurantifolia,Limao Galego
+148,Limao,Lime,Citrus aurantifolia,Limao Siciliano
+149,Gato,Cat,Felis catus,Gato Maine Coon
+150,Gato,Cat,Felis catus,Gato Maine Coon
+151,Limao,Lime,Citrus aurantifolia,Limao Tahiti
+152,Banana,Banana,Musa acuminata,Banana Maca
+153,Banana,Banana,Musa acuminata,Banana Prata
+154,Cachorro,Dog,Canis lupus familiaris,Cachorro Labrador
+155,Gato,Cat,Felis catus,Gato Persa
+156,Maca,Apple,Malus domestica,Maca Fuji
+157,Cachorro,Dog,Canis lupus familiaris,Cachorro Poodle
+158,Cachorro,Dog,Canis lupus familiaris,Cachorro Golden
+159,Maca,Apple,Malus domestica,Maca Fuji
+160,Banana,Banana,Musa acuminata,Banana Prata
+161,Cachorro,Dog,Canis lupus familiaris,Cachorro Labrador
+162,Gato,Cat,Felis catus,Gato Siames
+163,Limao,Lime,Citrus aurantifolia,Limao Tahiti
+164,Cachorro,Dog,Canis lupus familiaris,Cachorro Golden
+165,Cachorro,Dog,Canis lupus familiaris,Cachorro Labrador
+166,Cachorro,Dog,Canis lupus familiaris,Cachorro Labrador
+167,Limao,Lime,Citrus aurantifolia,Limao Siciliano
+168,Cachorro,Dog,Canis lupus familiaris,Cachorro Pastor
+169,Laranja,Orange,Citrus sinensis,Laranja Pera
+170,Gato,Cat,Felis catus,Gato Maine Coon
+171,Laranja,Orange,Citrus sinensis,Laranja Pera
+172,Laranja,Orange,Citrus sinensis,Laranja Bahia
+173,Banana,Banana,Musa acuminata,Banana Maca
+174,Limao,Lime,Citrus aurantifolia,Limao Galego
+175,Maca,Apple,Malus domestica,Maca Fuji
+176,Limao,Lime,Citrus aurantifolia,Limao Siciliano
+177,Cachorro,Dog,Canis lupus familiaris,Cachorro Labrador
+178,Maca,Apple,Malus domestica,Maca Gala
+179,Cachorro,Dog,Canis lupus familiaris,Cachorro Pastor
+180,Banana,Banana,Musa acuminata,Banana Maca
+181,Maca,Apple,Malus domestica,Maca Gala
+182,Laranja,Orange,Citrus sinensis,Laranja Bahia
+183,Banana,Banana,Musa acuminata,Banana Ouro
+184,Cachorro,Dog,Canis lupus familiaris,Cachorro Pastor
+185,Cachorro,Dog,Canis lupus familiaris,Cachorro Labrador
+186,Gato,Cat,Felis catus,Gato Maine Coon
+187,Laranja,Orange,Citrus sinensis,Laranja Lima
+188,Maca,Apple,Malus domestica,Maca Gala
+189,Laranja,Orange,Citrus sinensis,Laranja Pera
+190,Maca,Apple,Malus domestica,Maca Gala
+191,Laranja,Orange,Citrus sinensis,Laranja Bahia
+192,Cachorro,Dog,Canis lupus familiaris,Cachorro Golden
+193,Gato,Cat,Felis catus,Gato Persa
+194,Banana,Banana,Musa acuminata,Banana Maca
+195,Cachorro,Dog,Canis lupus familiaris,Cachorro Poodle
+196,Laranja,Orange,Citrus sinensis,Laranja Pera
+197,Maca,Apple,Malus domestica,Maca Argentina
+198,Laranja,Orange,Citrus sinensis,Laranja Pera
+199,Maca,Apple,Malus domestica,Maca Verde
+200,Banana,Banana,Musa acuminata,Banana Maca
+201,Banana,Banana,Musa acuminata,Banana Ouro
+202,Cachorro,Dog,Canis lupus familiaris,Cachorro Poodle
+203,Cachorro,Dog,Canis lupus familiaris,Cachorro Labrador
+204,Maca,Apple,Malus domestica,Maca Fuji
+205,Gato,Cat,Felis catus,Gato Siames
+206,Cachorro,Dog,Canis lupus familiaris,Cachorro Labrador
+207,Laranja,Orange,Citrus sinensis,Laranja Lima
+208,Cachorro,Dog,Canis lupus familiaris,Cachorro Golden
+209,Limao,Lime,Citrus aurantifolia,Limao Tahiti
+210,Maca,Apple,Malus domestica,Maca Verde
+211,Laranja,Orange,Citrus sinensis,Laranja Pera
+212,Laranja,Orange,Citrus sinensis,Laranja Pera
+213,Gato,Cat,Felis catus,Gato Siames
+214,Gato,Cat,Felis catus,Gato Siames
+215,Laranja,Orange,Citrus sinensis,Laranja Lima
+216,Limao,Lime,Citrus aurantifolia,Limao Siciliano
+217,Gato,Cat,Felis catus,Gato Siames
+218,Banana,Banana,Musa acuminata,Banana Nanica
+219,Banana,Banana,Musa acuminata,Banana Ouro
+220,Maca,Apple,Malus domestica,Maca Gala
+221,Gato,Cat,Felis catus,Gato Persa
+222,Limao,Lime,Citrus aurantifolia,Limao Siciliano
+223,Gato,Cat,Felis catus,Gato Siames
+224,Laranja,Orange,Citrus sinensis,Laranja Pera
+225,Gato,Cat,Felis catus,Gato Siames
+226,Limao,Lime,Citrus aurantifolia,Limao Tahiti
+227,Limao,Lime,Citrus aurantifolia,Limao Tahiti
+228,Banana,Banana,Musa acuminata,Banana Ouro
+229,Laranja,Orange,Citrus sinensis,Laranja Bahia
+230,Banana,Banana,Musa acuminata,Banana Nanica
+231,Maca,Apple,Malus domestica,Maca Gala
+232,Limao,Lime,Citrus aurantifolia,Limao Galego
+233,Laranja,Orange,Citrus sinensis,Laranja Pera
+234,Laranja,Orange,Citrus sinensis,Laranja Bahia
+235,Gato,Cat,Felis catus,Gato Maine Coon
+236,Limao,Lime,Citrus aurantifolia,Limao Siciliano
+237,Cachorro,Dog,Canis lupus familiaris,Cachorro Pastor
+238,Maca,Apple,Malus domestica,Maca Fuji
+239,Laranja,Orange,Citrus sinensis,Laranja Pera
+240,Cachorro,Dog,Canis lupus familiaris,Cachorro Pastor
+241,Maca,Apple,Malus domestica,Maca Fuji
+242,Cachorro,Dog,Canis lupus familiaris,Cachorro Poodle
+243,Laranja,Orange,Citrus sinensis,Laranja Lima
+244,Laranja,Orange,Citrus sinensis,Laranja Bahia
+245,Cachorro,Dog,Canis lupus familiaris,Cachorro Labrador
+246,Limao,Lime,Citrus aurantifolia,Limao Siciliano
+247,Banana,Banana,Musa acuminata,Banana Maca
+248,Maca,Apple,Malus domestica,Maca Argentina
+249,Maca,Apple,Malus domestica,Maca Gala
+250,Laranja,Orange,Citrus sinensis,Laranja Bahia
+251,Maca,Apple,Malus domestica,Maca Verde
+252,Cachorro,Dog,Canis lupus familiaris,Cachorro Pastor
+253,Gato,Cat,Felis catus,Gato Siames
+254,Gato,Cat,Felis catus,Gato Persa
+255,Cachorro,Dog,Canis lupus familiaris,Cachorro Pastor
+256,Gato,Cat,Felis catus,Gato Persa
+257,Laranja,Orange,Citrus sinensis,Laranja Bahia
+258,Gato,Cat,Felis catus,Gato Persa
+259,Cachorro,Dog,Canis lupus familiaris,Cachorro Golden
+260,Banana,Banana,Musa acuminata,Banana Ouro
+261,Gato,Cat,Felis catus,Gato Persa
+262,Gato,Cat,Felis catus,Gato Maine Coon
+263,Banana,Banana,Musa acuminata,Banana Maca
+264,Limao,Lime,Citrus aurantifolia,Limao Siciliano
+265,Maca,Apple,Malus domestica,Maca Verde
+266,Laranja,Orange,Citrus sinensis,Laranja Pera
+267,Limao,Lime,Citrus aurantifolia,Limao Siciliano
+268,Cachorro,Dog,Canis lupus familiaris,Cachorro Pastor
+269,Limao,Lime,Citrus aurantifolia,Limao Galego
+270,Limao,Lime,Citrus aurantifolia,Limao Siciliano
+271,Banana,Banana,Musa acuminata,Banana Ouro
+272,Gato,Cat,Felis catus,Gato Siames
+273,Gato,Cat,Felis catus,Gato Siames
+274,Laranja,Orange,Citrus sinensis,Laranja Lima
+275,Gato,Cat,Felis catus,Gato Maine Coon
+276,Cachorro,Dog,Canis lupus familiaris,Cachorro Pastor
+277,Maca,Apple,Malus domestica,Maca Gala
+278,Gato,Cat,Felis catus,Gato Persa
+279,Banana,Banana,Musa acuminata,Banana Nanica
+280,Banana,Banana,Musa acuminata,Banana Prata
+281,Maca,Apple,Malus domestica,Maca Gala
+282,Limao,Lime,Citrus aurantifolia,Limao Siciliano
+283,Maca,Apple,Malus domestica,Maca Argentina
+284,Limao,Lime,Citrus aurantifolia,Limao Siciliano
+285,Cachorro,Dog,Canis lupus familiaris,Cachorro Golden
+286,Gato,Cat,Felis catus,Gato Maine Coon
+287,Limao,Lime,Citrus aurantifolia,Limao Galego
+288,Limao,Lime,Citrus aurantifolia,Limao Tahiti
+289,Banana,Banana,Musa acuminata,Banana Prata
+290,Maca,Apple,Malus domestica,Maca Argentina
+291,Banana,Banana,Musa acuminata,Banana Nanica
+292,Gato,Cat,Felis catus,Gato Maine Coon
+293,Limao,Lime,Citrus aurantifolia,Limao Tahiti
+294,Cachorro,Dog,Canis lupus familiaris,Cachorro Golden
+295,Maca,Apple,Malus domestica,Maca Argentina
+296,Banana,Banana,Musa acuminata,Banana Ouro
+297,Gato,Cat,Felis catus,Gato Maine Coon
+298,Cachorro,Dog,Canis lupus familiaris,Cachorro Pastor
+299,Limao,Lime,Citrus aurantifolia,Limao Siciliano
+300,Gato,Cat,Felis catus,Gato Maine Coon
+301,Limao,Lime,Citrus aurantifolia,Limao Siciliano
+302,Limao,Lime,Citrus aurantifolia,Limao Tahiti
+303,Gato,Cat,Felis catus,Gato Persa
+304,Limao,Lime,Citrus aurantifolia,Limao Galego
+305,Banana,Banana,Musa acuminata,Banana Maca
+306,Cachorro,Dog,Canis lupus familiaris,Cachorro Poodle
+307,Gato,Cat,Felis catus,Gato Siames
+308,Laranja,Orange,Citrus sinensis,Laranja Bahia
+309,Maca,Apple,Malus domestica,Maca Verde
+310,Banana,Banana,Musa acuminata,Banana Maca
+311,Laranja,Orange,Citrus sinensis,Laranja Bahia
+312,Cachorro,Dog,Canis lupus familiaris,Cachorro Labrador
+313,Banana,Banana,Musa acuminata,Banana Nanica
+314,Banana,Banana,Musa acuminata,Banana Ouro
+315,Gato,Cat,Felis catus,Gato Siames
+316,Gato,Cat,Felis catus,Gato Siames
+317,Maca,Apple,Malus domestica,Maca Argentina
+318,Limao,Lime,Citrus aurantifolia,Limao Galego
+319,Cachorro,Dog,Canis lupus familiaris,Cachorro Poodle
+320,Limao,Lime,Citrus aurantifolia,Limao Tahiti
+321,Banana,Banana,Musa acuminata,Banana Ouro
+322,Limao,Lime,Citrus aurantifolia,Limao Siciliano
+323,Gato,Cat,Felis catus,Gato Siames
+324,Cachorro,Dog,Canis lupus familiaris,Cachorro Poodle
+325,Limao,Lime,Citrus aurantifolia,Limao Tahiti
+326,Laranja,Orange,Citrus sinensis,Laranja Bahia
+327,Limao,Lime,Citrus aurantifolia,Limao Galego
+328,Cachorro,Dog,Canis lupus familiaris,Cachorro Golden
+329,Limao,Lime,Citrus aurantifolia,Limao Tahiti
+330,Laranja,Orange,Citrus sinensis,Laranja Bahia
+331,Limao,Lime,Citrus aurantifolia,Limao Tahiti
+332,Limao,Lime,Citrus aurantifolia,Limao Galego
+333,Gato,Cat,Felis catus,Gato Maine Coon
+334,Limao,Lime,Citrus aurantifolia,Limao Siciliano
+335,Banana,Banana,Musa acuminata,Banana Ouro
+336,Banana,Banana,Musa acuminata,Banana Prata
+337,Limao,Lime,Citrus aurantifolia,Limao Siciliano
+338,Cachorro,Dog,Canis lupus familiaris,Cachorro Labrador
+339,Maca,Apple,Malus domestica,Maca Argentina
+340,Banana,Banana,Musa acuminata,Banana Ouro
+341,Banana,Banana,Musa acuminata,Banana Prata
+342,Laranja,Orange,Citrus sinensis,Laranja Bahia
+343,Laranja,Orange,Citrus sinensis,Laranja Pera
+344,Limao,Lime,Citrus aurantifolia,Limao Galego
+345,Laranja,Orange,Citrus sinensis,Laranja Bahia
+346,Laranja,Orange,Citrus sinensis,Laranja Bahia
+347,Laranja,Orange,Citrus sinensis,Laranja Pera
+348,Limao,Lime,Citrus aurantifolia,Limao Tahiti
+349,Gato,Cat,Felis catus,Gato Maine Coon
+350,Maca,Apple,Malus domestica,Maca Verde
+351,Banana,Banana,Musa acuminata,Banana Prata
+352,Gato,Cat,Felis catus,Gato Siames
+353,Maca,Apple,Malus domestica,Maca Gala
+354,Banana,Banana,Musa acuminata,Banana Prata
+355,Cachorro,Dog,Canis lupus familiaris,Cachorro Golden
+356,Banana,Banana,Musa acuminata,Banana Nanica
+357,Limao,Lime,Citrus aurantifolia,Limao Siciliano
+358,Maca,Apple,Malus domestica,Maca Gala
+359,Limao,Lime,Citrus aurantifolia,Limao Siciliano
+360,Laranja,Orange,Citrus sinensis,Laranja Bahia
+361,Banana,Banana,Musa acuminata,Banana Prata
+362,Banana,Banana,Musa acuminata,Banana Maca
+363,Maca,Apple,Malus domestica,Maca Fuji
+364,Laranja,Orange,Citrus sinensis,Laranja Lima
+365,Gato,Cat,Felis catus,Gato Persa
+366,Limao,Lime,Citrus aurantifolia,Limao Siciliano
+367,Banana,Banana,Musa acuminata,Banana Prata
+368,Cachorro,Dog,Canis lupus familiaris,Cachorro Golden
+369,Maca,Apple,Malus domestica,Maca Verde
+370,Gato,Cat,Felis catus,Gato Maine Coon
+371,Maca,Apple,Malus domestica,Maca Fuji
+372,Laranja,Orange,Citrus sinensis,Laranja Lima
+373,Limao,Lime,Citrus aurantifolia,Limao Siciliano
+374,Laranja,Orange,Citrus sinensis,Laranja Pera
+375,Cachorro,Dog,Canis lupus familiaris,Cachorro Pastor
+376,Maca,Apple,Malus domestica,Maca Argentina
+377,Limao,Lime,Citrus aurantifolia,Limao Tahiti
+378,Limao,Lime,Citrus aurantifolia,Limao Galego
+379,Gato,Cat,Felis catus,Gato Persa
+380,Gato,Cat,Felis catus,Gato Siames
+381,Limao,Lime,Citrus aurantifolia,Limao Tahiti
+382,Gato,Cat,Felis catus,Gato Maine Coon
+383,Gato,Cat,Felis catus,Gato Persa
+384,Cachorro,Dog,Canis lupus familiaris,Cachorro Poodle
+385,Limao,Lime,Citrus aurantifolia,Limao Galego
+386,Gato,Cat,Felis catus,Gato Maine Coon
+387,Laranja,Orange,Citrus sinensis,Laranja Bahia
+388,Banana,Banana,Musa acuminata,Banana Prata
+389,Laranja,Orange,Citrus sinensis,Laranja Bahia
+390,Banana,Banana,Musa acuminata,Banana Ouro
+391,Cachorro,Dog,Canis lupus familiaris,Cachorro Poodle
+392,Laranja,Orange,Citrus sinensis,Laranja Pera
+393,Limao,Lime,Citrus aurantifolia,Limao Galego
+394,Banana,Banana,Musa acuminata,Banana Ouro
+395,Banana,Banana,Musa acuminata,Banana Maca
+396,Laranja,Orange,Citrus sinensis,Laranja Bahia
+397,Laranja,Orange,Citrus sinensis,Laranja Lima
+398,Gato,Cat,Felis catus,Gato Persa
+399,Cachorro,Dog,Canis lupus familiaris,Cachorro Labrador
+400,Cachorro,Dog,Canis lupus familiaris,Cachorro Golden
+401,Maca,Apple,Malus domestica,Maca Gala
+402,Gato,Cat,Felis catus,Gato Persa
+403,Limao,Lime,Citrus aurantifolia,Limao Siciliano
+404,Banana,Banana,Musa acuminata,Banana Ouro
+405,Gato,Cat,Felis catus,Gato Maine Coon
+406,Limao,Lime,Citrus aurantifolia,Limao Galego
+407,Maca,Apple,Malus domestica,Maca Fuji
+408,Laranja,Orange,Citrus sinensis,Laranja Pera
+409,Limao,Lime,Citrus aurantifolia,Limao Siciliano
+410,Banana,Banana,Musa acuminata,Banana Maca
+411,Gato,Cat,Felis catus,Gato Maine Coon
+412,Laranja,Orange,Citrus sinensis,Laranja Bahia
+413,Cachorro,Dog,Canis lupus familiaris,Cachorro Pastor
+414,Limao,Lime,Citrus aurantifolia,Limao Siciliano
+415,Cachorro,Dog,Canis lupus familiaris,Cachorro Pastor
+416,Laranja,Orange,Citrus sinensis,Laranja Lima
+417,Limao,Lime,Citrus aurantifolia,Limao Galego
+418,Laranja,Orange,Citrus sinensis,Laranja Bahia
+419,Banana,Banana,Musa acuminata,Banana Prata
+420,Gato,Cat,Felis catus,Gato Siames
+421,Laranja,Orange,Citrus sinensis,Laranja Pera
+422,Gato,Cat,Felis catus,Gato Maine Coon
+423,Gato,Cat,Felis catus,Gato Siames
+424,Banana,Banana,Musa acuminata,Banana Nanica
+425,Gato,Cat,Felis catus,Gato Persa
+426,Laranja,Orange,Citrus sinensis,Laranja Lima
+427,Cachorro,Dog,Canis lupus familiaris,Cachorro Pastor
+428,Maca,Apple,Malus domestica,Maca Gala
+429,Laranja,Orange,Citrus sinensis,Laranja Pera
+430,Laranja,Orange,Citrus sinensis,Laranja Pera
+431,Laranja,Orange,Citrus sinensis,Laranja Pera
+432,Gato,Cat,Felis catus,Gato Maine Coon
+433,Banana,Banana,Musa acuminata,Banana Maca
+434,Maca,Apple,Malus domestica,Maca Fuji
+435,Cachorro,Dog,Canis lupus familiaris,Cachorro Pastor
+436,Gato,Cat,Felis catus,Gato Siames
+437,Gato,Cat,Felis catus,Gato Persa
+438,Maca,Apple,Malus domestica,Maca Fuji
+439,Cachorro,Dog,Canis lupus familiaris,Cachorro Pastor
+440,Limao,Lime,Citrus aurantifolia,Limao Galego
+441,Limao,Lime,Citrus aurantifolia,Limao Galego
+442,Banana,Banana,Musa acuminata,Banana Prata
+443,Laranja,Orange,Citrus sinensis,Laranja Bahia
+444,Maca,Apple,Malus domestica,Maca Fuji
+445,Limao,Lime,Citrus aurantifolia,Limao Galego
+446,Maca,Apple,Malus domestica,Maca Fuji
+447,Banana,Banana,Musa acuminata,Banana Nanica
+448,Cachorro,Dog,Canis lupus familiaris,Cachorro Pastor
+449,Maca,Apple,Malus domestica,Maca Gala
+450,Maca,Apple,Malus domestica,Maca Argentina
+451,Cachorro,Dog,Canis lupus familiaris,Cachorro Golden
+452,Cachorro,Dog,Canis lupus familiaris,Cachorro Poodle
+453,Limao,Lime,Citrus aurantifolia,Limao Galego
+454,Laranja,Orange,Citrus sinensis,Laranja Lima
+455,Limao,Lime,Citrus aurantifolia,Limao Galego
+456,Cachorro,Dog,Canis lupus familiaris,Cachorro Labrador
+457,Cachorro,Dog,Canis lupus familiaris,Cachorro Labrador
+458,Banana,Banana,Musa acuminata,Banana Nanica
+459,Laranja,Orange,Citrus sinensis,Laranja Lima
+460,Maca,Apple,Malus domestica,Maca Gala
+461,Banana,Banana,Musa acuminata,Banana Nanica
+462,Cachorro,Dog,Canis lupus familiaris,Cachorro Labrador
+463,Banana,Banana,Musa acuminata,Banana Prata
+464,Limao,Lime,Citrus aurantifolia,Limao Galego
+465,Gato,Cat,Felis catus,Gato Maine Coon
+466,Limao,Lime,Citrus aurantifolia,Limao Galego
+467,Maca,Apple,Malus domestica,Maca Gala
+468,Laranja,Orange,Citrus sinensis,Laranja Lima
+469,Laranja,Orange,Citrus sinensis,Laranja Lima
+470,Limao,Lime,Citrus aurantifolia,Limao Tahiti
+471,Gato,Cat,Felis catus,Gato Siames
+472,Laranja,Orange,Citrus sinensis,Laranja Lima
+473,Cachorro,Dog,Canis lupus familiaris,Cachorro Golden
+474,Limao,Lime,Citrus aurantifolia,Limao Tahiti
+475,Cachorro,Dog,Canis lupus familiaris,Cachorro Golden
+476,Gato,Cat,Felis catus,Gato Siames
+477,Laranja,Orange,Citrus sinensis,Laranja Pera
+478,Maca,Apple,Malus domestica,Maca Fuji
+479,Banana,Banana,Musa acuminata,Banana Maca
+480,Cachorro,Dog,Canis lupus familiaris,Cachorro Pastor
+481,Limao,Lime,Citrus aurantifolia,Limao Tahiti
+482,Limao,Lime,Citrus aurantifolia,Limao Siciliano
+483,Laranja,Orange,Citrus sinensis,Laranja Lima
+484,Limao,Lime,Citrus aurantifolia,Limao Galego
+485,Cachorro,Dog,Canis lupus familiaris,Cachorro Poodle
+486,Limao,Lime,Citrus aurantifolia,Limao Tahiti
+487,Cachorro,Dog,Canis lupus familiaris,Cachorro Labrador
+488,Limao,Lime,Citrus aurantifolia,Limao Siciliano
+489,Laranja,Orange,Citrus sinensis,Laranja Lima
+490,Laranja,Orange,Citrus sinensis,Laranja Pera
+491,Maca,Apple,Malus domestica,Maca Gala
+492,Gato,Cat,Felis catus,Gato Maine Coon
+493,Cachorro,Dog,Canis lupus familiaris,Cachorro Labrador
+494,Gato,Cat,Felis catus,Gato Persa
+495,Cachorro,Dog,Canis lupus familiaris,Cachorro Labrador
+496,Banana,Banana,Musa acuminata,Banana Ouro
+497,Cachorro,Dog,Canis lupus familiaris,Cachorro Poodle
+498,Laranja,Orange,Citrus sinensis,Laranja Pera
+499,Cachorro,Dog,Canis lupus familiaris,Cachorro Poodle
+500,Gato,Cat,Felis catus,Gato Persa
+501,Maca,Apple,Malus domestica,Maca Argentina
+502,Laranja,Orange,Citrus sinensis,Laranja Bahia
+503,Laranja,Orange,Citrus sinensis,Laranja Bahia
+504,Gato,Cat,Felis catus,Gato Siames
+505,Banana,Banana,Musa acuminata,Banana Maca
+506,Limao,Lime,Citrus aurantifolia,Limao Siciliano
+507,Limao,Lime,Citrus aurantifolia,Limao Galego
+508,Gato,Cat,Felis catus,Gato Persa
+509,Cachorro,Dog,Canis lupus familiaris,Cachorro Labrador
+510,Limao,Lime,Citrus aurantifolia,Limao Tahiti
+511,Laranja,Orange,Citrus sinensis,Laranja Bahia
+512,Laranja,Orange,Citrus sinensis,Laranja Pera
+513,Limao,Lime,Citrus aurantifolia,Limao Siciliano
+514,Maca,Apple,Malus domestica,Maca Argentina
+515,Limao,Lime,Citrus aurantifolia,Limao Tahiti
+516,Banana,Banana,Musa acuminata,Banana Maca
+517,Cachorro,Dog,Canis lupus familiaris,Cachorro Poodle
+518,Gato,Cat,Felis catus,Gato Persa
+519,Maca,Apple,Malus domestica,Maca Gala
+520,Laranja,Orange,Citrus sinensis,Laranja Lima
+521,Banana,Banana,Musa acuminata,Banana Maca
+522,Limao,Lime,Citrus aurantifolia,Limao Siciliano
+523,Limao,Lime,Citrus aurantifolia,Limao Tahiti
+524,Maca,Apple,Malus domestica,Maca Gala
+525,Gato,Cat,Felis catus,Gato Siames
+526,Laranja,Orange,Citrus sinensis,Laranja Lima
+527,Maca,Apple,Malus domestica,Maca Argentina
+528,Maca,Apple,Malus domestica,Maca Gala
+529,Maca,Apple,Malus domestica,Maca Argentina
+530,Maca,Apple,Malus domestica,Maca Gala
+531,Limao,Lime,Citrus aurantifolia,Limao Siciliano
+532,Laranja,Orange,Citrus sinensis,Laranja Lima
+533,Gato,Cat,Felis catus,Gato Persa
+534,Limao,Lime,Citrus aurantifolia,Limao Galego
+535,Limao,Lime,Citrus aurantifolia,Limao Tahiti
+536,Limao,Lime,Citrus aurantifolia,Limao Siciliano
+537,Banana,Banana,Musa acuminata,Banana Ouro
+538,Banana,Banana,Musa acuminata,Banana Nanica
+539,Maca,Apple,Malus domestica,Maca Verde
+540,Limao,Lime,Citrus aurantifolia,Limao Galego
+541,Cachorro,Dog,Canis lupus familiaris,Cachorro Pastor
+542,Maca,Apple,Malus domestica,Maca Verde
+543,Gato,Cat,Felis catus,Gato Persa
+544,Cachorro,Dog,Canis lupus familiaris,Cachorro Poodle
+545,Banana,Banana,Musa acuminata,Banana Ouro
+546,Cachorro,Dog,Canis lupus familiaris,Cachorro Poodle
+547,Laranja,Orange,Citrus sinensis,Laranja Bahia
+548,Cachorro,Dog,Canis lupus familiaris,Cachorro Poodle
+549,Limao,Lime,Citrus aurantifolia,Limao Galego
+550,Banana,Banana,Musa acuminata,Banana Nanica
+551,Cachorro,Dog,Canis lupus familiaris,Cachorro Poodle
+552,Banana,Banana,Musa acuminata,Banana Ouro
+553,Maca,Apple,Malus domestica,Maca Verde
+554,Gato,Cat,Felis catus,Gato Persa
+555,Gato,Cat,Felis catus,Gato Persa
+556,Limao,Lime,Citrus aurantifolia,Limao Siciliano
+557,Gato,Cat,Felis catus,Gato Siames
+558,Limao,Lime,Citrus aurantifolia,Limao Tahiti
+559,Banana,Banana,Musa acuminata,Banana Maca
+560,Maca,Apple,Malus domestica,Maca Argentina
+561,Maca,Apple,Malus domestica,Maca Argentina
+562,Maca,Apple,Malus domestica,Maca Gala
+563,Limao,Lime,Citrus aurantifolia,Limao Siciliano
+564,Banana,Banana,Musa acuminata,Banana Prata
+565,Limao,Lime,Citrus aurantifolia,Limao Galego
+566,Laranja,Orange,Citrus sinensis,Laranja Lima
+567,Gato,Cat,Felis catus,Gato Persa
+568,Gato,Cat,Felis catus,Gato Siames
+569,Laranja,Orange,Citrus sinensis,Laranja Lima
+570,Cachorro,Dog,Canis lupus familiaris,Cachorro Poodle
+571,Laranja,Orange,Citrus sinensis,Laranja Lima
+572,Gato,Cat,Felis catus,Gato Persa
+573,Cachorro,Dog,Canis lupus familiaris,Cachorro Labrador
+574,Cachorro,Dog,Canis lupus familiaris,Cachorro Labrador
+575,Banana,Banana,Musa acuminata,Banana Maca
+576,Banana,Banana,Musa acuminata,Banana Prata
+577,Limao,Lime,Citrus aurantifolia,Limao Tahiti
+578,Gato,Cat,Felis catus,Gato Maine Coon
+579,Maca,Apple,Malus domestica,Maca Argentina
+580,Banana,Banana,Musa acuminata,Banana Maca
+581,Maca,Apple,Malus domestica,Maca Fuji
+582,Laranja,Orange,Citrus sinensis,Laranja Pera
+583,Laranja,Orange,Citrus sinensis,Laranja Bahia
+584,Laranja,Orange,Citrus sinensis,Laranja Bahia
+585,Banana,Banana,Musa acuminata,Banana Nanica
+586,Cachorro,Dog,Canis lupus familiaris,Cachorro Poodle
+587,Cachorro,Dog,Canis lupus familiaris,Cachorro Golden
+588,Banana,Banana,Musa acuminata,Banana Nanica
+589,Maca,Apple,Malus domestica,Maca Argentina
+590,Cachorro,Dog,Canis lupus familiaris,Cachorro Golden
+591,Limao,Lime,Citrus aurantifolia,Limao Siciliano
+592,Banana,Banana,Musa acuminata,Banana Nanica
+593,Limao,Lime,Citrus aurantifolia,Limao Siciliano
+594,Laranja,Orange,Citrus sinensis,Laranja Bahia
+595,Laranja,Orange,Citrus sinensis,Laranja Lima
+596,Maca,Apple,Malus domestica,Maca Argentina
+597,Laranja,Orange,Citrus sinensis,Laranja Lima
+598,Cachorro,Dog,Canis lupus familiaris,Cachorro Golden
+599,Maca,Apple,Malus domestica,Maca Argentina
+600,Laranja,Orange,Citrus sinensis,Laranja Lima
+601,Laranja,Orange,Citrus sinensis,Laranja Lima
+602,Limao,Lime,Citrus aurantifolia,Limao Siciliano
+603,Laranja,Orange,Citrus sinensis,Laranja Bahia
+604,Laranja,Orange,Citrus sinensis,Laranja Pera
+605,Limao,Lime,Citrus aurantifolia,Limao Galego
+606,Maca,Apple,Malus domestica,Maca Gala
+607,Limao,Lime,Citrus aurantifolia,Limao Siciliano
+608,Laranja,Orange,Citrus sinensis,Laranja Lima
+609,Laranja,Orange,Citrus sinensis,Laranja Lima
+610,Laranja,Orange,Citrus sinensis,Laranja Pera
+611,Gato,Cat,Felis catus,Gato Persa
+612,Laranja,Orange,Citrus sinensis,Laranja Pera
+613,Cachorro,Dog,Canis lupus familiaris,Cachorro Labrador
+614,Cachorro,Dog,Canis lupus familiaris,Cachorro Poodle
+615,Laranja,Orange,Citrus sinensis,Laranja Pera
+616,Cachorro,Dog,Canis lupus familiaris,Cachorro Pastor
+617,Banana,Banana,Musa acuminata,Banana Nanica
+618,Cachorro,Dog,Canis lupus familiaris,Cachorro Pastor
+619,Gato,Cat,Felis catus,Gato Maine Coon
+620,Gato,Cat,Felis catus,Gato Maine Coon
+621,Banana,Banana,Musa acuminata,Banana Prata
+622,Gato,Cat,Felis catus,Gato Maine Coon
+623,Maca,Apple,Malus domestica,Maca Verde
+624,Limao,Lime,Citrus aurantifolia,Limao Tahiti
+625,Cachorro,Dog,Canis lupus familiaris,Cachorro Pastor
+626,Gato,Cat,Felis catus,Gato Siames
+627,Maca,Apple,Malus domestica,Maca Verde
+628,Laranja,Orange,Citrus sinensis,Laranja Lima
+629,Limao,Lime,Citrus aurantifolia,Limao Tahiti
+630,Banana,Banana,Musa acuminata,Banana Nanica
+631,Cachorro,Dog,Canis lupus familiaris,Cachorro Pastor
+632,Cachorro,Dog,Canis lupus familiaris,Cachorro Pastor
+633,Banana,Banana,Musa acuminata,Banana Maca
+634,Limao,Lime,Citrus aurantifolia,Limao Galego
+635,Gato,Cat,Felis catus,Gato Persa
+636,Maca,Apple,Malus domestica,Maca Argentina
+637,Maca,Apple,Malus domestica,Maca Gala
+638,Banana,Banana,Musa acuminata,Banana Ouro
+639,Cachorro,Dog,Canis lupus familiaris,Cachorro Pastor
+640,Maca,Apple,Malus domestica,Maca Argentina
+641,Maca,Apple,Malus domestica,Maca Verde
+642,Cachorro,Dog,Canis lupus familiaris,Cachorro Labrador
+643,Limao,Lime,Citrus aurantifolia,Limao Galego
+644,Gato,Cat,Felis catus,Gato Maine Coon
+645,Gato,Cat,Felis catus,Gato Persa
+646,Cachorro,Dog,Canis lupus familiaris,Cachorro Poodle
+647,Gato,Cat,Felis catus,Gato Persa
+648,Maca,Apple,Malus domestica,Maca Gala
+649,Limao,Lime,Citrus aurantifolia,Limao Tahiti
+650,Cachorro,Dog,Canis lupus familiaris,Cachorro Pastor
+651,Cachorro,Dog,Canis lupus familiaris,Cachorro Golden
+652,Gato,Cat,Felis catus,Gato Siames
+653,Gato,Cat,Felis catus,Gato Persa
+654,Gato,Cat,Felis catus,Gato Persa
+655,Gato,Cat,Felis catus,Gato Persa
+656,Maca,Apple,Malus domestica,Maca Gala
+657,Maca,Apple,Malus domestica,Maca Fuji
+658,Laranja,Orange,Citrus sinensis,Laranja Bahia
+659,Maca,Apple,Malus domestica,Maca Fuji
+660,Banana,Banana,Musa acuminata,Banana Nanica
+661,Limao,Lime,Citrus aurantifolia,Limao Galego
+662,Laranja,Orange,Citrus sinensis,Laranja Lima
+663,Gato,Cat,Felis catus,Gato Maine Coon
+664,Cachorro,Dog,Canis lupus familiaris,Cachorro Poodle
+665,Cachorro,Dog,Canis lupus familiaris,Cachorro Golden
+666,Limao,Lime,Citrus aurantifolia,Limao Siciliano
+667,Maca,Apple,Malus domestica,Maca Argentina
+668,Cachorro,Dog,Canis lupus familiaris,Cachorro Poodle
+669,Laranja,Orange,Citrus sinensis,Laranja Pera
+670,Gato,Cat,Felis catus,Gato Persa
+671,Banana,Banana,Musa acuminata,Banana Ouro
+672,Limao,Lime,Citrus aurantifolia,Limao Tahiti
+673,Laranja,Orange,Citrus sinensis,Laranja Pera
+674,Gato,Cat,Felis catus,Gato Persa
+675,Cachorro,Dog,Canis lupus familiaris,Cachorro Pastor
+676,Maca,Apple,Malus domestica,Maca Argentina
+677,Laranja,Orange,Citrus sinensis,Laranja Pera
+678,Maca,Apple,Malus domestica,Maca Argentina
+679,Maca,Apple,Malus domestica,Maca Gala
+680,Gato,Cat,Felis catus,Gato Maine Coon
+681,Cachorro,Dog,Canis lupus familiaris,Cachorro Labrador
+682,Maca,Apple,Malus domestica,Maca Verde
+683,Banana,Banana,Musa acuminata,Banana Nanica
+684,Cachorro,Dog,Canis lupus familiaris,Cachorro Golden
+685,Maca,Apple,Malus domestica,Maca Gala
+686,Cachorro,Dog,Canis lupus familiaris,Cachorro Golden
+687,Banana,Banana,Musa acuminata,Banana Maca
+688,Banana,Banana,Musa acuminata,Banana Prata
+689,Laranja,Orange,Citrus sinensis,Laranja Pera
+690,Banana,Banana,Musa acuminata,Banana Maca
+691,Banana,Banana,Musa acuminata,Banana Prata
+692,Gato,Cat,Felis catus,Gato Siames
+693,Banana,Banana,Musa acuminata,Banana Prata
+694,Laranja,Orange,Citrus sinensis,Laranja Pera
+695,Cachorro,Dog,Canis lupus familiaris,Cachorro Pastor
+696,Maca,Apple,Malus domestica,Maca Gala
+697,Laranja,Orange,Citrus sinensis,Laranja Pera
+698,Banana,Banana,Musa acuminata,Banana Ouro
+699,Cachorro,Dog,Canis lupus familiaris,Cachorro Labrador
+700,Gato,Cat,Felis catus,Gato Siames
+701,Limao,Lime,Citrus aurantifolia,Limao Galego
+702,Laranja,Orange,Citrus sinensis,Laranja Lima
+703,Cachorro,Dog,Canis lupus familiaris,Cachorro Labrador
+704,Limao,Lime,Citrus aurantifolia,Limao Siciliano
+705,Banana,Banana,Musa acuminata,Banana Prata
+706,Gato,Cat,Felis catus,Gato Maine Coon
+707,Cachorro,Dog,Canis lupus familiaris,Cachorro Pastor
+708,Limao,Lime,Citrus aurantifolia,Limao Siciliano
+709,Maca,Apple,Malus domestica,Maca Fuji
+710,Limao,Lime,Citrus aurantifolia,Limao Galego
+711,Limao,Lime,Citrus aurantifolia,Limao Siciliano
+712,Maca,Apple,Malus domestica,Maca Argentina
+713,Gato,Cat,Felis catus,Gato Persa
+714,Maca,Apple,Malus domestica,Maca Fuji
+715,Laranja,Orange,Citrus sinensis,Laranja Lima
+716,Banana,Banana,Musa acuminata,Banana Prata
+717,Banana,Banana,Musa acuminata,Banana Maca
+718,Cachorro,Dog,Canis lupus familiaris,Cachorro Pastor
+719,Limao,Lime,Citrus aurantifolia,Limao Siciliano
+720,Cachorro,Dog,Canis lupus familiaris,Cachorro Pastor
+721,Limao,Lime,Citrus aurantifolia,Limao Siciliano
+722,Cachorro,Dog,Canis lupus familiaris,Cachorro Poodle
+723,Maca,Apple,Malus domestica,Maca Fuji
+724,Gato,Cat,Felis catus,Gato Maine Coon
+725,Cachorro,Dog,Canis lupus familiaris,Cachorro Golden
+726,Limao,Lime,Citrus aurantifolia,Limao Galego
+727,Banana,Banana,Musa acuminata,Banana Ouro
+728,Laranja,Orange,Citrus sinensis,Laranja Bahia
+729,Limao,Lime,Citrus aurantifolia,Limao Galego
+730,Gato,Cat,Felis catus,Gato Siames
+731,Laranja,Orange,Citrus sinensis,Laranja Bahia
+732,Laranja,Orange,Citrus sinensis,Laranja Lima
+733,Laranja,Orange,Citrus sinensis,Laranja Bahia
+734,Banana,Banana,Musa acuminata,Banana Ouro
+735,Maca,Apple,Malus domestica,Maca Fuji
+736,Maca,Apple,Malus domestica,Maca Fuji
+737,Limao,Lime,Citrus aurantifolia,Limao Tahiti
+738,Gato,Cat,Felis catus,Gato Maine Coon
+739,Laranja,Orange,Citrus sinensis,Laranja Pera
+740,Cachorro,Dog,Canis lupus familiaris,Cachorro Labrador
+741,Cachorro,Dog,Canis lupus familiaris,Cachorro Pastor
+742,Gato,Cat,Felis catus,Gato Siames
+743,Limao,Lime,Citrus aurantifolia,Limao Galego
+744,Gato,Cat,Felis catus,Gato Persa
+745,Gato,Cat,Felis catus,Gato Siames
+746,Laranja,Orange,Citrus sinensis,Laranja Lima
+747,Laranja,Orange,Citrus sinensis,Laranja Bahia
+748,Maca,Apple,Malus domestica,Maca Gala
+749,Banana,Banana,Musa acuminata,Banana Ouro
+750,Banana,Banana,Musa acuminata,Banana Prata
+751,Laranja,Orange,Citrus sinensis,Laranja Lima
+752,Laranja,Orange,Citrus sinensis,Laranja Pera
+753,Laranja,Orange,Citrus sinensis,Laranja Lima
+754,Banana,Banana,Musa acuminata,Banana Ouro
+755,Cachorro,Dog,Canis lupus familiaris,Cachorro Labrador
+756,Cachorro,Dog,Canis lupus familiaris,Cachorro Pastor
+757,Maca,Apple,Malus domestica,Maca Gala
+758,Laranja,Orange,Citrus sinensis,Laranja Lima
+759,Laranja,Orange,Citrus sinensis,Laranja Bahia
+760,Laranja,Orange,Citrus sinensis,Laranja Pera
+761,Banana,Banana,Musa acuminata,Banana Nanica
+762,Cachorro,Dog,Canis lupus familiaris,Cachorro Poodle
+763,Maca,Apple,Malus domestica,Maca Gala
+764,Gato,Cat,Felis catus,Gato Maine Coon
+765,Maca,Apple,Malus domestica,Maca Fuji
+766,Gato,Cat,Felis catus,Gato Maine Coon
+767,Banana,Banana,Musa acuminata,Banana Ouro
+768,Limao,Lime,Citrus aurantifolia,Limao Galego
+769,Laranja,Orange,Citrus sinensis,Laranja Pera
+770,Laranja,Orange,Citrus sinensis,Laranja Bahia
+771,Gato,Cat,Felis catus,Gato Persa
+772,Cachorro,Dog,Canis lupus familiaris,Cachorro Labrador
+773,Maca,Apple,Malus domestica,Maca Gala
+774,Banana,Banana,Musa acuminata,Banana Prata
+775,Gato,Cat,Felis catus,Gato Siames
+776,Laranja,Orange,Citrus sinensis,Laranja Bahia
+777,Gato,Cat,Felis catus,Gato Persa
+778,Limao,Lime,Citrus aurantifolia,Limao Siciliano
+779,Limao,Lime,Citrus aurantifolia,Limao Galego
+780,Laranja,Orange,Citrus sinensis,Laranja Pera
+781,Cachorro,Dog,Canis lupus familiaris,Cachorro Labrador
+782,Laranja,Orange,Citrus sinensis,Laranja Bahia
+783,Maca,Apple,Malus domestica,Maca Verde
+784,Gato,Cat,Felis catus,Gato Maine Coon
+785,Cachorro,Dog,Canis lupus familiaris,Cachorro Poodle
+786,Cachorro,Dog,Canis lupus familiaris,Cachorro Pastor
+787,Maca,Apple,Malus domestica,Maca Gala
+788,Limao,Lime,Citrus aurantifolia,Limao Siciliano
+789,Maca,Apple,Malus domestica,Maca Fuji
+790,Banana,Banana,Musa acuminata,Banana Maca
+791,Banana,Banana,Musa acuminata,Banana Nanica
+792,Laranja,Orange,Citrus sinensis,Laranja Bahia
+793,Laranja,Orange,Citrus sinensis,Laranja Pera
+794,Maca,Apple,Malus domestica,Maca Argentina
+795,Gato,Cat,Felis catus,Gato Persa
+796,Banana,Banana,Musa acuminata,Banana Nanica
+797,Limao,Lime,Citrus aurantifolia,Limao Siciliano
+798,Gato,Cat,Felis catus,Gato Siames
+799,Cachorro,Dog,Canis lupus familiaris,Cachorro Pastor
+800,Maca,Apple,Malus domestica,Maca Argentina
+801,Gato,Cat,Felis catus,Gato Siames
+802,Limao,Lime,Citrus aurantifolia,Limao Tahiti
+803,Limao,Lime,Citrus aurantifolia,Limao Tahiti
+804,Laranja,Orange,Citrus sinensis,Laranja Lima
+805,Limao,Lime,Citrus aurantifolia,Limao Siciliano
+806,Limao,Lime,Citrus aurantifolia,Limao Siciliano
+807,Gato,Cat,Felis catus,Gato Persa
+808,Laranja,Orange,Citrus sinensis,Laranja Pera
+809,Limao,Lime,Citrus aurantifolia,Limao Tahiti
+810,Laranja,Orange,Citrus sinensis,Laranja Pera
+811,Cachorro,Dog,Canis lupus familiaris,Cachorro Poodle
+812,Gato,Cat,Felis catus,Gato Persa
+813,Maca,Apple,Malus domestica,Maca Argentina
+814,Maca,Apple,Malus domestica,Maca Gala
+815,Limao,Lime,Citrus aurantifolia,Limao Siciliano
+816,Limao,Lime,Citrus aurantifolia,Limao Siciliano
+817,Maca,Apple,Malus domestica,Maca Argentina
+818,Laranja,Orange,Citrus sinensis,Laranja Lima
+819,Laranja,Orange,Citrus sinensis,Laranja Pera
+820,Laranja,Orange,Citrus sinensis,Laranja Pera
+821,Maca,Apple,Malus domestica,Maca Fuji
+822,Cachorro,Dog,Canis lupus familiaris,Cachorro Golden
+823,Laranja,Orange,Citrus sinensis,Laranja Bahia
+824,Gato,Cat,Felis catus,Gato Maine Coon
+825,Banana,Banana,Musa acuminata,Banana Nanica
+826,Maca,Apple,Malus domestica,Maca Gala
+827,Laranja,Orange,Citrus sinensis,Laranja Pera
+828,Banana,Banana,Musa acuminata,Banana Nanica
+829,Gato,Cat,Felis catus,Gato Siames
+830,Banana,Banana,Musa acuminata,Banana Ouro
+831,Limao,Lime,Citrus aurantifolia,Limao Siciliano
+832,Cachorro,Dog,Canis lupus familiaris,Cachorro Poodle
+833,Gato,Cat,Felis catus,Gato Maine Coon
+834,Gato,Cat,Felis catus,Gato Maine Coon
+835,Cachorro,Dog,Canis lupus familiaris,Cachorro Pastor
+836,Gato,Cat,Felis catus,Gato Persa
+837,Banana,Banana,Musa acuminata,Banana Ouro
+838,Maca,Apple,Malus domestica,Maca Argentina
+839,Limao,Lime,Citrus aurantifolia,Limao Siciliano
+840,Laranja,Orange,Citrus sinensis,Laranja Bahia
+841,Cachorro,Dog,Canis lupus familiaris,Cachorro Labrador
+842,Laranja,Orange,Citrus sinensis,Laranja Lima
+843,Maca,Apple,Malus domestica,Maca Verde
+844,Limao,Lime,Citrus aurantifolia,Limao Galego
+845,Maca,Apple,Malus domestica,Maca Fuji
+846,Laranja,Orange,Citrus sinensis,Laranja Bahia
+847,Maca,Apple,Malus domestica,Maca Fuji
+848,Cachorro,Dog,Canis lupus familiaris,Cachorro Poodle
+849,Limao,Lime,Citrus aurantifolia,Limao Siciliano
+850,Cachorro,Dog,Canis lupus familiaris,Cachorro Labrador
+851,Limao,Lime,Citrus aurantifolia,Limao Siciliano
+852,Gato,Cat,Felis catus,Gato Siames
+853,Laranja,Orange,Citrus sinensis,Laranja Lima
+854,Limao,Lime,Citrus aurantifolia,Limao Siciliano
+855,Banana,Banana,Musa acuminata,Banana Prata
+856,Limao,Lime,Citrus aurantifolia,Limao Tahiti
+857,Laranja,Orange,Citrus sinensis,Laranja Lima
+858,Maca,Apple,Malus domestica,Maca Gala
+859,Maca,Apple,Malus domestica,Maca Gala
+860,Gato,Cat,Felis catus,Gato Persa
+861,Limao,Lime,Citrus aurantifolia,Limao Siciliano
+862,Cachorro,Dog,Canis lupus familiaris,Cachorro Golden
+863,Laranja,Orange,Citrus sinensis,Laranja Bahia
+864,Laranja,Orange,Citrus sinensis,Laranja Bahia
+865,Limao,Lime,Citrus aurantifolia,Limao Galego
+866,Gato,Cat,Felis catus,Gato Maine Coon
+867,Maca,Apple,Malus domestica,Maca Verde
+868,Maca,Apple,Malus domestica,Maca Verde
+869,Maca,Apple,Malus domestica,Maca Argentina
+870,Laranja,Orange,Citrus sinensis,Laranja Bahia
+871,Gato,Cat,Felis catus,Gato Maine Coon
+872,Cachorro,Dog,Canis lupus familiaris,Cachorro Golden
+873,Laranja,Orange,Citrus sinensis,Laranja Pera
+874,Cachorro,Dog,Canis lupus familiaris,Cachorro Golden
+875,Laranja,Orange,Citrus sinensis,Laranja Bahia
+876,Gato,Cat,Felis catus,Gato Maine Coon
+877,Gato,Cat,Felis catus,Gato Persa
+878,Banana,Banana,Musa acuminata,Banana Prata
+879,Laranja,Orange,Citrus sinensis,Laranja Lima
+880,Limao,Lime,Citrus aurantifolia,Limao Siciliano
+881,Laranja,Orange,Citrus sinensis,Laranja Pera
+882,Gato,Cat,Felis catus,Gato Maine Coon
+883,Gato,Cat,Felis catus,Gato Maine Coon
+884,Cachorro,Dog,Canis lupus familiaris,Cachorro Labrador
+885,Gato,Cat,Felis catus,Gato Maine Coon
+886,Limao,Lime,Citrus aurantifolia,Limao Siciliano
+887,Laranja,Orange,Citrus sinensis,Laranja Pera
+888,Laranja,Orange,Citrus sinensis,Laranja Bahia
+889,Banana,Banana,Musa acuminata,Banana Nanica
+890,Laranja,Orange,Citrus sinensis,Laranja Bahia
+891,Banana,Banana,Musa acuminata,Banana Nanica
+892,Banana,Banana,Musa acuminata,Banana Nanica
+893,Maca,Apple,Malus domestica,Maca Verde
+894,Maca,Apple,Malus domestica,Maca Fuji
+895,Gato,Cat,Felis catus,Gato Persa
+896,Cachorro,Dog,Canis lupus familiaris,Cachorro Golden
+897,Cachorro,Dog,Canis lupus familiaris,Cachorro Poodle
+898,Banana,Banana,Musa acuminata,Banana Nanica
+899,Banana,Banana,Musa acuminata,Banana Nanica
+900,Gato,Cat,Felis catus,Gato Persa
+901,Maca,Apple,Malus domestica,Maca Argentina
+902,Laranja,Orange,Citrus sinensis,Laranja Lima
+903,Gato,Cat,Felis catus,Gato Siames
+904,Limao,Lime,Citrus aurantifolia,Limao Siciliano
+905,Laranja,Orange,Citrus sinensis,Laranja Lima
+906,Limao,Lime,Citrus aurantifolia,Limao Tahiti
+907,Cachorro,Dog,Canis lupus familiaris,Cachorro Golden
+908,Laranja,Orange,Citrus sinensis,Laranja Bahia
+909,Banana,Banana,Musa acuminata,Banana Maca
+910,Gato,Cat,Felis catus,Gato Maine Coon
+911,Limao,Lime,Citrus aurantifolia,Limao Galego
+912,Laranja,Orange,Citrus sinensis,Laranja Bahia
+913,Cachorro,Dog,Canis lupus familiaris,Cachorro Poodle
+914,Banana,Banana,Musa acuminata,Banana Nanica
+915,Cachorro,Dog,Canis lupus familiaris,Cachorro Golden
+916,Laranja,Orange,Citrus sinensis,Laranja Pera
+917,Gato,Cat,Felis catus,Gato Persa
+918,Laranja,Orange,Citrus sinensis,Laranja Lima
+919,Maca,Apple,Malus domestica,Maca Fuji
+920,Laranja,Orange,Citrus sinensis,Laranja Pera
+921,Banana,Banana,Musa acuminata,Banana Maca
+922,Limao,Lime,Citrus aurantifolia,Limao Siciliano
+923,Banana,Banana,Musa acuminata,Banana Ouro
+924,Maca,Apple,Malus domestica,Maca Gala
+925,Limao,Lime,Citrus aurantifolia,Limao Galego
+926,Maca,Apple,Malus domestica,Maca Argentina
+927,Maca,Apple,Malus domestica,Maca Argentina
+928,Cachorro,Dog,Canis lupus familiaris,Cachorro Pastor
+929,Banana,Banana,Musa acuminata,Banana Ouro
+930,Maca,Apple,Malus domestica,Maca Verde
+931,Banana,Banana,Musa acuminata,Banana Prata
+932,Laranja,Orange,Citrus sinensis,Laranja Pera
+933,Gato,Cat,Felis catus,Gato Maine Coon
+934,Laranja,Orange,Citrus sinensis,Laranja Pera
+935,Banana,Banana,Musa acuminata,Banana Prata
+936,Laranja,Orange,Citrus sinensis,Laranja Bahia
+937,Gato,Cat,Felis catus,Gato Siames
+938,Gato,Cat,Felis catus,Gato Persa
+939,Limao,Lime,Citrus aurantifolia,Limao Siciliano
+940,Maca,Apple,Malus domestica,Maca Fuji
+941,Maca,Apple,Malus domestica,Maca Verde
+942,Banana,Banana,Musa acuminata,Banana Nanica
+943,Cachorro,Dog,Canis lupus familiaris,Cachorro Poodle
+944,Maca,Apple,Malus domestica,Maca Verde
+945,Banana,Banana,Musa acuminata,Banana Maca
+946,Maca,Apple,Malus domestica,Maca Fuji
+947,Banana,Banana,Musa acuminata,Banana Ouro
+948,Gato,Cat,Felis catus,Gato Maine Coon
+949,Limao,Lime,Citrus aurantifolia,Limao Tahiti
+950,Maca,Apple,Malus domestica,Maca Argentina
+951,Cachorro,Dog,Canis lupus familiaris,Cachorro Labrador
+952,Gato,Cat,Felis catus,Gato Maine Coon
+953,Cachorro,Dog,Canis lupus familiaris,Cachorro Golden
+954,Gato,Cat,Felis catus,Gato Siames
+955,Laranja,Orange,Citrus sinensis,Laranja Bahia
+956,Maca,Apple,Malus domestica,Maca Verde
+957,Banana,Banana,Musa acuminata,Banana Ouro
+958,Banana,Banana,Musa acuminata,Banana Prata
+959,Cachorro,Dog,Canis lupus familiaris,Cachorro Pastor
+960,Maca,Apple,Malus domestica,Maca Fuji
+961,Limao,Lime,Citrus aurantifolia,Limao Galego
+962,Maca,Apple,Malus domestica,Maca Argentina
+963,Laranja,Orange,Citrus sinensis,Laranja Bahia
+964,Gato,Cat,Felis catus,Gato Siames
+965,Laranja,Orange,Citrus sinensis,Laranja Pera
+966,Laranja,Orange,Citrus sinensis,Laranja Pera
+967,Gato,Cat,Felis catus,Gato Maine Coon
+968,Gato,Cat,Felis catus,Gato Siames
+969,Cachorro,Dog,Canis lupus familiaris,Cachorro Pastor
+970,Banana,Banana,Musa acuminata,Banana Prata
+971,Laranja,Orange,Citrus sinensis,Laranja Lima
+972,Laranja,Orange,Citrus sinensis,Laranja Lima
+973,Banana,Banana,Musa acuminata,Banana Ouro
+974,Gato,Cat,Felis catus,Gato Persa
+975,Gato,Cat,Felis catus,Gato Siames
+976,Banana,Banana,Musa acuminata,Banana Prata
+977,Gato,Cat,Felis catus,Gato Persa
+978,Maca,Apple,Malus domestica,Maca Verde
+979,Banana,Banana,Musa acuminata,Banana Prata
+980,Banana,Banana,Musa acuminata,Banana Prata
+981,Laranja,Orange,Citrus sinensis,Laranja Bahia
+982,Cachorro,Dog,Canis lupus familiaris,Cachorro Poodle
+983,Cachorro,Dog,Canis lupus familiaris,Cachorro Poodle
+984,Laranja,Orange,Citrus sinensis,Laranja Pera
+985,Gato,Cat,Felis catus,Gato Siames
+986,Laranja,Orange,Citrus sinensis,Laranja Bahia
+987,Maca,Apple,Malus domestica,Maca Verde
+988,Laranja,Orange,Citrus sinensis,Laranja Pera
+989,Laranja,Orange,Citrus sinensis,Laranja Bahia
+990,Limao,Lime,Citrus aurantifolia,Limao Siciliano
+991,Limao,Lime,Citrus aurantifolia,Limao Galego
+992,Laranja,Orange,Citrus sinensis,Laranja Pera
+993,Limao,Lime,Citrus aurantifolia,Limao Siciliano
+994,Limao,Lime,Citrus aurantifolia,Limao Galego
+995,Cachorro,Dog,Canis lupus familiaris,Cachorro Pastor
+996,Maca,Apple,Malus domestica,Maca Argentina
+997,Maca,Apple,Malus domestica,Maca Argentina
+998,Cachorro,Dog,Canis lupus familiaris,Cachorro Golden
+999,Cachorro,Dog,Canis lupus familiaris,Cachorro Pastor
+1000,Laranja,Orange,Citrus sinensis,Laranja Pera

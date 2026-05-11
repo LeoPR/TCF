@@ -1,0 +1,26 @@
+id,comum_pt,comum_en,cientifico_binomial,variedade,com_variedade_pt,misto_pt_cientifico,classe
+1,Maçã,Apple,Malus domestica,Fuji,Maçã Fuji,Maçã (Malus domestica),Fruta
+2,Maçã,Apple,Malus domestica,Gala,Maçã Gala,Apple (Malus domestica),Fruta
+3,Maçã,Apple,Malus domestica,Verde,Maçã Verde,Maçã,Fruta
+4,Banana,Banana,Musa acuminata,Prata,Banana Prata,Banana (Musa),Fruta
+5,Banana,Banana,Musa balbisiana,Nanica,Banana Nanica,Banana Nanica,Fruta
+6,Banana,Banana,Musa acuminata,Maçã,Banana Maçã,Banana,Fruta
+7,Laranja,Orange,Citrus sinensis,Pera,Laranja Pera,Laranja (Citrus sinensis),Fruta
+8,Laranja,Orange,Citrus sinensis,Bahia,Laranja Bahia,Citrus sinensis,Fruta
+9,Limão,Lime,Citrus aurantifolia,Tahiti,Limão Tahiti,Limão Tahiti (Citrus),Fruta
+10,Maçã,Apple,Malus domestica,Fuji,Maçã Fuji,Maçã Fuji,Fruta
+11,Cachorro,Dog,Canis lupus familiaris,Labrador,Cachorro Labrador,Cachorro (Canis lupus),Mamífero
+12,Cachorro,Dog,Canis lupus familiaris,Golden Retriever,Cachorro Golden,Golden Retriever,Mamífero
+13,Gato,Cat,Felis catus,Siamês,Gato Siamês,Gato Siamês (Felis catus),Mamífero
+14,Gato,Cat,Felis catus,Persa,Gato Persa,Gato Persa,Mamífero
+15,Cavalo,Horse,Equus ferus caballus,Mangalarga,Cavalo Mangalarga,Cavalo (Equus),Mamífero
+16,Galinha,Chicken,Gallus gallus domesticus,Caipira,Galinha Caipira,Galinha (Gallus),Ave
+17,Pato,Duck,Anas platyrhynchos,,Pato,Pato (Anas),Ave
+18,Maçã,Apple,Malus domestica,Fuji,Maçã Fuji,Maçã Fuji,Fruta
+19,maca,apple,malus domestica,fuji,maca fuji,maca fuji,fruta
+20,MAÇÃ,APPLE,MALUS DOMESTICA,FUJI,MAÇÃ FUJI,MAÇÃ FUJI,FRUTA
+21,Maçã ,Apple ,Malus domestica ,Fuji,Maçã  Fuji,,Fruta
+22,desconhecido,unknown,,,,,
+23,nao informado,,,,,,
+24,,,,,,,
+25,Maçã,Apple,Malus domestica,Fuji,Maçã Fuji,Maçã (Malus domestica),Fruta

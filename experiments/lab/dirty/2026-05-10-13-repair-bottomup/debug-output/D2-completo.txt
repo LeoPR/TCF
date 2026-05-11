@@ -1,0 +1,234 @@
+================================================================================
+DATASET: D2-completo
+================================================================================
+linhas: 20  unicas: 12
+
+LOG REPAIR:
+  Strings iniciais:
+    s1: 'maria.silva@gmail.com'
+    s2: 'joao.souza@hotmail.com'
+    s3: 'maria.silva@hotmail.com'
+    s4: 'ana.lima@gmail.com'
+    s5: 'joao.souza@gmail.com'
+    s6: 'pedro.alves@yahoo.com'
+    s7: 'ana.lima@hotmail.com'
+    s8: 'joao.souza@yahoo.com'
+    s9: 'pedro.alves@gmail.com'
+    s10: 'maria.silva@yahoo.com'
+    s11: 'ana.lima@yahoo.com'
+    s12: 'pedro.alves@hotmail.com'
+  
+  ===== Iteracao 1 =====
+    top 12 candidatos (por ganho liquido):
+       gain len count  substring
+         25   8     8  'mail.com'
+         18   7     8  'ail.com'
+         18   7     8  'mail.co'
+         17  12     4  '@hotmail.com'
+         14  11     4  '@hotmail.co'
+         14  11     4  'hotmail.com'
+         11  10     4  '@gmail.com'
+         11  10     4  '@hotmail.c'
+         11  10     4  '@yahoo.com'
+         11  10     4  'hotmail.co'
+         11  10     4  'otmail.com'
+         11   6     8  'ail.co'
+    ESCOLHIDO: 'mail.com' (gain=25) -> S1
+    strings apos substituicao:
+      s1: [L('maria.silva@g') + R1]
+      s2: [L('joao.souza@hot') + R1]
+      s3: [L('maria.silva@hot') + R1]
+      s4: [L('ana.lima@g') + R1]
+      s5: [L('joao.souza@g') + R1]
+      s6: [L('pedro.alves@yahoo.com')]
+      s7: [L('ana.lima@hot') + R1]
+      s8: [L('joao.souza@yahoo.com')]
+      s9: [L('pedro.alves@g') + R1]
+      s10: [L('maria.silva@yahoo.com')]
+      s11: [L('ana.lima@yahoo.com')]
+      s12: [L('pedro.alves@hot') + R1]
+  
+  ===== Iteracao 2 =====
+    top 12 candidatos (por ganho liquido):
+       gain len count  substring
+         11  10     4  '@yahoo.com'
+          8  12     3  'maria.silva@'
+          8  12     3  'pedro.alves@'
+          8   9     4  '@yahoo.co'
+          8   9     4  'yahoo.com'
+          6  11     3  'a@yahoo.com'
+          6  11     3  'aria.silva@'
+          6  11     3  'edro.alves@'
+          6  11     3  'joao.souza@'
+          6  11     3  'maria.silva'
+          6  11     3  'pedro.alves'
+          5   8     4  '@yahoo.c'
+    ESCOLHIDO: '@yahoo.com' (gain=11) -> S2
+    strings apos substituicao:
+      s1: [L('maria.silva@g') + R1]
+      s2: [L('joao.souza@hot') + R1]
+      s3: [L('maria.silva@hot') + R1]
+      s4: [L('ana.lima@g') + R1]
+      s5: [L('joao.souza@g') + R1]
+      s6: [L('pedro.alves') + R2]
+      s7: [L('ana.lima@hot') + R1]
+      s8: [L('joao.souza') + R2]
+      s9: [L('pedro.alves@g') + R1]
+      s10: [L('maria.silva') + R2]
+      s11: [L('ana.lima') + R2]
+      s12: [L('pedro.alves@hot') + R1]
+  
+  ===== Iteracao 3 =====
+    top 12 candidatos (por ganho liquido):
+       gain len count  substring
+          6  11     3  'maria.silva'
+          6  11     3  'pedro.alves'
+          4  10     3  'aria.silva'
+          4  10     3  'edro.alves'
+          4  10     3  'joao.souza'
+          4  10     3  'maria.silv'
+          4  10     3  'pedro.alve'
+          2   9     3  'aria.silv'
+          2   9     3  'dro.alves'
+          2   9     3  'edro.alve'
+          2   9     3  'joao.souz'
+          2   9     3  'maria.sil'
+    ESCOLHIDO: 'maria.silva' (gain=6) -> S3
+    strings apos substituicao:
+      s1: [R3 + L('@g') + R1]
+      s2: [L('joao.souza@hot') + R1]
+      s3: [R3 + L('@hot') + R1]
+      s4: [L('ana.lima@g') + R1]
+      s5: [L('joao.souza@g') + R1]
+      s6: [L('pedro.alves') + R2]
+      s7: [L('ana.lima@hot') + R1]
+      s8: [L('joao.souza') + R2]
+      s9: [L('pedro.alves@g') + R1]
+      s10: [R3 + R2]
+      s11: [L('ana.lima') + R2]
+      s12: [L('pedro.alves@hot') + R1]
+  
+  ===== Iteracao 4 =====
+    top 12 candidatos (por ganho liquido):
+       gain len count  substring
+          6  11     3  'pedro.alves'
+          4  10     3  'edro.alves'
+          4  10     3  'joao.souza'
+          4  10     3  'pedro.alve'
+          2   9     3  'dro.alves'
+          2   9     3  'edro.alve'
+          2   9     3  'joao.souz'
+          2   9     3  'oao.souza'
+          2   9     3  'pedro.alv'
+          0   8     3  'ana.lima'
+          0   8     3  'ao.souza'
+          0   8     3  'dro.alve'
+    ESCOLHIDO: 'pedro.alves' (gain=6) -> S4
+    strings apos substituicao:
+      s1: [R3 + L('@g') + R1]
+      s2: [L('joao.souza@hot') + R1]
+      s3: [R3 + L('@hot') + R1]
+      s4: [L('ana.lima@g') + R1]
+      s5: [L('joao.souza@g') + R1]
+      s6: [R4 + R2]
+      s7: [L('ana.lima@hot') + R1]
+      s8: [L('joao.souza') + R2]
+      s9: [R4 + L('@g') + R1]
+      s10: [R3 + R2]
+      s11: [L('ana.lima') + R2]
+      s12: [R4 + L('@hot') + R1]
+  
+  ===== Iteracao 5 =====
+    top 12 candidatos (por ganho liquido):
+       gain len count  substring
+          4  10     3  'joao.souza'
+          2   9     3  'joao.souz'
+          2   9     3  'oao.souza'
+          0   8     3  'ana.lima'
+          0   8     3  'ao.souza'
+          0   8     3  'joao.sou'
+          0   8     3  'oao.souz'
+         -2  11     2  'joao.souza@'
+         -2   7     3  'ana.lim'
+         -2   7     3  'ao.souz'
+         -2   7     3  'joao.so'
+         -2   7     3  'na.lima'
+    ESCOLHIDO: 'joao.souza' (gain=4) -> S5
+    strings apos substituicao:
+      s1: [R3 + L('@g') + R1]
+      s2: [R5 + L('@hot') + R1]
+      s3: [R3 + L('@hot') + R1]
+      s4: [L('ana.lima@g') + R1]
+      s5: [R5 + L('@g') + R1]
+      s6: [R4 + R2]
+      s7: [L('ana.lima@hot') + R1]
+      s8: [R5 + R2]
+      s9: [R4 + L('@g') + R1]
+      s10: [R3 + R2]
+      s11: [L('ana.lima') + R2]
+      s12: [R4 + L('@hot') + R1]
+  
+  ===== Iteracao 6 =====
+    top 12 candidatos (por ganho liquido):
+       gain len count  substring
+          0   8     3  'ana.lima'
+         -2   7     3  'ana.lim'
+         -2   7     3  'na.lima'
+         -4   9     2  'ana.lima@'
+         -4   6     3  'a.lima'
+         -4   6     3  'ana.li'
+         -4   6     3  'na.lim'
+         -5   8     2  'na.lima@'
+         -6   7     2  'a.lima@'
+         -6   5     3  '.lima'
+         -6   5     3  'a.lim'
+         -6   5     3  'ana.l'
+    melhor candidato gain=0 < min=1. STOP.
+
+SIMBOLOS FINAIS:
+  S1 = 'mail.com'
+  S2 = '@yahoo.com'
+  S3 = 'maria.silva'
+  S4 = 'pedro.alves'
+  S5 = 'joao.souza'
+
+STRINGS UNICAS APOS REPAIR:
+  'maria.silva@gmail.com'                  -> [R3 + L('@g') + R1]
+  'joao.souza@hotmail.com'                 -> [R5 + L('@hot') + R1]
+  'maria.silva@hotmail.com'                -> [R3 + L('@hot') + R1]
+  'ana.lima@gmail.com'                     -> [L('ana.lima@g') + R1]
+  'joao.souza@gmail.com'                   -> [R5 + L('@g') + R1]
+  'pedro.alves@yahoo.com'                  -> [R4 + R2]
+  'ana.lima@hotmail.com'                   -> [L('ana.lima@hot') + R1]
+  'joao.souza@yahoo.com'                   -> [R5 + R2]
+  'pedro.alves@gmail.com'                  -> [R4 + L('@g') + R1]
+  'maria.silva@yahoo.com'                  -> [R3 + R2]
+  'ana.lima@yahoo.com'                     -> [L('ana.lima') + R2]
+  'pedro.alves@hotmail.com'                -> [R4 + L('@hot') + R1]
+
+TCF (462 bytes):
+  <body>
+    no1: (no2="maria.silva") + "@g" + (no3="mail.com")
+    no4: (no5="joao.souza") + "@hot" + no3
+    no6: no2 + "@hot" + no3
+    no7: "ana.lima@g" + no3
+    no8: no5 + "@g" + no3
+    no9: (no10="pedro.alves") + (no11="@yahoo.com")
+    ref:no1
+    no12: "ana.lima@hot" + no3
+    no13: no5 + no11
+    no14: no10 + "@g" + no3
+    no15: no2 + no11
+    ref:no7
+    ref:no4
+    ref:no9
+    ref:no1
+    no16: "ana.lima" + no11
+    ref:no8
+    no17: no10 + "@hot" + no3
+    ref:no6
+    ref:no7
+  </body>
+
+Decomposicao: macro=15 ref=349 dados=98 (ref+dados=447)
+Roundtrip: OK

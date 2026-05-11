@@ -1,0 +1,26 @@
+id,nome_simples,sku,com_marca_modelo,com_variante,hierarquico,internacional_pt,internacional_en
+1,Caneta,PRD-2026-00001,Bic Cristal Azul,Camiseta Azul P,Eletrônicos > TV > LED 50",iPhone 15 Pro,iPhone 15 Pro
+2,Caderno,PRD-2026-00002,Tilibra Universitário 200f,Camiseta Azul M,Eletrônicos > TV > LED 55",iPhone 15,iPhone 15
+3,Caneta,PRD-2026-00003,Bic Cristal Preta,Camiseta Azul G,Eletrônicos > TV > LED 50",Samsung Galaxy S23,Samsung Galaxy S23
+4,Lápis,PRD-2026-00004,Faber-Castell HB,Camiseta Branca P,Eletrônicos > TV > OLED 65",Samsung Galaxy A14,Samsung Galaxy A14
+5,Régua,PRD-2026-00005,Bic Cristal Vermelha,Camiseta Branca M,Eletrônicos > Celular > iPhone,Samsung Galaxy A54,Samsung Galaxy A54
+6,Caneta,PRD-2026-00006,Bic Cristal Azul,Camiseta Azul P,Eletrônicos > TV > LED 50",iPhone 15 Pro,iPhone 15 Pro
+7,Borracha,PRD-2026-00007,Faber-Castell Branca,Camiseta Verde P,Eletrônicos > Celular > Samsung,iPhone 14,iPhone 14
+8,Caneta,PRD-2026-00008,Bic Cristal Azul,Camiseta Verde M,Eletrônicos > Celular > Samsung,Samsung Galaxy S23,Samsung Galaxy S23
+9,Mochila,PRD-2026-00009,Sestini Escolar 30L,Camiseta Verde G,Roupas > Camiseta > Algodão,Notebook Dell XPS 13,Notebook Dell XPS 13
+10,Caneta,PRD-2026-00010,Bic Cristal Preta,Camiseta Preta P,Roupas > Camiseta > Algodão,Notebook Dell XPS 15,Notebook Dell XPS 15
+11,Apontador,PRD-2026-00011,Faber-Castell Plástico,Calça Jeans 38,Roupas > Calça > Jeans,Notebook Lenovo IdeaPad,Notebook Lenovo IdeaPad
+12,Caderno,PRD-2026-00012,Tilibra Universitário 100f,Calça Jeans 40,Roupas > Calça > Jeans,Notebook Lenovo ThinkPad,Notebook Lenovo ThinkPad
+13,Caneta,PRD-2026-00013,Bic Cristal Azul,Calça Jeans 42,Roupas > Calça > Jeans,Mouse Logitech MX Master,Logitech MX Master Mouse
+14,Marcador,PRD-2026-00014,Pilot V Ball Vermelho,Camisa Social P,Roupas > Camisa > Social,Mouse Logitech G Pro,Logitech G Pro Mouse
+15,Caneta,PRD-2026-00015,Bic Cristal Vermelha,Camisa Social M,Roupas > Camisa > Social,Teclado Logitech MX Keys,Logitech MX Keys Keyboard
+16,caneta,PRD-2026-00016,bic cristal azul,camiseta azul p,eletronicos > tv > led 50,iphone 15 pro,iphone 15 pro
+17,CANETA,PRD2026-00017,BIC CRISTAL AZUL,CAMISETA AZUL P,ELETRONICOS>TV>LED 50,IPHONE 15 PRO,IPHONE 15 PRO
+18,Caneta Bic,PRD-2026-00018,Bic Cristal,Camiseta - Azul - P,,iPhone15 Pro,iPhone-15-Pro
+19,Caneta  Azul,PRD-2026-00019,Bic Cristal Azul ,Camiseta Azul P  ,,iPhone 15 Pro ,iPhone 15 Pro
+20,produto teste,SKU000,marca-modelo,variante x,nivel1>nivel2,produto,product
+21,nao informado,,,,,,
+22,,,,,,,
+23,Caneta,PRD-2026-00001,Bic Cristal Azul,Camiseta Azul P,Eletrônicos > TV > LED 50",iPhone 15 Pro,iPhone 15 Pro
+24,Caderno,PRD-2026-00002,Tilibra Universitário 200f,Camiseta Azul M,Eletrônicos > TV > LED 55",iPhone 15,iPhone 15
+25,Caneta,PRD-2026-00001,Bic Cristal Azul,Camiseta Azul P,Eletrônicos > TV > LED 50",iPhone 15 Pro,iPhone 15 Pro

@@ -1,0 +1,170 @@
+================================================================================
+DATASET: D4
+================================================================================
+linhas: 20  unicas: 12
+
+LOG REPAIR:
+  Strings iniciais:
+    s1: 'https://api.example.com/v1/users/1'
+    s2: 'https://api.example.com/v1/orders/100'
+    s3: 'https://api.example.com/v1/users/2'
+    s4: 'https://api.example.com/v1/orders/101'
+    s5: 'https://api.example.com/v1/products/50'
+    s6: 'https://api.example.com/v1/users/3'
+    s7: 'https://api.example.com/v1/products/51'
+    s8: 'https://api.example.com/v1/orders/102'
+    s9: 'https://api.example.com/v1/orders/103'
+    s10: 'https://api.example.com/v1/users/4'
+    s11: 'https://api.example.com/v1/products/52'
+    s12: 'https://api.example.com/v1/orders/104'
+  
+  ===== Iteracao 1 =====
+    top 12 candidatos (por ganho liquido):
+       gain len count  substring
+        254  27    12  'https://api.example.com/v1/'
+        243  26    12  'https://api.example.com/v1'
+        243  26    12  'ttps://api.example.com/v1/'
+        232  25    12  'https://api.example.com/v'
+        232  25    12  'tps://api.example.com/v1/'
+        232  25    12  'ttps://api.example.com/v1'
+        221  24    12  'https://api.example.com/'
+        221  24    12  'ps://api.example.com/v1/'
+        221  24    12  'tps://api.example.com/v1'
+        221  24    12  'ttps://api.example.com/v'
+        210  23    12  'https://api.example.com'
+        210  23    12  'ps://api.example.com/v1'
+    ESCOLHIDO: 'https://api.example.com/v1/' (gain=254) -> S1
+    strings apos substituicao:
+      s1: [R1 + L('users/1')]
+      s2: [R1 + L('orders/100')]
+      s3: [R1 + L('users/2')]
+      s4: [R1 + L('orders/101')]
+      s5: [R1 + L('products/50')]
+      s6: [R1 + L('users/3')]
+      s7: [R1 + L('products/51')]
+      s8: [R1 + L('orders/102')]
+      s9: [R1 + L('orders/103')]
+      s10: [R1 + L('users/4')]
+      s11: [R1 + L('products/52')]
+      s12: [R1 + L('orders/104')]
+  
+  ===== Iteracao 2 =====
+    top 12 candidatos (por ganho liquido):
+       gain len count  substring
+         14   9     5  'orders/10'
+         10   8     5  'orders/1'
+         10   8     5  'rders/10'
+          6   7     5  'ders/10'
+          6   7     5  'orders/'
+          6   7     5  'rders/1'
+          4  10     3  'products/5'
+          2   9     3  'products/'
+          2   9     3  'roducts/5'
+          2   6     5  'ders/1'
+          2   6     5  'ers/10'
+          2   6     5  'orders'
+    ESCOLHIDO: 'orders/10' (gain=14) -> S2
+    strings apos substituicao:
+      s1: [R1 + L('users/1')]
+      s2: [R1 + R2 + L('0')]
+      s3: [R1 + L('users/2')]
+      s4: [R1 + R2 + L('1')]
+      s5: [R1 + L('products/50')]
+      s6: [R1 + L('users/3')]
+      s7: [R1 + L('products/51')]
+      s8: [R1 + R2 + L('2')]
+      s9: [R1 + R2 + L('3')]
+      s10: [R1 + L('users/4')]
+      s11: [R1 + L('products/52')]
+      s12: [R1 + R2 + L('4')]
+  
+  ===== Iteracao 3 =====
+    top 12 candidatos (por ganho liquido):
+       gain len count  substring
+          4  10     3  'products/5'
+          2   9     3  'products/'
+          2   9     3  'roducts/5'
+          0   8     3  'oducts/5'
+          0   8     3  'products'
+          0   8     3  'roducts/'
+         -1   6     4  'users/'
+         -2   7     3  'ducts/5'
+         -2   7     3  'oducts/'
+         -2   7     3  'product'
+         -2   7     3  'roducts'
+         -4   6     3  'ducts/'
+    ESCOLHIDO: 'products/5' (gain=4) -> S3
+    strings apos substituicao:
+      s1: [R1 + L('users/1')]
+      s2: [R1 + R2 + L('0')]
+      s3: [R1 + L('users/2')]
+      s4: [R1 + R2 + L('1')]
+      s5: [R1 + R3 + L('0')]
+      s6: [R1 + L('users/3')]
+      s7: [R1 + R3 + L('1')]
+      s8: [R1 + R2 + L('2')]
+      s9: [R1 + R2 + L('3')]
+      s10: [R1 + L('users/4')]
+      s11: [R1 + R3 + L('2')]
+      s12: [R1 + R2 + L('4')]
+  
+  ===== Iteracao 4 =====
+    top 12 candidatos (por ganho liquido):
+       gain len count  substring
+         -1   6     4  'users/'
+         -4   5     4  'sers/'
+         -4   5     4  'users'
+         -7   4     4  'ers/'
+         -7   4     4  'sers'
+         -7   4     4  'user'
+        -10   3     4  'ers'
+        -10   3     4  'rs/'
+        -10   3     4  'ser'
+        -10   3     4  'use'
+    melhor candidato gain=-1 < min=1. STOP.
+
+SIMBOLOS FINAIS:
+  S1 = 'https://api.example.com/v1/'
+  S2 = 'orders/10'
+  S3 = 'products/5'
+
+STRINGS UNICAS APOS REPAIR:
+  'https://api.example.com/v1/users/1'     -> [R1 + L('users/1')]
+  'https://api.example.com/v1/orders/100'  -> [R1 + R2 + L('0')]
+  'https://api.example.com/v1/users/2'     -> [R1 + L('users/2')]
+  'https://api.example.com/v1/orders/101'  -> [R1 + R2 + L('1')]
+  'https://api.example.com/v1/products/50' -> [R1 + R3 + L('0')]
+  'https://api.example.com/v1/users/3'     -> [R1 + L('users/3')]
+  'https://api.example.com/v1/products/51' -> [R1 + R3 + L('1')]
+  'https://api.example.com/v1/orders/102'  -> [R1 + R2 + L('2')]
+  'https://api.example.com/v1/orders/103'  -> [R1 + R2 + L('3')]
+  'https://api.example.com/v1/users/4'     -> [R1 + L('users/4')]
+  'https://api.example.com/v1/products/52' -> [R1 + R3 + L('2')]
+  'https://api.example.com/v1/orders/104'  -> [R1 + R2 + L('4')]
+
+TCF (439 bytes):
+  <body>
+    no1: (no2="https://api.example.com/v1/") + "users/1"
+    no3: no2 + (no4="orders/10") + "0"
+    no5: no2 + "users/2"
+    no6: no2 + no4 + "1"
+    no7: no2 + (no8="products/5") + "0"
+    ref:no1
+    ref:no3
+    no9: no2 + "users/3"
+    no10: no2 + no8 + "1"
+    no11: no2 + no4 + "2"
+    ref:no5
+    ref:no7
+    no12: no2 + no4 + "3"
+    no13: no2 + "users/4"
+    no14: no2 + no8 + "2"
+    ref:no3
+    ref:no1
+    ref:no10
+    no15: no2 + no4 + "4"
+    ref:no9
+  </body>
+
+Decomposicao: macro=15 ref=342 dados=82 (ref+dados=424)
+Roundtrip: OK
