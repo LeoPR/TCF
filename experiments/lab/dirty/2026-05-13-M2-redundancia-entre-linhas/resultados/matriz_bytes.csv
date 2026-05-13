@@ -1,0 +1,5 @@
+dataset,M1-E-range,M2-A-alias-tupla,vencedor
+D1-emails-simples,149,141,M2-A-alias-tupla
+D2-emails-quote-id,180,178,M2-A-alias-tupla
+D3-stress-substring,206,206,M1-E-range
+D4-caos-mix,141,141,M1-E-range

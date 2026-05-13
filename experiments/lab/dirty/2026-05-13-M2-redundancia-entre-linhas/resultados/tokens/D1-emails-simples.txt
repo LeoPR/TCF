@@ -1,0 +1,57 @@
+# Tokens raiz (online.py exp 16) — D1-emails-simples
+# Strings unicas: 12
+
+Formato:
+  L('text')  = TokLit literal
+  P(j, k)    = TokRefPref (pref k chars de noj)
+  S(j, k)    = TokRefSuf (suf k chars de noj)
+
+================================================================================
+
+eid=1: 'joao@gmail.com'
+  tokens: [L('joao@gmail.com')]
+  fragmentos literais: [0:3]='joa' | [3:4]='o' | [4:5]='@' | [5:6]='g' | [6:10]='mail' | [10:14]='.com'
+
+eid=2: 'maria@gmail.com'
+  tokens: [L('maria'), S(1,10)]
+  fragmentos literais: [0:4]='mari' | [4:5]='a'
+
+eid=3: 'pedro@gmail.com'
+  tokens: [L('pedr'), S(1,11)]
+  fragmentos literais: [0:4]='pedr'
+
+eid=4: 'ana@gmail.com'
+  tokens: [L('an'), S(2,11)]
+  fragmentos literais: [0:2]='an'
+
+eid=5: 'joao@hotmail.com'
+  tokens: [P(1,5), L('hot'), S(1,8)]
+  fragmentos literais: [5:8]='hot'
+
+eid=6: 'maria@hotmail.com'
+  tokens: [P(2,6), S(5,11)]
+  fragmentos literais: (nenhum — so' refs)
+
+eid=7: 'pedro@hotmail.com'
+  tokens: [P(3,6), S(5,11)]
+  fragmentos literais: (nenhum — so' refs)
+
+eid=8: 'ana@hotmail.com'
+  tokens: [P(4,4), S(5,11)]
+  fragmentos literais: (nenhum — so' refs)
+
+eid=9: 'joao@yahoo.com'
+  tokens: [P(1,5), L('yahoo'), S(1,4)]
+  fragmentos literais: [5:10]='yahoo'
+
+eid=10: 'maria@yahoo.com'
+  tokens: [P(2,6), S(9,9)]
+  fragmentos literais: (nenhum — so' refs)
+
+eid=11: 'pedro@yahoo.com'
+  tokens: [P(3,6), S(9,9)]
+  fragmentos literais: (nenhum — so' refs)
+
+eid=12: 'ana@yahoo.com'
+  tokens: [P(4,4), S(9,9)]
+  fragmentos literais: (nenhum — so' refs)
