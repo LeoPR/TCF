@@ -1,0 +1,4 @@
+{"chunk_id": "vendas:0000", "question": "count_rows", "format": "jsonl", "prompt_chars": 7629, "response": "10", "latency_s": 38.8676, "rows": 40}
+{"chunk_id": "vendas:0000", "question": "sum_field", "format": "jsonl", "prompt_chars": 7615, "response": "54.70", "latency_s": 1.6677, "rows": 40}
+{"chunk_id": "vendas:0001", "question": "count_rows", "format": "jsonl", "prompt_chars": 597, "response": "2", "latency_s": 1.1917, "rows": 1}
+{"chunk_id": "vendas:0001", "question": "sum_field", "format": "jsonl", "prompt_chars": 583, "response": "2.40", "latency_s": 1.2678, "rows": 1}

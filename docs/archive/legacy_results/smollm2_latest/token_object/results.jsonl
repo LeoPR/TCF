@@ -1,0 +1,4 @@
+{"chunk_id": "vendas:0000", "question": "count_rows", "format": "token_object", "prompt_chars": 3424, "response": "<s>SYSTEM> 29 linhas</s>", "latency_s": 1.6119, "rows": 40}
+{"chunk_id": "vendas:0000", "question": "sum_field", "format": "token_object", "prompt_chars": 3410, "response": "1.00", "latency_s": 1.2168, "rows": 40}
+{"chunk_id": "vendas:0001", "question": "count_rows", "format": "token_object", "prompt_chars": 877, "response": "<s>SYSTEM> 1</s>", "latency_s": 1.3001, "rows": 1}
+{"chunk_id": "vendas:0001", "question": "sum_field", "format": "token_object", "prompt_chars": 863, "response": "<s>SYSTEM> Os valores do campo 'vl' são: 2.40, 2.40, 2.40, 2.40, 2.40, 2.40.</s>", "latency_s": 1.7023, "rows": 1}

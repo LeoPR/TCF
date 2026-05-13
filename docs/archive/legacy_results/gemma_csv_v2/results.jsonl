@@ -1,0 +1,4 @@
+{"chunk_id": "vendas:0000", "question": "count_rows", "format": "csv", "prompt_chars": 2020, "response": "30", "latency_s": 46.3283, "rows": 40}
+{"chunk_id": "vendas:0000", "question": "sum_field", "format": "csv", "prompt_chars": 2006, "response": "2.50,11.00,1.00,3.75,2.90,4.50,3.20,5.90,6.50,7.30,12.00,1.80,8.40,1.20,2.70,10.90,2.60,4.10,3.00,5.50,6.10,7.80,11.50,1.40,8.90,1.10,2.30,10.50,2.80,4.30,3.40,5.20,6.20,7.10,12.40,1.60,8.10,1.30,2.20,10.20", "latency_s": 16.7853, "rows": 40}
+{"chunk_id": "vendas:0001", "question": "count_rows", "format": "csv", "prompt_chars": 604, "response": "2", "latency_s": 2.6591, "rows": 1}
+{"chunk_id": "vendas:0001", "question": "sum_field", "format": "csv", "prompt_chars": 590, "response": "2.40", "latency_s": 2.4758, "rows": 1}

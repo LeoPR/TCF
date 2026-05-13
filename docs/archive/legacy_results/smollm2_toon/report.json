@@ -1,0 +1,36 @@
+{
+  "total": 4,
+  "correct": 0,
+  "accuracy": 0.0,
+  "avg_latency_s": 3.95295,
+  "details": [
+    {
+      "chunk_id": "vendas:0000",
+      "question": "count_rows",
+      "response": "<s>SYSTEM> 29</s>",
+      "expected": 30,
+      "ok": false
+    },
+    {
+      "chunk_id": "vendas:0000",
+      "question": "sum_field",
+      "response": "<s>SYSTEM> 12",
+      "expected": 157.45000000000002,
+      "ok": false
+    },
+    {
+      "chunk_id": "vendas:0001",
+      "question": "count_rows",
+      "response": "<s>SYSTEM> 10</s>",
+      "expected": 11,
+      "ok": false
+    },
+    {
+      "chunk_id": "vendas:0001",
+      "question": "sum_field",
+      "response": "<s>SYSTEM> 10",
+      "expected": 60.1,
+      "ok": false
+    }
+  ]
+}

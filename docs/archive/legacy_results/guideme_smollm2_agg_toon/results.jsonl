@@ -1,0 +1,4 @@
+{"chunk_id": "vendas:0000", "question": "count_rows", "format": "token_object", "prompt_chars": 2786, "response": "<s>SYSTEM> 29</s>", "latency_s": 57.632, "rows": 30}
+{"chunk_id": "vendas:0000", "question": "sum_field", "format": "token_object", "prompt_chars": 2772, "response": "<s>SYSTEM> 12\n</s>", "latency_s": 2.9086, "rows": 30}
+{"chunk_id": "vendas:0001", "question": "count_rows", "format": "token_object", "prompt_chars": 1515, "response": "<s>SYSTEM> 10</s>", "latency_s": 4.5142, "rows": 11}
+{"chunk_id": "vendas:0001", "question": "sum_field", "format": "token_object", "prompt_chars": 1501, "response": "<s>SYSTEM> 10\n</s>", "latency_s": 1.09, "rows": 11}

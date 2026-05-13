@@ -1,0 +1,10 @@
+{
+  "vendas:0000": {
+    "count_rows": 40,
+    "sum_field": 215.14999999999998
+  },
+  "vendas:0001": {
+    "count_rows": 1,
+    "sum_field": 2.4
+  }
+}

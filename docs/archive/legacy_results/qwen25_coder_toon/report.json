@@ -1,0 +1,36 @@
+{
+  "total": 4,
+  "correct": 0,
+  "accuracy": 0.0,
+  "avg_latency_s": 7.473025,
+  "details": [
+    {
+      "chunk_id": "vendas:0000",
+      "question": "count_rows",
+      "response": "29",
+      "expected": 30,
+      "ok": false
+    },
+    {
+      "chunk_id": "vendas:0000",
+      "question": "sum_field",
+      "response": "150.00",
+      "expected": 157.45000000000002,
+      "ok": false
+    },
+    {
+      "chunk_id": "vendas:0001",
+      "question": "count_rows",
+      "response": "10",
+      "expected": 11,
+      "ok": false
+    },
+    {
+      "chunk_id": "vendas:0001",
+      "question": "sum_field",
+      "response": "96.0",
+      "expected": 60.1,
+      "ok": false
+    }
+  ]
+}
