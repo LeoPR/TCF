@@ -29,6 +29,9 @@ all = [
     "tcf[dev,eval,datasets]",
 ]
 
+[tool.pytest.ini_options]
+cache_dir = "Z:\\caches\\pytest"
+
 [project.scripts]
 tcf = "tcf.cli:main"
 

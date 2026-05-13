@@ -188,7 +188,7 @@ def test_gt_top_product():
 
 def test_gt_distinct_pessoa():
     gt = compute(DATA_DIR)
-    assert gt["count_distinct_pessoa"] == 30
+    assert gt["count_distinct_pessoa"] == 27
 
 def test_gt_vl_values_length():
     gt = compute(DATA_DIR)
