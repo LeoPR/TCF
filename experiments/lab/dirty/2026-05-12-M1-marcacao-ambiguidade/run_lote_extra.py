@@ -35,6 +35,7 @@ SINTAXES_REGISTRADAS = [
     "M1-B-quote",
     "M1-E-range",
     "M1-C-sumida",
+    "M1-D-slice",
 ]
 
 DATASETS = [
@@ -42,6 +43,8 @@ DATASETS = [
     "DE2-favoravel-E",
     "DE3-adversarial-C",
     "DE4-favoravel-C",
+    "DE5-adversarial-D",
+    "DE6-favoravel-D",
 ]
 
 

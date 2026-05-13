@@ -1,0 +1,82 @@
+"""Propriedades qualitativas das 6 sintaxes M1 para F2.
+
+Centralizado aqui para nao tocar syntax.py de cada micro
+(manter isolamento). Cada entrada descreve dimensoes nao
+mensuraveis automaticamente: statefulness, lookahead,
+complexidade algoritmica.
+"""
+
+PROPRIEDADES = {
+    "M1-A-escape": {
+        "encoder_stateful": "nao",
+        "encoder_stateful_grau": "puramente sintatico (escape char a char)",
+        "decoder_stateful": "nao",
+        "decoder_stateful_grau": "puramente sintatico",
+        "lookahead_encode": "0 chars",
+        "lookahead_decode": "1 char apos `\\`",
+        "complexidade_encode_no": "O(L) por linha, L=chars do literal",
+        "complexidade_decode_no": "O(N) por linha, N=chars TCF",
+        "latencia_incremental": "linha a linha",
+        "notas": "Mais simples. Sem estado. Custo proporcional aos chars.",
+    },
+    "M1-A-escape-escopo": {
+        "encoder_stateful": "nao",
+        "encoder_stateful_grau": "puramente sintatico (agrupa seq digit)",
+        "decoder_stateful": "sim",
+        "decoder_stateful_grau": "modo escape escopo apos `\\` (le todos digits)",
+        "lookahead_encode": "depende do tamanho da seq de digits",
+        "lookahead_decode": "K chars (K=tamanho da seq de digits)",
+        "complexidade_encode_no": "O(L) por linha",
+        "complexidade_decode_no": "O(N) por linha",
+        "latencia_incremental": "linha a linha",
+        "notas": "Decoder com modo extra ao ver `\\` antes de digit.",
+    },
+    "M1-B-quote": {
+        "encoder_stateful": "nao",
+        "encoder_stateful_grau": "decide aspa por bloco inteiro",
+        "decoder_stateful": "sim",
+        "decoder_stateful_grau": "modo aspas (le ate aspa final)",
+        "lookahead_encode": "varre bloco para decidir aspas",
+        "lookahead_decode": "ate aspa final (variavel)",
+        "complexidade_encode_no": "O(L) por linha",
+        "complexidade_decode_no": "O(N) por linha",
+        "latencia_incremental": "linha a linha",
+        "notas": "Aspa custa 2 chars; dispara por bloco com ambiguo.",
+    },
+    "M1-E-range": {
+        "encoder_stateful": "nao",
+        "encoder_stateful_grau": "agrupa refs consecutivas (K>=3)",
+        "decoder_stateful": "sim",
+        "decoder_stateful_grau": "modo range apos `..` (lookahead 1)",
+        "lookahead_encode": "scan da lista de refs consecutivas",
+        "lookahead_decode": "1 char apos `.` para confirmar `..`",
+        "complexidade_encode_no": "O(R) por linha, R=num refs",
+        "complexidade_decode_no": "O(N) por linha",
+        "latencia_incremental": "linha a linha",
+        "notas": "Ortogonal a escape escopo (herdou de M1.A'). Range vence quando K>=3 sequencial.",
+    },
+    "M1-C-sumida": {
+        "encoder_stateful": "sim",
+        "encoder_stateful_grau": "mantem max_idx_visivel global",
+        "decoder_stateful": "sim",
+        "decoder_stateful_grau": "max_idx_visivel global + fallback literal se int>max",
+        "lookahead_encode": "0 (decide por max_idx_visivel atual)",
+        "lookahead_decode": "0 (decide por max_idx_visivel atual)",
+        "complexidade_encode_no": "O(L) por linha",
+        "complexidade_decode_no": "O(N) por linha",
+        "latencia_incremental": "linha a linha (com contador)",
+        "notas": "Encoder e decoder com estado de contador. Inutil em ref-context (regra de ouro).",
+    },
+    "M1-D-slice": {
+        "encoder_stateful": "nao",
+        "encoder_stateful_grau": "puramente sintatico",
+        "decoder_stateful": "sim",
+        "decoder_stateful_grau": "mantem eids_decodados completos para slicing",
+        "lookahead_encode": "0",
+        "lookahead_decode": "le ate fim do slice `e:a-b`",
+        "complexidade_encode_no": "O(R) por linha",
+        "complexidade_decode_no": "O(N) por linha + O(b-a) por slice",
+        "latencia_incremental": "linha a linha (acumula eids decodados)",
+        "notas": "Decoder usa O(sum(len(eid))) de memoria para suportar slice. Outros guardam so' frags individuais.",
+    },
+}

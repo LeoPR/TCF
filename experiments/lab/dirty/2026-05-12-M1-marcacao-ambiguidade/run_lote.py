@@ -62,6 +62,7 @@ SINTAXES_REGISTRADAS = [
     "M1-B-quote",
     "M1-E-range",
     "M1-C-sumida",
+    "M1-D-slice",
 ]
 
 DATASETS = [

@@ -113,8 +113,8 @@ Decisao final do macro:
 - [x] M1.A': escape com escopo (D1=162, D2=197, D3=233, D4=152, total=744)
 - [x] **M1.E: range de refs `a..b` + escape escopo (D1=149, D2=180, D3=206, D4=141, total=676)**
 - [x] M1.C: sumida — parser stateful (D1=149, D2=180, D3=206, D4=141, total=676 — **empate com M1.E** nos datasets atuais; ver insight em M1.C/README)
-- [ ] M1.D: slice arbitrario — estende algoritmo com TokRefSlice
-- [ ] F2 a F4: pendentes
+- [x] M1.D: slice arbitrario `e:a-b` (D1=162, D2=207, D3=218, D4=141, total=728 — **+7.7% vs M1.E**; ganha em declaracao de no fonte mas perde em descendentes verbosos)
+- [ ] F2 a F4: pendentes (apos stress-test rodada 2 para M1.D)
 
 ## Limitacoes conhecidas
 

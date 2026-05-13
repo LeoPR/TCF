@@ -1,0 +1,29 @@
+# Tokens raiz (online.py exp 16) — DE6-favoravel-D
+# Strings unicas: 5
+
+Formato:
+  L('text')  = TokLit literal
+  P(j, k)    = TokRefPref (pref k chars de noj)
+  S(j, k)    = TokRefSuf (suf k chars de noj)
+
+================================================================================
+
+eid=1: 'abcdefghijklmn'
+  tokens: [L('abcdefghijklmn')]
+  fragmentos literais: [0:4]='abcd' | [4:6]='ef' | [6:8]='gh' | [8:14]='ijklmn'
+
+eid=2: 'abcdefghxxxxyz'
+  tokens: [P(1,8), L('xxxxyz')]
+  fragmentos literais: [8:14]='xxxxyz'
+
+eid=3: 'abcdefxxxxxxyz'
+  tokens: [P(1,6), L('xx'), S(2,6)]
+  fragmentos literais: [6:8]='xx'
+
+eid=4: 'abcdxxxxxxxxyz'
+  tokens: [P(1,4), L('xx'), S(3,8)]
+  fragmentos literais: [4:6]='xx'
+
+eid=5: 'abxxxxxxxxxxyz'
+  tokens: [L('abxx'), S(4,10)]
+  fragmentos literais: [0:4]='abxx'

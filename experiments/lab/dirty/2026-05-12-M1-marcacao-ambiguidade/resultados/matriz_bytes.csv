@@ -1,5 +1,5 @@
-dataset,M1-A-escape,M1-A-escape-escopo,M1-B-quote,M1-E-range,M1-C-sumida,vencedor
-D1-emails-simples,162,162,162,149,149,M1-E-range
-D2-emails-quote-id,200,197,198,180,180,M1-E-range
-D3-stress-substring,242,233,233,206,206,M1-E-range
-D4-caos-mix,152,152,160,141,141,M1-E-range
+dataset,M1-A-escape,M1-A-escape-escopo,M1-B-quote,M1-E-range,M1-C-sumida,M1-D-slice,vencedor
+D1-emails-simples,162,162,162,149,149,162,M1-E-range
+D2-emails-quote-id,200,197,198,180,180,207,M1-E-range
+D3-stress-substring,242,233,233,206,206,218,M1-E-range
+D4-caos-mix,152,152,160,141,141,141,M1-E-range
