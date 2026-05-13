@@ -1,0 +1,94 @@
+================================================================================
+FAMILIA: cpfs
+================================================================================
+min_len = 3
+
+--- string 1: '123.456.789-00' (len=14) ---
+  primeira string -> literal puro
+
+--- string 2: '987.654.321-11' (len=14) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 14
+  tokens: [L('987.654.321-11')]
+
+--- string 3: '234.567.890-22' (len=14) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 14
+  tokens: [L('234.567.890-22')]
+
+--- string 4: '345.678.901-33' (len=14) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 14
+  tokens: [L('345.678.901-33')]
+
+--- string 5: '456.789.012-44' (len=14) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 14
+  tokens: [L('456.789.012-44')]
+
+--- string 6: '567.890.123-55' (len=14) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 14
+  tokens: [L('567.890.123-55')]
+
+--- string 7: '678.901.234-66' (len=14) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 14
+  tokens: [L('678.901.234-66')]
+
+--- string 8: '789.012.345-77' (len=14) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 14
+  tokens: [L('789.012.345-77')]
+
+--- string 9: '890.123.456-88' (len=14) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 14
+  tokens: [L('890.123.456-88')]
+
+--- string 10: '901.234.567-99' (len=14) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 14
+  tokens: [L('901.234.567-99')]
+
+--- string 11: '012.345.678-10' (len=14) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 14
+  tokens: [L('012.345.678-10')]
+
+--- string 12: '112.233.445-21' (len=14) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 14
+  tokens: [L('112.233.445-21')]
+
+
+TCF (306 bytes):
+  <body>
+    no1: "123.456.789-00"
+    no2: "987.654.321-11"
+    no3: "234.567.890-22"
+    no4: "345.678.901-33"
+    no5: "456.789.012-44"
+    no6: "567.890.123-55"
+    no7: "678.901.234-66"
+    no8: "789.012.345-77"
+    no9: "890.123.456-88"
+    no10: "901.234.567-99"
+    no11: "012.345.678-10"
+    no12: "112.233.445-21"
+  </body>
+
+Camadas: macro=15 ref=123 dados=168 (ref+dados=291)
+Unidades: 168
+Roundtrip: OK

@@ -1,0 +1,102 @@
+================================================================================
+DATASET: D2-completo
+================================================================================
+min_len = 3
+
+--- string 1: 'maria.silva@gmail.com' (len=21) ---
+  primeira string -> literal puro
+
+--- string 2: 'joao.souza@hotmail.com' (len=22) ---
+  pref: len=0 de string 0
+  suf:  len=8 de string 1
+  cobertura: 8 de 22
+  tokens: [L('joao.souza@hot') + S(1,8)]
+
+--- string 3: 'maria.silva@hotmail.com' (len=23) ---
+  pref: len=12 de string 1
+  suf:  len=11 de string 2
+  cobertura: 23 de 23
+  tokens: [P(1,12) + S(2,11)]
+
+--- string 4: 'ana.lima@gmail.com' (len=18) ---
+  pref: len=0 de string 0
+  suf:  len=11 de string 1
+  cobertura: 11 de 18
+  tokens: [L('ana.lim') + S(1,11)]
+
+--- string 5: 'joao.souza@gmail.com' (len=20) ---
+  pref: len=11 de string 2
+  suf:  len=9 de string 1
+  cobertura: 20 de 20
+  tokens: [P(2,11) + S(1,9)]
+
+--- string 6: 'pedro.alves@yahoo.com' (len=21) ---
+  pref: len=0 de string 0
+  suf:  len=4 de string 1
+  cobertura: 4 de 21
+  tokens: [L('pedro.alves@yahoo') + S(1,4)]
+
+--- string 7: 'ana.lima@hotmail.com' (len=20) ---
+  pref: len=9 de string 4
+  suf:  len=11 de string 2
+  cobertura: 20 de 20
+  tokens: [P(4,9) + S(2,11)]
+
+--- string 8: 'joao.souza@yahoo.com' (len=20) ---
+  pref: len=11 de string 2
+  suf:  len=9 de string 6
+  cobertura: 20 de 20
+  tokens: [P(2,11) + S(6,9)]
+
+--- string 9: 'pedro.alves@gmail.com' (len=21) ---
+  pref: len=12 de string 6
+  suf:  len=9 de string 1
+  cobertura: 21 de 21
+  tokens: [P(6,12) + S(1,9)]
+
+--- string 10: 'maria.silva@yahoo.com' (len=21) ---
+  pref: len=12 de string 1
+  suf:  len=9 de string 6
+  cobertura: 21 de 21
+  tokens: [P(1,12) + S(6,9)]
+
+--- string 11: 'ana.lima@yahoo.com' (len=18) ---
+  pref: len=9 de string 4
+  suf:  len=9 de string 6
+  cobertura: 18 de 18
+  tokens: [P(4,9) + S(6,9)]
+
+--- string 12: 'pedro.alves@hotmail.com' (len=23) ---
+  pref: len=12 de string 6
+  suf:  len=11 de string 2
+  cobertura: 23 de 23
+  tokens: [P(6,12) + S(2,11)]
+
+
+TCF (456 bytes):
+  <body>
+    no1: "maria.silva@gmail.com"
+    no2: "joao.souza@hot" + no1[-8:]
+    no3: no1[0:12] + no2[-11:]
+    no4: "ana.lim" + no1[-11:]
+    no5: no2[0:11] + no1[-9:]
+    no6: "pedro.alves@yahoo" + no1[-4:]
+    ref:no1
+    no7: no4[0:9] + no2[-11:]
+    no8: no2[0:11] + no6[-9:]
+    no9: no6[0:12] + no1[-9:]
+    no10: no1[0:12] + no6[-9:]
+    ref:no4
+    ref:no2
+    ref:no6
+    ref:no1
+    no11: no4[0:9] + no6[-9:]
+    ref:no5
+    no12: no6[0:12] + no2[-11:]
+    ref:no3
+    ref:no4
+  </body>
+
+Camadas: macro=15 ref=382 dados=59 (ref+dados=441)
+Unidades de informacao: 78
+Roundtrip: OK

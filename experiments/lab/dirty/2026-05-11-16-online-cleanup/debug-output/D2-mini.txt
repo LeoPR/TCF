@@ -1,0 +1,52 @@
+================================================================================
+DATASET: D2-mini
+================================================================================
+min_len = 3
+
+--- string 1: 'maria.silva@gmail.com' (len=21) ---
+  primeira string -> literal puro
+
+--- string 2: 'maria.silva@hotmail.com' (len=23) ---
+  pref: len=12 de string 1
+  suf:  len=8 de string 1
+  cobertura: 20 de 23
+  tokens: [P(1,12) + L('hot') + S(1,8)]
+
+--- string 3: 'maria.silva@yahoo.com' (len=21) ---
+  pref: len=12 de string 1
+  suf:  len=4 de string 1
+  cobertura: 16 de 21
+  tokens: [P(1,12) + L('yahoo') + S(1,4)]
+
+--- string 4: 'joao.souza@gmail.com' (len=20) ---
+  pref: len=0 de string 0
+  suf:  len=11 de string 1
+  cobertura: 11 de 20
+  tokens: [L('joao.souz') + S(1,11)]
+
+--- string 5: 'joao.souza@hotmail.com' (len=22) ---
+  pref: len=11 de string 4
+  suf:  len=11 de string 2
+  cobertura: 22 de 22
+  tokens: [P(4,11) + S(2,11)]
+
+--- string 6: 'joao.souza@yahoo.com' (len=20) ---
+  pref: len=11 de string 4
+  suf:  len=9 de string 3
+  cobertura: 20 de 20
+  tokens: [P(4,11) + S(3,9)]
+
+
+TCF (208 bytes):
+  <body>
+    no1: "maria.silva@gmail.com"
+    no2: no1[0:12] + "hot" + no1[-8:]
+    no3: no1[0:12] + "yahoo" + no1[-4:]
+    no4: "joao.souz" + no1[-11:]
+    no5: no4[0:11] + no2[-11:]
+    no6: no4[0:11] + no3[-9:]
+  </body>
+
+Camadas: macro=15 ref=155 dados=38 (ref+dados=193)
+Unidades de informacao: 47
+Roundtrip: OK

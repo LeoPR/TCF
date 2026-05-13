@@ -1,0 +1,94 @@
+================================================================================
+FAMILIA: uuids
+================================================================================
+min_len = 3
+
+--- string 1: 'f47ac10b-58cc-4372-a567-0e02b2c3d479' (len=36) ---
+  primeira string -> literal puro
+
+--- string 2: '3a4f1b8e-2c7d-4910-bf65-a8e3d2c4f0a1' (len=36) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 36
+  tokens: [L('3a4f1b8e-2c7d-4910-bf65-a8e3d2c4f0a1')]
+
+--- string 3: '7b2e9c1d-3f48-4ab2-9d04-5e6f7a8b9c0d' (len=36) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 36
+  tokens: [L('7b2e9c1d-3f48-4ab2-9d04-5e6f7a8b9c0d')]
+
+--- string 4: '1c8d4e5f-6a7b-4c9e-8f01-2d3e4f5a6b7c' (len=36) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 36
+  tokens: [L('1c8d4e5f-6a7b-4c9e-8f01-2d3e4f5a6b7c')]
+
+--- string 5: '8e9f0a1b-2c3d-4e5f-6a7b-8c9d0e1f2a3b' (len=36) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 36
+  tokens: [L('8e9f0a1b-2c3d-4e5f-6a7b-8c9d0e1f2a3b')]
+
+--- string 6: '4d5e6f7a-8b9c-4d0e-1f2a-3b4c5d6e7f80' (len=36) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 36
+  tokens: [L('4d5e6f7a-8b9c-4d0e-1f2a-3b4c5d6e7f80')]
+
+--- string 7: 'b0a9c8d7-e6f5-44a3-b2c1-d0e9f8a7b6c5' (len=36) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 36
+  tokens: [L('b0a9c8d7-e6f5-44a3-b2c1-d0e9f8a7b6c5')]
+
+--- string 8: '2f3e4d5c-6b7a-4988-7c6d-5e4f3a2b1c0d' (len=36) ---
+  pref: len=0 de string 0
+  suf:  len=3 de string 3
+  cobertura: 3 de 36
+  tokens: [L('2f3e4d5c-6b7a-4988-7c6d-5e4f3a2b1') + S(3,3)]
+
+--- string 9: '9a8b7c6d-5e4f-43a2-b1c0-d9e8f7a6b5c4' (len=36) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 36
+  tokens: [L('9a8b7c6d-5e4f-43a2-b1c0-d9e8f7a6b5c4')]
+
+--- string 10: '6e5d4c3b-2a19-4087-6f5e-4d3c2b1a0908' (len=36) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 36
+  tokens: [L('6e5d4c3b-2a19-4087-6f5e-4d3c2b1a0908')]
+
+--- string 11: 'c1d2e3f4-a5b6-47c8-d9e0-f1a2b3c4d5e6' (len=36) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 36
+  tokens: [L('c1d2e3f4-a5b6-47c8-d9e0-f1a2b3c4d5e6')]
+
+--- string 12: '5b4a3c2d-1e0f-4a98-b765-c4d3e2f10987' (len=36) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 36
+  tokens: [L('5b4a3c2d-1e0f-4a98-b765-c4d3e2f10987')]
+
+
+TCF (578 bytes):
+  <body>
+    no1: "f47ac10b-58cc-4372-a567-0e02b2c3d479"
+    no2: "3a4f1b8e-2c7d-4910-bf65-a8e3d2c4f0a1"
+    no3: "7b2e9c1d-3f48-4ab2-9d04-5e6f7a8b9c0d"
+    no4: "1c8d4e5f-6a7b-4c9e-8f01-2d3e4f5a6b7c"
+    no5: "8e9f0a1b-2c3d-4e5f-6a7b-8c9d0e1f2a3b"
+    no6: "4d5e6f7a-8b9c-4d0e-1f2a-3b4c5d6e7f80"
+    no7: "b0a9c8d7-e6f5-44a3-b2c1-d0e9f8a7b6c5"
+    no8: "2f3e4d5c-6b7a-4988-7c6d-5e4f3a2b1" + no3[-3:]
+    no9: "9a8b7c6d-5e4f-43a2-b1c0-d9e8f7a6b5c4"
+    no10: "6e5d4c3b-2a19-4087-6f5e-4d3c2b1a0908"
+    no11: "c1d2e3f4-a5b6-47c8-d9e0-f1a2b3c4d5e6"
+    no12: "5b4a3c2d-1e0f-4a98-b765-c4d3e2f10987"
+  </body>
+
+Camadas: macro=15 ref=134 dados=429 (ref+dados=563)
+Unidades: 430
+Roundtrip: OK

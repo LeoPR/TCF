@@ -1,0 +1,94 @@
+================================================================================
+FAMILIA: codigos
+================================================================================
+min_len = 3
+
+--- string 1: 'PED-2026-00001' (len=14) ---
+  primeira string -> literal puro
+
+--- string 2: 'PED-2026-00002' (len=14) ---
+  pref: len=13 de string 1
+  suf:  len=0 de string 0
+  cobertura: 13 de 14
+  tokens: [P(1,13) + L('2')]
+
+--- string 3: 'PED-2026-00003' (len=14) ---
+  pref: len=13 de string 1
+  suf:  len=0 de string 0
+  cobertura: 13 de 14
+  tokens: [P(1,13) + L('3')]
+
+--- string 4: 'PED-2026-00004' (len=14) ---
+  pref: len=13 de string 1
+  suf:  len=0 de string 0
+  cobertura: 13 de 14
+  tokens: [P(1,13) + L('4')]
+
+--- string 5: 'PED-2026-00005' (len=14) ---
+  pref: len=13 de string 1
+  suf:  len=0 de string 0
+  cobertura: 13 de 14
+  tokens: [P(1,13) + L('5')]
+
+--- string 6: 'PED-2026-00006' (len=14) ---
+  pref: len=13 de string 1
+  suf:  len=0 de string 0
+  cobertura: 13 de 14
+  tokens: [P(1,13) + L('6')]
+
+--- string 7: 'INV-2026-00001' (len=14) ---
+  pref: len=0 de string 0
+  suf:  len=11 de string 1
+  cobertura: 11 de 14
+  tokens: [L('INV') + S(1,11)]
+
+--- string 8: 'INV-2026-00002' (len=14) ---
+  pref: len=3 de string 7
+  suf:  len=11 de string 2
+  cobertura: 14 de 14
+  tokens: [P(7,3) + S(2,11)]
+
+--- string 9: 'INV-2026-00003' (len=14) ---
+  pref: len=3 de string 7
+  suf:  len=11 de string 3
+  cobertura: 14 de 14
+  tokens: [P(7,3) + S(3,11)]
+
+--- string 10: 'INV-2026-00004' (len=14) ---
+  pref: len=3 de string 7
+  suf:  len=11 de string 4
+  cobertura: 14 de 14
+  tokens: [P(7,3) + S(4,11)]
+
+--- string 11: 'INV-2026-00005' (len=14) ---
+  pref: len=3 de string 7
+  suf:  len=11 de string 5
+  cobertura: 14 de 14
+  tokens: [P(7,3) + S(5,11)]
+
+--- string 12: 'INV-2026-00006' (len=14) ---
+  pref: len=3 de string 7
+  suf:  len=11 de string 6
+  cobertura: 14 de 14
+  tokens: [P(7,3) + S(6,11)]
+
+
+TCF (322 bytes):
+  <body>
+    no1: "PED-2026-00001"
+    no2: no1[0:13] + "2"
+    no3: no1[0:13] + "3"
+    no4: no1[0:13] + "4"
+    no5: no1[0:13] + "5"
+    no6: no1[0:13] + "6"
+    no7: "INV" + no1[-11:]
+    no8: no7[0:3] + no2[-11:]
+    no9: no7[0:3] + no3[-11:]
+    no10: no7[0:3] + no4[-11:]
+    no11: no7[0:3] + no5[-11:]
+    no12: no7[0:3] + no6[-11:]
+  </body>
+
+Camadas: macro=15 ref=285 dados=22 (ref+dados=307)
+Unidades: 38
+Roundtrip: OK

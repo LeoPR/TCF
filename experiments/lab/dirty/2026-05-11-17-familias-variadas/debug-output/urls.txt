@@ -1,0 +1,94 @@
+================================================================================
+FAMILIA: urls
+================================================================================
+min_len = 3
+
+--- string 1: 'https://api.example.com/v1/users/00042/profile' (len=46) ---
+  primeira string -> literal puro
+
+--- string 2: 'https://api.example.com/v1/users/00057/profile' (len=46) ---
+  pref: len=36 de string 1
+  suf:  len=8 de string 1
+  cobertura: 44 de 46
+  tokens: [P(1,36) + L('57') + S(1,8)]
+
+--- string 3: 'https://api.example.com/v1/users/00103/profile' (len=46) ---
+  pref: len=35 de string 1
+  suf:  len=8 de string 1
+  cobertura: 43 de 46
+  tokens: [P(1,35) + L('103') + S(1,8)]
+
+--- string 4: 'https://api.example.com/v1/users/00211/profile' (len=46) ---
+  pref: len=35 de string 1
+  suf:  len=8 de string 1
+  cobertura: 43 de 46
+  tokens: [P(1,35) + L('211') + S(1,8)]
+
+--- string 5: 'https://api.example.com/v1/orders/2026-001/items' (len=48) ---
+  pref: len=27 de string 1
+  suf:  len=0 de string 0
+  cobertura: 27 de 48
+  tokens: [P(1,27) + L('orders/2026-001/items')]
+
+--- string 6: 'https://api.example.com/v1/orders/2026-002/items' (len=48) ---
+  pref: len=41 de string 5
+  suf:  len=6 de string 5
+  cobertura: 47 de 48
+  tokens: [P(5,41) + L('2') + S(5,6)]
+
+--- string 7: 'https://api.example.com/v1/orders/2026-003/items' (len=48) ---
+  pref: len=41 de string 5
+  suf:  len=6 de string 5
+  cobertura: 47 de 48
+  tokens: [P(5,41) + L('3') + S(5,6)]
+
+--- string 8: 'https://api.example.com/v1/orders/2026-004/items' (len=48) ---
+  pref: len=41 de string 5
+  suf:  len=6 de string 5
+  cobertura: 47 de 48
+  tokens: [P(5,41) + L('4') + S(5,6)]
+
+--- string 9: 'https://api.example.com/v1/products/cat-a/sku-001' (len=49) ---
+  pref: len=27 de string 1
+  suf:  len=0 de string 0
+  cobertura: 27 de 49
+  tokens: [P(1,27) + L('products/cat-a/sku-001')]
+
+--- string 10: 'https://api.example.com/v1/products/cat-a/sku-002' (len=49) ---
+  pref: len=48 de string 9
+  suf:  len=0 de string 0
+  cobertura: 48 de 49
+  tokens: [P(9,48) + L('2')]
+
+--- string 11: 'https://api.example.com/v1/products/cat-b/sku-003' (len=49) ---
+  pref: len=40 de string 9
+  suf:  len=0 de string 0
+  cobertura: 40 de 49
+  tokens: [P(9,40) + L('b/sku-003')]
+
+--- string 12: 'https://api.example.com/v1/products/cat-b/sku-004' (len=49) ---
+  pref: len=48 de string 11
+  suf:  len=0 de string 0
+  cobertura: 48 de 49
+  tokens: [P(11,48) + L('4')]
+
+
+TCF (448 bytes):
+  <body>
+    no1: "https://api.example.com/v1/users/00042/profile"
+    no2: no1[0:36] + "57" + no1[-8:]
+    no3: no1[0:35] + "103" + no1[-8:]
+    no4: no1[0:35] + "211" + no1[-8:]
+    no5: no1[0:27] + "orders/2026-001/items"
+    no6: no5[0:41] + "2" + no5[-6:]
+    no7: no5[0:41] + "3" + no5[-6:]
+    no8: no5[0:41] + "4" + no5[-6:]
+    no9: no1[0:27] + "products/cat-a/sku-001"
+    no10: no9[0:48] + "2"
+    no11: no9[0:40] + "b/sku-003"
+    no12: no11[0:48] + "4"
+  </body>
+
+Camadas: macro=15 ref=322 dados=111 (ref+dados=433)
+Unidades: 128
+Roundtrip: OK

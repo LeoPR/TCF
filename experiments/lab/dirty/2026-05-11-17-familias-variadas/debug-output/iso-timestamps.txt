@@ -1,0 +1,94 @@
+================================================================================
+FAMILIA: iso-timestamps
+================================================================================
+min_len = 3
+
+--- string 1: '2026-05-11T08:00:00Z' (len=20) ---
+  primeira string -> literal puro
+
+--- string 2: '2026-05-11T08:30:00Z' (len=20) ---
+  pref: len=14 de string 1
+  suf:  len=5 de string 1
+  cobertura: 19 de 20
+  tokens: [P(1,14) + L('3') + S(1,5)]
+
+--- string 3: '2026-05-11T09:00:00Z' (len=20) ---
+  pref: len=12 de string 1
+  suf:  len=7 de string 1
+  cobertura: 19 de 20
+  tokens: [P(1,12) + L('9') + S(1,7)]
+
+--- string 4: '2026-05-11T09:30:00Z' (len=20) ---
+  pref: len=14 de string 3
+  suf:  len=6 de string 2
+  cobertura: 20 de 20
+  tokens: [P(3,14) + S(2,6)]
+
+--- string 5: '2026-05-11T14:00:00Z' (len=20) ---
+  pref: len=11 de string 1
+  suf:  len=7 de string 1
+  cobertura: 18 de 20
+  tokens: [P(1,11) + L('14') + S(1,7)]
+
+--- string 6: '2026-05-11T15:30:00Z' (len=20) ---
+  pref: len=12 de string 5
+  suf:  len=7 de string 2
+  cobertura: 19 de 20
+  tokens: [P(5,12) + L('5') + S(2,7)]
+
+--- string 7: '2026-05-12T08:00:00Z' (len=20) ---
+  pref: len=9 de string 1
+  suf:  len=10 de string 1
+  cobertura: 19 de 20
+  tokens: [P(1,9) + L('2') + S(1,10)]
+
+--- string 8: '2026-05-12T08:30:00Z' (len=20) ---
+  pref: len=14 de string 7
+  suf:  len=6 de string 2
+  cobertura: 20 de 20
+  tokens: [P(7,14) + S(2,6)]
+
+--- string 9: '2026-05-12T09:00:00Z' (len=20) ---
+  pref: len=12 de string 7
+  suf:  len=8 de string 3
+  cobertura: 20 de 20
+  tokens: [P(7,12) + S(3,8)]
+
+--- string 10: '2026-05-12T14:00:00Z' (len=20) ---
+  pref: len=11 de string 7
+  suf:  len=9 de string 5
+  cobertura: 20 de 20
+  tokens: [P(7,11) + S(5,9)]
+
+--- string 11: '2026-05-12T15:30:00Z' (len=20) ---
+  pref: len=12 de string 10
+  suf:  len=8 de string 6
+  cobertura: 20 de 20
+  tokens: [P(10,12) + S(6,8)]
+
+--- string 12: '2026-05-12T16:00:00Z' (len=20) ---
+  pref: len=12 de string 10
+  suf:  len=7 de string 1
+  cobertura: 19 de 20
+  tokens: [P(10,12) + L('6') + S(1,7)]
+
+
+TCF (395 bytes):
+  <body>
+    no1: "2026-05-11T08:00:00Z"
+    no2: no1[0:14] + "3" + no1[-5:]
+    no3: no1[0:12] + "9" + no1[-7:]
+    no4: no3[0:14] + no2[-6:]
+    no5: no1[0:11] + "14" + no1[-7:]
+    no6: no5[0:12] + "5" + no2[-7:]
+    no7: no1[0:9] + "2" + no1[-10:]
+    no8: no7[0:14] + no2[-6:]
+    no9: no7[0:12] + no3[-8:]
+    no10: no7[0:11] + no5[-9:]
+    no11: no10[0:12] + no6[-8:]
+    no12: no10[0:12] + "6" + no1[-7:]
+  </body>
+
+Camadas: macro=15 ref=353 dados=27 (ref+dados=380)
+Unidades: 49
+Roundtrip: OK

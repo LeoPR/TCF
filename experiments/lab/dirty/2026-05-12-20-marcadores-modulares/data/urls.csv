@@ -1,0 +1,13 @@
+url
+https://api.example.com/v1/users/00042/profile
+https://api.example.com/v1/users/00057/profile
+https://api.example.com/v1/users/00103/profile
+https://api.example.com/v1/users/00211/profile
+https://api.example.com/v1/orders/2026-001/items
+https://api.example.com/v1/orders/2026-002/items
+https://api.example.com/v1/orders/2026-003/items
+https://api.example.com/v1/orders/2026-004/items
+https://api.example.com/v1/products/cat-a/sku-001
+https://api.example.com/v1/products/cat-a/sku-002
+https://api.example.com/v1/products/cat-b/sku-003
+https://api.example.com/v1/products/cat-b/sku-004
