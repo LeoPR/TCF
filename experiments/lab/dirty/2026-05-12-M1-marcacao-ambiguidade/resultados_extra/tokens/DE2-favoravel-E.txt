@@ -1,0 +1,45 @@
+# Tokens raiz (online.py exp 16) — DE2-favoravel-E
+# Strings unicas: 9
+
+Formato:
+  L('text')  = TokLit literal
+  P(j, k)    = TokRefPref (pref k chars de noj)
+  S(j, k)    = TokRefSuf (suf k chars de noj)
+
+================================================================================
+
+eid=1: 'abcdefgh'
+  tokens: [L('abcdefgh')]
+  fragmentos literais: [0:1]='a' | [1:2]='b' | [2:3]='c' | [3:4]='d' | [4:5]='e' | [5:6]='f' | [6:7]='g' | [7:8]='h'
+
+eid=2: 'xbcdefgh'
+  tokens: [L('x'), S(1,7)]
+  fragmentos literais: [0:1]='x'
+
+eid=3: 'axcdefgh'
+  tokens: [L('ax'), S(1,6)]
+  fragmentos literais: [0:2]='ax'
+
+eid=4: 'abxdefgh'
+  tokens: [L('abx'), S(1,5)]
+  fragmentos literais: [0:3]='abx'
+
+eid=5: 'abcxefgh'
+  tokens: [P(1,3), L('x'), S(1,4)]
+  fragmentos literais: [3:4]='x'
+
+eid=6: 'abcdxfgh'
+  tokens: [P(1,4), L('x'), S(1,3)]
+  fragmentos literais: [4:5]='x'
+
+eid=7: 'abcdexgh'
+  tokens: [P(1,5), L('xgh')]
+  fragmentos literais: [5:8]='xgh'
+
+eid=8: 'abcdefxh'
+  tokens: [P(1,6), L('xh')]
+  fragmentos literais: [6:8]='xh'
+
+eid=9: 'abcdefgx'
+  tokens: [P(1,7), L('x')]
+  fragmentos literais: [7:8]='x'

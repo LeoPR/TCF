@@ -1,0 +1,49 @@
+# Tokens raiz (online.py exp 16) — DE1-adversarial-E
+# Strings unicas: 10
+
+Formato:
+  L('text')  = TokLit literal
+  P(j, k)    = TokRefPref (pref k chars de noj)
+  S(j, k)    = TokRefSuf (suf k chars de noj)
+
+================================================================================
+
+eid=1: 'abc1'
+  tokens: [L('abc1')]
+  fragmentos literais: [0:3]='abc' | [3:4]='1'
+
+eid=2: 'abc2'
+  tokens: [P(1,3), L('2')]
+  fragmentos literais: [3:4]='2'
+
+eid=3: 'def1'
+  tokens: [L('def1')]
+  fragmentos literais: [0:3]='def' | [3:4]='1'
+
+eid=4: 'def2'
+  tokens: [P(3,3), L('2')]
+  fragmentos literais: [3:4]='2'
+
+eid=5: 'ghi1'
+  tokens: [L('ghi1')]
+  fragmentos literais: [0:3]='ghi' | [3:4]='1'
+
+eid=6: 'ghi2'
+  tokens: [P(5,3), L('2')]
+  fragmentos literais: [3:4]='2'
+
+eid=7: 'abc3'
+  tokens: [P(1,3), L('3')]
+  fragmentos literais: [3:4]='3'
+
+eid=8: 'def3'
+  tokens: [P(3,3), L('3')]
+  fragmentos literais: [3:4]='3'
+
+eid=9: 'ghi3'
+  tokens: [P(5,3), L('3')]
+  fragmentos literais: [3:4]='3'
+
+eid=10: 'abc4'
+  tokens: [P(1,3), L('4')]
+  fragmentos literais: [3:4]='4'

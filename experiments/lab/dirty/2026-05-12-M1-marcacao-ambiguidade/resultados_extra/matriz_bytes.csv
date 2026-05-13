@@ -1,0 +1,5 @@
+dataset,M1-A-escape,M1-A-escape-escopo,M1-B-quote,M1-E-range,M1-C-sumida,vencedor
+DE1-adversarial-E,53,53,63,53,53,M1-A-escape
+DE2-favoravel-E,132,132,132,82,82,M1-E-range
+DE3-adversarial-C,101,100,100,96,96,M1-E-range
+DE4-favoravel-C,84,77,77,77,69,M1-C-sumida

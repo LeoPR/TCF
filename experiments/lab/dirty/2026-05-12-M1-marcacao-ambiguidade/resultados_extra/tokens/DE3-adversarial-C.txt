@@ -1,0 +1,41 @@
+# Tokens raiz (online.py exp 16) — DE3-adversarial-C
+# Strings unicas: 8
+
+Formato:
+  L('text')  = TokLit literal
+  P(j, k)    = TokRefPref (pref k chars de noj)
+  S(j, k)    = TokRefSuf (suf k chars de noj)
+
+================================================================================
+
+eid=1: 'maria1@aa.com'
+  tokens: [L('maria1@aa.com')]
+  fragmentos literais: [0:5]='maria' | [5:6]='1' | [6:7]='@' | [7:9]='aa' | [9:13]='.com'
+
+eid=2: 'maria42@aa.com'
+  tokens: [P(1,5), L('42'), S(1,7)]
+  fragmentos literais: [5:7]='42'
+
+eid=3: 'maria103@aa.com'
+  tokens: [P(1,6), L('03'), S(1,7)]
+  fragmentos literais: [6:8]='03'
+
+eid=4: 'maria256@aa.com'
+  tokens: [P(1,5), L('256'), S(1,7)]
+  fragmentos literais: [5:8]='256'
+
+eid=5: 'maria1@bb.com'
+  tokens: [P(1,7), L('bb'), S(1,4)]
+  fragmentos literais: [7:9]='bb'
+
+eid=6: 'maria42@bb.com'
+  tokens: [P(2,8), S(5,6)]
+  fragmentos literais: (nenhum — so' refs)
+
+eid=7: 'maria103@bb.com'
+  tokens: [P(3,9), S(5,6)]
+  fragmentos literais: (nenhum — so' refs)
+
+eid=8: 'maria256@bb.com'
+  tokens: [P(4,9), S(5,6)]
+  fragmentos literais: (nenhum — so' refs)

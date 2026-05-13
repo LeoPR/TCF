@@ -1,0 +1,76 @@
+# Debug — sintaxe=M1-C-sumida dataset=DE2-favoravel-E
+# bytes=82  roundtrip=OK
+
+================================================================================
+INPUT (linhas originais)
+================================================================================
+  [1] abcdefgh
+  [2] xbcdefgh
+  [3] axcdefgh
+  [4] abxdefgh
+  [5] abcxefgh
+  [6] abcdxfgh
+  [7] abcdexgh
+  [8] abcdefxh
+  [9] abcdefgx
+
+================================================================================
+TOKENS (raiz online.py exp 16)
+================================================================================
+  eid=1: 'abcdefgh'
+    tokens: [L('abcdefgh')]
+    fragmentos: [0:1]='a' | [1:2]='b' | [2:3]='c' | [3:4]='d' | [4:5]='e' | [5:6]='f' | [6:7]='g' | [7:8]='h'
+  eid=2: 'xbcdefgh'
+    tokens: [L('x'), S(1,7)]
+    fragmentos: [0:1]='x'
+  eid=3: 'axcdefgh'
+    tokens: [L('ax'), S(1,6)]
+    fragmentos: [0:2]='ax'
+  eid=4: 'abxdefgh'
+    tokens: [L('abx'), S(1,5)]
+    fragmentos: [0:3]='abx'
+  eid=5: 'abcxefgh'
+    tokens: [P(1,3), L('x'), S(1,4)]
+    fragmentos: [3:4]='x'
+  eid=6: 'abcdxfgh'
+    tokens: [P(1,4), L('x'), S(1,3)]
+    fragmentos: [4:5]='x'
+  eid=7: 'abcdexgh'
+    tokens: [P(1,5), L('xgh')]
+    fragmentos: [5:8]='xgh'
+  eid=8: 'abcdefxh'
+    tokens: [P(1,6), L('xh')]
+    fragmentos: [6:8]='xh'
+  eid=9: 'abcdefgx'
+    tokens: [P(1,7), L('x')]
+    fragmentos: [7:8]='x'
+
+================================================================================
+TCF (encode — sintaxe M1-C-sumida)
+================================================================================
+  [
+  a*b*c*d*e*f*g*h
+  x2..8
+  ax3..8
+  abx4..8
+  1..3x5..8
+  1..4x6..8
+  1..5xgh
+  1..6xh
+  1..7x
+  ]
+
+================================================================================
+DECODE (contra-prova)
+================================================================================
+  [ ] abcdefgh
+  [ ] xbcdefgh
+  [ ] axcdefgh
+  [ ] abxdefgh
+  [ ] abcxefgh
+  [ ] abcdxfgh
+  [ ] abcdexgh
+  [ ] abcdefxh
+  [ ] abcdefgx
+
+  -> 9 linhas reconstruidas IGUAIS ao input
