@@ -1,0 +1,36 @@
+# Tokens raiz (online.py exp 16) — DE7-hierarquia-profunda
+# Strings unicas: 8
+
+================================================================================
+
+eid=1: 'https://api.example.com/v1/users/001'
+  tokens: [L('https://api.example.com/v1/users/001')]
+  fragmentos literais: [0:25]='https://api.example.com/v' | [25:26]='1' | [26:27]='/' | [27:29]='us' | [29:35]='ers/00' | [35:36]='1'
+
+eid=2: 'https://api.example.com/v1/users/002'
+  tokens: [P(1,35), L('2')]
+  fragmentos literais: [35:36]='2'
+
+eid=3: 'https://api.example.com/v1/users/003'
+  tokens: [P(1,35), L('3')]
+  fragmentos literais: [35:36]='3'
+
+eid=4: 'https://api.example.com/v1/orders/001'
+  tokens: [P(1,27), L('ord'), S(1,7)]
+  fragmentos literais: [27:30]='ord'
+
+eid=5: 'https://api.example.com/v1/orders/002'
+  tokens: [P(4,30), S(2,7)]
+  fragmentos literais: (nenhum)
+
+eid=6: 'https://api.example.com/v2/users/001'
+  tokens: [P(1,25), L('2'), S(1,10)]
+  fragmentos literais: [25:26]='2'
+
+eid=7: 'https://api.example.com/v2/users/002'
+  tokens: [P(6,26), S(2,10)]
+  fragmentos literais: (nenhum)
+
+eid=8: 'https://api.example.com/v2/orders/001'
+  tokens: [P(6,27), S(4,10)]
+  fragmentos literais: (nenhum)
