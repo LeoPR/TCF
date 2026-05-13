@@ -1,46 +1,42 @@
-# Research Notes — Index
+# Research notes — workbench v0.6
 
-Cada nota e evidencia ou diario de processo. Os achados cientificos
-consolidados vivem em [F-findings.md](../methodology/F-findings.md);
-a sintese paper-ready em [FINDINGS_SUMMARY.md](../FINDINGS_SUMMARY.md).
+Esta pasta contém **apenas** notas vivas do ciclo v0.6 (reset
+2026-05-10). Tudo anterior está em [`_archive/`](_archive/) como
+blueprint não-canônico.
 
-Para evolucao temporal do projeto:
-- [CONSOLIDATED_DEVELOPMENT.md](../CONSOLIDATED_DEVELOPMENT.md) — ordem operacional
-- [CONSOLIDATED_SCIENCE.md](../CONSOLIDATED_SCIENCE.md) — ordem logica das hipoteses
+## Nota viva
 
-Notas obsoletas (cobertas pelos consolidados) foram movidas para
-[_archive/](_archive/).
+| Data | Nota | Conteúdo |
+|------|------|----------|
+| 2026-05-11 | [sintese-algoritmos-v06](2026-05-11-sintese-algoritmos-v06.md) | Síntese dos exps 01-15 do dirty lab v0.6 + mapa da literatura de compressão de strings + posição do TCF |
 
-## Notas ATIVAS (referencia atual)
+## Fonte da verdade
 
-| Data | Nota | Por que persiste |
-|------|------|------------------|
-| 2026-04-10 | [storage-architecture](2026-04-10-storage-architecture.md) | Arquitetura `Z:/tcf-data/` em uso |
-| 2026-04-12 | [dataset-shaper](2026-04-12-dataset-shaper.md) | Decisoes de design do Shaper |
-| 2026-04-14 | [stats-ablation-results](2026-04-14-stats-ablation-results.md) | Dados de F-Q8 (STATS hint) |
-| 2026-04-24 | [schema-qualifier](2026-04-24-schema-qualifier.md) | Roadmap qualifier de schema |
-| 2026-04-25 | [shaper-as-standalone-tool](2026-04-25-shaper-as-standalone-tool.md) | Research idea — Shaper como biblioteca publica |
-| 2026-04-25 | [stratification-metrics](2026-04-25-stratification-metrics.md) | TVD/JSD/Hellinger validados; metodologia em producao |
-| 2026-04-25 | [tabular-formats-literature](2026-04-25-tabular-formats-literature.md) | Lit review formatos LLM 2024-26 |
-| 2026-04-26 | [consolidation-master](2026-04-26-consolidation-master.md) | Auditoria F-Q1..Q28 + taxonomia naturalidade |
+A fonte da verdade do trabalho atual é o **dirty lab v0.6**:
 
-## Notas arquivadas
+```
+experiments/lab/dirty/
+  README.md                          ← índice e convenções do ciclo
+  2026-05-10-01-amostras-iniciais/   ← exp 01
+  2026-05-10-02-patricia-nomes/      ← exp 02
+  ...
+  2026-05-11-15-online-com-fix/      ← exp 15 (estado atual)
+  notas/                             ← notas técnicas do ciclo
+```
 
-[_archive/](_archive/) contem 21 notas que cobrem F-Q1..F-Q23 e
-metodologia inicial. Foram consumidas pelos consolidados acima e por
-F-findings.md. Mantemos por rastreabilidade historica; podem ser
-deletadas no fechamento do projeto se desejado.
+A síntese acima consolida o que esses 15 experimentos
+estabeleceram. Para revisão histórica, ler os READMEs e
+`conclusoes.md` dos próprios experimentos.
 
-Lista resumida (tudo em `_archive/`):
-- F-Q1..F-Q9 origins: canonical-datasets, critical-review, general-review,
-  evaluation-metrics
-- Compression: compression-tokens-streaming, compression-tokenization-strategy,
-  rle-notation-tokenization
-- Modelos: model-known-issues, qualification-findings, thinking-non-convergence,
-  cpu-bench-findings
-- Metodo: question-enrichment, stats-questions-heuristics,
-  timing-measurement-methodology
-- Linha B inicial: coverage-and-intermediate-forms, embedded-query-invariants,
-  conservative-sql-flag, query-theory
-- Plans (executados): canonical-migration-plan, validation-master-plan
-- Outros: tcf-retrospective
+## Sobre `_archive/`
+
+Contém notas e consolidados das versões anteriores (v0.0 a v0.5).
+**Não são referência canônica para v0.6.** Servem para:
+
+- Localizar bugs e armadilhas já encontradas em ciclos anteriores
+- Resgatar ideias antigas que podem ser **rebatizadas como
+  hipóteses novas** e re-testadas no dirty v0.6 (não importadas)
+- Rastreabilidade histórica
+
+Nenhuma conclusão dos `_archive/` deve ser citada como evidência
+em ticket, finding ou paper sem ser re-validada pelo dirty v0.6.

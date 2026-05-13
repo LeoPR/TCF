@@ -167,6 +167,20 @@ intrínseca da serialização.
 | 13 | 2026-05-10 | [repair-bottomup](2026-05-10-13-repair-bottomup/) | Re-Pair (substring em qualquer posição) | 3/3 roundtrip OK; -31.8% em D2-completo, -16% em D4 vs exp 10 |
 | 14 | 2026-05-10 | [online-sem-revisao](2026-05-10-14-online-sem-revisao/) | online incremental sem revisão (Opção A) | 3/3 roundtrip OK; vence Re-Pair em D4 (-25b), perde em D2 (+6, +16) |
 | 15 | 2026-05-11 | [online-com-fix](2026-05-11-15-online-com-fix/) | fix do exp 14: busca sufixo/prefixo menor em overlap | 3/3 roundtrip OK; -33% a -37% em unidades vs Re-Pair |
+| 16 | 2026-05-11 | [online-cleanup](2026-05-11-16-online-cleanup/) | refatoração estrutural do exp 15 (dominância de candidatos, RLE em função própria, remoção de ruído) | 3/3 roundtrip OK; TCFs byte-idênticos ao exp 15; -14% linhas de código |
+| 17 | 2026-05-11 | [familias-variadas](2026-05-11-17-familias-variadas/) | comportamento do exp 16 em 6 famílias (URLs, UUIDs, ISO, IPs, CPFs, códigos) | 6/6 roundtrip OK; 2 regimes — Regime A (timestamps 88.8%, códigos 86.9%, URLs 80.6%, IPs 72.0%); Regime B adversarial (uuids 0.7%, cpfs 0.0%) |
+| 18 | 2026-05-12 | [escala](2026-05-12-18-escala/) | tempo e cobertura do exp 16 em N=50, 200, 1000 nas 4 famílias do regime A | 12/12 roundtrip OK; cobertura sobe com N (até 96-99% em N=1000); tempo O(N²·L) confirmado; ~2 unidades/string em regime estável |
+| 19 | 2026-05-12 | [par-AB-independente](2026-05-12-19-par-AB-independente/) | busca exaustiva sobre pares (prev_a, prev_b) — direção declarada como limitação no exp 15 | 21/21 roundtrip OK; **0 ganho em unidades** em 21/21 datasets; bytes verbosos pioram 4-6% em codigos; direção descartada cientificamente |
+| 20 | 2026-05-12 | [marcadores-modulares](2026-05-12-20-marcadores-modulares/) | desacopla algoritmo (`online.py`) de sintaxe via interface `Syntax`; `VerboseSyntax` reproduz exp 16 | 21/21 roundtrip OK; TCFs byte-idênticos ao exp 16 em 21/21; trocar sintaxe agora é localizado em 1 arquivo |
+| 21 | 2026-05-12 | [syntax-compact-v1](2026-05-12-21-syntax-compact-v1/) | primeira sintaxe alternativa: marcadores compactos explícitos (Direção 1 da nota `marcadores-compactos`) | 21/21 roundtrip OK em ambas sintaxes; total 156126 → 85508 bytes (**-45.2%**); razão verbose:compact ≈ 0.5 em regime A; algoritmo intocado |
+| 22 | 2026-05-12 | [syntax-compact-v2](2026-05-12-22-syntax-compact-v2/) | segunda sintaxe alternativa: idx automático por fragmento (Direção 2 da nota — proposta do user) | 63/63 roundtrip OK; **vence v1 em 17/21 datasets** (até -41%); **perde em 4** (iso-N1000 +86%); trade-off: custo ∝ número de quebras por nó |
+| 23 | 2026-05-12 | [syntax-variations](2026-05-12-23-syntax-variations/) | 5 sintaxes lado a lado em D2-mini + D2-completo (verbose, v1, v1b sem `@N:`, v2, v3 sem aspas) | 10/10 roundtrip OK; **v3 vence**: D2-mini 85B (-59% vs verbose, -27% vs v1), D2-completo 177B (-61%, -24%); v1b: ganho universal -16% vs v1; v3 limitado a literais sem dígitos |
+| 24 | 2026-05-12 | [syntax-ambiguidade](2026-05-12-24-syntax-ambiguidade/) | resistência a chars ambíguos no literal — 4 sintaxes (v2, v3, v4-escape, v4-quote) em 4 datasets com gradiente | v2 e v3 falham em datasets reais; **v4-escape e v4-quote sempre funcionam mas trocam ganho**: escape vence K=1 (`'`, dispersos); quote vence K≥3 (vários dígitos contíguos); limiar empate K=2 |
+| 25 | 2026-05-12 | [syntax-adapt](2026-05-12-25-syntax-adapt/) | v4-quote-fixed (correção do bug: `'` não dispara aspas) + v5-adapt-{escape,quote} (substituição global de marcadores secundários) | v4-q-fix valida intuição do user (**-20B em nomes-com-aspas**); v5-adapt **não compensa** nos 4 datasets — header de 4B não se paga com N≤2 ocorrências do char substituído por fragmento literal |
+| 26 | 2026-05-12 | [syntax-mixed](2026-05-12-26-syntax-mixed/) | exp enxuto: 1 dataset realista (emails-quote-id), 3 sintaxes (v4-escape, v4-q-fix, v4-mixed) | 3/3 roundtrip OK; **v4-q-fix == v4-mixed empatam em 198B**; v4-escape 200B; escolha-por-literal não traz ganho — separador `*` compensa exatamente; **v4-q-fix é a sintaxe vencedora** consolidada |
+| 27 | 2026-05-12 | [analise-ambiguidade](2026-05-12-27-analise-ambiguidade/) | **Etapa 1 do flow semântico**: analisador puro que classifica cada char dos literais em A (livre) / B (contexto resolve) / C (conflito real); sem emitir TCF | mapeou emails-quote-id: **80% A, 0% B, 20% C** (só dígitos); empate teórico escape vs aspas (+14B); identifica espaço para sumida/órfã (próximas etapas); raiz: tokens do exp 16 |
+| 28 | 2026-05-12 | [sumida-e-slice](2026-05-12-28-sumida-e-slice/) | **Etapa 2 do flow semântico**: sumida (parser stateful para dígitos quando idx N não existe) implementada + análise de slice arbitrário (potencial medido sem implementar) | sumida ganha **só 1B em D2 e 2B em D3** (~0.5-0.9%); slice arbitrário tem potencial 2-5B; **algoritmo do exp 16 já faz o trabalho pesado**; refinamentos atingiram diminishing returns |
+| M1 | 2026-05-12 | [M1-marcacao-ambiguidade](2026-05-12-M1-marcacao-ambiguidade/) | **macro experimento**: 4 micros (escape, quote, sumida, slice) × 4 datasets (D1-D4) com 4 fases (F1 viabilidade → F2 diferenças → F3 substituição → F4 fechamento) — reset mental a partir da raiz exp 16 | em curso — Setup OK; M1.A/B/C/D pendentes |
 
 ## Descrição dos experimentos
 
@@ -344,6 +358,18 @@ Documento de síntese dos algoritmos do ciclo v0.6 (até exp 15) em
 [`docs/workbench/research-notes/2026-05-11-sintese-algoritmos-v06.md`](../../../docs/workbench/research-notes/2026-05-11-sintese-algoritmos-v06.md).
 Inclui trade-off triangular, evolução Patricia bidir → Re-Pair →
 online incremental, métricas, e mapeamento conceito ↔ código.
+
+## Notas técnicas (`notas/`)
+
+Notas conceituais que atravessam vários experimentos ou registram
+direções futuras a resgatar:
+
+| Nota | Tema |
+|---|---|
+| [custo-de-marcadores](notas/2026-05-11-custo-de-marcadores.md) | teoria dos 4 níveis de custo e da métrica de unidades de informação |
+| [comparacoes-nao-literais](notas/2026-05-11-comparacoes-nao-literais.md) | delta encoding (lossless) e modalidades lossy (texto aproximado, numérico) — futuro |
+| [marcadores-compactos](notas/2026-05-11-marcadores-compactos.md) | sintaxe ultra-compacta e marcadores inferidos pela ordem — futuro |
+| [tipos-com-estrutura](notas/2026-05-11-tipos-com-estrutura.md) | tipos com estrutura conhecida (CPF, UUID, IP, ISO, etc.) como pré-transformação — futuro |
 
 ## Evolução do v0.6 até o exp 06
 
