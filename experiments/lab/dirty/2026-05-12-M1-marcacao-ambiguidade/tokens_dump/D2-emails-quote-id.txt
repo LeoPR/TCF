@@ -1,0 +1,76 @@
+==========================================================================================
+DATASET: D2-emails-quote-id  (12 strings unicas)
+==========================================================================================
+M1.A: 200 bytes    M1.B: 198 bytes    diff: -2
+
+  eid=1: "d'angelo1@gmail.com"
+    tokens (online.py raiz): [L("d'angelo1@gmail.com")]
+    fragmentos literais: [0:3]="d'a" | [3:6]='nge' | [6:8]='lo' | [8:9]='1' | [9:11]='@g' | [11:15]='mail' | [15:19]='.com'
+    M1.A: d'a*nge*lo*\1*@g*mail*.com
+    M1.B: d'a*nge*lo*'1'@g*mail*.com
+
+  eid=2: "d'angelo42@gmail.com"
+    tokens (online.py raiz): [P(1,8), L('42'), S(1,10)]
+    fragmentos literais: [8:10]='42'
+    M1.A: 1,2,3\4\25,6,7
+    M1.B: 1,2,3'42'5,6,7
+
+  eid=3: "d'angelo103@gmail.com"
+    tokens (online.py raiz): [P(1,9), L('03'), S(1,10)]
+    fragmentos literais: [9:11]='03'
+    M1.A: 1,2,3,4\0\35,6,7
+    M1.B: 1,2,3,4'03'5,6,7
+
+  eid=4: "o'brien1@gmail.com"
+    tokens (online.py raiz): [L("o'brien"), S(1,11)]
+    fragmentos literais: [0:7]="o'brien"
+    M1.A: o'brien4,5,6,7
+    M1.B: o'brien4,5,6,7
+
+  eid=5: "o'brien42@gmail.com"
+    tokens (online.py raiz): [P(4,7), S(2,12)]
+    fragmentos literais: (nenhum -- so' refs)
+    M1.A: 10,8,5,6,7
+    M1.B: 10,8,5,6,7
+
+  eid=6: "o'brien103@gmail.com"
+    tokens (online.py raiz): [P(4,8), S(3,12)]
+    fragmentos literais: (nenhum -- so' refs)
+    M1.A: 10,4,9,5,6,7
+    M1.B: 10,4,9,5,6,7
+
+  eid=7: "de'mello1@gmail.com"
+    tokens (online.py raiz): [L("de'mel"), S(1,13)]
+    fragmentos literais: [0:6]="de'mel"
+    M1.A: de'mel3,4,5,6,7
+    M1.B: de'mel3,4,5,6,7
+
+  eid=8: "de'mello42@gmail.com"
+    tokens (online.py raiz): [P(7,8), S(2,12)]
+    fragmentos literais: (nenhum -- so' refs)
+    M1.A: 11,3,8,5,6,7
+    M1.B: 11,3,8,5,6,7
+
+  eid=9: "m'baye1@hotmail.com"
+    tokens (online.py raiz): [L("m'baye1@hot"), S(1,8)]
+    fragmentos literais: [0:6]="m'baye" | [6:7]='1' | [7:11]='@hot'
+    M1.A: m'baye*\1*@hot6,7
+    M1.B: m'baye*'1'@hot6,7
+
+  eid=10: "m'baye42@hotmail.com"
+    tokens (online.py raiz): [P(9,6), L('42'), S(9,12)]
+    fragmentos literais: [6:8]='42'
+    M1.A: 12\4\214,6,7
+    M1.B: 12'42'14,6,7
+
+  eid=11: "o'connor103@yahoo.com"
+    tokens (online.py raiz): [L("o'connor103@yahoo"), S(1,4)]
+    fragmentos literais: [0:11]="o'connor103" | [11:17]='@yahoo'
+    M1.A: o'connor\1\0\3*@yahoo7
+    M1.B: 'o\'connor103'@yahoo7
+
+  eid=12: "d'arcy256@yahoo.com"
+    tokens (online.py raiz): [P(1,3), L('rcy256'), S(11,10)]
+    fragmentos literais: [3:9]='rcy256'
+    M1.A: 1rcy\2\5\617,7
+    M1.B: 1'rcy256'17,7

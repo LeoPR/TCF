@@ -1,0 +1,76 @@
+==========================================================================================
+DATASET: D4-caos-mix  (12 strings unicas)
+==========================================================================================
+M1.A: 152 bytes    M1.B: 160 bytes    diff: +8
+
+  eid=1: "[a]*'foo'@42"
+    tokens (online.py raiz): [L("[a]*'foo'@42")]
+    fragmentos literais: [0:2]='[a' | [2:5]="]*'" | [5:8]='foo' | [8:11]="'@4" | [11:12]='2'
+    M1.A: [a*]\*'*foo*'@\4*\2
+    M1.B: [a*']*\''foo*'\'@4''2'
+
+  eid=2: "[a]*'foo'@43"
+    tokens (online.py raiz): [P(1,11), L('3')]
+    fragmentos literais: [11:12]='3'
+    M1.A: 1,2,3,4\3
+    M1.B: 1,2,3,4'3'
+
+  eid=3: "[a]*'foo'@44"
+    tokens (online.py raiz): [P(1,11), L('4')]
+    fragmentos literais: [11:12]='4'
+    M1.A: 1,2,3,4\4
+    M1.B: 1,2,3,4'4'
+
+  eid=4: "[b]*'foo'@42"
+    tokens (online.py raiz): [L('[b'), S(1,10)]
+    fragmentos literais: [0:2]='[b'
+    M1.A: [b2,3,4,5
+    M1.B: [b2,3,4,5
+
+  eid=5: "[b]*'foo'@43"
+    tokens (online.py raiz): [P(4,11), L('3')]
+    fragmentos literais: [11:12]='3'
+    M1.A: 8,2,3,4\3
+    M1.B: 8,2,3,4'3'
+
+  eid=6: "[b]*'foo'@44"
+    tokens (online.py raiz): [P(4,11), L('4')]
+    fragmentos literais: [11:12]='4'
+    M1.A: 8,2,3,4\4
+    M1.B: 8,2,3,4'4'
+
+  eid=7: "[a]*'bar'@42"
+    tokens (online.py raiz): [P(1,5), L('bar'), S(1,4)]
+    fragmentos literais: [5:7]='ba' | [7:8]='r'
+    M1.A: 1,2ba*r4,5
+    M1.B: 1,2ba*r4,5
+
+  eid=8: "[a]*'bar'@43"
+    tokens (online.py raiz): [P(7,8), S(2,4)]
+    fragmentos literais: (nenhum -- so' refs)
+    M1.A: 1,2,11,12,4,6
+    M1.B: 1,2,11,12,4,6
+
+  eid=9: "[b]*'bar'@42"
+    tokens (online.py raiz): [P(4,5), S(7,7)]
+    fragmentos literais: (nenhum -- so' refs)
+    M1.A: 8,2,11,12,4,5
+    M1.B: 8,2,11,12,4,5
+
+  eid=10: "[b]*'bar'@43"
+    tokens (online.py raiz): [P(9,11), L('3')]
+    fragmentos literais: [11:12]='3'
+    M1.A: 8,2,11,12,4\3
+    M1.B: 8,2,11,12,4'3'
+
+  eid=11: "[a]*'baz'@42"
+    tokens (online.py raiz): [P(7,7), L('z'), S(1,4)]
+    fragmentos literais: [7:8]='z'
+    M1.A: 1,2,11z4,5
+    M1.B: 1,2,11z4,5
+
+  eid=12: "[b]*'baz'@42"
+    tokens (online.py raiz): [P(9,7), S(11,5)]
+    fragmentos literais: (nenhum -- so' refs)
+    M1.A: 8,2,11,14,4,5
+    M1.B: 8,2,11,14,4,5

@@ -1,0 +1,307 @@
+==========================================================================================
+DATASET: D1-emails-simples  (12 strings unicas)
+==========================================================================================
+M1.A: 162 bytes    M1.B: 162 bytes    diff: +0
+
+  eid=1: 'joao@gmail.com'
+    tokens (online.py raiz): [L('joao@gmail.com')]
+    fragmentos literais: [0:3]='joa' | [3:4]='o' | [4:5]='@' | [5:6]='g' | [6:10]='mail' | [10:14]='.com'
+    M1.A: joa*o*@*g*mail*.com
+    M1.B: joa*o*@*g*mail*.com
+
+  eid=2: 'maria@gmail.com'
+    tokens (online.py raiz): [L('maria'), S(1,10)]
+    fragmentos literais: [0:4]='mari' | [4:5]='a'
+    M1.A: mari*a3,4,5,6
+    M1.B: mari*a3,4,5,6
+
+  eid=3: 'pedro@gmail.com'
+    tokens (online.py raiz): [L('pedr'), S(1,11)]
+    fragmentos literais: [0:4]='pedr'
+    M1.A: pedr2,3,4,5,6
+    M1.B: pedr2,3,4,5,6
+
+  eid=4: 'ana@gmail.com'
+    tokens (online.py raiz): [L('an'), S(2,11)]
+    fragmentos literais: [0:2]='an'
+    M1.A: an8,3,4,5,6
+    M1.B: an8,3,4,5,6
+
+  eid=5: 'joao@hotmail.com'
+    tokens (online.py raiz): [P(1,5), L('hot'), S(1,8)]
+    fragmentos literais: [5:8]='hot'
+    M1.A: 1,2,3hot5,6
+    M1.B: 1,2,3hot5,6
+
+  eid=6: 'maria@hotmail.com'
+    tokens (online.py raiz): [P(2,6), S(5,11)]
+    fragmentos literais: (nenhum -- so' refs)
+    M1.A: 7,8,3,11,5,6
+    M1.B: 7,8,3,11,5,6
+
+  eid=7: 'pedro@hotmail.com'
+    tokens (online.py raiz): [P(3,6), S(5,11)]
+    fragmentos literais: (nenhum -- so' refs)
+    M1.A: 9,2,3,11,5,6
+    M1.B: 9,2,3,11,5,6
+
+  eid=8: 'ana@hotmail.com'
+    tokens (online.py raiz): [P(4,4), S(5,11)]
+    fragmentos literais: (nenhum -- so' refs)
+    M1.A: 10,8,3,11,5,6
+    M1.B: 10,8,3,11,5,6
+
+  eid=9: 'joao@yahoo.com'
+    tokens (online.py raiz): [P(1,5), L('yahoo'), S(1,4)]
+    fragmentos literais: [5:10]='yahoo'
+    M1.A: 1,2,3yahoo6
+    M1.B: 1,2,3yahoo6
+
+  eid=10: 'maria@yahoo.com'
+    tokens (online.py raiz): [P(2,6), S(9,9)]
+    fragmentos literais: (nenhum -- so' refs)
+    M1.A: 7,8,3,12,6
+    M1.B: 7,8,3,12,6
+
+  eid=11: 'pedro@yahoo.com'
+    tokens (online.py raiz): [P(3,6), S(9,9)]
+    fragmentos literais: (nenhum -- so' refs)
+    M1.A: 9,2,3,12,6
+    M1.B: 9,2,3,12,6
+
+  eid=12: 'ana@yahoo.com'
+    tokens (online.py raiz): [P(4,4), S(9,9)]
+    fragmentos literais: (nenhum -- so' refs)
+    M1.A: 10,8,3,12,6
+    M1.B: 10,8,3,12,6
+
+==========================================================================================
+DATASET: D2-emails-quote-id  (12 strings unicas)
+==========================================================================================
+M1.A: 200 bytes    M1.B: 198 bytes    diff: -2
+
+  eid=1: "d'angelo1@gmail.com"
+    tokens (online.py raiz): [L("d'angelo1@gmail.com")]
+    fragmentos literais: [0:3]="d'a" | [3:6]='nge' | [6:8]='lo' | [8:9]='1' | [9:11]='@g' | [11:15]='mail' | [15:19]='.com'
+    M1.A: d'a*nge*lo*\1*@g*mail*.com
+    M1.B: d'a*nge*lo*'1'@g*mail*.com
+
+  eid=2: "d'angelo42@gmail.com"
+    tokens (online.py raiz): [P(1,8), L('42'), S(1,10)]
+    fragmentos literais: [8:10]='42'
+    M1.A: 1,2,3\4\25,6,7
+    M1.B: 1,2,3'42'5,6,7
+
+  eid=3: "d'angelo103@gmail.com"
+    tokens (online.py raiz): [P(1,9), L('03'), S(1,10)]
+    fragmentos literais: [9:11]='03'
+    M1.A: 1,2,3,4\0\35,6,7
+    M1.B: 1,2,3,4'03'5,6,7
+
+  eid=4: "o'brien1@gmail.com"
+    tokens (online.py raiz): [L("o'brien"), S(1,11)]
+    fragmentos literais: [0:7]="o'brien"
+    M1.A: o'brien4,5,6,7
+    M1.B: o'brien4,5,6,7
+
+  eid=5: "o'brien42@gmail.com"
+    tokens (online.py raiz): [P(4,7), S(2,12)]
+    fragmentos literais: (nenhum -- so' refs)
+    M1.A: 10,8,5,6,7
+    M1.B: 10,8,5,6,7
+
+  eid=6: "o'brien103@gmail.com"
+    tokens (online.py raiz): [P(4,8), S(3,12)]
+    fragmentos literais: (nenhum -- so' refs)
+    M1.A: 10,4,9,5,6,7
+    M1.B: 10,4,9,5,6,7
+
+  eid=7: "de'mello1@gmail.com"
+    tokens (online.py raiz): [L("de'mel"), S(1,13)]
+    fragmentos literais: [0:6]="de'mel"
+    M1.A: de'mel3,4,5,6,7
+    M1.B: de'mel3,4,5,6,7
+
+  eid=8: "de'mello42@gmail.com"
+    tokens (online.py raiz): [P(7,8), S(2,12)]
+    fragmentos literais: (nenhum -- so' refs)
+    M1.A: 11,3,8,5,6,7
+    M1.B: 11,3,8,5,6,7
+
+  eid=9: "m'baye1@hotmail.com"
+    tokens (online.py raiz): [L("m'baye1@hot"), S(1,8)]
+    fragmentos literais: [0:6]="m'baye" | [6:7]='1' | [7:11]='@hot'
+    M1.A: m'baye*\1*@hot6,7
+    M1.B: m'baye*'1'@hot6,7
+
+  eid=10: "m'baye42@hotmail.com"
+    tokens (online.py raiz): [P(9,6), L('42'), S(9,12)]
+    fragmentos literais: [6:8]='42'
+    M1.A: 12\4\214,6,7
+    M1.B: 12'42'14,6,7
+
+  eid=11: "o'connor103@yahoo.com"
+    tokens (online.py raiz): [L("o'connor103@yahoo"), S(1,4)]
+    fragmentos literais: [0:11]="o'connor103" | [11:17]='@yahoo'
+    M1.A: o'connor\1\0\3*@yahoo7
+    M1.B: 'o\'connor103'@yahoo7
+
+  eid=12: "d'arcy256@yahoo.com"
+    tokens (online.py raiz): [P(1,3), L('rcy256'), S(11,10)]
+    fragmentos literais: [3:9]='rcy256'
+    M1.A: 1rcy\2\5\617,7
+    M1.B: 1'rcy256'17,7
+
+==========================================================================================
+DATASET: D3-stress-substring  (12 strings unicas)
+==========================================================================================
+M1.A: 242 bytes    M1.B: 233 bytes    diff: -9
+
+  eid=1: 'api/users/00042/profile.json'
+    tokens (online.py raiz): [L('api/users/00042/profile.json')]
+    fragmentos literais: [0:3]='api' | [3:4]='/' | [4:12]='users/00' | [12:15]='042' | [15:23]='/profile' | [23:24]='.' | [24:28]='json'
+    M1.A: api*/*users/\0\0*\0\4\2*/profile*.*json
+    M1.B: api*/*'users/00''042'/profile*.*json
+
+  eid=2: 'api/users/00103/profile.json'
+    tokens (online.py raiz): [P(1,12), L('103'), S(1,13)]
+    fragmentos literais: [12:15]='103'
+    M1.A: 1,2,3\1\0\35,6,7
+    M1.B: 1,2,3'103'5,6,7
+
+  eid=3: 'api/users/00256/profile.json'
+    tokens (online.py raiz): [P(1,12), L('256'), S(1,13)]
+    fragmentos literais: [12:15]='256'
+    M1.A: 1,2,3\2\5\65,6,7
+    M1.B: 1,2,3'256'5,6,7
+
+  eid=4: 'web/users/00042/profile.json'
+    tokens (online.py raiz): [L('web'), S(1,25)]
+    fragmentos literais: [0:3]='web'
+    M1.A: web2,3,4,5,6,7
+    M1.B: web2,3,4,5,6,7
+
+  eid=5: 'web/users/00103/profile.json'
+    tokens (online.py raiz): [P(4,12), S(2,16)]
+    fragmentos literais: (nenhum -- so' refs)
+    M1.A: 10,2,3,8,5,6,7
+    M1.B: 10,2,3,8,5,6,7
+
+  eid=6: 'web/users/00256/profile.json'
+    tokens (online.py raiz): [P(4,12), S(3,16)]
+    fragmentos literais: (nenhum -- so' refs)
+    M1.A: 10,2,3,9,5,6,7
+    M1.B: 10,2,3,9,5,6,7
+
+  eid=7: 'api/orders/00042/items.json'
+    tokens (online.py raiz): [P(1,4), L('orders/00042/items'), S(1,5)]
+    fragmentos literais: [4:13]='orders/00' | [13:16]='042' | [16:22]='/items'
+    M1.A: 1,2orders/\0\0*\0\4\2*/items6,7
+    M1.B: 1,2'orders/00''042'/items6,7
+
+  eid=8: 'api/orders/00103/items.json'
+    tokens (online.py raiz): [P(7,13), L('103'), S(7,11)]
+    fragmentos literais: [13:16]='103'
+    M1.A: 1,2,11\1\0\313,6,7
+    M1.B: 1,2,11'103'13,6,7
+
+  eid=9: 'web/orders/00042/items.json'
+    tokens (online.py raiz): [P(4,4), S(7,23)]
+    fragmentos literais: (nenhum -- so' refs)
+    M1.A: 10,2,11,12,13,6,7
+    M1.B: 10,2,11,12,13,6,7
+
+  eid=10: 'web/orders/00103/items.json'
+    tokens (online.py raiz): [P(9,13), S(8,14)]
+    fragmentos literais: (nenhum -- so' refs)
+    M1.A: 10,2,11,14,13,6,7
+    M1.B: 10,2,11,14,13,6,7
+
+  eid=11: 'api/users/00042/profile.html'
+    tokens (online.py raiz): [P(1,24), L('html')]
+    fragmentos literais: [24:28]='html'
+    M1.A: 1,2,3,4,5,6html
+    M1.B: 1,2,3,4,5,6html
+
+  eid=12: 'web/users/00042/profile.html'
+    tokens (online.py raiz): [P(4,24), S(11,4)]
+    fragmentos literais: (nenhum -- so' refs)
+    M1.A: 10,2,3,4,5,6,15
+    M1.B: 10,2,3,4,5,6,15
+
+==========================================================================================
+DATASET: D4-caos-mix  (12 strings unicas)
+==========================================================================================
+M1.A: 152 bytes    M1.B: 160 bytes    diff: +8
+
+  eid=1: "[a]*'foo'@42"
+    tokens (online.py raiz): [L("[a]*'foo'@42")]
+    fragmentos literais: [0:2]='[a' | [2:5]="]*'" | [5:8]='foo' | [8:11]="'@4" | [11:12]='2'
+    M1.A: [a*]\*'*foo*'@\4*\2
+    M1.B: [a*']*\''foo*'\'@4''2'
+
+  eid=2: "[a]*'foo'@43"
+    tokens (online.py raiz): [P(1,11), L('3')]
+    fragmentos literais: [11:12]='3'
+    M1.A: 1,2,3,4\3
+    M1.B: 1,2,3,4'3'
+
+  eid=3: "[a]*'foo'@44"
+    tokens (online.py raiz): [P(1,11), L('4')]
+    fragmentos literais: [11:12]='4'
+    M1.A: 1,2,3,4\4
+    M1.B: 1,2,3,4'4'
+
+  eid=4: "[b]*'foo'@42"
+    tokens (online.py raiz): [L('[b'), S(1,10)]
+    fragmentos literais: [0:2]='[b'
+    M1.A: [b2,3,4,5
+    M1.B: [b2,3,4,5
+
+  eid=5: "[b]*'foo'@43"
+    tokens (online.py raiz): [P(4,11), L('3')]
+    fragmentos literais: [11:12]='3'
+    M1.A: 8,2,3,4\3
+    M1.B: 8,2,3,4'3'
+
+  eid=6: "[b]*'foo'@44"
+    tokens (online.py raiz): [P(4,11), L('4')]
+    fragmentos literais: [11:12]='4'
+    M1.A: 8,2,3,4\4
+    M1.B: 8,2,3,4'4'
+
+  eid=7: "[a]*'bar'@42"
+    tokens (online.py raiz): [P(1,5), L('bar'), S(1,4)]
+    fragmentos literais: [5:7]='ba' | [7:8]='r'
+    M1.A: 1,2ba*r4,5
+    M1.B: 1,2ba*r4,5
+
+  eid=8: "[a]*'bar'@43"
+    tokens (online.py raiz): [P(7,8), S(2,4)]
+    fragmentos literais: (nenhum -- so' refs)
+    M1.A: 1,2,11,12,4,6
+    M1.B: 1,2,11,12,4,6
+
+  eid=9: "[b]*'bar'@42"
+    tokens (online.py raiz): [P(4,5), S(7,7)]
+    fragmentos literais: (nenhum -- so' refs)
+    M1.A: 8,2,11,12,4,5
+    M1.B: 8,2,11,12,4,5
+
+  eid=10: "[b]*'bar'@43"
+    tokens (online.py raiz): [P(9,11), L('3')]
+    fragmentos literais: [11:12]='3'
+    M1.A: 8,2,11,12,4\3
+    M1.B: 8,2,11,12,4'3'
+
+  eid=11: "[a]*'baz'@42"
+    tokens (online.py raiz): [P(7,7), L('z'), S(1,4)]
+    fragmentos literais: [7:8]='z'
+    M1.A: 1,2,11z4,5
+    M1.B: 1,2,11z4,5
+
+  eid=12: "[b]*'baz'@42"
+    tokens (online.py raiz): [P(9,7), S(11,5)]
+    fragmentos literais: (nenhum -- so' refs)
+    M1.A: 8,2,11,14,4,5
+    M1.B: 8,2,11,14,4,5
