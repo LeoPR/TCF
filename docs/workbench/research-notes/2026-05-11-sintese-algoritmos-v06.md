@@ -14,13 +14,13 @@ e bidirecionalidade entre conceito abstrato e implementação.
 ## 1. Problema
 
 TCF (Textual Columnar Format) precisa comprimir colunas de strings
-relacionais (nomes, emails, URLs, IDs) em formato textual legível
-para LLMs lerem em contexto. Requisitos:
+relacionais (nomes, emails, URLs, IDs) em formato textual. Requisitos:
 
 - **Roundtrip lossless** — decodificação reproduz o input
   caractere por caractere
 - **Densidade razoável** — competitivo com CSV/JSON/HTFC
-- **Estrutura inspecionável** — texto inteligível pelo LLM
+- **Estrutura inspecionável** — texto direto, inspecionável a olho,
+  decoder simples
 
 A coluna típica tem 20-1000+ strings com **padrões compartilhados**
 (domínios de email, base de URLs, prefixos de nomes). O algoritmo
@@ -254,31 +254,152 @@ strings já existentes (`noN[0:K]`). Funciona melhor quando há
 
 ---
 
-## 10. Sobre potencial de publicação
+## 10. Posição do TCF na literatura
 
-A combinação implementada no exp 15 — **online incremental com
-busca de par alternativo em overlap, sem árvore reversa** — não
-tem precedente publicado direto, segundo duas rodadas de
-pesquisa anterior:
+Mapa das famílias de algoritmos de compressão de strings, eixos
+de classificação e a posição precisa do TCF/exp 15.
 
-- Sequitur (Nevill-Manning & Witten 1997) opera em sequência
-  linear, não em coleção de strings
-- Re-Pair (Larsson & Moffat 2000) é batch global, sem variante
-  online clássica que use estrutura semelhante
-- Front coding (Witten/Moffat/Bell) só usa vizinho lex-adjacente
-- Affix tree (Maaß 2003) é para busca, não codificação
+### 10.1 Famílias clássicas
 
-**Possível artigo** se acompanhar de:
+**A. Sequencial estatística (LZ77/78, gzip/zstd/brotli, BWT/bzip2)**
 
-- Datasets de tamanho realista (não 6-20 strings)
-- Comparação empírica com HTFC, RPFC, FSST, Re-Pair, BPE
-- Análise de complexidade formal (O(N²·L) é tractable mas
-  precisa quantificar)
+Tratam input como sequência de bytes; ignoram estrutura semântica.
+LZ77 (Ziv & Lempel 1977) usa janela deslizante e substitui
+repetições por `(offset, length)`. BWT (Burrows & Wheeler 1994)
+rearranja bytes para favorecer RLE/Huffman downstream.
+Granularidade bit/byte; saída binária.
+
+**TCF não concorre** com esta família — gzip pode rodar depois do
+TCF se densidade binária for objetivo. São complementares.
+
+**B. Front coding (PFC / RPFC / HTFC)**
+
+Ordena coleção de strings; cada string vira
+`(LCP_com_vizinho, sufixo_único)`. Witten/Moffat/Bell (Managing
+Gigabytes, 1999) descrevem a técnica clássica. Brisaboa et al.
+(2009-2016) adicionam Hu-Tucker em HTFC, usado em dicionários
+WordNet e índices de URL.
+
+**Limite**: explora apenas vizinho lex-adjacente. Não captura
+sufixos comuns, não vê padrões em strings distantes.
+
+TCF/exp 15 generaliza: compara contra todas as anteriores,
+captura pref+suf bidirecional.
+
+**C. Suffix sharing / suffix trees / affix trees**
+
+Ukkonen (1995) constrói suffix tree online em O(n). Maaß (2003)
+estende para affix tree — bidirecional (prefixos + sufixos).
+Estrutura para **busca** (substring, longest common substring),
+não codificação. Usado em bioinformática e indexação textual.
+
+TCF/exp 15 aproveita LCP+LCS sobre strings cacheadas sem manter
+árvore reversa explícita; descarta o caso de busca, mantém só
+comparação par-a-par.
+
+**D. Grammar-based (Sequitur, Re-Pair)**
+
+Sequitur (Nevill-Manning & Witten 1997): online sobre uma única
+sequência linear; mantém digram uniqueness + rule utility. Re-Pair
+(Larsson & Moffat 2000): batch global sobre coleção; substitui
+par-mais-frequente por símbolo novo; itera.
+
+Limite teórico: Smallest Grammar Problem é NP-hard. Heurísticas
+têm aproximação O(log(n/g*)).
+
+TCF/exp 13 implementou Re-Pair. Exp 15 pivotou para online sem
+gramática explícita — refs implícitas a substrings de nós já
+existentes, não símbolos declarados.
+
+**E. String dictionaries comprimidos (FSST, OnPair)**
+
+FSST (Boncz et al. 2020): Fast Static Symbol Table para colunas
+de string em DuckDB/MonetDB. OnPair (2025): short string
+compression para colunas analíticas. Característica: tabela auxiliar
+binária + decode SIMD. Foco em velocidade de scan, não densidade
+máxima.
+
+TCF: propósito similar (coluna de strings) mas em texto puro,
+sem tabela auxiliar binária, com decoder simples.
+
+### 10.2 Eixos de classificação
+
+Cada algoritmo se posiciona em ~9 eixos. A tabela posiciona o
+TCF/exp 15 ao lado dos vizinhos mais próximos:
+
+| Eixo | TCF/exp 15 | Re-Pair | Front coding | Sequitur | LZ77 |
+|---|---|---|---|---|---|
+| Granularidade | char | char | char | char | byte |
+| Escopo | coleção | coleção | coleção | seq. única | seq. única |
+| Estratégia | estrutural | gramatical | estrutural | gramatical | estatística |
+| Processamento | online | batch | online | online | online (janela) |
+| Adjacência | todos-pares | todos | lex-vizinho | digrams | bytes na janela |
+| Direção | bidir (LCP+LCS) | forward | forward | forward | forward |
+| Output | textual | textual/binário | binário | binário | binário |
+| Otimização | greedy | greedy | trivial | greedy local | greedy |
+| Revisão | monotônico | n/a (batch) | monotônico | retroativa (rule utility) | monotônico |
+
+### 10.3 O cruzamento em branco
+
+Combinação específica do TCF/exp 15:
+
+```
+online + coleção + estrutural char-level + bidir (LCP+LCS)
++ todos-pares + textual + monotônico
+```
+
+Não encontrei precedente publicado direto. As aproximações da
+literatura faltam ao menos uma característica:
+
+| Algoritmo | Falta o quê para virar TCF |
+|---|---|
+| Re-Pair | online (é batch); textual char-level |
+| Sequitur | coleção (é sequência única); bidirecional |
+| Front coding | todos-pares (é só vizinho); bidirecional |
+| Affix tree | codificação (é busca); par-a-par de strings |
+| FSST | textual (é binário); online (é batch) |
+
+### 10.4 Sobre potencial de artigo
+
+A novidade é o cruzamento em branco + a métrica de "unidades de
+informação" como abstração que permite comparação cross-família
+(independente de sintaxe verbosa vs compacta).
+
+**Argumentos a favor**:
+
+- Combinação não tem precedente direto encontrado em 2 rodadas de
+  busca
+- Métrica de unidades permite comparação justa apesar de sintaxes
+  diferentes
+- Aplicabilidade clara: dicionários de strings comprimidos
+  inspecionáveis, logs estruturados, colunas textuais de bancos
+  de dados
+
+**O que falta para artigo**:
+
+- Datasets realistas (N >= 1000+, várias famílias de string)
+- Benchmark formal contra HTFC, RPFC, FSST, Re-Pair, gzip+CSV
+- Análise de complexidade quantificada (O(N²·L) é viável até N=?)
 - Implementação de referência limpa (não dirty)
-- Sintaxe compacta validada
+- Sintaxe compacta validada com bytes reais (não só estimativa)
+- Análise honesta de regimes onde TCF não ganha
 
-É um caminho viável. O conceito está consistente; falta validação
-em escala e benchmark formal.
+### 10.5 O que o TCF não disputa
+
+Para evitar over-claim, explicitar limites:
+
+- **Não** compete com gzip/zstd em razão binária máxima
+- **Não** compete com BWT em saturação estatística
+- **Não** compete com FSST em velocidade de scan binário
+- **Não** compete com Parquet em storage colunar binário puro
+
+Compete em:
+
+- Inspecionabilidade do output (texto puro, diff-friendly)
+- Razão razoável apesar de saída textual
+- Decoder simples (1 passada, regex-friendly)
+- Estrutura semântica preservada
+- Composability com gzip downstream
 
 ---
 
@@ -303,23 +424,44 @@ a mesma estrutura.
 
 ## Referências citadas
 
+### Compressão clássica / strings
+
+- Ziv, J., & Lempel, A. (1977). *A universal algorithm for sequential
+  data compression*. IEEE Transactions on Information Theory, 23(3),
+  337-343.
+- Burrows, M., & Wheeler, D. J. (1994). *A block-sorting lossless
+  data compression algorithm*. SRC Research Report 124.
+- Witten, I. H., Moffat, A., & Bell, T. C. (1999). *Managing
+  Gigabytes* (2nd ed.). Morgan Kaufmann.
 - Larsson, J. J., & Moffat, A. (2000). *Off-line dictionary-based
   compression*. Proceedings of the IEEE, 88(11), 1722-1732.
 - Nevill-Manning, C. G., & Witten, I. H. (1997). *Identifying
   hierarchical structure in sequences: A linear-time algorithm*.
   Journal of Artificial Intelligence Research, 7, 67-82.
-- Witten, I. H., Moffat, A., & Bell, T. C. (1999). *Managing
-  Gigabytes*.
+
+### Strings — estruturas e dicionários
+
+- Ukkonen, E. (1995). *On-line construction of suffix trees*.
+  Algorithmica, 14, 249-260.
 - Maaß, M. (2003). *Linear Bidirectional On-Line Construction of
   Affix Trees*. Algorithmica, 37, 43-74.
-- Fraenkel, A. S., Mor, M., & Perl, Y. (1983). *Is text
-  compression by prefixes and suffixes practical?*. Acta
-  Informatica, 20, 371-389.
+- Brisaboa, N., Cánovas, R., Claude, F., Martínez-Prieto, M. A., &
+  Navarro, G. (2011). *Compressed string dictionaries*. SEA 2011,
+  136-147.
 - Martínez-Prieto, M. A., Brisaboa, N., Cánovas, R., Claude, F.,
   & Navarro, G. (2016). *Practical compressed string
   dictionaries*. Information Systems, 56, 73-108.
-- Ukkonen, E. (1995). *On-line construction of suffix trees*.
-  Algorithmica, 14, 249-260.
+- Boncz, P., Neumann, T., & Leis, V. (2020). *FSST: Fast Random
+  Access String Compression*. PVLDB, 13(11), 2649-2661.
 
-Notas adicionais em
-[`experiments/lab/dirty/notas/2026-05-11-custo-de-marcadores.md`](../../experiments/lab/dirty/notas/2026-05-11-custo-de-marcadores.md).
+### Limites teóricos
+
+- Fraenkel, A. S., Mor, M., & Perl, Y. (1983). *Is text
+  compression by prefixes and suffixes practical?*. Acta
+  Informatica, 20, 371-389.
+- Charikar, M., et al. (2005). *The smallest grammar problem*.
+  IEEE Trans. Inf. Theory, 51(7), 2554-2576.
+
+### Notas internas
+
+- [Custo de marcadores, refs e índices](../../../experiments/lab/dirty/notas/2026-05-11-custo-de-marcadores.md)
