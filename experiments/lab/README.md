@@ -1,81 +1,74 @@
 # Lab — laboratorio de experimentacao do TCF
 
-Local onde o TCF e **comparado cientificamente** com outros formatos
-(CSV, JSON, TOON) em diversos cenarios. **Esta pasta nao faz parte
-do TCF** — e instrumento de pesquisa.
+Local onde algoritmos e sintaxes do TCF sao iterados, validados e
+comparados. **Esta pasta nao faz parte do TCF instalavel** — e'
+instrumento de pesquisa.
+
+> **Verdade canonica atual**: `dirty/notas/historia-dirty-lab.md`
+> (narrativa M0-M11 do algoritmo TCF-CORE + Compactacao composicional).
 
 ## Filosofia
 
 ```
-TCF (packages/tcf/) = formato. Como CSV. Encode + Decode. Apenas.
-                            ↓ usado por
-Lab (experiments/lab/) = experimentos cientificos.
-                          Compara TCF com CSV/JSON/TOON
-                          Mede com gzip/brotli
-                          Simula transport/network
-                          Documenta tudo
+TCF (src/tcf/) = formato. Encode + Decode. API estavel.
+                       ↓ produzido por
+Lab (experiments/lab/) = iteracao do algoritmo + comparacao com
+                          outros formatos (CSV/JSON/TOON, gzip/brotli).
+                          Documenta tudo.
 ```
 
-Quem instala `pip install tcf` **nao** tem este lab. E intencional.
+Quem instala `pip install tcf` **nao** tem este lab. E' intencional.
 
 ## Estrutura
 
 ```
 experiments/lab/
-├── README.md                          ← este arquivo
-├── framework/                         ← infra reutilizavel
-│   ├── datasets.py                    ← carregadores (MICRO/Adult/TPCH/sinteticos)
-│   ├── encoders.py                    ← adapters (CSV/JSON/TCF/TOON)
-│   ├── compressors.py                 ← wrappers (gzip/brotli/zstd)
-│   ├── pipeline.py                    ← simulate(rows, encoder, compress, transport)
-│   └── metrics.py                     ← bytes/timing/roundtrip
-│
-├── dirty/                             ← workbench sujo (work-in-progress)
-│   └── README.md                      ← regras + mapa cronologico de labs
-│
-├── clean/                             ← experimentos finalizados (publicaveis)
-│   └── EXP-NNN-tema/                  ← 1 por experimento
-│       ├── README.md  run.py  config.json  manifest.jsonl
-│       ├── report.md  figures/
-│
-└── archive/                           ← labs antigos arquivados
-    └── 2026-05-design-v04-fase1/      ← labs da fase de design v0.4
+├── README.md        ← este arquivo
+├── dirty/           ← workbench v0.6 (algoritmo em construcao)
+├── clean/           ← experimentos finalizados (EXP-NNN-tema)
+├── framework/       ← infra reutilizavel (datasets, encoders, etc.)
+└── archive/         ← labs de ciclos antigos (v0.4, etc.)
 ```
+
+Cada sub-pasta tem seu proprio README com detalhes.
 
 ## Padroes — dirty vs clean
 
-### `dirty/` — experimentos sujos
+### `dirty/` — workbench em curso
 
-Pasta livre. Sub-pasta por data + tema (`2026-05-23-escala/`),
-sem cerimonia. Notas em qualquer formato. Codigo experimental.
-Pode ser deletado a qualquer momento.
+Pasta livre. Sub-pastas por **macro experimento** (M0, M1, ..., M11)
+ou por data + tema. Codigo experimental, notas vivas, sem cerimonia.
 
-**Regra**: nao referenciar `dirty/` em paper, em ticket, em finding.
-Eh rascunho. Mas o `dirty/README.md` mantem rastreio cronologico
-para navegar a historia da exploracao.
+**Regra**: NAO referenciar `dirty/` em paper, artigo ou ticket
+oficial. E' rascunho. Mas `dirty/notas/historia-dirty-lab.md`
+mantem narrativa canonica do algoritmo.
 
-### `clean/` — experimentos limpos
+Estado atual: ciclo v0.6 (algoritmo TCF-CORE + Compactacao
+composicional). Macros M0-M11 fechados; welding para `src/` em
+curso. Ver [`dirty/README.md`](dirty/README.md).
+
+### `clean/` — experimentos finalizados
 
 Cada experimento tem ID `EXP-NNN-tema-curto`. Estrutura fixa:
-
-| Arquivo | Funcao |
-|---------|--------|
-| `README.md` | Pergunta cientifica + hipotese + metodo + resultado em 1-2 paginas |
-| `run.py` | Reproduzivel: `python experiments/lab/clean/EXP-NNN.../run.py` |
-| `config.json` | Parametros do experimento (datasets, encoders, etc.) |
-| `manifest.jsonl` | 1 linha JSON por execucao |
-| `report.md` | Analise estatistica + tabelas + interpretacao |
-| `figures/*.png` | Graficos (matplotlib/plotly) |
+README + run.py + config + manifest + report + figures.
 
 **Regra**: experimento clean **nao muda** depois de fechado. Re-runs
-geram NOVO `EXP-NNN-v2-tema/`. Mantem rastreabilidade historica.
+geram NOVO `EXP-NNN-v2-...`. Mantem rastreabilidade historica.
 
-### `archive/` — labs arquivados
+Estado atual: EXP-001..EXP-006 sao de ciclo v0.5 (LLM benchmark —
+acessorio). EXP-007 sera o primeiro do v0.6 (proto-tipo do
+algoritmo welded de `src/`). Ver [`clean/README.md`](clean/README.md).
 
-Labs antigos cujos achados ja foram consolidados em research-notes
-ou tickets. Mantidos para historico. Cada subpasta tem seu proprio
-README descrevendo o tema e referencias para os documentos
-consolidados.
+### `framework/` — infra reutilizavel
+
+Helpers compartilhados (datasets loaders, encoders adapters,
+compressors wrappers, metrics). Usados pelos experimentos clean.
+Ver [`framework/README.md`](framework/README.md).
+
+### `archive/` — labs de ciclos antigos
+
+Labs do ciclo v0.4 (e anteriores). Material historico. Ver
+[`archive/README.md`](archive/README.md).
 
 ## Promocao dirty → clean
 
@@ -87,72 +80,43 @@ Quando um experimento sujo gera resultado interessante:
 4. Escrever `report.md` interpretando
 5. Fechar com tag git (opcional): `git tag exp-NNN`
 
----
+Atualmente: **welding do algoritmo do dirty (M0 + M8.A em M11) para
+`src/tcf/`** — primeira saida do dirty pro src/clean depois do ciclo
+v0.6 maduro. Pre-EXP-007. Ver
+[`dirty/notas/welding-plan.md`](dirty/notas/welding-plan.md).
 
-## Estado atual dos experimentos clean
+## Estado atual
 
-| ID | Tema | Status |
-|----|------|--------|
-| EXP-001 | CSV baseline (encode/decode/timing/bytes) | aberto |
-| EXP-002 | TCF baseline (vs CSV de EXP-001) | aberto |
-| EXP-003a | Calibracao CSV + compressor generico | aberto |
-| EXP-003b | TCF vs gzip (HP-T1) | aberto |
-| EXP-004b | Sintaxe compacta no header (variante B) | aberto |
-| EXP-004c | Header shebang `#TCF.5 SRDM` | aberto |
-| EXP-005 | Progressao de formatos em datasets escalonados | aberto |
-| EXP-006 | Flag P (Affix-DICT) em identificadores | aberto |
-| EXP-007 | (proximo) — encoder canonico do dirty (lab 24) | a criar |
+**Algoritmo (v0.6)**: M11 welding step 1 fechado em 2026-05-17.
+alg16 copiado para `src/tcf/core/online.py`; M8.A composicional
+ainda no dirty. Welding step 2 (M8.A → `src/tcf/composicional/`)
+pendente.
 
-**Bloqueador comum**: o **harness de teste**
-([T-test-harness-mvp](../../docs/workbench/tickets/open/T-test-harness-mvp.md))
-ainda nao esta implementado. Os EXPs acima rodam isolados; integrar
-no harness eh proximo passo.
+**Resultados bytes (D1-D9 canonicos)**:
+- M1.E baseline: 660 bytes
+- M8.A composicional: 574 bytes (-13% vs M1.E)
+- Ratio medio em stress D1-D9: 54.3% raw
 
-## Estado atual da exploracao dirty
-
-A pasta `dirty/` contem 26 sub-experimentos em **3 fases** entre
-2026-05-07 e 2026-05-10. Ver [dirty/README.md](dirty/README.md)
-para o mapa completo.
-
-**Achado central** (consolidado em research-notes):
-- Algoritmo unificado: PATRICIA bidir + multi-afixo + ext-aware gain
-- 7/7 RT OK em escala (N=100 a 1000)
-- Avg -54.56% vs literal; E7 URLs -82%
-- TCF+gzip vence literal+gzip em escala (-8% vs -8.47% labs anteriores)
-
-**Status de fechamento dirty**: recomendado fechar apos lab 24
-(2026-05-10). Proximo: portar para `clean/EXP-007-...` com header
-`#TCF.5 SRDM` e harness formal.
-
----
-
-## Encode paralelo (decisao 2026-04-27)
-
-TCF encoder pode (e sera) feito de forma paralela alem de serial.
-Cenarios:
-
-- **Multi-table paralelo**: `encode_dataset(tables)` faz cada tabela em
-  process/thread separado
-- **Multi-column paralelo**: dentro de uma tabela, cada coluna e
-  encoded independentemente — paralelo eh natural
-
-O lab valida tanto modo serial quanto paralelo, comparando overhead
-vs ganho.
+**Experimentos clean v0.5**: EXP-001..EXP-006 sao do ciclo antigo
+(LLM benchmark). Validos como historico; nao referenciar para v0.6.
 
 ## Como rodar
 
 ```bash
-# Rodar um experimento clean especifico
-python experiments/lab/clean/EXP-001-csv-baseline/run.py
+# Macros dirty (atuais)
+python experiments/lab/dirty/2026-05-17-M11-welding-step1-alg16-src/run_lote.py
 
-# Rodar um lab dirty
-python experiments/lab/dirty/2026-05-24-fechamento-multi-afixo-escala/run.py
+# Experimentos clean (v0.5)
+python experiments/lab/clean/EXP-001-csv-baseline/run.py
 ```
 
 ## Notas
 
-- O lab nao bloqueia o desenvolvimento do TCF v0.5. Lab valida o
-  que v0.5 produz.
-- Cada experimento gera dados que entram em `docs/findings/` como
-  evidencia.
-- O paper consome resultados do `clean/`, nunca do `dirty/`.
+- Para narrativa do algoritmo, sempre comecar por
+  [`dirty/notas/historia-dirty-lab.md`](dirty/notas/historia-dirty-lab.md).
+- Para direcoes futuras:
+  [`dirty/notas/roadmap-hipoteses.md`](dirty/notas/roadmap-hipoteses.md).
+- Para entender o "welding" (saida do dirty pro src/):
+  [`dirty/notas/welding-plan.md`](dirty/notas/welding-plan.md).
+- Phase 1 (LLM benchmark, ciclo v0.5) e' acessorio ao foco atual —
+  pode virar projeto a parte.

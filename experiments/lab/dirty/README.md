@@ -31,6 +31,8 @@ dirty/
   2026-05-15-M7-refactor/                     (foi — M7.A == M6.C bytes; refactor + nova estrutura debug)
   2026-05-16-M8-virtual-refs-clean-output/    (foi — M8.A detector unificado -8.4%; convencao output sem brackets/CRLF)
   2026-05-17-M9-stress-adversarial/           (foi — M8.A em 9 datasets; ratio medio 54.3%)
+  2026-05-17-M10-datasets-elevation/          (foi — smoke test: M8.A leitura de datasets/synthetic/; byte-identico a M9)
+  2026-05-17-M11-welding-step1-alg16-src/     (foi — welding 1: alg16 copiado para src/tcf/core/; byte-identico a M10/M9)
   notas/                              (transversais, vivas; ver historia-dirty-lab.md)
   README.md                           (este)
 ```
@@ -51,6 +53,8 @@ dirty/
 | **M7** | foi | refactor M6.C + nova estrutura debug (tokens/, detector_trace/, redes/) | M7.A == M6.C bytes (619); codigo melhor estruturado |
 | **M8** | foi | detector unificado (refs atomicos + virtuais mesma fila) + convencao output (sem brackets, LF) | **M8.A 574 bytes** (-15.1% vs M1.E apos 2 rodadas refinamento); captura pairs (atom, alias) com check body-order de resolution; convencao oficial protótipo |
 | **M9** | foi | stress 9 datasets adversariais (D1-D4 canonicos + D5-D9 novos) | RT 9/9 OK; ratio medio 54.3%; D8 cabeca-cauda atinge 26% (otimo); D6 timestamps mostra pre-tx delta como direcao |
+| **M10** | foi | smoke test: M8.A le datasets de `datasets/synthetic/` (canonico) | RT 9/9 OK; byte-identico a M9; valida abstracao do dataset path |
+| **M11** | foi | welding step 1: alg16 copiado para `src/tcf/core/online.py` | RT 9/9 OK; byte-identico a M10; valida copia byte-exata do alg16 |
 
 ## Sintaxes ativas vs dominadas (triagem 2026-05-13)
 
