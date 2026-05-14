@@ -1,0 +1,92 @@
+# Debug — sintaxe=M2-A-alias-tupla dataset=D2-emails-quote-id
+# bytes=178  roundtrip=OK
+
+================================================================================
+INPUT
+================================================================================
+  [1] d'angelo1@gmail.com
+  [2] d'angelo42@gmail.com
+  [3] d'angelo103@gmail.com
+  [4] o'brien1@gmail.com
+  [5] o'brien42@gmail.com
+  [6] o'brien103@gmail.com
+  [7] de'mello1@gmail.com
+  [8] de'mello42@gmail.com
+  [9] m'baye1@hotmail.com
+  [10] m'baye42@hotmail.com
+  [11] o'connor103@yahoo.com
+  [12] d'arcy256@yahoo.com
+
+================================================================================
+TOKENS (raiz online.py)
+================================================================================
+  eid=1: "d'angelo1@gmail.com"
+    tokens: [L("d'angelo1@gmail.com")]
+    fragmentos: [0:3]="d'a" | [3:6]='nge' | [6:8]='lo' | [8:9]='1' | [9:11]='@g' | [11:15]='mail' | [15:19]='.com'
+  eid=2: "d'angelo42@gmail.com"
+    tokens: [P(1,8), L('42'), S(1,10)]
+    fragmentos: [8:10]='42'
+  eid=3: "d'angelo103@gmail.com"
+    tokens: [P(1,9), L('03'), S(1,10)]
+    fragmentos: [9:11]='03'
+  eid=4: "o'brien1@gmail.com"
+    tokens: [L("o'brien"), S(1,11)]
+    fragmentos: [0:7]="o'brien"
+  eid=5: "o'brien42@gmail.com"
+    tokens: [P(4,7), S(2,12)]
+  eid=6: "o'brien103@gmail.com"
+    tokens: [P(4,8), S(3,12)]
+  eid=7: "de'mello1@gmail.com"
+    tokens: [L("de'mel"), S(1,13)]
+    fragmentos: [0:6]="de'mel"
+  eid=8: "de'mello42@gmail.com"
+    tokens: [P(7,8), S(2,12)]
+  eid=9: "m'baye1@hotmail.com"
+    tokens: [L("m'baye1@hot"), S(1,8)]
+    fragmentos: [0:6]="m'baye" | [6:7]='1' | [7:11]='@hot'
+  eid=10: "m'baye42@hotmail.com"
+    tokens: [P(9,6), L('42'), S(9,12)]
+    fragmentos: [6:8]='42'
+  eid=11: "o'connor103@yahoo.com"
+    tokens: [L("o'connor103@yahoo"), S(1,4)]
+    fragmentos: [0:11]="o'connor103" | [11:17]='@yahoo'
+  eid=12: "d'arcy256@yahoo.com"
+    tokens: [P(1,3), L('rcy256'), S(11,10)]
+    fragmentos: [3:9]='rcy256'
+
+================================================================================
+TCF (encode — M2-A-alias-tupla)
+================================================================================
+  [
+  $1=5..7
+  d'a*nge*lo*\1*@g*mail*.com
+  1..3\42*$1
+  1..4\03*$1
+  o'brien4..7
+  10,8,$1
+  10,4,9,$1
+  de'mel3..7
+  11,3,8,$1
+  m'baye*\1*@hot6,7
+  12\42*14,6,7
+  o'connor\103*@yahoo7
+  1rcy\256*17,7
+  ]
+
+================================================================================
+DECODE (contra-prova)
+================================================================================
+  [ ] d'angelo1@gmail.com
+  [ ] d'angelo42@gmail.com
+  [ ] d'angelo103@gmail.com
+  [ ] o'brien1@gmail.com
+  [ ] o'brien42@gmail.com
+  [ ] o'brien103@gmail.com
+  [ ] de'mello1@gmail.com
+  [ ] de'mello42@gmail.com
+  [ ] m'baye1@hotmail.com
+  [ ] m'baye42@hotmail.com
+  [ ] o'connor103@yahoo.com
+  [ ] d'arcy256@yahoo.com
+
+  -> 12 linhas reconstruidas IGUAIS

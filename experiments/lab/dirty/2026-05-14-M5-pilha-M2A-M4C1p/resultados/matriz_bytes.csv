@@ -1,0 +1,5 @@
+dataset,M1-E-range,M2-A-alias-tupla,M4-C1p-batch-subsequencias,M5-A-pilha-hibrida,menor
+D1-emails-simples,149,141,138,138,M4-C1p-batch-subsequencias
+D2-emails-quote-id,180,178,174,174,M4-C1p-batch-subsequencias
+D3-stress-substring,206,206,196,196,M4-C1p-batch-subsequencias
+D4-caos-mix,141,141,128,128,M4-C1p-batch-subsequencias
