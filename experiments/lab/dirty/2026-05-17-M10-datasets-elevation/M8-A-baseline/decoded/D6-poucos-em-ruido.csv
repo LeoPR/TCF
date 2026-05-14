@@ -1,0 +1,13 @@
+val
+log[2026-05-17T08:23:01.182]error[mod=auth]
+log[2026-05-17T08:23:01.193]info[mod=request]
+log[2026-05-17T08:24:05.471]error[mod=db]
+log[2026-05-17T08:24:12.039]warn[mod=cache]
+log[2026-05-17T08:25:33.812]info[mod=request]
+log[2026-05-17T08:26:09.555]error[mod=auth]
+log[2026-05-17T08:26:42.190]debug[mod=trace]
+log[2026-05-17T08:27:01.821]error[mod=db]
+log[2026-05-17T08:28:15.366]info[mod=request]
+log[2026-05-17T08:29:48.044]warn[mod=cache]
+log[2026-05-17T08:30:11.928]error[mod=auth]
+log[2026-05-17T08:31:55.610]info[mod=request]

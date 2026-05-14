@@ -1,0 +1,40 @@
+# Rede de atomos + composicoes — M8-A-virtual-refs
+
+=== ATOMS (final IDs) ===
+  final   1: 'log[2026-05-17T08:'
+  final   2: '2'
+  final   3: '3:01.1'
+  final   4: '82'
+  final   5: ']error[mod=auth]'
+  final   7: '93'
+  final   8: ']info[mod=request]'
+  final   9: '4:'
+  final  10: '05.47'
+  final  11: '1]error[mod=db]'
+  final  12: '12.039'
+  final  13: ']warn[mod=cache]'
+  final  14: '5:33.812'
+  final  15: '6:'
+  final  16: '09.555'
+  final  17: '42.190]debug[mod=trace]'
+  final  18: '7:01.82'
+  final  19: '8:15.366'
+  final  20: '9:48.044'
+  final  21: '3'
+  final  22: '0:11.928'
+  final  23: '1:55.610'
+
+=== COMPOSITIONS (final IDs) ===
+  final   6 = a1 composicao(1,2)
+
+=== USO POR REF ===
+  ref   6: 9x
+  ref   8: 3x
+  ref   1: 2x
+  ref   5: 2x
+  ref   3: 1x
+  ref   9: 1x
+  ref  11: 1x
+  ref  13: 1x
+  ref  15: 1x
+  ref  21: 1x
