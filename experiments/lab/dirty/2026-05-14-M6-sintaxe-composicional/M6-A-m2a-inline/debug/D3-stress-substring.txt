@@ -1,0 +1,89 @@
+# Debug — sintaxe=M6-A-m2a-inline dataset=D3-stress-substring
+# bytes=203  roundtrip=OK
+
+================================================================================
+INPUT
+================================================================================
+  [1] api/users/00042/profile.json
+  [2] api/users/00103/profile.json
+  [3] api/users/00256/profile.json
+  [4] web/users/00042/profile.json
+  [5] web/users/00103/profile.json
+  [6] web/users/00256/profile.json
+  [7] api/orders/00042/items.json
+  [8] api/orders/00103/items.json
+  [9] web/orders/00042/items.json
+  [10] web/orders/00103/items.json
+  [11] api/users/00042/profile.html
+  [12] web/users/00042/profile.html
+
+================================================================================
+TOKENS (raiz online.py)
+================================================================================
+  eid=1: 'api/users/00042/profile.json'
+    tokens: [L('api/users/00042/profile.json')]
+    fragmentos: [0:3]='api' | [3:4]='/' | [4:12]='users/00' | [12:15]='042' | [15:23]='/profile' | [23:24]='.' | [24:28]='json'
+  eid=2: 'api/users/00103/profile.json'
+    tokens: [P(1,12), L('103'), S(1,13)]
+    fragmentos: [12:15]='103'
+  eid=3: 'api/users/00256/profile.json'
+    tokens: [P(1,12), L('256'), S(1,13)]
+    fragmentos: [12:15]='256'
+  eid=4: 'web/users/00042/profile.json'
+    tokens: [L('web'), S(1,25)]
+    fragmentos: [0:3]='web'
+  eid=5: 'web/users/00103/profile.json'
+    tokens: [P(4,12), S(2,16)]
+  eid=6: 'web/users/00256/profile.json'
+    tokens: [P(4,12), S(3,16)]
+  eid=7: 'api/orders/00042/items.json'
+    tokens: [P(1,4), L('orders/00042/items'), S(1,5)]
+    fragmentos: [4:13]='orders/00' | [13:16]='042' | [16:22]='/items'
+  eid=8: 'api/orders/00103/items.json'
+    tokens: [P(7,13), L('103'), S(7,11)]
+    fragmentos: [13:16]='103'
+  eid=9: 'web/orders/00042/items.json'
+    tokens: [P(4,4), S(7,23)]
+  eid=10: 'web/orders/00103/items.json'
+    tokens: [P(9,13), S(8,14)]
+  eid=11: 'api/users/00042/profile.html'
+    tokens: [P(1,24), L('html')]
+    fragmentos: [24:28]='html'
+  eid=12: 'web/users/00042/profile.html'
+    tokens: [P(4,24), S(11,4)]
+
+================================================================================
+TCF (encode — M6-A-m2a-inline)
+================================================================================
+  [
+  api*/*users/\00*\042*/profile*.*json
+  1..3\103*$1=5..7
+  1..3\256*$1
+  web2..4,$1
+  10,2,3,8,$1
+  10,2,3,9,$1
+  1,2orders/\00*\042*/items6,7
+  1,2,11\103*$2=13,6,7
+  10,2,11,12,$2
+  10,2,11,14,$2
+  1..6html
+  10,2..6,15
+  ]
+
+================================================================================
+DECODE (contra-prova)
+================================================================================
+  [ ] api/users/00042/profile.json
+  [ ] api/users/00103/profile.json
+  [ ] api/users/00256/profile.json
+  [ ] web/users/00042/profile.json
+  [ ] web/users/00103/profile.json
+  [ ] web/users/00256/profile.json
+  [ ] api/orders/00042/items.json
+  [ ] api/orders/00103/items.json
+  [ ] web/orders/00042/items.json
+  [ ] web/orders/00103/items.json
+  [ ] api/users/00042/profile.html
+  [ ] web/users/00042/profile.html
+
+  -> 12 linhas reconstruidas IGUAIS

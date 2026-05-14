@@ -1,0 +1,99 @@
+# Optimization trace — syntax=M6-C-composicional
+
+=== ATOMS — Phase 1 provisional IDs ===
+Total atomos: 18
+  prov   1: "d'a"
+  prov   2: 'nge'
+  prov   3: 'lo'
+  prov   4: '1'
+  prov   5: '@g'
+  prov   6: 'mail'
+  prov   7: '.com'
+  prov   8: '42'
+  prov   9: '03'
+  prov  10: "o'brien"
+  prov  11: "de'mel"
+  prov  12: "m'baye"
+  prov  13: '1'
+  prov  14: '@hot'
+  prov  15: '42'
+  prov  16: "o'connor103"
+  prov  17: '@yahoo'
+  prov  18: 'rcy256'
+
+=== DETECTOR ITERATIONS ===
+
+--- Iter 1 ---
+Sub-tuplas K>=2 com R>=2: 13  net>0: 13
+Top 10 por net:
+  5..7                 | R=7 Lr=4 len(N)~2 net=(6)*(4-2)=12 <- PICK
+  6,7                  | R=9 Lr=3 len(N)~2 net=(8)*(3-2)=8
+  5,6                  | R=7 Lr=3 len(N)~2 net=(6)*(3-2)=6
+  8,5..7               | R=2 Lr=6 len(N)~2 net=(1)*(6-2)=4
+  8,5,6                | R=2 Lr=5 len(N)~2 net=(1)*(5-2)=3
+  1..3                 | R=2 Lr=4 len(N)~2 net=(1)*(4-2)=2
+  4..6                 | R=2 Lr=4 len(N)~2 net=(1)*(4-2)=2
+  4..7                 | R=2 Lr=4 len(N)~2 net=(1)*(4-2)=2
+  1,2                  | R=2 Lr=3 len(N)~2 net=(1)*(3-2)=1
+  2,3                  | R=2 Lr=3 len(N)~2 net=(1)*(3-2)=1
+Substituido em 7 ocorrencias (linhas [2, 3, 4, 5, 6, 7, 8]); aloca 2 composition IDs.
+
+--- Iter 2 ---
+Sub-tuplas K>=2 com R>=2: 5  net>0: 5
+NOTA: alias_markers de iters anteriores sao OPACOS pra Counter (limitacao greedy)
+Top 10 por net:
+  1..3                 | R=2 Lr=4 len(N)~2 net=(1)*(4-2)=2 <- PICK
+  1,2                  | R=2 Lr=3 len(N)~2 net=(1)*(3-2)=1
+  2,3                  | R=2 Lr=3 len(N)~2 net=(1)*(3-2)=1
+  3,4                  | R=2 Lr=3 len(N)~2 net=(1)*(3-2)=1
+  6,7                  | R=2 Lr=3 len(N)~2 net=(1)*(3-2)=1
+Substituido em 2 ocorrencias (linhas [2, 3]); aloca 2 composition IDs.
+
+--- Iter 3 ---
+Sub-tuplas K>=2 com R>=2: 1  net>0: 1
+NOTA: alias_markers de iters anteriores sao OPACOS pra Counter (limitacao greedy)
+Top 10 por net:
+  6,7                  | R=2 Lr=3 len(N)~2 net=(1)*(3-2)=1 <- PICK
+Substituido em 2 ocorrencias (linhas [9, 10]); aloca 1 composition IDs.
+
+--- Iter 4 ---
+Sub-tuplas K>=2 com R>=2: 0  net>0: 0
+NOTA: alias_markers de iters anteriores sao OPACOS pra Counter (limitacao greedy)
+Nenhum candidato com net > 0. STOP.
+
+=== STOPPED apos iter 4 ===
+
+=== prov -> final atom mapping (Phase 5) ===
+  prov   1 -> final   1
+  prov   2 -> final   2
+  prov   3 -> final   3
+  prov   4 -> final   4
+  prov   5 -> final   5
+  prov   6 -> final   6
+  prov   7 -> final   7
+  prov   8 -> final  10
+  prov   9 -> final  13
+  prov  10 -> final  14
+  prov  11 -> final  15
+  prov  12 -> final  16
+  prov  13 -> final  17
+  prov  14 -> final  18
+  prov  15 -> final  20
+  prov  16 -> final  21
+  prov  17 -> final  22
+  prov  18 -> final  23
+
+=== Compositions (final IDs, ordem body) ===
+  comp final   9 = composition of [1, 2, 3] (emit `1..3`)
+  comp final  12 = composition of [5, 6, 7] (emit `5..7`)
+  comp final  19 = composition of [6, 7] (emit `6~7`)
+
+=== MISSED OPPORTUNITIES (post-hoc) ===
+Pares (X, Y) adjacentes no body final com R>=2 e net>0 que detector greedy nao capturou:
+
+  pair=(4,12) R=3 lines=[3,4,7] baseline=`4,12`=4 len(N)~2 est_savings=4
+  pair=(10,12) R=2 lines=[5,8] baseline=`10,12`=5 len(N)~2 est_savings=3
+
+Total estimated missed bytes: 7
+
+NOTA: estimativa otimista — applying any missed alias may re-shuffle len(N), affecting others. Use as indicacao qualitativa.

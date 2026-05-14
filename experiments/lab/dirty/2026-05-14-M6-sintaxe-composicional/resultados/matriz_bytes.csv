@@ -1,0 +1,5 @@
+dataset,M1-E-range,M4-C1p-batch-subsequencias,M6-A-m2a-inline,M6-C-composicional,menor
+D1-emails-simples,149,138,142,128,M6-C-composicional
+D2-emails-quote-id,180,174,177,175,M4-C1p-batch-subsequencias
+D3-stress-substring,206,196,203,194,M6-C-composicional
+D4-caos-mix,141,128,142,122,M6-C-composicional

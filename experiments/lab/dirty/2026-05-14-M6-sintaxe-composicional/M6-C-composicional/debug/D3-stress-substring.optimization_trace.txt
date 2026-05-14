@@ -1,0 +1,152 @@
+# Optimization trace — syntax=M6-C-composicional
+
+=== ATOMS — Phase 1 provisional IDs ===
+Total atomos: 15
+  prov   1: 'api'
+  prov   2: '/'
+  prov   3: 'users/00'
+  prov   4: '042'
+  prov   5: '/profile'
+  prov   6: '.'
+  prov   7: 'json'
+  prov   8: '103'
+  prov   9: '256'
+  prov  10: 'web'
+  prov  11: 'orders/00'
+  prov  12: '042'
+  prov  13: '/items'
+  prov  14: '103'
+  prov  15: 'html'
+
+=== DETECTOR ITERATIONS ===
+
+--- Iter 1 ---
+Sub-tuplas K>=2 com R>=2: 20  net>0: 20
+Top 10 por net:
+  5..7                 | R=5 Lr=4 len(N)~2 net=(4)*(4-2)=8 <- PICK
+  6,7                  | R=9 Lr=3 len(N)~2 net=(8)*(3-2)=8
+  10,2                 | R=5 Lr=4 len(N)~2 net=(4)*(4-2)=8
+  10,2,3               | R=3 Lr=6 len(N)~2 net=(2)*(6-2)=8
+  13,6,7               | R=3 Lr=6 len(N)~2 net=(2)*(6-2)=8
+  2,3                  | R=7 Lr=3 len(N)~2 net=(6)*(3-2)=6
+  5,6                  | R=7 Lr=3 len(N)~2 net=(6)*(3-2)=6
+  10,2,11              | R=2 Lr=7 len(N)~2 net=(1)*(7-2)=5
+  1,2                  | R=5 Lr=3 len(N)~2 net=(4)*(3-2)=4
+  1..3                 | R=3 Lr=4 len(N)~2 net=(2)*(4-2)=4
+  AMBIGUIDADE: 5 candidates empatam em net=8; greedy escolheu o 1o por ordem Counter
+Substituido em 5 ocorrencias (linhas [2, 3, 4, 5, 6]); aloca 2 composition IDs.
+
+--- Iter 2 ---
+Sub-tuplas K>=2 com R>=2: 19  net>0: 19
+NOTA: alias_markers de iters anteriores sao OPACOS pra Counter (limitacao greedy)
+Top 10 por net:
+  10,2                 | R=5 Lr=4 len(N)~2 net=(4)*(4-2)=8 <- PICK
+  10,2,3               | R=3 Lr=6 len(N)~2 net=(2)*(6-2)=8
+  13,6,7               | R=3 Lr=6 len(N)~2 net=(2)*(6-2)=8
+  2,3                  | R=7 Lr=3 len(N)~2 net=(6)*(3-2)=6
+  10,2,11              | R=2 Lr=7 len(N)~2 net=(1)*(7-2)=5
+  1,2                  | R=5 Lr=3 len(N)~2 net=(4)*(3-2)=4
+  1..3                 | R=3 Lr=4 len(N)~2 net=(2)*(4-2)=4
+  2..4                 | R=3 Lr=4 len(N)~2 net=(2)*(4-2)=4
+  2,11                 | R=3 Lr=4 len(N)~2 net=(2)*(4-2)=4
+  13,6                 | R=3 Lr=4 len(N)~2 net=(2)*(4-2)=4
+  AMBIGUIDADE: 3 candidates empatam em net=8; greedy escolheu o 1o por ordem Counter
+Substituido em 5 ocorrencias (linhas [5, 6, 9, 10, 12]); aloca 1 composition IDs.
+
+--- Iter 3 ---
+Sub-tuplas K>=2 com R>=2: 13  net>0: 13
+NOTA: alias_markers de iters anteriores sao OPACOS pra Counter (limitacao greedy)
+Top 10 por net:
+  13,6,7               | R=3 Lr=6 len(N)~2 net=(2)*(6-2)=8 <- PICK
+  1,2                  | R=5 Lr=3 len(N)~2 net=(4)*(3-2)=4
+  1..3                 | R=3 Lr=4 len(N)~2 net=(2)*(4-2)=4
+  13,6                 | R=3 Lr=4 len(N)~2 net=(2)*(4-2)=4
+  2,3                  | R=4 Lr=3 len(N)~2 net=(3)*(3-2)=3
+  6,7                  | R=4 Lr=3 len(N)~2 net=(3)*(3-2)=3
+  2..4                 | R=2 Lr=4 len(N)~2 net=(1)*(4-2)=2
+  3,4                  | R=3 Lr=3 len(N)~2 net=(2)*(3-2)=2
+  3..5                 | R=2 Lr=4 len(N)~2 net=(1)*(4-2)=2
+  3..6                 | R=2 Lr=4 len(N)~2 net=(1)*(4-2)=2
+Substituido em 3 ocorrencias (linhas [8, 9, 10]); aloca 2 composition IDs.
+
+--- Iter 4 ---
+Sub-tuplas K>=2 com R>=2: 10  net>0: 10
+NOTA: alias_markers de iters anteriores sao OPACOS pra Counter (limitacao greedy)
+Top 10 por net:
+  1,2                  | R=5 Lr=3 len(N)~2 net=(4)*(3-2)=4 <- PICK
+  1..3                 | R=3 Lr=4 len(N)~2 net=(2)*(4-2)=4
+  2,3                  | R=4 Lr=3 len(N)~2 net=(3)*(3-2)=3
+  2..4                 | R=2 Lr=4 len(N)~2 net=(1)*(4-2)=2
+  3,4                  | R=3 Lr=3 len(N)~2 net=(2)*(3-2)=2
+  3..5                 | R=2 Lr=4 len(N)~2 net=(1)*(4-2)=2
+  3..6                 | R=2 Lr=4 len(N)~2 net=(1)*(4-2)=2
+  4..6                 | R=2 Lr=4 len(N)~2 net=(1)*(4-2)=2
+  4,5                  | R=2 Lr=3 len(N)~2 net=(1)*(3-2)=1
+  5,6                  | R=2 Lr=3 len(N)~2 net=(1)*(3-2)=1
+  AMBIGUIDADE: 2 candidates empatam em net=4; greedy escolheu o 1o por ordem Counter
+Substituido em 5 ocorrencias (linhas [2, 3, 7, 8, 11]); aloca 1 composition IDs.
+
+--- Iter 5 ---
+Sub-tuplas K>=2 com R>=2: 6  net>0: 6
+NOTA: alias_markers de iters anteriores sao OPACOS pra Counter (limitacao greedy)
+Top 10 por net:
+  3,4                  | R=3 Lr=3 len(N)~2 net=(2)*(3-2)=2 <- PICK
+  3..5                 | R=2 Lr=4 len(N)~2 net=(1)*(4-2)=2
+  3..6                 | R=2 Lr=4 len(N)~2 net=(1)*(4-2)=2
+  4..6                 | R=2 Lr=4 len(N)~2 net=(1)*(4-2)=2
+  4,5                  | R=2 Lr=3 len(N)~2 net=(1)*(3-2)=1
+  5,6                  | R=2 Lr=3 len(N)~2 net=(1)*(3-2)=1
+  AMBIGUIDADE: 4 candidates empatam em net=2; greedy escolheu o 1o por ordem Counter
+Substituido em 3 ocorrencias (linhas [4, 11, 12]); aloca 1 composition IDs.
+
+--- Iter 6 ---
+Sub-tuplas K>=2 com R>=2: 1  net>0: 1
+NOTA: alias_markers de iters anteriores sao OPACOS pra Counter (limitacao greedy)
+Top 10 por net:
+  5,6                  | R=2 Lr=3 len(N)~2 net=(1)*(3-2)=1 <- PICK
+Substituido em 2 ocorrencias (linhas [11, 12]); aloca 1 composition IDs.
+
+--- Iter 7 ---
+Sub-tuplas K>=2 com R>=2: 0  net>0: 0
+NOTA: alias_markers de iters anteriores sao OPACOS pra Counter (limitacao greedy)
+Nenhum candidato com net > 0. STOP.
+
+=== STOPPED apos iter 7 ===
+
+=== prov -> final atom mapping (Phase 5) ===
+  prov   1 -> final   1
+  prov   2 -> final   2
+  prov   3 -> final   3
+  prov   4 -> final   4
+  prov   5 -> final   5
+  prov   6 -> final   6
+  prov   7 -> final   7
+  prov   8 -> final   9
+  prov   9 -> final  12
+  prov  10 -> final  13
+  prov  11 -> final  16
+  prov  12 -> final  17
+  prov  13 -> final  18
+  prov  14 -> final  19
+  prov  15 -> final  23
+
+=== Compositions (final IDs, ordem body) ===
+  comp final   8 = composition of [1, 2] (emit `1~2`)
+  comp final  11 = composition of [5, 6, 7] (emit `5..7`)
+  comp final  14 = composition of [3, 4] (emit `3~4`)
+  comp final  15 = composition of [13, 2] (emit `13~2`)
+  comp final  21 = composition of [18, 6, 7] (emit `18~6~7`)
+  comp final  22 = composition of [5, 6] (emit `5~6`)
+
+=== MISSED OPPORTUNITIES (post-hoc) ===
+Pares (X, Y) adjacentes no body final com R>=2 e net>0 que detector greedy nao capturou:
+
+  pair=(15,16) R=2 lines=[9,10] baseline=`15,16`=5 len(N)~2 est_savings=3
+  pair=(14,22) R=2 lines=[11,12] baseline=`14,22`=5 len(N)~2 est_savings=3
+  pair=(15,3) R=2 lines=[5,6] baseline=`15,3`=4 len(N)~2 est_savings=2
+  pair=(3,11) R=2 lines=[2,3] baseline=`3,11`=4 len(N)~2 est_savings=2
+  pair=(8,3) R=2 lines=[2,3] baseline=`8,3`=3 len(N)~2 est_savings=1
+
+Total estimated missed bytes: 11
+
+NOTA: estimativa otimista — applying any missed alias may re-shuffle len(N), affecting others. Use as indicacao qualitativa.
