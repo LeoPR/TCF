@@ -1,0 +1,5 @@
+dataset,M1-E-range,M6-C-composicional,M7-A-composicional,menor
+D1-emails-simples,149,128,128,M6-C-composicional
+D2-emails-quote-id,180,175,175,M6-C-composicional
+D3-stress-substring,206,194,194,M6-C-composicional
+D4-caos-mix,141,122,122,M6-C-composicional

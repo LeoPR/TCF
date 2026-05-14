@@ -1,0 +1,35 @@
+# Rede de atomos + composicoes — M7-A-composicional
+
+=== ATOMS (final IDs) ===
+  final   1: '[a'
+  final   2: "]*'"
+  final   3: 'foo'
+  final   4: "'@4"
+  final   5: '2'
+  final   8: '3'
+  final   9: '4'
+  final  10: '[b'
+  final  11: '3'
+  final  12: '4'
+  final  13: 'ba'
+  final  14: 'r'
+  final  19: '3'
+  final  21: 'z'
+
+=== COMPOSITIONS (final IDs, ordem body) ===
+  final   7 = composicao[2, 3, 4] (emit `2..4`)
+  final  15 = composicao[4, 5] (emit `4~5`)
+  final  18 = composicao[2, 13, 14, 4] (emit `2~13~14~4`)
+  final  20 = composicao[2, 13] (emit `2~13`)
+
+=== USO POR REF (id → contagem em body) ===
+  ref   1: 5x
+  ref   7: 5x
+  ref  10: 5x
+  ref  15: 3x
+  ref  18: 3x
+  ref   5: 2x
+  ref  20: 2x
+  ref   2: 1x
+  ref   8: 1x
+  ref  21: 1x

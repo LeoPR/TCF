@@ -1,0 +1,46 @@
+# Optimization trace — syntax=M7-A-composicional
+
+=== DETECTOR ITERATIONS ===
+
+--- Iter 1 ---
+Sub-tuplas K>=2 com R>=2: 13  net>0: 13
+  5..7                 | R=7 Lr=4 len(N)~2 net=(6)*(4-2)=12 <- PICK
+  6,7                  | R=9 Lr=3 len(N)~2 net=(8)*(3-2)=8
+  5,6                  | R=7 Lr=3 len(N)~2 net=(6)*(3-2)=6
+  8,5..7               | R=2 Lr=6 len(N)~2 net=(1)*(6-2)=4
+  8,5,6                | R=2 Lr=5 len(N)~2 net=(1)*(5-2)=3
+  1..3                 | R=2 Lr=4 len(N)~2 net=(1)*(4-2)=2
+  4..6                 | R=2 Lr=4 len(N)~2 net=(1)*(4-2)=2
+  4..7                 | R=2 Lr=4 len(N)~2 net=(1)*(4-2)=2
+  1,2                  | R=2 Lr=3 len(N)~2 net=(1)*(3-2)=1
+  2,3                  | R=2 Lr=3 len(N)~2 net=(1)*(3-2)=1
+Substituido em 7 ocorrencias (linhas [2, 3, 4, 5, 6, 7, 8])
+
+--- Iter 2 ---
+Sub-tuplas K>=2 com R>=2: 5  net>0: 5
+NOTA: alias_markers de iters anteriores OPACOS pra Counter
+  1..3                 | R=2 Lr=4 len(N)~2 net=(1)*(4-2)=2 <- PICK
+  1,2                  | R=2 Lr=3 len(N)~2 net=(1)*(3-2)=1
+  2,3                  | R=2 Lr=3 len(N)~2 net=(1)*(3-2)=1
+  3,4                  | R=2 Lr=3 len(N)~2 net=(1)*(3-2)=1
+  6,7                  | R=2 Lr=3 len(N)~2 net=(1)*(3-2)=1
+Substituido em 2 ocorrencias (linhas [2, 3])
+
+--- Iter 3 ---
+Sub-tuplas K>=2 com R>=2: 1  net>0: 1
+NOTA: alias_markers de iters anteriores OPACOS pra Counter
+  6,7                  | R=2 Lr=3 len(N)~2 net=(1)*(3-2)=1 <- PICK
+Substituido em 2 ocorrencias (linhas [9, 10])
+
+--- Iter 4 ---
+Sub-tuplas K>=2 com R>=2: 0  net>0: 0
+NOTA: alias_markers de iters anteriores OPACOS pra Counter
+Nenhum candidato com net > 0. STOP.
+
+=== MISSED OPPORTUNITIES (post-hoc) ===
+Pares adjacentes no body com R>=2 nao detectados (causa: alias_marker opaco em iters subsequentes):
+
+  pair=(4,12) R=3 lines=[3,4,7] baseline=`4,12`=4 est_savings=4
+  pair=(10,12) R=2 lines=[5,8] baseline=`10,12`=5 est_savings=3
+
+Total estimated missed bytes: 7
