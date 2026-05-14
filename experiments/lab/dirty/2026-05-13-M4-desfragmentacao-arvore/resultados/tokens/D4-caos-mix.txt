@@ -1,0 +1,52 @@
+# Tokens raiz (online.py exp 16) — D4-caos-mix
+# Strings unicas: 12
+
+================================================================================
+
+eid=1: "[a]*'foo'@42"
+  tokens: [L("[a]*'foo'@42")]
+  fragmentos literais: [0:2]='[a' | [2:5]="]*'" | [5:8]='foo' | [8:11]="'@4" | [11:12]='2'
+
+eid=2: "[a]*'foo'@43"
+  tokens: [P(1,11), L('3')]
+  fragmentos literais: [11:12]='3'
+
+eid=3: "[a]*'foo'@44"
+  tokens: [P(1,11), L('4')]
+  fragmentos literais: [11:12]='4'
+
+eid=4: "[b]*'foo'@42"
+  tokens: [L('[b'), S(1,10)]
+  fragmentos literais: [0:2]='[b'
+
+eid=5: "[b]*'foo'@43"
+  tokens: [P(4,11), L('3')]
+  fragmentos literais: [11:12]='3'
+
+eid=6: "[b]*'foo'@44"
+  tokens: [P(4,11), L('4')]
+  fragmentos literais: [11:12]='4'
+
+eid=7: "[a]*'bar'@42"
+  tokens: [P(1,5), L('bar'), S(1,4)]
+  fragmentos literais: [5:7]='ba' | [7:8]='r'
+
+eid=8: "[a]*'bar'@43"
+  tokens: [P(7,8), S(2,4)]
+  fragmentos literais: (nenhum)
+
+eid=9: "[b]*'bar'@42"
+  tokens: [P(4,5), S(7,7)]
+  fragmentos literais: (nenhum)
+
+eid=10: "[b]*'bar'@43"
+  tokens: [P(9,11), L('3')]
+  fragmentos literais: [11:12]='3'
+
+eid=11: "[a]*'baz'@42"
+  tokens: [P(7,7), L('z'), S(1,4)]
+  fragmentos literais: [7:8]='z'
+
+eid=12: "[b]*'baz'@42"
+  tokens: [P(9,7), S(11,5)]
+  fragmentos literais: (nenhum)

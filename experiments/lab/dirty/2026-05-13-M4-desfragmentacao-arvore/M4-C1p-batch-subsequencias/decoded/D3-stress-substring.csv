@@ -1,0 +1,13 @@
+item
+api/users/00042/profile.json
+api/users/00103/profile.json
+api/users/00256/profile.json
+web/users/00042/profile.json
+web/users/00103/profile.json
+web/users/00256/profile.json
+api/orders/00042/items.json
+api/orders/00103/items.json
+web/orders/00042/items.json
+web/orders/00103/items.json
+api/users/00042/profile.html
+web/users/00042/profile.html

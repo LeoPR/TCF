@@ -1,0 +1,5 @@
+dataset,M1-E-range,M4-C1-batch-greedy-implicito,M4-C1p-batch-subsequencias,vencedor
+D1-emails-simples,149,148,138,M4-C1p-batch-subsequencias
+D2-emails-quote-id,180,178,174,M4-C1p-batch-subsequencias
+D3-stress-substring,206,203,196,M4-C1p-batch-subsequencias
+D4-caos-mix,141,137,128,M4-C1p-batch-subsequencias
