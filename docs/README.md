@@ -33,19 +33,32 @@ LLM research rigor, model ranking
 
 ## Para devs — quero entender a evolucao
 
-→ [workbench/DEVELOPMENT.md](workbench/DEVELOPMENT.md) — timeline operacional
-em 8 fases (encoder v0.0..v0.2, M-series, naturalness, M-Acomm, schema-scope)
+**Verdade canonica atual (v0.6 — algoritmo de compressao):**
 
-→ [workbench/SCIENCE.md](workbench/SCIENCE.md) — timeline logico das hipoteses
-em 5 partes
+→ [../experiments/lab/dirty/notas/historia-dirty-lab.md](../experiments/lab/dirty/notas/historia-dirty-lab.md)
+— **narrativa canonica M0-M9** (atualizada 2026-05-17)
 
-→ [workbench/history.md](workbench/history.md) — origem do projeto
+→ [../experiments/lab/dirty/notas/roadmap-hipoteses.md](../experiments/lab/dirty/notas/roadmap-hipoteses.md)
+— direcoes futuras (pre-tx, decomposicao, escala)
 
-→ [workbench/tickets/](workbench/tickets/) — tickets abertos e fechados
+→ [../experiments/lab/dirty/README.md](../experiments/lab/dirty/README.md)
+— indice dos macros M0-M9
 
-→ [workbench/research-notes/](workbench/research-notes/) — notas de pesquisa
+→ [workbench/research-notes/](workbench/research-notes/) — notas
+de pesquisa vivas + INDEX apontando pra dirty
 
 → [../CHANGELOG.md](../CHANGELOG.md) — versoes consolidadas
+
+**Material historico (v0.5 e anterior — LLM comprehension):**
+
+→ [workbench/_archive/DEVELOPMENT.md](workbench/_archive/DEVELOPMENT.md)
+— timeline operacional em 8 fases (ARQUIVADO; nao canonico)
+
+→ [workbench/_archive/SCIENCE.md](workbench/_archive/SCIENCE.md)
+— timeline logico das hipoteses (ARQUIVADO)
+
+→ [workbench/_archive/tickets/](workbench/_archive/tickets/) —
+tickets H/M/T/P/E/S do ciclo v0.3-v0.5 (ARQUIVADO)
 
 ## Para arquivistas — material historico
 

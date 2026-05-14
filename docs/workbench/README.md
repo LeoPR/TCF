@@ -10,17 +10,24 @@ arquivado em [`_archive/`](_archive/) como **blueprint não-canônico**.
 O trabalho ativo do TCF v0.6 vive em dois lugares:
 
 ```
-experiments/lab/dirty/              ← fonte da verdade (código + notas técnicas)
-  README.md                         ← índice dos 15 experimentos
-  2026-05-11-15-online-com-fix/     ← estado atual do algoritmo
-  notas/                            ← teoria conceitual do ciclo
+experiments/lab/dirty/              ← fonte da verdade (codigo + notas tecnicas)
+  README.md                         ← indice dos macros M0-M9
+  notas/historia-dirty-lab.md       ← narrativa canonica (atualizada ate' M9)
+  notas/roadmap-hipoteses.md        ← direcoes futuras
+  M0-fase-exploratoria-inicial/     ← algoritmo raiz TCF-CORE
+  2026-05-16-M8-virtual-refs-clean-output/ ← compactacao composicional canonica
+  2026-05-17-M9-stress-adversarial/ ← stress 9 datasets
 
-docs/workbench/research-notes/      ← síntese consolidada
-  2026-05-11-sintese-algoritmos-v06.md
+docs/workbench/research-notes/      ← sintese consolidada
+  INDEX.md                          ← pontos pra dirty + listagem das notas
+  2026-05-11-sintese-algoritmos-v06.md  (historica — superada)
 ```
 
-A síntese consolidada referencia os experimentos do dirty lab.
-Não há outra fonte canônica.
+**Para entrar no trabalho atual, ler em ordem**:
+1. [`../experiments/lab/dirty/notas/historia-dirty-lab.md`](../experiments/lab/dirty/notas/historia-dirty-lab.md)
+2. [`../experiments/lab/dirty/2026-05-17-M9-stress-adversarial/README.md`](../experiments/lab/dirty/2026-05-17-M9-stress-adversarial/README.md) (mais recente)
+3. [`../experiments/lab/dirty/2026-05-16-M8-virtual-refs-clean-output/README.md`](../experiments/lab/dirty/2026-05-16-M8-virtual-refs-clean-output/README.md) (canonico atual)
+4. [`../experiments/lab/dirty/notas/roadmap-hipoteses.md`](../experiments/lab/dirty/notas/roadmap-hipoteses.md) (proximos passos)
 
 ---
 
