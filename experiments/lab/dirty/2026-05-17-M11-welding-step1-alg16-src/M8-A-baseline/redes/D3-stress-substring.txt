@@ -1,0 +1,48 @@
+# Rede de atomos + composicoes — M8-A-virtual-refs
+
+=== ATOMS (final IDs) ===
+  final   1: 'api'
+  final   2: '/'
+  final   3: 'users/00'
+  final   4: '042'
+  final   5: '/profile'
+  final   6: '.'
+  final   7: 'json'
+  final  10: '103'
+  final  13: '256'
+  final  14: 'web'
+  final  19: 'orders/00'
+  final  20: '042'
+  final  21: '/items'
+  final  22: '103'
+  final  28: 'html'
+
+=== COMPOSITIONS (final IDs) ===
+  final   8 = a4 composicao(1,2)
+  final   9 = a5 composicao(a4,3)
+  final  12 = a1 composicao(5,6,7)
+  final  17 = a2 composicao(10,2)
+  final  18 = a6 composicao(a2,3)
+  final  24 = a3 composicao(13,6,7)
+  final  25 = a7 composicao(a2,11)
+  final  27 = a8 composicao(4,5,6)
+
+=== USO POR REF ===
+  ref  12: 5x
+  ref   9: 3x
+  ref  18: 3x
+  ref  24: 3x
+  ref   8: 2x
+  ref  25: 2x
+  ref  27: 2x
+  ref   2: 1x
+  ref   3: 1x
+  ref   4: 1x
+  ref   6: 1x
+  ref   7: 1x
+  ref  10: 1x
+  ref  13: 1x
+  ref  19: 1x
+  ref  20: 1x
+  ref  22: 1x
+  ref  28: 1x

@@ -1,0 +1,45 @@
+# Rede de atomos + composicoes — M8-A-virtual-refs
+
+=== ATOMS (final IDs) ===
+  final   1: 'foo@'
+  final   2: 'example.'
+  final   3: 'com'
+  final   4: '|550e8400-e29b-41d4'
+  final   5: 'bar@'
+  final   6: 'example.'
+  final   7: 'com'
+  final   8: '|550e8400-e29b-41d5'
+  final   9: 'org'
+  final  10: 'org'
+  final  11: 'baz@'
+  final  12: 'example.com'
+  final  13: '|'
+  final  14: '550e8400-e29b-41d6'
+  final  15: 'qux@'
+  final  16: 'example.org'
+  final  17: 'test.io|'
+  final  18: '6ba7b810-9dad-11d1-'
+  final  19: 'aa'
+  final  20: 'test.io|6ba7b810-9dad-11d1-ab'
+  final  22: 'cc'
+
+=== COMPOSITIONS (final IDs) ===
+  final  21 = a1 composicao(17,18)
+
+=== USO POR REF ===
+  ref   1: 3x
+  ref   5: 2x
+  ref  11: 2x
+  ref  13: 2x
+  ref  21: 2x
+  ref   2: 1x
+  ref   4: 1x
+  ref   6: 1x
+  ref   8: 1x
+  ref  12: 1x
+  ref  14: 1x
+  ref  15: 1x
+  ref  18: 1x
+  ref  19: 1x
+  ref  20: 1x
+  ref  22: 1x

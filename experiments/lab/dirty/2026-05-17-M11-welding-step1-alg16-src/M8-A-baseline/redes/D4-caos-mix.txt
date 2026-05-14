@@ -1,0 +1,39 @@
+# Rede de atomos + composicoes — M8-A-virtual-refs
+
+=== ATOMS (final IDs) ===
+  final   1: '[a'
+  final   2: "]*'"
+  final   3: 'foo'
+  final   4: "'@4"
+  final   5: '2'
+  final   8: '3'
+  final   9: '4'
+  final  10: '[b'
+  final  12: '3'
+  final  13: '4'
+  final  14: 'ba'
+  final  15: 'r'
+  final  21: '3'
+  final  23: 'z'
+
+=== COMPOSITIONS (final IDs) ===
+  final   7 = a2 composicao(2,3,4)
+  final  11 = a3 composicao(8,a2)
+  final  16 = a4 composicao(4,5)
+  final  19 = a1 composicao(2,11,12,4)
+  final  20 = a5 composicao(8,a1)
+  final  22 = a6 composicao(2,11)
+
+=== USO POR REF ===
+  ref   1: 5x
+  ref   7: 3x
+  ref  16: 3x
+  ref   5: 2x
+  ref  11: 2x
+  ref  20: 2x
+  ref  22: 2x
+  ref   2: 1x
+  ref   8: 1x
+  ref  10: 1x
+  ref  19: 1x
+  ref  23: 1x
