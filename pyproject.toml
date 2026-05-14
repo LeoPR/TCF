@@ -36,7 +36,11 @@ cache_dir = "Z:\\caches\\pytest"
 tcf = "tcf.cli:main"
 
 [tool.hatchling.build.targets.wheel]
-packages = ["src/tcf"]
+packages = ["old/tcf"]
 
+# Nota (2026-05-17): src/tcf/ moved to old/tcf/ para sinalizar que e'
+# v0.5 (columnar/RLE para LLM benchmark — acessorio). Codigo canonico
+# atual e' o algoritmo TCF-CORE em experiments/lab/dirty/. Quando
+# protótipo migrar, novo modulo nascera em src/.
 # Future: C extension would be added here via hatchling-meson or setuptools
 # Future: Rust extension via maturin (replaces hatchling, same src/ layout)

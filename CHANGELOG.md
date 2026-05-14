@@ -1,8 +1,10 @@
 # Changelog
 
 History of TCF condensed into logical versions. For commit-level detail
-see `git log`. For per-experiment timeline see
-[docs/workbench/DEVELOPMENT.md](docs/workbench/DEVELOPMENT.md).
+see `git log`. For per-experiment timeline (v0.5) see
+[`docs/workbench/_archive/DEVELOPMENT.md`](docs/workbench/_archive/DEVELOPMENT.md);
+for v0.6 (atual) ver
+[`experiments/lab/dirty/notas/historia-dirty-lab.md`](experiments/lab/dirty/notas/historia-dirty-lab.md).
 
 Versioning is **internal** (we haven't shipped to PyPI). Versions mark
 **logical milestones** in the project. Date in parentheses is when the
@@ -10,7 +12,41 @@ milestone consolidated.
 
 ---
 
-## v0.3-research (2026-04-27) — current — research-grade
+## v0.6-dirty (2026-05-10 → em curso) — **CURRENT** — algoritmo TCF-CORE
+
+**Reset em 2026-05-10**: foco do projeto migrou de "formato textual
+columnar para LLMs" (v0.5) para **algoritmo de compressao de strings**
+com sintaxe composicional. Trabalho em `experiments/lab/dirty/` (macros
+M0-M9 ate' agora).
+
+Componentes canonicos:
+- **TCF-CORE / OAS / alg16** (M0): tokenizacao online incremental via
+  LCP/LCS. Tokens raiz: TokLit / TokRefPref / TokRefSuf. Intocado
+  desde M0.
+- **M1.E**: sintaxe de ambiguidade local (range `a..b` + escape escopo).
+- **Compactacao composicional (M8.A)**: detector unificado (refs
+  atomicos + virtuais no mesmo espaco) + emit composicional (`~`
+  cria ref auto-nomeado, `,` concat efemero); restricao body-order
+  para inline expansion correto.
+- **Convencao output**: sem brackets `[`/`]`, LF only.
+
+Resultados:
+- D1-D4 canonicos: 660 raw → 574 bytes (-13%).
+- D1-D9 (stress): 2973 raw → 1615 bytes (54.3% ratio medio).
+- M8.A RT 16/16 OK; M9 RT 9/9 OK.
+
+LLM benchmark (Phase 1) e' agora **acessorio** ao foco — pode virar
+projeto a parte. Codigo v0.5 (`old/tcf/`, antes `src/tcf/`) mantido
+para referencia; migracao para protótipo limpo e' item top do
+roadmap.
+
+Ver:
+- [`experiments/lab/dirty/notas/historia-dirty-lab.md`](experiments/lab/dirty/notas/historia-dirty-lab.md) — narrativa M0-M9
+- [`experiments/lab/dirty/notas/roadmap-hipoteses.md`](experiments/lab/dirty/notas/roadmap-hipoteses.md) — 12 direcoes futuras
+
+---
+
+## v0.3-research (2026-04-27) — research-grade (HISTORICA)
 
 **Repository reorganization**: GitHub-style README, manual with 7 chapters
 (EN + 3 PT-BR), findings catalogue split by theme into `docs/findings/`,
