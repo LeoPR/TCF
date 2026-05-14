@@ -1,0 +1,52 @@
+# Debug — sintaxe=M7-A-clean dataset=D1-emails-simples
+# bytes=124  roundtrip=OK
+
+================================================================================
+INPUT
+================================================================================
+  [1] joao@gmail.com
+  [2] maria@gmail.com
+  [3] pedro@gmail.com
+  [4] ana@gmail.com
+  [5] joao@hotmail.com
+  [6] maria@hotmail.com
+  [7] pedro@hotmail.com
+  [8] ana@hotmail.com
+  [9] joao@yahoo.com
+  [10] maria@yahoo.com
+  [11] pedro@yahoo.com
+  [12] ana@yahoo.com
+
+================================================================================
+TCF (encode — M7-A-clean)
+================================================================================
+  joa*o*@*g*mail*.com
+  mari*a3..5,6
+  pedr2,10,6
+  an8,10,6
+  1..3hot5,6
+  7~8,3~15~5~6
+  11~2,19
+  12~8,19
+  14yahoo6
+  16,3~22~6
+  20,24
+  21,24
+
+================================================================================
+DECODE (contra-prova)
+================================================================================
+  [ ] joao@gmail.com
+  [ ] maria@gmail.com
+  [ ] pedro@gmail.com
+  [ ] ana@gmail.com
+  [ ] joao@hotmail.com
+  [ ] maria@hotmail.com
+  [ ] pedro@hotmail.com
+  [ ] ana@hotmail.com
+  [ ] joao@yahoo.com
+  [ ] maria@yahoo.com
+  [ ] pedro@yahoo.com
+  [ ] ana@yahoo.com
+
+  -> 12 linhas reconstruidas IGUAIS

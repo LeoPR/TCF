@@ -1,0 +1,57 @@
+# Optimization trace — syntax=M8-A-virtual-refs
+
+=== DETECTOR ITERATIONS (unified — atoms + virtuals) ===
+
+--- Iter 1 ---
+Sub-tuplas K>=2 com R>=2: 13  net>0: 13
+  5,6,7                    | R=7 Lr=4 len(N)~2 net=(6)*(4-2)=12 <- PICK
+  6,7                      | R=9 Lr=3 len(N)~2 net=(8)*(3-2)=8
+  5,6                      | R=7 Lr=3 len(N)~2 net=(6)*(3-2)=6
+  8,5,6,7                  | R=2 Lr=6 len(N)~2 net=(1)*(6-2)=4
+  8,5,6                    | R=2 Lr=5 len(N)~2 net=(1)*(5-2)=3
+  1,2,3                    | R=2 Lr=4 len(N)~2 net=(1)*(4-2)=2
+  4,5,6                    | R=2 Lr=4 len(N)~2 net=(1)*(4-2)=2
+  4,5,6,7                  | R=2 Lr=4 len(N)~2 net=(1)*(4-2)=2
+  1,2                      | R=2 Lr=3 len(N)~2 net=(1)*(3-2)=1
+  2,3                      | R=2 Lr=3 len(N)~2 net=(1)*(3-2)=1
+Substituido em 7 ocorrencias (linhas [2, 3, 4, 5, 6, 7, 8])
+
+--- Iter 2 ---
+Sub-tuplas K>=2 com R>=2: 7  net>0: 7
+  1,2,3                    | R=2 Lr=4 len(N)~2 net=(1)*(4-2)=2 <- PICK
+  4,a1                     | R=2 Lr=4 len(N)~2 net=(1)*(4-2)=2
+  8,a1                     | R=2 Lr=4 len(N)~2 net=(1)*(4-2)=2
+  1,2                      | R=2 Lr=3 len(N)~2 net=(1)*(3-2)=1
+  2,3                      | R=2 Lr=3 len(N)~2 net=(1)*(3-2)=1
+  3,4                      | R=2 Lr=3 len(N)~2 net=(1)*(3-2)=1
+  6,7                      | R=2 Lr=3 len(N)~2 net=(1)*(3-2)=1
+  AMBIGUIDADE: 3 candidates empatam em net=2
+Substituido em 2 ocorrencias (linhas [2, 3])
+
+--- Iter 3 ---
+Sub-tuplas K>=2 com R>=2: 3  net>0: 3
+  4,a1                     | R=2 Lr=4 len(N)~2 net=(1)*(4-2)=2 <- PICK
+  8,a1                     | R=2 Lr=4 len(N)~2 net=(1)*(4-2)=2
+  6,7                      | R=2 Lr=3 len(N)~2 net=(1)*(3-2)=1
+  AMBIGUIDADE: 2 candidates empatam em net=2
+Substituido em 2 ocorrencias (linhas [4, 7])
+
+--- Iter 4 ---
+Sub-tuplas K>=2 com R>=2: 2  net>0: 2
+  8,a1                     | R=2 Lr=4 len(N)~2 net=(1)*(4-2)=2 <- PICK
+  6,7                      | R=2 Lr=3 len(N)~2 net=(1)*(3-2)=1
+Substituido em 2 ocorrencias (linhas [5, 8])
+
+--- Iter 5 ---
+Sub-tuplas K>=2 com R>=2: 1  net>0: 1
+  6,7                      | R=2 Lr=3 len(N)~2 net=(1)*(3-2)=1 <- PICK
+Substituido em 2 ocorrencias (linhas [9, 10])
+
+--- Iter 6 ---
+Sub-tuplas K>=2 com R>=2: 0  net>0: 0
+Nenhum candidato com net > 0. STOP.
+
+=== MISSED OPPORTUNITIES (post-hoc) ===
+  (nenhum)
+
+Total estimated missed: 0

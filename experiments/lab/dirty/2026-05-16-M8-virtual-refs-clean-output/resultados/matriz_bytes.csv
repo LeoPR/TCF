@@ -1,0 +1,5 @@
+dataset,M1-E-clean,M7-A-clean,M8-A-virtual-refs,menor
+D1-emails-simples,145,124,118,M8-A-virtual-refs
+D2-emails-quote-id,176,171,166,M8-A-virtual-refs
+D3-stress-substring,202,190,177,M8-A-virtual-refs
+D4-caos-mix,137,118,113,M8-A-virtual-refs

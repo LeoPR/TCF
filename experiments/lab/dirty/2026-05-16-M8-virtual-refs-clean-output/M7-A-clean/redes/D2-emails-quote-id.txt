@@ -1,0 +1,42 @@
+# Rede de atomos + composicoes — M7-A-clean
+
+=== ATOMS (final IDs) ===
+  final   1: "d'a"
+  final   2: 'nge'
+  final   3: 'lo'
+  final   4: '1'
+  final   5: '@g'
+  final   6: 'mail'
+  final   7: '.com'
+  final  10: '42'
+  final  13: '03'
+  final  14: "o'brien"
+  final  15: "de'mel"
+  final  16: "m'baye"
+  final  17: '1'
+  final  18: '@hot'
+  final  20: '42'
+  final  21: "o'connor103"
+  final  22: '@yahoo'
+  final  23: 'rcy256'
+
+=== COMPOSITIONS (final IDs, ordem body) ===
+  final   9 = composicao[1, 2, 3] (emit `1..3`)
+  final  12 = composicao[5, 6, 7] (emit `5..7`)
+  final  19 = composicao[6, 7] (emit `6~7`)
+
+=== USO POR REF (id → contagem em body) ===
+  ref  12: 7x
+  ref   4: 4x
+  ref   3: 2x
+  ref   7: 2x
+  ref   9: 2x
+  ref  10: 2x
+  ref  14: 2x
+  ref  19: 2x
+  ref   1: 1x
+  ref  13: 1x
+  ref  15: 1x
+  ref  16: 1x
+  ref  18: 1x
+  ref  22: 1x
