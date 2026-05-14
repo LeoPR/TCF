@@ -1,10 +1,28 @@
-# TCF — Textual Columnar Format
+# TCF — Textual Compact Format
 
 ![Python](https://img.shields.io/badge/python-3.10+-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![Status](https://img.shields.io/badge/status-research--grade-orange)
 
-**A compact text format for LLMs to reason over relational tables.**
+> **🔧 Project state (2026-05-17)**: active work is on the
+> **TCF-CORE algorithm** (string compression with compositional syntax) in
+> [`experiments/lab/dirty/`](experiments/lab/dirty/). See
+> [`historia-dirty-lab.md`](experiments/lab/dirty/notas/historia-dirty-lab.md)
+> for the canonical narrative.
+>
+> The README below describes the **v0.5 phase** (`src/tcf/` — columnar
+> format for LLM consumption with RLE/stats). That implementation is
+> being **superseded** by the dirty-lab work; migration is in the
+> [roadmap](experiments/lab/dirty/notas/roadmap-hipoteses.md).
+>
+> LLM benchmark results (Phase 1, Q01-Q38) are valid past work but are
+> **accessory** to the current focus and may eventually become a
+> separate project. Schema/Shaper are tools.
+
+---
+
+## (v0.5) A compact text format for LLMs to reason over relational tables
+
 TCF compresses CSV/JSON tabular data via columnar layout + RLE + statistics
 hints, without losing roundtrip fidelity. Models read it directly (Linha A)
 or use it as schema carrier for SQL generation (Linha B).

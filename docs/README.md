@@ -1,7 +1,17 @@
 # TCF — Documentation Hub
 
-Hub central da documentacao do projeto TCF (Textual Columnar Format).
-Estrutura otimizada para 4 perfis de leitor:
+> **🔧 Estado do projeto (2026-05-17)**: trabalho ativo e' o
+> **algoritmo TCF-CORE** (compressao de strings) em
+> [`../experiments/lab/dirty/`](../experiments/lab/dirty/). Ver
+> [historia-dirty-lab.md](../experiments/lab/dirty/notas/historia-dirty-lab.md).
+>
+> A maior parte deste hub descreve o **ciclo v0.5 (LLM benchmark)**.
+> Esse trabalho e' **acessorio** ao foco atual e pode virar projeto
+> a parte. Para o estado canonico atual, ir direto pra dirty lab
+> v0.6 (links na secao "Para devs").
+
+Hub central da documentacao do projeto TCF. Estrutura otimizada
+para 4 perfis de leitor:
 
 ## Para usuarios — quero usar TCF
 

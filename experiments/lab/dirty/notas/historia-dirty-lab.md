@@ -13,13 +13,31 @@
 
 ## Contexto
 
-**TCF (Textual Columnar Format)** e' um formato textual compacto
-projetado para LLMs lerem tabelas relacionais. O DIRTY LAB e' o
-espaco onde algoritmos e sintaxes sao iterados sem compromisso com
-estabilidade — apenas validacao de comportamento.
+**TCF (Textual Compact Format)** e' um **algoritmo de compressao
+de strings** com sintaxe composicional para producao textual.
 
-Cada macro (M0..M9) explora uma faceta do design. Esta historia
-consolida o que cada um estabeleceu.
+> Nota historica: o nome TCF originalmente significava "Textual
+> Columnar Format" no ciclo v0.5 (foco em LLMs lerem tabelas).
+> No ciclo v0.6 (dirty lab atual), o foco eh o **algoritmo de
+> compressao** (TCF-CORE / alg16 + Compactacao composicional). O
+> uso por LLMs e' aplicacao **acessoria** — Phase 1 catalogou
+> resultados; Phase 2 vira depois do algoritmo estabilizar.
+
+O DIRTY LAB e' o espaco onde algoritmos e sintaxes sao iterados
+sem compromisso com estabilidade — apenas validacao de
+comportamento. Cada macro (M0..M9) explora uma faceta do design.
+Esta historia consolida o que cada um estabeleceu.
+
+### Componentes (atual)
+
+- **TCF-CORE / OAS / alg16**: algoritmo principal (compressao
+  online de strings via LCP/LCS). Foco do projeto.
+- **Compactacao composicional**: etapa apos TCF-CORE — refs
+  atomicos + virtuais + operadores `~`/`,`.
+- **LLM benchmark** (acessorio): Phase 1 fechado; pode virar
+  projeto a parte.
+- **Schema / Shaper** (ferramentas): uteis para criar datasets
+  experimentais; podem virar projetos a parte.
 
 ---
 
