@@ -1,0 +1,49 @@
+# Rede de atomos + composicoes — M8-A-virtual-refs
+
+=== ATOMS (final IDs) ===
+  final   1: '[start]['
+  final   2: 'a]['
+  final   3: 'middle'
+  final   4: ']['
+  final   5: 'a'
+  final   6: '][end]'
+  final   7: 'b][middle'
+  final   8: ']['
+  final   9: 'b'
+  final  10: 'c]['
+  final  11: 'middle][c'
+  final  12: '[init]['
+  final  13: 'a]['
+  final  14: 'between][a'
+  final  15: '][final]'
+  final  16: 'b][between]['
+  final  17: 'b'
+  final  18: 'between'
+  final  19: 'c]['
+  final  20: 'middle]['
+  final  21: 'c'
+  final  25: 'between'
+
+=== COMPOSITIONS (final IDs) ===
+  final  22 = a3 composicao(5,6)
+  final  23 = a1 composicao(21,15)
+  final  24 = a2 composicao(1,10)
+
+=== USO POR REF ===
+  ref   1: 4x
+  ref  12: 4x
+  ref   6: 3x
+  ref  15: 3x
+  ref   4: 2x
+  ref   8: 2x
+  ref  22: 2x
+  ref  23: 2x
+  ref  24: 2x
+  ref   2: 1x
+  ref   7: 1x
+  ref   9: 1x
+  ref  13: 1x
+  ref  16: 1x
+  ref  17: 1x
+  ref  20: 1x
+  ref  25: 1x

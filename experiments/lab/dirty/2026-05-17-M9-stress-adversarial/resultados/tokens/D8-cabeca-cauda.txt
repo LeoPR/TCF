@@ -1,0 +1,52 @@
+# Tokens raiz (online.py exp 16) — D8-cabeca-cauda
+# Strings unicas: 12
+
+================================================================================
+
+eid=1: 'common/prefix/aaa/common/suffix'
+  tokens: [L('common/prefix/aaa/common/suffix')]
+  fragmentos: [0:14]='common/prefix/' | [14:17]='aaa' | [17:31]='/common/suffix'
+
+eid=2: 'common/prefix/bbb/common/suffix'
+  tokens: [P(1,14), L('bbb'), S(1,14)]
+  fragmentos: [14:17]='bbb'
+
+eid=3: 'common/prefix/ccc/common/suffix'
+  tokens: [P(1,14), L('ccc'), S(1,14)]
+  fragmentos: [14:17]='ccc'
+
+eid=4: 'common/prefix/ddd/common/suffix'
+  tokens: [P(1,14), L('ddd'), S(1,14)]
+  fragmentos: [14:17]='ddd'
+
+eid=5: 'common/prefix/eee/common/suffix'
+  tokens: [P(1,14), L('eee'), S(1,14)]
+  fragmentos: [14:17]='eee'
+
+eid=6: 'common/prefix/fff/common/suffix'
+  tokens: [P(1,14), L('fff'), S(1,14)]
+  fragmentos: [14:17]='fff'
+
+eid=7: 'common/prefix/ggg/common/suffix'
+  tokens: [P(1,14), L('ggg'), S(1,14)]
+  fragmentos: [14:17]='ggg'
+
+eid=8: 'common/prefix/hhh/common/suffix'
+  tokens: [P(1,14), L('hhh'), S(1,14)]
+  fragmentos: [14:17]='hhh'
+
+eid=9: 'common/prefix/iii/common/suffix'
+  tokens: [P(1,14), L('iii'), S(1,14)]
+  fragmentos: [14:17]='iii'
+
+eid=10: 'common/prefix/jjj/common/suffix'
+  tokens: [P(1,14), L('jjj'), S(1,14)]
+  fragmentos: [14:17]='jjj'
+
+eid=11: 'common/prefix/kkk/common/suffix'
+  tokens: [P(1,14), L('kkk'), S(1,14)]
+  fragmentos: [14:17]='kkk'
+
+eid=12: 'common/prefix/lll/common/suffix'
+  tokens: [P(1,14), L('lll'), S(1,14)]
+  fragmentos: [14:17]='lll'

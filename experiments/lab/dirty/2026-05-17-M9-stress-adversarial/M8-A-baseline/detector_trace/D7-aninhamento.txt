@@ -1,0 +1,31 @@
+# Optimization trace — syntax=M8-A-virtual-refs
+
+=== DETECTOR ITERATIONS (unified — atoms + virtuals) ===
+
+--- Iter 1 ---
+Sub-tuplas K>=2 com R>=2: 3  net>0: 3
+  21,15                    | R=2 Lr=5 len(N)~2 net=(1)*(5-2)=3 <- PICK
+  1,10                     | R=2 Lr=4 len(N)~2 net=(1)*(4-2)=2
+  5,6                      | R=2 Lr=3 len(N)~2 net=(1)*(3-2)=1
+Substituido em 2 ocorrencias (linhas [9, 11])
+
+--- Iter 2 ---
+Sub-tuplas K>=2 com R>=2: 2  net>0: 2
+  1,10                     | R=2 Lr=4 len(N)~2 net=(1)*(4-2)=2 <- PICK
+  5,6                      | R=2 Lr=3 len(N)~2 net=(1)*(3-2)=1
+Substituido em 2 ocorrencias (linhas [10, 12])
+
+--- Iter 3 ---
+Sub-tuplas K>=2 com R>=2: 1  net>0: 1
+  5,6                      | R=2 Lr=3 len(N)~2 net=(1)*(3-2)=1 <- PICK
+Substituido em 2 ocorrencias (linhas [8, 10])
+
+--- Iter 4 ---
+Sub-tuplas K>=2 com R>=2: 0  net>0: 0
+Nenhum candidato com net > 0. STOP.
+
+=== MISSED OPPORTUNITIES (post-hoc) ===
+  pair=(12,15) R=2 lines=[5,7] baseline=5 est_savings=3
+  pair=(1,6) R=2 lines=[2,3] baseline=3 est_savings=1
+
+Total estimated missed: 4

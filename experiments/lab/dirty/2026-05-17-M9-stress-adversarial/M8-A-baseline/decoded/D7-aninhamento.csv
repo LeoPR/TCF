@@ -1,0 +1,13 @@
+val
+[start][a][middle][a][end]
+[start][b][middle][b][end]
+[start][c][middle][c][end]
+[init][a][between][a][final]
+[init][b][between][b][final]
+[start][a][between][b][end]
+[init][c][middle][c][final]
+[start][b][middle][a][end]
+[init][a][middle][c][final]
+[start][c][between][a][end]
+[init][b][between][c][final]
+[start][c][between][b][final]

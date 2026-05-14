@@ -1,0 +1,48 @@
+# Tokens raiz (online.py exp 16) — D7-aninhamento
+# Strings unicas: 12
+
+================================================================================
+
+eid=1: '[start][a][middle][a][end]'
+  tokens: [L('[start][a][middle][a][end]')]
+  fragmentos: [0:8]='[start][' | [8:11]='a][' | [11:17]='middle' | [17:19]='][' | [19:20]='a' | [20:26]='][end]'
+
+eid=2: '[start][b][middle][b][end]'
+  tokens: [P(1,8), L('b][middle][b'), S(1,6)]
+  fragmentos: [8:17]='b][middle' | [17:19]='][' | [19:20]='b'
+
+eid=3: '[start][c][middle][c][end]'
+  tokens: [P(1,8), L('c][middle][c'), S(1,6)]
+  fragmentos: [8:11]='c][' | [11:20]='middle][c'
+
+eid=4: '[init][a][between][a][final]'
+  tokens: [L('[init][a][between][a][final]')]
+  fragmentos: [0:7]='[init][' | [7:10]='a][' | [10:20]='between][a' | [20:28]='][final]'
+
+eid=5: '[init][b][between][b][final]'
+  tokens: [P(4,7), L('b][between][b'), S(4,8)]
+  fragmentos: [7:19]='b][between][' | [19:20]='b'
+
+eid=6: '[start][a][between][b][end]'
+  tokens: [P(1,11), L('between'), S(2,9)]
+  fragmentos: [11:18]='between'
+
+eid=7: '[init][c][middle][c][final]'
+  tokens: [P(4,7), L('c][middle][c'), S(4,8)]
+  fragmentos: [7:10]='c][' | [10:18]='middle][' | [18:19]='c'
+
+eid=8: '[start][b][middle][a][end]'
+  tokens: [P(2,19), S(1,7)]
+
+eid=9: '[init][a][middle][c][final]'
+  tokens: [P(4,10), S(7,17)]
+
+eid=10: '[start][c][between][a][end]'
+  tokens: [P(3,11), L('between'), S(1,9)]
+  fragmentos: [11:18]='between'
+
+eid=11: '[init][b][between][c][final]'
+  tokens: [P(5,19), S(7,9)]
+
+eid=12: '[start][c][between][b][final]'
+  tokens: [P(10,20), S(5,9)]

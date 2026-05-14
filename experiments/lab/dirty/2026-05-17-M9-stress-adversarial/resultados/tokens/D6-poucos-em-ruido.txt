@@ -1,0 +1,52 @@
+# Tokens raiz (online.py exp 16) — D6-poucos-em-ruido
+# Strings unicas: 12
+
+================================================================================
+
+eid=1: 'log[2026-05-17T08:23:01.182]error[mod=auth]'
+  tokens: [L('log[2026-05-17T08:23:01.182]error[mod=auth]')]
+  fragmentos: [0:18]='log[2026-05-17T08:' | [18:19]='2' | [19:25]='3:01.1' | [25:27]='82' | [27:43]=']error[mod=auth]'
+
+eid=2: 'log[2026-05-17T08:23:01.193]info[mod=request]'
+  tokens: [P(1,25), L('93]info[mod=request]')]
+  fragmentos: [25:27]='93' | [27:45]=']info[mod=request]'
+
+eid=3: 'log[2026-05-17T08:24:05.471]error[mod=db]'
+  tokens: [P(1,19), L('4:05.471]error[mod=db]')]
+  fragmentos: [19:21]='4:' | [21:26]='05.47' | [26:41]='1]error[mod=db]'
+
+eid=4: 'log[2026-05-17T08:24:12.039]warn[mod=cache]'
+  tokens: [P(3,21), L('12.039]warn[mod=cache]')]
+  fragmentos: [21:27]='12.039' | [27:43]=']warn[mod=cache]'
+
+eid=5: 'log[2026-05-17T08:25:33.812]info[mod=request]'
+  tokens: [P(1,19), L('5:33.812'), S(2,18)]
+  fragmentos: [19:27]='5:33.812'
+
+eid=6: 'log[2026-05-17T08:26:09.555]error[mod=auth]'
+  tokens: [P(1,19), L('6:09.555'), S(1,16)]
+  fragmentos: [19:21]='6:' | [21:27]='09.555'
+
+eid=7: 'log[2026-05-17T08:26:42.190]debug[mod=trace]'
+  tokens: [P(6,21), L('42.190]debug[mod=trace]')]
+  fragmentos: [21:44]='42.190]debug[mod=trace]'
+
+eid=8: 'log[2026-05-17T08:27:01.821]error[mod=db]'
+  tokens: [P(1,19), L('7:01.82'), S(3,15)]
+  fragmentos: [19:26]='7:01.82'
+
+eid=9: 'log[2026-05-17T08:28:15.366]info[mod=request]'
+  tokens: [P(1,19), L('8:15.366'), S(2,18)]
+  fragmentos: [19:27]='8:15.366'
+
+eid=10: 'log[2026-05-17T08:29:48.044]warn[mod=cache]'
+  tokens: [P(1,19), L('9:48.044'), S(4,16)]
+  fragmentos: [19:27]='9:48.044'
+
+eid=11: 'log[2026-05-17T08:30:11.928]error[mod=auth]'
+  tokens: [P(1,18), L('30:11.928'), S(1,16)]
+  fragmentos: [18:19]='3' | [19:27]='0:11.928'
+
+eid=12: 'log[2026-05-17T08:31:55.610]info[mod=request]'
+  tokens: [P(11,19), L('1:55.610'), S(2,18)]
+  fragmentos: [19:27]='1:55.610'
