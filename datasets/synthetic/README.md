@@ -43,6 +43,18 @@ pre-filtros (Estrategia 1.A do roadmap).
 | D14-uuid-variados.csv | UUIDs em varios layouts | 12 | 455 | Canonico, sem hifen, uppercase, braces, `urn:uuid:`, v7 |
 | D15-base64-variados.csv | Base64 com/sem padding, URL-safe | 14 | 323 | `=`/`==`/sem padding, alfabeto URL-safe (`-_`) |
 
+## Cenarios — Dxxa/b/c (sub-datasets controlados, foco por nivel de precisao)
+
+Sub-datasets criados conforme necessidade dos macros do dirty lab.
+Cada um e' **mais estreito** que seu pai (D10-D15), focado em **um
+aspecto especifico** da natureza pra controle fino.
+
+| Arquivo | Cenario | Linhas | Raw bytes | Foco | Macro origem |
+|---|---|---:|---:|---|---|
+| D11a-datas-dia.csv | Datas YYYY-MM-DD, variando so' em dias | 12 | 136 | Resolucao dia (delta = inteiro de dias) | [T01-incremental](../../experiments/lab/dirty/2026-05-15-naturezas-e-camada/pre-tx/T01-incremental-base-delta/) |
+
+(Outros Dxxb/c/d... criados quando macros pedirem niveis hora/segundo/ms/us/ns ou outros focos.)
+
 ## Compressao validada (M9 baseline)
 
 D1-D9 sob HCC composicional: **1615 bytes em 2981 raw = 54.2% ratio**
