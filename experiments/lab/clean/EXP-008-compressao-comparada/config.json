@@ -1,0 +1,34 @@
+{
+  "experiment_id": "EXP-008-compressao-comparada",
+  "cycle": "v0.6",
+  "tcf_source": "src/tcf",
+  "tcf_api": ["encode", "decode"],
+  "datasets_dir": "../../../../datasets/synthetic",
+  "datasets": [
+    "D1-emails-simples",
+    "D2-emails-quote-id",
+    "D3-stress-substring",
+    "D4-caos-mix",
+    "D5-padroes-multiplos",
+    "D6-poucos-em-ruido",
+    "D7-aninhamento",
+    "D8-cabeca-cauda",
+    "D9-frequencia-alta",
+    "D10-datas-mundiais",
+    "D11-datetime-precisao",
+    "D12-datetime-timezone",
+    "D13-cpf-variados",
+    "D14-uuid-variados",
+    "D15-base64-variados"
+  ],
+  "out_dir": "outputs",
+  "compressors": {
+    "gzip":   {"level": 9, "lib": "gzip (stdlib)"},
+    "brotli": {"level": 11, "lib": "brotli"},
+    "zstd":   {"level": 22, "lib": "zstandard"},
+    "lzma":   {"preset": 9, "lib": "lzma (stdlib)"},
+    "bz2":    {"level": 9, "lib": "bz2 (stdlib)"}
+  },
+  "reps_tcf": 20,
+  "reps_comp": 100
+}
