@@ -1,0 +1,44 @@
+# M14 — D6-poucos-em-ruido
+# bytes=287  roundtrip=OK
+
+INPUT:
+  [1] log[2026-05-17T08:23:01.182]error[mod=auth]
+  [2] log[2026-05-17T08:23:01.193]info[mod=request]
+  [3] log[2026-05-17T08:24:05.471]error[mod=db]
+  [4] log[2026-05-17T08:24:12.039]warn[mod=cache]
+  [5] log[2026-05-17T08:25:33.812]info[mod=request]
+  [6] log[2026-05-17T08:26:09.555]error[mod=auth]
+  [7] log[2026-05-17T08:26:42.190]debug[mod=trace]
+  [8] log[2026-05-17T08:27:01.821]error[mod=db]
+  [9] log[2026-05-17T08:28:15.366]info[mod=request]
+  [10] log[2026-05-17T08:29:48.044]warn[mod=cache]
+  [11] log[2026-05-17T08:30:11.928]error[mod=auth]
+  [12] log[2026-05-17T08:31:55.610]info[mod=request]
+
+TCF:
+  log[\2026-\05-\17T\08:*\2*\3:\01.\1*\82*]error[mod=auth]
+  1~2,3\93*]info[mod=request]
+  6\4:*\05.\47*\1]error[mod=db]
+  6,9\12.\039*]warn[mod=cache]
+  6\5:\33.\812*8
+  6\6:*\09.\555*5
+  6,15\42.\190]debug[mod=trace]
+  6\7:\01.\82*11
+  6\8:\15.\366*8
+  6\9:\48.\044*13
+  1\3*\0:\11.\928*5
+  1,21\1:\55.\610*8
+
+DECODE:
+  [ ] log[2026-05-17T08:23:01.182]error[mod=auth]
+  [ ] log[2026-05-17T08:23:01.193]info[mod=request]
+  [ ] log[2026-05-17T08:24:05.471]error[mod=db]
+  [ ] log[2026-05-17T08:24:12.039]warn[mod=cache]
+  [ ] log[2026-05-17T08:25:33.812]info[mod=request]
+  [ ] log[2026-05-17T08:26:09.555]error[mod=auth]
+  [ ] log[2026-05-17T08:26:42.190]debug[mod=trace]
+  [ ] log[2026-05-17T08:27:01.821]error[mod=db]
+  [ ] log[2026-05-17T08:28:15.366]info[mod=request]
+  [ ] log[2026-05-17T08:29:48.044]warn[mod=cache]
+  [ ] log[2026-05-17T08:30:11.928]error[mod=auth]
+  [ ] log[2026-05-17T08:31:55.610]info[mod=request]

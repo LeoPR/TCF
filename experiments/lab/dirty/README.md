@@ -35,6 +35,7 @@ dirty/
   2026-05-17-M11-welding-step1-alg16-src/     (foi — welding 1: alg16 copiado para src/tcf/core/; byte-identico a M10/M9)
   2026-05-17-M12-welding-step2-m8a-src/       (foi — welding 2: M8.A copiado para src/tcf/composicional/; byte-identico a M11)
   2026-05-17-M13-welding-step3-api-publica/   (foi — welding 3: API publica `from tcf import encode, decode`; byte-identico a M12)
+  2026-05-17-M14-clean-validation-srctcf/     (foi — contra-prova: src/tcf como unica fonte; byte-identico a M13 apos cleanup welding scaffolding)
   notas/                              (transversais, vivas; ver historia-dirty-lab.md)
   README.md                           (este)
 ```
@@ -59,6 +60,7 @@ dirty/
 | **M11** | foi | welding step 1: alg16 copiado para `src/tcf/core/online.py` | RT 9/9 OK; byte-identico a M10; valida copia byte-exata do alg16 |
 | **M12** | foi | welding step 2: M8.A composicional para `src/tcf/composicional/syntax.py` (imports adaptados) | RT 9/9 OK; byte-identico a M11; valida package layout funcional |
 | **M13** | foi | welding step 3: API publica `from tcf import encode, decode` | RT 9/9 OK; byte-identico a M12; **encode/decode formalmente em src/** |
+| **M14** | foi | contra-prova: re-roda M13 apos cleanup de welding scaffolding (M10/M11) | RT 9/9 OK; byte-identico a M13; **src/tcf certificado como unica fonte** |
 
 ## Sintaxes ativas vs dominadas (triagem 2026-05-13)
 

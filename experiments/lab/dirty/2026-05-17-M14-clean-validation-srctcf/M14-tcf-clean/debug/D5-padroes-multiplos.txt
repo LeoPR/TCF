@@ -1,0 +1,44 @@
+# M14 — D5-padroes-multiplos
+# bytes=281  roundtrip=OK
+
+INPUT:
+  [1] foo@example.com|550e8400-e29b-41d4
+  [2] bar@example.com|550e8400-e29b-41d5
+  [3] foo@example.org|550e8400-e29b-41d4
+  [4] bar@example.org|550e8400-e29b-41d5
+  [5] baz@example.com|550e8400-e29b-41d6
+  [6] qux@example.org|550e8400-e29b-41d6
+  [7] foo@test.io|6ba7b810-9dad-11d1-aa
+  [8] bar@test.io|6ba7b810-9dad-11d1-ab
+  [9] baz@test.io|6ba7b810-9dad-11d1-aa
+  [10] qux@test.io|6ba7b810-9dad-11d1-ab
+  [11] foo@test.io|6ba7b810-9dad-11d1-cc
+  [12] baz@example.com|6ba7b810-9dad-11d1-cc
+
+TCF:
+  foo@*example.*com*|\550e\8400-e\29b-\41d\4
+  bar@*example.*com*|\550e\8400-e\29b-\41d\5
+  1,2org4
+  5,6org8
+  baz@*example.com*|*\550e\8400-e\29b-\41d\6
+  qux@*example.org13,14
+  1test.io|*\6ba\7b\810-\9dad-\11d\1-*aa
+  5test.io|\6ba\7b\810-\9dad-\11d\1-ab
+  11,17~18,19
+  15,20
+  1,21cc
+  11..13,18,22
+
+DECODE:
+  [ ] foo@example.com|550e8400-e29b-41d4
+  [ ] bar@example.com|550e8400-e29b-41d5
+  [ ] foo@example.org|550e8400-e29b-41d4
+  [ ] bar@example.org|550e8400-e29b-41d5
+  [ ] baz@example.com|550e8400-e29b-41d6
+  [ ] qux@example.org|550e8400-e29b-41d6
+  [ ] foo@test.io|6ba7b810-9dad-11d1-aa
+  [ ] bar@test.io|6ba7b810-9dad-11d1-ab
+  [ ] baz@test.io|6ba7b810-9dad-11d1-aa
+  [ ] qux@test.io|6ba7b810-9dad-11d1-ab
+  [ ] foo@test.io|6ba7b810-9dad-11d1-cc
+  [ ] baz@example.com|6ba7b810-9dad-11d1-cc

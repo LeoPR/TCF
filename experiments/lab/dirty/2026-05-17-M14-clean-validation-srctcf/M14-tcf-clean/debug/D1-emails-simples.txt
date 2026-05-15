@@ -1,0 +1,44 @@
+# M14 — D1-emails-simples
+# bytes=118  roundtrip=OK
+
+INPUT:
+  [1] joao@gmail.com
+  [2] maria@gmail.com
+  [3] pedro@gmail.com
+  [4] ana@gmail.com
+  [5] joao@hotmail.com
+  [6] maria@hotmail.com
+  [7] pedro@hotmail.com
+  [8] ana@hotmail.com
+  [9] joao@yahoo.com
+  [10] maria@yahoo.com
+  [11] pedro@yahoo.com
+  [12] ana@yahoo.com
+
+TCF:
+  joa*o*@*g*mail*.com
+  mari*a3..6
+  pedr2,11
+  an8,11
+  1..3hot5,6
+  7~8,3~16~5~6
+  12~2,20
+  13~8,20
+  15yahoo6
+  17,3~23~6
+  21,25
+  22,25
+
+DECODE:
+  [ ] joao@gmail.com
+  [ ] maria@gmail.com
+  [ ] pedro@gmail.com
+  [ ] ana@gmail.com
+  [ ] joao@hotmail.com
+  [ ] maria@hotmail.com
+  [ ] pedro@hotmail.com
+  [ ] ana@hotmail.com
+  [ ] joao@yahoo.com
+  [ ] maria@yahoo.com
+  [ ] pedro@yahoo.com
+  [ ] ana@yahoo.com

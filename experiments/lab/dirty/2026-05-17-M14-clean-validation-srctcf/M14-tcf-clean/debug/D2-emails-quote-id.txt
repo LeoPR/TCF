@@ -1,0 +1,44 @@
+# M14 — D2-emails-quote-id
+# bytes=166  roundtrip=OK
+
+INPUT:
+  [1] d'angelo1@gmail.com
+  [2] d'angelo42@gmail.com
+  [3] d'angelo103@gmail.com
+  [4] o'brien1@gmail.com
+  [5] o'brien42@gmail.com
+  [6] o'brien103@gmail.com
+  [7] de'mello1@gmail.com
+  [8] de'mello42@gmail.com
+  [9] m'baye1@hotmail.com
+  [10] m'baye42@hotmail.com
+  [11] o'connor103@yahoo.com
+  [12] d'arcy256@yahoo.com
+
+TCF:
+  d'a*nge*lo*\1*@g*mail*.com
+  1..3\42*5..7
+  9,4\03*12
+  o'brien4~12
+  14,10~12
+  14,4,13,12
+  de'mel3,15
+  17,3,16
+  m'baye*\1*@hot6~7
+  18\42*20,21
+  o'connor\103*@yahoo7
+  1rcy\256*24,7
+
+DECODE:
+  [ ] d'angelo1@gmail.com
+  [ ] d'angelo42@gmail.com
+  [ ] d'angelo103@gmail.com
+  [ ] o'brien1@gmail.com
+  [ ] o'brien42@gmail.com
+  [ ] o'brien103@gmail.com
+  [ ] de'mello1@gmail.com
+  [ ] de'mello42@gmail.com
+  [ ] m'baye1@hotmail.com
+  [ ] m'baye42@hotmail.com
+  [ ] o'connor103@yahoo.com
+  [ ] d'arcy256@yahoo.com
