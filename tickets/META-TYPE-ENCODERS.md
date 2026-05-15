@@ -1,16 +1,25 @@
 # META-TYPE-ENCODERS — Pre-tx por natureza + estudos da camada de algoritmo
 
-**Status**: OPEN
+**Status**: OPEN (escopo **realinhado 2026-05-15** — foco em uma natureza por vez)
 **Criado**: 2026-05-15
-**Estimativa**: multi-semana (provavelmente 4-8 semanas dependendo
-de profundidade — varias macros + sub-experimentos clean).
-**Escopo**: dois tracks paralelos.
+**Estimativa atual**: T01 incremental ~1-2 semanas; demais naturezas avaliadas apos.
+**Escopo atual** (apos realinhamento):
 
-1. **Track 1 (Pre-tx)** — type encoders por **natureza
-   comportamental** dos dados (Estrategia 1.A do roadmap perspectiva
-   tríplice).
-2. **Track 2 (Algoritmo)** — estudos da **camada de comparacao** do
-   OBAT (alg16) e da composicao do HCC (Estrategia 3.B e adjacentes).
+- **Primeira natureza: incremental (datas)**. Trabalho em dirty lab
+  pequeno e iterativo, descartavel/refazivel ("faz/refaz/destroy/
+  reconstroi" sem deixar lixo em src/tcf).
+- **Demais naturezas (T02-T07) e Track 2 inteiro: diferidos.**
+  Documentados abaixo como **roadmap conceitual**, sem execucao
+  ate' T01 validar metodologia.
+
+### Por que realinhar
+
+Plano inicial (2026-05-15 manha) propunha 7 naturezas + 5 estudos
+de algoritmo em 4 ondas paralelas. Usuario apontou que isso e'
+escopo excessivo: precisamos de **uma natureza por vez** pra
+controle fino, e o processo aprendido na primeira **padroniza-se**
+pra demais. Ambicao multi-track + comprometimento prematuro com
+`src/tcf_pretx/` foram removidos.
 
 ## Motivacao
 
@@ -41,45 +50,40 @@ naturezas. Um dado pode pertencer a multiplas naturezas
 - Composicao explicita: pipeline pode aplicar multiplas naturezas em sequencia (templated → incremental → ...).
 - Estrutura conecta melhor com camada algoritmica (Track 2): se OBAT sabe que slots existem, integra com encoder templated naturalmente.
 
-## Visao de end-state (decisao adiada)
+## Visao de end-state (decisao adiada totalmente)
 
-O destino final dos resultados de **ambos os tracks** e' modular
-dentro de `src/tcf/` formando pipeline `pre → encode` na ida e
-`decode → pos` na volta:
+Destino final pretendido: pipeline `pre → encode` / `decode → pos`
+**como modulo dentro de `src/tcf/`** (ex: `src/tcf/pretx/` +
+`src/tcf/postx/`, ou unificado `src/tcf/pipeline/`).
 
 ```
 input → [pre-tx por nature] → encode (OBAT + HCC) → bytes
 bytes → decode (HCC + OBAT) → [pos-tx por nature] → output
 ```
 
-`src/tcf_pretx/` (sibling proposto na fase de experimentacao) e'
-**sala de espera** — quando welding fechar, o destino e' como
-**modulo do src/tcf/** (ex: `src/tcf/pretx/` + `src/tcf/postx/`
-ou unificado `src/tcf/pipeline/`).
+**Mas trabalho atual e' INTEIRAMENTE no dirty.** Dirty e'
+destrutivo ("faz/refaz/destroy/reconstroi") — colocar codigo
+exploratorio no `src/tcf/` cedo gera lixo dificil de remover.
+**Welding final acontece so' quando uma natureza for solida.**
 
-**Mas a estrutura final depende do desfecho do Track 2:**
+E mesmo assim, **forma do welding depende do desfecho do Track 2**:
 
 - **Cenario A — Track 1 sustenta valor proprio**: pre-tx por
   nature reduz bytes consistentemente alem do que OBAT/HCC
   conseguem. Welding → `src/tcf/pretx/` como modulo dedicado.
-
 - **Cenario B — Track 2 absorve parte do Track 1**: se L02
   (slot detection online no OBAT) e/ou L03 (markers tipados)
-  provarem que **natures podem ser detectadas e aplicadas
-  durante a construcao da arvore do OBAT**, partes do Track 1
-  ficam redundantes. Slots templated, por exemplo, viram parte
+  provarem que natures podem ser detectadas e aplicadas durante
+  a construcao da arvore do OBAT, partes do Track 1 viram parte
   nativa do OBAT — sem encoder pre-tx dedicado.
+- **Cenario C — hibrido (esperado mais provavel)**: natures que
+  precisam de semantica externa (incremental, checked, lossy,
+  composite) ficam pre-tx; natures estruturais (templated, slot)
+  sobem pro OBAT.
 
-- **Cenario C — hibrido (esperado mais provavel)**: algumas
-  natures (templated, slot detection) ficam embutidas no OBAT
-  via Track 2; outras (incremental delta, checked elide, lossy
-  recoverable, composite split) **continuam pre-tx** porque
-  exigem semantica externa (saber que e' uma data, que tem digito
-  verificador, etc.) — OBAT nao pode deduzir isso da string.
-
-**Decisao adiada ate' o fim da Onda 3.** Antes disso, manter
-estrutura experimental conforme decisao 2026-05-15 (sibling
-`src/tcf_pretx/`); o welding final aceita refactor.
+Por isso: **nada vai pra `src/tcf/` ate' Track 1 ter pelo menos
+uma natureza solida E Track 2 ter alguma evidencia inicial**.
+Antes disso, `src/tcf/` fica intocado (canonical desde welding M14).
 
 ## Taxonomia das 8 naturezas
 
@@ -120,63 +124,51 @@ casos reais (logs de timestamp, IDs sequenciais).
 
 ## Estrutura proposta de diretorios
 
-Decisoes registradas (2026-05-15):
-- **Dirty lab**: 1 unificado com 2 tracks dentro
-- **EXP-009**: meta-pasta com sub-experimentos numerados
-- **Code**: `src/tcf_pretx/` separado de `src/tcf/`
+Decisoes vigentes apos realinhamento:
+
+- **Dirty lab**: 1 unificado com 2 tracks dentro (criado, com sub-pastas vazias).
+- **EXP-009**: meta-pasta criada como stub — **sub-experimentos
+  abrem so' quando macro dirty correspondente fechar com sucesso**.
+- **Localizacao final do codigo no `src/tcf/`**: **decisao adiada
+  totalmente**. Trabalho fica no dirty enquanto experimentos rodam.
+  Quando algo se mostrar solido, decide-se entre embutir no
+  `src/tcf/` (modulo, ex: `src/tcf/pretx/`) ou em outro layout
+  conforme aprendido. Nao criar `src/tcf_pretx/` agora.
 
 ```
 experiments/lab/dirty/2026-05-15-naturezas-e-camada/
-├── README.md                          # entrada + roadmap
+├── README.md
 ├── notas/
-│   ├── historia-naturezas-camada.md   # narrativa cronologica
-│   ├── conclusoes_T01.md              # 1 por macro fechado
-│   └── ...
-├── pre-tx/                            # Track 1
-│   ├── T01-incremental-base-delta/
-│   ├── T02-templated-extract/
-│   ├── T03-enumerated-dict/
-│   ├── T04-checked-elide/
-│   ├── T05-high-entropy-passthrough/
-│   ├── T06-composite-split/
-│   └── T07-hierarchical-shared/
-└── algoritmo/                         # Track 2
-    ├── L01-comparacao-token-vs-byte/
-    ├── L02-slot-detection-online/
-    ├── L03-markers-tipados/
-    ├── L04-composicao-tree-based/
-    └── L05-pre-filter-candidatos/
+│   ├── historia-naturezas-camada.md
+│   └── conclusoes_T0X.md              # 1 por macro fechado
+├── pre-tx/                            # Track 1 (ativo: so T01)
+│   ├── T01-incremental-base-delta/    # ATIVO
+│   ├── T02-templated-extract/         # DIFERIDO
+│   ├── T03-enumerated-dict/           # DIFERIDO
+│   ├── T04-checked-elide/             # DIFERIDO
+│   ├── T05-high-entropy-passthrough/  # DIFERIDO
+│   ├── T06-composite-split/           # DIFERIDO
+│   └── T07-hierarchical-shared/       # DIFERIDO
+└── algoritmo/                         # Track 2 — INTEIRO DIFERIDO
+    └── (vazio ate' Track 1 validar metodologia)
 
 experiments/lab/clean/
-└── EXP-009-pre-tx-natureza/           # meta-pasta
-    ├── README.md                      # indice + status sub-experimentos
-    ├── EXP-009.1-incremental/
-    ├── EXP-009.2-templated/
-    ├── EXP-009.3-enumerated/
-    ├── EXP-009.4-checked/
-    ├── EXP-009.5-composite/
-    ├── EXP-009.6-hierarchical/
-    └── EXP-009.7-high-entropy/        # passthrough; mais documentacao que codigo
-
-src/tcf_pretx/                          # pacote irmao (futuro)
-├── __init__.py
-├── incremental.py
-├── templated.py
-├── enumerated.py
-├── checked.py
-├── composite.py
-├── hierarchical.py
-└── high_entropy.py                    # pass-through helpers
+└── EXP-009-pre-tx-natureza/           # stub, abre quando T01 fechar
+    └── README.md
 ```
 
-EXP-009.7 high-entropy e' **escrito ultimo** (ou logo, dependendo
-do criterio); resultado esperado e' "type encoder nao ajuda — pular
-encoder, mandar pra compressor direto". Documentar isso pra evitar
-re-tentar futuramente.
+T01 e' o **unico ativo**. Demais T0N e L0N **nao tem pasta criada
+ainda** — quando vier a vez, cria-se.
 
 ## Track 1 — Pre-tx por natureza (detalhe por sub-fase)
 
-### T01 / EXP-009.1 — Incremental (base + delta)
+> **Execucao realinhada (2026-05-15)**: foco em **T01 incremental** primeiro.
+> Sub-fases T02-T07 abaixo sao **roadmap conceitual** — execucao
+> adiada ate' T01 validar metodologia. Quando T01 fechar, este
+> ticket sera revisado pra escolher a proxima natureza com base
+> em gaps identificados, composicao com incremental, etc.
+
+### T01 / EXP-009.1 — Incremental (base + delta)  **— ATIVO**
 
 **Pergunta**: Quanto reduz uma serie de datas se extrairmos base
 (menor) + deltas pequenos (geralmente em dias/horas) em vez de strings completas?
@@ -284,7 +276,13 @@ explicit tree pode achatar profundidade variavel mais agressivamente.
 
 **Saida**: `high_entropy.py` com detector + passthrough.
 
-## Track 2 — Camada de algoritmo (estudos)
+## Track 2 — Camada de algoritmo (estudos)  **— DIFERIDO**
+
+> **Diferido inteiramente (2026-05-15)**: Track 2 nao inicia
+> ate' Track 1 (primeira natureza, T01 incremental) validar
+> metodologia em dirty. Sub-estudos abaixo documentados como
+> roadmap, sem execucao agora. Reavaliacao depois de pelo menos
+> 2-3 naturezas Track 1 fechadas.
 
 OBAT (alg16) e HCC (composicional) estao **estaveis e canonicos**
 desde welding. Esta fase **nao mexe no canonical** — explora em
@@ -335,38 +333,32 @@ custo computacional.
 **Hipotese**: Latencia do encoder cai 30-50% sem perda de bytes.
 Compressao mesma; tempo melhor.
 
-## Ordem de execucao
+## Ordem de execucao (realinhada 2026-05-15)
 
-### Onda 1 (2-3 semanas) — primeiros macros
+**Foco unico:** uma natureza por vez, controle fino, processo refinavel.
 
-1. **T01 incremental** — datas / timestamps. Dataset abundante.
-   Mecanismo conceptualmente simples. **Boa primeira hipotese pra testar metodologia.**
-2. **T02 templated** — CPF / UUID. Conceito central; valida tooling
-   de template extract.
-3. **L05 pre-filter** — paralelo. Estudo de algoritmo de baixo risco
-   (nao muda saida, otimiza tempo).
+1. **Primeira natureza: incremental (datas)** — confirmado 2026-05-15.
+   Trabalho em `experiments/lab/dirty/2026-05-15-naturezas-e-camada/pre-tx/T01-incremental-base-delta/`.
+   Sub-experimentos pequenos, descartaveis/refazaveis, RT obrigatorio.
+   Saida esperada: encoder + decoder funcional pra ao menos um
+   dataset (provavelmente D11), com hipotese byte-reducao
+   confirmada ou refutada. Lecoes para metodologia das proximas.
+2. **Apos T01 fechar** (com hipotese confirmada ou explicitamente
+   refutada), revisar este ticket. Escolher proxima natureza com
+   base em:
+   - Gaps identificados em T01 (o que faltou?)
+   - Aplicabilidade aos datasets disponiveis
+   - Composicao com incremental (qual natureza compoe bem?)
+3. **Eventual:** outras naturezas seriais, uma por vez. Track 2
+   (estudos camada algoritmo) abre depois de pelo menos 2-3
+   naturezas validadas — pra dar massa de dados que justifique
+   estudo de OBAT/HCC.
+4. **Welding eventual:** decisao **adiada totalmente**. Vai
+   depender do desfecho de Track 1 + Track 2 (cf. secao "Visao de
+   end-state" e "Riscos").
 
-### Onda 2 (3-4 semanas)
-
-4. **T03 enumerated** — dicionario simples; depois de T02
-   (composicao com slots).
-5. **T04 checked** — depois de T02 (opera em slots numericos).
-6. **T05 composite** — depois de T01+T02+T03+T04 (compose elas).
-7. **L01 token-level** — paralelo.
-
-### Onda 3 (3-4 semanas)
-
-8. **T06 hierarchical** — depois de T02 (opera em sub-componente path).
-9. **T07 high-entropy** — paralelo, mais documentacao que codigo.
-10. **L02 slot online** — pode ate' substituir parte do T02 se
-    se mostrar viavel.
-11. **L03/L04 markers tipados + tree composicao** — explorar.
-
-### Onda 4 — consolidar
-
-12. **Welding** das naturezas validadas → `src/tcf_pretx/`.
-13. **EXP-009.* clean** finalizando cada nature com baseline byte-canonical.
-14. **Cross-comparison** — pipeline composto rodando em todos D1-D15 + datasets novos. Report final consolidado.
+**Sem ondas paralelas. Sem multi-track simultaneo. Reavaliacao
+explicita ao fim de cada natureza fechada.**
 
 ## Datasets necessarios
 
@@ -424,16 +416,14 @@ Por sub-fase (T0X / EXP-009.X):
 6. **Absorcao Track 1 ↔ Track 2 (decisao de welding final)** —
    se L02/L03 mostrarem que natures sao detectaveis durante
    construcao da arvore OBAT, parte do Track 1 fica redundante.
-   Decisao adiada ate' fim da Onda 3:
-   - Cenario A: src/tcf_pretx/ → `src/tcf/pretx/` (Track 1 sustenta valor)
-   - Cenario B: natures embutidas no OBAT (Track 2 absorve)
-   - Cenario C (esperado): hibrido — natures que dependem de
-     semantica externa (incremental, checked, lossy, composite)
-     ficam pre-tx; natures estruturais (templated, slot) sobem
-     pro OBAT.
-   - Risco: comecar a weldar Track 1 antes de ver Track 2 evolve;
-     refactor depois pode ser caro. Mitigacao: **nao fazer
-     welding final antes de ter dados das duas tracks**.
+   Mitigacao: **trabalhar so' no dirty enquanto Track 1 e Track 2
+   nao tem dados suficientes** pra decidir. Nao criar
+   `src/tcf_pretx/` agora — codigo no dirty so' migra pra `src/tcf/`
+   quando welding tiver direcao clara (cf. "Visao de end-state").
+7. **Risco geral de dirty largar lixo no src/tcf** — apontado
+   pelo usuario 2026-05-15. Mitigacao: dirty fica isolado;
+   `src/tcf/` so' recebe codigo apos welding deliberado, com
+   testes byte-canonical e revisao.
 
 ## Tickets filhos a criar
 
@@ -459,15 +449,13 @@ Quando hipoteses se confirmarem em dirty, abrir:
 
 ## Criterio de aceite (deste meta-ticket)
 
-1. [x] Plano completo registrado (este documento)
-2. [ ] Dirty lab `2026-05-15-naturezas-e-camada/` criado com:
-   - [ ] `README.md` entrada
-   - [ ] `notas/historia-naturezas-camada.md` (stub, preencher conforme avanca)
-   - [ ] subpastas `pre-tx/` e `algoritmo/` vazias (cada macro cria sua propria pasta)
-3. [ ] `experiments/lab/clean/EXP-009-pre-tx-natureza/README.md` (meta-pasta indice)
-4. [ ] `docs/theory/data-natures-taxonomy.md` (taxonomia formal — ja' bom o suficiente neste ticket por enquanto; mover quando crescer)
-5. [ ] Pelo menos **Onda 1** (T01, T02, L05) completa antes de revisar plano
-6. [ ] Re-revisao do plano apos cada onda — naturezas adicionais/divisoes podem emergir
+1. [x] Plano completo registrado
+2. [x] Realinhamento 2026-05-15 (foco unico em uma natureza)
+3. [x] Dirty lab `2026-05-15-naturezas-e-camada/` criado
+4. [x] `experiments/lab/clean/EXP-009-pre-tx-natureza/README.md` (stub, abre quando primeira natureza fechar)
+5. [x] `docs/theory/data-natures-taxonomy.md` (taxonomia formal de referencia)
+6. [ ] **T01 incremental** completo no dirty (cf. README do macro)
+7. [ ] Decisao sobre proxima natureza ou redirecionar — apos T01
 
 ## Conexoes
 

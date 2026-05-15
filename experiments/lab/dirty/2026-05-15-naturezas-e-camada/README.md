@@ -32,17 +32,16 @@ Cada **T0X** (pre-tx) ou **L0X** (algoritmo) e' um macro pequeno
 (1-3 dias) com **pergunta cientifica focada**, hipotese, metodo,
 dados, conclusao. Quando macro fecha com hipotese confirmada, sub-experimento clean nasce em `EXP-009.X` ou `EXP-010+`.
 
-## Ordem (planejada)
+## Ordem (realinhada 2026-05-15)
 
-### Onda 1 (em planejamento — proximas semanas)
+**Foco unico:** uma natureza por vez.
 
-- T01 incremental (datas/timestamps) — boa primeira hipotese
-- T02 templated (CPF/UUID) — conceito central
-- L05 pre-filter (algoritmo, baixo risco)
+- **Ativo**: [`pre-tx/T01-incremental-base-delta/`](pre-tx/T01-incremental-base-delta/) — primeira natureza confirmada.
+- **Diferidos**: T02-T07 pre-tx + L01-L05 algoritmo. Pastas nao
+  criadas ainda — abrem quando vier a vez.
 
-### Onda 2 / 3 / 4
-
-Vide [`tickets/META-TYPE-ENCODERS.md`](../../../../tickets/META-TYPE-ENCODERS.md) §Ordem de execucao.
+Apos T01 fechar (com hipotese confirmada ou refutada), revisar
+plano-mestre pra escolher proxima natureza ou redirecionar.
 
 ## Principios metodologicos
 
