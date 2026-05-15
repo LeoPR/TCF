@@ -21,14 +21,14 @@
     "D14-uuid-variados",
     "D15-base64-variados"
   ],
-  "out_dir": "outputs",
+  "formats": ["csv", "jsonl", "json", "tcf"],
   "compressors": {
-    "gzip":   {"level": 9, "lib": "gzip (stdlib)"},
-    "brotli": {"level": 11, "lib": "brotli"},
-    "zstd":   {"level": 22, "lib": "zstandard"},
-    "lzma":   {"preset": 9, "lib": "lzma (stdlib)"},
-    "bz2":    {"level": 9, "lib": "bz2 (stdlib)"}
+    "gzip":   {"level": 9,  "lib": "gzip (stdlib)",     "classes": ["web/http", "file/archive", "parquet", "general"]},
+    "brotli": {"level": 11, "lib": "brotli 1.2.0",       "classes": ["web/http", "parquet"]},
+    "zstd":   {"level": 22, "lib": "zstandard 0.25.0",   "classes": ["web/http", "file/archive", "parquet", "general"]},
+    "lzma":   {"preset": 9, "lib": "lzma (stdlib)",      "classes": ["file/archive"]},
+    "bz2":    {"level": 9,  "lib": "bz2 (stdlib)",       "classes": ["file/archive"]}
   },
-  "reps_tcf": 20,
-  "reps_comp": 100
+  "reps_serialize": 20,
+  "reps_compress": 30
 }

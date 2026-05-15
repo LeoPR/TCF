@@ -1,93 +1,90 @@
-# EXP-008 — Compressao comparada (raw vs TCF) com compressores de fluxo geral
+# EXP-008 — Compressao comparada (raw vs TCF) com 5 compressores
 
 **Data**: 2026-05-15
-**Tipo**: experimento clean
+**Tipo**: experimento clean **comparativo** (multi-axis)
 **Ciclo**: v0.6 (segundo experimento clean, apos EXP-007)
-**Estado**: aberto
+**Estado**: aberto (reorganizado segundo [META-EXP-FORMAT](../../../../tickets/META-EXP-FORMAT.md))
 
 ## Pergunta cientifica
 
-Como o TCF se posiciona, em **bytes finais** e **latencia**, contra
-e em conjunto com os compressores de fluxo geral disponiveis em
-HTTP/3 (gzip, brotli, zstd) e em arquivos (lzma, bz2)?
+Como o TCF se posiciona em **bytes** e **latencia** contra
+compressores de fluxo geral (gzip, brotli, zstd, lzma, bz2), em
+3 cenarios:
 
-Tres perguntas operacionais:
+1. **Stand-alone**: bytes de `tcf(D)` vs `C(D)` (cada compressor `C` aplicado direto ao raw).
+2. **Como pre-tx**: bytes de `C(tcf(D))` vs `C(D)` — TCF complementa o compressor?
+3. **Contra-prova de formato**: TCF vs **CSV, JSON e JSONL** (mesmo dado em
+   formatos textuais diferentes) — pra distinguir reducao de redundancia
+   de mera escolha de delimitador. Ver [`notes/contra-prova-formatos.md`](notes/contra-prova-formatos.md).
 
-1. **Q1 (TCF stand-alone)**: para cada dataset `D` e compressor
-   `C ∈ {gzip, brotli, zstd, lzma, bz2}`, como ficam `|tcf(D)|`,
-   `|C(D)|` e a ordem entre eles?
-2. **Q2 (TCF como pre-tx)**: `|C(tcf(D))| / |C(D)|` — TCF
-   complementa o compressor (<1), e' ortogonal (≈1) ou interfere
-   negativamente (>1)?
-3. **Q3 (latencia)**: tempo de `encode/decode` do TCF + tempo de
-   `compress/decompress` de cada `C`. Stack `tcf → C` vs `C` puro.
+## Como ler este experimento
 
-## Hipoteses
+**Comece pelo resumo executivo**: [`reports/00-resumo.md`](reports/00-resumo.md).
 
-- **H1 (Q1)**: para datasets de **alta redundancia estrutural**
-  (D1-D9: prefix/suffix/wrappers estaveis), TCF stand-alone deve
-  ficar competitivo com gzip/brotli/zstd em bytes (na ordem de
-  20-50% raw), e tipicamente abaixo de bz2/lzma em datasets onde
-  o numero de linhas e' pequeno (overhead fixo dos compressores
-  gerais e' significativo nessa escala).
-- **H2 (Q2)**: tcf reduz redundancia explicita (afixos repetidos).
-  Apos tcf, o resto e' "ja' meio comprimido": espera-se
-  `|C(tcf)| < |C(raw)|` em datasets onde tcf ja' venceu por bytes
-  (Q1), mas pode haver **diminishing returns** ou ate' inversao
-  em datasets de baixa redundancia (D4 caos; D10-D15 variety).
-- **H3 (Q3)**: tcf e' mais caro que gzip em encode/decode (algoritmo
-  bidirecional + composicional vs LZ77 + Huffman tabulado), mas
-  comparavel/menor que lzma/brotli max. Stack `tcf → gzip` deve
-  ser mais lento que `gzip` puro mas pode entregar bytes melhores.
+| # | Report | O que responde |
+|---|---|---|
+| 00 | [resumo](reports/00-resumo.md) | Totais globais + vencedor + RT |
+| 01 | [bytes-por-formato](reports/01-bytes-por-formato.md) | Sem compressao: csv vs json vs jsonl vs tcf por dataset |
+| 02 | [bytes-por-classe](reports/02-bytes-por-classe.md) | Bytes agregados por classe de compressor (web/http, file/archive, parquet, general) |
+| 03 | [latencia](reports/03-latencia.md) | Tempo serialize/parse/compress/decompress |
+| 04 | [roundtrip](reports/04-roundtrip.md) | Verificacao de identidade nas 360 combinacoes |
+| 05 | [campeao-por-dataset](reports/05-campeao-por-dataset.md) | Menor (formato, compressor) por dataset + ranking |
 
-## Metodo
+**Notas conceituais** (decisoes nao-obvias):
 
-Para cada dataset `D ∈ {D1..D15}`:
+- [`notes/classificacao-compressores.md`](notes/classificacao-compressores.md) — porque cada compressor esta em quais classes
+- [`notes/contra-prova-formatos.md`](notes/contra-prova-formatos.md) — porque csv/json/jsonl como baseline e qual mudou narrativa
+- [`notes/limites-de-escala.md`](notes/limites-de-escala.md) — escala dos datasets afeta interpretacao
 
-1. Ler `D.csv` → `linhas` (lista de strings, sem header).
-2. `raw_text = "\n".join(linhas) + "\n"` (payload do dataset, sem
-   header — equivalente ao que TCF processa).
-3. `tcf_text = encode(linhas)`; valida `decode(tcf_text) == linhas`.
-4. Para cada compressor `C`:
-   - `c_raw = C(raw_text.encode("utf-8"))`
-   - `c_tcf = C(tcf_text.encode("utf-8"))`
-   - valida: `C.decompress(c_raw) == raw_text.encode("utf-8")`
-   - valida: `decode(C.decompress(c_tcf).decode("utf-8")) == linhas`
-     (roundtrip completo: encode → compress → decompress → decode)
-5. Mede tempo: mediana de N reps via `time.perf_counter_ns`.
-   - encode/decode TCF: 20 reps (operacao mais cara)
-   - compress/decompress compressor: 100 reps
-6. Bytes registrados, ratios calculados, RT validado.
+## Estrutura do diretorio
 
-## Compressores e niveis
-
-Niveis **maximos** (foco em compressao, latencia caracterizada como
-custo associado):
-
-| Compressor | Lib | Nivel | Padrao HTTP |
-|---|---|---|---|
-| gzip | `gzip` (stdlib) | level=9, mtime=0 | `Content-Encoding: gzip` |
-| brotli | `brotli` 1.2.0 | quality=11 | `Content-Encoding: br` |
-| zstd | `zstandard` 0.25.0 | level=22 | `Content-Encoding: zstd` (RFC 8478) |
-| lzma | `lzma` (stdlib) | preset=9 | nao-HTTP padrao |
-| bz2 | `bz2` (stdlib) | compresslevel=9 | obsoleto em HTTP |
-
-Os 3 primeiros sao o conjunto canonico de HTTP/3 atual; lzma e bz2
-entram como referencias de fluxo arquivo (mais agressivos em
-bytes, mais lentos em CPU).
+```
+EXP-008-compressao-comparada/
+├── README.md                # este arquivo
+├── config.json              # parametros (datasets, compressores, reps)
+├── run.py                   # orquestrador (≤200 linhas)
+├── lib/                     # codigo modular
+│   ├── formats.py           # csv/jsonl/json/tcf (serialize + parse)
+│   ├── compressors.py       # 5 compressores + classes
+│   ├── measure.py           # bytes + RT + latencia
+│   └── reporting.py         # geracao de tabelas markdown formatadas
+├── results/
+│   ├── manifest.jsonl       # log de execucoes (run-level summary)
+│   └── per-dataset/         # 1 JSON com dados crus por dataset
+├── reports/                 # 6 reports markdown (1 por perspectiva)
+├── notes/                   # 3 mini-docs (decisoes/interpretacao)
+└── outputs/                 # binarios gerados (gitignored)
+    ├── raw/<fmt>/<ds>.<ext>
+    └── compressed/<fmt>/<comp>/<ds>.<ext>.<comp_ext>
+```
 
 ## Datasets
 
-15 datasets sinteticos de controle (`datasets/synthetic/`):
+15 datasets de controle (single-column CSV em `datasets/synthetic/`):
 
-| Grupo | IDs | Caracteristica |
-|---|---|---|
-| TCF-CORE classicos | D1-D9 | Padroes estruturais (afixos, wrappers, caos) |
-| ERP/CRM tipos | D10-D15 | Variety datasets (datas, datetime, CPF, UUID, base64) |
+- **D1-D9** — TCF-CORE controles (padroes estruturais)
+- **D10-D15** — tipos ERP/CRM (datas, datetime, CPF, UUID, base64)
 
-D10-D15 nao foram projetados pra TCF-CORE atual (single-column, sem
-type encoders); inclusao aqui e' pra **caracterizar limite atual**
-do algoritmo em dados de tipos comuns.
+## Compressores (com classificacao)
+
+| Compressor | Nivel | web/http | file/archive | parquet | general |
+|---|---:|:---:|:---:|:---:|:---:|
+| `gzip` | 9 | ✓ | ✓ | ✓ | ✓ |
+| `brotli` | 11 | ✓ |  | ✓ |  |
+| `zstd` | 22 | ✓ | ✓ | ✓ | ✓ |
+| `lzma` | 9 (preset) |  | ✓ |  |  |
+| `bz2` | 9 |  | ✓ |  |  |
+
+Detalhes em [`notes/classificacao-compressores.md`](notes/classificacao-compressores.md).
+
+## Formatos input
+
+| Formato | Descricao | Tamanho relativo CSV |
+|---|---|---:|
+| `csv` | Com header `val`, LF separator | 100% (baseline) |
+| `jsonl` | 1 objeto JSON por linha | 144% (overhead `{"val":""}` por linha) |
+| `json` | Array unico `["...","..."]` | 111% |
+| `tcf` | `encode(linhas)` v0.6 (OBAT + HCC) | 64% |
 
 ## Como rodar
 
@@ -95,28 +92,43 @@ do algoritmo em dados de tipos comuns.
 python experiments/lab/clean/EXP-008-compressao-comparada/run.py
 ```
 
+Saidas regeneradas:
+- `results/manifest.jsonl` — append nova linha
+- `results/per-dataset/*.json` — sobrescritos
+- `reports/*.md` — sobrescritos
+- `outputs/` — sobrescrito
+
 Pre-requisitos:
 - `src/tcf/` welded (EXP-007 valida);
-- `pip install brotli zstandard` (gzip/lzma/bz2 sao stdlib).
+- `pip install brotli zstandard` (gzip/lzma/bz2 sao stdlib);
+- Python 3.10+.
 
-## Resultado
+## Resumo de resultados (D1-D15)
 
-Ver [`report.md`](report.md) (gerado por `run.py`).
+Ver reports pra detalhe. Cabecalho:
+
+- **RT**: 60/60 (formato) + 300/300 (compressor bytes) + 300/300 (full chain) OK.
+- **TCF stand-alone**: reduz vs CSV em 14/15 datasets (D10 falha, dado de variety extrema).
+- **Campeao por dataset**: `csv/brotli` em 10/15, `csv/zstd` em 2/15, `json/brotli` em 2/15, `tcf/brotli` em 1/15.
+- **Limite empirico**: 1700 bytes (soma do menor por dataset) = 34.9% do CSV total raw.
+
+**Importante**: escala dos datasets (100-540 bytes raw) favorece
+compressores com dicionario estatico (brotli) sobre TCF. Ver
+[`notes/limites-de-escala.md`](notes/limites-de-escala.md).
 
 ## Significado
 
-Diferente de EXP-007 (validacao byte-canonica), EXP-008 e'
-**comparativo**: situa TCF dentro do espaco de compressores de
-producao. Tres saidas esperadas:
+EXP-008 caracteriza TCF no espaco de compressores gerais em
+**regime de controle**. Resultados:
 
-1. **Mapa bytes** — onde TCF vence, onde perde, onde complementa.
-2. **Mapa latencia** — custo CPU de cada pipeline.
-3. **Limites identificados** — quais cenarios precisam de pre-tx
-   (Estrategia 1.A type encoders, EXP-009) pra TCF ser competitivo.
+1. **TCF reduz redundancia em formato textual** (4872 → 3131 bytes, -36%) — comprovado;
+2. **TCF como pre-tx** raramente complementa brotli/zstd nessa escala — mostra sobreposicao de mecanismos;
+3. **D10-D15** identificam dados onde TCF v0.6 atual nao tem ferramenta (type encoders, Estrategia 1.A em [EXP-009 pendente]).
 
 ## Conexoes
 
-- [`../EXP-007-prototipo-tcf-core/`](../EXP-007-prototipo-tcf-core/) — validacao byte-canonica (precedente)
-- [`../../../../datasets/synthetic/`](../../../../datasets/synthetic/) — D1-D15
-- [`../../../../docs/theory/perspectiva-triplice-e-pre-tx.md`](../../../../docs/theory/perspectiva-triplice-e-pre-tx.md) — perspectiva triplice (compressao + memoria + latencia)
-- [`../../../../docs/algorithms/`](../../../../docs/algorithms/) — especificacao TCF/OBAT/HCC
+- [META-EXP-FORMAT](../../../../tickets/META-EXP-FORMAT.md) — template aplicado aqui
+- [EXP-007](../EXP-007-prototipo-tcf-core/) — validacao byte-canonical precedente
+- [datasets/synthetic/](../../../../datasets/synthetic/) — D1-D15
+- [docs/theory/perspectiva-triplice-e-pre-tx.md](../../../../docs/theory/perspectiva-triplice-e-pre-tx.md) — analise de 3 estrategias (1.A, 1.B, 3.B)
+- [docs/algorithms/](../../../../docs/algorithms/) — especificacao OBAT/HCC/TCF

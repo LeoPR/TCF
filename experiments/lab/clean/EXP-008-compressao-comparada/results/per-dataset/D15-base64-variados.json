@@ -1,0 +1,177 @@
+{
+  "raw_lines": 14,
+  "formats": {
+    "csv": {
+      "bytes": 323,
+      "rt": true,
+      "t_serialize_us": 0.6,
+      "t_parse_us": 2.0,
+      "compressors": {
+        "gzip": {
+          "bytes": 223,
+          "rt_compressor": true,
+          "rt_full": true,
+          "t_compress_us": 43.3,
+          "t_decompress_us": 14.9
+        },
+        "brotli": {
+          "bytes": 228,
+          "rt_compressor": true,
+          "rt_full": true,
+          "t_compress_us": 1602.0,
+          "t_decompress_us": 12.4
+        },
+        "zstd": {
+          "bytes": 203,
+          "rt_compressor": true,
+          "rt_full": true,
+          "t_compress_us": 65.0,
+          "t_decompress_us": 3.4
+        },
+        "lzma": {
+          "bytes": 276,
+          "rt_compressor": true,
+          "rt_full": true,
+          "t_compress_us": 55112.1,
+          "t_decompress_us": 969.0
+        },
+        "bz2": {
+          "bytes": 255,
+          "rt_compressor": true,
+          "rt_full": true,
+          "t_compress_us": 165.6,
+          "t_decompress_us": 86.8
+        }
+      }
+    },
+    "jsonl": {
+      "bytes": 473,
+      "rt": true,
+      "t_serialize_us": 73.4,
+      "t_parse_us": 44.2,
+      "compressors": {
+        "gzip": {
+          "bytes": 246,
+          "rt_compressor": true,
+          "rt_full": true,
+          "t_compress_us": 41.0,
+          "t_decompress_us": 23.6
+        },
+        "brotli": {
+          "bytes": 246,
+          "rt_compressor": true,
+          "rt_full": true,
+          "t_compress_us": 2014.6,
+          "t_decompress_us": 12.4
+        },
+        "zstd": {
+          "bytes": 225,
+          "rt_compressor": true,
+          "rt_full": true,
+          "t_compress_us": 124.0,
+          "t_decompress_us": 3.8
+        },
+        "lzma": {
+          "bytes": 292,
+          "rt_compressor": true,
+          "rt_full": true,
+          "t_compress_us": 54296.1,
+          "t_decompress_us": 1094.0
+        },
+        "bz2": {
+          "bytes": 289,
+          "rt_compressor": true,
+          "rt_full": true,
+          "t_compress_us": 211.6,
+          "t_decompress_us": 91.7
+        }
+      }
+    },
+    "json": {
+      "bytes": 361,
+      "rt": true,
+      "t_serialize_us": 6.2,
+      "t_parse_us": 3.6,
+      "compressors": {
+        "gzip": {
+          "bytes": 233,
+          "rt_compressor": true,
+          "rt_full": true,
+          "t_compress_us": 39.2,
+          "t_decompress_us": 16.4
+        },
+        "brotli": {
+          "bytes": 233,
+          "rt_compressor": true,
+          "rt_full": true,
+          "t_compress_us": 1578.4,
+          "t_decompress_us": 8.9
+        },
+        "zstd": {
+          "bytes": 215,
+          "rt_compressor": true,
+          "rt_full": true,
+          "t_compress_us": 76.8,
+          "t_decompress_us": 3.8
+        },
+        "lzma": {
+          "bytes": 284,
+          "rt_compressor": true,
+          "rt_full": true,
+          "t_compress_us": 54004.7,
+          "t_decompress_us": 1065.8
+        },
+        "bz2": {
+          "bytes": 271,
+          "rt_compressor": true,
+          "rt_full": true,
+          "t_compress_us": 179.8,
+          "t_decompress_us": 64.2
+        }
+      }
+    },
+    "tcf": {
+      "bytes": 253,
+      "rt": true,
+      "t_serialize_us": 677.5,
+      "t_parse_us": 69.8,
+      "compressors": {
+        "gzip": {
+          "bytes": 231,
+          "rt_compressor": true,
+          "rt_full": true,
+          "t_compress_us": 38.4,
+          "t_decompress_us": 22.6
+        },
+        "brotli": {
+          "bytes": 221,
+          "rt_compressor": true,
+          "rt_full": true,
+          "t_compress_us": 1518.3,
+          "t_decompress_us": 8.1
+        },
+        "zstd": {
+          "bytes": 219,
+          "rt_compressor": true,
+          "rt_full": true,
+          "t_compress_us": 35.7,
+          "t_decompress_us": 3.8
+        },
+        "lzma": {
+          "bytes": 292,
+          "rt_compressor": true,
+          "rt_full": true,
+          "t_compress_us": 53706.1,
+          "t_decompress_us": 1104.3
+        },
+        "bz2": {
+          "bytes": 258,
+          "rt_compressor": true,
+          "rt_full": true,
+          "t_compress_us": 157.9,
+          "t_decompress_us": 62.6
+        }
+      }
+    }
+  }
+}
