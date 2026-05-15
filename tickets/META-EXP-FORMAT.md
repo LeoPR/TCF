@@ -1,7 +1,8 @@
 # META-EXP-FORMAT — Template de experimento (validacao vs comparativo)
 
-**Status**: OPEN
+**Status**: CLOSED (2026-05-15)
 **Criado**: 2026-05-15
+**Fechado**: 2026-05-15 (mesmo dia)
 **Escopo**: formalizar 2 templates distintos pra experimentos
 clean — `validacao` (single-axis) e `comparativo` (multi-axis) —
 e aplicar `comparativo` em EXP-008.
@@ -144,21 +145,21 @@ proprios — nao enterrar em notas de rodape de report.
 
 ## Criterio de aceite
 
-1. [x] Salvar feedback em memoria (commit pendente)
-2. [ ] Este ticket criado e commitado
-3. [ ] EXP-008 reorganizado pra template comparativo:
-   - [ ] `lib/` extraida do run.py inline
-   - [ ] Inputs csv + jsonl + json + tcf adicionados (com RT)
-   - [ ] Compressores classificados (web/archive/parquet/general)
-   - [ ] `outputs/` hierarquizado (raw/{formato}/, compressed/{formato}/{compressor}/)
-   - [ ] `reports/` multiplos (≥5 documentos focados)
-   - [ ] `notes/` com pelo menos 3 mini-docs
-   - [ ] Tabelas com bold/italico/sort
-4. [ ] Re-rodar EXP-008 → verificar RT 15/15 em todas as N
-   combinacoes formato × compressor
-5. [ ] Push para GitHub
-6. [ ] (opcional) Template `_template-comparativo/` em
-   `experiments/lab/clean/` pra reuso futuro
+1. [x] Salvar feedback em memoria — `feedback_exp_format_for_comparative.md`
+2. [x] Este ticket criado e commitado — commit `8c84415`
+3. [x] EXP-008 reorganizado pra template comparativo:
+   - [x] `lib/` extraida do run.py inline — `formats.py`, `compressors.py`, `measure.py`, `reporting.py`
+   - [x] Inputs csv + jsonl + json + tcf adicionados (com RT 60/60 OK)
+   - [x] Compressores classificados (web/http, file/archive, parquet, general)
+   - [x] `outputs/` hierarquizado (`raw/<fmt>/`, `compressed/<fmt>/<comp>/`)
+   - [x] `reports/` multiplos — 6 documentos focados (00-resumo, 01-bytes-por-formato, 02-bytes-por-classe, 03-latencia, 04-roundtrip, 05-campeao-por-dataset)
+   - [x] `notes/` com 3 mini-docs (classificacao-compressores, contra-prova-formatos, limites-de-escala)
+   - [x] Tabelas com **bold** menor + _italico_ segundo + alinhamento direita
+4. [x] Re-rodar EXP-008 → RT 60/60 (formato) + 300/300 (compressor bytes) + 300/300 (full chain) OK
+5. [x] Push para GitHub — commit `8c84415` em `main`
+6. [ ] (opcional, futuro) Template `_template-comparativo/` em
+   `experiments/lab/clean/` pra reuso — adiado; criar quando proximo
+   experimento comparativo nascer
 
 ## Conexoes
 
