@@ -1,0 +1,25 @@
+{
+  "experiment_id": "EXP-007-prototipo-tcf-core",
+  "cycle": "v0.6",
+  "tcf_source": "src/tcf",
+  "tcf_api": ["encode", "decode"],
+  "datasets_dir": "../../../../datasets/synthetic",
+  "datasets": [
+    "D1-emails-simples",
+    "D2-emails-quote-id",
+    "D3-stress-substring",
+    "D4-caos-mix",
+    "D5-padroes-multiplos",
+    "D6-poucos-em-ruido",
+    "D7-aninhamento",
+    "D8-cabeca-cauda",
+    "D9-frequencia-alta"
+  ],
+  "out_dir": "outputs",
+  "baseline_for_diff": "../../../lab/dirty/2026-05-17-M14-clean-validation-srctcf/M14-tcf-clean/output",
+  "expected": {
+    "rt_count": 9,
+    "total_bytes": 1615,
+    "ratio_mean_approx": 0.542
+  }
+}

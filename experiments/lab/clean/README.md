@@ -37,7 +37,7 @@ andamento — ver
 
 | EXP | Tema | Status |
 |---|---|---|
-| EXP-007 | Prototipo TCF-CORE em `src/tcf/` validado vs M9 | **a criar** (apos welding) |
+| **EXP-007** | Prototipo TCF-CORE (`from tcf import encode, decode`) validado vs M14 baseline | **foi** (fechado 2026-05-17; RT 9/9 OK, byte-identico a M14) |
 
 ## Para entrar
 
