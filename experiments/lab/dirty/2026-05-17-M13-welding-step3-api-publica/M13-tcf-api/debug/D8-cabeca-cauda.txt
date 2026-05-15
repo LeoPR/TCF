@@ -1,0 +1,44 @@
+# M13 — D8-cabeca-cauda
+# bytes=100  roundtrip=OK
+
+INPUT:
+  [1] common/prefix/aaa/common/suffix
+  [2] common/prefix/bbb/common/suffix
+  [3] common/prefix/ccc/common/suffix
+  [4] common/prefix/ddd/common/suffix
+  [5] common/prefix/eee/common/suffix
+  [6] common/prefix/fff/common/suffix
+  [7] common/prefix/ggg/common/suffix
+  [8] common/prefix/hhh/common/suffix
+  [9] common/prefix/iii/common/suffix
+  [10] common/prefix/jjj/common/suffix
+  [11] common/prefix/kkk/common/suffix
+  [12] common/prefix/lll/common/suffix
+
+TCF:
+  common/prefix/*aaa*/common/suffix
+  1bbb3
+  1ccc3
+  1ddd3
+  1eee3
+  1fff3
+  1ggg3
+  1hhh3
+  1iii3
+  1jjj3
+  1kkk3
+  1lll3
+
+DECODE:
+  [ ] common/prefix/aaa/common/suffix
+  [ ] common/prefix/bbb/common/suffix
+  [ ] common/prefix/ccc/common/suffix
+  [ ] common/prefix/ddd/common/suffix
+  [ ] common/prefix/eee/common/suffix
+  [ ] common/prefix/fff/common/suffix
+  [ ] common/prefix/ggg/common/suffix
+  [ ] common/prefix/hhh/common/suffix
+  [ ] common/prefix/iii/common/suffix
+  [ ] common/prefix/jjj/common/suffix
+  [ ] common/prefix/kkk/common/suffix
+  [ ] common/prefix/lll/common/suffix

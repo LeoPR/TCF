@@ -33,6 +33,8 @@ dirty/
   2026-05-17-M9-stress-adversarial/           (foi — M8.A em 9 datasets; ratio medio 54.3%)
   2026-05-17-M10-datasets-elevation/          (foi — smoke test: M8.A leitura de datasets/synthetic/; byte-identico a M9)
   2026-05-17-M11-welding-step1-alg16-src/     (foi — welding 1: alg16 copiado para src/tcf/core/; byte-identico a M10/M9)
+  2026-05-17-M12-welding-step2-m8a-src/       (foi — welding 2: M8.A copiado para src/tcf/composicional/; byte-identico a M11)
+  2026-05-17-M13-welding-step3-api-publica/   (foi — welding 3: API publica `from tcf import encode, decode`; byte-identico a M12)
   notas/                              (transversais, vivas; ver historia-dirty-lab.md)
   README.md                           (este)
 ```
@@ -55,6 +57,8 @@ dirty/
 | **M9** | foi | stress 9 datasets adversariais (D1-D4 canonicos + D5-D9 novos) | RT 9/9 OK; ratio medio 54.3%; D8 cabeca-cauda atinge 26% (otimo); D6 timestamps mostra pre-tx delta como direcao |
 | **M10** | foi | smoke test: M8.A le datasets de `datasets/synthetic/` (canonico) | RT 9/9 OK; byte-identico a M9; valida abstracao do dataset path |
 | **M11** | foi | welding step 1: alg16 copiado para `src/tcf/core/online.py` | RT 9/9 OK; byte-identico a M10; valida copia byte-exata do alg16 |
+| **M12** | foi | welding step 2: M8.A composicional para `src/tcf/composicional/syntax.py` (imports adaptados) | RT 9/9 OK; byte-identico a M11; valida package layout funcional |
+| **M13** | foi | welding step 3: API publica `from tcf import encode, decode` | RT 9/9 OK; byte-identico a M12; **encode/decode formalmente em src/** |
 
 ## Sintaxes ativas vs dominadas (triagem 2026-05-13)
 

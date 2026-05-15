@@ -1,0 +1,44 @@
+# M13 — D7-aninhamento
+# bytes=215  roundtrip=OK
+
+INPUT:
+  [1] [start][a][middle][a][end]
+  [2] [start][b][middle][b][end]
+  [3] [start][c][middle][c][end]
+  [4] [init][a][between][a][final]
+  [5] [init][b][between][b][final]
+  [6] [start][a][between][b][end]
+  [7] [init][c][middle][c][final]
+  [8] [start][b][middle][a][end]
+  [9] [init][a][middle][c][final]
+  [10] [start][c][between][a][end]
+  [11] [init][b][between][c][final]
+  [12] [start][c][between][b][final]
+
+TCF:
+  [start][*a][*middle*][*a*][end]
+  1b][middle*][*b6
+  1c][*middle][c6
+  [init][*a][*between][a*][final]
+  12b][between][*b15
+  1,2between8,9,6
+  12c][*middle][*c15
+  1,7,8,5~6
+  12,13,20,21~15
+  1~10between4,22
+  12,16,23
+  24,25,4,17,15
+
+DECODE:
+  [ ] [start][a][middle][a][end]
+  [ ] [start][b][middle][b][end]
+  [ ] [start][c][middle][c][end]
+  [ ] [init][a][between][a][final]
+  [ ] [init][b][between][b][final]
+  [ ] [start][a][between][b][end]
+  [ ] [init][c][middle][c][final]
+  [ ] [start][b][middle][a][end]
+  [ ] [init][a][middle][c][final]
+  [ ] [start][c][between][a][end]
+  [ ] [init][b][between][c][final]
+  [ ] [start][c][between][b][final]
