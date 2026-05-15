@@ -36,7 +36,9 @@ dirty/
   2026-05-17-M12-welding-step2-m8a-src/       (foi — welding 2: M8.A copiado para src/tcf/composicional/; byte-identico a M11)
   2026-05-17-M13-welding-step3-api-publica/   (foi — welding 3: API publica `from tcf import encode, decode`; byte-identico a M12)
   2026-05-17-M14-clean-validation-srctcf/     (foi — contra-prova: src/tcf como unica fonte; byte-identico a M13 apos cleanup welding scaffolding)
-  notas/                              (transversais, vivas; ver historia-dirty-lab.md)
+  notas/                              (apenas execucao: historia, welding-plan, naming.
+                                       Teoria + hipoteses agora em `docs/theory/`,
+                                       spec output em `docs/algorithms/output-convention.md`)
   README.md                           (este)
 ```
 

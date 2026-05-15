@@ -1,52 +1,81 @@
-# docs/theory — Teoria do TCF v0.6
+# docs/theory — Teoria + hipóteses do TCF v0.6
 
 > **Reset 2026-05-17**: o conteudo anterior de `docs/theory/`
 > (architecture, components, methodology, research-lines) descrevia
-> v0.4/v0.5 (formato columnar com RLE/dict, LLM Linha A vs B, etc.)
-> e foi arquivado em `docs/archive/theory_*_v05/`.
->
-> Teoria v0.6 esta sendo reconstruida a partir do dirty lab welded.
+> v0.4/v0.5 e foi arquivado em `docs/archive/theory_*_v05/`. Em seu
+> lugar, notas teoricas e hipoteses do v0.6 (antes em
+> `experiments/lab/dirty/notas/`) foram movidas pra ca' em 2026-05-17.
 
 ## Onde esta a teoria canonica v0.6
 
 **Algoritmos** (camadas do TCF):
 - [`../algorithms/OBAT.md`](../algorithms/OBAT.md) — Online Bidirectional Affix Tokenizer (camada 1)
 - [`../algorithms/HCC.md`](../algorithms/HCC.md) — Hierarchical Compositional Coding (camada 2)
-- [`../algorithms/TCF-format.md`](../algorithms/TCF-format.md) — Formato + posicionamento na literatura
+- [`../algorithms/TCF-format.md`](../algorithms/TCF-format.md) — Formato + posicionamento
+- [`../algorithms/output-convention.md`](../algorithms/output-convention.md) — Convencao de output
 
 **Narrativa do desenvolvimento**:
 - [`../../experiments/lab/dirty/notas/historia-dirty-lab.md`](../../experiments/lab/dirty/notas/historia-dirty-lab.md)
   — historia M0-M14 do dirty lab
 
-**Direcoes futuras / hipoteses**:
-- [`../../experiments/lab/dirty/notas/roadmap-hipoteses.md`](../../experiments/lab/dirty/notas/roadmap-hipoteses.md)
+## Notas teoricas + hipoteses (em ordem de relevancia)
+
+### Sintese atual
+
+- [perspectiva-triplice-e-pre-tx.md](perspectiva-triplice-e-pre-tx.md)
+  — **ATUAL (2026-05-17)**: analise critica das 3 estrategias de
+  evolucao (pre-filtro multi-col + tipos; manager com memoria
+  shared; slot detection online) avaliadas contra a perspectiva
+  triplice (compressao + memoria + latencia)
+- [roadmap-hipoteses.md](roadmap-hipoteses.md) — 12 hipoteses futuras
+  ordenadas por proximidade
+
+### Vetores de avaliacao (alem de compressao)
+
+- [vetores-de-comparacao-alem-de-bytes.md](vetores-de-comparacao-alem-de-bytes.md)
+  — velocidade, memoria, streaming, latency vectors
+
+### Pre-tx layers
+
+- [comparacao-modular-camadas.md](comparacao-modular-camadas.md) —
+  comparacao modular (delta / estrutural / aproximado) ortogonal ao TCF-CORE
+- [2026-05-11-comparacoes-nao-literais.md](2026-05-11-comparacoes-nao-literais.md)
+  — comparacoes nao-literais (precursor da Estrategia 1)
+- [2026-05-11-tipos-com-estrutura.md](2026-05-11-tipos-com-estrutura.md)
+  — tipos estruturados (CPF/UUID/IP) — precursor de Estrategia 1.A
+
+### Marcadores e sintaxe
+
+- [marcadores-multiplo-proposito.md](marcadores-multiplo-proposito.md)
+  — composicional `~`/`,` (foundation do HCC)
+- [2026-05-11-marcadores-compactos.md](2026-05-11-marcadores-compactos.md)
+  — marcadores compactos e inferidos
+- [2026-05-11-custo-de-marcadores.md](2026-05-11-custo-de-marcadores.md)
+  — custo algebrico de marcadores e refs
+
+### Slot patterns + estruturas avancadas
+
+- [no-funcional-marca-e-troca.md](no-funcional-marca-e-troca.md)
+  — template node com slot (caso D9; Estrategia 3 em formato batch)
+- [quebra-de-linha-como-marcador.md](quebra-de-linha-como-marcador.md)
+  — quebras como marcadores deduziveis
 
 ## Conceitos pendentes para reconectar
 
-Pendencias conceituais identificadas pelo user para futura
-documentacao teorica:
+Identificados pelo user em 2026-05-17 (todos cobertos em
+[perspectiva-triplice-e-pre-tx.md](perspectiva-triplice-e-pre-tx.md)):
 
-1. **Multi-coluna**: TCF v0.6 atual e' single-column. Como estender
-   para multi-coluna (organizer/encoder)? Como dispatch por tipo de
-   coluna?
-2. **Tipos de dados**: pre-filtro tipo-aware. Numericos, datas,
-   estruturados (CPF/UUID/IP) podem ter pre-tx especificos antes
-   do OBAT.
-3. **Pre-tx layers**: delta (timestamps), estrutural (mascaras),
-   aproximado (numericos com tolerancia). Ortogonais ao TCF-CORE.
-4. **Storage**: estrategia de 3 camadas (v0.5 tinha em
-   `docs/archive/theory_architecture_v05/storage.md`) — revisitar
-   quando datasets grandes virarem relevantes.
+1. **Multi-coluna** — TCF v0.6 atual e' single-column.
+2. **Tipos de dados pre-filtro** — CPF, IP, datas calculaveis.
+3. **Perspectiva triplice** — compressao + memoria + latencia.
+4. **Slot pattern online** — resolve `17,??,5` em D9.
 
-Estes ficam como **direcoes teoricas** para preencher conforme o
-v0.6 evoluir (multi-coluna, pre-tx, escala). Ver
-`../algorithms/TCF-format.md` para o que ja esta consolidado.
+## Material historico v0.5
 
-## Material historico
+Anteriormente em `docs/theory/` mas v0.5-exclusivo, arquivado em:
+- `../archive/theory_architecture_v05/`
+- `../archive/theory_components_v05/`
+- `../archive/theory_research_lines_v05/`
+- `../archive/theory_methodology_v05/`
 
-`docs/archive/theory_*_v05/` contem teoria do ciclo v0.5. Use para:
-- Localizar conceitos que possam ser **rebatizados como hipoteses
-  novas** no v0.6.
-- Rastreabilidade historica de decisoes.
-
-NAO citar como evidencia viva para v0.6 sem re-validar.
+**Nao citar como evidencia viva para v0.6 sem re-validar.**
