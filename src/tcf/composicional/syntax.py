@@ -406,7 +406,16 @@ class M8AVirtualRefsSyntax(Syntax):
 
         for li, (count, eid, is_rep) in enumerate(line_meta):
             if is_rep:
-                body.append(f"^{eid}")
+                # Bug fix 2026-05-15: ramo `is_rep` (eid ja emitido) ignorava
+                # `count` da RLE-group atual, perdendo linhas no decode quando
+                # um mesmo valor aparece em multiplos grupos nao-consecutivos
+                # com count>=2 no grupo posterior. Caso nao exercitado em D1-D9
+                # (byte-canonical preservado), mas exercitado por pre-tx
+                # incremental (deltas repetidos em grupos separados).
+                if count > 1:
+                    body.append(f"*{count}|^{eid}")
+                else:
+                    body.append(f"^{eid}")
                 state['ref_seqs'].append([])
                 continue
 
