@@ -72,7 +72,7 @@ Numeracao `NN-nome-curto/`. Espera-se **varias iteracoes**.
 |---|---|---|---|---|---|---|
 | 01 | [`01-prova-conceito-D11a-dia/`](01-prova-conceito-D11a-dia/) | D11a (12 linhas, dia-only) | v0 (dia-only) | Prova de conceito + pipeline + debug | OK | 42 (48% do TCF puro) |
 | 02 | [`02-bordas-D11b/`](02-bordas-D11b/) | D11b (14 linhas, bordas + leap) | v0 (dia-only) | RT calendar em bordas mes/ano + Feb 29 | OK | 59 (34% do TCF puro) |
-| 03 | (planejado) | (definir) | v1 (com escalas M/Y) | Cadencia mensal/anual; testar se `+1M` repetido compacta mais que dias variando | — | — |
+| 03 | [`03-cadencia-mensal-D11c/`](03-cadencia-mensal-D11c/) | D11c (13 linhas, fatura mensal) | v1 (escalas M/Y) | Cadencia mensal — escala compacta dia varios | OK | **22 (20% do TCF puro, 42% do v0)** |
 
 Ordem e numeros podem mudar conforme aprendizado. Sub-experimentos
 podem ser **deletados** se virarem becos sem saida — historia
