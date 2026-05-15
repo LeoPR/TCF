@@ -27,6 +27,10 @@
   evolucao (pre-filtro multi-col + tipos; manager com memoria
   shared; slot detection online) avaliadas contra a perspectiva
   triplice (compressao + memoria + latencia)
+- [data-natures-taxonomy.md](data-natures-taxonomy.md) — **2026-05-15**:
+  taxonomia das 8 naturezas comportamentais dos dados (incremental,
+  templated, enumerated, checked, composite, hierarchical,
+  lossy-recoverable, high-entropy) — operacionaliza Estrategia 1.A
 - [roadmap-hipoteses.md](roadmap-hipoteses.md) — 12 hipoteses futuras
   ordenadas por proximidade
 
