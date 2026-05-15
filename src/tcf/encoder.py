@@ -1,7 +1,7 @@
-"""TCF encoder — API publica (welding step 3, 2026-05-17).
+"""TCF encoder — API publica.
 
-Wrapper de alto nivel do pipeline:
-  values → alg16 (tokenizacao online) → M8.A composicional → TCF text
+Pipeline:
+  values → OBAT (tokenizacao) → HCC (compactacao composicional) → TCF text
 
 Uso minimo:
 
@@ -11,13 +11,17 @@ Uso minimo:
 
 Internamente:
 1. Deduplicacao preservando ordem de aparicao
-2. `tcf.core.online.processar(unicas)` — alg16 tokeniza
-3. `tcf.composicional.syntax.M8AVirtualRefsSyntax()` — Compactacao
-   composicional (detector unificado + emit `~`/`,`)
+2. `tcf.core.online.processar(unicas)` — **OBAT** tokeniza
+3. `tcf.composicional.syntax.M8AVirtualRefsSyntax()` — **HCC**
+   Compactacao composicional
 4. Saida: texto TCF (sem brackets, LF only)
 
 Esta API e' single-column. Multi-column / multi-dataset sera
 adicionado em fase posterior (organizer/orquestrador).
+
+Para detalhamento dos algoritmos:
+- `docs/algorithms/OBAT.md`
+- `docs/algorithms/HCC.md`
 """
 
 from __future__ import annotations
@@ -32,8 +36,9 @@ def encode(values: list[str], header: str = "val") -> str:
 
     Parametros:
         values: lista de strings (com repeticoes preservadas para RLE).
-        header: nome opcional da "coluna" (passado a syntax; M8.A
-            atual ignora este campo).
+        header: nome opcional da "coluna" (passado a syntax HCC;
+            implementacao atual ignora este campo, futuro multi-col
+            podera usar).
 
     Retorna: texto TCF (sem brackets, LF only).
     """

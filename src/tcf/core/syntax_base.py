@@ -1,14 +1,18 @@
-"""Interface entre algoritmo de compressao (tokens) e formato textual (TCF).
+"""Interface entre OBAT (tokens) e camada de sintaxe (encode/decode).
 
-O algoritmo em `online.py` produz uma lista de tokens
-(TokLit, TokRefPref, TokRefSuf) por string. Uma `Syntax` define:
+OBAT (Online Bidirectional Affix Tokenizer) em `online.py` produz
+uma lista de tokens (TokLit, TokRefPref, TokRefSuf) por string.
+Uma `Syntax` define:
 
 1. Como esses tokens viram texto serializado (encode)
 2. Como esse texto vira de volta as linhas originais (decode)
 
-Algoritmo e sintaxe sao **ortogonais**. Trocar a sintaxe nao
-muda o algoritmo. Cada sintaxe e auto-contida: contem encoder +
-decoder na mesma classe para garantir consistencia.
+OBAT e sintaxe sao **ortogonais**. Trocar a sintaxe nao muda OBAT.
+Cada sintaxe e auto-contida: contem encoder + decoder na mesma
+classe para garantir consistencia.
+
+Implementacao canonica de sintaxe v0.6: **HCC** (Hierarchical
+Compositional Coding) em `tcf.composicional.syntax`.
 
 Contrato de roundtrip:
 
@@ -16,8 +20,8 @@ Contrato de roundtrip:
 
 Esta interface e propositadamente simples — para suportar
 experimentos com sintaxes radicalmente diferentes (verbose,
-compacta, binaria com textual, hibrida, etc.) sem que o algoritmo
-precise saber qualquer coisa sobre o formato.
+compacta, binaria, hibrida, etc.) sem que OBAT precise saber
+qualquer coisa sobre o formato.
 """
 
 from abc import ABC, abstractmethod
