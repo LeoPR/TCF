@@ -1,7 +1,9 @@
-# Naming — "Compactacao composicional"
+# Naming — "Compactacao composicional" → oficializado como **HCC**
 
-**Data**: 2026-05-17
+**Data inicial**: 2026-05-17
+**Decisao final**: 2026-05-17 (META-NAMING D3)
 **Tipo**: nota terminologica
+**Status**: FECHADO — nome oficial **HCC** (Hierarchical Compositional Coding)
 **Origem**: user pediu nome melhor para a etapa que era chamada
 "desfragmentacao da arvore" (em M4) e "sintaxe composicional" (em M6+).
 
@@ -25,14 +27,31 @@ Nome atual da etapa: variavel ao longo do tempo:
 - M6: "sintaxe composicional" (foco no operador `~`)
 - M8: detector "unificado" (foco no algoritmo de busca)
 
-## Proposta de nome
+## Nome oficial — **HCC** (Hierarchical Compositional Coding)
 
-**Compactacao composicional**
+Decidido em 2026-05-17 (META-NAMING D3). Substitui "Compactacao
+composicional" como descritor coloquial. Ver `docs/algorithms/HCC.md`
+para documentacao tecnica completa.
 
-Justificativa:
-- "Compactacao": reflete o objetivo (reducao de bytes).
-- "Composicional": reflete o mecanismo (composicoes via `~`).
-- Concisa e nao ambigua. Nao confunde com TCF-CORE.
+Justificativa do acronimo:
+- **Hierarchical**: composicoes podem conter refs que sao
+  composicoes — hierarquia natural em arvore
+- **Compositional**: a operacao central e composicao (concat + nomeacao)
+- **Coding**: codifica em texto (nao bytes binarios) — output legivel
+
+Conecta a linhagem Re-Pair (Larsson & Moffat 1999) + Sequitur
+(Nevill-Manning & Witten 1997) mas inova com:
+- Marker semantico dual (`~` vs `,`)
+- Auto-naming implicito (IDs sequenciais)
+- Espaco unificado de refs
+- Body-order constraint
+- Range como caso particular
+
+### Termo coloquial: "Compactacao composicional"
+
+Sobrevive como **descricao em prosa**. Quando escrever "a Compactacao
+composicional faz X", refere-se a HCC. Nao usar como nome oficial
+em codigo, API, paper.
 
 ## Alternativas consideradas
 

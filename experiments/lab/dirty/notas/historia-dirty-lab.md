@@ -30,10 +30,14 @@ Esta historia consolida o que cada um estabeleceu.
 
 ### Componentes (atual)
 
-- **TCF-CORE / OAS / alg16**: algoritmo principal (compressao
-  online de strings via LCP/LCS). Foco do projeto.
-- **Compactacao composicional**: etapa apos TCF-CORE — refs
-  atomicos + virtuais + operadores `~`/`,`.
+- **OBAT** (Online Bidirectional Affix Tokenizer) — codnome `alg16`:
+  camada 1 (tokenizacao). Tokeniza strings via LCP + LCS contra
+  anteriores. Ver `docs/algorithms/OBAT.md`.
+- **HCC** (Hierarchical Compositional Coding) — codnome `M8.A`:
+  camada 2 (compactacao). Detector unificado + emit composicional
+  (`~` cria ref, `,` concat efemero). Ver `docs/algorithms/HCC.md`.
+- **TCF** (Tabular Compact Format): formato final (texto, sem
+  brackets, LF only). Ver `docs/algorithms/TCF-format.md`.
 - **LLM benchmark** (acessorio): Phase 1 fechado; pode virar
   projeto a parte.
 - **Schema / Shaper** (ferramentas): uteis para criar datasets
@@ -43,7 +47,7 @@ Esta historia consolida o que cada um estabeleceu.
 
 ## Linha do tempo
 
-### M0 — Algoritmo raiz (TCF-CORE / OAS / alg16)
+### M0 — Algoritmo raiz (OBAT — codnome `alg16`)
 
 **16 experimentos preliminares**. Estabelece o algoritmo
 `online.py` (exp 16): tokenizacao incremental via LCP/LCS de
@@ -54,9 +58,13 @@ Saida do algoritmo: lista de tokens por string:
 - `TokRefPref(string_id, length)`: prefixo de string ja' vista
 - `TokRefSuf(string_id, length)`: sufixo
 
-**Nome formal**: **TCF-CORE** (tambem **OAS** — Online Affix Search).
-Permanece intocado desde entao. Localizacao canonica:
+**Nome oficial (decidido 2026-05-17)**: **OBAT** — Online Bidirectional
+Affix Tokenizer. Codnome de origem: `alg16`. Permanece intocado.
+Localizacao canonica:
 `experiments/lab/dirty/M0-fase-exploratoria-inicial/2026-05-11-16-online-cleanup/online.py`.
+
+Ver `docs/algorithms/OBAT.md` para documentacao tecnica (estrutura,
+sub-linguagem matematica, diferencial vs literatura).
 
 ### M0.5 — Vocabulario pre-M1
 
@@ -91,7 +99,7 @@ M3.A, M3.B: agrupar nos inteiros compartilhados entre eids.
 **Dominado por M1.E** estruturalmente. Net 0. Mantido em disco como
 referencia.
 
-### M4 — Desfragmentacao da arvore → **Compactacao composicional**
+### M4 — Desfragmentacao da arvore → embriao do HCC
 
 3 micros:
 - **M4.A** instrumentacao (mede oportunidades teoricas)
@@ -104,9 +112,12 @@ contiguas (K>=2) que aparecem >= 2 vezes.
 
 **Resultado historico**: M4.C1' = 636 bytes D1-D4 (-5.9% vs M1.E 676).
 
-Esta etapa originalmente chamada "desfragmentacao da arvore" e'
-hoje proposta como **Compactacao composicional** (ver
-[`naming-compactacao-composicional.md`](naming-compactacao-composicional.md)).
+Esta etapa, originalmente chamada "desfragmentacao da arvore" e
+depois "Compactacao composicional", recebeu nome oficial em
+2026-05-17: **HCC** (Hierarchical Compositional Coding). Codnome
+M4.C1' → M8.A → **HCC**. Ver
+[`naming-compactacao-composicional.md`](naming-compactacao-composicional.md)
+e `docs/algorithms/HCC.md`.
 
 ### M5 — Pilha M2.A + M4.C1'
 
@@ -179,24 +190,34 @@ RT 9/9 OK. Total **1615 bytes em 2973 raw = 54.3% ratio medio**.
 
 ---
 
-## Conceitos canonicos
+## Conceitos canonicos (nomes oficiais 2026-05-17)
 
-### TCF-CORE / OAS / alg16
+### OBAT — Online Bidirectional Affix Tokenizer
 
-Algoritmo de tokenizacao online incremental. Tokens raiz:
+Codnome: `alg16`. Camada 1 do TCF (tokenizacao). Online, processa
+strings em ordem, matching bidirecional (LCP + LCS). Tokens raiz:
 TokLit / TokRefPref / TokRefSuf. **Intocado desde M0 (exp 16).**
 
-### Compactacao composicional
+Documentacao: `docs/algorithms/OBAT.md`.
 
-Etapa apos TCF-CORE. Recebe os tokens raiz e os ATOMS provisionais,
-e produz body textual com:
+### HCC — Hierarchical Compositional Coding
+
+Codnome: `M8.A`. Camada 2 do TCF (compactacao composicional). Recebe
+tokens raiz de OBAT e produz body textual com:
 - atoms ref's positivos (M1.E style)
 - composicoes via `~` (cria refs auto-nomeados)
 - range `a..b` (composicao por sequencia)
 - reuso via bare ref id
 
-Implementacao canonica: **M8.A**. Substitui ao mesmo tempo
-"desfragmentacao da arvore" (M4) e fases subsequentes.
+Implementacao canonica em `src/tcf/composicional/syntax.py` (welded
+de M8.A, byte-identico em logica). Documentacao:
+`docs/algorithms/HCC.md`.
+
+### TCF — Tabular Compact Format
+
+Formato final. Texto, sem brackets, LF only. Pipeline:
+`values → OBAT → HCC → TCF text`. Documentacao:
+`docs/algorithms/TCF-format.md`.
 
 ### Convencao output (M8+)
 
@@ -210,13 +231,14 @@ Ver [`convencao-output-tcf.md`](convencao-output-tcf.md).
 
 ## Estado canonico (apos M9)
 
-| Componente | Versao canonica | Localizacao |
-|---|---|---|
-| Algoritmo base | TCF-CORE (alg16) | `M0-fase-exploratoria-inicial/2026-05-11-16-online-cleanup/online.py` |
-| Sintaxe ambiguidade local | M1.E | `2026-05-12-M1-marcacao-ambiguidade/M1-E-range/` |
-| Compactacao composicional | M8.A | `2026-05-16-M8-virtual-refs-clean-output/M8-A-detector-unificado/` |
-| Convencao output | sem brackets + LF | `notas/convencao-output-tcf.md` |
-| Stress validation | D1-D9 | `2026-05-17-M9-stress-adversarial/data/` |
+| Componente | Nome oficial | Codnome | Localizacao welded |
+|---|---|---|---|
+| Tokenizador | **OBAT** | `alg16` | `src/tcf/core/online.py` (origem: M0) |
+| Sintaxe ambiguidade local | M1.E (interna ao HCC) | M1.E | embutido em HCC |
+| Compactacao composicional | **HCC** | `M8.A` | `src/tcf/composicional/syntax.py` (origem: M8.A) |
+| Formato | **TCF** | (projeto) | `src/tcf/` (API: encode/decode) |
+| Convencao output | sem brackets + LF | — | `notas/convencao-output-tcf.md` |
+| Stress validation | D1-D9 | — | `datasets/synthetic/` (oficializado em M10) |
 
 ## Compressao medida (atual)
 
