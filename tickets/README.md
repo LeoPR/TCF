@@ -13,11 +13,11 @@ referencias a commits que o resolveram.
 - `T-CODE-N` — codigo (src/)
 - `T-CLEAN-N` — limpeza/reorganizacao
 
-## Tickets ativos
+## Tickets
 
 | ID | Tema | Status |
 |---|---|---|
-| [META-NAMING](META-NAMING.md) | Naming oficial (projeto, alg16, M8.A) | open — aguardando decisao |
+| [META-NAMING](META-NAMING.md) | Naming oficial (TCF/OBAT/HCC) | **CLOSED 2026-05-17** |
 
 ## Politica
 

@@ -1,9 +1,20 @@
 # META-NAMING — Naming oficial v0.6
 
-**Status**: open — aguardando decisao do user
+**Status**: CLOSED (2026-05-17)
 **Criado**: 2026-05-17
+**Fechado**: 2026-05-17 (mesmo dia)
 **Escopo**: fixar nomenclatura oficial do projeto e dos componentes
 canonicos (alg16, M8.A). Pre-requisito para reorganizacao docs.
+
+## Resultado
+
+Decisoes oficializadas:
+- **D1**: TCF = **Tabular Compact Format** ✓
+- **D2**: alg16 → **OBAT** (Online Bidirectional Affix Tokenizer) ✓
+- **D3**: M8.A → **HCC** (Hierarchical Compositional Coding) ✓
+
+Codnomes preservados em historia + dirty lab. Nomes oficiais
+adotados em src/, docs, README, CHANGELOG, pyproject, MEMORY.md.
 
 ## Sub-decisoes
 
@@ -35,7 +46,7 @@ Brisaboa et al. 2011 RPDac, HTFC)
 
 - [ ] **OAS** — Online Affix Search (codnome atual, curto)
 - [ ] **BAT** — Bidirectional Affix Tokenizer (foca inovacao)
-- [ ] **OBAT** — Online Bidirectional Affix Tokenizer (descritivo completo)
+- [x] **OBAT** — Online Bidirectional Affix Tokenizer (descritivo completo) ✓ ESCOLHIDO
 - [ ] **BiFC** — Bidirectional Front Coding (conecta direto a literatura classica)
 - [ ] outro: ___
 
@@ -59,7 +70,7 @@ Brisaboa et al. 2011 RPDac, HTFC)
 - [ ] **CTE** — Compositional Token Encoder
 - [ ] **MTG** — Marked Token Grammar (foca innovacao semantica markers)
 - [ ] **iTRP** — iterative Token Re-Pair (conecta a literatura)
-- [ ] **HCC** — Hierarchical Compositional Coding
+- [x] **HCC** — Hierarchical Compositional Coding ✓ ESCOLHIDO
 - [ ] outro: ___
 
 **Codnome a preservar**: `M8.A` (experimento de origem em M8).
@@ -91,4 +102,16 @@ Brisaboa et al. 2011 RPDac, HTFC)
 
 ## Commits relacionados
 
-(Pendente; sera preenchido apos decisao + execucao.)
+Sequencia de execucao (2026-05-17):
+1. Fase 1: `docs/algorithms/` com OBAT.md + HCC.md + TCF-format.md + index
+   — commit `3f8215d`
+2. Fase 2: docstrings src/tcf/ atualizados (encoder, decoder, __init__.py,
+   core/__init__.py, core/syntax_base.py, composicional/__init__.py)
+   — commit `6616a93`
+3. Fase 3: dirty/notas/historia-dirty-lab.md +
+   naming-compactacao-composicional.md atualizados
+   — commit `3bde767`
+4. Fase 4: README.md + CHANGELOG.md + pyproject.toml atualizados
+   — commit `d897888`
+5. Fase 5: MEMORY.md (memoria auto) + fechar este ticket
+   — commit pendente (este)
