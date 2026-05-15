@@ -1,8 +1,8 @@
-# datasets/synthetic — Controle sintético (D1-D9)
+# datasets/synthetic — Controle sintético (D1-D15)
 
-> **Status (2026-05-17)**: datasets de controle do algoritmo TCF-CORE.
-> Elevados do dirty lab para localizacao canonica oficial. Validar
-> via macro M10 antes de remover duplicatas em macros M4-M9.
+> **Status (2026-05-15)**: datasets de controle do algoritmo TCF-CORE.
+> D1-D9 elevados do dirty lab; D10-D15 criados pra cobrir tipos
+> notaveis de ERP/CRM (datas, datetimes, CPF, UUID, base64).
 
 ## Proposito
 
@@ -12,9 +12,9 @@ composicional em cenarios variados. Complementa os datasets reais
 em `datasets/canonical/` (Adult Census, TPC-H).
 
 Cada arquivo e' um cenario distinto. Single-column CSV com header
-`val` e ~12-20 linhas. Total raw: 2973 bytes em 9 arquivos.
+`val` e ~12-20 linhas focadas em variedade de forma/tipo.
 
-## Cenarios
+## Cenarios — D1-D9 (controle TCF-CORE/HCC)
 
 | Arquivo | Cenario | Linhas | Raw bytes | Caracteristica |
 |---|---|---:|---:|---|
@@ -28,17 +28,35 @@ Cada arquivo e' um cenario distinto. Single-column CSV com header
 | D8-cabeca-cauda.csv | `prefix/X/suffix` (X varia) | 12 | 384 | Cenario ideal (prefix/suffix estaveis) |
 | D9-frequencia-alta.csv | `@@@KEY=valueX@@@` (X varia) | 20 | 363 | Wrapper com slot variavel |
 
+## Cenarios — D10-D15 (tipos ERP/CRM, controle pra EXP-008+)
+
+Focados em **variedade de formato** (poucas linhas, varios layouts
+do mesmo tipo semantico). Pensados pra estresse de type encoders /
+pre-filtros (Estrategia 1.A do roadmap).
+
+| Arquivo | Cenario | Linhas | Raw bytes | Caracteristica |
+|---|---|---:|---:|---|
+| D10-datas-mundiais.csv | Datas mundiais (ISO/US/EU/BR) | 15 | 177 | Mesma data em 15 layouts (`2026-05-15`, `05/15/2026`, `15 de maio de 2026`, ...) |
+| D11-datetime-precisao.csv | Datetime com precisao variavel | 13 | 311 | Segundos → nanosegundos; ISO 8601 + variantes basicas |
+| D12-datetime-timezone.csv | Timezones variados | 14 | 385 | `Z`, `+00:00`, `-03:00`, `America/Sao_Paulo`, `UTC`, `BRT` |
+| D13-cpf-variados.csv | CPFs com/sem mascara, defeitos | 15 | 211 | `123.456.789-09`, sem pontuacao, misto, digito errado |
+| D14-uuid-variados.csv | UUIDs em varios layouts | 12 | 455 | Canonico, sem hifen, uppercase, braces, `urn:uuid:`, v7 |
+| D15-base64-variados.csv | Base64 com/sem padding, URL-safe | 14 | 323 | `=`/`==`/sem padding, alfabeto URL-safe (`-_`) |
+
 ## Compressao validada (M9 baseline)
 
-M8.A composicional total: **1615 bytes em 2973 raw = 54.3% ratio**.
-Varia 26% (D8 melhor) a 72% (D4 caos). Ver
-[`../../experiments/lab/dirty/2026-05-17-M9-stress-adversarial/`](../../experiments/lab/dirty/2026-05-17-M9-stress-adversarial/).
+D1-D9 sob HCC composicional: **1615 bytes em 2981 raw = 54.2% ratio**
+(re-verificado em EXP-007). Varia 26% (D8 melhor) a 72% (D4 caos).
+Ver [`../../experiments/lab/clean/EXP-007-prototipo-tcf-core/`](../../experiments/lab/clean/EXP-007-prototipo-tcf-core/).
+
+D10-D15 **ainda nao tem baseline** — TCF-CORE atual e' single-column
+e nao tem type encoders. Esses datasets entram em EXP-008+ (type
+encoders / pre-filtros, Estrategia 1.A).
 
 ## Uso
 
 Macros futuros (M10+) e EXP-NNN no `experiments/lab/clean/`
-referenciam diretamente estes arquivos. Macros M4-M9 (closed) mantem
-snapshots locais em `data/` por reprodutibilidade.
+referenciam diretamente estes arquivos.
 
 ```python
 DATASETS_DIR = Path(__file__).resolve().parents[N] / "datasets" / "synthetic"
@@ -46,11 +64,16 @@ DATASETS_DIR = Path(__file__).resolve().parents[N] / "datasets" / "synthetic"
 
 ## Direcoes futuras
 
-User mencionou (2026-05-17): "D1-D9 variados" — expandir com
-variantes (D1a, D1b, ...) para stress incremental. Nao urgente.
+- **EXP-008** (Estrategia 1.A): type encoders pra CPF/UUID/data
+  ISO/datetime/base64 — input direto D10-D15.
+- **EXP-009** (Estrategia 1.B): multi-coluna (instancias TCF por
+  coluna) — exige datasets multi-coluna (fora do escopo D*).
+- Variantes incrementais (D1a, D1b, ...) pra stress de escala —
+  nao urgente.
 
 ## Conexoes
 
-- Originadas em `experiments/lab/dirty/2026-05-17-M9-stress-adversarial/data/`
-- Validadas por M9 + (planejado) M10
-- Para datasets canonicos reais ver `../canonical/`
+- D1-D9: originadas em `experiments/lab/dirty/2026-05-17-M9-stress-adversarial/data/`,
+  validadas por M9-M14 + EXP-007.
+- D10-D15: criados pra EXP-008+ (controle de tipos ERP/CRM).
+- Para datasets canonicos reais ver `../canonical/`.
