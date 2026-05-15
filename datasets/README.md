@@ -5,7 +5,7 @@ datasets canonicos usados no projeto TCF.
 
 **Os dados reais nao vivem aqui.** Eles ficam em `Z:\tcf-data\` (ou onde
 voce configurar em `config/storage.json`). Ver
-[docs/theory/architecture/storage.md](../docs/theory/architecture/storage.md) para a
+[docs/archive/theory_architecture_v05/storage.md](../docs/archive/theory_architecture_v05/storage.md) para a
 estrategia de 3 camadas.
 
 ## Como experimentos consomem estes datasets
@@ -34,7 +34,7 @@ Fluxo:
 - `synthetic:*` → `tests/fixtures/synthetic_v2.py` ou `synthetic_domains.py`
 
 Detalhes completos em
-[docs/theory/architecture/data-pipeline.md](../docs/theory/architecture/data-pipeline.md).
+[docs/archive/theory_architecture_v05/data-pipeline.md](../docs/archive/theory_architecture_v05/data-pipeline.md).
 
 ## Estrutura
 
@@ -116,7 +116,7 @@ para a lista completa com origem, tamanhos e criterios de escolha.
 
 ## Por que esta separacao
 
-Ver [docs/theory/architecture/storage.md](../docs/theory/architecture/storage.md)
+Ver [docs/archive/theory_architecture_v05/storage.md](../docs/archive/theory_architecture_v05/storage.md)
 para explicacao detalhada da estrategia de 3 camadas.
 
 **TL;DR:**

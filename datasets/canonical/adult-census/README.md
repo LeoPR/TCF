@@ -51,7 +51,7 @@ $TCF_DATA_ROOT/external/adult-census/adult.csv
 
 `$TCF_DATA_ROOT` defaults to `Z:/tcf-data/` on Windows; configurable via
 `config/storage.json`. See
-[../../../docs/theory/architecture/storage.md](../../../docs/theory/architecture/storage.md).
+[../../../docs/archive/theory_architecture_v05/storage.md](../../../docs/archive/theory_architecture_v05/storage.md).
 
 ## Build SQLite
 
@@ -81,6 +81,6 @@ tables, meta = load_dataset(
   must explicitly exclude them (`WHERE workclass != '?'`)
 - **`hours-per-week`, `marital-status`, etc.** require double-quoting
   in SQLite. Some local models (qwen2.5-coder:7b) consistently fail
-  this — see manual [07-troubleshooting](../../../docs/manual/07-troubleshooting.md).
+  this — see manual [07-troubleshooting](../../../docs/archive/manual_v05/07-troubleshooting.md).
 - **Train + test merged**: we treat the full 48,842 as our population.
   Use `stratify_by="class"` for fair sampling.

@@ -50,3 +50,12 @@ DECODE
   [ ] ana@yahoo.com
 
   -> 12 linhas reconstruidas IGUAIS
+
+ no1=gmail no2=.com
+    joao
+    maria
+ no3=hotmail no4=.com
+    joao
+    maria
+
+no5=no2

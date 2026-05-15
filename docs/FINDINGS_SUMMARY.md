@@ -1,11 +1,16 @@
 ---
 type: summary
-status: LIVING DOCUMENT — atualizado conforme M-series avança
+status: HISTORIC (Phase 1 LLM benchmark — ciclo v0.5)
 last_updated: 2026-04-23
-source: docs/methodology/F-findings.md (fonte canônica completa)
+source: docs/archive/theory_methodology_v05/F-findings.md (arquivada)
 ---
 
-# TCF — Achados principais (resumo para publicação)
+> **🔎 Status (2026-05-17)**: Phase 1 LLM benchmark — ciclo v0.5,
+> **acessorio** ao foco v0.6 (algoritmo OBAT + HCC).
+> Manter como historico. Para resumo TCF v0.6 atual ver
+> [`algorithms/TCF-format.md`](algorithms/TCF-format.md).
+
+# TCF — Achados principais (Phase 1 — resumo paper-ready)
 
 Este documento concentra os **achados de alto impacto** que serão o núcleo
 do paper. Não é exaustivo — o catálogo completo está em

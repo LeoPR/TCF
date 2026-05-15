@@ -128,7 +128,7 @@ python -m tcf encode --meta data/metadata.json --data-dir data/ --level 2 --out 
 python -m tcf decode out.tcf --out-dir restored/
 ```
 
-→ Full manual: [docs/manual/](docs/manual/) ([PT-BR](docs/manual/README.pt-br.md))
+→ Full manual: [docs/archive/manual_v05/](docs/archive/manual_v05/) (v0.5 historico — manual v0.6 pendente)
 
 ---
 
@@ -246,10 +246,10 @@ Use `--summary` on any runner to display saved results without re-running.
 
 ## Where to go next
 
-- **I want to use TCF in my pipeline** → [docs/manual/](docs/manual/)
+- **I want to use TCF in my pipeline** → API v0.6: `from tcf import encode, decode` ([src/tcf/](src/tcf/)); manual v0.6 pendente. v0.5: [docs/archive/manual_v05/](docs/archive/manual_v05/)
 - **I want to read the findings** → [docs/findings/](docs/findings/)
 - **I want to understand the architecture** → [docs/theory/](docs/theory/)
-- **I want to read the paper** → [docs/article/](docs/article/)
+- **I want to read the paper** → drafts v0.5: [docs/archive/article_v05/](docs/archive/article_v05/) (paper v0.6 pendente)
 - **I want to see how it evolved** → [CHANGELOG.md](CHANGELOG.md) +
   [docs/workbench/](docs/workbench/)
 

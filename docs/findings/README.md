@@ -1,10 +1,17 @@
 ---
 type: summary
-status: LIVING DOCUMENT — atualizado conforme M-series avanca
+status: HISTORIC (Phase 1 LLM benchmark — ciclo v0.5)
 last_updated: 2026-04-27
 ---
 
-# TCF — Achados principais (resumo paper-ready)
+> **🔎 Status (2026-05-17)**: Phase 1 LLM benchmark (Q01-Q38) e' do
+> ciclo v0.5 (formato columnar TCF antigo + 4 paradigmas de leitura
+> LLM). E' **acessorio** ao foco v0.6 (algoritmo OBAT + HCC; ver
+> [`../algorithms/`](../algorithms/)). Mantido como historico
+> valido. Phase 2 LLM (se ressuscitada) re-validara contra v0.6 ou
+> virara projeto a parte.
+
+# TCF — Achados principais (Phase 1 — resumo paper-ready)
 
 Este documento concentra os **achados de alto impacto** que serao o nucleo
 do paper. Catalogo completo dividido por tema em arquivos vizinhos:

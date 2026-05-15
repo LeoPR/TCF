@@ -1,78 +1,73 @@
 # TCF — Documentation Hub
 
-> **🔧 Estado do projeto (2026-05-17)**: trabalho ativo e' o
-> **algoritmo TCF-CORE** (compressao de strings) em
-> [`../experiments/lab/dirty/`](../experiments/lab/dirty/). Ver
-> [historia-dirty-lab.md](../experiments/lab/dirty/notas/historia-dirty-lab.md).
+Hub central da documentacao do projeto **TCF (Tabular Compact Format)**.
+
+> **Estado v0.6 (2026-05-17)**: trabalho ativo e' o algoritmo de
+> compressao em duas camadas — **OBAT** (Online Bidirectional Affix
+> Tokenizer) + **HCC** (Hierarchical Compositional Coding). Codigo
+> canonico em [`../src/tcf/`](../src/tcf/). Documentacao tecnica em
+> [`algorithms/`](algorithms/).
 >
-> A maior parte deste hub descreve o **ciclo v0.5 (LLM benchmark)**.
-> Esse trabalho e' **acessorio** ao foco atual e pode virar projeto
-> a parte. Para o estado canonico atual, ir direto pra dirty lab
-> v0.6 (links na secao "Para devs").
+> Ciclo v0.5 (formato columnar para LLM benchmark) foi arquivado em
+> [`archive/`](archive/) — **acessorio** ao foco atual.
 
-Hub central da documentacao do projeto TCF. Estrutura otimizada
-para 4 perfis de leitor:
+## Para entender o algoritmo (v0.6 canonico)
 
-## Para usuarios — quero usar TCF
+→ [`algorithms/OBAT.md`](algorithms/OBAT.md) — camada 1: tokenizacao
+bidirecional online via LCP + LCS.
 
-→ [manual/](manual/) — manual de uso com 7 capitulos (quickstart, encode/decode,
-niveis de compressao, integracao LLM, modelos recomendados, exemplos, troubleshooting)
+→ [`algorithms/HCC.md`](algorithms/HCC.md) — camada 2: compactacao
+composicional com operadores `~` (cria ref) e `,` (concat efemero).
 
-→ [../README.md](../README.md) — visao geral GitHub-style
+→ [`algorithms/TCF-format.md`](algorithms/TCF-format.md) — formato
+final, posicionamento na literatura, quando usar TCF vs alternativas.
 
-## Para pesquisadores — quero entender os achados
+→ [`algorithms/README.md`](algorithms/README.md) — index das camadas.
 
-→ [findings/README.md](findings/README.md) — resumo paper-ready com 7 achados
-centrais e tabela 2D
+## Para entender a evolucao do projeto
 
-→ [findings/](findings/) — catalogo completo F-Q1..F-Q38 dividido por tema
+→ [`../experiments/lab/dirty/notas/historia-dirty-lab.md`](../experiments/lab/dirty/notas/historia-dirty-lab.md)
+— **narrativa canonica M0-M14** do desenvolvimento.
 
-→ [article/](article/) — capitulos do paper em desenvolvimento
+→ [`../experiments/lab/dirty/notas/roadmap-hipoteses.md`](../experiments/lab/dirty/notas/roadmap-hipoteses.md)
+— direcoes futuras (pre-tx delta, multi-coluna, escala, etc.).
 
-## Para arquitetos — quero entender o sistema
+→ [`../tickets/`](../tickets/) — tickets ativos e fechados.
 
-→ [theory/architecture/](theory/architecture/) — snapshot atual da arquitetura
-(boundaries, data-pipeline, components)
+→ [`../CHANGELOG.md`](../CHANGELOG.md) — releases logicas.
 
-→ [theory/components/](theory/components/) — TCF Core, LLM Interface, DB Extractor
+## Material historico v0.5 (acessorio)
 
-→ [theory/methodology/](theory/methodology/) — protocolo experimental,
-LLM research rigor, model ranking
+→ [`findings/`](findings/) — **Phase 1 LLM benchmark** (Q01-Q38) —
+material historico valido. Pode informar Phase 2 se ressuscitada.
 
-→ [theory/research-lines/](theory/research-lines/) — Linha A vs Linha B
+→ [`FINDINGS_SUMMARY.md`](FINDINGS_SUMMARY.md) — resumo paper-ready
+Phase 1.
 
-## Para devs — quero entender a evolucao
+→ [`workbench/`](workbench/) — research-notes e contexto de
+desenvolvimento (parcialmente v0.6, parcialmente v0.5).
 
-**Verdade canonica atual (v0.6 — algoritmo de compressao):**
+→ [`archive/`](archive/) — material arquivado:
+- `manual_v05/` — manual de uso v0.5 (`encode_rows`, `level=2`, etc.)
+- `article_v05/` — drafts de paper v0.5
+- `theory_components_v05/` — componentes v0.4 (TCF Core, LLM Interface, DB Extractor)
+- `theory_architecture_v05/` — arquitetura v0.4 (boundaries, data-pipeline, storage)
+- `theory_research_lines_v05/` — Linha A vs B (LLM benchmark)
+- `theory_methodology_v05/` — F-findings, llm-research-rigor, model-ranking
+- `article_v01/`, `tickets_v01/`, `legacy_results/`, etc. — material legado
 
-→ [../experiments/lab/dirty/notas/historia-dirty-lab.md](../experiments/lab/dirty/notas/historia-dirty-lab.md)
-— **narrativa canonica M0-M9** (atualizada 2026-05-17)
+**Nenhum conteudo de `archive/` conta como evidencia viva para v0.6
+sem re-validacao.**
 
-→ [../experiments/lab/dirty/notas/roadmap-hipoteses.md](../experiments/lab/dirty/notas/roadmap-hipoteses.md)
-— direcoes futuras (pre-tx, decomposicao, escala)
+## Para uso da API (quando estabilizar)
 
-→ [../experiments/lab/dirty/README.md](../experiments/lab/dirty/README.md)
-— indice dos macros M0-M9
+```python
+from tcf import encode, decode
 
-→ [workbench/research-notes/](workbench/research-notes/) — notas
-de pesquisa vivas + INDEX apontando pra dirty
+text = encode(["joao@gmail.com", "maria@gmail.com", "pedro@gmail.com"])
+values = decode(text)
+```
 
-→ [../CHANGELOG.md](../CHANGELOG.md) — versoes consolidadas
-
-**Material historico (v0.5 e anterior — LLM comprehension):**
-
-→ [workbench/_archive/DEVELOPMENT.md](workbench/_archive/DEVELOPMENT.md)
-— timeline operacional em 8 fases (ARQUIVADO; nao canonico)
-
-→ [workbench/_archive/SCIENCE.md](workbench/_archive/SCIENCE.md)
-— timeline logico das hipoteses (ARQUIVADO)
-
-→ [workbench/_archive/tickets/](workbench/_archive/tickets/) —
-tickets H/M/T/P/E/S do ciclo v0.3-v0.5 (ARQUIVADO)
-
-## Para arquivistas — material historico
-
-→ [archive/](archive/) — versoes legacy (v0.1 article rascunhos)
-
-→ [workbench/research-notes/_archive/](workbench/research-notes/_archive/) —
-notas obsoletas (cobertas pelos consolidados)
+Manual v0.6 sera escrito quando a API estabilizar (multi-coluna
++ tipos de dados pre-tx pendentes — ver
+[`theory/README.md`](theory/README.md)).
