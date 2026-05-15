@@ -1,0 +1,17 @@
+# Optimization trace — syntax=M8-A-virtual-refs
+
+=== DETECTOR ITERATIONS (unified — atoms + virtuals) ===
+
+--- Iter 1 ---
+Sub-tuplas K>=2 com R>=2: 1  net>0: 1
+  17,18                    | R=2 Lr=5 len(N)~2 net=(1)*(5-2)=3 <- PICK
+Substituido em 2 ocorrencias (linhas [9, 11])
+
+--- Iter 2 ---
+Sub-tuplas K>=2 com R>=2: 0  net>0: 0
+Nenhum candidato com net > 0. STOP.
+
+=== MISSED OPPORTUNITIES (post-hoc) ===
+  (nenhum)
+
+Total estimated missed: 0

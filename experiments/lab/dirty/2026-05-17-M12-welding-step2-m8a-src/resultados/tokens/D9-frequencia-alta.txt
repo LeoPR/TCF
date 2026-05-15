@@ -1,0 +1,76 @@
+# Tokens raiz (online.py exp 16) — D9-frequencia-alta
+# Strings unicas: 20
+
+================================================================================
+
+eid=1: '@@@KEY=value-x1@@@'
+  tokens: [L('@@@KEY=value-x1@@@')]
+  fragmentos: [0:12]='@@@KEY=value' | [12:13]='-' | [13:14]='x' | [14:15]='1' | [15:18]='@@@'
+
+eid=2: '@@@KEY=value-x2@@@'
+  tokens: [P(1,14), L('2'), S(1,3)]
+  fragmentos: [14:15]='2'
+
+eid=3: '@@@KEY=value-x3@@@'
+  tokens: [P(1,14), L('3'), S(1,3)]
+  fragmentos: [14:15]='3'
+
+eid=4: '@@@KEY=value-x4@@@'
+  tokens: [P(1,14), L('4'), S(1,3)]
+  fragmentos: [14:15]='4'
+
+eid=5: '@@@KEY=value-x5@@@'
+  tokens: [P(1,14), L('5'), S(1,3)]
+  fragmentos: [14:15]='5'
+
+eid=6: '@@@KEY=value-x6@@@'
+  tokens: [P(1,14), L('6'), S(1,3)]
+  fragmentos: [14:15]='6'
+
+eid=7: '@@@KEY=value-x7@@@'
+  tokens: [P(1,14), L('7'), S(1,3)]
+  fragmentos: [14:15]='7'
+
+eid=8: '@@@KEY=value-x8@@@'
+  tokens: [P(1,14), L('8'), S(1,3)]
+  fragmentos: [14:15]='8'
+
+eid=9: '@@@KEY=value-x9@@@'
+  tokens: [P(1,14), L('9'), S(1,3)]
+  fragmentos: [14:15]='9'
+
+eid=10: '@@@KEY=valuea1@@@'
+  tokens: [P(1,12), L('a'), S(1,4)]
+  fragmentos: [12:13]='a'
+
+eid=11: '@@@KEY=valuea2@@@'
+  tokens: [P(10,13), S(2,4)]
+
+eid=12: '@@@KEY=valuea3@@@'
+  tokens: [P(10,13), S(3,4)]
+
+eid=13: '@@@KEY=valuea4@@@'
+  tokens: [P(10,13), S(4,4)]
+
+eid=14: '@@@KEY=valuea5@@@'
+  tokens: [P(10,13), S(5,4)]
+
+eid=15: '@@@KEY=valuea6@@@'
+  tokens: [P(10,13), S(6,4)]
+
+eid=16: '@@@KEY=valuea7@@@'
+  tokens: [P(10,13), S(7,4)]
+
+eid=17: '@@@KEY=valuea8@@@'
+  tokens: [P(10,13), S(8,4)]
+
+eid=18: '@@@KEY=valuea9@@@'
+  tokens: [P(10,13), S(9,4)]
+
+eid=19: '@@@KEY=value-bb@@@'
+  tokens: [P(1,13), L('bb'), S(1,3)]
+  fragmentos: [13:15]='bb'
+
+eid=20: '@@@KEY=value-cc@@@'
+  tokens: [P(1,13), L('cc'), S(1,3)]
+  fragmentos: [13:15]='cc'

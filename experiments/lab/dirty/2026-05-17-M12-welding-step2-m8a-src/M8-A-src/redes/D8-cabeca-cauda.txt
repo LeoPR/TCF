@@ -1,0 +1,23 @@
+# Rede de atomos + composicoes — M8-A-virtual-refs
+
+=== ATOMS (final IDs) ===
+  final   1: 'common/prefix/'
+  final   2: 'aaa'
+  final   3: '/common/suffix'
+  final   4: 'bbb'
+  final   5: 'ccc'
+  final   6: 'ddd'
+  final   7: 'eee'
+  final   8: 'fff'
+  final   9: 'ggg'
+  final  10: 'hhh'
+  final  11: 'iii'
+  final  12: 'jjj'
+  final  13: 'kkk'
+  final  14: 'lll'
+
+=== COMPOSITIONS (final IDs) ===
+
+=== USO POR REF ===
+  ref   1: 11x
+  ref   3: 11x

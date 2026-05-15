@@ -1,0 +1,40 @@
+# Rede de atomos + composicoes — M8-A-virtual-refs
+
+=== ATOMS (final IDs) ===
+  final   1: '@@@KEY=value'
+  final   2: '-'
+  final   3: 'x'
+  final   4: '1'
+  final   5: '@@@'
+  final   8: '2'
+  final   9: '3'
+  final  10: '4'
+  final  11: '5'
+  final  12: '6'
+  final  13: '7'
+  final  14: '8'
+  final  15: '9'
+  final  16: 'a'
+  final  19: 'bb'
+  final  20: 'cc'
+
+=== COMPOSITIONS (final IDs) ===
+  final   7 = a1 composicao(1,2,3)
+  final  17 = a2 composicao(1,14)
+  final  18 = a3 composicao(1,2)
+
+=== USO POR REF ===
+  ref   5: 19x
+  ref   7: 8x
+  ref  17: 8x
+  ref  18: 2x
+  ref   1: 1x
+  ref   4: 1x
+  ref   8: 1x
+  ref   9: 1x
+  ref  10: 1x
+  ref  11: 1x
+  ref  12: 1x
+  ref  13: 1x
+  ref  14: 1x
+  ref  15: 1x

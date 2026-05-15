@@ -1,0 +1,49 @@
+# Tokens raiz (online.py exp 16) — D5-padroes-multiplos
+# Strings unicas: 12
+
+================================================================================
+
+eid=1: 'foo@example.com|550e8400-e29b-41d4'
+  tokens: [L('foo@example.com|550e8400-e29b-41d4')]
+  fragmentos: [0:4]='foo@' | [4:12]='example.' | [12:15]='com' | [15:34]='|550e8400-e29b-41d4'
+
+eid=2: 'bar@example.com|550e8400-e29b-41d5'
+  tokens: [L('bar@example.com|550e8400-e29b-41d5')]
+  fragmentos: [0:4]='bar@' | [4:12]='example.' | [12:15]='com' | [15:34]='|550e8400-e29b-41d5'
+
+eid=3: 'foo@example.org|550e8400-e29b-41d4'
+  tokens: [P(1,12), L('org'), S(1,19)]
+  fragmentos: [12:15]='org'
+
+eid=4: 'bar@example.org|550e8400-e29b-41d5'
+  tokens: [P(2,12), L('org'), S(2,19)]
+  fragmentos: [12:15]='org'
+
+eid=5: 'baz@example.com|550e8400-e29b-41d6'
+  tokens: [L('baz@example.com|550e8400-e29b-41d6')]
+  fragmentos: [0:4]='baz@' | [4:15]='example.com' | [15:16]='|' | [16:34]='550e8400-e29b-41d6'
+
+eid=6: 'qux@example.org|550e8400-e29b-41d6'
+  tokens: [L('qux@example.org'), S(5,19)]
+  fragmentos: [0:4]='qux@' | [4:15]='example.org'
+
+eid=7: 'foo@test.io|6ba7b810-9dad-11d1-aa'
+  tokens: [P(1,4), L('test.io|6ba7b810-9dad-11d1-aa')]
+  fragmentos: [4:12]='test.io|' | [12:31]='6ba7b810-9dad-11d1-' | [31:33]='aa'
+
+eid=8: 'bar@test.io|6ba7b810-9dad-11d1-ab'
+  tokens: [P(2,4), L('test.io|6ba7b810-9dad-11d1-ab')]
+  fragmentos: [4:33]='test.io|6ba7b810-9dad-11d1-ab'
+
+eid=9: 'baz@test.io|6ba7b810-9dad-11d1-aa'
+  tokens: [P(5,4), S(7,29)]
+
+eid=10: 'qux@test.io|6ba7b810-9dad-11d1-ab'
+  tokens: [P(6,4), S(8,29)]
+
+eid=11: 'foo@test.io|6ba7b810-9dad-11d1-cc'
+  tokens: [P(7,31), L('cc')]
+  fragmentos: [31:33]='cc'
+
+eid=12: 'baz@example.com|6ba7b810-9dad-11d1-cc'
+  tokens: [P(5,16), S(11,21)]
