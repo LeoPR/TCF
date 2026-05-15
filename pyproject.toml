@@ -5,11 +5,11 @@ build-backend = "hatchling.build"
 [project]
 name = "tcf"
 version = "0.2.0"
-description = "Textual Columnar Format — compact relational data encoding for LLMs"
+description = "TCF (Tabular Compact Format) — string compression via OBAT (Online Bidirectional Affix Tokenizer) + HCC (Hierarchical Compositional Coding)"
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "MIT" }
-keywords = ["llm", "columnar", "encoding", "data", "compression"]
+keywords = ["tabular", "compression", "encoding", "affix-tokenizer", "compositional-coding", "string-compression"]
 dependencies = []
 
 [project.optional-dependencies]

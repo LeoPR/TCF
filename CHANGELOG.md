@@ -12,37 +12,60 @@ milestone consolidated.
 
 ---
 
-## v0.6-dirty (2026-05-10 → em curso) — **CURRENT** — algoritmo TCF-CORE
+## v0.6 (2026-05-10 → em curso) — **CURRENT** — TCF (Tabular Compact Format)
 
 **Reset em 2026-05-10**: foco do projeto migrou de "formato textual
-columnar para LLMs" (v0.5) para **algoritmo de compressao de strings**
-com sintaxe composicional. Trabalho em `experiments/lab/dirty/` (macros
-M0-M9 ate' agora).
+columnar para LLMs" (v0.5) para **algoritmo de compressao de strings
+tabulares** em duas camadas. Trabalho em `experiments/lab/dirty/`
+(macros M0-M14) consolidado e welded para `src/tcf/`.
 
-Componentes canonicos:
-- **TCF-CORE / OAS / alg16** (M0): tokenizacao online incremental via
-  LCP/LCS. Tokens raiz: TokLit / TokRefPref / TokRefSuf. Intocado
-  desde M0.
-- **M1.E**: sintaxe de ambiguidade local (range `a..b` + escape escopo).
-- **Compactacao composicional (M8.A)**: detector unificado (refs
-  atomicos + virtuais no mesmo espaco) + emit composicional (`~`
-  cria ref auto-nomeado, `,` concat efemero); restricao body-order
-  para inline expansion correto.
+### Naming oficializado (2026-05-17, META-NAMING)
+
+- **TCF** = **Tabular Compact Format** (projeto)
+- **OBAT** = **Online Bidirectional Affix Tokenizer** (codnome `alg16`)
+- **HCC** = **Hierarchical Compositional Coding** (codnome `M8.A`)
+
+Ver `docs/algorithms/` para documentacao tecnica detalhada de cada
+camada.
+
+### Componentes canonicos
+
+- **OBAT** (camada 1, tokenizacao): online incremental via LCP+LCS
+  bidirecional. Tokens raiz: TokLit / TokRefPref / TokRefSuf.
+  Intocado desde M0 (exp 16 do alg16).
+- **HCC** (camada 2, compactacao): detector unificado (refs atomicos
+  + virtuais no mesmo espaco) + emit composicional (`~` cria ref
+  auto-nomeado, `,` concat efemero); restricao body-order para
+  inline expansion correto; range `a..b` como caso particular.
 - **Convencao output**: sem brackets `[`/`]`, LF only.
 
-Resultados:
-- D1-D4 canonicos: 660 raw → 574 bytes (-13%).
-- D1-D9 (stress): 2973 raw → 1615 bytes (54.3% ratio medio).
-- M8.A RT 16/16 OK; M9 RT 9/9 OK.
+### Resultados validados
 
-LLM benchmark (Phase 1) e' agora **acessorio** ao foco — pode virar
-projeto a parte. Codigo v0.5 (`old/tcf/`, antes `src/tcf/`) mantido
-para referencia; migracao para protótipo limpo e' item top do
-roadmap.
+- D1-D9 (stress 9 datasets sinteticos): 1615 bytes em 2981 raw =
+  **54.2% ratio medio**. Varia 26% (D8 cabeca-cauda) a 72% (D4 caos).
+- RT 9/9 OK em todos os datasets.
+- Cadeia byte-canonica: M9 → M10 → M11 → M12 → M13 → M14 (welding
+  validado por contra-prova).
+
+### Estado da API
+
+```python
+from tcf import encode, decode  # API publica v0.6
+
+text = encode(["abc", "abcd", "abcde"])
+values = decode(text)
+```
+
+### Phase 1 LLM (acessorio)
+
+LLM benchmark (Q01-Q38 em `docs/findings/`) e' agora **acessorio**
+ao foco. Codigo v0.5 (`old/tcf/`, antes `src/tcf/`) mantido para
+referencia historica.
 
 Ver:
-- [`experiments/lab/dirty/notas/historia-dirty-lab.md`](experiments/lab/dirty/notas/historia-dirty-lab.md) — narrativa M0-M9
+- [`experiments/lab/dirty/notas/historia-dirty-lab.md`](experiments/lab/dirty/notas/historia-dirty-lab.md) — narrativa M0-M14
 - [`experiments/lab/dirty/notas/roadmap-hipoteses.md`](experiments/lab/dirty/notas/roadmap-hipoteses.md) — 12 direcoes futuras
+- [`docs/algorithms/`](docs/algorithms/) — OBAT, HCC, TCF-format
 
 ---
 

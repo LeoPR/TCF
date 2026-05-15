@@ -1,36 +1,61 @@
-# TCF — Textual Compact Format
+# TCF — Tabular Compact Format
 
 ![Python](https://img.shields.io/badge/python-3.10+-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![Status](https://img.shields.io/badge/status-research--grade-orange)
 
-> **🔧 Project state (2026-05-17)**: active work is on the
-> **TCF-CORE algorithm** (string compression with compositional syntax) in
-> [`experiments/lab/dirty/`](experiments/lab/dirty/). See
-> [`historia-dirty-lab.md`](experiments/lab/dirty/notas/historia-dirty-lab.md)
-> for the canonical narrative.
->
-> The README below describes the **v0.5 phase** (`src/tcf/` — columnar
-> format for LLM consumption with RLE/stats). That implementation is
-> being **superseded** by the dirty-lab work; migration is in the
-> [roadmap](experiments/lab/dirty/notas/roadmap-hipoteses.md).
->
-> LLM benchmark results (Phase 1, Q01-Q38) are valid past work but are
-> **accessory** to the current focus and may eventually become a
-> separate project. Schema/Shaper are tools.
+**TCF** e' um formato textual compacto para dados tabulares (foco
+inicial: single-column de strings). Algoritmo em duas camadas:
+
+- **OBAT** (Online Bidirectional Affix Tokenizer) — tokenizacao via
+  matching LCP+LCS contra strings anteriores.
+- **HCC** (Hierarchical Compositional Coding) — compactacao
+  composicional com operadores `~`/`,` e auto-naming.
+
+Ver [`docs/algorithms/`](docs/algorithms/) para documentacao tecnica
+detalhada de cada camada.
+
+## API minima
+
+```python
+from tcf import encode, decode
+
+text = encode(["joao@gmail.com", "maria@gmail.com", "pedro@gmail.com"])
+values = decode(text)
+assert values == ["joao@gmail.com", "maria@gmail.com", "pedro@gmail.com"]
+```
+
+## Estado v0.6
+
+- Implementacao canonica em [`src/tcf/`](src/tcf/)
+- Validada byte-a-byte em 9 datasets sinteticos (D1-D9):
+  total 1615 bytes em 2981 raw = **54.2% ratio medio**, RT 9/9 OK
+- Para historia do desenvolvimento ver
+  [`experiments/lab/dirty/notas/historia-dirty-lab.md`](experiments/lab/dirty/notas/historia-dirty-lab.md)
+  (macros M0-M14)
+
+## Ciclo v0.5 (acessorio)
+
+Codigo v0.5 (formato columnar com RLE/dict/stats para LLM benchmark)
+vive em [`old/tcf/`](old/tcf/). NAO e' canonico no v0.6 — material
+de Phase 1 LLM Q01-Q38 em [`docs/findings/`](docs/findings/) e'
+referencia historica. Pode virar projeto a parte no futuro.
 
 ---
 
-## (v0.5) A compact text format for LLMs to reason over relational tables
+## (v0.5 historico) A compact text format for LLMs to reason over relational tables
 
-TCF compresses CSV/JSON tabular data via columnar layout + RLE + statistics
+> **Nota**: descricao abaixo refere-se ao ciclo v0.5 (acessorio).
+> Para o algoritmo TCF v0.6 atual, ver acima.
+
+TCF v0.5 compresses CSV/JSON tabular data via columnar layout + RLE + statistics
 hints, without losing roundtrip fidelity. Models read it directly (Linha A)
 or use it as schema carrier for SQL generation (Linha B).
 
 ```python
-from tcf import encode_rows, EncodeConfig
+# v0.5 API (acessorio):
+from old.tcf import encode_rows, EncodeConfig
 text = encode_rows("sales", rows, config=EncodeConfig(level=2, include_stats=True))
-# Send `text` to any LLM. Decode back with tcf.decode(text).
 ```
 
 ---
