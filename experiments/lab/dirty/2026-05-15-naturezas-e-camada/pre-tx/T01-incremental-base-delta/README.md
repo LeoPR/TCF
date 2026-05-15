@@ -60,15 +60,13 @@ sao numeros pequenos codificaveis em poucos bytes; base e' constante).
 Cada sub-experimento e' um diretorio descartavel dentro deste T01.
 Numeracao `NN-nome-curto/`. Espera-se **varias iteracoes**.
 
-```
-T01-incremental-base-delta/
-├── README.md                          # este arquivo
-├── 01-prova-conceito-D11/             # encoder simples, base+delta em segundos, so D11
-├── 02-formato-delta/                  # comparar representacoes de delta
-├── 03-stress-D12-tz/                  # adicionar timezone
-├── 04-composicao-templated/           # combinar com templated (se necessario)
-└── conclusoes_T01.md                  # registrado quando T01 fechar (vai pra ../../notas/ no final)
-```
+### Status
+
+| # | Sub-exp | Dataset | Encoder | Foco | RT | Bytes (pretx+TCF) |
+|---|---|---|---|---|---|---|
+| 01 | [`01-prova-conceito-D11a-dia/`](01-prova-conceito-D11a-dia/) | D11a (12 linhas, dia-only) | v0 (dia-only) | Prova de conceito + pipeline + debug | OK | 42 (48% do TCF puro) |
+| 02 | [`02-bordas-D11b/`](02-bordas-D11b/) | D11b (14 linhas, bordas + leap) | v0 (dia-only) | RT calendar em bordas mes/ano + Feb 29 | OK | 59 (34% do TCF puro) |
+| 03 | (planejado) | (definir) | v1 (com escalas M/Y) | Cadencia mensal/anual; testar se `+1M` repetido compacta mais que dias variando | — | — |
 
 Ordem e numeros podem mudar conforme aprendizado. Sub-experimentos
 podem ser **deletados** se virarem becos sem saida — historia

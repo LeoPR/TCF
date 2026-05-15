@@ -52,8 +52,9 @@ aspecto especifico** da natureza pra controle fino.
 | Arquivo | Cenario | Linhas | Raw bytes | Foco | Macro origem |
 |---|---|---:|---:|---|---|
 | D11a-datas-dia.csv | Datas YYYY-MM-DD, variando so' em dias | 12 | 136 | Resolucao dia (delta = inteiro de dias) | [T01-incremental](../../experiments/lab/dirty/2026-05-15-naturezas-e-camada/pre-tx/T01-incremental-base-delta/) |
+| D11b-datas-borda.csv | Datas YYYY-MM-DD, bordas mes/ano + leap year | 14 | 158 | Validar RT calendar (Feb 29, year boundary) | [T01-incremental sub 02](../../experiments/lab/dirty/2026-05-15-naturezas-e-camada/pre-tx/T01-incremental-base-delta/02-bordas-D11b/) |
 
-(Outros Dxxb/c/d... criados quando macros pedirem niveis hora/segundo/ms/us/ns ou outros focos.)
+(Outros Dxxc/d... criados quando macros pedirem niveis hora/segundo/ms/us/ns ou outros focos.)
 
 ## Compressao validada (M9 baseline)
 
