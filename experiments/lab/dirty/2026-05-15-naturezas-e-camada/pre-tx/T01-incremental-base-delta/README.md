@@ -25,6 +25,12 @@ sao numeros pequenos codificaveis em poucos bytes; base e' constante).
   input bit-a-bit. Sem RT, sub-experimento nao fecha.
 - **Stress test** antes de fechar sub-experimento: dataset
   adversarial + favoravel.
+- **Dados realistas** — diretriz [feedback-dados-realistas-nao-lixo]
+  (2026-05-15). TCF e' pra sistemas reais; datasets devem refletir
+  realidade (logs sequenciais, cadencias periodicas, registros
+  incrementais com gaps razoaveis), nao caos artificial. D11a/D11b/
+  D11c+ guiam evolucao. D10/D13/D14 ficam como stress de variety
+  extrema, nao guia.
 - **Comparacao**: bytes vs TCF puro, vs csv + brotli (campeao do
   EXP-008), vs raw csv.
 - **Nao tocar `src/tcf/`** ate' encoder estar solido. Trabalho

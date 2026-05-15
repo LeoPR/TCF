@@ -50,6 +50,32 @@ naturezas. Um dado pode pertencer a multiplas naturezas
 - Composicao explicita: pipeline pode aplicar multiplas naturezas em sequencia (templated → incremental → ...).
 - Estrutura conecta melhor com camada algoritmica (Track 2): se OBAT sabe que slots existem, integra com encoder templated naturalmente.
 
+### Dados realistas, nao caos artificial
+
+> **TCF e' pra dados de sistemas reais** (saudaveis, coerentes, com
+> padrao). Diretriz [feedback-dados-realistas-nao-lixo] (2026-05-15).
+
+Quando alguem constroi um sistema de dados, a probabilidade de criar
+um padrao e segui-lo e' alta. **Pre-tx por natureza tem maior valor
+onde redundancia estrutural existe** (caso comum em sistemas reais),
+nao em variedade extrema (caso patologico).
+
+**Datasets que guiam evolucao**: padroes realisticos — log
+sequencial, registros incrementais com gaps razoaveis, cadencias
+periodicas, enumeracoes coerentes (`D1`-`D9`, `D11a`, `D11b`,
+`D11c+`).
+
+**Datasets que NAO guiam evolucao** (mas servem como stress de
+variety extrema): `D10` (15 layouts mundiais de data na mesma
+coluna), `D13` (CPFs misturados/defeitos), `D14` (UUIDs em multiplos
+formatos canonical). Sistemas reais validam formato; nao acontece.
+Esses ficam como **referencia de comportamento extremo**, nao
+direcao.
+
+"Lixo total" (formatos misturados, defeitos generalizados) e'
+tratado em fase separada, **depois** do TCF ser solido em dados
+realisticos.
+
 ## Visao de end-state (decisao adiada totalmente)
 
 Destino final pretendido: pipeline `pre → encode` / `decode → pos`
