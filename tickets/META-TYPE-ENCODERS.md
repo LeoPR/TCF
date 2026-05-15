@@ -320,17 +320,33 @@ dirty se ha' melhorias possiveis, validavel a parte.
 
 **Hipotese**: tokens reduzem ruido em datasets com delimitadores estruturais (D3 URLs `/`, D11 datetime `-`/`:`). Mas adiciona overhead em casos sem delimitadores claros (D4 caos).
 
-### L02 — Slot detection online (Estrategia 3.B)
+### L02 — Slot detection online + threshold de similaridade (Estrategia 3.B + extensao)
 
-**Pergunta**: D9 (`@@@KEY=valueX@@@`) — slot variavel `X` poderia
-ser detectado online via anti-unificacao incremental no proprio
-OBAT, sem pre-tx externo?
+**Pergunta 1 (slot)**: D9 (`@@@KEY=valueX@@@`) — slot variavel `X`
+poderia ser detectado online via anti-unificacao incremental no
+proprio OBAT, sem pre-tx externo?
 
-**Hipotese**: Se SLOT for marcador nativo do OBAT, alguns datasets
-viram trivialmente compactos sem precisar de templated encoder
-externo.
+**Pergunta 2 (threshold)**: OBAT atual constroi grafo de
+similaridade por **igualdade exata** de substrings (threshold = 0).
+E se o threshold pudesse ser > 0 — tolerancia configuravel? Ex:
+- threshold "1 dia": datas ate' 1 dia de diferenca compartilham no
+- threshold "1 unidade": numericos a distancia <= 1
+- threshold "5%": variacoes percentuais
+- threshold "edit distance 2": strings similares
+
+**Hipotese**: Generalizando OBAT de **igualdade** pra **distancia**,
+podemos:
+1. Capturar padroes "fuzzy" que igualdade pura nao pega
+2. Conectar diretamente a natureza **lossy-recoverable** (delta de
+   erro do canonical) — encoder lossy quase de graca via OBAT
+3. Servir de base pra futuro online sem pre-tx explicito
+
+**Conexao com Track 1 (pre-tx)**: o **Stage A (identify)** do staged
+pipeline e' precondicao natural — sem saber o tipo, OBAT nao tem
+metrica de distancia adequada (data nao se compara como string).
 
 **Risco**: complica OBAT (intocado desde M0). Decisao caso-a-caso.
+Parqueado ate' pelo menos 2-3 naturezas Track 1 validadas.
 
 ### L03 — Markers tipados (tagged markers)
 

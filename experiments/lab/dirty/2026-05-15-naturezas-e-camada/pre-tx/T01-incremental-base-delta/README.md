@@ -72,7 +72,8 @@ Numeracao `NN-nome-curto/`. Espera-se **varias iteracoes**.
 |---|---|---|---|---|---|---|
 | 01 | [`01-prova-conceito-D11a-dia/`](01-prova-conceito-D11a-dia/) | D11a (12 linhas, dia-only) | v0 (dia-only) | Prova de conceito + pipeline + debug | OK | 42 (48% do TCF puro) |
 | 02 | [`02-bordas-D11b/`](02-bordas-D11b/) | D11b (14 linhas, bordas + leap) | v0 (dia-only) | RT calendar em bordas mes/ano + Feb 29 | OK | 59 (34% do TCF puro) |
-| 03 | [`03-cadencia-mensal-D11c/`](03-cadencia-mensal-D11c/) | D11c (13 linhas, fatura mensal) | v1 (escalas M/Y) | Cadencia mensal — escala compacta dia varios | OK | **22 (20% do TCF puro, 42% do v0)** |
+| 03 | [`03-cadencia-mensal-D11c/`](03-cadencia-mensal-D11c/) | D11c (13 linhas, fatura mensal) | v1 (escalas M/Y) monolitico | Cadencia mensal — escala compacta dia varios | OK | **22 (20% do TCF puro, 42% do v0)** |
+| 04 | [`04-staged-pipeline-D11c/`](04-staged-pipeline-D11c/) | D11c | v1 em **3 estagios** (identify/normalize/optimize) | Decompor v1 monolitico em estagios explicitos visiveis | OK (4/4 RTs) | 22 (identico a 03 — mesma compressao, visibilidade ganha) |
 
 Ordem e numeros podem mudar conforme aprendizado. Sub-experimentos
 podem ser **deletados** se virarem becos sem saida — historia
