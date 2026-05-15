@@ -41,6 +41,46 @@ naturezas. Um dado pode pertencer a multiplas naturezas
 - Composicao explicita: pipeline pode aplicar multiplas naturezas em sequencia (templated → incremental → ...).
 - Estrutura conecta melhor com camada algoritmica (Track 2): se OBAT sabe que slots existem, integra com encoder templated naturalmente.
 
+## Visao de end-state (decisao adiada)
+
+O destino final dos resultados de **ambos os tracks** e' modular
+dentro de `src/tcf/` formando pipeline `pre → encode` na ida e
+`decode → pos` na volta:
+
+```
+input → [pre-tx por nature] → encode (OBAT + HCC) → bytes
+bytes → decode (HCC + OBAT) → [pos-tx por nature] → output
+```
+
+`src/tcf_pretx/` (sibling proposto na fase de experimentacao) e'
+**sala de espera** — quando welding fechar, o destino e' como
+**modulo do src/tcf/** (ex: `src/tcf/pretx/` + `src/tcf/postx/`
+ou unificado `src/tcf/pipeline/`).
+
+**Mas a estrutura final depende do desfecho do Track 2:**
+
+- **Cenario A — Track 1 sustenta valor proprio**: pre-tx por
+  nature reduz bytes consistentemente alem do que OBAT/HCC
+  conseguem. Welding → `src/tcf/pretx/` como modulo dedicado.
+
+- **Cenario B — Track 2 absorve parte do Track 1**: se L02
+  (slot detection online no OBAT) e/ou L03 (markers tipados)
+  provarem que **natures podem ser detectadas e aplicadas
+  durante a construcao da arvore do OBAT**, partes do Track 1
+  ficam redundantes. Slots templated, por exemplo, viram parte
+  nativa do OBAT — sem encoder pre-tx dedicado.
+
+- **Cenario C — hibrido (esperado mais provavel)**: algumas
+  natures (templated, slot detection) ficam embutidas no OBAT
+  via Track 2; outras (incremental delta, checked elide, lossy
+  recoverable, composite split) **continuam pre-tx** porque
+  exigem semantica externa (saber que e' uma data, que tem digito
+  verificador, etc.) — OBAT nao pode deduzir isso da string.
+
+**Decisao adiada ate' o fim da Onda 3.** Antes disso, manter
+estrutura experimental conforme decisao 2026-05-15 (sibling
+`src/tcf_pretx/`); o welding final aceita refactor.
+
 ## Taxonomia das 8 naturezas
 
 | # | Nature | Definicao | Mecanismo | Exemplos tipicos | Datasets onde aparece |
@@ -381,6 +421,19 @@ Por sub-fase (T0X / EXP-009.X):
    [project-macro-M9-stress] e [project-macro-M8-virtual-refs]).
    Nao mudar canonical em dirty; criar **fork** em dirty pra
    experimentar, comparar contra canonical.
+6. **Absorcao Track 1 ↔ Track 2 (decisao de welding final)** —
+   se L02/L03 mostrarem que natures sao detectaveis durante
+   construcao da arvore OBAT, parte do Track 1 fica redundante.
+   Decisao adiada ate' fim da Onda 3:
+   - Cenario A: src/tcf_pretx/ → `src/tcf/pretx/` (Track 1 sustenta valor)
+   - Cenario B: natures embutidas no OBAT (Track 2 absorve)
+   - Cenario C (esperado): hibrido — natures que dependem de
+     semantica externa (incremental, checked, lossy, composite)
+     ficam pre-tx; natures estruturais (templated, slot) sobem
+     pro OBAT.
+   - Risco: comecar a weldar Track 1 antes de ver Track 2 evolve;
+     refactor depois pode ser caro. Mitigacao: **nao fazer
+     welding final antes de ter dados das duas tracks**.
 
 ## Tickets filhos a criar
 
