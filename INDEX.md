@@ -1,7 +1,7 @@
 # INDEX — auto-gerado por `scripts/index.py`
 
-Total READMEs com frontmatter: 15
-Total READMEs sem frontmatter: 47
+Total READMEs com frontmatter: 17
+Total READMEs sem frontmatter: 52
 
 > Para adicionar entrada nova: adicionar YAML frontmatter no README e re-rodar.
 
@@ -23,6 +23,8 @@ Total READMEs sem frontmatter: 47
 | [experiments\lab\dirty\2026-05-18-canonical-parser-robustness](./experiments/lab/dirty/2026-05-18-canonical-parser-robustness/README.md) | Parser robustness (FIX) — bug `,` em literais | planned | tcf, bug-fix, hcc, canonical | 2026-05-18 |
 | [experiments\lab\dirty\2026-05-19-h-da-09b-refino-real-world](./experiments/lab/dirty/2026-05-19-h-da-09b-refino-real-world/README.md) | H-DA-09b refino — heuristica de auto-detect para real-world | active | tcf, auto-detect, heuristic, real-world | 2026-05-19 |
 | [experiments\lab\dirty\2026-05-19-obat-perf-optimization](./experiments/lab/dirty/2026-05-19-obat-perf-optimization/README.md) | 2026-05-19 — OBAT performance optimization | active | obat, performance, scale, profiling | ? |
+| [experiments\lab\dirty\2026-05-20-hcc-perf-optimization](./experiments/lab/dirty/2026-05-20-hcc-perf-optimization/README.md) | 2026-05-20 — HCC perf optimization (H-PERF-05) [ADIADO] | closed-adiado | hcc, performance, detect-compositions, h-perf-05 | ? |
+| [experiments\lab\dirty\2026-05-20-obat-perf-phase2-trigram-middle](./experiments/lab/dirty/2026-05-20-obat-perf-phase2-trigram-middle/README.md) | 2026-05-20 — OBAT perf phase 2 — trigrama de meio (H-PERF-04) [ADIADO] | closed-adiado | obat, performance, datetime, trigram | ? |
 
 ## Type: `sub-experiment`
 
@@ -86,9 +88,13 @@ Total READMEs sem frontmatter: 47
 - `experiments/lab/dirty/2026-05-19-obat-perf-optimization/01-profile-baseline/README.md`
 - `experiments/lab/dirty/2026-05-19-obat-perf-optimization/02-index-prototypes/README.md`
 - `experiments/lab/dirty/2026-05-19-obat-perf-optimization/03-welding-decision/README.md`
+- `experiments/lab/dirty/2026-05-20-hcc-perf-optimization/01-profile-hcc/README.md`
+- `experiments/lab/dirty/2026-05-20-hcc-perf-optimization/02-prototipos-zero-risk/README.md`
+- `experiments/lab/dirty/2026-05-20-hcc-perf-optimization/03-prototipos-cap-K-iter/README.md`
+- `experiments/lab/dirty/2026-05-20-obat-perf-phase2-trigram-middle/01-profile-bucket-sizes/README.md`
+- `experiments/lab/dirty/2026-05-20-obat-perf-phase2-trigram-middle/02-prototipo-combined-full/README.md`
 - `experiments/lab/dirty/README.md`
-- `experiments/lab/dirty/notas/diario/README.md`
-- `scripts/shaper/README.md`
+- ... (+2 mais)
 
 ---
 

@@ -1,10 +1,12 @@
 # STATUS — TCF (compendio sempre-atualizado)
 
-**Atualizado em**: 2026-05-19 (ADR-0009 welded. OBAT hash trigrama
-index reduz O(N²) a O(N) amortizado. **alpha 1.75 → 1.42** em
-EXP-014, lineitem full 60175 estimado **71min → 18.5min** (-74%).
-Speedup escala com volume (1.3x em 1k, 2.70x em 20k). Bytes IDENTICOS,
-RT 100% em todos EXPs (007/010/011/012/013/014). M9 baseline preservado.)
+**Atualizado em**: 2026-05-20 (Pacote 4 fechado-parcial. ADR-0009 OBAT
+welded (alpha 1.42, lineitem full 60175 21.3min real vs 18.5min
+estimado, +15%). H-PERF-04 e H-PERF-05 investigadas e adiadas:
+hash tradicional nao preserva canonical em datas com prefix popular;
+HCC opt zero-risk so' 1.04x, caps trazem byte loss 3-6%. Counter
+incremental HCC (H-PERF-05d) e Patricia trie aberto pra phase 3.
+M9 baseline preservado em tudo.)
 
 > **Como ler este documento**: este e' o ponto de entrada
 > bibliografico do projeto. Se um sistema novo (humano ou Claude)
@@ -43,25 +45,30 @@ medio 54.2%).
 
 ---
 
-## Foco atual — Pacote 4 (Perf OBAT/HCC) ATIVO
+## Foco atual — Pacote 4 FECHADO-PARCIAL + decisao sobre proximo
 
-**Pacote 4 — Perf OBAT/HCC**:
+**Pacote 4 — Perf OBAT/HCC** (fechamento 2026-05-20):
 - **H-PERF-02 WELDED** (ADR-0009): hash trigrama em OBAT, alpha 1.75→1.42,
-  lineitem full 60175 estimado 71min → 18.5min
-- **H-PERF-04 aberta**: trigrama de meio pra datas (esperado 5x+ em
-  l_shipdate; atual hash trigrama so' 2x em datetime por buckets grandes)
-- **H-PERF-05 aberta**: HCC `_detect_compositions` virou gargalo
-  dominante (24% antes → ~40% relativo pos-OBAT-opt)
-- **H-PERF-06 aberta** (low-priority): Cython/Rust port de
-  `lcp_len`/`lcs_len`
-- **Pendente operacional**: lineitem full 60175 real (~18.5min)
-  pra confirmar extrapolacao do EXP-014
+  lineitem full 60175 **21.3min real** (vs 71min pre-welding)
+- **H-PERF-04 ADIADA**: trigrama de meio inviavel byte-canonical em
+  datas com prefix popular. Patricia trie como fallback futuro.
+- **H-PERF-05 ADIADA**: HCC opt zero-risk so' 1.04x; caps trazem byte
+  loss 3-6%. H-PERF-05d (counter incremental) permanece aberta como
+  unico caminho zero-risk de alto potencial.
+- **H-PERF-06 ADIADA**: Cython/Rust port — dependia de Python opt
+  esgotar. Reaberto so' se necessario.
 
-Lab ativo:
-[`experiments/lab/dirty/2026-05-19-obat-perf-optimization/`](experiments/lab/dirty/2026-05-19-obat-perf-optimization/)
-— 3 sub-exps fechados (profile + prototipos + welding). Welding
-multi-camada validado em EXP-007/010/011/012/013/014. **M9 baseline
-1615B preservado**.
+Labs do Pacote 4 (todos fechados):
+- [`2026-05-19-obat-perf-optimization/`](experiments/lab/dirty/2026-05-19-obat-perf-optimization/) — OBAT welded (ADR-0009)
+- [`2026-05-20-obat-perf-phase2-trigram-middle/`](experiments/lab/dirty/2026-05-20-obat-perf-phase2-trigram-middle/) — H-PERF-04 adiado
+- [`2026-05-20-hcc-perf-optimization/`](experiments/lab/dirty/2026-05-20-hcc-perf-optimization/) — H-PERF-05 adiado
+
+**Proximo pacote — decisao pendente**:
+- **Pacote 2** (escape deduction, H-ED-01..04) — registrado, ortogonal
+- **Phase 3 OBAT/HCC** (Patricia trie + counter incremental) — se HCC
+  perf virar prioridade
+- **T02-T07** (outras naturezas pre-tx) — META-TYPE-ENCODERS criterio
+  ainda nao atingido
 
 ### Pacotes fechados (referencia)
 
@@ -151,7 +158,7 @@ nao guia de evolucao (cf. diretriz dados-realistas).
 | EXP-011-multi-column-basic | Multi-column basic (per-coluna independente, RT OK em D17a, -34.6% vs raw CSV) | ativo |
 | EXP-012-real-world-adult-census | Real-world Adult Census via shaper (RT 4/4 OK, ratio 38-42% em 100-5000 rows) | concluido |
 | EXP-013-real-world-tpch | Real-world TPC-H 8 tabelas (RT 8/8 OK apos welding ADR-0007; ratio 90.6% total raw->tcf) | concluido |
-| EXP-014-tpch-lineitem-scale | Performance scale lineitem (1k-20k). Pre-ADR-0009: O(N^1.75) / 71min full. **Pos-ADR-0009: O(N^1.42) / 18.5min full.** RT 4/4 OK | concluido |
+| EXP-014-tpch-lineitem-scale | Performance scale lineitem (1k-20k + full 60175). Pre-ADR-0009: O(N^1.75) / 71min full. **Pos-ADR-0009: O(N^1.42) / 18.5min estimado, 21.3min REAL (+15%, RT OK).** RT 5/5 OK | concluido |
 
 EXP-009.1+ ainda nao abertos (criterio: macro dirty fechar com hipotese
 confirmada).

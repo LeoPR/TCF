@@ -1,7 +1,8 @@
 # META-PERF-PHASE2 — Performance OBAT/HCC fase 2
 
-**Status**: OPEN
+**Status**: CLOSED-PARCIAL (2026-05-20)
 **Criado**: 2026-05-19
+**Fechado**: 2026-05-20 (sub-pacote 1 welded + sub-pacotes 2/3/4 adiados)
 **Predecessor**: [Pacote 4 sub-pacote 1](../experiments/lab/dirty/2026-05-19-obat-perf-optimization/) + [ADR-0009](../docs/adr/0009-obat-trigram-index-optimization.md) (OBAT hash trigrama, welded)
 
 ## Contexto
@@ -125,9 +126,36 @@ Re-validar todos pos cada welding.
 
 ## Criterio de aceite (deste meta-ticket)
 
-1. [ ] Sub-pacote 5 (lineitem full 60175) executado
-2. [ ] Sub-pacote 2 (H-PERF-04 trigrama meio) fechado (confirmado ou refutado)
-3. [ ] Sub-pacote 3 (H-PERF-05 HCC opt) fechado (confirmado ou refutado)
-4. [ ] Decisao explicita sobre Sub-pacote 4 (Cython port) — abrir ou definitivamente adiar
-5. [ ] Re-run EXP-014 final com todas otimizacoes (medir alpha final)
+1. [x] **Sub-pacote 5 (lineitem full 60175) executado** — 21.3min real
+   vs 18.5min estimado (+15%), RT OK, ratio 89%. H-RW-05 mitigada
+   confirmada na pratica (2026-05-20).
+2. [x] **Sub-pacote 2 (H-PERF-04 trigrama meio) — ADIADO**: hash
+   tradicional nao preserva byte-canonical em datas com prefix
+   popular. Lab `2026-05-20-obat-perf-phase2-trigram-middle/` fechado.
+   Patricia trie como fallback futuro (out of scope).
+3. [x] **Sub-pacote 3 (H-PERF-05 HCC opt) — investigado, ADIADO**:
+   6 variantes testadas em `2026-05-20-hcc-perf-optimization/`.
+   Zero-risk so' deu 1.04x (insuficiente). Caps trazem byte loss
+   (3-6%) violando regra invariante M9. H-PERF-05d (counter
+   incremental) permanece aberta como caminho zero-risk futuro.
+4. [x] **Sub-pacote 4 (Cython port) — ADIADO**: dependia de Pacote 3
+   esgotar. Reaberto so' se Python opt esgotar em phase 3.
+5. [x] Re-run EXP-014 com OBAT-opt (sub-pacote 1) — alpha 1.42,
+   18.5min estimado / 21.3min real em 60k.
 6. [ ] Atualizar STATUS.md "Foco atual" para proximo pacote
+
+## Status final do meta-ticket
+
+**Fechado parcialmente 2026-05-20**. Ganho principal: Sub-pacote 1
+(OBAT hash trigrama, ADR-0009) — 2.70x em lineitem 20k, alpha 1.75 →
+1.42, lineitem full 60175 71min → 21.3min. Sub-pacotes 2/3/4 adiados
+com justificativa documentada.
+
+**Hipoteses abertas pra phase 3** (se necessario):
+- H-PERF-04 via Patricia trie (datas)
+- H-PERF-05d (counter incremental HCC)
+- H-PERF-06 (Cython/Rust port)
+
+Phase 3 condicionada a:
+- Pacote 2 (escape deduction) explorado, OR
+- Necessidade real de mais speedup em encode batch

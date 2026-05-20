@@ -22,7 +22,7 @@ referencias a commits que o resolveram.
 | [META-THEORY-MOVE](META-THEORY-MOVE.md) | Mover hipoteses/teoria dirty → docs/theory/ + sintese das 3 estrategias | **CLOSED 2026-05-17** |
 | [META-EXP-FORMAT](META-EXP-FORMAT.md) | Template validacao vs comparativo + reorganizar EXP-008 | **CLOSED 2026-05-15** |
 | [META-TYPE-ENCODERS](META-TYPE-ENCODERS.md) | Grande plano: pre-tx por natureza + estudos camada algoritmo (T01 absorvido em Pacote 1; T02-T07 + L01-L05 adiados) | **OPEN 2026-05-15** (atualizado 2026-05-19) |
-| [META-PERF-PHASE2](META-PERF-PHASE2.md) | Pacote 4 fase 2: H-PERF-04 (trigrama meio) + H-PERF-05 (HCC opt) + H-PERF-06 (Cython) + lineitem full 60175 | **OPEN 2026-05-19** |
+| [META-PERF-PHASE2](META-PERF-PHASE2.md) | Pacote 4 fase 2: lineitem full 60175 (executado, 21min real); H-PERF-04/05/06 todos adiados com justificativa documentada | **CLOSED-PARCIAL 2026-05-20** |
 
 ## Politica
 
