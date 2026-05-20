@@ -1,9 +1,37 @@
 # META-TYPE-ENCODERS — Pre-tx por natureza + estudos da camada de algoritmo
 
-**Status**: OPEN (escopo **realinhado 2026-05-15** — foco em uma natureza por vez)
+**Status**: OPEN (T01 absorvido; T02-T07 + L01-L05 adiados; sub-escopo Perf transferido pra novo ticket)
 **Criado**: 2026-05-15
-**Estimativa atual**: T01 incremental ~1-2 semanas; demais naturezas avaliadas apos.
-**Escopo atual** (apos realinhamento):
+**Ultima atualizacao**: 2026-05-19
+
+## Atualizacao 2026-05-19 — realidade pos-Pacotes 1/3/4
+
+Plano original (2026-05-15) propunha 7 naturezas (T01-T07) + 5 estudos
+(L01-L05) executados em ondas paralelas. Realinhamento 2026-05-15 reduziu
+pra "uma natureza por vez", comecando por **T01 incremental**. 13
+sub-exps de T01 foram executados — mas conclusao revelou que **pre-tx
+multi-pass viola vertice triplice** (single-pass/low-mem/low-latency).
+
+**T01 foi ABSORVIDO** numa abordagem OBAT-level (Pacote 1 Delta-aware),
+welded em [`EXP-010-tcf-delta-aware-prototype/`](../experiments/lab/clean/EXP-010-tcf-delta-aware-prototype/).
+
+**Pacotes posteriores nao previstos no plano original**:
+- **Pacote 3 (parser robustness)** [ADR-0007](../docs/adr/0007-comma-in-literals-bug.md) — bug `,` em literais HCC fixado
+- **Pacote 1 refino** [ADR-0008](../docs/adr/0008-detect-cadence-numeric-rule.md) — heuristica numeric+high-cardinality
+- **Pacote 4 (perf OBAT)** [ADR-0009](../docs/adr/0009-obat-trigram-index-optimization.md) — hash trigrama, alpha 1.75→1.42
+
+**Decisao**: T02-T07 e L01-L05 **permanecem adiados**. Reabertura
+condicionada a:
+1. Pacote 4 perf fechar (H-PERF-04/05/06)
+2. Pelo menos uma natureza estrutural (T02 templated ou T03 enumerated)
+   ter casos real-world onde Pacote 1 + ADR-0008 nao bastam
+
+Sub-escopo de performance (L01-L05 + novas H-PERF-*) foi **transferido**
+pra ticket dedicado: [META-PERF-PHASE2](META-PERF-PHASE2.md) (a criar).
+
+## Escopo original (preservado abaixo para referencia historica)
+
+**Escopo atual** (apos realinhamento 2026-05-15):
 
 - **Primeira natureza: incremental (datas)**. Trabalho em dirty lab
   pequeno e iterativo, descartavel/refazivel ("faz/refaz/destroy/
@@ -375,6 +403,34 @@ custo computacional.
 **Hipotese**: Latencia do encoder cai 30-50% sem perda de bytes.
 Compressao mesma; tempo melhor.
 
+### L06 — Escape dedutivel (descoberta 2026-05-16)
+
+**Pergunta**: encoder canonical sempre escapa digit-runs com `\`.
+Pode-se omitir `\` quando o digit-value > current_node_count
+(unambiguous literal, ja' que ref correspondente nao existe)?
+
+**Hipotese**: ganho de 10-18% no `.tcf` final, especialmente na
+primeira linha (count=0, todos digits literais sem ambiguidade).
+
+**Princípio subjacente**: [[feedback-abstrato-minimal-materializacao]]
+— objetos abstratos sao livres em tamanho; materializacao no .tcf
+deve ser minima, omitindo o que pode ser deduzido pelo decoder.
+
+**Implementacao** (proposta):
+- Encoder rastreia node_count linha a linha
+- Pra cada digit-run literal `N`: se `N > count` no momento → omitir `\`
+- Decoder rastreia count similarmente: digit-run bare com value > count e' literal-deduzido
+
+**Validacao**: testado em sub-exp 11 dirty (`11-escape-dedutivel/`).
+Roundtrip byte-canonical preservado, savings medidos por dataset.
+
+**Risco**: quebra de compat com decoder v1 atual. Solucoes:
+- Versionamento do formato (v1 fixed-escape, v2 dedutivel)
+- Migracao gradual com fallback
+- Decisao quando sair do dirty pro src/
+
+**Status**: experimentado em dirty (sub-exp 11). Nao welded.
+
 ## Ordem de execucao (realinhada 2026-05-15)
 
 **Foco unico:** uma natureza por vez, controle fino, processo refinavel.
@@ -496,8 +552,15 @@ Quando hipoteses se confirmarem em dirty, abrir:
 3. [x] Dirty lab `2026-05-15-naturezas-e-camada/` criado
 4. [x] `experiments/lab/clean/EXP-009-pre-tx-natureza/README.md` (stub, abre quando primeira natureza fechar)
 5. [x] `docs/theory/data-natures-taxonomy.md` (taxonomia formal de referencia)
-6. [ ] **T01 incremental** completo no dirty (cf. README do macro)
-7. [ ] Decisao sobre proxima natureza ou redirecionar — apos T01
+6. [x] **T01 incremental** explorado em dirty (13 sub-exps) — concluido
+   que multi-pass viola vertice triplice; abordagem absorvida em
+   **Pacote 1 Delta-aware** (welded em EXP-010, 2026-05-17)
+7. [x] **Realinhamento pos-T01 (2026-05-19)**: Pacotes 1/3 fechados,
+   Pacote 4 em curso. T02-T07 e L01-L05 explicitamente adiados.
+8. [ ] **Decisao sobre Pacote 2** (escape deduction): priorizar agora ou
+   manter adiado pos-Pacote 4 fechar
+9. [ ] **Reabertura T02+** condicionada a casos real-world onde Pacote 1
+   + ADR-0008 nao bastem (criterio empirico, nao calendario)
 
 ## Conexoes
 

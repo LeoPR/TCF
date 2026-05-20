@@ -43,86 +43,55 @@ medio 54.2%).
 
 ---
 
-## Foco atual — Pacote 1 (Delta-aware) FECHADO + Prototype Welded
+## Foco atual — Pacote 4 (Perf OBAT/HCC) ATIVO
 
-**Mudanca de direcao 2026-05-17**: T01 incremental (pre-tx multi-pass)
-abandonado por violar **vertice triplice** (single-pass/low-mem/low-latency).
-Novo lab `2026-05-17-OBAT-delta-aware/` explorou alternativa OBAT-level.
+**Pacote 4 — Perf OBAT/HCC**:
+- **H-PERF-02 WELDED** (ADR-0009): hash trigrama em OBAT, alpha 1.75→1.42,
+  lineitem full 60175 estimado 71min → 18.5min
+- **H-PERF-04 aberta**: trigrama de meio pra datas (esperado 5x+ em
+  l_shipdate; atual hash trigrama so' 2x em datetime por buckets grandes)
+- **H-PERF-05 aberta**: HCC `_detect_compositions` virou gargalo
+  dominante (24% antes → ~40% relativo pos-OBAT-opt)
+- **H-PERF-06 aberta** (low-priority): Cython/Rust port de
+  `lcp_len`/`lcs_len`
+- **Pendente operacional**: lineitem full 60175 real (~18.5min)
+  pra confirmar extrapolacao do EXP-014
 
-**Pacote 1 (Delta-aware) — cobertura empirica completa**:
-9 sub-exps em
-[`experiments/lab/dirty/2026-05-17-OBAT-delta-aware/`](experiments/lab/dirty/2026-05-17-OBAT-delta-aware/).
-Pipeline final: **auto-pre detect_cadence → OBAT canonical/hint → HCC fork seq-RLE**.
+Lab ativo:
+[`experiments/lab/dirty/2026-05-19-obat-perf-optimization/`](experiments/lab/dirty/2026-05-19-obat-perf-optimization/)
+— 3 sub-exps fechados (profile + prototipos + welding). Welding
+multi-camada validado em EXP-007/010/011/012/013/014. **M9 baseline
+1615B preservado**.
 
-**Resultado consolidado** (20 datasets sinteticos):
-- baseline (canonical) = 2770 B
-- pipeline delta-aware = 2272 B (**-18.0%**)
-- RT 20/20 OK
-- 5 hipoteses confirmadas-empiricas (H-DA-01, H-DA-06, H-DA-07, H-DA-09b, H-DA-10)
-- 1 refutada (H-DA-08), 2 refutadas parciais (H-DA-04, H-DA-09)
+### Pacotes fechados (referencia)
+
+| Pacote | Foco | Status | Welding |
+|---|---|---|---|
+| **Pacote 1** (Delta-aware) | auto-pre detect_cadence → OBAT hint → HCC seq-RLE | fechado | EXP-010 (clean), 20/20 RT |
+| **Pacote 1 refino** (H-DA-09b-v2) | regra numeric+high-cardinality em real-world | fechado | ADR-0008 em EXP-010/auto_pre |
+| **Pacote 3** (parser robustness) | bug `,` em literais HCC | fechado | ADR-0007 em src/tcf/composicional/syntax.py |
+| **Pacote 4** (perf OBAT) — parcial | hash trigrama OBAT | **welded** (sub-pacote 1) | ADR-0009 em src/tcf/core/online.py |
+
+### Pacotes registrados, nao iniciados
+
+| Pacote | Foco | Status |
+|---|---|---|
+| **Pacote 2** (escape deduction) | H-ED-01..04: omitir `\digits` quando deduzivel | registrado, adiado |
+| **Pacote 4** (perf — restante) | H-PERF-04/05/06: HCC opt + trigrama meio + Cython | em curso |
+
+### Arquivo historico (superseded)
+
+- **T01 incremental** (`2026-05-15-naturezas-e-camada/pre-tx/T01-incremental-base-delta/`):
+  13 sub-exps pre-tx multi-pass. **Superseded** pelo Pacote 1 Delta-aware
+  (que cabe no vertice triplice single-pass). Mantido como referencia
+  metodologica; nao guia evolucao.
+- **META-TYPE-ENCODERS** (`tickets/META-TYPE-ENCODERS.md`): planejou
+  7 naturezas (T01-T07) + 5 estudos (L01-L05). Pos-Pacote 1, foi
+  realinhado: T01 absorvido como OBAT-level, T02-T07 e L01-L05
+  permanecem adiados aguardando 2-3 naturezas validadas.
 
 **Roadmap cross-lab**: [`experiments/lab/dirty/notas/roadmap-hipoteses.md`](experiments/lab/dirty/notas/roadmap-hipoteses.md)
-**Diario do dia**: [`experiments/lab/dirty/notas/diario/2026-05-17.md`](experiments/lab/dirty/notas/diario/2026-05-17.md)
-
-**Prototype clean welded**:
-[`experiments/lab/clean/EXP-010-tcf-delta-aware-prototype/`](experiments/lab/clean/EXP-010-tcf-delta-aware-prototype/)
-— single-column, 20/20 RT, 20/20 byte-match vs sub-exp 09. **src/tcf
-intocado** — prototype IMPORTA e ESTENDE.
-
-**Aviso conceitual**: confirmacoes sao `confirmada-empirica` em
-datasets sinteticos. Real-world (TPC-H, Adult Census) **nao testado**.
-
-### Foco anterior — T01 incremental (pre-tx, dirty old)
-
-13 sub-experimentos em
-[`experiments/lab/dirty/2026-05-15-naturezas-e-camada/pre-tx/T01-incremental-base-delta/`](experiments/lab/dirty/2026-05-15-naturezas-e-camada/pre-tx/T01-incremental-base-delta/)
-Mantido como referencia historica; superseded pelo Pacote 1 Delta-aware.
-
-### Sub-experimentos T01 (cronologico)
-
-| # | Pasta | Dataset | Encoder | TCF C | RT |
-|---|---|---|---|---:|---|
-| 01 | [`01-prova-conceito-D11a-dia/`](experiments/lab/dirty/2026-05-15-naturezas-e-camada/pre-tx/T01-incremental-base-delta/01-prova-conceito-D11a-dia/) | D11a (12 linhas, dia) | v0 monolitico | 42 | OK |
-| 02 | [`02-bordas-D11b/`](experiments/lab/dirty/2026-05-15-naturezas-e-camada/pre-tx/T01-incremental-base-delta/02-bordas-D11b/) | D11b (14 linhas, bordas + leap year) | v0 monolitico | 59 | OK |
-| 03 | [`03-cadencia-mensal-D11c/`](experiments/lab/dirty/2026-05-15-naturezas-e-camada/pre-tx/T01-incremental-base-delta/03-cadencia-mensal-D11c/) | D11c (13 linhas, fatura mensal) | v1 monolitico (escalas M/Y) | 22 | OK |
-| 04 | [`04-staged-pipeline-D11c/`](experiments/lab/dirty/2026-05-15-naturezas-e-camada/pre-tx/T01-incremental-base-delta/04-staged-pipeline-D11c/) | D11c | v1 em 3 estagios (A/B/C separados) | 22 (identico ao 03) | 4/4 |
-| 05 | [`05-staged-multi-dataset/`](experiments/lab/dirty/2026-05-15-naturezas-e-camada/pre-tx/T01-incremental-base-delta/05-staged-multi-dataset/) | D11a+b+c | 3 estagios copia 04 | 42/59/22 | 3/3 |
-| 06 | [`06-staged-granularity-second/`](experiments/lab/dirty/2026-05-15-naturezas-e-camada/pre-tx/T01-incremental-base-delta/06-staged-granularity-second/) | D11a-d (D11d novo) | 3 estagios estendido (day + second) | 42/59/22/34 | 4/4 |
-| 07 | [`07-cadencia-mensal-datetime-D11e/`](experiments/lab/dirty/2026-05-15-naturezas-e-camada/pre-tx/T01-incremental-base-delta/07-cadencia-mensal-datetime-D11e/) | D11c+d+**D11e** (novo) | 3 estagios copia de 06 | **D11e=34 (vs 80 sem escala = +57%)** | 3/3 |
-| 08 | [`08-granularidades-finas/`](experiments/lab/dirty/2026-05-15-naturezas-e-camada/pre-tx/T01-incremental-base-delta/08-granularidades-finas/) | D11a-e + **D11f/g/h** (ms/us/ns) | 3 estagios estendido + multi-char | **D11f=39 (`1s`), D11g=43 (`1ms`), D11h=46 (`1us`)** | 8/8 |
-| 09 | [`09-auditoria-self-contained-D11a/`](experiments/lab/dirty/2026-05-15-naturezas-e-camada/pre-tx/T01-incremental-base-delta/09-auditoria-self-contained-D11a/) | so D11a | decoder standalone | 42 bytes -> D11a byte-canonical SEM hint externo | OK |
-| 10 | [`10-pacote-completo-com-validacao/`](experiments/lab/dirty/2026-05-15-naturezas-e-camada/pre-tx/T01-incremental-base-delta/10-pacote-completo-com-validacao/) | D11a-h (8) | pipeline staged + standalone | **08+09 unificado**: 7 fases sub-segmentadas por dataset + 3 checks de validacao | 8/8 |
-| 11 | [`11-escape-dedutivel/`](experiments/lab/dirty/2026-05-15-naturezas-e-camada/pre-tx/T01-incremental-base-delta/11-escape-dedutivel/) | D11a-h (8) | smart_encode + smart_decode | **Escape dedutivel** (Track 2 L06): remove `\digits` onde valor fora de [1, count]. TOTAL 319->269 bytes (**-15.7%**) | 8/8 RT |
-| 12 | [`12-templated-marker/`](experiments/lab/dirty/2026-05-15-naturezas-e-camada/pre-tx/T01-incremental-base-delta/12-templated-marker/) | D11c, D11g, **D11i** (novo, mensal com correcao de dia) | template `??` no marker + deltas sem sufixo de escala | D11c=18, D11g=34, D11i=36 (vs v2: 18.9/30.9/80.0%) | 3/3 RT |
-| 13 | [`13-tz-aware-pretx/`](experiments/lab/dirty/2026-05-15-naturezas-e-camada/pre-tx/T01-incremental-base-delta/13-tz-aware-pretx/) | **D11j/k/m** (novos: tz constante `Z`, constante `-03:00`, variavel) | detect tz constante -> extrai pro template; variable -> no-op | D11j=28, D11k=33 (vs v2: 26.9/30.3%); D11m=105 (fallback, igual v2) | 3/3 RT |
-
-### Linguagem das escalas (v2 cumulativa apos sub-exp 08)
-
-| Sufixo | Significado | Valida em granularidade |
-|---|---|---|
-| (sem letra) | unidade base detectada em A | sempre |
-| `Y` | ano | sempre |
-| `M` | mes (capital pra distinguir de minuto) | sempre |
-| `D` | dia | second, ms, us, ns |
-| `h` | hora | second, ms, us, ns |
-| `m` | minuto | second, ms, us, ns |
-| `s` | segundo | ms, us, ns |
-| `ms` | milissegundo (multi-char) | us, ns |
-| `us` | microssegundo (multi-char) | ns |
-| sinal `-` | explicito pra negativos | sempre |
-
-Parser **longest-first** pra distinguir `1ms` de `1m`.
-
-### Pipeline staged (canonical apos sub-exp 04)
-
-```
-linhas brutas
-    ▼ stage A: identify -> meta {type, format, granularity}
-    ▼ stage B: normalize_to_unit -> [base, deltas em unidade base]
-    ▼ stage C: optimize_scales -> [base, deltas com escala onde exato]
-    ▼ TCF.encode (OBAT + HCC)
-bytes
-```
+**Diario mais recente**: [`experiments/lab/dirty/notas/diario/2026-05-19.md`](experiments/lab/dirty/notas/diario/2026-05-19.md)
 
 ---
 
@@ -239,43 +208,42 @@ TCF/
 
 ---
 
-## Proximas direcoes registradas
+## Proximas direcoes (ordenado por prioridade)
 
-Pipeline T01 incremental cobre **toda a hierarquia temporal**
-(ano → ns) com 13 sub-experimentos. Self-containment validado em
-todos. 3 sub-exps mais recentes:
+### Prioridade alta (ciclo Perf phase 2)
 
-- **11 escape dedutivel**: remove `\digits` redundantes
-  (-15.7% em 8 datasets, principio materializacao minimal)
-- **12 templated marker**: `??` no template + deltas sem sufixo de
-  escala (-30-80% vs v2 em 3 datasets). Sintaxe `??` ilustrativa
-  (engenhoca): preserva format hint (2-char zero-padded).
-- **13 tz-aware pretx**: tz constante extraida pro template (-75%
-  vs v2 nos 2 casos constantes); variavel cai em fallback no-op.
+1. **EXP-014b — lineitem full 60175 real** (~18.5min estimado pos-ADR-0009).
+   Confirma extrapolacao quadratica. Sem riscos: pipeline ja' validado.
+2. **H-PERF-04 trigrama de meio** — datas TPC-H (l_shipdate/commit/receipt)
+   so' tiveram 2x speedup; buckets `199/200/202` dispersam mal.
+   Esperado: 5x+ adicional nessas colunas.
+3. **H-PERF-05 HCC `_detect_compositions`** — gargalo dominante apos
+   OBAT-opt (24% antes → ~40% relativo). Sub-exp profile + prototipos.
 
-Proximas opcoes:
+### Prioridade media (decisao pendente)
 
-1. **Documentar `conclusoes_T01.md`** e fechar T01, abrir T02
-   templated (CPF/UUID).
-2. **Estudos OBAT/HCC (Track 2)** — L06 escape dedutivel ja' tem
-   prototipo dirty; outras camadas (L01-L05) tambem podem abrir.
-3. **Welding escape dedutivel + templated marker em src/tcf** —
-   requer versionamento do formato + revalidacao D1-D9. Adiar.
-4. **Outra direcao**.
+4. **Pacote 2 (escape deduction H-ED-01..04)** — adiado desde 2026-05-17.
+   Ortogonal ao Pacote 4. Decisao: priorizar agora ou aguardar Pacote 4
+   fechar.
+5. **H-DA-09c/d/e** — refino threshold/multivariada/adaptativo do
+   auto-pre detect_cadence. Decorrentes do Pacote 1.
+6. **H-PERF-06 Cython/Rust port** — adiar ate' Python opt esgotar
+   (alto overhead, integrar build system).
 
----
+### Prioridade baixa (adiados explicitamente)
 
-## Status do repo (commits locais nao pushados)
+7. **META-TYPE-ENCODERS T02-T07** — outras naturezas (templated,
+   enumerated, checked, etc.). Aguardando 2-3 naturezas validadas
+   end-to-end.
+8. **Track 2 L01-L05** — estudos de camada algoritmo (token-level,
+   slot detection, markers tipados, tree-balance, pre-filter).
 
-Cronologico recente:
-- (todos os commits T01 sub-exps 03/04/05/06)
-- `e668b3b` — diretriz dados realistas + plano atualizado (pushed)
-- `d644789` — sub-exp 01 (pushed)
-- `b49ac53` — fix bug src/tcf HCC RLE (pushed)
-- `9373012` — EXP-008 inicial (pushed)
-- `f7ae71f` — D10-D15 + README (pushed)
+### Conceitual / revisao
 
-Sub-exps 03-06 + reorg dirty: locais, **nao pushados** ainda.
+9. **Revisao conceitual** das hipoteses `confirmada-empirica` —
+   datasets sinteticos vs real-world. Atualmente: real-world validado
+   so' em Adult Census (5k rows) + TPC-H (5k rows lineitem); generalizacao
+   pra outros perfis nao testada.
 
 ---
 
