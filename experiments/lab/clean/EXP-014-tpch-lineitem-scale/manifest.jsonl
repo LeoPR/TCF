@@ -1,0 +1,4 @@
+{"volume": 1000, "rows": 1000, "n_cols": 16, "bytes_raw": 120690, "bytes_tcf": 102366, "ratio_pct": 84.8173005219985, "t_encode_s": 7.874510399997234, "t_decode_s": 0.0449205000186339, "rt": "OK", "cadence_detected": 8}
+{"volume": 5000, "rows": 5000, "n_cols": 16, "bytes_raw": 601788, "bytes_tcf": 498271, "ratio_pct": 82.79842735315427, "t_encode_s": 40.49536950001493, "t_decode_s": 0.24045760001172312, "rt": "OK", "cadence_detected": 8}
+{"volume": 10000, "rows": 10000, "n_cols": 16, "bytes_raw": 1204174, "bytes_tcf": 1003986, "ratio_pct": 83.37549224613718, "t_encode_s": 86.62536830001045, "t_decode_s": 0.49601749997236766, "rt": "OK", "cadence_detected": 8}
+{"volume": 20000, "rows": 20000, "n_cols": 16, "bytes_raw": 2418120, "bytes_tcf": 2048101, "ratio_pct": 84.69807122888857, "t_encode_s": 231.99216439999873, "t_decode_s": 0.925502600002801, "rt": "OK", "cadence_detected": 8}
