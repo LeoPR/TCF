@@ -24,8 +24,27 @@ fechamento de pacote, decide-se ordem de exploracao isolada/combinada.
   conceitual (ressalvas explicitas)
 - `refutada` — testada e nao funciona (motivo + ref)
 - `refutada-parcial` — funciona em alguns cenarios, falha em outros
+- `refutada-real-world` — funciona em sintetico mas NAO generaliza
+  pra real-world (introduzido 2026-05-21 apos Pacote 2)
 - `adiada` — fora de escopo do momento, retomar depois
 - `absorvida` — incorporada em hipotese maior
+- `subsumida` — coberta por outra hipotese mais geral
+- `welded` — implementada em src/tcf canonical (referencia ADR)
+
+## Convencao de evidencia (introduzida 2026-05-21)
+
+Apos revisao conceitual (ver `revisao-conceitual-2026-05-21.md`),
+toda hipotese **confirmada-empirica** deve carregar 3 campos
+adicionais:
+
+- **`evidencia_realworld`**: "Adult-1k/5k", "TPC-H-customer-5k",
+  "lineitem-60k", "(none — so sinteticos)", "(via pipeline EXP-XXX)"
+- **`n_datasets_diversos`**: numero de datasets de fontes diferentes
+  (sinteticos contam separado de reais)
+- **`confianca`**: `Alta` | `Media` | `Baixa` | `A-revalidar`
+
+Tabela resumida em `revisao-conceitual-2026-05-21.md` (categoria
+A/B/C). Re-validacao urgente: H-DA-01, H-DA-06, H-DA-10 (categoria B).
 
 ## Disclaimer importante — empirico vs conceitual
 
@@ -40,9 +59,15 @@ refletir o teste, nao a realidade.
 Datasets D16a-c foram **criados** pra este lab. Pequena amostra,
 nao representam todo o universo de IDs numericos.
 
-**Revisao conceitual rigorosa pendente** pra todas as confirmacoes.
-Sub-exp futuro (09+) com dados real-world (TPC-H, Adult Census)
-seria necessario pra revisao conceitual completa.
+**Caso documentado de nao-generalizacao** (2026-05-21):
+Pacote 2 (escape deduction H-ED-01..04) deu 15.7% em D11a-h
+sinteticos mas apenas 0.13-1.13% em real-world (Adult Census +
+TPC-H). Fechado `CLOSED-INSUFFICIENT-GAIN`. Confirma necessidade
+de testar SEMPRE em real-world antes de declarar generalizacao.
+
+**Revisao conceitual feita 2026-05-21**: ver
+[`revisao-conceitual-2026-05-21.md`](revisao-conceitual-2026-05-21.md)
+pra classificacao A/B/C de todas as hipoteses confirmada-empirica.
 
 ---
 
