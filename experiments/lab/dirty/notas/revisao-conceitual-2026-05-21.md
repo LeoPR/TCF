@@ -8,7 +8,9 @@ updated: 2026-05-21
 related:
   - experiments/lab/dirty/notas/roadmap-hipoteses.md
   - experiments/lab/dirty/2026-05-21-escape-deduction/
+  - experiments/lab/dirty/2026-05-21-revalidacao-categoria-B/
   - tickets/META-ESCAPE-DEDUCTION.md
+  - tickets/T-REVAL-H-DA-01-06-10.md
 ---
 
 # Revisao conceitual — hipoteses confirmada-empirica (2026-05-21)
@@ -50,14 +52,19 @@ ter mesmo destino do Pacote 2)
 | H-PERF-03 | len-elim 1.3x | benchmark em D1-D9 + lineitem | **Alta** (absorvida) |
 | H-PERF-05b/c | counting direto / skip trace | benchmark real lineitem 5k | **Alta** (marginal confirmado) |
 
-### Categoria B — NAO TESTADA real-world ⚠ (risco)
+### Categoria B — NAO TESTADA real-world ⚠ (risco) — REVALIDADA 2026-05-21
 
-| ID | Hipotese | Datasets testados | Suspeita real-world |
+**Status**: 3 hipoteses-foco revalidadas em
+`2026-05-21-revalidacao-categoria-B/` (ticket T-REVAL-H-DA-01-06-10).
+Resultados moveram cada uma pra categoria definitiva — ver
+[seção "Resultados revalidacao 2026-05-21"](#resultados-revalidacao-2026-05-21).
+
+| ID | Hipotese | Datasets testados | Resultado revalidacao |
 |---|---|---|---|
-| **H-DA-01** | OBAT+HCC quase pronto (-22.2%) | D11a-h **construidos digit-dominant** | Provavel ganho menor real-world. **Possivelmente ja' coberto** pela aplicacao no pipeline EXP-010 validado real-world |
-| **H-DA-06** | Numericos delta IDs (-61%) | D16a-c **criados** pelo autor, N=3 | **Possivelmente coberto por H-DA-09b-v2** (numeric+high-card capturou `fnlwgt`/`*key` em Adult+TPC-H). Re-teste isolado pode mostrar redundancia |
-| **H-DA-07** | OBAT shape-preserve | D11+D16 sinteticos; +17% em D1-D9 (regressao!) | **Condicional ja' documentada**. Gerenciada via auto-pre detect_cadence. Generalizacao adequada |
-| **H-DA-10** | min_len trade-off | **N=3 datasets, N=4 valores** | Amostra muito pequena. Sem teoria. **Risco alto de nao generalizar** |
+| **H-DA-01** | OBAT+HCC quase pronto (-22.2%) | D11a-h construidos | **MARGINAL** real-world (1.36%, 16.3x reducao); seletivamente potente em colunas com cadencia (-92% c_custkey) |
+| **H-DA-06** | Numericos delta IDs (-61%) | D16a-c criados | **SUBSUMIDA** em H-DA-09b-v2 (cobertura 87.5% real-world) — confirmacao do palpite |
+| **H-DA-07** | OBAT shape-preserve | D11+D16 sinteticos; +17% em D1-D9 (regressao!) | NAO revalidado nesta rodada — condicional ja' documentada via auto-pre detect_cadence |
+| **H-DA-10** | min_len trade-off | **N=3 datasets, N=4 valores** | **CONFIRMADA REAL-WORLD inesperadamente** — 9.92% weighted, ate -36.78% em fnlwgt. Mais robusto que predito |
 | H-PT-02 | Pre-tx tz-aware | D11j/k/m sinteticos | Histórico — pre-tx multi-pass foi superseded pelo Pacote 1. Sem acao necessaria |
 | H-PT-03 | Pre-tx unit normalization | D11f/g/h sinteticos | Idem H-PT-02 — historico |
 
@@ -172,16 +179,127 @@ recomendacao 2026-05-21) tem campos:
 Recomendacao: usar `blocked-by` em qualquer novo ticket que depende de
 H-DA-01/06/10 — forca re-teste ate' decisao final.
 
-## Proximos passos sugeridos
+## Resultados revalidacao 2026-05-21
 
-1. **Criar ticket `T-REVAL-H-DA-01-06-10`** com nova convencao YAML,
-   priority P1
-2. **Sub-exp** medindo isoladamente em Adult+TPC-H
-3. Atualizar roadmap-hipoteses.md com colunas `evidencia_realworld`,
-   `n_datasets_diversos`, `confianca`
-4. Atualizar CLAUDE.md "Antes de declarar confirmada-empirica" checklist
-5. Considerar fechamento explicito de H-DA-06 como `subsumida-em-H-DA-09b-v2`
-   se inspecao mostrar redundancia
+**Lab**: `2026-05-21-revalidacao-categoria-B/` (ticket T-REVAL-H-DA-01-06-10)
+
+**Sub-exps executados**:
+
+### Sub-exp 01 — H-DA-06: SUBSUMIDA confirmada
+
+`01-h-da-06-subsumida-em-09b-v2/`
+
+Inspecao de detect_cadence (welded EXP-010) em Adult Census + TPC-H:
+- 26 colunas numericas total
+- 7 disparam regra 2 (numeric high-cardinality) = H-DA-09b-v2
+- **Cobertura sobre numeric+high-card: 7/8 (87.5%)**
+- Unica nao-coberta: `tpch.lineitem-5k/l_partkey` (card=0.366 < 0.5 threshold)
+- Numericas que nao disparam sao low-card (age, education-num) — NAO eram alvo de H-DA-06
+
+**Veredito**: H-DA-06 (numeric IDs delta) ja' e' capturada por
+H-DA-09b-v2 em real-world. Marcar como `subsumida em H-DA-09b-v2 (ADR-0008)`.
+
+### Sub-exp 02 — H-DA-01: MARGINAL real-world
+
+`02-h-da-01-hcc-seqrle-realworld/`
+
+Medicao isolada (M8AVirtualRefsSyntax baseline vs HCCSeqRLE tratamento):
+- Sintetico D11a-h: **-22.23%** (reproduz original)
+- Real-world (Adult + TPC-H): **-1.36% weighted**
+- **Reducao sintetico → real-world: 16.3x**
+
+MAS comportamento heterogeneo:
+- `tpch.customer-5k/c_custkey`: **-91.94%** (7,257 bytes salvos!)
+- `tpch.customer-5k/c_name`: **-44.18%** (6,237 bytes)
+- `tpch.lineitem-5k/l_orderkey`: -4.14%
+- Resto: ~0% ou regressao marginal
+
+**Veredito**: Mesmo padrao do Pacote 2 (sintetico nao generaliza), MAS
+nao e' refutada total — funciona dramaticamente em colunas com cadencia
+estrutural (IDs sequenciais com prefixo, nomes formatados). Real-world
+weighted 1.36% < 5% threshold, mas o detector ja' esta welded e ativacao
+e' condicional ao auto-detect (gated por H-DA-09b-v2).
+
+Marcar como `confirmada-empirica-marginal`. Confianca: A-revalidar
+(se for ortogonal vs gating do auto-detect).
+
+### Sub-exp 03 — H-DA-10: CONFIRMADA REAL-WORLD (inesperado)
+
+`03-h-da-10-min-len-realworld/`
+
+Varredura min_len ∈ {2,3,4,5,6} em D9 + Adult + TPC-H:
+- **58 colunas testadas**
+- **14 colunas com ganho >= 2%** se min_len != 3 (default)
+- **9.92% bytes weighted economizados** (100,024 / 1,008,161)
+- Top wins:
+  - `adult-5000/fnlwgt`: ml=6, **-36.78%**
+  - `tpch.lineitem-5k/l_extendedprice`: ml=6, **-28.05%**
+  - `tpch.lineitem-5k/l_comment`: ml=6, **-18.18%**
+  - `tpch.customer-5k/c_acctbal`: ml=5, **-15.79%**
+  - `adult-1000/fnlwgt`: ml=5, **-14.28%**
+
+Padrao identificado:
+- Strings longas (comments, fnlwgt): ml=6 otimo
+- Medias (phone, acctbal): ml=5 otimo
+- IDs (orderkey, partkey): ml=4 otimo
+
+**Veredito**: H-DA-10 NAO refutou — pelo contrario, generalizou MELHOR
+que sintetico. Lição: amostra pequena pode tanto subestimar quanto
+superestimar; nao podemos predizer direcao do erro sem teste empirico.
+
+Marcar como `confirmada-empirica real-world`. Confianca: Alta.
+
+Hipotese decorrente: **H-DA-11 — auto-detect min_len por coluna**
+(candidata a sub-exp futuro; ~10% ganho potencial weighted real-world).
+
+## Lições adicionais (apos revalidacao)
+
+### 1. Amostra pequena erra em AMBAS as direcoes
+
+Pacote 2 (escape deduction): sintetico SUPERESTIMOU real-world (15.7% → 1.13%).
+H-DA-10 (min_len): sintetico SUBESTIMOU real-world (D9=-33B → 9.92% weighted).
+
+**Implicacao**: nao podemos predizer direcao do erro sem teste. Anti-incidente
+checklist do CLAUDE.md (5 perguntas) deve ser aplicado tanto pra ganhos
+"muito altos" (suspeita de overfitting) quanto pra ganhos "marginais"
+(suspeita de subutilizacao).
+
+### 2. Subsumir antes de welding e' bom
+
+H-DA-06 subsumida em H-DA-09b-v2 mostra que **regras mais gerais
+(numeric+cardinality) podem absorver casos especificos** (IDs
+sequenciais) sem perda de cobertura. Antes de welding nova feature,
+verificar se feature ja' existente generaliza pra cobrir o novo caso.
+
+### 3. Real-world weighted dilui ganhos seletivos
+
+H-DA-01 mostrou que ganhos dramaticos em colunas especificas (c_custkey
+-92%) podem ficar invisiveis em metrica weighted (1.36%). Reportar
+ambos:
+- Weighted (decisao economica: "vale a pena ativar always-on?")
+- Por coluna (decisao tecnica: "em quais cenarios vale a pena ativar?")
+
+Solucao: gating condicional via auto-detect (ja' feito em EXP-010).
+
+## Status final categorizacao 2026-05-21 (pos-revalidacao)
+
+| ID | Status final | Confianca |
+|---|---|---|
+| H-DA-01 | confirmada-empirica-marginal | A-revalidar (gating auto-detect) |
+| H-DA-06 | subsumida em H-DA-09b-v2 | Alta |
+| H-DA-10 | confirmada-empirica real-world | **Alta** |
+| H-DA-11 | aberta (decorrente) | — |
+
+## Proximos passos
+
+1. ✅ Ticket T-REVAL-H-DA-01-06-10 criado (YAML frontmatter)
+2. ✅ Sub-exps 01-03 executados
+3. ✅ Roadmap-hipoteses.md atualizado com status final
+4. ✅ Esta revisao atualizada com resultados
+5. **Pendente**: avaliar criacao de sub-exp pra H-DA-11 (auto-detect
+   min_len) — potencial ~10% ganho real-world weighted
+6. **Pendente**: avaliar H-DA-07 (categoria B nao revalidada nesta rodada)
+   se houver tempo
 
 ## See also
 

@@ -82,12 +82,12 @@ Foco: redutir bytes quando ha' cadencia regular detectavel
 
 | ID | Hipotese | Status | Onde | Ressalvas conceituais |
 |---|---|---|---|---|
-| H-DA-01 | OBAT esta quase pronto (quebra ja' isola variacao; HCC sozinho agrupa) | **confirmada-empirica** -22.2% bytes D11a-h | `02-hcc-sozinho-rle-near-identical/result.md` | D11a-h **construidos** com cadencia explicita; ganho dependente de presenca de cadencia |
+| H-DA-01 | OBAT esta quase pronto (quebra ja' isola variacao; HCC sozinho agrupa) | **confirmada-empirica-marginal** -22.2% sint; -1.36% real (16.3x reducao); SELETIVAMENTE potente em colunas com cadencia (c_custkey -92%, c_name -44%) | `02-hcc-sozinho-rle-near-identical/result.md` + `2026-05-21-revalidacao-categoria-B/02-h-da-01-hcc-seqrle-realworld/result.md` | Confianca: A-revalidar. Real-world weighted 1.36% < 5% threshold, MAS ja' welded em EXP-010 + ativacao via auto-detect (gating via H-DA-09b-v2) |
 | H-DA-02 | Pre-stage pode gerar dica generica (sem nomear tipo) que calibra OBAT | **subsumida** em H-DA-07 (nao testada isoladamente) | — | Sub-hipotese de H-DA-07, nao validada como pergunta separada |
 | H-DA-03 | OBAT pode fazer comparacao relativa (`+N` abstrato) sem nomear unidade | **subsumida** em H-DA-07 (nao testada isoladamente) | — | Idem |
 | H-DA-04 | Recuperacao apos transicao de cardinalidade (`\\9` → `\\10`) | **refutada-parcial** (so' com refs ao redor; sem refs ja' funciona) | `03-cadence-break-recovery/result.md` + refinamento em `05-numeric-ids-h-da-06/result.md` (D16a) | Conclusao deriva de auditoria; nao de implementacao completa |
 | H-DA-05 | Linhas pos-transicao podem formar novo run se OBAT mantiver alinhamento | **absorvida** em H-DA-07 | confirmada via H-DA-07 | — |
-| H-DA-06 | Outros tipos de delta (numerico IDs, signed, step != 1) | **confirmada-empirica** -61% em D16a-c | `05-numeric-ids-h-da-06/result.md` — RT 3/3 OK | 3 datasets **criados por mim** pra teste; amostra muito pequena, nao representa todo universo de IDs |
+| H-DA-06 | Outros tipos de delta (numerico IDs, signed, step != 1) | **subsumida em H-DA-09b-v2** (welded ADR-0008); cobertura 87.5% das numeric+high-card real-world | `05-numeric-ids-h-da-06/result.md` + `2026-05-21-revalidacao-categoria-B/01-h-da-06-subsumida-em-09b-v2/result.md` | Confianca: Alta (subsumida). H-DA-09b-v2 captura colunas-alvo de H-DA-06 em real-world via regra 2 (numeric+cardinality > 0.5) |
 | H-DA-07 | OBAT shape-preserve via dica generica | **confirmada-empirica condicional** -32% em D11+D16, MAS +17% em D1-D9 | `04-...` + `06-...` | NAO generaliza pra dados sem cadencia; pode ser MAL pra dados mistos. Conceitualmente: hint global aplicado a coluna heterogenea = problema |
 | H-DA-08 | Detector que aceita per-run delta encoding | **refutada** (9 bytes total) | `07-per-run-delta-audit/result.md` | Audit em datasets D11+D16 apenas; outros datasets podem ter perfil diferente |
 | H-DA-09 | Pre-stage infere hint automaticamente (always-on) | **refutada** | `06-auto-hint-regression-D1-D9/result.md` | "Always-on" e' a forma mais ingenua; refuta especificamente essa forma |
@@ -110,7 +110,8 @@ Foco: redutir bytes quando ha' cadencia regular detectavel
 | H-PERF-06 | Cython/Rust port de `lcp_len`/`lcs_len` corta Python overhead | aberta | nao testada | 29M chamadas em lineitem 5k, ~1.7us/chamada. Compilado podia cortar 50%+. |
 | H-DA-09d | Heuristica multivariada (lengths + LCP+LCS + variance) | aberta — decorrente sub-exp 09 | nao testada | — |
 | H-DA-09e | Re-avaliar heuristica a cada N strings (adaptativo) | aberta — decorrente sub-exp 09 | nao testada | — |
-| H-DA-10 | min_len trade-off existe e pode ser ajustado por dataset | **confirmada-empirica** (D9 min_len=5 → -33B) | `08-min-len-trade-off/result.md` | **N=3 datasets, N=4 valores** — amostra mui pequena; sem teoria do por que D9 prefere min_len=5; generalizacao desconhecida |
+| H-DA-11 | Auto-detect de min_len otimo por coluna pode capturar ~10% ganho weighted real-world | **aberta** (decorrente revalidacao H-DA-10 2026-05-21) | candidata futura | Padrao observado: strings longas (comments, fnlwgt) preferem ml=6; medias (phone, acctbal) ml=5; IDs ml=4. Heuristica precisaria considerar avg_len + cardinalidade |
+| H-DA-10 | min_len trade-off existe e pode ser ajustado por dataset | **CONFIRMADA real-world** (9.92% weighted gain em 14 colunas reais Adult+TPC-H; ate -36.78% em fnlwgt; -28% em l_extendedprice) | `08-min-len-trade-off/result.md` + `2026-05-21-revalidacao-categoria-B/03-h-da-10-min-len-realworld/result.md` | Confianca: **Alta** (real-world testado). Generalizou MELHOR que sintetico. Default min_len=3 nao otimo. Hipotese decorrente: H-DA-11 (auto-detect min_len por coluna) |
 
 ## Observacoes empiricas (NAO hipoteses — pendentes de teste conceitual)
 
@@ -214,7 +215,15 @@ prototipo clean (`experiments/lab/clean/EXP-XXX-*`) e' pra testar
 Atualizar quando: hipotese confirmada/refutada/movida-de-status, OU
 nova hipotese identificada.
 
-**Ultima atualizacao**: 2026-05-17 — sub-exp 09 (H-DA-09b
+**Ultima atualizacao**: 2026-05-21 — revalidacao categoria B
+(lab `2026-05-21-revalidacao-categoria-B/`, ticket T-REVAL-H-DA-01-06-10):
+- **H-DA-06** → `subsumida em H-DA-09b-v2` (cobertura 87.5% real-world)
+- **H-DA-01** → `confirmada-empirica-marginal` (1.36% real-world vs 22.23% sint; 16.3x reducao)
+- **H-DA-10** → `confirmada-empirica REAL-WORLD` (9.92% weighted!! ate -36.78% em fnlwgt; generalizou MELHOR que sintetico)
+- **H-DA-11** (nova): auto-detect min_len por coluna — candidata futura
+- Adicionada coluna `confianca` (Alta/Media/Baixa/A-revalidar) em hipoteses revalidadas
+
+**Atualizacao anterior**: 2026-05-17 — sub-exp 09 (H-DA-09b
 confirmada-empirica, auto-detect cadence -18% vs baseline). Tambem
 reescrito com:
 - distincao `confirmada-empirica` vs `confirmada-conceitual`
