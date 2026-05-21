@@ -1,7 +1,7 @@
 # INDEX — auto-gerado por `scripts/index.py`
 
-Total READMEs com frontmatter: 17
-Total READMEs sem frontmatter: 52
+Total READMEs com frontmatter: 18
+Total READMEs sem frontmatter: 53
 
 > Para adicionar entrada nova: adicionar YAML frontmatter no README e re-rodar.
 
@@ -25,6 +25,7 @@ Total READMEs sem frontmatter: 52
 | [experiments\lab\dirty\2026-05-19-obat-perf-optimization](./experiments/lab/dirty/2026-05-19-obat-perf-optimization/README.md) | 2026-05-19 — OBAT performance optimization | active | obat, performance, scale, profiling | ? |
 | [experiments\lab\dirty\2026-05-20-hcc-perf-optimization](./experiments/lab/dirty/2026-05-20-hcc-perf-optimization/README.md) | 2026-05-20 — HCC perf optimization (H-PERF-05) [ADIADO] | closed-adiado | hcc, performance, detect-compositions, h-perf-05 | ? |
 | [experiments\lab\dirty\2026-05-20-obat-perf-phase2-trigram-middle](./experiments/lab/dirty/2026-05-20-obat-perf-phase2-trigram-middle/README.md) | 2026-05-20 — OBAT perf phase 2 — trigrama de meio (H-PERF-04) [ADIADO] | closed-adiado | obat, performance, datetime, trigram | ? |
+| [experiments\lab\dirty\2026-05-21-escape-deduction](./experiments/lab/dirty/2026-05-21-escape-deduction/README.md) | 2026-05-21 — Escape deduction (Pacote 2 / H-ED-01..04) [CLOSED-INSUFFICIENT-GAIN] | closed-insufficient-gain | hcc, escape-deduction, h-ed, pacote-2 | 2026-05-21 |
 
 ## Type: `sub-experiment`
 
@@ -93,8 +94,8 @@ Total READMEs sem frontmatter: 52
 - `experiments/lab/dirty/2026-05-20-hcc-perf-optimization/03-prototipos-cap-K-iter/README.md`
 - `experiments/lab/dirty/2026-05-20-obat-perf-phase2-trigram-middle/01-profile-bucket-sizes/README.md`
 - `experiments/lab/dirty/2026-05-20-obat-perf-phase2-trigram-middle/02-prototipo-combined-full/README.md`
-- `experiments/lab/dirty/README.md`
-- ... (+2 mais)
+- `experiments/lab/dirty/2026-05-21-escape-deduction/01-caracterizacao-escapes/README.md`
+- ... (+3 mais)
 
 ---
 

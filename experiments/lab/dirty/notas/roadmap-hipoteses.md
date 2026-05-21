@@ -129,10 +129,11 @@ e' especifico a delta — afeta qualquer body. Antecedente: ticket
 
 | ID | Hipotese | Status | Onde |
 |---|---|---|---|
-| H-ED-01 | Linha 1 do body nunca tem refs → digits sao sempre literais → escape `\` redundante | aberta | candidata a dirty lab proprio (`2026-05-XX-escape-deduction-hcc-v06`) |
-| H-ED-02 | Apos `*` separador, proximo nao-digito-de-ref tem contexto deduzivel | aberta | mesmo lab |
-| H-ED-03 | Escape de `*`, `\`, `~` pode ser inferido por posicao em alguns casos | aberta | mesmo lab |
-| H-ED-04 | Header da coluna (ex: "tipo=numerico") permite supressao adicional | aberta | mesmo lab — opt-in |
+| H-ED-01 | Linha 1 do body nunca tem refs → digits sao sempre literais → escape `\` redundante | **refutada-real-world** (0.01% ganho weighted) | `2026-05-21-escape-deduction/01-caracterizacao-escapes/` |
+| H-ED-02 | Apos `*` separador, proximo nao-digito-de-ref tem contexto deduzivel | **refutada-real-world** (0.12% ganho weighted) | mesmo sub-exp |
+| H-ED-03 | Escape de `*`, `\`, `~` pode ser inferido por posicao em alguns casos | **refutada-real-world** (zero ops escapes em real-world testado) | mesmo sub-exp |
+| H-ED-04 | Header da coluna (ex: "tipo=numerico") permite supressao adicional | **adiada** (nao testada, dependeria de H-ED-01..03 funcionar) | — |
+| H-ED-original | Digit-run valor > current count → literal deduzivel | **refutada-real-world (lower bound)** (1.13% ganho weighted vs criterio 5%) | mesmo sub-exp |
 
 **Quantificacao rapida (sem mexer)**: ~50-60 backslashes na linha 1
 dos 8 datasets D11a-h. Se ~50% deduzivel → ~25-30 bytes potenciais.

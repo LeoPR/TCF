@@ -1,12 +1,13 @@
 # STATUS — TCF (compendio sempre-atualizado)
 
-**Atualizado em**: 2026-05-20 (Pacote 4 fechado-parcial. ADR-0009 OBAT
-welded (alpha 1.42, lineitem full 60175 21.3min real vs 18.5min
-estimado, +15%). H-PERF-04 e H-PERF-05 investigadas e adiadas:
-hash tradicional nao preserva canonical em datas com prefix popular;
-HCC opt zero-risk so' 1.04x, caps trazem byte loss 3-6%. Counter
-incremental HCC (H-PERF-05d) e Patricia trie aberto pra phase 3.
-M9 baseline preservado em tudo.)
+**Atualizado em**: 2026-05-21 (Pacote 2 escape-deduction fechado
+como CLOSED-INSUFFICIENT-GAIN. Caracterizacao em real-world (Adult
+1k/5k + TPC-H region/customer/lineitem 5k, 942kB body) mostrou
+H-ED-01/02/03 marginais (0.01-0.12% ganho) e H-ED-original lower
+bound 1.13% — abaixo criterio 5%. Sub-exp 11 antigo (T01, 15.7%)
+NAO generaliza pra real-world (datasets eram "digit-dominant"
+construidos). Pacote 4 (OBAT ADR-0009) continua sendo win principal.
+M9 baseline preservado.)
 
 > **Como ler este documento**: este e' o ponto de entrada
 > bibliografico do projeto. Se um sistema novo (humano ou Claude)
@@ -63,12 +64,19 @@ Labs do Pacote 4 (todos fechados):
 - [`2026-05-20-obat-perf-phase2-trigram-middle/`](experiments/lab/dirty/2026-05-20-obat-perf-phase2-trigram-middle/) — H-PERF-04 adiado
 - [`2026-05-20-hcc-perf-optimization/`](experiments/lab/dirty/2026-05-20-hcc-perf-optimization/) — H-PERF-05 adiado
 
+**Pacotes fechados recentes**:
+- Pacote 4 (Perf OBAT/HCC) — CLOSED-PARCIAL 2026-05-20 (OBAT welded;
+  HCC opt e trigrama meio adiados)
+- **Pacote 2 (Escape deduction)** — CLOSED-INSUFFICIENT-GAIN 2026-05-21
+  (ganho real-world max 1.13% << criterio 5%)
+
 **Proximo pacote — decisao pendente**:
-- **Pacote 2** (escape deduction, H-ED-01..04) — registrado, ortogonal
+- **Revisao conceitual** de hipoteses confirmada-empirica (sintetico
+  vs real-world generalizacao) — anti-incidente, ganha maturidade
 - **Phase 3 OBAT/HCC** (Patricia trie + counter incremental) — se HCC
   perf virar prioridade
 - **T02-T07** (outras naturezas pre-tx) — META-TYPE-ENCODERS criterio
-  ainda nao atingido
+  ainda nao atingido (precisa 2-3 naturezas validadas)
 
 ### Pacotes fechados (referencia)
 
