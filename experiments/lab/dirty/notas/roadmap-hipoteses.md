@@ -215,7 +215,15 @@ prototipo clean (`experiments/lab/clean/EXP-XXX-*`) e' pra testar
 Atualizar quando: hipotese confirmada/refutada/movida-de-status, OU
 nova hipotese identificada.
 
-**Ultima atualizacao**: 2026-05-22 — H-DA-11 WELDED canonical src/tcf
+**Ultima atualizacao**: 2026-05-22 (segunda) — **H-DA-11c WELDED canonical**
+(refactor zero-risk; lab `2026-05-22-h-da-11c-features-unificadas/`):
+- Novo `src/tcf/column_features.py` (ColumnFeatures + analyze_column)
+- Refatorado `src/tcf/auto_min_len.py` (2 APIs: from_features + wrapper)
+- `src/tcf/encoder.py` chama `analyze_column` 1x
+- **Output IDENTICO ao pre-refactor** (1615B baseline + 9.87% real-world + RT 100%)
+- Prepara terreno pra T02-T07 + welding canonical futuro de detect_cadence
+
+**Atualizacao anterior**: 2026-05-22 (primeira) — H-DA-11 WELDED canonical src/tcf
 (ADR-0010 + sub-exps 01-05 do lab `2026-05-21-h-da-11-auto-min-len/`):
 - `src/tcf/auto_min_len.py` (novo) + `src/tcf/encoder.py` modificado
 - **Adult+TPC-H ganho 9.87% weighted** (99,501B em 1,008,003B)

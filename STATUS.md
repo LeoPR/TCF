@@ -72,14 +72,21 @@ medio 54.2%).
   - `src/tcf/auto_min_len.py` (novo) + `src/tcf/encoder.py` modificado
   - RT 100%: D1-D9 9/9 + real-world 57/57
 
+- **2026-05-22 T-CODE-H-DA-11c**: CLOSED-REFACTOR-COMPLETED (zero-risk)
+  - Novo `src/tcf/column_features.py` (ColumnFeatures + analyze_column)
+  - Refator `src/tcf/auto_min_len.py` com APIs from_features + wrapper
+  - Output IDENTICO ao pre-refactor (1615B + 9.87% + RT 100%)
+  - Prepara terreno pra T02-T07 + weld futuro de detect_cadence canonical
+
 **Pacote 4 — Perf OBAT/HCC** (fechado 2026-05-20):
 - H-PERF-02 WELDED (ADR-0009) — hash trigrama, alpha 1.75→1.42
 - H-PERF-04/05/06 ADIADOS (Patricia trie, counter incremental, Cython)
 
 **Proximo pacote — decisao pendente**:
-- **H-DA-11c** consolidar pre-pass features (detect_cadence + detect_min_len)
+- ~~**H-DA-11c** consolidar pre-pass features~~ (FEITO 2026-05-22)
 - **H-DA-07** revalidacao (categoria B residual)
 - **H-PERF-05d** counter incremental HCC (zero-risk, alto potencial)
+- **detect_cadence canonical weld** (ADR-0008 ja' em prototype; ColumnFeatures pronto pra reuso)
 - **T02-T07** outras naturezas pre-tx (criterio ainda nao atingido)
 
 ### Pacotes fechados (referencia)
@@ -93,6 +100,7 @@ medio 54.2%).
 | **Pacote 4** (perf OBAT) — parcial | hash trigrama OBAT | **welded** (sub-pacote 1) | ADR-0009 em src/tcf/core/online.py |
 | **T-REVAL Categoria B** | revalidacao H-DA-01/06/10 em real-world | CLOSED 2026-05-21 (surpresa H-DA-10 9.92%) | — |
 | **T-EXP-H-DA-11** | auto-detect min_len por coluna | **WELDED canonical** 2026-05-22 | **ADR-0010 em src/tcf/auto_min_len.py + src/tcf/encoder.py** (9.87% real-world) |
+| **T-CODE-H-DA-11c** | ColumnFeatures unificado (refactor) | CLOSED 2026-05-22 | **src/tcf/column_features.py + refactor auto_min_len.py** (zero-risk) |
 
 ### Pacotes registrados, nao iniciados
 
@@ -161,6 +169,7 @@ nao guia de evolucao (cf. diretriz dados-realistas).
 | [META-ESCAPE-DEDUCTION](tickets/META-ESCAPE-DEDUCTION.md) | CLOSED-INSUFFICIENT-GAIN | Pacote 2 |
 | [T-REVAL-H-DA-01-06-10](tickets/T-REVAL-H-DA-01-06-10.md) | CLOSED-COMPLETED-WITH-SURPRISES | Revalidacao Categoria B (2026-05-21) |
 | [T-EXP-H-DA-11](tickets/T-EXP-H-DA-11.md) | **CLOSED-CANONICAL-WELDED** | Auto-detect min_len (ADR-0010, 9.87%) |
+| [T-CODE-H-DA-11c](tickets/T-CODE-H-DA-11c-features-unificadas.md) | **CLOSED-REFACTOR-COMPLETED** | ColumnFeatures unificado (zero-risk) |
 | [T-DOC-1-citation-cff](tickets/T-DOC-1-citation-cff.md) | OPEN P3 | CITATION.cff + DOI |
 | [T-DOC-2-diataxis-naming](tickets/T-DOC-2-diataxis-naming.md) | OPEN P3 | mapeamento docs Diataxis |
 | [T-CLEAN-1-pre-commit-hooks](tickets/T-CLEAN-1-pre-commit-hooks.md) | OPEN P3 | pre-commit hooks |
@@ -239,15 +248,14 @@ TCF/
 
 ## Proximas direcoes (ordenado por prioridade)
 
-### Prioridade alta (caminho feliz pos-H-DA-11)
+### Prioridade alta (caminho feliz)
 
-1. **H-DA-11c consolidar pre-pass features** — unificar `detect_cadence`
-   (ADR-0008, regra numeric+card) + `detect_min_len` (ADR-0010, heur v3)
-   em pre-pass unico `analyze_column(values) → ColumnFeatures`. Reduz
-   duplicacao + prepara terreno pra T02-T07. Medio risco/medio valor.
-2. **H-DA-07 revalidacao real-world** — categoria B unica nao revalidada
+1. **H-DA-07 revalidacao real-world** — categoria B unica nao revalidada
    em T-REVAL. OBAT shape-preserve "confirmada-condicional" sem
    evidencia real-world. Baixo risco.
+2. **detect_cadence canonical weld** — ADR-0008 ja' validado em EXP-010
+   prototype. ColumnFeatures (H-DA-11c) pronto pra reuso. Welding canonical
+   consolidaria duas heuristicas em src/tcf canonical. Baixo risco.
 
 ### Prioridade media (decisao pendente)
 

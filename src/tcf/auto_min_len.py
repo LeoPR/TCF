@@ -1,56 +1,58 @@
 """Auto-detect min_len por coluna (canonical, ADR-0010, H-DA-11).
 
-Pre-pass leve sobre values pra decidir `min_len` otimo. Heuristica v3
-(decision tree shallow em avg_len + cardinality + is_numeric) capturou
-99.5% do oracle real-world em Adult+TPC-H (sub-exp
+Heuristica v3 (decision tree shallow em avg_len + cardinality + is_numeric)
+capturou 99.5% do oracle real-world em Adult+TPC-H (sub-exp
 `experiments/lab/dirty/2026-05-21-h-da-11-auto-min-len/02-heuristica-v1/`).
 
 Gating `n >= 100`: datasets pequenos (D1-D9, exemplos sinteticos) usam
 default ml=3 — preserva M9 baseline EXATO (1615B).
 
-Custo: 1 passada O(N) sobre values pra avg_len + set + sample.
+API:
+- `detect_min_len_from_features(features, n_threshold=100)` — heuristica
+  pura que recebe `ColumnFeatures` ja' calculada
+- `detect_min_len(values, n_threshold=100)` — wrapper backward compat
+  que chama `analyze_column(values)` internamente
 
-Welded canonical 2026-05-22 (apos validacao prototype EXP-010 em
-sub-exp 04). Backward compat: output bytes-canonical IDENTICO pra
-D1-D9 (n<100 fallback); diferente pra colunas >=100 rows (esperado e
-desejado — ganho ~9% real-world weighted).
+Welded canonical 2026-05-22 (T-EXP-H-DA-11). Refatorado pra usar
+ColumnFeatures unificado em 2026-05-22 (T-CODE-H-DA-11c).
 """
 
 from __future__ import annotations
 
-
-def _is_numeric_string(v: str) -> bool:
-    """Aceita int, float, negativos. Rejeita empty."""
-    if not v:
-        return False
-    try:
-        float(v)
-        return True
-    except (ValueError, TypeError):
-        return False
+from tcf.column_features import ColumnFeatures, analyze_column
 
 
-def detect_min_len(values: list[str], n_threshold: int = 100) -> int:
-    """Detecta min_len otimo via heuristica v3 + gating por n_rows.
+def detect_min_len_from_features(
+    features: ColumnFeatures, n_threshold: int = 100
+) -> int:
+    """Detecta min_len otimo a partir de ColumnFeatures.
 
-    Retorna int em {3, 4, 5, 6}.
-    - n < n_threshold: retorna 3 (preserva M9 baseline)
-    - n >= n_threshold: heuristica v3 (avg_len + cardinality + is_numeric)
+    Args:
+        features: ColumnFeatures ja' calculada via analyze_column
+        n_threshold: limite inferior de rows pra aplicar heuristica
+            (default 100 — datasets menores usam ml=3 default, preserva
+            M9 baseline)
 
-    Empirico: captura 99.5% do oracle real-world (9.87% / 9.92% weighted
-    em Adult+TPC-H 58 colunas).
+    Returns:
+        int em {3, 4, 5, 6}.
+
+    Heuristica v3 (decision tree shallow):
+        - n < n_threshold: 3 (gating)
+        - card < 0.2: 3 (baixa-card seguro)
+        - avg >= 25: 6 (long-form)
+        - avg >= 8 + card >= 0.4: 6 (dates, mid-len high-card)
+        - avg >= 5 + is_num + card >= 0.8: 6 (numeric high-card)
+        - avg >= 12 + card >= 0.7: 5 (c_phone)
+        - avg >= 3 + card >= 0.2: 4 (IDs sequenciais)
+        - else: 3
     """
-    n = len(values)
-    if n < n_threshold:
+    if features.n_rows < n_threshold:
         return 3
 
-    avg_len = sum(len(v) for v in values) / n
-    n_unicas = len(set(values))
-    card = n_unicas / n
-    sample = values[:min(20, n)]
-    is_num = all(_is_numeric_string(v) for v in sample) if sample else False
+    avg_len = features.avg_len
+    card = features.cardinality
+    is_num = features.is_numeric
 
-    # Heuristica v3 (decision tree shallow)
     if card < 0.2:
         return 3
     if avg_len >= 25:
@@ -64,3 +66,17 @@ def detect_min_len(values: list[str], n_threshold: int = 100) -> int:
     if avg_len >= 3 and card >= 0.2:
         return 4
     return 3
+
+
+def detect_min_len(values: list[str], n_threshold: int = 100) -> int:
+    """Backward-compat wrapper: analisa values e retorna min_len.
+
+    Equivale a:
+        detect_min_len_from_features(analyze_column(values), n_threshold)
+
+    Mantido para callers que nao tem ColumnFeatures pre-computado.
+    Para pipelines novos com multiplas heuristicas, preferir chamar
+    `analyze_column(values)` uma vez e passar para cada
+    `detect_X_from_features`.
+    """
+    return detect_min_len_from_features(analyze_column(values), n_threshold)
