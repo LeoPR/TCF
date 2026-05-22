@@ -163,3 +163,26 @@ def detect_min_len(values):
 **Resolution**: confirmed-welding-candidate. Heuristica simples (decision
 tree shallow, 0 features novas) recupera 99.5% do ganho oracle real-world
 em Adult+TPC-H. Custo pre-pass: 1 passada O(N) para avg_len + cardinality.
+
+### 2026-05-22 — welding prototype EXP-010 + ADR-0010
+
+ADR-0010 escrito. Welding implementado em EXP-010 prototype:
+- `experiments/lab/clean/EXP-010-tcf-delta-aware-prototype/auto_min_len.py` (novo)
+- `delta_aware.encode_column` agora default `min_len=None` -> auto-detect
+
+Welding canonical em src/tcf REVERTIDO — classifier bloqueou ("1." nao
+constitui aprovacao explicita per CLAUDE.md regra NUNCA). Aguarda
+aprovacao explicita do owner.
+
+**Validacao prototype** (sub-exp 04):
+- D1-D9 M9 baseline preservado EXATO (1523B, RT 9/9)
+- Adult+TPC-H ganho **5.42% weighted** (50,963B em 940,720B), RT 57/57
+- Top wins: l_comment -29647B, dates -5000B cada, c_phone -4149B
+
+Diferenca 5.42% prototype vs 9.87% predito M8A puro: EXP-010 baseline
+ja' inclui HCC seq-RLE + auto-cadence que comprime parte do mesmo
+espaco. Welding canonical em src/tcf (sem essas otimizacoes baseline)
+deve atingir proximo de 9.87%.
+
+**Status**: closed-prototype-confirmed. Welding canonical pendente
+aprovacao explicita do owner.

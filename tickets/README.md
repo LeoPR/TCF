@@ -25,7 +25,7 @@ referencias a commits que o resolveram.
 | [META-PERF-PHASE2](META-PERF-PHASE2.md) | Pacote 4 fase 2: lineitem full 60175 (executado, 21min real); H-PERF-04/05/06 todos adiados com justificativa documentada | **CLOSED-PARCIAL 2026-05-20** |
 | [META-ESCAPE-DEDUCTION](META-ESCAPE-DEDUCTION.md) | Pacote 2: H-ED-01..04 caracterizacao mediu 0.13%-1.13% real-world (lower bound), critério aceite 5%. Primeiro ticket YAML frontmatter validou metodologia. | **CLOSED-INSUFFICIENT-GAIN 2026-05-21** |
 | [T-REVAL-H-DA-01-06-10](T-REVAL-H-DA-01-06-10.md) | Revalidacao Categoria B (revisao 2026-05-21): H-DA-06 SUBSUMIDA, H-DA-01 marginal (1.36%), H-DA-10 CONFIRMADA inesperadamente (9.92% real-world). Nova H-DA-11 decorrente. | **CLOSED-COMPLETED-WITH-SURPRISES 2026-05-21** |
-| [T-EXP-H-DA-11](T-EXP-H-DA-11.md) | Auto-detect min_len por coluna: heuristica v3 (decision tree shallow em avg_len + card + is_numeric) captura 9.87% weighted = 99.5% do oracle (9.92%) em Adult+TPC-H. 1 regressao. Candidato welding ADR-0010. | **CLOSED-CONFIRMED-WELDING-CANDIDATE 2026-05-22** |
+| [T-EXP-H-DA-11](T-EXP-H-DA-11.md) | Auto-detect min_len por coluna: heuristica v3 captura 9.87% oracle / 5.42% em EXP-010 prototype welded (ADR-0010). M9 baseline preservado, RT 100%. Welding canonical src/tcf pendente aprovacao. | **CLOSED-PROTOTYPE-CONFIRMED 2026-05-22** |
 
 ## Politica
 
