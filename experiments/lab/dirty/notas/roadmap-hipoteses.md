@@ -110,7 +110,7 @@ Foco: redutir bytes quando ha' cadencia regular detectavel
 | H-PERF-06 | Cython/Rust port de `lcp_len`/`lcs_len` corta Python overhead | aberta | nao testada | 29M chamadas em lineitem 5k, ~1.7us/chamada. Compilado podia cortar 50%+. |
 | H-DA-09d | Heuristica multivariada (lengths + LCP+LCS + variance) | aberta — decorrente sub-exp 09 | nao testada | — |
 | H-DA-09e | Re-avaliar heuristica a cada N strings (adaptativo) | aberta — decorrente sub-exp 09 | nao testada | — |
-| H-DA-11 | Auto-detect de min_len otimo por coluna pode capturar ~10% ganho weighted real-world | **CONFIRMADA + WELDED prototype EXP-010** (ADR-0010 — 5.42% adicional em EXP-010 ja' otimizado; 9.87% predito vs M8A canonical puro). **Welding canonical src/tcf pendente aprovacao** | `2026-05-21-h-da-11-auto-min-len/` (sub-exps 01-04) + ADR-0010 | Confianca: **Alta**. M9 baseline D1-D9 preservado (1523B), RT 100% real-world (57/57). Heur v3: card<0.2 →3; avg>=25 →6; avg>=8 +card>=0.4 →6; avg>=5 +num +card>=0.8 →6; avg>=12 +card>=0.7 →5; avg>=3 +card>=0.2 →4. Gating n_threshold=100 |
+| H-DA-11 | Auto-detect de min_len otimo por coluna pode capturar ~10% ganho weighted real-world | **WELDED canonical src/tcf** (ADR-0010 — **9.87% real-world weighted** em Adult+TPC-H 57 cols) | `2026-05-21-h-da-11-auto-min-len/` (sub-exps 01-05) + ADR-0010 + `src/tcf/auto_min_len.py` | Confianca: **Alta**. **M9 baseline 1615B EXATO preservado**, RT 100% (D1-D9 9/9 + real-world 57/57). Heur v3 com gating n>=100. Top wins: l_comment -29kB, fnlwgt -22kB, l_extendedprice -20kB |
 | H-DA-10 | min_len trade-off existe e pode ser ajustado por dataset | **CONFIRMADA real-world** (9.92% weighted gain em 14 colunas reais Adult+TPC-H; ate -36.78% em fnlwgt; -28% em l_extendedprice) | `08-min-len-trade-off/result.md` + `2026-05-21-revalidacao-categoria-B/03-h-da-10-min-len-realworld/result.md` | Confianca: **Alta** (real-world testado). Generalizou MELHOR que sintetico. Default min_len=3 nao otimo. Hipotese decorrente: H-DA-11 (auto-detect min_len por coluna) |
 
 ## Observacoes empiricas (NAO hipoteses — pendentes de teste conceitual)
@@ -215,13 +215,13 @@ prototipo clean (`experiments/lab/clean/EXP-XXX-*`) e' pra testar
 Atualizar quando: hipotese confirmada/refutada/movida-de-status, OU
 nova hipotese identificada.
 
-**Ultima atualizacao**: 2026-05-22 — H-DA-11 confirmada-empirica
-real-world (lab `2026-05-21-h-da-11-auto-min-len/`, ticket T-EXP-H-DA-11):
-- Heuristica v3 (decision tree shallow em avg_len + cardinality + is_numeric)
-  captura **9.87% weighted = 99.5% do oracle** (best per column = 9.92%)
-- Apenas 1 regressao (D9 sint +16B). 5 regressoes em v2 foram corrigidas em v3.
-- **Candidato a welding (ADR-0010)** — proximo passo: implementar
-  `detect_min_len` em src/tcf/encoder.py + revalidacao multi-camada
+**Ultima atualizacao**: 2026-05-22 — H-DA-11 WELDED canonical src/tcf
+(ADR-0010 + sub-exps 01-05 do lab `2026-05-21-h-da-11-auto-min-len/`):
+- `src/tcf/auto_min_len.py` (novo) + `src/tcf/encoder.py` modificado
+- **Adult+TPC-H ganho 9.87% weighted** (99,501B em 1,008,003B)
+- **M9 baseline 1615B EXATO preservado** (gating n>=100)
+- RT 100%: D1-D9 9/9 + real-world 57/57
+- Top wins: l_comment -29,647B, fnlwgt -22,238B, l_extendedprice -20,038B
 
 **Atualizacao anterior**: 2026-05-21 — revalidacao categoria B
 (lab `2026-05-21-revalidacao-categoria-B/`, ticket T-REVAL-H-DA-01-06-10):

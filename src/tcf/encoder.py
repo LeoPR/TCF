@@ -27,6 +27,7 @@ Para detalhamento dos algoritmos:
 from __future__ import annotations
 from collections import OrderedDict
 
+from tcf.auto_min_len import detect_min_len
 from tcf.core.online import processar
 from tcf.composicional.syntax import M8AVirtualRefsSyntax
 
@@ -41,11 +42,17 @@ def encode(values: list[str], header: str = "val") -> str:
             podera usar).
 
     Retorna: texto TCF (sem brackets, LF only).
+
+    min_len: auto-detectado via `tcf.auto_min_len.detect_min_len`
+    (ADR-0010, H-DA-11). Datasets pequenos (n<100) usam ml=3 default
+    (preserva M9 baseline 1615B exato); datasets >=100 rows usam
+    heuristica v3 (captura ~9% weighted real-world Adult+TPC-H).
     """
     seen: OrderedDict[str, bool] = OrderedDict()
     for s in values:
         seen[s] = True
     unicas = list(seen.keys())
-    tokens, _ = processar(unicas, min_len=3)
+    min_len = detect_min_len(values)
+    tokens, _ = processar(unicas, min_len=min_len)
     syn = M8AVirtualRefsSyntax()
     return syn.encode(values, unicas, tokens, header)

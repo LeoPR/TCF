@@ -1,6 +1,6 @@
 # 0010 — Auto-detect min_len por coluna
 
-**Status**: accepted
+**Status**: accepted + canonical welded
 **Date**: 2026-05-22
 **Deciders**: project owner
 **Tags**: heuristic, pre-stage, h-da-11, real-world, encoder, single-col, multi-col
@@ -113,30 +113,37 @@ D1-D9 single-col:
 Gating escolhido: n<100 → fallback ml=3. D1-D9 todos passam (n=12-20),
 recebem default → baseline preservado.
 
-### Validacao multi-camada pos-welding (prototype EXP-010)
+### Validacao multi-camada (canonical src/tcf)
 
-`experiments/lab/dirty/2026-05-21-h-da-11-auto-min-len/04-validacao-prototipo-EXP-010/`
+`experiments/lab/dirty/2026-05-21-h-da-11-auto-min-len/05-validacao-canonical-src-tcf/`
 
 | Camada | base (B) | new (B) | delta | RT |
 |---|---:|---:|---:|---|
-| D1-D9 single-col (M9 baseline) | **1523** | **1523** | +0 | 9/9 OK |
-| Adult-1000 (15 cols) + Adult-5000 + TPC-H | **940,720** | **889,757** | **-50,963 (-5.42%)** | 57/57 OK |
+| **D1-D9 (M9 baseline 1615B)** | **1615** | **1615** | **+0** | **9/9 OK** |
+| Adult Census 1k+5k + TPC-H region/customer/lineitem 5k | **1,008,003** | **908,502** | **-99,501 (-9.87%)** | **57/57 OK** |
 
-**Nota sobre 5.42% vs 9.87% predito**: sub-exp 02 mediu vs encoder
-canonical M8A puro (`M8AVirtualRefsSyntax + processar(min_len=3)`).
-EXP-010 prototype baseline ja' inclui HCC seq-RLE near-identical +
-auto-detect cadence — comprime parte do mesmo espaco. 5.42% adicional
-sobre EXP-010 ja' otimizado e' o ganho LIQUIDO real do auto-min_len.
-Welding canonical em src/tcf (sem HCC seq-RLE/auto-cadence) provavelmente
-atingira proximo de 9.87%.
-
-**Top wins reais (prototype)**:
+**Top wins reais (canonical)**:
 - `tpch.lineitem-5k/l_comment`: -29,647B (-18.18%) com ml=6
-- `tpch.lineitem-5k/l_shipdate`: -5,239B (-12.70%) com ml=6
+- `adult-5000/fnlwgt`: -22,238B (-36.78%) com ml=6
+- `tpch.lineitem-5k/l_extendedprice`: -20,038B (-28.05%) com ml=6
+- `tpch.lineitem-5k/l_shipdate`: -5,048B (-12.24%) com ml=6
+- `tpch.lineitem-5k/l_commitdate`: -4,244B (-10.60%) com ml=6
 - `tpch.customer-5k/c_phone`: -4,149B (-12.26%) com ml=6
-- `tpch.lineitem-5k/l_commitdate`: -4,545B (-11.36%) com ml=6
-- `tpch.lineitem-5k/l_receiptdate`: -4,065B (-10.16%) com ml=6
+- `tpch.lineitem-5k/l_receiptdate`: -3,874B (-9.68%) com ml=6
 - `tpch.customer-5k/c_comment`: -3,310B (-3.05%) com ml=6
+- `tpch.customer-5k/c_acctbal`: -2,668B (-15.40%) com ml=5
+- `tpch.lineitem-5k/l_partkey`: -1,585B (-5.63%) com ml=4
+
+**Comparacao prototype vs canonical**:
+
+| Cenario | D1-D9 base | Real-world gain |
+|---|---:|---:|
+| Prototype EXP-010 (HCC seq-RLE + auto-cadence baseline) | 1523B | 5.42% |
+| **Canonical src/tcf (M8A puro baseline)** | **1615B** | **9.87%** |
+
+Diferenca: prototype tem baseline mais comprimida (seq-RLE + auto-cadence
+ja' capturando parte), entao margem adicional do auto-min_len e' menor.
+Canonical tem baseline puro M8A, entao ganho integral 9.87% aparece.
 
 ## Pros and Cons
 
@@ -150,20 +157,22 @@ atingira proximo de 9.87%.
 
 ## Implementacao
 
-### Status atual (2026-05-22): prototype confirmed, canonical pending
+### Status atual (2026-05-22): CANONICAL WELDED
 
 Implementacao em DUAS etapas (mesmo padrao de ADR-0008):
 
-**Etapa 1 (FEITA)** — Welding em EXP-010 prototype:
+**Etapa 1 (FEITA 2026-05-22)** — Welding em EXP-010 prototype:
 - Novo modulo `experiments/lab/clean/EXP-010-tcf-delta-aware-prototype/auto_min_len.py`
 - Modificacao em `delta_aware.encode_column`: default `min_len=None`
   → auto-detect
+- Validacao sub-exp 04: D1-D9 baseline preservado (1523B prototype),
+  Adult+TPC-H 5.42%, RT 100%
 
-**Etapa 2 (PENDENTE)** — Welding canonical em `src/tcf/`:
-- Aguarda aprovacao explicita do project owner
-- Mudanca prevista:
-  - Novo modulo `src/tcf/auto_min_len.py` (copia de EXP-010 + adjustments)
-  - `src/tcf/encoder.py` — `encode()` chama `detect_min_len(values)`
+**Etapa 2 (FEITA 2026-05-22)** — Welding canonical em `src/tcf/`:
+- Novo modulo `src/tcf/auto_min_len.py` (canonical, mesma heuristica v3)
+- `src/tcf/encoder.py` — `encode()` chama `detect_min_len(values)`
+- Validacao sub-exp 05: **D1-D9 M9 baseline EXATO (1615B preservado)**,
+  Adult+TPC-H **9.87% weighted gain**, RT 100% canonical (9/9 + 57/57)
 
 ### Backward compat
 

@@ -25,7 +25,10 @@ referencias a commits que o resolveram.
 | [META-PERF-PHASE2](META-PERF-PHASE2.md) | Pacote 4 fase 2: lineitem full 60175 (executado, 21min real); H-PERF-04/05/06 todos adiados com justificativa documentada | **CLOSED-PARCIAL 2026-05-20** |
 | [META-ESCAPE-DEDUCTION](META-ESCAPE-DEDUCTION.md) | Pacote 2: H-ED-01..04 caracterizacao mediu 0.13%-1.13% real-world (lower bound), critério aceite 5%. Primeiro ticket YAML frontmatter validou metodologia. | **CLOSED-INSUFFICIENT-GAIN 2026-05-21** |
 | [T-REVAL-H-DA-01-06-10](T-REVAL-H-DA-01-06-10.md) | Revalidacao Categoria B (revisao 2026-05-21): H-DA-06 SUBSUMIDA, H-DA-01 marginal (1.36%), H-DA-10 CONFIRMADA inesperadamente (9.92% real-world). Nova H-DA-11 decorrente. | **CLOSED-COMPLETED-WITH-SURPRISES 2026-05-21** |
-| [T-EXP-H-DA-11](T-EXP-H-DA-11.md) | Auto-detect min_len por coluna: heuristica v3 captura 9.87% oracle / 5.42% em EXP-010 prototype welded (ADR-0010). M9 baseline preservado, RT 100%. Welding canonical src/tcf pendente aprovacao. | **CLOSED-PROTOTYPE-CONFIRMED 2026-05-22** |
+| [T-EXP-H-DA-11](T-EXP-H-DA-11.md) | Auto-detect min_len por coluna: heuristica v3 captura 9.87% real-world em src/tcf canonical welded (ADR-0010). M9 baseline 1615B preservado EXATO, RT 100% (9/9 + 57/57). | **CLOSED-CANONICAL-WELDED 2026-05-22** |
+| [T-DOC-1-citation-cff](T-DOC-1-citation-cff.md) | Adicionar CITATION.cff + preparar DOI (Zenodo). Gap de aderencia §3.5 metodologia. | **OPEN 2026-05-22** |
+| [T-DOC-2-diataxis-naming](T-DOC-2-diataxis-naming.md) | Explicitar mapeamento docs/algorithms,theory → reference,explanation (ADR ou nota em MAP.md). | **OPEN 2026-05-22** |
+| [T-CLEAN-1-pre-commit-hooks](T-CLEAN-1-pre-commit-hooks.md) | Adicionar pre-commit (detect-secrets, ruff, basicos). Gap de aderencia §"Versionamento e higiene". | **OPEN 2026-05-22** |
 
 ## Politica
 

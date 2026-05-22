@@ -1,13 +1,13 @@
 # STATUS — TCF (compendio sempre-atualizado)
 
-**Atualizado em**: 2026-05-21 (Pacote 2 escape-deduction fechado
-como CLOSED-INSUFFICIENT-GAIN. Caracterizacao em real-world (Adult
-1k/5k + TPC-H region/customer/lineitem 5k, 942kB body) mostrou
-H-ED-01/02/03 marginais (0.01-0.12% ganho) e H-ED-original lower
-bound 1.13% — abaixo criterio 5%. Sub-exp 11 antigo (T01, 15.7%)
-NAO generaliza pra real-world (datasets eram "digit-dominant"
-construidos). Pacote 4 (OBAT ADR-0009) continua sendo win principal.
-M9 baseline preservado.)
+**Atualizado em**: 2026-05-22 (**H-DA-11 WELDED canonical src/tcf**
+via ADR-0010 — auto-detect min_len por coluna captura **9.87% weighted
+real-world** em Adult+TPC-H. M9 baseline 1615B preservado EXATO. RT
+100%. API publica `tcf.encode` agora chama `detect_min_len` por
+dentro com gating n>=100. Wins: l_comment -29kB, fnlwgt -22kB,
+l_extendedprice -20kB. Tickets fechados na sequencia 2026-05-21/22:
+Pacote 2 INSUFFICIENT-GAIN, T-REVAL H-DA-01/06/10 (surpresa: H-DA-10
+confirmada 9.92%), T-EXP-H-DA-11 CANONICAL-WELDED.)
 
 > **Como ler este documento**: este e' o ponto de entrada
 > bibliografico do projeto. Se um sistema novo (humano ou Claude)
@@ -46,37 +46,41 @@ medio 54.2%).
 
 ---
 
-## Foco atual — Pacote 4 FECHADO-PARCIAL + decisao sobre proximo
+## Foco atual — H-DA-11 WELDED canonical + decisao sobre proximo
 
-**Pacote 4 — Perf OBAT/HCC** (fechamento 2026-05-20):
-- **H-PERF-02 WELDED** (ADR-0009): hash trigrama em OBAT, alpha 1.75→1.42,
-  lineitem full 60175 **21.3min real** (vs 71min pre-welding)
-- **H-PERF-04 ADIADA**: trigrama de meio inviavel byte-canonical em
-  datas com prefix popular. Patricia trie como fallback futuro.
-- **H-PERF-05 ADIADA**: HCC opt zero-risk so' 1.04x; caps trazem byte
-  loss 3-6%. H-PERF-05d (counter incremental) permanece aberta como
-  unico caminho zero-risk de alto potencial.
-- **H-PERF-06 ADIADA**: Cython/Rust port — dependia de Python opt
-  esgotar. Reaberto so' se necessario.
+**Ciclo 2026-05-21/22 — Revalidacao + H-DA-11 fechado**:
 
-Labs do Pacote 4 (todos fechados):
-- [`2026-05-19-obat-perf-optimization/`](experiments/lab/dirty/2026-05-19-obat-perf-optimization/) — OBAT welded (ADR-0009)
-- [`2026-05-20-obat-perf-phase2-trigram-middle/`](experiments/lab/dirty/2026-05-20-obat-perf-phase2-trigram-middle/) — H-PERF-04 adiado
-- [`2026-05-20-hcc-perf-optimization/`](experiments/lab/dirty/2026-05-20-hcc-perf-optimization/) — H-PERF-05 adiado
+- **2026-05-21 Pacote 2** (escape deduction H-ED-01..04): CLOSED-INSUFFICIENT-GAIN
+  (real-world max 1.13% << criterio 5%). Primeiro ticket YAML frontmatter
+  validou metodologia. Aprendizado: sintetico "digit-dominant" nao
+  generaliza pra real-world.
 
-**Pacotes fechados recentes**:
-- Pacote 4 (Perf OBAT/HCC) — CLOSED-PARCIAL 2026-05-20 (OBAT welded;
-  HCC opt e trigrama meio adiados)
-- **Pacote 2 (Escape deduction)** — CLOSED-INSUFFICIENT-GAIN 2026-05-21
-  (ganho real-world max 1.13% << criterio 5%)
+- **2026-05-21 Revisao conceitual** de hipoteses confirmada-empirica:
+  classificadas A/B/C por evidencia real-world. Lab dirty `2026-05-21-revalidacao-categoria-B/`
+  + ticket T-REVAL-H-DA-01-06-10.
+
+- **2026-05-21 T-REVAL Categoria B**: CLOSED-COMPLETED-WITH-SURPRISES
+  - H-DA-06 SUBSUMIDA em H-DA-09b-v2 (cobertura 87.5% real-world)
+  - H-DA-01 MARGINAL real-world (1.36%, 16.3x reducao vs sint)
+  - **H-DA-10 CONFIRMADA INESPERADAMENTE** (9.92% weighted)
+  - Nova H-DA-11 decorrente
+
+- **2026-05-22 T-EXP-H-DA-11**: CLOSED-CANONICAL-WELDED (ADR-0010)
+  - Heuristica v3 (decision tree shallow em avg_len + card + is_numeric)
+  - Gating n_threshold=100 preserva M9 baseline 1615B EXATO
+  - **Adult+TPC-H ganho 9.87% weighted real-world**
+  - `src/tcf/auto_min_len.py` (novo) + `src/tcf/encoder.py` modificado
+  - RT 100%: D1-D9 9/9 + real-world 57/57
+
+**Pacote 4 — Perf OBAT/HCC** (fechado 2026-05-20):
+- H-PERF-02 WELDED (ADR-0009) — hash trigrama, alpha 1.75→1.42
+- H-PERF-04/05/06 ADIADOS (Patricia trie, counter incremental, Cython)
 
 **Proximo pacote — decisao pendente**:
-- **Revisao conceitual** de hipoteses confirmada-empirica (sintetico
-  vs real-world generalizacao) — anti-incidente, ganha maturidade
-- **Phase 3 OBAT/HCC** (Patricia trie + counter incremental) — se HCC
-  perf virar prioridade
-- **T02-T07** (outras naturezas pre-tx) — META-TYPE-ENCODERS criterio
-  ainda nao atingido (precisa 2-3 naturezas validadas)
+- **H-DA-11c** consolidar pre-pass features (detect_cadence + detect_min_len)
+- **H-DA-07** revalidacao (categoria B residual)
+- **H-PERF-05d** counter incremental HCC (zero-risk, alto potencial)
+- **T02-T07** outras naturezas pre-tx (criterio ainda nao atingido)
 
 ### Pacotes fechados (referencia)
 
@@ -84,8 +88,11 @@ Labs do Pacote 4 (todos fechados):
 |---|---|---|---|
 | **Pacote 1** (Delta-aware) | auto-pre detect_cadence → OBAT hint → HCC seq-RLE | fechado | EXP-010 (clean), 20/20 RT |
 | **Pacote 1 refino** (H-DA-09b-v2) | regra numeric+high-cardinality em real-world | fechado | ADR-0008 em EXP-010/auto_pre |
+| **Pacote 2** (escape deduction) | H-ED-01..04: ganho real-world insuficiente | CLOSED-INSUFFICIENT-GAIN 2026-05-21 | — |
 | **Pacote 3** (parser robustness) | bug `,` em literais HCC | fechado | ADR-0007 em src/tcf/composicional/syntax.py |
 | **Pacote 4** (perf OBAT) — parcial | hash trigrama OBAT | **welded** (sub-pacote 1) | ADR-0009 em src/tcf/core/online.py |
+| **T-REVAL Categoria B** | revalidacao H-DA-01/06/10 em real-world | CLOSED 2026-05-21 (surpresa H-DA-10 9.92%) | — |
+| **T-EXP-H-DA-11** | auto-detect min_len por coluna | **WELDED canonical** 2026-05-22 | **ADR-0010 em src/tcf/auto_min_len.py + src/tcf/encoder.py** (9.87% real-world) |
 
 ### Pacotes registrados, nao iniciados
 
@@ -149,7 +156,14 @@ nao guia de evolucao (cf. diretriz dados-realistas).
 | [META-DOCS-V05-OBSOLETE](tickets/META-DOCS-V05-OBSOLETE.md) | CLOSED | archive v0.5 |
 | [META-THEORY-MOVE](tickets/META-THEORY-MOVE.md) | CLOSED | mover teoria pra docs/theory/ |
 | [META-EXP-FORMAT](tickets/META-EXP-FORMAT.md) | CLOSED | template validacao vs comparativo |
-| [META-TYPE-ENCODERS](tickets/META-TYPE-ENCODERS.md) | **OPEN** | plano-mestre T01-T07 + L01-L05 |
+| [META-TYPE-ENCODERS](tickets/META-TYPE-ENCODERS.md) | **OPEN** | plano-mestre T01-T07 + L01-L05 (adiados) |
+| [META-PERF-PHASE2](tickets/META-PERF-PHASE2.md) | CLOSED-PARCIAL | Pacote 4 perf phase 2 |
+| [META-ESCAPE-DEDUCTION](tickets/META-ESCAPE-DEDUCTION.md) | CLOSED-INSUFFICIENT-GAIN | Pacote 2 |
+| [T-REVAL-H-DA-01-06-10](tickets/T-REVAL-H-DA-01-06-10.md) | CLOSED-COMPLETED-WITH-SURPRISES | Revalidacao Categoria B (2026-05-21) |
+| [T-EXP-H-DA-11](tickets/T-EXP-H-DA-11.md) | **CLOSED-CANONICAL-WELDED** | Auto-detect min_len (ADR-0010, 9.87%) |
+| [T-DOC-1-citation-cff](tickets/T-DOC-1-citation-cff.md) | OPEN P3 | CITATION.cff + DOI |
+| [T-DOC-2-diataxis-naming](tickets/T-DOC-2-diataxis-naming.md) | OPEN P3 | mapeamento docs Diataxis |
+| [T-CLEAN-1-pre-commit-hooks](tickets/T-CLEAN-1-pre-commit-hooks.md) | OPEN P3 | pre-commit hooks |
 
 ---
 
@@ -225,40 +239,36 @@ TCF/
 
 ## Proximas direcoes (ordenado por prioridade)
 
-### Prioridade alta (ciclo Perf phase 2)
+### Prioridade alta (caminho feliz pos-H-DA-11)
 
-1. **EXP-014b — lineitem full 60175 real** (~18.5min estimado pos-ADR-0009).
-   Confirma extrapolacao quadratica. Sem riscos: pipeline ja' validado.
-2. **H-PERF-04 trigrama de meio** — datas TPC-H (l_shipdate/commit/receipt)
-   so' tiveram 2x speedup; buckets `199/200/202` dispersam mal.
-   Esperado: 5x+ adicional nessas colunas.
-3. **H-PERF-05 HCC `_detect_compositions`** — gargalo dominante apos
-   OBAT-opt (24% antes → ~40% relativo). Sub-exp profile + prototipos.
+1. **H-DA-11c consolidar pre-pass features** — unificar `detect_cadence`
+   (ADR-0008, regra numeric+card) + `detect_min_len` (ADR-0010, heur v3)
+   em pre-pass unico `analyze_column(values) → ColumnFeatures`. Reduz
+   duplicacao + prepara terreno pra T02-T07. Medio risco/medio valor.
+2. **H-DA-07 revalidacao real-world** — categoria B unica nao revalidada
+   em T-REVAL. OBAT shape-preserve "confirmada-condicional" sem
+   evidencia real-world. Baixo risco.
 
 ### Prioridade media (decisao pendente)
 
-4. **Pacote 2 (escape deduction H-ED-01..04)** — adiado desde 2026-05-17.
-   Ortogonal ao Pacote 4. Decisao: priorizar agora ou aguardar Pacote 4
-   fechar.
-5. **H-DA-09c/d/e** — refino threshold/multivariada/adaptativo do
+3. **H-PERF-05d counter incremental HCC** — unico zero-risk de alto
+   potencial no Pacote 4 ainda aberto (~50-70% HCC perf). Implementacao
+   complexa (state entre iters).
+4. **H-DA-09c/d/e** — refino threshold/multivariada/adaptativo do
    auto-pre detect_cadence. Decorrentes do Pacote 1.
-6. **H-PERF-06 Cython/Rust port** — adiar ate' Python opt esgotar
+5. **H-PERF-06 Cython/Rust port** — adiar ate' Python opt esgotar
    (alto overhead, integrar build system).
 
 ### Prioridade baixa (adiados explicitamente)
 
-7. **META-TYPE-ENCODERS T02-T07** — outras naturezas (templated,
-   enumerated, checked, etc.). Aguardando 2-3 naturezas validadas
-   end-to-end.
-8. **Track 2 L01-L05** — estudos de camada algoritmo (token-level,
+6. **META-TYPE-ENCODERS T02-T07** — outras naturezas (templated,
+   enumerated, checked, etc.). Criterio reabertura: real-world onde
+   Pacote 1 + ADR-0008 + ADR-0010 nao bastem. Atual: ADR-0010 acabou de
+   aumentar cobertura — criterio MENOS satisfeito.
+7. **Track 2 L01-L05** — estudos de camada algoritmo (token-level,
    slot detection, markers tipados, tree-balance, pre-filter).
-
-### Conceitual / revisao
-
-9. **Revisao conceitual** das hipoteses `confirmada-empirica` —
-   datasets sinteticos vs real-world. Atualmente: real-world validado
-   so' em Adult Census (5k rows) + TPC-H (5k rows lineitem); generalizacao
-   pra outros perfis nao testada.
+8. **T-DOC/T-CLEAN abertos** (P3) — CITATION.cff, mapeamento Diataxis,
+   pre-commit hooks. Aderencia metodologica.
 
 ---
 

@@ -1,7 +1,7 @@
 ---
 title: T-EXP-H-DA-11 — Auto-detect min_len otimo por coluna
 status: closed
-resolution: confirmed-welding-candidate
+resolution: canonical-welded
 priority: P2
 created: 2026-05-21
 updated: 2026-05-22
@@ -12,6 +12,7 @@ related:
   - experiments/lab/dirty/2026-05-21-revalidacao-categoria-B/03-h-da-10-min-len-realworld/
   - experiments/lab/dirty/2026-05-21-h-da-11-auto-min-len/
   - experiments/lab/dirty/notas/roadmap-hipoteses.md
+  - docs/adr/0010-auto-detect-min-len.md
   - docs/adr/0008-detect-cadence-numeric-high-cardinality.md
 ---
 
@@ -186,3 +187,25 @@ deve atingir proximo de 9.87%.
 
 **Status**: closed-prototype-confirmed. Welding canonical pendente
 aprovacao explicita do owner.
+
+### 2026-05-22 — CANONICAL WELDED
+
+Owner aprovou welding canonical explicitamente. Implementado:
+- `src/tcf/auto_min_len.py` (novo modulo canonical)
+- `src/tcf/encoder.py` (encode() chama detect_min_len)
+
+**Validacao canonical** (sub-exp 05):
+- **D1-D9 M9 baseline EXATO**: 1615B preservado (zero regressao)
+- **RT 100% D1-D9**: 9/9
+- **Adult+TPC-H ganho 9.87% weighted**: 99,501B em 1,008,003B
+- **RT 100% real-world**: 57/57
+
+Top wins canonical: l_comment -29,647B (-18.18%), fnlwgt -22,238B
+(-36.78%), l_extendedprice -20,038B (-28.05%), dates -3,800/5,000B
+cada, c_phone -4,149B (-12.26%), c_acctbal -2,668B (-15.40%).
+
+Ganho canonical (9.87%) > prototype EXP-010 (5.42%) porque baseline
+canonical (M8A puro) tem mais margem que prototype (que ja' tinha HCC
+seq-RLE + auto-cadence comprimindo parte).
+
+**Resolution final**: canonical-welded. H-DA-11 totalmente fechada.
