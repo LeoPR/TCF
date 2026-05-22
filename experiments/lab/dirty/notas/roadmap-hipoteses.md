@@ -110,7 +110,7 @@ Foco: redutir bytes quando ha' cadencia regular detectavel
 | H-PERF-06 | Cython/Rust port de `lcp_len`/`lcs_len` corta Python overhead | aberta | nao testada | 29M chamadas em lineitem 5k, ~1.7us/chamada. Compilado podia cortar 50%+. |
 | H-DA-09d | Heuristica multivariada (lengths + LCP+LCS + variance) | aberta — decorrente sub-exp 09 | nao testada | — |
 | H-DA-09e | Re-avaliar heuristica a cada N strings (adaptativo) | aberta — decorrente sub-exp 09 | nao testada | — |
-| H-DA-11 | Auto-detect de min_len otimo por coluna pode capturar ~10% ganho weighted real-world | **aberta** (decorrente revalidacao H-DA-10 2026-05-21) | candidata futura | Padrao observado: strings longas (comments, fnlwgt) preferem ml=6; medias (phone, acctbal) ml=5; IDs ml=4. Heuristica precisaria considerar avg_len + cardinalidade |
+| H-DA-11 | Auto-detect de min_len otimo por coluna pode capturar ~10% ganho weighted real-world | **CONFIRMADA real-world (candidato welding)** — heur v3 captura **9.87% weighted = 99.5% do oracle 9.92%** | `2026-05-21-h-da-11-auto-min-len/02-heuristica-v1/result.md` | Confianca: **Alta**. Regra: card<0.2 →3; avg>=25 →6; avg>=8 +card>=0.4 →6; avg>=5 +num +card>=0.8 →6; avg>=12 +card>=0.7 →5; avg>=3 +card>=0.2 →4. Apenas 1 regressao (D9 sint +16B). Candidato a ADR-0010 |
 | H-DA-10 | min_len trade-off existe e pode ser ajustado por dataset | **CONFIRMADA real-world** (9.92% weighted gain em 14 colunas reais Adult+TPC-H; ate -36.78% em fnlwgt; -28% em l_extendedprice) | `08-min-len-trade-off/result.md` + `2026-05-21-revalidacao-categoria-B/03-h-da-10-min-len-realworld/result.md` | Confianca: **Alta** (real-world testado). Generalizou MELHOR que sintetico. Default min_len=3 nao otimo. Hipotese decorrente: H-DA-11 (auto-detect min_len por coluna) |
 
 ## Observacoes empiricas (NAO hipoteses — pendentes de teste conceitual)
@@ -215,7 +215,15 @@ prototipo clean (`experiments/lab/clean/EXP-XXX-*`) e' pra testar
 Atualizar quando: hipotese confirmada/refutada/movida-de-status, OU
 nova hipotese identificada.
 
-**Ultima atualizacao**: 2026-05-21 — revalidacao categoria B
+**Ultima atualizacao**: 2026-05-22 — H-DA-11 confirmada-empirica
+real-world (lab `2026-05-21-h-da-11-auto-min-len/`, ticket T-EXP-H-DA-11):
+- Heuristica v3 (decision tree shallow em avg_len + cardinality + is_numeric)
+  captura **9.87% weighted = 99.5% do oracle** (best per column = 9.92%)
+- Apenas 1 regressao (D9 sint +16B). 5 regressoes em v2 foram corrigidas em v3.
+- **Candidato a welding (ADR-0010)** — proximo passo: implementar
+  `detect_min_len` em src/tcf/encoder.py + revalidacao multi-camada
+
+**Atualizacao anterior**: 2026-05-21 — revalidacao categoria B
 (lab `2026-05-21-revalidacao-categoria-B/`, ticket T-REVAL-H-DA-01-06-10):
 - **H-DA-06** → `subsumida em H-DA-09b-v2` (cobertura 87.5% real-world)
 - **H-DA-01** → `confirmada-empirica-marginal` (1.36% real-world vs 22.23% sint; 16.3x reducao)

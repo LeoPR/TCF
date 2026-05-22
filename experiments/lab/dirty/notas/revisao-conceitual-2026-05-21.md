@@ -296,10 +296,11 @@ Solucao: gating condicional via auto-detect (ja' feito em EXP-010).
 2. ✅ Sub-exps 01-03 executados
 3. ✅ Roadmap-hipoteses.md atualizado com status final
 4. ✅ Esta revisao atualizada com resultados
-5. **Pendente**: avaliar criacao de sub-exp pra H-DA-11 (auto-detect
-   min_len) — potencial ~10% ganho real-world weighted
-6. **Pendente**: avaliar H-DA-07 (categoria B nao revalidada nesta rodada)
-   se houver tempo
+5. ✅ **H-DA-11 executada (2026-05-22, ticket T-EXP-H-DA-11)**:
+   heuristica v3 (decision tree shallow) captura **9.87% weighted =
+   99.5% do oracle**. Candidato welding ADR-0010.
+6. **Pendente**: ADR-0010 + welding H-DA-11 em src/tcf/encoder.py
+7. **Pendente**: avaliar H-DA-07 (categoria B nao revalidada)
 
 ## See also
 
