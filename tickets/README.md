@@ -38,6 +38,7 @@ referencias a commits que o resolveram.
 | [T-EXP-NATUREZAS-RARAS-EXPLORACAO](T-EXP-NATUREZAS-RARAS-EXPLORACAO.md) | Exploracao naturezas #5 (range) e #8 (suffix arredondamento) em Adult+TPC-H. #8 -4.45% weighted (M10 ja' captura via dedup). #5 +1.08% marginal. 3 cols com potencial isolado (l_quantity, l_linenumber, age) mas peso baixo. Padroes financeiros reais precisariam dataset dedicado. | **CLOSED-NO-GO-PADROES-RAROS-EM-DATASETS-GERAIS 2026-05-23** |
 | [T-CI-1-github-actions](T-CI-1-github-actions.md) | Workflow .github/workflows/ci.yml (lint via pre-commit). Tests job ativado em T-CI-2 (mesma data). Badge CI no README. | **CLOSED 2026-05-23 (Fase 1+2)** |
 | [T-CI-2-tests-refactor](T-CI-2-tests-refactor.md) | Refactor tests CI-friendly: archive 5 v0.5 broken pra _archive_v05/, marker requires_data, 31 tests novos test_core_rt.py (M10 baseline 1523B + edge cases + Pacote 3 fix). CI ativado matrix py 3.10/3.11/3.12. | **CLOSED-REFACTOR-COMPLETED 2026-05-23** |
+| [T-DATA-1-datasets-financeiros-cientificos](T-DATA-1-datasets-financeiros-cientificos.md) | Scripts setup pra 3 datasets UCI/OpenML canonicos: Online Retail (~45MB, padroes .99 #8), Beijing PM2.5 (~2MB, range narrow PRES #5), Wine Quality (~100KB, decimais cientificos). READMEs + metadata. Download pendente owner. | **OPEN 2026-05-23 (scripts criados, download pendente)** |
 
 ## Politica
 

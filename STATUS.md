@@ -158,6 +158,17 @@ Adult+TPC-H (ganho 11.73% weighted vs M9 puro, 889,714B em 57 cols).
   - **4a refutacao da sessao** (5 contando T-EXP-H-DA-09c)
   - Padroes financeiros reais precisariam dataset dedicado (defer)
 
+- **2026-05-23 T-DATA-1**: OPEN (scripts criados, download pendente owner)
+  - 3 datasets UCI canonicos planejados:
+    - Online Retail (~45MB, UnitPrice .99/.95/.50 = #8 arredondamento)
+    - Beijing PM2.5 (~2MB, PRES 991-1046 = #5 range narrow)
+    - Wine Quality (~100KB, density/pH decimais cientificos)
+  - Scripts setup criados: setup_wine_quality.py, setup_beijing_pm25.py,
+    setup_online_retail.py (padrao similar a setup_adult.py)
+  - READMEs + metadata.json em datasets/canonical/{name}/
+  - Owner roda localmente: `pip install -e ".[datasets]"` + `python scripts/setup_*.py`
+  - Futuro T-EXP-NATUREZAS-RARAS-V2 re-testa #5/#8 com novos datasets
+
 - **2026-05-23 T-CI-1 + T-CI-2**: CLOSED (CI completo em uma rodada)
   - **T-CI-1**: .github/workflows/ci.yml com job lint (pre-commit)
   - **T-CI-2**: refactor tests + job test ativado
@@ -205,6 +216,7 @@ Adult+TPC-H (ganho 11.73% weighted vs M9 puro, 889,714B em 57 cols).
 | **T-EXP-NATUREZAS-RARAS** | Naturezas #5 (range) #8 (suffix) | CLOSED-NO-GO 2026-05-23 | M10 ja' captura suffix categorico; range marginal +1.08% weighted |
 | **T-CI-1** | GitHub Actions CI Fase 1 | CLOSED 2026-05-23 | workflow ci.yml lint + test ativado (matrix py 3.10/3.11/3.12) |
 | **T-CI-2** | Tests refactor CI-friendly | CLOSED 2026-05-23 | 5 v0.5 archived; 31 RT tests novos; marker requires_data |
+| **T-DATA-1** | 3 datasets UCI/OpenML canonicos | OPEN 2026-05-23 (scripts criados) | online-retail, beijing-pm25, wine-quality; download pendente |
 
 ### Pacotes registrados, nao iniciados
 
@@ -284,6 +296,7 @@ nao guia de evolucao (cf. diretriz dados-realistas).
 | [T-EXP-NATUREZAS-RARAS-EXPLORACAO](tickets/T-EXP-NATUREZAS-RARAS-EXPLORACAO.md) | **CLOSED-NO-GO** | naturezas #5/#8 raras em datasets gerais |
 | [T-CI-1-github-actions](tickets/T-CI-1-github-actions.md) | **CLOSED 2026-05-23 (Fase 1+2)** | workflow CI completo (lint + test matrix) |
 | [T-CI-2-tests-refactor](tickets/T-CI-2-tests-refactor.md) | **CLOSED 2026-05-23** | 5 v0.5 archived; 31 tests novos CI-friendly |
+| [T-DATA-1-datasets-financeiros-cientificos](tickets/T-DATA-1-datasets-financeiros-cientificos.md) | **OPEN 2026-05-23 (scripts criados)** | 3 datasets UCI/OpenML, download pendente |
 
 ---
 
