@@ -149,6 +149,15 @@ Adult+TPC-H (ganho 11.73% weighted vs M9 puro, 889,714B em 57 cols).
     basicos + custom no-cache-dirs); pyproject.toml + README dev setup;
     `pre-commit install` pending owner
 
+- **2026-05-23 T-EXP-NATUREZAS-RARAS**: CLOSED-NO-GO
+  - Exploracao naturezas #5 (range narrow) e #8 (suffix/arredondamento)
+  - #8 Suffix: -4.45% weighted (regressao — M10 ja' captura categoricas
+    via dedup)
+  - #5 Range: +1.08% marginal (3 cols com potencial isolado: l_quantity,
+    l_linenumber, age — peso baixo no agregado)
+  - **4a refutacao da sessao** (5 contando T-EXP-H-DA-09c)
+  - Padroes financeiros reais precisariam dataset dedicado (defer)
+
 **Pacote 4 — Perf OBAT/HCC** (fechado 2026-05-20):
 - H-PERF-02 WELDED (ADR-0009) — hash trigrama, alpha 1.75→1.42
 - H-PERF-04/05/06 ADIADOS (Patricia trie, counter incremental, Cython)
@@ -181,6 +190,7 @@ Adult+TPC-H (ganho 11.73% weighted vs M9 puro, 889,714B em 57 cols).
 | **T-DOC-1** | CITATION.cff | CLOSED 2026-05-23 | criado v0.6 MIT; DOI Zenodo defer |
 | **T-DOC-2** | Diataxis naming local | CLOSED 2026-05-23 | ADR-0012 criado |
 | **T-CLEAN-1** | Pre-commit hooks | CLOSED 2026-05-23 | config criado; install pending owner |
+| **T-EXP-NATUREZAS-RARAS** | Naturezas #5 (range) #8 (suffix) | CLOSED-NO-GO 2026-05-23 | M10 ja' captura suffix categorico; range marginal +1.08% weighted |
 
 ### Pacotes registrados, nao iniciados
 
@@ -257,6 +267,7 @@ nao guia de evolucao (cf. diretriz dados-realistas).
 | [T-DOC-1-citation-cff](tickets/T-DOC-1-citation-cff.md) | **CLOSED 2026-05-23** | CITATION.cff (v0.6, DOI defer) |
 | [T-DOC-2-diataxis-naming](tickets/T-DOC-2-diataxis-naming.md) | **CLOSED 2026-05-23** | ADR-0012 Diataxis local |
 | [T-CLEAN-1-pre-commit-hooks](tickets/T-CLEAN-1-pre-commit-hooks.md) | **CLOSED 2026-05-23** | .pre-commit-config.yaml |
+| [T-EXP-NATUREZAS-RARAS-EXPLORACAO](tickets/T-EXP-NATUREZAS-RARAS-EXPLORACAO.md) | **CLOSED-NO-GO** | naturezas #5/#8 raras em datasets gerais |
 
 ---
 
@@ -347,8 +358,10 @@ TCF/
 6. ~~**T-DOC-1/2 + T-CLEAN-1**~~ (FEITO 2026-05-23: CITATION.cff,
    ADR-0012, .pre-commit-config.yaml)
 7. **H-PERF-06 Cython/Rust port** — adiado, requer build system
-8. **Naturezas raras dataset-dependentes** (#5 range, #8 arredondamento) —
-   sem dataset adequado disponivel para teste
+8. ~~**Naturezas raras** (#5 range, #8 arredondamento)~~ (TESTADO
+   2026-05-23: NO-GO em datasets gerais; #8 -4.45%, #5 +1.08%)
+9. **Multi-column scaling** — EXP-011 base, expansao futura
+10. **CI** — GitHub Actions com pre-commit + tests
 
 ### Prioridade media (decisao pendente)
 

@@ -35,6 +35,7 @@ referencias a commits que o resolveram.
 | [T-DOC-1-citation-cff](T-DOC-1-citation-cff.md) | CITATION.cff criado com Leonardo Marques Souza, v0.6, MIT, github.com/LeoPR/TCF. README "How to cite" adicionado. DOI Zenodo defer ate' v1.0/paper. | **CLOSED-CITATION-CFF-CREATED-DOI-DEFERRED 2026-05-23** |
 | [T-DOC-2-diataxis-naming](T-DOC-2-diataxis-naming.md) | ADR-0012 criado documentando mapeamento docs/algorithms→reference, docs/theory→explanation. Tutorials defer ate' 1o tutorial real. MAP.md atualizado. | **CLOSED-ADR-0012-CREATED 2026-05-23** |
 | [T-CLEAN-1-pre-commit-hooks](T-CLEAN-1-pre-commit-hooks.md) | .pre-commit-config.yaml criado (ruff + detect-secrets + basicos + custom no-cache-dirs). pyproject.toml + README dev setup atualizados. `pre-commit install` pending owner. | **CLOSED-CONFIG-CREATED-INSTALL-PENDING 2026-05-23** |
+| [T-EXP-NATUREZAS-RARAS-EXPLORACAO](T-EXP-NATUREZAS-RARAS-EXPLORACAO.md) | Exploracao naturezas #5 (range) e #8 (suffix arredondamento) em Adult+TPC-H. #8 -4.45% weighted (M10 ja' captura via dedup). #5 +1.08% marginal. 3 cols com potencial isolado (l_quantity, l_linenumber, age) mas peso baixo. Padroes financeiros reais precisariam dataset dedicado. | **CLOSED-NO-GO-PADROES-RAROS-EM-DATASETS-GERAIS 2026-05-23** |
 
 ## Politica
 
