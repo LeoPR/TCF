@@ -133,6 +133,13 @@ Adult+TPC-H (ganho 11.73% weighted vs M9 puro, 889,714B em 57 cols).
   - Roadmap H-FIX-03 atualizado para WELDED; H-FIX-01 refutada
     (Opcao A perde pra B); H-FIX-02 N/A
 
+- **2026-05-23 T-EXP-H-DA-09c-d-e**: CLOSED-NO-GO-THRESHOLD-07-OTIMO
+  - Varreu threshold detect_cadence {0.5, 0.6, 0.7, 0.8} em 66 cols
+  - Thr 0.7 atual e' otimo (0.5/0.6 dao -3.06% regressao real-world)
+  - H-DA-09d (multivariada) + H-DA-09e (adaptativo) adiados
+  - **Consolidacao**: 3 refutacoes na sessao (Pacote 2, Pacote 5,
+    H-DA-09c) confirmam que TCF M10 esta bem calibrada
+
 **Pacote 4 — Perf OBAT/HCC** (fechado 2026-05-20):
 - H-PERF-02 WELDED (ADR-0009) — hash trigrama, alpha 1.75→1.42
 - H-PERF-04/05/06 ADIADOS (Patricia trie, counter incremental, Cython)
@@ -161,6 +168,7 @@ Adult+TPC-H (ganho 11.73% weighted vs M9 puro, 889,714B em 57 cols).
 | **T-EXP-H-PERF-05d** | Counter incremental HCC | CLOSED-VALIDATED-WITH-BYTE-DIVERGENCE 2026-05-23 | 37/41 byte-canonical OK; 4 datetime TPC-H divergem 0.08%; welding adiado |
 | **T-EXP-PACOTE5-T03-ENUMERATED** | Encoder enumerated explicito | CLOSED-NO-GO-M10-SUFICIENTE 2026-05-23 | M10 ja' captura via dedup+seq-RLE; encoder explicit PIOR em runs adjacentes |
 | **Pacote 3** (parser robustness, ADR-0007) | Fix bug `,` em literais (Opcao B separator) | **WELDED canonical** (welded 2026-05-19, ADR accepted 2026-05-23) | src/tcf/composicional/syntax.py:435-442 |
+| **T-EXP-H-DA-09c-d-e** | Tunar threshold detect_cadence | CLOSED-NO-GO 2026-05-23 | thr 0.7 ja' otimo; H-DA-09d/e adiados |
 
 ### Pacotes registrados, nao iniciados
 
@@ -320,10 +328,14 @@ TCF/
    validated-with-byte-divergence; welding adiado)
 3. ~~**Pacote 5 T03 enumerated**~~ (TESTADO 2026-05-23: NO-GO,
    M10 ja' captura via dedup+seq-RLE)
-4. **H-DA-09c/d/e** refinos detect_cadence (threshold/multivariada/adaptativo)
+4. ~~**H-DA-09c/d/e** refinos detect_cadence~~ (TESTADO 2026-05-23:
+   NO-GO, thr 0.7 ja' otimo; 09d/e adiados)
 5. ~~**H-FIX-01/02/03** Pacote 3 parser robustness~~ (FEITO 2026-05-23:
    ADR-0007 ACCEPTED + WELDED, H-FIX-03 win via Opcao B separator)
 6. **T-DOC-1/2 + T-CLEAN-1** (aderencia metodologica P3)
+7. **H-PERF-06 Cython/Rust port** — adiado, requer build system
+8. **Naturezas raras dataset-dependentes** (#5 range, #8 arredondamento) —
+   sem dataset adequado disponivel para teste
 
 ### Prioridade media (decisao pendente)
 
