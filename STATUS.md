@@ -112,8 +112,17 @@ Adult+TPC-H (ganho 11.73% weighted vs M9 puro, 889,714B em 57 cols).
 - **2026-05-23 Reflexao naturezas numericas**:
   - Nota `notas/naturezas-numericas-2026-05-23.md` cataloga ~12 naturezas
   - 4 ja' welded (incremento, cadencia, alta-card numerica, comprimento)
-  - Proximo candidato: **#7 enumerated** (Pacote 5) — l_discount,
-    l_returnflag, l_linestatus TPC-H
+  - Pacote 5 (enumerated) testado e refutado em sub-exp
+
+- **2026-05-23 T-EXP-PACOTE5-T03-ENUMERATED**: CLOSED-NO-GO-M10-SUFICIENTE
+  - Caracterizacao 37 low-card cols (Adult + TPC-H)
+  - M10 ja' captura via dedup + seq-RLE eficientemente
+  - Encoder explicit seria PIOR em runs adjacentes (l_linestatus -141%)
+  - So' ganharia em valores LONGOS sem runs (c_mktsegment +30%)
+  - Weighted total real-world: -2.28% (regressao)
+  - **Aprendizado meta**: M10 e' encoder enumerated implicito eficiente
+  - **Anti-incidente**: hipotese promissora conceitualmente refutada
+    em medicao empirica (mesmo padrao Pacote 2)
 
 **Pacote 4 — Perf OBAT/HCC** (fechado 2026-05-20):
 - H-PERF-02 WELDED (ADR-0009) — hash trigrama, alpha 1.75→1.42
@@ -141,6 +150,7 @@ Adult+TPC-H (ganho 11.73% weighted vs M9 puro, 889,714B em 57 cols).
 | **T-CODE-PACOTE1-WELD-CANONICAL** | Pipeline delta-aware completo canonical (M9 → M10) | **CLOSED 2026-05-22** | **ADR-0011: auto_cadence + obat_shape + hcc_seqrle + encoder/decoder modificados** (11.73% real-world) |
 | **T-REVAL-H-DA-07** | Shape-preserve gating em real-world | CLOSED-CONFIRMED 2026-05-22 | gating preserva 62/66 cols neutras; 2 wins (c_name -98%, D9 -48%), 2 losses pequenas |
 | **T-EXP-H-PERF-05d** | Counter incremental HCC | CLOSED-VALIDATED-WITH-BYTE-DIVERGENCE 2026-05-23 | 37/41 byte-canonical OK; 4 datetime TPC-H divergem 0.08%; welding adiado |
+| **T-EXP-PACOTE5-T03-ENUMERATED** | Encoder enumerated explicito | CLOSED-NO-GO-M10-SUFICIENTE 2026-05-23 | M10 ja' captura via dedup+seq-RLE; encoder explicit PIOR em runs adjacentes |
 
 ### Pacotes registrados, nao iniciados
 
@@ -213,6 +223,7 @@ nao guia de evolucao (cf. diretriz dados-realistas).
 | [T-CODE-PACOTE1-WELD-CANONICAL](tickets/T-CODE-PACOTE1-WELD-CANONICAL.md) | **CLOSED 2026-05-22** | Pacote 1 canonical (ADR-0011, M9 → M10, 11.73% real-world) |
 | [T-REVAL-H-DA-07](tickets/T-REVAL-H-DA-07.md) | **CLOSED-CONFIRMED-REAL-WORLD** | Shape-preserve gating valida em real-world |
 | [T-EXP-H-PERF-05d](tickets/T-EXP-H-PERF-05d.md) | **CLOSED-VALIDATED-WITH-BYTE-DIVERGENCE** | Counter incremental HCC (welding adiado) |
+| [T-EXP-PACOTE5-T03-ENUMERATED](tickets/T-EXP-PACOTE5-T03-ENUMERATED.md) | **CLOSED-NO-GO-M10-SUFICIENTE** | Encoder enumerated explicit refutado (M10 ja' captura) |
 | [T-DOC-1-citation-cff](tickets/T-DOC-1-citation-cff.md) | OPEN P3 | CITATION.cff + DOI |
 | [T-DOC-2-diataxis-naming](tickets/T-DOC-2-diataxis-naming.md) | OPEN P3 | mapeamento docs Diataxis |
 | [T-CLEAN-1-pre-commit-hooks](tickets/T-CLEAN-1-pre-commit-hooks.md) | OPEN P3 | pre-commit hooks |
@@ -297,11 +308,12 @@ TCF/
    T-REVAL-H-DA-07: CONFIRMADA)
 2. ~~**H-PERF-05d counter incremental HCC**~~ (FEITO 2026-05-23,
    validated-with-byte-divergence; welding adiado)
-3. **Pacote 5 candidato — T03 enumerated** (natureza #7):
-   detect_enumerated heuristica + dict inline pra colunas low-card
-   numericas (l_discount, l_returnflag, l_linestatus TPC-H). Estimativa
-   ganho 5-15% real-world adicional. Reabrir META-TYPE-ENCODERS.
-   Ver `notas/naturezas-numericas-2026-05-23.md`.
+3. ~~**Pacote 5 T03 enumerated**~~ (TESTADO 2026-05-23: NO-GO,
+   M10 ja' captura via dedup+seq-RLE)
+4. **H-DA-09c/d/e** refinos detect_cadence (threshold/multivariada/adaptativo)
+5. **H-FIX-01/02/03** Pacote 3 parser robustness (bug `,` em literais,
+   aberto desde 2026-05-18)
+6. **T-DOC-1/2 + T-CLEAN-1** (aderencia metodologica P3)
 
 ### Prioridade media (decisao pendente)
 

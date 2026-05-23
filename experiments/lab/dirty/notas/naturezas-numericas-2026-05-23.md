@@ -160,11 +160,57 @@ Cobertura atualizada (apos welding Pacote 1):
 
 ## Proximo passo concreto sugerido
 
-**Sub-exp exploratorio: T03 enumerated em real-world**
-- Identificar colunas com card < 0.05 em Adult+TPC-H
-- Medir ganho potencial de enumerated explicit (dict inline)
-- Comparar com cobertura atual M10 (dedup + RLE)
-- Se ganho >= 5% real-world weighted: reabrir META-TYPE-ENCODERS T03
+~~**Sub-exp exploratorio: T03 enumerated em real-world**~~
+**TESTADO 2026-05-23 — NO-GO**
+
+Ver `experiments/lab/dirty/2026-05-23-pacote5-t03-enumerated/01-caracterizacao/`.
+
+**Resultado**: M10 ja' captura enumerated implicitamente via dedup +
+HCCSeqRLE. Encoder explicit seria PIOR em low-card com runs adjacentes:
+- l_linestatus M10=4137B vs enum LB=10002B → M10 -141.77% MELHOR
+- l_returnflag M10=8075B vs enum=10004B → M10 -23.89%
+- adult class M10=8229B vs enum=10009B → M10 -21.63%
+
+Enum so' ganha em valores LONGOS sem runs:
+- c_mktsegment (5 valores, ~12 chars): +30.20%
+- adult relationship (6 valores, "Husband" etc.): +27.18%
+
+Weighted real-world total: **-2.28%** (regressao se forcar enum).
+
+**Aprendizado meta** (mesmo padrao Pacote 2 escape deduction):
+- Hipotese promissora conceitualmente pode refutar em medicao empirica
+- TCF M10 (dedup + seq-RLE + auto-min_len + auto-cadence) e' mais
+  robusto que aparenta — cobre naturezas implicitamente
+
+## Atualizacao categorizacao (pos-medicao)
+
+Re-classifico natureza #7 (enumerated) como **JA COBERTA implicitamente
+via M10**, nao "parcialmente coberta":
+
+| # | Natureza | Status atualizado |
+|---|---|---|
+| 7 | **Classes/enumerated** | **JA COBERTA via dedup + seq-RLE (M10)**. Encoder explicit refutado em medicao 2026-05-23. |
+
+## Naturezas remanescentes (candidatos futuros)
+
+Pos-Pacote 5 refutado, candidatos com potencial real-world incerto:
+
+- **#5 Range constante** (sub-natureza incremento): IDs em range
+  estreito poderiam comprimir mais com "base + N local", mas OBAT
+  prefix ja' captura parcialmente. Medicao necessaria.
+- **#8 Arredondamento implicito**: precos varejo, percentuais. Dataset-
+  dependente. Sem dataset financeiro real-world disponivel para teste.
+- **#9 Deducao por contexto**: muito complexo (relacoes inter-linhas),
+  ganho incerto.
+
+**Hipotese geral**: M10 esta proximo do otimo pra naturezas COMUNS
+em real-world tabular. Ganhos adicionais provaveis vêm de:
+1. **Performance** (H-PERF-05d adiado, H-PERF-06 Cython)
+2. **Naturezas raras** dataset-dependentes (financeiro/cientifico)
+3. **Refinos de heuristica** existentes (H-DA-09c/d/e)
+
+Pacotes futuros podem focar mais em PERF + ROBUSTNESS que em
+COMPRESSAO adicional via novas naturezas.
 
 ## See also
 
