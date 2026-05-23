@@ -101,6 +101,20 @@ Adult+TPC-H (ganho 11.73% weighted vs M9 puro, 889,714B em 57 cols).
   - Real-world weighted: -0.46% (ganho marginal)
   - Categoria B residual fechada
 
+- **2026-05-23 T-EXP-H-PERF-05d**: CLOSED-VALIDATED-WITH-BYTE-DIVERGENCE
+  - Fase 1 profile GO (rebuild=46% _dc, 0.3% lines/iter)
+  - Fase 2 prototype IncrementalSyntax: 37/41 byte-canonical OK
+  - 4 divergencias em datetime TPC-H (+62B / 80kB = 0.08%)
+  - Causa: ordem Counter difere (rebuild vs incremental)
+  - Welding adiado (fix byte-canonical complexo OU aceitar M11)
+  - Pacote 4 permanece fechado-parcial; ADR-0009 OBAT continua win principal
+
+- **2026-05-23 Reflexao naturezas numericas**:
+  - Nota `notas/naturezas-numericas-2026-05-23.md` cataloga ~12 naturezas
+  - 4 ja' welded (incremento, cadencia, alta-card numerica, comprimento)
+  - Proximo candidato: **#7 enumerated** (Pacote 5) — l_discount,
+    l_returnflag, l_linestatus TPC-H
+
 **Pacote 4 — Perf OBAT/HCC** (fechado 2026-05-20):
 - H-PERF-02 WELDED (ADR-0009) — hash trigrama, alpha 1.75→1.42
 - H-PERF-04/05/06 ADIADOS (Patricia trie, counter incremental, Cython)
@@ -126,6 +140,7 @@ Adult+TPC-H (ganho 11.73% weighted vs M9 puro, 889,714B em 57 cols).
 | **T-CODE-H-DA-11c** | ColumnFeatures unificado (refactor) | CLOSED 2026-05-22 | **src/tcf/column_features.py + refactor auto_min_len.py** (zero-risk) |
 | **T-CODE-PACOTE1-WELD-CANONICAL** | Pipeline delta-aware completo canonical (M9 → M10) | **CLOSED 2026-05-22** | **ADR-0011: auto_cadence + obat_shape + hcc_seqrle + encoder/decoder modificados** (11.73% real-world) |
 | **T-REVAL-H-DA-07** | Shape-preserve gating em real-world | CLOSED-CONFIRMED 2026-05-22 | gating preserva 62/66 cols neutras; 2 wins (c_name -98%, D9 -48%), 2 losses pequenas |
+| **T-EXP-H-PERF-05d** | Counter incremental HCC | CLOSED-VALIDATED-WITH-BYTE-DIVERGENCE 2026-05-23 | 37/41 byte-canonical OK; 4 datetime TPC-H divergem 0.08%; welding adiado |
 
 ### Pacotes registrados, nao iniciados
 
@@ -197,6 +212,7 @@ nao guia de evolucao (cf. diretriz dados-realistas).
 | [T-CODE-H-DA-11c](tickets/T-CODE-H-DA-11c-features-unificadas.md) | **CLOSED-REFACTOR-COMPLETED** | ColumnFeatures unificado (zero-risk) |
 | [T-CODE-PACOTE1-WELD-CANONICAL](tickets/T-CODE-PACOTE1-WELD-CANONICAL.md) | **CLOSED 2026-05-22** | Pacote 1 canonical (ADR-0011, M9 → M10, 11.73% real-world) |
 | [T-REVAL-H-DA-07](tickets/T-REVAL-H-DA-07.md) | **CLOSED-CONFIRMED-REAL-WORLD** | Shape-preserve gating valida em real-world |
+| [T-EXP-H-PERF-05d](tickets/T-EXP-H-PERF-05d.md) | **CLOSED-VALIDATED-WITH-BYTE-DIVERGENCE** | Counter incremental HCC (welding adiado) |
 | [T-DOC-1-citation-cff](tickets/T-DOC-1-citation-cff.md) | OPEN P3 | CITATION.cff + DOI |
 | [T-DOC-2-diataxis-naming](tickets/T-DOC-2-diataxis-naming.md) | OPEN P3 | mapeamento docs Diataxis |
 | [T-CLEAN-1-pre-commit-hooks](tickets/T-CLEAN-1-pre-commit-hooks.md) | OPEN P3 | pre-commit hooks |
@@ -279,9 +295,13 @@ TCF/
 
 1. ~~**H-DA-07 revalidacao real-world**~~ (FEITO 2026-05-22,
    T-REVAL-H-DA-07: CONFIRMADA)
-2. **H-PERF-05d counter incremental HCC** — unico zero-risk de alto
-   potencial no Pacote 4 ainda aberto (~50-70% HCC perf). Implementacao
-   complexa (state entre iters).
+2. ~~**H-PERF-05d counter incremental HCC**~~ (FEITO 2026-05-23,
+   validated-with-byte-divergence; welding adiado)
+3. **Pacote 5 candidato — T03 enumerated** (natureza #7):
+   detect_enumerated heuristica + dict inline pra colunas low-card
+   numericas (l_discount, l_returnflag, l_linestatus TPC-H). Estimativa
+   ganho 5-15% real-world adicional. Reabrir META-TYPE-ENCODERS.
+   Ver `notas/naturezas-numericas-2026-05-23.md`.
 
 ### Prioridade media (decisao pendente)
 

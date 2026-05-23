@@ -1,13 +1,16 @@
 ---
 title: T-EXP-H-PERF-05d — Counter incremental em HCC _detect_compositions
-status: open
+status: closed
+resolution: validated-with-byte-divergence-welding-adiado
 priority: P2
 created: 2026-05-22
-updated: 2026-05-22
+updated: 2026-05-23
+closed: 2026-05-23
 blocked-by: []
 related:
   - tickets/META-PERF-PHASE2.md
   - experiments/lab/dirty/2026-05-20-hcc-perf-optimization/
+  - experiments/lab/dirty/2026-05-22-h-perf-05d-counter-incremental/
   - experiments/lab/dirty/notas/roadmap-hipoteses.md
 ---
 
@@ -132,3 +135,56 @@ fechar.
 
 Fase 1 (profile) e' decisor — se Counter rebuild nao for dominante,
 encerrar lab.
+
+### 2026-05-22 — Fase 1 profile: GO confirmado
+
+Sub-exp 01 profile l_comment lineitem 5k:
+- encode_total: 7.9s
+- _detect_compositions: 91.8% do encode
+- rebuild_counter: 46.5% do _dc (3.4s) — TARGET PRINCIPAL
+- 99 iters (cap maximo)
+- lines_affected/iter: 16/4987 (**0.3%** — oportunidade dramatica)
+
+Veredito: GO pra Fase 2 (prototype incremental).
+
+### 2026-05-23 — Fase 2: validated-with-byte-divergence
+
+Sub-exp 02 implementou `IncrementalSyntax` (Counter incremental,
+sub_first_line + alias_first_line rebuilt). Bytes IDENTICOS em 37/41
+datasets/colunas.
+
+**4 divergencias** (todas em datetime columns TPC-H):
+- lineitem-1k/l_commitdate: -1 byte
+- lineitem-5k/l_shipdate: +32 bytes
+- lineitem-5k/l_commitdate: +8 bytes
+- lineitem-5k/l_receiptdate: +23 bytes
+
+Net divergencia: +62 bytes em ~80kB (0.08%).
+
+**Causa identificada**: ordem de iteracao do Counter difere entre
+canonical (rebuild from scratch a cada iter, ordem por linha) e
+incremental (novas subs entram no fim). Quando 2+ candidatos tem mesmo
+`net`, tie-break (`>` com primeiro inserido) escolhe sub diferente —
+divergencia acumula em colunas com muitos iters + muitos empates.
+
+**Tentativas de fix nao resolveram**:
+- Manter keys com count=0 (preserva ordem inicial): nao resolveu
+- Rebuild sub_first_line + alias_first_line full: nao resolveu
+
+**Decisao**: Fase 2 encerrada como
+`validated-with-byte-divergence-welding-adiado`.
+
+Welding canonical requereria:
+- (a) FIX byte-canonical: ordering custom (reinsert posicional)
+  — complexidade alta
+- (b) Aceitar como M11 baseline (divergencia 0.08%) — quebra invariant M10
+
+Ambos sao decisoes maiores. Fase 3 (medir speedup) nao executada —
+sem byte-canonical, comparacao perde valor pra welding.
+
+**Recomendacao**: adiar T-EXP-H-PERF-05d pra phase 3 dedicada. Pacote 4
+permanece fechado-parcial (OBAT ADR-0009 e' o win principal).
+Alternativas: Cython/Rust port (H-PERF-06), otimizacao build_candidates
+(28% do _dc).
+
+**Resolution**: validated-with-byte-divergence-welding-adiado.
