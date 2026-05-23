@@ -1,0 +1,31 @@
+cff-version: 1.2.0
+title: "TCF — Tabular Compact Format"
+message: "If you use this software, please cite it using these metadata."
+type: software
+authors:
+  - given-names: Leonardo
+    family-names: Marques Souza
+    email: leonardo.marques.souza@gmail.com
+version: "0.6"
+date-released: "2026-05-22"
+repository-code: "https://github.com/LeoPR/TCF"
+license: MIT
+abstract: >
+  TCF (Tabular Compact Format) is a textual compact format for tabular
+  string data, with a canonical 2-layer pipeline: OBAT (Online
+  Bidirectional Affix Tokenizer) tokenizes via LCP+LCS matching against
+  previous strings; HCC (Hierarchical Compositional Coding) provides
+  compositional compaction with `~`/`,` operators and auto-naming.
+  v0.6+ welds delta-aware pipeline (auto-cadence detection,
+  shape-preserving OBAT hint, HCC seq-RLE near-identical detection,
+  auto-detect min_len heuristic). Validated byte-canonical in 9
+  synthetic datasets (D1-D9, M10 baseline 1523B) and real-world (Adult
+  Census + TPC-H, ~11.7% weighted gain vs M9 baseline).
+keywords:
+  - tabular-data
+  - compression
+  - string-encoding
+  - affix-tokenizer
+  - compositional-coding
+  - lcp-lcs
+  - delta-aware

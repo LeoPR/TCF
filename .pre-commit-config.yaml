@@ -1,0 +1,54 @@
+# Pre-commit hooks — TCF
+# Setup: `pip install pre-commit && pre-commit install`
+# Run all files: `pre-commit run --all-files`
+#
+# Hooks rapidos (basicos + secrets + ruff lint). Pesados (full test
+# suite) ficam fora — rodados manualmente ou em CI futuro.
+
+repos:
+  # Hooks basicos (pre-commit oficial)
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: trailing-whitespace
+        exclude: '^(experiments/lab/dirty/.*|datasets/synthetic/.*)$'
+      - id: end-of-file-fixer
+        exclude: '^(experiments/lab/dirty/.*|datasets/synthetic/.*\.csv)$'
+      - id: check-merge-conflict
+      - id: check-added-large-files
+        args: ['--maxkb=2048']  # 2MB; datasets canonicos vivem em Z:
+      - id: check-yaml
+      - id: check-toml
+      - id: check-json
+      - id: mixed-line-ending
+        args: ['--fix=lf']
+
+  # Detect secrets (Yelp)
+  - repo: https://github.com/Yelp/detect-secrets
+    rev: v1.5.0
+    hooks:
+      - id: detect-secrets
+        args: ['--baseline', '.secrets.baseline']
+        exclude: '^(experiments/lab/dirty/.*|docs/findings/.*)$'
+
+  # Ruff lint + format (ja' instalado via pyproject futuro)
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.7.0
+    hooks:
+      - id: ruff
+        args: ['--fix']
+        # Aceita codigo experimental em dirty (apenas warnings, sem fail)
+        exclude: '^(experiments/lab/dirty/.*|old/.*)$'
+      - id: ruff-format
+        exclude: '^(experiments/lab/dirty/.*|old/.*)$'
+
+  # Custom: bloquear cache dirs acidentalmente staged
+  # (defesa em profundidade junto com .gitignore)
+  - repo: local
+    hooks:
+      - id: no-cache-dirs
+        name: Bloquear cache dirs staged
+        entry: bash -c 'if git diff --cached --name-only | grep -E "(__pycache__|\.pytest_cache|\.mypy_cache|\.ruff_cache)" >/dev/null; then echo "ERRO: cache dirs no staging"; exit 1; fi'
+        language: system
+        always_run: true
+        pass_filenames: false

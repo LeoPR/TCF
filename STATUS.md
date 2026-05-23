@@ -140,6 +140,15 @@ Adult+TPC-H (ganho 11.73% weighted vs M9 puro, 889,714B em 57 cols).
   - **Consolidacao**: 3 refutacoes na sessao (Pacote 2, Pacote 5,
     H-DA-09c) confirmam que TCF M10 esta bem calibrada
 
+- **2026-05-23 T-DOC-1/2 + T-CLEAN-1**: CLOSED (aderencia metodologica P3)
+  - **T-DOC-1**: CITATION.cff criado (v0.6, MIT); README "How to cite";
+    DOI Zenodo defer ate' v1.0/paper
+  - **T-DOC-2**: ADR-0012 criado documentando mapeamento Diataxis local
+    (docs/algorithms→reference, docs/theory→explanation); MAP.md atualizado
+  - **T-CLEAN-1**: .pre-commit-config.yaml criado (ruff + detect-secrets +
+    basicos + custom no-cache-dirs); pyproject.toml + README dev setup;
+    `pre-commit install` pending owner
+
 **Pacote 4 — Perf OBAT/HCC** (fechado 2026-05-20):
 - H-PERF-02 WELDED (ADR-0009) — hash trigrama, alpha 1.75→1.42
 - H-PERF-04/05/06 ADIADOS (Patricia trie, counter incremental, Cython)
@@ -169,6 +178,9 @@ Adult+TPC-H (ganho 11.73% weighted vs M9 puro, 889,714B em 57 cols).
 | **T-EXP-PACOTE5-T03-ENUMERATED** | Encoder enumerated explicito | CLOSED-NO-GO-M10-SUFICIENTE 2026-05-23 | M10 ja' captura via dedup+seq-RLE; encoder explicit PIOR em runs adjacentes |
 | **Pacote 3** (parser robustness, ADR-0007) | Fix bug `,` em literais (Opcao B separator) | **WELDED canonical** (welded 2026-05-19, ADR accepted 2026-05-23) | src/tcf/composicional/syntax.py:435-442 |
 | **T-EXP-H-DA-09c-d-e** | Tunar threshold detect_cadence | CLOSED-NO-GO 2026-05-23 | thr 0.7 ja' otimo; H-DA-09d/e adiados |
+| **T-DOC-1** | CITATION.cff | CLOSED 2026-05-23 | criado v0.6 MIT; DOI Zenodo defer |
+| **T-DOC-2** | Diataxis naming local | CLOSED 2026-05-23 | ADR-0012 criado |
+| **T-CLEAN-1** | Pre-commit hooks | CLOSED 2026-05-23 | config criado; install pending owner |
 
 ### Pacotes registrados, nao iniciados
 
@@ -242,9 +254,9 @@ nao guia de evolucao (cf. diretriz dados-realistas).
 | [T-REVAL-H-DA-07](tickets/T-REVAL-H-DA-07.md) | **CLOSED-CONFIRMED-REAL-WORLD** | Shape-preserve gating valida em real-world |
 | [T-EXP-H-PERF-05d](tickets/T-EXP-H-PERF-05d.md) | **CLOSED-VALIDATED-WITH-BYTE-DIVERGENCE** | Counter incremental HCC (welding adiado) |
 | [T-EXP-PACOTE5-T03-ENUMERATED](tickets/T-EXP-PACOTE5-T03-ENUMERATED.md) | **CLOSED-NO-GO-M10-SUFICIENTE** | Encoder enumerated explicit refutado (M10 ja' captura) |
-| [T-DOC-1-citation-cff](tickets/T-DOC-1-citation-cff.md) | OPEN P3 | CITATION.cff + DOI |
-| [T-DOC-2-diataxis-naming](tickets/T-DOC-2-diataxis-naming.md) | OPEN P3 | mapeamento docs Diataxis |
-| [T-CLEAN-1-pre-commit-hooks](tickets/T-CLEAN-1-pre-commit-hooks.md) | OPEN P3 | pre-commit hooks |
+| [T-DOC-1-citation-cff](tickets/T-DOC-1-citation-cff.md) | **CLOSED 2026-05-23** | CITATION.cff (v0.6, DOI defer) |
+| [T-DOC-2-diataxis-naming](tickets/T-DOC-2-diataxis-naming.md) | **CLOSED 2026-05-23** | ADR-0012 Diataxis local |
+| [T-CLEAN-1-pre-commit-hooks](tickets/T-CLEAN-1-pre-commit-hooks.md) | **CLOSED 2026-05-23** | .pre-commit-config.yaml |
 
 ---
 
@@ -332,7 +344,8 @@ TCF/
    NO-GO, thr 0.7 ja' otimo; 09d/e adiados)
 5. ~~**H-FIX-01/02/03** Pacote 3 parser robustness~~ (FEITO 2026-05-23:
    ADR-0007 ACCEPTED + WELDED, H-FIX-03 win via Opcao B separator)
-6. **T-DOC-1/2 + T-CLEAN-1** (aderencia metodologica P3)
+6. ~~**T-DOC-1/2 + T-CLEAN-1**~~ (FEITO 2026-05-23: CITATION.cff,
+   ADR-0012, .pre-commit-config.yaml)
 7. **H-PERF-06 Cython/Rust port** — adiado, requer build system
 8. **Naturezas raras dataset-dependentes** (#5 range, #8 arredondamento) —
    sem dataset adequado disponivel para teste

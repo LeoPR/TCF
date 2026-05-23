@@ -41,10 +41,11 @@ TCF/
 ├── Z:/tcf-data/ .......... DADOS GRANDES (fora do repo)
 │   └── interim/{adult-census,tpch-sf001}.db
 │
-├── docs/
-│   ├── algorithms/ ....... specs canonicos (OBAT, HCC, TCF-format)
+├── docs/                  # mapeamento Diataxis local (ver ADR-0012)
+│   ├── algorithms/ ....... specs canonicos (OBAT, HCC, TCF-format) [reference]
 │   ├── adr/ .............. Architecture Decision Records
-│   ├── theory/ ........... fundamentos teoricos
+│   ├── theory/ ........... fundamentos teoricos [explanation]
+│   ├── how-to/ ........... guias tarefa
 │   ├── vocabulary.md ..... termos controlados
 │   ├── findings/ ......... findings consolidados
 │   ├── workbench/ ........ research notes (algumas em _archive/)

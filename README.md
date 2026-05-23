@@ -41,6 +41,31 @@ vive em [`old/tcf/`](old/tcf/). NAO e' canonico no v0.6 — material
 de Phase 1 LLM Q01-Q38 em [`docs/findings/`](docs/findings/) e'
 referencia historica. Pode virar projeto a parte no futuro.
 
+## First-time setup (dev)
+
+```bash
+# Clone + install dev deps
+git clone https://github.com/LeoPR/TCF.git && cd TCF
+pip install -e ".[dev]"
+
+# (recomendado) instalar pre-commit hooks
+pre-commit install
+
+# Rodar hooks em todos arquivos (opcional, baseline)
+pre-commit run --all-files
+```
+
+Hooks configurados (ver [`.pre-commit-config.yaml`](.pre-commit-config.yaml)):
+- `ruff` lint + format
+- `detect-secrets` (scan)
+- basicos: trailing-whitespace, end-of-file-fixer, check-merge-conflict, check-added-large-files
+- custom: bloqueia cache dirs (`__pycache__/`, `.pytest_cache/`, etc.) acidentalmente staged
+
+## How to cite
+
+Ver [`CITATION.cff`](CITATION.cff). GitHub renderiza badge "Cite this
+repository" na pagina do repo automaticamente.
+
 ---
 
 ## (v0.5 historico) A compact text format for LLMs to reason over relational tables
