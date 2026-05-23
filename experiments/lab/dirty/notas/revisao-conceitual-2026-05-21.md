@@ -63,7 +63,7 @@ Resultados moveram cada uma pra categoria definitiva — ver
 |---|---|---|---|
 | **H-DA-01** | OBAT+HCC quase pronto (-22.2%) | D11a-h construidos | **MARGINAL** real-world (1.36%, 16.3x reducao); seletivamente potente em colunas com cadencia (-92% c_custkey) |
 | **H-DA-06** | Numericos delta IDs (-61%) | D16a-c criados | **SUBSUMIDA** em H-DA-09b-v2 (cobertura 87.5% real-world) — confirmacao do palpite |
-| **H-DA-07** | OBAT shape-preserve | D11+D16 sinteticos; +17% em D1-D9 (regressao!) | NAO revalidado nesta rodada — condicional ja' documentada via auto-pre detect_cadence |
+| **H-DA-07** | OBAT shape-preserve | D11+D16 sinteticos; +17% em D1-D9 (regressao!) | **CONFIRMADA real-world** (revalidada 2026-05-22, T-REVAL-H-DA-07): gating detect_cadence preserva 62/66 cols neutras; 2 wins (c_name -98%, D9 -48%), 2 losses pequenas |
 | **H-DA-10** | min_len trade-off | **N=3 datasets, N=4 valores** | **CONFIRMADA REAL-WORLD inesperadamente** — 9.92% weighted, ate -36.78% em fnlwgt. Mais robusto que predito |
 | H-PT-02 | Pre-tx tz-aware | D11j/k/m sinteticos | Histórico — pre-tx multi-pass foi superseded pelo Pacote 1. Sem acao necessaria |
 | H-PT-03 | Pre-tx unit normalization | D11f/g/h sinteticos | Idem H-PT-02 — historico |
@@ -287,8 +287,10 @@ Solucao: gating condicional via auto-detect (ja' feito em EXP-010).
 |---|---|---|
 | H-DA-01 | confirmada-empirica-marginal | A-revalidar (gating auto-detect) |
 | H-DA-06 | subsumida em H-DA-09b-v2 | Alta |
+| H-DA-07 | **confirmada-empirica real-world** (revalidada 2026-05-22) | **Alta** |
 | H-DA-10 | confirmada-empirica real-world | **Alta** |
-| H-DA-11 | aberta (decorrente) | — |
+| H-DA-11 | welded canonical src/tcf (ADR-0010) | **Alta** |
+| Pacote 1 | welded canonical src/tcf (ADR-0011, M9→M10) | **Alta** |
 
 ## Proximos passos
 
@@ -300,7 +302,11 @@ Solucao: gating condicional via auto-detect (ja' feito em EXP-010).
    heuristica v3 (decision tree shallow) captura **9.87% weighted =
    99.5% do oracle**. Candidato welding ADR-0010.
 6. **Pendente**: ADR-0010 + welding H-DA-11 em src/tcf/encoder.py
-7. **Pendente**: avaliar H-DA-07 (categoria B nao revalidada)
+7. ✅ **H-DA-07 revalidada (2026-05-22, T-REVAL-H-DA-07)**: confirmada
+   real-world (gating detect_cadence preserva 94% das cols neutras;
+   wins enormes em c_name e D9; losses pequenas)
+8. ✅ **Pacote 1 welded canonical (2026-05-22, ADR-0011)**: M9 → M10,
+   ganho real-world 11.73%, RT 100% em todas camadas
 
 ## See also
 

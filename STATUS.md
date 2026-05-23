@@ -94,6 +94,13 @@ Adult+TPC-H (ganho 11.73% weighted vs M9 puro, 889,714B em 57 cols).
   - **Real-world ganho 11.73% weighted** (vs M9 puro 1,008,003B → 889,714B)
   - RT 100%: 9/9 + 20/20 sint + 57/57 real-world
 
+- **2026-05-22 T-REVAL-H-DA-07**: CLOSED-CONFIRMED-REAL-WORLD
+  - Shape-preserve gating funciona: 62/66 cols sem mudanca
+  - 2 wins enormes: c_name -98.19%, D9 -48.03%
+  - 2 losses pequenas: l_extendedprice +0.65%, c_acctbal +0.20%
+  - Real-world weighted: -0.46% (ganho marginal)
+  - Categoria B residual fechada
+
 **Pacote 4 — Perf OBAT/HCC** (fechado 2026-05-20):
 - H-PERF-02 WELDED (ADR-0009) — hash trigrama, alpha 1.75→1.42
 - H-PERF-04/05/06 ADIADOS (Patricia trie, counter incremental, Cython)
@@ -118,6 +125,7 @@ Adult+TPC-H (ganho 11.73% weighted vs M9 puro, 889,714B em 57 cols).
 | **T-EXP-H-DA-11** | auto-detect min_len por coluna | **WELDED canonical** 2026-05-22 | **ADR-0010 em src/tcf/auto_min_len.py + src/tcf/encoder.py** (9.87% real-world) |
 | **T-CODE-H-DA-11c** | ColumnFeatures unificado (refactor) | CLOSED 2026-05-22 | **src/tcf/column_features.py + refactor auto_min_len.py** (zero-risk) |
 | **T-CODE-PACOTE1-WELD-CANONICAL** | Pipeline delta-aware completo canonical (M9 → M10) | **CLOSED 2026-05-22** | **ADR-0011: auto_cadence + obat_shape + hcc_seqrle + encoder/decoder modificados** (11.73% real-world) |
+| **T-REVAL-H-DA-07** | Shape-preserve gating em real-world | CLOSED-CONFIRMED 2026-05-22 | gating preserva 62/66 cols neutras; 2 wins (c_name -98%, D9 -48%), 2 losses pequenas |
 
 ### Pacotes registrados, nao iniciados
 
@@ -188,6 +196,7 @@ nao guia de evolucao (cf. diretriz dados-realistas).
 | [T-EXP-H-DA-11](tickets/T-EXP-H-DA-11.md) | **CLOSED-CANONICAL-WELDED** | Auto-detect min_len (ADR-0010, 9.87%) |
 | [T-CODE-H-DA-11c](tickets/T-CODE-H-DA-11c-features-unificadas.md) | **CLOSED-REFACTOR-COMPLETED** | ColumnFeatures unificado (zero-risk) |
 | [T-CODE-PACOTE1-WELD-CANONICAL](tickets/T-CODE-PACOTE1-WELD-CANONICAL.md) | **CLOSED 2026-05-22** | Pacote 1 canonical (ADR-0011, M9 → M10, 11.73% real-world) |
+| [T-REVAL-H-DA-07](tickets/T-REVAL-H-DA-07.md) | **CLOSED-CONFIRMED-REAL-WORLD** | Shape-preserve gating valida em real-world |
 | [T-DOC-1-citation-cff](tickets/T-DOC-1-citation-cff.md) | OPEN P3 | CITATION.cff + DOI |
 | [T-DOC-2-diataxis-naming](tickets/T-DOC-2-diataxis-naming.md) | OPEN P3 | mapeamento docs Diataxis |
 | [T-CLEAN-1-pre-commit-hooks](tickets/T-CLEAN-1-pre-commit-hooks.md) | OPEN P3 | pre-commit hooks |
@@ -268,10 +277,8 @@ TCF/
 
 ### Prioridade alta (caminho feliz)
 
-1. **H-DA-07 revalidacao real-world** — categoria B unica nao revalidada
-   em T-REVAL. OBAT shape-preserve "confirmada-condicional" sem
-   evidencia real-world. Agora com pipeline canonical M10, pode validar
-   se shape-preserve canonical generaliza bem. Baixo risco.
+1. ~~**H-DA-07 revalidacao real-world**~~ (FEITO 2026-05-22,
+   T-REVAL-H-DA-07: CONFIRMADA)
 2. **H-PERF-05d counter incremental HCC** — unico zero-risk de alto
    potencial no Pacote 4 ainda aberto (~50-70% HCC perf). Implementacao
    complexa (state entre iters).
