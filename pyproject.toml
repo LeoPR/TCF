@@ -36,6 +36,11 @@ all = [
 
 [tool.pytest.ini_options]
 cache_dir = "Z:\\caches\\pytest"
+testpaths = ["tests"]
+norecursedirs = ["_archive_v05", "fixtures"]
+markers = [
+    "requires_data: tests that need SQLite hubs in Z:/tcf-data/ (skipped in CI)",
+]
 
 [project.scripts]
 tcf = "tcf.cli:main"

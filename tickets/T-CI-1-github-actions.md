@@ -1,13 +1,17 @@
 ---
 title: T-CI-1 — GitHub Actions CI (pre-commit lint; tests refactor follow-up)
-status: open
+status: closed
+resolution: fase-1-completa-com-fase-2-em-t-ci-2
 priority: P3
 created: 2026-05-23
 updated: 2026-05-23
+closed: 2026-05-23
 blocked-by: []
 related:
   - tickets/T-CLEAN-1-pre-commit-hooks.md
+  - tickets/T-CI-2-tests-refactor.md
   - .pre-commit-config.yaml
+  - .github/workflows/ci.yml
   - tests/
 ---
 
@@ -82,3 +86,16 @@ Apos Fase 2, ativar job `test` no CI.
 Ticket criado seguindo convencao YAML frontmatter. Fase 1 (lint only)
 e' minimal viable CI; Fase 2 (tests) requer refactor de tests legados
 (separado em T-CI-2 futuro).
+
+### 2026-05-23 — Fase 1 completa + T-CI-2 imediato
+
+Fase 1 implementada (workflow .github/workflows/ci.yml com job lint).
+T-CI-2 (refactor tests) executado IMEDIATAMENTE no mesmo dia:
+- Tests v0.5 broken movidos pra tests/_archive_v05/
+- pytest markers (requires_data) configurados
+- 31 tests CI-friendly novos em test_core_rt.py
+- Job test ATIVADO no workflow (matrix py 3.10/3.11/3.12)
+
+Workflow CI agora completo: lint + test em PRs/push to main.
+
+Resolution: fase-1-completa-com-fase-2-em-t-ci-2.

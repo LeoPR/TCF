@@ -37,6 +37,28 @@ jobs:
         # do fix-up baseline antes de habilitar.
         continue-on-error: true
 
-  # test job adiado pra T-CI-2:
-  # tests/ atual tem imports v0.5 broken + dependencias Z:/tcf-data SQLite
-  # + fixtures missing. Refactor necessario antes de CI rodar pytest.
+  test:
+    name: Tests (py ${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ['3.10', '3.11', '3.12']
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: 'pip'
+
+      - name: Install package + dev deps
+        run: pip install -e ".[dev]"
+
+      - name: Run tests (skip requires_data)
+        run: pytest tests/ -m "not requires_data" -v --tb=short
+        # NOTA (T-CI-2 2026-05-23):
+        # - tests v0.5 broken movidos pra tests/_archive_v05/ (norecursedirs)
+        # - tests/test_shaper.py marker requires_data (precisa SQLite Z:/tcf-data)
+        # - tests/test_core_rt.py: 31 RT tests sem deps externos (CI-friendly)

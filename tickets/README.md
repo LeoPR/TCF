@@ -36,7 +36,8 @@ referencias a commits que o resolveram.
 | [T-DOC-2-diataxis-naming](T-DOC-2-diataxis-naming.md) | ADR-0012 criado documentando mapeamento docs/algorithms→reference, docs/theory→explanation. Tutorials defer ate' 1o tutorial real. MAP.md atualizado. | **CLOSED-ADR-0012-CREATED 2026-05-23** |
 | [T-CLEAN-1-pre-commit-hooks](T-CLEAN-1-pre-commit-hooks.md) | .pre-commit-config.yaml criado (ruff + detect-secrets + basicos + custom no-cache-dirs). pyproject.toml + README dev setup atualizados. `pre-commit install` pending owner. | **CLOSED-CONFIG-CREATED-INSTALL-PENDING 2026-05-23** |
 | [T-EXP-NATUREZAS-RARAS-EXPLORACAO](T-EXP-NATUREZAS-RARAS-EXPLORACAO.md) | Exploracao naturezas #5 (range) e #8 (suffix arredondamento) em Adult+TPC-H. #8 -4.45% weighted (M10 ja' captura via dedup). #5 +1.08% marginal. 3 cols com potencial isolado (l_quantity, l_linenumber, age) mas peso baixo. Padroes financeiros reais precisariam dataset dedicado. | **CLOSED-NO-GO-PADROES-RAROS-EM-DATASETS-GERAIS 2026-05-23** |
-| [T-CI-1-github-actions](T-CI-1-github-actions.md) | Workflow .github/workflows/ci.yml (lint via pre-commit). Tests job adiado pra T-CI-2 (tests/ tem imports v0.5 broken + deps Z:/SQLite). Badge CI no README. | **OPEN 2026-05-23 (Fase 1)** |
+| [T-CI-1-github-actions](T-CI-1-github-actions.md) | Workflow .github/workflows/ci.yml (lint via pre-commit). Tests job ativado em T-CI-2 (mesma data). Badge CI no README. | **CLOSED 2026-05-23 (Fase 1+2)** |
+| [T-CI-2-tests-refactor](T-CI-2-tests-refactor.md) | Refactor tests CI-friendly: archive 5 v0.5 broken pra _archive_v05/, marker requires_data, 31 tests novos test_core_rt.py (M10 baseline 1523B + edge cases + Pacote 3 fix). CI ativado matrix py 3.10/3.11/3.12. | **CLOSED-REFACTOR-COMPLETED 2026-05-23** |
 
 ## Politica
 

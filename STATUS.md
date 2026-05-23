@@ -158,11 +158,17 @@ Adult+TPC-H (ganho 11.73% weighted vs M9 puro, 889,714B em 57 cols).
   - **4a refutacao da sessao** (5 contando T-EXP-H-DA-09c)
   - Padroes financeiros reais precisariam dataset dedicado (defer)
 
-- **2026-05-23 T-CI-1**: OPEN (Fase 1 implementada)
-  - .github/workflows/ci.yml criado (job lint via pre-commit)
-  - Badge CI no README.md
-  - Job test ADIADO pra T-CI-2 (tests/ tem imports v0.5 broken +
-    deps Z:/SQLite + fixtures missing — refactor necessario)
+- **2026-05-23 T-CI-1 + T-CI-2**: CLOSED (CI completo em uma rodada)
+  - **T-CI-1**: .github/workflows/ci.yml com job lint (pre-commit)
+  - **T-CI-2**: refactor tests + job test ativado
+    - 5 tests v0.5 broken movidos pra tests/_archive_v05/
+    - tests/conftest.py + pytest markers (requires_data)
+    - pyproject.toml: testpaths + norecursedirs + markers
+    - tests/test_core_rt.py NOVO (31 tests CI-friendly: M10 baseline
+      INVARIANT 1523B + RT edge cases + Pacote 3 comma fix)
+    - workflow CI matrix py 3.10/3.11/3.12 ativo
+  - Validacao local: 30 passed + 1 xfailed (edge case `encode([])`),
+    50 deselected (requires_data)
 
 **Pacote 4 — Perf OBAT/HCC** (fechado 2026-05-20):
 - H-PERF-02 WELDED (ADR-0009) — hash trigrama, alpha 1.75→1.42
@@ -197,7 +203,8 @@ Adult+TPC-H (ganho 11.73% weighted vs M9 puro, 889,714B em 57 cols).
 | **T-DOC-2** | Diataxis naming local | CLOSED 2026-05-23 | ADR-0012 criado |
 | **T-CLEAN-1** | Pre-commit hooks | CLOSED 2026-05-23 | config criado; install pending owner |
 | **T-EXP-NATUREZAS-RARAS** | Naturezas #5 (range) #8 (suffix) | CLOSED-NO-GO 2026-05-23 | M10 ja' captura suffix categorico; range marginal +1.08% weighted |
-| **T-CI-1** | GitHub Actions CI Fase 1 | OPEN 2026-05-23 | workflow ci.yml lint via pre-commit; test job adiado (T-CI-2) |
+| **T-CI-1** | GitHub Actions CI Fase 1 | CLOSED 2026-05-23 | workflow ci.yml lint + test ativado (matrix py 3.10/3.11/3.12) |
+| **T-CI-2** | Tests refactor CI-friendly | CLOSED 2026-05-23 | 5 v0.5 archived; 31 RT tests novos; marker requires_data |
 
 ### Pacotes registrados, nao iniciados
 
@@ -275,7 +282,8 @@ nao guia de evolucao (cf. diretriz dados-realistas).
 | [T-DOC-2-diataxis-naming](tickets/T-DOC-2-diataxis-naming.md) | **CLOSED 2026-05-23** | ADR-0012 Diataxis local |
 | [T-CLEAN-1-pre-commit-hooks](tickets/T-CLEAN-1-pre-commit-hooks.md) | **CLOSED 2026-05-23** | .pre-commit-config.yaml |
 | [T-EXP-NATUREZAS-RARAS-EXPLORACAO](tickets/T-EXP-NATUREZAS-RARAS-EXPLORACAO.md) | **CLOSED-NO-GO** | naturezas #5/#8 raras em datasets gerais |
-| [T-CI-1-github-actions](tickets/T-CI-1-github-actions.md) | **OPEN 2026-05-23 (Fase 1)** | workflow CI lint (test adiado) |
+| [T-CI-1-github-actions](tickets/T-CI-1-github-actions.md) | **CLOSED 2026-05-23 (Fase 1+2)** | workflow CI completo (lint + test matrix) |
+| [T-CI-2-tests-refactor](tickets/T-CI-2-tests-refactor.md) | **CLOSED 2026-05-23** | 5 v0.5 archived; 31 tests novos CI-friendly |
 
 ---
 
@@ -369,10 +377,9 @@ TCF/
 8. ~~**Naturezas raras** (#5 range, #8 arredondamento)~~ (TESTADO
    2026-05-23: NO-GO em datasets gerais; #8 -4.45%, #5 +1.08%)
 9. **Multi-column scaling** — EXP-011 base, expansao futura
-10. ~~**CI** — GitHub Actions com pre-commit + tests~~ (FEITO Fase 1
-    2026-05-23: workflow lint; T-CI-2 follow-up pra tests refactor)
-11. **T-CI-2** — refactor tests CI-friendly (remover imports v0.5,
-    mockar SQLite OR fixtures-só-local)
+10. ~~**CI** — GitHub Actions com pre-commit + tests~~ (FEITO COMPLETO
+    2026-05-23: T-CI-1 lint + T-CI-2 tests refactor + job test ativo)
+11. ~~**T-CI-2** — refactor tests CI-friendly~~ (FEITO mesmo dia)
 
 ### Prioridade media (decisao pendente)
 

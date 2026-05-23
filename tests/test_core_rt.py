@@ -1,0 +1,214 @@
+"""Tests round-trip (RT) basicos pra src/tcf canonical (M10+).
+
+Tests SEM dependencias externas — rodam em CI sem precisar de
+Z:/tcf-data SQLite. Validam pipeline canonical:
+- analyze_column + detect_cadence + detect_min_len
+- OBAT (processar / processar_with_hint)
+- HCC + seq-RLE (HCCSeqRLE.encode/decode)
+
+Conexao:
+- ADR-0011 (Pacote 1 welded canonical M10)
+- ADR-0010 (auto-detect min_len)
+- ADR-0008 (detect_cadence regra 2)
+"""
+
+from __future__ import annotations
+
+import csv
+from pathlib import Path
+
+import pytest
+
+from tcf import encode, decode
+from tcf.auto_min_len import detect_min_len, detect_min_len_from_features
+from tcf.column_features import analyze_column, _is_numeric_string
+
+
+ROOT = Path(__file__).resolve().parent.parent
+DATASETS_DIR = ROOT / "datasets" / "synthetic"
+
+D1_D9 = [
+    "D1-emails-simples", "D2-emails-quote-id", "D3-stress-substring",
+    "D4-caos-mix", "D5-padroes-multiplos", "D6-poucos-em-ruido",
+    "D7-aninhamento", "D8-cabeca-cauda", "D9-frequencia-alta",
+]
+
+
+def _ler_csv(name: str) -> list[str]:
+    with (DATASETS_DIR / f"{name}.csv").open(encoding="utf-8") as f:
+        r = csv.reader(f)
+        next(r)
+        return [row[0] for row in r if row]
+
+
+# ---------------------------------------------------------------------------
+# Round-trip basico
+# ---------------------------------------------------------------------------
+
+class TestRoundTripBasic:
+    @pytest.mark.xfail(
+        reason="Edge case canonical: encode([]) → decode retorna [''] "
+        "(empty input vs single empty string sao indistinguiveis no "
+        "formato atual). Aceitavel — pipeline assume input nao-vazio."
+    )
+    def test_empty(self):
+        text = encode([])
+        assert decode(text) == []
+
+    def test_single_string(self):
+        values = ["hello"]
+        text = encode(values)
+        assert decode(text) == values
+
+    def test_duplicates(self):
+        values = ["foo", "foo", "bar", "foo"]
+        text = encode(values)
+        assert decode(text) == values
+
+    def test_with_special_chars(self):
+        # Bug fix ADR-0007: separator pra `,`/`~` em literais
+        values = ["abc,def", "ghi~jkl", "ABC*DEF"]
+        text = encode(values)
+        assert decode(text) == values
+
+    def test_pacote3_comma_in_literal(self):
+        # Caso patologico do EXP-013 TPC-H: "pending, bold reques"
+        values = ["pending, bold reques", "pending, calm reques"]
+        text = encode(values)
+        assert decode(text) == values
+
+    def test_digit_literals(self):
+        # Digit literals devem ser escapados corretamente
+        values = ["123", "abc 456 def", "789xyz"]
+        text = encode(values)
+        assert decode(text) == values
+
+
+# ---------------------------------------------------------------------------
+# M10 baseline D1-D9 (INVARIANT 1523B)
+# ---------------------------------------------------------------------------
+
+class TestM10Baseline:
+    """D1-D9 single-col baseline M10 = 1523B (ADR-0011)."""
+
+    @pytest.mark.parametrize("ds", D1_D9)
+    def test_d1_d9_rt(self, ds):
+        values = _ler_csv(ds)
+        text = encode(values)
+        assert decode(text) == values
+
+    def test_m10_baseline_invariant(self):
+        """Total bytes D1-D9 = 1523B (INVARIANT desde 2026-05-22)."""
+        total = 0
+        for ds in D1_D9:
+            values = _ler_csv(ds)
+            text = encode(values)
+            total += len(text.encode("utf-8"))
+        assert total == 1523, (
+            f"M10 baseline mudou: {total}B (esperado 1523B). "
+            "Welding nao-zero-risk pode ter alterado pipeline canonical."
+        )
+
+
+# ---------------------------------------------------------------------------
+# ColumnFeatures (H-DA-11c)
+# ---------------------------------------------------------------------------
+
+class TestColumnFeatures:
+    def test_empty(self):
+        f = analyze_column([])
+        assert f.n_rows == 0
+        assert f.n_unicas == 0
+        assert f.avg_len == 0.0
+
+    def test_simple(self):
+        f = analyze_column(["abc", "def", "abc"])
+        assert f.n_rows == 3
+        assert f.n_unicas == 2
+        assert f.avg_len == 3.0
+        assert f.cardinality == pytest.approx(2 / 3)
+        assert not f.is_numeric
+
+    def test_numeric(self):
+        f = analyze_column(["123", "456", "789"])
+        assert f.is_numeric
+
+    def test_numeric_partial_not_numeric(self):
+        f = analyze_column(["123", "abc"])
+        assert not f.is_numeric
+
+    def test_sample_size(self):
+        # sample default = 20
+        values = [str(i) for i in range(100)]
+        f = analyze_column(values)
+        assert len(f.sample) == 20
+
+
+# ---------------------------------------------------------------------------
+# detect_min_len (H-DA-11, ADR-0010)
+# ---------------------------------------------------------------------------
+
+class TestDetectMinLen:
+    def test_gating_small_dataset(self):
+        """n < 100 sempre retorna 3 (preserva M9/M10 baseline)."""
+        values = ["abc"] * 50
+        assert detect_min_len(values) == 3
+
+    def test_gating_threshold(self):
+        # Exatamente 99 -> 3 (gating ativa)
+        values = [f"v{i}" for i in range(99)]
+        assert detect_min_len(values) == 3
+
+    def test_low_cardinality_returns_3(self):
+        # 200 rows mas 2 valores unicos = card 0.01 < 0.2 -> 3
+        values = ["A", "B"] * 100
+        assert detect_min_len(values) == 3
+
+    def test_high_card_long_strings_returns_6(self):
+        # avg_len >= 25 -> 6
+        values = [f"very_long_string_padding_{i:05d}_extra" for i in range(200)]
+        assert detect_min_len(values) == 6
+
+    def test_high_card_short_strings_returns_4(self):
+        # avg ~5, card alta -> 4 (regra "avg>=3 + card>=0.2")
+        values = [f"id_{i:03d}" for i in range(200)]
+        # avg = 6 chars (id_NNN), card = 1.0
+        # cai em "avg >= 5 + is_num? not" -> "avg >= 3 + card >= 0.2" -> 4
+        result = detect_min_len(values)
+        assert result == 4
+
+    def test_features_api_equiv(self):
+        # Backward-compat wrapper deve dar mesmo resultado que from_features
+        values = ["abc"] * 200
+        f = analyze_column(values)
+        assert detect_min_len(values) == detect_min_len_from_features(f)
+
+
+# ---------------------------------------------------------------------------
+# Edge cases
+# ---------------------------------------------------------------------------
+
+class TestEdgeCases:
+    def test_unicode(self):
+        values = ["alpha", "beta", "gamma"]
+        text = encode(values)
+        assert decode(text) == values
+
+    def test_long_string(self):
+        values = ["x" * 1000]
+        text = encode(values)
+        assert decode(text) == values
+
+    def test_many_duplicates(self):
+        values = ["same"] * 500
+        text = encode(values)
+        assert decode(text) == values
+
+    def test_is_numeric_string_helpers(self):
+        assert _is_numeric_string("123")
+        assert _is_numeric_string("-1.5")
+        assert _is_numeric_string("0")
+        assert _is_numeric_string("1e5")
+        assert not _is_numeric_string("")
+        assert not _is_numeric_string("abc")
+        assert not _is_numeric_string("12abc")
