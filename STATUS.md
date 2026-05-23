@@ -1,13 +1,15 @@
 # STATUS — TCF (compendio sempre-atualizado)
 
-**Atualizado em**: 2026-05-22 (**H-DA-11 WELDED canonical src/tcf**
-via ADR-0010 — auto-detect min_len por coluna captura **9.87% weighted
-real-world** em Adult+TPC-H. M9 baseline 1615B preservado EXATO. RT
-100%. API publica `tcf.encode` agora chama `detect_min_len` por
-dentro com gating n>=100. Wins: l_comment -29kB, fnlwgt -22kB,
-l_extendedprice -20kB. Tickets fechados na sequencia 2026-05-21/22:
-Pacote 2 INSUFFICIENT-GAIN, T-REVAL H-DA-01/06/10 (surpresa: H-DA-10
-confirmada 9.92%), T-EXP-H-DA-11 CANONICAL-WELDED.)
+**Atualizado em**: 2026-05-22 (**PACOTE 1 WELDED canonical em src/tcf**
+via ADR-0011 — pipeline delta-aware completo (`auto_cadence` +
+`obat_shape` + `hcc_seqrle`) virou canonical. **D1-D9 baseline mudou
+M9=1615B → M10=1523B (-92B, -5.70%)**. **Real-world Adult+TPC-H ganho
+11.73% weighted** vs M9 puro (889,714B em 1,008,003B). RT 100%
+(9/9 + 20/20 sint + 57/57 real). Tickets fechados em sequencia
+2026-05-21/22: Pacote 2 INSUFFICIENT-GAIN, T-REVAL H-DA-01/06/10
+(surpresa: H-DA-10 confirmada 9.92%), T-EXP-H-DA-11 CANONICAL-WELDED,
+T-CODE-H-DA-11c (ColumnFeatures), **T-CODE-PACOTE1-WELD-CANONICAL
+(M9 → M10)**.)
 
 > **Como ler este documento**: este e' o ponto de entrada
 > bibliografico do projeto. Se um sistema novo (humano ou Claude)
@@ -33,16 +35,22 @@ confirmada 9.92%), T-EXP-H-DA-11 CANONICAL-WELDED.)
 ## TCF — visao 1 paragrafo
 
 **TCF** (Tabular Compact Format) e' um formato de **compressao de
-strings tabulares** v0.6 com 2 camadas canonicas:
-- **OBAT** (Online Bidirectional Affix Tokenizer, alg16) — tokeniza
-  via LCP+LCS contra strings anteriores. Em `src/tcf/core/`.
-- **HCC** (Hierarchical Compositional Coding, M8.A) — compactacao
-  composicional via detector unificado (refs atomicos+virtuais)
-  + emit (`~` cria ref, `,` concat). Em `src/tcf/composicional/`.
+strings tabulares** v0.6 com pipeline canonical delta-aware (M10
+baseline, ADR-0011):
+
+- **Pre-pass** — `analyze_column` (ColumnFeatures) + `detect_cadence`
+  (regras 1+2, ADR-0008) + `detect_min_len` (heur v3 + gating n>=100,
+  ADR-0010)
+- **OBAT** (Online Bidirectional Affix Tokenizer) — tokeniza via
+  LCP+LCS. `processar_with_hint` (shape-preserve) ou `processar`
+  canonical. Em `src/tcf/core/` + `src/tcf/obat_shape.py`.
+- **HCC** (Hierarchical Compositional Coding, M8.A + seq-RLE) —
+  detector unificado + emit composicional + seq-RLE near-identical
+  (`*N+delta|template`). Em `src/tcf/composicional/`.
 
 API publica: `from tcf import encode, decode`. RT byte-canonical
-validado em 9 datasets sinteticos (D1-D9, 1615 bytes total, ratio
-medio 54.2%).
+validado em D1-D9 (M10 baseline 1523B, vs M9 antigo 1615B) +
+Adult+TPC-H (ganho 11.73% weighted vs M9 puro, 889,714B em 57 cols).
 
 ---
 
@@ -78,15 +86,23 @@ medio 54.2%).
   - Output IDENTICO ao pre-refactor (1615B + 9.87% + RT 100%)
   - Prepara terreno pra T02-T07 + weld futuro de detect_cadence canonical
 
+- **2026-05-22 T-CODE-PACOTE1-WELD-CANONICAL**: CLOSED (ADR-0011)
+  - Pipeline canonical delta-aware completo welded em src/tcf
+  - Novos modulos: `auto_cadence.py`, `obat_shape.py`, `composicional/hcc_seqrle.py`
+  - `encoder.py` + `decoder.py` modificados (pipeline + HCCSeqRLE.decode)
+  - **D1-D9 baseline mudou: M9=1615B → M10=1523B (-92B, -5.70%)**
+  - **Real-world ganho 11.73% weighted** (vs M9 puro 1,008,003B → 889,714B)
+  - RT 100%: 9/9 + 20/20 sint + 57/57 real-world
+
 **Pacote 4 — Perf OBAT/HCC** (fechado 2026-05-20):
 - H-PERF-02 WELDED (ADR-0009) — hash trigrama, alpha 1.75→1.42
 - H-PERF-04/05/06 ADIADOS (Patricia trie, counter incremental, Cython)
 
 **Proximo pacote — decisao pendente**:
 - ~~**H-DA-11c** consolidar pre-pass features~~ (FEITO 2026-05-22)
+- ~~**Pacote 1 weld canonical**~~ (FEITO 2026-05-22, ADR-0011)
 - **H-DA-07** revalidacao (categoria B residual)
 - **H-PERF-05d** counter incremental HCC (zero-risk, alto potencial)
-- **detect_cadence canonical weld** (ADR-0008 ja' em prototype; ColumnFeatures pronto pra reuso)
 - **T02-T07** outras naturezas pre-tx (criterio ainda nao atingido)
 
 ### Pacotes fechados (referencia)
@@ -101,6 +117,7 @@ medio 54.2%).
 | **T-REVAL Categoria B** | revalidacao H-DA-01/06/10 em real-world | CLOSED 2026-05-21 (surpresa H-DA-10 9.92%) | — |
 | **T-EXP-H-DA-11** | auto-detect min_len por coluna | **WELDED canonical** 2026-05-22 | **ADR-0010 em src/tcf/auto_min_len.py + src/tcf/encoder.py** (9.87% real-world) |
 | **T-CODE-H-DA-11c** | ColumnFeatures unificado (refactor) | CLOSED 2026-05-22 | **src/tcf/column_features.py + refactor auto_min_len.py** (zero-risk) |
+| **T-CODE-PACOTE1-WELD-CANONICAL** | Pipeline delta-aware completo canonical (M9 → M10) | **CLOSED 2026-05-22** | **ADR-0011: auto_cadence + obat_shape + hcc_seqrle + encoder/decoder modificados** (11.73% real-world) |
 
 ### Pacotes registrados, nao iniciados
 
@@ -170,6 +187,7 @@ nao guia de evolucao (cf. diretriz dados-realistas).
 | [T-REVAL-H-DA-01-06-10](tickets/T-REVAL-H-DA-01-06-10.md) | CLOSED-COMPLETED-WITH-SURPRISES | Revalidacao Categoria B (2026-05-21) |
 | [T-EXP-H-DA-11](tickets/T-EXP-H-DA-11.md) | **CLOSED-CANONICAL-WELDED** | Auto-detect min_len (ADR-0010, 9.87%) |
 | [T-CODE-H-DA-11c](tickets/T-CODE-H-DA-11c-features-unificadas.md) | **CLOSED-REFACTOR-COMPLETED** | ColumnFeatures unificado (zero-risk) |
+| [T-CODE-PACOTE1-WELD-CANONICAL](tickets/T-CODE-PACOTE1-WELD-CANONICAL.md) | **CLOSED 2026-05-22** | Pacote 1 canonical (ADR-0011, M9 → M10, 11.73% real-world) |
 | [T-DOC-1-citation-cff](tickets/T-DOC-1-citation-cff.md) | OPEN P3 | CITATION.cff + DOI |
 | [T-DOC-2-diataxis-naming](tickets/T-DOC-2-diataxis-naming.md) | OPEN P3 | mapeamento docs Diataxis |
 | [T-CLEAN-1-pre-commit-hooks](tickets/T-CLEAN-1-pre-commit-hooks.md) | OPEN P3 | pre-commit hooks |
@@ -252,10 +270,11 @@ TCF/
 
 1. **H-DA-07 revalidacao real-world** — categoria B unica nao revalidada
    em T-REVAL. OBAT shape-preserve "confirmada-condicional" sem
-   evidencia real-world. Baixo risco.
-2. **detect_cadence canonical weld** — ADR-0008 ja' validado em EXP-010
-   prototype. ColumnFeatures (H-DA-11c) pronto pra reuso. Welding canonical
-   consolidaria duas heuristicas em src/tcf canonical. Baixo risco.
+   evidencia real-world. Agora com pipeline canonical M10, pode validar
+   se shape-preserve canonical generaliza bem. Baixo risco.
+2. **H-PERF-05d counter incremental HCC** — unico zero-risk de alto
+   potencial no Pacote 4 ainda aberto (~50-70% HCC perf). Implementacao
+   complexa (state entre iters).
 
 ### Prioridade media (decisao pendente)
 

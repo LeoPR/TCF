@@ -12,11 +12,15 @@ TCF/
 ├── STATUS.md ............. ponto de entrada bibliografico
 ├── README.md, CHANGELOG.md
 │
-├── src/tcf/ .............. ALGORITMO CANONICO (intocado sem aprovacao)
-│   ├── core/online.py .... OBAT
-│   ├── composicional/syntax.py ... HCC
+├── src/tcf/ .............. ALGORITMO CANONICO (M10 baseline; intocado sem aprovacao)
+│   ├── core/online.py .... OBAT (canonical)
+│   ├── obat_shape.py ..... OBAT shape-preserve hint (ADR-0011)
+│   ├── composicional/syntax.py ... HCC M8.A
+│   ├── composicional/hcc_seqrle.py ... HCC + seq-RLE near-identical (ADR-0011)
+│   ├── auto_cadence.py ... detect_cadence (ADR-0008/0011)
 │   ├── auto_min_len.py ... detect_min_len (ADR-0010, H-DA-11)
-│   ├── encoder.py, decoder.py .... API publica
+│   ├── column_features.py  ColumnFeatures + analyze_column (H-DA-11c)
+│   ├── encoder.py, decoder.py .... API publica (pipeline delta-aware)
 │   └── __init__.py
 │
 ├── scripts/ .............. FERRAMENTAS DE SUPORTE (nao e' TCF-CORE)
@@ -88,13 +92,15 @@ TCF/
 
 ## Entradas de lab atualmente ativas
 
-- `experiments/lab/dirty/2026-05-17-OBAT-delta-aware/` — Pacote 1 delta-aware (welded EXP-010)
+- `experiments/lab/dirty/2026-05-17-OBAT-delta-aware/` — Pacote 1 delta-aware (origem do welding)
 - `experiments/lab/dirty/2026-05-21-escape-deduction/` — Pacote 2 CLOSED-INSUFFICIENT-GAIN
 - `experiments/lab/dirty/2026-05-21-revalidacao-categoria-B/` — T-REVAL hipoteses (3 sub-exps)
 - `experiments/lab/dirty/2026-05-21-h-da-11-auto-min-len/` — H-DA-11 WELDED canonical (ADR-0010)
+- `experiments/lab/dirty/2026-05-22-h-da-11c-features-unificadas/` — ColumnFeatures refactor (H-DA-11c)
+- `experiments/lab/dirty/2026-05-22-pacote1-weld-canonical/` — **Pacote 1 WELDED canonical M9 → M10 (ADR-0011)**
 - `experiments/lab/dirty/2026-05-15-naturezas-e-camada/pre-tx/T01-incremental-base-delta/`
   — T01 (superseded por Pacote 1; nao continuar)
-- `experiments/lab/clean/EXP-010-tcf-delta-aware-prototype/` — single-column delta-aware
+- `experiments/lab/clean/EXP-010-tcf-delta-aware-prototype/` — prototype antigo (substituido por src/tcf canonical M10 desde 2026-05-22; manter como referencia historica)
 - `experiments/lab/clean/EXP-011-multi-column-basic/` — multi-column basico
 
 ## Manutencao deste mapa

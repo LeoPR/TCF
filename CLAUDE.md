@@ -8,19 +8,31 @@
 ## Projeto em 1 paragrafo
 
 **TCF** (Tabular Compact Format) v0.6 — compressao de strings tabulares
-em 2 camadas canonicas: **OBAT** (Online Bidirectional Affix Tokenizer)
-em `src/tcf/core/` + **HCC** (Hierarchical Compositional Coding) em
-`src/tcf/composicional/`. API: `from tcf import encode, decode`.
-Estado: single-column canonical validado em D1-D9; multi-column basico
-em EXP-011; delta-aware welded em EXP-010.
+com pipeline canonical delta-aware (M10 baseline, ADR-0011):
+- **Pre-pass**: `analyze_column` (features) + `detect_cadence` (regras
+  1+2, ADR-0008) + `detect_min_len` (heur v3 + gating n>=100, ADR-0010)
+- **OBAT** (Online Bidirectional Affix Tokenizer) em `src/tcf/core/` +
+  `src/tcf/obat_shape.py` (shape-preserve hint)
+- **HCC** (Hierarchical Compositional Coding M8.A + seq-RLE) em
+  `src/tcf/composicional/`
+
+API: `from tcf import encode, decode`. Estado: pipeline canonical M10
+validado em D1-D9 (1523B baseline, vs M9 antigo 1615B), 20 sint (RT
+20/20), Adult+TPC-H 57 cols (ganho 11.73% real-world weighted, RT 57/57).
+Multi-column basico em EXP-011.
 
 ## ONDE ESTAO AS COISAS — consulte ANTES de propor criar/baixar
 
 ### Codigo
-- `src/tcf/` — **canonical**. NAO MODIFICAR sem aprovacao explicita.
-  - `core/online.py` — OBAT
-  - `composicional/syntax.py` — HCC (M8.A)
-  - `encoder.py`, `decoder.py` — API publica
+- `src/tcf/` — **canonical (M10)**. NAO MODIFICAR sem aprovacao explicita.
+  - `core/online.py` — OBAT canonical
+  - `obat_shape.py` — OBAT shape-preserve hint (ADR-0011)
+  - `composicional/syntax.py` — HCC M8.A
+  - `composicional/hcc_seqrle.py` — HCC + seq-RLE near-identical (ADR-0011)
+  - `auto_cadence.py` — detect_cadence (ADR-0008/0011)
+  - `auto_min_len.py` — detect_min_len (ADR-0010, H-DA-11)
+  - `column_features.py` — ColumnFeatures + analyze_column (H-DA-11c)
+  - `encoder.py`, `decoder.py` — API publica (pipeline delta-aware)
 - `scripts/` — ferramentas de suporte (NAO faz parte do TCF-CORE)
   - `dataset_reader.py` — **le datasets canonicos do hub SQLite**
   - `shaper/` — **sampler multidimensional** (volume, schema, join,

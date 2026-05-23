@@ -215,7 +215,18 @@ prototipo clean (`experiments/lab/clean/EXP-XXX-*`) e' pra testar
 Atualizar quando: hipotese confirmada/refutada/movida-de-status, OU
 nova hipotese identificada.
 
-**Ultima atualizacao**: 2026-05-22 (segunda) — **H-DA-11c WELDED canonical**
+**Ultima atualizacao**: 2026-05-22 (terceira) — **PACOTE 1 WELDED canonical**
+(lab `2026-05-22-pacote1-weld-canonical/`, ticket T-CODE-PACOTE1-WELD-CANONICAL,
+ADR-0011):
+- Novos modulos canonical: `src/tcf/auto_cadence.py`, `obat_shape.py`,
+  `composicional/hcc_seqrle.py`
+- `encoder.py` agora usa pipeline delta-aware completo; `decoder.py`
+  usa HCCSeqRLE.decode
+- **D1-D9 baseline mudou: M9=1615B → M10=1523B (-92B, -5.70%)**
+- **Real-world ganho 11.73% weighted** vs M9 puro (1,008,003B → 889,714B)
+- RT 100%: 9/9 D1-D9 + 20/20 sint + 57/57 real
+
+**Atualizacao anterior**: 2026-05-22 (segunda) — H-DA-11c WELDED canonical
 (refactor zero-risk; lab `2026-05-22-h-da-11c-features-unificadas/`):
 - Novo `src/tcf/column_features.py` (ColumnFeatures + analyze_column)
 - Refatorado `src/tcf/auto_min_len.py` (2 APIs: from_features + wrapper)
