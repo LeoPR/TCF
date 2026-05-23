@@ -135,9 +135,9 @@ Origem: EXP-013 TPC-H revelou bug `,` em literais; ADR-0006 fixou
 
 | ID | Hipotese | Status | Onde |
 |---|---|---|---|
-| H-FIX-01 | Escape de `,` em `_escape_lit` resolve bug e preserva M9 | aberta | sub-exp 02 planejado |
-| H-FIX-02 | Mesma opcao mas re-baseline M9 necessario (D1-D9 tem `,`) | aberta | sub-exp 02 mediria |
-| H-FIX-03 | Separator heuristico `*` antes de literal ambiguo (encoder-only) | aberta | sub-exp 03 planejado |
+| H-FIX-01 | Escape de `,` em `_escape_lit` resolve bug e preserva M9 | **refutada (Opcao A perde pra Opcao B)** — sub-exp 04: +116B em c_comment vs +7B Op B | `2026-05-18-canonical-parser-robustness/02-opcao-A-escape-virgula/` | Funcional mas overhead maior; Op B preferida |
+| H-FIX-02 | Mesma opcao mas re-baseline M9 necessario (D1-D9 tem `,`) | **N/A** (Op A nao escolhida) | — | — |
+| H-FIX-03 | Separator heuristico `*` antes de literal ambiguo (encoder-only) | **WELDED canonical** (ADR-0007 accepted) — 10/10 casos minimos OK (era 7/10), M10 1523B preservado, RT 100% real-world | `src/tcf/composicional/syntax.py:435-442` + `2026-05-18-canonical-parser-robustness/05-validar-welding-canonical/` | Confianca: **Alta**. Welded 2026-05-19 (sem doc na epoca); validado + ADR-0007 finalizado 2026-05-23 |
 
 Plano completo: [ADR-0007](../../../docs/adr/0007-comma-in-literals-bug.md)
 + lab dirty `2026-05-18-canonical-parser-robustness/`.

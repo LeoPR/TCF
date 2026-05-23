@@ -124,6 +124,15 @@ Adult+TPC-H (ganho 11.73% weighted vs M9 puro, 889,714B em 57 cols).
   - **Anti-incidente**: hipotese promissora conceitualmente refutada
     em medicao empirica (mesmo padrao Pacote 2)
 
+- **2026-05-23 Pacote 3 (parser robustness) — ADR-0007 ACCEPTED + WELDED**:
+  - Fix Opcao B (separator `*` em ref->lit ambiguo) ja' estava welded
+    em src/tcf/composicional/syntax.py desde 2026-05-19 (sem docs atualizadas)
+  - Sub-exp 05 valida: 10/10 casos minimos OK (era 7/10), M10 1523B
+    preservado, RT 100% real-world (57/57)
+  - ADR-0007 atualizado proposed -> accepted + welded
+  - Roadmap H-FIX-03 atualizado para WELDED; H-FIX-01 refutada
+    (Opcao A perde pra B); H-FIX-02 N/A
+
 **Pacote 4 — Perf OBAT/HCC** (fechado 2026-05-20):
 - H-PERF-02 WELDED (ADR-0009) — hash trigrama, alpha 1.75→1.42
 - H-PERF-04/05/06 ADIADOS (Patricia trie, counter incremental, Cython)
@@ -151,6 +160,7 @@ Adult+TPC-H (ganho 11.73% weighted vs M9 puro, 889,714B em 57 cols).
 | **T-REVAL-H-DA-07** | Shape-preserve gating em real-world | CLOSED-CONFIRMED 2026-05-22 | gating preserva 62/66 cols neutras; 2 wins (c_name -98%, D9 -48%), 2 losses pequenas |
 | **T-EXP-H-PERF-05d** | Counter incremental HCC | CLOSED-VALIDATED-WITH-BYTE-DIVERGENCE 2026-05-23 | 37/41 byte-canonical OK; 4 datetime TPC-H divergem 0.08%; welding adiado |
 | **T-EXP-PACOTE5-T03-ENUMERATED** | Encoder enumerated explicito | CLOSED-NO-GO-M10-SUFICIENTE 2026-05-23 | M10 ja' captura via dedup+seq-RLE; encoder explicit PIOR em runs adjacentes |
+| **Pacote 3** (parser robustness, ADR-0007) | Fix bug `,` em literais (Opcao B separator) | **WELDED canonical** (welded 2026-05-19, ADR accepted 2026-05-23) | src/tcf/composicional/syntax.py:435-442 |
 
 ### Pacotes registrados, nao iniciados
 
@@ -311,8 +321,8 @@ TCF/
 3. ~~**Pacote 5 T03 enumerated**~~ (TESTADO 2026-05-23: NO-GO,
    M10 ja' captura via dedup+seq-RLE)
 4. **H-DA-09c/d/e** refinos detect_cadence (threshold/multivariada/adaptativo)
-5. **H-FIX-01/02/03** Pacote 3 parser robustness (bug `,` em literais,
-   aberto desde 2026-05-18)
+5. ~~**H-FIX-01/02/03** Pacote 3 parser robustness~~ (FEITO 2026-05-23:
+   ADR-0007 ACCEPTED + WELDED, H-FIX-03 win via Opcao B separator)
 6. **T-DOC-1/2 + T-CLEAN-1** (aderencia metodologica P3)
 
 ### Prioridade media (decisao pendente)
