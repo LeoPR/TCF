@@ -60,12 +60,16 @@ Para historia: `experiments/lab/dirty/notas/historia-dirty-lab.md`.
 from tcf.decoder import decode
 from tcf.encoder import encode
 from tcf.multi import decode_table, encode_table  # deprecated aliases
+from tcf.schema import ColumnSchema, TableSchema, build_schema
 from tcf.side_outputs import SideOutputs
 
 __all__ = [
     "encode",
     "decode",
     "SideOutputs",
+    "build_schema",
+    "TableSchema",
+    "ColumnSchema",
     # Deprecated (mantidos pra migracao):
     "encode_table",
     "decode_table",

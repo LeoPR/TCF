@@ -44,7 +44,7 @@ referencias a commits que o resolveram.
 | [T-CODE-ENCODER-MANAGER](T-CODE-ENCODER-MANAGER.md) | **Fase 1+1b WELDED**: `encode(data, parallel=False\|True\|N)` via ProcessPoolExecutor + work-stealing (sorted desc por workload, submit+as_completed). 14 tests, D17a 322B INVARIANT byte-canonical em parallel. Benchmark: customer 0.83x, orders 1.23x (4w)/1.30x (8w). Conclusao: gargalo eh IPC overhead Windows spawn (nao load imbalance). Speedup teto ~1.3x sem dependencia externa. Fases 1c/2-4 pendentes. | **OPEN-FASES-1+1B-WELDED 2026-05-24** |
 | [T-CODE-OUTPUT-SINKS](T-CODE-OUTPUT-SINKS.md) | Contract `Sink` pluggable (Protocol), built-in sinks (File/MultiFile/Memory), streaming sinks (HTTP/TCP). Refactor scripts/writers/. Bloqueado por T-CODE-ENCODER-MANAGER. | **OPEN P2 2026-05-24** |
 | [T-CODE-PLAN-CONTRACT](T-CODE-PLAN-CONTRACT.md) | `Plan` dataclass (group_by/order/batch_size/batch_unit) — contrato D11/D13. Habilita ordenacao reversivel O-FMT-01..04 e SQL->Plan (D8). | **OPEN P3 2026-05-24** |
-| [T-CODE-SCHEMA-BUILDER](T-CODE-SCHEMA-BUILDER.md) | Orquestrador `build_schema(data)` consome SideOutputs + heuristicas META-TYPE-ENCODERS. Outputs: TableSchema, JSON (compat metadata.json canonico), Markdown auto, drift detection. | **OPEN P3 2026-05-24** |
+| [T-CODE-SCHEMA-BUILDER](T-CODE-SCHEMA-BUILDER.md) | **Fase 1+2 WELDED**: `src/tcf/schema.py` novo com `build_schema(data)` orquestrador + `ColumnSchema`/`TableSchema` dataclasses + `to_dict`/`to_json`. 24/24 tests passing (D17a 322B INVARIANT preservado, ColumnFeatures/cadence/min_len/seq_rle_runs reaproveitados via SideOutputs). `natures` placeholder vazio pra Fase 3 (META-TYPE-ENCODERS T02-T07). | **OPEN-FASES-1+2-WELDED 2026-05-24** |
 
 ## Politica
 

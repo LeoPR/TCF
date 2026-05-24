@@ -1,6 +1,6 @@
 ---
 title: T-CODE-SCHEMA-BUILDER — Orquestrador que consume SideOutputs
-status: open
+status: open-fase-1-welded
 priority: P3
 created: 2026-05-24
 updated: 2026-05-24
@@ -128,3 +128,55 @@ Cada detector consome ColumnFeatures + amostra; produz hint/natureza.
 Ticket aberto pos-ADR-0014. Schema builder eh consumidor natural de
 SideOutputs. Plano em 4 fases. Fase 1+2 viaveis ja'; Fase 3+ depende de
 META-TYPE-ENCODERS reabrir.
+
+### 2026-05-24 — Fase 1+2 WELDED (orquestrador + dataclasses)
+
+Owner aprovou Fase 1. Implementado num so' commit (Fase 1 + 2 juntas
+porque sao trivialmente acopladas):
+
+**Novo `src/tcf/schema.py`**:
+- `@dataclass ColumnSchema` (Fase 2): name, n_rows, n_unicas, avg_len,
+  cardinality, is_numeric, cadence_detected, cadence_rule, min_len,
+  body_bytes, seq_rle_runs_count, sample, **natures placeholder vazio**
+- `@dataclass TableSchema`: n_rows, n_cols, columns, total_bytes,
+  header_bytes, body_bytes, is_multi_col
+- `build_schema(data)` (Fase 1): orquestrador chama `encode()`
+  internamente com SideOutputs + monta TableSchema
+- `to_dict()` + `to_json(indent=2)` em ambos (Fase 4 parcial)
+
+**`src/tcf/__init__.py`**: exporta `build_schema`, `TableSchema`,
+`ColumnSchema`.
+
+**Tests** (`tests/test_schema.py`):
+- 24/24 passing
+- TestBuildSchemaDispatch (3): list/dict/invalid
+- TestColumnSchema (8): features, numeric, cadence, sample, etc.
+- TestTableSchemaMulti (3): n_rows, byte breakdown, per-col features
+- TestTableSchemaSingle (2): no header, val default name
+- TestD17aSchema (4): basic shape (322B INVARIANT), timestamp cadence,
+  id numeric+cadence, categoria low-cardinality
+- TestSerialization (3): to_dict, to_json valid, D17a JSON
+- TestDeterminism (1): same input -> same schema
+
+**Suite completa**: 155 passed (+24) + 1 xfailed + 1 pre-existing
+fail test_shaper (nao relacionado).
+
+**Reaproveitamento (zero recomputacao)**:
+- ColumnFeatures: analyze_column via SideOutputs.column_features
+- detect_cadence_from_features: cadence_detected + cadence_rule
+- detect_min_len_from_features: min_len
+- HCC seq_rle_runs: len(side.seq_rle_runs)
+- multi_info: total/header/body bytes diretamente
+
+**Status Fase 1+2**: WELDED. Output deterministico (mesmo input -> mesmo
+schema). JSON serializavel pra storage/diff/doc auto.
+
+### Proximos passos
+
+- **Fase 3** (P3, depende META-TYPE-ENCODERS reabrir): integrar
+  detectores de naturezas (templated/checked/enumerated/etc) — populariam
+  `column.natures: list[str]` que hoje eh placeholder vazio
+- **Fase 4** (P3 opcional): outputs derivados
+  - `schema.to_markdown()` -> doc auto formatado
+  - `schema.diff(other_schema)` -> drift detection
+  - `schema.to_metadata_json()` -> compat com `datasets/canonical/*/metadata.json`
