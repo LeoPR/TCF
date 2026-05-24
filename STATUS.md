@@ -1,6 +1,14 @@
 # STATUS — TCF (compendio sempre-atualizado)
 
-**Atualizado em**: 2026-05-24 (**Sessao 2 — registros**: O-FMT-14
+**Atualizado em**: 2026-05-24 (**T-CODE-ENCODER-MANAGER Fase 1 WELDED**:
+`encode(data, parallel=False|True|N)` via ProcessPoolExecutor.
+`_worker_encode_column` picklavel. D17a 322B INVARIANT preservado em
+modo parallel. 14/14 tests novos (`test_parallel.py`). Benchmark
+honesto: customer 0.79x, orders 1.23x — speedup modesto (load
+imbalance + pickling overhead Windows spawn). Otimizacao adiada
+pra Fase 1b. SideOutputs serializado entre workers funciona.
+
+**Sessao 2 anterior 2026-05-24**: O-FMT-14
 header desacoplavel/opcional registrado em `futuras-otimizacoes-formato.md`.
 Nova nota `naturezas-templated-2026-05-24.md` cataloga sub-naturezas
 de T02 Templated (CPF/IP/MAC/telefone/CEP/EAN/IBAN) + T04 Checksummed
@@ -335,7 +343,7 @@ nao guia de evolucao (cf. diretriz dados-realistas).
 | [T-DATA-1-datasets-financeiros-cientificos](tickets/T-DATA-1-datasets-financeiros-cientificos.md) | **OPEN 2026-05-23 (scripts criados)** | 3 datasets UCI/OpenML, download pendente |
 | [T-EXP-MULTI-COL-SCALING](tickets/T-EXP-MULTI-COL-SCALING.md) | **CLOSED-WELDED-CANONICAL 2026-05-23** | src/tcf/multi.py welded (ADR-0013); encode_table/decode_table publicos; 17/17 tests; -33.02% raw weighted real-world |
 | [ADR-0014 (welded direto)](docs/adr/0014-unified-api-side-outputs.md) | **CLOSED-WELDED-CANONICAL 2026-05-24** | API unificada encode(list\|dict) + SideOutputs; ADR-0013 superseded; 117 passed |
-| [T-CODE-ENCODER-MANAGER](tickets/T-CODE-ENCODER-MANAGER.md) | **OPEN P2 2026-05-24** | Revive D13 v0.4: paralelismo + sinks (file/multi/HTTP/TCP) + per-channel headers + streaming |
+| [T-CODE-ENCODER-MANAGER](tickets/T-CODE-ENCODER-MANAGER.md) | **OPEN-FASE-1-WELDED 2026-05-24** | Fase 1: paralelismo `encode(data, parallel=N)` via ProcessPool, 14/14 tests, byte-canonical OK. Speedup modesto (0.79x-1.23x). Fases 2-4 pendentes. |
 | [T-CODE-OUTPUT-SINKS](tickets/T-CODE-OUTPUT-SINKS.md) | **OPEN P2 2026-05-24** | Contract Sink pluggable, refactor scripts/writers/ (bloqueado por encoder-manager) |
 | [T-CODE-PLAN-CONTRACT](tickets/T-CODE-PLAN-CONTRACT.md) | **OPEN P3 2026-05-24** | Plan dataclass (group_by/order/batch_size), habilita O-FMT-01..04 |
 | [T-CODE-SCHEMA-BUILDER](tickets/T-CODE-SCHEMA-BUILDER.md) | **OPEN P3 2026-05-24** | Orquestrador consume SideOutputs, frontend de META-TYPE-ENCODERS |

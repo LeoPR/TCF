@@ -48,6 +48,7 @@ def encode(
     data: list[str] | dict[str, list[str]],
     *,
     side_outputs: SideOutputs | None = None,
+    parallel: bool | int = False,
 ) -> str:
     """Encode lista de strings OU dict de colunas em texto TCF.
 
@@ -60,9 +61,16 @@ def encode(
             (column_features, cadence_info, OBAT log, HCC trace/rede,
             seq_rle_runs, multi_info, per_col). Sem ele: descartado
             (comportamento pre-existente, overhead zero).
+        parallel: paraleliza encode de colunas (multi-col so'). T-CODE-ENCODER-MANAGER Fase 1.
+            - `False` (default): serial, comportamento atual
+            - `True`: ProcessPoolExecutor com `os.cpu_count()` workers
+            - `int N >= 1`: N workers explicitos
+            - Para list (single-col): parametro ignorado (1 coluna)
+            - Para dict com 1 coluna: ignorado (overhead nao compensa)
 
     Returns:
-        Texto TCF (str, sempre UTF-8, LF only).
+        Texto TCF (str, sempre UTF-8, LF only). **Output byte-identico
+        ao modo serial** (parallel apenas reordena computacao, nao bytes).
 
     Raises:
         TypeError: se data nao for list nem dict.
@@ -73,7 +81,7 @@ def encode(
         return _encode_column(data, header="val", side=side_outputs)
     if isinstance(data, dict):
         from tcf.multi import _encode_multi
-        return _encode_multi(data, side_outputs=side_outputs)
+        return _encode_multi(data, side_outputs=side_outputs, parallel=parallel)
     raise TypeError(
         f"encode espera list[str] ou dict[str, list[str]], "
         f"recebeu {type(data).__name__}"

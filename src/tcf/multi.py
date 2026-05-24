@@ -24,7 +24,9 @@ Restricoes:
 
 from __future__ import annotations
 
+import os
 import warnings
+from concurrent.futures import ProcessPoolExecutor
 
 from tcf.encoder import _encode_column
 from tcf.side_outputs import SideOutputs
@@ -37,8 +39,17 @@ META_PREFIX = b"# "
 def _encode_multi(
     table: dict[str, list[str]],
     side_outputs: SideOutputs | None = None,
+    parallel: bool | int = False,
 ) -> str:
-    """Interno: encode dict pra TCF multi-col. Chamado por `encode()`."""
+    """Interno: encode dict pra TCF multi-col. Chamado por `encode()`.
+
+    Args:
+        table: dict[col_name, list[str]].
+        side_outputs: opcional, recipiente pra capturar info per-coluna.
+        parallel: False (default serial), True (cpu_count workers),
+            int N >= 1 (N workers explicitos). Workers paralelizam
+            `_encode_column` por coluna via ProcessPoolExecutor.
+    """
     if not table:
         raise ValueError("table vazia")
 
@@ -50,18 +61,31 @@ def _encode_multi(
         if ',' in col_name or '=' in col_name:
             raise ValueError(f"col name contem char reservado: {col_name!r}")
 
-    if side_outputs is not None:
-        side_outputs.per_col = {}
+    # Stringify upfront (per-col paralelo recebe valores ja' string)
+    table_str: dict[str, list[str]] = {
+        name: [_to_str(v) for v in values]
+        for name, values in table.items()
+    }
 
-    col_bodies_bytes: list[tuple[str, bytes]] = []
-    for col_name, values in table.items():
-        str_values = [_to_str(v) for v in values]
-        per_col_side = SideOutputs() if side_outputs is not None else None
-        body = _encode_column(str_values, header=col_name, side=per_col_side)
-        body_bytes = body.encode("utf-8")
-        col_bodies_bytes.append((col_name, body_bytes))
-        if side_outputs is not None:
-            side_outputs.per_col[col_name] = per_col_side
+    # Dispatch paralelo se solicitado E vale a pena (>= 2 cols)
+    use_parallel = bool(parallel) and len(table_str) >= 2
+    n_workers = 0
+    if use_parallel:
+        if parallel is True:
+            n_workers = os.cpu_count() or 1
+        else:  # int >= 1 (bool(0)/False filtrados acima)
+            n_workers = int(parallel)
+        n_workers = max(1, min(n_workers, len(table_str)))
+        col_bodies_bytes, per_col_sides = _encode_columns_parallel(
+            table_str, want_side=(side_outputs is not None), n_workers=n_workers
+        )
+    else:
+        col_bodies_bytes, per_col_sides = _encode_columns_serial(
+            table_str, want_side=(side_outputs is not None)
+        )
+
+    if side_outputs is not None:
+        side_outputs.per_col = dict(per_col_sides)
 
     meta_pairs = ",".join(f"{len(b)}={name}" for name, b in col_bodies_bytes)
     header = MAGIC_MULTI + b"\n" + META_PREFIX + meta_pairs.encode("utf-8") + b"\n"
@@ -76,9 +100,61 @@ def _encode_multi(
             "total_bytes": len(full),
             "header_bytes": len(header),
             "body_bytes": len(body_concat),
+            "parallel_workers": n_workers if use_parallel else 0,
         }
 
     return text
+
+
+def _encode_columns_serial(
+    table_str: dict[str, list[str]],
+    want_side: bool,
+) -> tuple[list[tuple[str, bytes]], dict[str, SideOutputs]]:
+    """Encoda colunas serialmente (comportamento original)."""
+    col_bodies: list[tuple[str, bytes]] = []
+    per_col_sides: dict[str, SideOutputs] = {}
+    for col_name, str_values in table_str.items():
+        side = SideOutputs() if want_side else None
+        body = _encode_column(str_values, header=col_name, side=side)
+        col_bodies.append((col_name, body.encode("utf-8")))
+        if want_side:
+            per_col_sides[col_name] = side
+    return col_bodies, per_col_sides
+
+
+def _encode_columns_parallel(
+    table_str: dict[str, list[str]],
+    want_side: bool,
+    n_workers: int,
+) -> tuple[list[tuple[str, bytes]], dict[str, SideOutputs]]:
+    """Encoda colunas em paralelo via ProcessPoolExecutor.
+
+    Output byte-identico ao serial — ordem preservada via
+    `ProcessPoolExecutor.map` (mantem ordem de submissao).
+    """
+    col_names = list(table_str.keys())
+    args_iter = [(name, table_str[name], want_side) for name in col_names]
+    with ProcessPoolExecutor(max_workers=n_workers) as ex:
+        results = list(ex.map(_worker_encode_column, args_iter))
+
+    col_bodies: list[tuple[str, bytes]] = []
+    per_col_sides: dict[str, SideOutputs] = {}
+    for col_name, body_str, side in results:
+        col_bodies.append((col_name, body_str.encode("utf-8")))
+        if want_side:
+            per_col_sides[col_name] = side
+    return col_bodies, per_col_sides
+
+
+def _worker_encode_column(args: tuple[str, list[str], bool]) -> tuple[str, str, SideOutputs | None]:
+    """Worker module-level (picklavel) pra ProcessPoolExecutor.
+
+    Recebe (col_name, str_values, want_side); retorna (col_name, body_str, side).
+    """
+    col_name, str_values, want_side = args
+    side = SideOutputs() if want_side else None
+    body = _encode_column(str_values, header=col_name, side=side)
+    return col_name, body, side
 
 
 def _decode_multi(tcf_text: str) -> dict[str, list[str]]:
