@@ -47,6 +47,11 @@ def measure(name: str) -> dict:
     text = encode(values, side_outputs=side)
     m10_bytes = len(text.encode("utf-8"))
 
+    # Salva .tcf em out_tcf/ (visivel pra auditoria — NAO gitignored)
+    out_dir = THIS / "out_tcf"
+    out_dir.mkdir(exist_ok=True)
+    (out_dir / f"{name}.tcf").write_bytes(text.encode("utf-8"))
+
     cf = side.column_features
     return {
         "dataset": name,

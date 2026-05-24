@@ -1,0 +1,21 @@
+# Pre-tx sample (primeiras 20 strings apos strip+check+base94):
+%KBs^
+%LQV_
+%KKU/
+%LBui
+%Ji@A
+%KEjy
+%KiQt
+%L8_{
+%LQMz
+%KD;I
+%KXc{
+%KDEz
+%KB4b
+%KE_G
+%Kv!+
+%KIbT
+%K1aG
+%L!Il
+%LC}r
+%K6;b

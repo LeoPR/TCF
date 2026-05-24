@@ -106,6 +106,16 @@ def measure_variant_b(name: str) -> dict:
 
     raw_bytes = sum(len(v.encode("utf-8")) for v in values) + len(values)
 
+    # Salva .tcf + pre-tx intermediate em out_tcf/ (auditoria)
+    out_dir = THIS / "out_tcf"
+    out_dir.mkdir(exist_ok=True)
+    (out_dir / f"{name}.tcf").write_bytes(text.encode("utf-8"))
+    pretx_sample = "\n".join(encoded_values[:20])
+    (out_dir / f"{name}-pretx-sample20.txt").write_text(
+        f"# Pre-tx sample (primeiras 20 strings apos strip+check+base94):\n{pretx_sample}\n",
+        encoding="utf-8",
+    )
+
     # Validar RT (apenas pra valores validos)
     decoded = decode(text)
     rt_ok = True

@@ -1,0 +1,21 @@
+# Pre-tx sample (primeiras 20 strings apos strip+check+base94):
+%KBs^
+!%S)h
+:)Gql
+)NJJX
+$o+..
+3l%CF
+5&L/I
+(OqjJ
+9I:qB
+?2d58
+:V8E?
++c8jX
+5VBl3
+9_@_W
+17QZe
++e.D(
+/}rJ:
+9/7&R
+.vV9S
+315.098.393-2
