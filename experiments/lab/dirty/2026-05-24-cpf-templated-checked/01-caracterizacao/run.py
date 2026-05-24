@@ -20,7 +20,7 @@ LAB = THIS.parent
 ROOT = LAB.parents[3]
 sys.path.insert(0, str(ROOT / "src"))
 
-from tcf import encode, SideOutputs  # noqa: E402
+from tcf import encode, decode, SideOutputs  # noqa: E402
 
 
 DATASETS = [
@@ -47,10 +47,24 @@ def measure(name: str) -> dict:
     text = encode(values, side_outputs=side)
     m10_bytes = len(text.encode("utf-8"))
 
+    # DECODE obrigatorio pra validar compressao (feedback owner 2026-05-24)
+    decoded = decode(text)
+    rt_ok = (decoded == values)
+    n_mismatched = sum(1 for o, d in zip(values, decoded) if o != d)
+
     # Salva .tcf em out_tcf/ (visivel pra auditoria — NAO gitignored)
     out_dir = THIS / "out_tcf"
     out_dir.mkdir(exist_ok=True)
     (out_dir / f"{name}.tcf").write_bytes(text.encode("utf-8"))
+    # Salva decoded sample pra owner verificar visualmente
+    sample_lines = [f"# RT_OK={rt_ok} | n_mismatched={n_mismatched}/{len(values)}",
+                    "# Primeiras 20 linhas decoded vs original:"]
+    for i in range(min(20, len(values))):
+        marker = " " if values[i] == decoded[i] else "!"
+        sample_lines.append(f"{marker} orig={values[i]!r}  decoded={decoded[i]!r}")
+    (out_dir / f"{name}-decoded-sample20.txt").write_text(
+        "\n".join(sample_lines) + "\n", encoding="utf-8"
+    )
 
     cf = side.column_features
     return {
@@ -68,25 +82,26 @@ def measure(name: str) -> dict:
         "min_len": side.min_len,
         "is_numeric": cf.is_numeric if cf else False,
         "seq_rle_runs": len(side.seq_rle_runs),
+        "rt_ok": rt_ok,
+        "n_mismatched": n_mismatched,
     }
 
 
 def main():
     results = [measure(name) for name in DATASETS]
 
-    print("=== Sub-exp 01 — Caracterizacao baseline M10 ===\n")
+    print("=== Sub-exp 01 — Caracterizacao baseline M10 (com RT validado) ===\n")
     print(f"{'dataset':22s} {'rows':>5} {'raw':>8} {'m10':>8} "
-          f"{'ratio':>7} {'b/cpf raw':>10} {'b/cpf m10':>10} "
-          f"{'cad':>5} {'minlen':>7} {'rle':>5}")
-    print("-" * 110)
+          f"{'ratio':>7} {'b/cpf m10':>10} {'RT':>3} {'mismatch':>8}")
+    print("-" * 90)
     for r in results:
+        rt_marker = "OK" if r['rt_ok'] else "FAIL"
         print(f"{r['dataset']:22s} {r['n_rows']:>5} "
               f"{r['raw_bytes']:>8} {r['m10_bytes']:>8} "
               f"{r['ratio_pct']:>6.2f}% "
-              f"{r['bytes_per_cpf_raw']:>10.2f} "
               f"{r['bytes_per_cpf_m10']:>10.2f} "
-              f"{str(r['cadence_detected'])[:1]:>5} "
-              f"{r['min_len']:>7} {r['seq_rle_runs']:>5}")
+              f"{rt_marker:>3} "
+              f"{r['n_mismatched']:>8}")
 
     # Manifest
     out = THIS / "manifest.jsonl"

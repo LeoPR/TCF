@@ -87,26 +87,43 @@ def load_cpfs(name: str) -> list[str]:
         return [row[0] for row in r if row]
 
 
+def reconstruct(orig: str, dec_str: str) -> str:
+    """Reverte pre-tx pra reconstruir o valor original.
+
+    Se decoded eh 5-char base-94: decode + regen check + reformat.
+    Caso contrario: literal (fallback inline).
+    """
+    if len(dec_str) == 5 and all(c in BASE94 for c in dec_str):
+        try:
+            return decode_base_to_cpf(dec_str)
+        except Exception:
+            return dec_str
+    return dec_str
+
+
 def measure_variant_b(name: str) -> dict:
     values = load_cpfs(name)
-    n_valid = sum(1 for v in values if CPF_RE.match(v))
+    n_valid_format = sum(1 for v in values if CPF_RE.match(v))
 
-    # Pre-tx: tenta encode-to-base; se nao casa, fallback string vazia
-    # (em sub-exp 05 tratamos fallback proper)
+    # Pre-tx: tenta encode-to-base; se nao casa, fallback inline (raw)
     encoded_values: list[str] = []
     for v in values:
         b = encode_cpf_to_base(v)
-        if b is not None:
-            encoded_values.append(b)
-        else:
-            encoded_values.append(v)  # fallback raw inline (impacta numbers)
+        encoded_values.append(b if b is not None else v)
 
     text = encode(encoded_values)
     m10_bytes = len(text.encode("utf-8"))
-
     raw_bytes = sum(len(v.encode("utf-8")) for v in values) + len(values)
 
-    # Salva .tcf + pre-tx intermediate em out_tcf/ (auditoria)
+    # DECODE + RT per-value (feedback owner: compressao nao validada sem RT)
+    decoded_raw = decode(text)
+    reconstructed = [reconstruct(o, d) for o, d in zip(values, decoded_raw)]
+    rt_per_row = [o == r for o, r in zip(values, reconstructed)]
+    rt_all = all(rt_per_row)
+    n_rt_ok = sum(rt_per_row)
+    n_mismatched = len(values) - n_rt_ok
+
+    # Salva .tcf + pre-tx + decoded sample em out_tcf/ (auditoria)
     out_dir = THIS / "out_tcf"
     out_dir.mkdir(exist_ok=True)
     (out_dir / f"{name}.tcf").write_bytes(text.encode("utf-8"))
@@ -115,32 +132,39 @@ def measure_variant_b(name: str) -> dict:
         f"# Pre-tx sample (primeiras 20 strings apos strip+check+base94):\n{pretx_sample}\n",
         encoding="utf-8",
     )
-
-    # Validar RT (apenas pra valores validos)
-    decoded = decode(text)
-    rt_ok = True
-    for orig, dec_str in zip(values, decoded):
-        if CPF_RE.match(orig):
-            # Espera regen via decode_base_to_cpf
-            reconstructed = decode_base_to_cpf(dec_str) if len(dec_str) == 5 else dec_str
-            if reconstructed != orig:
-                rt_ok = False
-                break
-        else:
-            if dec_str != orig:
-                rt_ok = False
-                break
+    # Decoded sample com mismatches marcados
+    sample_lines = [
+        f"# RT_ALL={rt_all} | rt_ok={n_rt_ok}/{len(values)} | mismatched={n_mismatched}",
+        "# Primeiras 20: ' ' = OK, '!' = MISMATCH (compressao quebrou o original)",
+    ]
+    for i in range(min(20, len(values))):
+        marker = " " if rt_per_row[i] else "!"
+        sample_lines.append(f"{marker} orig={values[i]!r}  reconstructed={reconstructed[i]!r}")
+    (out_dir / f"{name}-decoded-sample20.txt").write_text(
+        "\n".join(sample_lines) + "\n", encoding="utf-8"
+    )
+    # Se houve mismatches, salvar lista completa pra auditoria
+    if not rt_all:
+        mismatch_lines = ["# Lista completa de mismatches (original -> reconstructed):"]
+        for i, ok in enumerate(rt_per_row):
+            if not ok:
+                mismatch_lines.append(f"row {i}: {values[i]!r} -> {reconstructed[i]!r}")
+        (out_dir / f"{name}-mismatches.txt").write_text(
+            "\n".join(mismatch_lines) + "\n", encoding="utf-8"
+        )
 
     return {
         "dataset": name,
         "variant": "B-base-encoded",
         "n_rows": len(values),
-        "n_valid": n_valid,
+        "n_valid_format": n_valid_format,
         "raw_bytes": raw_bytes,
         "m10_bytes": m10_bytes,
         "ratio_pct": round(m10_bytes / raw_bytes * 100, 2),
         "bytes_per_cpf": round(m10_bytes / len(values), 2),
-        "rt_ok": rt_ok,
+        "rt_all": rt_all,
+        "n_rt_ok": n_rt_ok,
+        "n_mismatched": n_mismatched,
     }
 
 
@@ -150,15 +174,16 @@ def main():
     datasets = ["D-CPF-uniform", "D-CPF-clustered", "D-CPF-mixed", "D-CPF-corrupt"]
     results = [measure_variant_b(name) for name in datasets]
 
-    print("=== Sub-exp 03 — Variante B (base-94 encode) ===\n")
-    print(f"{'dataset':22s} {'rows':>5} {'valid':>6} {'raw':>8} {'m10':>8} "
-          f"{'ratio':>7} {'b/cpf':>7} {'RT':>4}")
-    print("-" * 80)
+    print("=== Sub-exp 03 — Variante B (base-94, RT validado per-row) ===\n")
+    print(f"{'dataset':22s} {'rows':>5} {'raw':>8} {'m10':>8} "
+          f"{'ratio':>7} {'b/cpf':>7} {'rt_ok':>9} {'mismatch':>9}")
+    print("-" * 95)
     for r in results:
-        print(f"{r['dataset']:22s} {r['n_rows']:>5} {r['n_valid']:>6} "
+        rt_label = f"{r['n_rt_ok']}/{r['n_rows']}"
+        print(f"{r['dataset']:22s} {r['n_rows']:>5} "
               f"{r['raw_bytes']:>8} {r['m10_bytes']:>8} "
               f"{r['ratio_pct']:>6.2f}% {r['bytes_per_cpf']:>7.2f} "
-              f"{'OK' if r['rt_ok'] else 'FAIL':>4}")
+              f"{rt_label:>9} {r['n_mismatched']:>9}")
 
     out = THIS / "manifest.jsonl"
     out.write_text(

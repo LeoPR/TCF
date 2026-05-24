@@ -39,38 +39,53 @@ genérica.
 
 | ID | Hipotese | Esperado | Resultado (2026-05-24) |
 |---|---|---|---|
-| **H1** | Base-encoding **mascara** padroes substring detectaveis por OBAT | Variante C vence em clustered | **REFUTADA**: Variante B vence mesmo em clustered (46.52% vs C 69.37%). Compressao matematica densa >> ganho residual de padrao substring no caso CPF. |
+| **H1** | Base-encoding **mascara** padroes substring detectaveis por OBAT | Variante C vence em clustered | **REFUTADA** (com ressalva RT): Variante B vence em RT-OK (-64% uniform, -53% clustered). Compressao matematica densa >> ganho residual de padrao substring. MAS B nao roda RT em corrupt — sub-exp 05 obrigatorio antes de usar em real-world. |
 | **H2** | Estatisticas estruturadas (genericas + especificas) viaveis sem overhead | apply_rate + fallback_reasons populados corretamente | A medir em sub-exp 06 |
 | **H3** | Categoria "Templated+Checked+Unique" generaliza pra CNPJ + IP via SlotBehavior | Mesmo codigo, 3 instancias funcionam | A medir em sub-exps 07/08 |
 
-## Resultados sub-exps 01-04 (2026-05-24)
+## Resultados sub-exps 01-04 (2026-05-24, **RT validado per-row**)
 
-| Dataset | Raw | M10 (A) | B (base-94) | C (hibrido) | Vencedor |
+Tabela de compressao **separada por validade de RT** (compressao so'
+tem significado se decode reproduz o original — feedback 2026-05-24):
+
+### RT OK (compressao lossless valida)
+
+| Dataset | Raw | M10 (A) | B (base-94) | C (hibrido) | Vencedor RT-OK |
 |---|---:|---:|---:|---:|---|
-| D-CPF-uniform | 15000 | 18936 (126%) | **6823 (45%)** | 11892 (79%) | **B (-64%)** |
-| D-CPF-clustered | 15000 | 18042 (120%) | **6978 (47%)** | 10406 (69%) | **B (-53%)** |
-| D-CPF-mixed | 13500 | 16304 (121%) | 10220 (76%) | 12619 (93%) | B (com cuidado) |
-| D-CPF-corrupt | 14985 | 18959 (127%) | 7190 (48%) ⚠ | 12106 (81%) ⚠ | RT FAIL em ambas |
+| D-CPF-uniform | 15000 | 18936 (126%, RT 1000/1000) | **6823 (45%, RT 1000/1000)** | 11892 (79%, RT 1000/1000) | **B (-64%)** |
+| D-CPF-clustered | 15000 | 18042 (120%, RT 1000/1000) | **6978 (47%, RT 1000/1000)** | 10406 (69%, RT 1000/1000) | **B (-53%)** |
+| D-CPF-mixed | 13500 | 16304 (121%, RT 1000/1000) | **10220 (76%, RT 1000/1000)** | 12619 (93%, RT 1000/1000) | **B (-24%)** |
 
-**Achados criticos**:
+### RT FAIL (compressao comprometida — NAO eh lossless)
 
-1. **Baseline M10 PIORA CPFs** (126% ratio em uniform). Marcadores fixos
-   `.` `.` `-` viram overhead estatico; alta entropia dos digitos nao
-   ajuda OBAT. Sem pre-tx, TCF eh **anti-compressor** pra CPF.
-2. **Variante B (base-94) vence** com larga margem: -64% em uniform,
-   -53% em clustered. H1 refutada — compressao matematica vence
-   visibilidade de padrao.
-3. **Clustered nao salva variante C**: ganho apenas residual (-10pp
-   vs uniform). OBAT acha algum padrao no prefixo mas nao compensa
-   a densidade que B oferece.
-4. **Mixed (50% sem mascara) penaliza B** (76% vs 45% uniform) —
-   fallback inline dos 500 sem-mascara explode. Sub-exp 05 deve
-   tratar isto com marker explicito (em vez de inline raw).
-5. **Corrupt RT FAIL em B e C**: corrupt_check gera CPFs que casam
-   regex mas tem check digit errado; pre-tx remove check + regen
-   corrige, mudando o valor. Comportamento aceitavel se documentado
-   como "data quality fix"; sub-exp 05 implementa policy estrito
-   (literal pra check_invalid) como alternativa.
+| Dataset | Raw | M10 (A) | B (base-94) | C (hibrido) |
+|---|---:|---:|---:|---:|
+| D-CPF-corrupt | 14985 | 18959 (127%, RT 1000/1000) ✓ | 7190 (48%, **RT 989/1000**) ❌ | 12106 (81%, **RT 989/1000**) ❌ |
+
+**Os 11 mismatches** sao exatamente os `corrupt_check` (CPFs com formato
+OK mas check digit errado). Pre-tx B e C removem o check e regen no
+decode -> reconstrucao **muda** o valor original (de `...-97` pra
+`...-96` por exemplo, lista completa em
+[`03-.../out_tcf/D-CPF-corrupt-mismatches.txt`](03-variante-B-base-encoded/out_tcf/D-CPF-corrupt-mismatches.txt)).
+
+A "compressao" dos 11 cases eh ilusoria: bytes reduzidos mas dados
+mudados. Sub-exp 05 (fallback marker) implementa fix.
+
+### Achados criticos
+
+1. **Baseline M10 PIORA CPFs em bytes** (120-127% ratio) — mas mantem
+   RT 1000/1000 em TODOS os datasets, incluindo corrupt. Eh lossless;
+   so' nao comprime.
+2. **Variante B (base-94) vence** em **datasets com 100% formato
+   valido** (uniform/clustered/mixed): -45% a -64%. Compressao
+   matematica vence visibilidade de padrao. **H1 refutada**.
+3. **Variante C (hibrido)** intermediaria, nunca vence B onde RT OK.
+4. **B e C nao podem ser usadas em datasets dirty** (com check
+   invalido) sem sub-exp 05 — geram **silent data corruption** dos
+   ~1% corruptos. M10 puro (variante A) seria a unica opcao lossless
+   pra dataset corrupt.
+5. **Conclusao**: B eh vencedor **condicional** — requer dados
+   higienizados OU fallback marker (sub-exp 05) pra ser seguro.
 
 ## Variantes a testar (H1 — 3 estrategias competitivas)
 
