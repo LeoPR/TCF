@@ -185,6 +185,75 @@ Estas ja' existem em outros docs; replicadas aqui pra centralizar.
 | H-TH-02 | Indice incremental de padroes (Patricia generalizada) | adiada |
 | H-TH-03 | Comparacao modular em camadas (pre-tx delta / estrutural / aproximado ortogonais) | adiada |
 
+## Pacote 7 — Templated / Checksummed / Lossy (registrado 2026-05-24)
+
+**Origem**: brainstorm 2026-05-24 do owner, catalogado em
+[`naturezas-templated-2026-05-24.md`](naturezas-templated-2026-05-24.md).
+Estende T02 (Templated) e T04 (Checked) do META-TYPE-ENCODERS.
+
+**Status do pacote**: registrado, **lab nao iniciado**. Reabertura
+condicionada a download de datasets dedicados (T-DATA-1) + caracterizacao
+real-world (mesmo padrao Pacote 5 enumerated: testar antes de welder).
+
+### Templated puro
+
+| ID | Hipotese | Datasets alvo | Ganho estimado |
+|---|---|---|---|
+| H-TM-IP4 | IPv4 pre-tx (omit `.` + slots numericos 0-255) | logs com IP (futuro) | -50 a -70% |
+| H-TM-IP6 | IPv6 pre-tx (omit `:` + expandir `::`) | logs com IP6 (futuro) | -40 a -60% |
+| H-TM-MAC | MAC pre-tx (omit `:` + 6 bytes hex) | logs de rede, IoT (futuro) | -60 a -70% |
+| H-TM-CEP | CEP BR pre-tx (omit `-` + 8 digitos) | datasets BR (futuro) | -10 a -15% |
+| H-TM-EAN | EAN/UPC pre-tx (delta-aware numerico) | Online Retail StockCode (T-DATA-1) | depende cadencia |
+
+### Templated com pontuacao opcional
+
+| ID | Hipotese | Datasets alvo | Ganho estimado |
+|---|---|---|---|
+| H-TM-FONE-BR | Telefone BR (detect mascara + extract digits) | CRMs (futuro) | -20 a -30% |
+| H-TM-FONE-INTL | Telefone E.164 (composite CC + local) | datasets globais (futuro) | -15 a -25% |
+| H-TM-DATA-BR | Data BR (dd/mm/yyyy normalize ISO) | datasets BR (futuro) | -15 a -20% |
+
+### Templated + Checksummed (dual nature)
+
+| ID | Hipotese | Datasets alvo | Ganho estimado |
+|---|---|---|---|
+| H-TM-CPF | CPF pre-tx (omit `.`/`-` + 2 digits check regen) | D13 CPF, datasets fiscais BR (futuro) | -25 a -30% |
+| H-TM-CNPJ | CNPJ pre-tx similar a CPF | datasets fiscais BR (futuro) | -25 a -30% |
+| H-TM-TITULO | Titulo eleitor BR (check digits regen) | datasets eleitorais (futuro) | -15 a -20% |
+| H-TM-IBAN | IBAN pre-tx (omit espacos + check mod-97) | bancarios EU (futuro) | -10 a -20% |
+| H-TM-LUHN | Cartao credito / IMEI (omit espacos + Luhn check) | financeiros (futuro) | -10 a -15% |
+
+### Lossy-recoverable (erro controlado)
+
+Estende #10 de [naturezas-numericas-2026-05-23.md](naturezas-numericas-2026-05-23.md).
+
+| ID | Hipotese | Datasets alvo | Ganho estimado |
+|---|---|---|---|
+| H-LR-FLOAT-PREC | Float com precisao fixa (round + N casas) | Wine Quality, Beijing PM2.5 (T-DATA-1) | -20 a -40% |
+| H-LR-GEO | Coordenadas geo (truncar lat/long pra N casas) | datasets geo (futuro) | -30 a -50% |
+| H-LR-MONETARY | Monetario com round automatico (R$ pra 2 casas) | Online Retail UnitPrice (T-DATA-1) | -10 a -25% |
+| H-LR-DIST | Erro distribuido (quantize + delta) | sensor data (futuro) | depende noise |
+| H-LR-PERC | Percentual aproximado (round) | reports analiticos (futuro) | -10 a -20% |
+
+### Composite (multi-nature por valor)
+
+| ID | Hipotese | Datasets alvo | Ganho estimado |
+|---|---|---|---|
+| H-CP-DATETIME | datetime ISO decompor em date+time+tz (cada qual sua nature) | D11, TPC-H date cols, logs (futuro) | -30 a -60% |
+| H-CP-ENDERECO | Endereco BR (rua+numero+bairro+cidade+UF+CEP) | datasets BR (futuro) | -20 a -40% |
+| H-CP-MONEY | Monetario com moeda (currency enum + amount num) | financeiros (futuro) | -10 a -15% |
+| H-CP-VERSION | Semver (major.minor.patch + pre + build) | repositorios de pkg (futuro) | -10 a -20% |
+
+### Criterio de reabertura
+
+Pacote 7 abre quando:
+1. Owner roda T-DATA-1 scripts -> dados disponiveis em Z:/tcf-data/
+2. Sub-exp tipo `01-caracterizacao` mede baseline M10 em datasets-alvo
+3. Se ganho potencial >= 15% em 2+ datasets -> abrir sub-pacote (e.g.,
+   `2026-MM-DD-pacote7-templated-cpf/`)
+
+Antes disso, **registrado mas adiado**.
+
 ---
 
 ## Estrategia de mistura

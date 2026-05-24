@@ -2,7 +2,28 @@
 
 **Status**: OPEN (T01 absorvido; T02-T07 + L01-L05 adiados; sub-escopo Perf transferido pra novo ticket)
 **Criado**: 2026-05-15
-**Ultima atualizacao**: 2026-05-19
+**Ultima atualizacao**: 2026-05-24
+
+## Atualizacao 2026-05-24 — sub-naturezas templated/checksummed catalogadas
+
+Owner detalhou sub-naturezas concretas de T02 (Templated) e T04 (Checked),
+plus extensoes de #10 (Lossy) catalogadas em
+[`experiments/lab/dirty/notas/naturezas-templated-2026-05-24.md`](../experiments/lab/dirty/notas/naturezas-templated-2026-05-24.md):
+
+- **TM-IP4/IP6/MAC/CEP/EAN** (Templated puro)
+- **TM-CPF/CNPJ/TITULO/IBAN/LUHN** (Templated + Checksummed dual)
+- **TM-FONE-BR/INTL, TM-DATA-BR, TM-EMAIL, TM-URL** (Templated com mascara)
+- **LR-FLOAT-PREC/GEO/MONETARY/DIST/PERC** (Lossy com erro controlado)
+- **CP-DATETIME/ENDERECO/MONEY/VERSION** (Composite multi-nature)
+
+Hipoteses H-TM-* / H-LR-* / H-CP-* registradas em
+[`roadmap-hipoteses.md`](../experiments/lab/dirty/notas/roadmap-hipoteses.md)
+secao "Pacote 7 — Templated / Checksummed / Lossy".
+
+**Status**: catalogado, **lab nao iniciado**. Mesmo criterio de reabertura
+de T02-T07: casos real-world onde Pacote 1+ADR-0008 nao bastem. Pre-requisito
+imediato: owner roda T-DATA-1 scripts (Online Retail, Beijing PM2.5,
+Wine Quality) -> dados disponiveis -> sub-exp caracterizacao.
 
 ## Atualizacao 2026-05-19 — realidade pos-Pacotes 1/3/4
 

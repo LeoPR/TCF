@@ -1,13 +1,24 @@
 # STATUS — TCF (compendio sempre-atualizado)
 
-**Atualizado em**: 2026-05-24 (**API UNIFICADA ADR-0014**: `encode(list|dict)`
+**Atualizado em**: 2026-05-24 (**Sessao 2 — registros**: O-FMT-14
+header desacoplavel/opcional registrado em `futuras-otimizacoes-formato.md`.
+Nova nota `naturezas-templated-2026-05-24.md` cataloga sub-naturezas
+de T02 Templated (CPF/IP/MAC/telefone/CEP/EAN/IBAN) + T04 Checksummed
+(CPF/CNPJ/Luhn) + LR Lossy (FLOAT-PREC/GEO/MONETARY) + CP Composite
+(datetime/endereco/money). Hipoteses H-TM-*/H-LR-*/H-CP-* registradas
+em roadmap-hipoteses.md secao Pacote 7. META-TYPE-ENCODERS atualizado.
+Lab nao iniciado — criterio reabertura: T-DATA-1 download + caracterizacao
+em datasets dedicados.
+
+**Sessao 1 anterior 2026-05-24**: API UNIFICADA ADR-0014: `encode(list|dict)`
 + `decode(text)` por dispatch (tipo + shebang). Single = caso particular de
 multi com 1 coluna. `SideOutputs` recipiente opcional captura
 column_features, cadence_info, OBAT log, HCC trace/rede, seq_rle_runs,
 multi_info, per_col. `encode_table`/`decode_table` viram deprecated aliases.
 D17a 322B INVARIANT preservado. 117 passed (+21 novos) + 1 xfailed. 4 novos
 tickets P2/P3: T-CODE-ENCODER-MANAGER (revive D13 v0.4), T-CODE-PLAN-CONTRACT,
-T-CODE-SCHEMA-BUILDER (consume SideOutputs), T-CODE-OUTPUT-SINKS.)
+T-CODE-SCHEMA-BUILDER (consume SideOutputs), T-CODE-OUTPUT-SINKS.
+TCF-format.md expandido com pipeline ASCII unificado + camadas futuras.)
 
 > **Como ler este documento**: este e' o ponto de entrada
 > bibliografico do projeto. Se um sistema novo (humano ou Claude)
