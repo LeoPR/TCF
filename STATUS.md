@@ -1,14 +1,13 @@
 # STATUS — TCF (compendio sempre-atualizado)
 
-**Atualizado em**: 2026-05-23 (**T-EXP-MULTI-COL-SCALING WELDED canonical**:
-`src/tcf/multi.py` novo com `encode_table` + `decode_table` (ADR-0013).
-API publica agora: `from tcf import encode, decode, encode_table, decode_table`.
-D17a 322B INVARIANT preservado. 17/17 tests novos (test_multi_col_rt.py) +
-sem regressao no resto da suite (96 passed). 9 tabelas real-world:
--33.02% weighted vs raw, -31.46% vs single, RT 9/9 (lineitem 60k 16.6min).
-Sessao 2026-05-23 fechou: T-EXP-H-PERF-05d, T-EXP-PACOTE5, T-EXP-H-DA-09c,
-T-DOC/T-CLEAN P3, T-CI-1+2, T-EXP-NATUREZAS-RARAS, T-DATA-1,
-T-EXP-MULTI-COL-SCALING.)
+**Atualizado em**: 2026-05-24 (**API UNIFICADA ADR-0014**: `encode(list|dict)`
++ `decode(text)` por dispatch (tipo + shebang). Single = caso particular de
+multi com 1 coluna. `SideOutputs` recipiente opcional captura
+column_features, cadence_info, OBAT log, HCC trace/rede, seq_rle_runs,
+multi_info, per_col. `encode_table`/`decode_table` viram deprecated aliases.
+D17a 322B INVARIANT preservado. 117 passed (+21 novos) + 1 xfailed. 4 novos
+tickets P2/P3: T-CODE-ENCODER-MANAGER (revive D13 v0.4), T-CODE-PLAN-CONTRACT,
+T-CODE-SCHEMA-BUILDER (consume SideOutputs), T-CODE-OUTPUT-SINKS.)
 
 > **Como ler este documento**: este e' o ponto de entrada
 > bibliografico do projeto. Se um sistema novo (humano ou Claude)
@@ -47,9 +46,16 @@ baseline, ADR-0011):
   detector unificado + emit composicional + seq-RLE near-identical
   (`*N+delta|template`). Em `src/tcf/composicional/`.
 
-API publica: `from tcf import encode, decode`. RT byte-canonical
-validado em D1-D9 (M10 baseline 1523B, vs M9 antigo 1615B) +
-Adult+TPC-H (ganho 11.73% weighted vs M9 puro, 889,714B em 57 cols).
+API publica unificada (ADR-0014): `from tcf import encode, decode, SideOutputs`.
+- `encode(list)` -> body single-col (sem shebang)
+- `encode(dict)` -> multi-col com header `#TCF.6 M`
+- `decode(text)` -> dispatch automatico pelo shebang
+- `SideOutputs()` opcional captura features/logs/traces internos
+
+RT byte-canonical validado em D1-D9 (M10 baseline 1523B, vs M9 antigo
+1615B), D17a multi-col (322B INVARIANT), Adult+TPC-H single-col 57 cols,
+9 tabelas multi-col (Adult + TPC-H tier 1+2, 136k linhas, -33.02% weighted
+vs raw, -31.46% vs single concat, RT 9/9).
 
 ---
 
@@ -235,6 +241,7 @@ Adult+TPC-H (ganho 11.73% weighted vs M9 puro, 889,714B em 57 cols).
 | **T-CI-2** | Tests refactor CI-friendly | CLOSED 2026-05-23 | 5 v0.5 archived; 31 RT tests novos; marker requires_data |
 | **T-DATA-1** | 3 datasets UCI/OpenML canonicos | OPEN 2026-05-23 (scripts criados) | online-retail, beijing-pm25, wine-quality; download pendente |
 | **T-EXP-MULTI-COL-SCALING** | Multi-col welded canonical em src/tcf (ADR-0013, Opcao A) | **CLOSED-WELDED-CANONICAL 2026-05-23** | src/tcf/multi.py + encode_table/decode_table API publica; D17a 322B INVARIANT; 17/17 tests novos; 9 tabelas real-world: -33.02% raw weighted |
+| **T-CODE-UNIFIED-API** | API unificada `encode(list\|dict)` + SideOutputs (ADR-0014, supersede ADR-0013) | **CLOSED-WELDED-CANONICAL 2026-05-24** | encoder/decoder dispatcher + side_outputs.py + multi.py interno; D17a 322B preservado; 117 passed (+21); deprecated aliases mantidos |
 
 ### Pacotes registrados, nao iniciados
 
@@ -316,6 +323,11 @@ nao guia de evolucao (cf. diretriz dados-realistas).
 | [T-CI-2-tests-refactor](tickets/T-CI-2-tests-refactor.md) | **CLOSED 2026-05-23** | 5 v0.5 archived; 31 tests novos CI-friendly |
 | [T-DATA-1-datasets-financeiros-cientificos](tickets/T-DATA-1-datasets-financeiros-cientificos.md) | **OPEN 2026-05-23 (scripts criados)** | 3 datasets UCI/OpenML, download pendente |
 | [T-EXP-MULTI-COL-SCALING](tickets/T-EXP-MULTI-COL-SCALING.md) | **CLOSED-WELDED-CANONICAL 2026-05-23** | src/tcf/multi.py welded (ADR-0013); encode_table/decode_table publicos; 17/17 tests; -33.02% raw weighted real-world |
+| [ADR-0014 (welded direto)](docs/adr/0014-unified-api-side-outputs.md) | **CLOSED-WELDED-CANONICAL 2026-05-24** | API unificada encode(list\|dict) + SideOutputs; ADR-0013 superseded; 117 passed |
+| [T-CODE-ENCODER-MANAGER](tickets/T-CODE-ENCODER-MANAGER.md) | **OPEN P2 2026-05-24** | Revive D13 v0.4: paralelismo + sinks (file/multi/HTTP/TCP) + per-channel headers + streaming |
+| [T-CODE-OUTPUT-SINKS](tickets/T-CODE-OUTPUT-SINKS.md) | **OPEN P2 2026-05-24** | Contract Sink pluggable, refactor scripts/writers/ (bloqueado por encoder-manager) |
+| [T-CODE-PLAN-CONTRACT](tickets/T-CODE-PLAN-CONTRACT.md) | **OPEN P3 2026-05-24** | Plan dataclass (group_by/order/batch_size), habilita O-FMT-01..04 |
+| [T-CODE-SCHEMA-BUILDER](tickets/T-CODE-SCHEMA-BUILDER.md) | **OPEN P3 2026-05-24** | Orquestrador consume SideOutputs, frontend de META-TYPE-ENCODERS |
 
 ---
 
