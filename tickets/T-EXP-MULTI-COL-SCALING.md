@@ -1,6 +1,6 @@
 ---
 title: T-EXP-MULTI-COL-SCALING — Port multi-column pra canonical M10 + real-world
-status: closed-validated-welding-pending-lineitem
+status: closed-validated-welding-pending-approval
 priority: P1
 created: 2026-05-23
 updated: 2026-05-23
@@ -49,10 +49,10 @@ Sub-exp dirty `2026-05-23-multi-column-scaling/`:
 
 KR-style mensuraveis:
 - [x] D17a RT OK + bytes <= 322B
-- [x] Real-world RT 100% em >= 4 tabelas
-- [x] Multi-col ganho > 0 weighted vs single-col concat
-- [x] Header overhead < 5% datasets >= 1500 rows
-- [ ] Lineitem 60k validado (adiado pra Fase 4)
+- [x] Real-world RT 100% em >= 4 tabelas (9/9)
+- [x] Multi-col ganho > 0 weighted vs single-col concat (-31.46%)
+- [x] Header overhead < 5% datasets >= 1500 rows (< 1% em 5/5)
+- [x] **Lineitem 60k validado** (Fase 4: -17.11% raw, -30.73% single, RT OK, 16.6min)
 
 ## Resultados
 
@@ -62,47 +62,63 @@ KR-style mensuraveis:
 - Pq mesmo? Cols com n=13 < gating threshold 100 (ADR-0010), entao
   M10 fallback pra M9 behavior. Esperado.
 
-### Real-world (8 tabelas, sem lineitem)
+### Real-world (9 tabelas, com lineitem 60k)
 
 | | Total |
 |---|---:|
-| raw_bytes | 8,557,687 |
-| multi_bytes | 4,571,416 |
-| single_bytes | 6,762,910 |
-| **multi vs raw** | **-46.58%** weighted |
-| **multi vs single** | **-32.40%** weighted |
-| RT | **8/8 OK** |
+| raw_bytes | 15,848,939 |
+| multi_bytes | 10,614,897 |
+| single_bytes | 15,487,003 |
+| **multi vs raw** | **-33.02%** weighted |
+| **multi vs single** | **-31.46%** weighted |
+| RT | **9/9 OK** |
 
 Destaque:
 - adult-census/adult (48k x 15): -65.14% vs raw, -44.62% vs single
 - tpch-sf001/orders (15k x 9): -23.11% vs raw, -28.14% vs single
 - tpch-sf001/part (2k x 9): -41.32% vs raw, -43.53% vs single
+- tpch-sf001/lineitem (60k x 16): -17.11% vs raw, -30.73% vs single (16.6min)
 - region (5 x 3): +3.87% vs raw (outlier — tiny dataset, header dominante)
 
-Tempo: orders 53s, partsupp 10.5s. HCC O(N^1.42) e' gargalo.
+Tempo: lineitem 16.6 min, orders 53s, partsupp 10.5s. HCC O(N^1.42)
+e' gargalo dominante (especialmente em datetime cols largas).
 
 ## Riscos
 
 1. **NULL handling** (`None -> ""`) pode causar collision com string
-   vazia legitima. POC OK, revisar pra welding.
-2. **Lineitem nao testado** — pode mudar metricas weighted
-   (lineitem peso ~20% do real-world weight).
-3. **CSV proxy raw_bytes** arbitrario; comparacao com parquet/avro
+   vazia legitima. POC OK, requer revisao pra welding (ADR proposto
+   deve cobrir).
+2. **CSV proxy raw_bytes** arbitrario; comparacao com parquet/avro
    nao testada.
+3. **Tempo lineitem 16.6min**: HCC dominante. Cython/Rust (H-PERF-06)
+   poderia reduzir mas adiado.
 
 ## Decisao final / welding
 
-**RECOMENDACAO**: welding adiado ate' validar lineitem (Fase 4 ~30min)
-+ decisao sobre nome funcao publica.
+**Criterios todos atingidos**. Pendente decisao final de welding
+em src/tcf — requer aprovacao explicita user (regra: src/tcf intocado
+sem aprovacao).
 
 **Status sub-exp dirty**: closed-validated (H1/H2/H3 confirmadas em
-8 tabelas).
+9 tabelas).
 
-**Pendente pra welding**:
-1. Lineitem 60k validation
-2. Nome da funcao: `encode_table` / `encode_dict` / `encode(dict|list)` overload?
-3. ADR atualizado documentando decisao (estender ADR-0004 ou novo)
-4. tests/test_multi_col_rt.py com >= 3 tabelas
+**Plano de welding proposto** (3 opcoes API):
+
+| Opcao | Descricao | Recomendado? |
+|---|---|---|
+| A. `encode_table(dict)` separado | Explicit, type-clear, backward compat | **SIM** |
+| B. `encode(values)` overload | DRY 1 func; type check runtime | Nao |
+| C. `encode_columns(table)` (O-FMT-05) | Nome antigo plural | Nao |
+
+**Welding plan (Opcao A)**:
+1. Novo `src/tcf/multi.py` com `encode_table` + `decode_table`
+2. Atualizar `src/tcf/__init__.py`: `from tcf import encode, decode, encode_table, decode_table`
+3. Magic constants definidos em src/tcf/multi.py
+4. ADR novo (proposto: 0013) documentando decisao
+5. tests/test_multi_col_rt.py com D17a 322B INVARIANT + edge cases
+6. STATUS.md + tickets atualizados
+
+**NAO welds sem aprovacao explicita do user**.
 
 ## Conexoes
 
@@ -125,3 +141,21 @@ Lineitem 60k adiado pra Fase 4 (1 run, ~20-30 min). Welding decisao
 pendente pos-lineitem.
 
 Status mudado de `open` pra `closed-validated-welding-pending-lineitem`.
+
+### 2026-05-23 — Fase 4 lineitem + todos criterios atingidos
+
+Lineitem 60k x 16 rodado (16.6 min real, HCC dominante). Resultado:
+- multi: 6,043,481B vs raw 7,291,252B = **-17.11%**
+- multi vs single concat: 6,043,481B vs 8,724,093B = **-30.73%**
+- RT: OK
+
+Totais agregados 9 tabelas:
+- raw: 15,848,939B
+- multi: 10,614,897B (**-33.02%** weighted vs raw)
+- single: 15,487,003B (multi **-31.46%** vs single weighted)
+- RT: **9/9 OK**
+
+Todos criterios de welding atingidos. Welding em src/tcf pendente
+aprovacao explicita user (regra: src/tcf intocado).
+
+Status: `closed-validated-welding-pending-approval`.

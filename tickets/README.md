@@ -39,7 +39,7 @@ referencias a commits que o resolveram.
 | [T-CI-1-github-actions](T-CI-1-github-actions.md) | Workflow .github/workflows/ci.yml (lint via pre-commit). Tests job ativado em T-CI-2 (mesma data). Badge CI no README. | **CLOSED 2026-05-23 (Fase 1+2)** |
 | [T-CI-2-tests-refactor](T-CI-2-tests-refactor.md) | Refactor tests CI-friendly: archive 5 v0.5 broken pra _archive_v05/, marker requires_data, 31 tests novos test_core_rt.py (M10 baseline 1523B + edge cases + Pacote 3 fix). CI ativado matrix py 3.10/3.11/3.12. | **CLOSED-REFACTOR-COMPLETED 2026-05-23** |
 | [T-DATA-1-datasets-financeiros-cientificos](T-DATA-1-datasets-financeiros-cientificos.md) | Scripts setup pra 3 datasets UCI/OpenML canonicos: Online Retail (~45MB, padroes .99 #8), Beijing PM2.5 (~2MB, range narrow PRES #5), Wine Quality (~100KB, decimais cientificos). READMEs + metadata. Download pendente owner. | **OPEN 2026-05-23 (scripts criados, download pendente)** |
-| [T-EXP-MULTI-COL-SCALING](T-EXP-MULTI-COL-SCALING.md) | Port multi-col EXP-011 (M9) pra canonical M10. D17a 322B preservado. 8 tabelas real-world (Adult Census + TPC-H tier 1, 76k linhas): -46.58% weighted vs raw, -32.40% vs single-col concat, RT 8/8. Welding pendente lineitem Fase 4 + decisao nome funcao publica. | **CLOSED-VALIDATED-WELDING-PENDING-LINEITEM 2026-05-23** |
+| [T-EXP-MULTI-COL-SCALING](T-EXP-MULTI-COL-SCALING.md) | Port multi-col EXP-011 (M9) pra canonical M10. D17a 322B preservado. 9 tabelas real-world (Adult Census + TPC-H tier 1+2, 136k linhas, incluindo lineitem 60k em 16.6min): -33.02% weighted vs raw, -31.46% vs single-col concat, RT 9/9. Todos criterios welding atingidos. Pendente aprovacao explicita user + decisao API. | **CLOSED-VALIDATED-WELDING-PENDING-APPROVAL 2026-05-23** |
 
 ## Politica
 

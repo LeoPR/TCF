@@ -1,10 +1,12 @@
 # STATUS — TCF (compendio sempre-atualizado)
 
-**Atualizado em**: 2026-05-23 (**T-EXP-MULTI-COL-SCALING validado**
-em 8 tabelas real-world: -46.58% weighted vs raw, -32.40% vs single-col
-concat, RT 8/8. D17a baseline 322B preservado vs EXP-011. Welding canonical
-pendente lineitem Fase 4. Sessao tambem fechou: T-EXP-H-PERF-05d, T-EXP-PACOTE5,
-T-EXP-H-DA-09c, T-DOC/T-CLEAN P3, T-CI-1+2, T-EXP-NATUREZAS-RARAS, T-DATA-1.)
+**Atualizado em**: 2026-05-23 (**T-EXP-MULTI-COL-SCALING Fase 4 completo**:
+lineitem 60k x 16 validado em 16.6min, -17.11% raw / -30.73% single, RT OK.
+Totais 9 tabelas: **-33.02% weighted vs raw, -31.46% vs single, RT 9/9**.
+D17a 322B preservado. Todos criterios welding atingidos — aguardando
+aprovacao explicita user pra welding canonical em src/tcf. Sessao tambem
+fechou: T-EXP-H-PERF-05d, T-EXP-PACOTE5, T-EXP-H-DA-09c, T-DOC/T-CLEAN P3,
+T-CI-1+2, T-EXP-NATUREZAS-RARAS, T-DATA-1.)
 
 > **Como ler este documento**: este e' o ponto de entrada
 > bibliografico do projeto. Se um sistema novo (humano ou Claude)
@@ -164,19 +166,22 @@ Adult+TPC-H (ganho 11.73% weighted vs M9 puro, 889,714B em 57 cols).
   - Owner roda localmente: `pip install -e ".[datasets]"` + `python scripts/setup_*.py`
   - Futuro T-EXP-NATUREZAS-RARAS-V2 re-testa #5/#8 com novos datasets
 
-- **2026-05-23 T-EXP-MULTI-COL-SCALING**: CLOSED-VALIDATED-WELDING-PENDING-LINEITEM
+- **2026-05-23 T-EXP-MULTI-COL-SCALING**: CLOSED-VALIDATED-WELDING-PENDING-APPROVAL
   - Port `multi_col.py` (EXP-011 M9) pra canonical M10 (`from tcf import encode, decode`)
   - D17a (sint 13x4): 322B preservado vs EXP-011, RT OK
-  - 8 tabelas real-world (Adult Census + TPC-H tier 1, 76k linhas total):
-    - **-46.58% weighted vs raw** (8,557,687 → 4,571,416 bytes)
-    - **-32.40% weighted vs single-col concat** (controle)
-    - RT 8/8
+  - **9 tabelas real-world** (Adult Census + TPC-H tier 1+2, 136k linhas):
+    - **-33.02% weighted vs raw** (15,848,939 → 10,614,897 bytes)
+    - **-31.46% weighted vs single-col concat** (controle)
+    - RT **9/9** OK
     - Adult Census destaque: -65.14% vs raw (15 cols mixed)
-    - Header overhead < 1% em datasets >= 1500 rows
+    - **Lineitem 60k x 16**: -17.11% raw, -30.73% single, RT OK (16.6 min)
+    - Header overhead < 1% em datasets >= 1500 rows (5/5)
     - Outlier region (5 rows): +3.87% vs raw (header dominante, esperado)
-  - **Lineitem 60k NAO testado** (Fase 4 futura, ~30 min)
-  - Welding pra src/tcf adiado: requer (1) lineitem validado, (2) nome funcao
-    publica decidido, (3) ADR atualizado (estender ADR-0004 ou novo)
+  - **Todos criterios welding atingidos**. Pendente:
+    1. Aprovacao explicita user (src/tcf intocado sem aprovacao)
+    2. Decisao API: `encode_table` separada (recomendado) vs overload `encode(dict)`
+    3. ADR novo (proposto 0013) documentando decisao
+    4. tests/test_multi_col_rt.py com D17a 322B INVARIANT
   - Sub-exp dirty: `experiments/lab/dirty/2026-05-23-multi-column-scaling/`
 
 - **2026-05-23 T-CI-1 + T-CI-2**: CLOSED (CI completo em uma rodada)
@@ -227,7 +232,7 @@ Adult+TPC-H (ganho 11.73% weighted vs M9 puro, 889,714B em 57 cols).
 | **T-CI-1** | GitHub Actions CI Fase 1 | CLOSED 2026-05-23 | workflow ci.yml lint + test ativado (matrix py 3.10/3.11/3.12) |
 | **T-CI-2** | Tests refactor CI-friendly | CLOSED 2026-05-23 | 5 v0.5 archived; 31 RT tests novos; marker requires_data |
 | **T-DATA-1** | 3 datasets UCI/OpenML canonicos | OPEN 2026-05-23 (scripts criados) | online-retail, beijing-pm25, wine-quality; download pendente |
-| **T-EXP-MULTI-COL-SCALING** | Port multi-col canonical M10 + real-world | CLOSED-VALIDATED 2026-05-23 (welding pending lineitem) | 8 tabelas real-world: -46.58% vs raw, -32.40% vs single, RT 8/8; D17a 322B preservado |
+| **T-EXP-MULTI-COL-SCALING** | Port multi-col canonical M10 + real-world (Fase 4 lineitem 60k completo) | CLOSED-VALIDATED-WELDING-PENDING-APPROVAL 2026-05-23 | 9 tabelas real-world: -33.02% vs raw weighted, -31.46% vs single, RT 9/9; D17a 322B preservado |
 
 ### Pacotes registrados, nao iniciados
 
@@ -308,7 +313,7 @@ nao guia de evolucao (cf. diretriz dados-realistas).
 | [T-CI-1-github-actions](tickets/T-CI-1-github-actions.md) | **CLOSED 2026-05-23 (Fase 1+2)** | workflow CI completo (lint + test matrix) |
 | [T-CI-2-tests-refactor](tickets/T-CI-2-tests-refactor.md) | **CLOSED 2026-05-23** | 5 v0.5 archived; 31 tests novos CI-friendly |
 | [T-DATA-1-datasets-financeiros-cientificos](tickets/T-DATA-1-datasets-financeiros-cientificos.md) | **OPEN 2026-05-23 (scripts criados)** | 3 datasets UCI/OpenML, download pendente |
-| [T-EXP-MULTI-COL-SCALING](tickets/T-EXP-MULTI-COL-SCALING.md) | **CLOSED-VALIDATED-WELDING-PENDING-LINEITEM 2026-05-23** | Multi-col canonical M10 real-world: -46.58% raw weighted, RT 8/8 |
+| [T-EXP-MULTI-COL-SCALING](tickets/T-EXP-MULTI-COL-SCALING.md) | **CLOSED-VALIDATED-WELDING-PENDING-APPROVAL 2026-05-23** | Multi-col canonical M10 real-world 9 tabelas (com lineitem): -33.02% raw weighted, RT 9/9 |
 
 ---
 
@@ -402,8 +407,9 @@ TCF/
 8. ~~**Naturezas raras** (#5 range, #8 arredondamento)~~ (TESTADO
    2026-05-23: NO-GO em datasets gerais; #8 -4.45%, #5 +1.08%)
 9. ~~**Multi-column scaling** — EXP-011 base, expansao futura~~ (FEITO
-   2026-05-23: T-EXP-MULTI-COL-SCALING port M10 + 8 tabelas real-world;
-   welding canonical pendente lineitem Fase 4)
+   2026-05-23 com Fase 4 lineitem: T-EXP-MULTI-COL-SCALING port M10 +
+   9 tabelas real-world incluindo lineitem 60k, todos criterios atingidos;
+   welding em src/tcf pendente aprovacao explicita user)
 10. ~~**CI** — GitHub Actions com pre-commit + tests~~ (FEITO COMPLETO
     2026-05-23: T-CI-1 lint + T-CI-2 tests refactor + job test ativo)
 11. ~~**T-CI-2** — refactor tests CI-friendly~~ (FEITO mesmo dia)
