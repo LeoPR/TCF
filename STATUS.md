@@ -1,12 +1,19 @@
 # STATUS — TCF (compendio sempre-atualizado)
 
-**Atualizado em**: 2026-05-24 (**T-CODE-ENCODER-MANAGER Fase 1 WELDED**:
+**Atualizado em**: 2026-05-24 (**T-CODE-ENCODER-MANAGER Fase 1b WELDED**
+work-stealing: refactor `_encode_columns_parallel` pra submit +
+as_completed sorted desc por workload. Benchmark: customer 0.83x,
+orders 1.23x (4w) / 1.30x (8w). Conclusao: gargalo NAO eh load
+imbalance, eh IPC overhead (Windows spawn ~4s + pickling).
+Speedup teto realista ~1.3x sem dependencia externa (joblib/Cython).
+Byte-canonical preservado. 82 tests OK. Otimizacoes alem adiadas
+pra Fase 1c (joblib opcional) ou Fase 4 (streaming chunks).
+
+**Fase 1 anterior 2026-05-24**:
 `encode(data, parallel=False|True|N)` via ProcessPoolExecutor.
 `_worker_encode_column` picklavel. D17a 322B INVARIANT preservado em
-modo parallel. 14/14 tests novos (`test_parallel.py`). Benchmark
-honesto: customer 0.79x, orders 1.23x — speedup modesto (load
-imbalance + pickling overhead Windows spawn). Otimizacao adiada
-pra Fase 1b. SideOutputs serializado entre workers funciona.
+modo parallel. 14/14 tests novos (`test_parallel.py`). SideOutputs
+serializado entre workers funciona.
 
 **Sessao 2 anterior 2026-05-24**: O-FMT-14
 header desacoplavel/opcional registrado em `futuras-otimizacoes-formato.md`.
@@ -343,7 +350,7 @@ nao guia de evolucao (cf. diretriz dados-realistas).
 | [T-DATA-1-datasets-financeiros-cientificos](tickets/T-DATA-1-datasets-financeiros-cientificos.md) | **OPEN 2026-05-23 (scripts criados)** | 3 datasets UCI/OpenML, download pendente |
 | [T-EXP-MULTI-COL-SCALING](tickets/T-EXP-MULTI-COL-SCALING.md) | **CLOSED-WELDED-CANONICAL 2026-05-23** | src/tcf/multi.py welded (ADR-0013); encode_table/decode_table publicos; 17/17 tests; -33.02% raw weighted real-world |
 | [ADR-0014 (welded direto)](docs/adr/0014-unified-api-side-outputs.md) | **CLOSED-WELDED-CANONICAL 2026-05-24** | API unificada encode(list\|dict) + SideOutputs; ADR-0013 superseded; 117 passed |
-| [T-CODE-ENCODER-MANAGER](tickets/T-CODE-ENCODER-MANAGER.md) | **OPEN-FASE-1-WELDED 2026-05-24** | Fase 1: paralelismo `encode(data, parallel=N)` via ProcessPool, 14/14 tests, byte-canonical OK. Speedup modesto (0.79x-1.23x). Fases 2-4 pendentes. |
+| [T-CODE-ENCODER-MANAGER](tickets/T-CODE-ENCODER-MANAGER.md) | **OPEN-FASES-1+1B-WELDED 2026-05-24** | Fase 1+1b: paralelismo `encode(data, parallel=N)` via ProcessPool + work-stealing (sorted desc workload), 14 tests, byte-canonical OK. Speedup ~1.23-1.30x (teto IPC overhead Windows spawn). Fases 1c/2/3/4 pendentes. |
 | [T-CODE-OUTPUT-SINKS](tickets/T-CODE-OUTPUT-SINKS.md) | **OPEN P2 2026-05-24** | Contract Sink pluggable, refactor scripts/writers/ (bloqueado por encoder-manager) |
 | [T-CODE-PLAN-CONTRACT](tickets/T-CODE-PLAN-CONTRACT.md) | **OPEN P3 2026-05-24** | Plan dataclass (group_by/order/batch_size), habilita O-FMT-01..04 |
 | [T-CODE-SCHEMA-BUILDER](tickets/T-CODE-SCHEMA-BUILDER.md) | **OPEN P3 2026-05-24** | Orquestrador consume SideOutputs, frontend de META-TYPE-ENCODERS |

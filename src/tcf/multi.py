@@ -26,7 +26,7 @@ from __future__ import annotations
 
 import os
 import warnings
-from concurrent.futures import ProcessPoolExecutor
+from concurrent.futures import ProcessPoolExecutor, as_completed
 
 from tcf.encoder import _encode_column
 from tcf.side_outputs import SideOutputs
@@ -127,22 +127,50 @@ def _encode_columns_parallel(
     want_side: bool,
     n_workers: int,
 ) -> tuple[list[tuple[str, bytes]], dict[str, SideOutputs]]:
-    """Encoda colunas em paralelo via ProcessPoolExecutor.
+    """Encoda colunas em paralelo via ProcessPoolExecutor (Fase 1b: work-stealing).
 
-    Output byte-identico ao serial — ordem preservada via
-    `ProcessPoolExecutor.map` (mantem ordem de submissao).
+    Estrategia (sub-fase otimizacao 2026-05-24):
+    1. **Ordena colunas por workload descendente** (sum de bytes por coluna)
+       — heavyweights submetidos primeiro, workers ocupam mais cedo
+    2. **Submit + as_completed** ao inves de map — work-stealing dinamico
+       (workers pegam proxima coluna assim que terminam, sem esperar
+       fila sequencial)
+    3. **Reordena resultado** por ordem original do dict (output
+       byte-identico independente da ordem de conclusao)
+
+    Output byte-identico ao serial — paralelismo apenas reordena
+    computacao, nao bytes.
     """
-    col_names = list(table_str.keys())
-    args_iter = [(name, table_str[name], want_side) for name in col_names]
-    with ProcessPoolExecutor(max_workers=n_workers) as ex:
-        results = list(ex.map(_worker_encode_column, args_iter))
+    original_order = list(table_str.keys())
 
+    # Heuristica de workload: sum de bytes de cada coluna (proxy razoavel
+    # pra custo HCC que e' dominado pelo tamanho dos valores). Sorted desc.
+    cols_with_work = sorted(
+        (
+            (sum(len(v) for v in table_str[name]), name)
+            for name in original_order
+        ),
+        key=lambda x: -x[0],
+    )
+
+    results_by_name: dict[str, tuple[str, SideOutputs | None]] = {}
+    with ProcessPoolExecutor(max_workers=n_workers) as ex:
+        future_to_name = {
+            ex.submit(_worker_encode_column, (name, table_str[name], want_side)): name
+            for _, name in cols_with_work
+        }
+        for future in as_completed(future_to_name):
+            col_name, body_str, side = future.result()
+            results_by_name[col_name] = (body_str, side)
+
+    # Reordena pela ordem original do dict (output deterministico)
     col_bodies: list[tuple[str, bytes]] = []
     per_col_sides: dict[str, SideOutputs] = {}
-    for col_name, body_str, side in results:
-        col_bodies.append((col_name, body_str.encode("utf-8")))
+    for name in original_order:
+        body_str, side = results_by_name[name]
+        col_bodies.append((name, body_str.encode("utf-8")))
         if want_side:
-            per_col_sides[col_name] = side
+            per_col_sides[name] = side
     return col_bodies, per_col_sides
 
 

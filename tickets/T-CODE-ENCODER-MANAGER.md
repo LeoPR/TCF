@@ -169,10 +169,53 @@ Owner aprovou Fase 1. Implementado:
 **Status**: Fase 1 funcional (byte-canonical OK, RT OK, tests passam).
 Speedup modesto aceito como baseline; otimizacao pra sub-fase 1b.
 
+### 2026-05-24 — Fase 1b WELDED (work-stealing) — speedup limitado por IPC
+
+Owner aprovou Fase 1b. Implementado:
+
+- **`_encode_columns_parallel` refatorado**:
+  - Ordena colunas por workload descendente (`sum(len(v) for v in values)`)
+  - Submit + `as_completed` ao inves de `map` (work-stealing)
+  - Reordena resultado por dict order original (output deterministico)
+
+**Validacao byte-canonical**:
+- D17a 322B INVARIANT preservado
+- 82 tests passam (14 parallel + 17 side_outputs + 47 core + 4 multi-col)
+- Output byte-identico em todos cenarios
+
+**Benchmark medido (com work-stealing)**:
+- customer 1500x8 (4 workers): 0.99s -> 1.20s = **0.83x** (era 0.79x na Fase 1)
+- orders 15000x9 (4 workers): 51.7s -> 41.9s = **1.23x** (mesmo da Fase 1)
+- orders 15000x9 (8 workers): 54.6s -> 41.9s = **1.30x**
+
+**Conclusao honesta**: work-stealing nao alterou speedup significativamente.
+O gargalo principal **NAO E load imbalance**, mas:
+1. **IPC overhead**: pickle/unpickle de str_values (input) + body bytes
+   (output) em cada round-trip worker
+2. **Windows spawn cost**: 4 workers re-importam todo o modulo tcf
+   + dependencies = ~4s de startup overhead
+3. **Serial parts do encode**: `_encode_column` ja' tem fases que nao
+   paralelizam (analyze_column + HCC iterativo)
+
+8 workers vs 4: 1.30x vs 1.23x — diferenca marginal confirma que
+n_workers nao eh o bottleneck.
+
+**Tradeoff aceito**: speedup 1.2-1.3x e' o teto realista com
+multiprocessing puro do Python no Windows. Otimizacoes alem
+requereriam:
+- Dependencia opcional `joblib` (loky backend mais eficiente em spawn)
+- Workers persistentes via signal manager (fora do escopo)
+- Cython/Rust port do HCC (H-PERF-06 adiado)
+- Encoder format change (chunks autocontidos pra IPC reduzido)
+
+**Status Fase 1b**: WELDED. Otimizacoes adicionais adiadas pra Fase 1c
+(opcional joblib) ou Fase 4 (streaming chunks pode mudar perfil).
+
 ### Proximos passos
 
-- **Fase 1b** (sub-fase otimizacao): work-stealing OU chunksize OU
-  alternativa pra ProcessPoolExecutor pra speedup melhor
+- **Fase 1c** (opcional, baixa prioridade): joblib dependency pra
+  spawn mais eficiente (avaliar custo/beneficio)
 - **Fase 2**: Output sinks (T-CODE-OUTPUT-SINKS, ticket separado)
 - **Fase 3**: Per-channel headers (O-FMT-13)
-- **Fase 4**: Streaming chunked (O-FMT-08)
+- **Fase 4**: Streaming chunked (O-FMT-08) — pode reduzir IPC
+  overhead via chunks menores serializaveis em paralelo
