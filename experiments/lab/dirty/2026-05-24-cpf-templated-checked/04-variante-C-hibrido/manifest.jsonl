@@ -1,0 +1,4 @@
+{"dataset": "D-CPF-uniform", "variant": "C-hibrido", "n_rows": 1000, "n_valid": 1000, "raw_bytes": 15000, "m10_bytes": 11892, "ratio_pct": 79.28, "bytes_per_cpf": 11.89, "rt_ok": true}
+{"dataset": "D-CPF-clustered", "variant": "C-hibrido", "n_rows": 1000, "n_valid": 1000, "raw_bytes": 15000, "m10_bytes": 10406, "ratio_pct": 69.37, "bytes_per_cpf": 10.41, "rt_ok": true}
+{"dataset": "D-CPF-mixed", "variant": "C-hibrido", "n_rows": 1000, "n_valid": 500, "raw_bytes": 13500, "m10_bytes": 12619, "ratio_pct": 93.47, "bytes_per_cpf": 12.62, "rt_ok": true}
+{"dataset": "D-CPF-corrupt", "variant": "C-hibrido", "n_rows": 1000, "n_valid": 967, "raw_bytes": 14985, "m10_bytes": 12106, "ratio_pct": 80.79, "bytes_per_cpf": 12.11, "rt_ok": false}

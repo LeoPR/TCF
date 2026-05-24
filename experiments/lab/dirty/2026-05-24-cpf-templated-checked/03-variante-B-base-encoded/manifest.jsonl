@@ -1,0 +1,4 @@
+{"dataset": "D-CPF-uniform", "variant": "B-base-encoded", "n_rows": 1000, "n_valid": 1000, "raw_bytes": 15000, "m10_bytes": 6823, "ratio_pct": 45.49, "bytes_per_cpf": 6.82, "rt_ok": true}
+{"dataset": "D-CPF-clustered", "variant": "B-base-encoded", "n_rows": 1000, "n_valid": 1000, "raw_bytes": 15000, "m10_bytes": 6978, "ratio_pct": 46.52, "bytes_per_cpf": 6.98, "rt_ok": true}
+{"dataset": "D-CPF-mixed", "variant": "B-base-encoded", "n_rows": 1000, "n_valid": 500, "raw_bytes": 13500, "m10_bytes": 10220, "ratio_pct": 75.7, "bytes_per_cpf": 10.22, "rt_ok": true}
+{"dataset": "D-CPF-corrupt", "variant": "B-base-encoded", "n_rows": 1000, "n_valid": 967, "raw_bytes": 14985, "m10_bytes": 7190, "ratio_pct": 47.98, "bytes_per_cpf": 7.19, "rt_ok": false}

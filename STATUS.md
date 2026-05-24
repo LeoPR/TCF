@@ -1,6 +1,17 @@
 # STATUS — TCF (compendio sempre-atualizado)
 
-**Atualizado em**: 2026-05-24 (**T-CODE-SCHEMA-BUILDER Fase 1+2 WELDED**:
+**Atualizado em**: 2026-05-24 (**Dirty lab CPF templated+checked**:
+4 sub-exps executados (01-04). Achados criticos:
+1. M10 PIORA CPFs (120-126% ratio) — marcadores fixos sao overhead;
+2. Variante B (strip+check+base-94+M10) VENCE com -64% em uniform,
+   -53% em clustered; **H1 REFUTADA** (base-encode nao mascara, vence
+   mesmo em clustered);
+3. Variante C (hibrido) eh intermediaria, nunca vence B;
+4. RT FAIL em corrupt — sub-exp 05 precisa marker explicito.
+Datasets D-CPF (uniform/clustered/mixed/corrupt) sinteticos.
+Sub-exps 05-08 com stubs.
+
+**Anterior 2026-05-24**: T-CODE-SCHEMA-BUILDER Fase 1+2 WELDED:
 novo `src/tcf/schema.py` com `build_schema(data) -> TableSchema`,
 `ColumnSchema` + `TableSchema` dataclasses, `to_dict()` + `to_json()`.
 Reaproveita 100% SideOutputs (ColumnFeatures, cadence_info, min_len,
