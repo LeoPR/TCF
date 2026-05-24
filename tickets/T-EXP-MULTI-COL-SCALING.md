@@ -1,6 +1,6 @@
 ---
 title: T-EXP-MULTI-COL-SCALING — Port multi-column pra canonical M10 + real-world
-status: closed-validated-welding-pending-approval
+status: closed-welded-canonical
 priority: P1
 created: 2026-05-23
 updated: 2026-05-23
@@ -159,3 +159,20 @@ Todos criterios de welding atingidos. Welding em src/tcf pendente
 aprovacao explicita user (regra: src/tcf intocado).
 
 Status: `closed-validated-welding-pending-approval`.
+
+### 2026-05-23 — WELDED canonical em src/tcf (ADR-0013)
+
+Owner aprovou Opcao A (encode_table separada). Welding executado:
+
+- **Novo `src/tcf/multi.py`** — encode_table + decode_table + MAGIC_MULTI
+- **`src/tcf/__init__.py` atualizado** — exports: encode, decode,
+  encode_table, decode_table
+- **ADR-0013 criado** — accepted + welded, documenta decisao API + header
+  format + NULL handling
+- **`tests/test_multi_col_rt.py` criado** — 17 tests (RT basico, D17a
+  322B INVARIANT, info dict, edge cases). Todos passam (17/17).
+- **Validacao byte-canonical**: D17a 322B preservado EXATO; suite
+  completa 96 passed + 1 xfailed + 1 pre-existing fail (test_shaper,
+  nao relacionado)
+
+Status: `closed-welded-canonical`.
