@@ -1,0 +1,6 @@
+# Variante C | D-IP-edge-single
+# RT_ALL=True | rt_ok=1/1 | mismatched=0
+# cadence_detected=False | seq_rle_runs=0
+# Status counts: {'compressible': 1}
+# Primeiras 15: ' ' = OK, '!' = MISMATCH
+  orig='57.12.140.125'  rec='57.12.140.125'

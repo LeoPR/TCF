@@ -1,0 +1,20 @@
+# Variante B | D-IP-edge-allcorrupt
+# RT_ALL=True | rt_ok=1000/1000 | mismatched=0
+# cadence_detected=False | seq_rle_runs=0
+# Status counts: {'range_invalid': 250, 'format_mismatch': 750}
+# Primeiras 15: ' ' = OK, '!' = MISMATCH
+  orig='57.12.140.360'  rec='57.12.140.360'
+  orig='44,216,16,15'  rec='44,216,16,15'
+  orig='119.13.X01.214'  rec='119.13.X01.214'
+  orig='216.174.142'  rec='216.174.142'
+  orig='172.52.47.608'  rec='172.52.47.608'
+  orig='135,22,235,63'  rec='135,22,235,63'
+  orig='Z93.40.150.185'  rec='Z93.40.150.185'
+  orig='116.148.40'  rec='116.148.40'
+  orig='194.142.232.619'  rec='194.142.232.619'
+  orig='107,136,36,87'  rec='107,136,36,87'
+  orig='125.8X.236.194'  rec='125.8X.236.194'
+  orig='117.16.161'  rec='117.16.161'
+  orig='108.161.108.914'  rec='108.161.108.914'
+  orig='234,73,135,71'  rec='234,73,135,71'
+  orig='134.21Y.204.185'  rec='134.21Y.204.185'
