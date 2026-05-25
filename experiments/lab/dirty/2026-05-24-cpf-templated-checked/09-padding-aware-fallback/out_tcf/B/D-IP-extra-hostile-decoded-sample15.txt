@@ -1,0 +1,20 @@
+# Sub-exp 09 (padded-aware) Variante B | D-IP-extra-hostile
+# RT_ALL=True | rt_ok=1000/1000 | mismatched=0
+# cadence_detected=False | seq_rle_runs=0
+# Status counts: {'range_invalid': 50, 'format_padded_zeros': 176, 'empty_value': 101, 'format_mismatch': 249, 'compressible': 424}
+# Primeiras 15: ' ' = OK, '!' = MISMATCH
+  orig='30.203.146.667'  rec='30.203.146.667'
+  orig='236.231.019.029'  rec='236.231.019.029'
+  orig=''  rec=''
+  orig='::1'  rec='::1'
+  orig='43.248.35.64'  rec='43.248.35.64'
+  orig='248.226.212.139'  rec='248.226.212.139'
+  orig='12.98.204.168'  rec='12.98.204.168'
+  orig='149.148.136.Y8'  rec='149.148.136.Y8'
+  orig='170.193.233.34'  rec='170.193.233.34'
+  orig='098.115.070.079'  rec='098.115.070.079'
+  orig='240.178.209.170'  rec='240.178.209.170'
+  orig=''  rec=''
+  orig='226.176.153.217'  rec='226.176.153.217'
+  orig='233.76.71'  rec='233.76.71'
+  orig='172.131.X50.251'  rec='172.131.X50.251'
