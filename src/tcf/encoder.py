@@ -34,6 +34,7 @@ Detalhes:
 from __future__ import annotations
 
 from collections import OrderedDict
+from typing import TYPE_CHECKING
 
 from tcf.auto_cadence import detect_cadence_from_features
 from tcf.auto_min_len import detect_min_len_from_features
@@ -43,12 +44,17 @@ from tcf.core.online import processar
 from tcf.obat_shape import processar_with_hint
 from tcf.side_outputs import SideOutputs
 
+if TYPE_CHECKING:
+    from tcf.natures.templated_checked import TemplatedCheckedSpec
+
 
 def encode(
     data: list[str] | dict[str, list[str]],
     *,
     side_outputs: SideOutputs | None = None,
     parallel: bool | int = False,
+    nature: "TemplatedCheckedSpec | None" = None,
+    nature_per_col: "dict[str, TemplatedCheckedSpec] | None" = None,
 ) -> str:
     """Encode lista de strings OU dict de colunas em texto TCF.
 
@@ -67,6 +73,12 @@ def encode(
             - `int N >= 1`: N workers explicitos
             - Para list (single-col): parametro ignorado (1 coluna)
             - Para dict com 1 coluna: ignorado (overhead nao compensa)
+        nature: pre-tx por natureza (ADR-0015, CAMADA 0 do funil). Se
+            fornecido, aplica `tcf.natures.encode_value(spec, v)` em cada
+            valor antes do pipeline M10. Decoder precisa receber MESMO
+            spec out-of-band. Pra list[str] apenas.
+        nature_per_col: dict mapeando col_name -> spec. Pra dict input
+            (multi-col); permite pre-tx natureza diferente por coluna.
 
     Returns:
         Texto TCF (str, sempre UTF-8, LF only). **Output byte-identico
@@ -78,9 +90,19 @@ def encode(
             ou nomes com `,` / `=`.
     """
     if isinstance(data, list):
+        if nature is not None:
+            from tcf.natures.templated_checked import encode_value
+            data = [encode_value(nature, v)[0] for v in data]
         return _encode_column(data, header="val", side=side_outputs)
     if isinstance(data, dict):
         from tcf.multi import _encode_multi
+        if nature_per_col:
+            from tcf.natures.templated_checked import encode_value
+            data = {
+                name: ([encode_value(nature_per_col[name], v)[0] for v in vals]
+                       if name in nature_per_col else vals)
+                for name, vals in data.items()
+            }
         return _encode_multi(data, side_outputs=side_outputs, parallel=parallel)
     raise TypeError(
         f"encode espera list[str] ou dict[str, list[str]], "

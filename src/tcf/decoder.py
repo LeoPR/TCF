@@ -38,13 +38,23 @@ Detalhes:
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from tcf.composicional.hcc_seqrle import HCCSeqRLE
+
+if TYPE_CHECKING:
+    from tcf.natures.templated_checked import TemplatedCheckedSpec
 
 
 _MULTI_MAGIC_STR = "#TCF.6 M"
 
 
-def decode(tcf_text: str) -> list[str] | dict[str, list[str]]:
+def decode(
+    tcf_text: str,
+    *,
+    nature: "TemplatedCheckedSpec | None" = None,
+    nature_per_col: "dict[str, TemplatedCheckedSpec] | None" = None,
+) -> list[str] | dict[str, list[str]]:
     """Decode texto TCF. Roteia pelo shebang.
 
     Args:
@@ -53,6 +63,9 @@ def decode(tcf_text: str) -> list[str] | dict[str, list[str]]:
               -> retorna `dict[str, list[str]]`
             - Single-col: body puro (sem shebang)
               -> retorna `list[str]` (com repeticoes preservadas)
+        nature: spec usado no encode pra pre-tx (ADR-0015). Se fornecido,
+            aplica decode_value reverse apos M10 decode.
+        nature_per_col: dict pra reverse multi-col pre-tx.
 
     Returns:
         list[str] OU dict[str, list[str]] dependendo do formato.
@@ -62,8 +75,20 @@ def decode(tcf_text: str) -> list[str] | dict[str, list[str]]:
     """
     if tcf_text.startswith(_MULTI_MAGIC_STR):
         from tcf.multi import _decode_multi
-        return _decode_multi(tcf_text)
-    return _decode_column(tcf_text)
+        result = _decode_multi(tcf_text)
+        if nature_per_col:
+            from tcf.natures.templated_checked import decode_value
+            result = {
+                name: ([decode_value(nature_per_col[name], v) for v in vals]
+                       if name in nature_per_col else vals)
+                for name, vals in result.items()
+            }
+        return result
+    values = _decode_column(tcf_text)
+    if nature is not None:
+        from tcf.natures.templated_checked import decode_value
+        values = [decode_value(nature, v) for v in values]
+    return values
 
 
 def _decode_column(tcf_text: str) -> list[str]:

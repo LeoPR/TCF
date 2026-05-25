@@ -1,6 +1,14 @@
 # STATUS — TCF (compendio sempre-atualizado)
 
-**Atualizado em**: 2026-05-24 (**Dirty lab CPF/CNPJ/IP completo + 3 tickets P2/P3
+**Atualizado em**: 2026-05-24 (**ADR-0015 WELDED canonical**:
+`src/tcf/natures/` novo package com `TemplatedCheckedSpec` + `SPEC_CPF`
++ `SPEC_CNPJ`. API publica: `encode(values, nature=SPEC_CPF)` opt-in;
+default sem nature preserva M10 INVARIANT byte-canonical. Strategy
+pattern (zero `if name == X`). 21/21 tests novos. CPF 50 vals: 942B
+(M10) -> 337B (nature) = **-64%**. Suite completa: 176 passed (+21)
++ 1 pre-existing fail.
+
+**Dirty lab CPF/CNPJ/IP completo + 3 tickets P2/P3
 novos registrados**: 14 sub-exps executados. Achados sumarizados:
 - Sub-exps 01-09: CPF/CNPJ caracterizacao + variantes B/C + fallback + stats ISO 25012
 - Sub-exp 10 debug OBAT/HCC: 6 cases revelaram comportamentos
@@ -380,6 +388,7 @@ nao guia de evolucao (cf. diretriz dados-realistas).
 | [T-CODE-HCC-MULTI-DELTA-FIX](tickets/T-CODE-HCC-MULTI-DELTA-FIX.md) | **OPEN P2 2026-05-24** | Bug #2 sub-exp 14: compare_for_seq rejeita multi-run delta {0,0,0,1}. Cross-subnet IPs ratio 117% -> ~3-4% estimado. Risco quebrar M10. |
 | [T-CODE-HCC-ATOM-DETECTION-REFINE](tickets/T-CODE-HCC-ATOM-DETECTION-REFINE.md) | **OPEN P2 2026-05-24** | Bug #1 sub-exp 14: M8A nao cria atom secundario. Alternativo a T-CODE-HCC-MULTI-DELTA-FIX; recomenda priorizar este ultimo (risco menor). |
 | [T-CODE-LAYERED-PIPELINE](tickets/T-CODE-LAYERED-PIPELINE.md) | **OPEN P3 2026-05-24** | Toggle infrastructure (filtros/pre-pass/OBAT/HCC) + online adaptive fallback. Funil de camadas com responsabilidades separadas. Bloqueado por T-CODE-ENCODER-MANAGER P2 + T-CODE-SCHEMA-BUILDER Fase 3. |
+| [ADR-0015 (welded direto)](docs/adr/0015-natures-templated-checked-weld.md) | **CLOSED-WELDED-CANONICAL 2026-05-24** | TemplatedCheckedSpec + SPEC_CPF + SPEC_CNPJ em `src/tcf/natures/`. API publica `encode(values, nature=SPEC_CPF)` opt-in. CAMADA 0 do funil welded. 21/21 tests, default preserva M10 INVARIANT. |
 
 ---
 
