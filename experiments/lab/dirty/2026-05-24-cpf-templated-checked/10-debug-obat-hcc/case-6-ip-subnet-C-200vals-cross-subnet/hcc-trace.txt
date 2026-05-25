@@ -1,0 +1,12 @@
+# Optimization trace — syntax=M8-A-seq-rle
+
+=== DETECTOR ITERATIONS (unified — atoms + virtuals) ===
+
+--- Iter 1 ---
+Sub-tuplas K>=2 com R>=2: 1  net>0: 0
+Nenhum candidato com net > 0. STOP.
+
+=== MISSED OPPORTUNITIES (post-hoc) ===
+  (nenhum)
+
+Total estimated missed: 0

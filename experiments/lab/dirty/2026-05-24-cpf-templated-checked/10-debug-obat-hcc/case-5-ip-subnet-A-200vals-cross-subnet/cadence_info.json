@@ -1,0 +1,41 @@
+{
+  "n_strings_total": 200,
+  "n_sample": 5,
+  "threshold": 0.7,
+  "numeric_card_threshold": 0.5,
+  "rule_hit": "1-uniform-length-high-lcp-lcs",
+  "lengths": [
+    11,
+    11,
+    11,
+    11,
+    11
+  ],
+  "lcp_lcs_ratios": [
+    {
+      "pair": 1,
+      "lcp": 10,
+      "lcs": 0,
+      "ratio": 0.909
+    },
+    {
+      "pair": 2,
+      "lcp": 10,
+      "lcs": 0,
+      "ratio": 0.909
+    },
+    {
+      "pair": 3,
+      "lcp": 10,
+      "lcs": 0,
+      "ratio": 0.909
+    },
+    {
+      "pair": 4,
+      "lcp": 10,
+      "lcs": 0,
+      "ratio": 0.909
+    }
+  ],
+  "reason": "L=11, all ratios >= 0.7 (avg=0.91)"
+}

@@ -1,0 +1,71 @@
+# Rede de atomos + composicoes — M8-A-seq-rle
+
+=== ATOMS (final IDs) ===
+  final   1: '%Tk'
+  final   2: 'v;'
+  final   3: '%V!'
+  final   4: '!3'
+  final   5: '%TtmT'
+  final   6: '%Un{K'
+  final   7: '%T4'
+  final   8: '1l'
+  final   9: '%Tn'
+  final  10: 'sR'
+  final  11: '%U7IX'
+  final  12: '%UgSA'
+  final  13: '%U}uG'
+  final  14: '%Tm'
+  final  15: 'CM'
+  final  16: '%U(:e'
+  final  17: 'K.'
+  final  18: '5Y'
+  final  19: 'ho'
+  final  20: '%UG7L'
+  final  21: '%Trs('
+  final  22: '%TXBZ'
+  final  23: '%UOpb'
+  final  24: '%Up'
+  final  25: '-b'
+  final  26: '%Tb(W'
+  final  27: '%V%u!'
+  final  28: '%TOpK'
+  final  29: '%UD|.'
+  final  30: '%Tc'
+  final  31: '|Z'
+  final  32: '%Tjp.'
+  final  33: '%TAz;'
+  final  34: '%U4q}'
+  final  35: '%TEAl'
+  final  36: 'O.'
+  final  37: 'Xx'
+  final  38: '%UImH'
+  final  39: 'ms'
+  final  40: '%Uk1;'
+  final  41: 'r1'
+  final  42: '%UjK8'
+  final  43: '%Tfpg'
+  final  44: '%UEZV'
+  final  45: '%UK7^'
+  final  46: '%UHkc'
+  final  47: 'Dn'
+  final  48: '%UUD;'
+  final  49: '%T?Rb'
+  final  50: '%ULq!'
+  final  51: '%T^h-'
+  final  52: '%U&9&'
+  final  53: '%T{D:'
+  final  54: '%U.?8'
+  final  55: '%Uh:2'
+  final  56: '%TPv$'
+  final  57: '%Uzrs'
+
+=== COMPOSITIONS (final IDs) ===
+
+=== USO POR REF ===
+  ref   1: 2x
+  ref   3: 1x
+  ref   7: 1x
+  ref   9: 1x
+  ref  14: 1x
+  ref  24: 1x
+  ref  30: 1x

@@ -1,0 +1,18 @@
+[
+  {
+    "start_line": 2,
+    "end_line": 10,
+    "count": 9,
+    "delta": 1,
+    "template": "1\\1",
+    "savings": 27
+  },
+  {
+    "start_line": 11,
+    "end_line": 50,
+    "count": 40,
+    "delta": 1,
+    "template": "1\\10",
+    "savings": 189
+  }
+]

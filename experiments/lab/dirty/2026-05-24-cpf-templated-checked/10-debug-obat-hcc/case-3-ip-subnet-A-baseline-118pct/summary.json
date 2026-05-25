@@ -1,0 +1,17 @@
+{
+  "case": 3,
+  "name": "ip-subnet-A-baseline-118pct",
+  "description": "D-IP-subnet (50 first) com M10 puro. M10 detecta cadence mas variable-length octets quebram near-identical (so' 2 runs).",
+  "n_values_sampled": 50,
+  "raw_bytes_total": 640,
+  "input_avg_len": 11.8,
+  "tcf_bytes": 37,
+  "ratio_pct": 5.78,
+  "cadence_detected": true,
+  "cadence_rule": "1-uniform-length-high-lcp-lcs",
+  "min_len": 3,
+  "obat_used_hint": true,
+  "seq_rle_runs_count": 2,
+  "rt_input_ok": true,
+  "n_unicas": 50
+}

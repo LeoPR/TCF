@@ -1,0 +1,26 @@
+[
+  {
+    "start_line": 2,
+    "end_line": 10,
+    "count": 9,
+    "delta": 1,
+    "template": "1,2\\1",
+    "savings": 43
+  },
+  {
+    "start_line": 11,
+    "end_line": 100,
+    "count": 90,
+    "delta": 1,
+    "template": "1\\10",
+    "savings": 439
+  },
+  {
+    "start_line": 101,
+    "end_line": 200,
+    "count": 100,
+    "delta": 1,
+    "template": "\\125114071000",
+    "savings": 1379
+  }
+]

@@ -1,0 +1,298 @@
+min_len = 3
+
+--- string 1: '104.332.181-00' (len=14) ---
+  primeira string -> literal puro
+
+--- string 2: '960.013.389-14' (len=14) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 14
+  tokens: [L('960.013.389-14')]
+
+--- string 3: '083.863.794-99' (len=14) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 14
+  tokens: [L('083.863.794-99')]
+
+--- string 4: '026.542.351-14' (len=14) ---
+  pref: len=0 de string 0
+  suf:  len=3 de string 2
+  cobertura: 3 de 14
+  tokens: [L('026.542.351') + S(2,3)]
+
+--- string 5: '161.559.407-89' (len=14) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 14
+  tokens: [L('161.559.407-89')]
+
+--- string 6: '816.184.959-50' (len=14) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 14
+  tokens: [L('816.184.959-50')]
+
+--- string 7: '310.341.316-56' (len=14) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 14
+  tokens: [L('310.341.316-56')]
+
+--- string 8: '475.255.341-44' (len=14) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 14
+  tokens: [L('475.255.341-44')]
+
+--- string 9: '928.327.648-51' (len=14) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 14
+  tokens: [L('928.327.648-51')]
+
+--- string 10: '350.305.641-60' (len=14) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 14
+  tokens: [L('350.305.641-60')]
+
+--- string 11: '395.376.724-09' (len=14) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 14
+  tokens: [L('395.376.724-09')]
+
+--- string 12: '238.849.696-92' (len=14) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 14
+  tokens: [L('238.849.696-92')]
+
+--- string 13: '532.871.012-69' (len=14) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 14
+  tokens: [L('532.871.012-69')]
+
+--- string 14: '269.166.978-57' (len=14) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 14
+  tokens: [L('269.166.978-57')]
+
+--- string 15: '480.184.514-27' (len=14) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 14
+  tokens: [L('480.184.514-27')]
+
+--- string 16: '627.048.281-05' (len=14) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 14
+  tokens: [L('627.048.281-05')]
+
+--- string 17: '489.325.288-70' (len=14) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 14
+  tokens: [L('489.325.288-70')]
+
+--- string 18: '095.701.543-73' (len=14) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 14
+  tokens: [L('095.701.543-73')]
+
+--- string 19: '039.117.182-84' (len=14) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 14
+  tokens: [L('039.117.182-84')]
+
+--- string 20: '278.248.963-15' (len=14) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 14
+  tokens: [L('278.248.963-15')]
+
+--- string 21: '834.657.871-70' (len=14) ---
+  pref: len=0 de string 0
+  suf:  len=3 de string 17
+  cobertura: 3 de 14
+  tokens: [L('834.657.871') + S(17,3)]
+
+--- string 22: '331.509.839-59' (len=14) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 14
+  tokens: [L('331.509.839-59')]
+
+--- string 23: '301.031.051-07' (len=14) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 14
+  tokens: [L('301.031.051-07')]
+
+--- string 24: '834.738.299-94' (len=14) ---
+  pref: len=4 de string 21
+  suf:  len=0 de string 0
+  cobertura: 4 de 14
+  tokens: [P(21,4) + L('738.299-94')]
+
+--- string 25: '737.631.165-32' (len=14) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 14
+  tokens: [L('737.631.165-32')]
+
+--- string 26: '667.010.651-39' (len=14) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 14
+  tokens: [L('667.010.651-39')]
+
+--- string 27: '333.872.624-42' (len=14) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 14
+  tokens: [L('333.872.624-42')]
+
+--- string 28: '731.781.080-09' (len=14) ---
+  pref: len=0 de string 0
+  suf:  len=3 de string 11
+  cobertura: 3 de 14
+  tokens: [L('731.781.080') + S(11,3)]
+
+--- string 29: '132.677.360-72' (len=14) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 14
+  tokens: [L('132.677.360-72')]
+
+--- string 30: '260.647.468-66' (len=14) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 14
+  tokens: [L('260.647.468-66')]
+
+--- string 31: '723.430.980-26' (len=14) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 14
+  tokens: [L('723.430.980-26')]
+
+--- string 32: '500.978.820-97' (len=14) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 14
+  tokens: [L('500.978.820-97')]
+
+--- string 33: '812.191.361-66' (len=14) ---
+  pref: len=0 de string 0
+  suf:  len=3 de string 30
+  cobertura: 3 de 14
+  tokens: [L('812.191.361') + S(30,3)]
+
+--- string 34: '939.909.169-47' (len=14) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 14
+  tokens: [L('939.909.169-47')]
+
+--- string 35: '985.435.346-07' (len=14) ---
+  pref: len=0 de string 0
+  suf:  len=3 de string 23
+  cobertura: 3 de 14
+  tokens: [L('985.435.346') + S(23,3)]
+
+--- string 36: '247.510.799-56' (len=14) ---
+  pref: len=0 de string 0
+  suf:  len=3 de string 7
+  cobertura: 3 de 14
+  tokens: [L('247.510.799') + S(7,3)]
+
+--- string 37: '118.384.251-10' (len=14) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 14
+  tokens: [L('118.384.251-10')]
+
+--- string 38: '354.278.498-23' (len=14) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 14
+  tokens: [L('354.278.498-23')]
+
+--- string 39: '084.124.118-03' (len=14) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 14
+  tokens: [L('084.124.118-03')]
+
+--- string 40: '244.935.348-85' (len=14) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 14
+  tokens: [L('244.935.348-85')]
+
+--- string 41: '740.164.005-89' (len=14) ---
+  pref: len=0 de string 0
+  suf:  len=3 de string 5
+  cobertura: 3 de 14
+  tokens: [L('740.164.005') + S(5,3)]
+
+--- string 42: '242.786.801-98' (len=14) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 14
+  tokens: [L('242.786.801-98')]
+
+--- string 43: '128.059.826-30' (len=14) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 14
+  tokens: [L('128.059.826-30')]
+
+--- string 44: '204.505.331-82' (len=14) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 14
+  tokens: [L('204.505.331-82')]
+
+--- string 45: '586.923.226-01' (len=14) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 14
+  tokens: [L('586.923.226-01')]
+
+--- string 46: '025.634.216-40' (len=14) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 14
+  tokens: [L('025.634.216-40')]
+
+--- string 47: '073.375.433-36' (len=14) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 14
+  tokens: [L('073.375.433-36')]
+
+--- string 48: '036.541.458-17' (len=14) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 14
+  tokens: [L('036.541.458-17')]
+
+--- string 49: '685.014.294-14' (len=14) ---
+  pref: len=0 de string 0
+  suf:  len=3 de string 2
+  cobertura: 3 de 14
+  tokens: [L('685.014.294') + S(2,3)]
+
+--- string 50: '019.655.698-89' (len=14) ---
+  pref: len=0 de string 0
+  suf:  len=3 de string 5
+  cobertura: 3 de 14
+  tokens: [L('019.655.698') + S(5,3)]

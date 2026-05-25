@@ -1,0 +1,17 @@
+{
+  "case": 1,
+  "name": "cpf-uniform-A-baseline-126pct",
+  "description": "D-CPF-uniform (50 first) com M10 puro — sem pre-tx. Reproduz o 126% ratio.",
+  "n_values_sampled": 50,
+  "raw_bytes_total": 750,
+  "input_avg_len": 14.0,
+  "tcf_bytes": 942,
+  "ratio_pct": 125.6,
+  "cadence_detected": false,
+  "cadence_rule": null,
+  "min_len": 3,
+  "obat_used_hint": false,
+  "seq_rle_runs_count": 0,
+  "rt_input_ok": true,
+  "n_unicas": 50
+}

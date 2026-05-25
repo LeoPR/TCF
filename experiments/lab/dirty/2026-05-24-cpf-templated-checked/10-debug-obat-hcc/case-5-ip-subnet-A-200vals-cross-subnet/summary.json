@@ -1,0 +1,17 @@
+{
+  "case": 5,
+  "name": "ip-subnet-A-200vals-cross-subnet",
+  "description": "D-IP-subnet (200 first = 2 subnets completas) com M10 puro. Investiga discrepancia: 50 vals = 5.78%, mas full 1000 vals = 118%. Hipotese: transicao entre subnets quebra near-identical.",
+  "n_values_sampled": 200,
+  "raw_bytes_total": 2680,
+  "input_avg_len": 12.4,
+  "tcf_bytes": 1827,
+  "ratio_pct": 68.17,
+  "cadence_detected": true,
+  "cadence_rule": "1-uniform-length-high-lcp-lcs",
+  "min_len": 6,
+  "obat_used_hint": true,
+  "seq_rle_runs_count": 2,
+  "rt_input_ok": true,
+  "n_unicas": 200
+}

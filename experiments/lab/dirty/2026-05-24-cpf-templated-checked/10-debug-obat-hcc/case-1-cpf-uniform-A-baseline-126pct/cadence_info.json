@@ -1,0 +1,43 @@
+{
+  "n_strings_total": 50,
+  "n_sample": 5,
+  "threshold": 0.7,
+  "numeric_card_threshold": 0.5,
+  "rule_hit": null,
+  "lengths": [
+    14,
+    14,
+    14,
+    14,
+    14
+  ],
+  "lcp_lcs_ratios": [
+    {
+      "pair": 1,
+      "lcp": 0,
+      "lcs": 0,
+      "ratio": 0.0
+    },
+    {
+      "pair": 2,
+      "lcp": 0,
+      "lcs": 0,
+      "ratio": 0.0
+    },
+    {
+      "pair": 3,
+      "lcp": 1,
+      "lcs": 0,
+      "ratio": 0.071
+    },
+    {
+      "pair": 4,
+      "lcp": 0,
+      "lcs": 0,
+      "ratio": 0.0
+    }
+  ],
+  "cardinality": 1.0,
+  "is_numeric": false,
+  "reason": "nenhuma regra acionou"
+}

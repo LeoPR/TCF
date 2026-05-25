@@ -1,0 +1,298 @@
+min_len = 3
+
+--- string 1: '%Tkv;' (len=5) ---
+  primeira string -> literal puro
+
+--- string 2: '%V!!3' (len=5) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 5
+  tokens: [L('%V!!3')]
+
+--- string 3: '%TtmT' (len=5) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 5
+  tokens: [L('%TtmT')]
+
+--- string 4: '%Un{K' (len=5) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 5
+  tokens: [L('%Un{K')]
+
+--- string 5: '%T41l' (len=5) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 5
+  tokens: [L('%T41l')]
+
+--- string 6: '%TnsR' (len=5) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 5
+  tokens: [L('%TnsR')]
+
+--- string 7: '%U7IX' (len=5) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 5
+  tokens: [L('%U7IX')]
+
+--- string 8: '%UgSA' (len=5) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 5
+  tokens: [L('%UgSA')]
+
+--- string 9: '%U}uG' (len=5) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 5
+  tokens: [L('%U}uG')]
+
+--- string 10: '%TmCM' (len=5) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 5
+  tokens: [L('%TmCM')]
+
+--- string 11: '%U(:e' (len=5) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 5
+  tokens: [L('%U(:e')]
+
+--- string 12: '%TmK.' (len=5) ---
+  pref: len=3 de string 10
+  suf:  len=0 de string 0
+  cobertura: 3 de 5
+  tokens: [P(10,3) + L('K.')]
+
+--- string 13: '%Tk5Y' (len=5) ---
+  pref: len=3 de string 1
+  suf:  len=0 de string 0
+  cobertura: 3 de 5
+  tokens: [P(1,3) + L('5Y')]
+
+--- string 14: '%Tnho' (len=5) ---
+  pref: len=3 de string 6
+  suf:  len=0 de string 0
+  cobertura: 3 de 5
+  tokens: [P(6,3) + L('ho')]
+
+--- string 15: '%UG7L' (len=5) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 5
+  tokens: [L('%UG7L')]
+
+--- string 16: '%Trs(' (len=5) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 5
+  tokens: [L('%Trs(')]
+
+--- string 17: '%TXBZ' (len=5) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 5
+  tokens: [L('%TXBZ')]
+
+--- string 18: '%UOpb' (len=5) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 5
+  tokens: [L('%UOpb')]
+
+--- string 19: '%Up-b' (len=5) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 5
+  tokens: [L('%Up-b')]
+
+--- string 20: '%Tb(W' (len=5) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 5
+  tokens: [L('%Tb(W')]
+
+--- string 21: '%V%u!' (len=5) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 5
+  tokens: [L('%V%u!')]
+
+--- string 22: '%TOpK' (len=5) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 5
+  tokens: [L('%TOpK')]
+
+--- string 23: '%UD|.' (len=5) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 5
+  tokens: [L('%UD|.')]
+
+--- string 24: '%Tc|Z' (len=5) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 5
+  tokens: [L('%Tc|Z')]
+
+--- string 25: '%Tjp.' (len=5) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 5
+  tokens: [L('%Tjp.')]
+
+--- string 26: '%TAz;' (len=5) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 5
+  tokens: [L('%TAz;')]
+
+--- string 27: '%U4q}' (len=5) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 5
+  tokens: [L('%U4q}')]
+
+--- string 28: '%TEAl' (len=5) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 5
+  tokens: [L('%TEAl')]
+
+--- string 29: '%TcO.' (len=5) ---
+  pref: len=3 de string 24
+  suf:  len=0 de string 0
+  cobertura: 3 de 5
+  tokens: [P(24,3) + L('O.')]
+
+--- string 30: '%V!Xx' (len=5) ---
+  pref: len=3 de string 2
+  suf:  len=0 de string 0
+  cobertura: 3 de 5
+  tokens: [P(2,3) + L('Xx')]
+
+--- string 31: '%UImH' (len=5) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 5
+  tokens: [L('%UImH')]
+
+--- string 32: '%Tkms' (len=5) ---
+  pref: len=3 de string 1
+  suf:  len=0 de string 0
+  cobertura: 3 de 5
+  tokens: [P(1,3) + L('ms')]
+
+--- string 33: '%Uk1;' (len=5) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 5
+  tokens: [L('%Uk1;')]
+
+--- string 34: '%T4r1' (len=5) ---
+  pref: len=3 de string 5
+  suf:  len=0 de string 0
+  cobertura: 3 de 5
+  tokens: [P(5,3) + L('r1')]
+
+--- string 35: '%UjK8' (len=5) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 5
+  tokens: [L('%UjK8')]
+
+--- string 36: '%Tfpg' (len=5) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 5
+  tokens: [L('%Tfpg')]
+
+--- string 37: '%UEZV' (len=5) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 5
+  tokens: [L('%UEZV')]
+
+--- string 38: '%UK7^' (len=5) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 5
+  tokens: [L('%UK7^')]
+
+--- string 39: '%UHkc' (len=5) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 5
+  tokens: [L('%UHkc')]
+
+--- string 40: '%UpDn' (len=5) ---
+  pref: len=3 de string 19
+  suf:  len=0 de string 0
+  cobertura: 3 de 5
+  tokens: [P(19,3) + L('Dn')]
+
+--- string 41: '%UUD;' (len=5) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 5
+  tokens: [L('%UUD;')]
+
+--- string 42: '%T?Rb' (len=5) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 5
+  tokens: [L('%T?Rb')]
+
+--- string 43: '%ULq!' (len=5) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 5
+  tokens: [L('%ULq!')]
+
+--- string 44: '%T^h-' (len=5) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 5
+  tokens: [L('%T^h-')]
+
+--- string 45: '%U&9&' (len=5) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 5
+  tokens: [L('%U&9&')]
+
+--- string 46: '%T{D:' (len=5) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 5
+  tokens: [L('%T{D:')]
+
+--- string 47: '%U.?8' (len=5) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 5
+  tokens: [L('%U.?8')]
+
+--- string 48: '%Uh:2' (len=5) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 5
+  tokens: [L('%Uh:2')]
+
+--- string 49: '%TPv$' (len=5) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 5
+  tokens: [L('%TPv$')]
+
+--- string 50: '%Uzrs' (len=5) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 5
+  tokens: [L('%Uzrs')]

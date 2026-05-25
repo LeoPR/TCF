@@ -1,0 +1,17 @@
+{
+  "case": 6,
+  "name": "ip-subnet-C-200vals-cross-subnet",
+  "description": "D-IP-subnet (200 first = 2 subnets completas) com pre-tx C. Comparacao com case 5 mostra se padding ajuda no cruzamento de subnets.",
+  "n_values_sampled": 200,
+  "raw_bytes_total": 2680,
+  "input_avg_len": 12.0,
+  "tcf_bytes": 61,
+  "ratio_pct": 2.28,
+  "cadence_detected": true,
+  "cadence_rule": "1-uniform-length-high-lcp-lcs",
+  "min_len": 6,
+  "obat_used_hint": true,
+  "seq_rle_runs_count": 3,
+  "rt_input_ok": true,
+  "n_unicas": 200
+}
