@@ -1,0 +1,18 @@
+# CNPJ | RT_ALL=True | rt_ok=1000/1000 | mismatched=0
+# Fallback counts: {'empty_value': 250, 'format_mismatch': 187, 'compressible': 250, 'format_unmasked': 250, 'check_invalid': 63}
+# Primeiras 15: ' ' = OK, '!' = MISMATCH
+  orig=''  rec=''
+  orig='27.937.145/2111-1'  rec='27.937.145/2111-1'
+  orig=''  rec=''
+  orig=''  rec=''
+  orig='58.692.322/6025-28'  rec='58.692.322/6025-28'
+  orig='13646225179030'  rec='13646225179030'
+  orig='36.057.662/7028-40'  rec='36.057.662/7028-40'
+  orig=''  rec=''
+  orig='43744701204576'  rec='43744701204576'
+  orig='50.461.735/7438-1'  rec='50.461.735/7438-1'
+  orig='43.443.757/5844-82'  rec='43.443.757/5844-82'
+  orig=''  rec=''
+  orig='87258874495694'  rec='87258874495694'
+  orig='40.140.119/3932-1'  rec='40.140.119/3932-1'
+  orig='67.179.57X/0243-13'  rec='67.179.57X/0243-13'

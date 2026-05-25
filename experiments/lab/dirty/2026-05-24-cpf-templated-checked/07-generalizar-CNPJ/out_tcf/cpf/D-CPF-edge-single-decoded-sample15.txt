@@ -1,0 +1,4 @@
+# CPF | RT_ALL=True | rt_ok=1/1 | mismatched=0
+# Fallback counts: {'compressible': 1}
+# Primeiras 15: ' ' = OK, '!' = MISMATCH
+  orig='104.332.181-00'  rec='104.332.181-00'

@@ -1,0 +1,18 @@
+# CPF | RT_ALL=True | rt_ok=1000/1000 | mismatched=0
+# Fallback counts: {'empty_value': 250, 'format_mismatch': 437, 'compressible': 250, 'check_invalid': 63}
+# Primeiras 15: ' ' = OK, '!' = MISMATCH
+  orig=''  rec=''
+  orig='182.688.615-0'  rec='182.688.615-0'
+  orig=''  rec=''
+  orig=''  rec=''
+  orig='939.909.169-47'  rec='939.909.169-47'
+  orig='663177971-53'  rec='663177971-53'
+  orig='443.135.182-58'  rec='443.135.182-58'
+  orig=''  rec=''
+  orig='110371293-42'  rec='110371293-42'
+  orig='775.949.299-5'  rec='775.949.299-5'
+  orig='794.738.347-21'  rec='794.738.347-21'
+  orig=''  rec=''
+  orig='688444310-33'  rec='688444310-33'
+  orig='824.043.350-2'  rec='824.043.350-2'
+  orig='792.X71.747-00'  rec='792.X71.747-00'

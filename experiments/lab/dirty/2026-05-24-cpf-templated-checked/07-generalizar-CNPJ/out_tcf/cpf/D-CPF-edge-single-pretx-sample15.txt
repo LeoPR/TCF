@@ -1,0 +1,2 @@
+# Sub-exp 07 (cpf) pre-tx sample:
+[compressible      ] orig='104.332.181-00'  -> enc='%Tkv;'
