@@ -1,15 +1,19 @@
 # STATUS — TCF (compendio sempre-atualizado)
 
-**Atualizado em**: 2026-05-24 (**Dirty lab CPF templated+checked**:
-4 sub-exps executados (01-04). Achados criticos:
-1. M10 PIORA CPFs (120-126% ratio) — marcadores fixos sao overhead;
-2. Variante B (strip+check+base-94+M10) VENCE com -64% em uniform,
-   -53% em clustered; **H1 REFUTADA** (base-encode nao mascara, vence
-   mesmo em clustered);
-3. Variante C (hibrido) eh intermediaria, nunca vence B;
-4. RT FAIL em corrupt — sub-exp 05 precisa marker explicito.
-Datasets D-CPF (uniform/clustered/mixed/corrupt) sinteticos.
-Sub-exps 05-08 com stubs.
+**Atualizado em**: 2026-05-24 (**Dirty lab CPF/CNPJ/IP completo + 3 tickets P2/P3
+novos registrados**: 14 sub-exps executados. Achados sumarizados:
+- Sub-exps 01-09: CPF/CNPJ caracterizacao + variantes B/C + fallback + stats ISO 25012
+- Sub-exp 10 debug OBAT/HCC: 6 cases revelaram comportamentos
+- Sub-exp 11: hipotese gating ADR-0010 **REFUTADA** (min_len bypass nao muda)
+- Sub-exp 12 IP hex variante D: **abandonada** (entre B e C, nunca vence)
+- Sub-exp 13 base-aware seq-RLE: **arquitetura validada** (regression OK), mas
+  ganho marginal em hex (-94B subnet). H1 partially refutada.
+- Sub-exp 14 cross-subnet investigation: **2 bugs reais identificados**:
+  (1) M8A nao cria atom secundario; (2) compare_for_seq rejeita multi-run delta
+- 3 tickets P2/P3 registrados: T-CODE-HCC-MULTI-DELTA-FIX, 
+  T-CODE-HCC-ATOM-DETECTION-REFINE, T-CODE-LAYERED-PIPELINE
+- Nota arquitetural funil de camadas + toggles + online adaptive + literatura
+  (Frame of Reference, PFOR-DELTA, Gorilla, Dictionary encoding))
 
 **Anterior 2026-05-24**: T-CODE-SCHEMA-BUILDER Fase 1+2 WELDED:
 novo `src/tcf/schema.py` com `build_schema(data) -> TableSchema`,
@@ -373,6 +377,9 @@ nao guia de evolucao (cf. diretriz dados-realistas).
 | [T-CODE-OUTPUT-SINKS](tickets/T-CODE-OUTPUT-SINKS.md) | **OPEN P2 2026-05-24** | Contract Sink pluggable, refactor scripts/writers/ (bloqueado por encoder-manager) |
 | [T-CODE-PLAN-CONTRACT](tickets/T-CODE-PLAN-CONTRACT.md) | **OPEN P3 2026-05-24** | Plan dataclass (group_by/order/batch_size), habilita O-FMT-01..04 |
 | [T-CODE-SCHEMA-BUILDER](tickets/T-CODE-SCHEMA-BUILDER.md) | **OPEN-FASES-1+2-WELDED 2026-05-24** | Fase 1+2: `build_schema(data) -> TableSchema`; ColumnSchema + to_dict/to_json; 24/24 tests; reaproveita SideOutputs 100%. Fase 3 (naturezas) depende META-TYPE-ENCODERS reabrir. |
+| [T-CODE-HCC-MULTI-DELTA-FIX](tickets/T-CODE-HCC-MULTI-DELTA-FIX.md) | **OPEN P2 2026-05-24** | Bug #2 sub-exp 14: compare_for_seq rejeita multi-run delta {0,0,0,1}. Cross-subnet IPs ratio 117% -> ~3-4% estimado. Risco quebrar M10. |
+| [T-CODE-HCC-ATOM-DETECTION-REFINE](tickets/T-CODE-HCC-ATOM-DETECTION-REFINE.md) | **OPEN P2 2026-05-24** | Bug #1 sub-exp 14: M8A nao cria atom secundario. Alternativo a T-CODE-HCC-MULTI-DELTA-FIX; recomenda priorizar este ultimo (risco menor). |
+| [T-CODE-LAYERED-PIPELINE](tickets/T-CODE-LAYERED-PIPELINE.md) | **OPEN P3 2026-05-24** | Toggle infrastructure (filtros/pre-pass/OBAT/HCC) + online adaptive fallback. Funil de camadas com responsabilidades separadas. Bloqueado por T-CODE-ENCODER-MANAGER P2 + T-CODE-SCHEMA-BUILDER Fase 3. |
 
 ---
 
