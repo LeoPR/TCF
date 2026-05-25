@@ -1,0 +1,5 @@
+{"n_input": 50, "raw_bytes": 640, "n_body_lines_m8a": 50, "n_unique_lengths": 3, "n_lines_with_escape_runs": 50, "n_seq_runs_detected": 2, "m10_bytes": 37, "m10_ratio_pct": 5.78, "ratio_body_vs_input": 1.0}
+{"n_input": 100, "raw_bytes": 1290, "n_body_lines_m8a": 100, "n_unique_lengths": 3, "n_lines_with_escape_runs": 100, "n_seq_runs_detected": 2, "m10_bytes": 37, "m10_ratio_pct": 2.87, "ratio_body_vs_input": 1.0}
+{"n_input": 200, "raw_bytes": 2680, "n_body_lines_m8a": 200, "n_unique_lengths": 4, "n_lines_with_escape_runs": 200, "n_seq_runs_detected": 2, "m10_bytes": 1827, "m10_ratio_pct": 68.17, "ratio_body_vs_input": 1.0}
+{"n_input": 500, "raw_bytes": 6550, "n_body_lines_m8a": 500, "n_unique_lengths": 6, "n_lines_with_escape_runs": 500, "n_seq_runs_detected": 2, "m10_bytes": 6897, "m10_ratio_pct": 105.3, "ratio_body_vs_input": 1.0}
+{"n_input": 1000, "raw_bytes": 13400, "n_body_lines_m8a": 1000, "n_unique_lengths": 7, "n_lines_with_escape_runs": 1000, "n_seq_runs_detected": 2, "m10_bytes": 15747, "m10_ratio_pct": 117.51, "ratio_body_vs_input": 1.0}
