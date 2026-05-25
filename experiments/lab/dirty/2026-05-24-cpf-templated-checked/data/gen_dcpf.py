@@ -143,8 +143,8 @@ def write_csv(path: Path, values: list[str]):
 
 
 def main():
+    # Etapa 1 — Ilustrativos / forcados (didaticos, 1k each)
     random.seed(SEED)
-
     uniform = gen_uniform(N)
     write_csv(OUTPUT_DIR / "D-CPF-uniform.csv", uniform)
 
@@ -160,16 +160,48 @@ def main():
     corrupt = gen_corrupt(N)
     write_csv(OUTPUT_DIR / "D-CPF-corrupt.csv", corrupt)
 
+    # Etapa 3 — Bordas / edges (limites do mecanismo)
+    random.seed(SEED)
+    write_csv(OUTPUT_DIR / "D-CPF-edge-single.csv", gen_uniform(1))
+
+    same = gen_uniform(1)[0]
+    write_csv(OUTPUT_DIR / "D-CPF-edge-allsame.csv", [same] * N)
+
+    random.seed(SEED)
+    all_corrupt = gen_corrupt(N, corrupt_rate=1.0)
+    write_csv(OUTPUT_DIR / "D-CPF-edge-allcorrupt.csv", all_corrupt)
+
+    # Etapa 4 — Extrapolacoes (volumes maiores, casos hostis)
+    random.seed(SEED)
+    large = gen_uniform(10000)
+    write_csv(OUTPUT_DIR / "D-CPF-extra-large10k.csv", large)
+
+    random.seed(SEED)
+    hostile = (
+        gen_uniform(250)         # masked OK
+        + [v.replace('.', '') for v in gen_uniform(250)]  # unmasked
+        + gen_corrupt(250, corrupt_rate=1.0)  # all corrupt
+        + ['' for _ in range(250)]  # empty strings (semantic NULL)
+    )
+    random.seed(SEED)
+    random.shuffle(hostile)
+    write_csv(OUTPUT_DIR / "D-CPF-extra-hostile.csv", hostile)
+
     # Stats simples
     for name, vals in [
         ("uniform", uniform),
         ("clustered", clustered),
         ("mixed", mixed),
         ("corrupt", corrupt),
+        ("edge-single", gen_uniform(1)),
+        ("edge-allsame", [same] * N),
+        ("edge-allcorrupt", all_corrupt),
+        ("extra-large10k", large),
+        ("extra-hostile", hostile),
     ]:
         unique = len(set(vals))
         sample = vals[:3]
-        print(f"D-CPF-{name}: {len(vals)} rows, {unique} unique, sample={sample}")
+        print(f"D-CPF-{name}: {len(vals)} rows, {unique} unique, sample={sample[:60]}")
 
 
 if __name__ == "__main__":

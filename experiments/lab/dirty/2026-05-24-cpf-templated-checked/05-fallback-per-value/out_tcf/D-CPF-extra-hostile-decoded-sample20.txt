@@ -1,0 +1,23 @@
+# RT_ALL=True | rt_ok=1000/1000 | mismatched=0
+# Fallback counts: {'empty_value': 250, 'length_wrong': 312, 'compressible': 250, 'format_mismatch': 125, 'check_invalid': 63}
+# Primeiras 20: ' ' = OK, '!' = MISMATCH (compressao quebrou o original)
+  orig=''  reconstructed=''
+  orig='182.688.615-0'  reconstructed='182.688.615-0'
+  orig=''  reconstructed=''
+  orig=''  reconstructed=''
+  orig='939.909.169-47'  reconstructed='939.909.169-47'
+  orig='663177971-53'  reconstructed='663177971-53'
+  orig='443.135.182-58'  reconstructed='443.135.182-58'
+  orig=''  reconstructed=''
+  orig='110371293-42'  reconstructed='110371293-42'
+  orig='775.949.299-5'  reconstructed='775.949.299-5'
+  orig='794.738.347-21'  reconstructed='794.738.347-21'
+  orig=''  reconstructed=''
+  orig='688444310-33'  reconstructed='688444310-33'
+  orig='824.043.350-2'  reconstructed='824.043.350-2'
+  orig='792.X71.747-00'  reconstructed='792.X71.747-00'
+  orig='863,840,666/53'  reconstructed='863,840,666/53'
+  orig=''  reconstructed=''
+  orig='019.655.698-89'  reconstructed='019.655.698-89'
+  orig='262.582.739-48'  reconstructed='262.582.739-48'
+  orig='422579050-91'  reconstructed='422579050-91'

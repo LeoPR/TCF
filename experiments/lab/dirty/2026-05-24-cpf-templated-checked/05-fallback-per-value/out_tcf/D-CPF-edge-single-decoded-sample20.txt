@@ -1,0 +1,4 @@
+# RT_ALL=True | rt_ok=1/1 | mismatched=0
+# Fallback counts: {'compressible': 1}
+# Primeiras 20: ' ' = OK, '!' = MISMATCH (compressao quebrou o original)
+  orig='104.332.181-00'  reconstructed='104.332.181-00'

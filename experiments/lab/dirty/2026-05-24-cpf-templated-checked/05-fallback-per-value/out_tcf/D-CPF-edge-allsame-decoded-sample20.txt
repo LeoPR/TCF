@@ -1,0 +1,23 @@
+# RT_ALL=True | rt_ok=1000/1000 | mismatched=0
+# Fallback counts: {'compressible': 1000}
+# Primeiras 20: ' ' = OK, '!' = MISMATCH (compressao quebrou o original)
+  orig='960.013.389-14'  reconstructed='960.013.389-14'
+  orig='960.013.389-14'  reconstructed='960.013.389-14'
+  orig='960.013.389-14'  reconstructed='960.013.389-14'
+  orig='960.013.389-14'  reconstructed='960.013.389-14'
+  orig='960.013.389-14'  reconstructed='960.013.389-14'
+  orig='960.013.389-14'  reconstructed='960.013.389-14'
+  orig='960.013.389-14'  reconstructed='960.013.389-14'
+  orig='960.013.389-14'  reconstructed='960.013.389-14'
+  orig='960.013.389-14'  reconstructed='960.013.389-14'
+  orig='960.013.389-14'  reconstructed='960.013.389-14'
+  orig='960.013.389-14'  reconstructed='960.013.389-14'
+  orig='960.013.389-14'  reconstructed='960.013.389-14'
+  orig='960.013.389-14'  reconstructed='960.013.389-14'
+  orig='960.013.389-14'  reconstructed='960.013.389-14'
+  orig='960.013.389-14'  reconstructed='960.013.389-14'
+  orig='960.013.389-14'  reconstructed='960.013.389-14'
+  orig='960.013.389-14'  reconstructed='960.013.389-14'
+  orig='960.013.389-14'  reconstructed='960.013.389-14'
+  orig='960.013.389-14'  reconstructed='960.013.389-14'
+  orig='960.013.389-14'  reconstructed='960.013.389-14'

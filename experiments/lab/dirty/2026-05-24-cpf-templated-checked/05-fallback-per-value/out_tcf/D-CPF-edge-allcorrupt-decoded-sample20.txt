@@ -1,0 +1,23 @@
+# RT_ALL=True | rt_ok=1000/1000 | mismatched=0
+# Fallback counts: {'check_invalid': 250, 'format_mismatch': 500, 'length_wrong': 250}
+# Primeiras 20: ' ' = OK, '!' = MISMATCH (compressao quebrou o original)
+  orig='104.332.181-01'  reconstructed='104.332.181-01'
+  orig='001,338,908/48'  reconstructed='001,338,908/48'
+  orig='86X.794.026-91'  reconstructed='86X.794.026-91'
+  orig='511.615.594-3'  reconstructed='511.615.594-3'
+  orig='781.618.495-61'  reconstructed='781.618.495-61'
+  orig='103,413,164/82'  reconstructed='103,413,164/82'
+  orig='525.X34.192-44'  reconstructed='525.X34.192-44'
+  orig='764.835.030-0'  reconstructed='764.835.030-0'
+  orig='641.395.376-48'  reconstructed='641.395.376-48'
+  orig='724,238,849/07'  reconstructed='724,238,849/07'
+  orig='96Z.328.710-95'  reconstructed='96Z.328.710-95'
+  orig='269.166.978-5'  reconstructed='269.166.978-5'
+  orig='801.845.146-07'  reconstructed='801.845.146-07'
+  orig='048,281,489/65'  reconstructed='048,281,489/65'
+  orig='528.80Y.570-10'  reconstructed='528.80Y.570-10'
+  orig='303.911.718-1'  reconstructed='303.911.718-1'
+  orig='278.248.963-16'  reconstructed='278.248.963-16'
+  orig='346,578,713/74'  reconstructed='346,578,713/74'
+  orig='X09.839.301-98'  reconstructed='X09.839.301-98'
+  orig='105.183.473-2'  reconstructed='105.183.473-2'

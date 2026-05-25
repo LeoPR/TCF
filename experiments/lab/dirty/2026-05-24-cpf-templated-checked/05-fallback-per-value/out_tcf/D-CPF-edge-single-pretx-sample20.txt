@@ -1,0 +1,2 @@
+# Sub-exp 05 pre-tx sample (status per linha):
+[compressible      ] orig='104.332.181-00'  -> enc='%Tkv;'

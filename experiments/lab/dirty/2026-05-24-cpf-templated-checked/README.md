@@ -58,18 +58,34 @@ tem significado se decode reproduz o original — feedback 2026-05-24):
 
 ### RT FAIL (compressao comprometida — NAO eh lossless)
 
-| Dataset | Raw | M10 (A) | B (base-94) | C (hibrido) |
-|---|---:|---:|---:|---:|
-| D-CPF-corrupt | 14985 | 18959 (127%, RT 1000/1000) ✓ | 7190 (48%, **RT 989/1000**) ❌ | 12106 (81%, **RT 989/1000**) ❌ |
+| Dataset | Raw | M10 (A) | B (base-94) | C (hibrido) | Sub-exp 05 (B+fallback) |
+|---|---:|---:|---:|---:|---:|
+| D-CPF-corrupt | 14985 | 18959 (127%, RT 1000/1000) ✓ | 7190 (48%, **RT 989/1000**) ❌ | 12106 (81%, **RT 989/1000**) ❌ | **7356 (49%, RT 1000/1000)** ✓ |
 
-**Os 11 mismatches** sao exatamente os `corrupt_check` (CPFs com formato
-OK mas check digit errado). Pre-tx B e C removem o check e regen no
-decode -> reconstrucao **muda** o valor original (de `...-97` pra
-`...-96` por exemplo, lista completa em
-[`03-.../out_tcf/D-CPF-corrupt-mismatches.txt`](03-variante-B-base-encoded/out_tcf/D-CPF-corrupt-mismatches.txt)).
+**Os 11 mismatches** em B/C sao exatamente os `corrupt_check` (CPFs
+com formato OK mas check digit errado). Pre-tx B e C removem o check
+e regen no decode -> reconstrucao **muda** o valor original. Lista
+completa em
+[`03-.../out_tcf/D-CPF-corrupt-mismatches.txt`](03-variante-B-base-encoded/out_tcf/D-CPF-corrupt-mismatches.txt).
 
-A "compressao" dos 11 cases eh ilusoria: bytes reduzidos mas dados
-mudados. Sub-exp 05 (fallback marker) implementa fix.
+**Sub-exp 05 resolve**: marker prefix `_` distingue literal de
+compressed. Encoder STRITTA rejeita check_invalid (e outros tipos
+de erro) — caem em fallback literal. RT 1000/1000 com overhead
+minimo (~166B vs B sem fallback). B+fallback **substitui** B pura.
+
+### Etapas 3+4 (bordas + extrapolacao, sub-exp 05)
+
+| Dataset | Etapa | rows | tcf | ratio | RT | Observacao |
+|---|---|---:|---:|---:|:---:|---|
+| edge-single | 3 | 1 | 6 | 40% | OK | 6B pra 1 CPF |
+| edge-allsame | 3 | 1000 | **12** | **0.08%** ⚡ | OK | HCC RLE captura repeticao perfeita |
+| edge-allcorrupt | 3 | 1000 | 19718 | **134%** ⚠ | OK | 100% literal — pre-tx nao deve aplicar |
+| extra-large10k | 4 | 10000 | 68044 | 45.36% | OK | Escala linear |
+| extra-hostile | 4 | 1000 | 11356 | **104%** ⚠ | OK | 75% fallback — pre-tx nao deve aplicar |
+
+**Implicacao**: schema_builder Fase 3 precisa detectar
+`n_compressible / n_total >= ~50%` antes de ativar pre-tx CPF.
+Caso contrario M10 puro eh melhor.
 
 ### Achados criticos
 
@@ -142,13 +158,17 @@ mudados. Sub-exp 05 (fallback marker) implementa fix.
 - Strip + check elide + M10 (preserva digitos visiveis)
 - **Achado**: Intermediario. Nunca vence B. H1 refutada.
 
-### 05-fallback-per-value (PROXIMO — critico)
-- Marker explicito no encoded: `<5char>` = base-encoded valido,
-  qualquer outro tamanho = literal
-- D-CPF-corrupt + D-CPF-mixed como inputs
-- Validar RT byte-canonical 100% (sem "data quality fix" implicito)
-- Policy configuravel: estrito (literal pra check_invalid) vs loose
-  (regen + flag)
+### 05-fallback-per-value (CONCLUIDO 2026-05-24)
+- Marker prefix `_` distingue literal vs compressed
+- Encoder STRITTA: rejeita check_invalid + format_mismatch +
+  chars_invalid + length_wrong + empty
+- **RT 100% em TODOS os 9 datasets** (1 + 3 etapa-bordas + 2 etapa-extrap)
+- Compressao mantida em compressible-heavy: uniform 45%, clustered 46%
+- edge-allsame: 0.08% (RLE HCC explosivo)
+- edge-allcorrupt: 134% (todos literal — pre-tx nao deve aplicar)
+- extra-hostile: 104% (75% fallback — idem)
+- **Conclusao**: B+fallback substitui B pura como vencedora segura;
+  heuristica de aplicacao por % compressible eh pre-requisito.
 
 ### 06-stats-estruturadas
 - `NatureApplyStats` dataclass: apply_rate, confidence_score,
