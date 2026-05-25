@@ -1,0 +1,21 @@
+# Pre-tx D (hex 8-char): primeiras 20:
+390c8c7d
+390c8c7d
+390c8c7d
+390c8c7d
+390c8c7d
+390c8c7d
+390c8c7d
+390c8c7d
+390c8c7d
+390c8c7d
+390c8c7d
+390c8c7d
+390c8c7d
+390c8c7d
+390c8c7d
+390c8c7d
+390c8c7d
+390c8c7d
+390c8c7d
+390c8c7d

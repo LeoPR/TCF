@@ -1,0 +1,21 @@
+# Pre-tx D (hex 8-char): primeiras 20:
+390c8c7d
+_52,44,216,16
+6f770d65
+d670e58e
+0351d8ae
+6eac342f
+b7b08716
+3fc12896
+b9622317
+94287733
+e8ba53bd
+8824577d
+c28a70a6
+1c7510a1
+216ca16c
+caea4987
+86dbccb9
+46fc2e18
+4e51d820
+ef80053a
