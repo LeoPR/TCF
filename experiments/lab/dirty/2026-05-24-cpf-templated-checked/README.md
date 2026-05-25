@@ -27,13 +27,33 @@ genérica.
   fallback literal. RT byte-canonical preservado em todos casos.
 - **TCF nao valida semantica**: nao valida "este CPF existe na
   Receita". Apenas detecta formato + check digit derivavel.
-- **Estatisticas estruturadas**:
-  - Genericas (qualquer natureza): apply_rate, confidence_score
-  - Especificas (do tipo): fallback_reasons (format_mismatch /
-    check_invalid / chars_invalid / length_wrong)
+- **Estatisticas estruturadas (dimensoes ISO/IEC 25012)**:
+  - Genericas (qualquer natureza): apply_rate, accuracy, completeness,
+    consistency, compliance
+  - Especificas (do tipo): fallback_reasons taxonomy Kim et al. 2003
 - **Categoria > instancia**: CPF eh instancia de "Templated + Checked
   + Unique-Discrete". Mesma maquina serve CNPJ/IBAN/Luhn variando
   template + check_fn.
+
+## Mapeamento academico (ver `notas/metodologia-avaliacao-dados-2026-05-24.md`)
+
+Cada dataset segue framework estabelecido na literatura:
+
+| Dataset | Framework | Referencia |
+|---|---|---|
+| D-CPF-uniform | Equivalence class "happy path" | Myers 1979 |
+| D-CPF-clustered | Sintetico-realista | TPC benchmarks |
+| D-CPF-mixed | Multi-source schema conflict | Rahm & Do 2000 |
+| D-CPF-corrupt | **Mutation testing** (4 mutacoes sistematicas) | DeMillo et al. 1978 |
+| D-CPF-edge-* | **Boundary Value Analysis** | Beizer 1995 |
+| D-CPF-extra-hostile | **Fuzzing** | Miller et al. 1990 |
+
+Dimensoes de qualidade (NatureApplyStats sub-exp 06): **ISO/IEC 25012**
+(accuracy, completeness, consistency, compliance).
+
+Fallback reasons (taxonomia especifica do tipo CPF): adopta Kim et al.
+2003 taxonomy of dirty data (format violation, integrity violation,
+wrong value).
 
 ## Hipoteses
 

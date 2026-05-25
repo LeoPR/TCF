@@ -1,0 +1,13 @@
+{
+  "nature": "cpf",
+  "n_total": 10000,
+  "n_applied": 10000,
+  "n_fallback": 0,
+  "apply_rate": 1.0,
+  "fallback_reasons": {},
+  "accuracy_rate": 1.0,
+  "completeness_rate": 1.0,
+  "consistency_rate": 1.0,
+  "compliance_rate": 1.0,
+  "confidence_score": 1.0
+}
