@@ -1,0 +1,112 @@
+{
+  "regression_test_passed": true,
+  "hypothesis_results": [
+    {
+      "dataset": "D-IP-uniform",
+      "n_rows": 1000,
+      "hex_raw": 9000,
+      "m10_bytes": 11253,
+      "baseaware_bytes": 11253,
+      "delta_bytes": 0,
+      "delta_pct": 0.0,
+      "rt_ok": true
+    },
+    {
+      "dataset": "D-IP-subnet",
+      "n_rows": 1000,
+      "hex_raw": 9000,
+      "m10_bytes": 10671,
+      "baseaware_bytes": 10577,
+      "delta_bytes": -94,
+      "delta_pct": -0.88,
+      "rt_ok": true
+    },
+    {
+      "dataset": "D-IP-mixed",
+      "n_rows": 1000,
+      "hex_raw": 12424,
+      "m10_bytes": 15186,
+      "baseaware_bytes": 15191,
+      "delta_bytes": 5,
+      "delta_pct": 0.03,
+      "rt_ok": true
+    },
+    {
+      "dataset": "D-IP-corrupt",
+      "n_rows": 1000,
+      "hex_raw": 9238,
+      "m10_bytes": 11585,
+      "baseaware_bytes": 11590,
+      "delta_bytes": 5,
+      "delta_pct": 0.04,
+      "rt_ok": true
+    },
+    {
+      "dataset": "D-IP-edge-single",
+      "n_rows": 1,
+      "hex_raw": 9,
+      "m10_bytes": 12,
+      "baseaware_bytes": 12,
+      "delta_bytes": 0,
+      "delta_pct": 0.0,
+      "rt_ok": true
+    },
+    {
+      "dataset": "D-IP-edge-allsame",
+      "n_rows": 1000,
+      "hex_raw": 9000,
+      "m10_bytes": 18,
+      "baseaware_bytes": 18,
+      "delta_bytes": 0,
+      "delta_pct": 0.0,
+      "rt_ok": true
+    },
+    {
+      "dataset": "D-IP-extra-large10k",
+      "n_rows": 10000,
+      "hex_raw": 90000,
+      "m10_bytes": 112616,
+      "baseaware_bytes": 112747,
+      "delta_bytes": 131,
+      "delta_pct": 0.12,
+      "rt_ok": true
+    }
+  ],
+  "cross_test_results": [
+    {
+      "dataset": "D-CPF-uniform",
+      "m10_bytes": 18936,
+      "baseaware_bytes": 18936,
+      "delta_bytes": 0,
+      "verdict": "OK"
+    },
+    {
+      "dataset": "D-CPF-clustered",
+      "m10_bytes": 18042,
+      "baseaware_bytes": 18042,
+      "delta_bytes": 0,
+      "verdict": "OK"
+    },
+    {
+      "dataset": "D-CPF-corrupt",
+      "m10_bytes": 18959,
+      "baseaware_bytes": 18959,
+      "delta_bytes": 0,
+      "verdict": "OK"
+    },
+    {
+      "dataset": "D-IP-uniform",
+      "m10_bytes": 18159,
+      "baseaware_bytes": 18159,
+      "delta_bytes": 0,
+      "verdict": "OK"
+    },
+    {
+      "dataset": "D-IP-extra-large10k",
+      "m10_bytes": 175734,
+      "baseaware_bytes": 175734,
+      "delta_bytes": 0,
+      "verdict": "OK"
+    }
+  ]
+}

@@ -1,0 +1,58 @@
+[
+  {
+    "start_line": 2,
+    "end_line": 10,
+    "count": 9,
+    "delta": 1,
+    "template": "1,2\\1",
+    "savings": 43
+  },
+  {
+    "start_line": 17,
+    "end_line": 26,
+    "count": 10,
+    "delta": 1,
+    "template": "1\\10",
+    "savings": 39
+  },
+  {
+    "start_line": 33,
+    "end_line": 42,
+    "count": 10,
+    "delta": 1,
+    "template": "1\\20",
+    "savings": 39
+  },
+  {
+    "start_line": 49,
+    "end_line": 58,
+    "count": 10,
+    "delta": 1,
+    "template": "1\\30",
+    "savings": 39
+  },
+  {
+    "start_line": 65,
+    "end_line": 74,
+    "count": 10,
+    "delta": 1,
+    "template": "1\\40",
+    "savings": 39
+  },
+  {
+    "start_line": 81,
+    "end_line": 90,
+    "count": 10,
+    "delta": 1,
+    "template": "1\\50",
+    "savings": 39
+  },
+  {
+    "start_line": 97,
+    "end_line": 100,
+    "count": 4,
+    "delta": 1,
+    "template": "1\\60",
+    "savings": 10
+  }
+]

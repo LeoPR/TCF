@@ -1,0 +1,98 @@
+[
+  {
+    "start_line": 2,
+    "end_line": 10,
+    "count": 9,
+    "delta": 1,
+    "alphabet": "decimal",
+    "template": "1,2\\1"
+  },
+  {
+    "start_line": 17,
+    "end_line": 26,
+    "count": 10,
+    "delta": 1,
+    "alphabet": "decimal",
+    "template": "1\\10"
+  },
+  {
+    "start_line": 27,
+    "end_line": 33,
+    "count": 7,
+    "delta": 1,
+    "alphabet": "hex_lower",
+    "template": "1\\1a"
+  },
+  {
+    "start_line": 34,
+    "end_line": 42,
+    "count": 9,
+    "delta": 1,
+    "alphabet": "decimal",
+    "template": "1\\21"
+  },
+  {
+    "start_line": 43,
+    "end_line": 49,
+    "count": 7,
+    "delta": 1,
+    "alphabet": "hex_lower",
+    "template": "1\\2a"
+  },
+  {
+    "start_line": 50,
+    "end_line": 58,
+    "count": 9,
+    "delta": 1,
+    "alphabet": "decimal",
+    "template": "1\\31"
+  },
+  {
+    "start_line": 59,
+    "end_line": 65,
+    "count": 7,
+    "delta": 1,
+    "alphabet": "hex_lower",
+    "template": "1\\3a"
+  },
+  {
+    "start_line": 66,
+    "end_line": 74,
+    "count": 9,
+    "delta": 1,
+    "alphabet": "decimal",
+    "template": "1\\41"
+  },
+  {
+    "start_line": 75,
+    "end_line": 81,
+    "count": 7,
+    "delta": 1,
+    "alphabet": "hex_lower",
+    "template": "1\\4a"
+  },
+  {
+    "start_line": 82,
+    "end_line": 90,
+    "count": 9,
+    "delta": 1,
+    "alphabet": "decimal",
+    "template": "1\\51"
+  },
+  {
+    "start_line": 91,
+    "end_line": 97,
+    "count": 7,
+    "delta": 1,
+    "alphabet": "hex_lower",
+    "template": "1\\5a"
+  },
+  {
+    "start_line": 98,
+    "end_line": 100,
+    "count": 3,
+    "delta": 1,
+    "alphabet": "decimal",
+    "template": "1\\61"
+  }
+]
