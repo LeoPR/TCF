@@ -202,9 +202,12 @@ def compact_body(body_lines: list[str]) -> tuple[list[str], list[dict]]:
                 marker = f"*{count}{sign}{uniform}|{body_lines[start]}"
             else:
                 # ADR-0016 multi-delta: `*N+d1,d2,...|template`
-                # CSV de deltas (com sinal explicit pro primeiro pra parser)
+                # Primeiro delta: sinal explicit (parser usa '+' ou '-' como
+                # separador count/deltas). Quando negativo, str() ja' inclui '-';
+                # quando >= 0, prependa '+'.
                 deltas_str = ','.join(str(d) for d in deltas)
-                marker = f"*{count}+{deltas_str}|{body_lines[start]}"
+                sign_prefix = '+' if deltas[0] >= 0 else ''
+                marker = f"*{count}{sign_prefix}{deltas_str}|{body_lines[start]}"
             out.append(marker)
             info.append({
                 'start_line': start + 1,

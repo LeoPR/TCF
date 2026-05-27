@@ -129,6 +129,43 @@ class TestCompactBodyMarkerEmit:
         assert ',' in head
         assert marker == "*3+0,0,0,1|\\125.\\114.\\71.\\1"
 
+    def test_multi_delta_first_negative_no_double_sign(self):
+        """Regressao: encoder NAO deve emitir '+-1,0' (parser falha).
+
+        Bug encontrado em wine-quality real-world (2026-05-27): primeiro
+        delta negativo gerava marker `*N+-1,0|...` que decoder rejeitava
+        com `ValueError: invalid literal for int() with base 10: '+-1'`.
+
+        Fix: quando deltas[0] < 0, NAO prepend '+'; usa '-' do str() direto.
+        """
+        # Caso minimal: 2 lines onde primeiro delta da CSV e' negativo
+        # Construir body que gere deltas=[-1, 0] (decrementing num, invariant)
+        body = ["\\2.\\5", "\\1.\\5", "\\0.\\5"]
+        compacted, info = compact_body(body)
+        # Pelo menos 1 marker emitido com primeiro delta negativo
+        markers = [c for c in compacted if c.startswith('*')]
+        assert markers, "esperado pelo menos 1 marker"
+        for m in markers:
+            head = m.split('|')[0]
+            assert '+-' not in head, f"marker invalido com '+-': {m!r}"
+            # RT: cada marker tem que expandir
+            expanded = expand_seq_marker(m)
+            assert expanded is not None, f"decoder rejeitou {m!r}"
+
+    def test_multi_delta_first_negative_round_trip(self):
+        """RT explicit pra body com primeiro delta negativo."""
+        body = ["\\2.\\5", "\\1.\\5", "\\0.\\5"]
+        compacted, _ = compact_body(body)
+        # Expand back tudo
+        expanded_all = []
+        for line in compacted:
+            ex = expand_seq_marker(line)
+            if ex is not None:
+                expanded_all.extend(ex)
+            else:
+                expanded_all.append(line)
+        assert expanded_all == body
+
 
 class TestRTRoundTripMultiDelta:
     def test_round_trip_basic_multi_delta(self):

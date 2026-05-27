@@ -48,14 +48,11 @@ WINE_SCHEMA = {
 }
 
 
+UCI_RED = "https://archive.ics.uci.edu/ml/machine-learning-databases/wine-quality/winequality-red.csv"
+UCI_WHITE = "https://archive.ics.uci.edu/ml/machine-learning-databases/wine-quality/winequality-white.csv"
+
+
 def download_wine_quality(verbose: bool = True):
-    try:
-        from sklearn.datasets import fetch_openml
-    except ImportError:
-        sys.exit(
-            "scikit-learn not installed. Run:\n"
-            "    pip install -e \".[datasets]\""
-        )
     try:
         import pandas as pd
     except ImportError:
@@ -66,20 +63,15 @@ def download_wine_quality(verbose: bool = True):
     output.mkdir(parents=True, exist_ok=True)
 
     if verbose:
-        print(f"[wine] downloading from OpenML (red id=40691, white id=40692) -> {output}")
+        print(f"[wine] downloading from UCI direct -> {output}")
 
-    # Red wine: OpenML id=40691
-    red_data = fetch_openml(data_id=40691, as_frame=True, parser="auto")
-    df_red = red_data.frame.copy()
+    df_red = pd.read_csv(UCI_RED, sep=";")
     df_red["variant"] = "red"
-
-    # White wine: OpenML id=40692
-    white_data = fetch_openml(data_id=40692, as_frame=True, parser="auto")
-    df_white = white_data.frame.copy()
+    df_white = pd.read_csv(UCI_WHITE, sep=";")
     df_white["variant"] = "white"
 
-    # Merge
     df = pd.concat([df_red, df_white], ignore_index=True)
+    df.columns = [c.replace(" ", "_") for c in df.columns]
 
     if verbose:
         print(f"[wine] red:   {len(df_red)} rows")

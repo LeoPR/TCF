@@ -54,6 +54,41 @@ RT: 57/57 colunas exactas.
 
 Source: `experiments/lab/dirty/old/welded/2026-05-23-multi-column-scaling/`.
 
+## Real-world adicionado (T-DATA-1, 2026-05-27)
+
+3 datasets UCI/OpenML cobrindo dominios distintos:
+
+| Dataset | Rows | Cols | Raw | TCF | Ratio | enc/dec | RT |
+|---|---|---|---|---|---|---|---|
+| wine-quality        |   6.497 | 13 |   322KB |   293KB | **90.9%** |  2.0s /  0.1s | OK |
+| beijing-pm25        |  43.824 | 13 |  1.40MB |   977KB | **71.7%** |  7.5s /  0.6s | OK |
+| online-retail       | 541.909 |  8 |  41.7MB |  9.87MB | **23.7%** | 90.3s /  3.3s | OK |
+
+**Insights**:
+- **online-retail**: dominio comercial — InvoiceDate cadenced, StockCode/
+  Country/Description repetidos. TCF brilha (HCC seq-RLE + dedup).
+- **beijing-pm25**: sensores cientificos — timestamps periodicos +
+  valores decimais com repeticao parcial. Ratio medio.
+- **wine-quality**: decimais quimicos quase unicos por linha. TCF perde
+  pouco (pre-pass nao decide nada), mas overhead minimo.
+
+**Bug descoberto durante validacao** (2026-05-27): encoder seq-RLE
+multi-delta emitia marker `*N+-1,0|...` (primeiro delta negativo
+double-signed), decoder falhava. Fix em `src/tcf/composicional/
+hcc_seqrle.py` linha 207. 2 testes regressao adicionados em
+`tests/test_hcc_multi_delta.py`. D1-D9 1523B e D17a 322B preservados.
+
+## Suite regressao formal
+
+`tests/test_regression_v1_baseline.py` (21 tests):
+- D1-D9 byte-count snapshot (frozen): 9 datasets × snapshot exact bytes
+- D1-D9 round-trip: 9 datasets × decode == values
+- D1-D9 total: 1523B invariant
+- D17a 322B INVARIANT exato + round-trip
+
+Falha em qualquer test = regressao byte-canonical. Atualizar snapshot
+requer welding deliberado + ADR.
+
 ## Benchmark formats x compression
 
 Sub-exp `2026-05-24-benchmark-formats-compression/` (6 datasets,
