@@ -1,6 +1,12 @@
 # STATUS — TCF (compendio sempre-atualizado)
 
-**Atualizado em**: 2026-05-24 (**ADR-0016 WELDED — Bug #2 sub-exp 14 fix**:
+**Atualizado em**: 2026-05-24 (**CHECKPOINT sessao maxima**: 3 ADRs
+welded canonical (0014 unified API, 0015 natures, 0016 multi-delta).
+14 sub-exps dirty + benchmark consolidado. **TCF vence em 5/6 datasets**
+vs csv+brotli. 96 -> 211 tests. Pausa pra retomada — checkpoint em
+[`2026-05-24-sessao-maxima-natures-multi-delta.md`](experiments/lab/dirty/notas/checkpoints/2026-05-24-sessao-maxima-natures-multi-delta.md).
+
+**Anterior nesta sessao**: ADR-0016 WELDED — Bug #2 sub-exp 14 fix:
 HCC seq-RLE multi-delta `*N+d1,d2,...|template`. M10 markers preserved
 pra uniform; CSV format pra mixed. D-IP-subnet 1000 sem nature:
 117.51% -> **4.18%** (-96.4%). D1-D9 byte-canonical preservado.
@@ -92,8 +98,12 @@ TCF-format.md expandido com pipeline ASCII unificado + camadas futuras.)
 > - `experiments/lab/dirty/notas/checkpoints/` — pausas explicitas
 >
 > **Checkpoint ativo**:
+> [`2026-05-24-sessao-maxima-natures-multi-delta.md`](experiments/lab/dirty/notas/checkpoints/2026-05-24-sessao-maxima-natures-multi-delta.md)
+> — 3 ADRs welded canonical (0014/0015/0016); 14 sub-exps; benchmark
+> consolidado (TCF vence 5/6); pronto pra retomada
+>
+> Checkpoint anterior:
 > [`2026-05-18-pausa-para-organizar-documentacao.md`](experiments/lab/dirty/notas/checkpoints/2026-05-18-pausa-para-organizar-documentacao.md)
-> — pendente: retomar **EXP-012** (real-world test via shaper)
 
 ---
 
