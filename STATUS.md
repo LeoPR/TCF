@@ -1,6 +1,15 @@
 # STATUS — TCF (compendio sempre-atualizado)
 
-**Atualizado em**: 2026-05-24 (**CHECKPOINT sessao maxima**: 3 ADRs
+**Atualizado em**: 2026-05-27 (**Consolidacao dirty lab**: 17 labs
+pos-canonical movidos pra `experiments/lab/dirty/old/welded/` (10) ou
+`old/refuted/` (7). Topo do dirty agora tem **3 labs ativos +
+1 baseline-consolidado**. Novo
+[`2026-05-27-baseline-consolidado/`](experiments/lab/dirty/2026-05-27-baseline-consolidado/)
+com METRICS.md (D1-D9 1523B, D17a 322B INVARIANT), ADRs-INDEX.md
+(16 ADRs 0001-0016), lessons-learned.md, run-baseline.py reproduzivel.
+MAP.md atualizado. **Source of truth pra comparacoes futuras**.
+
+**Anterior 2026-05-24** (**CHECKPOINT sessao maxima**: 3 ADRs
 welded canonical (0014 unified API, 0015 natures, 0016 multi-delta).
 14 sub-exps dirty + benchmark consolidado. **TCF vence em 5/6 datasets**
 vs csv+brotli. 96 -> 211 tests. Pausa pra retomada — checkpoint em
@@ -476,8 +485,14 @@ TCF/
 │       └── dirty/                   # workbench experimental
 │           ├── README.md
 │           ├── notas/               # narrativas
-│           ├── 2026-05-15-naturezas-e-camada/   # **ATIVO**
-│           └── old/                 # M0-M14 historia (movidos 2026-05-16)
+│           ├── 2026-05-15-naturezas-e-camada/        # ATIVO (T-tracks)
+│           ├── 2026-05-24-cpf-templated-checked/     # ATIVO (origem ADR-0015/0016)
+│           ├── 2026-05-24-benchmark-formats-compression/  # ATIVO (TCF 4/6)
+│           ├── 2026-05-27-baseline-consolidado/      # BASELINE (METRICS+ADRs+lessons)
+│           └── old/
+│               ├── M0-M14/                    # pre-canonical (movido 2026-05-16)
+│               ├── welded/                    # 10 labs welded (movido 2026-05-27)
+│               └── refuted/                   # 7 labs refutados (movido 2026-05-27)
 └── old/tcf/                         # v0.5 obsoleto
 ```
 

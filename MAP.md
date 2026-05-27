@@ -55,8 +55,11 @@ TCF/
 │   ├── clean/EXP-NNN-*/ .. prototypes consolidados
 │   └── dirty/
 │       ├── notas/ ........ narrativa + diario + roadmap + checkpoints
-│       ├── 2026-*/ ....... labs ativos
-│       └── old/ .......... labs historicos (NAO USAR)
+│       ├── 2026-*/ ....... labs ativos (3) + baseline-consolidado
+│       └── old/ .......... labs historicos
+│           ├── M0-M14/ ... pre-canonical (NAO USAR salvo historia)
+│           ├── welded/ ... pos-canonical welded em src/tcf/
+│           └── refuted/ .. pos-canonical refutados/insufficient-gain
 │
 └── tickets/, tests/
 ```
@@ -93,16 +96,28 @@ TCF/
 
 ## Entradas de lab atualmente ativas
 
-- `experiments/lab/dirty/2026-05-17-OBAT-delta-aware/` — Pacote 1 delta-aware (origem do welding)
-- `experiments/lab/dirty/2026-05-21-escape-deduction/` — Pacote 2 CLOSED-INSUFFICIENT-GAIN
-- `experiments/lab/dirty/2026-05-21-revalidacao-categoria-B/` — T-REVAL hipoteses (3 sub-exps)
-- `experiments/lab/dirty/2026-05-21-h-da-11-auto-min-len/` — H-DA-11 WELDED canonical (ADR-0010)
-- `experiments/lab/dirty/2026-05-22-h-da-11c-features-unificadas/` — ColumnFeatures refactor (H-DA-11c)
-- `experiments/lab/dirty/2026-05-22-pacote1-weld-canonical/` — **Pacote 1 WELDED canonical M9 → M10 (ADR-0011)**
-- `experiments/lab/dirty/2026-05-15-naturezas-e-camada/pre-tx/T01-incremental-base-delta/`
-  — T01 (superseded por Pacote 1; nao continuar)
-- `experiments/lab/clean/EXP-010-tcf-delta-aware-prototype/` — prototype antigo (substituido por src/tcf canonical M10 desde 2026-05-22; manter como referencia historica)
-- `experiments/lab/clean/EXP-011-multi-column-basic/` — multi-column basico
+Pos-consolidacao 2026-05-27 (17 labs movidos pra `old/welded/` ou
+`old/refuted/`):
+
+- `experiments/lab/dirty/2026-05-15-naturezas-e-camada/` — T-tracks
+  naturezas pre-tx (parcialmente subsumido por ADR-0015)
+- `experiments/lab/dirty/2026-05-24-cpf-templated-checked/` — CPF/IP
+  lab que gerou ADR-0015 + ADR-0016 (14 sub-exps; ainda referencia)
+- `experiments/lab/dirty/2026-05-24-benchmark-formats-compression/` —
+  benchmark csv/json/tcf x gzip/brotli/zstd (TCF vence 4/6)
+- **`experiments/lab/dirty/2026-05-27-baseline-consolidado/`** —
+  baseline de referencia (METRICS + ADRs-INDEX + lessons-learned +
+  run-baseline.py)
+- `experiments/lab/clean/EXP-010-tcf-delta-aware-prototype/` —
+  prototype antigo (referencia historica)
+- `experiments/lab/clean/EXP-011-multi-column-basic/` — multi-col basico
+
+Labs **historicos** (NAO modificar, NAO continuar):
+- `experiments/lab/dirty/old/M0-M14/` — fase v0.6 inicial pre-canonical
+- `experiments/lab/dirty/old/welded/` — 10 labs welded apos M14 (ADRs
+  0008/0010/0011/0012/0013/0014 etc.)
+- `experiments/lab/dirty/old/refuted/` — 7 labs refutados ou
+  closed-insufficient-gain
 
 ## Manutencao deste mapa
 
