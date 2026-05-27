@@ -1,22 +1,36 @@
 # Benchmark formats x compression (report)
 
-**Data**: 2026-05-24
+**Data**: 2026-05-24 (atualizado pos ADR-0016 Bug #2 fix)
 **Escopo**: 6 datasets x 4 formats x 4 transports = 96 medicoes (todas RT)
 
-## Vencedores por dataset
+## Vencedores por dataset (POS-FIX ADR-0016)
 
 | Dataset | rows×cols | Vencedor | Bytes | vs CSV raw |
 |---|---|---|---:|---:|
 | D17a-sint | 13×4 | csv + brotli | 194 | 32.28% |
 | **D-CPF-uniform-1k** | 1000×1 | **tcf+nature + brotli** | **4552** | **30.34%** |
 | **D-CPF-clustered-1k** | 1000×1 | **tcf+nature + brotli** | **3525** | **23.49%** |
-| D-IP-subnet-1k | 1000×1 | csv + brotli | 909 | 6.78% |
+| **D-IP-subnet-1k** | 1000×1 | **tcf + brotli** | **174** | **1.30%** ← NOVO! |
 | **adult-5k** | 5000×15 | **tcf + brotli** | **42243** | **7.83%** |
-| **tpch-customer-1500** | 1500×8 | **tcf + brotli** | **70641** | **29.29%** |
+| **tpch-customer-1500** | 1500×8 | **tcf + brotli** | **70644** | **29.29%** |
 
-**4 dos 6 datasets vencidos por TCF** (com ou sem nature). Outros 2
-sao casos especificos: D17a tiny + D-IP-subnet onde HCC bugs
-(sub-exp 14) limitam.
+**TCF vence em 5/6 datasets** (era 4/6 pre-fix). Unico outlier: D17a
+tiny (13 valores, header overhead domina).
+
+## Impacto ADR-0016 em D-IP-subnet-1k
+
+| Variante | **Pre-fix** | **Pos-fix** | Redução |
+|---|---:|---:|---:|
+| csv raw | 13403 | 13403 | — |
+| csv + brotli | 909 | 909 | — |
+| **tcf raw** | **15767 (117%)** | **578 (4.31%)** | **-96.3%** |
+| **tcf + gzip** | 1836 | **186** | -89.9% |
+| **tcf + brotli** | **966 (7.21%)** | **174 (1.30%)** | **-82.0%** |
+| tcf + zstd | 1141 | 182 | -84.0% |
+
+**TCF+brotli em subnet: 174B vs csv+brotli 909B = -81% (5x menor)**.
+ADR-0016 multi-delta fix transformou TCF de perdedor em vencedor
+dramatico neste perfil.
 
 ## Resultados por formato (medias agregadas)
 
@@ -58,15 +72,13 @@ adiciona compressao residual. **Combinacao supera ambos individualmente.**
 
 | Cenario | TCF | CSV |
 |---|---:|---:|
-| D-IP-subnet-1k tcf+brotli | 966 | csv+brotli 909 |
+| D17a-sint tiny (13 vals) | tcf+brotli 237 | csv+brotli 194 |
 
-Diferenca pequena (~6%). D-IP-subnet eh dataset onde sub-exp 14 mostrou
-bugs em HCC (cross-subnet). M10 ratio raw 117% — anti-compressor sem
-pre-tx. Brotli geral consegue pegar padroes que HCC perdeu.
+Diferenca: 43B em dataset minusculo. Header TCF overhead domina vs
+raw CSV simples em datasets sub-100 valores. Esperado e' aceito.
 
-**Implicacao**: padding nature pra IP (variante C sub-exp 08 1.71%) NAO
-foi welded como SPEC_IP — futuro candidate. Atualmente IP nao tem
-nature, perde tudo pra brotli generico.
+**Pos-fix update**: D-IP-subnet AGORA vence (174B tcf+brotli vs 909B
+csv+brotli) gracas ao ADR-0016 multi-delta fix.
 
 ## Lessons consolidadas
 
