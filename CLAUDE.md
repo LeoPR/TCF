@@ -175,8 +175,9 @@ pra classificacao A/B/C das hipoteses existentes.
 
 - **Foco**: ver `STATUS.md`
 - **Checkpoint mais recente**:
-  `experiments/lab/dirty/notas/checkpoints/2026-05-18-pausa-para-organizar-documentacao.md`
-  (pausa pra reorganizar docs; retomar EXP-012 com shaper apos)
+  `experiments/lab/dirty/notas/checkpoints/2026-05-24-sessao-maxima-natures-multi-delta.md`
+  (3 ADRs welded canonical 0014/0015/0016; 14 sub-exps dirty;
+  benchmark consolidado TCF vence 5/6 datasets; pronto pra retomada)
 - **Diario do dia ativo**: `experiments/lab/dirty/notas/diario/`
 
 ## Bibliografia bibliografica deste guia
