@@ -1,6 +1,6 @@
 ---
 title: T-CODE-HCC-ATOM-DETECTION-REFINE — Bug #1 sub-exp 14 (atom secundario nao criado)
-status: open
+status: closed-superseded-by-adr-0016
 priority: P2
 created: 2026-05-24
 updated: 2026-05-24
@@ -10,6 +10,7 @@ related:
   - src/tcf/composicional/syntax.py
   - docs/algorithms/HCC.md
   - tickets/T-CODE-HCC-MULTI-DELTA-FIX.md
+  - docs/adr/0016-hcc-multi-delta-seq-rle.md
 ---
 
 # T-CODE-HCC-ATOM-DETECTION-REFINE — Bug #1: atom secundario nao criado
@@ -125,3 +126,16 @@ Comparacao:
 
 Ticket criado pos-sub-exp 14. Recomendacao: deferir vs
 T-CODE-HCC-MULTI-DELTA-FIX que tem mesmo impacto com risco menor.
+
+### 2026-05-24 — CLOSED superseded
+
+T-CODE-HCC-MULTI-DELTA-FIX foi welded (ADR-0016). Cross-subnet
+agora compactado via seq-RLE multi-delta sem precisar atom
+secundario. Bug #1 (atom detection) **nao precisa mais** ser
+fixado pra resolver cross-subnet.
+
+D-IP-subnet 1000: 117.51% -> 4.18% via Bug #2 fix isoladamente.
+
+Se aparecer use case onde atom secundario ainda agregaria
+ganhos significativos vs M10+multi-delta fix, ticket pode ser
+reaberto. Por ora: closed-superseded.

@@ -1,6 +1,13 @@
 # STATUS — TCF (compendio sempre-atualizado)
 
-**Atualizado em**: 2026-05-24 (**ADR-0015 WELDED + extensao SPEC_IP**:
+**Atualizado em**: 2026-05-24 (**ADR-0016 WELDED — Bug #2 sub-exp 14 fix**:
+HCC seq-RLE multi-delta `*N+d1,d2,...|template`. M10 markers preserved
+pra uniform; CSV format pra mixed. D-IP-subnet 1000 sem nature:
+117.51% -> **4.18%** (-96.4%). D1-D9 byte-canonical preservado.
+Bug #1 (atom detection) superseded. 19 tests novos.
+Suite completa: 211 passed (+19) + 1 pre-existing fail.
+
+**Anterior**: **ADR-0015 WELDED + extensao SPEC_IP**:
 `src/tcf/natures/` package canonical com:
 - `TemplatedCheckedSpec` + SPEC_CPF + SPEC_CNPJ (CPF -64%)
 - `TemplatedPaddedSpec` + SPEC_IP (IP subnet 1000 = **229B / 1.71%** confirmado)
@@ -388,8 +395,9 @@ nao guia de evolucao (cf. diretriz dados-realistas).
 | [T-CODE-OUTPUT-SINKS](tickets/T-CODE-OUTPUT-SINKS.md) | **OPEN P2 2026-05-24** | Contract Sink pluggable, refactor scripts/writers/ (bloqueado por encoder-manager) |
 | [T-CODE-PLAN-CONTRACT](tickets/T-CODE-PLAN-CONTRACT.md) | **OPEN P3 2026-05-24** | Plan dataclass (group_by/order/batch_size), habilita O-FMT-01..04 |
 | [T-CODE-SCHEMA-BUILDER](tickets/T-CODE-SCHEMA-BUILDER.md) | **OPEN-FASES-1+2-WELDED 2026-05-24** | Fase 1+2: `build_schema(data) -> TableSchema`; ColumnSchema + to_dict/to_json; 24/24 tests; reaproveita SideOutputs 100%. Fase 3 (naturezas) depende META-TYPE-ENCODERS reabrir. |
-| [T-CODE-HCC-MULTI-DELTA-FIX](tickets/T-CODE-HCC-MULTI-DELTA-FIX.md) | **OPEN P2 2026-05-24** | Bug #2 sub-exp 14: compare_for_seq rejeita multi-run delta {0,0,0,1}. Cross-subnet IPs ratio 117% -> ~3-4% estimado. Risco quebrar M10. |
-| [T-CODE-HCC-ATOM-DETECTION-REFINE](tickets/T-CODE-HCC-ATOM-DETECTION-REFINE.md) | **OPEN P2 2026-05-24** | Bug #1 sub-exp 14: M8A nao cria atom secundario. Alternativo a T-CODE-HCC-MULTI-DELTA-FIX; recomenda priorizar este ultimo (risco menor). |
+| [T-CODE-HCC-MULTI-DELTA-FIX](tickets/T-CODE-HCC-MULTI-DELTA-FIX.md) | **CLOSED-WELDED-CANONICAL 2026-05-24** | Bug #2 sub-exp 14 fixed via ADR-0016. D-IP-subnet 1000 sem nature: 117.51% -> 4.18% (-96.4%). M10 invariant preservado, marker CSV format opcional. |
+| [T-CODE-HCC-ATOM-DETECTION-REFINE](tickets/T-CODE-HCC-ATOM-DETECTION-REFINE.md) | **CLOSED-SUPERSEDED-BY-ADR-0016 2026-05-24** | Bug #1 nao precisa fix isolado — cross-subnet ja' compactado via Bug #2 fix. |
+| [ADR-0016 (welded direto)](docs/adr/0016-hcc-multi-delta-seq-rle.md) | **CLOSED-WELDED-CANONICAL 2026-05-24** | HCC seq-RLE multi-delta. Marker novo `*N+d1,d2,...|template` opt-in (uniform mantem M10 format). Bug #2 sub-exp 14 fix. 19 tests, D-IP-subnet 1000: 117% -> 4.18%. |
 | [T-CODE-LAYERED-PIPELINE](tickets/T-CODE-LAYERED-PIPELINE.md) | **OPEN P3 2026-05-24** | Toggle infrastructure (filtros/pre-pass/OBAT/HCC) + online adaptive fallback. Funil de camadas com responsabilidades separadas. Bloqueado por T-CODE-ENCODER-MANAGER P2 + T-CODE-SCHEMA-BUILDER Fase 3. |
 | [ADR-0015 (welded direto)](docs/adr/0015-natures-templated-checked-weld.md) | **CLOSED-WELDED-CANONICAL 2026-05-24** | TemplatedCheckedSpec + SPEC_CPF + SPEC_CNPJ + TemplatedPaddedSpec + SPEC_IP em `src/tcf/natures/`. API publica `encode(values, nature=SPEC_*)` opt-in. CAMADA 0 do funil welded. 37/37 tests, default preserva M10 INVARIANT. IP subnet 1000=229B (1.71%). |
 

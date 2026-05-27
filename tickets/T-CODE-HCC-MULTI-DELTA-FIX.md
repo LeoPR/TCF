@@ -1,6 +1,6 @@
 ---
 title: T-CODE-HCC-MULTI-DELTA-FIX — Bug #2 sub-exp 14 (seq-RLE rejeita multi-run delta)
-status: open
+status: closed-welded-canonical
 priority: P2
 created: 2026-05-24
 updated: 2026-05-24
@@ -9,6 +9,7 @@ related:
   - experiments/lab/dirty/2026-05-24-cpf-templated-checked/14-cross-subnet-investigation/report.md
   - src/tcf/composicional/hcc_seqrle.py
   - docs/adr/0011-pacote1-weld-canonical.md
+  - docs/adr/0016-hcc-multi-delta-seq-rle.md
 ---
 
 # T-CODE-HCC-MULTI-DELTA-FIX — Bug #2: seq-RLE rejeita multi-run delta
@@ -112,3 +113,29 @@ decoder inteligente.
 Ticket criado pos-sub-exp 14. NAO implementar agora (risco alto canonical).
 Owner pode priorizar quando aparecer use case real significativo
 (cross-subnet em real-world).
+
+### 2026-05-24 — WELDED via ADR-0016 (Opcao A com backward compat)
+
+Owner aprovou fix mesmo dia. Welded com Opcao A modificada
+(M10 markers preserved pra casos uniform delta; novo CSV format pra
+casos misto).
+
+**Implementacao** (~80 linhas em hcc_seqrle.py):
+- compare_for_seq agora retorna list[int] (sempre)
+- shift_escape_digits aceita int (M10 compat) OR list[int] (per-run)
+- compact_body emit `*N+delta|` (M10) OR `*N+d1,d2,...|` (CSV)
+- expand_seq_marker detecta formato pela presenca de `,`
+- _is_uniform_delta helper
+
+**Resultados:**
+- D1-D9 byte-canonical preservado (test_m10_baseline_invariant PASS)
+- D17a 322B INVARIANT preservado
+- D-IP-subnet 1000 sem nature: 117.51% -> **4.18%** (-96.4%)
+- D-IP-subnet 200: 68.17% -> 3.58%
+- 19 tests novos test_hcc_multi_delta.py
+- Suite completa: 211 passed (+19 novos)
+
+**Bug #1 (T-CODE-HCC-ATOM-DETECTION-REFINE) SUPERSEDED**: cross-subnet
+agora compactado via Bug #2 fix sem precisar atom secundario.
+
+Status: closed-welded-canonical. ADR-0016 documenta decisao.

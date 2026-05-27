@@ -62,8 +62,24 @@ def find_escape_digit_runs(line: str) -> list[tuple[int, int]]:
     return runs
 
 
-def compare_for_seq(line_a: str, line_b: str) -> int | None:
-    """Retorna delta se par e' near-identical compactavel."""
+def compare_for_seq(line_a: str, line_b: str) -> list[int] | None:
+    """Retorna lista de deltas se par e' near-identical compactavel.
+
+    ADR-0016 (Fase 1 sub-exp 14 Bug #2): retorna LISTA de deltas
+    (1 por run de escape-digit). Permite multi-run com deltas mistos
+    [0, 0, 0, 1] (3 runs invariantes + 1 incrementing) — caso comum
+    em strings com prefix invariante + suffix cadenced (ex: IPs sem
+    atom HCC).
+
+    Aceita:
+    - Single non-zero (todos runs com mesmo delta): [1, 1, 1] OR [5]
+    - Mixed zero+nonzero (1 non-zero, resto zero): [0, 0, 0, 1]
+
+    Rejeita:
+    - Multiple non-zero diferentes: [1, 2] OR [3, 5]
+    - All zero (lines identical): [0, 0, 0, 0]
+    - Estruturas runs_a != runs_b
+    """
     if len(line_a) != len(line_b):
         return None
     diffs = [k for k in range(len(line_a)) if line_a[k] != line_b[k]]
@@ -82,28 +98,45 @@ def compare_for_seq(line_a: str, line_b: str) -> int | None:
         return None
     deltas = []
     for start, end in runs_a:
-        a_int = int(line_a[start:end])
-        b_int = int(line_b[start:end])
+        try:
+            a_int = int(line_a[start:end])
+            b_int = int(line_b[start:end])
+        except ValueError:
+            return None
         deltas.append(b_int - a_int)
-    if len(set(deltas)) != 1:
-        return None
-    delta = deltas[0]
-    if delta == 0:
-        return None
-    return delta
+    non_zero = [d for d in deltas if d != 0]
+    if not non_zero:
+        return None  # all zero (identical)
+    if len(set(non_zero)) > 1:
+        return None  # multiple different non-zero (Fase 2 reject)
+    return deltas
 
 
-def shift_escape_digits(template: str, delta: int) -> str:
-    """Shifta cada run de escape-digit por delta (preserva width quando possivel)."""
+def shift_escape_digits(template: str, delta) -> str:
+    """Shifta runs de escape-digit por delta.
+
+    `delta` aceita:
+    - int (M10 compat): mesmo delta em TODOS runs
+    - list[int] (ADR-0016): per-run delta
+    """
     runs = find_escape_digit_runs(template)
     if not runs:
         return template
+
+    # Normalize delta para list
+    if isinstance(delta, int):
+        deltas = [delta] * len(runs)
+    else:
+        deltas = list(delta)
+        if len(deltas) != len(runs):
+            return template  # mismatch, no-op safe fallback
+
     out = []
     cursor = 0
-    for start, end in runs:
+    for (start, end), d in zip(runs, deltas):
         out.append(template[cursor:start])
         old_val = int(template[start:end])
-        new_val = old_val + delta
+        new_val = old_val + d
         width = end - start
         new_str = str(new_val)
         if len(new_str) < width:
@@ -114,26 +147,40 @@ def shift_escape_digits(template: str, delta: int) -> str:
     return ''.join(out)
 
 
-def detect_seq_runs(body_lines: list[str]) -> list[tuple[int, int, int]]:
-    """Retorna runs (start, end_exclusive, delta) consecutivos near-identical."""
+def detect_seq_runs(body_lines: list[str]) -> list[tuple[int, int, list[int]]]:
+    """Retorna runs (start, end_exclusive, deltas) consecutivos near-identical.
+
+    ADR-0016: deltas eh list[int] (per-run). Compat M10: quando todos
+    deltas iguais e nao-zero, marker emit usa formato `*N+delta|` (single).
+    """
     runs = []
     n = len(body_lines)
     i = 0
     while i < n - 1:
-        delta = compare_for_seq(body_lines[i], body_lines[i + 1])
-        if delta is None:
+        deltas = compare_for_seq(body_lines[i], body_lines[i + 1])
+        if deltas is None:
             i += 1
             continue
         run_end = i + 2
         while run_end < n:
-            next_delta = compare_for_seq(body_lines[run_end - 1],
-                                          body_lines[run_end])
-            if next_delta != delta:
+            next_deltas = compare_for_seq(body_lines[run_end - 1],
+                                           body_lines[run_end])
+            if next_deltas != deltas:
                 break
             run_end += 1
-        runs.append((i, run_end, delta))
+        runs.append((i, run_end, deltas))
         i = run_end
     return runs
+
+
+def _is_uniform_delta(deltas: list[int]) -> int | None:
+    """Se todos deltas sao iguais e nao-zero, retorna esse int. Senao None.
+
+    Permite emit marker M10 compat `*N+delta|` em caso uniforme.
+    """
+    if all(d == deltas[0] and d != 0 for d in deltas):
+        return deltas[0]
+    return None
 
 
 def compact_body(body_lines: list[str]) -> tuple[list[str], list[dict]]:
@@ -146,16 +193,25 @@ def compact_body(body_lines: list[str]) -> tuple[list[str], list[dict]]:
     run_idx = 0
     while i < len(body_lines):
         if run_idx < len(runs) and runs[run_idx][0] == i:
-            start, end, delta = runs[run_idx]
+            start, end, deltas = runs[run_idx]
             count = end - start
-            sign = '+' if delta >= 0 else ''
-            marker = f"*{count}{sign}{delta}|{body_lines[start]}"
+            # M10 compat: se uniforme, emit `*N+delta|` single
+            uniform = _is_uniform_delta(deltas)
+            if uniform is not None:
+                sign = '+' if uniform >= 0 else ''
+                marker = f"*{count}{sign}{uniform}|{body_lines[start]}"
+            else:
+                # ADR-0016 multi-delta: `*N+d1,d2,...|template`
+                # CSV de deltas (com sinal explicit pro primeiro pra parser)
+                deltas_str = ','.join(str(d) for d in deltas)
+                marker = f"*{count}+{deltas_str}|{body_lines[start]}"
             out.append(marker)
             info.append({
                 'start_line': start + 1,
                 'end_line': end,
                 'count': count,
-                'delta': delta,
+                'deltas': list(deltas),
+                'uniform_delta': uniform,
                 'template': body_lines[start],
                 'savings': sum(len(body_lines[k]) + 1
                                for k in range(start, end)) - (len(marker) + 1),
@@ -169,7 +225,10 @@ def compact_body(body_lines: list[str]) -> tuple[list[str], list[dict]]:
 
 
 def expand_seq_marker(linha: str) -> list[str] | None:
-    """Se linha e' `*N+delta|<template>`, expande em N linhas."""
+    """Expande `*N+delta|template` (M10 compat) ou `*N+d1,d2,...|template` (ADR-0016).
+
+    Distingue formato pela presenca de `,` no portion de delta.
+    """
     if not linha.startswith("*"):
         return None
     bar = linha.find("|")
@@ -185,14 +244,29 @@ def expand_seq_marker(linha: str) -> list[str] | None:
         return None
     try:
         count = int(head[:plus_pos])
-        delta = int(head[plus_pos:])
     except ValueError:
         return None
+    delta_str = head[plus_pos:]
+
+    # ADR-0016: multi-delta format `+d1,d2,d3,d4`
+    if ',' in delta_str:
+        try:
+            deltas = [int(d) for d in delta_str.split(',')]
+        except ValueError:
+            return None
+        delta_arg = deltas
+    else:
+        # M10 compat: single int
+        try:
+            delta_arg = int(delta_str)
+        except ValueError:
+            return None
+
     template = linha[bar + 1:]
     out = [template]
     curr = template
     for _ in range(1, count):
-        curr = shift_escape_digits(curr, delta)
+        curr = shift_escape_digits(curr, delta_arg)
         out.append(curr)
     return out
 
