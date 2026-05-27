@@ -64,6 +64,7 @@ from tcf.natures import (
     SPEC_CPF, SPEC_CNPJ, SPEC_IP,
     TemplatedCheckedSpec, TemplatedPaddedSpec,
 )
+from tcf.pipeline import PipelineConfig
 from tcf.schema import ColumnSchema, TableSchema, build_schema
 from tcf.side_outputs import SideOutputs
 
@@ -80,6 +81,8 @@ __all__ = [
     "SPEC_CPF",
     "SPEC_CNPJ",
     "SPEC_IP",
+    # Pipeline toggles (T-CODE-LAYERED-PIPELINE Fase 1):
+    "PipelineConfig",
     # Deprecated (mantidos pra migracao):
     "encode_table",
     "decode_table",

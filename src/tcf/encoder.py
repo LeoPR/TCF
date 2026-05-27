@@ -40,8 +40,10 @@ from tcf.auto_cadence import detect_cadence_from_features
 from tcf.auto_min_len import detect_min_len_from_features
 from tcf.column_features import analyze_column
 from tcf.composicional.hcc_seqrle import HCCSeqRLE
+from tcf.composicional.syntax import M8AVirtualRefsSyntax
 from tcf.core.online import processar
 from tcf.obat_shape import processar_with_hint
+from tcf.pipeline import DEFAULT_PIPELINE, PipelineConfig
 from tcf.side_outputs import SideOutputs
 
 if TYPE_CHECKING:
@@ -55,6 +57,7 @@ def encode(
     parallel: bool | int = False,
     nature: "TemplatedCheckedSpec | None" = None,
     nature_per_col: "dict[str, TemplatedCheckedSpec] | None" = None,
+    layers: PipelineConfig | None = None,
 ) -> str:
     """Encode lista de strings OU dict de colunas em texto TCF.
 
@@ -89,11 +92,12 @@ def encode(
         ValueError: (multi) table vazia, lengths divergentes,
             ou nomes com `,` / `=`.
     """
+    cfg = layers if layers is not None else DEFAULT_PIPELINE
     if isinstance(data, list):
         if nature is not None:
             from tcf.natures.templated_checked import encode_value
             data = [encode_value(nature, v)[0] for v in data]
-        return _encode_column(data, header="val", side=side_outputs)
+        return _encode_column(data, header="val", side=side_outputs, cfg=cfg)
     if isinstance(data, dict):
         from tcf.multi import _encode_multi
         if nature_per_col:
@@ -103,7 +107,7 @@ def encode(
                        if name in nature_per_col else vals)
                 for name, vals in data.items()
             }
-        return _encode_multi(data, side_outputs=side_outputs, parallel=parallel)
+        return _encode_multi(data, side_outputs=side_outputs, parallel=parallel, cfg=cfg)
     raise TypeError(
         f"encode espera list[str] ou dict[str, list[str]], "
         f"recebeu {type(data).__name__}"
@@ -115,23 +119,34 @@ def _encode_column(
     *,
     header: str = "val",
     side: SideOutputs | None = None,
+    cfg: PipelineConfig = DEFAULT_PIPELINE,
 ) -> str:
     """Pipeline canonical M10 por coluna. Capta side outputs se fornecido.
 
     Esta eh a "encode unit" (cf. plano v0.4 D13 EncodeManager). O
     dispatcher `encode()` chama esta funcao 1+ vezes (1 pra list, N
     pra dict).
+
+    `cfg` controla quais camadas aplicar (T-CODE-LAYERED-PIPELINE Fase 1).
+    Default = M10 canonical (todas camadas on).
     """
     seen: OrderedDict[str, bool] = OrderedDict()
     for s in values:
         seen[s] = True
     unicas = list(seen.keys())
 
-    features = analyze_column(values)
-    cadence_detected, cadence_info = detect_cadence_from_features(features, unicas)
-    min_len = detect_min_len_from_features(features)
+    # CAMADA 1 — Pre-pass (toggleable)
+    features = analyze_column(values)  # sempre computa (barato, util pra side)
+    if cfg.pre_pass:
+        cadence_detected, cadence_info = detect_cadence_from_features(features, unicas)
+        min_len = detect_min_len_from_features(features)
+    else:
+        cadence_detected = False
+        cadence_info = {"rule_hit": None, "reason": "pre_pass disabled by cfg"}
+        min_len = 3  # default M9
 
-    if cadence_detected:
+    # CAMADA 2 — OBAT (shape-preserve toggleable se cadence detected)
+    if cadence_detected and cfg.obat_shape_preserve:
         tokens, obat_log = processar_with_hint(
             unicas, min_len=min_len, prefer_shape_consistency=True
         )
@@ -140,7 +155,11 @@ def _encode_column(
         tokens, obat_log = processar(unicas, min_len=min_len)
         used_hint = False
 
-    syn = HCCSeqRLE()
+    # CAMADA 3 — HCC (seq-RLE toggleable; sem seq-RLE = M9 puro)
+    if cfg.hcc_seq_rle:
+        syn = HCCSeqRLE()
+    else:
+        syn = M8AVirtualRefsSyntax()
     body = syn.encode(values, unicas, tokens, header)
 
     if side is not None:
@@ -152,7 +171,8 @@ def _encode_column(
         side.obat_used_hint = used_hint
         side.hcc_trace = syn.get_trace()
         side.hcc_rede = syn.get_rede()
-        side.seq_rle_runs = syn.get_seq_info()
+        # seq_rle_runs so' existe em HCCSeqRLE; M8AVirtualRefsSyntax nao tem
+        side.seq_rle_runs = syn.get_seq_info() if hasattr(syn, 'get_seq_info') else []
         side.body_bytes = len(body.encode("utf-8"))
 
     return body

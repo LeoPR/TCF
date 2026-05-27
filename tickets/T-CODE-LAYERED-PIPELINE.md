@@ -1,13 +1,14 @@
 ---
 title: T-CODE-LAYERED-PIPELINE — Toggle infrastructure + online adaptive + fallback
-status: open
+status: open-fase-1-welded
 priority: P3
 created: 2026-05-24
 updated: 2026-05-24
-blocked-by: [T-CODE-ENCODER-MANAGER, T-CODE-SCHEMA-BUILDER]
+blocked-by: []
 related:
   - experiments/lab/dirty/notas/arquitetura-funil-camadas-2026-05-24.md
   - docs/algorithms/TCF-format.md
+  - src/tcf/pipeline.py
 ---
 
 # T-CODE-LAYERED-PIPELINE — Toggle + online adaptive
@@ -140,3 +141,67 @@ configuracao de camadas propria (schema_builder Fase 3 decide).
 Ticket aberto pos discussao arquitetural. Pre-requisitos
 T-CODE-ENCODER-MANAGER (P2 Fases 2+) e T-CODE-SCHEMA-BUILDER (Fase 3)
 ainda nao implementados. Implementacao adiada ate' base estiver pronta.
+
+### 2026-05-24 — Fase 1 WELDED (minimal viable toggle)
+
+Owner aprovou Fase 1 minimal apos pausa formal. Implementado:
+
+**Novo modulo** `src/tcf/pipeline.py`:
+```python
+@dataclass(frozen=True)
+class PipelineConfig:
+    pre_pass: bool = True
+    obat_shape_preserve: bool = True
+    hcc_seq_rle: bool = True
+```
+
+3 toggles toggleaveis. Outras camadas (OBAT base, HCC M8A) sao
+obrigatorias.
+
+**API publica estendida**:
+```python
+from tcf import encode, PipelineConfig
+
+# Default (M10 canonical inalterado)
+text = encode(values)
+
+# Ablacao: revert M10 -> M9 (sem seq-RLE)
+text = encode(values, layers=PipelineConfig(hcc_seq_rle=False))
+
+# Debug: skip pre-pass (sem cadence detection)
+text = encode(values, layers=PipelineConfig(pre_pass=False))
+
+# Ablacao: sempre processar canonical (sem shape-preserve hint)
+text = encode(values, layers=PipelineConfig(obat_shape_preserve=False))
+```
+
+**Mudancas canonicas**:
+- `src/tcf/pipeline.py` (novo) — PipelineConfig + DEFAULT_PIPELINE
+- `src/tcf/encoder.py` — encode() aceita `layers=` param; _encode_column
+  consulta cfg pra decidir pre_pass/obat/hcc
+- `src/tcf/multi.py` — _encode_multi/_encode_columns_serial/parallel
+  propagam cfg pra workers
+- `src/tcf/__init__.py` — exporta PipelineConfig
+
+**Validacao byte-canonical CRITICAL**:
+- D17a 322B INVARIANT preservado com default
+- D1-D9 byte-canonical preservado com default (test parametrized
+  em test_pipeline_config.py)
+- `encode(data)` == `encode(data, layers=PipelineConfig())` byte-identical
+- 25 tests novos test_pipeline_config.py PASSAM
+- Suite completa: 236 passed (+25 novos) + 1 xfailed + 1 pre-existing fail
+
+**Comportamento ablacao**:
+- D17a sem seq-RLE: 403B (vs 322B M10) — 25% maior, M9 comportamento
+- D-IP-subnet 1000 sem seq-RLE: 16213B (vs 560B M10) — confirma valor
+  enorme do seq-RLE + multi-delta fix
+- Pre-pass off + shape-preserve off + seq-RLE off: pior caso mas RT OK
+
+**Status**: Fase 1 WELDED. Fase 2 (online adaptive + fallback marker
+no body) pendente.
+
+**Adiado pra Fase 2**:
+- Detector adaptive de eficacia da camada per eval_window
+- Marker body indicando transicao on->off mid-stream
+- Decoder reverse fallback markers
+- Integration com T-CODE-ENCODER-MANAGER (sinks compostos com toggle)

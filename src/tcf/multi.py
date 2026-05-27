@@ -29,6 +29,7 @@ import warnings
 from concurrent.futures import ProcessPoolExecutor, as_completed
 
 from tcf.encoder import _encode_column
+from tcf.pipeline import DEFAULT_PIPELINE, PipelineConfig
 from tcf.side_outputs import SideOutputs
 
 
@@ -40,6 +41,7 @@ def _encode_multi(
     table: dict[str, list[str]],
     side_outputs: SideOutputs | None = None,
     parallel: bool | int = False,
+    cfg: PipelineConfig = DEFAULT_PIPELINE,
 ) -> str:
     """Interno: encode dict pra TCF multi-col. Chamado por `encode()`.
 
@@ -49,6 +51,8 @@ def _encode_multi(
         parallel: False (default serial), True (cpu_count workers),
             int N >= 1 (N workers explicitos). Workers paralelizam
             `_encode_column` por coluna via ProcessPoolExecutor.
+        cfg: PipelineConfig pra controle de camadas (T-CODE-LAYERED-PIPELINE
+            Fase 1). Default = M10 canonical.
     """
     if not table:
         raise ValueError("table vazia")
@@ -77,11 +81,12 @@ def _encode_multi(
             n_workers = int(parallel)
         n_workers = max(1, min(n_workers, len(table_str)))
         col_bodies_bytes, per_col_sides = _encode_columns_parallel(
-            table_str, want_side=(side_outputs is not None), n_workers=n_workers
+            table_str, want_side=(side_outputs is not None),
+            n_workers=n_workers, cfg=cfg,
         )
     else:
         col_bodies_bytes, per_col_sides = _encode_columns_serial(
-            table_str, want_side=(side_outputs is not None)
+            table_str, want_side=(side_outputs is not None), cfg=cfg,
         )
 
     if side_outputs is not None:
@@ -109,13 +114,14 @@ def _encode_multi(
 def _encode_columns_serial(
     table_str: dict[str, list[str]],
     want_side: bool,
+    cfg: PipelineConfig = DEFAULT_PIPELINE,
 ) -> tuple[list[tuple[str, bytes]], dict[str, SideOutputs]]:
     """Encoda colunas serialmente (comportamento original)."""
     col_bodies: list[tuple[str, bytes]] = []
     per_col_sides: dict[str, SideOutputs] = {}
     for col_name, str_values in table_str.items():
         side = SideOutputs() if want_side else None
-        body = _encode_column(str_values, header=col_name, side=side)
+        body = _encode_column(str_values, header=col_name, side=side, cfg=cfg)
         col_bodies.append((col_name, body.encode("utf-8")))
         if want_side:
             per_col_sides[col_name] = side
@@ -126,6 +132,7 @@ def _encode_columns_parallel(
     table_str: dict[str, list[str]],
     want_side: bool,
     n_workers: int,
+    cfg: PipelineConfig = DEFAULT_PIPELINE,
 ) -> tuple[list[tuple[str, bytes]], dict[str, SideOutputs]]:
     """Encoda colunas em paralelo via ProcessPoolExecutor (Fase 1b: work-stealing).
 
@@ -156,7 +163,7 @@ def _encode_columns_parallel(
     results_by_name: dict[str, tuple[str, SideOutputs | None]] = {}
     with ProcessPoolExecutor(max_workers=n_workers) as ex:
         future_to_name = {
-            ex.submit(_worker_encode_column, (name, table_str[name], want_side)): name
+            ex.submit(_worker_encode_column, (name, table_str[name], want_side, cfg)): name
             for _, name in cols_with_work
         }
         for future in as_completed(future_to_name):
@@ -174,14 +181,14 @@ def _encode_columns_parallel(
     return col_bodies, per_col_sides
 
 
-def _worker_encode_column(args: tuple[str, list[str], bool]) -> tuple[str, str, SideOutputs | None]:
+def _worker_encode_column(args: tuple[str, list[str], bool, PipelineConfig]) -> tuple[str, str, SideOutputs | None]:
     """Worker module-level (picklavel) pra ProcessPoolExecutor.
 
-    Recebe (col_name, str_values, want_side); retorna (col_name, body_str, side).
+    Recebe (col_name, str_values, want_side, cfg); retorna (col_name, body_str, side).
     """
-    col_name, str_values, want_side = args
+    col_name, str_values, want_side, cfg = args
     side = SideOutputs() if want_side else None
-    body = _encode_column(str_values, header=col_name, side=side)
+    body = _encode_column(str_values, header=col_name, side=side, cfg=cfg)
     return col_name, body, side
 
 
