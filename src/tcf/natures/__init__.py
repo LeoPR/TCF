@@ -41,11 +41,20 @@ from tcf.natures.templated_checked import (
     decode_value,
     classify_value,
 )
+from tcf.natures.templated_padded import (
+    TemplatedPaddedSpec,
+    SPEC_IP,
+)
 
 __all__ = [
+    # Templated + Checked (CPF, CNPJ)
     "TemplatedCheckedSpec",
     "SPEC_CPF",
     "SPEC_CNPJ",
+    # Templated + Padded (IP)
+    "TemplatedPaddedSpec",
+    "SPEC_IP",
+    # Compartilhados
     "BASE94",
     "MARKER_LITERAL",
     "encode_value",

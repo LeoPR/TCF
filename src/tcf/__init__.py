@@ -60,7 +60,10 @@ Para historia: `experiments/lab/dirty/notas/historia-dirty-lab.md`.
 from tcf.decoder import decode
 from tcf.encoder import encode
 from tcf.multi import decode_table, encode_table  # deprecated aliases
-from tcf.natures import SPEC_CPF, SPEC_CNPJ, TemplatedCheckedSpec
+from tcf.natures import (
+    SPEC_CPF, SPEC_CNPJ, SPEC_IP,
+    TemplatedCheckedSpec, TemplatedPaddedSpec,
+)
 from tcf.schema import ColumnSchema, TableSchema, build_schema
 from tcf.side_outputs import SideOutputs
 
@@ -73,8 +76,10 @@ __all__ = [
     "ColumnSchema",
     # Natures (ADR-0015):
     "TemplatedCheckedSpec",
+    "TemplatedPaddedSpec",
     "SPEC_CPF",
     "SPEC_CNPJ",
+    "SPEC_IP",
     # Deprecated (mantidos pra migracao):
     "encode_table",
     "decode_table",

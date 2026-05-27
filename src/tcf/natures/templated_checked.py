@@ -17,12 +17,9 @@ Filosofia opt-in per-value (sub-exp 05):
 - Marker prefix `_` distingue literal vs compressed
 - RT byte-canonical preservado SEMPRE
 
-Validacao real-world (sub-exps 05/06/07):
-- D-CPF-uniform 1000: 45% ratio, RT 1000/1000
-- D-CPF-corrupt 1000: 49% ratio, RT 1000/1000 (11 fallbacks corretos)
-- D-CNPJ-uniform 1000: 45% ratio, RT 1000/1000
-- D-CNPJ-clustered 1000: 39% ratio, RT 1000/1000
-- 18 datasets total RT 100%
+Implementa Protocol NatureSpec (encode_value / decode_value /
+classify_value como methods). Encoder/decoder polimorfico, zero
+`isinstance` check.
 """
 
 from __future__ import annotations
@@ -62,59 +59,71 @@ class TemplatedCheckedSpec:
     formatter: Callable[[list[int]], str]
     encoded_length: int
 
+    # === Protocol NatureSpec methods ===
 
-# ===========================================================================
-# Generic functions (zero `if name == X` — polimorfismo via spec param)
-# ===========================================================================
+    def classify_value(self, v: str) -> str:
+        """Classifica valor: 'compressible' ou razao Kim 2003 taxonomy."""
+        if not v:
+            return 'empty_value'
+        expected_total = self.body_length + self.check_length
+        if len(v) == expected_total and v.isdigit():
+            return 'format_unmasked'
+        if not self.regex.match(v):
+            return 'format_mismatch' if len(v) > 5 else 'length_wrong'
+        digits_str = ''.join(c for c in v if c.isdigit())
+        if len(digits_str) != expected_total:
+            return 'length_wrong'
+        body = [int(d) for d in digits_str[:self.body_length]]
+        actual_check = [int(d) for d in digits_str[self.body_length:]]
+        expected_check = self.check_fn(body)
+        if expected_check != actual_check:
+            return 'check_invalid'
+        return 'compressible'
 
-def classify_value(spec: TemplatedCheckedSpec, v: str) -> str:
-    """Classifica valor: 'compressible' ou razao Kim 2003 taxonomy."""
-    if not v:
-        return 'empty_value'
-    expected_total = spec.body_length + spec.check_length
-    if len(v) == expected_total and v.isdigit():
-        return 'format_unmasked'
-    if not spec.regex.match(v):
-        return 'format_mismatch' if len(v) > 5 else 'length_wrong'
-    digits_str = ''.join(c for c in v if c.isdigit())
-    if len(digits_str) != expected_total:
-        return 'length_wrong'
-    body = [int(d) for d in digits_str[:spec.body_length]]
-    actual_check = [int(d) for d in digits_str[spec.body_length:]]
-    expected_check = spec.check_fn(body)
-    if expected_check != actual_check:
-        return 'check_invalid'
-    return 'compressible'
+    def encode_value(self, v: str) -> tuple[str, str]:
+        """Encode generico. Retorna (payload, status)."""
+        status = self.classify_value(v)
+        if status != 'compressible':
+            return MARKER_LITERAL + v, status
+        digits_str = ''.join(c for c in v if c.isdigit())
+        body_int = int(digits_str[:self.body_length])
+        chars = []
+        n = body_int
+        for _ in range(self.encoded_length):
+            chars.append(BASE94[n % len(BASE94)])
+            n //= len(BASE94)
+        return ''.join(reversed(chars)), status
+
+    def decode_value(self, payload: str) -> str:
+        """Decode generico — reverte encode_value."""
+        if payload.startswith(MARKER_LITERAL):
+            return payload[1:]
+        if len(payload) == self.encoded_length and all(c in BASE94 for c in payload):
+            n = 0
+            for c in payload:
+                n = n * len(BASE94) + BASE94.index(c)
+            body_str = str(n).zfill(self.body_length)
+            digits = [int(d) for d in body_str]
+            digits.extend(self.check_fn(digits))
+            return self.formatter(digits)
+        return payload
 
 
-def encode_value(spec: TemplatedCheckedSpec, v: str) -> tuple[str, str]:
-    """Encode generico. Retorna (payload, status)."""
-    status = classify_value(spec, v)
-    if status != 'compressible':
-        return MARKER_LITERAL + v, status
-    digits_str = ''.join(c for c in v if c.isdigit())
-    body_int = int(digits_str[:spec.body_length])
-    chars = []
-    n = body_int
-    for _ in range(spec.encoded_length):
-        chars.append(BASE94[n % len(BASE94)])
-        n //= len(BASE94)
-    return ''.join(reversed(chars)), status
+# === Standalone functions (backward compat wrappers — delegam pra methods) ===
+
+def classify_value(spec, v: str) -> str:
+    """Compat wrapper — delega a spec.classify_value(v)."""
+    return spec.classify_value(v)
 
 
-def decode_value(spec: TemplatedCheckedSpec, payload: str) -> str:
-    """Decode generico — reverte encode_value."""
-    if payload.startswith(MARKER_LITERAL):
-        return payload[1:]
-    if len(payload) == spec.encoded_length and all(c in BASE94 for c in payload):
-        n = 0
-        for c in payload:
-            n = n * len(BASE94) + BASE94.index(c)
-        body_str = str(n).zfill(spec.body_length)
-        digits = [int(d) for d in body_str]
-        digits.extend(spec.check_fn(digits))
-        return spec.formatter(digits)
-    return payload
+def encode_value(spec, v: str) -> tuple[str, str]:
+    """Compat wrapper — delega a spec.encode_value(v)."""
+    return spec.encode_value(v)
+
+
+def decode_value(spec, payload: str) -> str:
+    """Compat wrapper — delega a spec.decode_value(payload)."""
+    return spec.decode_value(payload)
 
 
 # ===========================================================================

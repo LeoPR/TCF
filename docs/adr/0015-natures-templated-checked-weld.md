@@ -166,3 +166,60 @@ Categorias acima podem adicionar specs novas seguindo mesmo padrao
    datasets reais disponiveis.
 4. **CAMADA 0 toggle infrastructure**: T-CODE-LAYERED-PIPELINE
    integrara nature filter com online adaptive fallback.
+
+## Update 2026-05-24 — TemplatedPaddedSpec + SPEC_IP welded
+
+Extensao ADR-0015 ao welder segunda categoria de nature:
+
+### TemplatedPaddedSpec (TCU-NoCheckVarLength)
+
+Categoria sibling da TCU-CheckedFixedLength (CPF/CNPJ):
+- **Sem check digit** (não há verificador)
+- **Sem base94 encoding** (preserva digits visiveis pra HCC seq-RLE)
+- **Slots variable-length padronizados** via padding zero-leading
+
+Caso canonico: IPv4 com `slot_widths=(3,3,3,3)`, `separator='.'`.
+
+Implementacao em `src/tcf/natures/templated_padded.py`. Mesmo Protocol
+NatureSpec que TemplatedCheckedSpec (encode_value / decode_value /
+classify_value como methods). **Encoder/decoder polimorfico zero
+`isinstance`** — confirma diretriz owner "separacao de responsabilidades".
+
+### SPEC_IP
+
+```python
+SPEC_IP = TemplatedPaddedSpec(
+    name="ip",
+    regex=IPV4_RE,
+    slot_widths=(3, 3, 3, 3),
+    separator='.',
+)
+```
+
+Comportamento:
+- `192.168.1.1` -> `192168001001` (12-digit padded)
+- HCC seq-RLE detecta cadence em datasets cadenced (subnet)
+- Validado sub-exp 08 variante C: D-IP-subnet 1000 = **229B (1.71% ratio)**
+
+### Validacao welding
+
+- D17a 322B INVARIANT preservado (default sem nature)
+- SPEC_IP em D-IP-subnet 1000: **229B confirmed** (sub-exp 08 reproduced
+  canonical)
+- SPEC_IP em D-IP-subnet 200: 61B (vs M10 puro 1827B = -97%)
+- D-IP-uniform 200 com SPEC_IP: ratio piora (sem subnet structure) — esperado
+- Suite completa: 192 passed (+16 novos) + 1 xfailed + 1 pre-existing fail
+- 16 novos tests em `tests/test_natures_ip.py`
+
+### Refactor associado
+
+`templated_checked.py` refactored — encode_value/decode_value/
+classify_value agora METHODS no spec (delegacao mantem standalone
+functions pra backward compat). Permite Protocol polimorfico entre
+todas specs sem `isinstance`.
+
+Categorias futuras devem implementar mesmo Protocol:
+- `name: str`
+- `encode_value(self, v) -> tuple[str, str]`
+- `decode_value(self, payload) -> str`
+- `classify_value(self, v) -> str`
