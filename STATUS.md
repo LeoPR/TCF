@@ -1,6 +1,19 @@
 # STATUS — TCF (compendio sempre-atualizado)
 
-**Atualizado em**: 2026-05-27 (**Consolidacao dirty lab**: 17 labs
+**Atualizado em**: 2026-05-27 (**Sprint 2 v1.0 fechado**: ADR-0017
+proposed (freeze format+API em v1.0, 339 linhas com 5+1 enforcement
+features); benchmark UCI extension (wine 90.9%, beijing 71.7%, retail
+23.7% — **TCF vence 7/9 datasets** acumulados); TCF-format.md ganha
+seccao "Versionamento" + Estado v1.0 atualizado. Pendente pra tag
+v1.0.0: Validation Plan 10 items em [ADR-0017](docs/adr/0017-format-spec-v1-frozen.md).
+
+**Anterior 2026-05-27** (**Sprint 1 v1.0**: T-DATA-1 3 datasets UCI
+baixados + canonical rodado; bug encoder seq-RLE multi-delta `+-1,0`
+encontrado e corrigido (decoder rejeitava); suite regressao formal
+`tests/test_regression_v1_baseline.py` (21 tests: D1-D9 snapshot + D17a
+322B INVARIANT). 259 tests passing. Commit 304f38a.
+
+**Anterior 2026-05-27** (**Consolidacao dirty lab**: 17 labs
 pos-canonical movidos pra `experiments/lab/dirty/old/welded/` (10) ou
 `old/refuted/` (7). Topo do dirty agora tem **3 labs ativos +
 1 baseline-consolidado**. Novo

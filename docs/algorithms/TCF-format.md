@@ -20,6 +20,62 @@ Formato projetado para:
 - Tabelas multi-coluna onde cada coluna se beneficia de pipeline
   próprio (encoder per-column independente)
 
+## Versionamento (ADR-0017)
+
+TCF distingue **format version** (shebang `#TCF.N`) de **library
+version** (semver `X.Y.Z` da biblioteca Python). Estavel desde v1.0.
+
+### Format version (shebang)
+
+| Shebang | Status | Introduzido | Compativel com |
+|---|---|---|---|
+| `#TCF.6` | **stable v1** | 2026-05 | tcf 1.0.0+ |
+| `#TCF.5` | superseded | 2026-04 (v0.5) | tcf 0.5.x (legacy, nao manter) |
+
+**Promessa v1**: `#TCF.6` e' imutavel ate' v2.0. Nenhum byte de arquivo
+TCF v1 muda entre versoes tcf 1.x.y. Markers novos (ex: `*FALLBACK_X`
+da Layered Pipeline Fase 2) requerem `#TCF.7` e tcf 2.0.
+
+### Library version (semver)
+
+- **1.0.x** — bug fixes (sem mudar bytes em D1-D9, D17a, real-world snapshots)
+- **1.x.0** — features additive: novos `nature` specs, parametros
+  keyword-only com default que preserva comportamento (ex: `encode(data, *, novo_param=def)`)
+- **2.0.0** — breaking: format change, API removal, marker novo no body
+
+### API publica congelada em v1.0
+
+Imports estaveis ate' v2.0:
+
+```python
+from tcf import (
+    encode, decode,                   # core
+    SideOutputs,                       # debug/stats opt-in
+    PipelineConfig,                    # toggle layers
+    build_schema, TableSchema, ColumnSchema,  # schema introspection
+    TemplatedCheckedSpec, TemplatedPaddedSpec,  # nature definitions
+    SPEC_CPF, SPEC_CNPJ, SPEC_IP,    # nature specs canonicos
+)
+```
+
+Assinaturas imutaveis. Novos parametros opcionais com default permitidos.
+
+### Deprecated em v1.x (removidos em v2.0)
+
+- `encode_table(table)` → use `encode(dict)`
+- `decode_table(text)` → use `decode(text)`
+
+Emitem `DeprecationWarning` em cada uso desde v1.0.
+
+### Suite regressao formal
+
+[`tests/test_regression_v1_baseline.py`](../../tests/test_regression_v1_baseline.py)
+captura bytes-canonical de D1-D9 (1523B total) e D17a (322B INVARIANT).
+Falha em CI = regressao. Snapshot so' pode ser atualizado via ADR
+explicito + version bump.
+
+Detalhes: ver [ADR-0017](../adr/0017-format-spec-v1-frozen.md).
+
 ## Pipeline completo
 
 ```
@@ -292,7 +348,7 @@ Brisaboa et al. 2011, etc.)
 - HCC é **offline** (analisa body completo) mas mais simples que
   Sequitur (que mantém invariantes online complexos).
 
-### 3. Compactação para LLM consumption (acessório no v0.6)
+### 3. Compactação para LLM consumption (acessório no v1.0)
 
 **Família**: TabLLM (2023), TOON, JSON-tabular, formatos compactos
 para LLMs lerem tabelas (Sui 2024 review).
@@ -337,36 +393,47 @@ para LLMs lerem tabelas (Sui 2024 review).
 - **Re-Pair/Sequitur/HTFC** — dicionários gigantes, output binário OK,
   busca aleatória importante
 
-## Estado v0.6 (atualizado 2026-05-24)
+## Estado v1.0 (atualizado 2026-05-27)
 
 ### Implementação canônica
 
-`src/tcf/` — API pública: `from tcf import encode, decode, SideOutputs`
-+ aliases deprecated `encode_table` / `decode_table`.
+`src/tcf/` — API pública estavel (congelada via [ADR-0017](../adr/0017-format-spec-v1-frozen.md)):
+ver seccao "Versionamento" acima.
 
 ### Validação
 
 **Single-column (M10 baseline, ADR-0011)**:
-- D1-D9 sintéticos: **1523 bytes** em 2981 raw = 51.1% ratio (RT 9/9)
+- D1-D9 sintéticos: **1523 bytes** em 2865 raw = 53.2% ratio (RT 9/9)
 - Cadeia byte-canônica de checkpoints: M9 → M10 → M11 → M12 → M13 → M14
+  → M14+Pacote1+Multi+API+Natures+MultiDelta+v1
 - Adult Census + TPC-H 57 colunas: **-11.73% weighted** vs M9 puro
 
 **Multi-column (ADR-0013 welded + ADR-0014 unified)**:
-- D17a sintético (13×4): **322 bytes INVARIANT** (preservado vs EXP-011)
+- D17a sintético (13×4): **322 bytes INVARIANT** (preservado em 16 ADRs)
 - 9 tabelas real-world (Adult Census + TPC-H tier 1+2, 136k linhas,
   15.8 MB raw):
-  - **-33.02% weighted vs raw** (10.6 MB)
-  - **-31.46% weighted vs single-col concat** (controle)
-  - RT 9/9 OK
-  - Lineitem 60k×16: -17.11% vs raw, RT OK (16.6 min HCC)
+  - **-33.02% weighted vs raw**, **-31.46%** vs single-col concat
+  - RT 9/9 OK; Lineitem 60k×16: -17.11% vs raw
 
-**Suite de testes**: 117 passed + 1 xfailed (encode([]) edge case),
-matrix py 3.10/3.11/3.12 em CI.
+**Real-world extendido (UCI/OpenML, T-DATA-1)**:
+- wine-quality 6.5k × 13: 90.9% ratio (decimais quimicos, baixa repeticao)
+- beijing-pm25 43.8k × 13: 71.7% (sensores + timestamps)
+- online-retail 541k × 8: **23.7%** (StockCode/Country/InvoiceDate repetidos)
+
+**Benchmark vs csv/jsonl + gzip/brotli/zstd** (9 datasets totais):
+**TCF venceu em 7/9** datasets. Perdeu em D17a tiny (header overhead
+domina) e wine-quality (decimais quase unicos = sem estrutura).
+Detalhes: [experiments/lab/dirty/2026-05-24-benchmark-formats-compression/](../../experiments/lab/dirty/2026-05-24-benchmark-formats-compression/).
+
+**Suite de testes**: 259 passed + 1 xfailed + 1 pre-existing fail
+(test_shaper unrelated). Inclui
+[`test_regression_v1_baseline.py`](../../tests/test_regression_v1_baseline.py)
+formal (21 tests, snapshot byte-canonical D1-D9 + D17a 322B).
 
 ## Estado v0.5 (acessório)
 
 Há código v0.5 em `old/tcf/` (formato columnar com RLE/dict/stats
-para LLM benchmark). **Não é canônico no v0.6**. Mantido para
+para LLM benchmark). **Não é canônico no v1.0**. Mantido para
 referência histórica e enquanto Phase 1 LLM findings (em
 `docs/findings/`) tiverem relevância de pesquisa.
 
@@ -385,6 +452,9 @@ referência histórica e enquanto Phase 1 LLM findings (em
 - [ADR-0011 — Pacote 1 weld canonical (M9 → M10)](../adr/0011-pacote1-weld-canonical.md)
 - [ADR-0013 — Multi-column canonical API (welded, superseded por 0014)](../adr/0013-multi-column-canonical-api.md)
 - [ADR-0014 — API unificada + SideOutputs](../adr/0014-unified-api-side-outputs.md)
+- [ADR-0015 — Naturezas templated/checked (CPF/CNPJ/IP)](../adr/0015-natures-templated-checked-weld.md)
+- [ADR-0016 — HCC seq-RLE multi-delta](../adr/0016-hcc-multi-delta-seq-rle.md)
+- [ADR-0017 — Format spec v1.0 frozen + versioning policy](../adr/0017-format-spec-v1-frozen.md)
 
 ### Tickets de plano futuro
 - [T-CODE-ENCODER-MANAGER](../../tickets/T-CODE-ENCODER-MANAGER.md) — P2, paralelismo + sinks
