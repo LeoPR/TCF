@@ -22,6 +22,7 @@ originou.
 | [0015](../../../../docs/adr/0015-natures-spec-protocol.md) | Naturezas: SPEC_CPF/CNPJ/IP | `natures/` | `2026-05-24-cpf-templated-checked` (ativo) |
 | [0016](../../../../docs/adr/0016-hcc-multi-delta-seq-rle.md) | HCC seq-RLE multi-delta | `composicional/hcc_seqrle.py` | `2026-05-24-cpf-templated-checked` sub-exp 14 |
 | [0017](../../../../docs/adr/0017-format-spec-v1-frozen.md) | Format #TCF.6 + API frozen em v1.0 | `__init__.py` `__version__`, `pyproject.toml` | Sprint 1/2/3 v1.0 (2026-05-27) |
+| [0018](../../../../docs/adr/0018-v2-format-roadmap.md) | Roadmap v2.0 (fallback/dict/lossy) — proposed | (futuro #TCF.7) | `2026-05-27-naturezas-reais-uci` |
 
 ## Quais ADRs sao byte-canonical-preservadores
 

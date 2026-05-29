@@ -1,6 +1,19 @@
 # STATUS — TCF (compendio sempre-atualizado)
 
-**Atualizado em**: 2026-05-27 (**Sprint 2 v1.0 fechado**: ADR-0017
+**Atualizado em**: 2026-05-27 (**Auditoria profunda + fechamento do limbo**:
+workflow 6 dimensoes mapeou 197 itens (76 pra repensar). Limbo de hipoteses
+nunca concluidas foi fechado empiricamente (lab `2026-05-27-naturezas-reais-uci/`):
+naturezas raras/Pacote 7 re-caracterizadas nos UCI — estrutura EXISTE (refutacao
+anterior foi dataset errado); novo achado de ponto cego baixa-cardinalidade
+(TCF infla colunas curtas ate' 2.3x); fallback identity prototipado (0.8-10.2%,
+RT OK). Todos exigem format change → roadmap **v2.0** ([ADR-0018](docs/adr/0018-v2-format-roadmap.md)).
+**B-tier resolvido**: H-DA-01 seq-RLE CONFIRMADO forte (beijing -29.5% se removido,
+nao marginal). v1.0 segue pronta pra tag (limbo agora caracterizado+decidido, nao esquecido).
+
+**Anterior 2026-05-27** (**Sprint 3 v1.0**: Validation Plan ADR-0017 8/9 +
+packaging fix critico (pyproject empacotava old/tcf v0.5) + docs Diataxis. Commit 92fed11.
+
+**Anterior 2026-05-27** (**Sprint 2 v1.0 fechado**: ADR-0017
 proposed (freeze format+API em v1.0, 339 linhas com 5+1 enforcement
 features); benchmark UCI extension (wine 90.9%, beijing 71.7%, retail
 23.7% — **TCF vence 7/9 datasets** acumulados); TCF-format.md ganha

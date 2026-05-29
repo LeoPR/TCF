@@ -284,7 +284,29 @@ prototipo clean (`experiments/lab/clean/EXP-XXX-*`) e' pra testar
 Atualizar quando: hipotese confirmada/refutada/movida-de-status, OU
 nova hipotese identificada.
 
-**Ultima atualizacao**: 2026-05-22 (terceira) — **PACOTE 1 WELDED canonical**
+**Ultima atualizacao**: 2026-05-27 — **FECHAMENTO DO LIMBO + B-tier resolvido**
+(lab `2026-05-27-naturezas-reais-uci/`, ADR-0018, pos-auditoria profunda):
+
+- **Naturezas raras (#5 range, #8 arredondamento) + Pacote 7 H-LR-***:
+  re-caracterizadas nos UCI (wine/beijing/online-retail). A estrutura-alvo
+  EXISTE (arredondamento `.0`/`.95`, range estreito, precisao fixa) — a
+  refutacao anterior foi em datasets gerais (Adult/TPC-H) inadequados.
+  Status: `re-aberta-caracterizada` → roadmap **v2.0** (exige format change).
+- **NOVO achado — ponto cego baixa-cardinalidade**: colunas numericas curtas
+  repetitivas inflam ate' 2.3x (beijing `hour` 24 unicos → 228.8% M10).
+  Toggles nao corrigem (nucleo OBAT+HCC). Subsume a hipotese "enumerated"
+  (Pacote 5 T03) que foi **refutada prematuramente**. → roadmap v2.0 (V2-B).
+- **Fallback identity** prototipado (fork): ganho 0.8-10.2%, RT OK, mas
+  exige marcador novo → v2.0 (V2-A em ADR-0018).
+- **B-tier RESOLVIDO** (ablacao seq-RLE full UCI):
+  - **H-DA-01** `confirmada-empirica-marginal` → **`confirmada-empirica` (A)**:
+    seq-RLE economiza **29.5%** em beijing (sensores cadenced). A "1.36%
+    real-world" era so' Adult/TPC-H. Revalidado em dado independente.
+  - H-DA-06 (subsumida) e H-DA-10 (9.92%) confirmados, sem mudanca.
+- Todos os candidatos v2.0 (fallback/dicionario/strip-sufixo/lossy)
+  registrados em [ADR-0018](../../../../docs/adr/0018-v2-format-roadmap.md).
+
+**Atualizacao anterior**: 2026-05-22 (terceira) — **PACOTE 1 WELDED canonical**
 (lab `2026-05-22-pacote1-weld-canonical/`, ticket T-CODE-PACOTE1-WELD-CANONICAL,
 ADR-0011):
 - Novos modulos canonical: `src/tcf/auto_cadence.py`, `obat_shape.py`,
