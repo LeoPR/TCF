@@ -3,10 +3,11 @@
 [![CI](https://github.com/LeoPR/TCF/actions/workflows/ci.yml/badge.svg)](https://github.com/LeoPR/TCF/actions/workflows/ci.yml)
 ![Python](https://img.shields.io/badge/python-3.10+-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
-![Status](https://img.shields.io/badge/status-research--grade-orange)
+![Version](https://img.shields.io/badge/version-1.0.0-blue)
+![Format](https://img.shields.io/badge/format-%23TCF.6%20frozen-green)
 
-**TCF** e' um formato textual compacto para dados tabulares (foco
-inicial: single-column de strings). Algoritmo em duas camadas:
+**TCF** e' um formato textual compacto para dados tabulares (single e
+multi-column de strings). Algoritmo em duas camadas:
 
 - **OBAT** (Online Bidirectional Affix Tokenizer) — tokenizacao via
   matching LCP+LCS contra strings anteriores.
@@ -16,24 +17,46 @@ inicial: single-column de strings). Algoritmo em duas camadas:
 Ver [`docs/algorithms/`](docs/algorithms/) para documentacao tecnica
 detalhada de cada camada.
 
-## API minima
+## Getting started (1 minuto)
 
 ```python
 from tcf import encode, decode
 
+# Single-column: lista de strings
 text = encode(["joao@gmail.com", "maria@gmail.com", "pedro@gmail.com"])
-values = decode(text)
-assert values == ["joao@gmail.com", "maria@gmail.com", "pedro@gmail.com"]
+assert decode(text) == ["joao@gmail.com", "maria@gmail.com", "pedro@gmail.com"]
+
+# Multi-column: dict de colunas
+table = {
+    "id":    ["1", "2", "3"],
+    "email": ["joao@gmail.com", "maria@gmail.com", "pedro@gmail.com"],
+}
+text = encode(table)
+assert decode(table_text := encode(table)) == table  # round-trip lossless
+
+# Naturezas (opt-in): CPF/CNPJ/IP comprimidos sem digito verificador/padding
+from tcf import SPEC_CPF
+text = encode(["111.444.777-35", "529.982.247-25"], nature=SPEC_CPF)
 ```
 
-## Estado v0.6
+`encode` dispatcha por tipo (list → single-column, dict → multi-column).
+`decode` roteia pelo shebang. Round-trip e' sempre lossless.
 
+Tutorial passo-a-passo: [`docs/tutorials/getting-started.md`](docs/tutorials/getting-started.md).
+Guias praticos: [`docs/how-to/`](docs/how-to/).
+
+## Estado v1.0 (stable)
+
+- Format `#TCF.6` e API publica **congelados** ([ADR-0017](docs/adr/0017-format-spec-v1-frozen.md))
 - Implementacao canonica em [`src/tcf/`](src/tcf/)
-- Validada byte-a-byte em 9 datasets sinteticos (D1-D9):
-  total 1615 bytes em 2981 raw = **54.2% ratio medio**, RT 9/9 OK
-- Para historia do desenvolvimento ver
+- D1-D9 sinteticos: **1523 bytes** (53.2% ratio), RT 9/9
+- D17a multi-col: **322B INVARIANT** (preservado em 16 ADRs)
+- Real-world: Adult Census + TPC-H (-33.02% weighted) + 3 UCI
+  (wine/beijing/online-retail). Benchmark: **TCF vence 7/9 datasets**
+  vs csv/jsonl + gzip/brotli/zstd
+- Suite: 262 passed + 2 xfailed
+- Mudancas: ver [`CHANGELOG.md`](CHANGELOG.md). Historia M0-M14:
   [`experiments/lab/dirty/notas/historia-dirty-lab.md`](experiments/lab/dirty/notas/historia-dirty-lab.md)
-  (macros M0-M14)
 
 ## Ciclo v0.5 (acessorio)
 

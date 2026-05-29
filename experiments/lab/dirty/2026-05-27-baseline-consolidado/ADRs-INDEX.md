@@ -1,4 +1,4 @@
-# ADRs-INDEX — Indice navegavel 0001-0016
+# ADRs-INDEX — Indice navegavel 0001-0017
 
 Sumario de 1-linha + onde codigo correspondente vive + qual lab dirty
 originou.
@@ -21,6 +21,7 @@ originou.
 | [0014](../../../../docs/adr/0014-unified-encode-decode-api.md) | API unificada `encode(list\|dict)` | `__init__.py`, `encoder.py` | Discussao apos 2026-05-23 |
 | [0015](../../../../docs/adr/0015-natures-spec-protocol.md) | Naturezas: SPEC_CPF/CNPJ/IP | `natures/` | `2026-05-24-cpf-templated-checked` (ativo) |
 | [0016](../../../../docs/adr/0016-hcc-multi-delta-seq-rle.md) | HCC seq-RLE multi-delta | `composicional/hcc_seqrle.py` | `2026-05-24-cpf-templated-checked` sub-exp 14 |
+| [0017](../../../../docs/adr/0017-format-spec-v1-frozen.md) | Format #TCF.6 + API frozen em v1.0 | `__init__.py` `__version__`, `pyproject.toml` | Sprint 1/2/3 v1.0 (2026-05-27) |
 
 ## Quais ADRs sao byte-canonical-preservadores
 

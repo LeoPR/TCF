@@ -1,0 +1,84 @@
+{
+  "name": "beijing-pm25",
+  "source": "UCI ML Repository (dataset 381)",
+  "origin": "https://archive.ics.uci.edu/dataset/381/beijing+pm2+5+data",
+  "download_url": "https://archive.ics.uci.edu/static/public/381/beijing+pm2+5+data.zip",
+  "license": "CC BY 4.0",
+  "citation": "Liang, X., et al. (2015). Assessing Beijing's PM2.5 pollution: severity, weather impact, APEC and winter heating. Proceedings of the Royal Society A, 471(2182), 20150257.",
+  "downloaded_via": "requests (UCI direct download)",
+  "row_counts": {
+    "beijing_pm25": 43824
+  },
+  "column_count": 13,
+  "missing_values_note": "pm2.5 has NA values (~5% of rows)",
+  "tables": {
+    "beijing_pm25": {
+      "pk": "No",
+      "fk": {},
+      "missing_value_marker": "NA",
+      "columns": {
+        "No": {
+          "type": "int",
+          "nullable": false,
+          "note": "row number"
+        },
+        "year": {
+          "type": "int",
+          "nullable": false
+        },
+        "month": {
+          "type": "int",
+          "nullable": false
+        },
+        "day": {
+          "type": "int",
+          "nullable": false
+        },
+        "hour": {
+          "type": "int",
+          "nullable": false
+        },
+        "pm2.5": {
+          "type": "float",
+          "nullable": true,
+          "note": "PM2.5 concentration (ug/m^3); NA when missing"
+        },
+        "DEWP": {
+          "type": "float",
+          "nullable": false,
+          "note": "Dew Point (Celsius)"
+        },
+        "TEMP": {
+          "type": "float",
+          "nullable": false,
+          "note": "Temperature (Celsius)"
+        },
+        "PRES": {
+          "type": "float",
+          "nullable": false,
+          "note": "Pressure (hPa)"
+        },
+        "cbwd": {
+          "type": "string",
+          "nullable": false,
+          "note": "Combined wind direction (NW/NE/SE/cv)"
+        },
+        "Iws": {
+          "type": "float",
+          "nullable": false,
+          "note": "Cumulated wind speed (m/s)"
+        },
+        "Is": {
+          "type": "int",
+          "nullable": false,
+          "note": "Cumulated hours of snow"
+        },
+        "Ir": {
+          "type": "int",
+          "nullable": false,
+          "note": "Cumulated hours of rain"
+        }
+      }
+    }
+  }
+}

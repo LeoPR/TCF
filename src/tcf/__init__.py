@@ -1,4 +1,4 @@
-"""TCF — Tabular Compact Format (v0.6).
+"""TCF — Tabular Compact Format (v1.0, format #TCF.6 frozen — ADR-0017).
 
 API publica unificada (ADR-0014):
 
@@ -67,6 +67,9 @@ from tcf.natures import (
 from tcf.pipeline import PipelineConfig
 from tcf.schema import ColumnSchema, TableSchema, build_schema
 from tcf.side_outputs import SideOutputs
+
+# Format #TCF.6 frozen + API publica estavel desde v1.0 (ADR-0017).
+__version__ = "1.0.0"
 
 __all__ = [
     "encode",

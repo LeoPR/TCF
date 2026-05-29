@@ -9,9 +9,19 @@ CI roda: `pytest -m "not requires_data"` pra rodar so' tests sem deps
 externos.
 
 Local roda: `pytest` pra rodar tudo (incluindo integration tests).
+
+Determinismo (ADR-0017): PYTHONHASHSEED=0 garante que o byte-canonical
+(D1-D9 1523B, D17a 322B INVARIANT) seja reproducivel cross-platform.
+Settado via setdefault antes de qualquer import que dependa de hashing.
 """
 
 from __future__ import annotations
+
+import os
+
+# ADR-0017 #3: determinismo reproducivel pra suite de regressao byte-canonical.
+# setdefault preserva override explicito do usuario; default = 0.
+os.environ.setdefault("PYTHONHASHSEED", "0")
 
 import pytest
 

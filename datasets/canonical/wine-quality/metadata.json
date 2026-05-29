@@ -1,0 +1,78 @@
+{
+  "name": "wine-quality",
+  "source": "UCI ML Repository (via OpenML id=40691 red, id=40692 white)",
+  "origin": "https://archive.ics.uci.edu/dataset/186/wine+quality",
+  "openml_url_red": "https://www.openml.org/d/40691",
+  "openml_url_white": "https://www.openml.org/d/40692",
+  "license": "CC BY 4.0",
+  "citation": "Cortez, P., Cerdeira, A., Almeida, F., Matos, T., & Reis, J. (2009). Modeling wine preferences by data mining from physicochemical properties. Decision Support Systems, 47(4), 547-553.",
+  "downloaded_via": "sklearn.datasets.fetch_openml",
+  "row_counts": {
+    "wine": 6497
+  },
+  "column_count": 13,
+  "tables": {
+    "wine": {
+      "pk": null,
+      "fk": {},
+      "missing_value_marker": null,
+      "columns": {
+        "fixed_acidity": {
+          "type": "float",
+          "nullable": false
+        },
+        "volatile_acidity": {
+          "type": "float",
+          "nullable": false
+        },
+        "citric_acid": {
+          "type": "float",
+          "nullable": false
+        },
+        "residual_sugar": {
+          "type": "float",
+          "nullable": false
+        },
+        "chlorides": {
+          "type": "float",
+          "nullable": false
+        },
+        "free_sulfur_dioxide": {
+          "type": "float",
+          "nullable": false
+        },
+        "total_sulfur_dioxide": {
+          "type": "float",
+          "nullable": false
+        },
+        "density": {
+          "type": "float",
+          "nullable": false
+        },
+        "pH": {
+          "type": "float",
+          "nullable": false
+        },
+        "sulphates": {
+          "type": "float",
+          "nullable": false
+        },
+        "alcohol": {
+          "type": "float",
+          "nullable": false
+        },
+        "quality": {
+          "type": "int",
+          "nullable": false,
+          "note": "Target: 0-10",
+          "target": true
+        },
+        "variant": {
+          "type": "string",
+          "nullable": false,
+          "note": "red or white"
+        }
+      }
+    }
+  }
+}

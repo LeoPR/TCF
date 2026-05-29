@@ -21,11 +21,53 @@ from pathlib import Path
 
 import pytest
 
+import tcf
 from tcf import encode, decode
 
 
 ROOT = Path(__file__).resolve().parent.parent
 DATASETS = ROOT / "datasets" / "synthetic"
+
+
+# ADR-0017 #2/#5: superficie de API publica congelada em v1.0.
+# Adicao OU remocao requer atualizar esta lista + bump de versao + ADR.
+EXPECTED_PUBLIC_API = {
+    "encode",
+    "decode",
+    "SideOutputs",
+    "build_schema",
+    "TableSchema",
+    "ColumnSchema",
+    "TemplatedCheckedSpec",
+    "TemplatedPaddedSpec",
+    "SPEC_CPF",
+    "SPEC_CNPJ",
+    "SPEC_IP",
+    "PipelineConfig",
+    "encode_table",   # deprecated (removido em v2.0)
+    "decode_table",   # deprecated (removido em v2.0)
+}
+
+
+class TestPublicAPISurface:
+    """ADR-0017: API publica congelada. Contrato enforced por test."""
+
+    def test_all_matches_expected(self):
+        assert set(tcf.__all__) == EXPECTED_PUBLIC_API, (
+            "tcf.__all__ divergiu da API publica congelada (ADR-0017). "
+            "Adicionar/remover export requer atualizar EXPECTED_PUBLIC_API + "
+            "bump de versao + nota no ADR.\n"
+            f"  faltando: {EXPECTED_PUBLIC_API - set(tcf.__all__)}\n"
+            f"  extra:    {set(tcf.__all__) - EXPECTED_PUBLIC_API}"
+        )
+
+    def test_all_symbols_importable(self):
+        """Cada nome em __all__ deve existir como atributo do modulo."""
+        for name in tcf.__all__:
+            assert hasattr(tcf, name), f"tcf.__all__ lista '{name}' mas nao existe"
+
+    def test_version_is_1_0(self):
+        assert tcf.__version__ == "1.0.0"
 
 
 D1_D9_BYTES_FROZEN = {

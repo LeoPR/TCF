@@ -71,3 +71,23 @@ values = decode(text)
 Manual v0.6 sera escrito quando a API estabilizar (multi-coluna
 + tipos de dados pre-tx pendentes — ver
 [`theory/README.md`](theory/README.md)).
+
+## Mapeamento Diataxis (nomes locais → quadrantes canonicos)
+
+TCF usa nomes de pasta proprios em vez dos rotulos canonicos
+[Diataxis](https://diataxis.fr/). O mapeamento conceitual:
+
+| Pasta TCF | Diataxis | Foco |
+|---|---|---|
+| [`tutorials/`](tutorials/) | **Tutorial** | Onboarding mao-na-massa ([getting-started](tutorials/getting-started.md)) |
+| [`algorithms/`](algorithms/) | **Reference** | Especificacao canonica (OBAT, HCC, TCF-format) |
+| [`theory/`](theory/) | **Explanation** | Fundamentos teoricos, perspectiva tripartite |
+| [`how-to/`](how-to/) | **How-to** | Receitas: [encodar CSV](how-to/encode-csv-file.md), [naturezas](how-to/use-natures.md), [inspecionar compressao](how-to/inspect-compression.md) + dev (audit, log) |
+| [`adr/`](adr/) | (extra) | Decisoes arquiteturais — complementa Diataxis |
+| [`findings/`](findings/) | (extra) | Achados consolidados de pesquisa (research compendium) |
+| [`vocabulary.md`](vocabulary.md) | (extra) | Vocabulario controlado |
+
+Esta convencao local sera preservada — renomear quebra muitos links
+em ADRs, READMEs, memorias de IA. **Para entrar**: use a tabela acima
+pra mapear "preciso de spec → `algorithms/`", "preciso de fundamento
+teorico → `theory/`", "preciso de receita → `how-to/`".

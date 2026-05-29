@@ -6,18 +6,66 @@ see `git log`. For per-experiment timeline (v0.5) see
 for v0.6 (atual) ver
 [`experiments/lab/dirty/notas/historia-dirty-lab.md`](experiments/lab/dirty/notas/historia-dirty-lab.md).
 
-Versioning is **internal** (we haven't shipped to PyPI). Versions mark
-**logical milestones** in the project. Date in parentheses is when the
-milestone consolidated.
+A partir de v1.0.0 o versionamento e' **semver** com format `#TCF.6`
+congelado (ADR-0017). Versoes anteriores marcavam milestones logicos
+internos (sem PyPI). Date em parenteses = consolidacao do milestone.
 
 ---
 
-## v0.6 (2026-05-10 → em curso) — **CURRENT** — TCF (Tabular Compact Format)
+## 1.0.0 (2026-05-27) — **STABLE** — format #TCF.6 + API congelados
+
+Primeira versao estavel. Decisao formal de freeze em
+[ADR-0017](docs/adr/0017-format-spec-v1-frozen.md).
+
+### Estabilidade garantida (semver)
+
+- **Format `#TCF.6` imutavel** ate' v2.0.0 — nenhum byte de arquivo TCF
+  v1 muda entre versoes 1.x.y
+- **API publica congelada**: `encode`, `decode`, `SideOutputs`,
+  `PipelineConfig`, `build_schema`, `TableSchema`, `ColumnSchema`,
+  `TemplatedCheckedSpec`, `TemplatedPaddedSpec`, `SPEC_CPF`, `SPEC_CNPJ`,
+  `SPEC_IP` (+ deprecated `encode_table`/`decode_table`)
+- **Semver**: 1.0.x bug fixes / 1.x.0 additive / 2.0.0 breaking
+
+### Validado
+
+- D1-D9 sinteticos: 1523B (53.2% ratio), RT 9/9
+- D17a multi-col: 322B INVARIANT (preservado em 16 ADRs)
+- Real-world: Adult Census + TPC-H 9 tabelas (-33.02% weighted) + 3 UCI
+  novos (wine 90.9%, beijing 71.7%, online-retail 23.7%)
+- Benchmark vs csv/jsonl + gzip/brotli/zstd: TCF vence 7/9 datasets
+- Suite: 262 passed + 2 xfailed (test_regression_v1_baseline.py: 24
+  tests gate byte-canonical + API surface)
+
+### Bug fixes incluidos (categoria 1 — output era invalido)
+
+- HCC seq-RLE multi-delta: marker `*N+-1,0|...` (primeiro delta negativo
+  double-signed) era emitido mas decoder rejeitava com `ValueError`.
+  Fix em `src/tcf/composicional/hcc_seqrle.py`. Descoberto em validacao
+  real-world wine-quality (2026-05-27). 2 testes regressao.
+
+### Packaging
+
+- `pyproject.toml`: version 1.0.0; wheel empacota `src/tcf` canonical
+  (corrigido de `old/tcf` v0.5 stale); `requires-python = ">=3.10"`
+- `src/tcf/__init__.py`: `__version__ = "1.0.0"`
+- CI: gate bloqueante `test_regression_v1_baseline.py` + PYTHONHASHSEED=0
+  + matrix py 3.10-3.13
+
+### Deprecated (removido em 2.0.0)
+
+- `encode_table(table)` → use `encode(dict)`
+- `decode_table(text)` → use `decode(text)`
+
+---
+
+## v0.6 (2026-05-10 → 2026-05-27) — TCF (Tabular Compact Format) — superseded por 1.0.0
 
 **Reset em 2026-05-10**: foco do projeto migrou de "formato textual
 columnar para LLMs" (v0.5) para **algoritmo de compressao de strings
 tabulares** em duas camadas. Trabalho em `experiments/lab/dirty/`
-(macros M0-M14) consolidado e welded para `src/tcf/`.
+(macros M0-M14) consolidado e welded para `src/tcf/`. Estabilizado
+como 1.0.0 em 2026-05-27.
 
 ### Naming oficializado (2026-05-17, META-NAMING)
 

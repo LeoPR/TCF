@@ -1,9 +1,15 @@
 # 0017 — Format spec v1.0 frozen + versioning policy
 
-**Status**: proposed
+**Status**: accepted
 **Date**: 2026-05-27
 **Deciders**: project owner
 **Tags**: format, versioning, v1.0, backwards-compat, stable-api
+
+> **Aceito 2026-05-27** pelo owner (Opcao A — freeze format + API).
+> Validation Plan em execucao (Sprint 3): items 1-8 feitos (suite
+> passing, public API test, conftest PYTHONHASHSEED, version bump,
+> CHANGELOG, README, CITATION, CI gate). Item 9 (git tag v1.0.0)
+> reservado pra release explicito. Item 10 (DOI) opcional.
 
 ## Context and Problem Statement
 

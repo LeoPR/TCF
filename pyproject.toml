@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "tcf"
-version = "0.2.0"
+version = "1.0.0"
 description = "TCF (Tabular Compact Format) — string compression via OBAT (Online Bidirectional Affix Tokenizer) + HCC (Hierarchical Compositional Coding)"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -42,15 +42,13 @@ markers = [
     "requires_data: tests that need SQLite hubs in Z:/tcf-data/ (skipped in CI)",
 ]
 
-[project.scripts]
-tcf = "tcf.cli:main"
-
 [tool.hatchling.build.targets.wheel]
-packages = ["old/tcf"]
+packages = ["src/tcf"]
 
-# Nota (2026-05-17): src/tcf/ moved to old/tcf/ para sinalizar que e'
-# v0.5 (columnar/RLE para LLM benchmark — acessorio). Codigo canonico
-# atual e' o algoritmo TCF-CORE em experiments/lab/dirty/. Quando
-# protótipo migrar, novo modulo nascera em src/.
-# Future: C extension would be added here via hatchling-meson or setuptools
-# Future: Rust extension via maturin (replaces hatchling, same src/ layout)
+# v1.0 (2026-05-27, ADR-0017): canonico TCF-CORE vive em src/tcf/
+# (OBAT + HCC + natures + pipeline). Wheel empacota src/tcf como modulo
+# importavel `tcf`. Codigo v0.5 legado (columnar/RLE pra LLM benchmark)
+# permanece em old/tcf/ mas NAO e' empacotado (acessorio historico).
+# Sem [project.scripts]: v1.0 e' library-only (`from tcf import encode`);
+# CLI do v0.5 (old/tcf/cli.py) nao migrado — fora de escopo v1.
+# Future: C extension via hatchling-meson; Rust via maturin (mesmo layout).

@@ -1,0 +1,67 @@
+{
+  "name": "online-retail",
+  "source": "UCI ML Repository (dataset 352)",
+  "origin": "https://archive.ics.uci.edu/dataset/352/online+retail",
+  "download_url": "https://archive.ics.uci.edu/static/public/352/online+retail.zip",
+  "license": "CC BY 4.0",
+  "citation": "Chen, D. (2015). Online Retail. UCI Machine Learning Repository.",
+  "downloaded_via": "requests (UCI direct download) + pandas (xlsx -> csv)",
+  "row_counts": {
+    "online_retail": 541909
+  },
+  "column_count": 8,
+  "missing_values_per_column": {
+    "Description": 1454,
+    "CustomerID": 135080
+  },
+  "natureza_alvo": "UnitPrice tem padrao .99/.95/.50 — testar #8 arredondamento (T-EXP-NATUREZAS-RARAS-V2 futuro)",
+  "tables": {
+    "online_retail": {
+      "pk": null,
+      "fk": {},
+      "missing_value_marker": null,
+      "columns": {
+        "InvoiceNo": {
+          "type": "string",
+          "nullable": false,
+          "note": "Invoice number; some have 'C' prefix (canceled)"
+        },
+        "StockCode": {
+          "type": "string",
+          "nullable": false,
+          "note": "Product code"
+        },
+        "Description": {
+          "type": "string",
+          "nullable": true,
+          "note": "Product description (~0.27% NaN)"
+        },
+        "Quantity": {
+          "type": "int",
+          "nullable": false,
+          "note": "Can be negative (returns)"
+        },
+        "InvoiceDate": {
+          "type": "datetime",
+          "nullable": false,
+          "note": "Format: M/D/YYYY HH:MM"
+        },
+        "UnitPrice": {
+          "type": "float",
+          "nullable": false,
+          "note": "GBP; padroes .99/.95/.50 (natureza #8 arredondamento)"
+        },
+        "CustomerID": {
+          "type": "float",
+          "nullable": true,
+          "note": "Customer code (~25% NaN)"
+        },
+        "Country": {
+          "type": "string",
+          "nullable": false,
+          "note": "Country name"
+        }
+      }
+    }
+  }
+}
