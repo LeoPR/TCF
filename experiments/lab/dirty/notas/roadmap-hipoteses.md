@@ -284,7 +284,23 @@ prototipo clean (`experiments/lab/clean/EXP-XXX-*`) e' pra testar
 Atualizar quando: hipotese confirmada/refutada/movida-de-status, OU
 nova hipotese identificada.
 
-**Ultima atualizacao**: 2026-05-27 — **FECHAMENTO DO LIMBO + B-tier resolvido**
+**Ultima atualizacao**: 2026-05-27 — **H-TH-02 Patricia estudada (workflow 4 dims)**
+
+- **H-TH-02** (Patricia trie generalizada, registrada 2026-05-13 NUNCA testada):
+  estudo de viabilidade completo em [docs/theory/patricia-trie-exploration.md](../../../docs/theory/patricia-trie-exploration.md).
+  Status: `caracterizada-adiada` (vavel mas nao urgente).
+  - 4 dimensoes (teoria, contrato atual, design fit, relacao H-PERF-04) convergem:
+    prototipar e' viavel SE seguir protocolo rigoroso (fork dirty lab, validar
+    D1-D9 1615B exato, evitar vies dataset de H-PERF-04).
+  - Hash trigrama atual (ADR-0009, 5.4x speedup) cobre v1.0; Patricia ganha
+    em prefixos populares variados (URLs, factory IDs, datas multi-decada).
+  - Effort 10-30h se prototipar; bloqueador principal e' byte-canonical
+    (tie-break por ordem de insercao deve ser pixel-identico).
+  - **Reabertura quando**: v2.0 abrir, ou se H-PERF-06 (Cython) for primeiro
+    e Patricia virar foco depois. Ortogonal a Cython (multiplicariam ganho).
+  - ADR-0018 V2-C atualizado com pointer pra este estudo.
+
+**Atualizacao anterior**: 2026-05-27 — **FECHAMENTO DO LIMBO + B-tier resolvido**
 (lab `2026-05-27-naturezas-reais-uci/`, ADR-0018, pos-auditoria profunda):
 
 - **Naturezas raras (#5 range, #8 arredondamento) + Pacote 7 H-LR-***:

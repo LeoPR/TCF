@@ -49,6 +49,26 @@ deixe de ser limbo (caracterizado + decidido em vez de esquecido).
 - **Propriedade forte**: garante "nunca pior que raw+delimitadores".
 - **Custo**: marcador novo no header multi-col; decoder ramifica por modo.
 
+### V2-C-Patricia — Patricia trie / GST como indice OBAT (H-TH-02)
+
+Substitui hash trigrama (ADR-0009) por Patricia/Generalized Suffix Tree.
+
+- **Evidencia**: estudo de viabilidade completo em
+  [docs/theory/patricia-trie-exploration.md](../theory/patricia-trie-exploration.md)
+  (workflow 4 dimensoes, 2026-05-27). H-TH-02 (registrada 2026-05-13, nunca
+  testada) tem design concreto + protocolo de validacao.
+- **Por que v2.0**: byte-canonical depende de tie-break por ordem de insercao
+  no hash dict — Patricia drop-in precisa preservar exatamente. Risco real de
+  divergencia bytes (mesmo problema que afundou H-PERF-04).
+- **Ganho esperado**: 5-50x speedup em colunas com prefixos populares variados
+  (URLs, factory IDs, datas multi-decada). Em colunas categoricas dispersas,
+  overhead de tree pode anular ganho.
+- **Ortogonalidade com H-PERF-06 (Cython)**: independentes — Cython acelera
+  cada lcp/lcs call; Patricia reduz numero de calls. Ganhos multiplicam.
+- **Effort estimado**: 10-30h (proto fork + validacao multi-camada).
+- **Acceptance criteria**: D1-D9 1615B EXATO + RT 100% multi-camada +
+  speedup >= 1.5x em coluna com prefixo popular.
+
 ### V2-B — Encoder dicionario/categorico (lossless)
 
 Para baixa-cardinalidade: mapear valor→indice pequeno + tabela de valores.
