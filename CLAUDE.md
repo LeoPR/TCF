@@ -122,6 +122,33 @@ Se algum **NAO** → marcar `confirmada-empirica` com ressalva ou
 Ver [`revisao-conceitual-2026-05-21.md`](experiments/lab/dirty/notas/revisao-conceitual-2026-05-21.md)
 pra classificacao A/B/C das hipoteses existentes.
 
+## FILOSOFIA DE DESIGN (registrada 2026-05-27, reforco do owner)
+
+TCF nao compete com compressores binarios (gzip, brotli, zstd) — esses
+ocupam **areas cinzas** (denso, opaco, exige descompressao pra ler).
+TCF ocupa **areas explicaveis**: textual, inspecionavel, com agrupamentos
+visiveis enquanto comprimido.
+
+**Pilares**:
+1. **Texto + explicabilidade** enquanto comprimido. RLE `*N|linha` mostra
+   N items sem descomprimir — **agrupamento natural**. Economiza memoria
+   (nao precisa materializar pra iterar). Mesma logica vale pra ranges
+   `A..B` e seq-RLE `*N+delta|template`.
+2. **Speed-first dentro do espaco textual** — otimizacoes de algoritmo,
+   pre-pass, indices (trigrama/Patricia), compilacao Cython sao todas
+   valoradas. Mas o output observavel permanece textual.
+3. **HCC binarizacao planejada (post-disk/streaming) e' TRANSPORT
+   OPTIMIZATION pra IO/disk/web** — NAO um competidor de compressao
+   binaria. Binario seria sub-formato pra trafego/persistencia eficiente;
+   o formato canonical (`#TCF.6`) segue textual.
+4. **Anti-pattern explicito**: buffer-over-buffer / cache-over-cache.
+   Pipeline streaming (V2-J/V2-K em ADR-0018) prioriza latencia
+   (time-to-first-byte) e zero-copy IO.
+
+Ver [docs/theory/strategies/INDEX.md](docs/theory/strategies/INDEX.md)
+pro mapa segmentado de estrategias (preparacao pra otimizacao/binarizacao
+independente por camada).
+
 ## CONVENCOES
 
 ### Naming
