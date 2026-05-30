@@ -1,81 +1,113 @@
 ---
-title: T-RECOVER-SCHEMA-MULTI-TABLE — Ferramenta auxiliar de schema multi-tabela (EXTERNO ao TCF)
+title: T-RECOVER-SCHEMA-MULTI-TABLE — Gadget auxiliar de schema multi-tabela (alertas, NAO conserta)
 status: de-prontidao
 priority: P2
 created: 2026-05-27
-updated: 2026-05-27 (escopo corrigido pelo owner: e' ferramenta auxiliar, NAO integrada ao TCF)
+updated: 2026-05-27 (escopo refinado: gadget auxiliar so' alerta, NUNCA arruma; usa SideOutputs)
 blocked-by: []
 related:
-  - src/tcf/schema.py  (build_schema atual e' per-tabela; este ticket NAO modifica src/tcf)
+  - src/tcf/side_outputs.py  (framework de "efeito colateral" que esta ferramenta consome)
+  - src/tcf/schema.py  (build_schema per-tabela; permanece intocado)
 ---
 
-# T-RECOVER-SCHEMA-MULTI-TABLE
+# T-RECOVER-SCHEMA-MULTI-TABLE — Gadget auxiliar
 
-## Contexto + ESCOPO (corrigido 2026-05-27)
+## Contexto + ESCOPO (refinado 2026-05-27)
 
-**Este e' uma ferramenta AUXILIAR EXTERNA ao TCF**, NAO integrada ao
-algoritmo de compressao. Vive em `scripts/` ou eventualmente em pacote
+**Gadget AUXILIAR EXTERNO ao TCF**, NAO integrado, **so' EMITE ALERTAS,
+nunca conserta dados**. Vive em `scripts/` ou eventualmente em pacote
 separado.
 
-Owner clarificou (2026-05-27) que `build_schema` (welded em src/tcf) e'
-**uma coisa**: parte do TCF, analisa schema per-tabela como entrada do
-encoder. Esta ferramenta de **multi-tabela com relacionamentos** e' **outra
-coisa**: utilitario autonomo que ajuda o usuario a entender/preparar dados
-ANTES de usar o TCF, ou totalmente independente de TCF.
+Owner reforcou (2026-05-27):
+> "TCF supoe dados muito sadios e felizes. Nao e' responsabilidade
+> dele ficar melhorando ou entrar no merito do porque uma data esta
+> invertida ou com 32 de fevereiro. (...) Uma ferramenta previa pra
+> chegar dados de forma sadia e' uma opcao que o dev ou arquiteto
+> podem ter. (...) Esses tools tambem nao tem o compromisso de arrumar
+> absolutamente nada."
 
-Sem relacao direta com o algoritmo. Sem dependencia bidirecional. TCF nao
-precisa dela; ela nao precisa do TCF (alem de eventualmente importar o
-`TableSchema` como tipo).
+## Proposta — gadget pequeno e focado
 
-## Proposta
+Ferramenta de **analise/alerta** de schemas multi-tabela. Output: relatorio
+de qualidade + sugestoes; **nunca dados transformados**.
 
-Ferramenta de analise de schemas multi-tabela:
-- Detecta FK candidates (col_A.values ⊂ col_B.values, cardinalidade alta)
-- Identifica colunas compartilhadas entre tabelas (nome+tipo+sample overlap)
-- Sugere ordem topologica de processamento (tabelas "mae" -> "filha")
+Detecta e ALERTA sobre:
+- **Integridade**: FK candidates (col_A.values ⊂ col_B.values com %)
+- **Relacionamentos**: colunas compartilhadas entre tabelas
+- **Formato**: datas com formatos misturados, ISO vs BR vs US
+- **Anomalias**: valores impossiveis (32 de fev, idades negativas, etc)
+- **Qualidade**: cardinality, completude (% nulls), distribuicao
 
-**Caso de uso autonomo**: usuario tem 9 CSVs, quer mapa do relacionamento
-entre eles antes de qualquer compressao/analise.
+Tudo emitido como **alertas consistentes** pro usuario decidir o que fazer.
+**Nenhuma transformacao automatica**.
 
-**Caso de uso TCF-adjacent (opcional)**: se quiser, usuario pode usar essa
-ferramenta antes de chamar `encode()` em cada tabela. TCF nao se importa
-de onde vieram os dados ou em que ordem.
+Resultado downstream: usuario aplica fixes manuais OU aceita os warnings;
+quando esse dado limpo chega no TCF, TCF comprime melhor.
+
+## Integracao com SideOutputs (framework existente)
+
+`SideOutputs` (em src/tcf/side_outputs.py) ja' captura **efeito colateral**
+do encode: column_features (n_rows, n_unicas, cardinality, is_numeric,
+sample), cadence_info, etc. Esses dados sao computados de qualquer jeito
+durante encode — **gratis**.
+
+Este gadget pode:
+- **Consumir** SideOutputs em paralelo: quando usuario roda encode pra
+  proof, o gadget extrai os stats e emite alertas (sem custo adicional)
+- **Expandir** SideOutputs com campos de qualidade (futuro, opt-in):
+  format_inconsistencies, distribution_warnings, anomaly_flags — mantendo
+  filosofia "zero custo, so' o que ja' compute".
 
 ## Estado atual
 
 - **Existe (em src/tcf)**: `build_schema(data) → TableSchema` per-tabela
   (welded Fases 1+2). Permanece intocado.
-- **NAO existe**: analise cross-table (este ticket). Sera criado em
-  `scripts/schema_multi/` ou pacote separado.
+- **Existe**: SideOutputs como framework de efeito colateral.
+- **NAO existe**: analise cross-table + alertas de qualidade. Sera criado
+  em `scripts/schema_gadget/` ou pacote separado.
 
 ## Plano (futuro)
 
 ### Fase 1 — Detector de FK candidate
-- `scripts/schema_multi/fk_detect.py` standalone
+- `scripts/schema_gadget/fk_detect.py` standalone
 - Input: dict[table_name, dict[col, list[values]]]
-- Output: list[FKCandidate(parent_table, parent_col, child_table, child_col, match_pct)]
+- Output: relatorio de FKCandidates com confianca
 
-### Fase 2 — Detector de colunas compartilhadas
-- `scripts/schema_multi/shared_cols.py`
-- Cross-table feature matching
+### Fase 2 — Date/format consistency checker
+- `scripts/schema_gadget/date_check.py`
+- Detecta formatos misturados, datas impossiveis (32/02), futuros suspeitos
 
-### Fase 3 — CLI utility
-- `python -m scripts.schema_multi analyze <dir-of-csvs>` produz relatorio
-- Markdown/json output; NAO chama TCF
+### Fase 3 — SideOutputs hook
+- `scripts/schema_gadget/sideouts_quality.py`
+- Le SideOutputs de um encode (proof run) e emite alertas:
+  - "coluna X tem cardinality=1.0 e n=5 — pode ser ID inutil"
+  - "coluna Y has is_numeric=True mas 3 samples falharam parse"
+  - "tabelas A e B compartilham coluna 'user_id' com 87% overlap"
 
-### (Opcional) Fase 4 — Spin-off
-- Decidir se vira pacote `tcf-schema-tools` separado pra evitar bloat do
-  pacote tcf principal
+### Fase 4 — CLI
+- `python -m scripts.schema_gadget analyze <dir-of-csvs>` → relatorio
+  markdown/json. **NAO modifica nada**.
+
+### (Opcional) Fase 5 — Spin-off
+- Decidir se vira pacote `tcf-quality-gadget` separado
 
 ## Conexao
 
 - **NAO toca** src/tcf/. Permanece em scripts/ ou spin-off.
-- Pode importar `TableSchema` do TCF como conveniencia de tipo (opcional)
+- Pode importar `TableSchema` + `SideOutputs` do TCF (consumidor, nao
+  modificador)
 - NAO bloqueia nem desbloqueia features TCF
-- T-RECOVER-LLM-SCHEMA-MODE (relacionado, tambem auxiliar) — eventualmente
-  o LLM tool poderia consumir output desta
+- T-RECOVER-LLM-SCHEMA-MODE — outro gadget auxiliar, irmao
+
+## Filosofia
+
+- **TCF supoe dados felizes**: este gadget e' opt-in pra quem precisa
+  validar antes
+- **So' alerta, NUNCA conserta**: dev/arquiteto decide o que fazer
+- **Gadget pequeno e focado**: nao e' platform play, e' utilitario modular
+- **Zero custo via SideOutputs**: aproveita stats que TCF ja' compute
 
 ## Status
 
-**De prontidao** (registrado 2026-05-27, escopo corrigido). Atacar quando
+**De prontidao** (registrado 2026-05-27, escopo refinado). Atacar quando
 owner decidir; **NAO bloqueia roadmap TCF**.

@@ -150,6 +150,33 @@ visiveis enquanto comprimido.
    Pipeline streaming (V2-J/V2-K em ADR-0018) prioriza latencia
    (time-to-first-byte) e zero-copy IO.
 
+### Suposicao TCF: dados "felizes"
+
+TCF supoe **dados sadios e bem-formados**. NAO e' responsabilidade do
+algoritmo entrar no merito de "por que essa data esta 32 de fevereiro"
+ou "por que esse CPF tem digito errado". Comprime o que receber, agnostic
+de origem.
+
+**EXCECAO**: testes que dao **quase de graca** (anomalias detectaveis
+durante operacoes que ja' acontecem). Esses podem ficar internos:
+- analyze_column ja' compute is_numeric via sample; se um valor falha
+  parse num campo "numerico", podemos flag em SideOutputs
+- length variance alto numa coluna "uniforme" pode ser flag de format
+  inconsistente
+- Princpio: **so' detecta, NUNCA arruma**. Surfaca via SideOutputs.
+
+### SideOutputs como framework de efeito colateral
+
+`src/tcf/side_outputs.py` ja' captura **efeito colateral do encode**:
+column_features (n_rows, n_unicas, cardinality, is_numeric, sample),
+cadence_info, obat_log, hcc_trace, seq_rle_runs, multi_info, per_col.
+
+Esse mecanismo e' **ponte oficial** entre TCF e gadgets auxiliares:
+gadgets podem consumir SideOutputs pra extrair stats/alertas SEM custo
+adicional (TCF computa de qualquer jeito). Expansao futura (opt-in):
+campos de qualidade (anomaly_flags, format_inconsistencies) — mantendo
+filosofia "zero custo, so' o que ja' compute".
+
 ### Escopo: o que E' TCF vs o que NAO E'
 
 - **E' TCF (core/integrado)**:
@@ -157,17 +184,34 @@ visiveis enquanto comprimido.
   - Naturezas opt-in (CPF/CNPJ/IP) — ADR-0015
   - PipelineConfig toggles
   - `build_schema` per-tabela (Fase 1+2 welded em src/tcf)
+  - SideOutputs (framework efeito colateral)
+  - Deteccao zero-cost de anomalias (sem arrumar) via SideOutputs
   - V2-A/B/C/D/J/K/L (roadmap v2.0, integrados ao formato)
-- **NAO e' TCF (ferramentas auxiliares EXTERNAS)**:
-  - Schema multi-tabela com FK/relacionamentos (T-RECOVER-SCHEMA-MULTI-TABLE,
-    vive em scripts/ ou pacote separado)
-  - LLM modo schema (T-RECOVER-LLM-SCHEMA-MODE, idem)
+- **NAO e' TCF (gadgets auxiliares EXTERNOS, paralelos)**:
+  - Schema gadget multi-tabela (T-RECOVER-SCHEMA-MULTI-TABLE): analisa
+    FK/relacionamentos/qualidade, **emite alertas, NUNCA arruma**.
+    Vive em scripts/ ou spin-off.
+  - LLM gadget (T-RECOVER-LLM-SCHEMA-MODE): coleta schema/stats,
+    formata em "LLM-binary" (token-otimizado, NAO human-friendly),
+    gera SQL a partir de pergunta de negocio, executa, output vai pro
+    TCF. **NAO toca TCF, NUNCA arruma dados**. Spin-off recomendado.
   - Phase 1 LLM benchmark (v0.5, em docs/findings/, historic acessorio)
   - Shaper/dataset_reader (tooling de dados em scripts/, nao algoritmo)
 
-Ferramentas auxiliares podem CONSUMIR output do TCF ou ALIMENTAR input
-do TCF, mas nao tem dependencia bidirecional. TCF processa
-`dict[str, list[str]]`, agnostico de origem.
+### Filosofia dos gadgets auxiliares
+
+- **Pequenos e focados** — NAO sao platform plays
+- **So' alertam, NUNCA arrumam** — output e' relatorio/sinal, dev/arquiteto
+  decide o que fazer
+- **Paralelos** — consomem SideOutputs em paralelo, sem bloquear TCF
+- **TCF e' agnostico de origem** — gadgets podem alimentar TCF
+  (preparacao limpa) ou consumir output do TCF (analise pos-compressao),
+  mas sem dependencia bidirecional
+- **Spin-off recomendado** quando crescer — evita bloat do pacote TCF
+
+A ideia: **pequenos gadgets pra manter qualidade do TCF ao maximo**,
+evitar lixo e borda, auxiliando quem lida com dados — sem assumir
+responsabilidade de corrigir.
 
 Ver [docs/theory/strategies/INDEX.md](docs/theory/strategies/INDEX.md)
 pro mapa segmentado de estrategias (preparacao pra otimizacao/binarizacao
