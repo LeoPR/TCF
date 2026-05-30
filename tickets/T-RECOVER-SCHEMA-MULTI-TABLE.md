@@ -1,68 +1,81 @@
 ---
-title: T-RECOVER-SCHEMA-MULTI-TABLE — Expandir schema builder pra relacionamentos multi-tabela
+title: T-RECOVER-SCHEMA-MULTI-TABLE — Ferramenta auxiliar de schema multi-tabela (EXTERNO ao TCF)
 status: de-prontidao
 priority: P2
 created: 2026-05-27
+updated: 2026-05-27 (escopo corrigido pelo owner: e' ferramenta auxiliar, NAO integrada ao TCF)
 blocked-by: []
 related:
-  - src/tcf/schema.py
-  - docs/theory/strategies/05-dispatch-formato.md
-  - tickets/T-CODE-SCHEMA-BUILDER.md
+  - src/tcf/schema.py  (build_schema atual e' per-tabela; este ticket NAO modifica src/tcf)
 ---
 
 # T-RECOVER-SCHEMA-MULTI-TABLE
 
-## Contexto
+## Contexto + ESCOPO (corrigido 2026-05-27)
 
-Owner mencionou (2026-05-27) que o schema builder atual (welded Fases 1+2,
-`build_schema → TableSchema/ColumnSchema`) e' subaproveitado. Proposta:
-**expandir pra avaliar relacionamentos entre tabelas separadas** — quando
-duas tabelas tem boa correlacao (FK, joins implicitos, colunas
-compartilhadas), o schema pode informar **ordem mais eficiente** de
-encode (multi-tabela aware), nao apenas por-coluna.
+**Este e' uma ferramenta AUXILIAR EXTERNA ao TCF**, NAO integrada ao
+algoritmo de compressao. Vive em `scripts/` ou eventualmente em pacote
+separado.
 
-## Hipotese / Objetivo
+Owner clarificou (2026-05-27) que `build_schema` (welded em src/tcf) e'
+**uma coisa**: parte do TCF, analisa schema per-tabela como entrada do
+encoder. Esta ferramenta de **multi-tabela com relacionamentos** e' **outra
+coisa**: utilitario autonomo que ajuda o usuario a entender/preparar dados
+ANTES de usar o TCF, ou totalmente independente de TCF.
 
-Schema multi-tabela detecta:
-- FK candidates (col_A.values ⊂ col_B.values com cardinalidade alta)
-- Colunas compartilhadas entre tabelas (mesmo nome+tipo+amostra)
-- Ordem otima de encode (tabelas "maes" antes de "filhas" pra max dedup
-  cross-table — pra quando V2-G "cross-column atom sharing" abrir)
+Sem relacao direta com o algoritmo. Sem dependencia bidirecional. TCF nao
+precisa dela; ela nao precisa do TCF (alem de eventualmente importar o
+`TableSchema` como tipo).
 
-Resultado: schema **estruturado**, nao apenas analitico, que orienta o
-encoder pra ordem/agrupamento melhor mesmo em tabelas separadas.
+## Proposta
+
+Ferramenta de analise de schemas multi-tabela:
+- Detecta FK candidates (col_A.values ⊂ col_B.values, cardinalidade alta)
+- Identifica colunas compartilhadas entre tabelas (nome+tipo+sample overlap)
+- Sugere ordem topologica de processamento (tabelas "mae" -> "filha")
+
+**Caso de uso autonomo**: usuario tem 9 CSVs, quer mapa do relacionamento
+entre eles antes de qualquer compressao/analise.
+
+**Caso de uso TCF-adjacent (opcional)**: se quiser, usuario pode usar essa
+ferramenta antes de chamar `encode()` em cada tabela. TCF nao se importa
+de onde vieram os dados ou em que ordem.
 
 ## Estado atual
 
-- Welded: `build_schema(data) → TableSchema` (Fases 1+2, ADR vinculado)
-- Fase 3 (auto-detect nature via NatureApplyStats) adiada (depende Pacote 7)
-- **NAO existe**: analise cross-table (FK, joins, ordem)
+- **Existe (em src/tcf)**: `build_schema(data) → TableSchema` per-tabela
+  (welded Fases 1+2). Permanece intocado.
+- **NAO existe**: analise cross-table (este ticket). Sera criado em
+  `scripts/schema_multi/` ou pacote separado.
 
-## Plano (futuro, pos-H-PERF-06-v2 + estudo owner)
+## Plano (futuro)
 
 ### Fase 1 — Detector de FK candidate
-- `detect_fk_candidates(tableA, tableB) → list[FKCandidate]`
-- Criterio: cardinalidade A.col ⊂ B.col, % match, distinct counts
-- Output enriquece TableSchema com .related_tables / .fk_candidates
+- `scripts/schema_multi/fk_detect.py` standalone
+- Input: dict[table_name, dict[col, list[values]]]
+- Output: list[FKCandidate(parent_table, parent_col, child_table, child_col, match_pct)]
 
 ### Fase 2 — Detector de colunas compartilhadas
-- `detect_shared_columns(tables: dict[str, TableSchema]) → SharedSchema`
-- Cross-table feature matching (nome, dtype, sample overlap)
+- `scripts/schema_multi/shared_cols.py`
+- Cross-table feature matching
 
-### Fase 3 — Plano de encode multi-tabela
-- `plan_encode_order(tables: dict, related: SharedSchema) → list[str]`
-- Topological order pra max dedup quando cross-table compartilha refs
+### Fase 3 — CLI utility
+- `python -m scripts.schema_multi analyze <dir-of-csvs>` produz relatorio
+- Markdown/json output; NAO chama TCF
+
+### (Opcional) Fase 4 — Spin-off
+- Decidir se vira pacote `tcf-schema-tools` separado pra evitar bloat do
+  pacote tcf principal
 
 ## Conexao
 
-- Schema builder atual (welded Fases 1+2)
-- T-CODE-SCHEMA-BUILDER.md (ticket pai, registra Fase 3 nature auto-detect)
-- V2-G cross-column atom sharing (ADR-0018) — pre-requisito do plano de
-  ordem fazer sentido
-- Filosofia: textual + explicavel; schema enriquecido permite TCF "ver"
-  o que esta comprimindo
+- **NAO toca** src/tcf/. Permanece em scripts/ ou spin-off.
+- Pode importar `TableSchema` do TCF como conveniencia de tipo (opcional)
+- NAO bloqueia nem desbloqueia features TCF
+- T-RECOVER-LLM-SCHEMA-MODE (relacionado, tambem auxiliar) — eventualmente
+  o LLM tool poderia consumir output desta
 
 ## Status
 
-**De prontidao** (registrado 2026-05-27). Atacar apos H-PERF-06-v2 Fase A
-+ owner estudar mapa de estrategias segmentado.
+**De prontidao** (registrado 2026-05-27, escopo corrigido). Atacar quando
+owner decidir; **NAO bloqueia roadmap TCF**.

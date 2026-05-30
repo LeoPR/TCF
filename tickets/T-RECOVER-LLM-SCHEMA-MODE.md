@@ -1,95 +1,96 @@
 ---
-title: T-RECOVER-LLM-SCHEMA-MODE — LLM mode pra gerar SQL a partir do schema
+title: T-RECOVER-LLM-SCHEMA-MODE — Ferramenta auxiliar LLM pra gerar SQL (EXTERNO ao TCF)
 status: de-prontidao
 priority: P3
 created: 2026-05-27
-blocked-by: [T-RECOVER-SCHEMA-MULTI-TABLE]
+updated: 2026-05-27 (escopo corrigido pelo owner: ferramenta auxiliar, NAO integrada ao TCF)
+blocked-by: []
 related:
-  - docs/findings/  (Phase 1 LLM Q01-Q38, historic v0.5)
-  - src/tcf/schema.py
-  - tickets/T-RECOVER-SCHEMA-MULTI-TABLE.md
+  - tickets/T-RECOVER-SCHEMA-MULTI-TABLE.md  (outra ferramenta auxiliar)
+  - docs/findings/  (Phase 1 LLM Q01-Q38 historic v0.5)
 ---
 
 # T-RECOVER-LLM-SCHEMA-MODE
 
-## Contexto
+## Contexto + ESCOPO (corrigido 2026-05-27)
 
-Owner mencionou (2026-05-27) que a infraestrutura LLM da Phase 1 (v0.5,
-arquivada em [docs/findings/](../docs/findings/) e [old/tcf/](../old/tcf/))
-pode ser recuperada com novo proposito: **modo schema LLM pra gerar SQL**.
+**Ferramenta AUXILIAR EXTERNA ao TCF**, sem relacao direta com o algoritmo.
+Vive em pacote separado ou utilitario standalone.
 
-Nao tem relacao direta com o algoritmo TCF (compressao), mas e' uma
-**ferramenta complementar**: dado um schema (do `build_schema`), o LLM
-gera SQL inteligente pra extrair dados; essa extracao mais inteligente
-alimenta o encoder TCF com input ja' otimizado (ex: ORDER BY que ajuda
-seq-RLE, JOIN que cria correlacao pra cross-table dedup).
+Owner clarificou (2026-05-27) que esta e' uma ferramenta complementar:
+dado um schema (de qualquer origem — pode ser do schema multi-tabela
+auxiliar OU de qualquer outra fonte), o LLM ajuda gerar SQL inteligente.
+TCF nao depende disso; isso nao depende de TCF (alem de eventualmente
+consumir o output de outras ferramentas).
 
-## Hipotese / Objetivo
+## Proposta
 
-**Fluxo proposto**:
+Modo schema-LLM:
 ```
-schema (TableSchema multi-tabela) → LLM com prompt schema-aware →
-SQL gerado (com ORDER BY, JOINs, projeções) → executa em SQLite/DuckDB →
-dados ordenados/joined → encode(dados) → TCF eficiente
+schema (qualquer formato compativel) → LLM com prompt schema-aware →
+SQL gerado (com ORDER BY, JOINs, projecoes) → executa em SQLite/DuckDB →
+dados extraidos
 ```
 
-Beneficio: ordenacao explicita melhora cadence detection (auto_cadence),
-JOINs pre-computados habilitam cross-table dedup futuro (V2-G).
+**Caso de uso autonomo**: usuario tem schema (de qualquer fonte), quer
+consultar via LLM sem escrever SQL na mao.
+
+**Caso de uso TCF-adjacent (opcional)**: dados extraidos podem ser input
+do `encode()`. TCF processa qualquer dict[str, list[str]], nao se importa
+de onde vieram.
 
 ## Estado atual
 
-- **Existe**: infraestrutura Phase 1 LLM em old/tcf/ + docs/findings/
-  (Q01-Q38 benchmark, modelos qualificados). Marcada `historic` mas
-  funcional.
+- **Existe (em old/tcf/ + docs/findings/)**: Phase 1 LLM benchmark Q01-Q38
+  (v0.5, marcado historic). Infraestrutura de qualified models + Ollama
+  client. NUNCA importado por src/tcf.
 - **Existe**: `pip install -e ".[eval]"` instala requests pra Ollama client
-- **NAO existe**: ponte entre schema TCF e LLM (prompt schema-aware,
-  validador SQL → schema)
+  (extra atual, nao usado pelo TCF core)
+- **NAO existe**: ponte LLM ↔ schema generico (este ticket)
 
 ## Plano (futuro)
 
-### Fase 0 — Reavaliar infraestrutura Phase 1
-- old/tcf/ e' v0.5 columnar (NAO usado pro algoritmo). Mas o eval module
-  + qualified models pode ser refrescado independente
-- Decidir: spin-off como pacote separado (`tcf-llm-bridge`)? Ou submodulo
-  opcional?
+### Fase 0 — Decisao arquitetural
+- **Onde vive este modulo?**:
+  - Opcao A: pacote totalmente separado `tcf-llm-tools` (PyPI proprio)
+  - Opcao B: extra opcional `pip install tcf[llm]` (mas no src/, isolado)
+  - Opcao C: scripts/ standalone, sem instalacao
+- Owner deve decidir antes de escrever codigo (vira ADR pequeno).
 
 ### Fase 1 — Prompt schema-aware
-- Template: "Given this schema {TableSchema.to_dict()}, write SQL to..."
-- Usar qualified models do Phase 1 (sem re-qualificacao se estaveis)
+- Template: "Given this schema {schema_dict}, write SQL to {intent}"
+- Reuso de qualified models do Phase 1 se estaveis
 
 ### Fase 2 — Validador SQL → schema
-- Parse SQL gerado, valida que projeções/joins fazem sentido pro schema
-- Feedback loop: se SQL invalido, re-prompt com diagnostico
+- Parse SQL gerado, valida contra schema
+- Feedback loop se SQL invalido
 
-### Fase 3 — Pipeline integrado
-- `extract_via_llm(schema, intent) → dataframe` em scripts/
-- Mede TCF efficiency com input extraido via LLM vs naive
+### Fase 3 — CLI utility ou API
+- `python -m tcf_llm_tools query <schema-file> "intent in natural language"`
+- Output: SQL + dataframe execucao
 
 ## Conexao
 
-- T-RECOVER-SCHEMA-MULTI-TABLE (pre-req: schema multi-tabela enriquecido
-  pra alimentar o LLM)
-- Phase 1 LLM benchmark (recursos existentes)
-- V2-G cross-column atom sharing (ADR-0018) — beneficiaria de input
-  JOINed pre-computado
-- Filosofia: TCF e' explicavel; schema+LLM e' ponte entre "intent humano"
-  e "compressao eficiente"
+- **NAO toca** src/tcf/
+- Pode consumir output de T-RECOVER-SCHEMA-MULTI-TABLE (outra ferramenta
+  auxiliar), mas nao depende formalmente
+- Reuso de infra v0.5 (old/tcf/ + docs/findings/), respeitando que e'
+  acessorio (CLAUDE.md NUNCA list: nao importar de old/tcf em src/tcf)
 
 ## Riscos
 
-- Mission creep: TCF e' lib de compressao, nao plataforma de query
-- Ollama/local-LLM dependency adiciona setup-friction
-- Reactivacao de codigo v0.5 (old/tcf/) pode confundir (NUNCA imports
-  destes em src/tcf)
+- Mission creep: TCF e' lib de compressao, nao plataforma LLM
+- Spin-off correto evita esse risco (Opcao A acima)
+- Ollama/local-LLM dependency e' setup-friction (opt-in resolve)
 
 ## Mitigations
 
-- Spin-off como **pacote separado** (`tcf-llm-bridge`) ou **modulo
-  opcional** em tcf[llm], importacao opt-in
-- Pure stdlib core; LLM client e' addon
+- **Spin-off recomendado** (Opcao A): pacote separado `tcf-llm-tools`
+  ou nome neutro `schema-llm-bridge` (sem amarrar a TCF)
+- Documentacao explicita: "esta ferramenta NAO faz parte do TCF; e'
+  utilitario complementar"
 
 ## Status
 
-**De prontidao** (registrado 2026-05-27). Bloqueado por
-T-RECOVER-SCHEMA-MULTI-TABLE (precisa schema multi-tabela primeiro).
-Atacar apos H-PERF-06-v2 + studio owner.
+**De prontidao** (registrado 2026-05-27, escopo corrigido). Atacar
+quando owner decidir; **NAO bloqueia roadmap TCF**.

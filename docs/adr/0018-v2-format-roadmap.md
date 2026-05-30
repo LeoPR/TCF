@@ -49,6 +49,60 @@ deixe de ser limbo (caracterizado + decidido em vez de esquecido).
 - **Propriedade forte**: garante "nunca pior que raw+delimitadores".
 - **Custo**: marcador novo no header multi-col; decoder ramifica por modo.
 
+### V2-L — Binarizacao em camadas (Parquet-like, INTERNO ao TCF)
+
+**Requisito registrado pelo owner 2026-05-27** (clarificacao escopo).
+
+TCF tem um formato canonical TEXTUAL (#TCF.6) — pilar de explicabilidade
+(CLAUDE.md filosofia). V2-L propoe **camada interna de binarizacao
+opcional**, integrada ao TCF (NAO ferramenta externa), inspirada em como
+Parquet, csv e json fazem decisoes internas de representacao:
+
+- **Parquet**: row groups + column chunks + page headers + dictionary
+  pages, tudo binario, com metadata estruturada em camadas
+- **csv/json**: tem suas proprias decisoes (delimitadores, quoting,
+  escape, encoding) — sao formatos com escolhas internas, nao "puramente
+  textual"
+- **TCF v2-L**: HCC body (e talvez outros niveis) podem ter representacao
+  binaria opt-in como **camada de transport**, mantendo a opcao textual
+  como canonical observavel
+
+Concretamente:
+- **HCC body binarizado**: marcadores RLE/seq-RLE/refs em bytes packed
+  em vez de ASCII. Reduz IO mas preserva semantica (RLE conta de N items
+  continua deduzivel sem expandir, igual ao textual).
+- **Header textual mantido** (pra inspecao + roteamento): `#TCF.6 M` ou
+  `#TCF.7 MB` (M=multi, B=binary body) — decoder ramifica.
+- **Decoder unificado**: le qualquer um dos modos pelo shebang.
+- **Encoder opcional**: usuario escolhe `encode(table, body_format="text"|"binary")`
+  default="text" pra preservar filosofia.
+
+Por que **INTERNO** ao TCF (e nao external tool):
+- E' decisao de **representacao do mesmo dado**, igual Parquet decide
+  page encoding
+- Preserva semantica (RLE continua mostrando grupos sem expandir)
+- E' otimizacao de IO/disk/web (V2-K territory), nao mudanca de algoritmo
+- Coerencia: TCF tem multiplos modos de representacao, todos sob mesma
+  filosofia (explicabilidade + grupos visiveis)
+
+Por que NAO competir com gzip/brotli/zstd:
+- V2-L NAO e' compressor binario generico — e' representacao binaria
+  da MESMA estrutura logica do TCF
+- Aplicar brotli sobre TCF-binary continua sendo opcao (transport layer
+  composto)
+- O posicionamento "areas explicaveis vs areas cinzas" se mantem: TCF
+  explica O QUE comprimiu (refs, RLE, naturezas), mesmo em binary
+
+**Conecta com**:
+- V2-J streaming (V2-L binary e' transport eficiente pra stream)
+- V2-K disk zero-copy (V2-L binary mmap-friendly)
+- HCC core (subsistema 02-hcc-core.md) — maior beneficio da binarizacao
+- ADR-0017 freeze v1.0 — V2-L e' v2.0 (format change opt-in)
+
+**Bloqueador atual**: precisa fechar V2-J/V2-K primeiro (streaming + disk
+definem REQUISITOS de binary representation). Sem isso, binarizar HCC
+isolado nao tem caso de uso forte.
+
 ### V2-J — Pipeline streaming online (low-latency seriado)
 
 **Requisito registrado pelo owner 2026-05-27**.

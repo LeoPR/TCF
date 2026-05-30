@@ -137,13 +137,37 @@ visiveis enquanto comprimido.
 2. **Speed-first dentro do espaco textual** — otimizacoes de algoritmo,
    pre-pass, indices (trigrama/Patricia), compilacao Cython sao todas
    valoradas. Mas o output observavel permanece textual.
-3. **HCC binarizacao planejada (post-disk/streaming) e' TRANSPORT
-   OPTIMIZATION pra IO/disk/web** — NAO um competidor de compressao
-   binaria. Binario seria sub-formato pra trafego/persistencia eficiente;
-   o formato canonical (`#TCF.6`) segue textual.
+3. **Binarizacao em camadas (V2-L em ADR-0018) e' INTERNA ao TCF**,
+   integrada ao algoritmo. Inspiracao: Parquet faz row groups + column
+   chunks + page headers em binario; csv/json tem decisoes proprias
+   internas. TCF tem o direito a uma representacao binaria do MESMO
+   conteudo logico (HCC body packed em bytes), preservando semantica
+   (RLE continua mostrando grupos sem expandir). Header textual mantido
+   pra inspecao + roteamento. NAO compete com gzip/brotli/zstd (esses
+   sao compressao binaria generica; V2-L e' representacao binaria
+   estruturada do TCF, ainda explicavel).
 4. **Anti-pattern explicito**: buffer-over-buffer / cache-over-cache.
    Pipeline streaming (V2-J/V2-K em ADR-0018) prioriza latencia
    (time-to-first-byte) e zero-copy IO.
+
+### Escopo: o que E' TCF vs o que NAO E'
+
+- **E' TCF (core/integrado)**:
+  - Pipeline canonical (CAMADAS 0-3): pre-pass, OBAT, HCC, multi-col
+  - Naturezas opt-in (CPF/CNPJ/IP) — ADR-0015
+  - PipelineConfig toggles
+  - `build_schema` per-tabela (Fase 1+2 welded em src/tcf)
+  - V2-A/B/C/D/J/K/L (roadmap v2.0, integrados ao formato)
+- **NAO e' TCF (ferramentas auxiliares EXTERNAS)**:
+  - Schema multi-tabela com FK/relacionamentos (T-RECOVER-SCHEMA-MULTI-TABLE,
+    vive em scripts/ ou pacote separado)
+  - LLM modo schema (T-RECOVER-LLM-SCHEMA-MODE, idem)
+  - Phase 1 LLM benchmark (v0.5, em docs/findings/, historic acessorio)
+  - Shaper/dataset_reader (tooling de dados em scripts/, nao algoritmo)
+
+Ferramentas auxiliares podem CONSUMIR output do TCF ou ALIMENTAR input
+do TCF, mas nao tem dependencia bidirecional. TCF processa
+`dict[str, list[str]]`, agnostico de origem.
 
 Ver [docs/theory/strategies/INDEX.md](docs/theory/strategies/INDEX.md)
 pro mapa segmentado de estrategias (preparacao pra otimizacao/binarizacao
