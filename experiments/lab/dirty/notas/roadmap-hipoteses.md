@@ -284,7 +284,26 @@ prototipo clean (`experiments/lab/clean/EXP-XXX-*`) e' pra testar
 Atualizar quando: hipotese confirmada/refutada/movida-de-status, OU
 nova hipotese identificada.
 
-**Ultima atualizacao**: 2026-05-27 — **Requisitos owner: streaming low-latency + disk zero-copy**
+**Ultima atualizacao**: 2026-05-27 — **H-PERF-06 REFRAMED (lcp/lcs descartado, HCC detector novo alvo)**
+
+Workflow 5 dimensoes (profile + 3 research + prototype) revelou:
+- **H-PERF-06 original (compilar lcp/lcs)**: **refutada-real-world**.
+  Profile cProfile em retail 20k mostra lcp/lcs = 1.8% do encode time
+  (Amdahl: 5x speedup → 1.018x overall). Prototipo Cython mediu 6.23x
+  em lcp_len isolado, mas em pipeline real e' ruido.
+- **HCC `_detect_compositions` e' o real bottleneck**: 88% do tempo
+  (17.06s de 19.4s) em syntax.py:246-251 — O(L^2) sub-tuple enumeration
+  + Counter.update por iteracao.
+- **H-PERF-06-v2 (proposta)**: target `_detect_compositions` em 3 fases:
+  (A) algoritmica prune+early-term (~2-3x overall, risco byte-canonical);
+  (B) Cython no inner loop (~1.5-2x overall, format-safe);
+  (C) V2-J streaming bypassa HCC iterativo (v2.0).
+- **Cython como tool**: validado (6.23x microbench em Windows MSVC),
+  infraestrutura reutilizavel pra Patricia (V2-C) tambem.
+
+Estudo completo: [docs/theory/h-perf-06-exploration.md](../../../docs/theory/h-perf-06-exploration.md).
+
+**Atualizacao anterior**: 2026-05-27 — **Requisitos owner: streaming low-latency + disk zero-copy**
 
 Owner registrou (2026-05-27) dois requisitos pra v2.0+ alem dos ja
 listados em ADR-0018:
