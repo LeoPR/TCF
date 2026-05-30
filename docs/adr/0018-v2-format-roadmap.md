@@ -49,6 +49,63 @@ deixe de ser limbo (caracterizado + decidido em vez de esquecido).
 - **Propriedade forte**: garante "nunca pior que raw+delimitadores".
 - **Custo**: marcador novo no header multi-col; decoder ramifica por modo.
 
+### V2-J — Pipeline streaming online (low-latency seriado)
+
+**Requisito registrado pelo owner 2026-05-27**.
+
+Mecanismo de envio seriado dos processos onde cada etapa do pipeline (pre-pass
+→ OBAT → HCC → seq-RLE → multi-col header/body) libera saida o mais rapido
+possivel pra etapa seguinte, otimizando **latencia** (time-to-first-byte e
+time-between-bytes) ao inves de throughput puro.
+
+Caso de uso: envio online (HTTP streaming, websocket, gRPC stream), onde o
+consumidor comeca a processar antes do encode completo terminar.
+
+Diferencas vs paralelismo atual (T-CODE-ENCODER-MANAGER Fase 1b, ProcessPool):
+- Atual: paraleliza COLUNAS (throughput); cada coluna espera todas etapas
+- V2-J: paraleliza ETAPAS pipeline da MESMA coluna; cada etapa emite chunks
+  conforme processa
+
+Implementacao plausivel:
+- Generators ou async iterators em vez de listas completas
+- HCC seq-RLE precisa janela deslizante (atualmente full body em memoria)
+- Multi-col header com sizes "ainda nao conhecidos" (length-prefix por chunk?
+  trailer com sizes finais? ou header re-escrito ao fim?)
+- Output sink protocol: yields chunks bytes, consumidor pode flush conforme chegam
+
+Bloqueador formato: header `# size=name,...` atual exige saber sizes ANTES
+do body. Streaming exigiria sub-formato (length-prefixed chunks, ou trailer,
+ou size deferred) → v2.0 format change.
+
+Conecta com: O-FMT-08 (Streaming encoder, design v0.4 mencionado em workbench),
+T-CODE-OUTPUT-SINKS (P2), T-CODE-ENCODER-MANAGER Fases 2+ (sinks compostos).
+
+### V2-K — Disk write + fast recovery, minimo de buffer-over-buffer
+
+**Requisito registrado pelo owner 2026-05-27**.
+
+Mesmo pipeline de V2-J otimizado pra escrita em disco + recuperacao rapida,
+**sem duplicacao de camadas de memoria** (anti-pattern buffer-over-buffer /
+cache-over-cache).
+
+Caso de uso: persistencia local de tabelas grandes, leitura preguicosa de
+colunas selecionadas (column-pruning sem ler tudo).
+
+Tecnicas plausiveis:
+- Layout multi-col com **offsets fixos no header** (CSV-like seek; ja' temos
+  `size=name` mas atualmente exige ler header inteiro pra mapear)
+- mmap pra leitura zero-copy (cada coluna e' um slice mmap, decoder opera
+  direto no buffer mapeado)
+- Write: io.RawIOBase/BufferedWriter unico (sem `text.encode()` que copia tudo)
+- Compatibilidade gzip/brotli/zstd como transport: stream-compress no fly
+  (compressed offset != logical offset; trailer ou block-aligned)
+
+Bloqueador: `_encode_multi` atualmente concatena bytes em memoria; `decode`
+le tudo. Refactor pra streaming I/O com offsets pra column-pruning.
+
+Conecta com: O-FMT-08 (streaming), O-FMT-14 (header desacoplavel — owner
+admitia "se contenta com atual"), T-CODE-OUTPUT-SINKS (FileSink/MMapSink).
+
 ### V2-C-Patricia — Patricia trie / GST como indice OBAT (H-TH-02)
 
 Substitui hash trigrama (ADR-0009) por Patricia/Generalized Suffix Tree.

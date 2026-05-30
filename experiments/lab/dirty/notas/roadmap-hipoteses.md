@@ -284,7 +284,25 @@ prototipo clean (`experiments/lab/clean/EXP-XXX-*`) e' pra testar
 Atualizar quando: hipotese confirmada/refutada/movida-de-status, OU
 nova hipotese identificada.
 
-**Ultima atualizacao**: 2026-05-27 — **H-TH-02 Patricia estudada (workflow 4 dims)**
+**Ultima atualizacao**: 2026-05-27 — **Requisitos owner: streaming low-latency + disk zero-copy**
+
+Owner registrou (2026-05-27) dois requisitos pra v2.0+ alem dos ja
+listados em ADR-0018:
+- **V2-J streaming online seriado** (low-latency, time-to-first-byte):
+  cada etapa do pipeline libera saida o mais rapido possivel; foco
+  latencia, nao throughput. Exige sub-formato pra header com sizes
+  deferred (chunks ou trailer).
+- **V2-K disk write + fast recovery sem buffer-over-buffer**: layout
+  com offsets fixos pra column-pruning seek-based; mmap zero-copy;
+  writer unico sem text.encode() copia full. Anti-pattern explicito:
+  cache-over-cache / buffer-over-buffer.
+
+Ambos registrados em [ADR-0018 V2-J/V2-K](../../../docs/adr/0018-v2-format-roadmap.md).
+Conectam com O-FMT-08 (streaming), O-FMT-14 (header desacoplavel),
+T-CODE-OUTPUT-SINKS, T-CODE-ENCODER-MANAGER Fase 2+. Reabertura quando
+v2.0 abrir.
+
+**Atualizacao anterior**: 2026-05-27 — **H-TH-02 Patricia estudada (workflow 4 dims)**
 
 - **H-TH-02** (Patricia trie generalizada, registrada 2026-05-13 NUNCA testada):
   estudo de viabilidade completo em [docs/theory/patricia-trie-exploration.md](../../../docs/theory/patricia-trie-exploration.md).
