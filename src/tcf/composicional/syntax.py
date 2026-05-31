@@ -270,9 +270,27 @@ class M8AVirtualRefsSyntax(Syntax):
             #     (b) virtual em pos > 0 MAS alias_first_line < sub_first_line
             #         (= alias e' RESOLVIDA antes do sub's def emission,
             #          entao inline expansion usa final_id direto).
+            # H-PERF-06-v2 (ADR-0019): cheap upper-bound prune + running-max
+            # inline. Antes de chamar _estimate_baseline_chars (caro, ~18% do
+            # encode), descarta subs cujo net NAO pode bater o best ja' visto.
+            # Safety byte-canonical: o upper bound e' conservador —
+            #   net = (R-1)*(baseline - n_tam), baseline <= K*n_est_ub + (K-1),
+            #   n_tam >= n_tam_min (K>=2). n_est_ub >= n_est de
+            #   _estimate_baseline_chars e n_tam_min <= n_tam => ub_net >= net.
+            # Logo so' pula candidatos que tambem perderiam o pick. Ordem do
+            # Counter preservada (tie-break first-wins identico ao 2-pass).
+            n_est_ub = max(2, len(str(atom_count + comp_acc_k + len(contagem) + 9)))
+            n_tam_min = len(str(atom_count + comp_acc_k + 1))
+
             candidates = []
+            best = None
+            best_net = 0
             for sub, R in contagem.items():
                 if R < 2:
+                    continue
+                K = len(sub)
+                ub_net = (R - 1) * (K * n_est_ub + (K - 1) - n_tam_min)
+                if ub_net <= best_net:
                     continue
                 virtual_count = sum(1 for x in sub if x < 0)
                 if virtual_count > 1:
@@ -287,19 +305,16 @@ class M8AVirtualRefsSyntax(Syntax):
                             continue
                 baseline = self._estimate_baseline_chars(
                     sub, atom_count, comp_acc_k)
-                K = len(sub)
                 n_tam = len(str(atom_count + comp_acc_k + K - 1))
                 if baseline <= n_tam:
                     continue
-                candidates.append(((R - 1) * (baseline - n_tam),
-                                    sub, R, baseline, n_tam))
-
-            # Pick: ordem Counter (tie-break = primeiro inserido)
-            best = None
-            best_net = 0
-            for net, sub, R, baseline, n_tam in candidates:
+                net = (R - 1) * (baseline - n_tam)
+                candidates.append((net, sub, R, baseline, n_tam))
+                # Running-max inline; tie-break preservado (> estrito => primeiro
+                # inserido na ordem do Counter vence, identico ao 2-pass original).
                 if net > best_net:
-                    best_net, best = net, (sub, R)
+                    best_net = net
+                    best = (sub, R)
 
             iter_info = {
                 'n_pairs': sum(1 for v in contagem.values() if v >= 2),

@@ -201,8 +201,14 @@ HCC, lcp/lcs ja' otimizadas seriam bonus +0.5%.
 
 - **H-PERF-06 original**: status `refutada-real-world` (alvo lcp/lcs
   Amdahl-blocked).
-- **H-PERF-06-v2 (proposta)**: alvo `_detect_compositions`, Fase A
-  algoritmica + Fase B Cython. Registrar como nova hipotese.
+- **H-PERF-06-v2 Fase A**: status `welded` (2026-05-31, ADR-0019).
+  Candidato #15 (cheap upper-bound prune + running-max inline) weldado em
+  `_detect_compositions`. Byte-canonical preservado (suite 269 verdes +
+  gate real-world); `_estimate_baseline_chars` 87% menos chamadas; speedup
+  1.22-1.35x. Lab: `experiments/lab/dirty/2026-05-27-h-perf-06-v2-fase-a`
+  (geracao) + `2026-05-31-regression-real-world` (gate + re-validacao).
+- **H-PERF-06-v2 Fase B (Cython)**: `aberta`. Alvo `_detect_compositions`
+  + `_estimate_baseline_chars` pra romper o teto Amdahl puro-Python (~1.8x).
 - **Cython infrastructure**: estabelecida (Cython 3.0+ + MSVC funciona;
   hatch-cython integra com pyproject atual; pure-Python fallback design
   conhecido). Reutilizavel pra Patricia (V2-C) e _detect_compositions
