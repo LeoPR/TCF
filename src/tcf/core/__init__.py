@@ -6,7 +6,7 @@ de prefixo (LCP) + sufixo (LCS) contra strings anteriores.
 Saida: lista de tokens por string (`TokLit`, `TokRefPref`, `TokRefSuf`).
 
 Modulo `online.py` e' copia byte-exata de
-`experiments/lab/dirty/M0-fase-exploratoria-inicial/2026-05-11-16-online-cleanup/online.py`
+`experiments/lab/dirty/old/M0-fase-exploratoria-inicial/2026-05-11-16-online-cleanup/online.py`
 (codnome de origem: `alg16`, intocado desde 2026-05-11).
 
 Modulo `syntax_base.py` define a interface `Syntax` que a camada

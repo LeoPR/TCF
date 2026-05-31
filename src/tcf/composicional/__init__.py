@@ -9,7 +9,7 @@ compacto via:
 - Output: sem brackets, LF only
 
 `syntax.py` e' adaptacao byte-exata em logica de
-`experiments/lab/dirty/2026-05-16-M8-virtual-refs-clean-output/M8-A-detector-unificado/syntax.py`
+`experiments/lab/dirty/old/2026-05-16-M8-virtual-refs-clean-output/M8-A-detector-unificado/syntax.py`
 (codnome de origem: `M8.A`).
 
 Adaptacoes vs original (welding step 2, 2026-05-17):

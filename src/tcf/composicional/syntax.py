@@ -16,7 +16,7 @@ Convencao output: sem brackets, single LF.
 from collections import Counter, defaultdict
 
 # Welding step 2 (2026-05-17): adaptado de
-# experiments/lab/dirty/2026-05-16-.../M8-A-detector-unificado/syntax.py.
+# experiments/lab/dirty/old/2026-05-16-.../M8-A-detector-unificado/syntax.py.
 # Apenas estes 2 imports mudaram (path do dirty para src/tcf/core/);
 # logica de encode/decode permanece byte-exata. Validado em M12.
 from tcf.core.online import TokLit, TokRefPref, TokRefSuf
@@ -432,6 +432,14 @@ class M8AVirtualRefsSyntax(Syntax):
                 if kind == 'lit':
                     if prev_type == 'lit':
                         parts.append('*')
+                    elif prev_type == 'refs' and p[1] and p[1][0] in (',', '~'):
+                        # Bug fix 2026-05-19 (ADR-0007): separator `*` quando
+                        # ref->lit transition e lit comeca com `,` ou `~`.
+                        # Sem o separator, parser do decoder entra ref mode
+                        # em "1,..." e consome o `,` como continuacao do ref
+                        # expression, perdendo o `,` literal. Descoberto em
+                        # EXP-013 TPC-H (p_comment 'pending, bold' -> 'pending bold').
+                        parts.append('*')
                     state['current_id'][0] += 1
                     prov_to_final[p[2]] = state['current_id'][0]
                     text_emit, prev_lit_term_digit = self._escape_lit(p[1])
@@ -726,8 +734,15 @@ class M8AVirtualRefsSyntax(Syntax):
         nos_decl = []
         saida = []
         for raw in tcf_text.splitlines():
-            linha = raw.strip()
-            if not linha or linha in ("[", "]"):  # back-compat
+            # Bug fixes 2026-05-18 (EXP-012 + EXP-013):
+            # 1. NAO strip — strip removia leading/trailing whitespace
+            #    de literais (descoberto em TPC-H region/nation comments
+            #    com trailing space).
+            # 2. NAO skipar empty linha — representa string vazia
+            #    legitima (encoder emite body.append('') quando lit e' "").
+            # Brackets `[`/`]` ainda skipados pra back-compat de formato antigo.
+            linha = raw
+            if linha in ("[", "]"):
                 continue
             if linha.startswith("*") and "|" in linha:
                 bar = linha.find("|")
