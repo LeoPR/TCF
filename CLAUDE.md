@@ -122,6 +122,14 @@ Se algum **NAO** → marcar `confirmada-empirica` com ressalva ou
 Ver [`revisao-conceitual-2026-05-21.md`](experiments/lab/dirty/notas/revisao-conceitual-2026-05-21.md)
 pra classificacao A/B/C das hipoteses existentes.
 
+**GATE byte-canonical real-world (2026-05-31, T-REGRESSION-REAL-WORLD)**:
+mudanca que toca HCC `_detect_compositions` / pre-pass / qualquer prune
+algoritmico **DEVE** passar `tests/test_real_world_snapshots.py` (colunas
+free-text reais — retail Description/StockCode, lineitem l_comment — regime
+`n_tam_est>=3`). O mini-suite D1-D9 + D17a sozinho NAO basta: candidato
+#03 (prune-k-03) passou D1-D9 + D17a mas regrediu +0.59% em real-world.
+Welding de prune so' apos os DOIS suites verdes.
+
 ## FILOSOFIA DE DESIGN (registrada 2026-05-27, reforco do owner)
 
 TCF nao compete com compressores binarios (gzip, brotli, zstd) — esses

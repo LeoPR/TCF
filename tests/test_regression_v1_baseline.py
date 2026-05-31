@@ -9,9 +9,10 @@ Estrategia (Beizer 1995 — characteristic outputs):
 - D1-D9: 9 datasets sinteticos single-col (M10 baseline = 1523B total)
 - D17a: 1 dataset sintetico multi-col (322B INVARIANT)
 
-Datasets reais (Adult, TPC-H, wine, beijing, retail) NAO sao baseline
-formal aqui — variam com fonte externa (Z:/). Suite separada em
-test_real_world_snapshots.py (skip se Z: indisponivel).
+Regressao byte-canonical REAL-WORLD (colunas free-text, regime
+n_tam_est>=3) vive em test_real_world_snapshots.py — fixtures committadas
+em datasets/samples/ (frozen, portaveis, NAO dependem de Z:). Gate
+obrigatorio pra mudancas em HCC/prune (T-REGRESSION-REAL-WORLD, 2026-05-31).
 """
 
 from __future__ import annotations

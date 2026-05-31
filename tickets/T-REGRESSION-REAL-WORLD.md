@@ -1,8 +1,9 @@
 ---
 title: T-REGRESSION-REAL-WORLD — Estender regression suite para amostras real-world (gate prune algoritmico)
-status: open
+status: closed-done
 priority: P1
 created: 2026-05-30
+closed: 2026-05-31
 blocked-by: []
 related:
   - tests/test_regression_v1_baseline.py  (mini-suite atual, D1-D9 + D17a)
@@ -85,14 +86,33 @@ Adicionar em `tests/test_regression_v1_baseline.py`:
 - Se OK → ABRIR ticket H-PERF-06-v2-T01 (welding)
 - Se NOK → registrar como segundo caso da licao "mini-suite insuficiente"
 
+## Resolucao (2026-05-31)
+
+Implementado em `experiments/lab/dirty/2026-05-31-regression-real-world/`.
+Desvio do plano original (melhor): em vez de amostras fixed-seed via shaper
++ `@pytest.mark.real_world` (skip se Z: ausente), usei **fixtures committadas
+deterministicas** (primeiros 2000 valores de colunas free-text) — portaveis,
+sem dependencia de Z:, sem shaper (que ainda nao tem aprovacao estatistica,
+ver T-SHAPER-SCIENTIFIC-GATING). Regression fixture precisa ser ESTAVEL, nao
+estatisticamente representativa.
+
+Achado: amostras de 100 linhas (as committadas pre-existentes) NAO discriminam
+#03 — mesmo blind spot do mini-suite. Colunas categoricas low-card (adult)
+tambem nao. So' free-text >=1000 linhas atinge o regime. Fixtures escolhidas
+(2000 linhas, provadas discriminantes):
+- retail Description (27581B), retail StockCode (11437B), lineitem l_comment (50598B)
+
+#15 (topK-heap) confirmado byte-safe nas 3 — Fase 4 concluida, welding
+desbloqueado (abrir H-PERF-06-v2-T01).
+
 ## Criterio de aceite
 
-- [ ] Amostras fixed-seed de Adult, TPC-H, online-retail escolhidas +
-      documentadas (script reprodutivel)
-- [ ] Bytes-count INVARIANT medidos e congelados em test_regression_v1_baseline.py
-- [ ] Tests passam com baseline atual (sem mudanca em src/tcf)
-- [ ] ADR/CLAUDE.md atualizado pra documentar o gate
-- [ ] #15 re-validado (gate de Fase A pos-welding)
+- [x] Fixtures deterministicas committadas + gerador reproduzivel documentado
+- [x] Bytes-count frozen em `tests/test_real_world_snapshots.py` (7 testes verdes)
+- [x] Tests passam com baseline atual (sem mudanca em src/tcf)
+- [x] CLAUDE.md atualizado (gate em "Antes de declarar confirmada-empirica")
+- [x] #15 re-validado byte-safe nas fixtures real-world (Fase 4)
+- [x] Fixtures PROVAM poder discriminante (catch #03: +549/+92/+427)
 
 ## Conexao
 
