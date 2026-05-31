@@ -773,3 +773,19 @@ class M8AVirtualRefsSyntax(Syntax):
                 nos_decl.append(s_no)
             saida.extend([s_no] * count)
         return saida
+
+
+# ---------------------------------------------------------------------------
+# H-PERF-06-v2 Fase B (ADR-0020): acelerador Cython OPCIONAL de
+# _detect_compositions. Se a extensao compilada (tcf._core.detect) estiver
+# presente, substitui o metodo pure-Python acima por ela — output byte-identico
+# (validado: D1-D9=1523B, D17a=322B, fixtures real-world; ~2.1-2.3x mais rapido).
+# Senao (install sem compilador), fallback silencioso pro pure-Python — o
+# pacote funciona identico, so' mais lento. NUNCA falha por ausencia da extensao.
+# ---------------------------------------------------------------------------
+try:  # pragma: no cover - depende de build opcional
+    from tcf._core.detect import _detect_compositions as _detect_compositions_cy
+    M8AVirtualRefsSyntax._detect_compositions = _detect_compositions_cy
+    M8AVirtualRefsSyntax._detect_compositions_accelerated = True
+except Exception:  # ImportError ou falha de carga da extensao
+    M8AVirtualRefsSyntax._detect_compositions_accelerated = False

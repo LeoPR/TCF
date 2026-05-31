@@ -25,6 +25,12 @@ output/
 # Scratch / profiling (regenerable; conclusoes consolidadas em docs/theory/)
 tmp/
 
+# Cython acelerador compilado (gerado; fonte versionada e' o .pyx)
+src/tcf/_core/*.c
+src/tcf/_core/*.pyd
+src/tcf/_core/*.so
+src/tcf/_core/*.html
+
 # Experiment results (large, regenerable)
 experiments/results/
 experiments/scratch/

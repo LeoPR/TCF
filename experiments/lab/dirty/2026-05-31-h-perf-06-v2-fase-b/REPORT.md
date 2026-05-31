@@ -1,7 +1,10 @@
-# H-PERF-06-v2 Fase B — porte Cython de _detect_compositions (prototype)
+# H-PERF-06-v2 Fase B — porte Cython de _detect_compositions
 
-> Prototype **validado** no dirty lab. `src/tcf` e `pyproject` NÃO tocados —
-> o weld depende de decisão de packaging do owner (ver fim).
+> **WELDED 2026-05-31 (ADR-0020)** como acelerador OPCIONAL. Prototype deste
+> lab portado p/ `src/tcf/_core/detect.pyx` + fallback pure-Python silencioso
+> em `composicional/syntax.py` + hook de build best-effort. Owner escolheu
+> "acelerador opcional + fallback silencioso". src/tcf intocado além do
+> acelerador (com aprovação).
 
 ## Re-profile pós-weld (decisivo) — `00-reprofile-postweld/`
 

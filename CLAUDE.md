@@ -33,6 +33,11 @@ Multi-column basico em EXP-011.
   - `auto_min_len.py` — detect_min_len (ADR-0010, H-DA-11)
   - `column_features.py` — ColumnFeatures + analyze_column (H-DA-11c)
   - `encoder.py`, `decoder.py` — API publica (pipeline delta-aware)
+  - `_core/detect.pyx` — acelerador Cython OPCIONAL de `_detect_compositions`
+    (ADR-0020). Fallback pure-Python silencioso em `composicional/syntax.py`
+    (byte-identico). Build best-effort via `hatch_build.py`; `.pyd/.c/build`
+    sao gerados (gitignored). `_core/` faz parte de src/tcf (NAO MODIFICAR
+    sem aprovacao). Manter `.pyx` e fallback byte-equivalentes.
 - `scripts/` — ferramentas de suporte (NAO faz parte do TCF-CORE)
   - `dataset_reader.py` — **le datasets canonicos do hub SQLite**
   - `shaper/` — **sampler multidimensional** (volume, schema, join,
