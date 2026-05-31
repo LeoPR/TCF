@@ -22,6 +22,9 @@ htmlcov/
 # Output artifacts (generated, not source)
 output/
 
+# Scratch / profiling (regenerable; conclusoes consolidadas em docs/theory/)
+tmp/
+
 # Experiment results (large, regenerable)
 experiments/results/
 experiments/scratch/
