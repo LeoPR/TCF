@@ -1,0 +1,67 @@
+[variant-profile] dataset = Z:\tcf-data\external\online-retail\online_retail.csv
+[variant-profile] n_rows alvo = 20000
+[variant-profile] carregado: 8 colunas, 20000 linhas
+[variant-profile] total chars dado = 1606263
+[variant-profile] iniciando profile de encode(...)
+[variant-profile] encode OK. bytes saida = 413648
+[variant-profile] profile salvo em C:\Users\leona\OneDrive\Documents\Projects\Acadêmicos\TCF\experiments\lab\dirty\2026-05-27-h-perf-06-v2-fase-a\02-prune-k-02-counter-aware-min-baseline\variant.prof
+[variant-profile] TOTAL_TIME_SEC = 19.2985
+         20055981 function calls (20055942 primitive calls) in 19.299 seconds
+
+   Ordered by: cumulative time
+   List reduced from 113 to 20 due to restriction <20>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+        1    0.002    0.002   19.301   19.301 C:\Users\leona\OneDrive\Documents\Projects\Acadêmicos\TCF\src\tcf\encoder.py:53(encode)
+        1    0.062    0.062   19.299   19.299 C:\Users\leona\OneDrive\Documents\Projects\Acadêmicos\TCF\src\tcf\multi.py:40(_encode_multi)
+        1    0.003    0.003   19.188   19.188 C:\Users\leona\OneDrive\Documents\Projects\Acadêmicos\TCF\src\tcf\multi.py:114(_encode_columns_serial)
+        8    0.029    0.004   19.185    2.398 C:\Users\leona\OneDrive\Documents\Projects\Acadêmicos\TCF\src\tcf\encoder.py:117(_encode_column)
+        8    0.048    0.006   18.613    2.327 C:\Users\leona\OneDrive\Documents\Projects\Acadêmicos\TCF\src\tcf\composicional\hcc_seqrle.py:293(encode)
+        8    0.004    0.001   18.179    2.272 C:\Users\leona\OneDrive\Documents\Projects\Acadêmicos\TCF\src\tcf\composicional\syntax.py:646(encode)
+        8   10.508    1.313   16.970    2.121 C:\Users\leona\OneDrive\Documents\Projects\Acadêmicos\TCF\experiments\lab\dirty\2026-05-27-h-perf-06-v2-fase-a\02-prune-k-02-counter-aware-min-baseline\syntax_variant.py:225(_detect_compositions)
+   289482    1.794    0.000    3.445    0.000 C:\Users\leona\OneDrive\Documents\Projects\Acadêmicos\TCF\src\tcf\composicional\syntax.py:364(_estimate_baseline_chars)
+  9818322    1.936    0.000    1.936    0.000 {built-in method builtins.len}
+  4188830    1.150    0.000    1.150    0.000 {method 'append' of 'list' objects}
+   458042    0.493    0.000    0.848    0.000 {method 'extend' of 'list' objects}
+   299141    0.345    0.000    0.674    0.000 {built-in method builtins.sum}
+        8    0.193    0.024    0.434    0.054 C:\Users\leona\OneDrive\Documents\Projects\Acadêmicos\TCF\src\tcf\composicional\syntax.py:151(_tokenize_pieces)
+        6    0.064    0.011    0.382    0.064 C:\Users\leona\OneDrive\Documents\Projects\Acadêmicos\TCF\src\tcf\core\online.py:179(processar)
+        8    0.110    0.014    0.381    0.048 C:\Users\leona\OneDrive\Documents\Projects\Acadêmicos\TCF\src\tcf\composicional\syntax.py:391(_emit_body)
+        8    0.073    0.009    0.380    0.048 C:\Users\leona\OneDrive\Documents\Projects\Acadêmicos\TCF\src\tcf\composicional\hcc_seqrle.py:186(compact_body)
+  1007951    0.346    0.000    0.346    0.000 C:\Users\leona\OneDrive\Documents\Projects\Acadêmicos\TCF\src\tcf\composicional\syntax.py:381(<genexpr>)
+        8    0.049    0.006    0.263    0.033 C:\Users\leona\OneDrive\Documents\Projects\Acadêmicos\TCF\src\tcf\composicional\hcc_seqrle.py:150(detect_seq_runs)
+     5708    0.009    0.000    0.258    0.000 C:\Users\leona\OneDrive\Documents\Projects\Acadêmicos\TCF\src\tcf\core\online.py:129(_escolher_par)
+        8    0.058    0.007    0.234    0.029 C:\Users\leona\OneDrive\Documents\Projects\Acadêmicos\TCF\src\tcf\composicional\syntax.py:614(_build_rede)
+
+
+
+[variant-profile] === top por TOTTIME ===
+         20055981 function calls (20055942 primitive calls) in 19.299 seconds
+
+   Ordered by: internal time
+   List reduced from 113 to 20 due to restriction <20>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+        8   10.508    1.313   16.970    2.121 C:\Users\leona\OneDrive\Documents\Projects\Acadêmicos\TCF\experiments\lab\dirty\2026-05-27-h-perf-06-v2-fase-a\02-prune-k-02-counter-aware-min-baseline\syntax_variant.py:225(_detect_compositions)
+  9818322    1.936    0.000    1.936    0.000 {built-in method builtins.len}
+   289482    1.794    0.000    3.445    0.000 C:\Users\leona\OneDrive\Documents\Projects\Acadêmicos\TCF\src\tcf\composicional\syntax.py:364(_estimate_baseline_chars)
+  4188830    1.150    0.000    1.150    0.000 {method 'append' of 'list' objects}
+   458042    0.493    0.000    0.848    0.000 {method 'extend' of 'list' objects}
+  1007951    0.346    0.000    0.346    0.000 C:\Users\leona\OneDrive\Documents\Projects\Acadêmicos\TCF\src\tcf\composicional\syntax.py:381(<genexpr>)
+   299141    0.345    0.000    0.674    0.000 {built-in method builtins.sum}
+        8    0.193    0.024    0.434    0.054 C:\Users\leona\OneDrive\Documents\Projects\Acadêmicos\TCF\src\tcf\composicional\syntax.py:151(_tokenize_pieces)
+   332623    0.148    0.000    0.176    0.000 {method 'join' of 'str' objects}
+   969439    0.140    0.000    0.140    0.000 C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.3568.0_x64__qbz5n2kfra8p0\Lib\collections\__init__.py:613(__missing__)
+     6767    0.131    0.000    0.179    0.000 {built-in method builtins.sorted}
+   329629    0.125    0.000    0.125    0.000 C:\Users\leona\OneDrive\Documents\Projects\Acadêmicos\TCF\experiments\lab\dirty\2026-05-27-h-perf-06-v2-fase-a\02-prune-k-02-counter-aware-min-baseline\syntax_variant.py:305(<genexpr>)
+        8    0.110    0.014    0.154    0.019 C:\Users\leona\OneDrive\Documents\Projects\Acadêmicos\TCF\src\tcf\composicional\syntax.py:545(_build_trace)
+        8    0.110    0.014    0.381    0.048 C:\Users\leona\OneDrive\Documents\Projects\Acadêmicos\TCF\src\tcf\composicional\syntax.py:391(_emit_body)
+   292126    0.109    0.000    0.109    0.000 C:\Users\leona\OneDrive\Documents\Projects\Acadêmicos\TCF\experiments\lab\dirty\2026-05-27-h-perf-06-v2-fase-a\02-prune-k-02-counter-aware-min-baseline\syntax_variant.py:333(<genexpr>)
+    69314    0.104    0.000    0.214    0.000 C:\Users\leona\OneDrive\Documents\Projects\Acadêmicos\TCF\src\tcf\composicional\hcc_seqrle.py:65(compare_for_seq)
+   111516    0.086    0.000    0.086    0.000 C:\Users\leona\OneDrive\Documents\Projects\Acadêmicos\TCF\src\tcf\core\online.py:75(_lcp_len_capped)
+        8    0.073    0.009    0.380    0.048 C:\Users\leona\OneDrive\Documents\Projects\Acadêmicos\TCF\src\tcf\composicional\hcc_seqrle.py:186(compact_body)
+        8    0.070    0.009    0.087    0.011 C:\Users\leona\OneDrive\Documents\Projects\Acadêmicos\TCF\src\tcf\composicional\syntax.py:42(_rle_adjacente)
+    57246    0.067    0.000    0.081    0.000 C:\Users\leona\OneDrive\Documents\Projects\Acadêmicos\TCF\src\tcf\composicional\hcc_seqrle.py:47(find_escape_digit_runs)
+
+
+
