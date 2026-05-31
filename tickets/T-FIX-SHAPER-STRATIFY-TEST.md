@@ -1,8 +1,9 @@
 ---
 title: T-FIX-SHAPER-STRATIFY-TEST — Corrigir expectativa do test_stratify_proportional
-status: open
+status: closed-done
 priority: P4
 created: 2026-05-27
+closed: 2026-05-31
 blocked-by: []
 related:
   - tests/test_shaper.py
@@ -42,12 +43,19 @@ Opcao B (se quiser stratify balanceado tambem):
 - Adicionar parametro `balance=True` em ShapeRequest pra equal-split
   explicito, e criar teste separado pra cada modo
 
+## Resolucao (2026-05-31)
+
+Opcao A. `test_stratify_proportional` agora asserta ~67/33 (Male>Female,
+ranges tolerantes) sem xfail. Resolvido junto com T-SHAPER-SCIENTIFIC-GATING,
+que adicionou validacao estatistica formal (chi2+TVD) em
+`test_shaper_scientific.py::TestP2`. Rounding de stratify.py confirmado correto.
+
 ## Criterio de aceite
 
-- [ ] Decidir Opcao A ou B
-- [ ] test_stratify_proportional passa sem xfail
-- [ ] Confirmar que stratify.py rounding (linhas ~78-97) esta' correto
-      pro caso proporcional
+- [x] Decidir Opcao A ou B → Opcao A (corrigir teste)
+- [x] test_stratify_proportional passa sem xfail
+- [x] Confirmar que stratify.py rounding esta' correto pro caso proporcional
+      (validado por TestP2 chi2_p>0.05 + TVD<0.02)
 
 ## Conexao
 

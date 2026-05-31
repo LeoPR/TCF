@@ -79,6 +79,22 @@ Risco: copias divergem se uma for editada. Fix: extrair para helper
 em `scripts/shaper/_stratify_metrics.py` ou novo
 `scripts/shaper/_proportional.py`.
 
+### A6 — Lazy-load de strategies e' fragil (descoberto 2026-05-31)
+
+`_load_builtin_strategies()` (pipeline.py) faz `if _STRATEGY_REGISTRY: return`.
+Se QUALQUER modulo de strategy for importado antes do 1o `apply()` (e.g.
+`from shaper.strategies.schema import SCHEMA_LEVELS`), o registry fica com
+SO' aquela strategy, e o early-return silencia TODAS as outras (join, volume,
+stratify, fk_preserving, ordering nunca carregam). Sintoma: pipeline roda
+parcial sem erro — volume nao amostra, flat nao junta, etc.
+
+Descoberto ao escrever T-SHAPER-SCIENTIFIC-GATING (gate passava no full-suite
+mas falhava standalone). Workaround no teste: forcar `_load_builtin_strategies()`
+antes de importar schema. Fix real (junto com A5): carregamento idempotente
+que registra cada strategy uma vez independente de ordem de import (e.g.
+registry como dict por nome, ou import explicito ordenado sem early-return
+sensivel a estado pre-existente).
+
 ### A5 — Trocar `except ImportError: pass` por re-raise
 
 `pipeline.py:64-67`:

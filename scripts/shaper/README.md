@@ -1,8 +1,9 @@
 # Shaper — dataset sampler (ferramenta auxiliar)
 
-> **Status (2026-05-17)**: ferramenta de suporte para experimentos
+> **Status (2026-05-31)**: ferramenta de suporte para experimentos
 > com TCF. **NAO faz parte do TCF-CORE.** Pode virar projeto a parte
-> no futuro.
+> no futuro. **Aprovado cientificamente para uso** — ver "Validacao
+> cientifica" abaixo (T-SHAPER-SCIENTIFIC-GATING).
 
 ## O que faz
 
@@ -64,10 +65,34 @@ scripts/shaper/
     volume.py
 ```
 
+## Validacao cientifica (aprovacao de uso)
+
+Principio do owner: um tool cientifico nao pode ser usado em experimentos
+TCF so' porque "corta dados" — precisa **confirmacao estatistica** de que
+preserva o que claima. Gate em [`tests/test_shaper_scientific.py`](../../tests/test_shaper_scientific.py)
+(requer hubs SQLite em Z:; skip se ausente). Claims **validados** (10 testes):
+
+| Strategy | Claim validado | Como (estatistico) |
+|---|---|---|
+| `fk_preserving` | integridade referencial preservada | 0 FKs orfas em todas as arestas in-scope; sem amplificacao; fact <= volume; determinismo |
+| `stratify` | alocacao proporcional preserva distribuicao | chi2 p>0.05 + TVD<0.02 sobre a amostra REAL (Adult sex); cobertura min-1 de todos os grupos (race) |
+| `join` (flat) | LEFT JOIN preserva contagem do fact | `|flat| == |fact|`, sem perda nem multiplicacao |
+| `volume` (random) | amostra random preserva marginais | TVD<0.05 por coluna categorica (sex/race/education) a 5k |
+| `schema` levels | niveis coerentes com topologia FK | `core` tem >=1 FK interna; `chain` estende `core` com mais arestas |
+
+Rigor: P2/P4 recomputam metricas das LINHAS retornadas (nao confiam no
+`METRICS_JSON` do trace). `compressibility` e `order` (sorted/reverse) tem
+cobertura funcional em `test_shaper.py`; `order=random` uniformidade nao e'
+gated (over-engineering p/ `random.shuffle`).
+
 ## Dependencias
 
 Nenhuma dependencia em `tcf` (modulo). Independente.
 
 ## Pendencias
 
-Nada urgente. Manter atualizado se o hub SQLite mudar (raro).
+- **T-SHAPER-CODE-HARDENING** (P2): escala (filter-before-load >100k linhas),
+  fragilidade do lazy-load de strategies (importar 1 strategy antes do 1o
+  apply silencia as outras), bug latente `lstrip("lops_")` em join.py,
+  dedup de alocacao proporcional. Nao bloqueia o uso atual (<=100k linhas).
+- Manter `SCHEMA_LEVELS` + gate atualizados se o hub SQLite mudar (raro).

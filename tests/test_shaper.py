@@ -223,24 +223,22 @@ class TestShaperStratify:
         assert "Male" in sexes and "Female" in sexes
         assert r.total_rows == 40
 
-    @pytest.mark.xfail(
-        reason="Expectativa do teste incorreta: stratify PROPORCIONAL "
-               "espelha a populacao (Adult ~67% Male / 33% Female), nao "
-               "50/50. O algoritmo retorna ~67/33 (correto). Test assert "
-               "50/50 e' bug do teste, nao do shaper. Ver T-FIX-SHAPER-"
-               "STRATIFY-TEST. Tooling de suporte (scripts/), nao TCF-core.",
-        strict=False,
-    )
     def test_stratify_proportional(self, shaper):
+        # Stratify PROPORCIONAL espelha a populacao, NAO 50/50.
+        # Adult Census: ~66.85% Male / ~33.15% Female -> vol=100 da 67/33
+        # (alocacao proporcional Neyman). Validacao estatistica formal
+        # (chi2 + TVD) em test_shaper_scientific.py::TestP2. Fix de
+        # T-FIX-SHAPER-STRATIFY-TEST (era xfail com expectativa 50/50 errada).
         r = shaper.apply(ShapeRequest(
             dataset="adult-census", volume=100, stratify_by="sex",
         ))
         sexes = {}
         for row in r.tables["adult"]:
             sexes[row["sex"]] = sexes.get(row["sex"], 0) + 1
-        # Should be ~50/50 (proportional to 2 groups)
-        assert sexes["Male"] == 50
-        assert sexes["Female"] == 50
+        assert sexes["Male"] + sexes["Female"] == 100
+        assert sexes["Male"] > sexes["Female"], "deve refletir maioria Male da populacao"
+        assert 63 <= sexes["Male"] <= 71, f"Male={sexes['Male']} fora de ~67"
+        assert 29 <= sexes["Female"] <= 37, f"Female={sexes['Female']} fora de ~33"
 
     def test_stratify_without_volume_returns_all(self, shaper):
         r = shaper.apply(ShapeRequest(
