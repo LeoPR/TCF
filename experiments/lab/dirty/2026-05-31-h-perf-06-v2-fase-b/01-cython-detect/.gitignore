@@ -1,0 +1,8 @@
+# Artefatos gerados por cythonize / build_ext (regeneraveis: python setup.py build_ext --inplace)
+build/
+*.c
+*.html
+*.pyd
+*.so
+_preweld.py
+_head_syntax.py
