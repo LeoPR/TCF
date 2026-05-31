@@ -76,6 +76,7 @@ Numeracao `NN-nome-curto/`. Espera-se **varias iteracoes**.
 | 04 | [`04-staged-pipeline-D11c/`](04-staged-pipeline-D11c/) | D11c | v1 em **3 estagios** (identify/normalize/optimize) | Decompor v1 monolitico em estagios explicitos visiveis | OK (4/4 RTs) | 22 (identico a 03 — mesma compressao, visibilidade ganha) |
 | 05 | [`05-staged-multi-dataset/`](05-staged-multi-dataset/) | D11a + D11b + D11c | 3 estagios (copia de 04) | Validar generalizacao: pipeline funciona nos 3 sem retrabalho? | 3/3 OK | D11a=42, D11b=59, D11c=22 (byte-match com 01/02/03) |
 | 06 | [`06-staged-granularity-second/`](06-staged-granularity-second/) | D11a + D11b + D11c + **D11d** (novo) | 3 estagios estendido (day + second) | Estender pra granularidade segundo, manter backward compat | 4/4 OK | D11a/b/c byte-exato com sub-exps; **D11d=34** (granularity=second, escala `m`) |
+| 07 | [`07-cadencia-mensal-datetime-D11e/`](07-cadencia-mensal-datetime-D11e/) | D11c + D11d + **D11e** (novo) | 3 estagios copia de 06 | Demo escala `1M` em datetime — onde ganho REAL ocorre em second-granularity | 3/3 OK | **D11e=34** (vs 80 sem escala = ganho 57%); D11c/d backward compat |
 
 Ordem e numeros podem mudar conforme aprendizado. Sub-experimentos
 podem ser **deletados** se virarem becos sem saida — historia
