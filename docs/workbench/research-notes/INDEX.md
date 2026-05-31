@@ -14,9 +14,9 @@ Componentes:
 
 | Componente | Versao canonica | Localizacao |
 |---|---|---|
-| Algoritmo base | TCF-CORE (alg16) | `experiments/lab/dirty/M0-fase-exploratoria-inicial/2026-05-11-16-online-cleanup/online.py` |
-| Sintaxe ambiguidade local | M1.E | `experiments/lab/dirty/2026-05-12-M1-marcacao-ambiguidade/M1-E-range/` |
-| Compactacao composicional | M8.A | `experiments/lab/dirty/2026-05-16-M8-virtual-refs-clean-output/M8-A-detector-unificado/` |
+| Algoritmo base | TCF-CORE (alg16) | `experiments/lab/dirty/old/M0-fase-exploratoria-inicial/2026-05-11-16-online-cleanup/online.py` |
+| Sintaxe ambiguidade local | M1.E | `experiments/lab/dirty/old/2026-05-12-M1-marcacao-ambiguidade/M1-E-range/` |
+| Compactacao composicional | M8.A | `experiments/lab/dirty/old/2026-05-16-M8-virtual-refs-clean-output/M8-A-detector-unificado/` |
 
 Compressao medida (dirty canonicos D1-D4):
 - M1.E baseline: 660 bytes
@@ -56,9 +56,9 @@ em ticket, finding ou paper sem ser re-validada pelo dirty v0.6.
 1. Comecar pela
    [historia-dirty-lab](../../../experiments/lab/dirty/notas/historia-dirty-lab.md).
 2. Depois ver o macro mais recente
-   ([M9](../../../experiments/lab/dirty/2026-05-17-M9-stress-adversarial/README.md)
+   ([M9](../../../experiments/lab/dirty/old/2026-05-17-M9-stress-adversarial/README.md)
    ou
-   [M8](../../../experiments/lab/dirty/2026-05-16-M8-virtual-refs-clean-output/README.md))
+   [M8](../../../experiments/lab/dirty/old/2026-05-16-M8-virtual-refs-clean-output/README.md))
    para o estado tecnico atual.
 3. Para direcoes futuras, ver
    [roadmap-hipoteses](../../../experiments/lab/dirty/notas/roadmap-hipoteses.md).

@@ -1,6 +1,13 @@
 # Historia do dirty lab — TCF v0.6
 
 **Data desta sintese**: 2026-05-17
+
+> **Reorganizacao 2026-05-16**: pastas M0-M14 referenciadas neste
+> arquivo foram movidas pra `experiments/lab/dirty/old/`. Paths
+> historicos no texto podem nao incluir o prefixo `old/`; arquivos
+> moram fisicamente em `dirty/old/<path>`.
+
+
 **Ciclo**: dirty v0.6 (reset 2026-05-10)
 **Atualizado ate'**: M9 (2026-05-17)
 
@@ -61,7 +68,7 @@ Saida do algoritmo: lista de tokens por string:
 **Nome oficial (decidido 2026-05-17)**: **OBAT** — Online Bidirectional
 Affix Tokenizer. Codnome de origem: `alg16`. Permanece intocado.
 Localizacao canonica:
-`experiments/lab/dirty/M0-fase-exploratoria-inicial/2026-05-11-16-online-cleanup/online.py`.
+`experiments/lab/dirty/old/M0-fase-exploratoria-inicial/2026-05-11-16-online-cleanup/online.py`.
 
 Ver `docs/algorithms/OBAT.md` para documentacao tecnica (estrutura,
 sub-linguagem matematica, diferencial vs literatura).

@@ -151,7 +151,7 @@ Lista de strings (coluna de dados)
 
 A implementação canônica está em
 [`src/tcf/core/online.py`](../../src/tcf/core/online.py). Origem
-experimental: `experiments/lab/dirty/M0-fase-exploratoria-inicial/2026-05-11-16-online-cleanup/online.py`
+experimental: `experiments/lab/dirty/old/M0-fase-exploratoria-inicial/2026-05-11-16-online-cleanup/online.py`
 (intocado desde 2026-05-11).
 
 ## Conexões

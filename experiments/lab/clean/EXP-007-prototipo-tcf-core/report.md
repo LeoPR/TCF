@@ -50,7 +50,7 @@ explorados; caos genuino (D4) tem pouco a comprimir.
 ### Validacao byte-canonica
 
 ```
-$ diff -r outputs/ ../../../lab/dirty/2026-05-17-M14-clean-validation-srctcf/M14-tcf-clean/output/
+$ diff -r outputs/ ../../../lab/dirty/old/2026-05-17-M14-clean-validation-srctcf/M14-tcf-clean/output/
 (exit 0, vazio)
 ```
 
@@ -100,4 +100,4 @@ para 3 estrategias avaliadas:
 - [`run.py`](run.py) — reproducao
 - [`manifest.jsonl`](manifest.jsonl) — registro de execucoes
 - [`outputs/`](outputs/) — TCFs gerados
-- [`../../dirty/2026-05-17-M14-clean-validation-srctcf/`](../../dirty/2026-05-17-M14-clean-validation-srctcf/) — baseline byte-canonico
+- [`../../dirty/old/2026-05-17-M14-clean-validation-srctcf/`](../../dirty/old/2026-05-17-M14-clean-validation-srctcf/) — baseline byte-canonico

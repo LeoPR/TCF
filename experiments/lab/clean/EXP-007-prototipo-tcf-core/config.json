@@ -16,7 +16,7 @@
     "D9-frequencia-alta"
   ],
   "out_dir": "outputs",
-  "baseline_for_diff": "../../../lab/dirty/2026-05-17-M14-clean-validation-srctcf/M14-tcf-clean/output",
+  "baseline_for_diff": "../../../lab/dirty/old/2026-05-17-M14-clean-validation-srctcf/M14-tcf-clean/output",
   "expected": {
     "rt_count": 9,
     "total_bytes": 1615,

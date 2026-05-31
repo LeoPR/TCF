@@ -104,7 +104,7 @@ pendente.
 
 ```bash
 # Macros dirty (atuais)
-python experiments/lab/dirty/2026-05-17-M11-welding-step1-alg16-src/run_lote.py
+python experiments/lab/dirty/old/2026-05-17-M11-welding-step1-alg16-src/run_lote.py
 
 # Experimentos clean (v0.5)
 python experiments/lab/clean/EXP-001-csv-baseline/run.py

@@ -25,8 +25,8 @@ docs/workbench/research-notes/      ← sintese consolidada
 
 **Para entrar no trabalho atual, ler em ordem**:
 1. [`../experiments/lab/dirty/notas/historia-dirty-lab.md`](../experiments/lab/dirty/notas/historia-dirty-lab.md)
-2. [`../experiments/lab/dirty/2026-05-17-M9-stress-adversarial/README.md`](../experiments/lab/dirty/2026-05-17-M9-stress-adversarial/README.md) (mais recente)
-3. [`../experiments/lab/dirty/2026-05-16-M8-virtual-refs-clean-output/README.md`](../experiments/lab/dirty/2026-05-16-M8-virtual-refs-clean-output/README.md) (canonico atual)
+2. [`../experiments/lab/dirty/old/2026-05-17-M9-stress-adversarial/README.md`](../experiments/lab/dirty/old/2026-05-17-M9-stress-adversarial/README.md) (M9 stress)
+3. [`../experiments/lab/dirty/old/2026-05-16-M8-virtual-refs-clean-output/README.md`](../experiments/lab/dirty/old/2026-05-16-M8-virtual-refs-clean-output/README.md) (M8 canonico — fonte do HCC welded)
 4. [`../experiments/lab/dirty/notas/roadmap-hipoteses.md`](../experiments/lab/dirty/notas/roadmap-hipoteses.md) (proximos passos)
 
 ---

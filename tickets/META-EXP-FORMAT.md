@@ -165,4 +165,4 @@ proprios — nao enterrar em notas de rodape de report.
 
 - Memoria: [feedback-exp-format-for-comparative](../memory/feedback_exp_format_for_comparative.md)
 - Experimento alvo: [EXP-008](../experiments/lab/clean/EXP-008-compressao-comparada/)
-- Modelo organizacional anterior: [M9 dirty](../experiments/lab/dirty/2026-05-17-M9-stress-adversarial/)
+- Modelo organizacional anterior: [M9 dirty](../experiments/lab/dirty/old/2026-05-17-M9-stress-adversarial/)

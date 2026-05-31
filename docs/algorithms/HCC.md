@@ -199,7 +199,7 @@ Lista de strings (coluna de dados)
 A implementação canônica está em
 [`src/tcf/composicional/syntax.py`](../../src/tcf/composicional/syntax.py).
 Origem experimental:
-`experiments/lab/dirty/2026-05-16-M8-virtual-refs-clean-output/M8-A-detector-unificado/syntax.py`
+`experiments/lab/dirty/old/2026-05-16-M8-virtual-refs-clean-output/M8-A-detector-unificado/syntax.py`
 (intocado desde 2026-05-16).
 
 ## Conexões

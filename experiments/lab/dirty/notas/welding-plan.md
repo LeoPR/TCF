@@ -1,6 +1,12 @@
 # Welding plan — alg16 + M9 → src/tcf canonical motor
 
 **Data**: 2026-05-17
+
+> **Reorganizacao 2026-05-16**: pastas M-series referenciadas
+> abaixo foram movidas pra `dirty/old/`. Paths no texto sao
+> historicos; arquivos moram em `dirty/old/<path>`.
+
+
 **Foco**: planejar saida do dirty lab. Migrar TCF-CORE (alg16) e
 Compactacao composicional (M8.A) para `src/tcf/` como motor canonico
 v0.6. Validar em **EXP-007** (clean experiment).
@@ -16,9 +22,9 @@ v0.6. Validar em **EXP-007** (clean experiment).
 
 | Componente | Fonte | LOC |
 |---|---|---|
-| alg16 (TCF-CORE) | `experiments/lab/dirty/M0-fase-exploratoria-inicial/2026-05-11-16-online-cleanup/online.py` | 168 |
-| M8.A composicional | `experiments/lab/dirty/2026-05-16-M8-virtual-refs-clean-output/M8-A-detector-unificado/syntax.py` | 736 |
-| M9 stress | `experiments/lab/dirty/2026-05-17-M9-stress-adversarial/` (9 datasets, RT 9/9 OK) | — |
+| alg16 (TCF-CORE) | `experiments/lab/dirty/old/M0-fase-exploratoria-inicial/2026-05-11-16-online-cleanup/online.py` | 168 |
+| M8.A composicional | `experiments/lab/dirty/old/2026-05-16-M8-virtual-refs-clean-output/M8-A-detector-unificado/syntax.py` | 736 |
+| M9 stress | `experiments/lab/dirty/old/2026-05-17-M9-stress-adversarial/` (9 datasets, RT 9/9 OK) | — |
 
 ## Estado atual
 

@@ -31,7 +31,7 @@ welding e necessita rollback/fix.
    - Verificar `decoded == linhas` (RT)
    - Salvar em `outputs/Di.tcf`
 3. Comparar `outputs/` com baseline byte-canonico
-   (`experiments/lab/dirty/2026-05-17-M14-clean-validation-srctcf/M14-tcf-clean/output/`)
+   (`experiments/lab/dirty/old/2026-05-17-M14-clean-validation-srctcf/M14-tcf-clean/output/`)
    via `diff -r`
 4. Gerar `manifest.jsonl` (1 linha por run) e `report.md`
    (analise consolidada)
@@ -75,7 +75,7 @@ Pre-requisito: `src/tcf/` welded (commits `d5e4c24` Step A,
 ```bash
 diff -r \
   experiments/lab/clean/EXP-007-prototipo-tcf-core/outputs/ \
-  experiments/lab/dirty/2026-05-17-M14-clean-validation-srctcf/M14-tcf-clean/output/
+  experiments/lab/dirty/old/2026-05-17-M14-clean-validation-srctcf/M14-tcf-clean/output/
 ```
 
 Deve retornar vazio (exit 0).
@@ -107,5 +107,5 @@ Direcao mais imediata para proximo EXP clean:
 
 - [`../../../src/tcf/`](../../../src/tcf/) — codigo canonico testado
 - [`../../../datasets/synthetic/`](../../../datasets/synthetic/) — datasets
-- [`../../dirty/2026-05-17-M14-clean-validation-srctcf/`](../../dirty/2026-05-17-M14-clean-validation-srctcf/) — baseline byte-canonico
+- [`../../dirty/old/2026-05-17-M14-clean-validation-srctcf/`](../../dirty/old/2026-05-17-M14-clean-validation-srctcf/) — baseline byte-canonico
 - [`../../../docs/algorithms/`](../../../docs/algorithms/) — documentacao OBAT + HCC + TCF
