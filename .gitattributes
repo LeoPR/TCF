@@ -1,0 +1,49 @@
+# TCF — gitattributes
+# Cross-platform consistency: LF-only no working tree e no repo.
+# Critico porque o formato .tcf especifica LF estrito (sem CRLF).
+
+# Default: detectar text/binary; texto = LF.
+* text=auto eol=lf
+
+# Codigo
+*.py text eol=lf
+*.pyi text eol=lf
+*.sh text eol=lf
+*.bat text eol=crlf
+
+# Documentos
+*.md text eol=lf
+*.rst text eol=lf
+*.txt text eol=lf
+
+# Dados estruturados
+*.json text eol=lf
+*.jsonl text eol=lf
+*.yaml text eol=lf
+*.yml text eol=lf
+*.toml text eol=lf
+*.csv text eol=lf
+
+# Formato TCF (LF-strict por spec — ver docs/algorithms/TCF-format.md)
+*.tcf text eol=lf
+
+# Lock files
+uv.lock text eol=lf
+*.lock text eol=lf
+
+# Binarios (nao normalizar)
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.pdf binary
+*.zip binary
+*.tar binary
+*.gz binary
+*.db binary
+*.sqlite binary
+*.sqlite3 binary
+*.pkl binary
+*.pickle binary
+*.npy binary
+*.npz binary
