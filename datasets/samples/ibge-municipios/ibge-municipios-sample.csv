@@ -1,0 +1,101 @@
+id,municipio,microrregiao,mesorregiao,uf_sigla,uf_nome,regiao_sigla,regiao_nome
+1100015,Alta Floresta D'Oeste,Cacoal,Leste Rondoniense,RO,Rondônia,N,Norte
+1100023,Ariquemes,Ariquemes,Leste Rondoniense,RO,Rondônia,N,Norte
+1100031,Cabixi,Colorado do Oeste,Leste Rondoniense,RO,Rondônia,N,Norte
+1100049,Cacoal,Cacoal,Leste Rondoniense,RO,Rondônia,N,Norte
+1100056,Cerejeiras,Colorado do Oeste,Leste Rondoniense,RO,Rondônia,N,Norte
+1100064,Colorado do Oeste,Colorado do Oeste,Leste Rondoniense,RO,Rondônia,N,Norte
+1100072,Corumbiara,Colorado do Oeste,Leste Rondoniense,RO,Rondônia,N,Norte
+1100080,Costa Marques,Guajará-Mirim,Madeira-Guaporé,RO,Rondônia,N,Norte
+1100098,Espigão D'Oeste,Cacoal,Leste Rondoniense,RO,Rondônia,N,Norte
+1100106,Guajará-Mirim,Guajará-Mirim,Madeira-Guaporé,RO,Rondônia,N,Norte
+1100114,Jaru,Ji-Paraná,Leste Rondoniense,RO,Rondônia,N,Norte
+1100122,Ji-Paraná,Ji-Paraná,Leste Rondoniense,RO,Rondônia,N,Norte
+1100130,Machadinho D'Oeste,Ariquemes,Leste Rondoniense,RO,Rondônia,N,Norte
+1100148,Nova Brasilândia D'Oeste,Alvorada D'Oeste,Leste Rondoniense,RO,Rondônia,N,Norte
+1100155,Ouro Preto do Oeste,Ji-Paraná,Leste Rondoniense,RO,Rondônia,N,Norte
+1100189,Pimenta Bueno,Vilhena,Leste Rondoniense,RO,Rondônia,N,Norte
+1100205,Porto Velho,Porto Velho,Madeira-Guaporé,RO,Rondônia,N,Norte
+1100254,Presidente Médici,Ji-Paraná,Leste Rondoniense,RO,Rondônia,N,Norte
+1100262,Rio Crespo,Ariquemes,Leste Rondoniense,RO,Rondônia,N,Norte
+1100288,Rolim de Moura,Cacoal,Leste Rondoniense,RO,Rondônia,N,Norte
+1100296,Santa Luzia D'Oeste,Cacoal,Leste Rondoniense,RO,Rondônia,N,Norte
+1100304,Vilhena,Vilhena,Leste Rondoniense,RO,Rondônia,N,Norte
+1100320,São Miguel do Guaporé,Alvorada D'Oeste,Leste Rondoniense,RO,Rondônia,N,Norte
+1100338,Nova Mamoré,Porto Velho,Madeira-Guaporé,RO,Rondônia,N,Norte
+1100346,Alvorada D'Oeste,Alvorada D'Oeste,Leste Rondoniense,RO,Rondônia,N,Norte
+1100379,Alto Alegre dos Parecis,Cacoal,Leste Rondoniense,RO,Rondônia,N,Norte
+1100403,Alto Paraíso,Ariquemes,Leste Rondoniense,RO,Rondônia,N,Norte
+1100452,Buritis,Porto Velho,Madeira-Guaporé,RO,Rondônia,N,Norte
+1100502,Novo Horizonte do Oeste,Cacoal,Leste Rondoniense,RO,Rondônia,N,Norte
+1100601,Cacaulândia,Ariquemes,Leste Rondoniense,RO,Rondônia,N,Norte
+1100700,Campo Novo de Rondônia,Porto Velho,Madeira-Guaporé,RO,Rondônia,N,Norte
+1100809,Candeias do Jamari,Porto Velho,Madeira-Guaporé,RO,Rondônia,N,Norte
+1100908,Castanheiras,Cacoal,Leste Rondoniense,RO,Rondônia,N,Norte
+1100924,Chupinguaia,Vilhena,Leste Rondoniense,RO,Rondônia,N,Norte
+1100940,Cujubim,Porto Velho,Madeira-Guaporé,RO,Rondônia,N,Norte
+1101005,Governador Jorge Teixeira,Ji-Paraná,Leste Rondoniense,RO,Rondônia,N,Norte
+1101104,Itapuã do Oeste,Porto Velho,Madeira-Guaporé,RO,Rondônia,N,Norte
+1101203,Ministro Andreazza,Cacoal,Leste Rondoniense,RO,Rondônia,N,Norte
+1101302,Mirante da Serra,Ji-Paraná,Leste Rondoniense,RO,Rondônia,N,Norte
+1101401,Monte Negro,Ariquemes,Leste Rondoniense,RO,Rondônia,N,Norte
+1101435,Nova União,Ji-Paraná,Leste Rondoniense,RO,Rondônia,N,Norte
+1101450,Parecis,Vilhena,Leste Rondoniense,RO,Rondônia,N,Norte
+1101468,Pimenteiras do Oeste,Colorado do Oeste,Leste Rondoniense,RO,Rondônia,N,Norte
+1101476,Primavera de Rondônia,Vilhena,Leste Rondoniense,RO,Rondônia,N,Norte
+1101484,São Felipe D'Oeste,Vilhena,Leste Rondoniense,RO,Rondônia,N,Norte
+1101492,São Francisco do Guaporé,Guajará-Mirim,Madeira-Guaporé,RO,Rondônia,N,Norte
+1101500,Seringueiras,Alvorada D'Oeste,Leste Rondoniense,RO,Rondônia,N,Norte
+1101559,Teixeirópolis,Ji-Paraná,Leste Rondoniense,RO,Rondônia,N,Norte
+1101609,Theobroma,Ji-Paraná,Leste Rondoniense,RO,Rondônia,N,Norte
+1101708,Urupá,Ji-Paraná,Leste Rondoniense,RO,Rondônia,N,Norte
+1101757,Vale do Anari,Ariquemes,Leste Rondoniense,RO,Rondônia,N,Norte
+1101807,Vale do Paraíso,Ji-Paraná,Leste Rondoniense,RO,Rondônia,N,Norte
+1200013,Acrelândia,Rio Branco,Vale do Acre,AC,Acre,N,Norte
+1200054,Assis Brasil,Brasiléia,Vale do Acre,AC,Acre,N,Norte
+1200104,Brasiléia,Brasiléia,Vale do Acre,AC,Acre,N,Norte
+1200138,Bujari,Rio Branco,Vale do Acre,AC,Acre,N,Norte
+1200179,Capixaba,Rio Branco,Vale do Acre,AC,Acre,N,Norte
+1200203,Cruzeiro do Sul,Cruzeiro do Sul,Vale do Juruá,AC,Acre,N,Norte
+1200252,Epitaciolândia,Brasiléia,Vale do Acre,AC,Acre,N,Norte
+1200302,Feijó,Tarauacá,Vale do Juruá,AC,Acre,N,Norte
+1200328,Jordão,Tarauacá,Vale do Juruá,AC,Acre,N,Norte
+1200336,Mâncio Lima,Cruzeiro do Sul,Vale do Juruá,AC,Acre,N,Norte
+1200344,Manoel Urbano,Sena Madureira,Vale do Acre,AC,Acre,N,Norte
+1200351,Marechal Thaumaturgo,Cruzeiro do Sul,Vale do Juruá,AC,Acre,N,Norte
+1200385,Plácido de Castro,Rio Branco,Vale do Acre,AC,Acre,N,Norte
+1200393,Porto Walter,Cruzeiro do Sul,Vale do Juruá,AC,Acre,N,Norte
+1200401,Rio Branco,Rio Branco,Vale do Acre,AC,Acre,N,Norte
+1200427,Rodrigues Alves,Cruzeiro do Sul,Vale do Juruá,AC,Acre,N,Norte
+1200435,Santa Rosa do Purus,Sena Madureira,Vale do Acre,AC,Acre,N,Norte
+1200450,Senador Guiomard,Rio Branco,Vale do Acre,AC,Acre,N,Norte
+1200500,Sena Madureira,Sena Madureira,Vale do Acre,AC,Acre,N,Norte
+1200609,Tarauacá,Tarauacá,Vale do Juruá,AC,Acre,N,Norte
+1200708,Xapuri,Brasiléia,Vale do Acre,AC,Acre,N,Norte
+1200807,Porto Acre,Rio Branco,Vale do Acre,AC,Acre,N,Norte
+1300029,Alvarães,Tefé,Centro Amazonense,AM,Amazonas,N,Norte
+1300060,Amaturá,Alto Solimões,Sudoeste Amazonense,AM,Amazonas,N,Norte
+1300086,Anamã,Coari,Centro Amazonense,AM,Amazonas,N,Norte
+1300102,Anori,Coari,Centro Amazonense,AM,Amazonas,N,Norte
+1300144,Apuí,Madeira,Sul Amazonense,AM,Amazonas,N,Norte
+1300201,Atalaia do Norte,Alto Solimões,Sudoeste Amazonense,AM,Amazonas,N,Norte
+1300300,Autazes,Manaus,Centro Amazonense,AM,Amazonas,N,Norte
+1300409,Barcelos,Rio Negro,Norte Amazonense,AM,Amazonas,N,Norte
+1300508,Barreirinha,Parintins,Centro Amazonense,AM,Amazonas,N,Norte
+1300607,Benjamin Constant,Alto Solimões,Sudoeste Amazonense,AM,Amazonas,N,Norte
+1300631,Beruri,Coari,Centro Amazonense,AM,Amazonas,N,Norte
+1300680,Boa Vista do Ramos,Parintins,Centro Amazonense,AM,Amazonas,N,Norte
+1300706,Boca do Acre,Boca do Acre,Sul Amazonense,AM,Amazonas,N,Norte
+1300805,Borba,Madeira,Sul Amazonense,AM,Amazonas,N,Norte
+1300839,Caapiranga,Coari,Centro Amazonense,AM,Amazonas,N,Norte
+1300904,Canutama,Purus,Sul Amazonense,AM,Amazonas,N,Norte
+1301001,Carauari,Juruá,Sudoeste Amazonense,AM,Amazonas,N,Norte
+1301100,Careiro,Manaus,Centro Amazonense,AM,Amazonas,N,Norte
+1301159,Careiro da Várzea,Manaus,Centro Amazonense,AM,Amazonas,N,Norte
+1301209,Coari,Coari,Centro Amazonense,AM,Amazonas,N,Norte
+1301308,Codajás,Coari,Centro Amazonense,AM,Amazonas,N,Norte
+1301407,Eirunepé,Juruá,Sudoeste Amazonense,AM,Amazonas,N,Norte
+1301506,Envira,Juruá,Sudoeste Amazonense,AM,Amazonas,N,Norte
+1301605,Fonte Boa,Alto Solimões,Sudoeste Amazonense,AM,Amazonas,N,Norte
+1301654,Guajará,Juruá,Sudoeste Amazonense,AM,Amazonas,N,Norte
+1301704,Humaitá,Madeira,Sul Amazonense,AM,Amazonas,N,Norte

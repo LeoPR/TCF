@@ -1,0 +1,65 @@
+{
+  "name": "ibge-municipios",
+  "source": "IBGE Localidades API (servicodados.ibge.gov.br)",
+  "origin": "https://servicodados.ibge.gov.br/api/v1/localidades/municipios",
+  "license": "Open data (IBGE) — see https://www.ibge.gov.br/",
+  "citation": "IBGE. Divisao territorial brasileira. Instituto Brasileiro de Geografia e Estatistica.",
+  "downloaded_via": "urllib (IBGE Localidades API v1)",
+  "description": "Brazilian municipalities flattened from the IBGE administrative hierarchy. Real-world UTF-8 text with high categorical repetition (27 UFs, 5 regioes).",
+  "row_counts": {
+    "municipios": 5571
+  },
+  "column_count": 8,
+  "n_uf": 27,
+  "n_regiao": 5,
+  "tables": {
+    "municipios": {
+      "pk": [
+        "id"
+      ],
+      "fk": {},
+      "columns": {
+        "id": {
+          "type": "int",
+          "nullable": false,
+          "note": "IBGE municipality code (7 digits)"
+        },
+        "municipio": {
+          "type": "string",
+          "nullable": false,
+          "note": "Municipality name (UTF-8, accented)"
+        },
+        "microrregiao": {
+          "type": "string",
+          "nullable": false,
+          "note": "Microregion name (falls back to immediate region)"
+        },
+        "mesorregiao": {
+          "type": "string",
+          "nullable": false,
+          "note": "Mesoregion name (falls back to intermediate region)"
+        },
+        "uf_sigla": {
+          "type": "string",
+          "nullable": false,
+          "note": "State 2-letter code (e.g. SP)"
+        },
+        "uf_nome": {
+          "type": "string",
+          "nullable": false,
+          "note": "State full name (e.g. Sao Paulo)"
+        },
+        "regiao_sigla": {
+          "type": "string",
+          "nullable": false,
+          "note": "Region 1-letter code (N/NE/SE/S/CO)"
+        },
+        "regiao_nome": {
+          "type": "string",
+          "nullable": false,
+          "note": "Region full name (e.g. Sudeste)"
+        }
+      }
+    }
+  }
+}
