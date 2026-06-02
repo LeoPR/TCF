@@ -1,0 +1,100 @@
+{
+  "name": "br-identidades",
+  "synthetic": true,
+  "declared_bias": "SYNTHETIC / built-to-test dataset (Brunswik 1956). Generated to exercise ADR-0015 CPF/CNPJ natures + activation gate. Identifiers are random mod-11-valid bodies (no regional encoding, not issued documents). Cannot alone justify 'confirmada-empirica' — see ticket T-DATA-2-RECEITA-CNPJ for the real-data path.",
+  "source": "Synthetic generator (scripts/setup_br_identidades.py), seed=20260601",
+  "geography_source": "Real IBGE codes reused from canonical ibge-municipios",
+  "license": "Synthetic — no license restriction; contains no PII",
+  "citation": "Synthetic, generated for TCF nature testing (ADR-0015).",
+  "downloaded_via": "deterministic generation (Python stdlib random)",
+  "shaper_note": "pessoas (500k) exceeds the shaper's validated <=100k regime (T-SHAPER-CODE-HARDENING). Use direct encode() on columns, not shaper sampling.",
+  "row_counts": {
+    "pessoas": 500000,
+    "empresas": 100000
+  },
+  "socio_cpf_fk_rows": 30133,
+  "table_order": [
+    "pessoas",
+    "empresas"
+  ],
+  "tables": {
+    "pessoas": {
+      "pk": [
+        "cpf"
+      ],
+      "fk": {},
+      "columns": {
+        "cpf": {
+          "type": "string",
+          "nullable": false,
+          "note": "Masked NNN.NNN.NNN-DD, valid mod-11, nature='cpf' target"
+        },
+        "nome": {
+          "type": "string",
+          "nullable": false,
+          "note": "Synthetic BR full name (accented UTF-8)"
+        },
+        "municipio_id": {
+          "type": "int",
+          "nullable": false,
+          "note": "7-digit IBGE code; soft ref into ibge-municipios.id (cross-hub, not a SQL FK)"
+        },
+        "uf_sigla": {
+          "type": "string",
+          "nullable": false,
+          "note": "UF code denormalized from ibge-municipios (27 values)"
+        },
+        "data_cadastro": {
+          "type": "date",
+          "nullable": false,
+          "note": "ISO YYYY-MM-DD, 2010..2025, recency-weighted"
+        },
+        "email": {
+          "type": "string",
+          "nullable": true,
+          "note": "Derived from nome + domain pool; empty for ~8%"
+        }
+      }
+    },
+    "empresas": {
+      "pk": [
+        "cnpj"
+      ],
+      "fk": {
+        "socio_cpf": "pessoas.cpf"
+      },
+      "columns": {
+        "cnpj": {
+          "type": "string",
+          "nullable": false,
+          "note": "Masked NN.NNN.NNN/NNNN-DD, valid mod-11, nature='cnpj' target"
+        },
+        "razao_social": {
+          "type": "string",
+          "nullable": false,
+          "note": "Synthetic company name with shared suffixes (Ltda/ME/SA/EIRELI/EPP)"
+        },
+        "municipio_id": {
+          "type": "int",
+          "nullable": false,
+          "note": "7-digit IBGE code; soft ref into ibge-municipios.id (cross-hub)"
+        },
+        "uf_sigla": {
+          "type": "string",
+          "nullable": false,
+          "note": "UF code denormalized from ibge-municipios"
+        },
+        "data_abertura": {
+          "type": "date",
+          "nullable": false,
+          "note": "ISO YYYY-MM-DD, 2005..2025"
+        },
+        "socio_cpf": {
+          "type": "string",
+          "nullable": true,
+          "note": "References pessoas.cpf for ~30% of rows (real FK); empty otherwise"
+        }
+      }
+    }
+  }
+}
