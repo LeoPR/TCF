@@ -1,9 +1,9 @@
 ---
 title: T-DATA-2-RECEITA-CNPJ — Dataset real de CNPJ (Receita Federal open data) para gating ecologico das natures
-status: open
+status: in-progress
 priority: P2
 created: 2026-06-01
-updated: 2026-06-01
+updated: 2026-06-02
 blocked-by: []
 related:
   - datasets/canonical/br-identidades/   (contraparte SINTETICA; este fecha o gate que aquele nao pode)
@@ -88,3 +88,43 @@ generalizacao?
   gate; este valida generalizacao)
 - ADR-0015 (natures welded); META-TYPE-ENCODERS (nature 4 "Checked")
 - Padrao setup: T-DATA-1
+
+## Updates datados
+
+### 2026-06-02 — script criado + logica provada; download bloqueado por rede
+
+Checklist discoverability OK (nenhum dado CNPJ em repo nem em Z:). Layout
+confirmado de fonte oficial (okfn-brasil/receita startdb.sql): arquivo
+**Estabelecimentos** = 30 colunas, `;`-separado, **sem header**, encoding
+**ISO-8859-1 (Latin-1)**, em 10 partes (Estabelecimentos0..9.zip, ~290MB
+cada). CNPJ vem partido em 3 colunas: cnpj_basico(8) + cnpj_ordem(4) +
+cnpj_dv(2) -> montar `NN.NNN.NNN/NNNN-DD`.
+
+**`scripts/setup_receita_cnpj.py` criado** (download 1 parte -> unzip ->
+slice N linhas -> monta+valida CNPJ contra SPEC_CNPJ -> projeta 8 colunas
+-> hub + fixture 2k). **Logica de parse/montagem/validacao PROVADA** contra
+um zip sintetico no formato real (30 col, `;`, latin-1): 95% compressible
+com 5% dv-ruim plantado, round-trip OK. `--zip <path>` processa um arquivo
+ja' baixado (sem rede).
+
+**BLOQUEIO de rede (deste ambiente)**: host oficial
+`dadosabertos.rfb.gov.br` da' **timeout** (WinError 10060); mirror
+`arquivos.receitafederal.gov.br` responde no root (200, portal SERPRO JS)
+mas 404 em todo path `/dados/cnpj/...` documentado; dados.gov.br API = 401
+(precisa token); Casa dos Dados = so' landing page. Logo o download real
+**nao roda deste sandbox** — mas a fonte e' BR e provavelmente alcancavel
+da rede do owner.
+
+**Como completar (owner, na rede dele)**:
+```bash
+# opcao A — autodetect + download:
+python scripts/setup_receita_cnpj.py --rows 200000
+# opcao B — se autodetect falhar, fixar periodo:
+python scripts/setup_receita_cnpj.py --period 2025-05 --rows 200000
+# opcao C — baixar 1 zip manual e processar offline:
+python scripts/setup_receita_cnpj.py --zip Z:/tcf-data/external/receita-cnpj/Estabelecimentos0.zip --rows 200000
+# depois:
+python scripts/csv_to_sqlite.py receita-cnpj
+```
+Apos rodar: medir % compressible na coluna `cnpj` real + ganho nature ON/OFF
+(weighted) e comparar com o sintetico br-identidades (checklist Q3).
