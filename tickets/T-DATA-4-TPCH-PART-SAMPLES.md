@@ -1,9 +1,10 @@
 ---
 title: T-DATA-4-TPCH-PART-SAMPLES — Emitir samples committed de part/partsupp do TPC-H (categoria hierarquica observavel)
-status: open
+status: closed-done
 priority: P3
 created: 2026-06-01
 updated: 2026-06-01
+closed: 2026-06-01
 blocked-by: []
 related:
   - datasets/samples/tpch-sf001/   (faltam part-sample.csv / partsupp-sample.csv)
@@ -37,10 +38,21 @@ emissao de sample do que ja' esta' no disco em Z:.
 
 ## Criterio de aceite
 
-- [ ] `datasets/samples/tpch-sf001/part-sample.csv` (100 rows) committed
-- [ ] `datasets/samples/tpch-sf001/partsupp-sample.csv` (100 rows) committed
-- [ ] (opcional) idem para tpch-sf01
-- [ ] p_type/p_brand/p_container observaveis dos samples
+- [x] `datasets/samples/tpch-sf001/part-sample.csv` (100 rows) committed
+- [x] `datasets/samples/tpch-sf001/partsupp-sample.csv` (100 rows) committed
+- [x] idem para tpch-sf01 (part + partsupp, 100 rows cada)
+- [x] p_type/p_brand/p_container observaveis dos samples
+
+## Resolucao (2026-06-01)
+
+4 samples emitidos (part + partsupp para sf001 e sf01), 100 rows cada,
+como fatia direta das primeiras 101 linhas do CSV externo em Z: (mesmo
+metodo dos samples tpch existentes — nao re-serializado via SQLite, pra
+manter consistencia byte). Header de cada um confere com a ordem de
+colunas do metadata.json (verificado). p_type (hierarquia space-separated,
+ex "PROMO BURNISHED COPPER"), p_brand, p_mfgr, p_container agora observaveis
+dos samples git-tracked (antes metadata-deep). Sem download; pura emissao
+do que ja' estava em Z:.
 
 ## Conexoes
 
