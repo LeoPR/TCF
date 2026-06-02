@@ -53,12 +53,16 @@ from tcf.natures import SPEC_CNPJ  # noqa: E402
 DATASET = "receita-cnpj"
 TABLE = "estabelecimentos"
 
-# Official mirror bases (tried in order). Both may be unreachable from some
-# networks; --zip bypasses download entirely.
-URL_BASES = [
-    "https://arquivos.receitafederal.gov.br/dados/cnpj/dados_abertos_cnpj/{period}/Estabelecimentos{part}.zip",
-    "https://dadosabertos.rfb.gov.br/CNPJ/dados_abertos_cnpj/{period}/Estabelecimentos{part}.zip",
-    "https://dadosabertos.rfb.gov.br/CNPJ/Estabelecimentos{part}.zip",
+# Candidate directory roots that expose an autoindex of period subfolders
+# (YYYY-MM/). The exact filename inside each period varies over time, so we
+# DISCOVER it from the directory listing instead of guessing — earlier guesses
+# (Estabelecimentos0.zip) 404'd even on a reachable host. Tried in order.
+# --zip bypasses all network entirely.
+INDEX_BASES = [
+    "https://arquivos.receitafederal.gov.br/dados/cnpj/dados_abertos_cnpj/",
+    "https://arquivos.receitafederal.gov.br/CNPJ/dados_abertos_cnpj/",
+    "https://dadosabertos.rfb.gov.br/CNPJ/dados_abertos_cnpj/",
+    "https://dadosabertos.rfb.gov.br/CNPJ/",
 ]
 
 # Estabelecimentos layout — 30 columns, fixed order (Receita "novo layout";
@@ -109,79 +113,145 @@ def _format_cnpj(basico: str, ordem: str, dv: str) -> str | None:
     return f"{basico[:2]}.{basico[2:5]}.{basico[5:8]}/{ordem}-{dv}"
 
 
-def _resolve_period(verbose: bool = True) -> str:
-    """Best-effort: probe recent YYYY-MM until a part-0 zip responds.
+_UA = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) tcf-dataset-setup/1.0"}
 
-    Returns the first period whose HEAD does not 404 / error. Raises if none
-    reachable (caller should fall back to --period or --zip).
-    """
-    import datetime  # only for period candidates; no Date.now in workflow ctx, fine in script
-    today = datetime.date.today()
-    cands = []
-    y, m = today.year, today.month
-    for _ in range(8):
-        cands.append(f"{y:04d}-{m:02d}")
-        m -= 1
-        if m == 0:
-            m = 12
-            y -= 1
-    for period in cands:
-        url = URL_BASES[0].format(period=period, part=0)
-        req = urllib.request.Request(url, method="HEAD",
-                                     headers={"User-Agent": "Mozilla/5.0 tcf-dataset-setup/1.0"})
+
+def _fetch_index(url: str, timeout: int = 40) -> list[str]:
+    """Fetch an autoindex page and return the list of href entries (raw)."""
+    import re
+    req = urllib.request.Request(url, headers=_UA)
+    with urllib.request.urlopen(req, timeout=timeout) as r:
+        body = r.read().decode("utf-8", "replace")
+    return re.findall(r'href=["\']([^"\']+)["\']', body)
+
+
+def _find_index_base(verbose: bool = True) -> str:
+    """Return the first INDEX_BASES that responds with a usable directory page."""
+    import re
+    last = None
+    for base in INDEX_BASES:
         try:
-            r = urllib.request.urlopen(req, timeout=30)
-            if r.status == 200:
-                if verbose:
-                    print(f"[receita] resolved current period: {period}")
-                return period
-        except Exception:
+            hrefs = _fetch_index(base)
+        except Exception as e:
+            last = f"{type(e).__name__}: {str(e)[:70]}"
+            if verbose:
+                print(f"[receita]   index {base} -> {last}")
             continue
+        has_period = any(re.search(r"20\d\d-\d\d", h) for h in hrefs)
+        has_zip = any(h.lower().endswith(".zip") for h in hrefs)
+        if has_period or has_zip:
+            if verbose:
+                print(f"[receita] using index base: {base}")
+            return base
+        if verbose:
+            print(f"[receita]   index {base} -> reachable but no period/zip links")
     raise RuntimeError(
-        "Could not resolve a reachable Estabelecimentos URL automatically. "
-        "Pass --period YYYY-MM, or download a zip manually and use --zip <path>."
+        f"No usable index base found (last: {last}). Use --zip <path> with a "
+        "manually downloaded file, or --period + --base."
     )
 
 
-def download_zip(period: str, part: int, verbose: bool = True) -> Path:
+def _latest_period(base: str, verbose: bool = True) -> str:
+    """List period subfolders (YYYY-MM/) under base and return the newest."""
+    import re
+    hrefs = _fetch_index(base)
+    periods = sorted(set(re.findall(r"(20\d\d-\d\d)", " ".join(hrefs))))
+    if not periods:
+        raise RuntimeError(f"No YYYY-MM period folders found under {base}")
+    if verbose:
+        print(f"[receita] periods available: {periods[-6:]} (using {periods[-1]})")
+    return periods[-1]
+
+
+def _estabelecimento_urls(base: str, period: str, verbose: bool = True) -> list[str]:
+    """Discover the REAL Estabelecimentos file URLs inside a period folder.
+
+    The filename has varied over time (Estabelecimentos0.zip, Estabelecimentos_0.zip,
+    K3241.K03200Y0...ESTABELE...zip). We read the listing and match anything
+    that looks like an establishments file, rather than guessing.
+    """
+    import re
+    purl = base.rstrip("/") + "/" + period + "/"
+    hrefs = _fetch_index(purl)
+    cands = []
+    for h in hrefs:
+        name = h.split("/")[-1]
+        if not name.lower().endswith(".zip"):
+            continue
+        if "estabelec" in name.lower() or "ESTABELE" in name:
+            full = h if h.startswith("http") else purl + name
+            cands.append(full)
+    cands.sort()
+    if verbose:
+        print(f"[receita] establishments files in {period}: {len(cands)} found")
+        for c in cands[:3]:
+            print(f"           {c}")
+    if not cands:
+        raise RuntimeError(
+            f"No Estabelecimentos*.zip found under {purl}. Inspect with --list."
+        )
+    return cands
+
+
+def list_remote(verbose: bool = True) -> None:
+    """--list mode: print the discoverable index tree (base -> periods -> files)."""
+    base = _find_index_base(verbose=True)
+    import re
+    hrefs = _fetch_index(base)
+    periods = sorted(set(re.findall(r"(20\d\d-\d\d)", " ".join(hrefs))))
+    print(f"\nINDEX BASE: {base}")
+    print(f"PERIODS ({len(periods)}): {periods}")
+    if periods:
+        latest = periods[-1]
+        purl = base.rstrip("/") + "/" + latest + "/"
+        files = [h.split("/")[-1] for h in _fetch_index(purl) if h.lower().endswith(".zip")]
+        print(f"\nFILES in {latest} ({len(files)}):")
+        for f in sorted(files):
+            print(f"  {f}")
+
+
+def download_zip(part: int, period: str | None, base: str | None, verbose: bool = True) -> Path:
     out = external_dir(DATASET)
     out.mkdir(parents=True, exist_ok=True)
-    dst = out / f"Estabelecimentos{part}.zip"
+
+    if base is None:
+        base = _find_index_base(verbose)
+    if period is None:
+        period = _latest_period(base, verbose)
+
+    urls = _estabelecimento_urls(base, period, verbose)
+    # pick the requested part if the filenames carry an index; else the part-th
+    url = None
+    for u in urls:
+        tail = u.rsplit("/", 1)[-1]
+        if f"{part}.zip" in tail or f"_{part}.zip" in tail or f"-{part}.zip" in tail:
+            url = u
+            break
+    if url is None:
+        url = urls[part] if part < len(urls) else urls[0]
+
+    dst = out / url.rsplit("/", 1)[-1]
     if dst.exists() and dst.stat().st_size > 1_000_000:
         if verbose:
             print(f"[receita] zip already present: {dst} ({dst.stat().st_size/1024/1024:.1f} MB)")
         return dst
-    last_err = None
-    for base in URL_BASES:
-        url = base.format(period=period, part=part)
-        if verbose:
-            print(f"[receita] trying {url}")
-        try:
-            req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0 tcf-dataset-setup/1.0"})
-            with urllib.request.urlopen(req, timeout=120) as r, dst.open("wb") as f:
-                total = 0
-                while True:
-                    chunk = r.read(1 << 20)
-                    if not chunk:
-                        break
-                    f.write(chunk)
-                    total += len(chunk)
-                    if verbose and total % (50 << 20) < (1 << 20):
-                        print(f"[receita]   downloaded {total/1024/1024:.0f} MB ...")
-            if verbose:
-                print(f"[receita] saved {dst} ({dst.stat().st_size/1024/1024:.1f} MB)")
-            return dst
-        except Exception as e:
-            last_err = e
-            if dst.exists():
-                dst.unlink()
-            if verbose:
-                print(f"[receita]   failed: {type(e).__name__}: {str(e)[:80]}")
-    raise RuntimeError(
-        f"All download URLs failed (last: {last_err}). The Receita host may be "
-        "unreachable from this network. Download a part manually and use "
-        "--zip <path>."
-    )
+
+    if verbose:
+        print(f"[receita] downloading {url}")
+    req = urllib.request.Request(url, headers=_UA)
+    with urllib.request.urlopen(req, timeout=180) as r, dst.open("wb") as f:
+        total = 0
+        while True:
+            chunk = r.read(1 << 20)
+            if not chunk:
+                break
+            f.write(chunk)
+            total += len(chunk)
+            if verbose and total % (50 << 20) < (1 << 20):
+                print(f"[receita]   downloaded {total/1024/1024:.0f} MB ...")
+    if verbose:
+        print(f"[receita] saved {dst} ({dst.stat().st_size/1024/1024:.1f} MB)")
+    return dst
 
 
 def process_zip(zip_path: Path, n_rows: int, verbose: bool = True):
@@ -282,21 +352,28 @@ def generate_samples(csv_path: Path) -> None:
 
 def main():
     ap = argparse.ArgumentParser(description="Set up receita-cnpj (real CNPJ slice)")
-    ap.add_argument("--period", help="YYYY-MM (default: autodetect)")
+    ap.add_argument("--period", help="YYYY-MM (default: latest discovered)")
+    ap.add_argument("--base", help="override index base URL (a dir listing of YYYY-MM/ folders)")
     ap.add_argument("--part", type=int, default=0, help="Estabelecimentos part 0..9 (default 0)")
     ap.add_argument("--rows", type=int, default=200_000, help="rows to slice (default 200000)")
     ap.add_argument("--zip", dest="zip_path", help="process an already-downloaded zip (skip download)")
+    ap.add_argument("--list", action="store_true",
+                    help="just discover + print the remote index tree (no download)")
     args = ap.parse_args()
 
     ensure_dirs()
+    if args.list:
+        list_remote()
+        return
+
     if args.zip_path:
         zip_path = Path(args.zip_path)
         period = args.period
         if not zip_path.exists():
             sys.exit(f"--zip not found: {zip_path}")
     else:
-        period = args.period or _resolve_period()
-        zip_path = download_zip(period, args.part)
+        zip_path = download_zip(args.part, args.period, args.base)
+        period = args.period
 
     csv_path, n_rows, n_compressible = process_zip(zip_path, args.rows)
     write_metadata(n_rows, n_compressible, period)
