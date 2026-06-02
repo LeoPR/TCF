@@ -1,0 +1,68 @@
+{
+  "name": "receita-cnpj",
+  "synthetic": false,
+  "source": "Receita Federal — Dados Publicos CNPJ (Estabelecimentos)",
+  "origin": "WebDAV public share: arquivos.receitafederal.gov.br/public.php/dav/files/<token>/<YYYY-MM>/ (monthly)",
+  "period": "2026-05",
+  "license": "Dados abertos (Receita Federal). Pessoa juridica = nao-PII.",
+  "license_note": "Confirmar termos de uso antes de redistribuir o dado bruto.",
+  "citation": "Receita Federal do Brasil. Dados Publicos CNPJ.",
+  "downloaded_via": "scripts/setup_receita_cnpj.py (1 part Estabelecimentos, slice)",
+  "note": "REAL CNPJ slice (non-PII). Counterpart to synthetic br-identidades. Volume 200000 rows exceeds shaper <=100k regime -> use direct encode().",
+  "cnpj_compressible_count": 200000,
+  "cnpj_compressible_pct": 100.0,
+  "row_counts": {
+    "estabelecimentos": 200000
+  },
+  "column_count": 8,
+  "tables": {
+    "estabelecimentos": {
+      "pk": [
+        "cnpj"
+      ],
+      "fk": {},
+      "columns": {
+        "cnpj": {
+          "type": "string",
+          "nullable": false,
+          "note": "Masked NN.NNN.NNN/NNNN-DD assembled from basico+ordem+dv; nature='cnpj' target"
+        },
+        "matriz_filial": {
+          "type": "string",
+          "nullable": false,
+          "note": "1=matriz, 2=filial"
+        },
+        "nome_fantasia": {
+          "type": "string",
+          "nullable": true,
+          "note": "Trade name (real free text); empty for many rows"
+        },
+        "situacao": {
+          "type": "string",
+          "nullable": false,
+          "note": "Situacao cadastral code (01..08), low-card"
+        },
+        "data_inicio": {
+          "type": "string",
+          "nullable": true,
+          "note": "Activity start date, raw YYYYMMDD (0 means missing)"
+        },
+        "cnae_principal": {
+          "type": "string",
+          "nullable": true,
+          "note": "Primary CNAE code (7 digits)"
+        },
+        "uf": {
+          "type": "string",
+          "nullable": true,
+          "note": "State 2-letter code"
+        },
+        "municipio_cod": {
+          "type": "string",
+          "nullable": true,
+          "note": "Receita municipality code (NOT the IBGE code)"
+        }
+      }
+    }
+  }
+}

@@ -1,9 +1,10 @@
 ---
 title: T-DATA-2-RECEITA-CNPJ — Dataset real de CNPJ (Receita Federal open data) para gating ecologico das natures
-status: in-progress
+status: closed-done
 priority: P2
 created: 2026-06-01
 updated: 2026-06-02
+closed: 2026-06-02
 blocked-by: []
 related:
   - datasets/canonical/br-identidades/   (contraparte SINTETICA; este fecha o gate que aquele nao pode)
@@ -64,13 +65,13 @@ generalizacao?
 
 ## Criterio de aceite
 
-- [ ] Checklist discoverability rodado + aprovacao explicita do owner pro
+- [x] Checklist discoverability rodado + aprovacao explicita do owner pro
       download (anti-incidente EXP-012)
-- [ ] `scripts/setup_receita_cnpj.py` + metadata + README (referencia leve)
-- [ ] Fixture frozen 2000 CNPJs reais em `datasets/samples/receita-cnpj/`
-- [ ] % compressible medido na coluna real; fallback caracterizado
-- [ ] Ganho weighted CNPJ real medido e comparado ao sintetico
-      (>= 5% -> candidato a `confirmada-empirica`; < 5% -> documentar)
+- [x] `scripts/setup_receita_cnpj.py` + metadata + README (referencia leve)
+- [x] Fixture frozen 2000 CNPJs reais em `datasets/samples/receita-cnpj/`
+- [x] % compressible medido na coluna real (100% sob SPEC_CNPJ); 0 malformados
+- [x] Ganho CNPJ real medido: **40.9%** nature vs M10 (>= 5% -> candidato a
+      `confirmada-empirica`; 1a fonte ecologica de check-digit, falta N>=5)
 
 ## Riscos
 
@@ -107,24 +108,45 @@ um zip sintetico no formato real (30 col, `;`, latin-1): 95% compressible
 com 5% dv-ruim plantado, round-trip OK. `--zip <path>` processa um arquivo
 ja' baixado (sem rede).
 
-**BLOQUEIO de rede (deste ambiente)**: host oficial
-`dadosabertos.rfb.gov.br` da' **timeout** (WinError 10060); mirror
-`arquivos.receitafederal.gov.br` responde no root (200, portal SERPRO JS)
-mas 404 em todo path `/dados/cnpj/...` documentado; dados.gov.br API = 401
-(precisa token); Casa dos Dados = so' landing page. Logo o download real
-**nao roda deste sandbox** — mas a fonte e' BR e provavelmente alcancavel
-da rede do owner.
+**BLOQUEIO de rede (parcial, deste ambiente)**: host oficial
+`dadosabertos.rfb.gov.br` da' **timeout**; os paths HTTP planos
+`/dados/cnpj/...` dao 404. Adivinhar URL nao funciona.
 
-**Como completar (owner, na rede dele)**:
-```bash
-# opcao A — autodetect + download:
-python scripts/setup_receita_cnpj.py --rows 200000
-# opcao B — se autodetect falhar, fixar periodo:
-python scripts/setup_receita_cnpj.py --period 2025-05 --rows 200000
-# opcao C — baixar 1 zip manual e processar offline:
-python scripts/setup_receita_cnpj.py --zip Z:/tcf-data/external/receita-cnpj/Estabelecimentos0.zip --rows 200000
-# depois:
-python scripts/csv_to_sqlite.py receita-cnpj
-```
-Apos rodar: medir % compressible na coluna `cnpj` real + ganho nature ON/OFF
-(weighted) e comparar com o sintetico br-identidades (checklist Q3).
+### 2026-06-02 (parte 2) — DESCOBERTA da API real + DOWNLOAD + MEDICAO
+
+**Causa-raiz dos 404**: a Receita migrou o repositorio pra um **Nextcloud
+public share servido por WebDAV** (descoberto lendo o downloader mantido
+`rictom/cnpj-sqlite`). API real:
+- **PROPFIND** em `https://arquivos.receitafederal.gov.br/public.php/webdav`
+  com Basic auth `(share_token, "")`, token `YggdBLfdninEJX9` -> lista meses
+- Download via `.../public.php/dav/files/<token>/<YYYY-MM>/<arquivo>`
+- Verificado: PROPFIND root -> 207, meses ate' 2026-05. Estabelecimentos0.zip
+  = **~1.99 GB** (nao ~290MB). `Accept-Ranges: None`.
+
+**Script reescrito** pra essa API + **streaming-stop**: parseia o local
+header do zip, raw-inflate via zlib on-the-fly, para apos N linhas (so'
+baixa o necessario — `ZipFile` nao serve porque precisa seek pro central
+directory). `--list` lista a arvore real; `--full` baixa a parte inteira;
+`--zip` processa offline.
+
+**Rodado de verdade (2026-05, Estabelecimentos0, stream 200k, cap 600MB)**:
+200.000 estabelecimentos reais, **100% compressible** sob SPEC_CNPJ, 0
+malformados. Hub `receita-cnpj.db` FK OK. So' colunas nao-PII projetadas
+(CNPJ/matriz/nome_fantasia/situacao/data/cnae/uf/municipio_cod — telefone/
+email/endereco DESCARTADOS).
+
+**MEDICAO (10k CNPJs reais, nature ON vs OFF)**:
+| | bytes | ratio vs raw |
+|---|---|---|
+| raw | 190000 | 100% |
+| TCF sem nature (M10) | 205944 | 108.4% (infla — CNPJ unico) |
+| TCF nature='cnpj' | 121744 | 64.1% |
+
+**Ganho da nature CNPJ em dado real: 40.9%** vs M10. Bem acima do gate 5%.
+Confirma em dado ecologico o que o sintetico br-identidades so' sugeria.
+
+**Status do gate confirmada-empirica**: esta e' a **1a fonte ecologica** de
+check-digit. Falta N>=5 fontes diferentes (checklist Q2) pra confianca
+estatistica forte — mas a generalizacao CNPJ esta agora demonstrada em dado
+real (nao so' sintetico). Marcar a nature CNPJ como `confirmada-empirica`
+com confianca: Media (1 fonte real, ganho >> 5%, RT 100%).
