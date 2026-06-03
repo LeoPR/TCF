@@ -49,14 +49,15 @@ Multi-column basico em EXP-011.
   - `benchmark_*.py` — benchmarks de FORMATO/compressao. **EXCECAO**: os 3
     `benchmark_{llm_accuracy,progressive_diagnostic,stats_ablation}.py` sao
     benchmark LLM v0.5 (acessorio) — marcados pra mover a `llm-benchmark/`
-    (ver REORG abaixo). `benchmark_llm_accuracy.py` esta' QUEBRADO contra v0.6.
+    (ver REORG abaixo). `benchmark_llm_accuracy.py` esta' QUEBRADO contra v0.6
+    (importa nomes de old/tcf) — deixado sem conserto, arquivado-morto (Fase 2).
 - `experiments/lab/dirty/` — labs exploratorios v0.6 (sub-exps numerados)
 - `experiments/lab/clean/EXP-NNN-*/` — prototypes consolidados v0.6
 - `experiments/eval/`, `experiments/results/`, `experiments/scratch/` —
   **benchmark LLM v0.5 (ACESSORIO, NAO TCF-core)**. M-series runners +
   manifests + CommercialClient. Marcado pra consolidar em `llm-benchmark/`
-  (reorg em andamento; ver REORG abaixo). `python -m experiments.eval` esta'
-  quebrado (run_matrix.py ausente).
+  (reorg em andamento; ver REORG abaixo). Entry point `__main__.py` foi
+  removido na Fase 2 (estava quebrado); usar os run_*.py individuais.
 
 ### Dados
 - `datasets/synthetic/` — CSVs pequenos no repo (D1-D17)

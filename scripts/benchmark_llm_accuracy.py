@@ -1,5 +1,13 @@
 """LLM accuracy benchmark — test how well models answer questions on formatted data.
 
+⚠️ QUEBRADO / HISTORICO v0.5 (2026-06-02): este script importa
+`encode_columns`/`EncodeConfig`/`tcf.timing`, que NAO existem em `src/tcf/`
+(v0.6 exporta encode/decode/...). Esses nomes vivem no motor de niveis v0.5
+em `old/tcf/`. O script NAO roda contra o repo atual e foi deixado SEM
+conserto deliberadamente (owner: arquivar como morto). Pertence ao benchmark
+LLM v0.5 (acessorio) — marcado pra mover a `llm-benchmark/scripts/` na reorg
+(ver REORG no CLAUDE.md). Se for reviver: trocar os imports pra `old.tcf`.
+
 Compares CSV, JSONL, TOON, TCF L0 (with/without STATS), and TCF L2
 across multiple models, datasets, and scales.
 
