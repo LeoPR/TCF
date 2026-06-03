@@ -92,7 +92,12 @@ TCF/
 - `docs/archive/` — v0.5 OBSOLETO. **Nao use.**
 - `experiments/lab/dirty/old/` — labs historicos antigos. **Nao use** salvo
   pra entender historia.
-- `old/tcf/` (se existir) — motor v0.5 obsoleto.
+- `old/tcf/` — motor v0.5 (niveis L0–L3), **congelado-historico**. Existe
+  definitivamente; `src/tcf/` (canonical v0.6) tem acoplamento ZERO com ele.
+  Semantica dos niveis revista em
+  [`old/tcf/LEVELS-REVIEW.md`](old/tcf/LEVELS-REVIEW.md). **Nao use** salvo historia.
+- `experiments/eval/` — benchmark LLM v0.5 (acessorio). Marcado para
+  consolidacao em `llm-benchmark/` (reorg em andamento). **Nao e' TCF-core.**
 
 ## Entradas de lab atualmente ativas
 

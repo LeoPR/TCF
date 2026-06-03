@@ -132,12 +132,17 @@ levels of question naturalness — **2256 records, 38 findings catalogued**.
 
 For 100-row Adult Census (single table, 15 columns):
 
+> **Niveis L0–L3 sao do motor v0.5** (`old/tcf/`), NAO do v0.6. A
+> semantica autoritativa esta em [`old/tcf/LEVELS-REVIEW.md`](old/tcf/LEVELS-REVIEW.md)
+> (L1=RLE, L2=sort+RLE, L3=dict+sort+RLE). O "schema-only" abaixo era um
+> conceito da Linha B, **nao implementado** no motor de niveis.
+
 | Format | Bytes | Roundtrip? |
 |--------|-------|-----------|
 | JSON  | ~14000 | ✅ |
 | CSV  | ~9000 | ✅ |
-| **TCF L2** (RLE + STATS, sorted by `class`) | **~7188** | ✅ |
-| TCF L3 (schema-only) | ~470 | ❌ schema |
+| **TCF L2** (sort+RLE + STATS, sorted by `class`) | **~7188** | ✅ |
+| TCF "schema-only" (conceito Linha B, nao no motor de niveis) | ~470 | ❌ schema |
 
 For 8-table TPC-H sf001 sample, full TCF payload at ~33 KB enables Linha A
 in 1-shot context.
@@ -157,27 +162,27 @@ in 1-shot context.
 
 ---
 
-## Quickstart
+## Quickstart (v0.5 historico)
 
-```bash
-pip install -e .
-```
+> **Nota**: o quickstart v0.6 atual esta no topo deste README
+> (`from tcf import encode, decode`). O bloco abaixo e' do motor v0.5
+> (niveis `level=N`), que vive em [`old/tcf/`](old/tcf/) — ver
+> [`old/tcf/LEVELS-REVIEW.md`](old/tcf/LEVELS-REVIEW.md) para a semantica
+> autoritativa dos niveis L0–L3. As APIs v0.5 (`encode_rows`,
+> `EncodeConfig`, `python -m tcf`) **nao existem** em `src/tcf/` (v1.0 e'
+> library-only, sem CLI).
 
 ```python
-from tcf import encode_rows, EncodeConfig
+# v0.5 (motor de niveis, acessorio):
+from old.tcf import encode_rows, EncodeConfig
 
 text = encode_rows("people", rows, config=EncodeConfig(level=2, include_stats=True))
 print(text)
 ```
 
-CLI:
-
-```bash
-python -m tcf encode --meta data/metadata.json --data-dir data/ --level 2 --out out.tcf
-python -m tcf decode out.tcf --out-dir restored/
-```
-
-→ Full manual: [docs/archive/manual_v05/](docs/archive/manual_v05/) (v0.5 historico — manual v0.6 pendente)
+→ Manual v0.5: [docs/archive/manual_v05/](docs/archive/manual_v05/)
+(historico; note a divergencia de niveis registrada em
+[`old/tcf/LEVELS-REVIEW.md`](old/tcf/LEVELS-REVIEW.md))
 
 ---
 
@@ -185,22 +190,31 @@ python -m tcf decode out.tcf --out-dir restored/
 
 ```
 TCF/
-├── src/tcf/                 ← public encode/decode API
-├── scripts/                 ← Shaper (stratified sampling), CSV→SQLite
-├── experiments/             ← M-series runners + result manifests
-├── tests/                   ← pytest suite
-├── datasets/                ← canonical metadata + samples
+├── src/tcf/                 ← CANONICAL v0.6 API (OBAT+HCC, encode/decode, #TCF.6)
+├── old/tcf/                 ← motor v0.5 (niveis L0–L3), congelado-historico (ver LEVELS-REVIEW.md)
+├── scripts/                 ← Shaper (stratified sampling), CSV→SQLite, setup_* datasets
+├── experiments/
+│   ├── lab/                 ← labs v0.6 (dirty + clean) — compressao composicional
+│   └── eval/                ← benchmark LLM v0.5 (M-series runners) — acessorio
+├── tests/                   ← pytest suite (v0.6)
+├── datasets/                ← canonical metadata + samples (dados reais em Z:)
+├── tickets/                 ← planejamento markdown (YAML frontmatter)
 ├── docs/
-│   ├── manual/              ← user-facing guide (7 chapters EN, PT-BR partial)
-│   ├── findings/            ← scientific catalogue (F-Q1..F-Q38)
-│   ├── theory/              ← architecture + methodology snapshot
-│   ├── workbench/           ← dev timeline, tickets, research notes
-│   ├── article/             ← paper drafts + figures
-│   └── archive/             ← legacy v0.1 material
-├── config/                  ← API keys (gitignored), storage config
+│   ├── algorithms/          ← specs canonicos v0.6 (OBAT, HCC, TCF-format) [reference]
+│   ├── adr/                 ← decisoes numeradas, imutaveis
+│   ├── theory/              ← fundamentos teoricos [explanation]
+│   ├── how-to/, tutorials/  ← Diataxis
+│   ├── findings/            ← catalogo cientifico v0.5 LLM (F-Q01..Q38) [historico]
+│   ├── workbench/           ← dev timeline, research notes (partes em _archive/)
+│   └── archive/             ← material v0.5/v0.1 congelado (manual_v05, article_v05, etc.)
+├── config/                  ← storage.json (aponta Z:), api_keys (gitignored)
 ├── README.md                ← you are here
 └── CHANGELOG.md             ← release history
 ```
+
+> Para o mapa detalhado, ver [MAP.md](MAP.md). Os diretorios `docs/manual/`
+> e `docs/article/` NAO existem — o material v0.5 correspondente esta em
+> `docs/archive/manual_v05/` e `docs/archive/article_v05/`.
 
 ---
 
@@ -242,18 +256,18 @@ Different optimization targets:
 The repo is set up so the encoder is the headline tool, with several
 auxiliaries:
 
-- **`tcf` CLI** (`src/tcf/cli.py`) — encode/decode/info on disk
 - **Shaper** (`scripts/shaper/`) — stratified, FK-preserving sampling
   framework. Standalone-able as a separate library; see
-  [shaper-as-standalone-tool note](docs/workbench/research-notes/2026-04-25-shaper-as-standalone-tool.md)
+  [shaper-as-standalone-tool note](docs/workbench/research-notes/_archive/2026-04-25-shaper-as-standalone-tool.md)
 - **DatasetReader** (`scripts/dataset_reader.py`) — uniform interface
   over SQLite hubs (rows, columns, query, column_stats)
-- **CommercialClient** (`experiments/eval/llm_eval/commercial_client.py`)
-  — unified client for Anthropic Messages API + OpenAI Responses API,
-  with cost tracking, prompt caching, structured outputs, and
-  count_tokens validation
-- **M-series runners** (`experiments/eval/run_m*.py`) — reproducible
-  experiments, each with `--summary` for table view of saved manifests
+
+> **Nota**: v1.0 e' **library-only** (sem CLI — ver `pyproject.toml`).
+> Nao existe `src/tcf/cli.py`; o unico CLI e' o v0.5 em `old/tcf/cli.py`.
+> Os auxiliares de **benchmark LLM** (`CommercialClient`, M-series runners
+> em `experiments/eval/`) sao **acessorios v0.5** — ver
+> "Reproducing experiments" abaixo. Estao marcados para consolidacao em
+> `llm-benchmark/` (reorg em andamento).
 
 ---
 

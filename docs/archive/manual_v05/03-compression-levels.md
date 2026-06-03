@@ -1,5 +1,15 @@
 # 03 — Compression levels
 
+> ⚠️ **AVISO (2026-06-02, revisao de niveis)**: este doc v0.5 esta'
+> **divergente do codigo**. A tabela abaixo lista L1=DICT, L2=RLE,
+> L3=schema-only — mas o codigo autoritativo (`old/tcf/encoder.py`) faz
+> **L1=RLE, L2=sort+RLE, L3=dict+sort+RLE**, e **L3 NAO e' "schema-only"**
+> (emite todas as linhas como indices de dicionario, com round-trip).
+> "schema-only" era um conceito da Linha B, nunca implementado no motor de
+> niveis. Fonte autoritativa: [`old/tcf/LEVELS-REVIEW.md`](../../../old/tcf/LEVELS-REVIEW.md).
+> Doc mantido congelado-historico; **nao corrigido in-place** (imutabilidade
+> de arquivo arquivado) — use o LEVELS-REVIEW para a verdade.
+
 TCF has 4 levels (`L0`..`L3`) that trade compactness for readability and
 information loss.
 
