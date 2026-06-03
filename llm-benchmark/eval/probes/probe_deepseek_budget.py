@@ -22,12 +22,12 @@ import urllib.request
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
-ROOT = HERE.parent.parent.parent  # TCF/
+ROOT = HERE.parent.parent.parent.parent  # TCF/ (probe now at llm-benchmark/eval/probes/)
 RESULTS = ROOT / "experiments" / "results" / "probes" / "probe_deepseek_budget.json"
 RESULTS.parent.mkdir(parents=True, exist_ok=True)
 sys.path.insert(0, str(ROOT / "src"))
 sys.path.insert(0, str(ROOT))
-sys.path.insert(0, str(ROOT / "experiments" / "eval"))
+sys.path.insert(0, str(ROOT / "llm-benchmark" / "eval"))
 
 from tcf import encode as tcf_encode, EncodeConfig
 from tests.fixtures import _write_fixture

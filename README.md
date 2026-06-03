@@ -287,20 +287,20 @@ To regenerate the 38 findings:
 2. For local experiments (no spend):
    ```bash
    ollama pull qwen3:14b qwen2.5-coder:7b phi4:latest
-   python experiments/eval/run_m9_adult.py --naturalness all
-   python experiments/eval/run_m9_canonical.py --naturalness all
-   python experiments/eval/run_m_alocal.py --naturalness all
-   python experiments/eval/run_m_schema_scope.py --naturalness all
+   python llm-benchmark/eval/run_m9_adult.py --naturalness all
+   python llm-benchmark/eval/run_m9_canonical.py --naturalness all
+   python llm-benchmark/eval/run_m_alocal.py --naturalness all
+   python llm-benchmark/eval/run_m_schema_scope.py --naturalness all
    ```
 
 3. For commercial experiments ($1-10 USD with caching):
    ```bash
    # Add config/api_keys.json with {"openai":"sk-...","anthropic":"sk-ant-..."}
-   python experiments/eval/run_m_acomm.py --dry-run --naturalness all  # validate first
-   python experiments/eval/run_m_acomm.py --naturalness all
-   python experiments/eval/run_m_acomm_b.py --naturalness all
-   python experiments/eval/run_m_acommA_tpch.py --naturalness all
-   python experiments/eval/run_m_acommB_tpch.py --naturalness all
+   python llm-benchmark/eval/run_m_acomm.py --dry-run --naturalness all  # validate first
+   python llm-benchmark/eval/run_m_acomm.py --naturalness all
+   python llm-benchmark/eval/run_m_acomm_b.py --naturalness all
+   python llm-benchmark/eval/run_m_acommA_tpch.py --naturalness all
+   python llm-benchmark/eval/run_m_acommB_tpch.py --naturalness all
    ```
 
 Use `--summary` on any runner to display saved results without re-running.

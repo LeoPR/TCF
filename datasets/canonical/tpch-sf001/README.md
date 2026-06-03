@@ -55,7 +55,7 @@ Creates `$TCF_DATA_ROOT/interim/tpch-sf001.db` with all PK/FK declared.
 ## Use in experiments
 
 ```python
-from experiments.eval.data_sources import load_dataset
+from llm_benchmark.eval.data_sources import load_dataset  # (v0.5 harness; movido p/ llm-benchmark/)
 
 # 100-row sample on the partsupp fact, FK-preserving on supplier+part
 tables, meta = load_dataset(

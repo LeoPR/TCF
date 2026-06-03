@@ -65,7 +65,7 @@ declared per `metadata.json`.
 ## Use in experiments
 
 ```python
-from experiments.eval.data_sources import load_dataset
+from llm_benchmark.eval.data_sources import load_dataset  # (v0.5 harness; movido p/ llm-benchmark/)
 
 tables, meta = load_dataset(
     "canonical:adult-census",

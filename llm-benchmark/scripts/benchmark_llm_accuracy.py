@@ -37,7 +37,11 @@ import time
 from pathlib import Path
 from typing import Any
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
+# Moved to llm-benchmark/scripts/ (reorg Fase 4-5). NOTE: this script is
+# dead-archived (imports encode_columns/EncodeConfig/tcf.timing from old/tcf,
+# not src/tcf — see docstring). Paths fixed for a future reviver only.
+_REPO = Path(__file__).resolve().parent.parent.parent  # TCF/
+sys.path.insert(0, str(_REPO / "scripts"))
 from _paths import PROJECT_ROOT, data_root  # noqa: E402
 from dataset_reader import DatasetReader  # noqa: E402
 from writers.toon_writer import encode_toon  # noqa: E402
@@ -46,7 +50,7 @@ sys.path.insert(0, str(PROJECT_ROOT / "src"))
 from tcf import encode_columns, EncodeConfig  # noqa: E402
 from tcf.timing import Timings  # noqa: E402
 
-sys.path.insert(0, str(PROJECT_ROOT / "experiments" / "eval"))
+sys.path.insert(0, str(PROJECT_ROOT / "llm-benchmark" / "eval"))
 from llm_eval.ollama_client import OllamaClient  # noqa: E402
 from llm_eval.metrics import extract_number, strip_think  # noqa: E402
 

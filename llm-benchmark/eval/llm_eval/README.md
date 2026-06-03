@@ -128,11 +128,16 @@ POST /api/generate
 - `avg_prompt_chars`: tamanho médio do prompt (indicativo de custo de tokenização).
 - `composite_score`: heurística interna para ranquear formatos/modelos.
 
-## Fluxo de Uso (CLI)
+## Fluxo de Uso
+
+> **Nota (reorg 2026-06-02)**: este pacote foi movido de
+> `experiments/eval/llm_eval/` para `llm-benchmark/eval/llm_eval/`. O CLI
+> `python -m experiments.llm_eval.cli` citado abaixo era stale (nao existe
+> `cli.py` neste pacote). Os entrypoints reais sao os `run_*.py` em
+> `llm-benchmark/eval/`. Exemplo historico (nao funcional como esta'):
 ```pwsh
-python -m experiments.llm_eval.cli auto-plan --desired 5 --require-family-diversity
-python -m experiments.llm_eval.cli run-batch --plan eval_plan.json
-python -m experiments.llm_eval.cli consolidate --plan eval_plan.json
+# (historico — sem cli.py; usar os run_*.py em llm-benchmark/eval/)
+python llm-benchmark/eval/run_m9_adult.py --naturalness all
 ```
 
 ## Interpretação

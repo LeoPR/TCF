@@ -31,14 +31,17 @@ import sys
 import time
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
+# Moved to llm-benchmark/scripts/ (reorg Fase 4-5). _paths/dataset_reader
+# stay in the repo-root scripts/; llm_eval moved to llm-benchmark/eval/.
+_REPO = Path(__file__).resolve().parent.parent.parent  # TCF/
+sys.path.insert(0, str(_REPO / "scripts"))
 from _paths import PROJECT_ROOT, data_root  # noqa: E402
 from dataset_reader import DatasetReader  # noqa: E402
 
 sys.path.insert(0, str(PROJECT_ROOT / "src"))
 from tcf import encode_columns, EncodeConfig  # noqa: E402
 
-sys.path.insert(0, str(PROJECT_ROOT / "experiments" / "eval"))
+sys.path.insert(0, str(PROJECT_ROOT / "llm-benchmark" / "eval"))
 from llm_eval.ollama_client import OllamaClient  # noqa: E402
 from llm_eval.metrics import extract_number, strip_think  # noqa: E402
 
