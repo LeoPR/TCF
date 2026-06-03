@@ -1,6 +1,42 @@
 # STATUS — TCF (compendio sempre-atualizado)
 
-**Atualizado em**: 2026-05-27 (**Auditoria profunda + fechamento do limbo**:
+**Atualizado em**: 2026-06-03 (**Datasets BR/CNPJ + H-PERF-06 Cython +
+shaper gating + reorg separacao de concerns**). 33 commits desde o bloco
+anterior. Resumo:
+
+- **Datasets novos** (referencia leve no git; dados reais regeneraveis em Z:):
+  - `ibge-municipios` (5571 municipios BR, geografia real) — commit 29024f7
+  - `tpch-sf01` (TPC-H SF=0.1, ~866k linhas, FK OK) — commit 4733f52
+  - `br-identidades` (SINTETICO: 500k pessoas CPF + 100k empresas CNPJ,
+    geografia IBGE reusada, FK socio_cpf) — commit f5e2fa8
+  - `receita-cnpj` (REAL non-PII: 200k estabelecimentos Receita Federal) —
+    commit f7ded09. **Nature CNPJ medida em dado real: 64.1% vs M10 108.4%
+    = ganho 40.9%** (>> gate 5%). 1a fonte ECOLOGICA de check-digit ->
+    **nature CNPJ confirmada-empirica** (confianca Media, falta N>=5 fontes).
+  - tpch part/partsupp samples emitidos (T-DATA-4, commit c9b4984)
+  - Setup via WebDAV: Receita migrou pra Nextcloud (`/public.php/webdav`);
+    `setup_receita_cnpj.py` faz streaming-stop (nao baixa os ~2GB).
+- **H-PERF-06-v2** (acelerar HCC `_detect_compositions`, byte-canonical):
+  - Fase A: prune top-K + early-term (ADR-0019, commit 8118d7a)
+  - Fase B: acelerador **Cython opcional** com fallback pure-Python
+    byte-identico (ADR-0020, commit f44f7d3). `src/tcf/_core/detect.pyx`.
+    Cumulativo ~2.67x speedup encode (online-retail 20k x 8col).
+- **Shaper** (tool auxiliar, NAO TCF-core) cientificamente validado:
+  `tests/test_shaper_scientific.py` (10 testes P1-P5: fk_preserving,
+  stratify chi2+TVD, join, volume marginal, schema levels). Aprovado p/
+  uso <=100k linhas (T-SHAPER-SCIENTIFIC-GATING, commit 004e8b0).
+- **Gate real-world** byte-canonical: `tests/test_real_world_snapshots.py`
+  (retail Description/StockCode + lineitem l_comment, regime n_tam_est>=3) —
+  T-REGRESSION-REAL-WORLD, commit bb321c5. Mudancas em HCC/prune DEVEM passar.
+- **Reorg separacao de concerns** (Fases 0-7, commits 5a15538..bb02cff):
+  benchmark LLM v0.5 consolidado em `llm-benchmark/` (harness); catalogo
+  findings FICA em `docs/findings/` (research compendium); motor v0.5 em
+  `old/tcf/` revisto (`LEVELS-REVIEW.md` — niveis L0-L3 desambiguados do
+  codigo). README enxuto 332->184 linhas. **src/tcf INTOCADO** (verificado).
+- **Bugs ADR-0006/0007** fixados (commit 2b6edc0): separador ref->lit p/
+  `,`/`~`; decode preserva string vazia.
+
+**Anterior 2026-05-27** (**Auditoria profunda + fechamento do limbo**:
 workflow 6 dimensoes mapeou 197 itens (76 pra repensar). Limbo de hipoteses
 nunca concluidas foi fechado empiricamente (lab `2026-05-27-naturezas-reais-uci/`):
 naturezas raras/Pacote 7 re-caracterizadas nos UCI — estrutura EXISTE (refutacao
@@ -171,9 +207,17 @@ vs raw, -31.46% vs single concat, RT 9/9).
 
 ---
 
-## Foco atual — H-DA-11 WELDED canonical + decisao sobre proximo
+## Foco atual (2026-06-03)
 
-**Ciclo 2026-05-21/22 — Revalidacao + H-DA-11 fechado**:
+v1.0 estavel (formato `#TCF.6` + API congelados, ADR-0017). Apos as sessoes
+recentes: datasets BR/CNPJ adicionados, nature CNPJ confirmada-empirica em
+dado real, H-PERF-06 Cython welded, shaper validado, reorg de separacao de
+concerns completa (Fases 0-7). **`src/tcf/` intocado** em toda a reorg/datasets.
+**Decisao do proximo pacote pendente** — ver "Proximas direcoes" no fim.
+Candidatos: T-SHAPER-CODE-HARDENING (escala >100k), roadmap v2.0 (ADR-0018),
+fases parciais T-CODE, ou mais datasets (gaps de cobertura).
+
+### Historico — Ciclo 2026-05-21/22 (Revalidacao + H-DA-11 fechado)
 
 - **2026-05-21 Pacote 2** (escape deduction H-ED-01..04): CLOSED-INSUFFICIENT-GAIN
   (real-world max 1.13% << criterio 5%). Primeiro ticket YAML frontmatter
@@ -380,7 +424,23 @@ vs raw, -31.46% vs single concat, RT 9/9).
 
 ## Datasets ativos
 
-`datasets/synthetic/`:
+### Canonical (`datasets/canonical/` — metadata+sample no git, dados reais em Z:)
+| Dataset | Tipo | Volume | Nota |
+|---|---|---|---|
+| adult-census | real (UCI) | 48842 | single-table mixed |
+| tpch-sf001 | gerado (DuckDB) | 60k lineitem | SF=0.01, 8 tabelas FK |
+| tpch-sf01 | gerado (DuckDB) | 600k lineitem | SF=0.1, ~866k total |
+| online-retail | real (UCI) | 541909 | free-text Description, .99 prices |
+| beijing-pm25 | real (UCI) | 43824 | sensor decimais, range narrow |
+| wine-quality | real (UCI) | 6497 | features quimicas decimais |
+| ibge-municipios | real (IBGE) | 5571 | BR, categoria hierarquica acentuada |
+| br-identidades | **sintetico** | 600k | CPF+CNPJ validos, geografia IBGE; vies declarado |
+| receita-cnpj | **real non-PII** | 200k | CNPJ Receita; nature CNPJ 40.9% real |
+
+> Gaps de cobertura + roadmap em memoria `project-dataset-coverage-map`
+> (free-text longo, IP/UUID, monetary-string, >1M linhas).
+
+### Synthetic (`datasets/synthetic/`):
 
 ### Core TCF (D1-D9) — controle algoritmo
 Padroes estruturais (afixos, wrappers). Cobertos pelo TCF-CORE
@@ -445,6 +505,15 @@ nao guia de evolucao (cf. diretriz dados-realistas).
 | [ADR-0016 (welded direto)](docs/adr/0016-hcc-multi-delta-seq-rle.md) | **CLOSED-WELDED-CANONICAL 2026-05-24** | HCC seq-RLE multi-delta. Marker novo `*N+d1,d2,...|template` opt-in (uniform mantem M10 format). Bug #2 sub-exp 14 fix. 19 tests, D-IP-subnet 1000: 117% -> 4.18%. |
 | [T-CODE-LAYERED-PIPELINE](tickets/T-CODE-LAYERED-PIPELINE.md) | **OPEN-FASE-1-WELDED 2026-05-24** | PipelineConfig dataclass + 3 toggles (pre_pass, obat_shape_preserve, hcc_seq_rle). encode(data, layers=cfg) opt-in. D17a 322B INVARIANT + D1-D9 byte-canonical preservados. 25 tests novos. Fase 2 (online adaptive) pendente. |
 | [ADR-0015 (welded direto)](docs/adr/0015-natures-templated-checked-weld.md) | **CLOSED-WELDED-CANONICAL 2026-05-24** | TemplatedCheckedSpec + SPEC_CPF + SPEC_CNPJ + TemplatedPaddedSpec + SPEC_IP em `src/tcf/natures/`. API publica `encode(values, nature=SPEC_*)` opt-in. CAMADA 0 do funil welded. 37/37 tests, default preserva M10 INVARIANT. IP subnet 1000=229B (1.71%). |
+| [T-REGRESSION-REAL-WORLD](tickets/T-REGRESSION-REAL-WORLD.md) | **CLOSED-DONE 2026-05-31** | Gate byte-canonical real-world (retail Description/StockCode + lineitem l_comment, n_tam_est>=3). Fixtures 2k em datasets/samples/. Mudancas HCC/prune DEVEM passar. |
+| [T-SHAPER-SCIENTIFIC-GATING](tickets/T-SHAPER-SCIENTIFIC-GATING.md) | **CLOSED-DONE 2026-05-31** | 10 testes estatisticos (P1-P5) validam claims do shaper. Aprovado <=100k linhas. |
+| [T-SHAPER-CODE-HARDENING](tickets/T-SHAPER-CODE-HARDENING.md) | **OPEN P2** | Hardening shaper p/ escala >100k (A1 filter-before-load, A3 lstrip bug, A4 dedup, A6 lazy-load). Nao bloqueia uso <=100k. |
+| [ADR-0019 (welded)](docs/adr/0019-hcc-detect-compositions-topk-prune.md) | **CLOSED-WELDED 2026-05-30** | H-PERF-06-v2 Fase A: prune top-K + early-term em HCC _detect_compositions. Byte-canonical preservado. |
+| [ADR-0020 (welded)](docs/adr/0020-cython-optional-accelerator.md) | **CLOSED-WELDED 2026-05-31** | H-PERF-06-v2 Fase B: acelerador Cython opcional de _detect_compositions, fallback pure-Python byte-identico. ~2.67x cumulativo. |
+| [T-DATA-2-RECEITA-CNPJ](tickets/T-DATA-2-RECEITA-CNPJ.md) | **CLOSED-DONE 2026-06-02** | Dataset CNPJ real (200k, non-PII). Nature CNPJ ganho 40.9% em dado real -> confirmada-empirica (confianca Media). |
+| [T-DATA-4-TPCH-PART-SAMPLES](tickets/T-DATA-4-TPCH-PART-SAMPLES.md) | **CLOSED-DONE 2026-06-01** | Samples part/partsupp TPC-H committed (categoria hierarquica observavel). |
+| [T-DATA-3-EDGE-QUALITY-FIXTURES](tickets/T-DATA-3-EDGE-QUALITY-FIXTURES.md) | **DEFERRED** | Plano de dados de borda p/ gadget de qualidade (bloqueado por T-RECOVER-SCHEMA-MULTI-TABLE; gadget nao existe). |
+| Reorg separacao de concerns (Fases 0-7) | **DONE 2026-06-02** | benchmark LLM -> llm-benchmark/; findings ficam em docs/; old/tcf revisto (LEVELS-REVIEW). src/tcf intocado. Ver memoria project-reorg-separation-of-concerns. |
 
 ---
 
@@ -490,36 +559,28 @@ confirmada).
 
 ---
 
-## Estrutura de pastas (apos reorg 2026-05-16)
+## Estrutura de pastas (apos reorg separacao de concerns 2026-06-02)
 
 ```
 TCF/
 ├── STATUS.md                        # este arquivo
-├── README.md, CHANGELOG.md, ...
-├── src/tcf/                         # canonical (OBAT + HCC)
+├── README.md (enxuto v0.6), CHANGELOG.md, CLAUDE.md, MAP.md, AGENTS.md
+├── src/tcf/                         # CANONICAL v0.6 (OBAT + HCC + natures + _core/detect.pyx)
 ├── datasets/
-│   ├── synthetic/                   # D1-D15 + D11a-d
-│   └── canonical/                   # Adult Census, TPC-H
+│   ├── synthetic/                   # D1-D17
+│   ├── canonical/                   # 9 datasets (metadata+sample; dados em Z:)
+│   └── samples/                     # fixtures committed (real-world gate)
+├── llm-benchmark/                   # benchmark LLM v0.5 (ACESSORIO) — harness eval/ + scripts/
+├── old/tcf/                         # motor v0.5 niveis L0-L3, congelado (LEVELS-REVIEW.md)
 ├── docs/
-│   ├── algorithms/                  # OBAT.md, HCC.md, TCF-format.md
-│   ├── theory/                      # data-natures-taxonomy, perspectiva-triplice
-│   └── workbench/                   # research notes
-├── tickets/                         # META-* (planos meta)
+│   ├── algorithms/ adr/ theory/ how-to/ tutorials/   # v0.6 (Diataxis)
+│   ├── findings/                    # catalogo cientifico v0.5 LLM (historico, FICA aqui)
+│   └── archive/                     # v0.5/v0.1 congelado
+├── tickets/                         # planejamento markdown (YAML frontmatter)
 ├── experiments/
-│   └── lab/
-│       ├── clean/                   # EXPs validados
-│       └── dirty/                   # workbench experimental
-│           ├── README.md
-│           ├── notas/               # narrativas
-│           ├── 2026-05-15-naturezas-e-camada/        # ATIVO (T-tracks)
-│           ├── 2026-05-24-cpf-templated-checked/     # ATIVO (origem ADR-0015/0016)
-│           ├── 2026-05-24-benchmark-formats-compression/  # ATIVO (TCF 4/6)
-│           ├── 2026-05-27-baseline-consolidado/      # BASELINE (METRICS+ADRs+lessons)
-│           └── old/
-│               ├── M0-M14/                    # pre-canonical (movido 2026-05-16)
-│               ├── welded/                    # 10 labs welded (movido 2026-05-27)
-│               └── refuted/                   # 7 labs refutados (movido 2026-05-27)
-└── old/tcf/                         # v0.5 obsoleto
+│   ├── lab/{clean,dirty}/           # labs v0.6 (dirty/old/ = M0-M14 + welded + refuted)
+│   ├── results/ scratch/            # output LLM (gitignored)
+└── tests/                           # suite v0.6 + fixtures
 ```
 
 ---
@@ -569,8 +630,24 @@ TCF/
    aumentar cobertura — criterio MENOS satisfeito.
 7. **Track 2 L01-L05** — estudos de camada algoritmo (token-level,
    slot detection, markers tipados, tree-balance, pre-filter).
-8. **T-DOC/T-CLEAN abertos** (P3) — CITATION.cff, mapeamento Diataxis,
-   pre-commit hooks. Aderencia metodologica.
+
+### Aberto/pendente apos sessoes 2026-05-30..06-02
+
+- **T-SHAPER-CODE-HARDENING** (P2) — hardening shaper p/ >100k linhas
+  (A1 filter-before-load destrava escala; A3/A4/A6). Nao bloqueia <=100k.
+- **T-DATA-3-EDGE-QUALITY-FIXTURES** (deferred) — plano de dados de borda;
+  bloqueado por T-RECOVER-SCHEMA-MULTI-TABLE (gadget de qualidade nao existe).
+- **Roadmap v2.0** (ADR-0018) — format changes p/ naturezas raras reais
+  (low-card padding, fallback identity); requer mudanca de formato.
+- **Datasets gaps** (project-dataset-coverage-map) — free-text longo real,
+  IP/UUID, monetary-string, >1M linhas, geo lat/lon.
+- **CNPJ gate forte** — nature CNPJ e' confirmada-empirica com 1 fonte real;
+  N>=5 fontes diferentes p/ confianca Alta (so' se quiser fortalecer claim).
+- **Spin-off llm-benchmark/** — extrair p/ repo separado via git filter-repo
+  quando a fronteira estabilizar (futuro, so' se owner quiser).
+- **Fases parciais T-CODE** — ENCODER-MANAGER (1c/2-4), SCHEMA-BUILDER
+  (Fase 3 naturezas), LAYERED-PIPELINE (Fase 2 online adaptive),
+  OUTPUT-SINKS/PLAN-CONTRACT (bloqueados).
 
 ---
 
