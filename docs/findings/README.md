@@ -4,12 +4,19 @@ status: HISTORIC (Phase 1 LLM benchmark — ciclo v0.5)
 last_updated: 2026-04-27
 ---
 
-> **🔎 Status (2026-05-17)**: Phase 1 LLM benchmark (Q01-Q38) e' do
-> ciclo v0.5 (formato columnar TCF antigo + 4 paradigmas de leitura
-> LLM). E' **acessorio** ao foco v0.6 (algoritmo OBAT + HCC; ver
-> [`../algorithms/`](../algorithms/)). Mantido como historico
-> valido. Phase 2 LLM (se ressuscitada) re-validara contra v0.6 ou
-> virara projeto a parte.
+> **🔎 Status (atualizado 2026-06-02)**: Phase 1 LLM benchmark (Q01-Q38) e'
+> do ciclo v0.5 (motor de niveis TCF antigo em [`old/tcf/`](../../old/tcf/) +
+> 4 paradigmas de leitura LLM). E' **acessorio** ao foco v0.6 (algoritmo
+> OBAT + HCC; ver [`../algorithms/`](../algorithms/)).
+>
+> **Reorg (2026-06-02)**: o HARNESS deste benchmark (runners, llm_eval,
+> scripts) foi consolidado em [`llm-benchmark/`](../../llm-benchmark/). Este
+> CATALOGO de achados (F-Q01..Q38) **fica em `docs/`** por decisao
+> deliberada: e' research compendium acoplado as research-notes vizinhas
+> (`../workbench/research-notes/`) — mover quebraria 13 cross-links e
+> desacoplaria a evidencia. Findings v0.6 NAO vao aqui (este slot e'
+> historico v0.5); usar `docs/theory/` ou ADR. Phase 2 LLM (se ressuscitada)
+> re-validara contra v0.6 ou virara projeto a parte.
 
 # TCF — Achados principais (Phase 1 — resumo paper-ready)
 

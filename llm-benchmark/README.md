@@ -46,9 +46,16 @@ llm-benchmark/
 
 ## Achados
 
-Catálogo F-Q01..Q38 em [docs/findings/](../docs/findings/) (ainda em `docs/`;
-movimento para cá é a Fase 6 da reorg, gated). Sumário paper-ready em
-[docs/FINDINGS_SUMMARY.md](../docs/FINDINGS_SUMMARY.md).
+Catálogo F-Q01..Q38 em [docs/findings/](../docs/findings/). Sumário
+paper-ready em [docs/FINDINGS_SUMMARY.md](../docs/FINDINGS_SUMMARY.md).
+
+> **Decisão (Fase 6, 2026-06-02)**: o catálogo de findings **fica em
+> `docs/`**, NÃO migra para cá. É research compendium acoplado às
+> research-notes vizinhas (`docs/workbench/research-notes/`) — mover
+> quebraria 13 cross-links relativos e desacoplaria a evidência. Aqui vive
+> o **harness** (código que gerou os findings); lá vive o **catálogo
+> científico** (os achados). Fronteira por natureza do artefato, não por
+> ciclo.
 
 ## Reproduzir (histórico — requer Ollama / chaves de API)
 

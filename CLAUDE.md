@@ -78,8 +78,10 @@ Multi-column basico em EXP-011.
 - `docs/theory/` — fundamentos teoricos
 - `docs/vocabulary.md` — vocabulario controlado
 - `docs/findings/` — catalogo cientifico v0.5 LLM (F-Q01..Q38, **historico**).
-  NAO e' slot generico de findings v0.6; marcado pra mover a `llm-benchmark/`
-  (Fase 6 da reorg, gated). Findings v0.6 vao em `docs/theory/findings/` ou ADR.
+  NAO e' slot generico de findings v0.6. **FICA em docs/** (decisao Fase 6,
+  2026-06-02): research compendium acoplado as research-notes vizinhas; mover
+  quebraria 13 cross-links. O harness foi pra llm-benchmark/, o catalogo fica.
+  Findings v0.6 vao em `docs/theory/` ou ADR (nao aqui).
 - `old/tcf/` — **motor v0.5 (niveis L0–L3), congelado-historico**. `src/tcf/`
   tem acoplamento ZERO com ele. Semantica revista em `old/tcf/LEVELS-REVIEW.md`.
   NAO modificar, NAO importar de `old.tcf` em `src/tcf`.
@@ -97,23 +99,26 @@ O repo nasceu como DOIS projetos colados: TCF-core v0.6 (`src/tcf/`) + um
 benchmark LLM v0.5 (acessorio). Owner pediu separacao. Plano brownfield de
 8 fases (README.methodology.md §13.2; assessment aprovado por etapa).
 
-**Fronteira-alvo**: todo material LLM v0.5 vivo consolida em
-**`llm-benchmark/`** (top-level, in-repo agora; spin-off pra repo separado
-depois via `git filter-repo`). Inclui: `experiments/eval/` + `results/` +
-`scratch/`, `docs/findings/` + `FINDINGS_SUMMARY.md`, os 3
-`scripts/benchmark_{llm_accuracy,progressive_diagnostic,stats_ablation}.py`,
-`tests/fixtures/synthetic_domains.py`, e README linhas ~95-318.
+**Fronteira-alvo**: o HARNESS LLM v0.5 vivo consolidou em **`llm-benchmark/`**
+(top-level, in-repo; spin-off pra repo separado depois via `git filter-repo`).
+Contem: `llm-benchmark/eval/` (runners + llm_eval/ + probes/) +
+`llm-benchmark/scripts/` (3 benchmark_*). O CATALOGO de findings
+(`docs/findings/` + `FINDINGS_SUMMARY.md`) **FICA em docs/** (research
+compendium, ver Fase 6). `results/`/`scratch/` sao gitignored, ficam em
+`experiments/`. `tests/fixtures/synthetic_domains.py` ficou em tests/.
 
-**Estado**: Fase 0+3 FEITAS (commit 5a15538: doc-fixes README/MAP +
-`old/tcf/LEVELS-REVIEW.md`). Fase 1 (esta atualizacao do CLAUDE.md). Fases
-2,4-7 PENDENTES (aprovacao por etapa). Detalhe na memoria
-[`project-reorg-separation-of-concerns`](C:/Users/leona/.claude/projects/c--Users-leona-OneDrive-Documents-Projects-Acad-micos-TCF/memory/project_reorg_separation_of_concerns.md).
+**Estado (2026-06-02)**: Fases 0-6 FEITAS. 0+3 (5a15538: doc-fixes +
+LEVELS-REVIEW); 1 (c09889a: fronteira CLAUDE.md); 2 (6c08abe: deleta
+__main__ quebrado, marca benchmark LLM morto); 4+5 fundidas (45f03ad: git mv
+harness -> llm-benchmark/); 6 (esta: findings FICAM em docs/, so' rotulo
+reforcado). **Fase 7 PENDENTE**: excisar README linhas ~95-318 (Why TCF?/
+Reproducing experiments) -> resumir + apontar llm-benchmark/. Detalhe na
+memoria [`project-reorg-separation-of-concerns`](C:/Users/leona/.claude/projects/c--Users-leona-OneDrive-Documents-Projects-Acad-micos-TCF/memory/project_reorg_separation_of_concerns.md).
 
 **Invariantes da reorg**: (1) `src/tcf/` INTOCADO (acoplamento zero com
 `old/`, verificado); (2) `git mv` sempre (preserva history); (3) **NAO**
-mover `experiments/results/phase0/reversibility.json` (e' artefato de
-FORMATO v0.6, nao LLM); (4) Fase 6 (mover docs/findings) e' gated por
-~7 links inbound — atualizar todos no mesmo commit.
+mover `experiments/results/phase0/reversibility.json` (artefato de FORMATO
+v0.6); (4) findings ficam em docs/ (mover quebraria 13 cross-links ../).
 
 ## ANTES DE AGIR — Checklist obrigatorio
 

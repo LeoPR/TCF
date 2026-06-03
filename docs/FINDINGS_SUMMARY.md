@@ -9,6 +9,10 @@ source: docs/archive/theory_methodology_v05/F-findings.md (arquivada)
 > **acessorio** ao foco v0.6 (algoritmo OBAT + HCC).
 > Manter como historico. Para resumo TCF v0.6 atual ver
 > [`algorithms/TCF-format.md`](algorithms/TCF-format.md).
+>
+> **Reorg (2026-06-02)**: o harness que gerou estes achados esta' em
+> [`../llm-benchmark/`](../llm-benchmark/). Este sumario (catalogo) fica em
+> `docs/` por decisao da Fase 6 (research compendium acoplado a docs/).
 
 # TCF — Achados principais (Phase 1 — resumo paper-ready)
 
