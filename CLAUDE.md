@@ -43,11 +43,20 @@ Multi-column basico em EXP-011.
   - `shaper/` — **sampler multidimensional** (volume, schema, join,
     order, stratify, fk_preserving)
   - `_paths.py` — resolve storage via `config/storage.json`
-  - `setup_adult.py`, `setup_tpch.py` — setup canonical datasets
+  - `setup_*.py` — setup canonical datasets (adult, tpch, ibge-municipios,
+    br-identidades, receita-cnpj, online-retail, beijing-pm25, wine-quality)
   - `csv_to_sqlite.py`, `derive_formats.py`, `quality_report.py`
-  - `benchmark_*.py` — benchmarks varios
-- `experiments/lab/dirty/` — labs exploratorios (sub-exps numerados)
-- `experiments/lab/clean/EXP-NNN-*/` — prototypes consolidados
+  - `benchmark_*.py` — benchmarks de FORMATO/compressao. **EXCECAO**: os 3
+    `benchmark_{llm_accuracy,progressive_diagnostic,stats_ablation}.py` sao
+    benchmark LLM v0.5 (acessorio) — marcados pra mover a `llm-benchmark/`
+    (ver REORG abaixo). `benchmark_llm_accuracy.py` esta' QUEBRADO contra v0.6.
+- `experiments/lab/dirty/` — labs exploratorios v0.6 (sub-exps numerados)
+- `experiments/lab/clean/EXP-NNN-*/` — prototypes consolidados v0.6
+- `experiments/eval/`, `experiments/results/`, `experiments/scratch/` —
+  **benchmark LLM v0.5 (ACESSORIO, NAO TCF-core)**. M-series runners +
+  manifests + CommercialClient. Marcado pra consolidar em `llm-benchmark/`
+  (reorg em andamento; ver REORG abaixo). `python -m experiments.eval` esta'
+  quebrado (run_matrix.py ausente).
 
 ### Dados
 - `datasets/synthetic/` — CSVs pequenos no repo (D1-D17)
@@ -67,7 +76,12 @@ Multi-column basico em EXP-011.
 - `docs/adr/` — Architecture Decision Records numerados
 - `docs/theory/` — fundamentos teoricos
 - `docs/vocabulary.md` — vocabulario controlado
-- `docs/findings/` — findings consolidados de pesquisa
+- `docs/findings/` — catalogo cientifico v0.5 LLM (F-Q01..Q38, **historico**).
+  NAO e' slot generico de findings v0.6; marcado pra mover a `llm-benchmark/`
+  (Fase 6 da reorg, gated). Findings v0.6 vao em `docs/theory/findings/` ou ADR.
+- `old/tcf/` — **motor v0.5 (niveis L0–L3), congelado-historico**. `src/tcf/`
+  tem acoplamento ZERO com ele. Semantica revista em `old/tcf/LEVELS-REVIEW.md`.
+  NAO modificar, NAO importar de `old.tcf` em `src/tcf`.
 - `experiments/lab/dirty/notas/` — narrativa + diario + roadmap
   - `roadmap-hipoteses.md` — registry cross-lab de hipoteses
   - `diario/YYYY-MM-DD.md` — decisoes diarias
@@ -75,6 +89,30 @@ Multi-column basico em EXP-011.
   - `futuras-otimizacoes-formato.md` — ideias de formato futuras
   - `historia-dirty-lab.md` — narrativa M0-M14
   - `welding-plan.md`, `naming-compactacao-composicional.md`
+
+## REORG em andamento (separacao de concerns, 2026-06-02)
+
+O repo nasceu como DOIS projetos colados: TCF-core v0.6 (`src/tcf/`) + um
+benchmark LLM v0.5 (acessorio). Owner pediu separacao. Plano brownfield de
+8 fases (README.methodology.md §13.2; assessment aprovado por etapa).
+
+**Fronteira-alvo**: todo material LLM v0.5 vivo consolida em
+**`llm-benchmark/`** (top-level, in-repo agora; spin-off pra repo separado
+depois via `git filter-repo`). Inclui: `experiments/eval/` + `results/` +
+`scratch/`, `docs/findings/` + `FINDINGS_SUMMARY.md`, os 3
+`scripts/benchmark_{llm_accuracy,progressive_diagnostic,stats_ablation}.py`,
+`tests/fixtures/synthetic_domains.py`, e README linhas ~95-318.
+
+**Estado**: Fase 0+3 FEITAS (commit 5a15538: doc-fixes README/MAP +
+`old/tcf/LEVELS-REVIEW.md`). Fase 1 (esta atualizacao do CLAUDE.md). Fases
+2,4-7 PENDENTES (aprovacao por etapa). Detalhe na memoria
+[`project-reorg-separation-of-concerns`](C:/Users/leona/.claude/projects/c--Users-leona-OneDrive-Documents-Projects-Acad-micos-TCF/memory/project_reorg_separation_of_concerns.md).
+
+**Invariantes da reorg**: (1) `src/tcf/` INTOCADO (acoplamento zero com
+`old/`, verificado); (2) `git mv` sempre (preserva history); (3) **NAO**
+mover `experiments/results/phase0/reversibility.json` (e' artefato de
+FORMATO v0.6, nao LLM); (4) Fase 6 (mover docs/findings) e' gated por
+~7 links inbound — atualizar todos no mesmo commit.
 
 ## ANTES DE AGIR — Checklist obrigatorio
 
@@ -196,14 +234,19 @@ filosofia "zero custo, so' o que ja' compute".
   - Pipeline canonical (CAMADAS 0-3): pre-pass, OBAT, HCC, multi-col
   - Naturezas opt-in (CPF/CNPJ/IP) — ADR-0015
   - PipelineConfig toggles
-  - `build_schema` per-tabela (Fase 1+2 welded em src/tcf)
+  - `build_schema` per-tabela em **`src/tcf/schema.py`** (Fase 1+2 welded).
+    Isto E' CORE e FICA. NAO confundir com o gadget multi-tabela abaixo.
   - SideOutputs (framework efeito colateral)
   - Deteccao zero-cost de anomalias (sem arrumar) via SideOutputs
   - V2-A/B/C/D/J/K/L (roadmap v2.0, integrados ao formato)
 - **NAO e' TCF (gadgets auxiliares EXTERNOS, paralelos)**:
   - Schema gadget multi-tabela (T-RECOVER-SCHEMA-MULTI-TABLE): analisa
-    FK/relacionamentos/qualidade, **emite alertas, NUNCA arruma**.
-    Vive em scripts/ ou spin-off.
+    FK/relacionamentos/qualidade cross-table, **emite alertas, NUNCA arruma**.
+    NAO existe ainda; vivera em `scripts/schema_gadget/` ou spin-off.
+    **Diferente** do `src/tcf/schema.py` (core) — mesma palavra "schema",
+    coisas distintas. CUIDADO: existem 4 `schema.py` no repo (src/tcf core;
+    old/tcf v0.5; scripts/shaper/strategies; docs/archive/old_tokenizer) —
+    NUNCA editar "todos os schema.py" por basename.
   - LLM gadget (T-RECOVER-LLM-SCHEMA-MODE): coleta schema/stats,
     formata em "LLM-binary" (token-otimizado, NAO human-friendly),
     gera SQL a partir de pergunta de negocio, executa, output vai pro
