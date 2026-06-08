@@ -1,6 +1,6 @@
-# 0021 — Incidente: corrupção do repo por OneDrive + recuperação
+# 0021 — Incidente OneDrive × `.git` no TCF: recuperação (causa = hipótese)
 
-**Status**: accepted (incidente documentado + recuperado)
+**Status**: accepted (recuperado; causa raiz registrada como HIPOTESE, sem acao estrutural)
 **Date**: 2026-06-03
 **Deciders**: project owner
 **Tags**: incident, git, onedrive, recovery, infra
@@ -51,34 +51,46 @@ Nada foi perdido — toda a história e o código v0.6 estavam recuperáveis.
    build_schema/natures`); suíte **280 passed + 1 xfailed**; working tree
    bate com o commit.
 
-## Decision — causa raiz
+## Causa raiz — HIPÓTESE (correção 2026-06-03)
 
-**O repositório NÃO deve ter o `.git` sincronizado pelo OneDrive.** Decisão
-do owner (2026-06-03): **excluir o `.git` (e idealmente o repo) do sync do
-OneDrive**, mantendo a pasta no local atual. Opções equivalentes registradas:
-mover o repo pra fora do OneDrive (`Z:\` ou `C:\dev\`) elimina a causa de vez.
+> **Correção honesta:** uma versão anterior deste ADR afirmava causa
+> "multi-máquina sistêmica". A evidência NÃO sustenta isso — ver abaixo.
+
+Hipótese mais provável: **latência local × OneDrive numa máquina só.**
+Durante rajadas de commit (sprints intensas do TCF), o OneDrive tentou
+sincronizar arquivos `.git` no meio da escrita e gerou cópias de conflito
+(`-DESKTOP-SG30VJF`) em vez de uma versão única. Evento **raro e pontual**,
+recuperável — não defeito do OneDrive nem corrupção aleatória.
+
+**Ressalva temporal (erro de análise corrigido):** a varredura encontrou
+também conflitos com OUTRO nome de máquina (`DESKTOP-6NFNFQF`), mas TODOS de
+**2022–2023** — fósseis de máquina antiga fora de uso. A análise inicial
+"comprimiu" anos de artefatos como se fossem um único incidente recente, e
+concluiu erradamente "duas máquinas ativas". O owner trabalha em UMA máquina.
+
+## Decision
+
+**Nenhuma ação estrutural agora.** O TCF foi recuperado e verificado íntegro
+(working tree == HEAD por hash; `.git` fsck limpo; 5847 arquivos 100%
+hidratados — OneDrive sobe o estado correto). Mover o repo / excluir do sync
+fica como **opção futura, não-urgente**, a avaliar só se o problema recorrer.
+
+Estratégia leve registrada (se recorrer): ter remoto git (`git push` — o
+`.git` local deixa de ser cópia única) e/ou pausar sync durante commits
+intensos. Detecção rápida no início de sessão: `git log -1` + procurar
+`-DESKTOP-*` em `.git` + confirmar `import tcf`.
 
 ## Consequences
 
-- **Positivo**: repo recuperado integralmente; incidente documentado pra
-  rastreabilidade; causa raiz identificada.
-- **Risco residual**: enquanto os arquivos de trabalho continuarem no
-  OneDrive (mesmo com `.git` excluído), conflitos de arquivo-base podem
-  recorrer. Mitigação real = repo fora do OneDrive.
-- **Ação pendente (owner)**: configurar exclusão do sync (ver abaixo).
-
-## Como excluir do sync do OneDrive (referência)
-
-- **Opção A (recomendada, definitiva)**: mover `TCF/` pra fora do OneDrive
-  (ex: `C:\dev\TCF\` ou `Z:\repos\TCF\`). Reabrir editores/terminais no novo
-  caminho. Atualizar `config/storage.json` se necessário (Z: continua igual).
-- **Opção B (excluir só do sync)**: OneDrive não tem exclusão por-subpasta
-  confiável para `.git`; a via prática é "Settings → Sync and backup →
-  Manage backup" ou usar um `.gitignore` do OneDrive não existe. A forma
-  suportada é mover a pasta. (Por isso A é recomendada.)
+- **Positivo**: repo recuperado integralmente e verificado; incidente
+  documentado com diagnóstico honesto (hipótese, não certeza inflada).
+- **Risco residual**: baixo. Pode recorrer em rajada de commit + sync
+  simultâneo, mas é raro e a detecção/recuperação é simples.
+- **Sem ação pendente obrigatória** — só vigilância leve.
 
 ## Links
 
+- Nota cross-projeto (raiz Documents): `NOTA-onedrive-git-observacao.md`
 - Backup: `Z:\tcf-backups\2026-06-03-onedrive-incident\`
 - Commit de recuperação base: `81eee60` (HEAD real restaurado)
 - Commit de limpeza: `06d4dc1`
