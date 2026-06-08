@@ -72,10 +72,20 @@ Este gadget pode:
 
 ## Plano (futuro)
 
-### Fase 1 — Detector de FK candidate
-- `scripts/schema_gadget/fk_detect.py` standalone
+### Fase 1 — Detector de FK candidate ✅ FEITA (2026-06-03)
+- `scripts/schema_gadget/fk_detect.py` standalone — `detect_fk_candidates()`
 - Input: dict[table_name, dict[col, list[values]]]
-- Output: relatorio de FKCandidates com confianca
+- Output: `FKCandidate` com overlap, n_orphans, name_match, **confidence**
+  (alta/media/baixa). ALERT-ONLY (não muta entrada; testado).
+- **Validado em TPC-H** (9 FKs reais, descobertas por VALOR sem ler
+  metadata.fk): `min_confidence='alta'` → **recall 9/9, 0 falsos positivos**;
+  default gradua os 39 candidatos (30 coincidências numéricas marcadas
+  `baixa`). Também acha FK cross-table de nome diferente (br-identidades
+  socio_cpf → pessoas.cpf, overlap 1.0).
+- **Aprendizado**: overlap puro em INTEIROS DENSOS pequenos gera FP por
+  coincidência numérica (l_quantity cai no range de p_partkey); o sinal de
+  NOME compatível + cardinalidade desambigua. Daí a graduação de confiança.
+- Testes: `tests/test_schema_gadget_fk.py` (7, CI-friendly, sem Z:).
 
 ### Fase 2 — Date/format consistency checker
 - `scripts/schema_gadget/date_check.py`
