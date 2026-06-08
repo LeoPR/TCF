@@ -99,6 +99,8 @@ def main(argv: list[str] | None = None) -> int:
                 "fks": [_fk_to_dict(fk) for fk in rep["fks"]],
                 "quality": {t: [_alert_to_dict(a) for a in al]
                             for t, al in rep["quality"].items()},
+                "dates": {t: [_alert_to_dict(a) for a in al]
+                          for t, al in rep.get("dates", {}).items()},
             }
             print(json.dumps(out, indent=2, ensure_ascii=False))
         else:

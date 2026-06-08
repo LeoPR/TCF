@@ -18,9 +18,11 @@ from __future__ import annotations
 try:  # como pacote (-m schema_gadget) ou import direto (sys.path em scripts/schema_gadget)
     from .fk_detect import detect_fk_candidates
     from .sideouts_quality import analyze_quality
+    from .date_check import check_dates
 except ImportError:
     from fk_detect import detect_fk_candidates
     from sideouts_quality import analyze_quality
+    from date_check import check_dates
 
 
 def _build_expected_unique(pk: list[str]) -> set:
@@ -41,24 +43,27 @@ def analyze_tables(
     *,
     pks: dict[str, list[str]] | None = None,
     fk_min_confidence: str = "media",
+    check_dates_enabled: bool = True,
 ) -> dict:
-    """Roda quality + FK detect e devolve relatório estruturado.
+    """Roda quality + FK detect + date check e devolve relatório estruturado.
 
     Args:
         tables: {tabela: {coluna: [valores]}}.
         pks: {tabela: [colunas-pk]} (opcional; melhora duplicate_key).
         fk_min_confidence: filtro do FK detector (default 'media' — corta
             o ruído de coincidência numérica visto em inteiros densos).
+        check_dates_enabled: roda o date checker (Fase 2). NÃO é zero-custo
+            (scan dedicado), por isso é toggleável; default True.
 
     Returns:
-        dict com: quality (lista de alerts por tabela), fks (candidatos),
-        counts, e markdown (string pronta pra exibir). ALERT-ONLY.
+        dict com: quality (zero-custo), fks (cross-table), dates (NÃO
+        zero-custo), counts, e markdown. ALERT-ONLY.
     """
     from tcf import build_schema  # import tardio (core)
 
     pks = pks or {}
 
-    # --- Quality per-tabela (zero-custo) ---
+    # --- Quality per-tabela (ZERO-CUSTO) ---
     quality: dict[str, list] = {}
     for tname, cols in tables.items():
         schema = build_schema(cols)
@@ -68,22 +73,28 @@ def analyze_tables(
     # --- FK candidates cross-table ---
     fks = detect_fk_candidates(tables, min_confidence=fk_min_confidence)
 
+    # --- Date/format check (Fase 2 — NÃO zero-custo, scan dedicado) ---
+    dates = check_dates(tables) if check_dates_enabled else {}
+
     n_quality = sum(len(v) for v in quality.values())
+    n_dates = sum(len(v) for v in dates.values())
     counts = {
         "tables": len(tables),
         "quality_alerts": n_quality,
         "fk_candidates": len(fks),
+        "date_alerts": n_dates,
     }
 
     return {
         "counts": counts,
         "quality": quality,
         "fks": fks,
-        "markdown": _to_markdown(tables, quality, fks, counts, pks),
+        "dates": dates,
+        "markdown": _to_markdown(tables, quality, fks, dates, counts, pks),
     }
 
 
-def _to_markdown(tables, quality, fks, counts, pks) -> str:
+def _to_markdown(tables, quality, fks, dates, counts, pks) -> str:
     """Renderiza o relatório em markdown (read-only, human-friendly)."""
     lines: list[str] = []
     lines.append("# Schema/Quality Gadget — Relatório (ALERT-ONLY)")
@@ -94,6 +105,7 @@ def _to_markdown(tables, quality, fks, counts, pks) -> str:
     lines.append(f"- Tabelas analisadas: **{counts['tables']}**")
     lines.append(f"- Alertas de qualidade: **{counts['quality_alerts']}**")
     lines.append(f"- FK candidates: **{counts['fk_candidates']}**")
+    lines.append(f"- Alertas de data: **{counts.get('date_alerts', 0)}**")
     lines.append("")
 
     # FK candidates
@@ -128,11 +140,27 @@ def _to_markdown(tables, quality, fks, counts, pks) -> str:
         lines.append("_Nenhum alerta de qualidade (zero-custo) disparado._")
     lines.append("")
 
+    # Date/format alerts (Fase 2 — NÃO zero-custo)
+    lines.append("## Alertas de data/formato (scan dedicado — não zero-custo)")
+    any_d = False
+    for tname, alerts in dates.items():
+        if not alerts:
+            continue
+        any_d = True
+        lines.append("")
+        lines.append(f"### `{tname}`")
+        for a in alerts:
+            lines.append(f"- **[{a.severity}|{a.kind}]** `{a.column}`: {a.detail}")
+    if not any_d:
+        lines.append("")
+        lines.append("_Nenhum alerta de data (colunas-data limpas ou ausentes)._")
+    lines.append("")
+
     # Nota de escopo (honestidade)
     lines.append("---")
-    lines.append("_Fora do escopo zero-custo (não verificado): null/empty count, "
-                 "drift no tail (além do sample), format-mix, datas impossíveis, "
-                 "range. Ver docs/theory/schema-gadget-design.md._")
+    lines.append("_Fora do escopo (não verificado): null/empty count, drift no "
+                 "tail (além do sample), range numérico, encoding. Ver "
+                 "docs/theory/schema-gadget-design.md._")
     return "\n".join(lines)
 
 

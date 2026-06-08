@@ -87,9 +87,23 @@ Este gadget pode:
   NOME compatível + cardinalidade desambigua. Daí a graduação de confiança.
 - Testes: `tests/test_schema_gadget_fk.py` (7, CI-friendly, sem Z:).
 
-### Fase 2 — Date/format consistency checker
-- `scripts/schema_gadget/date_check.py`
-- Detecta formatos misturados, datas impossiveis (32/02), futuros suspeitos
+### Fase 2 — Date/format consistency checker ✅ FEITA (2026-06-08)
+- `scripts/schema_gadget/date_check.py` — `check_dates(tables)`.
+- **Auto-detecta** colunas que parecem data (>=70% do sample casa um formato)
+  e emite: `impossible_date` (calendário-inválido: mês>12, 32-fev, dia/mês=0,
+  29-fev não-bissexto), `format_mix` (ISO/BR/US/compact misturados),
+  `suspicious_date` (fora de [1900..2100]).
+- **NÃO é zero-custo** (ao contrário da Fase 3): scan dedicado que parseia
+  TODOS os valores com conhecimento de calendário. Declarado + toggleável
+  (`check_dates_enabled` no report). Parser próprio (regex stdlib) pra não
+  herdar a permissividade do dateutil. Type-safe (DatasetReader devolve int).
+- **Validado por corrupção controlada** (fatia mínima do T-DATA-3): baseline
+  real limpo (tpch o_orderdate, br-identidades data_cadastro) → **0 alertas**;
+  mesma coluna com 3 impossíveis + 2 BR + 1 futuro injetados → pega
+  **exatamente** os 6 defeitos. Precisão (0 FP no limpo) + recall confirmados.
+- Testes: `tests/test_schema_gadget_dates.py` (12, CI-friendly). Integrado
+  no report/CLI (seção "Alertas de data"). Desbloqueou sem esperar T-DATA-3
+  (corrupção inline basta pra validar).
 
 ### Fase 3 — SideOutputs hook ✅ FEITA (2026-06-03)
 - `scripts/schema_gadget/sideouts_quality.py` — `analyze_quality(schema, expected_unique=...)`
@@ -129,11 +143,14 @@ Este gadget pode:
 
 ## Estado geral (2026-06-08)
 
-Gadget **funcional end-to-end**: Fases 1 (FK), 3 (quality), 4 (CLI/relatório)
-FEITAS. **Fase 2** (date/format checker — datas impossíveis, format-mix) é a
-única pendente e está **bloqueada por fixtures de defeito (T-DATA-3, deferred)**
-— precisa de dado de borda controlado pra validar, que TCF "dados felizes" não
-tem. Gadget já é usável: `python -m schema_gadget analyze <dataset>`.
+Gadget **completo end-to-end**: Fases 1 (FK), 2 (date/format), 3 (quality),
+4 (CLI/relatório) FEITAS. Fase 5 (spin-off `tcf-quality-gadget`) é opcional.
+Usável: `python -m schema_gadget analyze <dataset>` → relatório markdown/JSON
+com FK candidates + qualidade zero-custo + datas. ALERT-ONLY, `src/tcf`
+intocado. Total ~40 testes CI-friendly. T-DATA-3 (fixtures de borda
+versionados) deixou de ser bloqueador — corrupção controlada inline valida.
+**Ticket pode ser marcado closed-done** (gadget funcional); T-DATA-3 segue
+deferred pra fixtures persistentes se/quando quiser regressão em disco.
 
 ## Conexao
 

@@ -77,13 +77,15 @@ Fixtures de teste para cada classe: ticket T-DATA-3 (deferred, alimenta este).
 
 ## 4. Fases (do ticket, refinadas)
 
-1. **Fase 1 — FK detector** (`fk_detect.py` standalone): input
-   `dict[tabela, dict[col, valores]]` → `FKCandidate(child, parent, overlap%)`.
-   Validar em TPC-H (FKs reais). É o maior valor cross-table.
-2. **Fase 2 — date/format checker** (`date_check.py`): formatos mistos +
-   datas impossíveis. Precisa domínio.
-3. **Fase 3 — SideOutputs hook** (`sideouts_quality.py`): lê SideOutputs de
-   um encode e emite os alertas zero-custo (cardinality, type_drift).
+1. **Fase 1 — FK detector** ✅ (`fk_detect.py`): overlap de valores +
+   confiança graduada (nome+cardinalidade). Validado TPC-H 9/9, 0 FP em alta.
+2. **Fase 2 — date/format checker** ✅ (`date_check.py`): auto-detecta
+   colunas-data; impossible_date/format_mix/suspicious_date. NÃO zero-custo
+   (scan dedicado, calendário). Validado por corrupção controlada (0 FP no
+   real limpo, recall total no corrompido).
+3. **Fase 3 — SideOutputs hook** ✅ (`sideouts_quality.py`): alertas
+   zero-custo (constant, duplicate_key single-PK, type_drift fração-numérica).
+   Validação adversarial removeu useless_id (94% ruído).
 4. **Fase 4 — CLI** (`python -m scripts.schema_gadget analyze <dir>`):
    relatório markdown/json. **Nunca modifica nada.**
 5. **(Opcional) Fase 5 — spin-off** `tcf-quality-gadget`.
