@@ -1,9 +1,10 @@
 ---
 title: T-RECOVER-SCHEMA-MULTI-TABLE — Gadget auxiliar de schema multi-tabela (alertas, NAO conserta)
-status: de-prontidao
+status: closed-done
 priority: P2
 created: 2026-05-27
-updated: 2026-05-27 (escopo refinado: gadget auxiliar so' alerta, NUNCA arruma; usa SideOutputs)
+updated: 2026-06-08 (Fases 1-4 FEITAS: fk_detect + date_check + sideouts_quality + CLI; ~40 testes; gadget funcional end-to-end)
+closed: 2026-06-08
 blocked-by: []
 related:
   - src/tcf/side_outputs.py  (framework de "efeito colateral" que esta ferramenta consome)

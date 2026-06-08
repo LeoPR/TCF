@@ -1,6 +1,31 @@
 # STATUS — TCF (compendio sempre-atualizado)
 
-**Atualizado em**: 2026-06-03 (**Datasets BR/CNPJ + H-PERF-06 Cython +
+**Atualizado em**: 2026-06-08 (**Schema/quality gadget COMPLETO + incidente
+OneDrive recuperado + push remoto**). Resumo desde 06-03:
+
+- **Schema/Quality Gadget (T-RECOVER-SCHEMA-MULTI-TABLE) — COMPLETO**, em
+  `scripts/schema_gadget/` (auxiliar, ALERT-ONLY, NUNCA arruma, `src/tcf`
+  intocado). 4 fases:
+  - Fase 1 `fk_detect.py` — FK candidate por overlap de valores + confiança
+    graduada (nome+cardinalidade). TPC-H: 9/9 recall, 0 FP em `alta` (d6b5d2e).
+  - Fase 3 `sideouts_quality.py` — alertas ZERO-CUSTO (constant, duplicate_key
+    single-PK, type_drift fração-numérica). Validação adversarial (workflow 7
+    datasets) removeu useless_id (94% ruído em tpch) (9ed66de).
+  - Fase 4 `report.py`+`__main__.py` — CLI `python -m schema_gadget
+    {list|analyze}` markdown/JSON (484ce9b).
+  - Fase 2 `date_check.py` — impossible_date/format_mix/suspicious_date,
+    auto-detecta colunas-data. NÃO zero-custo (scan calendário). Validado por
+    corrupção controlada (0 FP no real limpo, recall total no corrompido) (88618f8).
+  - ~40 testes CI-friendly. Ticket closed-done. T-DATA-3 deixou de bloquear.
+- **Incidente OneDrive (2026-06-03→08, ADR-0021)**: OneDrive criou cópias de
+  conflito `-DESKTOP-SG30VJF` e reverteu `main` 158 commits (latência local,
+  1 máquina, RARO — não sistêmico). RECUPERADO: backup Z: + reset p/ HEAD real
+  + limpeza. Nada perdido. Repo VIVE no OneDrive → checar HEAD/`import tcf` no
+  início de sessão (memória `reference-onedrive-git-corruption-risk`).
+- **Git remoto SADIO**: `origin/main` sincronizado (push fast-forward dos ~45
+  commits). Branch-lixo `main-DESKTOP-SG30VJF` removido local (remoto pendente).
+
+**Anterior 2026-06-03** (**Datasets BR/CNPJ + H-PERF-06 Cython +
 shaper gating + reorg separacao de concerns**). 33 commits desde o bloco
 anterior. Resumo:
 
