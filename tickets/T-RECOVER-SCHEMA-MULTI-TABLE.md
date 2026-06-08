@@ -65,6 +65,10 @@ Este gadget pode:
 - **Existe**: SideOutputs como framework de efeito colateral.
 - **NAO existe**: analise cross-table + alertas de qualidade. Sera criado
   em `scripts/schema_gadget/` ou pacote separado.
+- **DESIGN DOC (2026-06-03)**: [`docs/theory/schema-gadget-design.md`](../docs/theory/schema-gadget-design.md)
+  — define fronteira (gadget vs build_schema core), catalogo de detectores
+  por custo (zero/barato-gated/caro), 5 fases, e o norte de pushdown
+  (RLE-as-groupby) + sinalizacao do cenario SQL-like.
 
 ## Plano (futuro)
 
