@@ -91,12 +91,26 @@ Este gadget pode:
 - `scripts/schema_gadget/date_check.py`
 - Detecta formatos misturados, datas impossiveis (32/02), futuros suspeitos
 
-### Fase 3 — SideOutputs hook
-- `scripts/schema_gadget/sideouts_quality.py`
-- Le SideOutputs de um encode (proof run) e emite alertas:
-  - "coluna X tem cardinality=1.0 e n=5 — pode ser ID inutil"
-  - "coluna Y has is_numeric=True mas 3 samples falharam parse"
-  - "tabelas A e B compartilham coluna 'user_id' com 87% overlap"
+### Fase 3 — SideOutputs hook ✅ FEITA (2026-06-03)
+- `scripts/schema_gadget/sideouts_quality.py` — `analyze_quality(schema, expected_unique=...)`
+- Consome `TableSchema` (build_schema) e emite `QualityAlert` ZERO-CUSTO
+  (só lê o que o encode já computou — confirmado em 7 datasets).
+- **3 detectores** (após validação adversarial — workflow 7 datasets):
+  - `constant` (1 valor único) — único com TP real + 0 FP; mantido
+  - `duplicate_key` (PK **single-column** com repetição) — pula PK composta
+  - `type_drift` (sample maioria-numérico com minoria não-numérica, ex 'N/A')
+- **`useless_id` REMOVIDO**: validação adversarial deu 12/12 falsos positivos
+  em tpch (disparava em qualquer string all-distinct: nomes, comentários).
+- **Aprendizado (verificação adversarial)**: detector ingênuo dava 94% ruído
+  em tpch (15/16 FP). Causas: (a) useless_id não distingue surrogate de chave
+  natural; (b) type_drift original era código morto (is_numeric=True proíbe
+  não-numérico no mesmo sample) → reescrito como fração-numérica; (c)
+  duplicate_key disparava em cada componente de PK composta. Pós-fix: tpch
+  16→1 alert (só o TP), **0 FP**.
+- **Fora de escopo (não zero-custo, declarado)**: null/empty count, length
+  stddev, drift no tail (>sample[:20]), format-mix, datas impossíveis — todos
+  exigiriam acumulador no analyze_column (toca pre-pass, gated T-REGRESSION).
+- Testes: `tests/test_schema_gadget_quality.py` (13, CI-friendly).
 
 ### Fase 4 — CLI
 - `python -m scripts.schema_gadget analyze <dir-of-csvs>` → relatorio

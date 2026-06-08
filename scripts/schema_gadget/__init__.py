@@ -10,5 +10,9 @@ valores entre colunas de tabelas diferentes.
 """
 
 from .fk_detect import FKCandidate, detect_fk_candidates
+from .sideouts_quality import QualityAlert, analyze_quality
 
-__all__ = ["FKCandidate", "detect_fk_candidates"]
+__all__ = [
+    "FKCandidate", "detect_fk_candidates",
+    "QualityAlert", "analyze_quality",
+]
