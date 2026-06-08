@@ -112,12 +112,28 @@ Este gadget pode:
   exigiriam acumulador no analyze_column (toca pre-pass, gated T-REGRESSION).
 - Testes: `tests/test_schema_gadget_quality.py` (13, CI-friendly).
 
-### Fase 4 — CLI
-- `python -m scripts.schema_gadget analyze <dir-of-csvs>` → relatorio
-  markdown/json. **NAO modifica nada**.
+### Fase 4 — CLI / relatório unificado ✅ FEITA (2026-06-08)
+- `scripts/schema_gadget/report.py` (`analyze_tables` / `analyze_dataset`) +
+  `__main__.py` (CLI). Orquestra FK detect (Fase 1) + quality (Fase 3) num
+  relatório **markdown ou JSON**. ALERT-ONLY (read-only, nunca modifica).
+- CLI: `python -m schema_gadget {list|analyze <dataset>}` com `--json`,
+  `--rows N`, `--fk-confidence baixa|media|alta`.
+- **Validado nos hubs reais**: `analyze tpch-sf001 --fk-confidence alta` →
+  exatamente os 9 FKs reais + 1 constant (`o_shippriority`), **0 ruído**.
+  `list` enumera os 6 hubs em Z:. JSON parseável.
+- Testes: `tests/test_schema_gadget_report.py` (8, CI-friendly via
+  `analyze_tables` inline, sem Z:). Suite total 308 passed.
 
 ### (Opcional) Fase 5 — Spin-off
 - Decidir se vira pacote `tcf-quality-gadget` separado
+
+## Estado geral (2026-06-08)
+
+Gadget **funcional end-to-end**: Fases 1 (FK), 3 (quality), 4 (CLI/relatório)
+FEITAS. **Fase 2** (date/format checker — datas impossíveis, format-mix) é a
+única pendente e está **bloqueada por fixtures de defeito (T-DATA-3, deferred)**
+— precisa de dado de borda controlado pra validar, que TCF "dados felizes" não
+tem. Gadget já é usável: `python -m schema_gadget analyze <dataset>`.
 
 ## Conexao
 
