@@ -1,9 +1,9 @@
 ---
 title: T-DATA-1 — Datasets financeiros/cientificos canonicos (Online Retail, Beijing PM2.5, Wine Quality)
-status: open
+status: closed
 priority: P3
 created: 2026-05-23
-updated: 2026-05-23
+updated: 2026-06-13
 blocked-by: []
 related:
   - tickets/T-EXP-NATUREZAS-RARAS-EXPLORACAO.md
@@ -97,12 +97,12 @@ internet + Z:/tcf-data/ writable).
 
 ## Criterio de aceite
 
-- [ ] `scripts/setup_online_retail.py` criado
-- [ ] `scripts/setup_beijing_pm25.py` criado
-- [ ] `scripts/setup_wine_quality.py` criado
-- [ ] `datasets/canonical/{name}/README.md` + `metadata.json` (3)
-- [ ] Owner roda scripts localmente (post-sessao) e valida SQLite hubs
-- [ ] Futuro: T-EXP-NATUREZAS-RARAS-V2 re-testa #5/#8 com novos datasets
+- [x] `scripts/setup_online_retail.py` criado
+- [x] `scripts/setup_beijing_pm25.py` criado
+- [x] `scripts/setup_wine_quality.py` criado
+- [x] `datasets/canonical/{name}/README.md` + `metadata.json` (3)
+- [x] Owner roda scripts localmente (post-sessao) e valida SQLite hubs
+- [ ] Futuro: T-EXP-NATUREZAS-RARAS-V2 re-testa #5/#8 com novos datasets (segue aberto — ver roadmap)
 
 ## Riscos
 
@@ -139,3 +139,16 @@ python scripts/csv_to_sqlite.py          # gera SQLite hubs
 
 Apos SQLite hubs criados, T-EXP-NATUREZAS-RARAS-V2 pode re-testar
 hipoteses #5/#8 com dados reais financeiros/cientificos.
+
+### 2026-06-13 — CLOSED (datasets baixados 2026-06-01..02)
+
+Os 3 datasets foram baixados e o setup canonical rodado (commits
+2026-06-01..02): `datasets/canonical/{online-retail,beijing-pm25,wine-quality}/`
+com metadata + README; raw em `Z:/tcf-data/external/`. Os 3 ja' alimentaram
+a auditoria de naturezas (lab `2026-05-27-naturezas-reais-uci`, base do
+[ADR-0018](../docs/adr/0018-v2-format-roadmap.md): wine/beijing/online-retail
+sao a evidencia do ponto cego de baixa-cardinalidade + lossy).
+
+**Aquisicao concluida.** O follow-up T-EXP-NATUREZAS-RARAS-V2 (re-teste #5/#8)
+permanece como item separado de roadmap — nao bloqueia o fechamento da
+aquisicao de dados, que era o escopo deste ticket.

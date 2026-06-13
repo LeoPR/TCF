@@ -344,7 +344,7 @@ fases parciais T-CODE, ou mais datasets (gaps de cobertura).
   - **4a refutacao da sessao** (5 contando T-EXP-H-DA-09c)
   - Padroes financeiros reais precisariam dataset dedicado (defer)
 
-- **2026-05-23 T-DATA-1**: OPEN (scripts criados, download pendente owner)
+- **2026-05-23 T-DATA-1**: CLOSED 2026-06-02 (3 datasets baixados + canonical setup; raw em Z:/tcf-data/external/, metadata em datasets/canonical/)
   - 3 datasets UCI canonicos planejados:
     - Online Retail (~45MB, UnitPrice .99/.95/.50 = #8 arredondamento)
     - Beijing PM2.5 (~2MB, PRES 991-1046 = #5 range narrow)
@@ -420,7 +420,7 @@ fases parciais T-CODE, ou mais datasets (gaps de cobertura).
 | **T-EXP-NATUREZAS-RARAS** | Naturezas #5 (range) #8 (suffix) | CLOSED-NO-GO 2026-05-23 | M10 ja' captura suffix categorico; range marginal +1.08% weighted |
 | **T-CI-1** | GitHub Actions CI Fase 1 | CLOSED 2026-05-23 | workflow ci.yml lint + test ativado (matrix py 3.10/3.11/3.12) |
 | **T-CI-2** | Tests refactor CI-friendly | CLOSED 2026-05-23 | 5 v0.5 archived; 31 RT tests novos; marker requires_data |
-| **T-DATA-1** | 3 datasets UCI/OpenML canonicos | OPEN 2026-05-23 (scripts criados) | online-retail, beijing-pm25, wine-quality; download pendente |
+| **T-DATA-1** | 3 datasets UCI/OpenML canonicos | **CLOSED 2026-06-02** | online-retail, beijing-pm25, wine-quality baixados; canonical setup + raw em Z:/tcf-data/external/ |
 | **T-EXP-MULTI-COL-SCALING** | Multi-col welded canonical em src/tcf (ADR-0013, Opcao A) | **CLOSED-WELDED-CANONICAL 2026-05-23** | src/tcf/multi.py + encode_table/decode_table API publica; D17a 322B INVARIANT; 17/17 tests novos; 9 tabelas real-world: -33.02% raw weighted |
 | **T-CODE-UNIFIED-API** | API unificada `encode(list\|dict)` + SideOutputs (ADR-0014, supersede ADR-0013) | **CLOSED-WELDED-CANONICAL 2026-05-24** | encoder/decoder dispatcher + side_outputs.py + multi.py interno; D17a 322B preservado; 117 passed (+21); deprecated aliases mantidos |
 
@@ -469,7 +469,8 @@ fases parciais T-CODE, ou mais datasets (gaps de cobertura).
 
 ### Core TCF (D1-D9) — controle algoritmo
 Padroes estruturais (afixos, wrappers). Cobertos pelo TCF-CORE
-canonical. Total 2981 raw -> 1615 TCF (54.2%). Referenciados em
+canonical. Total 2981 raw -> 1523 TCF (51.1%, baseline M10/ADR-0011 pinado
+em test_regression_v1_baseline.py; 1615B era M9 antigo). Referenciados em
 EXP-007/008.
 
 ### ERP/CRM tipos (D10-D15) — variety (stress de tipos, nao guia)
@@ -518,7 +519,7 @@ nao guia de evolucao (cf. diretriz dados-realistas).
 | [T-EXP-NATUREZAS-RARAS-EXPLORACAO](tickets/T-EXP-NATUREZAS-RARAS-EXPLORACAO.md) | **CLOSED-NO-GO** | naturezas #5/#8 raras em datasets gerais |
 | [T-CI-1-github-actions](tickets/T-CI-1-github-actions.md) | **CLOSED 2026-05-23 (Fase 1+2)** | workflow CI completo (lint + test matrix) |
 | [T-CI-2-tests-refactor](tickets/T-CI-2-tests-refactor.md) | **CLOSED 2026-05-23** | 5 v0.5 archived; 31 tests novos CI-friendly |
-| [T-DATA-1-datasets-financeiros-cientificos](tickets/T-DATA-1-datasets-financeiros-cientificos.md) | **OPEN 2026-05-23 (scripts criados)** | 3 datasets UCI/OpenML, download pendente |
+| [T-DATA-1-datasets-financeiros-cientificos](tickets/T-DATA-1-datasets-financeiros-cientificos.md) | **CLOSED 2026-06-02** | 3 datasets UCI/OpenML baixados + canonical setup (Z:/tcf-data/external/) |
 | [T-EXP-MULTI-COL-SCALING](tickets/T-EXP-MULTI-COL-SCALING.md) | **CLOSED-WELDED-CANONICAL 2026-05-23** | src/tcf/multi.py welded (ADR-0013); encode_table/decode_table publicos; 17/17 tests; -33.02% raw weighted real-world |
 | [ADR-0014 (welded direto)](docs/adr/0014-unified-api-side-outputs.md) | **CLOSED-WELDED-CANONICAL 2026-05-24** | API unificada encode(list\|dict) + SideOutputs; ADR-0013 superseded; 117 passed |
 | [T-CODE-ENCODER-MANAGER](tickets/T-CODE-ENCODER-MANAGER.md) | **OPEN-FASES-1+1B-WELDED 2026-05-24** | Fase 1+1b: paralelismo `encode(data, parallel=N)` via ProcessPool + work-stealing (sorted desc workload), 14 tests, byte-canonical OK. Speedup ~1.23-1.30x (teto IPC overhead Windows spawn). Fases 1c/2/3/4 pendentes. |

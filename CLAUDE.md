@@ -114,13 +114,12 @@ Contem: `llm-benchmark/eval/` (runners + llm_eval/ + probes/) +
 compendium, ver Fase 6). `results/`/`scratch/` sao gitignored, ficam em
 `experiments/`. `tests/fixtures/synthetic_domains.py` ficou em tests/.
 
-**Estado (2026-06-02)**: Fases 0-6 FEITAS. 0+3 (5a15538: doc-fixes +
-LEVELS-REVIEW); 1 (c09889a: fronteira CLAUDE.md); 2 (6c08abe: deleta
+**Estado (2026-06-13)**: Fases 0-7 FEITAS — **reorg concluida**. 0+3 (5a15538:
+doc-fixes + LEVELS-REVIEW); 1 (c09889a: fronteira CLAUDE.md); 2 (6c08abe: deleta
 __main__ quebrado, marca benchmark LLM morto); 4+5 fundidas (45f03ad: git mv
-harness -> llm-benchmark/); 6 (esta: findings FICAM em docs/, so' rotulo
-reforcado). **Fase 7 PENDENTE**: excisar README linhas ~95-318 (Why TCF?/
-Reproducing experiments) -> resumir + apontar llm-benchmark/. Detalhe na
-memoria [`project-reorg-separation-of-concerns`](C:/Users/leona/.claude/projects/c--Users-leona-OneDrive-Documents-Projects-Acad-micos-TCF/memory/project_reorg_separation_of_concerns.md).
+harness -> llm-benchmark/); 6 (0b66c5e: findings FICAM em docs/, so' rotulo
+reforcado); 7 (bb02cff: enxuga README 332->184 linhas, separa core v0.6 de LLM
+v0.5). Detalhe na memoria [`project-reorg-separation-of-concerns`](C:/Users/leona/.claude/projects/c--Users-leona-OneDrive-Documents-Projects-Acad-micos-TCF/memory/project_reorg_separation_of_concerns.md).
 
 **Invariantes da reorg**: (1) `src/tcf/` INTOCADO (acoplamento zero com
 `old/`, verificado); (2) `git mv` sempre (preserva history); (3) **NAO**

@@ -446,7 +446,7 @@ referência histórica e enquanto Phase 1 LLM findings (em
 ### ADRs welded
 - [ADR-0004 — Multi-column header compacto](../adr/0004-multi-column-header-compacto.md)
 - [ADR-0007 — Comma in literals bug fix](../adr/0007-comma-in-literals-bug.md)
-- [ADR-0008 — detect_cadence regra 2 (numeric+high-card)](../adr/0008-detect-cadence-numeric-high-card.md)
+- [ADR-0008 — detect_cadence regra 2 (numeric+high-card)](../adr/0008-detect-cadence-numeric-rule.md)
 - [ADR-0009 — OBAT trigram index O(N^1.42)](../adr/0009-obat-trigram-index-optimization.md)
 - [ADR-0010 — auto-detect min_len por coluna](../adr/0010-auto-detect-min-len.md)
 - [ADR-0011 — Pacote 1 weld canonical (M9 → M10)](../adr/0011-pacote1-weld-canonical.md)

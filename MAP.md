@@ -96,8 +96,8 @@ TCF/
   definitivamente; `src/tcf/` (canonical v0.6) tem acoplamento ZERO com ele.
   Semantica dos niveis revista em
   [`old/tcf/LEVELS-REVIEW.md`](old/tcf/LEVELS-REVIEW.md). **Nao use** salvo historia.
-- `experiments/eval/` — benchmark LLM v0.5 (acessorio). Marcado para
-  consolidacao em `llm-benchmark/` (reorg em andamento). **Nao e' TCF-core.**
+- `llm-benchmark/eval/` — benchmark LLM v0.5 (acessorio; reorg concluida,
+  era `experiments/eval/`). **Nao e' TCF-core.**
 
 ## Entradas de lab atualmente ativas
 
