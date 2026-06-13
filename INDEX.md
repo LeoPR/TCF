@@ -1,7 +1,7 @@
 # INDEX — auto-gerado por `scripts/index.py`
 
-Total READMEs com frontmatter: 18
-Total READMEs sem frontmatter: 53
+Total READMEs com frontmatter: 15
+Total READMEs sem frontmatter: 37
 
 > Para adicionar entrada nova: adicionar YAML frontmatter no README e re-rodar.
 
@@ -15,33 +15,35 @@ Total READMEs sem frontmatter: 53
 | [experiments\lab\clean\EXP-013-real-world-tpch](./experiments/lab/clean/EXP-013-real-world-tpch/README.md) | EXP-013 — Real-world test em TPC-H (multi-table) | active | tcf, real-world, multi-column, multi-table | 2026-05-18 |
 | [experiments\lab\clean\EXP-014-tpch-lineitem-scale](./experiments/lab/clean/EXP-014-tpch-lineitem-scale/README.md) | EXP-014 — TPC-H lineitem performance scale test | active | tcf, real-world, performance, scale | 2026-05-19 |
 
+## Type: `dirty-experiment`
+
+| Path | Title | Status | Tags | Updated |
+|---|---|---|---|---|
+| [experiments\lab\dirty\2026-05-24-cpf-templated-checked](./experiments/lab/dirty/2026-05-24-cpf-templated-checked/README.md) | CPF templated+checked — destilar categoria via dirty | in-progress | tcf, natureza, templated, checksummed | ? |
+
 ## Type: `dirty-lab`
 
 | Path | Title | Status | Tags | Updated |
 |---|---|---|---|---|
-| [experiments\lab\dirty\2026-05-17-OBAT-delta-aware](./experiments/lab/dirty/2026-05-17-OBAT-delta-aware/README.md) | OBAT delta-aware (Pacote 1) | empirical-coverage-complete | tcf, delta-aware, obat, hcc | 2026-05-18 |
-| [experiments\lab\dirty\2026-05-18-canonical-parser-robustness](./experiments/lab/dirty/2026-05-18-canonical-parser-robustness/README.md) | Parser robustness (FIX) — bug `,` em literais | planned | tcf, bug-fix, hcc, canonical | 2026-05-18 |
-| [experiments\lab\dirty\2026-05-19-h-da-09b-refino-real-world](./experiments/lab/dirty/2026-05-19-h-da-09b-refino-real-world/README.md) | H-DA-09b refino — heuristica de auto-detect para real-world | active | tcf, auto-detect, heuristic, real-world | 2026-05-19 |
-| [experiments\lab\dirty\2026-05-19-obat-perf-optimization](./experiments/lab/dirty/2026-05-19-obat-perf-optimization/README.md) | 2026-05-19 — OBAT performance optimization | active | obat, performance, scale, profiling | ? |
-| [experiments\lab\dirty\2026-05-20-hcc-perf-optimization](./experiments/lab/dirty/2026-05-20-hcc-perf-optimization/README.md) | 2026-05-20 — HCC perf optimization (H-PERF-05) [ADIADO] | closed-adiado | hcc, performance, detect-compositions, h-perf-05 | ? |
-| [experiments\lab\dirty\2026-05-20-obat-perf-phase2-trigram-middle](./experiments/lab/dirty/2026-05-20-obat-perf-phase2-trigram-middle/README.md) | 2026-05-20 — OBAT perf phase 2 — trigrama de meio (H-PERF-04) [ADIADO] | closed-adiado | obat, performance, datetime, trigram | ? |
-| [experiments\lab\dirty\2026-05-21-escape-deduction](./experiments/lab/dirty/2026-05-21-escape-deduction/README.md) | 2026-05-21 — Escape deduction (Pacote 2 / H-ED-01..04) [CLOSED-INSUFFICIENT-GAIN] | closed-insufficient-gain | hcc, escape-deduction, h-ed, pacote-2 | 2026-05-21 |
-
-## Type: `sub-experiment`
-
-| Path | Title | Status | Tags | Updated |
-|---|---|---|---|---|
-| [experiments\lab\dirty\2026-05-18-canonical-parser-robustness\01-reproducao-minima](./experiments/lab/dirty/2026-05-18-canonical-parser-robustness/01-reproducao-minima/README.md) | Sub-exp 01 — Reproducao minima do bug `,` em literais | active | tcf, bug, hcc, canonical | 2026-05-19 |
-| [experiments\lab\dirty\2026-05-18-canonical-parser-robustness\02-opcao-A-escape-virgula](./experiments/lab/dirty/2026-05-18-canonical-parser-robustness/02-opcao-A-escape-virgula/README.md) | Sub-exp 02 — Opcao A (escape `,` em _escape_lit) | active | tcf, bug-fix, hcc, fork | 2026-05-19 |
-| [experiments\lab\dirty\2026-05-18-canonical-parser-robustness\03-opcao-B-separator-heuristico](./experiments/lab/dirty/2026-05-18-canonical-parser-robustness/03-opcao-B-separator-heuristico/README.md) | Sub-exp 03 — Opcao B (separator `*` em ref->lit com `,`/`~`) | active | tcf, bug-fix, hcc, fork | 2026-05-19 |
-| [experiments\lab\dirty\2026-05-19-h-da-09b-refino-real-world\01-audit-help-vs-hurt](./experiments/lab/dirty/2026-05-19-h-da-09b-refino-real-world/01-audit-help-vs-hurt/README.md) | Sub-exp 01 — Audit help-vs-hurt per-coluna real-world | active | tcf, audit, help-vs-hurt, real-world | 2026-05-19 |
-| [experiments\lab\dirty\2026-05-19-h-da-09b-refino-real-world\02-heuristica-refinada](./experiments/lab/dirty/2026-05-19-h-da-09b-refino-real-world/02-heuristica-refinada/README.md) | Sub-exp 02 — Heuristica refinada | active | tcf, heuristic, detect-cadence, refinement | 2026-05-19 |
+| [experiments\lab\dirty\2026-05-27-baseline-consolidado](./experiments/lab/dirty/2026-05-27-baseline-consolidado/README.md) | 2026-05-27 — Baseline consolidado pos-consolidacao | ATIVO (baseline-de-referencia) |  | ? |
+| [experiments\lab\dirty\2026-05-27-naturezas-reais-uci](./experiments/lab/dirty/2026-05-27-naturezas-reais-uci/README.md) | 2026-05-27 — Naturezas reais em datasets UCI + fechamento do limbo | concluido |  | ? |
 
 ## Type: `summary`
 
 | Path | Title | Status | Tags | Updated |
 |---|---|---|---|---|
 | [docs\findings](./docs/findings/README.md) | (sem title) | HISTORIC (Phase 1 LLM benchmark — ciclo v0.5) |  | ? |
+
+## Type: `untyped`
+
+| Path | Title | Status | Tags | Updated |
+|---|---|---|---|---|
+| [experiments\lab\dirty\2026-05-24-cpf-templated-checked\01-caracterizacao](./experiments/lab/dirty/2026-05-24-cpf-templated-checked/01-caracterizacao/README.md) | Sub-exp 01 — Caracterizacao baseline M10 em D-CPF | in-progress |  | ? |
+| [experiments\lab\dirty\2026-05-24-cpf-templated-checked\02-variante-A-raw](./experiments/lab/dirty/2026-05-24-cpf-templated-checked/02-variante-A-raw/README.md) | Sub-exp 02 — Variante A (raw + M10, sem pre-tx) | completed-via-01 |  | ? |
+| [experiments\lab\dirty\2026-05-24-cpf-templated-checked\05-fallback-per-value](./experiments/lab/dirty/2026-05-24-cpf-templated-checked/05-fallback-per-value/README.md) | Sub-exp 05 — Fallback per-value com marker explicito | stub |  | ? |
+| [experiments\lab\dirty\2026-05-24-cpf-templated-checked\06-stats-estruturadas](./experiments/lab/dirty/2026-05-24-cpf-templated-checked/06-stats-estruturadas/README.md) | Sub-exp 06 — NatureApplyStats estruturadas | stub |  | ? |
+| [experiments\lab\dirty\2026-05-24-cpf-templated-checked\07-generalizar-CNPJ](./experiments/lab/dirty/2026-05-24-cpf-templated-checked/07-generalizar-CNPJ/README.md) | Sub-exp 07 — Generalizar pra CNPJ (categoria abstraida) | stub |  | ? |
+| [experiments\lab\dirty\2026-05-24-cpf-templated-checked\08-IP-tcu-delta](./experiments/lab/dirty/2026-05-24-cpf-templated-checked/08-IP-tcu-delta/README.md) | Sub-exp 08 — IP com SlotBehavior delta (sub-categoria TCU-Delta) | stub |  | ? |
 
 ## READMEs sem frontmatter (candidatos a adicionar)
 
@@ -62,6 +64,7 @@ Total READMEs sem frontmatter: 53
 - `experiments/lab/clean/EXP-008-compressao-comparada/README.md`
 - `experiments/lab/clean/EXP-009-pre-tx-natureza/README.md`
 - `experiments/lab/clean/README.md`
+- `experiments/lab/dirty/2026-05-07-combinatoria-simples/README.md`
 - `experiments/lab/dirty/2026-05-15-naturezas-e-camada/README.md`
 - `experiments/lab/dirty/2026-05-15-naturezas-e-camada/pre-tx/T01-incremental-base-delta/01-prova-conceito-D11a-dia/README.md`
 - `experiments/lab/dirty/2026-05-15-naturezas-e-camada/pre-tx/T01-incremental-base-delta/02-bordas-D11b/README.md`
@@ -77,25 +80,10 @@ Total READMEs sem frontmatter: 53
 - `experiments/lab/dirty/2026-05-15-naturezas-e-camada/pre-tx/T01-incremental-base-delta/12-templated-marker/README.md`
 - `experiments/lab/dirty/2026-05-15-naturezas-e-camada/pre-tx/T01-incremental-base-delta/13-tz-aware-pretx/README.md`
 - `experiments/lab/dirty/2026-05-15-naturezas-e-camada/pre-tx/T01-incremental-base-delta/README.md`
-- `experiments/lab/dirty/2026-05-17-OBAT-delta-aware/01-baseline-obat-hcc-atual/README.md`
-- `experiments/lab/dirty/2026-05-17-OBAT-delta-aware/02-hcc-sozinho-rle-near-identical/README.md`
-- `experiments/lab/dirty/2026-05-17-OBAT-delta-aware/03-cadence-break-recovery/README.md`
-- `experiments/lab/dirty/2026-05-17-OBAT-delta-aware/04-obat-shape-consistency-hint/README.md`
-- `experiments/lab/dirty/2026-05-17-OBAT-delta-aware/05-numeric-ids-h-da-06/README.md`
-- `experiments/lab/dirty/2026-05-17-OBAT-delta-aware/06-auto-hint-regression-D1-D9/README.md`
-- `experiments/lab/dirty/2026-05-17-OBAT-delta-aware/07-per-run-delta-audit/README.md`
-- `experiments/lab/dirty/2026-05-17-OBAT-delta-aware/08-min-len-trade-off/README.md`
-- `experiments/lab/dirty/2026-05-17-OBAT-delta-aware/09-auto-detect-cadence-heuristic/README.md`
-- `experiments/lab/dirty/2026-05-19-obat-perf-optimization/01-profile-baseline/README.md`
-- `experiments/lab/dirty/2026-05-19-obat-perf-optimization/02-index-prototypes/README.md`
-- `experiments/lab/dirty/2026-05-19-obat-perf-optimization/03-welding-decision/README.md`
-- `experiments/lab/dirty/2026-05-20-hcc-perf-optimization/01-profile-hcc/README.md`
-- `experiments/lab/dirty/2026-05-20-hcc-perf-optimization/02-prototipos-zero-risk/README.md`
-- `experiments/lab/dirty/2026-05-20-hcc-perf-optimization/03-prototipos-cap-K-iter/README.md`
-- `experiments/lab/dirty/2026-05-20-obat-perf-phase2-trigram-middle/01-profile-bucket-sizes/README.md`
-- `experiments/lab/dirty/2026-05-20-obat-perf-phase2-trigram-middle/02-prototipo-combined-full/README.md`
-- `experiments/lab/dirty/2026-05-21-escape-deduction/01-caracterizacao-escapes/README.md`
-- ... (+3 mais)
+- `experiments/lab/dirty/2026-05-27-h-perf-06-v2-fase-a/README.md`
+- `experiments/lab/dirty/README.md`
+- `experiments/lab/dirty/notas/diario/README.md`
+- `scripts/shaper/README.md`
 
 ---
 

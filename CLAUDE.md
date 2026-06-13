@@ -17,9 +17,16 @@ com pipeline canonical delta-aware (M10 baseline, ADR-0011):
   `src/tcf/composicional/`
 
 API: `from tcf import encode, decode`. Estado: pipeline canonical M10
-validado em D1-D9 (1523B baseline, vs M9 antigo 1615B), 20 sint (RT
-20/20), Adult+TPC-H 57 cols (ganho 11.73% real-world weighted, RT 57/57).
-Multi-column basico em EXP-011.
+validado em D1-D9 (baseline 1523B, vs M9 antigo 1615B — **pinado em
+`tests/test_core_rt.py` + `test_regression_v1_baseline.py`**), 20 sint
+(RT 20/20), Adult+TPC-H 57 cols (RT 57/57). Multi-column basico em EXP-011.
+
+> **Ganhos real-world** (citar a fonte, nao o numero solto — §5 fonte unica):
+> dois numeros distintos, ambos vs M9 puro (1,008,003B), nao conflitam:
+> - **9.87% weighted** = H-DA-11 isolado (auto-min-len). Fonte: ADR-0010.
+> - **11.73% weighted** = Pacote 1 completo (pipeline delta-aware). Fonte: ADR-0011.
+> Bytes absolutos do gate real-world (89616B total) pinados em
+> `tests/test_real_world_snapshots.py` — a prosa aponta, o teste mede.
 
 ## ONDE ESTAO AS COISAS — consulte ANTES de propor criar/baixar
 
@@ -305,6 +312,20 @@ independente por camada).
 - Tickets podem usar `closed-insufficient-gain`, `closed-adiado`,
   `closed-parcial` no frontmatter YAML
   (ver `tickets/README.md` convencao 2026-05-21)
+
+### Forca do artefato — dispositivo vs probatorio (§3-bis do Strata)
+Marcar QUE ATO um artefato executa (ortogonal ao status/confianca). Um
+leitor — humano ou agente — que ingere o corpus sem isso le diretiva,
+hipotese e registro no mesmo plano e erra. Mapeamento canonico no TCF:
+- **dispositivo** (CONSTITUI o que diz; e' a fonte; desfazer = novo ato):
+  ADR `accepted`/`welded`, `src/tcf/` (codigo canonical), formato `#TCF.6`,
+  decisao de owner. NAO se "revalida na fonte" — ELE e' a fonte.
+- **probatorio** (REGISTRA fato verdadeiro alhures; revalida na fonte):
+  resultado de experimento, hipotese, metrica medida, dataset (aponta pro
+  dado real em Z:), ticket de teste. Carrega proveniencia + confianca.
+INDEX.md (`scripts/index.py`) agrupa por `type` do frontmatter — usar
+`type: decision|experiment|report|dataset|...` ja' sinaliza a forca. Em
+prosa/ticket ambiguo, dizer explicitamente "[dispositivo]" / "[probatorio]".
 
 ### Tier de memoria
 - **USER scope** (`~/.claude/.../memory/`): preferencias pessoais,
