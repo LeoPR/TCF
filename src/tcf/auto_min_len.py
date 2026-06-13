@@ -1,11 +1,18 @@
 """Auto-detect min_len por coluna (canonical, ADR-0010, H-DA-11).
 
+CAMADA-0 pre-pass (ordem do pipeline: pre-pass -> OBAT em core/ -> HCC em
+composicional/). Irmaos pre-pass: column_features, auto_cadence, obat_shape.
+
 Heuristica v3 (decision tree shallow em avg_len + cardinality + is_numeric)
 capturou 99.5% do oracle real-world em Adult+TPC-H (sub-exp
 `experiments/lab/dirty/2026-05-21-h-da-11-auto-min-len/02-heuristica-v1/`).
+A heuristica so' dispara n>=100 (real-world); seu efeito em bytes e' guardado
+por `tests/test_real_world_snapshots.py` (GATE). O 99.5% e' derivado do
+sub-exp acima, nao pinado como literal.
 
 Gating `n >= 100`: datasets pequenos (D1-D9, exemplos sinteticos) usam
-default ml=3 — preserva M9 baseline EXATO (1615B).
+default ml=3 — preserva M9 baseline EXATO (1615B). O caminho do gating
+(D1-D9 byte-canonical) e' guardado por `tests/test_core_rt.py`.
 
 API:
 - `detect_min_len_from_features(features, n_threshold=100)` — heuristica

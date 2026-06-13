@@ -1,5 +1,9 @@
 """OBAT com dica generica `prefer_shape_consistency`.
 
+CAMADA-0/1 (limitrofe): recebe hint do pre-pass (detect_cadence) e estende
+OBAT (core/online.py). Ordem do pipeline: pre-pass -> OBAT (core/) -> HCC
+(composicional/). Irmaos pre-pass: auto_cadence, auto_min_len, column_features.
+
 Welded canonical 2026-05-22 (T-CODE-PACOTE1-WELD-CANONICAL).
 Origem: `experiments/lab/clean/EXP-010-tcf-delta-aware-prototype/obat_shape.py`
 (welded 2026-05-17 do dirty lab `04-obat-shape-consistency-hint/obat_fork.py`).

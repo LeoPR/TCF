@@ -40,14 +40,24 @@ Ver `docs/algorithms/` para documentacao tecnica detalhada.
 
 ## Validacao
 
+> Numeros abaixo sao probatorios: o TESTE mede, a prosa aponta. Guardioes
+> byte-canonical: `tests/test_core_rt.py` + `tests/test_regression_v1_baseline.py`
+> (baselines D1-D9/D17a), `tests/test_multi_col_rt.py` (multi-col),
+> `tests/test_real_world_snapshots.py` (bytes reais; GATE de qualquer mudanca
+> em pre-pass/OBAT/HCC). As % sao derivadas — ver o ADR citado em cada linha.
+
 Single-column (M10 canonical, ADR-0011):
 - D1-D9 sint: 1523B em 2981 raw = 51.1% ratio (RT 9/9)
+  [1523B pinado em test_core_rt.py + test_regression_v1_baseline.py]
 - Real-world Adult+TPC-H 57 cols: -11.73% weighted vs M9 puro
+  [bytes em test_real_world_snapshots.py; % derivada, ADR-0011]
 
 Multi-column (M10 + ADR-0013, T-EXP-MULTI-COL-SCALING):
 - D17a sint 13x4: 322B INVARIANT (preservado vs EXP-011)
+  [322B pinado em test_multi_col_rt.py + test_regression_v1_baseline.py]
 - Real-world 9 tabelas (Adult + TPC-H tier 1+2, 136k linhas):
   -33.02% weighted vs raw, -31.46% vs single-col concat, RT 9/9
+  [bytes em test_real_world_snapshots.py; % derivada, ADR-0013]
 
 ## Backward compat
 

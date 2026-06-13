@@ -30,10 +30,15 @@ Backward compat:
   como single-col (comportamento atual)
 
 Detalhes:
-- `docs/algorithms/HCC.md`
+- `docs/algorithms/HCC.md`, `docs/algorithms/output-convention.md`
+  (convencao sem-brackets / LF-unico implementada aqui e em hcc_seqrle.py)
 - `docs/adr/0011-pacote1-weld-canonical.md`
 - `docs/adr/0013-multi-column-canonical-api.md`
 - `docs/adr/0014-unified-api-side-outputs.md`
+
+Invariante `decode(encode(x)) == x` guardado por `tests/test_core_rt.py`
+(single) + `tests/test_multi_col_rt.py` (multi) +
+`tests/test_real_world_snapshots.py` (real-world).
 """
 
 from __future__ import annotations

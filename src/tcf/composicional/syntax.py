@@ -1,5 +1,11 @@
 """M8.A — Detector unificado.
 
+CAMADA-2 do TCF. Codnome dirty-lab `M8.A`; nome canonical: HCC (Hierarchical
+Compositional Coding) — spec `docs/algorithms/HCC.md`. Esta classe
+(`M8AVirtualRefsSyntax`) e' o detector; `hcc_seqrle.py` estende com seq-RLE.
+GATE byte-canonical: mudanca em `_detect_compositions` DEVE passar
+`tests/test_real_world_snapshots.py` + `tests/test_core_rt.py`.
+
 Generalizacao do M7.A: refs atomicos (id positivo = prov atom) e refs
 virtuais (id negativo = -alias_temp) compartilham o mesmo espaco em
 'refs' pieces. Detector itera uniformemente em sub-tuplas mixtos.
@@ -10,7 +16,7 @@ Emit recursivo: alias com sub contendo virtuals nao-emitidos faz
 expansao inline (emit das inner_aliases primeiro como units separadas
 por `,`, depois o alias externo como composition unit).
 
-Convencao output: sem brackets, single LF.
+Convencao output: sem brackets, single LF (docs/algorithms/output-convention.md).
 """
 
 from collections import Counter, defaultdict

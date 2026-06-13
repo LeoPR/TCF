@@ -1,5 +1,9 @@
 """ColumnFeatures — pre-pass unificado de features de coluna.
 
+CAMADA-0 pre-pass (ordem do pipeline: pre-pass -> OBAT em core/ -> HCC em
+composicional/). E' o produtor de features que os irmaos pre-pass
+(auto_cadence, auto_min_len, obat_shape) consomem.
+
 Calcula features basicas em 1 passada O(N) sobre values:
 - n_rows, n_unicas
 - avg_len, cardinality

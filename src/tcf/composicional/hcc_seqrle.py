@@ -18,9 +18,14 @@ Decoder espelho: expande `*N+delta|<template>` em N linhas via
 shift_escape_digits.
 
 Sintaxe: `*N+delta|<template>` (compativel com `*N|` RLE puro
-existente em M8A — distincao pelo `+`).
+existente em M8A — distincao pelo `+`). Convencao de output (sem brackets,
+LF unico) conforme `docs/algorithms/output-convention.md`.
 
 `src/tcf/composicional/syntax.py` intocado — importa e estende.
+
+GATE byte-canonical: qualquer mudanca aqui (seq-RLE / detector) DEVE passar
+`tests/test_real_world_snapshots.py` + `tests/test_core_rt.py`. Spec:
+`docs/algorithms/HCC.md` (ADR-0016).
 """
 
 from __future__ import annotations
