@@ -297,7 +297,12 @@ class HCCSeqRLE(M8AVirtualRefsSyntax):
 
     def encode(self, linhas, unicas, tokens_por_string, header):
         body_text = super().encode(linhas, unicas, tokens_por_string, header)
-        body_lines = body_text.rstrip('\n').split('\n')
+        # super().encode termina com exatamente UM '\n' extra ("\n".join(body)
+        # + "\n"). Tirar so' esse — rstrip('\n') comia tambem os '\n' de valores
+        # VAZIOS finais, perdendo-os no decode (len mismatch). Para body sem
+        # vazios finais, [:-1] == rstrip (byte-canonical preservado).
+        # Bug T-CODE-EMPTY-FRAG-INDEX-RT (2o modo: valor vazio no fim).
+        body_lines = body_text[:-1].split('\n')
         compacted, info = compact_body(body_lines)
         self._seq_info = info
         return '\n'.join(compacted) + '\n'

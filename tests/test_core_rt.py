@@ -85,6 +85,55 @@ class TestRoundTripBasic:
 
 
 # ---------------------------------------------------------------------------
+# Bug T-CODE-EMPTY-FRAG-INDEX-RT (2026-06-13): valor vazio + back-ref HCC
+# ---------------------------------------------------------------------------
+
+class TestEmptyValueFragIndex:
+    """String vazia nao podia deslocar o index de fragmento HCC.
+
+    Dois modos historicos (achados na caracterizacao V2-A, receita
+    nome_fantasia):
+    1. Empty desloca frag id -> back-ref de valor posterior com prefixo
+       compartilhado corrompe/crasha (fix decode-side em syntax._parse_decl).
+    2. Empty no FIM era comido por rstrip('\\n') (fix em hcc_seqrle.encode).
+    Contrato: decode(encode(x)) == x. Byte-canonical preservado (decode-only +
+    [:-1] == rstrip pra body sem vazios finais).
+    """
+
+    @pytest.mark.parametrize("values", [
+        # repro real (receita) + minimos sinteticos (empty inicial + prefixo)
+        ['', 'RESTAURANTE AR DE MINAS', 'RESIDENCIAL NOVA BATALHA'],
+        ['', 'AAAB', 'AAAC'],
+        ['', 'PREFIXOxxx', 'PREFIXOyyy'],
+        ['', 'RES', 'RESID'],          # modo 1 crashava: KeyError
+        ['', '', 'AAAB', 'AAAC'],      # dois emptys iniciais
+        ['', 'ABCDEF', 'GHIJKL'],      # empty sem prefixo compartilhado
+        # empty NAO-primeiro + ref posterior (regrediu o 1o fix incondicional;
+        # OBAT nao conta '' apos outra unica -> decode nao pode reservar frag)
+        ['RED RETROSPOT MINI CASES', '',
+         'HEART OF WICKER LARGE', 'HEART OF WICKER SMALL'],
+        ['X', '', 'PREFIXOaaa', 'PREFIXObbb'],
+        # modo 2: empty no fim (era perdido por rstrip)
+        ['RESTAURANTE AR DE MINAS', 'RESIDENCIAL NOVA BATALHA', ''],
+        ['a', 'b', '', ''],            # multiplos emptys finais
+        # regressao: empty no meio JA passava — nao pode quebrar
+        ['RESTAURANTE AR DE MINAS', '', 'RESIDENCIAL NOVA BATALHA'],
+    ])
+    def test_empty_value_roundtrip(self, values):
+        text = encode(values)
+        assert decode(text) == values
+
+    def test_multi_col_empty_value(self):
+        # mesma classe no caminho multi-col (per-col passa por HCCSeqRLE)
+        table = {
+            "nome": ['', 'RESTAURANTE AR DE MINAS', 'RESIDENCIAL NOVA BATALHA'],
+            "uf": ['SP', 'SP', 'RJ'],
+        }
+        text = encode(table)
+        assert decode(text) == table
+
+
+# ---------------------------------------------------------------------------
 # M10 baseline D1-D9 (INVARIANT 1523B)
 # ---------------------------------------------------------------------------
 

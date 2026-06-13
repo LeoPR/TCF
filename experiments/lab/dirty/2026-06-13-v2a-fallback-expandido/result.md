@@ -102,8 +102,32 @@ com corrupcao silenciosa E crash. **Ticket**: T-BUG-1.
   `src/tcf` → exige aprovacao explicita do owner + re-validar D1-D9=1523B +
   gate real-world.
 
+## 4. Bug CORRIGIDO (aprovado pelo owner, 2026-06-13)
+
+Eram DOIS modos, fix byte-canonical-safe:
+
+**Root cause refinado** (probe_obat.py): OBAT (`processar`) e' inconsistente
+por design frozen — `''` PRIMEIRA unica -> `[L('')]` (1 frag); `''` apos outra
+-> `[]` (0 frag). O decode nunca reservava index pra linha vazia -> off-by-one
+so' quando o empty era a 1a unica + havia back-ref posterior.
+
+- **Modo 1** (`syntax.py::_parse_decl`): reservar frag vazio SO' quando
+  `prox_idx==0` (espelha o OBAT). 1a tentativa incondicional regrediu retail
+  (empty nao-primeiro) — corrigida pela condicao.
+- **Modo 2** (`hcc_seqrle.py::encode`): `rstrip('\n')` -> `[:-1]` (vazio final
+  era comido). Identico pra body sem vazios finais.
+
+**Verificacao**: fronteira 0/9 falham; suite 332 passed + 1 xfailed; D1-D9=1523B
++ D17a=322B + real-world snapshots verdes (bytes M10 identicos -> decode-only
+confirmado); receita-estab RT FAIL -> OK; V2-A 9/9 RT, 7.85% weighted.
+
+Ticket: T-CODE-EMPTY-FRAG-INDEX-RT (CLOSED). Reproducers pinados em
+`tests/test_core_rt.py::TestEmptyValueFragIndex` (12 casos).
+
 ## Artefatos
 - `characterize_v2a.py` — caracterizacao 9 datasets
 - `diag_receita.py` — isola m10_rt vs fb_rt, acha coluna/linha
 - `minimize_bug.py` — ddmin -> reproducer de 3 valores
 - `verify_bug.py` — fronteira via API publica (standalone)
+- `probe_bodies.py` — dump dos bodies (sintetico vs retail)
+- `probe_obat.py` — regra do OBAT pra '' por posicao (root cause)

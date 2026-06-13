@@ -1,6 +1,6 @@
 ---
 title: T-CODE-EMPTY-FRAG-INDEX-RT — Bug de RT no core M10 (string vazia desloca index de fragmento HCC)
-status: open
+status: closed
 priority: P1
 created: 2026-06-13
 updated: 2026-06-13
@@ -106,3 +106,40 @@ ADR-0006 (empty string decode), caso distinto e nao coberto.
 - ADR-0007 (comma in literals — familia de bugs de parsing de body)
 - V2-A (ADR-0018): o fallback contorna este bug (nome_fantasia cai pra raw),
   mas o weld de V2-A pressupoe o all-TCF correto → este bug e' pre-requisito.
+
+## Resolucao — CLOSED 2026-06-13
+
+Aprovado pelo owner (toca src/tcf). Eram DOIS modos, ambos da familia "valor
+vazio", fix byte-canonical-safe (decode-only / `[:-1]`):
+
+**Root cause refinado** (probe_obat.py): o OBAT (`processar`) e' inconsistente
+por design frozen — `''` como PRIMEIRA unica -> `[L('')]` (1 fragmento);
+`''` apos outra unica -> `[]` (0 fragmentos). O `_emit_body` espelha isso no
+`current_id`. O decode (`_parse_decl`) nao reservava index pra linha vazia em
+NENHUM caso -> off-by-one quando o empty era a primeira unica e havia back-ref
+posterior.
+
+**Modo 1 (frag index)** — `src/tcf/composicional/syntax.py` `_parse_decl`:
+reservar o index do fragmento vazio SO' quando `prox_idx[0] == 0` (primeira
+declaracao = empty e' a primeira unica). Espelha o OBAT exatamente. A 1a
+tentativa (reservar incondicional) regrediu retail-description (empty
+nao-primeiro + ref posterior) — corrigida pela condicao `prox_idx == 0`.
+
+**Modo 2 (empty no fim)** — `src/tcf/composicional/hcc_seqrle.py` `encode`:
+`body_text.rstrip('\n')` comia os `\n` de valores vazios FINAIS junto com o
+terminador. Trocado por `body_text[:-1]` (tira so' o `\n` unico que
+`super().encode` adiciona). Identico a rstrip pra body sem vazios finais.
+
+**Verificacao**:
+- Reproducers + fronteira: 0/9 falham (eram 6/9). Pinados em
+  `tests/test_core_rt.py::TestEmptyValueFragIndex` (12 casos, incl. retail,
+  empty-meio regressao, multi-col).
+- Suite completa: **332 passed, 1 xfailed**.
+- Byte-canonical PRESERVADO: D1-D9=1523B, D17a=322B, real-world snapshots
+  verdes; bytes M10 da caracterizacao identicos (decode-only). 
+- receita-estab (gatilho original): RT FAIL -> **OK**. V2-A 9/9 RT, 7.85% weighted.
+
+Lacuna de cobertura do gate: confirmada (receita nao estava nas fixtures +
+padrao empty+prefixo ausente nas colunas pinadas). Adicionar fixture free-text
+com empty+prefixo ao gate real-world fica como follow-up (nao-bloqueante;
+os reproducers ja' estao pinados em test_core_rt).

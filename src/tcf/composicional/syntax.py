@@ -683,6 +683,21 @@ class M8AVirtualRefsSyntax(Syntax):
     def _parse_decl(self, resto, frags, prox_idx):
         partes = []
         i, n = 0, len(resto)
+        if n == 0:
+            # Valor vazio. O OBAT (processar) e' inconsistente por design
+            # frozen: '' como PRIMEIRA unica -> [L('')] (1 fragmento); '' apos
+            # outra unica -> [] (0 fragmentos). O _emit_body espelha isso no
+            # current_id. Logo o decode so' reserva o index do fragmento vazio
+            # quando ele e' a PRIMEIRA declaracao (prox_idx ainda 0) — senao
+            # back-refs de valores posteriores com prefixo compartilhado
+            # deslocam em 1 (corrompe a saida ou crasha com KeyError).
+            # Bug T-CODE-EMPTY-FRAG-INDEX-RT; familia ADR-0006 (caso distinto:
+            # index de fragmento, nao a saida). Fix decode-only ->
+            # byte-canonical-safe (encode intocado).
+            if prox_idx[0] == 0:
+                prox_idx[0] += 1
+                frags[prox_idx[0]] = ''
+            return ''
         while i < n:
             ch = resto[i]
             if ch == '*':
