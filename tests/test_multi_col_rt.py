@@ -201,10 +201,12 @@ class TestV2AFallback:
         assert decode(text) == table
 
     def test_fallback_marker_only_before_size(self):
-        # '!' aparece so' antes do size, nunca toca o nome
+        # '!' aparece so' antes do size, nunca toca o nome.
+        # #TCF.7 dispensa o prefixo '# ' do meta (ADR-0023) -> meta direto.
         table = self._table()
         text = encode(table, fallback=True)
-        meta = text.split("\n", 2)[1][2:]  # strip "# "
+        meta = text.split("\n", 2)[1]
+        assert not meta.startswith("# ")  # v7: sem prefixo
         pairs = meta.split(",")
         # hour caiu pra raw -> par "!<size>=hour"; nome TCF -> "<size>=nome"
         assert any(p.startswith("!") and p.split("=", 1)[1] == "hour" for p in pairs)
@@ -222,8 +224,9 @@ class TestV2AFallback:
 # ---------------------------------------------------------------------------
 
 class TestMinHeaderV2:
-    """Header minimo: mantem `#`, tira o espaco, omite size da ultima coluna.
-    Opt-in (`min_header=True`); default preserva byte-canonical v1 (#TCF.6)."""
+    """Header minimo: #TCF.7 dispensa o prefixo do meta (sem `#`, sem espaco) e
+    omite o size da ultima coluna. Opt-in (`min_header=True`); default preserva
+    byte-canonical v1 (#TCF.6)."""
 
     def _table(self):
         return {
@@ -246,10 +249,9 @@ class TestMinHeaderV2:
     def test_min_header_meta_shape(self):
         text = encode(self._table(), min_header=True)
         meta = text.split("\n", 2)[1]
-        # mantem '#', sem espaco
-        assert meta.startswith("#")
-        assert not meta.startswith("# ")
-        pairs = meta[1:].split(",")
+        # #TCF.7: meta SEM prefixo '#' (o flag M no shebang ja' declara colunas)
+        assert not meta.startswith("#")
+        pairs = meta.split(",")
         # todos menos o ultimo tem 'size=name'; ultimo e' bare (sem '=')
         assert all("=" in p for p in pairs[:-1])
         assert "=" not in pairs[-1]

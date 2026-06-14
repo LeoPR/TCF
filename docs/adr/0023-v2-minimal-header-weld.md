@@ -23,30 +23,32 @@ registradas em [O-FMT-15 e O-FMT-16](../../experiments/lab/dirty/notas/futuras-o
 **Weld do "header v2 minimo" como capacidade OPT-IN** (`encode(table, min_header=True)`),
 multi-col, emitindo `#TCF.7 M`.
 
-Formato minimo (mantem o `#`, tira o espaco, omite o size da ultima coluna):
+Formato minimo (dispensa o prefixo do meta + omite o size da ultima coluna):
 
     #TCF.7 M
-    #<s1>=<n1>,<s2>=<n2>,...,<nN>
+    <s1>=<n1>,<s2>=<n2>,...,<nN>
     <body1><body2>...<bodyN>
 
 - **Default `min_header=False`** -> header v1 (`# <s>=<n>,...`), `#TCF.6`,
   byte-identico (invariantes D1-D9=1523B, D17a=322B preservados). Segue o
   padrao do codebase (opt-in; default preserva byte-canonical).
-- **Mantem o `#`** (decisao do owner) — dropa-lo tambem economizaria +1B, mas
-  o owner optou por manter como marcador-sanidade (registrado em O-FMT-16 como
-  opcao futura).
-- **Decoder self-describing**: distingue minimo de nao-minimo pelo ESPACO apos
-  o `#` (`# ` = v1/nao-minimo; `#x` = minimo); par sem `=` = ultima coluna
-  (size omitido -> corpo ate' EOF).
+- **Dispensa o prefixo `#` do meta** (revisao do header v0.6 pelo owner,
+  2026-06-14): o flag `M` no shebang `#TCF.7 M` ja' declara que a proxima linha
+  e' o meta de colunas, entao o `# ` e' redundante. Vale pra TODO `#TCF.7`
+  (fallback inclusive), nao so' min_header — `#TCF.6` mantem o `# ` (congelado).
+- **Decoder self-describing**: distingue pelo MAGIC (v6 exige `# `; v7 dispensa
+  o prefixo, tolerante a `# `/`#`/nenhum); par sem `=` = ultima coluna (size
+  omitido -> corpo ate' EOF).
 - **Compoe com V2-A** (`fallback`): par raw vira `!<s>=<n>`, e a ultima coluna
-  raw vira `!<n>` (raw, sem size). Emite `#TCF.7 M` se min_header OU fallback.
+  raw vira `!<n>` (raw, sem size). Emite `#TCF.7 M` se min_header OU fallback;
+  o `#TCF.7` ja' dispensa o prefixo do meta independente de qual feature ativou.
 
 ## Pros and Cons
 
 **Pros**:
 - Economia direta no overhead fixo do header (ex: cadastro do README, 4 colunas:
-  −4 B / 182 B; proporcionalmente maior em payload menor) — alinhado ao foco
-  "transmissoes minusculas".
+  −5 B / 182 B = `# `(2) + `20=`(3); proporcionalmente maior em payload menor)
+  — alinhado ao foco "transmissoes minusculas".
 - Coerencia: a ultima-coluna-sem-size e' a generalizacao multi-col do single-col
   (que ja' e' EOF-bounded, [ADR-0001](0001-tcf-format-shebang.md)).
 - Zero risco pro v1: default preserva byte-canonical; backward-compat total.
@@ -63,9 +65,12 @@ Formato minimo (mantem o `#`, tira o espaco, omite o size da ultima coluna):
 - **ADR-0017** (format frozen v1.0): `#TCF.6` permanece congelado; este e'
   aditivo e opt-in (#TCF.7).
 - **ADR-0022** (V2-A fallback): mesmo `#TCF.7`, ortogonal; compoem. `min_header`
-  e `fallback` sao flags independentes.
-- **ADR-0004** (header compacto): nao considerou estas duas reducoes; este ADR
-  as adiciona.
+  e `fallback` sao flags independentes. **Este ADR tambem revisa o header do
+  `#TCF.7` de V2-A**: o meta de qualquer `#TCF.7` passa a dispensar o prefixo
+  `# ` (era `# !<s>=<n>` em ADR-0022; agora `!<s>=<n>`). `#TCF.7` e' pre-release,
+  sem invariante congelado, entao a mudanca e' segura.
+- **ADR-0004** (header compacto): nao considerou estas reducoes; este ADR
+  as adiciona pro #TCF.7.
 
 ## Verification
 
@@ -74,8 +79,9 @@ Formato minimo (mantem o `#`, tira o espaco, omite o size da ultima coluna):
   single-col ignora, RT com vazios).
 - Suite: **351 passed, 1 xfailed**. Byte-canonical preservado no default
   (D1-D9=1523B, D17a=322B, snapshots real-world).
-- Medido: cadastro README 182 B -> 178 B com `min_header=True` (−4 B: 1 do
-  espaco + 3 do `20=` da ultima coluna).
+- Medido: cadastro README 182 B -> **177 B** com `min_header=True` (−5 B:
+  `# `=2 do prefixo + `20=`=3 da ultima coluna). `fallback` sozinho: 182->180
+  (so' o `# ` cai + a coluna raw).
 
 ## Links
 

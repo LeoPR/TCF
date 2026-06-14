@@ -352,10 +352,11 @@ o `#` nao e' necessario. Combinado com O-FMT-15 (ultima sem size):
 
 **Prior art**: NAO abordado. ADR-0004 fixou `# ` sem discutir dispensa-lo.
 
-**Status**: **WELDED 2026-06-14** ([ADR-0023](../../../../docs/adr/0023-v2-minimal-header-weld.md))
-— o espaco apos `#` foi removido no header v2 minimo (`min_header=True`). O drop
-do PROPRIO `#` ficou de fora (owner optou por manter como marcador-sanidade);
-fica como opcao futura (+1B).
+**Status**: **WELDED 2026-06-14** ([ADR-0023](../../../../docs/adr/0023-v2-minimal-header-weld.md)).
+Na revisao do header (owner, 2026-06-14) decidiu-se ir alem: como o flag `M` no
+shebang ja' declara o meta de colunas, **todo `#TCF.7` dispensa o prefixo `# `
+inteiro** (nao so' o espaco — o `#` tambem). Vale pra fallback e min_header.
+`#TCF.6` mantem o `# ` (congelado). Nada mais pendente aqui.
 
 ### Bundle "header v2 minimo" (O-FMT-15 + O-FMT-16) — reframe 2026-06-14
 
@@ -377,11 +378,12 @@ header proporcionalmente maior (poucas linhas, varias colunas), o efeito sobe.
 pacote "header v2 minimo" opt-in (#TCF.7), nao tres welds isolados.
 
 **WELDED 2026-06-14** ([ADR-0023](../../../../docs/adr/0023-v2-minimal-header-weld.md)):
-`encode(table, min_header=True)` -> #TCF.7 com meta `#<s>=<n>,...,<nN>` (mantem
-`#`, sem espaco, ultima sem size). Compoe com `fallback` (V2-A). Default off
-preserva byte-canonical. Medido: cadastro README 182->178 B. Suite 351 passed.
-PENDENTE (futuro): drop do proprio `#` (+1B); aspecto deferred-sizing/streaming
-(O-FMT-08/V2-J).
+`encode(table, min_header=True)` -> #TCF.7 com meta `<s>=<n>,...,<nN>`. Na revisao
+do header (owner, mesmo dia) o prefixo `# ` INTEIRO caiu (nao so' o espaco — o
+`#` tambem; o flag `M` ja' declara colunas) pra TODO #TCF.7. Compoe com
+`fallback`. Default off preserva byte-canonical. Medido: cadastro README
+**182->177 B** (−5). Suite 351 passed. PENDENTE (futuro): aspecto
+deferred-sizing/streaming (O-FMT-08/V2-J).
 
 ### Nota geral — fluxo atual (2026-05-24)
 

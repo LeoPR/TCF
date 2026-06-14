@@ -16,28 +16,32 @@ Header format (ADR-0004 + ADR-0013):
     # <size1>=<name1>,<size2>=<name2>,...
     <body1><body2>... (concatenado, byte-precise por size)
 
-V2-A fallback identity (ADR-0022, abre v2.0, opt-in `fallback=True`):
+#TCF.7 v2 (ADITIVO, opt-in) — o meta DISPENSA o prefixo `# ` (o flag `M` no
+shebang ja' declara que a proxima linha e' o meta de colunas, ADR-0023):
+
+V2-A fallback identity (ADR-0022, `fallback=True`):
 
     #TCF.7 M
-    # <size1>=<name1>,!<size2>=<name2>,...
+    <size1>=<name1>,!<size2>=<name2>,...
     <body1><raw_body2>...
 
     Par com `!` antes do size = coluna em modo RAW (body = "\\n".join(valores),
-    escolhido quando menor que o TCF). `!` so' aparece em #TCF.7 e nunca
-    colide com nome (size e' digito). Decoder le ambos os magics (self-
-    describing). Emite #TCF.7 sse alguma coluna cai pra raw; senao #TCF.6
+    escolhido quando menor que o TCF). `!` nunca colide com nome (size e'
+    digito). Emite #TCF.7 sse alguma coluna cai pra raw; senao #TCF.6
     byte-identico ao v1 (default fallback=False -> sempre #TCF.6).
 
-Header v2 minimo (ADR-0023, O-FMT-15+16, opt-in `min_header=True`):
+Header v2 minimo (ADR-0023, O-FMT-15+16, `min_header=True`):
 
     #TCF.7 M
-    #<size1>=<name1>,<size2>=<name2>,...,<nameN>
+    <size1>=<name1>,<size2>=<name2>,...,<nameN>
     <body1><body2>...<bodyN>
 
-    Mantem o `#`, tira o ESPACO e OMITE o size da ULTIMA coluna (corpo vai ate'
-    EOF, igual ao single-col). Decoder distingue minimo de nao-minimo pelo
-    espaco apos o `#`; par sem `=` = ultima coluna (size omitido). Compoe com
-    `!` (V2-A). Voltado a payload pequeno (header fixo domina).
+    Sem prefixo no meta + OMITE o size da ULTIMA coluna (corpo ate' EOF, igual
+    ao single-col). Par sem `=` = ultima coluna (size omitido). Compoe com `!`
+    (V2-A). Voltado a payload pequeno (header fixo domina).
+
+Decoder self-describing: #TCF.6 exige `# `; #TCF.7 dispensa o prefixo (tolerante
+a `# `/`#`/nenhum). Le ambos os magics sem flag.
 
 Restricoes:
 - Nomes de coluna nao podem conter `,` ou `=`
@@ -58,8 +62,8 @@ from tcf.side_outputs import SideOutputs
 
 MAGIC_MULTI = b"#TCF.6 M"
 MAGIC_MULTI_V2 = b"#TCF.7 M"  # V2-A fallback identity (ADR-0022, abre v2.0)
-META_PREFIX = b"# "
-META_PREFIX_MIN = b"#"  # header v2 minimo (ADR-0023, O-FMT-15+16): sem espaco
+META_PREFIX = b"# "  # v1 (#TCF.6, congelado). #TCF.7 dispensa o prefixo do meta
+                     # (o flag `M` no shebang ja' declara multi-col) — ADR-0023.
 
 
 def _encode_multi(
@@ -87,9 +91,10 @@ def _encode_multi(
             codebase: default preserva byte-canonical, cf. ADR-0015 natures
             e T-CODE-LAYERED-PIPELINE). Aplica so' a multi-col.
         min_header: header v2 minimo (ADR-0023, O-FMT-15+16). Default False ->
-            header v1 (`# size=name,...`). True -> mantem `#`, tira o espaco,
-            omite o size da ULTIMA coluna (corpo ate' EOF); emite #TCF.7 M.
-            Compoe com fallback. Opt-in; default preserva byte-canonical.
+            header v1 (`# size=name,...`). True -> #TCF.7 sem prefixo no meta
+            (o flag M ja' declara colunas) + omite o size da ULTIMA coluna
+            (corpo ate' EOF): `<size>=<name>,...,<nameN>`. Compoe com fallback.
+            Opt-in; default preserva byte-canonical.
     """
     if not table:
         raise ValueError("table vazia")
@@ -151,9 +156,12 @@ def _encode_multi(
     used_v2 = used_fallback or min_header
     magic = MAGIC_MULTI_V2 if used_v2 else MAGIC_MULTI
 
-    # Header v2 minimo (ADR-0023, O-FMT-15+16): mantem o '#', tira o ESPACO e
-    # OMITE o size da ULTIMA coluna (corpo vai ate' EOF — igual ao single-col).
-    # Opt-in min_header. '!' (V2-A raw) compoe normalmente.
+    # Meta line. #TCF.7 (qualquer feature v2) DISPENSA o prefixo do meta: o flag
+    # `M` no shebang ja' declara que a proxima linha e' o meta das colunas, entao
+    # o `# ` e' redundante (revisao do header v0.6, ADR-0023). #TCF.6 mantem o
+    # `# ` (congelado, ADR-0017).
+    # min_header tambem OMITE o size da ULTIMA coluna (corpo ate' EOF — igual ao
+    # single-col, O-FMT-15). '!' (V2-A raw) compoe normalmente.
     last_i = len(final_bodies) - 1
     parts = []
     for i, (name, b, mode) in enumerate(final_bodies):
@@ -163,7 +171,7 @@ def _encode_multi(
         else:
             parts.append(f"{pre}{len(b)}={name}")
     meta_pairs = ",".join(parts)
-    meta_prefix = META_PREFIX_MIN if min_header else META_PREFIX
+    meta_prefix = b"" if used_v2 else META_PREFIX
     header = magic + b"\n" + meta_prefix + meta_pairs.encode("utf-8") + b"\n"
     body_concat = b"".join(b for _, b, _ in final_bodies)
     full = header + body_concat
@@ -269,11 +277,11 @@ def _worker_encode_column(args: tuple[str, list[str], bool, PipelineConfig]) -> 
 def _decode_multi(tcf_text: str) -> dict[str, list[str]]:
     """Interno: decode TCF multi-col. Chamado por `decode()`.
 
-    Aceita #TCF.6 M (v1, todas colunas TCF) e #TCF.7 M (v2): colunas com par
-    meta `!<size>=<name>` sao raw / fallback identity (V2-A, ADR-0022); header
-    minimo (ADR-0023) tira o espaco apos `#` e omite o size da ultima coluna
-    (par sem `=` -> corpo ate' EOF). Self-describing: magic + forma do meta +
-    `!` por par dizem tudo, sem precisar de flag no decode.
+    Aceita #TCF.6 M (v1, meta com prefixo `# `) e #TCF.7 M (v2, meta SEM prefixo
+    — o flag M ja' declara colunas, ADR-0023). Em #TCF.7: par com `!` = coluna
+    raw / fallback (V2-A, ADR-0022); par sem `=` = ultima coluna com size
+    omitido (min_header, corpo ate' EOF). Self-describing: magic + forma dos
+    pares dizem tudo, sem flag no decode.
     """
     from tcf.decoder import _decode_column
 
@@ -284,7 +292,8 @@ def _decode_multi(tcf_text: str) -> dict[str, list[str]]:
     if nl1 == -1:
         raise ValueError("formato invalido: sem linha 1 (shebang)")
     line1 = raw[:nl1]
-    if not (line1.startswith(MAGIC_MULTI) or line1.startswith(MAGIC_MULTI_V2)):
+    is_v7 = line1.startswith(MAGIC_MULTI_V2)
+    if not (line1.startswith(MAGIC_MULTI) or is_v7):
         raise ValueError(
             f"magic invalido: esperado {MAGIC_MULTI!r} ou {MAGIC_MULTI_V2!r}, "
             f"got {line1[:20]!r}"
@@ -295,15 +304,16 @@ def _decode_multi(tcf_text: str) -> dict[str, list[str]]:
     if nl2 == -1:
         raise ValueError("formato invalido: sem linha de meta")
     line2 = raw[cursor:nl2]
-    # Meta line: '# ...' (v1 / v2 nao-minimo) OU '#...' sem espaco (header v2
-    # minimo, ADR-0023). Distingue pelo espaco apos o '#' (checar '# ' antes).
+    # Meta line. #TCF.6 (congelado) exige o prefixo '# '. #TCF.7 dispensa-o (o
+    # flag `M` no shebang ja' declara o meta de colunas, ADR-0023) — aceita
+    # tolerante: '# ', '#' avulso, ou sem prefixo (forma canonical v7).
     if line2.startswith(META_PREFIX):          # b"# "
         meta_str = line2[len(META_PREFIX):].decode("utf-8")
-    elif line2.startswith(META_PREFIX_MIN):    # b"#"
-        meta_str = line2[len(META_PREFIX_MIN):].decode("utf-8")
+    elif is_v7:
+        meta_str = (line2[1:] if line2.startswith(b"#") else line2).decode("utf-8")
     else:
         raise ValueError(
-            f"meta invalido: esperado prefixo '#', got {line2[:5]!r}"
+            f"meta invalido (#TCF.6 exige '# '): got {line2[:5]!r}"
         )
     pairs = []  # (size|None, name, mode)
     for p in meta_str.split(","):

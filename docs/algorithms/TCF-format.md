@@ -38,13 +38,15 @@ TCF v1 muda entre versoes tcf 1.x.y. Markers novos requerem `#TCF.7`.
 
 **`#TCF.7` (v2, ADITIVO e opt-in)** — duas capacidades ortogonais, ambas multi-col,
 ambas emitindo `#TCF.7 M` so' quando ativadas (senao `#TCF.6` byte-identico).
-Decoder le tudo self-describing. Default preserva 100% dos invariantes v1:
+**Todo `#TCF.7` dispensa o prefixo `# ` do meta** (o flag `M` no shebang ja'
+declara as colunas, ADR-0023) — `#TCF.6` mantem o `# ` (congelado). Decoder
+self-describing. Default preserva 100% dos invariantes v1:
 - **V2-A fallback identity** ([ADR-0022](../adr/0022-v2a-fallback-identity-weld.md),
   `fallback=True`): por coluna escolhe min(TCF, raw); coluna raw marcada
-  `!<size>=<name>`.
+  `!<size>=<name>`. Meta: `!<s1>=<n1>,<s2>=<n2>,...`.
 - **Header v2 minimo** ([ADR-0023](../adr/0023-v2-minimal-header-weld.md),
-  `min_header=True`): mantem `#`, tira o espaco, omite o size da ULTIMA coluna
-  (corpo ate' EOF) -> meta `#<s1>=<n1>,...,<nN>`. Voltado a payload pequeno.
+  `min_header=True`): alem do prefixo, OMITE o size da ULTIMA coluna (corpo ate'
+  EOF) -> meta `<s1>=<n1>,...,<nN>`. Voltado a payload pequeno.
 
 ### Library version (semver)
 
@@ -223,10 +225,11 @@ header `#TCF.6 M` + meta line (`# size=name,size=name,...`).
 cada coluna escolhe min(TCF, raw); coluna raw vira `!<size>=<name>` e o header
 sobe pra `#TCF.7 M`. Opt-in — default preserva `#TCF.6` byte-identico.
 
-**Header v2 minimo (opt-in, ADR-0023)**: com `encode(table, min_header=True)`,
-o meta line tira o espaco apos `#` e omite o size da ultima coluna (corpo ate'
-EOF): `#<s1>=<n1>,...,<nN>`. Emite `#TCF.7 M`. Compoe com `fallback`. Default
-preserva `#TCF.6` byte-identico. Foco: payload pequeno (header fixo domina).
+**Header v2 minimo (opt-in, ADR-0023)**: todo `#TCF.7` dispensa o prefixo `# `
+do meta (o `M` do shebang ja' declara colunas). Com `min_header=True`, alem
+disso, omite o size da ultima coluna (corpo ate' EOF): meta `<s1>=<n1>,...,<nN>`.
+Compoe com `fallback`. Default preserva `#TCF.6` byte-identico. Foco: payload
+pequeno (header fixo domina).
 
 Restrições:
 - Nomes de coluna não podem conter `,` ou `=` (reservados do header)

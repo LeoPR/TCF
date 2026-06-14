@@ -97,9 +97,10 @@ def encode(
             (single-col nao tem header pra marcar modo).
         min_header: header v2 minimo (ADR-0023, O-FMT-15+16). Opt-in; default
             False -> header v1 (#TCF.6, `# size=name,...`). True (multi-col)
-            -> mantem o `#`, tira o espaco e OMITE o size da ultima coluna
-            (corpo ate' EOF); emite #TCF.7 M. Compoe com fallback. Voltado a
-            payloads pequenos, onde o header fixo domina. Ignorado pra list.
+            -> #TCF.7 com meta SEM prefixo (o flag M ja' declara colunas) e
+            SEM o size da ultima coluna (corpo ate' EOF): `size=name,...,nameN`.
+            Compoe com fallback. Voltado a payloads pequenos, onde o header
+            fixo domina. Ignorado pra list.
 
     Returns:
         Texto TCF (str, sempre UTF-8, LF only). **Output byte-identico
