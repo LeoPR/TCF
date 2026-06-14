@@ -46,6 +46,7 @@ referencias a commits que o resolveram.
 | [T-CODE-PLAN-CONTRACT](T-CODE-PLAN-CONTRACT.md) | `Plan` dataclass (group_by/order/batch_size/batch_unit) — contrato D11/D13. Habilita ordenacao reversivel O-FMT-01..04 e SQL->Plan (D8). | **OPEN P3 2026-05-24** |
 | [T-CODE-SCHEMA-BUILDER](T-CODE-SCHEMA-BUILDER.md) | **Fase 1+2 WELDED**: `src/tcf/schema.py` novo com `build_schema(data)` orquestrador + `ColumnSchema`/`TableSchema` dataclasses + `to_dict`/`to_json`. 24/24 tests passing (D17a 322B INVARIANT preservado, ColumnFeatures/cadence/min_len/seq_rle_runs reaproveitados via SideOutputs). `natures` placeholder vazio pra Fase 3 (META-TYPE-ENCODERS T02-T07). | **OPEN-FASES-1+2-WELDED 2026-05-24** |
 | [T-CODE-EMPTY-FRAG-INDEX-RT](T-CODE-EMPTY-FRAG-INDEX-RT.md) | **[probatório] Bug de RT no core M10** (achado na caracterizacao V2-A): string vazia desloca o index de fragmento HCC → back-ref posterior corrompe/crasha. 2 modos (frag-index off-by-one em syntax._parse_decl + rstrip comendo vazio final em hcc_seqrle). Fix decode-only/byte-safe, 12 reproducers pinados, 332 passed, D1-D9=1523B preservado. | **CLOSED 2026-06-13** |
+| [T-DIST-PYPI-NAME](T-DIST-PYPI-NAME.md) | Capturar nome de distribuicao no PyPI. `tcf` TOMADO (Tencent SCF); `tcf-format` e `tabular-compact-format` LIVRES (checado 2026-06-14). Recomendado `tcf-format` mantendo `import tcf`. Owner reserva (placeholder 0.0.1 ou release 0.7.0). | **OPEN P2 2026-06-14** |
 
 ## Politica
 

@@ -11,6 +11,12 @@
 > Baseline D17a re-pinado **322 -> 307 B** (#TCF.6 legado=322, lido pelo decoder +
 > produzivel via `_encode_multi(fallback=False, min_header=False)`). D1-D9=1523B
 > (single-col) inalterado. Suite 348 passed.
+>
+> **Proximo foco (2026-06-14)**: continuar no 0.7 (detalhes de compressao). Revisao
+> implicito-vs-explicito + candidatos a knob explicito + detalhes "passaram batido"
+> em `experiments/lab/dirty/notas/revisao-implicito-vs-explicito-2026-06-14.md`.
+> Pendentes: Pacote 8 (H-HCC-01/02, detector dinamico), nome PyPI (T-DIST-PYPI-NAME:
+> `tcf` tomado, `tcf-format` livre).
 
 **Atualizado em**: 2026-06-08 (**Schema/quality gadget COMPLETO + incidente
 OneDrive recuperado + push remoto**). Resumo desde 06-03:
