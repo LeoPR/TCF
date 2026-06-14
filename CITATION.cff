@@ -6,8 +6,8 @@ authors:
   - given-names: Leonardo
     family-names: Marques Souza
     email: leonardo.marques.souza@gmail.com
-version: "1.0.0"
-date-released: "2026-05-27"
+version: "0.7.0"
+date-released: "2026-06-14"
 repository-code: "https://github.com/LeoPR/TCF"
 license: MIT
 abstract: >
@@ -16,10 +16,12 @@ abstract: >
   Bidirectional Affix Tokenizer) tokenizes via LCP+LCS matching against
   previous strings; HCC (Hierarchical Compositional Coding) provides
   compositional compaction with `~`/`,` operators and auto-naming.
-  v1.0 freezes format #TCF.6 and the public API (ADR-0017): delta-aware
-  pipeline (auto-cadence detection, shape-preserving OBAT hint, HCC
-  seq-RLE near-identical detection, auto-detect min_len), multi-column
-  support, optional nature specs (CPF/CNPJ/IP). Validated byte-canonical
+  Pre-1.0 (ADR-0024): format minors (#TCF.4/.5/.6/.7) are development
+  iterations toward a solid 1.0, without rigid cross-version compatibility
+  (git reproduces older versions). Delta-aware pipeline (auto-cadence
+  detection, shape-preserving OBAT hint, HCC seq-RLE near-identical
+  detection, auto-detect min_len), multi-column support, optional nature
+  specs (CPF/CNPJ/IP). Validated byte-canonical
   in 9 synthetic datasets (D1-D9, 1523B; D17a multi-col 322B INVARIANT)
   and real-world (Adult Census + TPC-H 9 tables, -33.02% weighted; plus
   UCI wine-quality/Beijing-PM2.5/Online-Retail). Benchmarked against

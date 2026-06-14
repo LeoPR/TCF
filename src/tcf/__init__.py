@@ -1,4 +1,5 @@
-"""TCF — Tabular Compact Format (v1.0, format #TCF.6 frozen — ADR-0017).
+"""TCF — Tabular Compact Format (pré-1.0; formato `#TCF.6` default, `#TCF.7`
+opt-in — ADR-0024 versionamento pré-1.0).
 
 API publica unificada (ADR-0014):
 
@@ -78,8 +79,10 @@ from tcf.pipeline import PipelineConfig
 from tcf.schema import ColumnSchema, TableSchema, build_schema
 from tcf.side_outputs import SideOutputs
 
-# Format #TCF.6 frozen + API publica estavel desde v1.0 (ADR-0017).
-__version__ = "1.0.0"
+# Pré-1.0 (ADR-0024): minor acompanha o formato (#TCF.7 -> 0.7). Sem compat
+# rigida entre minors de dev; git e' o mecanismo de reproducao. v1.0 = release
+# solido futuro. (Era "1.0.0" — rotulo prematuro corrigido 2026-06-14.)
+__version__ = "0.7.0"
 
 __all__ = [
     "encode",

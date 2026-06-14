@@ -1,5 +1,11 @@
 # STATUS — TCF (compendio sempre-atualizado)
 
+> **Versionamento (ADR-0024, 2026-06-14)**: projeto e' **pré-1.0**. Os minors do
+> formato (`#TCF.4/.5/.6/.7`) sao iteracoes de dev rumo a um **1.0 solido**, sem
+> compat rigida entre eles (git reproduz versoes antigas). O `#TCF.7` = "0.7"
+> pré-1.0, **NAO v2.0** (v2.0 = depois). Pacote: `0.7.0` (era "1.0.0", rotulo
+> prematuro). Labels "v1.0 frozen"/"v2.0" em ADRs/STATUS antigos: ler nessa chave.
+
 **Atualizado em**: 2026-06-08 (**Schema/quality gadget COMPLETO + incidente
 OneDrive recuperado + push remoto**). Resumo desde 06-03:
 

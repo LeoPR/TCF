@@ -3,8 +3,8 @@
 [![CI](https://github.com/LeoPR/TCF/actions/workflows/ci.yml/badge.svg)](https://github.com/LeoPR/TCF/actions/workflows/ci.yml)
 ![Python](https://img.shields.io/badge/python-3.10+-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
-![Version](https://img.shields.io/badge/version-1.0.0-blue)
-![Format](https://img.shields.io/badge/format-%23TCF.6%20frozen-green)
+![Version](https://img.shields.io/badge/version-0.7.0%20(pré--1.0)-orange)
+![Format](https://img.shields.io/badge/format-%23TCF.6%20%2F%20.7-blue)
 
 > **E se desse pra transmitir a mesma tabela com bem menos bytes — sem virar um arquivo binário que ninguém mais consegue abrir e ler?**
 
@@ -60,7 +60,7 @@ JSON repete a estrutura inteira; CSV repete os valores; o **TCF fatora o que se
 repete** e referencia o resto — continuando **texto ASCII que você abre e lê**.
 Mas note: quanto mais fundo ele fatora (veja o e-mail), mais denso o texto fica.
 *Legível não quer dizer óbvio à primeira vista.* Em tabelas grandes a diferença
-cresce — ver [Resultados](#resultados-v10).
+cresce — ver [Resultados](#resultados).
 
 ## O que é o TCF
 
@@ -145,19 +145,19 @@ O ganho é proporcionalmente maior em **payloads pequenos** (header de tamanho
 fixo domina). O ganho de *body* em tabelas grandes (dicionário low-card V2-B,
 strip V2-D) está no [roadmap v2.0](docs/adr/0018-v2-format-roadmap.md).
 
-## Estado v1.0 (stable)
+## Estado (pré-1.0)
 
-- Format `#TCF.6` e API pública **congelados** ([ADR-0017](docs/adr/0017-format-spec-v1-frozen.md))
+- **Pré-1.0** ([ADR-0024](docs/adr/0024-pre-1.0-versioning-git-as-compat.md)): os minors do formato (`#TCF.4/.5/.6/.7`) são iterações de desenvolvimento rumo a um **1.0 sólido**; sem compat rígida entre eles (git reproduz versões antigas). v2.0 = depois.
 - Implementação canônica em [`src/tcf/`](src/tcf/); round-trip sempre lossless (`decode(encode(x)) == x`)
-- Suíte: **351 passed, 1 xfailed**
-- **v0.7 (`#TCF.7`, opt-in)**: V2-A fallback ([ADR-0022](docs/adr/0022-v2a-fallback-identity-weld.md)) + header v2 mínimo ([ADR-0023](docs/adr/0023-v2-minimal-header-weld.md)) — ver seção acima. Default segue `#TCF.6`.
+- Default `#TCF.6`; **0.7 (`#TCF.7`, opt-in)** = V2-A fallback ([ADR-0022](docs/adr/0022-v2a-fallback-identity-weld.md)) + header v2 mínimo ([ADR-0023](docs/adr/0023-v2-minimal-header-weld.md)) — ver seção acima
+- Suíte: **351 passed, 1 xfailed**. Baselines de byte = guardas de regressão (re-pináveis em mudança intencional, ADR-0024)
 - Mudanças: [`CHANGELOG.md`](CHANGELOG.md). História M0-M14:
   [`experiments/lab/dirty/notas/historia-dirty-lab.md`](experiments/lab/dirty/notas/historia-dirty-lab.md)
 
 > O ciclo **v0.5** (formato columnar para LLM benchmark) é acessório e
 > vive separado — ver a seção "Benchmark LLM v0.5" mais abaixo.
 
-## Resultados v1.0
+## Resultados
 
 **Sem nenhum compressor, o TCF é o formato de _texto_ mais compacto do conjunto.**
 Nos 15 datasets sintéticos do [EXP-008](experiments/lab/clean/EXP-008-compressao-comparada/):

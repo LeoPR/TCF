@@ -44,13 +44,14 @@ Registros numerados das decisoes arquiteturais do TCF. Inspirado em
 | [0014](0014-unified-api-side-outputs.md) | API unificada `encode(list\|dict)` + SideOutputs recipiente | **accepted** (welded) |
 | [0015](0015-natures-templated-checked-weld.md) | TemplatedCheckedSpec welded canonical em src/tcf/natures | **accepted** (welded) |
 | [0016](0016-hcc-multi-delta-seq-rle.md) | HCC seq-RLE multi-delta (Bug #2 sub-exp 14 fix) | **accepted** (welded) |
-| [0017](0017-format-spec-v1-frozen.md) | Format spec v1.0 frozen + versioning policy | accepted |
+| [0017](0017-format-spec-v1-frozen.md) | Format spec v1.0 frozen + versioning policy | accepted (parte "freeze" superseded por 0024 — projeto e' pré-1.0) |
 | [0018](0018-v2-format-roadmap.md) | Roadmap de formato v2.0 (fallback identity, dicionario, lossy) | **proposed** (V2-A welded por 0022) |
 | [0019](0019-hcc-detect-compositions-topk-prune.md) | Weld do prune top-K em HCC _detect_compositions (H-PERF-06-v2 #15) | accepted |
 | [0020](0020-cython-optional-accelerator.md) | Acelerador Cython opcional de _detect_compositions (H-PERF-06-v2 Fase B) | accepted |
 | [0021](0021-onedrive-git-corruption-recovery.md) | Incidente OneDrive × `.git`: recuperacao (causa = hipotese) | accepted |
 | [0022](0022-v2a-fallback-identity-weld.md) | V2-A fallback identity welded (abre v2.0, `#TCF.7`, opt-in `fallback=True`) | **accepted** |
 | [0023](0023-v2-minimal-header-weld.md) | Header v2 minimo welded (`#TCF.7`, opt-in `min_header`: sem espaco + ultima coluna sem size) | **accepted** |
+| [0024](0024-pre-1.0-versioning-git-as-compat.md) | Versionamento pré-1.0: minors de dev, git como compatibilidade (supersede freeze de 0017) | **accepted** |
 
 ## Quando criar ADR
 
