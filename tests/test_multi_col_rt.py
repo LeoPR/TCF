@@ -151,6 +151,73 @@ class TestD17aBaseline:
 
 
 # ---------------------------------------------------------------------------
+# V2-A fallback identity (ADR-0022, abre v2.0 #TCF.7) — opt-in
+# ---------------------------------------------------------------------------
+
+class TestV2AFallback:
+    """V2-A: por coluna, min(TCF, raw). Opt-in (`fallback=True`); default
+    preserva byte-canonical v1 (#TCF.6). Marcador `!<size>=<name>`."""
+
+    # coluna baixa-card curta (padrao beijing 'hour') infla em TCF -> raw vence
+    HOUR = [str(i % 24) for i in range(300)]
+    NOME = [f"item_{i:04d}_descricao_longa_unica" for i in range(300)]
+
+    def _table(self):
+        return {"hour": list(self.HOUR), "nome": list(self.NOME)}
+
+    def test_default_off_byte_identical(self):
+        table = self._table()
+        assert encode(table) == encode(table, fallback=False)
+        assert encode(table).startswith("#TCF.6 M")
+
+    def test_fallback_emits_v2_when_beneficial(self):
+        table = self._table()
+        text = encode(table, fallback=True)
+        assert text.startswith("#TCF.7 M"), "coluna hour devia cair pra raw"
+        assert decode(text) == table
+
+    def test_fallback_never_larger(self):
+        table = self._table()
+        v1 = len(encode(table, fallback=False).encode("utf-8"))
+        v2 = len(encode(table, fallback=True).encode("utf-8"))
+        assert v2 <= v1
+
+    def test_fallback_no_benefit_stays_v1(self):
+        # nenhuma coluna fica menor como raw -> #TCF.6 mesmo com fallback=True
+        table = {"a": ["abc", "abcd", "abcde"], "b": ["xyz", "xyzw", "xyzwv"]}
+        text = encode(table, fallback=True)
+        assert text.startswith("#TCF.6 M")
+        assert decode(text) == table
+
+    def test_fallback_round_trip_with_empties(self):
+        table = {"x": ["", "1", "2", "", "3"], "y": ["a", "b", "c", "d", "e"]}
+        text = encode(table, fallback=True)
+        assert decode(text) == table
+
+    def test_v2_decode_self_describing(self):
+        # decode nao precisa de flag — o '!' por par diz o modo
+        table = self._table()
+        text = encode(table, fallback=True)
+        assert decode(text) == table
+
+    def test_fallback_marker_only_before_size(self):
+        # '!' aparece so' antes do size, nunca toca o nome
+        table = self._table()
+        text = encode(table, fallback=True)
+        meta = text.split("\n", 2)[1][2:]  # strip "# "
+        pairs = meta.split(",")
+        # hour caiu pra raw -> par "!<size>=hour"; nome TCF -> "<size>=nome"
+        assert any(p.startswith("!") and p.split("=", 1)[1] == "hour" for p in pairs)
+        assert any(not p.startswith("!") and p.split("=", 1)[1] == "nome" for p in pairs)
+
+    def test_fallback_ignored_for_single_col(self):
+        # list (single-col) nao tem header -> fallback ignorado, sem shebang
+        text = encode(["abc", "abcd"], fallback=True)
+        assert not text.startswith("#TCF.")
+        assert decode(text) == ["abc", "abcd"]
+
+
+# ---------------------------------------------------------------------------
 # Edge cases / validacao
 # ---------------------------------------------------------------------------
 

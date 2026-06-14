@@ -29,12 +29,18 @@ version** (semver `X.Y.Z` da biblioteca Python). Estavel desde v1.0.
 
 | Shebang | Status | Introduzido | Compativel com |
 |---|---|---|---|
+| `#TCF.7` | **v2 (V2-A)** | 2026-06 | tcf 1.x+ (decode); encode opt-in `fallback=True` |
 | `#TCF.6` | **stable v1** | 2026-05 | tcf 1.0.0+ |
 | `#TCF.5` | superseded | 2026-04 (v0.5) | tcf 0.5.x (legacy, nao manter) |
 
 **Promessa v1**: `#TCF.6` e' imutavel ate' v2.0. Nenhum byte de arquivo
-TCF v1 muda entre versoes tcf 1.x.y. Markers novos (ex: `*FALLBACK_X`
-da Layered Pipeline Fase 2) requerem `#TCF.7` e tcf 2.0.
+TCF v1 muda entre versoes tcf 1.x.y. Markers novos requerem `#TCF.7`.
+
+**`#TCF.7` (V2-A fallback identity, ADR-0022)**: ADITIVO e opt-in
+(`encode(table, fallback=True)`, multi-col). Por coluna escolhe min(TCF, raw);
+coluna raw marcada `!<size>=<name>` na meta line. Emitido SO' quando alguma
+coluna cai pra raw; senao `#TCF.6` byte-identico. Decoder le ambos
+(self-describing). Default `fallback=False` preserva 100% dos invariantes v1.
 
 ### Library version (semver)
 
@@ -208,6 +214,10 @@ Doc: [HCC.md](HCC.md). Implementação: [`src/tcf/composicional/syntax.py`](../.
 Para input `dict[str, list[str]]`, cada coluna passa pelas camadas
 0-2 independentemente. Os bodies são concatenados byte-precise com
 header `#TCF.6 M` + meta line (`# size=name,size=name,...`).
+
+**V2-A fallback identity (opt-in, ADR-0022)**: com `encode(table, fallback=True)`,
+cada coluna escolhe min(TCF, raw); coluna raw vira `!<size>=<name>` e o header
+sobe pra `#TCF.7 M`. Opt-in — default preserva `#TCF.6` byte-identico.
 
 Restrições:
 - Nomes de coluna não podem conter `,` ou `=` (reservados do header)

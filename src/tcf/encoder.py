@@ -63,6 +63,7 @@ def encode(
     nature: "TemplatedCheckedSpec | None" = None,
     nature_per_col: "dict[str, TemplatedCheckedSpec] | None" = None,
     layers: PipelineConfig | None = None,
+    fallback: bool = False,
 ) -> str:
     """Encode lista de strings OU dict de colunas em texto TCF.
 
@@ -87,6 +88,12 @@ def encode(
             spec out-of-band. Pra list[str] apenas.
         nature_per_col: dict mapeando col_name -> spec. Pra dict input
             (multi-col); permite pre-tx natureza diferente por coluna.
+        fallback: V2-A fallback identity (ADR-0022, abre v2.0). Opt-in;
+            default False -> saida byte-identica ao v1 (#TCF.6, invariantes
+            D17a=322B etc. preservados). True (multi-col) -> por coluna
+            escolhe min(TCF, raw); emite #TCF.7 M sse alguma coluna cai pra
+            raw ("nunca pior que raw+delimitadores"). Ignorado pra list
+            (single-col nao tem header pra marcar modo).
 
     Returns:
         Texto TCF (str, sempre UTF-8, LF only). **Output byte-identico
@@ -112,7 +119,8 @@ def encode(
                        if name in nature_per_col else vals)
                 for name, vals in data.items()
             }
-        return _encode_multi(data, side_outputs=side_outputs, parallel=parallel, cfg=cfg)
+        return _encode_multi(data, side_outputs=side_outputs, parallel=parallel,
+                             cfg=cfg, fallback=fallback)
     raise TypeError(
         f"encode espera list[str] ou dict[str, list[str]], "
         f"recebeu {type(data).__name__}"

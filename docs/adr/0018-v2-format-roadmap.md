@@ -1,9 +1,16 @@
 # 0018 — Roadmap de formato v2.0 (fallback identity, dicionario, lossy)
 
-**Status**: proposed
+**Status**: proposed (parcialmente realizado — V2-A welded por ADR-0022)
 **Date**: 2026-05-27
 **Deciders**: project owner
 **Tags**: v2.0, format, roadmap, low-cardinality, lossy, dictionary, fallback
+
+> **Update 2026-06-13**: o owner decidiu abrir a v2.0. **V2-A (fallback
+> identity) welded** via [ADR-0022](0022-v2a-fallback-identity-weld.md) —
+> opt-in (`fallback=True`), `#TCF.7 M`, marcador `!<size>=<name>`,
+> caracterizado em 9 fontes (7.85% weighted). V2-B/C/D seguem como roadmap
+> abaixo (nao implementados). A prioridade sugerida na secao "Decision
+> Outcome" continua valendo pros restantes.
 
 ## Context and Problem Statement
 

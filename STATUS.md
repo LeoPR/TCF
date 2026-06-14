@@ -541,6 +541,7 @@ nao guia de evolucao (cf. diretriz dados-realistas).
 | [T-DATA-3-EDGE-QUALITY-FIXTURES](tickets/T-DATA-3-EDGE-QUALITY-FIXTURES.md) | **DEFERRED** | Plano de dados de borda p/ gadget de qualidade (bloqueado por T-RECOVER-SCHEMA-MULTI-TABLE; gadget nao existe). |
 | Reorg separacao de concerns (Fases 0-7) | **DONE 2026-06-02** | benchmark LLM -> llm-benchmark/; findings ficam em docs/; old/tcf revisto (LEVELS-REVIEW). src/tcf intocado. Ver memoria project-reorg-separation-of-concerns. |
 | [T-CODE-EMPTY-FRAG-INDEX-RT](tickets/T-CODE-EMPTY-FRAG-INDEX-RT.md) | **CLOSED 2026-06-13** | [probatório] Bug de RT no core M10 (achado na caracterizacao V2-A): string vazia desloca index de fragmento HCC. 2 modos (syntax._parse_decl frag-index + hcc_seqrle rstrip vazio-final). Fix decode-only/byte-safe; 12 reproducers pinados em test_core_rt; 332 passed; D1-D9=1523B + real-world preservados. |
+| [ADR-0022 (welded direto)](docs/adr/0022-v2a-fallback-identity-weld.md) | **CLOSED-WELDED 2026-06-13** | **V2-A fallback identity (abre v2.0)**: opt-in `encode(table, fallback=True)`; por coluna min(TCF, raw); emite `#TCF.7 M` + marcador `!<size>=<name>` sse alguma coluna cai pra raw. Default OFF preserva byte-canonical (D1-D9=1523B, D17a=322B). Caracterizado 9 fontes (7.85% weighted). 340 passed. V2-B/C/D seguem roadmap (ADR-0018). |
 
 ---
 

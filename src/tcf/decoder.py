@@ -52,6 +52,7 @@ if TYPE_CHECKING:
 
 
 _MULTI_MAGIC_STR = "#TCF.6 M"
+_MULTI_MAGIC_STR_V2 = "#TCF.7 M"  # V2-A fallback identity (ADR-0022)
 
 
 def decode(
@@ -64,7 +65,8 @@ def decode(
 
     Args:
         tcf_text: conteudo TCF (texto). Aceita:
-            - Multi-col: comeca com `#TCF.6 M\\n` + meta line + bodies
+            - Multi-col: comeca com `#TCF.6 M\\n` (v1) ou `#TCF.7 M\\n`
+              (v2 / V2-A fallback, ADR-0022) + meta line + bodies
               -> retorna `dict[str, list[str]]`
             - Single-col: body puro (sem shebang)
               -> retorna `list[str]` (com repeticoes preservadas)
@@ -78,7 +80,7 @@ def decode(
     Raises:
         ValueError: multi-col malformado (sem magic, sem meta line).
     """
-    if tcf_text.startswith(_MULTI_MAGIC_STR):
+    if tcf_text.startswith(_MULTI_MAGIC_STR) or tcf_text.startswith(_MULTI_MAGIC_STR_V2):
         from tcf.multi import _decode_multi
         result = _decode_multi(tcf_text)
         if nature_per_col:

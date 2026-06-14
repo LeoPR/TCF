@@ -16,6 +16,18 @@ Header format (ADR-0004 + ADR-0013):
     # <size1>=<name1>,<size2>=<name2>,...
     <body1><body2>... (concatenado, byte-precise por size)
 
+V2-A fallback identity (ADR-0022, abre v2.0, opt-in `fallback=True`):
+
+    #TCF.7 M
+    # <size1>=<name1>,!<size2>=<name2>,...
+    <body1><raw_body2>...
+
+    Par com `!` antes do size = coluna em modo RAW (body = "\\n".join(valores),
+    escolhido quando menor que o TCF). `!` so' aparece em #TCF.7 e nunca
+    colide com nome (size e' digito). Decoder le ambos os magics (self-
+    describing). Emite #TCF.7 sse alguma coluna cai pra raw; senao #TCF.6
+    byte-identico ao v1 (default fallback=False -> sempre #TCF.6).
+
 Restricoes:
 - Nomes de coluna nao podem conter `,` ou `=`
 - Todas colunas devem ter mesmo numero de valores
@@ -34,6 +46,7 @@ from tcf.side_outputs import SideOutputs
 
 
 MAGIC_MULTI = b"#TCF.6 M"
+MAGIC_MULTI_V2 = b"#TCF.7 M"  # V2-A fallback identity (ADR-0022, abre v2.0)
 META_PREFIX = b"# "
 
 
@@ -42,6 +55,7 @@ def _encode_multi(
     side_outputs: SideOutputs | None = None,
     parallel: bool | int = False,
     cfg: PipelineConfig = DEFAULT_PIPELINE,
+    fallback: bool = False,
 ) -> str:
     """Interno: encode dict pra TCF multi-col. Chamado por `encode()`.
 
@@ -53,6 +67,12 @@ def _encode_multi(
             `_encode_column` por coluna via ProcessPoolExecutor.
         cfg: PipelineConfig pra controle de camadas (T-CODE-LAYERED-PIPELINE
             Fase 1). Default = M10 canonical.
+        fallback: V2-A fallback identity (ADR-0022, abre v2.0). Default
+            False -> saida byte-identica ao v1 (#TCF.6, invariantes
+            preservados). True -> por coluna escolhe min(TCF, raw); emite
+            #TCF.7 M sse alguma coluna cai pra raw. Opt-in (padrao do
+            codebase: default preserva byte-canonical, cf. ADR-0015 natures
+            e T-CODE-LAYERED-PIPELINE). Aplica so' a multi-col.
     """
     if not table:
         raise ValueError("table vazia")
@@ -92,9 +112,32 @@ def _encode_multi(
     if side_outputs is not None:
         side_outputs.per_col = dict(per_col_sides)
 
-    meta_pairs = ",".join(f"{len(b)}={name}" for name, b in col_bodies_bytes)
-    header = MAGIC_MULTI + b"\n" + META_PREFIX + meta_pairs.encode("utf-8") + b"\n"
-    body_concat = b"".join(b for _, b in col_bodies_bytes)
+    # V2-A fallback identity (ADR-0022). Opt-in (fallback=True). Por coluna,
+    # escolhe min(TCF, raw). Raw = "\n".join(valores), usado so' quando e'
+    # ESTRITAMENTE menor E seguro (sem '\n' embutido — que quebraria o split
+    # do decode). Marca raw com '!' ANTES do size no par meta (`!<size>=<name>`)
+    # — '!' so' aparece em #TCF.7 e nunca colide com nomes (size e' digito).
+    # Emite #TCF.7 M sse ALGUMA coluna cai pra raw; senao #TCF.6 M byte-
+    # identico ao v1 (default fallback=False sempre cai aqui).
+    fallback_cols: list[str] = []
+    final_bodies: list[tuple[str, bytes, str]] = []  # (name, body, mode)
+    for name, tcf_bytes in col_bodies_bytes:
+        if fallback and _fallback_safe(table_str[name]):
+            raw_bytes = "\n".join(table_str[name]).encode("utf-8")
+            if len(raw_bytes) < len(tcf_bytes):
+                final_bodies.append((name, raw_bytes, "raw"))
+                fallback_cols.append(name)
+                continue
+        final_bodies.append((name, tcf_bytes, "tcf"))
+
+    used_fallback = bool(fallback_cols)
+    magic = MAGIC_MULTI_V2 if used_fallback else MAGIC_MULTI
+    meta_pairs = ",".join(
+        (f"!{len(b)}={name}" if mode == "raw" else f"{len(b)}={name}")
+        for name, b, mode in final_bodies
+    )
+    header = magic + b"\n" + META_PREFIX + meta_pairs.encode("utf-8") + b"\n"
+    body_concat = b"".join(b for _, b, _ in final_bodies)
     full = header + body_concat
     text = full.decode("utf-8")
 
@@ -106,6 +149,8 @@ def _encode_multi(
             "header_bytes": len(header),
             "body_bytes": len(body_concat),
             "parallel_workers": n_workers if use_parallel else 0,
+            "format": "v2" if used_fallback else "v1",
+            "fallback_cols": list(fallback_cols),
         }
 
     return text
@@ -193,7 +238,12 @@ def _worker_encode_column(args: tuple[str, list[str], bool, PipelineConfig]) -> 
 
 
 def _decode_multi(tcf_text: str) -> dict[str, list[str]]:
-    """Interno: decode TCF multi-col. Chamado por `decode()`."""
+    """Interno: decode TCF multi-col. Chamado por `decode()`.
+
+    Aceita #TCF.6 M (v1, todas colunas TCF) e #TCF.7 M (v2, ADR-0022:
+    colunas com par meta `!<size>=<name>` sao raw / fallback identity).
+    Self-describing: o '!' por par diz o modo, sem precisar de flag.
+    """
     from tcf.decoder import _decode_column
 
     raw = tcf_text.encode("utf-8")
@@ -203,9 +253,10 @@ def _decode_multi(tcf_text: str) -> dict[str, list[str]]:
     if nl1 == -1:
         raise ValueError("formato invalido: sem linha 1 (shebang)")
     line1 = raw[:nl1]
-    if not line1.startswith(MAGIC_MULTI):
+    if not (line1.startswith(MAGIC_MULTI) or line1.startswith(MAGIC_MULTI_V2)):
         raise ValueError(
-            f"magic invalido: esperado {MAGIC_MULTI!r}, got {line1[:20]!r}"
+            f"magic invalido: esperado {MAGIC_MULTI!r} ou {MAGIC_MULTI_V2!r}, "
+            f"got {line1[:20]!r}"
         )
     cursor = nl1 + 1
 
@@ -218,17 +269,27 @@ def _decode_multi(tcf_text: str) -> dict[str, list[str]]:
             f"meta invalido: esperado {META_PREFIX!r} prefix, got {line2[:5]!r}"
         )
     meta_str = line2[len(META_PREFIX):].decode("utf-8")
-    pairs = []
+    pairs = []  # (size, name, mode)
     for p in meta_str.split(","):
+        if p.startswith("!"):
+            mode = "raw"
+            p = p[1:]
+        else:
+            mode = "tcf"
         size_str, name = p.split("=", 1)
-        pairs.append((int(size_str), name))
+        pairs.append((int(size_str), name, mode))
 
     cursor = nl2 + 1
     result: dict[str, list[str]] = {}
-    for size, name in pairs:
+    for size, name, mode in pairs:
         body_bytes = raw[cursor:cursor + size]
         body_text = body_bytes.decode("utf-8")
-        result[name] = _decode_column(body_text)
+        if mode == "raw":
+            # V2-A: body raw = "\n".join(valores); split exato (sem '\n'
+            # embutido, garantido por _fallback_safe no encode).
+            result[name] = body_text.split("\n")
+        else:
+            result[name] = _decode_column(body_text)
         cursor += size
 
     return result
@@ -239,6 +300,18 @@ def _to_str(v) -> str:
     if v is None:
         return ""
     return str(v)
+
+
+def _fallback_safe(values: list[str]) -> bool:
+    """Raw mode (V2-A) e' seguro sse nenhum valor tem '\\n' embutido.
+
+    Body raw = "\\n".join(values); decode faz body.split("\\n"). Um '\\n'
+    dentro de um valor quebraria a contagem de valores. (O caminho TCF tambem
+    assume valores sem '\\n' — premissa de 'dados felizes' — entao isto nao
+    restringe alem do que ja' e' assumido; apenas evita escolher raw onde
+    seria lossy.)
+    """
+    return not any("\n" in v for v in values)
 
 
 # === Deprecated aliases (mantidos pra migracao em passos) ===
