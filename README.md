@@ -77,17 +77,36 @@ eles se compõem.)
 
 ## Como ele faz isso — OBAT + HCC
 
-- **OBAT** (Online Bidirectional Affix Tokenizer) — *acha o que as strings têm
-  em comum.* Prefixos e sufixos repetidos (domínios de e-mail, raízes de URL,
-  códigos da mesma família) são escritos uma vez; o resto vira referência curta.
-  É o que faz dados com estrutura parecida quase desaparecerem.
-- **HCC** (Hierarchical Compositional Coding) — *decide o que vale a pena nomear
-  e agrupa repetições.* Escolhe quais trechos viram referência nomeada e colapsa
-  repetidos — inclusive sequências quase-iguais (IDs que só mudam no fim). É o
-  que mantém a saída pequena **e** inspecionável: os grupos ficam à vista
-  (`*3|...`) sem precisar expandir.
+Duas camadas, explicadas pelo propósito (specs: [`docs/algorithms/`](docs/algorithms/)):
 
-Specs técnicas de cada camada: [`docs/algorithms/`](docs/algorithms/).
+- **OBAT** (Online Bidirectional Affix Tokenizer) — *acha o que as strings têm em
+  comum.* Para cada valor, procura o maior prefixo **e** sufixo compartilhado com
+  os anteriores (domínios de e-mail, raízes de URL, códigos da mesma família):
+  escreve o trecho uma vez e referencia o resto. É um **front-coding
+  bidirecional** — generaliza o front-coding clássico de dicionários de strings
+  (Witten et al.; HTFC/RPDac, Brisaboa et al.), e o "bidirecional" é o que captura
+  o **sufixo** comum (`@acme.com.br`), não só o prefixo. A busca por afixos é da
+  família das **árvores de prefixo/sufixo** — tries, **Patricia/radix tree**
+  (Morrison 1968), suffix trees; na prática o OBAT acelera essa busca com um
+  **índice de trigramas**, que derruba o custo de O(N²) ingênuo para ~O(N^1.42)
+  (sub-quadrático, quase-linear). *(Trocar o índice por uma Patricia trie é
+  candidato futuro — [exploração](docs/theory/patricia-trie-exploration.md).)*
+
+- **HCC** (Hierarchical Compositional Coding) — *decide o que vale a pena nomear e
+  agrupa repetições.* Pega os tokens do OBAT, fatora composições recorrentes em
+  **referências nomeadas reutilizáveis** (operador `~`) e colapsa repetidos (RLE,
+  inclusive sequências quase-iguais — IDs que só mudam no fim). Como referência
+  aponta para referência, o resultado é um **grafo acíclico (DAG) de fragmentos**
+  — na prática uma *gramática* / straight-line program do conteúdo, no espírito de
+  **Re-Pair** (Larsson & Moffat 1999) e **Sequitur** (Nevill-Manning & Witten
+  1997), mas operando sobre os **tokens** do OBAT (não sobre bytes) e com
+  operadores semânticos próprios (`~` cria nó nomeado, `,` só concatena). É o que
+  mantém a saída pequena **e** inspecionável: os grupos `*N|...` ficam à vista.
+
+**Velocidade.** O lado caro é o **encode** (a busca de afixos do OBAT), trazido a
+quase-linear pelo índice de trigramas (+ acelerador Cython opcional). O **decode**
+é uma **passada linear única**: só expande as referências (lookups O(1)) e os
+grupos RLE — sem nenhuma busca, rápido e previsível.
 
 ## Getting started (1 minuto)
 
