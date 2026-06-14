@@ -116,12 +116,41 @@ text = encode(["111.444.777-35", "529.982.247-25"], nature=SPEC_CPF)
 Tutorial passo-a-passo: [`docs/tutorials/getting-started.md`](docs/tutorials/getting-started.md).
 Guias praticos: [`docs/how-to/`](docs/how-to/).
 
+## v0.7 — compactação extra (opt-in, `#TCF.7`)
+
+Uma camada **opt-in** pra espremer mais bytes, útil quando *cada byte conta*
+(transmissões pequenas). Ativada só sob demanda — o **default continua `#TCF.6`
+byte-idêntico** (invariantes intactos). O decoder lê tudo sozinho (self-describing).
+
+```python
+# por coluna, guarda o raw quando ele fica menor que o TCF ("nunca pior que raw")
+text = encode(table, fallback=True)                    # V2-A (ADR-0022)
+
+# header enxuto: o flag M já diz que vêm colunas, então o meta dispensa o
+# prefixo "# "; e a última coluna não precisa de tamanho (vai até o fim)
+text = encode(table, min_header=True)                  # (ADR-0023)
+
+text = encode(table, fallback=True, min_header=True)   # compõem
+```
+
+No cadastro de 4 colunas do topo:
+
+| modo | meta line | bytes |
+|---|---|---:|
+| `#TCF.6` (default) | `# 45=nome,42=email,28=cidade,20=plano` | 182 |
+| `fallback=True` | `!44=nome,42=email,28=cidade,20=plano` | 180 |
+| `min_header=True` | `45=nome,42=email,28=cidade,plano` | **177** |
+
+O ganho é proporcionalmente maior em **payloads pequenos** (header de tamanho
+fixo domina). O ganho de *body* em tabelas grandes (dicionário low-card V2-B,
+strip V2-D) está no [roadmap v2.0](docs/adr/0018-v2-format-roadmap.md).
+
 ## Estado v1.0 (stable)
 
 - Format `#TCF.6` e API pública **congelados** ([ADR-0017](docs/adr/0017-format-spec-v1-frozen.md))
 - Implementação canônica em [`src/tcf/`](src/tcf/); round-trip sempre lossless (`decode(encode(x)) == x`)
-- Suíte: **340 passed, 1 xfailed**
-- **v2.0 em andamento**: V2-A fallback identity (`#TCF.7`, opt-in `fallback=True`) — [ADR-0022](docs/adr/0022-v2a-fallback-identity-weld.md)
+- Suíte: **351 passed, 1 xfailed**
+- **v0.7 (`#TCF.7`, opt-in)**: V2-A fallback ([ADR-0022](docs/adr/0022-v2a-fallback-identity-weld.md)) + header v2 mínimo ([ADR-0023](docs/adr/0023-v2-minimal-header-weld.md)) — ver seção acima. Default segue `#TCF.6`.
 - Mudanças: [`CHANGELOG.md`](CHANGELOG.md). História M0-M14:
   [`experiments/lab/dirty/notas/historia-dirty-lab.md`](experiments/lab/dirty/notas/historia-dirty-lab.md)
 
