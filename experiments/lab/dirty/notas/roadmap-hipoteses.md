@@ -281,9 +281,31 @@ decomposta em vez de composta.
 - **Trade-off**: hoje `@acme.com.br` e' compartilhado flat (ref 3x). Compor
   `a@acme`/`o@acme` pode ENFRAQUECER esse sharing. Ganho NAO garantido — medir.
 
-**Caracterizacao** (sub-exp `2026-06-14-hcc-composicao-perdida/`): mede o
-upper-bound do ganho (contagem estendida de adjacencias de atoms vs refs-only)
-em datasets reais, antes de qualquer prototipo/weld (checklist confirmada-empirica).
+**Caracterizacao** (sub-exp `2026-06-14-hcc-composicao-perdida/`): upper-bound
+~1.21% weighted, concentrado em free-text (l_comment 4.5%, ibge municipio 3.8%,
+retail Description 2.6%); shareRisk alto nos hotspots -> realizado < upper-bound.
+
+### Decisao + prioridade do owner (2026-06-14)
+
+**PRATELEIRA: atacar H-HCC-01 JUNTO com H-HCC-02** (nao em duas passadas). Razao:
+o estimador de net precisa ser sequencial/dinamico desde o desenho — fazer a
+contagem estendida com o modelo de peso estatico atual seria refazer depois.
+
+**Prioridade do owner (afeta criterio do gate)**: ganho em **payload pequeno** da'
+vantagem pra certas categorias de transmissao. No pior caso (pessimista), se o
+detector dinamico **inflar dados grandes**, o owner **privilegia os pequenos** —
+aceita alguma perda em massa pra ganhar no pequeno. Implicacao: o GATE real-world
+hoje proibe regressao em colunas grandes (l_comment etc.); essa prioridade pode
+**relaxar** isso (minimizar perda grande, priorizar ganho pequeno) — mas SO' como
+fallback. **Alvo real**: um detector dinamico INTELIGENTE que ganha no pequeno
+**sem** inflar o grande (a "matemagica" abaixo). Nao relaxar o gate por padrao;
+so' se o trade-off for inevitavel e medido.
+
+**Abordagem pra H-HCC-02 (dynamic detector)**: capturar a **estrutura abstrata**
+do problema (refs/composicoes como grafo + custo de id dependente do estado) e
+ver se da' pra modelar o custo de forma que a decisao greedy/otima leve em conta
+o tamanho RELATIVO da referencia vs da otimizacao, recalculado conforme as
+composicoes sao montadas. Owner: "se ficar isso vai otimizar muito".
 
 ---
 
