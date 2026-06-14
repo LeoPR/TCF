@@ -63,15 +63,20 @@ def encode(
     nature: "TemplatedCheckedSpec | None" = None,
     nature_per_col: "dict[str, TemplatedCheckedSpec] | None" = None,
     layers: PipelineConfig | None = None,
-    fallback: bool = False,
-    min_header: bool = False,
 ) -> str:
     """Encode lista de strings OU dict de colunas em texto TCF.
+
+    Multi-col sai no formato **0.7 / `#TCF.7`** por default (ADR-0024): por
+    coluna escolhe min(TCF, raw) e usa o header minimo (sem prefixo, ultima
+    coluna sem size). Single-col nao tem header — inalterado. Pra produzir o
+    formato legado `#TCF.6` (comparacao/regressao), use `tcf.multi._encode_multi`
+    com `fallback=False, min_header=False`, ou faca `git checkout` da era 0.6
+    (git e' a compat pré-1.0, ADR-0024).
 
     Args:
         data:
             - `list[str]`: single-column. Output = body puro (sem shebang).
-            - `dict[str, list[str]]`: multi-column. Output = `#TCF.6 M\\n`
+            - `dict[str, list[str]]`: multi-column. Output = `#TCF.7 M\\n`
               + meta line + bodies concatenados byte-precise.
         side_outputs: opcional. Se fornecido, captura logs/info interna
             (column_features, cadence_info, OBAT log, HCC trace/rede,
@@ -89,18 +94,6 @@ def encode(
             spec out-of-band. Pra list[str] apenas.
         nature_per_col: dict mapeando col_name -> spec. Pra dict input
             (multi-col); permite pre-tx natureza diferente por coluna.
-        fallback: V2-A fallback identity (ADR-0022, abre v2.0). Opt-in;
-            default False -> saida byte-identica ao v1 (#TCF.6, invariantes
-            D17a=322B etc. preservados). True (multi-col) -> por coluna
-            escolhe min(TCF, raw); emite #TCF.7 M sse alguma coluna cai pra
-            raw ("nunca pior que raw+delimitadores"). Ignorado pra list
-            (single-col nao tem header pra marcar modo).
-        min_header: header v2 minimo (ADR-0023, O-FMT-15+16). Opt-in; default
-            False -> header v1 (#TCF.6, `# size=name,...`). True (multi-col)
-            -> #TCF.7 com meta SEM prefixo (o flag M ja' declara colunas) e
-            SEM o size da ultima coluna (corpo ate' EOF): `size=name,...,nameN`.
-            Compoe com fallback. Voltado a payloads pequenos, onde o header
-            fixo domina. Ignorado pra list.
 
     Returns:
         Texto TCF (str, sempre UTF-8, LF only). **Output byte-identico
@@ -127,7 +120,7 @@ def encode(
                 for name, vals in data.items()
             }
         return _encode_multi(data, side_outputs=side_outputs, parallel=parallel,
-                             cfg=cfg, fallback=fallback, min_header=min_header)
+                             cfg=cfg)
     raise TypeError(
         f"encode espera list[str] ou dict[str, list[str]], "
         f"recebeu {type(data).__name__}"

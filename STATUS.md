@@ -5,6 +5,12 @@
 > compat rigida entre eles (git reproduz versoes antigas). O `#TCF.7` = "0.7"
 > pré-1.0, **NAO v2.0** (v2.0 = depois). Pacote: `0.7.0` (era "1.0.0", rotulo
 > prematuro). Labels "v1.0 frozen"/"v2.0" em ADRs/STATUS antigos: ler nessa chave.
+>
+> **0.7 e' o DEFAULT do encode** (multi-col): `encode(dict)` -> `#TCF.7` (fallback
+> + header minimo, automaticos; params publicos removidos). Single-col inalterado.
+> Baseline D17a re-pinado **322 -> 307 B** (#TCF.6 legado=322, lido pelo decoder +
+> produzivel via `_encode_multi(fallback=False, min_header=False)`). D1-D9=1523B
+> (single-col) inalterado. Suite 348 passed.
 
 **Atualizado em**: 2026-06-08 (**Schema/quality gadget COMPLETO + incidente
 OneDrive recuperado + push remoto**). Resumo desde 06-03:

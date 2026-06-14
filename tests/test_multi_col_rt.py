@@ -23,6 +23,13 @@ from pathlib import Path
 import pytest
 
 from tcf import encode, decode
+from tcf.multi import _encode_multi  # toggles internos (legado #TCF.6 p/ comparacao)
+
+
+def _legacy_v6(table):
+    """Produz o formato legado #TCF.6 (sem fallback nem header minimo).
+    O `encode()` publico nao expoe isso (0.7 e' default, ADR-0024)."""
+    return _encode_multi(table, fallback=False, min_header=False)
 
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -87,8 +94,9 @@ class TestUnifiedDispatch:
         assert decode(text) == ["abc", "abcd", "abcde"]
 
     def test_encode_dict_returns_multi_with_shebang(self):
+        # 0.7 e' o default agora (ADR-0024)
         text = encode({"x": ["1", "2"]})
-        assert text.startswith("#TCF.6 M\n")
+        assert text.startswith("#TCF.7 M\n")
 
     def test_decode_routes_by_shebang_to_dict(self):
         text = encode({"x": ["a", "b"]})
@@ -116,188 +124,128 @@ class TestUnifiedDispatch:
 # ---------------------------------------------------------------------------
 
 class TestD17aBaseline:
-    """D17a INVARIANT: 322 bytes preservado vs EXP-011 (M9 era).
-
-    Se este test quebrar, indica regressao em algum componente do
-    pipeline (analyze_column, detect_cadence, detect_min_len, OBAT,
-    HCC, multi header). NAO modificar sem ADR explicito.
+    """D17a baseline. 0.7 e' o default (ADR-0024): D17a = 307B (#TCF.7).
+    O legado #TCF.6 (322B) continua produzivel internamente (_legacy_v6) e
+    decodavel. Baselines = guardas de regressao re-pinaveis em mudanca
+    intencional (ADR-0024), nao contrato eterno.
     """
 
-    def test_d17a_total_bytes_invariant(self):
+    def test_d17a_total_bytes_baseline(self):
         table = _ler_csv_multi("D17a-multi-column-mixed")
-        text = encode(table)
-        n_bytes = len(text.encode("utf-8"))
-        assert n_bytes == 322, (
-            f"D17a baseline 322B INVARIANT broken: got {n_bytes}. "
-            f"Check ADR-0014, ADR-0013, ADR-0011, ADR-0004."
+        n_bytes = len(encode(table).encode("utf-8"))
+        assert n_bytes == 307, (
+            f"D17a baseline 0.7 (307B) mudou: got {n_bytes}. Re-pina so' se a "
+            f"mudanca de formato for INTENCIONAL (ADR-0024)."
         )
+
+    def test_d17a_legacy_v6_baseline(self):
+        # #TCF.6 legado segue produzivel + decodavel (322B INVARIANT historico)
+        table = _ler_csv_multi("D17a-multi-column-mixed")
+        legacy = _legacy_v6(table)
+        assert len(legacy.encode("utf-8")) == 322
+        assert legacy.startswith("#TCF.6 M")
+        assert decode(legacy) == table
 
     def test_d17a_round_trip(self):
         table = _ler_csv_multi("D17a-multi-column-mixed")
-        text = encode(table)
-        decoded = decode(text)
-        assert decoded == table
+        assert decode(encode(table)) == table
 
     def test_d17a_header_format(self):
         table = _ler_csv_multi("D17a-multi-column-mixed")
         text = encode(table)
         lines = text.split("\n", 2)
-        assert lines[0] == "#TCF.6 M", f"shebang invalido: {lines[0]!r}"
-        assert lines[1].startswith("# "), f"meta invalido: {lines[1]!r}"
-        meta = lines[1][2:]
-        pairs = meta.split(",")
+        assert lines[0] == "#TCF.7 M", f"shebang invalido: {lines[0]!r}"
+        # 0.7: meta sem prefixo; ultima coluna bare (sem '=')
+        assert not lines[1].startswith("# ")
+        pairs = lines[1].split(",")
         assert len(pairs) == 4
-        assert all("=" in p for p in pairs)
+        assert all("=" in p for p in pairs[:-1])
+        assert "=" not in pairs[-1]
 
 
 # ---------------------------------------------------------------------------
-# V2-A fallback identity (ADR-0022, abre v2.0 #TCF.7) — opt-in
+# Default 0.7 / #TCF.7 (ADR-0024): fallback (ADR-0022) + header minimo (ADR-0023)
 # ---------------------------------------------------------------------------
 
-class TestV2AFallback:
-    """V2-A: por coluna, min(TCF, raw). Opt-in (`fallback=True`); default
-    preserva byte-canonical v1 (#TCF.6). Marcador `!<size>=<name>`."""
-
-    # coluna baixa-card curta (padrao beijing 'hour') infla em TCF -> raw vence
-    HOUR = [str(i % 24) for i in range(300)]
-    NOME = [f"item_{i:04d}_descricao_longa_unica" for i in range(300)]
-
-    def _table(self):
-        return {"hour": list(self.HOUR), "nome": list(self.NOME)}
-
-    def test_default_off_byte_identical(self):
-        table = self._table()
-        assert encode(table) == encode(table, fallback=False)
-        assert encode(table).startswith("#TCF.6 M")
-
-    def test_fallback_emits_v2_when_beneficial(self):
-        table = self._table()
-        text = encode(table, fallback=True)
-        assert text.startswith("#TCF.7 M"), "coluna hour devia cair pra raw"
-        assert decode(text) == table
-
-    def test_fallback_never_larger(self):
-        table = self._table()
-        v1 = len(encode(table, fallback=False).encode("utf-8"))
-        v2 = len(encode(table, fallback=True).encode("utf-8"))
-        assert v2 <= v1
-
-    def test_fallback_no_benefit_stays_v1(self):
-        # nenhuma coluna fica menor como raw -> #TCF.6 mesmo com fallback=True
-        table = {"a": ["abc", "abcd", "abcde"], "b": ["xyz", "xyzw", "xyzwv"]}
-        text = encode(table, fallback=True)
-        assert text.startswith("#TCF.6 M")
-        assert decode(text) == table
-
-    def test_fallback_round_trip_with_empties(self):
-        table = {"x": ["", "1", "2", "", "3"], "y": ["a", "b", "c", "d", "e"]}
-        text = encode(table, fallback=True)
-        assert decode(text) == table
-
-    def test_v2_decode_self_describing(self):
-        # decode nao precisa de flag — o '!' por par diz o modo
-        table = self._table()
-        text = encode(table, fallback=True)
-        assert decode(text) == table
-
-    def test_fallback_marker_only_before_size(self):
-        # '!' aparece so' antes do size, nunca toca o nome.
-        # #TCF.7 dispensa o prefixo '# ' do meta (ADR-0023) -> meta direto.
-        table = self._table()
-        text = encode(table, fallback=True)
-        meta = text.split("\n", 2)[1]
-        assert not meta.startswith("# ")  # v7: sem prefixo
-        pairs = meta.split(",")
-        # hour caiu pra raw -> par "!<size>=hour"; nome TCF -> "<size>=nome"
-        assert any(p.startswith("!") and p.split("=", 1)[1] == "hour" for p in pairs)
-        assert any(not p.startswith("!") and p.split("=", 1)[1] == "nome" for p in pairs)
-
-    def test_fallback_ignored_for_single_col(self):
-        # list (single-col) nao tem header -> fallback ignorado, sem shebang
-        text = encode(["abc", "abcd"], fallback=True)
-        assert not text.startswith("#TCF.")
-        assert decode(text) == ["abc", "abcd"]
-
-
-# ---------------------------------------------------------------------------
-# Header v2 minimo (ADR-0023, O-FMT-15+16) — opt-in min_header
-# ---------------------------------------------------------------------------
-
-class TestMinHeaderV2:
-    """Header minimo: #TCF.7 dispensa o prefixo do meta (sem `#`, sem espaco) e
-    omite o size da ultima coluna. Opt-in (`min_header=True`); default preserva
-    byte-canonical v1 (#TCF.6)."""
+class TestDefault07:
+    """0.7 e' o default do encode multi-col (ADR-0024): #TCF.7 com fallback
+    (min(TCF,raw) por coluna, marcador `!`) + header minimo (meta sem prefixo,
+    ultima coluna sem size). Single-col nao tem header -> inalterado."""
 
     def _table(self):
         return {
-            "nome":   ["Ana Souza", "Bruno Lima", "Carla Nunes", "Diego Rocha"],
-            "email":  ["a@acme.com.br", "b@acme.com.br", "c@acme.com.br", "d@acme.com.br"],
-            "cidade": ["Sao Paulo", "Sao Paulo", "Sao Paulo", "Rio de Janeiro"],
-            "plano":  ["Premium", "Premium", "Basic", "Premium"],
+            "hour": [str(i % 24) for i in range(300)],          # baixa-card -> raw
+            "nome": [f"item_{i:04d}_descricao_longa_unica" for i in range(300)],
         }
 
-    def test_default_off_byte_identical(self):
-        table = self._table()
-        assert encode(table) == encode(table, min_header=False)
-        assert encode(table).startswith("#TCF.6 M")
+    def test_default_is_v7(self):
+        assert encode(self._table()).startswith("#TCF.7 M")
 
-    def test_min_header_emits_v2(self):
-        text = encode(self._table(), min_header=True)
-        assert text.startswith("#TCF.7 M")
-        assert decode(text) == self._table()
+    def test_default_round_trip(self):
+        t = self._table()
+        assert decode(encode(t)) == t
 
-    def test_min_header_meta_shape(self):
-        text = encode(self._table(), min_header=True)
-        meta = text.split("\n", 2)[1]
-        # #TCF.7: meta SEM prefixo '#' (o flag M no shebang ja' declara colunas)
+    def test_default_meta_no_prefix(self):
+        # header minimo: meta sem prefixo '#' (o flag M ja' declara colunas)
+        meta = encode(self._table()).split("\n", 2)[1]
         assert not meta.startswith("#")
-        pairs = meta.split(",")
-        # todos menos o ultimo tem 'size=name'; ultimo e' bare (sem '=')
-        assert all("=" in p for p in pairs[:-1])
+
+    def test_default_last_col_bare(self):
+        # ultima coluna sem size (corpo ate' EOF)
+        pairs = encode(self._table()).split("\n", 2)[1].split(",")
         assert "=" not in pairs[-1]
-        assert pairs[-1] == "plano"
 
-    def test_min_header_smaller_than_v1(self):
-        table = self._table()
-        assert len(encode(table, min_header=True).encode("utf-8")) < \
-            len(encode(table).encode("utf-8"))
+    def test_default_fallback_marker(self):
+        # coluna baixa-card (hour) cai pra raw -> algum par com '!'
+        meta = encode(self._table()).split("\n", 2)[1]
+        assert any(p.startswith("!") for p in meta.split(","))
 
-    def test_composes_with_fallback(self):
-        # coluna baixa-card cai pra raw (!) E header minimo (ultima bare)
-        table = {
-            "hour": [str(i % 24) for i in range(60)],
-            "nome": [f"item_{i:03d}_unico_longo" for i in range(60)],
-        }
-        text = encode(table, min_header=True, fallback=True)
-        assert text.startswith("#TCF.7 M")
-        assert decode(text) == table
+    def test_default_not_larger_than_legacy(self):
+        t = self._table()
+        assert len(encode(t).encode("utf-8")) <= len(_legacy_v6(t).encode("utf-8"))
 
-    def test_last_col_raw_and_bare(self):
-        # ultima coluna em fallback raw: par vira '!name' (sem size)
-        table = {
-            "nome": [f"reg_{i:03d}_descricao_unica_e_longa" for i in range(40)],
-            "hour": [str(i % 24) for i in range(40)],   # ultima, baixa-card -> raw
-        }
-        text = encode(table, min_header=True, fallback=True)
-        assert decode(text) == table
+    def test_self_describing_decode(self):
+        # decode nao precisa de flag — magic + forma dos pares dizem tudo
+        t = self._table()
+        assert decode(encode(t)) == t
 
-    def test_single_col_dict(self):
-        table = {"only": ["x", "y", "z"]}
-        text = encode(table, min_header=True)
-        assert decode(text) == table
-
-    def test_ignored_for_list(self):
-        text = encode(["abc", "abcd"], min_header=True)
+    def test_single_col_unaffected(self):
+        text = encode(["abc", "abcd"])
         assert not text.startswith("#TCF.")
         assert decode(text) == ["abc", "abcd"]
 
     @pytest.mark.parametrize("table", [
         {"a": ["1", "2"], "b": ["x", "y"]},
-        {"a": ["", "1", ""], "b": ["p", "q", "r"]},     # vazios + ultima
-        {"x": ["só uma"], "y": ["coluna", "dupla"][:1]}, # 1 linha
+        {"a": ["", "1", ""], "b": ["p", "q", "r"]},          # vazios
+        {"x": ["uma"], "y": ["linha"]},                      # 1 linha
+        {"only": ["x", "y", "z"]},                           # 1 coluna
+        {"nome": ["Ana", "Bruno"], "cidade": ["SP", "SP"]},  # raw + RLE
     ])
     def test_round_trip_various(self, table):
-        assert decode(encode(table, min_header=True)) == table
+        assert decode(encode(table)) == table
+
+
+# ---------------------------------------------------------------------------
+# Legado #TCF.6 (produzivel internamente + decodavel — decode-compat pré-1.0)
+# ---------------------------------------------------------------------------
+
+class TestLegacyV6:
+    """O encoder publico so' escreve 0.7; o #TCF.6 legado e' produzivel via
+    toggles internos (_legacy_v6, p/ comparacao/regressao) e o decoder ainda
+    LE ele (decode-compat pré-1.0, ADR-0024)."""
+
+    def _table(self):
+        return {"a": ["abc", "abcd"], "b": ["x", "y"]}
+
+    def test_legacy_is_v6_with_prefix(self):
+        legacy = _legacy_v6(self._table())
+        assert legacy.startswith("#TCF.6 M\n# ")
+        meta = legacy.split("\n", 2)[1]
+        assert all("=" in p for p in meta[2:].split(","))  # todos com size
+
+    def test_decoder_reads_legacy(self):
+        t = self._table()
+        assert decode(_legacy_v6(t)) == t
 
 
 # ---------------------------------------------------------------------------

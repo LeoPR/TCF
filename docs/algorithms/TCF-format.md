@@ -20,17 +20,24 @@ Formato projetado para:
 - Tabelas multi-coluna onde cada coluna se beneficia de pipeline
   próprio (encoder per-column independente)
 
-## Versionamento (ADR-0017)
+## Versionamento (ADR-0024 — pré-1.0; supersede ADR-0017)
+
+> **ATUALIZADO (ADR-0024, 2026-06-14)**: o projeto e' **pré-1.0**. O default do
+> encode multi-col e' **0.7 / `#TCF.7`**; `#TCF.6` e' legado (lido pelo decoder).
+> Os minors `#TCF.N` sao iteracoes de dev, **sem compat rigida** (git reproduz
+> versoes antigas). As frases "frozen v1.0" / "v2.0" / "estavel desde v1.0"
+> abaixo sao do modelo antigo (ADR-0017) — ler na chave pré-1.0. Pacote: `0.x`.
+> Reframe completo desta secao: pendente.
 
 TCF distingue **format version** (shebang `#TCF.N`) de **library
-version** (semver `X.Y.Z` da biblioteca Python). Estavel desde v1.0.
+version** (semver `X.Y.Z` da biblioteca Python).
 
 ### Format version (shebang)
 
 | Shebang | Status | Introduzido | Compativel com |
 |---|---|---|---|
-| `#TCF.7` | **v2 (opt-in)** | 2026-06 | tcf 1.x+ (decode); encode opt-in `fallback` / `min_header` |
-| `#TCF.6` | **stable v1** | 2026-05 | tcf 1.0.0+ |
+| `#TCF.7` | **0.7 (default)** | 2026-06 | encode default (multi-col); decode le |
+| `#TCF.6` | **legado** (0.6) | 2026-05 | decode le; produzivel internamente |
 | `#TCF.5` | superseded | 2026-04 (v0.5) | tcf 0.5.x (legacy, nao manter) |
 
 **Promessa v1**: `#TCF.6` e' imutavel ate' v2.0. Nenhum byte de arquivo

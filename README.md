@@ -29,16 +29,15 @@ Carla Nunes,carla@acme.com.br,Sao Paulo,Basic
 Diego Rocha,diego@acme.com.br,Rio de Janeiro,Premium
 ```
 
-**TCF** — o que se repete vira referência · *182 B (saída real do `encode`)*
+**TCF** (formato 0.7, default) — o que se repete vira referência · *177 B (saída real do `encode`)*
 
 ```
-#TCF.6 M
-# 45=nome,42=email,28=cidade,20=plano
+#TCF.7 M
+!44=nome,42=email,28=cidade,plano
 Ana Souza
 Bruno Lima
 Carla Nunes
-Diego Rocha
-an*a*@acme.com.br
+Diego Rochaan*a*@acme.com.br
 brun*o3
 carl2,3
 dieg5,3
@@ -49,12 +48,14 @@ Basic
 ^1
 ```
 
-**Como ler:** a 1ª linha é o cabeçalho (`tamanho=nome` de cada coluna); depois
-vêm os corpos, um bloco por coluna. `*3|Sao Paulo` = *"Sao Paulo, 3 vezes"*
-(repetição); `^1` = *"igual ao valor da linha 1"* (substituição). Na coluna de
-**e-mail** o TCF vai mais fundo: o começo único de cada um + o domínio comum
-(`@acme.com.br`) escrito uma vez e referenciado — é onde ele mais economiza, e
-onde o texto fica mais denso.
+**Como ler:** linha 1 = shebang (`#TCF.7 M`: formato 0.7, multi-coluna). Linha 2 =
+meta das colunas (`tamanho=nome`); o `!` marca coluna guardada **crua** (quando o
+raw fica menor que o TCF); a última (`plano`) não leva tamanho — vai até o fim. Os
+corpos vêm concatenados, **delimitados por tamanho, não por quebra de linha** — por
+isso a coluna crua `nome` (`…Diego Rocha`) emenda direto no e-mail (`an*a*…`). No
+corpo: `*3|Sao Paulo` = *"Sao Paulo, 3×"* (repetição); `^1` = *"igual à linha 1"*
+(substituição). Na coluna de **e-mail** o TCF vai mais fundo (prefixo único +
+domínio comum referenciado) — é onde mais economiza e onde o texto fica mais denso.
 
 JSON repete a estrutura inteira; CSV repete os valores; o **TCF fatora o que se
 repete** e referencia o resto — continuando **texto ASCII que você abre e lê**.
@@ -116,34 +117,34 @@ text = encode(["111.444.777-35", "529.982.247-25"], nature=SPEC_CPF)
 Tutorial passo-a-passo: [`docs/tutorials/getting-started.md`](docs/tutorials/getting-started.md).
 Guias praticos: [`docs/how-to/`](docs/how-to/).
 
-## v0.7 — compactação extra (opt-in, `#TCF.7`)
+## Formato 0.7 (default) — onde os bytes vão
 
-Uma camada **opt-in** pra espremer mais bytes, útil quando *cada byte conta*
-(transmissões pequenas). Ativada só sob demanda — o **default continua `#TCF.6`
-byte-idêntico** (invariantes intactos). O decoder lê tudo sozinho (self-describing).
+O `encode` multi-coluna sai em **0.7 / `#TCF.7`** por default ([ADR-0024](docs/adr/0024-pre-1.0-versioning-git-as-compat.md)).
+Duas coisas, ambas automáticas (sem flag):
+
+- **Fallback por coluna** — guarda a coluna em raw quando o raw fica menor que o
+  TCF ("nunca pior que raw"); marcada com `!` no meta ([ADR-0022](docs/adr/0022-v2a-fallback-identity-weld.md)).
+- **Header mínimo** — o flag `M` no shebang já declara que vêm colunas, então o
+  meta dispensa o prefixo `# `, e a última coluna não leva tamanho (vai até o
+  fim) ([ADR-0023](docs/adr/0023-v2-minimal-header-weld.md)).
 
 ```python
-# por coluna, guarda o raw quando ele fica menor que o TCF ("nunca pior que raw")
-text = encode(table, fallback=True)                    # V2-A (ADR-0022)
-
-# header enxuto: o flag M já diz que vêm colunas, então o meta dispensa o
-# prefixo "# "; e a última coluna não precisa de tamanho (vai até o fim)
-text = encode(table, min_header=True)                  # (ADR-0023)
-
-text = encode(table, fallback=True, min_header=True)   # compõem
+text = encode(table)        # 0.7 / #TCF.7 — é o default, sem flags
 ```
 
-No cadastro de 4 colunas do topo:
+No cadastro de 4 colunas do topo, vs o formato legado `#TCF.6`:
 
-| modo | meta line | bytes |
+| formato | meta line | bytes |
 |---|---|---:|
-| `#TCF.6` (default) | `# 45=nome,42=email,28=cidade,20=plano` | 182 |
-| `fallback=True` | `!44=nome,42=email,28=cidade,20=plano` | 180 |
-| `min_header=True` | `45=nome,42=email,28=cidade,plano` | **177** |
+| **0.7 / `#TCF.7`** (default) | `!44=nome,42=email,28=cidade,plano` | **177** |
+| `#TCF.6` (legado) | `# 45=nome,42=email,28=cidade,20=plano` | 182 |
 
-O ganho é proporcionalmente maior em **payloads pequenos** (header de tamanho
-fixo domina). O ganho de *body* em tabelas grandes (dicionário low-card V2-B,
-strip V2-D) está no [roadmap v2.0](docs/adr/0018-v2-format-roadmap.md).
+O ganho é proporcionalmente maior em **payloads pequenos** (o header de tamanho
+fixo domina). Pré-1.0, o encoder só escreve o formato mais novo; o `#TCF.6`
+legado ainda é **lido** pelo decoder (e `git checkout` reproduz a era 0.6 —
+[ADR-0024](docs/adr/0024-pre-1.0-versioning-git-as-compat.md)). Ganhos de *body*
+em tabelas grandes (dicionário low-card, strip de sufixo) ficam no
+[roadmap](docs/adr/0018-v2-format-roadmap.md).
 
 ## Estado (pré-1.0)
 

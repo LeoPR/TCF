@@ -134,4 +134,4 @@ class TestSideOutputsOverhead:
         side = SideOutputs()
         text_with = encode(cols, side_outputs=side)
         assert text_without == text_with  # byte-identical
-        assert len(text_without.encode("utf-8")) == 322
+        assert len(text_without.encode("utf-8")) == 307  # 0.7 default (era 322; ADR-0024)

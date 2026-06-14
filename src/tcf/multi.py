@@ -10,35 +10,29 @@ Pos-ADR-0014 (API unificada): a funcao publica e' `encode(dict)` /
 2. Aliases deprecated: `encode_table` + `decode_table` re-exportados
    pra back-compat (emite DeprecationWarning).
 
-Header format (ADR-0004 + ADR-0013):
+Header format. **0.7 / #TCF.7 e' o DEFAULT** (ADR-0024); o #TCF.6 legado segue
+produzivel internamente (`_encode_multi(fallback=False, min_header=False)`) e
+LIDO pelo decoder.
+
+#TCF.7 (default) — meta SEM prefixo (o flag `M` no shebang ja' declara que a
+proxima linha e' o meta de colunas, ADR-0023):
+
+    #TCF.7 M
+    <s1>=<n1>,!<s2>=<n2>,...,<nN>
+    <body1><raw_body2>...<bodyN>
+
+    - `!` antes do size = coluna em modo RAW (body = "\\n".join(valores),
+      escolhido quando menor que o TCF — V2-A, ADR-0022). `!` nunca colide com
+      nome (size e' digito).
+    - ULTIMA coluna sem size (corpo ate' EOF, igual single-col — ADR-0023): par
+      sem `=`.
+    - bodies concatenados byte-precise (sem delimitador; sizes no meta).
+
+#TCF.6 (legado) — meta com prefixo `# ` e todos os sizes:
 
     #TCF.6 M
-    # <size1>=<name1>,<size2>=<name2>,...
-    <body1><body2>... (concatenado, byte-precise por size)
-
-#TCF.7 v2 (ADITIVO, opt-in) — o meta DISPENSA o prefixo `# ` (o flag `M` no
-shebang ja' declara que a proxima linha e' o meta de colunas, ADR-0023):
-
-V2-A fallback identity (ADR-0022, `fallback=True`):
-
-    #TCF.7 M
-    <size1>=<name1>,!<size2>=<name2>,...
-    <body1><raw_body2>...
-
-    Par com `!` antes do size = coluna em modo RAW (body = "\\n".join(valores),
-    escolhido quando menor que o TCF). `!` nunca colide com nome (size e'
-    digito). Emite #TCF.7 sse alguma coluna cai pra raw; senao #TCF.6
-    byte-identico ao v1 (default fallback=False -> sempre #TCF.6).
-
-Header v2 minimo (ADR-0023, O-FMT-15+16, `min_header=True`):
-
-    #TCF.7 M
-    <size1>=<name1>,<size2>=<name2>,...,<nameN>
-    <body1><body2>...<bodyN>
-
-    Sem prefixo no meta + OMITE o size da ULTIMA coluna (corpo ate' EOF, igual
-    ao single-col). Par sem `=` = ultima coluna (size omitido). Compoe com `!`
-    (V2-A). Voltado a payload pequeno (header fixo domina).
+    # <s1>=<n1>,<s2>=<n2>,...,<sN>=<nN>
+    <body1><body2>...
 
 Decoder self-describing: #TCF.6 exige `# `; #TCF.7 dispensa o prefixo (tolerante
 a `# `/`#`/nenhum). Le ambos os magics sem flag.
@@ -71,8 +65,8 @@ def _encode_multi(
     side_outputs: SideOutputs | None = None,
     parallel: bool | int = False,
     cfg: PipelineConfig = DEFAULT_PIPELINE,
-    fallback: bool = False,
-    min_header: bool = False,
+    fallback: bool = True,
+    min_header: bool = True,
 ) -> str:
     """Interno: encode dict pra TCF multi-col. Chamado por `encode()`.
 
@@ -84,17 +78,15 @@ def _encode_multi(
             `_encode_column` por coluna via ProcessPoolExecutor.
         cfg: PipelineConfig pra controle de camadas (T-CODE-LAYERED-PIPELINE
             Fase 1). Default = M10 canonical.
-        fallback: V2-A fallback identity (ADR-0022, abre v2.0). Default
-            False -> saida byte-identica ao v1 (#TCF.6, invariantes
-            preservados). True -> por coluna escolhe min(TCF, raw); emite
-            #TCF.7 M sse alguma coluna cai pra raw. Opt-in (padrao do
-            codebase: default preserva byte-canonical, cf. ADR-0015 natures
-            e T-CODE-LAYERED-PIPELINE). Aplica so' a multi-col.
-        min_header: header v2 minimo (ADR-0023, O-FMT-15+16). Default False ->
-            header v1 (`# size=name,...`). True -> #TCF.7 sem prefixo no meta
-            (o flag M ja' declara colunas) + omite o size da ULTIMA coluna
-            (corpo ate' EOF): `<size>=<name>,...,<nameN>`. Compoe com fallback.
-            Opt-in; default preserva byte-canonical.
+        fallback: V2-A fallback identity (ADR-0022). **Default True** (0.7 e' o
+            default, ADR-0024). Por coluna escolhe min(TCF, raw). False ->
+            mantem TCF em toda coluna (usado p/ produzir o legado #TCF.6 em
+            comparacao/regressao; o `encode()` publico nao expoe este toggle).
+        min_header: header v2 minimo (ADR-0023, O-FMT-15+16). **Default True**.
+            Meta sem prefixo (o flag M ja' declara colunas) + ultima coluna sem
+            size (corpo ate' EOF). False -> header legado `# size=name,...`.
+            (fallback=False E min_header=False juntos -> #TCF.6 byte-identico ao
+            legado, p/ comparacao.)
     """
     if not table:
         raise ValueError("table vazia")
