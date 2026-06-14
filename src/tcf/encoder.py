@@ -65,6 +65,7 @@ def encode(
     layers: PipelineConfig | None = None,
     fallback: bool = True,
     min_header: bool = True,
+    min_len: int | None = None,
 ) -> str:
     """Encode lista de strings OU dict de colunas em texto TCF.
 
@@ -102,6 +103,11 @@ def encode(
         min_header: (multi-col) header minimo (meta sem prefixo, ultima coluna
             sem size). **Default True** (0.7). False -> header legado
             `# size=name,...`. Knob opt-out. Ignorado pra list.
+        min_len: override manual do min_len do OBAT (afixos com `length <
+            min_len` viram literal). **Default None -> auto** (detect_min_len
+            por coluna; comportamento inalterado). int >= 1 aplica o mesmo
+            min_len a TODAS as colunas (tuning manual). Muda os bytes — so'
+            quando passado explicitamente.
 
     Returns:
         Texto TCF (str, sempre UTF-8, LF only). **Output byte-identico
@@ -113,11 +119,14 @@ def encode(
             ou nomes com `,` / `=`.
     """
     cfg = layers if layers is not None else DEFAULT_PIPELINE
+    if min_len is not None and min_len < 1:
+        raise ValueError(f"min_len deve ser >= 1 (ou None pra auto); got {min_len}")
     if isinstance(data, list):
         if nature is not None:
             from tcf.natures.templated_checked import encode_value
             data = [encode_value(nature, v)[0] for v in data]
-        return _encode_column(data, header="val", side=side_outputs, cfg=cfg)
+        return _encode_column(data, header="val", side=side_outputs, cfg=cfg,
+                              min_len=min_len)
     if isinstance(data, dict):
         from tcf.multi import _encode_multi
         if nature_per_col:
@@ -128,7 +137,8 @@ def encode(
                 for name, vals in data.items()
             }
         return _encode_multi(data, side_outputs=side_outputs, parallel=parallel,
-                             cfg=cfg, fallback=fallback, min_header=min_header)
+                             cfg=cfg, fallback=fallback, min_header=min_header,
+                             min_len=min_len)
     raise TypeError(
         f"encode espera list[str] ou dict[str, list[str]], "
         f"recebeu {type(data).__name__}"
@@ -141,6 +151,7 @@ def _encode_column(
     header: str = "val",
     side: SideOutputs | None = None,
     cfg: PipelineConfig = DEFAULT_PIPELINE,
+    min_len: int | None = None,
 ) -> str:
     """Pipeline canonical M10 por coluna. Capta side outputs se fornecido.
 
@@ -150,6 +161,10 @@ def _encode_column(
 
     `cfg` controla quais camadas aplicar (T-CODE-LAYERED-PIPELINE Fase 1).
     Default = M10 canonical (todas camadas on).
+
+    `min_len` (Segment 2): override manual do min_len do OBAT. None (default)
+    -> auto (detect_min_len, ou 3 se pre_pass off). Comportamento inalterado
+    no default.
     """
     seen: OrderedDict[str, bool] = OrderedDict()
     for s in values:
@@ -160,11 +175,13 @@ def _encode_column(
     features = analyze_column(values)  # sempre computa (barato, util pra side)
     if cfg.pre_pass:
         cadence_detected, cadence_info = detect_cadence_from_features(features, unicas)
-        min_len = detect_min_len_from_features(features)
+        auto_min_len = detect_min_len_from_features(features)
     else:
         cadence_detected = False
         cadence_info = {"rule_hit": None, "reason": "pre_pass disabled by cfg"}
-        min_len = 3  # default M9
+        auto_min_len = 3  # default M9
+    # Override explicito (Segment 2): min_len manual sobrepoe o auto/default.
+    min_len = min_len if min_len is not None else auto_min_len
 
     # CAMADA 2 — OBAT (shape-preserve toggleable se cadence detected)
     if cadence_detected and cfg.obat_shape_preserve:

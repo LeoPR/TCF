@@ -312,6 +312,21 @@ class TestExplicitControls:
         assert not text.startswith("#TCF.")
         assert decode(text) == ["abc", "abcd"]
 
+    # --- min_len override (Segment 2) em multi-col ---
+
+    def test_min_len_default_unchanged(self):
+        t = self._table()
+        assert encode(t) == encode(t, min_len=None)
+
+    @pytest.mark.parametrize("ml", [2, 5, 99])
+    def test_min_len_override_multi_rt(self, ml):
+        t = self._table()
+        assert decode(encode(t, min_len=ml)) == t
+
+    def test_min_len_parallel_byte_identical(self):
+        t = self._table()
+        assert encode(t, min_len=4) == encode(t, min_len=4, parallel=True)
+
 
 # ---------------------------------------------------------------------------
 # Edge cases / validacao

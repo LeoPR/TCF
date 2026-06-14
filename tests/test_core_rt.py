@@ -134,6 +134,38 @@ class TestEmptyValueFragIndex:
 
 
 # ---------------------------------------------------------------------------
+# min_len override (Segment 2, 2026-06-14)
+# ---------------------------------------------------------------------------
+
+class TestMinLenOverride:
+    """`encode(..., min_len=N)` sobrepoe o auto (detect_min_len). Default None =
+    auto -> comportamento inalterado."""
+
+    EMAILS = ["ana@acme.com.br", "bruno@acme.com.br", "carla@acme.com.br",
+              "diego@acme.com.br"]
+
+    def test_default_none_equals_auto(self):
+        assert encode(self.EMAILS) == encode(self.EMAILS, min_len=None)
+
+    def test_high_min_len_disables_affix(self):
+        # min_len enorme -> nenhum afixo casa -> output difere do auto; RT ok
+        auto = encode(self.EMAILS)
+        forced = encode(self.EMAILS, min_len=99)
+        assert forced != auto
+        assert decode(forced) == self.EMAILS
+
+    def test_invalid_min_len_raises(self):
+        with pytest.raises(ValueError, match="min_len"):
+            encode(self.EMAILS, min_len=0)
+        with pytest.raises(ValueError, match="min_len"):
+            encode(self.EMAILS, min_len=-1)
+
+    @pytest.mark.parametrize("ml", [2, 3, 4, 8, 50])
+    def test_round_trip_various_min_len(self, ml):
+        assert decode(encode(self.EMAILS, min_len=ml)) == self.EMAILS
+
+
+# ---------------------------------------------------------------------------
 # M10 baseline D1-D9 (INVARIANT 1523B)
 # ---------------------------------------------------------------------------
 

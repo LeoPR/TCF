@@ -49,8 +49,10 @@ Ordenado por valor/baixo-risco:
    em `encode()` como knobs default-True (zero-param 0.7 preservado). 7 testes
    `TestExplicitControls`. Semantica: #TCF.7 (qualquer feature v2) dispensa o
    prefixo; `min_header` controla a ultima-sem-size; `fallback` controla os `!`.
-3. **`min_len` override** (global ou por coluna) — hoje 100% auto. Permite
-   tuning manual quando o auto erra. Medio risco (muda body).
+3. ~~**`min_len` override**~~ **FEITO (Segment 2, 2026-06-14)**: `encode(..., min_len=N)`
+   GLOBAL (mesmo min_len p/ todas as colunas). Default None = auto (inalterado);
+   guard min_len>=1; threaded ate' o worker paralelo. 9 testes (single + multi +
+   parallel byte-identico). **Per-coluna (dict) fica como extensao futura.**
 4. **Modo "legivel" vs "byte-minimo"** — ex.: separador `\n` pra colunas raw
    (resolve a emenda byte-delimitada do README), header verboso, etc. Um dial
    trocando bytes por inspecao. Casa com a filosofia (explicabilidade).

@@ -67,6 +67,7 @@ def _encode_multi(
     cfg: PipelineConfig = DEFAULT_PIPELINE,
     fallback: bool = True,
     min_header: bool = True,
+    min_len: int | None = None,
 ) -> str:
     """Interno: encode dict pra TCF multi-col. Chamado por `encode()`.
 
@@ -87,6 +88,8 @@ def _encode_multi(
             size (corpo ate' EOF). False -> header legado `# size=name,...`.
             (fallback=False E min_header=False juntos -> #TCF.6 byte-identico ao
             legado, p/ comparacao.)
+        min_len: override do min_len do OBAT (mesmo p/ todas as colunas). None
+            (default) -> auto por coluna (inalterado). Threaded a _encode_column.
     """
     if not table:
         raise ValueError("table vazia")
@@ -116,11 +119,12 @@ def _encode_multi(
         n_workers = max(1, min(n_workers, len(table_str)))
         col_bodies_bytes, per_col_sides = _encode_columns_parallel(
             table_str, want_side=(side_outputs is not None),
-            n_workers=n_workers, cfg=cfg,
+            n_workers=n_workers, cfg=cfg, min_len=min_len,
         )
     else:
         col_bodies_bytes, per_col_sides = _encode_columns_serial(
             table_str, want_side=(side_outputs is not None), cfg=cfg,
+            min_len=min_len,
         )
 
     if side_outputs is not None:
@@ -189,13 +193,15 @@ def _encode_columns_serial(
     table_str: dict[str, list[str]],
     want_side: bool,
     cfg: PipelineConfig = DEFAULT_PIPELINE,
+    min_len: int | None = None,
 ) -> tuple[list[tuple[str, bytes]], dict[str, SideOutputs]]:
     """Encoda colunas serialmente (comportamento original)."""
     col_bodies: list[tuple[str, bytes]] = []
     per_col_sides: dict[str, SideOutputs] = {}
     for col_name, str_values in table_str.items():
         side = SideOutputs() if want_side else None
-        body = _encode_column(str_values, header=col_name, side=side, cfg=cfg)
+        body = _encode_column(str_values, header=col_name, side=side, cfg=cfg,
+                              min_len=min_len)
         col_bodies.append((col_name, body.encode("utf-8")))
         if want_side:
             per_col_sides[col_name] = side
@@ -207,6 +213,7 @@ def _encode_columns_parallel(
     want_side: bool,
     n_workers: int,
     cfg: PipelineConfig = DEFAULT_PIPELINE,
+    min_len: int | None = None,
 ) -> tuple[list[tuple[str, bytes]], dict[str, SideOutputs]]:
     """Encoda colunas em paralelo via ProcessPoolExecutor (Fase 1b: work-stealing).
 
@@ -237,7 +244,8 @@ def _encode_columns_parallel(
     results_by_name: dict[str, tuple[str, SideOutputs | None]] = {}
     with ProcessPoolExecutor(max_workers=n_workers) as ex:
         future_to_name = {
-            ex.submit(_worker_encode_column, (name, table_str[name], want_side, cfg)): name
+            ex.submit(_worker_encode_column,
+                      (name, table_str[name], want_side, cfg, min_len)): name
             for _, name in cols_with_work
         }
         for future in as_completed(future_to_name):
@@ -255,14 +263,16 @@ def _encode_columns_parallel(
     return col_bodies, per_col_sides
 
 
-def _worker_encode_column(args: tuple[str, list[str], bool, PipelineConfig]) -> tuple[str, str, SideOutputs | None]:
+def _worker_encode_column(args) -> tuple[str, str, SideOutputs | None]:
     """Worker module-level (picklavel) pra ProcessPoolExecutor.
 
-    Recebe (col_name, str_values, want_side, cfg); retorna (col_name, body_str, side).
+    Recebe (col_name, str_values, want_side, cfg, min_len); retorna
+    (col_name, body_str, side).
     """
-    col_name, str_values, want_side, cfg = args
+    col_name, str_values, want_side, cfg, min_len = args
     side = SideOutputs() if want_side else None
-    body = _encode_column(str_values, header=col_name, side=side, cfg=cfg)
+    body = _encode_column(str_values, header=col_name, side=side, cfg=cfg,
+                          min_len=min_len)
     return col_name, body, side
 
 
