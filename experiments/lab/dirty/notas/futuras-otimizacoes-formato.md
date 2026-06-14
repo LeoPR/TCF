@@ -259,6 +259,76 @@ quando T-CODE-SCHEMA-BUILDER e T-CODE-ENCODER-MANAGER amadurecerem
 - [T-CODE-ENCODER-MANAGER](../../../../tickets/T-CODE-ENCODER-MANAGER.md) — sinks que podem distribuir header separado
 - O-FMT-13 (per-channel) — caso especial onde header desacopla por canal
 
+### O-FMT-15 — Omitir o size da ultima coluna (boundary implicito por EOF) (registrado 2026-06-14)
+
+**Ideia (owner, 2026-06-14)**: no header `# <s1>=<n1>,<s2>=<n2>,...,<sN>=<nN>`,
+o size da ULTIMA coluna e' redundante — o corpo dela vai do seu inicio ate' o
+EOF. Logo `# <s1>=<n1>,...,<nN>` (ultima sem size) basta. Tres efeitos
+levantados pelo owner:
+1. **Economia**: o ultimo nao precisa de numero (o fim deduz pelo resto).
+2. **Habilita deducoes**: boundary implicito limita repeticao "sem fim" — o
+   proprio EOF para a expansao, sem precisar contar de antemao.
+3. **Efeito colateral (integridade)**: sem o numero, nao da' pra saber se a
+   ultima coluna foi truncada/corrompida — mas, dependendo do meio, integridade
+   e' responsabilidade da **camada de transporte**, nao do formato.
+
+**Analise critica:**
+
+- **Magnitude (ponto 1)**: economiza UM inteiro por TABELA (os digitos do size
+  da ultima coluna) — nao por linha nem por coluna. Em tabela grande (body MB)
+  e' ruido (<0.001%); em tabela pequena (README: 182B, size `20`) ~2B (~1%).
+  So' o ultimo e' omissivel "de graca" (os demais precisam de size porque os
+  bodies sao concatenados sem delimitador; so' o ultimo e' EOF-bounded).
+  Daria pra omitir QUALQUER um (deduzir = filesize − soma dos outros − header),
+  mas o ultimo e' o natural (EOF, sem aritmetica). **Ganho real, porem pequeno
+  e O(1) por tabela** — nao justifica isolado por bytes (§9).
+
+- **Coerencia com o formato (forte)**: o **single-col TCF ja' e' isto** — sem
+  header, sem size, corpo ate' EOF. "Ultima coluna sem size" e' a generalizacao
+  multi-col do que o single-col ja' faz. Nao e' excecao arbitraria; e' regra ja'
+  existente estendida. (Precedente interno: [ADR-0001](../../../../docs/adr/0001-tcf-format-shebang.md) single-col.)
+
+- **Ponto 2 (deferred sizing — o valor real)**: boundary implicito = nao precisa
+  saber o tamanho ANTES de escrever. Hoje o header e' header-first (exige TODOS
+  os sizes antes do body). A ultima coluna EOF-bounded permite "fluir" o ultimo
+  body em streaming sem conhecer seu tamanho final → menos buffering. E' o degrau
+  ZERO de deferred-sizing que [O-FMT-08](#o-fmt-08--streaming-encoderdecoder) e
+  V2-J (ADR-0018) exploram via trailer / header-reescrito. Sobre repeticao "sem
+  fim": hoje RLE tem count explicito (`*N|`), entao e' teorico — mas abre espaco
+  pra um marcador "repete ate' o fim" (sem count) so' valido na ultima posicao.
+
+- **Ponto 3 (integridade) — menor do que parece**: o decoder atual **ja' NAO
+  valida sizes** — `raw[cursor:cursor+size]` em Python nao erra em arquivo
+  truncado (slice retorna menos bytes, leitura parcial silenciosa). Ou seja,
+  omitir o ultimo size nao PERDE uma checagem que existe; perde uma checagem
+  POTENCIAL (futura: `header + Σ sizes == filesize` seria um cross-check barato;
+  omitir o ultimo tira um termo). Owner esta' certo: truncamento/checksum e'
+  trabalho do transporte (TLS, HTTP content-length, CRC) — o formato nao deve
+  duplicar. Registrar so' que os sizes explicitos SAO uma redundancia que
+  PODERIA virar integrity-check opt-in; o ultimo-sem-size renuncia a parte disso.
+
+- **Custo de impl**: trivial (~3 linhas). Decode da ultima coluna vira
+  `raw[cursor:]` em vez de `raw[cursor:cursor+size]`.
+
+- **Versao de formato**: muda a gramatica do meta line → decoder v1 quebra
+  (tenta parsear `=nN` / `int("")`) → **breaking, #TCF.7 / v2.0, opt-in**.
+  Compoe com V2-A (`!size=name`): ultima raw sem size = definir gramatica
+  (`!=name` ou `!name`).
+
+**Prior art (checado 2026-06-14)**: NAO abordado. [ADR-0004](../../../../docs/adr/0004-multi-column-header-compacto.md)
+(decisao do header) nao considerou — "Em aberto" lista escaping/flags/multi-tabela,
+nao isto. [O-FMT-14](#o-fmt-14--header-desacoplavel--opcional--derivavel-registrado-2026-05-24)
+e' diferente (deriva sizes de schema EXTERNO; este e' deducao INTERNA por EOF).
+Vizinho: O-FMT-08 / V2-J (streaming / deferred sizing).
+
+**Status**: aberta, registrada 2026-06-14. **Nao weldar isolado** (ganho de
+bytes nao justifica vs. irregularidade de gramatica + breaking change). O valor
+esta' no deferred-sizing (ponto 2) — **reavaliar junto com O-FMT-08 / V2-J**
+(streaming) como variante opt-in #TCF.7, onde boundary implicito e' o ponto.
+
+**Conexoes**: O-FMT-08 (streaming), O-FMT-14 (header reduzido), ADR-0004 (header),
+ADR-0018 V2-J (pipeline streaming), ADR-0001 (single-col EOF-bounded = precedente).
+
 ### Nota geral — fluxo atual (2026-05-24)
 
 Owner registra explicitamente que **o pipeline atual ainda tem muito
@@ -299,5 +369,6 @@ Quando voltar pra estas otimizacoes:
 Atualizar quando: nova ideia chegar, ou alguma O-FMT-* mudar de
 status (testada/iniciada/refutada).
 
-**Ultima atualizacao**: 2026-05-17 (criacao + 12 entries iniciais
-+ links pra tickets antigos).
+**Ultima atualizacao**: 2026-06-14 (O-FMT-15 — ultima coluna sem size /
+boundary implicito por EOF, com analise critica + prior art). Antes:
+2026-05-24 (O-FMT-14 header desacoplavel), 2026-05-17 (criacao + 12 entries).
