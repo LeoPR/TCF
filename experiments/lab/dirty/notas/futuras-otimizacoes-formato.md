@@ -329,6 +329,51 @@ esta' no deferred-sizing (ponto 2) — **reavaliar junto com O-FMT-08 / V2-J**
 **Conexoes**: O-FMT-08 (streaming), O-FMT-14 (header reduzido), ADR-0004 (header),
 ADR-0018 V2-J (pipeline streaming), ADR-0001 (single-col EOF-bounded = precedente).
 
+### O-FMT-16 — Espaco apos `#` no meta line e' dispensavel (registrado 2026-06-14)
+
+**Ideia (owner, 2026-06-14)**: o meta line e' `# <s1>=<n1>,...`. O espaco apos
+o `#` nao e' necessario. Combinado com O-FMT-15 (ultima sem size):
+
+    # 45=nome,42=email,28=cidade,20=plano   (atual)
+    #45=nome,42=email,28=cidade,plano        (O-FMT-16 + O-FMT-15)
+
+**Analise critica:**
+- **Magnitude**: 1 byte por TABELA (o espaco). Trivial. Decode: `META_PREFIX`
+  vira `b"#"` em vez de `b"# "`. Sem ambiguidade — o meta line e' a linha 2
+  (apos o shebang line 1); o `#` so' marca, a POSICAO ja' identifica.
+- **Adjacente (registrar)**: pela mesma logica, o proprio `#` do meta line e'
+  dispensavel — a linha 2 ja' e' o meta por posicao. Dropar `#`+espaco = **2
+  bytes**. O `#` e' um marcador-sanidade barato; manter ou nao e' decisao de
+  gosto vs. byte. (NAO confundir com o `#` do shebang line 1, esse fica.)
+- **Versao**: breaking (decoder v1 espera `# `) → **#TCF.7 / v2.0, opt-in**.
+  Compoe com O-FMT-15 e V2-A.
+
+**Prior art**: NAO abordado. ADR-0004 fixou `# ` sem discutir dispensa-lo.
+
+**Status**: aberta, registrada 2026-06-14.
+
+### Bundle "header v2 minimo" (O-FMT-15 + O-FMT-16) — reframe 2026-06-14
+
+**Diretriz do owner (2026-06-14)**: foco em **detalhes de compressao byte-a-byte**
+— "cada byte importa, principalmente se o TCF for substituir transmissoes
+MINUSCULAS". Isso **muda o calculo de §9** pros micro-opts de header: num payload
+minusculo, o header de tamanho fixo DOMINA o total, entao economias O(1)-por-tabela
+(espaco, ultimo size, talvez o `#`) deixam de ser ruido e viram fracao relevante.
+
+Ex (cadastro do README, TCF 182B, header `#TCF.6 M\n# 45=nome,42=email,28=cidade,20=plano\n`):
+- O-FMT-16 (sem espaco): −1B
+- O-FMT-15 (sem ultimo size `20`): −2B (so' os digitos; o `=` some junto se a
+  gramatica deixar a ultima como `,nome`)
+- dropar `#` do meta: −1B
+→ ~−4B de ~55B de header (~7% do header; ~2% do arquivo). Em tabelas com
+header proporcionalmente maior (poucas linhas, varias colunas), o efeito sobe.
+
+**Acao proposta**: tratar O-FMT-15 + O-FMT-16 (+ possivel drop do `#`) como UM
+pacote "header v2 minimo" opt-in (#TCF.7), nao tres welds isolados. Reavaliar
+prioridade ALTA dado o foco em transmissoes minusculas (antes: "nao weldar
+isolado"; agora: candidato a pacote dedicado). Ainda assim, validar o ganho real
+em datasets pequenos antes de weldar (checklist confirmada-empirica).
+
 ### Nota geral — fluxo atual (2026-05-24)
 
 Owner registra explicitamente que **o pipeline atual ainda tem muito
@@ -369,6 +414,7 @@ Quando voltar pra estas otimizacoes:
 Atualizar quando: nova ideia chegar, ou alguma O-FMT-* mudar de
 status (testada/iniciada/refutada).
 
-**Ultima atualizacao**: 2026-06-14 (O-FMT-15 — ultima coluna sem size /
-boundary implicito por EOF, com analise critica + prior art). Antes:
-2026-05-24 (O-FMT-14 header desacoplavel), 2026-05-17 (criacao + 12 entries).
+**Ultima atualizacao**: 2026-06-14 (O-FMT-15 ultima-coluna-sem-size + O-FMT-16
+espaco-do-meta-dispensavel + bundle "header v2 minimo" / reframe transmissoes
+minusculas). Antes: 2026-05-24 (O-FMT-14 header desacoplavel), 2026-05-17
+(criacao + 12 entries).
