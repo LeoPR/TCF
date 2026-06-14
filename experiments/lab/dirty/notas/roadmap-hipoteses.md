@@ -256,6 +256,37 @@ Antes disso, **registrado mas adiado**.
 
 ---
 
+## Pacote 8 — Deteccao de composicao HCC (registrado 2026-06-14)
+
+**Origem**: owner inspecionou a saida 0.7 do README (coluna de e-mails) e achou
+uma composicao perdida. Diagnostico confirmado por trace (SideOutputs) + leitura
+de `_detect_compositions`. Exemplo: `diego` = `dieg5,3` (`o` + `@acme.com.br`),
+onde `o@acme.com.br` tambem e' o sufixo de `bruno` — logo deveria virar UM
+fragmento composto e `diego` ser `dieg5` (ref unica).
+
+| ID | Hipotese | Status | Diagnostico / ref |
+|---|---|---|---|
+| H-HCC-01 | Detector SUBCONTA recorrencias: conta sub-tuplas so' dentro de pecas `'refs'` (`syntax.py:246-255`), ignorando a ocorrencia de DEFINICAO (onde o atom e' literal). Unidades recorrentes como `o@acme.com.br` (define em `bruno` = lit`o`+ref3; usa em `diego` = ref5+ref3) contam R=1 em vez de R=2 e nao sao compostas. Contar adjacencias de ATOMS (incl. a def-as-lit) pegaria a composicao. | **caracterizada (em-exp)** 2026-06-14: composicoes perdidas CONFIRMADAS; upper-bound do ganho ~**1.21% weighted**, concentrado em free-text (l_comment 4.5%, ibge municipio 3.8%, retail Description 2.6%); **shareRisk alto nos hotspots** -> realizado < upper-bound. Net real a-medir (prototipo). | `2026-06-14-hcc-composicao-perdida/result.md` + analyze.py |
+| H-HCC-02 | **Custo de referencia e' DINAMICO/relativo, nao estatico** (meta-hipotese do owner): conforme composicoes sao montadas, a largura dos ids de ref (`n_tam`) muda e altera o custo das refs SEGUINTES. O modelo atual (`net=(R-1)*(baseline-n_tam)`) avalia cada candidato quase-independente. A decisao otima seria "tamanho relativo da referencia vs tamanho relativo da otimizacao", recalculado conforme o estado evolui (greedy pode nao ser otimo). | **aberta — revisar APOS H-HCC-01** | hipotese do owner 2026-06-14 |
+
+**Sintoma menor (nao a causa)**: referenciar um fragmento de 1 char (`5`=`o`) e'
+byte-neutro (1 char ref vs 1 char literal); nao e' dano, e' sintoma da unidade
+decomposta em vez de composta.
+
+**Implicacoes de um fix (H-HCC-01)**:
+- Muda `_detect_compositions` -> muda body -> **re-pina D1-D9/D17a** (intencional, ADR-0024).
+- **GATE obrigatorio**: `tests/test_real_world_snapshots.py` (CLAUDE.md: qualquer
+  mudanca no detector). Foi esse gate que pegou prunes que regrediam.
+- Respeitar **body-order** dos refs compostos (check `alias_first_line < sub_first_line` ja' existe).
+- **Trade-off**: hoje `@acme.com.br` e' compartilhado flat (ref 3x). Compor
+  `a@acme`/`o@acme` pode ENFRAQUECER esse sharing. Ganho NAO garantido — medir.
+
+**Caracterizacao** (sub-exp `2026-06-14-hcc-composicao-perdida/`): mede o
+upper-bound do ganho (contagem estendida de adjacencias de atoms vs refs-only)
+em datasets reais, antes de qualquer prototipo/weld (checklist confirmada-empirica).
+
+---
+
 ## Estrategia de mistura
 
 **Antes de misturar, esgotar isoladas dentro de cada pacote.**
