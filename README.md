@@ -157,7 +157,12 @@ text = encode(table)        # 0.7 / #TCF.7, é o default, sem flags
 text = encode(table, fallback=False, min_header=False)  # força o legado #TCF.6
 text = encode(table, min_header=False)                  # #TCF.7 com header verboso
 text = encode(table, min_len=5)                         # override do min_len do OBAT (default: auto)
+text = encode(table, sort_by="cidade")                  # ordena linhas pela coluna (order-free, +compressão)
 ```
+
+> `sort_by` reordena as linhas pela coluna (agrupa similares → menos bytes,
+> 5-15% com chave low-card). É **order-free**: o `decode` devolve a ordem
+> ordenada, não a original. Use só quando a ordem das linhas não importa.
 
 No cadastro de 4 colunas do topo, comparado ao formato legado `#TCF.6`:
 

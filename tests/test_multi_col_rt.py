@@ -329,6 +329,48 @@ class TestExplicitControls:
 
 
 # ---------------------------------------------------------------------------
+# O-FMT-02: sort_by (natural sort, order-free) — Segment #5
+# ---------------------------------------------------------------------------
+
+class TestSortBy:
+    """`sort_by="col"` reordena as linhas pela chave antes de encodar (O-FMT-02).
+    Order-free: decode retorna a ordem ORDENADA (original nao recuperavel).
+    Default None = sem reordenar (inalterado)."""
+
+    def test_default_none_unchanged(self):
+        t = {"a": ["1", "2", "3"], "b": ["x", "y", "z"]}
+        assert encode(t) == encode(t, sort_by=None)
+
+    def test_reorders_and_preserves_rows(self):
+        t = {"cidade": ["SP", "RJ", "SP", "MG", "RJ", "SP"],
+             "valor":  ["1", "2", "3", "4", "5", "6"]}
+        dec = decode(encode(t, sort_by="cidade"))
+        assert dec["cidade"] == sorted(dec["cidade"])            # chave ordenada
+        assert sorted(zip(t["cidade"], t["valor"])) == \
+               sorted(zip(dec["cidade"], dec["valor"]))          # mesmo multiset
+
+    def test_sort_can_shrink(self):
+        n = 120
+        t = {"k": [["a", "b", "c"][i % 3] for i in range(n)],
+             "v": [["x", "y", "z"][i % 3] for i in range(n)]}    # v correlaciona k
+        assert len(encode(t, sort_by="k").encode("utf-8")) <= \
+               len(encode(t).encode("utf-8"))
+
+    def test_invalid_column_raises(self):
+        with pytest.raises(ValueError, match="sort_by"):
+            encode({"a": ["1"], "b": ["x"]}, sort_by="nope")
+
+    def test_mismatched_lengths_raises(self):
+        with pytest.raises(ValueError):
+            encode({"a": ["1", "2"], "b": ["x"]}, sort_by="a")
+
+    def test_ignored_for_list(self):
+        # list nao tem colunas -> sort_by ignorado, ordem original preservada
+        text = encode(["c", "a", "b"], sort_by="whatever")
+        assert decode(text) == ["c", "a", "b"]
+
+
+# ---------------------------------------------------------------------------
 # Edge cases / validacao
 # ---------------------------------------------------------------------------
 

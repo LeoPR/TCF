@@ -66,6 +66,7 @@ def encode(
     fallback: bool = True,
     min_header: bool = True,
     min_len: int | None = None,
+    sort_by: str | None = None,
 ) -> str:
     """Encode lista de strings OU dict de colunas em texto TCF.
 
@@ -108,6 +109,12 @@ def encode(
             por coluna; comportamento inalterado). int >= 1 aplica o mesmo
             min_len a TODAS as colunas (tuning manual). Muda os bytes — so'
             quando passado explicitamente.
+        sort_by: (multi-col, O-FMT-02) reordena as LINHAS pela coluna nomeada
+            antes de encodar, agrupando valores similares -> mais compressao
+            (5-15% em dados com chave low-card). **Order-free**: o decode
+            retorna a ordem ORDENADA, NAO a original (a ordem original NAO e'
+            recuperavel — use so' quando a ordem nao importa). Default None ->
+            sem reordenar (ordem preservada). Ignorado pra list.
 
     Returns:
         Texto TCF (str, sempre UTF-8, LF only). **Output byte-identico
@@ -129,6 +136,23 @@ def encode(
                               min_len=min_len)
     if isinstance(data, dict):
         from tcf.multi import _encode_multi
+        if sort_by is not None:
+            # O-FMT-02: reordena linhas pela coluna-chave (order-free). E' so'
+            # um pre-encode transform; output e' TCF normal, decode retorna a
+            # ordem ordenada (ordem original NAO recuperavel).
+            if sort_by not in data:
+                raise ValueError(
+                    f"sort_by: coluna '{sort_by}' inexistente; "
+                    f"colunas: {list(data)}"
+                )
+            if len({len(v) for v in data.values()}) > 1:
+                raise ValueError(
+                    "sort_by requer colunas de mesmo tamanho: "
+                    f"{ {c: len(v) for c, v in data.items()} }"
+                )
+            key_col = data[sort_by]
+            order = sorted(range(len(key_col)), key=lambda i: str(key_col[i]))
+            data = {c: [v[i] for i in order] for c, v in data.items()}
         if nature_per_col:
             from tcf.natures.templated_checked import encode_value
             data = {
