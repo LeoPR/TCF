@@ -218,6 +218,87 @@ class TestV2AFallback:
 
 
 # ---------------------------------------------------------------------------
+# Header v2 minimo (ADR-0023, O-FMT-15+16) — opt-in min_header
+# ---------------------------------------------------------------------------
+
+class TestMinHeaderV2:
+    """Header minimo: mantem `#`, tira o espaco, omite size da ultima coluna.
+    Opt-in (`min_header=True`); default preserva byte-canonical v1 (#TCF.6)."""
+
+    def _table(self):
+        return {
+            "nome":   ["Ana Souza", "Bruno Lima", "Carla Nunes", "Diego Rocha"],
+            "email":  ["a@acme.com.br", "b@acme.com.br", "c@acme.com.br", "d@acme.com.br"],
+            "cidade": ["Sao Paulo", "Sao Paulo", "Sao Paulo", "Rio de Janeiro"],
+            "plano":  ["Premium", "Premium", "Basic", "Premium"],
+        }
+
+    def test_default_off_byte_identical(self):
+        table = self._table()
+        assert encode(table) == encode(table, min_header=False)
+        assert encode(table).startswith("#TCF.6 M")
+
+    def test_min_header_emits_v2(self):
+        text = encode(self._table(), min_header=True)
+        assert text.startswith("#TCF.7 M")
+        assert decode(text) == self._table()
+
+    def test_min_header_meta_shape(self):
+        text = encode(self._table(), min_header=True)
+        meta = text.split("\n", 2)[1]
+        # mantem '#', sem espaco
+        assert meta.startswith("#")
+        assert not meta.startswith("# ")
+        pairs = meta[1:].split(",")
+        # todos menos o ultimo tem 'size=name'; ultimo e' bare (sem '=')
+        assert all("=" in p for p in pairs[:-1])
+        assert "=" not in pairs[-1]
+        assert pairs[-1] == "plano"
+
+    def test_min_header_smaller_than_v1(self):
+        table = self._table()
+        assert len(encode(table, min_header=True).encode("utf-8")) < \
+            len(encode(table).encode("utf-8"))
+
+    def test_composes_with_fallback(self):
+        # coluna baixa-card cai pra raw (!) E header minimo (ultima bare)
+        table = {
+            "hour": [str(i % 24) for i in range(60)],
+            "nome": [f"item_{i:03d}_unico_longo" for i in range(60)],
+        }
+        text = encode(table, min_header=True, fallback=True)
+        assert text.startswith("#TCF.7 M")
+        assert decode(text) == table
+
+    def test_last_col_raw_and_bare(self):
+        # ultima coluna em fallback raw: par vira '!name' (sem size)
+        table = {
+            "nome": [f"reg_{i:03d}_descricao_unica_e_longa" for i in range(40)],
+            "hour": [str(i % 24) for i in range(40)],   # ultima, baixa-card -> raw
+        }
+        text = encode(table, min_header=True, fallback=True)
+        assert decode(text) == table
+
+    def test_single_col_dict(self):
+        table = {"only": ["x", "y", "z"]}
+        text = encode(table, min_header=True)
+        assert decode(text) == table
+
+    def test_ignored_for_list(self):
+        text = encode(["abc", "abcd"], min_header=True)
+        assert not text.startswith("#TCF.")
+        assert decode(text) == ["abc", "abcd"]
+
+    @pytest.mark.parametrize("table", [
+        {"a": ["1", "2"], "b": ["x", "y"]},
+        {"a": ["", "1", ""], "b": ["p", "q", "r"]},     # vazios + ultima
+        {"x": ["só uma"], "y": ["coluna", "dupla"][:1]}, # 1 linha
+    ])
+    def test_round_trip_various(self, table):
+        assert decode(encode(table, min_header=True)) == table
+
+
+# ---------------------------------------------------------------------------
 # Edge cases / validacao
 # ---------------------------------------------------------------------------
 

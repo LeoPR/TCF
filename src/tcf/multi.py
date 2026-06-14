@@ -28,6 +28,17 @@ V2-A fallback identity (ADR-0022, abre v2.0, opt-in `fallback=True`):
     describing). Emite #TCF.7 sse alguma coluna cai pra raw; senao #TCF.6
     byte-identico ao v1 (default fallback=False -> sempre #TCF.6).
 
+Header v2 minimo (ADR-0023, O-FMT-15+16, opt-in `min_header=True`):
+
+    #TCF.7 M
+    #<size1>=<name1>,<size2>=<name2>,...,<nameN>
+    <body1><body2>...<bodyN>
+
+    Mantem o `#`, tira o ESPACO e OMITE o size da ULTIMA coluna (corpo vai ate'
+    EOF, igual ao single-col). Decoder distingue minimo de nao-minimo pelo
+    espaco apos o `#`; par sem `=` = ultima coluna (size omitido). Compoe com
+    `!` (V2-A). Voltado a payload pequeno (header fixo domina).
+
 Restricoes:
 - Nomes de coluna nao podem conter `,` ou `=`
 - Todas colunas devem ter mesmo numero de valores
@@ -48,6 +59,7 @@ from tcf.side_outputs import SideOutputs
 MAGIC_MULTI = b"#TCF.6 M"
 MAGIC_MULTI_V2 = b"#TCF.7 M"  # V2-A fallback identity (ADR-0022, abre v2.0)
 META_PREFIX = b"# "
+META_PREFIX_MIN = b"#"  # header v2 minimo (ADR-0023, O-FMT-15+16): sem espaco
 
 
 def _encode_multi(
@@ -56,6 +68,7 @@ def _encode_multi(
     parallel: bool | int = False,
     cfg: PipelineConfig = DEFAULT_PIPELINE,
     fallback: bool = False,
+    min_header: bool = False,
 ) -> str:
     """Interno: encode dict pra TCF multi-col. Chamado por `encode()`.
 
@@ -73,6 +86,10 @@ def _encode_multi(
             #TCF.7 M sse alguma coluna cai pra raw. Opt-in (padrao do
             codebase: default preserva byte-canonical, cf. ADR-0015 natures
             e T-CODE-LAYERED-PIPELINE). Aplica so' a multi-col.
+        min_header: header v2 minimo (ADR-0023, O-FMT-15+16). Default False ->
+            header v1 (`# size=name,...`). True -> mantem `#`, tira o espaco,
+            omite o size da ULTIMA coluna (corpo ate' EOF); emite #TCF.7 M.
+            Compoe com fallback. Opt-in; default preserva byte-canonical.
     """
     if not table:
         raise ValueError("table vazia")
@@ -131,12 +148,23 @@ def _encode_multi(
         final_bodies.append((name, tcf_bytes, "tcf"))
 
     used_fallback = bool(fallback_cols)
-    magic = MAGIC_MULTI_V2 if used_fallback else MAGIC_MULTI
-    meta_pairs = ",".join(
-        (f"!{len(b)}={name}" if mode == "raw" else f"{len(b)}={name}")
-        for name, b, mode in final_bodies
-    )
-    header = magic + b"\n" + META_PREFIX + meta_pairs.encode("utf-8") + b"\n"
+    used_v2 = used_fallback or min_header
+    magic = MAGIC_MULTI_V2 if used_v2 else MAGIC_MULTI
+
+    # Header v2 minimo (ADR-0023, O-FMT-15+16): mantem o '#', tira o ESPACO e
+    # OMITE o size da ULTIMA coluna (corpo vai ate' EOF — igual ao single-col).
+    # Opt-in min_header. '!' (V2-A raw) compoe normalmente.
+    last_i = len(final_bodies) - 1
+    parts = []
+    for i, (name, b, mode) in enumerate(final_bodies):
+        pre = "!" if mode == "raw" else ""
+        if min_header and i == last_i:
+            parts.append(f"{pre}{name}")            # ultima sem size
+        else:
+            parts.append(f"{pre}{len(b)}={name}")
+    meta_pairs = ",".join(parts)
+    meta_prefix = META_PREFIX_MIN if min_header else META_PREFIX
+    header = magic + b"\n" + meta_prefix + meta_pairs.encode("utf-8") + b"\n"
     body_concat = b"".join(b for _, b, _ in final_bodies)
     full = header + body_concat
     text = full.decode("utf-8")
@@ -149,8 +177,9 @@ def _encode_multi(
             "header_bytes": len(header),
             "body_bytes": len(body_concat),
             "parallel_workers": n_workers if use_parallel else 0,
-            "format": "v2" if used_fallback else "v1",
+            "format": "v2" if used_v2 else "v1",
             "fallback_cols": list(fallback_cols),
+            "min_header": min_header,
         }
 
     return text
@@ -240,9 +269,11 @@ def _worker_encode_column(args: tuple[str, list[str], bool, PipelineConfig]) -> 
 def _decode_multi(tcf_text: str) -> dict[str, list[str]]:
     """Interno: decode TCF multi-col. Chamado por `decode()`.
 
-    Aceita #TCF.6 M (v1, todas colunas TCF) e #TCF.7 M (v2, ADR-0022:
-    colunas com par meta `!<size>=<name>` sao raw / fallback identity).
-    Self-describing: o '!' por par diz o modo, sem precisar de flag.
+    Aceita #TCF.6 M (v1, todas colunas TCF) e #TCF.7 M (v2): colunas com par
+    meta `!<size>=<name>` sao raw / fallback identity (V2-A, ADR-0022); header
+    minimo (ADR-0023) tira o espaco apos `#` e omite o size da ultima coluna
+    (par sem `=` -> corpo ate' EOF). Self-describing: magic + forma do meta +
+    `!` por par dizem tudo, sem precisar de flag no decode.
     """
     from tcf.decoder import _decode_column
 
@@ -264,25 +295,37 @@ def _decode_multi(tcf_text: str) -> dict[str, list[str]]:
     if nl2 == -1:
         raise ValueError("formato invalido: sem linha de meta")
     line2 = raw[cursor:nl2]
-    if not line2.startswith(META_PREFIX):
+    # Meta line: '# ...' (v1 / v2 nao-minimo) OU '#...' sem espaco (header v2
+    # minimo, ADR-0023). Distingue pelo espaco apos o '#' (checar '# ' antes).
+    if line2.startswith(META_PREFIX):          # b"# "
+        meta_str = line2[len(META_PREFIX):].decode("utf-8")
+    elif line2.startswith(META_PREFIX_MIN):    # b"#"
+        meta_str = line2[len(META_PREFIX_MIN):].decode("utf-8")
+    else:
         raise ValueError(
-            f"meta invalido: esperado {META_PREFIX!r} prefix, got {line2[:5]!r}"
+            f"meta invalido: esperado prefixo '#', got {line2[:5]!r}"
         )
-    meta_str = line2[len(META_PREFIX):].decode("utf-8")
-    pairs = []  # (size, name, mode)
+    pairs = []  # (size|None, name, mode)
     for p in meta_str.split(","):
         if p.startswith("!"):
             mode = "raw"
             p = p[1:]
         else:
             mode = "tcf"
-        size_str, name = p.split("=", 1)
-        pairs.append((int(size_str), name, mode))
+        if "=" in p:
+            size_str, name = p.split("=", 1)
+            pairs.append((int(size_str), name, mode))
+        else:
+            # size omitido (header v2 minimo): ultima coluna, corpo ate' EOF
+            pairs.append((None, p, mode))
 
     cursor = nl2 + 1
     result: dict[str, list[str]] = {}
     for size, name, mode in pairs:
-        body_bytes = raw[cursor:cursor + size]
+        if size is None:
+            body_bytes = raw[cursor:]              # ate' EOF (ultima coluna)
+        else:
+            body_bytes = raw[cursor:cursor + size]
         body_text = body_bytes.decode("utf-8")
         if mode == "raw":
             # V2-A: body raw = "\n".join(valores); split exato (sem '\n'
@@ -290,7 +333,7 @@ def _decode_multi(tcf_text: str) -> dict[str, list[str]]:
             result[name] = body_text.split("\n")
         else:
             result[name] = _decode_column(body_text)
-        cursor += size
+        cursor += len(body_bytes)
 
     return result
 

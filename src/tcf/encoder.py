@@ -64,6 +64,7 @@ def encode(
     nature_per_col: "dict[str, TemplatedCheckedSpec] | None" = None,
     layers: PipelineConfig | None = None,
     fallback: bool = False,
+    min_header: bool = False,
 ) -> str:
     """Encode lista de strings OU dict de colunas em texto TCF.
 
@@ -94,6 +95,11 @@ def encode(
             escolhe min(TCF, raw); emite #TCF.7 M sse alguma coluna cai pra
             raw ("nunca pior que raw+delimitadores"). Ignorado pra list
             (single-col nao tem header pra marcar modo).
+        min_header: header v2 minimo (ADR-0023, O-FMT-15+16). Opt-in; default
+            False -> header v1 (#TCF.6, `# size=name,...`). True (multi-col)
+            -> mantem o `#`, tira o espaco e OMITE o size da ultima coluna
+            (corpo ate' EOF); emite #TCF.7 M. Compoe com fallback. Voltado a
+            payloads pequenos, onde o header fixo domina. Ignorado pra list.
 
     Returns:
         Texto TCF (str, sempre UTF-8, LF only). **Output byte-identico
@@ -120,7 +126,7 @@ def encode(
                 for name, vals in data.items()
             }
         return _encode_multi(data, side_outputs=side_outputs, parallel=parallel,
-                             cfg=cfg, fallback=fallback)
+                             cfg=cfg, fallback=fallback, min_header=min_header)
     raise TypeError(
         f"encode espera list[str] ou dict[str, list[str]], "
         f"recebeu {type(data).__name__}"

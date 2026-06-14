@@ -29,18 +29,22 @@ version** (semver `X.Y.Z` da biblioteca Python). Estavel desde v1.0.
 
 | Shebang | Status | Introduzido | Compativel com |
 |---|---|---|---|
-| `#TCF.7` | **v2 (V2-A)** | 2026-06 | tcf 1.x+ (decode); encode opt-in `fallback=True` |
+| `#TCF.7` | **v2 (opt-in)** | 2026-06 | tcf 1.x+ (decode); encode opt-in `fallback` / `min_header` |
 | `#TCF.6` | **stable v1** | 2026-05 | tcf 1.0.0+ |
 | `#TCF.5` | superseded | 2026-04 (v0.5) | tcf 0.5.x (legacy, nao manter) |
 
 **Promessa v1**: `#TCF.6` e' imutavel ate' v2.0. Nenhum byte de arquivo
 TCF v1 muda entre versoes tcf 1.x.y. Markers novos requerem `#TCF.7`.
 
-**`#TCF.7` (V2-A fallback identity, ADR-0022)**: ADITIVO e opt-in
-(`encode(table, fallback=True)`, multi-col). Por coluna escolhe min(TCF, raw);
-coluna raw marcada `!<size>=<name>` na meta line. Emitido SO' quando alguma
-coluna cai pra raw; senao `#TCF.6` byte-identico. Decoder le ambos
-(self-describing). Default `fallback=False` preserva 100% dos invariantes v1.
+**`#TCF.7` (v2, ADITIVO e opt-in)** — duas capacidades ortogonais, ambas multi-col,
+ambas emitindo `#TCF.7 M` so' quando ativadas (senao `#TCF.6` byte-identico).
+Decoder le tudo self-describing. Default preserva 100% dos invariantes v1:
+- **V2-A fallback identity** ([ADR-0022](../adr/0022-v2a-fallback-identity-weld.md),
+  `fallback=True`): por coluna escolhe min(TCF, raw); coluna raw marcada
+  `!<size>=<name>`.
+- **Header v2 minimo** ([ADR-0023](../adr/0023-v2-minimal-header-weld.md),
+  `min_header=True`): mantem `#`, tira o espaco, omite o size da ULTIMA coluna
+  (corpo ate' EOF) -> meta `#<s1>=<n1>,...,<nN>`. Voltado a payload pequeno.
 
 ### Library version (semver)
 
@@ -218,6 +222,11 @@ header `#TCF.6 M` + meta line (`# size=name,size=name,...`).
 **V2-A fallback identity (opt-in, ADR-0022)**: com `encode(table, fallback=True)`,
 cada coluna escolhe min(TCF, raw); coluna raw vira `!<size>=<name>` e o header
 sobe pra `#TCF.7 M`. Opt-in — default preserva `#TCF.6` byte-identico.
+
+**Header v2 minimo (opt-in, ADR-0023)**: com `encode(table, min_header=True)`,
+o meta line tira o espaco apos `#` e omite o size da ultima coluna (corpo ate'
+EOF): `#<s1>=<n1>,...,<nN>`. Emite `#TCF.7 M`. Compoe com `fallback`. Default
+preserva `#TCF.6` byte-identico. Foco: payload pequeno (header fixo domina).
 
 Restrições:
 - Nomes de coluna não podem conter `,` ou `=` (reservados do header)

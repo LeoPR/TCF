@@ -321,10 +321,12 @@ nao isto. [O-FMT-14](#o-fmt-14--header-desacoplavel--opcional--derivavel-registr
 e' diferente (deriva sizes de schema EXTERNO; este e' deducao INTERNA por EOF).
 Vizinho: O-FMT-08 / V2-J (streaming / deferred sizing).
 
-**Status**: aberta, registrada 2026-06-14. **Nao weldar isolado** (ganho de
-bytes nao justifica vs. irregularidade de gramatica + breaking change). O valor
-esta' no deferred-sizing (ponto 2) — **reavaliar junto com O-FMT-08 / V2-J**
-(streaming) como variante opt-in #TCF.7, onde boundary implicito e' o ponto.
+**Status**: **WELDED 2026-06-14** ([ADR-0023](../../../../docs/adr/0023-v2-minimal-header-weld.md))
+como parte do bundle "header v2 minimo" (`encode(table, min_header=True)`,
+#TCF.7). A ultima coluna passa a omitir o size (corpo ate' EOF). O aspecto
+deferred-sizing / streaming (ponto 2) continua FUTURO — reavaliar com O-FMT-08 /
+V2-J (a omissao welded e' so' a forma estatica; streaming exige header-reescrito
+ou trailer).
 
 **Conexoes**: O-FMT-08 (streaming), O-FMT-14 (header reduzido), ADR-0004 (header),
 ADR-0018 V2-J (pipeline streaming), ADR-0001 (single-col EOF-bounded = precedente).
@@ -350,7 +352,10 @@ o `#` nao e' necessario. Combinado com O-FMT-15 (ultima sem size):
 
 **Prior art**: NAO abordado. ADR-0004 fixou `# ` sem discutir dispensa-lo.
 
-**Status**: aberta, registrada 2026-06-14.
+**Status**: **WELDED 2026-06-14** ([ADR-0023](../../../../docs/adr/0023-v2-minimal-header-weld.md))
+— o espaco apos `#` foi removido no header v2 minimo (`min_header=True`). O drop
+do PROPRIO `#` ficou de fora (owner optou por manter como marcador-sanidade);
+fica como opcao futura (+1B).
 
 ### Bundle "header v2 minimo" (O-FMT-15 + O-FMT-16) — reframe 2026-06-14
 
@@ -369,10 +374,14 @@ Ex (cadastro do README, TCF 182B, header `#TCF.6 M\n# 45=nome,42=email,28=cidade
 header proporcionalmente maior (poucas linhas, varias colunas), o efeito sobe.
 
 **Acao proposta**: tratar O-FMT-15 + O-FMT-16 (+ possivel drop do `#`) como UM
-pacote "header v2 minimo" opt-in (#TCF.7), nao tres welds isolados. Reavaliar
-prioridade ALTA dado o foco em transmissoes minusculas (antes: "nao weldar
-isolado"; agora: candidato a pacote dedicado). Ainda assim, validar o ganho real
-em datasets pequenos antes de weldar (checklist confirmada-empirica).
+pacote "header v2 minimo" opt-in (#TCF.7), nao tres welds isolados.
+
+**WELDED 2026-06-14** ([ADR-0023](../../../../docs/adr/0023-v2-minimal-header-weld.md)):
+`encode(table, min_header=True)` -> #TCF.7 com meta `#<s>=<n>,...,<nN>` (mantem
+`#`, sem espaco, ultima sem size). Compoe com `fallback` (V2-A). Default off
+preserva byte-canonical. Medido: cadastro README 182->178 B. Suite 351 passed.
+PENDENTE (futuro): drop do proprio `#` (+1B); aspecto deferred-sizing/streaming
+(O-FMT-08/V2-J).
 
 ### Nota geral — fluxo atual (2026-05-24)
 

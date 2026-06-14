@@ -50,6 +50,7 @@ Registros numerados das decisoes arquiteturais do TCF. Inspirado em
 | [0020](0020-cython-optional-accelerator.md) | Acelerador Cython opcional de _detect_compositions (H-PERF-06-v2 Fase B) | accepted |
 | [0021](0021-onedrive-git-corruption-recovery.md) | Incidente OneDrive × `.git`: recuperacao (causa = hipotese) | accepted |
 | [0022](0022-v2a-fallback-identity-weld.md) | V2-A fallback identity welded (abre v2.0, `#TCF.7`, opt-in `fallback=True`) | **accepted** |
+| [0023](0023-v2-minimal-header-weld.md) | Header v2 minimo welded (`#TCF.7`, opt-in `min_header`: sem espaco + ultima coluna sem size) | **accepted** |
 
 ## Quando criar ADR
 
