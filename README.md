@@ -1,4 +1,4 @@
-# TCF — Tabular Compact Format
+# TCF · Tabular Compact Format
 
 [![CI](https://github.com/LeoPR/TCF/actions/workflows/ci.yml/badge.svg)](https://github.com/LeoPR/TCF/actions/workflows/ci.yml)
 ![Python](https://img.shields.io/badge/python-3.10+-blue)
@@ -6,11 +6,12 @@
 ![Version](https://img.shields.io/badge/version-0.7.0%20(pré--1.0)-orange)
 ![Format](https://img.shields.io/badge/format-%23TCF.6%20%2F%20.7-blue)
 
-> **E se desse pra transmitir a mesma tabela com bem menos bytes — sem virar um arquivo binário que ninguém mais consegue abrir e ler?**
+> **E se desse pra transmitir a mesma tabela com bem menos bytes,
+> sem virar um arquivo binário que ninguém mais consegue abrir e ler?**
 
-Um cadastro pequeno, nos três formatos — **bytes reais, saída de verdade**:
+Um cadastro pequeno, nos três formatos (bytes reais, saída de verdade):
 
-**JSON** — repete o nome de cada campo em toda linha · *480 B*
+**JSON** *(480 B)*: repete o nome de cada campo em toda linha.
 
 ```json
 [ { "nome": "Ana Souza",  "email": "ana@acme.com.br",
@@ -19,7 +20,7 @@ Um cadastro pequeno, nos três formatos — **bytes reais, saída de verdade**:
     "cidade": "Sao Paulo", "plano": "Premium" }, … ]
 ```
 
-**CSV** — tira os nomes repetidos; uma linha por registro · *213 B*
+**CSV** *(213 B)*: tira os nomes repetidos, uma linha por registro.
 
 ```
 nome,email,cidade,plano
@@ -29,7 +30,7 @@ Carla Nunes,carla@acme.com.br,Sao Paulo,Basic
 Diego Rocha,diego@acme.com.br,Rio de Janeiro,Premium
 ```
 
-**TCF** (formato 0.7, default) — o que se repete vira referência · *177 B (saída real do `encode`)*
+**TCF** *(177 B, formato 0.7, saída real do `encode`)*: o que se repete vira referência.
 
 ```
 #TCF.7 M
@@ -48,65 +49,66 @@ Basic
 ^1
 ```
 
-**Como ler:** linha 1 = shebang (`#TCF.7 M`: formato 0.7, multi-coluna). Linha 2 =
-meta das colunas (`tamanho=nome`); o `!` marca coluna guardada **crua** (quando o
-raw fica menor que o TCF); a última (`plano`) não leva tamanho — vai até o fim. Os
-corpos vêm concatenados, **delimitados por tamanho, não por quebra de linha** — por
-isso a coluna crua `nome` (`…Diego Rocha`) emenda direto no e-mail (`an*a*…`). No
-corpo: `*3|Sao Paulo` = *"Sao Paulo, 3×"* (repetição); `^1` = *"igual à linha 1"*
-(substituição). Na coluna de **e-mail** o TCF vai mais fundo (prefixo único +
-domínio comum referenciado) — é onde mais economiza e onde o texto fica mais denso.
+**Como ler:**
 
-JSON repete a estrutura inteira; CSV repete os valores; o **TCF fatora o que se
-repete** e referencia o resto — continuando **texto ASCII que você abre e lê**.
-Mas note: quanto mais fundo ele fatora (veja o e-mail), mais denso o texto fica.
-*Legível não quer dizer óbvio à primeira vista.* Em tabelas grandes a diferença
-cresce — ver [Resultados](#resultados).
+- Linha 1, shebang: `#TCF.7 M` é o formato 0.7, multi-coluna.
+- Linha 2, meta das colunas (`tamanho=nome`).
+  O `!` marca uma coluna guardada **crua** (quando o raw fica menor que o TCF).
+  A última (`plano`) não leva tamanho: vai até o fim.
+- Os corpos vêm concatenados, **delimitados por tamanho, não por quebra de linha**.
+  Por isso a coluna crua `nome` (`…Diego Rocha`) emenda direto no e-mail (`an*a*…`).
+- No corpo: `*3|Sao Paulo` é *"Sao Paulo, 3×"* (repetição).
+  `^1` é *"igual à linha 1"* (substituição).
+- Na coluna de **e-mail** o TCF vai mais fundo (prefixo único + domínio comum referenciado).
+  É onde mais economiza, e onde o texto fica mais denso.
+
+JSON repete a estrutura inteira.
+CSV repete os valores.
+O **TCF fatora o que se repete** e referencia o resto, continuando **texto ASCII que você abre e lê**.
+
+Mas quanto mais fundo ele fatora (veja o e-mail), mais denso o texto fica.
+*Legível não quer dizer óbvio à primeira vista.*
+
+Em tabelas grandes a diferença cresce: ver [Resultados](#resultados).
 
 ## O que é o TCF
 
-Um formato **textual** e **sem perdas** (`decode(encode(x)) == x`) para tabelas
-de strings. Comprime parecido com um zip/gzip — mas, ao contrário deles, o
-resultado **continua texto ASCII que você abre e inspeciona**, sem descomprimir.
-Não é tão óbvio quanto o original — quanto mais o TCF fatora, mais denso o texto
-fica — mas nunca vira um blob opaco. Cada coluna passa por um pipeline próprio.
+Um formato **textual** e **sem perdas** (`decode(encode(x)) == x`) para tabelas de strings.
 
-É essa a faixa que o TCF ocupa: **compacto como um compressor, inspecionável
-como texto**. (Precisa de ratio máximo? Dá pra rodar gzip/brotli por cima —
-eles se compõem.)
+Comprime parecido com um zip/gzip, mas com uma diferença: o resultado **continua texto ASCII que você abre e inspeciona**, sem descomprimir.
+Não fica tão óbvio quanto o original (quanto mais o TCF fatora, mais denso o texto), mas nunca vira um blob opaco.
+Cada coluna passa por um pipeline próprio.
 
-## Como ele faz isso — OBAT + HCC
+É essa a faixa que o TCF ocupa: **compacto como um compressor, inspecionável como texto**.
+(Precisa de ratio máximo? Dá pra rodar gzip/brotli por cima: eles se compõem.)
 
-Duas camadas, explicadas pelo propósito (specs: [`docs/algorithms/`](docs/algorithms/)):
+## Como ele faz isso: OBAT + HCC
 
-- **OBAT** (Online Bidirectional Affix Tokenizer) — *acha o que as strings têm em
-  comum.* Para cada valor, procura o maior prefixo **e** sufixo compartilhado com
-  os anteriores (domínios de e-mail, raízes de URL, códigos da mesma família):
-  escreve o trecho uma vez e referencia o resto. É um **front-coding
-  bidirecional** — generaliza o front-coding clássico de dicionários de strings
-  (Witten et al.; HTFC/RPDac, Brisaboa et al.), e o "bidirecional" é o que captura
-  o **sufixo** comum (`@acme.com.br`), não só o prefixo. A busca por afixos é da
-  família das **árvores de prefixo/sufixo** — tries, **Patricia/radix tree**
-  (Morrison 1968), suffix trees; na prática o OBAT acelera essa busca com um
-  **índice de trigramas**, que derruba o custo de O(N²) ingênuo para ~O(N^1.42)
-  (sub-quadrático, quase-linear). *(Trocar o índice por uma Patricia trie é
-  candidato futuro — [exploração](docs/theory/patricia-trie-exploration.md).)*
+Duas camadas, explicadas pelo propósito (specs: [`docs/algorithms/`](docs/algorithms/)).
 
-- **HCC** (Hierarchical Compositional Coding) — *decide o que vale a pena nomear e
-  agrupa repetições.* Pega os tokens do OBAT, fatora composições recorrentes em
-  **referências nomeadas reutilizáveis** (operador `~`) e colapsa repetidos (RLE,
-  inclusive sequências quase-iguais — IDs que só mudam no fim). Como referência
-  aponta para referência, o resultado é um **grafo acíclico (DAG) de fragmentos**
-  — na prática uma *gramática* / straight-line program do conteúdo, no espírito de
-  **Re-Pair** (Larsson & Moffat 1999) e **Sequitur** (Nevill-Manning & Witten
-  1997), mas operando sobre os **tokens** do OBAT (não sobre bytes) e com
-  operadores semânticos próprios (`~` cria nó nomeado, `,` só concatena). É o que
-  mantém a saída pequena **e** inspecionável: os grupos `*N|...` ficam à vista.
+**OBAT** (Online Bidirectional Affix Tokenizer) *acha o que as strings têm em comum.*
+Para cada valor, procura o maior prefixo **e** sufixo compartilhado com os anteriores (domínios de e-mail, raízes de URL, códigos da mesma família).
+Escreve o trecho uma vez e referencia o resto.
 
-**Velocidade.** O lado caro é o **encode** (a busca de afixos do OBAT), trazido a
-quase-linear pelo índice de trigramas (+ acelerador Cython opcional). O **decode**
-é uma **passada linear única**: só expande as referências (lookups O(1)) e os
-grupos RLE — sem nenhuma busca, rápido e previsível.
+É um **front-coding bidirecional**: generaliza o front-coding clássico de dicionários de strings (Witten et al.; HTFC/RPDac, Brisaboa et al.).
+O "bidirecional" é o que captura o **sufixo** comum (`@acme.com.br`), não só o prefixo.
+
+A busca por afixos é da família das **árvores de prefixo/sufixo**: tries, **Patricia/radix tree** (Morrison 1968), suffix trees.
+Na prática o OBAT acelera essa busca com um **índice de trigramas**, que derruba o custo de O(N²) ingênuo para ~O(N^1.42) (sub-quadrático, quase-linear).
+*(Trocar o índice por uma Patricia trie é candidato futuro: [exploração](docs/theory/patricia-trie-exploration.md).)*
+
+**HCC** (Hierarchical Compositional Coding) *decide o que vale a pena nomear e agrupa repetições.*
+Pega os tokens do OBAT, fatora composições recorrentes em **referências nomeadas reutilizáveis** (operador `~`) e colapsa repetidos (RLE, inclusive sequências quase-iguais, tipo IDs que só mudam no fim).
+
+Como referência aponta para referência, o resultado é um **grafo acíclico (DAG) de fragmentos**: na prática uma *gramática* / straight-line program do conteúdo.
+É o espírito do **Re-Pair** (Larsson & Moffat 1999) e do **Sequitur** (Nevill-Manning & Witten 1997), mas operando sobre os **tokens** do OBAT (não sobre bytes) e com operadores próprios (`~` cria nó nomeado, `,` só concatena).
+
+É o que mantém a saída pequena **e** inspecionável: os grupos `*N|...` ficam à vista.
+
+**Velocidade.**
+O lado caro é o **encode** (a busca de afixos do OBAT), trazido a quase-linear pelo índice de trigramas (mais o acelerador Cython opcional).
+O **decode** é uma **passada linear única**: só expande as referências (lookups O(1)) e os grupos RLE, sem nenhuma busca.
+Rápido e previsível.
 
 ## Getting started (1 minuto)
 
@@ -130,52 +132,57 @@ from tcf import SPEC_CPF
 text = encode(["111.444.777-35", "529.982.247-25"], nature=SPEC_CPF)
 ```
 
-`encode` dispatcha por tipo (list → single-column, dict → multi-column);
+`encode` dispatcha por tipo (list → single-column, dict → multi-column).
 `decode` roteia pelo shebang.
 
 Tutorial passo-a-passo: [`docs/tutorials/getting-started.md`](docs/tutorials/getting-started.md).
 Guias praticos: [`docs/how-to/`](docs/how-to/).
 
-## Formato 0.7 (default) — onde os bytes vão
+## Formato 0.7 (default): onde os bytes vão
 
 O `encode` multi-coluna sai em **0.7 / `#TCF.7`** por default ([ADR-0024](docs/adr/0024-pre-1.0-versioning-git-as-compat.md)).
 Duas coisas, ambas automáticas (sem flag):
 
-- **Fallback por coluna** — guarda a coluna em raw quando o raw fica menor que o
-  TCF ("nunca pior que raw"); marcada com `!` no meta ([ADR-0022](docs/adr/0022-v2a-fallback-identity-weld.md)).
-- **Header mínimo** — o flag `M` no shebang já declara que vêm colunas, então o
-  meta dispensa o prefixo `# `, e a última coluna não leva tamanho (vai até o
-  fim) ([ADR-0023](docs/adr/0023-v2-minimal-header-weld.md)).
+- **Fallback por coluna.**
+  Guarda a coluna em raw quando o raw fica menor que o TCF ("nunca pior que raw").
+  Marcada com `!` no meta ([ADR-0022](docs/adr/0022-v2a-fallback-identity-weld.md)).
+- **Header mínimo.**
+  O flag `M` no shebang já declara que vêm colunas, então o meta dispensa o prefixo `# `.
+  E a última coluna não leva tamanho, vai até o fim ([ADR-0023](docs/adr/0023-v2-minimal-header-weld.md)).
 
 ```python
-text = encode(table)        # 0.7 / #TCF.7 — é o default, sem flags
+text = encode(table)        # 0.7 / #TCF.7, é o default, sem flags
 ```
 
-No cadastro de 4 colunas do topo, vs o formato legado `#TCF.6`:
+No cadastro de 4 colunas do topo, comparado ao formato legado `#TCF.6`:
 
 | formato | meta line | bytes |
 |---|---|---:|
 | **0.7 / `#TCF.7`** (default) | `!44=nome,42=email,28=cidade,plano` | **177** |
 | `#TCF.6` (legado) | `# 45=nome,42=email,28=cidade,20=plano` | 182 |
 
-O ganho é proporcionalmente maior em **payloads pequenos** (o header de tamanho
-fixo domina). Pré-1.0, o encoder só escreve o formato mais novo; o `#TCF.6`
-legado ainda é **lido** pelo decoder (e `git checkout` reproduz a era 0.6 —
-[ADR-0024](docs/adr/0024-pre-1.0-versioning-git-as-compat.md)). Ganhos de *body*
-em tabelas grandes (dicionário low-card, strip de sufixo) ficam no
-[roadmap](docs/adr/0018-v2-format-roadmap.md).
+O ganho é proporcionalmente maior em **payloads pequenos** (o header de tamanho fixo domina).
+
+Pré-1.0, o encoder só escreve o formato mais novo.
+O `#TCF.6` legado ainda é **lido** pelo decoder, e `git checkout` reproduz a era 0.6 ([ADR-0024](docs/adr/0024-pre-1.0-versioning-git-as-compat.md)).
+Ganhos de *body* em tabelas grandes (dicionário low-card, strip de sufixo) ficam no [roadmap](docs/adr/0018-v2-format-roadmap.md).
 
 ## Estado (pré-1.0)
 
-- **Pré-1.0** ([ADR-0024](docs/adr/0024-pre-1.0-versioning-git-as-compat.md)): os minors do formato (`#TCF.4/.5/.6/.7`) são iterações de desenvolvimento rumo a um **1.0 sólido**; sem compat rígida entre eles (git reproduz versões antigas). v2.0 = depois.
-- Implementação canônica em [`src/tcf/`](src/tcf/); round-trip sempre lossless (`decode(encode(x)) == x`)
-- Default `#TCF.6`; **0.7 (`#TCF.7`, opt-in)** = V2-A fallback ([ADR-0022](docs/adr/0022-v2a-fallback-identity-weld.md)) + header v2 mínimo ([ADR-0023](docs/adr/0023-v2-minimal-header-weld.md)) — ver seção acima
-- Suíte: **351 passed, 1 xfailed**. Baselines de byte = guardas de regressão (re-pináveis em mudança intencional, ADR-0024)
-- Mudanças: [`CHANGELOG.md`](CHANGELOG.md). História M0-M14:
-  [`experiments/lab/dirty/notas/historia-dirty-lab.md`](experiments/lab/dirty/notas/historia-dirty-lab.md)
+- **Pré-1.0** ([ADR-0024](docs/adr/0024-pre-1.0-versioning-git-as-compat.md)).
+  Os minors do formato (`#TCF.4/.5/.6/.7`) são iterações de desenvolvimento rumo a um **1.0 sólido**, sem compat rígida entre eles (git reproduz versões antigas).
+  v2.0 fica pra depois.
+- Implementação canônica em [`src/tcf/`](src/tcf/).
+  Round-trip sempre lossless (`decode(encode(x)) == x`).
+- Default **0.7 / `#TCF.7`**: fallback ([ADR-0022](docs/adr/0022-v2a-fallback-identity-weld.md)) + header mínimo ([ADR-0023](docs/adr/0023-v2-minimal-header-weld.md)), ver seção acima.
+  O `#TCF.6` legado é lido pelo decoder.
+- Suíte: **348 passed, 1 xfailed**.
+  Baselines de byte = guardas de regressão, re-pináveis em mudança intencional ([ADR-0024](docs/adr/0024-pre-1.0-versioning-git-as-compat.md)).
+- Mudanças: [`CHANGELOG.md`](CHANGELOG.md).
+  História M0-M14: [`experiments/lab/dirty/notas/historia-dirty-lab.md`](experiments/lab/dirty/notas/historia-dirty-lab.md).
 
-> O ciclo **v0.5** (formato columnar para LLM benchmark) é acessório e
-> vive separado — ver a seção "Benchmark LLM v0.5" mais abaixo.
+> O ciclo **v0.5** (formato columnar para LLM benchmark) é acessório e vive separado.
+> Ver a seção "Benchmark LLM v0.5" mais abaixo.
 
 ## Resultados
 
@@ -189,17 +196,17 @@ Nos 15 datasets sintéticos do [EXP-008](experiments/lab/clean/EXP-008-compressa
 | JSON | 5409 |
 | JSONL | 7001 |
 
-~36% menor que CSV e ~42% menor que JSON — **continuando legível**. Núcleo
-pinado em testes: D1-D9 = **1523 B** (51.1% do raw), D17a multi-col = **322 B**
-(INVARIANT). Real-world multi-coluna (9 tabelas Adult + TPC-H, 136k linhas):
-**−33.02% weighted** vs CSV raw.
+~36% menor que CSV e ~42% menor que JSON, continuando legível.
 
-**E contra gzip / brotli / zstd?** Outra categoria: são compressores binários
-*opacos* — precisa descomprimir pra ler qualquer coisa. No ratio puro eles
-ganham (no EXP-008, `csv+brotli` = 1742 B contra `tcf+brotli` = 2141 B). O TCF
-**troca um pouco de ratio por legibilidade** e se compõe com eles (rodar gzip
-por cima do TCF funciona). Tabelas completas:
-[reports do EXP-008](experiments/lab/clean/EXP-008-compressao-comparada/reports/).
+Núcleo pinado em testes: D1-D9 = **1523 B** (51.1% do raw, single-col); D17a multi-col = **307 B** (0.7; legado `#TCF.6` = 322 B).
+Real-world multi-coluna (9 tabelas Adult + TPC-H, 136k linhas): **−33.02% weighted** vs CSV raw.
+
+**E contra gzip / brotli / zstd?**
+Outra categoria: são compressores binários *opacos* (precisa descomprimir pra ler qualquer coisa).
+No ratio puro eles ganham (no EXP-008, `csv+brotli` = 1742 B contra `tcf+brotli` = 2141 B).
+O TCF **troca um pouco de ratio por legibilidade** e se compõe com eles (rodar gzip por cima do TCF funciona).
+
+Tabelas completas: [reports do EXP-008](experiments/lab/clean/EXP-008-compressao-comparada/reports/).
 
 ## First-time setup (dev)
 
@@ -228,16 +235,16 @@ repository" na pagina do repo automaticamente.
 
 ---
 
-## Benchmark LLM v0.5 (acessorio — projeto paralelo)
+## Benchmark LLM v0.5 (acessorio, projeto paralelo)
 
 > Esta secao resume o ciclo **v0.5** (formato columnar para consumo por LLMs).
 > NAO e' o algoritmo TCF v0.6 acima. Todo o material vive separado.
 
 O ciclo v0.5 mediu compreensao de tabelas por LLMs (CSV/JSON/TOON/TCF,
 Linha A "LLM le e computa" + Linha B "LLM gera SQL"): 7 modelos comerciais
-+ 13 locais, 2 datasets, 2256 registros, 38 findings. Usava o **motor de
-niveis** (`EncodeConfig(level=N)`) em [`old/tcf/`](old/tcf/) — ver
-[`old/tcf/LEVELS-REVIEW.md`](old/tcf/LEVELS-REVIEW.md) para a semantica L0–L3.
++ 13 locais, 2 datasets, 2256 registros, 38 findings.
+Usava o **motor de niveis** (`EncodeConfig(level=N)`) em [`old/tcf/`](old/tcf/).
+Ver [`old/tcf/LEVELS-REVIEW.md`](old/tcf/LEVELS-REVIEW.md) para a semantica L0–L3.
 
 - **Harness** (runners, llm_eval, scripts): [`llm-benchmark/`](llm-benchmark/)
 - **Catalogo de achados** F-Q01..Q38: [`docs/findings/`](docs/findings/)
@@ -257,8 +264,8 @@ TCF/
 ├── src/tcf/                 ← CANONICAL v0.6 API (OBAT+HCC, encode/decode, #TCF.6)
 ├── old/tcf/                 ← motor v0.5 (niveis L0–L3), congelado-historico (ver LEVELS-REVIEW.md)
 ├── scripts/                 ← Shaper (stratified sampling), CSV→SQLite, setup_* datasets
-├── experiments/lab/         ← labs v0.6 (dirty + clean) — compressao composicional
-├── llm-benchmark/           ← benchmark LLM v0.5 (harness: runners + llm_eval) — acessorio
+├── experiments/lab/         ← labs v0.6 (dirty + clean): compressao composicional
+├── llm-benchmark/           ← benchmark LLM v0.5 (harness: runners + llm_eval), acessorio
 ├── tests/                   ← pytest suite (v0.6)
 ├── datasets/                ← canonical metadata + samples (dados reais em Z:)
 ├── tickets/                 ← planejamento markdown (YAML frontmatter)
@@ -276,7 +283,7 @@ TCF/
 ```
 
 > Para o mapa detalhado, ver [MAP.md](MAP.md). Os diretorios `docs/manual/`
-> e `docs/article/` NAO existem — o material v0.5 correspondente esta em
+> e `docs/article/` NAO existem; o material v0.5 correspondente esta em
 > `docs/archive/manual_v05/` e `docs/archive/article_v05/`.
 
 ---
@@ -285,17 +292,17 @@ TCF/
 
 O encoder e' a ferramenta principal; auxiliares de suporte (NAO TCF-core):
 
-- **Shaper** (`scripts/shaper/`) — stratified, FK-preserving sampling
-  framework. Standalone-able as a separate library; see
+- **Shaper** (`scripts/shaper/`): stratified, FK-preserving sampling framework.
+  Standalone-able as a separate library; see
   [shaper-as-standalone-tool note](docs/workbench/research-notes/_archive/2026-04-25-shaper-as-standalone-tool.md)
-- **DatasetReader** (`scripts/dataset_reader.py`) — uniform interface
+- **DatasetReader** (`scripts/dataset_reader.py`): uniform interface
   over SQLite hubs (rows, columns, query, column_stats)
-- **setup_\*.py** (`scripts/`) — download/geracao dos datasets canonicos
+- **setup_\*.py** (`scripts/`): download/geracao dos datasets canonicos
   (Adult, TPC-H, IBGE, CNPJ, etc.); ver [datasets/README.md](datasets/README.md)
 
-> v1.0 e' **library-only** (sem CLI — `pyproject.toml`). O benchmark LLM v0.5
-> (CommercialClient, M-series runners) vive em [`llm-benchmark/`](llm-benchmark/),
-> com instrucoes de reproducao no README de la'.
+> Pré-1.0: **library-only** (sem CLI; ver `pyproject.toml`).
+> O benchmark LLM v0.5 (CommercialClient, M-series runners) vive em
+> [`llm-benchmark/`](llm-benchmark/), com instrucoes de reproducao no README de la'.
 
 ---
 
@@ -320,5 +327,5 @@ MIT. See [LICENSE](LICENSE).
 Project conceived as part of an academic dissertation (TCC). Datasets:
 [UCI Adult Census](https://archive.ics.uci.edu/ml/datasets/adult) and
 [TPC-H](https://www.tpc.org/tpch/) (via DuckDB tpch extension).
-(Ciclo v0.5) Commercial LLM testing supported by personal credits —
+(Ciclo v0.5) Commercial LLM testing supported by personal credits;
 total spend $9.46 USD for 1968 records (75% cache savings).
