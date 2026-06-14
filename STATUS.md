@@ -15,8 +15,12 @@
 > **Proximo foco (2026-06-14)**: continuar no 0.7 (detalhes de compressao). Revisao
 > implicito-vs-explicito + candidatos a knob explicito + detalhes "passaram batido"
 > em `experiments/lab/dirty/notas/revisao-implicito-vs-explicito-2026-06-14.md`.
-> Pendentes: Pacote 8 (H-HCC-01/02, detector dinamico), nome PyPI (T-DIST-PYPI-NAME:
-> `tcf` tomado, `tcf-format` livre).
+> FEITO: knobs explicitos #1-3 (fallback/min_header opt-out, min_len override).
+> #5 ordering CARACTERIZADO (O-FMT-02 natural 5-15%; reversivel perde pro mapa;
+> low-card melhor via V2-B dicionario order-free).
+> **PENDENTE — REVISAO GERAL DO MULTI-COLUMN** (owner: "varias coisas a revisar"):
+> incluir V2-B dicionario (prioridade alta apos a caracterizacao de ordering),
+> alem de Pacote 8 (H-HCC detector dinamico) e nome PyPI (T-DIST-PYPI-NAME).
 
 **Atualizado em**: 2026-06-08 (**Schema/quality gadget COMPLETO + incidente
 OneDrive recuperado + push remoto**). Resumo desde 06-03:

@@ -12,6 +12,17 @@ proprio, ou ticket formal quando o trabalho core estiver concluido.
 
 ## Categoria 1 — Ordenacao de colunas / linhas
 
+> **CARACTERIZADO 2026-06-14** (`2026-06-14-ordering-characterizacao/result.md`,
+> 6 datasets): **O-FMT-02 (natural, 1 chave, ordem livre)** = unico lever real,
+> ganho **5-15%** onde ha' chave low-card (adult 14.6%, receita 11.4%, ibge 7.5%;
+> ~0% em free-text-dominado). **O-FMT-01 (reversivel)**: mapa reverso
+> (N*digitos) quase sempre supera o ganho -> net NEGATIVO (skip, ou mapa esperto
+> marginal). **O-FMT-04** = escolher melhor chave (testado). Ordenacao por-coluna
+> independente = inviavel (perms por coluna). **CONEXAO**: os ganhos enormes de
+> sort por-coluna em low-card (90-99%) sao redundancia que **V2-B dicionario
+> captura ORDER-FREE** -> priorizar V2-B na revisao multi-col. Status individuais
+> abaixo permanecem; este e' o resumo empirico.
+
 ### O-FMT-01 — Ordenacao reversivel pra compressao
 
 **Ideia**: se formato de entrada e' fixo, aplicar ordenacao de

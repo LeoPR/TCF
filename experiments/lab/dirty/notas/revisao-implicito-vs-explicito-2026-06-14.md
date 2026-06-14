@@ -56,8 +56,13 @@ Ordenado por valor/baixo-risco:
 4. **Modo "legivel" vs "byte-minimo"** — ex.: separador `\n` pra colunas raw
    (resolve a emenda byte-delimitada do README), header verboso, etc. Um dial
    trocando bytes por inspecao. Casa com a filosofia (explicabilidade).
-5. **Ordering** (O-FMT-01..04) — ordenacao reversivel/natural pra melhorar
-   compressao. Precisa decisao "ordem importa?" + mapeamento reverso.
+5. **Ordering** (O-FMT-01..04) — **CARACTERIZADO (Segment #5, 2026-06-14)**:
+   `2026-06-14-ordering-characterizacao/result.md`. O-FMT-02 (natural, ordem
+   livre) = 5-15% onde ha' chave low-card; O-FMT-01 (reversivel) perde pro custo
+   do mapa. Knob opt-in `sort_by=` possivel. **Mas**: a redundancia que o sort
+   expoe (low-card) e' melhor capturada por **V2-B dicionario** order-free ->
+   priorizar V2-B na revisao multi-col (abaixo). Implementacao do O-FMT-02 fica
+   condicionada a essa decisao.
 6. **Agressividade da composicao** (detector) — ligado a H-HCC-02 (custo
    dinamico). Expor um dial seria consequencia de resolver o detector dinamico.
 7. **Futuro (modo/nature)**: dicionario low-card (V2-B), lossy (V2-C/Pacote7).
