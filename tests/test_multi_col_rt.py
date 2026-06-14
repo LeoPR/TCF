@@ -230,9 +230,9 @@ class TestDefault07:
 # ---------------------------------------------------------------------------
 
 class TestLegacyV6:
-    """O encoder publico so' escreve 0.7; o #TCF.6 legado e' produzivel via
-    toggles internos (_legacy_v6, p/ comparacao/regressao) e o decoder ainda
-    LE ele (decode-compat pré-1.0, ADR-0024)."""
+    """O #TCF.6 legado e' produzivel (toggles publicos `fallback=False` +
+    `min_header=False`, ou o helper interno _legacy_v6) e o decoder ainda LE ele
+    (decode-compat pré-1.0, ADR-0024)."""
 
     def _table(self):
         return {"a": ["abc", "abcd"], "b": ["x", "y"]}
@@ -246,6 +246,71 @@ class TestLegacyV6:
     def test_decoder_reads_legacy(self):
         t = self._table()
         assert decode(_legacy_v6(t)) == t
+
+
+# ---------------------------------------------------------------------------
+# Controles explicitos: fallback/min_header opt-out (Segment 1, 2026-06-14)
+# ---------------------------------------------------------------------------
+
+class TestExplicitControls:
+    """fallback/min_header re-expostos como knobs OPT-OUT (default True = 0.7).
+    `encode(table)` segue zero-param 0.7; passar False modifica o comportamento.
+    Semantica: QUALQUER feature v2 (#TCF.7) ja' dispensa o prefixo do meta;
+    `min_header` controla so' a omissao do size da ultima coluna; `fallback`
+    controla so' os `!` (colunas raw)."""
+
+    def _table(self):
+        return {
+            "hour": [str(i % 24) for i in range(120)],          # baixa-card -> raw
+            "nome": [f"item_{i:03d}_descricao_unica" for i in range(120)],
+        }
+
+    def test_default_zero_param_is_v7(self):
+        assert encode(self._table()).startswith("#TCF.7 M")
+
+    def test_force_legacy_v6(self):
+        t = self._table()
+        text = encode(t, fallback=False, min_header=False)
+        assert text.startswith("#TCF.6 M\n# ")
+        assert decode(text) == t
+
+    def test_force_legacy_equals_internal_helper(self):
+        t = self._table()
+        assert encode(t, fallback=False, min_header=False) == _legacy_v6(t)
+
+    def test_fallback_off_keeps_min_header(self):
+        # todas TCF (sem '!') mas header minimo (sem prefixo, ultima bare) -> #TCF.7
+        t = self._table()
+        text = encode(t, fallback=False, min_header=True)
+        assert text.startswith("#TCF.7 M")
+        meta = text.split("\n", 2)[1]
+        assert not meta.startswith("# ")
+        assert "!" not in meta
+        assert "=" not in meta.split(",")[-1]      # ultima sem size (min_header)
+        assert decode(text) == t
+
+    def test_min_header_off_keeps_fallback(self):
+        # fallback ('!') mas sem header minimo: #TCF.7 ja' dispensa prefixo,
+        # porem a ultima coluna MANTEM size (todos os pares tem '=')
+        t = self._table()
+        text = encode(t, fallback=True, min_header=False)
+        assert text.startswith("#TCF.7 M")
+        meta = text.split("\n", 2)[1]
+        assert not meta.startswith("# ")
+        assert "!" in meta
+        assert all("=" in p.lstrip("!") for p in meta.split(","))
+        assert decode(text) == t
+
+    def test_all_combos_round_trip(self):
+        t = self._table()
+        for fb in (True, False):
+            for mh in (True, False):
+                assert decode(encode(t, fallback=fb, min_header=mh)) == t
+
+    def test_single_col_ignores_knobs(self):
+        text = encode(["abc", "abcd"], fallback=False, min_header=False)
+        assert not text.startswith("#TCF.")
+        assert decode(text) == ["abc", "abcd"]
 
 
 # ---------------------------------------------------------------------------

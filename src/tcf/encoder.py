@@ -63,15 +63,16 @@ def encode(
     nature: "TemplatedCheckedSpec | None" = None,
     nature_per_col: "dict[str, TemplatedCheckedSpec] | None" = None,
     layers: PipelineConfig | None = None,
+    fallback: bool = True,
+    min_header: bool = True,
 ) -> str:
     """Encode lista de strings OU dict de colunas em texto TCF.
 
     Multi-col sai no formato **0.7 / `#TCF.7`** por default (ADR-0024): por
     coluna escolhe min(TCF, raw) e usa o header minimo (sem prefixo, ultima
-    coluna sem size). Single-col nao tem header — inalterado. Pra produzir o
-    formato legado `#TCF.6` (comparacao/regressao), use `tcf.multi._encode_multi`
-    com `fallback=False, min_header=False`, ou faca `git checkout` da era 0.6
-    (git e' a compat pré-1.0, ADR-0024).
+    coluna sem size). Single-col nao tem header — inalterado. Pra forcar o
+    formato legado `#TCF.6` (comparacao/inspecao), passe
+    `fallback=False, min_header=False`.
 
     Args:
         data:
@@ -94,6 +95,13 @@ def encode(
             spec out-of-band. Pra list[str] apenas.
         nature_per_col: dict mapeando col_name -> spec. Pra dict input
             (multi-col); permite pre-tx natureza diferente por coluna.
+        fallback: (multi-col) por coluna escolhe min(TCF, raw). **Default True**
+            (0.7). False -> mantem TCF em toda coluna. Knob opt-out: o default
+            zero-param continua 0.7; passe False so' pra modificar comportamento
+            (ex: forcar #TCF.6 junto com `min_header=False`). Ignorado pra list.
+        min_header: (multi-col) header minimo (meta sem prefixo, ultima coluna
+            sem size). **Default True** (0.7). False -> header legado
+            `# size=name,...`. Knob opt-out. Ignorado pra list.
 
     Returns:
         Texto TCF (str, sempre UTF-8, LF only). **Output byte-identico
@@ -120,7 +128,7 @@ def encode(
                 for name, vals in data.items()
             }
         return _encode_multi(data, side_outputs=side_outputs, parallel=parallel,
-                             cfg=cfg)
+                             cfg=cfg, fallback=fallback, min_header=min_header)
     raise TypeError(
         f"encode espera list[str] ou dict[str, list[str]], "
         f"recebeu {type(data).__name__}"

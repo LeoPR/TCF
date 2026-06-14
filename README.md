@@ -152,6 +152,10 @@ Duas coisas, ambas automáticas (sem flag):
 
 ```python
 text = encode(table)        # 0.7 / #TCF.7, é o default, sem flags
+
+# knobs opt-out (default True) — pra modificar o comportamento / inspecionar:
+text = encode(table, fallback=False, min_header=False)  # força o legado #TCF.6
+text = encode(table, min_header=False)                  # #TCF.7 com header verboso
 ```
 
 No cadastro de 4 colunas do topo, comparado ao formato legado `#TCF.6`:

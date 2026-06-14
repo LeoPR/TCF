@@ -43,11 +43,12 @@ nao tem como dizer "use min_len=5 aqui" ou "nao componha agressivo".
 
 Ordenado por valor/baixo-risco:
 
-1. **Forcar formato legado `#TCF.6`** (hoje so' interno). Knob tipo
-   `encode(..., legacy=True)` ou `format="0.6"`. Util pra compat/comparacao sem
-   `git checkout`. Baixo risco (decoder ja' le ambos).
-2. **`fallback` / `min_header` como opt-OUT** — re-expor pra FORCAR all-TCF /
-   header verboso (inspecao, debugging, comparacao). Default segue 0.7.
+1. ~~**Forcar formato legado `#TCF.6`**~~ **FEITO (Segment 1, 2026-06-14)**: via
+   `encode(table, fallback=False, min_header=False)`. (decoder ja' le ambos.)
+2. ~~**`fallback` / `min_header` como opt-OUT**~~ **FEITO (Segment 1)**: re-expostos
+   em `encode()` como knobs default-True (zero-param 0.7 preservado). 7 testes
+   `TestExplicitControls`. Semantica: #TCF.7 (qualquer feature v2) dispensa o
+   prefixo; `min_header` controla a ultima-sem-size; `fallback` controla os `!`.
 3. **`min_len` override** (global ou por coluna) — hoje 100% auto. Permite
    tuning manual quando o auto erra. Medio risco (muda body).
 4. **Modo "legivel" vs "byte-minimo"** — ex.: separador `\n` pra colunas raw
