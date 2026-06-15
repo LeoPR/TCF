@@ -7,20 +7,21 @@
 > prematuro). Labels "v1.0 frozen"/"v2.0" em ADRs/STATUS antigos: ler nessa chave.
 >
 > **0.7 e' o DEFAULT do encode** (multi-col): `encode(dict)` -> `#TCF.7` (fallback
-> + header minimo, automaticos; params publicos removidos). Single-col inalterado.
-> Baseline D17a re-pinado **322 -> 307 B** (#TCF.6 legado=322, lido pelo decoder +
-> produzivel via `_encode_multi(fallback=False, min_header=False)`). D1-D9=1523B
-> (single-col) inalterado. Suite 348 passed.
+> + dicionario V2-B + header minimo, automaticos). Single-col inalterado.
+> Baseline D17a re-pinado **322 -> 307 -> 303 B** (V2-B na coluna `categoria`;
+> #TCF.6 legado=322, lido pelo decoder + produzivel via `_encode_multi(fallback=
+> False, min_header=False)`). D1-D9=1523B (single-col) inalterado. Suite 385 passed.
 >
 > **Proximo foco (2026-06-14)**: continuar no 0.7 (detalhes de compressao). Revisao
 > implicito-vs-explicito + candidatos a knob explicito + detalhes "passaram batido"
 > em `experiments/lab/dirty/notas/revisao-implicito-vs-explicito-2026-06-14.md`.
-> FEITO: knobs explicitos #1-3 (fallback/min_header opt-out, min_len override).
-> #5 ordering CARACTERIZADO (O-FMT-02 natural 5-15%; reversivel perde pro mapa;
-> low-card melhor via V2-B dicionario order-free).
+> FEITO: knobs explicitos #1-3 (fallback/min_header opt-out, min_len override);
+> #5 ordering (O-FMT-02 `sort_by` order-free welded); **V2-B dicionario WELDED**
+> ([ADR-0025](docs/adr/0025-v2b-dictionary-categorical-weld.md), marcador `@`,
+> 3o candidato do fallback, 13.9% weighted em 8 datasets reais).
 > **PENDENTE — REVISAO GERAL DO MULTI-COLUMN** (owner: "varias coisas a revisar"):
-> incluir V2-B dicionario (prioridade alta apos a caracterizacao de ordering),
-> alem de Pacote 8 (H-HCC detector dinamico) e nome PyPI (T-DIST-PYPI-NAME).
+> Pacote 8 (H-HCC detector dinamico), V2-C/V2-D (roadmap ADR-0018), nome PyPI
+> (T-DIST-PYPI-NAME).
 
 **Atualizado em**: 2026-06-08 (**Schema/quality gadget COMPLETO + incidente
 OneDrive recuperado + push remoto**). Resumo desde 06-03:
@@ -565,6 +566,8 @@ nao guia de evolucao (cf. diretriz dados-realistas).
 | [T-CODE-EMPTY-FRAG-INDEX-RT](tickets/T-CODE-EMPTY-FRAG-INDEX-RT.md) | **CLOSED 2026-06-13** | [probatório] Bug de RT no core M10 (achado na caracterizacao V2-A): string vazia desloca index de fragmento HCC. 2 modos (syntax._parse_decl frag-index + hcc_seqrle rstrip vazio-final). Fix decode-only/byte-safe; 12 reproducers pinados em test_core_rt; 332 passed; D1-D9=1523B + real-world preservados. |
 | [ADR-0022 (welded direto)](docs/adr/0022-v2a-fallback-identity-weld.md) | **CLOSED-WELDED 2026-06-13** | **V2-A fallback identity (abre v2.0)**: opt-in `encode(table, fallback=True)`; por coluna min(TCF, raw); emite `#TCF.7 M` + marcador `!<size>=<name>` sse alguma coluna cai pra raw. Default OFF preserva byte-canonical (D1-D9=1523B, D17a=322B). Caracterizado 9 fontes (7.85% weighted). 340 passed. V2-B/C/D seguem roadmap (ADR-0018). |
 | [ADR-0023 (welded direto)](docs/adr/0023-v2-minimal-header-weld.md) | **CLOSED-WELDED 2026-06-14** | **Header v2 minimo** (O-FMT-15+16): opt-in `encode(table, min_header=True)`. Revisao do header: TODO `#TCF.7` dispensa o prefixo `# ` do meta (o flag `M` ja' declara colunas); min_header tambem omite o size da ULTIMA coluna (corpo ate' EOF). #TCF.6 mantem `# ` (congelado). Compoe com fallback. Default OFF preserva byte-canonical. Cadastro README 182->177B (−5). 351 passed. Foco: payload minusculo (memoria project-byte-level-compression-focus). |
+| O-FMT-02 `sort_by` (welded direto) | **CLOSED-WELDED 2026-06-14** | **Ordenacao order-free** opt-in `encode(table, sort_by="col")`: reordena linhas pela chave -> agrupa similares -> +compressao (5-15% low-card). Decode retorna a ordem ORDENADA. Pre-encode transform (nao toca pipeline). Default None inalterado. 6 testes TestSortBy. Caracterizado em `2026-06-14-ordering-characterizacao`. |
+| [ADR-0025 (welded direto)](docs/adr/0025-v2b-dictionary-categorical-weld.md) | **CLOSED-WELDED 2026-06-14** | **V2-B dicionario/categorico**: 3o candidato do fallback `min(tcf, raw, v2b)`, marcador `@<size>=<name>`. Coluna low-card vira [tabela de unicos]+[stream de indices 1-char] em vez de 1 ref `^idx` por linha. Order-free; gated `2<=K<N, K<=1024`. Zero-regressao por construcao. Caracterizado 8 datasets reais (13.9% weighted, RT 42/42). D17a 307->303 (re-pin ADR-0024/0025). 385 passed. GATE real-world verde. |
 
 ---
 

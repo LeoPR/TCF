@@ -65,7 +65,10 @@ Ordenado por valor/baixo-risco:
    revisao multi-col.
 6. **Agressividade da composicao** (detector) — ligado a H-HCC-02 (custo
    dinamico). Expor um dial seria consequencia de resolver o detector dinamico.
-7. **Futuro (modo/nature)**: dicionario low-card (V2-B), lossy (V2-C/Pacote7).
+7. ~~**Dicionario low-card (V2-B)**~~ **WELDED (2026-06-14, ADR-0025)**: 3o
+   candidato do fallback `min(tcf, raw, v2b)`, marcador `@`. Caracterizado em 8
+   datasets reais (13.9% weighted, RT 42/42). Lab `2026-06-14-v2b-dicionario-
+   caracterizacao`. **Futuro**: lossy (V2-C/Pacote7), strip sufixo (V2-D).
 
 ## 4. Detalhes de compressao que "passaram batido" (atacar no 0.7)
 

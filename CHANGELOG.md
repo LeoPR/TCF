@@ -10,6 +10,33 @@ A partir de v1.0.0 o versionamento e' **semver** com format `#TCF.6`
 congelado (ADR-0017). Versoes anteriores marcavam milestones logicos
 internos (sem PyPI). Date em parenteses = consolidacao do milestone.
 
+> **Reframe 2026-06-14 (ADR-0024)**: o projeto e' **pré-1.0**. O rotulo
+> "1.0.0 STABLE / format congelado" abaixo deve ser lido como um milestone
+> interno, NAO um contrato de compat. Os minors do formato (`#TCF.4/.5/.6/.7`)
+> sao iteracoes de dev rumo a um 1.0 solido; git reproduz versoes antigas. O
+> pacote voltou pra `0.7.0`.
+
+---
+
+## 0.7.x (pré-1.0, em andamento) — `#TCF.7` default
+
+Ciclo "perseguir bytes" (abertura do que era chamado v2.0; agora pré-1.0).
+`encode(dict)` multi-col sai em `#TCF.7` por default. Single-col inalterado.
+
+- **V2-A fallback identity** ([ADR-0022](docs/adr/0022-v2a-fallback-identity-weld.md)):
+  por coluna `min(tcf, raw)`, marcador `!`.
+- **Header minimo** ([ADR-0023](docs/adr/0023-v2-minimal-header-weld.md)):
+  meta sem prefixo `# ` + ultima coluna sem size.
+- **V2-B dicionario/categorico** ([ADR-0025](docs/adr/0025-v2b-dictionary-categorical-weld.md)):
+  3o candidato do fallback `min(tcf, raw, v2b)`, marcador `@`. Coluna low-card
+  vira [tabela de unicos]+[stream de indices]. 13.9% weighted em 8 datasets reais.
+- **`sort_by` order-free** (O-FMT-02): `encode(table, sort_by="col")` reordena
+  linhas pela chave (decode retorna a ordem ordenada).
+- **Knobs**: `fallback`/`min_header` (opt-out, default True), `min_len` (override).
+- **0.7 default** ([ADR-0024](docs/adr/0024-pre-1.0-versioning-git-as-compat.md)):
+  baseline D17a re-pinado 322->303B (#TCF.6 legado lido pelo decoder). D1-D9=1523B
+  (single-col) inalterado. Suite 385 passed.
+
 ---
 
 ## 1.0.0 (2026-05-27) — **STABLE** — format #TCF.6 + API congelados

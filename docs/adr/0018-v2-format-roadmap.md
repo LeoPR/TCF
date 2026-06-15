@@ -11,6 +11,12 @@
 > caracterizado em 9 fontes (7.85% weighted). V2-B/C/D seguem como roadmap
 > abaixo (nao implementados). A prioridade sugerida na secao "Decision
 > Outcome" continua valendo pros restantes.
+>
+> **Update 2026-06-14**: **V2-B (dicionario/categorico) welded** via
+> [ADR-0025](0025-v2b-dictionary-categorical-weld.md) — 3o candidato do
+> fallback (`min(tcf, raw, v2b)`), `#TCF.7 M`, marcador `@<size>=<name>`,
+> caracterizado em 8 datasets reais (13.9% weighted, RT 42/42). Restam V2-C
+> (lossy) e V2-D (strip sufixo) no roadmap.
 
 ## Context and Problem Statement
 

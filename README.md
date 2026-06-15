@@ -141,11 +141,15 @@ Guias praticos: [`docs/how-to/`](docs/how-to/).
 ## Formato 0.7 (default): onde os bytes vão
 
 O `encode` multi-coluna sai em **0.7 / `#TCF.7`** por default ([ADR-0024](docs/adr/0024-pre-1.0-versioning-git-as-compat.md)).
-Duas coisas, ambas automáticas (sem flag):
+Três coisas, todas automáticas (sem flag):
 
 - **Fallback por coluna.**
   Guarda a coluna em raw quando o raw fica menor que o TCF ("nunca pior que raw").
   Marcada com `!` no meta ([ADR-0022](docs/adr/0022-v2a-fallback-identity-weld.md)).
+- **Dicionário low-card.**
+  Coluna com poucos valores distintos vira tabela de únicos + índices compactos,
+  em vez de um ref por linha.
+  Escolhida quando fica menor que TCF e raw, marcada com `@` no meta ([ADR-0025](docs/adr/0025-v2b-dictionary-categorical-weld.md)).
 - **Header mínimo.**
   O flag `M` no shebang já declara que vêm colunas, então o meta dispensa o prefixo `# `.
   E a última coluna não leva tamanho, vai até o fim ([ADR-0023](docs/adr/0023-v2-minimal-header-weld.md)).
@@ -175,7 +179,7 @@ O ganho é proporcionalmente maior em **payloads pequenos** (o header de tamanho
 
 Pré-1.0, o encoder só escreve o formato mais novo.
 O `#TCF.6` legado ainda é **lido** pelo decoder, e `git checkout` reproduz a era 0.6 ([ADR-0024](docs/adr/0024-pre-1.0-versioning-git-as-compat.md)).
-Ganhos de *body* em tabelas grandes (dicionário low-card, strip de sufixo) ficam no [roadmap](docs/adr/0018-v2-format-roadmap.md).
+O dicionário low-card já está no default (V2-B); o strip de sufixo (`.0`) fica no [roadmap](docs/adr/0018-v2-format-roadmap.md).
 
 ## Estado (pré-1.0)
 
@@ -186,7 +190,7 @@ Ganhos de *body* em tabelas grandes (dicionário low-card, strip de sufixo) fica
   Round-trip sempre lossless (`decode(encode(x)) == x`).
 - Default **0.7 / `#TCF.7`**: fallback ([ADR-0022](docs/adr/0022-v2a-fallback-identity-weld.md)) + header mínimo ([ADR-0023](docs/adr/0023-v2-minimal-header-weld.md)), ver seção acima.
   O `#TCF.6` legado é lido pelo decoder.
-- Suíte: **348 passed, 1 xfailed**.
+- Suíte: **385 passed, 1 xfailed**.
   Baselines de byte = guardas de regressão, re-pináveis em mudança intencional ([ADR-0024](docs/adr/0024-pre-1.0-versioning-git-as-compat.md)).
 - Mudanças: [`CHANGELOG.md`](CHANGELOG.md).
   História M0-M14: [`experiments/lab/dirty/notas/historia-dirty-lab.md`](experiments/lab/dirty/notas/historia-dirty-lab.md).
@@ -208,7 +212,7 @@ Nos 15 datasets sintéticos do [EXP-008](experiments/lab/clean/EXP-008-compressa
 
 ~36% menor que CSV e ~42% menor que JSON, continuando legível.
 
-Núcleo pinado em testes: D1-D9 = **1523 B** (51.1% do raw, single-col); D17a multi-col = **307 B** (0.7; legado `#TCF.6` = 322 B).
+Núcleo pinado em testes: D1-D9 = **1523 B** (51.1% do raw, single-col); D17a multi-col = **303 B** (0.7 com V2-B; legado `#TCF.6` = 322 B).
 Real-world multi-coluna (9 tabelas Adult + TPC-H, 136k linhas): **−33.02% weighted** vs CSV raw.
 
 **E contra gzip / brotli / zstd?**

@@ -219,7 +219,7 @@ class TestEndToEndIPSubnetWithoutNature:
         assert decoded == ips, "RT FAIL no D-IP-subnet 1000"
 
     def test_d17a_invariant_preserved(self):
-        """Regression: D17a baseline preservado pos-fix (0.7 default = 307B)."""
+        """Regression: D17a baseline preservado pos-fix (0.7 default = 303B)."""
         from pathlib import Path
         import csv
 
@@ -233,4 +233,4 @@ class TestEndToEndIPSubnetWithoutNature:
                 for h, v in zip(header, row):
                     cols[h].append(v)
         text = encode(cols)
-        assert len(text.encode("utf-8")) == 307  # D17a 0.7 default (era 322; ADR-0024)
+        assert len(text.encode("utf-8")) == 303  # D17a 0.7 (V2-B: era 307; ADR-0024/0025)

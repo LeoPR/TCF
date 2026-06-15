@@ -86,7 +86,7 @@ D1_D9_BYTES_FROZEN = {
 
 D1_D9_TOTAL = 1523  # sum acima
 
-D17A_INVARIANT = 307  # 0.7 default (era 322 em #TCF.6; re-pinavel — ADR-0024)
+D17A_INVARIANT = 303  # 0.7 default (V2-B: era 307; re-pinavel — ADR-0024/0025)
 D17A_LEGACY_V6 = 322   # #TCF.6 legado, ainda produzivel internamente
 
 
@@ -140,17 +140,17 @@ class TestD1D9ByteCanonical:
 
 
 class TestD17AInvariant:
-    """D17a multi-col baseline: 0.7 default = 307B (era 322 em #TCF.6).
-    Baseline = guarda de regressao re-pinavel em mudanca INTENCIONAL (ADR-0024),
-    nao contrato eterno."""
+    """D17a multi-col baseline: 0.7 default = 303B (V2-B na coluna `categoria`;
+    era 307 sem V2-B, 322 em #TCF.6). Baseline = guarda de regressao re-pinavel
+    em mudanca INTENCIONAL (ADR-0024/0025), nao contrato eterno."""
 
     def test_d17a_exact_baseline(self):
         cols = _load_multi_col("D17a-multi-column-mixed")
         text = encode(cols)
         actual = len(text.encode("utf-8"))
         assert actual == D17A_INVARIANT, (
-            f"D17a baseline (307B, 0.7) mudou: obteve {actual}B. Re-pina so' se a "
-            f"mudanca de formato for INTENCIONAL (ADR-0024)."
+            f"D17a baseline (303B, 0.7) mudou: obteve {actual}B. Re-pina so' se a "
+            f"mudanca de formato for INTENCIONAL (ADR-0024/0025)."
         )
 
     def test_d17a_round_trip(self):

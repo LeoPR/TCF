@@ -20,8 +20,13 @@ proprio, ou ticket formal quando o trabalho core estiver concluido.
 > marginal). **O-FMT-04** = escolher melhor chave (testado). Ordenacao por-coluna
 > independente = inviavel (perms por coluna). **CONEXAO**: os ganhos enormes de
 > sort por-coluna em low-card (90-99%) sao redundancia que **V2-B dicionario
-> captura ORDER-FREE** -> priorizar V2-B na revisao multi-col. Status individuais
+> captura ORDER-FREE** -> **V2-B WELDED 2026-06-14 (ADR-0025)**. Status individuais
 > abaixo permanecem; este e' o resumo empirico.
+>
+> **WELDED 2026-06-14**: **O-FMT-02** virou knob `encode(table, sort_by="col")`
+> (order-free, decode retorna ordem ordenada). E **V2-B dicionario** (ADR-0025)
+> captura a redundancia low-card ORDER-FREE como 3o candidato do fallback
+> (13.9% weighted em 8 datasets reais). O-FMT-01 (reversivel) fica skip.
 
 ### O-FMT-01 — Ordenacao reversivel pra compressao
 

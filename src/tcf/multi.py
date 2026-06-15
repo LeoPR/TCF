@@ -59,6 +59,78 @@ MAGIC_MULTI_V2 = b"#TCF.7 M"  # V2-A fallback identity (ADR-0022, abre v2.0)
 META_PREFIX = b"# "  # v1 (#TCF.6, congelado). #TCF.7 dispensa o prefixo do meta
                      # (o flag `M` no shebang ja' declara multi-col) — ADR-0023.
 
+# --- V2-B dicionario/categorico (ADR-0025) ---
+# Coluna low-card -> [tabela de unicos: encode(unicas)] + [stream de indices].
+# Alfabeto printable 0x21..0x7E (94 chars, exclui '\n'): K<=94 -> 1 char/linha.
+# Marcador '@<size>=<name>' no header #TCF.7 (ao lado de '!' raw e tcf normal).
+# Slot = b"<ntable>\n" + table_bytes + stream  (ntable = bytes da tabela ->
+# fronteira inequivoca; width derivado de K apos decodar a tabela).
+_V2B_ALPHA = "".join(chr(c) for c in range(0x21, 0x7F))
+_V2B_BASE = len(_V2B_ALPHA)
+_V2B_MAX_CARD = 1024  # gating: acima disso V2-B nao compensa (evita custo)
+
+
+def _v2b_width(k: int) -> int:
+    """chars por indice no alfabeto base-94 (minimo w com base^w >= k)."""
+    w, cap = 1, _V2B_BASE
+    while k > cap:
+        w += 1
+        cap *= _V2B_BASE
+    return w
+
+
+def _v2b_idx_chars(idx: int, width: int) -> str:
+    """indice inteiro -> `width` chars base-94 (big-endian)."""
+    if width == 1:
+        return _V2B_ALPHA[idx]
+    out = []
+    for _ in range(width):
+        out.append(_V2B_ALPHA[idx % _V2B_BASE])
+        idx //= _V2B_BASE
+    return "".join(reversed(out))
+
+
+def _v2b_encode(values: list[str], *, cfg: PipelineConfig,
+                min_len: int | None) -> bytes | None:
+    """Candidato V2-B. Retorna body bytes, ou None se nao aplicavel (high-card
+    ou sem repeticao). Caller escolhe min(tcf, raw, v2b) no fallback."""
+    seen: dict[str, int] = {}
+    unicas: list[str] = []
+    for v in values:
+        if v not in seen:
+            seen[v] = len(unicas)
+            unicas.append(v)
+            if len(unicas) > _V2B_MAX_CARD:
+                return None  # high-card -> V2-B improvavel, evita o sub-encode
+    K = len(unicas)
+    N = len(values)
+    if K < 2 or K >= N:
+        return None  # sem repeticao -> nada a ganhar
+    width = _v2b_width(K)
+    table_bytes = _encode_column(unicas, header="val", cfg=cfg,
+                                 min_len=min_len).encode("utf-8")
+    stream = "".join(_v2b_idx_chars(seen[v], width) for v in values)
+    return f"{len(table_bytes)}\n".encode("utf-8") + table_bytes + stream.encode("utf-8")
+
+
+def _decode_v2b(body_bytes: bytes) -> list[str]:
+    """Decoda slot V2-B: <ntable>\\n + table + stream -> lista de valores."""
+    from tcf.decoder import _decode_column
+
+    nl = body_bytes.find(b"\n")
+    ntable = int(body_bytes[:nl])
+    start = nl + 1
+    unicas = _decode_column(body_bytes[start:start + ntable].decode("utf-8"))
+    width = _v2b_width(len(unicas))
+    stream = body_bytes[start + ntable:]  # ASCII, len == N*width
+    out: list[str] = []
+    for j in range(0, len(stream), width):
+        idx = 0
+        for ch in stream[j:j + width]:  # ch e' int (byte)
+            idx = idx * _V2B_BASE + (ch - 0x21)
+        out.append(unicas[idx])
+    return out
+
 
 def _encode_multi(
     table: dict[str, list[str]],
@@ -137,19 +209,31 @@ def _encode_multi(
     # — '!' so' aparece em #TCF.7 e nunca colide com nomes (size e' digito).
     # Emite #TCF.7 M sse ALGUMA coluna cai pra raw; senao #TCF.6 M byte-
     # identico ao v1 (default fallback=False sempre cai aqui).
+    # Candidatos por coluna: tcf (sempre), raw (V2-A, ADR-0022), dict (V2-B,
+    # ADR-0025). Escolhe o MENOR -> zero-regressao por construcao. Tudo gated por
+    # `fallback`: com fallback=False so' tcf -> #TCF.6 legado byte-identico.
     fallback_cols: list[str] = []
+    dict_cols: list[str] = []
     final_bodies: list[tuple[str, bytes, str]] = []  # (name, body, mode)
     for name, tcf_bytes in col_bodies_bytes:
-        if fallback and _fallback_safe(table_str[name]):
-            raw_bytes = "\n".join(table_str[name]).encode("utf-8")
-            if len(raw_bytes) < len(tcf_bytes):
-                final_bodies.append((name, raw_bytes, "raw"))
-                fallback_cols.append(name)
-                continue
-        final_bodies.append((name, tcf_bytes, "tcf"))
+        best_body, best_mode = tcf_bytes, "tcf"
+        if fallback:
+            vals = table_str[name]
+            if _fallback_safe(vals):
+                raw_bytes = "\n".join(vals).encode("utf-8")
+                if len(raw_bytes) < len(best_body):
+                    best_body, best_mode = raw_bytes, "raw"
+            v2b_bytes = _v2b_encode(vals, cfg=cfg, min_len=min_len)
+            if v2b_bytes is not None and len(v2b_bytes) < len(best_body):
+                best_body, best_mode = v2b_bytes, "dict"
+        final_bodies.append((name, best_body, best_mode))
+        if best_mode == "raw":
+            fallback_cols.append(name)
+        elif best_mode == "dict":
+            dict_cols.append(name)
 
     used_fallback = bool(fallback_cols)
-    used_v2 = used_fallback or min_header
+    used_v2 = used_fallback or bool(dict_cols) or min_header
     magic = MAGIC_MULTI_V2 if used_v2 else MAGIC_MULTI
 
     # Meta line. #TCF.7 (qualquer feature v2) DISPENSA o prefixo do meta: o flag
@@ -161,7 +245,7 @@ def _encode_multi(
     last_i = len(final_bodies) - 1
     parts = []
     for i, (name, b, mode) in enumerate(final_bodies):
-        pre = "!" if mode == "raw" else ""
+        pre = "!" if mode == "raw" else "@" if mode == "dict" else ""
         if min_header and i == last_i:
             parts.append(f"{pre}{name}")            # ultima sem size
         else:
@@ -183,6 +267,7 @@ def _encode_multi(
             "parallel_workers": n_workers if use_parallel else 0,
             "format": "v2" if used_v2 else "v1",
             "fallback_cols": list(fallback_cols),
+            "dict_cols": list(dict_cols),
             "min_header": min_header,
         }
 
@@ -322,6 +407,9 @@ def _decode_multi(tcf_text: str) -> dict[str, list[str]]:
         if p.startswith("!"):
             mode = "raw"
             p = p[1:]
+        elif p.startswith("@"):
+            mode = "dict"          # V2-B dicionario (ADR-0025)
+            p = p[1:]
         else:
             mode = "tcf"
         if "=" in p:
@@ -338,13 +426,14 @@ def _decode_multi(tcf_text: str) -> dict[str, list[str]]:
             body_bytes = raw[cursor:]              # ate' EOF (ultima coluna)
         else:
             body_bytes = raw[cursor:cursor + size]
-        body_text = body_bytes.decode("utf-8")
         if mode == "raw":
             # V2-A: body raw = "\n".join(valores); split exato (sem '\n'
             # embutido, garantido por _fallback_safe no encode).
-            result[name] = body_text.split("\n")
+            result[name] = body_bytes.decode("utf-8").split("\n")
+        elif mode == "dict":
+            result[name] = _decode_v2b(body_bytes)  # V2-B (ADR-0025)
         else:
-            result[name] = _decode_column(body_text)
+            result[name] = _decode_column(body_bytes.decode("utf-8"))
         cursor += len(body_bytes)
 
     return result
