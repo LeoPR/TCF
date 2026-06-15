@@ -329,7 +329,8 @@ os unicos ganhos relevantes foram colunas DATETIME: InvoiceDate 15%, data_cadast
 
 | ID | Hipotese | Status | ref |
 |---|---|---|---|
-| H-DT-01 | Timestamps merecem encoder proprio (nature, linha ADR-0015 CPF/CNPJ/IP): epoch/delta + formato out-of-band, em vez de texto tokenizado. Ganho potencial nas colunas de data/hora (que sao comuns em dados reais). | **aberta** 2026-06-14 | `2026-06-14-v2d-strip-afixo-caracterizacao/result.md` |
+| H-DT-01 | Timestamps merecem encoder proprio. **GENERALIZADO -> H-STRUCT-01.** | subsumida por H-STRUCT-01 | — |
+| H-STRUCT-01 | **Split estrutural + V2-B**: tokenizar valores em runs digito/separador; se template uniforme, os grupos de digito viram colunas-campo (template 1x) -> cada campo low-card e' esmagado pelo V2-B. Generaliza decimais, datas, datetimes, CPF/CNPJ. | **confirmada-empirica (Alta)** 2026-06-14: **19.39% weighted** em 8 datasets reais (50.4% nas afetadas), RT OK. l_quantity 72.5%, cnpj 66.3%, datas 57%, decimais wine 27-49%. Sinergia V2-B e' o motor. **Pendente: aprovacao + desenho do weld.** | `2026-06-14-datetime-nature-caracterizacao/result.md` |
 
 ---
 
