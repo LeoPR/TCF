@@ -58,5 +58,32 @@ documentar o limite (alta-precisao decimal nao comprime losslessly). SE welder,
 estritamente opt-in nature (nunca automatico, header declara precisao). Decisao
 do owner.
 
+## APPEND (2026-06-14) — loss e' AMPLO, nao so' round (diretriz do owner)
+
+O owner ampliou o escopo: "loss de dados e amplo e e PRO TCF FAZER SIM". O round
+simples (acima) e' so' UMA vertente, e a mais fraca (nicho 1.5%). A vertente que
+ele destacou: **loss por-linha, LOSSLESS NO AGREGADO** — arredondar deixando
+residuo de modo que a SOMATORIA fique exata (parcelamento de pagamento).
+
+**PoC** (`poc_soma_preservada.py`): metodo do maior resto (Hamilton) preserva a
+soma EXATA e comprime — estritamente melhor que round ingenuo. Parcelar 100/3 ->
+`[33.34,33.33,33.33]`=100.00 exato (ingenuo=99.99). wine.density: soma preservada,
+bytes -37% (d=3) / -65.5% (d=2), erro por-linha <= 1 step.
+
+**Revisao completa de TODAS as vertentes** (9 facets + 8 gaps, via workflow):
+ver **[`../notas/loss-taxonomia.md`](../../notas/loss-taxonomia.md)**. Destaques:
+- eixo principal = CONTRATO de recuperacao (exato / exato-no-agregado /
+  dentro-de-tolerancia / lossy-puro), nao o tipo de dado.
+- a vertente MAIS PROMISSORA nao e' decimal por-coluna: e' **cross-coluna**
+  (`total=base+imposto`, `valor=soma(parcelas)`) -> dropar coluna inteira, e a
+  ideia do owner E' uma identidade cross-coluna.
+- pre-requisito transversal: meta-camada de CONTRATO (marcador inspecionavel +
+  teste valida-invariante) antes de qualquer weld lossy.
+
+Decisao de weld continua PENDENTE (owner). Este artefato (round) fica como a
+PEDRA FUNDAMENTAL do vocabulario lossy, nao o ganho principal.
+
 ## Artefatos
 - `analyze.py` — headroom lossy-round por dataset/casas + nicho hi-precisao
+- `poc_soma_preservada.py` — PoC do maior-resto (soma exata, loss-no-agregado)
+- `../notas/loss-taxonomia.md` — revisao de TODAS as vertentes de loss

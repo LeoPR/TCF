@@ -334,6 +334,34 @@ os unicos ganhos relevantes foram colunas DATETIME: InvoiceDate 15%, data_cadast
 
 ---
 
+## Pacote 10 — LOSS (lossy), registrado 2026-06-14
+
+**Origem**: owner ampliou o escopo do V2-C: "loss de dados e amplo e e PRO TCF
+FAZER SIM". Revisao exaustiva (workflow 9 vertentes + critico) em
+**`loss-taxonomia.md`** (eixo principal = CONTRATO de recuperacao). Decisao de
+weld PENDENTE (cruza a linha lossless; GATE real-world N>=5 + owner). PoC do
+maior-resto valida a ideia-chave (soma exata, loss-no-agregado).
+
+| ID | Hipotese | Status | ref |
+|---|---|---|---|
+| H-LOSS-00 | **Meta-camada de contrato** (ABS/REL/DECIMALS/AGG/DIST) + marcador inspecionavel no header + teste valida-invariante. PRE-REQUISITO de toda perda. | aberta (prioridade arquitetural) | taxonomia §4 |
+| H-LOSS-01 | **Residuo-redistribuido (soma/media/grupo)** — maior-resto/error-diffusion; loss por-linha, soma EXATA. A ideia-chave do owner (parcelamento). | aberta (alta); PoC OK | taxonomia §1a + poc_soma_preservada.py |
+| H-LOSS-02 | **Cross-coluna / DERIVED-DROP** — `C=f(A,B)` dropa coluna inteira; lossless se residuo=0, exato-no-agregado se residuo redistribuido. **Mais promissora** (critico). Exige estrutura cross-coluna no formato. | aberta (alta, maior teto) | taxonomia §3 |
+| H-LOSS-03 | **Round precisao-fixa** (V2-C): casas/sig-figs. Pedra fundamental do vocabulario lossy; ganho nicho ~1.5%. | caracterizada (nicho pequeno) | `2026-06-14-v2c-lossy-round-caracterizacao/` |
+| H-LOSS-04 | **Quantizacao/binning** (codebook k-means + indices, reusa dict V2-B). Domina round a igual erro em dist. concentradas. | aberta (media) | taxonomia §1b |
+| H-LOSS-05 | **Truncamento temporal** (granularidade/snap). Melhor ganho/risco datetime; reusa split+cadence+seq-RLE. | aberta (media) | taxonomia §1b |
+| H-LOSS-06 | **Lossy categorico/ID** (merge-OUTRAS, hash, remap-ID). Remap-ID = maior teto em UUID/ID opaco; precisa cross-coluna. | aberta (media) | taxonomia §1c |
+| H-LOSS-07 | **Lossy texto** (normalizacao, near-dedup fuzzy, stemming). Alert-only via SideOutputs primeiro. | aberta (media-baixa) | taxonomia §1c |
+| H-LOSS-08 | **Transformada/modelo+residuo** (regressao/DCT/wavelet/low-rank) p/ SERIES. Lossy classico; nicho telemetria. | aberta (media) | taxonomia §6 |
+| H-LOSS-09 | **Composicao de perdas** (ordem canonica + algebra de erro/ancora). Pre-requisito de seguranca p/ 2+ natures lossy. | aberta (arquitetural) | taxonomia §4 |
+| H-LOSS-10 | **Budget / rate-distortion** ("menor arquivo com erro <= E"). Liga com foco byte-level. | aberta (media) | taxonomia §4 |
+| H-LOSS-11 | **Tipos esquecidos** (JSON/lista, geo/geohash, bool/enum, unidades) + **inter-linha** (near-dedup de linhas + multiplicidade). | aberta (baixa, sob demanda) | taxonomia §2,§6 |
+
+**Sequenciamento sugerido**: H-LOSS-00 (contrato) -> H-LOSS-02 lossless (cross-coluna
+prova-de-conceito) -> H-LOSS-01 (residuo-soma) -> H-LOSS-04/05. Resto sob demanda.
+
+---
+
 ## Estrategia de mistura
 
 **Antes de misturar, esgotar isoladas dentro de cada pacote.**

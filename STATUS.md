@@ -23,9 +23,14 @@
 > decimal/data/datetime/id -> campos -> V2-B). **Pacote 8 (H-HCC dinamico) ADIADO**
 > (1.30% teto, cauda longa, risco alto no detector core). **V2-D strip de afixo
 > REFUTADO** (subsumido pelo OBAT, 0.11%; sinal real era split estrutural).
-> **PENDENTE — REVISAO GERAL DO MULTI-COLUMN** (owner: "varias coisas a revisar"):
-> V2-C lossy (roadmap ADR-0018), nome PyPI (T-DIST-PYPI-NAME), follow-up V2-B RLE
-> no stream. Suite 398 passed.
+> **LOSS ampliado (Pacote 10, 2026-06-14)**: owner ampliou o escopo lossy ("loss e
+> PRO TCF FAZER SIM"). Revisao exaustiva de TODAS as vertentes (9 facets + critico,
+> workflow) em `experiments/lab/dirty/notas/loss-taxonomia.md`. Ideia-chave: loss
+> por-linha + LOSSLESS NO AGREGADO (soma; parcelamento) — PoC do maior-resto OK.
+> Mais promissora = loss CROSS-COLUNA (`valor=soma(parcelas)`). Decisao de weld
+> PENDENTE (owner; cruza a linha lossless, GATE N>=5).
+> **PENDENTE — REVISAO GERAL DO MULTI-COLUMN**: nome PyPI (T-DIST-PYPI-NAME),
+> follow-up V2-B RLE no stream. Suite 398 passed.
 
 **Atualizado em**: 2026-06-08 (**Schema/quality gadget COMPLETO + incidente
 OneDrive recuperado + push remoto**). Resumo desde 06-03:
