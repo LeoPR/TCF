@@ -54,19 +54,20 @@ R<2 no refs-only = composicoes perdidas. 6 datasets reais (5k linhas/coluna).
 
 ## Decisao / proximo passo
 
+> **ATUALIZADO 2026-06-14**: o prototipo dinamico FOI feito (`dynamic_sim.py`,
+> `dynamic_sim_result.md`). A estrutura abstrata e' Re-Pair sobre a sequencia
+> completa de atoms; simulado com custo dinamico (overlap + width), RT OK.
+> Ganho realista **1.30% weighted (teto)**, free-text only, em **cauda longa**
+> (centenas-milhares de regras, net/rule 0.34-2.10). **Decisao: ADIAR o weld**
+> (closed-insufficient-gain) — ROI baixo / risco alto no detector core. Ver
+> `dynamic_sim_result.md`.
+
+Contexto que levou a essa decisao (preservado):
 - A contagem estendida **pega composicoes reais que o detector perde** —
   confirmado. Mas o upper-bound weighted (1.2%) e' modesto e o trade-off de
   sharing morde nos hotspots.
-- **Vale um prototipo completo** (detector com contagem estendida + emit) pra
-  medir o ganho REAL (vs o upper-bound), SO' nas colunas free-text onde a
-  oportunidade existe. Mas com expectativa temperada (realizado < 1.2%).
-- **Pre-requisitos pro prototipo** (quando o owner quiser): respeitar body-order
-  dos refs compostos; **passar o GATE** `test_real_world_snapshots.py`;
-  re-pinar D1-D9/D17a (intencional, ADR-0024). E so' welder se o ganho real
-  bater o checklist confirmada-empirica.
-- **H-HCC-02** (custo dinamico/relativo) deve ser pensada NO desenho do
-  prototipo: o estimador de net precisa ser sequencial (recalcular conforme
-  composicoes sao montadas), nao a soma estatica de candidatos independentes.
+- **H-HCC-02** (custo dinamico/relativo) foi pensada NO desenho do prototipo: o
+  estimador de net e' sequencial (recalcula conforme composicoes sao montadas).
 
 ## Artefatos
 - `analyze.py` — upper-bound da contagem estendida vs refs-only (6 datasets)

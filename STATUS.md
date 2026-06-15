@@ -18,10 +18,12 @@
 > FEITO: knobs explicitos #1-3 (fallback/min_header opt-out, min_len override);
 > #5 ordering (O-FMT-02 `sort_by` order-free welded); **V2-B dicionario WELDED**
 > ([ADR-0025](docs/adr/0025-v2b-dictionary-categorical-weld.md), marcador `@`,
-> 3o candidato do fallback, 13.9% weighted em 8 datasets reais).
+> 3o candidato do fallback, 13.9% weighted em 8 datasets reais). **Pacote 8
+> (H-HCC dinamico) ADIADO** (closed-insufficient-gain): Re-Pair dinamico simulado
+> da' 1.30% weighted teto em cauda longa, free-text only -> ROI baixo / risco alto
+> no detector core (`2026-06-14-hcc-composicao-perdida/dynamic_sim_result.md`).
 > **PENDENTE — REVISAO GERAL DO MULTI-COLUMN** (owner: "varias coisas a revisar"):
-> Pacote 8 (H-HCC detector dinamico), V2-C/V2-D (roadmap ADR-0018), nome PyPI
-> (T-DIST-PYPI-NAME).
+> V2-C/V2-D (roadmap ADR-0018), nome PyPI (T-DIST-PYPI-NAME).
 
 **Atualizado em**: 2026-06-08 (**Schema/quality gadget COMPLETO + incidente
 OneDrive recuperado + push remoto**). Resumo desde 06-03:

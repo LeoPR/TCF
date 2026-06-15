@@ -266,8 +266,8 @@ fragmento composto e `diego` ser `dieg5` (ref unica).
 
 | ID | Hipotese | Status | Diagnostico / ref |
 |---|---|---|---|
-| H-HCC-01 | Detector SUBCONTA recorrencias: conta sub-tuplas so' dentro de pecas `'refs'` (`syntax.py:246-255`), ignorando a ocorrencia de DEFINICAO (onde o atom e' literal). Unidades recorrentes como `o@acme.com.br` (define em `bruno` = lit`o`+ref3; usa em `diego` = ref5+ref3) contam R=1 em vez de R=2 e nao sao compostas. Contar adjacencias de ATOMS (incl. a def-as-lit) pegaria a composicao. | **caracterizada (em-exp)** 2026-06-14: composicoes perdidas CONFIRMADAS; upper-bound do ganho ~**1.21% weighted**, concentrado em free-text (l_comment 4.5%, ibge municipio 3.8%, retail Description 2.6%); **shareRisk alto nos hotspots** -> realizado < upper-bound. Net real a-medir (prototipo). | `2026-06-14-hcc-composicao-perdida/result.md` + analyze.py |
-| H-HCC-02 | **Custo de referencia e' DINAMICO/relativo, nao estatico** (meta-hipotese do owner): conforme composicoes sao montadas, a largura dos ids de ref (`n_tam`) muda e altera o custo das refs SEGUINTES. O modelo atual (`net=(R-1)*(baseline-n_tam)`) avalia cada candidato quase-independente. A decisao otima seria "tamanho relativo da referencia vs tamanho relativo da otimizacao", recalculado conforme o estado evolui (greedy pode nao ser otimo). | **aberta — revisar APOS H-HCC-01** | hipotese do owner 2026-06-14 |
+| H-HCC-01 | Detector SUBCONTA recorrencias: conta sub-tuplas so' dentro de pecas `'refs'` (`syntax.py:246-255`), ignorando a ocorrencia de DEFINICAO (onde o atom e' literal). Unidades recorrentes como `o@acme.com.br` (define em `bruno` = lit`o`+ref3; usa em `diego` = ref5+ref3) contam R=1 em vez de R=2 e nao sao compostas. Contar adjacencias de ATOMS (incl. a def-as-lit) pegaria a composicao. | **closed-insufficient-gain (adiado)** 2026-06-14: composicoes perdidas CONFIRMADAS + simuladas com custo dinamico (Re-Pair). Ganho realista **1.30% weighted** (teto), free-text only, **cauda longa** (centenas-milhares de regras, net/rule 0.34-2.10). Risco alto (detector core + gate) p/ ROI baixo -> adiar. | `2026-06-14-hcc-composicao-perdida/dynamic_sim_result.md` |
+| H-HCC-02 | **Custo de referencia e' DINAMICO/relativo, nao estatico** (meta-hipotese do owner): conforme composicoes sao montadas, a largura dos ids de ref (`n_tam`) muda e altera o custo das refs SEGUINTES. O modelo atual (`net=(R-1)*(baseline-n_tam)`) avalia cada candidato quase-independente. | **confirmada-conceitual (adiado junto c/ H-HCC-01)** 2026-06-14: a estrutura abstrata E' grammar compression (Re-Pair sobre a sequencia completa de atoms), net em bytes, recontado a cada pick. Simulada (`dynamic_sim.py`, RT OK): modela overlap+width. Resultado abaixo justifica adiar. | `2026-06-14-hcc-composicao-perdida/dynamic_sim_result.md` |
 
 **Sintoma menor (nao a causa)**: referenciar um fragmento de 1 char (`5`=`o`) e'
 byte-neutro (1 char ref vs 1 char literal); nao e' dano, e' sintoma da unidade
@@ -285,7 +285,18 @@ decomposta em vez de composta.
 ~1.21% weighted, concentrado em free-text (l_comment 4.5%, ibge municipio 3.8%,
 retail Description 2.6%); shareRisk alto nos hotspots -> realizado < upper-bound.
 
-### Decisao + prioridade do owner (2026-06-14)
+### Decisao final (2026-06-14): ADIAR o weld
+
+H-HCC-01+02 atacadas juntas (como o owner pediu) via `dynamic_sim.py`: Re-Pair
+sobre a sequencia completa de atoms, custo dinamico (overlap recontado + width de
+id crescente), RT limpo. **Ganho realista 1.30% weighted (teto)**, free-text only,
+em **cauda longa** (r@80% = centenas de regras; net/rule 0.34-2.10 chars). Nao ha'
+subconjunto barato. Welder no detector core (sob o GATE, com emit de body-order
+pra milhares de aliases) por isso = ROI baixo / risco alto -> **closed-insufficient
+-gain por ora**. Reavaliar se surgir emit de composicao barato OU caso de uso
+free-text dominante. Detalhe: `2026-06-14-hcc-composicao-perdida/dynamic_sim_result.md`.
+
+#### Contexto original do owner (preservado)
 
 **PRATELEIRA: atacar H-HCC-01 JUNTO com H-HCC-02** (nao em duas passadas). Razao:
 o estimador de net precisa ser sequencial/dinamico desde o desenho — fazer a
