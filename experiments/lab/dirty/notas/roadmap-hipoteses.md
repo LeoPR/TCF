@@ -320,6 +320,19 @@ composicoes sao montadas. Owner: "se ficar isso vai otimizar muito".
 
 ---
 
+## Pacote 9 — datetime-nature (registrado 2026-06-14)
+
+**Origem**: caracterizacao do V2-D (strip de afixo, `2026-06-14-v2d-strip-afixo-
+caracterizacao/`). V2-D foi refutado (subsumido pelo OBAT, 0.11% weighted), MAS
+os unicos ganhos relevantes foram colunas DATETIME: InvoiceDate 15%, data_cadastro
+3.5%. O afixo longo de timestamp (`2010-12...:00`) escapa parcialmente do OBAT.
+
+| ID | Hipotese | Status | ref |
+|---|---|---|---|
+| H-DT-01 | Timestamps merecem encoder proprio (nature, linha ADR-0015 CPF/CNPJ/IP): epoch/delta + formato out-of-band, em vez de texto tokenizado. Ganho potencial nas colunas de data/hora (que sao comuns em dados reais). | **aberta** 2026-06-14 | `2026-06-14-v2d-strip-afixo-caracterizacao/result.md` |
+
+---
+
 ## Estrategia de mistura
 
 **Antes de misturar, esgotar isoladas dentro de cada pacote.**

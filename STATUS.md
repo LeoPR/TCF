@@ -22,8 +22,12 @@
 > (H-HCC dinamico) ADIADO** (closed-insufficient-gain): Re-Pair dinamico simulado
 > da' 1.30% weighted teto em cauda longa, free-text only -> ROI baixo / risco alto
 > no detector core (`2026-06-14-hcc-composicao-perdida/dynamic_sim_result.md`).
+> **V2-D strip de afixo REFUTADO** (refutada-real-world): subsumido pelo OBAT
+> bidirecional (0.11% weighted, strip de prefixo regride) -> nao welder; sinal
+> real = datetime-nature (`2026-06-14-v2d-strip-afixo-caracterizacao/result.md`).
 > **PENDENTE — REVISAO GERAL DO MULTI-COLUMN** (owner: "varias coisas a revisar"):
-> V2-C/V2-D (roadmap ADR-0018), nome PyPI (T-DIST-PYPI-NAME).
+> V2-C lossy (roadmap ADR-0018), datetime-nature (novo, do V2-D), nome PyPI
+> (T-DIST-PYPI-NAME), follow-up V2-B RLE no stream.
 
 **Atualizado em**: 2026-06-08 (**Schema/quality gadget COMPLETO + incidente
 OneDrive recuperado + push remoto**). Resumo desde 06-03:

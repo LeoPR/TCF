@@ -224,6 +224,14 @@ Para decimais de alta precisao quase-incompressiveis losslessly.
 
 ### V2-D — Strip de sufixo redundante (lossless, subconjunto de C)
 
+> **REFUTADA-REAL-WORLD 2026-06-14** ([lab](../../experiments/lab/dirty/2026-06-14-v2d-strip-afixo-caracterizacao/result.md)):
+> **subsumida pelo OBAT** (bidirecional ja' compartilha o afixo comum como 1
+> fragmento). Ganho weighted = **0.11%** em 8 datasets reais; strip de prefixo
+> ainda REGRIDE (desancora a tokenizacao OBAT: datas -155 a -286B). Mesmo gated
+> (zero regressao) ~0.15%. NAO welder. Sinal real = colunas DATETIME (InvoiceDate
+> 15%, data_cadastro 3.5%) -> **datetime-nature** (encoder proprio, linha ADR-0015),
+> nao strip generico.
+
 Caso particular barato: colunas onde todos os valores terminam igual
 (`.0`, zero-padding). Strip + restaura no decode.
 
