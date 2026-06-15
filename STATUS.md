@@ -17,17 +17,15 @@
 > em `experiments/lab/dirty/notas/revisao-implicito-vs-explicito-2026-06-14.md`.
 > FEITO: knobs explicitos #1-3 (fallback/min_header opt-out, min_len override);
 > #5 ordering (O-FMT-02 `sort_by` order-free welded); **V2-B dicionario WELDED**
-> ([ADR-0025](docs/adr/0025-v2b-dictionary-categorical-weld.md), marcador `@`,
-> 3o candidato do fallback, 13.9% weighted em 8 datasets reais). **Pacote 8
-> (H-HCC dinamico) ADIADO** (closed-insufficient-gain): Re-Pair dinamico simulado
-> da' 1.30% weighted teto em cauda longa, free-text only -> ROI baixo / risco alto
-> no detector core (`2026-06-14-hcc-composicao-perdida/dynamic_sim_result.md`).
-> **V2-D strip de afixo REFUTADO** (refutada-real-world): subsumido pelo OBAT
-> bidirecional (0.11% weighted, strip de prefixo regride) -> nao welder; sinal
-> real = datetime-nature (`2026-06-14-v2d-strip-afixo-caracterizacao/result.md`).
+> ([ADR-0025](docs/adr/0025-v2b-dictionary-categorical-weld.md), `@`, 13.9% weighted);
+> **SPLIT ESTRUTURAL WELDED** ([ADR-0026](docs/adr/0026-structural-split-weld.md),
+> `%`, 4o candidato do fallback, **19.39% weighted** = maior lever do ciclo:
+> decimal/data/datetime/id -> campos -> V2-B). **Pacote 8 (H-HCC dinamico) ADIADO**
+> (1.30% teto, cauda longa, risco alto no detector core). **V2-D strip de afixo
+> REFUTADO** (subsumido pelo OBAT, 0.11%; sinal real era split estrutural).
 > **PENDENTE — REVISAO GERAL DO MULTI-COLUMN** (owner: "varias coisas a revisar"):
-> V2-C lossy (roadmap ADR-0018), datetime-nature (novo, do V2-D), nome PyPI
-> (T-DIST-PYPI-NAME), follow-up V2-B RLE no stream.
+> V2-C lossy (roadmap ADR-0018), nome PyPI (T-DIST-PYPI-NAME), follow-up V2-B RLE
+> no stream. Suite 398 passed.
 
 **Atualizado em**: 2026-06-08 (**Schema/quality gadget COMPLETO + incidente
 OneDrive recuperado + push remoto**). Resumo desde 06-03:
@@ -574,6 +572,7 @@ nao guia de evolucao (cf. diretriz dados-realistas).
 | [ADR-0023 (welded direto)](docs/adr/0023-v2-minimal-header-weld.md) | **CLOSED-WELDED 2026-06-14** | **Header v2 minimo** (O-FMT-15+16): opt-in `encode(table, min_header=True)`. Revisao do header: TODO `#TCF.7` dispensa o prefixo `# ` do meta (o flag `M` ja' declara colunas); min_header tambem omite o size da ULTIMA coluna (corpo ate' EOF). #TCF.6 mantem `# ` (congelado). Compoe com fallback. Default OFF preserva byte-canonical. Cadastro README 182->177B (−5). 351 passed. Foco: payload minusculo (memoria project-byte-level-compression-focus). |
 | O-FMT-02 `sort_by` (welded direto) | **CLOSED-WELDED 2026-06-14** | **Ordenacao order-free** opt-in `encode(table, sort_by="col")`: reordena linhas pela chave -> agrupa similares -> +compressao (5-15% low-card). Decode retorna a ordem ORDENADA. Pre-encode transform (nao toca pipeline). Default None inalterado. 6 testes TestSortBy. Caracterizado em `2026-06-14-ordering-characterizacao`. |
 | [ADR-0025 (welded direto)](docs/adr/0025-v2b-dictionary-categorical-weld.md) | **CLOSED-WELDED 2026-06-14** | **V2-B dicionario/categorico**: 3o candidato do fallback `min(tcf, raw, v2b)`, marcador `@<size>=<name>`. Coluna low-card vira [tabela de unicos]+[stream de indices 1-char] em vez de 1 ref `^idx` por linha. Order-free; gated `2<=K<N, K<=1024`. Zero-regressao por construcao. Caracterizado 8 datasets reais (13.9% weighted, RT 42/42). D17a 307->303 (re-pin ADR-0024/0025). 385 passed. GATE real-world verde. |
+| [ADR-0026 (welded direto)](docs/adr/0026-structural-split-weld.md) | **CLOSED-WELDED 2026-06-14** | **Split estrutural** (H-STRUCT-01): 4o candidato do fallback `min(tcf, raw, dict, split)`, marcador `%<size>=<name>`. Valor estruturado (decimal/data/datetime/id) com template uniforme vira campos (template 1x) -> cada campo low-card esmagado pelo V2-B (sinergia = motor). Gate 100% uniforme + >=2 campos + variacao; sem mecanismo de excecao. Auto-detect gated, zero-regressao. **Maior lever do ciclo: 19.39% weighted** em 8 datasets reais (50.4% nas afetadas). Complementa natures CPF/CNPJ (min). Name-guard `!@%`. D17a=303/D1-D9=1523 INTOCADOS (nao dispara em tabela pequena). 398 passed. GATE verde. |
 
 ---
 

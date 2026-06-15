@@ -330,7 +330,7 @@ os unicos ganhos relevantes foram colunas DATETIME: InvoiceDate 15%, data_cadast
 | ID | Hipotese | Status | ref |
 |---|---|---|---|
 | H-DT-01 | Timestamps merecem encoder proprio. **GENERALIZADO -> H-STRUCT-01.** | subsumida por H-STRUCT-01 | — |
-| H-STRUCT-01 | **Split estrutural + V2-B**: tokenizar valores em runs digito/separador; se template uniforme, os grupos de digito viram colunas-campo (template 1x) -> cada campo low-card e' esmagado pelo V2-B. Generaliza decimais, datas, datetimes, CPF/CNPJ. | **confirmada-empirica (Alta)** 2026-06-14: **19.39% weighted** em 8 datasets reais (50.4% nas afetadas), RT OK. l_quantity 72.5%, cnpj 66.3%, datas 57%, decimais wine 27-49%. Sinergia V2-B e' o motor. **Pendente: aprovacao + desenho do weld.** | `2026-06-14-datetime-nature-caracterizacao/result.md` |
+| H-STRUCT-01 | **Split estrutural + V2-B**: tokenizar valores em runs digito/separador; se template uniforme, os grupos de digito viram colunas-campo (template 1x) -> cada campo low-card e' esmagado pelo V2-B. Generaliza decimais, datas, datetimes, CPF/CNPJ. | **WELDED 2026-06-14 (ADR-0026)**: 4o candidato do fallback `min(tcf, raw, dict, split)`, marcador `%`. 19.39% weighted (8 datasets reais). Gate 100% uniforme, sem mecanismo de excecao (refinamento: 1 near-miss em 80 cols). Complementa natures (min). 398 passed, GATE verde. | `2026-06-14-datetime-nature-caracterizacao/` (result + refine_result) |
 
 ---
 

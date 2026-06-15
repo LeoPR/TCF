@@ -453,6 +453,90 @@ class TestV2BDict:
 
 
 # ---------------------------------------------------------------------------
+# Split estrutural (ADR-0026, H-STRUCT-01)
+# ---------------------------------------------------------------------------
+
+class TestStructSplit:
+    """Valor estruturado (decimal/data/datetime/id) -> split em campos (template
+    1x) -> cada campo low-card esmagado pelo V2-B. Marcador '%'. Candidato
+    per-coluna no min() (zero-regressao). Gate: template 100% uniforme."""
+
+    def _struct_table(self):
+        n = 200
+        return {
+            "preco": [f"{i * 97}.{i % 100:02d}" for i in range(n)],            # decimal
+            "data": [f"20{10 + i % 9}-{1 + i % 12:02d}-{1 + i % 28:02d}"
+                     for i in range(n)],                                       # data
+            "nome": [f"cliente_{i}_unico" for i in range(n)],                  # free-text
+        }
+
+    def test_split_marker_present(self):
+        meta = encode(self._struct_table()).split("\n", 2)[1]
+        assert any(p.startswith("%") for p in meta.split(","))
+
+    def test_split_round_trip(self):
+        t = self._struct_table()
+        assert decode(encode(t)) == t
+
+    def test_decimal_and_date_split(self):
+        side = SideOutputs()
+        encode(self._struct_table(), side_outputs=side)
+        sc = side.multi_info["split_cols"]
+        assert "preco" in sc and "data" in sc
+        assert "nome" not in sc
+
+    def test_non_uniform_no_split(self):
+        t = {"a": ["1.5", "12.34.56", "2.7", "8", "9.9"] * 40,
+             "b": [str(i) for i in range(200)]}
+        side = SideOutputs()
+        encode(t, side_outputs=side)
+        assert "a" not in side.multi_info["split_cols"]
+
+    def test_mixed_signs_no_split(self):
+        t = {"a": [f"{'-' if i % 2 else ''}{i}.{i % 100:02d}" for i in range(200)],
+             "b": [str(i) for i in range(200)]}
+        side = SideOutputs()
+        encode(t, side_outputs=side)
+        assert "a" not in side.multi_info["split_cols"]
+
+    def test_off_when_fallback_off(self):
+        t = self._struct_table()
+        text = encode(t, fallback=False, min_header=False)
+        assert text.startswith("#TCF.6 M")
+        assert "%" not in text.split("\n", 2)[1]
+        assert decode(text) == t
+
+    def test_split_not_larger(self):
+        t = self._struct_table()
+        with_split = len(encode(t).encode("utf-8"))
+        without = len(encode(t, fallback=False, min_header=True).encode("utf-8"))
+        assert with_split <= without
+
+    @pytest.mark.parametrize("vals", [
+        [f"-{i * 131}.{i % 100:02d}" for i in range(200)],                  # negativos
+        [f"R$ {i * 97}.{i % 100:02d}" for i in range(200)],                 # prefixo
+        [f"€ -{i * 53}.{(i * 7) % 100:02d}" for i in range(200)],      # utf8 + neg
+        [f"{(i * 99173) % 1000:03d}.{(i * 7) % 1000:03d}-{i % 100:02d}"
+         for i in range(200)],                                              # id-like
+    ])
+    def test_split_rt_edge_content(self, vals):
+        t = {"v": vals, "k": [str(i) for i in range(len(vals))]}
+        assert decode(encode(t)) == t
+
+    def test_name_guard_marker_prefix(self):
+        for bad in ["%x", "!x", "@x"]:
+            with pytest.raises(ValueError, match="marcador"):
+                encode({bad: ["1", "2"], "b": ["x", "y"]})
+
+    def test_decode_struct_split_helper_direct(self):
+        import tcf.multi as m
+        vals = [f"{i}.{i % 10}" for i in range(20)]
+        body = m._struct_split_encode(vals, cfg=m.DEFAULT_PIPELINE, min_len=None)
+        assert body is not None
+        assert m._decode_struct_split(body) == vals
+
+
+# ---------------------------------------------------------------------------
 # Edge cases / validacao
 # ---------------------------------------------------------------------------
 

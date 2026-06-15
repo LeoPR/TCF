@@ -30,12 +30,16 @@ Ciclo "perseguir bytes" (abertura do que era chamado v2.0; agora pré-1.0).
 - **V2-B dicionario/categorico** ([ADR-0025](docs/adr/0025-v2b-dictionary-categorical-weld.md)):
   3o candidato do fallback `min(tcf, raw, v2b)`, marcador `@`. Coluna low-card
   vira [tabela de unicos]+[stream de indices]. 13.9% weighted em 8 datasets reais.
+- **Split estrutural** ([ADR-0026](docs/adr/0026-structural-split-weld.md)):
+  4o candidato `min(tcf, raw, dict, split)`, marcador `%`. Valor estruturado
+  (decimal/data/datetime/id) com template uniforme vira campos (template 1x) ->
+  cada campo low-card cai no V2-B. **19.39% weighted** (maior lever do ciclo).
 - **`sort_by` order-free** (O-FMT-02): `encode(table, sort_by="col")` reordena
   linhas pela chave (decode retorna a ordem ordenada).
 - **Knobs**: `fallback`/`min_header` (opt-out, default True), `min_len` (override).
 - **0.7 default** ([ADR-0024](docs/adr/0024-pre-1.0-versioning-git-as-compat.md)):
   baseline D17a re-pinado 322->303B (#TCF.6 legado lido pelo decoder). D1-D9=1523B
-  (single-col) inalterado. Suite 385 passed.
+  (single-col) inalterado. Suite 398 passed.
 
 ---
 

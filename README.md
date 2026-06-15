@@ -141,7 +141,7 @@ Guias praticos: [`docs/how-to/`](docs/how-to/).
 ## Formato 0.7 (default): onde os bytes vão
 
 O `encode` multi-coluna sai em **0.7 / `#TCF.7`** por default ([ADR-0024](docs/adr/0024-pre-1.0-versioning-git-as-compat.md)).
-Três coisas, todas automáticas (sem flag):
+Quatro coisas, todas automáticas (sem flag), cada coluna escolhendo a menor representação:
 
 - **Fallback por coluna.**
   Guarda a coluna em raw quando o raw fica menor que o TCF ("nunca pior que raw").
@@ -149,7 +149,11 @@ Três coisas, todas automáticas (sem flag):
 - **Dicionário low-card.**
   Coluna com poucos valores distintos vira tabela de únicos + índices compactos,
   em vez de um ref por linha.
-  Escolhida quando fica menor que TCF e raw, marcada com `@` no meta ([ADR-0025](docs/adr/0025-v2b-dictionary-categorical-weld.md)).
+  Marcada com `@` no meta ([ADR-0025](docs/adr/0025-v2b-dictionary-categorical-weld.md)).
+- **Split estrutural.**
+  Valor estruturado (decimal, data, datetime, CPF) com template uniforme vira
+  campos separados (o template guardado uma vez), e cada campo low-card cai no dicionário.
+  Marcada com `%` no meta ([ADR-0026](docs/adr/0026-structural-split-weld.md)).
 - **Header mínimo.**
   O flag `M` no shebang já declara que vêm colunas, então o meta dispensa o prefixo `# `.
   E a última coluna não leva tamanho, vai até o fim ([ADR-0023](docs/adr/0023-v2-minimal-header-weld.md)).
@@ -179,7 +183,7 @@ O ganho é proporcionalmente maior em **payloads pequenos** (o header de tamanho
 
 Pré-1.0, o encoder só escreve o formato mais novo.
 O `#TCF.6` legado ainda é **lido** pelo decoder, e `git checkout` reproduz a era 0.6 ([ADR-0024](docs/adr/0024-pre-1.0-versioning-git-as-compat.md)).
-O dicionário low-card já está no default (V2-B); o strip de sufixo (`.0`) fica no [roadmap](docs/adr/0018-v2-format-roadmap.md).
+O dicionário low-card (V2-B) e o split estrutural já estão no default; a compressão lossy fica no [roadmap](docs/adr/0018-v2-format-roadmap.md).
 
 ## Estado (pré-1.0)
 
@@ -190,7 +194,7 @@ O dicionário low-card já está no default (V2-B); o strip de sufixo (`.0`) fic
   Round-trip sempre lossless (`decode(encode(x)) == x`).
 - Default **0.7 / `#TCF.7`**: fallback ([ADR-0022](docs/adr/0022-v2a-fallback-identity-weld.md)) + header mínimo ([ADR-0023](docs/adr/0023-v2-minimal-header-weld.md)), ver seção acima.
   O `#TCF.6` legado é lido pelo decoder.
-- Suíte: **385 passed, 1 xfailed**.
+- Suíte: **398 passed, 1 xfailed**.
   Baselines de byte = guardas de regressão, re-pináveis em mudança intencional ([ADR-0024](docs/adr/0024-pre-1.0-versioning-git-as-compat.md)).
 - Mudanças: [`CHANGELOG.md`](CHANGELOG.md).
   História M0-M14: [`experiments/lab/dirty/notas/historia-dirty-lab.md`](experiments/lab/dirty/notas/historia-dirty-lab.md).
