@@ -226,6 +226,25 @@ O TCF **troca um pouco de ratio por legibilidade** e se compõe com eles (rodar 
 
 Tabelas completas: [reports do EXP-008](experiments/lab/clean/EXP-008-compressao-comparada/reports/).
 
+## Install
+
+```bash
+pip install tcf-format        # ou: uv pip install tcf-format
+```
+
+A **distribuição** chama-se `tcf-format`; o **pacote importável** é `tcf` (sem
+dependências de runtime):
+
+```python
+from tcf import encode, decode
+
+blob = encode({"a": ["x", "y", "z"], "b": ["1", "2", "3"]})
+assert decode(blob) == {"a": ["x", "y", "z"], "b": ["1", "2", "3"]}
+```
+
+Pré-1.0 (ADR-0024): o pacote está em `0.7.x` — o *minor* acompanha o formato
+(`#TCF.7`) e o *patch* é contador de release, desacoplado do comportamento.
+
 ## First-time setup (dev)
 
 ```bash

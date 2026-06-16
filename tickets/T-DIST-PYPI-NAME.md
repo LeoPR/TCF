@@ -1,9 +1,9 @@
 ---
 title: T-DIST-PYPI-NAME — Capturar nome de distribuicao no PyPI
-status: blocked
+status: closed-done
 priority: P2
 created: 2026-06-14
-updated: 2026-06-15
+updated: 2026-06-16
 blocked-by: []
 related:
   - CITATION.cff
@@ -17,10 +17,14 @@ related:
 > `import tcf`). `pyproject.toml` ja' preparado: `name = "tcf-format"`,
 > `version = "0.7.0"` (alinha ADR-0024), e a auto-ref do meta-grupo `all` corrigida
 > pra `tcf-format[dev,eval,datasets]`. `[tool.hatch.build.targets.wheel] packages =
-> ["src/tcf"]` ja' desacopla o nome da distribuicao do pacote importavel. PENDENTE
-> (acao do owner, exige credenciais): re-checar disponibilidade na hora, reservar no
-> PyPI e publicar (placeholder `0.0.1` ou release `0.7.0`). Status `blocked` ate' o
-> upload do owner.
+> ["src/tcf"]` ja' desacopla o nome da distribuicao do pacote importavel.
+>
+> **FECHADO (2026-06-16)**: nome **`tcf-format`** reservado no PyPI pelo owner.
+> Release publicavel **`0.7.1`** (o patch e' contador de release, desacoplado do
+> formato `#TCF.7` e do comportamento). Build validado via `uv build` ->
+> `tcf_format-0.7.1.{tar.gz,whl}` (wheel `py3-none-any`, METADATA Name=tcf-format).
+> Disponibilidade confirmada antes (PyPI JSON API HTTP 404). Automacao de release
+> (release.yml + Trusted Publishing) adiada por escolha do owner (follow-up).
 
 **Intencao do owner (2026-06-14)**: reservar **logo** um nome de distribuicao no
 PyPI pro TCF, mesmo pré-1.0 (evitar squatting; garantir o nome quando publicar).

@@ -37,11 +37,13 @@
 > [ADR-0018](docs/adr/0018-v2-format-roadmap.md) -> `accepted` (referencia do
 > roadmap de formato; V2-D refutado). **Decisoes do owner**: o **0.7 permanece
 > lossless-puro** — V2-C round e Pacote 10 (loss) viram **roadmap v2.0** (se
-> perseguido, cross-coluna primeiro, GATE N>=5); nome PyPI = **`tcf-format`**
-> (pyproject `0.7.0` pronto, reserva/upload pendentes do owner). pyproject version
-> `1.0.0` -> `0.7.0` (alinha ADR-0024). Suite 398 passed; D1-D9=1523B / D17a=303B
-> intactos; `src/tcf` intocado. Follow-up adiado: V2-B RLE no stream. Detalhe:
-> `experiments/lab/dirty/notas/diario/2026-06-15.md`.
+> perseguido, cross-coluna primeiro, GATE N>=5); nome PyPI = **`tcf-format`
+> RESERVADO** (2026-06-16) — release **`0.7.1`** (pyproject `1.0.0` -> `0.7.1`,
+> alinha ADR-0024; o patch e' contador de release, desacoplado do formato `#TCF.7`
+> e do comportamento). Build validado via `uv` (`tcf_format-0.7.1.{tar.gz,whl}`).
+> Suite 398 passed; D1-D9=1523B / D17a=303B intactos; `src/tcf` so' string de
+> versao. Tag `v0.7.1`. Follow-ups adiados: V2-B RLE no stream; release.yml
+> (Trusted Publishing). Detalhe: `experiments/lab/dirty/notas/diario/2026-06-15.md`.
 
 **Atualizado em**: 2026-06-08 (**Schema/quality gadget COMPLETO + incidente
 OneDrive recuperado + push remoto**). Resumo desde 06-03:
