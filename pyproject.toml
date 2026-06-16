@@ -7,7 +7,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "tcf-format"
-version = "0.7.0"
+version = "0.7.1"
 description = "TCF (Tabular Compact Format) — string compression via OBAT (Online Bidirectional Affix Tokenizer) + HCC (Hierarchical Compositional Coding)"
 readme = "README.md"
 requires-python = ">=3.10"

@@ -69,7 +69,7 @@ class TestPublicAPISurface:
 
     def test_version_pre_1_0(self):
         # Pré-1.0 (ADR-0024): pacote em 0.x, minor acompanha o formato (#TCF.7).
-        assert tcf.__version__ == "0.7.0"
+        assert tcf.__version__ == "0.7.1"
 
 
 D1_D9_BYTES_FROZEN = {

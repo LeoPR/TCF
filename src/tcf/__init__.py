@@ -79,10 +79,11 @@ from tcf.pipeline import PipelineConfig
 from tcf.schema import ColumnSchema, TableSchema, build_schema
 from tcf.side_outputs import SideOutputs
 
-# Pré-1.0 (ADR-0024): minor acompanha o formato (#TCF.7 -> 0.7). Sem compat
-# rigida entre minors de dev; git e' o mecanismo de reproducao. v1.0 = release
-# solido futuro. (Era "1.0.0" — rotulo prematuro corrigido 2026-06-14.)
-__version__ = "0.7.0"
+# Pré-1.0 (ADR-0024): minor acompanha o formato (#TCF.7 -> 0.7); o PATCH (.1) e'
+# contador de release/correcao, DESACOPLADO do comportamento (nao muda a logica
+# nem o byte-output canonical). Sem compat rigida entre minors de dev; git e' o
+# mecanismo de reproducao. v1.0 = release solido futuro.
+__version__ = "0.7.1"
 
 __all__ = [
     "encode",

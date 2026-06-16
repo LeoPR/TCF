@@ -46,6 +46,9 @@ Ciclo "perseguir bytes" (abertura do que era chamado v2.0; agora pré-1.0).
   `0.7.0` (alinha ADR-0024). [ADR-0018](docs/adr/0018-v2-format-roadmap.md) ->
   `accepted` (V2-D refutado; V2-C/J/K/L defer). Higiene de tickets: 3 fases welded
   fechadas + 5 parks v2.0/pos-0.7.
+- **`0.7.1` — primeira release publicada no PyPI** (`tcf-format`): o **patch** e'
+  contador de release/correcao, desacoplado do minor do formato (`#TCF.7`) e do
+  comportamento (nao muda logica nem byte-output). D1-D9=1523B / D17a=303B intactos.
 
 ---
 

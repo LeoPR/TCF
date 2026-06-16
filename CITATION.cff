@@ -6,8 +6,8 @@ authors:
   - given-names: Leonardo
     family-names: Marques Souza
     email: leonardo.marques.souza@gmail.com
-version: "0.7.0"
-date-released: "2026-06-14"
+version: "0.7.1"
+date-released: "2026-06-15"
 repository-code: "https://github.com/LeoPR/TCF"
 license: MIT
 abstract: >
