@@ -238,9 +238,18 @@ dependências de runtime):
 ```python
 from tcf import encode, decode
 
-blob = encode({"a": ["x", "y", "z"], "b": ["1", "2", "3"]})
-assert decode(blob) == {"a": ["x", "y", "z"], "b": ["1", "2", "3"]}
+tabela = {
+    "nome": ["ana", "bruno", "carla"],
+    # CPFs de exemplo com digitos repetidos: invalidos por convencao (rejeitados
+    # por qualquer validador; a Receita nunca os emite). Nao correspondem a pessoas reais.
+    "cpf":  ["111.111.111-11", "222.222.222-22", "333.333.333-33"],
+}
+blob = encode(tabela)
+assert decode(blob) == tabela        # round-trip lossless
 ```
+
+Para CPF/CNPJ/IP há *natures* opt-in (ADR-0015, `encode(coluna, nature=SPEC_CPF)`)
+que regeneram o dígito verificador no decode.
 
 Pré-1.0 (ADR-0024): o pacote está em `0.7.x` — o *minor* acompanha o formato
 (`#TCF.7`) e o *patch* é contador de release, desacoplado do comportamento.
