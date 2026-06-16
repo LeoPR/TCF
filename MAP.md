@@ -11,6 +11,7 @@ TCF/
 ├── MAP.md ................ este arquivo
 ├── STATUS.md ............. ponto de entrada bibliografico
 ├── README.md, CHANGELOG.md
+├── ROADMAP.md ........... o que fazer, em tiers (pré-1.0 / 2.0 / pesquisa-spinoff)
 │
 ├── src/tcf/ .............. ALGORITMO CANONICO (M10 baseline; intocado sem aprovacao)
 │   ├── core/online.py .... OBAT (canonical)

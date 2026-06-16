@@ -493,6 +493,8 @@ O encoder e' a ferramenta principal; auxiliares de suporte (NAO TCF-core):
 - **I want to read the findings** → [docs/findings/](docs/findings/) (v0.5 LLM, historico)
 - **I want to run the LLM benchmark** → [llm-benchmark/](llm-benchmark/) (acessorio v0.5)
 - **I want to understand the architecture** → [docs/theory/](docs/theory/)
+- **I want to see the roadmap** → [ROADMAP.md](ROADMAP.md) (tiers: pré-1.0 / 2.0 / pesquisa); detalhe granular em [roadmap-hipoteses.md](experiments/lab/dirty/notas/roadmap-hipoteses.md)
+- **I want to share / pitch TCF** → [docs/divulgacao-tcf.md](docs/divulgacao-tcf.md) (material de divulgação, estilo post)
 - **I want to read the paper** → drafts v0.5: [docs/archive/article_v05/](docs/archive/article_v05/) (paper v0.7 pendente)
 - **I want to see how it evolved** → [CHANGELOG.md](CHANGELOG.md) +
   [docs/workbench/](docs/workbench/)

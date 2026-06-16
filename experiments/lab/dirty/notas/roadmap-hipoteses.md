@@ -409,6 +409,26 @@ Caracterizacao empirica (2026-06-16, `encode` real):
 
 ---
 
+## Pacote 12 — Lazy/queryable view (registrado 2026-06-16, alvo pre-1.0)
+
+**Origem**: owner, a partir da secao "consultar quase sem descomprimir" (1.0). Ideia: conectar
+ao blob TCF e so' descomprimir o necessario quando um agregador e' puxado — descompressao
+SELETIVA por coluna e por linha (filtro). Tese central da 1.0. **PoC pronto** em
+[`2026-06-16-lazy-query/`](../../2026-06-16-lazy-query/) (`LazyTCF`, reusa decoders core
+byte-exato; `where('cidade','SP').sum('valor')` toca so' `cidade`+`valor`). FORA de src/tcf.
+
+| ID | Hipotese | Status | ref |
+|---|---|---|---|
+| H-QUERY-01 | **View lazy** sobre o blob: `count/sum/min/max/avg` + `where`, com decode por coluna sob demanda (column pruning) + por linha no filtro. Um `decode()` ou gzip/brotli por cima materializaria tudo antes de qualquer conta; o lazy materializa so' o referenciado. | aberta (alta, pre-1.0); **PoC OK** | `2026-06-16-lazy-query/lazy_query_poc.py` |
+| H-QUERY-02 | **Agregar runs sem expandir**: somar/contar `*N|` (RLE) e `*N+delta|` (seq-RLE) lendo o marcador, sem materializar a sequencia. Leva o pilar de explicabilidade ao agregador. | aberta (media); depende H-QUERY-01 | — |
+| H-QUERY-03 | **SQL na camada lazy**: o SQL gerado pela tool LLM->SQL (gadget spin-off, T-RECOVER-LLM-SCHEMA-MODE) roda sobre a view lazy. Integracao LEVE, sem dependencia dura. | aberta (baixa, spin-off) | tools_plan (ROADMAP.md) |
+
+**Notas**: (1) promover de PoC a gadget (nao necessariamente em src/tcf — pode ser camada
+externa que le o blob). (2) Conecta com V2-K (disco zero-copy/column-pruning) no plano binario
+futuro. (3) Visao organizada por tier em [`ROADMAP.md`](../../../../ROADMAP.md).
+
+---
+
 ## Estrategia de mistura
 
 **Antes de misturar, esgotar isoladas dentro de cada pacote.**
