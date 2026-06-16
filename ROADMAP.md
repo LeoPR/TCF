@@ -33,6 +33,18 @@ Tudo opt-in / gadget / knob; impacto no núcleo nenhum/leve (ou atrás de GATE).
 | V2-RLE-STREAM | RLE no stream de índices do V2-B (follow-up do 0.7) | S | nenhum | Extensão natural do dicionário welded. |
 | H-INTRA-01/02/03 | Repetição **intra-valor** (fatorar `111.` dentro de um valor) | M | **médio** | Pacote 11 / O-FMT-17, alvo 0.8. Decidir engine (OBAT×HCC), **medir net** com escape de dígito e **overlap** com nature/split. GATE obrigatório — *não atropelar*. |
 
+**Lazy-view, em etapas** (a "venda": descomprimir só o suficiente pra responder): L1
+column-pruning + agregadores (PoC) · **L2 medido** — `where(CustomerID=X).sum(Quantity)`
+("qtd comprada por um usuário") toca **7,9%** do blob, `count()` 0,2%, vs `decode()` 100%
+(online-retail 5k×8) · L3 agregar runs (`*N|`) sem expandir · L4 filtro por índice (`@`) ·
+L5 **layout p/ baixa latência** (organizar pra uma query-alvo tocar o mínimo; dimensões
+**memória/velocidade/latência/compressão**). **Não é versão de formato** — lê o `#TCF.7` existente.
+
+**Filtros modulares (H-NAT-MARK-02, ideia do owner)**: `natures/` vira **pasta de plugins** —
+cada filtro um módulo spec auto-contido (regex + transform + id), com um registry que descobre
+os de terceiros (drop-in), pra outros desenvolverem os seus. **A API/pasta não é versão** (output
+idêntico); só o *spec viajar no header* pra auto-decode por terceiros **é versão (0.8)** = H-NAT-MARK-01.
+
 ### Cheap-wins (baratos, sem mexer no núcleo — exceto bug)
 - **release.yml** + Trusted Publishing (automatizar `uv publish`). [S]
 - Documentar os knobs explícitos (`fallback`/`min_header`/`min_len`) + trade-offs. [S]

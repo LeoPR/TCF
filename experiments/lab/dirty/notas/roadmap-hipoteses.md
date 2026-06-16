@@ -397,6 +397,7 @@ Caracterizacao empirica (2026-06-16, `encode` real):
 | H-INTRA-02 | Interacao com o **escape de digito** (`\`): fatorar a repeticao reduz o numero de `\`? Ou o escape come o ganho? Medir o net real. | aberta | — |
 | H-INTRA-03 | **Overlap** com nature (1) + split estrutural (ADR-0026): o ganho intra-linha generico e' marginal/redundante onde nature ou split ja' atuam? Medir o INCREMENTO antes de welder (anti-incidente 2026-05-21). | aberta | — |
 | H-NAT-MARK-01 | **Marcador de nature auto-descritivo** no header (tag `cpf`/`cnpj`/`ip` por coluna) pra o `decode` reconhecer a nature SOZINHO. Hoje as natures sao opt-in **OUT-OF-BAND**: o `.tcf` nao diz "esta coluna e' CPF", entao `decode` precisa receber `nature=` (provado: `decode(blob)` sem nature devolve o base-94 cru). O proprio codigo nota "futuro: header carry spec id". Format change (novo marcador, linha `!@%`) -> 0.8. | aberta (alvo 0.8) | `src/tcf/natures/__init__.py` docstring |
+| H-NAT-MARK-02 | **Linguagem/registry MODULAR de SPECs em pasta** (plugin, direcao owner 2026-06-16): cada filtro = modulo spec auto-contido (regex + check_fn/transform + spec-id), e um registry descobre os de `natures/` + os de TERCEIROS (drop-in). Permite que outros desenvolvam filtros proprios. **NAO e' versao de formato** (API/registry Python; output base-94/padded identico). **VIRA versao** so' no elo de interop: pra um spec de terceiro ser auto-decodavel sem combinar out-of-band, precisa de **spec-id no header** (= H-NAT-MARK-01, 0.8). Logo: a API/pasta e' pre-1.0 barato; o "spec viaja no header" e' 0.8. | aberta (API pre-1.0; header 0.8) | direcao owner 2026-06-16 |
 
 **Notas de decisao (do owner, 2026-06-16)**:
 - Os dois caminhos coexistem: (1) e' semantico/opt-in (o usuario diz "isto e' CPF"),
@@ -423,9 +424,24 @@ byte-exato; `where('cidade','SP').sum('valor')` toca so' `cidade`+`valor`). FORA
 | H-QUERY-02 | **Agregar runs sem expandir**: somar/contar `*N|` (RLE) e `*N+delta|` (seq-RLE) lendo o marcador, sem materializar a sequencia. Leva o pilar de explicabilidade ao agregador. | aberta (media); depende H-QUERY-01 | — |
 | H-QUERY-03 | **SQL na camada lazy**: o SQL gerado pela tool LLM->SQL (gadget spin-off, T-RECOVER-LLM-SCHEMA-MODE) roda sobre a view lazy. Integracao LEVE, sem dependencia dura. | aberta (baixa, spin-off) | tools_plan (ROADMAP.md) |
 
-**Notas**: (1) promover de PoC a gadget (nao necessariamente em src/tcf — pode ser camada
-externa que le o blob). (2) Conecta com V2-K (disco zero-copy/column-pruning) no plano binario
-futuro. (3) Visao organizada por tier em [`ROADMAP.md`](../../../../ROADMAP.md).
+**Etapas segmentadas (barato, incremental)**:
+- **L1** column pruning + agregadores (`count/sum/min/max/avg` + `where`) — **PoC OK**.
+- **L2** quantificar a venda (memoria/latencia): medido — "qtd comprada por um usuario"
+  (`where(CustomerID=X).sum(Quantity)`) toca **7.9%** do blob (online-retail 5k, 8 col);
+  `count()` 0.2%; vs `decode()` 100%. (`lazy_query_dimensions.py`).
+- **L3** agregar **runs** (`*N|`, `*N+delta|`) sem expandir a coluna (descomprime menos).
+- **L4** filtro assistido por indice (coluna `@` dicionario da pertinencia sem decodar tudo).
+- **L5** **layout p/ baixa latencia**: organizar/encodar pra uma query-alvo (ex: "qtd por
+  usuario") ser respondida tocando o minimo, mantendo a compressao da transmissao. Liga com as
+  dimensoes memoria/velocidade/latencia/compressao (diretriz owner; ja' nos docs pra fazer depois).
+
+**E' versao de formato?** (pergunta do owner): **lazy-view NAO** (le o `#TCF.7` existente; gadget);
+**L5 via `sort_by` NAO** (order-free, welded) — vira versao so' se for **modo de layout novo**.
+
+**Notas**: (1) promover de PoC a gadget (camada externa que le o blob; nao precisa entrar em
+src/tcf). (2) Conecta com V2-K (disco zero-copy/column-pruning) no plano binario futuro e com a
+tool LLM->SQL (H-QUERY-03). (3) Lab: `2026-06-16-lazy-query/` (result.md). Visao por tier em
+[`ROADMAP.md`](../../../../ROADMAP.md).
 
 ---
 

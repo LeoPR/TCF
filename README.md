@@ -351,6 +351,11 @@ por cima) materializaria as 4 colunas **inteiras** antes de qualquer conta. Agre
 `count`, `sum`, `min`, `max`, `avg`, mais `where` pra filtrar. Passo seguinte: usar os
 marcadores `*N|` / `*N+delta|` pra contar/somar **runs** sem nem expandir a coluna.
 
+Em dados reais (online-retail, 5 000 × 8), responder *"quantos itens o usuário X comprou"*
+(`where(CustomerID=X).sum("Quantity")`) **materializa 7,9% do blob** — `count()` toca 0,2% —
+contra 100% de um `decode()`. Memória e latência baixas caem direto da estrutura. E é
+**gadget, não versão de formato**: lê o `#TCF.7` atual.
+
 ## Roadmap 2.0
 
 Depois de uma 1.0 sólida (registrado, **não** implementado — ver
