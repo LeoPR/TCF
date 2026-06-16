@@ -4,7 +4,7 @@
 ![Python](https://img.shields.io/badge/python-3.10+-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![Version](https://img.shields.io/badge/version-0.7.1%20(pré--1.0)-orange)
-![Format](https://img.shields.io/badge/format-%23TCF.6%20%2F%20.7-blue)
+![Format](https://img.shields.io/badge/format-%23TCF.7%20default-blue)
 
 > **E se desse pra transmitir a mesma tabela com bem menos bytes,
 > sem virar um arquivo binário que ninguém mais consegue abrir e ler?**
@@ -24,7 +24,7 @@ Um cadastro pequeno, nos três formatos (bytes reais, saída de verdade):
 
 **CSV** *(277 B)*: tira os nomes repetidos, uma linha por registro.
 
-```
+```csv
 nome,email,cidade,plano,cpf
 Ana Souza,ana@acme.com.br,Sao Paulo,Premium,111.111.111-11
 Bruno Lima,bruno@acme.com.br,Sao Paulo,Premium,222.222.222-22
@@ -120,6 +120,56 @@ O lado caro é o **encode** (a busca de afixos do OBAT), trazido a quase-linear 
 O **decode** é uma **passada linear única**: só expande as referências (lookups O(1)) e os grupos RLE, sem nenhuma busca.
 Rápido e previsível.
 
+## Filtros por natureza (opt-in)
+
+Alguns valores têm **estrutura conhecida** que o compressor genérico não explora.
+Um CPF `123.456.789-09` são só **9 dígitos úteis**: a pontuação é fixa e os 2 dígitos
+finais (verificador) são **deriváveis** dos outros 9. Um *filtro de natureza* (opt-in) usa isso:
+
+- **encode** tira a pontuação, guarda os 9 dígitos como um número curto (base-94, ~5 chars)
+  e **descarta o verificador**;
+- **decode** **recalcula** o verificador (mod-11) e reinsere a pontuação — reconstrução **exata**.
+
+Os mesmos 4 CPFs do exemplo, isolados numa coluna: sem filtro **76 B** (cru, com escapes);
+com `nature=SPEC_CPF`, **27 B** (−64%). Concretamente, como sai dos nossos labs
+([`2026-05-24-cpf-templated-checked/`](experiments/lab/dirty/2026-05-24-cpf-templated-checked/)):
+`111.111.111-11` → `%g$.u` (14 → 5 chars); o decode regenera os 2 dígitos verificadores e a
+pontuação. (No cadastro inteiro: cru **244 → 208 B**, −15%.)
+
+Filtros já implementados ([ADR-0015](docs/adr/0015-natures-templated-checked-weld.md)):
+
+| filtro | formato | o que o decode reconstrói |
+|---|---|---|
+| `SPEC_CPF`  | `NNN.NNN.NNN-DD`     | pontuação + 2 díg. verificadores (mod-11) |
+| `SPEC_CNPJ` | `NN.NNN.NNN/NNNN-DD` | pontuação + 2 díg. verificadores (mod-11) |
+| `SPEC_IP`   | IPv4 `N.N.N.N`      | pontos + octetos canônicos (padroniza p/ ativar RLE em subnets) |
+
+O mesmo mecanismo de spec vale pra **números**: o `SPEC_IP` acima já é numérico (octetos);
+sequências e IDs numéricos com cadência o pipeline *delta-aware* captura sozinho
+(`*N+delta|`, seq-RLE); e specs de **decimal / monetário / precisão** estão no roadmap
+(cruzam a linha lossy → 2.0).
+
+```python
+from tcf import encode, decode
+from tcf import SPEC_CPF
+
+cpfs = ["111.111.111-11", "222.222.222-22"]    # placeholders inválidos
+blob = encode(cpfs, nature=SPEC_CPF)
+assert decode(blob, nature=SPEC_CPF) == cpfs    # decode precisa da mesma nature
+```
+
+Dois detalhes honestos:
+
+- São **opt-in e, por ora, out-of-band**: o `.tcf` ainda **não carrega um marcador** dizendo
+  "esta coluna é CPF", então o `decode` precisa receber a mesma `nature`. Um marcador
+  auto-descritivo (decode reconhece sozinho) está registrado como evolução (alvo 0.8).
+- Valor que não bate (verificador inválido, formato mascarado) cai em **literal** (`_`) sem
+  nunca quebrar o round-trip — o filtro **nunca corrompe** o dado.
+
+> ⚠️ **Em evolução.** Os filtros já funcionam e estão validados nos labs, mas ainda são
+> **opt-in manuais**: o auto-detect e o **marcador auto-descritivo** (o `decode` reconhecer a
+> nature sozinho) estão sendo trabalhados (alvo 0.8). Trate esta seção como *work-in-progress*.
+
 ## Getting started (1 minuto)
 
 ```python
@@ -139,7 +189,7 @@ assert decode(text) == table  # round-trip lossless
 
 # Naturezas (opt-in): CPF/CNPJ/IP comprimidos sem digito verificador/padding
 from tcf import SPEC_CPF
-text = encode(["111.444.777-35", "529.982.247-25"], nature=SPEC_CPF)
+text = encode(["111.111.111-11", "222.222.222-22"], nature=SPEC_CPF)  # placeholders inválidos
 ```
 
 `encode` dispatcha por tipo (list → single-column, dict → multi-column).
@@ -182,14 +232,16 @@ text = encode(table, sort_by="cidade")                  # ordena linhas pela col
 > 5-15% com chave low-card). É **order-free**: o `decode` devolve a ordem
 > ordenada, não a original. Use só quando a ordem das linhas não importa.
 
-No cadastro de 4 colunas do topo, comparado ao formato legado `#TCF.6`:
+No cadastro de 5 colunas do topo, comparado ao formato legado `#TCF.6`:
 
 | formato | meta line | bytes |
 |---|---|---:|
-| **0.7 / `#TCF.7`** (default) | `!44=nome,42=email,28=cidade,plano` | **177** |
-| `#TCF.6` (legado) | `# 45=nome,42=email,28=cidade,20=plano` | 182 |
+| **0.7 / `#TCF.7`** (default) | `!44=nome,42=email,28=cidade,20=plano,!cpf` | **244** |
+| `#TCF.6` (legado) | `# 45=nome,42=email,28=cidade,20=plano,76=cpf` | 265 |
 
-O ganho é proporcionalmente maior em **payloads pequenos** (o header de tamanho fixo domina).
+A diferença (−21 B) vem de duas coisas que o 0.7 faz e o `#TCF.6` não: a coluna `cpf` cai
+pra **raw** (`!cpf`) em vez de inflar, e o **header mínimo** (sem `# `, última coluna sem
+tamanho). O ganho é proporcionalmente maior em **payloads pequenos**.
 
 Pré-1.0, o encoder só escreve o formato mais novo.
 O `#TCF.6` legado ainda é **lido** pelo decoder, e `git checkout` reproduz a era 0.6 ([ADR-0024](docs/adr/0024-pre-1.0-versioning-git-as-compat.md)).
@@ -231,10 +283,83 @@ Real-world multi-coluna (9 tabelas Adult + TPC-H, 136k linhas): **−33.02% weig
 
 **E contra gzip / brotli / zstd?**
 Outra categoria: são compressores binários *opacos* (precisa descomprimir pra ler qualquer coisa).
-No ratio puro eles ganham (no EXP-008, `csv+brotli` = 1742 B contra `tcf+brotli` = 2141 B).
-O TCF **troca um pouco de ratio por legibilidade** e se compõe com eles (rodar gzip por cima do TCF funciona).
+No **cadastro acima**, sob compressão HTTP (`Content-Encoding`):
 
-Tabelas completas: [reports do EXP-008](experiments/lab/clean/EXP-008-compressao-comparada/reports/).
+| formato | cru | gzip | br | zstd |
+|---|---:|---:|---:|---:|
+| JSON | 596 | 218 | 212 | 211 |
+| CSV  | 277 | 177 | **162** | 165 |
+| TCF  | **244** | 209 | 185 | 194 |
+
+TCF é o menor **cru** (e legível); sob compressão binária o **CSV+brotli** ganha (162 vs 185) —
+porque o TCF já removeu a redundância que o gzip/brotli reaproveitam (o TCF comprime só 244→185;
+o CSV 277→162). O TCF **troca um pouco de ratio por legibilidade** e **se compõe** com eles
+(244 → 185 com brotli). O `gzip` ainda carrega ~18 B fixos de moldura por mensagem; `br`/`zstd`,
+quase nada — em payload minúsculo isso conta. (Os números usam os compressores no **nível máximo**
+— melhor caso pra eles; numa API simples a compressão às vezes nem está ligada, e quando está usa
+nível baixo por default: nginx gzip `1`, brotli `6`. Ver [notas dos compressores](experiments/lab/clean/EXP-008-compressao-comparada/notes/classificacao-compressores.md).)
+
+No agregado de 15 datasets sintéticos **single-column** (EXP-008, onde os welds multi-col do 0.7
+não se aplicam) a mesma história: `csv+brotli` = 1742 B contra `tcf+brotli` = 2116 B. Tabelas
+completas: [reports do EXP-008](experiments/lab/clean/EXP-008-compressao-comparada/reports/).
+
+## Pra onde vai a 1.0 — consultar quase sem descomprimir
+
+O que o TCF já faz hoje aponta pra meta da **1.0**: usar a **própria estrutura da compressão
+como índice**, pra responder perguntas **quase sem descomprimir** e com **pouca memória**.
+
+A saída textual já carrega dicas que valem como metadados:
+- `*N|Sao Paulo` diz que há **N linhas iguais** ali — uma **contagem/agrupamento** pronta,
+  sem expandir os N itens.
+- `^1` diz "igual à linha 1" — multiplicidade/dedup visível.
+- `*N+delta|template` (seq-RLE) descreve uma **progressão** (ex.: IDs sequenciais) sem listar
+  cada valor.
+
+Ou seja, dá pra **contar elementos, agrupar e até somar** lendo os marcadores — materializando
+só o pedaço necessário. Um compressor binário (gzip/brotli) por cima faria o oposto: você teria
+que **alocar memória e descomprimir tudo** pra só então varrer os dados. É essa a faixa que a
+1.0 quer firmar: **compacto e ao mesmo tempo consultável**, não um blob opaco. Os filtros por
+natureza (CPF/CNPJ/IP e, no roadmap, numéricos) entram aqui — dão estrutura semântica explícita
+sem perder a legibilidade (ainda em evolução, ver acima).
+
+### Proposta: `view()` — agregar com descompressão seletiva
+
+Uma API *lazy* sobre o blob: conecta **sem descomprimir**, e só materializa a coluna
+(e as linhas) que o agregador precisa. Filtrar por algo descomprime **só** o que tem relação.
+*(Proposta, validada em PoC — [`2026-06-16-lazy-query/`](experiments/lab/dirty/2026-06-16-lazy-query/); ainda não em `src/tcf`.)*
+
+```python
+v = view(blob)                                # conecta, não descomprime nada
+v.count()                                     # 6        toca: valor
+v.sum("valor")                                # 750      toca: valor
+v.avg("valor")                                # 125
+v.max("valor"), v.min("valor")                # 200, 80
+v.where("cidade", "Sao Paulo").count()        # 4        toca: cidade
+v.where("cidade", "Sao Paulo").sum("valor")   # 470      toca: cidade, valor
+```
+
+O `toca:` é o ponto (saída real do PoC): a soma filtrada materializou **só** `cidade` +
+`valor` — `cliente` e `plano` nunca foram descomprimidos. Um `decode()` (ou um gzip/brotli
+por cima) materializaria as 4 colunas **inteiras** antes de qualquer conta. Agregadores:
+`count`, `sum`, `min`, `max`, `avg`, mais `where` pra filtrar. Passo seguinte: usar os
+marcadores `*N|` / `*N+delta|` pra contar/somar **runs** sem nem expandir a coluna.
+
+## Roadmap 2.0
+
+Depois de uma 1.0 sólida (registrado, **não** implementado — ver
+[ADR-0018](docs/adr/0018-v2-format-roadmap.md)):
+
+- **Agregados sem perda mesmo sendo lossy por linha** — somas/médias exatas no agregado ao
+  arredondar com resíduo (ex.: parcelamento, `valor = soma(parcelas)`) e *drop* de coluna
+  derivável (`total = base + imposto`). Cruza a linha lossless → decisão explícita + GATE
+  (Pacote 10, [`loss-taxonomia.md`](experiments/lab/dirty/notas/loss-taxonomia.md)).
+- **Streaming / baixa latência (V2-J)** e **disco zero-copy / column-pruning (V2-K)** —
+  transmitir e ler por pedaço, sem buffer-over-buffer.
+- **Camada binária interna (V2-L)** — empacotar o corpo em bytes mantendo header textual e
+  grupos visíveis (estilo Parquet, mas ainda explicável). Não compete com gzip/brotli: é
+  representação binária do **mesmo** conteúdo lógico.
+- **Mais specs** (templated/checksummed/numéricos) + **marcador auto-descritivo** de nature e
+  **repetição intra-valor** (fatorar `111.` dentro de um CPF) — alvo 0.8.
 
 ## Install
 
@@ -294,7 +419,7 @@ repository" na pagina do repo automaticamente.
 ## Benchmark LLM v0.5 (acessorio, projeto paralelo)
 
 > Esta secao resume o ciclo **v0.5** (formato columnar para consumo por LLMs).
-> NAO e' o algoritmo TCF v0.6 acima. Todo o material vive separado.
+> NAO e' o algoritmo TCF v0.7 acima. Todo o material vive separado.
 
 O ciclo v0.5 mediu compreensao de tabelas por LLMs (CSV/JSON/TOON/TCF,
 Linha A "LLM le e computa" + Linha B "LLM gera SQL"): 7 modelos comerciais
@@ -308,7 +433,7 @@ Ver [`old/tcf/LEVELS-REVIEW.md`](old/tcf/LEVELS-REVIEW.md) para a semantica L0�
 - **Manual / paper v0.5**: [`docs/archive/manual_v05/`](docs/archive/manual_v05/)
   + [`docs/archive/article_v05/`](docs/archive/article_v05/)
 
-Candidato a spin-off (`tcf-llm-tools`) no futuro. Pode re-validar contra v0.6
+Candidato a spin-off (`tcf-llm-tools`) no futuro. Pode re-validar contra v0.7
 se Phase 2 for revivida.
 
 ---
@@ -317,16 +442,16 @@ se Phase 2 for revivida.
 
 ```
 TCF/
-├── src/tcf/                 ← CANONICAL v0.6 API (OBAT+HCC, encode/decode, #TCF.6)
+├── src/tcf/                 ← CANONICAL v0.7 API (OBAT+HCC, encode/decode, #TCF.7 + #TCF.6 legado)
 ├── old/tcf/                 ← motor v0.5 (niveis L0–L3), congelado-historico (ver LEVELS-REVIEW.md)
 ├── scripts/                 ← Shaper (stratified sampling), CSV→SQLite, setup_* datasets
-├── experiments/lab/         ← labs v0.6 (dirty + clean): compressao composicional
+├── experiments/lab/         ← labs v0.7 (dirty + clean): compressao composicional
 ├── llm-benchmark/           ← benchmark LLM v0.5 (harness: runners + llm_eval), acessorio
-├── tests/                   ← pytest suite (v0.6)
+├── tests/                   ← pytest suite (v0.7)
 ├── datasets/                ← canonical metadata + samples (dados reais em Z:)
 ├── tickets/                 ← planejamento markdown (YAML frontmatter)
 ├── docs/
-│   ├── algorithms/          ← specs canonicos v0.6 (OBAT, HCC, TCF-format) [reference]
+│   ├── algorithms/          ← specs canonicos v0.7 (OBAT, HCC, TCF-format) [reference]
 │   ├── adr/                 ← decisoes numeradas, imutaveis
 │   ├── theory/              ← fundamentos teoricos [explanation]
 │   ├── how-to/, tutorials/  ← Diataxis
@@ -344,7 +469,7 @@ TCF/
 
 ---
 
-## Tools shipped (v0.6)
+## Tools shipped (v0.7)
 
 O encoder e' a ferramenta principal; auxiliares de suporte (NAO TCF-core):
 
@@ -364,11 +489,11 @@ O encoder e' a ferramenta principal; auxiliares de suporte (NAO TCF-core):
 
 ## Where to go next
 
-- **I want to use TCF in my pipeline** → API v0.6: `from tcf import encode, decode` ([src/tcf/](src/tcf/)); manual v0.6 pendente. v0.5: [docs/archive/manual_v05/](docs/archive/manual_v05/)
+- **I want to use TCF in my pipeline** → API v0.7: `from tcf import encode, decode` ([src/tcf/](src/tcf/)); manual v0.7 pendente. v0.5: [docs/archive/manual_v05/](docs/archive/manual_v05/)
 - **I want to read the findings** → [docs/findings/](docs/findings/) (v0.5 LLM, historico)
 - **I want to run the LLM benchmark** → [llm-benchmark/](llm-benchmark/) (acessorio v0.5)
 - **I want to understand the architecture** → [docs/theory/](docs/theory/)
-- **I want to read the paper** → drafts v0.5: [docs/archive/article_v05/](docs/archive/article_v05/) (paper v0.6 pendente)
+- **I want to read the paper** → drafts v0.5: [docs/archive/article_v05/](docs/archive/article_v05/) (paper v0.7 pendente)
 - **I want to see how it evolved** → [CHANGELOG.md](CHANGELOG.md) +
   [docs/workbench/](docs/workbench/)
 

@@ -396,6 +396,7 @@ Caracterizacao empirica (2026-06-16, `encode` real):
 | H-INTRA-01 | Capturar repeticao de substring **intra-valor** reduz bytes em valores estruturados digit-heavy. Recurso novo — decidir o **engine**: OBAT (tokenizar sub-runs dentro do valor) OU HCC (compor atoms intra-valor). | aberta (alvo 0.8) | caracterizacao 2026-06-16 |
 | H-INTRA-02 | Interacao com o **escape de digito** (`\`): fatorar a repeticao reduz o numero de `\`? Ou o escape come o ganho? Medir o net real. | aberta | — |
 | H-INTRA-03 | **Overlap** com nature (1) + split estrutural (ADR-0026): o ganho intra-linha generico e' marginal/redundante onde nature ou split ja' atuam? Medir o INCREMENTO antes de welder (anti-incidente 2026-05-21). | aberta | — |
+| H-NAT-MARK-01 | **Marcador de nature auto-descritivo** no header (tag `cpf`/`cnpj`/`ip` por coluna) pra o `decode` reconhecer a nature SOZINHO. Hoje as natures sao opt-in **OUT-OF-BAND**: o `.tcf` nao diz "esta coluna e' CPF", entao `decode` precisa receber `nature=` (provado: `decode(blob)` sem nature devolve o base-94 cru). O proprio codigo nota "futuro: header carry spec id". Format change (novo marcador, linha `!@%`) -> 0.8. | aberta (alvo 0.8) | `src/tcf/natures/__init__.py` docstring |
 
 **Notas de decisao (do owner, 2026-06-16)**:
 - Os dois caminhos coexistem: (1) e' semantico/opt-in (o usuario diz "isto e' CPF"),
