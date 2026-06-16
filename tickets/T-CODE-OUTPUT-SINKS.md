@@ -1,9 +1,9 @@
 ---
 title: T-CODE-OUTPUT-SINKS — Interface Sink pluggable
-status: open
+status: deferred
 priority: P2
 created: 2026-05-24
-updated: 2026-05-24
+updated: 2026-06-15
 blocked-by: [T-CODE-ENCODER-MANAGER]
 related:
   - docs/adr/0014-unified-api-side-outputs.md
@@ -13,6 +13,10 @@ related:
 ---
 
 # T-CODE-OUTPUT-SINKS — Sinks pluggable
+
+> **Fechamento 0.7 (2026-06-15) — PARK v2.0**: infraestrutura pos-1.0
+> (streaming/chunked O-FMT-08, per-channel O-FMT-13), nao foco de bytes do 0.7.
+> Bloqueado pela Fase 2 do T-CODE-ENCODER-MANAGER (sinks). Retomar quando v2.0 abrir.
 
 ## Contexto
 

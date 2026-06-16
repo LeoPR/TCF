@@ -1,9 +1,9 @@
 ---
 title: T-CODE-SCHEMA-BUILDER — Orquestrador que consume SideOutputs
-status: open-fase-1-welded
+status: closed
 priority: P3
 created: 2026-05-24
-updated: 2026-05-24
+updated: 2026-06-15
 blocked-by: []
 related:
   - docs/adr/0014-unified-api-side-outputs.md
@@ -12,6 +12,13 @@ related:
 ---
 
 # T-CODE-SCHEMA-BUILDER — Helper orquestrador
+
+> **Fechamento 0.7 (2026-06-15)**: Fases 1+2 WELDED (`build_schema(data) ->
+> TableSchema`; `ColumnSchema`/`TableSchema` + `to_dict`/`to_json`; reaproveita
+> SideOutputs zero-custo; 24/24 testes; exportado em `src/tcf/schema.py`). Escopo
+> 0.7 fechado. Fase 3 (detectores de naturezas templated/checked/enumerated)
+> PARKED, vinculada a META-TYPE-ENCODERS reabrir com evidencia real-world
+> (precondicao T-DATA-1). Fase 4 (to_markdown/diff/metadata.json compat) opcional.
 
 ## Contexto
 

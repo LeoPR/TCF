@@ -1,8 +1,9 @@
 ---
 title: T-SHAPER-CODE-HARDENING — Hardening de codigo do shaper (escala, dedup, bugs latentes)
-status: open
+status: deferred
 priority: P2
 created: 2026-05-30
+updated: 2026-06-15
 blocked-by: []
 related:
   - scripts/shaper/pipeline.py  (carga em memoria, except ImportError pass)
@@ -13,6 +14,11 @@ related:
 ---
 
 # T-SHAPER-CODE-HARDENING — Polish do codigo do shaper
+
+> **Fechamento 0.7 (2026-06-15) — PARK pos-0.7**: shaper e' gadget externo paralelo
+> (nao TCF-core); 5 acoes de polish/escala >100k (A1-A5) sem impacto em bytes/formato.
+> O irmao T-SHAPER-SCIENTIFIC-GATING (integridade dos testes) ja' fechou. Revisitar
+> se a escala >100k virar necessidade real.
 
 ## Contexto
 

@@ -1,9 +1,9 @@
 ---
 title: T-CODE-ENCODER-MANAGER — Reviver D13 (paralelismo + sinks)
-status: open-fase-1-welded
+status: closed
 priority: P2
 created: 2026-05-24
-updated: 2026-05-24
+updated: 2026-06-15
 blocked-by: []
 related:
   - docs/adr/0014-unified-api-side-outputs.md
@@ -13,6 +13,13 @@ related:
 ---
 
 # T-CODE-ENCODER-MANAGER — Revive D13 (paralelismo + sinks)
+
+> **Fechamento 0.7 (2026-06-15)**: Fases 1+1b WELDED e validadas (`encode(data,
+> parallel=N)` via ProcessPool + work-stealing; 14/14 testes; byte-canonical OK;
+> teto ~1.23-1.30x por IPC overhead no Windows). Escopo 0.7 fechado. Fases
+> restantes PARKED pos-0.7/v2.0: 1c (joblib opcional), 2 (sinks ->
+> T-CODE-OUTPUT-SINKS), 3 (per-channel headers O-FMT-13), 4 (streaming chunked
+> O-FMT-08). Estas exigem ADR de formato e/ou decisao de I/O. Ver ADR-0018.
 
 ## Contexto
 

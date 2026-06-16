@@ -1,9 +1,9 @@
 ---
 title: T-CODE-PLAN-CONTRACT — Plan dataclass (group_by/order/batch_size)
-status: open
+status: deferred
 priority: P3
 created: 2026-05-24
-updated: 2026-05-24
+updated: 2026-06-15
 blocked-by: []
 related:
   - docs/workbench/research-notes/_archive/2026-05-05-v04-design-recap.md
@@ -12,6 +12,11 @@ related:
 ---
 
 # T-CODE-PLAN-CONTRACT — Plan dataclass
+
+> **Fechamento 0.7 (2026-06-15) — PARK v2.0**: contrato foundacional pra ordering
+> reversivel (O-FMT-01..04), nao critico pro 0.7 (compressao de bytes ja' completa:
+> V2-A/B/split + sort_by welded). O-FMT-02 `sort_by` (order-free) ja' cobre o caso
+> simples de reordenacao. Retomar quando v2.0 abrir.
 
 ## Contexto
 

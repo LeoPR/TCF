@@ -29,8 +29,19 @@
 > por-linha + LOSSLESS NO AGREGADO (soma; parcelamento) — PoC do maior-resto OK.
 > Mais promissora = loss CROSS-COLUNA (`valor=soma(parcelas)`). Decisao de weld
 > PENDENTE (owner; cruza a linha lossless, GATE N>=5).
-> **PENDENTE — REVISAO GERAL DO MULTI-COLUMN**: nome PyPI (T-DIST-PYPI-NAME),
-> follow-up V2-B RLE no stream. Suite 398 passed.
+> **FECHAMENTO DO CICLO 0.7 (2026-06-15)**: bytes-core welded (V2-A/B/split +
+> header minimo + sort_by). **Higiene de tickets feita**: 3 fases welded fechadas
+> (encoder-manager 1+1b, schema-builder 1+2, layered Fase 1) + 3 ja'-prontos
+> confirmados (stratify-test, H-PERF-06 T01/T02); **5 parks** v2.0/pos-0.7
+> (output-sinks, plan-contract, shaper-hardening, llm-gadget, META-TYPE execucao);
+> [ADR-0018](docs/adr/0018-v2-format-roadmap.md) -> `accepted` (referencia do
+> roadmap de formato; V2-D refutado). **Decisoes do owner**: o **0.7 permanece
+> lossless-puro** — V2-C round e Pacote 10 (loss) viram **roadmap v2.0** (se
+> perseguido, cross-coluna primeiro, GATE N>=5); nome PyPI = **`tcf-format`**
+> (pyproject `0.7.0` pronto, reserva/upload pendentes do owner). pyproject version
+> `1.0.0` -> `0.7.0` (alinha ADR-0024). Suite 398 passed; D1-D9=1523B / D17a=303B
+> intactos; `src/tcf` intocado. Follow-up adiado: V2-B RLE no stream. Detalhe:
+> `experiments/lab/dirty/notas/diario/2026-06-15.md`.
 
 **Atualizado em**: 2026-06-08 (**Schema/quality gadget COMPLETO + incidente
 OneDrive recuperado + push remoto**). Resumo desde 06-03:

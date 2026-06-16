@@ -6,8 +6,8 @@ requires = ["hatchling", "cython>=3.0"]
 build-backend = "hatchling.build"
 
 [project]
-name = "tcf"
-version = "1.0.0"
+name = "tcf-format"
+version = "0.7.0"
 description = "TCF (Tabular Compact Format) — string compression via OBAT (Online Bidirectional Affix Tokenizer) + HCC (Hierarchical Compositional Coding)"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -34,7 +34,7 @@ datasets = [
 
 # Convenience meta-group: install everything
 all = [
-    "tcf[dev,eval,datasets]",
+    "tcf-format[dev,eval,datasets]",
 ]
 
 [tool.pytest.ini_options]

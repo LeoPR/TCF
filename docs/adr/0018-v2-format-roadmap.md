@@ -1,6 +1,6 @@
 # 0018 — Roadmap de formato v2.0 (fallback identity, dicionario, lossy)
 
-**Status**: proposed (parcialmente realizado — V2-A welded por ADR-0022)
+**Status**: accepted (parcialmente realizado — V2-A/V2-B/split welded; V2-D refutado; V2-C/V2-J/V2-K/V2-L defer v2.0). Referencia de fechamento do ciclo 0.7.
 **Date**: 2026-05-27
 **Deciders**: project owner
 **Tags**: v2.0, format, roadmap, low-cardinality, lossy, dictionary, fallback
@@ -17,6 +17,24 @@
 > fallback (`min(tcf, raw, v2b)`), `#TCF.7 M`, marcador `@<size>=<name>`,
 > caracterizado em 8 datasets reais (13.9% weighted, RT 42/42). Restam V2-C
 > (lossy) e V2-D (strip sufixo) no roadmap.
+>
+> **Update 2026-06-15 — estado de fechamento do ciclo 0.7**: este ADR vira
+> `accepted` e serve de referencia unica do roadmap de formato. Estado:
+> - **V2-A** (ADR-0022) — **DONE** (fallback identity, `!`, 7.85% weighted).
+> - **V2-B** (ADR-0025) — **DONE** (dicionario, `@`, 13.9% weighted).
+> - **Split estrutural** (ADR-0026) — **DONE** (4o candidato `min(tcf,raw,dict,split)`,
+>   `%`, 19.39% weighted; generaliza datetime/decimal/CPF/CNPJ → campos → V2-B).
+>   Subsume a antiga V2-D-como-datetime-nature.
+> - **V2-D** (strip de afixo) — **REFUTADO** (subsumido pelo OBAT, 0.11% weighted;
+>   o sinal real era split estrutural). Ver `2026-06-14-v2d-strip-afixo-caracterizacao/`.
+> - **V2-C** (lossy-round) — **caracterizado, NAO welded**. Decisao do owner
+>   (2026-06-15): **0.7 permanece lossless-puro**; round-puro (nicho ~1.5%, so' wine)
+>   nao justifica quebrar a pureza. Lossy amplo (Pacote 10) vira roadmap v2.0,
+>   priorizando a vertente **cross-coluna** (`valor=soma(parcelas)`), nao round simples,
+>   sob GATE real-world N>=5. Ver `loss-taxonomia.md` + roadmap Pacote 10 (H-LOSS-*).
+> - **V2-J / V2-K / V2-L** (streaming / disk zero-copy / binarizacao em camadas) —
+>   **defer v2.0**: exigem decisao de arquitetura (I/O) + escopo, fora do foco de
+>   bytes textuais do 0.7.
 
 ## Context and Problem Statement
 

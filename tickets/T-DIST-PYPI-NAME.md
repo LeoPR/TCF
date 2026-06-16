@@ -1,9 +1,9 @@
 ---
 title: T-DIST-PYPI-NAME — Capturar nome de distribuicao no PyPI
-status: open
+status: blocked
 priority: P2
 created: 2026-06-14
-updated: 2026-06-14
+updated: 2026-06-15
 blocked-by: []
 related:
   - CITATION.cff
@@ -12,6 +12,15 @@ related:
 ---
 
 # T-DIST-PYPI-NAME — Capturar nome no PyPI
+
+> **Decisao do owner (2026-06-15)**: nome escolhido = **`tcf-format`** (mantendo
+> `import tcf`). `pyproject.toml` ja' preparado: `name = "tcf-format"`,
+> `version = "0.7.0"` (alinha ADR-0024), e a auto-ref do meta-grupo `all` corrigida
+> pra `tcf-format[dev,eval,datasets]`. `[tool.hatch.build.targets.wheel] packages =
+> ["src/tcf"]` ja' desacopla o nome da distribuicao do pacote importavel. PENDENTE
+> (acao do owner, exige credenciais): re-checar disponibilidade na hora, reservar no
+> PyPI e publicar (placeholder `0.0.1` ou release `0.7.0`). Status `blocked` ate' o
+> upload do owner.
 
 **Intencao do owner (2026-06-14)**: reservar **logo** um nome de distribuicao no
 PyPI pro TCF, mesmo pré-1.0 (evitar squatting; garantir o nome quando publicar).

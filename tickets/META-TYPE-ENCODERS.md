@@ -1,8 +1,17 @@
 # META-TYPE-ENCODERS — Pre-tx por natureza + estudos da camada de algoritmo
 
-**Status**: OPEN (T01 absorvido; T02-T07 + L01-L05 adiados; sub-escopo Perf transferido pra novo ticket)
+**Status**: PARKED pos-0.7/v2.0 (T01 absorvido em Pacote 1; T02-T07 + L01-L05 adiados ate' evidencia real-world via T-DATA-1; sub-escopo Perf ja' transferido). Ver fechamento 0.7 abaixo.
 **Criado**: 2026-05-15
-**Ultima atualizacao**: 2026-05-24
+**Ultima atualizacao**: 2026-06-15
+
+> **Fechamento 0.7 (2026-06-15) — PARK**: taxonomia/planejamento completos; T01
+> absorvido (Pacote 1 welded). T02-T07 (templated/checksummed) + L01-L05 (estudos
+> da camada de algoritmo) deferred ate' caracterizacao real-world — precondicao: o
+> owner roda T-DATA-1 (Online-Retail / Beijing / Wine) e mede o baseline M10 nos
+> datasets-alvo. 2 decisoes do owner ficam no roadmap v2.0: (1) Pacote 2
+> escape-deduction (ja' CLOSED-INSUFFICIENT-GAIN); (2) estrategia de welding das
+> naturezas (Cenario A/B/C), pendente de massa de dados. A Fase 3 do
+> T-CODE-SCHEMA-BUILDER (detectores de natureza) depende desta reabertura.
 
 ## Atualizacao 2026-05-24 — sub-naturezas templated/checksummed catalogadas
 

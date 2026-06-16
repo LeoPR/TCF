@@ -1,9 +1,9 @@
 ---
 title: T-RECOVER-LLM-SCHEMA-MODE — Gadget LLM (schema + SQL gen, formato LLM-binary)
-status: de-prontidao
+status: deferred
 priority: P3
 created: 2026-05-27
-updated: 2026-05-27 (escopo refinado: gadget paralelo, formato LLM-binary, alertas only)
+updated: 2026-06-15 (PARK pos-0.7 / spin-off; escopo refinado 2026-05-27: gadget paralelo, formato LLM-binary, alertas only)
 blocked-by: []
 related:
   - tickets/T-RECOVER-SCHEMA-MULTI-TABLE.md  (gadget irmao, coleta schema/stats)
@@ -12,6 +12,11 @@ related:
 ---
 
 # T-RECOVER-LLM-SCHEMA-MODE — Gadget LLM auxiliar
+
+> **Fechamento 0.7 (2026-06-15) — PARK (spin-off) pos-0.7**: gadget EXTERNO de foco
+> filosofico oposto ao TCF (machine-readable LLM-binary vs human-readable); zero
+> impacto em bytes/formato; NAO toca `src/tcf`. Fase 0 recomenda Opcao A (pacote
+> separado `tcf-llm-tools`). Retomar como spin-off quando o owner priorizar.
 
 ## Contexto + ESCOPO (refinado 2026-05-27)
 

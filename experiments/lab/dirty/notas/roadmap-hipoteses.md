@@ -338,9 +338,16 @@ os unicos ganhos relevantes foram colunas DATETIME: InvoiceDate 15%, data_cadast
 
 **Origem**: owner ampliou o escopo do V2-C: "loss de dados e amplo e e PRO TCF
 FAZER SIM". Revisao exaustiva (workflow 9 vertentes + critico) em
-**`loss-taxonomia.md`** (eixo principal = CONTRATO de recuperacao). Decisao de
-weld PENDENTE (cruza a linha lossless; GATE real-world N>=5 + owner). PoC do
+**`loss-taxonomia.md`** (eixo principal = CONTRATO de recuperacao). PoC do
 maior-resto valida a ideia-chave (soma exata, loss-no-agregado).
+
+**DECISAO DE ESCOPO (owner, 2026-06-15)**: o ciclo **0.7 permanece lossless-puro**.
+Lossy NAO entra no 0.7 — vira **roadmap v2.0**. V2-C round-puro (nicho ~1.5%, so'
+wine) e' fechado como caracterizacao de referencia, NAO welded. Quando o lossy for
+perseguido (v2.0), comecar pela vertente **cross-coluna** (H-LOSS-02,
+`valor=soma(parcelas)`, maior teto) e nao por round simples, sob GATE real-world
+N>=5 e a meta-camada de contrato (H-LOSS-00) como pre-requisito. Nenhuma das
+H-LOSS-* abaixo entra em src/tcf sem nova decisao explicita do owner.
 
 | ID | Hipotese | Status | ref |
 |---|---|---|---|

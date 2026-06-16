@@ -1,9 +1,9 @@
 ---
 title: T-CODE-LAYERED-PIPELINE — Toggle infrastructure + online adaptive + fallback
-status: open-fase-1-welded
+status: closed
 priority: P3
 created: 2026-05-24
-updated: 2026-05-24
+updated: 2026-06-15
 blocked-by: []
 related:
   - experiments/lab/dirty/notas/arquitetura-funil-camadas-2026-05-24.md
@@ -12,6 +12,12 @@ related:
 ---
 
 # T-CODE-LAYERED-PIPELINE — Toggle + online adaptive
+
+> **Fechamento 0.7 (2026-06-15)**: Fase 1 WELDED (`PipelineConfig` + 3 toggles
+> pre_pass / obat_shape_preserve / hcc_seq_rle; `encode(data, layers=cfg)` opt-in;
+> D1-D9 + D17a preservados; 25 testes). Escopo 0.7 fechado. Fase 2+ (online
+> adaptive detector, mid-stream markers, integracao com encoder-manager) PARKED
+> v2.0 — exige ADR de formato de marcador. Ver ADR-0018.
 
 ## Contexto
 
