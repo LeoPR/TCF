@@ -68,7 +68,8 @@ OneDrive recuperado + push remoto**). Resumo desde 06-03:
   + limpeza. Nada perdido. Repo VIVE no OneDrive → checar HEAD/`import tcf` no
   início de sessão (memória `reference-onedrive-git-corruption-risk`).
 - **Git remoto SADIO**: `origin/main` sincronizado (push fast-forward dos ~45
-  commits). Branch-lixo `main-DESKTOP-SG30VJF` removido local (remoto pendente).
+  commits). Branch-lixo `main-DESKTOP-SG30VJF` removido local e **confirmado
+  ausente no remoto** (2026-06-16: `git ls-remote` mostra so' `main` + tag `v0.7.1`).
 
 **Anterior 2026-06-03** (**Datasets BR/CNPJ + H-PERF-06 Cython +
 shaper gating + reorg separacao de concerns**). 33 commits desde o bloco

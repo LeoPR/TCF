@@ -3,7 +3,7 @@
 [![CI](https://github.com/LeoPR/TCF/actions/workflows/ci.yml/badge.svg)](https://github.com/LeoPR/TCF/actions/workflows/ci.yml)
 ![Python](https://img.shields.io/badge/python-3.10+-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
-![Version](https://img.shields.io/badge/version-0.7.0%20(pré--1.0)-orange)
+![Version](https://img.shields.io/badge/version-0.7.1%20(pré--1.0)-orange)
 ![Format](https://img.shields.io/badge/format-%23TCF.6%20%2F%20.7-blue)
 
 > **E se desse pra transmitir a mesma tabela com bem menos bytes,
@@ -11,30 +11,32 @@
 
 Um cadastro pequeno, nos três formatos (bytes reais, saída de verdade):
 
-**JSON** *(480 B)*: repete o nome de cada campo em toda linha.
+**JSON** *(596 B)*: repete o nome de cada campo em toda linha.
 
 ```json
 [ { "nome": "Ana Souza",  "email": "ana@acme.com.br",
-    "cidade": "Sao Paulo", "plano": "Premium" },
+    "cidade": "Sao Paulo", "plano": "Premium",
+    "cpf": "111.111.111-11" },
   { "nome": "Bruno Lima", "email": "bruno@acme.com.br",
-    "cidade": "Sao Paulo", "plano": "Premium" }, … ]
+    "cidade": "Sao Paulo", "plano": "Premium",
+    "cpf": "222.222.222-22" }, … ]
 ```
 
-**CSV** *(213 B)*: tira os nomes repetidos, uma linha por registro.
+**CSV** *(277 B)*: tira os nomes repetidos, uma linha por registro.
 
 ```
-nome,email,cidade,plano
-Ana Souza,ana@acme.com.br,Sao Paulo,Premium
-Bruno Lima,bruno@acme.com.br,Sao Paulo,Premium
-Carla Nunes,carla@acme.com.br,Sao Paulo,Basic
-Diego Rocha,diego@acme.com.br,Rio de Janeiro,Premium
+nome,email,cidade,plano,cpf
+Ana Souza,ana@acme.com.br,Sao Paulo,Premium,111.111.111-11
+Bruno Lima,bruno@acme.com.br,Sao Paulo,Premium,222.222.222-22
+Carla Nunes,carla@acme.com.br,Sao Paulo,Basic,333.333.333-33
+Diego Rocha,diego@acme.com.br,Rio de Janeiro,Premium,444.444.444-44
 ```
 
-**TCF** *(177 B, formato 0.7, saída real do `encode`)*: o que se repete vira referência.
+**TCF** *(244 B, formato 0.7, saída real do `encode`)*: o que se repete vira referência; o que é único fica cru.
 
 ```
 #TCF.7 M
-!44=nome,42=email,28=cidade,plano
+!44=nome,42=email,28=cidade,20=plano,!cpf
 Ana Souza
 Bruno Lima
 Carla Nunes
@@ -47,6 +49,10 @@ Rio de Janeiro
 *2|Premium
 Basic
 ^1
+111.111.111-11
+222.222.222-22
+333.333.333-33
+444.444.444-44
 ```
 
 **Como ler:**
@@ -54,17 +60,21 @@ Basic
 - Linha 1, shebang: `#TCF.7 M` é o formato 0.7, multi-coluna.
 - Linha 2, meta das colunas (`tamanho=nome`).
   O `!` marca uma coluna guardada **crua** (quando o raw fica menor que o TCF).
-  A última (`plano`) não leva tamanho: vai até o fim.
+  A última (`cpf`) não leva tamanho: vai até o fim (e o `!` mostra que também é crua).
 - Os corpos vêm concatenados, **delimitados por tamanho, não por quebra de linha**.
   Por isso a coluna crua `nome` (`…Diego Rocha`) emenda direto no e-mail (`an*a*…`).
 - No corpo: `*3|Sao Paulo` é *"Sao Paulo, 3×"* (repetição).
   `^1` é *"igual à linha 1"* (substituição).
 - Na coluna de **e-mail** o TCF vai mais fundo (prefixo único + domínio comum referenciado).
   É onde mais economiza, e onde o texto fica mais denso.
+- Já a coluna **`cpf`** é o oposto: valores quase todos únicos, **nada a fatorar**.
+  O TCF guarda **cru** (`!cpf`) — não comprime, mas também **não infla** (é o fallback).
+  *(São placeholders inválidos — dígitos repetidos. Para CPF/CNPJ real há uma* nature *opt-in,
+  ADR-0015, que tira `.`/`-` e regenera o dígito verificador — aí sim comprime.)*
 
 JSON repete a estrutura inteira.
 CSV repete os valores.
-O **TCF fatora o que se repete** e referencia o resto, continuando **texto ASCII que você abre e lê**.
+O **TCF fatora o que se repete**, referencia o resto e **mantém cru o que é único** (sem inflar), continuando **texto ASCII que você abre e lê**.
 
 Mas quanto mais fundo ele fatora (veja o e-mail), mais denso o texto fica.
 *Legível não quer dizer óbvio à primeira vista.*

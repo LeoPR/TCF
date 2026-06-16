@@ -19,11 +19,12 @@ related:
 > pra `tcf-format[dev,eval,datasets]`. `[tool.hatch.build.targets.wheel] packages =
 > ["src/tcf"]` ja' desacopla o nome da distribuicao do pacote importavel.
 >
-> **FECHADO (2026-06-16)**: nome **`tcf-format`** reservado no PyPI pelo owner.
-> Release publicavel **`0.7.1`** (o patch e' contador de release, desacoplado do
-> formato `#TCF.7` e do comportamento). Build validado via `uv build` ->
-> `tcf_format-0.7.1.{tar.gz,whl}` (wheel `py3-none-any`, METADATA Name=tcf-format).
-> Disponibilidade confirmada antes (PyPI JSON API HTTP 404). Automacao de release
+> **FECHADO (2026-06-16)**: **`tcf-format` 0.7.1 PUBLICADO no PyPI pelo owner**
+> (nome capturado). O patch e' contador de release, desacoplado do formato `#TCF.7`
+> e do comportamento. Build validado via `uv build` -> `tcf_format-0.7.1.{tar.gz,whl}`
+> (wheel `py3-none-any`, METADATA Name=tcf-format). `import tcf` inalterado.
+> Nota: a versao 0.7.1 no PyPI e' imutavel; o exemplo CPF do README so' aparecera'
+> na long-description numa proxima publicacao (0.7.2+). Automacao de release
 > (release.yml + Trusted Publishing) adiada por escolha do owner (follow-up).
 
 **Intencao do owner (2026-06-14)**: reservar **logo** um nome de distribuicao no
