@@ -25,7 +25,7 @@ Tudo opt-in / gadget / knob; impacto no núcleo nenhum/leve (ou atrás de GATE).
 
 | id | item | custo | impacto núcleo | nota |
 |---|---|---|---|---|
-| **H-QUERY-01** | Lazy/queryable `view()` — descompressão seletiva por coluna/linha (`count/sum/min/max/avg` + `where`) | M | nenhum | **PoC pronto** ([`2026-06-16-lazy-query/`](experiments/lab/dirty/2026-06-16-lazy-query/)), fora de `src/tcf`. Tese central da 1.0. Promover PoC → gadget. |
+| **H-QUERY-01** | Lazy/queryable `view()` — descompressão seletiva por coluna/linha (`count/sum/min/max/avg` + `where`) | M | nenhum | **Promovido a gadget** [`scripts/tcf_lazy/`](scripts/tcf_lazy/) (13 testes; funcional: filtro+agregação+alinhamento de linha). Lê `#TCF.7`, fora de `src/tcf`. Tese central da 1.0. PoC: [`2026-06-16-lazy-query/`](experiments/lab/dirty/2026-06-16-lazy-query/). |
 | LAZY-QUERY-RUNS | Follow-up: agregar **runs** (`*N|`, seq-RLE) sem expandir a coluna | M | nenhum | Soma/conta grupos lendo os marcadores. Depende de H-QUERY-01. |
 | **FILTRO-NUMERO** | Filtro/nature básico de **número** (além de CPF/CNPJ/IP) | S | leve | Caracterizar antes: o delta-aware já cobre incrementais simples? Se sim, vira atalho, não nature nova. |
 | FILTROS-POPULARES | CEP, telefone, MAC, data-BR — barato-primeiro | S | nenhum | Reusa `TemplatedPaddedSpec`/`TemplatedCheckedSpec`. Um por vez, weld só com ganho ≥15% em 2+ reais. |
