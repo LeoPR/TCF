@@ -40,6 +40,12 @@ Ciclo "perseguir bytes" (abertura do que era chamado v2.0; agora pré-1.0).
 - **0.7 default** ([ADR-0024](docs/adr/0024-pre-1.0-versioning-git-as-compat.md)):
   baseline D17a re-pinado 322->303B (#TCF.6 legado lido pelo decoder). D1-D9=1523B
   (single-col) inalterado. Suite 398 passed.
+- **Fechamento do ciclo (2026-06-15)**: decisao do owner — **0.7 permanece
+  lossless-puro**; V2-C round e Pacote 10 (loss amplo) viram roadmap v2.0. Nome de
+  distribuicao = **`tcf-format`** (mantendo `import tcf`); `pyproject` `1.0.0` ->
+  `0.7.0` (alinha ADR-0024). [ADR-0018](docs/adr/0018-v2-format-roadmap.md) ->
+  `accepted` (V2-D refutado; V2-C/J/K/L defer). Higiene de tickets: 3 fases welded
+  fechadas + 5 parks v2.0/pos-0.7.
 
 ---
 
