@@ -1,6 +1,6 @@
 # EXP-008 — Resumo executivo
 
-**Data execucao**: 2026-05-15T04:04:10.940958+00:00
+**Data execucao**: 2026-06-16T19:46:28.547273+00:00
 
 **Datasets**: 15
 **Formatos input**: csv, jsonl, json, tcf
@@ -14,7 +14,7 @@
 | csv | _4872_ |
 | jsonl | 7001 |
 | json | 5409 |
-| tcf | **3131** |
+| tcf | **3039** |
 
 **Bold** = formato mais compacto sem compressao. _Italico_ = segundo mais compacto.
 
@@ -25,14 +25,14 @@
 | csv | 1978 | **1742** | _1840_ | 2680 | 2328 |
 | jsonl | 2214 | **1954** | _2037_ | 2856 | 2666 |
 | json | 2057 | **1789** | _1913_ | 2732 | 2446 |
-| tcf | 2383 | **2141** | _2228_ | 3276 | 2632 |
+| tcf | 2348 | **2116** | _2195_ | 3240 | 2603 |
 
 Cada celula = **bytes totais** da soma dos 15 datasets comprimidos com (formato, compressor). **Bold** = melhor compressor pra esse formato. _Italico_ = segundo.
 
 ## Combinacao mais compacta
 
 - **Vencedor (bytes totais)**: `csv → brotli` com 1742 bytes total (35.8% do raw CSV).
-- **Limite inferior empirico** (menor por dataset): `1700` bytes total.
+- **Limite inferior empirico** (menor por dataset): `1695` bytes total.
 
 ## Roundtrip
 

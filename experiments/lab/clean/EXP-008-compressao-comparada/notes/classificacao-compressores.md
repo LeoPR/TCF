@@ -25,6 +25,29 @@ e' nativo em **todas as 4**.
 | `lzma` (xz) | lzma (stdlib) | 9 (preset) |  | ✓ |  |  | xz format |
 | `bz2` | bz2 (stdlib) | 9 |  | ✓ |  |  | BWT (Burrows-Wheeler) |
 
+## Niveis reais vs. niveis deste experimento (default web/http)
+
+> Este exp usa os compressores no **nivel maximo** (gzip 9, brotli 11, zstd 22) —
+> o melhor caso PRA ELES. No mundo real, servindo uma API/HTTP sem ninguem mexer:
+
+- **A compressao muitas vezes NEM esta' ligada.** Servidor/framework simples
+  (Flask, FastAPI/uvicorn, Express, Go `net/http` puro) **nao comprime a resposta
+  por default** — exige middleware. O proprio **nginx vem com `gzip off`**. Ligam
+  automaticamente: CDNs (Cloudflare/Fastly) e proxies pre-configurados.
+- **Quando ligada, o nivel default e' BAIXO**, nao maximo:
+  - nginx `gzip_comp_level` default = **1** (range 1-9).
+  - ngx_brotli `brotli_comp_level` default/recomendado = **6** (range 0-11).
+  - Apache mod_deflate ~ default zlib (**6**).
+- **Negociacao**: o cliente manda `Accept-Encoding`; o servidor escolhe. Browsers
+  anunciam `gzip, deflate, br` (+ `zstd` em Chrome/Firefox recentes). Cliente
+  simples (Python `requests`) anuncia `gzip, deflate` e descomprime sozinho.
+
+**Implicacao pro TCF**: as tabelas aqui (nivel maximo) sao o cenario **mais favoravel
+aos binarios**. Com o default real (gzip-1 / brotli-6, ou compressao desligada) eles
+comprimem MENOS, e a vantagem do TCF **cru** (menor sem comprimir, e legivel) pesa mais.
+Em payload minusculo, a moldura fixa do gzip (~18B) pode ate' tornar "nao comprimir" o
+melhor. Fontes: nginx docs (`ngx_http_gzip_module`), google/ngx_brotli.
+
 ## Justificativas por compressor
 
 ### `gzip` — universal

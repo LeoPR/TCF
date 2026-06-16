@@ -14,7 +14,7 @@ Para cada dataset, qual (formato, compressor) produz **menor** bytes. Inclui tam
 | D6-poucos-em-ruido | 537 | **csv/brotli** = 169 | _json/brotli_ = 172 | csv/zstd = 183 | 31% |
 | D7-aninhamento | 341 | **json/brotli** = 88 | _csv/brotli_ = 94 | jsonl/brotli = 109 | 26% |
 | D8-cabeca-cauda | 388 | **tcf/brotli** = 66 | _csv/brotli_ = 68 | json/brotli = 71 | 17% |
-| D9-frequencia-alta | 375 | **csv/brotli** = 74 | _json/brotli_ = 78 | csv/zstd = 83 | 20% |
+| D9-frequencia-alta | 375 | **tcf/zstd** = 69 | _tcf/brotli_ = 70 | csv/brotli = 74 | 18% |
 | D10-datas-mundiais | 177 | **csv/zstd** = 106 | _csv/brotli_ = 110 | json/zstd = 112 | 60% |
 | D11-datetime-precisao | 304 | **csv/brotli** = 109 | _csv/zstd_ = 109 | json/brotli = 109 | 36% |
 | D12-datetime-timezone | 385 | **json/brotli** = 137 | _csv/brotli_ = 142 | csv/zstd = 144 | 36% |
@@ -28,13 +28,14 @@ Quantas vezes cada combinacao `(formato, compressor)` foi a melhor.
 
 | combinacao | vitorias |
 |---|---:|
-| `csv/brotli` | 10/15 |
+| `csv/brotli` | 9/15 |
 | `json/brotli` | 2/15 |
 | `csv/zstd` | 2/15 |
 | `tcf/brotli` | 1/15 |
+| `tcf/zstd` | 1/15 |
 
 ## Soma global do menor por dataset
 
 - **Raw CSV total**: 4872 bytes
-- **Soma do menor por dataset**: 1700 bytes (34.9% do raw CSV).
+- **Soma do menor por dataset**: 1695 bytes (34.8% do raw CSV).
 - Limite inferior empirico **sobre o conjunto medido** — compressores adicionais (snappy, lz4, parquet com diferentes engines) podem mover esse limite.
