@@ -66,9 +66,11 @@ onde um compressor binário obrigaria descomprimir tudo antes de qualquer conta.
 
 ## Notas pra quem for postar (não vai no post)
 
-- **Seja honesto no comparativo**: no *ratio puro* sob compressão binária, `csv+brotli` (162 B)
-  ganha do `tcf+brotli` (185 B) — porque o TCF já tirou a redundância. O diferencial do TCF é
-  **cru + legível + consultável**, não vencer o gzip no ratio.
+- **Comparativo com nuance de escala**: no cadastro **minúsculo** (4 linhas), `csv+brotli`
+  (162 B) ganha do `tcf+brotli` (185 B) — a moldura domina e não há o que fatorar. Mas em
+  **multi-coluna real** (milhares de linhas) **inverte**: `tcf-0.7+brotli` vence o `csv+brotli`
+  (ex.: Adult 3k linhas: 21,8 KB vs 30,4 KB, −28%) — e quanto mais TCF, menor o pós-brotli.
+  Pitch correto: TCF é **cru + legível + consultável** E, **com volume, melhor pré-processo pro brotli**.
 - **Estado real**: pré-1.0 (`#TCF.7`); a `view()` lazy e os filtros auto-descritivos são
   **proposta/PoC**, não API estável ainda. Não prometer o que não está em `src/tcf`.
 - **Não competir com gzip/brotli/zstd** no discurso — são outra categoria (binários opacos).

@@ -303,6 +303,13 @@ No agregado de 15 datasets sintéticos **single-column** (EXP-008, onde os welds
 não se aplicam) a mesma história: `csv+brotli` = 1742 B contra `tcf+brotli` = 2116 B. Tabelas
 completas: [reports do EXP-008](experiments/lab/clean/EXP-008-compressao-comparada/reports/).
 
+**Atenção de escala — o cadastro acima é minúsculo (4 linhas).** Em **multi-coluna real**
+(milhares de linhas) o quadro **inverte**: o **TCF cheio + brotli vence o CSV + brotli** —
+ex.: Adult com 3 000 linhas, `tcf-0.7+brotli` = **21,8 KB** vs `csv+brotli` = 30,4 KB (−28%).
+E quanto **mais** TCF, **menor** o resultado pós-brotli (medido em 4 datasets reais:
+[`2026-06-16-staged-and-ordering-brotli/`](experiments/lab/dirty/2026-06-16-staged-and-ordering-brotli/)).
+Em payload minúsculo a moldura domina e não há o que fatorar; **a vantagem do TCF aparece com volume**.
+
 ## Pra onde vai a 1.0 — consultar quase sem descomprimir
 
 O que o TCF já faz hoje aponta pra meta da **1.0**: usar a **própria estrutura da compressão

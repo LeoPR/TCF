@@ -96,5 +96,18 @@ Consomem `SideOutputs`, **nunca arrumam dados**. Podem andar juntas ou separadas
 
 ---
 
+## Notas de pesquisa (medidas, 2026-06-16)
+
+- **TCF + brotli são complementares em ESCALA** ([`2026-06-16-staged-and-ordering-brotli/`](experiments/lab/dirty/2026-06-16-staged-and-ordering-brotli/)):
+  em multi-coluna real (3k linhas, 4 datasets), `tcf-0.7+brotli` **vence** `csv+brotli`
+  (Adult −28%), e **quanto mais TCF, menor o pós-brotli**. Refuta "menos TCF ajuda o brotli";
+  TCF cheio é o melhor pré-processo. (O cadastro minúsculo do README vendia o contrário —
+  artefato de 4 linhas; corrigido.) "TCF pela metade" (`tcf-lite`) chega a ser pior que CSV+brotli.
+- **Ordenação é codec-dependente**: a melhor chave de `sort_by` p/ TCF-sozinho ≠ a melhor p/
+  TCF+brotli em 3/4 datasets. Ganho ≤5%. Lever pequeno; se welder auto-`sort_by`, considerar o
+  modo (com/sem compressão a jusante). Baixa prioridade (2.0).
+
+---
+
 *Reorg crítica de 2026-06-16 (132 itens → ~55 únicos). Detalhe granular e proveniência:
 [`roadmap-hipoteses.md`](experiments/lab/dirty/notas/roadmap-hipoteses.md).*
