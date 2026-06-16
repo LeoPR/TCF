@@ -401,6 +401,27 @@ do header (owner, mesmo dia) o prefixo `# ` INTEIRO caiu (nao so' o espaco — o
 **182->177 B** (−5). Suite 351 passed. PENDENTE (futuro): aspecto
 deferred-sizing/streaming (O-FMT-08/V2-J).
 
+### O-FMT-17 — Repeticao intra-linha (intra-valor) (registrado 2026-06-16, alvo 0.8)
+
+**Ideia (owner, 2026-06-16)**: capturar repeticao de substring DENTRO de um unico valor
+(ex: `111.111.111-11` tem `111.` x3), que o pipeline atual nao fatora. Hoje so' ha' RLE
+**interlinha** (`*N|` linha inteira repetida; `^N` valor inteiro repetido). Recurso NOVO
+no OBAT (tokenizar sub-runs intra-valor) OU no HCC (compor atoms intra-valor) — a decidir.
+Distinto do **filtro/nature** (ADR-0015, semantico, conhece o tipo): este e' **generico**.
+
+**Agravante medido (2026-06-16)**: digito no corpo escapa (`\`) pra nao virar indice de
+ref -> valor digit-heavy **incha** em modo-TCF (`111.111.111-11` 14 chars -> `\111.\111.\111-\11`
+18 chars) -> por isso cai no raw fallback (`!`). Fatorar a repeticao precisa vencer o net
+contra o custo dos escapes (H-INTRA-02).
+
+**Status**: registrado em [`roadmap-hipoteses.md`](roadmap-hipoteses.md) **Pacote 11**
+(H-INTRA-01..03), **alvo 0.8** (format change -> grupo de formato #TCF.8; nao confundir com
+o badge de versao do pacote, ADR-0024). Caracterizar engine (OBAT vs HCC) + overlap com
+nature/split + interacao com escape ANTES de welder. GATE real-world obrigatorio.
+
+**Conexoes**: ADR-0015 (natures = caminho semantico), ADR-0026 (split estrutural),
+Pacote 7 (templated) e Pacote 11 (este) no roadmap.
+
 ### Nota geral — fluxo atual (2026-05-24)
 
 Owner registra explicitamente que **o pipeline atual ainda tem muito
@@ -441,7 +462,7 @@ Quando voltar pra estas otimizacoes:
 Atualizar quando: nova ideia chegar, ou alguma O-FMT-* mudar de
 status (testada/iniciada/refutada).
 
-**Ultima atualizacao**: 2026-06-14 (O-FMT-15 ultima-coluna-sem-size + O-FMT-16
-espaco-do-meta-dispensavel + bundle "header v2 minimo" / reframe transmissoes
-minusculas). Antes: 2026-05-24 (O-FMT-14 header desacoplavel), 2026-05-17
-(criacao + 12 entries).
+**Ultima atualizacao**: 2026-06-16 (O-FMT-17 repeticao intra-linha / intra-valor, alvo 0.8
+— cross-ref roadmap Pacote 11). Antes: 2026-06-14 (O-FMT-15 ultima-coluna-sem-size + O-FMT-16
+espaco-do-meta-dispensavel + bundle "header v2 minimo" / reframe transmissoes minusculas),
+2026-05-24 (O-FMT-14 header desacoplavel), 2026-05-17 (criacao + 12 entries).

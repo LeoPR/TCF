@@ -369,6 +369,45 @@ prova-de-conceito) -> H-LOSS-01 (residuo-soma) -> H-LOSS-04/05. Resto sob demand
 
 ---
 
+## Pacote 11 — Tratamento de valores estruturados (CPF e afins) (registrado 2026-06-16, alvo 0.8)
+
+**Origem**: ao caracterizar o CPF no exemplo do README (2026-06-16), o owner separou
+DOIS tratamentos **ortogonais** pra valores estruturados digit-heavy (CPF, CNPJ, IP,
+telefone, datas, EAN...). Sao caminhos distintos, nao concorrentes:
+
+**(1) Filtro / nature (SEMANTICO — conhece o tipo) — JA PLANEJADO/welded.**
+SPEC_CPF/CNPJ/IP ([ADR-0015](../../../../docs/adr/0015-natures-templated-checked-weld.md))
+tira a pontuacao, guarda so' os digitos uteis e regenera o digito verificador no decode.
+Welded p/ CPF/CNPJ/IP; os demais templated/checksummed estao no **Pacote 7** (H-TM-*,
+aguardam T-DATA-1 + caracterizacao). E' opt-in e conhece a estrutura do tipo.
+
+**(2) Repeticao INTRA-LINHA (GENERICO — nao conhece o tipo) — NOVO, alvo 0.8.**
+Caracterizacao empirica (2026-06-16, `encode` real):
+- `111.111.111-11` tem repeticao INTERNA (`111.` x3) que o pipeline atual **NAO fatora**.
+- O que existe hoje e' tudo **interlinha**: `*N|` = linha inteira repetida adjacente
+  (`*3|\111.\111.\111-\11`); `^N` = valor inteiro repetido em qualquer posicao.
+- NAO existe captura de repeticao de substring **dentro de um unico valor** (intra-linha).
+- Agravante: digito no corpo escapa (`\`) pra nao virar indice de ref -> valor digit-heavy
+  **incha** em modo-TCF (`111.111.111-11` 14 chars -> `\111.\111.\111-\11` 18 chars) ->
+  por isso cai no **raw fallback** (`!`) no multi-col.
+
+| ID | Hipotese | Status | ref |
+|---|---|---|---|
+| H-INTRA-01 | Capturar repeticao de substring **intra-valor** reduz bytes em valores estruturados digit-heavy. Recurso novo — decidir o **engine**: OBAT (tokenizar sub-runs dentro do valor) OU HCC (compor atoms intra-valor). | aberta (alvo 0.8) | caracterizacao 2026-06-16 |
+| H-INTRA-02 | Interacao com o **escape de digito** (`\`): fatorar a repeticao reduz o numero de `\`? Ou o escape come o ganho? Medir o net real. | aberta | — |
+| H-INTRA-03 | **Overlap** com nature (1) + split estrutural (ADR-0026): o ganho intra-linha generico e' marginal/redundante onde nature ou split ja' atuam? Medir o INCREMENTO antes de welder (anti-incidente 2026-05-21). | aberta | — |
+
+**Notas de decisao (do owner, 2026-06-16)**:
+- Os dois caminhos coexistem: (1) e' semantico/opt-in (o usuario diz "isto e' CPF"),
+  (2) e' generico/automatico (vale pra qualquer valor com repeticao interna).
+- O recurso (2) e' **format change** (novo marcador/gramatica) -> grupo de formato
+  **#TCF.8**, ciclo **0.8** (ADR-0024: minor do formato != badge de versao do pacote).
+- OBAT vs HCC = **a decidir** (caracterizar antes). GATE real-world obrigatorio (toca core).
+- Medir o overlap (H-INTRA-03) ANTES de welder: nature + split + dedup `^N` ja' cobrem
+  parte dos casos; o generico so' vale pelo INCREMENTO sobre eles.
+
+---
+
 ## Estrategia de mistura
 
 **Antes de misturar, esgotar isoladas dentro de cada pacote.**
