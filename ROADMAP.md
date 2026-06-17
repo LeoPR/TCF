@@ -56,7 +56,8 @@ idêntico); só o *spec viajar no header* pra auto-decode por terceiros **é ver
 ### Cheap-wins (baratos, sem mexer no núcleo — exceto bug)
 - **release.yml** + Trusted Publishing (automatizar `uv publish`). [S]
 - Documentar os knobs explícitos (`fallback`/`min_header`/`min_len`) + trade-offs. [S]
-- **O-FMT-12**: auto-detect dialect/tipos do CSV + `encode_file()` conveniente. [S]
+- ~~**O-FMT-12**: auto-detect CSV + `encode_file()`~~ — **PARK** (owner 2026-06-16): leitura-de-input
+  é fora-do-core por design; `encode(dict)`+`DictReader` bastam (0 bytes). [levantamento](experiments/lab/dirty/notas/ofmt12-encode-file-levantamento.md)
 - Higiene de header compacto (O-FMT-11, byte-precise). [S]
 - Atualizar docstring de SPEC em `natures/__init__.py` (após H-NAT-MARK-01). [S]
 

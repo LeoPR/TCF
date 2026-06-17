@@ -236,7 +236,9 @@ Achado central: o projeto mantem leitura-de-input FORA do core por design (docst
 `dataset_reader`). Recomendacao: fazer como GADGET (`scripts/tcf_io/`), escopo minimo
 (`encode_file` com auto-detect via csv.Sniffer + charset_normalizer, transpor, encode; SEM
 deteccao de tipo — isso e' do schema_gadget). NAO e' versao (input convenience, 0 bytes; ganho =
-DX/DRY). Decisao do owner pendente (gadget / core-helper / park). Tangencial ao core.
+DX/DRY). **DECISAO: PARK (owner 2026-06-16)** — nao fazer; `encode(dict)` + `csv.DictReader`
+de 3 linhas ja' bastam, valor marginal (ergonomia, 0 bytes). Reabrir so' se houver demanda real
+de DX. Tangencial ao core.
 
 ### O-FMT-14 — Header desacoplavel / opcional / derivavel (registrado 2026-05-24)
 
