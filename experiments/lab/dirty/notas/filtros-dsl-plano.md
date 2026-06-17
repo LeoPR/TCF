@@ -67,7 +67,7 @@ Gera regex + formatter + instancia `TemplatedCheckedSpec` idêntico ao de `templ
 ## Plano faseado
 | fase | entrega | tier |
 |---|---|---|
-| **F1 — MVP gadget** | `scripts/natures_compiler/` (PARSE/VALIDATE/BUILD/round-trip + CLI); biblioteca de check-fns nomeadas (a única parte em `src/tcf/natures/algorithms.py` — aprovação+weld); 3 protótipos sem check (CEP/MAC/EAN); ~20-30 testes. **Zero format change**; decode out-of-band. | pré-1.0 |
+| **F1 — MVP gadget** | ✅ **FEITO 2026-06-16** — `scripts/natures_compiler/` (PARSE/VALIDATE/BUILD/round-trip + CLI). **Zero src/tcf** (reusa os check-fns do core importando-os; não precisou de `algorithms.py`). Provado por **regenerar CPF/CNPJ/IP do DSL == escritos à mão** (9 testes). **Achado**: CEP (zeros à esquerda) e MAC (hex) **não cabem** no `TemplatedPaddedSpec` → exigem spec novo em src/tcf (futuro). | pré-1.0 |
 | **F1.5 — registry** | `SPEC_REGISTRY` + lookup por nome em `nature`/`nature_per_col`. API inalterada (aceita string). Sem versão. | pré-1.0 |
 | **F2 — header (H-NAT-MARK-01)** | tag de nature na meta-line; decode auto; `#TCF.8` + ADR + backward-compat. **Só avançar se um filtro tiver ganho ≥15% weighted em 2+ datasets reais.** | 0.8 |
 | **F3 — plugins drop-in (H-NAT-MARK-02)** | `natures/` auto-descoberto; namespace contra colisão. | 0.8 |

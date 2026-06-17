@@ -54,8 +54,9 @@ os de terceiros (drop-in), pra outros desenvolverem os seus. **A API/pasta não 
 idêntico); só o *spec viajar no header* pra auto-decode por terceiros **é versão (0.8)** = H-NAT-MARK-01.
 **Plano completo (DSL textual → "compilador" → registry → header)**: [`filtros-dsl-plano.md`](experiments/lab/dirty/notas/filtros-dsl-plano.md).
 As natures já são paramétricas (`TemplatedCheckedSpec`/`TemplatedPaddedSpec` = dados + `check_fn`), então o
-compilador é um gerador de instâncias (1:1). Fluxo faseado: **F1** compilador-gadget (`scripts/natures_compiler/`,
-YAML→spec, biblioteca fechada de check-fns, round-trip obrigatório; pré-1.0) → **F1.5** registry/lookup por nome →
+compilador é um gerador de instâncias (1:1). Fluxo faseado: **F1 ✅ FEITO** (`scripts/natures_compiler/`,
+DSL flat→spec, round-trip obrigatório, **9 testes, zero src/tcf**; regenera CPF/CNPJ/IP do DSL == à mão;
+achado: CEP/MAC precisam spec novo) → **F1.5** registry/lookup por nome →
 **F2** spec viaja no header (#TCF.8, só com ganho ≥15% weighted em 2+ reais) → **F4** builder visual (2.0, front-end
 do mesmo compilador). Ressalva: o DSL vale como **infra/DX/explicabilidade**, não garante bytes — gate de ganho antes de weldar.
 
