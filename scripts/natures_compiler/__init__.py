@@ -8,5 +8,6 @@
 Nao toca src/tcf (importa os blocos do core e instancia). Ver compiler.py / README.md.
 """
 from .compiler import compile_file, compile_spec, parse_dsl, CHECK_FNS
+from . import registry
 
-__all__ = ["compile_file", "compile_spec", "parse_dsl", "CHECK_FNS"]
+__all__ = ["compile_file", "compile_spec", "parse_dsl", "CHECK_FNS", "registry"]

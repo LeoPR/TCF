@@ -56,7 +56,7 @@ idêntico); só o *spec viajar no header* pra auto-decode por terceiros **é ver
 As natures já são paramétricas (`TemplatedCheckedSpec`/`TemplatedPaddedSpec` = dados + `check_fn`), então o
 compilador é um gerador de instâncias (1:1). Fluxo faseado: **F1 ✅ FEITO** (`scripts/natures_compiler/`,
 DSL flat→spec, round-trip obrigatório, **9 testes, zero src/tcf**; regenera CPF/CNPJ/IP do DSL == à mão;
-achado: CEP/MAC precisam spec novo) → **F1.5** registry/lookup por nome →
+achado: CEP/MAC precisam spec novo) → **F1.5 ✅ FEITO** (registry gadget, lookup de nature por nome, semeado com cpf/cnpj/ip; 5 testes) →
 **F2** spec viaja no header (#TCF.8, só com ganho ≥15% weighted em 2+ reais) → **F4** builder visual (2.0, front-end
 do mesmo compilador). Ressalva: o DSL vale como **infra/DX/explicabilidade**, não garante bytes — gate de ganho antes de weldar.
 

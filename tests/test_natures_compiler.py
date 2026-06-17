@@ -87,3 +87,40 @@ def test_check_length_incoerente_rejeitado():
 def test_parse_dsl_flat():
     d = parse_dsl("name: ip\npadding_slots: [3, 3]\nseparator: .\n# comentario\nbody_length: 6")
     assert d == {"name": "ip", "padding_slots": [3, 3], "separator": ".", "body_length": 6}
+
+
+# --- F1.5: registry (lookup por nome, gadget) ---
+
+def test_registry_semeado_com_core():
+    from natures_compiler import registry
+    assert registry.get("cpf") is SPEC_CPF
+    assert registry.get("cnpj") is SPEC_CNPJ
+    assert registry.get("ip") is SPEC_IP
+
+
+def test_registry_get_desconhecido():
+    from natures_compiler import registry
+    with pytest.raises(KeyError):
+        registry.get("inexistente")
+
+
+def test_registry_register_duplicado():
+    from natures_compiler import registry
+    spec = compile_file(EX / "cpf.dsl")
+    with pytest.raises(ValueError):
+        registry.register("cpf", spec)                 # ja' existe
+    registry.register("cpf_dsl", spec)                 # nome novo: ok
+    assert registry.get("cpf_dsl") is spec
+
+
+def test_registry_load_dir():
+    from natures_compiler import registry
+    loaded = registry.load_dir(EX)
+    assert {"cpf", "cnpj", "ip"} <= set(loaded)
+
+
+def test_registry_end_to_end():
+    from natures_compiler import registry
+    spec = registry.get("cpf")
+    cpfs = ["111.111.111-11", "222.222.222-22"]
+    assert decode(encode(cpfs, nature=spec), nature=spec) == cpfs
