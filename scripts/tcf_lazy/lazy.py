@@ -18,10 +18,12 @@ de dicionário, dicas no header) são hooks documentados pra depois — ver NOTA
 """
 from __future__ import annotations
 
+from collections import Counter
 from collections.abc import Callable
 
 from tcf.multi import (
     MAGIC_MULTI, MAGIC_MULTI_V2, META_PREFIX, _decode_v2b, _decode_struct_split,
+    _v2b_width, _V2B_BASE,
 )
 from tcf.decoder import _decode_column
 
@@ -111,11 +113,56 @@ class LazyTCF:
             self.touched.append(name)
         return self._cache[name]
 
+    # ---- L3: estrutura (dict/raw) — contar/agrupar SEM expandir as N linhas ----
+    def _dict_parts(self, name: str):
+        """Parseia um corpo V2-B (`@`): (unicas, width, stream). Decodifica só a
+        tabelinha de únicos (K valores), nunca as N linhas."""
+        body = self._body[name]
+        nl = body.find(b"\n")
+        ntable = int(body[:nl]); start = nl + 1
+        unicas = _decode_column(body[start:start + ntable].decode("utf-8"))
+        if name not in self.touched:
+            self.touched.append(name)
+        return unicas, _v2b_width(len(unicas)), body[start + ntable:]
+
+    def _structural_count(self, name: str):
+        """Linhas SEM decodificar valores: dict (tamanho do stream) / raw
+        (nº de '\\n'). None se o modo exige decode (tcf/split)."""
+        mode = self._mode[name]
+        if mode == "dict":
+            _, width, stream = self._dict_parts(name)
+            return len(stream) // width
+        if mode == "raw":
+            if name not in self.touched:
+                self.touched.append(name)
+            return self._body[name].count(b"\n") + 1
+        return None
+
     @property
     def nrows(self) -> int:
-        """Número de linhas — toca a coluna de menor corpo (a mais barata)."""
+        """Número de linhas. Tenta estrutural (dict/raw, sem decode de valores);
+        senão decodifica a coluna tcf/split mais barata."""
+        for name in self._order:
+            sc = self._structural_count(name)
+            if sc is not None:
+                return sc
         cheapest = min(self._body, key=lambda n: len(self._body[n]))
         return len(self._col(cheapest))
+
+    def group_count(self, col: str) -> dict[str, int]:
+        """Contagem por grupo (`{valor: n}`) SEM expandir a coluna, quando ela é
+        dicionário (`@`): tallia o stream de índices + decodifica só os únicos.
+        Demais modos: fallback (decode + Counter). É a 'agregação sem expandir'."""
+        if self._mode[col] == "dict":
+            unicas, width, stream = self._dict_parts(col)
+            tally = Counter()
+            for j in range(0, len(stream), width):
+                idx = 0
+                for ch in stream[j:j + width]:
+                    idx = idx * _V2B_BASE + (ch - 0x21)
+                tally[unicas[idx]] += 1
+            return dict(tally)
+        return dict(Counter(self._col(col)))
 
     # ---- numérico (contrato: ignora vazios; erra em não-numérico) ----
     def _floats(self, col: str, idx: list[int] | None) -> list[float]:
@@ -224,14 +271,18 @@ def view(blob: str) -> LazyTCF:
 
 
 # ===========================================================================
-# NOTAS — otimizações futuras (FUNCIONAL primeiro; estas ficam pra depois):
-#   L3  agregar runs `*N|` / `*N+delta|` lendo o marcador, sem expandir a coluna.
-#   L4  filtro assistido por índice: coluna `@` (dicionário) dá pertinência de
-#       grupo sem decodificar todos os valores.
+# NOTAS — otimizações:
+#   L3 (FEITO, via dict/raw) — `nrows`/`group_count` contam/agrupam SEM expandir as
+#       N linhas: dicionário (`@`) = tamanho do stream + tally; raw = nº de '\n'.
+#       ACHADO (verificado, 2026-06-16): agregar os runs `*N|` direto no modo-tcf
+#       NÃO é barato/separável — OBAT+HCC entrelaçam o valor com refs de outras
+#       linhas (invariante de contagem falhou em colunas tipo-ID; 0 colunas tcf
+#       "clean-numeric"). O ganho estrutural limpo vive no dict/raw. Por isso L3
+#       usa o dicionário, não o parse de `*N|` do tcf. tcf/split caem em fallback.
+#   L4  filtro assistido por índice no dicionário (where sobre `@` via stream).
 #   L5  layout p/ baixa latência: organizar/encodar pra uma query-alvo tocar o
 #       mínimo (ordenar/agrupar pela chave), mantendo a compressão da transmissão.
-#   +   saltos dedutivos / inferência pela estrutura serializada; em último caso,
-#       dicas baratas no header. Cada uma medida antes de adotar.
+#   +   saltos dedutivos / inferência pela estrutura; em último caso, dicas no header.
 # Acoplamento: reusa decoders internos de src/tcf (_decode_column/_decode_v2b/
 #   _decode_struct_split). É um gadget que LÊ o formato; se os internos mudarem,
 #   o gadget acompanha. Não toca src/tcf.

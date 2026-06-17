@@ -26,11 +26,21 @@ vs `decode()` completo = **100%** (8 colunas). Responder "quantos itens o usuár
 toca **7,9%** do blob — o resto fica comprimido. Um compressor binário descomprimiria 100%
 antes de qualquer conta. **Memória e latência baixas** caem direto da estrutura do TCF.
 
+## L3 — contar/agrupar sem expandir (FEITO, via dict/raw)
+Promovido no gadget `scripts/tcf_lazy/` (`nrows` estrutural + `group_count`).
+- **dict (`@`)**: `count` = tamanho do stream de índices; `group_count` = tally do stream +
+  decode só da tabelinha de únicos (K valores). **Sem expandir as N linhas.** Verificado vs
+  decode completo (adult/receita). Ex.: `group_count('education')` em 5000 linhas materializa
+  **5,0%** do blob; `nrows` idem (não constrói a lista de 5000).
+- **raw**: `count` = nº de `\n` (sem decode de valores).
+- **ACHADO honesto (verificado 2026-06-16)**: agregar os runs `*N|` **direto no modo-tcf NÃO é
+  barato/separável** — OBAT+HCC entrelaçam o valor com refs de outras linhas. O invariante de
+  contagem (Σ multiplicidades == nº de linhas) **falhou** em colunas tipo-ID (InvoiceNo,
+  l_orderkey), e **0** colunas tcf eram "clean-numeric". Por isso o L3 usa a estrutura do
+  **dicionário/raw**, não o parse de `*N|` do tcf. tcf/split caem em fallback (decode + Counter).
+
 ## Etapas seguintes (segmentadas, baratas)
-- **L3** — agregar **runs** (`*N|`, `*N+delta|`) lendo o marcador, sem expandir a coluna
-  (descomprime ainda menos; usa a explicabilidade do formato).
-- **L4** — filtro assistido por índice: coluna dicionário (`@`) dá pertinência de grupo sem
-  decodificar todos os valores.
+- **L4** — filtro (`where`) assistido por índice de dicionário (operar sobre o stream `@`).
 - **L5** — **layout p/ baixa latência**: organizar/encodar de modo que uma query-alvo
   (ex.: "qtd por usuário") seja respondida tocando o mínimo (ordenar/agrupar pela chave) —
   mantendo a compressão da transmissão. Dimensões: memória, velocidade, latência, compressão.

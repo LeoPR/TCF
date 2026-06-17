@@ -429,7 +429,11 @@ byte-exato; `where('cidade','SP').sum('valor')` toca so' `cidade`+`valor`). FORA
 - **L2** quantificar a venda (memoria/latencia): medido — "qtd comprada por um usuario"
   (`where(CustomerID=X).sum(Quantity)`) toca **7.9%** do blob (online-retail 5k, 8 col);
   `count()` 0.2%; vs `decode()` 100%. (`lazy_query_dimensions.py`).
-- **L3** agregar **runs** (`*N|`, `*N+delta|`) sem expandir a coluna (descomprime menos).
+- **L3** **FEITO (via dict/raw)**: `nrows`/`group_count` contam/agrupam sem expandir as N
+  linhas — dict (`@`) = tamanho do stream + tally da tabelinha; raw = nº de `\n`. Ex.:
+  `group_count('education')` em 5k materializa 5%. **ACHADO**: agregar `*N|` direto no modo-tcf
+  NAO e' separavel (OBAT+HCC entrelacam valor com refs; invariante de contagem falhou em IDs;
+  0 colunas tcf clean-numeric) -> o ganho limpo vive no dict/raw; tcf/split caem em fallback.
 - **L4** filtro assistido por indice (coluna `@` dicionario da pertinencia sem decodar tudo).
 - **L5** **layout p/ baixa latencia**: organizar/encodar pra uma query-alvo (ex: "qtd por
   usuario") ser respondida tocando o minimo, mantendo a compressao da transmissao. Liga com as

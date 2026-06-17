@@ -5,6 +5,7 @@ Gadget auxiliar em scripts/tcf_lazy/ (não TCF-CORE; lê #TCF.7, não toca src/t
 from __future__ import annotations
 
 import sys
+from collections import Counter
 from pathlib import Path
 
 import pytest
@@ -114,3 +115,24 @@ def test_vazios_sao_ignorados():
 def test_coluna_inexistente(blob):
     with pytest.raises(KeyError):
         view(blob).sum("inexistente")
+
+
+# --- L3: contar/agrupar sem expandir (via dict/raw) ---
+
+def test_tem_coluna_dict(blob):
+    # garante que o caminho estrutural (dicionario @) e' exercido neste fixture
+    assert "dict" in view(blob)._mode.values()
+
+
+def test_nrows_estrutural(blob):
+    assert view(blob).nrows == 6
+
+
+def test_group_count_cidade(blob):
+    assert view(blob).group_count("cidade") == {"Sao Paulo": 4, "Rio de Janeiro": 2}
+
+
+def test_group_count_correto_vs_decode(blob):
+    full = decode(blob)
+    for c in view(blob).columns:
+        assert view(blob).group_count(c) == dict(Counter(full[c]))
