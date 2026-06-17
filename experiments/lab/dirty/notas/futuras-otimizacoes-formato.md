@@ -231,7 +231,12 @@ quando casos de uso real aparecerem.
 schema (tipos por coluna) automaticamente. Permite encode_file()
 mais conveniente.
 
-**Status**: aberta. Tangencial ao core.
+**Status**: **LEVANTADO 2026-06-16** ([`ofmt12-encode-file-levantamento.md`](ofmt12-encode-file-levantamento.md)).
+Achado central: o projeto mantem leitura-de-input FORA do core por design (docstring do
+`dataset_reader`). Recomendacao: fazer como GADGET (`scripts/tcf_io/`), escopo minimo
+(`encode_file` com auto-detect via csv.Sniffer + charset_normalizer, transpor, encode; SEM
+deteccao de tipo — isso e' do schema_gadget). NAO e' versao (input convenience, 0 bytes; ganho =
+DX/DRY). Decisao do owner pendente (gadget / core-helper / park). Tangencial ao core.
 
 ### O-FMT-14 — Header desacoplavel / opcional / derivavel (registrado 2026-05-24)
 
