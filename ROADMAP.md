@@ -39,9 +39,10 @@ column-pruning + agregadores (PoC) · **L2 medido** — `where(CustomerID=X).sum
 (online-retail 5k×8) · L3 agregar runs (`*N|`) sem expandir · L4 filtro por índice (`@`) ·
 L5 **layout p/ baixa latência** (organizar pra uma query-alvo tocar o mínimo; dimensões
 **memória/velocidade/latência/compressão**). **Não é versão de formato** — lê o `#TCF.7` existente.
-**L3 já feito** no gadget (via dict/raw): `nrows`/`group_count` sem expandir as N linhas
-(`group_count('education')` em 5k toca 5% do blob). Achado: agregar `*N|` direto no modo-tcf
-não é separável (OBAT+HCC entrelaçados) — o ganho limpo vive no dicionário/raw.
+**L3 e L4 já feitos** no gadget (via dict/raw): `nrows`/`group_count` contam/agrupam e `where`
+filtra **sem expandir as N linhas** — varrendo o stream de índices do dicionário (`group_count`
+e `where(workclass='Private')` em 5k tocam ~5% do blob, sem cachear a coluna). Achado: agregar
+`*N|` direto no modo-tcf não é separável (OBAT+HCC entrelaçados) — o ganho limpo vive no dicionário/raw.
 
 **Filtros modulares (H-NAT-MARK-02, ideia do owner)**: `natures/` vira **pasta de plugins** —
 cada filtro um módulo spec auto-contido (regex + transform + id), com um registry que descobre

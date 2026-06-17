@@ -434,7 +434,9 @@ byte-exato; `where('cidade','SP').sum('valor')` toca so' `cidade`+`valor`). FORA
   `group_count('education')` em 5k materializa 5%. **ACHADO**: agregar `*N|` direto no modo-tcf
   NAO e' separavel (OBAT+HCC entrelacam valor com refs; invariante de contagem falhou em IDs;
   0 colunas tcf clean-numeric) -> o ganho limpo vive no dict/raw; tcf/split caem em fallback.
-- **L4** filtro assistido por indice (coluna `@` dicionario da pertinencia sem decodar tudo).
+- **L4** **FEITO**: `where` sobre coluna `@` varre so' o stream de indices (compara id;
+  value/pred avaliados nos K unicos) — sem decodar os N valores. Encadeado (AND) le so' as
+  posicoes ja' filtradas. Ex.: `where(workclass='Private')` em 5k toca 5% e nao cacheia a coluna.
 - **L5** **layout p/ baixa latencia**: organizar/encodar pra uma query-alvo (ex: "qtd por
   usuario") ser respondida tocando o minimo, mantendo a compressao da transmissao. Liga com as
   dimensoes memoria/velocidade/latencia/compressao (diretriz owner; ja' nos docs pra fazer depois).

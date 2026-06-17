@@ -136,3 +136,36 @@ def test_group_count_correto_vs_decode(blob):
     full = decode(blob)
     for c in view(blob).columns:
         assert view(blob).group_count(c) == dict(Counter(full[c]))
+
+
+# --- L4: filtro pelo índice do dicionário (sem decodar tudo) ---
+
+def test_where_dict_equivale_a_decode(blob):
+    full = decode(blob)
+    esperado = [i for i, c in enumerate(full["cidade"]) if c == "Sao Paulo"]
+    assert view(blob).where("cidade", "Sao Paulo").indices == esperado
+
+
+def test_where_dict_nao_materializa_a_coluna(blob):
+    v = view(blob)
+    assert v._mode["cidade"] == "dict"          # garante o caminho L4
+    v.where("cidade", "Sao Paulo")
+    assert "cidade" not in v._cache             # não construiu a lista de N valores
+
+
+def test_where_valor_inexistente(blob):
+    assert view(blob).where("cidade", "Berlin").count() == 0
+
+
+def test_where_dict_predicado(blob):
+    f = view(blob).where("plano", pred=lambda x: x == "Premium")
+    assert f.count() == 4
+
+
+def test_where_encadeado_dict_via_stream(blob):
+    # cidade e plano são dict -> AND lê só posições no stream; resultado bate com decode
+    full = decode(blob)
+    esperado = [i for i in range(len(full["cidade"]))
+                if full["cidade"][i] == "Sao Paulo" and full["plano"][i] == "Premium"]
+    got = view(blob).where("cidade", "Sao Paulo").where("plano", "Premium").indices
+    assert got == esperado

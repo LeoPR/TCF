@@ -24,7 +24,8 @@ v.report()                                     # {materialized_bytes, total_byte
 - `.columns`, `.nrows`, `.column_bytes(name)`, `.total_bytes`, `.materialized_bytes`, `.report()`.
 - Agregadores: `count`, `sum`, `min`, `max`, `avg` (numérico: ignora vazios, erra em não-numérico).
 - `where(col, value=...)` ou `where(col, pred=callable)` → `Filtered` (`.count/.sum/.min/.max/.avg/.select`,
-  `.indices`, e `.where(...)` encadeado AND).
+  `.indices`, e `.where(...)` encadeado AND). **L4**: em coluna `@` o filtro varre só o stream de
+  índices (compara id; value/pred avaliados sobre os K únicos) — sem decodar os N valores.
 - `select(cols=None, idx=None)` → linhas alinhadas (decodifica só as colunas pedidas).
 - **L3 — sem expandir**: `.nrows` (estrutural: dict = tamanho do stream, raw = nº de `\n`) e
   `group_count(col)` (`{valor: n}`; em coluna `@` dicionário, tallia o stream + só a tabelinha
@@ -35,9 +36,10 @@ v.report()                                     # {materialized_bytes, total_byte
 
 ## Estado
 Funcional (filtro + agregação + alinhamento) + **L3** (contar/agrupar sem expandir, via
-dict/raw). `tests/test_tcf_lazy.py` (17 testes). **Achado L3 (verificado)**: agregar `*N|`
-direto no modo-tcf não é separável (OBAT+HCC entrelaçam valor com refs de outras linhas) —
-o ganho estrutural limpo vive no dicionário (`@`)/raw. Próximas (hooks em `lazy.py`): L4 filtro
-por índice de dicionário, L5 layout p/ baixa latência, dicas no header. **Funcional primeiro.**
+dict/raw) + **L4** (filtro pelo índice do dicionário, varrendo só o stream). `tests/test_tcf_lazy.py`
+(22 testes). **Achado L3 (verificado)**: agregar `*N|` direto no modo-tcf não é separável
+(OBAT+HCC entrelaçam valor com refs de outras linhas) — o ganho estrutural limpo vive no
+dicionário (`@`)/raw. Próximas (hooks em `lazy.py`): L5 layout p/ baixa latência, dicas no
+header. **Funcional primeiro.**
 
 **Não é versão de formato**: lê o `#TCF.7` atual. Pode evoluir sem bump.

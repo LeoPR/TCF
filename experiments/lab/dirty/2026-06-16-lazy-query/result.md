@@ -39,8 +39,14 @@ Promovido no gadget `scripts/tcf_lazy/` (`nrows` estrutural + `group_count`).
   l_orderkey), e **0** colunas tcf eram "clean-numeric". Por isso o L3 usa a estrutura do
   **dicionário/raw**, não o parse de `*N|` do tcf. tcf/split caem em fallback (decode + Counter).
 
+## L4 — filtro pelo índice do dicionário (FEITO)
+`where(col, value/pred)` sobre coluna `@`: acha o(s) id(s) na tabelinha de únicos (avalia
+value/pred sobre os K únicos) e **varre só o stream** comparando id — sem decodificar os N
+valores. Encadeado (AND) lê só as posições já filtradas. Non-dict: fallback (decode + filtro).
+Verificado: índices idênticos ao filtro via decode completo. Ex.: `where(workclass='Private')`
+em 5000 linhas (3420 casam) materializa **5,0%** do blob e NÃO coloca a coluna no cache.
+
 ## Etapas seguintes (segmentadas, baratas)
-- **L4** — filtro (`where`) assistido por índice de dicionário (operar sobre o stream `@`).
 - **L5** — **layout p/ baixa latência**: organizar/encodar de modo que uma query-alvo
   (ex.: "qtd por usuário") seja respondida tocando o mínimo (ordenar/agrupar pela chave) —
   mantendo a compressão da transmissão. Dimensões: memória, velocidade, latência, compressão.

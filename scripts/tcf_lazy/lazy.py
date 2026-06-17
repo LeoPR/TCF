@@ -28,6 +28,14 @@ from tcf.multi import (
 from tcf.decoder import _decode_column
 
 
+def _idx_at(stream: bytes, off: int, width: int) -> int:
+    """Decoda UM índice base-94 do stream V2-B na posição de byte `off`."""
+    k = 0
+    for ch in stream[off:off + width]:
+        k = k * _V2B_BASE + (ch - 0x21)
+    return k
+
+
 class LazyTCF:
     """View lazy sobre um blob TCF multi-coluna. Nada é descomprimido no __init__."""
 
@@ -156,13 +164,21 @@ class LazyTCF:
         if self._mode[col] == "dict":
             unicas, width, stream = self._dict_parts(col)
             tally = Counter()
-            for j in range(0, len(stream), width):
-                idx = 0
-                for ch in stream[j:j + width]:
-                    idx = idx * _V2B_BASE + (ch - 0x21)
-                tally[unicas[idx]] += 1
+            for off in range(0, len(stream), width):
+                tally[unicas[_idx_at(stream, off, width)]] += 1
             return dict(tally)
         return dict(Counter(self._col(col)))
+
+    # ---- L4: filtro assistido por índice de dicionário (sem decodar tudo) ----
+    def _dict_target_ids(self, col: str, value, pred):
+        """Para uma coluna `@`: (width, stream, set de ids dos únicos que casam).
+        Avalia value/pred sobre os K únicos (não sobre as N linhas)."""
+        unicas, width, stream = self._dict_parts(col)
+        if pred is not None:
+            ids = {i for i, u in enumerate(unicas) if pred(u)}
+        else:
+            ids = {i for i, u in enumerate(unicas) if u == value}
+        return width, stream, ids
 
     # ---- numérico (contrato: ignora vazios; erra em não-numérico) ----
     def _floats(self, col: str, idx: list[int] | None) -> list[float]:
@@ -203,6 +219,11 @@ class LazyTCF:
 
     # ---- filtro: descomprime SÓ a coluna do filtro, devolve view restrita ----
     def where(self, col: str, value=None, *, pred: Callable[[str], bool] | None = None) -> "Filtered":
+        if self._mode[col] == "dict":           # L4: varre o stream, sem decodar os N valores
+            width, stream, ids = self._dict_target_ids(col, value, pred)
+            idx = [i for i, off in enumerate(range(0, len(stream), width))
+                   if _idx_at(stream, off, width) in ids]
+            return Filtered(self, idx)
         vals = self._col(col)
         if pred is not None:
             idx = [i for i, v in enumerate(vals) if pred(v)]
@@ -257,12 +278,17 @@ class Filtered:
 
     def where(self, col: str, value=None, *, pred=None) -> "Filtered":
         """Encadeia filtro (AND): restringe os índices atuais."""
-        vals = self._p._col(col)
+        p = self._p
+        if p._mode[col] == "dict":              # L4: lê só as posições já filtradas no stream
+            width, stream, ids = p._dict_target_ids(col, value, pred)
+            idx = [i for i in self.indices if _idx_at(stream, i * width, width) in ids]
+            return Filtered(p, idx)
+        vals = p._col(col)
         if pred is not None:
             idx = [i for i in self.indices if pred(vals[i])]
         else:
             idx = [i for i in self.indices if vals[i] == value]
-        return Filtered(self._p, idx)
+        return Filtered(p, idx)
 
 
 def view(blob: str) -> LazyTCF:
@@ -279,7 +305,9 @@ def view(blob: str) -> LazyTCF:
 #       linhas (invariante de contagem falhou em colunas tipo-ID; 0 colunas tcf
 #       "clean-numeric"). O ganho estrutural limpo vive no dict/raw. Por isso L3
 #       usa o dicionário, não o parse de `*N|` do tcf. tcf/split caem em fallback.
-#   L4  filtro assistido por índice no dicionário (where sobre `@` via stream).
+#   L4 (FEITO) — `where` sobre coluna `@` varre só o stream de índices (compara id,
+#       sem decodar os N valores); value/pred avaliados sobre os K únicos. Encadeado
+#       (AND) lê só as posições já filtradas. Non-dict: fallback (decode + filtro).
 #   L5  layout p/ baixa latência: organizar/encodar pra uma query-alvo tocar o
 #       mínimo (ordenar/agrupar pela chave), mantendo a compressão da transmissão.
 #   +   saltos dedutivos / inferência pela estrutura; em último caso, dicas no header.
