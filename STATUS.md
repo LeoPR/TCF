@@ -59,6 +59,19 @@
 > - Criados **[`ROADMAP.md`](ROADMAP.md)** (tiers pre-1.0/2.0/pesquisa) + **[`docs/divulgacao-tcf.md`](docs/divulgacao-tcf.md)**.
 >   Filtros modulares (H-NAT-MARK-02) + classificacao "e' versao?" registrados. README propagado.
 > - **Pacote `tcf-format 0.7.1` publicado no PyPI**. Suite **425 passed**, 1 xfailed. `src/tcf` intocado.
+>
+> **SESSAO 2026-06-17 (filtros modulares F1.5/F2 + CEP)**:
+> - **F1 + F1.5 FEITOS** (gadget [`scripts/natures_compiler/`](scripts/natures_compiler/)): compilador
+>   DSL textual -> spec + registry por nome (cpf/cnpj/ip semeados); **14 testes**; regenera CPF/CNPJ/IP
+>   do DSL == a' mao. **Zero `src/tcf`.** Achado: CEP/MAC precisariam spec novo.
+> - **CEP + outer-dict pesquisados** -> **nenhuma acao**: o TCF ja' trata CEP (split/OBAT+dict, lossless,
+>   zeros preservados); outer-dict subsumido por V2-B+split no caso tabular (nicho = payload minusculo
+>   indexando tabela-padrao grande). [pesquisa](experiments/lab/dirty/notas/cep-outer-dict-codebook-pesquisa.md).
+> - **F2 (H-NAT-MARK-01) — DESIGN FEITO, PARADO em (A)** (decisao owner): nature-id viaja no header
+>   (`#TCF.7->#TCF.8`, tag `:` no nome, resolucao core-only, id desconhecido->cru+flag). **Nao implementado**
+>   — o magic permanente nao se justifica so' por DX (gate >=15%/2-reais nao bate; registry gadget ja'
+>   cobre quase de graca). [ADR-0027 `proposed`](docs/adr/0027-nature-mark-header-self-describing.md) +
+>   [design](experiments/lab/dirty/notas/f2-nature-mark-header-design.md). **`src/tcf` intocado.**
 
 **Atualizado em**: 2026-06-08 (**Schema/quality gadget COMPLETO + incidente
 OneDrive recuperado + push remoto**). Resumo desde 06-03:

@@ -29,7 +29,7 @@ Tudo opt-in / gadget / knob; impacto no núcleo nenhum/leve (ou atrás de GATE).
 | LAZY-QUERY-RUNS (=L3) | agregar/contar grupos sem expandir a coluna | — | nenhum | **FEITO via dicionário/raw** (`group_count`/`nrows`). **Achado**: o `*N|` do modo-tcf é entrelaçado (OBAT+HCC, refs entre linhas) — **não separável**; o ganho limpo vive no dict/raw. |
 | **FILTRO-NUMERO** | Filtro/nature básico de **número** (além de CPF/CNPJ/IP) | S | leve | **CARACTERIZADO → PARK** ([`2026-06-16-number-nature-caracterizacao/`](experiments/lab/dirty/2026-06-16-number-nature-caracterizacao/)): **weighted na tabela NÃO atinge ≥15% em 2+** (adult 14,5%, receita 7,1%, tpch 3,4%, beijing 1,3%) e **some sob brotli** (≤6%). Ganho per-coluna (fnlwgt −41%) dilui na tabela. dict/seq-RLE/split já cobrem. Reabrir só como **nature opt-in estrita** se houver caso de transporte cru integer-heavy. Variantes (padded-int / scaled-decimal-lossy) → Pacote 10/v2.0. |
 | FILTROS-POPULARES | CEP, telefone, MAC, data-BR — barato-primeiro | S | nenhum | Reusa `TemplatedPaddedSpec`/`TemplatedCheckedSpec`. Um por vez, weld só com ganho ≥15% em 2+ reais. |
-| **H-NAT-MARK-01** | Marcador de nature **auto-descritivo** no header (o SPEC viaja com o TCF) | M | leve | Hoje natures são opt-in *out-of-band*. Header carrega tag por coluna → decode reconhece sozinho. Format change menor (alvo 0.8/`#TCF.8`). |
+| **H-NAT-MARK-01** | Marcador de nature **auto-descritivo** no header (o SPEC viaja com o TCF) | M | leve | **DESIGN FEITO → PARADO em (A)** (owner 2026-06-17): [ADR-0027 `proposed`](docs/adr/0027-nature-mark-header-self-describing.md) + [design](experiments/lab/dirty/notas/f2-nature-mark-header-design.md). Format change `#TCF.7→#TCF.8` (tag `:` no nome, resolução **core-only**, id desconhecido→cru+flag). **Não vale o magic permanente agora** — gate ≥15%/2-reais não bate (só CNPJ/receita) e a DX já tem rota zero-core (registry gadget). Revisitar com 2º nature real. |
 | V2-RLE-STREAM | RLE no stream de índices do V2-B (follow-up do 0.7) | S | nenhum | Extensão natural do dicionário welded. |
 | H-INTRA-01/02/03 | Repetição **intra-valor** (fatorar `111.` dentro de um valor) | M | **médio** | Pacote 11 / O-FMT-17, alvo 0.8. Decidir engine (OBAT×HCC), **medir net** com escape de dígito e **overlap** com nature/split. GATE obrigatório — *não atropelar*. |
 
@@ -57,7 +57,8 @@ As natures já são paramétricas (`TemplatedCheckedSpec`/`TemplatedPaddedSpec` 
 compilador é um gerador de instâncias (1:1). Fluxo faseado: **F1 ✅ FEITO** (`scripts/natures_compiler/`,
 DSL flat→spec, round-trip obrigatório, **9 testes, zero src/tcf**; regenera CPF/CNPJ/IP do DSL == à mão;
 achado: CEP/MAC precisam spec novo) → **F1.5 ✅ FEITO** (registry gadget, lookup de nature por nome, semeado com cpf/cnpj/ip; 5 testes) →
-**F2** spec viaja no header (#TCF.8, só com ganho ≥15% weighted em 2+ reais) → **F4** builder visual (2.0, front-end
+**F2 ⏸ DESIGN FEITO, PARADO** (spec viaja no header #TCF.8 = H-NAT-MARK-01; [ADR-0027 `proposed`](docs/adr/0027-nature-mark-header-self-describing.md);
+owner 2026-06-17 escolheu **não implementar agora** — o magic permanente não se justifica só por DX, que o registry gadget já cobre quase de graça) → **F4** builder visual (2.0, front-end
 do mesmo compilador). Ressalva: o DSL vale como **infra/DX/explicabilidade**, não garante bytes — gate de ganho antes de weldar.
 
 ### Cheap-wins (baratos, sem mexer no núcleo — exceto bug)

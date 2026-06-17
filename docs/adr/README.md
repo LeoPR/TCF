@@ -52,6 +52,9 @@ Registros numerados das decisoes arquiteturais do TCF. Inspirado em
 | [0022](0022-v2a-fallback-identity-weld.md) | V2-A fallback identity welded (abre v2.0, `#TCF.7`, opt-in `fallback=True`) | **accepted** |
 | [0023](0023-v2-minimal-header-weld.md) | Header v2 minimo welded (`#TCF.7`, opt-in `min_header`: sem espaco + ultima coluna sem size) | **accepted** |
 | [0024](0024-pre-1.0-versioning-git-as-compat.md) | Versionamento pré-1.0: minors de dev, git como compatibilidade (supersede freeze de 0017) | **accepted** |
+| [0025](0025-v2b-dictionary-categorical-weld.md) | V2-B dicionario categorico welded (`#TCF.7`, marcador `@`, 13.9% weighted) | **accepted** |
+| [0026](0026-structural-split-weld.md) | Split estrutural welded (`#TCF.7`, marcador `%`, 19.39% weighted) | **accepted** |
+| [0027](0027-nature-mark-header-self-describing.md) | H-NAT-MARK-01: nature-id viaja no header (self-describing, `#TCF.8`) | **proposed** (owner: nao implementar agora, 2026-06-17) |
 
 ## Quando criar ADR
 
