@@ -15,7 +15,7 @@
 Bytes-core welded: **V2-A** fallback (ADR-0022, `!`), **V2-B** dicionário (ADR-0025, `@`,
 13.9% weighted), **split estrutural** (ADR-0026, `%`, 19.39% weighted), **header mínimo**
 (ADR-0023), **sort_by** (O-FMT-02). Natures CPF/CNPJ/IP (ADR-0015). Pacote `tcf-format 0.7.1`
-publicado no PyPI. Suíte 398 passed; D1-D9=1523 B, D17a=303 B.
+publicado no PyPI. Suíte **425 passed** (inclui o gadget `tcf_lazy`); D1-D9=1523 B, D17a=303 B.
 
 ---
 
@@ -25,8 +25,8 @@ Tudo opt-in / gadget / knob; impacto no núcleo nenhum/leve (ou atrás de GATE).
 
 | id | item | custo | impacto núcleo | nota |
 |---|---|---|---|---|
-| **H-QUERY-01** | Lazy/queryable `view()` — descompressão seletiva por coluna/linha (`count/sum/min/max/avg` + `where`) | M | nenhum | **Promovido a gadget** [`scripts/tcf_lazy/`](scripts/tcf_lazy/) (13 testes; funcional: filtro+agregação+alinhamento de linha). Lê `#TCF.7`, fora de `src/tcf`. Tese central da 1.0. PoC: [`2026-06-16-lazy-query/`](experiments/lab/dirty/2026-06-16-lazy-query/). |
-| LAZY-QUERY-RUNS | Follow-up: agregar **runs** (`*N|`, seq-RLE) sem expandir a coluna | M | nenhum | Soma/conta grupos lendo os marcadores. Depende de H-QUERY-01. |
+| **H-QUERY-01** | Lazy/queryable `view()` — descompressão seletiva por coluna/linha (`count/sum/min/max/avg` + `where`) | M | nenhum | **GADGET** [`scripts/tcf_lazy/`](scripts/tcf_lazy/) (**27 testes; L1–L5 funcional**: pruning, dimensões, contar/agrupar/filtrar sem expandir, group-by por layout). Lê `#TCF.7`, fora de `src/tcf`. Tese central da 1.0. PoC: [`2026-06-16-lazy-query/`](experiments/lab/dirty/2026-06-16-lazy-query/). |
+| LAZY-QUERY-RUNS (=L3) | agregar/contar grupos sem expandir a coluna | — | nenhum | **FEITO via dicionário/raw** (`group_count`/`nrows`). **Achado**: o `*N|` do modo-tcf é entrelaçado (OBAT+HCC, refs entre linhas) — **não separável**; o ganho limpo vive no dict/raw. |
 | **FILTRO-NUMERO** | Filtro/nature básico de **número** (além de CPF/CNPJ/IP) | S | leve | **CARACTERIZADO → PARK** ([`2026-06-16-number-nature-caracterizacao/`](experiments/lab/dirty/2026-06-16-number-nature-caracterizacao/)): **weighted na tabela NÃO atinge ≥15% em 2+** (adult 14,5%, receita 7,1%, tpch 3,4%, beijing 1,3%) e **some sob brotli** (≤6%). Ganho per-coluna (fnlwgt −41%) dilui na tabela. dict/seq-RLE/split já cobrem. Reabrir só como **nature opt-in estrita** se houver caso de transporte cru integer-heavy. Variantes (padded-int / scaled-decimal-lossy) → Pacote 10/v2.0. |
 | FILTROS-POPULARES | CEP, telefone, MAC, data-BR — barato-primeiro | S | nenhum | Reusa `TemplatedPaddedSpec`/`TemplatedCheckedSpec`. Um por vez, weld só com ganho ≥15% em 2+ reais. |
 | **H-NAT-MARK-01** | Marcador de nature **auto-descritivo** no header (o SPEC viaja com o TCF) | M | leve | Hoje natures são opt-in *out-of-band*. Header carrega tag por coluna → decode reconhece sozinho. Format change menor (alvo 0.8/`#TCF.8`). |

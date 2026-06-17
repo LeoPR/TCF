@@ -420,7 +420,7 @@ byte-exato; `where('cidade','SP').sum('valor')` toca so' `cidade`+`valor`). FORA
 
 | ID | Hipotese | Status | ref |
 |---|---|---|---|
-| H-QUERY-01 | **View lazy** sobre o blob: `count/sum/min/max/avg` + `where`, com decode por coluna sob demanda (column pruning) + por linha no filtro. Um `decode()` ou gzip/brotli por cima materializaria tudo antes de qualquer conta; o lazy materializa so' o referenciado. | **GADGET em `scripts/tcf_lazy/`** (13 testes; funcional: filtro+agregacao+alinhamento). NAO e' versao (le #TCF.7). | `scripts/tcf_lazy/` + `tests/test_tcf_lazy.py`; PoC `2026-06-16-lazy-query/` |
+| H-QUERY-01 | **View lazy** sobre o blob: `count/sum/min/max/avg` + `where`, com decode por coluna sob demanda (column pruning) + por linha no filtro. Um `decode()` ou gzip/brotli por cima materializaria tudo antes de qualquer conta; o lazy materializa so' o referenciado. | **GADGET em `scripts/tcf_lazy/`** (27 testes; **L1-L5 funcional**). NAO e' versao (le #TCF.7). | `scripts/tcf_lazy/` + `tests/test_tcf_lazy.py`; PoC `2026-06-16-lazy-query/` |
 | H-QUERY-02 | **Agregar runs sem expandir**: somar/contar `*N|` (RLE) e `*N+delta|` (seq-RLE) lendo o marcador, sem materializar a sequencia. Leva o pilar de explicabilidade ao agregador. | aberta (media); depende H-QUERY-01 | — |
 | H-QUERY-03 | **SQL na camada lazy**: o SQL gerado pela tool LLM->SQL (gadget spin-off, T-RECOVER-LLM-SCHEMA-MODE) roda sobre a view lazy. Integracao LEVE, sem dependencia dura. | aberta (baixa, spin-off) | tools_plan (ROADMAP.md) |
 

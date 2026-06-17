@@ -44,6 +44,21 @@
 > Suite 398 passed; D1-D9=1523B / D17a=303B intactos; `src/tcf` so' string de
 > versao. Tag `v0.7.1`. Follow-ups adiados: V2-B RLE no stream; release.yml
 > (Trusted Publishing). Detalhe: `experiments/lab/dirty/notas/diario/2026-06-15.md`.
+>
+> **SESSAO 2026-06-16 (pos-0.7, divulgacao + lazy + caracterizacoes)**:
+> - **Lazy view gadget** [`scripts/tcf_lazy/`](scripts/tcf_lazy/) — **L1-L5 funcional, 27 testes**:
+>   conectar e consultar (`count/sum/min/max/avg` + `where` + group-by) **descomprimindo so' o
+>   necessario** (qtd-por-usuario toca **7,9%** do blob). Le `#TCF.7`, **nao-versao**, `src/tcf`
+>   intocado. Achados: `*N|` no modo-tcf NAO e' separavel (so' dict/raw); L5 layout = trade-off
+>   de compressao. Lab `2026-06-16-lazy-query/` + Pacote 12 (H-QUERY-01).
+> - **TCF + brotli vence em ESCALA**: TCF cheio + brotli < csv+brotli em multi-col real (adult
+>   −28%); "menos TCF" refutado; ordering codec-dependente (`2026-06-16-staged-and-ordering-brotli/`).
+>   EXP-008 refrescado (single-col).
+> - **number-nature** caracterizada -> **PARK** (weighted <15% em 2+, some sob brotli).
+>   **O-FMT-12** (encode_file/auto-detect CSV) levantado -> **PARK** (input fora-do-core).
+> - Criados **[`ROADMAP.md`](ROADMAP.md)** (tiers pre-1.0/2.0/pesquisa) + **[`docs/divulgacao-tcf.md`](docs/divulgacao-tcf.md)**.
+>   Filtros modulares (H-NAT-MARK-02) + classificacao "e' versao?" registrados. README propagado.
+> - **Pacote `tcf-format 0.7.1` publicado no PyPI**. Suite **425 passed**, 1 xfailed. `src/tcf` intocado.
 
 **Atualizado em**: 2026-06-08 (**Schema/quality gadget COMPLETO + incidente
 OneDrive recuperado + push remoto**). Resumo desde 06-03:

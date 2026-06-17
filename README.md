@@ -256,7 +256,7 @@ O dicionário low-card (V2-B) e o split estrutural já estão no default; a comp
   Round-trip sempre lossless (`decode(encode(x)) == x`).
 - Default **0.7 / `#TCF.7`**: fallback ([ADR-0022](docs/adr/0022-v2a-fallback-identity-weld.md)) + header mínimo ([ADR-0023](docs/adr/0023-v2-minimal-header-weld.md)), ver seção acima.
   O `#TCF.6` legado é lido pelo decoder.
-- Suíte: **398 passed, 1 xfailed**.
+- Suíte: **425 passed, 1 xfailed** (inclui 27 do gadget `tcf_lazy`).
   Baselines de byte = guardas de regressão, re-pináveis em mudança intencional ([ADR-0024](docs/adr/0024-pre-1.0-versioning-git-as-compat.md)).
 - Mudanças: [`CHANGELOG.md`](CHANGELOG.md).
   História M0-M14: [`experiments/lab/dirty/notas/historia-dirty-lab.md`](experiments/lab/dirty/notas/historia-dirty-lab.md).
@@ -329,11 +329,12 @@ que **alocar memória e descomprimir tudo** pra só então varrer os dados. É e
 natureza (CPF/CNPJ/IP e, no roadmap, numéricos) entram aqui — dão estrutura semântica explícita
 sem perder a legibilidade (ainda em evolução, ver acima).
 
-### Proposta: `view()` — agregar com descompressão seletiva
+### `view()` — agregar com descompressão seletiva *(gadget funcional)*
 
 Uma API *lazy* sobre o blob: conecta **sem descomprimir**, e só materializa a coluna
 (e as linhas) que o agregador precisa. Filtrar por algo descomprime **só** o que tem relação.
-*(Proposta, validada em PoC — [`2026-06-16-lazy-query/`](experiments/lab/dirty/2026-06-16-lazy-query/); ainda não em `src/tcf`.)*
+*(Gadget em [`scripts/tcf_lazy/`](scripts/tcf_lazy/) — lê o `#TCF.7`, **não toca `src/tcf` por design**;
+**27 testes**, L1–L5; PoC original em [`2026-06-16-lazy-query/`](experiments/lab/dirty/2026-06-16-lazy-query/).)*
 
 ```python
 v = view(blob)                                # conecta, não descomprime nada
@@ -348,8 +349,9 @@ v.where("cidade", "Sao Paulo").sum("valor")   # 470      toca: cidade, valor
 O `toca:` é o ponto (saída real do PoC): a soma filtrada materializou **só** `cidade` +
 `valor` — `cliente` e `plano` nunca foram descomprimidos. Um `decode()` (ou um gzip/brotli
 por cima) materializaria as 4 colunas **inteiras** antes de qualquer conta. Agregadores:
-`count`, `sum`, `min`, `max`, `avg`, mais `where` pra filtrar. Passo seguinte: usar os
-marcadores `*N|` / `*N+delta|` pra contar/somar **runs** sem nem expandir a coluna.
+`count`, `sum`, `min`, `max`, `avg` + `where`; **L3–L5 já implementados** — contar/agrupar
+**sem expandir** (via dicionário/raw; o `*N|` do modo-tcf é entrelaçado, **não separável**),
+filtro pelo índice do dicionário, e group-by por **layout ordenado** (`sort_by`).
 
 Em dados reais (online-retail, 5 000 × 8), responder *"quantos itens o usuário X comprou"*
 (`where(CustomerID=X).sum("Quantity")`) **materializa 7,9% do blob** — `count()` toca 0,2% —
@@ -506,6 +508,7 @@ O encoder e' a ferramenta principal; auxiliares de suporte (NAO TCF-core):
 - **I want to run the LLM benchmark** → [llm-benchmark/](llm-benchmark/) (acessorio v0.5)
 - **I want to understand the architecture** → [docs/theory/](docs/theory/)
 - **I want to see the roadmap** → [ROADMAP.md](ROADMAP.md) (tiers: pré-1.0 / 2.0 / pesquisa); detalhe granular em [roadmap-hipoteses.md](experiments/lab/dirty/notas/roadmap-hipoteses.md)
+- **I want to query without decompressing** → [scripts/tcf_lazy/](scripts/tcf_lazy/) (gadget *lazy*: `count`/`sum`/`where`/group-by tocando só o necessário)
 - **I want to share / pitch TCF** → [docs/divulgacao-tcf.md](docs/divulgacao-tcf.md) (material de divulgação, estilo post)
 - **I want to read the paper** → drafts v0.5: [docs/archive/article_v05/](docs/archive/article_v05/) (paper v0.7 pendente)
 - **I want to see how it evolved** → [CHANGELOG.md](CHANGELOG.md) +
