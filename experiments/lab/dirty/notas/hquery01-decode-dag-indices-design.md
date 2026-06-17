@@ -146,3 +146,162 @@ pesada, GATE, re-pin) e redesign OBAT/HCC (viola single-pass ADR-0002).
 **A "venda" do lazy aqui é o column-pruning + dict-stream-scan que já existem**, não um índice
 mágico. Registrar em ADR (quando consolidar) que índices são **gadget-territory** (derivável >
 sidecar > formato), **nunca in-blob por default**.
+
+---
+
+# 9. Revisão do owner (2026-06-17) — pra pensar depois (NÃO implementar)
+
+Três correções de rumo do owner, que mudam a **forma** do plano (não o código). Tudo abaixo é
+planejamento; nenhuma atividade é pra executar agora.
+
+## 9.1. Unificação "não-dura" — caminhos mínimos inteligentes, união bottom-up
+
+Crítica do owner ao "decode unificado" da seção 2: **juntar tudo numa função não é unificar** —
+é só *lumping*. Unificar como ALGORITMO é compartilhar sub-computação real; pôr `count`, `where`,
+`group` no mesmo método sem fatorar o que é comum dá uma falsa unificação (um `if mode/op` gigante).
+
+**Sequência de desenvolvimento correta** (a espinha do plano, substitui a leitura "top-down" da
+seção 2):
+
+1. **Fazer cada operação por si** — `count`, `group-tally`, `where`, `agg-filtrada`, `select` —
+   cada uma no seu **caminho mínimo por modo** (o que a seção 1 já mapeou). Independentes, simples,
+   testáveis isoladas. É o que `lazy.py` já faz em boa parte.
+2. **Otimizar cada caminho** isoladamente (sem acoplar aos outros).
+3. **Fatorar o COMUM** — só depois, extrair as primitivas que reaparecem. O comum real, ancorado
+   no código atual, é um pequeno conjunto de **acessadores por coluna/modo**:
+   - `tabela(col)` → decodifica os K únicos (dict) — usado por `group_count`, `where`, min/max.
+   - `ids_por_posição(col)` → itera o stream base-94 sem expandir (dict) — usado por `where`,
+     `group_count`, group-by.
+   - `valor_em(col, i)` / `valores(col, idx)` → materializa só o necessário.
+   - `count_estrutural(col)` → `nrows` sem decodar.
+   A "unificação" verdadeira = essas primitivas compartilhadas; `execute()` (E2) vira um
+   **orquestrador fino** que compõe primitivas, **não** um decodificador monolítico. Se a fatoração
+   não aparecer naturalmente, é sinal de que as operações **não** são unificáveis ali — e tudo bem
+   manter caminhos separados (honestidade > elegância forçada).
+
+**Hipótese H-QUERY-04b (registrada)**: *não perseguir um `decode()` unificado; perseguir caminhos
+mínimos por operação e deixar as primitivas comuns emergirem da fatoração.* Mede-se o sucesso pela
+**reúso real** (quantas ops compartilham a mesma primitiva), não por "tudo numa função".
+
+## 9.2. Paralelismo por coluna (consequência da independência do DAG)
+
+Como as colunas são nós **independentes** (seção 1), uma query que toca colunas distintas é
+**naturalmente paralela**. Exemplo do owner — *filtrar por uma coluna, agrupar por outra*:
+
+```
+sum(C) where A=x group by B   (A, B, C = colunas distintas)
+ ├─ P_A: scan do stream de A  → posições onde A=x        (idx_A)        ╮ processos
+ ├─ P_B: ids-por-posição de B → grupo de cada linha                    ╞ paralelos
+ └─ P_C: decodifica C nas posições necessárias                         ╯ (colunas distintas)
+ join POSICIONAL: pra cada i em idx_A → grupo=B[i], acumula C[i]  (row-alignment, seção 1)
+```
+
+P_A, P_B, P_C tocam **corpos de coluna distintos** → leitura/scan independentes (paralelizáveis,
+até em threads/processos); o *join* é por **posição** (a i-ésima linha de cada coluna é a mesma —
+invariante já usada no `where().sum()`). O **índice auxiliar é opcional e por-processo**: acelera
+P_A (quais linhas casam x) ou P_B (offsets de grupo) **se existir**; sem ele, cai no scan do
+stream. Isso encaixa direto no QueryPlan (E1): cada nó-coluna é um sub-plano que pode rodar solto.
+
+**Hipótese H-QUERY-04c (registrada)**: *o QueryPlan modela cada coluna como sub-plano independente;
+a execução pode ser paralela (colunas distintas não competem) e o índice auxiliar entra como
+aceleração local opcional de um sub-plano, nunca como dependência.*
+
+## 9.3. Índice e a tensão com compressão de transmissão — decidir por PERFIL DE USO
+
+O owner notou: **índice é estranho pra versão online/transmissão** — ele infla o payload e mata a
+venda de compressão. Logo a decisão de índice **não é global**, é por perfil:
+
+| perfil | índice? | onde | porquê |
+|---|---|---|---|
+| **Transmissão online / one-shot / byte-minimal** | **NÃO** | — | cada byte conta; índice mataria a compressão. Derivável on-the-fly **no receptor** (0 byte transmitido). |
+| **At-rest, consultado repetidamente** (`.tcf` "banco-de-dados-ish") | **talvez** | sidecar ou in-file | o índice **amortiza** sobre muitas queries; o custo de bytes é aceitável porque não é transmitido a cada consulta. |
+| **Híbrido (index-on-arrival)** | **derivar local** | sidecar/in-file **gerado no receptor** | transmite enxuto (sem índice); o receptor que vai consultar muito **materializa o índice localmente** depois de receber. Combina os dois. |
+
+**Index-on-arrival** é a síntese: o índice é um problema **at-rest/local**, derivado **depois** da
+transmissão, **nunca transmitido**. Preserva a venda de compressão E dá query rápida pra quem
+consulta repetido. (Registrar como a posição-default recomendada.)
+
+**Prós/contras de TER índice** (a pesar caso-a-caso, como o owner pediu):
+- **Prós**: query mais rápida (skip de scan), group-by O(K) vs O(N·w), range-predicate por zone-map.
+- **Contras**: bytes a mais (mata transmissão); **estado a manter** (stale vs o blob → fingerprint);
+  complexidade do leitor; ganho **modo-dependente** (zero em coluna `tcf`, que é entrelaçada).
+- **Regra**: índice só quando (a) at-rest, (b) query repetida, (c) coluna `@dict`/raw (onde há
+  corte), (d) medido ≥ ganho que justifique — senão o dict-stream-scan já basta.
+
+## 9.4. Índice in-file (meio-termo) — marcadores inertes ao codec
+
+Ideia do owner: marcadores **no mesmo `.tcf`** que são "inúteis" pro recompressor (não mudam como
+nada comprime) mas servem de **dica** pra filtro/agregação. É um meio-termo entre derivável (0 byte,
+mas efêmero) e sidecar (arquivo separado, sincronização).
+
+**Como poderia funcionar** (esboço pra pensar, não spec):
+- Hoje a última coluna vai "até EOF" → não dá pra anexar nada sem corromper o corpo dela. Um índice
+  in-file precisa de **fronteira**: dar **size explícito também à última coluna** (perde o
+  `min_header` "última sem size") + um **flag no magic** ("este arquivo tem trailer de índice").
+  Depois das N colunas (somados os sizes), o resto é a região de índice.
+- **Em que sentido é "inerte"**: o **codec de cada coluna** (OBAT/HCC/V2-B) fica **intocado** — os
+  bytes do índice não pertencem a corpo de coluna nenhum, então **zero impacto em como comprime**.
+  O `decode()` ignora o trailer (decodifica só as N colunas) → **round-trip lossless preservado**.
+  O leitor lazy lê o trailer como dica.
+- **Em que sentido NÃO é grátis**: o **parser de container** precisa aprender a parar na fronteira
+  e a reconhecer o flag → isso **toca o spec do formato** (mais que sidecar, **menos** que
+  chunking, que muda o framing/compressão dos corpos). Honestamente: é uma **extensão de container
+  opt-in**, não um "marcador grátis".
+
+**Índice in-file vs sidecar** (o trade que o owner quer pesar):
+
+| eixo | in-file (trailer inerte) | sidecar `.tcfx` |
+|---|---|---|
+| arquivos | 1 (viaja junto) | 2 (gerenciar par) |
+| consistência | sempre casado (gerado no mesmo encode) | pode ficar stale → precisa fingerprint |
+| dropável | **não** (re-encode pra tirar) | **sim** (só apagar) |
+| toca o spec? | **sim** (flag no magic + size na última col) | **não** (zero formato) |
+| transmissão | infla o `.tcf` (ruim p/ online) | `.tcf` fica enxuto; índice só se quiser mandar |
+
+**Posição (pra pensar depois)**: in-file resolve a dor de sincronização do sidecar, ao custo de
+inflar o blob transmitido e de um toque no spec (flag + size). Para **at-rest single-file** é
+atraente; para **transmissão** perde pro sidecar/derivável. Combina bem com **index-on-arrival**
+(§9.3): o receptor reescreve o `.tcf` com trailer local se for consultar muito — sem nunca
+transmitir o índice.
+
+**Hipótese H-QUERY-04d (registrada)**: *índice in-file = extensão de container opt-in, transparente
+ao codec (não muda compressão de coluna) mas detectável pelo parser (flag no magic + size explícito
+na última coluna); meio-termo entre derivável e sidecar. Decidir por perfil de uso (§9.3); default
+recomendado = não-transmitir (derivável/index-on-arrival).*
+
+## 9.5. Espectro de índice atualizado (substitui o "derivável > sidecar > formato")
+
+```
+derivável on-the-fly   →   { in-file (trailer inerte)  ≈  sidecar .tcfx }   →   in-blob / chunking
+   0 byte, efêmero            persistido; single-file vs dropável               muda o codec/framing
+   transmissão-safe           at-rest; tensão de bytes                          format change pesado
+```
+
+- **derivável**: default pra transmissão (0 byte).
+- **in-file / sidecar**: tier "índice persistido", at-rest; diferem em single-file vs dropável e em
+  tocar-spec vs zero-formato (tabela §9.4).
+- **in-blob/chunking**: muda como os corpos comprimem → `#TCF.8`, ADR + GATE + re-pin → adiar.
+
+## 9.6. Plano revisado (sequência, pra pensar depois)
+
+**Fase A — caminhos mínimos por operação** (§9.1 passo 1; quase tudo já existe): consolidar `count`,
+`group-tally`, `where`, `agg-filtrada`, `select` como caminhos independentes por modo + **E1**
+QueryPlan explícito (lista nós/cortes/colunas-tocadas antes de decodar).
+
+**Fase B — otimizar + paralelismo** (§9.1 passo 2, §9.2): cada caminho otimizado; QueryPlan modela
+colunas como sub-planos independentes (paralelizáveis); índice auxiliar como aceleração local
+**opcional** de um sub-plano.
+
+**Fase C — fatorar o comum** (§9.1 passo 3): extrair as primitivas (`tabela`, `ids_por_posição`,
+`valor_em`, `count_estrutural`); **E2** `execute()` vira orquestrador fino sobre elas (não monólito).
+RT obrigatório vs `decode()`.
+
+**Transversal — índices, por perfil** (§9.3–9.5): **E3** deriváveis on-the-fly (0 byte, default
+transmissão) + **E4** offset-map via `seq_rle_runs`. Só depois, e **gated por medição real-world**:
+**E5** índice persistido — comparar **in-file (trailer)** vs **sidecar `.tcfx`** (tabela §9.4) sob o
+modelo **index-on-arrival** (gerar local, não transmitir). **E6** knob `prefer_dict_cols`.
+
+**Adiar igual à seção 8**: in-blob/chunking/footer (= `#TCF.8`) e redesign OBAT/HCC.
+
+> Tudo nesta seção é **design pra depois**. Não implementar; não tocar `src/tcf`; índice persistido
+> (in-file ou sidecar) só com números real-world que justifiquem o custo de bytes.

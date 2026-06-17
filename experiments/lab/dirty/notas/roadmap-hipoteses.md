@@ -424,7 +424,10 @@ byte-exato; `where('cidade','SP').sum('valor')` toca so' `cidade`+`valor`). FORA
 | H-QUERY-01 | **View lazy** sobre o blob: `count/sum/min/max/avg` + `where`, com decode por coluna sob demanda (column pruning) + por linha no filtro. Um `decode()` ou gzip/brotli por cima materializaria tudo antes de qualquer conta; o lazy materializa so' o referenciado. | **GADGET em `scripts/tcf_lazy/`** (27 testes; **L1-L5 funcional**). NAO e' versao (le #TCF.7). | `scripts/tcf_lazy/` + `tests/test_tcf_lazy.py`; PoC `2026-06-16-lazy-query/` |
 | H-QUERY-02 | **Agregar runs sem expandir**: somar/contar `*N|` (RLE) e `*N+delta|` (seq-RLE) lendo o marcador, sem materializar a sequencia. Leva o pilar de explicabilidade ao agregador. | **REFUTADA pro modo-tcf** (runs entrelacados, verificado); vive no dict/raw via L3. Aberta so' como leitura de runs em layout `sort_by` (= L5/offset-map, ver H-QUERY-04 E4). | lazy.py NOTAS |
 | H-QUERY-03 | **SQL na camada lazy**: o SQL gerado pela tool LLM->SQL (gadget spin-off, T-RECOVER-LLM-SCHEMA-MODE) roda sobre a view lazy. Integracao LEVE, sem dependencia dura. | aberta (baixa, spin-off) | tools_plan (ROADMAP.md) |
-| **H-QUERY-04** | **Decode-como-DAG + decode parametrizado + indices escondidos** (design 2026-06-17, owner). Decode = DAG de 5 nos; corte minimo por query so' em `@dict`/raw (tcf entrelacado = fallback total, limite fundamental). Decode unificado = super-metodo `execute(projection,where,agg)` no GADGET (pushdown onde o modo permite); NAO mexer em `decode()` core. Indices escondidos pra grouping: **derivavel > sidecar `.tcfx` > formato** — NUNCA in-blob por default. | **DESIGN FEITO** ([nota](hquery01-decode-dag-indices-design.md)). Plano E1-E6 barato no gadget (zero core). | `hquery01-decode-dag-indices-design.md` |
+| **H-QUERY-04** | **Decode-como-DAG + decode parametrizado + indices escondidos** (design 2026-06-17, owner). Decode = DAG de 5 nos; corte minimo por query so' em `@dict`/raw (tcf entrelacado = fallback total, limite fundamental). Decode unificado = super-metodo `execute(projection,where,agg)` no GADGET (pushdown onde o modo permite); NAO mexer em `decode()` core. Indices escondidos pra grouping: **derivavel > {in-file inerte / sidecar `.tcfx`} > formato** — NUNCA in-blob por default. | **DESIGN FEITO** ([nota](hquery01-decode-dag-indices-design.md)). Plano em fases A/B/C + transversal (ex-E1-E6), barato no gadget (zero core). | `hquery01-decode-dag-indices-design.md` |
+| H-QUERY-04b | **Unificacao nao-dura** (owner 2026-06-17): NAO perseguir um `decode()` unificado (juntar numa funcao = lumping, falsa unificacao). Fazer cada operacao por si -> otimizar -> **fatorar o comum** (primitivas `tabela`/`ids_por_posicao`/`valor_em`/`count_estrutural`); `execute()` = orquestrador fino, nao monolito. Sucesso medido por reuso real, nao "tudo numa funcao". | aberta (design) | nota §9.1 |
+| H-QUERY-04c | **Paralelismo por coluna**: colunas sao nos independentes do DAG -> filtrar por A + agrupar por B = sub-planos paralelos, join POSICIONAL (row-alignment). Indice auxiliar = aceleracao LOCAL opcional de um sub-plano, nunca dependencia. | aberta (design) | nota §9.2 |
+| H-QUERY-04d | **Indice in-file (meio-termo)** + perfil de uso: marcadores no `.tcf` inertes ao CODEC (zero impacto em compressao de coluna; `decode()` ignora -> RT lossless) mas detectaveis pelo PARSER (flag no magic + size explicito na ultima coluna -> toca spec, < chunking). Decisao de indice por PERFIL: transmissao online = SEM indice (mata compressao, derivavel no receptor); at-rest repetido = sidecar OU in-file; default = **index-on-arrival** (gerar local, nunca transmitir). | aberta (design) | nota §9.3-9.5 |
 
 **Etapas segmentadas (barato, incremental)**:
 - **L1** column pruning + agregadores (`count/sum/min/max/avg` + `where`) — **PoC OK**.
@@ -454,17 +457,21 @@ src/tcf). (2) Conecta com V2-K (disco zero-copy/column-pruning) no plano binario
 tool LLM->SQL (H-QUERY-03). (3) Lab: `2026-06-16-lazy-query/` (result.md). Visao por tier em
 [`ROADMAP.md`](../../../../ROADMAP.md).
 
-**Expansao H-QUERY-04 (design 2026-06-17)** — plano E1-E6, tudo no gadget (zero src/tcf):
-- **E1** QueryPlan explicito (lista nos tocados + corte por coluna antes de decodar).
-- **E2** `LazyTCF.execute(projection,where,agg)` — decode parametrizado (pushdown); RT vs `decode()`.
-- **E3** indices deriváveis on-the-fly: min/max por coluna dict (zone-map, 0 B) + manifest.
-- **E4** offset-map de grupos via `side_outputs.seq_rle_runs` (agg_by sem decodar a chave inteira).
-- **E5** sidecar `.tcfx` textual opt-in (offsets/bitmaps de colunas quentes; alvo 2-5% bytes,
-  fingerprint p/ consistencia) — gated por medicao real-world (adult+online-retail, N>=5).
-- **E6** knob `prefer_dict_cols=[...]` (forca `@dict` em coluna de filtro; custo marginal, opt-in).
+**Expansao H-QUERY-04 (design 2026-06-17, revisado pelo owner)** — tudo no gadget (zero src/tcf),
+sequencia FAZER-cada -> OTIMIZAR -> FATORAR-o-comum (unificacao bottom-up, nao monolito):
+- **Fase A** caminhos minimos por operacao (count/group/where/agg/select por modo) + QueryPlan
+  explicito (lista nos tocados + corte por coluna antes de decodar).
+- **Fase B** otimizar cada caminho + paralelismo por coluna (sub-planos independentes, join
+  posicional); indice auxiliar = aceleracao local opcional.
+- **Fase C** fatorar primitivas comuns (`tabela`/`ids_por_posicao`/`valor_em`/`count_estrutural`);
+  `execute(projection,where,agg)` = orquestrador fino sobre elas; RT vs `decode()`.
+- **Transversal (indices, por perfil)**: deriváveis on-the-fly (min/max dict zone-map 0 B + manifest)
+  + offset-map via `seq_rle_runs`. Persistido (in-file trailer vs sidecar `.tcfx`) so' gated por
+  medicao real-world, sob modelo **index-on-arrival** (gerar local, nunca transmitir). Knob
+  `prefer_dict_cols` opt-in.
 Adiar: indice in-blob/chunking/footer (= #TCF.8, ADR+GATE) e redesign OBAT/HCC (viola single-pass).
-Detalhe + tabelas (DAG, cortes, custo de compressao, indices) em
-[`hquery01-decode-dag-indices-design.md`](hquery01-decode-dag-indices-design.md).
+Detalhe + tabelas (DAG, cortes, custo de compressao, indices, in-file vs sidecar) em
+[`hquery01-decode-dag-indices-design.md`](hquery01-decode-dag-indices-design.md) §1-9.
 
 ---
 
