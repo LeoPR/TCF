@@ -38,12 +38,25 @@ Ganhou (cru) em 9/14 colunas; **forte só em 3** (alta-card integer).
    (transporte sem compressão binária), não pós-brotli. Mesmo padrão do TCF em geral.
 4. **Decimais/floats**: nature N/A (fallback) e pode **inflar** (Iws +9%/+22%) → exige variante.
 
-## Decisão (do owner) — borderline
-Pelo critério (≥15% weighted em 2+ reais), o nicho integer-alta-card **qualifica** (adult fnlwgt +
-tpch partkey/orderkey), mas: (a) é per-coluna — o weighted da TABELA depende de quanto dela é
-integer-alta-card; (b) some sob brotli. **Recomendação**: se welder, **nature opt-in** focada em
-transporte cru/payload pequeno de tabelas integer-heavy (header declara). Antes: medir weighted
-numa tabela integer-heavy + caracterizar as VARIANTES.
+## Weighted no nível da TABELA (fecha a decisão) — `weighted.py`
+Nature aplicada **seletivamente** (só nas colunas onde ganha; opt-in por coluna), tabela inteira:
+
+| tabela | cols (nat) | base | +nat | weighted cru | base+br | +nat+br | weighted +brotli |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| adult | 15 (6) | 101971 | 87142 | **14.5%** | 35328 | 33196 | 6.0% |
+| receita | 8 (4) | 105762 | 98203 | 7.1% | 42150 | 41838 | 0.7% |
+| tpch-lineitem | 16 (3) | 301437 | 291219 | 3.4% | 112648 | 110840 | 1.6% |
+| beijing | 13 (3) | 58031 | 57253 | 1.3% | 20012 | 19990 | 0.1% |
+
+## Decisão — NÃO welder por default (REFUTADO no critério)
+**Não atinge ≥15% weighted em 2+ datasets**: só adult chega perto (14.5%, puxado por um único
+`fnlwgt` −41%); os outros 1-7%. E **sob brotli some** (≤6%). Os ganhos por-coluna **diluem** na
+tabela (integer é uma fração) e evaporam sob compressão — mesmo padrão de V2-C (round) e
+escape-dedução. **O dict/seq-RLE/split já capturam o ganho largo.**
+
+Encaminhamento: **parquear** como default. Se aparecer um caso de uso real de **transporte cru
+de payload integer-heavy** (sem brotli a jusante), reabrir como **nature opt-in estrita** (header
+declara via H-NAT-MARK-01). Variantes (padded-int / scaled-decimal-lossy) ficam no Pacote 10/v2.0.
 
 ## Variantes registradas (não testadas)
 - **padded-int** (zeros à esquerda, ex.: códigos): como `SPEC_IP` (padding), lossless.
