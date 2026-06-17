@@ -422,8 +422,9 @@ byte-exato; `where('cidade','SP').sum('valor')` toca so' `cidade`+`valor`). FORA
 | ID | Hipotese | Status | ref |
 |---|---|---|---|
 | H-QUERY-01 | **View lazy** sobre o blob: `count/sum/min/max/avg` + `where`, com decode por coluna sob demanda (column pruning) + por linha no filtro. Um `decode()` ou gzip/brotli por cima materializaria tudo antes de qualquer conta; o lazy materializa so' o referenciado. | **GADGET em `scripts/tcf_lazy/`** (27 testes; **L1-L5 funcional**). NAO e' versao (le #TCF.7). | `scripts/tcf_lazy/` + `tests/test_tcf_lazy.py`; PoC `2026-06-16-lazy-query/` |
-| H-QUERY-02 | **Agregar runs sem expandir**: somar/contar `*N|` (RLE) e `*N+delta|` (seq-RLE) lendo o marcador, sem materializar a sequencia. Leva o pilar de explicabilidade ao agregador. | aberta (media); depende H-QUERY-01 | — |
+| H-QUERY-02 | **Agregar runs sem expandir**: somar/contar `*N|` (RLE) e `*N+delta|` (seq-RLE) lendo o marcador, sem materializar a sequencia. Leva o pilar de explicabilidade ao agregador. | **REFUTADA pro modo-tcf** (runs entrelacados, verificado); vive no dict/raw via L3. Aberta so' como leitura de runs em layout `sort_by` (= L5/offset-map, ver H-QUERY-04 E4). | lazy.py NOTAS |
 | H-QUERY-03 | **SQL na camada lazy**: o SQL gerado pela tool LLM->SQL (gadget spin-off, T-RECOVER-LLM-SCHEMA-MODE) roda sobre a view lazy. Integracao LEVE, sem dependencia dura. | aberta (baixa, spin-off) | tools_plan (ROADMAP.md) |
+| **H-QUERY-04** | **Decode-como-DAG + decode parametrizado + indices escondidos** (design 2026-06-17, owner). Decode = DAG de 5 nos; corte minimo por query so' em `@dict`/raw (tcf entrelacado = fallback total, limite fundamental). Decode unificado = super-metodo `execute(projection,where,agg)` no GADGET (pushdown onde o modo permite); NAO mexer em `decode()` core. Indices escondidos pra grouping: **derivavel > sidecar `.tcfx` > formato** — NUNCA in-blob por default. | **DESIGN FEITO** ([nota](hquery01-decode-dag-indices-design.md)). Plano E1-E6 barato no gadget (zero core). | `hquery01-decode-dag-indices-design.md` |
 
 **Etapas segmentadas (barato, incremental)**:
 - **L1** column pruning + agregadores (`count/sum/min/max/avg` + `where`) — **PoC OK**.
@@ -452,6 +453,18 @@ byte-exato; `where('cidade','SP').sum('valor')` toca so' `cidade`+`valor`). FORA
 src/tcf). (2) Conecta com V2-K (disco zero-copy/column-pruning) no plano binario futuro e com a
 tool LLM->SQL (H-QUERY-03). (3) Lab: `2026-06-16-lazy-query/` (result.md). Visao por tier em
 [`ROADMAP.md`](../../../../ROADMAP.md).
+
+**Expansao H-QUERY-04 (design 2026-06-17)** — plano E1-E6, tudo no gadget (zero src/tcf):
+- **E1** QueryPlan explicito (lista nos tocados + corte por coluna antes de decodar).
+- **E2** `LazyTCF.execute(projection,where,agg)` — decode parametrizado (pushdown); RT vs `decode()`.
+- **E3** indices deriváveis on-the-fly: min/max por coluna dict (zone-map, 0 B) + manifest.
+- **E4** offset-map de grupos via `side_outputs.seq_rle_runs` (agg_by sem decodar a chave inteira).
+- **E5** sidecar `.tcfx` textual opt-in (offsets/bitmaps de colunas quentes; alvo 2-5% bytes,
+  fingerprint p/ consistencia) — gated por medicao real-world (adult+online-retail, N>=5).
+- **E6** knob `prefer_dict_cols=[...]` (forca `@dict` em coluna de filtro; custo marginal, opt-in).
+Adiar: indice in-blob/chunking/footer (= #TCF.8, ADR+GATE) e redesign OBAT/HCC (viola single-pass).
+Detalhe + tabelas (DAG, cortes, custo de compressao, indices) em
+[`hquery01-decode-dag-indices-design.md`](hquery01-decode-dag-indices-design.md).
 
 ---
 
