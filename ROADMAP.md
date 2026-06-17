@@ -27,7 +27,7 @@ Tudo opt-in / gadget / knob; impacto no núcleo nenhum/leve (ou atrás de GATE).
 |---|---|---|---|---|
 | **H-QUERY-01** | Lazy/queryable `view()` — descompressão seletiva por coluna/linha (`count/sum/min/max/avg` + `where`) | M | nenhum | **Promovido a gadget** [`scripts/tcf_lazy/`](scripts/tcf_lazy/) (13 testes; funcional: filtro+agregação+alinhamento de linha). Lê `#TCF.7`, fora de `src/tcf`. Tese central da 1.0. PoC: [`2026-06-16-lazy-query/`](experiments/lab/dirty/2026-06-16-lazy-query/). |
 | LAZY-QUERY-RUNS | Follow-up: agregar **runs** (`*N|`, seq-RLE) sem expandir a coluna | M | nenhum | Soma/conta grupos lendo os marcadores. Depende de H-QUERY-01. |
-| **FILTRO-NUMERO** | Filtro/nature básico de **número** (além de CPF/CNPJ/IP) | S | leve | Caracterizar antes: o delta-aware já cobre incrementais simples? Se sim, vira atalho, não nature nova. |
+| **FILTRO-NUMERO** | Filtro/nature básico de **número** (além de CPF/CNPJ/IP) | S | leve | **CARACTERIZADO** ([`2026-06-16-number-nature-caracterizacao/`](experiments/lab/dirty/2026-06-16-number-nature-caracterizacao/)): nicho = **integer alta-card** (fnlwgt −41%, l_partkey −33%, l_orderkey −26%); low-card o dict já cobre; **sob brotli o ganho quase some** (−6 a −12%); decimais N/A (variante lossy → Pacote 10). Weld borderline = nature opt-in p/ transporte cru integer-heavy. Decisão owner. |
 | FILTROS-POPULARES | CEP, telefone, MAC, data-BR — barato-primeiro | S | nenhum | Reusa `TemplatedPaddedSpec`/`TemplatedCheckedSpec`. Um por vez, weld só com ganho ≥15% em 2+ reais. |
 | **H-NAT-MARK-01** | Marcador de nature **auto-descritivo** no header (o SPEC viaja com o TCF) | M | leve | Hoje natures são opt-in *out-of-band*. Header carrega tag por coluna → decode reconhece sozinho. Format change menor (alvo 0.8/`#TCF.8`). |
 | V2-RLE-STREAM | RLE no stream de índices do V2-B (follow-up do 0.7) | S | nenhum | Extensão natural do dicionário welded. |
@@ -61,8 +61,9 @@ idêntico); só o *spec viajar no header* pra auto-decode por terceiros **é ver
 - Atualizar docstring de SPEC em `natures/__init__.py` (após H-NAT-MARK-01). [S]
 
 ### Plano dos filtros (sem atropelar)
-Ordem barata-primeiro: **(1)** `FILTRO-NUMERO` — caracterizar se o delta-aware já resolve antes
-de criar nature; **(2)** demais populares (CEP/telefone/MAC/data-BR) reusando o framework
+Ordem barata-primeiro: **(1)** `FILTRO-NUMERO` — **caracterizado 2026-06-16**: nicho restrito
+(integer alta-card, ganho cru que some sob brotli; decimais exigem variante lossy). Weld só se
+houver caso de transporte cru integer-heavy; senão o dict/seq-RLE já cobrem; **(2)** demais populares (CEP/telefone/MAC/data-BR) reusando o framework
 existente, **um por vez**; **(3)** `H-NAT-MARK-01` (marcador no header) como camada ortogonal
 que faz o decode reconhecer a nature sozinho. Critério de weld por candidato: **ganho ≥15% em
 2+ datasets reais**; todos opt-in, sem tocar HCC/pre-pass/prune. Nada avança sem medir incremento.
