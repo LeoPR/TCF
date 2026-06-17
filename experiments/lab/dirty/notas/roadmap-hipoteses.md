@@ -437,9 +437,12 @@ byte-exato; `where('cidade','SP').sum('valor')` toca so' `cidade`+`valor`). FORA
 - **L4** **FEITO**: `where` sobre coluna `@` varre so' o stream de indices (compara id;
   value/pred avaliados nos K unicos) — sem decodar os N valores. Encadeado (AND) le so' as
   posicoes ja' filtradas. Ex.: `where(workclass='Private')` em 5k toca 5% e nao cacheia a coluna.
-- **L5** **layout p/ baixa latencia**: organizar/encodar pra uma query-alvo (ex: "qtd por
-  usuario") ser respondida tocando o minimo, mantendo a compressao da transmissao. Liga com as
-  dimensoes memoria/velocidade/latencia/compressao (diretriz owner; ja' nos docs pra fazer depois).
+- **L5** **FEITO**: `encode(table, sort_by=key)` agrupa (chave vira runs `*N|` contiguos) ->
+  `group_ranges(key)` da' `{valor:(inicio,fim)}` e `agg_by(key,col,op)` faz group-by por SLICE
+  (o "qtd por usuario": `agg_by('CustomerID','Quantity','sum')` == group-by manual, verificado).
+  **Trade-off de compressao medido**: ordenar ajuda onde a chave correlaciona (adult education
+  90%, -10%) e pode piorar onde outras colunas estavam bem ordenadas (online-retail CustomerID
+  +2.3%). Ganho de latencia da query sempre presente. **L1-L5 funcional fechado.**
 
 **E' versao de formato?** (pergunta do owner): **lazy-view NAO** (le o `#TCF.7` existente; gadget);
 **L5 via `sort_by` NAO** (order-free, welded) — vira versao so' se for **modo de layout novo**.

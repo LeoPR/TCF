@@ -30,16 +30,22 @@ v.report()                                     # {materialized_bytes, total_byte
 - **L3 — sem expandir**: `.nrows` (estrutural: dict = tamanho do stream, raw = nº de `\n`) e
   `group_count(col)` (`{valor: n}`; em coluna `@` dicionário, tallia o stream + só a tabelinha
   de únicos — não expande as N linhas; demais modos: fallback decode+Counter).
+- **L5 — layout p/ query**: `group_ranges(key)` → `{valor: (início, fim)}` e `agg_by(key, col, op)`
+  → group-by por slice (o "qtd por usuário": `agg_by("user", "qtd", "sum")`). Requer um blob
+  agrupado: `encode(table, sort_by=key)` (order-free). A compressão do layout é trade-off
+  (ajuda onde a chave correlaciona com a estrutura; pode piorar onde outras colunas estavam
+  melhor ordenadas) — o ganho de **latência da query** é sempre presente.
 
 **Alinhamento de linha**: row-aligned por posição (a i-ésima posição de cada coluna é a linha `i`).
 `where()` devolve os índices; agregação/`select` em outra coluna usam os MESMOS índices.
 
 ## Estado
-Funcional (filtro + agregação + alinhamento) + **L3** (contar/agrupar sem expandir, via
-dict/raw) + **L4** (filtro pelo índice do dicionário, varrendo só o stream). `tests/test_tcf_lazy.py`
-(22 testes). **Achado L3 (verificado)**: agregar `*N|` direto no modo-tcf não é separável
-(OBAT+HCC entrelaçam valor com refs de outras linhas) — o ganho estrutural limpo vive no
-dicionário (`@`)/raw. Próximas (hooks em `lazy.py`): L5 layout p/ baixa latência, dicas no
-header. **Funcional primeiro.**
+**Funcional L1–L5** (filtro + agregação + alinhamento + contar/agrupar sem expandir + filtro
+pelo índice do dicionário + group-by por layout ordenado). `tests/test_tcf_lazy.py` (27 testes).
+**Achado L3 (verificado)**: agregar `*N|` direto no modo-tcf não é separável (OBAT+HCC entrelaçam
+valor com refs) — o ganho estrutural limpo vive no dicionário (`@`)/raw. **L5 trade-off**: o layout
+ordenado ajuda/atrapalha a compressão conforme o dataset/chave; o ganho de latência da query é
+sempre presente. Otimizações finas (binary-search nos runs, dicas no header) ficam como hooks
+em `lazy.py`. **Não é versão de formato** (lê `#TCF.7`).
 
 **Não é versão de formato**: lê o `#TCF.7` atual. Pode evoluir sem bump.

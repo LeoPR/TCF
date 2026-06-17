@@ -39,10 +39,14 @@ column-pruning + agregadores (PoC) · **L2 medido** — `where(CustomerID=X).sum
 (online-retail 5k×8) · L3 agregar runs (`*N|`) sem expandir · L4 filtro por índice (`@`) ·
 L5 **layout p/ baixa latência** (organizar pra uma query-alvo tocar o mínimo; dimensões
 **memória/velocidade/latência/compressão**). **Não é versão de formato** — lê o `#TCF.7` existente.
-**L3 e L4 já feitos** no gadget (via dict/raw): `nrows`/`group_count` contam/agrupam e `where`
-filtra **sem expandir as N linhas** — varrendo o stream de índices do dicionário (`group_count`
-e `where(workclass='Private')` em 5k tocam ~5% do blob, sem cachear a coluna). Achado: agregar
-`*N|` direto no modo-tcf não é separável (OBAT+HCC entrelaçados) — o ganho limpo vive no dicionário/raw.
+**L3, L4 e L5 já feitos** no gadget. L3/L4 (via dict/raw): `nrows`/`group_count`/`where`
+contam/agrupam/filtram **sem expandir as N linhas** — varrendo o stream do dicionário
+(`where(workclass='Private')` em 5k toca ~5% do blob, sem cachear a coluna). L5 (`group_ranges`/
+`agg_by`): com `sort_by=key` os grupos ficam contíguos → group-by por slice (o "qtd por usuário"
+= `agg_by('CustomerID','Quantity','sum')`, verificado). Achados: (1) agregar `*N|` direto no
+modo-tcf não é separável (OBAT+HCC entrelaçados) — o ganho limpo vive no dicionário/raw; (2) o
+layout L5 é **trade-off de compressão** (adult `sort_by=education` −10%; online-retail `sort_by=
+CustomerID` +2,3%) — o ganho de **latência da query** é sempre presente.
 
 **Filtros modulares (H-NAT-MARK-02, ideia do owner)**: `natures/` vira **pasta de plugins** —
 cada filtro um módulo spec auto-contido (regex + transform + id), com um registry que descobre

@@ -46,10 +46,22 @@ valores. Encadeado (AND) lê só as posições já filtradas. Non-dict: fallback
 Verificado: índices idênticos ao filtro via decode completo. Ex.: `where(workclass='Private')`
 em 5000 linhas (3420 casam) materializa **5,0%** do blob e NÃO coloca a coluna no cache.
 
-## Etapas seguintes (segmentadas, baratas)
-- **L5** — **layout p/ baixa latência**: organizar/encodar de modo que uma query-alvo
-  (ex.: "qtd por usuário") seja respondida tocando o mínimo (ordenar/agrupar pela chave) —
-  mantendo a compressão da transmissão. Dimensões: memória, velocidade, latência, compressão.
+## L5 — layout p/ baixa latência (FEITO)
+`encode(table, sort_by=key)` agrupa as linhas (a chave vira runs `*N|` contíguos) →
+`group_ranges(key)` dá `{valor: (início, fim)}` e `agg_by(key, col, op)` faz **group-by por
+slice** (cada grupo = um intervalo; a coluna agregada é decodificada uma vez). É o **"qtd por
+usuário"**: `agg_by("CustomerID", "Quantity", "sum")` em online-retail (3795 linhas, 197 users)
+== group-by manual (verificado).
+
+**Trade-off de compressão (honesto, medido)**: ordenar pela chave **ajuda** onde ela correlaciona
+com a estrutura geral (adult `sort_by=education`: **90,0%**, −10%) e **pode piorar** onde outras
+colunas estavam melhor ordenadas (online-retail `sort_by=CustomerID`: **102,3%**, +2,3% — desarruma
+InvoiceDate/InvoiceNo). O ganho de **query** (grupos contíguos → slices, baixa latência) é sempre
+presente; a compressão da transmissão é dataset/chave-dependente. `sort_by` é order-free.
+
+## Etapas seguintes
+- Otimizações finas (saltos dedutivos / binary-search nos runs ordenados; dicas no header).
+  **Funcional já fechado: L1-L5.**
 
 ## É uma versão de formato?
 - **Lazy-view (`view()`)**: **NÃO**. Lê o `#TCF.7` existente; é gadget/tooling. Pode evoluir

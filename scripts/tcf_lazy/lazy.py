@@ -217,6 +217,37 @@ class LazyTCF:
             raise ValueError(f"sem valores numéricos em {col!r}")
         return sum(f) / len(f)
 
+    # ---- L5: layout p/ baixa latência — grupos contíguos (requer sort_by) ----
+    def group_ranges(self, key: str) -> dict[str, tuple[int, int]]:
+        """`{valor: (início, fim)}` por grupo CONTÍGUO. Pensado pra um blob já
+        ordenado por `key` (`encode(table, sort_by=key)`), onde os grupos ficam
+        adjacentes (a chave vira runs `*N|`). Erra se a coluna não está agrupada."""
+        vals = self._col(key)
+        ranges: dict[str, tuple[int, int]] = {}
+        i, n = 0, len(vals)
+        while i < n:
+            v = vals[i]; j = i + 1
+            while j < n and vals[j] == v:
+                j += 1
+            if v in ranges:
+                raise ValueError(
+                    f"coluna {key!r} não está agrupada (valor {v!r} reaparece); "
+                    f"use encode(table, sort_by={key!r}) pro layout L5"
+                )
+            ranges[v] = (i, j); i = j
+        return ranges
+
+    def agg_by(self, key: str, col: str | None = None, op: str = "count") -> dict:
+        """Group-by sobre o layout ordenado: `{valor_da_chave: agregado}`.
+        `op='count'` (default) usa só os intervalos; `sum/min/max/avg` agregam `col`
+        em cada intervalo (a coluna é decodificada UMA vez; cada grupo = um slice).
+        É o 'qtd por usuário': `agg_by('usuario', 'qtd', 'sum')`."""
+        ranges = self.group_ranges(key)
+        if op == "count":
+            return {v: e - s for v, (s, e) in ranges.items()}
+        fn = {"sum": self.sum, "min": self.min, "max": self.max, "avg": self.avg}[op]
+        return {v: fn(col, range(s, e)) for v, (s, e) in ranges.items()}
+
     # ---- filtro: descomprime SÓ a coluna do filtro, devolve view restrita ----
     def where(self, col: str, value=None, *, pred: Callable[[str], bool] | None = None) -> "Filtered":
         if self._mode[col] == "dict":           # L4: varre o stream, sem decodar os N valores
@@ -308,8 +339,10 @@ def view(blob: str) -> LazyTCF:
 #   L4 (FEITO) — `where` sobre coluna `@` varre só o stream de índices (compara id,
 #       sem decodar os N valores); value/pred avaliados sobre os K únicos. Encadeado
 #       (AND) lê só as posições já filtradas. Non-dict: fallback (decode + filtro).
-#   L5  layout p/ baixa latência: organizar/encodar pra uma query-alvo tocar o
-#       mínimo (ordenar/agrupar pela chave), mantendo a compressão da transmissão.
+#   L5 (FEITO) — layout p/ baixa latência: `encode(table, sort_by=key)` agrupa as linhas
+#       (a chave vira runs `*N|` contíguos) → `group_ranges(key)` dá `{valor:(início,fim)}`
+#       e `agg_by(key, col, op)` faz group-by por SLICE (cada grupo = um intervalo). É o
+#       "qtd por usuário". sort_by é order-free; mantém/melhora a compressão da transmissão.
 #   +   saltos dedutivos / inferência pela estrutura; em último caso, dicas no header.
 # Acoplamento: reusa decoders internos de src/tcf (_decode_column/_decode_v2b/
 #   _decode_struct_split). É um gadget que LÊ o formato; se os internos mudarem,

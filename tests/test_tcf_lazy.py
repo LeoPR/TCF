@@ -169,3 +169,39 @@ def test_where_encadeado_dict_via_stream(blob):
                 if full["cidade"][i] == "Sao Paulo" and full["plano"][i] == "Premium"]
     got = view(blob).where("cidade", "Sao Paulo").where("plano", "Premium").indices
     assert got == esperado
+
+
+# --- L5: layout p/ baixa latência (sort_by + group_ranges/agg_by) ---
+
+@pytest.fixture
+def sorted_blob():
+    return encode(TABLE, sort_by="cidade")
+
+
+def test_group_ranges_exige_agrupado(blob):
+    with pytest.raises(ValueError):
+        view(blob).group_ranges("cidade")          # blob original não está agrupado
+
+
+def test_group_ranges_contiguo_cobre_tudo(sorted_blob):
+    spans = sorted(view(sorted_blob).group_ranges("cidade").values())
+    assert spans[0][0] == 0 and spans[-1][1] == 6
+    assert all(spans[i][1] == spans[i + 1][0] for i in range(len(spans) - 1))
+
+
+def test_agg_by_sum_por_grupo(sorted_blob):
+    assert view(sorted_blob).agg_by("cidade", "valor", "sum") == {
+        "Sao Paulo": 470.0, "Rio de Janeiro": 280.0}
+
+
+def test_agg_by_count(sorted_blob):
+    assert view(sorted_blob).agg_by("cidade") == {"Sao Paulo": 4, "Rio de Janeiro": 2}
+
+
+def test_agg_by_vs_groupby_manual(sorted_blob):
+    from collections import defaultdict
+    full = decode(sorted_blob)
+    man: dict = defaultdict(float)
+    for c, v in zip(full["cidade"], full["valor"]):
+        man[c] += float(v)
+    assert view(sorted_blob).agg_by("cidade", "valor", "sum") == dict(man)
