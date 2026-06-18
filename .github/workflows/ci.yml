@@ -42,7 +42,8 @@ jobs:
     runs-on: ubuntu-latest
     env:
       # ADR-0017 #2: determinismo reproducivel pro byte-canonical
-      # (D1-D9 1523B, D17a 322B INVARIANT). Settado no ambiente do job
+      # (D1-D9 1523B, D17a 303B INVARIANT no 0.7; 322B = #TCF.6 legado.
+      #  re-pinavel via ADR-0024/0025). Settado no ambiente do job
       # ANTES do interpretador iniciar (conftest setdefault e best-effort
       # mas hash seed so' aplica no startup).
       PYTHONHASHSEED: '0'
@@ -62,8 +63,8 @@ jobs:
       - name: Install package + dev deps
         run: pip install -e ".[dev]"
 
-      - name: Regression gate (byte-canonical v1.0 — ADR-0017 #8)
-        # Gate BLOQUEANTE: se D1-D9 1523B ou D17a 322B INVARIANT mudarem,
+      - name: Regression gate (byte-canonical — ADR-0017 #8, re-pinavel ADR-0024)
+        # Gate BLOQUEANTE: se D1-D9 1523B ou D17a 303B INVARIANT (0.7) mudarem,
         # ou se a superficie de API publica divergir, o merge falha.
         # Bypass exige ADR novo + snapshot updated + version bump.
         run: pytest tests/test_regression_v1_baseline.py -v --tb=short

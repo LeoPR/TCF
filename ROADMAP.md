@@ -62,13 +62,28 @@ achado: CEP/MAC precisam spec novo) → **F1.5 ✅ FEITO** (registry gadget, loo
 owner 2026-06-17 escolheu **não implementar agora** — o magic permanente não se justifica só por DX, que o registry gadget já cobre quase de graça) → **F4** builder visual (2.0, front-end
 do mesmo compilador). Ressalva: o DSL vale como **infra/DX/explicabilidade**, não garante bytes — gate de ganho antes de weldar.
 
-### Cheap-wins (baratos, sem mexer no núcleo — exceto bug)
-- **release.yml** + Trusted Publishing (automatizar `uv publish`). [S]
-- Documentar os knobs explícitos (`fallback`/`min_header`/`min_len`) + trade-offs. [S]
+### Cheap-wins (organizados 2026-06-17)
+
+**Tier A — zero core (infra/docs), feitos:**
+- ✅ **CW-1 release.yml** + Trusted Publishing (tag `v*` → `uv build`+`uv publish` via OIDC, sem
+  token; gate byte-canonical antes de publicar). Pré-req 1x no PyPI: cadastrar o repo como Trusted
+  Publisher de `tcf-format`. [`.github/workflows/release.yml`](.github/workflows/release.yml)
+- ✅ **CW-2 Reference dos knobs** (`fallback`/`min_header`/`min_len`/`sort_by` + trade-offs medidos).
+  [`docs/reference/encode-knobs.md`](docs/reference/encode-knobs.md)
+- ✅ **CW-3 Higiene de comentário CI**: `D17a 322B` → **303B** (322B = `#TCF.6` legado).
+  [`.github/workflows/ci.yml`](.github/workflows/ci.yml)
+
+**Tier B — toca `src/tcf`, exige aprovação (NÃO são cheap-wins puros):**
+- **CW-4** Atualizar docstring de SPEC/baseline em `src/tcf` (encoder.py/natures docstring dizem
+  `D17a=322B`, stale → 303B; e a menção a H-NAT-MARK-01 ficou desatualizada — F2 parado). Docstring-
+  only, mas toca `src/tcf` → precisa de OK. [S]
+- **CW-5** "Higiene de header compacto" (O-FMT-11, byte-precise) — **NÃO é cheap-win**: byte-level,
+  toca `multi.py`/formato, e **quase todo subsumido** pelo `min_header` (ADR-0023). Verificar se
+  sobra algo antes; qualquer byte de header → GATE real-world + re-pin + ADR.
+
+**Parked:**
 - ~~**O-FMT-12**: auto-detect CSV + `encode_file()`~~ — **PARK** (owner 2026-06-16): leitura-de-input
   é fora-do-core por design; `encode(dict)`+`DictReader` bastam (0 bytes). [levantamento](experiments/lab/dirty/notas/ofmt12-encode-file-levantamento.md)
-- Higiene de header compacto (O-FMT-11, byte-precise). [S]
-- Atualizar docstring de SPEC em `natures/__init__.py` (após H-NAT-MARK-01). [S]
 
 ### Plano dos filtros (sem atropelar)
 Ordem barata-primeiro: **(1)** `FILTRO-NUMERO` — **caracterizado 2026-06-16**: nicho restrito

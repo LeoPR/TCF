@@ -1,0 +1,64 @@
+name: Release
+
+# Publica no PyPI quando uma tag v* e' empurrada (ex: v0.7.2).
+# Usa PyPI Trusted Publishing (OIDC) — SEM token/secret no repo.
+# Pre-requisito (1x, no PyPI): cadastrar este repo+workflow como Trusted
+# Publisher do projeto `tcf-format`
+# (https://docs.pypi.org/trusted-publishers/). Enquanto nao cadastrado,
+# o passo de publish falha de forma explicita (build/gate continuam validos).
+#
+# Versionamento (ADR-0024): a tag e' o contador de release (desacoplado do
+# formato #TCF.N). Antes de taggear: bumpar `version` no pyproject.toml e
+# garantir CI verde no commit alvo.
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    name: Build (sdist + wheel)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Set up Python
+        run: uv python install 3.12
+
+      # Gate byte-canonical antes de publicar (mesma barra do CI).
+      - name: Regression gate (byte-canonical — ADR-0017 #8)
+        env:
+          PYTHONHASHSEED: '0'
+        run: |
+          uv pip install --system -e ".[dev]"
+          uv run pytest tests/test_regression_v1_baseline.py -v --tb=short
+
+      - name: Build sdist + wheel
+        run: uv build
+
+      - name: Upload dist artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+  publish:
+    name: Publish to PyPI (Trusted Publishing)
+    needs: build
+    runs-on: ubuntu-latest
+    environment: pypi
+    permissions:
+      id-token: write   # OIDC pro Trusted Publishing (sem token)
+    steps:
+      - name: Download dist artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+      - name: Publish
+        uses: pypa/gh-action-pypi-publish@release/v1
