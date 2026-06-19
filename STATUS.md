@@ -73,8 +73,9 @@
 >   cobre quase de graca). [ADR-0027 `proposed`](docs/adr/0027-nature-mark-header-self-describing.md) +
 >   [design](experiments/lab/dirty/notas/f2-nature-mark-header-design.md). **`src/tcf` intocado.**
 
-**Atualizado em**: 2026-06-08 (**Schema/quality gadget COMPLETO + incidente
-OneDrive recuperado + push remoto**). Resumo desde 06-03:
+**Snapshot 2026-06-08** (**Schema/quality gadget COMPLETO + incidente
+OneDrive recuperado + push remoto**) — resumo desde 06-03. Atualizacoes
+posteriores nos blocos **SESSAO** acima (ate' 2026-06-17):
 
 - **Schema/Quality Gadget (T-RECOVER-SCHEMA-MULTI-TABLE) — COMPLETO**, em
   `scripts/schema_gadget/` (auxiliar, ALERT-ONLY, NUNCA arruma, `src/tcf`

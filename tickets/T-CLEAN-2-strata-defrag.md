@@ -1,6 +1,6 @@
 ---
 title: T-CLEAN-2-strata-defrag — Defragmentação da biblioteca (higiene de superfície §3/§5 + índices §2)
-status: open
+status: in-progress
 priority: P2
 created: 2026-06-18
 updated: 2026-06-18
@@ -27,24 +27,21 @@ localizada** — sem reorganização estrutural.
 
 ## Quick wins (S, baixo risco — executar como uma passada de higiene)
 
-Cada um verificado na fonte. NÃO toca `src/tcf` (algoritmo). Superfície decai **com tombstone**;
-traço nunca se apaga (§3).
+**EXECUTADOS 2026-06-18** (verificados na fonte; NÃO tocaram `src/tcf`; nenhum traço apagado).
 
-- [ ] **QW-1 [§3/§5]** `CLAUDE.md` L10 rótulo de versão **"v0.6" → "v0.7"** (real: 0.7.1 / #TCF.7).
-      Na mesma passada, revisar L299 (`(v0.6 = #TCF.6)` → exemplo pode citar #TCF.7). L59/61/62 são
-      referências **históricas** (labs criados na era v0.6) — avaliar, provavelmente manter.
-- [ ] **QW-2 [§5]** `README.md` L259 **"425 passed, 1 xfailed"** está stale/ambíguo (real: **380**
-      na config CI `not requires_data` / **440** total). Trocar por **ponteiro** ("rode `pytest`")
-      ou número real **+ `[VERIFICAR: 2026-06-18]`**. (L281 já diz "pinado em testes" → **OK**, não mexer.)
-- [ ] **QW-3 [§2/§3]** memória `project_pacote1_delta_aware_summary.md` L68: `[[links]]` quebrados
-      (`project-macro-M8-virtual-refs`, `project-macro-M9-stress` foram consolidados/arquivados).
-      Reapontar para `[[reference-hcc-provas-m5-m8]]` (ativo) + tombstone com o path em
-      `_archived_consolidated_2026_06_12/`. Também atualizar "TCF v0.6" → contexto correto.
-- [ ] **QW-4 [§5/§3]** memória `MEMORY.md` seção "estado canônico" (≈ L15-51): refletir
-      **#TCF.7 / 0.7.1** (hoje fala #TCF.6, M1.E, M9-M14, "# v0.6"). **Apontar para STATUS.md**, não
-      copiar números. MEMORY.md está em **208 linhas** (limite ~200) — esta passada deve enxugar.
-- [ ] **QW-5 [§3]** `STATUS.md`: verificar e atualizar datas de "última atualização" defasadas
-      (auditoria apontou ≈ L76 com data anterior ao conteúdo). **A confirmar na execução** (não verificado neste turno).
+- [x] **QW-1 [§3/§5]** `CLAUDE.md` L10 **"v0.6" → "v0.7"**; L299 exemplo de magic → "atual: v0.7 =
+      #TCF.7; v0.6 = #TCF.6 legado". (L59/61/62 mantidas — referências **históricas** legítimas.)
+- [x] **QW-2 [§5]** `README.md` L259: "425 passed" (stale) → **"379 passed, 1 xfailed" (config CI
+      `not requires_data`)** + ponteiro "rode `pytest`" + `[VERIFICAR: 2026-06-18]`. Número real medido
+      (`pytest`: 379 passed / 60 deselected / 1 xfailed). (L281 já apontava "pinado em testes" → não mexido.)
+- [x] **QW-3 [§2/§3]** memória `project_pacote1_delta_aware_summary.md` L68: `[[links]]` quebrados →
+      reapontados para `[[reference-hcc-provas-m5-m8]]` + **tombstone** com path
+      `_archived_consolidated_2026_06_12/{project_macro_M8_virtual_refs,project_macro_M9_stress}.md`.
+- [x] **QW-4 [§5/§3]** memória `MEMORY.md` seção "estado canônico" reescrita: aponta `STATUS.md`/
+      `ROADMAP.md` (estado vivo), reframe como núcleo histórico, números removidos (vivem nos testes).
+      MEMORY.md **208 → 195 linhas** (sob o limite ~200).
+- [x] **QW-5 [§3]** `STATUS.md` L76 "Atualizado em: 2026-06-08" → "Snapshot 2026-06-08 … atualizações
+      posteriores nos blocos SESSAO acima (até 2026-06-17)" (resolve a deriva: stamp < conteúdo).
 
 ## Backlog deferido (M, decisão/gate — executar depois, alguns exigem owner)
 

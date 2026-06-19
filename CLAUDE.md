@@ -7,7 +7,7 @@
 
 ## Projeto em 1 paragrafo
 
-**TCF** (Tabular Compact Format) v0.6 — compressao de strings tabulares
+**TCF** (Tabular Compact Format) v0.7 — compressao de strings tabulares
 com pipeline canonical delta-aware (M10 baseline, ADR-0011):
 - **Pre-pass**: `analyze_column` (features) + `detect_cadence` (regras
   1+2, ADR-0008) + `detect_min_len` (heur v3 + gating n>=100, ADR-0010)
@@ -296,7 +296,7 @@ independente por camada).
 - Datasets: `D<num><suffix>-<description>.csv`
 
 ### Formato TCF
-- Magic: `#TCF.<minor>` (v0.6 = `#TCF.6`). Major 0 omite "0".
+- Magic: `#TCF.<minor>` (atual: v0.7 = `#TCF.7`; v0.6 = `#TCF.6` legado, lido). Major 0 omite "0".
 - Multi-column flag: `M` no shebang. Single-col: sem flag.
 - Multi-col meta: `# <size1>=<name1>,<size2>=<name2>,...`
 - LF only, UTF-8

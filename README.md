@@ -256,7 +256,8 @@ O dicionário low-card (V2-B) e o split estrutural já estão no default; a comp
   Round-trip sempre lossless (`decode(encode(x)) == x`).
 - Default **0.7 / `#TCF.7`**: fallback ([ADR-0022](docs/adr/0022-v2a-fallback-identity-weld.md)) + header mínimo ([ADR-0023](docs/adr/0023-v2-minimal-header-weld.md)), ver seção acima.
   O `#TCF.6` legado é lido pelo decoder.
-- Suíte: **425 passed, 1 xfailed** (inclui 27 do gadget `tcf_lazy`).
+- Suíte: **379 passed, 1 xfailed** na config de CI (`-m "not requires_data"`; inclui 27 do gadget
+  `tcf_lazy`) — rode `pytest` pro número vigente. <!-- [VERIFICAR: 2026-06-18] -->
   Baselines de byte = guardas de regressão, re-pináveis em mudança intencional ([ADR-0024](docs/adr/0024-pre-1.0-versioning-git-as-compat.md)).
 - Mudanças: [`CHANGELOG.md`](CHANGELOG.md).
   História M0-M14: [`experiments/lab/dirty/notas/historia-dirty-lab.md`](experiments/lab/dirty/notas/historia-dirty-lab.md).
