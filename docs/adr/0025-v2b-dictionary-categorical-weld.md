@@ -102,3 +102,14 @@ Tabela fatiada por BYTE (ntable), nao por linha -> valores multibyte/UTF-8 OK.
 - [ADR-0018 roadmap v2.0](0018-v2-format-roadmap.md)
 - [ADR-0022 V2-A fallback](0022-v2a-fallback-identity-weld.md)
 - [ADR-0024 pré-1.0 versioning](0024-pre-1.0-versioning-git-as-compat.md)
+
+## Addendum (2026-06-19) — status do follow-up "RLE no stream"
+
+> Nota posterior (não altera a decisão acima). O follow-up mencionado em
+> *Cons/limites* ("RLE no stream … se os números justificarem") foi **caracterizado**:
+> [V2-RLE-STREAM lab](../../experiments/lab/dirty/2026-06-19-v2rle-stream-caracterizacao/result.md)
+> + [registry Pacote 11-bis](../../experiments/lab/dirty/notas/roadmap-hipoteses.md).
+> Veredito: **CLOSED-INSUFFICIENT-GAIN** no uso geral (+1,19% weighted/7 reais, 0/7 ≥15%,
+> −1,39% sob brotli); **nicho textual-puro** (low-card skewed, ordem natural) **aberto** p/ decisão
+> do owner. Achado: clusterizado flipa pro `tcf`/`*N|`, que já captura os runs (overlap com
+> [ADR-0016 seq-RLE](0016-hcc-multi-delta-seq-rle.md)). **Não weldado; `src/tcf` intocado.**

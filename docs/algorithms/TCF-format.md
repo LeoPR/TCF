@@ -54,6 +54,13 @@ self-describing. Default preserva 100% dos invariantes v1:
 - **Header v2 minimo** ([ADR-0023](../adr/0023-v2-minimal-header-weld.md),
   `min_header=True`): alem do prefixo, OMITE o size da ULTIMA coluna (corpo ate'
   EOF) -> meta `<s1>=<n1>,...,<nN>`. Voltado a payload pequeno.
+- **V2-B dicionario** ([ADR-0025](../adr/0025-v2b-dictionary-categorical-weld.md),
+  marcador `@`) e **split estrutural** ([ADR-0026](../adr/0026-structural-split-weld.md),
+  marcador `%`): mais candidatos do fallback per-coluna (welded; detalhe do corpo nos ADRs).
+- **V2-RLE-STREAM** (follow-up experimental de V2-B, **NAO weldado**): RLE no stream de indices
+  `@dict`. Caracterizado 2026-06-19 ->
+  [lab](../../experiments/lab/dirty/2026-06-19-v2rle-stream-caracterizacao/result.md): CLOSED-geral /
+  nicho textual-puro aberto (decisao do owner). `src/tcf` intocado.
 
 ### Library version (semver)
 

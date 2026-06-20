@@ -395,7 +395,7 @@ Caracterizacao empirica (2026-06-16, `encode` real):
 |---|---|---|---|
 | H-INTRA-01 | Capturar repeticao de substring **intra-valor** reduz bytes em valores estruturados digit-heavy. Recurso novo — decidir o **engine**: OBAT (tokenizar sub-runs dentro do valor) OU HCC (compor atoms intra-valor). | aberta (alvo 0.8) | caracterizacao 2026-06-16 |
 | H-INTRA-02 | Interacao com o **escape de digito** (`\`): fatorar a repeticao reduz o numero de `\`? Ou o escape come o ganho? Medir o net real. | aberta | — |
-| H-INTRA-03 | **Overlap** com nature (1) + split estrutural (ADR-0026): o ganho intra-linha generico e' marginal/redundante onde nature ou split ja' atuam? Medir o INCREMENTO antes de welder (anti-incidente 2026-05-21). | aberta | — |
+| H-INTRA-03 | **Overlap** com nature (1) + split estrutural (ADR-0026): o ganho intra-linha generico e' marginal/redundante onde nature ou split ja' atuam? Medir o INCREMENTO antes de welder (anti-incidente 2026-05-21). **Vide tb V2-RLE-STREAM (Pacote 11-bis)**: o achado de 2026-06-19 mostra que a repeticao capturada depende do LAYOUT (runs longos -> tcf-`*N|`; runs curtos skewed -> dict-stream; intra-valor -> H-INTRA) — caracterizar H-INTRA ANTES de reabrir V2-RLE (podem se subsumir). | aberta | [V2-RLE-STREAM](../2026-06-19-v2rle-stream-caracterizacao/result.md) + [estudo](rle-familia-estudo.md) |
 | H-NAT-MARK-01 | **Marcador de nature auto-descritivo** no header (tag `cpf`/`cnpj`/`ip` por coluna) pra o `decode` reconhecer a nature SOZINHO. Hoje as natures sao opt-in **OUT-OF-BAND**: o `.tcf` nao diz "esta coluna e' CPF", entao `decode` precisa receber `nature=` (provado: `decode(blob)` sem nature devolve o base-94 cru). O proprio codigo nota "futuro: header carry spec id". Format change (tag `:` SUFIXO do nome no meta-line, `#TCF.7->#TCF.8`, resolucao CORE-ONLY, id desconhecido->cru+flag) -> 0.8. | **DESIGN FEITO -> PARADO em (A)** (owner 2026-06-17): ADR-0027 `proposed`; nao vale o magic permanente AGORA (gate >=15%/2-reais nao bate; DX ja' tem rota zero-core via registry gadget). Revisitar com 2o nature real. | [ADR-0027](../../../../docs/adr/0027-nature-mark-header-self-describing.md) + [design](f2-nature-mark-header-design.md) |
 | H-NAT-MARK-02 | **Linguagem/registry MODULAR de SPECs em pasta** (plugin, direcao owner 2026-06-16): cada filtro = modulo spec auto-contido (regex + check_fn/transform + spec-id), e um registry descobre os de `natures/` + os de TERCEIROS (drop-in). Permite que outros desenvolvam filtros proprios. **NAO e' versao de formato** (API/registry Python; output base-94/padded identico). **VIRA versao** so' no elo de interop: pra um spec de terceiro ser auto-decodavel sem combinar out-of-band, precisa de **spec-id no header** (= H-NAT-MARK-01, 0.8). Logo: a API/pasta e' pre-1.0 barato; o "spec viaja no header" e' 0.8. | **F1+F1.5 FEITOS** (gadget `scripts/natures_compiler/`: compilador DSL + registry; 14 testes; achado CEP/MAC precisam spec novo) | `scripts/natures_compiler/` + `filtros-dsl-plano.md` |
 | H-CODEBOOK-01 | **Outer-dict / codebook compartilhado** (versionado por data): mapear valor -> indice numa tabela-PADRAO EXTERNA que os dois lados ja' tem (estilo shared-dict do brotli/zstd); header carrega `(codebook-id, versao)`. Difere do V2-B (que embute a tabela inline). | aberta (baixa). **Veredito**: no caso TABULAR **subsumido por V2-B+split** (ja' capturam sem dep externa); nicho = payload minusculo indexando tabela grande (IBGE/CNAE/ISO). CEP: nenhuma acao (TCF ja' trata, lossless, zeros preservados). CPF/CNPJ: nao se aplica (IDs unicos). | `cep-outer-dict-codebook-pesquisa.md` |
@@ -408,6 +408,22 @@ Caracterizacao empirica (2026-06-16, `encode` real):
 - OBAT vs HCC = **a decidir** (caracterizar antes). GATE real-world obrigatorio (toca core).
 - Medir o overlap (H-INTRA-03) ANTES de welder: nature + split + dedup `^N` ja' cobrem
   parte dos casos; o generico so' vale pelo INCREMENTO sobre eles.
+
+### Pacote 11-bis — V2-RLE-STREAM (follow-up V2-B, caracterizado 2026-06-19)
+
+RLE no **stream de indices do V2-B** (`@dict`). Membro da **familia RLE** (ver mapa em
+[`rle-familia-estudo.md`](rle-familia-estudo.md)): compete com o RLE de linha `*N|` (tcf, ADR-0016) e
+e' tematicamente vizinho do RLE intra-valor (H-INTRA, Pacote 11).
+
+| ID | Hipotese | Status | ref |
+|---|---|---|---|
+| H-V2RLE-01 | RLE no stream de indices V2-B — uso **GERAL** (tabelas largas / com compressor a jusante). | **CLOSED-INSUFFICIENT-GAIN** (2026-06-19): +1,19% weighted/7 reais, 0/7 >=15%, **-1,39% sob brotli** (some/inverte). | [lab result.md](../2026-06-19-v2rle-stream-caracterizacao/result.md) |
+| H-V2RLE-02 | RLE no stream no **NICHO textual-puro** (payload minusculo, low-card texto **skewed**, ordem natural, sem compressor a jusante). | **ABERTO p/ decisao do owner**: situacao +55%, workclass +22% (2 reais >=15% no nicho); estreito + brotli-fragil. Weld = #TCF.8 + GATE. | [lab forms](../2026-06-19-v2rle-stream-caracterizacao/result_forms.txt) |
+
+**Achado-chave (overlap)**: clusterizado/`sort_by` **FLIPA** a coluna pro modo `tcf` — o `*N|` do
+OBAT/HCC captura os runs longos e **vence o fallback** (o dict nem e' escolhido). H-V2RLE so' sobra em
+runs **curtos + skewed** (ordem natural). Ver tb [H-INTRA-01/02/03](#pacote-11) (Pacote 11) e
+[ADR-0025 V2-B](../../../../docs/adr/0025-v2b-dictionary-categorical-weld.md). ROADMAP: linha V2-RLE-STREAM (Tier 1).
 
 ---
 

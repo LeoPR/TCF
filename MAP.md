@@ -78,6 +78,9 @@ TCF/
 | Entender OBAT (tokenizer) | `docs/algorithms/OBAT.md` |
 | Entender HCC (composicional) | `docs/algorithms/HCC.md` |
 | Ver hipoteses ativas/fechadas | `experiments/lab/dirty/notas/roadmap-hipoteses.md` |
+| Entender a **familia RLE** (linha/stream/intra-valor) | `experiments/lab/dirty/notas/rle-familia-estudo.md` |
+| **V2-RLE-STREAM** (follow-up V2-B) | `experiments/lab/dirty/2026-06-19-v2rle-stream-caracterizacao/result.md` + registry Pacote 11-bis |
+| **Lazy/queryable view** (descomprimir o minimo) | `scripts/tcf_lazy/` + `experiments/lab/dirty/notas/hquery01-decode-dag-indices-design.md` |
 | Entender uma decisao tomada | `docs/adr/` (numerada) ou `experiments/lab/dirty/notas/diario/` |
 | Continuar um sub-experimento | `experiments/lab/dirty/<lab>/<sub-exp>/README.md` |
 | Comparar EXP-010 ao baseline | `experiments/lab/clean/EXP-010-*/report.md` |
@@ -117,6 +120,18 @@ Pos-consolidacao 2026-05-27 (17 labs movidos pra `old/welded/` ou
 - `experiments/lab/clean/EXP-010-tcf-delta-aware-prototype/` —
   prototype antigo (referencia historica)
 - `experiments/lab/clean/EXP-011-multi-column-basic/` — multi-col basico
+
+Pos-0.7 (2026-06, ainda referencia):
+- `experiments/lab/dirty/2026-06-16-lazy-query/` — PoC lazy view (gadget
+  `scripts/tcf_lazy/`, H-QUERY-01)
+- `experiments/lab/dirty/2026-06-16-staged-and-ordering-brotli/` — TCF+brotli em
+  escala + ordenacao codec-dependente
+- `experiments/lab/dirty/2026-06-16-number-nature-caracterizacao/` — number-nature (PARK)
+- `experiments/lab/dirty/2026-06-19-v2rle-stream-caracterizacao/` — RLE no stream
+  V2-B (CLOSED-geral / nicho textual-puro ABERTO)
+- Notas de design recentes (em `notas/`): `rle-familia-estudo.md`,
+  `hquery01-decode-dag-indices-design.md`, `f2-nature-mark-header-design.md`,
+  `cep-outer-dict-codebook-pesquisa.md`
 
 Labs **historicos** (NAO modificar, NAO continuar):
 - `experiments/lab/dirty/old/M0-M14/` — fase v0.6 inicial pre-canonical

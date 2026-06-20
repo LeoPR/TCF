@@ -72,6 +72,20 @@
 >   — o magic permanente nao se justifica so' por DX (gate >=15%/2-reais nao bate; registry gadget ja'
 >   cobre quase de graca). [ADR-0027 `proposed`](docs/adr/0027-nature-mark-header-self-describing.md) +
 >   [design](experiments/lab/dirty/notas/f2-nature-mark-header-design.md). **`src/tcf` intocado.**
+>
+> **SESSAO 2026-06-19 (pre-1.0: cheap-wins fechados + V2-RLE-STREAM + defrag)**:
+> - **Cheap-wins fechados**: Tier A (release.yml, [reference de knobs](docs/reference/encode-knobs.md),
+>   higiene CI) + CW-4 (docstrings stale em `src/tcf` alinhados, so' docstring) + CW-5 (O-FMT-11
+>   subsumido por min_header/name-guard). Ver [ROADMAP](ROADMAP.md) cheap-wins.
+> - **V2-RLE-STREAM caracterizado** ([lab](experiments/lab/dirty/2026-06-19-v2rle-stream-caracterizacao/result.md)):
+>   fecha o follow-up "V2-B RLE no stream" pendente desde 06-15. **Geral CLOSED-INSUFFICIENT-GAIN**
+>   (+1,19% weighted/7 reais, 0/7 >=15%, -1,39% sob brotli). **Nicho textual-puro ABERTO** p/ decisao
+>   do owner (low-card skewed, ordem natural: situacao +55%, workclass +22%). Achado: **clusterizado
+>   flipa pro tcf-`*N|`** (overlap com o run-RLE de linha). Registry: roadmap-hipoteses Pacote 11-bis;
+>   familia RLE em [`rle-familia-estudo.md`](experiments/lab/dirty/notas/rle-familia-estudo.md).
+>   RLE intra-valor (H-INTRA) ADIADO. **`src/tcf` intocado** (lab-first).
+> - **Defrag/Strata**: tickets [T-CLEAN-2](tickets/T-CLEAN-2-strata-defrag.md) (QW feitos + backlog) +
+>   [META-STRATA-GOVERNANCE](tickets/META-STRATA-GOVERNANCE.md). Diretiva: sempre cross-reference.
 
 **Snapshot 2026-06-08** (**Schema/quality gadget COMPLETO + incidente
 OneDrive recuperado + push remoto**) — resumo desde 06-03. Atualizacoes

@@ -429,6 +429,14 @@ nature/split + interacao com escape ANTES de welder. GATE real-world obrigatorio
 **Conexoes**: ADR-0015 (natures = caminho semantico), ADR-0026 (split estrutural),
 Pacote 7 (templated) e Pacote 11 (este) no roadmap.
 
+> **Nota tecnica (2026-06-19) — overlap com V2-RLE-STREAM**: o follow-up
+> [V2-RLE-STREAM](../2026-06-19-v2rle-stream-caracterizacao/result.md) testou RLE no **stream de
+> indices do V2-B** (intra-STREAM, nao intra-valor). Ambos "atacam repeticao", mas por angulos
+> diferentes — e o achado-chave conecta os tres: a repeticao capturada depende do **LAYOUT**
+> (runs longos -> `*N|` do tcf; runs curtos skewed -> dict-stream; intra-valor -> O-FMT-17/H-INTRA).
+> Clusterizado FLIPA pro tcf-`*N|`. **Ordem de estudo recomendada: caracterizar O-FMT-17/H-INTRA
+> ANTES de reabrir V2-RLE-STREAM (podem se subsumir).** Mapa: [`rle-familia-estudo.md`](rle-familia-estudo.md).
+
 ### Nota geral — fluxo atual (2026-05-24)
 
 Owner registra explicitamente que **o pipeline atual ainda tem muito

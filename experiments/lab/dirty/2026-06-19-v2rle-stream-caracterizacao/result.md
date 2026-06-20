@@ -101,5 +101,18 @@ cada byte conta". Ressalvas: (1) só ordem natural (clusterizado → tcf-`*N|`);
 - **`src/tcf` intocado** (lab-first; nada weldado).
 - `V2-RLE-STREAM`: `closed-insufficient-gain` pro geral; **nicho textual-puro registrado, decisão do
   owner pendente** (ROADMAP).
-- **RLE na célula (intra-valor) = H-INTRA-01/02/03 → adiado a pedido do owner** ("depois revisamos o
-  RLE na célula"). É concern distinto (repetição DENTRO do valor, não entre linhas).
+- **RLE na célula (intra-valor) = [H-INTRA-01/02/03](../notas/roadmap-hipoteses.md#pacote-11) → adiado
+  a pedido do owner** ("depois revisamos o RLE na célula"). É concern distinto (repetição DENTRO do
+  valor, não entre linhas).
+
+## Referências (família RLE + cadeia de formato)
+
+- **Estudo consolidado da família RLE**: [`rle-familia-estudo.md`](../notas/rle-familia-estudo.md)
+  (linha-`*N|` welded / stream-V2-B / intra-valor) — entrar por aqui.
+- **Registry**: [roadmap-hipoteses.md Pacote 11-bis](../notas/roadmap-hipoteses.md) (H-V2RLE-01/02) +
+  [Pacote 11 H-INTRA](../notas/roadmap-hipoteses.md#pacote-11).
+- **V2-B (base deste follow-up)**: [ADR-0025](../../../../docs/adr/0025-v2b-dictionary-categorical-weld.md).
+- **RLE de linha (o que compete com o stream)**: [ADR-0016 seq-RLE](../../../../docs/adr/0016-hcc-multi-delta-seq-rle.md),
+  [HCC](../../../../docs/algorithms/HCC.md), [OBAT](../../../../docs/algorithms/OBAT.md).
+- **Split estrutural (vizinho)**: [ADR-0026](../../../../docs/adr/0026-structural-split-weld.md).
+- ROADMAP: linha `V2-RLE-STREAM` (Tier 1).
