@@ -128,6 +128,12 @@ Distinto de [H-CODEBOOK-01](roadmap-hipoteses.md) (dict **externo**/versionado; 
 e um back-ref de repetição (eixo RLE). Mas as IDEIAS a estudar são separadas: B (RLE no stream, fechado),
 C (RLE intra-valor, adiado), **D3 (dict global, a ideia viva do owner)**.
 
+**Pré-requisito do D3 — a representação da referência**: D3 (dict global) depende de resolver COMO a
+referência/índice é representada (global vs per-column; alfabeto livre-de-conflito; marcador
+amortizado). Apanhado de hipóteses (H-REF-01..05) em
+[`dict-referencia-hipoteses.md`](dict-referencia-hipoteses.md) — o owner: "se resolvermos a
+referência, o cross-dict sai melhor". Ordem sugerida lá: H-REF-03 (escape-free) → H-REF-02+H-GDICT → resto.
+
 ## 10. Referências
 
 - Lab B: [result.md](../2026-06-19-v2rle-stream-caracterizacao/result.md) +

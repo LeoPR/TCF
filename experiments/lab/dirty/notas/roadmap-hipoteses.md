@@ -446,6 +446,26 @@ V2-B per-column). **Distinto de**: V2-RLE-STREAM (RLE no stream, Pacote 11-bis) 
 EXTERNO/versionado; este e' INTERNO ao blob). Perguntas: quanto de compartilhamento compensa? indice
 global largo vs tabela compartilhada (net)? engine e GATE.
 
+### Pacote 11-quater — Referencia / indice (H-REF, pre-requisito do H-GDICT, owner 2026-06-19)
+
+**O problema fundamental por tras do GDICT**: como representar a REFERENCIA (o indice do dict) de
+forma compacta, global e sem colidir com o dado. Resolver isto -> GDICT sai como corolario. Apanhado
+completo (ancorado no encoder real) em [`dict-referencia-hipoteses.md`](dict-referencia-hipoteses.md).
+Fatos verificados 2026-06-19: `^N` ja' e' indice de dict (1-based first-seen); ha' DOIS sistemas de
+ref (tcf `^N` decimal com escape de digito vs V2-B base-94 separado); ambos resetam por coluna.
+
+| ID | Hipotese | Status | ref |
+|---|---|---|---|
+| H-REF-01 | Unificar os dois sistemas de referencia (reusar `^N` / atom-IDs, nao recriar no V2-B). | aberta (plano) | [doc](dict-referencia-hipoteses.md) |
+| H-REF-02 | Indices GLOBAIS/continuos (escopo do blob, nao da coluna) -> habilita dedup cross-column (= H-GDICT). | aberta (plano) | [doc](dict-referencia-hipoteses.md) |
+| H-REF-03 | Alfabeto de referencia **livre-de-conflito** automatico (pre-pass acha chars ausentes -> zero escape de digito). Liga a H-INTRA (escape come o ganho). | aberta (plano; **estudar 1o**, barato) | [doc](dict-referencia-hipoteses.md) |
+| H-REF-04 | **Modulacao** de modo string<->indice (marcador de MODO amortizado, estilo shift-in/shift-out) em vez de marcar cada ref. | aberta (plano) | [doc](dict-referencia-hipoteses.md) |
+| H-REF-05 | Indice de largura minima / curto pros frequentes. **CUIDADO**: encosta em entropy-coding, tende a sumir sob brotli. | aberta (plano, baixa) | [doc](dict-referencia-hipoteses.md) |
+
+**Caveats** (no doc): medir INCREMENTO sobre o `^N`/seq-RLE existente (overlap); testar sob brotli
+(esquema textual some); **mas** o payoff do global/GDICT tem componente ESTRUTURAL (dedup + dict no
+header pro lazy) que nao e' so' bytes. Tudo #TCF.8 + GATE. Ordem: H-REF-03 -> H-REF-02+H-GDICT -> resto.
+
 ---
 
 ## Pacote 12 — Lazy/queryable view (registrado 2026-06-16, alvo pre-1.0)
