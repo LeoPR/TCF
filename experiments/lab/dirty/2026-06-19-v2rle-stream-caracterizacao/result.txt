@@ -1,0 +1,61 @@
+# V2-RLE-STREAM — caracterizacao (downstream=brotli-q11)
+
+## adult-census/adult  (11/15 cols @dict, blob 401902B)
+   @race                 K=5     w=1 stream 20000B -> 9215B  (+53.9%, 5102 runs)
+   @class                K=2     w=1 stream 20000B -> 13255B  (+33.7%, 7309 runs)
+   @sex                  K=2     w=1 stream 20000B -> 15623B  (+21.9%, 8762 runs)
+   @workclass            K=9     w=1 stream 20000B -> 15656B  (+21.7%, 10201 runs)
+   @marital-status       K=7     w=1 stream 20000B -> 18928B  (+5.4%, 13322 runs)
+   @hours-per-week       K=89    w=1 stream 20000B -> 19041B  (+4.8%, 15219 runs)
+   @relationship         K=6     w=1 stream 20000B -> 19368B  (+3.2%, 14663 runs)
+   @education            K=16    w=1 stream 20000B -> 19724B  (+1.4%, 16209 runs)
+   STREAM total 220000B -> 190505B  saving 29495B = +7.34% do blob
+   downstream(brotli-q11) streams: 63424B -> 64333B (-1.43%)   sort_by upper: ('relationship', 13.0)
+
+## tpch-sf001/lineitem  (7/16 cols @dict, blob 912878B)
+   @l_returnflag         K=3     w=1 stream 15000B -> 9447B  (+37.0%, 5168 runs)
+   @l_shipinstruct       K=4     w=1 stream 15000B -> 14779B  (+1.5%, 11246 runs)
+   @l_shipmode           K=7     w=1 stream 15000B -> 14942B  (+0.4%, 12804 runs)
+   @l_tax                K=9     w=1 stream 15000B -> 14980B  (+0.1%, 13369 runs)
+   @l_discount           K=11    w=1 stream 15000B -> 14987B  (+0.1%, 13663 runs)
+   @l_linenumber         K=7     w=1 stream 15000B -> 14989B  (+0.1%, 14481 runs)
+   @l_suppkey            K=100   w=2 stream 30000B -> 29998B  (+0.0%, 14853 runs)
+   STREAM total 120000B -> 114122B  saving 5878B = +0.64% do blob
+   downstream(brotli-q11) streams: 40953B -> 41945B (-2.42%)   sort_by upper: ('l_shipinstruct', 0.79)
+
+## tpch-sf001/orders  (4/9 cols @dict, blob 1042791B)
+   @o_orderstatus        K=3     w=1 stream 15000B -> 13360B  (+10.9%, 7869 runs)
+   @o_orderpriority      K=5     w=1 stream 15000B -> 14902B  (+0.7%, 12062 runs)
+   @o_custkey            K=1000  w=2 stream 30000B -> 30000B  (+0.0%, 14986 runs)
+   @o_clerk              K=1000  w=2 stream 30000B -> 30000B  (+0.0%, 14982 runs)
+   STREAM total 90000B -> 88262B  saving 1738B = +0.17% do blob
+   downstream(brotli-q11) streams: 46348B -> 46745B (-0.86%)   sort_by upper: ('o_clerk', 0.17)
+
+## tpch-sf001/customer  (2/8 cols @dict, blob 180016B)
+   @c_mktsegment         K=5     w=1 stream 1500B -> 1485B  (+1.0%, 1203 runs)
+   @c_nationkey          K=25    w=1 stream 1500B -> 1500B  (+0.0%, 1445 runs)
+   STREAM total 3000B -> 2985B  saving 15B = +0.01% do blob
+   downstream(brotli-q11) streams: 1355B -> 1390B (-2.58%)   sort_by upper: ('c_nationkey', 0.01)
+
+## br-identidades/pessoas  (1/6 cols @dict, blob 781600B)
+   @uf_sigla             K=27    w=1 stream 15000B -> 14975B  (+0.2%, 13884 runs)
+   STREAM total 15000B -> 14975B  saving 25B = +0.00% do blob
+   downstream(brotli-q11) streams: 7911B -> 7925B (-0.18%)   sort_by upper: ('uf_sigla', 0.0)
+
+## receita-cnpj/estabelecimentos  (3/8 cols @dict, blob 431541B)
+   @situacao             K=5     w=1 stream 15000B -> 6747B  (+55.0%, 4177 runs)
+   @uf                   K=28    w=1 stream 15000B -> 14821B  (+1.2%, 12706 runs)
+   @cnae_principal       K=749   w=2 stream 30000B -> 29968B  (+0.1%, 14755 runs)
+   STREAM total 60000B -> 51536B  saving 8464B = +1.96% do blob
+   downstream(brotli-q11) streams: 24553B -> 24732B (-0.73%)   sort_by upper: ('uf', 2.06)
+
+## ibge-municipios/municipios  (2/8 cols @dict, blob 136920B)
+   @mesorregiao          K=138   w=2 stream 11142B -> 10432B  (+6.4%, 4347 runs)
+   @microrregiao         K=555   w=2 stream 11142B -> 11092B  (+0.4%, 5259 runs)
+   STREAM total 22284B -> 21524B  saving 760B = +0.56% do blob
+   downstream(brotli-q11) streams: 7572B -> 7710B (-1.82%)   sort_by upper: ('mesorregiao', 0.68)
+
+============================================================
+WEIGHTED (textual, 7 reais): 1.19%  (saving 46375B / 3887648B)
+datasets com >=15% do blob: 0/7  -> NAO passa o gate textual
+downstream(brotli-q11) agregado: -1.39% (a economia SOME sob compressor)
