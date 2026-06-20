@@ -28,6 +28,9 @@ E o terceiro, que já existe e **compete** com (B):
 
 ## 3. Fatos medidos — V2-RLE-STREAM (B), uso geral
 
+> **Para a intuição visual** (se os dados fossem assim → o que B tentava → por que não deu), ver o
+> [exemplo trabalhado no lab](../2026-06-19-v2rle-stream-caracterizacao/result.md#exemplo-visual--o-que-a-hipótese-queria-resolver-e-por-que-não-deu).
+
 Fonte: [lab result.md](../2026-06-19-v2rle-stream-caracterizacao/result.md) (7 datasets reais, o teste
 mede — não copiar números soltos). Resumo:
 - **+1,19% weighted**, **0/7 datasets ≥15%** (melhor caso real: adult 7,34%). Upper bound `sort_by`
