@@ -6,79 +6,117 @@ adjacentes do mesmo índice (coluna clusterizada/ordenada). Script: [`analyze.py
 medições brutas: [`result.txt`](result.txt).
 **Status**: `CLOSED-INSUFFICIENT-GAIN`.
 
-## Exemplo visual — o que a hipótese queria resolver (e por que não deu)
+## Exemplo visual — `*N|` × stream, nos mesmos 16 itens (didático e expandido)
 
-### Se os dados fossem assim
+Duas confusões que o texto solto não resolvia:
+**(i)** "isto não é o mesmo que o `*N|`?" e **(ii)** "e se for uma coluna só?".
 
-Uma coluna `situacao` (campo de cadastro, 16 linhas) — poucos valores distintos que se repetem:
+Chave: **`*N|` e o stream são DOIS MODOS da mesma coluna, mutuamente exclusivos** — o fallback
+`min(tcf, raw, @dict, %split)` escolhe UM por coluna. O `*N|` vive no modo **tcf** e atua sobre os
+**valores** (linhas idênticas adjacentes). O **stream** só existe no modo **@dict**, e atua sobre
+**índices** (o valor já virou um número). E **coluna única não tem dict** → nunca tem stream.
 
-```
-linha:  1   2   3   4   5   6        7   8   9          10  11  12  13  14  15  16
-valor:  ATIVA×5 ........ BAIXADA  ATIVA×2  SUSPENSA  ATIVA×6 .............. BAIXADA
-```
-
-### Como o TCF já guarda hoje (V2-B, modo @dict)
-
-O V2-B troca cada valor por um **índice** numa tabela de únicos, e guarda os índices num **stream**
-(1 char por linha, alfabeto base-94 — aqui `!`=0, `"`=1, `#`=2):
+Os 16 itens da coluna `situacao` (3 valores), em **ordem natural** (lê-se descendo cada coluna):
 
 ```
-tabela de únicos:  0=ATIVA  1=BAIXADA  2=SUSPENSA          (guardada 1×)
-stream (16 chars): ! ! ! ! ! " ! ! # ! ! ! ! ! ! "
-                   └─5×ATIVA─┘ B └2×A┘ S └──6×ATIVA──┘ B
+#  valor       #  valor       #  valor       #  valor
+1  ATIVA       5  SUSPENSA    9  ATIVA       13 SUSPENSA
+2  BAIXADA     6  ATIVA       10 ATIVA       14 ATIVA
+3  ATIVA       7  BAIXADA     11 BAIXADA     15 ATIVA
+4  ATIVA       8  ATIVA       12 ATIVA       16 ATIVA
+```
+(ATIVA ×11, BAIXADA ×3, SUSPENSA ×2)
+
+---
+
+### Caminho 1 — UMA coluna só (`encode(["ATIVA","BAIXADA",...])`)
+
+Single-col **não tem header, não tem dict, não tem stream**. Só OBAT/HCC, e o `*N|` junta
+**linhas idênticas adjacentes** (repetições NÃO-adjacentes viram `^N`, um back-ref curto — omitido
+aqui pra focar no `*N|`).
+
+**(1a) ordem natural** — o `*N|` só pega o que está colado:
+```
+ATIVA          (1)
+BAIXADA        (2)
+*2|ATIVA       (3-4)    <- run adjacente
+SUSPENSA       (5)
+ATIVA          (6)
+BAIXADA        (7)
+*3|ATIVA       (8-10)   <- run adjacente
+BAIXADA        (11)
+ATIVA          (12)
+SUSPENSA       (13)
+*3|ATIVA       (14-16)  <- run adjacente
 ```
 
-O stream tem **runs adjacentes** (`!!!!!`, `!!!!!!`) — repetição que o packing cru **não** explora:
-gasta 1 char por linha mesmo quando o índice é o mesmo da linha anterior.
-
-### O que o V2-RLE-STREAM tentava fazer
-
-Aplicar **RLE no stream**: trocar um run de `m` índices iguais por `marcador + contagem + token`
-(`§N!`; literal quando não compensa). No exemplo:
-
+**(1b) ordenada** (`sort_by`) — tudo igual fica colado, o `*N|` esmaga a coluna inteira:
 ```
-stream cru (16):     ! ! ! ! ! | " | ! ! | # | ! ! ! ! ! ! | "
-stream RLE (11):     §5!         "   ! !   #   §6!            "
-                     └ run 5 ┘       └lit┘     └ run 6 ┘
-economia: 16 → 11 chars (−31% NO STREAM)
+*11|ATIVA
+*3|BAIXADA
+*2|SUSPENSA
 ```
 
-Em runs **longos** (ex: 100 ATIVA seguidos) seria dramático: 100 chars → `§d!` (~4 chars).
-**A intuição é correta** — há repetição ali que ninguém estava aproveitando.
+→ **O ponto que você levantou**: numa coluna só, **ordenar já dá o "RLE" de graça** via `*N|`.
+O V2-RLE-STREAM **não existe** neste caminho (não há dict/stream pra RLE-ar).
 
-### Por que não deu certo (3 razões, medidas)
+---
 
-**(1) Onde os runs são LONGOS, o tcf-`*N|` já ganha — e o dict nem é escolhido.** Se a coluna está
-agrupada/ordenada, as LINHAS INTEIRAS ficam idênticas e adjacentes, e o modo `tcf` (OBAT/HCC) as
-encoda com o RLE de linha `*N|`, que **vence o fallback** `min(tcf, raw, @dict, %split)`:
+### Caminho 2 — MULTI-coluna (a `situacao` é 1 de várias)
 
+Agora o fallback compara, por coluna: `tcf (*N|/^N)` vs `raw` vs `@dict` vs `%split`. O `@dict`
+troca cada valor por um índice e guarda os índices num **stream** (1 char/linha; `!`=ATIVA,
+`"`=BAIXADA, `#`=SUSPENSA).
+
+**(2a) ORDENADA** — o `*N|` do tcf vence; o dict nem entra:
 ```
-coluna ordenada → modo tcf:   *13|ATIVA   *2|BAIXADA   SUSPENSA      (~25 bytes a coluna toda)
-                              (o @dict nem entra → não há stream pra RLE-ar)
-```
-
-Ou seja: **stream-RLE e tcf-`*N|` disputam o MESMO fenômeno**, e o tcf já o resolve melhor onde ele
-é forte. O stream-RLE só "sobra" em **runs curtos** (ordem natural) — onde o ganho absoluto é pequeno,
-exceto se um valor domina (skewed: `situacao` chegou a +55% no [nicho](result_forms.txt)).
-
-**(2) O brotli já faz isso.** O stream `!!!!!"!!#!!!!!!"` é trivialmente comprimível por qualquer
-compressor a jusante (é byte repetido). RLE-ar antes só adiciona os bytes de marcador que o brotli
-teria resolvido sozinho → sob brotli o resultado é **neutro a pior** (−1,4% a −11% medido).
-
-```
-                        textual-puro      sob brotli
-stream cru   (16) ──►   16 B              ~6 B
-stream RLE   (11) ──►   11 B  (ganha)     ~6 B  (empata/perde: marcador vira overhead)
+modo tcf:    *11|ATIVA  *3|BAIXADA  *2|SUSPENSA              (~30 B, a coluna toda)
+modo @dict:  tabela[ATIVA,BAIXADA,SUSPENSA] + stream(16 chars)   (~40 B)
+=> min() escolhe tcf  ->  NAO HA STREAM  ->  V2-RLE-STREAM nao tem o que fazer.
 ```
 
-**(3) Diluição.** Numa tabela real, esse stream é uma fração mínima do blob — a tabela de únicos +
-as colunas high-card (ids, decimais, texto livre) dominam. 31% de 16 bytes = 5 bytes salvos num blob
-de centenas. Por isso o **weighted real ficou em +1,19%** (não os 31% do stream isolado).
+**(2b) NATURAL** — aqui o `@dict` vence o tcf (cada valor = 1 char no stream, vs o overhead de
+marcador por linha do tcf), então o stream EXISTE e fica cru:
+```
+stream cru (16):  ! " ! ! # ! " ! ! ! " ! # ! ! !
+                      └2┘       └──3──┘     └──3──┘     (maior run = 3)
+```
+E **é aqui que o V2-RLE-STREAM agiria**. Mas RLE-ar um run de `m` custa
+`marcador + contagem + token` = **3 chars** (width 1), então **só compensa com run ≥ 4** (run de 3
+empata, run de 2 perde). O **maior run aqui é 3** → **o RLE economiza ZERO**.
 
-> **Resumo da intuição**: V2-RLE-STREAM mira repetição real no stream do dict. Mas essa repetição
-> (a) é melhor capturada pelo `*N|` quando é longa (o dict nem é escolhido), (b) é capturada de graça
-> pelo brotli quando há compressor a jusante, e (c) é diluída no blob quando a tabela é larga. Sobra
-> um nicho estreito: payload minúsculo, textual-puro, coluna skewed em ordem natural.
+> Em ordem natural os runs são curtos **por construção**: se fossem longos, o caso (2a) já teria
+> mandado a coluna pro tcf-`*N|`. Por isso o stream-RLE é, na prática, um **resíduo** do `*N|`.
+
+---
+
+### Quando o stream-RLE finalmente ganha: coluna SKEWED
+
+Se **um valor domina** (ex: 14 ATIVA, 1 BAIXADA, 1 SUSPENSA), os runs de ATIVA ficam longos
+**mesmo sem ordenar** — e o dict ainda vence (não há um ÚNICO run gigante que o tcf colapsaria; os
+ATIVA estão quebrados pelos outros dois valores):
+```
+stream cru (16):  ! ! ! !  "  ! ! ! ! ! !  #  ! ! ! !
+                  └─ 4 ─┘     └──── 6 ────┘     └─ 4 ─┘
+stream RLE:       §4!  "  §6!  #  §4!               (16 -> 11 chars, -31%)
+```
+→ **Este é o nicho** (a `situacao` real chegou a **+55%** no [lab forms](result_forms.txt)).
+`§` = marcador reservado (na implementação, um byte fora do alfabeto, ex `0x01`).
+
+---
+
+### Por que, mesmo com o nicho, não vale weldar
+
+1. **Ordenado** → tcf-`*N|` vence (nos dois caminhos) → o stream nem existe.
+2. **Natural não-skewed** → runs curtos (≤3) → RLE ≈ 0.
+3. **Natural skewed** → ganha no textual-puro, **mas**: (a) **morre sob brotli** (o brotli já
+   comprime o stream repetido; o marcador vira overhead — −6% a −11% medido); (b) **dilui** numa
+   tabela larga (o stream é fração do blob → **+1,19% weighted real**, não os 31% do stream isolado).
+
+> **Em uma frase**: `*N|` (sobre valores) e stream-RLE (sobre índices) atacam a MESMA repetição
+> adjacente; o `*N|` já vence quando ela é longa, o brotli já a pega quando há compressor a jusante,
+> e o que sobra pro stream-RLE são os runs curtos da ordem natural — pequenos demais, salvo coluna
+> **skewed** em **transmissão textual-pura**.
 
 ## Método
 

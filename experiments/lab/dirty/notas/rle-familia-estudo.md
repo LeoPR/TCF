@@ -26,10 +26,17 @@ E o terceiro, que já existe e **compete** com (B):
 | **B** | V2-RLE-STREAM — RLE no stream de índices do V2-B (`@dict`) | **intra-stream**: índice inteiro adjacente | **caracterizado** → CLOSED-geral / nicho aberto (probatório) | lab [result.md](../2026-06-19-v2rle-stream-caracterizacao/result.md); registry [Pacote 11-bis](roadmap-hipoteses.md); depende de [ADR-0025 V2-B](../../../../docs/adr/0025-v2b-dictionary-categorical-weld.md) |
 | **C** | RLE intra-valor (H-INTRA-01/02/03 / O-FMT-17) | **intra-valor**: substring dentro de uma célula | **ADIADO** (aberta, alvo 0.8) | registry [Pacote 11](roadmap-hipoteses.md#pacote-11); [O-FMT-17](futuras-otimizacoes-formato.md) |
 
+> **Coluna única vs multi-coluna** (a distinção que confunde): **A** (`*N|`) atua em **qualquer**
+> coluna, inclusive single-col (`encode(list)`) — ordenar uma coluna só já dá RLE de graça via `*N|`.
+> **B** (stream) **só existe em multi-coluna** e **só** quando a coluna cai em `@dict` (o `min()` a
+> escolheu). Single-col **nunca** tem stream. Por isso A e B **nunca coexistem** na mesma coluna: o
+> fallback escolhe um modo. Exemplo trabalhado dos dois caminhos: [seção "Exemplo visual" do lab](../2026-06-19-v2rle-stream-caracterizacao/result.md).
+
 ## 3. Fatos medidos — V2-RLE-STREAM (B), uso geral
 
-> **Para a intuição visual** (se os dados fossem assim → o que B tentava → por que não deu), ver o
-> [exemplo trabalhado no lab](../2026-06-19-v2rle-stream-caracterizacao/result.md#exemplo-visual--o-que-a-hipótese-queria-resolver-e-por-que-não-deu).
+> **Para a intuição visual** (se os dados fossem assim → o que B tentava → por que não deu), ver a
+> **seção "Exemplo visual"** em [result.md](../2026-06-19-v2rle-stream-caracterizacao/result.md)
+> (`*N|` × stream nos 16 itens, coluna-única × multi-coluna).
 
 Fonte: [lab result.md](../2026-06-19-v2rle-stream-caracterizacao/result.md) (7 datasets reais, o teste
 mede — não copiar números soltos). Resumo:
