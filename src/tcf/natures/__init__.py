@@ -13,8 +13,9 @@ nao welded — registradas em
 Filosofia:
 - Opt-in per-value: cada valor decide se vale comprimir; fallback literal
 - TCF nao valida semantica (nao checa "este CPF existe")
-- Decoder precisa do mesmo spec usado no encode (out-of-band; futuro:
-  header carry spec id)
+- Decoder precisa do mesmo spec usado no encode (out-of-band). O "header carry
+  spec id" (self-describing) foi desenhado como H-NAT-MARK-01 e PARADO em (A) —
+  ADR-0027 `proposed` (nao implementar agora; rota zero-core via registry gadget)
 - RT byte-canonical preservado em todos casos
 
 API publica:

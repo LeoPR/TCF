@@ -9,7 +9,8 @@ cdef Py_ssize_t em contadores/comprimentos e cdef list nas listas quentes.
 Genexprs usam j/y pra evitar clash de escopo com os cdef.
 
 Se esta extensao nao compilar/importar, syntax.py usa o fallback pure-Python
-(output byte-identico). Validado: D1-D9=1523B, D17a=322B, fixtures real-world.
+(output byte-identico). Validado contra os baselines/fixtures dos tests
+(test_regression_v1_baseline.py + test_real_world_snapshots.py).
 Speedup ~2.1-2.3x no _detect_compositions.
 """
 from collections import Counter

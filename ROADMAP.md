@@ -74,12 +74,17 @@ do mesmo compilador). Ressalva: o DSL vale como **infra/DX/explicabilidade**, n�
   [`.github/workflows/ci.yml`](.github/workflows/ci.yml)
 
 **Tier B — toca `src/tcf`, exige aprovação (NÃO são cheap-wins puros):**
-- **CW-4** Atualizar docstring de SPEC/baseline em `src/tcf` (encoder.py/natures docstring dizem
-  `D17a=322B`, stale → 303B; e a menção a H-NAT-MARK-01 ficou desatualizada — F2 parado). Docstring-
-  only, mas toca `src/tcf` → precisa de OK. [S]
-- **CW-5** "Higiene de header compacto" (O-FMT-11, byte-precise) — **NÃO é cheap-win**: byte-level,
-  toca `multi.py`/formato, e **quase todo subsumido** pelo `min_header` (ADR-0023). Verificar se
-  sobra algo antes; qualquer byte de header → GATE real-world + re-pin + ADR.
+- ✅ **CW-4 FEITO** (owner OK, 2026-06-19): docstrings stale alinhados em `src/tcf` —
+  `__init__.py` "#TCF.6 default" → **#TCF.7 default** (era erro); `D17a=322B` → 303B/§5-ponteiro em
+  `__init__.py`/`encoder.py`/`syntax.py`/`detect.pyx`; `natures/__init__.py` aponta ADR-0027 (F2
+  parado); `syntax_base.py` dropa "v0.6". **Só docstring/comentário, zero código** (diff verificado);
+  suíte 379 passed, byte-canonical intacto.
+- ~~**CW-5** "Higiene de header compacto" (O-FMT-11, byte-precise)~~ — **FECHADO/subsumido**
+  (verificado 2026-06-19): as reduções concretas já estão welded — O-FMT-16 (dispensa prefixo `# `)
+  + O-FMT-15 (última coluna sem size) via `min_header` (ADR-0023); escaping via name-guard (ADR-0026);
+  flag `M` existe. Single-col já é mínimo (sem header; shebang *adicionaria* bytes). Não sobra byte
+  barato no header multi-col; o restante (espaço do magic, sizes decimais) seria **mudança de
+  formato**, não higiene — fora de escopo cheap-win.
 
 **Parked:**
 - ~~**O-FMT-12**: auto-detect CSV + `encode_file()`~~ — **PARK** (owner 2026-06-16): leitura-de-input

@@ -11,7 +11,7 @@ OBAT e sintaxe sao **ortogonais**. Trocar a sintaxe nao muda OBAT.
 Cada sintaxe e auto-contida: contem encoder + decoder na mesma
 classe para garantir consistencia.
 
-Implementacao canonica de sintaxe v0.6: **HCC** (Hierarchical
+Implementacao canonica de sintaxe: **HCC** (Hierarchical
 Compositional Coding) em `tcf.composicional.syntax`.
 
 Contrato de roundtrip:

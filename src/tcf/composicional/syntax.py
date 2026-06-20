@@ -800,7 +800,8 @@ class M8AVirtualRefsSyntax(Syntax):
 # H-PERF-06-v2 Fase B (ADR-0020): acelerador Cython OPCIONAL de
 # _detect_compositions. Se a extensao compilada (tcf._core.detect) estiver
 # presente, substitui o metodo pure-Python acima por ela — output byte-identico
-# (validado: D1-D9=1523B, D17a=322B, fixtures real-world; ~2.1-2.3x mais rapido).
+# (validado contra os baselines/fixtures dos tests — test_regression_v1_baseline.py
+#  + test_real_world_snapshots.py; ~2.1-2.3x mais rapido).
 # Senao (install sem compilador), fallback silencioso pro pure-Python — o
 # pacote funciona identico, so' mais lento. NUNCA falha por ausencia da extensao.
 # ---------------------------------------------------------------------------

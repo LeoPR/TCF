@@ -31,9 +31,9 @@ Detalhes:
 - `docs/adr/0014-unified-api-side-outputs.md` — unificacao + side outputs
 
 Invariantes byte-canonical guardados por `tests/test_core_rt.py` +
-`tests/test_regression_v1_baseline.py` (D1-D9=1523B, D17a=322B) e
-`tests/test_real_world_snapshots.py` (bytes reais; GATE de qualquer mudanca
-em pre-pass/OBAT/HCC). Identidade decode(encode(x))==x: ver decoder.py.
+`tests/test_regression_v1_baseline.py` (baselines D1-D9 / D17a — o teste mede,
+nao copiar o numero aqui) e `tests/test_real_world_snapshots.py` (bytes reais;
+GATE de qualquer mudanca em pre-pass/OBAT/HCC). decode(encode(x))==x: ver decoder.py.
 """
 
 from __future__ import annotations
