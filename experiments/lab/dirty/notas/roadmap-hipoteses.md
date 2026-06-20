@@ -425,6 +425,27 @@ OBAT/HCC captura os runs longos e **vence o fallback** (o dict nem e' escolhido)
 runs **curtos + skewed** (ordem natural). Ver tb [H-INTRA-01/02/03](#pacote-11) (Pacote 11) e
 [ADR-0025 V2-B](../../../../docs/adr/0025-v2b-dictionary-categorical-weld.md). ROADMAP: linha V2-RLE-STREAM (Tier 1).
 
+### Pacote 11-ter — Dicionario GLOBAL / cross-column no cabecalho (H-GDICT, owner 2026-06-19)
+
+**A ideia que o owner de fato queria** (distinta do V2-RLE-STREAM acima — esse era RLE no stream;
+este e' compartilhar o DICT). Insight: o OBAT/HCC ja' cria um **dicionario IMPLICITO** por coluna —
+a 1a ocorrencia define o atom, repeticoes viram `^N` (indice do N-esimo distinto; verificado: numa
+coluna so', `^1`=ATIVA, `^2`=BAIXADA... = um dict). O V2-B torna isso EXPLICITO por coluna (`@table`
++ stream). **Cada coluna guarda a propria tabela** — redundante quando colunas COMPARTILHAM valores
+(verificado: 2 colunas SIM/NAO guardam `[SIM,NAO]` duas vezes). H-GDICT promove a um **dict unico no
+header, compartilhado** entre colunas.
+
+| ID | Hipotese | Status | ref |
+|---|---|---|---|
+| H-GDICT-01 | **Dicionario global no cabecalho**: 1 tabela de unicos no header, todas as colunas referenciam por indice global (dedupe cross-column da tabela). = "cross-column dict" (O-FMT-06/07). | **aberta, NAO caracterizada** (alvo: estudar). Format change #TCF.8 + GATE. | [estudo](rle-familia-estudo.md) + [exemplo real](../2026-06-19-v2rle-stream-caracterizacao/result.md) |
+
+**Quando ganha**: colunas que compartilham valores (SIM/NAO, UFs, codigos, enums) — paga a tabela 1x
+em vez de N. **Sinergia com lazy** (H-QUERY): dict no header = leitura unica. **Quando perde**:
+colunas com value-sets disjuntos pagam indice global mais largo sem dedupe — medir o net (overlap com
+V2-B per-column). **Distinto de**: V2-RLE-STREAM (RLE no stream, Pacote 11-bis) e H-CODEBOOK-01 (dict
+EXTERNO/versionado; este e' INTERNO ao blob). Perguntas: quanto de compartilhamento compensa? indice
+global largo vs tabela compartilhada (net)? engine e GATE.
+
 ---
 
 ## Pacote 12 — Lazy/queryable view (registrado 2026-06-16, alvo pre-1.0)

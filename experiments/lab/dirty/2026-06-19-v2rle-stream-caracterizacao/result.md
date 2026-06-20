@@ -6,117 +6,104 @@ adjacentes do mesmo índice (coluna clusterizada/ordenada). Script: [`analyze.py
 medições brutas: [`result.txt`](result.txt).
 **Status**: `CLOSED-INSUFFICIENT-GAIN`.
 
-## Exemplo visual — `*N|` × stream, nos mesmos 16 itens (didático e expandido)
+> **Escopo e correções (2026-06-19, pós-revisão do owner)** — leia antes:
+> - Este lab testou o **V2-RLE-STREAM = RLE no stream de índices do V2-B**: uma micro-otimização
+>   ESTREITA. **NÃO é** a ideia mais ampla de **dicionário global/cross-column no cabeçalho** — essa é
+>   outra coisa, registrada em [H-GDICT-01](../notas/roadmap-hipoteses.md) (não testada aqui).
+> - **Correção factual**: versão anterior dizia que single-col "não tem dict". **Errado.** O TCF cria
+>   um **dicionário implícito** via `^N` (índice do N-ésimo valor distinto). Os exemplos abaixo são a
+>   **saída real do encoder**, não esquema.
 
-Duas confusões que o texto solto não resolvia:
-**(i)** "isto não é o mesmo que o `*N|`?" e **(ii)** "e se for uma coluna só?".
+## Exemplo visual — dict implícito (`^N`), `*N|` e o stream (saída real, 16 itens)
 
-Chave: **`*N|` e o stream são DOIS MODOS da mesma coluna, mutuamente exclusivos** — o fallback
-`min(tcf, raw, @dict, %split)` escolhe UM por coluna. O `*N|` vive no modo **tcf** e atua sobre os
-**valores** (linhas idênticas adjacentes). O **stream** só existe no modo **@dict**, e atua sobre
-**índices** (o valor já virou um número). E **coluna única não tem dict** → nunca tem stream.
+Coluna `situacao`, 16 linhas, 3 valores distintos (ATIVA, BAIXADA, SUSPENSA), ordem natural.
 
-Os 16 itens da coluna `situacao` (3 valores), em **ordem natural** (lê-se descendo cada coluna):
+### Caminho 1 — UMA coluna (`encode(list)`): dict IMPLÍCITO via `^N`, sem stream
 
+Single-col não tem header nem a tabela explícita do V2-B — **mas tem dicionário**: a 1ª ocorrência
+define o atom, as repetições viram `^N` (índice do N-ésimo distinto). Saída real do encoder:
 ```
-#  valor       #  valor       #  valor       #  valor
-1  ATIVA       5  SUSPENSA    9  ATIVA       13 SUSPENSA
-2  BAIXADA     6  ATIVA       10 ATIVA       14 ATIVA
-3  ATIVA       7  BAIXADA     11 BAIXADA     15 ATIVA
-4  ATIVA       8  ATIVA       12 ATIVA       16 ATIVA
+ATIVA       <- atom 1 (definido aqui)
+BAIXADA     <- atom 2
+*2|^1       <- run de 2 + ref ao atom 1 (ATIVA)
+SUSPENSA    <- atom 3
+^1          <- ATIVA
+^2          <- BAIXADA
+*3|^1       <- 3x ATIVA
+^2
+^1
+^3          <- SUSPENSA
+*3|^1
 ```
-(ATIVA ×11, BAIXADA ×3, SUSPENSA ×2)
+`^1`=ATIVA, `^2`=BAIXADA, `^3`=SUSPENSA — **sempre**, independente da posição. **Isto É um dicionário**
+(índice → valor); os `^N` são os índices. **Você estava certo**: a compressão já te dá um dict natural.
 
----
+Ordenada (`sort_by`), vira `*11|ATIVA` / `*3|BAIXADA` / `*2|SUSPENSA` (o `*N|` esmaga). De qualquer
+forma, **single-col não tem stream** → V2-RLE-STREAM não se aplica aqui.
 
-### Caminho 1 — UMA coluna só (`encode(["ATIVA","BAIXADA",...])`)
+### Caminho 2 — MULTI-coluna: o V2-B pode tornar o dict EXPLÍCITO (tabela + stream)
 
-Single-col **não tem header, não tem dict, não tem stream**. Só OBAT/HCC, e o `*N|` junta
-**linhas idênticas adjacentes** (repetições NÃO-adjacentes viram `^N`, um back-ref curto — omitido
-aqui pra focar no `*N|`).
+No multi-col o fallback compara, por coluna: `tcf` vs `raw` vs `@dict` vs `%split`. O `@dict` (V2-B)
+põe a tabela de únicos no topo e **packa** os índices num **stream** (1 char/linha, vs `^N\n` que são
+~3). É a versão explícita+packed do mesmo dict implícito do Caminho 1.
 
-**(1a) ordem natural** — o `*N|` só pega o que está colado:
+**(2a) ORDENADA** → o fallback escolhe **tcf** (`*N|` ganha; repare: meta SEM `@`):
 ```
-ATIVA          (1)
-BAIXADA        (2)
-*2|ATIVA       (3-4)    <- run adjacente
-SUSPENSA       (5)
-ATIVA          (6)
-BAIXADA        (7)
-*3|ATIVA       (8-10)   <- run adjacente
-BAIXADA        (11)
-ATIVA          (12)
-SUSPENSA       (13)
-*3|ATIVA       (14-16)  <- run adjacente
-```
-
-**(1b) ordenada** (`sort_by`) — tudo igual fica colado, o `*N|` esmaga a coluna inteira:
-```
+#TCF.7 M
+situacao
 *11|ATIVA
 *3|BAIXADA
 *2|SUSPENSA
 ```
+→ não virou `@dict` → **não há stream** → V2-RLE-STREAM não tem o que fazer.
 
-→ **O ponto que você levantou**: numa coluna só, **ordenar já dá o "RLE" de graça** via `*N|`.
-O V2-RLE-STREAM **não existe** neste caminho (não há dict/stream pra RLE-ar).
-
----
-
-### Caminho 2 — MULTI-coluna (a `situacao` é 1 de várias)
-
-Agora o fallback compara, por coluna: `tcf (*N|/^N)` vs `raw` vs `@dict` vs `%split`. O `@dict`
-troca cada valor por um índice e guarda os índices num **stream** (1 char/linha; `!`=ATIVA,
-`"`=BAIXADA, `#`=SUSPENSA).
-
-**(2a) ORDENADA** — o `*N|` do tcf vence; o dict nem entra:
+**(2b) NATURAL** → o fallback escolhe **@dict** (runs curtos; `*N|` não ajuda; o stream 1-char/linha
+vence o `^N\n`):
 ```
-modo tcf:    *11|ATIVA  *3|BAIXADA  *2|SUSPENSA              (~30 B, a coluna toda)
-modo @dict:  tabela[ATIVA,BAIXADA,SUSPENSA] + stream(16 chars)   (~40 B)
-=> min() escolhe tcf  ->  NAO HA STREAM  ->  V2-RLE-STREAM nao tem o que fazer.
+#TCF.7 M
+@situacao
+23
+ATIVA
+BAIXADA
+SUSPENSA           <- a tabela = o dict explícito
+!"!!#!"!!!"!#!!!    <- o stream de índices (!=ATIVA "=BAIXADA #=SUSPENSA)
+```
+Aqui o stream existe cru — **é exatamente onde o V2-RLE-STREAM agiria**. Mas o maior run é 3, e RLE
+de um run custa `marcador+contagem+token` = 3 chars → **só compensa com run ≥ 4** → **economiza ZERO**.
+
+### O achado exato — o stream-RLE é espremido dos DOIS lados
+
+```
+runs LONGOS  ->  tcf-*N| VENCE o fallback  ->  @dict nem entra  ->  NAO HA stream
+runs CURTOS  ->  @dict vence               ->  stream existe MAS run < 4  ->  RLE ~ 0
 ```
 
-**(2b) NATURAL** — aqui o `@dict` vence o tcf (cada valor = 1 char no stream, vs o overhead de
-marcador por linha do tcf), então o stream EXISTE e fica cru:
+Verificado em 16 itens: o caso clusterizado (runs 4/6/4) **flipa pro tcf** (`*4|ATIVA ... *6|^1`); o
+natural disperso fica em `@dict` mas com runs ≤3. O stream-RLE só "sobra" no meio: coluna que **fica
+em @dict** com runs médios (≥4). Isso, na prática, **só aparece em escala real + valor dominante
+disperso**: a `situacao` da Receita (15k linhas) ficou em `@dict` e o stream RLE-ou **+54,9%** textual
+(ver [result_forms.txt](result_forms.txt)). Em 16 itens limpos não aparece. E mesmo no caso real
+**morre sob brotli** (−11%) e **dilui** na tabela larga (weighted real **+1,19%**).
+
+### O que o owner realmente queria (≠ deste lab): dicionário GLOBAL
+
+Repare o que acontece com **2 colunas que compartilham valores** (saída real):
 ```
-stream cru (16):  ! " ! ! # ! " ! ! ! " ! # ! ! !
-                      └2┘       └──3──┘     └──3──┘     (maior run = 3)
+#TCF.7 M
+@15=resp1,@resp2
+8
+SIM
+NAO
+!"!!"          <- resp1: tabela [SIM,NAO] + stream
+8
+NAO
+SIM
+!!"!"          <- resp2: guarda a tabela [SIM,NAO] DE NOVO  (redundância cross-column!)
 ```
-E **é aqui que o V2-RLE-STREAM agiria**. Mas RLE-ar um run de `m` custa
-`marcador + contagem + token` = **3 chars** (width 1), então **só compensa com run ≥ 4** (run de 3
-empata, run de 2 perde). O **maior run aqui é 3** → **o RLE economiza ZERO**.
-
-> Em ordem natural os runs são curtos **por construção**: se fossem longos, o caso (2a) já teria
-> mandado a coluna pro tcf-`*N|`. Por isso o stream-RLE é, na prática, um **resíduo** do `*N|`.
-
----
-
-### Quando o stream-RLE finalmente ganha: coluna SKEWED
-
-Se **um valor domina** (ex: 14 ATIVA, 1 BAIXADA, 1 SUSPENSA), os runs de ATIVA ficam longos
-**mesmo sem ordenar** — e o dict ainda vence (não há um ÚNICO run gigante que o tcf colapsaria; os
-ATIVA estão quebrados pelos outros dois valores):
-```
-stream cru (16):  ! ! ! !  "  ! ! ! ! ! !  #  ! ! ! !
-                  └─ 4 ─┘     └──── 6 ────┘     └─ 4 ─┘
-stream RLE:       §4!  "  §6!  #  §4!               (16 -> 11 chars, -31%)
-```
-→ **Este é o nicho** (a `situacao` real chegou a **+55%** no [lab forms](result_forms.txt)).
-`§` = marcador reservado (na implementação, um byte fora do alfabeto, ex `0x01`).
-
----
-
-### Por que, mesmo com o nicho, não vale weldar
-
-1. **Ordenado** → tcf-`*N|` vence (nos dois caminhos) → o stream nem existe.
-2. **Natural não-skewed** → runs curtos (≤3) → RLE ≈ 0.
-3. **Natural skewed** → ganha no textual-puro, **mas**: (a) **morre sob brotli** (o brotli já
-   comprime o stream repetido; o marcador vira overhead — −6% a −11% medido); (b) **dilui** numa
-   tabela larga (o stream é fração do blob → **+1,19% weighted real**, não os 31% do stream isolado).
-
-> **Em uma frase**: `*N|` (sobre valores) e stream-RLE (sobre índices) atacam a MESMA repetição
-> adjacente; o `*N|` já vence quando ela é longa, o brotli já a pega quando há compressor a jusante,
-> e o que sobra pro stream-RLE são os runs curtos da ordem natural — pequenos demais, salvo coluna
-> **skewed** em **transmissão textual-pura**.
+Cada coluna guarda **sua própria** tabela. A ideia de **dicionário global no cabeçalho** elimina isso:
+**uma** tabela `{SIM, NAO}` no header, ambas as colunas só carregam o stream de índices. É a ideia
+[H-GDICT-01](../notas/roadmap-hipoteses.md) (= "cross-column dict", O-FMT-06/07) — **distinta** do
+RLE-no-stream deste lab, e não caracterizada.
 
 ## Método
 
@@ -186,18 +173,8 @@ low-card de texto **isolada** (narrow; a coluna domina o blob) — [`analyze_for
 | adult/marital-status (K=7) | +5,3% | −4,0% |
 | adult/education (K=16, uniforme) | +1,4% | −0,7% |
 
-**Achado técnico-chave**: nos casos **clusterizados/`sort_by`** a coluna **flipa para `modo=tcf`** —
-o `*N|` do OBAT/HCC (RLE de linha) captura os runs longos e **vence o fallback**, então o dict nem é
-escolhido. Ou seja: **stream-RLE e tcf-`*N|` competem pelo mesmo fenômeno** (repetição adjacente de
-valor inteiro), e o tcf já ganha onde os runs são longos. O stream-RLE só tem espaço no regime de
-**runs curtos (ordem natural)** — onde o dict vence o fallback e deixa o stream cru. Aí, se a coluna
-for **skewed** (um valor dominante → runs moderados mesmo sem ordenar), o ganho é real e **nada mais
-o captura** (situacao +55%, workclass +22%).
-
-**Nicho real, mas estreito**: payload pequeno + coluna low-card de texto curto + **skewed** + ordem
-natural + **textual-puro** (sem compressor a jusante). Alinha com a diretriz "transmissão minúscula,
-cada byte conta". Ressalvas: (1) só ordem natural (clusterizado → tcf-`*N|`); (2) só skewed (uniforme
-~1%); (3) **morre sob brotli** (−6% a −11%).
+Nesse nicho (payload pequeno + low-card texto **skewed** + ordem natural + **textual-puro**) o ganho é
+real (situacao +55%, workclass +22%) e **nada mais o captura** — mas é estreito e **morre sob brotli**.
 
 ## Veredito refinado
 
@@ -207,24 +184,26 @@ cada byte conta". Ressalvas: (1) só ordem natural (clusterizado → tcf-`*N|`);
   owner** — passa ≥15% em 2 reais *nesse nicho* (situacao 55%, workclass 22%), mas é estreito,
   brotli-frágil, e overlap com tcf-`*N|` na ordem clusterizada. Weld = format change (#TCF.8) + GATE
   + re-pin → só se o owner julgar o nicho prioritário. **Não weldado; src/tcf intocado.**
+- **A ideia mais ampla do owner — dicionário GLOBAL/cross-column no header — é [H-GDICT-01](../notas/roadmap-hipoteses.md)**,
+  hipótese distinta (não testada aqui).
 
 ## Encaminhamento
 
 - **`src/tcf` intocado** (lab-first; nada weldado).
 - `V2-RLE-STREAM`: `closed-insufficient-gain` pro geral; **nicho textual-puro registrado, decisão do
   owner pendente** (ROADMAP).
+- **Dicionário global/cross-column = [H-GDICT-01](../notas/roadmap-hipoteses.md)** — a ideia que o owner
+  de fato queria; concern distinto deste lab.
 - **RLE na célula (intra-valor) = [H-INTRA-01/02/03](../notas/roadmap-hipoteses.md#pacote-11) → adiado
-  a pedido do owner** ("depois revisamos o RLE na célula"). É concern distinto (repetição DENTRO do
-  valor, não entre linhas).
+  a pedido do owner** ("depois revisamos o RLE na célula"). Repetição DENTRO do valor, não entre linhas.
 
-## Referências (família RLE + cadeia de formato)
+## Referências (família RLE + família DICT + cadeia de formato)
 
-- **Estudo consolidado da família RLE**: [`rle-familia-estudo.md`](../notas/rle-familia-estudo.md)
-  (linha-`*N|` welded / stream-V2-B / intra-valor) — entrar por aqui.
-- **Registry**: [roadmap-hipoteses.md Pacote 11-bis](../notas/roadmap-hipoteses.md) (H-V2RLE-01/02) +
-  [Pacote 11 H-INTRA](../notas/roadmap-hipoteses.md#pacote-11).
-- **V2-B (base deste follow-up)**: [ADR-0025](../../../../docs/adr/0025-v2b-dictionary-categorical-weld.md).
-- **RLE de linha (o que compete com o stream)**: [ADR-0016 seq-RLE](../../../../docs/adr/0016-hcc-multi-delta-seq-rle.md),
+- **Estudo consolidado**: [`rle-familia-estudo.md`](../notas/rle-familia-estudo.md) — entrar por aqui.
+- **Registry**: [roadmap-hipoteses.md](../notas/roadmap-hipoteses.md) — Pacote 11-bis (V2-RLE = H-V2RLE),
+  H-GDICT-01 (dict global), [Pacote 11 H-INTRA](../notas/roadmap-hipoteses.md#pacote-11) (intra-valor).
+- **V2-B (base)**: [ADR-0025](../../../../docs/adr/0025-v2b-dictionary-categorical-weld.md).
+- **RLE de linha / dict implícito `^N`**: [ADR-0016 seq-RLE](../../../../docs/adr/0016-hcc-multi-delta-seq-rle.md),
   [HCC](../../../../docs/algorithms/HCC.md), [OBAT](../../../../docs/algorithms/OBAT.md).
 - **Split estrutural (vizinho)**: [ADR-0026](../../../../docs/adr/0026-structural-split-weld.md).
 - ROADMAP: linha `V2-RLE-STREAM` (Tier 1).

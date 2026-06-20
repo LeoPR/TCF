@@ -111,7 +111,7 @@ que faz o decode reconhecer a nature sozinho. Critério de weld por candidato: *
 - `META-TYPE-ENCODERS` Pacote 7 (templated/checksummed/composite) + schema-builder Fase 3 — reabre com caracterização real-world (ganho ≥15% em 2+).
 - Infra de streaming: output-sinks + encoder-manager Fases 2-4 + plan-contract + per-channel headers (pré-req de V2-J).
 - Perf residual: counter incremental HCC (H-PERF-05d, divergência byte-canonical em datetime); Patricia trie como índice OBAT.
-- Bundles de menor prioridade: ordenação avançada (O-FMT-01/03/04), cross-column dict + type-aware (O-FMT-06/07) + header desacoplável (O-FMT-14).
+- Bundles de menor prioridade: ordenação avançada (O-FMT-01/03/04), **cross-column dict** + type-aware (O-FMT-06/07 = **[H-GDICT-01](experiments/lab/dirty/notas/roadmap-hipoteses.md)**, "dicionário global no header" — ideia do owner 2026-06-19; distinta do V2-RLE-STREAM) + header desacoplável (O-FMT-14).
 - Suporte: fixtures de dados edge (T-DATA-3) pro schema gadget; shaper hardening (>100k).
 
 ---

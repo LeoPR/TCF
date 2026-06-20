@@ -1,22 +1,31 @@
-# Família RLE no TCF — estudo consolidado (intra-valor + stream) [estudo]
+# Famílias RLE e DICT no TCF — estudo consolidado [estudo]
 
-**Data**: 2026-06-19 · estudo (consolida medições já feitas + perguntas abertas; **não decide nada**).
-Origem: owner pediu pra "voltar com as ideias de RLE intra-valor e o RLE-STREAM pra estudar".
-**Entrar por aqui** quando o assunto for "comprimir repetição". Tudo cross-linkado (diretiva
-[[feedback-sempre-cross-reference]]).
+**Data**: 2026-06-19 · estudo (consolida medições + perguntas abertas; **não decide nada**).
+Origem: owner — RLE intra-valor, RLE-STREAM e, na revisão, o **dicionário global** (a ideia que se
+perdeu no caminho). **Entrar por aqui** quando o assunto for "comprimir repetição / reaproveitar
+valores". Tudo cross-linkado (diretiva [[feedback-sempre-cross-reference]]).
 
-## 1. Escopo
+## 1. Escopo — DOIS eixos que se confundem (RLE × DICT)
 
-Três mecanismos no TCF "comprimem repetição", mas em **dimensões diferentes** e se **confundem**.
-Este doc separa os três, mostra onde **competem**, e lista o que já foi **medido** e o que é
-**pergunta aberta** — pra decidir a ordem de ataque sem retrabalho.
+O ponto que gerou confusão: há **dois eixos** intertwined, não um. Separá-los é o objetivo.
 
-As duas ideias que o owner quer estudar:
-- **(B) V2-RLE-STREAM** — RLE no stream de índices do V2-B. **Já caracterizado** (2026-06-19).
-- **(C) RLE intra-valor** (H-INTRA / O-FMT-17) — repetição DENTRO de um valor. **Adiado**, ainda não medido.
+**Eixo RLE** ("comprimir REPETIÇÃO adjacente"):
+- **(A) RLE de linha** — `*N|` / `*N+delta|`. **Welded** (tcf mode).
+- **(B) V2-RLE-STREAM** — RLE no stream de índices do V2-B. **Caracterizado → CLOSED-geral** (2026-06-19).
+- **(C) RLE intra-valor** (H-INTRA / O-FMT-17) — repetição DENTRO de um valor. **Adiado**.
 
-E o terceiro, que já existe e **compete** com (B):
-- **(A) RLE de linha** — `*N|` / seq-RLE `*N+delta|`. **Welded** no `src/tcf`.
+**Eixo DICT** ("referenciar VALORES repetidos por índice") — onde a ideia do owner realmente vive:
+- **(D1) dict IMPLÍCITO** `^N` — a 1ª ocorrência define o atom, repetições viram índice `^N`. **Já
+  existe** em tcf mode (single E multi). *(Verificado: numa coluna só, `^1`=ATIVA, `^2`=BAIXADA... =
+  um dicionário. Correção 2026-06-19: single-col TEM dict, ao contrário do que a v1 deste doc dizia.)*
+- **(D2) dict EXPLÍCITO per-column** `@` (V2-B) — tabela de únicos + stream packed. **Welded**, multi-col.
+- **(D3) dict GLOBAL/cross-column no header** — 1 tabela compartilhada entre colunas. **= a ideia do
+  owner** ([H-GDICT-01](roadmap-hipoteses.md), = O-FMT-06/07). **NÃO testado.**
+
+> **A confusão desfeita**: V2-RLE-STREAM (B, eixo RLE) ≠ dict global (D3, eixo DICT). O que foi testado
+> e fechado foi B (RLE no stream). A ideia do owner é D3 (compartilhar o dict). São coisas diferentes.
+
+Detalhe do eixo DICT na **seção 10**.
 
 ## 2. A família em 3 níveis
 
@@ -95,7 +104,31 @@ obrigatório + **re-pin** de baselines + complexidade permanente no decoder/lazy
 4. Se algum avançar: qual **engine** (OBAT vs HCC) e como medir o **INCREMENTO net** sobre A + nature +
    split + dedup `^N`?
 
-## 9. Referências
+## 9. Eixo DICT — onde a ideia do owner (dict global) realmente vive
+
+Os índices que comprimem repetição de VALOR já existem de graça. O eixo DICT tem 3 níveis:
+
+| nível | o que é | onde / status |
+|---|---|---|
+| **D1 implícito** `^N` | 1ª ocorrência define o atom; repetição vira índice `^N` | tcf mode (single+multi) — **já existe** |
+| **D2 explícito** `@` (V2-B) | tabela de únicos no topo + stream packed; **por coluna** | multi-col — **welded** (ADR-0025) |
+| **D3 GLOBAL** no header | **1 tabela compartilhada** entre colunas (dedupe cross-column) | **H-GDICT-01** — **não testado** |
+
+**Por que D3 (a ideia do owner)**: hoje cada coluna `@dict` guarda **sua própria** tabela (verificado:
+2 colunas SIM/NÃO guardam `[SIM,NÃO]` duas vezes — [exemplo real](../2026-06-19-v2rle-stream-caracterizacao/result.md)).
+D3 põe **uma** tabela no header e todas as colunas referenciam por índice global → paga a tabela 1×.
+É o **"cross-column dict"** (O-FMT-06/07) e casa com o **lazy** (dict no header = leitura única).
+
+**Perguntas abertas de D3** (pro owner): (a) quanto de compartilhamento de valores entre colunas
+compensa? (colunas disjuntas pagam índice global mais largo sem dedupe → medir o **net** vs V2-B
+per-column). (b) sinergia com o gadget lazy (header dict = manifest). (c) format change #TCF.8 + GATE.
+Distinto de [H-CODEBOOK-01](roadmap-hipoteses.md) (dict **externo**/versionado; D3 é **interno** ao blob).
+
+**Relação RLE × DICT**: o `^N` (D1) é o ponto onde os eixos se tocam — é um índice de dict (eixo DICT)
+e um back-ref de repetição (eixo RLE). Mas as IDEIAS a estudar são separadas: B (RLE no stream, fechado),
+C (RLE intra-valor, adiado), **D3 (dict global, a ideia viva do owner)**.
+
+## 10. Referências
 
 - Lab B: [result.md](../2026-06-19-v2rle-stream-caracterizacao/result.md) +
   [result_forms.txt](../2026-06-19-v2rle-stream-caracterizacao/result_forms.txt) +
