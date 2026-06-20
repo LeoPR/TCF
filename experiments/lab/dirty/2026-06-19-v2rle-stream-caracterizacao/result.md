@@ -59,7 +59,47 @@ Só se surgir um caso de **transmissão textual-pura** (sem compressor a jusante
 colunas low-card **fortemente clusterizadas/ordenadas** (sinergia com o layout L5/`sort_by` do gadget
 lazy, que já cria runs). Mesmo aí, o teto medido (~7-13%) é abaixo do gate. Não priorizar.
 
+## Follow-up — nicho "texto curto / formulário" (refinamento do owner, 2026-06-19)
+
+O owner apontou que o stream-RLE faz mais sentido em **texto** (formulários, frases curtas que
+repetem) e em **payload pequeno**, não nas tabelas largas do teste inicial. Medido com a coluna
+low-card de texto **isolada** (narrow; a coluna domina o blob) — [`analyze_forms.py`](analyze_forms.py)
+· [`result_forms.txt`](result_forms.txt):
+
+| coluna (isolada, ordem natural) | ganho textual (% blob) | sob brotli |
+|---|---|---|
+| receita/situacao (K=5, skewed) | **+54,9%** | −11,0% |
+| adult/workclass (K=9) | **+21,6%** | −6,4% |
+| ibge/mesorregiao (K=138) | +5,5% | −2,7% |
+| adult/marital-status (K=7) | +5,3% | −4,0% |
+| adult/education (K=16, uniforme) | +1,4% | −0,7% |
+
+**Achado técnico-chave**: nos casos **clusterizados/`sort_by`** a coluna **flipa para `modo=tcf`** —
+o `*N|` do OBAT/HCC (RLE de linha) captura os runs longos e **vence o fallback**, então o dict nem é
+escolhido. Ou seja: **stream-RLE e tcf-`*N|` competem pelo mesmo fenômeno** (repetição adjacente de
+valor inteiro), e o tcf já ganha onde os runs são longos. O stream-RLE só tem espaço no regime de
+**runs curtos (ordem natural)** — onde o dict vence o fallback e deixa o stream cru. Aí, se a coluna
+for **skewed** (um valor dominante → runs moderados mesmo sem ordenar), o ganho é real e **nada mais
+o captura** (situacao +55%, workclass +22%).
+
+**Nicho real, mas estreito**: payload pequeno + coluna low-card de texto curto + **skewed** + ordem
+natural + **textual-puro** (sem compressor a jusante). Alinha com a diretriz "transmissão minúscula,
+cada byte conta". Ressalvas: (1) só ordem natural (clusterizado → tcf-`*N|`); (2) só skewed (uniforme
+~1%); (3) **morre sob brotli** (−6% a −11%).
+
+## Veredito refinado
+
+- **Uso geral (tabelas largas / com compressor a jusante): `CLOSED-INSUFFICIENT-GAIN`** —
+  1,19% weighted, 0/7 ≥15%, −1,39% sob brotli.
+- **Nicho textual-puro (transmissão minúscula, low-card skewed, ordem natural): ABERTO p/ decisão do
+  owner** — passa ≥15% em 2 reais *nesse nicho* (situacao 55%, workclass 22%), mas é estreito,
+  brotli-frágil, e overlap com tcf-`*N|` na ordem clusterizada. Weld = format change (#TCF.8) + GATE
+  + re-pin → só se o owner julgar o nicho prioritário. **Não weldado; src/tcf intocado.**
+
 ## Encaminhamento
 
-- **`src/tcf` intocado** (lab-first; a hipótese não passou, nada foi weldado).
-- Marcar `V2-RLE-STREAM` como `closed-insufficient-gain` no ROADMAP + roadmap-hipoteses.
+- **`src/tcf` intocado** (lab-first; nada weldado).
+- `V2-RLE-STREAM`: `closed-insufficient-gain` pro geral; **nicho textual-puro registrado, decisão do
+  owner pendente** (ROADMAP).
+- **RLE na célula (intra-valor) = H-INTRA-01/02/03 → adiado a pedido do owner** ("depois revisamos o
+  RLE na célula"). É concern distinto (repetição DENTRO do valor, não entre linhas).

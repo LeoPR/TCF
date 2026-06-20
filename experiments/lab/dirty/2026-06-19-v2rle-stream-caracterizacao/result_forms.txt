@@ -1,0 +1,22 @@
+# V2-RLE-STREAM — nicho texto-curto/formulario (downstream=brotli-q11)
+# (coluna low-card de TEXTO isolada = payload narrow; a coluna domina o blob)
+
+## Colunas de texto reais (isoladas):
+   adult-census/workclass [natural]   N=20000  K=9    w=1 blob 20100B  stream 20000->15656B  saving 4344B = +21.6% do blob   brotli 4676->4976B (-6.4%)
+   adult-census/workclass [clusterizado] N=20000  modo=tcf (nao-dict; stream-RLE NAO se aplica)
+   adult-census/education [natural]   N=20000  K=16   w=1 blob 20153B  stream 20000->19724B  saving 276B = +1.4% do blob   brotli 7609->7661B (-0.7%)
+   adult-census/education [clusterizado] N=20000  modo=tcf (nao-dict; stream-RLE NAO se aplica)
+   adult-census/marital-status [natural] N=20000  K=7    w=1 blob 20097B  stream 20000->18928B  saving 1072B = +5.3% do blob   brotli 4849->5042B (-4.0%)
+   adult-census/marital-status [clusterizado] N=20000  modo=tcf (nao-dict; stream-RLE NAO se aplica)
+   receita-cnpj/situacao [natural]    N=15000  K=5    w=1 blob 15037B  stream 15000->6747B  saving 8253B = +54.9% do blob   brotli 1741->1933B (-11.0%)
+   receita-cnpj/situacao [clusterizado] N=15000  modo=tcf (nao-dict; stream-RLE NAO se aplica)
+   tpch-sf001/o_orderpriority [natural] N=15000  K=5    w=1 blob 15067B  stream 15000->14902B  saving 98B = +0.7% do blob   brotli 4581->4920B (-7.4%)
+   tpch-sf001/o_orderpriority [clusterizado] N=15000  modo=tcf (nao-dict; stream-RLE NAO se aplica)
+   ibge-municipios/mesorregiao [natural] N=5571   K=138  w=2 blob 13003B  stream 11142->10432B  saving 710B = +5.5% do blob   brotli 3981->4088B (-2.7%)
+   ibge-municipios/mesorregiao [clusterizado] N=5571   modo=tcf (nao-dict; stream-RLE NAO se aplica)
+
+## Sintetico forms (vies de design declarado):
+   SINTETICO forms [natural-clusterizado] N=20000  modo=tcf (nao-dict; stream-RLE NAO se aplica)
+   SINTETICO forms [sort_by]          N=20000  modo=tcf (nao-dict; stream-RLE NAO se aplica)
+
+NOTA: clusterizado/sort_by e' ORDER-FREE (perde a ordem original).
