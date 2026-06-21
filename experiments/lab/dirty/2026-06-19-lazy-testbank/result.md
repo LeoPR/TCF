@@ -41,9 +41,36 @@ Ops: `nrows/count`, `group_count`, `where` (eq + pred + AND), `sum/min/max/avg` 
 - sint-base (12×4): 50,7% · borda (6×2): 100% (tabela minúscula, tudo toca).
 → Em tabela real, a query toca **~10-14% do blob** — a tese central do lazy, agora medida e honesta.
 
+## A3 — performance na CAMADA DO ALGORITMO (diminuir o caminho)
+
+**Foco (diretriz do owner)**: otimizar na **camada de abstração do algoritmo** — métrica
+**language-agnostic** = nº de operações de **decode** (passes sobre os dados), que vale em qualquer
+linguagem depois. Otimização de **Python** (loops, Cython, bytes×str) **fica pra depois** — não é o
+foco agora. Script: [`a3_perf.py`](a3_perf.py) · [`a3_before.txt`](a3_before.txt) / [`a3_after.txt`](a3_after.txt)
+(adult 10k×15, decodes por op).
+
+| op | decodes ANTES | decodes DEPOIS |
+|---|---|---|
+| `count()` | 1 (decodava a tabela do dict à toa) | **0** (lê `\n` de uma coluna raw) |
+| `group_count`/`where`/`agg_by` (dict) | 1 | 1 — a tabela é **necessária** (mínimo irredutível sem format change) |
+| `group_count + where + group_count` (mesma col) | **3** (re-decodava a tabela) | **1** (cacheado) |
+
+**Otimizações (algoritmo, language-agnostic, no gadget — `src/tcf` intocado):**
+- **O1** — `nrows`/`count` preferem coluna **`raw`** (conta `\n`, **zero decode**) antes de dict;
+  só caem no dict (1 decode de tabela) se não houver raw. `count()`: 1 → **0** decodes.
+- **O2** — `_dict_parts` **cacheia** `(unicas, width, stream)` por coluna → ops dict repetidas
+  (`group_count` + `where` na mesma coluna) decodam a tabela **1×** em vez de N. Redundância 3 → **1**.
+
+**Correção mantida** (A1 verde, 29 testes lazy, 381 na suíte). O custo de **tempo** restante (ex.:
+tally O(N) do `group_count` ~10 ms) é da **camada Python** (loop) — **deferido** (otimização de
+linguagem). O **caminho do algoritmo** está no mínimo: `count`=0 decodes; `group/where/agg`=1 (a
+tabela). Reduzir abaixo disso exigiria **format change** (ex.: contagem no header) — fora do 0.8.
+
 ## Encaminhamento
 
-- **A1 ✅** (correção verde) + **A2 ✅** (bug de contagem fechado, regressão pinada).
-- Próximo: **A3** (performance: medir tempo/memória por op + otimizar com a API atual → repetir A1);
-  depois **A4** (promover o gadget → `tcf.view`). Ver [plano](../notas/v08-plano-etapas.md).
-- `src/tcf` intocado; baselines intactos (381 passed).
+- **A1 ✅** (correção verde) + **A2 ✅** (bug de contagem) + **A3 ✅** (caminho do algoritmo no mínimo;
+  Python deferido).
+- Próximo: **A4** (promover o gadget → `tcf.view`, sob aprovação) + **A5** (reference da API).
+  Ver [plano](../notas/v08-plano-etapas.md).
+- `src/tcf` intocado; baselines intactos (381 passed). Otimizações na camada algoritmo valem pra
+  qualquer porte futuro (Rust etc.).

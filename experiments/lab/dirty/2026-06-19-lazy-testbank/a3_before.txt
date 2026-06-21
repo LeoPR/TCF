@@ -1,0 +1,14 @@
+# A3 — caminho (decodes) por op | adult 10k x 15 cols | blob 201750B
+
+BASELINE (caminho do decode completo):
+   decode(blob) — materializa TUDO            decodes: col=0   v2b=0   split=0   | bytes=0        | 50.41 ms
+
+LAZY (view fresca por op — o caminho minimo):
+   count()                                    decodes: col=1   v2b=0   split=0   | bytes=343      | 0.57 ms
+   group_count('workclass')  [dict]           decodes: col=1   v2b=0   split=0   | bytes=85       | 8.71 ms
+   where('workclass','Private').count()       decodes: col=1   v2b=0   split=0   | bytes=85       | 5.36 ms
+   where('workclass','Private').sum('fnlwgt') decodes: col=1   v2b=0   split=0   | bytes=85       | 8.44 ms
+   agg_by('workclass','fnlwgt','sum') [sort]  decodes: col=1   v2b=0   split=0   | bytes=127      | 6.61 ms
+
+REDUNDANCIA (mesma view, ops repetidas na MESMA coluna dict):
+   group_count + where + group_count (workclass) decodes: col=3   v2b=0   split=0   | bytes=255      | 20.43 ms

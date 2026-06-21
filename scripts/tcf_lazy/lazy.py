@@ -43,6 +43,7 @@ class LazyTCF:
         self._mode: dict[str, str] = {}        # name -> 'raw'|'dict'|'split'|'tcf'
         self._body: dict[str, bytes] = {}      # name -> bytes (NÃO decodificado)
         self._cache: dict[str, list[str]] = {}  # name -> valores (sob demanda)
+        self._dict_cache: dict[str, tuple] = {}  # A3-O2: (unicas,width,stream) parseado do @dict
         self._order: list[str] = []
         self.touched: list[str] = []           # colunas que foram descomprimidas
         self._parse(blob)
@@ -125,14 +126,20 @@ class LazyTCF:
     # ---- L3: estrutura (dict/raw) — contar/agrupar SEM expandir as N linhas ----
     def _dict_parts(self, name: str):
         """Parseia um corpo V2-B (`@`): (unicas, width, stream). Decodifica só a
-        tabelinha de únicos (K valores), nunca as N linhas."""
+        tabelinha de únicos (K valores), nunca as N linhas. A3-O2: cacheado por
+        coluna — ops dict repetidas (group_count + where) não re-decodam a tabela."""
+        cached = self._dict_cache.get(name)
+        if cached is not None:
+            return cached
         body = self._body[name]
         nl = body.find(b"\n")
         ntable = int(body[:nl]); start = nl + 1
         unicas = _decode_column(body[start:start + ntable].decode("utf-8"))
         if name not in self.touched:
             self.touched.append(name)
-        return unicas, _v2b_width(len(unicas)), body[start + ntable:]
+        parts = (unicas, _v2b_width(len(unicas)), body[start + ntable:])
+        self._dict_cache[name] = parts
+        return parts
 
     def _structural_count(self, name: str):
         """Linhas SEM decodificar valores: dict (tamanho do stream) / raw
@@ -149,9 +156,15 @@ class LazyTCF:
 
     @property
     def nrows(self) -> int:
-        """Número de linhas. Tenta estrutural (dict/raw, sem decode de valores);
-        senão decodifica a coluna tcf/split mais barata."""
-        for name in self._order:
+        """Número de linhas, pelo CAMINHO mais curto (A3-O1):
+        1) raw → conta `\\n` (ZERO decode); 2) dict → 1 decode da tabela;
+        3) fallback → decodifica a coluna tcf/split mais barata."""
+        for name in self._order:                 # O1: raw primeiro (custo zero)
+            if self._mode[name] == "raw":
+                if name not in self.touched:
+                    self.touched.append(name)
+                return self._body[name].count(b"\n") + 1
+        for name in self._order:                 # senão dict (1 decode de tabela)
             sc = self._structural_count(name)
             if sc is not None:
                 return sc
