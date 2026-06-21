@@ -478,8 +478,16 @@ Quando voltar pra estas otimizacoes:
 em base-94 (alfabeto que o TCF ja' usa) o numero encurta ~2× (ex: `150000` 6 dig → 3 chars).
 **Mantem TUDO**: continua byte-size → acesso O(1) por coluna + decode paralelo + group por slice.
 So' muda a representacao do numero. **Candidato** de header micro-opt pro foco "transmissao minuscula".
-**Status**: registrado; baixa prioridade (header e' fracao minima do blob — modelo:
-`2026-06-19-header-rows-vs-bytes/`). Format change #TCF.8 opt-in, default off. **Domina o O-FMT-19.**
+**Medido (2026-06-21)**: o header inteiro e' **0,05-0,13% do blob** em tabela real (byte-sizes
+0,01-0,03%) → decimal ja' e' economico, base-94 salvaria rounding-error. Em payload **PEQUENO** o
+header pesa **22-25%** e os byte-sizes ~6% → base-94 salvaria **~3% do blob**. Logo so' relevante no
+**nicho transmissao-minuscula**. **Status**: registrado; baixa prioridade. Format change #TCF.8
+opt-in, default off. **Domina o O-FMT-19.**
+
+> **Guia de transmissao (onde o TCF realmente importa)**: pesquisa de praticas de API + big techs em
+> [`transmissao-api-onde-tcf-importa.md`](transmissao-api-onde-tcf-importa.md) — honesto: o nicho do
+> TCF e' ~5-15% (batch/export tabular grande+repetitivo; lazy). **Teste decisivo pendente**:
+> TCF+brotli vs **NDJSON+brotli** (so' comparamos com CSV+brotli ate' agora).
 
 ### O-FMT-19 — Header por LINHAS (row-count) em vez de bytes — REFUTADO
 

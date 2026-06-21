@@ -167,6 +167,15 @@ Consomem `SideOutputs`, **nunca arrumam dados**. Podem andar juntas ou separadas
 - **Ordenação é codec-dependente**: a melhor chave de `sort_by` p/ TCF-sozinho ≠ a melhor p/
   TCF+brotli em 3/4 datasets. Ganho ≤5%. Lever pequeno; se welder auto-`sort_by`, considerar o
   modo (com/sem compressão a jusante). Baixa prioridade (2.0).
+- **Guia de transmissão por API — onde o TCF importa** (pesquisa 2026-06-21,
+  [`transmissao-api-onde-tcf-importa.md`](experiments/lab/dirty/notas/transmissao-api-onde-tcf-importa.md)):
+  honesto — a prática é JSON pequeno+gzip/brotli (TCF não ajuda na maioria); o nicho do TCF é
+  **~5-15%** (batch/export tabular **grande+repetitivo** como pré-processo do brotli; lazy/consulta
+  seletiva). **Teste decisivo PENDENTE**: `TCF+brotli` **vs `NDJSON+brotli`** (só comparamos com
+  CSV+brotli; NDJSON é o concorrente textual real, padrão em BigQuery/Elasticsearch/X). Cenários
+  T1-T6 (NDJSON-baseline, break-even por volume, cardinalidade, lazy×Parquet, CPU, cap de resposta)
+  no guia — candidatos a lab antes de qualquer narrativa de transmissão. Header byte-size: economico
+  em tabela real (0,01-0,03% do blob); só pesa em payload minúsculo (O-FMT-18 base-94, ~3%).
 
 ---
 
