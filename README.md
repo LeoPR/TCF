@@ -132,7 +132,7 @@ finais (verificador) são **deriváveis** dos outros 9. Um *filtro de natureza* 
 
 Os mesmos 4 CPFs do exemplo, isolados numa coluna: sem filtro **76 B** (cru, com escapes);
 com `nature=SPEC_CPF`, **27 B** (−64%). Concretamente, como sai dos nossos labs
-([`2026-05-24-cpf-templated-checked/`](experiments/lab/dirty/2026-05-24-cpf-templated-checked/)):
+([`2026-05-24-cpf-templated-checked/`](experiments/lab/dirty/old/welded/2026-05-24-cpf-templated-checked/)):
 `111.111.111-11` → `%g$.u` (14 → 5 chars); o decode regenera os 2 dígitos verificadores e a
 pontuação. (No cadastro inteiro: cru **244 → 208 B**, −15%.)
 
@@ -308,7 +308,7 @@ completas: [reports do EXP-008](experiments/lab/clean/EXP-008-compressao-compara
 (milhares de linhas) o quadro **inverte**: o **TCF cheio + brotli vence o CSV + brotli** —
 ex.: Adult com 3 000 linhas, `tcf-0.7+brotli` = **21,8 KB** vs `csv+brotli` = 30,4 KB (−28%).
 E quanto **mais** TCF, **menor** o resultado pós-brotli (medido em 4 datasets reais:
-[`2026-06-16-staged-and-ordering-brotli/`](experiments/lab/dirty/2026-06-16-staged-and-ordering-brotli/)).
+[`2026-06-16-staged-and-ordering-brotli/`](experiments/lab/dirty/old/refuted/2026-06-16-staged-and-ordering-brotli/)).
 Em payload minúsculo a moldura domina e não há o que fatorar; **a vantagem do TCF aparece com volume**.
 
 ## Pra onde vai a 1.0 — consultar quase sem descomprimir
@@ -335,7 +335,7 @@ sem perder a legibilidade (ainda em evolução, ver acima).
 Uma API *lazy* sobre o blob: conecta **sem descomprimir**, e só materializa a coluna
 (e as linhas) que o agregador precisa. Filtrar por algo descomprime **só** o que tem relação.
 *(Gadget em [`scripts/tcf_lazy/`](scripts/tcf_lazy/) — lê o `#TCF.7`, **não toca `src/tcf` por design**;
-**27 testes**, L1–L5; PoC original em [`2026-06-16-lazy-query/`](experiments/lab/dirty/2026-06-16-lazy-query/).)*
+**27 testes**, L1–L5; PoC original em [`2026-06-16-lazy-query/`](experiments/lab/dirty/old/welded/2026-06-16-lazy-query/).)*
 
 ```python
 v = view(blob)                                # conecta, não descomprime nada

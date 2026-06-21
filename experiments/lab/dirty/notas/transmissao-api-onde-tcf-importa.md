@@ -29,10 +29,10 @@ Do menor ao maior payload:
 Cada um com a **condição precisa** e a medição que temos:
 - **Batch/export TABULAR em escala, como pré-processo antes do brotli.** Condição: tabular,
   repetitivo (domínios/códigos/máscaras), **>~1-3k linhas**, **≥~8 colunas**, baixa cardinalidade.
-  Medido: TCF-0.7+brotli **<** CSV+brotli — Adult **−28%**, lineitem ~−20% ([staged-brotli](../2026-06-16-staged-and-ordering-brotli/result.md)).
+  Medido: TCF-0.7+brotli **<** CSV+brotli — Adult **−28%**, lineitem ~−20% ([staged-brotli](../old/refuted/2026-06-16-staged-and-ordering-brotli/result.md)).
 - **Consulta seletiva sem descomprimir tudo (lazy).** Condição: o consumidor quer agregados/filtros
   sobre poucas colunas, não o dataset inteiro. Medido: query toca **0,2-7,9%** do blob vs 100% no
-  decode ([lazy-query](../2026-06-16-lazy-query/result.md) + [A1 testbank](../2026-06-19-lazy-testbank/result.md): adult 10%, tpch 14%).
+  decode ([lazy-query](../old/welded/2026-06-16-lazy-query/result.md) + [A1 testbank](../2026-06-19-lazy-testbank/result.md): adult 10%, tpch 14%).
 - **Compressão colunar + texto inspecionável ANTES da transmissão** (storage/dev/pipeline que lê sem
   materializar). Condição: a inspecionabilidade é consumida **onde o brotli ainda não rodou** —
   pós-brotli o blob é opaco como qualquer outro. Diferença vs Parquet: TCF é texto + grupos visíveis.
@@ -96,5 +96,5 @@ RFC 7231/9110; Google AIP-132/157/158/161/231; Netflix TechBlog (FieldMask); Str
 events); Salesforce/Oracle Bulk API; GitHub pagination; AWS API Gateway/Lambda; Paul Calvano
 (gzip/brotli/zstd 2024); Auth0/buf.build (Protobuf); NDJSON spec / X API v2 / BigQuery/Elasticsearch
 bulk; Apache Parquet/Arrow Flight; DuckDB 2024. Internos: [README §Resultados](../../../../README.md),
-[staged-brotli](../2026-06-16-staged-and-ordering-brotli/result.md), [lazy-query](../2026-06-16-lazy-query/result.md),
+[staged-brotli](../old/refuted/2026-06-16-staged-and-ordering-brotli/result.md), [lazy-query](../old/welded/2026-06-16-lazy-query/result.md),
 [divulgação](../../../../docs/divulgacao-tcf.md).

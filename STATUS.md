@@ -77,7 +77,7 @@
 > - **Cheap-wins fechados**: Tier A (release.yml, [reference de knobs](docs/reference/encode-knobs.md),
 >   higiene CI) + CW-4 (docstrings stale em `src/tcf` alinhados, so' docstring) + CW-5 (O-FMT-11
 >   subsumido por min_header/name-guard). Ver [ROADMAP](ROADMAP.md) cheap-wins.
-> - **V2-RLE-STREAM caracterizado** ([lab](experiments/lab/dirty/2026-06-19-v2rle-stream-caracterizacao/result.md)):
+> - **V2-RLE-STREAM caracterizado** ([lab](experiments/lab/dirty/old/refuted/2026-06-19-v2rle-stream-caracterizacao/result.md)):
 >   fecha o follow-up "V2-B RLE no stream" pendente desde 06-15. **Geral CLOSED-INSUFFICIENT-GAIN**
 >   (+1,19% weighted/7 reais, 0/7 >=15%, -1,39% sob brotli). **Nicho textual-puro ABERTO** p/ decisao
 >   do owner (low-card skewed, ordem natural: situacao +55%, workclass +22%). Achado: **clusterizado
@@ -98,7 +98,7 @@
 >   header ([H-GDICT-01](experiments/lab/dirty/notas/roadmap-hipoteses.md)) + familia H-REF
 >   ([`dict-referencia-hipoteses.md`](experiments/lab/dirty/notas/dict-referencia-hipoteses.md)). Nao caracterizado.
 > - **Header linhas-vs-bytes**: row-count REFUTADO (solid-block; ganho ininfimo, perde O(1)/paralelo);
->   base-94 size = O-FMT-18 candidato (so' nicho transmissao-minuscula). [lab](experiments/lab/dirty/2026-06-19-header-rows-vs-bytes/result.md).
+>   base-94 size = O-FMT-18 candidato (so' nicho transmissao-minuscula). [lab](experiments/lab/dirty/old/refuted/2026-06-19-header-rows-vs-bytes/result.md).
 > - **Guia de transmissao por API** ([`transmissao-api-onde-tcf-importa.md`](experiments/lab/dirty/notas/transmissao-api-onde-tcf-importa.md)):
 >   honesto — nicho do TCF ~5-15% (batch/export tabular grande); **teste decisivo pendente**:
 >   TCF+brotli vs **NDJSON+brotli** (so' comparamos com CSV+brotli).

@@ -8,7 +8,7 @@ blocked-by: []
 related:
   - docs/adr/0019-hcc-detect-compositions-topk-prune.md
   - tickets/T-REGRESSION-REAL-WORLD.md  (gate, pre-requisito — closed-done)
-  - experiments/lab/dirty/2026-05-27-h-perf-06-v2-fase-a/  (geracao do #15)
+  - experiments/lab/dirty/old/welded/2026-05-27-h-perf-06-v2-fase-a/  (geracao do #15)
   - experiments/lab/dirty/2026-05-31-regression-real-world/  (gate + bench)
 ---
 

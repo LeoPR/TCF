@@ -22,6 +22,11 @@ TCF/
 │   ├── auto_min_len.py ... detect_min_len (ADR-0010, H-DA-11)
 │   ├── column_features.py  ColumnFeatures + analyze_column (H-DA-11c)
 │   ├── encoder.py, decoder.py .... API publica (pipeline delta-aware)
+│   ├── multi.py .................. encode/decode multi-coluna (#TCF.7 M)
+│   ├── schema.py ................. build_schema per-tabela (CORE)
+│   ├── side_outputs.py ........... SideOutputs (efeito colateral opt-in)
+│   ├── natures/ .................. pre-tx por natureza (CPF/CNPJ/IP, ADR-0015)
+│   ├── _core/detect.pyx .......... acelerador Cython opcional (ADR-0020)
 │   └── __init__.py
 │
 ├── scripts/ .............. FERRAMENTAS DE SUPORTE (nao e' TCF-CORE)
@@ -79,7 +84,7 @@ TCF/
 | Entender HCC (composicional) | `docs/algorithms/HCC.md` |
 | Ver hipoteses ativas/fechadas | `experiments/lab/dirty/notas/roadmap-hipoteses.md` |
 | Entender a **familia RLE** (linha/stream/intra-valor) | `experiments/lab/dirty/notas/rle-familia-estudo.md` |
-| **V2-RLE-STREAM** (follow-up V2-B) | `experiments/lab/dirty/2026-06-19-v2rle-stream-caracterizacao/result.md` + registry Pacote 11-bis |
+| **V2-RLE-STREAM** (follow-up V2-B) | `experiments/lab/dirty/old/refuted/2026-06-19-v2rle-stream-caracterizacao/result.md` + registry Pacote 11-bis |
 | **Lazy/queryable view** (descomprimir o minimo) | `scripts/tcf_lazy/` + `experiments/lab/dirty/notas/hquery01-decode-dag-indices-design.md` |
 | Entender uma decisao tomada | `docs/adr/` (numerada) ou `experiments/lab/dirty/notas/diario/` |
 | Continuar um sub-experimento | `experiments/lab/dirty/<lab>/<sub-exp>/README.md` |
@@ -97,7 +102,7 @@ TCF/
 - `experiments/lab/dirty/old/` — labs historicos antigos. **Nao use** salvo
   pra entender historia.
 - `old/tcf/` — motor v0.5 (niveis L0–L3), **congelado-historico**. Existe
-  definitivamente; `src/tcf/` (canonical v0.6) tem acoplamento ZERO com ele.
+  definitivamente; `src/tcf/` (canonical v0.7) tem acoplamento ZERO com ele.
   Semantica dos niveis revista em
   [`old/tcf/LEVELS-REVIEW.md`](old/tcf/LEVELS-REVIEW.md). **Nao use** salvo historia.
 - `llm-benchmark/eval/` — benchmark LLM v0.5 (acessorio; reorg concluida,
@@ -105,33 +110,33 @@ TCF/
 
 ## Entradas de lab atualmente ativas
 
-Pos-consolidacao 2026-05-27 (17 labs movidos pra `old/welded/` ou
-`old/refuted/`):
+Faxina 2026-06-21: 17 labs movidos pra `old/welded/` ou `old/refuted/`
+(inclui naturezas-e-camada e cpf-templated-checked). Labs vivos:
 
-- `experiments/lab/dirty/2026-05-15-naturezas-e-camada/` — T-tracks
-  naturezas pre-tx (parcialmente subsumido por ADR-0015)
-- `experiments/lab/dirty/2026-05-24-cpf-templated-checked/` — CPF/IP
-  lab que gerou ADR-0015 + ADR-0016 (14 sub-exps; ainda referencia)
 - `experiments/lab/dirty/2026-05-24-benchmark-formats-compression/` —
-  benchmark csv/json/tcf x gzip/brotli/zstd (TCF vence 4/6)
+  benchmark csv/json/tcf x gzip/brotli/zstd (TCF vence 4/6); `out_files/` removidos
 - **`experiments/lab/dirty/2026-05-27-baseline-consolidado/`** —
-  baseline de referencia (METRICS + ADRs-INDEX + lessons-learned +
-  run-baseline.py)
+  baseline de referencia (METRICS + ADRs-INDEX + lessons-learned + run-baseline.py)
+- `experiments/lab/dirty/2026-06-19-lazy-testbank/` — banco de testes lazy A1/A2/A3
 - `experiments/lab/clean/EXP-010-tcf-delta-aware-prototype/` —
   prototype antigo (referencia historica)
 - `experiments/lab/clean/EXP-011-multi-column-basic/` — multi-col basico
 
+Referencia (old/, mas ainda consultado):
+- `experiments/lab/dirty/old/welded/2026-05-24-cpf-templated-checked/` — CPF/IP
+  lab que gerou ADR-0015 + ADR-0016 (14 sub-exps)
+
 Pos-0.7 (2026-06, ainda referencia):
-- `experiments/lab/dirty/2026-06-16-lazy-query/` — PoC lazy view (gadget
+- `experiments/lab/dirty/old/welded/2026-06-16-lazy-query/` — PoC lazy view (gadget
   `scripts/tcf_lazy/`, H-QUERY-01)
-- `experiments/lab/dirty/2026-06-16-staged-and-ordering-brotli/` — TCF+brotli em
+- `experiments/lab/dirty/old/refuted/2026-06-16-staged-and-ordering-brotli/` — TCF+brotli em
   escala + ordenacao codec-dependente
-- `experiments/lab/dirty/2026-06-16-number-nature-caracterizacao/` — number-nature (PARK)
-- `experiments/lab/dirty/2026-06-19-v2rle-stream-caracterizacao/` — RLE no stream
+- `experiments/lab/dirty/old/refuted/2026-06-16-number-nature-caracterizacao/` — number-nature (PARK)
+- `experiments/lab/dirty/old/refuted/2026-06-19-v2rle-stream-caracterizacao/` — RLE no stream
   V2-B (CLOSED-geral / nicho textual-puro ABERTO)
 - `experiments/lab/dirty/2026-06-19-lazy-testbank/` — A1/A2/A3 do lazy (banco de
   testes vs oraculo + bug de contagem + otimizacao do caminho do algoritmo)
-- `experiments/lab/dirty/2026-06-19-header-rows-vs-bytes/` — teste de proporcao
+- `experiments/lab/dirty/old/refuted/2026-06-19-header-rows-vs-bytes/` — teste de proporcao
   header linhas-vs-bytes (row-count REFUTADO; base-94 candidato)
 - Notas de design recentes (em `notas/`): `v08-plano-etapas.md` (plano 0.8),
   `rle-familia-estudo.md`, `dict-referencia-hipoteses.md` (H-REF),

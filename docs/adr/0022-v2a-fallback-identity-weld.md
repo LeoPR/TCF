@@ -13,7 +13,7 @@ que o raw, guarda raw". Garante "nunca pior que raw+delimitadores" e cobre o
 ponto cego de baixa-cardinalidade (colunas numericas curtas inflam ate' 2.3x).
 
 O owner decidiu **abrir a v2.0** (perseguir bytes). V2-A foi caracterizado em
-9 fontes reais (lab [`2026-06-13-v2a-fallback-expandido`](../../experiments/lab/dirty/2026-06-13-v2a-fallback-expandido/result.md)):
+9 fontes reais (lab [`2026-06-13-v2a-fallback-expandido`](../../experiments/lab/dirty/old/welded/2026-06-13-v2a-fallback-expandido/result.md)):
 **7.85% weighted**, ganho 0.20–12.48%, RT 9/9 — cumpre o checklist
 confirmada-empirica (N>=5 fontes distintas, bytes weighted >= 5%).
 
@@ -101,7 +101,7 @@ do owner.
 
 ## Links
 
-- [Lab 2026-06-13-v2a-fallback-expandido](../../experiments/lab/dirty/2026-06-13-v2a-fallback-expandido/result.md)
+- [Lab 2026-06-13-v2a-fallback-expandido](../../experiments/lab/dirty/old/welded/2026-06-13-v2a-fallback-expandido/result.md)
 - [ADR-0018 roadmap v2.0](0018-v2-format-roadmap.md)
 - [ADR-0017 format frozen v1.0](0017-format-spec-v1-frozen.md)
 - [T-CODE-EMPTY-FRAG-INDEX-RT](../../tickets/T-CODE-EMPTY-FRAG-INDEX-RT.md) (pre-req)

@@ -1,5 +1,8 @@
 # Workbench — TCF v0.6
 
+> **HISTÓRICO (faxina 2026-06-21)**: este README descreve o estado até M9 (pré-0.7).
+> O motor canonical está em `src/tcf/` (M10, 0.7.1). Para o estado vivo, ver `STATUS.md`.
+
 **Reset em 2026-05-10.** O ciclo anterior foi inteiramente
 arquivado em [`_archive/`](_archive/) como **blueprint não-canônico**.
 

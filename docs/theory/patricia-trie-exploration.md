@@ -350,7 +350,7 @@ Patricia registrada como candidato futuro (nao v1.0) para resolver datetime baix
 
 **Escala de datasets TCF**  
 D1-D9: 9 datasets sinteticos, M9 baseline 1615B. D17a: 13 strings pequenas (teste baseline). Wine: ~6500 rows (UCI real). Beijing PM2.5: 43,824 rows, 24 unicos numericos (hour column extremo). Adult Census: 48,842 rows, 15 cols. TPC-H lineitem: 60,175 rows (full), subdivisoes 1k/5k/10k/20k testadas. Online Retail: ~500k rows (fallback test). String lengths: avg 5-25 chars em colunas categoricas; 1-4 chars em numericas (IDs).  
-*source*: docs/adr/0009-obat-trigram-index-optimization.md, datasets/canonical/*/README.md, experiments/lab/dirty/2026-05-27-naturezas-reais-uci/result.md
+*source*: docs/adr/0009-obat-trigram-index-optimization.md, datasets/canonical/*/README.md, experiments/lab/dirty/old/welded/2026-05-27-naturezas-reais-uci/result.md
 
 **Invariante byte-canonical TCF v1.0**  
 Qualquer mudanca de ORDEM de tie-break em comparacoes LCP/LCS quebra bytes. M9 baseline 1615B (D1-D9) deve ser exatamente replicado. Patricia trie preservaria ordem se iteracao interna em nos mantivesse IDs em ordem ascendente, MAS mudar de hash (dict iteration order em Python 3.7+) para trie (tree traversal) pode introduzir ordem implicita diferente se nao for cuidadosa.  

@@ -1,7 +1,7 @@
 """TemplatedPaddedSpec — categoria TCU-NoCheckVarLength.
 
 Welded canonical 2026-05-24 via extensao ADR-0015.
-Origem: experiments/lab/dirty/2026-05-24-cpf-templated-checked/08-IP-tcu-delta/
+Origem: experiments/lab/dirty/old/welded/2026-05-24-cpf-templated-checked/08-IP-tcu-delta/
 variante C (1.71% em D-IP-subnet via padding 12-digit).
 
 Categoria: identificadores templated com slots de comprimento variavel

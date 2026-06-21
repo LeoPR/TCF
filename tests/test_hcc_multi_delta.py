@@ -191,7 +191,7 @@ class TestEndToEndIPSubnetWithoutNature:
         import csv
 
         ds = (Path(__file__).resolve().parent.parent /
-              "experiments/lab/dirty/2026-05-24-cpf-templated-checked/"
+              "experiments/lab/dirty/old/welded/2026-05-24-cpf-templated-checked/"
               "data/D-IP-subnet.csv")
         if not ds.exists():
             pytest.skip("D-IP-subnet.csv nao disponivel")

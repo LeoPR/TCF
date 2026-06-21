@@ -1,8 +1,10 @@
 # F2 — H-NAT-MARK-01: nature-id viaja no header (#TCF.8) [design, pré-decisão]
 
 **Data**: 2026-06-17 · design (NÃO implementa). Origem: owner "f2".
-**Estado**: design fechado, aguardando decisão do owner (A/B/C). **Nada tocado em
-`src/tcf/`** — F2 é format change que exige aprovação explícita + ADR + GATE.
+**Estado**: HISTÓRICO (faxina 2026-06-21) — design fechado, **decisão tomada: NÃO
+implementar agora** (opção A). Registrada em **ADR-0027 (proposed)** e **deferida pro
+0.9** ([`v08-plano-etapas.md`](v08-plano-etapas.md)). **Nada tocado em `src/tcf/`**.
+Revisitar só com um 2º nature real demandando self-describe. Fica como o design de referência.
 
 ## O que F2 resolve
 Hoje a nature é **pré-transform out-of-band** (ADR-0015): `encode(col, nature=SPEC)`

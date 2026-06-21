@@ -205,7 +205,7 @@ HCC, lcp/lcs ja' otimizadas seriam bonus +0.5%.
   Candidato #15 (cheap upper-bound prune + running-max inline) weldado em
   `_detect_compositions`. Byte-canonical preservado (suite 269 verdes +
   gate real-world); `_estimate_baseline_chars` 87% menos chamadas; speedup
-  1.22-1.35x. Lab: `experiments/lab/dirty/2026-05-27-h-perf-06-v2-fase-a`
+  1.22-1.35x. Lab: `experiments/lab/dirty/old/welded/2026-05-27-h-perf-06-v2-fase-a`
   (geracao) + `2026-05-31-regression-real-world` (gate + re-validacao).
 - **H-PERF-06-v2 Fase B (Cython)**: status `welded` (2026-05-31, ADR-0020).
   Re-profile pos-weld redirecionou o alvo: `_estimate_baseline_chars` morto
@@ -214,7 +214,7 @@ HCC, lcp/lcs ja' otimizadas seriam bonus +0.5%.
   em `src/tcf/_core/detect.pyx` + fallback pure-Python silencioso + hook de
   build best-effort. Byte-canonical (269 verdes compiled + fallback); speedup
   2.15x encode completo / 2.31x coluna detect-dominada. Lab:
-  `experiments/lab/dirty/2026-05-31-h-perf-06-v2-fase-b`.
+  `experiments/lab/dirty/old/welded/2026-05-31-h-perf-06-v2-fase-b`.
 - **Cython infrastructure**: estabelecida (Cython 3.0+ + MSVC funciona;
   hatch-cython integra com pyproject atual; pure-Python fallback design
   conhecido). Reutilizavel pra Patricia (V2-C) e _detect_compositions

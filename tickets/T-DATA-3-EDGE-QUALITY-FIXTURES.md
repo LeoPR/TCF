@@ -10,7 +10,7 @@ related:
   - tickets/T-RECOVER-LLM-SCHEMA-MODE.md
   - src/tcf/side_outputs.py                    (canal zero-cost; campos anomaly_flags planejados)
   - src/tcf/column_features.py                 (analyze_column — onde sinais zero-cost nascem)
-  - experiments/lab/dirty/2026-05-24-cpf-templated-checked/  (gerador de corrupcao existente)
+  - experiments/lab/dirty/old/welded/2026-05-24-cpf-templated-checked/  (gerador de corrupcao existente)
 ---
 
 # T-DATA-3-EDGE-QUALITY-FIXTURES — Dados de borda (PLANO)
@@ -110,6 +110,6 @@ existem — este plano so' executa quando eles entrarem.
 
 - Bloqueado por: T-RECOVER-SCHEMA-MULTI-TABLE (gadget nao existe ainda)
 - Reusa: gerador de corrupcao em
-  `experiments/lab/dirty/2026-05-24-cpf-templated-checked/`
+  `experiments/lab/dirty/old/welded/2026-05-24-cpf-templated-checked/`
 - Filosofia: CLAUDE.md "gadgets so' alertam, NUNCA arrumam" + "dados felizes"
 - Origem: design workflow 2026-06-01 (taxonomia de tipos de dados)

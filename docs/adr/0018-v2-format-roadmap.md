@@ -42,7 +42,7 @@ A auditoria profunda de 2026-05-27 (workflow 6 dimensoes) revelou um "limbo"
 de hipoteses propostas e nunca concluidas. O subconjunto empiricamente
 tratavel — naturezas raras (#5 range, #8 arredondamento), Pacote 7 (H-LR-*
 lossy), e o ponto cego de baixa-cardinalidade — foi investigado no lab
-[`2026-05-27-naturezas-reais-uci`](../../experiments/lab/dirty/2026-05-27-naturezas-reais-uci/).
+[`2026-05-27-naturezas-reais-uci`](../../experiments/lab/dirty/old/welded/2026-05-27-naturezas-reais-uci/).
 
 Tres achados motivam este ADR:
 
@@ -242,7 +242,7 @@ Para decimais de alta precisao quase-incompressiveis losslessly.
 
 ### V2-D — Strip de sufixo redundante (lossless, subconjunto de C)
 
-> **REFUTADA-REAL-WORLD 2026-06-14** ([lab](../../experiments/lab/dirty/2026-06-14-v2d-strip-afixo-caracterizacao/result.md)):
+> **REFUTADA-REAL-WORLD 2026-06-14** ([lab](../../experiments/lab/dirty/old/refuted/2026-06-14-v2d-strip-afixo-caracterizacao/result.md)):
 > **subsumida pelo OBAT** (bidirecional ja' compartilha o afixo comum como 1
 > fragmento). Ganho weighted = **0.11%** em 8 datasets reais; strip de prefixo
 > ainda REGRIDE (desancora a tokenizacao OBAT: datas -155 a -286B). Mesmo gated
@@ -299,7 +299,7 @@ v2.0 abre quando o owner decidir priorizar. Pre-requisitos tecnicos:
 
 ## Links
 
-- [Lab 2026-05-27-naturezas-reais-uci](../../experiments/lab/dirty/2026-05-27-naturezas-reais-uci/result.md) — evidencia
+- [Lab 2026-05-27-naturezas-reais-uci](../../experiments/lab/dirty/old/welded/2026-05-27-naturezas-reais-uci/result.md) — evidencia
 - [ADR-0017 — Format freeze v1.0](0017-format-spec-v1-frozen.md)
 - [futuras-otimizacoes-formato.md](../../experiments/lab/dirty/notas/futuras-otimizacoes-formato.md) — O-FMT-* registry
 - [roadmap-hipoteses.md](../../experiments/lab/dirty/notas/roadmap-hipoteses.md)

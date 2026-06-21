@@ -39,6 +39,16 @@
 - `\*`, `\\`, `\~` — escape de chars reservados
 - `..` — range (1..4 = refs 1, 2, 3, 4)
 
+## Marcadores de modo (multi-col header, #TCF.7)
+
+Prefixos no tamanho de coluna da meta-line (`# !8=id,@22=cat,nome`):
+
+- `!<size>=<name>` — modo **raw** (V2-A): body em TCF puro (OBAT+HCC); fallback quando TCF < raw
+- `@<size>=<name>` — modo **dict** (V2-B): body em stream de indices inteiros (coluna categorica)
+- `%<size>=<name>` — modo **split** (V2-C): body com separador estrutural inferido
+- `<size>=<name>` (sem prefixo) — modo legado `#TCF.6` (sem V2-A; `# ` no inicio da meta-line)
+- Coluna sem size (ultima): `<name>` — modo `min_header` (V2 ADR-0023); body ate' EOF
+
 ## Pre-tx (pre-transformation)
 
 - **Pre-stage** / **Pre** — etapa antes do OBAT (detecta tipo, gera dica)

@@ -430,7 +430,7 @@ nature/split + interacao com escape ANTES de welder. GATE real-world obrigatorio
 Pacote 7 (templated) e Pacote 11 (este) no roadmap.
 
 > **Nota tecnica (2026-06-19) — overlap com V2-RLE-STREAM**: o follow-up
-> [V2-RLE-STREAM](../2026-06-19-v2rle-stream-caracterizacao/result.md) testou RLE no **stream de
+> [V2-RLE-STREAM](../old/refuted/2026-06-19-v2rle-stream-caracterizacao/result.md) testou RLE no **stream de
 > indices do V2-B** (intra-STREAM, nao intra-valor). Ambos "atacam repeticao", mas por angulos
 > diferentes — e o achado-chave conecta os tres: a repeticao capturada depende do **LAYOUT**
 > (runs longos -> `*N|` do tcf; runs curtos skewed -> dict-stream; intra-valor -> O-FMT-17/H-INTRA).
@@ -493,7 +493,7 @@ opt-in, default off. **Domina o O-FMT-19.**
 
 **Ideia (do owner)**: trocar byte-size por nº de linhas (1 numero compartilhado, ja' que a tabela e'
 simetrica) pra economizar header em tabelas pequenas. **Modo "solid block"** (analogia do owner).
-**REFUTADO** (teste de proporcao 2026-06-19, [`2026-06-19-header-rows-vs-bytes/result.md`](../2026-06-19-header-rows-vs-bytes/result.md)):
+**REFUTADO** (teste de proporcao 2026-06-19, [`2026-06-19-header-rows-vs-bytes/result.md`](../old/refuted/2026-06-19-header-rows-vs-bytes/result.md)):
 economia ≥1% do blob em so' 11/60 formas (tiny-wide; dezenas de bytes), ≥5% em 0/60, NEGATIVA em
 2-col, ~0% em volume real. E custa **TUDO**: o lazy perde acesso O(1) por coluna (vira scan → mata a
 "venda"), perde **decode paralelo** (bytes deixam fatiar/paralelizar; linhas forcam scan sequencial)

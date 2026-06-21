@@ -1,6 +1,6 @@
 # Algoritmos do TCF — documentação técnica
 
-Documentação oficial dos algoritmos canônicos do TCF v0.6. Cada
+Documentação oficial dos algoritmos canônicos do TCF v0.7. Cada
 arquivo explica:
 - **O que é** o algoritmo (linguagem natural)
 - **Como funciona** (sub-linguagem matemática)

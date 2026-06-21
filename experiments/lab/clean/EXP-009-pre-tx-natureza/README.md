@@ -11,7 +11,7 @@ abrem **apenas quando macro dirty correspondente fechar com
 hipotese confirmada**. Hoje, **nenhum sub-experimento ativo**.
 
 Trabalho atual e' inteiramente no dirty lab. Vide
-[`experiments/lab/dirty/2026-05-15-naturezas-e-camada/pre-tx/T01-incremental-base-delta/`](../../dirty/2026-05-15-naturezas-e-camada/pre-tx/T01-incremental-base-delta/).
+[`experiments/lab/dirty/old/welded/2026-05-15-naturezas-e-camada/pre-tx/T01-incremental-base-delta/`](../../dirty/old/welded/2026-05-15-naturezas-e-camada/pre-tx/T01-incremental-base-delta/).
 
 ## Status (mapping potencial, sem compromisso)
 
@@ -41,5 +41,5 @@ Cada sub-experimento responde essa pergunta no escopo da sua nature.
 - [META-TYPE-ENCODERS](../../../../tickets/META-TYPE-ENCODERS.md) — plano-mestre
 - [META-EXP-FORMAT](../../../../tickets/META-EXP-FORMAT.md) — template comparativo aplicado
 - [EXP-008](../EXP-008-compressao-comparada/) — baseline e motivacao
-- [Dirty lab T-series](../../dirty/2026-05-15-naturezas-e-camada/) — exploracao precedente
+- [Dirty lab T-series](../../dirty/old/welded/2026-05-15-naturezas-e-camada/) — exploracao precedente
 - [Roadmap perspectiva-triplice](../../../../docs/theory/perspectiva-triplice-e-pre-tx.md)

@@ -1,7 +1,7 @@
 """tcf_lazy — view lazy sobre um blob TCF: descomprime só o suficiente pra responder.
 
 Gadget AUXILIAR (não faz parte do TCF-CORE; lê o `#TCF.7` existente, NÃO toca src/tcf).
-Promovido do PoC `experiments/lab/dirty/2026-06-16-lazy-query/`.
+Promovido do PoC `experiments/lab/dirty/old/welded/2026-06-16-lazy-query/`.
 
 Princípio (a "venda" do TCF): a estrutura do formato já diz, no header, o nome / modo /
 tamanho de cada coluna. Dá pra FATIAR o corpo por coluna sem decodificar nada, e só

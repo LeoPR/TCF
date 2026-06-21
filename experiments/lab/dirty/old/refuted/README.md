@@ -28,13 +28,13 @@ foi insuficiente pra justificar welding. Movidos pra ca em
    2026-05-24, tambem refutado, ainda no topo pq parte do CPF lab)
 4. **Bytes absolutos** preservados — pra revisitar com novas metricas
 
-## Sub-exps refutados embarcados em labs nao movidos
+## Sub-exps refutados embarcados em labs welded
 
-Alguns sub-exps refutados estao **dentro** de labs ativos (nao
-movidos pq o lab inteiro nao foi fechado):
-- `2026-05-24-cpf-templated-checked/13-base-aware-seq-rle/` — base-aware
+Alguns sub-exps refutados estao **dentro** de um lab cujo agregado e welded
+(o lab inteiro foi pra `../welded/`, mas estes galhos foram refutados):
+- `../welded/2026-05-24-cpf-templated-checked/13-base-aware-seq-rle/` — base-aware
   seq-RLE refutado (sub-exp dentro de lab CPF)
-- `2026-05-24-cpf-templated-checked/12-hex-ip-variant/` — variante hex
+- `../welded/2026-05-24-cpf-templated-checked/12-hex-ip-variant/` — variante hex
   abandonada (sub-exp dentro de lab CPF)
 
 Ver [`../../notas/roadmap-hipoteses.md`](../../notas/roadmap-hipoteses.md)

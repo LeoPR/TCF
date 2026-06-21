@@ -7,7 +7,7 @@ closed: 2026-05-31
 blocked-by: []
 related:
   - tests/test_regression_v1_baseline.py  (mini-suite atual, D1-D9 + D17a)
-  - experiments/lab/dirty/2026-05-27-h-perf-06-v2-fase-a/  (workflow que expos a lacuna)
+  - experiments/lab/dirty/old/welded/2026-05-27-h-perf-06-v2-fase-a/  (workflow que expos a lacuna)
   - docs/theory/h-perf-06-exploration.md  (alvo: validar prune antes de weldar)
 ---
 
@@ -80,7 +80,7 @@ Adicionar em `tests/test_regression_v1_baseline.py`:
 
 ### Fase 4 — Re-validar candidato #15 (gated)
 
-- Rodar `experiments/lab/dirty/2026-05-27-h-perf-06-v2-fase-a/15-tier-scoring-02-topK-heap-with-safe-skip/`
+- Rodar `experiments/lab/dirty/old/welded/2026-05-27-h-perf-06-v2-fase-a/15-tier-scoring-02-topK-heap-with-safe-skip/`
   contra Adult + TPC-H samples (Fase 1)
 - Confirmar byte-canonical em todas as 3 amostras
 - Se OK → ABRIR ticket H-PERF-06-v2-T01 (welding)

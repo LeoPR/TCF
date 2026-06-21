@@ -1,6 +1,10 @@
 # Welding plan — alg16 + M9 → src/tcf canonical motor
 
-**Data**: 2026-05-17
+**Data**: 2026-05-17 · **Status**: HISTÓRICO (faxina 2026-06-21)
+
+> **Plano executado e superado**: o welding aconteceu — `src/tcf/` é canonical (M10),
+> motor 0.7.1 no PyPI, baselines pinados nos testes. Fica como registro de como o motor
+> saiu do dirty lab. Para o estado atual, ver `STATUS.md` + ADR-0011.
 
 > **Reorganizacao 2026-05-16**: pastas M-series referenciadas
 > abaixo foram movidas pra `dirty/old/`. Paths no texto sao

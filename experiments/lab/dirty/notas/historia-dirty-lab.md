@@ -9,7 +9,7 @@
 
 
 **Ciclo**: dirty v0.6 (reset 2026-05-10)
-**Atualizado ate'**: M9 (2026-05-17)
+**Narrativa escrita ate'**: M9 (2026-05-17) — M10-M14 welded mas nao narrados aqui; ver ADR-0008/0010/0011 + checkpoints/ para o rastro completo.
 
 > Esta nota e' a **narrativa canonica** do que foi construido no
 > dirty lab. Para detalhes tecnicos, ver READMEs dos macros e

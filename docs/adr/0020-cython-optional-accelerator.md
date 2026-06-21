@@ -77,4 +77,4 @@ exigir maquinário cibuildwheel (prematuro) nem deixar a maioria sem speedup
 - [ADR-0019](0019-hcc-detect-compositions-topk-prune.md) — weld #15 (pré-req)
 - [ADR-0018](0018-v2-format-roadmap.md) — core compilado interno (V2-L spirit)
 - [ADR-0017](0017-format-spec-v1-frozen.md) — freeze (este respeita: byte-idêntico)
-- Lab: `experiments/lab/dirty/2026-05-31-h-perf-06-v2-fase-b/`
+- Lab: `experiments/lab/dirty/old/welded/2026-05-31-h-perf-06-v2-fase-b/`

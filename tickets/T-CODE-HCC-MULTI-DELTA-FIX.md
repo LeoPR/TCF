@@ -6,7 +6,7 @@ created: 2026-05-24
 updated: 2026-05-24
 blocked-by: []
 related:
-  - experiments/lab/dirty/2026-05-24-cpf-templated-checked/14-cross-subnet-investigation/report.md
+  - experiments/lab/dirty/old/welded/2026-05-24-cpf-templated-checked/14-cross-subnet-investigation/report.md
   - src/tcf/composicional/hcc_seqrle.py
   - docs/adr/0011-pacote1-weld-canonical.md
   - docs/adr/0016-hcc-multi-delta-seq-rle.md
@@ -101,7 +101,7 @@ decoder inteligente.
 
 ## Conexao
 
-- Sub-exp 14 diagnostico: [report.md](../experiments/lab/dirty/2026-05-24-cpf-templated-checked/14-cross-subnet-investigation/report.md)
+- Sub-exp 14 diagnostico: [report.md](../experiments/lab/dirty/old/welded/2026-05-24-cpf-templated-checked/14-cross-subnet-investigation/report.md)
 - ADR-0011 (Pacote 1 welded canonical) — invariant M10
 - T-CODE-HCC-ATOM-DETECTION-REFINE (Bug #1, complementar) — pode mitigar
   parcialmente sem precisar deste fix

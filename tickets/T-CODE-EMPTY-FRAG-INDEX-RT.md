@@ -6,7 +6,7 @@ created: 2026-06-13
 updated: 2026-06-13
 blocked-by: []
 related:
-  - experiments/lab/dirty/2026-06-13-v2a-fallback-expandido/result.md
+  - experiments/lab/dirty/old/welded/2026-06-13-v2a-fallback-expandido/result.md
   - src/tcf/composicional/syntax.py
   - docs/adr/0006-empty-string-decode-fix.md
   - docs/adr/0007-comma-in-literals-bug.md
@@ -22,7 +22,7 @@ com corrupcao silenciosa E crash.
 ## Contexto / descoberta
 
 Achado durante a caracterizacao expandida de V2-A (Stage 1 da v2.0,
-[lab 2026-06-13-v2a-fallback-expandido](../experiments/lab/dirty/2026-06-13-v2a-fallback-expandido/result.md)):
+[lab 2026-06-13-v2a-fallback-expandido](../experiments/lab/dirty/old/welded/2026-06-13-v2a-fallback-expandido/result.md)):
 `receita-cnpj/estabelecimentos.csv` coluna `nome_fantasia` (free-text real)
 deu RT FAIL no baseline all-TCF. Minimizado a um reproducer standalone.
 
@@ -101,7 +101,7 @@ ADR-0006 (empty string decode), caso distinto e nao coberto.
 
 ## Conexoes
 
-- Lab: `experiments/lab/dirty/2026-06-13-v2a-fallback-expandido/` (repro + ddmin)
+- Lab: `experiments/lab/dirty/old/welded/2026-06-13-v2a-fallback-expandido/` (repro + ddmin)
 - ADR-0006 (empty string decode fix — fix anterior, escopo distinto)
 - ADR-0007 (comma in literals — familia de bugs de parsing de body)
 - V2-A (ADR-0018): o fallback contorna este bug (nome_fantasia cai pra raw),

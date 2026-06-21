@@ -5,7 +5,7 @@ status: rascunho
 tags: [methodology, literatura, data-quality, dirty-lab, testing, benchmarks]
 created: 2026-05-24
 related:
-  - experiments/lab/dirty/2026-05-24-cpf-templated-checked/README.md
+  - experiments/lab/dirty/old/welded/2026-05-24-cpf-templated-checked/README.md
   - experiments/lab/dirty/notas/naturezas-templated-2026-05-24.md
   - README.methodology.md
 ---
@@ -221,6 +221,6 @@ Daqui pra frente, datasets sinteticos em dirty lab devem:
 ## Conexao
 
 - [Naturezas templated](naturezas-templated-2026-05-24.md)
-- [CPF dirty lab](../2026-05-24-cpf-templated-checked/README.md)
+- [CPF dirty lab](../old/welded/2026-05-24-cpf-templated-checked/README.md)
 - [README.methodology cross-projeto](../../../../README.methodology.md)
 - [CLAUDE.md secao "Antes de declarar confirmada-empirica"](../../../../CLAUDE.md) — usa Wohlin 2012 threats to validity, Brunswik 1956 ecological validity

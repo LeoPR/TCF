@@ -2,8 +2,8 @@
 
 **Reorganizado em 2026-05-16**: M0-M14 (TCF-CORE / canonical
 src/tcf, fase v0.6 inicial) movidos para [`old/`](old/) preservando
-historia git. **Trabalho ativo** segue em
-[`2026-05-15-naturezas-e-camada/`](2026-05-15-naturezas-e-camada/).
+historia git. **Faxina 2026-06-21**: lab `2026-05-15-naturezas-e-camada/`
+movido para `old/welded/` (absorvido no Pacote 1, ADR-0008/0010/0011).
 
 ## Layout atual
 
@@ -11,28 +11,16 @@ historia git. **Trabalho ativo** segue em
 experiments/lab/dirty/
 ├── README.md                              # este arquivo
 ├── notas/                                 # narrativas cross-cutting
-│   ├── historia-dirty-lab.md              # narrativa M0-M14
-│   ├── welding-plan.md                    # plano de welding pra src/tcf
+│   ├── historia-dirty-lab.md              # narrativa M0-M9 (M10+ em ADRs+checkpoints)
+│   ├── welding-plan.md                    # HISTORICO (faxina 2026-06-21)
 │   └── naming-compactacao-composicional.md
-├── 2026-05-15-naturezas-e-camada/         # ATIVO (T01 incremental em curso)
-│   ├── README.md
-│   ├── notas/
-│   ├── pre-tx/                            # Track 1 (encoders por natureza)
-│   │   └── T01-incremental-base-delta/    # macro ativo
-│   │       ├── README.md
-│   │       └── 01..06-...                 # sub-experimentos
-│   └── algoritmo/                         # Track 2 (estudos OBAT/HCC — diferido)
-└── old/                                   # M0-M14, historia v0.6 inicial
-    ├── README.md
-    ├── M0-fase-exploratoria-inicial/
-    ├── M0.5-exploracao-sintaxe-pre-M1/
-    ├── Mobsolete/
-    ├── 2026-05-12-M1-marcacao-ambiguidade/
-    ├── 2026-05-13-M2..M4-.../
-    ├── 2026-05-14-M5..M6-.../
-    ├── 2026-05-15-M7-refactor/
-    ├── 2026-05-16-M8-virtual-refs-clean-output/
-    └── 2026-05-17-M9..M14-.../            # nota: datas dos M9-M14 sao impossiveis (>=hoje); erro antigo de nomenclatura, preservado pra rastreabilidade git
+├── 2026-05-24-benchmark-formats-compression/ # ativo — csv/json/tcf x gzip/brotli/zstd
+├── 2026-05-27-baseline-consolidado/       # ativo — baseline de referencia
+├── 2026-06-19-lazy-testbank/              # ativo — banco de testes lazy A1/A2/A3
+└── old/                                   # historico
+    ├── M0-M14-series/                     # pre-canonical (NAO USAR)
+    ├── welded/                            # 11 labs welded em src/tcf
+    └── refuted/                           # 6 labs refutados/insufficient-gain
 ```
 
 ## Compendio sempre-atualizado
@@ -90,6 +78,6 @@ nao criterio de descarte.
 ## Como navegar (resumo pra um sistema novo)
 
 1. Comece pelo [`STATUS.md`](../../../STATUS.md) raiz pra estado atual.
-2. Entre no macro ativo [`2026-05-15-naturezas-e-camada/`](2026-05-15-naturezas-e-camada/).
+2. Labs ativos: `2026-05-24-benchmark-formats-compression/`, `2026-05-27-baseline-consolidado/`, `2026-06-19-lazy-testbank/`.
 3. Leia o README.md de cada nivel pra contexto.
 4. Para historia anterior (M0-M14), entre em [`old/`](old/).

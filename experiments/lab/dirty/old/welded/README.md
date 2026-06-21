@@ -37,8 +37,8 @@ historica (princpio outputs visiveis padrao 2026-05-24).
 
 Welding mais recente: [ADR-0015 naturezas](../../../../../docs/adr/0015-natures-spec-protocol.md)
 + [ADR-0016 multi-delta seq-RLE](../../../../../docs/adr/0016-hcc-multi-delta-seq-rle.md)
-saiu de [`2026-05-24-cpf-templated-checked/`](../../2026-05-24-cpf-templated-checked/)
-(ainda no topo, nao movido — usado como referencia pra consolidacao).
+saiu de [`2026-05-24-cpf-templated-checked/`](2026-05-24-cpf-templated-checked/)
+(movido pra ca na faxina 2026-06-21 — achado welded, ADR-0015/0016).
 
-Ver tambem [`../../2026-05-25-baseline-consolidado/`](../../2026-05-25-baseline-consolidado/)
+Ver tambem [`../../2026-05-27-baseline-consolidado/`](../../2026-05-27-baseline-consolidado/)
 pra nova baseline + indices comparativos.

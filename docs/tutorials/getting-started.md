@@ -98,7 +98,7 @@ Decoded:  ['abc', 'abcd', 'abcde']
 Iguais?   True
 ```
 
-A propriedade de **round-trip lossless** é garantida em TCF v1.0: qualquer dado codificado em TCF pode ser recuperado exatamente (formato `#TCF.6` congelado conforme ADR-0017).
+A propriedade de **round-trip lossless** é garantida por TCF: qualquer dado codificado pode ser recuperado exatamente (ver [ADR-0024](../adr/0024-pre-10-versioning-policy.md) — projeto pré-1.0).
 
 ```python
 assert decode(encode(x)) == x  # sempre verdade
@@ -204,7 +204,7 @@ Tabela original:
 {'id': ['1', '2', '3'], 'name': ['Alice', 'Bob', 'Charlie']}
 
 Texto TCF:
-'#TCF.6 M\n# 8=id,18=name\n*3+1|\\1\nAlice\nBob\nCharlie\n'
+'#TCF.7 M\n!8=id,!18=name\n*3+1|\\1\nAlice\nBob\nCharlie\n'
 
 Decodificado:
 {'id': ['1', '2', '3'], 'name': ['Alice', 'Bob', 'Charlie']}
@@ -214,8 +214,8 @@ Round-trip OK? True
 
 Observe a estrutura do texto TCF multi-coluna:
 
-- **Linha 1**: `#TCF.6 M` — shebang indicando formato TCF (`#TCF.6`) Multi-coluna (`M`).
-- **Linha 2**: `# 8=id,18=name` — metadata: o body da coluna "id" tem 8 bytes, o body de "name" tem 18 bytes (formato `size=name`). O decoder fatia o corpo por esses tamanhos.
+- **Linha 1**: `#TCF.7 M` — shebang indicando formato TCF (`#TCF.7`) Multi-coluna (`M`).
+- **Linha 2**: `!8=id,!18=name` — metadata: `!` = modo raw (V2-A); 8/18 = bytes do body; `id`/`name` = nomes. O decoder fatia o corpo por esses tamanhos. Detalhe: [TCF-format.md](../algorithms/TCF-format.md).
 - **Linhas seguintes**: bodies das colunas concatenados byte-a-byte (cada um compactado pelo pipeline single-column).
 
 TCF v1.0 garante que a forma da tabela (nomes de colunas, ordem) é preservada exatamente.

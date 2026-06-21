@@ -69,8 +69,8 @@
 Identificados pelo user em 2026-05-17 (todos cobertos em
 [perspectiva-triplice-e-pre-tx.md](perspectiva-triplice-e-pre-tx.md)):
 
-1. **Multi-coluna** — TCF v0.6 atual e' single-column.
-2. **Tipos de dados pre-filtro** — CPF, IP, datas calculaveis.
+1. **Multi-coluna** — ~~TCF v0.6 atual e' single-column~~ → **welded em 0.7** (ADR-0011/0004; `#TCF.7 M`).
+2. **Tipos de dados pre-filtro** — CPF, IP, datas calculaveis (ADR-0015, welded 0.7).
 3. **Perspectiva triplice** — compressao + memoria + latencia.
 4. **Slot pattern online** — resolve `17,??,5` em D9.
 

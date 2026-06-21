@@ -220,7 +220,7 @@ Decisoes vigentes apos realinhamento:
   conforme aprendido. Nao criar `src/tcf_pretx/` agora.
 
 ```
-experiments/lab/dirty/2026-05-15-naturezas-e-camada/
+experiments/lab/dirty/old/welded/2026-05-15-naturezas-e-camada/
 ├── README.md
 ├── notas/
 │   ├── historia-naturezas-camada.md
@@ -466,7 +466,7 @@ Roundtrip byte-canonical preservado, savings medidos por dataset.
 **Foco unico:** uma natureza por vez, controle fino, processo refinavel.
 
 1. **Primeira natureza: incremental (datas)** — confirmado 2026-05-15.
-   Trabalho em `experiments/lab/dirty/2026-05-15-naturezas-e-camada/pre-tx/T01-incremental-base-delta/`.
+   Trabalho em `experiments/lab/dirty/old/welded/2026-05-15-naturezas-e-camada/pre-tx/T01-incremental-base-delta/`.
    Sub-experimentos pequenos, descartaveis/refazaveis, RT obrigatorio.
    Saida esperada: encoder + decoder funcional pra ao menos um
    dataset (provavelmente D11), com hipotese byte-reducao

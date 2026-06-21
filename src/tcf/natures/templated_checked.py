@@ -1,7 +1,7 @@
 """TemplatedCheckedSpec — categoria "Templated + Checked + Unique-Discrete".
 
 Welded canonical 2026-05-24 via ADR-0015.
-Origem: experiments/lab/dirty/2026-05-24-cpf-templated-checked/07-generalizar-CNPJ/
+Origem: experiments/lab/dirty/old/welded/2026-05-24-cpf-templated-checked/07-generalizar-CNPJ/
 
 Categoria abstrata: identificadores unicos com:
 1. Layout fixo (template regex)

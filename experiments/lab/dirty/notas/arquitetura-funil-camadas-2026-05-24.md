@@ -1,17 +1,23 @@
 ---
 title: Arquitetura funil de camadas — toggles + online adaptive (2026-05-24)
 type: design-note
-status: rascunho
+status: superseded  # faxina 2026-06-21
 tags: [architecture, pipeline, filters, toggles, online, literatura]
 created: 2026-05-24
 related:
-  - experiments/lab/dirty/2026-05-24-cpf-templated-checked/
+  - experiments/lab/dirty/old/welded/2026-05-24-cpf-templated-checked/
   - docs/algorithms/TCF-format.md
   - tickets/T-CODE-SCHEMA-BUILDER.md
   - tickets/T-CODE-ENCODER-MANAGER.md
 ---
 
 # Arquitetura funil de camadas — toggles + online adaptive
+
+> **SUPERSEDED (faxina 2026-06-21)**: a visão em camadas foi implementada e welded
+> (CAMADA 0-3 do pipeline canonical, `PipelineConfig` com toggles, ADR-0011). O mapa
+> segmentado oficial vive em [`docs/theory/strategies/INDEX.md`](../../../../docs/theory/strategies/INDEX.md).
+> A parte "online adaptive / per-strategy toggle" permanece especulativa, não adotada.
+> Ver também [`revisao-implicito-vs-explicito-2026-06-14.md`](revisao-implicito-vs-explicito-2026-06-14.md).
 
 > Sintese pos sub-exps 11/13/14: pipeline TCF eh **funil de
 > generalizacao por camada**. Cada camada eh estrategia toggle-able.
@@ -305,6 +311,6 @@ Toggle architecture + online adaptive eh a forma certa de explorar:
 - [Naturezas templated 2026-05-24](naturezas-templated-2026-05-24.md)
 - [Metodologia avaliacao dados](metodologia-avaliacao-dados-2026-05-24.md)
 - [Naturezas numericas 2026-05-23](naturezas-numericas-2026-05-23.md)
-- [Sub-exp 14 cross-subnet](../2026-05-24-cpf-templated-checked/14-cross-subnet-investigation/report.md)
-- [Sub-exp 13 base-aware](../2026-05-24-cpf-templated-checked/13-base-aware-seq-rle/report.md)
+- [Sub-exp 14 cross-subnet](../old/welded/2026-05-24-cpf-templated-checked/14-cross-subnet-investigation/report.md)
+- [Sub-exp 13 base-aware](../old/welded/2026-05-24-cpf-templated-checked/13-base-aware-seq-rle/report.md)
 - [TCF format spec](../../../../docs/algorithms/TCF-format.md)

@@ -2,7 +2,13 @@
 
 **Data**: 2026-05-16
 **Contexto**: apos 13 sub-experimentos do T01 incremental (datas/datetime/tz), sintese critica + revisao de literatura + propostas pra v2.
-**Status**: exploratorio, NAO implementado. Pra revisao do user antes de qualquer codigo.
+**Status**: HISTÓRICO (faxina 2026-06-21) — exploratorio, NAO implementado.
+
+> **Encerrado**: as propostas v2 foram resolvidas pela superfície welded — pipeline
+> delta-aware M10 (ADR-0008/0010/0011) absorveu staged-pipeline/GCD/cadência; o
+> escape-deduction proposto aqui foi REFUTADO real-world (Pacote 2, <1.13%). Fica como
+> registro da revisão de literatura e do pivô. Lab de origem em
+> [`old/welded/2026-05-15-naturezas-e-camada/`](../old/welded/2026-05-15-naturezas-e-camada/).
 
 ---
 

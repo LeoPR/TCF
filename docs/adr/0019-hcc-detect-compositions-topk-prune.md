@@ -19,7 +19,7 @@ tempo em online-retail 20k (17.0s de 19.4s). Dentro dele,
 
 A Fase A (workflow multi-agente, 2026-05-30) gerou 24 candidatos de prune
 algorítmico, prototipados em fork dirty
-([experiments/lab/dirty/2026-05-27-h-perf-06-v2-fase-a](../../experiments/lab/dirty/2026-05-27-h-perf-06-v2-fase-a)).
+([experiments/lab/dirty/old/welded/2026-05-27-h-perf-06-v2-fase-a](../../experiments/lab/dirty/old/welded/2026-05-27-h-perf-06-v2-fase-a)).
 Apenas **um** candidato foi byte-safe em todos os níveis de regressão:
 `#15 tier-scoring-02-topK-heap-with-safe-skip`.
 

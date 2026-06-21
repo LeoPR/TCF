@@ -145,9 +145,9 @@ Categorias acima podem adicionar specs novas seguindo mesmo padrao
 
 ## Links
 
-- [Sub-exp 05 fallback marker CPF](../../experiments/lab/dirty/2026-05-24-cpf-templated-checked/05-fallback-per-value/report.md)
-- [Sub-exp 06 NatureApplyStats](../../experiments/lab/dirty/2026-05-24-cpf-templated-checked/06-stats-estruturadas/SUMMARY.md)
-- [Sub-exp 07 CNPJ generalization](../../experiments/lab/dirty/2026-05-24-cpf-templated-checked/07-generalizar-CNPJ/report.md)
+- [Sub-exp 05 fallback marker CPF](../../experiments/lab/dirty/old/welded/2026-05-24-cpf-templated-checked/05-fallback-per-value/report.md)
+- [Sub-exp 06 NatureApplyStats](../../experiments/lab/dirty/old/welded/2026-05-24-cpf-templated-checked/06-stats-estruturadas/SUMMARY.md)
+- [Sub-exp 07 CNPJ generalization](../../experiments/lab/dirty/old/welded/2026-05-24-cpf-templated-checked/07-generalizar-CNPJ/report.md)
 - [Naturezas templated catalogacao](../../experiments/lab/dirty/notas/naturezas-templated-2026-05-24.md)
 - [Arquitetura funil de camadas](../../experiments/lab/dirty/notas/arquitetura-funil-camadas-2026-05-24.md)
 - [ADR-0014 API unificada](0014-unified-api-side-outputs.md) — base

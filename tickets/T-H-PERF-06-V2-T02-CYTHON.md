@@ -8,7 +8,7 @@ blocked-by: []
 related:
   - docs/adr/0020-cython-optional-accelerator.md
   - tickets/T-H-PERF-06-V2-T01-WELD-15.md  (Fase A #15, pre-req — closed-done)
-  - experiments/lab/dirty/2026-05-31-h-perf-06-v2-fase-b/
+  - experiments/lab/dirty/old/welded/2026-05-31-h-perf-06-v2-fase-b/
 ---
 
 # T-H-PERF-06-V2-T02 — Fase B (Cython)

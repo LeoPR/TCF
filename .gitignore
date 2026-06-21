@@ -90,3 +90,7 @@ datasets/derivations/
 !datasets/questions/*.json
 
 pergunta.md
+
+# Dev-efemero: scripts de orquestracao da ferramenta Workflow (produto durável
+# vive nos .md/edicoes; git preserva historico). Politica: API estavel, dev efemero.
+experiments/lab/dirty/notas/_wf_*.js

@@ -8,7 +8,7 @@ updated: 2026-05-21
 closed: 2026-05-21
 related:
   - experiments/lab/dirty/notas/roadmap-hipoteses.md
-  - experiments/lab/dirty/2026-05-15-naturezas-e-camada/pre-tx/T01-incremental-base-delta/11-escape-dedutivel/
+  - experiments/lab/dirty/old/welded/2026-05-15-naturezas-e-camada/pre-tx/T01-incremental-base-delta/11-escape-dedutivel/
   - docs/algorithms/HCC.md
   - tickets/META-TYPE-ENCODERS.md
   - tickets/META-PERF-PHASE2.md
@@ -114,7 +114,7 @@ Welding opcoes:
 ## Conexoes
 
 - [Roadmap H-ED-01..04](../experiments/lab/dirty/notas/roadmap-hipoteses.md)
-- [Sub-exp 11 T01 (prova de conceito antiga)](../experiments/lab/dirty/2026-05-15-naturezas-e-camada/pre-tx/T01-incremental-base-delta/11-escape-dedutivel/)
+- [Sub-exp 11 T01 (prova de conceito antiga)](../experiments/lab/dirty/old/welded/2026-05-15-naturezas-e-camada/pre-tx/T01-incremental-base-delta/11-escape-dedutivel/)
 - [HCC spec](../docs/algorithms/HCC.md)
 - [TCF format spec](../docs/algorithms/TCF-format.md) — versionamento
 - [ADR-0001 shebang](../docs/adr/0001-tcf-format-shebang.md) — convencao versao

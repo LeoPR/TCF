@@ -1,7 +1,7 @@
 # tcf_lazy — view lazy/consultável sobre um blob TCF
 
 Gadget **auxiliar** (não faz parte do TCF-CORE; lê o `#TCF.7` existente, **não toca `src/tcf`**).
-Promovido do PoC `experiments/lab/dirty/2026-06-16-lazy-query/`.
+Promovido do PoC `experiments/lab/dirty/old/welded/2026-06-16-lazy-query/`.
 
 A "venda" do TCF: **descomprimir só o suficiente pra responder**. O header já diz nome / modo /
 tamanho de cada coluna → dá pra fatiar o corpo por coluna sem decodificar nada, e só descomprimir

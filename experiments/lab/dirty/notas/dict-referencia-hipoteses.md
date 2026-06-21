@@ -97,7 +97,7 @@ de graça**. A ordem natural é: resolver a referência primeiro, o cross-dict �
 - **Payoff**: [H-GDICT-01 (dict global/cross-column)](roadmap-hipoteses.md) (Pacote 11-ter).
 - **Famílias vizinhas**: [estudo RLE × DICT](rle-familia-estudo.md); H-INTRA (intra-valor,
   [Pacote 11](roadmap-hipoteses.md#pacote-11)); V2-RLE-STREAM
-  ([lab](../2026-06-19-v2rle-stream-caracterizacao/result.md)).
+  ([lab](../old/refuted/2026-06-19-v2rle-stream-caracterizacao/result.md)).
 - **Mecanismo atual**: [HCC](../../../../docs/algorithms/HCC.md), [OBAT](../../../../docs/algorithms/OBAT.md),
   [ADR-0016 seq-RLE](../../../../docs/adr/0016-hcc-multi-delta-seq-rle.md),
   [ADR-0025 V2-B](../../../../docs/adr/0025-v2b-dictionary-categorical-weld.md).

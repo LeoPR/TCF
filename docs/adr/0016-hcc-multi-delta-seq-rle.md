@@ -192,7 +192,7 @@ M10 fix pra default behavior sem config.
 
 ## Links
 
-- Sub-exp 14: [report.md](../../experiments/lab/dirty/2026-05-24-cpf-templated-checked/14-cross-subnet-investigation/report.md)
+- Sub-exp 14: [report.md](../../experiments/lab/dirty/old/welded/2026-05-24-cpf-templated-checked/14-cross-subnet-investigation/report.md)
 - Ticket [T-CODE-HCC-MULTI-DELTA-FIX](../../tickets/T-CODE-HCC-MULTI-DELTA-FIX.md) (closing this)
 - ADR-0011 (Pacote 1 weld canonical, base do seq-RLE)
 - ADR-0015 (natures welding, alternative path pra IP via SPEC_IP)

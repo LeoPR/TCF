@@ -6,7 +6,7 @@ created: 2026-05-24
 updated: 2026-05-24
 blocked-by: []
 related:
-  - experiments/lab/dirty/2026-05-24-cpf-templated-checked/14-cross-subnet-investigation/report.md
+  - experiments/lab/dirty/old/welded/2026-05-24-cpf-templated-checked/14-cross-subnet-investigation/report.md
   - src/tcf/composicional/syntax.py
   - docs/algorithms/HCC.md
   - tickets/T-CODE-HCC-MULTI-DELTA-FIX.md
@@ -116,7 +116,7 @@ Comparacao:
 
 ## Conexao
 
-- Sub-exp 14: [report.md](../experiments/lab/dirty/2026-05-24-cpf-templated-checked/14-cross-subnet-investigation/report.md)
+- Sub-exp 14: [report.md](../experiments/lab/dirty/old/welded/2026-05-24-cpf-templated-checked/14-cross-subnet-investigation/report.md)
 - T-CODE-HCC-MULTI-DELTA-FIX (Bug #2 complementar)
 - HCC.md, ADR-0011
 

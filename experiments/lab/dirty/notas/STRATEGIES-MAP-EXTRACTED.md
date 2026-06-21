@@ -1,3 +1,10 @@
+# STRATEGIES MAP — extrato bruto (control-flow por camada)
+
+> **CONSOLIDAR / extrato histórico (faxina 2026-06-21)**: este é o dump bruto que foi
+> curado e segmentado no hub oficial **[`docs/theory/strategies/INDEX.md`](../../../../docs/theory/strategies/INDEX.md)**
+> (mapa de estratégias por subsistema) + `docs/theory/strategies-map.md`. Use o hub como
+> a versão navegável; este arquivo fica como material-fonte cru. Refs de linha de código
+> podem estar defasadas vs `src/tcf` atual.
 
 ================================================================================
 ## CAMADA 0 — Pre-pass: Column Feature Analysis, Cadence Detection, Min-Len Auto-detection

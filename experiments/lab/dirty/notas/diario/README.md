@@ -16,3 +16,15 @@ resumo. Aberto pra proxima sessao explicitado.
   cientifica de docs (CLAUDE.md, ADRs, vocabulary, hooks, index auto, audit recipe)
 - [2026-05-19](2026-05-19.md) — Pacote 3 fechado: ADR-0007 welded
   (separator heuristico em ref→lit), EXP-013 TPC-H RT 3/8 → 8/8
+- [2026-05-20](2026-05-20.md) — Pacote 4 fechado-parcial (OBAT welded, HCC adiado);
+  ADR-0009; lineitem full
+- [2026-05-21](2026-05-21.md) — Pacote 2 fechado (insufficient-gain); nova convencao
+  YAML tickets
+- [2026-06-12](2026-06-12.md) — Auditoria Strata L0; reorg memorias + consolidacao
+  (M3-M9 arquivadas)
+- [2026-06-13](2026-06-13.md) — Analise organizacao src/tcf/; registro bibliografico
+  in-code
+- [2026-06-14](2026-06-14.md) — O-FMT-02 sort_by + V2-B dicionario welded;
+  ADR-0024 pre-1.0 versioning; bytes-core 0.7 welded
+- [2026-06-15](2026-06-15.md) — Fechamento ciclo 0.7: higiene tickets + 2 decisoes
+  do owner

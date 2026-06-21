@@ -76,4 +76,4 @@ onde um compressor binário obrigaria descomprimir tudo antes de qualquer conta.
   **auto-descritivos** (marcador de nature no header, H-NAT-MARK-01) seguem **proposta** (alvo 0.8).
 - **Não competir com gzip/brotli/zstd** no discurso — são outra categoria (binários opacos).
   O eixo do TCF é textual/explicável.
-- Fontes dos números: `README.md` (exemplo do cadastro) e `experiments/lab/dirty/2026-06-16-lazy-query/`.
+- Fontes dos números: `README.md` (exemplo do cadastro) e `experiments/lab/dirty/old/welded/2026-06-16-lazy-query/`.

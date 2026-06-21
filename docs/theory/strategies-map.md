@@ -1,8 +1,9 @@
 # Mapa de estrategias — TCF v1.0
 
-> **Doc de estudo** (gerado 2026-05-27 via auditoria workflow 6 subsistemas,
-> 118 estrategias catalogadas a partir do codigo real). Categoria Diataxis:
-> **Explanation** (entender como funciona, alem da reference).
+> **SNAPSHOT (2026-05-27, pré-0.7)** — gerado via auditoria workflow (6 subsistemas,
+> 118 estrategias catalogadas a partir do codigo real). Baselines: D17a=322B (M9, pre-min_header).
+> O pipeline descrito e' o de M10 (canonical 0.7.1); verifique `STATUS.md` para o estado vivo.
+> Categoria Diataxis: **Explanation** (entender como funciona, alem da reference).
 >
 > Fonte completa (extracao bruta): [STRATEGIES-MAP-EXTRACTED](../../experiments/lab/dirty/notas/STRATEGIES-MAP-EXTRACTED.md).
 

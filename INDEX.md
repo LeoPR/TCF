@@ -19,14 +19,14 @@ Total READMEs sem frontmatter: 37
 
 | Path | Title | Status | Tags | Updated |
 |---|---|---|---|---|
-| [experiments\lab\dirty\2026-05-24-cpf-templated-checked](./experiments/lab/dirty/2026-05-24-cpf-templated-checked/README.md) | CPF templated+checked — destilar categoria via dirty | in-progress | tcf, natureza, templated, checksummed | ? |
+| [experiments\lab\dirty\2026-05-24-cpf-templated-checked](./experiments/lab/dirty/old/welded/2026-05-24-cpf-templated-checked/README.md) | CPF templated+checked — destilar categoria via dirty | in-progress | tcf, natureza, templated, checksummed | ? |
 
 ## Type: `dirty-lab`
 
 | Path | Title | Status | Tags | Updated |
 |---|---|---|---|---|
 | [experiments\lab\dirty\2026-05-27-baseline-consolidado](./experiments/lab/dirty/2026-05-27-baseline-consolidado/README.md) | 2026-05-27 — Baseline consolidado pos-consolidacao | ATIVO (baseline-de-referencia) |  | ? |
-| [experiments\lab\dirty\2026-05-27-naturezas-reais-uci](./experiments/lab/dirty/2026-05-27-naturezas-reais-uci/README.md) | 2026-05-27 — Naturezas reais em datasets UCI + fechamento do limbo | concluido |  | ? |
+| [experiments\lab\dirty\2026-05-27-naturezas-reais-uci](./experiments/lab/dirty/old/welded/2026-05-27-naturezas-reais-uci/README.md) | 2026-05-27 — Naturezas reais em datasets UCI + fechamento do limbo | concluido |  | ? |
 
 ## Type: `summary`
 
@@ -38,12 +38,12 @@ Total READMEs sem frontmatter: 37
 
 | Path | Title | Status | Tags | Updated |
 |---|---|---|---|---|
-| [experiments\lab\dirty\2026-05-24-cpf-templated-checked\01-caracterizacao](./experiments/lab/dirty/2026-05-24-cpf-templated-checked/01-caracterizacao/README.md) | Sub-exp 01 — Caracterizacao baseline M10 em D-CPF | in-progress |  | ? |
-| [experiments\lab\dirty\2026-05-24-cpf-templated-checked\02-variante-A-raw](./experiments/lab/dirty/2026-05-24-cpf-templated-checked/02-variante-A-raw/README.md) | Sub-exp 02 — Variante A (raw + M10, sem pre-tx) | completed-via-01 |  | ? |
-| [experiments\lab\dirty\2026-05-24-cpf-templated-checked\05-fallback-per-value](./experiments/lab/dirty/2026-05-24-cpf-templated-checked/05-fallback-per-value/README.md) | Sub-exp 05 — Fallback per-value com marker explicito | stub |  | ? |
-| [experiments\lab\dirty\2026-05-24-cpf-templated-checked\06-stats-estruturadas](./experiments/lab/dirty/2026-05-24-cpf-templated-checked/06-stats-estruturadas/README.md) | Sub-exp 06 — NatureApplyStats estruturadas | stub |  | ? |
-| [experiments\lab\dirty\2026-05-24-cpf-templated-checked\07-generalizar-CNPJ](./experiments/lab/dirty/2026-05-24-cpf-templated-checked/07-generalizar-CNPJ/README.md) | Sub-exp 07 — Generalizar pra CNPJ (categoria abstraida) | stub |  | ? |
-| [experiments\lab\dirty\2026-05-24-cpf-templated-checked\08-IP-tcu-delta](./experiments/lab/dirty/2026-05-24-cpf-templated-checked/08-IP-tcu-delta/README.md) | Sub-exp 08 — IP com SlotBehavior delta (sub-categoria TCU-Delta) | stub |  | ? |
+| [experiments\lab\dirty\2026-05-24-cpf-templated-checked\01-caracterizacao](./experiments/lab/dirty/old/welded/2026-05-24-cpf-templated-checked/01-caracterizacao/README.md) | Sub-exp 01 — Caracterizacao baseline M10 em D-CPF | in-progress |  | ? |
+| [experiments\lab\dirty\2026-05-24-cpf-templated-checked\02-variante-A-raw](./experiments/lab/dirty/old/welded/2026-05-24-cpf-templated-checked/02-variante-A-raw/README.md) | Sub-exp 02 — Variante A (raw + M10, sem pre-tx) | completed-via-01 |  | ? |
+| [experiments\lab\dirty\2026-05-24-cpf-templated-checked\05-fallback-per-value](./experiments/lab/dirty/old/welded/2026-05-24-cpf-templated-checked/05-fallback-per-value/README.md) | Sub-exp 05 — Fallback per-value com marker explicito | stub |  | ? |
+| [experiments\lab\dirty\2026-05-24-cpf-templated-checked\06-stats-estruturadas](./experiments/lab/dirty/old/welded/2026-05-24-cpf-templated-checked/06-stats-estruturadas/README.md) | Sub-exp 06 — NatureApplyStats estruturadas | stub |  | ? |
+| [experiments\lab\dirty\2026-05-24-cpf-templated-checked\07-generalizar-CNPJ](./experiments/lab/dirty/old/welded/2026-05-24-cpf-templated-checked/07-generalizar-CNPJ/README.md) | Sub-exp 07 — Generalizar pra CNPJ (categoria abstraida) | stub |  | ? |
+| [experiments\lab\dirty\2026-05-24-cpf-templated-checked\08-IP-tcu-delta](./experiments/lab/dirty/old/welded/2026-05-24-cpf-templated-checked/08-IP-tcu-delta/README.md) | Sub-exp 08 — IP com SlotBehavior delta (sub-categoria TCU-Delta) | stub |  | ? |
 
 ## READMEs sem frontmatter (candidatos a adicionar)
 
@@ -65,22 +65,22 @@ Total READMEs sem frontmatter: 37
 - `experiments/lab/clean/EXP-009-pre-tx-natureza/README.md`
 - `experiments/lab/clean/README.md`
 - `experiments/lab/dirty/2026-05-07-combinatoria-simples/README.md`
-- `experiments/lab/dirty/2026-05-15-naturezas-e-camada/README.md`
-- `experiments/lab/dirty/2026-05-15-naturezas-e-camada/pre-tx/T01-incremental-base-delta/01-prova-conceito-D11a-dia/README.md`
-- `experiments/lab/dirty/2026-05-15-naturezas-e-camada/pre-tx/T01-incremental-base-delta/02-bordas-D11b/README.md`
-- `experiments/lab/dirty/2026-05-15-naturezas-e-camada/pre-tx/T01-incremental-base-delta/03-cadencia-mensal-D11c/README.md`
-- `experiments/lab/dirty/2026-05-15-naturezas-e-camada/pre-tx/T01-incremental-base-delta/04-staged-pipeline-D11c/README.md`
-- `experiments/lab/dirty/2026-05-15-naturezas-e-camada/pre-tx/T01-incremental-base-delta/05-staged-multi-dataset/README.md`
-- `experiments/lab/dirty/2026-05-15-naturezas-e-camada/pre-tx/T01-incremental-base-delta/06-staged-granularity-second/README.md`
-- `experiments/lab/dirty/2026-05-15-naturezas-e-camada/pre-tx/T01-incremental-base-delta/07-cadencia-mensal-datetime-D11e/README.md`
-- `experiments/lab/dirty/2026-05-15-naturezas-e-camada/pre-tx/T01-incremental-base-delta/08-granularidades-finas/README.md`
-- `experiments/lab/dirty/2026-05-15-naturezas-e-camada/pre-tx/T01-incremental-base-delta/09-auditoria-self-contained-D11a/README.md`
-- `experiments/lab/dirty/2026-05-15-naturezas-e-camada/pre-tx/T01-incremental-base-delta/10-pacote-completo-com-validacao/README.md`
-- `experiments/lab/dirty/2026-05-15-naturezas-e-camada/pre-tx/T01-incremental-base-delta/11-escape-dedutivel/README.md`
-- `experiments/lab/dirty/2026-05-15-naturezas-e-camada/pre-tx/T01-incremental-base-delta/12-templated-marker/README.md`
-- `experiments/lab/dirty/2026-05-15-naturezas-e-camada/pre-tx/T01-incremental-base-delta/13-tz-aware-pretx/README.md`
-- `experiments/lab/dirty/2026-05-15-naturezas-e-camada/pre-tx/T01-incremental-base-delta/README.md`
-- `experiments/lab/dirty/2026-05-27-h-perf-06-v2-fase-a/README.md`
+- `experiments/lab/dirty/old/welded/2026-05-15-naturezas-e-camada/README.md`
+- `experiments/lab/dirty/old/welded/2026-05-15-naturezas-e-camada/pre-tx/T01-incremental-base-delta/01-prova-conceito-D11a-dia/README.md`
+- `experiments/lab/dirty/old/welded/2026-05-15-naturezas-e-camada/pre-tx/T01-incremental-base-delta/02-bordas-D11b/README.md`
+- `experiments/lab/dirty/old/welded/2026-05-15-naturezas-e-camada/pre-tx/T01-incremental-base-delta/03-cadencia-mensal-D11c/README.md`
+- `experiments/lab/dirty/old/welded/2026-05-15-naturezas-e-camada/pre-tx/T01-incremental-base-delta/04-staged-pipeline-D11c/README.md`
+- `experiments/lab/dirty/old/welded/2026-05-15-naturezas-e-camada/pre-tx/T01-incremental-base-delta/05-staged-multi-dataset/README.md`
+- `experiments/lab/dirty/old/welded/2026-05-15-naturezas-e-camada/pre-tx/T01-incremental-base-delta/06-staged-granularity-second/README.md`
+- `experiments/lab/dirty/old/welded/2026-05-15-naturezas-e-camada/pre-tx/T01-incremental-base-delta/07-cadencia-mensal-datetime-D11e/README.md`
+- `experiments/lab/dirty/old/welded/2026-05-15-naturezas-e-camada/pre-tx/T01-incremental-base-delta/08-granularidades-finas/README.md`
+- `experiments/lab/dirty/old/welded/2026-05-15-naturezas-e-camada/pre-tx/T01-incremental-base-delta/09-auditoria-self-contained-D11a/README.md`
+- `experiments/lab/dirty/old/welded/2026-05-15-naturezas-e-camada/pre-tx/T01-incremental-base-delta/10-pacote-completo-com-validacao/README.md`
+- `experiments/lab/dirty/old/welded/2026-05-15-naturezas-e-camada/pre-tx/T01-incremental-base-delta/11-escape-dedutivel/README.md`
+- `experiments/lab/dirty/old/welded/2026-05-15-naturezas-e-camada/pre-tx/T01-incremental-base-delta/12-templated-marker/README.md`
+- `experiments/lab/dirty/old/welded/2026-05-15-naturezas-e-camada/pre-tx/T01-incremental-base-delta/13-tz-aware-pretx/README.md`
+- `experiments/lab/dirty/old/welded/2026-05-15-naturezas-e-camada/pre-tx/T01-incremental-base-delta/README.md`
+- `experiments/lab/dirty/old/welded/2026-05-27-h-perf-06-v2-fase-a/README.md`
 - `experiments/lab/dirty/README.md`
 - `experiments/lab/dirty/notas/diario/README.md`
 - `scripts/shaper/README.md`

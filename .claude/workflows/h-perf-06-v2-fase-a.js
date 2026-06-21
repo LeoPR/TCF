@@ -239,9 +239,9 @@ const baselinePrompt = [
   '1. Identifique o dataset alvo. Preferencial: online-retail 20k. Buscar em datasets/ ou Z:/tcf-data/. Fallbacks:',
   '   - Adult census ou TPC-H lineitem em Z:/tcf-data/interim/*.db (via scripts/dataset_reader.py)',
   '   - Sintetico 5k-20k linhas com strings repetitivas',
-  '2. CRIE o diretorio experiments/lab/dirty/2026-05-27-h-perf-06-v2-fase-a/ se nao existir.',
+  '2. CRIE o diretorio experiments/lab/dirty/old/welded/2026-05-27-h-perf-06-v2-fase-a/ se nao existir.',
   '3. Adicione um README.md curto explicando "Fase A — prune algoritmico + early-term em HCC _detect_compositions, dirty lab".',
-  '4. Crie experiments/lab/dirty/2026-05-27-h-perf-06-v2-fase-a/00-baseline/runner.py que:',
+  '4. Crie experiments/lab/dirty/old/welded/2026-05-27-h-perf-06-v2-fase-a/00-baseline/runner.py que:',
   '   - Carrega o dataset',
   '   - Roda from tcf import encode em cProfile',
   '   - Salva stats em baseline.prof',
@@ -448,7 +448,7 @@ function buildMeasurePrompt(proto, baseCtx) {
 const measured = await pipeline(
   safe,
   async (c, original, idx) => {
-    const labSubDir = 'experiments/lab/dirty/2026-05-27-h-perf-06-v2-fase-a/' + String(idx + 1).padStart(2, '0') + '-' + c.id
+    const labSubDir = 'experiments/lab/dirty/old/welded/2026-05-27-h-perf-06-v2-fase-a/' + String(idx + 1).padStart(2, '0') + '-' + c.id
     return await agent(buildProtoPrompt(c, labSubDir), {
       schema: PROTO_SCHEMA,
       label: 'proto:' + c.id,
@@ -519,7 +519,7 @@ const synthPrompt = [
   '',
   'Tone: rigoroso, sem superlativos (incrivel, muito melhor, etc — projeto proibe). Conclusoes honestas. Se Amdahl bloqueia, diga.',
   '',
-  'Apos retornar JSON, escreva tambem o relatorio em experiments/lab/dirty/2026-05-27-h-perf-06-v2-fase-a/REPORT.md em markdown legivel.'
+  'Apos retornar JSON, escreva tambem o relatorio em experiments/lab/dirty/old/welded/2026-05-27-h-perf-06-v2-fase-a/REPORT.md em markdown legivel.'
 ].join('\n')
 
 const report = await agent(synthPrompt, { schema: REPORT_SCHEMA, label: 'synthesis' })

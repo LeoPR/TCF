@@ -15,7 +15,7 @@ repetida (`^` + indice decimal + `\n` ~ 4 bytes/linha). Pra K=24, N=8000 isso e'
 ~28KB contra ~4.6KB de entropia. O fallback V2-A ([ADR-0022](0022-v2a-fallback-identity-weld.md))
 so' troca por raw (~3 bytes/linha) — melhor, mas ainda 4.5x acima do piso.
 
-V2-B foi caracterizado no lab [`2026-06-14-v2b-dicionario-caracterizacao`](../../experiments/lab/dirty/2026-06-14-v2b-dicionario-caracterizacao/result.md):
+V2-B foi caracterizado no lab [`2026-06-14-v2b-dicionario-caracterizacao`](../../experiments/lab/dirty/old/welded/2026-06-14-v2b-dicionario-caracterizacao/result.md):
 8 datasets reais, RT 42/42 OK. Por-coluna: **63.7%** menor que o fallback
 (vence 37/42). Por-tabela, V2-B como 3o candidato do fallback: **13.9% weighted**
 (367KB / 2.64MB) — cumpre o checklist confirmada-empirica (real-world, N=8,
@@ -98,7 +98,7 @@ Tabela fatiada por BYTE (ntable), nao por linha -> valores multibyte/UTF-8 OK.
 
 ## Links
 
-- [Lab 2026-06-14-v2b-dicionario-caracterizacao](../../experiments/lab/dirty/2026-06-14-v2b-dicionario-caracterizacao/result.md)
+- [Lab 2026-06-14-v2b-dicionario-caracterizacao](../../experiments/lab/dirty/old/welded/2026-06-14-v2b-dicionario-caracterizacao/result.md)
 - [ADR-0018 roadmap v2.0](0018-v2-format-roadmap.md)
 - [ADR-0022 V2-A fallback](0022-v2a-fallback-identity-weld.md)
 - [ADR-0024 pré-1.0 versioning](0024-pre-1.0-versioning-git-as-compat.md)
@@ -107,7 +107,7 @@ Tabela fatiada por BYTE (ntable), nao por linha -> valores multibyte/UTF-8 OK.
 
 > Nota posterior (não altera a decisão acima). O follow-up mencionado em
 > *Cons/limites* ("RLE no stream … se os números justificarem") foi **caracterizado**:
-> [V2-RLE-STREAM lab](../../experiments/lab/dirty/2026-06-19-v2rle-stream-caracterizacao/result.md)
+> [V2-RLE-STREAM lab](../../experiments/lab/dirty/old/refuted/2026-06-19-v2rle-stream-caracterizacao/result.md)
 > + [registry Pacote 11-bis](../../experiments/lab/dirty/notas/roadmap-hipoteses.md).
 > Veredito: **CLOSED-INSUFFICIENT-GAIN** no uso geral (+1,19% weighted/7 reais, 0/7 ≥15%,
 > −1,39% sob brotli); **nicho textual-puro** (low-card skewed, ordem natural) **aberto** p/ decisão
