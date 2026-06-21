@@ -129,9 +129,14 @@ Pos-0.7 (2026-06, ainda referencia):
 - `experiments/lab/dirty/2026-06-16-number-nature-caracterizacao/` — number-nature (PARK)
 - `experiments/lab/dirty/2026-06-19-v2rle-stream-caracterizacao/` — RLE no stream
   V2-B (CLOSED-geral / nicho textual-puro ABERTO)
-- Notas de design recentes (em `notas/`): `rle-familia-estudo.md`,
-  `hquery01-decode-dag-indices-design.md`, `f2-nature-mark-header-design.md`,
-  `cep-outer-dict-codebook-pesquisa.md`
+- `experiments/lab/dirty/2026-06-19-lazy-testbank/` — A1/A2/A3 do lazy (banco de
+  testes vs oraculo + bug de contagem + otimizacao do caminho do algoritmo)
+- `experiments/lab/dirty/2026-06-19-header-rows-vs-bytes/` — teste de proporcao
+  header linhas-vs-bytes (row-count REFUTADO; base-94 candidato)
+- Notas de design recentes (em `notas/`): `v08-plano-etapas.md` (plano 0.8),
+  `rle-familia-estudo.md`, `dict-referencia-hipoteses.md` (H-REF),
+  `hquery01-decode-dag-indices-design.md`, `transmissao-api-onde-tcf-importa.md`
+  (guia de transmissao), `f2-nature-mark-header-design.md`, `cep-outer-dict-codebook-pesquisa.md`
 
 Labs **historicos** (NAO modificar, NAO continuar):
 - `experiments/lab/dirty/old/M0-M14/` — fase v0.6 inicial pre-canonical

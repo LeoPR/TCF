@@ -86,6 +86,23 @@
 >   RLE intra-valor (H-INTRA) ADIADO. **`src/tcf` intocado** (lab-first).
 > - **Defrag/Strata**: tickets [T-CLEAN-2](tickets/T-CLEAN-2-strata-defrag.md) (QW feitos + backlog) +
 >   [META-STRATA-GOVERNANCE](tickets/META-STRATA-GOVERNANCE.md). Diretiva: sempre cross-reference.
+>
+> **SESSAO 2026-06-21 (plano 0.8 + lazy endurecido + transmissao + dict/H-REF)**:
+> - **Plano 0.8** ([`v08-plano-etapas.md`](experiments/lab/dirty/notas/v08-plano-etapas.md)): 0.8 =
+>   lazy basico shipado+endurecido + cross dict (se pagar); Q-04 avancado -> 0.9. Pacote 0.8.0 != #TCF.8.
+> - **Lazy endurecido (workstream A)**: A1 banco de testes (4 modos + bordas, verde) + A2 fecha bug de
+>   dupla contagem em `touched` + A3 otimiza o CAMINHO do algoritmo (count 1->0 decode; redundancia
+>   3->1; Python deferido). 381 passed. [lab](experiments/lab/dirty/2026-06-19-lazy-testbank/result.md).
+>   `src/tcf` intocado (tudo no gadget). Falta A4 (promover -> `tcf.view`, sob aprovacao) + A5.
+> - **Cross dict / referencia**: achado — `^N` ja' e' dict implicito; ideia do owner = dict GLOBAL no
+>   header ([H-GDICT-01](experiments/lab/dirty/notas/roadmap-hipoteses.md)) + familia H-REF
+>   ([`dict-referencia-hipoteses.md`](experiments/lab/dirty/notas/dict-referencia-hipoteses.md)). Nao caracterizado.
+> - **Header linhas-vs-bytes**: row-count REFUTADO (solid-block; ganho ininfimo, perde O(1)/paralelo);
+>   base-94 size = O-FMT-18 candidato (so' nicho transmissao-minuscula). [lab](experiments/lab/dirty/2026-06-19-header-rows-vs-bytes/result.md).
+> - **Guia de transmissao por API** ([`transmissao-api-onde-tcf-importa.md`](experiments/lab/dirty/notas/transmissao-api-onde-tcf-importa.md)):
+>   honesto — nicho do TCF ~5-15% (batch/export tabular grande); **teste decisivo pendente**:
+>   TCF+brotli vs **NDJSON+brotli** (so' comparamos com CSV+brotli).
+> - Checkpoint Strata: [`checkpoints/2026-06-21-avaliacao-documental-strata.md`](experiments/lab/dirty/notas/checkpoints/2026-06-21-avaliacao-documental-strata.md).
 
 **Snapshot 2026-06-08** (**Schema/quality gadget COMPLETO + incidente
 OneDrive recuperado + push remoto**) — resumo desde 06-03. Atualizacoes
