@@ -19,6 +19,16 @@ publicado no PyPI. Suíte **425 passed** (inclui o gadget `tcf_lazy`); D1-D9=152
 
 ---
 
+## Marco v0.8 (planejado, 2026-06-19)
+
+**Escopo**: shipar o **lazy básico** endurecido (`tcf.view`; bugs/correção/performance, **API atual**)
+**+ cross dict (H-GDICT)** se a caracterização pagar. **Defere pro 0.9**: H-QUERY-04 avançado
+(`execute()`/pushdown, índices escondidos), H-INTRA, F2, filtros populares, V2-RLE nicho. Formato
+`#TCF.7` default; `#TCF.8` só se o cross-dict (opt-in) weldar. **Plano em etapas (A lazy / B cross-dict
+/ C release)**: [`v08-plano-etapas.md`](experiments/lab/dirty/notas/v08-plano-etapas.md).
+
+---
+
 ## Tier 1 — PRÉ-1.0 (organizável agora)
 
 Tudo opt-in / gadget / knob; impacto no núcleo nenhum/leve (ou atrás de GATE).
