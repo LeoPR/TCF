@@ -1,0 +1,29 @@
+# A1 — BANCO DE TESTES DO LAZY (v0.8, read-only)
+
+============================================================
+A1.1 SINTETICOS (controle dos 4 modos)
+
+## sint-base  (n=12, modos: {'status': 'dict', 'valor': 'raw', 'id': 'tcf', 'data': 'dict'})
+
+============================================================
+A1.2 VOLUME REAL
+
+## adult-census/adult  (n=5000, modos: {'age': 'dict', 'workclass': 'dict', 'fnlwgt': 'raw', 'education': 'dict', 'education-num': 'dict', 'marital-status': 'dict', 'occupation': 'dict', 'relationship': 'dict', 'race': 'dict', 'sex': 'dict', 'capital-gain': 'tcf', 'capital-loss': 'tcf', 'hours-per-week': 'dict', 'native-country': 'tcf', 'class': 'dict'})
+
+## tpch-sf001/orders  (n=5000, modos: {'o_orderkey': 'tcf', 'o_custkey': 'dict', 'o_orderstatus': 'dict', 'o_totalprice': 'split', 'o_orderdate': 'split', 'o_orderpriority': 'dict', 'o_clerk': 'dict', 'o_shippriority': 'tcf', 'o_comment': 'tcf'})
+
+============================================================
+A1.3 BORDAS
+
+## borda-vazios-utf8  (n=6, modos: {'cat': 'raw', 'num': 'raw'})
+   OK: coluna inexistente levanta KeyError
+
+============================================================
+FRACAO TOCADA (a venda):
+  - sint-base: where(status).sum(valor) tocou 50.7% do blob (106/209B)
+  - adult-census/adult: where(workclass).sum(education-num) tocou 10.0% do blob (10141/101724B)
+  - tpch-sf001/orders: where(o_orderstatus).sum(o_totalprice) tocou 14.4% do blob (48642/336723B)
+  - borda-vazios-utf8: where(cat).sum(num) tocou 100.0% do blob (26/26B)
+
+============================================================
+RESULTADO: TUDO VERDE — lazy bate o oraculo em todas as ops/modos/bordas testados.

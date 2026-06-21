@@ -205,3 +205,25 @@ def test_agg_by_vs_groupby_manual(sorted_blob):
     for c, v in zip(full["cidade"], full["valor"]):
         man[c] += float(v)
     assert view(sorted_blob).agg_by("cidade", "valor", "sum") == dict(man)
+
+
+def test_report_pct_nao_passa_de_100_sem_dupla_contagem(blob):
+    """A2 (achado no banco de testes A1): coluna dict tocada por _dict_parts
+    (estrutural) E depois por _col (materializacao) era contada 2x em `touched`,
+    fazendo materialized_bytes/pct passar de 100%. `touched` deve ser unico."""
+    v = view(blob)
+    v.group_count("cidade")     # _dict_parts -> touched
+    v.where("cidade", "Sao Paulo")  # _dict_parts (guard)
+    v.select(["cidade"])        # _col(cidade) -> nao pode re-adicionar
+    assert len(v.touched) == len(set(v.touched)), f"touched tem duplicata: {v.touched}"
+    rep = v.report()
+    assert rep["pct"] <= 100.0, f"pct {rep['pct']}% > 100% (dupla contagem)"
+
+
+def test_venda_isolada_toca_fracao(blob):
+    """View fresca + 1 query so' deve tocar < 100% do blob (a 'venda')."""
+    v = view(blob)
+    v.where("cidade", "Sao Paulo").sum("valor")
+    rep = v.report()
+    assert set(v.touched) == {"cidade", "valor"}
+    assert rep["pct"] < 100.0

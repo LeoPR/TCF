@@ -118,7 +118,8 @@ class LazyTCF:
             else:
                 vals = _decode_column(body.decode("utf-8"))
             self._cache[name] = vals
-            self.touched.append(name)
+            if name not in self.touched:   # A2: evita dupla contagem (coluna ja' tocada via _dict_parts)
+                self.touched.append(name)
         return self._cache[name]
 
     # ---- L3: estrutura (dict/raw) — contar/agrupar SEM expandir as N linhas ----
