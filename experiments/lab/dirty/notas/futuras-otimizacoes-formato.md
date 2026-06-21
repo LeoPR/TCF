@@ -472,12 +472,33 @@ Quando voltar pra estas otimizacoes:
 6. **O-FMT-06 (cross-column)** — explorar so' depois de O-FMT-07
    maduro.
 
+### O-FMT-18 — Byte-size do header em base-94 (em vez de decimal) (registrado 2026-06-19)
+
+**Ideia (do owner, "podia ficar em hexa")**: o byte-size de cada coluna no meta line e' decimal;
+em base-94 (alfabeto que o TCF ja' usa) o numero encurta ~2× (ex: `150000` 6 dig → 3 chars).
+**Mantem TUDO**: continua byte-size → acesso O(1) por coluna + decode paralelo + group por slice.
+So' muda a representacao do numero. **Candidato** de header micro-opt pro foco "transmissao minuscula".
+**Status**: registrado; baixa prioridade (header e' fracao minima do blob — modelo:
+`2026-06-19-header-rows-vs-bytes/`). Format change #TCF.8 opt-in, default off. **Domina o O-FMT-19.**
+
+### O-FMT-19 — Header por LINHAS (row-count) em vez de bytes — REFUTADO
+
+**Ideia (do owner)**: trocar byte-size por nº de linhas (1 numero compartilhado, ja' que a tabela e'
+simetrica) pra economizar header em tabelas pequenas. **Modo "solid block"** (analogia do owner).
+**REFUTADO** (teste de proporcao 2026-06-19, [`2026-06-19-header-rows-vs-bytes/result.md`](../2026-06-19-header-rows-vs-bytes/result.md)):
+economia ≥1% do blob em so' 11/60 formas (tiny-wide; dezenas de bytes), ≥5% em 0/60, NEGATIVA em
+2-col, ~0% em volume real. E custa **TUDO**: o lazy perde acesso O(1) por coluna (vira scan → mata a
+"venda"), perde **decode paralelo** (bytes deixam fatiar/paralelizar; linhas forcam scan sequencial)
+e group por slice. + parser de header com 2 semanticas. **Nao vale**; se o alvo e' header menor, usar
+O-FMT-18 (base-94), que ganha o mesmo SEM perder nada.
+
 ## Atualizacao
 
 Atualizar quando: nova ideia chegar, ou alguma O-FMT-* mudar de
 status (testada/iniciada/refutada).
 
-**Ultima atualizacao**: 2026-06-16 (O-FMT-17 repeticao intra-linha / intra-valor, alvo 0.8
+**Ultima atualizacao**: 2026-06-19 (O-FMT-18 byte-size base-94 candidato + O-FMT-19 header-por-linhas
+REFUTADO — teste de proporcao; lazy/paralelo > economia ininima). Antes: 2026-06-16 (O-FMT-17 repeticao intra-linha / intra-valor, alvo 0.8
 — cross-ref roadmap Pacote 11). Antes: 2026-06-14 (O-FMT-15 ultima-coluna-sem-size + O-FMT-16
 espaco-do-meta-dispensavel + bundle "header v2 minimo" / reframe transmissoes minusculas),
 2026-05-24 (O-FMT-14 header desacoplavel), 2026-05-17 (criacao + 12 entries).
