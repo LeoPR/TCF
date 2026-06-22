@@ -437,7 +437,7 @@ header, compartilhado** entre colunas.
 
 | ID | Hipotese | Status | ref |
 |---|---|---|---|
-| H-GDICT-01 | **Dicionario global no cabecalho**: 1 tabela de unicos no header, todas as colunas referenciam por indice global (dedupe cross-column da tabela). = "cross-column dict" (O-FMT-06/07). | **aberta, NAO caracterizada** (alvo: estudar). Format change #TCF.8 + GATE. | [estudo](rle-familia-estudo.md) + [exemplo real](../old/refuted/2026-06-19-v2rle-stream-caracterizacao/result.md) |
+| H-GDICT-01 | **Dicionario global no cabecalho**: 1 tabela de unicos no header, todas as colunas referenciam por indice global (dedupe cross-column da tabela). = "cross-column dict" (O-FMT-06/07). | **B1.0 design FEITO** (2026-06-21, [lab](../2026-06-21-gdict-caracterizacao/result.md)): net = dedup_tabela − indice_global_mais_largo; **dobradiça = limite base-94** (ganha se K_global nao cruza 94: E1 −20B/E3 −58B incl. brotli; perde se cruza: E2 +594B). Proposta **modo hibrido (V2)**: dicts por GRUPO (namespace por grupo). FALTA B1 completo (>=5 reais). #TCF.8 + GATE. | [lab B1](../2026-06-21-gdict-caracterizacao/) + [estudo](rle-familia-estudo.md) |
 
 **Quando ganha**: colunas que compartilham valores (SIM/NAO, UFs, codigos, enums) — paga a tabela 1x
 em vez de N. **Sinergia com lazy** (H-QUERY): dict no header = leitura unica. **Quando perde**:

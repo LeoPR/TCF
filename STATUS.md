@@ -116,7 +116,13 @@
 >   380 passed. Versao segue 0.7.1 (bump 0.8.0 e' no release, workstream C).
 > - **4 tickets 0.8 criados** (rastreabilidade): A4 (closed), A5 [T-DOC-LAZY-REFERENCE],
 >   B1 [T-EXP-H-GDICT-01] (segurado ate' A4, feito), C [T-DIST-RELEASE-0.8.0] (blocked).
-> - **B1 SEGURADO** por decisao do owner (foco no workstream A primeiro).
+> - **A completo** (A1-A5): lazy promovido + reference Diataxis ([docs/reference/lazy-view.md]).
+> - **Drift de superficie #TCF.6-default corrigido** (commit aa92642): TCF-format.md diagrama/Estado,
+>   STATUS visao/foco, docs/README hub -> 0.7. ADRs/codnomes preservados (historico).
+> - **B1 LIBERADO + B1.0 design FEITO** ([lab gdict](experiments/lab/dirty/2026-06-21-gdict-caracterizacao/)):
+>   owner levantou 3 tensoes; medicao sintetica minima -> net cross-dict = dedup_tabela −
+>   indice_global_mais_largo; **dobradiça = limite base-94** (ganha se nao cruza, perde se cruza, incl.
+>   brotli). Proposta **modo hibrido** (dicts por grupo). FALTA B1 completo (>=5 reais + latencia lazy).
 
 **Snapshot 2026-06-08** (**Schema/quality gadget COMPLETO + incidente
 OneDrive recuperado + push remoto**) — resumo desde 06-03. Atualizacoes

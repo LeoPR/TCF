@@ -120,6 +120,7 @@ Faxina 2026-06-21: 17 labs movidos pra `old/welded/` ou `old/refuted/`
 - **`experiments/lab/dirty/2026-05-27-baseline-consolidado/`** —
   baseline de referencia (METRICS + ADRs-INDEX + lessons-learned + run-baseline.py)
 - `experiments/lab/dirty/2026-06-19-lazy-testbank/` — banco de testes lazy A1/A2/A3
+- `experiments/lab/dirty/2026-06-21-gdict-caracterizacao/` — B1 cross-dict (H-GDICT): design + medicao sintetica minima
 - `experiments/lab/clean/EXP-010-tcf-delta-aware-prototype/` —
   prototype antigo (referencia historica)
 - `experiments/lab/clean/EXP-011-multi-column-basic/` — multi-col basico

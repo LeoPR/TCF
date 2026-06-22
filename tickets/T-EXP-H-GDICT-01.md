@@ -1,10 +1,11 @@
 ---
 title: T-EXP-H-GDICT-01 — Caracterizar cross-dict / dicionário global (B1 do plano 0.8)
-status: open
+status: in-progress
 priority: P2
 created: 2026-06-21
 updated: 2026-06-21
 related:
+  - experiments/lab/dirty/2026-06-21-gdict-caracterizacao/
   - experiments/lab/dirty/notas/v08-plano-etapas.md
   - experiments/lab/dirty/notas/dict-referencia-hipoteses.md
   - experiments/lab/dirty/notas/rle-familia-estudo.md
@@ -60,4 +61,15 @@ Lab `experiments/lab/dirty/2026-06-21-gdict-caracterizacao/`:
 
 ## Updates
 
-- **2026-06-21**: aberto. Segurado por decisão do owner até A4 (feito). Aguardando liberação.
+- **2026-06-21**: aberto. Segurado por decisão do owner até A4 (feito).
+- **2026-06-21 (B1.0 design)**: owner liberou + levantou 3 tensões (paralelismo↔sincronismo,
+  custo do dict no header, namespace de índice cross-coluna). Lab
+  [`2026-06-21-gdict-caracterizacao/`](../experiments/lab/dirty/2026-06-21-gdict-caracterizacao/)
+  com medição sintética mínima ancorada nos internos reais do V2-B. **Achado central**: o net do
+  cross-dict = (dedup de tabelas compartilhadas) − (índice global mais largo, pago por linha×coluna);
+  a **dobradiça é o limite de largura base-94** — ganha quando o pooling NÃO cruza 94/8836 (E1 −20B,
+  E3 −58B, inclusive sob brotli), perde feio quando cruza (E2 +594B). **Proposta: modo híbrido (V2)**
+  — dicts por GRUPO no header (namespace por grupo 0-based), particionamento greedy por overlap +
+  bucket de largura. As 3 tensões resolvidas: compartilhar só no header (T1), custo real é largura
+  não a tabela (T2), namespace por grupo evita o estouro (T3). FALTA B1 completo: ≥5 reais (medir
+  overlap intra-blob real — risco: sharing forte é cross-TABELA, não intra-blob), brotli, latência lazy.
