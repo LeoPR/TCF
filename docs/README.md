@@ -2,16 +2,17 @@
 
 Hub central da documentacao do projeto **TCF (Tabular Compact Format)**.
 
-> **Estado v0.6 (2026-05-17)**: trabalho ativo e' o algoritmo de
+> **Estado 0.7 (`#TCF.7`, pré-1.0 ADR-0024)**: o core e' o algoritmo de
 > compressao em duas camadas — **OBAT** (Online Bidirectional Affix
-> Tokenizer) + **HCC** (Hierarchical Compositional Coding). Codigo
-> canonico em [`../src/tcf/`](../src/tcf/). Documentacao tecnica em
-> [`algorithms/`](algorithms/).
+> Tokenizer) + **HCC** (Hierarchical Compositional Coding) — mais as camadas
+> V2 multi-col (fallback/dicionario/split/header-minimo) e a view lazy
+> read-only (`from tcf import view`). Codigo canonico em
+> [`../src/tcf/`](../src/tcf/). Estado vivo: [`../STATUS.md`](../STATUS.md).
 >
 > Ciclo v0.5 (formato columnar para LLM benchmark) foi arquivado em
-> [`archive/`](archive/) — **acessorio** ao foco atual.
+> [`archive/`](archive/) — **acessorio** ao core.
 
-## Para entender o algoritmo (v0.6 canonico)
+## Para entender o algoritmo (core canonico, 0.7)
 
 → [`algorithms/OBAT.md`](algorithms/OBAT.md) — camada 1: tokenizacao
 bidirecional online via LCP + LCS.
@@ -59,18 +60,21 @@ desenvolvimento (parcialmente v0.6, parcialmente v0.5).
 **Nenhum conteudo de `archive/` conta como evidencia viva para v0.6
 sem re-validacao.**
 
-## Para uso da API (quando estabilizar)
+## Para uso da API
 
 ```python
-from tcf import encode, decode
+from tcf import encode, decode, view
 
-text = encode(["joao@gmail.com", "maria@gmail.com", "pedro@gmail.com"])
-values = decode(text)
+text = encode({"email": ["joao@gmail.com", "maria@gmail.com", "pedro@gmail.com"]})
+table = decode(text)
+v = view(text)              # camada read-only lazy/consultavel
 ```
 
-Manual v0.6 sera escrito quando a API estabilizar (multi-coluna
-+ tipos de dados pre-tx pendentes — ver
-[`theory/README.md`](theory/README.md)).
+Multi-coluna (`#TCF.7 M`) e naturezas pre-tx (CPF/CNPJ/IP) **welded**. Receitas:
+[`tutorials/getting-started.md`](tutorials/getting-started.md),
+[`how-to/encode-csv-file.md`](how-to/encode-csv-file.md),
+[`reference/encode-knobs.md`](reference/encode-knobs.md),
+[`reference/lazy-view.md`](reference/lazy-view.md).
 
 ## Mapeamento Diataxis (nomes locais → quadrantes canonicos)
 

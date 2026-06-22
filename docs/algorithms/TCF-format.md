@@ -174,12 +174,13 @@ Detalhes: ver [ADR-0017](../adr/0017-format-spec-v1-frozen.md).
 │                multi-col              │                           │ │
 │            ┌── concat ────────────────┘                           │ │
 │            ▼                                                      │ │
-│   ┌──────────────────────────────────────────┐                   │ │
-│   │  #TCF.6 M                                 │ ADR-0004 + ADR-0013│
-│   │  # <size1>=<name1>,<size2>=<name2>,...   │                   │ │
-│   │  <body1><body2><body3>...                │                   │ │
-│   │  (concat byte-precise, sem delimitador)  │                   │ │
-│   └──────────────────────────────────────────┘                   │ │
+│   ┌──────────────────────────────────────────────┐               │ │
+│   │  #TCF.7 M   (default 0.7; #TCF.6 = legado)     │ ADR-0004/0013 │ │
+│   │  meta V2:  !<s1>=<n1>,...,<nN>   (sem `# `)     │ +0022/23/24/25│ │
+│   │  <body1><body2><body3>...                      │               │ │
+│   │  (concat byte-precise, sem delimitador)        │               │ │
+│   └──────────────────────────────────────────────┘               │ │
+│   #TCF.6 legado: `# <s1>=<n1>,...` (com `# `, sem markers).        │ │
 │                                                                  │ │
 │   single-col: body puro, sem shebang                             │ │
 └─────────────────────────────────────────────────────────────────────┘
@@ -188,16 +189,16 @@ Detalhes: ver [ADR-0017](../adr/0017-format-spec-v1-frozen.md).
 ### Decode (espelho)
 
 ```
-encode(text) → list[str] | dict[str, list[str]]
+decode(text) → list[str] | dict[str, list[str]]
          │
-         ├─ tcf_text.startswith("#TCF.6 M") ──► _decode_multi → dict
+         ├─ startswith("#TCF.7 M") OU "#TCF.6 M" ──► _decode_multi → dict
          │
-         └─ caso contrário                     ──► _decode_column → list
+         └─ caso contrário                        ──► _decode_column → list
 ```
 
-Self-describing: o shebang `#TCF.6 M` identifica o formato. O decoder
-dispatcha automaticamente; o caller não precisa saber se a saída é
-single ou multi.
+Self-describing: o shebang (`#TCF.7 M` default, `#TCF.6 M` legado) identifica
+o formato. O decoder dispatcha automaticamente em ambos; o caller não precisa
+saber se a saída é single ou multi.
 
 ## Camadas detalhadas
 
@@ -233,17 +234,27 @@ Doc: [HCC.md](HCC.md). Implementação: [`src/tcf/composicional/syntax.py`](../.
 
 Para input `dict[str, list[str]]`, cada coluna passa pelas camadas
 0-2 independentemente. Os bodies são concatenados byte-precise com
-header `#TCF.6 M` + meta line (`# size=name,size=name,...`).
+header `#TCF.7 M` (default 0.7) + meta line.
 
-**V2-A fallback identity (opt-in, ADR-0022)**: com `encode(table, fallback=True)`,
-cada coluna escolhe min(TCF, raw); coluna raw vira `!<size>=<name>` e o header
-sobe pra `#TCF.7 M`. Opt-in — default preserva `#TCF.6` byte-identico.
+> **Default 0.7 (ADR-0024)**: `encode(dict)` emite **`#TCF.7 M`** com
+> `fallback` + dicionário V2-B + `min_header` **automáticos** — meta sem o
+> prefixo `# `, markers de modo por coluna (`!` raw, `@` dict, `%` split) e a
+> última coluna sem size. `#TCF.6 M` é **legado** (lido pelo decoder; produzível
+> via `_encode_multi(fallback=False, min_header=False)`). Ex. real:
+> `#TCF.7 M\n!5=id,!15=nome,!plano\n...`.
 
-**Header v2 minimo (opt-in, ADR-0023)**: todo `#TCF.7` dispensa o prefixo `# `
-do meta (o `M` do shebang ja' declara colunas). Com `min_header=True`, alem
-disso, omite o size da ultima coluna (corpo ate' EOF): meta `<s1>=<n1>,...,<nN>`.
-Compoe com `fallback`. Default preserva `#TCF.6` byte-identico. Foco: payload
-pequeno (header fixo domina).
+**V2-A fallback identity (ADR-0022, `fallback`)**: por coluna escolhe min(TCF, raw);
+coluna raw vira `!<size>=<name>`. **Ligado por default** no 0.7.
+
+**Header v2 mínimo (ADR-0023, `min_header`)**: todo `#TCF.7` dispensa o prefixo `# `
+do meta (o `M` do shebang já declara colunas); `min_header` ainda omite o size da
+última coluna (corpo até EOF): meta `<s1>=<n1>,...,<nN>`. **Ligado por default** no 0.7.
+Foco: payload pequeno (header fixo domina). Para emitir `#TCF.6` byte-idêntico (legado),
+opt-out explícito (`fallback=False, min_header=False`).
+
+**V2-B dicionário (ADR-0025, `@`) + split estrutural (ADR-0026, `%`)**: candidatos
+extras do fallback por coluna (dicionário categórico; quebra de campo estrutural).
+Entram no default quando reduzem a coluna.
 
 Restrições:
 - Nomes de coluna não podem conter `,` ou `=` (reservados do header)
@@ -326,7 +337,7 @@ descartados como antes). Doc: [SideOutputs](../../src/tcf/side_outputs.py).
 │  FUTURE Layer B — Distributed transport (O-FMT-08/13)            │
 │  ────────                                                        │
 │  Per-channel headers (re-assembly sem coordenação central):      │
-│    #TCF.6 C name=timestamp chunk=1/3 of=table_X                  │
+│    #TCF.7 C name=timestamp chunk=1/3 of=table_X                  │
 │  Streaming chunked: chunks autocontidos, decode chunk-a-chunk,   │
 │    memória O(chunk_size), TTFB constante                         │
 └──────────────────────────────────────────────────────────────────┘
@@ -384,7 +395,7 @@ Brisaboa et al. 2011, etc.)
 - HCC é **offline** (analisa body completo) mas mais simples que
   Sequitur (que mantém invariantes online complexos).
 
-### 3. Compactação para LLM consumption (acessório no v1.0)
+### 3. Compactação para LLM consumption (acessório ao core)
 
 **Família**: TabLLM (2023), TOON, JSON-tabular, formatos compactos
 para LLMs lerem tabelas (Sui 2024 review).
@@ -392,7 +403,7 @@ para LLMs lerem tabelas (Sui 2024 review).
 **Comparação**:
 - Phase 1 (ciclo v0.5) catalogou Q01-Q38 sobre LLM-readability do
   TCF antigo (columnar/RLE). Esse trabalho é **acessório** ao foco
-  v0.6 (algoritmo de compressão).
+  do core (algoritmo de compressão, 0.7).
 - LLM-readability volta a ser relevante quando Phase 2 for revivida
   OU virar projeto a parte.
 
@@ -429,12 +440,17 @@ para LLMs lerem tabelas (Sui 2024 review).
 - **Re-Pair/Sequitur/HTFC** — dicionários gigantes, output binário OK,
   busca aleatória importante
 
-## Estado v1.0 (atualizado 2026-05-27)
+## Estado 0.7 (snapshot 2026-05-27; estado vivo em [STATUS.md](../../STATUS.md))
+
+> Números abaixo são um **snapshot datado** (§5: o teste mede, a prosa aponta).
+> Para o estado corrente — versão do pacote, contagem de testes, ADRs welded —
+> ver [STATUS.md](../../STATUS.md) e os guardiões em `tests/`.
 
 ### Implementação canônica
 
-`src/tcf/` — API pública estavel (congelada via [ADR-0017](../adr/0017-format-spec-v1-frozen.md)):
-ver seccao "Versionamento" acima.
+`src/tcf/` — API pública **pré-1.0** ([ADR-0024](../adr/0024-pre-1.0-versioning-git-as-compat.md)
+supersede o "frozen" do ADR-0017): aditiva, sem compat rígida entre minors de dev
+(git reproduz versões antigas). Ver secção "Versionamento" acima.
 
 ### Validação
 
@@ -444,8 +460,8 @@ ver seccao "Versionamento" acima.
   → M14+Pacote1+Multi+API+Natures+MultiDelta+v1
 - Adult Census + TPC-H 57 colunas: **-11.73% weighted** vs M9 puro
 
-**Multi-column (ADR-0013 welded + ADR-0014 unified)**:
-- D17a sintético (13×4): **322 bytes INVARIANT** (preservado em 16 ADRs)
+**Multi-column (ADR-0013/0014 + V2 ADR-0022/0023/0025/0026)**:
+- D17a sintético (13×4): **303 bytes** (0.7 default, V2-B); 322B = `#TCF.6` legado
 - 9 tabelas real-world (Adult Census + TPC-H tier 1+2, 136k linhas,
   15.8 MB raw):
   - **-33.02% weighted vs raw**, **-31.46%** vs single-col concat
@@ -461,10 +477,10 @@ ver seccao "Versionamento" acima.
 domina) e wine-quality (decimais quase unicos = sem estrutura).
 Detalhes: [experiments/lab/dirty/2026-05-24-benchmark-formats-compression/](../../experiments/lab/dirty/2026-05-24-benchmark-formats-compression/).
 
-**Suite de testes**: 259 passed + 1 xfailed + 1 pre-existing fail
-(test_shaper unrelated). Inclui
+**Suite de testes** (snapshot 2026-05-27: 259 passed; contagem atual em
+[STATUS.md](../../STATUS.md)). Guardião byte-canonical:
 [`test_regression_v1_baseline.py`](../../tests/test_regression_v1_baseline.py)
-formal (21 tests, snapshot byte-canonical D1-D9 + D17a 322B).
+(snapshot D1-D9=1523B + D17a=303B default / 322B `#TCF.6` legado).
 
 ## Estado v0.5 (acessório)
 

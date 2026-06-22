@@ -86,7 +86,8 @@ TCF/
 | Ver hipoteses ativas/fechadas | `experiments/lab/dirty/notas/roadmap-hipoteses.md` |
 | Entender a **familia RLE** (linha/stream/intra-valor) | `experiments/lab/dirty/notas/rle-familia-estudo.md` |
 | **V2-RLE-STREAM** (follow-up V2-B) | `experiments/lab/dirty/old/refuted/2026-06-19-v2rle-stream-caracterizacao/result.md` + registry Pacote 11-bis |
-| **Lazy/queryable view** (descomprimir o minimo) | `src/tcf/view.py` (`from tcf import view`; A4) + design 0.9 `experiments/lab/dirty/notas/hquery01-decode-dag-indices-design.md` |
+| **Lazy/queryable view** (descomprimir o minimo) | `src/tcf/view.py` (`from tcf import view`; A4) · reference `docs/reference/lazy-view.md` · design 0.9 `experiments/lab/dirty/notas/hquery01-decode-dag-indices-design.md` |
+| Knobs de encode + view (reference) | `docs/reference/encode-knobs.md`, `docs/reference/lazy-view.md` |
 | Entender uma decisao tomada | `docs/adr/` (numerada) ou `experiments/lab/dirty/notas/diario/` |
 | Continuar um sub-experimento | `experiments/lab/dirty/<lab>/<sub-exp>/README.md` |
 | Comparar EXP-010 ao baseline | `experiments/lab/clean/EXP-010-*/report.md` |

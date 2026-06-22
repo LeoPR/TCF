@@ -1,6 +1,6 @@
 ---
 title: T-DOC-LAZY-REFERENCE — Reference Diátaxis da API tcf.view (A5 do plano 0.8)
-status: open
+status: closed
 priority: P1
 created: 2026-06-21
 updated: 2026-06-21
@@ -33,17 +33,19 @@ Escrever `docs/reference/lazy-view.md`:
 - Cross-link de `encode-knobs.md` (`sort_by` habilita o layout L5) e how-to de inspeção.
 - Adicionar a `MAP.md` (entrada nova de doc).
 
-## Critério de aceite
+## Critério de aceite (atingido)
 
-- [ ] `docs/reference/lazy-view.md` criado, cobrindo a superfície de `tcf.view`.
-- [ ] Estável vs experimental explícito por método.
-- [ ] Exemplos rodáveis (`from tcf import encode, view`).
-- [ ] Cross-link em MAP.md + encode-knobs.md.
+- [x] `docs/reference/lazy-view.md` criado, cobrindo a superfície de `tcf.view`.
+- [x] Estável (L1–L4) vs experimental (`group_ranges`/`agg_by`/L5) explícito por método.
+- [x] Exemplos rodáveis e **ancorados** (saídas verificadas via `from tcf import encode, view`).
+- [x] Cross-link em MAP.md + encode-knobs.md + TCF-format.md + docs/README.md.
 
 ## Riscos / notas
 
-- Depende de A4 (caminho de import canônico fixado: `from tcf import view`).
+- Depende de A4 (caminho de import canônico fixado: `from tcf import view`). Feito.
 
 ## Updates
 
-- **2026-06-21**: aberto após A4 fechar. Bloqueado só pela ordem (A4 já feito → pode iniciar).
+- **2026-06-21**: aberto após A4 fechar; **CLOSED no mesmo dia** — reference escrita
+  junto com a correção do drift de superfície (`#TCF.6`-default) que o owner pediu
+  não-adiável. Exemplos ancorados em execução real.

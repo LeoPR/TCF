@@ -326,8 +326,9 @@ TCF-format.md expandido com pipeline ASCII unificado + camadas futuras.)
 ## TCF — visao 1 paragrafo
 
 **TCF** (Tabular Compact Format) e' um formato de **compressao de
-strings tabulares** v0.6 com pipeline canonical delta-aware (M10
-baseline, ADR-0011):
+strings tabulares** (0.7 / `#TCF.7`, pré-1.0 ADR-0024) com pipeline
+canonical delta-aware (M10 baseline, ADR-0011) + camadas V2 multi-col
+(fallback/dicionario/split/header-minimo, ADR-0022/0023/0025/0026):
 
 - **Pre-pass** — `analyze_column` (ColumnFeatures) + `detect_cadence`
   (regras 1+2, ADR-0008) + `detect_min_len` (heur v3 + gating n>=100,
@@ -339,28 +340,31 @@ baseline, ADR-0011):
   detector unificado + emit composicional + seq-RLE near-identical
   (`*N+delta|template`). Em `src/tcf/composicional/`.
 
-API publica unificada (ADR-0014): `from tcf import encode, decode, SideOutputs`.
+API publica unificada (ADR-0014): `from tcf import encode, decode, SideOutputs, view`.
 - `encode(list)` -> body single-col (sem shebang)
-- `encode(dict)` -> multi-col com header `#TCF.6 M`
-- `decode(text)` -> dispatch automatico pelo shebang
+- `encode(dict)` -> multi-col com header `#TCF.7 M` (default; `#TCF.6 M` legado)
+- `decode(text)` -> dispatch automatico pelo shebang (le #TCF.7 e #TCF.6)
 - `SideOutputs()` opcional captura features/logs/traces internos
+- `view(blob)` -> camada read-only lazy/consultavel (A4, plano 0.8)
 
 RT byte-canonical validado em D1-D9 (M10 baseline 1523B, vs M9 antigo
-1615B), D17a multi-col (322B INVARIANT), Adult+TPC-H single-col 57 cols,
-9 tabelas multi-col (Adult + TPC-H tier 1+2, 136k linhas, -33.02% weighted
-vs raw, -31.46% vs single concat, RT 9/9).
+1615B), D17a multi-col (303B default / 322B #TCF.6 legado), Adult+TPC-H
+single-col 57 cols, 9 tabelas multi-col (Adult + TPC-H tier 1+2, 136k linhas,
+-33.02% weighted vs raw, -31.46% vs single concat, RT 9/9).
 
 ---
 
-## Foco atual (2026-06-03)
+## Foco — snapshot 2026-06-03 (estado vivo: blocos SESSAO no topo + [ROADMAP.md](ROADMAP.md))
 
-v1.0 estavel (formato `#TCF.6` + API congelados, ADR-0017). Apos as sessoes
-recentes: datasets BR/CNPJ adicionados, nature CNPJ confirmada-empirica em
-dado real, H-PERF-06 Cython welded, shaper validado, reorg de separacao de
-concerns completa (Fases 0-7). **`src/tcf/` intocado** em toda a reorg/datasets.
-**Decisao do proximo pacote pendente** — ver "Proximas direcoes" no fim.
-Candidatos: T-SHAPER-CODE-HARDENING (escala >100k), roadmap v2.0 (ADR-0018),
-fases parciais T-CODE, ou mais datasets (gaps de cobertura).
+> Esta seção é um snapshot datado. O foco corrente está nos blocos **SESSAO**
+> no topo deste arquivo (mais recente 2026-06-21: faxina + A4 do plano 0.8) e
+> no [ROADMAP.md](ROADMAP.md) (Marco v0.8). Mantida pra rastro.
+
+Pré-1.0 (ADR-0024 supersede o "v1.0 frozen" do ADR-0017): formato `#TCF.7`
+default, `#TCF.6` legado. Snapshot 2026-06-03: datasets BR/CNPJ adicionados,
+nature CNPJ confirmada-empirica em dado real, H-PERF-06 Cython welded, shaper
+validado, reorg de separacao de concerns completa (Fases 0-7). **`src/tcf/`
+intocado** em toda a reorg/datasets.
 
 ### Historico — Ciclo 2026-05-21/22 (Revalidacao + H-DA-11 fechado)
 
