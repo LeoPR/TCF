@@ -103,6 +103,20 @@
 >   honesto — nicho do TCF ~5-15% (batch/export tabular grande); **teste decisivo pendente**:
 >   TCF+brotli vs **NDJSON+brotli** (so' comparamos com CSV+brotli).
 > - Checkpoint Strata: [`checkpoints/2026-06-21-avaliacao-documental-strata.md`](experiments/lab/dirty/notas/checkpoints/2026-06-21-avaliacao-documental-strata.md).
+>
+> **SESSAO 2026-06-21-b (faxina + avaliacao 0.8 + A4)**:
+> - **Faxina dirty/docs** (commit 4401046): 17 labs -> `old/welded|refuted`, drift
+>   `#TCF.6->#TCF.7` corrigido nos docs de exemplo, snapshots marcados, MAP/diario/historia
+>   atualizados, `_wf_*.js` + `out_files/` destrackeados. `src/tcf` intocado.
+> - **Avaliacao grounded de prontidao 0.8** (workflow 6 agentes, testes rodados): base solida
+>   confirmada (D1-D9=1523B/D17a=303B/RW=89616B verdes); A1-A3 do lazy feitos; gaps = A4/A5/B1/C.
+> - **A4 FEITO** ([T-CODE-LAZY-VIEW-PROMOTE](tickets/T-CODE-LAZY-VIEW-PROMOTE.md), owner aprovou
+>   o toque): lazy promovido `scripts/tcf_lazy/lazy.py` -> **`src/tcf/view.py`** (camada read-only;
+>   `from tcf import view`), shim de compat mantido. Aditivo, **zero regressao byte-canonical**,
+>   380 passed. Versao segue 0.7.1 (bump 0.8.0 e' no release, workstream C).
+> - **4 tickets 0.8 criados** (rastreabilidade): A4 (closed), A5 [T-DOC-LAZY-REFERENCE],
+>   B1 [T-EXP-H-GDICT-01] (segurado ate' A4, feito), C [T-DIST-RELEASE-0.8.0] (blocked).
+> - **B1 SEGURADO** por decisao do owner (foco no workstream A primeiro).
 
 **Snapshot 2026-06-08** (**Schema/quality gadget COMPLETO + incidente
 OneDrive recuperado + push remoto**) — resumo desde 06-03. Atualizacoes

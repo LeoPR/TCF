@@ -78,6 +78,7 @@ from tcf.natures import (
 from tcf.pipeline import PipelineConfig
 from tcf.schema import ColumnSchema, TableSchema, build_schema
 from tcf.side_outputs import SideOutputs
+from tcf.view import Filtered, LazyTCF, view  # camada read-only (A4, plano 0.8)
 
 # Pré-1.0 (ADR-0024): minor acompanha o formato (#TCF.7 -> 0.7); o PATCH (.1) e'
 # contador de release/correcao, DESACOPLADO do comportamento (nao muda a logica
@@ -100,6 +101,10 @@ __all__ = [
     "SPEC_IP",
     # Pipeline toggles (T-CODE-LAYERED-PIPELINE Fase 1):
     "PipelineConfig",
+    # View lazy/consultavel read-only (A4, plano 0.8):
+    "view",
+    "LazyTCF",
+    "Filtered",
     # Deprecated (mantidos pra migracao):
     "encode_table",
     "decode_table",

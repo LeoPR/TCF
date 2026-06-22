@@ -1,7 +1,11 @@
 # tcf_lazy — view lazy/consultável sobre um blob TCF
 
-Gadget **auxiliar** (não faz parte do TCF-CORE; lê o `#TCF.7` existente, **não toca `src/tcf`**).
-Promovido do PoC `experiments/lab/dirty/old/welded/2026-06-16-lazy-query/`.
+> **MOVIDO (A4, plano 0.8)**: a implementação agora é a camada read-only do core em
+> [`src/tcf/view.py`](../../src/tcf/view.py). Caminho canônico: **`from tcf import view`** (vai no
+> wheel). Esta pasta virou **shim de compat** (`from tcf_lazy import view` ainda funciona).
+
+Camada **read-only** do TCF (lê o `#TCF.7` existente; **não muda encode/decode/formato**).
+PoC de origem: `experiments/lab/dirty/old/welded/2026-06-16-lazy-query/`.
 
 A "venda" do TCF: **descomprimir só o suficiente pra responder**. O header já diz nome / modo /
 tamanho de cada coluna → dá pra fatiar o corpo por coluna sem decodificar nada, e só descomprimir

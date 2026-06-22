@@ -27,6 +27,13 @@ publicado no PyPI. Suíte **425 passed** (inclui o gadget `tcf_lazy`); D1-D9=152
 `#TCF.7` default; `#TCF.8` só se o cross-dict (opt-in) weldar. **Plano em etapas (A lazy / B cross-dict
 / C release)**: [`v08-plano-etapas.md`](experiments/lab/dirty/notas/v08-plano-etapas.md).
 
+**Progresso (2026-06-21)**: A1-A3 feitos; **A4 FEITO** — lazy promovido pro core
+`src/tcf/view.py` (`from tcf import view`), aditivo/read-only, zero regressão, 380 passed
+([T-CODE-LAZY-VIEW-PROMOTE](tickets/T-CODE-LAZY-VIEW-PROMOTE.md)). Falta **A5** reference
+([T-DOC-LAZY-REFERENCE](tickets/T-DOC-LAZY-REFERENCE.md)), **B1** caracterizar cross-dict
+([T-EXP-H-GDICT-01](tickets/T-EXP-H-GDICT-01.md), segurado), **C** release
+([T-DIST-RELEASE-0.8.0](tickets/T-DIST-RELEASE-0.8.0.md), blocked).
+
 ---
 
 ## Tier 1 — PRÉ-1.0 (organizável agora)
@@ -35,7 +42,7 @@ Tudo opt-in / gadget / knob; impacto no núcleo nenhum/leve (ou atrás de GATE).
 
 | id | item | custo | impacto núcleo | nota |
 |---|---|---|---|---|
-| **H-QUERY-01** | Lazy/queryable `view()` — descompressão seletiva por coluna/linha (`count/sum/min/max/avg` + `where`) | M | nenhum | **GADGET** [`scripts/tcf_lazy/`](scripts/tcf_lazy/) (**27 testes; L1–L5 funcional**: pruning, dimensões, contar/agrupar/filtrar sem expandir, group-by por layout). Lê `#TCF.7`, fora de `src/tcf`. Tese central da 1.0. PoC: [`2026-06-16-lazy-query/`](experiments/lab/dirty/old/welded/2026-06-16-lazy-query/). |
+| **H-QUERY-01** | Lazy/queryable `view()` — descompressão seletiva por coluna/linha (`count/sum/min/max/avg` + `where`) | M | leve (aditivo read-only) | **PROMOVIDO PRO CORE** (A4, 2026-06-21): `src/tcf/view.py`, `from tcf import view`; shim em [`scripts/tcf_lazy/`](scripts/tcf_lazy/). L1–L5 funcional (pruning, dimensões, contar/agrupar/filtrar sem expandir, group-by por layout). Lê `#TCF.7`, não muda encode/decode/formato. Tese central da 1.0. PoC: [`2026-06-16-lazy-query/`](experiments/lab/dirty/old/welded/2026-06-16-lazy-query/). |
 | **H-QUERY-04** | Expansão (design 2026-06-17): **decode-como-DAG**, decode parametrizado (`execute()` pushdown), **índices escondidos** pra grouping | M | nenhum (gadget) | **DESIGN FEITO** ([nota](experiments/lab/dirty/notas/hquery01-decode-dag-indices-design.md)). Princípio: índices = **derivável > {in-file inerte / sidecar `.tcfx`} > formato**, nunca in-blob por default; decisão de índice **por perfil de uso** (transmissão = sem índice; at-rest = index-on-arrival). Unificação **não-dura** (fazer cada→otimizar→fatorar o comum, não monólito); paralelismo por coluna. Plano fases A/B/C + transversal, barato no gadget. Limite duro: coluna `tcf` é entrelaçada → fallback total (o lazy vive em `@dict`/raw). |
 | LAZY-QUERY-RUNS (=L3) | agregar/contar grupos sem expandir a coluna | — | nenhum | **FEITO via dicionário/raw** (`group_count`/`nrows`). **Achado**: o `*N|` do modo-tcf é entrelaçado (OBAT+HCC, refs entre linhas) — **não separável**; o ganho limpo vive no dict/raw. |
 | **FILTRO-NUMERO** | Filtro/nature básico de **número** (além de CPF/CNPJ/IP) | S | leve | **CARACTERIZADO → PARK** ([`2026-06-16-number-nature-caracterizacao/`](experiments/lab/dirty/old/refuted/2026-06-16-number-nature-caracterizacao/)): **weighted na tabela NÃO atinge ≥15% em 2+** (adult 14,5%, receita 7,1%, tpch 3,4%, beijing 1,3%) e **some sob brotli** (≤6%). Ganho per-coluna (fnlwgt −41%) dilui na tabela. dict/seq-RLE/split já cobrem. Reabrir só como **nature opt-in estrita** se houver caso de transporte cru integer-heavy. Variantes (padded-int / scaled-decimal-lossy) → Pacote 10/v2.0. |

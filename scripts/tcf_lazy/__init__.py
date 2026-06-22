@@ -1,14 +1,14 @@
-"""tcf_lazy — view lazy/consultável sobre um blob TCF (gadget auxiliar, lê #TCF.7).
+"""tcf_lazy — SHIM de compat. A view lazy foi promovida pro core em `tcf.view` (A4, 0.8).
 
-    from tcf import encode
-    from tcf_lazy import view
+    from tcf import view            # caminho canônico (vai no wheel)
+    from tcf_lazy import view       # ainda funciona (re-exporta de tcf.view)
 
     v = view(encode(table))                 # conecta, NÃO descomprime
     v.count()                               # toca a coluna mais barata
     v.where("cidade", "SP").sum("valor")    # toca só cidade + valor
 
-Não faz parte do TCF-CORE; não toca src/tcf. Ver lazy.py.
+Mantido pra não quebrar código/labs que importam `tcf_lazy`. Ver src/tcf/view.py.
 """
-from .lazy import LazyTCF, Filtered, view
+from tcf.view import Filtered, LazyTCF, view
 
 __all__ = ["LazyTCF", "Filtered", "view"]

@@ -1,6 +1,7 @@
-"""Testes do gadget tcf_lazy (view lazy/consultável sobre blob TCF).
+"""Testes da view lazy/consultável sobre blob TCF.
 
-Gadget auxiliar em scripts/tcf_lazy/ (não TCF-CORE; lê #TCF.7, não toca src/tcf).
+Promovida pro core em `tcf.view` (A4, plano 0.8): camada read-only que lê #TCF.7,
+não muda encode/decode/formato. Shim de compat em scripts/tcf_lazy/.
 """
 from __future__ import annotations
 
@@ -14,8 +15,16 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 sys.path.insert(0, str(ROOT / "scripts"))
 
-from tcf import encode, decode            # noqa: E402
-from tcf_lazy import view                 # noqa: E402
+from tcf import encode, decode, view      # noqa: E402  (caminho canônico A4)
+
+
+def test_a4_shim_backcompat():
+    """O caminho antigo `from tcf_lazy import view` re-exporta o mesmo objeto de tcf.view."""
+    import tcf as _tcf
+    from tcf_lazy import view as shim_view
+    from tcf_lazy import LazyTCF as shim_LazyTCF
+    assert shim_view is _tcf.view
+    assert shim_LazyTCF is _tcf.LazyTCF
 
 
 TABLE = {
