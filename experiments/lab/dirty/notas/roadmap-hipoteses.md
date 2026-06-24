@@ -466,6 +466,14 @@ ref (tcf `^N` decimal com escape de digito vs V2-B base-94 separado); ambos rese
 (esquema textual some); **mas** o payoff do global/GDICT tem componente ESTRUTURAL (dedup + dict no
 header pro lazy) que nao e' so' bytes. Tudo #TCF.8 + GATE. Ordem: H-REF-03 -> H-REF-02+H-GDICT -> resto.
 
+> **Lente "graus de entrega" do pre-filtro (owner 2026-06-24)** —
+> [`filtros-graus-de-entrega-2026-06-24.md`](filtros-graus-de-entrega-2026-06-24.md): espectro
+> otimizar-formato -> bypass; 3 tiers de ONDE o dict mora (V2-B in-blob / B1 cross-dict shared /
+> **H-CODEBOOK out-of-blob universal** = "dict roubado" p/ tipos notorios). Veredito: graus 1-2
+> welded (ADR-0015), enumerated in-blob refutado, spec-dict universal = nicho payload-minusculo
+> NAO-MEDIDO + passivo forward-compat duro. Timing: depois do #TCF.8 chegar via B2 cross-dict
+> (que tem ganho medido), por carona. Eixo VELOCIDADE (valor limpo->encode rapido) = lacuna real.
+
 ---
 
 ## Pacote 12 — Lazy/queryable view (registrado 2026-06-16, alvo pre-1.0)
