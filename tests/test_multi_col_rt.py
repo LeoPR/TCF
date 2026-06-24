@@ -3,7 +3,7 @@
 Tests SEM dependencias externas — rodam em CI sem precisar de
 Z:/tcf-data SQLite. Validam:
 - encode(dict) / decode(text) round-trip (API unificada, ADR-0014)
-- D17a baseline 322 bytes INVARIANT (preservado vs EXP-011)
+- D17a baseline 303 bytes (0.7 / #TCF.7; legado #TCF.6=322B em tests/legacy/)
 - Edge cases: tabela vazia, lengths diferentes, nomes invalidos
 - Self-describing format (decoder dispatcha pelo shebang)
 
@@ -23,15 +23,10 @@ from pathlib import Path
 import pytest
 
 from tcf import encode, decode
-from tcf.multi import _encode_multi  # toggles internos (legado #TCF.6 p/ comparacao)
 from tcf.side_outputs import SideOutputs
 
-
-def _legacy_v6(table):
-    """Produz o formato legado #TCF.6 (sem fallback nem header minimo).
-    O `encode()` publico nao expoe isso (0.7 e' default, ADR-0024)."""
-    return _encode_multi(table, fallback=False, min_header=False)
-
+# Gate principal = so' #TCF.7 (0.7 default). A comparacao com o legado #TCF.6/322B
+# vive em tests/legacy/test_legacy_v6_comparison.py (T-CODE-LEGACY-PRUNE-PRE-07 S2).
 
 ROOT = Path(__file__).resolve().parent.parent
 DATASETS_DIR = ROOT / "datasets" / "synthetic"
@@ -126,9 +121,9 @@ class TestUnifiedDispatch:
 
 class TestD17aBaseline:
     """D17a baseline. 0.7 e' o default (ADR-0024): D17a = 303B (#TCF.7, V2-B na
-    coluna `categoria`). O legado #TCF.6 (322B) continua produzivel internamente
-    (_legacy_v6) e decodavel. Baselines = guardas de regressao re-pinaveis em
-    mudanca intencional (ADR-0024/0025), nao contrato eterno.
+    coluna `categoria`). O legado #TCF.6 (322B) vive em tests/legacy/ (comparacao).
+    Baselines = guardas de regressao re-pinaveis em mudanca intencional
+    (ADR-0024/0025), nao contrato eterno.
     """
 
     def test_d17a_total_bytes_baseline(self):
@@ -138,14 +133,6 @@ class TestD17aBaseline:
             f"D17a baseline 0.7 (303B) mudou: got {n_bytes}. Re-pina so' se a "
             f"mudanca de formato for INTENCIONAL (ADR-0024/0025)."
         )
-
-    def test_d17a_legacy_v6_baseline(self):
-        # #TCF.6 legado segue produzivel + decodavel (322B INVARIANT historico)
-        table = _ler_csv_multi("D17a-multi-column-mixed")
-        legacy = _legacy_v6(table)
-        assert len(legacy.encode("utf-8")) == 322
-        assert legacy.startswith("#TCF.6 M")
-        assert decode(legacy) == table
 
     def test_d17a_round_trip(self):
         table = _ler_csv_multi("D17a-multi-column-mixed")
@@ -208,10 +195,6 @@ class TestDefault07:
         meta = encode(self._table()).split("\n", 2)[1]
         assert any(p.startswith("@") for p in meta.split(","))
 
-    def test_default_not_larger_than_legacy(self):
-        t = self._table()
-        assert len(encode(t).encode("utf-8")) <= len(_legacy_v6(t).encode("utf-8"))
-
     def test_self_describing_decode(self):
         # decode nao precisa de flag — magic + forma dos pares dizem tudo
         t = self._table()
@@ -231,29 +214,6 @@ class TestDefault07:
     ])
     def test_round_trip_various(self, table):
         assert decode(encode(table)) == table
-
-
-# ---------------------------------------------------------------------------
-# Legado #TCF.6 (produzivel internamente + decodavel — decode-compat pré-1.0)
-# ---------------------------------------------------------------------------
-
-class TestLegacyV6:
-    """O #TCF.6 legado e' produzivel (toggles publicos `fallback=False` +
-    `min_header=False`, ou o helper interno _legacy_v6) e o decoder ainda LE ele
-    (decode-compat pré-1.0, ADR-0024)."""
-
-    def _table(self):
-        return {"a": ["abc", "abcd"], "b": ["x", "y"]}
-
-    def test_legacy_is_v6_with_prefix(self):
-        legacy = _legacy_v6(self._table())
-        assert legacy.startswith("#TCF.6 M\n# ")
-        meta = legacy.split("\n", 2)[1]
-        assert all("=" in p for p in meta[2:].split(","))  # todos com size
-
-    def test_decoder_reads_legacy(self):
-        t = self._table()
-        assert decode(_legacy_v6(t)) == t
 
 
 # ---------------------------------------------------------------------------
@@ -277,16 +237,6 @@ class TestExplicitControls:
 
     def test_default_zero_param_is_v7(self):
         assert encode(self._table()).startswith("#TCF.7 M")
-
-    def test_force_legacy_v6(self):
-        t = self._table()
-        text = encode(t, fallback=False, min_header=False)
-        assert text.startswith("#TCF.6 M\n# ")
-        assert decode(text) == t
-
-    def test_force_legacy_equals_internal_helper(self):
-        t = self._table()
-        assert encode(t, fallback=False, min_header=False) == _legacy_v6(t)
 
     def test_fallback_off_keeps_min_header(self):
         # todas TCF (sem '!' nem '@') mas header minimo (sem prefixo, ultima
