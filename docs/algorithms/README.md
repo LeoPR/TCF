@@ -28,6 +28,13 @@ Lista de strings (uma coluna de dados tabulares)
 | **HCC** — Hierarchical Compositional Coding | 2 (compactação) | `M8.A` | [HCC.md](HCC.md) |
 | **TCF** — Tabular Compact Format | formato | (projeto) | [TCF-format.md](TCF-format.md) |
 
+**Reference transversal** (não é um algoritmo, mas mapeia as estruturas que
+fluem entre as camadas):
+
+| Doc | Para quê |
+|---|---|
+| [core-data-model.md](core-data-model.md) | estruturas in-memory (tokens/pieces/aliases/IDs) + fronteira CORE↔HOST — **mapa pro port C/Rust** |
+
 ## Codnomes vs nomes oficiais
 
 Os codnomes (`alg16`, `M8.A`) foram usados durante o desenvolvimento
