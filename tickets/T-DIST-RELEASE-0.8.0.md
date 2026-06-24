@@ -44,3 +44,7 @@ weldar (opt-in, default off byte-idêntico).
 ## Updates
 
 - **2026-06-21**: aberto, blocked. A4 já fechou; faltam A5 + decisão de B antes de C.
+- **2026-06-24 (decisão de escopo, owner)**: **0.8 = lazy (A1-A5, feito) + release**. Cross-dict
+  (B2/B3) e filtros/spec-dict **deferidos pro 0.9** (#TCF.8 chega lá via B2). A5 feito → **só falta C
+  (este ticket)**. Formato 0.8 = `#TCF.7` (sem #TCF.8). Desbloqueado p/ prep; tag/publish exige go
+  explícito do owner.

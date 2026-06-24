@@ -128,7 +128,15 @@
 > - **B1 PASSA em dado real** (Etapa 5, owner aprovou add datasets; raw em Z:/external, provenance no lab):
 >   SNAP ca-GrQc (grafo from/to) **−19.3% textual** (cruza 15% com 2 colunas); OpenFlights (airport
 >   src/dest IATA −4.6%, ids −6.6%); lazy cross-col le' o dict 1x. Ganho escala com K/N + nº cols
->   same-domain. → recomendacao **ir pro B2** (#TCF.8 opt-in + hibrido V2 + ADR + GATE). Escopo 0.8/0.9: owner.
+>   same-domain. → recomendacao **ir pro B2** (#TCF.8 opt-in + hibrido V2 + ADR + GATE).
+> - **Filtros/naturezas revisitados** (owner 2026-06-24, [lente](experiments/lab/dirty/notas/filtros-graus-de-entrega-2026-06-24.md)):
+>   reframe "graus de entrega" (otimizar-formato -> bypass) + 3 tiers de ONDE o dict mora (V2-B in-blob /
+>   B1 cross-dict / H-CODEBOOK out-of-blob universal = "dict roubado"). Consolidado: graus 1-2 welded
+>   (ADR-0015), enumerated in-blob refutado, spec-dict universal = nicho payload-minusculo NAO-MEDIDO +
+>   forward-compat duro; eixo VELOCIDADE = lacuna real.
+> - **DECISAO de escopo (owner 2026-06-24)**: **0.8 = lazy (A, feito) + release (C)**; **B2/B3 cross-dict
+>   (#TCF.8) + F2/spec-dict/filtros -> 0.9** (B2 paga o #TCF.8 com ganho medido; resto por carona). Proximo:
+>   **workstream C** (release 0.8.0). Publicar exige go explicito do owner.
 
 **Snapshot 2026-06-08** (**Schema/quality gadget COMPLETO + incidente
 OneDrive recuperado + push remoto**) — resumo desde 06-03. Atualizacoes

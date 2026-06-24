@@ -4,6 +4,11 @@
 resgatou os filtros por causa do cross-dict (B1), com um reframe novo. Análise crítica + revisão do
 corpus (workflow 6 agentes). Checkpoint: [`checkpoints/2026-06-24-pausa-0.8...`](checkpoints/2026-06-24-pausa-0.8-A-feito-B1-passou-revisitar-filtros.md).
 
+> **DECISÃO DO OWNER (2026-06-24)**: **PARKAR** os filtros/spec-dict → **0.9, por carona após B2
+> cross-dict** (que paga o #TCF.8 com ganho medido). Confirma também o escopo: **0.8 = lazy +
+> release; B2 cross-dict + F2/spec-dict = 0.9.** Nada de filtros agora. Esta nota fica como a lente +
+> o estado consolidado pra retomada no 0.9.
+
 ## A lente nova do owner (contribuição conceitual)
 
 O pré-filtro por tipo tem **graus de entrega** — um espectro entre **otimizar o formato** (encolher/

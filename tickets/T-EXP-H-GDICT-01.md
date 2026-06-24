@@ -1,9 +1,9 @@
 ---
-title: T-EXP-H-GDICT-01 — Caracterizar cross-dict / dicionário global (B1 do plano 0.8)
+title: T-EXP-H-GDICT-01 — Caracterizar cross-dict / dicionário global (B1; B2/B3 → 0.9)
 status: in-progress
 priority: P2
 created: 2026-06-21
-updated: 2026-06-21
+updated: 2026-06-24
 related:
   - experiments/lab/dirty/2026-06-21-gdict-caracterizacao/
   - experiments/lab/dirty/notas/v08-plano-etapas.md
@@ -83,4 +83,7 @@ Lab `experiments/lab/dirty/2026-06-21-gdict-caracterizacao/`:
   **OpenFlights** (airport src/dest IATA −4.6%; ids −6.6%, Jaccard ~0.99). Lazy cross-col ("tudo que
   toca o nó/aeroporto X") ganha o mesmo % + lê o dict **1× em vez de 2×**. Ganho escala com K/N e nº de
   colunas same-domain. **B1 PASSA** (gate de bytes em 1; estrutural/lazy em todos; brotli fora do gate).
-  → **recomendação: ir pro B2** (design #TCF.8 opt-in + híbrido V2 + ADR + GATE). Escopo 0.8 vs 0.9: owner.
+  → **recomendação: ir pro B2** (design #TCF.8 opt-in + híbrido V2 + ADR + GATE).
+- **2026-06-24 (decisão de escopo, owner)**: **B2/B3 → 0.9** (não 0.8). 0.8 fecha = lazy + release.
+  No 0.9 o B2 cross-dict paga o **#TCF.8** primeiro (ganho medido) e **F2/spec-dict/filtros pegam
+  carona** na mesma infra de header (ver [`filtros-graus-de-entrega-2026-06-24.md`](../experiments/lab/dirty/notas/filtros-graus-de-entrega-2026-06-24.md)).

@@ -27,12 +27,13 @@ publicado no PyPI. Suíte **425 passed** (inclui o gadget `tcf_lazy`); D1-D9=152
 `#TCF.7` default; `#TCF.8` só se o cross-dict (opt-in) weldar. **Plano em etapas (A lazy / B cross-dict
 / C release)**: [`v08-plano-etapas.md`](experiments/lab/dirty/notas/v08-plano-etapas.md).
 
-**Progresso (2026-06-21)**: A1-A3 feitos; **A4 FEITO** — lazy promovido pro core
-`src/tcf/view.py` (`from tcf import view`), aditivo/read-only, zero regressão, 380 passed
-([T-CODE-LAZY-VIEW-PROMOTE](tickets/T-CODE-LAZY-VIEW-PROMOTE.md)). Falta **A5** reference
-([T-DOC-LAZY-REFERENCE](tickets/T-DOC-LAZY-REFERENCE.md)), **B1** caracterizar cross-dict
-([T-EXP-H-GDICT-01](tickets/T-EXP-H-GDICT-01.md), segurado), **C** release
-([T-DIST-RELEASE-0.8.0](tickets/T-DIST-RELEASE-0.8.0.md), blocked).
+**Progresso (2026-06-24)**: **Workstream A COMPLETO** (A1-A5: lazy promovido `src/tcf/view.py` +
+reference Diátaxis). **B1 cross-dict caracterizado — PAGA em same-domain-refs** (−19.3% textual no
+grafo; [T-EXP-H-GDICT-01](tickets/T-EXP-H-GDICT-01.md)).
+**DECISÃO de escopo (owner 2026-06-24)**: **0.8 = lazy (A) + release (C)**; **B2/B3 cross-dict
+(#TCF.8 opt-in) → 0.9**, e **filtros/spec-dict por carona no 0.9** (mesma infra de header; B2 paga o
+#TCF.8 com ganho medido — ver [`filtros-graus-de-entrega-2026-06-24.md`](experiments/lab/dirty/notas/filtros-graus-de-entrega-2026-06-24.md)).
+Próximo: **workstream C** (release 0.8.0) — publicar exige go explícito do owner.
 
 ---
 
