@@ -3,7 +3,8 @@
 Wrapper de alto nivel: TCF text -> lista de strings OU dict de colunas.
 
 Dispatch automatico pelo shebang:
-- `#TCF.6 M\\n` -> multi-column, retorna `dict[str, list[str]]`
+- `#TCF.7 M\\n` (vivo) ou `#TCF.6 M\\n` (LEGADO, leitura ate' o 1.0) -> multi-column,
+  retorna `dict[str, list[str]]`
 - caso contrario -> single-column, retorna `list[str]`
 
 Uso minimo:
@@ -51,8 +52,10 @@ if TYPE_CHECKING:
     from tcf.natures.templated_checked import TemplatedCheckedSpec
 
 
-_MULTI_MAGIC_STR = "#TCF.6 M"
-_MULTI_MAGIC_STR_V2 = "#TCF.7 M"  # V2-A fallback identity (ADR-0022)
+# #TCF.7 = formato VIVO (default). #TCF.6 = LEGADO de leitura — remover no 1.0
+# (T-CODE-LEGACY-PRUNE-PRE-07; ADR-0024 git-as-compat reproduz blobs antigos).
+_MULTI_MAGIC = "#TCF.7 M"
+_MULTI_MAGIC_LEGACY_V6 = "#TCF.6 M"   # LEGADO — leitura ate' o 1.0
 
 
 def decode(
@@ -65,8 +68,8 @@ def decode(
 
     Args:
         tcf_text: conteudo TCF (texto). Aceita:
-            - Multi-col: comeca com `#TCF.6 M\\n` (v1) ou `#TCF.7 M\\n`
-              (v2 / V2-A fallback, ADR-0022) + meta line + bodies
+            - Multi-col: comeca com `#TCF.7 M\\n` (vivo) ou `#TCF.6 M\\n`
+              (LEGADO, leitura ate' o 1.0) + meta line + bodies
               -> retorna `dict[str, list[str]]`
             - Single-col: body puro (sem shebang)
               -> retorna `list[str]` (com repeticoes preservadas)
@@ -80,7 +83,7 @@ def decode(
     Raises:
         ValueError: multi-col malformado (sem magic, sem meta line).
     """
-    if tcf_text.startswith(_MULTI_MAGIC_STR) or tcf_text.startswith(_MULTI_MAGIC_STR_V2):
+    if tcf_text.startswith(_MULTI_MAGIC) or tcf_text.startswith(_MULTI_MAGIC_LEGACY_V6):
         from tcf.multi import _decode_multi
         result = _decode_multi(tcf_text)
         if nature_per_col:

@@ -456,10 +456,12 @@ def _decode_multi(tcf_text: str) -> dict[str, list[str]]:
     if nl1 == -1:
         raise ValueError("formato invalido: sem linha 1 (shebang)")
     line1 = raw[:nl1]
+    # #TCF.7 (MAGIC_MULTI_V2) = vivo. MAGIC_MULTI (#TCF.6) = LEGADO de leitura,
+    # remover no 1.0 (T-CODE-LEGACY-PRUNE-PRE-07; ADR-0024 git-as-compat).
     is_v7 = line1.startswith(MAGIC_MULTI_V2)
     if not (line1.startswith(MAGIC_MULTI) or is_v7):
         raise ValueError(
-            f"magic invalido: esperado {MAGIC_MULTI!r} ou {MAGIC_MULTI_V2!r}, "
+            f"magic invalido: esperado {MAGIC_MULTI_V2!r} (ou legado {MAGIC_MULTI!r}), "
             f"got {line1[:20]!r}"
         )
     cursor = nl1 + 1
@@ -468,10 +470,10 @@ def _decode_multi(tcf_text: str) -> dict[str, list[str]]:
     if nl2 == -1:
         raise ValueError("formato invalido: sem linha de meta")
     line2 = raw[cursor:nl2]
-    # Meta line. #TCF.6 (congelado) exige o prefixo '# '. #TCF.7 dispensa-o (o
-    # flag `M` no shebang ja' declara o meta de colunas, ADR-0023) — aceita
-    # tolerante: '# ', '#' avulso, ou sem prefixo (forma canonical v7).
-    if line2.startswith(META_PREFIX):          # b"# "
+    # Meta line. #TCF.7 (vivo) dispensa prefixo (o flag `M` ja' declara o meta,
+    # ADR-0023) — tolera '# ', '#' avulso, ou sem prefixo (forma canonical v7).
+    # LEGADO #TCF.6 (remover no 1.0, T-CODE-LEGACY-PRUNE-PRE-07): EXIGE o '# '.
+    if line2.startswith(META_PREFIX):          # b"# " — #TCF.6 legado OU #TCF.7 tolerante
         meta_str = line2[len(META_PREFIX):].decode("utf-8")
     elif is_v7:
         meta_str = (line2[1:] if line2.startswith(b"#") else line2).decode("utf-8")

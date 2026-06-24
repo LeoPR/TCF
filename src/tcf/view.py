@@ -57,9 +57,11 @@ class LazyTCF:
         if nl1 == -1:
             raise ValueError("blob inválido: sem shebang")
         line1 = raw[:nl1]
+        # #TCF.7 = vivo; MAGIC_MULTI (#TCF.6) = LEGADO de leitura, remover no 1.0
+        # (T-CODE-LEGACY-PRUNE-PRE-07).
         is_v7 = line1.startswith(MAGIC_MULTI_V2)
         if not (line1.startswith(MAGIC_MULTI) or is_v7):
-            raise ValueError("não é TCF multi-coluna (esperado #TCF.6 M / #TCF.7 M)")
+            raise ValueError("não é TCF multi-coluna (esperado #TCF.7 M / #TCF.6 M legado)")
         nl2 = raw.find(b"\n", nl1 + 1)
         if nl2 == -1:
             raise ValueError("blob inválido: sem linha de meta")
