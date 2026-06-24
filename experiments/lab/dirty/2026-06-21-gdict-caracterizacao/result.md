@@ -213,3 +213,35 @@ serial (paralelismo), lazy bytes-tocados + dict-decodes (single-col e cross-col)
 → **Recomendação**: NÃO fechar. Cross-dict (modo híbrido V2, opt-in `#TCF.8`) tem mérito no regime
 same-domain-refs. Próximo: (i) achar/adicionar ≥2 datasets reais com same-domain refs; (ii) medir V2
 neles (textual + lazy); (iii) se confirmar, B2 design. Decisão de escopo (0.8 vs 0.9): owner.
+
+## Etapa 5 — DADOS REAIS com same-domain-refs (gate empírico)
+
+2 datasets reais com colunas que referenciam o mesmo domínio (raw em `Z:/tcf-data/external/`, ver
+[`datasets-provenance.md`](datasets-provenance.md)). Script: [`etapa5_real_samedomain.py`](etapa5_real_samedomain.py).
+SEM brotli; métricas TCF-nativas.
+
+| dataset | par same-domain | N | K | Jaccard | **textual** | lazy cross-col | decodes |
+|---|---|---|---|---|---|---|---|
+| SNAP ca-GrQc (grafo) | from_node ~ to_node | 28980 | 5242 | 1.000 | **−19.3%** | −19.3% | 2→1 |
+| OpenFlights (IATA) | source ~ dest airport | 67663 | 3425 | 0.993 | −4.6% | −4.6% | 2→1 |
+| OpenFlights (ids) | source_id ~ dest_id | 67663 | 3334 | 0.994 | −6.6% | −6.6% | 2→1 |
+
+**Leitura**:
+- O ganho textual é REAL e **escala com K/N** (dict como fração do blob) e com **nº de colunas
+  same-domain** (aqui só pares de 2 = mínimo). Grafo (K grande) crava **−19.3%** com 2 colunas;
+  OpenFlights 5-7% (dict menor vs N grande).
+- **Lazy cross-col** ("tudo que toca o nó/aeroporto X" = scan dos 2 streams): ganha o mesmo % E lê o
+  dict **1× em vez de 2×** (estrutural). Single-col: downside desprezível (Jaccard ~1 → tabela global
+  ≈ tabela da coluna).
+- **Gate**: 1/3 medições ≥15% bytes (grafo); todas passam pela **porta estrutural** (lazy 1× decode);
+  e o byte-ganho cresce com mais colunas same-domain (≥3). Sem brotli no gate (correção owner).
+
+## VEREDITO B1 FINAL — cross-dict PAGA em same-domain-refs; ir pro B2 (design híbrido V2)
+
+- **Confirmado em dado real**: −4.6% a −19.3% textual + lazy cross-col (dict 1×), no regime
+  same-domain-refs (FK repetida / origem-destino / grafo). Híbrido V2 = pool por grupo same-domain.
+- **Casos de perda** (disjunto/entidade/partial) são evitados pelo V2 (degrada pra per-column).
+- **Brotli fora do gate** (incompatível com lazy; sinal qualitativo só).
+- **Próximo (B2)**: design `#TCF.8` opt-in (dict de grupo no header) + regra de particionamento
+  (greedy por overlap+largura, só pool com Jaccard alto) + ADR + GATE real-world + re-pin. Toca
+  `src/tcf` + formato → sob aprovação. Escopo (0.8 vs 0.9): owner.

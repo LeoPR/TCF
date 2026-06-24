@@ -75,9 +75,12 @@ Lab `experiments/lab/dirty/2026-06-21-gdict-caracterizacao/`:
   aplicado E é incompatível com lazy (não dá query seletiva sobre blob comprimido); medir TCF-nativo.
   Ver [[gzip-e-compressao-externa-sao-intuicao-nao-parte-do-tcf]].
 - **2026-06-21 (B1 Etapa 4 — TCF-nativo, SEM brotli)**: **VEREDITO INVERTIDO**. Cross-dict GANHA no
-  regime **same-domain-refs** (colunas que referenciam o mesmo domínio: origem/destino, de/para,
-  source/target, FK repetida): **−19.2% textual** + lazy cross-col lê o dict 1× em vez de C×. Casos de
-  perda (disjunto/entidade +91%, partial-share +78%) são os que o híbrido V2 evita (degrada pra
-  per-column). FLAGS = marginal. **NÃO FECHAR.** Falta: ≥2 datasets reais COM same-domain-refs (os
-  canônicos são tabelas de entidade, não têm essa forma — candidatos: rotas de voo origem/destino,
-  edge-list de grafo, transações de/para); medir V2 neles; se confirmar → B2 design #TCF.8 opt-in.
+  regime **same-domain-refs** (−19.2% textual sintético + lazy 1× decode). Perde em disjunto/partial →
+  híbrido V2 evita. **NÃO FECHAR.**
+- **2026-06-21 (B1 Etapa 5 — GATE em DADO REAL, owner aprovou add datasets)**: 2 reais same-domain-ref
+  (raw em Z:, [provenance](../experiments/lab/dirty/2026-06-21-gdict-caracterizacao/datasets-provenance.md)):
+  **SNAP ca-GrQc** (grafo from/to, Jaccard 1.0) **−19.3% textual** (cruza 15% com só 2 colunas);
+  **OpenFlights** (airport src/dest IATA −4.6%; ids −6.6%, Jaccard ~0.99). Lazy cross-col ("tudo que
+  toca o nó/aeroporto X") ganha o mesmo % + lê o dict **1× em vez de 2×**. Ganho escala com K/N e nº de
+  colunas same-domain. **B1 PASSA** (gate de bytes em 1; estrutural/lazy em todos; brotli fora do gate).
+  → **recomendação: ir pro B2** (design #TCF.8 opt-in + híbrido V2 + ADR + GATE). Escopo 0.8 vs 0.9: owner.

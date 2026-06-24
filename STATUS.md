@@ -124,8 +124,11 @@
 >   sempre aplicado + incompativel com lazy; [[gzip-e-compressao-externa...]]). Re-medindo TCF-nativo
 >   (textual+paralelismo+lazy): **cross-dict GANHA no regime same-domain-refs** (origem/destino, de/para,
 >   FK repetida): **−19.2% textual** + lazy le' o dict 1x; PERDE em disjunto/entidade -> **hibrido V2**
->   (dicts por grupo) captura e evita. **NAO FECHAR.** Falta >=2 reais com same-domain-refs (canonicos
->   nao tem; candidatos voo/grafo/transacao). Veredito anterior (close) revertido — era artefato do gate-brotli.
+>   (dicts por grupo) captura e evita. Veredito de "close" revertido — era artefato do gate-brotli.
+> - **B1 PASSA em dado real** (Etapa 5, owner aprovou add datasets; raw em Z:/external, provenance no lab):
+>   SNAP ca-GrQc (grafo from/to) **−19.3% textual** (cruza 15% com 2 colunas); OpenFlights (airport
+>   src/dest IATA −4.6%, ids −6.6%); lazy cross-col le' o dict 1x. Ganho escala com K/N + nº cols
+>   same-domain. → recomendacao **ir pro B2** (#TCF.8 opt-in + hibrido V2 + ADR + GATE). Escopo 0.8/0.9: owner.
 
 **Snapshot 2026-06-08** (**Schema/quality gadget COMPLETO + incidente
 OneDrive recuperado + push remoto**) — resumo desde 06-03. Atualizacoes
