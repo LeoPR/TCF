@@ -64,12 +64,20 @@ Lab `experiments/lab/dirty/2026-06-21-gdict-caracterizacao/`:
 - **2026-06-21**: aberto. Segurado por decisão do owner até A4 (feito).
 - **2026-06-21 (B1.0 design)**: owner liberou + levantou 3 tensões (paralelismo↔sincronismo,
   custo do dict no header, namespace de índice cross-coluna). Lab
-  [`2026-06-21-gdict-caracterizacao/`](../experiments/lab/dirty/2026-06-21-gdict-caracterizacao/)
-  com medição sintética mínima ancorada nos internos reais do V2-B. **Achado central**: o net do
-  cross-dict = (dedup de tabelas compartilhadas) − (índice global mais largo, pago por linha×coluna);
-  a **dobradiça é o limite de largura base-94** — ganha quando o pooling NÃO cruza 94/8836 (E1 −20B,
-  E3 −58B, inclusive sob brotli), perde feio quando cruza (E2 +594B). **Proposta: modo híbrido (V2)**
-  — dicts por GRUPO no header (namespace por grupo 0-based), particionamento greedy por overlap +
-  bucket de largura. As 3 tensões resolvidas: compartilhar só no header (T1), custo real é largura
-  não a tabela (T2), namespace por grupo evita o estouro (T3). FALTA B1 completo: ≥5 reais (medir
-  overlap intra-blob real — risco: sharing forte é cross-TABELA, não intra-blob), brotli, latência lazy.
+  [`2026-06-21-gdict-caracterizacao/`](../experiments/lab/dirty/2026-06-21-gdict-caracterizacao/),
+  medição sintética. **Achado**: net = dedup_tabela − índice_global_mais_largo; dobradiça = limite
+  base-94. Proposta modo híbrido (V2, dicts por grupo). 3 tensões resolvidas (header-only / custo é
+  largura / namespace por grupo).
+- **2026-06-21 (B1 reais — Etapa 1/2)**: overlap intra-blob ~0 nos 5 canônicos (colunas categóricas
+  = domínios disjuntos). Sharing forte é CROSS-TABELA (uf/municipio). Quase fechei como
+  CLOSED-INSUFFICIENT-GAIN.
+- **2026-06-21 (CORREÇÃO metodológica do owner)**: brotli NÃO é critério de exclusão — nem sempre é
+  aplicado E é incompatível com lazy (não dá query seletiva sobre blob comprimido); medir TCF-nativo.
+  Ver [[gzip-e-compressao-externa-sao-intuicao-nao-parte-do-tcf]].
+- **2026-06-21 (B1 Etapa 4 — TCF-nativo, SEM brotli)**: **VEREDITO INVERTIDO**. Cross-dict GANHA no
+  regime **same-domain-refs** (colunas que referenciam o mesmo domínio: origem/destino, de/para,
+  source/target, FK repetida): **−19.2% textual** + lazy cross-col lê o dict 1× em vez de C×. Casos de
+  perda (disjunto/entidade +91%, partial-share +78%) são os que o híbrido V2 evita (degrada pra
+  per-column). FLAGS = marginal. **NÃO FECHAR.** Falta: ≥2 datasets reais COM same-domain-refs (os
+  canônicos são tabelas de entidade, não têm essa forma — candidatos: rotas de voo origem/destino,
+  edge-list de grafo, transações de/para); medir V2 neles; se confirmar → B2 design #TCF.8 opt-in.

@@ -109,6 +109,35 @@ Por isso o gate inclui a porta estrutural (latência), não só os 15% de bytes.
 3. **Latência no lazy**: medir leitura-única do dict de header vs re-decode per-column.
 4. **Decidir** (B2): se paga (bytes ou estrutura) → design #TCF.8 + ADR; senão → 0.9.
 
+## Teste REDESENHADO (2026-06-21, correção do owner)
+
+**Erro corrigido**: o gate inicial usava brotli como critério de exclusão. Inválido — (1) brotli
+nem sempre é aplicado; (2) **brotli é incompatível com lazy** (não dá query seletiva sobre blob
+comprimido); (3) "jogar tudo no compressor" é o que **destrói o paralelismo** (o cross-ref que
+queremos evitar). Brotli vira **sinal qualitativo**, não gate (memória `gzip não é TCF`).
+
+**Métricas que valem (TCF-nativas):**
+1. **Textual puro** — tamanho de transmissão sem compressor a jusante.
+2. **Paralelismo** — prelúdio serial (bytes que precisam ser lidos ANTES de qualquer coluna
+   decodar). V0=0 (colunas independentes); V1=tabela global; V2=tabela do grupo.
+3. **Lazy** — por query, **bytes tocados** + **nº de dict-decodes**:
+   - single-col (`group_count(c)`, `where(c=v)`)
+   - cross-col (query que toca várias colunas que compartilham vocab)
+
+**Cenário que faltava (real, intra-blob)**: colunas que **referenciam o mesmo domínio** —
+`origem`/`destino` (voos), `de_conta`/`para_conta` (transações), `source`/`target` (grafos),
+FK repetida. Aqui o vocab compartilhado é GRANDE e intra-blob → é onde V0 guarda a tabela N vezes
+e o lazy cross-col relê N vezes. **Hipótese**: é o caso de uso legítimo do cross-dict (≠ colunas
+categóricas arbitrárias de domínios disjuntos, que são a maioria nos canônicos). Os datasets
+canônicos (adult/tpch/receita = tabelas de entidade) não têm essa forma; flight/transação/grafo têm.
+
+**Cenários do teste redesenhado**: (a) flags full-share vocab pequeno; (b) **same-domain refs**
+vocab grande (o caso-uso real); (c) partial-share (mostra o downside de selectividade do V1);
+(d) disjunto/entidade (caso de perda já conhecido). Métricas acima, **sem gate de brotli**.
+
+> Estado: Etapa 1 (overlap) + Etapa 2/3 (bytes±brotli) feitas mas **re-lidas sem o gate de brotli**;
+> Etapa 4 (lazy/paralelismo + same-domain refs) = próximo. Veredito SUSPENSO.
+
 ## Conexões
 
 - Pré-requisito conceitual: família **H-REF** ([`dict-referencia-hipoteses.md`](../notas/dict-referencia-hipoteses.md))

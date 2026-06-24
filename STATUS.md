@@ -119,10 +119,13 @@
 > - **A completo** (A1-A5): lazy promovido + reference Diataxis ([docs/reference/lazy-view.md]).
 > - **Drift de superficie #TCF.6-default corrigido** (commit aa92642): TCF-format.md diagrama/Estado,
 >   STATUS visao/foco, docs/README hub -> 0.7. ADRs/codnomes preservados (historico).
-> - **B1 LIBERADO + B1.0 design FEITO** ([lab gdict](experiments/lab/dirty/2026-06-21-gdict-caracterizacao/)):
->   owner levantou 3 tensoes; medicao sintetica minima -> net cross-dict = dedup_tabela −
->   indice_global_mais_largo; **dobradiça = limite base-94** (ganha se nao cruza, perde se cruza, incl.
->   brotli). Proposta **modo hibrido** (dicts por grupo). FALTA B1 completo (>=5 reais + latencia lazy).
+> - **B1 caracterizado** ([lab gdict](experiments/lab/dirty/2026-06-21-gdict-caracterizacao/)): 3 tensoes
+>   do owner; medicao sintetica + reais. **Correcao metodologica do owner: brotli NAO e' gate** (nem
+>   sempre aplicado + incompativel com lazy; [[gzip-e-compressao-externa...]]). Re-medindo TCF-nativo
+>   (textual+paralelismo+lazy): **cross-dict GANHA no regime same-domain-refs** (origem/destino, de/para,
+>   FK repetida): **−19.2% textual** + lazy le' o dict 1x; PERDE em disjunto/entidade -> **hibrido V2**
+>   (dicts por grupo) captura e evita. **NAO FECHAR.** Falta >=2 reais com same-domain-refs (canonicos
+>   nao tem; candidatos voo/grafo/transacao). Veredito anterior (close) revertido — era artefato do gate-brotli.
 
 **Snapshot 2026-06-08** (**Schema/quality gadget COMPLETO + incidente
 OneDrive recuperado + push remoto**) — resumo desde 06-03. Atualizacoes
