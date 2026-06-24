@@ -9,16 +9,16 @@ saidas viram **dica de limpeza**, aplicadas SO' apos inspecao manual. **ruff** (
 > E que nao e' API publica/documentada/dinamica. Re-rodar `python -m vulture src/tcf` apos
 > mudancas. GATE byte-canonical sempre.
 
-## Candidatos a remover (verdadeiro-positivo, pendente de inspecao+aprovacao)
+## Candidatos a remover — RESOLVIDOS (inspecao 2026-06-24)
 
-| simbolo | local | status | nota |
-|---|---|---|---|
-| `find_escape_digit_positions` | `composicional/hcc_seqrle.py:36` | **dead** (0 caller no repo) | so' `find_escape_digit_runs` e' usado. Remover é byte-safe (nao esta' no caminho de encode). Confirmar antes. |
-| `linhas_originais` | `core/syntax_base.py:42` | **dead** (var, vulture 100%) | variavel nao usada na classe-base. Trivial. |
-| `reconstroi` | `core/online.py:165` | **judgment** (0 caller, mas API documentada) | listada na docstring do modulo OBAT (`reconstroi(tokens, ...)`). Pode ser API publica intencional do OBAT → **manter** salvo decisao explicita do owner. |
+Todos os "verdadeiro-positivo" do vulture foram inspecionados; nenhum sobrou pendente.
+Ver "Ja' aplicado" (removidos) e "NAO TOCAR" (falso-positivos confirmados na inspecao).
 
-## NÃO TOCAR (falso-positivo do vulture — usado externamente / build)
+## NÃO TOCAR (falso-positivo do vulture — usado externamente / build / abstract)
 
+- `linhas_originais` (`core/syntax_base.py:42`) — **PARAMETRO do metodo abstrato `encode`**,
+  nao variavel morta. As implementacoes concretas usam (M8A usa `linhas`). vulture deu 100%
+  de confianca e ERROU (nao entende metodo abstrato) — o caso-escola do "nao confiar cego".
 - `_detect_compositions_accelerated` (`syntax.py`) — **hook do Cython** (flag de build,
   `_core/detect.pyx`). Deletar quebra o acelerador.
 - API publica do lazy (`view.py`): `where`, `group_count`, `agg_by`, `report`,
@@ -27,14 +27,21 @@ saidas viram **dica de limpeza**, aplicadas SO' apos inspecao manual. **ruff** (
   `natures`, etc.) — populados no encode, lidos por consumidores (debug/schema).
 - `to_json` / `seq_rle_runs_count` / `natures` (`schema.py`) — API/serializacao publica.
 
-## Ja' aplicado (ruff F, byte-safe)
+## Ja' aplicado / removido (byte-safe, suite verde)
 
-- `multi/core.py` F401 `_worker_encode_column` (artefato P1) — removido (commit lint).
-- `schema.py` F821 annotation `SideOutputs` — import sob TYPE_CHECKING.
-- `_trace.py` `k_idx` no enumerate (codigo P2) — enumerate superfluo removido.
+- `multi/core.py` F401 `_worker_encode_column` (artefato P1) — removido (ruff).
+- `schema.py` F821 annotation `SideOutputs` — import sob TYPE_CHECKING (ruff).
+- `_trace.py` `k_idx` no enumerate (codigo P2) — enumerate superfluo removido (ruff).
+- `hcc_seqrle.py` `find_escape_digit_positions` — DEAD (0 caller; superado por
+  `find_escape_digit_runs`) — **removido** apos inspecao 2026-06-24.
+- `core/online.py` `reconstroi` — DEAD (docstring dizia "usado em processar()", mas
+  processar() nao chama mais; 0 caller) — **removido** + linha da docstring do modulo.
 
-## Workflow recomendado
+## Workflow recomendado (vulture NAO e' dep)
 
-- **Continuo**: `python -m ruff check src/tcf` (F-rules confiaveis; E = estilo, avaliar).
-- **On-demand** (inspecao): `python -m vulture src/tcf --min-confidence 60` → cruzar com
-  esta tabela; so' agir apos confirmar caller=0 + nao-publico.
+- **Continuo / confiavel**: `python -m ruff check src/tcf` (F-rules; E = estilo, avaliar depois).
+  `[tool.ruff]` no pyproject.
+- **Dead-code AD-HOC** (varredura pontual, nao em CI/dep): `pipx run vulture src/tcf` ou
+  `pip install vulture && python -m vulture src/tcf --min-confidence 60`. Alto falso-positivo
+  numa lib (API publica, build-hooks, params abstratos) → **so' agir apos inspecao manual**
+  (caller=0 em src+tests+scripts E nao-publico/dinamico). Esta nota e' o registro curado.

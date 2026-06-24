@@ -18,7 +18,6 @@ O(B) bucket size.
 API publica preservada:
 - `lcp_len(a, b)`, `lcs_len(a, b)` (usadas por auto_pre, obat_shape)
 - `processar(strings_unicas, min_len=3)` retorna (tokens, log)
-- `reconstroi(tokens, strings_unicas)`
 - Dataclasses `TokLit`, `TokRefPref`, `TokRefSuf`, alias `Token`
 
 Origem: refatoracao limpa do exp 15 (M0).
@@ -160,20 +159,6 @@ def _escolher_par(s, ls, strings, lens, prefix_index, suffix_index, min_len):
     if cand_a[1] >= cand_b[1]:
         return cand_a
     return cand_b
-
-
-def reconstroi(tokens: list[Token], strings_unicas: list[str]) -> str:
-    """Reconstroi string a partir dos tokens. Usado para validacao
-    de roundtrip dentro de processar()."""
-    parts: list[str] = []
-    for tok in tokens:
-        if isinstance(tok, TokLit):
-            parts.append(tok.text)
-        elif isinstance(tok, TokRefPref):
-            parts.append(strings_unicas[tok.string_id - 1][:tok.length])
-        else:  # TokRefSuf
-            parts.append(strings_unicas[tok.string_id - 1][-tok.length:])
-    return "".join(parts)
 
 
 def processar(strings_unicas: list[str], min_len: int = 3

@@ -33,22 +33,6 @@ from __future__ import annotations
 from tcf.composicional.syntax import M8AVirtualRefsSyntax
 
 
-def find_escape_digit_positions(line: str) -> list[int]:
-    """Posicoes (0-based) de cada char digit que vem apos `\\`."""
-    positions = []
-    i = 0
-    n = len(line)
-    while i < n:
-        if line[i] == '\\':
-            i += 1
-            while i < n and line[i].isdigit():
-                positions.append(i)
-                i += 1
-        else:
-            i += 1
-    return positions
-
-
 def find_escape_digit_runs(line: str) -> list[tuple[int, int]]:
     """Retorna runs (start, end_exclusive) de chars digit apos escape."""
     runs = []

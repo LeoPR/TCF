@@ -19,11 +19,13 @@ dependencies = []
 dev = [
     "pytest>=7",
     "pre-commit>=3.5",  # hooks de higiene (T-CLEAN-1, 2026-05-23)
-    "ruff>=0.7",        # lint + format (continuo: pre-commit + standalone)
+    "ruff>=0.7",        # lint + format CONTINUO (pre-commit + standalone). [tool.ruff] abaixo.
     "detect-secrets>=1.5",  # secrets scan (via pre-commit)
-    "vulture>=2.14",    # dead-code ON-DEMAND (alto falso-positivo numa lib;
-                        # so' apos inspecao -> experiments/lab/dirty/notas/dicas-limpeza-dead-code.md)
 ]
+# vulture (dead-code) NAO e' dep: alto falso-positivo numa lib (ruff cobre o
+# continuo confiavel). Varredura pontual ad-hoc: `pipx run vulture src/tcf` ou
+# `pip install vulture && python -m vulture src/tcf`, cruzando com
+# experiments/lab/dirty/notas/dicas-limpeza-dead-code.md (so' agir apos inspecao).
 eval = ["requests>=2.28"]  # for Ollama client (llm-benchmark/ harness only)
 
 # Datasets tools — for downloading and processing canonical benchmarks
