@@ -1,14 +1,10 @@
-"""TCF multi-column — implementacao interna + aliases deprecated.
+"""TCF multi-column — implementacao interna.
 
 Pos-ADR-0014 (API unificada): a funcao publica e' `encode(dict)` /
-`decode(text)` em `tcf.encoder` / `tcf.decoder`. Este modulo provê:
-
-1. Implementacao interna: `_encode_multi` + `_decode_multi`, chamados
-   por `encode()` / `decode()` quando dispatch identifica tipo dict
-   ou shebang `#TCF.6 M`.
-
-2. Aliases deprecated: `encode_table` + `decode_table` re-exportados
-   pra back-compat (emite DeprecationWarning).
+`decode(text)` em `tcf.encoder` / `tcf.decoder`. Este modulo provê a
+implementacao interna `_encode_multi` + `_decode_multi`, chamados por
+`encode()` / `decode()` quando dispatch identifica tipo dict ou shebang
+`#TCF.6 M`/`#TCF.7 M`.
 
 Header format. **0.7 / #TCF.7 e' o DEFAULT** (ADR-0024); o #TCF.6 legado segue
 produzivel internamente (`_encode_multi(fallback=False, min_header=False)`) e
@@ -47,7 +43,6 @@ from __future__ import annotations
 
 import os
 import re
-import warnings
 from concurrent.futures import ProcessPoolExecutor, as_completed
 
 from tcf.encoder import _encode_column
@@ -545,44 +540,6 @@ def _fallback_safe(values: list[str]) -> bool:
     return not any("\n" in v for v in values)
 
 
-# === Deprecated aliases (mantidos pra migracao em passos) ===
-# Pos-ADR-0014: use `encode(dict)` / `decode(text)` em vez disso.
-
-def encode_table(table: dict[str, list[str]]) -> tuple[str, dict]:
-    """DEPRECATED (ADR-0014): use `encode(dict)` em vez disso.
-
-    Mantido pra migracao em passos. Retorna `(text, legacy_info)` onde
-    legacy_info eh o dict que `encode_table` retornava pre-ADR-0014.
-    """
-    warnings.warn(
-        "encode_table esta deprecated. Use `encode(dict)` em vez disso. "
-        "Pra obter info detalhada, passe `side_outputs=SideOutputs()`.",
-        DeprecationWarning,
-        stacklevel=2,
-    )
-    side = SideOutputs()
-    text = _encode_multi(table, side_outputs=side)
-    legacy_info = dict(side.multi_info or {})
-    legacy_info["per_col"] = {
-        name: {
-            "n_values": len(table[name]),
-            "body_bytes": s.body_bytes or 0,
-        }
-        for name, s in (side.per_col or {}).items()
-    }
-    return text, legacy_info
-
-
-def decode_table(tcf_text: str) -> dict[str, list[str]]:
-    """DEPRECATED (ADR-0014): use `decode(text)` em vez disso.
-
-    Mantido pra migracao em passos. Comportamento identico ao decoder
-    unificado quando aplicado a multi-col.
-    """
-    warnings.warn(
-        "decode_table esta deprecated. Use `decode(text)` em vez disso "
-        "(roteia automaticamente pelo shebang).",
-        DeprecationWarning,
-        stacklevel=2,
-    )
-    return _decode_multi(tcf_text)
+# Aliases v0.6 `encode_table`/`decode_table` APOSENTADOS (T-CODE-LEGACY-PRUNE-PRE-07,
+# 2026-06-24). Estavam deprecated desde ADR-0014. Use `encode(dict)` / `decode(text)`.
+# Pré-1.0 (ADR-0024, git-as-compat): codigo que dependia deles reproduz via git checkout.

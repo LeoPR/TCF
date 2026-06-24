@@ -569,38 +569,5 @@ class TestEdgeCases:
             decode("#TCF.6 M\nbad\n")
 
 
-# ---------------------------------------------------------------------------
-# Deprecated aliases (ADR-0014 backward compat)
-# ---------------------------------------------------------------------------
-
-class TestDeprecatedAliases:
-    def test_encode_table_emits_deprecation_warning(self):
-        from tcf import encode_table
-        with pytest.warns(DeprecationWarning, match="encode_table"):
-            text, info = encode_table({"a": ["1", "2"]})
-        assert isinstance(info, dict)
-
-    def test_decode_table_emits_deprecation_warning(self):
-        from tcf import encode_table, decode_table
-        with pytest.warns(DeprecationWarning):
-            text, _ = encode_table({"a": ["1", "2"]})
-        with pytest.warns(DeprecationWarning, match="decode_table"):
-            decoded = decode_table(text)
-        assert decoded == {"a": ["1", "2"]}
-
-    def test_encode_table_legacy_info_keys_preserved(self):
-        from tcf import encode_table
-        with pytest.warns(DeprecationWarning):
-            text, info = encode_table({"a": ["x", "y"], "b": ["1", "2"]})
-        for k in ("n_rows", "n_cols", "total_bytes", "header_bytes",
-                  "body_bytes", "per_col"):
-            assert k in info
-
-    def test_encode_table_per_col_body_bytes(self):
-        from tcf import encode_table
-        with pytest.warns(DeprecationWarning):
-            text, info = encode_table({"a": ["1"], "b": ["2"], "c": ["3"]})
-        assert set(info["per_col"].keys()) == {"a", "b", "c"}
-        for col in ("a", "b", "c"):
-            assert info["per_col"][col]["n_values"] == 1
-            assert info["per_col"][col]["body_bytes"] > 0
+# Aliases v0.6 encode_table/decode_table APOSENTADOS 2026-06-24
+# (T-CODE-LEGACY-PRUNE-PRE-07). Testes de deprecation removidos junto.

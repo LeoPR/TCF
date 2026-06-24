@@ -62,15 +62,14 @@ Multi-column (M10 + ADR-0013/0025, T-EXP-MULTI-COL-SCALING):
 
 ## Backward compat
 
-- `encode_table` / `decode_table` permanecem como aliases DEPRECATED
-  (emitem `DeprecationWarning`). Use `encode(dict)` / `decode(text)`.
+Pré-1.0 (ADR-0024, git-as-compat): os aliases v0.6 `encode_table`/`decode_table`
+foram APOSENTADOS (2026-06-24). Use `encode(dict)` / `decode(text)`.
 
 Para historia: `experiments/lab/dirty/notas/historia-dirty-lab.md`.
 """
 
 from tcf.decoder import decode
 from tcf.encoder import encode
-from tcf.multi import decode_table, encode_table  # deprecated aliases
 from tcf.natures import (
     SPEC_CPF, SPEC_CNPJ, SPEC_IP,
     TemplatedCheckedSpec, TemplatedPaddedSpec,
@@ -105,7 +104,4 @@ __all__ = [
     "view",
     "LazyTCF",
     "Filtered",
-    # Deprecated (mantidos pra migracao):
-    "encode_table",
-    "decode_table",
 ]

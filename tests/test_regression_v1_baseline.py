@@ -49,8 +49,7 @@ EXPECTED_PUBLIC_API = {
     "view",       # camada read-only lazy/consultavel (A4, plano 0.8)
     "LazyTCF",    # A4
     "Filtered",   # A4
-    "encode_table",   # deprecated (removido em v2.0)
-    "decode_table",   # deprecated (removido em v2.0)
+    # encode_table/decode_table APOSENTADOS 2026-06-24 (T-CODE-LEGACY-PRUNE-PRE-07)
 }
 
 
