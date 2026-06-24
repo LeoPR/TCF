@@ -11,6 +11,9 @@ antes de tocar `src/tcf`.
 **NÃO modifica** o lab fechado [`old/refuted/2026-05-22-h-perf-05d-counter-incremental/`](../old/refuted/2026-05-22-h-perf-05d-counter-incremental/)
 (regra: lab fechado não se altera; abre-se novo). `src/tcf` intocado.
 
-**Achado**: o prune já minimizou a avaliação de candidatos; o rebuild do Counter é hoje ~todo o custo
-do `_detect_compositions` (~92% do encode) → o incremental ataca exatamente isso (ceiling ~4–5× no
-pure-Python). Divergência conhecida: +0,08% só em datetime (free-text byte-idêntico).
+**Achado + VEREDITO (FECHADO 2026-06-24, owner)**: o rebuild do Counter é ~46% do encode (não 92% —
+corrigi a estimativa). Incremental MEDIDO = **~1,5×** pure-Python (não 4–5×), divergência **+0,03–0,05%
+só em datetime** (free-text byte-idêntico, RT 100%). A "outra metade" (loop de candidatos) é ~99%
+cheap-skip, cortável só com reescrita incremental substancial do detector, e o ganho é **só
+pure-Python** (Cython já cobre o compilado, ~2,67×). **Retornos decrescentes → não vale weld.**
+`src/tcf` intocado. Frente certa pra velocidade de produção = port Cython, não reescrita do algoritmo.

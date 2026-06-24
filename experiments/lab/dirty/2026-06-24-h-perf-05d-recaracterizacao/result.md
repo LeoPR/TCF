@@ -93,6 +93,32 @@ Cython-incremental. O ~1,7× é pure-Python.
 **+0,03–0,05% bytes em datetime** + complexidade de weld (state entre iters) + re-pin M11. A decisão
 de weld (b) deve ser re-pesada com ESTES números medidos, não com o ceiling otimista.
 
+## Profile do incremental ("a outra metade") + VEREDITO FINAL (2026-06-24)
+
+Profile do incremental (l_comment 5k) — onde vão os ~3,5s restantes:
+- **`_scan_first_line_with_sub` = 2,0s (1062 chamadas)** — o `sub_first_line` LAZY que precisei
+  introduzir ao remover o rebuild (no canonical ele é construído de graça durante a enumeração do
+  rebuild). Artefato do design incremental: cortar o rebuild **reintroduz** esse custo.
+- **Loop de candidatos** (`for sub,R in contagem.items()` a cada iter) = os milhões de `len`
+  restantes. `_estimate_baseline_chars` = só **33k chamadas** sobre ~milhões de iterações de chave →
+  **~99% do loop é cheap-skip** (prune descarta barato, mas ainda ITERA a chave).
+
+O loop de candidatos seria cortável (sorted-by-R + early-break evitaria iterar os ~99% que não
+vencem), **mas** exige manter estrutura ordenada por R **incrementalmente** + `sub_first_line`
+incremental (pra não reintroduzir os 2s) → **reescrita substancial** do `_detect_compositions` no
+core, com vários estados incrementais. Soma plausível ~2–2,5× pure-Python (NÃO medido — não estimar).
+
+### VEREDITO (owner 2026-06-24): FECHAR a direção de perf — retornos decrescentes
+
+- O ganho é **modesto** (~1,5× incremental medido; talvez ~2–2,5× com a reescrita completa) e **só no
+  caminho pure-Python**. O **Cython** (`_core/detect.pyx`, ADR-0020) já acelera o caminho compilado
+  (~2,67×) — é onde a velocidade de produção mora.
+- Cada camada (incremental → sub_first_line incremental → early-break) = **ganho modesto + mais
+  complexidade permanente no core**. Não compensa tocar/complicar o `_detect_compositions` por isso.
+- **`src/tcf` intocado.** H-PERF-05d fica **medido e fechado** (não vale o weld). Se a velocidade
+  pure-Python virar prioridade, a frente certa é **port Cython** do detector (build nativo), não
+  reescrever o algoritmo pure-Python.
+
 ## Conexões
 - Lab original (fechado): [`old/refuted/2026-05-22-h-perf-05d-counter-incremental/`](../old/refuted/2026-05-22-h-perf-05d-counter-incremental/).
 - Ticket: [T-EXP-H-PERF-05d](../../../../tickets/T-EXP-H-PERF-05d.md) (closed-with-byte-divergence).

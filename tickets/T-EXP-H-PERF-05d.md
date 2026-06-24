@@ -188,3 +188,21 @@ Alternativas: Cython/Rust port (H-PERF-06), otimizacao build_candidates
 (28% do _dc).
 
 **Resolution**: validated-with-byte-divergence-welding-adiado.
+
+### 2026-06-24 — re-caracterização (código atual) + FECHAMENTO
+
+Owner reabriu pra otimizar código (alvo H-PERF-05d), lab read-only novo
+[`2026-06-24-h-perf-05d-recaracterizacao/`](../experiments/lab/dirty/2026-06-24-h-perf-05d-recaracterizacao/)
+(não toca este lab nem src/tcf). Profile fresco: o prune ADR-0019 já minimizou a avaliação de
+candidatos (`_estimate_baseline_chars` ~3% do `_dc`); sobrou o rebuild do Counter (~46% do encode).
+
+Incremental v2 (Counter delta + alias_first_line incremental + sub_first_line lazy), **MEDIDO** vs
+canonical atual (5k): l_comment **1,72×**/+0B; l_shipdate 1,21×/+19B (+0,05%); l_commitdate 1,31×/+12B
+(+0,03%); RT 100%. **Speedup real ~1,2–1,7×, NÃO os 4–5× estimados** (o ceiling foi corrigido — o
+rebuild é ~46% do encode, não 92%). A "outra metade" (loop de candidatos) é ~99% cheap-skip, cortável
+só com reescrita incremental substancial; ganho **só pure-Python** (Cython já cobre, ~2,67×).
+
+**Decisão do owner (2026-06-24): FECHAR a direção de perf — retornos decrescentes.** Não vale tocar/
+complicar `_detect_compositions` por ~1,5× pure-Python que o Cython já endereça. Se velocidade
+pure-Python virar prioridade, a frente é **port Cython** do detector, não reescrita do algoritmo.
+**Resolution: measured-not-worth-weld.**
