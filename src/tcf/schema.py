@@ -36,7 +36,10 @@ from __future__ import annotations
 
 import json
 from dataclasses import asdict, dataclass, field
-from typing import Any
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from tcf.side_outputs import SideOutputs
 
 
 @dataclass

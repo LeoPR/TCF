@@ -35,8 +35,7 @@ def build_trace(name, iter_traces, prov_to_final, alias_to_final, ref_seqs,
             t.append("")
             continue
         picked_sub = info['picked'][0]
-        for k_idx, (net, sub, R, baseline, n_tam) in enumerate(
-                info['candidates_sorted'][:10]):
+        for net, sub, R, baseline, n_tam in info['candidates_sorted'][:10]:
             pick = " <- PICK" if sub == picked_sub else ""
             sub_str = fmt_sub(sub)
             t.append(f"  {sub_str:24s} | R={R} Lr={baseline} "

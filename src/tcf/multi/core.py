@@ -51,7 +51,6 @@ from tcf.multi.dict_v2b import _decode_v2b, _v2b_encode
 from tcf.multi.parallel import (
     _encode_columns_parallel,
     _encode_columns_serial,
-    _worker_encode_column,
 )
 from tcf.multi.split import _decode_struct_split, _struct_split_encode
 from tcf.pipeline import DEFAULT_PIPELINE, PipelineConfig
