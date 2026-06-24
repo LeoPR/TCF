@@ -48,6 +48,10 @@ class PipelineConfig:
     - OBAT (tokenizer): camada 2 obrigatoria
     - HCC base (M8A): camada 3a obrigatoria
 
+    Nota: M8A/M9/M10 sao GERACOES do encoder (marco interno do algoritmo),
+    nao versoes publicas (ADR-0028, eixo B). M10 = M8A + seq-RLE; M9 = M8A sem
+    seq-RLE (subset, mesmo decoder). hcc_seq_rle=False = ablacao p/ M9.
+
     Camada 0 (nature filter) tem param proprio `nature=`/`nature_per_col=`
     em encode(); nao precisa de PipelineConfig.
     """

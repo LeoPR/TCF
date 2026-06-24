@@ -21,7 +21,7 @@ modelo de 3 eixos (formato/encoder-gen/pacote): [`plano-poda-legado-pre-0.7-2026
 ## Decisões (owner 2026-06-24)
 1. Leitura `#TCF.6` → **isolar em `_legacy_read`** (dropar no 1.0).
 2. `encode_table`/`decode_table` → **aposentar**; produção `#TCF.6`/baseline **322B → `tests/legacy/`** (comparação).
-3. **Podar agora, fundido no bump 0.8.0.**
+3. **Podar agora, fundido no release `0.7.2`** (formato #TCF.7 inalterado → patch, não 0.8.0; ADR-0028).
 
 ## Passos (cada um mantém suíte verde; toca src/tcf → aprovado no plano)
 - [ ] **S1** — aposentar `encode_table`/`decode_table` (remover de `multi.py` + `__init__` `__all__` +

@@ -11,29 +11,34 @@ related:
   - .github/workflows/release.yml
 ---
 
-# T-DIST-RELEASE-0.8.0 (workstream C do plano 0.8)
+# T-DIST-RELEASE-0.8.0 (workstream C — release do ciclo lazy)
+
+> **RETIFICAÇÃO (ADR-0028, 2026-06-24)**: este ticket é o **release `0.7.2`** (lazy + poda, formato
+> `#TCF.7` inalterado), NÃO 0.8.0. O minor só move com mudança de formato → `0.8.0` fica reservado
+> pro `#TCF.8` (cross-dict). **Filename/ID `T-DIST-RELEASE-0.8.0` é stale** — renomear pra
+> `-0.7.2` é follow-up sob aprovação (quebra cross-links em STATUS/ROADMAP/T-EXP-H-GDICT; atualizar
+> juntos). Por ora, nota de topo.
 
 ## Contexto / motivação
 
-Fechar o ciclo 0.8: shipar o pacote com a view lazy promovida (A4) + a reference (A5),
-e decidir formato conforme o veredito de B (cross-dict). **ADR-0024**: pacote **0.8.0**
-≠ formato **#TCF.8**. `#TCF.7` segue default; `#TCF.8` só entra **se** o cross-dict
-weldar (opt-in, default off byte-idêntico).
+Fechar o ciclo do lazy: shipar o pacote com a view lazy promovida (A4) + a reference (A5) + a poda de
+legado pré-0.7. Formato `#TCF.7` inalterado → **release `0.7.2`** (eixo C, ADR-0028). `#TCF.8` (e o
+pacote `0.8.0`) ficam pro cross-dict, fora deste ticket.
 
 ## Plano
 
-- **C1**: bump `pyproject` + `src/tcf/__init__.__version__` **0.7.1 → 0.8.0**; atualizar
+- **C1**: bump `pyproject` + `src/tcf/__init__.__version__` **0.7.1 → 0.7.2**; atualizar
   `test_version_pre_1_0` (pina a versão) — A4 já deixou `EXPECTED_PUBLIC_API` com
   `view`/`LazyTCF`/`Filtered`.
-- **C2**: CHANGELOG + STATUS + ROADMAP + MAP + reference (cross-ref); marcar A4/A5 feitos.
-- **C3**: tag `v0.8.0` → `release.yml` publica via Trusted Publishing.
+- **C2**: CHANGELOG (sub-entrada em 0.7.x) + STATUS + ROADMAP + MAP + reference (cross-ref).
+- **C3**: tag `v0.7.2` → `release.yml` publica via Trusted Publishing.
 
 ## Critério de aceite
 
-- [ ] Versão 0.8.0 consistente (pyproject + `__init__` + teste de versão).
+- [ ] Versão 0.7.2 consistente (pyproject + `__init__` + teste de versão).
 - [ ] Suíte verde (incl. gate real-world) antes da tag.
 - [ ] `from tcf import view` no wheel publicado (smoke test pós-build).
-- [ ] Decisão de formato registrada: #TCF.7 default (e #TCF.8 só se B entrou).
+- [ ] Formato inalterado #TCF.7 (sem #TCF.8 neste release).
 
 ## Riscos / notas
 
@@ -48,3 +53,5 @@ weldar (opt-in, default off byte-idêntico).
   (B2/B3) e filtros/spec-dict **deferidos pro 0.9** (#TCF.8 chega lá via B2). A5 feito → **só falta C
   (este ticket)**. Formato 0.8 = `#TCF.7` (sem #TCF.8). Desbloqueado p/ prep; tag/publish exige go
   explícito do owner.
+- **2026-06-24-b (ADR-0028, retificação)**: este release = **`0.7.2`** (não 0.8.0); cross-dict #TCF.8
+  = `0.8.0` (não 0.9). Plano acima corrigido pra 0.7.2. Sem bump agora (PyPI segura no 0.7.1).

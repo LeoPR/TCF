@@ -1,5 +1,10 @@
 # v0.8 — Plano em etapas [plano]
 
+> **RETIFICAÇÃO (ADR-0028, 2026-06-24)**: sob a política de versão (minor = formato), este plano é o
+> **ciclo `0.7.2`** (lazy + poda, formato `#TCF.7` inalterado), NÃO "0.8". O **cross-dict `#TCF.8` =
+> `0.8.0`** (não 0.9). O **nome do arquivo `v08-plano-etapas.md` é stale** (renomear = follow-up sob
+> aprovação; quebra cross-links). Leia "0.8/0.8.0" abaixo nesta chave. Termos: [vocabulary §Versionamento](../../../../docs/vocabulary.md).
+
 **Data**: 2026-06-19 · plano (decidido com o owner). **Meta do 0.8**: shipar o **lazy básico**
 endurecido (bugs/correção/performance/otimização, **API atual**) **+ incluir o cross dict
 (H-GDICT)**. **Deferir pro 0.9**: a parte avançada do H-QUERY-04. Cross-links no fim.
@@ -12,8 +17,9 @@ endurecido (bugs/correção/performance/otimização, **API atual**) **+ incluir
 | **DEFERE pro 0.9** | H-QUERY-04 avançado (`execute()`/pushdown, índices escondidos, unificação não-dura); H-INTRA; F2/H-NAT-MARK; filtros populares; V2-RLE nicho |
 | **Formato** | `#TCF.7` default; **`#TCF.8` entra SE** o cross-dict (opt-in) for weldado (B). Default sempre byte-idêntico. |
 
-> **Decoupling (ADR-0024)**: pacote **0.8.0** ≠ formato **#TCF.8**. O lazy não muda formato. O #TCF.8
-> só aparece se o cross-dict weldar — e como opt-in (default off preserva #TCF.7).
+> **Coupling (ADR-0028, refina a leitura abaixo)**: minor = formato → **lazy (formato #TCF.7) = release
+> `0.7.2`**; **cross-dict #TCF.8 = `0.8.0`**. (A frase original "0.8.0 ≠ #TCF.8" ficou invertida pela
+> política; o lazy não muda formato, logo é patch 0.7.2, e o 0.8.0 é justamente o #TCF.8.)
 
 ## Workstream A — Lazy: endurecer e shipar
 *(ordem do owner: testar → volume → otimizar → repetir. Roda no gadget atual primeiro — read-only —
@@ -50,10 +56,10 @@ e só promove pro pacote depois de sólido.)*
 - **B4 — Integrar com o lazy** (A): `tcf.view` lê o dict global do header (leitura única) — sinergia A×B.
 - **Se B1 falhar o gate** → cross-dict **sai do 0.8** (vira 0.9/estudo), como o V2-RLE-STREAM. Honesto.
 
-## Workstream C — Release 0.8
-- **C1** bump pacote **0.8.0** (pyproject). Formato: #TCF.7; #TCF.8 só se B entrou.
-- **C2** CHANGELOG + STATUS + ROADMAP + MAP + reference atualizados (cross-ref).
-- **C3** tag `v0.8.0` (o `release.yml` publica via Trusted Publishing).
+## Workstream C — Release (lazy = `0.7.2`, formato #TCF.7)
+- **C1** bump pacote **0.7.2** (pyproject + `__init__`). Formato inalterado #TCF.7 (sem #TCF.8 aqui).
+- **C2** CHANGELOG (sub-entrada 0.7.x) + STATUS + ROADMAP + MAP + reference atualizados (cross-ref).
+- **C3** tag `v0.7.2` (o `release.yml` publica via Trusted Publishing). [`0.8.0`/`v0.8.0` = ciclo #TCF.8.]
 
 ## Sequência / dependências
 

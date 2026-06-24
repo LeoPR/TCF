@@ -1,5 +1,12 @@
 # STATUS — TCF (compendio sempre-atualizado)
 
+> **RETIFICACAO DE VERSAO (ADR-0028, 2026-06-24)** — leia os blocos datados abaixo nesta chave:
+> o pacote e' `0.<formato>.<release>` (minor = numero do formato; release/patch = entrega DENTRO do
+> formato). **O ciclo do lazy + poda de legado = release `0.7.2`** (formato `#TCF.7` inalterado), NAO
+> `0.8.0`. **`0.8.0` fica reservado pro `#TCF.8` (cross-dict)** — onde as notas dizem "#TCF.8 -> 0.9",
+> leia "#TCF.8 = 0.8.0". "plano 0.8" nos cabecalhos de sessao = ciclo `0.7.2`. Versao do repo segue
+> `0.7.1` (PyPI segura; publica `0.7.2` no go do owner). Termos: [vocabulary §Versionamento](docs/vocabulary.md).
+
 > **Versionamento (ADR-0024, 2026-06-14)**: projeto e' **pré-1.0**. Os minors do
 > formato (`#TCF.4/.5/.6/.7`) sao iteracoes de dev rumo a um **1.0 solido**, sem
 > compat rigida entre eles (git reproduz versoes antigas). O `#TCF.7` = "0.7"

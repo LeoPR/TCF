@@ -13,7 +13,7 @@ O projeto mistura três coisas que NÃO são a mesma:
 |---|---|---|---|
 | **A. Formato** | shebang `#TCF.N` (contrato on-disk) | `#TCF.7` (default), `#TCF.6` (legado) | só muda com weld de formato |
 | **B. Geração do encoder** | marco do algoritmo (bytes diferentes, MESMA família de formato) | M8A (base HCC) → M9 → **M10** (atual) | interno; M9 é **subset** de M10 (mesmo decoder) |
-| **C. Pacote (semver)** | contador de release | `0.7.1` → `0.8.0` | dev marker, git-as-compat (ADR-0024) |
+| **C. Pacote (semver)** | contador de release | `0.7.1` → `0.7.2` (poda = formato #TCF.7 inalterado) | dev marker; minor=formato, patch=release (ADR-0024/0028) |
 
 **Regra para não atropelar** (a fixar como dispositivo):
 - "pré-0.7" = **eixo A** (`#TCF.6`) + a **API v0.6** (`encode_table`/`decode_table`). É isto que se poda.
@@ -64,7 +64,8 @@ O projeto mistura três coisas que NÃO são a mesma:
 1. **Leitura #TCF.6** → **isolar em `_legacy_read`** (caminho marcado), dropar no 1.0. (§4.1 opção b)
 2. **Produção #TCF.6 + 322B + aliases v0.6** → **aposentar `encode_table`/`decode_table`** + **isolar
    o 322B em `tests/legacy/`** (comparação V2-vs-legado, fora do gate). 303B = único baseline vivo. (§4.2-3)
-3. **Sequência** → **podar agora, fundido no bump 0.8.0** (0.8 = lazy + enxugar legado + release). (§4.4)
+3. **Sequência** → **podar agora, fundido no release `0.7.2`** (lazy + enxugar legado; formato #TCF.7
+   inalterado → patch, não 0.8.0 — ADR-0028). (§4.4)
 Ticket de execução: **T-CODE-LEGACY-PRUNE-PRE-07**.
 
 ## 4. Decisões do owner (forks reais)
@@ -78,7 +79,7 @@ Ticket de execução: **T-CODE-LEGACY-PRUNE-PRE-07**.
 3. **`encode_table`/`decode_table`**: aposentar agora (pré-1.0, já deprecated)? *Recomendo sim.*
 4. **Sequência vs release 0.8**: a poda é refactor sob GATE. Fazer **antes** do release 0.8 (0.8 já
    sai enxuto) ou como track 1.0 separado **depois** do 0.8? *Recomendo: poda agora como passo
-   próprio, com bump pro 0.8.0 incluindo a limpeza* (faz sentido: 0.8 = lazy + enxugar legado).
+   próprio, com bump pro release 0.7.2 incluindo a limpeza* (faz sentido: 0.7.2 = lazy + enxugar legado).
 
 ## 5. Sequência proposta (cada passo mantém a suíte verde)
 

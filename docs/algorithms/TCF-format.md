@@ -20,17 +20,23 @@ Formato projetado para:
 - Tabelas multi-coluna onde cada coluna se beneficia de pipeline
   próprio (encoder per-column independente)
 
-## Versionamento (ADR-0024 — pré-1.0; supersede ADR-0017)
+## Versionamento (ADR-0024 + ADR-0028 — pré-1.0; supersede ADR-0017)
 
-> **ATUALIZADO (ADR-0024, 2026-06-14)**: o projeto e' **pré-1.0**. O default do
-> encode multi-col e' **0.7 / `#TCF.7`**; `#TCF.6` e' legado (lido pelo decoder).
-> Os minors `#TCF.N` sao iteracoes de dev, **sem compat rigida** (git reproduz
-> versoes antigas). As frases "frozen v1.0" / "v2.0" / "estavel desde v1.0"
-> abaixo sao do modelo antigo (ADR-0017) — ler na chave pré-1.0. Pacote: `0.x`.
-> Reframe completo desta secao: pendente.
+> **MODELO DE 3 EIXOS (ADR-0028, 2026-06-24; refina ADR-0024)** — distinga:
+> - **(A) Versão de FORMATO** — shebang `#TCF.N`. Contrato on-disk; só muda com mudança de formato.
+>   Hoje `#TCF.7` (default), `#TCF.6` (legado, lido).
+> - **(B) Geração do encoder** — marco interno (M8A→M9→M10); NÃO é versão pública (nota histórica).
+> - **(C) Versão do pacote** (PyPI) — pré-1.0 = `0.<formato>.<release>`: minor = nº do formato
+>   (`0.N` ↔ `#TCF.N`); release/patch = entrega DENTRO do formato.
+>
+> **Regra de bump**: mudança de FORMATO move o minor (`0.(N+1).0`); entrega sem mudar formato move o
+> release (`0.N.x+1`). Ex.: lazy+poda (#TCF.7 inalterado) = `0.7.2`; cross-dict `#TCF.8` = `0.8.0`.
+> `1.0` só quando o formato final congelar → aí semver estrito. As frases "frozen v1.0"/"v2.0"/
+> "estável desde v1.0" abaixo são do modelo antigo (ADR-0017) — ler nessa chave.
+> Termos: [`../vocabulary.md`](../vocabulary.md) §Versionamento.
 
-TCF distingue **format version** (shebang `#TCF.N`) de **library
-version** (semver `X.Y.Z` da biblioteca Python).
+TCF distingue **versão de FORMATO** (shebang `#TCF.N`, eixo A) de **versão de PACOTE**
+(semver `0.N.x`, eixo C) — não confundir os dois (ADR-0028).
 
 ### Format version (shebang)
 

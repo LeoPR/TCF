@@ -49,6 +49,41 @@ Prefixos no tamanho de coluna da meta-line (`# !8=id,@22=cat,nome`):
 - `<size>=<name>` (sem prefixo) — modo legado `#TCF.6` (sem V2-A; `# ` no inicio da meta-line)
 - Coluna sem size (ultima): `<name>` — modo `min_header` (V2 ADR-0023); body ate' EOF
 
+## Versionamento (3 eixos)
+
+> Single source of truth dos termos de versao. Tres eixos distintos e ortogonais
+> (ADR-0024 refinado por ADR-0028). Nao confundir formato (`#TCF.N`) com versao
+> de pacote (`0.N.x`).
+
+- **Versao de FORMATO** — shebang `#TCF.N`. Contrato on-disk; so' muda com mudanca
+  de formato. Hoje: `#TCF.7` (default), `#TCF.6` (legado, lido pelo decoder). Eixo A.
+- **Geracao do encoder** — marco interno do algoritmo (`M8A` -> `M9` -> `M10`).
+  Bytes diferentes DENTRO da mesma familia de formato. NAO e' versao publica; nota
+  historica. Eixo B.
+- **Versao do pacote** — pre-1.0 = `0.<formato>.<release>`. O minor = numero do
+  formato (`0.N` <-> `#TCF.N`); o release/patch = contador de entregas dentro
+  daquele formato. PyPI `tcf-format`. Eixo C.
+- **Release** — contador de entregas (acessorio/fix/poda/perf) DENTRO de um mesmo
+  formato. Avanca o patch sem mover o minor.
+
+**Regra de bump (pre-1.0)**:
+- mudanca de FORMATO (`#TCF.N` -> `#TCF.N+1`) move o **minor**: `0.(N+1).0`;
+- entrega com formato inalterado move so' o **release**: `0.N.x -> 0.N.(x+1)`;
+- `1.0` so' quando o formato final congelar (`#TCF.8`/`.9`) -> ai semver estrito.
+
+Exemplos: lazy + poda (formato `#TCF.7` inalterado) = release `0.7.2`; cross-dict
+(`#TCF.8`) = minor `0.8.0`.
+
+| Use | Nao use |
+|---|---|
+| "versao de formato `#TCF.N`" | "versao 0.N" pra falar do formato on-disk |
+| "release 0.7.2 (formato #TCF.7)" | "plano 0.8" / "0.8.0" pro ciclo do lazy/poda |
+| "minor 0.8.0 = #TCF.8 (cross-dict)" | "#TCF.8 = 0.9" (atribuir cross-dict ao 0.9) |
+| "geracao do encoder M9/M10 (interno)" | "versao M10" como se fosse versao publica |
+
+Cross-link: [`algorithms/TCF-format.md`](algorithms/TCF-format.md) secao Versionamento;
+[ADR-0024](adr/0024-pre-1.0-versioning-git-as-compat.md) + [ADR-0028](adr/0028-pre-1.0-versioning-minor-format-coupling-release-cadence.md).
+
 ## Pre-tx (pre-transformation)
 
 - **Pre-stage** / **Pre** — etapa antes do OBAT (detecta tipo, gera dica)

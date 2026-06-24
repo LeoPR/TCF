@@ -30,9 +30,9 @@ ROOT = Path(__file__).resolve().parent.parent
 DATASETS = ROOT / "datasets" / "synthetic"
 
 
-# Superficie de API publica. Sob ADR-0024 (pre-1.0, supersede o "frozen" do ADR-0017)
-# a adicao e' ADITIVA — atualizar esta lista ao exportar algo novo. Bump de versao
-# (0.7.1 -> 0.8.0) acontece no release (workstream C), nao a cada export.
+# Superficie de API publica. Sob ADR-0024/0028 (pre-1.0) a adicao e' ADITIVA —
+# atualizar esta lista ao exportar algo novo. Bump de versao (0.7.1 -> 0.7.2,
+# release dentro do formato #TCF.7; ADR-0028) acontece no release, nao a cada export.
 EXPECTED_PUBLIC_API = {
     "encode",
     "decode",

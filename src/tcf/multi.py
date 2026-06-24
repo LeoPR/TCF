@@ -51,7 +51,7 @@ from tcf.side_outputs import SideOutputs
 
 
 MAGIC_MULTI = b"#TCF.6 M"
-MAGIC_MULTI_V2 = b"#TCF.7 M"  # V2-A fallback identity (ADR-0022, abre v2.0)
+MAGIC_MULTI_V2 = b"#TCF.7 M"  # V2-A fallback identity (ADR-0022, abre o formato #TCF.7)
 META_PREFIX = b"# "  # v1 (#TCF.6, congelado). #TCF.7 dispensa o prefixo do meta
                      # (o flag `M` no shebang ja' declara multi-col) — ADR-0023.
 

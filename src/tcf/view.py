@@ -1,6 +1,6 @@
 """tcf.view — view lazy/consultável sobre um blob TCF: descomprime só o suficiente pra responder.
 
-Camada READ-ONLY do TCF (parte do pacote desde A4/0.8; lê o `#TCF.7`/`#TCF.6` existente —
+Camada READ-ONLY do TCF (parte do pacote desde A4, ciclo 0.7.2; lê o `#TCF.7`/`#TCF.6` existente —
 NÃO muda encode/decode/formato). Caminho canônico: `from tcf import view`. O shim em
 `scripts/tcf_lazy/` re-exporta daqui pra compat com código/labs antigos.
 PoC de origem: `experiments/lab/dirty/old/welded/2026-06-16-lazy-query/`.

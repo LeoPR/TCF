@@ -10,30 +10,35 @@
 > obrigatório pra qualquer mudança em HCC / pre-pass / prune; nada de weld de natureza/lossy
 > sem medir o **incremento** em ≥2 datasets reais (anti-incidente 2026-05-21).
 
-## Estado — 0.7 fechado
+## Estado — 0.7.1 publicado (formato #TCF.7)
 
 Bytes-core welded: **V2-A** fallback (ADR-0022, `!`), **V2-B** dicionário (ADR-0025, `@`,
 13.9% weighted), **split estrutural** (ADR-0026, `%`, 19.39% weighted), **header mínimo**
 (ADR-0023), **sort_by** (O-FMT-02). Natures CPF/CNPJ/IP (ADR-0015). Pacote `tcf-format 0.7.1`
-publicado no PyPI. Suíte **425 passed** (inclui o gadget `tcf_lazy`); D1-D9=1523 B, D17a=303 B.
+publicado no PyPI. D1-D9=1523 B, D17a=303 B (contagem de testes vive na suíte).
 
 ---
 
-## Marco v0.8 (planejado, 2026-06-19)
+## Ciclo 0.7.2 (lazy + poda) · Marco 0.8.0 reservado pro #TCF.8
 
-**Escopo**: shipar o **lazy básico** endurecido (`tcf.view`; bugs/correção/performance, **API atual**)
-**+ cross dict (H-GDICT)** se a caracterização pagar. **Defere pro 0.9**: H-QUERY-04 avançado
-(`execute()`/pushdown, índices escondidos), H-INTRA, F2, filtros populares, V2-RLE nicho. Formato
-`#TCF.7` default; `#TCF.8` só se o cross-dict (opt-in) weldar. **Plano em etapas (A lazy / B cross-dict
-/ C release)**: [`v08-plano-etapas.md`](experiments/lab/dirty/notas/v08-plano-etapas.md).
+> **Versionamento (ADR-0028)**: minor = formato (`0.N` = `#TCF.N`); entrega sem mudar o formato move
+> o **release/patch**. Logo o ciclo do lazy + poda (formato `#TCF.7` inalterado) = **release `0.7.2`**.
+> O **`0.8.0` fica reservado pro `#TCF.8`** (cross-dict). Termos: [vocabulary §Versionamento](docs/vocabulary.md).
+
+**Release `0.7.2` (formato #TCF.7, em curso)**: lazy básico endurecido shipado (`tcf.view`) + poda de
+legado pré-0.7 (T-CODE-LEGACY-PRUNE-PRE-07). **Plano em etapas (A lazy / C release)**:
+[`v08-plano-etapas.md`](experiments/lab/dirty/notas/v08-plano-etapas.md) (nome do arquivo é stale — é o ciclo 0.7.2).
+
+**Marco `0.8.0` = `#TCF.8` (futuro)**: cross-dict (H-GDICT, B2/B3) — paga o bump de formato com ganho
+medido; **F2/spec-dict/filtros por carona** no mesmo ciclo `#TCF.8`. **Defere também**: H-QUERY-04
+avançado, H-INTRA, V2-RLE nicho.
 
 **Progresso (2026-06-24)**: **Workstream A COMPLETO** (A1-A5: lazy promovido `src/tcf/view.py` +
 reference Diátaxis). **B1 cross-dict caracterizado — PAGA em same-domain-refs** (−19.3% textual no
-grafo; [T-EXP-H-GDICT-01](tickets/T-EXP-H-GDICT-01.md)).
-**DECISÃO de escopo (owner 2026-06-24)**: **0.8 = lazy (A) + release (C)**; **B2/B3 cross-dict
-(#TCF.8 opt-in) → 0.9**, e **filtros/spec-dict por carona no 0.9** (mesma infra de header; B2 paga o
-#TCF.8 com ganho medido — ver [`filtros-graus-de-entrega-2026-06-24.md`](experiments/lab/dirty/notas/filtros-graus-de-entrega-2026-06-24.md)).
-Próximo: **workstream C** (release 0.8.0) — publicar exige go explícito do owner.
+grafo; [T-EXP-H-GDICT-01](tickets/T-EXP-H-GDICT-01.md)). Poda S1-S3 feita.
+**DECISÃO de escopo (owner 2026-06-24)**: ciclo **`0.7.2`** = lazy (A) + poda + release (C);
+**cross-dict #TCF.8 = `0.8.0`** (B2/B3 + filtros/spec-dict por carona). Próximo: fechar o **release
+0.7.2** (workstream C) — publicar exige go explícito do owner (PyPI segura no 0.7.1).
 
 ---
 

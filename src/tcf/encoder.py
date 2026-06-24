@@ -15,7 +15,7 @@ API publica unificada (ADR-0014):
     from tcf import encode, SideOutputs
 
     text = encode(["a", "b", "c"])              # single -> body puro
-    text = encode({"id": [...], "name": [...]}) # multi -> #TCF.6 M + bodies
+    text = encode({"id": [...], "name": [...]}) # multi -> #TCF.7 M + bodies (#TCF.6 legado)
 
     # Captura opcional de side outputs (debug, stats, schema)
     side = SideOutputs()
