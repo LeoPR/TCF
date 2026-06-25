@@ -76,6 +76,10 @@ Exemplos (body na(s) linha(s) seguinte(s)):
   nature = `#TCF.7 M`. O version-stamp (`#TCF.8\n`) e' opt-in (`encode(list, stamp=True)`).
 - multi `#TCF.8M` larga o espaco antes do `M` e poe o meta na linha do shebang (~2B a menos
   que `#TCF.7 M`+linha separada).
+- **colunas anonimas** (`encode(dict, drop_names=True)`): omite o `=nome` no meta; decode
+  reconstroi pela ORDEM (`{'0':..,'1':..}`, igual SQL/CSV-sem-header). Economiza o nome de
+  cada coluna no header; forca `#TCF.8M` (o `#TCF.7` nomeado fica intacto). Natures seguem
+  (`:spec` posicional). Parse position-aware: `=` desambigua nomeada vs anonima.
 
 **Promessa v1**: `#TCF.6` e' imutavel ate' v2.0. Nenhum byte de arquivo
 TCF v1 muda entre versoes tcf 1.x.y. Markers novos requerem `#TCF.7`.

@@ -79,6 +79,12 @@ O caractere logo após `#TCF.8` discrimina (1 char, dispatch limpo):
 - **Multi perde o espaço antes do `M`** (`#TCF.8 M` → `#TCF.8M`) — necessário pro
   discriminador de 1 char; senão o espaço do multi colidiria com "single". Economiza
   ~2 B/multi (espaço + a quebra de linha do meta separado). Cada coluna = `NN[=nome][:spec]`.
+- **Colunas ANÔNIMAS / posicionais** (`encode(dict, drop_names=True)`): o `=nome` é
+  OPCIONAL no meta; decode reconstrói pela ORDEM (nome = índice, igual SQL/CSV-sem-header)
+  → `decode` devolve `{'0':..,'1':..}`. Economiza o nome de cada coluna no header
+  (byte-level). Força `#TCF.8M` (coluna anônima é feature v8 → `#TCF.7` nomeado intacto).
+  Parse position-aware: `=` primeiro (nomeada — vale até a última em #TCF.6 sem min_header);
+  sem `=`, não-última = anônima-com-size, última vazia = anônima.
 - **`#TCF.8\n` (single version-stamp)** = carimbo de versão **opt-in** num single-col
   plano. **Razão (owner)**: identificação do artefato por **magic-number** — um `.tcf`
   salvo em disco fica reconhecível por ferramentas tipo `file`/libmagic, preservando a
