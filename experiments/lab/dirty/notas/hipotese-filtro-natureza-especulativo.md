@@ -64,10 +64,16 @@ do mecanismo de **duas vias** (mapear-ANTES vs reservar-pra-DEPOIS).
   perf: aplicar nos nós únicos, que não muda bytes). H5 abaixo.
 
 ## Sub-hipóteses pro lab (ordem: barato→caro, medir antes de construir)
-- **H5 (consumidor do modo-depois, read-only)**: varrer os datasets canônicos atrás de
-  colunas nature-elegíveis COM similaridade parcial (pedaços que o OBAT pegaria) — i.e., um
-  formato onde o modo *depois* bateria o *antes*. Se zero candidatos → o modo *depois* é
-  YAGNI. É o GATE que justifica (ou não) construir o fluxo de duas vias.
+- **H5 (consumidor do modo-1, read-only) — MEDIDO 2026-06-25**: piloto CPF em 2 regimes
+  ([2026-06-25-cpf-duas-vias/](../2026-06-25-cpf-duas-vias/result.md), N=2000). Resultado:
+  - ALEATÓRIO (CPF real): base94=13682 < 9dig-OBAT=23793 → **CPF não consome o modo-1**.
+  - CADENCIADO: 9dig-OBAT=**74** vs base94=11328 (~150×) → modo-1 esmaga.
+  - Dropar DV crítico: 9dig=74 vs 11dig+DV=12575 (o DV mod-11 quebra a cadência).
+  - **Conclusão (fecha H5)**: o consumidor do modo-1 é o **ID FORMATADO SEQUENCIAL** (NF-e,
+    fatura, código sequencial) — onde o formato esconde a cadência e a normalização a expõe
+    — NÃO o CPF (aleatório→base94). Precedente: IP (normaliza→seq-RLE). O "per-spec flow
+    mode" é na prática **per-DATA-SHAPE**: aleatório→base94 (no-obat/perf); formatado-
+    sequencial→normalizar (modo-1/compressão); bypass (modo-3)=streaming, ortogonal.
 - **H1 (compressão, read-only) — NORMALIZAR vs BASE94 vs RAW**: em CPF/CNPJ reais (Receita,
   br-identidades) em DOIS regimes — aleatório-único e sequencial/cadenciado —, comparar
   bytes de: (a) **base94** (nature atual `TemplatedCheckedSpec`); (b) **normalizar** (tirar
