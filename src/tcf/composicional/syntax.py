@@ -156,7 +156,21 @@ class M8AVirtualRefsSyntax(Syntax):
     # ---- Phase A: tokenize ----
 
     def _tokenize_pieces(self, linhas, unicas, tokens_por_string):
-        """Identica a M7.A: pieces = ('lit', text, atom_id) | ('refs', [prov_ids])."""
+        """Atomiza os tokens OBAT em pieces. Identica a M7.A.
+
+        FORMA dos dados (tagged-union — um port C/Rust modela como enum):
+        - retorna (pieces_per_line, line_meta, atom_count).
+        - pieces_per_line: list com 1 entry por grupo-RLE de linha; cada entry
+          e' `list[Piece]` OU `None` (None = a linha repete um eid ja' emitido;
+          os pieces nao sao re-gerados, a info vive em line_meta).
+        - Piece = ('lit', text:str, prov_id:int)   # atomo literal, id provisorio
+                | ('refs', [prov_id, ...])          # sequencia de refs a atomos
+          Aqui os ref ids sao todos PROV ids positivos; a convencao de sinal
+          (negativo = alias virtual) so' aparece apos _detect_compositions.
+        - line_meta[i] = (count:int, eid:int, is_rep:bool): count = multiplicidade
+          RLE adjacente (`*N|`); eid = id 1-based da string unica (`^eid`);
+          is_rep = True sse pieces_per_line[i] is None.
+        """
         quebras = self._coletar_quebras(unicas, tokens_por_string)
         unica_to_eid = {s: i + 1 for i, s in enumerate(unicas)}
         frags_por_no = {}
@@ -234,7 +248,17 @@ class M8AVirtualRefsSyntax(Syntax):
         (positivos = atomic prov, negativos = virtual aliases).
         Sub-tuplas counted naturalmente.
 
-        Retorna (alias_to_sub, iter_traces).
+        CONVENCAO DE SINAL (load-bearing, central no CORE — vira enum no port):
+        um ref id em 'refs' codifica seu tipo pelo sinal — id>0 = atomo (prov_id),
+        id<0 = -alias_temp (composicao/virtual, aninhavel). O detector substitui
+        sub-tuplas repetidas por -alias_temp IN-PLACE em pieces_per_line; essa
+        mutacao + o dict de saida alias_to_sub (alias_temp -> sub-tupla) sao o
+        UNICO canal de acoplamento com o emit. A assinatura desta funcao e a
+        forma de pieces_per_line/refs/iter_info sao contrato congelado com
+        `_core/detect.pyx` (ADR-0020) e com build_trace.
+
+        Retorna (alias_to_sub, iter_traces). iter_traces e' debug (so'
+        build_trace consome; nao afeta bytes).
         """
         next_alias = 1
         comp_acc_k = 0
@@ -448,6 +472,17 @@ class M8AVirtualRefsSyntax(Syntax):
             ref_seq = []
             state['ref_seq'] = ref_seq
 
+            # TABELA DE SEPARADOR (byte-load-bearing; espelhada pelo parser do
+            # decode em _parse_decl). Insere um separador na transicao prev->cur
+            # pra evitar ambiguidade no decoder. 4 regras:
+            #   prev   -> cur            sep   por que
+            #   lit    -> lit            `*`   senao os 2 literais colam
+            #   refs   -> lit(`,`/`~`)   `*`   ADR-0007: decoder entraria ref mode
+            #                                  no `,`/`~` literal (ver bug abaixo)
+            #   refs   -> refs           `,`   separa as duas ref-expressions
+            #   lit(dig)-> refs          `*`   lit termina em digito: senao o
+            #                                  digito do ref colaria no literal
+            # (lit->refs sem digito final e refs->lit comum nao precisam sep.)
             for p in pieces:
                 kind = p[0]
 
@@ -517,10 +552,15 @@ class M8AVirtualRefsSyntax(Syntax):
     def _emit_alias(self, alias_temp, state):
         """Emit alias: bare final id (se ja' emitido) OU def composition.
         Para def: INLINE EXPANSION — sub flatten recursivo numa chain
-        linear; pairwise binarization aloca K-1 IDs. Inner aliases
-        unresolved completam em positions intermediarias e ganham
-        finals correspondentes (so' funciona se inner esta em position 0,
-        garantido pelo filtro do detector)."""
+        linear; pairwise binarization aloca K-1 IDs.
+
+        PRECONDICAO (load-bearing, garantida pelo filtro body-order do detector,
+        ver "Filtro de elegibilidade body-order" em _detect_compositions): um
+        inner alias NAO-RESOLVIDO (ainda nao em alias_to_final) so' aparece em
+        POSITION 0 da sub — so' assim a expansao inline recursiva atribui os
+        finals corretos. Um inner JA resolvido (em alias_to_final) pode estar em
+        QUALQUER posicao (usa o final id direto). Um port que ignore esta
+        precondicao quebra silenciosamente."""
         if alias_temp in state['alias_to_final']:
             fid = state['alias_to_final'][alias_temp]
             state['ref_seq'].append(fid)
