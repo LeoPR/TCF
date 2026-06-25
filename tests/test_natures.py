@@ -15,11 +15,12 @@ from pathlib import Path
 
 import pytest
 
-from tcf import encode, decode, SPEC_CPF, SPEC_CNPJ, TemplatedCheckedSpec
+from tcf import encode, decode, SPEC_CPF, SPEC_CNPJ
 from tcf.natures import (
     encode_value, decode_value, classify_value,
     BASE94, MARKER_LITERAL,
 )
+from tcf.side_outputs import SideOutputs
 
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -63,9 +64,6 @@ class TestSpecs:
 
 class TestCPF:
     def test_encode_decode_valid(self):
-        cpf = "123.456.789-09"
-        # Calculate check digits to make valid
-        # Build from known valid CPF
         valid = "529.982.247-25"  # known valid
         encoded, status = encode_value(SPEC_CPF, valid)
         assert status == "compressible"
@@ -193,6 +191,68 @@ class TestEncodeIntegration:
         bytes_nature = len(encode(cpfs, nature=SPEC_CPF).encode("utf-8"))
         # Nature deve ser menor pra CPFs validos
         assert bytes_nature < bytes_default
+
+
+# ===========================================================================
+# Telemetria de apply-rate (SideOutputs.nature_apply) — byte-neutra
+# ===========================================================================
+
+class TestNatureApplyTelemetry:
+    def test_byte_neutral_with_side_outputs(self):
+        """Coletar telemetria NAO muda os bytes do .tcf."""
+        cpfs = ["529.982.247-25", "abc.def.ghi-jk", "111.444.777-35", ""]
+        out_no = encode(cpfs, nature=SPEC_CPF)
+        out_yes = encode(cpfs, nature=SPEC_CPF, side_outputs=SideOutputs())
+        assert out_no == out_yes
+
+    def test_single_col_apply_rate(self):
+        cpfs = [
+            "529.982.247-25",   # compressible
+            "111.444.777-35",   # compressible
+            "529.982.247-99",   # check_invalid
+            "abc.def.ghi-jk",   # format_mismatch
+            "",                 # empty_value
+        ]
+        so = SideOutputs()
+        encode(cpfs, nature=SPEC_CPF, side_outputs=so)
+        stats = so.nature_apply["val"]
+        assert stats["spec"] == "cpf"
+        assert stats["total"] == 5
+        assert stats["compressible"] == 2
+        assert stats["apply_rate"] == 2 / 5
+        assert stats["by_status"]["compressible"] == 2
+        assert stats["by_status"]["format_mismatch"] == 1
+        assert stats["by_status"]["empty_value"] == 1
+        assert sum(stats["by_status"].values()) == 5
+
+    def test_no_telemetry_without_side_outputs(self):
+        """Sem side_outputs, caminho zero-overhead: nada coletado."""
+        so = SideOutputs()
+        assert so.nature_apply is None  # default
+
+    def test_multi_col_per_column_stats(self):
+        table = {
+            "cpf": ["529.982.247-25", "nao-cpf"],
+            "cnpj": ["11.222.333/0001-81", "11.222.333/0001-81"],
+            "plain": ["foo", "bar"],          # sem nature
+        }
+        so = SideOutputs()
+        out = encode(table, nature_per_col={"cpf": SPEC_CPF, "cnpj": SPEC_CNPJ},
+                     side_outputs=so)
+        # byte-neutro vs sem telemetria
+        assert out == encode(table, nature_per_col={"cpf": SPEC_CPF,
+                                                    "cnpj": SPEC_CNPJ})
+        assert set(so.nature_apply) == {"cpf", "cnpj"}  # so' colunas com nature
+        assert so.nature_apply["cpf"]["total"] == 2
+        assert so.nature_apply["cpf"]["compressible"] == 1
+        assert so.nature_apply["cnpj"]["compressible"] == 2
+        assert so.nature_apply["cnpj"]["apply_rate"] == 1.0
+
+    def test_no_nature_apply_when_no_nature(self):
+        """side_outputs passado mas sem nature: nature_apply fica None."""
+        so = SideOutputs()
+        encode(["foo", "bar"], side_outputs=so)
+        assert so.nature_apply is None
 
 
 # ===========================================================================

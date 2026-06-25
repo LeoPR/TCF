@@ -55,6 +55,24 @@ if TYPE_CHECKING:
     from tcf.natures.templated_checked import TemplatedCheckedSpec
 
 
+def _nature_apply_stats(spec, statuses: list[str]) -> dict:
+    """Telemetria (byte-neutra) do encode_value de uma nature: apply-rate por
+    coluna. Conta quantos valores comprimiram ('compressible') vs cairam em
+    fallback literal, com o breakdown por razao (taxonomia Kim 2003). NAO afeta
+    os bytes — alimenta SideOutputs.nature_apply (efeito colateral zero-custo)."""
+    from collections import Counter
+    by_status = Counter(statuses)
+    total = len(statuses)
+    compressible = by_status.get("compressible", 0)
+    return {
+        "spec": getattr(spec, "name", repr(spec)),
+        "total": total,
+        "compressible": compressible,
+        "apply_rate": (compressible / total) if total else 0.0,
+        "by_status": dict(by_status),
+    }
+
+
 def encode(
     data: list[str] | dict[str, list[str]],
     *,
@@ -131,7 +149,14 @@ def encode(
     if isinstance(data, list):
         if nature is not None:
             from tcf.natures.templated_checked import encode_value
-            data = [encode_value(nature, v)[0] for v in data]
+            if side_outputs is not None:
+                pairs = [encode_value(nature, v) for v in data]
+                data = [p for p, _ in pairs]
+                side_outputs.nature_apply = {
+                    "val": _nature_apply_stats(nature, [s for _, s in pairs])
+                }
+            else:
+                data = [encode_value(nature, v)[0] for v in data]
         return _encode_column(data, header="val", side=side_outputs, cfg=cfg,
                               min_len=min_len)
     if isinstance(data, dict):
@@ -155,11 +180,26 @@ def encode(
             data = {c: [v[i] for i in order] for c, v in data.items()}
         if nature_per_col:
             from tcf.natures.templated_checked import encode_value
-            data = {
-                name: ([encode_value(nature_per_col[name], v)[0] for v in vals]
-                       if name in nature_per_col else vals)
-                for name, vals in data.items()
-            }
+            if side_outputs is not None:
+                nature_stats = {}
+                new_data = {}
+                for name, vals in data.items():
+                    if name in nature_per_col:
+                        spec = nature_per_col[name]
+                        pairs = [encode_value(spec, v) for v in vals]
+                        new_data[name] = [p for p, _ in pairs]
+                        nature_stats[name] = _nature_apply_stats(
+                            spec, [s for _, s in pairs])
+                    else:
+                        new_data[name] = vals
+                data = new_data
+                side_outputs.nature_apply = nature_stats
+            else:
+                data = {
+                    name: ([encode_value(nature_per_col[name], v)[0] for v in vals]
+                           if name in nature_per_col else vals)
+                    for name, vals in data.items()
+                }
         return _encode_multi(data, side_outputs=side_outputs, parallel=parallel,
                              cfg=cfg, fallback=fallback, min_header=min_header,
                              min_len=min_len)

@@ -28,6 +28,15 @@ if TYPE_CHECKING:
 class SideOutputs:
     """Recipiente pra side outputs capturados durante encode."""
 
+    # --- Natures / CAMADA 0 (pre-tx por natureza, ADR-0015) ---
+    # apply-rate do encode_value, por coluna:
+    #   {col_name: {'spec', 'total', 'compressible', 'apply_rate', 'by_status'}}
+    # Single-col usa a chave 'val'. So' populado se nature/nature_per_col foi
+    # passado E side_outputs nao e' None. NAO afeta os bytes do .tcf — e'
+    # telemetria do efeito colateral (quantos valores comprimiram vs cairam
+    # literal). Habilita auto-detect informado no futuro (Fase 3 schema natures).
+    nature_apply: dict | None = None
+
     # --- Pre-pass (per coluna) ---
     column_features: "ColumnFeatures | None" = None
     cadence_detected: bool | None = None
