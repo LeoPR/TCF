@@ -86,6 +86,7 @@ def encode(
     min_len: int | None = None,
     sort_by: str | None = None,
     name: str | None = None,
+    stamp: bool = False,
 ) -> str:
     """Encode lista de strings OU dict de colunas em texto TCF.
 
@@ -163,7 +164,13 @@ def encode(
         body = _encode_column(data, header="val", side=side_outputs, cfg=cfg,
                               min_len=min_len)
         if nature_id is None:
-            return body                       # single-col puro (byte-identico)
+            if stamp:
+                # version-stamp opt-in (#TCF.8\n<body>): carimbo de versao /
+                # magic-number p/ file/libmagic (ADR-0029). Default-off -> single
+                # puro fica orfao byte-identico.
+                from tcf.multi.core import MAGIC_SINGLE_V3
+                return MAGIC_SINGLE_V3.decode("utf-8") + "\n" + body
+            return body                       # single-col puro orfao (byte-identico)
         # Self-describing single-col (#TCF.8 SEM flag M, ADR-0027). Shebang
         # opt-in SSE ha nature -> default-off byte-identico. Linha 2 =
         # '[nome]:spec_id' (nome opcional, so' rotulo — nao volta no decode).

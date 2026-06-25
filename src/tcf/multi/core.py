@@ -58,11 +58,14 @@ from tcf.side_outputs import SideOutputs
 
 MAGIC_MULTI = b"#TCF.6 M"
 MAGIC_MULTI_V2 = b"#TCF.7 M"  # V2-A fallback identity (ADR-0022, abre o formato #TCF.7)
-MAGIC_MULTI_V3 = b"#TCF.8 M"  # self-describing natures: :id no meta-line (ADR-0027).
+MAGIC_MULTI_V3 = b"#TCF.8M"   # self-describing natures (ADR-0027/0029). Discriminador
+                              # de 1 char: 'M' logo apos #TCF.8 (SEM espaco) = multi;
+                              # meta INLINE na linha do shebang ('#TCF.8M<meta>\n').
                               # Emitido SSE bool(nature_ids) — opt-in estrito.
 MAGIC_SINGLE_V3 = b"#TCF.8"   # single-col self-describing (SEM flag M -> single,
-                              # decode retorna list). shebang opt-in SSE ha nature;
-                              # linha 2 = '[nome]:spec_id' (nome opcional). ADR-0027.
+                              # decode retorna list). Header numa linha: '#TCF.8 [nome]:spec'
+                              # (espaco = single+spec) ou '#TCF.8' (newline = version-stamp).
+                              # Opt-in. ADR-0027/0029.
 META_PREFIX = b"# "  # v1 (#TCF.6, congelado). #TCF.7 dispensa o prefixo do meta
                      # (o flag `M` no shebang ja' declara multi-col) — ADR-0023.
 
@@ -223,9 +226,14 @@ def _encode_multi(
         else:
             parts.append(f"{pre}{len(b)}={name}{suf}")
     meta_pairs = ",".join(parts)
-    # So' o legado #TCF.6 carrega o prefixo '# '; #TCF.7/#TCF.8 dispensam (flag M).
-    meta_prefix = META_PREFIX if magic == MAGIC_MULTI else b""
-    header = magic + b"\n" + meta_prefix + meta_pairs.encode("utf-8") + b"\n"
+    if magic == MAGIC_MULTI_V3:
+        # #TCF.8M: meta INLINE na linha do shebang (discriminador 1-char, ADR-0029)
+        # -> '#TCF.8M<meta>\n<bodies>'. Sem espaco, sem linha de meta separada.
+        header = magic + meta_pairs.encode("utf-8") + b"\n"
+    else:
+        # #TCF.6 carrega o prefixo '# '; #TCF.7 dispensa (flag M na linha 1, ADR-0023).
+        meta_prefix = META_PREFIX if magic == MAGIC_MULTI else b""
+        header = magic + b"\n" + meta_prefix + meta_pairs.encode("utf-8") + b"\n"
     body_concat = b"".join(b for _, b, _ in final_bodies)
     full = header + body_concat
     text = full.decode("utf-8")
@@ -282,22 +290,27 @@ def _decode_multi_impl(
             f"magic invalido: esperado {MAGIC_MULTI_V2!r}/{MAGIC_MULTI_V3!r} "
             f"(ou legado {MAGIC_MULTI!r}), got {line1[:20]!r}"
         )
-    cursor = nl1 + 1
-
-    nl2 = raw.find(b"\n", cursor)
-    if nl2 == -1:
-        raise ValueError("formato invalido: sem linha de meta")
-    line2 = raw[cursor:nl2]
-    # #TCF.7/#TCF.8 dispensam prefixo (flag `M` ja' declara colunas, ADR-0023) —
-    # tolera '# ', '#' avulso, ou nenhum. LEGADO #TCF.6: EXIGE o '# '.
-    if line2.startswith(META_PREFIX):          # b"# " — #TCF.6 legado OU tolerante
-        meta_str = line2[len(META_PREFIX):].decode("utf-8")
-    elif is_v7 or is_v8:
-        meta_str = (line2[1:] if line2.startswith(b"#") else line2).decode("utf-8")
+    if is_v8:
+        # #TCF.8M: meta INLINE na linha do shebang (discriminador 1-char, ADR-0029).
+        # Body comeca logo apos a 1a '\n'.
+        meta_str = line1[len(MAGIC_MULTI_V3):].decode("utf-8")
+        cursor = nl1 + 1
     else:
-        raise ValueError(
-            f"meta invalido (#TCF.6 exige '# '): got {line2[:5]!r}"
-        )
+        # #TCF.7/#TCF.6: meta na linha 2. #TCF.7 dispensa prefixo (flag `M` ja'
+        # declara colunas, ADR-0023) — tolera '# '/'#'/nenhum. #TCF.6 EXIGE '# '.
+        nl2 = raw.find(b"\n", nl1 + 1)
+        if nl2 == -1:
+            raise ValueError("formato invalido: sem linha de meta")
+        line2 = raw[nl1 + 1:nl2]
+        if line2.startswith(META_PREFIX):      # b"# " — #TCF.6 legado OU tolerante
+            meta_str = line2[len(META_PREFIX):].decode("utf-8")
+        elif is_v7:
+            meta_str = (line2[1:] if line2.startswith(b"#") else line2).decode("utf-8")
+        else:
+            raise ValueError(
+                f"meta invalido (#TCF.6 exige '# '): got {line2[:5]!r}"
+            )
+        cursor = nl2 + 1
     pairs = []  # (size|None, name, mode, nature_id|None)
     for p in meta_str.split(","):
         if p.startswith("!"):
@@ -325,7 +338,7 @@ def _decode_multi_impl(
             name, nat_id = name.split(":", 1)
         pairs.append((size, name, mode, nat_id))
 
-    cursor = nl2 + 1
+    # cursor ja' aponta o inicio do body (apos line1 no V8, apos line2 no V7/6)
     result: dict[str, list[str]] = {}
     nature_ids: dict[str, str] = {}
     for size, name, mode, nat_id in pairs:

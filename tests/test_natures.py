@@ -208,12 +208,13 @@ class TestNatureMarkHeader:
         text = encode(table, nature_per_col={"cpf": SPEC_CPF, "doc": SPEC_CNPJ})
         assert decode(text) == table          # SEM nature_per_col no decode
 
-    def test_magic_is_tcf8_and_meta_has_id(self):
+    def test_magic_is_tcf8m_inline(self):
         table = {"doc": ["11.222.333/0001-81"], "plain": ["x"]}
         text = encode(table, nature_per_col={"doc": SPEC_CNPJ})
-        lines = text.split("\n")
-        assert lines[0] == "#TCF.8 M"
-        assert ":cnpj" in lines[1]            # tag no meta-line
+        line0 = text.split("\n")[0]
+        assert line0.startswith("#TCF.8M")    # disc M, SEM espaco (ADR-0029)
+        assert not line0.startswith("#TCF.8 ")  # nao colide com single+spec
+        assert ":cnpj" in line0               # meta INLINE na linha do shebang
 
     def test_byte_neutral_default_off(self):
         """INVARIANTE byte-neutro: sem nature -> #TCF.7, bytes intactos."""
@@ -233,7 +234,7 @@ class TestNatureMarkHeader:
     def test_ip_self_describing(self):
         table = {"ip": ["192.168.1.1", "10.0.0.1"], "x": ["a", "b"]}
         text = encode(table, nature_per_col={"ip": SPEC_IP})
-        assert text.split("\n")[0] == "#TCF.8 M"
+        assert text.startswith("#TCF.8M")     # inline meta (ADR-0029)
         assert decode(text) == table
 
     def test_unknown_nature_id_raw_plus_warn(self):
@@ -263,6 +264,45 @@ class TestNatureMarkHeader:
         assert _resolve_nature_id("ip") is SPEC_IP
         assert _resolve_nature_id("nao-existe") is None      # tolerante, não raise
         assert set(SPEC_REGISTRY) == {"cpf", "cnpj", "ip"}
+
+
+# ===========================================================================
+# Discriminador #TCF.8 (1 char apos '#TCF.8': M / espaco / newline) — ADR-0029
+# ===========================================================================
+
+class TestDiscriminatorV8:
+    def test_disc_multi_M(self):
+        t = encode({"doc": ["11.222.333/0001-81"], "x": ["a"]},
+                   nature_per_col={"doc": SPEC_CNPJ})
+        assert t[:7] == "#TCF.8M"             # M logo apos #TCF.8 (sem espaco)
+        assert decode(t) == {"doc": ["11.222.333/0001-81"], "x": ["a"]}
+
+    def test_disc_single_space(self):
+        t = encode(["529.982.247-25"], nature=SPEC_CPF)
+        assert t[:7] == "#TCF.8 "             # espaco apos #TCF.8
+
+    def test_version_stamp_emit_and_interpret(self):
+        """#TCF.8\\n = carimbo opt-in (magic-number p/ file/libmagic)."""
+        vals = ["a@b.com", "c@d.com", "a@b.com"]
+        t = encode(vals, stamp=True)
+        assert t.split("\n")[0] == "#TCF.8"   # linha so' '#TCF.8' (disc = newline)
+        assert decode(t) == vals              # interpreta -> list (single-col)
+
+    def test_version_stamp_nao_e_default(self):
+        vals = ["a@b.com", "c@d.com"]
+        assert not encode(vals).startswith("#TCF.8")   # default = orfao (body puro)
+
+    def test_version_stamp_interpret_construido(self):
+        """Capacidade de interpretar um #TCF.8\\n<body> (mesmo construido a mao)."""
+        plain = encode(["x", "y", "x"])       # body orfao
+        stamped = "#TCF.8\n" + plain
+        assert decode(stamped) == ["x", "y", "x"]
+
+    def test_stamp_ignorado_com_nature(self):
+        """Com nature, o header de spec ja' versiona -> stamp e' no-op."""
+        t = encode(["529.982.247-25"], nature=SPEC_CPF, stamp=True)
+        assert t.startswith("#TCF.8 ")        # forma de spec, nao '#TCF.8\\n'
+        assert decode(t) == ["529.982.247-25"]
 
 
 # ===========================================================================

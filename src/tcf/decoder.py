@@ -52,13 +52,12 @@ if TYPE_CHECKING:
     from tcf.natures.templated_checked import TemplatedCheckedSpec
 
 
-# #TCF.7 = formato VIVO (default). #TCF.8 = self-describing natures (ADR-0027,
-# opt-in SSE ha nature). #TCF.6 = LEGADO de leitura — remover no 1.0
-# (T-CODE-LEGACY-PRUNE-PRE-07; ADR-0024 git-as-compat reproduz blobs antigos).
-_MULTI_MAGIC = "#TCF.7 M"
-_MULTI_MAGIC_V8 = "#TCF.8 M"          # multi self-describing (:id no meta-line)
-_SINGLE_MAGIC_V8 = "#TCF.8"           # single-col self-describing (SEM M); header
-                                      # numa linha: '#TCF.8 [nome]:spec\\n<body>' (ADR-0027)
+# #TCF.7 = formato VIVO (default). #TCF.8 = self-describing (ADR-0027/0029): o char
+# logo apos '#TCF.8' discrimina — 'M'=multi (#TCF.8M, meta inline), ' '=single+spec
+# (#TCF.8 [nome]:spec), '\n'=single version-stamp (#TCF.8, magic-number p/ file).
+# #TCF.6 = LEGADO de leitura (ADR-0024 git-as-compat).
+_MULTI_MAGIC = "#TCF.7 M"             # multi vivo (meta na linha 2, com espaco)
+_V8_MAGIC = "#TCF.8"                  # base do #TCF.8; o disc (char no indice 6) decide
 _MULTI_MAGIC_LEGACY_V6 = "#TCF.6 M"   # LEGADO — leitura ate' o 1.0
 
 
@@ -88,16 +87,19 @@ def decode(
         ValueError: multi-col malformado (sem magic, sem meta line).
     """
     line1 = tcf_text.split("\n", 1)[0]
-    # Multi: line1 e' EXATAMENTE o magic (sem conteudo extra). Match exato (nao
-    # startswith) e' o que evita colisao com o single-col '#TCF.8 Meu:cpf' — um
-    # nome comecando com 'M' nao pode ser confundido com o flag M do multi.
-    if line1 in (_MULTI_MAGIC, _MULTI_MAGIC_V8, _MULTI_MAGIC_LEGACY_V6):
+    # Discriminador #TCF.8 (ADR-0029): char logo apos '#TCF.8'. 'M'=multi (#TCF.8M),
+    # ' '=single+spec (#TCF.8 ...), ''=version-stamp (line1 == '#TCF.8'). Sem colisao
+    # entre multi e um nome comecando com 'M' (o single tem ESPACO antes do nome).
+    disc8 = line1[6:7] if line1.startswith(_V8_MAGIC) else None
+
+    # MULTI: #TCF.7 M / #TCF.6 M (legado, com espaco) OU #TCF.8M (disc 'M', inline).
+    if line1 in (_MULTI_MAGIC, _MULTI_MAGIC_LEGACY_V6) or disc8 == "M":
         from tcf.multi import _decode_multi_impl
         result, header_ids = _decode_multi_impl(tcf_text)
-        # Natures auto-descritas no header (#TCF.8, ADR-0027): resolve+aplica.
-        # PRECEDENCIA: header vence pros 3 ids core; o usuario completa o resto
-        # via nature_per_col. Sem isso, encode(nature)+decode(nature) aplicaria
-        # DUAS vezes (header + usuario) e quebraria o RT.
+        # Natures auto-descritas no header (#TCF.8): resolve+aplica. PRECEDENCIA:
+        # header vence pros 3 ids core; o usuario completa o resto via
+        # nature_per_col. Sem isso, encode(nature)+decode(nature) aplicaria DUAS
+        # vezes (header + usuario) e quebraria o RT.
         header_resolved: set[str] = set()
         if header_ids:
             from tcf.natures import _resolve_nature_id
@@ -107,8 +109,6 @@ def decode(
                     result[name] = [spec.decode_value(v) for v in result[name]]
                     header_resolved.add(name)
                 else:
-                    # forward-compat: id desconhecido -> valor CRU + aviso (nao
-                    # silencioso, nao KeyError). Usuario pode completar via param.
                     import warnings
                     warnings.warn(
                         f"nature-id desconhecido no header: {nat_id!r} "
@@ -124,23 +124,17 @@ def decode(
                 for name, vals in result.items()
             }
         return result
-    if line1.startswith(_SINGLE_MAGIC_V8 + " "):
-        # Single-col self-describing (#TCF.8 SEM M, ADR-0027). Header numa LINHA
-        # SO' (junto ao shebang, como o flag M): '#TCF.8 [nome]:spec_id'. Nome
-        # opcional (so' rotulo -> descartado). Body = resto apos a 1a '\n'.
-        # Retorna LIST (single-col). '#TCF.8 M' ja' foi pego pelo match multi.
-        meta = line1[len(_SINGLE_MAGIC_V8) + 1:]   # apos "#TCF.8 "
+
+    # SINGLE + SPEC: '#TCF.8 [nome]:spec' (disc espaco). Retorna LIST.
+    if disc8 == " ":
+        meta = line1[len(_V8_MAGIC) + 1:]          # apos "#TCF.8 "
         body = tcf_text[len(line1) + 1:]           # apos a 1a '\n'
-        _name, _, nat_id = meta.partition(":")
+        _name, _, nat_id = meta.partition(":")     # nome opcional, descartado
         values = _decode_column(body)
         from tcf.natures import _resolve_nature_id
         spec = _resolve_nature_id(nat_id)
         if spec is not None:
-            # header vence: resolve+aplica e ignora um `nature=` redundante do
-            # usuario (evita dupla aplicacao no RT).
-            return [spec.decode_value(v) for v in values]
-        # forward-compat: id desconhecido -> valor CRU + aviso (nao silencioso,
-        # nao KeyError). Usuario pode completar via `nature=`.
+            return [spec.decode_value(v) for v in values]   # header vence
         import warnings
         warnings.warn(
             f"nature-id desconhecido no header single-col: {nat_id!r} "
@@ -151,6 +145,18 @@ def decode(
             from tcf.natures.templated_checked import decode_value
             values = [decode_value(nature, v) for v in values]
         return values
+
+    # SINGLE version-stamp: line1 == '#TCF.8' (disc vazio). Carimbo de versao
+    # (magic-number p/ file/libmagic, ADR-0029) — body single-col puro segue.
+    if disc8 == "":
+        body = tcf_text[len(line1) + 1:]           # apos "#TCF.8\n"
+        values = _decode_column(body)
+        if nature is not None:
+            from tcf.natures.templated_checked import decode_value
+            values = [decode_value(nature, v) for v in values]
+        return values
+
+    # ORFAO: single-col body puro (sem shebang) — camada 1 (ADR-0029).
     values = _decode_column(tcf_text)
     if nature is not None:
         from tcf.natures.templated_checked import decode_value
