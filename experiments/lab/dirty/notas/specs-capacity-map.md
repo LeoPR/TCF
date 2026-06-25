@@ -139,9 +139,12 @@ O owner autorizou implementar a rota explícita (antes parada em (A)). MVP em `s
 (D1-D9=1523B/D17a=303B/real-world=89616B intactos). encode coleta `nature_ids={col:
 spec.name}`; decode (`_decode_multi_impl` parseia, `decode()` resolve via `SPEC_REGISTRY`
 fixo + precedência header-vence). id desconhecido → cru + `warnings.warn` (forward-compat).
-9 testes; ADR-0027 → accepted. **Parkado**: single-col (sem header), lazy-view #TCF.8
-(`view.py` rejeita com erro claro). Rota implícita **descartada** (insegura). Release:
-pacote segue 0.7.1; format #TCF.8 → próximo release seria 0.8.0 (ADR-0028), decisão à parte.
+9 testes; ADR-0027 → accepted. **Single-col TAMBÉM welded** (2026-06-24): `#TCF.8` sem
+flag `M` (= single → `list`), `[nome]:spec_id` com nome opcional; `encode(list, nature=,
+name=)`; opt-in (sem nature = body puro byte-idêntico); +9 testes test-first.
+**Parkado**: lazy-view #TCF.8 (`view.py` rejeita com erro claro). Rota implícita
+**descartada** (insegura). Release: pacote segue 0.7.1; format #TCF.8 → próximo release
+seria 0.8.0 (ADR-0028), decisão à parte.
 
 ## Cross-links
 

@@ -17,7 +17,8 @@
 > Diferenças MVP vs design: id desconhecido surfaceia via `warnings.warn` (decode
 > não tem `side_outputs`), não `SideOutputs.unknown_nature_ids`; precedência
 > header-vence implementada em `decode()` (header resolve → aplica; usuário completa
-> o resto). Single-col e lazy-view #TCF.8 seguem PARKADOS (fora do MVP).
+> o resto). **Single-col TAMBÉM welded** (2026-06-24, ver §"Single-col" abaixo);
+> lazy-view #TCF.8 segue PARKADO (fora do MVP).
 
 ## Context and Problem Statement
 
@@ -101,10 +102,29 @@ default-off, zero-regressão por construção; design fechado e core-only (sem e
 viaja no blob"; **custo permanente** de um magic `#TCF.8` que decoder/lazy/terceiros
 carregam pra sempre. Desproporção ganho×custo → **parado em (A)**.
 
-## Single-col — PARK explícito
+## Single-col — WELDED (2026-06-24)
 
-Single-col não tem header; embutir shebang quebraria o byte-canonical de **todo**
-single-col. Fora de escopo; decisão futura separada.
+> Atualização: o park original (abaixo) foi resolvido. O owner notou que single-col
+> = multi-col com 1 coluna (header implícito) e que um shebang **opt-in** (só quando
+> há nature) preserva o byte-canonical de todo single-col SEM spec.
+
+**Formato** (escolha do owner: espelha multi): `#TCF.8\n[nome]:spec_id\n<body>`. A
+**ausência do flag `M`** distingue single (`#TCF.8\n`) de multi (`#TCF.8 M`) — o
+decode retorna `list` (não `dict`), preservando `decode(encode(list)) == list`.
+Linha 2 = `[nome]:spec_id`, **nome OPCIONAL** (só rótulo de acompanhamento;
+descartado no decode — single-col não tem nome de retorno; vazio = `:cpf`).
+
+- `encode(list, nature=SPEC, name=None)`: shebang emitido SSE `nature` passado.
+  `MAGIC_SINGLE_V3 = b"#TCF.8"`. Valida `name` sem `:`/`\n`.
+- `decode`: dispatch `#TCF.8\n`; resolve via `_resolve_nature_id` (core-only);
+  precedência header-vence; id desconhecido → cru + `warnings.warn`.
+
+**byte-neutro**: single-col SEM spec = body puro byte-idêntico (D1-D9=1523B intacto);
+custo ~12B de header só no opt-in. Welded com 9 testes (test-first).
+
+**Park original** (resolvido): "single-col não tem header; embutir shebang quebraria
+o byte-canonical de todo single-col" — verdadeiro só se o shebang fosse SEMPRE
+emitido; com opt-in (só quando há nature), o caminho sem-spec fica intacto.
 
 ## Relation to other ADRs
 

@@ -52,9 +52,19 @@ welded 2026-06-24)** — ADITIVO e opt-in ESTRITO: emitido SSE alguma coluna tem
 (CPF/CNPJ/IP); senao `#TCF.7` byte-identico. A nature viaja no header como sufixo `:id`
 no nome da coluna no meta-line (ex: `!11=cpf:cpf,13=doc:cnpj,!plain`) — o decode reverte
 sozinho (resolve `:id` -> spec via dict fixo core-only, zero eval; id desconhecido -> valor
-cru + warning, forward-compat). Multi-col apenas (single-col parkado). Validador proibe `:`
-em nome de coluna so' quando ha nature. **byte-neutro**: `#TCF.8` condicionado SO' a
-`bool(nature_ids)` — caminho sem nature inalterado.
+cru + warning, forward-compat). Validador proibe `:` em nome de coluna so' quando ha nature.
+**byte-neutro**: `#TCF.8 M` condicionado SO' a `bool(nature_ids)` — caminho sem nature inalterado.
+
+**Single-col** (welded 2026-06-24): mesmo `#TCF.8` mas **SEM o flag `M`** (a ausencia do
+`M` => single-col, decode retorna `list`):
+
+    #TCF.8
+    [nome]:spec_id      <- nome OPCIONAL (so' rotulo; vazio = ':cpf')
+    <body>
+
+Emitido SSE `encode(list, nature=SPEC)` (opt-in). Sem nature -> body puro byte-identico
+(D1-D9=1523B intacto). Custo ~12B de header so' no opt-in. `decode` despacha `#TCF.8\n`
+(distinto de `#TCF.8 M`), resolve o spec e retorna `list`. Precedencia header-vence.
 
 **Promessa v1**: `#TCF.6` e' imutavel ate' v2.0. Nenhum byte de arquivo
 TCF v1 muda entre versoes tcf 1.x.y. Markers novos requerem `#TCF.7`.
