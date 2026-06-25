@@ -45,7 +45,7 @@ class _EmitState:
     alias_to_final. Read-only: alias_to_sub. Debug (NAO afeta bytes, alimenta
     build_trace/build_rede): ref_seqs, ref_seq.
     """
-    current_id: list          # cell [0]: contador monotonico de id final
+    current_id: int           # contador monotonico de id final (read-then-incr)
     prov_to_final: dict        # rw: atom prov_id -> id final
     alias_to_final: dict       # rw: alias_temp -> id final
     alias_to_sub: dict         # ro: alias_temp -> sub-tupla de refs
@@ -465,7 +465,7 @@ class M8AVirtualRefsSyntax(Syntax):
         prov_to_final = {}
         alias_to_final = {}
         state = _EmitState(
-            current_id=[0],
+            current_id=0,
             prov_to_final=prov_to_final,
             alias_to_final=alias_to_final,
             alias_to_sub=alias_to_sub,
@@ -520,8 +520,8 @@ class M8AVirtualRefsSyntax(Syntax):
                         # expression, perdendo o `,` literal. Descoberto em
                         # EXP-013 TPC-H (p_comment 'pending, bold' -> 'pending bold').
                         parts.append('*')
-                    state.current_id[0] += 1
-                    prov_to_final[p[2]] = state.current_id[0]
+                    state.current_id += 1
+                    prov_to_final[p[2]] = state.current_id
                     text_emit, prev_lit_term_digit = self._escape_lit(p[1])
                     parts.append(text_emit)
                     prev_type = 'lit'
@@ -562,7 +562,7 @@ class M8AVirtualRefsSyntax(Syntax):
                     atom_run.append(state.prov_to_final[refs[i]])
                     i += 1
                 segments.append(self._emit_refs_range(atom_run))
-                state.current_id[0] += self._count_ids_in_refs(atom_run)
+                state.current_id += self._count_ids_in_refs(atom_run)
                 state.ref_seq.extend(atom_run)
             else:
                 # Virtual: emit alias (def or use)
@@ -613,8 +613,8 @@ class M8AVirtualRefsSyntax(Syntax):
 
         emission = self._emit_composition(linear)
         K = len(linear)
-        base = state.current_id[0]
-        state.current_id[0] += K - 1
+        base = state.current_id
+        state.current_id += K - 1
 
         # Assign final IDs by pairwise position
         # ID at linear index k (0-based, k>=1) is base + k
