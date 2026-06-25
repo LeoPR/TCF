@@ -8,7 +8,8 @@ Foco da sessão segue sendo o **fluxo** (H-NAT-SPEC); estes são itens ADJACENTE
 
 | item | onde aparece | status | detalhe |
 |---|---|---|---|
-| **escape vs índice** (deduzir escape desnecessário) | caso 1 (`\526.\018...`) e caso 2.2 | **FECHADO** (insufficient-gain) | = **escape-deduction**, Pacote 2 (META-ESCAPE-DEDUCTION, H-ED-01..04). 15.7% sintético D11a-h MAS **0.13–1.13% real-world** → closed 2026-05-21. Hoje `_escape_lit` escapa TODO digit-run incondicional. |
+| **escape-DEDUÇÃO** (por-ocorrência, `digit>node_count`) | caso 1, caso 2.2 | **FECHADO** (insufficient-gain) | Pacote 2 (META-ESCAPE-DEDUCTION). 15.7% sint MAS 0.13–1.13% real-world → closed. |
+| **escape-INVERTIDO (EI)** (flip GLOBAL por header) | caso 1, caso 2.2 | **ABERTO, VIÁVEL** ⚠️ corrige rejeição | DISTINTO da deduction (global vs por-ocorrência; não depende de node_count). Medido: caso1-raw 18.8%, suíte 9.2% (UUID 12.9%). Ver [hipotese-escape-invertido-EI.md](hipotese-escape-invertido-EI.md). |
 | **DV-drop care** (não dropar DV inválido) | caso 2.1 | **FEITO** | `classify_value`: DV inválido → `check_invalid` → não-compressible → **fallback literal** (`_`+v) mantém o CPF. Idem `format_unmasked` (11 díg crus). |
 | **alfabeto base94 livre-de-conflito** (evitar chars que precisam escape) | caso 2.2 | **NÃO FEITO** (candidato micro) | escolher BASE94 sem `\`/`*`/`~`/`:` e sem começar igual a índice → menos escapes. Adjacente à escape-deduction (mas estrutural, não dedutivo). Anotar como micro-opt. |
 | **parallelismo MULTI-coluna** (ProcessPoolExecutor) | — | **FEITO** | `multi/parallel.py` — encoda colunas em paralelo (HOST). Byte-idêntico ao serial. |
