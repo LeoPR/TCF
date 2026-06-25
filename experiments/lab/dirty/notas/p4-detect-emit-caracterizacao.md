@@ -8,8 +8,14 @@ tocar `src/tcf/`. Companheiro de [docs/algorithms/core-data-model.md](../../../.
 > **Status**: caracterizada; **Onda 1 EXECUTADA** (2026-06-24, owner aprovou só ela).
 > Commits: `4cd7283` (S0+S2+S3 docs), `91e3cf9` (S4 `_EmitState`), `0be4649` (S5
 > `current_id` int), `229d873` (S6 ref_seqs trace-only). Todos byte-neutros (31 gates
-> byte-canonical + RT + suite 375 verdes). **Onda 2 (S7/S8) e S1 NÃO executados**
-> (decisão do owner). Detector e `.pyx` intocados. Buraco de gate-pyx → [T-CI-3](../../../../tickets/T-CI-3-pyx-compiled-byte-gate.md).
+> byte-canonical + RT + suite 375 verdes). Detector e `.pyx` intocados na Onda 1.
+>
+> **Onda 2**: **S7 EXECUTADO** (commit `_emit_runs`, equivalência verificada 200k
+> casos + GATE; só emit/trace, não toca detector/.pyx). **S8 PENDENTE de avaliação
+> futura** (owner: "depois fazemos o S8") — risco ALTO (função de custo do detector,
+> consumida pelo `.pyx`), gated por [T-CI-3](../../../../tickets/T-CI-3-pyx-compiled-byte-gate.md).
+> **S1 NÃO executado** (não tocar `.pyx` sem gate). Buraco de gate-pyx + dimensão de
+> distribuição (otimização tem que chegar ao usuário) → [T-CI-3](../../../../tickets/T-CI-3-pyx-compiled-byte-gate.md).
 
 ## O acoplamento hoje (caracterização)
 
