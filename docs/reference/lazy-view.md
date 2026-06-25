@@ -2,8 +2,9 @@
 
 Referência da camada **read-only** [`tcf.view`](../../src/tcf/view.py): conecta a um blob
 TCF multi-coluna e responde consultas (`count/sum/min/max/avg`, `where`, group-by)
-**descomprimindo só o necessário**. Lê o `#TCF.7` (e `#TCF.6` legado); **não muda
-encode/decode/formato**. Promovida do gadget `scripts/tcf_lazy/` (A4, plano 0.8).
+**descomprimindo só o necessário**. Lê `#TCF.8M` (self-describing: natures revertidas
+LAZY ao materializar a coluna + colunas anônimas posicionais), `#TCF.7` e `#TCF.6` legado;
+**não muda encode/decode/formato**. Promovida do gadget `scripts/tcf_lazy/` (A4, plano 0.8).
 
 ```python
 from tcf import encode, view

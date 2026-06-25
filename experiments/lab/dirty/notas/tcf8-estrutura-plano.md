@@ -48,7 +48,7 @@ Forma vigente (resumo; spec em TCF-format.md):
 [FEITO] discriminador + natures + anônimas + version-stamp + ADR-0027/0029
    |
    v
-1. LAZY-VIEW #TCF.8  ← PRÓXIMO (read-only, espelha o parse novo)
+1. LAZY-VIEW #TCF.8  ✅ FEITO (2026-06-25): view.py lê #TCF.8M + natures lazy + anônimas
    |
    v
 2. Congelar body single-col @1.0 (compromisso, ADR — linchpin do órfão)
@@ -63,12 +63,12 @@ Forma vigente (resumo; spec em TCF-format.md):
 5. [0.9] tcfx index / lazy avançado (H-QUERY-04): pushdown + índices
 ```
 
-### 1. Lazy-view #TCF.8 (próximo)
-`LazyTCF._parse` ([view.py](../../../../src/tcf/view.py)) só trata #TCF.6/7. Estender:
-(a) aceitar `#TCF.8M` + parsear meta **inline** (linha 1) + `:id` + colunas anônimas
-(nome posicional) — espelha `_decode_multi_impl`; (b) `_col` aplica `decode_value` ao
-materializar coluna com nature (lazy preservado — só a coluna consultada). Read-only,
-aditivo, baixo risco. Single (spec/stamp) não entra (LazyTCF é multi-col). Test-first.
+### 1. Lazy-view #TCF.8 ✅ FEITO (2026-06-25)
+`LazyTCF._parse` ([view.py](../../../../src/tcf/view.py)) passou a aceitar `#TCF.8M`:
+meta **inline** (linha 1) + `:id` + colunas anônimas (nome posicional) — espelha
+`_decode_multi_impl`. `_col` aplica `decode_value` ao materializar coluna com nature
+(**lazy preservado** — só a coluna consultada). Read-only, aditivo. Single (spec/stamp)
+fora (LazyTCF é multi-col). +3 testes test-first; suíte 414.
 
 ### 2. Congelar single-col @1.0
 Decisão pré-1.0 (não código): o body single-col vira contrato imutável → órfão decodável
