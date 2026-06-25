@@ -1,12 +1,12 @@
 # 0029 — Estratégia de identificação de versão/formato: semi-implícito + major-externo
 
-**Status**: proposed
+**Status**: accepted (2026-06-24)
 **Date**: 2026-06-24
 **Deciders**: project owner
 **Tags**: format, versioning, self-describing, byte-economy, 1.0, identification
 
-> **proposed.** Decide a POLÍTICA de quem identifica versão/formato de um blob TCF
-> (arquivo vs chamada vs externo). Aprovada → guia a implementação do discriminador
+> **accepted 2026-06-24.** Decide a POLÍTICA de quem identifica versão/formato de um
+> blob TCF (arquivo vs chamada vs externo). Guia a implementação do discriminador
 > `#TCF.8` (§"Realização"). Refina [ADR-0024](0024-pre-1.0-versioning-git-as-compat.md)
 > / [ADR-0028](0028-pre-1.0-versioning-minor-format-coupling-release-cadence.md)
 > (eixos de versão) e [ADR-0017](0017-format-spec-v1-frozen.md) (freeze).
@@ -79,9 +79,14 @@ O caractere logo após `#TCF.8` discrimina (1 char, dispatch limpo):
 - **Multi perde o espaço antes do `M`** (`#TCF.8 M` → `#TCF.8M`) — necessário pro
   discriminador de 1 char; senão o espaço do multi colidiria com "single". Economiza
   ~2 B/multi (espaço + a quebra de linha do meta separado). Cada coluna = `NN[=nome][:spec]`.
-- **`#TCF.8\n` (single sem nada)** = carimbo de versão **opt-in** num single-col plano
-  (raro). **NÃO é o default**: single-col plano segue **órfão (body-only)** — camada 1,
-  byte-idêntico. Existe só pra quem quiser estampar a versão sem spec/nome.
+- **`#TCF.8\n` (single version-stamp)** = carimbo de versão **opt-in** num single-col
+  plano. **Razão (owner)**: identificação do artefato por **magic-number** — um `.tcf`
+  salvo em disco fica reconhecível por ferramentas tipo `file`/libmagic, preservando a
+  proveniência do formato no próprio arquivo. **NÃO é o default**: single-col plano em
+  memória/transmissão segue **órfão (body-only)** — camada 1, byte-idêntico. O que importa
+  é a **capacidade de interpretar** `#TCF.8\n<body>` (decode reconhece → single-col list).
+  **Aberto (regular depois)**: talvez vire default *ao salvar em arquivo* (preservar a
+  memória do formato no artefato), mantendo órfão em memória/transmissão — não decidido.
 - `#TCF.7 M` / `#TCF.6 M` (legado) mantêm a forma própria (cada versão de formato é
   auto-contida; o discriminador-por-char é específico do `#TCF.8`).
 
