@@ -284,12 +284,12 @@ class TestNatureMarkSingleCol:
         text = encode(cpfs, nature=SPEC_CPF)
         assert decode(text) == cpfs               # SEM nature no decode
 
-    def test_magic_sem_m_e_meta(self):
+    def test_magic_sem_m_uma_linha(self):
         cpfs = ["529.982.247-25"]
         text = encode(cpfs, nature=SPEC_CPF)
-        lines = text.split("\n")
-        assert lines[0] == "#TCF.8"               # sem ' M' -> single-col
-        assert lines[1] == ":cpf"                 # nome vazio, spec id
+        # header numa LINHA SO': '#TCF.8 :cpf' (sem ' M' -> single; nome vazio)
+        assert text.split("\n")[0] == "#TCF.8 :cpf"
+        assert not text.startswith("#TCF.8 M")    # nao colide com multi
 
     def test_retorna_list_nao_dict(self):
         text = encode(["529.982.247-25"], nature=SPEC_CPF)
@@ -298,13 +298,20 @@ class TestNatureMarkSingleCol:
     def test_nome_opcional(self):
         cpfs = ["529.982.247-25", "111.444.777-35"]
         text = encode(cpfs, nature=SPEC_CPF, name="docs")
-        assert text.split("\n")[1] == "docs:cpf"  # slot de nome preenchido
+        assert text.split("\n")[0] == "#TCF.8 docs:cpf"  # nome no header
         assert decode(text) == cpfs               # nome nao afeta os valores
+
+    def test_nome_comecando_com_m_nao_colide(self):
+        """Regressao: nome 'Meu' -> '#TCF.8 Meu:cpf' NAO pode virar multi."""
+        cpfs = ["529.982.247-25", "111.444.777-35"]
+        text = encode(cpfs, nature=SPEC_CPF, name="Meu")
+        assert text.split("\n")[0] == "#TCF.8 Meu:cpf"
+        assert decode(text) == cpfs               # decodifica como single, nao multi
 
     def test_ip_single_col_self_describing(self):
         ips = ["192.168.1.1", "10.0.0.1", "172.16.0.1"]
         text = encode(ips, nature=SPEC_IP)
-        assert text.startswith("#TCF.8\n")
+        assert text.startswith("#TCF.8 ")         # header na linha do shebang
         assert decode(text) == ips
 
     def test_unknown_id_cru_warn(self):

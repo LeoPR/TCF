@@ -175,7 +175,9 @@ def encode(
             )
         from tcf.multi.core import MAGIC_SINGLE_V3
         magic = MAGIC_SINGLE_V3.decode("utf-8")          # "#TCF.8"
-        return f"{magic}\n{name or ''}:{nature_id}\n{body}"
+        # Header numa LINHA SO', junto ao shebang (como o flag `M` do multi):
+        # '#TCF.8 [nome]:spec_id'. Body na linha seguinte. Sem linha extra.
+        return f"{magic} {name or ''}:{nature_id}\n{body}"
     if isinstance(data, dict):
         from tcf.multi import _encode_multi
         if sort_by is not None:

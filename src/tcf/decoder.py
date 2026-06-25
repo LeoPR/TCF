@@ -57,8 +57,8 @@ if TYPE_CHECKING:
 # (T-CODE-LEGACY-PRUNE-PRE-07; ADR-0024 git-as-compat reproduz blobs antigos).
 _MULTI_MAGIC = "#TCF.7 M"
 _MULTI_MAGIC_V8 = "#TCF.8 M"          # multi self-describing (:id no meta-line)
-_SINGLE_MAGIC_V8 = "#TCF.8"           # single-col self-describing (SEM M); shebang
-                                      # '#TCF.8\\n[nome]:spec\\n<body>' (ADR-0027)
+_SINGLE_MAGIC_V8 = "#TCF.8"           # single-col self-describing (SEM M); header
+                                      # numa linha: '#TCF.8 [nome]:spec\\n<body>' (ADR-0027)
 _MULTI_MAGIC_LEGACY_V6 = "#TCF.6 M"   # LEGADO — leitura ate' o 1.0
 
 
@@ -87,9 +87,11 @@ def decode(
     Raises:
         ValueError: multi-col malformado (sem magic, sem meta line).
     """
-    if (tcf_text.startswith(_MULTI_MAGIC)
-            or tcf_text.startswith(_MULTI_MAGIC_V8)
-            or tcf_text.startswith(_MULTI_MAGIC_LEGACY_V6)):
+    line1 = tcf_text.split("\n", 1)[0]
+    # Multi: line1 e' EXATAMENTE o magic (sem conteudo extra). Match exato (nao
+    # startswith) e' o que evita colisao com o single-col '#TCF.8 Meu:cpf' — um
+    # nome comecando com 'M' nao pode ser confundido com o flag M do multi.
+    if line1 in (_MULTI_MAGIC, _MULTI_MAGIC_V8, _MULTI_MAGIC_LEGACY_V6):
         from tcf.multi import _decode_multi_impl
         result, header_ids = _decode_multi_impl(tcf_text)
         # Natures auto-descritas no header (#TCF.8, ADR-0027): resolve+aplica.
@@ -122,14 +124,13 @@ def decode(
                 for name, vals in result.items()
             }
         return result
-    if tcf_text.startswith(_SINGLE_MAGIC_V8 + "\n"):
-        # Single-col self-describing (#TCF.8 SEM M, ADR-0027): linha 1 '#TCF.8',
-        # linha 2 '[nome]:spec_id' (nome opcional, so' rotulo -> descartado),
-        # resto = body. Retorna LIST (single-col).
-        nl1 = tcf_text.index("\n")
-        nl2 = tcf_text.index("\n", nl1 + 1)
-        meta = tcf_text[nl1 + 1:nl2]
-        body = tcf_text[nl2 + 1:]
+    if line1.startswith(_SINGLE_MAGIC_V8 + " "):
+        # Single-col self-describing (#TCF.8 SEM M, ADR-0027). Header numa LINHA
+        # SO' (junto ao shebang, como o flag M): '#TCF.8 [nome]:spec_id'. Nome
+        # opcional (so' rotulo -> descartado). Body = resto apos a 1a '\n'.
+        # Retorna LIST (single-col). '#TCF.8 M' ja' foi pego pelo match multi.
+        meta = line1[len(_SINGLE_MAGIC_V8) + 1:]   # apos "#TCF.8 "
+        body = tcf_text[len(line1) + 1:]           # apos a 1a '\n'
         _name, _, nat_id = meta.partition(":")
         values = _decode_column(body)
         from tcf.natures import _resolve_nature_id
