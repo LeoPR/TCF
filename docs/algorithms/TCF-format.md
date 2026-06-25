@@ -56,15 +56,17 @@ cru + warning, forward-compat). Validador proibe `:` em nome de coluna so' quand
 **byte-neutro**: `#TCF.8 M` condicionado SO' a `bool(nature_ids)` — caminho sem nature inalterado.
 
 **Single-col** (welded 2026-06-24): mesmo `#TCF.8` mas **SEM o flag `M`** (a ausencia do
-`M` => single-col, decode retorna `list`):
+`M` => single-col, decode retorna `list`). Header numa LINHA SO', junto ao shebang
+(como o `M`), sem linha extra:
 
-    #TCF.8
-    [nome]:spec_id      <- nome OPCIONAL (so' rotulo; vazio = ':cpf')
+    #TCF.8 [nome]:spec_id     <- nome OPCIONAL (so' rotulo; vazio = '#TCF.8 :cpf')
     <body>
 
 Emitido SSE `encode(list, nature=SPEC)` (opt-in). Sem nature -> body puro byte-identico
-(D1-D9=1523B intacto). Custo ~12B de header so' no opt-in. `decode` despacha `#TCF.8\n`
-(distinto de `#TCF.8 M`), resolve o spec e retorna `list`. Precedencia header-vence.
+(D1-D9=1523B intacto). Custo ~12B de header so' no opt-in. `decode` despacha por match
+EXATO de line1 pros magics multi (`line1 in (...)`, nao startswith — senao um nome
+comecando com 'M' colidiria com `#TCF.8 M`); single = `line1.startswith('#TCF.8 ')`.
+Resolve o spec e retorna `list`. Precedencia header-vence.
 
 **Promessa v1**: `#TCF.6` e' imutavel ate' v2.0. Nenhum byte de arquivo
 TCF v1 muda entre versoes tcf 1.x.y. Markers novos requerem `#TCF.7`.

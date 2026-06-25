@@ -108,16 +108,21 @@ carregam pra sempre. Desproporção ganho×custo → **parado em (A)**.
 > = multi-col com 1 coluna (header implícito) e que um shebang **opt-in** (só quando
 > há nature) preserva o byte-canonical de todo single-col SEM spec.
 
-**Formato** (escolha do owner: espelha multi): `#TCF.8\n[nome]:spec_id\n<body>`. A
-**ausência do flag `M`** distingue single (`#TCF.8\n`) de multi (`#TCF.8 M`) — o
-decode retorna `list` (não `dict`), preservando `decode(encode(list)) == list`.
-Linha 2 = `[nome]:spec_id`, **nome OPCIONAL** (só rótulo de acompanhamento;
-descartado no decode — single-col não tem nome de retorno; vazio = `:cpf`).
+**Formato** (header numa LINHA SÓ, junto ao shebang como o flag `M` — owner
+2026-06-24): `#TCF.8 [nome]:spec_id\n<body>`. A **ausência do flag `M`** distingue
+single (`#TCF.8 <...>`) de multi (`#TCF.8 M`) — o decode retorna `list` (não
+`dict`), preservando `decode(encode(list)) == list`. O `[nome]:spec_id` fica na
+própria linha do shebang (sem linha extra; o espaço troca o `\n`, mesmo custo
+~12B). **nome OPCIONAL** (só rótulo de acompanhamento; descartado no decode;
+vazio = `:cpf`).
 
 - `encode(list, nature=SPEC, name=None)`: shebang emitido SSE `nature` passado.
   `MAGIC_SINGLE_V3 = b"#TCF.8"`. Valida `name` sem `:`/`\n`.
-- `decode`: dispatch `#TCF.8\n`; resolve via `_resolve_nature_id` (core-only);
-  precedência header-vence; id desconhecido → cru + `warnings.warn`.
+- `decode`: dispatch do multi por **match EXATO** de `line1` (`line1 in (magics)`,
+  não startswith) — necessário pra um `name` começando em `M` (`#TCF.8 Meu:cpf`)
+  não colidir com `#TCF.8 M`. Single = `line1.startswith("#TCF.8 ")`. Resolve via
+  `_resolve_nature_id` (core-only); precedência header-vence; id desconhecido →
+  cru + `warnings.warn`.
 
 **byte-neutro**: single-col SEM spec = body puro byte-idêntico (D1-D9=1523B intacto);
 custo ~12B de header só no opt-in. Welded com 9 testes (test-first).
