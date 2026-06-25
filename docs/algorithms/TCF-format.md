@@ -49,24 +49,33 @@ TCF distingue **versão de FORMATO** (shebang `#TCF.N`, eixo A) de **versão de 
 
 **`#TCF.8` (self-describing natures, [ADR-0027](../adr/0027-nature-mark-header-self-describing.md),
 welded 2026-06-24)** — ADITIVO e opt-in ESTRITO: emitido SSE alguma coluna tem nature
-(CPF/CNPJ/IP); senao `#TCF.7` byte-identico. A nature viaja no header como sufixo `:id`
-no nome da coluna no meta-line (ex: `!11=cpf:cpf,13=doc:cnpj,!plain`) — o decode reverte
-sozinho (resolve `:id` -> spec via dict fixo core-only, zero eval; id desconhecido -> valor
-cru + warning, forward-compat). Validador proibe `:` em nome de coluna so' quando ha nature.
-**byte-neutro**: `#TCF.8 M` condicionado SO' a `bool(nature_ids)` — caminho sem nature inalterado.
+(CPF/CNPJ/IP); senao `#TCF.7` byte-identico.
 
-**Single-col** (welded 2026-06-24): mesmo `#TCF.8` mas **SEM o flag `M`** (a ausencia do
-`M` => single-col, decode retorna `list`). Header numa LINHA SO', junto ao shebang
-(como o `M`), sem linha extra:
+**Discriminador de 1 char** ([ADR-0029](../adr/0029-version-format-identification-semi-implicit.md)):
+o caractere logo apos `#TCF.8` decide estrutura+tipo. Sem colisao (single tem ESPACO
+antes do nome; multi tem `M` colado):
 
-    #TCF.8 [nome]:spec_id     <- nome OPCIONAL (so' rotulo; vazio = '#TCF.8 :cpf')
-    <body>
+| apos `#TCF.8` | tipo | header |
+|---|---|---|
+| `M` | multi | `#TCF.8M<NN[=nome][:spec]>,<...>` (meta INLINE na linha do shebang) |
+| ` ` (espaco) | single + spec | `#TCF.8 [nome]:spec` (nome opcional, so' rotulo) |
+| `\n` | single version-stamp | `#TCF.8` (carimbo opt-in; magic-number p/ `file`/libmagic) |
 
-Emitido SSE `encode(list, nature=SPEC)` (opt-in). Sem nature -> body puro byte-identico
-(D1-D9=1523B intacto). Custo ~12B de header so' no opt-in. `decode` despacha por match
-EXATO de line1 pros magics multi (`line1 in (...)`, nao startswith — senao um nome
-comecando com 'M' colidiria com `#TCF.8 M`); single = `line1.startswith('#TCF.8 ')`.
-Resolve o spec e retorna `list`. Precedencia header-vence.
+Exemplos (body na(s) linha(s) seguinte(s)):
+
+    #TCF.8M!7=doc:cnpj,!x        <- multi: 2 cols, doc com nature cnpj, x raw
+    #TCF.8 docs:cpf              <- single + spec cpf, nome 'docs'
+    #TCF.8                       <- single version-stamp (body single-col puro)
+
+- **nature self-describing**: o `:spec` (cpf/cnpj/ip) viaja no header; decode resolve via
+  dict fixo core-only (zero eval), id desconhecido -> cru + warning (forward-compat),
+  precedencia header-vence. Multi: validador proibe `:` em nome de coluna quando ha nature.
+- **byte-neutro** ([ADR-0029](../adr/0029-version-format-identification-semi-implicit.md)
+  camada 1): `#TCF.8` so' aparece no opt-in (`nature=`/`nature_per_col=`/`stamp=True`).
+  Single-col plano = body puro **orfao** (sem shebang, D1-D9=1523B intacto); multi sem
+  nature = `#TCF.7 M`. O version-stamp (`#TCF.8\n`) e' opt-in (`encode(list, stamp=True)`).
+- multi `#TCF.8M` larga o espaco antes do `M` e poe o meta na linha do shebang (~2B a menos
+  que `#TCF.7 M`+linha separada).
 
 **Promessa v1**: `#TCF.6` e' imutavel ate' v2.0. Nenhum byte de arquivo
 TCF v1 muda entre versoes tcf 1.x.y. Markers novos requerem `#TCF.7`.

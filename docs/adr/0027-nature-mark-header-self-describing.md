@@ -19,6 +19,13 @@
 > header-vence implementada em `decode()` (header resolve → aplica; usuário completa
 > o resto). **Single-col TAMBÉM welded** (2026-06-24, ver §"Single-col" abaixo);
 > lazy-view #TCF.8 segue PARKADO (fora do MVP).
+>
+> **FORMATO refinado por [ADR-0029](0029-version-format-identification-semi-implicit.md)**
+> (discriminador de 1 char): o multi passou de `#TCF.8 M` + meta-line separada para
+> `#TCF.8M<meta>` (sem espaço, meta INLINE na linha do shebang); single+spec =
+> `#TCF.8 [nome]:spec`; novo `#TCF.8\n` = version-stamp. Os exemplos de meta-line
+> abaixo (`!15=cpf,doc:cnpj`) refletem o design ORIGINAL; o conteúdo do meta é o mesmo,
+> só migrou pra linha do shebang. Ver ADR-0029 §Realização pro formato vigente.
 
 ## Context and Problem Statement
 

@@ -134,6 +134,12 @@ de TODO single-col. O gap "nome viaja no blob" permanece aberto pra single-col m
 rota multi-col for feita. Decisão separada com gate próprio.
 
 ### Status — IMPLEMENTADO (MVP welded 2026-06-24)
+> **Formato vigente refinado por [ADR-0029](../../../../docs/adr/0029-version-format-identification-semi-implicit.md)**:
+> discriminador de 1 char após `#TCF.8` — `M`=multi (`#TCF.8M<meta>` inline),
+> ` `=single+spec (`#TCF.8 [nome]:spec`), `\n`=version-stamp (`#TCF.8`, magic-number
+> p/ `file`). O texto abaixo descreve o design ORIGINAL (`#TCF.8 M` + meta-line);
+> o conteúdo é o mesmo, migrou pra linha do shebang.
+
 O owner autorizou implementar a rota explícita (antes parada em (A)). MVP em `src/tcf`:
 `#TCF.8 M` + `:id` no meta-line, 3 ids core, opt-in estrito, **byte-neutro default-off**
 (D1-D9=1523B/D17a=303B/real-world=89616B intactos). encode coleta `nature_ids={col:
