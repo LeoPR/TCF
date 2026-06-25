@@ -25,13 +25,22 @@ Tudo como fila produtor-consumidor com buffer (latência / streaming).
   opt-in obrigatório (byte-canônico, ADR-0015); auto-DETECTAR/sugerir é byte-neutro.
 
 ## Análise crítica
-- **(I) é o mais valioso E tem tensão real**: a base94-antes-do-OBAT DESTRÓI a estrutura
-  compartilhada (pontos/traço/posições) que o OBAT comprimiria. O modo tardio deixa o OBAT
-  achar estrutura, depois encolhe. **MAS** o OBAT FRAGMENTA o valor por afixo, e a nature
-  precisa do valor INTEIRO (recomputar DV, dropar máscara). Logo: onde o OBAT ajuda
-  (estrutura compartilhada), a nature pós-OBAT fica difícil (valor partido); onde não
-  fragmenta (alta entropia), o OBAT não acrescentou. **Não é ganho óbvio — só medição
-  resolve.** (É o "formato difícil de reorganizar" do owner.)
+- **(I) REFINADA (debate 2026-06-25)**: a tensão de fragmentação que eu levantei vale só
+  pro modo TARDIO (aplicar pós-OBAT no valor já partido em refs). No modo IMEDIATO
+  (normalizar ANTES do OBAT — `111.111.111-11`→`111111111`), NÃO há fragmentação: o OBAT
+  recebe strings limpas/curtas e acha padrão normal. Dedup do OBAT (`^1`) resolve repetição
+  — aplica a nature 1x no nó único, refs apontam. Conceito do owner: correto.
+  - O eixo real NÃO é "OBAT fragmenta" — é **"normalizar-e-deixar-o-pipeline-comprimir vs
+    codificar-denso (base94)"**.
+  - **vs RAW**: normalizar (tirar máscara constante interleaved) + pipeline → plausivelmente
+    SEMPRE ajuda, sem desvantagem (afirmação do owner sustenta-se aqui).
+  - **vs base94 ATUAL**: data-dependente — base94 é mais denso pra ALEATÓRIO-ÚNICO (5 chars
+    vs 11 dígitos); normalizar+pipeline GANHA pra CADENCIADO (seq-RLE `*N+1|template`, que
+    base94 de inteiros consecutivos não ativa). NÃO é estritamente melhor.
+  - **PRECEDENTE VIVO**: a nature de IP (`TemplatedPaddedSpec`) JÁ faz isto — normaliza
+    digit-only pra ATIVAR seq-RLE (ganho vem do pipeline, não do tamanho cru; IP-subnet
+    1.71%). Só CPF/CNPJ (`TemplatedCheckedSpec`) vai pra base94. **A proposta destilada**:
+    CPF/CNPJ ganham a OPÇÃO de normalizar-e-comprimir (como IP) vs base94. Mecanismo já existe.
 - **(II) é perf, não resultado**: especulação tem que dar bytes IDÊNTICOS (senão
   não-determinismo). Custo alto (2 filas, rollback, 2 modos, concorrência determinística)
   pra ganho de LATÊNCIA, num regime onde natures pagam estreito (revisão de capacidade:
@@ -40,10 +49,12 @@ Tudo como fila produtor-consumidor com buffer (latência / streaming).
   detect-sem-aplicar byte-neutro (SideOutputs).
 
 ## Sub-hipóteses pro lab (ordem: barato→caro, medir antes de construir)
-- **H1 (compressão, read-only)**: em colunas reais de ID formatado (CPF/CNPJ/IP — Receita,
-  br-identidades), comparar bytes de: (a) `nature→OBAT→HCC` (atual), (b) `OBAT→HCC` puro
-  (sem nature), (c) `OBAT→HCC` + nature-shrink nas refs/literais (tardio, onde aplicável).
-  Pergunta: a base94 pré-OBAT está jogando fora estrutura? (b) vence (a) em algum caso?
+- **H1 (compressão, read-only) — NORMALIZAR vs BASE94 vs RAW**: em CPF/CNPJ reais (Receita,
+  br-identidades) em DOIS regimes — aleatório-único e sequencial/cadenciado —, comparar
+  bytes de: (a) **base94** (nature atual `TemplatedCheckedSpec`); (b) **normalizar** (tirar
+  máscara, manter dígitos)→OBAT→HCC (= o que o IP `TemplatedPaddedSpec` já faz); (c) **RAW**
+  (sem nature). Hipóteses: (b)≤(c) sempre; (b)<(a) no cadenciado (seq-RLE); (a)<(b) no
+  aleatório (base94 denso). Mede a fronteira.
 - **H2 (fragmentação)**: medir o quanto o OBAT fragmenta valores de ID formatado (afixos
   compartilhados) — quantifica a tensão "valor partido vs nature precisa do inteiro".
 - **H3 (detecção)**: acurácia da detecção na 1ª ocorrência + taxa de falso-positivo (= taxa
