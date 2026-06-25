@@ -45,6 +45,27 @@ por inspeção manual lado-a-lado, que erra em detalhe de prune/tie-break.
   `_estimate_baseline_chars` (ex: P4-S1/S8, deixados fora da Onda 1 justamente
   por isso).
 
+## Dimensão de distribuição (diretriz owner, 2026-06-24)
+
+O owner lembrou: **quando for feita a distribuição, a compilação Cython tem que
+funcionar de fato — a otimização não pode ser só do ambiente de dev.** Hoje o
+build hook (`hatch_build.py`) é best-effort e cai pra pure-Python **em silêncio**
+se faltar compilador. Consequência: um usuário que faça `pip install tcf-format`
+numa máquina sem toolchain C pega o caminho LENTO sem saber.
+
+Isto é o **outro lado** deste ticket: além de *testar* a byte-equivalência do
+caminho compilado (critério abaixo), é preciso *garantir que o caminho compilado
+chegue ao usuário*. Opções a avaliar (na hora da distribuição, não agora):
+- **Wheels pré-compilados por plataforma** (cibuildwheel) — o usuário baixa um
+  `.whl` já com a extensão, sem precisar de compilador. É o caminho usual pra
+  libs com C/Cython.
+- Manter o fallback pure-Python como rede (máquinas exóticas), mas **sinalizar**
+  (warning/log opt-in ou flag introspectável) quando o acelerador não está ativo,
+  pra não ser otimização-fantasma.
+- Decidir a política no momento do release (liga com a cadência de versão
+  ADR-0028 / [T-DIST-RELEASE-0.8.0]). **"Vemos isso depois"** — registrado aqui
+  pra não perder.
+
 ## Critério de aceite
 
 1. Um caminho de teste que: (a) compile o `detect.pyx` (Cython + compilador C,
