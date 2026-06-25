@@ -79,6 +79,7 @@ def _encode_multi(
     min_header: bool = True,
     min_len: int | None = None,
     nature_ids: dict[str, str] | None = None,
+    drop_names: bool = False,
 ) -> str:
     """Interno: encode dict pra TCF multi-col. Chamado por `encode()`.
 
@@ -197,11 +198,12 @@ def _encode_multi(
 
     used_fallback = bool(fallback_cols)
     used_v2 = used_fallback or bool(dict_cols) or bool(split_cols) or min_header
-    has_nature = bool(nature_ids)
-    # CRITICO (byte-neutralidade): a subida pra #TCF.8 e' condicionada SO' a
-    # has_nature, NUNCA a used_v2/min_header. Com nature_ids vazio -> magic
-    # identico ao de hoje -> zero delta (D1-D9/D17a intactos).
-    if has_nature:
+    # #TCF.8 SSE ha feature v8: nature OU colunas anonimas (drop_names). Colunas
+    # anonimas sao feature v8 (mantem #TCF.7 nomeado intacto). byte-neutralidade:
+    # condicionado SO' a force_v8, nunca a used_v2/min_header -> default (nomeado,
+    # sem nature) = magic de hoje, zero delta (D1-D9/D17a intactos).
+    force_v8 = bool(nature_ids) or drop_names
+    if force_v8:
         magic = MAGIC_MULTI_V3
     elif used_v2:
         magic = MAGIC_MULTI_V2
@@ -221,7 +223,12 @@ def _encode_multi(
         # Sufixo ':id' (ADR-0027) SSE a coluna tem nature. Condicional ao spec
         # da coluna -> coluna sem nature gera string byte-identica a de hoje.
         suf = f":{nature_ids[name]}" if nature_ids and name in nature_ids else ""
-        if min_header and i == last_i:
+        if drop_names:
+            # Coluna ANONIMA (ADR-0029): nome omitido -> posicional no decode.
+            # Nao-ultima = '<size>[:spec]' (sem '=nome'); ultima = '[:spec]'/vazio.
+            parts.append(f"{pre}{suf}" if (min_header and i == last_i)
+                         else f"{pre}{len(b)}{suf}")
+        elif min_header and i == last_i:
             parts.append(f"{pre}{name}{suf}")        # ultima sem size
         else:
             parts.append(f"{pre}{len(b)}={name}{suf}")
@@ -311,8 +318,13 @@ def _decode_multi_impl(
                 f"meta invalido (#TCF.6 exige '# '): got {line2[:5]!r}"
             )
         cursor = nl2 + 1
-    pairs = []  # (size|None, name, mode, nature_id|None)
-    for p in meta_str.split(","):
+    # Parse POSITION-AWARE (ADR-0029): so' a ULTIMA coluna nao tem size
+    # (min_header). Logo nao-ultima sem '=nome' = coluna ANONIMA (size sozinho);
+    # ultima vazia = anonima. Isso desambigua nome-opcional sem quebrar o nomeado.
+    tokens = meta_str.split(",")
+    n_cols = len(tokens)
+    pairs = []  # (size|None, name|None, mode, nature_id|None)
+    for i, p in enumerate(tokens):
         if p.startswith("!"):
             mode = "raw"
             p = p[1:]
@@ -324,40 +336,50 @@ def _decode_multi_impl(
             p = p[1:]
         else:
             mode = "tcf"
+        # Sufixo ':id' (#TCF.8, ADR-0027) separado primeiro. So' em V8 -> nomes
+        # com ':' em #TCF.6/7 ficam intocados (nome nunca tem ':' em V8: validador
+        # proibe; spec e' um unico token cpf/cnpj/ip).
+        nat_id = None
+        if is_v8 and ":" in p:
+            p, nat_id = p.rsplit(":", 1)
         if "=" in p:
+            # '<size>=<nome>' — nomeada. Vale em qualquer posicao (em #TCF.6 com
+            # min_header=False ATE' a ultima coluna tem size=nome).
             size_str, name = p.split("=", 1)
             size = int(size_str)
+        elif i == n_cols - 1:
+            # ultima coluna SEM '=': min_header (corpo ate' EOF). p = nome (vazio
+            # = anonima posicional).
+            size = None
+            name = p if p else None
         else:
-            # size omitido (header v2 minimo): ultima coluna, corpo ate' EOF
-            size, name = None, p
-        # Sufixo ':id' (#TCF.8, ADR-0027). So' parseado em V8 -> nomes com ':'
-        # legitimos em #TCF.6/7 ficam intocados (parse-neutro pro legado). O '='
-        # vem antes do ':' (size e' digito, nunca tem ':').
-        nat_id = None
-        if is_v8 and ":" in name:
-            name, nat_id = name.split(":", 1)
+            # nao-ultima SEM '=' -> coluna ANONIMA: p = '<size>' (so' V8/drop_names)
+            size = int(p)
+            name = None
         pairs.append((size, name, mode, nat_id))
 
     # cursor ja' aponta o inicio do body (apos line1 no V8, apos line2 no V7/6)
     result: dict[str, list[str]] = {}
     nature_ids: dict[str, str] = {}
-    for size, name, mode, nat_id in pairs:
+    for i, (size, name, mode, nat_id) in enumerate(pairs):
         if size is None:
             body_bytes = raw[cursor:]              # ate' EOF (ultima coluna)
         else:
             body_bytes = raw[cursor:cursor + size]
+        # Coluna anonima (name is None) -> nome POSICIONAL = ordem (ADR-0029).
+        col = name if name is not None else str(i)
         if mode == "raw":
             # V2-A: body raw = "\n".join(valores); split exato (sem '\n'
             # embutido, garantido por _fallback_safe no encode).
-            result[name] = body_bytes.decode("utf-8").split("\n")
+            result[col] = body_bytes.decode("utf-8").split("\n")
         elif mode == "dict":
-            result[name] = _decode_v2b(body_bytes)  # V2-B (ADR-0025)
+            result[col] = _decode_v2b(body_bytes)  # V2-B (ADR-0025)
         elif mode == "split":
-            result[name] = _decode_struct_split(body_bytes)  # ADR-0026
+            result[col] = _decode_struct_split(body_bytes)  # ADR-0026
         else:
-            result[name] = _decode_column(body_bytes.decode("utf-8"))
+            result[col] = _decode_column(body_bytes.decode("utf-8"))
         if nat_id is not None:
-            nature_ids[name] = nat_id
+            nature_ids[col] = nat_id
         cursor += len(body_bytes)
 
     return result, nature_ids

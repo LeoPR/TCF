@@ -267,6 +267,40 @@ class TestNatureMarkHeader:
 
 
 # ===========================================================================
+# Colunas anonimas / posicionais — drop_names (nome = ordem, SQL-like)
+# ===========================================================================
+
+class TestDropNames:
+    def test_roundtrip_posicional(self):
+        table = {"a": ["x", "y"], "b": ["p", "q"]}
+        text = encode(table, drop_names=True)
+        assert decode(text) == {"0": ["x", "y"], "1": ["p", "q"]}   # nome = ordem
+
+    def test_forca_tcf8m(self):
+        text = encode({"a": ["x"], "b": ["y"]}, drop_names=True)
+        assert text.startswith("#TCF.8M")     # anonimo = feature v8
+
+    def test_meta_sem_nomes(self):
+        text = encode({"aaa": ["x"], "bbb": ["y"]}, drop_names=True)
+        line0 = text.split("\n")[0]
+        assert "aaa" not in line0 and "bbb" not in line0   # nomes omitidos
+
+    def test_menor_que_nomeado(self):
+        table = {"coluna_longa_um": ["x", "y", "x"],
+                 "coluna_longa_dois": ["p", "q", "p"]}
+        assert len(encode(table, drop_names=True)) < len(encode(table))
+
+    def test_com_nature(self):
+        table = {"doc": ["11.222.333/0001-81"], "x": ["a"]}
+        text = encode(table, nature_per_col={"doc": SPEC_CNPJ}, drop_names=True)
+        assert decode(text) == {"0": ["11.222.333/0001-81"], "1": ["a"]}
+
+    def test_named_default_inalterado(self):
+        table = {"a": ["x", "y"], "b": ["p", "q"]}
+        assert decode(encode(table)) == table          # default nomeado intacto
+
+
+# ===========================================================================
 # Discriminador #TCF.8 (1 char apos '#TCF.8': M / espaco / newline) — ADR-0029
 # ===========================================================================
 

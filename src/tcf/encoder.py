@@ -87,6 +87,7 @@ def encode(
     sort_by: str | None = None,
     name: str | None = None,
     stamp: bool = False,
+    drop_names: bool = False,
 ) -> str:
     """Encode lista de strings OU dict de colunas em texto TCF.
 
@@ -234,7 +235,8 @@ def encode(
                           for name in data if name in nature_per_col}
         return _encode_multi(data, side_outputs=side_outputs, parallel=parallel,
                              cfg=cfg, fallback=fallback, min_header=min_header,
-                             min_len=min_len, nature_ids=nature_ids)
+                             min_len=min_len, nature_ids=nature_ids,
+                             drop_names=drop_names)
     raise TypeError(
         f"encode espera list[str] ou dict[str, list[str]], "
         f"recebeu {type(data).__name__}"
