@@ -48,7 +48,26 @@ Tudo como fila produtor-consumidor com buffer (latência / streaming).
 - **(III) byte-canônico**: auto-apply opt-in (default = hoje, D1-D9=1523B intacto);
   detect-sem-aplicar byte-neutro (SideOutputs).
 
+## Reavaliação 2 (debate 2026-06-25) — o FLUXO de duas vias é o ponto, não o CPF
+Owner: CPF é UUID-like (aleatório, sem similaridade parcial) → base94+drop-DV é certo; o
+modo *depois* não muda bytes pra CPF (CPF é "desperdício" do OBAT). CPF é só ILUSTRATIVO
+do mecanismo de **duas vias** (mapear-ANTES vs reservar-pra-DEPOIS).
+- **Modo ANTES**: as 2 natures welded JÁ usam (CPF→base94, IP→normaliza). 100% coberto.
+- **Modo DEPOIS** (a inovação): deixar o OBAT achar similaridade parcial, substituir refs.
+  Benefício de compressão SÓ pra formatos com **similaridade parcial**. **Sem consumidor
+  atual**: CPF aleatório não tem; IP precisa do normaliza-antes. A fragmentação volta aqui
+  (valor parcialmente-similar fica partido no OBAT → nature só atua no resíduo inteiro).
+- **Veredito**: fluxo é generalização arquitetural limpa + alinha com streaming (V2-J/K),
+  mas o modo *depois* resolve um problema que NENHUM formato atual tem. **Gate empírico
+  antes do código**: existe, em dado real, formato nature-elegível COM pedaço parcial que o
+  OBAT pegaria E onde `OBAT→nature-no-resíduo` bate `nature→ANTES`? Se não → YAGNI (ou só
+  perf: aplicar nos nós únicos, que não muda bytes). H5 abaixo.
+
 ## Sub-hipóteses pro lab (ordem: barato→caro, medir antes de construir)
+- **H5 (consumidor do modo-depois, read-only)**: varrer os datasets canônicos atrás de
+  colunas nature-elegíveis COM similaridade parcial (pedaços que o OBAT pegaria) — i.e., um
+  formato onde o modo *depois* bateria o *antes*. Se zero candidatos → o modo *depois* é
+  YAGNI. É o GATE que justifica (ou não) construir o fluxo de duas vias.
 - **H1 (compressão, read-only) — NORMALIZAR vs BASE94 vs RAW**: em CPF/CNPJ reais (Receita,
   br-identidades) em DOIS regimes — aleatório-único e sequencial/cadenciado —, comparar
   bytes de: (a) **base94** (nature atual `TemplatedCheckedSpec`); (b) **normalizar** (tirar
