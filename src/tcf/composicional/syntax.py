@@ -118,8 +118,13 @@ class M8AVirtualRefsSyntax(Syntax):
         return out
 
     @classmethod
-    def _emit_refs_range(cls, refs):
-        """M1.E: ranges de consecutivos L>=3 unidos por `,`."""
+    def _emit_runs(cls, refs, sep):
+        """M1.E: ids positivos com range `A..B` para runs de >=3 consecutivos,
+        unidos por `sep`. Fonte unica da regra de range no emit (P4 S7).
+        `sep=','` = ref-run (era _emit_refs_range); `sep='~'` = chain de
+        composicao (era _emit_composition). Byte-equivalente aos dois: em cada
+        modo o separador interno do run<3 == o externo, entao `extend` + um
+        unico `sep.join` reproduz ambos (verificado, 200k casos)."""
         if not refs:
             return ""
         parts = []
@@ -128,20 +133,7 @@ class M8AVirtualRefsSyntax(Syntax):
                 parts.append(f"{run[0]}..{run[-1]}")
             else:
                 parts.extend(str(r) for r in run)
-        return ",".join(parts)
-
-    @classmethod
-    def _emit_composition(cls, chain):
-        """Chain (todos positivos) unida por `~` com range nos subgrupos consecutivos."""
-        if not chain:
-            return ""
-        parts = []
-        for run in cls._runs_pos(chain):
-            if len(run) >= 3:
-                parts.append(f"{run[0]}..{run[-1]}")
-            else:
-                parts.append("~".join(str(r) for r in run))
-        return "~".join(parts)
+        return sep.join(parts)
 
     @classmethod
     def _count_ids_in_refs(cls, refs):
@@ -567,7 +559,7 @@ class M8AVirtualRefsSyntax(Syntax):
                 while i < len(refs) and refs[i] > 0:
                     atom_run.append(state.prov_to_final[refs[i]])
                     i += 1
-                segments.append(self._emit_refs_range(atom_run))
+                segments.append(self._emit_runs(atom_run, ','))
                 state.current_id += self._count_ids_in_refs(atom_run)
                 state.ref_seq.extend(atom_run)
             else:
@@ -617,7 +609,7 @@ class M8AVirtualRefsSyntax(Syntax):
             expand(elem)
         completions.append((len(linear) - 1, alias_temp))
 
-        emission = self._emit_composition(linear)
+        emission = self._emit_runs(linear, '~')
         K = len(linear)
         base = state.current_id
         state.current_id += K - 1
@@ -642,7 +634,7 @@ class M8AVirtualRefsSyntax(Syntax):
             pieces_per_line, line_meta, alias_to_sub)
         self._trace = build_trace(self.name, iter_traces, prov_to_final,
                                   dict(alias_to_final), ref_seqs,
-                                  self._emit_refs_range)
+                                  lambda r: self._emit_runs(r, ','))
         self._rede = build_rede(self.name, pieces_per_line, prov_to_final,
                                 dict(alias_to_final), alias_to_sub, ref_seqs)
         # No brackets, single LF
