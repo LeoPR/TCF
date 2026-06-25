@@ -42,9 +42,19 @@ TCF distingue **versão de FORMATO** (shebang `#TCF.N`, eixo A) de **versão de 
 
 | Shebang | Status | Introduzido | Compativel com |
 |---|---|---|---|
+| `#TCF.8` | **opt-in** (self-describing natures) | 2026-06 | encode SSE ha nature; decode le |
 | `#TCF.7` | **0.7 (default)** | 2026-06 | encode default (multi-col); decode le |
 | `#TCF.6` | **legado** (0.6) | 2026-05 | decode le; produzivel internamente |
 | `#TCF.5` | superseded | 2026-04 (v0.5) | tcf 0.5.x (legacy, nao manter) |
+
+**`#TCF.8` (self-describing natures, [ADR-0027](../adr/0027-nature-mark-header-self-describing.md),
+welded 2026-06-24)** — ADITIVO e opt-in ESTRITO: emitido SSE alguma coluna tem nature
+(CPF/CNPJ/IP); senao `#TCF.7` byte-identico. A nature viaja no header como sufixo `:id`
+no nome da coluna no meta-line (ex: `!11=cpf:cpf,13=doc:cnpj,!plain`) — o decode reverte
+sozinho (resolve `:id` -> spec via dict fixo core-only, zero eval; id desconhecido -> valor
+cru + warning, forward-compat). Multi-col apenas (single-col parkado). Validador proibe `:`
+em nome de coluna so' quando ha nature. **byte-neutro**: `#TCF.8` condicionado SO' a
+`bool(nature_ids)` — caminho sem nature inalterado.
 
 **Promessa v1**: `#TCF.6` e' imutavel ate' v2.0. Nenhum byte de arquivo
 TCF v1 muda entre versoes tcf 1.x.y. Markers novos requerem `#TCF.7`.

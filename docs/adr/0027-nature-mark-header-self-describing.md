@@ -1,14 +1,23 @@
 # 0027 — H-NAT-MARK-01: nature-id viaja no header (self-describing nature)
 
-**Status**: proposed
-**Date**: 2026-06-17
+**Status**: accepted (MVP welded 2026-06-24)
+**Date**: 2026-06-17 (proposed) · 2026-06-24 (accepted/welded)
 **Deciders**: project owner
-**Tags**: format, natures, self-describing, #TCF.8, DX, pre-decisao
+**Tags**: format, natures, self-describing, #TCF.8, DX
 
-> **proposed, NÃO accepted.** O owner decidiu **(A) não implementar agora**
-> (2026-06-17): manter o design registrado e revisitar quando surgir um 2º nature
-> real com ganho. **Nada foi tocado em `src/tcf`.** Este ADR documenta o design
-> fechado pra retomada futura sem re-derivar.
+> **WELDED (MVP) 2026-06-24.** Parado em (A) de 2026-06-17 a 2026-06-24; o owner
+> autorizou implementar a rota EXPLÍCITA. Implementado em `src/tcf` exatamente como
+> desenhado abaixo (multi-col, 3 ids core, opt-in estrito, byte-neutro default-off).
+> Commit do MVP + 9 testes (self-describing RT, byte-neutro, sem dupla-aplicação,
+> unknown-id cru+warn, registry). **Correção de localização**: o diff abaixo cita
+> `multi.py`, mas pós-P1 (2026-06-24) o código vive em `src/tcf/multi/core.py`
+> (pacote). **Rota IMPLÍCITA avaliada e DESCARTADA** (insegura por construção: o
+> reconhecimento `len+BASE94` pressupõe o spec, não o descobre → falso-positivo
+> corromperia dado comum; ver [mapa de capacidade](../../experiments/lab/dirty/notas/specs-capacity-map.md)).
+> Diferenças MVP vs design: id desconhecido surfaceia via `warnings.warn` (decode
+> não tem `side_outputs`), não `SideOutputs.unknown_nature_ids`; precedência
+> header-vence implementada em `decode()` (header resolve → aplica; usuário completa
+> o resto). Single-col e lazy-view #TCF.8 seguem PARKADOS (fora do MVP).
 
 ## Context and Problem Statement
 

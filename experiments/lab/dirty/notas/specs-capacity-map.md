@@ -133,14 +133,15 @@ Single-col não tem header (body puro até EOF); qualquer tag nova ali quebra o 
 de TODO single-col. O gap "nome viaja no blob" permanece aberto pra single-col mesmo se a
 rota multi-col for feita. Decisão separada com gate próprio.
 
-### Status / recomendação
-ADR-0027 está **parado em (A)** (decisão owner 2026-06-17) — desproporção ganho-DX
-(só "nome viaja no blob") × custo-permanente do magic `#TCF.8` (decoder/lazy/terceiros
-carregam pra sempre). Gatilho de retomada: **2º nature real com ganho ≥15% weighted em
-2+ reais** (não atendido — CNPJ só rende em Receita = 1 real). Interop **já coberto hoje**
-pela rota gadget `registry.get('cnpj')` (out-of-band). O delta da rota explícita é DX, não
-bytes. **Recomendação: manter parado até o gatilho; implementar agora seria retomar design
-parado sem o trigger declarado — decisão do owner.**
+### Status — IMPLEMENTADO (MVP welded 2026-06-24)
+O owner autorizou implementar a rota explícita (antes parada em (A)). MVP em `src/tcf`:
+`#TCF.8 M` + `:id` no meta-line, 3 ids core, opt-in estrito, **byte-neutro default-off**
+(D1-D9=1523B/D17a=303B/real-world=89616B intactos). encode coleta `nature_ids={col:
+spec.name}`; decode (`_decode_multi_impl` parseia, `decode()` resolve via `SPEC_REGISTRY`
+fixo + precedência header-vence). id desconhecido → cru + `warnings.warn` (forward-compat).
+9 testes; ADR-0027 → accepted. **Parkado**: single-col (sem header), lazy-view #TCF.8
+(`view.py` rejeita com erro claro). Rota implícita **descartada** (insegura). Release:
+pacote segue 0.7.1; format #TCF.8 → próximo release seria 0.8.0 (ADR-0028), decisão à parte.
 
 ## Cross-links
 

@@ -296,7 +296,9 @@ independente por camada).
 - Datasets: `D<num><suffix>-<description>.csv`
 
 ### Formato TCF
-- Magic: `#TCF.<minor>` (atual: v0.7 = `#TCF.7`; v0.6 = `#TCF.6` legado, lido). Major 0 omite "0".
+- Magic: `#TCF.<minor>` (atual: v0.7 = `#TCF.7`; v0.6 = `#TCF.6` legado, lido;
+  `#TCF.8` = self-describing natures opt-in, `:id` no meta, ADR-0027 welded 2026-06-24,
+  emitido SSE ha nature). Major 0 omite "0".
 - Multi-column flag: `M` no shebang. Single-col: sem flag.
 - Multi-col meta: `# <size1>=<name1>,<size2>=<name2>,...`
 - LF only, UTF-8
