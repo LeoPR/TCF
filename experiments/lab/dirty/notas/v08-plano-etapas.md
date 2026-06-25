@@ -1,5 +1,11 @@
 # v0.8 — Plano em etapas [plano]
 
+> **PARCIALMENTE SUPERADO (2026-06-25)** pra a parte de FORMATO: o `#TCF.8` que este plano
+> reservava pro **cross-dict (workstream B)** virou, nesta sessão, a **família self-describing**
+> (natures/discriminador/anônimas, ADR-0027/0029). O cross-dict agora é UMA feature opt-in
+> dentro do #TCF.8. Fonte única reconciliada: [`tcf8-estrutura-plano.md`](tcf8-estrutura-plano.md).
+> O workstream A (lazy) segue válido (A4 feito); o **lazy-view #TCF.8** é sub-item novo lá.
+
 > **RETIFICAÇÃO (ADR-0028, 2026-06-24)**: sob a política de versão (minor = formato), este plano é o
 > **ciclo `0.7.2`** (lazy + poda, formato `#TCF.7` inalterado), NÃO "0.8". O **cross-dict `#TCF.8` =
 > `0.8.0`** (não 0.9). O **nome do arquivo `v08-plano-etapas.md` é stale** (renomear = follow-up sob
