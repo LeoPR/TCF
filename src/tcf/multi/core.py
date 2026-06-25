@@ -58,6 +58,8 @@ from tcf.side_outputs import SideOutputs
 
 MAGIC_MULTI = b"#TCF.6 M"
 MAGIC_MULTI_V2 = b"#TCF.7 M"  # V2-A fallback identity (ADR-0022, abre o formato #TCF.7)
+MAGIC_MULTI_V3 = b"#TCF.8 M"  # self-describing natures: :id no meta-line (ADR-0027).
+                              # Emitido SSE bool(nature_ids) — opt-in estrito.
 META_PREFIX = b"# "  # v1 (#TCF.6, congelado). #TCF.7 dispensa o prefixo do meta
                      # (o flag `M` no shebang ja' declara multi-col) — ADR-0023.
 
@@ -70,6 +72,7 @@ def _encode_multi(
     fallback: bool = True,
     min_header: bool = True,
     min_len: int | None = None,
+    nature_ids: dict[str, str] | None = None,
 ) -> str:
     """Interno: encode dict pra TCF multi-col. Chamado por `encode()`.
 
@@ -92,6 +95,11 @@ def _encode_multi(
             legado, p/ comparacao.)
         min_len: override do min_len do OBAT (mesmo p/ todas as colunas). None
             (default) -> auto por coluna (inalterado). Threaded a _encode_column.
+        nature_ids: dict[col_name -> nature-id STRING] (ADR-0027, self-describing).
+            So' a STRING do spec.name (cpf/cnpj/ip), nunca o objeto. Se nao-vazio:
+            magic sobe pra #TCF.8 e cada col marcada ganha sufixo ':id' no nome do
+            meta-line. **byte-neutro**: condicionado EXCLUSIVAMENTE a bool(nature_ids)
+            — None/{} -> codepath identico ao de hoje (zero delta).
     """
     if not table:
         raise ValueError("table vazia")
@@ -103,6 +111,13 @@ def _encode_multi(
     for col_name in table.keys():
         if ',' in col_name or '=' in col_name:
             raise ValueError(f"col name contem char reservado: {col_name!r}")
+        if nature_ids and ':' in col_name:
+            # ':' separa name/nature-id no meta-line do #TCF.8 (ADR-0027). So'
+            # proibido quando ha nature (V3); sem nature o nome com ':' segue
+            # valido (#TCF.6/7 nao parseiam ':') — preserva superficie de input.
+            raise ValueError(
+                f"col name nao pode conter ':' quando ha nature (#TCF.8): {col_name!r}"
+            )
         if col_name[:1] in '!@%':
             # marcadores de modo no #TCF.7 (! raw, @ dict, % split): um nome
             # comecando com eles colidiria com o parse da ultima-coluna-bare.
@@ -176,7 +191,16 @@ def _encode_multi(
 
     used_fallback = bool(fallback_cols)
     used_v2 = used_fallback or bool(dict_cols) or bool(split_cols) or min_header
-    magic = MAGIC_MULTI_V2 if used_v2 else MAGIC_MULTI
+    has_nature = bool(nature_ids)
+    # CRITICO (byte-neutralidade): a subida pra #TCF.8 e' condicionada SO' a
+    # has_nature, NUNCA a used_v2/min_header. Com nature_ids vazio -> magic
+    # identico ao de hoje -> zero delta (D1-D9/D17a intactos).
+    if has_nature:
+        magic = MAGIC_MULTI_V3
+    elif used_v2:
+        magic = MAGIC_MULTI_V2
+    else:
+        magic = MAGIC_MULTI
 
     # Meta line. #TCF.7 (qualquer feature v2) DISPENSA o prefixo do meta: o flag
     # `M` no shebang ja' declara que a proxima linha e' o meta das colunas, entao
@@ -188,12 +212,16 @@ def _encode_multi(
     parts = []
     for i, (name, b, mode) in enumerate(final_bodies):
         pre = {"raw": "!", "dict": "@", "split": "%"}.get(mode, "")
+        # Sufixo ':id' (ADR-0027) SSE a coluna tem nature. Condicional ao spec
+        # da coluna -> coluna sem nature gera string byte-identica a de hoje.
+        suf = f":{nature_ids[name]}" if nature_ids and name in nature_ids else ""
         if min_header and i == last_i:
-            parts.append(f"{pre}{name}")            # ultima sem size
+            parts.append(f"{pre}{name}{suf}")        # ultima sem size
         else:
-            parts.append(f"{pre}{len(b)}={name}")
+            parts.append(f"{pre}{len(b)}={name}{suf}")
     meta_pairs = ",".join(parts)
-    meta_prefix = b"" if used_v2 else META_PREFIX
+    # So' o legado #TCF.6 carrega o prefixo '# '; #TCF.7/#TCF.8 dispensam (flag M).
+    meta_prefix = META_PREFIX if magic == MAGIC_MULTI else b""
     header = magic + b"\n" + meta_prefix + meta_pairs.encode("utf-8") + b"\n"
     body_concat = b"".join(b for _, b, _ in final_bodies)
     full = header + body_concat
@@ -212,36 +240,44 @@ def _encode_multi(
             "dict_cols": list(dict_cols),
             "split_cols": list(split_cols),
             "min_header": min_header,
+            "nature_cols": dict(nature_ids) if nature_ids else {},
         }
 
     return text
 
 
-def _decode_multi(tcf_text: str) -> dict[str, list[str]]:
-    """Interno: decode TCF multi-col. Chamado por `decode()`.
+def _decode_multi_impl(
+    tcf_text: str,
+) -> tuple[dict[str, list[str]], dict[str, str]]:
+    """Parse + decode multi-col, SEM aplicar natures.
 
-    Aceita #TCF.6 M (v1, meta com prefixo `# `) e #TCF.7 M (v2, meta SEM prefixo
-    — o flag M ja' declara colunas, ADR-0023). Em #TCF.7: par com `!` = coluna
-    raw / fallback (V2-A, ADR-0022); par sem `=` = ultima coluna com size
-    omitido (min_header, corpo ate' EOF). Self-describing: magic + forma dos
-    pares dizem tudo, sem flag no decode.
+    Retorna (result, nature_ids), onde nature_ids = {col_name -> nature-id
+    STRING} extraido do sufixo ':id' do meta-line (#TCF.8, ADR-0027); vazio pra
+    #TCF.6/7. A APLICACAO da nature (resolve + decode_value) fica no `decode()`
+    publico, que resolve a precedencia header-vs-usuario. Mantem multi/core
+    agnostico de nature (so' PARSEIA a tag, nao depende de tcf.natures).
+
+    Aceita #TCF.6 M (v1, meta com `# `), #TCF.7 M e #TCF.8 M (v2/v3, meta SEM
+    prefixo). Em #TCF.7+: `!` = raw (V2-A), `@` = dict (V2-B), `%` = split; par
+    sem `=` = ultima coluna (corpo ate' EOF). Self-describing: magic + forma dos
+    pares dizem tudo.
     """
     from tcf.decoder import _decode_column
 
     raw = tcf_text.encode("utf-8")
-    cursor = 0
 
     nl1 = raw.find(b"\n")
     if nl1 == -1:
         raise ValueError("formato invalido: sem linha 1 (shebang)")
     line1 = raw[:nl1]
-    # #TCF.7 (MAGIC_MULTI_V2) = vivo. MAGIC_MULTI (#TCF.6) = LEGADO de leitura,
-    # remover no 1.0 (T-CODE-LEGACY-PRUNE-PRE-07; ADR-0024 git-as-compat).
+    # #TCF.7/#TCF.8 = vivos. MAGIC_MULTI (#TCF.6) = LEGADO de leitura, remover no
+    # 1.0 (T-CODE-LEGACY-PRUNE-PRE-07; ADR-0024 git-as-compat).
     is_v7 = line1.startswith(MAGIC_MULTI_V2)
-    if not (line1.startswith(MAGIC_MULTI) or is_v7):
+    is_v8 = line1.startswith(MAGIC_MULTI_V3)
+    if not (line1.startswith(MAGIC_MULTI) or is_v7 or is_v8):
         raise ValueError(
-            f"magic invalido: esperado {MAGIC_MULTI_V2!r} (ou legado {MAGIC_MULTI!r}), "
-            f"got {line1[:20]!r}"
+            f"magic invalido: esperado {MAGIC_MULTI_V2!r}/{MAGIC_MULTI_V3!r} "
+            f"(ou legado {MAGIC_MULTI!r}), got {line1[:20]!r}"
         )
     cursor = nl1 + 1
 
@@ -249,18 +285,17 @@ def _decode_multi(tcf_text: str) -> dict[str, list[str]]:
     if nl2 == -1:
         raise ValueError("formato invalido: sem linha de meta")
     line2 = raw[cursor:nl2]
-    # Meta line. #TCF.7 (vivo) dispensa prefixo (o flag `M` ja' declara o meta,
-    # ADR-0023) — tolera '# ', '#' avulso, ou sem prefixo (forma canonical v7).
-    # LEGADO #TCF.6 (remover no 1.0, T-CODE-LEGACY-PRUNE-PRE-07): EXIGE o '# '.
-    if line2.startswith(META_PREFIX):          # b"# " — #TCF.6 legado OU #TCF.7 tolerante
+    # #TCF.7/#TCF.8 dispensam prefixo (flag `M` ja' declara colunas, ADR-0023) —
+    # tolera '# ', '#' avulso, ou nenhum. LEGADO #TCF.6: EXIGE o '# '.
+    if line2.startswith(META_PREFIX):          # b"# " — #TCF.6 legado OU tolerante
         meta_str = line2[len(META_PREFIX):].decode("utf-8")
-    elif is_v7:
+    elif is_v7 or is_v8:
         meta_str = (line2[1:] if line2.startswith(b"#") else line2).decode("utf-8")
     else:
         raise ValueError(
             f"meta invalido (#TCF.6 exige '# '): got {line2[:5]!r}"
         )
-    pairs = []  # (size|None, name, mode)
+    pairs = []  # (size|None, name, mode, nature_id|None)
     for p in meta_str.split(","):
         if p.startswith("!"):
             mode = "raw"
@@ -275,14 +310,22 @@ def _decode_multi(tcf_text: str) -> dict[str, list[str]]:
             mode = "tcf"
         if "=" in p:
             size_str, name = p.split("=", 1)
-            pairs.append((int(size_str), name, mode))
+            size = int(size_str)
         else:
             # size omitido (header v2 minimo): ultima coluna, corpo ate' EOF
-            pairs.append((None, p, mode))
+            size, name = None, p
+        # Sufixo ':id' (#TCF.8, ADR-0027). So' parseado em V8 -> nomes com ':'
+        # legitimos em #TCF.6/7 ficam intocados (parse-neutro pro legado). O '='
+        # vem antes do ':' (size e' digito, nunca tem ':').
+        nat_id = None
+        if is_v8 and ":" in name:
+            name, nat_id = name.split(":", 1)
+        pairs.append((size, name, mode, nat_id))
 
     cursor = nl2 + 1
     result: dict[str, list[str]] = {}
-    for size, name, mode in pairs:
+    nature_ids: dict[str, str] = {}
+    for size, name, mode, nat_id in pairs:
         if size is None:
             body_bytes = raw[cursor:]              # ate' EOF (ultima coluna)
         else:
@@ -297,8 +340,19 @@ def _decode_multi(tcf_text: str) -> dict[str, list[str]]:
             result[name] = _decode_struct_split(body_bytes)  # ADR-0026
         else:
             result[name] = _decode_column(body_bytes.decode("utf-8"))
+        if nat_id is not None:
+            nature_ids[name] = nat_id
         cursor += len(body_bytes)
 
+    return result, nature_ids
+
+
+def _decode_multi(tcf_text: str) -> dict[str, list[str]]:
+    """Wrapper compat: decode multi-col retornando so' o dict (natures NAO
+    aplicadas). Usado por `split.py` na recursao de sub-tabela (que nunca tem
+    nature) e re-exportado. `decode()` usa `_decode_multi_impl` pra aplicar as
+    natures do header com a precedencia correta."""
+    result, _ = _decode_multi_impl(tcf_text)
     return result
 
 

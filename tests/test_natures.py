@@ -18,7 +18,7 @@ import pytest
 from tcf import encode, decode, SPEC_CPF, SPEC_CNPJ
 from tcf.natures import (
     encode_value, decode_value, classify_value,
-    BASE94, MARKER_LITERAL,
+    BASE94, MARKER_LITERAL, SPEC_IP, SPEC_REGISTRY, _resolve_nature_id,
 )
 from tcf.side_outputs import SideOutputs
 
@@ -191,6 +191,78 @@ class TestEncodeIntegration:
         bytes_nature = len(encode(cpfs, nature=SPEC_CPF).encode("utf-8"))
         # Nature deve ser menor pra CPFs validos
         assert bytes_nature < bytes_default
+
+
+# ===========================================================================
+# Self-describing — nature-id no header (#TCF.8, ADR-0027)
+# ===========================================================================
+
+class TestNatureMarkHeader:
+    def test_self_describing_roundtrip(self):
+        """A feature central: encode com nature -> decode SEM nature recupera."""
+        table = {
+            "cpf": ["529.982.247-25", "111.444.777-35"],
+            "doc": ["11.222.333/0001-81", "11.222.333/0001-81"],
+            "plain": ["foo", "bar"],
+        }
+        text = encode(table, nature_per_col={"cpf": SPEC_CPF, "doc": SPEC_CNPJ})
+        assert decode(text) == table          # SEM nature_per_col no decode
+
+    def test_magic_is_tcf8_and_meta_has_id(self):
+        table = {"doc": ["11.222.333/0001-81"], "plain": ["x"]}
+        text = encode(table, nature_per_col={"doc": SPEC_CNPJ})
+        lines = text.split("\n")
+        assert lines[0] == "#TCF.8 M"
+        assert ":cnpj" in lines[1]            # tag no meta-line
+
+    def test_byte_neutral_default_off(self):
+        """INVARIANTE byte-neutro: sem nature -> #TCF.7, bytes intactos."""
+        table = {"a": ["529.982.247-25", "111.444.777-35"], "b": ["x", "y"]}
+        text = encode(table)                  # SEM nature
+        assert text.split("\n")[0] == "#TCF.7 M"
+        assert text == encode(table)          # determinístico
+        assert ":" not in text.split("\n")[1]  # nenhum :id
+
+    def test_no_double_apply_with_nature_in_decode(self):
+        """Precedência: encode+decode ambos com nature_per_col -> RT (header vence)."""
+        table = {"cpf": ["529.982.247-25"], "doc": ["11.222.333/0001-81"]}
+        npc = {"cpf": SPEC_CPF, "doc": SPEC_CNPJ}
+        text = encode(table, nature_per_col=npc)
+        assert decode(text, nature_per_col=npc) == table   # não dupla-aplica
+
+    def test_ip_self_describing(self):
+        table = {"ip": ["192.168.1.1", "10.0.0.1"], "x": ["a", "b"]}
+        text = encode(table, nature_per_col={"ip": SPEC_IP})
+        assert text.split("\n")[0] == "#TCF.8 M"
+        assert decode(text) == table
+
+    def test_unknown_nature_id_raw_plus_warn(self):
+        """Forward-compat: id desconhecido -> valor cru + warning (não KeyError)."""
+        table = {"doc": ["11.222.333/0001-81"], "x": ["a"]}
+        text = encode(table, nature_per_col={"doc": SPEC_CNPJ})
+        tampered = text.replace(":cnpj", ":FUTURE9")
+        with pytest.warns(UserWarning, match="desconhecido"):
+            result = decode(tampered)
+        # coluna fica crua (base-94), NÃO revertida pro CNPJ original
+        assert result["doc"][0] != "11.222.333/0001-81"
+
+    def test_colon_in_colname_rejected_with_nature(self):
+        table = {"ns:col": ["529.982.247-25"], "x": ["a"]}
+        with pytest.raises(ValueError, match="':'"):
+            encode(table, nature_per_col={"ns:col": SPEC_CPF})
+
+    def test_colon_in_colname_allowed_without_nature(self):
+        """Superfície de input preservada: ':' no nome OK sem nature (#TCF.7)."""
+        table = {"created:at": ["2026-01-01", "2026-01-02"], "x": ["a", "b"]}
+        text = encode(table)                  # sem nature -> #TCF.7, ':' não parseado
+        assert decode(text) == table
+
+    def test_resolve_nature_id(self):
+        assert _resolve_nature_id("cpf") is SPEC_CPF
+        assert _resolve_nature_id("cnpj") is SPEC_CNPJ
+        assert _resolve_nature_id("ip") is SPEC_IP
+        assert _resolve_nature_id("nao-existe") is None      # tolerante, não raise
+        assert set(SPEC_REGISTRY) == {"cpf", "cnpj", "ip"}
 
 
 # ===========================================================================

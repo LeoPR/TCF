@@ -52,9 +52,11 @@ if TYPE_CHECKING:
     from tcf.natures.templated_checked import TemplatedCheckedSpec
 
 
-# #TCF.7 = formato VIVO (default). #TCF.6 = LEGADO de leitura — remover no 1.0
+# #TCF.7 = formato VIVO (default). #TCF.8 = self-describing natures (ADR-0027,
+# opt-in SSE ha nature). #TCF.6 = LEGADO de leitura — remover no 1.0
 # (T-CODE-LEGACY-PRUNE-PRE-07; ADR-0024 git-as-compat reproduz blobs antigos).
 _MULTI_MAGIC = "#TCF.7 M"
+_MULTI_MAGIC_V8 = "#TCF.8 M"          # self-describing (:id no meta-line)
 _MULTI_MAGIC_LEGACY_V6 = "#TCF.6 M"   # LEGADO — leitura ate' o 1.0
 
 
@@ -83,14 +85,38 @@ def decode(
     Raises:
         ValueError: multi-col malformado (sem magic, sem meta line).
     """
-    if tcf_text.startswith(_MULTI_MAGIC) or tcf_text.startswith(_MULTI_MAGIC_LEGACY_V6):
-        from tcf.multi import _decode_multi
-        result = _decode_multi(tcf_text)
+    if (tcf_text.startswith(_MULTI_MAGIC)
+            or tcf_text.startswith(_MULTI_MAGIC_V8)
+            or tcf_text.startswith(_MULTI_MAGIC_LEGACY_V6)):
+        from tcf.multi import _decode_multi_impl
+        result, header_ids = _decode_multi_impl(tcf_text)
+        # Natures auto-descritas no header (#TCF.8, ADR-0027): resolve+aplica.
+        # PRECEDENCIA: header vence pros 3 ids core; o usuario completa o resto
+        # via nature_per_col. Sem isso, encode(nature)+decode(nature) aplicaria
+        # DUAS vezes (header + usuario) e quebraria o RT.
+        header_resolved: set[str] = set()
+        if header_ids:
+            from tcf.natures import _resolve_nature_id
+            for name, nat_id in header_ids.items():
+                spec = _resolve_nature_id(nat_id)
+                if spec is not None:
+                    result[name] = [spec.decode_value(v) for v in result[name]]
+                    header_resolved.add(name)
+                else:
+                    # forward-compat: id desconhecido -> valor CRU + aviso (nao
+                    # silencioso, nao KeyError). Usuario pode completar via param.
+                    import warnings
+                    warnings.warn(
+                        f"nature-id desconhecido no header: {nat_id!r} "
+                        f"(coluna {name!r}) -> valor mantido cru",
+                        stacklevel=2,
+                    )
         if nature_per_col:
             from tcf.natures.templated_checked import decode_value
             result = {
                 name: ([decode_value(nature_per_col[name], v) for v in vals]
-                       if name in nature_per_col else vals)
+                       if (name in nature_per_col and name not in header_resolved)
+                       else vals)
                 for name, vals in result.items()
             }
         return result

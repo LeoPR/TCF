@@ -47,6 +47,25 @@ from tcf.natures.templated_padded import (
     SPEC_IP,
 )
 
+# --- Self-describing nature (ADR-0027, #TCF.8): resolucao CORE-ONLY ---
+# Vocabulario FECHADO dos 3 ids core, ancorado no `name` dos specs frozen
+# welded (ADR-0015). A STRING do nome viaja no header (:id no meta-line); o
+# decode resolve por este dict FIXO — ZERO eval, zero codigo vindo do header.
+SPEC_REGISTRY = {
+    SPEC_CPF.name: SPEC_CPF,
+    SPEC_CNPJ.name: SPEC_CNPJ,
+    SPEC_IP.name: SPEC_IP,
+}
+
+
+def _resolve_nature_id(nature_id: str):
+    """Resolve a STRING de um nature-id (header #TCF.8) -> spec, ou None se
+    desconhecido. TOLERANTE: NUNCA levanta KeyError (forward-compat — um id de
+    versao futura deixa o valor CRU em vez de quebrar). NAO reusar
+    `scripts/natures_compiler/registry.py:get()` aqui (esse faz raise)."""
+    return SPEC_REGISTRY.get(nature_id)
+
+
 __all__ = [
     # Templated + Checked (CPF, CNPJ)
     "TemplatedCheckedSpec",

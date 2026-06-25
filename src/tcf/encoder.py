@@ -178,6 +178,7 @@ def encode(
             key_col = data[sort_by]
             order = sorted(range(len(key_col)), key=lambda i: str(key_col[i]))
             data = {c: [v[i] for i in order] for c, v in data.items()}
+        nature_ids = None
         if nature_per_col:
             from tcf.natures.templated_checked import encode_value
             if side_outputs is not None:
@@ -200,9 +201,14 @@ def encode(
                            if name in nature_per_col else vals)
                     for name, vals in data.items()
                 }
+            # Self-describing (ADR-0027, #TCF.8): a STRING do spec.name viaja no
+            # header (:id), so' das colunas que existem em data. Magic sobe pra
+            # #TCF.8 SSE nature_ids nao-vazio (byte-neutro: default-off intacto).
+            nature_ids = {name: nature_per_col[name].name
+                          for name in data if name in nature_per_col}
         return _encode_multi(data, side_outputs=side_outputs, parallel=parallel,
                              cfg=cfg, fallback=fallback, min_header=min_header,
-                             min_len=min_len)
+                             min_len=min_len, nature_ids=nature_ids)
     raise TypeError(
         f"encode espera list[str] ou dict[str, list[str]], "
         f"recebeu {type(data).__name__}"
