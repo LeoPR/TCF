@@ -54,8 +54,9 @@ Registros numerados das decisoes arquiteturais do TCF. Inspirado em
 | [0024](0024-pre-1.0-versioning-git-as-compat.md) | Versionamento pré-1.0: minors de dev, git como compatibilidade (supersede freeze de 0017) | **accepted** (refinado por 0028: eixo RELEASE separado do MINOR) |
 | [0025](0025-v2b-dictionary-categorical-weld.md) | V2-B dicionario categorico welded (`#TCF.7`, marcador `@`, 13.9% weighted) | **accepted** |
 | [0026](0026-structural-split-weld.md) | Split estrutural welded (`#TCF.7`, marcador `%`, 19.39% weighted) | **accepted** |
-| [0027](0027-nature-mark-header-self-describing.md) | H-NAT-MARK-01: nature-id viaja no header (self-describing, `#TCF.8`) | **proposed** (owner: nao implementar agora, 2026-06-17) |
+| [0027](0027-nature-mark-header-self-describing.md) | H-NAT-MARK-01: nature-id viaja no header (self-describing, `#TCF.8`; multi + single-col) | **accepted** (MVP welded 2026-06-24) |
 | [0028](0028-pre-1.0-versioning-minor-format-coupling-release-cadence.md) | Versionamento pré-1.0: acoplamento minor↔formato + eixo RELEASE (0.N.x); evita inflacao 0.8.0 com formato #TCF.7 (refina 0024) | **proposed** |
+| [0029](0029-version-format-identification-semi-implicit.md) | Identificacao versao/formato: semi-implicito (orfao default + header no desvio + chamada explicita) + major-externo + congelamento 1.0 single-col; discriminador `#TCF.8` 1-char | **proposed** |
 
 ## Quando criar ADR
 
