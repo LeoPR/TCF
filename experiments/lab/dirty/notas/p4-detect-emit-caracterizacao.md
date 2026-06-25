@@ -5,9 +5,11 @@
 adversariais: byte-risk, espelho-pyx, clareza-de-port). Caracterização ANTES de
 tocar `src/tcf/`. Companheiro de [docs/algorithms/core-data-model.md](../../../../docs/algorithms/core-data-model.md) (P3).
 
-> **Status**: caracterizada, **não executada**. Mexer em `src/tcf/` exige aprovação
-> do owner. Cada step só welda com os DOIS gates verdes (D1-D9=1523B, D17a=303B,
-> real-world=89616B, suite "not requires_data"=375 passed) + RT.
+> **Status**: caracterizada; **Onda 1 EXECUTADA** (2026-06-24, owner aprovou só ela).
+> Commits: `4cd7283` (S0+S2+S3 docs), `91e3cf9` (S4 `_EmitState`), `0be4649` (S5
+> `current_id` int), `229d873` (S6 ref_seqs trace-only). Todos byte-neutros (31 gates
+> byte-canonical + RT + suite 375 verdes). **Onda 2 (S7/S8) e S1 NÃO executados**
+> (decisão do owner). Detector e `.pyx` intocados. Buraco de gate-pyx → [T-CI-3](../../../../tickets/T-CI-3-pyx-compiled-byte-gate.md).
 
 ## O acoplamento hoje (caracterização)
 
