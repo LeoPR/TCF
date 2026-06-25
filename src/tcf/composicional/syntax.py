@@ -20,6 +20,7 @@ Convencao output: sem brackets, single LF (docs/algorithms/output-convention.md)
 """
 
 from collections import Counter
+from dataclasses import dataclass
 
 # Welding step 2 (2026-05-17): adaptado de
 # experiments/lab/dirty/old/2026-05-16-.../M8-A-detector-unificado/syntax.py.
@@ -28,6 +29,28 @@ from collections import Counter
 from tcf.composicional._trace import build_rede, build_trace  # debug (P2: fora do core)
 from tcf.core.online import TokLit, TokRefPref, TokRefSuf
 from tcf.core.syntax_base import Syntax
+
+
+@dataclass
+class _EmitState:
+    """Estado mutavel do emit (_emit_body/_emit_ref_run/_emit_alias).
+
+    COMPARTILHADO POR REFERENCIA: a closure `expand` (em _emit_alias) e os
+    sub-emits fecham/operam sobre a MESMA instancia. NAO tornar frozen nem
+    trocar por namedtuple/copia-por-valor — quebraria a resolucao de ids finais
+    (alias_to_final lido no instante da chamada). Num port C/Rust isto e' um
+    struct passado por `&mut`.
+
+    Campos read-write (byte-load-bearing): current_id, prov_to_final,
+    alias_to_final. Read-only: alias_to_sub. Debug (NAO afeta bytes, alimenta
+    build_trace/build_rede): ref_seqs, ref_seq.
+    """
+    current_id: list          # cell [0]: contador monotonico de id final
+    prov_to_final: dict        # rw: atom prov_id -> id final
+    alias_to_final: dict       # rw: alias_temp -> id final
+    alias_to_sub: dict         # ro: alias_temp -> sub-tupla de refs
+    ref_seqs: list             # debug: 1 entry por linha
+    ref_seq: list = None       # debug: acumulador da linha corrente
 
 
 class M8AVirtualRefsSyntax(Syntax):
@@ -441,14 +464,14 @@ class M8AVirtualRefsSyntax(Syntax):
         body = []
         prov_to_final = {}
         alias_to_final = {}
-        state = {
-            'current_id': [0],
-            'prov_to_final': prov_to_final,
-            'alias_to_final': alias_to_final,
-            'alias_to_sub': alias_to_sub,
-            'ref_seqs': [],
-        }
-        # state['ref_seq'] is per-line; allocated inside loop
+        state = _EmitState(
+            current_id=[0],
+            prov_to_final=prov_to_final,
+            alias_to_final=alias_to_final,
+            alias_to_sub=alias_to_sub,
+            ref_seqs=[],
+        )
+        # state.ref_seq is per-line; allocated inside loop
 
         for li, (count, eid, is_rep) in enumerate(line_meta):
             if is_rep:
@@ -462,7 +485,7 @@ class M8AVirtualRefsSyntax(Syntax):
                     body.append(f"*{count}|^{eid}")
                 else:
                     body.append(f"^{eid}")
-                state['ref_seqs'].append([])
+                state.ref_seqs.append([])
                 continue
 
             pieces = pieces_per_line[li]
@@ -470,7 +493,7 @@ class M8AVirtualRefsSyntax(Syntax):
             prev_type = None
             prev_lit_term_digit = False
             ref_seq = []
-            state['ref_seq'] = ref_seq
+            state.ref_seq = ref_seq
 
             # TABELA DE SEPARADOR (byte-load-bearing; espelhada pelo parser do
             # decode em _parse_decl). Insere um separador na transicao prev->cur
@@ -497,8 +520,8 @@ class M8AVirtualRefsSyntax(Syntax):
                         # expression, perdendo o `,` literal. Descoberto em
                         # EXP-013 TPC-H (p_comment 'pending, bold' -> 'pending bold').
                         parts.append('*')
-                    state['current_id'][0] += 1
-                    prov_to_final[p[2]] = state['current_id'][0]
+                    state.current_id[0] += 1
+                    prov_to_final[p[2]] = state.current_id[0]
                     text_emit, prev_lit_term_digit = self._escape_lit(p[1])
                     parts.append(text_emit)
                     prev_type = 'lit'
@@ -520,9 +543,9 @@ class M8AVirtualRefsSyntax(Syntax):
                 body.append(f"*{count}|{linha_resto}")
             else:
                 body.append(linha_resto)
-            state['ref_seqs'].append(ref_seq)
+            state.ref_seqs.append(ref_seq)
 
-        return body, prov_to_final, alias_to_final, state['ref_seqs']
+        return body, prov_to_final, alias_to_final, state.ref_seqs
 
     def _emit_ref_run(self, refs, state):
         """Emit run de refs mixtos (atomic positivo + virtual negativo).
@@ -536,11 +559,11 @@ class M8AVirtualRefsSyntax(Syntax):
                 # Run de atoms
                 atom_run = []
                 while i < len(refs) and refs[i] > 0:
-                    atom_run.append(state['prov_to_final'][refs[i]])
+                    atom_run.append(state.prov_to_final[refs[i]])
                     i += 1
                 segments.append(self._emit_refs_range(atom_run))
-                state['current_id'][0] += self._count_ids_in_refs(atom_run)
-                state['ref_seq'].extend(atom_run)
+                state.current_id[0] += self._count_ids_in_refs(atom_run)
+                state.ref_seq.extend(atom_run)
             else:
                 # Virtual: emit alias (def or use)
                 alias_temp = -refs[i]
@@ -561,9 +584,9 @@ class M8AVirtualRefsSyntax(Syntax):
         finals corretos. Um inner JA resolvido (em alias_to_final) pode estar em
         QUALQUER posicao (usa o final id direto). Um port que ignore esta
         precondicao quebra silenciosamente."""
-        if alias_temp in state['alias_to_final']:
-            fid = state['alias_to_final'][alias_temp]
-            state['ref_seq'].append(fid)
+        if alias_temp in state.alias_to_final:
+            fid = state.alias_to_final[alias_temp]
+            state.ref_seq.append(fid)
             return str(fid)
 
         # First emission: build linear chain inline-expanded
@@ -572,34 +595,34 @@ class M8AVirtualRefsSyntax(Syntax):
 
         def expand(elem):
             if elem > 0:
-                linear.append(state['prov_to_final'][elem])
+                linear.append(state.prov_to_final[elem])
             else:
                 inner = -elem
-                if inner in state['alias_to_final']:
+                if inner in state.alias_to_final:
                     # Already emitted: use single final id
-                    linear.append(state['alias_to_final'][inner])
+                    linear.append(state.alias_to_final[inner])
                 else:
                     # Recursively expand inner's sub (inner is at position 0)
-                    for inner_elem in state['alias_to_sub'][inner]:
+                    for inner_elem in state.alias_to_sub[inner]:
                         expand(inner_elem)
                     completions.append((len(linear) - 1, inner))
 
-        for elem in state['alias_to_sub'][alias_temp]:
+        for elem in state.alias_to_sub[alias_temp]:
             expand(elem)
         completions.append((len(linear) - 1, alias_temp))
 
         emission = self._emit_composition(linear)
         K = len(linear)
-        base = state['current_id'][0]
-        state['current_id'][0] += K - 1
+        base = state.current_id[0]
+        state.current_id[0] += K - 1
 
         # Assign final IDs by pairwise position
         # ID at linear index k (0-based, k>=1) is base + k
         for idx, ali in completions:
-            if ali not in state['alias_to_final'] and idx >= 1:
-                state['alias_to_final'][ali] = base + idx
+            if ali not in state.alias_to_final and idx >= 1:
+                state.alias_to_final[ali] = base + idx
 
-        state['ref_seq'].append(state['alias_to_final'][alias_temp])
+        state.ref_seq.append(state.alias_to_final[alias_temp])
         return emission
 
     # ---- main encode + decode ----
