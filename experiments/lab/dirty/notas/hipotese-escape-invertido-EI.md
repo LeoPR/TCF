@@ -14,7 +14,20 @@ desambiguar de refs. Em coluna **literal-heavy** (CPF, UUID, IDs, datas), isso s
 a polaridade. Pra coluna all-literal, é um "pós-filtro" trivial (remove os `\`, decode
 re-adiciona).
 
-## DISTINTO da escape-deduction (FECHADA, Pacote 2)
+## REFRAME (owner 2026-06-25): EI global = PROVA; o alvo é polaridade INTELIGENTE
+O flip GLOBAL (EI) **prova que o ganho existe** e é o **piso** (simples, sempre-aplicável).
+O alvo real é um espectro de **inteligência de polaridade de escape**:
+- **Piso (provado)**: flip global por header (`#TCF.8 EI`) — esta medição (9–19%).
+- **Teto (a estudar)**: decidir **preditivamente e matematicamente DURANTE o processo**
+  quando inverter — **não necessariamente global**. Pode ser **serializado**: gastar um
+  marcador que inverte **uma linha ou uma sequência** quando paga, voltando depois.
+  Atende casos pequenos/grandes/dinâmicos.
+- A **escape-deduction** (Pacote 2, fechada) foi UMA tentativa do lado preditivo
+  (por-ocorrência, `node_count`) — falhou real-world. Mas o piso provado mostra que **vale
+  procurar um mecanismo preditivo/serializado MELHOR**. Reservar como estudo do espectro
+  inteiro (global ↔ serializado ↔ preditivo).
+
+## DISTINTO da escape-deduction (FECHADA, Pacote 2) — na decisão por-ocorrência APENAS
 | | deduction (fechada) | **EI** |
 |---|---|---|
 | decisão | por-ocorrência (`digit>node_count?`) | **global** (contar+flipar) |
