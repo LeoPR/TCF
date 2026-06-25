@@ -60,6 +60,9 @@ MAGIC_MULTI = b"#TCF.6 M"
 MAGIC_MULTI_V2 = b"#TCF.7 M"  # V2-A fallback identity (ADR-0022, abre o formato #TCF.7)
 MAGIC_MULTI_V3 = b"#TCF.8 M"  # self-describing natures: :id no meta-line (ADR-0027).
                               # Emitido SSE bool(nature_ids) — opt-in estrito.
+MAGIC_SINGLE_V3 = b"#TCF.8"   # single-col self-describing (SEM flag M -> single,
+                              # decode retorna list). shebang opt-in SSE ha nature;
+                              # linha 2 = '[nome]:spec_id' (nome opcional). ADR-0027.
 META_PREFIX = b"# "  # v1 (#TCF.6, congelado). #TCF.7 dispensa o prefixo do meta
                      # (o flag `M` no shebang ja' declara multi-col) — ADR-0023.
 

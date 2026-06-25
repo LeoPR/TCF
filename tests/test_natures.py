@@ -266,6 +266,66 @@ class TestNatureMarkHeader:
 
 
 # ===========================================================================
+# Self-describing SINGLE-COL — nature-id no header (#TCF.8 sem M, ADR-0027)
+# ===========================================================================
+
+class TestNatureMarkSingleCol:
+    def test_no_spec_byte_identico(self):
+        """INVARIANTE byte-neutro: single-col SEM spec -> body puro, sem shebang."""
+        vals = ["529.982.247-25", "111.444.777-35", "529.982.247-25"]
+        text = encode(vals)                       # sem nature
+        assert not text.startswith("#TCF.8")      # nenhum shebang
+        assert text == encode(vals)               # deterministico
+        assert decode(text) == vals
+
+    def test_spec_self_describing(self):
+        """Feature: encode single-col com nature -> decode SEM nature recupera."""
+        cpfs = ["529.982.247-25", "111.444.777-35", "abc.def.ghi-jk"]
+        text = encode(cpfs, nature=SPEC_CPF)
+        assert decode(text) == cpfs               # SEM nature no decode
+
+    def test_magic_sem_m_e_meta(self):
+        cpfs = ["529.982.247-25"]
+        text = encode(cpfs, nature=SPEC_CPF)
+        lines = text.split("\n")
+        assert lines[0] == "#TCF.8"               # sem ' M' -> single-col
+        assert lines[1] == ":cpf"                 # nome vazio, spec id
+
+    def test_retorna_list_nao_dict(self):
+        text = encode(["529.982.247-25"], nature=SPEC_CPF)
+        assert isinstance(decode(text), list)     # single-col -> list
+
+    def test_nome_opcional(self):
+        cpfs = ["529.982.247-25", "111.444.777-35"]
+        text = encode(cpfs, nature=SPEC_CPF, name="docs")
+        assert text.split("\n")[1] == "docs:cpf"  # slot de nome preenchido
+        assert decode(text) == cpfs               # nome nao afeta os valores
+
+    def test_ip_single_col_self_describing(self):
+        ips = ["192.168.1.1", "10.0.0.1", "172.16.0.1"]
+        text = encode(ips, nature=SPEC_IP)
+        assert text.startswith("#TCF.8\n")
+        assert decode(text) == ips
+
+    def test_unknown_id_cru_warn(self):
+        text = encode(["529.982.247-25"], nature=SPEC_CPF)
+        tampered = text.replace(":cpf", ":FUTURE9", 1)
+        with pytest.warns(UserWarning, match="desconhecido"):
+            result = decode(tampered)
+        assert result[0] != "529.982.247-25"      # cru (base-94), nao revertido
+
+    def test_no_double_apply(self):
+        """Precedencia header-vence: encode+decode ambos com nature -> RT."""
+        cpfs = ["529.982.247-25", "111.444.777-35"]
+        text = encode(cpfs, nature=SPEC_CPF)
+        assert decode(text, nature=SPEC_CPF) == cpfs
+
+    def test_name_com_colon_rejeitado(self):
+        with pytest.raises(ValueError, match="':'|reservado"):
+            encode(["529.982.247-25"], nature=SPEC_CPF, name="ns:bad")
+
+
+# ===========================================================================
 # Telemetria de apply-rate (SideOutputs.nature_apply) — byte-neutra
 # ===========================================================================
 

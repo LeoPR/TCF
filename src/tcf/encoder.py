@@ -85,6 +85,7 @@ def encode(
     min_header: bool = True,
     min_len: int | None = None,
     sort_by: str | None = None,
+    name: str | None = None,
 ) -> str:
     """Encode lista de strings OU dict de colunas em texto TCF.
 
@@ -147,6 +148,7 @@ def encode(
     if min_len is not None and min_len < 1:
         raise ValueError(f"min_len deve ser >= 1 (ou None pra auto); got {min_len}")
     if isinstance(data, list):
+        nature_id = None
         if nature is not None:
             from tcf.natures.templated_checked import encode_value
             if side_outputs is not None:
@@ -157,8 +159,23 @@ def encode(
                 }
             else:
                 data = [encode_value(nature, v)[0] for v in data]
-        return _encode_column(data, header="val", side=side_outputs, cfg=cfg,
+            nature_id = nature.name
+        body = _encode_column(data, header="val", side=side_outputs, cfg=cfg,
                               min_len=min_len)
+        if nature_id is None:
+            return body                       # single-col puro (byte-identico)
+        # Self-describing single-col (#TCF.8 SEM flag M, ADR-0027). Shebang
+        # opt-in SSE ha nature -> default-off byte-identico. Linha 2 =
+        # '[nome]:spec_id' (nome opcional, so' rotulo — nao volta no decode).
+        # byte-neutro: este ramo so' roda quando nature foi passado.
+        if name is not None and (':' in name or '\n' in name):
+            raise ValueError(
+                f"name de single-col nao pode conter ':' nem '\\n' "
+                f"(reservado pro meta #TCF.8): {name!r}"
+            )
+        from tcf.multi.core import MAGIC_SINGLE_V3
+        magic = MAGIC_SINGLE_V3.decode("utf-8")          # "#TCF.8"
+        return f"{magic}\n{name or ''}:{nature_id}\n{body}"
     if isinstance(data, dict):
         from tcf.multi import _encode_multi
         if sort_by is not None:

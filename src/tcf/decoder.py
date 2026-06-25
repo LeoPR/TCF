@@ -56,7 +56,9 @@ if TYPE_CHECKING:
 # opt-in SSE ha nature). #TCF.6 = LEGADO de leitura — remover no 1.0
 # (T-CODE-LEGACY-PRUNE-PRE-07; ADR-0024 git-as-compat reproduz blobs antigos).
 _MULTI_MAGIC = "#TCF.7 M"
-_MULTI_MAGIC_V8 = "#TCF.8 M"          # self-describing (:id no meta-line)
+_MULTI_MAGIC_V8 = "#TCF.8 M"          # multi self-describing (:id no meta-line)
+_SINGLE_MAGIC_V8 = "#TCF.8"           # single-col self-describing (SEM M); shebang
+                                      # '#TCF.8\\n[nome]:spec\\n<body>' (ADR-0027)
 _MULTI_MAGIC_LEGACY_V6 = "#TCF.6 M"   # LEGADO — leitura ate' o 1.0
 
 
@@ -120,6 +122,34 @@ def decode(
                 for name, vals in result.items()
             }
         return result
+    if tcf_text.startswith(_SINGLE_MAGIC_V8 + "\n"):
+        # Single-col self-describing (#TCF.8 SEM M, ADR-0027): linha 1 '#TCF.8',
+        # linha 2 '[nome]:spec_id' (nome opcional, so' rotulo -> descartado),
+        # resto = body. Retorna LIST (single-col).
+        nl1 = tcf_text.index("\n")
+        nl2 = tcf_text.index("\n", nl1 + 1)
+        meta = tcf_text[nl1 + 1:nl2]
+        body = tcf_text[nl2 + 1:]
+        _name, _, nat_id = meta.partition(":")
+        values = _decode_column(body)
+        from tcf.natures import _resolve_nature_id
+        spec = _resolve_nature_id(nat_id)
+        if spec is not None:
+            # header vence: resolve+aplica e ignora um `nature=` redundante do
+            # usuario (evita dupla aplicacao no RT).
+            return [spec.decode_value(v) for v in values]
+        # forward-compat: id desconhecido -> valor CRU + aviso (nao silencioso,
+        # nao KeyError). Usuario pode completar via `nature=`.
+        import warnings
+        warnings.warn(
+            f"nature-id desconhecido no header single-col: {nat_id!r} "
+            f"-> valor mantido cru",
+            stacklevel=2,
+        )
+        if nature is not None:
+            from tcf.natures.templated_checked import decode_value
+            values = [decode_value(nature, v) for v in values]
+        return values
     values = _decode_column(tcf_text)
     if nature is not None:
         from tcf.natures.templated_checked import decode_value
