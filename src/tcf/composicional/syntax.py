@@ -485,6 +485,9 @@ class M8AVirtualRefsSyntax(Syntax):
                     body.append(f"*{count}|^{eid}")
                 else:
                     body.append(f"^{eid}")
+                # TRACE-ONLY: placeholder vazio mantem o alinhamento posicional
+                # li <-> ref_seqs[li] que build_trace/build_rede assumem
+                # (enumerate). NAO afeta bytes; um port descarta ref_seqs.
                 state.ref_seqs.append([])
                 continue
 
@@ -492,6 +495,9 @@ class M8AVirtualRefsSyntax(Syntax):
             parts = []
             prev_type = None
             prev_lit_term_digit = False
+            # ref_seq/ref_seqs: TRACE-ONLY (debug). Acumulam a sequencia de refs
+            # por linha; consumidos SO' por build_trace/build_rede (_trace.py).
+            # NAO entram no body — nenhum _emit_* le ref_seq, so' .append/.extend.
             ref_seq = []
             state.ref_seq = ref_seq
 
