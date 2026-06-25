@@ -24,8 +24,8 @@ from collections import Counter
 from collections.abc import Callable
 
 from tcf.multi import (
-    MAGIC_MULTI, MAGIC_MULTI_V2, META_PREFIX, _decode_v2b, _decode_struct_split,
-    _v2b_width, _V2B_BASE,
+    MAGIC_MULTI, MAGIC_MULTI_V2, MAGIC_MULTI_V3, META_PREFIX,
+    _decode_v2b, _decode_struct_split, _v2b_width, _V2B_BASE,
 )
 from tcf.decoder import _decode_column
 
@@ -43,6 +43,7 @@ class LazyTCF:
 
     def __init__(self, blob: str):
         self._mode: dict[str, str] = {}        # name -> 'raw'|'dict'|'split'|'tcf'
+        self._nature: dict[str, str] = {}      # name -> nature-id (#TCF.8 :spec)
         self._body: dict[str, bytes] = {}      # name -> bytes (NÃO decodificado)
         self._cache: dict[str, list[str]] = {}  # name -> valores (sob demanda)
         self._dict_cache: dict[str, tuple] = {}  # A3-O2: (unicas,width,stream) parseado do @dict
@@ -57,37 +58,55 @@ class LazyTCF:
         if nl1 == -1:
             raise ValueError("blob inválido: sem shebang")
         line1 = raw[:nl1]
-        # #TCF.7 = vivo; MAGIC_MULTI (#TCF.6) = LEGADO de leitura, remover no 1.0
-        # (T-CODE-LEGACY-PRUNE-PRE-07).
+        # #TCF.7/#TCF.8 = vivos; MAGIC_MULTI (#TCF.6) = LEGADO de leitura, remover
+        # no 1.0. #TCF.8M (ADR-0029): meta INLINE na linha do shebang.
         is_v7 = line1.startswith(MAGIC_MULTI_V2)
-        if not (line1.startswith(MAGIC_MULTI) or is_v7):
-            raise ValueError("não é TCF multi-coluna (esperado #TCF.7 M / #TCF.6 M legado)")
-        nl2 = raw.find(b"\n", nl1 + 1)
-        if nl2 == -1:
-            raise ValueError("blob inválido: sem linha de meta")
-        line2 = raw[nl1 + 1:nl2]
-        if line2.startswith(META_PREFIX):
-            meta = line2[len(META_PREFIX):].decode("utf-8")
-        elif is_v7:
-            meta = (line2[1:] if line2.startswith(b"#") else line2).decode("utf-8")
+        is_v8 = line1.startswith(MAGIC_MULTI_V3)
+        if not (line1.startswith(MAGIC_MULTI) or is_v7 or is_v8):
+            raise ValueError(
+                "não é TCF multi-coluna (esperado #TCF.8M / #TCF.7 M / #TCF.6 M)")
+        if is_v8:
+            meta = line1[len(MAGIC_MULTI_V3):].decode("utf-8")   # inline
+            cursor = nl1 + 1
         else:
-            raise ValueError("meta inválido (#TCF.6 exige '# ')")
+            nl2 = raw.find(b"\n", nl1 + 1)
+            if nl2 == -1:
+                raise ValueError("blob inválido: sem linha de meta")
+            line2 = raw[nl1 + 1:nl2]
+            if line2.startswith(META_PREFIX):
+                meta = line2[len(META_PREFIX):].decode("utf-8")
+            elif is_v7:
+                meta = (line2[1:] if line2.startswith(b"#") else line2).decode("utf-8")
+            else:
+                raise ValueError("meta inválido (#TCF.6 exige '# ')")
+            cursor = nl2 + 1
 
-        cursor = nl2 + 1
-        for part in meta.split(","):
+        tokens = meta.split(",")
+        n_cols = len(tokens)
+        for i, part in enumerate(tokens):
             mode = "tcf"
             if part[:1] in "!@%":
                 mode = {"!": "raw", "@": "dict", "%": "split"}[part[0]]
                 part = part[1:]
+            # sufixo ':id' (nature, so' #TCF.8); coluna anonima -> nome posicional
+            nat_id = None
+            if is_v8 and ":" in part:
+                part, nat_id = part.rsplit(":", 1)
             if "=" in part:
                 size_str, name = part.split("=", 1)
                 size = int(size_str)
+            elif i == n_cols - 1:
+                size = None                          # ultima: corpo ate' EOF
+                name = part if part else str(i)      # nome OU posicional (anonima)
             else:
-                size, name = None, part            # última coluna: corpo até EOF
+                size = int(part)                     # anonima nao-ultima -> so' size
+                name = str(i)                        # posicional (nome = ordem)
             body = raw[cursor:] if size is None else raw[cursor:cursor + size]
             self._mode[name] = mode
             self._body[name] = body
             self._order.append(name)
+            if nat_id is not None:
+                self._nature[name] = nat_id
             cursor += len(body)
 
     # ---- introspecção barata (só header) ----
@@ -122,6 +141,15 @@ class LazyTCF:
                 vals = _decode_struct_split(body)
             else:
                 vals = _decode_column(body.decode("utf-8"))
+            # Nature self-describing (#TCF.8, ADR-0027): reverte LAZY — so' ao
+            # materializar a coluna consultada (decode_value), preservando a
+            # laziness (colunas nao tocadas nem decodam o body).
+            nat_id = self._nature.get(name)
+            if nat_id is not None:
+                from tcf.natures import _resolve_nature_id
+                spec = _resolve_nature_id(nat_id)
+                if spec is not None:
+                    vals = [spec.decode_value(v) for v in vals]
             self._cache[name] = vals
             if name not in self.touched:   # A2: evita dupla contagem (coluna ja' tocada via _dict_parts)
                 self.touched.append(name)

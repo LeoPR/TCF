@@ -15,7 +15,36 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 sys.path.insert(0, str(ROOT / "scripts"))
 
-from tcf import encode, decode, view      # noqa: E402  (caminho canônico A4)
+from tcf import encode, decode, view, SPEC_CNPJ   # noqa: E402  (caminho canônico A4)
+
+
+# ---- #TCF.8 self-describing: natures (revertidas lazy) + colunas anonimas ----
+
+def test_lazy_tcf8_nature_reverte():
+    table = {"doc": ["11.222.333/0001-81", "11.222.333/0001-81"], "x": ["a", "b"]}
+    blob = encode(table, nature_per_col={"doc": SPEC_CNPJ})
+    assert blob.startswith("#TCF.8M")              # familia self-describing
+    v = view(blob)
+    assert v.columns == ["doc", "x"]
+    # coluna com nature volta REVERTIDA (decode_value lazy no _col)
+    assert v.select(["doc"])[0]["doc"] == "11.222.333/0001-81"
+    assert v.where("doc", "11.222.333/0001-81").count() == 2
+
+
+def test_lazy_tcf8_anonima_posicional():
+    blob = encode({"aa": ["x", "y"], "bb": ["p", "q"]}, drop_names=True)
+    v = view(blob)
+    assert v.columns == ["0", "1"]                 # nome = ordem
+    assert v.select(["0"]) == [{"0": "x"}, {"0": "y"}]
+
+
+def test_lazy_tcf8_laziness_preservada():
+    table = {"doc": ["11.222.333/0001-81", "11.222.333/0001-81"],
+             "x": ["a", "b"], "y": ["c", "d"]}
+    blob = encode(table, nature_per_col={"doc": SPEC_CNPJ})
+    v = view(blob)
+    v.select(["x"])                                # so' toca x
+    assert v.touched == ["x"]                      # doc/y nao materializados
 
 
 def test_a4_shim_backcompat():
