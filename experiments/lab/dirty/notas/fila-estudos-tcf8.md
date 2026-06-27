@@ -9,7 +9,7 @@ pro #TCF.8*. Fonte da família: [tcf8-estrutura-plano.md](tcf8-estrutura-plano.m
 |---|---|---|
 | **esqueleto #TCF.8** (discriminador + natures :spec + anônimas + version-stamp) | **WELDED** (ADR-0027/0029) | espinha estrutural; só falta POPULAR com desvios |
 | **congelar single-col body @1.0** | ✅ FEITO (ADR-0030, 2026-06-25) | linchpin do órfão default; política decidida (efeito no 1.0; pré-1.0 ainda refinável) |
-| **EI global** (escape-invertido por header) | aberta, VIÁVEL (sint 9–19%) | desvio `#TCF.8 EI`; protótipo barato (pós-filtro); gate real-world digit-heavy pendente |
+| **EI global** (escape-invertido por header) | 🔻 ENCOSTADA (alcance estreito) | [lab 06-27](../2026-06-27-EI-alcance/result.md): textual real só em random-digit incompressível (CPF 21%); **brotli-neg** (CPF −19.4%); filtro cego nem round-trip faz → exige **encoder-staging**. Deferido p/ Estágio 1 se surgir uso textual/lazy-puro |
 | **T-CI-3** (gate Cython byte-canônico) | open P2 | barato/aditivo; **BLOQUEANTE** antes de mexer em `_detect_compositions` |
 | **H-GDICT-01 / cross-dict B2** | B1 PASSA real-world (**−19.3%** SNAP) → B2 | ⭐ melhor candidato MEDIDO; dict global no header; sinergia com lazy |
 
@@ -38,7 +38,7 @@ pro #TCF.8*. Fonte da família: [tcf8-estrutura-plano.md](tcf8-estrutura-plano.m
 ## Ordem recomendada (arrumar pro #TCF.8 primeiro)
 1. **T-CI-3** — rede de segurança ANTES de tocar o detector pra qualquer nature.
 2. **congelar single-col @1.0** — decisão/ADR, zero-risco, destrava single-col self-describing.
-3. **EI global** — protótipo read-only → provar o piso; gate real-world digit-heavy.
+3. ~~**EI global**~~ ✅ MEDIDO ([lab 06-27](../2026-06-27-EI-alcance/result.md)) → **ENCOSTADO**: alcance estreito (textual-niche, brotli-neg, exige encoder-staging).
 4. **H-GDICT-01 B2** — único com ganho real-world JÁ medido (−19.3%); maior payoff confirmado.
 5. **H-REF-03** (escape-free) read-only — barato, pré-req do GDICT + sinergia EI.
 6. **T-DATA-1** (owner roda download) — gate-opener que destrava Pacote 7/natures.

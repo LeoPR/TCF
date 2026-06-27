@@ -1,9 +1,19 @@
-# Hipótese: escape-invertido (EI) — flip global de polaridade por header [aberta, VIÁVEL]
+# Hipótese: escape-invertido (EI) — flip global de polaridade por header [ENCOSTADA — alcance estreito]
 
 **Data**: 2026-06-25. **Origem**: owner, revendo o caso1-raw (CPF mascarado cheio de `\`).
-**Status**: `aberta`, candidato VIÁVEL. **Corrige** a rejeição anterior (eu havia juntado
-isto com a escape-deduction fechada — ERRADO; ver distinção). **Confiança**: A-revalidar
-(medido em sintético; gate real-world pendente).
+**Status**: `🔻 encostada` (medido 2026-06-27, alcance ESTREITO). **Corrige** a rejeição
+anterior (eu havia juntado isto com a escape-deduction fechada — ERRADO; ver distinção).
+**Confiança**: Alta no veredito de alcance.
+
+## VEREDITO DE ALCANCE (lab 2026-06-27 — [result.md](../2026-06-27-EI-alcance/result.md))
+A estrutura "ideal" (flip global) **não tem alcance amplo**. Três achados:
+1. **Filtro cego nem round-trip faz** — output mistura escape-de-literal com dígitos
+   estruturais (refs OBAT, contadores `*N`); EI tem de ser **estágio DENTRO do encoder**.
+2. **Textual real só em coluna incompressível** (CPF 21%, decimal 18%, telefone 15%, uuid 13%);
+   em coluna estruturada/compressível o pipeline já comeu os escapes → EI net-negativo.
+3. **Sob brotli evapora ou INVERTE** (CPF −19.4%) — falha o gate "sob brotli".
+→ Nicho textual/lazy puro sobre random-digit. **Encostado**; retomar pelo Estágio 1 (encoder-
+internal) só se esse caso de uso aparecer. Estágios 0-3 documentados no result.md.
 
 ## A ideia (owner)
 Hoje o HCC escapa TODO digit-run literal com `\` (`_escape_lit`, incondicional) pra
