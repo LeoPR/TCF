@@ -49,9 +49,9 @@ same-domain (ganho real medido), W2 ataca bool/categórico por bits.
 ## Próximo
 - (a) Registrar (este doc) + aplicar correções A-D da [revisão](../2026-06-21-gdict-caracterizacao/design-b2-revisao.md)
   no B2 já estreitado a same-domain.
-- (b) Mapear a literatura JÁ baixada por workstream (W1 cross-column dict/Parquet-Abadi; W2
-  bitpacking/roaring; W3 late-materialization/predicate-pushdown; W4 schema-on-read/DSL de tipos) —
-  o que temos vs o que falta — antes de puxar mais.
+- (b) ✅ FEITO — [bibliografia.md](../../../docs/reference/bibliografia.md): 24 refs canônicas
+  verificadas (0 alucinação) por workstream; só 2 já citávamos (Roaring, FOR) → repo estava
+  sub-referenciado. Sem PDFs baixados (Z: é corpus pdf2md); o doc é a biblioteca + alvo de download.
 
 ## Cross-links
 [fila-estudos-tcf8.md](fila-estudos-tcf8.md), [tcf8-estrutura-plano.md](tcf8-estrutura-plano.md),
