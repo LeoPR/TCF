@@ -11,7 +11,7 @@ pro #TCF.8*. Fonte da família: [tcf8-estrutura-plano.md](tcf8-estrutura-plano.m
 | **congelar single-col body @1.0** | ✅ FEITO (ADR-0030, 2026-06-25) | linchpin do órfão default; política decidida (efeito no 1.0; pré-1.0 ainda refinável) |
 | **EI global** (escape-invertido por header) | 🔻 ENCOSTADA (alcance estreito) | [lab 06-27](../2026-06-27-EI-alcance/result.md): textual real só em random-digit incompressível (CPF 21%); **brotli-neg** (CPF −19.4%); filtro cego nem round-trip faz → exige **encoder-staging**. Deferido p/ Estágio 1 se surgir uso textual/lazy-puro |
 | **T-CI-3** (gate Cython byte-canônico) | open P2 | barato/aditivo; **BLOQUEANTE** antes de mexer em `_detect_compositions` |
-| **H-GDICT-01 / cross-dict B2** | B1 PASSA real-world (**−19.3%** SNAP) → B2 | ⭐ melhor candidato MEDIDO; dict global no header; sinergia com lazy |
+| **H-GDICT-01 / cross-dict B2** | ✅ B2 DESIGN feito ([design-b2](../2026-06-21-gdict-caracterizacao/design-b2.md)) → prototype read-only | ⭐ melhor candidato MEDIDO (−19.3% SNAP); group-dict opt-in #TCF.8 sobre V2-B; particionamento greedy custo-modelado (a dobradiça); brotli fora do gate |
 
 ## (B) ESTUDAR/MEDIR antes (gate read-only antes de codar)
 | estudo | status | nota |

@@ -82,10 +82,16 @@ go explícito (PyPI segura).
 
 ### 4. Cross-dict (H-GDICT) — feature opt-in dentro do #TCF.8
 Era o workstream B do v08-plano (reservava "#TCF.8" pra isto). **Reconciliado**: cross-dict
-é UM desvio opt-in na família #TCF.8 (dict global no header = leitura única; sinergia com o
-lazy). B1 caracterizar (lab read-only, gate ≥15%/2-reais OU justificativa estrutural de
-latência); se pagar, B2 design + B3 weld opt-in (default off = byte-idêntico) + B4 integrar
-com o lazy. Anti-incidente 2026-05-21: medir real + sob brotli.
+é UM desvio opt-in na família #TCF.8 (group-dict no header = leitura única; sinergia com o lazy).
+- **B1** ✅ fechado-positivo: same-domain-refs paga (SNAP −19.3%, OpenFlights −4.6/−6.6% textual
+  + lazy cross-col); a dobradiça = não cruzar limite de largura base-94. Brotli fora do gate
+  (correção owner 2026-06-21). [result.md](../2026-06-21-gdict-caracterizacao/result.md).
+- **B2** ✅ design feito ([design-b2](../2026-06-21-gdict-caracterizacao/design-b2.md)): group-dict
+  opt-in #TCF.8 sobre o `@dict` do V2-B; **particionamento greedy custo-modelado** (a dobradiça
+  como regra de pool); namespace por grupo (bound de largura); decode = prelúdio serial + colunas
+  paralelas; default-off byte-idêntico.
+- **Próximo**: prototype read-only (SNAP+OpenFlights, fora de src/tcf) → confirma RT + ganho +
+  escala ≥3-col → **B3** weld opt-in (ADR, sob aprovação) → **B4** integrar com lazy.
 
 ### 5. tcfx index / lazy avançado (futuro, "com calma")
 Ideia do owner: um índice **`.tcfx`** (sidecar ou in-blob) pra pushdown/consulta sem
