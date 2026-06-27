@@ -767,6 +767,10 @@ class M8AVirtualRefsSyntax(Syntax):
 # Senao (install sem compilador), fallback silencioso pro pure-Python — o
 # pacote funciona identico, so' mais lento. NUNCA falha por ausencia da extensao.
 # ---------------------------------------------------------------------------
+# Enabler do gate T-CI-3 (ADR-0020): preserva a referencia pure-Python ANTES do
+# override Cython, pra o teste comparar os DOIS caminhos no mesmo processo. Aditivo,
+# byte-neutro (so' guarda uma referencia; nao muda encode/decode).
+M8AVirtualRefsSyntax._detect_compositions_py = M8AVirtualRefsSyntax._detect_compositions
 try:  # pragma: no cover - depende de build opcional
     from tcf._core.detect import _detect_compositions as _detect_compositions_cy
     M8AVirtualRefsSyntax._detect_compositions = _detect_compositions_cy

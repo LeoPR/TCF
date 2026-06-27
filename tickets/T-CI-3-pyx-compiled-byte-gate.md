@@ -1,15 +1,29 @@
 ---
 title: T-CI-3 — Gate byte-canonical do caminho Cython COMPILADO (detect.pyx)
-status: open
+status: in-progress
 priority: P2
 created: 2026-06-24
-updated: 2026-06-24
+updated: 2026-06-25
 related:
   - docs/adr/0020-cython-optional-accelerator.md
-  - experiments/lab/dirty/notas/p4-detect-emit-caracterizacao.md
+  - tests/test_pyx_byte_equivalence.py
   - src/tcf/_core/detect.pyx
   - src/tcf/composicional/syntax.py
+  - experiments/lab/dirty/2026-06-25-tci3-pyx-gate/
 ---
+
+## Andamento (2026-06-25)
+
+**GATE LOCAL FEITO.** `tests/test_pyx_byte_equivalence.py`: compara Cython (.pyd) vs
+pure-Python no MESMO processo (enabler `M8AVirtualRefsSyntax._detect_compositions_py`
+salvo em syntax.py antes do override) — sinteticos + real-world (datasets/samples) +
+aleatorios. **Skip gracioso se accel=False** (so' roda onde a extensao compilou). Provado
+neste ambiente (Cython 3.2.5 + MSVC): 42 checks passam com accel=True; 0-diff direto em
+31 datasets. Inspecao: `experiments/lab/dirty/2026-06-25-tci3-pyx-gate/`.
+
+**FALTA (follow-up)**: job de CI que COMPILE a extensao e rode este teste com accel=True
+(matrix). Sem isso, o gate so' roda onde alguem compilou local. Atualizar ADR-0020 que a
+byte-equivalencia passa a ser VERIFICADA por teste (nao so' convencao).
 
 # T-CI-3 — Gate byte-canonical do caminho Cython compilado
 
