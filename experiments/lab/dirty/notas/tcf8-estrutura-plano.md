@@ -70,9 +70,11 @@ meta **inline** (linha 1) + `:id` + colunas anônimas (nome posicional) — espe
 (**lazy preservado** — só a coluna consultada). Read-only, aditivo. Single (spec/stamp)
 fora (LazyTCF é multi-col). +3 testes test-first; suíte 414.
 
-### 2. Congelar single-col @1.0
-Decisão pré-1.0 (não código): o body single-col vira contrato imutável → órfão decodável
-pra sempre. Vira ADR/seção quando fecharmos 1.0.
+### 2. Congelar single-col @1.0 ✅ FEITO (ADR-0030, 2026-06-25)
+Política decidida ([ADR-0030](../../../../docs/adr/0030-freeze-single-col-body-at-1.0.md)):
+o body single-col vira contrato imutável NO 1.0 → órfão decodável pra sempre. Disciplina:
+otimizações futuras (EI, H-INTRA…) viram desvios opt-in marcados, não mutação da base.
+Pré-1.0 ainda refinável (ADR-0024). Efeito no 1.0.
 
 ### 3. Release 0.8.0
 ADR-0028: formato #TCF.8 → release 0.8.0. Pacote em 0.7.1; bump + CHANGELOG + tag só com

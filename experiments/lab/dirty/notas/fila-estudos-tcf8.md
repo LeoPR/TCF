@@ -8,7 +8,7 @@ pro #TCF.8*. Fonte da família: [tcf8-estrutura-plano.md](tcf8-estrutura-plano.m
 | estudo | status | nota |
 |---|---|---|
 | **esqueleto #TCF.8** (discriminador + natures :spec + anônimas + version-stamp) | **WELDED** (ADR-0027/0029) | espinha estrutural; só falta POPULAR com desvios |
-| **congelar single-col body @1.0** | aberta (decisão, não-código) | linchpin do órfão default; destrava single-col self-describing; zero-risco |
+| **congelar single-col body @1.0** | ✅ FEITO (ADR-0030, 2026-06-25) | linchpin do órfão default; política decidida (efeito no 1.0; pré-1.0 ainda refinável) |
 | **EI global** (escape-invertido por header) | aberta, VIÁVEL (sint 9–19%) | desvio `#TCF.8 EI`; protótipo barato (pós-filtro); gate real-world digit-heavy pendente |
 | **T-CI-3** (gate Cython byte-canônico) | open P2 | barato/aditivo; **BLOQUEANTE** antes de mexer em `_detect_compositions` |
 | **H-GDICT-01 / cross-dict B2** | B1 PASSA real-world (**−19.3%** SNAP) → B2 | ⭐ melhor candidato MEDIDO; dict global no header; sinergia com lazy |

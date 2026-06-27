@@ -64,7 +64,8 @@ A camada 1 (órfão) só é **segura** se o formato do body single-col for **CON
 no 1.0**. Aí um body sem header é inequivocamente decodável pra sempre como "TCF 1.x
 single-col". Se um 2.0 futuro mudar o body, blobs 1.x órfãos dependem de a lib saber
 "isto é 1.x" (a regra major-externo cobre isso). **Congelar o body single-col no 1.0
-é pré-requisito desta política** — sem isso, órfão é arriscado.
+é pré-requisito desta política** — sem isso, órfão é arriscado. Formalizado em
+[ADR-0030](0030-freeze-single-col-body-at-1.0.md) (accepted 2026-06-25).
 
 ## Realização — discriminador `#TCF.8` (camada 2)
 
