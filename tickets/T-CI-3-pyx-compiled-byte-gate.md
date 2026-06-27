@@ -61,6 +61,12 @@ por inspeção manual lado-a-lado, que erra em detalhe de prune/tie-break.
 
 ## Dimensão de distribuição (diretriz owner, 2026-06-24)
 
+> **Estratégia decidida + verificada (2026-06-25)**: runtime DESACOPLADO (dica + fallback,
+> não compila no código) + **cibuildwheel** (uv frontend) p/ wheels por plataforma + T-CI-3
+> no build da wheel. Forward: free-threading 3.14t+ (TCF é puro → naturalmente thread-safe),
+> abi3/abi3t (PEP 803, reduz matriz), meson-python/maturin se crescer/Rust. Doc:
+> [`estrategia-distribuicao-cython.md`](../experiments/lab/dirty/notas/estrategia-distribuicao-cython.md).
+
 O owner lembrou: **quando for feita a distribuição, a compilação Cython tem que
 funcionar de fato — a otimização não pode ser só do ambiente de dev.** Hoje o
 build hook (`hatch_build.py`) é best-effort e cai pra pure-Python **em silêncio**
