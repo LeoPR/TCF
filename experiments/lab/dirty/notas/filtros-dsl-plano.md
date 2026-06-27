@@ -72,6 +72,34 @@ Gera regex + formatter + instancia `TemplatedCheckedSpec` idêntico ao de `templ
 | **F2 — header (H-NAT-MARK-01)** | tag de nature na meta-line; decode auto; `#TCF.8` + ADR + backward-compat. **Só avançar se um filtro tiver ganho ≥15% weighted em 2+ datasets reais.** | 0.8 |
 | **F3 — plugins drop-in (H-NAT-MARK-02)** | `natures/` auto-descoberto; namespace contra colisão. | 0.8 |
 | **F4 — builder visual + composição** | form/wizard → YAML → preview (chama o **mesmo** compilador); specs compostos (datetime), auto-detecção via schema-builder. | 2.0/pesquisa |
+| **F5 — TCFL expressivo (check/transform no DSL)** | ressalva owner 2026-06-27 (W4): expressar o **dígito verificador + segment/compose** no próprio DSL, sem ticket no core. **Só registrar**, não construir. | 2.0/pesquisa |
+
+## F5 — TCFL expressivo (ressalva owner 2026-06-27) [registrar, não construir]
+
+**Hoje** o `check_algorithm` é um **nome de biblioteca fechada** (mod11-cpf|cnpj|luhn|none); um check
+novo "entra por ticket, nunca inline" (decisão de segurança: zero código do usuário, zero `eval`).
+**A ressalva**: deixar o DSL **expressar** o check-digit + a segmentação/composição declarativamente,
+pra criar uma nature nova (com seu próprio verificador) sem tocar o core. Nome a decidir (tcfl / dsl).
+
+Forma imaginada pelo owner (ilustrativa — regex-capture + transform + check condicional):
+```
+template: NNN.NNN.NNN-DD          # forma atual (continua valendo)
+# OU, expressivo:
+encode: ([\d]{3}){3}-([\d]{2})  ->  base96(\g<1>)  if check_cpf_digit(\g<2>)
+decode: <base96>:x              ->  invbase96(x) + '-' + cpf_digit(x)   else x
+```
+
+**A tensão de design (o que resolver antes de construir)**: expressividade × o invariante *no-eval /
+zero-código-do-usuário* (F1, README natures_compiler). Direção: NÃO permitir Python arbitrário — uma
+**linguagem de expressão restrita e compilável** sobre um **conjunto FECHADO de primitivas vetadas**
+(captura de regex, `base96`/`invbase96`, check-fns nomeadas, condicional `if/else`), que o usuário
+**compõe** — não escreve código. O verificador em si pode ser (a) ainda uma primitiva nomeada
+(composta de forma nova) ou (b) uma micro-expressão aritmética sobre os grupos capturados (mod-N com
+pesos declarados) — decidir o limite é o cerne do F5. Mantém o round-trip obrigatório (F1) como gate.
+
+**Estado**: ressalva registrada, **deferida** (2.0/pesquisa). Os formatos clássicos (CPF/CNPJ/IP)
+ficam como estão — funcionam pros testes. Liga ao W4 da
+[re-segmentação](resegmentacao-workstreams-2026-06-27.md) + META-TYPE-ENCODERS (roadmap).
 
 ## Riscos (e mitigação)
 - **Lossless parcial** (round-trip em amostras ≠ 100%): permitir amostras reais no validate +

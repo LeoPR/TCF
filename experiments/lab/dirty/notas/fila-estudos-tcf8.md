@@ -51,6 +51,8 @@ tem só sintético ainda. Todo weld de formato exige `test_real_world_snapshots`
 já fazem, e **sob brotli**.
 
 ## Cross-links
+**Re-segmentação 2026-06-27** (5 workstreams W1-W5; s/n sai do cross-dict→binarização):
+[resegmentacao-workstreams-2026-06-27.md](resegmentacao-workstreams-2026-06-27.md).
 [tcf8-estrutura-plano.md](tcf8-estrutura-plano.md), [roadmap-hipoteses.md](roadmap-hipoteses.md),
 hipóteses da sessão ([fluxo](hipotese-filtro-natureza-especulativo.md), [EI](hipotese-escape-invertido-EI.md),
 [anotações](anotacoes-caso1-caso2-escape-dv-pipeline.md)), [tickets](../../../../tickets/README.md).
