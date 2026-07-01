@@ -53,10 +53,23 @@ compartilhado* e vira **índice/estatística pra lazy**:
 Ou seja: **o header vira um tipo de índice, não de dado.** O dict/ref compartilhado, se existir, é "quase
 um índice" — e aí a pergunta certa é *como reusá-lo pro lazy*, não *como guardar dado nele*.
 
-## Eixo 4 — DICT-HIGHCARD é o alicerce (será afetado, como o owner previu)
-O dict per-col sem cap (−16..−36%, robusto 4/5) é a **base independente**. Compartilhamento (b/c)
-constrói sobre ele; o header-índice (Eixo 3) o indexa. **Destravar o DICT-HIGHCARD é pré-requisito**
-de todo o resto → é por isso que voltamos nele depois (é o chão, não um desvio).
+**Refinamento (owner 2026-07-01) — utilidades do header ALÉM do lazy** (a experimentar, não só lazy):
+o header pode dar **dicas melhores no DECODE** em si — (i) dicas de **paralelismo** (onde as colunas
+se destravam), (ii) **offset** de algo (pular pra uma faixa), (iii) **contagem/estatística** de dica.
+Candidato bom a "algo útil de índice", mas **hints in-data** (no meio das colunas, sem função
+descompressiva — dica posicional/numérica) ou **sidecar `.tcfx`** podem ser melhores → **precisa
+experimento**. Intuição do owner: os **hints in-data** servem como **"índice streaming"** pra usar
+lazy **durante transmissão** ponto-a-ponto (quando não há `.tcfx`). Experimentar também **o que se
+adequa a Parquet / HDFS / outros formatos de armazenamento** (interop). Decisão adiada — registrar
+pra retomar depois do DICT-HIGHCARD.
+
+## Eixo 4 — DICT-HIGHCARD é o alicerce (mas CONDICIONAL — caracterizado 2026-07-01)
+O dict per-col é a **base independente**, MAS a [caracterização](../2026-07-01-dict-highcard/result.md)
+mostrou que ele é **condicional** (não o robusto −16..−36% que o B2 sugeria): dict só vence high-card
+**sem estrutura** (espalhado); OBAT/HCC vence com estrutura (sequência/grupo/ordenado). O encoder já
+faz `min(tcf,raw,v2b,split)` por coluna → a base é **descapar o V2-B** (dict vira candidato do min,
+byte-safe). **Consequência p/ o share**: o cross-dict/HCC-ref-share tem de bater um per-col que já é
+**min-ótimo** — barra mais alta. "1ª coluna como dict" só ajuda quando ela É dict-vencedora (espalhada).
 
 ## Mapa: ideia do owner → eixo → o que já se aproxima
 | ideia | eixo | já existe (aproxima) |

@@ -1,0 +1,26 @@
+fonte           coluna              zona                  N      K    N/K     tcf    dict   gain%   gzip%
+---------------------------------------------------------------------------------------------------------
+adult-census    occupation          lowK(V2-B)        12000     15  800.0   38464   12207   -68.3   -22.0
+tpch-sf001      l_shipmode          lowK(V2-B)        12000      7 1714.3   35198   12038   -65.8   -22.1
+tpch-sf001      o_custkey           lowK+rep          12000   1000   12.0   59314   29715   -49.9    -9.1
+football        home_team           lowK+rep          12000    202   59.4   49799   25865   -48.1    -8.9
+tpch-sf001      l_partkey           highK+rep         12000   1995    6.0   66365   35633   -46.3    -9.0
+receita-cnpj    cnae_principal      lowK+rep          12000    692   17.3   56295   30828   -45.2    -7.4
+ibge-municipio  microrregiao        lowK+rep           5571    555   10.0   30715   17622   -42.6   -15.7
+tpch-sf001      l_shipdate          highK+rep(data)   12000   2481    4.8   83102   48113   -42.1    -7.4
+tpch-sf001      o_orderdate         highK+rep(data)   12000   2392    5.0   80062   47229   -41.0    -4.9
+br-identidades  razao_social        highK+rep(txt)    12000   1400    8.6   79392   47269   -40.5    -6.3
+receita-cnpj    municipio_cod       highK+rep         12000   2072    5.8   63782   38258   -40.0    -6.4
+br-identidades  municipio_id        highK+rep         12000   4908    2.4  100785   71480   -29.1    -7.4
+br-identidades  data_cadastro       highK+rep(data)   12000   4520    2.7  106196   78246   -26.3    -2.2
+receita-cnpj    data_inicio         highK+rep(data)   12000   1195   10.0   42272   35301   -16.5    -8.1
+br-identidades  email               highK+baixaRep    12000   7934    1.5  229957  233466    +1.5   +16.9
+br-identidades  socio_cpf           highK+rep(cpf)    12000   3634    3.3   85873   92662    +7.9    -2.0
+tpch-sf001      l_comment           highK+baixaRep    12000  11917    1.0  363195  398709    +9.8   +17.6
+tpch-sf001      l_orderkey          highK+rep         12000   3012    4.0   24471   28189   +15.2   -20.2
+adult-census    fnlwgt              highK+baixaRep    12000   9935    1.2   94352  118973   +26.1   +46.9
+openflights     src_airport         highK+rep         12000   1698    7.1   21385   30797   +44.0   +14.7
+snap-grqc       from_node           highK+rep         12000   1676    7.2   20440   35711   +74.7    +0.1
+cit-hepth       from_paper          highK+rep         12000    634   18.9    9077   29169  +221.4    -9.8
+email-enron     from_node           highK+rep         12000    141   85.1    1024   24033 +2247.0   -14.4
+tpch-sf001      ps_partkey          highK+rep          8000   2000    4.0      56   16047+28555.4 +5806.2
