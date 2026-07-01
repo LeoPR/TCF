@@ -90,11 +90,12 @@ Era o workstream B do v08-plano (reservava "#TCF.8" pra isto). **Reconciliado**:
   opt-in #TCF.8 sobre o `@dict` do V2-B; **particionamento greedy custo-modelado** (a dobradiça
   como regra de pool); namespace por grupo (bound de largura); decode = prelúdio serial + colunas
   paralelas; default-off byte-idêntico.
-- **B2 prototype** ✅ ([result](../2026-06-27-gdict-b2-prototype/result.md)): formato `&<G>` REAL
-  com **RT lossless**; share = B1 exato (−19.3% SNAP); sobrevive gzip; guard rejeita bucket-cross ao
-  escalar; ≥3-col escala. Achado separado: dict-sem-cap >> OBAT/HCC high-card (−30%, ticket próprio).
-- **Próximo**: gate N≥5 (faltam ≥2 same-domain, T-DATA-1) → **B3** weld opt-in (ADR, sob aprovação)
-  → **B4** integrar com lazy (cache keyed-por-grupo).
+- **B2 prototype** ✅ formato `&<G>` REAL com RT lossless ([result](../2026-06-27-gdict-b2-prototype/result.md)).
+- **Gate N≥5** ❌ **FALHOU** ([gate-result](../2026-06-27-gdict-b2-prototype/gate-result.md)): 1/5 ≥15%
+  (só SNAP); cit-HepTh/email-Enron o B2 PERDE (união cruza bucket → greedy recusa). Anti-incidente
+  05-21. Cross-dict é nicho estreito (SNAP-like) → **não weldar geral**; B3/B4 **suspensos**.
+- **PIVÔ**: o achado robusto é **H-DICT-HIGHCARD** (dict per-col sem cap >> OBAT/HCC, −16..−36% em
+  4/5) — ortogonal e maior. Vira o próximo estudo (ticket próprio; rever gating V2-B por N/K).
 
 ### 5. tcfx index / lazy avançado (futuro, "com calma")
 Ideia do owner: um índice **`.tcfx`** (sidecar ou in-blob) pra pushdown/consulta sem
