@@ -1,17 +1,20 @@
+<!-- l10n: doc_id=readme · lang=en · canonical -->
+**English** · [Português](README.pt-BR.md)
+
 # TCF · Tabular Compact Format
 
 [![CI](https://github.com/LeoPR/TCF/actions/workflows/ci.yml/badge.svg)](https://github.com/LeoPR/TCF/actions/workflows/ci.yml)
 ![Python](https://img.shields.io/badge/python-3.10+-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
-![Version](https://img.shields.io/badge/version-0.7.1%20(pré--1.0)-orange)
+![Version](https://img.shields.io/badge/version-0.7.1%20(pre--1.0)-orange)
 ![Format](https://img.shields.io/badge/format-%23TCF.7%20default-blue)
 
-> **E se desse pra transmitir a mesma tabela com bem menos bytes,
-> sem virar um arquivo binário que ninguém mais consegue abrir e ler?**
+> **What if you could transmit the same table with far fewer bytes,
+> without turning it into a binary blob nobody can open and read anymore?**
 
-Um cadastro pequeno, nos três formatos (bytes reais, saída de verdade):
+A small record set, in three formats (real bytes, real output):
 
-**JSON** *(596 B)*: repete o nome de cada campo em toda linha.
+**JSON** *(596 B)*: repeats every field name on every row.
 
 ```json
 [ { "nome": "Ana Souza",  "email": "ana@acme.com.br",
@@ -22,7 +25,7 @@ Um cadastro pequeno, nos três formatos (bytes reais, saída de verdade):
     "cpf": "222.222.222-22" }, … ]
 ```
 
-**CSV** *(277 B)*: tira os nomes repetidos, uma linha por registro.
+**CSV** *(277 B)*: drops the repeated names, one line per record.
 
 ```csv
 nome,email,cidade,plano,cpf
@@ -32,7 +35,7 @@ Carla Nunes,carla@acme.com.br,Sao Paulo,Basic,333.333.333-33
 Diego Rocha,diego@acme.com.br,Rio de Janeiro,Premium,444.444.444-44
 ```
 
-**TCF** *(244 B, formato 0.7, saída real do `encode`)*: o que se repete vira referência; o que é único fica cru.
+**TCF** *(244 B, format 0.7, real `encode` output)*: what repeats becomes a reference; what is unique stays raw.
 
 ```
 #TCF.7 M
@@ -55,354 +58,354 @@ Basic
 444.444.444-44
 ```
 
-**Como ler:**
+**How to read it** *(the example data is Portuguese — `nome`=name, `cidade`=city, `plano`=plan, `cpf`=Brazilian tax ID — kept verbatim because the byte counts are measured from it):*
 
-- Linha 1, shebang: `#TCF.7 M` é o formato 0.7, multi-coluna.
-- Linha 2, meta das colunas (`tamanho=nome`).
-  O `!` marca uma coluna guardada **crua** (quando o raw fica menor que o TCF).
-  A última (`cpf`) não leva tamanho: vai até o fim (e o `!` mostra que também é crua).
-- Os corpos vêm concatenados, **delimitados por tamanho, não por quebra de linha**.
-  Por isso a coluna crua `nome` (`…Diego Rocha`) emenda direto no e-mail (`an*a*…`).
-- No corpo: `*3|Sao Paulo` é *"Sao Paulo, 3×"* (repetição).
-  `^1` é *"igual à linha 1"* (substituição).
-- Na coluna de **e-mail** o TCF vai mais fundo (prefixo único + domínio comum referenciado).
-  É onde mais economiza, e onde o texto fica mais denso.
-- Já a coluna **`cpf`** é o oposto: valores quase todos únicos, **nada a fatorar**.
-  O TCF guarda **cru** (`!cpf`) — não comprime, mas também **não infla** (é o fallback).
-  *(São placeholders inválidos — dígitos repetidos. Para CPF/CNPJ real há uma* nature *opt-in,
-  ADR-0015, que tira `.`/`-` e regenera o dígito verificador — aí sim comprime.)*
+- Line 1, the format signature: `#TCF.7 M` is format 0.7, multi-column.
+- Line 2, the column meta (`size=name`).
+  The `!` marks a column stored **raw** (when raw comes out smaller than TCF).
+  The last one (`cpf`) carries no size: it runs to the end (and the `!` shows it is raw too).
+- The bodies come concatenated, **delimited by size, not by line break**.
+  That is why the raw `nome` column (`…Diego Rocha`) runs straight into the email (`an*a*…`).
+- In the body: `*3|Sao Paulo` means *"Sao Paulo, 3×"* (a repetition).
+  `^1` means *"same as line 1"* (a substitution).
+- In the **email** column TCF goes deeper (unique prefix + a referenced common domain).
+  That is where it saves the most, and where the text gets densest.
+- The **`cpf`** column is the opposite: values almost all unique, **nothing to factor out**.
+  TCF stores it **raw** (`!cpf`) — it does not compress, but it does not **inflate** either (that is the fallback).
+  *(These are invalid placeholders — repeated digits. For real CPF/CNPJ there is an opt-in* nature *,
+  ADR-0015, that strips `.`/`-` and regenerates the check digit — then it does compress.)*
 
-JSON repete a estrutura inteira.
-CSV repete os valores.
-O **TCF fatora o que se repete**, referencia o resto e **mantém cru o que é único** (sem inflar), continuando **texto ASCII que você abre e lê**.
+JSON repeats the whole structure.
+CSV repeats the values.
+**TCF factors out what repeats**, references the rest and **keeps unique data raw** (without inflating), while staying **ASCII text you can open and read**.
 
-Mas quanto mais fundo ele fatora (veja o e-mail), mais denso o texto fica.
-*Legível não quer dizer óbvio à primeira vista.*
+But the deeper it factors (look at the email), the denser the text gets.
+*Readable does not mean obvious at first glance.*
 
-Em tabelas grandes a diferença cresce: ver [Resultados](#resultados).
+On large tables the gap grows: see [Results](#results).
 
-## O que é o TCF
+## What TCF is
 
-Um formato **textual** e **sem perdas** (`decode(encode(x)) == x`) para tabelas de strings.
+A **textual**, **lossless** format (`decode(encode(x)) == x`) for tables of strings.
 
-Comprime parecido com um zip/gzip, mas com uma diferença: o resultado **continua texto ASCII que você abre e inspeciona**, sem descomprimir.
-Não fica tão óbvio quanto o original (quanto mais o TCF fatora, mais denso o texto), mas nunca vira um blob opaco.
-Cada coluna passa por um pipeline próprio.
+It compresses somewhat like a zip/gzip, but with a difference: the result **stays ASCII text that you open and inspect**, without decompressing.
+It is not as obvious as the original (the more TCF factors, the denser the text), but it never becomes an opaque blob.
+Each column goes through its own pipeline.
 
-É essa a faixa que o TCF ocupa: **compacto como um compressor, inspecionável como texto**.
-(Precisa de ratio máximo? Dá pra rodar gzip/brotli por cima: eles se compõem.)
+That is the niche TCF occupies: **compact like a compressor, inspectable like text**.
+(Need maximum ratio? You can run gzip/brotli on top: they compose.)
 
-## Como ele faz isso: OBAT + HCC
+## How it does it: OBAT + HCC
 
-Duas camadas, explicadas pelo propósito (specs: [`docs/algorithms/`](docs/algorithms/)).
+Two layers, explained by purpose (specs: [`docs/algorithms/`](docs/algorithms/)).
 
-**OBAT** (Online Bidirectional Affix Tokenizer) *acha o que as strings têm em comum.*
-Para cada valor, procura o maior prefixo **e** sufixo compartilhado com os anteriores (domínios de e-mail, raízes de URL, códigos da mesma família).
-Escreve o trecho uma vez e referencia o resto.
+**OBAT** (Online Bidirectional Affix Tokenizer) *finds what the strings have in common.*
+For each value, it looks for the longest prefix **and** suffix shared with earlier ones (email domains, URL roots, codes of the same family).
+It writes the shared piece once and references the rest.
 
-É um **front-coding bidirecional**: generaliza o front-coding clássico de dicionários de strings (Witten et al.; HTFC/RPDac, Brisaboa et al.).
-O "bidirecional" é o que captura o **sufixo** comum (`@acme.com.br`), não só o prefixo.
+It is **bidirectional front-coding**: it generalizes the classic front-coding of string dictionaries (Witten et al.; HTFC/RPDac, Brisaboa et al.).
+The "bidirectional" part is what captures the shared **suffix** (`@acme.com.br`), not just the prefix.
 
-A busca por afixos é da família das **árvores de prefixo/sufixo**: tries, **Patricia/radix tree** (Morrison 1968), suffix trees.
-Na prática o OBAT acelera essa busca com um **índice de trigramas**, que derruba o custo de O(N²) ingênuo para ~O(N^1.42) (sub-quadrático, quase-linear).
-*(Trocar o índice por uma Patricia trie é candidato futuro: [exploração](docs/theory/patricia-trie-exploration.md).)*
+The affix search belongs to the **prefix/suffix tree** family: tries, **Patricia/radix tree** (Morrison 1968), suffix trees.
+In practice OBAT speeds up that search with a **trigram index**, which drops the naive O(N²) cost to ~O(N^1.42) (sub-quadratic, near-linear).
+*(Swapping the index for a Patricia trie is a future candidate: [exploration](docs/theory/patricia-trie-exploration.md).)*
 
-**HCC** (Hierarchical Compositional Coding) *decide o que vale a pena nomear e agrupa repetições.*
-Pega os tokens do OBAT, fatora composições recorrentes em **referências nomeadas reutilizáveis** (operador `~`) e colapsa repetidos (RLE, inclusive sequências quase-iguais, tipo IDs que só mudam no fim).
+**HCC** (Hierarchical Compositional Coding) *decides what is worth naming and groups repetitions.*
+It takes OBAT's tokens, factors recurring compositions into **reusable named references** (the `~` operator) and collapses repeats (RLE, including near-identical sequences, like IDs that only change at the end).
 
-Como referência aponta para referência, o resultado é um **grafo acíclico (DAG) de fragmentos**: na prática uma *gramática* / straight-line program do conteúdo.
-É o espírito do **Re-Pair** (Larsson & Moffat 1999) e do **Sequitur** (Nevill-Manning & Witten 1997), mas operando sobre os **tokens** do OBAT (não sobre bytes) e com operadores próprios (`~` cria nó nomeado, `,` só concatena).
+Since a reference points to a reference, the result is a **directed acyclic graph (DAG) of fragments**: in practice a *grammar* / straight-line program of the content.
+It is the spirit of **Re-Pair** (Larsson & Moffat 1999) and **Sequitur** (Nevill-Manning & Witten 1997), but operating on OBAT's **tokens** (not on bytes) and with its own operators (`~` creates a named node, `,` just concatenates).
 
-É o que mantém a saída pequena **e** inspecionável: os grupos `*N|...` ficam à vista.
+That is what keeps the output small **and** inspectable: the `*N|...` groups stay in plain sight.
 
-**Velocidade.**
-O lado caro é o **encode** (a busca de afixos do OBAT), trazido a quase-linear pelo índice de trigramas (mais o acelerador Cython opcional).
-O **decode** é uma **passada linear única**: só expande as referências (lookups O(1)) e os grupos RLE, sem nenhuma busca.
-Rápido e previsível.
+**Speed.**
+The expensive side is the **encode** (OBAT's affix search), brought to near-linear by the trigram index (plus the optional Cython accelerator).
+The **decode** is a **single linear pass**: it only expands references (O(1) lookups) and RLE groups, with no search at all.
+Fast and predictable.
 
-## Filtros por natureza (opt-in)
+## Nature filters (opt-in)
 
-Alguns valores têm **estrutura conhecida** que o compressor genérico não explora.
-Um CPF `123.456.789-09` são só **9 dígitos úteis**: a pontuação é fixa e os 2 dígitos
-finais (verificador) são **deriváveis** dos outros 9. Um *filtro de natureza* (opt-in) usa isso:
+Some values have **known structure** that a generic compressor does not exploit.
+A CPF `123.456.789-09` is really just **9 useful digits**: the punctuation is fixed and the final 2 digits
+(the check digits) are **derivable** from the other 9. A *nature filter* (opt-in) uses that:
 
-- **encode** tira a pontuação, guarda os 9 dígitos como um número curto (base-94, ~5 chars)
-  e **descarta o verificador**;
-- **decode** **recalcula** o verificador (mod-11) e reinsere a pontuação — reconstrução **exata**.
+- **encode** strips the punctuation, stores the 9 digits as a short number (base-94, ~5 chars)
+  and **discards the check digit**;
+- **decode** **recomputes** the check digit (mod-11) and reinserts the punctuation — an **exact** reconstruction.
 
-Os mesmos 4 CPFs do exemplo, isolados numa coluna: sem filtro **76 B** (cru, com escapes);
-com `nature=SPEC_CPF`, **27 B** (−64%). Concretamente, como sai dos nossos labs
+The same 4 CPFs from the example, isolated in a column: without the filter **76 B** (raw, with escapes);
+with `nature=SPEC_CPF`, **27 B** (−64%). Concretely, as it comes out of our labs
 ([`2026-05-24-cpf-templated-checked/`](experiments/lab/dirty/old/welded/2026-05-24-cpf-templated-checked/)):
-`111.111.111-11` → `%g$.u` (14 → 5 chars); o decode regenera os 2 dígitos verificadores e a
-pontuação. (No cadastro inteiro: cru **244 → 208 B**, −15%.)
+`111.111.111-11` → `%g$.u` (14 → 5 chars); decode regenerates the 2 check digits and the
+punctuation. (Across the whole record set: raw **244 → 208 B**, −15%.)
 
-Filtros já implementados ([ADR-0015](docs/adr/0015-natures-templated-checked-weld.md)):
+Filters already implemented ([ADR-0015](docs/adr/0015-natures-templated-checked-weld.md)):
 
-| filtro | formato | o que o decode reconstrói |
+| filter | format | what decode reconstructs |
 |---|---|---|
-| `SPEC_CPF`  | `NNN.NNN.NNN-DD`     | pontuação + 2 díg. verificadores (mod-11) |
-| `SPEC_CNPJ` | `NN.NNN.NNN/NNNN-DD` | pontuação + 2 díg. verificadores (mod-11) |
-| `SPEC_IP`   | IPv4 `N.N.N.N`      | pontos + octetos canônicos (padroniza p/ ativar RLE em subnets) |
+| `SPEC_CPF`  | `NNN.NNN.NNN-DD`     | punctuation + 2 check digits (mod-11) |
+| `SPEC_CNPJ` | `NN.NNN.NNN/NNNN-DD` | punctuation + 2 check digits (mod-11) |
+| `SPEC_IP`   | IPv4 `N.N.N.N`      | dots + canonical octets (normalizes to enable RLE on subnets) |
 
-O mesmo mecanismo de spec vale pra **números**: o `SPEC_IP` acima já é numérico (octetos);
-sequências e IDs numéricos com cadência o pipeline *delta-aware* captura sozinho
-(`*N+delta|`, seq-RLE); e specs de **decimal / monetário / precisão** estão no roadmap
-(cruzam a linha lossy → 2.0).
+The same spec mechanism works for **numbers**: `SPEC_IP` above is already numeric (octets);
+numeric sequences and IDs with cadence the *delta-aware* pipeline captures on its own
+(`*N+delta|`, seq-RLE); and **decimal / monetary / precision** specs are on the roadmap
+(they cross into lossy → 2.0).
 
 ```python
 from tcf import encode, decode
 from tcf import SPEC_CPF
 
-cpfs = ["111.111.111-11", "222.222.222-22"]    # placeholders inválidos
+cpfs = ["111.111.111-11", "222.222.222-22"]    # invalid placeholders
 blob = encode(cpfs, nature=SPEC_CPF)
-assert decode(blob, nature=SPEC_CPF) == cpfs    # decode precisa da mesma nature
+assert decode(blob, nature=SPEC_CPF) == cpfs    # decode needs the same nature
 ```
 
-Dois detalhes honestos:
+Two honest details:
 
-- São **opt-in e, por ora, out-of-band**: o `.tcf` ainda **não carrega um marcador** dizendo
-  "esta coluna é CPF", então o `decode` precisa receber a mesma `nature`. Um marcador
-  auto-descritivo (decode reconhece sozinho) está registrado como evolução (alvo 0.8).
-- Valor que não bate (verificador inválido, formato mascarado) cai em **literal** (`_`) sem
-  nunca quebrar o round-trip — o filtro **nunca corrompe** o dado.
+- They are **opt-in and, for now, out-of-band**: the `.tcf` does **not yet carry a marker** saying
+  "this column is CPF", so `decode` must be given the same `nature`. A self-describing marker
+  (decode recognizes it on its own) is registered as a next step (target 0.8).
+- A value that does not match (invalid check digit, masked format) falls back to **literal** (`_`) without
+  ever breaking the round-trip — the filter **never corrupts** the data.
 
-> ⚠️ **Em evolução.** Os filtros já funcionam e estão validados nos labs, mas ainda são
-> **opt-in manuais**: o auto-detect e o **marcador auto-descritivo** (o `decode` reconhecer a
-> nature sozinho) estão sendo trabalhados (alvo 0.8). Trate esta seção como *work-in-progress*.
+> ⚠️ **Evolving.** The filters already work and are validated in the labs, but they are still
+> **manual opt-in**: auto-detect and the **self-describing marker** (`decode` recognizing the
+> nature on its own) are being worked on (target 0.8). Treat this section as *work-in-progress*.
 
-## Getting started (1 minuto)
+## Getting started (1 minute)
 
 ```python
 from tcf import encode, decode
 
-# Single-column: lista de strings
+# Single-column: a list of strings
 text = encode(["joao@gmail.com", "maria@gmail.com", "pedro@gmail.com"])
 assert decode(text) == ["joao@gmail.com", "maria@gmail.com", "pedro@gmail.com"]
 
-# Multi-column: dict de colunas
+# Multi-column: a dict of columns
 table = {
     "id":    ["1", "2", "3"],
     "email": ["joao@gmail.com", "maria@gmail.com", "pedro@gmail.com"],
 }
 text = encode(table)
-assert decode(text) == table  # round-trip lossless
+assert decode(text) == table  # lossless round-trip
 
-# Naturezas (opt-in): CPF/CNPJ/IP comprimidos sem digito verificador/padding
+# Natures (opt-in): CPF/CNPJ/IP compressed without the check digit/padding
 from tcf import SPEC_CPF
-text = encode(["111.111.111-11", "222.222.222-22"], nature=SPEC_CPF)  # placeholders inválidos
+text = encode(["111.111.111-11", "222.222.222-22"], nature=SPEC_CPF)  # invalid placeholders
 ```
 
-`encode` dispatcha por tipo (list → single-column, dict → multi-column).
-`decode` roteia pelo shebang.
+`encode` dispatches by type (list → single-column, dict → multi-column).
+`decode` routes by the format signature.
 
-Tutorial passo-a-passo: [`docs/tutorials/getting-started.md`](docs/tutorials/getting-started.md).
-Guias praticos: [`docs/how-to/`](docs/how-to/).
+Step-by-step tutorial: [`docs/tutorials/getting-started.md`](docs/tutorials/getting-started.md).
+Practical guides: [`docs/how-to/`](docs/how-to/).
 
-## Formato 0.7 (default): onde os bytes vão
+## Format 0.7 (default): where the bytes go
 
-O `encode` multi-coluna sai em **0.7 / `#TCF.7`** por default ([ADR-0024](docs/adr/0024-pre-1.0-versioning-git-as-compat.md)).
-Quatro coisas, todas automáticas (sem flag), cada coluna escolhendo a menor representação:
+Multi-column `encode` emits **0.7 / `#TCF.7`** by default ([ADR-0024](docs/adr/0024-pre-1.0-versioning-git-as-compat.md)).
+Four things, all automatic (no flag), each column choosing the smallest representation:
 
-- **Fallback por coluna.**
-  Guarda a coluna em raw quando o raw fica menor que o TCF ("nunca pior que raw").
-  Marcada com `!` no meta ([ADR-0022](docs/adr/0022-v2a-fallback-identity-weld.md)).
-- **Dicionário low-card.**
-  Coluna com poucos valores distintos vira tabela de únicos + índices compactos,
-  em vez de um ref por linha.
-  Marcada com `@` no meta ([ADR-0025](docs/adr/0025-v2b-dictionary-categorical-weld.md)).
-- **Split estrutural.**
-  Valor estruturado (decimal, data, datetime, CPF) com template uniforme vira
-  campos separados (o template guardado uma vez), e cada campo low-card cai no dicionário.
-  Marcada com `%` no meta ([ADR-0026](docs/adr/0026-structural-split-weld.md)).
-- **Header mínimo.**
-  O flag `M` no shebang já declara que vêm colunas, então o meta dispensa o prefixo `# `.
-  E a última coluna não leva tamanho, vai até o fim ([ADR-0023](docs/adr/0023-v2-minimal-header-weld.md)).
+- **Per-column fallback.**
+  Stores the column raw when raw is smaller than TCF ("never worse than raw").
+  Marked with `!` in the meta ([ADR-0022](docs/adr/0022-v2a-fallback-identity-weld.md)).
+- **Low-cardinality dictionary.**
+  A column with few distinct values becomes a table of uniques + compact indices,
+  instead of one ref per row.
+  Marked with `@` in the meta ([ADR-0025](docs/adr/0025-v2b-dictionary-categorical-weld.md)).
+- **Structural split.**
+  A structured value (decimal, date, datetime, CPF) with a uniform template becomes
+  separate fields (the template stored once), and each low-card field falls into the dictionary.
+  Marked with `%` in the meta ([ADR-0026](docs/adr/0026-structural-split-weld.md)).
+- **Minimal header.**
+  The `M` flag in the signature already declares that columns follow, so the meta drops the `# ` prefix.
+  And the last column carries no size, it runs to the end ([ADR-0023](docs/adr/0023-v2-minimal-header-weld.md)).
 
 ```python
-text = encode(table)        # 0.7 / #TCF.7, é o default, sem flags
+text = encode(table)        # 0.7 / #TCF.7, the default, no flags
 
-# knobs opt-out (default True) — pra modificar o comportamento / inspecionar:
-text = encode(table, fallback=False, min_header=False)  # força o legado #TCF.6
-text = encode(table, min_header=False)                  # #TCF.7 com header verboso
-text = encode(table, min_len=5)                         # override do min_len do OBAT (default: auto)
-text = encode(table, sort_by="cidade")                  # ordena linhas pela coluna (order-free, +compressão)
+# opt-out knobs (default True) — to change the behavior / inspect:
+text = encode(table, fallback=False, min_header=False)  # forces legacy #TCF.6
+text = encode(table, min_header=False)                  # #TCF.7 with a verbose header
+text = encode(table, min_len=5)                         # override OBAT's min_len (default: auto)
+text = encode(table, sort_by="cidade")                  # sorts rows by the column (order-free, +compression)
 ```
 
-> `sort_by` reordena as linhas pela coluna (agrupa similares → menos bytes,
-> 5-15% com chave low-card). É **order-free**: o `decode` devolve a ordem
-> ordenada, não a original. Use só quando a ordem das linhas não importa.
+> `sort_by` reorders the rows by the column (groups similar ones → fewer bytes,
+> 5-15% with a low-card key). It is **order-free**: `decode` returns the sorted
+> order, not the original. Use it only when row order does not matter.
 
-No cadastro de 5 colunas do topo, comparado ao formato legado `#TCF.6`:
+For the top 5-column record set, compared to the legacy `#TCF.6` format:
 
-| formato | meta line | bytes |
+| format | meta line | bytes |
 |---|---|---:|
 | **0.7 / `#TCF.7`** (default) | `!44=nome,42=email,28=cidade,20=plano,!cpf` | **244** |
-| `#TCF.6` (legado) | `# 45=nome,42=email,28=cidade,20=plano,76=cpf` | 265 |
+| `#TCF.6` (legacy) | `# 45=nome,42=email,28=cidade,20=plano,76=cpf` | 265 |
 
-A diferença (−21 B) vem de duas coisas que o 0.7 faz e o `#TCF.6` não: a coluna `cpf` cai
-pra **raw** (`!cpf`) em vez de inflar, e o **header mínimo** (sem `# `, última coluna sem
-tamanho). O ganho é proporcionalmente maior em **payloads pequenos**.
+The difference (−21 B) comes from two things 0.7 does that `#TCF.6` does not: the `cpf` column falls
+to **raw** (`!cpf`) instead of inflating, and the **minimal header** (no `# `, last column with no
+size). The gain is proportionally larger on **small payloads**.
 
-Pré-1.0, o encoder só escreve o formato mais novo.
-O `#TCF.6` legado ainda é **lido** pelo decoder, e `git checkout` reproduz a era 0.6 ([ADR-0024](docs/adr/0024-pre-1.0-versioning-git-as-compat.md)).
-O dicionário low-card (V2-B) e o split estrutural já estão no default; a compressão lossy fica no [roadmap](docs/adr/0018-v2-format-roadmap.md).
+Pre-1.0, the encoder only writes the newest format.
+The legacy `#TCF.6` is still **read** by the decoder, and `git checkout` reproduces the 0.6 era ([ADR-0024](docs/adr/0024-pre-1.0-versioning-git-as-compat.md)).
+The low-card dictionary (V2-B) and the structural split are already in the default; lossy compression stays on the [roadmap](docs/adr/0018-v2-format-roadmap.md).
 
-## Estado (pré-1.0)
+## Status (pre-1.0)
 
-- **Pré-1.0** ([ADR-0024](docs/adr/0024-pre-1.0-versioning-git-as-compat.md)).
-  Os minors do formato (`#TCF.4/.5/.6/.7`) são iterações de desenvolvimento rumo a um **1.0 sólido**, sem compat rígida entre eles (git reproduz versões antigas).
-  v2.0 fica pra depois.
-- Implementação canônica em [`src/tcf/`](src/tcf/).
-  Round-trip sempre lossless (`decode(encode(x)) == x`).
-- Default **0.7 / `#TCF.7`**: fallback ([ADR-0022](docs/adr/0022-v2a-fallback-identity-weld.md)) + header mínimo ([ADR-0023](docs/adr/0023-v2-minimal-header-weld.md)), ver seção acima.
-  O `#TCF.6` legado é lido pelo decoder.
-- Suíte: **379 passed, 1 xfailed** na config de CI (`-m "not requires_data"`; inclui 27 do gadget
-  `tcf_lazy`) — rode `pytest` pro número vigente. <!-- [VERIFICAR: 2026-06-18] -->
-  Baselines de byte = guardas de regressão, re-pináveis em mudança intencional ([ADR-0024](docs/adr/0024-pre-1.0-versioning-git-as-compat.md)).
-- Mudanças: [`CHANGELOG.md`](CHANGELOG.md).
-  História M0-M14: [`experiments/lab/dirty/notas/historia-dirty-lab.md`](experiments/lab/dirty/notas/historia-dirty-lab.md).
+- **Pre-1.0** ([ADR-0024](docs/adr/0024-pre-1.0-versioning-git-as-compat.md)).
+  The format minors (`#TCF.4/.5/.6/.7`) are development iterations toward a **solid 1.0**, without rigid compat between them (git reproduces older versions).
+  v2.0 comes later.
+- Canonical implementation in [`src/tcf/`](src/tcf/).
+  Round-trip is always lossless (`decode(encode(x)) == x`).
+- Default **0.7 / `#TCF.7`**: fallback ([ADR-0022](docs/adr/0022-v2a-fallback-identity-weld.md)) + minimal header ([ADR-0023](docs/adr/0023-v2-minimal-header-weld.md)), see the section above.
+  Legacy `#TCF.6` is read by the decoder.
+- Test suite: **379 passed, 1 xfailed** on the CI config (`-m "not requires_data"`; includes 27 from the
+  `tcf_lazy` gadget) — run `pytest` for the current number. <!-- [VERIFICAR: 2026-06-18] -->
+  Byte baselines = regression guards, re-pinnable on an intentional change ([ADR-0024](docs/adr/0024-pre-1.0-versioning-git-as-compat.md)).
+- Changes: [`CHANGELOG.md`](CHANGELOG.md).
+  M0-M14 history: [`experiments/lab/dirty/notas/historia-dirty-lab.md`](experiments/lab/dirty/notas/historia-dirty-lab.md).
 
-> O ciclo **v0.5** (formato columnar para LLM benchmark) é acessório e vive separado.
-> Ver a seção "Benchmark LLM v0.5" mais abaixo.
+> The **v0.5** cycle (columnar format for the LLM benchmark) is accessory and lives separately.
+> See the "LLM Benchmark v0.5" section further down.
 
-## Resultados
+## Results
 
-**Sem nenhum compressor, o TCF é o formato de _texto_ mais compacto do conjunto.**
-Nos 15 datasets sintéticos do [EXP-008](experiments/lab/clean/EXP-008-compressao-comparada/):
+**With no compressor at all, TCF is the most compact _text_ format in the set.**
+Across the 15 synthetic datasets in [EXP-008](experiments/lab/clean/EXP-008-compressao-comparada/):
 
-| formato (texto puro, sem compressor) | bytes |
+| format (plain text, no compressor) | bytes |
 |---|---:|
 | **TCF** | **3131** |
 | CSV | 4872 |
 | JSON | 5409 |
 | JSONL | 7001 |
 
-~36% menor que CSV e ~42% menor que JSON, continuando legível.
+~36% smaller than CSV and ~42% smaller than JSON, while staying readable.
 
-Núcleo pinado em testes: D1-D9 = **1523 B** (51.1% do raw, single-col); D17a multi-col = **303 B** (0.7 com V2-B; legado `#TCF.6` = 322 B).
-Real-world multi-coluna (9 tabelas Adult + TPC-H, 136k linhas): **−33.02% weighted** vs CSV raw.
+Core pinned in tests: D1-D9 = **1523 B** (51.1% of raw, single-col); D17a multi-col = **303 B** (0.7 with V2-B; legacy `#TCF.6` = 322 B).
+Real-world multi-column (9 Adult + TPC-H tables, 136k rows): **−33.02% weighted** vs raw CSV.
 
-**E contra gzip / brotli / zstd?**
-Outra categoria: são compressores binários *opacos* (precisa descomprimir pra ler qualquer coisa).
-No **cadastro acima**, sob compressão HTTP (`Content-Encoding`):
+**And against gzip / brotli / zstd?**
+A different category: those are *opaque* binary compressors (you must decompress to read anything).
+On the **record set above**, under HTTP compression (`Content-Encoding`):
 
-| formato | cru | gzip | br | zstd |
+| format | raw | gzip | br | zstd |
 |---|---:|---:|---:|---:|
 | JSON | 596 | 218 | 212 | 211 |
 | CSV  | 277 | 177 | **162** | 165 |
 | TCF  | **244** | 209 | 185 | 194 |
 
-TCF é o menor **cru** (e legível); sob compressão binária o **CSV+brotli** ganha (162 vs 185) —
-porque o TCF já removeu a redundância que o gzip/brotli reaproveitam (o TCF comprime só 244→185;
-o CSV 277→162). O TCF **troca um pouco de ratio por legibilidade** e **se compõe** com eles
-(244 → 185 com brotli). O `gzip` ainda carrega ~18 B fixos de moldura por mensagem; `br`/`zstd`,
-quase nada — em payload minúsculo isso conta. (Os números usam os compressores no **nível máximo**
-— melhor caso pra eles; numa API simples a compressão às vezes nem está ligada, e quando está usa
-nível baixo por default: nginx gzip `1`, brotli `6`. Ver [notas dos compressores](experiments/lab/clean/EXP-008-compressao-comparada/notes/classificacao-compressores.md).)
+TCF is the smallest **raw** (and readable); under binary compression **CSV+brotli** wins (162 vs 185) —
+because TCF already removed the redundancy that gzip/brotli reuse (TCF only compresses 244→185;
+CSV goes 277→162). TCF **trades a bit of ratio for readability** and **composes** with them
+(244 → 185 with brotli). `gzip` still carries ~18 fixed framing bytes per message; `br`/`zstd`,
+almost none — on a tiny payload that counts. (The numbers use the compressors at **maximum level**
+— best case for them; on a simple API compression is sometimes not even on, and when it is it uses
+a low default level: nginx gzip `1`, brotli `6`. See [compressor notes](experiments/lab/clean/EXP-008-compressao-comparada/notes/classificacao-compressores.md).)
 
-No agregado de 15 datasets sintéticos **single-column** (EXP-008, onde os welds multi-col do 0.7
-não se aplicam) a mesma história: `csv+brotli` = 1742 B contra `tcf+brotli` = 2116 B. Tabelas
-completas: [reports do EXP-008](experiments/lab/clean/EXP-008-compressao-comparada/reports/).
+Across the aggregate of 15 synthetic **single-column** datasets (EXP-008, where the 0.7 multi-col welds
+do not apply) the same story: `csv+brotli` = 1742 B against `tcf+brotli` = 2116 B. Full tables:
+[EXP-008 reports](experiments/lab/clean/EXP-008-compressao-comparada/reports/).
 
-**Atenção de escala — o cadastro acima é minúsculo (4 linhas).** Em **multi-coluna real**
-(milhares de linhas) o quadro **inverte**: o **TCF cheio + brotli vence o CSV + brotli** —
-ex.: Adult com 3 000 linhas, `tcf-0.7+brotli` = **21,8 KB** vs `csv+brotli` = 30,4 KB (−28%).
-E quanto **mais** TCF, **menor** o resultado pós-brotli (medido em 4 datasets reais:
+**A note on scale — the record set above is tiny (4 rows).** On **real multi-column** data
+(thousands of rows) the picture **flips**: **full TCF + brotli beats CSV + brotli** —
+e.g. Adult with 3,000 rows, `tcf-0.7+brotli` = **21.8 KB** vs `csv+brotli` = 30.4 KB (−28%).
+And the **more** TCF, the **smaller** the post-brotli result (measured on 4 real datasets:
 [`2026-06-16-staged-and-ordering-brotli/`](experiments/lab/dirty/old/refuted/2026-06-16-staged-and-ordering-brotli/)).
-Em payload minúsculo a moldura domina e não há o que fatorar; **a vantagem do TCF aparece com volume**.
+On a tiny payload the framing dominates and there is nothing to factor; **TCF's advantage shows up with volume**.
 
-## Pra onde vai a 1.0 — consultar quase sem descomprimir
+## Where 1.0 is headed — querying almost without decompressing
 
-O que o TCF já faz hoje aponta pra meta da **1.0**: usar a **própria estrutura da compressão
-como índice**, pra responder perguntas **quase sem descomprimir** e com **pouca memória**.
+What TCF already does today points to the **1.0** goal: use the **compression's own structure
+as an index**, to answer questions **almost without decompressing** and with **little memory**.
 
-A saída textual já carrega dicas que valem como metadados:
-- `*N|Sao Paulo` diz que há **N linhas iguais** ali — uma **contagem/agrupamento** pronta,
-  sem expandir os N itens.
-- `^1` diz "igual à linha 1" — multiplicidade/dedup visível.
-- `*N+delta|template` (seq-RLE) descreve uma **progressão** (ex.: IDs sequenciais) sem listar
-  cada valor.
+The textual output already carries hints that work as metadata:
+- `*N|Sao Paulo` says there are **N equal rows** there — a **count/grouping** ready to go,
+  without expanding the N items.
+- `^1` says "same as line 1" — multiplicity/dedup made visible.
+- `*N+delta|template` (seq-RLE) describes a **progression** (e.g. sequential IDs) without listing
+  each value.
 
-Ou seja, dá pra **contar elementos, agrupar e até somar** lendo os marcadores — materializando
-só o pedaço necessário. Um compressor binário (gzip/brotli) por cima faria o oposto: você teria
-que **alocar memória e descomprimir tudo** pra só então varrer os dados. É essa a faixa que a
-1.0 quer firmar: **compacto e ao mesmo tempo consultável**, não um blob opaco. Os filtros por
-natureza (CPF/CNPJ/IP e, no roadmap, numéricos) entram aqui — dão estrutura semântica explícita
-sem perder a legibilidade (ainda em evolução, ver acima).
+In other words, you can **count elements, group, and even sum** by reading the markers — materializing
+only the piece you need. A binary compressor (gzip/brotli) on top would do the opposite: you would have
+to **allocate memory and decompress everything** just to then scan the data. That is the niche 1.0
+wants to lock in: **compact and at the same time queryable**, not an opaque blob. The nature filters
+(CPF/CNPJ/IP and, on the roadmap, numeric ones) fit here — they add explicit semantic structure
+without losing readability (still evolving, see above).
 
-### `view()` — agregar com descompressão seletiva *(gadget funcional)*
+### `view()` — aggregate with selective decompression *(functional gadget)*
 
-Uma API *lazy* sobre o blob: conecta **sem descomprimir**, e só materializa a coluna
-(e as linhas) que o agregador precisa. Filtrar por algo descomprime **só** o que tem relação.
-*(Gadget em [`scripts/tcf_lazy/`](scripts/tcf_lazy/) — lê o `#TCF.7`, **não toca `src/tcf` por design**;
-**27 testes**, L1–L5; PoC original em [`2026-06-16-lazy-query/`](experiments/lab/dirty/old/welded/2026-06-16-lazy-query/).)*
+A *lazy* API over the blob: it connects **without decompressing**, and only materializes the column
+(and rows) the aggregator needs. Filtering by something decompresses **only** what is related.
+*(Gadget in [`scripts/tcf_lazy/`](scripts/tcf_lazy/) — reads `#TCF.7`, **does not touch `src/tcf` by design**;
+**27 tests**, L1–L5; original PoC in [`2026-06-16-lazy-query/`](experiments/lab/dirty/old/welded/2026-06-16-lazy-query/).)*
 
 ```python
-v = view(blob)                                # conecta, não descomprime nada
-v.count()                                     # 6        toca: valor
-v.sum("valor")                                # 750      toca: valor
+v = view(blob)                                # connects, decompresses nothing
+v.count()                                     # 6        touches: valor
+v.sum("valor")                                # 750      touches: valor
 v.avg("valor")                                # 125
 v.max("valor"), v.min("valor")                # 200, 80
-v.where("cidade", "Sao Paulo").count()        # 4        toca: cidade
-v.where("cidade", "Sao Paulo").sum("valor")   # 470      toca: cidade, valor
+v.where("cidade", "Sao Paulo").count()        # 4        touches: cidade
+v.where("cidade", "Sao Paulo").sum("valor")   # 470      touches: cidade, valor
 ```
 
-O `toca:` é o ponto (saída real do PoC): a soma filtrada materializou **só** `cidade` +
-`valor` — `cliente` e `plano` nunca foram descomprimidos. Um `decode()` (ou um gzip/brotli
-por cima) materializaria as 4 colunas **inteiras** antes de qualquer conta. Agregadores:
-`count`, `sum`, `min`, `max`, `avg` + `where`; **L3–L5 já implementados** — contar/agrupar
-**sem expandir** (via dicionário/raw; o `*N|` do modo-tcf é entrelaçado, **não separável**),
-filtro pelo índice do dicionário, e group-by por **layout ordenado** (`sort_by`).
+The `touches:` is the point (real PoC output): the filtered sum materialized **only** `cidade` +
+`valor` — `cliente` and `plano` were never decompressed. A `decode()` (or a gzip/brotli on top)
+would materialize all 4 columns **entirely** before any computation. Aggregators:
+`count`, `sum`, `min`, `max`, `avg` + `where`; **L3–L5 already implemented** — count/group
+**without expanding** (via dictionary/raw; the `*N|` of tcf-mode is interleaved, **not separable**),
+filtering through the dictionary index, and group-by via a **sorted layout** (`sort_by`).
 
-Em dados reais (online-retail, 5 000 × 8), responder *"quantos itens o usuário X comprou"*
-(`where(CustomerID=X).sum("Quantity")`) **materializa 7,9% do blob** — `count()` toca 0,2% —
-contra 100% de um `decode()`. Memória e latência baixas caem direto da estrutura. E é
-**gadget, não versão de formato**: lê o `#TCF.7` atual.
+On real data (online-retail, 5,000 × 8), answering *"how many items did user X buy"*
+(`where(CustomerID=X).sum("Quantity")`) **materializes 7.9% of the blob** — `count()` touches 0.2% —
+against 100% for a `decode()`. Low memory and latency fall straight out of the structure. And it is
+a **gadget, not a format version**: it reads the current `#TCF.7`.
 
 ## Roadmap 2.0
 
-Depois de uma 1.0 sólida (registrado, **não** implementado — ver
+After a solid 1.0 (registered, **not** implemented — see
 [ADR-0018](docs/adr/0018-v2-format-roadmap.md)):
 
-- **Agregados sem perda mesmo sendo lossy por linha** — somas/médias exatas no agregado ao
-  arredondar com resíduo (ex.: parcelamento, `valor = soma(parcelas)`) e *drop* de coluna
-  derivável (`total = base + imposto`). Cruza a linha lossless → decisão explícita + GATE
-  (Pacote 10, [`loss-taxonomia.md`](experiments/lab/dirty/notas/loss-taxonomia.md)).
-- **Streaming / baixa latência (V2-J)** e **disco zero-copy / column-pruning (V2-K)** —
-  transmitir e ler por pedaço, sem buffer-over-buffer.
-- **Camada binária interna (V2-L)** — empacotar o corpo em bytes mantendo header textual e
-  grupos visíveis (estilo Parquet, mas ainda explicável). Não compete com gzip/brotli: é
-  representação binária do **mesmo** conteúdo lógico.
-- **Mais specs** (templated/checksummed/numéricos) + **marcador auto-descritivo** de nature e
-  **repetição intra-valor** (fatorar `111.` dentro de um CPF) — alvo 0.8.
+- **Lossless aggregates even while lossy per row** — exact sums/averages in the aggregate when
+  rounding with a residual (e.g. installments, `valor = sum(installments)`) and *dropping* a
+  derivable column (`total = base + tax`). Crosses the lossless line → explicit decision + a GATE
+  (Package 10, [`loss-taxonomia.md`](experiments/lab/dirty/notas/loss-taxonomia.md)).
+- **Streaming / low latency (V2-J)** and **zero-copy disk / column-pruning (V2-K)** —
+  transmit and read in chunks, without buffer-over-buffer.
+- **Internal binary layer (V2-L)** — pack the body into bytes while keeping the textual header and
+  visible groups (Parquet-style, but still explainable). It does not compete with gzip/brotli: it is
+  a binary representation of the **same** logical content.
+- **More specs** (templated/checksummed/numeric) + a **self-describing nature marker** and
+  **intra-value repetition** (factoring `111.` inside a CPF) — target 0.8.
 
 ## Install
 
 ```bash
-pip install tcf-format        # ou: uv pip install tcf-format
+pip install tcf-format        # or: uv pip install tcf-format
 ```
 
-A **distribuição** chama-se `tcf-format`; o **pacote importável** é `tcf` (sem
-dependências de runtime):
+The **distribution** is called `tcf-format`; the **importable package** is `tcf` (with no
+runtime dependencies):
 
 ```python
 from tcf import encode, decode
 
 tabela = {
     "nome": ["ana", "bruno", "carla"],
-    # CPFs de exemplo com digitos repetidos: invalidos por convencao (rejeitados
-    # por qualquer validador; a Receita nunca os emite). Nao correspondem a pessoas reais.
+    # example CPFs with repeated digits: invalid by convention (rejected by any
+    # validator; the tax office never issues them). They do not map to real people.
     "cpf":  ["111.111.111-11", "222.222.222-22", "333.333.333-33"],
 }
 blob = encode(tabela)
-assert decode(blob) == tabela        # round-trip lossless
+assert decode(blob) == tabela        # lossless round-trip
 ```
 
-Para CPF/CNPJ/IP há *natures* opt-in (ADR-0015, `encode(coluna, nature=SPEC_CPF)`)
-que regeneram o dígito verificador no decode.
+For CPF/CNPJ/IP there are opt-in *natures* (ADR-0015, `encode(column, nature=SPEC_CPF)`)
+that regenerate the check digit on decode.
 
-Pré-1.0 (ADR-0024): o pacote está em `0.7.x` — o *minor* acompanha o formato
-(`#TCF.7`) e o *patch* é contador de release, desacoplado do comportamento.
+Pre-1.0 (ADR-0024): the package is at `0.7.x` — the *minor* tracks the format
+(`#TCF.7`) and the *patch* is a release counter, decoupled from behavior.
 
 ## First-time setup (dev)
 
@@ -411,45 +414,45 @@ Pré-1.0 (ADR-0024): o pacote está em `0.7.x` — o *minor* acompanha o formato
 git clone https://github.com/LeoPR/TCF.git && cd TCF
 pip install -e ".[dev]"
 
-# (recomendado) instalar pre-commit hooks
+# (recommended) install pre-commit hooks
 pre-commit install
 
-# Rodar hooks em todos arquivos (opcional, baseline)
+# Run hooks on all files (optional, baseline)
 pre-commit run --all-files
 ```
 
-Hooks configurados (ver [`.pre-commit-config.yaml`](.pre-commit-config.yaml)):
+Configured hooks (see [`.pre-commit-config.yaml`](.pre-commit-config.yaml)):
 - `ruff` lint + format
 - `detect-secrets` (scan)
-- basicos: trailing-whitespace, end-of-file-fixer, check-merge-conflict, check-added-large-files
-- custom: bloqueia cache dirs (`__pycache__/`, `.pytest_cache/`, etc.) acidentalmente staged
+- basics: trailing-whitespace, end-of-file-fixer, check-merge-conflict, check-added-large-files
+- custom: blocks cache dirs (`__pycache__/`, `.pytest_cache/`, etc.) accidentally staged
 
 ## How to cite
 
-Ver [`CITATION.cff`](CITATION.cff). GitHub renderiza badge "Cite this
-repository" na pagina do repo automaticamente.
+See [`CITATION.cff`](CITATION.cff). GitHub renders a "Cite this
+repository" badge on the repo page automatically.
 
 ---
 
-## Benchmark LLM v0.5 (acessorio, projeto paralelo)
+## LLM Benchmark v0.5 (accessory, parallel project)
 
-> Esta secao resume o ciclo **v0.5** (formato columnar para consumo por LLMs).
-> NAO e' o algoritmo TCF v0.7 acima. Todo o material vive separado.
+> This section summarizes the **v0.5** cycle (a columnar format for LLM consumption).
+> It is **not** the TCF v0.7 algorithm above. All the material lives separately.
 
-O ciclo v0.5 mediu compreensao de tabelas por LLMs (CSV/JSON/TOON/TCF,
-Linha A "LLM le e computa" + Linha B "LLM gera SQL"): 7 modelos comerciais
-+ 13 locais, 2 datasets, 2256 registros, 38 findings.
-Usava o **motor de niveis** (`EncodeConfig(level=N)`) em [`old/tcf/`](old/tcf/).
-Ver [`old/tcf/LEVELS-REVIEW.md`](old/tcf/LEVELS-REVIEW.md) para a semantica L0–L3.
+The v0.5 cycle measured LLM comprehension of tables (CSV/JSON/TOON/TCF,
+Track A "LLM reads and computes" + Track B "LLM generates SQL"): 7 commercial models
++ 13 local, 2 datasets, 2256 records, 38 findings.
+It used the **levels engine** (`EncodeConfig(level=N)`) in [`old/tcf/`](old/tcf/).
+See [`old/tcf/LEVELS-REVIEW.md`](old/tcf/LEVELS-REVIEW.md) for the L0–L3 semantics.
 
 - **Harness** (runners, llm_eval, scripts): [`llm-benchmark/`](llm-benchmark/)
-- **Catalogo de achados** F-Q01..Q38: [`docs/findings/`](docs/findings/)
+- **Findings catalog** F-Q01..Q38: [`docs/findings/`](docs/findings/)
   + [`docs/FINDINGS_SUMMARY.md`](docs/FINDINGS_SUMMARY.md)
 - **Manual / paper v0.5**: [`docs/archive/manual_v05/`](docs/archive/manual_v05/)
   + [`docs/archive/article_v05/`](docs/archive/article_v05/)
 
-Candidato a spin-off (`tcf-llm-tools`) no futuro. Pode re-validar contra v0.7
-se Phase 2 for revivida.
+A spin-off candidate (`tcf-llm-tools`) for the future. It could re-validate against v0.7
+if Phase 2 is revived.
 
 ---
 
@@ -457,61 +460,61 @@ se Phase 2 for revivida.
 
 ```
 TCF/
-├── src/tcf/                 ← CANONICAL v0.7 API (OBAT+HCC, encode/decode, #TCF.7 + #TCF.6 legado)
-├── old/tcf/                 ← motor v0.5 (niveis L0–L3), congelado-historico (ver LEVELS-REVIEW.md)
+├── src/tcf/                 ← CANONICAL v0.7 API (OBAT+HCC, encode/decode, #TCF.7 + #TCF.6 legacy)
+├── old/tcf/                 ← v0.5 engine (levels L0–L3), frozen-historical (see LEVELS-REVIEW.md)
 ├── scripts/                 ← Shaper (stratified sampling), CSV→SQLite, setup_* datasets
-├── experiments/lab/         ← labs v0.7 (dirty + clean): compressao composicional
-├── llm-benchmark/           ← benchmark LLM v0.5 (harness: runners + llm_eval), acessorio
+├── experiments/lab/         ← v0.7 labs (dirty + clean): compositional compression
+├── llm-benchmark/           ← LLM benchmark v0.5 (harness: runners + llm_eval), accessory
 ├── tests/                   ← pytest suite (v0.7)
-├── datasets/                ← canonical metadata + samples (dados reais em Z:)
-├── tickets/                 ← planejamento markdown (YAML frontmatter)
+├── datasets/                ← canonical metadata + samples (real data on Z:)
+├── tickets/                 ← markdown planning (YAML frontmatter)
 ├── docs/
-│   ├── algorithms/          ← specs canonicos v0.7 (OBAT, HCC, TCF-format) [reference]
-│   ├── adr/                 ← decisoes numeradas, imutaveis
-│   ├── theory/              ← fundamentos teoricos [explanation]
+│   ├── algorithms/          ← canonical v0.7 specs (OBAT, HCC, TCF-format) [reference]
+│   ├── adr/                 ← numbered, immutable decisions
+│   ├── theory/              ← theoretical foundations [explanation]
 │   ├── how-to/, tutorials/  ← Diataxis
-│   ├── findings/            ← catalogo cientifico v0.5 LLM (F-Q01..Q38) [historico]
-│   ├── workbench/           ← dev timeline, research notes (partes em _archive/)
-│   └── archive/             ← material v0.5/v0.1 congelado (manual_v05, article_v05, etc.)
-├── config/                  ← storage.json (aponta Z:), api_keys (gitignored)
+│   ├── findings/            ← v0.5 LLM scientific catalog (F-Q01..Q38) [historical]
+│   ├── workbench/           ← dev timeline, research notes (parts in _archive/)
+│   └── archive/             ← frozen v0.5/v0.1 material (manual_v05, article_v05, etc.)
+├── config/                  ← storage.json (points to Z:), api_keys (gitignored)
 ├── README.md                ← you are here
 └── CHANGELOG.md             ← release history
 ```
 
-> Para o mapa detalhado, ver [MAP.md](MAP.md). Os diretorios `docs/manual/`
-> e `docs/article/` NAO existem; o material v0.5 correspondente esta em
-> `docs/archive/manual_v05/` e `docs/archive/article_v05/`.
+> For the detailed map, see [MAP.md](MAP.md). The `docs/manual/`
+> and `docs/article/` directories do NOT exist; the corresponding v0.5 material is in
+> `docs/archive/manual_v05/` and `docs/archive/article_v05/`.
 
 ---
 
 ## Tools shipped (v0.7)
 
-O encoder e' a ferramenta principal; auxiliares de suporte (NAO TCF-core):
+The encoder is the main tool; support helpers (NOT TCF-core):
 
 - **Shaper** (`scripts/shaper/`): stratified, FK-preserving sampling framework.
   Standalone-able as a separate library; see
   [shaper-as-standalone-tool note](docs/workbench/research-notes/_archive/2026-04-25-shaper-as-standalone-tool.md)
 - **DatasetReader** (`scripts/dataset_reader.py`): uniform interface
   over SQLite hubs (rows, columns, query, column_stats)
-- **setup_\*.py** (`scripts/`): download/geracao dos datasets canonicos
-  (Adult, TPC-H, IBGE, CNPJ, etc.); ver [datasets/README.md](datasets/README.md)
+- **setup_\*.py** (`scripts/`): download/generation of the canonical datasets
+  (Adult, TPC-H, IBGE, CNPJ, etc.); see [datasets/README.md](datasets/README.md)
 
-> Pré-1.0: **library-only** (sem CLI; ver `pyproject.toml`).
-> O benchmark LLM v0.5 (CommercialClient, M-series runners) vive em
-> [`llm-benchmark/`](llm-benchmark/), com instrucoes de reproducao no README de la'.
+> Pre-1.0: **library-only** (no CLI; see `pyproject.toml`).
+> The LLM benchmark v0.5 (CommercialClient, M-series runners) lives in
+> [`llm-benchmark/`](llm-benchmark/), with reproduction instructions in its own README.
 
 ---
 
 ## Where to go next
 
-- **I want to use TCF in my pipeline** → API v0.7: `from tcf import encode, decode` ([src/tcf/](src/tcf/)); manual v0.7 pendente. v0.5: [docs/archive/manual_v05/](docs/archive/manual_v05/)
-- **I want to read the findings** → [docs/findings/](docs/findings/) (v0.5 LLM, historico)
-- **I want to run the LLM benchmark** → [llm-benchmark/](llm-benchmark/) (acessorio v0.5)
+- **I want to use TCF in my pipeline** → v0.7 API: `from tcf import encode, decode` ([src/tcf/](src/tcf/)); v0.7 manual pending. v0.5: [docs/archive/manual_v05/](docs/archive/manual_v05/)
+- **I want to read the findings** → [docs/findings/](docs/findings/) (v0.5 LLM, historical)
+- **I want to run the LLM benchmark** → [llm-benchmark/](llm-benchmark/) (accessory v0.5)
 - **I want to understand the architecture** → [docs/theory/](docs/theory/)
-- **I want to see the roadmap** → [ROADMAP.md](ROADMAP.md) (tiers: pré-1.0 / 2.0 / pesquisa); detalhe granular em [roadmap-hipoteses.md](experiments/lab/dirty/notas/roadmap-hipoteses.md)
-- **I want to query without decompressing** → [scripts/tcf_lazy/](scripts/tcf_lazy/) (gadget *lazy*: `count`/`sum`/`where`/group-by tocando só o necessário)
-- **I want to share / pitch TCF** → [docs/divulgacao-tcf.md](docs/divulgacao-tcf.md) (material de divulgação, estilo post)
-- **I want to read the paper** → drafts v0.5: [docs/archive/article_v05/](docs/archive/article_v05/) (paper v0.7 pendente)
+- **I want to see the roadmap** → [ROADMAP.md](ROADMAP.md) (tiers: pre-1.0 / 2.0 / research); granular detail in [roadmap-hipoteses.md](experiments/lab/dirty/notas/roadmap-hipoteses.md)
+- **I want to query without decompressing** → [scripts/tcf_lazy/](scripts/tcf_lazy/) (*lazy* gadget: `count`/`sum`/`where`/group-by touching only what is needed)
+- **I want to share / pitch TCF** → [docs/divulgacao-tcf.md](docs/divulgacao-tcf.md) (outreach material, post style)
+- **I want to read the paper** → v0.5 drafts: [docs/archive/article_v05/](docs/archive/article_v05/) (v0.7 paper pending)
 - **I want to see how it evolved** → [CHANGELOG.md](CHANGELOG.md) +
   [docs/workbench/](docs/workbench/)
 
@@ -525,6 +528,6 @@ MIT. See [LICENSE](LICENSE).
 
 Project conceived as part of an academic dissertation (TCC). Datasets:
 [UCI Adult Census](https://archive.ics.uci.edu/ml/datasets/adult) and
-[TPC-H](https://www.tpc.org/tpch/) (via DuckDB tpch extension).
-(Ciclo v0.5) Commercial LLM testing supported by personal credits;
+[TPC-H](https://www.tpc.org/tpch/) (via the DuckDB tpch extension).
+(v0.5 cycle) Commercial LLM testing supported by personal credits;
 total spend $9.46 USD for 1968 records (75% cache savings).
