@@ -1,5 +1,8 @@
-<!-- l10n: doc_id=readme · lang=pt-BR · source_lang=en · translation_of=README.md -->
+<!-- l10n: doc_id=readme · lang=pt-BR · source_lang=en · translation_of=README.md · synced=2026-07-01 -->
 [English](README.md) · **Português**
+
+> Tradução de [`README.md`](README.md). Se houver divergência, o original em inglês prevalece.
+> A régua de atualização é o histórico do git: se o `README.md` mudar depois desta tradução, esta versão fica desatualizada.
 
 # TCF · Tabular Compact Format
 

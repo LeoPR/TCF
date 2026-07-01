@@ -6,34 +6,36 @@ tags: [tutorial, beginner, compression]
 created: 2026-05-27
 updated: 2026-05-27
 ---
+<!-- l10n: doc_id=getting-started · lang=en · canonical -->
+**English** · [Português](getting-started.pt-BR.md)
 
 # Getting Started — TCF
 
-Neste tutorial, você vai construir uma experiência completa com TCF: codificar uma lista de strings, ver como o formato compacta os dados, decodificar de volta e confirmar que a transformação é lossless. Ao final, você entenderá como TCF funciona tanto em single-column quanto em multi-column.
+In this tutorial you will build a complete hands-on experience with TCF: encode a list of strings, see how the format compacts the data, decode it back, and confirm the transformation is lossless. By the end you will understand how TCF works both single-column and multi-column.
 
-## O que você vai construir
+## What you will build
 
-Você vai codificar um conjunto de dados simples (lista de strings com padrões repetitivos), examinar o texto TCF gerado, medir a economia de bytes, decodificar tudo de volta exatamente como era, e depois expandir o exemplo para tabelas multi-coluna. No total: 10 minutos.
+You will encode a simple dataset (a list of strings with repetitive patterns), examine the generated TCF text, measure the byte savings, decode it all back exactly as it was, and then expand the example to multi-column tables. Total: 10 minutes.
 
-## Pré-requisitos
+## Prerequisites
 
-- Python 3.10 ou superior
-- Ter instalado TCF com dependências de desenvolvimento:
+- Python 3.10 or later
+- TCF installed with development dependencies:
 
 ```bash
 git clone https://github.com/LeoPR/TCF.git && cd TCF
 pip install -e ".[dev]"
 ```
 
-Você pode validar a instalação rapidamente:
+You can validate the installation quickly:
 
 ```bash
 python -c "from tcf import encode, decode; print('TCF OK')"
 ```
 
-## Passo 1 — Codificar uma lista simples
+## Step 1 — Encode a simple list
 
-Vamos começar com três strings que compartilham prefixos comuns. Abra um terminal Python ou crie um arquivo `hello_tcf.py`:
+Let's start with three strings that share common prefixes. Open a Python terminal or create a file `hello_tcf.py`:
 
 ```python
 from tcf import encode
@@ -41,23 +43,23 @@ from tcf import encode
 data = ["abc", "abcd", "abcde"]
 text = encode(data)
 
-print("Dados originais:", data)
-print("Texto TCF:")
+print("Original data:", data)
+print("TCF text:")
 print(text)
 print("Repr:", repr(text))
 ```
 
-Execute:
+Run it:
 
 ```bash
 python hello_tcf.py
 ```
 
-Saída esperada:
+Expected output:
 
 ```
-Dados originais: ['abc', 'abcd', 'abcde']
-Texto TCF:
+Original data: ['abc', 'abcd', 'abcde']
+TCF text:
 abc
 1d
 1,2e
@@ -65,17 +67,17 @@ abc
 Repr: 'abc\n1d\n1,2e\n'
 ```
 
-O que aconteceu:
+What happened:
 
-- **Primeira string (`abc`)**: gravada como literal, pois é a primeira.
-- **Segunda string (`abcd`)**: representada como `1d`. Significa "reutilize 3 caracteres do prefixo da string 1 e adicione `d` ao final".
-- **Terceira string (`abcde`)**: representada como `1,2e`. Significa "reutilize 4 caracteres (que cobrem todo `abcd` da string 2) e adicione `e` ao final".
+- **First string (`abc`)**: written as a literal, since it is the first.
+- **Second string (`abcd`)**: represented as `1d`. It means "reuse 3 characters of the prefix of string 1 and append `d` at the end".
+- **Third string (`abcde`)**: represented as `1,2e`. It means "reuse 4 characters (covering all of `abcd` from string 2) and append `e` at the end".
 
-TCF usa referências para strings anteriores, economizando caracteres sempre que há similaridade.
+TCF uses references to earlier strings, saving characters whenever there is similarity.
 
-## Passo 2 — Decodificar e confirmar round-trip lossless
+## Step 2 — Decode and confirm the lossless round-trip
 
-Agora vamos decodificar o texto TCF de volta aos dados originais e confirmar que nenhuma informação foi perdida:
+Now let's decode the TCF text back to the original data and confirm no information was lost:
 
 ```python
 from tcf import encode, decode
@@ -87,26 +89,26 @@ decoded = decode(text)
 
 print("Original:", data)
 print("Decoded: ", decoded)
-print("Iguais?  ", decoded == data)
+print("Equal?   ", decoded == data)
 ```
 
-Saída esperada:
+Expected output:
 
 ```
 Original: ['abc', 'abcd', 'abcde']
 Decoded:  ['abc', 'abcd', 'abcde']
-Iguais?   True
+Equal?    True
 ```
 
-A propriedade de **round-trip lossless** é garantida por TCF: qualquer dado codificado pode ser recuperado exatamente (ver [ADR-0024](../adr/0024-pre-10-versioning-policy.md) — projeto pré-1.0).
+The **lossless round-trip** property is guaranteed by TCF: any encoded data can be recovered exactly (see [ADR-0024](../adr/0024-pre-1.0-versioning-git-as-compat.md) — pre-1.0 project).
 
 ```python
-assert decode(encode(x)) == x  # sempre verdade
+assert decode(encode(x)) == x  # always true
 ```
 
-## Passo 3 — Medir a compressão
+## Step 3 — Measure the compression
 
-Vamos quantificar o ganho. Comparamos o tamanho bruto (newline-delimited) com o tamanho TCF:
+Let's quantify the gain. We compare the raw size (newline-delimited) with the TCF size:
 
 ```python
 from tcf import encode
@@ -114,26 +116,26 @@ from tcf import encode
 data = ["abc", "abcd", "abcde"]
 text = encode(data)
 
-# Calcular tamanho bruto (newline-delimited)
-raw_bytes = sum(len(s) + 1 for s in data)  # cada string + 1 newline
+# Compute raw size (newline-delimited)
+raw_bytes = sum(len(s) + 1 for s in data)  # each string + 1 newline
 tcf_bytes = len(text.encode('utf-8'))
 
 print(f"Raw (newline-delimited): {raw_bytes} bytes")
 print(f"TCF encoded:              {tcf_bytes} bytes")
-print(f"Taxa de compressão:       {tcf_bytes/raw_bytes*100:.1f}%")
-print(f"Economia:                 {raw_bytes - tcf_bytes} bytes")
+print(f"Compression ratio:        {tcf_bytes/raw_bytes*100:.1f}%")
+print(f"Savings:                  {raw_bytes - tcf_bytes} bytes")
 ```
 
-Saída esperada:
+Expected output:
 
 ```
 Raw (newline-delimited): 15 bytes
 TCF encoded:              12 bytes
-Taxa de compressão:       80.0%
-Economia:                 3 bytes
+Compression ratio:        80.0%
+Savings:                  3 bytes
 ```
 
-Agora vamos ampliar o exemplo com mais dados reais (lista de emails com padrões repetitivos):
+Now let's scale the example with more realistic data (a list of emails with repetitive patterns):
 
 ```python
 from tcf import encode
@@ -149,30 +151,30 @@ emails = [
 
 encoded = encode(emails)
 
-# Tamanho bruto
+# Raw size
 raw_bytes = sum(len(e) + 1 for e in emails)
 tcf_bytes = len(encoded.encode('utf-8'))
 
 print(f"Raw (newline-delimited): {raw_bytes} bytes")
 print(f"TCF encoded:              {tcf_bytes} bytes")
-print(f"Taxa de compressão:       {tcf_bytes/raw_bytes*100:.1f}%")
-print(f"Economia:                 {raw_bytes - tcf_bytes} bytes ({(1 - tcf_bytes/raw_bytes)*100:.1f}%)")
+print(f"Compression ratio:        {tcf_bytes/raw_bytes*100:.1f}%")
+print(f"Savings:                  {raw_bytes - tcf_bytes} bytes ({(1 - tcf_bytes/raw_bytes)*100:.1f}%)")
 ```
 
-Saída esperada:
+Expected output:
 
 ```
 Raw (newline-delimited): 100 bytes
 TCF encoded:              64 bytes
-Taxa de compressão:       64.0%
-Economia:                 36 bytes (36.0%)
+Compression ratio:        64.0%
+Savings:                  36 bytes (36.0%)
 ```
 
-Com dados que compartilham prefixos e sufixos comuns, TCF reduz o tamanho. As duas camadas (OBAT + HCC) detectam e exploram esses padrões automaticamente.
+With data that shares common prefixes and suffixes, TCF shrinks the size. The two layers (OBAT + HCC) detect and exploit these patterns automatically.
 
-## Passo 4 — Trabalhar com tabelas multi-coluna
+## Step 4 — Work with multi-column tables
 
-Até aqui, usamos single-column (lista Python). TCF também suporta multi-column nativamente via dicts. Cada coluna é compactada independentemente, mas TCF preserva a estrutura da tabela:
+So far we used single-column (a Python list). TCF also supports multi-column natively via dicts. Each column is compacted independently, but TCF preserves the table structure:
 
 ```python
 from tcf import encode, decode
@@ -185,66 +187,66 @@ table = {
 encoded = encode(table)
 decoded = decode(encoded)
 
-print("Tabela original:")
+print("Original table:")
 print(table)
 print()
-print("Texto TCF:")
+print("TCF text:")
 print(repr(encoded))
 print()
-print("Decodificado:")
+print("Decoded:")
 print(decoded)
 print()
 print("Round-trip OK?", decoded == table)
 ```
 
-Saída esperada:
+Expected output:
 
 ```
-Tabela original:
+Original table:
 {'id': ['1', '2', '3'], 'name': ['Alice', 'Bob', 'Charlie']}
 
-Texto TCF:
+TCF text:
 '#TCF.7 M\n!8=id,!18=name\n*3+1|\\1\nAlice\nBob\nCharlie\n'
 
-Decodificado:
+Decoded:
 {'id': ['1', '2', '3'], 'name': ['Alice', 'Bob', 'Charlie']}
 
 Round-trip OK? True
 ```
 
-Observe a estrutura do texto TCF multi-coluna:
+Notice the structure of the multi-column TCF text:
 
-- **Linha 1**: `#TCF.7 M` — shebang indicando formato TCF (`#TCF.7`) Multi-coluna (`M`).
-- **Linha 2**: `!8=id,!18=name` — metadata: `!` = modo raw (V2-A); 8/18 = bytes do body; `id`/`name` = nomes. O decoder fatia o corpo por esses tamanhos. Detalhe: [TCF-format.md](../algorithms/TCF-format.md).
-- **Linhas seguintes**: bodies das colunas concatenados byte-a-byte (cada um compactado pelo pipeline single-column).
+- **Line 1**: `#TCF.7 M` — the format signature indicating TCF format (`#TCF.7`) Multi-column (`M`).
+- **Line 2**: `!8=id,!18=name` — metadata: `!` = raw mode (V2-A); 8/18 = body bytes; `id`/`name` = names. The decoder slices the body by those sizes. Details: [TCF-format.md](../algorithms/TCF-format.md).
+- **Following lines**: the column bodies concatenated byte-by-byte (each one compacted by the single-column pipeline).
 
-TCF v1.0 garante que a forma da tabela (nomes de colunas, ordem) é preservada exatamente.
+TCF guarantees that the shape of the table (column names, order) is preserved exactly.
 
-## Próximos passos
+## Next steps
 
-Você cobriu os fundamentos:
+You covered the fundamentals:
 
-1. **encode(data)** transforma lista ou dict em texto TCF.
-2. **decode(text)** recupera exatamente os dados originais.
-3. TCF compacta explorando prefixos, sufixos e padrões composicionais.
-4. Round-trip é garantido lossless.
+1. **encode(data)** turns a list or dict into TCF text.
+2. **decode(text)** recovers the original data exactly.
+3. TCF compacts by exploiting prefixes, suffixes and compositional patterns.
+4. The round-trip is guaranteed lossless.
 
-### Explorar mais
+### Explore more
 
-- **[How-to guides](../how-to/)** — receitas práticas: [encodar um CSV](../how-to/encode-csv-file.md), [usar naturezas (CPF/CNPJ/IP)](../how-to/use-natures.md), [inspecionar a compressão](../how-to/inspect-compression.md).
-- **[Formato TCF](../algorithms/TCF-format.md)** — especificação do formato, pipeline e API de referência.
-- **[Algoritmos](../algorithms/)** — OBAT (Online Bidirectional Affix Tokenizer) e HCC (Hierarchical Compositional Coding).
+- **[How-to guides](../how-to/)** — practical recipes: [encode a CSV](../how-to/encode-csv-file.md), [use natures (CPF/CNPJ/IP)](../how-to/use-natures.md), [inspect the compression](../how-to/inspect-compression.md).
+- **[TCF format](../algorithms/TCF-format.md)** — format specification, pipeline and reference API.
+- **[Algorithms](../algorithms/)** — OBAT (Online Bidirectional Affix Tokenizer) and HCC (Hierarchical Compositional Coding).
 
-### Benchmarks e validação
+### Benchmarks and validation
 
-TCF v1.0 foi validado em múltiplos datasets:
+TCF has been validated on multiple datasets:
 
-- **Sintético D1-D9**: 1523 bytes (53.2% ratio), round-trip 9/9.
-- **Real-world Adult+TPC-H**: 57 colunas, -33% weighted vs raw, -31% vs single-column naive.
-- **Benchmark vs csv/jsonl + gzip/brotli/zstd**: TCF vence 7/9 datasets.
+- **Synthetic D1-D9**: 1523 bytes (53.2% ratio), round-trip 9/9.
+- **Real-world Adult+TPC-H**: 57 columns, -33% weighted vs raw, -31% vs naive single-column.
+- **Benchmark vs csv/jsonl + gzip/brotli/zstd**: TCF wins 7/9 datasets.
 
-Ver [`README.md`](../../README.md) e [`docs/algorithms/`](../algorithms/) para detalhes.
+See [`README.md`](../../README.md) and [`docs/algorithms/`](../algorithms/) for details.
 
 ---
 
-**Dúvidas?** Abra uma issue em [LeoPR/TCF](https://github.com/LeoPR/TCF/issues).
+**Questions?** Open an issue at [LeoPR/TCF](https://github.com/LeoPR/TCF/issues).
