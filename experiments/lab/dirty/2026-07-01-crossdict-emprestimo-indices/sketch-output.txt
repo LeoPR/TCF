@@ -1,0 +1,36 @@
+ENTRADA (par same-domain):
+  from = ['A', 'B', 'A', 'C', 'B']
+  to   = ['B', 'C', 'B', 'A', 'D']   (D so' em 'to')
+
+----------------------------------------------------------------------
+O DICT GLOBAL INCREMENTAL (o mesmo objeto, 3 framings):
+----------------------------------------------------------------------
+  tabela (first-seen, ordem das colunas): [(0, 'A'), (1, 'B'), (2, 'C'), (3, 'D')]
+  minted em (indice NASCEU na coluna):    [(0, 'from'), (1, 'from'), (2, 'from'), (3, 'to')]
+  -> indice 3 (D) e' MOVEL: nasceu em 'to' (o espaco cresceu 3->4)
+
+FRAMING (2) 1a-COLUNA-COMO-DICT / (4) 'header ou 1a coluna e' quase o mesmo':
+  'from' estabelece {A:0, B:1, C:2}. 'to' EMPRESTA esses e ESTENDE com D:3.
+  decode: le 'from' (vira o dict) -> 'to' indexa nele + extensao {D}.
+
+FRAMING (5)/(6) INDICES DO OBAT VIRAM DICT / EMPRESTIMO:
+  o ^N do OBAT (first-seen) JA' e' esse id. Basta torna-lo GLOBAL (continuo entre colunas):
+    from : ['A=id0', 'B=id1', '^0', 'C=id2', '^1']
+    to   : ['B=id1', 'C=id2', '^1', 'A=id0', 'D=id3']
+
+----------------------------------------------------------------------
+STREAMS (indices por coluna) + RT
+----------------------------------------------------------------------
+  from : [0, 1, 0, 2, 1]
+  to   : [1, 2, 1, 0, 3]
+
+  RT: True  (ok)
+
+----------------------------------------------------------------------
+DE ONDE VEM O CUSTO (a dobradica, ilustrativa) — e o ANGULO MOVEL
+----------------------------------------------------------------------
+  |uniao| = K_G = 4. Referenciar 1 de 4 valores custa ~log(K) por celula.
+  B2-naive: largura FIXA w(K_G) em TODA celula -> se K_G cruza 94/8836, +1 char/linha em tudo.
+  MOVEL/variavel: ids cedo/frequentes = estreitos; raros/tardios = largos.
+  -> so' os valores tardios (ex: D=id3) pagariam largura extra, NAO toda a coluna.
+     (esse e' o unico caminho que escapa do bucket-crossing; risco: some sob brotli.)
