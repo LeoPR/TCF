@@ -11,6 +11,12 @@
 > CHANGELOG, README, CITATION, CI gate). Item 9 (git tag v1.0.0)
 > reservado pra release explicito. Item 10 (DOI) opcional.
 
+> **Nota (2026-07-01, DB-6 T-CLEAN-2)**: a parte **"freeze do formato @ v1.0"** deste ADR foi
+> **superseded por [ADR-0024](0024-pre-1.0-versioning-git-as-compat.md)** (refinado por ADR-0028): o
+> projeto é **pré-1.0** — minors `#TCF.N` são marcadores de dev, git é a compat, baselines
+> re-pináveis. O "v1.0 frozen" aqui é **histórico**; a política vigente é ADR-0024/0028. (Corpo
+> imutável — só esta nota.)
+
 ## Context and Problem Statement
 
 TCF format atual (`#TCF.6`) tem 16 ADRs accepted (0001-0016), suite

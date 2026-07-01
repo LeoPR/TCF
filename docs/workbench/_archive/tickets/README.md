@@ -1,6 +1,12 @@
 # TCF — Tickets de Pesquisa e Implementacao
 
-Indice de tickets ordenado por prioridade da fase atual.
+> **⚰️ TOMBSTONE (2026-07-01, DB-5 T-CLEAN-2)**: este é um **SNAPSHOT HISTÓRICO CONGELADO** da
+> bancada de tickets da **fase v0.4 (2026-05-05)**. Os tickets em `open/` aqui são **v0.3/v0.4,
+> NÃO são vivos** — foram superados pelo trabalho canonical v0.7. **Os tickets VIVOS estão em
+> [`/tickets/`](../../../../tickets/) (raiz do repo).** Este `_archive/` fica como **traço** (§3): não
+> deletar, não reabrir; consultar só pra história. (Resolve a contradição §1 "open dentro de archive".)
+
+Indice de tickets ordenado por prioridade da fase atual. **[Estado da fase v0.4 — histórico.]**
 
 **Localizacao**: `docs/workbench/tickets/` (movido de `tickets/` raiz na
 reorganizacao 2026-04-27).

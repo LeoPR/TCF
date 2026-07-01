@@ -22,7 +22,7 @@ TCF/
 │   ├── auto_min_len.py ... detect_min_len (ADR-0010, H-DA-11)
 │   ├── column_features.py  ColumnFeatures + analyze_column (H-DA-11c)
 │   ├── encoder.py, decoder.py .... API publica (pipeline delta-aware)
-│   ├── multi.py .................. encode/decode multi-coluna (#TCF.7 M)
+│   ├── multi/ ................... encode/decode multi-coluna (core.py + dict_v2b.py; #TCF.7/8 M)
 │   ├── schema.py ................. build_schema per-tabela (CORE)
 │   ├── side_outputs.py ........... SideOutputs (efeito colateral opt-in)
 │   ├── view.py .................. view lazy/consultavel read-only (A4, `from tcf import view`)
@@ -86,7 +86,9 @@ TCF/
 | **Portar o CORE pra C/Rust** (estruturas + fronteira CORE↔HOST) | `docs/algorithms/core-data-model.md` |
 | **Capacidade dos SPECS/natures** (mapa único + EnumSpec no-go + self-describing) | `experiments/lab/dirty/notas/specs-capacity-map.md` |
 | **Estrutura + plano do #TCF.8** (família self-describing, features, sequência, cross-dict, tcfx) | `experiments/lab/dirty/notas/tcf8-estrutura-plano.md` |
-| Ver hipoteses ativas/fechadas | `experiments/lab/dirty/notas/roadmap-hipoteses.md` |
+| **Bibliografia / literatura** (column-store Abadi/Parquet/Dremel, bitpacking, DSL — 24 refs) | `docs/reference/bibliografia.md` |
+| **Arquitetura share × header × lazy** (balanço compressão↔lazy; cross-dict FECHADO; header=índice) | `experiments/lab/dirty/notas/arquitetura-share-header-lazy.md` |
+| Ver hipoteses ativas/fechadas | `experiments/lab/dirty/notas/roadmap-hipoteses.md` (registry **ativo**; homônimo em `docs/theory/` é histórico) |
 | Entender a **familia RLE** (linha/stream/intra-valor) | `experiments/lab/dirty/notas/rle-familia-estudo.md` |
 | **V2-RLE-STREAM** (follow-up V2-B) | `experiments/lab/dirty/old/refuted/2026-06-19-v2rle-stream-caracterizacao/result.md` + registry Pacote 11-bis |
 | **Lazy/queryable view** (descomprimir o minimo) | `src/tcf/view.py` (`from tcf import view`; A4) · reference `docs/reference/lazy-view.md` · design 0.9 `experiments/lab/dirty/notas/hquery01-decode-dag-indices-design.md` |
@@ -123,7 +125,10 @@ Faxina 2026-06-21: 17 labs movidos pra `old/welded/` ou `old/refuted/`
 - **`experiments/lab/dirty/2026-05-27-baseline-consolidado/`** —
   baseline de referencia (METRICS + ADRs-INDEX + lessons-learned + run-baseline.py)
 - `experiments/lab/dirty/2026-06-19-lazy-testbank/` — banco de testes lazy A1/A2/A3
-- `experiments/lab/dirty/2026-06-21-gdict-caracterizacao/` — B1 cross-dict (H-GDICT): design + medicao sintetica minima
+- `experiments/lab/dirty/2026-06-21-gdict-caracterizacao/` — B1 cross-dict (H-GDICT) + B2 design/revisao
+- `experiments/lab/dirty/2026-06-27-gdict-b2-prototype/` — B2 prototype (formato `&<G>` RT-lossless) + gate N≥5 (FALHOU)
+- `experiments/lab/dirty/2026-07-01-crossdict-emprestimo-indices/` — reabertura cross-dict + teste-teto (FECHADO)
+- `experiments/lab/dirty/2026-07-01-dict-highcard/` + `2026-07-01-descapar-v2b/` — DICT-HIGHCARD → descapar V2-B (byte-safe)
 - `experiments/lab/clean/EXP-010-tcf-delta-aware-prototype/` —
   prototype antigo (referencia historica)
 - `experiments/lab/clean/EXP-011-multi-column-basic/` — multi-col basico

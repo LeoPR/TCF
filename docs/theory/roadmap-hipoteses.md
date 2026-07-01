@@ -10,6 +10,11 @@ futura, ordenado por proximidade/risco.
 > Para historia do que foi testado, ver
 > [`historia-dirty-lab.md`](historia-dirty-lab.md).
 
+> **Nota (2026-07-01, DB-1 T-CLEAN-2)**: doc **HISTORICO** (2026-05-17, hipoteses faltantes de
+> M0-M9). O **registry ATIVO** de hipoteses (mesmo nome, doc diferente) vive em
+> [`experiments/lab/dirty/notas/roadmap-hipoteses.md`](../../experiments/lab/dirty/notas/roadmap-hipoteses.md).
+> Este fica como traco; consultar o ativo pro estado corrente.
+
 ## Curto prazo (protótipo imediato)
 
 ### 1. Migracao para protótipo limpo

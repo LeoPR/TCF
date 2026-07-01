@@ -1,9 +1,9 @@
 ---
 title: T-CLEAN-2-strata-defrag — Defragmentação da biblioteca (higiene de superfície §3/§5 + índices §2)
-status: in-progress
+status: closed-backlog-done-db2-owner-pending
 priority: P2
 created: 2026-06-18
-updated: 2026-06-18
+updated: 2026-07-01
 blocked-by: []
 related:
   - experiments/lab/dirty/notas/hquery01-decode-dag-indices-design.md
@@ -64,6 +64,22 @@ localizada** — sem reorganização estrutural.
       "v1.0 frozen" → pré-1.0 (ADR-0024 supersede). *(ADR-0027 já tem a nota "owner escolheu (A)".)*
 - [ ] **DB-7 [§7]** `roadmap-hipoteses.md` (notas): reconciliar status — h-perf-06 welded → apontar
       ADR-0020; lazy → `confirmada-conceitual`; V2-D → tombstone (refutado).
+
+## Backlog EXECUTADO 2026-07-01 (DB-1,3,4,5,6,7 feitos; DB-2 = owner)
+
+- [x] **DB-1** `docs/theory/roadmap-hipoteses.md`: zero links de entrada → **nota de cabeçalho** apontando
+      pro registry ativo (`experiments/lab/dirty/notas/roadmap-hipoteses.md`). Não deletado (traço).
+- [ ] **DB-2** (owner) Pacote 1 `[VERIFICAR: 2026-08-18]` **NÃO venceu** (hoje 2026-07-01). Segue
+      aguardando decisão do owner na data (manter / `CLOSED-INSUFFICIENT-RECURRENCE` / promover).
+- [x] **DB-3** tombstones nos 2 `_archived_consolidated_*` (memória user-scope): `TOMBSTONE.md` em cada
+      (o quê/quando/porquê/autoridade).
+- [x] **DB-4** `MAP.md` refresh: + `docs/reference/bibliografia.md`, `arquitetura-share-header-lazy.md`,
+      labs 2026-06-27/07-01; `multi.py`→`multi/`; ponteiro registry-ativo vs homônimo histórico.
+- [x] **DB-5** `docs/workbench/_archive/tickets/README.md`: **tombstone no topo** (snapshot histórico v0.4;
+      "open/" NÃO são vivos; vivos em `/tickets/`). Resolve a contradição §1 sem mover/deletar.
+- [x] **DB-6** ADR-0017: **NOTA** "v1.0 frozen → pré-1.0 (superseded ADR-0024/0028)" + tag `magic-number`.
+- [x] **DB-7** `notas/roadmap-hipoteses.md`: H-PERF-06 (aberta→REFRAMED→welded ADR-0019/0020) + H-QUERY-01
+      lazy (gadget→PROMOVIDO ao core `src/tcf/view.py`). V2-D já estava descrito como refutado.
 
 ## NÃO fazer (§9 — excesso / risco §3) — guardrails do guardião
 
