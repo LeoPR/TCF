@@ -1,0 +1,22 @@
+cap original=1024  UNCAP=1000000000  LIMIT=5000
+
+(1) GANHO multi-col (uncapped vs capped; delta<=0 = descapar melhora; byte-safe):
+  br-identid/pessoas                 cap=  285960 unc=  284403 delta= -0.54%  t_cap=42.73s t_unc=81.07s (x1.90)  RT=True
+  br-identid/empresas                cap=  194117 unc=  184646 delta= -4.88%  t_cap= 9.00s t_unc=15.91s (x1.77)  RT=True
+  receita-cn/estabelecimentos        cap=  105766 unc=  100138 delta= -5.32%  t_cap=15.73s t_unc=16.77s (x1.07)  RT=True
+  tpch-sf001/lineitem                cap=  301414 unc=  299806 delta= -0.53%  t_cap=11.92s t_unc=25.80s (x2.16)  RT=True
+  tpch-sf001/orders                  cap=  336888 unc=  336888 delta= +0.00%  t_cap= 5.70s t_unc=10.96s (x1.92)  RT=True
+  tpch-sf001/partsupp                cap=  663730 unc=  663730 delta= +0.00%  t_cap= 2.32s t_unc= 2.54s (x1.10)  RT=True
+  tpch-sf001/customer                cap=  180016 unc=  180016 delta= +0.00%  t_cap= 0.83s t_unc= 0.91s (x1.09)  RT=True
+  adult-cens/adult                   cap=  101983 unc=  101983 delta= +0.00%  t_cap= 0.43s t_unc= 0.59s (x1.37)  RT=True
+
+(2) PINS byte-canonicos (devem ser IDENTICOS capped vs uncapped):
+    D1-emails-simples          cap=    118 unc=    118  IGUAL
+    retail-description-2k      cap=  27581 unc=  27581  IGUAL
+    retail-stockcode-2k        cap=  11437 unc=  11437  IGUAL
+    lineitem-comment-2k        cap=  50598 unc=  50598  IGUAL
+    D17a (multi, 303 esperado) cap=    303 unc=    303  IGUAL
+
+(3) HEURISTICA DE SKIP (N*w(K) >= tcf -> pular dict-encode; sound):
+    colunas high-card (K>1024) que pagariam dict-encode: 24
+    skip barato (N*w(K)>=tcf) evita: 2/24 (8%) SEM perder vencedor
