@@ -23,8 +23,9 @@ Formato projetado para:
 ## Versionamento (ADR-0024 + ADR-0028 — pré-1.0; supersede ADR-0017)
 
 > **MODELO DE 3 EIXOS (ADR-0028, 2026-06-24; refina ADR-0024)** — distinga:
-> - **(A) Versão de FORMATO** — shebang `#TCF.N`. Contrato on-disk; só muda com mudança de formato.
->   Hoje `#TCF.7` (default), `#TCF.6` (legado, lido).
+> - **(A) Versão de FORMATO** — a **assinatura de formato / magic number** `#TCF.N` (termo canônico;
+>   **não** "shebang", que é `#!` — análogo a `%PDF-1.7`; ver [vocabulary.md](../vocabulary.md)).
+>   Contrato on-disk; só muda com mudança de formato. Hoje `#TCF.7` (default), `#TCF.6` (legado, lido).
 > - **(B) Geração do encoder** — marco interno (M8A→M9→M10); NÃO é versão pública (nota histórica).
 > - **(C) Versão do pacote** (PyPI) — pré-1.0 = `0.<formato>.<release>`: minor = nº do formato
 >   (`0.N` ↔ `#TCF.N`); release/patch = entrega DENTRO do formato.

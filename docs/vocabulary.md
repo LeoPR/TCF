@@ -55,8 +55,13 @@ Prefixos no tamanho de coluna da meta-line (`# !8=id,@22=cat,nome`):
 > (ADR-0024 refinado por ADR-0028). Nao confundir formato (`#TCF.N`) com versao
 > de pacote (`0.N.x`).
 
-- **Versao de FORMATO** — shebang `#TCF.N`. Contrato on-disk; so' muda com mudanca
-  de formato. Hoje: `#TCF.7` (default), `#TCF.6` (legado, lido pelo decoder). Eixo A.
+- **Assinatura de formato / magic number** — `#TCF.N` no início do blob. **Termo canônico**
+  (2026-07-01): o `#TCF.N` **NÃO é shebang** (shebang é `#!`, diretiva de interpretador Unix). É uma
+  **assinatura de formato textual** que codifica formato+versão, análoga a **`%PDF-1.7`** (também
+  `<?xml`, ou binárias `GZ`=`1F 8B`, `MZ`, `PK`). É o que `file`/libmagic usam pra inferir o
+  **mimetype** (`application/x-tcf`). "shebang" na prosa antiga = uso histórico impreciso (ADR-0001).
+- **Versao de FORMATO** — a versão codificada na assinatura `#TCF.N` (acima). Contrato on-disk; so'
+  muda com mudanca de formato. Hoje: `#TCF.7` (default), `#TCF.6` (legado, lido pelo decoder). Eixo A.
 - **Geracao do encoder** — marco interno do algoritmo (`M8A` -> `M9` -> `M10`).
   Bytes diferentes DENTRO da mesma familia de formato. NAO e' versao publica; nota
   historica. Eixo B.

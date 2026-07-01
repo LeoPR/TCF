@@ -1,10 +1,12 @@
 ---
 title: T-EXP-H-GDICT-01 — Caracterizar cross-dict / dicionário global (B1; B2/B3 → 0.9)
-status: in-progress
+status: closed-insufficient-generalization
 priority: P2
 created: 2026-06-21
-updated: 2026-06-24
+updated: 2026-07-01
 related:
+  - experiments/lab/dirty/2026-06-27-gdict-b2-prototype/
+  - experiments/lab/dirty/2026-07-01-crossdict-emprestimo-indices/
   - experiments/lab/dirty/2026-06-21-gdict-caracterizacao/
   - experiments/lab/dirty/notas/v08-plano-etapas.md
   - experiments/lab/dirty/notas/dict-referencia-hipoteses.md
@@ -87,3 +89,14 @@ Lab `experiments/lab/dirty/2026-06-21-gdict-caracterizacao/`:
 - **2026-06-24 (decisão de escopo, owner)**: **B2/B3 → 0.9** (não 0.8). 0.8 fecha = lazy + release.
   No 0.9 o B2 cross-dict paga o **#TCF.8** primeiro (ganho medido) e **F2/spec-dict/filtros pegam
   carona** na mesma infra de header (ver [`filtros-graus-de-entrega-2026-06-24.md`](../experiments/lab/dirty/notas/filtros-graus-de-entrega-2026-06-24.md)).
+- **2026-06-27 (B2 design + revisão + prototype + GATE N≥5)**: design `&<G>` (prelúdio + coluna
+  stream-only), revisão adversarial (24 achados, 0 blocker, A-D aplicadas), prototype RT-lossless
+  reproduziu o B1 EXATO (share −19.3% SNAP). **Gate N≥5 FALHOU**: só 1/5 ≥15%; cit-HepTh +30.6% e
+  email-Enron +18.6% o B2 PERDE (união cruza bucket base-94 → greedy recusa). Padrão anti-incidente
+  05-21. [gate-result](../experiments/lab/dirty/2026-06-27-gdict-b2-prototype/gate-result.md).
+- **2026-07-01 (teste-TETO — FECHAMENTO)**: reaberto por outras perspectivas (empréstimo de índices /
+  HCC ref-share / 1ª-coluna-como-dict). Teste-teto (`encode(A++B)` = upper-bound de qualquer share)
+  perde 4/5 pro per-col-min. **Causa**: o per-col-min é ADAPTATIVO (from→tcf, to→dict); o share força
+  1 modo e perde a melhor (= Abadi 2006). **FECHADO** `closed-insufficient-generalization`; nicho
+  small-K (SNAP-like) = opt-in greedy-gated só. [ceiling-result](../experiments/lab/dirty/2026-07-01-crossdict-emprestimo-indices/ceiling-result.md).
+  **PIVÔ**: fortalecer o `min()` per-coluna (descapar V2-B) — ver T-CODE-DESCAPAR-V2B.

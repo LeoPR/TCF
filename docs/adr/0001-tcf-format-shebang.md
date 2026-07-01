@@ -3,7 +3,12 @@
 **Status**: accepted
 **Date**: 2026-05-09 (decisao original) / 2026-05-18 (migrado pra ADR)
 **Deciders**: project owner
-**Tags**: format, header, versioning
+**Tags**: format, header, versioning, magic-number
+
+> **Nota terminológica (2026-07-01)**: o termo preciso pra `#TCF.N` é **assinatura de formato /
+> magic number** (textual), análogo a `%PDF-1.7` — **não "shebang"** (que é `#!`, diretiva de
+> interpretador Unix). O uso de "shebang" neste ADR e na prosa antiga é **histórico impreciso**;
+> termo canônico em [docs/vocabulary.md](../vocabulary.md). Arquivo não renomeado (preserva links).
 
 ## Context and Problem Statement
 
