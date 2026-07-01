@@ -1,0 +1,14 @@
+# ROUND-TRIP + MEDIDA (caso ilustrativo) — decomposicao 3-vias
+
+RT: V0=ok  V1=ok  B2=ok
+
+baselines (body bytes):
+  V0 (real: @dict low-card OU OBAT/HCC high-card) = 75 B
+  V1 (per-col dict, sem cap = dict-nao-compartilhado) = 75 B
+  B2 (group-dict compartilhado)                    = 43 B
+
+  total  B2 vs V0 = -42.7%
+  (a) dict vs OBAT/HCC (V1 vs V0)     = +0.0%  [ganho de USAR dict]
+  (b) CROSS-DICT sharing (B2 vs V1)   = -42.7%  [valor REAL do B2]
+  gzip (controle, B2 vs V0)           = -18.9%
+  lazy cross-col dict-decodes: V0=2 -> B2=1

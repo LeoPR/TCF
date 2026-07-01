@@ -1,0 +1,12 @@
+# BLOB V0 (per-column @dict) — repr byte-a-byte
+
+#TCF.8M@31=conta_de,@44=conta_para
+18
+ACC\0*\1
+*5+1|1\2
+!"#!$"%#!&31
+ACC\0*\2
+*2-2|1\3
+*2+1|1\5
+1\4
+!"#$!%#&"$

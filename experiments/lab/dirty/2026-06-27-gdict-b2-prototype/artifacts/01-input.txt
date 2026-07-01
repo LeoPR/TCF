@@ -1,0 +1,19 @@
+# ENTRADA (caso ilustrativo: transacoes de/para, same-domain)
+
+linha |   conta_de | conta_para
+    0 |      ACC01 |      ACC02
+    1 |      ACC02 |      ACC03
+    2 |      ACC03 |      ACC01
+    3 |      ACC01 |      ACC05
+    4 |      ACC04 |      ACC02
+    5 |      ACC02 |      ACC06
+    6 |      ACC05 |      ACC01
+    7 |      ACC03 |      ACC04
+    8 |      ACC01 |      ACC03
+    9 |      ACC06 |      ACC05
+
+conta_de: N=10 K=6 unicos=['ACC01', 'ACC02', 'ACC03', 'ACC04', 'ACC05', 'ACC06']
+
+conta_para: N=10 K=6 unicos=['ACC02', 'ACC03', 'ACC01', 'ACC05', 'ACC06', 'ACC04']
+
+Jaccard(conta_de, conta_para) = 1.000

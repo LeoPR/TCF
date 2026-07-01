@@ -1,0 +1,12 @@
+# ARTEFATO OBAT/HCC — encode da TABELA DE UNIAO do grupo
+(mostra por que o dedup e' NAO-linear: a uniao encoda perto do custo de UMA coluna)
+
+tab(conta_de) : 6 unicos -> 18 B :: 'ACC\\0*\\1\n*5+1|1\\2\n'
+tab(conta_para) : 6 unicos -> 31 B :: 'ACC\\0*\\2\n*2-2|1\\3\n*2+1|1\\5\n1\\4\n'
+tab(UNIAO): 6 unicos -> 18 B :: 'ACC\\0*\\1\n*5+1|1\\2\n'
+
+--- OBAT log (tokenizacao da uniao) ---
+'min_len=3\nprefer_shape_consistency=True\n'
+
+--- HCC trace (detector composicional da uniao) ---
+'# Optimization trace — syntax=M8-A-seq-rle\n\n=== DETECTOR ITERATIONS (unified — atoms + virtuals) ===\n\n--- Iter 1 ---\nSub-tuplas K>=2 com R>=2: 0  net>0: 0\nNenhum candidato com net > 0. STOP.\n\n=== MISSED OPPORTUNITIES (post-hoc) ===\n  (nenhum)\n\nTotal estimated missed: 0'

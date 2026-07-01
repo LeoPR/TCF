@@ -90,8 +90,11 @@ Era o workstream B do v08-plano (reservava "#TCF.8" pra isto). **Reconciliado**:
   opt-in #TCF.8 sobre o `@dict` do V2-B; **particionamento greedy custo-modelado** (a dobradiça
   como regra de pool); namespace por grupo (bound de largura); decode = prelúdio serial + colunas
   paralelas; default-off byte-idêntico.
-- **Próximo**: prototype read-only (SNAP+OpenFlights, fora de src/tcf) → confirma RT + ganho +
-  escala ≥3-col → **B3** weld opt-in (ADR, sob aprovação) → **B4** integrar com lazy.
+- **B2 prototype** ✅ ([result](../2026-06-27-gdict-b2-prototype/result.md)): formato `&<G>` REAL
+  com **RT lossless**; share = B1 exato (−19.3% SNAP); sobrevive gzip; guard rejeita bucket-cross ao
+  escalar; ≥3-col escala. Achado separado: dict-sem-cap >> OBAT/HCC high-card (−30%, ticket próprio).
+- **Próximo**: gate N≥5 (faltam ≥2 same-domain, T-DATA-1) → **B3** weld opt-in (ADR, sob aprovação)
+  → **B4** integrar com lazy (cache keyed-por-grupo).
 
 ### 5. tcfx index / lazy avançado (futuro, "com calma")
 Ideia do owner: um índice **`.tcfx`** (sidecar ou in-blob) pra pushdown/consulta sem

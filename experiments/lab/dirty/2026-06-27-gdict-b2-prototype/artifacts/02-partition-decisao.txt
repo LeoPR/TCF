@@ -1,0 +1,10 @@
+# PARTICIONAMENTO — greedy custo-modelado (decide por BYTES REAIS)
+pool(G) sse b2_body < v0_body   (v0 = per-col real: @dict OU OBAT/HCC; b2 = uniao+streams)
+
+grupo candidato: ['conta_de', 'conta_para']
+  K por coluna : {'conta_de': 6, 'conta_para': 6}
+  K_uniao      : 6 (width 1)   Jaccard=1.0
+  v0_body (soma per-col real)         = 75 B
+  b2_body (uniao 1x + streams + fram) = 43 B
+  net_grupo = -42.7%   -> POOL=True
+

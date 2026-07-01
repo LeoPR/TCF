@@ -11,7 +11,8 @@ pro #TCF.8*. Fonte da família: [tcf8-estrutura-plano.md](tcf8-estrutura-plano.m
 | **congelar single-col body @1.0** | ✅ FEITO (ADR-0030, 2026-06-25) | linchpin do órfão default; política decidida (efeito no 1.0; pré-1.0 ainda refinável) |
 | **EI global** (escape-invertido por header) | 🔻 ENCOSTADA (alcance estreito) | [lab 06-27](../2026-06-27-EI-alcance/result.md): textual real só em random-digit incompressível (CPF 21%); **brotli-neg** (CPF −19.4%); filtro cego nem round-trip faz → exige **encoder-staging**. Deferido p/ Estágio 1 se surgir uso textual/lazy-puro |
 | **T-CI-3** (gate Cython byte-canônico) | open P2 | barato/aditivo; **BLOQUEANTE** antes de mexer em `_detect_compositions` |
-| **H-GDICT-01 / cross-dict B2** | ✅ B2 DESIGN feito ([design-b2](../2026-06-21-gdict-caracterizacao/design-b2.md)) → prototype read-only | ⭐ melhor candidato MEDIDO (−19.3% SNAP); group-dict opt-in #TCF.8 sobre V2-B; particionamento greedy custo-modelado (a dobradiça); brotli fora do gate |
+| **H-GDICT-01 / cross-dict B2** | ✅ DESIGN+REVISÃO+**PROTOTYPE** | [design-b2](../2026-06-21-gdict-caracterizacao/design-b2.md) + [prototype](../2026-06-27-gdict-b2-prototype/result.md): formato `&<G>` REAL com **RT lossless**; share valida B1 exato (−19.3% SNAP, −4.6/−6.6% OF); **sobrevive gzip** (−21% SNAP, ≠EI); guard rejeita bucket-cross ao escalar. Falta N≥5 (T-DATA-1) → B3 weld |
+| **H-DICT-HIGHCARD** (achado do prototype B2) | 🔬 aberta, medida 3-reais | dict per-col SEM cap (`_V2B_MAX_CARD=1024`) vence OBAT/HCC em **−29..−36%** pra categórico high-card ALTA-repetição (N/K≈5.5; nós grafo/aeroportos); sobrevive gzip. ORTOGONAL ao cross-dict. Rever gating do V2-B por **N/K**, não só K. Ticket próprio; gate N≥5 antes de weld |
 
 ## (B) ESTUDAR/MEDIR antes (gate read-only antes de codar)
 | estudo | status | nota |

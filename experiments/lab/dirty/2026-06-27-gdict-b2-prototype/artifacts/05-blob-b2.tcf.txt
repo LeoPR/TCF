@@ -1,0 +1,8 @@
+# BLOB B2 (group-dict: meta &G + PRELUDIO + streams) — repr byte-a-byte
+
+#TCF.8M&0:10=conta_de,&0:10=conta_para
+1
+18
+ACC\0*\1
+*5+1|1\2
+!"#!$"%#!&"#!%"&!$#%
