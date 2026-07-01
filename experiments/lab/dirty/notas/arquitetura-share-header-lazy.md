@@ -6,6 +6,13 @@ num mapa de design. Ancorado na [bibliografia](../../../docs/reference/bibliogra
 Dremel) e no que já existe no repo. Objetivo do owner: **balanço, não descarte** — comandos pra
 escolher, casos que ajudam compressão e prejudicam lazy podem valer se a troca for reanalisável.
 
+> **ATUALIZAÇÃO 2026-07-01 (teste-teto)**: o compartilhamento cross-coluna (E1 b/c) está
+> **FECHADO** pra compressão ([ceiling-result](../2026-07-01-crossdict-emprestimo-indices/ceiling-result.md)):
+> mesmo o TETO (concat, sem custo de fronteira) perde 4/5 pro per-col-min, porque este é **adaptativo**
+> (from→tcf, to→dict) e o share força 1 modo. A direção é **fortalecer o `min()` per-coluna**
+> (descapar o V2-B), não compartilhar. O header-índice (E3) e o modelo assíncrono (E2) seguem válidos
+> como direções de **lazy/estrutura** (não de bytes-via-share).
+
 ## Princípio governante: compressão ↔ lazy é um TRADE (Abadi 2006)
 Compartilhar (cross-dict, cross-column refs) **melhora compressão** mas **piora a seletividade lazy**
 (pra decodar 1 coluna você precisa ler o que ela compartilha). Independência (per-coluna) é o inverso.
