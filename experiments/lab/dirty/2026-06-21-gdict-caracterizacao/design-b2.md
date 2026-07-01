@@ -1,103 +1,136 @@
 # B2 — design do cross-dict híbrido V2 (group-dict), opt-in #TCF.8 [design]
 
-**Data**: 2026-06-27. **Tipo**: design (zero-código; `src/tcf` intocado — o weld é B3, sob
-aprovação). Ancora no [result.md](result.md) (B1, fechado-positivo). Família:
-[tcf8-estrutura-plano.md](../notas/tcf8-estrutura-plano.md) §4. Refs: V2-B
-[ADR-0025](../../../../docs/adr/0025-v2b-dictionary-categorical-weld.md), espaço de ref
-[dict-referencia-hipoteses.md](../notas/dict-referencia-hipoteses.md).
+**Data**: 2026-06-27 (**revisado pós-revisão adversarial** — changelog:
+[design-b2-revisao.md](design-b2-revisao.md), 24 achados, 0 blocker). **Tipo**: design (zero-código;
+`src/tcf` intocado — o weld é B3, sob aprovação). Ancora no [result.md](result.md) (B1,
+fechado-positivo). Família: [tcf8-estrutura-plano.md](../notas/tcf8-estrutura-plano.md) §4.
 
-## O que o B1 fixou (premissas do design)
-- **Onde paga** (único regime): **same-domain-reference columns** — 2+ colunas referenciando o
-  mesmo domínio (FK repetida, origem/destino, grafo source/target). Real: SNAP grafo **−19.3%**,
+**Escopo (re-segmentação 2026-06-27)**: B2 é o **W1 puro — same-domain-refs**. O caso s/n /
+flag-survey **saiu** do cross-dict (medido fraco, ≤4.6% txt, brotli-neg) → virou **W2 (binarização)**.
+Ver [resegmentacao-workstreams](../notas/resegmentacao-workstreams-2026-06-27.md).
+
+**Respaldo de literatura** ([bibliografia](../../../docs/reference/bibliografia.md)): o V2-B = o
+`RLE_DICTIONARY` do **Parquet** (dict por column-chunk); B2 generaliza pra cross-column. O lazy =
+**late materialization** (Abadi 2007). O caveat brotli tem piso teórico em **Raman & Swart 2006**
+(entropia + query-sobre-comprimido).
+
+## O que o B1 fixou (premissas)
+- **Onde paga** (único regime): **same-domain-reference columns** — 2+ colunas do mesmo domínio (FK
+  repetida, origem/destino, grafo source/target, email1/2, telefone1/2). Real: SNAP grafo **−19.3%**,
   OpenFlights −4.6/−6.6% textual + lazy cross-col (dict lido 1×).
 - **A dobradiça** (decide pool sim/não):
   ```
   net(grupo) = (Σ_c tab_per_col_c − tab_grupo)          [dedup: tabelas duplicadas colapsam]
              − Σ_c N_c · (w(K_grupo) − w(K_c))            [custo: índice mais largo, por linha]
+             − custo_de_header (marca &G + framing do prelúdio)   [ver (1)]
   ```
-  Ganha **sse** o pooling **não cruza limite de largura base-94** (94/8836/…) E há overlap real.
-  Same-domain (Jaccard≈1) → K_grupo ≈ K_c → custo ≈ 0 → ganho = dedup puro.
-- **Híbrido**: pool só grupos net-positivos; colunas disjuntas/parciais ficam **per-column**
-  (V2-B atual) → captura o ganho sem a perda de E2/(c)/(d).
-- **Brotli FORA do gate** (correção owner 2026-06-21): incompatível com lazy; sinal qualitativo só.
+  O guard É o **termo de custo** (não o Jaccard): mesmo same-domain, se a UNIÃO cruza um limite de
+  largura base-94 (94/8836/…) o custo dispara e o greedy **rejeita** o pool. Same-domain típico
+  (Jaccard≈1, união no mesmo bucket) → custo de largura ≈ 0 → ganho = dedup.
+- **Híbrido**: pool só grupos net-positivos; disjuntas/parciais ficam **per-column** (V2-B) → captura
+  o ganho sem a perda de E2/(c)/(d).
 
 ## Princípio: B2 estende o `@dict` do V2-B (não reinventa)
-V2-B já tem tabela-de-únicos + stream base-94 **por coluna**. B2 acrescenta UM nível: a tabela
-pode ser **de grupo** (compartilhada por colunas same-domain), **hoistada pro header**. Não
-exige H-REF-01/02 (unificar `^N`/`@`) — esses são refactor mais fundo, futuro. B2 é o group-dict
-pragmático sobre o V2-B.
+V2-B tem tabela-de-únicos + stream base-94 **por coluna** (= Parquet RLE_DICTIONARY). B2 acrescenta
+UM nível: a tabela pode ser **de grupo** (compartilhada por colunas same-domain), **hoistada pro
+prelúdio do corpo**. Não exige H-REF-01/02 (refactor mais fundo, futuro).
+**Correção (revisão A2)**: a coluna grupada **NÃO é "V2-B inalterado"** — vira um **slot novo,
+stream-only** (a tabela não está no body dela; está no prelúdio compartilhado). É um modo de coluna
+distinto (ver §2).
 
 ## (1) Particionamento — greedy custo-modelado (o coração)
-Pré-pass cross-coluna no encode multi-col (o encoder já tem todas as colunas). **A regra de pool
-É a fórmula da dobradiça aplicada gulosamente** — não um threshold solto de Jaccard:
+Pré-pass cross-coluna no encode multi-col (o encoder já tem todas as colunas). **A regra de pool É a
+dobradiça aplicada gulosamente** — não um threshold solto de Jaccard:
 
 ```
 candidatas = colunas dict-elegíveis (as que o V2-B já escolheria: cardinalidade ≤ limite)
-1. agrupar candidatas por SIMILARIDADE de domínio (Jaccard alto entre value-sets)
+1. agrupar candidatas por SIMILARIDADE de domínio (Jaccard alto) — pré-corte só p/ acelerar
 2. para cada grupo-candidato G:
-     dedup   = Σ_c bytes(tab_c) − bytes(tab_G)            # tab_G = união dos únicos
-     custo   = Σ_c N_c · (w(K_G) − w(K_c))                # largura base-94 por linha
-     pool(G) sse  dedup > custo                            # net-positivo (dobradiça)
+     tab_G   = _encode_column(união dos únicos)          # ENCODA a união de verdade (ver nota)
+     dedup   = Σ_c bytes(tab_c) − bytes(tab_G)
+     w_cost  = Σ_c N_c · (w(K_G) − w(K_c))                # largura base-94 por linha
+     h_cost  = Σ_{c∈G} |marca &G no meta|  +  |framing do prelúdio de G|   # custo de header
+     pool(G) sse  dedup > w_cost + h_cost                 # net-positivo (dobradiça COMPLETA)
 3. colunas fora de qualquer G net-positivo → per-column (V2-B atual, sem perda)
 ```
-- **Determinístico** (greedy estável por ordem de coluna) → `encode` reproduzível (RT).
-- A largura é **bound por grupo** (namespace 0-based do grupo), nunca global-flat → resolve o
-  estouro de largura do E2 (V1 naive). "Índices da coluna do 0" vira "índices do GRUPO do 0".
-- O **decoder NÃO recomputa** o particionamento: o header **declara** os grupos (resultado). O
-  greedy é só encoder-side.
+- **`bytes(tab_G)` é MEDIDO encodando a união** via `_encode_column`, **nunca estimado por Jaccard/
+  contagem** (revisão B-dedup): o dedup é não-linear sob HCC (range/composição colapsam a união).
+- **Custo de header no modelo** (revisão B-header): a marca `&G` por coluna + o framing do prelúdio
+  entram no custo. Desprezível no regime same-domain (SNAP: ~32B vs 152K), mas evita poolar grupos
+  marginais (relevante fora do alvo).
+- **Largura NÃO é garantida pelo namespace** (revisão B-width): o namespace-por-grupo (0-based) evita
+  o estouro **GLOBAL-flat** do E2 (todas as colunas num namespace inchado), mas **não** garante custo
+  0 — um grupo cuja união cruza o bucket é barrado pelo **termo de custo**, não pelo namespacing.
+  → **Teste B3**: grupo same-domain cuja união cruza 94 → confirmar que **não** pool (degrada sem perda).
+- **Ordem da união = invariante** (revisão A-union-order): first-appearance varrendo as colunas do
+  grupo na ordem do meta. Determina tab-bytes E índices → **pinar** num teste byte-idêntico antes do weld.
+- O **decoder NÃO recomputa** o particionamento: o prelúdio **declara** os grupos. Greedy é encoder-side.
 
-## (2) Formato #TCF.8 opt-in — group-dict no header
-Multi-col `#TCF.8M`. Acrescenta uma seção de **group-dicts** (prelúdio serial: decodar 1×, depois
-colunas paralelizam). Esboço (marcador exato = detalhe de B3; proponho `&`):
+## (2) Formato #TCF.8 opt-in — group-dict no PRELÚDIO DO CORPO (revisão A1)
+**Correção estrutural**: `#TCF.8M` **não tem header multi-linha** (o corpo começa logo após a 1ª
+`\n`), e `tab_grupo` contém `\n`/`=`/`,`. Logo os group-dicts **NÃO** são "linhas de header" — são um
+**prelúdio length-prefixed no início do CORPO**, com fronteira por byte-count (igual ao slot V2-B):
 
 ```
-#TCF.8M<meta-inline>            meta das colunas (como hoje)
-&0=<tab_grupo_0>                group-dict 0 (união dos únicos; mesma codificação de tab do V2-B)
-&1=<tab_grupo_1>                group-dict 1
-<corpo>:
-  coluna em grupo G  → marcador @&G + stream base-94 (índices no namespace DO GRUPO G)
-  coluna dict avulsa → @<tab própria> + stream  (V2-B atual, inalterado)
-  coluna não-dict    → como hoje
+#TCF.8M<meta-inline>\n                     meta das colunas; coluna grupada usa MODO &<G> (ver abaixo)
+<n_grupos>\n                               ┐ PRELÚDIO (só existe se há coluna grupada no meta)
+<ntab_0>\n<tab_bytes_0>                     │  cada grupo = length-prefixed (ntab + tab)
+<ntab_1>\n<tab_bytes_1>                     ┘  cursor avança além do prelúdio
+<body col 0><body col 1>...                colunas (fatiadas por `size` do meta, como hoje)
 ```
-- `tab_grupo` usa a MESMA serialização de tabela do V2-B (reuso, não formato novo).
-- O custo de header do group-dict é **a tabela 1× + a declaração de pertença** — medido barato no
-  B1 (E3: 55 B p/ 15 valores; o custo real era largura, não tabela).
-- **Membership**: cada coluna grupada referencia `&G` no seu marcador → o header não precisa de
-  lista separada de pertença (vai no próprio marcador da coluna).
+- **Modo de coluna `&<G>`** (novo prefixo, junto de `@ ~ %`): declara "coluna grupada, grupo G,
+  **body = stream-only**" (índices base-94 no namespace do grupo G; width derivada do K_G carregado no
+  prelúdio). O prefixo `&<G>` é parseado **antes** do `int(size)` → **não colide** com o slot de size
+  (revisão meta-slot-int). `&` entra no conjunto reservado de marcadores (revisão A-amp).
+- **Gramática do token grupado** (com nature): ordem fixa `&<G>[:spec]<size>=<name>` — o interleave
+  exato de `:spec` fica pra bikeshed no B3 (revisão gd-spec-coocorrencia).
+- Coluna dict avulsa (`@`) e não-dict seguem **inalteradas** (V2-B).
+- Presença de qualquer coluna `&<G>` no meta ⟹ decoder lê o prelúdio antes das colunas.
 
-## (3) Decode + lazy (a porta estrutural)
-- **Decode**: lê os `&G=tab` do header (prelúdio serial, 1×) → cada coluna grupada indexa no
-  `tab_G`. Após o prelúdio, colunas **paralelizam** (sem auto-referência inline cross-coluna).
-- **Lazy** (B4, `view.py`): consulta numa coluna same-domain lê o stream dela + o `tab_G` **1×
-  (compartilhado)**. Cross-col ("tudo que toca o nó X" = scan dos streams do grupo) lê o dict
-  **1× em vez de C×** — o ganho estrutural medido no B1 (decodes 2→1, −19.3% no grafo).
+## (3) Decode + lazy (a porta estrutural) — honestizado (revisão C)
+- **Decode**: lê o prelúdio de group-dicts **1× (serial)** → cada coluna `&<G>` indexa no `tab_G`.
+  Após o prelúdio, as colunas são **decodáveis independentemente** (sem auto-referência inline
+  cross-coluna). **Não é "paralelizam"** — não há substrato de decode paralelo hoje; é *independência*
+  que HABILITA paralelismo futuro (W3, hquery01, plano 0.9).
+- **Lazy** (B4, `view.py`): exige um `self._group_dict` keyed por **grupo** (não por coluna),
+  populado 1× num **estágio de prelúdio-parse** novo em `view.py` (revisão C-parse/C-touched). Só
+  assim o "decodes C→1" do B1 se materializa. Consulta same-domain lê o stream + o `tab_G` 1×;
+  cross-col ("tudo que toca X") lê o dict **1× em vez de C×** (−19.3% no grafo, late materialization).
+- **Single-col numa coluna grupada** (revisão C-single-col): materializa a tabela do **grupo** (a
+  união), não a da própria coluna → downside ∝ (1−Jaccard)·|união| (**0B** no SNAP Jaccard=1; **+64-88B**
+  no OpenFlights). Contar `bytes(tab_G)` 1× no accounting de laziness (amortizado sobre o grupo).
 
-## (4) Byte-neutralidade & gate
-- **Default-off byte-idêntico**: sem grupo net-positivo (ou flag opt-in off) → saída idêntica à
-  de hoje. **D1-D9=1523B / D17a=303B intactos** (single-col nunca grupa; multi-col sem same-domain
-  degrada pra V2-B). Invariante #TCF.8.
-- **Gate B3** (antes de weldar): textual + lazy em **≥2 reais** (SNAP −19.3% ✓; OpenFlights
-  −4.6/−6.6% — passa pela porta estrutural lazy, byte sub-15% mas o owner aceitou same-domain como
-  regime); `test_real_world_snapshots` verde; re-pin; **L0 Strata**; **brotli fora do gate**.
+## (4) Byte-neutralidade & gate — (revisão D)
+- **Default-off byte-idêntico**: `force_v8`/`used_v2` ganha `or bool(group_dicts)` **só quando há
+  grupo net-positivo**; sem grupo, o codepath é **byte-idêntico** ao de hoje (mesmo gate condicional
+  de `nature_ids`/`drop_names`). **D1-D9=1523B / D17a=303B intactos** (single-col nunca grupa;
+  multi-col sem same-domain degrada pra V2-B). Pinar que D17a sai do caminho sem-grupo.
+- **Gate B3 — N≥5** (owner confirmou; alinha ao checklist anti-incidente): ≥5 fontes reais com forma
+  same-domain-ref (rotas de voo, edge-lists de grafo, transações de/para, FK repetida, email1/2,
+  telefone1/2). SNAP −19.3% + OpenFlights ×2 = 3; **faltam ≥2** (liga a T-DATA-1).
+- **Overfit declarado** (revisão D-overfit): a feature ativa em **ZERO** dataset canônico do projeto
+  (overlap intra-blob ~0); o único ≥15% é **um grafo**; o ganho é frágil em N grande (OpenFlights
+  cai pra 4-7% — dict como fração menor do blob).
+- **Brotli = CONTROLE padronizado** (owner): sempre reportar como **referência**, **nunca** gate
+  pass/fail (incompatível com lazy). **Mas** medir same-domain K-grande sob brotli como **sinal**
+  antes do weld (revisão D-brotli; não silenciar). `test_real_world_snapshots` verde; re-pin; **L0 Strata**.
 
 ## (5) Relação com H-REF (escopo)
 B2 fica sobre o V2-B (tabela+stream). **H-REF-02** (atom-IDs globais contínuos) seria a unificação
-mais profunda (o `^N` do HCC e o `@` do V2-B viram um só, índices globais) — daí o GDICT sairia "de
-graça", mas é refactor de core (futuro). **B2 não depende disso**: group-dict é a versão pragmática
-e mensurável agora. H-REF-03 (escape-free) é ortogonal (ataca o `^N` inline, não o `@`).
+mais profunda (o `^N` do HCC e o `@` do V2-B viram um só) — daí o GDICT sairia "de graça", mas é
+refactor de core (futuro). **B2 não cria dívida que H-REF-02 teria que desfazer** (verificado na
+revisão): group-dict é a versão pragmática e mensurável agora.
 
 ## Questões abertas pra B3 (bikeshed no weld)
-1. **Marcador**: `&` p/ group-dict? Conflita com algum literal? (checar escape no corpo.)
-2. **Threshold de similaridade** do passo 1 (antes do filtro de custo): Jaccard ≥ ? (B1: same-domain
-   é ≈1; partial-share (c) perde — o filtro de custo já barra, mas um pré-corte acelera.)
-3. **Interação com min_header / fallback `~` / split `%` / dict `@`**: ordem dos marcadores no
-   corpo; precedência. (B2 é cross-coluna, aplica ANTES do per-column V2-B.)
-4. **Custo exato de header** do `&G=tab` na contagem (entra no modelo de custo do passo 2?).
-5. **≥3 colunas same-domain**: o ganho escala com nº de colunas no grupo (B1 só testou pares) —
-   validar num prototype read-only antes do weld.
+1. Interleave exato de `:spec` no token `&<G>` grupado (§2).
+2. Pré-corte de similaridade do passo 1 (Jaccard ≥ ?) — só acelera; o filtro de custo é o guard real.
+3. Ordem/precedência dos modos no corpo (`& @ ~ %` + min_header) — B2 aplica ANTES do per-column V2-B.
+4. Escala **≥3 colunas** same-domain (B1 só testou pares) — validar no prototype.
 
 ## Próximo passo recomendado
-**Prototype read-only** (fora de `src/tcf`, pós-transform sobre o `encode` multi-col): implementar
-o particionamento custo-modelado + a forma `&G` como transform de texto, **rodar em SNAP +
-OpenFlights** (Z:) e confirmar (a) RT lossless, (b) −19.3%/−5% reproduzidos, (c) ≥3-col escala.
-Se confirmar → B3 (weld opt-in em `src/tcf`, ADR, sob aprovação).
+**Prototype read-only** (fora de `src/tcf`, pós-transform sobre o `encode` multi-col): implementar o
+particionamento custo-modelado (com `bytes(tab_G)` medido + custo de header) + a forma `&<G>`
+(prelúdio length-prefixed + modo stream-only) como transform de texto. **Rodar em SNAP + OpenFlights
++ ≥2 novos same-domain** (rumo a N≥5) e confirmar (a) RT lossless (ordem-de-união pinada), (b) ganho
+reproduzido, (c) ≥3-col escala, (d) o caso "união cruza bucket → não pool". Se confirmar → B3 (weld
+opt-in em `src/tcf`, ADR, sob aprovação).
