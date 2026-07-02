@@ -28,6 +28,10 @@ Lista de strings (uma coluna de dados tabulares)
 | **HCC** — Hierarchical Compositional Coding | 2 (compactação) | `M8.A` | [HCC.md](HCC.md) |
 | **TCF** — Tabular Compact Format | formato | (projeto) | [TCF-format.md](TCF-format.md) |
 
+> **Bilíngue (2026-07-01)**: cada um destes 3 docs é um par EN/PT. O `X.md` é um **roteador**
+> (seletor de idioma) → `X.en.md` (inglês, canônico) · `X.pt-BR.md` (português). Os links a `X.md`
+> continuam válidos (caem no roteador). Método: [documentação multilíngue](../../README.md) (fonte canônica).
+
 **Reference transversal** (não é um algoritmo, mas mapeia as estruturas que
 fluem entre as camadas):
 
