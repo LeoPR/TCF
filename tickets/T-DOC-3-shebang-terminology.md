@@ -1,6 +1,6 @@
 ---
 title: T-DOC-3 — Terminologia: "shebang" → assinatura de formato / magic number
-status: closed-canonical-set
+status: open-errata-reminder
 priority: P3
 created: 2026-07-01
 updated: 2026-07-01
@@ -42,4 +42,15 @@ históricos. Sem pressa — o termo canônico já está estabelecido no vocabul�
 ## Critério de aceite
 
 - ✅ termo canônico definido em vocabulary.md + apontado do ADR-0001 e da spec. **FEITO.**
-- backlog: prosa viva restante varrida incrementalmente (opcional).
+- ✅ prosa VIVA sincronizada: README, getting-started, vocabulary, ADR-0001, TCF-format (EN+PT).
+- backlog: só resta o histórico → ver ERRATA abaixo.
+
+## ERRATA (decisão do owner, 2026-07-01) — NÃO corrigir o histórico
+
+O termo correto é **assinatura de formato / magic number** (`#TCF.N`), NÃO "shebang" (que é `#!`).
+Toda a **prosa viva** já usa o termo canônico. As menções "shebang" que **restam** estão SÓ em docs
+**históricos** (diários, checkpoints, labs fechados, ADRs imutáveis, tickets fechados) → pelo **§3
+Strata (traço preservado)** ficam **como estão** — são **errata conhecida**, não se reescreve o que
+foi dito então. **Decisão do owner: NÃO sair corrigindo agora.** Este ticket fica **aberto só como
+LEMBRETE** da errata (não é backlog acionável). Se um dia um doc histórico for reativado/reescrito por
+outro motivo, aproveitar pra trocar o termo — nunca uma varredura dedicada só pra isso.
