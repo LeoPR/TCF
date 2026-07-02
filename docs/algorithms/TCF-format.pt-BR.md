@@ -42,12 +42,12 @@ Formato projetado para:
 > "estável desde v1.0" abaixo são do modelo antigo (ADR-0017) — ler nessa chave.
 > Termos: [`../vocabulary.md`](../vocabulary.md) §Versionamento.
 
-TCF distingue **versão de FORMATO** (shebang `#TCF.N`, eixo A) de **versão de PACOTE**
+TCF distingue **versão de FORMATO** (assinatura `#TCF.N`, eixo A) de **versão de PACOTE**
 (semver `0.N.x`, eixo C) — não confundir os dois (ADR-0028).
 
-### Format version (shebang)
+### Format version (assinatura)
 
-| Shebang | Status | Introduzido | Compativel com |
+| Assinatura | Status | Introduzido | Compativel com |
 |---|---|---|---|
 | `#TCF.8` | **opt-in** (self-describing natures) | 2026-06 | encode SSE ha nature; decode le |
 | `#TCF.7` | **0.7 (default)** | 2026-06 | encode default (multi-col); decode le |
@@ -64,7 +64,7 @@ antes do nome; multi tem `M` colado):
 
 | apos `#TCF.8` | tipo | header |
 |---|---|---|
-| `M` | multi | `#TCF.8M<NN[=nome][:spec]>,<...>` (meta INLINE na linha do shebang) |
+| `M` | multi | `#TCF.8M<NN[=nome][:spec]>,<...>` (meta INLINE na linha da assinatura) |
 | ` ` (espaco) | single + spec | `#TCF.8 [nome]:spec` (nome opcional, so' rotulo) |
 | `\n` | single version-stamp | `#TCF.8` (carimbo opt-in; magic-number p/ `file`/libmagic) |
 
@@ -79,9 +79,9 @@ Exemplos (body na(s) linha(s) seguinte(s)):
   precedencia header-vence. Multi: validador proibe `:` em nome de coluna quando ha nature.
 - **byte-neutro** ([ADR-0029](../adr/0029-version-format-identification-semi-implicit.md)
   camada 1): `#TCF.8` so' aparece no opt-in (`nature=`/`nature_per_col=`/`stamp=True`).
-  Single-col plano = body puro **orfao** (sem shebang, D1-D9=1523B intacto); multi sem
+  Single-col plano = body puro **orfao** (sem assinatura, D1-D9=1523B intacto); multi sem
   nature = `#TCF.7 M`. O version-stamp (`#TCF.8\n`) e' opt-in (`encode(list, stamp=True)`).
-- multi `#TCF.8M` larga o espaco antes do `M` e poe o meta na linha do shebang (~2B a menos
+- multi `#TCF.8M` larga o espaco antes do `M` e poe o meta na linha da assinatura (~2B a menos
   que `#TCF.7 M`+linha separada).
 - **colunas anonimas** (`encode(dict, drop_names=True)`): omite o `=nome` no meta; decode
   reconstroi pela ORDEM (`{'0':..,'1':..}`, igual SQL/CSV-sem-header). Economiza o nome de
@@ -93,7 +93,7 @@ TCF v1 muda entre versoes tcf 1.x.y. Markers novos requerem `#TCF.7`.
 
 **`#TCF.7` (v2, ADITIVO e opt-in)** — duas capacidades ortogonais, ambas multi-col,
 ambas emitindo `#TCF.7 M` so' quando ativadas (senao `#TCF.6` byte-identico).
-**Todo `#TCF.7` dispensa o prefixo `# ` do meta** (o flag `M` no shebang ja'
+**Todo `#TCF.7` dispensa o prefixo `# ` do meta** (o flag `M` na assinatura ja'
 declara as colunas, ADR-0023) — `#TCF.6` mantem o `# ` (congelado). Decoder
 self-describing. Default preserva 100% dos invariantes v1:
 - **V2-A fallback identity** ([ADR-0022](../adr/0022-v2a-fallback-identity-weld.md),
@@ -230,7 +230,7 @@ Detalhes: ver [ADR-0017](../adr/0017-format-spec-v1-frozen.md).
 │   └──────────────────────────────────────────────┘               │ │
 │   #TCF.6 legado: `# <s1>=<n1>,...` (com `# `, sem markers).        │ │
 │                                                                  │ │
-│   single-col: body puro, sem shebang                             │ │
+│   single-col: body puro, sem assinatura                             │ │
 └─────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -244,7 +244,7 @@ decode(text) → list[str] | dict[str, list[str]]
          └─ caso contrário                        ──► _decode_column → list
 ```
 
-Self-describing: o shebang (`#TCF.7 M` default, `#TCF.6 M` legado) identifica
+Self-describing: a assinatura (`#TCF.7 M` default, `#TCF.6 M` legado) identifica
 o formato. O decoder dispatcha automaticamente em ambos; o caller não precisa
 saber se a saída é single ou multi.
 
@@ -295,7 +295,7 @@ header `#TCF.7 M` (default 0.7) + meta line.
 coluna raw vira `!<size>=<name>`. **Ligado por default** no 0.7.
 
 **Header v2 mínimo (ADR-0023, `min_header`)**: todo `#TCF.7` dispensa o prefixo `# `
-do meta (o `M` do shebang já declara colunas); `min_header` ainda omite o size da
+do meta (o `M` da assinatura já declara colunas); `min_header` ainda omite o size da
 última coluna (corpo até EOF): meta `<s1>=<n1>,...,<nN>`. **Ligado por default** no 0.7.
 Foco: payload pequeno (header fixo domina). Para emitir `#TCF.6` byte-idêntico (legado),
 opt-out explícito (`fallback=False, min_header=False`).
