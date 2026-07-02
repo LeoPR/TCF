@@ -1,9 +1,9 @@
 ---
 title: T-CODE-DESCAPAR-V2B — Descapar o V2-B (dict como candidato do min() p/ high-card)
-status: open
+status: welded-form-A-cap-raise (B/C deferidos)
 priority: P2
 created: 2026-07-01
-updated: 2026-07-01
+updated: 2026-07-02
 related:
   - experiments/lab/dirty/2026-07-01-dict-highcard/
   - experiments/lab/dirty/2026-07-01-descapar-v2b/
@@ -58,3 +58,22 @@ Descapar (deixar o dict entrar no `min()` p/ high-card) vale o custo de compute?
 
 - **2026-07-01**: aberto. Prototype read-only feito (byte-safe, −5%, ~2× compute). Aguarda owner
   escolher forma (A/B/C) pro weld.
+- **2026-07-02 (WELD forma A, owner aprovou)**: `_V2B_MAX_CARD` **1024 → 8192** em
+  `src/tcf/multi/dict_v2b.py` (< 94²=8836 → índice largura ≤2; cobre os wins medidos municipio/cpf/
+  razão/nó-de-grafo). **Gate verde**: `test_regression_v1_baseline` + `test_real_world_snapshots`
+  (31 passed; D1-D9=1523B, D17a=303B, RW=89616B **inalterados** — são single-col/low-card) + suíte
+  completa **456 passed, 2 skipped, 1 xfailed** (config CI), **nenhum re-pin necessário**. Byte-safe
+  (o `min(tcf,raw,v2b,split)` nunca regride). Nota em ADR-0025. Ganho real (−5% br-empresas/receita)
+  nos hubs Z: (requires_data, medido no prototype).
+
+## B/C — DEFERIDOS (investigar depois com calma; owner 2026-07-02)
+
+Registrados aqui pra retomar:
+- **(B) descapar total + skip cadence-aware**: remover o cap e adicionar heurística de skip do
+  dict-encode (reusar `detect_cadence`/run-ratio do pré-pass) pra recuperar o ~2× de compute nas
+  colunas estruturadas (onde o dict perde). Ganho de bytes máximo; exige a heurística + medir que ela
+  não perde nenhum win.
+- **(C) descapar puro**: remover o `return None` (sem cap). Ganho máximo, ~2× compute nas tabelas
+  high-card. Simples mas caro. Provavelmente pior que (B).
+Pré-req pra decidir B vs C: medir o custo real de compute com/sem skip em tabelas high-card grandes
+(o prototype `2026-07-01-descapar-v2b/` já tem a base). Sem pressa.

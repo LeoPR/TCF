@@ -5,6 +5,13 @@
 **Deciders**: project owner
 **Tags**: v2.0, format, dictionary, categorical, multi-column, low-cardinality, #TCF.7
 
+> **Nota (2026-07-02, T-CODE-DESCAPAR-V2B forma A)**: o cap de gating **`K <= 1024`** (§Gating,
+> abaixo) foi **elevado a `K <= 8192`** em `src/tcf/multi/dict_v2b.py`. Motivo: caracterização
+> (`experiments/lab/dirty/2026-07-01-dict-highcard/`) mostrou o dict vencendo o OBAT/HCC em colunas
+> **high-card espalhadas** (municipio/cpf/razão/nó-de-grafo, K≈1.4–6k). É **cap de COMPUTE, não de
+> bytes** — o `min(tcf,raw,v2b,split)` sempre escolhe o menor (byte-safe; pins D1-D9/D17a/RW
+> inalterados). Descapar total (sem cap) fica no ticket (B/C) p/ investigar. Corpo imutável — só esta nota.
+
 ## Context and Problem Statement
 
 [ADR-0018](0018-v2-format-roadmap.md) registrou V2-B (encoder dicionario/

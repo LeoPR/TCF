@@ -15,7 +15,12 @@ from tcf.pipeline import PipelineConfig
 
 _V2B_ALPHA = "".join(chr(c) for c in range(0x21, 0x7F))
 _V2B_BASE = len(_V2B_ALPHA)
-_V2B_MAX_CARD = 1024  # gating: acima disso V2-B nao compensa (evita custo)
+_V2B_MAX_CARD = 8192  # cap de COMPUTE (nao de bytes): dict e' candidato do min() por coluna ate'
+                      # K=8192 (< 94^2=8836 -> indice largura<=2). Byte-safe: o min(tcf,raw,v2b,split)
+                      # nunca escolhe pior. Acima disso pula o sub-encode (colunas ~quase-unicas, dict
+                      # raramente ganha, evita ~2x compute). Elevado de 1024 em 2026-07-01
+                      # (T-CODE-DESCAPAR-V2B forma A; caracterizacao 2026-07-01-dict-highcard/descapar-v2b).
+                      # Descapar total (B/C) fica no ticket p/ investigar depois.
 
 
 def _v2b_width(k: int) -> int:
