@@ -69,8 +69,10 @@ localizada** — sem reorganização estrutural.
 
 - [x] **DB-1** `docs/theory/roadmap-hipoteses.md`: zero links de entrada → **nota de cabeçalho** apontando
       pro registry ativo (`experiments/lab/dirty/notas/roadmap-hipoteses.md`). Não deletado (traço).
-- [ ] **DB-2** (owner) Pacote 1 `[VERIFICAR: 2026-08-18]` **NÃO venceu** (hoje 2026-07-01). Segue
-      aguardando decisão do owner na data (manter / `CLOSED-INSUFFICIENT-RECURRENCE` / promover).
+- [x] **DB-2** **RESOLVIDO ANTECIPADAMENTE (2026-07-04)**: a memória estava stale — as 3 perguntas
+      do `[VERIFICAR: 2026-08-18]` já tinham resposta no repo (welding = ADR-0011 welded canonical;
+      real-world = 11.73% weighted testado; decorrentes = H-DA-09c/d/e fechadas + H-DA-10b→H-DA-11
+      welded ADR-0010). Memória atualizada com a resolução; corpo original preservado como traço.
 - [x] **DB-3** tombstones nos 2 `_archived_consolidated_*` (memória user-scope): `TOMBSTONE.md` em cada
       (o quê/quando/porquê/autoridade).
 - [x] **DB-4** `MAP.md` refresh: + `docs/reference/bibliografia.md`, `arquitetura-share-header-lazy.md`,
