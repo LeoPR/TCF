@@ -1,16 +1,49 @@
 ---
 title: T-CI-3 — Gate byte-canonical do caminho Cython COMPILADO (detect.pyx)
-status: in-progress
+status: closed-done
 priority: P2
 created: 2026-06-24
-updated: 2026-06-25
+updated: 2026-07-05
 related:
   - docs/adr/0020-cython-optional-accelerator.md
   - tests/test_pyx_byte_equivalence.py
   - src/tcf/_core/detect.pyx
   - src/tcf/composicional/syntax.py
+  - hatch_build.py
+  - pyproject.toml
+  - .github/workflows/ci.yml
   - experiments/lab/dirty/2026-06-25-tci3-pyx-gate/
+  - experiments/lab/dirty/notas/estrategia-distribuicao-cython.md
 ---
+
+## FECHADO (2026-07-05) — cadeia Cython completa (revisão 6-lentes, direção 3)
+
+O follow-up abaixo foi feito **e** o achado da revisão 6-lentes (fraqueza #2: "o acelerador
+NUNCA chega ao usuário") foi corrigido. Três elos:
+
+1. **[bug de distribuição] `setuptools` faltava em `build-system.requires`.** O hook roda
+   `from setuptools import setup` num subprocess do build env **isolado** (PEP 517); sem
+   setuptools ali, falhava → `except` best-effort engolia → wheel PyPI 0.7.1 saía
+   **pure-Python em silêncio**. **Provado** 2026-07-05: build isolado com o `requires` antigo
+   → `tcf_format-0.7.1-py3-none-any.whl` (84KB, hook logou `CalledProcessError`); com
+   `setuptools>=64` no requires → `cp313-win_amd64.whl` (124KB) com
+   `tcf/_core/detect.cp313-win_amd64.pyd` dentro; instalada → `accelerated=True`,
+   `impl=tcf._core.detect`.
+2. **[visibilidade] `TCF_REQUIRE_ACCEL=1`** (opt-in) em `hatch_build.py`: se o acelerador não
+   compilar, o build **falha alto** (RuntimeError) em vez de degradar silencioso. Default
+   inalterado (best-effort, ADR-0020). Provado: sem setuptools + `TCF_REQUIRE_ACCEL=1` →
+   `pip wheel` exit 1, sem wheel; branch unit-testado (unset/0/false → warning; 1/true/on/yes
+   → raise).
+3. **[CI, o follow-up] job `accel`** em `.github/workflows/ci.yml` (matrix 3.11/3.13,
+   ubuntu): compila a wheel com `TCF_REQUIRE_ACCEL=1`, instala non-editable, confirma
+   `accelerated=True` (falha em vez de skipar), roda `test_pyx_byte_equivalence` + regressão
+   + real-world com `accel=True`. Local 2026-07-05: **42 byte-equiv + D1-D9=1523B +
+   real-world=89616B** no caminho compilado. ADR-0020 ganhou NOTA: byte-equivalência passa de
+   convenção a **verificada por teste**.
+
+Critério de aceite (1/2/3 abaixo) — todos atendidos. Distribuição via cibuildwheel (wheels
+multi-plataforma no PyPI) fica pro release 0.8.0 (T-DIST-RELEASE-0.8.0 / direção 2); a
+`estrategia-distribuicao-cython.md` já tem o plano (uv frontend, free-threading 3.14t, abi3).
 
 ## Andamento (2026-06-25)
 
@@ -21,9 +54,9 @@ aleatorios. **Skip gracioso se accel=False** (so' roda onde a extensao compilou)
 neste ambiente (Cython 3.2.5 + MSVC): 42 checks passam com accel=True; 0-diff direto em
 31 datasets. Inspecao: `experiments/lab/dirty/2026-06-25-tci3-pyx-gate/`.
 
-**FALTA (follow-up)**: job de CI que COMPILE a extensao e rode este teste com accel=True
-(matrix). Sem isso, o gate so' roda onde alguem compilou local. Atualizar ADR-0020 que a
-byte-equivalencia passa a ser VERIFICADA por teste (nao so' convencao).
+**FALTA (follow-up) → FEITO 2026-07-05 (ver bloco no topo)**: job de CI que COMPILE a extensao
+e rode este teste com accel=True (matrix). Sem isso, o gate so' roda onde alguem compilou
+local. Atualizar ADR-0020 que a byte-equivalencia passa a ser VERIFICADA por teste.
 
 # T-CI-3 — Gate byte-canonical do caminho Cython compilado
 

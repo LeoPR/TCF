@@ -27,12 +27,25 @@ class CustomBuildHook(BuildHookInterface):
         # so' faz sentido no target wheel
         if self.target_name != "wheel":
             return
+        require = os.environ.get("TCF_REQUIRE_ACCEL", "").strip().lower() in (
+            "1", "true", "yes", "on",
+        )
         try:
             self._try_build(build_data)
-        except Exception as exc:  # noqa: BLE001 - best-effort: nunca falhar
+        except Exception as exc:  # noqa: BLE001 - best-effort: nunca falhar (salvo opt-in)
+            if require:
+                # Opt-in (CI da wheel / release): a falha do acelerador vira ERRO
+                # alto em vez de wheel pure-Python silenciosa. Evita "otimizacao
+                # fantasma" (T-CI-3 dimensao distribuicao; revisao 6-lentes #2).
+                raise RuntimeError(
+                    f"[tcf] TCF_REQUIRE_ACCEL setado mas o acelerador Cython nao "
+                    f"compilou ({type(exc).__name__}: {exc}). A wheel seria "
+                    f"pure-Python. Verifique Cython + compilador C no ambiente."
+                ) from exc
             self.app.display_warning(
                 f"[tcf] acelerador Cython pulado ({type(exc).__name__}: {exc}); "
-                f"wheel pure-Python (funciona, so' mais lento)."
+                f"wheel pure-Python (funciona, so' mais lento). "
+                f"Set TCF_REQUIRE_ACCEL=1 pra exigir a extensao."
             )
 
     def _try_build(self, build_data) -> None:

@@ -9,6 +9,26 @@
 > byte-idêntico, sem mudança de formato/API (compatível ADR-0017). Core
 > compilado é interno (espírito ADR-0018): só acelera, não compete com gzip.
 
+> **NOTA (2026-07-05, T-CI-3 — corpo do ADR imutável, isto é adendo §3-bis):**
+> dois elos da cadeia de distribuição estavam quebrados e foram corrigidos (NÃO
+> alteram a decisão, a completam):
+> 1. **`setuptools` faltava em `build-system.requires`** — o hook roda `from
+>    setuptools import setup` num subprocess do **build env isolado** (PEP 517),
+>    onde só entra o que está em `requires`. Sem setuptools, o subprocess falhava,
+>    o `except` best-effort engolia, e a wheel do PyPI (0.7.1) saía **pure-Python
+>    em silêncio** — provado 2026-07-05 (`dist/*-py3-none-any.whl` mesmo com MSVC
+>    OK). Corrigido: `requires` agora inclui `setuptools>=64` → wheel
+>    `cp3xx-*-*` com o `.pyd`.
+> 2. **Falha silenciosa sem sinal** — `hatch_build.py` passa a honrar
+>    `TCF_REQUIRE_ACCEL=1` (opt-in): se o acelerador não compilar, o build
+>    **falha alto** em vez de degradar. Default inalterado (best-effort, este ADR).
+> 3. **Byte-equivalência agora VERIFICADA por teste** (não só convenção): o job
+>    de CI `accel` (`.github/workflows/ci.yml`) compila a extensão
+>    (`TCF_REQUIRE_ACCEL=1`), confirma `accelerated=True` e roda
+>    `tests/test_pyx_byte_equivalence.py` + regressão com `accel=True`. Local
+>    2026-07-05: 42 checks byte-equivalentes + D1-D9=1523B + real-world=89616B
+>    (compiled). O "Gate" abaixo passa de *convenção* a *máquina*.
+
 ## Context
 
 Após o weld #15 (ADR-0019), re-profiling pós-weld (online-retail 20k×8col)

@@ -1,8 +1,15 @@
 [build-system]
-# cython: usado pelo build hook best-effort (hatch_build.py) pra compilar o
-# acelerador opcional src/tcf/_core/detect.pyx. Se compilador C ausente, o hook
-# NAO falha — gera wheel pure-Python (ADR-0020, H-PERF-06-v2 Fase B).
-requires = ["hatchling", "cython>=3.0"]
+# hatchling: backend. cython + setuptools: usados pelo build hook best-effort
+# (hatch_build.py) pra compilar o acelerador opcional src/tcf/_core/detect.pyx
+# num subprocess do BUILD ENV ISOLADO (PEP 517).
+# setuptools PRECISA estar aqui: o env isolado do build so' tem o que esta' em
+# `requires`. Sem ele, o `from setuptools import setup` do hook falha (o
+# [dependency-groups].dev NAO entra no env isolado — e' PEP 735, so' dev local),
+# o except best-effort engole o erro, e a wheel sai pure-Python EM SILENCIO
+# (bug provado 2026-07-05; T-CI-3 / revisao 6-lentes fraqueza #2).
+# Se compilador C ausente, o hook AINDA cai pra pure-Python (ADR-0020) — a menos
+# que TCF_REQUIRE_ACCEL=1, que faz o build FALHAR alto (ver hatch_build.py).
+requires = ["hatchling", "cython>=3.0", "setuptools>=64"]
 build-backend = "hatchling.build"
 
 [project]

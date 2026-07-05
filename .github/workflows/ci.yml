@@ -75,3 +75,55 @@ jobs:
         # - tests v0.5 broken movidos pra tests/_archive_v05/ (norecursedirs)
         # - tests/test_shaper.py marker requires_data (precisa SQLite Z:/tcf-data)
         # - tests/test_core_rt.py: 31 RT tests sem deps externos (CI-friendly)
+        # NOTA: este job roda accel=FALSE (editable install nao compila o .pyd).
+        # O caminho Cython COMPILADO (accel=True) e' coberto pelo job `accel` abaixo.
+
+  accel:
+    # T-CI-3: gate byte-canonical do caminho Cython COMPILADO (detect.pyx).
+    # O job `test` acima roda accel=False (pure-Python). Este COMPILA a extensao
+    # (ubuntu tem gcc) e roda o byte-equivalence gate + regressao com accel=True,
+    # fechando o buraco onde o espelho .pyx podia divergir sem ninguem ver
+    # (revisao 6-lentes fraqueza #2; ADR-0020 byte-equivalencia VERIFICADA por teste).
+    name: Cython accel byte-gate (py ${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    env:
+      PYTHONHASHSEED: '0'
+      # O build DEVE compilar a extensao. Se nao compilar, TCF_REQUIRE_ACCEL=1
+      # faz o build FALHAR alto em vez de cair silenciosamente pra pure-Python
+      # (hatch_build.py). Provado 2026-07-05: sem setuptools -> exit 1, com -> compila.
+      TCF_REQUIRE_ACCEL: '1'
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ['3.11', '3.13']
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: 'pip'
+
+      - name: Build wheel WITH Cython extension (isolated PEP 517)
+        # pip wheel usa build-system.requires (hatchling + cython + setuptools);
+        # TCF_REQUIRE_ACCEL=1 no env do job -> propaga pro build-hook -> falha se
+        # a extensao nao compilar (nao produz wheel pure-Python silenciosa).
+        run: pip wheel . --no-deps -w dist
+
+      - name: Install the COMPILED wheel (non-editable) + pytest
+        # non-editable: o .so vai pro site-packages e accel=True em runtime.
+        run: |
+          pip install dist/*.whl
+          pip install pytest
+
+      - name: Confirm accelerator active (falha em vez de skipar silencioso)
+        run: |
+          python -c "from tcf.composicional.syntax import M8AVirtualRefsSyntax as M; assert M._detect_compositions_accelerated, 'accel nao ativou'; print('accel=True via', M._detect_compositions.__module__)"
+
+      - name: Byte-equivalence gate (.pyx == pure-Python, ADR-0020)
+        # skipif(accel=False) NAO deve disparar aqui (accel garantido acima).
+        run: pytest tests/test_pyx_byte_equivalence.py -v --tb=short
+
+      - name: Regression gate WITH accel (D1-D9=1523B, real-world=89616B)
+        run: pytest tests/test_regression_v1_baseline.py tests/test_real_world_snapshots.py -v --tb=short
