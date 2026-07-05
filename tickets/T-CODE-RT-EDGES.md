@@ -1,9 +1,9 @@
 ---
 title: T-CODE-RT-EDGES — 2 violações de RT em bordas (seq-RLE trailing-space + \n embutido)
-status: open
+status: closed-fixed
 priority: P1
 created: 2026-07-04
-updated: 2026-07-04
+updated: 2026-07-05
 related:
   - src/tcf/composicional/hcc_seqrle.py
   - src/tcf/multi/core.py
@@ -58,3 +58,14 @@ decode(encode(['a\nb', 'c']))   # => ['a', 'b', 'c']  (sem erro; RT corrompido)
 ## Updates
 
 - **2026-07-04**: aberto (revisão crítica geral, lente núcleo/algoritmo; repros confirmadas).
+- **2026-07-05 (FIXED, owner aprovou)**: ambos corrigidos.
+  - **Bug 1** (decode-only): `HCCSeqRLE.decode` não strippa mais o `raw` — passa direto pro
+    `expand_seq_marker` (que já preserva `template = linha[bar+1:]`); markers começam com `*` na
+    pos 0, então não-markers/vazios/whitespace-only voltam `raw` intactos. `src/tcf/composicional/hcc_seqrle.py`.
+  - **Bug 2** (validação de fronteira): novo `_reject_linebreaks(data)` chamado no topo de `encode`
+    → `ValueError` em valor com `\n` **ou** `\r` (single e multi), antes de qualquer processamento.
+    `src/tcf/encoder.py` + docstring Raises atualizada.
+  - **Gate VERDE**: byte-canônico intacto (31 passed; **D1-D9=1523B, D17a=303B, RW=89616B
+    inalterados** — fix é decode-only + validação, encode não muda bytes); suíte **468 passed**
+    (era 456; +12 pins novos em `TestRTEdges`: 7 variantes whitespace+seq-RLE + rejeição \n/\r single/multi + dado-limpo-passa).
+  - Nota: `\r` rejeitado além de `\n` (`splitlines()` do decode quebra ambos → LF-only convention).

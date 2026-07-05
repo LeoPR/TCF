@@ -73,6 +73,29 @@ def _nature_apply_stats(spec, statuses: list[str]) -> dict:
     }
 
 
+def _reject_linebreaks(data) -> None:
+    """Contrato lossless (T-CODE-RT-EDGES bug 2): valor com `\\n`/`\\r` quebra o
+    modelo de linha do TCF (LF delimita 1 valor por linha; decode usa
+    splitlines/split('\\n')) e corromperia o round-trip EM SILENCIO. Rejeita na
+    fronteira publica (erro explicito) em vez de perder dado. A filosofia "dados
+    felizes" e' comprimir o que receber — nao corromper calado.
+    So' valida str (None/ints seguem pro dispatch/conversao)."""
+    if isinstance(data, list):
+        cols = (("", data),)
+    elif isinstance(data, dict):
+        cols = data.items()
+    else:
+        return  # tipo invalido -> TypeError levantado pelo dispatch adiante
+    for name, vals in cols:
+        for i, v in enumerate(vals):
+            if isinstance(v, str) and ("\n" in v or "\r" in v):
+                bad = "\\n" if "\n" in v else "\\r"
+                loc = f"coluna {name!r}, " if name else ""
+                raise ValueError(
+                    f"valor com quebra de linha ({bad}) nao e' representavel no TCF "
+                    f"(LF delimita linhas): {loc}indice {i}: {v!r}")
+
+
 def encode(
     data: list[str] | dict[str, list[str]],
     *,
@@ -143,12 +166,14 @@ def encode(
 
     Raises:
         TypeError: se data nao for list nem dict.
-        ValueError: (multi) table vazia, lengths divergentes,
-            ou nomes com `,` / `=`.
+        ValueError: valor com `\\n`/`\\r` embutido (quebra o modelo de linha do
+            TCF -> corromperia o RT; T-CODE-RT-EDGES). Tambem: (multi) table
+            vazia, lengths divergentes, ou nomes com `,` / `=`.
     """
     cfg = layers if layers is not None else DEFAULT_PIPELINE
     if min_len is not None and min_len < 1:
         raise ValueError(f"min_len deve ser >= 1 (ou None pra auto); got {min_len}")
+    _reject_linebreaks(data)  # T-CODE-RT-EDGES bug 2: \n/\r corromperia o RT em silencio
     if isinstance(data, list):
         nature_id = None
         if nature is not None:

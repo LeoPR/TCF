@@ -294,11 +294,14 @@ class HCCSeqRLE(M8AVirtualRefsSyntax):
     def decode(self, tcf_text):
         expanded_lines = []
         for raw in tcf_text.splitlines():
-            linha = raw.strip()
-            if not linha:
-                expanded_lines.append(raw)
-                continue
-            expanded = expand_seq_marker(linha)
+            # NAO strip: expand_seq_marker preserva o whitespace do template
+            # (`linha[bar+1:]`). O `raw.strip()` antigo comia o whitespace final do
+            # valor no template -> RT FAIL em trailing-space + seq-RLE
+            # (T-CODE-RT-EDGES bug 1; mesma classe do fix "NAO strip" de 2026-05-18 no
+            # decode do syntax.py, que o wrapper seq-RLE reintroduziu).
+            # Markers comecam com '*' na posicao 0 (compact_body nunca poe leading
+            # whitespace); linha vazia/whitespace-only/nao-marker -> expand=None -> raw.
+            expanded = expand_seq_marker(raw)
             if expanded is not None:
                 expanded_lines.extend(expanded)
             else:

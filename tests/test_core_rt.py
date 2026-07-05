@@ -293,3 +293,41 @@ class TestEdgeCases:
         assert not _is_numeric_string("")
         assert not _is_numeric_string("abc")
         assert not _is_numeric_string("12abc")
+
+
+class TestRTEdges:
+    """Regressao das 2 violacoes de RT achadas na revisao 2026-07-04 (T-CODE-RT-EDGES).
+
+    Bug 1: seq-RLE comia whitespace do template (raw.strip() no decode).
+    Bug 2: `\\n`/`\\r` embutido corrompia o RT em silencio (sem validacao na fronteira).
+    """
+
+    @pytest.mark.parametrize("values", [
+        ["a1 ", "a2 ", "a3 "],              # trailing space (repro original)
+        ["a1\t", "a2\t", "a3\t"],           # trailing tab
+        ["a1  ", "a2  ", "a3  "],           # trailing double space
+        [" a1", " a2", " a3"],              # leading space
+        ["x1 y", "x2 y", "x3 y"],           # whitespace interno
+        ["1 ", "2 ", "3 "],                 # digito + space (seq puro)
+        ["ip10.0.0.1 ", "ip10.0.0.2 ", "ip10.0.0.3 "],  # multi-run + trailing
+    ])
+    def test_seqrle_preserves_whitespace(self, values):
+        # bug 1: o whitespace ESTA no template do marker; o decode nao pode strippar
+        assert decode(encode(values)) == values
+
+    @pytest.mark.parametrize("values", [
+        ["a\nb", "c"],
+        ["a\rb"],
+        ["ok", "line\nbreak"],
+    ])
+    def test_reject_linebreak_single(self, values):
+        with pytest.raises(ValueError):
+            encode(values)
+
+    def test_reject_linebreak_multi(self):
+        with pytest.raises(ValueError):
+            encode({"col": ["a\nb", "c"]})
+
+    def test_clean_data_still_encodes(self):
+        # a validacao nao pode rejeitar dado limpo
+        assert decode(encode(["ok", "fine", "clean"])) == ["ok", "fine", "clean"]
