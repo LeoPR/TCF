@@ -568,7 +568,39 @@ prototipo clean (`experiments/lab/clean/EXP-XXX-*`) e' pra testar
 Atualizar quando: hipotese confirmada/refutada/movida-de-status, OU
 nova hipotese identificada.
 
-**Ultima atualizacao**: 2026-05-27 — **H-PERF-06 REFRAMED (lcp/lcs descartado, HCC detector novo alvo)**
+**Ultima atualizacao**: 2026-07-05 — **nested-TCF study + matriz de transmissao completada (H-NEST-01)** + T1 (H-TX-01)
+
+- **H-NEST-01** (JSON aninhado / "TCF aninhado similar ao JSON", owner 2026-07-05): o TCF e' tabular; o
+  nesting de DOCUMENTO (arvore obj/array) nao existe (o nesting M0 patricia-aninhado era de VALOR/afixo,
+  virou HCC). Lab [`2026-07-05-nested-tcf-study/`](../2026-07-05-nested-tcf-study/result.md).
+  - **Tese medida**: JSON aninhado = esqueleto escalar (config, pequeno) + arrays-de-objetos (o volume).
+    "TCF aninhado" = envelope JSON fino + 1 bloco TCF por array (design `envelope-with-tcf-blocks`, panel
+    8.0/10; = "shred+reassemble" do Dremel em nivel de documento). `confirmada-conceitual`.
+  - **Medido** (brotli-q11, RT 24/24): response cadenced 744pts nested-TCF **990B = 71.9% do JSON-colunar**
+    (-28%); request batch n=500 **283B = 27% do raw** (array cadenciado quase-constante em N); config
+    escalar <300B **perde** (169B > 140B raw); `flatten` ingenuo **explode** (path indexado). Herda o
+    veredito do T1 (robusta em cadenced/batch; ausente em small/high-card). NAO muda `src/tcf` — e' gadget
+    de envelope externo.
+  - **Matriz de transmissao COMPLETADA** → [`datasets/coverage-matrix.md`](../../../../datasets/coverage-matrix.md):
+    forma-tx refinada 4→7 (upload-small/upload-batch/download-bulk/download-cadenced/download-narrow-high-card/
+    lazy-query/nested-response), cada celula medida. **Q1=PARCIAL, Q2=PARCIAL 2/4**. Trace OBAT/HCC por
+    forma-tx em `trace_output.txt` ("experimento de sempre").
+
+- **H-TX-01** (gate de posicionamento de transmissao, pendente desde 2026-06-21): TCF+brotli vs
+  **NDJSON+brotli** (o concorrente textual real, nao so' CSV). Lab
+  [`2026-07-05-t1-ndjson-brotli/`](../2026-07-05-t1-ndjson-brotli/result.md), 6 datasets reais ×
+  4 scales, RT 24/24, brotli q11+q5+gzip.
+  - **vs NDJSON**: `confirmada-empirica` (Alta) — TCF vence 24/24, weighted 72-80% (-20-28%).
+  - **vs JSON-colunar** (steelman, chaves uma vez): `refutada-parcial` — perde em 10/24 (high-card/
+    poucas-colunas: pessoas, ibge, online-retail baixo); vence onde ha' estrutura (adult low-card
+    largo; cadencia). NAO e' vitoria universal sobre JSON.
+  - **Perfil duplo upload/download** (insight owner): download = volume; payload **cadenciado**
+    (forecast: -29% vs JSON-colunar em 744 pts via RLE+delta) e' o nicho do steelman. Literatura
+    atualizada em [`transmissao-api-onde-tcf-importa.md`](transmissao-api-onde-tcf-importa.md).
+  - Nota: `brotli` nunca pinado no repo; reinstalado `brotli==1.2.0` (Google), byte-paridade com
+    labs antigos confirmada. Recomendo extra `bench` no pyproject.
+
+**Atualizacao anterior**: 2026-05-27 — **H-PERF-06 REFRAMED (lcp/lcs descartado, HCC detector novo alvo)**
 
 Workflow 5 dimensoes (profile + 3 research + prototype) revelou:
 - **H-PERF-06 original (compilar lcp/lcs)**: **refutada-real-world**.

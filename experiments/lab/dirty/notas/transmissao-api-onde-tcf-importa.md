@@ -59,13 +59,36 @@ Cada um com a **condição precisa** e a medição que temos:
 | **gzip/brotli/zstd** | NÃO compete — **complementar** (pré-processo textual). Brotli sozinho basta na maioria. |
 | **Parquet/Arrow** | Perde em tamanho e throughput. Nicho só em "textual+inspecionável+consultável sem tooling binário". |
 | **Protobuf/gRPC** | Eixo diferente (schema/codegen). TCF fica "perto do JSON" (textual); Protobuf é opaco/rápido. |
-| **NDJSON** | **O concorrente mais direto** (textual + queryable + compressível) e é **padrão**. TCF só tem caso se vencer **NDJSON+brotli** em bytes OU oferecer consulta seletiva que o NDJSON não dá sem varrer tudo. **Delta ainda NÃO medido — é o teste decisivo.** |
+| **NDJSON** | **O concorrente mais direto** (textual + queryable + compressível) e é **padrão**. **MEDIDO 2026-07-05 (T1)**: TCF+brotli **vence NDJSON+brotli em 24/24** (real, 6 datasets), **20–28% menos bytes**. Mas vs **JSON-colunar** (`{col:[...]}`, steelman) a vantagem é estrutura-dependente (ver §"teste decisivo"). |
 
-## O teste decisivo que ainda falta
+## Perfil DUPLO: upload vs download (2026-07-05)
 
-Toda a evidência de "TCF ganha" é vs **CSV+brotli**. Mas o concorrente real no eixo textual é o
-**NDJSON+brotli** (padrão em BigQuery/Elasticsearch/X API). **Enquanto não medirmos TCF+brotli vs
-NDJSON+brotli, a argumentação fica incompleta.** Esse é o gate honesto pro posicionamento de transmissão.
+APIs têm **duas direções** com economia distinta:
+- **Upload** (request, cliente→servidor): foco em economia de ENVIO; tipicamente **pequeno**
+  (query/params). Ex. `/forecast` request ~250B — **TCF não ajuda** (<1KB, moldura > ganho).
+- **Download** (response, servidor→cliente): **onde está o VOLUME**. Ex. `/forecast` response =
+  array de `{"ds":<timestamp>,"yhat":<float>}` (horizon 1m ≈ 744 pontos). **É o foco de volume e o
+  nicho do TCF.**
+
+A direção **download** é o alvo melhor: paginação/bulk/export/séries-temporais são respostas
+grandes. E respostas **cadenciadas/sequenciais** (timestamps, IDs) são onde o TCF bate até o
+steelman JSON — a cadência vira RLE+delta que nenhum layout JSON captura.
+
+## O teste decisivo — MEDIDO (2026-07-05, T1)
+
+Era: toda evidência de "TCF ganha" era vs **CSV+brotli**; faltava vs **NDJSON+brotli** (padrão
+BigQuery/Elasticsearch/X API). Medido em [2026-07-05-t1-ndjson-brotli](../2026-07-05-t1-ndjson-brotli/result.md)
+(6 datasets reais × 4 scales, RT 24/24, brotli q11+q5+gzip):
+
+- **vs NDJSON+brotli**: TCF **vence 24/24**, weighted **72–80%** (−20–28%). Consistente gzip+q5.
+  Confiança **Alta**. → o gate fecha **a favor do TCF**.
+- **vs JSON-colunar+brotli** (steelman: chaves uma vez): vitória **marginal e dataset-dependente**
+  (TCF perde em 10/24 — pessoas/ibge/online-retail em scales baixos; vence forte em adult low-card
+  largo e em cadenciado). NÃO se claima "TCF vence JSON+brotli" em geral.
+- **Download cadenciado** (forecast): TCF **−29%** vs JSON-colunar em 744 pontos (RLE da cadência).
+
+Leitura honesta: o TCF vence o concorrente textual REAL (NDJSON), e vence o JSON mais compacto
+possível só onde há **estrutura** (categórico largo ou cadência). Não é vitória universal sobre JSON.
 
 ## Cenários de teste pro progresso (registrar/medir)
 
@@ -83,12 +106,16 @@ NDJSON+brotli, a argumentação fica incompleta.** Esse é o gate honesto pro po
 ## Posicionamento (a frase-guia)
 
 > *Para a maioria das APIs (JSON pequeno, paginado, gzip/brotli automático), o TCF **não faz
-> diferença** — o formato comum já resolve. O TCF tem utilidade prática num **nicho pequeno (~5-15%)**:
-> endpoints de batch/export com dados **tabulares, grandes (>~1-3k linhas) e repetitivos**, onde atua
-> como **pré-processo textual antes do brotli** (medido: TCF+brotli < CSV+brotli, Adult −28%) e/ou
+> diferença** — o formato comum já resolve. O TCF tem utilidade prática num **nicho pequeno (~5-15%)**,
+> na direção **download** (response, onde está o volume): endpoints de batch/export/séries com dados
+> **tabulares, grandes (>~1k linhas)**, onde atua como **pré-processo textual antes do brotli**.
+> Contra o padrão real **NDJSON+brotli**, entrega **20–28% menos bytes** (medido T1, 6 datasets, não
+> só vs CSV). Contra o JSON mais compacto (colunar), a vantagem é **estrutura-dependente**: robusta em
+> categórico largo e — sobretudo — em payloads **cadenciados/sequenciais** (séries/forecast: −29% vs
+> JSON-colunar via RLE+delta da cadência); marginal/negativa em high-card de poucas colunas. E/ou
 > onde se quer **consultar/agregar sem descomprimir tudo** (query toca 0,2-7,9% do blob), mantendo
-> output textual e inspecionável. Fora disso, não ajuda. O teste que falta é provar que **TCF+brotli
-> vence NDJSON+brotli** (não só CSV+brotli) — até lá, a tese de transmissão fica em aberto.*
+> output textual e inspecionável. Upload pequeno (<1KB) e alta entropia ficam fora. **Gate T1
+> fechado** (2026-07-05): a tese de transmissão vs NDJSON se sustenta; vs JSON-colunar é localizada.*
 
 ## Fontes
 

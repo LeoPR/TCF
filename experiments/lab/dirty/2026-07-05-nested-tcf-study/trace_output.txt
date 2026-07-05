@@ -1,0 +1,993 @@
+
+#################### BLOCOS DO NESTED-STUDY ####################
+
+====================================================================================================
+CELL: nested/forecast-block (download-cadenced)  (2 col x 24 linhas)
+====================================================================================================
+--- entrada (amostra) ---
+ds | yhat
+2026-07-05T00:37 | 53.0
+2026-07-05T01:37 | 113.4
+2026-07-05T02:37 | 181.2
+2026-07-05T03:37 | 241.4
+2026-07-05T04:37 | 309.0
+2026-07-05T05:37 | 369.0
+... (+18 linhas)
+
+--- saida TCF (283B raw / 181B brotli-q11; TSV-in ~559B; RT=True) ---
+#TCF.7 M
+%109=ds,!yhat
+16
+0:1:-1:-1:T1::0:#TCF.7 M
+10=c0,8=c1,8=c2,10=c3,c4
+*24|\2026
+*24|\07
+*24|\05
+*24+1|\00
+*11|\37
+*12|\38
+\39
+53.0
+113.4
+181.2
+241.4
+309.0
+369.0
+436.4
+496.2
+563.4
+623.0
+690.0
+749.4
+816.2
+875.4
+942.0
+1001.0
+1067.4
+1141.2
+1207.4
+1281.0
+1347.0
+1420.4
+1486.2
+1559.4
+
+--- trace por coluna (OBAT + HCC) ---
+  [ds] cadence=True(1-uniform-length-high-lcp-lcs) min_len=3 hint=True seq_rle_runs=3 body=116B
+      OBAT : min_len=3
+prefer_shape_consistency=True
+
+      HCC  : # Optimization trace — syntax=M8-A-seq-rle
+
+=== DETECTOR ITERATIONS (unified — atoms + virtuals) ===
+
+--- Iter 1 ---
+Sub-tuplas K>=2 com R>=2: 2  net>0: 2
+  1,14                     | R=9 Lr=4 len(N)~2 net=(8)*(4-2)=16 <- PICK
+  1,2                      | R=9 Lr=3 len(N)~2 net=(8)*(3-2)=8
+Substituido em 9 ocorrencias (linhas [12, 13, 14, 15, 16, 17, 18, 19, 20])
+
+--- Iter 2 ---
+Sub-tuplas K>=2 com …(+444ch)
+  [yhat] cadence=True(2-numeric-high-cardinality) min_len=3 hint=True seq_rle_runs=3 body=199B
+      OBAT : min_len=3
+prefer_shape_consistency=True
+
+      HCC  : # Optimization trace — syntax=M8-A-seq-rle
+
+=== DETECTOR ITERATIONS (unified — atoms + virtuals) ===
+
+--- Iter 1 ---
+Sub-tuplas K>=2 com R>=2: 0  net>0: 0
+Nenhum candidato com net > 0. STOP.
+
+=== MISSED OPPORTUNITIES (post-hoc) ===
+  (nenhum)
+
+Total estimated missed: 0
+
+====================================================================================================
+CELL: nested/series-block (upload-batch)  (4 col x 20 linhas)
+====================================================================================================
+--- entrada (amostra) ---
+asset | variable | unit | weight
+ASSET_SYN_0001 | cumulative_metric | unit_a | 1.0
+ASSET_SYN_0002 | cumulative_metric | unit_a | 1.0
+ASSET_SYN_0003 | cumulative_metric | unit_a | 1.0
+ASSET_SYN_0004 | cumulative_metric | unit_a | 1.0
+ASSET_SYN_0005 | cumulative_metric | unit_a | 1.0
+ASSET_SYN_0006 | cumulative_metric | unit_a | 1.0
+... (+14 linhas)
+
+--- saida TCF (134B raw / 138B brotli-q11; TSV-in ~879B; RT=True) ---
+#TCF.7 M
+46=asset,22=variable,11=unit,weight
+ASSET_SYN_\00*\0*\1
+1~2\2
+*7+1|4\3
+*11+1|1\10
+*20|cumulative_metric
+*20|unit_a
+*20|\1.\0
+
+
+--- trace por coluna (OBAT + HCC) ---
+  [asset] cadence=True(1-uniform-length-high-lcp-lcs) min_len=3 hint=True seq_rle_runs=2 body=46B
+      OBAT : min_len=3
+prefer_shape_consistency=True
+
+      HCC  : # Optimization trace — syntax=M8-A-seq-rle
+
+=== DETECTOR ITERATIONS (unified — atoms + virtuals) ===
+
+--- Iter 1 ---
+Sub-tuplas K>=2 com R>=2: 1  net>0: 1
+  1,2                      | R=8 Lr=3 len(N)~2 net=(7)*(3-2)=7 <- PICK
+Substituido em 8 ocorrencias (linhas [2, 3, 4, 5, 6, 7, 8, 9])
+
+--- Iter 2 ---
+Sub-tuplas K>=2 com R>=2: 0  net>0: 0
+Nenhum candidato com net > 0. STOP.
+
+=== MISSED OPPORTUNI …(+57ch)
+  [variable] cadence=False(None) min_len=3 hint=False seq_rle_runs=0 body=22B
+      OBAT : min_len = 3
+
+--- string 1: 'cumulative_metric' (len=17) ---
+  primeira string -> literal puro
+
+      HCC  : # Optimization trace — syntax=M8-A-seq-rle
+
+=== DETECTOR ITERATIONS (unified — atoms + virtuals) ===
+
+--- Iter 1 ---
+Sub-tuplas K>=2 com R>=2: 0  net>0: 0
+Nenhum candidato com net > 0. STOP.
+
+=== MISSED OPPORTUNITIES (post-hoc) ===
+  (nenhum)
+
+Total estimated missed: 0
+  [unit] cadence=False(None) min_len=3 hint=False seq_rle_runs=0 body=11B
+      OBAT : min_len = 3
+
+--- string 1: 'unit_a' (len=6) ---
+  primeira string -> literal puro
+
+      HCC  : # Optimization trace — syntax=M8-A-seq-rle
+
+=== DETECTOR ITERATIONS (unified — atoms + virtuals) ===
+
+--- Iter 1 ---
+Sub-tuplas K>=2 com R>=2: 0  net>0: 0
+Nenhum candidato com net > 0. STOP.
+
+=== MISSED OPPORTUNITIES (post-hoc) ===
+  (nenhum)
+
+Total estimated missed: 0
+  [weight] cadence=False(None) min_len=3 hint=False seq_rle_runs=0 body=10B
+      OBAT : min_len = 3
+
+--- string 1: '1.0' (len=3) ---
+  primeira string -> literal puro
+
+      HCC  : # Optimization trace — syntax=M8-A-seq-rle
+
+=== DETECTOR ITERATIONS (unified — atoms + virtuals) ===
+
+--- Iter 1 ---
+Sub-tuplas K>=2 com R>=2: 0  net>0: 0
+Nenhum candidato com net > 0. STOP.
+
+=== MISSED OPPORTUNITIES (post-hoc) ===
+  (nenhum)
+
+Total estimated missed: 0
+
+
+#################### CELULAS FORMA-TX DA MATRIZ ####################
+
+====================================================================================================
+CELL: matrix/upload-small config (path,value)  (2 col x 9 linhas)
+====================================================================================================
+--- entrada (amostra) ---
+path | value
+model | "seasonal-cumulative"
+options.cumulate | true
+options.reset | "day"
+options.horizon | "1m"
+options.freq | "H"
+options.tz | "UTC"
+options.fill_gaps | "interpolate"
+window.start | "2026-07-01T00:00"
+window.end | "2026-07-31T23:00"
+
+--- saida TCF (206B raw / 169B brotli-q11; TSV-in ~218B; RT=True) ---
+#TCF.7 M
+83=path,!value
+model
+options.*cumulate
+2reset
+2horizon
+2f*req
+2tz
+2,6ill_gaps
+window.*start
+10end
+"seasonal-cumulative"
+true
+"day"
+"1m"
+"H"
+"UTC"
+"interpolate"
+"2026-07-01T00:00"
+"2026-07-31T23:00"
+
+--- trace por coluna (OBAT + HCC) ---
+  [path] cadence=False(None) min_len=3 hint=False seq_rle_runs=0 body=83B
+      OBAT : min_len = 3
+
+--- string 1: 'model' (len=5) ---
+  primeira string -> literal puro
+
+--- string 2: 'options.cumulate' (len=16) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 16
+  tokens: [L('options.cumulate')]
+
+--- string 3: 'options.reset' (len=13) ---
+  pref: len=8 de string 2
+  suf:  len=0 de string 0
+  cobertura: 8 de 13
+  tokens: [P(2,8) + L('reset')]
+
+--- string 4: ' …(+873ch)
+      HCC  : # Optimization trace — syntax=M8-A-seq-rle
+
+=== DETECTOR ITERATIONS (unified — atoms + virtuals) ===
+
+--- Iter 1 ---
+Sub-tuplas K>=2 com R>=2: 0  net>0: 0
+Nenhum candidato com net > 0. STOP.
+
+=== MISSED OPPORTUNITIES (post-hoc) ===
+  (nenhum)
+
+Total estimated missed: 0
+  [value] cadence=False(None) min_len=3 hint=False seq_rle_runs=0 body=101B
+      OBAT : min_len = 3
+
+--- string 1: '"seasonal-cumulative"' (len=21) ---
+  primeira string -> literal puro
+
+--- string 2: 'true' (len=4) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 4
+  tokens: [L('true')]
+
+--- string 3: '"day"' (len=5) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 5
+  tokens: [L('"day"')]
+
+--- string 4: '"1m"' (len=4) ---
+  pref: le …(+810ch)
+      HCC  : # Optimization trace — syntax=M8-A-seq-rle
+
+=== DETECTOR ITERATIONS (unified — atoms + virtuals) ===
+
+--- Iter 1 ---
+Sub-tuplas K>=2 com R>=2: 0  net>0: 0
+Nenhum candidato com net > 0. STOP.
+
+=== MISSED OPPORTUNITIES (post-hoc) ===
+  (nenhum)
+
+Total estimated missed: 0
+
+====================================================================================================
+CELL: matrix/download-bulk adult[:200] (low-card largo)  (15 col x 200 linhas)
+====================================================================================================
+--- entrada (amostra) ---
+age | workclass | fnlwgt | education | education-num | marital-status | occupation | relationship | race | sex | capital-gain | capital-loss | hours-per-week | native-country | class
+25 | Private | 226802 | 11th | 7 | Never-married | Machine-op-inspct | Own-child | Black | Male | 0 | 0 | 40 | United-States | <=50K
+38 | Private | 89814 | HS-grad | 9 | Married-civ-spouse | Farming-fishing | Husband | White | Male | 0 | 0 | 50 | United-States | <=50K
+28 | Local-gov | 336951 | Assoc-acdm | 12 | Married-civ-spouse | Protective-serv | Husband | White | Male | 0 | 0 | 40 | United-States | >50K
+44 | Private | 160323 | Some-college | 10 | Married-civ-spouse | Machine-op-inspct | Husband | Black | Male | 7688 | 0 | 40 | United-States | >50K
+... (+196 linhas)
+
+--- saida TCF (5356B raw / 2354B brotli-q11; TSV-in ~21619B; RT=True) ---
+#TCF.7 M
+@440=age,@263=workclass,!1365=fnlwgt,@325=education,@258=education-num,@279=marital-status,@403=occupation,@250=relationship,@259=race,@214=sex,223=capital-gain,111=capital-loss,@353=hours-per-week,166=native-country,@class
+236
+*2+13|\25
+*2+16|\28
+*2+16|\18
+*2+34|\29
+*2+31|\24
+*2-29|\65
+*2+32|\26
+*2-5|\48
+*2+17|\20
+*2+32|\40
+*2-23|\45
+*2+31|\23
+*2+14|\32
+*2-39|\56
+*2+13|\39
+*2+21|\21
+*2-3|\33
+*2-6|\47
+*2+50|\19
+*2-19|\50
+*2-10|\59
+*2-24|\51
+*2+4|\57
+*2+15|\64
+!"#$%&'()*+,-./01023&&4!!56 …(+4856ch)
+
+--- trace por coluna (OBAT + HCC) ---
+  [age] cadence=False(None) min_len=3 hint=False seq_rle_runs=15 body=783B
+      OBAT : min_len = 3
+
+--- string 1: '25' (len=2) ---
+  primeira string -> literal puro
+
+--- string 2: '38' (len=2) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 2
+  tokens: [L('38')]
+
+--- string 3: '28' (len=2) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 2
+  tokens: [L('28')]
+
+--- string 4: '44' (len=2) ---
+  pref: len=0 de string 0
+  suf:  len=0 de …(+5545ch)
+      HCC  : # Optimization trace — syntax=M8-A-seq-rle
+
+=== DETECTOR ITERATIONS (unified — atoms + virtuals) ===
+
+--- Iter 1 ---
+Sub-tuplas K>=2 com R>=2: 0  net>0: 0
+Nenhum candidato com net > 0. STOP.
+
+=== MISSED OPPORTUNITIES (post-hoc) ===
+  (nenhum)
+
+Total estimated missed: 0
+  [workclass] cadence=False(None) min_len=3 hint=False seq_rle_runs=0 body=459B
+      OBAT : min_len = 3
+
+--- string 1: 'Private' (len=7) ---
+  primeira string -> literal puro
+
+--- string 2: 'Local-gov' (len=9) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 9
+  tokens: [L('Local-gov')]
+
+--- string 3: '' (len=0) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 0
+  tokens: []
+
+--- string 4: 'Self-emp-not-inc' (len=16) ---
+  pref: len=0 de  …(+525ch)
+      HCC  : # Optimization trace — syntax=M8-A-seq-rle
+
+=== DETECTOR ITERATIONS (unified — atoms + virtuals) ===
+
+--- Iter 1 ---
+Sub-tuplas K>=2 com R>=2: 0  net>0: 0
+Nenhum candidato com net > 0. STOP.
+
+=== MISSED OPPORTUNITIES (post-hoc) ===
+  (nenhum)
+
+Total estimated missed: 0
+  [fnlwgt] cadence=True(2-numeric-high-cardinality) min_len=6 hint=True seq_rle_runs=79 body=1675B
+      OBAT : min_len=6
+prefer_shape_consistency=True
+
+      HCC  : # Optimization trace — syntax=M8-A-seq-rle
+
+=== DETECTOR ITERATIONS (unified — atoms + virtuals) ===
+
+--- Iter 1 ---
+Sub-tuplas K>=2 com R>=2: 0  net>0: 0
+Nenhum candidato com net > 0. STOP.
+
+=== MISSED OPPORTUNITIES (post-hoc) ===
+  (nenhum)
+
+Total estimated missed: 0
+  [education] cadence=False(None) min_len=3 hint=False seq_rle_runs=0 body=664B
+      OBAT : min_len = 3
+
+--- string 1: '11th' (len=4) ---
+  primeira string -> literal puro
+
+--- string 2: 'HS-grad' (len=7) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 7
+  tokens: [L('HS-grad')]
+
+--- string 3: 'Assoc-acdm' (len=10) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 10
+  tokens: [L('Assoc-acdm')]
+
+--- string 4: 'Some-college' (len=12) ---
+  …(+1452ch)
+      HCC  : # Optimization trace — syntax=M8-A-seq-rle
+
+=== DETECTOR ITERATIONS (unified — atoms + virtuals) ===
+
+--- Iter 1 ---
+Sub-tuplas K>=2 com R>=2: 0  net>0: 0
+Nenhum candidato com net > 0. STOP.
+
+=== MISSED OPPORTUNITIES (post-hoc) ===
+  (nenhum)
+
+Total estimated missed: 0
+  [education-num] cadence=False(None) min_len=3 hint=False seq_rle_runs=1 body=594B
+      OBAT : min_len = 3
+
+--- string 1: '7' (len=1) ---
+  primeira string -> literal puro
+
+--- string 2: '9' (len=1) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 1
+  tokens: [L('9')]
+
+--- string 3: '12' (len=2) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 2
+  tokens: [L('12')]
+
+--- string 4: '10' (len=2) ---
+  pref: len=0 de string 0
+  suf:  len=0 de st …(+1282ch)
+      HCC  : # Optimization trace — syntax=M8-A-seq-rle
+
+=== DETECTOR ITERATIONS (unified — atoms + virtuals) ===
+
+--- Iter 1 ---
+Sub-tuplas K>=2 com R>=2: 0  net>0: 0
+Nenhum candidato com net > 0. STOP.
+
+=== MISSED OPPORTUNITIES (post-hoc) ===
+  (nenhum)
+
+Total estimated missed: 0
+  [marital-status] cadence=False(None) min_len=3 hint=False seq_rle_runs=0 body=571B
+      OBAT : min_len = 3
+
+--- string 1: 'Never-married' (len=13) ---
+  primeira string -> literal puro
+
+--- string 2: 'Married-civ-spouse' (len=18) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 18
+  tokens: [L('Married-civ-spouse')]
+
+--- string 3: 'Widowed' (len=7) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 7
+  tokens: [L('Widowed')]
+
+--- string 4: 'Di …(+421ch)
+      HCC  : # Optimization trace — syntax=M8-A-seq-rle
+
+=== DETECTOR ITERATIONS (unified — atoms + virtuals) ===
+
+--- Iter 1 ---
+Sub-tuplas K>=2 com R>=2: 0  net>0: 0
+Nenhum candidato com net > 0. STOP.
+
+=== MISSED OPPORTUNITIES (post-hoc) ===
+  (nenhum)
+
+Total estimated missed: 0
+  [occupation] cadence=False(None) min_len=3 hint=False seq_rle_runs=0 body=788B
+      OBAT : min_len = 3
+
+--- string 1: 'Machine-op-inspct' (len=17) ---
+  primeira string -> literal puro
+
+--- string 2: 'Farming-fishing' (len=15) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 15
+  tokens: [L('Farming-fishing')]
+
+--- string 3: 'Protective-serv' (len=15) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 15
+  tokens: [L('Protective-serv')]
+
+- …(+1760ch)
+      HCC  : # Optimization trace — syntax=M8-A-seq-rle
+
+=== DETECTOR ITERATIONS (unified — atoms + virtuals) ===
+
+--- Iter 1 ---
+Sub-tuplas K>=2 com R>=2: 0  net>0: 0
+Nenhum candidato com net > 0. STOP.
+
+=== MISSED OPPORTUNITIES (post-hoc) ===
+  (nenhum)
+
+Total estimated missed: 0
+  [relationship] cadence=False(None) min_len=3 hint=False seq_rle_runs=0 body=563B
+      OBAT : min_len = 3
+
+--- string 1: 'Own-child' (len=9) ---
+  primeira string -> literal puro
+
+--- string 2: 'Husband' (len=7) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 7
+  tokens: [L('Husband')]
+
+--- string 3: 'Not-in-family' (len=13) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 13
+  tokens: [L('Not-in-family')]
+
+--- string 4: 'Unmarried' (len=9 …(+233ch)
+      HCC  : # Optimization trace — syntax=M8-A-seq-rle
+
+=== DETECTOR ITERATIONS (unified — atoms + virtuals) ===
+
+--- Iter 1 ---
+Sub-tuplas K>=2 com R>=2: 0  net>0: 0
+Nenhum candidato com net > 0. STOP.
+
+=== MISSED OPPORTUNITIES (post-hoc) ===
+  (nenhum)
+
+Total estimated missed: 0
+  [race] cadence=False(None) min_len=3 hint=False seq_rle_runs=0 body=272B
+      OBAT : min_len = 3
+
+--- string 1: 'Black' (len=5) ---
+  primeira string -> literal puro
+
+--- string 2: 'White' (len=5) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 5
+  tokens: [L('White')]
+
+--- string 3: 'Asian-Pac-Islander' (len=18) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 18
+  tokens: [L('Asian-Pac-Islander')]
+
+--- string 4: 'Other' (len=5)  …(+257ch)
+      HCC  : # Optimization trace — syntax=M8-A-seq-rle
+
+=== DETECTOR ITERATIONS (unified — atoms + virtuals) ===
+
+--- Iter 1 ---
+Sub-tuplas K>=2 com R>=2: 0  net>0: 0
+Nenhum candidato com net > 0. STOP.
+
+=== MISSED OPPORTUNITIES (post-hoc) ===
+  (nenhum)
+
+Total estimated missed: 0
+  [sex] cadence=False(None) min_len=3 hint=False seq_rle_runs=0 body=397B
+      OBAT : min_len = 3
+
+--- string 1: 'Male' (len=4) ---
+  primeira string -> literal puro
+
+--- string 2: 'Female' (len=6) ---
+  pref: len=0 de string 0
+  suf:  len=3 de string 1
+  cobertura: 3 de 6
+  tokens: [L('Fem') + S(1,3)]
+
+      HCC  : # Optimization trace — syntax=M8-A-seq-rle
+
+=== DETECTOR ITERATIONS (unified — atoms + virtuals) ===
+
+--- Iter 1 ---
+Sub-tuplas K>=2 com R>=2: 0  net>0: 0
+Nenhum candidato com net > 0. STOP.
+
+=== MISSED OPPORTUNITIES (post-hoc) ===
+  (nenhum)
+
+Total estimated missed: 0
+  [capital-gain] cadence=False(None) min_len=3 hint=False seq_rle_runs=0 body=223B
+      OBAT : min_len = 3
+
+--- string 1: '0' (len=1) ---
+  primeira string -> literal puro
+
+--- string 2: '7688' (len=4) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 4
+  tokens: [L('7688')]
+
+--- string 3: '3103' (len=4) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 4
+  tokens: [L('3103')]
+
+--- string 4: '6418' (len=4) ---
+  pref: len=0 de string 0
+  suf:  …(+1223ch)
+      HCC  : # Optimization trace — syntax=M8-A-seq-rle
+
+=== DETECTOR ITERATIONS (unified — atoms + virtuals) ===
+
+--- Iter 1 ---
+Sub-tuplas K>=2 com R>=2: 0  net>0: 0
+Nenhum candidato com net > 0. STOP.
+
+=== MISSED OPPORTUNITIES (post-hoc) ===
+  (nenhum)
+
+Total estimated missed: 0
+  [capital-loss] cadence=False(None) min_len=3 hint=False seq_rle_runs=0 body=111B
+      OBAT : min_len = 3
+
+--- string 1: '0' (len=1) ---
+  primeira string -> literal puro
+
+--- string 2: '1721' (len=4) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 4
+  tokens: [L('1721')]
+
+--- string 3: '1876' (len=4) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 4
+  tokens: [L('1876')]
+
+--- string 4: '2415' (len=4) ---
+  pref: len=0 de string 0
+  suf:  …(+443ch)
+      HCC  : # Optimization trace — syntax=M8-A-seq-rle
+
+=== DETECTOR ITERATIONS (unified — atoms + virtuals) ===
+
+--- Iter 1 ---
+Sub-tuplas K>=2 com R>=2: 0  net>0: 0
+Nenhum candidato com net > 0. STOP.
+
+=== MISSED OPPORTUNITIES (post-hoc) ===
+  (nenhum)
+
+Total estimated missed: 0
+  [hours-per-week] cadence=False(None) min_len=3 hint=False seq_rle_runs=5 body=614B
+      OBAT : min_len = 3
+
+--- string 1: '40' (len=2) ---
+  primeira string -> literal puro
+
+--- string 2: '50' (len=2) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 2
+  tokens: [L('50')]
+
+--- string 3: '30' (len=2) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 2
+  tokens: [L('30')]
+
+--- string 4: '32' (len=2) ---
+  pref: len=0 de string 0
+  suf:  len=0 de …(+3541ch)
+      HCC  : # Optimization trace — syntax=M8-A-seq-rle
+
+=== DETECTOR ITERATIONS (unified — atoms + virtuals) ===
+
+--- Iter 1 ---
+Sub-tuplas K>=2 com R>=2: 0  net>0: 0
+Nenhum candidato com net > 0. STOP.
+
+=== MISSED OPPORTUNITIES (post-hoc) ===
+  (nenhum)
+
+Total estimated missed: 0
+  [native-country] cadence=False(None) min_len=3 hint=False seq_rle_runs=0 body=166B
+      OBAT : min_len = 3
+
+--- string 1: 'United-States' (len=13) ---
+  primeira string -> literal puro
+
+--- string 2: '' (len=0) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 0
+  tokens: []
+
+--- string 3: 'Peru' (len=4) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 4
+  tokens: [L('Peru')]
+
+--- string 4: 'Guatemala' (len=9) ---
+  pref: len=0 de string 0
+   …(+629ch)
+      HCC  : # Optimization trace — syntax=M8-A-seq-rle
+
+=== DETECTOR ITERATIONS (unified — atoms + virtuals) ===
+
+--- Iter 1 ---
+Sub-tuplas K>=2 com R>=2: 0  net>0: 0
+Nenhum candidato com net > 0. STOP.
+
+=== MISSED OPPORTUNITIES (post-hoc) ===
+  (nenhum)
+
+Total estimated missed: 0
+  [class] cadence=False(None) min_len=3 hint=False seq_rle_runs=0 body=355B
+      OBAT : min_len = 3
+
+--- string 1: '<=50K' (len=5) ---
+  primeira string -> literal puro
+
+--- string 2: '>50K' (len=4) ---
+  pref: len=0 de string 0
+  suf:  len=3 de string 1
+  cobertura: 3 de 4
+  tokens: [L('>') + S(1,3)]
+
+      HCC  : # Optimization trace — syntax=M8-A-seq-rle
+
+=== DETECTOR ITERATIONS (unified — atoms + virtuals) ===
+
+--- Iter 1 ---
+Sub-tuplas K>=2 com R>=2: 0  net>0: 0
+Nenhum candidato com net > 0. STOP.
+
+=== MISSED OPPORTUNITIES (post-hoc) ===
+  (nenhum)
+
+Total estimated missed: 0
+
+====================================================================================================
+CELL: matrix/download-narrow high-card pessoas[:200] (LIMITE)  (6 col x 200 linhas)
+====================================================================================================
+--- entrada (amostra) ---
+cpf | nome | municipio_id | uf_sigla | data_cadastro | email
+381.083.807-15 | Conceição Martins | 2112506 | MA | 2023-01-06 | 
+351.235.506-40 | Jéssica Araújo Costa | 3518602 | SP | 2023-07-25 | jessica.araujo.costa@hotmail …(+4ch)
+725.044.805-63 | Luiz Araújo | 2400604 | RN | 2022-10-17 | luiz.araujo@yahoo.com.br
+449.223.045-92 | Aline Carvalho Ferreira | 4102901 | PR | 2014-10-17 | aline.carvalho.ferreira@bol. …(+6ch)
+... (+196 linhas)
+
+--- saida TCF (11878B raw / 5598B brotli-q11; TSV-in ~16220B; RT=True) ---
+#TCF.7 M
+!2999=cpf,2604=nome,!1599=municipio_id,@275=uf_sigla,%943=data_cadastro,email
+381.083.807-15
+351.235.506-40
+725.044.805-63
+449.223.045-92
+919.249.521-49
+691.180.645-31
+035.116.234-80
+012.512.907-60
+197.108.545-69
+385.750.939-24
+375.894.600-01
+053.505.254-50
+374.358.272-40
+526.602.870-07
+024.006.863-78
+231.706.368-71
+259.030.734-92
+818.464.979-73
+086.123.263-11
+229.261.014-06
+831.612.767-95
+877.109.562-46
+445.292.041-11
+608.124.677-95
+914.182.226-90
+086.543.044-64
+871.504.991-47
+181.449. …(+11354ch)
+
+--- trace por coluna (OBAT + HCC) ---
+  [cpf] cadence=False(None) min_len=6 hint=False seq_rle_runs=0 body=3795B
+      OBAT : min_len = 6
+
+--- string 1: '381.083.807-15' (len=14) ---
+  primeira string -> literal puro
+
+--- string 2: '351.235.506-40' (len=14) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 14
+  tokens: [L('351.235.506-40')]
+
+--- string 3: '725.044.805-63' (len=14) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 14
+  tokens: [L('725.044.805-63')]
+
+--- stri …(+29837ch)
+      HCC  : # Optimization trace — syntax=M8-A-seq-rle
+
+=== DETECTOR ITERATIONS (unified — atoms + virtuals) ===
+
+--- Iter 1 ---
+Sub-tuplas K>=2 com R>=2: 0  net>0: 0
+Nenhum candidato com net > 0. STOP.
+
+=== MISSED OPPORTUNITIES (post-hoc) ===
+  (nenhum)
+
+Total estimated missed: 0
+  [nome] cadence=False(None) min_len=6 hint=False seq_rle_runs=0 body=2604B
+      OBAT : min_len = 6
+
+--- string 1: 'Conceição Martins' (len=17) ---
+  primeira string -> literal puro
+
+--- string 2: 'Jéssica Araújo Costa' (len=20) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 20
+  tokens: [L('Jéssica Araújo Costa')]
+
+--- string 3: 'Luiz Araújo' (len=11) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 11
+  tokens: [L('Luiz Araújo')]
+ …(+29763ch)
+      HCC  : # Optimization trace — syntax=M8-A-seq-rle
+
+=== DETECTOR ITERATIONS (unified — atoms + virtuals) ===
+
+--- Iter 1 ---
+Sub-tuplas K>=2 com R>=2: 149  net>0: 19
+  66,67,68,34              | R=7 Lr=9 len(N)~3 net=(6)*(9-3)=36 <- PICK
+  67,68,34                 | R=8 Lr=8 len(N)~3 net=(7)*(8-3)=35
+  68,34                    | R=13 Lr=5 len(N)~3 net=(12)*(5-3)=24
+  10,11,12                 | R=8 Lr=6 le …(+43110ch)
+  [municipio_id] cadence=True(2-numeric-high-cardinality) min_len=6 hint=True seq_rle_runs=100 body=1944B
+      OBAT : min_len=6
+prefer_shape_consistency=True
+
+      HCC  : # Optimization trace — syntax=M8-A-seq-rle
+
+=== DETECTOR ITERATIONS (unified — atoms + virtuals) ===
+
+--- Iter 1 ---
+Sub-tuplas K>=2 com R>=2: 0  net>0: 0
+Nenhum candidato com net > 0. STOP.
+
+=== MISSED OPPORTUNITIES (post-hoc) ===
+  (nenhum)
+
+Total estimated missed: 0
+  [uf_sigla] cadence=False(None) min_len=3 hint=False seq_rle_runs=0 body=653B
+      OBAT : min_len = 3
+
+--- string 1: 'MA' (len=2) ---
+  primeira string -> literal puro
+
+--- string 2: 'SP' (len=2) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 2
+  tokens: [L('SP')]
+
+--- string 3: 'RN' (len=2) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 2
+  tokens: [L('RN')]
+
+--- string 4: 'PR' (len=2) ---
+  pref: len=0 de string 0
+  suf:  len=0 de …(+2545ch)
+      HCC  : # Optimization trace — syntax=M8-A-seq-rle
+
+=== DETECTOR ITERATIONS (unified — atoms + virtuals) ===
+
+--- Iter 1 ---
+Sub-tuplas K>=2 com R>=2: 0  net>0: 0
+Nenhum candidato com net > 0. STOP.
+
+=== MISSED OPPORTUNITIES (post-hoc) ===
+  (nenhum)
+
+Total estimated missed: 0
+  [data_cadastro] cadence=False(None) min_len=6 hint=False seq_rle_runs=0 body=2071B
+      OBAT : min_len = 6
+
+--- string 1: '2023-01-06' (len=10) ---
+  primeira string -> literal puro
+
+--- string 2: '2023-07-25' (len=10) ---
+  pref: len=6 de string 1
+  suf:  len=0 de string 0
+  cobertura: 6 de 10
+  tokens: [P(1,6) + L('7-25')]
+
+--- string 3: '2022-10-17' (len=10) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 10
+  tokens: [L('2022-10-17')]
+
+--- string 4: '2014-10-17 …(+28137ch)
+      HCC  : # Optimization trace — syntax=M8-A-seq-rle
+
+=== DETECTOR ITERATIONS (unified — atoms + virtuals) ===
+
+--- Iter 1 ---
+Sub-tuplas K>=2 com R>=2: 50  net>0: 8
+  47,29                    | R=14 Lr=5 len(N)~3 net=(13)*(5-3)=26 <- PICK
+  92,93                    | R=9 Lr=5 len(N)~3 net=(8)*(5-3)=16
+  12,13                    | R=3 Lr=5 len(N)~3 net=(2)*(5-3)=4
+  29,30                    | R=3 Lr=5 len(N …(+19126ch)
+  [email] cadence=False(None) min_len=6 hint=False seq_rle_runs=0 body=3371B
+      OBAT : min_len = 6
+
+--- string 1: '' (len=0) ---
+  primeira string -> literal puro
+
+--- string 2: 'jessica.araujo.costa@hotmail.com' (len=32) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 32
+  tokens: [L('jessica.araujo.costa@hotmail.com')]
+
+--- string 3: 'luiz.araujo@yahoo.com.br' (len=24) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 24
+  tokens:  …(+31683ch)
+      HCC  : # Optimization trace — syntax=M8-A-seq-rle
+
+=== DETECTOR ITERATIONS (unified — atoms + virtuals) ===
+
+--- Iter 1 ---
+Sub-tuplas K>=2 com R>=2: 371  net>0: 23
+  39,40,9                  | R=47 Lr=7 len(N)~3 net=(46)*(7-3)=184 <- PICK
+  30,31,24,14              | R=21 Lr=11 len(N)~3 net=(20)*(11-3)=160
+  57,39,40,9               | R=22 Lr=10 len(N)~3 net=(21)*(10-3)=147
+  44,45,39,40,9            |  …(+51678ch)

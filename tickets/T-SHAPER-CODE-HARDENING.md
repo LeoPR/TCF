@@ -20,6 +20,16 @@ related:
 > O irmao T-SHAPER-SCIENTIFIC-GATING (integridade dos testes) ja' fechou. Revisitar
 > se a escala >100k virar necessidade real.
 
+> **REABERTURA PARCIAL (2026-07-05) — só A1, à luz do assessment de cobertura**: o
+> [assessment 2026-07-05](../experiments/lab/dirty/notas/2026-07-05-cobertura-datasets-shaper-assessment.md)
+> (gap **G2**) identificou que o tier **XL (>1M linhas)** dos cenários de transmissão é o único
+> descoberto na ponta grande, e o **A1 (filter-before-load) é exatamente o bloqueador**: o shaper
+> trava >100k porque carrega tudo antes de filtrar. A "escala >100k virar necessidade real" (gatilho
+> do PARK acima) **aconteceu** — o eixo idealista-grande do owner + os cenários T2/T6 (cap Lambda
+> 6MB / >1M) exigem XL. **A2-A6 seguem PARK**; só **A1** volta pra fila, condicionado à priorização
+> do [T-DATA-EDGE-TRANSMISSION-PAYLOADS](T-DATA-TRANSMISSION-GROUPING.md) (decorrente). Não executar
+> agora (owner: foco-agora = só assess); reanalisar quando o tier XL for pra frente.
+
 ## Contexto
 
 Auditoria de saude de codigo do shaper (2026-05-30, workflow paralelo):
