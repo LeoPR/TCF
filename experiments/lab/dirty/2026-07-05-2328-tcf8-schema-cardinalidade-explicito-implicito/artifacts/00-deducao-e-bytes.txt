@@ -1,0 +1,29 @@
+# DEDUÇÃO — o que sai da linguagem explícita (implícito) e o que é IRREDUTÍVEL
+
+item                               deduzível?  de quê
+------------------------------------------------------------------------------------------
+magic #TCF.8                              NÃO  roteamento/versão (libmagic)
+flag M (multi)                            SIM  ≥2 colunas ⇒ multi (P5/P6)
+flag N (nested)                           SIM  presença de aninhamento (colchete)
+hierarquia (arestas pai→filho)           NÃO*  é o SCHEMA; *derivável se pré-acordado (O-FMT-14)
+nomes de coluna/grupo                 parcial  drop_names se anônimo; senão o consumidor precisa
+cardinalidade (1:1/1:N/...)               SIM  nº de linhas dos filhos (P7): 1→obj, N→array
+kind (object/array)                       SIM  idem cardinalidade
+rows (contagem)                           SIM  decodar o body revela
+type (str/num/...)                    parcial  default str; senão :tipo por coluna
+marker (!/@/%)                            NÃO  o decode precisa (raw/dict/split)
+size por coluna                       parcial  última-sem-size; derivável se streaming
+
+## header (bytes): EXPLÍCITO vs MÍNIMO
+
+  S4: explícito  222B  →  mínimo  31B  (14% do explícito)  RT=OK
+  S6: explícito  508B  →  mínimo  74B  (15% do explícito)  RT=OK
+
+LEITURA: a linguagem completa (explícita) tem TODOS os itens; a dedução tira flags(M/N),
+kind, cardinalidade, rows, tipo-se-uniforme → a forma MÍNIMA CONVERGE pro colchete da P5.
+IRREDUTÍVEL (fica explícito, salvo contrato pré-acordado): magic, arestas de hierarquia,
+markers, sizes. O MÍNIMO reconstrói o JSON — a dedução não perde informação (só a explicita).
+
+→ RESPOSTA: SIM, incluir a semântica de cardinalidade/hierarquia no TCF.8 é sólido; o custo
+  é ZERO no formato transmitido (fica implícito/deduzido) e vira EXPLÍCITO só quando o consumidor
+  quer o schema (ou pré-acordado = O-FMT-14). Cardinalidade e hierarquia sao a mesma camada.

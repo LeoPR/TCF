@@ -32,8 +32,9 @@ ENVELOPE ANINHADO  ─decode→ reconstrói o JSON exato (RT)
 | **6** | [1840-estudo-notacoes-agrupamento](../2026-07-05-1840-estudo-notacoes-agrupamento/) | **estudo** da NOTAÇÃO de agrupamento (start/end vs contagem vs profundidade) | bytes ~empatam; precisa de 1 **portador de forma**; escolha é parse/stream, não bytes | RT topologia OK |
 | **7** | [1906-cardinalidades-inferencia](../2026-07-05-1906-cardinalidades-inferencia/) | **cardinalidade** 1×1/1×N/N×1/N×N deduzida dos dados (FD) → mecânica TCF | **amarra o grupo**: 1:N↔hierarquia (=dual RLE), N:1↔@dict, N:N↔ponte; camada declarativa | dedução OK (4 casos) |
 | **8** | [2017-teoria-cardinalidade-forca](../2026-07-05-2017-teoria-cardinalidade-forca/) + [teoria-cardinalidade.md](teoria-cardinalidade.md) | **TEORIA**: força (forte/fraca/quase/induzida) + rápido(RLE)-vs-pleno(OBAT/HCC) + ortogonalidade + cascade | cardinalidade ⊥ compressibilidade; dominância fraca; as 2 vias são um cascade; H-CARD-01..07 | medido (peça 8) |
-| 9 | *(futuro)* escolher base + marca mínima (peça 5) + tipos + FD aproximada | decidir e enxugar | otimização | aberto |
-| 10 | *(futuro)* link posicional / N:N (tabela-ponte, repetition level) | array-em-array, N raízes, N:N | o caso que precisa de número, não só forma | aberto |
+| **9** | [2328-tcf8-schema-cardinalidade-explicito-implicito](../2026-07-05-2328-tcf8-schema-cardinalidade-explicito-implicito/) | **PONTE header-minimal**: linguagem semântica TCF.8 (cardinalidade/hierarquia) EXPLÍCITA → dedução → MÍNIMA | a forma mínima **converge pra P5**; irredutível = magic+arestas+markers+sizes; custo transmitido ZERO | medido, RT OK |
+| 10 | *(futuro)* protótipo formal TCF.8 (arestas explícitas + resto deduzido) + O-FMT-14 derivável | welding (decisão de formato do owner) | src, exige aprovação | aberto |
+| 11 | *(futuro)* link posicional / N:N (tabela-ponte, repetition level) | array-em-array, N raízes, N:N | o caso que precisa de número, não só forma | aberto |
 
 > **P3 (A), P4 (B) e P5 (C) são ALTERNATIVAS** do mesmo passo ("como ligar as tabelas"), do mais
 > explícito ao mais implícito: A = blocos separados + header de arestas (modular/buscável); B = um

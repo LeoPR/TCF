@@ -1,0 +1,14 @@
+# HEADER EXPLÍCITO — todos os itens da linguagem semântica (cardinalidade + hierarquia)
+
+#TCF.8 M N
+@schema-explicito
+@grp $root kind=object rows=1 parent=- card=-
+@col nome type=str marker=! size=8 in=$root
+@grp endereco kind=object rows=1 parent=$root card=1:1
+@col rua type=str marker=! size=17 in=endereco
+@col cidade type=str marker=! size=8 in=endereco
+@grp geo kind=object rows=1 parent=endereco card=1:1
+@col lat type=str marker=! size=5 in=geo
+@col lon type=str marker=! size=5 in=geo
+@grp telefones kind=array rows=2 parent=$root card=1:N
+@col tel type=str marker=! size=30 in=telefones

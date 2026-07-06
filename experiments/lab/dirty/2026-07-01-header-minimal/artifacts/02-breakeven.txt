@@ -1,0 +1,13 @@
+# BREAK-EVEN — o header só pesa em N pequeno (foco byte-level)
+
+N registros DISTINTOS (drop_names). header ~fixo; body cresce → header vira ruído.
+
+   N   total  header    body  header %
+----------------------------------------
+   1      33      13      20     39.4%
+   5     133      13     120      9.8%
+  20     307      14     293      4.6%
+ 100    1065      14    1051      1.3%
+
+LEITURA: N=1 → header ~1/3-1/2 do total; N=100 → ~poucos %. O ganho de encolher o header
+concentra-se em payloads MINÚSCULOS (1-poucos registros) — exatamente o foco byte-level.

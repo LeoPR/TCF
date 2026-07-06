@@ -1,0 +1,7 @@
+# HEADER MÍNIMO (dedução aplicada) = o colchete da P5, + bodies
+
+#TCF.8
+[nome:9,telefones[tel]]
+leonardo
+(\41) \9999*\9*-\9999
+1\4*3

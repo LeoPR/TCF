@@ -15,6 +15,8 @@ related:
   - experiments/lab/dirty/2026-07-05-1840-estudo-notacoes-agrupamento/
   - experiments/lab/dirty/2026-07-05-1906-cardinalidades-inferencia/
   - experiments/lab/dirty/2026-07-05-2017-teoria-cardinalidade-forca/
+  - experiments/lab/dirty/2026-07-05-2328-tcf8-schema-cardinalidade-explicito-implicito/
+  - experiments/lab/dirty/2026-07-01-header-minimal/
   - experiments/lab/dirty/notas/teoria-cardinalidade.md
   - experiments/lab/dirty/2026-07-05-nested-tcf-study/result.md
   - datasets/coverage-matrix.md
@@ -44,8 +46,12 @@ que se juntam.** Mapa do grupo + como as peças formam o todo:
 - **P8** `2017-...teoria-cardinalidade-forca` + [teoria-cardinalidade.md](../experiments/lab/dirty/notas/teoria-cardinalidade.md)
   — **TEORIA**: força (forte/fraca/quase/induzida) + rápido(RLE)-vs-pleno(OBAT/HCC) + **ortogonalidade**
   (cardinalidade ⊥ compressibilidade) + **cascade** (Parquet). Hipóteses **H-CARD-01..07** no roadmap. (medido)
-- **P9-P10 (futuro)**: escolher base + marca mínima (peça 5) + tipos + FD aproximada · link posicional /
-  N:N (tabela-ponte, repetition level) p/ array-in-array e N raízes.
+- **P9** `2328-...tcf8-schema-cardinalidade-explicito-implicito` — **PONTE com o header-minimal**: a
+  linguagem semântica TCF.8 (cardinalidade/hierarquia) **explícita → dedução → mínima**. A forma mínima
+  **converge pra P5**; irredutível = magic + arestas de hierarquia + markers + sizes; **custo transmitido
+  ZERO** (o resto é deduzido). Fecha o círculo header-minimal (O-FMT-14) × hierárquico. (medido, RT OK)
+- **P10-P11 (futuro, exige aprovação — toca src/formato)**: protótipo TCF.8 (arestas explícitas + resto
+  deduzido) + O-FMT-14 derivável · link posicional / N:N (repetition level) p/ array-in-array e N raízes.
 
 > **NOTA (2026-07-05)**: este grupo é um **detour de teoria/estrutura** a partir do estudo **header-minimal**
 > (o "plano geral"). Feasibility mapeada (P1–P8, tudo RT OK, `confirmada-conceitual`, nada em `src/tcf`).

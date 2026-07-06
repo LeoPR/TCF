@@ -144,6 +144,16 @@ permite deducao.
 
 ### O-FMT-11 — Cabecalho compacto
 
+> **CARACTERIZADO / FECHADO (2026-07-05)** — lab
+> [`2026-07-01-header-minimal`](../2026-07-01-header-minimal/result.md). O header self-describing ja'
+> esta' **near-optimal**: 2 colunas anonimas caem a **13B** (`#TCF.8M!14,!\n` — magic+flag+sizes fundidos,
+> sem nomes via `drop_names`, ultima-sem-size). Nenhum corte de byte self-describing barato resta (cada
+> campo e' load-bearing). Deducao `implicito-M` (P5/P6) so' -1B (marginal). **Break-even**: o header so'
+> pesa em payload MINUSCULO (N=1 ~39% -> N=100 ~1.3%). O frontier real e' **O-FMT-14 (header derivavel)**,
+> uma feature de contrato, nao um tweak de byte — e ela REUSA a linguagem de cardinalidade/agrupamento das
+> pecas 5-8 do estudo hierarquico (a declaracao de schema E' o contrato). Levers `drop_names` (corta header)
+> e `nature` (corta body) sao ORTOGONAIS (menor combo real 31B).
+
 **Ideia**: header deve seguir convencao shebang TCF v0.5
 (`#TCF.5 SRDM`) — magic + flags, sem texto livre, byte-precise.
 

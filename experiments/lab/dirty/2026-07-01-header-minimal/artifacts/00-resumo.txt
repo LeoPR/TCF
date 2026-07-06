@@ -1,0 +1,32 @@
+# PISO do header — 1 registro (cpf + nome), dados puros = 24 chars
+
+cenário                          total header  body   blob
+------------------------------------------------------------------------------------------------
+multi nomeado (default 0.7)         47     23    24   '#TCF.7 M\n!14=cpf,!nome\n111.444.777-35Joao Silva'
+multi drop_names (anônimo)          37     13    24   '#TCF.8M!14,!\n111.444.777-35Joao Silva'
+nature cpf (SPEC_CPF)               39     24    15   '#TCF.8M!5=cpf:cpf,!nome\n%gc9gJoao Silva'
+drop_names + nature cpf             31     16    15   '#TCF.8M!5:cpf,!\n%gc9gJoao Silva'
+
+-- deduções (hipotético, não-API) --
+implícito-M (deduz multi)           36     12    24   (drop o flag M: >=2 cols ⇒ multi)
+derivado: só magic (#TCF.8)         30      6    24   (schema pré-acordado; magic p/ roteamento)
+derivado: body puro (0 header)      24      0    24   (contrato total; header fora de banda)
+
+LEITURA: no registro mínimo, o header (shebang+meta) é ~metade do payload (23B de 47B). drop_names já corta os NOMES; as deduções (M implícito) e
+o header DERIVÁVEL (O-FMT-14, schema pré-acordado) são o piso — mas exigem contrato/decisão de formato (src).
+
+================================================================================================
+
+# BREAK-EVEN — o header só pesa em N pequeno (foco byte-level)
+
+N registros DISTINTOS (drop_names). header ~fixo; body cresce → header vira ruído.
+
+   N   total  header    body  header %
+----------------------------------------
+   1      33      13      20     39.4%
+   5     133      13     120      9.8%
+  20     307      14     293      4.6%
+ 100    1065      14    1051      1.3%
+
+LEITURA: N=1 → header ~1/3-1/2 do total; N=100 → ~poucos %. O ganho de encolher o header
+concentra-se em payloads MINÚSCULOS (1-poucos registros) — exatamente o foco byte-level.
