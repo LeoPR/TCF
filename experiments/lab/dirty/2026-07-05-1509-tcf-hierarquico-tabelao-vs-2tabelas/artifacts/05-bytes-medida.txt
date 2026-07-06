@@ -1,0 +1,17 @@
+# BYTES (brotli q11) — A (tabelão) vs B (duas tabelas)
+PLANO = só a tabela.  RECONSTRUÇÃO = + schema/manifest p/ árvore JSON.
+
+## M=1 × 16 pontos = 16 linhas
+  A (sem schema)              :  283 br
+  B-dados (T0+T1, sem manifest):  301 br   [PLANO]
+  A + schema                  :  314 br
+  B + manifest                :  297 br   [RECONSTRUÇÃO]
+  -> plano: A  | reconstrução: B
+
+## M=3 × 16 pontos = 48 linhas
+  A (sem schema)              :  332 br
+  B-dados (T0+T1, sem manifest):  327 br   [PLANO]
+  A + schema                  :  370 br
+  B + manifest                :  354 br   [RECONSTRUÇÃO]
+  -> plano: B  | reconstrução: B
+

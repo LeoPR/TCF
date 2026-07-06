@@ -1,0 +1,9 @@
+#TCF.8
+[nome:9,endereco[rua:19,cidade:9,geo[lat:8,lon:8]],telefones[tel]]
+leonardo
+Rua Sintetica \100
+Cidade X
+-\25.\4
+-\49.\2
+(\41) \9999*\9*-\9999
+1\4*3

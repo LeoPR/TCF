@@ -1,0 +1,14 @@
+# ESTUDO — notações de agrupamento (qual a mais minimalista) [probatório]
+
+## S4
+  S start/end   (colchetes)     19B  RT=OK   nome,telefones[tel]
+  A descend/asc  (> <)          19B  RT=OK   nome,telefones>tel<
+  C contagem     (nome*N)       20B  RT=OK   nome telefones*1 tel
+  D profundidade (nome:d)       24B  RT=OK   nome:1 telefones:1 tel:2
+
+## S6
+  S start/end   (colchetes)     53B  RT=OK   nome,endereco[rua,cidade,geo[lat,lon]],telefones[tel]
+  A descend/asc  (> <)          53B  RT=OK   nome,endereco>rua,cidade,geo>lat,lon<<,telefones>tel<
+  C contagem     (nome*N)       56B  RT=OK   nome endereco*3 rua cidade geo*2 lat lon telefones*1 tel
+  D profundidade (nome:d)       68B  RT=OK   nome:1 endereco:1 rua:2 cidade:2 geo:2 lat:3 lon:3 telefones:1 tel:2
+

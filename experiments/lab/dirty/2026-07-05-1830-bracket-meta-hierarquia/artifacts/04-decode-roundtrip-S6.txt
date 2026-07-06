@@ -1,0 +1,35 @@
+# DECODE S6 — parse dos colchetes → split por bytes → colunas → dedução array/objeto → JSON
+
+reconstruído == entrada ? OK
+
+--- o TCF-P5 (colchetes no meta) ---
+#TCF.8
+[nome:9,endereco[rua:19,cidade:9,geo[lat:8,lon:8]],telefones[tel]]
+leonardo
+Rua Sintetica \100
+Cidade X
+-\25.\4
+-\49.\2
+(\41) \9999*\9*-\9999
+1\4*3
+
+--- JSON reconstruído ---
+{
+  "nome": "leonardo",
+  "endereco": {
+    "rua": "Rua Sintetica 100",
+    "cidade": "Cidade X",
+    "geo": {
+      "lat": "-25.4",
+      "lon": "-49.2"
+    }
+  },
+  "telefones": [
+    {
+      "tel": "(41) 99999-9999"
+    },
+    {
+      "tel": "(41) 99994-9999"
+    }
+  ]
+}

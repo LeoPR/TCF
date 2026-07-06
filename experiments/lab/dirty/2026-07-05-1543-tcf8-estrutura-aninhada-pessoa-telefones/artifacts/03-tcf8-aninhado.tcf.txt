@@ -1,0 +1,9 @@
+#TCF.8-NEST v0
+@tree {"order": ["nome", "telefones"], "root": {"nome": "str"}, "arrays": {"telefones": {"tel": "str"}}}
+@block root
+#TCF.8
+leonardo
+@block telefones
+#TCF.8
+(\41) \9999*\9*-\9999
+1\4*3

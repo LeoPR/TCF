@@ -1,0 +1,25 @@
+# SEÇÃO 2 — FORÇA de cardinalidade (forte / fraca / quase / induzida)
+
+medidas: multiplicidade (linhas/valor-pai), largura do valor, g3-error (FD aproximada).
+
+## FORTE  (pai repete muito + valor largo)
+  multiplicidade=4.00  largura=18.3  → força: FORTE (alta multiplicidade + valor largo)
+  fast(RLE)=67B  full(TCF)=48B  (a força prevê o quanto há a ganhar)
+
+## FRACA  (pai quase não repete)
+  multiplicidade=1.00  largura=11.0  → força: FRACA (pai quase não repete → pouco a fatorar)
+  fast(RLE)=144B  full(TCF)=42B  (a força prevê o quanto há a ganhar)
+
+## QUASE (FD aproximada — cpf→nome com 1 linha suja Cida/CIDA)
+  classe (contagem): 1:N  |  g3-error(cpf→nome) = 0.167 (1/6 linhas)
+  → força: QUASE (FD aproximada, g3>0)
+  → NÃO normalizar em silêncio (g3>0 = lossy); surfaçar como anomaly_flag (‘só detecta, nunca arruma’).
+
+## INDUZIDA (por definição, do JSON)
+  o schema do JSON já DITA a cardinalidade (1:N exato, g3=0 por construção). Não precisa deduzir;
+  a hierarquia vem de graça e o TCF pode explorá-la (rápido) OU rodar pleno (mais compressão).
+
+ACHADO-CHAVE (ortogonalidade): a FRACA acima tem full(42) << fast(144) — mas o ganho vem do AFIXO
+compartilhado ('cliente_'), NÃO da cardinalidade (multiplicidade=1, nada a normalizar). Ou seja:
+  CARDINALIDADE (multiplicidade → normalização/RLE) ≠ COMPRESSIBILIDADE (afixo/inter-item → OBAT/HCC).
+São EIXOS ORTOGONAIS. O trade rápido-vs-pleno é sobre QUAL redundância explorar, não sobre a força.

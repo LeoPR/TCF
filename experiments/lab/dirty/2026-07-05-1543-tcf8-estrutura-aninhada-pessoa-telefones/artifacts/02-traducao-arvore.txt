@@ -1,0 +1,6 @@
+# árvore (o que a estrutura precisa saber pra reconstruir)
+ROOT object
+  nome       : scalar         -> bloco 'root', coluna 'nome', linha 0
+  telefones  : array<{tel}>   -> bloco 'telefones', cada linha = 1 objeto {tel}
+
+esquema (machine): {"order": ["nome", "telefones"], "root": {"nome": "str"}, "arrays": {"telefones": {"tel": "str"}}}

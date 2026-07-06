@@ -1,0 +1,10 @@
+#TCF.8 M N
+#H nome endereco{rua cidade geo{lat lon}} telefones[tel]
+9=nome,19=rua,9=cidade,8=lat,8=lon,tel
+leonardo
+Rua Sintetica \100
+Cidade X
+-\25.\4
+-\49.\2
+(\41) \9999*\9*-\9999
+1\4*3

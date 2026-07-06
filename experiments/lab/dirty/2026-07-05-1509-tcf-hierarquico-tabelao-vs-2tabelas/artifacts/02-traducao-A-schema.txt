@@ -1,0 +1,41 @@
+{
+  "levels": {
+    "equipment": [
+      "id",
+      "name",
+      "facility",
+      "area",
+      "group",
+      "subgroup",
+      "variable",
+      "unit",
+      "phase"
+    ],
+    "day": [
+      "time",
+      "value",
+      "isOutOfRange",
+      "minValue",
+      "maxValue"
+    ]
+  },
+  "nest": "equipment>day",
+  "types": {
+    "id": "str",
+    "name": "str",
+    "facility": "str",
+    "area": "str",
+    "group": "str",
+    "subgroup": "str",
+    "variable": "str",
+    "unit": "str",
+    "phase": "str",
+    "time": "str",
+    "value": "num",
+    "isOutOfRange": "bool",
+    "minValue": "num",
+    "maxValue": "num"
+  }
+}
+
+compacto: #H nest=equipment>day equipment=id,name,facility,area,group,subgroup,variable,unit,phase day=time,value,isOutOfRange,minValue,maxValue

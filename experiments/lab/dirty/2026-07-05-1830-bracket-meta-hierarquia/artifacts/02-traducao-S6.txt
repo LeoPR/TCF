@@ -1,0 +1,10 @@
+# TRADUÇÃO — colunas em ORDEM (DFS) + o meta em COLCHETES (a hierarquia vai no próprio meta)
+
+  nome       1 valor(es)  [escalar/objeto (1 linha)]  ['leonardo']
+  rua        1 valor(es)  [escalar/objeto (1 linha)]  ['Rua Sintetica 100']
+  cidade     1 valor(es)  [escalar/objeto (1 linha)]  ['Cidade X']
+  lat        1 valor(es)  [escalar/objeto (1 linha)]  ['-25.4']
+  lon        1 valor(es)  [escalar/objeto (1 linha)]  ['-49.2']
+  tel        2 valor(es)  [array (>1 linha)]  ['(41) 99999-9999', '(41) 99994-9999']
+
+dedução: M = várias colunas; N = colchetes aninhados; array vs objeto = nº de linhas dos filhos.

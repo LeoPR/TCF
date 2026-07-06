@@ -1,0 +1,45 @@
+# SEÇÃO 1 — RÁPIDO (RLE valor-inteiro) vs PLENO (OBAT/HCC)
+
+A cardinalidade 1:N (do JSON) permite um RLE rápido do pai (valor-inteiro). Mas se há
+redundância INTER-ITEM (afixo compartilhado entre itens), só o OBAT/HCC pleno a pega.
+
+## COM inter-item (email, @empresa.com compartilhado)
+  RÁPIDO (RLE-only):  67 B   :: '*2|leonardo@empresa.com\n*2|mariana@empresa.com\n*2|joao@empresa.com'
+  PLENO  (OBAT/HCC):  48 B   :: '*2|leonard*o*@empresa.com\n*2|mariana3\n*2|joa2,3'
+  → pleno MENOR (pega o afixo inter-item)  [Δ=+19 B]
+
+## SEM inter-item (ids opacos)
+  RÁPIDO (RLE-only):  30 B   :: '*2|a3f9c1\n*2|7b2e88\n*2|c0d4a2'
+  PLENO  (OBAT/HCC):  39 B   :: '*2|a\\3f\\9c\\1\n*2|\\7b\\2e\\88\n*2|c\\0d\\4a\\2'
+  → pleno igual/maior (nada a fatorar → rápido basta)  [Δ=-9 B]
+
+LEITURA: onde há afixo/dicionário cross-item, o PLENO ganha bytes (encode mais lento, mesmo RT).
+Onde não há, o RÁPIDO empata e é mais barato. É o trade velocidade↔razão do owner.
+
+================================================================================
+
+# SEÇÃO 2 — FORÇA de cardinalidade (forte / fraca / quase / induzida)
+
+medidas: multiplicidade (linhas/valor-pai), largura do valor, g3-error (FD aproximada).
+
+## FORTE  (pai repete muito + valor largo)
+  multiplicidade=4.00  largura=18.3  → força: FORTE (alta multiplicidade + valor largo)
+  fast(RLE)=67B  full(TCF)=48B  (a força prevê o quanto há a ganhar)
+
+## FRACA  (pai quase não repete)
+  multiplicidade=1.00  largura=11.0  → força: FRACA (pai quase não repete → pouco a fatorar)
+  fast(RLE)=144B  full(TCF)=42B  (a força prevê o quanto há a ganhar)
+
+## QUASE (FD aproximada — cpf→nome com 1 linha suja Cida/CIDA)
+  classe (contagem): 1:N  |  g3-error(cpf→nome) = 0.167 (1/6 linhas)
+  → força: QUASE (FD aproximada, g3>0)
+  → NÃO normalizar em silêncio (g3>0 = lossy); surfaçar como anomaly_flag (‘só detecta, nunca arruma’).
+
+## INDUZIDA (por definição, do JSON)
+  o schema do JSON já DITA a cardinalidade (1:N exato, g3=0 por construção). Não precisa deduzir;
+  a hierarquia vem de graça e o TCF pode explorá-la (rápido) OU rodar pleno (mais compressão).
+
+ACHADO-CHAVE (ortogonalidade): a FRACA acima tem full(42) << fast(144) — mas o ganho vem do AFIXO
+compartilhado ('cliente_'), NÃO da cardinalidade (multiplicidade=1, nada a normalizar). Ou seja:
+  CARDINALIDADE (multiplicidade → normalização/RLE) ≠ COMPRESSIBILIDADE (afixo/inter-item → OBAT/HCC).
+São EIXOS ORTOGONAIS. O trade rápido-vs-pleno é sobre QUAL redundância explorar, não sobre a força.

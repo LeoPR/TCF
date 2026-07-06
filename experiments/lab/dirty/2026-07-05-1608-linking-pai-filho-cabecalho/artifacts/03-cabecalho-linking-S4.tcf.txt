@@ -1,0 +1,10 @@
+#TCF.8 N
+@b0 root nome:str telefones>1
+@b1 arr tel:str
+@data 0
+#TCF.8
+leonardo
+@data 1
+#TCF.8
+(\41) \9999*\9*-\9999
+1\4*3

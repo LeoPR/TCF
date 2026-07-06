@@ -1,0 +1,56 @@
+{
+  "blocks": [
+    {
+      "pos": 0,
+      "name": "equipment",
+      "rows": 1,
+      "cols": [
+        "id",
+        "name",
+        "facility",
+        "area",
+        "group",
+        "subgroup",
+        "variable",
+        "unit",
+        "phase"
+      ]
+    },
+    {
+      "pos": 1,
+      "name": "day",
+      "rows": 16,
+      "cols": [
+        "eq_fk",
+        "time",
+        "value",
+        "isOutOfRange",
+        "minValue",
+        "maxValue"
+      ]
+    }
+  ],
+  "link": {
+    "from": "day.eq_fk",
+    "to": "equipment.id"
+  },
+  "nest": "equipment>day",
+  "types": {
+    "id": "str",
+    "name": "str",
+    "facility": "str",
+    "area": "str",
+    "group": "str",
+    "subgroup": "str",
+    "variable": "str",
+    "unit": "str",
+    "phase": "str",
+    "time": "str",
+    "value": "num",
+    "isOutOfRange": "bool",
+    "minValue": "num",
+    "maxValue": "num"
+  }
+}
+
+compacto: #H b0=equipment:1 b1=day:16 fk=day.eq_fk->equipment.id

@@ -1,0 +1,18 @@
+# S4 — árvore: {"nome": "leonardo", "telefones": [{"tel": "(41) 99999-9999"}, {"tel": "(41) 99994-9999"}]...
+
+notação                     | bytes | RT topologia | string
+--------------------------------------------------------------------------------------------------------------
+S start/end   (colchetes)   |    19 | OK          | nome,telefones[tel]
+A descend/asc  (> <)        |    19 | OK          | nome,telefones>tel<
+C contagem     (nome*N)     |    20 | OK          | nome telefones*1 tel
+D profundidade (nome:d)     |    24 | OK          | nome:1 telefones:1 tel:2
+
+leitura:
+ - S e A são a MESMA família (delimitador casado): ~mesmos bytes, 2 marcas por grupo interno.
+ - C (contagem) marca SÓ nós internos (folhas ficam nuas) → menos marcas em árvore com muitas folhas.
+ - D (profundidade) marca TODO nó (inclusive folhas) → 1 número por coluna.
+
+teoria: lista linear de irmãos + separador NÃO reconstrói árvore; precisa de UM portador de
+forma — {delimitador casado} OU {contagem/aridade} OU {profundidade}. 'Símbolo entre elementos'
+só resolve se o símbolo for um desses (ex.: > < = delimitador). array-vs-objeto continua
+deduzido do nº de linhas (peça 5), ortogonal à notação.

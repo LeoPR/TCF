@@ -1,0 +1,10 @@
+# blocos (TRADUÇÃO): cada objeto/array vira 1 bloco; campo 'nome>K' = aresta pai→filho
+
+b0 [root]  campos: nome:str, endereco→b1, telefones→b3
+     tabela: nome   (1 linha(s))
+b1 [obj]  campos: rua:str, cidade:str, geo→b2
+     tabela: rua, cidade   (1 linha(s))
+b2 [obj]  campos: lat:str, lon:str
+     tabela: lat, lon   (1 linha(s))
+b3 [arr]  campos: tel:str
+     tabela: tel   (2 linha(s))

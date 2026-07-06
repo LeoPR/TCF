@@ -1,0 +1,6 @@
+#TCF.8 M N
+#H nome telefones[tel]
+9=nome,tel
+leonardo
+(\41) \9999*\9*-\9999
+1\4*3

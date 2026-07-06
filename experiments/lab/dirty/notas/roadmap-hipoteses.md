@@ -568,7 +568,34 @@ prototipo clean (`experiments/lab/clean/EXP-XXX-*`) e' pra testar
 Atualizar quando: hipotese confirmada/refutada/movida-de-status, OU
 nova hipotese identificada.
 
-**Ultima atualizacao**: 2026-07-05 — **nested-TCF study + matriz de transmissao completada (H-NEST-01)** + T1 (H-TX-01)
+**Ultima atualizacao**: 2026-07-05 — **estudo TCF-hierarquico: grupo de 8 pecas + teoria de cardinalidade (H-CARD-01..07)** + nested (H-NEST-01) + T1 (H-TX-01)
+
+- **ESTUDO TCF-HIERARQUICO (grupo de pecas, owner 2026-07-05)** — como representar documento JSON aninhado
+  em TCF. NAO e' 1 lab; e' um GRUPO de 8 pecas ordenadas (dia+HHMM). Mapa:
+  [`estudo-tcf-hierarquico-mapa.md`](estudo-tcf-hierarquico-mapa.md); guarda-chuva T-STUDY-HIERARCHICAL-TCF.
+  Pecas: P1 tabelao-vs-2tabelas (RLE<->referencia, dual) · P2 tcf8-envelope · P3 linking pai/filho (blocos) ·
+  P4 multi-col+N · P5 colchetes-no-meta · P6 estudo-notacoes (portador de forma) · P7 cardinalidade-inferencia
+  (FD) · P8 teoria-cardinalidade (forca + rapido-vs-pleno). Teoria: [`teoria-cardinalidade.md`](teoria-cardinalidade.md).
+  Tudo RT OK, `confirmada-conceitual` (feasibility; nao toca src/tcf; sao adaptadores/camadas externas).
+  - **H-CARD-01** (rapido-vs-pleno): (a) guiada-por-estrutura (RLE do pai) e (b) plena (OBAT/HCC) coincidem
+    em RT; divergem em (velocidade, razao). Avaliacao parcial: (a)=(b) com busca restrita. `em-exp`.
+  - **H-CARD-02** (dominancia fraca): (b)>(a) em bytes so' com 3 condicoes (inter-item existe + guloso
+    realiza + largura>overhead); MEDIDO (peca 8): em ids opacos (a) e' MENOR (+9B) — encoder guloso nao-otimo.
+  - **H-CARD-03** (ortogonalidade): CARDINALIDADE (multiplicidade->normalizacao/RLE) ⊥ COMPRESSIBILIDADE
+    (afixo/inter-item->OBAT/HCC). MEDIDO (peca 8): coluna FRACA (mult=1) comprime muito por afixo, nao por card.
+  - **H-CARD-04** (quase-cardinalidade): sob near-FD (g3>0) a via guiada exige side-channel de excecoes; a
+    plena e' lossless de graca (nao afirma a FD). NAO normalizar g3>0 em silencio (lossy).
+  - **H-CARD-05** (chave vs grupo): distinguir CHAVE (d=n, FD trivial, 0 repeticao, zero ganho) de
+    GRUPO-COARSE (d<<n) ANTES de propor a via guiada.
+  - **H-CARD-06** (order dependency): o RLE do pai exige o pai AGRUPADO. Ordem livre -> sort+RLE O(d);
+    ordem semantica -> paga side-channel de permutacao (= rep/def levels do Dremel).
+  - **H-CARD-07** (sobrevive ao brotli?): o ganho inter-item (camada 2) pode nao sobreviver ao brotli a
+    jusante. Medir {fast,full}+brotli em real-world N>=5. `aberta`.
+  - **Reconciliacao (dispositivo)**: as duas vias sao um CASCADE (arquetipo Parquet: schema-aware primeiro,
+    compressor geral depois), nao rivais. Prior-art: Futamura, TANE/HyFD, g3-error, Dremel, factorized DBs.
+  - **Agenda**: FD aproximada real-world · determinante composto (TANE) · two-stage medido · N:N/link posicional.
+
+- **H-NEST-01** (JSON aninhado / "TCF aninhado similar ao JSON", owner 2026-07-05): o TCF e' tabular; o
 
 - **H-NEST-01** (JSON aninhado / "TCF aninhado similar ao JSON", owner 2026-07-05): o TCF e' tabular; o
   nesting de DOCUMENTO (arvore obj/array) nao existe (o nesting M0 patricia-aninhado era de VALOR/afixo,

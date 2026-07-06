@@ -1,0 +1,15 @@
+# 1x1-cpf-nome
+
+colunas: A=cpf  B=nome   (3 linhas)
+tabela plana:
+           111 | Ana
+           222 | Bob
+           333 | Cida
+
+distintos: |cpf|=3  |nome|=3  |pares|=3
+FD: cpf→nome? True   nome→cpf? True
+=> CARDINALIDADE cpf:nome = **1:1**   (bijeção — nada a fatorar (TCF nativo))
+
+mapa TCF: TCF nativo (colunas 1x1, retangular). Nada a fatorar.
+
+1:1 é o caso natural do TCF; as duas colunas seguem lado a lado.

@@ -1,0 +1,14 @@
+# TRADUÇÃO — colunas em ORDEM (DFS) + a linha de hierarquia que as reagrupa
+
+#H  nome endereco{rua cidade geo{lat lon}} telefones[tel]
+
+colunas (na ordem em que entram no corpo multi-col):
+  nome         1 valor(es)   ['leonardo']
+  rua          1 valor(es)   ['Rua Sintetica 100']
+  cidade       1 valor(es)   ['Cidade X']
+  lat          1 valor(es)   ['-25.4']
+  lon          1 valor(es)   ['-49.2']
+  tel          2 valor(es)   ['(41) 99999-9999', '(41) 99994-9999']
+
+leitura: colunas de 1 valor = escalar de nível (raiz/objeto); coluna de N = array.
+         a #H diz quem é raiz, objeto{...} e array[...]; agrupa as colunas pela ordem.

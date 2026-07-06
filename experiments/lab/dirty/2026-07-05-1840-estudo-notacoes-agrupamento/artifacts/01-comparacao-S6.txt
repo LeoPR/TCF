@@ -1,0 +1,18 @@
+# S6 — árvore: {"nome": "leonardo", "endereco": {"rua": "Rua Sintetica 100", "cidade": "Cidade X", "geo":...
+
+notação                     | bytes | RT topologia | string
+--------------------------------------------------------------------------------------------------------------
+S start/end   (colchetes)   |    53 | OK          | nome,endereco[rua,cidade,geo[lat,lon]],telefones[tel]
+A descend/asc  (> <)        |    53 | OK          | nome,endereco>rua,cidade,geo>lat,lon<<,telefones>tel<
+C contagem     (nome*N)     |    56 | OK          | nome endereco*3 rua cidade geo*2 lat lon telefones*1 tel
+D profundidade (nome:d)     |    68 | OK          | nome:1 endereco:1 rua:2 cidade:2 geo:2 lat:3 lon:3 telefones:1 tel:2
+
+leitura:
+ - S e A são a MESMA família (delimitador casado): ~mesmos bytes, 2 marcas por grupo interno.
+ - C (contagem) marca SÓ nós internos (folhas ficam nuas) → menos marcas em árvore com muitas folhas.
+ - D (profundidade) marca TODO nó (inclusive folhas) → 1 número por coluna.
+
+teoria: lista linear de irmãos + separador NÃO reconstrói árvore; precisa de UM portador de
+forma — {delimitador casado} OU {contagem/aridade} OU {profundidade}. 'Símbolo entre elementos'
+só resolve se o símbolo for um desses (ex.: > < = delimitador). array-vs-objeto continua
+deduzido do nº de linhas (peça 5), ortogonal à notação.

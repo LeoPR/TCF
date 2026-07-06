@@ -1,0 +1,127 @@
+{
+  "equipment": {
+    "id": "EQP_001",
+    "name": "Equipamento Sintetico 01",
+    "facility": "FAC_A",
+    "area": "AREA_X",
+    "group": "GRP_1",
+    "subgroup": "SUB_1",
+    "variable": "var_a",
+    "unit": "unit_a",
+    "phase": "-"
+  },
+  "day": [
+    {
+      "time": "00:14",
+      "value": 550.0,
+      "isOutOfRange": false,
+      "minValue": null,
+      "maxValue": null
+    },
+    {
+      "time": "00:29",
+      "value": 550.0,
+      "isOutOfRange": false,
+      "minValue": null,
+      "maxValue": null
+    },
+    {
+      "time": "00:44",
+      "value": 548.5,
+      "isOutOfRange": false,
+      "minValue": null,
+      "maxValue": null
+    },
+    {
+      "time": "00:59",
+      "value": 548.5,
+      "isOutOfRange": false,
+      "minValue": null,
+      "maxValue": null
+    },
+    {
+      "time": "01:14",
+      "value": 548.5,
+      "isOutOfRange": false,
+      "minValue": null,
+      "maxValue": null
+    },
+    {
+      "time": "01:29",
+      "value": 544.4,
+      "isOutOfRange": false,
+      "minValue": null,
+      "maxValue": null
+    },
+    {
+      "time": "01:44",
+      "value": 544.4,
+      "isOutOfRange": false,
+      "minValue": null,
+      "maxValue": null
+    },
+    {
+      "time": "01:59",
+      "value": 544.4,
+      "isOutOfRange": false,
+      "minValue": null,
+      "maxValue": null
+    },
+    {
+      "time": "02:14",
+      "value": 544.4,
+      "isOutOfRange": false,
+      "minValue": null,
+      "maxValue": null
+    },
+    {
+      "time": "02:29",
+      "value": 525.8,
+      "isOutOfRange": false,
+      "minValue": null,
+      "maxValue": null
+    },
+    {
+      "time": "02:44",
+      "value": 525.8,
+      "isOutOfRange": false,
+      "minValue": null,
+      "maxValue": null
+    },
+    {
+      "time": "02:59",
+      "value": 525.8,
+      "isOutOfRange": false,
+      "minValue": null,
+      "maxValue": null
+    },
+    {
+      "time": "03:14",
+      "value": 520.1,
+      "isOutOfRange": false,
+      "minValue": null,
+      "maxValue": null
+    },
+    {
+      "time": "03:29",
+      "value": 520.1,
+      "isOutOfRange": false,
+      "minValue": null,
+      "maxValue": null
+    },
+    {
+      "time": "03:44",
+      "value": 518.75,
+      "isOutOfRange": true,
+      "minValue": 519.0,
+      "maxValue": 525.0
+    },
+    {
+      "time": "03:59",
+      "value": 518.75,
+      "isOutOfRange": false,
+      "minValue": null,
+      "maxValue": null
+    }
+  ]
+}

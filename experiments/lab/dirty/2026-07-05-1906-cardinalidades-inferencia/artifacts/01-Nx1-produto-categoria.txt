@@ -1,0 +1,19 @@
+# Nx1-produto-categoria
+
+colunas: A=produto  B=categoria   (4 linhas)
+tabela plana:
+            P1 | eletronico
+            P2 | eletronico
+            P3 | alimento
+            P4 | alimento
+
+distintos: |produto|=4  |categoria|=2  |pares|=4
+FD: produto→categoria? True   categoria→produto? False
+=> CARDINALIDADE produto:categoria = **N:1**   (B é o '1' (repete, é DICIONÁRIO/categoria); A é o 'N')
+
+mapa TCF: @dict low-card: valor guardado 1x + índice por linha (o TCF JÁ faz isso).
+
+fatoração — B é dicionário low-card:
+    dicionário B (2): ['eletronico', 'alimento']
+    índice por linha: [0, 0, 1, 1]
+    → é o @dict que o TCF já emite; a cardinalidade N:1 EXPLICA o @dict.

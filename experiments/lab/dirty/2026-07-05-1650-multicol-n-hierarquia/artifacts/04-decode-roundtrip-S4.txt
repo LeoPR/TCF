@@ -1,0 +1,24 @@
+# DECODE S4 — split por bytes → colunas → reagrupa pela #H → JSON
+
+reconstruído == entrada ? OK
+
+--- o TCF-MN (o que foi decodado) ---
+#TCF.8 M N
+#H nome telefones[tel]
+9=nome,tel
+leonardo
+(\41) \9999*\9*-\9999
+1\4*3
+
+--- JSON reconstruído ---
+{
+  "nome": "leonardo",
+  "telefones": [
+    {
+      "tel": "(41) 99999-9999"
+    },
+    {
+      "tel": "(41) 99994-9999"
+    }
+  ]
+}

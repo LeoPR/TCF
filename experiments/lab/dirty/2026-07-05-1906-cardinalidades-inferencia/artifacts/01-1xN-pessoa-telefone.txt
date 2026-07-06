@@ -1,0 +1,20 @@
+# 1xN-pessoa-telefone
+
+colunas: A=pessoa  B=telefone   (3 linhas)
+tabela plana:
+      leonardo | (41) 99999-9999
+      leonardo | (41) 99994-9999
+         maria | (11) 98888-8888
+
+distintos: |pessoa|=2  |telefone|=3  |pares|=3
+FD: pessoa→telefone? False   telefone→pessoa? True
+=> CARDINALIDADE pessoa:telefone = **1:N**   (A é o '1' (repete, é PAI); B é o 'N')
+
+mapa TCF: hierarquia: pai guardado 1x + coluna-filho ligada (peça 3/4/5). O '*N|' do plano some.
+
+fatoração (normalização) — o pai vira 'elemento' 1x:
+    pais distintos (2): ['leonardo', 'maria']
+    leonardo → ['(41) 99999-9999', '(41) 99994-9999']
+    maria → ['(11) 98888-8888']
+    bytes A: plano(repetido)=21  1x=13  economia≈8 chars
+    → declarar 1:N no header = trocar o RLE '*N|pai' por 'pai 1x + link' (dual da peça 1).

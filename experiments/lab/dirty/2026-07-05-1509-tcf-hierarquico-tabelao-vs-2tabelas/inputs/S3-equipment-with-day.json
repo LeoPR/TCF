@@ -1,0 +1,31 @@
+{
+  "equipment": {
+    "id": "EQP_001",
+    "name": "Equipamento Sintetico 01",
+    "facility": "FAC_A",
+    "area": "AREA_X",
+    "group": "GRP_1",
+    "subgroup": "SUB_1",
+    "variable": "var_a",
+    "unit": "unit_a",
+    "phase": "-"
+  },
+  "day": [
+    {"time": "00:14", "value": 550.00, "isOutOfRange": false, "minValue": null, "maxValue": null},
+    {"time": "00:29", "value": 550.00, "isOutOfRange": false, "minValue": null, "maxValue": null},
+    {"time": "00:44", "value": 548.50, "isOutOfRange": false, "minValue": null, "maxValue": null},
+    {"time": "00:59", "value": 548.50, "isOutOfRange": false, "minValue": null, "maxValue": null},
+    {"time": "01:14", "value": 548.50, "isOutOfRange": false, "minValue": null, "maxValue": null},
+    {"time": "01:29", "value": 544.40, "isOutOfRange": false, "minValue": null, "maxValue": null},
+    {"time": "01:44", "value": 544.40, "isOutOfRange": false, "minValue": null, "maxValue": null},
+    {"time": "01:59", "value": 544.40, "isOutOfRange": false, "minValue": null, "maxValue": null},
+    {"time": "02:14", "value": 544.40, "isOutOfRange": false, "minValue": null, "maxValue": null},
+    {"time": "02:29", "value": 525.80, "isOutOfRange": false, "minValue": null, "maxValue": null},
+    {"time": "02:44", "value": 525.80, "isOutOfRange": false, "minValue": null, "maxValue": null},
+    {"time": "02:59", "value": 525.80, "isOutOfRange": false, "minValue": null, "maxValue": null},
+    {"time": "03:14", "value": 520.10, "isOutOfRange": false, "minValue": null, "maxValue": null},
+    {"time": "03:29", "value": 520.10, "isOutOfRange": false, "minValue": null, "maxValue": null},
+    {"time": "03:44", "value": 518.75, "isOutOfRange": true, "minValue": 519.00, "maxValue": 525.00},
+    {"time": "03:59", "value": 518.75, "isOutOfRange": false, "minValue": null, "maxValue": null}
+  ]
+}

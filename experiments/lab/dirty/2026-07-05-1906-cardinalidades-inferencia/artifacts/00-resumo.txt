@@ -1,0 +1,14 @@
+# ESTUDO — inferência de cardinalidade (1x1/1xN/Nx1/NxN) → mecânica TCF [probatório]
+
+Deduz a cardinalidade de uma tabela PLANA (como um CSV) pela contagem de distintos (FD).
+
+| exemplo | A:B | dedução | mecânica TCF |
+|---|---|---|---|
+| 1x1-cpf-nome | **1:1** | |A|=3 |B|=3 |AB|=3 | TCF nativo |
+| 1xN-pessoa-telefone | **1:N** | |A|=2 |B|=3 |AB|=3 | hierarquia |
+| Nx1-produto-categoria | **N:1** | |A|=4 |B|=2 |AB|=4 | @dict low-card |
+| NxN-pessoa-curso | **N:N** | |A|=2 |B|=2 |AB|=3 | tabela-ponte |
+
+PRINCÍPIO: a cardinalidade é uma CAMADA DECLARATIVA (independe do encoding, como OBAT/HCC).
+1:1 nativo · 1:N → hierarquia (pai 1x + link, o dual do RLE) · N:1 → @dict · N:N → ponte.
+Deduz do CSV (contagem/FD) OU vem definida do JSON (a árvore já força a hierarquia).

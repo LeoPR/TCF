@@ -1,0 +1,46 @@
+# DECODE S6 — desaninha o cabeçalho, decoda os blocos, reconstrói o JSON
+
+reconstruído == entrada ? OK
+
+--- estrutura aninhada (o que foi decodado) ---
+#TCF.8 N
+@b0 root nome:str endereco>1 telefones>3
+@b1 obj rua:str cidade:str geo>2
+@b2 obj lat:str lon:str
+@b3 arr tel:str
+@data 0
+#TCF.8
+leonardo
+@data 1
+#TCF.7 M
+!17=rua,!cidade
+Rua Sintetica 100Cidade X
+@data 2
+#TCF.7 M
+!5=lat,!lon
+-25.4-49.2
+@data 3
+#TCF.8
+(\41) \9999*\9*-\9999
+1\4*3
+
+--- JSON reconstruído (deve ser idêntico à entrada) ---
+{
+  "nome": "leonardo",
+  "endereco": {
+    "rua": "Rua Sintetica 100",
+    "cidade": "Cidade X",
+    "geo": {
+      "lat": "-25.4",
+      "lon": "-49.2"
+    }
+  },
+  "telefones": [
+    {
+      "tel": "(41) 99999-9999"
+    },
+    {
+      "tel": "(41) 99994-9999"
+    }
+  ]
+}

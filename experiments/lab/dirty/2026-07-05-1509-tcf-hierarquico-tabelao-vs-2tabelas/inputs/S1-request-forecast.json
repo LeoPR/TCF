@@ -1,0 +1,47 @@
+{
+  "equipments": ["EQP_001", "EQP_002", "EQP_003"],
+  "facilities": ["FAC_A"],
+  "subgroups": ["SUB_1", "SUB_2"],
+  "areas": ["AREA_X"],
+  "groups": ["GRP_1"],
+  "variables": ["var_a", "var_b"],
+  "horizon": "1d",
+  "resolution": "15m",
+  "phase": "-",
+  "start": "2026-01-01T00:00",
+  "end": "2026-01-02T00:00",
+  "verbose": "prod",
+  "include_breakdown": true,
+  "include_aggregations": true,
+  "history": "7d",
+  "start_value": 0,
+  "cumulate": false,
+  "ignore_dormancy": false,
+  "observations": [
+    {
+      "equipment": "EQP_001",
+      "variable": "var_a",
+      "phase": "-",
+      "start": "2026-01-01T00:00",
+      "resolution": "15m",
+      "values": [100.0, null],
+      "points": [
+        {"ds": "2026-01-01T00:00", "value": 100.0},
+        {"ds": "2026-01-01T00:15", "value": 100.0},
+        {"ds": "2026-01-01T00:30", "value": 101.5}
+      ]
+    },
+    {
+      "equipment": "EQP_002",
+      "variable": "var_a",
+      "phase": "-",
+      "start": "2026-01-01T00:00",
+      "resolution": "15m",
+      "values": [200.0, null],
+      "points": [
+        {"ds": "2026-01-01T00:00", "value": 200.0},
+        {"ds": "2026-01-01T00:15", "value": 200.0}
+      ]
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+# NxN-pessoa-curso
+
+colunas: A=pessoa  B=curso   (3 linhas)
+tabela plana:
+      leonardo | math
+      leonardo | physics
+         maria | math
+
+distintos: |pessoa|=2  |curso|=2  |pares|=3
+FD: pessoa→curso? False   curso→pessoa? False
+=> CARDINALIDADE pessoa:curso = **N:N**   (nenhuma FD — precisa de tabela-ponte)
+
+mapa TCF: tabela-ponte: dict(A) + dict(B) + lista de pares (índices).
+
+fatoração — tabela-ponte (junction):
+    dict A (2): ['leonardo', 'maria']
+    dict B (2): ['math', 'physics']
+    pares (índices): [(0, 0), (0, 1), (1, 0)]
+    → NxN não vira hierarquia simples; precisa da ponte (2 dicts + pares).

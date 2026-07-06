@@ -1,0 +1,482 @@
+# TRACE OBAT/HCC — B · T0-equipment — por coluna
+
+col(id): 1 unicos -> 9 B  [cadence=False(None) min_len=3 hint=False seq_rle_runs=0]
+  --- OBAT log ---
+min_len = 3
+
+--- string 1: 'EQP_001' (len=7) ---
+  primeira string -> literal puro
+  --- HCC trace ---
+# Optimization trace — syntax=M8-A-seq-rle
+
+=== DETECTOR ITERATIONS (unified — atoms + virtuals) ===
+
+--- Iter 1 ---
+Sub-tuplas K>=2 com R>=2: 0  net>0: 0
+Nenhum candidato com net > 0. STOP.
+
+=== MISSED OPPORTUNITIES (post-hoc) ===
+  (nenhum)
+
+Total estimated missed: 0
+
+col(name): 1 unicos -> 26 B  [cadence=False(None) min_len=3 hint=False seq_rle_runs=0]
+  --- OBAT log ---
+min_len = 3
+
+--- string 1: 'Equipamento Sintetico 01' (len=24) ---
+  primeira string -> literal puro
+  --- HCC trace ---
+# Optimization trace — syntax=M8-A-seq-rle
+
+=== DETECTOR ITERATIONS (unified — atoms + virtuals) ===
+
+--- Iter 1 ---
+Sub-tuplas K>=2 com R>=2: 0  net>0: 0
+Nenhum candidato com net > 0. STOP.
+
+=== MISSED OPPORTUNITIES (post-hoc) ===
+  (nenhum)
+
+Total estimated missed: 0
+
+col(facility): 1 unicos -> 6 B  [cadence=False(None) min_len=3 hint=False seq_rle_runs=0]
+  --- OBAT log ---
+min_len = 3
+
+--- string 1: 'FAC_A' (len=5) ---
+  primeira string -> literal puro
+  --- HCC trace ---
+# Optimization trace — syntax=M8-A-seq-rle
+
+=== DETECTOR ITERATIONS (unified — atoms + virtuals) ===
+
+--- Iter 1 ---
+Sub-tuplas K>=2 com R>=2: 0  net>0: 0
+Nenhum candidato com net > 0. STOP.
+
+=== MISSED OPPORTUNITIES (post-hoc) ===
+  (nenhum)
+
+Total estimated missed: 0
+
+col(area): 1 unicos -> 7 B  [cadence=False(None) min_len=3 hint=False seq_rle_runs=0]
+  --- OBAT log ---
+min_len = 3
+
+--- string 1: 'AREA_X' (len=6) ---
+  primeira string -> literal puro
+  --- HCC trace ---
+# Optimization trace — syntax=M8-A-seq-rle
+
+=== DETECTOR ITERATIONS (unified — atoms + virtuals) ===
+
+--- Iter 1 ---
+Sub-tuplas K>=2 com R>=2: 0  net>0: 0
+Nenhum candidato com net > 0. STOP.
+
+=== MISSED OPPORTUNITIES (post-hoc) ===
+  (nenhum)
+
+Total estimated missed: 0
+
+col(group): 1 unicos -> 7 B  [cadence=False(None) min_len=3 hint=False seq_rle_runs=0]
+  --- OBAT log ---
+min_len = 3
+
+--- string 1: 'GRP_1' (len=5) ---
+  primeira string -> literal puro
+  --- HCC trace ---
+# Optimization trace — syntax=M8-A-seq-rle
+
+=== DETECTOR ITERATIONS (unified — atoms + virtuals) ===
+
+--- Iter 1 ---
+Sub-tuplas K>=2 com R>=2: 0  net>0: 0
+Nenhum candidato com net > 0. STOP.
+
+=== MISSED OPPORTUNITIES (post-hoc) ===
+  (nenhum)
+
+Total estimated missed: 0
+
+col(subgroup): 1 unicos -> 7 B  [cadence=False(None) min_len=3 hint=False seq_rle_runs=0]
+  --- OBAT log ---
+min_len = 3
+
+--- string 1: 'SUB_1' (len=5) ---
+  primeira string -> literal puro
+  --- HCC trace ---
+# Optimization trace — syntax=M8-A-seq-rle
+
+=== DETECTOR ITERATIONS (unified — atoms + virtuals) ===
+
+--- Iter 1 ---
+Sub-tuplas K>=2 com R>=2: 0  net>0: 0
+Nenhum candidato com net > 0. STOP.
+
+=== MISSED OPPORTUNITIES (post-hoc) ===
+  (nenhum)
+
+Total estimated missed: 0
+
+col(variable): 1 unicos -> 6 B  [cadence=False(None) min_len=3 hint=False seq_rle_runs=0]
+  --- OBAT log ---
+min_len = 3
+
+--- string 1: 'var_a' (len=5) ---
+  primeira string -> literal puro
+  --- HCC trace ---
+# Optimization trace — syntax=M8-A-seq-rle
+
+=== DETECTOR ITERATIONS (unified — atoms + virtuals) ===
+
+--- Iter 1 ---
+Sub-tuplas K>=2 com R>=2: 0  net>0: 0
+Nenhum candidato com net > 0. STOP.
+
+=== MISSED OPPORTUNITIES (post-hoc) ===
+  (nenhum)
+
+Total estimated missed: 0
+
+col(unit): 1 unicos -> 7 B  [cadence=False(None) min_len=3 hint=False seq_rle_runs=0]
+  --- OBAT log ---
+min_len = 3
+
+--- string 1: 'unit_a' (len=6) ---
+  primeira string -> literal puro
+  --- HCC trace ---
+# Optimization trace — syntax=M8-A-seq-rle
+
+=== DETECTOR ITERATIONS (unified — atoms + virtuals) ===
+
+--- Iter 1 ---
+Sub-tuplas K>=2 com R>=2: 0  net>0: 0
+Nenhum candidato com net > 0. STOP.
+
+=== MISSED OPPORTUNITIES (post-hoc) ===
+  (nenhum)
+
+Total estimated missed: 0
+
+col(phase): 1 unicos -> 2 B  [cadence=False(None) min_len=3 hint=False seq_rle_runs=0]
+  --- OBAT log ---
+min_len = 3
+
+--- string 1: '-' (len=1) ---
+  primeira string -> literal puro
+  --- HCC trace ---
+# Optimization trace — syntax=M8-A-seq-rle
+
+=== DETECTOR ITERATIONS (unified — atoms + virtuals) ===
+
+--- Iter 1 ---
+Sub-tuplas K>=2 com R>=2: 0  net>0: 0
+Nenhum candidato com net > 0. STOP.
+
+=== MISSED OPPORTUNITIES (post-hoc) ===
+  (nenhum)
+
+Total estimated missed: 0
+
+
+======================================================================
+# TRACE OBAT/HCC — B · T1-day — por coluna
+
+col(eq_fk): 1 unicos -> 13 B  [cadence=False(None) min_len=3 hint=False seq_rle_runs=0]
+  --- OBAT log ---
+min_len = 3
+
+--- string 1: 'EQP_001' (len=7) ---
+  primeira string -> literal puro
+  --- HCC trace ---
+# Optimization trace — syntax=M8-A-seq-rle
+
+=== DETECTOR ITERATIONS (unified — atoms + virtuals) ===
+
+--- Iter 1 ---
+Sub-tuplas K>=2 com R>=2: 0  net>0: 0
+Nenhum candidato com net > 0. STOP.
+
+=== MISSED OPPORTUNITIES (post-hoc) ===
+  (nenhum)
+
+Total estimated missed: 0
+
+col(time): 16 unicos -> 107 B  [cadence=False(None) min_len=3 hint=False seq_rle_runs=4]
+  --- OBAT log ---
+min_len = 3
+
+--- string 1: '00:14' (len=5) ---
+  primeira string -> literal puro
+
+--- string 2: '00:29' (len=5) ---
+  pref: len=3 de string 1
+  suf:  len=0 de string 0
+  cobertura: 3 de 5
+  tokens: [P(1,3) + L('29')]
+
+--- string 3: '00:44' (len=5) ---
+  pref: len=3 de string 1
+  suf:  len=0 de string 0
+  cobertura: 3 de 5
+  tokens: [P(1,3) + L('44')]
+
+--- string 4: '00:59' (len=5) ---
+  pref: len=3 de string 1
+  suf:  len=0 de string 0
+  cobertura: 3 de 5
+  tokens: [P(1,3) + L('59')]
+
+--- string 5: '01:14' (len=5) ---
+  pref: len=0 de string 0
+  suf:  len=3 de string 1
+  cobertura: 3 de 5
+  tokens: [L('01') + S(1,3)]
+
+--- string 6: '01:29' (len=5) ---
+  pref: len=3 de string 5
+  suf:  len=0 de string 0
+  cobertura: 3 de 5
+  tokens: [P(5,3) + L('29')]
+
+--- string 7: '01:44' (len=5) ---
+  pref: len=3 de string 5
+  suf:  len=0 de string 0
+  cobertura: 3 de 5
+  tokens: [P(5,3) + L('44')]
+
+--- string 8: '01:59' (len=5) ---
+  pref: len=3 de string 5
+  suf:  len=0 de string 0
+  cobertura: 3 de 5
+  tokens: [P(5,3) + L('59')]
+
+--- string 9: '02:14' (len=5) ---
+  pref: len=0 de string 0
+  suf:  len=3 de string 1
+  cobertura: 3 de 5
+  tokens: [L('02') + S(1,3)]
+
+--- string 10: '02:29' (len=5) ---
+  pref: len=3 de string 9
+  suf:  len=0 de string 0
+  cobertura: 3 de 5
+  tokens: [P(9,3) + L('29')]
+
+--- string 11: '02:44' (len=5) ---
+  pref: len=3 de string 9
+  suf:  len=0 de string 0
+  cobertura: 3 de 5
+  tokens: [P(9,3) + L('44')]
+
+--- string 12: '02:59' (len=5) ---
+  pref: len=3 de string 9
+  suf:  len=0 de string 0
+  cobertura: 3 de 5
+  tokens: [P(9,3) + L('59')]
+
+--- string 13: '03:14' (len=5) ---
+  pref: len=0 de string 0
+  suf:  len=3 de string 1
+  cobertura: 3 de 5
+  tokens: [L('03') + S(1,3)]
+
+--- string 14: '03:29' (len=5) ---
+  pref: len=3 de string 13
+  suf:  len=0 de string 0
+  cobertura: 3 de 5
+  tokens: [P(13,3) + L('29')]
+
+--- string 15: '03:44' (len=5) ---
+  pref: len=3 de string 13
+  suf:  len=0 de string 0
+  cobertura: 3 de 5
+  tokens: [P(13,3) + L('44')]
+
+--- string 16: '03:59' (len=5) ---
+  pref: len=3 de string 13
+  suf:  len=0 de string 0
+  cobertura: 3 de 5
+  tokens: [P(13,3) + L('59')]
+  --- HCC trace ---
+# Optimization trace — syntax=M8-A-seq-rle
+
+=== DETECTOR ITERATIONS (unified — atoms + virtuals) ===
+
+--- Iter 1 ---
+Sub-tuplas K>=2 com R>=2: 5  net>0: 5
+  11,2                     | R=3 Lr=4 len(N)~2 net=(2)*(4-2)=4 <- PICK
+  15,2                     | R=3 Lr=4 len(N)~2 net=(2)*(4-2)=4
+  1,2                      | R=3 Lr=3 len(N)~2 net=(2)*(3-2)=2
+  2,3                      | R=3 Lr=3 len(N)~2 net=(2)*(3-2)=2
+  7,2                      | R=3 Lr=3 len(N)~2 net=(2)*(3-2)=2
+  AMBIGUIDADE: 2 candidates empatam em net=4
+Substituido em 3 ocorrencias (linhas [10, 11, 12])
+
+--- Iter 2 ---
+Sub-tuplas K>=2 com R>=2: 4  net>0: 4
+  15,2                     | R=3 Lr=4 len(N)~2 net=(2)*(4-2)=4 <- PICK
+  1,2                      | R=3 Lr=3 len(N)~2 net=(2)*(3-2)=2
+  2,3                      | R=3 Lr=3 len(N)~2 net=(2)*(3-2)=2
+  7,2                      | R=3 Lr=3 len(N)~2 net=(2)*(3-2)=2
+Substituido em 3 ocorrencias (linhas [14, 15, 16])
+
+--- Iter 3 ---
+Sub-tuplas K>=2 com R>=2: 3  net>0: 3
+  1,2                      | R=3 Lr=3 len(N)~2 net=(2)*(3-2)=2 <- PICK
+  2,3                      | R=3 Lr=3 len(N)~2 net=(2)*(3-2)=2
+  7,2                      | R=3 Lr=3 len(N)~2 net=(2)*(3-2)=2
+  AMBIGUIDADE: 3 candidates empatam em net=2
+Substituido em 3 ocorrencias (linhas [2, 3, 4])
+
+--- Iter 4 ---
+Sub-tuplas K>=2 com R>=2: 2  net>0: 2
+  2,3                      | R=3 Lr=3 len(N)~2 net=(2)*(3-2)=2 <- PICK
+  7,2                      | R=3 Lr=3 len(N)~2 net=(2)*(3-2)=2
+  AMBIGUIDADE: 2 candidates empatam em net=2
+Substituido em 3 ocorrencias (linhas [5, 9, 13])
+
+--- Iter 5 ---
+Sub-tuplas K>=2 com R>=2: 1  net>0: 1
+  7,2                      | R=3 Lr=3 len(N)~2 net=(2)*(3-2)=2 <- PICK
+Substituido em 3 ocorrencias (linhas [6, 7, 8])
+
+--- Iter 6 ---
+Sub-tuplas K>=2 com R>=2: 0  net>0: 0
+Nenhum candidato com net > 0. STOP.
+
+=== MISSED OPPORTUNITIES (post-hoc) ===
+  (nenhum)
+
+Total estimated missed: 0
+
+col(value): 6 unicos -> 67 B  [cadence=False(None) min_len=3 hint=False seq_rle_runs=0]
+  --- OBAT log ---
+min_len = 3
+
+--- string 1: '550.0' (len=5) ---
+  primeira string -> literal puro
+
+--- string 2: '548.5' (len=5) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 5
+  tokens: [L('548.5')]
+
+--- string 3: '544.4' (len=5) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 5
+  tokens: [L('544.4')]
+
+--- string 4: '525.8' (len=5) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 5
+  tokens: [L('525.8')]
+
+--- string 5: '520.1' (len=5) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 5
+  tokens: [L('520.1')]
+
+--- string 6: '518.75' (len=6) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 6
+  tokens: [L('518.75')]
+  --- HCC trace ---
+# Optimization trace — syntax=M8-A-seq-rle
+
+=== DETECTOR ITERATIONS (unified — atoms + virtuals) ===
+
+--- Iter 1 ---
+Sub-tuplas K>=2 com R>=2: 0  net>0: 0
+Nenhum candidato com net > 0. STOP.
+
+=== MISSED OPPORTUNITIES (post-hoc) ===
+  (nenhum)
+
+Total estimated missed: 0
+
+col(isOutOfRange): 2 unicos -> 18 B  [cadence=False(None) min_len=3 hint=False seq_rle_runs=0]
+  --- OBAT log ---
+min_len = 3
+
+--- string 1: 'false' (len=5) ---
+  primeira string -> literal puro
+
+--- string 2: 'true' (len=4) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 4
+  tokens: [L('true')]
+  --- HCC trace ---
+# Optimization trace — syntax=M8-A-seq-rle
+
+=== DETECTOR ITERATIONS (unified — atoms + virtuals) ===
+
+--- Iter 1 ---
+Sub-tuplas K>=2 com R>=2: 0  net>0: 0
+Nenhum candidato com net > 0. STOP.
+
+=== MISSED OPPORTUNITIES (post-hoc) ===
+  (nenhum)
+
+Total estimated missed: 0
+
+col(minValue): 2 unicos -> 16 B  [cadence=False(None) min_len=3 hint=False seq_rle_runs=0]
+  --- OBAT log ---
+min_len = 3
+
+--- string 1: '' (len=0) ---
+  primeira string -> literal puro
+
+--- string 2: '519.0' (len=5) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 5
+  tokens: [L('519.0')]
+  --- HCC trace ---
+# Optimization trace — syntax=M8-A-seq-rle
+
+=== DETECTOR ITERATIONS (unified — atoms + virtuals) ===
+
+--- Iter 1 ---
+Sub-tuplas K>=2 com R>=2: 0  net>0: 0
+Nenhum candidato com net > 0. STOP.
+
+=== MISSED OPPORTUNITIES (post-hoc) ===
+  (nenhum)
+
+Total estimated missed: 0
+
+col(maxValue): 2 unicos -> 16 B  [cadence=False(None) min_len=3 hint=False seq_rle_runs=0]
+  --- OBAT log ---
+min_len = 3
+
+--- string 1: '' (len=0) ---
+  primeira string -> literal puro
+
+--- string 2: '525.0' (len=5) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 5
+  tokens: [L('525.0')]
+  --- HCC trace ---
+# Optimization trace — syntax=M8-A-seq-rle
+
+=== DETECTOR ITERATIONS (unified — atoms + virtuals) ===
+
+--- Iter 1 ---
+Sub-tuplas K>=2 com R>=2: 0  net>0: 0
+Nenhum candidato com net > 0. STOP.
+
+=== MISSED OPPORTUNITIES (post-hoc) ===
+  (nenhum)
+
+Total estimated missed: 0
+
