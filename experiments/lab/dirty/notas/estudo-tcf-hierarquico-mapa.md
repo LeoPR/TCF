@@ -34,7 +34,7 @@ ENVELOPE ANINHADO  ─decode→ reconstrói o JSON exato (RT)
 | **8** | [2017-teoria-cardinalidade-forca](../2026-07-05-2017-teoria-cardinalidade-forca/) + [teoria-cardinalidade.md](teoria-cardinalidade.md) | **TEORIA**: força (forte/fraca/quase/induzida) + rápido(RLE)-vs-pleno(OBAT/HCC) + ortogonalidade + cascade | cardinalidade ⊥ compressibilidade; dominância fraca; as 2 vias são um cascade; H-CARD-01..07 | medido (peça 8) |
 | **9** | [2328-tcf8-schema-cardinalidade-explicito-implicito](../2026-07-05-2328-tcf8-schema-cardinalidade-explicito-implicito/) | **PONTE header-minimal**: linguagem semântica TCF.8 (cardinalidade/hierarquia) EXPLÍCITA → dedução → MÍNIMA | a forma mínima **converge pra P5**; irredutível = magic+arestas+markers+sizes; custo transmitido ZERO | medido, RT OK |
 | 10 | *(futuro)* protótipo formal TCF.8 (arestas explícitas + resto deduzido) + O-FMT-14 derivável | welding (decisão de formato do owner) | src, exige aprovação | aberto |
-| 11 | *(futuro)* link posicional / N:N (tabela-ponte, repetition level) | array-em-array, N raízes, N:N | o caso que precisa de número, não só forma | aberto |
+| 11 | link posicional / N:N (tabela-ponte, repetition level) | array-em-array, N raízes, N:N | o caso que precisa de número, não só forma | **caracterizado (Ciclo 1c)**: B1/B2=def-level (fix provado), B3=rep-level, B4=normalização; welding aberto |
 
 > **P3 (A), P4 (B) e P5 (C) são ALTERNATIVAS** do mesmo passo ("como ligar as tabelas"), do mais
 > explícito ao mais implícito: A = blocos separados + header de arestas (modular/buscável); B = um
@@ -50,6 +50,11 @@ ENVELOPE ANINHADO  ─decode→ reconstrói o JSON exato (RT)
 - **Tickets abertos**: [T-FMT-TCF8H-HEADER](../../../../tickets/T-FMT-TCF8H-HEADER.md) (estrutural),
   [T-OPT-INFERENCE](../../../../tickets/T-OPT-INFERENCE.md) (hex-default + dedução),
   [T-FLOW-…-TELEMETRY](../../../../tickets/T-FLOW-ENCODE-STRATEGIES-TELEMETRY.md) (speed/mem S1/S2/S3).
+- **Caminho-feliz "fechar TCF.8" — Ciclo 1 (funcionalidade), FECHADO**: [1a tipos](../2026-07-06-2221-tcf8h-fidelidade-tipos/result.md)
+  (RT lossless) · [1b tipo A/B/C + formas](../2026-07-06-2238-tcf8h-escala-formas-e-tipos/result.md)
+  (C-híbrida default) · [1c fronteira link posicional](../2026-07-06-2246-tcf8h-fronteira-link-posicional/result.md)
+  (B1/B2 fix provado, B3/B4 deferido). Checklist: [tcf8h-header-checklist](tcf8h-header-checklist.md).
+  Próximo: Ciclo 2 (fluxo S1/S2/S3) · Ciclo 3 (inferências/implicitude) · Ciclo N (spec + welding gated).
 
 ## Convenção do grupo
 

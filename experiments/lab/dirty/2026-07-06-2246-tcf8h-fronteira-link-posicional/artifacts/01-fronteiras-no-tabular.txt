@@ -1,0 +1,19 @@
+# THREAD 1 — as 4 fronteiras no codec TABULAR (C-híbrida do 1b): o que quebra o retângulo
+
+## B1-chave-ausente
+  {"linhas": [{"a": 1, "b": 2}, {"a": 3}]}
+  TABULAR: FRONTEIRA KeyError: 'b'
+
+## B2-null-em-coluna
+  {"linhas": [{"x": 1}, {"x": null}]}
+  TABULAR: FRONTEIRA ValueError: invalid literal for int() with base 10: ''
+
+## B3-array-em-array
+  {"grupos": [{"g": "A", "itens": [{"n": 1}, {"n": 2}]}, {"g": "B", "itens": [{"n": 3}]}]}
+  TABULAR: RT-MISMATCH (corrompe)
+    out: {'grupos': [{'g': 'A', 'itens': "[{'n': 1}, {'n': 2}]"}, {'g': 'B', 'itens': "[{'n': 3}]"}]}
+
+## B4-N-para-N
+  {"pares": [{"aluno": "ana", "curso": "mat"}, {"aluno": "ana", "curso": "fis"}, {"aluno": "bob", "curso": "mat"}]}
+  TABULAR: RT-OK 51B — o retângulo FECHA (não é fronteira de RT)
+

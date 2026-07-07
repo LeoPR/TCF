@@ -1,0 +1,22 @@
+# Ciclo 1c — fronteira do link posicional + fix nullable/presença [resumo]
+
+## As 4 fronteiras no codec tabular (thread 1)
+  B1-chave-ausente     CRASH (KeyError)
+  B2-null-em-coluna    CRASH (ValueError)
+  B3-array-em-array    CORROMPE
+  B4-N-para-N          RT-OK (flat)
+
+## Fix da família nullable/presença (thread 2): máscara 3-estados — RT OK
+  B1 (chave-ausente) e B2 (null-em-coluna) FECHAM com máscara '.'/'0'/'-'. = definition level (Dremel).
+
+## Caracterização (o que fica pro welding)
+- **B1 presença** + **B2 nullable**: MESMO mecanismo (máscara/def-level) — provado tratável aqui.
+- **B3 array-em-array**: precisa de **repetition level** (onde o array aninhado reinicia) — o caso
+  da peça 10 (EXP-015). Não é máscara simples; é o rep-level do Dremel. Deferido.
+- **B4 N:N**: o array PLANO fecha RT (é uma tabela). A fronteira é de NORMALIZAÇÃO (fatorar aluno×curso
+  pede tabela-ponte) — escolha de compressão/estrutura, não gap de RT. Deferido (liga com @dict/H-CARD).
+
+## Fecha o Ciclo 1 (funcionalidade)
+- 1a tipos (RT) · 1b A/B/C decidido (C default) + formas · 1c fronteiras caracterizadas + nullable/presença
+  provado tratável. RT-alvo comum (aninhamento, tipos, esparsidade) COBERTO; rep-level (B3) + N:N (B4)
+  são o próximo salto de estrutura (welding). → Ciclo 2 (fluxo).
