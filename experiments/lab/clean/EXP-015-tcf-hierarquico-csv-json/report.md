@@ -6,8 +6,8 @@ Números gerados: `outputs/` (`python run.py`). Protótipo v0 — consolida o es
 
 | via | amostra | bytes | RT |
 |---|---|---|---|
-| **JSON → TCF.8H → JSON** | S4 (pessoa⊃telefones) | 67B | **exato OK** |
-| **JSON → TCF.8H → JSON** | S6 (pessoa⊃endereco{geo}+telefones) | 154B | **exato OK** |
+| **JSON → TCF.8H → JSON** | S4 (pessoa⊃telefones) | 66B | **exato OK** |
+| **JSON → TCF.8H → JSON** | S6 (pessoa⊃endereco{geo}+telefones) | 153B | **exato OK** |
 | **CSV → TCF → CSV** | C1 (pessoa,telefone 1:N, 4 linhas) | 107B | **exato OK** |
 
 ## A hipótese do owner — CONFIRMADA (v0)

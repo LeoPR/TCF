@@ -6,6 +6,7 @@ created: 2026-07-05
 updated: 2026-07-05
 blocked-by: []
 related:
+  - experiments/lab/dirty/notas/tcf8h-header-checklist.md
   - experiments/lab/clean/EXP-015-tcf-hierarquico-csv-json/
   - experiments/lab/dirty/notas/tcf8h-proximas-ideias.md
   - experiments/lab/dirty/2026-07-01-header-minimal/result.md

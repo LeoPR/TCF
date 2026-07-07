@@ -41,6 +41,16 @@ ENVELOPE ANINHADO  ─decode→ reconstrói o JSON exato (RT)
 > multi-col + marcador `N` + `#H`; **C = hierarquia em colchetes no meta, com M/N e cardinalidade
 > deduzidos** (o mais próximo de "compacto e implícito"). Decidir qual (ou híbrido) é a peça 6.
 
+## Consolidação (v0 clean + checklist do header)
+
+- **Protótipo CLEAN**: [EXP-015](../../clean/EXP-015-tcf-hierarquico-csv-json/report.md) — codec CSV↔JSON
+  em formato **TCF.8H** (`#TCF.8H <colchete-meta>\n<bodies>`), RT-exato S4/S6/C1. Consolida P1-P9.
+- **Checklist do cabeçalho** (tudo que o header aborda, em 5 camadas: explícito → inferências →
+  always-win → by-choice → cobertor-curto): [tcf8h-header-checklist](tcf8h-header-checklist.md).
+- **Tickets abertos**: [T-FMT-TCF8H-HEADER](../../../../tickets/T-FMT-TCF8H-HEADER.md) (estrutural),
+  [T-OPT-INFERENCE](../../../../tickets/T-OPT-INFERENCE.md) (hex-default + dedução),
+  [T-FLOW-…-TELEMETRY](../../../../tickets/T-FLOW-ENCODE-STRATEGIES-TELEMETRY.md) (speed/mem S1/S2/S3).
+
 ## Convenção do grupo
 
 - Cada peça = 1 lab dirty com nome **`YYYY-MM-DD-HHMM-descrição`** (ordenável) + `artifacts/NN-*`

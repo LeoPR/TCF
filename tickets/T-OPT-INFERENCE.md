@@ -7,6 +7,7 @@ updated: 2026-07-05
 blocked-by: []
 related:
   - tickets/T-FMT-TCF8H-HEADER.md
+  - experiments/lab/dirty/notas/tcf8h-header-checklist.md
   - experiments/lab/clean/EXP-015-tcf-hierarquico-csv-json/
   - experiments/lab/dirty/notas/tcf8h-proximas-ideias.md
 ---
