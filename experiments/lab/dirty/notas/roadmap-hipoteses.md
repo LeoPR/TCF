@@ -568,7 +568,7 @@ prototipo clean (`experiments/lab/clean/EXP-XXX-*`) e' pra testar
 Atualizar quando: hipotese confirmada/refutada/movida-de-status, OU
 nova hipotese identificada.
 
-**Ultima atualizacao**: 2026-07-06 — **Ciclo 1 fechado (1a tipos / 1b A-B-C / 1c fronteiras) + reframe TIPOS COMO SPECS (round-trip como regra universal de inducao)** · estudo TCF-hierarquico: grupo de 8 pecas + teoria de cardinalidade (H-CARD-01..07) + nested (H-NEST-01) + T1 (H-TX-01)
+**Ultima atualizacao**: 2026-07-07 — **H-TYPE-02 (bit-packing bN) + H-TYPE-03 (escopo terminal) registradas, COM CORRECAO** (baseline errado V2-B + colapso sob brotli confirmado; H-REF-05 idem) · Ciclo 1 fechado (1a tipos / 1b A-B-C / 1c fronteiras) + reframe TIPOS COMO SPECS (round-trip como regra universal de inducao) · estudo TCF-hierarquico: grupo de 8 pecas + teoria de cardinalidade (H-CARD-01..07) + nested (H-NEST-01) + T1 (H-TX-01)
 
 - **ESTUDO TCF-HIERARQUICO (grupo de pecas, owner 2026-07-05)** — como representar documento JSON aninhado
   em TCF. NAO e' 1 lab; e' um GRUPO de 8 pecas ordenadas (dia+HHMM). Mapa:
@@ -637,6 +637,29 @@ nova hipotese identificada.
     e' BINARIA (V2-L); em texto o tipo vale por ACELERACAO. Numero comprime via HCC (rule_hit=None no default).
     Nota [`tipos-como-specs.md`](tipos-como-specs.md) + lab [`2026-07-06-2310-tipos-como-specs/`](../2026-07-06-2310-tipos-como-specs/result.md).
     Unifica H-TYPE-01 + T-OPT-INFERENCE (hex=sub-spec numerica) + natures (ADR-0015). `confirmada-conceitual`.
+
+- **H-TYPE-02** (bit-packing por largura `bN` p/ enum/bool baixa-cardinalidade, owner 2026-07-07): familia
+  `b`/`b2`/`b4`/`b8` (k<=2/4/16/256, 1/2/4/8 bits, dominio embutido = referencia). **CORRIGIDA apos revisao
+  (2026-07-07)**: medida inicialmente contra baseline ERRADO (`encode(list[str])` single-col, ignora
+  `fallback`); baseline correto e' `encode({col:vals}, fallback=True)` = **V2-B** (ADR-0025, JA' weldado).
+  Contra o baseline correto: razao teorica limpa `8/w` pre-brotli (8x/4x/2x, 12 colunas reais adult/tpch/
+  receita). MAS gate brotli (q11) REPROVA: ganho colapsa pra 1.01x-1.33x pos-brotli (brotli ja' acha a
+  entropia que V2-B deixou). N<5 fontes reais (so' 3 DBs). Status: `confirmada-empirica COM RESSALVA`
+  (escopo = TCF como representacao TERMINAL sem re-compressao a jusante; NAO welding candidate nesta
+  forma). `confianca: A-revalidar`. Labs:
+  [2026-07-06-2354-spec-bin-motor](../2026-07-06-2354-spec-bin-motor/result.md) (secao CORRECAO),
+  [2026-07-07-0028-spec-bitwidth-bN](../2026-07-07-0028-spec-bitwidth-bN/result.md) (secao CORRECAO).
+  Prior-art GENUINO anterior (achado na pesquisa pre-consolidacao): ADR-0018 ja' documentava o MESMO ponto
+  cego de baixa-cardinalidade (beijing.hour, 24 unicos -> 228.8% inflacao, medido 2026-05-27, quase 6
+  semanas antes); ADR-0025/V2-B ja' e' a solucao weldada; H-REF-05 (2026-06-19) ja' previa o caveat do
+  brotli (qualitativo, sem numeros — agora confirmado empiricamente). Este trabalho aprofunda prior-art
+  existente, nao inaugura o problema. Consolidacao completa: [tipos-como-specs.md](tipos-como-specs.md)
+  (secao "CONSOLIDACAO E CORRECAO 2026-07-07").
+- **H-TYPE-03** (TCF como representacao terminal = o escopo honesto p/ bit-packing bit-level, owner
+  2026-07-07): reenquadramento proposto (NAO testado como decisao de produto): bN so' entrega ganho liquido
+  quando o `.tcf` e' consumido diretamente, sem brotli/gzip/zstd depois — mesmo nicho ja' declarado pra
+  V2-L (ADR-0018, "nao compete com gzip/brotli/zstd"). Falta avaliar se esse cenario e' representativo do
+  uso pretendido do TCF antes de investir mais na familia bN. `aberta`, `confianca: Baixa`.
 
 - **H-TX-01** (gate de posicionamento de transmissao, pendente desde 2026-06-21): TCF+brotli vs
   **NDJSON+brotli** (o concorrente textual real, nao so' CSV). Lab

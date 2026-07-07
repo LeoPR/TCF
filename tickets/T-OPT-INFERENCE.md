@@ -3,7 +3,7 @@ title: T-OPT-INFERENCE — Otimizações por INFERÊNCIA (valor deduzido, não e
 status: open
 priority: P2
 created: 2026-07-05
-updated: 2026-07-05
+updated: 2026-07-07
 blocked-by: []
 related:
   - tickets/T-FMT-TCF8H-HEADER.md
@@ -63,6 +63,23 @@ se auto-explica **por convenção**, sem marcador. O **decimal** é opt-in só p
 - Consistência: **um arquivo, uma base** (não misturar).
 
 **Decisão (a fechar)**: HEX-default; decimal só por comando externo; dedução como fallback. → gate de formato.
+
+## Item 2 — enum/bool por largura de bits (família `bN`) — CORRIGIDO 2026-07-07
+
+**Fato (medido, corrigido)**: k valores distintos → w bits/valor (`b`≤2/`b2`≤4/`b4`≤16/`b8`≤256), domínio
+embutido = referência. Contra o baseline CORRETO (V2-B, `fallback=True`, ADR-0025, já weldado — não "raw
+HCC"), razão teórica limpa `8/w` pré-brotli (12 colunas reais adult/tpch/receita).
+
+**Achado que muda o escopo**: sob brotli q11, o ganho colapsa pra 1.01×-1.33× (praticamente zero em alguns
+casos) — o brotli já acha a entropia que V2-B deixou; o bit-pack não adiciona muito além disso. Confirma
+empiricamente o caveat de H-REF-05 (2026-06-19, qualitativo até então). **Escopo honesto**: só vale como
+TCF representação **terminal** (sem re-compressão a jusante) — mesmo nicho que V2-L já declara (não
+compete com gzip/brotli/zstd). NÃO é welding candidate nesta forma (N<5 fontes reais + gate brotli
+reprovado). Ver [H-TYPE-02](../experiments/lab/dirty/notas/roadmap-hipoteses.md),
+[tipos-como-specs.md](../experiments/lab/dirty/notas/tipos-como-specs.md) (seção "CONSOLIDAÇÃO E CORREÇÃO
+2026-07-07"), labs
+[2026-07-06-2354-spec-bin-motor](../experiments/lab/dirty/2026-07-06-2354-spec-bin-motor/result.md),
+[2026-07-07-0028-spec-bitwidth-bN](../experiments/lab/dirty/2026-07-07-0028-spec-bitwidth-bN/result.md).
 
 ## Itens futuros (outras inferências)
 

@@ -59,3 +59,19 @@ anterior (compressão de enum é binária). RLE fica pro ordenado/skewed (e pela
 
 - Distribuições sintéticas em N=1000; reais em 4 colunas. enum-k>2 não feito. packed é contado (N/8), não
   materializado (é V2-L). Autoridade (typed→canonicaliza) não exercida.
+
+## CORREÇÃO (2026-07-07)
+
+As "colunas reais" (`04-colunas-reais.txt`) foram medidas contra `tcf.encode(list[str])` — path
+**single-column**, que ignora `fallback`. O baseline correto é multi-coluna com `fallback=True` (**V2-B**,
+[ADR-0025](../../../../docs/adr/0025-v2b-dictionary-categorical-weld.md), já weldado em produção), não HCC
+single-col puro. Contra o baseline correto, o ganho de bit-packing cai mas permanece teoricamente limpo
+(~8/w bits por item pré-brotli) — tabela corrigida em
+[`notas/tipos-como-specs.md`](../notas/tipos-como-specs.md).
+
+Além disso, o ganho pré-brotli colapsa quase por completo sob brotli quality=11 (1.01×-1.33× pós-brotli
+nas 4 colunas testadas), confirmando o caveat já registrado em H-REF-05 (2026-06-19,
+[`dict-referencia-hipoteses.md`](../notas/dict-referencia-hipoteses.md)) — a hipótese original é
+qualitativa (sem números); esta sessão só confirma o caveat com medição, não o inventa. O escape/domínio-
+embutido descrito aqui continua um mecanismo válido dentro do espectro de specs — a ressalva é de escopo
+de uso (representação terminal) e de cobertura de fontes (N<5 reais), não de invalidade do mecanismo.

@@ -54,3 +54,20 @@ fica pro ordenado + explicabilidade. O motor pesa e escolhe.
 
 - Domínio por 1ª aparição (frequência daria índices menores p/ RLE, não muda w). b8/b16 não exercitados em
   real. pack materializado é V2-L (aqui contado). O "pesar" é por-coluna; combinar com o pré-ordenamento (S3) é futuro.
+
+## CORREÇÃO (2026-07-07, mesmo dia do lab)
+
+A tabela `artifacts/03-reais-pesa-vs-hcc.txt` compara bit-packing contra HCC via `tcf.encode(list[str])`
+(path single-column, `fallback` ignorado) — não contra **V2-B**
+(`encode({col: vals}, fallback=True)`, já weldado, [ADR-0025](../../../../docs/adr/0025-v2b-dictionary-categorical-weld.md)),
+que é o baseline que o usuário do TCF usa por default. A tabela corrigida (V2-B correto vs bitpack,
+pré-brotli) está em [`notas/tipos-como-specs.md`](../notas/tipos-como-specs.md) — os ganhos corrigidos
+seguem o padrão teórico ~8/w (w=1→~8×, w=2→~4×, w=4→~2×), com 2 desvios explicados por dado real já
+agrupado (HCC-RLE nativo).
+
+Teste adicional (não presente no lab original): brotli quality=11 sobre os dois lados colapsa o ganho
+pré-brotli pra 1.01×-1.33× em 4 colunas reais. Isso confirma empiricamente o caveat qualitativo de H-REF-05
+("encosta em entropy-coding, tende a sumir sob brotli", registrada 2026-06-19, antes deste lab — a hipótese
+original não trazia números). Veredito atualizado: família bN é confirmada-empírica **com ressalva**
+(escopo = TCF como representação terminal sem re-compressão a jusante; N<5 fontes reais) — não
+confirmada-empírica plena, não pronta pra weld.

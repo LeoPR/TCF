@@ -35,6 +35,17 @@
 > - **V2-J / V2-K / V2-L** (streaming / disk zero-copy / binarizacao em camadas) —
 >   **defer v2.0**: exigem decisao de arquitetura (I/O) + escopo, fora do foco de
 >   bytes textuais do 0.7.
+>
+> **Update 2026-07-07** (dirty lab, nao altera esta decisao): explorada uma familia
+> `bN` (bit-packing por largura, k valores->w bits) que se encaixaria em V2-L SE
+> weldada. Medida contra o baseline CORRETO (V2-B/ADR-0025, ja' aqui DONE): razao
+> teorica limpa `8/w` pre-brotli, MAS colapsa pra 1.01x-1.33x sob brotli q11 (o
+> mesmo ponto cego de baixa-cardinalidade citado no Context abaixo, revisitado com
+> bit-level em vez de char-level). Confirma que o nicho de V2-L e' TCF como
+> representacao TERMINAL (sem re-compressao a jusante) — nao substituto de
+> compressor generico. Ver H-TYPE-02 (`roadmap-hipoteses.md`) +
+> `experiments/lab/dirty/notas/tipos-como-specs.md`. Nao promove bN a candidato
+> de weld (N<5 fontes, gate brotli reprovado nesta forma).
 
 ## Context and Problem Statement
 

@@ -58,6 +58,15 @@ O índice escala com a cardinalidade (V2-B já faz base-94 width). Levar adiante
 (opcional) **códigos curtos pros atoms mais frequentes**. **CUIDADO**: isso encosta em entropy-coding
 e tende a **sumir sob brotli** — só com gate explícito; provavelmente o de menor prioridade.
 
+> **Update 2026-07-07** (owner pediu pesquisa de prior-art antes de consolidar "tipos como specs"): o
+> caveat acima (qualitativo, sem números na formulação original) foi **testado empiricamente** na família
+> `bN` (largura de bits pura, não base-94) — ver [`tipos-como-specs.md`](tipos-como-specs.md) e
+> [H-TYPE-02](roadmap-hipoteses.md). Resultado: o caveat **se confirma** — ganho pré-brotli de 2×-8× cai
+> pra 1.01×-1.33× sob brotli q11 (4 colunas reais, 2 fontes). Status: `confirmada-empirica COM RESSALVA`
+> (evidência = só 4 colunas/2 fontes, não o corpus completo — mesma ressalva de N<5 do H-TYPE-02).
+> `confianca: Baixa` (evidência ainda estreita; alinhada ao mesmo patamar de H-TYPE-02, que compartilha os
+> dados-fonte). Continua "de menor prioridade" — o gate reprovou, não há motivo pra subir prioridade.
+
 ## O payoff — por que isto faz o GDICT sair melhor
 
 O owner: "se resolvermos isso, o cross dict pode sair melhor." Correto:

@@ -68,3 +68,20 @@ superfície** (Male/Female→0/1 = 2×; para `true`/`false` já curto seria ~mar
 
 - Amostra de hubs (COUNT DISTINCT por coluna); `br-identidades` pode ter mais (não exaustivo).
 - Enum-k>3 não varrido (só ≤3); bitmap não implementado (é V2-L). Aceleração não medida (só compressão).
+
+## CORREÇÃO (2026-07-07)
+
+O bloco "Bytes — raw vs textual vs binário" mediu o lado "raw" via `tcf.encode(list[str])` — path
+**single-column**, que **ignora o parâmetro `fallback`** (docstring de `encoder.py`). O baseline correto é
+`encode({col: vals}, fallback=True)` (multi-coluna, default desde ADR-0024), que aciona **V2-B** — o
+dicionário categórico já weldado ([ADR-0025](../../../../docs/adr/0025-v2b-dictionary-categorical-weld.md)).
+Isso inflou o ganho reportado (16×) neste lab.
+
+Além disso, brotli quality=11 aplicado sobre ambos os lados (V2-B correto vs bit-pack) colapsa o ganho
+pré-brotli (2×-8×) pra 1.01×-1.33× — números e discussão completa em
+[`notas/tipos-como-specs.md`](../notas/tipos-como-specs.md) (seção "CONSOLIDAÇÃO E CORREÇÃO 2026-07-07").
+
+Esta nota NÃO reescreve os resultados originais deste lab (mantidos acima pra histórico) — apenas registra
+que a baseline usada não é a que o TCF usa por default, e que o ganho remanescente (contra o baseline
+correto) só se sustenta integralmente em cenário de TCF como representação terminal (sem re-compressão a
+jusante). Não promover a weld sem revalidar em N≥5 fontes reais.
