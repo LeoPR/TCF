@@ -1,0 +1,20 @@
+# COLUNAS REAIS — bit-packed (b/b2/b4) vs raw HCC → PESA e escolhe o menor
+
+| coluna | N | k | spec | raw HCC | packed(dom+idx) | vencedor |
+|---|---|---|---|---|---|---|
+| adult.sex | 48842 | 2 | b | 97291B | 6117B | **packed** |
+| adult.class | 48842 | 2 | b | 80886B | 6117B | **packed** |
+| adult.race | 48842 | 5 | b4 | 55993B | 24477B | **packed** |
+| adult.relationship | 48842 | 6 | b4 | 133862B | 24483B | **packed** |
+| adult.marital-status | 48842 | 7 | b4 | 127459B | 24503B | **packed** |
+| adult.workclass | 48842 | 9 | b4 | 98471B | 24510B | **packed** |
+| adult.occupation | 48842 | 15 | b4 | 155842B | 24624B | **packed** |
+| adult.education | 48842 | 16 | b4 | 144375B | 24558B | **packed** |
+| lineitem.l_returnflag | 60175 | 3 | b2 | 97131B | 15050B | **packed** |
+| orders.o_orderstatus | 15000 | 3 | b2 | 34806B | 3756B | **packed** |
+| lineitem.l_linestatus | 60175 | 2 | b | 48477B | 7526B | **packed** |
+| estabelecimentos.matriz_filial | 200000 | 2 | b | 71874B | 25008B | **packed** |
+
+raw HCC = tcf.encode nativo (RLE de refs, textual). packed = domínio embutido + índices a w bits (V2-L).
+PESAR (owner): o HCC já empacota repetições (RLE); o bit-pack ganha quando o dado é espalhado. O motor
+escolhe o menor. Em dado real (espalhado) o bit-pack tende a vencer; header textual `col:b<w>` roteia.

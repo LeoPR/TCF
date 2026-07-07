@@ -84,6 +84,14 @@ substituto: ordenado → HCC-RLE nativo (textual); espalhado → empacota as ref
 ocorrência + 2º declarado no 1º byte-escape) reusa o layout do HCC e é **single-pass streaming** (owner
 prefere); **Formato B** (2 literais no topo) é 2-passadas. Mesmos bytes.
 
+**Spec primitivo por LARGURA DE BITS `b<w>`** (lab [`2026-07-07-0028-spec-bitwidth-bN`](../2026-07-07-0028-spec-bitwidth-bN/result.md),
+owner): generaliza `spec_bin` a enum-k. k distintos → w bits → 8/w linhas/byte: k≤2→**b**(8/byte) ·
+k≤4→**b2**(4/byte) · k≤16→**b4**(2/byte) · k≤256→**b8**(1/byte). O spec = `col:b<w>` + a **lista do domínio
+embutida = a referência** (índice↔valor); `spec_bin`=`b`. Medido em 12 colunas reais: **bit-pack vence em
+todas** (dado espalhado) — b ~16×, b2 ~6-9×, b4 ~2-6× vs raw HCC. **Pesa vs HCC-nativo** (RLE de refs): HCC
+ganha ordenado (poucos runs, textual/explicável); bit-pack ganha espalhado (V2-L). O motor escolhe o menor;
+header `col:b<w>` textual roteia. Une string→enum-k num só spec primitivo.
+
 ## A regra universal de indução: ROUND-TRIP
 
 **Uma spec induz-se com segurança ⟺ o valor faz round-trip por ela** (encode-pela-spec → decode devolve o

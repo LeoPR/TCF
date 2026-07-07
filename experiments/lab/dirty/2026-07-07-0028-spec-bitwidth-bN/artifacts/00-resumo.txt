@@ -1,0 +1,13 @@
+# Spec por largura de bits (b/b2/b4/b8) [resumo]
+
+## O spec primitivo de tipo (owner)
+- k distintos → w bits → 8/w linhas/byte: k≤2→**b**(8/byte) · k≤4→**b2**(4/byte) · k≤16→**b4**(2/byte)
+  · k≤256→**b8**(1/byte). Header `col:b<w>` + **lista do domínio embutida = a referência** (índice↔valor).
+- Generaliza o spec_bin: enum-3 (A/N/R, F/O/P)→b2; enum-5..16 (race, education…)→b4. Tudo RT.
+- **Pesar vs HCC-nativo**: o HCC já empacota repetições (RLE de refs); o bit-pack ganha no espalhado.
+  O motor escolhe o menor; header textual roteia (o pack é V2-L, binário interno).
+
+## Resultado
+- tabela de densidade (01); RT sintético k=2..16 (02); colunas reais pesadas vs HCC (03).
+- o spec_bin vira caso particular (b, k=2). A referência embutida no spec = 'até a referência está
+  embutida' (owner). Próximo: pack pós-HCC lendo *N|^k; welding V2-L.

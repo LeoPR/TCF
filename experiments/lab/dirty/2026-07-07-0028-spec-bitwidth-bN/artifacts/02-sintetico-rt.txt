@@ -1,0 +1,7 @@
+# RT sintético — domínios k=2..16, N=64 (densidade real do empacotamento)
+
+  k= 2 spec=b   w=1  idx-bytes=8 (=64×1/8)  linhas/byte=8  RT=OK
+  k= 3 spec=b2  w=2  idx-bytes=16 (=64×2/8)  linhas/byte=4  RT=OK
+  k= 4 spec=b2  w=2  idx-bytes=16 (=64×2/8)  linhas/byte=4  RT=OK
+  k= 8 spec=b4  w=4  idx-bytes=32 (=64×4/8)  linhas/byte=2  RT=OK
+  k=16 spec=b4  w=4  idx-bytes=32 (=64×4/8)  linhas/byte=2  RT=OK
