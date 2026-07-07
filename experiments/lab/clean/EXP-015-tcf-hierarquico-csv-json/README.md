@@ -49,3 +49,17 @@ sintéticos/fictícios. **Ponteiro para escalar**: `datasets/synthetic/` (D1-D17
 - **É**: protótipo v0 — JSON hierárquico + CSV plano, RT exato; o limite (link posicional) mapeado.
 - **Será**: escalar (datasets sintéticos) · tipos (num/bool/null) · o **link posicional** (peça 10) p/
   hierarquizar CSV multi-pai e arrays aninhados · cross-convert JSON↔CSV. Welding em `src/tcf` = decisão futura.
+- **Ideias registradas** (owner, a explorar com calma): [tcf8h-proximas-ideias](../../dirty/notas/tcf8h-proximas-ideias.md)
+  — consumo DIRETO da estrutura (sem reconstruir JSON; muda o RT-alvo → reorder order-free vira normal) ·
+  enriquecimento por **spec com gabarito** (CPF/CEP/telefone; 1º-valor = molde implícito).
+
+## Micro-opt do cabeçalho — CONDIÇÕES (não "quem vence")
+
+As 2 otimizações de fim-de-linha atuam na **última folha**: `SAVING(L) = digits(size(L)) + depth(L)`
+(última-sem-size dá os digits, omit-closes dá a depth). — `outputs/05-header-condicoes.txt`.
+- **omit-closes**: SEMPRE bom (−1B+, RT-exato). Adotar.
+- **reorder** (order-free): vale **SSE** `argmax(digits+depth) ≠ natural-última`. Em **S6 empata** (a
+  natural já é o argmax — situação particular); num caso profundo+grande enterrado, ganha +4B. **Não é só
+  profundidade** — é digits+depth.
+- **hex nos sizes** (ideia do owner): `len(hex(s)) < len(str(s))` para `s∈[10,15]∪[100,255]∪…` → economiza
+  por-size e pode mudar o argmax. É **config-dependente**: o ganho é uma conta.

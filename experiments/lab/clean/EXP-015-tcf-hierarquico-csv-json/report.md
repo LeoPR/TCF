@@ -33,7 +33,31 @@ e checar se o padrão se mantém (dedução de FD em dados reais tem near-FD, g3
 - **Tipos**: tudo string (num/bool/null = extensão). **Nomes**: sempre presentes (sem `drop_names` ainda).
 - **Não toca `src/tcf`**: é protótipo de codec externo. Welding = decisão de formato futura (gate real-world).
 
+## Micro-opt do cabeçalho (insight do owner) — `04-header-otimizado.txt`
+
+O `\n` do fim do cabeçalho **já fecha** todos os grupos abertos → os `}`/`]` finais são redundantes. O
+decoder auto-fecha no EOF (o parser já fazia). **`omit-closes` = ganho limpo (-1B, RT-EXATO)** — adotar no
+TCF.8H (byte grátis, sem downside).
+
+### Condições do reorder + hex (`05-header-condicoes.txt`) — não é "quem vence", é a SITUAÇÃO
+
+As duas otimizações de fim-de-linha atuam na **última folha** (em DFS). Escolher qual folha fica por último
+(reorder de irmãos, order-free) economiza:
+```
+SAVING(L) = digits(size(L)) + depth(L)      [última-sem-size dá digits; omit-closes dá depth]
+```
+- **omit-closes**: SEMPRE bom (RT-exato).
+- **reorder**: vale **SSE** `argmax_L(digits(size L)+depth L) ≠ natural-última`. **Não é só profundidade** —
+  é **digits+depth**: uma folha rasa mas de size grande pode ganhar de uma profunda de size pequeno. Em
+  **S6 empata** (natural-última `tel` = depth1+2dig=3, já é o argmax — situação particular, não "perde").
+  Num caso construído (folha profunda **e** grande enterrada) o reorder ganha **+4B**.
+- **hex nos sizes** (ideia do owner): `digits_hex(s)=len(hex(s)) < len(str(s))` para `s∈[10,15]∪[100,255]∪
+  [256,4095]…` (fronteiras 16ᵏ vs 10ᵏ). Economiza por-size no header TODO **e** pode mudar o argmax do
+  reorder. (16-99 empata; <10 empata.) Medido: caso com sizes 201/13 → hex economiza 2B.
+→ **Nenhuma otimização vence sempre; o ganho é uma CONTA config-dependente.** Adotar omit-closes (sempre);
+reorder + base do size (dec/hex) = escolher para minimizar `Σ digits + (digits+depth) da última folha`.
+
 ## Próximo
 
 Escalar (sintéticos) · tipos · link posicional (peça 10) · cross-convert JSON↔CSV · comparar com/sem
-implícito em N maior.
+implícito em N maior · **welding**: `omit-closes` é o 1º candidato (RT-exato, byte grátis).

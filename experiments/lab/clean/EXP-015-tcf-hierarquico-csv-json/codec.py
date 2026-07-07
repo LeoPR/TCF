@@ -37,20 +37,20 @@ def _dfs_cols(node: dict):
     return cols
 
 
-def _bracket(node: dict, sizes, ctr, nleaves) -> str:
+def _bracket(node: dict, sizes, ctr, nleaves, all_sizes: bool = False) -> str:
     parts = []
     for k, v in node.items():
         if isinstance(v, dict):
-            parts.append(f"{k}{{{_bracket(v, sizes, ctr, nleaves)}}}")     # {} = objeto (1:1)
+            parts.append(f"{k}{{{_bracket(v, sizes, ctr, nleaves, all_sizes)}}}")   # {} = objeto (1:1)
         elif isinstance(v, list):
             inner = []
             for c in (list(v[0]) if v else []):
                 i = ctr[0]; ctr[0] += 1
-                inner.append(c if i == nleaves - 1 else f"{c}:{sizes[i]}")
+                inner.append(c if (i == nleaves - 1 and not all_sizes) else f"{c}:{sizes[i]}")
             parts.append(f"{k}[{','.join(inner)}]")                        # [] = array (1:N)
         else:
             i = ctr[0]; ctr[0] += 1
-            parts.append(k if i == nleaves - 1 else f"{k}:{sizes[i]}")
+            parts.append(k if (i == nleaves - 1 and not all_sizes) else f"{k}:{sizes[i]}")
     return ",".join(parts)
 
 
@@ -111,12 +111,40 @@ def _parse(meta: str):
 # ======================================================================
 # árvore (obj JSON) ↔ blob TCF.8H
 # ======================================================================
-def obj_to_tcf(obj: dict) -> str:
+def obj_to_tcf(obj: dict, omit_closes: bool = True, all_sizes: bool = False) -> str:
+    """omit_closes (CONSAGRADO, default-on): dropa a corrida de `}`/`]` no fim do meta — o `\\n` do
+    cabeçalho já fecha todos os grupos abertos (o decoder auto-fecha no EOF). RT-exato, sempre bom.
+    all_sizes: inclui o size da ÚLTIMA folha também (desliga a regra 'última-sem-size') — usado pra medir
+    o decouple entre última-sem-size × omit-closes (o reorder profundo-por-último)."""
     cols = _dfs_cols(obj)
     bodies = [encode(v) for _n, v in cols]
     sizes = [len(b.encode()) for b in bodies]
-    meta = _bracket(obj, sizes, [0], len(cols))
+    meta = _bracket(obj, sizes, [0], len(cols), all_sizes)
+    if omit_closes:
+        meta = meta.rstrip("}]")
     return f"{MAGIC} {meta}\n" + "".join(bodies)
+
+
+def _subtree_depth(v) -> int:
+    if isinstance(v, dict):
+        return 1 + max((_subtree_depth(x) for x in v.values()), default=0)
+    if isinstance(v, list):
+        return 1 + (max((_subtree_depth(x) for x in v[0].values()), default=0)
+                    if v and isinstance(v[0], dict) else 0)
+    return 0
+
+
+def reorder_deepest_last(node):
+    """Reordena as chaves de cada objeto por profundidade de subárvore (mais raso→mais profundo), pra o
+    ramo mais aninhado cair no FIM → maximiza os closes omitidos. **Order-free** (muda a ordem das chaves
+    no RT; JSON não dá ordem semântica à hierarquia — igual ao sort_by das linhas)."""
+    if isinstance(node, dict):
+        items = [(k, reorder_deepest_last(v)) for k, v in node.items()]
+        items.sort(key=lambda kv: _subtree_depth(kv[1]))
+        return dict(items)
+    if isinstance(node, list):
+        return [reorder_deepest_last(e) for e in node]
+    return node
 
 
 def tcf_to_obj(blob: str) -> dict:

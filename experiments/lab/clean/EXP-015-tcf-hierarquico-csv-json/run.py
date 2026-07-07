@@ -74,9 +74,41 @@ def csv_deduce(tag, cols, parent, child):
     return card, nb(flat), nb(parent_alone), boundary
 
 
+def header_opt(tags_files):
+    """Micro-opt do cabeçalho (insight do owner): omitir os closes finais (o \\n fecha) + reordenar o
+    ramo mais profundo pro fim. Mede base vs omit-closes(RT-exato) vs reorder+omit(order-free)."""
+    def meta_of(blob): return blob.split("\n", 1)[0][len(C.MAGIC) + 1:]
+    L = ["# MICRO-OPT do cabeçalho — omitir closes finais (o \\n auto-fecha) + reordenar profundo-por-último", ""]
+    for tag, f in tags_files:
+        import json as _j
+        src = _j.loads((HERE / "inputs" / f).read_text(encoding="utf-8"))
+        src_r = C.reorder_deepest_last(src)
+        variants = [
+            ("base (closes explícitos)", C.obj_to_tcf(src, omit_closes=False), src),
+            ("+omit-closes (CONSAGRADO)", C.obj_to_tcf(src, omit_closes=True), src),
+            ("+reorder+omit          ", C.obj_to_tcf(src_r, omit_closes=True), src_r),
+            ("all-sizes+base+omit    ", C.obj_to_tcf(src, omit_closes=True, all_sizes=True), src),
+            ("all-sizes+reorder+omit ", C.obj_to_tcf(src_r, omit_closes=True, all_sizes=True), src_r),
+        ]
+        db = len(meta_of(variants[0][1]).encode())
+        L.append(f"## {tag}")
+        for name, blob, exp in variants:
+            mb = len(meta_of(blob).encode())
+            L.append(f"  {name} {mb:3d}B  Δ={mb-db:+d}  RT={'OK' if C.tcf_to_obj(blob)==exp else 'FAIL'}  {meta_of(blob)}")
+        L.append("")
+    L += ["NOTA (não é 'quem vence' — é a SITUAÇÃO; a análise das CONDIÇÕES está em `05-header-condicoes.txt`):",
+          "- **omit-closes** = SEMPRE bom, RT-EXATO (o `\\n` auto-fecha os grupos; o decoder já faz no EOF). Adotar.",
+          "- **reorder**: aqui (S6) empata porque a folha natural-última (`tel`, depth1+2dig) JÁ é o argmax de",
+          "  `digits(size)+depth`. NÃO é 'perde' — é config-dependente: vale quando o argmax ≠ natural-última.",
+          "  (o `all-sizes` acima só isola a interação última-sem-size × omit-closes; ver 05 pra o caso onde ganha.)"]
+    write("04-header-otimizado.txt", "\n".join(L) + "\n")
+    return L
+
+
 def main():
     j = [json_path("S4", "S4-pessoa-telefones.json"),
          json_path("S6", "S6-pessoa-endereco-geo.json")]
+    header_opt([("S4", "S4-pessoa-telefones.json"), ("S6", "S6-pessoa-endereco-geo.json")])
     c = csv_path("C1", "C1-pessoa-telefone-flat.csv")
     ded = csv_deduce("C1", c[3], "pessoa", "telefone")
 
