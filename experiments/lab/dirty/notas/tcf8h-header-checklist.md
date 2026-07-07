@@ -49,7 +49,7 @@
 - [x] **`,` entre irmãos** — separa nós irmãos no mesmo nível. *(codec.py:54,63-68)*
 - [x] **`\n` terminador do header** — separa meta dos bodies **e** ancora o omit-closes; LF-only. *(codec.py:125,151)*
 - [x] **arestas de hierarquia (contenção pai→filho)** — "quem contém quem": o **único** item de schema irredutível (array-vs-objeto sai dos dados; a contenção não). *(estudo P9; T-STUDY)*
-- [ ] **marcador de tipo `:tipo` (só na divergência)** — quando o tipo diverge de string, o token `:tipo` seria **escrito** no colchete (elemento C1, sabor by-choice: só emitido na divergência). Não existe em v0. *(futuro; report.md:33; T-OPT-INFERENCE)*
+- [ ] **marcador de tipo na divergência** — quando o tipo diverge de string, uma **letra escrita** no colchete (`i`/`f`/`b`/`n` colada no size: `idade:4i`) dá fidelidade de tipo; elemento C1, só emitido na divergência (string = default). **Prototipado (Ciclo 1a, RT 3/3)** — [2026-07-06-2221-tcf8h-fidelidade-tipos](2026-07-06-2221-tcf8h-fidelidade-tipos/result.md); H-TYPE-01. Custo: quando a folha DFS-última é tipada, perde a última-sem-size (liga com C5). *(dirty proto; report.md:33)*
 
 ## C2 — Header COM INFERÊNCIAS (deduz e comprime; sem escolha, sem perda)
 

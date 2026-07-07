@@ -1,0 +1,14 @@
+# Ciclo 1a — fidelidade de tipos [resumo]
+
+| caso | typed bytes | typed RT | all-str bytes | all-str RT | custo-tags |
+|---|---|---|---|---|---|
+| T1-escalares-tipados | 68B | OK | 66B | FALHA (lossy) | +2B |
+| T2-array-tipado | 52B | OK | 47B | FALHA (lossy) | +5B |
+| T3-aninhado-misto | 127B | OK | 119B | FALHA (lossy) | +8B |
+
+CONCLUSÃO: string=default (sem tag); tipo divergente leva 1 letra (i/f/b/n) colada no size — tag=1B.
+Typed = RT-exato; all-string = menor mas LOSSY (tipos viram string). O custo LÍQUIDO varia:
+além da tag (1B/folha-tipada), se a folha DFS-ÚLTIMA for tipada ela PERDE a última-sem-size
+(paga :size + tag de volta) — daí T2 +5B, T3 +8B > só as tags. Isso liga com o reorder (C5):
+preferir uma folha STRING por último minimiza o custo dos tipos (SAVING(L) agora inclui a tag).
+Próximo (1b): escalar formas (array vazio, null em array, chave ausente, aninhamento fundo).

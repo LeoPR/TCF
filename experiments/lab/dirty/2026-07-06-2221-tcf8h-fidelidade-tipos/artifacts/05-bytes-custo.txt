@@ -1,0 +1,10 @@
+# CUSTO EM BYTES da fidelidade de tipos (tags i/f/b/n) vs baseline all-string LOSSY
+
+  T1-escalares-tipados   typed= 68B  all-str= 66B  custo-tags=+2B  (all-str RT=FALHA)
+  T2-array-tipado        typed= 52B  all-str= 47B  custo-tags=+5B  (all-str RT=FALHA)
+  T3-aninhado-misto      typed=127B  all-str=119B  custo-tags=+8B  (all-str RT=FALHA)
+
+LEITURA: a baseline all-string é MENOR mas ERRADA (perde os tipos, RT FALHA). O custo das tags
+é o preço do RT-exato. Tag = 1 byte por folha divergente de string (letra colada no size).
+Custo LÍQUIDO > tags quando a folha DFS-última é tipada: ela perde a última-sem-size (paga
+:size + tag). Mitigação (1b/C5): reordenar pra deixar uma folha STRING por último.

@@ -1,0 +1,22 @@
+# TRACE OBAT/HCC por coluna (SideOutputs.body_bytes)
+
+## T1-escalares-tipados
+  col(nome) tipo=s bodies=['ana'] -> body_bytes=?
+  col(idade) tipo=i bodies=['30'] -> body_bytes=?
+  col(ativo) tipo=b bodies=['true'] -> body_bytes=?
+  col(nota) tipo=f bodies=['4.5'] -> body_bytes=?
+  col(obs) tipo=n bodies=[''] -> body_bytes=?
+
+## T2-array-tipado
+  col(id) tipo=i bodies=['1', '2', '3'] -> body_bytes=?
+  col(vip) tipo=b bodies=['false', 'true', 'false'] -> body_bytes=?
+
+## T3-aninhado-misto
+  col(loja) tipo=s bodies=['centro'] -> body_bytes=?
+  col(itens) tipo=i bodies=['3'] -> body_bytes=?
+  col(aberto) tipo=b bodies=['true'] -> body_bytes=?
+  col(nota) tipo=f bodies=['4.8'] -> body_bytes=?
+  col(sku) tipo=s bodies=['A1', 'B2'] -> body_bytes=?
+  col(qtd) tipo=i bodies=['10', '7'] -> body_bytes=?
+  col(promo) tipo=b bodies=['false', 'true'] -> body_bytes=?
+

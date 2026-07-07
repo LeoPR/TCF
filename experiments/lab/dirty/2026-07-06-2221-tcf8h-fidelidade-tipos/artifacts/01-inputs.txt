@@ -1,0 +1,11 @@
+# INPUTS tipados (JSON)
+
+## T1-escalares-tipados
+  {"nome": "ana", "idade": 30, "ativo": true, "nota": 4.5, "obs": null}
+  tipos por folha: nome=s, idade=i, ativo=b, nota=f, obs=n
+## T2-array-tipado
+  {"pessoas": [{"id": 1, "vip": false}, {"id": 2, "vip": true}, {"id": 3, "vip": false}]}
+  tipos por folha: id=i, vip=b
+## T3-aninhado-misto
+  {"loja": "centro", "meta": {"itens": 3, "aberto": true, "nota": 4.8}, "produtos": [{"sku": "A1", "qtd": 10, "promo": false}, {"sku": "B2", "qtd": 7, "promo": true}]}
+  tipos por folha: loja=s, itens=i, aberto=b, nota=f, sku=s, qtd=i, promo=b

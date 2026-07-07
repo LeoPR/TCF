@@ -568,7 +568,7 @@ prototipo clean (`experiments/lab/clean/EXP-XXX-*`) e' pra testar
 Atualizar quando: hipotese confirmada/refutada/movida-de-status, OU
 nova hipotese identificada.
 
-**Ultima atualizacao**: 2026-07-05 — **estudo TCF-hierarquico: grupo de 8 pecas + teoria de cardinalidade (H-CARD-01..07)** + nested (H-NEST-01) + T1 (H-TX-01)
+**Ultima atualizacao**: 2026-07-06 — **Ciclo 1a (caminho-feliz fechar TCF.8): fidelidade de tipos (H-TYPE-01)** · estudo TCF-hierarquico: grupo de 8 pecas + teoria de cardinalidade (H-CARD-01..07) + nested (H-NEST-01) + T1 (H-TX-01)
 
 - **ESTUDO TCF-HIERARQUICO (grupo de pecas, owner 2026-07-05)** — como representar documento JSON aninhado
   em TCF. NAO e' 1 lab; e' um GRUPO de 8 pecas ordenadas (dia+HHMM). Mapa:
@@ -612,6 +612,17 @@ nova hipotese identificada.
     forma-tx refinada 4→7 (upload-small/upload-batch/download-bulk/download-cadenced/download-narrow-high-card/
     lazy-query/nested-response), cada celula medida. **Q1=PARCIAL, Q2=PARCIAL 2/4**. Trace OBAT/HCC por
     forma-tx em `trace_output.txt` ("experimento de sempre").
+
+- **H-TYPE-01** (fidelidade de tipos no TCF.8H, owner 2026-07-06, Ciclo 1a): o codec hierarquico faz
+  `str(v)` → JSON tipado NAO faz RT (`30`->`"30"`, `true`->`"True"`, `null`->`"None"`); so' lossless em
+  all-string. Lab [`2026-07-06-2221-tcf8h-fidelidade-tipos/`](../2026-07-06-2221-tcf8h-fidelidade-tipos/result.md).
+  - **Tese (medida, RT 3/3)**: string = default (sem tag); tipo divergente = 1 letra colada no size
+    (`i`/`f`/`b`/`n`), body JSON-canonico (`true`/`false`; `null`=body vazio). Custo +2B/+5B/+8B (T1/T2/T3).
+    `confirmada-conceitual` (amostras minusculas; escala = 1b).
+  - **Achado**: quando a folha DFS-ULTIMA e' tipada, ela perde a `ultima-folha-sem-size` (paga `:size`+tag)
+    → `SAVING(L)` passa a incluir a tag; da' motivo novo ao reorder (C5): deixar folha STRING por ultimo.
+  - **Aberto (1b)**: tag explicita (auto-descritivo, +1B) **vs** deducao via `analyze_column`/`is_numeric`
+    (zero header, mas ambiguo `"30"` vs `30` = mesmo problema self-description do hex). Provavel hibrido.
 
 - **H-TX-01** (gate de posicionamento de transmissao, pendente desde 2026-06-21): TCF+brotli vs
   **NDJSON+brotli** (o concorrente textual real, nao so' CSV). Lab

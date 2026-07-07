@@ -1,0 +1,60 @@
+# TCF.8H TYPED vs ALL-STRING (baseline lossy)
+
+## T1-escalares-tipados  (typed, 68B)
+#TCF.8H nome:4,idade:4i,ativo:5b,nota:6f,obs:1n
+ana
+\30
+true
+\4.\5
+
+
+## T1-escalares-tipados  (all-string baseline lossy, 66B)
+#TCF.8H nome:4,idade:4,ativo:5,nota:6,obs
+ana
+\30
+True
+\4.\5
+None
+
+
+## T2-array-tipado  (typed, 52B)
+#TCF.8H pessoas[id:8i,vip:14b
+*3+1|\1
+false
+true
+^1
+
+## T2-array-tipado  (all-string baseline lossy, 47B)
+#TCF.8H pessoas[id:8,vip
+*3+1|\1
+False
+True
+^1
+
+
+## T3-aninhado-misto  (typed, 127B)
+#TCF.8H loja:7,meta{itens:3i,aberto:5b,nota:6f},produtos[sku:8,qtd:7i,promo:11b
+centro
+\3
+true
+\4.\8
+A\1
+B\2
+\10
+\7
+false
+true
+
+## T3-aninhado-misto  (all-string baseline lossy, 119B)
+#TCF.8H loja:7,meta{itens:3,aberto:5,nota:6},produtos[sku:8,qtd:7,promo
+centro
+\3
+True
+\4.\8
+A\1
+B\2
+\10
+\7
+False
+True
+

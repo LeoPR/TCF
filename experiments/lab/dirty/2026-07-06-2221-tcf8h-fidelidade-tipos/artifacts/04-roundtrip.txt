@@ -1,0 +1,17 @@
+# ROUND-TRIP: typed (lossless) vs all-string (lossy)
+
+## T1-escalares-tipados
+  TYPED     RT=OK  bytes= 68  meta='#TCF.8H nome:4,idade:4i,ativo:5b,nota:6f,obs:1n'
+  ALL-STR   RT=MISMATCH (lossy: tipos viram string)  bytes= 66
+     ALL-STR out: {'nome': 'ana', 'idade': '30', 'ativo': 'True', 'nota': '4.5', 'obs': 'None'}
+
+## T2-array-tipado
+  TYPED     RT=OK  bytes= 52  meta='#TCF.8H pessoas[id:8i,vip:14b'
+  ALL-STR   RT=MISMATCH (lossy: tipos viram string)  bytes= 47
+     ALL-STR out: {'pessoas': [{'id': '1', 'vip': 'False'}, {'id': '2', 'vip': 'True'}, {'id': '3', 'vip': 'False'}]}
+
+## T3-aninhado-misto
+  TYPED     RT=OK  bytes=127  meta='#TCF.8H loja:7,meta{itens:3i,aberto:5b,nota:6f},produtos[sku:8,qtd:7i,promo:11b'
+  ALL-STR   RT=MISMATCH (lossy: tipos viram string)  bytes=119
+     ALL-STR out: {'loja': 'centro', 'meta': {'itens': '3', 'aberto': 'True', 'nota': '4.8'}, 'produtos': [{'sku': 'A1', 'qtd': '10', 'promo': 'False'}, {'sku': 'B2', 'qtd': '7', 'promo': 'True'}]}
+
