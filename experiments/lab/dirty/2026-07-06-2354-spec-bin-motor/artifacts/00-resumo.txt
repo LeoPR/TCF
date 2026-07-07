@@ -1,0 +1,19 @@
+# Motor spec_bin (escape + RLE/bitstream + exceções) [resumo]
+
+## O motor (owner: 'deixar preparado, pensar no dado depois')
+- **escape**: sem catálogo — os 2 valores mais comuns SÃO o domínio (guardados 1×, afixo-comprimidos:
+  male→'fe1'). Header tipo `col:spec_bin`; corpo = bit-stream 0/1.
+- **2 corpos, escolhe o menor**: RLE (textual, EXPLICÁVEL, mantém a quebra) vence ordenado/skew;
+  bitstream packed (N/8, opaco) vence aleatório. Testado em 5 distribuições (01).
+- **overlay de exceções**: 99% dominantes + raros (null/other) → domínio=2 dominantes, raros num
+  canal esparso (pos,valor); bit-stream cobre tudo, overlay corrige. RT-OK (03). = def-level (1c).
+- **manter a quebra**: RLE preserva grupos visíveis (pilar explicabilidade); preferir quando perto.
+
+## Resultado
+- distribuição decide RLE×packed → o motor cobre os dois (01). Domínio afixo-comprimido (02).
+- exceções lossless via overlay (03). Colunas reais escolhem na ordem real (04).
+- serve p/ QUALQUER enum-2 sem catálogo (matriz_filial=1|2, Male/Female, F/O…).
+
+## Próximo (estudar o dado depois)
+- generalizar enum-k (k>2); medir combinações ordem×distribuição×skew em mais colunas reais;
+- bitstream real (bits empacotados na camada binária V2-L); ligar autoridade (typed→canonicaliza).

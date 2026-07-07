@@ -1,0 +1,20 @@
+# COLUNAS REAIS — o motor escolhe na ORDEM REAL do dado
+
+## adult.sex  N=48842  domínio=('Male', 'Female')  exc=0  RT=OK
+  raw(HCC)=97291B · RLE=86619B · packed=6106B · textbits=48844B  → **packed**
+  #runs=21580 (ordem real)
+
+## adult.class  N=48842  domínio=('<=50K', '>50K')  exc=0  RT=OK
+  raw(HCC)=80886B · RLE=72154B · packed=6106B · textbits=48844B  → **packed**
+  #runs=17856 (ordem real)
+
+## estabelecimentos.matriz_filial  N=200000  domínio=('1', '2')  exc=0  RT=OK
+  raw(HCC)=71874B · RLE=64281B · packed=25000B · textbits=200002B  → **packed**
+  #runs=15297 (ordem real)
+
+## lineitem.l_linestatus  N=60175  domínio=('F', 'O')  exc=0  RT=OK
+  raw(HCC)=48477B · RLE=35017B · packed=7522B · textbits=60177B  → **packed**
+  #runs=8219 (ordem real)
+
+LEITURA: a ordem REAL decide. Se o dump vem agrupado → RLE (explicável) ganha; se espalhado →
+packed. O motor escolhe por bytes; 'manter a quebra' = preferir RLE quando ele fica perto (pilar).

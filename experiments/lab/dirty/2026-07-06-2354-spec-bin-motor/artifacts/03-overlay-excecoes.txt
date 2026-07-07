@@ -1,0 +1,9 @@
+# OVERLAY DE EXCEÇÕES — 99% male/female + raros null/other (RT + bytes)
+
+  N=1000  domínio=('male', 'female')  #exceções=10 (frac=0.010)
+  RT=OK
+  domínio=9B + corpo(packed)=125B + exceções=65B  = 199B
+  (corpo bits: rle=2636B packed=125B textbits=1002B)
+
+LEITURA: o domínio = os 2 dominantes; os raros (null/other) vão num canal esparso (posição,valor).
+O bit-stream cobre 100% (exceção=placeholder), a overlay corrige. Lossless. = def-level (1c) + binário.

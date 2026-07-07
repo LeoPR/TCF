@@ -1,0 +1,12 @@
+# MOTOR — RLE vs bitstream vs textbits por distribuição (N=1000); o motor escolhe o menor
+
+| distribuição | #runs | RLE | packed(N/8) | textbits | vencedor |
+|---|---|---|---|---|---|
+| ordenado (2 runs) | 2 | 12B | 125B | 1002B | **rle** |
+| bloco-10 | 100 | 500B | 125B | 1002B | **packed** |
+| alternado (pior RLE) | 1000 | 4000B | 125B | 1002B | **packed** |
+| pseudo-aleatorio | 1000 | 4000B | 125B | 1002B | **packed** |
+| skew 99/1 | 21 | 95B | 125B | 1002B | **rle** |
+
+LEITURA: ordenado/skew → RLE vence (poucos runs, e é EXPLICÁVEL). alternado/aleatório → packed
+vence (N/8 constante; RLE explode com ~N runs). O motor testa e escolhe — 'deixar preparado'.

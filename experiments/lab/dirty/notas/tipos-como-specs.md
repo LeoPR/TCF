@@ -70,6 +70,13 @@ superfície = DADO** (Male/Female, <=50K/>50K, F/O, A/N/R) + `matriz_filial=1|2`
 - **Bytes** (adult.sex, N=48842): raw 97KB → textual 49KB (~2×, encurta superfície) → **bitmap 6KB (~16×)**.
   O ganho textual é ∝ encurtamento da superfície; o grande/constante (1 bit/val) é **binário** (V2-L).
 
+**Motor spec_bin** (lab [`2026-07-06-2354-spec-bin-motor`](../2026-07-06-2354-spec-bin-motor/result.md)):
+enum-2 sem catálogo via **escape** (os 2 mais comuns = domínio, guardados 1× afixo-comprimidos: `male→fe1`);
+corpo = bit-stream com **2 codificações** que o motor escolhe: **RLE** (textual/explicável, mantém a quebra) vence
+ordenado/skew; **packed** (binário N/8, V2-L) vence espalhado. **Overlay de exceções** (99% dominantes + raros
+null/other → canal esparso, = def-level do 1c). Medido: em **dado real espalhado, packed vence** (adult.sex
+16×; 17–21k runs) → o corpo útil de enum real é binário; RLE fica pro ordenado + pela explicabilidade.
+
 ## A regra universal de indução: ROUND-TRIP
 
 **Uma spec induz-se com segurança ⟺ o valor faz round-trip por ela** (encode-pela-spec → decode devolve o

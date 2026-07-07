@@ -1,0 +1,9 @@
+# DOMÍNIO uma vez, aproveitando o AFIXO do OBAT (o 2º relaciona ao 1º)
+
+  ('male', 'female') -> encode 9B (raw 10B)  'male\nfe1\n'
+  ('1', '2') -> encode 8B (raw 2B)  '*2+1|\\1\n'
+  ('<=50K', '>50K') -> encode 11B (raw 9B)  '<=*\\50K\n>2\n'
+  ('Ativo', 'Inativo') -> encode 12B (raw 12B)  'A*tivo\nIna2\n'
+
+male→female='fe1' (o owner previu): o domínio guardado uma vez já é afixo-comprimido.
+Domínios curtos (1/2) não ganham (overhead), mas é o header, guardado UMA vez — desprezível.
