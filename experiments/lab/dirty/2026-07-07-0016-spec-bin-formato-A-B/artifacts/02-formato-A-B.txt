@@ -1,0 +1,62 @@
+# FORMATO A vs B — mesmo conteúdo (2 literais + bits empacotados), layouts diferentes
+
+## grupos (3m,2f,2m,3f)  (N=10, domínio=['male', 'female'], 2º aparece na posição 3)
+  RT: A=OK  B=OK  · corpo(bytes)=A/B=12B (igual)
+  --- Formato B (2 literais no topo, ordem predeterminada 0/1) ---
+  #TCF.8 sexo:spec_bin:B
+  male
+  female
+  @bytes:19c0
+  --- Formato A (literal na 1ª ocorrência; 2º declarado no 1º byte-escape) ---
+  #TCF.8 sexo:spec_bin:A
+  male
+  @byte:19
+  female
+  @bytes:c0
+
+## alternado  (N=8, domínio=['male', 'female'], 2º aparece na posição 1)
+  RT: A=OK  B=OK  · corpo(bytes)=A/B=11B (igual)
+  --- Formato B (2 literais no topo, ordem predeterminada 0/1) ---
+  #TCF.8 sexo:spec_bin:B
+  male
+  female
+  @bytes:55
+  --- Formato A (literal na 1ª ocorrência; 2º declarado no 1º byte-escape) ---
+  #TCF.8 sexo:spec_bin:A
+  male
+  @byte:55
+  female
+
+## 2º tarde (4m,1f)  (N=5, domínio=['male', 'female'], 2º aparece na posição 4)
+  RT: A=OK  B=OK  · corpo(bytes)=A/B=11B (igual)
+  --- Formato B (2 literais no topo, ordem predeterminada 0/1) ---
+  #TCF.8 sexo:spec_bin:B
+  male
+  female
+  @bytes:08
+  --- Formato A (literal na 1ª ocorrência; 2º declarado no 1º byte-escape) ---
+  #TCF.8 sexo:spec_bin:A
+  male
+  @byte:08
+  female
+
+## espalhado  (N=16, domínio=['female', 'male'], 2º aparece na posição 1)
+  RT: A=OK  B=OK  · corpo(bytes)=A/B=12B (igual)
+  --- Formato B (2 literais no topo, ordem predeterminada 0/1) ---
+  #TCF.8 sexo:spec_bin:B
+  female
+  male
+  @bytes:6db6
+  --- Formato A (literal na 1ª ocorrência; 2º declarado no 1º byte-escape) ---
+  #TCF.8 sexo:spec_bin:A
+  female
+  @byte:6d
+  male
+  @bytes:b6
+
+OBSERVAÇÃO: A e B têm os MESMOS bytes (2 literais + ceil(N/8)); diferem no LAYOUT.
+- **B**: precisa dos 2 valores ANTES de empacotar (2 passadas, ou buffer) — simples, predeterminado.
+- **A**: declara o 2º no 1º byte-escape (mesmo sem ter ocorrido) → STREAMING single-pass, e casa com
+  o layout NATIVO do HCC (literal na 1ª ocorrência + refs). Por isso o owner prefere A: reusa o que o
+  HCC já produz — 'associar depois no HCC (ou após) pra virar bytes'.
+- caso '2º tarde' (female só na posição 4): em A o byte-escape declara female antes; em B ele já está no topo.

@@ -77,6 +77,13 @@ ordenado/skew; **packed** (binário N/8, V2-L) vence espalhado. **Overlay de exc
 null/other → canal esparso, = def-level do 1c). Medido: em **dado real espalhado, packed vence** (adult.sex
 16×; 17–21k runs) → o corpo útil de enum real é binário; RLE fica pro ordenado + pela explicabilidade.
 
+**Reuso do HCC + Formato A/B** (lab [`2026-07-07-0016-spec-bin-formato-A-B`](../2026-07-07-0016-spec-bin-formato-A-B/result.md)):
+o HCC **já** produz o binário como literais+refs com índices naturais (`*3|male\n*2|fe1\n*2|^1\n*3|^2` →
+male=^1=bit0, female=^2=bit1; `*N|^k` = bit-stream em RLE). Logo o `spec_bin` é **camada pós-HCC (V2-L)**, não
+substituto: ordenado → HCC-RLE nativo (textual); espalhado → empacota as refs. **Formato A** (literal na 1ª
+ocorrência + 2º declarado no 1º byte-escape) reusa o layout do HCC e é **single-pass streaming** (owner
+prefere); **Formato B** (2 literais no topo) é 2-passadas. Mesmos bytes.
+
 ## A regra universal de indução: ROUND-TRIP
 
 **Uma spec induz-se com segurança ⟺ o valor faz round-trip por ela** (encode-pela-spec → decode devolve o

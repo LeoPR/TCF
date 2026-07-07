@@ -1,0 +1,18 @@
+# Formato A vs B + reuso do HCC [resumo]
+
+## Descoberta (grounding)
+O HCC já vira o binário em literais+REFERÊNCIAS com índices naturais: male=^1=bit0, female(fe1)=^2=bit1;
+a corrente `*N|^k` É o bit-stream em RLE (01). 'Os nós já têm nomes e índices naturais' — confirmado.
+
+## Formato A vs B (02) — mesmos bytes, layout diferente
+- **B**: 2 literais no topo (ordem predeterminada 0/1) + bytes. Precisa dos 2 antes (2 passadas). Simples.
+- **A**: literal na 1ª ocorrência; o 2º declarado no 1º byte-escape (mesmo sem ter ocorrido). STREAMING
+  single-pass + casa com o layout NATIVO do HCC → **owner prefere A** (reusa o que o HCC já produz).
+- Ambos RT-OK; corpo = 2 literais (afixo: male→fe1) + ceil(N/8) bytes.
+
+## Decisão (03)
+- spec_bin = CAMADA pós-HCC (V2-L), não substituto. Ordenado → HCC-nativo RLE (textual, mantém quebra);
+  espalhado → pack A das refs (binário, 16× em adult.sex). O header textual roteia.
+
+## Próximo
+- protótipo do pack pós-HCC lendo o stream de ^refs de verdade (parse `*N|^k`); enum-k; welding V2-L.

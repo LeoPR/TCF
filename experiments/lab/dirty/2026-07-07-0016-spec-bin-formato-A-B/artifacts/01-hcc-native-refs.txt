@@ -1,0 +1,25 @@
+# HCC NATIVO — o binário já vira literais + REFERÊNCIAS com índices naturais (^1=bit0, ^2=bit1)
+
+## grupos (3m,2f,2m,3f)
+  col: ['male', 'male', 'male', 'female', 'female', 'male', 'male', 'female', 'female', 'female']
+  HCC: '*3|male\n*2|fe1\n*2|^1\n*3|^2\n'
+  → male=^1=bit0, female(=fe1)=^2=bit1; a corrente *N|^k É o bit-stream em RLE.
+
+## alternado
+  col: ['male', 'female', 'male', 'female', 'male', 'female', 'male', 'female']
+  HCC: 'male\nfe1\n^1\n^2\n^1\n^2\n^1\n^2\n'
+  → male=^1=bit0, female(=fe1)=^2=bit1; a corrente *N|^k É o bit-stream em RLE.
+
+## 2º tarde (4m,1f)
+  col: ['male', 'male', 'male', 'male', 'female']
+  HCC: '*4|male\nfe1\n'
+  → male=^1=bit0, female(=fe1)=^2=bit1; a corrente *N|^k É o bit-stream em RLE.
+
+## espalhado
+  col: ['female', 'male', 'male', 'female', 'male', 'male', 'female', 'male', 'male', 'female', 'male', 'male', 'female', 'male', 'male', 'female']
+  HCC: 'fe*male\n*2|2\n^1\n*2|^2\n^1\n*2|^2\n^1\n*2|^2\n^1\n*2|^2\n^1\n'
+  → male=^1=bit0, female(=fe1)=^2=bit1; a corrente *N|^k É o bit-stream em RLE.
+
+Os 'nós já têm nomes e índices naturais' (owner): o HCC coloca o literal na 1ª ocorrência e
+referencia (^k) depois. Pra ordenado, ISSO já é a resposta (textual/explicável). O pack (A/B) é
+o passo pós-HCC (V2-L) que troca a RLE por bytes quando o dado é espalhado (muitos runs curtos).

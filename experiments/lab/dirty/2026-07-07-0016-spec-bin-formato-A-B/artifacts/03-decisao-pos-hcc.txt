@@ -1,0 +1,9 @@
+# DECISÃO — pack A/B (V2-L, bytes) vs HCC-nativo-RLE (textual) por ordenação
+
+(medido no motor 2026-07-06-2354: ordenado/skew → RLE nativo vence e é EXPLICÁVEL; espalhado →
+ packed vence, binário. adult.sex real: packed 6KB vs RLE 86KB → 16×.)
+
+spec_bin NÃO substitui o HCC — é CAMADA pós-HCC:
+- ordenado/agrupado → deixa o HCC-nativo (RLE de ^refs, textual, mantém a quebra);
+- espalhado → pack A das refs em bytes (V2-L); header textual `sexo:spec_bin` roteia.
+- Formato A = natural: reusa literais+refs que o HCC já pôs na 1ª ocorrência; só empacota os bits.
