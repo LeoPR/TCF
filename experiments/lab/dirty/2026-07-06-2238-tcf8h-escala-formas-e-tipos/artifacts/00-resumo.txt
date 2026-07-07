@@ -1,0 +1,25 @@
+# Ciclo 1b — escala de formas + decisão de tipo (A/B/C) [resumo]
+
+## Tipo (thread 1) — bytes/tags/RT por estratégia
+  T1-escalares-tipados     A=68B/4t/OK  B=62B/0t/LOSSY  C=65B/1t/OK
+  T2-array-tipado          A=52B/2t/OK  B=47B/0t/OK  C=47B/0t/OK
+  T3-aninhado-misto        A=127B/5t/OK  B=119B/0t/OK  C=119B/0t/OK
+  NUM-numeros-dominam      A=41B/3t/OK  B=38B/0t/OK  C=38B/0t/OK
+  AMB-strings-ambiguas     A=51B/1t/OK  B=50B/0t/LOSSY  C=52B/2t/OK
+
+## Forma (thread 2) — RT vs fronteira
+  SH1-aninhamento-fundo    RT-OK
+  SH2-array-vazio          RT-OK
+  SH3-chave-ausente        FRONTEIRA (KeyError)
+  SH4-null-em-array-misto  FRONTEIRA (ValueError)
+
+## Decisão (do número)
+- **C-híbrida = default**: lossless como A; deduz número/bool/null-ok de graça, tag só a colisão
+  (string-ambígua → 's'; null → 'n'). REGRA: custo_A=#não-string, custo_C=#mal-deduzidos;
+  C<A sse não-strings-bem-deduzidos > strings-ambíguas. T1/T2/T3/NUM: C≤A. AMB: C=52 > A=51
+  (2 strings ambíguas > 1 número) — A vence lá. Não é 'C sempre'; é config-dependente.
+- **B pura** descartada como default: corrompe silenciosamente (cep '01310'→1310, null→'').
+- **A** = fallback (tudo taggeado): simples/auditável, e MENOR quando strings-ambíguas dominam.
+## Fronteiras (viram 1c / char. honesta)
+- chave-ausente + null-em-array-misto = tabela não-retangular / coluna de tipo misto → família do
+  link posicional (peça 10/11). Aninhamento fundo e array vazio já fecham RT.

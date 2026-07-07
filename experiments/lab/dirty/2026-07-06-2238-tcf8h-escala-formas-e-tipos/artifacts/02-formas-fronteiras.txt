@@ -1,0 +1,25 @@
+# THREAD 2 — escala de FORMAS (estratégia C-híbrida): o que fecha RT e o que é FRONTEIRA
+
+## SH1-aninhamento-fundo
+  {"a": {"b": {"c": {"d": 1}}}}
+  encode OK 19B  RT=OK  meta='#TCF.8H a{b{c{d'
+
+## SH2-array-vazio
+  {"nome": "x", "tags": []}
+  encode OK 21B  RT=OK  meta='#TCF.8H nome,tags['
+
+## SH3-chave-ausente
+  {"linhas": [{"a": 1, "b": 2}, {"a": 3}]}
+  FRONTEIRA: KeyError: 'b'
+
+## SH4-null-em-array-misto
+  {"linhas": [{"x": 1}, {"x": null}]}
+  FRONTEIRA: ValueError: invalid literal for int() with base 10: ''
+
+## diagnóstico das fronteiras
+
+- SH3 chave-ausente: a tabela vira NÃO-retangular (linha 2 sem 'b'). O modelo colunar supõe
+  retângulo → precisa de presença (bitmap/sentinela). É a mesma família do link posicional (1c).
+- SH4 null-em-array-misto: coluna [1, null] tem tipo MISTO (int+null) → a tag por-coluna não
+  basta; precisa de nullable-int (tag por-coluna 'i?' ou máscara de null). Caracterizado, não v0.
+- SH1/SH2 (aninhamento fundo, array vazio): fecham RT → funcionalidade estendida de graça.

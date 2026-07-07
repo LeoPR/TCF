@@ -1,0 +1,9 @@
+# TRACE OBAT/HCC por coluna (SideOutputs) — T3 (representativo)
+
+  col(loja) tipo=s bodies=['centro'] -> body_bytes=?
+  col(itens) tipo=i bodies=['3'] -> body_bytes=?
+  col(aberto) tipo=b bodies=['true'] -> body_bytes=?
+  col(nota) tipo=f bodies=['4.8'] -> body_bytes=?
+  col(sku) tipo=s bodies=['A1', 'B2'] -> body_bytes=?
+  col(qtd) tipo=i bodies=['10', '7'] -> body_bytes=?
+  col(promo) tipo=b bodies=['false', 'true'] -> body_bytes=?

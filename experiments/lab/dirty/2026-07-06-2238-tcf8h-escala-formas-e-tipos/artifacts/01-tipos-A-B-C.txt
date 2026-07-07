@@ -1,0 +1,55 @@
+# THREAD 1 — decisão de TIPO com número: A-explícita vs B-dedução vs C-híbrida
+
+A = tag em toda não-string (lossless, caro). B = sem tag, deduz (lossy em ambiguidade).
+C = tag só onde a dedução erraria (lossless, barato quando números dominam).
+
+## T1-escalares-tipados
+  {"nome": "ana", "idade": 30, "ativo": true, "nota": 4.5, "obs": null}
+  A-explicita   68B  tags=4  RT=OK  meta='#TCF.8H nome:4,idade:4i,ativo:5b,nota:6f,obs:1n'
+  B-deducao     62B  tags=0  RT=LOSSY  meta='#TCF.8H nome:4,idade:4,ativo:5,nota:6,obs'
+     LOSSY out: {'nome': 'ana', 'idade': 30, 'ativo': True, 'nota': 4.5, 'obs': ''}
+  C-hibrida     65B  tags=1  RT=OK  meta='#TCF.8H nome:4,idade:4,ativo:5,nota:6,obs:1n'
+
+## T2-array-tipado
+  {"pessoas": [{"id": 1, "vip": false}, {"id": 2, "vip": true}, {"id": 3, "vip": false}]}
+  A-explicita   52B  tags=2  RT=OK  meta='#TCF.8H pessoas[id:8i,vip:14b'
+  B-deducao     47B  tags=0  RT=OK  meta='#TCF.8H pessoas[id:8,vip'
+  C-hibrida     47B  tags=0  RT=OK  meta='#TCF.8H pessoas[id:8,vip'
+
+## T3-aninhado-misto
+  {"loja": "centro", "meta": {"itens": 3, "aberto": true, "nota": 4.8}, "produtos": [{"sku": "A1", "qtd": 10, "promo": false}, {"sku": "B2", "qtd": 7, "promo": true}]}
+  A-explicita  127B  tags=5  RT=OK  meta='#TCF.8H loja:7,meta{itens:3i,aberto:5b,nota:6f},produtos[sku:8,qtd:7i,promo:11b'
+  B-deducao    119B  tags=0  RT=OK  meta='#TCF.8H loja:7,meta{itens:3,aberto:5,nota:6},produtos[sku:8,qtd:7,promo'
+  C-hibrida    119B  tags=0  RT=OK  meta='#TCF.8H loja:7,meta{itens:3,aberto:5,nota:6},produtos[sku:8,qtd:7,promo'
+
+## NUM-numeros-dominam
+  {"x": 1, "y": 2, "z": 3, "nome": "ana"}
+  A-explicita   41B  tags=3  RT=OK  meta='#TCF.8H x:3i,y:3i,z:3i,nome'
+  B-deducao     38B  tags=0  RT=OK  meta='#TCF.8H x:3,y:3,z:3,nome'
+  C-hibrida     38B  tags=0  RT=OK  meta='#TCF.8H x:3,y:3,z:3,nome'
+
+## AMB-strings-ambiguas
+  {"cep": "01310", "flag": "true", "n": 30, "nome": "ana"}
+  A-explicita   51B  tags=1  RT=OK  meta='#TCF.8H cep:7,flag:5,n:4i,nome'
+  B-deducao     50B  tags=0  RT=LOSSY  meta='#TCF.8H cep:7,flag:5,n:4,nome'
+     LOSSY out: {'cep': 1310, 'flag': True, 'n': 30, 'nome': 'ana'}
+  C-hibrida     52B  tags=2  RT=OK  meta='#TCF.8H cep:7s,flag:5s,n:4,nome'
+
+## tabela
+
+| caso | A bytes/tags/RT | B bytes/tags/RT | C bytes/tags/RT |
+|---|---|---|---|
+| T1-escalares-tipados |68/4/OK |62/0/LOSSY |65/1/OK |
+| T2-array-tipado |52/2/OK |47/0/OK |47/0/OK |
+| T3-aninhado-misto |127/5/OK |119/0/OK |119/0/OK |
+| NUM-numeros-dominam |41/3/OK |38/0/OK |38/0/OK |
+| AMB-strings-ambiguas |51/1/OK |50/0/LOSSY |52/2/OK |
+
+LEITURA: B só é lossless quando não há string-ambígua; corrompe cep '01310'→1310, 'true'→bool,
+null→string vazia. A é sempre lossless mas paga toda não-string. C = lossless E o mais barato
+quando números dominam (deduz de graça, tag só a colisão).
+
+REGRA (do número): custo_A = #não-string; custo_C = #mal-deduzidos (strings-ambíguas + null).
+C < A  sse  (não-strings bem-deduzidos) > (strings-ambíguas). Em NUM/T1/T2/T3 C≤A (lossless).
+Em AMB (2 strings ambíguas > 1 número) C=52 > A=51: A vence. C default; A fallback quando
+strings-ambíguas dominam. B nunca default (lossy silencioso).

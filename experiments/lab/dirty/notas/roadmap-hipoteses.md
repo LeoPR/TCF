@@ -621,8 +621,15 @@ nova hipotese identificada.
     `confirmada-conceitual` (amostras minusculas; escala = 1b).
   - **Achado**: quando a folha DFS-ULTIMA e' tipada, ela perde a `ultima-folha-sem-size` (paga `:size`+tag)
     → `SAVING(L)` passa a incluir a tag; da' motivo novo ao reorder (C5): deixar folha STRING por ultimo.
-  - **Aberto (1b)**: tag explicita (auto-descritivo, +1B) **vs** deducao via `analyze_column`/`is_numeric`
-    (zero header, mas ambiguo `"30"` vs `30` = mesmo problema self-description do hex). Provavel hibrido.
+  - **1b (medido, RT)**: 3 estrategias medidas — A-explicita (lossless, tag toda nao-string), B-deducao
+    pura (LOSSY: `"01310"`->1310, `"true"`->bool, null->`""`), C-hibrida (tag so' na colisao). **Decisao do
+    numero: C = default** (lossless + mais barato quando numeros dominam: T1/T2/T3/NUM C<=A); **A = fallback**
+    (menor quando strings-ambiguas dominam: AMB C=52 > A=51). Regra crossover: custo_A=#nao-string,
+    custo_C=#mal-deduzidos; C<A sse nao-strings-bem-deduzidos > strings-ambiguas. B descartada (lossy
+    silencioso). Analogo direto do **hex-default** (default deduzivel + marcador so' na colisao).
+  - **Formas (1b)**: aninhamento-fundo + array-vazio FECHAM RT (funcionalidade de graca); chave-ausente +
+    null-em-array-misto = FRONTEIRA (tabela nao-retangular / coluna tipo-misto) -> familia do link
+    posicional (Ciclo 1c). Lab [`2026-07-06-2238-tcf8h-escala-formas-e-tipos/`](../2026-07-06-2238-tcf8h-escala-formas-e-tipos/result.md).
 
 - **H-TX-01** (gate de posicionamento de transmissao, pendente desde 2026-06-21): TCF+brotli vs
   **NDJSON+brotli** (o concorrente textual real, nao so' CSV). Lab
