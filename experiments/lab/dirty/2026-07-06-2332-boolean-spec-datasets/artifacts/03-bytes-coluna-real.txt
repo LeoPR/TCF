@@ -1,0 +1,16 @@
+# BYTES numa coluna real grande — raw vs spec-textual vs spec-binário (bitmap)
+
+## adult.sex  (N=48842, @bin:Male|Female)
+  raw (true/false strings via HCC):  97291B
+  spec TEXTUAL (bitstring 0/1)     :  48844B
+  spec BINÁRIO (bitmap N/8 + hdr)  :   6122B  <- o ganho real é AQUI
+
+## adult.class  (N=48842, @bin:<=50K|>50K)
+  raw (true/false strings via HCC):  80886B
+  spec TEXTUAL (bitstring 0/1)     :  48844B
+  spec BINÁRIO (bitmap N/8 + hdr)  :   6121B  <- o ganho real é AQUI
+
+MEDIDO (adult.sex N=48842): raw 97KB → spec TEXTUAL 49KB (~2×: Male/Female→0/1 encurta a
+superfície) → spec BINÁRIO bitmap 6KB (~16×). O ganho TEXTUAL é PROPORCIONAL ao encurtamento da
+superfície (aqui 2×; pra true/false já curto seria ~marginal). O ganho grande e CONSTANTE (1 bit/val)
+é BINÁRIO (bitmap, V2-L). Em texto a spec ainda vale por ACELERAÇÃO + header @bool:<variante> mínimo.

@@ -1,0 +1,9 @@
+# SPEC BINÁRIA — RT (variante padrão vs enum-2) + header (gabarito-da-spec vs na-coluna)
+
+  adult-census.adult.sex              kind=enum2  header='@bin:Male|Female'         bits=010  RT=OK
+  adult-census.adult.class            kind=enum2  header='@bin:<=50K|>50K'          bits=010  RT=OK
+  tpch-sf001.lineitem.l_linestatus     kind=enum2  header='@bin:O|F'                 bits=010  RT=OK
+  receita-cnpj.estabelecimentos.matriz_filial    kind=enum2  header='@bin:1|2'                 bits=010  RT=OK
+
+header @bool:<variante> = GABARITO-DA-SPEC (os 2 valores vêm do registry, coluna não guarda).
+header @bin:<v0>|<v1>      = enum-2 arbitrário guarda os 2 valores (gabarito NA coluna).

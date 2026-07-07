@@ -35,6 +35,41 @@ Se não dá nenhum → não spec (fica `string`). Medido (o número corrigiu a i
 > por-valor do bool é **binário** (bitmap, V2-L/ADR-0018). Em texto o bool vale por **aceleração**. Não
 > superestimar a compressão de tipo em texto — o forte é aceleração + o espaço binário.
 
+## Além dos 2 eixos: características ORTOGONAIS (owner 2026-07-06)
+
+Compressão e aceleração são **preditivas** (dizem se vale aplicar). Mas uma spec tem mais eixos ortogonais:
+
+| eixo | o que é | decide |
+|---|---|---|
+| 1 compressão | body encolhe | vale aplicar? |
+| 2 aceleração | decode sem deduzir + acesso tipado | vale aplicar? |
+| 3 **autoridade** | mandatório / spec-natural / deduzido | liberdade de canonicalizar |
+| 4 **normalizabilidade** | superfície livre vs byte-locked | pode mudar a superfície? |
+| 5 **fechamento de domínio** | fechado (enum/bitmap) vs aberto | habilita bitmap/dict |
+| 6 **variante** | superfície do mesmo semântico (1/0, t/f, Y/N) | o que guardar p/ RT |
+| 7 **reversibilidade** | round-trip | seguro induzir? |
+| 8 **validação/sanidade** | nature alerta anomalia (só detecta) | efeito colateral |
+
+**Autoridade** (o ponto do CSV vs typed): no **CSV cru** trata-se como **string/enum** (preserva a superfície
+exata, sanidade — `True`/`False` fica como está); se a entrada é **typed/declarada**, o compressor pode
+**canonicalizar** (a saída pode sair `true` minúsculo — "vemos o DADO, não a string"). Três classes:
+- **mandatório**: tipo declarado na entrada → canonicaliza.
+- **spec-natural**: padrão conhecido (bool, datetime, CPF) → **gabarito-da-spec** (template implícito, a
+  coluna nem guarda referência: os valores vêm da spec).
+- **deduzido**: induzido do dado via round-trip → preserva superfície.
+
+## Estudo empírico: "boolean" nos nossos datasets → é ENUM, não bool
+
+Varredura (lab [`2026-07-06-2332-boolean-spec-datasets`](../2026-07-06-2332-boolean-spec-datasets/result.md),
+synthetic + adult/tpch/receita/…): **ZERO `true`/`false`** em dado real. O que existe é **enum-2/3 com
+superfície = DADO** (Male/Female, <=50K/>50K, F/O, A/N/R) + `matriz_filial=1|2` (**não** 0/1!). Portanto:
+- **o primitivo útil é ENUM/domínio-k** (fechado, pequeno); **boolean (true/false) é a variante semântica,
+  rara em tabela**. A spec certa é *enum-k*, com boolean como sub-caso (k=2 semântico).
+- **Variante** é um eixo real: `1/0`, `t/f`, `true/false`, `True/False`, `Y/N` são a MESMA spec (bool) com
+  superfícies diferentes; `matriz_filial=1|2` mostra que assumir 1/0 corromperia a semântica.
+- **Bytes** (adult.sex, N=48842): raw 97KB → textual 49KB (~2×, encurta superfície) → **bitmap 6KB (~16×)**.
+  O ganho textual é ∝ encurtamento da superfície; o grande/constante (1 bit/val) é **binário** (V2-L).
+
 ## A regra universal de indução: ROUND-TRIP
 
 **Uma spec induz-se com segurança ⟺ o valor faz round-trip por ela** (encode-pela-spec → decode devolve o

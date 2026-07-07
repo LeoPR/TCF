@@ -1,0 +1,23 @@
+# CATÁLOGO — colunas de domínio ≤3 nos nossos datasets (candidatas a boolean/enum-2)
+
+| fonte | coluna | N | #dist | kind | variante/valores |
+|---|---|---|---|---|---|
+| tpch-sf001.orders | o_shippriority | 15000 | 1 | bool | 1/0 |
+| adult-census.adult | sex | 48842 | 2 | enum2 | Female|Male |
+| adult-census.adult | class | 48842 | 2 | enum2 | <=50K|>50K |
+| receita-cnpj.estabelecimentos | matriz_filial | 200000 | 2 | enum2 | 1|2 |
+| tpch-sf001.lineitem | l_linestatus | 60175 | 2 | enum2 | F|O |
+| D17a-multi-column-mixed.csv | categoria | 13 | 3 | dom3 | A|B|C |
+| tpch-sf001.lineitem | l_returnflag | 60175 | 3 | dom3 | A|N|R |
+| tpch-sf001.orders | o_orderstatus | 15000 | 3 | dom3 | F|O|P |
+
+TOTAL: 8 colunas domínio≤3 · bool-variante=1 · enum-2=4 · outras=3
+
+LEITURA: 'bool' = superfície bate numa variante conhecida (1/0, t/f, Y/N…). 'enum-2' = 2 valores
+ARBITRÁRIOS (Male/Female, O/F) — mesma ESTRUTURA (2 símbolos=1 bit), mas a superfície É dado.
+
+ACHADO (do dado REAL): ZERO true/false nos nossos datasets. O único 'bool' (o_shippriority) é
+CONSTANTE (1 distinct '0' — edge do classificador, não boolean). O que existe é enum-2/3 com
+superfície = DADO: Male/Female, <=50K/>50K, F/O, A/N/R, F/O/P. E matriz_filial=1|2 (NÃO 0/1!) —
+assumir 1/0 seria erro. → o primitivo útil NÃO é 'boolean'; é ENUM/domínio-k (fechado, pequeno).
+Boolean true/false é um CASO ESPECIAL semântico que quase não aparece em tabela real.

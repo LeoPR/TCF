@@ -1,0 +1,28 @@
+# Boolean nos datasets + spec binária [resumo]
+
+## Catálogo (domínio ≤3): 8 colunas · bool-variante=1 · enum-2=4
+**ACHADO (do dado real)**: ZERO true/false; o que há é enum-2/3 com superfície=DADO (Male/Female,
+F/O, A/N/R, F/O/P) + matriz_filial=1|2 (não 0/1!). O primitivo útil é ENUM/domínio-k; boolean
+true/false é caso especial semântico raro em tabela.
+
+## Design da spec (do dado): ENUM/domínio-k, boolean é sub-caso
+- **primitivo = ENUM de domínio-k** (fechado, pequeno); a superfície é uma **VARIANTE**. Boolean
+  (true/false/1/0/t/f) é a variante SEMÂNTICA — rara em dado real; enum-2/3 (Male/Female, F/O) domina.
+- **enum-semântico** (variante conhecida) vs **enum arbitrário** (Male/Female): MESMA estrutura
+  (k símbolos = log2(k) bits); diferença = superfície é rótulo-padrão vs DADO.
+- **Autoridade** (owner): CSV cru → enum, preserva superfície (sanidade; matriz_filial=1|2 prova o risco);
+  typed → canonicaliza livre.
+- **Gabarito-da-spec**: variante padrão → header `@bool:<variante>`, valores vêm do registry (coluna
+  não guarda gabarito). enum arbitrário → `@enum:v0|v1|…` (gabarito na coluna, uma vez).
+- **Compressão** (03, medido adult.sex): raw 97KB → textual 49KB (~2×, encurta superfície) → binário
+  6KB (~16×, bitmap). Textual ganha proporcional ao encurtamento; o grande/constante é binário (V2-L).
+
+## Eixos ORTOGONAIS de uma spec (além de compressão/aceleração — o pedido do owner)
+1. compressão · 2. aceleração · 3. **autoridade** (mandatório/natural/deduzido) ·
+4. **normalizabilidade** (superfície livre p/ canonicalizar vs byte-locked) · 5. **fechamento de domínio**
+(fechado=enum/bitmap vs aberto) · 6. **variante** (superfície do mesmo semântico) · 7. **reversibilidade**
+(round-trip, gate de indução) · 8. **validação/sanidade** (nature alerta anomalia). → nota tipos-como-specs.
+
+## Classificação por autoridade (ataque um-a-um, owner)
+- **mandatório**: tipo declarado na entrada → canonicaliza; **spec-natural**: padrão conhecido (bool,
+  datetime, CPF) → gabarito-da-spec; **deduzido**: induzido do dado via round-trip → preserva superfície.
