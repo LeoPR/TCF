@@ -1,0 +1,21 @@
+# 1. BOOL como spec — body 'true'/'false' (string) vs 't'/'f' (spec bool) + tag 'b' (1B)
+
+compressão do body; o tag amortiza sobre N. (ambos via tcf.encode → RLE aplica aos dois)
+
+| N | dist | string body | spec body+tag | Δ (spec-string) |
+|---|---|---|---|---|
+| 2 | alternado | 11B | 5B | -6B |
+| 2 | all-true | 8B | 6B | -2B |
+| 2 | 70-30 | 8B | 6B | -2B |
+| 10 | alternado | 35B | 29B | -6B |
+| 10 | all-true | 9B | 7B | -2B |
+| 10 | 70-30 | 17B | 11B | -6B |
+| 100 | alternado | 305B | 299B | -6B |
+| 100 | all-true | 10B | 8B | -2B |
+| 100 | 70-30 | 125B | 119B | -6B |
+
+LEITURA (o NÚMERO corrigiu a hipótese): o ganho é FLAT ~6B (alternado/70-30) e ~2B (all-true),
+NÃO ~N. Por quê: o HCC já dedup os 2 valores distintos num dict e guarda N REFERÊNCIAS; o spec só
+encolhe o DICT uma vez ('true'/'false'→'t'/'f'), as N referências são idênticas. Em TEXTUAL o
+bool-spec vale por ACELERAÇÃO (decode tipado, sem deduzir) + dict-shrink modesto. A compressão
+por-valor real (1 bit/valor) exige BITMAP = camada binária (V2-L, ADR-0018), não textual.

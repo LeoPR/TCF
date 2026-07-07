@@ -1,0 +1,12 @@
+# 4. GABARITO — a 1ª amostra induz a spec da coluna; guardada pelo round-trip de TODAS
+
+| coluna | 1ª amostra | spec da 1ª | induz p/ coluna? (round-trip em todas) |
+|---|---|---|---|
+| idades (int homogêneo) | '30' | int | SIM → int |
+| ceps (parece int, é string) | '01310' | string | todas string |
+| flags (bool) | 'true' | bool | SIM → bool |
+| misto (1ª engana) | '30' | int | NÃO (1ª engana / heterogênea) → string+guard |
+
+O gabarito (sample[0]) PROPÕE a spec; o round-trip em TODAS CONFIRMA. ceps: 1ª '01310' induz int mas
+não faz round-trip → cai pra string (o guard salva). misto: 1ª '30'→int, mas 'ana' quebra → string.
+= exatamente a C-híbrida (1b) generalizada: propõe pelo gabarito, confirma pelo round-trip, tag na colisão.

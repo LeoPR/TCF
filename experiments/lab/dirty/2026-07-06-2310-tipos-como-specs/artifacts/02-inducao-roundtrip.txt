@@ -1,0 +1,21 @@
+# 2. REGRA de indução: induz a spec SSE o valor faz round-trip por ela (senão = string)
+
+| valor | int? | float? | bool? | spec induzida | por quê |
+|---|---|---|---|---|---|
+| '30' | ✓ | · | · | **int** | round-trip limpo → induz |
+| '-5' | ✓ | · | · | **int** | round-trip limpo → induz |
+| '01310' | · | · | · | **string** | int('01310')→1310 ≠ '01310' (zero à esquerda) → string |
+| '+5' | · | · | · | **string** | int('+5')→5 ≠ '+5' → string |
+| '4.5' | · | ✓ | · | **float** | round-trip limpo → induz |
+| '4.50' | · | · | · | **string** | float('4.50')→4.5 ≠ '4.50' (zero final) → string |
+| '1e3' | · | · | · | **string** | float('1e3')→1000.0 ≠ '1e3' → string |
+| 'true' | · | · | ✓ | **bool** | round-trip limpo → induz |
+| 'false' | · | · | ✓ | **bool** | round-trip limpo → induz |
+| 'True' | · | · | · | **string** | não ∈ {true,false} (JSON é minúsculo) → string |
+| 'ana' | · | · | · | **string** | round-trip limpo → induz |
+| '' | · | · | · | **string** | vazio → string (ou null via máscara, Ciclo 1c) |
+| '3.14' | · | ✓ | · | **float** | round-trip limpo → induz |
+
+A regra é ZERO-config e resolve o self-description (hex/tipo/nature no MESMO teste): a spec só é
+induzida quando é reversível; o que não reverte fica string (ou leva marcador explícito = C-híbrida 1b).
+É o análogo exato do hex-default (T-OPT-INFERENCE) e da 1ª-string-molde do OBAT.

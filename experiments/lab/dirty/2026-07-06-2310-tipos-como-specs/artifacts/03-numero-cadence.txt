@@ -1,0 +1,10 @@
+# 3. NÚMERO como spec — a compressão já vem da CADENCE (detect_cadence rule-2, auto do is_numeric)
+
+  cadenciado 1..100    body=  23B  cadence.rule_hit=None  (is_numeric induz; cadence comprime)
+  espalhado i² 1..100  body= 601B  cadence.rule_hit=None  (is_numeric induz; cadence comprime)
+
+OBSERVADO: cadenciado 1..100 comprime a ~23B (vs ~601B espalhado) MAS cadence.rule_hit=None no
+encode DEFAULT — a compressão veio do HCC (seq-RLE/range), não da regra de cadence nomeada (que é
+estágio do pipeline delta-aware, exige config). int vs float = sub-spec pelo PONTO (owner): '30'→int,
+'4.5'→float (round-trip decide). O número dá COMPRESSÃO (HCC quando sequencial; cadence/delta quando
+ligado) E ACELERAÇÃO (parse conhecido); string não dá nenhum → não spec.

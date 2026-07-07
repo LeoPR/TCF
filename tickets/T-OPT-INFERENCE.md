@@ -19,6 +19,21 @@ related:
 (por convenção, por dedução do próprio dado, ou por comando externo). Trade central: **bytes × auto-descrição**.
 O ticket do header só prevê a EXISTÊNCIA (ex.: que os sizes têm uma base); a decisão/inferência mora aqui.
 
+## Framework unificado — specs induzidas (owner 2026-07-06)
+
+Reframe do owner: **tipo, base numérica (hex) e natures são a MESMA coisa — specs no mesmo espectro**, do
+mínimo (`string`/`int`/`bool`) ao rico (CPF/datetime). Cada spec:
+- justifica-se por **COMPRESSÃO ou ACELERAÇÃO** (senão fica `string`, não spec);
+- **induz-se com segurança ⟺ round-trip** (o valor reverte pela spec) — regra universal que resolve o
+  self-description de TODAS (hex/tipo/nature) de uma vez;
+- é **proposta pelo gabarito** (1ª amostra, `analyze_column.sample`) e **confirmada pelo round-trip** em todas.
+
+O **Item 1 (hex)** abaixo é uma **sub-spec numérica** (a base do número) sob essa regra. Análise medida:
+nota [tipos-como-specs](../experiments/lab/dirty/notas/tipos-como-specs.md) + lab
+[`2026-07-06-2310-tipos-como-specs`](../experiments/lab/dirty/2026-07-06-2310-tipos-como-specs/result.md).
+Achado a lembrar: em TCF **textual** a compressão de tipo é modesta (bool ~6B flat/dict); o forte é
+**aceleração** + o espaço **binário** (bool-bitmap V2-L). Não superestimar compressão de tipo em texto.
+
 ## Item 1 — base HEX dos byte-sizes (a discussão do owner)
 
 **Fato (medido, EXP-015 `05-header-condicoes.txt`)**: `len(hex(s)) ≤ len(str(s))` SEMPRE — hex nunca perde

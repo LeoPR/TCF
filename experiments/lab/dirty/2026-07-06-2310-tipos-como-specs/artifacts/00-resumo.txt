@@ -1,0 +1,25 @@
+# tipos como specs — análise [resumo]
+
+## Tese (reframe do owner)
+Primitivo = spec ULTRA-MINIMALISTA induzida. Justificativa de QUALQUER spec: COMPRESSÃO ou ACELERAÇÃO.
+Indução segura ⟺ ROUND-TRIP (o valor reverte pela spec). Gabarito (1ª amostra) propõe; round-trip confirma.
+
+## Caracterização (compressão × aceleração × indução)
+| spec | induz de | compressão | aceleração | round-trip guard |
+|---|---|---|---|---|
+| string (fallback) | — (default) | não | não (identidade) | — |
+| int | dígitos, sem ponto | HCC/seq-RLE quando sequencial (medido); cadence/delta se ligado | parse rápido | str(int(v))==v |
+| float | tem ponto | idem int | parse rápido | str(float(v))==v |
+| bool | domínio {true,false} | TEXTO: só dict-shrink flat (~6B, medido); **bitmap** (1 bit/val) só em binário V2-L | mapa direto | v∈{true,false} |
+| null | máscara (1c) | body vazio + def-level | pula célula | — (máscara) |
+| nature (CPF/CEP/datetime) | template/gabarito | **template + delta** | validação | round-trip do template |
+
+## Consequências
+- **Unifica** tipo (1a/1b) + hex (T-OPT-INFERENCE) + natures (ADR-0015) num SÓ mecanismo: espectro de
+  specs, do mínimo (string/int/bool) ao rico (CPF), todas induzidas pelo gabarito + round-trip.
+- **Pipeline**: analyze_column já induz (is_numeric, cardinality, sample); cadence já comprime número.
+  A spec entra como estágio do pre-pass — custo ~zero (o que já se calcula).
+- **Decisão**: induz a spec quando comprime OU acelera E faz round-trip; senão string (+ tag na colisão).
+- **bool** em TEXTO ganha só ~6B flat (dict-shrink); o ganho por-valor (bitmap) é da camada binária
+  (V2-L). Seu valor textual é ACELERAÇÃO + dict. **número** ganha via HCC quando sequencial (medido,
+  não pela cadence nomeada no default). string = fallback sem ganho. → alimenta Ciclo 3 (implicitude).

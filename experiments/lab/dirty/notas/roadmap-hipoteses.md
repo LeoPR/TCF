@@ -568,7 +568,7 @@ prototipo clean (`experiments/lab/clean/EXP-XXX-*`) e' pra testar
 Atualizar quando: hipotese confirmada/refutada/movida-de-status, OU
 nova hipotese identificada.
 
-**Ultima atualizacao**: 2026-07-06 — **Ciclo 1a (caminho-feliz fechar TCF.8): fidelidade de tipos (H-TYPE-01)** · estudo TCF-hierarquico: grupo de 8 pecas + teoria de cardinalidade (H-CARD-01..07) + nested (H-NEST-01) + T1 (H-TX-01)
+**Ultima atualizacao**: 2026-07-06 — **Ciclo 1 fechado (1a tipos / 1b A-B-C / 1c fronteiras) + reframe TIPOS COMO SPECS (round-trip como regra universal de inducao)** · estudo TCF-hierarquico: grupo de 8 pecas + teoria de cardinalidade (H-CARD-01..07) + nested (H-NEST-01) + T1 (H-TX-01)
 
 - **ESTUDO TCF-HIERARQUICO (grupo de pecas, owner 2026-07-05)** — como representar documento JSON aninhado
   em TCF. NAO e' 1 lab; e' um GRUPO de 8 pecas ordenadas (dia+HHMM). Mapa:
@@ -630,6 +630,13 @@ nova hipotese identificada.
   - **Formas (1b)**: aninhamento-fundo + array-vazio FECHAM RT (funcionalidade de graca); chave-ausente +
     null-em-array-misto = FRONTEIRA (tabela nao-retangular / coluna tipo-misto) -> familia do link
     posicional (Ciclo 1c). Lab [`2026-07-06-2238-tcf8h-escala-formas-e-tipos/`](../2026-07-06-2238-tcf8h-escala-formas-e-tipos/result.md).
+  - **Reframe TIPOS COMO SPECS (owner 2026-07-06)**: tipo/hex/natures = MESMO espectro de specs (minimo->rico).
+    Toda spec justifica-se por COMPRESSAO ou ACELERACAO; induz-se com seguranca **sse round-trip** (regra
+    universal, resolve self-description); gabarito (1a amostra) propoe, round-trip confirma. **Medido**:
+    bool em TEXTO ganha so' ~6B flat (dict; HCC ja' referencia os 2 distintos) — compressao por-valor (bitmap)
+    e' BINARIA (V2-L); em texto o tipo vale por ACELERACAO. Numero comprime via HCC (rule_hit=None no default).
+    Nota [`tipos-como-specs.md`](tipos-como-specs.md) + lab [`2026-07-06-2310-tipos-como-specs/`](../2026-07-06-2310-tipos-como-specs/result.md).
+    Unifica H-TYPE-01 + T-OPT-INFERENCE (hex=sub-spec numerica) + natures (ADR-0015). `confirmada-conceitual`.
 
 - **H-TX-01** (gate de posicionamento de transmissao, pendente desde 2026-06-21): TCF+brotli vs
   **NDJSON+brotli** (o concorrente textual real, nao so' CSV). Lab
