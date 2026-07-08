@@ -7,6 +7,7 @@ updated: 2026-07-07
 blocked-by: []
 related:
   - tickets/T-FMT-TCF8H-HEADER.md
+  - tickets/T-FMT-OMIT-OR-DECLARE.md
   - experiments/lab/dirty/notas/tcf8h-header-checklist.md
   - experiments/lab/clean/EXP-015-tcf-hierarquico-csv-json/
   - experiments/lab/dirty/notas/tcf8h-proximas-ideias.md
@@ -63,6 +64,10 @@ se auto-explica **por convenção**, sem marcador. O **decimal** é opt-in só p
 - Consistência: **um arquivo, uma base** (não misturar).
 
 **Decisão (a fechar)**: HEX-default; decimal só por comando externo; dedução como fallback. → gate de formato.
+
+> Hex-default = **convenção-default** no contrato de omissão ([T-FMT-OMIT-OR-DECLARE](T-FMT-OMIT-OR-DECLARE.md),
+> categoria 3): **auto-descritivo, sem param** — só o **desvio** (decimal) declara. Distinto de suprimir um
+> marcador sem convenção (ex.: o magic), que aí SIM exige declaração obrigatória. Avaliar junto, pré-1.0.
 
 ## Item 2 — enum/bool por largura de bits (família `bN`) — CORRIGIDO 2026-07-07
 
