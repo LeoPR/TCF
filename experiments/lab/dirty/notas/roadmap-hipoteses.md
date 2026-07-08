@@ -686,6 +686,17 @@ nova hipotese identificada.
   pilar, MAS o V2-B (dict base-94) JA' e' default e JA' e' semi-opaco → bN continua a tendencia, nao a quebra
   (grau: bN mais opaco que V2-B — bits crus vs tabela-dict-textual). Desenho a fechar depois. `aberta`,
   `confianca: Baixa`. Design: [`tipos-meta-grupo-fluxo.md`](tipos-meta-grupo-fluxo.md) §8.
+- **H-TYPE-06** (heuristica de APLICACAO de spec — O(1) das features, owner 2026-07-08, ABERTA/estudo-futuro):
+  decidir QUAL spec aplicar por coluna de forma barata (O(1) a partir das features que o pre-pass JA computa:
+  is_numeric, cardinality, sample) SEM re-encodar pra testar cada candidato. O gate D3 deu as "escalas": bN
+  vence categorico-espalhado, PERDE cadenciado/ordenado (tcf-RLE) e high-card. **Restricoes**: (1) nao
+  conflitar com formas estruturadas (datas/datetime — uma coluna low-card de anos pode ser bN OU cadencia;
+  ex. do owner: "so' duas categorias de anos -> bN; o resto cadenciado"); (2) **generico vs especifico** —
+  tecnicas gerais (tcf/HCC/V2-B) vs specs (bN/datetime/CPF), possivelmente COLABORATIVAS (heuristica escolhe,
+  ou combina). Hoje o `min()` decide por medicao (encoda todos, pega o menor) — a heuristica seria um
+  PREDITOR O(1) que evita o custo, ou um pre-filtro. Prior-art no repo: detect_cadence/detect_min_len
+  (arvores de decisao das features) ja' fazem isso pro OBAT. Plano de estudo: fechar a lista de tipos/specs,
+  medir preditor-O(1) vs min()-por-medicao. `aberta`, estudo. NAO e' bloqueador do #TCF.8.
 
 - **H-TX-01** (gate de posicionamento de transmissao, pendente desde 2026-06-21): TCF+brotli vs
   **NDJSON+brotli** (o concorrente textual real, nao so' CSV). Lab
