@@ -1,0 +1,18 @@
+# NIVEL-TABELA — weighted % de economia do bN vs producao, PRE e POS brotli
+
+| fonte | N | cols | prod tabela B | economia pre B | **pre %** | ref+brz | bN+brz | **pos %** |
+|---|---|---|---|---|---|---|---|---|
+| adult | 20000 | 15 | 401914 | 105004 | **26.1%** | 132631 | 128515 | **3.1%** |
+| tpch.lineitem | 20000 | 16 | 1179075 | 103500 | **8.8%** | 367245 | 361957 | **1.4%** |
+| receita.estab | 20000 | 8 | 492771 | 10607 | **2.2%** | 215705 | 215592 | **0.1%** |
+| br.pessoas | 20000 | 6 | 875835 | 0 | **0.0%** | 301626 | 301626 | **0.0%** |
+| ibge.municipios | 5571 | 8 | 136920 | 5573 | **4.1%** | 42796 | 42441 | **0.8%** |
+| beijing-pm25 | 20000 | 13 | 211635 | 15003 | **7.1%** | 68123 | 67678 | **0.7%** |
+| online-retail | 20000 | 8 | 257906 | 39204 | **15.2%** | 113090 | 106396 | **5.9%** |
+| wine | 6497 | 13 | 159375 | 46728 | **29.3%** | 70067 | 65079 | **7.1%** |
+
+**WEIGHTED AGREGADO (8 fontes)**: pre-brotli **8.8%** · pos-brotli **1.7%**
+
+LEITURA: 'pre %' = economia do bN vs producao no nivel-tabela (nicho TERMINAL, sem re-compressao).
+'pos %' = a mesma tabela apos brotli q11 (nicho re-comprimido). O gate CLAUDE.md ponto 5 pede >=5%
+weighted real-world. Tabelas grandes amostradas a LIMIT=20000 (declarado).

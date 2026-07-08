@@ -1,0 +1,20 @@
+# GATE real-world do bN (D3, H-TYPE-02) — 8 fontes [resumo]
+
+## WEIGHTED AGREGADO: pre-brotli 8.8% · pos-brotli 1.7%
+
+## Por fonte (pre % / pos %)
+  adult            pre= 26.1%  pos=  3.1%  (N=20000, cols=15)
+  tpch.lineitem    pre=  8.8%  pos=  1.4%  (N=20000, cols=16)
+  receita.estab    pre=  2.2%  pos=  0.1%  (N=20000, cols=8)
+  br.pessoas       pre=  0.0%  pos=  0.0%  (N=20000, cols=6)
+  ibge.municipios  pre=  4.1%  pos=  0.8%  (N=5571, cols=8)
+  beijing-pm25     pre=  7.1%  pos=  0.7%  (N=20000, cols=13)
+  online-retail    pre= 15.2%  pos=  5.9%  (N=20000, cols=8)
+  wine             pre= 29.3%  pos=  7.1%  (N=6497, cols=13)
+
+## Veredito (do numero)
+- Terminal (pre-brotli): weighted 8.8% → >=5% (passa o gate ponto-5 no nicho terminal).
+- Re-comprimido (pos-brotli): weighted 1.7% → <5% (colapsa sob brotli).
+- Baseline = PRODUCAO real (min tcf/raw/v2b/split), N=8 fontes reais distintas (inclui beijing-pm25,
+  o ponto cego do ADR-0018). bN RT-OK em toda coluna aplicavel. Tabelas grandes amostradas (LIMIT).
+- H-TYPE-02: atualizar status conforme o numero (ver result.md).

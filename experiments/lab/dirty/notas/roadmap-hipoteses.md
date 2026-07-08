@@ -568,7 +568,7 @@ prototipo clean (`experiments/lab/clean/EXP-XXX-*`) e' pra testar
 Atualizar quando: hipotese confirmada/refutada/movida-de-status, OU
 nova hipotese identificada.
 
-**Ultima atualizacao**: 2026-07-07 — **META-GRUPO DE TIPOS fechado (H-TYPE-00 round-trip transversal + 01/02/03 + 04 projetada) + taxonomia QUANDO (entrada/processo/pos-HCC) + design de fluxo/header** ([`tipos-meta-grupo-fluxo.md`](tipos-meta-grupo-fluxo.md)); bN = irmao bit-packed do dict/V2-B, encaixa no min() por-coluna · H-TYPE-02/03 COM CORRECAO (baseline errado V2-B + colapso sob brotli; H-REF-05 idem) · Ciclo 1 fechado (1a tipos / 1b A-B-C / 1c fronteiras) + reframe TIPOS COMO SPECS (round-trip como regra universal de inducao) · estudo TCF-hierarquico: grupo de 8 pecas + teoria de cardinalidade (H-CARD-01..07) + nested (H-NEST-01) + T1 (H-TX-01)
+**Ultima atualizacao**: 2026-07-08 — **GATE D3 do bN em 8 fontes reais: weighted 8.8% terminal / 1.7% pos-brotli → H-TYPE-02 bifurcada (terminal confirmada-empirica Media / re-comprimido refutada-real-world); nicho estreito (perde pra tcf-RLE em cadenciado)** · META-GRUPO DE TIPOS fechado (H-TYPE-00 round-trip transversal + 01/02/03 + 04 projetada + 05 perfil) + taxonomia QUANDO (entrada/processo/pos-HCC) + design de fluxo/header** ([`tipos-meta-grupo-fluxo.md`](tipos-meta-grupo-fluxo.md)); bN = irmao bit-packed do dict/V2-B, encaixa no min() por-coluna · H-TYPE-02/03 COM CORRECAO (baseline errado V2-B + colapso sob brotli; H-REF-05 idem) · Ciclo 1 fechado (1a tipos / 1b A-B-C / 1c fronteiras) + reframe TIPOS COMO SPECS (round-trip como regra universal de inducao) · estudo TCF-hierarquico: grupo de 8 pecas + teoria de cardinalidade (H-CARD-01..07) + nested (H-NEST-01) + T1 (H-TX-01)
 
 - **ESTUDO TCF-HIERARQUICO (grupo de pecas, owner 2026-07-05)** — como representar documento JSON aninhado
   em TCF. NAO e' 1 lab; e' um GRUPO de 8 pecas ordenadas (dia+HHMM). Mapa:
@@ -644,9 +644,15 @@ nova hipotese identificada.
   `fallback`); baseline correto e' `encode({col:vals}, fallback=True)` = **V2-B** (ADR-0025, JA' weldado).
   Contra o baseline correto: razao teorica limpa `8/w` pre-brotli (8x/4x/2x, 12 colunas reais adult/tpch/
   receita). MAS gate brotli (q11) REPROVA: ganho colapsa pra 1.01x-1.33x pos-brotli (brotli ja' acha a
-  entropia que V2-B deixou). N<5 fontes reais (so' 3 DBs). Status: `confirmada-empirica COM RESSALVA`
-  (escopo = TCF como representacao TERMINAL sem re-compressao a jusante; NAO welding candidate nesta
-  forma). `confianca: A-revalidar`. Labs:
+  entropia que V2-B deixou). Status: **GATE D3 RODADO (2026-07-08, 8 fontes reais)** —
+  [`2026-07-08-1938-bn-gate-realworld-5fontes`](../2026-07-08-1938-bn-gate-realworld-5fontes/result.md).
+  Weighted nivel-tabela vs producao real (min tcf/raw/v2b/split): **8.8% pre-brotli / 1.7% pos-brotli**.
+  Veredito bifurcado: **terminal (sem re-compressao) = `confirmada-empirica`** (8.8% weighted >= gate 5%,
+  N=8, `confianca: Media`); **re-comprimido = `refutada-real-world`** (1.7%, colapsa). Qualificacoes: ganho
+  CONCENTRADO (0% br.pessoas high-card a 29% wine categorical-heavy); nicho ESTREITO — bN compete com tcf-RLE
+  tambem, perde em low-card cadenciado/ordenado (beijing hour/month/day/year -> tcf-RLE; year=34B vs bN
+  5020B); o ponto cego do ADR-0018 (hour 228.8%) JA NAO e' cego na producao atual (V2-B+cadence). WELD segue
+  gated por H-TYPE-03 (owner: terminal e' representativo?) + aprovacao src/tcf + byte-canonical. Labs:
   [2026-07-06-2354-spec-bin-motor](../2026-07-06-2354-spec-bin-motor/result.md) (secao CORRECAO),
   [2026-07-07-0028-spec-bitwidth-bN](../2026-07-07-0028-spec-bitwidth-bN/result.md) (secao CORRECAO).
   Prior-art GENUINO anterior (achado na pesquisa pre-consolidacao): ADR-0018 ja' documentava o MESMO ponto
