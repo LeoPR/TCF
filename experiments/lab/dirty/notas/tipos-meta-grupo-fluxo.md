@@ -74,6 +74,12 @@ Marcador = **char-PREFIXO de 1 char** no par do meta; `:` **já é reservado** a
 Marcador = **sufixo** no par do colchete-meta: `col:size`, `:tipo` na divergência (`idade:4i`), `col:b<w>`.
 Codec **separado** do multi-col; `:` é o portador de tipo aqui (não há `:id` de nature no mesmo slot).
 
+> **Tensão (reconciliação 2026-07-07)**: o magic `#TCF.8H` **não está registrado** na tabela discriminadora
+> de 1-char do [ADR-0029](../../../../docs/adr/0029-version-format-identification-semi-implicit.md) (após
+> `#TCF.8` só há `M`/espaço/`\n`). Ok por ora (protótipo fora de `src/tcf`); **weldar exigiria** registrar `H`
+> no ADR-0029 (ato do owner) ou manter o hierárquico como codec auto-contido à parte. Ver
+> [T-FMT-OMIT-OR-DECLARE](../../../../tickets/T-FMT-OMIT-OR-DECLARE.md).
+
 **Não vender um portador `:` unificado.** Cada linha do checklist C1-C5 pertence a UM dos dois codecs.
 
 ## 5. Como bN encaixa (H-TYPE-04, projetado) — o "quase pronto no contrato"

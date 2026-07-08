@@ -69,6 +69,15 @@ se auto-explica **por convenção**, sem marcador. O **decimal** é opt-in só p
 > categoria 3): **auto-descritivo, sem param** — só o **desvio** (decimal) declara. Distinto de suprimir um
 > marcador sem convenção (ex.: o magic), que aí SIM exige declaração obrigatória. Avaliar junto, pré-1.0.
 
+> **RECONCILIAÇÃO (2026-07-07)**: este item é o MESMO alvo do **O-FMT-18** (byte-size em base-94, registrado
+> 2026-06-19 em `futuras-otimizacoes-formato.md`, nascido do mesmo "podia ficar em hexa" do owner). Conclusão
+> já medida lá: **base-94 encurta ~2× e VENCE o hex** (mesmo alfabeto do TCF, mantém byte-size O(1)). Magnitude
+> **já medida**: header = **0,05-0,13% do blob** em tabela real; **~3%** só no nicho payload-minúsculo → só
+> relevante em transmissão-minúscula, `#TCF.8` opt-in default-off. Logo o hex-default **subsume em O-FMT-18**;
+> a contribuição desta discussão é o enquadramento **convenção-default/omit-contract** (vale pra base-94
+> igual: a base é auto-descritiva por convenção, o desvio declara). Não re-medir; a decisão hex-vs-base-94 é
+> de formato (owner, pré-1.0).
+
 ## Item 2 — enum/bool por largura de bits (família `bN`) — CORRIGIDO 2026-07-07
 
 **Fato (medido, corrigido)**: k valores distintos → w bits/valor (`b`≤2/`b2`≤4/`b4`≤16/`b8`≤256), domínio
@@ -97,5 +106,5 @@ reprovado). Ver [H-TYPE-02](../experiments/lab/dirty/notas/roadmap-hipoteses.md)
 
 - [ ] Convenção **HEX-default** para sizes no TCF.8H documentada; decimal só via comando externo.
 - [ ] Dedução (letra→hex; expansão-break→hex; ambíguo→default-hex) especificada.
-- [ ] Medir a economia real (hex vs dec) em árvores reais (quando sizes caem nas faixas beneficiadas).
+- [x] Medir a economia real (hex/base-94 vs dec) — **FEITO via O-FMT-18** (header 0,05-0,13% real, ~3% tiny; base-94 vence hex).
 - [ ] (se weldar) gate real-world + baselines.

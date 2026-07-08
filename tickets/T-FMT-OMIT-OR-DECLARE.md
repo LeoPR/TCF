@@ -11,6 +11,8 @@ related:
   - experiments/lab/dirty/notas/tcf8h-header-checklist.md
   - experiments/lab/dirty/2026-07-01-header-minimal/result.md
   - docs/adr/0024-pre-1.0-versioning-git-as-compat.md
+  - docs/adr/0029-version-format-identification-semi-implicit.md
+  - docs/adr/0030-freeze-single-col-body-at-1.0.md
 ---
 
 # T-FMT-OMIT-OR-DECLARE — o que pode ser omitido, e o que vira declaração obrigatória
@@ -19,6 +21,18 @@ related:
 que o formato normalmente carrega pode ser **omitida pra economizar bytes** — mas se o que sobra **não a
 deduz**, ela vira **declaração obrigatória** (param no encode E no decode). A classe (codec) tem de
 **perceber e obrigar um ou outro**. **Apenas anotado** — avaliar antes de fechar o 1.0.
+
+> **RECONCILIAÇÃO (2026-07-07)**: o eixo específico **versão/magic** já está RESOLVIDO no
+> [ADR-0029](../docs/adr/0029-version-format-identification-semi-implicit.md) (accepted) — 3 camadas:
+> **implícito-órfão** (0B, versão declarada na chamada) / **semi-implícito** (header no arquivo) / **explícito**.
+> Este ticket **NÃO re-decide** o eixo de versão — **generaliza** o mesmo princípio (deduzir-ou-declarar +
+> fail-loud + proveniência) pra **omissão campo-a-campo** (hex-base, tipo, etc.), construindo sobre o 0029 +
+> [ADR-0024](../docs/adr/0024-pre-1.0-versioning-git-as-compat.md) (git-as-compat) +
+> [ADR-0030](../docs/adr/0030-freeze-single-col-body-at-1.0.md) (freeze single-col 1.0).
+> **Tensão registrada**: o protótipo hierárquico usa `#TCF.8H`, mas a tabela discriminadora de 1-char do
+> ADR-0029 (após `#TCF.8`) só lista `M`/espaço/`\n` — **`H` não está registrado**. TCF.8H é protótipo fora de
+> `src/tcf` (EXP-015), então ok por ora; **weldar exigiria** registrar `H` no ADR-0029 (ato dispositivo do
+> owner) OU manter o hierárquico como codec auto-contido à parte.
 
 ## A distinção que torna isto decidível (revisão crítica)
 
