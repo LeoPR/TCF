@@ -4,6 +4,8 @@
 [`2026-07-06-2310-tipos-como-specs/`](../2026-07-06-2310-tipos-como-specs/result.md).
 Amarra: [H-TYPE-01](roadmap-hipoteses.md), [T-OPT-INFERENCE](../../../../tickets/T-OPT-INFERENCE.md),
 natures (ADR-0015), [checklist C1/C2/C4](tcf8h-header-checklist.md).
+**Meta-grupo de hipóteses de tipo + taxonomia QUANDO (entrada/processo/pós-HCC) + design de fluxo/header**:
+[tipos-meta-grupo-fluxo.md](tipos-meta-grupo-fluxo.md) (H-TYPE-00..04; bN = irmão bit-packed do dict).
 
 ## CONSOLIDAÇÃO E CORREÇÃO (2026-07-07) — leia isto primeiro
 

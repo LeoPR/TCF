@@ -568,7 +568,7 @@ prototipo clean (`experiments/lab/clean/EXP-XXX-*`) e' pra testar
 Atualizar quando: hipotese confirmada/refutada/movida-de-status, OU
 nova hipotese identificada.
 
-**Ultima atualizacao**: 2026-07-07 — **H-TYPE-02 (bit-packing bN) + H-TYPE-03 (escopo terminal) registradas, COM CORRECAO** (baseline errado V2-B + colapso sob brotli confirmado; H-REF-05 idem) · Ciclo 1 fechado (1a tipos / 1b A-B-C / 1c fronteiras) + reframe TIPOS COMO SPECS (round-trip como regra universal de inducao) · estudo TCF-hierarquico: grupo de 8 pecas + teoria de cardinalidade (H-CARD-01..07) + nested (H-NEST-01) + T1 (H-TX-01)
+**Ultima atualizacao**: 2026-07-07 — **META-GRUPO DE TIPOS fechado (H-TYPE-00 round-trip transversal + 01/02/03 + 04 projetada) + taxonomia QUANDO (entrada/processo/pos-HCC) + design de fluxo/header** ([`tipos-meta-grupo-fluxo.md`](tipos-meta-grupo-fluxo.md)); bN = irmao bit-packed do dict/V2-B, encaixa no min() por-coluna · H-TYPE-02/03 COM CORRECAO (baseline errado V2-B + colapso sob brotli; H-REF-05 idem) · Ciclo 1 fechado (1a tipos / 1b A-B-C / 1c fronteiras) + reframe TIPOS COMO SPECS (round-trip como regra universal de inducao) · estudo TCF-hierarquico: grupo de 8 pecas + teoria de cardinalidade (H-CARD-01..07) + nested (H-NEST-01) + T1 (H-TX-01)
 
 - **ESTUDO TCF-HIERARQUICO (grupo de pecas, owner 2026-07-05)** — como representar documento JSON aninhado
   em TCF. NAO e' 1 lab; e' um GRUPO de 8 pecas ordenadas (dia+HHMM). Mapa:
@@ -660,6 +660,17 @@ nova hipotese identificada.
   quando o `.tcf` e' consumido diretamente, sem brotli/gzip/zstd depois — mesmo nicho ja' declarado pra
   V2-L (ADR-0018, "nao compete com gzip/brotli/zstd"). Falta avaliar se esse cenario e' representativo do
   uso pretendido do TCF antes de investir mais na familia bN. `aberta`, `confianca: Baixa`.
+- **H-TYPE-04** (bN como candidato do min() por-coluna, PROJETADA, owner 2026-07-07): bN encaixa como mais
+  um candidato do `min(tcf,raw,v2b,split)` do multi-col (`multi/core.py:177-197`), reusando o mecanismo de
+  marcador-de-modo por-coluna (novo char-PREFIXO ao lado de `!`/`@`/`%` — NAO sufixo `:`, que e' reservado
+  ao `:id` de nature). **bN e' irmao bit-packed do dict/V2-B**: ambos = dominio+indices competindo pelas
+  MESMAS colunas de baixa-card; difere so' no radix (base-94 char vs bits) — por isso o brotli colapsa os
+  dois juntos. `_bN_encode` recebe **dominio + stream de indices** (do ref-stream do HCC no Formato A), NAO
+  `best_body`. Faltam 4 pontos (char, ramo no min(), par enc/dec) + gate "saida terminal" (opt-in, H-TYPE-03).
+  `aberta/projetada`, gated por 02/03. Design completo:
+  [`tipos-meta-grupo-fluxo.md`](tipos-meta-grupo-fluxo.md). Meta-grupo: **H-TYPE-00** (round-trip = regra
+  transversal) une 01/02/03/04. **Taxonomia QUANDO** o tipo e' identificado: entrada (declarado) / processo
+  (induzido no pre-pass) / pos-HCC (bN, escolha de representacao).
 
 - **H-TX-01** (gate de posicionamento de transmissao, pendente desde 2026-06-21): TCF+brotli vs
   **NDJSON+brotli** (o concorrente textual real, nao so' CSV). Lab
