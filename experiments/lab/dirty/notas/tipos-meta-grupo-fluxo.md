@@ -120,6 +120,28 @@ tem** — o "quase pronto" do owner. O próximo passo por-partes: (i) alocar o c
 do gate terminal, OU (ii) fechar antes o `:tipo`/hex do TCF.8H (contrato hierárquico), OU (iii) desenhar o
 canal de ENTRADA de tipos declarados. Nenhum exige tocar `src/tcf` ainda.
 
+**Protótipo do (i)**: [2026-07-07-2138-bn-candidato-min-prototipo](../2026-07-07-2138-bn-candidato-min-prototipo/result.md)
+— o par `bn_encode`/`bn_decode` roda como candidato do `min()` com marcador char-prefixo `#`, RT-OK (mecanismo
+prova; margem-vs-V2-B não, ver caveat do lab).
+
+## 8. Direção: bN default sob PERFIL DE COMPRESSÃO (H-TYPE-05, owner — ver depois)
+
+Reenquadramento do owner: em vez de bN **opt-in gated**, ele poderia ser **default** (após validar) com
+**opt-OUT** sob um **perfil de compressão agrupado** — `--compress simple`/`low`/`terminal`/… — que bundla o
+tradeoff **explicabilidade↔bytes** numa alça só (igual níveis do gzip/zstd/Parquet, melhor que N flags soltos).
+O "bN criptografa um pouco" (body de bits opaco) é justamente o que o perfil administra.
+
+Duas tensões que o perfil precisa acomodar (registradas, a fechar depois):
+1. **bN só net-ganha TERMINAL** (colapso sob brotli, H-TYPE-03) → o default tem de amarrar no **intent
+   terminal**, não ser blanket. O próprio `--compress` codifica isso: `simple`=textual, `terminal`/`max`=bN.
+2. **Explicabilidade é pilar, mas a barca já saiu um pouco**: o **V2-B (dict base-94) já é default** e já é
+   semi-opaco → bN **continua** essa tendência, não a **quebra** (grau: bN = bits crus, mais opaco que a
+   tabela-dict-textual do V2-B). Argumento a favor do default, com ressalva de grau.
+
+Desenho emergente (ilustrativo, não decidido): `simple` (textual puro, bN off) · `default` (V2-B on, bN
+off/só-terminal) · `terminal`/`max` (bN on, packing binário). O knob = eixo de **opacidade + intent-terminal**.
+`aberta`, ver depois. (H-TYPE-05 no [roadmap](roadmap-hipoteses.md).)
+
 **Cross-links**: [tipos-como-specs.md](tipos-como-specs.md) · [roadmap H-TYPE-*](roadmap-hipoteses.md) ·
 [checklist do header TCF.8H](tcf8h-header-checklist.md) ·
 [T-OPT-INFERENCE](../../../../tickets/T-OPT-INFERENCE.md) · ADR-0018 (V2-L) / ADR-0025 (V2-B).

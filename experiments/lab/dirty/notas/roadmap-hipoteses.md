@@ -671,6 +671,15 @@ nova hipotese identificada.
   [`tipos-meta-grupo-fluxo.md`](tipos-meta-grupo-fluxo.md). Meta-grupo: **H-TYPE-00** (round-trip = regra
   transversal) une 01/02/03/04. **Taxonomia QUANDO** o tipo e' identificado: entrada (declarado) / processo
   (induzido no pre-pass) / pos-HCC (bN, escolha de representacao).
+- **H-TYPE-05** (bN default sob guarda-chuva de PERFIL DE COMPRESSAO, owner 2026-07-07, ABERTA/ver-depois):
+  em vez de bN opt-in gated, bN poderia ser DEFAULT (apos validar) com opt-OUT via um **perfil agrupado**
+  (`--compress simple`/`low`/`terminal`/... — bundla o tradeoff explicabilidade<->bytes, igual niveis do
+  gzip/zstd/Parquet). bN "criptografa um pouco" (body de bits opaco) — daí o perfil. **Tensoes**: (1) bN so'
+  net-ganha TERMINAL (colapso brotli, H-TYPE-03) → o default tem de amarrar no INTENT terminal, nao ser
+  blanket; o proprio `--compress` codifica isso (simple=textual, terminal/max=bN). (2) explicabilidade e'
+  pilar, MAS o V2-B (dict base-94) JA' e' default e JA' e' semi-opaco → bN continua a tendencia, nao a quebra
+  (grau: bN mais opaco que V2-B — bits crus vs tabela-dict-textual). Desenho a fechar depois. `aberta`,
+  `confianca: Baixa`. Design: [`tipos-meta-grupo-fluxo.md`](tipos-meta-grupo-fluxo.md) §8.
 
 - **H-TX-01** (gate de posicionamento de transmissao, pendente desde 2026-06-21): TCF+brotli vs
   **NDJSON+brotli** (o concorrente textual real, nao so' CSV). Lab
