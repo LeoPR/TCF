@@ -1,0 +1,25 @@
+# Protótipo bN como 5º candidato do min() [resumo]
+
+## Encaixa? SIM — o par _bN_encode/_decode_bN roda como candidato do min() por-coluna
+- marcador = char-PREFIXO `#` no par do meta (ao lado de `!`/`@`/`%`); decoder ramifica por prefixo.
+- bN codifica DOMÍNIO + índices (irmão do dict), body auto-descritivo [w][domlen][dom][packed].
+- min(tcf, raw, bN) por coluna escolhe o menor; bN só aparece onde vence; k>256 -> não se oferece.
+
+## Ilustrativo: header = #PROTO.BN 8 #15=ativo,#11=status,17=id
+## Real (adult): modo vencedor por coluna
+  sex        -> #
+  race       -> #
+  education  -> #
+  age        -> #
+  fnlwgt     -> !
+
+## RT container: OK
+
+## Gate: bN só ajuda TERMINAL (pós-brotli o ganho ~some) -> candidato opt-in, não default.
+   CAVEAT: o min() aqui tem só {tcf,raw,bN}, não o V2-B/dict real -> ganhos SUPERESTIMAM;
+   margem real bN-vs-V2-B (já medida): ~8/w pré-brotli, ~1.0-1.3x pós. Aqui: só o MECANISMO.
+
+## Veredito (ver as possibilidades): a forma ENCAIXA no contrato do header sem mudar a arquitetura
+(char-prefixo + min() + decode ramificado já existem). Faltam, p/ produção: alocar o char, o ramo no
+min() real (multi/core.py), o par enc/dec byte-idêntico, e o gate terminal. Tudo gated por H-TYPE-02/03
+(N<5 fontes + colapso sob brotli) — protótipo, NÃO welding.

@@ -1,0 +1,16 @@
+# (3) GATE TERMINAL — bN só ajuda se NÃO há brotli a jusante
+
+container COM bN :   55216B  -> brotli-q11:   29695B
+container SEM bN :  297713B  -> brotli-q11:   42130B
+RT (ambos): OK
+
+  ganho de oferecer bN, PRÉ-brotli : 5.39x
+  ganho de oferecer bN, PÓS-brotli : 1.42x
+
+LEITURA: oferecer bN encolhe MUITO pré-brotli, mas pós-brotli o ganho ~some (o brotli acha a mesma
+entropia — bN é irmão bit-packed do dict). Confirma H-TYPE-03: o candidato bN deve ser GATED por um
+flag de 'saída terminal' (opt-in), pra não ser escolhido quando há re-compressão a jusante.
+
+CAVEAT: este min() tem só {tcf, raw, bN} — NÃO o V2-B/dict real (fallback=True do src/tcf), irmão
+próximo do bN. Logo o 'SEM bN' aqui é mais fraco que produção e os ganhos SUPERESTIMAM. A margem
+real bN-vs-V2-B já medida: ~8/w pré-brotli, ~1.0-1.3x pós (colapsa). Aqui provamos o MECANISMO.

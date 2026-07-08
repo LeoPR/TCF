@@ -1,0 +1,15 @@
+# (2) REAL — adult: o min() por coluna (tcf/raw/bN) + RT
+
+| coluna | N | k (distintos) | modo vencedor | body bytes |
+|---|---|---|---|---|
+| sex | 48842 | 2 | **#** | 6120 |
+| race | 48842 | 5 | **#** | 24480 |
+| education | 48842 | 16 | **#** | 24561 |
+| age | 48842 | 74 | **#** | 49193 |
+| fnlwgt | 48842 | 28523 | **!** | 333351 |
+
+container total: 437786B · RT: OK
+
+LEITURA: bN ('#') vence nas de baixa-card (sex/race/education); em high-card (fnlwgt, k>256) bN
+nem se oferece (bn_encode->None) e o min() fica com tcf/raw. age (k~70 -> b8, 1 byte/linha) mostra a
+fronteira: bN ainda se aplica mas o ganho é menor. Heterogêneo por coluna — como o multi-col real.

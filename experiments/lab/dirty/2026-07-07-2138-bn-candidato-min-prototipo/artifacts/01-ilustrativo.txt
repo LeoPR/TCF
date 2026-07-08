@@ -1,0 +1,19 @@
+# (1) ILUSTRATIVO — container misto: o min() escolhe o modo por coluna
+
+colunas:
+  ativo: ['true', 'false', 'true', 'true', 'false', 'false', 'true', 'false']
+  status: ['A', 'B', 'C', 'A', 'B', 'A', 'C', 'B']
+  id: ['u000', 'u001', 'u002', 'u003', 'u004', 'u005', 'u006', 'u007']
+
+HEADER (linha 1): #PROTO.BN 8 #15=ativo,#11=status,17=id
+  legenda de prefixo: (nenhum)=tcf/HCC · '!'=raw · '#'=bN
+
+modo escolhido por coluna (prefixo, bytes do body):
+  ativo    -> #       15B
+  status   -> #       11B
+  id       -> tcf     17B
+
+RT container: OK
+
+LEITURA: cada coluna carrega seu próprio marcador de modo (char-prefixo no par do meta), igual
+ao mecanismo `!`/`@`/`%` do multi-col real. bN ('#') aparece só onde vence o min().
