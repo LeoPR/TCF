@@ -1,4 +1,4 @@
-# Tickets — TCF v0.6
+# Tickets — TCF (formato #TCF.8 default, ADR-0032)
 
 Tickets de planejamento + acompanhamento do projeto. Cada ticket tem
 status (`open` / `in-progress` / `closed`), criterios de aceite, e

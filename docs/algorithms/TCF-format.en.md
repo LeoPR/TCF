@@ -385,7 +385,7 @@ discarded as before). Doc: [SideOutputs](../../src/tcf/side_outputs.py).
 │  FUTURE Layer B — Distributed transport (O-FMT-08/13)           │
 │  ────────                                                        │
 │  Per-channel headers (re-assembly without central coordination): │
-│    #TCF.7 C name=timestamp chunk=1/3 of=table_X                  │
+│    #TCF.8...C name=timestamp chunk=1/3 of=table_X (future; .8)   │
 │  Chunked streaming: self-contained chunks, decode chunk-by-chunk,│
 │    memory O(chunk_size), constant TTFB                           │
 └──────────────────────────────────────────────────────────────────┘

@@ -29,10 +29,10 @@ deduz**, ela vira **declaração obrigatória** (param no encode E no decode). A
 > fail-loud + proveniência) pra **omissão campo-a-campo** (hex-base, tipo, etc.), construindo sobre o 0029 +
 > [ADR-0024](../docs/adr/0024-pre-1.0-versioning-git-as-compat.md) (git-as-compat) +
 > [ADR-0030](../docs/adr/0030-freeze-single-col-body-at-1.0.md) (freeze single-col 1.0).
-> **Tensão registrada**: o protótipo hierárquico usa `#TCF.8H`, mas a tabela discriminadora de 1-char do
-> ADR-0029 (após `#TCF.8`) só lista `M`/espaço/`\n` — **`H` não está registrado**. TCF.8H é protótipo fora de
-> `src/tcf` (EXP-015), então ok por ora; **weldar exigiria** registrar `H` no ADR-0029 (ato dispositivo do
-> owner) OU manter o hierárquico como codec auto-contido à parte.
+> ~~**Tensão registrada**: `H` não está registrado no discriminador~~ **RESOLVIDO 2026-07-09**: o `H` foi
+> registrado como discriminador (multi-col hierárquico, especialização de `M`) em
+> [ADR-0031](../docs/adr/0031-hierarchical-discriminator-H.md) (accepted); o decode faz **fail-loud** em `H`
+> (codec no lab). O `#TCF.8` agora é o formato **default** (ADR-0032).
 
 ## A distinção que torna isto decidível (revisão crítica)
 

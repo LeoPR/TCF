@@ -81,7 +81,8 @@ se auto-explica **por convenção**, sem marcador. O **decimal** é opt-in só p
 > 2026-06-19 em `futuras-otimizacoes-formato.md`, nascido do mesmo "podia ficar em hexa" do owner). Conclusão
 > já medida lá: **base-94 encurta ~2× e VENCE o hex** (mesmo alfabeto do TCF, mantém byte-size O(1)). Magnitude
 > **já medida**: header = **0,05-0,13% do blob** em tabela real; **~3%** só no nicho payload-minúsculo → só
-> relevante em transmissão-minúscula, `#TCF.8` opt-in default-off. Logo o hex-default **subsume em O-FMT-18**;
+> relevante em transmissão-minúscula. *(nota: sob ADR-0032 o `#TCF.8` é o DEFAULT — o hex já foi weldado no
+> header, T-FMT-HEADER-BASE-HEX; a frase "opt-in default-off" era do estado anterior.)* O hex-default **subsume em O-FMT-18**;
 > a contribuição desta discussão é o enquadramento **convenção-default/omit-contract** (vale pra base-94
 > igual: a base é auto-descritiva por convenção, o desvio declara). Não re-medir; a decisão hex-vs-base-94 é
 > de formato (owner, pré-1.0).

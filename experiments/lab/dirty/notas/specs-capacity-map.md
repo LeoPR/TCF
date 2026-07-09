@@ -7,6 +7,14 @@ está espalhado em [ADR-0015](../../../../docs/adr/0015-natures-templated-checke
 (self-describing, parado), [T-EXP-PACOTE5-T03](../../../../tickets/T-EXP-PACOTE5-T03-ENUMERATED.md)
 (EnumSpec no-go) e o gadget `scripts/natures_compiler/`.
 
+> **PONTE 2026-07-09 ([ADR-0032](../../../../docs/adr/0032-tcf8-default-format.md), accepted)** — chave
+> sobre as linhas abaixo que dizem "#TCF.8 SSE nature / byte-neutro default-off / D17a=303B / ADR-0027
+> parado": o `#TCF.8M` virou o formato **DEFAULT** do multi-col (supersede a regra opt-in-SSE-nature do
+> ADR-0027, que segue `accepted`/welded mas com a regra opt-in revertida). O **single-col órfão** continua
+> byte-neutro/intocado (D1-D9=1523B, RW=89616B — ADR-0032 não mexe nele); o que mudou é o MULTI-COL
+> (sempre `#TCF.8M`, sizes hex). **D17a re-pinado = 300B** (não 303B). As afirmações abaixo ficam como
+> registro histórico, lidas por esta chave.
+
 ## Como funciona (ponta-a-ponta)
 
 **Camada 0 (pré-transform) opt-in**, roda ANTES do OBAT+HCC. Cada nature é um

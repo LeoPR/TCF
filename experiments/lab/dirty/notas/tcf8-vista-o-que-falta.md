@@ -9,6 +9,12 @@
 > administrativo; (b) o **cross-dict (H-GDICT) teve o gate GERAL REPROVADO** (2026-06-27: 1/5 ≥15%, nicho
 > estreito, B3/B4 suspensos; pivô = **H-DICT-HIGHCARD**) — não é "a carga a weldar". As seções abaixo ficam
 > como registro, lidas por esta chave.
+>
+> **ATUALIZAÇÃO 2026-07-09 ([ADR-0032](../../../../docs/adr/0032-tcf8-default-format.md))**: o `#TCF.8`
+> deixou de ser opt-in — virou o formato **DEFAULT** (multi-col emite `#TCF.8M` sempre; legado .6/.7
+> cortado). Logo as linhas abaixo que dizem "opt-in estrito byte-neutro / default nunca emite #TCF.8 / .8
+> é o desvio / 0.8.0 = cross-dict" estão **duplamente superadas** — o `0.8.0` = release do `.8`-default
+> (não cross-dict). O único opt-in que resta são as FEATURES dentro do .8 (natures, hierarquia).
 
 # (original) TCF.8 — vista + o que falta pra fechar (revisão 2026-07-08) [probatório]
 
