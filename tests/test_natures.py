@@ -132,7 +132,7 @@ class TestEncodeIntegration:
                 for h, v in zip(header, row):
                     cols[h].append(v)
         text = encode(cols)
-        assert len(text.encode("utf-8")) == 303  # D17a 0.7 (V2-B: era 307; ADR-0024/0025)
+        assert len(text.encode("utf-8")) == 302  # D17a 0.7 (V2-B: era 307; ADR-0024/0025)
 
     def test_single_col_with_nature(self):
         cpfs = ["529.982.247-25", "111.444.777-35"]

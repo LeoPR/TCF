@@ -218,6 +218,13 @@ def _encode_multi(
     # single-col, O-FMT-15). '!' (V2-A raw) compoe normalmente.
     last_i = len(final_bodies) - 1
     parts = []
+    # Byte-size do header em HEX nos formatos VIVOS (#TCF.7/#TCF.8); DECIMAL no
+    # #TCF.6 legado (reproducao v1 fiel, morre no 1.0). Hex e' colisao-livre
+    # ([0-9a-f] disjunto de ,=:{}[] e prefixos !@%) e win-or-tie vs decimal
+    # (T-FMT-HEADER-BASE-HEX, owner 2026-07-09). Canonico: format(n,'x') =
+    # minusculo, sem '0x', sem zero a esquerda -> round-trip exato via int(_,16).
+    # Gate removivel no 1.0 (quando #TCF.6 sair). Parse simetrico no decode.
+    _sz = (lambda n: str(n)) if magic == MAGIC_MULTI else (lambda n: format(n, "x"))
     for i, (name, b, mode) in enumerate(final_bodies):
         pre = {"raw": "!", "dict": "@", "split": "%"}.get(mode, "")
         # Sufixo ':id' (ADR-0027) SSE a coluna tem nature. Condicional ao spec
@@ -227,11 +234,11 @@ def _encode_multi(
             # Coluna ANONIMA (ADR-0029): nome omitido -> posicional no decode.
             # Nao-ultima = '<size>[:spec]' (sem '=nome'); ultima = '[:spec]'/vazio.
             parts.append(f"{pre}{suf}" if (min_header and i == last_i)
-                         else f"{pre}{len(b)}{suf}")
+                         else f"{pre}{_sz(len(b))}{suf}")
         elif min_header and i == last_i:
             parts.append(f"{pre}{name}{suf}")        # ultima sem size
         else:
-            parts.append(f"{pre}{len(b)}={name}{suf}")
+            parts.append(f"{pre}{_sz(len(b))}={name}{suf}")
     meta_pairs = ",".join(parts)
     if magic == MAGIC_MULTI_V3:
         # #TCF.8M: meta INLINE na linha do shebang (discriminador 1-char, ADR-0029)
@@ -323,6 +330,9 @@ def _decode_multi_impl(
     # ultima vazia = anonima. Isso desambigua nome-opcional sem quebrar o nomeado.
     tokens = meta_str.split(",")
     n_cols = len(tokens)
+    # Base do byte-size: HEX nos vivos (#TCF.7/#TCF.8), DECIMAL no #TCF.6 legado
+    # (simetrico ao emit; T-FMT-HEADER-BASE-HEX). Gate removivel no 1.0.
+    _szbase = 16 if (is_v7 or is_v8) else 10
     pairs = []  # (size|None, name|None, mode, nature_id|None)
     for i, p in enumerate(tokens):
         if p.startswith("!"):
@@ -346,7 +356,7 @@ def _decode_multi_impl(
             # '<size>=<nome>' — nomeada. Vale em qualquer posicao (em #TCF.6 com
             # min_header=False ATE' a ultima coluna tem size=nome).
             size_str, name = p.split("=", 1)
-            size = int(size_str)
+            size = int(size_str, _szbase)
         elif i == n_cols - 1:
             # ultima coluna SEM '=': min_header (corpo ate' EOF). p = nome (vazio
             # = anonima posicional).
@@ -354,7 +364,7 @@ def _decode_multi_impl(
             name = p if p else None
         else:
             # nao-ultima SEM '=' -> coluna ANONIMA: p = '<size>' (so' V8/drop_names)
-            size = int(p)
+            size = int(p, _szbase)
             name = None
         pairs.append((size, name, mode, nat_id))
 

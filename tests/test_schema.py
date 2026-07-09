@@ -164,7 +164,7 @@ class TestD17aSchema:
         schema = build_schema(cols)
         assert schema.n_rows == 13
         assert schema.n_cols == 4
-        assert schema.total_bytes == 303  # D17a 0.7 (V2-B: era 307; ADR-0024/0025)
+        assert schema.total_bytes == 302  # D17a 0.7 (V2-B: era 307; ADR-0024/0025)
         assert set(schema.columns.keys()) == {
             "timestamp", "id", "email", "categoria",
         }
@@ -213,7 +213,7 @@ class TestSerialization:
         schema = build_schema(cols)
         s = schema.to_json()
         parsed = json.loads(s)
-        assert parsed["total_bytes"] == 303  # D17a 0.7 (V2-B: era 307; ADR-0024/0025)
+        assert parsed["total_bytes"] == 302  # D17a 0.7 (V2-B: era 307; ADR-0024/0025)
         assert len(parsed["columns"]) == 4
 
 

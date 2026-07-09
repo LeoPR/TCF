@@ -1,6 +1,6 @@
 ---
 title: T-FMT-HEADER-BASE-HEX — Base HEX implícita dos byte-sizes do header (decimal só como comando de inspeção/IO)
-status: decided-weld-gated
+status: welded
 priority: P2
 created: 2026-07-09
 updated: 2026-07-09
@@ -76,8 +76,21 @@ Sítios exatos (survey `tcf-radix-survey`, file:line verificados):
   single-col não têm meta de size). Canônico garantido no ENCODE (`:x` = minúsculo/sem-zero); `int(_,16)` é
   leniente, então a canonicidade se impõe no emit, não no parse.
 
-Exige: **go explícito do owner p/ `src/tcf`** + re-pin D17a + suite verde. É a etapa de implementação; a
-DECISÃO/processo acima está concluída. Mapa completo dos outros sítios de base:
+**WELDED 2026-07-09** (go do owner). Alterações:
+- `multi/core.py`: emit `_sz = format(n,'x')` se magic≠#TCF.6 (senão `str(n)`); parse `_szbase = 16 if
+  (is_v7 or is_v8) else 10` nos 2 sítios (`int(_, _szbase)`).
+- `view.py`: mesmo `_szbase` no re-parse lazy (lockstep).
+- **#TCF.6 legado fica DECIMAL** (322B inalterado) — o gate `magic≠MAGIC_MULTI` preserva a reprodução v1.
+- Re-pin: **D17a 303 → 302B** (`test_regression_v1_baseline.py` + 7 cópias do pino em outros testes).
+  D1-D9 (single-col) e real-world (single-col) **INTACTOS**. Suite: **528 passed**.
+- Verificado: #TCF.6=322 decimal · #TCF.7=302 hex (`3d=timestamp,1c=id,90=email,@categoria`) · RT ✓ · view ✓.
+
+**Nota de versão (decisão pendente do owner)**: o weld refina o **#TCF.7 em lugar** (hex), tratando o minor
+como dev-marker (compat=comparativo, ADR-0024). Consequência: blobs multi-col do 0.7.1 publicado (decimal)
+NÃO decodam com o novo código — aceitável pré-1.0 (passado morre no 1.0). Se o owner preferir, hex poderia
+ser um bump de minor em vez de refino in-place (ADR-0028: "formato muda→minor") — não feito, aguarda decisão.
+
+Mapa completo dos outros sítios de base:
 [registro de bases/radix](../experiments/lab/dirty/notas/bases-radix-usos-tcf.md).
 
 ## Critério de aceite
@@ -86,4 +99,5 @@ DECISÃO/processo acima está concluída. Mapa completo dos outros sítios de ba
 - [x] Processo definido: canônico round-trip, colisão-livre, comando-decimal, rede de dedução, uma-base.
 - [x] Princípio de compat registrado (passado morre no 1.0; sem `if .N`; re-pin em dev).
 - [x] Vinculado nos docs que falam da base (T-OPT-INFERENCE, checklist C4, O-FMT-18, omit-contract, registro de bases).
-- [ ] (weld) go do owner p/ `src/tcf` + re-pin baselines + suite verde — **etapa de implementação, gated**.
+- [x] **(weld) FEITO 2026-07-09**: `core.py`+`view.py` lockstep; #TCF.6 decimal preservado; D17a re-pin
+  303→302; **528 passed**. Ticket WELDED. (Pendência menor: decisão de versão in-place vs bump — ver acima.)

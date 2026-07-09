@@ -3,7 +3,7 @@
 Tests SEM dependencias externas — rodam em CI sem precisar de
 Z:/tcf-data SQLite. Validam:
 - encode(dict) / decode(text) round-trip (API unificada, ADR-0014)
-- D17a baseline 303 bytes (0.7 / #TCF.7; legado #TCF.6=322B em tests/legacy/)
+- D17a baseline 302 bytes (0.7 / #TCF.7; legado #TCF.6=322B em tests/legacy/)
 - Edge cases: tabela vazia, lengths diferentes, nomes invalidos
 - Self-describing format (decoder dispatcha pelo shebang)
 
@@ -120,7 +120,7 @@ class TestUnifiedDispatch:
 # ---------------------------------------------------------------------------
 
 class TestD17aBaseline:
-    """D17a baseline. 0.7 e' o default (ADR-0024): D17a = 303B (#TCF.7, V2-B na
+    """D17a baseline. 0.7 e' o default (ADR-0024): D17a = 302B (#TCF.7, V2-B na
     coluna `categoria`). O legado #TCF.6 (322B) vive em tests/legacy/ (comparacao).
     Baselines = guardas de regressao re-pinaveis em mudanca intencional
     (ADR-0024/0025), nao contrato eterno.
@@ -129,8 +129,8 @@ class TestD17aBaseline:
     def test_d17a_total_bytes_baseline(self):
         table = _ler_csv_multi("D17a-multi-column-mixed")
         n_bytes = len(encode(table).encode("utf-8"))
-        assert n_bytes == 303, (
-            f"D17a baseline 0.7 (303B) mudou: got {n_bytes}. Re-pina so' se a "
+        assert n_bytes == 302, (
+            f"D17a baseline 0.7 (302B) mudou: got {n_bytes}. Re-pina so' se a "
             f"mudanca de formato for INTENCIONAL (ADR-0024/0025)."
         )
 

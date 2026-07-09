@@ -59,7 +59,7 @@ referencias a commits que o resolveram.
 | [T-FMT-TCF8H-HEADER](T-FMT-TCF8H-HEADER.md) | Header do protótipo hierárquico `#TCF.8H` (EXP-015): consagráveis (M-implícito, omit-closes, última-sem-size) vs condicionais (reorder S2/S3). `H` NÃO registrado no discriminador ADR-0029 (pré-condição de weld). | **OPEN partial-consecrate 2026-07-05** |
 | [T-OPT-INFERENCE](T-OPT-INFERENCE.md) | Otimizações por inferência (valor deduzido, não escrito): hex-default dos sizes (subsume em O-FMT-18; base-94 vence), bN (→ H-TYPE-02/07, gate D3 N=8). Framework: specs induzidas por round-trip. | **OPEN P2 2026-07-08** |
 | [T-FMT-OMIT-OR-DECLARE](T-FMT-OMIT-OR-DECLARE.md) | Contrato de omissão: campo omitido e não-deduzível → declaração OBRIGATÓRIA (4 categorias; fail-loud; proveniência). Generaliza ADR-0029. Avaliar pré-1.0. | **OPEN pre-1.0 2026-07-08** |
-| [T-FMT-HEADER-BASE-HEX](T-FMT-HEADER-BASE-HEX.md) | Base HEX implícita dos byte-sizes do header (decimal só comando de inspeção/IO/debug). Super-específico, desmembrado de T-OPT-INFERENCE Item 1. Weld toca core.py+view.py, move pin D17a. | **DECIDED-WELD-GATED 2026-07-09** |
+| [T-FMT-HEADER-BASE-HEX](T-FMT-HEADER-BASE-HEX.md) | Base HEX implícita dos byte-sizes do header (decimal só comando de inspeção/IO/debug). Super-específico, desmembrado de T-OPT-INFERENCE Item 1. **WELDED**: core.py+view.py hex nos #TCF.7/.8; #TCF.6 decimal; D17a 303→302; 528 passed. | **WELDED 2026-07-09** |
 
 ## Politica
 

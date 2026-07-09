@@ -7,7 +7,7 @@ src/tcf/ que mude um byte aqui = regressao. Bytes documentados em:
 
 Estrategia (Beizer 1995 — characteristic outputs):
 - D1-D9: 9 datasets sinteticos single-col (M10 baseline = 1523B total)
-- D17a: 1 dataset sintetico multi-col (322B INVARIANT)
+- D17a: 1 dataset sintetico multi-col (302B INVARIANT, #TCF.7 hex; #TCF.6 legado=322B)
 
 Regressao byte-canonical REAL-WORLD (colunas free-text, regime
 n_tam_est>=3) vive em test_real_world_snapshots.py — fixtures committadas
@@ -89,8 +89,11 @@ D1_D9_BYTES_FROZEN = {
 
 D1_D9_TOTAL = 1523  # sum acima
 
-D17A_INVARIANT = 303  # 0.7 default (V2-B: era 307; re-pinavel — ADR-0024/0025)
-D17A_LEGACY_V6 = 322   # #TCF.6 legado, ainda produzivel internamente
+D17A_INVARIANT = 302  # 0.7 default (V2-B): era 307 sem V2-B, 303 com V2-B decimal;
+                      # 302 com byte-size HEX no header (T-FMT-HEADER-BASE-HEX,
+                      # weld 2026-07-09) — re-pinavel, ADR-0024/0025.
+D17A_LEGACY_V6 = 322   # #TCF.6 legado (decimal, byte-size decimal): INALTERADO — o
+                       # hex e' so' nos vivos #TCF.7/#TCF.8.
 
 
 def _load_single_col(name: str) -> list[str]:
@@ -143,7 +146,7 @@ class TestD1D9ByteCanonical:
 
 
 class TestD17AInvariant:
-    """D17a multi-col baseline: 0.7 default = 303B (V2-B na coluna `categoria`;
+    """D17a multi-col baseline: 0.7 default = 302B (V2-B na coluna `categoria`;
     era 307 sem V2-B, 322 em #TCF.6). Baseline = guarda de regressao re-pinavel
     em mudanca INTENCIONAL (ADR-0024/0025), nao contrato eterno."""
 
@@ -152,7 +155,7 @@ class TestD17AInvariant:
         text = encode(cols)
         actual = len(text.encode("utf-8"))
         assert actual == D17A_INVARIANT, (
-            f"D17a baseline (303B, 0.7) mudou: obteve {actual}B. Re-pina so' se a "
+            f"D17a baseline (302B, 0.7) mudou: obteve {actual}B. Re-pina so' se a "
             f"mudanca de formato for INTENCIONAL (ADR-0024/0025)."
         )
 

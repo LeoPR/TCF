@@ -85,6 +85,9 @@ class LazyTCF:
 
         tokens = meta.split(",")
         n_cols = len(tokens)
+        # Base do byte-size: HEX nos vivos (#TCF.7/#TCF.8), DECIMAL no #TCF.6
+        # legado (lockstep com multi/core; T-FMT-HEADER-BASE-HEX). Removivel no 1.0.
+        _szbase = 16 if (is_v7 or is_v8) else 10
         for i, part in enumerate(tokens):
             mode = "tcf"
             if part[:1] in "!@%":
@@ -96,12 +99,12 @@ class LazyTCF:
                 part, nat_id = part.rsplit(":", 1)
             if "=" in part:
                 size_str, name = part.split("=", 1)
-                size = int(size_str)
+                size = int(size_str, _szbase)
             elif i == n_cols - 1:
                 size = None                          # ultima: corpo ate' EOF
                 name = part if part else str(i)      # nome OU posicional (anonima)
             else:
-                size = int(part)                     # anonima nao-ultima -> so' size
+                size = int(part, _szbase)            # anonima nao-ultima -> so' size
                 name = str(i)                        # posicional (nome = ordem)
             body = raw[cursor:] if size is None else raw[cursor:cursor + size]
             self._mode[name] = mode

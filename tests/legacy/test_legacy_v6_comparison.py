@@ -2,10 +2,10 @@
 
 O #TCF.6 e' produzivel internamente (`fallback=False, min_header=False`) e LIDO
 pelo decoder (caminho legado). Aqui fica so' a comparacao HISTORICA do ganho V2
-(#TCF.7) sobre o #TCF.6: D17a 322B (#TCF.6) vs 303B (#TCF.7, gate principal).
+(#TCF.7) sobre o #TCF.6: D17a 322B (#TCF.6) vs 302B (#TCF.7, gate principal).
 Pré-1.0 (ADR-0024, git-as-compat). T-CODE-LEGACY-PRUNE-PRE-07 S2 (2026-06-24).
 
-Separado de tests/test_multi_col_rt.py de proposito: 303B/#TCF.7 e' o invariante
+Separado de tests/test_multi_col_rt.py de proposito: 302B/#TCF.7 e' o invariante
 VIVO; o #TCF.6/322B e' legado-comparacao, nao contrato vivo. Some no 1.0.
 """
 from __future__ import annotations

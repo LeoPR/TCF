@@ -13,7 +13,7 @@ verificados). Ticket do ganho imediato: [T-FMT-HEADER-BASE-HEX](../../../../tick
 
 ## Os 4 baldes
 
-### A. FECHAR AGORA — header byte-sizes → HEX-default (ganho imediato)
+### A. ✅ WELDED (2026-07-09) — header byte-sizes → HEX nos vivos #TCF.7/#TCF.8
 | sítio | onde | base hoje | ação |
 |---|---|---|---|
 | size `NN=nome` (emit) | `multi/core.py:234` | decimal (`f"{len(b)}=…"`) | → hex (`{len(b):x}`) |
@@ -26,8 +26,8 @@ verificados). Ticket do ganho imediato: [T-FMT-HEADER-BASE-HEX](../../../../tick
   `[0-9a-f]` disjunto de `, = : { } [ ] \n` e dos prefixos `! @ %`; size é `=`-delimitado (ou bare posicional)
   → sem ambiguidade. Byte-monotônico não-crescente (economiza 1 char p/ len em [16,255],[4096,65535],…; empata
   no resto; **nunca pior**). Só K−1 sizes/tabela (última é sem-size, O-FMT-15) → economia em ≤ K−1 colunas.
-- **Pin que move**: **D17a** (303B, multi-col, re-pinável ADR-0024/0025). **Real-world NÃO move** (snapshots
-  são single-col, sem meta de size). Weld gated (go src/tcf + re-pin + suite verde).
+- **WELDED**: `core.py`+`view.py` lockstep; #TCF.6 legado fica **decimal** (322B); **D17a 303→302B**;
+  D1-D9/real-world single-col intactos; **528 passed**. Verificado #TCF.6=322 dec / #TCF.7=302 hex / RT / view.
 
 ### B. JÁ ÓTIMOS — não mexer (hex seria PIOR)
 | sítio | onde | base | por quê |
