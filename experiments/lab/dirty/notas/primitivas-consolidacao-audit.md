@@ -25,6 +25,12 @@ um dict-index; há DOIS sistemas paralelos de referência". **Valor de consolida
 mais se confundiu. Uma "referência unificada" (uma primitiva `dict(escopo, radix, lugar)` de que `^N`/`@`/
 `&`/bN são instâncias) esclareceria o design e o `min()`. **Casa**: `vocabulary.md` §referência + uma nota-mãe.
 
+> ✅ **FEITO (2026-07-08)**: entrada canônica em [`docs/vocabulary.md`](../../../../docs/vocabulary.md)
+> §"Primitiva: referencia por indice" (tabela de instâncias + 4 consequências) + seção detalhada
+> "A primitiva unificada" em [`dict-referencia-hipoteses.md`](dict-referencia-hipoteses.md) (4 eixos:
+> granularidade/escopo/radix/lugar + 5 consequências de design + regra anti-drift: hipótese nova de
+> referência se posiciona nos eixos ANTES de ganhar nome).
+
 ### Cluster 2 — RLE / RUN / REPETIÇÃO
 Todos = **"N ocorrências de um padrão, contadas em vez de expandidas"**. Diferem em **o que repete**.
 

@@ -67,6 +67,40 @@ e tende a **sumir sob brotli** — só com gate explícito; provavelmente o de m
 > `confianca: Baixa` (evidência ainda estreita; alinhada ao mesmo patamar de H-TYPE-02, que compartilha os
 > dados-fonte). Continua "de menor prioridade" — o gate reprovou, não há motivo pra subir prioridade.
 
+## A primitiva unificada — referência por índice (consolidação 2026-07-08, Cluster 1 do audit)
+
+> Origem: [audit de primitivas](primitivas-consolidacao-audit.md) — o owner notou que mecanismos com nomes
+> diferentes fazem coisas parecidas. Este é o cluster maior. **Todos os itens abaixo são a MESMA primitiva:
+> "guardar cada valor distinto UMA vez + referenciar por índice."** O que muda são 4 eixos ortogonais.
+> Entrada canônica curta: [`docs/vocabulary.md`](../../../../docs/vocabulary.md) §Primitiva.
+
+| instância | granularidade | escopo | radix | lugar | estado |
+|---|---|---|---|---|---|
+| refs OBAT + ref atômico/virtual HCC | token/afixo (`fe1`=`fe`+ref) | intra-coluna | decimal inline | body | welded (núcleo) |
+| `^N` line-ref | valor/linha inteiro | per-coluna (reseta) | decimal inline + escape `\<digits>` | body | welded |
+| ref-stream `*N\|^k` | corrente de `^N` em RLE | per-coluna | decimal em RLE | body | welded |
+| `@dict` (V2-B) | coluna categórica | per-coluna | base-94 (sem escape, região separada) | tabela no body | welded (ADR-0025) |
+| `&<G>` cross-dict (H-GDICT B2) | grupo de colunas | **cross-coluna** | base-94, namespace/grupo | header | protótipo (gate geral reprovado) |
+| bN `b/b2/b4/b8` (H-TYPE-02) | coluna low-card | per-coluna | **w bits** packed | body binário (V2-L) | research (terminal-only) |
+
+**Os 4 eixos**: granularidade (token → linha → coluna → grupo) · escopo (intra-coluna, reseta ↔
+cross-coluna) · radix (decimal-inline-com-escape · base-94-sem-escape · w-bits-packed) · lugar (inline no
+body · tabela separada · header · body binário V2-L).
+
+**Consequências de design (medidas na sessão 2026-07-06/08)**:
+1. **bN é irmão bit-packed do `@dict`** — mesma informação (domínio+índices), radix mais denso. Por isso o
+   brotli iguala os dois (gate D3: 8.8% terminal → 1.7% pós-brotli): o entropy-coder geral acha a
+   redundância que sobra em qualquer radix textual.
+2. **Os modos por-coluna competem no MESMO `min()`** (`tcf/raw/dict/split[/bN]`, `multi/core.py:177-197`)
+   — são instâncias da primitiva disputando a mesma coluna, não features independentes.
+3. **O ref-stream `*N|^k` já É a corrente de índices** — o Formato A do bN só re-empacota o que o HCC já
+   produz (não re-deriva).
+4. **O EnumSpec no-go** ([specs-capacity-map](specs-capacity-map.md)) é o mesmo fato por outro ângulo: o
+   M10 (dedup + `^N` + seq-RLE) **já é um encoder enumerated implícito** — daí encoder enum explícito
+   perder no geral (−6.52%) e bN só ganhar terminal.
+5. **Regra anti-drift**: hipótese nova de "referência/dicionário" se posiciona nesses 4 eixos ANTES de
+   ganhar nome novo (evita o padrão bN-redescobre-dict).
+
 ## O payoff — por que isto faz o GDICT sair melhor
 
 O owner: "se resolvermos isso, o cross dict pode sair melhor." Correto:

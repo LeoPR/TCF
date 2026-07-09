@@ -49,6 +49,30 @@ Prefixos no tamanho de coluna da meta-line (`# !8=id,@22=cat,nome`):
 - `<size>=<name>` (sem prefixo) — modo legado `#TCF.6` (sem V2-A; `# ` no inicio da meta-line)
 - Coluna sem size (ultima): `<name>` — modo `min_header` (V2 ADR-0023); body ate' EOF
 
+## Primitiva: referencia por indice (dicionario indexado)
+
+> Consolidacao 2026-07-08 (audit de primitivas, Cluster 1): varios mecanismos com
+> nomes diferentes sao a MESMA primitiva — **"guardar cada valor distinto UMA vez e
+> referenciar por indice"** — variando so' em (granularidade, escopo, radix, lugar).
+> Detalhe + hipoteses: [`dict-referencia-hipoteses.md`](../experiments/lab/dirty/notas/dict-referencia-hipoteses.md) (H-REF).
+
+| instancia | granularidade | escopo | radix do indice | lugar |
+|---|---|---|---|---|
+| refs OBAT (`TokRefPref`/`TokRefSuf`) + ref atomico/virtual (HCC) | token/afixo (ex.: `fe1` = `fe`+ref linha 1) | intra-coluna | decimal inline | body |
+| `^N` line-ref | valor inteiro (linha) | per-coluna (reseta) | decimal inline (exige escape `\<digits>`) | body |
+| ref-stream `*N\|^k` | corrente de `^N` em RLE | per-coluna | decimal em RLE | body |
+| `@dict` (V2-B, welded) | coluna categorica | per-coluna | base-94 (sem escape) | tabela separada |
+| `&<G>` cross-dict (H-GDICT, prototipo) | grupo de colunas | cross-coluna | base-94 (namespace/grupo) | header |
+| bN `b/b2/b4/b8` (research, H-TYPE-02) | coluna low-card | per-coluna | **w bits** (1/2/4/8) | body binario (V2-L) |
+
+Consequencias praticas: (1) `^N` JA' e' um dict-index — nao criar mecanismo "novo" de
+referencia sem posicionar nos 4 eixos acima (anti-drift); (2) os modos por-coluna
+COMPETEM no mesmo `min()` (tcf/raw/dict/split[/bN]) — instancias da primitiva
+disputando a mesma coluna, nao features independentes; (3) mudar so' o RADIX
+(base-94 → bits) mantem a informacao → compressor de entropia a jusante iguala
+(colapso do bN pos-brotli, gate D3); (4) indices RESETAM por coluna (a limitacao
+que motivou o cross-dict/H-REF-02).
+
 ## Versionamento (3 eixos)
 
 > Single source of truth dos termos de versao. Tres eixos distintos e ortogonais
