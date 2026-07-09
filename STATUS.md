@@ -15,13 +15,18 @@
 >   `src/tcf/` (`decoder.py`, `multi/core.py`, `natures/`) + `tests/test_natures.py`. Os blocos F2/2026-06-17
 >   que dizem "ADR-0027 `proposed`" / "Nao implementado" (linhas ~78-80) e "Pacote 0.8.0 != #TCF.8"
 >   (linha ~99) sao PRE-weld — superados por esta chave + pela retificacao 2026-06-24 acima.
-> - **Escopo**: `0.8.0` = `#TCF.8` = **cross-dict** (H-GDICT B2, caracterizado mas NAO weldado); scaffold
->   #TCF.8 pronto, falta a carga que paga o bump. Fila: `0.7.2` (lazy) antes.
+> - **Escopo (corrigido 2026-07-08 vs o plano canonico)**: `0.8.0` = RELEASE da familia self-describing
+>   `#TCF.8` (natures + discriminador + anonimas + lazy-#TCF.8 — TODOS welded); o release e' ato
+>   ADMINISTRATIVO (go do owner), NAO "weldar cross-dict". O **cross-dict (H-GDICT)** foi a carga
+>   originalmente prevista pro #TCF.8, mas o **gate GERAL FALHOU** (2026-06-27: 1/5 >=15%, nicho estreito
+>   SNAP-like, B3/B4 suspensos; pivo robusto = **H-DICT-HIGHCARD**). Fila: `0.7.2` (lazy) antes.
 > - **Fonte do GATE byte-canonical** = os testes (`tests/test_regression_v1_baseline.py` D1-D9=1523B/D17a=303B;
 >   `tests/test_real_world_snapshots.py` RW=89616B) — qualquer numero repetido em compendio (CLAUDE.md/STATUS)
 >   e' COPIA de conveniencia; o teste e' que mede (principio Strata: apontar, nao duplicar).
-> - **Vista completa do que falta pra fechar o .8**:
->   [`tcf8-vista-o-que-falta.md`](experiments/lab/dirty/notas/tcf8-vista-o-que-falta.md).
+> - **Plano CANONICO do .8** = [`tcf8-estrutura-plano.md`](experiments/lab/dirty/notas/tcf8-estrutura-plano.md)
+>   (fonte unica da familia #TCF.8) + [`specs-capacity-map.md`](experiments/lab/dirty/notas/specs-capacity-map.md)
+>   (specs/natures, EnumSpec no-go). A [`tcf8-vista-o-que-falta.md`](experiments/lab/dirty/notas/tcf8-vista-o-que-falta.md)
+>   da sessao 2026-07-06/08 e' subordinada: mapeia como bN/specs/TCF.8H se relacionam (research-track, FORA do release).
 
 > **Versionamento (ADR-0024, 2026-06-14)**: projeto e' **pré-1.0**. Os minors do
 > formato (`#TCF.4/.5/.6/.7`) sao iteracoes de dev rumo a um **1.0 solido**, sem

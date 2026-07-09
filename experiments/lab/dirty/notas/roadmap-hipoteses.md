@@ -661,6 +661,12 @@ nova hipotese identificada.
   brotli (qualitativo, sem numeros — agora confirmado empiricamente). Este trabalho aprofunda prior-art
   existente, nao inaugura o problema. Consolidacao completa: [tipos-como-specs.md](tipos-como-specs.md)
   (secao "CONSOLIDACAO E CORRECAO 2026-07-07").
+  - **Prior-art ADICIONAL (achado na reorganizacao 2026-07-08)**: [`specs-capacity-map.md`](specs-capacity-map.md)
+    ja' tinha o **"EnumSpec — veredicto: NAO construir"** (T-EXP-PACOTE5-T03): M10 (dedup+seq-RLE) VENCE
+    low-card por −6.52% vs encoder enum explicito (−2.28% weighted, regressao) — "o M10 ja' e' encoder
+    enumerated implicito". O bN NAO overturna esse no-go: e' a variante **bit-level** que so' ganha
+    **terminal** (8.8%, colapsa pos-brotli); no geral/re-comprimido o implicito vence, consistente com o no-go.
+    Refina, nao contradiz.
 - **H-TYPE-03** (TCF como representacao terminal = o escopo honesto p/ bit-packing bit-level, owner
   2026-07-07): reenquadramento proposto (NAO testado como decisao de produto): bN so' entrega ganho liquido
   quando o `.tcf` e' consumido diretamente, sem brotli/gzip/zstd depois — mesmo nicho ja' declarado pra

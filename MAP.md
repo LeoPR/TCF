@@ -85,7 +85,11 @@ TCF/
 | Entender HCC (composicional) | `docs/algorithms/HCC.md` |
 | **Portar o CORE pra C/Rust** (estruturas + fronteira CORE↔HOST) | `docs/algorithms/core-data-model.md` |
 | **Capacidade dos SPECS/natures** (mapa único + EnumSpec no-go + self-describing) | `experiments/lab/dirty/notas/specs-capacity-map.md` |
-| **Estrutura + plano do #TCF.8** (família self-describing, features, sequência, cross-dict, tcfx) | `experiments/lab/dirty/notas/tcf8-estrutura-plano.md` |
+| **Estrutura + plano do #TCF.8** (família self-describing, features, sequência, cross-dict, tcfx) | `experiments/lab/dirty/notas/tcf8-estrutura-plano.md` (**fonte única**; a `tcf8-vista-o-que-falta.md` da sessão 07-08 é subordinada) |
+| **Tipos como specs** (round-trip = indução; 8 eixos; meta-grupo H-TYPE-00..06; bN irmão do dict) | `experiments/lab/dirty/notas/tipos-como-specs.md` (estende `specs-capacity-map.md`) + `tipos-meta-grupo-fluxo.md` |
+| **Família bN** (bit-packing enum baixa-card) + **gate real-world** | roadmap H-TYPE-02 + `experiments/lab/dirty/2026-07-08-1938-bn-gate-realworld-5fontes/` (8.8% terminal / 1.7% pós-brotli; reforça o EnumSpec no-go) |
+| **Contrato de omissão** (deduzir/convenção-default/declarar + fail-loud, pré-1.0) | `tickets/T-FMT-OMIT-OR-DECLARE.md` |
+| **Codec hierárquico CSV↔JSON** (protótipo `#TCF.8H`, research-track, fora do release) | `experiments/lab/clean/EXP-015-tcf-hierarquico-csv-json/` + mapa `experiments/lab/dirty/notas/estudo-tcf-hierarquico-mapa.md` |
 | **Bibliografia / literatura** (column-store Abadi/Parquet/Dremel, bitpacking, DSL — 24 refs) | `docs/reference/bibliografia.md` |
 | **Arquitetura share × header × lazy** (balanço compressão↔lazy; cross-dict FECHADO; header=índice) | `experiments/lab/dirty/notas/arquitetura-share-header-lazy.md` |
 | Ver hipoteses ativas/fechadas | `experiments/lab/dirty/notas/roadmap-hipoteses.md` (registry **ativo**; homônimo em `docs/theory/` é histórico) |
@@ -132,6 +136,10 @@ Faxina 2026-06-21: 17 labs movidos pra `old/welded/` ou `old/refuted/`
 - `experiments/lab/clean/EXP-010-tcf-delta-aware-prototype/` —
   prototype antigo (referencia historica)
 - `experiments/lab/clean/EXP-011-multi-column-basic/` — multi-col basico
+- **Sessao 2026-07-05..08 (specs/tipos/bN/hierarquico — research-track)**: indexados nos mapas
+  `experiments/lab/dirty/notas/estudo-tcf-hierarquico-mapa.md` (P1-P9 + EXP-015 CSV↔JSON `#TCF.8H`) +
+  `tipos-como-specs.md` (reframe + labs 2026-07-06/07 do bN) + `2026-07-08-1938-bn-gate-realworld-5fontes/`
+  (gate). **Tudo fora de `src/tcf`**; relacao com o release em `tcf8-vista-o-que-falta.md` (research-track)
 
 Referencia (old/, mas ainda consultado):
 - `experiments/lab/dirty/old/welded/2026-05-24-cpf-templated-checked/` — CPF/IP

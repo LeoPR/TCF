@@ -1,4 +1,16 @@
-# TCF.8 — vista + o que falta pra fechar (revisão 2026-07-08) [probatório]
+# TCF.8 — como o trabalho da sessão 2026-07-06/08 se relaciona ao .8 (subordinada) [probatório]
+
+> **SUBORDINADA + CORRIGIDA (2026-07-08, na reorganização)**: o **plano canônico da família #TCF.8** é
+> [`tcf8-estrutura-plano.md`](tcf8-estrutura-plano.md) (fonte única, 2026-06-25) + capacidade em
+> [`specs-capacity-map.md`](specs-capacity-map.md). Esta nota **NÃO é o plano** — mapeia só como o trabalho
+> da sessão (bN/specs/TCF.8H) se relaciona (tudo research-track, FORA do release). **Correção de erro meu**:
+> a versão original abaixo dizia "fechar 0.8.0 = weldar cross-dict B2". **ERRADO** — pelo plano canônico:
+> (a) `0.8.0` = RELEASE da família self-describing **já welded** (natures+discriminador+anônimas+lazy), ato
+> administrativo; (b) o **cross-dict (H-GDICT) teve o gate GERAL REPROVADO** (2026-06-27: 1/5 ≥15%, nicho
+> estreito, B3/B4 suspensos; pivô = **H-DICT-HIGHCARD**) — não é "a carga a weldar". As seções abaixo ficam
+> como registro, lidas por esta chave.
+
+# (original) TCF.8 — vista + o que falta pra fechar (revisão 2026-07-08) [probatório]
 
 > Pedido do owner: revisão + vista de tudo que precisa pra prosseguir com o `.8`, antes de avançar mais.
 > Levantado por workflow (formato-ADRs + release/roadmap + contribuições-da-sessão) + **spot-check manual**

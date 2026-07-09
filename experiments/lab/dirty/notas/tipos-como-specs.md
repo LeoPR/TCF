@@ -7,6 +7,16 @@ natures (ADR-0015), [checklist C1/C2/C4](tcf8h-header-checklist.md).
 **Meta-grupo de hipóteses de tipo + taxonomia QUANDO (entrada/processo/pós-HCC) + design de fluxo/header**:
 [tipos-meta-grupo-fluxo.md](tipos-meta-grupo-fluxo.md) (H-TYPE-00..04; bN = irmão bit-packed do dict).
 
+> **Reconciliação (2026-07-08)**: o **ponto de entrada canônico** de specs/natures é
+> [`specs-capacity-map.md`](specs-capacity-map.md) (2026-06-24) — esta nota **estende/reframa** ele (tipo =
+> ponta mínima do mesmo espectro), não o substitui. **Prior-art que eu perdi**: o `specs-capacity-map` já
+> tem o **"EnumSpec — veredicto: NÃO construir"** (T-EXP-PACOTE5-T03): M10 (dedup+seq-RLE) VENCE low-card
+> por −6.52% vs encoder enum explícito (−2.28% weighted, regressão) — "o M10 já é encoder enumerated
+> implícito". Isso **reforça** o bN (H-TYPE-02): enum explícito perde no geral; o bN é a variante *bit-level*
+> que só ganha **terminal** (8.8%, colapsa pós-brotli) — não overturna o no-go, refina-o. E o **ISO-date** já
+> está lá como "melhor candidato" de nature nova, com pré-requisito "medir overlap com detect_cadence" — o
+> mesmo datetime que a heurística H-TYPE-06 precisa considerar.
+
 ## CONSOLIDAÇÃO E CORREÇÃO (2026-07-07) — leia isto primeiro
 
 > Antes de consolidar o espectro de specs, pesquisei se bit-width/bitmap já tinha sido discutido/testado
