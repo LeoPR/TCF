@@ -74,6 +74,7 @@ O caractere logo após `#TCF.8` discrimina (1 char, dispatch limpo):
 | após `#TCF.8` | tipo | header |
 |---|---|---|
 | `M` | multi | `#TCF.8M<NN[=nome][:spec]>,<...>` (meta na linha do shebang; nome opcional) |
+| `H` | multi + hierarquia (especialização de `M`) | `#TCF.8H<meta-árvore>` — **adicionado por [ADR-0031](0031-hierarchical-discriminator-H.md)** (2026-07-09); sem-espaço como `M`; reserva o char, codec gated |
 | ` ` (espaço) | single + spec | `#TCF.8 [nome]:spec` (nome opcional) |
 | `\n` | single version-stamp (opt-in, sem spec) | `#TCF.8` |
 

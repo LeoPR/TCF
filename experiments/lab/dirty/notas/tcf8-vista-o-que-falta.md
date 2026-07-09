@@ -55,8 +55,9 @@ O scaffold está pronto e welded; `0.8.0` é ato ADMINISTRATIVO (go do owner). H
 **Nada da sessão 2026-07-06/08 entra no release `.8`** — tudo é insumo de roadmap futuro:
 - **bN** (H-TYPE-02): gated — 8.8% terminal / 1.7% pós-brotli, N=8; confirmada-empírica **só terminal**,
   weld barrado por H-TYPE-03 (decisão de produto). Se weldar um dia = extensão `#TCF.8` opt-in (char-prefixo novo no `min()`).
-- **TCF.8H hierárquico** (EXP-015): protótipo externo; magic `#TCF.8H` **não registrado** no discriminador
-  do ADR-0029; RT só em amostras minúsculas. Weld exigiria ato dispositivo do owner + gate.
+- **TCF.8H hierárquico** (EXP-015): protótipo externo; discriminador `H` **REGISTRADO 2026-07-09**
+  (ADR-0031: `H` = multi-col hierárquico, especialização de `M`, sem-espaço, dispatch O(1)) — char + semântica
+  reservados. O **codec** segue research-track (RT só em amostras minúsculas); welding = ticket próprio gated.
 - **hex/base-94** (subsume em O-FMT-18), **contrato-de-omissão** (pré-1.0, generaliza ADR-0029),
   **espectro de specs + meta-grupo H-TYPE-\*** (confirmada-conceitual): design/roadmap, não código.
 

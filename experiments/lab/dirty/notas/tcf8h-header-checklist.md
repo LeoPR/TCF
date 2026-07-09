@@ -38,8 +38,8 @@
 
 *Escrito literal, sempre presente, irredutível. ELE é a fonte; não se deduz.*
 
-- [x] **magic `#TCF.8H`** — 7 bytes que abrem o header: formato + minor 8 + flag hierárquico `H`; roteia pro codec hierárquico. *(codec.py:21,125,152)*
-- [x] **espaço magic→meta** — único ASCII entre magic e colchete-meta; delimitador de parse load-bearing (`head[len(MAGIC)+1:]`). *(codec.py:125,153)*
+- [x] **magic `#TCF.8H`** — 6 bytes `#TCF.8` + discriminador `H` no índice 6 = **multi-col hierárquico, especialização de `M`** (ADR-0031, owner 2026-07-09); roteia pro codec-árvore em dispatch O(1). *(codec.py:21,125,152)*
+- [ ] **espaço magic→meta** — o protótipo usa 1 ASCII entre magic e meta (`head[len(MAGIC)+1:]`), mas o ADR-0031 **cravou sem-espaço** (`#TCF.8H<meta>`, herda de `M` — o espaço é o discriminador do single+spec). Alinhar no weld: dropar o espaço. *(codec.py:125,153; ADR-0031)*
 - [x] **nomes de folha inline** — nome de cada coluna verbatim (`nome`, `tel`, `rua`…); reconstrói a chave-campo do JSON (self-describing; sem `drop_names` em v0). *(codec.py:44,53)*
 - [x] **nomes de grupo/container inline** — nome antes do colchete (`endereco{…}`, `telefones[…]`, `geo{…}`). *(codec.py:44,50)*
 - [x] **sizes inline `:N`** — byte-size do corpo TCF de cada coluna (`len(body.encode())`) após `:`, em toda folha **exceto a última**; habilita byte-split/salto sem descomprimir. *(codec.py:121-122,169-172)*

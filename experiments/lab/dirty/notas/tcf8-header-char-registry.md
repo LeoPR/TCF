@@ -16,7 +16,7 @@ o cross-dict pegou `&<G>`; o bN queria `#`. Sem registry, cada fluxo novo arrisc
 | `M` | multi-col (meta inline: `#TCF.8M<meta>`) | ✅ welded | ADR-0029; `multi/core.py` |
 | ` ` (espaço) | single-col + spec (`#TCF.8 [nome]:spec`) | ✅ welded | ADR-0029; `encoder.py` |
 | `\n` | single-col version-stamp (`#TCF.8\n<body>`) | ✅ welded | ADR-0029; `decoder.py` |
-| `H` | **hierárquico TCF.8H** (protótipo CSV↔JSON) | ⚠️ **NÃO registrado** (colisão latente) | EXP-015 (research-track) |
+| `H` | **multi-col hierárquico** (especialização de `M`; `#TCF.8H<meta-árvore>`, sem-espaço) | ✅ **reservado** ([ADR-0031](../../../../docs/adr/0031-hierarchical-discriminator-H.md), owner 2026-07-09) — char + semântica; **codec gated** (EXP-015 research-track, não weldado) | ADR-0031 |
 | *(livres)* | qualquer estrutura futura | reservável | — |
 
 **Regra de dispatch** (ADR-0029): match EXATO no char do índice 6; `M`/` `/`\n` distintos; um nome de coluna
