@@ -59,6 +59,7 @@ Registros numerados das decisoes arquiteturais do TCF. Inspirado em
 | [0029](0029-version-format-identification-semi-implicit.md) | Identificacao versao/formato: semi-implicito (orfao default + header no desvio + chamada explicita) + major-externo + congelamento 1.0 single-col; discriminador `#TCF.8` 1-char (M/espaco/newline); `#TCF.8\n` = magic-number p/ `file`/libmagic | **accepted** (2026-06-24) |
 | [0030](0030-freeze-single-col-body-at-1.0.md) | Congelar o body single-col no 1.0 (contrato imutavel do orfao default; linchpin do 0029). Otimizacoes futuras viram desvios opt-in marcados, nao mutacao da base. Pre-1.0 ainda refinavel (0024). | **accepted** (politica; efeito no 1.0) |
 | [0031](0031-hierarchical-discriminator-H.md) | Discriminador `H` = multi-col hierarquico (especializacao de `M`, sem-espaco); estende 0029 com o 5o valor. Reserva o char + dispatch O(1); codec hierarquico (EXP-015) segue research-track, weld gated. | **accepted** (2026-07-09; char reservado, codec nao-weldado) |
+| [0032](0032-tcf8-default-format.md) | #TCF.8 vira o formato DEFAULT (multi-col); supersede o "opt-in estrito" do 0027. Corta legado .6/.7 de src/tcf; hex e escaping na familia .8; hierarquia = slot+fail-loud (codec pro lab); pacote 0.8.0 (lazy absorvido). Single-col orfao intacto (0029/0030). | **accepted** (2026-07-09) |
 
 ## Quando criar ADR
 
