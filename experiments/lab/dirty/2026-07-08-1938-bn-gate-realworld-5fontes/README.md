@@ -4,6 +4,10 @@
 nota [tipos-como-specs](../notas/tipos-como-specs.md) · T-OPT-INFERENCE item 2. Frente **D3** da reconciliação
 (o gate que tira H-TYPE-02 do "A-revalidar"). NÃO toca `src/tcf`.
 
+> **Nome do dir diz "5fontes"** = o plano original (gate CLAUDE.md pede ≥5); a medição final rodou **8
+> fontes**. Não renomear (history); o N verdadeiro é 8. Qualificação posterior do 8.8%: só 5.9% é
+> bit-packing sub-byte w≤4 — ver [F3](../2026-07-08-2355-f3-bn-seletivo/result.md).
+
 ## Estado
 
 - **era**: bN medido em 3 DBs (N<5) contra baseline errado (single-col); H-TYPE-02 `confirmada-empírica COM

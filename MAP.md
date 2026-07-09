@@ -87,7 +87,7 @@ TCF/
 | **Capacidade dos SPECS/natures** (mapa único + EnumSpec no-go + self-describing) | `experiments/lab/dirty/notas/specs-capacity-map.md` |
 | **Estrutura + plano do #TCF.8** (família self-describing, features, sequência, cross-dict, tcfx) | `experiments/lab/dirty/notas/tcf8-estrutura-plano.md` (**fonte única**; a `tcf8-vista-o-que-falta.md` da sessão 07-08 é subordinada) |
 | **Tipos como specs** (round-trip = indução; 8 eixos; meta-grupo H-TYPE-00..06; bN irmão do dict) | `experiments/lab/dirty/notas/tipos-como-specs.md` (estende `specs-capacity-map.md`) + `tipos-meta-grupo-fluxo.md` |
-| **Família bN** (bit-packing enum baixa-card) + **gate real-world** | roadmap H-TYPE-02 + `experiments/lab/dirty/2026-07-08-1938-bn-gate-realworld-5fontes/` (8.8% terminal / 1.7% pós-brotli; reforça o EnumSpec no-go) |
+| **Família bN** (bit-packing enum baixa-card) + **gate real-world** + **3 fluxos medidos** | roadmap H-TYPE-02/07 (status vivo; números = cópia, fonte = labs) + gate D3 `experiments/lab/dirty/2026-07-08-1938-bn-gate-realworld-5fontes/` (N=8; terminal 8.8%* / 1.7% pós-brotli — *w≤4 honesto = 5.9%, ver F3) + F1 latência `2026-07-08-2302-f1-bypass-latencia/` (bypass 2.4×) + F3 seletivo `2026-07-08-2355-f3-bn-seletivo/` (5.9%/0.5%; reforça o EnumSpec no-go) |
 | **Contrato de omissão** (deduzir/convenção-default/declarar + fail-loud, pré-1.0) | `tickets/T-FMT-OMIT-OR-DECLARE.md` |
 | **Codec hierárquico CSV↔JSON** (protótipo `#TCF.8H`, research-track, fora do release) | `experiments/lab/clean/EXP-015-tcf-hierarquico-csv-json/` + mapa `experiments/lab/dirty/notas/estudo-tcf-hierarquico-mapa.md` |
 | **Registry de chars do header .8** (discriminador + marcadores por-coluna + reserva; fecha os fluxos, evita colisão tipo `#TCF.8H`) | `experiments/lab/dirty/notas/tcf8-header-char-registry.md` |
@@ -105,7 +105,7 @@ TCF/
 | Continuar um sub-experimento | `experiments/lab/dirty/<lab>/<sub-exp>/README.md` |
 | Comparar EXP-010 ao baseline | `experiments/lab/clean/EXP-010-*/report.md` |
 | Format do .tcf | `docs/algorithms/TCF-format.md` |
-| Convencao de header | `docs/algorithms/TCF-format.md` + ADRs |
+| Convencao de header | `docs/algorithms/TCF-format.md` + ADRs + **registry de chars** `experiments/lab/dirty/notas/tcf8-header-char-registry.md` (reservas `#`/`&`/`H`; NENHUM char novo sem passar por la' — promocao ao spec pendente/owner) |
 | Welding pra src/tcf | `experiments/lab/dirty/notas/welding-plan.md` |
 | Ideias futuras de formato | `experiments/lab/dirty/notas/futuras-otimizacoes-formato.md` |
 | Adicionar novo lab | `experiments/lab/dirty/YYYY-MM-DD-name/` |
@@ -143,7 +143,9 @@ Faxina 2026-06-21: 17 labs movidos pra `old/welded/` ou `old/refuted/`
 - **Sessao 2026-07-05..08 (specs/tipos/bN/hierarquico — research-track)**: indexados nos mapas
   `experiments/lab/dirty/notas/estudo-tcf-hierarquico-mapa.md` (P1-P9 + EXP-015 CSV↔JSON `#TCF.8H`) +
   `tipos-como-specs.md` (reframe + labs 2026-07-06/07 do bN) + `2026-07-08-1938-bn-gate-realworld-5fontes/`
-  (gate). **Tudo fora de `src/tcf`**; relacao com o release em `tcf8-vista-o-que-falta.md` (research-track)
+  (gate D3) + `2026-07-08-2302-f1-bypass-latencia/` (F1, 2.4×) + `2026-07-08-2355-f3-bn-seletivo/` (F3,
+  5.9%/0.5%). **Tudo fora de `src/tcf`**; relacao com o release em `tcf8-vista-o-que-falta.md`
+  (research-track). Consolidacao do dia: `notas/diario/2026-07-08.md`
 
 Referencia (old/, mas ainda consultado):
 - `experiments/lab/dirty/old/welded/2026-05-24-cpf-templated-checked/` — CPF/IP

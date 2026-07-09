@@ -3,7 +3,7 @@ title: T-FMT-OMIT-OR-DECLARE — Contrato de omissão (deduzível / convenção-
 status: open
 priority: P2
 created: 2026-07-07
-updated: 2026-07-07
+updated: 2026-07-08
 gate: pre-1.0
 blocked-by: []
 related:

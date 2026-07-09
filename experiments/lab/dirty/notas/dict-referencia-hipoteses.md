@@ -66,6 +66,8 @@ e tende a **sumir sob brotli** — só com gate explícito; provavelmente o de m
 > (evidência = só 4 colunas/2 fontes, não o corpus completo — mesma ressalva de N<5 do H-TYPE-02).
 > `confianca: Baixa` (evidência ainda estreita; alinhada ao mesmo patamar de H-TYPE-02, que compartilha os
 > dados-fonte). Continua "de menor prioridade" — o gate reprovou, não há motivo pra subir prioridade.
+> *(Nota 2026-07-08: a ressalva de N do H-TYPE-02 foi superada — gate D3, N=8, 8.8%/1.7% weighted; a
+> ressalva REMANESCENTE deste H-REF-05 é só a evidência por-coluna estreita, 4 colunas/2 fontes.)*
 
 ## A primitiva unificada — referência por índice (consolidação 2026-07-08, Cluster 1 do audit)
 
@@ -81,7 +83,7 @@ e tende a **sumir sob brotli** — só com gate explícito; provavelmente o de m
 | ref-stream `*N\|^k` | corrente de `^N` em RLE | per-coluna | decimal em RLE | body | welded |
 | `@dict` (V2-B) | coluna categórica | per-coluna | base-94 (sem escape, região separada) | tabela no body | welded (ADR-0025) |
 | `&<G>` cross-dict (H-GDICT B2) | grupo de colunas | **cross-coluna** | base-94, namespace/grupo | header | protótipo (gate geral reprovado) |
-| bN `b/b2/b4/b8` (H-TYPE-02) | coluna low-card | per-coluna | **w bits** packed | body binário (V2-L) | research (terminal-only) |
+| bN `b1/b2/b4` (H-TYPE-02; nomencl. resolvida 2026-07-08: b3=trio, b5-7 reservados, B=interno; w=8 fora — F3) | coluna low-card (k≤16) | per-coluna | **w bits** packed (1/2/4) | body binário (V2-L) | research (terminal-only) |
 
 **Os 4 eixos**: granularidade (token → linha → coluna → grupo) · escopo (intra-coluna, reseta ↔
 cross-coluna) · radix (decimal-inline-com-escape · base-94-sem-escape · w-bits-packed) · lugar (inline no

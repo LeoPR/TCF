@@ -19,6 +19,12 @@ related:
 > `-0.7.2` é follow-up sob aprovação (quebra cross-links em STATUS/ROADMAP/T-EXP-H-GDICT; atualizar
 > juntos). Por ora, nota de topo.
 
+> **PONTE (2026-07-08)**: a carga do `0.8.0` mudou — o gate geral do **cross-dict FALHOU** (2026-06-27;
+> pivô H-DICT-HIGHCARD). `0.8.0` = **release da família self-describing `#TCF.8` JÁ welded** (ato
+> administrativo; fonte: reconciliação no STATUS.md + `tcf8-estrutura-plano.md`). **Pendência dispositivo
+> ligada a este ticket**: **ADR-0028 segue `proposed`** — reconciliar a regra `0.N↔#TCF.N` com o fato de
+> o magic `#TCF.8` já ter shipado sob 0.7.1 (scaffold opt-in) ANTES de aceitar; decisão do owner.
+
 ## Contexto / motivação
 
 Fechar o ciclo do lazy: shipar o pacote com a view lazy promovida (A4) + a reference (A5) + a poda de

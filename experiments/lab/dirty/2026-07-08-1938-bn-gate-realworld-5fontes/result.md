@@ -21,7 +21,9 @@ weighted, pré e pós-brotli q11. RT-OK em toda coluna bN. Tabelas grandes a LIM
 ## Veredito (do número, gate CLAUDE.md ponto-5 = ≥5% weighted)
 
 - **Terminal (pré-brotli)**: **8.8% ≥ 5% → PASSA** (N=8). bN vale como TCF terminal.
-- **Re-comprimido (pós-brotli)**: **1.7% < 5% → NÃO passa** (colapsa; confirma H-TYPE-03).
+- **Re-comprimido (pós-brotli)**: **1.7% < 5% → NÃO passa** (colapsa; confirma a **premissa técnica** de
+  H-TYPE-03 — bN só net-ganha terminal. A hipótese H-TYPE-03 em si segue `aberta`: é decisão de PRODUTO do
+  owner se o nicho terminal é representativo, não algo que este número responde).
 
 ## Achados que qualificam o número
 

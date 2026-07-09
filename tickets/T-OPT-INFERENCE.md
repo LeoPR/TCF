@@ -3,7 +3,7 @@ title: T-OPT-INFERENCE — Otimizações por INFERÊNCIA (valor deduzido, não e
 status: open
 priority: P2
 created: 2026-07-05
-updated: 2026-07-07
+updated: 2026-07-08
 blocked-by: []
 related:
   - tickets/T-FMT-TCF8H-HEADER.md
@@ -88,12 +88,20 @@ HCC"), razão teórica limpa `8/w` pré-brotli (12 colunas reais adult/tpch/rece
 casos) — o brotli já acha a entropia que V2-B deixou; o bit-pack não adiciona muito além disso. Confirma
 empiricamente o caveat de H-REF-05 (2026-06-19, qualitativo até então). **Escopo honesto**: só vale como
 TCF representação **terminal** (sem re-compressão a jusante) — mesmo nicho que V2-L já declara (não
-compete com gzip/brotli/zstd). NÃO é welding candidate nesta forma (N<5 fontes reais + gate brotli
-reprovado). Ver [H-TYPE-02](../experiments/lab/dirty/notas/roadmap-hipoteses.md),
+compete com gzip/brotli/zstd). NÃO é welding candidate nesta forma. Ver
+[H-TYPE-02](../experiments/lab/dirty/notas/roadmap-hipoteses.md) (status vivo),
 [tipos-como-specs.md](../experiments/lab/dirty/notas/tipos-como-specs.md) (seção "CONSOLIDAÇÃO E CORREÇÃO
 2026-07-07"), labs
 [2026-07-06-2354-spec-bin-motor](../experiments/lab/dirty/2026-07-06-2354-spec-bin-motor/result.md),
 [2026-07-07-0028-spec-bitwidth-bN](../experiments/lab/dirty/2026-07-07-0028-spec-bitwidth-bN/result.md).
+
+> **UPDATE pós-gate D3 (2026-07-08, mesmo dia, após a edição acima)**: a justificativa "N<5" caducou — o
+> [gate D3](../experiments/lab/dirty/2026-07-08-1938-bn-gate-realworld-5fontes/result.md) rodou **N=8**
+> fontes: terminal **8.8%** weighted (PASSA ≥5%) / pós-brotli **1.7%** (reprova). A conclusão anti-weld
+> SOBREVIVE por outros motivos: colapso pós-brotli + H-TYPE-03 (decisão de produto: terminal é
+> representativo?) + F3 (sub-byte honesto w≤4 = 5.9%; pós-brotli pode ir NET-negativo, receita −0.2%).
+> Status vivo: H-TYPE-02/07 no roadmap (bifurcada). Nomenclatura resolvida (owner): b1/b2/b4 física; b3
+> trio; b5-7 reservados; B interno — [char-registry](../experiments/lab/dirty/notas/tcf8-header-char-registry.md).
 
 ## Itens futuros (outras inferências)
 
@@ -106,5 +114,7 @@ reprovado). Ver [H-TYPE-02](../experiments/lab/dirty/notas/roadmap-hipoteses.md)
 
 - [ ] Convenção **HEX-default** para sizes no TCF.8H documentada; decimal só via comando externo.
 - [ ] Dedução (letra→hex; expansão-break→hex; ambíguo→default-hex) especificada.
-- [x] Medir a economia real (hex/base-94 vs dec) — **FEITO via O-FMT-18** (header 0,05-0,13% real, ~3% tiny; base-94 vence hex).
+- [x] Medir a economia real — **FEITO por partes**: hex≤dec medido em EXP-015 (`05-header-condicoes`);
+  base-94≤hex **por construção** (94>16, win-or-tie — inferência, não medição); proporção do header
+  (0,05-0,13% real, ~3% tiny) medida em O-FMT-18.
 - [ ] (se weldar) gate real-world + baselines.

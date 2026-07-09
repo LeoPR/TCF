@@ -63,7 +63,7 @@ Prefixos no tamanho de coluna da meta-line (`# !8=id,@22=cat,nome`):
 | ref-stream `*N\|^k` | corrente de `^N` em RLE | per-coluna | decimal em RLE | body |
 | `@dict` (V2-B, welded) | coluna categorica | per-coluna | base-94 (sem escape) | tabela separada |
 | `&<G>` cross-dict (H-GDICT, prototipo) | grupo de colunas | cross-coluna | base-94 (namespace/grupo) | header |
-| bN `b/b2/b4/b8` (research, H-TYPE-02) | coluna low-card | per-coluna | **w bits** (1/2/4/8) | body binario (V2-L) |
+| bN `b1/b2/b4` (research, H-TYPE-02; nomenclatura owner 2026-07-08: b1/b2/b4 = largura FISICA, `b3` = trio b2+null, `b5-b7` = reservados, `B` = bool dict-interno — [char-registry §Eixo 2](../experiments/lab/dirty/notas/tcf8-header-char-registry.md)) | coluna low-card | per-coluna | **w bits** (1/2/4; w=8 = 1 byte, regime do @dict, fora da familia — F3) | body binario (V2-L) |
 
 Consequencias praticas: (1) `^N` JA' e' um dict-index — nao criar mecanismo "novo" de
 referencia sem posicionar nos 4 eixos acima (anti-drift); (2) os modos por-coluna

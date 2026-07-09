@@ -1,6 +1,7 @@
 # Resultado — F3 misto seletivo (bN-w≤4 no min) [probatório]
 
 Números: `artifacts/` (`python3 run.py`). Baseline = produção real `min(tcf,raw,v2b,split)`, fallback=True.
+**RT-OK asserted em toda coluna bN aplicável** (run.py:79,81 — F3 e wide; bytes só reportados com RT).
 Verificado adversarialmente (4 lentes) — somas conferem, enquadramento corrigido.
 
 ## Nível-tabela weighted (8 fontes reais, N amostrado a LIMIT=20000)

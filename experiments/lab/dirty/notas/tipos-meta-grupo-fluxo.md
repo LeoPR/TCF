@@ -13,7 +13,7 @@
 |---|---|---|
 | **H-TYPE-00** (regra transversal) | Uma spec de tipo só se induz com segurança quando o valor faz **round-trip** por ela; o que reverte induz de graça (sem marcador), o que não reverte fica string ou leva marcador na colisão. | `confirmada-conceitual` — fio que une 01/02/03; é a regra de indução, não uma medição |
 | **H-TYPE-01** | Fidelidade de tipos no TCF.8H: string=default sem tag; tipo divergente = 1 letra colada no size (`idade:4i`); estratégia C-híbrida (deduz número/bool de graça, tag só na colisão). | `confirmada-conceitual` — RT em amostras minúsculas (Ciclos 1a/1b), não em produção |
-| **H-TYPE-02** | Família `bN` (b/b2/b4/b8: k≤2/4/16/256 → 1/2/4/8 bits, domínio embutido = referência) empacota enum/bool de baixa cardinalidade; razão teórica `8/w` pré-brotli contra o baseline correto **V2-B** (ADR-0025, já weldado). | `confirmada-empírica COM RESSALVA` — sob brotli q11 o ganho colapsa a 1.01×-1.33× (só vale como TCF terminal); N<5 fontes; `confiança: A-revalidar`; **não** welding candidate nesta forma |
+| **H-TYPE-02** | Família `bN` (b1/b2/b4: k≤2/4/16 → 1/2/4 bits, domínio embutido = referência; nomenclatura resolvida 2026-07-08, w=8 fora) empacota enum/bool de baixa cardinalidade contra o baseline correto **V2-B** (ADR-0025, já weldado). | **bifurcada pós-gate D3 (2026-07-08, N=8)** — terminal `confirmada-empírica` (8.8% weighted; w≤4 honesto = 5.9%, F3) / re-comprimido `refutada-real-world` (1.7%, colapsa). Status vivo: [roadmap](roadmap-hipoteses.md) — esta tabela não duplica mais |
 | **H-TYPE-03** | bN só entrega ganho líquido quando o `.tcf` é consumido direto, sem re-compressão a jusante — mesmo nicho terminal já declarado pra V2-L (ADR-0018). | `aberta` — reenquadramento não testado como decisão de produto; `confiança: Baixa` |
 | **H-TYPE-04** (projetada) | bN encaixa como candidato adicional do `min(tcf,raw,v2b,split)` por-coluna no multi-col, reusando o mecanismo de marcador-de-modo do header (novo char-prefixo, ao lado de `!`/`@`/`%`). | `aberta/projetada` — o contrato do header suporta a forma; falta o char + o ramo no `min()` + o par enc/dec; **gated por 02/03** |
 
@@ -111,8 +111,9 @@ declarado na entrada", byte-neutro sem nature; modos v2 sobem o magic só quando
 **Pronto (hierárquico TCF.8H)**: `col:size` inline (C1), `:` como portador; str-default (C2).
 
 **Aberto**:
-- **bN**: char de marcador não alocado; par `_bN_encode`/`_decode_bN` não existe; formalizar que recebe
-  domínio+índices (não `best_body`); gate "saída terminal"; welding gated (N<5, A-revalidar).
+- **bN**: char de marcador não alocado (proposto `#`, [char-registry](tcf8-header-char-registry.md)); par
+  `_bN_encode`/`_decode_bN` não existe em src; gate "saída terminal"; welding gated por H-TYPE-03 + F3
+  (status vivo: H-TYPE-02/07 no roadmap — bifurcada pós-D3, N=8; NÃO mais "N<5/A-revalidar").
 - **Canal de ENTRADA de tipos declarados** (int/float/hex-subspec, enum/bool) não existe além das 3 natures
   — falta desenhar como tipos declarados-pelo-produtor viajam out-of-band + header.
 - **`:tipo` na divergência** (C1, TCF.8H): pendente (H-TYPE-01, não em código); medir o custo da folha

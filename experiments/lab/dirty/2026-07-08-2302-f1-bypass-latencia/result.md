@@ -17,6 +17,10 @@ Números: `artifacts/` (`python3 run.py`). Dá NÚMERO ao eixo **aceleração** 
 | beijing.cbwd | 4 | 2 | 45.8 | 57.4 | 19.7 | 2.3 | 2.9 | OK |
 | **MEDIANA** | | | | | | **2.4** | **2.9** | — |
 
+*Anomalia anotada: em adult.relationship a produção (67.8ms) saiu mais RÁPIDA que o núcleo (78.7ms), única
+inversão nas 9 linhas — ruído de medição (produção = núcleo + 3 candidatos). Não afeta as medianas.
+Escopo: 4 fontes / 9 colunas, batch Python single-thread — número de LATÊNCIA, não gate real-world de compressão.*
+
 ## Veredito
 
 - **Bypass é 2.4× mais rápido que o núcleo (2.9× que a produção)**, mediana, RT-OK em todas. O eixo

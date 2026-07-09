@@ -33,13 +33,13 @@ Scaffold pronto e testado (`tests/test_natures.py`), tudo opt-in byte-neutro:
 - **Single-col + spec** (`#TCF.8 nome:spec`), **colunas anônimas** (`drop_names`, força `#TCF.8M`), **version-stamp** opt-in (`#TCF.8\n`, magic-number p/ `file`/libmagic).
 - **Órfão default** (single-col plano = body puro, 0 bytes de header) preservado — o `#TCF.8` é o **desvio** opt-in, não mexe no comum.
 
-## O que FALTA pra fechar `0.8.0` (= #TCF.8 = cross-dict)
+## O que FALTA pra fechar `0.8.0` (= release da família self-describing; NÃO cross-dict — corrigido)
 
-O scaffold está pronto; falta a **carga de compressão que paga o bump** + higiene + release:
-1. **Cross-dict H-GDICT B2** — a feature que "paga" o `#TCF.8`. **Caracterizada** (B1: −19.3% textual
-   same-domain-refs em grafo real) mas **NÃO weldada**; `src/tcf` intocado. → precisa: **B2** (híbrido V2
-   dicts-por-grupo) + **ADR** + **gate real-world** (`test_real_world_snapshots.py`) + **aprovação src/tcf**.
-   [dispositivo/owner + research]
+O scaffold está pronto e welded; `0.8.0` é ato ADMINISTRATIVO (go do owner). Higiene + pendências:
+1. ~~Cross-dict H-GDICT B2 — a feature que "paga" o `#TCF.8`~~ **REFUTADO como escopo do 0.8.0**: o gate
+   GERAL do cross-dict FALHOU (2026-06-27: 1/5 ≥15%, nicho estreito SNAP-like; B3/B4 suspensos; pivô =
+   H-DICT-HIGHCARD). O B1 −19.3% é nicho same-domain-refs, não paga bump geral. Se um dia voltar, entra
+   como extensão opt-in própria (ADR + gate + aprovação src/tcf), FORA do 0.8.0. [corrigido 2026-07-08]
 2. **Slot do discriminador** pra a feature nova: hoje só `M`/espaço/`\n`. Cross-dict precisa de um char
    reservado no ADR-0029 **antes** de weldar. [decisão de formato/owner]
 3. **ADR-0028 `proposed` → `accepted`** — reconciliar a regra `0.N↔#TCF.N` com o fato de que o magic
@@ -60,13 +60,13 @@ O scaffold está pronto; falta a **carga de compressão que paga o bump** + higi
 - **hex/base-94** (subsume em O-FMT-18), **contrato-de-omissão** (pré-1.0, generaliza ADR-0029),
   **espectro de specs + meta-grupo H-TYPE-\*** (confirmada-conceitual): design/roadmap, não código.
 
-## Bottom line
+## Bottom line (corrigido 2026-07-08 — o original desta seção nasceu com o escopo errado)
 
 **Fechar o `#TCF.8` como FORMATO = feito** (scaffold welded, byte-neutro). **Fechar `0.8.0` como RELEASE =
-weldar o cross-dict (H-GDICT B2)** — a carga que o owner reservou pro `#TCF.8` — que é um esforço
-**gated** (src/tcf + ADR + gate real-world), OU o owner **re-escopa** o 0.8.0. O próximo release na fila é
-`0.7.2` (lazy). O que dá pra fazer **sem gate** agora: sanear o drift do STATUS.md (com tua revisão) e
-confirmar no roadmap que a sessão é research-track. O resto é decisão tua.
+ato ADMINISTRATIVO** (go do owner) da família self-describing JÁ welded (natures + discriminador + anônimas
++ lazy) — NÃO "weldar cross-dict" (gate geral reprovado 2026-06-27; ver item 1 riscado acima). Fila:
+`0.7.2` (lazy) antes. Higiene restante: ADR-0028 proposed→accepted (item 3) + saneamento STATUS.md (feito
+2026-07-08). Fonte canônica do plano: [tcf8-estrutura-plano.md](tcf8-estrutura-plano.md).
 
 **Cross-links**: STATUS.md · ROADMAP.md · ADR-0027/0028/0029/0030 · T-EXP-H-GDICT-01 (cross-dict) ·
 [roadmap-hipoteses](roadmap-hipoteses.md) · [tipos-meta-grupo-fluxo](tipos-meta-grupo-fluxo.md).

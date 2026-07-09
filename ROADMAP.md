@@ -23,7 +23,12 @@ publicado no PyPI. D1-D9=1523 B, D17a=303 B (contagem de testes vive na suíte).
 
 > **Versionamento (ADR-0028)**: minor = formato (`0.N` = `#TCF.N`); entrega sem mudar o formato move
 > o **release/patch**. Logo o ciclo do lazy + poda (formato `#TCF.7` inalterado) = **release `0.7.2`**.
-> O **`0.8.0` fica reservado pro `#TCF.8`** (cross-dict). Termos: [vocabulary §Versionamento](docs/vocabulary.md).
+> O **`0.8.0` fica reservado pro `#TCF.8`**. Termos: [vocabulary §Versionamento](docs/vocabulary.md).
+> **PONTE (2026-07-08, reconciliação — ver STATUS.md)**: a carga "cross-dict" do 0.8.0 foi SUPERADA — o
+> gate geral do H-GDICT **falhou** (2026-06-27: 1/5 ≥15%, nicho estreito; pivô = H-DICT-HIGHCARD). O
+> `0.8.0` = **release da família self-describing `#TCF.8` JÁ welded** (natures + discriminador + anônimas
+> + lazy) — ato administrativo, go do owner. Os parágrafos datados abaixo que dizem "0.8.0 = cross-dict"
+> são históricos, leia nesta chave.
 
 **Release `0.7.2` (formato #TCF.7, em curso)**: lazy básico endurecido shipado (`tcf.view`) + poda de
 legado pré-0.7 (T-CODE-LEGACY-PRUNE-PRE-07). **Plano em etapas (A lazy / C release)**:
@@ -56,6 +61,7 @@ Tudo opt-in / gadget / knob; impacto no núcleo nenhum/leve (ou atrás de GATE).
 | **H-NAT-MARK-01** | Marcador de nature **auto-descritivo** no header (o SPEC viaja com o TCF) | M | leve | **DESIGN FEITO → PARADO em (A)** (owner 2026-06-17): [ADR-0027 `proposed`](docs/adr/0027-nature-mark-header-self-describing.md) + [design](experiments/lab/dirty/notas/f2-nature-mark-header-design.md). Format change `#TCF.7→#TCF.8` (tag `:` no nome, resolução **core-only**, id desconhecido→cru+flag). **Não vale o magic permanente agora** — gate ≥15%/2-reais não bate (só CNPJ/receita) e a DX já tem rota zero-core (registry gadget). Revisitar com 2º nature real. |
 | V2-RLE-STREAM | RLE no stream de índices do V2-B (follow-up do 0.7) | S | nenhum | **CLOSED p/ geral; NICHO textual-puro ABERTO (decisão do owner)** (caracterizado 2026-06-19, [lab](experiments/lab/dirty/old/refuted/2026-06-19-v2rle-stream-caracterizacao/result.md)). Geral: +1,19% weighted/7 reais, 0/7 ≥15%, −1,39% sob brotli. **Nicho** (payload minúsculo, low-card texto **skewed**, ordem natural, textual-puro): situacao +55%, workclass +22% (2 reais ≥15% no nicho). Achado: **clusterizado flipa p/ tcf-`*N|`** (overlap); stream-RLE só ganha em runs curtos+skewed. Weld = #TCF.8+GATE. Decisão do owner se o nicho "transmissão minúscula" justifica. Registro: [roadmap-hipoteses Pacote 11-bis](experiments/lab/dirty/notas/roadmap-hipoteses.md) (H-V2RLE-01/02); família RLE: [estudo](experiments/lab/dirty/notas/rle-familia-estudo.md). |
 | H-INTRA-01/02/03 | Repetição **intra-valor** (fatorar `111.` dentro de um valor) | M | **médio** | Pacote 11 / O-FMT-17, alvo 0.8. Decidir engine (OBAT×HCC), **medir net** com escape de dígito e **overlap** com nature/split. GATE obrigatório — *não atropelar*. |
+| **OMIT-CONTRACT** | Contrato de omissão do formato (deduzir / convenção-default / declarar + fail-loud) | S | nenhum (contrato) | **AVALIAR ANTES DE FECHAR O 1.0** (owner 2026-07-07): [T-FMT-OMIT-OR-DECLARE](tickets/T-FMT-OMIT-OR-DECLARE.md) — 4 categorias, invariantes fail-loud + proveniência; generaliza o eixo versão do ADR-0029. |
 
 **Lazy-view, em etapas** (a "venda": descomprimir só o suficiente pra responder): L1
 column-pruning + agregadores (PoC) · **L2 medido** — `where(CustomerID=X).sum(Quantity)`

@@ -57,6 +57,11 @@ testado, N≥5 fontes, sintético vs real, viés declarado, bytes absolutos rele
 (3 DBs: adult, tpch, receita) e o gate brotli reprovado na forma testada, o veredito é **confirmada-empírica
 com ressalva** — não confirmada-empírica plena.
 
+> **[SUPERADO no mesmo dia — gate D3 2026-07-08]**: a ressalva de N<5 foi FECHADA pelo
+> [gate D3](../2026-07-08-1938-bn-gate-realworld-5fontes/result.md) (N=8 fontes; weighted nível-tabela
+> **8.8% terminal / 1.7% pós-brotli**). Status vivo: H-TYPE-02 no [roadmap](roadmap-hipoteses.md)
+> (bifurcada: terminal `confirmada-empírica` / re-comprimido `refutada-real-world`).
+
 ### 2. O espectro de specs consolidado
 
 O trabalho da sessão reframa "tipos" como **specs induzidas por round-trip**, não como um sistema de tipos
@@ -260,9 +265,13 @@ N≥5 fontes; (4) viés declarado — não há dataset sintético nesta rodada; 
 veredito é **confirmada-empírica com ressalva**, nunca confirmada-empírica plena — e a ressalva central é
 dupla: escopo (terminal, sem re-compressão) e cobertura de fontes (N<5).
 
+> **[Pontos (2) e (5) FECHADOS no mesmo dia — gate D3 2026-07-08]**: N=8 fontes (beijing incluído),
+> weighted nível-tabela **8.8% terminal (≥5%, passa) / 1.7% pós-brotli (reprova)** —
+> [lab](../2026-07-08-1938-bn-gate-realworld-5fontes/result.md). Status vivo: H-TYPE-02 no roadmap.
+
 **O que fica aberto**:
-- Testar bN contra V2-B em ≥5 fontes reais distintas (incluir UCI beijing-pm25, já citado no ponto cego de
-  ADR-0018, e outro dataset fora do conjunto adult/tpch/receita) antes de qualquer proposta de weld.
+- ~~Testar bN contra V2-B em ≥5 fontes reais distintas~~ **FEITO 2026-07-08** (gate D3, N=8, beijing-pm25
+  incluído — [lab](../2026-07-08-1938-bn-gate-realworld-5fontes/result.md)).
 - Decidir, como questão de produto/arquitetura e não de algoritmo, se o cenário "TCF como representação
   terminal sem re-compressão a jusante" é realista o suficiente no uso pretendido do projeto pra justificar
   a complexidade adicional de bN dentro de V2-L — decisão de escopo, não algo que os números respondem sozinhos.
@@ -411,6 +420,8 @@ round-trip em **todas** **confirma** (ou rebaixa pra string). Medido:
 ## Aberto / próximo (Ciclo 3)
 
 - Formalizar o registro de specs (primitiva ↔ nature) e o ponto de indução no pre-pass.
-- Medir o ganho de **aceleração** (decode tipado vs deduzido) — hoje só a compressão foi medida.
-- bool-bitmap na camada binária (V2-L) — quantificar o 1-bit/valor.
+- ~~Medir o ganho de **aceleração**~~ **FEITO 2026-07-08**: F1 bypass **2.4× vs núcleo / 2.9× vs produção**
+  ([lab F1](../2026-07-08-2302-f1-bypass-latencia/result.md)) — o eixo aceleração tem número.
+- ~~bool-bitmap na camada binária (V2-L) — quantificar o 1-bit/valor~~ **RESPONDIDO pelos labs bN** (w=1:
+  ex. adult.sex 48870→6117 B terminal; colapsa pós-brotli — gate D3 + decomposição F3).
 - Ligar hex (T-OPT-INFERENCE) como sub-spec numérica sob esta regra única.

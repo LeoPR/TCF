@@ -648,7 +648,12 @@ nova hipotese identificada.
   [`2026-07-08-1938-bn-gate-realworld-5fontes`](../2026-07-08-1938-bn-gate-realworld-5fontes/result.md).
   Weighted nivel-tabela vs producao real (min tcf/raw/v2b/split): **8.8% pre-brotli / 1.7% pos-brotli**.
   Veredito bifurcado: **terminal (sem re-compressao) = `confirmada-empirica`** (8.8% weighted >= gate 5%,
-  N=8, `confianca: Media`); **re-comprimido = `refutada-real-world`** (1.7%, colapsa). Qualificacoes: ganho
+  N=8, `confianca: Media`). CAVEATS do 8.8%: (a) tabelas grandes amostradas a **LIMIT=20000** (declarado no
+  lab; weighted de tabela cheia PENDENTE — as fontes de ganho ~0-2% sao as maiores, tabela cheia deslocaria
+  os pesos contra o 8.8%); (b) decomposicao F3 (2026-07-08): **so' 5.9% e' bit-packing sub-byte (w<=4)** —
+  os 2.9pp restantes sao regime w=8 (k 95..256, 1 byte/idx, fora do gate k<=16 do owner) — citar o 8.8%
+  sempre com este asterisco (ver F3 em H-TYPE-07). **Re-comprimido = `refutada-real-world`** (1.7%,
+  colapsa; F3 mostra que pode ir NET-negativo — receita -0.2%). Qualificacoes: ganho
   CONCENTRADO (0% br.pessoas high-card a 29% wine categorical-heavy); nicho ESTREITO — bN compete com tcf-RLE
   tambem, perde em low-card cadenciado/ordenado (beijing hour/month/day/year -> tcf-RLE; year=34B vs bN
   5020B); o ponto cego do ADR-0018 (hour 228.8%) JA NAO e' cego na producao atual (V2-B+cadence). WELD segue
@@ -725,7 +730,8 @@ nova hipotese identificada.
     **`B` maiusculo**=bool com dict interno congelado (nao declara referencia). **Opcao B (largura exata
     b3/b5/b6/b7) MORTA** — 3/5/6/7 bits nao tile-de-byte; o code vira rotulo semantico (Opcao A refinada).
   - **F1 MEDIDO** ([lab 2026-07-08-2302](../2026-07-08-2302-f1-bypass-latencia/result.md)): bypass
-    **2.4× mais rapido que o nucleo** (2.9× vs producao), mediana de 9 colunas low-card reais, RT-OK.
+    **2.4× mais rapido que o nucleo** (2.9× vs producao), mediana de 9 colunas low-card reais, RT-OK
+    (4 fontes, batch Python single-thread — numero de LATENCIA, nao gate real-world de compressao).
     Modesto mas real (o nucleo ja' dedup low-card rapido); e' LATENCIA nao byte (nicho streaming V2-J).
     Interno `B` (bool3 trio, dominio 0B congelado) RT-OK. O eixo **aceleracao** agora tem numero.
   - **Analise critica 2 (owner 2026-07-08, serializacao byte-aligned)**: so' vale binarizar com **w<=4 e

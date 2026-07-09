@@ -56,6 +56,9 @@ referencias a commits que o resolveram.
 | [T-DIST-RELEASE-0.8.0](T-DIST-RELEASE-0.8.0.md) | **C do plano 0.8**: bump pacote 0.8.0 (!= formato #TCF.8, ADR-0024) + CHANGELOG/STATUS/ROADMAP/MAP + tag v0.8.0 via Trusted Publishing. | **BLOCKED P2 2026-06-21** (by A4✓/A5/B1) |
 | [T-CODE-DESCAPAR-V2B](T-CODE-DESCAPAR-V2B.md) | Descapar V2-B (dict = candidato do `min()` p/ high-card). Prototype read-only: **byte-safe** (pins intactos, RT ok), −5% real em high-card espalhado, custo ~2× compute. Opções (A) cap-raise 8k [rec] / (B) +skip cadence / (C) puro. **Toca src/tcf, sob aprovação.** | **OPEN P2 2026-07-01** |
 | [T-DOC-3](T-DOC-3-shebang-terminology.md) | Terminologia: "shebang" (=`#!`) é impreciso → **assinatura de formato / magic number** (`#TCF.N`, análogo `%PDF-`). Termo canônico setado em vocabulary.md + ADR-0001 + TCF-format.md. Backlog: sweep incremental da prosa viva. | **CLOSED-CANONICAL-SET 2026-07-01** |
+| [T-FMT-TCF8H-HEADER](T-FMT-TCF8H-HEADER.md) | Header do protótipo hierárquico `#TCF.8H` (EXP-015): consagráveis (M-implícito, omit-closes, última-sem-size) vs condicionais (reorder S2/S3). `H` NÃO registrado no discriminador ADR-0029 (pré-condição de weld). | **OPEN partial-consecrate 2026-07-05** |
+| [T-OPT-INFERENCE](T-OPT-INFERENCE.md) | Otimizações por inferência (valor deduzido, não escrito): hex-default dos sizes (subsume em O-FMT-18; base-94 vence), bN (→ H-TYPE-02/07, gate D3 N=8). Framework: specs induzidas por round-trip. | **OPEN P2 2026-07-08** |
+| [T-FMT-OMIT-OR-DECLARE](T-FMT-OMIT-OR-DECLARE.md) | Contrato de omissão: campo omitido e não-deduzível → declaração OBRIGATÓRIA (4 categorias; fail-loud; proveniência). Generaliza ADR-0029. Avaliar pré-1.0. | **OPEN pre-1.0 2026-07-08** |
 
 ## Politica
 

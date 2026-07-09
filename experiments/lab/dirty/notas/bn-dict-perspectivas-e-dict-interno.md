@@ -65,6 +65,8 @@ bypass pagar em velocidade, a preemptiva se justifica pelo eixo aceleração; se
   medido) não paga a complexidade/opacidade num nicho já terminal. E com 3/5/6/7 **inúteis como largura
   física**, o code-space deles fica livre — **a Opção A do owner (b/b2/b4/b8 = largura física; b3/b5/b7 =
   códigos de papel/dict-interno) volta a ser coerente**: não gasta nada, usa números sem significado físico.
+  *(Formulação com b8 SUPERADA pela RESOLUÇÃO abaixo: a família resolvida é b1/b2/b4, SEM b8 — 8 bits =
+  1 byte exato, sem packing sub-byte; o regime k>16 já é coberto pelo `@dict`/v2b. Confirmado pelo F3.)*
   *(Registro: a técnica conhecida que resgataria larguras exatas é agrupar 8 valores → 8·w bits = w bytes
   inteiros — o bit-packing do Parquet; anotada, NÃO recomendada agora.)*
 - **Larguras físicas do default: {1, 2, 4}** — consistente com o F3 (k≤16) e com o corte denso do gate D3.
@@ -169,5 +171,8 @@ Medido em [F1 latência](../2026-07-08-2302-f1-bypass-latencia/result.md) (bypas
 - Prior-art: [`cep-outer-dict-codebook-pesquisa.md`](cep-outer-dict-codebook-pesquisa.md) (outer-dict) ·
   [`specs-capacity-map.md`](specs-capacity-map.md) (SPEC_REGISTRY + EnumSpec no-go).
 - bN/specs: [`tipos-meta-grupo-fluxo.md`](tipos-meta-grupo-fluxo.md) (§5 bN, §8 eixos) ·
-  [`tipos-como-specs.md`](tipos-como-specs.md) · gate [`2026-07-08-1938-bn-gate-realworld-5fontes`](../2026-07-08-1938-bn-gate-realworld-5fontes/result.md).
+  [`tipos-como-specs.md`](tipos-como-specs.md) · gate D3 [`2026-07-08-1938`](../2026-07-08-1938-bn-gate-realworld-5fontes/result.md).
+- **Os 3 fluxos MEDIDOS**: F1 latência [`2026-07-08-2302`](../2026-07-08-2302-f1-bypass-latencia/result.md)
+  (bypass 2.4×) · F3 seletivo [`2026-07-08-2355`](../2026-07-08-2355-f3-bn-seletivo/result.md) (w≤4 = 5.9%
+  terminal / 0.5% pós-brotli, pode ir net-negativo) · F2 = natures ADR-0015 (já welded).
 - Header: [`tcf8-header-char-registry.md`](tcf8-header-char-registry.md).
