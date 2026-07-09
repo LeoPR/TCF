@@ -83,7 +83,7 @@ from tcf.view import Filtered, LazyTCF, view  # camada read-only (A4, plano 0.8)
 # contador de release/correcao, DESACOPLADO do comportamento (nao muda a logica
 # nem o byte-output canonical). Sem compat rigida entre minors de dev; git e' o
 # mecanismo de reproducao. v1.0 = release solido futuro.
-__version__ = "0.7.1"
+__version__ = "0.8.0"   # #TCF.8 default (ADR-0032); minor segue o formato (ADR-0028)
 
 __all__ = [
     "encode",

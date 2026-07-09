@@ -31,8 +31,8 @@ DATASETS = ROOT / "datasets" / "synthetic"
 
 
 # Superficie de API publica. Sob ADR-0024/0028 (pre-1.0) a adicao e' ADITIVA —
-# atualizar esta lista ao exportar algo novo. Bump de versao (0.7.1 -> 0.7.2,
-# release dentro do formato #TCF.7; ADR-0028) acontece no release, nao a cada export.
+# atualizar esta lista ao exportar algo novo. Bump de versao (0.7.1 -> 0.8.0,
+# #TCF.8 vira default; ADR-0032/0028) acontece no release, nao a cada export.
 EXPECTED_PUBLIC_API = {
     "encode",
     "decode",
@@ -71,8 +71,9 @@ class TestPublicAPISurface:
             assert hasattr(tcf, name), f"tcf.__all__ lista '{name}' mas nao existe"
 
     def test_version_pre_1_0(self):
-        # Pré-1.0 (ADR-0024): pacote em 0.x, minor acompanha o formato (#TCF.7).
-        assert tcf.__version__ == "0.7.1"
+        # Pré-1.0 (ADR-0024): pacote em 0.x, minor acompanha o formato.
+        # #TCF.8 default (ADR-0032) -> minor 0.8.0 (ADR-0028 regra 1). PyPI publica no go do owner.
+        assert tcf.__version__ == "0.8.0"
 
 
 D1_D9_BYTES_FROZEN = {

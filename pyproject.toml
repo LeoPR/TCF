@@ -14,7 +14,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "tcf-format"
-version = "0.7.1"
+version = "0.8.0"
 description = "TCF (Tabular Compact Format) — string compression via OBAT (Online Bidirectional Affix Tokenizer) + HCC (Hierarchical Compositional Coding)"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -96,6 +96,13 @@ exclude = [
     "/.claude",
     "/.github",
     "/config",
+]
+
+[dependency-groups]
+dev = [
+    "pip>=26.1.2",
+    "setuptools>=82.0.1",
+    "wheel>=0.47.0",
 ]
 
 # v1.0 (2026-05-27, ADR-0017): canonico TCF-CORE vive em src/tcf/

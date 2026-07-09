@@ -18,7 +18,33 @@ internos (sem PyPI). Date em parenteses = consolidacao do milestone.
 
 ---
 
-## 0.7.x (pré-1.0, em andamento) — `#TCF.7` default
+## 0.8.0 (pré-1.0, em preparação) — `#TCF.8` default
+
+**Mudança de formato**: `#TCF.8` vira o formato **DEFAULT** de emissão
+([ADR-0032](docs/adr/0032-tcf8-default-format.md); minor acompanha o formato, ADR-0028). O ciclo
+`0.7.2` (lazy+poda) foi **absorvido** neste release (sem release intermediário). PyPI publica no go
+explícito do owner (`T-DIST-RELEASE-0.8.0`); a última versão publicada segue `0.7.1` até lá.
+
+- **`#TCF.8M` é o default multi-col** (era opt-in-SSE-nature): todo `encode(dict)` sai `#TCF.8M`
+  (meta INLINE na assinatura, sem prefixo `# `). Single-col plano segue **órfão** intocado
+  (D1-D9=1523B, real-world=89616B — ADR-0032 não mexe no single-col; ADR-0030 freeze).
+- **Legado `#TCF.6`/`#TCF.7` cortado** de `src/tcf` (emit E decode): decode faz **fail-loud** com dica
+  de git. Git-as-compat (ADR-0024): a versão antiga é ponto de progresso/comparação (git checkout ou
+  `legacy-snapshots/`), não produção. Blobs multi-col `.6`/`.7` no mundo não decodam mais (aceitável pré-1.0).
+- **Byte-sizes do header em HEX** ([T-FMT-HEADER-BASE-HEX](tickets/T-FMT-HEADER-BASE-HEX.md)):
+  `format(n,'x')` canônico; decimal só via comando de inspeção. Colisão-livre com os separadores.
+- **Nomes de coluna com separador escapados com `\`** ([T-FMT-NAME-ESCAPING](tickets/T-FMT-NAME-ESCAPING.md)):
+  `,`/`=`/`:`/`\`/prefixo `!@%` viáveis (antes rejeitados); tokenizer splita em separador não-escapado.
+  Único proibido: `\n`.
+- **Discriminador `H` reservado** ([ADR-0031](docs/adr/0031-hierarchical-discriminator-H.md)): multi-col
+  hierárquico (especialização de `M`); **fail-loud** no decode (codec no lab, EXP-015). Fecha a corrupção
+  silenciosa de discriminador desconhecido após `#TCF.8`.
+- **Baseline**: D17a re-pinado **303 → 300B** (header `#TCF.8M` inline −2B). D1-D9/real-world intactos.
+  Suíte 530 verde. Baselines re-pináveis (pré-1.0, ADR-0024/0025).
+
+> Detalhe em milestones M1 (flip+corte) / M2 (escaping) / M4 (docs) — ver ADR-0032 + diário 2026-07-09.
+
+## 0.7.x (pré-1.0, superado por 0.8.0) — `#TCF.7` default (histórico)
 
 Ciclo "perseguir bytes" (abertura do que era chamado v2.0; agora pré-1.0).
 `encode(dict)` multi-col sai em `#TCF.7` por default. Single-col inalterado.

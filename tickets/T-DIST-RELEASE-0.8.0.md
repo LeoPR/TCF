@@ -48,10 +48,11 @@ pacote `0.8.0`) ficam pro cross-dict, fora deste ticket.
 
 ## Critério de aceite
 
-- [ ] Versão **0.8.0** consistente (pyproject + `__init__` + teste de versão).
-- [ ] Suíte verde (incl. gate real-world = 89616B) antes da tag.
-- [ ] `from tcf import view` no wheel publicado (smoke test pós-build).
-- [ ] Formato **#TCF.8 default** (ADR-0032); legado .6/.7 cortado; D17a=300B.
+- [x] Versão **0.8.0** consistente (pyproject `0.8.0` + `__init__.__version__` + pino `test_version_pre_1_0`) — M5 2026-07-09.
+- [x] CHANGELOG 0.8.0 (formato #TCF.8 default, hex, escaping, legado cortado, lazy absorvido) — M5.
+- [x] Suíte verde (incl. gate real-world = 89616B): **530 passed**.
+- [ ] `from tcf import view` no wheel publicado (smoke test pós-build) — **na publicação**.
+- [ ] tag `v0.8.0` → `release.yml` (Trusted Publishing) — **go explícito do owner** (PyPI segura em 0.7.1 até lá).
 
 ## Riscos / notas
 
