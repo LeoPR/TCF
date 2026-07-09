@@ -81,7 +81,7 @@
 
 *Ganha ou empata em bytes, mas é uma ESCOLHA com default; custa legibilidade/auto-descrição (contrato/convenção fora-de-banda). Detalhe em [T-OPT-INFERENCE](../../../../tickets/T-OPT-INFERENCE.md).*
 
-- [ ] **base HEX-default nos sizes** — ler byte-sizes em HEX por convenção fixa: `len(hex(s)) ≤ len(str(s))` sempre; encurta nas fronteiras 16ᵏ; o arquivo se auto-explica **por convenção** sem marcador — custa legibilidade do size. Medido: sizes 201/13 → **−2B**. (o codec hoje emite **decimal**; hex é proposto.) *(T-OPT-INFERENCE Item 1; analise_header.py; outputs/05)*
+- [ ] **base HEX-default nos sizes** — ler byte-sizes em HEX por convenção fixa: `len(hex(s)) ≤ len(str(s))` sempre; encurta nas fronteiras 16ᵏ; o arquivo se auto-explica **por convenção** sem marcador. Medido: sizes 201/13 → **−2B**. **DECISÃO CRAVADA (owner 2026-07-09)**: hex-default implícito armazenado; decimal só comando (inspeção/IO/debug) — ticket [T-FMT-HEADER-BASE-HEX](../../../../tickets/T-FMT-HEADER-BASE-HEX.md) (`decided-weld-gated`); mapa de bases [bases-radix-usos-tcf](bases-radix-usos-tcf.md). Weld toca `core.py`+`view.py`, move o pin D17a. *(o codec hoje emite decimal; hex é o alvo)*
 - [ ] **decimal por comando externo** — base decimal opt-in só out-of-band; nesse modo o arquivo **não** é auto-descritivo (byte-mínimo sob contrato). *(T-OPT-INFERENCE)*
 - [ ] **rede de dedução da base** — sem flag: (1) letra `[a-f]` num size → HEX inequívoco; (2) quebra-na-expansão (split decimal não fecha o body) → HEX; (3) ambíguo all-digit → default HEX. *(T-OPT-INFERENCE; tcf8h-proximas-ideias §4)*
 - [ ] **um arquivo, uma base** — invariante: um blob nunca mistura dec/hex (habilita a dedução). *(T-OPT-INFERENCE)*

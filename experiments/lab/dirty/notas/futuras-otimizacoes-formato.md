@@ -494,6 +494,13 @@ header pesa **22-25%** e os byte-sizes ~6% → base-94 salvaria **~3% do blob**.
 **nicho transmissao-minuscula**. **Status**: registrado; baixa prioridade. Format change #TCF.8
 opt-in, default off. **Domina o O-FMT-19.**
 
+> **DECISAO 2026-07-09 — hex e' o default do header, base-94 e' o "byte-maximo" reservado**: o owner cravou
+> **hex-default** implicito nos byte-sizes do header ([T-FMT-HEADER-BASE-HEX](../../../../tickets/T-FMT-HEADER-BASE-HEX.md)).
+> Por que hex e nao base-94 aqui: o alfabeto base-94 (0x21-0x7E) **inclui os separadores do meta** (`, = :
+> { } [ ]`) → colidiria; precisaria de **base-87** (excluir os ~7 estruturais). Hex ([0-9a-f]) e' colisao-livre
+> e legivel. O base-94/87 fica como modo **byte-maximo-sob-contrato** (onde legibilidade nao importa) — este
+> O-FMT-18 continua valido como esse alternativo. Mapa completo: [bases-radix-usos-tcf](bases-radix-usos-tcf.md).
+
 > **Guia de transmissao (onde o TCF realmente importa)**: pesquisa de praticas de API + big techs em
 > [`transmissao-api-onde-tcf-importa.md`](transmissao-api-onde-tcf-importa.md) — honesto: o nicho do
 > TCF e' ~5-15% (batch/export tabular grande+repetitivo; lazy). **Teste decisivo pendente**:

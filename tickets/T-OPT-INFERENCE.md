@@ -65,6 +65,14 @@ se auto-explica **por convenção**, sem marcador. O **decimal** é opt-in só p
 
 **Decisão (a fechar)**: HEX-default; decimal só por comando externo; dedução como fallback. → gate de formato.
 
+> **DESMEMBRADO (2026-07-09)**: o Item 1 virou ticket **super-específico**
+> [T-FMT-HEADER-BASE-HEX](T-FMT-HEADER-BASE-HEX.md) (`decided-weld-gated`) — decisão do owner cravada:
+> **hex-default implícito armazenado**; decimal NÃO é formato alternativo, é só **comando** de apresentação
+> (inspeção/legibilidade/declarar-em-IO/debug). O survey de bases confirmou: hex é o ganho no HEADER e
+> **colide/quebra no corpo** (refs `^N`/seq-RLE usam digit-escape) → mapa em
+> [bases-radix-usos-tcf](../experiments/lab/dirty/notas/bases-radix-usos-tcf.md). O framework "specs
+> induzidas por round-trip" e as outras inferências deste ticket seguem aqui.
+
 > Hex-default = **convenção-default** no contrato de omissão ([T-FMT-OMIT-OR-DECLARE](T-FMT-OMIT-OR-DECLARE.md),
 > categoria 3): **auto-descritivo, sem param** — só o **desvio** (decimal) declara. Distinto de suprimir um
 > marcador sem convenção (ex.: o magic), que aí SIM exige declaração obrigatória. Avaliar junto, pré-1.0.

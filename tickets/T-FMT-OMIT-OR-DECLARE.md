@@ -47,6 +47,10 @@ O owner agrupou dois mecanismos que **diferem em segurança** — separá-los é
 
 > `hex sem declarar` do owner: hex-**default** (convenção) NÃO precisa declarar; declarar é pra o **desvio**
 > (decimal) ou pra supressão-sem-convenção. Não confundir os dois.
+>
+> **Instância concluída (2026-07-09)**: a **hex-base do header** (a exemplar da categoria convenção-default)
+> foi fechada em ticket próprio — [T-FMT-HEADER-BASE-HEX](T-FMT-HEADER-BASE-HEX.md) (`decided-weld-gated`):
+> hex implícito armazenado, decimal só comando (inspeção/IO/debug). Serve de **template** desta categoria.
 
 ## As 4 categorias (o mapa a fechar pré-1.0)
 

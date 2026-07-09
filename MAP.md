@@ -93,6 +93,7 @@ TCF/
 | **Registry de chars do header .8** (discriminador + marcadores por-coluna + reserva; fecha os fluxos, evita colisão tipo `#TCF.8H`) | `experiments/lab/dirty/notas/tcf8-header-char-registry.md` |
 | **Arquiteturas futuras** (Parquet/V2-L · gadget schema · gadget IA — "depois", âncoras) | `experiments/lab/dirty/notas/arquiteturas-futuras-parquet-schema-ia.md` |
 | **Primitivas com nomes diferentes = coisa parecida** (audit p/ consolidar: dict/índice, RLE, spec/nature/tipo, omitir/declarar…) | `experiments/lab/dirty/notas/primitivas-consolidacao-audit.md` |
+| **Bases/radix em cada parte do TCF** (mapa: header→hex, índices base-94, refs LOCKED decimal, bN bits; fechar aos poucos) | `experiments/lab/dirty/notas/bases-radix-usos-tcf.md` + ticket `tickets/T-FMT-HEADER-BASE-HEX.md` |
 | **bN × @dict (2 perspectivas) + dict interno clássico** (reativa vs preemptiva; true/false/null congelado; H-TYPE-07) | `experiments/lab/dirty/notas/bn-dict-perspectivas-e-dict-interno.md` |
 | **Bibliografia / literatura** (column-store Abadi/Parquet/Dremel, bitpacking, DSL — 24 refs) | `docs/reference/bibliografia.md` |
 | **Arquitetura share × header × lazy** (balanço compressão↔lazy; cross-dict FECHADO; header=índice) | `experiments/lab/dirty/notas/arquitetura-share-header-lazy.md` |
