@@ -1,0 +1,7 @@
+# F1 bypass — latência [resumo]
+
+## Speedup mediano: vs núcleo 2.4× · vs produção 2.9×
+- bypass = classify+map+pack (1-2 passadas), pula OBAT+HCC. É o NÚMERO do eixo aceleração.
+- NÃO é byte (bN colapsa pós-brotli, D3); é latência — nicho streaming (V2-J) + payload-minúsculo.
+- nomenclatura (owner): b1/b2/b4 = largura FÍSICA; b3 = b2+null (trio); b5/6/7 = especiais; B = interno.
+- RT-OK em todas as colunas low-card (k≤16); k>16 faz bail pro núcleo (bypass não se aplica).

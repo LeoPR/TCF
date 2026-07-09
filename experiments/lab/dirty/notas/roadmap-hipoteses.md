@@ -712,17 +712,22 @@ nova hipotese identificada.
   e' subsumido por V2-B+split (nicho payload-minusculo); dominio classico pequeno salva ~9B (menor ainda);
   + EnumSpec no-go + gate D3. **Justifica pelo eixo SPEC**: self-description (formato sabe que e' boolean →
   acesso tipado + canonicalizacao) + aceleracao + byte-minimo no nicho terminal. Feature de spec OPT-IN
-  CONGELADA (pre-1.0, como SPEC_REGISTRY), NAO ganho de compressao. Tambem: largura EXATA `ceil(log2 k)`
-  (b3/b5/b6/b7, packam mais que snap-a-potencia) recomendada (Opcao B) sobre a ideia de code-encodes-role
-  (Opcao A). `aberta/proposta`, weld/freeze gated (owner). Detalhe:
-  [`bn-dict-perspectivas-e-dict-interno.md`](bn-dict-perspectivas-e-dict-interno.md).
+  CONGELADA (pre-1.0, como SPEC_REGISTRY), NAO ganho de compressao. `aberta/proposta`, weld/freeze gated
+  (owner). Detalhe: [`bn-dict-perspectivas-e-dict-interno.md`](bn-dict-perspectivas-e-dict-interno.md).
   - **Refinada (owner 2026-07-08) — os 3 FLUXOS**: a motivacao da preemptiva = (1) dict PRE-CARREGADO
     (HCC termina, so' mapeia) + (2) rotear 3 fluxos por coluna: **F1 bypass** (aposta true/false, PULA o
     nucleo — play de LATENCIA, coberto pelo overlay de excecoes), **F2 pre-tx aceleradora** (tirar
     mascara/DV = natures ADR-0015, JA' WELDED — nada novo a construir), **F3 misto seletivo** (roda o
     nucleo, aplica bN so' em k<=16 / <=4 bits — gate mais estrito que o prototipo, casa com D3). Mapeiam
-    1:1 na taxonomia QUANDO. **Opcao B EM ESPERA**: medir F1 (latencia bypass vs nucleo, eixo aceleracao
-    — o eixo ainda SEM numero) antes de cravar formato.
+    1:1 na taxonomia QUANDO.
+  - **NOMENCLATURA RESOLVIDA (owner 2026-07-08)**: `b1/b2/b4`=LARGURA FISICA (1/2/4 bits, unicas que
+    tile-de-byte); `b3`=trio "b2+null" (2 bits, codigo reusado); `b5/b6/b7`=tipos especiais reservados;
+    **`B` maiusculo**=bool com dict interno congelado (nao declara referencia). **Opcao B (largura exata
+    b3/b5/b6/b7) MORTA** — 3/5/6/7 bits nao tile-de-byte; o code vira rotulo semantico (Opcao A refinada).
+  - **F1 MEDIDO** ([lab 2026-07-08-2302](../2026-07-08-2302-f1-bypass-latencia/result.md)): bypass
+    **2.4× mais rapido que o nucleo** (2.9× vs producao), mediana de 9 colunas low-card reais, RT-OK.
+    Modesto mas real (o nucleo ja' dedup low-card rapido); e' LATENCIA nao byte (nicho streaming V2-J).
+    Interno `B` (bool3 trio, dominio 0B congelado) RT-OK. O eixo **aceleracao** agora tem numero.
   - **Analise critica 2 (owner 2026-07-08, serializacao byte-aligned)**: so' vale binarizar com **w<=4 e
     stream byte-aligned** (w∈{1,2,4} divide 8: nenhum valor atravessa byte; padding do rabo <=7 bits =
     <=1B/coluna, decoder para em N). Isso **REFUTA a Opcao B** (larguras exatas 3/5/6/7 nao tile-iam; ganho

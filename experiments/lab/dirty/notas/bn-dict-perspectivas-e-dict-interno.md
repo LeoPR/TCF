@@ -139,23 +139,30 @@ Registry interno mínimo de enums clássicos (cada um = mapa fixo + largura de �
 
 ## Partição do code-space bN (registro original)
 
-O owner propôs usar o **próprio código** pra distinguir os papéis: `b2/b4/b8` (potências de 2, tile-de-byte)
-pra a **representação de índice reativa**; `b3/b5/b7` (os "números que faltam") pra **índices internos**
-(preemptivos). Duas leituras a avaliar (não fechado):
-- **Opção A (code encodes role)**: o char/código do marcador codifica largura **E** papel (reativo vs
-  interno) — economiza um marcador, mas gasta code-space e mistura dois eixos.
-- **Opção B (marcador + largura exata)**: um marcador separado diz reativo-vs-interno; a largura é sempre
-  `ceil(log2(k))` (inclui b3/b5/b6/b7 como larguras exatas, que packam mais que snap-a-potência). Mais
-  limpo, ortogonal. **Recomendo B** (largura exata é ganho real; o papel é um bit à parte) — mas registrar
-  a A como alternativa. Interage com o [registry de chars do header](tcf8-header-char-registry.md).
+### RESOLUÇÃO (owner 2026-07-08) — Opção A refinada; Opção B morta
+
+O owner fechou a nomenclatura, e ela **mata a Opção B** (largura exata): como só `w∈{1,2,4}` tile-de-byte
+(3/5/6/7 bits atravessam fronteira de byte — verificado), NÃO faz sentido `b3/b5/b6/b7` serem larguras
+físicas. Então o **código é reusado como rótulo semântico** (Opção A refinada):
+- **b1/b2/b4** (minúsculo) = LARGURA FÍSICA real (1/2/4 bits, tile-de-byte). Reativo, domínio na coluna.
+- **b3** = código reusado p/ "b2 + null" (trio: false/true/null, 2 bits, 4º slot livre). Não é 3-bit.
+- **b5/b6/b7** = códigos reusados p/ **tipos especiais** (reservados, a definir).
+- **B** (MAIÚSCULO) = bool com dict INTERNO congelado — **não declara a referência** no arquivo, usa a
+  interna sempre (economiza a tabela de domínio + self-describing).
+
+Isto corrige o "Recomendo B" anterior: a largura exata não sobrevive à restrição byte-tiling; o que fica é
+código-como-papel com só 3 larguras físicas. Interage com o [registry de chars](tcf8-header-char-registry.md).
+Medido em [F1 latência](../2026-07-08-2302-f1-bypass-latencia/result.md) (bypass 2.4×; interno B RT-OK).
 
 ## Fechamento (o "fechar algo já")
 
 - **Modelo bN**: duas perspectivas — reativa (`@dict`-index bit-packed, domínio na coluna, via `min()`) e
   preemptiva (dict interno clássico, domínio no formato). **bN ⊂ @dict** na representação.
 - **Dict interno clássico**: proposto como **feature de spec opt-in congelada** (não ganho de byte), com o
-  vocabulário inicial acima. Weld/freeze = owner, pré-1.0. Registrado **H-TYPE-07**.
-- **Largura exata** (b3/b5/b6/b7): recomendada (Opção B) sobre snap-a-potência.
+  vocabulário inicial acima. Weld/freeze = owner, pré-1.0. Registrado **H-TYPE-07**. Medido: F1 latência
+  2.4× + interno B RT-OK ([lab](../2026-07-08-2302-f1-bypass-latencia/result.md)).
+- **Nomenclatura RESOLVIDA** (owner): b1/b2/b4=largura física; b3=trio (b2+null); b5/6/7=especiais;
+  B=interno. Opção B (largura exata) MORTA — só 1/2/4 tile-de-byte.
 
 ## Cross-links
 - Primitiva unificada: [`dict-referencia-hipoteses.md`](dict-referencia-hipoteses.md) §primitiva.

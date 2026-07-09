@@ -37,6 +37,12 @@ Cada coluna = `<prefixo?><size>[=nome][:id]`. **Prefixo** = modo de representaç
 | `#` | prefixo | **bN (bit-packing enum)** — proposto | 🔭 research-track (gated H-TYPE-02/03) | tipos-meta-grupo-fluxo §5 |
 | *(livres)* | prefixo | modo futuro por-coluna | reservável | — |
 
+**Sub-namespace do bN** (nomenclatura owner 2026-07-08 — código reusado como rótulo, não largura):
+`b1/b2/b4` = LARGURA FÍSICA (1/2/4 bits, únicas que tile-de-byte) · `b3` = trio "b2+null" (2 bits) ·
+`b5/b6/b7` = tipos especiais reservados · **`B` maiúsculo** = bool com dict INTERNO congelado (não declara
+referência). Opção "largura exata" descartada (3/5/6/7 bits não tile-de-byte). Ver
+[bn-dict-perspectivas §resolução](bn-dict-perspectivas-e-dict-interno.md) + [F1 lab](../2026-07-08-2302-f1-bypass-latencia/result.md).
+
 **Composição** (verificada no código): prefixo + sufixo compõem — `@7=doc:cnpj` (dict + nature),
 `!7:cpf` (raw + nature, anônima). Colunas **anônimas** (`drop_names`) omitem `=nome`. `#` como prefixo é
 seguro no `.8` (o meta NÃO carrega o prefixo `# ` do #TCF.6 legado — dispensado desde #TCF.7).

@@ -1,0 +1,7 @@
+# INTERNO (B) — dict CONGELADO (não declara referência), bool3 = trio (2 bits)
+
+  N=16000  spec=bool3 (false/true/null)  w=2 bits  #exceções=0
+  RT=OK  · bytes-índices=4000 (=ceil(N×2/8)); domínio=0B (congelado)
+
+LEITURA: B (interno) NÃO guarda o domínio (vem do formato) — 'usa a interna sempre' (owner).
+Economiza a tabela de domínio + torna a coluna self-describing (o formato sabe que é trio bool).
