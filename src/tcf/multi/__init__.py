@@ -12,11 +12,8 @@ Este `__init__` re-exporta os internos pra `from tcf.multi import X` seguir
 funcionando byte-identico (decoder/encoder/view/tests).
 """
 from tcf.multi.core import (
-    MAGIC_MULTI,
-    MAGIC_MULTI_V2,
     MAGIC_MULTI_V3,
     MAGIC_SINGLE_V3,
-    META_PREFIX,
     _decode_multi,
     _decode_multi_impl,
     _encode_multi,
@@ -48,7 +45,7 @@ from tcf.pipeline import DEFAULT_PIPELINE, PipelineConfig
 __all__ = [
     "DEFAULT_PIPELINE", "PipelineConfig",
     # core
-    "MAGIC_MULTI", "MAGIC_MULTI_V2", "MAGIC_MULTI_V3", "MAGIC_SINGLE_V3", "META_PREFIX",
+    "MAGIC_MULTI_V3", "MAGIC_SINGLE_V3",
     "_encode_multi", "_decode_multi", "_decode_multi_impl", "_to_str", "_fallback_safe",
     # dict_v2b (V2-B, ADR-0025)
     "_V2B_ALPHA", "_V2B_BASE", "_V2B_MAX_CARD",

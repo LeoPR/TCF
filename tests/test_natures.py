@@ -132,7 +132,7 @@ class TestEncodeIntegration:
                 for h, v in zip(header, row):
                     cols[h].append(v)
         text = encode(cols)
-        assert len(text.encode("utf-8")) == 302  # D17a 0.7 (V2-B: era 307; ADR-0024/0025)
+        assert len(text.encode("utf-8")) == 300  # D17a 0.7 (V2-B: era 307; ADR-0024/0025)
 
     def test_single_col_with_nature(self):
         cpfs = ["529.982.247-25", "111.444.777-35"]
@@ -216,13 +216,14 @@ class TestNatureMarkHeader:
         assert not line0.startswith("#TCF.8 ")  # nao colide com single+spec
         assert ":cnpj" in line0               # meta INLINE na linha do shebang
 
-    def test_byte_neutral_default_off(self):
-        """INVARIANTE byte-neutro: sem nature -> #TCF.7, bytes intactos."""
+    def test_default_no_nature_id(self):
+        """Sem nature -> #TCF.8M sem sufixo :id (ADR-0032 default; determinístico)."""
         table = {"a": ["529.982.247-25", "111.444.777-35"], "b": ["x", "y"]}
         text = encode(table)                  # SEM nature
-        assert text.split("\n")[0] == "#TCF.7 M"
+        line0 = text.split("\n", 1)[0]
+        assert line0.startswith("#TCF.8M")
         assert text == encode(table)          # determinístico
-        assert ":" not in text.split("\n")[1]  # nenhum :id
+        assert ":" not in line0[len("#TCF.8M"):]  # nenhum :id no meta inline
 
     def test_no_double_apply_with_nature_in_decode(self):
         """Precedência: encode+decode ambos com nature_per_col -> RT (header vence)."""
@@ -249,14 +250,15 @@ class TestNatureMarkHeader:
 
     def test_colon_in_colname_rejected_with_nature(self):
         table = {"ns:col": ["529.982.247-25"], "x": ["a"]}
-        with pytest.raises(ValueError, match="':'"):
+        with pytest.raises(ValueError, match="separador"):
             encode(table, nature_per_col={"ns:col": SPEC_CPF})
 
-    def test_colon_in_colname_allowed_without_nature(self):
-        """Superfície de input preservada: ':' no nome OK sem nature (#TCF.7)."""
+    def test_colon_in_colname_rejected_without_nature(self):
+        """ADR-0032: com #TCF.8M default o decode faz rsplit(':') sempre, entao ':' no
+        nome e' REJEITADO (fail-loud) ate' o escaping (T-FMT-NAME-ESCAPING) re-permitir."""
         table = {"created:at": ["2026-01-01", "2026-01-02"], "x": ["a", "b"]}
-        text = encode(table)                  # sem nature -> #TCF.7, ':' não parseado
-        assert decode(text) == table
+        with pytest.raises(ValueError, match="separador"):
+            encode(table)
 
     def test_resolve_nature_id(self):
         assert _resolve_nature_id("cpf") is SPEC_CPF

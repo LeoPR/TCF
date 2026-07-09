@@ -64,7 +64,7 @@ class TestParallelByteIdentical:
     def test_d17a_total_bytes_invariant_in_parallel(self):
         table = _ler_csv_multi("D17a-multi-column-mixed")
         text = encode(table, parallel=True)
-        assert len(text.encode("utf-8")) == 302  # D17a 0.7 (V2-B: era 307; ADR-0024/0025)
+        assert len(text.encode("utf-8")) == 300  # D17a 0.7 (V2-B: era 307; ADR-0024/0025)
 
 
 class TestParallelRoundTrip:

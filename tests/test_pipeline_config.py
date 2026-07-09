@@ -52,7 +52,7 @@ class TestPipelineConfigDefault:
         """D17a com default config = 0.7 default 302B (V2-B: era 307; ADR-0024/0025)."""
         cols = _load_d17a()
         text = encode(cols)  # implicit default
-        assert len(text.encode("utf-8")) == 302
+        assert len(text.encode("utf-8")) == 300
 
     def test_d17a_explicit_default_byte_identical(self):
         """encode(data) == encode(data, layers=PipelineConfig())."""

@@ -7,7 +7,7 @@ src/tcf/ que mude um byte aqui = regressao. Bytes documentados em:
 
 Estrategia (Beizer 1995 — characteristic outputs):
 - D1-D9: 9 datasets sinteticos single-col (M10 baseline = 1523B total)
-- D17a: 1 dataset sintetico multi-col (302B INVARIANT, #TCF.7 hex; #TCF.6 legado=322B)
+- D17a: 1 dataset sintetico multi-col (300B INVARIANT, #TCF.8M hex — ADR-0032 default)
 
 Regressao byte-canonical REAL-WORLD (colunas free-text, regime
 n_tam_est>=3) vive em test_real_world_snapshots.py — fixtures committadas
@@ -89,11 +89,10 @@ D1_D9_BYTES_FROZEN = {
 
 D1_D9_TOTAL = 1523  # sum acima
 
-D17A_INVARIANT = 302  # 0.7 default (V2-B): era 307 sem V2-B, 303 com V2-B decimal;
-                      # 302 com byte-size HEX no header (T-FMT-HEADER-BASE-HEX,
-                      # weld 2026-07-09) — re-pinavel, ADR-0024/0025.
-D17A_LEGACY_V6 = 322   # #TCF.6 legado (decimal, byte-size decimal): INALTERADO — o
-                       # hex e' so' nos vivos #TCF.7/#TCF.8.
+D17A_INVARIANT = 300  # #TCF.8M default (ADR-0032): era 307 (sem V2-B) -> 303 (V2-B
+                      # decimal) -> 302 (V2-B hex #TCF.7) -> 300 (#TCF.8M hex inline,
+                      # header -2B vs #TCF.7). Re-pinavel (ADR-0024/0025). Legado
+                      # #TCF.6/.7 CORTADO (git-as-compat).
 
 
 def _load_single_col(name: str) -> list[str]:
@@ -146,16 +145,16 @@ class TestD1D9ByteCanonical:
 
 
 class TestD17AInvariant:
-    """D17a multi-col baseline: 0.7 default = 302B (V2-B na coluna `categoria`;
-    era 307 sem V2-B, 322 em #TCF.6). Baseline = guarda de regressao re-pinavel
-    em mudanca INTENCIONAL (ADR-0024/0025), nao contrato eterno."""
+    """D17a multi-col baseline: #TCF.8M default = 300B (V2-B na coluna `categoria`,
+    hex, ADR-0032). Baseline = guarda de regressao re-pinavel em mudanca INTENCIONAL
+    (ADR-0024/0025), nao contrato eterno."""
 
     def test_d17a_exact_baseline(self):
         cols = _load_multi_col("D17a-multi-column-mixed")
         text = encode(cols)
         actual = len(text.encode("utf-8"))
         assert actual == D17A_INVARIANT, (
-            f"D17a baseline (302B, 0.7) mudou: obteve {actual}B. Re-pina so' se a "
+            f"D17a baseline (300B, #TCF.8M) mudou: obteve {actual}B. Re-pina so' se a "
             f"mudanca de formato for INTENCIONAL (ADR-0024/0025)."
         )
 

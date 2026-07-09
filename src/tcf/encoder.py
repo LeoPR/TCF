@@ -15,7 +15,7 @@ API publica unificada (ADR-0014):
     from tcf import encode, SideOutputs
 
     text = encode(["a", "b", "c"])              # single -> body puro
-    text = encode({"id": [...], "name": [...]}) # multi -> #TCF.7 M + bodies (#TCF.6 legado)
+    text = encode({"id": [...], "name": [...]}) # multi -> #TCF.8M + bodies (ADR-0032)
 
     # Captura opcional de side outputs (debug, stats, schema)
     side = SideOutputs()
@@ -114,17 +114,16 @@ def encode(
 ) -> str:
     """Encode lista de strings OU dict de colunas em texto TCF.
 
-    Multi-col sai no formato **0.7 / `#TCF.7`** por default (ADR-0024): por
-    coluna escolhe min(TCF, raw) e usa o header minimo (sem prefixo, ultima
-    coluna sem size). Single-col nao tem header — inalterado. Pra forcar o
-    formato legado `#TCF.6` (comparacao/inspecao), passe
-    `fallback=False, min_header=False`.
+    Multi-col sai no formato **`#TCF.8M`** por default (ADR-0032): por coluna
+    escolhe min(TCF, raw, dict, split) e usa o header minimo (meta inline, ultima
+    coluna sem size, sizes em HEX). Single-col nao tem header — inalterado (orfao,
+    ADR-0029/0030). Legado #TCF.6/#TCF.7 cortado (git-as-compat pra comparacao).
 
     Args:
         data:
             - `list[str]`: single-column. Output = body puro (sem shebang).
-            - `dict[str, list[str]]`: multi-column. Output = `#TCF.7 M\\n`
-              + meta line + bodies concatenados byte-precise.
+            - `dict[str, list[str]]`: multi-column. Output = `#TCF.8M<meta>\\n`
+              + bodies concatenados byte-precise.
         side_outputs: opcional. Se fornecido, captura logs/info interna
             (column_features, cadence_info, OBAT log, HCC trace/rede,
             seq_rle_runs, multi_info, per_col). Sem ele: descartado

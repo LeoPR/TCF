@@ -52,13 +52,11 @@ if TYPE_CHECKING:
     from tcf.natures.templated_checked import TemplatedCheckedSpec
 
 
-# #TCF.7 = formato VIVO (default). #TCF.8 = self-describing (ADR-0027/0029): o char
-# logo apos '#TCF.8' discrimina — 'M'=multi (#TCF.8M, meta inline), ' '=single+spec
-# (#TCF.8 [nome]:spec), '\n'=single version-stamp (#TCF.8, magic-number p/ file).
-# #TCF.6 = LEGADO de leitura (ADR-0024 git-as-compat).
-_MULTI_MAGIC = "#TCF.7 M"             # multi vivo (meta na linha 2, com espaco)
+# #TCF.8 = formato VIVO/DEFAULT (ADR-0032). O char logo apos '#TCF.8' discrimina:
+# 'M'=multi (#TCF.8M, meta inline), ' '=single+spec (#TCF.8 [nome]:spec),
+# ''=single version-stamp (#TCF.8, magic-number p/ file), 'H'=hierarquico RESERVADO
+# (ADR-0031, codec no lab -> fail-loud). Legado #TCF.6/#TCF.7 CORTADO (git-as-compat).
 _V8_MAGIC = "#TCF.8"                  # base do #TCF.8; o disc (char no indice 6) decide
-_MULTI_MAGIC_LEGACY_V6 = "#TCF.6 M"   # LEGADO — leitura ate' o 1.0
 
 
 def decode(
@@ -87,13 +85,26 @@ def decode(
         ValueError: multi-col malformado (sem magic, sem meta line).
     """
     line1 = tcf_text.split("\n", 1)[0]
+    # Legado #TCF.6/#TCF.7 CORTADO (ADR-0032, 2026-07-09): nao decodavel no 0.8.
+    # git-as-compat (ADR-0024) — recupere a era pra ler/comparar.
+    if line1.startswith("#TCF.6") or line1.startswith("#TCF.7"):
+        raise ValueError(
+            f"formato legado {line1[:8]!r} nao suportado no 0.8 (ADR-0032: #TCF.6/.7 "
+            f"cortados). git checkout <commit pre-0.8> pra ler, ou re-encode com o 0.8."
+        )
     # Discriminador #TCF.8 (ADR-0029): char logo apos '#TCF.8'. 'M'=multi (#TCF.8M),
-    # ' '=single+spec (#TCF.8 ...), ''=version-stamp (line1 == '#TCF.8'). Sem colisao
-    # entre multi e um nome comecando com 'M' (o single tem ESPACO antes do nome).
+    # ' '=single+spec (#TCF.8 ...), ''=version-stamp (line1 == '#TCF.8').
     disc8 = line1[6:7] if line1.startswith(_V8_MAGIC) else None
+    # FAIL-LOUD (ADR-0032 §6): discriminador reservado/desconhecido apos '#TCF.8' NAO
+    # pode degradar pra decode orfao silencioso (corrompe). 'H' = hierarquico reservado
+    # (ADR-0031), codec ainda no lab.
+    if disc8 is not None and disc8 not in ("M", " ", ""):
+        detalhe = ("'H' = multi-col hierarquico RESERVADO (ADR-0031); codec no lab, "
+                   "nao implementado" if disc8 == "H" else f"discriminador {disc8!r} desconhecido")
+        raise ValueError(f"#TCF.8: {detalhe} — nao decodavel.")
 
-    # MULTI: #TCF.7 M / #TCF.6 M (legado, com espaco) OU #TCF.8M (disc 'M', inline).
-    if line1 in (_MULTI_MAGIC, _MULTI_MAGIC_LEGACY_V6) or disc8 == "M":
+    # MULTI: #TCF.8M (disc 'M', meta inline).
+    if disc8 == "M":
         from tcf.multi import _decode_multi_impl
         result, header_ids = _decode_multi_impl(tcf_text)
         # Natures auto-descritas no header (#TCF.8): resolve+aplica. PRECEDENCIA:

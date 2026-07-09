@@ -26,7 +26,7 @@ from collections import Counter
 from collections.abc import Callable
 
 from tcf.multi import (
-    MAGIC_MULTI, MAGIC_MULTI_V2, MAGIC_MULTI_V3, META_PREFIX,
+    MAGIC_MULTI_V3,
     _decode_v2b, _decode_struct_split, _v2b_width, _V2B_BASE,
 )
 from tcf.decoder import _decode_column
@@ -60,34 +60,19 @@ class LazyTCF:
         if nl1 == -1:
             raise ValueError("blob inválido: sem shebang")
         line1 = raw[:nl1]
-        # #TCF.7/#TCF.8 = vivos; MAGIC_MULTI (#TCF.6) = LEGADO de leitura, remover
-        # no 1.0. #TCF.8M (ADR-0029): meta INLINE na linha do shebang.
-        is_v7 = line1.startswith(MAGIC_MULTI_V2)
-        is_v8 = line1.startswith(MAGIC_MULTI_V3)
-        if not (line1.startswith(MAGIC_MULTI) or is_v7 or is_v8):
+        # #TCF.8M = UNICO multi-col vivo (ADR-0032). Legado #TCF.6/#TCF.7 cortado —
+        # fail-loud. Meta INLINE na linha do shebang.
+        if not line1.startswith(MAGIC_MULTI_V3):
             raise ValueError(
-                "não é TCF multi-coluna (esperado #TCF.8M / #TCF.7 M / #TCF.6 M)")
-        if is_v8:
-            meta = line1[len(MAGIC_MULTI_V3):].decode("utf-8")   # inline
-            cursor = nl1 + 1
-        else:
-            nl2 = raw.find(b"\n", nl1 + 1)
-            if nl2 == -1:
-                raise ValueError("blob inválido: sem linha de meta")
-            line2 = raw[nl1 + 1:nl2]
-            if line2.startswith(META_PREFIX):
-                meta = line2[len(META_PREFIX):].decode("utf-8")
-            elif is_v7:
-                meta = (line2[1:] if line2.startswith(b"#") else line2).decode("utf-8")
-            else:
-                raise ValueError("meta inválido (#TCF.6 exige '# ')")
-            cursor = nl2 + 1
+                f"não é #TCF.8M multi-col (legado #TCF.6/#TCF.7 cortado, ADR-0032; "
+                f"git checkout <pre-0.8> pra ler): {line1[:16]!r}")
+        is_v8 = True
+        meta = line1[len(MAGIC_MULTI_V3):].decode("utf-8")   # inline
+        cursor = nl1 + 1
 
         tokens = meta.split(",")
         n_cols = len(tokens)
-        # Base do byte-size: HEX nos vivos (#TCF.7/#TCF.8), DECIMAL no #TCF.6
-        # legado (lockstep com multi/core; T-FMT-HEADER-BASE-HEX). Removivel no 1.0.
-        _szbase = 16 if (is_v7 or is_v8) else 10
+        _szbase = 16   # HEX sempre no .8 (T-FMT-HEADER-BASE-HEX + ADR-0032 §3)
         for i, part in enumerate(tokens):
             mode = "tcf"
             if part[:1] in "!@%":

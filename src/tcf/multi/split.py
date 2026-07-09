@@ -4,8 +4,8 @@ Valor estruturado (decimal, data, datetime, CPF/CNPJ) = grupos de DIGITOS
 separados por NAO-digitos. Se TODOS os valores tem o MESMO template (mesmos
 separadores, mesma contagem de campos), os grupos de digito viram colunas-campo
 e o template e' guardado 1x. Cada campo tende a low-card -> esmagado pelo V2-B
-(sinergia, o motor do ganho). Marcador `%<size>=<name>` no header #TCF.7.
-Slot = <ntmpl>\\n + template_blob + field_subtable(#TCF.7 M).
+(sinergia, o motor do ganho). Marcador `%<size>=<name>` no header #TCF.8M.
+Slot = <ntmpl>\\n + template_blob + field_subtable(#TCF.8M — recursa em _encode_multi).
   template_blob = (<bytelen>:<bytes>) por parte nao-digito (nf+1 partes).
 
 Concern isolado de `multi.core` (P1 modularizacao, 2026-06-24). Byte-identico.

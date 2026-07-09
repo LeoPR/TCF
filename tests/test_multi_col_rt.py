@@ -3,16 +3,16 @@
 Tests SEM dependencias externas — rodam em CI sem precisar de
 Z:/tcf-data SQLite. Validam:
 - encode(dict) / decode(text) round-trip (API unificada, ADR-0014)
-- D17a baseline 302 bytes (0.7 / #TCF.7; legado #TCF.6=322B em tests/legacy/)
+- D17a baseline 300 bytes (#TCF.8M default, ADR-0032)
 - Edge cases: tabela vazia, lengths diferentes, nomes invalidos
-- Self-describing format (decoder dispatcha pelo shebang)
+- Self-describing format (decoder dispatcha pelo shebang #TCF.8M)
 
 Conexao:
+- ADR-0032 (#TCF.8M vira default; legado #TCF.6/.7 cortado)
 - ADR-0014 (API unificada encode(list|dict) + side_outputs)
 - ADR-0013 (multi-column canonical API welded)
 - ADR-0011 (Pacote 1 canonical M10 single-col, base do multi)
-- ADR-0004 (header format)
-- T-EXP-MULTI-COL-SCALING (validacao real-world 9 tabelas)
+- ADR-0004/0029 (header format / discriminador)
 """
 
 from __future__ import annotations
@@ -25,11 +25,20 @@ import pytest
 from tcf import encode, decode
 from tcf.side_outputs import SideOutputs
 
-# Gate principal = so' #TCF.7 (0.7 default). A comparacao com o legado #TCF.6/322B
-# vive em tests/legacy/test_legacy_v6_comparison.py (T-CODE-LEGACY-PRUNE-PRE-07 S2).
+# #TCF.8M e' o UNICO multi-col vivo (ADR-0032). Legado #TCF.6/.7 cortado de src/tcf
+# (git-as-compat pra comparacao historica). Meta INLINE apos o magic '#TCF.8M'.
 
 ROOT = Path(__file__).resolve().parent.parent
 DATASETS_DIR = ROOT / "datasets" / "synthetic"
+
+_MAGIC = "#TCF.8M"
+
+
+def _meta8(text: str) -> str:
+    """Meta INLINE do #TCF.8M: apos o magic (7 chars), ate' a 1a '\\n'."""
+    line0 = text.split("\n", 1)[0]
+    assert line0.startswith(_MAGIC), f"esperado {_MAGIC!r}: {line0[:12]!r}"
+    return line0[len(_MAGIC):]
 
 
 def _ler_csv_multi(name: str) -> dict[str, list[str]]:
@@ -86,13 +95,13 @@ class TestRoundTripBasic:
 class TestUnifiedDispatch:
     def test_encode_list_returns_body_no_shebang(self):
         text = encode(["abc", "abcd", "abcde"])
-        assert not text.startswith("#TCF.6 M")
+        assert not text.startswith(_MAGIC)
         assert decode(text) == ["abc", "abcd", "abcde"]
 
     def test_encode_dict_returns_multi_with_shebang(self):
-        # 0.7 e' o default agora (ADR-0024)
+        # #TCF.8M e' o default agora (ADR-0032; meta INLINE apos o magic)
         text = encode({"x": ["1", "2"]})
-        assert text.startswith("#TCF.7 M\n")
+        assert text.startswith(_MAGIC)
 
     def test_decode_routes_by_shebang_to_dict(self):
         text = encode({"x": ["a", "b"]})
@@ -120,17 +129,16 @@ class TestUnifiedDispatch:
 # ---------------------------------------------------------------------------
 
 class TestD17aBaseline:
-    """D17a baseline. 0.7 e' o default (ADR-0024): D17a = 302B (#TCF.7, V2-B na
-    coluna `categoria`). O legado #TCF.6 (322B) vive em tests/legacy/ (comparacao).
-    Baselines = guardas de regressao re-pinaveis em mudanca intencional
-    (ADR-0024/0025), nao contrato eterno.
+    """D17a baseline. #TCF.8M default (ADR-0032): D17a = 300B (V2-B na coluna
+    `categoria`, hex). Baselines = guardas de regressao re-pinaveis em mudanca
+    intencional (ADR-0024/0025), nao contrato eterno.
     """
 
     def test_d17a_total_bytes_baseline(self):
         table = _ler_csv_multi("D17a-multi-column-mixed")
         n_bytes = len(encode(table).encode("utf-8"))
-        assert n_bytes == 302, (
-            f"D17a baseline 0.7 (302B) mudou: got {n_bytes}. Re-pina so' se a "
+        assert n_bytes == 300, (
+            f"D17a baseline (#TCF.8M, 300B) mudou: got {n_bytes}. Re-pina so' se a "
             f"mudanca de formato for INTENCIONAL (ADR-0024/0025)."
         )
 
@@ -141,24 +149,25 @@ class TestD17aBaseline:
     def test_d17a_header_format(self):
         table = _ler_csv_multi("D17a-multi-column-mixed")
         text = encode(table)
-        lines = text.split("\n", 2)
-        assert lines[0] == "#TCF.7 M", f"shebang invalido: {lines[0]!r}"
-        # 0.7: meta sem prefixo; ultima coluna bare (sem '=')
-        assert not lines[1].startswith("# ")
-        pairs = lines[1].split(",")
+        line0 = text.split("\n", 1)[0]
+        assert line0.startswith(_MAGIC), f"shebang invalido: {line0[:12]!r}"
+        # #TCF.8M: meta INLINE (sem prefixo '# '); ultima coluna bare (sem '=')
+        meta = line0[len(_MAGIC):]
+        assert not meta.startswith("# ")
+        pairs = meta.split(",")
         assert len(pairs) == 4
         assert all("=" in p for p in pairs[:-1])
         assert "=" not in pairs[-1]
 
 
 # ---------------------------------------------------------------------------
-# Default 0.7 / #TCF.7 (ADR-0024): fallback (ADR-0022) + header minimo (ADR-0023)
+# Default #TCF.8M (ADR-0032): fallback (ADR-0022) + header minimo (ADR-0023)
 # ---------------------------------------------------------------------------
 
-class TestDefault07:
-    """0.7 e' o default do encode multi-col (ADR-0024): #TCF.7 com fallback
-    (min(TCF,raw) por coluna, marcador `!`) + header minimo (meta sem prefixo,
-    ultima coluna sem size). Single-col nao tem header -> inalterado."""
+class TestDefault08:
+    """#TCF.8M e' o default do encode multi-col (ADR-0032): fallback (min(TCF,raw,
+    dict,split) por coluna) + header minimo (meta inline, ultima coluna sem size).
+    Single-col nao tem header -> inalterado (orfao, 0029/0030)."""
 
     def _table(self):
         return {
@@ -168,31 +177,31 @@ class TestDefault07:
             "nome": [f"item_{i:04d}_descricao_longa_unica" for i in range(300)],  # -> tcf
         }
 
-    def test_default_is_v7(self):
-        assert encode(self._table()).startswith("#TCF.7 M")
+    def test_default_is_v8(self):
+        assert encode(self._table()).startswith(_MAGIC)
 
     def test_default_round_trip(self):
         t = self._table()
         assert decode(encode(t)) == t
 
     def test_default_meta_no_prefix(self):
-        # header minimo: meta sem prefixo '#' (o flag M ja' declara colunas)
-        meta = encode(self._table()).split("\n", 2)[1]
-        assert not meta.startswith("#")
+        # header minimo: meta INLINE, sem prefixo '# '
+        meta = _meta8(encode(self._table()))
+        assert not meta.startswith("# ")
 
     def test_default_last_col_bare(self):
         # ultima coluna sem size (corpo ate' EOF)
-        pairs = encode(self._table()).split("\n", 2)[1].split(",")
+        pairs = _meta8(encode(self._table())).split(",")
         assert "=" not in pairs[-1]
 
     def test_default_fallback_marker(self):
         # coluna all-unique incompressivel (code) cai pra raw -> algum par com '!'
-        meta = encode(self._table()).split("\n", 2)[1]
+        meta = _meta8(encode(self._table()))
         assert any(p.startswith("!") for p in meta.split(","))
 
     def test_default_dict_marker(self):
         # coluna baixa-card (hour) vira dicionario V2-B -> algum par com '@'
-        meta = encode(self._table()).split("\n", 2)[1]
+        meta = _meta8(encode(self._table()))
         assert any(p.startswith("@") for p in meta.split(","))
 
     def test_self_describing_decode(self):
@@ -221,11 +230,9 @@ class TestDefault07:
 # ---------------------------------------------------------------------------
 
 class TestExplicitControls:
-    """fallback/min_header re-expostos como knobs OPT-OUT (default True = 0.7).
-    `encode(table)` segue zero-param 0.7; passar False modifica o comportamento.
-    Semantica: QUALQUER feature v2 (#TCF.7) ja' dispensa o prefixo do meta;
-    `min_header` controla so' a omissao do size da ultima coluna; `fallback`
-    controla so' os `!` (colunas raw)."""
+    """fallback/min_header re-expostos como knobs OPT-OUT (default True). Todo
+    multi-col sai #TCF.8M (ADR-0032); `min_header` controla so' a omissao do size
+    da ultima coluna; `fallback` controla os `!`/`@`/`%` (raw/dict/split)."""
 
     def _table(self):
         return {
@@ -235,30 +242,28 @@ class TestExplicitControls:
             "nome": [f"item_{i:03d}_descricao_unica" for i in range(120)],  # -> tcf
         }
 
-    def test_default_zero_param_is_v7(self):
-        assert encode(self._table()).startswith("#TCF.7 M")
+    def test_default_zero_param_is_v8(self):
+        assert encode(self._table()).startswith(_MAGIC)
 
     def test_fallback_off_keeps_min_header(self):
-        # todas TCF (sem '!' nem '@') mas header minimo (sem prefixo, ultima
-        # bare) -> #TCF.7. fallback=False desliga raw E dict (V2-B).
+        # todas TCF (sem '!' nem '@') mas header minimo (ultima bare).
+        # fallback=False desliga raw E dict (V2-B). Ainda #TCF.8M (ADR-0032).
         t = self._table()
         text = encode(t, fallback=False, min_header=True)
-        assert text.startswith("#TCF.7 M")
-        meta = text.split("\n", 2)[1]
-        assert not meta.startswith("# ")
+        assert text.startswith(_MAGIC)
+        meta = _meta8(text)
         assert "!" not in meta
         assert "@" not in meta                     # dict tambem off (fallback=False)
         assert "=" not in meta.split(",")[-1]      # ultima sem size (min_header)
         assert decode(text) == t
 
     def test_min_header_off_keeps_fallback(self):
-        # fallback ('!'/'@') mas sem header minimo: #TCF.7 ja' dispensa prefixo,
-        # porem a ultima coluna MANTEM size (todos os pares tem '=')
+        # fallback ('!'/'@') mas sem header minimo: a ultima coluna MANTEM size
+        # (todos os pares tem '='). Ainda #TCF.8M.
         t = self._table()
         text = encode(t, fallback=True, min_header=False)
-        assert text.startswith("#TCF.7 M")
-        meta = text.split("\n", 2)[1]
-        assert not meta.startswith("# ")
+        assert text.startswith(_MAGIC)
+        meta = _meta8(text)
         assert "!" in meta
         assert all("=" in p.lstrip("!@") for p in meta.split(","))
         assert decode(text) == t
@@ -339,7 +344,7 @@ class TestSortBy:
 class TestV2BDict:
     """Coluna low-card vira [tabela de unicos] + [stream de indices], marcador
     '@'. Entra como 3o candidato do fallback (min tcf,raw,v2b) -> zero-regressao
-    por construcao. Gated por `fallback` (off junto com raw em #TCF.6 legado)."""
+    por construcao. Gated por `fallback` (off junto com raw)."""
 
     def _lowcard_table(self):
         ufs = ["SP", "RJ", "MG", "BA", "RS", "PR", "SC", "GO", "PE", "CE", "DF", "ES"]
@@ -350,7 +355,7 @@ class TestV2BDict:
         }
 
     def test_dict_marker_present(self):
-        meta = encode(self._lowcard_table()).split("\n", 2)[1]
+        meta = _meta8(encode(self._lowcard_table()))
         assert any(p.startswith("@") for p in meta.split(","))
 
     def test_dict_round_trip(self):
@@ -371,11 +376,11 @@ class TestV2BDict:
         assert side.multi_info["dict_cols"] == []
 
     def test_dict_off_when_fallback_off(self):
-        # fallback=False desliga raw E dict -> #TCF.6 legado byte-limpo
+        # fallback=False desliga raw E dict -> #TCF.8M byte-limpo (so' tcf)
         t = self._lowcard_table()
         text = encode(t, fallback=False, min_header=False)
-        assert text.startswith("#TCF.6 M")
-        assert "@" not in text.split("\n", 2)[1]
+        assert text.startswith(_MAGIC)
+        assert "@" not in _meta8(text)
         assert decode(text) == t
 
     def test_dict_not_larger(self):
@@ -421,7 +426,7 @@ class TestStructSplit:
         }
 
     def test_split_marker_present(self):
-        meta = encode(self._struct_table()).split("\n", 2)[1]
+        meta = _meta8(encode(self._struct_table()))
         assert any(p.startswith("%") for p in meta.split(","))
 
     def test_split_round_trip(self):
@@ -452,8 +457,8 @@ class TestStructSplit:
     def test_off_when_fallback_off(self):
         t = self._struct_table()
         text = encode(t, fallback=False, min_header=False)
-        assert text.startswith("#TCF.6 M")
-        assert "%" not in text.split("\n", 2)[1]
+        assert text.startswith(_MAGIC)
+        assert "%" not in _meta8(text)
         assert decode(text) == t
 
     def test_split_not_larger(self):
@@ -500,12 +505,17 @@ class TestEdgeCases:
             encode({"a": ["1", "2"], "b": ["x"]})
 
     def test_col_name_with_comma_raises(self):
-        with pytest.raises(ValueError, match="reservado"):
+        with pytest.raises(ValueError, match="separador"):
             encode({"a,b": ["1", "2"]})
 
     def test_col_name_with_equals_raises(self):
-        with pytest.raises(ValueError, match="reservado"):
+        with pytest.raises(ValueError, match="separador"):
             encode({"a=b": ["1", "2"]})
+
+    def test_col_name_with_colon_raises(self):
+        # INTERIM ate' o escaping (T-FMT-NAME-ESCAPING): ':' rejeitado (ADR-0032)
+        with pytest.raises(ValueError, match="separador"):
+            encode({"a:b": ["1", "2"], "c": ["3", "4"]})
 
     def test_null_values_converted_to_empty_str(self):
         table = {"a": ["x", None, "y"]}
@@ -513,10 +523,17 @@ class TestEdgeCases:
         decoded = decode(text)
         assert decoded == {"a": ["x", "", "y"]}
 
-    def test_decode_invalid_magic_raises(self):
-        # Comeca com #TCF.6 M -> rota multi -> erro de magic na rota interna
-        with pytest.raises(ValueError):
+    def test_decode_legacy_magic_raises(self):
+        # #TCF.6/.7 CORTADOS (ADR-0032) -> fail-loud com dica de git
+        with pytest.raises(ValueError, match="legado"):
             decode("#TCF.6 M\nbad\n")
+        with pytest.raises(ValueError, match="legado"):
+            decode("#TCF.7 M\nbad\n")
+
+    def test_decode_reserved_discriminator_raises(self):
+        # #TCF.8H (hierarquico reservado, ADR-0031) -> fail-loud, nao decode orfao
+        with pytest.raises(ValueError, match="RESERVADO|reservado"):
+            decode("#TCF.8Hfoo\nbody")
 
 
 # Aliases v0.6 encode_table/decode_table APOSENTADOS 2026-06-24
