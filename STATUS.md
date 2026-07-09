@@ -7,6 +7,22 @@
 > leia "#TCF.8 = 0.8.0". "plano 0.8" nos cabecalhos de sessao = ciclo `0.7.2`. Versao do repo segue
 > `0.7.1` (PyPI segura; publica `0.7.2` no go do owner). Termos: [vocabulary §Versionamento](docs/vocabulary.md).
 
+> **RECONCILIACAO 2026-07-08 (saneamento; ponte, nao reescrita de historico)** — os blocos datados abaixo
+> sao HISTORICOS; onde restatam status/estado, a FONTE-DE-VERDADE e' o dispositivo, nao esta linha:
+> - **#TCF.8 (formato) esta' WELDED**, nao "proposed"/"nao implementado": a fonte e'
+>   [ADR-0027](docs/adr/0027-nature-mark-header-self-describing.md) (`accepted`, MVP welded 2026-06-24) +
+>   [ADR-0029](docs/adr/0029-version-format-identification-semi-implicit.md) (discriminador) + o codigo em
+>   `src/tcf/` (`decoder.py`, `multi/core.py`, `natures/`) + `tests/test_natures.py`. Os blocos F2/2026-06-17
+>   que dizem "ADR-0027 `proposed`" / "Nao implementado" (linhas ~78-80) e "Pacote 0.8.0 != #TCF.8"
+>   (linha ~99) sao PRE-weld — superados por esta chave + pela retificacao 2026-06-24 acima.
+> - **Escopo**: `0.8.0` = `#TCF.8` = **cross-dict** (H-GDICT B2, caracterizado mas NAO weldado); scaffold
+>   #TCF.8 pronto, falta a carga que paga o bump. Fila: `0.7.2` (lazy) antes.
+> - **Fonte do GATE byte-canonical** = os testes (`tests/test_regression_v1_baseline.py` D1-D9=1523B/D17a=303B;
+>   `tests/test_real_world_snapshots.py` RW=89616B) — qualquer numero repetido em compendio (CLAUDE.md/STATUS)
+>   e' COPIA de conveniencia; o teste e' que mede (principio Strata: apontar, nao duplicar).
+> - **Vista completa do que falta pra fechar o .8**:
+>   [`tcf8-vista-o-que-falta.md`](experiments/lab/dirty/notas/tcf8-vista-o-que-falta.md).
+
 > **Versionamento (ADR-0024, 2026-06-14)**: projeto e' **pré-1.0**. Os minors do
 > formato (`#TCF.4/.5/.6/.7`) sao iteracoes de dev rumo a um **1.0 solido**, sem
 > compat rigida entre eles (git reproduz versoes antigas). O `#TCF.7` = "0.7"
