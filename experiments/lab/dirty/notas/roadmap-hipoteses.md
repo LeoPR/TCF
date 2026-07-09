@@ -703,6 +703,19 @@ nova hipotese identificada.
   PREDITOR O(1) que evita o custo, ou um pre-filtro. Prior-art no repo: detect_cadence/detect_min_len
   (arvores de decisao das features) ja' fazem isso pro OBAT. Plano de estudo: fechar a lista de tipos/specs,
   medir preditor-O(1) vs min()-por-medicao. `aberta`, estudo. NAO e' bloqueador do #TCF.8.
+- **H-TYPE-07** (dicionario INTERNO classico + duas perspectivas do bN, owner 2026-07-08, PROPOSTA):
+  bN e `@dict` sao a mesma primitiva em DOIS papeis — (a) REATIVA: pos-nucleo, `@dict`-index bit-packed
+  (bN ⊂ @dict, dominio na coluna, via min()); (b) PREEMPTIVA: **dicionario interno congelado no formato**
+  pra enums classicos (true/false=1bit, true/false/null=2bit "trio", yes/no, sim/nao, 0/1, Y/N) — a coluna
+  NAO guarda o dominio, referencia o interno (= `SPEC_REGISTRY` das natures pra enums classicos). **Honesto
+  (byte NAO justifica)**: o [outer-dict/codebook](cep-outer-dict-codebook-pesquisa.md) ja' achou que codebook
+  e' subsumido por V2-B+split (nicho payload-minusculo); dominio classico pequeno salva ~9B (menor ainda);
+  + EnumSpec no-go + gate D3. **Justifica pelo eixo SPEC**: self-description (formato sabe que e' boolean →
+  acesso tipado + canonicalizacao) + aceleracao + byte-minimo no nicho terminal. Feature de spec OPT-IN
+  CONGELADA (pre-1.0, como SPEC_REGISTRY), NAO ganho de compressao. Tambem: largura EXATA `ceil(log2 k)`
+  (b3/b5/b6/b7, packam mais que snap-a-potencia) recomendada (Opcao B) sobre a ideia de code-encodes-role
+  (Opcao A). `aberta/proposta`, weld/freeze gated (owner). Detalhe:
+  [`bn-dict-perspectivas-e-dict-interno.md`](bn-dict-perspectivas-e-dict-interno.md).
 
 - **H-TX-01** (gate de posicionamento de transmissao, pendente desde 2026-06-21): TCF+brotli vs
   **NDJSON+brotli** (o concorrente textual real, nao so' CSV). Lab

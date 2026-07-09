@@ -100,6 +100,11 @@ body · tabela separada · header · body binário V2-L).
    perder no geral (−6.52%) e bN só ganhar terminal.
 5. **Regra anti-drift**: hipótese nova de "referência/dicionário" se posiciona nesses 4 eixos ANTES de
    ganhar nome novo (evita o padrão bN-redescobre-dict).
+6. **Duas perspectivas do bN** (owner 2026-07-08, H-TYPE-07): (a) REATIVA — `@dict`-index bit-packed,
+   domínio na coluna, via `min()`; (b) PREEMPTIVA — **dicionário interno congelado** pra enums clássicos
+   (true/false/null), domínio no formato (não na coluna). É o eixo *lugar* levado ao extremo (o domínio
+   sai da coluna e vira parte do formato, tipo `SPEC_REGISTRY`). Detalhe:
+   [`bn-dict-perspectivas-e-dict-interno.md`](bn-dict-perspectivas-e-dict-interno.md).
 
 ## O payoff — por que isto faz o GDICT sair melhor
 
