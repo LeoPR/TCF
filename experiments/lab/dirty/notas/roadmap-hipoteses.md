@@ -723,6 +723,17 @@ nova hipotese identificada.
     nucleo, aplica bN so' em k<=16 / <=4 bits — gate mais estrito que o prototipo, casa com D3). Mapeiam
     1:1 na taxonomia QUANDO. **Opcao B EM ESPERA**: medir F1 (latencia bypass vs nucleo, eixo aceleracao
     — o eixo ainda SEM numero) antes de cravar formato.
+  - **Analise critica 2 (owner 2026-07-08, serializacao byte-aligned)**: so' vale binarizar com **w<=4 e
+    stream byte-aligned** (w∈{1,2,4} divide 8: nenhum valor atravessa byte; padding do rabo <=7 bits =
+    <=1B/coluna, decoder para em N). Isso **REFUTA a Opcao B** (larguras exatas 3/5/6/7 nao tile-iam; ganho
+    b3-vs-b4 = 25% do stream de indices nao paga a complexidade no nicho terminal) → **Opcao A do owner
+    volta coerente** (b/b2/b4/b8 = largura fisica; 3/5/7 = code-space livre pra papel/dict-interno).
+    Registro: agrupar 8 valores → w bytes (bit-packing do Parquet) resgataria larguras exatas — anotado,
+    nao recomendado. **Lifecycle F2**: specs sao GANHAS em volume de projeto (lab + gate >=15%/2-reais) e
+    CONGELADAS (template CPF/ADR-0015) — nunca induzidas em runtime; F1/F3=runtime genericas, F2=project-time
+    semanticas. **Corrida especulativa** (filas com espera + cancel): em batch = try-classifier-first com
+    early-exit (o classificador ja' e' ~o analyze_column, custa << nucleo); as filas viram reais em
+    STREAMING (V2-J); aposta tardia mitigada pelo overlay-com-budget.
 
 - **H-TX-01** (gate de posicionamento de transmissao, pendente desde 2026-06-21): TCF+brotli vs
   **NDJSON+brotli** (o concorrente textual real, nao so' CSV). Lab

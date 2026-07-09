@@ -48,6 +48,50 @@ das natures aplicado a enums clássicos**.
 bypass pagar em velocidade, a preemptiva se justifica pelo eixo aceleração; senão, sobra só o fluxo 3
 (reativo com gate k≤16) e o dict interno vira apenas vocabulário de spec (self-description).
 
+## Análise crítica 2 (owner, 2026-07-08) — serialização byte-aligned · lifecycle do F2 · corrida especulativa
+
+### (i) Restrição de serialização: só vale binarizar com w≤4, em stream byte-aligned
+> Owner: "só vale a binarização se serializável em ≤4 bits e em sequências de 8 bits — dificílimo
+> representar menos de 8 bits de verdade; o resto do stream fica 'comido' (padding)."
+
+- **Matemática do tiling (verificada)**: w ∈ {1,2,4} divide 8 → cada byte contém exatamente 8/w valores,
+  **nenhum valor atravessa fronteira de byte** → serialização trivial, acesso por aritmética byte+shift,
+  stream inspecionável por byte. w ∈ {3,5,6,7} **não divide 8** → cursor de bits, valores atravessando
+  bytes. **b8 fora do default** (gate D3: ganho mais fraco; k>16 → dict/base-94 cobre).
+- **Padding do rabo**: ≤7 bits = **≤1 byte por coluna**; o decoder já resolve parando em N valores
+  (`bn_decode(body, n)` do protótipo faz isso — os bits de pad são ignorados). Não-questão pra N≥~16.
+- **⟲ REVISÃO HONESTA da recomendação**: esta restrição **REFUTA a minha Opção B** (largura exata
+  b3/b5/b6/b7): essas larguras não tile-iam bytes, e o ganho marginal (b3 vs b4 = 25% do stream de índices,
+  medido) não paga a complexidade/opacidade num nicho já terminal. E com 3/5/6/7 **inúteis como largura
+  física**, o code-space deles fica livre — **a Opção A do owner (b/b2/b4/b8 = largura física; b3/b5/b7 =
+  códigos de papel/dict-interno) volta a ser coerente**: não gasta nada, usa números sem significado físico.
+  *(Registro: a técnica conhecida que resgataria larguras exatas é agrupar 8 valores → 8·w bits = w bytes
+  inteiros — o bit-packing do Parquet; anotada, NÃO recomendada agora.)*
+- **Larguras físicas do default: {1, 2, 4}** — consistente com o F3 (k≤16) e com o corte denso do gate D3.
+
+### (ii) Lifecycle do F2: specs são GANHAS em volume de projeto, depois CONGELADAS (o template CPF)
+F2 **nunca é induzido em runtime**: um tipo prova a vantagem híbrida em **estudo/volume prévio** (lab),
+passa o gate (≥15%/2-reais, estilo ADR-0015) e é **fixado** como spec no registry congelado — daí em diante
+"usa nesse formato pré-tx", no estilo do CPF. Separação limpa que isso cristaliza:
+**F1/F3 = runtime, classes GENÉRICAS** (bool/low-card, sem semântica) · **F2 = project-time, specs
+SEMÂNTICOS** (CPF/CNPJ/datetime), earned + frozen. Um não vira o outro em execução.
+
+### (iii) A corrida especulativa (F1+F2, "quase paralelo com espera")
+> Owner: as duas filas disparam; a do núcleo ESPERA um pouco; se a fila de tipo decide "classe simples
+> (bool)", **cancela** a fila do núcleo.
+
+- **Versão engenharia-honesta (batch, hoje)**: o classificador **já é (quase) o pré-pass existente** —
+  `analyze_column` varre a coluna (cardinality/is_numeric/sample) ANTES do OBAT. O delta é pequeno:
+  `analyze_column → [classe clássica/k≤16 + round-trip? → BYPASS] → OBAT → HCC`. Em batch não precisa de
+  filas: o classificador tem **early-exit** (aborta no 17º distinto, ou no 1º valor fora do domínio além
+  do budget de exceções) e custa << núcleo — "tentar-primeiro sequencial" domina a corrida.
+- **Onde as filas viram REAIS**: em **streaming (V2-J)** — o classificador roda on-the-fly numa janela e o
+  núcleo fica em espera/cancelável. A formulação do owner é o desenho streaming da mesma decisão; guardar
+  pra quando V2-J abrir.
+- **Risco da aposta tardia** (o valor 999.990 quebra a classe): mitigado por (a) **overlay de exceções com
+  budget** — raros fora do domínio não cancelam a aposta, vão pro canal esparso; (b) hard-bail só quando o
+  nº de distintos estoura a classe; (c) pior caso = 1 scan extra O(N) barato antes do núcleo — limitado.
+
 ## O que a perspectiva (b) vale — HONESTO (não é byte)
 
 **Prior-art que qualifica**: o [outer-dict/codebook](cep-outer-dict-codebook-pesquisa.md) (2026-06-16) já
@@ -87,6 +131,11 @@ Registry interno mínimo de enums clássicos (cada um = mapa fixo + largura de �
 
 > Antes de fazer a Opção B, o owner pediu pra revisitar a motivação da preemptiva (seção "os 3 FLUXOS"
 > acima). **Decisão de ordem**: medir o **fluxo 1** (latência do bypass) ANTES de cravar formato/largura.
+>
+> **RESOLVIDO em parte (Análise crítica 2, mesma data)**: a restrição de serialização byte-aligned do owner
+> **refuta a Opção B** (larguras exatas 3/5/6/7 não tile-iam bytes) → larguras físicas = **{1,2,4}**; os
+> códigos 3/5/7 ficam livres pra papel/dict-interno (**Opção A do owner, agora coerente**). O que segue em
+> espera é só a medição do **F1** (bypass paga em latência?).
 
 ## Partição do code-space bN (registro original)
 
