@@ -92,6 +92,7 @@ TCF/
 | **Codec hierárquico CSV↔JSON** (protótipo `#TCF.8H`, research-track, fora do release) | `experiments/lab/clean/EXP-015-tcf-hierarquico-csv-json/` + mapa `experiments/lab/dirty/notas/estudo-tcf-hierarquico-mapa.md` |
 | **Registry de chars do header .8** (discriminador + marcadores por-coluna + reserva; fecha os fluxos, evita colisão tipo `#TCF.8H`) | `experiments/lab/dirty/notas/tcf8-header-char-registry.md` |
 | **Arquiteturas futuras** (Parquet/V2-L · gadget schema · gadget IA — "depois", âncoras) | `experiments/lab/dirty/notas/arquiteturas-futuras-parquet-schema-ia.md` |
+| **Primitivas com nomes diferentes = coisa parecida** (audit p/ consolidar: dict/índice, RLE, spec/nature/tipo, omitir/declarar…) | `experiments/lab/dirty/notas/primitivas-consolidacao-audit.md` |
 | **Bibliografia / literatura** (column-store Abadi/Parquet/Dremel, bitpacking, DSL — 24 refs) | `docs/reference/bibliografia.md` |
 | **Arquitetura share × header × lazy** (balanço compressão↔lazy; cross-dict FECHADO; header=índice) | `experiments/lab/dirty/notas/arquitetura-share-header-lazy.md` |
 | Ver hipoteses ativas/fechadas | `experiments/lab/dirty/notas/roadmap-hipoteses.md` (registry **ativo**; homônimo em `docs/theory/` é histórico) |
