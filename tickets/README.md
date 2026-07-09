@@ -63,6 +63,34 @@ referencias a commits que o resolveram.
 | [T-FMT-HEADER-BASE-HEX](T-FMT-HEADER-BASE-HEX.md) | Base HEX implícita dos byte-sizes do header (decimal só comando de inspeção/IO/debug). Super-específico, desmembrado de T-OPT-INFERENCE Item 1. **WELDED**: core.py+view.py hex nos #TCF.7/.8; #TCF.6 decimal; D17a 303→302; 528 passed. (Owner 07-09: hex vira exclusivo do .8 — ajuste no flip.) | **WELDED 2026-07-09** |
 | [T-FMT-NAME-ESCAPING](T-FMT-NAME-ESCAPING.md) | Escape/quoting de nomes de coluna (`:`/`,`/`=`/`#`-inicial + `{}[]` da hierarquia) no meta — resolve o blocker do `:` sob .8-default via escaping (CSV-style), não rejeição. Interim backslash + smart (quoting implícito). | **OPEN P1 pre-.8-default 2026-07-09** |
 
+### Indexados retroativamente (backfill 2026-07-09, T-CLEAN-3 T1-a)
+
+> 19 tickets que existiam sem row no índice (gap de discoverability achado no levantamento T-CLEAN-3).
+> Rows geradas MECANICAMENTE do frontmatter (title+status de cada ticket, sem reinterpretação) + data do
+> último commit. Tabela acima NÃO foi reordenada — este bloco é só aditivo.
+
+| ID | Tema | Status |
+|---|---|---|
+| [T-CODE-HCC-ATOM-DETECTION-REFINE](T-CODE-HCC-ATOM-DETECTION-REFINE.md) | Bug #1 sub-exp 14 (atom secundario nao criado) | **CLOSED-SUPERSEDED-BY-ADR-0016** (ult. commit 2026-06-21) |
+| [T-CODE-HCC-MULTI-DELTA-FIX](T-CODE-HCC-MULTI-DELTA-FIX.md) | Bug #2 sub-exp 14 (seq-RLE rejeita multi-run delta) | **CLOSED-WELDED-CANONICAL** (ult. commit 2026-06-21) |
+| [T-CODE-LAYERED-PIPELINE](T-CODE-LAYERED-PIPELINE.md) | Toggle infrastructure + online adaptive + fallback | **CLOSED** (ult. commit 2026-06-15) |
+| [T-CODE-LEGACY-PRUNE-PRE-07](T-CODE-LEGACY-PRUNE-PRE-07.md) | Podar fallbacks/legado pré-0.7 do core (rumo a 1.0) | **CLOSED** (ult. commit 2026-06-24) |
+| [T-CODE-RT-EDGES](T-CODE-RT-EDGES.md) | 2 violações de RT em bordas (seq-RLE trailing-space + \n embutido) | **CLOSED-FIXED** (ult. commit 2026-07-05) |
+| [T-DATA-2-RECEITA-CNPJ](T-DATA-2-RECEITA-CNPJ.md) | Dataset real de CNPJ (Receita Federal open data) p/ gating ecologico das natures | **CLOSED-DONE** (ult. commit 2026-06-02) |
+| [T-DATA-3-EDGE-QUALITY-FIXTURES](T-DATA-3-EDGE-QUALITY-FIXTURES.md) | Plano de dados de borda/defeituosos p/ gadgets de qualidade/schema (planejamento) | **DEFERRED** (ult. commit 2026-06-21) |
+| [T-DATA-4-TPCH-PART-SAMPLES](T-DATA-4-TPCH-PART-SAMPLES.md) | Samples committed de part/partsupp do TPC-H (categoria hierarquica observavel) | **CLOSED-DONE** (ult. commit 2026-06-01) |
+| [T-DATA-TRANSMISSION-GROUPING](T-DATA-TRANSMISSION-GROUPING.md) | Agrupar datasets por cenário de transmissão (matriz 3-eixos) | **MATRIX-DONE** (ult. commit 2026-07-05) |
+| [T-FIX-SHAPER-STRATIFY-TEST](T-FIX-SHAPER-STRATIFY-TEST.md) | Corrigir expectativa do test_stratify_proportional | **CLOSED-DONE** (ult. commit 2026-05-31) |
+| [T-FLOW-ENCODE-STRATEGIES-TELEMETRY](T-FLOW-ENCODE-STRATEGIES-TELEMETRY.md) | Estratégias de encode (speed/mem) + telemetria sugestiva de ordem (S1/S2/S3) | **OPEN** (ult. commit 2026-07-06) |
+| [T-H-PERF-06-V2-T01-WELD-15](T-H-PERF-06-V2-T01-WELD-15.md) | Weld do candidato #15 (topK prune) em src/tcf | **CLOSED-DONE** (ult. commit 2026-06-21) |
+| [T-H-PERF-06-V2-T02-CYTHON](T-H-PERF-06-V2-T02-CYTHON.md) | Acelerador Cython opcional de _detect_compositions (Fase B) | **CLOSED-DONE** (ult. commit 2026-06-21) |
+| [T-RECOVER-LLM-SCHEMA-MODE](T-RECOVER-LLM-SCHEMA-MODE.md) | Gadget LLM (schema + SQL gen, formato LLM-binary) | **DEFERRED** (ult. commit 2026-06-15) |
+| [T-RECOVER-SCHEMA-MULTI-TABLE](T-RECOVER-SCHEMA-MULTI-TABLE.md) | Gadget auxiliar de schema multi-tabela (alertas, NAO conserta) | **CLOSED-DONE** (ult. commit 2026-06-08) |
+| [T-REGRESSION-REAL-WORLD](T-REGRESSION-REAL-WORLD.md) | Estender regression suite p/ amostras real-world (gate prune algoritmico) | **CLOSED-DONE** (ult. commit 2026-06-21) |
+| [T-SHAPER-CODE-HARDENING](T-SHAPER-CODE-HARDENING.md) | Hardening de codigo do shaper (escala, dedup, bugs latentes) | **DEFERRED** (ult. commit 2026-07-05) |
+| [T-SHAPER-SCIENTIFIC-GATING](T-SHAPER-SCIENTIFIC-GATING.md) | Gate cientifico de uso do shaper (tests estatisticos assertados) | **CLOSED-DONE** (ult. commit 2026-05-31) |
+| [T-STUDY-HIERARCHICAL-TCF](T-STUDY-HIERARCHICAL-TCF.md) | TCF para JSON aninhado (guarda-chuva: grupo de labs / peças; liga EXP-015 `#TCF.8H`) | **OPEN** (ult. commit 2026-07-05) |
+
 ## Politica
 
 - Cada ticket "closed" referencia commit(s) que o resolveram.

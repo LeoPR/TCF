@@ -58,11 +58,18 @@ A ordem de autoridade é o **histórico de commits, do agora pra trás**. Ao arr
 
 ## Caminho-feliz (tiers — do óbvio/sem-colisão ao ambíguo/git-comparação)
 
-### T1 — óbvio, zero-colisão (fechar primeiro; mais valor pro review 0.8)
-- [ ] **T1-a** Índice de tickets: adicionar as 19 rows faltantes em `tickets/README.md` (prioridade nas 2
-  `open` — discoverability de trabalho vivo). Só adiciona rows, não toca os tickets. Incluir esta (T-CLEAN-3).
-- [ ] **T1-b** `docs/article/` (morto): confirmar zero-uso (grep de links) → tombstone ou remover a pasta.
-- [ ] **T1-c** `INDEX.md`: checar se `scripts/index.py` regenera; rodar se sim (fecha os `Updated: ?`).
+### T1 — óbvio, zero-colisão ✅ FEITO 2026-07-09
+- [x] **T1-a** Índice de tickets: 19 rows adicionadas em `tickets/README.md` como seção "Indexados
+  retroativamente (backfill)" — geradas MECANICAMENTE do frontmatter (title+status) + data do último
+  commit; tabela existente NÃO reordenada (só aditivo). Índice agora cobre 62/62.
+- [x] **T1-b** `docs/article/`: confirmado MORTO — conteúdo real foi arquivado em `docs/archive/` no
+  commit `8f33744` (T-DOC-1..6, reorg v0.5); links restantes só DENTRO de `_archive/` (históricos,
+  intocados); a pasta era dir vazio NÃO-rastreado pelo git (resíduo local do move) → removida
+  localmente, zero impacto no git.
+- [x] **T1-c** `INDEX.md` regenerado via `scripts/index.py` (verificado com `--check` + diff inspecionado
+  antes): remove entradas com paths QUEBRADOS (labs já movidos pra `old/welded/` — o script pula `old/`
+  por design) + lista os labs novos da semana como candidatos a frontmatter. Artefato DERIVADO
+  alcançando a realidade; versão antiga recuperável no git.
 
 ### T2 — julgamento leve / decisão pendente
 - [ ] **T2-a** `STATUS.md` bridges: **aguarda decisão do owner** (3 opções levantadas). Sem isso, não mexer.
