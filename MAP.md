@@ -90,6 +90,8 @@ TCF/
 | **Família bN** (bit-packing enum baixa-card) + **gate real-world** | roadmap H-TYPE-02 + `experiments/lab/dirty/2026-07-08-1938-bn-gate-realworld-5fontes/` (8.8% terminal / 1.7% pós-brotli; reforça o EnumSpec no-go) |
 | **Contrato de omissão** (deduzir/convenção-default/declarar + fail-loud, pré-1.0) | `tickets/T-FMT-OMIT-OR-DECLARE.md` |
 | **Codec hierárquico CSV↔JSON** (protótipo `#TCF.8H`, research-track, fora do release) | `experiments/lab/clean/EXP-015-tcf-hierarquico-csv-json/` + mapa `experiments/lab/dirty/notas/estudo-tcf-hierarquico-mapa.md` |
+| **Registry de chars do header .8** (discriminador + marcadores por-coluna + reserva; fecha os fluxos, evita colisão tipo `#TCF.8H`) | `experiments/lab/dirty/notas/tcf8-header-char-registry.md` |
+| **Arquiteturas futuras** (Parquet/V2-L · gadget schema · gadget IA — "depois", âncoras) | `experiments/lab/dirty/notas/arquiteturas-futuras-parquet-schema-ia.md` |
 | **Bibliografia / literatura** (column-store Abadi/Parquet/Dremel, bitpacking, DSL — 24 refs) | `docs/reference/bibliografia.md` |
 | **Arquitetura share × header × lazy** (balanço compressão↔lazy; cross-dict FECHADO; header=índice) | `experiments/lab/dirty/notas/arquitetura-share-header-lazy.md` |
 | Ver hipoteses ativas/fechadas | `experiments/lab/dirty/notas/roadmap-hipoteses.md` (registry **ativo**; homônimo em `docs/theory/` é histórico) |

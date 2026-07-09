@@ -122,6 +122,9 @@ o lazy consome. **Decisão de design adiada** — registrar quando chegar a vez.
 ## Cross-links
 - Specs: [TCF-format.md](../../../../docs/algorithms/TCF-format.md), ADR-0027/0028/0029.
 - Capacidade SPECS: [specs-capacity-map.md](specs-capacity-map.md).
+- **Registry de chars do header** (discriminador + marcadores por-coluna + esquema de reserva — o que
+  operacionaliza "cada feature = 1 char registrado", fecha os fluxos e evita colisão tipo `#TCF.8H`):
+  [`tcf8-header-char-registry.md`](tcf8-header-char-registry.md). Proposta: promover pra TCF-format.md (owner).
 - Lazy: [view.py](../../../../src/tcf/view.py), [docs/reference/lazy-view.md](../../../../docs/reference/lazy-view.md),
   design 0.9 [hquery01-decode-dag-indices-design.md](hquery01-decode-dag-indices-design.md).
 - Cross-dict: [v08-plano-etapas.md](v08-plano-etapas.md) §B, roadmap-hipoteses (H-GDICT).
