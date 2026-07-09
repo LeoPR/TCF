@@ -248,17 +248,17 @@ class TestNatureMarkHeader:
         # coluna fica crua (base-94), NÃO revertida pro CNPJ original
         assert result["doc"][0] != "11.222.333/0001-81"
 
-    def test_colon_in_colname_rejected_with_nature(self):
+    def test_colon_in_colname_with_nature_rt(self):
+        """T-FMT-NAME-ESCAPING (M2): ':' no nome escapado '\\:'; a nature `:id` e' o
+        ULTIMO ':' NAO-escapado -> RT preserva nome-com-':' + nature."""
         table = {"ns:col": ["529.982.247-25"], "x": ["a"]}
-        with pytest.raises(ValueError, match="separador"):
-            encode(table, nature_per_col={"ns:col": SPEC_CPF})
+        text = encode(table, nature_per_col={"ns:col": SPEC_CPF})
+        assert decode(text, nature_per_col={"ns:col": SPEC_CPF}) == table
 
-    def test_colon_in_colname_rejected_without_nature(self):
-        """ADR-0032: com #TCF.8M default o decode faz rsplit(':') sempre, entao ':' no
-        nome e' REJEITADO (fail-loud) ate' o escaping (T-FMT-NAME-ESCAPING) re-permitir."""
+    def test_colon_in_colname_without_nature_rt(self):
+        """':' no nome (sem nature) escapado -> RT (M2)."""
         table = {"created:at": ["2026-01-01", "2026-01-02"], "x": ["a", "b"]}
-        with pytest.raises(ValueError, match="separador"):
-            encode(table)
+        assert decode(encode(table)) == table
 
     def test_resolve_nature_id(self):
         assert _resolve_nature_id("cpf") is SPEC_CPF

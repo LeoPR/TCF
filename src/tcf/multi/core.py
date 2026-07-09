@@ -52,6 +52,66 @@ MAGIC_SINGLE_V3 = b"#TCF.8"   # single-col self-describing (SEM flag M -> single
                               # Opt-in. ADR-0027/0029.
 
 
+# --- Escape de NOMES no meta (T-FMT-NAME-ESCAPING, M2 2026-07-09) ---
+# Interim: SO' backslash (estilo CSV-quoting simplificado; estudo de quoting/outros
+# casos adiado — ver ticket). Escapa os separadores do meta (,/=/:) + o proprio '\'
+# + prefixo de modo (!@%) INICIAL (colidiria com a ultima-coluna-bare). O tokenizer
+# splita em separador NAO-escapado. So' '\n' fica proibido (separador de linha,
+# irrepresentavel no meta de 1 linha).
+_NAME_SEP = ",=:\\"
+
+
+def _esc_name(name: str) -> str:
+    """Escapa (backslash) os chars estruturais de um nome de coluna no meta."""
+    out = []
+    for ch in name:
+        if ch in _NAME_SEP:
+            out.append("\\")
+        out.append(ch)
+    s = "".join(out)
+    if s[:1] in "!@%":            # prefixo de modo no inicio colidiria (last-col bare)
+        s = "\\" + s
+    return s
+
+
+def _unesc_name(s: str) -> str:
+    """Reverte `_esc_name`: remove um '\\' antes de cada char escapado."""
+    out, i, n = [], 0, len(s)
+    while i < n:
+        if s[i] == "\\" and i + 1 < n:
+            out.append(s[i + 1]); i += 2
+        else:
+            out.append(s[i]); i += 1
+    return "".join(out)
+
+
+def _split_unesc(s: str, sep: str, maxsplit: int = -1) -> list[str]:
+    """`s.split(sep)` ignorando separadores escapados por '\\'."""
+    parts, buf, i, n, cnt = [], [], 0, len(s), 0
+    while i < n:
+        c = s[i]
+        if c == "\\" and i + 1 < n:
+            buf.append(s[i:i + 2]); i += 2; continue
+        if c == sep and (maxsplit < 0 or cnt < maxsplit):
+            parts.append("".join(buf)); buf = []; cnt += 1; i += 1; continue
+        buf.append(c); i += 1
+    parts.append("".join(buf))
+    return parts
+
+
+def _rsplit1_unesc(s: str, sep: str):
+    """Split no ULTIMO `sep` NAO-escapado -> (left, right), ou None se nao ha."""
+    last, i, n = -1, 0, len(s)
+    while i < n:
+        if s[i] == "\\" and i + 1 < n:
+            i += 2
+            continue
+        if s[i] == sep:
+            last = i
+        i += 1
+    return None if last < 0 else (s[:last], s[last + 1:])
+
+
 def _encode_multi(
     table: dict[str, list[str]],
     side_outputs: SideOutputs | None = None,
@@ -98,20 +158,12 @@ def _encode_multi(
         raise ValueError(f"colunas com lengths diferentes: {lengths}")
 
     for col_name in table.keys():
-        # #TCF.8M default (ADR-0032): o meta e' `<size>=<nome>[:id]`, separadores
-        # ,/=/:. INTERIM (fail-loud) ate' o escaping de nomes (T-FMT-NAME-ESCAPING):
-        # nome com separador ou prefixo de modo e' REJEITADO — melhor que corromper
-        # o RT em silencio. O escaping (M2) troca esta rejeicao por escape/quoting.
-        if ',' in col_name or '=' in col_name or ':' in col_name:
+        # #TCF.8M default (ADR-0032): separadores do meta (,/=/:) + '\' + prefixo de
+        # modo (!@%) inicial sao ESCAPADOS no nome (_esc_name, T-FMT-NAME-ESCAPING, M2).
+        # So' '\n' fica proibido: e' o separador de linha do meta (irrepresentavel).
+        if "\n" in col_name:
             raise ValueError(
-                f"col name contem separador do meta (,/=/:) — nao suportado ate' o "
-                f"escaping (T-FMT-NAME-ESCAPING): {col_name!r}"
-            )
-        if col_name[:1] in '!@%':
-            # marcadores de modo (! raw, @ dict, % split): nome comecando com eles
-            # colidiria com o parse da ultima-coluna-bare (sem size).
-            raise ValueError(
-                f"col name nao pode comecar com !@% (marcador de modo): {col_name!r}"
+                f"col name nao pode conter '\\n' (separador de linha do meta): {col_name!r}"
             )
 
     # Stringify upfront (per-col paralelo recebe valores ja' string)
@@ -206,9 +258,9 @@ def _encode_multi(
             parts.append(f"{pre}{suf}" if (min_header and i == last_i)
                          else f"{pre}{_sz(len(b))}{suf}")
         elif min_header and i == last_i:
-            parts.append(f"{pre}{name}{suf}")        # ultima sem size
+            parts.append(f"{pre}{_esc_name(name)}{suf}")        # ultima sem size
         else:
-            parts.append(f"{pre}{_sz(len(b))}={name}{suf}")
+            parts.append(f"{pre}{_sz(len(b))}={_esc_name(name)}{suf}")
     meta_pairs = ",".join(parts)
     header = magic + meta_pairs.encode("utf-8") + b"\n"
     body_concat = b"".join(b for _, b, _ in final_bodies)
@@ -273,7 +325,7 @@ def _decode_multi_impl(
     cursor = nl1 + 1
     # Parse POSITION-AWARE (ADR-0029): so' a ULTIMA coluna nao tem size (min_header).
     # Logo nao-ultima sem '=nome' = coluna ANONIMA (size sozinho); ultima vazia = anonima.
-    tokens = meta_str.split(",")
+    tokens = _split_unesc(meta_str, ",")             # ',' escapado no nome fica intacto
     n_cols = len(tokens)
     _szbase = 16   # HEX sempre no .8 (T-FMT-HEADER-BASE-HEX + ADR-0032 §3)
     pairs = []  # (size|None, name|None, mode, nature_id|None)
@@ -289,24 +341,25 @@ def _decode_multi_impl(
             p = p[1:]
         else:
             mode = "tcf"
-        # Sufixo ':id' (#TCF.8, ADR-0027) separado primeiro. So' em V8 -> nomes
-        # com ':' em #TCF.6/7 ficam intocados (nome nunca tem ':' em V8: validador
-        # proibe; spec e' um unico token cpf/cnpj/ip).
+        # Sufixo ':id' (nature, ADR-0027) = ULTIMO ':' NAO-escapado (um ':' no NOME
+        # vem escapado '\:' via _esc_name). Split escape-aware (T-FMT-NAME-ESCAPING).
         nat_id = None
-        if is_v8 and ":" in p:
-            p, nat_id = p.rsplit(":", 1)
-        if "=" in p:
-            # '<size>=<nome>' — nomeada. Vale em qualquer posicao (em #TCF.6 com
-            # min_header=False ATE' a ultima coluna tem size=nome).
-            size_str, name = p.split("=", 1)
+        r = _rsplit1_unesc(p, ":")
+        if r is not None:
+            p, nat_id = r
+        eq = _split_unesc(p, "=", 1)                  # primeiro '=' NAO-escapado
+        if len(eq) == 2:
+            # '<size>=<nome>' — nomeada. Nome des-escapado (nomes com ,/=/:/! etc).
+            size_str, name = eq
             size = int(size_str, _szbase)
+            name = _unesc_name(name)
         elif i == n_cols - 1:
             # ultima coluna SEM '=': min_header (corpo ate' EOF). p = nome (vazio
             # = anonima posicional).
             size = None
-            name = p if p else None
+            name = _unesc_name(p) if p else None
         else:
-            # nao-ultima SEM '=' -> coluna ANONIMA: p = '<size>' (so' V8/drop_names)
+            # nao-ultima SEM '=' -> coluna ANONIMA: p = '<size>' (so' drop_names)
             size = int(p, _szbase)
             name = None
         pairs.append((size, name, mode, nat_id))

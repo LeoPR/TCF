@@ -17,8 +17,12 @@ from tcf.multi.core import (
     _decode_multi,
     _decode_multi_impl,
     _encode_multi,
+    _esc_name,
     _fallback_safe,
+    _rsplit1_unesc,
+    _split_unesc,
     _to_str,
+    _unesc_name,
 )
 from tcf.multi.dict_v2b import (
     _V2B_ALPHA,
@@ -47,6 +51,7 @@ __all__ = [
     # core
     "MAGIC_MULTI_V3", "MAGIC_SINGLE_V3",
     "_encode_multi", "_decode_multi", "_decode_multi_impl", "_to_str", "_fallback_safe",
+    "_esc_name", "_unesc_name", "_split_unesc", "_rsplit1_unesc",
     # dict_v2b (V2-B, ADR-0025)
     "_V2B_ALPHA", "_V2B_BASE", "_V2B_MAX_CARD",
     "_v2b_width", "_v2b_idx_chars", "_v2b_encode", "_decode_v2b",

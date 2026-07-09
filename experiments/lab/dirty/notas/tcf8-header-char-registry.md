@@ -47,10 +47,12 @@ referência). Opção "largura exata" descartada (3/5/6/7 bits não tile-de-byte
 `!7:cpf` (raw + nature, anônima). Colunas **anônimas** (`drop_names`) omitem `=nome`. `#` como prefixo é
 seguro no `.8` (o meta NÃO carrega o prefixo `# ` do #TCF.6 legado — dispensado desde #TCF.7).
 
-## Eixo 3 — chars RESERVADOS no name-guard (nomes de coluna NUNCA podem conter)
+## Eixo 3 — chars estruturais em nomes de coluna → ESCAPADOS (não mais rejeitados)
 
-`,` (separa colunas) · `=` (separa size/nome) · `:` (separa nome/nature-id, só quando há nature).
-*(os prefixos `!`/`@`/`%`/`#`/`&` são colisão-seguros porque precedem o size, que é dígito.)*
+**Atualizado 2026-07-09 (T-FMT-NAME-ESCAPING, M2)**: os separadores `,`/`=`/`:` (+ `\` + prefixo `!@%`
+inicial) num nome são **escapados com backslash** (`\,`, `\:`, …) e des-escapados no decode — não mais
+REJEITADOS. O tokenizer splita em separador NÃO-escapado. Único char proibido: `\n` (separador de linha
+do meta, irrepresentável). Estudo de quoting-implícito (aspas CSV) e chars de hierarquia `{}[]` adiado.
 
 ## O esquema de RESERVA (o que fecha os fluxos)
 

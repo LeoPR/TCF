@@ -56,9 +56,19 @@ paga quando o nome tem o char — caso raro). Reusar o vocabulário do [char-reg
 - Interage com a **gramática da hierarquia** (`{}[]` no meta-árvore) — o escape tem que cobri-los quando o
   codec TCF.8H for adiante.
 
+## Estado (M2, 2026-07-09) — INTERIM backslash WELDED
+
+Implementado o escape **só backslash** (owner: "conceito básico estilo CSV-quoting, por enquanto só barra;
+estudo de outros casos depois — ver se tem quebras ou se a barra já resolve tudo"). Helpers em
+`multi/core.py`: `_esc_name` (escapa `,`/`=`/`:`/`\` + prefixo `!@%` inicial), `_unesc_name`, `_split_unesc`,
+`_rsplit1_unesc` (split em separador NÃO-escapado). Emit + parse (`core.py`) + re-parse lazy (`view.py`) em
+lockstep. Único char proibido: `\n` (separador de linha do meta). **530 passed**; D17a inalterado (300B —
+escaping byte-neutro p/ nomes sem separador). RT provado: `a,b`, `x=y`, `created:at`, `!raw`/`@d`/`%s`,
+`:`/`=`, `a:b,c=d`, backslash literal, nome-com-`:`+nature.
+
 ## Critério de aceite
-- [ ] Interim: escape backslash dos chars estruturais no nome; tokenizer split-em-não-escapado; RT provado
-  (incl. `created:at`, `# foo`, `a,b`, `x=y`). Name-guard vira escape (não rejeita).
-- [ ] Lockstep `core.py` (emit+parse) + `view.py` (re-parse) + testes.
+- [x] Interim: escape backslash dos chars estruturais no nome; tokenizer split-em-não-escapado; RT provado.
+  Name-guard vira escape (só `\n` rejeitado).
+- [x] Lockstep `core.py` (emit+parse) + `view.py` (re-parse) + testes.
 - [ ] Smart: decisão quoting-implícito vs escape-por-char, com custo-byte medido e round-trip.
 - [ ] Cobre os chars de hierarquia (`{}[]`) pro codec TCF.8H.

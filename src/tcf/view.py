@@ -28,6 +28,7 @@ from collections.abc import Callable
 from tcf.multi import (
     MAGIC_MULTI_V3,
     _decode_v2b, _decode_struct_split, _v2b_width, _V2B_BASE,
+    _rsplit1_unesc, _split_unesc, _unesc_name,
 )
 from tcf.decoder import _decode_column
 
@@ -70,7 +71,7 @@ class LazyTCF:
         meta = line1[len(MAGIC_MULTI_V3):].decode("utf-8")   # inline
         cursor = nl1 + 1
 
-        tokens = meta.split(",")
+        tokens = _split_unesc(meta, ",")             # separadores escapados no nome
         n_cols = len(tokens)
         _szbase = 16   # HEX sempre no .8 (T-FMT-HEADER-BASE-HEX + ADR-0032 §3)
         for i, part in enumerate(tokens):
@@ -78,16 +79,19 @@ class LazyTCF:
             if part[:1] in "!@%":
                 mode = {"!": "raw", "@": "dict", "%": "split"}[part[0]]
                 part = part[1:]
-            # sufixo ':id' (nature, so' #TCF.8); coluna anonima -> nome posicional
+            # sufixo ':id' (nature) = ultimo ':' NAO-escapado (lockstep multi/core)
             nat_id = None
-            if is_v8 and ":" in part:
-                part, nat_id = part.rsplit(":", 1)
-            if "=" in part:
-                size_str, name = part.split("=", 1)
+            r = _rsplit1_unesc(part, ":")
+            if r is not None:
+                part, nat_id = r
+            eq = _split_unesc(part, "=", 1)
+            if len(eq) == 2:
+                size_str, name = eq
                 size = int(size_str, _szbase)
+                name = _unesc_name(name)
             elif i == n_cols - 1:
                 size = None                          # ultima: corpo ate' EOF
-                name = part if part else str(i)      # nome OU posicional (anonima)
+                name = _unesc_name(part) if part else str(i)  # nome OU posicional
             else:
                 size = int(part, _szbase)            # anonima nao-ultima -> so' size
                 name = str(i)                        # posicional (nome = ordem)

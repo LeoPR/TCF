@@ -478,10 +478,11 @@ class TestStructSplit:
         t = {"v": vals, "k": [str(i) for i in range(len(vals))]}
         assert decode(encode(t)) == t
 
-    def test_name_guard_marker_prefix(self):
-        for bad in ["%x", "!x", "@x"]:
-            with pytest.raises(ValueError, match="marcador"):
-                encode({bad: ["1", "2"], "b": ["x", "y"]})
+    def test_name_starting_with_mode_prefix_escaped_rt(self):
+        # nome comecando com !@% (colidiria com o parse de modo) -> escapado -> RT
+        for nm in ["%x", "!x", "@x"]:
+            t = {nm: ["1.5", "2.7"] * 100, "b": [str(i) for i in range(200)]}
+            assert decode(encode(t)) == t
 
     def test_decode_struct_split_helper_direct(self):
         import tcf.multi as m
@@ -504,18 +505,23 @@ class TestEdgeCases:
         with pytest.raises(ValueError, match="lengths"):
             encode({"a": ["1", "2"], "b": ["x"]})
 
-    def test_col_name_with_comma_raises(self):
-        with pytest.raises(ValueError, match="separador"):
-            encode({"a,b": ["1", "2"]})
+    @pytest.mark.parametrize("table", [
+        {"a,b": ["1", "2"], "c": ["x", "y"]},           # virgula
+        {"x=y": ["1", "2"], "z": ["3", "4"]},           # igual
+        {"created:at": ["1", "2"], "v": ["a", "b"]},    # dois-pontos
+        {"!raw": ["1", "2"], "@d": ["3", "4"], "%s": ["5", "6"]},  # prefixos de modo
+        {":": ["1", "2"], "=": ["3", "4"]},             # nome = so' separador
+        {"a:b,c=d": ["1", "2"], "z": ["x", "y"]},       # multi-separador
+        {"lit\\bs": ["1", "2"], "c": ["3", "4"]},       # backslash literal
+    ])
+    def test_col_name_with_separators_escaped_rt(self, table):
+        # T-FMT-NAME-ESCAPING (M2): nomes com ,/=/:/!@%/\\ escapados via backslash -> RT
+        assert decode(encode(table)) == table
 
-    def test_col_name_with_equals_raises(self):
-        with pytest.raises(ValueError, match="separador"):
-            encode({"a=b": ["1", "2"]})
-
-    def test_col_name_with_colon_raises(self):
-        # INTERIM ate' o escaping (T-FMT-NAME-ESCAPING): ':' rejeitado (ADR-0032)
-        with pytest.raises(ValueError, match="separador"):
-            encode({"a:b": ["1", "2"], "c": ["3", "4"]})
+    def test_col_name_with_newline_raises(self):
+        # '\n' e' o separador de linha do meta -> irrepresentavel (unico rejeitado)
+        with pytest.raises(ValueError, match="separador de linha"):
+            encode({"a\nb": ["1", "2"]})
 
     def test_null_values_converted_to_empty_str(self):
         table = {"a": ["x", None, "y"]}
