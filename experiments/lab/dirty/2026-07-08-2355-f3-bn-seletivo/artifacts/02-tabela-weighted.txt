@@ -1,0 +1,20 @@
+# F3 nível-tabela — ganho MARGINAL de bN-w<=4 sobre a produção, PRE e POS brotli
+
+| fonte | N | cols | prod tabela B | econ w<=4 B | **pre %** | prod+brz | F3+brz | **pos %** | (wide w<=8 pre %) |
+|---|---|---|---|---|---|---|---|---|---|
+| adult | 20000 | 15 | 401914 | 105000 | **26.1%** | 132631 | 128742 | **2.9%** | 26.1% |
+| tpch.lineitem | 20000 | 16 | 1179075 | 83502 | **7.1%** | 367245 | 365495 | **0.5%** | 8.8% |
+| receita.estab | 20000 | 8 | 492771 | 10608 | **2.2%** | 215705 | 216174 | **-0.2%** | 2.2% |
+| br.pessoas | 20000 | 6 | 875835 | 0 | **0.0%** | 301626 | 301626 | **0.0%** | 0.0% |
+| ibge.municipios | 5571 | 8 | 136920 | 0 | **0.0%** | 42796 | 42796 | **0.0%** | 4.1% |
+| beijing-pm25 | 20000 | 13 | 211635 | 15000 | **7.1%** | 68123 | 67665 | **0.7%** | 7.1% |
+| online-retail | 20000 | 8 | 257906 | 0 | **0.0%** | 113090 | 113090 | **0.0%** | 15.2% |
+| wine | 6497 | 13 | 159375 | 3248 | **2.0%** | 70067 | 69728 | **0.5%** | 29.3% |
+
+**WEIGHTED (8 fontes)**: F3 (w<=4) pre-brotli **5.9%** · pos-brotli **0.5%** · (wide w<=8 pre-brotli 8.8%, = D3)
+
+LEITURA: 'pre %' = ganho de ADICIONAR bN-w<=4 ao min() da produção; byte-SAFE só no TERMINAL
+(F3<=prod em bytes terminais). PÓS-brotli NÃO é safe: receita = -0.2% (bits densos comprimem pior
+que o stream base-94 repetitivo). Denominador: 'pre %' usa prod_table (com header, sem comprimir);
+'pos %' compara corpos-concat pós-brotli (sem header) — o ~1 byte/coluna do discriminador de modo bN
+é omitido (~20 B, desprezível vs economia). 'wide' = até w=8 (k 95..256). LIMIT=20000 (declarado).

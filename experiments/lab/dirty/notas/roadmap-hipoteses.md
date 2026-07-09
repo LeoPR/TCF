@@ -739,6 +739,15 @@ nova hipotese identificada.
     semanticas. **Corrida especulativa** (filas com espera + cancel): em batch = try-classifier-first com
     early-exit (o classificador ja' e' ~o analyze_column, custa << nucleo); as filas viram reais em
     STREAMING (V2-J); aposta tardia mitigada pelo overlay-com-budget.
+  - **F3 MEDIDO** ([lab 2026-07-08-2355](../2026-07-08-2355-f3-bn-seletivo/result.md), verificado por
+    workflow 4-lentes): bN-w<=4 como candidato do min() da producao, 8 fontes reais weighted. **Terminal
+    5.9%** (byte-SAFE so' no terminal, por construcao min); **pos-brotli 0.5%** e NAO byte-safe — `receita`
+    vai NET-NEGATIVO -0.2% (bits densos comprimem pior que base-94 repetitivo). Decomposicao: bit-packing
+    sub-byte real = w<=4 (w1=1.32%, w2=1.21%, w4=3.32%); o extra ate' w=8 (2.9pp, k **95..256**) NAO e'
+    bit-packing (8 bits=1 byte; vence v2b so' trocando 2 chars por 1 byte) — F3 descarta. Reproduz D3
+    (wide=8.8%). **Fecha os 3 fluxos**: F1=latencia (2.4x), F2=natures welded, F3=byte-neutro-a-negativo
+    pos-brotli. **CONCLUSAO**: o byte NAO e' o eixo do bN — latencia/terminal e'. Nao justifica welding por
+    byte; se entrar, gate = w<=4 + regime terminal, sempre como candidato do min() (nunca imposto).
 
 - **H-TX-01** (gate de posicionamento de transmissao, pendente desde 2026-06-21): TCF+brotli vs
   **NDJSON+brotli** (o concorrente textual real, nao so' CSV). Lab

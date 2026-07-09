@@ -1,0 +1,21 @@
+# F3 misto seletivo (bN-w<=4 no min) — 8 fontes [resumo]
+
+## WEIGHTED: F3 pre-brotli 5.9% · pos-brotli 0.5% · (wide w<=8: 8.8%)
+
+## Por fonte (F3 pre % / pos %)
+  adult            pre= 26.1%  pos=  2.9%  (N=20000, cols=15)
+  tpch.lineitem    pre=  7.1%  pos=  0.5%  (N=20000, cols=16)
+  receita.estab    pre=  2.2%  pos= -0.2%  (N=20000, cols=8)
+  br.pessoas       pre=  0.0%  pos=  0.0%  (N=20000, cols=6)
+  ibge.municipios  pre=  0.0%  pos=  0.0%  (N=5571, cols=8)
+  beijing-pm25     pre=  7.1%  pos=  0.7%  (N=20000, cols=13)
+  online-retail    pre=  0.0%  pos=  0.0%  (N=20000, cols=8)
+  wine             pre=  2.0%  pos=  0.5%  (N=6497, cols=13)
+
+## Veredito (do número)
+- BYTE-SAFE só no TERMINAL por construção (min em bytes terminais → F3<=prod terminal). Weighted 5.9%.
+- Pós-brotli weighted 0.5%: NÃO é byte-safe — pode ir NET-NEGATIVO (receita -0.2%). Bits densos
+  comprimem pior que o base-94 repetitivo. Nicho é terminal/streaming, não re-comprimido.
+- Decomposição: w<=4 (bit-packing sub-byte) = 5.9%; o extra até w=8 (2.9 p.p., k 95..256)
+  NÃO é bit-packing (8 bits=1 byte; só vence v2b trocando 2 chars por 1 byte) — F3 descarta.
+- Reproduz D3 (wide=8.8%) e casa com F1 (o valor é latência/terminal, não byte re-comprimido).

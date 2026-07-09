@@ -1,0 +1,15 @@
+# F3 decomposição — de onde vem o ganho terminal (por largura w)
+
+| w | k | tile-de-byte? | colunas que vencem | bytes economizados | % do prod total |
+|---|---|---|---|---|---|
+| 1 | <=2 | sim (8/byte) | 4 | 49110 | 1.32% |
+| 2 | <=4 | sim (4/byte) | 3 | 45000 | 1.21% |
+| 4 | <=16 | sim (2/byte) | 13 | 123248 | 3.32% |
+| 8 | 95..256* | NÃO (1 val/byte) | 11 | 108242 | 2.91% |
+
+* w=8 vence v2b SÓ p/ k 95..256 (v2b usa 2 chars/idx; bN 1 byte). Em k 17..94 bN=v2b=1 byte → 0 wins.
+F3 (w<=4) soma = 217358 B (5.9% do prod).
+w=8 extra = 108242 B (2.91%) — F3 DESCARTA: 8 bits = 1 byte exato
+(sem densidade sub-byte); só ganha de v2b trocando 2 chars por 1 byte, não é bit-packing.
+CONCLUSÃO: o bit-packing sub-byte verdadeiro mora em w<=4; e mesmo esse colapsa pós-brotli — pode ir
+NET-NEGATIVO (receita -0.2%), pois bits densos comprimem pior que o base-94 repetitivo do v2b.
