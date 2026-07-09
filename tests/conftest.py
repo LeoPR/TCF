@@ -12,7 +12,8 @@ Local roda: `pytest` pra rodar tudo (incluindo integration tests).
 
 Determinismo: PYTHONHASHSEED=0 garante que o byte-canonical seja reproducivel
 cross-platform. Baselines atuais (ADR-0024/0025, pré-1.0, re-pinaveis): D1-D9 =
-1523B (single-col, inalterado), D17a = 303B (0.7 default, V2-B; #TCF.6 = 322B).
+1523B (single-col, inalterado), D17a = ver pin em test_regression_v1_baseline.py
+(D17A_INVARIANT; re-pinado no weld hex 2026-07-09; #TCF.6 legado = 322B).
 Settado via setdefault antes de qualquer import que dependa de hashing.
 """
 

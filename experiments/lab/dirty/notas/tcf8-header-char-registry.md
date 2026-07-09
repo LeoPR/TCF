@@ -70,8 +70,9 @@ Regra proposta pra qualquer fluxo `.8` novo **não colidir**:
 - **Gap que este doc fecha**: faltava o **registry + esquema de reserva**. Com eles, os fluxos futuros
   (bN `#`, cross-dict `&`, hierárquico `H`, tcfx) têm slot e regra de claim → sem colisão.
 - **Pendência dispositivo (owner)**: promover este registry pra o spec canônico
-  [`TCF-format.md`](../../../../docs/algorithms/TCF-format.md) + registrar `H` (hierárquico) no ADR-0029 se/
-  quando o TCF.8H for adiante. Enquanto research-track, `H` fica **não-oficial** (o protótipo sabe, o formato não).
+  [`TCF-format.md`](../../../../docs/algorithms/TCF-format.md). ~~registrar `H` no ADR-0029~~ **FEITO
+  2026-07-09**: [ADR-0031](../../../../docs/adr/0031-hierarchical-discriminator-H.md) reservou `H` (char +
+  semântica; codec segue gated) — ver Eixo 1 acima. Pendente só a promoção do registry à spec canônica.
 
 ## Cross-links
 

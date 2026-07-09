@@ -2,7 +2,7 @@
 
 Valida:
 - Output byte-identico vs serial (paralelismo NAO muda bytes)
-- D17a 322B INVARIANT preservado em modo parallel
+- D17a INVARIANT preservado em modo parallel (pin vivo em test_regression_v1_baseline)
 - RT OK em parallel
 - SideOutputs capturado per-col
 - single-col list ignora parallel (no-op)

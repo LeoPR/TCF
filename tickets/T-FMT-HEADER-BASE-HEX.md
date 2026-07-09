@@ -86,9 +86,15 @@ Sítios exatos (survey `tcf-radix-survey`, file:line verificados):
 - Verificado: #TCF.6=322 decimal · #TCF.7=302 hex (`3d=timestamp,1c=id,90=email,@categoria`) · RT ✓ · view ✓.
 
 **Nota de versão (decisão pendente do owner)**: o weld refina o **#TCF.7 em lugar** (hex), tratando o minor
-como dev-marker (compat=comparativo, ADR-0024). Consequência: blobs multi-col do 0.7.1 publicado (decimal)
-NÃO decodam com o novo código — aceitável pré-1.0 (passado morre no 1.0). Se o owner preferir, hex poderia
-ser um bump de minor em vez de refino in-place (ADR-0028: "formato muda→minor") — não feito, aguarda decisão.
+como dev-marker (compat=comparativo, ADR-0024). **CORREÇÃO (review 2026-07-09)**: a consequência real é
+PIOR que "não decodam" — decimal é subconjunto sintático de hex, então blobs multi-col do 0.7.1 publicado
+**decodam SEM erro com dados ERRADOS** (`int('10',16)`=16: sizes lidos maiores, colunas desalinhadas;
+verificado — raw sai silencioso-errado, tcf/dict tende a estourar com erro não-diagnóstico). `_decode_multi_impl`
+não valida fechamento do body nem igualdade de comprimento entre colunas; a "rede de dedução" do item 4 está
+ESPECIFICADA mas NÃO implementada. **Resolução recomendada (review, absorver no ADR do .8-default)**: hex
+vira feature EXCLUSIVA da família **#TCF.8** e o `#TCF.7` volta a decimal legado-de-leitura (como o v6) —
+custo zero (o default passará a emitir v8 hex de qualquer forma) e colisão-livre com todos os blobs
+publicados. Alternativa (hex fica no v7): implementar a guarda de fechamento do body. Aguarda decisão.
 
 Mapa completo dos outros sítios de base:
 [registro de bases/radix](../experiments/lab/dirty/notas/bases-radix-usos-tcf.md).

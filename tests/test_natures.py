@@ -4,7 +4,7 @@ Valida:
 - SPEC_CPF e SPEC_CNPJ encode/decode round-trip
 - Fallback marker pra valores nao-compressible
 - Integration com tcf.encode/decode (single + multi-col)
-- D17a 322B INVARIANT preservado (sem nature param = sem mudanca)
+- D17a INVARIANT preservado (sem nature param = sem mudanca; pin vivo em test_regression_v1_baseline)
 - Classify taxonomy (Kim 2003)
 """
 
