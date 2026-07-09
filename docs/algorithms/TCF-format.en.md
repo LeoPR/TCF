@@ -28,13 +28,14 @@ Format designed for:
 > **3-AXIS MODEL (ADR-0028, 2026-06-24; refines ADR-0024)** — distinguish:
 > - **(A) FORMAT version** — the **format signature / magic number** `#TCF.N` (canonical term;
 >   **not** "shebang", which is `#!` — analogous to `%PDF-1.7`; see [vocabulary.md](../vocabulary.md)).
->   On-disk contract; only changes with a format change. Today `#TCF.7` (default), `#TCF.6` (legacy, read).
+>   On-disk contract; only changes with a format change. Today `#TCF.8` (default, ADR-0032); `#TCF.6/.7`
+>   cut from `src/tcf` (git-as-compat: recover the era to read/compare).
 > - **(B) Encoder generation** — internal milestone (M8A→M9→M10); NOT a public version (historical note).
 > - **(C) Package version** (PyPI) — pre-1.0 = `0.<format>.<release>`: minor = format number
 >   (`0.N` ↔ `#TCF.N`); release/patch = delivery WITHIN the format.
 >
 > **Bump rule**: a FORMAT change moves the minor (`0.(N+1).0`); a delivery without a format change moves the
-> release (`0.N.x+1`). E.g.: lazy+prune (#TCF.7 unchanged) = `0.7.2`; cross-dict `#TCF.8` = `0.8.0`.
+> release (`0.N.x+1`). E.g.: `#TCF.8` default (ADR-0032) = `0.8.0` (the lazy+prune cycle was absorbed).
 > `1.0` only when the final format freezes → then strict semver. The phrases "frozen v1.0"/"v2.0"/
 > "stable since v1.0" below are from the old model (ADR-0017) — read them in that key.
 > Terms: [`../vocabulary.md`](../vocabulary.md) §Versioning.
@@ -46,66 +47,68 @@ TCF distinguishes the **FORMAT version** (signature `#TCF.N`, axis A) from the *
 
 | Signature | Status | Introduced | Compatible with |
 |---|---|---|---|
-| `#TCF.8` | **opt-in** (self-describing natures) | 2026-06 | encode only if a nature exists; decode reads |
-| `#TCF.7` | **0.7 (default)** | 2026-06 | encode default (multi-col); decode reads |
-| `#TCF.6` | **legacy** (0.6) | 2026-05 | decode reads; producible internally |
+| `#TCF.8` | **DEFAULT** (multi-col + single-col self-describing) | 2026-07 (default: [ADR-0032](../adr/0032-tcf8-default-format.md)) | encode default; decode reads |
+| `#TCF.7` / `#TCF.6` | **legacy CUT** from `src/tcf` | 2026-05/06 | git-as-compat (ADR-0024): `git checkout` the era to read/compare |
 | `#TCF.5` | superseded | 2026-04 (v0.5) | tcf 0.5.x (legacy, do not maintain) |
 
-**`#TCF.8` (self-describing natures, [ADR-0027](../adr/0027-nature-mark-header-self-describing.md),
-welded 2026-06-24)** — STRICTLY ADDITIVE and opt-in: emitted ONLY IF some column has a nature
-(CPF/CNPJ/IP); otherwise byte-identical `#TCF.7`.
+**`#TCF.8` is the DEFAULT format** ([ADR-0032](../adr/0032-tcf8-default-format.md), 2026-07-09): every
+multi-col emits `#TCF.8M`; flat single-col stays **orphan** (0-byte header, ADR-0029 layer 1 /
+[ADR-0030](../adr/0030-freeze-single-col-body-at-1.0.md) freeze). Legacy `#TCF.6`/`#TCF.7` was **cut**
+from `src/tcf` (decode fail-loud with a git hint). Self-describing: natures (ADR-0027) + hex + escaping
+travel in the header.
 
-**1-char discriminator** ([ADR-0029](../adr/0029-version-format-identification-semi-implicit.md)):
-the character right after `#TCF.8` decides structure+type. No collision (single has a SPACE
-before the name; multi has `M` attached):
+**1-char discriminator** ([ADR-0029](../adr/0029-version-format-identification-semi-implicit.md) +
+[ADR-0031](../adr/0031-hierarchical-discriminator-H.md)): the character right after `#TCF.8` decides the
+structure. 5 values:
 
 | after `#TCF.8` | type | header |
 |---|---|---|
-| `M` | multi | `#TCF.8M<NN[=name][:spec]>,<...>` (meta INLINE on the signature line) |
+| *(nothing, body directly)* | orphan single-col (DEFAULT, 0 B) | — |
+| `M` | flat multi-col | `#TCF.8M<meta>` (meta INLINE on the signature line) |
+| `H` | hierarchical multi-col (specialization of `M`) — **reserved** (ADR-0031; codec in the lab, fail-loud) | `#TCF.8H<tree-meta>` |
 | ` ` (space) | single + spec | `#TCF.8 [name]:spec` (name optional, label only) |
 | `\n` | single version-stamp | `#TCF.8` (opt-in stamp; magic number for `file`/libmagic) |
 
+Unknown/reserved discriminator (incl. `H`) -> **fail-loud** on decode (never degrades to orphan).
+
+**`#TCF.8M` meta** — INLINE after the signature (`#TCF.8M<meta>\n<bodies>`), no `# ` prefix. Each column
+= `[<pre>]<size>[=<name>][:<id>]`:
+- **byte-size in HEX** ([T-FMT-HEADER-BASE-HEX](../../tickets/T-FMT-HEADER-BASE-HEX.md), ADR-0032 §3):
+  `format(n,'x')` (lowercase, no `0x`, no leading zeros). Collision-free with the separators. Decimal
+  only via an inspection command (not the stored format).
+- **mode prefix** `!`=raw (V2-A) · `@`=dict (V2-B) · `%`=split (V2-C), before the size.
+- **`:id` suffix** = nature (cpf/cnpj/ip, ADR-0027); resolved via a fixed core-only dict, unknown id ->
+  raw + warning, header-wins. The nature `:id` = LAST UN-escaped `:`.
+- **name with a separator** (`,`/`=`/`:`/`\`/leading `!@%`): **backslash-escaped**
+  ([T-FMT-NAME-ESCAPING](../../tickets/T-FMT-NAME-ESCAPING.md)); tokenizer splits on the UN-escaped
+  separator. Only `\n` is forbidden (meta line separator).
+- **last column without size** (`min_header`, body up to EOF, O-FMT-15/ADR-0023): pair without `=`.
+- **anonymous columns** (`drop_names`): omit `=name`; decode reconstructs by ORDER (`{'0':..,'1':..}`).
+
 Examples (body on the following line(s)):
 
-    #TCF.8M!7=doc:cnpj,!x        <- multi: 2 cols, doc with nature cnpj, x raw
+    #TCF.8M7=doc:cnpj,x          <- multi: 2 cols, doc (size 0x7) with nature cnpj, x (last, no size)
+    #TCF.8M@a=uf,1e=name         <- dict (@) on col uf; name size 0x1e=30; last without size
     #TCF.8 docs:cpf              <- single + spec cpf, name 'docs'
     #TCF.8                       <- single version-stamp (pure single-col body)
 
-- **self-describing nature**: the `:spec` (cpf/cnpj/ip) travels in the header; decode resolves it via
-  a fixed core-only dict (zero eval), unknown id -> raw + warning (forward-compat),
-  header-wins precedence. Multi: the validator forbids `:` in a column name when there is a nature.
-- **byte-neutral** ([ADR-0029](../adr/0029-version-format-identification-semi-implicit.md)
-  layer 1): `#TCF.8` only appears on opt-in (`nature=`/`nature_per_col=`/`stamp=True`).
-  Flat single-col = pure **orphan** body (no signature, D1-D9=1523B intact); multi without
-  a nature = `#TCF.7 M`. The version-stamp (`#TCF.8\n`) is opt-in (`encode(list, stamp=True)`).
-- multi `#TCF.8M` drops the space before the `M` and puts the meta on the signature line (~2B less
-  than `#TCF.7 M`+separate line).
-- **anonymous columns** (`encode(dict, drop_names=True)`): omits the `=name` in the meta; decode
-  reconstructs by ORDER (`{'0':..,'1':..}`, like SQL/CSV-without-header). Saves the name of
-  each column in the header; forces `#TCF.8M` (the named `#TCF.7` stays intact). Natures follow
-  (`:spec` positional). Position-aware parse: `=` disambiguates named vs anonymous.
+- **single-col byte-neutral**: flat single-col = pure **orphan** body (no signature, D1-D9=1523B and
+  real-world=89616B intact — ADR-0032 does not touch single-col). Only MULTI-COL became `#TCF.8M`.
 
-**v1 promise**: `#TCF.6` is immutable until v2.0. No byte of a
-TCF v1 file changes between tcf 1.x.y versions. New markers require `#TCF.7`.
+**Column candidates** (the per-column fallback, all inside `#TCF.8M`; `min(tcf,raw,dict,split)`):
+- **V2-A fallback identity** ([ADR-0022](../adr/0022-v2a-fallback-identity-weld.md), `fallback=True`):
+  min(TCF, raw); a raw column is marked `!<size>=<name>`.
+- **Minimal header** ([ADR-0023](../adr/0023-v2-minimal-header-weld.md), `min_header=True`): omits the
+  size of the LAST column (body up to EOF). Aimed at small payloads.
+- **V2-B dictionary** ([ADR-0025](../adr/0025-v2b-dictionary-categorical-weld.md), `@`) and **structural
+  split** ([ADR-0026](../adr/0026-structural-split-weld.md), `%`): more per-column candidates.
+- **V2-RLE-STREAM** (follow-up to V2-B, **NOT welded**): RLE on the `@dict` index stream. Characterized
+  2026-06-19: CLOSED-general / pure-text niche open. `src/tcf` untouched.
 
-**`#TCF.7` (v2, ADDITIVE and opt-in)** — two orthogonal capabilities, both multi-col,
-both emitting `#TCF.7 M` only when activated (otherwise byte-identical `#TCF.6`).
-**Every `#TCF.7` drops the `# ` prefix of the meta** (the `M` flag in the signature already
-declares the columns, ADR-0023) — `#TCF.6` keeps the `# ` (frozen). Decoder
-self-describing. The default preserves 100% of the v1 invariants:
-- **V2-A fallback identity** ([ADR-0022](../adr/0022-v2a-fallback-identity-weld.md),
-  `fallback=True`): per column chooses min(TCF, raw); a raw column is marked
-  `!<size>=<name>`. Meta: `!<s1>=<n1>,<s2>=<n2>,...`.
-- **Minimal v2 header** ([ADR-0023](../adr/0023-v2-minimal-header-weld.md),
-  `min_header=True`): besides the prefix, OMITS the size of the LAST column (body up to
-  EOF) -> meta `<s1>=<n1>,...,<nN>`. Aimed at small payloads.
-- **V2-B dictionary** ([ADR-0025](../adr/0025-v2b-dictionary-categorical-weld.md),
-  marker `@`) and **structural split** ([ADR-0026](../adr/0026-structural-split-weld.md),
-  marker `%`): more per-column fallback candidates (welded; body detail in the ADRs).
-- **V2-RLE-STREAM** (experimental follow-up to V2-B, **NOT welded**): RLE on the index stream
-  of `@dict`. Characterized 2026-06-19 ->
-  [lab](../../experiments/lab/dirty/old/refuted/2026-06-19-v2rle-stream-caracterizacao/result.md): CLOSED-general /
-  pure-text niche open (owner's decision). `src/tcf` untouched.
+> **Historical note**: `#TCF.7`/`#TCF.6` were the previous default formats (opt-in `#TCF.8` was only when
+> a nature existed). As of [ADR-0032](../adr/0032-tcf8-default-format.md), `#TCF.8` is the default and the
+> legacy left the live code (git-as-compat, pre-1.0 ADR-0024 — the old version is a progress/comparison
+> point, not production). At 1.0 the past dies in git.
 
 ### Library version (semver)
 
@@ -220,12 +223,12 @@ Details: see [ADR-0017](../adr/0017-format-spec-v1-frozen.md).
 │            ┌── concat ────────────────┘                           │ │
 │            ▼                                                      │ │
 │   ┌──────────────────────────────────────────────┐               │ │
-│   │  #TCF.7 M   (default 0.7; #TCF.6 = legacy)     │ ADR-0004/0013 │ │
+│   │  #TCF.8M   (DEFAULT — ADR-0032)                │ ADR-0004/0032 │ │
 │   │  meta V2:  !<s1>=<n1>,...,<nN>   (no `# `)     │ +0022/23/24/25│ │
 │   │  <body1><body2><body3>...                      │               │ │
 │   │  (byte-precise concat, no delimiter)           │               │ │
 │   └──────────────────────────────────────────────┘               │ │
-│   #TCF.6 legacy: `# <s1>=<n1>,...` (with `# `, no markers).        │ │
+│   legacy #TCF.6/#TCF.7: CUT (git-as-compat, ADR-0032).             │ │
 │                                                                  │ │
 │   single-col: pure body, no signature                            │ │
 └─────────────────────────────────────────────────────────────────────┘
@@ -236,12 +239,12 @@ Details: see [ADR-0017](../adr/0017-format-spec-v1-frozen.md).
 ```
 decode(text) → list[str] | dict[str, list[str]]
          │
-         ├─ startswith("#TCF.7 M") OR "#TCF.6 M" ──► _decode_multi → dict
+         ├─ disc after "#TCF.8" == "M" ──► _decode_multi → dict  (H/unknown → fail-loud; .6/.7 → legacy error)
          │
          └─ otherwise                             ──► _decode_column → list
 ```
 
-Self-describing: the signature (`#TCF.7 M` default, `#TCF.6 M` legacy) identifies
+Self-describing: the signature (`#TCF.8M` multi; orphan/space/`\n` single) identifies
 the format. The decoder dispatches automatically on both; the caller does not need
 to know whether the output is single or multi.
 
@@ -279,30 +282,30 @@ Doc: [HCC.md](HCC.md). Implementation: [`src/tcf/composicional/syntax.py`](../..
 
 For `dict[str, list[str]]` input, each column goes through layers
 0-2 independently. The bodies are concatenated byte-precise with a
-`#TCF.7 M` header (default 0.7) + meta line.
+`#TCF.8M` header (DEFAULT, ADR-0032) + INLINE meta.
 
-> **Default 0.7 (ADR-0024)**: `encode(dict)` emits **`#TCF.7 M`** with
+> **Default #TCF.8M (ADR-0032)**: `encode(dict)` emits **`#TCF.8M`** with
 > `fallback` + V2-B dictionary + `min_header` **automatic** — meta without the
 > `# ` prefix, per-column mode markers (`!` raw, `@` dict, `%` split) and the
-> last column without a size. `#TCF.6 M` is **legacy** (read by the decoder; producible
+> last column without a size. Legacy `#TCF.6/#TCF.7` was cut (git-as-compat; not producible
 > via `_encode_multi(fallback=False, min_header=False)`). Real ex.:
-> `#TCF.7 M\n!5=id,!15=name,!plan\n...`.
+> `#TCF.8M!5=id,!f=name,!plan\n...` (`f` = 15 in hex; meta INLINE).
 
 **V2-A fallback identity (ADR-0022, `fallback`)**: per column chooses min(TCF, raw);
 a raw column becomes `!<size>=<name>`. **On by default** in 0.7.
 
-**Minimal v2 header (ADR-0023, `min_header`)**: every `#TCF.7` drops the `# ` prefix
-of the meta (the signature's `M` already declares the columns); `min_header` additionally omits the size of the
-last column (body up to EOF): meta `<s1>=<n1>,...,<nN>`. **On by default** in 0.7.
-Focus: small payload (fixed header dominates). To emit byte-identical `#TCF.6` (legacy),
-explicit opt-out (`fallback=False, min_header=False`).
+**Minimal header (ADR-0023, `min_header`)**: the meta is INLINE (no `# ` prefix); `min_header` omits the
+size of the last column (body up to EOF): meta `<s1>=<n1>,...,<nN>`. **On by default**.
+Focus: small payload (fixed header dominates). `fallback`/`min_header` are opt-out knobs — they no longer
+change the format (always `#TCF.8M`, ADR-0032).
 
 **V2-B dictionary (ADR-0025, `@`) + structural split (ADR-0026, `%`)**: extra
 per-column fallback candidates (categorical dictionary; structural field split).
 They enter the default when they reduce the column.
 
 Restrictions:
-- Column names cannot contain `,` or `=` (reserved by the header)
+- Column names with a separator (`,`/`=`/`:`/`\`/leading `!@%`) are **backslash-escaped**
+  (T-FMT-NAME-ESCAPING); only `\n` is forbidden (meta line separator)
 - All columns must have the same number of values
 - `None` → `""` (TCF operates on strings)
 
@@ -506,7 +509,7 @@ supersedes the "frozen" of ADR-0017): additive, without rigid compat between dev
 - Adult Census + TPC-H 57 columns: **-11.73% weighted** vs pure M9
 
 **Multi-column (ADR-0013/0014 + V2 ADR-0022/0023/0025/0026)**:
-- D17a synthetic (13×4): **303 bytes** (0.7 default, V2-B); 322B = `#TCF.6` legacy
+- D17a synthetic (13×4): **300 bytes** (#TCF.8M default, V2-B hex — ADR-0032; re-pinnable ADR-0024/0025)
 - 9 real-world tables (Adult Census + TPC-H tier 1+2, 136k rows,
   15.8 MB raw):
   - **-33.02% weighted vs raw**, **-31.46%** vs single-col concat
@@ -525,7 +528,7 @@ Details: [experiments/lab/dirty/2026-05-24-benchmark-formats-compression/](../..
 **Test suite** (snapshot 2026-05-27: 259 passed; current count in
 [STATUS.md](../../STATUS.md)). Byte-canonical guardian:
 [`test_regression_v1_baseline.py`](../../tests/test_regression_v1_baseline.py)
-(snapshot D1-D9=1523B + D17a=303B default / 322B `#TCF.6` legacy).
+(snapshot D1-D9=1523B single-col intact + D17a=300B #TCF.8M default, ADR-0032).
 
 ## State v0.5 (accessory)
 

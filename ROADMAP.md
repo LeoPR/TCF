@@ -10,12 +10,19 @@
 > obrigatório pra qualquer mudança em HCC / pre-pass / prune; nada de weld de natureza/lossy
 > sem medir o **incremento** em ≥2 datasets reais (anti-incidente 2026-05-21).
 
-## Estado — 0.7.1 publicado (formato #TCF.7)
+## Estado — formato `#TCF.8` default (ADR-0032); pacote 0.8.0 em curso
+
+> **PONTE 2026-07-09 (ADR-0032)**: `#TCF.8M` virou o formato DEFAULT do multi-col; legado `#TCF.6/.7`
+> CORTADO de `src/tcf` (git-as-compat); byte-sizes em HEX; nomes com separador escapados; discriminador
+> `H` reservado (ADR-0031). Pacote vai a `0.8.0` (ADR-0028 aceito), com o ciclo lazy+poda **absorvido**
+> (sem `0.7.2` separado) — PyPI segura em 0.7.1 ate' publicar completo. Os blocos datados abaixo que dizem
+> "0.7 default / 0.7.2 antes / cross-dict paga o bump / ADR-0027 proposed" sao HISTORICOS — leia nesta chave.
 
 Bytes-core welded: **V2-A** fallback (ADR-0022, `!`), **V2-B** dicionário (ADR-0025, `@`,
 13.9% weighted), **split estrutural** (ADR-0026, `%`, 19.39% weighted), **header mínimo**
-(ADR-0023), **sort_by** (O-FMT-02). Natures CPF/CNPJ/IP (ADR-0015). Pacote `tcf-format 0.7.1`
-publicado no PyPI. D1-D9=1523 B, D17a=303 B (contagem de testes vive na suíte).
+(ADR-0023), **sort_by** (O-FMT-02). Natures CPF/CNPJ/IP (ADR-0015). Formato default `#TCF.8` (ADR-0032).
+Pacote publicado no PyPI = `tcf-format 0.7.1` (0.8.0 no go do owner). D1-D9=1523 B (single-col intacto),
+D17a=300 B (#TCF.8M, re-pin ADR-0032; contagem de testes vive na suíte).
 
 ---
 

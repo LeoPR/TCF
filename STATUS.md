@@ -30,6 +30,20 @@
 >   (specs/natures, EnumSpec no-go). A [`tcf8-vista-o-que-falta.md`](experiments/lab/dirty/notas/tcf8-vista-o-que-falta.md)
 >   da sessao 2026-07-06/08 e' subordinada: mapeia como bN/specs/TCF.8H se relacionam (research-track, FORA do release).
 
+> **RECONCILIACAO 2026-07-09 (#TCF.8 = DEFAULT — [ADR-0032](docs/adr/0032-tcf8-default-format.md), accepted)** —
+> chave sobre TODOS os blocos datados abaixo que dizem "#TCF.7 default" / "#TCF.6/.7 legado lido" / "D17a=303B":
+> - **`#TCF.8M` e' o formato DEFAULT do multi-col** (supersede a regra opt-in-SSE-nature do ADR-0027).
+>   Single-col segue **orfao** intocado (D1-D9=1523B e RW=89616B — ADR-0032 nao mexe no single-col).
+> - **Legado `#TCF.6`/`#TCF.7` CORTADO de `src/tcf`** (emit E decode): decode fail-loud com dica de git;
+>   comparacao historica via `git checkout` OU copias em `legacy-snapshots/` (gitignored). Git-as-compat
+>   (ADR-0024): a versao antiga e' ponto de progresso, nao producao — no 1.0 o passado morre no git.
+> - **Byte-sizes em HEX** (T-FMT-HEADER-BASE-HEX) + **nomes com separador escapados com `\`**
+>   (T-FMT-NAME-ESCAPING) + **discriminador `H`** reservado (ADR-0031, fail-loud, codec no lab).
+> - **D17a re-medido = 300B** (#TCF.8M inline hex; 4a re-pin — MEDIR nao calcular; fonte = a suite).
+> - **Versao**: pacote vai a `0.8.0` (ADR-0028 aceito); o ciclo `0.7.2` (lazy) foi **ABSORVIDO** no 0.8.0
+>   (sem release intermediario). PyPI segura em 0.7.1 ate' publicar completo+estavel (go do owner).
+> Detalhe: milestones M1 (flip+corte)/M2 (escaping)/M4 (docs) — ver ADR-0032 + diario 2026-07-09.
+
 > **Versionamento (ADR-0024, 2026-06-14)**: projeto e' **pré-1.0**. Os minors do
 > formato (`#TCF.4/.5/.6/.7`) sao iteracoes de dev rumo a um **1.0 solido**, sem
 > compat rigida entre eles (git reproduz versoes antigas). O `#TCF.7` = "0.7"
@@ -392,13 +406,13 @@ canonical delta-aware (M10 baseline, ADR-0011) + camadas V2 multi-col
 
 API publica unificada (ADR-0014): `from tcf import encode, decode, SideOutputs, view`.
 - `encode(list)` -> body single-col (sem shebang)
-- `encode(dict)` -> multi-col com header `#TCF.7 M` (default; `#TCF.6 M` legado)
-- `decode(text)` -> dispatch automatico pelo shebang (le #TCF.7 e #TCF.6)
+- `encode(dict)` -> multi-col com header `#TCF.8M` (default, ADR-0032; hex + escaping)
+- `decode(text)` -> dispatch pelo discriminador (`#TCF.8M`; legado #TCF.6/.7 -> fail-loud, cortado)
 - `SideOutputs()` opcional captura features/logs/traces internos
-- `view(blob)` -> camada read-only lazy/consultavel (A4, plano 0.8)
+- `view(blob)` -> camada read-only lazy/consultavel (A4)
 
-RT byte-canonical validado em D1-D9 (M10 baseline 1523B, vs M9 antigo
-1615B), D17a multi-col (303B default / 322B #TCF.6 legado), Adult+TPC-H
+RT byte-canonical validado em D1-D9 (M10 baseline 1523B, single-col intacto),
+D17a multi-col (300B #TCF.8M default, ADR-0032), Adult+TPC-H
 single-col 57 cols, 9 tabelas multi-col (Adult + TPC-H tier 1+2, 136k linhas,
 -33.02% weighted vs raw, -31.46% vs single concat, RT 9/9).
 

@@ -1,5 +1,12 @@
 # TCF.8 — estrutura e plano (consolidado) [plano]
 
+> **CORREÇÃO 2026-07-09 ([ADR-0032](../../../../docs/adr/0032-tcf8-default-format.md), accepted)**: este
+> plano diz "toda feature #TCF.8 = opt-in / byte-neutro no default (D17a=303B)". **Superado**: o `#TCF.8M`
+> virou o formato **DEFAULT** do multi-col (não mais opt-in-SSE-nature); o legado `#TCF.6/.7` foi CORTADO
+> de `src/tcf`; sizes em HEX; nomes escapados; D17a re-pinado **300B**. O single-col órfão continua intocado
+> (ADR-0030). As FEATURES *dentro* do `.8` (natures, cross-dict, hierarquia) é que são opt-in — o FORMATO
+> `.8` é o default. Leia os invariantes "opt-in/byte-neutro/303B" abaixo nesta chave.
+
 **Data**: 2026-06-25. **Tipo**: plano (fonte única da família `#TCF.8`). Consolida e
 reconcilia: [ADR-0027](../../../../docs/adr/0027-nature-mark-header-self-describing.md)
 (natures self-describing), [ADR-0029](../../../../docs/adr/0029-version-format-identification-semi-implicit.md)

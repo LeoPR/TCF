@@ -7,8 +7,8 @@
 
 ## Projeto em 1 paragrafo
 
-**TCF** (Tabular Compact Format) v0.7 — compressao de strings tabulares
-com pipeline canonical delta-aware (M10 baseline, ADR-0011):
+**TCF** (Tabular Compact Format) — formato `#TCF.8` default (ADR-0032; pacote 0.8.0
+em curso) — compressao de strings tabulares com pipeline canonical delta-aware (M10 baseline, ADR-0011):
 - **Pre-pass**: `analyze_column` (features) + `detect_cadence` (regras
   1+2, ADR-0008) + `detect_min_len` (heur v3 + gating n>=100, ADR-0010)
 - **OBAT** (Online Bidirectional Affix Tokenizer) em `src/tcf/core/` +
@@ -296,12 +296,17 @@ independente por camada).
 - Datasets: `D<num><suffix>-<description>.csv`
 
 ### Formato TCF
-- Magic: `#TCF.<minor>` (atual: v0.7 = `#TCF.7`; v0.6 = `#TCF.6` legado, lido;
-  `#TCF.8` = self-describing natures opt-in, `:id` no meta, ADR-0027 welded 2026-06-24,
-  emitido SSE ha nature). Major 0 omite "0".
-- Multi-column flag: `M` no shebang. Single-col: sem flag.
-- Multi-col meta: `# <size1>=<name1>,<size2>=<name2>,...`
-- LF only, UTF-8
+- Magic: `#TCF.<minor>` (atual: **`#TCF.8` = DEFAULT**, ADR-0032 welded 2026-07-09;
+  `#TCF.6`/`#TCF.7` = legado CORTADO de `src/tcf`, git-as-compat). Major 0 omite "0".
+- **Discriminador de 1 char após `#TCF.8`** (ADR-0029/0031): `M`=multi-col (meta INLINE) ·
+  `H`=multi hierárquico RESERVADO (codec no lab, fail-loud) · espaço=single+spec ·
+  `\n`=version-stamp · nada=single-col órfão (default, 0 B). Desconhecido/reservado → fail-loud.
+- Multi-col: `#TCF.8M<meta>` — meta INLINE (sem `# `), byte-sizes em **HEX**
+  (T-FMT-HEADER-BASE-HEX), nomes com separador **escapados com `\`** (T-FMT-NAME-ESCAPING).
+  Coluna: `[!@%]<size>[=<nome>][:id]`; última sem size (min_header); anônima sem `=nome` (drop_names).
+- Single-col: sem flag (órfão, D1-D9/real-world intactos — ADR-0030 freeze).
+- LF only, UTF-8. **Compat pré-1.0**: versão antiga = ponto de progresso/comparação (git), não produção;
+  no 1.0 o passado morre no git (sem `if .7`/`if .6`).
 
 ### Status markers (hipoteses)
 - `aberta`, `em-exp`, `confirmada-empirica`, `confirmada-conceitual`

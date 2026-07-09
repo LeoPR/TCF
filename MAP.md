@@ -22,7 +22,7 @@ TCF/
 │   ├── auto_min_len.py ... detect_min_len (ADR-0010, H-DA-11)
 │   ├── column_features.py  ColumnFeatures + analyze_column (H-DA-11c)
 │   ├── encoder.py, decoder.py .... API publica (pipeline delta-aware)
-│   ├── multi/ ................... encode/decode multi-coluna (core.py + dict_v2b.py; #TCF.7/8 M)
+│   ├── multi/ ................... encode/decode multi-coluna (core.py + dict_v2b.py; #TCF.8M default)
 │   ├── schema.py ................. build_schema per-tabela (CORE)
 │   ├── side_outputs.py ........... SideOutputs (efeito colateral opt-in)
 │   ├── view.py .................. view lazy/consultavel read-only (A4, `from tcf import view`)
@@ -106,7 +106,7 @@ TCF/
 | Continuar um sub-experimento | `experiments/lab/dirty/<lab>/<sub-exp>/README.md` |
 | Comparar EXP-010 ao baseline | `experiments/lab/clean/EXP-010-*/report.md` |
 | Format do .tcf | `docs/algorithms/TCF-format.md` |
-| Convencao de header | `docs/algorithms/TCF-format.md` + ADRs + **registry de chars** `experiments/lab/dirty/notas/tcf8-header-char-registry.md` (reservas `#`/`&`/`H`; NENHUM char novo sem passar por la' — promocao ao spec pendente/owner) |
+| Convencao de header | `docs/algorithms/TCF-format.{pt-BR,en}.md` (#TCF.8 default, discriminador 5-valores c/ `H`, hex, escaping) + ADRs (0029/0031/0032) + **registry de chars** `experiments/lab/dirty/notas/tcf8-header-char-registry.md` (`H` já no spec via ADR-0031; `#`/`&` research) |
 | Welding pra src/tcf | `experiments/lab/dirty/notas/welding-plan.md` |
 | Ideias futuras de formato | `experiments/lab/dirty/notas/futuras-otimizacoes-formato.md` |
 | Adicionar novo lab | `experiments/lab/dirty/YYYY-MM-DD-name/` |
@@ -118,7 +118,7 @@ TCF/
 - `experiments/lab/dirty/old/` — labs historicos antigos. **Nao use** salvo
   pra entender historia.
 - `old/tcf/` — motor v0.5 (niveis L0–L3), **congelado-historico**. Existe
-  definitivamente; `src/tcf/` (canonical v0.7) tem acoplamento ZERO com ele.
+  definitivamente; `src/tcf/` (canonical `#TCF.8`/v0.8, ADR-0032) tem acoplamento ZERO com ele.
   Semantica dos niveis revista em
   [`old/tcf/LEVELS-REVIEW.md`](old/tcf/LEVELS-REVIEW.md). **Nao use** salvo historia.
 - `llm-benchmark/eval/` — benchmark LLM v0.5 (acessorio; reorg concluida,

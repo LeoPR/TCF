@@ -39,15 +39,19 @@
 - `\*`, `\\`, `\~` — escape de chars reservados
 - `..` — range (1..4 = refs 1, 2, 3, 4)
 
-## Marcadores de modo (multi-col header, #TCF.7)
+## Marcadores de modo (multi-col header, #TCF.8M)
 
-Prefixos no tamanho de coluna da meta-line (`# !8=id,@22=cat,nome`):
+Prefixos no tamanho de coluna do meta INLINE (`#TCF.8M!8=id,@16=cat,nome` — sem `# `, sizes em **HEX**):
 
 - `!<size>=<name>` — modo **raw** (V2-A): body em TCF puro (OBAT+HCC); fallback quando TCF < raw
 - `@<size>=<name>` — modo **dict** (V2-B): body em stream de indices inteiros (coluna categorica)
 - `%<size>=<name>` — modo **split** (V2-C): body com separador estrutural inferido
-- `<size>=<name>` (sem prefixo) — modo legado `#TCF.6` (sem V2-A; `# ` no inicio da meta-line)
-- Coluna sem size (ultima): `<name>` — modo `min_header` (V2 ADR-0023); body ate' EOF
+- `<size>=<name>` (sem prefixo) — modo **tcf** (OBAT+HCC direto, sem fallback vencer)
+- Coluna sem size (ultima): `<name>` — modo `min_header` (ADR-0023); body ate' EOF
+- Nome com separador (`,`/`=`/`:`/`\`/prefixo `!@%`) — **escapado com backslash** (T-FMT-NAME-ESCAPING)
+- `<size>` (sem `=<name>`, nao-ultima) — coluna ANONIMA (`drop_names`); nome = posicao
+- **byte-size em HEX** (T-FMT-HEADER-BASE-HEX, ADR-0032 §3). *(o modo legado `#TCF.6` com prefixo `# ` +
+  sizes decimais foi CORTADO de src/tcf, ADR-0032 §4.)*
 
 ## Primitiva: referencia por indice (dicionario indexado)
 
@@ -85,7 +89,8 @@ que motivou o cross-dict/H-REF-02).
   `<?xml`, ou binárias `GZ`=`1F 8B`, `MZ`, `PK`). É o que `file`/libmagic usam pra inferir o
   **mimetype** (`application/x-tcf`). "shebang" na prosa antiga = uso histórico impreciso (ADR-0001).
 - **Versao de FORMATO** — a versão codificada na assinatura `#TCF.N` (acima). Contrato on-disk; so'
-  muda com mudanca de formato. Hoje: `#TCF.7` (default), `#TCF.6` (legado, lido pelo decoder). Eixo A.
+  muda com mudanca de formato. Hoje: **`#TCF.8` (default**, ADR-0032); `#TCF.6`/`#TCF.7` CORTADOS de
+  `src/tcf` (git-as-compat, nao mais lidos no codigo vivo). Eixo A.
 - **Geracao do encoder** — marco interno do algoritmo (`M8A` -> `M9` -> `M10`).
   Bytes diferentes DENTRO da mesma familia de formato. NAO e' versao publica; nota
   historica. Eixo B.
@@ -98,16 +103,17 @@ que motivou o cross-dict/H-REF-02).
 **Regra de bump (pre-1.0)**:
 - mudanca de FORMATO (`#TCF.N` -> `#TCF.N+1`) move o **minor**: `0.(N+1).0`;
 - entrega com formato inalterado move so' o **release**: `0.N.x -> 0.N.(x+1)`;
-- `1.0` so' quando o formato final congelar (`#TCF.8`/`.9`) -> ai semver estrito.
+- `1.0` so' quando o formato final congelar -> ai semver estrito.
 
-Exemplos: lazy + poda (formato `#TCF.7` inalterado) = release `0.7.2`; cross-dict
-(`#TCF.8`) = minor `0.8.0`.
+Exemplo (ADR-0032, 2026-07-09): `#TCF.8` vira o formato DEFAULT = minor `0.8.0`; o ciclo lazy+poda foi
+**absorvido** no 0.8.0 (sem release `0.7.2` separado). O rotulo "cross-dict = 0.8.0" esta' SUPERADO (o
+gate geral do cross-dict falhou 2026-06-27; o payload do bump e' o `.8`-default, nao o cross-dict).
 
 | Use | Nao use |
 |---|---|
 | "versao de formato `#TCF.N`" | "versao 0.N" pra falar do formato on-disk |
-| "release 0.7.2 (formato #TCF.7)" | "plano 0.8" / "0.8.0" pro ciclo do lazy/poda |
-| "minor 0.8.0 = #TCF.8 (cross-dict)" | "#TCF.8 = 0.9" (atribuir cross-dict ao 0.9) |
+| "`#TCF.8` = formato default (0.8.0)" | "#TCF.7 default" / "0.7.2 separado" (absorvido no 0.8.0) |
+| "minor 0.8.0 = #TCF.8 (default, ADR-0032)" | "0.8.0 = cross-dict" (gate falhou; payload = .8-default) |
 | "geracao do encoder M9/M10 (interno)" | "versao M10" como se fosse versao publica |
 
 Cross-link: [`algorithms/TCF-format.md`](algorithms/TCF-format.md) secao Versionamento;
