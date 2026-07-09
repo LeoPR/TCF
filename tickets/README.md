@@ -59,7 +59,8 @@ referencias a commits que o resolveram.
 | [T-FMT-TCF8H-HEADER](T-FMT-TCF8H-HEADER.md) | Header do protótipo hierárquico `#TCF.8H` (EXP-015): consagráveis (M-implícito, omit-closes, última-sem-size) vs condicionais (reorder S2/S3). `H` REGISTRADO no discriminador (ADR-0031, 2026-07-09; especialização de `M`, sem-espaço); codec segue gated. | **DECIDED-WELD-GATED 2026-07-09** |
 | [T-OPT-INFERENCE](T-OPT-INFERENCE.md) | Otimizações por inferência (valor deduzido, não escrito): hex-default dos sizes (subsume em O-FMT-18; base-94 vence), bN (→ H-TYPE-02/07, gate D3 N=8). Framework: specs induzidas por round-trip. | **OPEN P2 2026-07-08** |
 | [T-FMT-OMIT-OR-DECLARE](T-FMT-OMIT-OR-DECLARE.md) | Contrato de omissão: campo omitido e não-deduzível → declaração OBRIGATÓRIA (4 categorias; fail-loud; proveniência). Generaliza ADR-0029. Avaliar pré-1.0. | **OPEN pre-1.0 2026-07-08** |
-| [T-FMT-HEADER-BASE-HEX](T-FMT-HEADER-BASE-HEX.md) | Base HEX implícita dos byte-sizes do header (decimal só comando de inspeção/IO/debug). Super-específico, desmembrado de T-OPT-INFERENCE Item 1. **WELDED**: core.py+view.py hex nos #TCF.7/.8; #TCF.6 decimal; D17a 303→302; 528 passed. | **WELDED 2026-07-09** |
+| [T-FMT-HEADER-BASE-HEX](T-FMT-HEADER-BASE-HEX.md) | Base HEX implícita dos byte-sizes do header (decimal só comando de inspeção/IO/debug). Super-específico, desmembrado de T-OPT-INFERENCE Item 1. **WELDED**: core.py+view.py hex nos #TCF.7/.8; #TCF.6 decimal; D17a 303→302; 528 passed. (Owner 07-09: hex vira exclusivo do .8 — ajuste no flip.) | **WELDED 2026-07-09** |
+| [T-FMT-NAME-ESCAPING](T-FMT-NAME-ESCAPING.md) | Escape/quoting de nomes de coluna (`:`/`,`/`=`/`#`-inicial + `{}[]` da hierarquia) no meta — resolve o blocker do `:` sob .8-default via escaping (CSV-style), não rejeição. Interim backslash + smart (quoting implícito). | **OPEN P1 pre-.8-default 2026-07-09** |
 
 ## Politica
 
