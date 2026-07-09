@@ -716,6 +716,13 @@ nova hipotese identificada.
   (b3/b5/b6/b7, packam mais que snap-a-potencia) recomendada (Opcao B) sobre a ideia de code-encodes-role
   (Opcao A). `aberta/proposta`, weld/freeze gated (owner). Detalhe:
   [`bn-dict-perspectivas-e-dict-interno.md`](bn-dict-perspectivas-e-dict-interno.md).
+  - **Refinada (owner 2026-07-08) — os 3 FLUXOS**: a motivacao da preemptiva = (1) dict PRE-CARREGADO
+    (HCC termina, so' mapeia) + (2) rotear 3 fluxos por coluna: **F1 bypass** (aposta true/false, PULA o
+    nucleo — play de LATENCIA, coberto pelo overlay de excecoes), **F2 pre-tx aceleradora** (tirar
+    mascara/DV = natures ADR-0015, JA' WELDED — nada novo a construir), **F3 misto seletivo** (roda o
+    nucleo, aplica bN so' em k<=16 / <=4 bits — gate mais estrito que o prototipo, casa com D3). Mapeiam
+    1:1 na taxonomia QUANDO. **Opcao B EM ESPERA**: medir F1 (latencia bypass vs nucleo, eixo aceleracao
+    — o eixo ainda SEM numero) antes de cravar formato.
 
 - **H-TX-01** (gate de posicionamento de transmissao, pendente desde 2026-06-21): TCF+brotli vs
   **NDJSON+brotli** (o concorrente textual real, nao so' CSV). Lab

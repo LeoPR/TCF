@@ -19,6 +19,11 @@
 
 ## 2. Taxonomia: QUANDO o tipo/spec é identificado
 
+> **Instanciação (owner 2026-07-08)**: os **3 fluxos** do dict-interno/bN mapeiam 1:1 nesta taxonomia —
+> F1 bypass (entrada, pula o núcleo, play de latência) · F2 pré-tx aceleradora (camada 0 = natures
+> ADR-0015, welded) · F3 misto seletivo (processo+pós-HCC, bN só em k≤16). Ver
+> [`bn-dict-perspectivas-e-dict-interno.md`](bn-dict-perspectivas-e-dict-interno.md) §3-fluxos.
+
 Aterrada no fluxo REAL do `encode()` (levantado em `src/tcf/encoder.py` + `src/tcf/multi/core.py`):
 
 ```
