@@ -87,10 +87,17 @@ A ordem de autoridade é o **histórico de commits, do agora pra trás**. Ao arr
   (legenda "é o ciclo 0.7.2"→"HISTÓRICO/encerrado") + MAP:167 ("plano 0.8"→"HISTÓRICO/encerrado").
 
 ### T3 — ambíguo, exige comparação com git (CUIDADO — por último)
-- [ ] **T3-a** Diário: reconstruir entradas retroativas dos gaps (05-22→06-11, 06-16→06-30) a partir de
-  `git log` + blocos SESSÃO do STATUS + notas datadas da era. **Reconstruir da autoridade da época**, não
-  retrofitar o entendimento de hoje. Incremental (um gap por vez). Valor: completude histórica (a info já
-  existe em git — prioridade MENOR pro review 0.8, mas "barato agora, caro depois").
+- [x] **T3-a** Diário retroativo — **FEITO 2026-07-09**. Inventário completo revelou **3 gaps** (não 2):
+  05-22→06-08 (14 dias), 06-16→06-30 (12 dias) e **07-02/06/07** (3 dias, não flagados antes) = **29 dias,
+  ~217 commits**. Reconstrução por workflow (10 agentes, 1 por cluster coerente de dias), cada entrada da
+  **autoridade da era** (git log do dia + blocos SESSÃO do STATUS + checkpoints/notas datadas), regra dura:
+  sem conhecimento posterior no corpo; todo claim rastreia a hash. Validação na gravação: guarda
+  anti-overwrite (0 conflitos), hashes citados conferidos contra `git log` (1 único flag = falso positivo:
+  a entrada 05-27 cita transparentemente um commit posterior PARA documentar discrepância de datação).
+  Índice `diario/README.md` reconstruído em ordem cronológica completa (43 entradas; o índice também estava
+  stale — faltavam 07-01/04/05/08/09 que EXISTIAM); retroativas marcadas `*(retroativa)*` + nota de método.
+  **Consequência**: os blocos SESSÃO do STATUS agora têm espelho no diário → a Opção 3 (consolidação do
+  STATUS) fica destravada pós-publicação 0.8, como sequenciado em T2-a.
 - [ ] **T3-b** Classificar as notas antigas restantes (`arquitetura-funil`, `welding-plan`, `dicas-limpeza`,
   etc.) nas 3 categorias via git-history: (a) viva / (b) recuperada / (c) obsoleta→arquivar. Comparar com o
   que MAP/STATUS/ROADMAP ainda referenciam. Arquivar (c) com tombstone; **nunca deletar**.
