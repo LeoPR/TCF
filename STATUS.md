@@ -1,9 +1,13 @@
 # STATUS — TCF (compendio sempre-atualizado)
 
-> **⚑ ESTADO VIGENTE (2026-07-09) + REGRA DE LEITURA** — leia ISTO primeiro:
+> **⚑ ESTADO VIGENTE (2026-07-10) + REGRA DE LEITURA** — leia ISTO primeiro:
 > - **Formato**: `#TCF.8` e' o DEFAULT ([ADR-0032](docs/adr/0032-tcf8-default-format.md), accepted —
 >   multi-col `#TCF.8M`, hex, escaping; legado `.6/.7` CORTADO, git-as-compat). Single-col orfao intacto.
-> - **Pacote**: `0.8.0` (bump feito; publicacao PyPI = go explicito do owner — [T-DIST-RELEASE](tickets/T-DIST-RELEASE-0.8.0.md)).
+> - **Pacote**: `0.8.0` (bump feito; wheel + clean-room smoke PRE-verificados 2026-07-09; publicacao
+>   PyPI = go explicito do owner — [T-DIST-RELEASE](tickets/T-DIST-RELEASE-0.8.0.md)).
+> - **Foco vigente**: [T-QA-8 material comprobatorio](tickets/T-QA-8-material-comprobatorio.md)
+>   (2026-07-10, P1): controle → sinteticos → publicos, telemetria + dicts + paralelismo; 10 bugs +
+>   5 doc-drifts REGISTRADOS no §3 (fix em F0 sob aprovacao); publicacao sequenciada via F6.
 > - **Numeros**: a fonte e' a SUITE (`tests/test_regression_v1_baseline.py`, `test_real_world_snapshots.py`),
 >   nao as copias em compendio.
 > - **REGRA DE LEITURA da pilha abaixo**: os blocos datados (retificacoes/reconciliacoes/sessoes) sao

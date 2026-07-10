@@ -1,9 +1,9 @@
 ---
 title: T-FMT-NAME-ESCAPING — Escape/quoting de nomes de coluna (e chaves de hierarquia) no meta do header
-status: open
+status: open-parcial (interim backslash WELDED em M2 `58f7dee` 2026-07-09; resta estudo CSV-quoting/smart, deferido)
 priority: P1
 created: 2026-07-09
-updated: 2026-07-09
+updated: 2026-07-10
 gate: pre-.8-default
 blocked-by: []
 related:

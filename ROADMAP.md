@@ -17,6 +17,11 @@
 > `H` reservado (ADR-0031). Pacote vai a `0.8.0` (ADR-0028 aceito), com o ciclo lazy+poda **absorvido**
 > (sem `0.7.2` separado) — PyPI segura em 0.7.1 ate' publicar completo. Os blocos datados abaixo que dizem
 > "0.7 default / 0.7.2 antes / cross-dict paga o bump / ADR-0027 proposed" sao HISTORICOS — leia nesta chave.
+>
+> **PONTE 2026-07-10 (T-QA-8)**: antes de publicar, o caminho vigente e' o
+> [T-QA-8 material comprobatorio](tickets/T-QA-8-material-comprobatorio.md) — controle → sinteticos →
+> publicos com telemetria/dicts/paralelismo; bugs achados no planejamento REGISTRADOS la' (§3, fix em
+> F0 sob aprovacao); a publicacao (T-DIST C3) vira a fase F6 do plano.
 
 Bytes-core welded: **V2-A** fallback (ADR-0022, `!`), **V2-B** dicionário (ADR-0025, `@`,
 13.9% weighted), **split estrutural** (ADR-0026, `%`, 19.39% weighted), **header mínimo**

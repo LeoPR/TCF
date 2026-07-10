@@ -100,3 +100,5 @@ commits mas nao tinham entrada.
   nomenclatura b1/b2/b4/b3/B resolvida; revisao critica do dia (reconciliacao)
 - [2026-07-09](2026-07-09.md) — ADR-0031 (H) + ADR-0032 (#TCF.8 DEFAULT, M1-M5: flip, corte
   legado, hex, escaping, 0.8.0); survey bases/radix; T-CLEAN-3 defrag
+- [2026-07-10](2026-07-10.md) — Release 0.8.0 pré-checado (wheel + clean-room smoke); T-QA-8
+  planejado (material comprobatório F0-F6; 10 bugs + 5 doc-drifts registrados, zero fix)
