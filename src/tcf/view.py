@@ -77,12 +77,26 @@ class LazyTCF:
             if name is None:
                 name = str(i)                        # anonima -> posicional (ADR-0029)
             body = raw[cursor:] if size is None else raw[cursor:cursor + size]
+            # BUG-05 (paridade estrutural com o decode): size do header vs bytes
+            # disponiveis. O cross-check de n_rows do decode NAO roda aqui —
+            # exigiria materializar todas as colunas, quebrando a laziness
+            # (divergencia DELIBERADA e documentada; decode() completo valida).
+            if size is not None and len(body) != size:
+                raise ValueError(
+                    f"body truncado: coluna {name!r} declara {size}B no header, "
+                    f"restam {len(body)}B no blob (T-QA-8 BUG-05)"
+                )
             self._mode[name] = mode
             self._body[name] = body
             self._order.append(name)
             if nat_id is not None:
                 self._nature[name] = nat_id
             cursor += len(body)
+        if cursor != len(raw):
+            raise ValueError(
+                f"bytes excedentes: {len(raw) - cursor}B apos a ultima coluna "
+                f"(header declara menos que o blob contem; T-QA-8 BUG-05)"
+            )
 
     # ---- introspecção barata (só header) ----
     @property

@@ -205,3 +205,120 @@ class TestBug07EmittedBytes:
         for name in table:
             assert (s1.per_col[name].emitted_bytes
                     == s2.per_col[name].emitted_bytes)
+
+
+# ===========================================================================
+# LOTE 2 (2026-07-10, decisões do owner): BUG-03/04/05/06
+# ===========================================================================
+
+class TestBug03ZeroRows:
+    """0 linhas colide com 1-linha-vazia por construção (N valores = N-1
+    separadores). Decisão: fail-loud AGORA; registro-'0' declarando schema fica
+    pro trilho de armazenamento append/parquet/tcfx (registrado, ver ticket)."""
+
+    def test_encode_empty_list_raises(self):
+        with pytest.raises(ValueError, match="0 linhas|linhas"):
+            encode([])
+
+    def test_encode_zero_row_table_raises(self):
+        with pytest.raises(ValueError, match="0 linhas|linhas"):
+            encode({"a": [], "b": []})
+
+    def test_single_empty_string_still_ok(self):
+        # 1 linha vazia é DADO legítimo — não confundir com 0 linhas
+        assert decode(encode([""])) == [""]
+        assert decode(encode({"a": [""]})) == {"a": [""]}
+
+
+class TestBug04UnknownVersion:
+    """Versão é DEDUZÍVEL do próprio magic (#TCF.<dígitos>): != 8 -> fail-loud
+    claro, não KeyError críptico do HCC. Subversões = controle de dev; compat
+    real só no 1.0 (visão owner: '#TCF1M' fecha tudo — registrado)."""
+
+    @pytest.mark.parametrize("blob", [
+        "#TCF.9M2=a,b\nxxyy",
+        "#TCF.10M2=a,b\nxxyy",
+        "#TCF.85M2=a,b\nxxyy",   # dígitos completos: versão 85, NÃO disc '5' do .8
+        "#TCF.9\nqualquer",
+    ])
+    def test_future_version_fails_loud(self, blob):
+        with pytest.raises(ValueError, match="vers"):
+            decode(blob)
+
+    def test_legacy_67_keeps_git_hint(self):
+        for legacy in ("#TCF.7 M\n# 2=a\nxx", "#TCF.6 M\n# 2=a\nxx"):
+            with pytest.raises(ValueError, match="git checkout"):
+                decode(legacy)
+
+    def test_tcf8m_still_decodes(self):
+        table = {"a": ["x", "y"], "b": ["1", "2"]}
+        assert decode(encode(table)) == table
+
+    def test_orphan_data_looking_like_prefix_survives_rt(self):
+        vals = ["#TCF.x nao e versao", "linha norm"]
+        assert decode(encode(vals)) == vals
+
+
+class TestBug05Integrity:
+    """O header JÁ declara os tamanhos; n_rows é invariante deduzível de graça.
+    3 cheques decode-only: size, fecho do blob, cross-check n_rows.
+    Limite conhecido (registrado): última coluna SEM size com excedente
+    row-consistente é indetectável; view é lazy (sem cross-check n_rows)."""
+
+    def _blob(self, **kw):
+        return encode({"a": ["xx", "yy"], "b": ["pp", "qq"]}, **kw)
+
+    def test_sized_col_truncated_raises(self):
+        # size 0xff declarado, body só tem 5B -> truncamento deduzido do header
+        with pytest.raises(ValueError, match="truncad"):
+            decode("#TCF.8Mff=a,!b\nxx\nyy")
+
+    def test_truncated_tail_raises_via_nrows(self):
+        blob = self._blob()
+        with pytest.raises(ValueError, match="diverg|truncad|n_rows"):
+            decode(blob[:-4])
+
+    def test_ragged_crafted_raises(self):
+        # a declara 2 linhas, b tem 1 -> invariante n_rows quebrado
+        with pytest.raises(ValueError, match="diverg|n_rows"):
+            decode("#TCF.8M!5=a,!b\nxx\nyyp")
+
+    def test_trailing_garbage_sized_last_raises(self):
+        blob = self._blob(min_header=False)      # última COM size -> fecho checável
+        with pytest.raises(ValueError, match="exced|sobra"):
+            decode(blob + "LIXO")
+
+    def test_view_sized_truncation_parity(self):
+        with pytest.raises(ValueError, match="truncad"):
+            view("#TCF.8Mff=a,!b\nxx\nyy")
+
+    def test_intact_blobs_unaffected(self):
+        for kw in ({}, {"min_header": False}, {"drop_names": True}):
+            blob = self._blob(**kw)
+            dec = decode(blob)
+            assert list(dec.values()) == [["xx", "yy"], ["pp", "qq"]]
+
+
+class TestBug06StringifyCheck:
+    """Validar o que VAI SER USADO (pós _to_str), na MESMA passada que já
+    stringifica — o guard prévio não via objetos cujo __str__ tem quebra."""
+
+    def test_nonstr_with_newline_raises(self):
+        class Sneaky:
+            def __str__(self):
+                return "linha1\nlinha2"
+        with pytest.raises(ValueError, match="quebra de linha"):
+            encode({"a": [Sneaky(), "v2"], "b": ["x", "y"]})
+
+    def test_nonstr_with_cr_raises(self):
+        class SneakyCR:
+            def __str__(self):
+                return "l1\rl2"
+        with pytest.raises(ValueError, match="quebra de linha"):
+            encode({"a": [SneakyCR()], "b": ["x"]})
+
+    def test_plain_str_newline_still_raises_both_branches(self):
+        with pytest.raises(ValueError, match="quebra de linha"):
+            encode({"a": ["x\ny"]})
+        with pytest.raises(ValueError, match="quebra de linha"):
+            encode(["x\ny"])

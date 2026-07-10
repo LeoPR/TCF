@@ -65,15 +65,16 @@ def decode(
     nature: "TemplatedCheckedSpec | None" = None,
     nature_per_col: "dict[str, TemplatedCheckedSpec] | None" = None,
 ) -> list[str] | dict[str, list[str]]:
-    """Decode texto TCF. Roteia pelo shebang.
+    """Decode texto TCF. Roteia pela assinatura de formato (magic).
 
     Args:
-        tcf_text: conteudo TCF (texto). Aceita:
-            - Multi-col: comeca com `#TCF.7 M\\n` (vivo) ou `#TCF.6 M\\n`
-              (LEGADO, leitura ate' o 1.0) + meta line + bodies
-              -> retorna `dict[str, list[str]]`
-            - Single-col: body puro (sem shebang)
-              -> retorna `list[str]` (com repeticoes preservadas)
+        tcf_text: conteudo TCF (texto). Aceita (ADR-0032, #TCF.8 default):
+            - Multi-col: `#TCF.8M<meta>\\n<bodies>` -> `dict[str, list[str]]`
+            - Single + spec: `#TCF.8 [nome]:id\\n<body>` -> `list[str]`
+            - Version-stamp: `#TCF.8\\n<body>` -> `list[str]`
+            - Orfao: body puro (sem magic) -> `list[str]`
+            Legado `#TCF.6/.7` e versoes desconhecidas `#TCF.<N>` -> ValueError
+            (git-as-compat, ADR-0024).
         nature: spec usado no encode pra pre-tx (ADR-0015). Se fornecido,
             aplica decode_value reverse apos M10 decode.
         nature_per_col: dict pra reverse multi-col pre-tx.
@@ -85,16 +86,35 @@ def decode(
         ValueError: multi-col malformado (sem magic, sem meta line).
     """
     line1 = tcf_text.split("\n", 1)[0]
+    # BUG-04 (T-QA-8 F0 lote 2): a VERSAO e' deduzivel do proprio magic —
+    # '#TCF.' + run de digitos DECLARA a versao. Le o run COMPLETO (senao
+    # '#TCF.85M' viraria .8 + disc '5'). Subversoes pre-1.0 sao controle de
+    # dev (ADR-0024); compat real so' no 1.0 (visao owner 2026-07-10: um
+    # '#TCF1M' final fecha tudo — sem 'if .7'/'if .6').
+    _ver = ""
+    if line1.startswith("#TCF."):
+        for _ch in line1[5:]:
+            if _ch in "0123456789":
+                _ver += _ch
+            else:
+                break
     # Legado #TCF.6/#TCF.7 CORTADO (ADR-0032, 2026-07-09): nao decodavel no 0.8.
     # git-as-compat (ADR-0024) — recupere a era pra ler/comparar.
-    if line1.startswith("#TCF.6") or line1.startswith("#TCF.7"):
+    if _ver in ("6", "7"):
         raise ValueError(
             f"formato legado {line1[:8]!r} nao suportado no 0.8 (ADR-0032: #TCF.6/.7 "
             f"cortados). git checkout <commit pre-0.8> pra ler, ou re-encode com o 0.8."
         )
+    if _ver and _ver != "8":
+        # Fail-loud claro (antes caia no decode orfao -> KeyError criptico do HCC).
+        raise ValueError(
+            f"blob #TCF.{_ver}: versao desconhecida deste decoder (formato atual = "
+            f"#TCF.8, ADR-0032). Versoes de dev vivem no git (ADR-0024); "
+            f"compatibilidade real so' a partir do 1.0."
+        )
     # Discriminador #TCF.8 (ADR-0029): char logo apos '#TCF.8'. 'M'=multi (#TCF.8M),
     # ' '=single+spec (#TCF.8 ...), ''=version-stamp (line1 == '#TCF.8').
-    disc8 = line1[6:7] if line1.startswith(_V8_MAGIC) else None
+    disc8 = line1[6:7] if _ver == "8" else None
     # FAIL-LOUD (ADR-0032 §6): discriminador reservado/desconhecido apos '#TCF.8' NAO
     # pode degradar pra decode orfao silencioso (corrompe). 'H' = hierarquico reservado
     # (ADR-0031), codec ainda no lab.

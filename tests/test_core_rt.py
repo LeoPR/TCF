@@ -46,14 +46,13 @@ def _ler_csv(name: str) -> list[str]:
 # ---------------------------------------------------------------------------
 
 class TestRoundTripBasic:
-    @pytest.mark.xfail(
-        reason="Edge case canonical: encode([]) → decode retorna [''] "
-        "(empty input vs single empty string sao indistinguiveis no "
-        "formato atual). Aceitavel — pipeline assume input nao-vazio."
-    )
     def test_empty(self):
-        text = encode([])
-        assert decode(text) == []
+        # Contrato definido no BUG-03 (T-QA-8 F0 lote 2, owner 2026-07-10):
+        # 0 linhas e 1-linha-vazia colidem por construcao no formato -> encode
+        # fail-loud (era xfail documentando o RT quebrado). Registro-'0' pra
+        # declarar schema fica pro trilho de armazenamento (parquet/tcfx).
+        with pytest.raises(ValueError, match="0 linhas|linhas"):
+            encode([])
 
     def test_single_string(self):
         values = ["hello"]

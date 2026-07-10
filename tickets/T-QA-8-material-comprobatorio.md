@@ -125,18 +125,40 @@ owner: "SE identificar algum bug sem querer, registre apenas pra arrumarmos depo
   implícito): parse do meta extraído pra **fonte única `_parse_meta`** em `multi/core.py`; decode E
   view consomem dela → **paridade por CONSTRUÇÃO**, zero verificação extra. Idiom `part[:1] in "!@%"`
   eliminado da view; vars mortas `is_v8` removidas nos 2 arquivos.
-- [ ] **BUG-03 [média]** `encoder.py:189` + `multi/core.py:372-380` — **0 linhas viram 1 linha vazia**:
-  `encode([]) == encode(['']) == '\n'`; `decode(encode({'a':[]})) == {'a':['']}`. Colisão por
-  construção (formato não grava row-count). Single-col tem xfail documentado; multi não tem NADA.
-  Decidir contrato: raise no encode de 0-rows OU xfail documentado nos dois ramos.
-- [ ] **BUG-04 [média]** `decoder.py:90-104` — **`#TCF.9M`/versão futura NÃO é fail-loud**: cai no
-  decode órfão e estoura `KeyError: 9` cru de dentro do HCC (por acidente). Contraste: `#TCF.8X` tem
-  ValueError claro. Fere o espírito fail-loud do ADR-0032.
-- [ ] **BUG-05 [média]** `multi/core.py:370-374` + `view.py:98` — **body truncado decoda sem erro**
-  (colunas ragged/valores cortados): slicing não valida que os bytes do size hex existem; sem
-  cross-check de n_rows entre colunas. Paridade mantida (decode e view aceitam a corrupção igual).
-- [ ] **BUG-06 [média]** `encoder.py:91` — bypass do guard de `\n`: `_reject_linebreaks` roda ANTES
-  do `_to_str`; objeto não-str cujo `__str__` contém `\n` corrompe calado (coluna ganha linhas).
+> **LOTE 2 EXECUTADO (2026-07-10, aprovação + decisões do owner)**: BUG-03+04+05+06 fixados
+> red→green (20 repros novos; o xfail histórico de `encode([])` virou contrato `raises`; suíte
+> **566 passed**; pins intactos). Verificação adversarial (3 agentes): byte-neutralidade **189/189**
+> (encode sha256 + decode cross-check); refutação de falso-positivo FALHOU em 46 combos íntegros
+> (split recursivo, V2-B width 1-2, natures, bordas) — e o falso-positivo temido do órfão **fecha por
+> construção** (HCC escapa dígito pós-literal: `['#TCF.9M x']` encoda `#TCF.\9M x`, RT ok). Eficácia
+> MEDIDA (1474 cortes + 503 flips): truncamento calado-errado **29.2%→3.0%** (fora da zona órfã
+> k≤6: 27.5%→**0.6%**; blobs 100%-sized: **0 buracos**); byte-flip loud 42.3%→56.9%; excedente
+> sized 0/5→**5/5 loud**. Registros profundos das decisões do owner → **O-FMT-20..23** em
+> `futuras-otimizacoes-formato.md` (schema-declare/parquet/tcfx; auto-stamp; #TCF1; completude
+> streaming).
+
+- [x] **BUG-03 [média]** — **FIXADO 2026-07-10** (decisão owner: fail-loud por enquanto): encode de
+  0 linhas → ValueError nos DOIS ramos (colide com 1-linha-vazia por construção; nada de onde
+  deduzir). **Profundo registrado (O-FMT-20)**: registro-'0' declara SCHEMA pro trilho de
+  armazenamento append→parquet/tcfx — "visto mais no final".
+- [x] **BUG-04 [média]** — **FIXADO 2026-07-10**: versão DEDUZIDA do run completo de dígitos do
+  magic — `#TCF.9/.10/.85` → ValueError claro (antes `KeyError: 9` críptico; `.85` nem virava mais
+  disc `'5'`); `.6/.7` mantêm a dica de git. **Profundo registrado (O-FMT-21/22)**: auto-stamp no
+  encode em colisão de magic; visão owner = subversões são controle de dev, `#TCF1`(M) fecha tudo
+  no 1.0, compat real só a partir dele.
+- [x] **BUG-05 [média]** — **FIXADO 2026-07-10** (decisão owner: os 3 cheques agora, profundo
+  registrado): decode deduz do que o header JÁ declara — (1) size vs bytes disponíveis, (2) fecho
+  do blob (excedente), (3) cross-check n_rows (invariante nunca gravado, deduzido de graça). View:
+  cheques 1+2 (lazy: sem n_rows, divergência DELIBERADA documentada). Limites conhecidos medidos:
+  última-coluna-EOF absorvendo excedente row-consistente (9/1439 cortes) + zona pré-magic do órfão.
+  **Profundo registrado (O-FMT-23)**: completude de transmissão/streaming — receptor sabe QUANTO
+  esperar, fim-antes-do-aviso, timeout→truncamento; dedução incremental, não só no fim.
+  Nota de comportamento: blob `min_header=False` + `\n` final de editor agora é loud (antes decodava
+  ignorando; no DEFAULT o mesmo `\n` antes corrompia CALADO com linha fantasma — agora loud).
+- [x] **BUG-06 [média]** — **FIXADO 2026-07-10** (sugestão aceita): validação de `\n`/`\r` FUNDIDA
+  na passada do `_to_str` em `_encode_multi` — valida o que VAI SER USADO (pós-transformação),
+  objetos com `__str__` contendo quebra não furam mais, e o caminho dict perdeu a passada separada
+  do guard (1 passada em vez de 2). Ramo list mantém o guard até o lote do BUG-10.
 - [x] **BUG-07 [média]** — **FIXADO 2026-07-10** (decisão owner: `body_bytes` é artefato VÁLIDO de
   custo compute/memória — MANTIDO com semântica de candidato documentada; contar NO processo, não no
   fim). Novos campos per-col `emitted_bytes`/`emitted_mode` + `multi_info['col_modes']`, capturados
@@ -158,6 +180,21 @@ owner: "SE identificar algum bug sem querer, registre apenas pra arrumarmos depo
   de char NÃO-separador é aceito e ALIASA nomes (`'2=a\bc'` ≡ `'2=abc'`). O encoder nunca emite
   nenhum dos dois — candidatos a strict-mode/marcação (ganchos do T-TOOL-TCF-FIX-CORRUPTION). A
   verificação também CONFIRMOU o BUG-05 com repros (bytes sobrando descartados; size>body decoda errado).
+- [ ] **BUG-12 [alta]** *(registrado 2026-07-10 pela verificação do lote 2 — PRÉ-existente, NÃO é
+  regressão; NÃO fixado)* **DoS por não-terminação no decode HCC sob header corrompido**: 1 flip de
+  hex-digit num size (`52=b`→`12=b`) desloca a fronteira das colunas e a fatia deslocada gira em
+  `composicional/syntax.py:718` (`_parse_decl`, >1000s CPU medidos) DENTRO de `_decode_column` —
+  antes do cross-check n_rows alcançar. Pior modo de falha (nem loud, nem errado: nunca retorna).
+  Fix futuro toca o CORE HCC (guard de terminação/progresso no decode) → aprovação + gate
+  byte-canônico completo + real-world obrigatórios.
+- [ ] **BUG-13 [média]** *(registrado 2026-07-10, verificação do lote 2 — residuais caladas, NÃO
+  fixado)*: (a) flips de NOME no meta renomeiam a chave calado — indetectável sem checksum
+  (inerente; candidato: checksum opcional no trilho tcfx/O-FMT-20); (b) `=`→`:` vira nature-id
+  desconhecido → hoje WARNING + segue com chave errada (candidato: strict no decode); (c) 32/365
+  size-flips com fronteira deslocada n_rows-consistente passam (limite geométrico); (d) **view sobre
+  blob EOF-truncado materializa dado errado calado** onde o decode() é loud (consequência prática da
+  divergência lazy documentada — candidato: `view(blob, validate=True)` opt-in); (e) última coluna
+  `@` dict + byte extra → IndexError críptico em vez de ValueError (pré-existente).
 
 ### Doc-drift 0.7→0.8 (bloqueia o "documento bem feito pro pip" — corrigir em F6 com números medidos)
 
@@ -191,13 +228,13 @@ owner: "SE identificar algum bug sem querer, registre apenas pra arrumarmos depo
 ### F0 — Gate de entrada: decisões do owner + lote de fixes (pré-medição)
 
 - [~] **F0-1** Owner decide o lote de fix pré-medição (toca `src/tcf` → aprovação explícita).
-  **LOTE 1 (BUG-01+02+07) EXECUTADO 2026-07-10** com as decisões de design do owner (ver §3) +
-  verificação adversarial (byte-neutralidade 122/122). **Restam à decisão do owner**: BUG-03/04/05/06
-  ("modo fail-loud", desejáveis pré-medição) e BUG-08/09/10/11 (podem esperar 0.8.1) — "retornamos
-  pra resolver os outros aos poucos" (owner, 2026-07-10).
-- [x] **F0-2** Suíte completa + gates pós-lote 1: **546 passed** (530 + 16 repros F0), D1-D9=1523B /
-  D17a=300B / real-world=89616B intactos (byte-neutralidade também provada em corpus de 122 casos
-  fora dos pins).
+  **LOTE 1 (BUG-01+02+07) EXECUTADO 2026-07-10** (decisões de design do owner, ver §3; byte-neutro
+  122/122). **LOTE 2 (BUG-03+04+05+06) EXECUTADO 2026-07-10** (fail-loud + deduções implícitas;
+  byte-neutro 189/189; eficácia medida 1474 cortes). **Restam à decisão do owner**:
+  BUG-08/09/10/11/13 (fronteira/leniência, candidatos 0.8.1) e **BUG-12** (hang HCC pré-existente,
+  toca o CORE — lote próprio com gate completo) — "aos poucos" (owner).
+- [x] **F0-2** Suíte completa + gates pós-lotes: **566 passed** (530 + 36 repros F0), D1-D9=1523B /
+  D17a=300B / real-world=89616B intactos (byte-neutralidade provada em 122+189 casos fora dos pins).
 - [ ] **F0-3** Owner decide: psutil como optional-dependency de bench (`[bench]`) ou stdlib-only
   (recomendação: stdlib-only nesta rodada; psutil só se F3 mostrar necessidade).
 - [ ] **F0-4** Higiene mecânica sem-risco: rotular `benchmark_compression.py` como quebrado-v0.5

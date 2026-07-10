@@ -244,6 +244,14 @@ def _encode_multi(
     lengths = {col: len(vals) for col, vals in table.items()}
     if len(set(lengths.values())) > 1:
         raise ValueError(f"colunas com lengths diferentes: {lengths}")
+    if next(iter(lengths.values())) == 0:
+        # BUG-03 (T-QA-8 F0 lote 2): 0 linhas colide com 1-linha-vazia (body de
+        # 0 bytes nos dois casos; nada de onde deduzir) -> fail-loud. Registro-'0'
+        # declarando schema fica pro trilho append/parquet/tcfx (registrado).
+        raise ValueError(
+            "tabela com 0 linhas: nao representavel (colide com 1 linha vazia — "
+            "o formato nao grava row-count); ver T-QA-8 BUG-03"
+        )
 
     for col_name in table.keys():
         # #TCF.8M default (ADR-0032): separadores do meta (,/=/:) + '\' + prefixo de
@@ -276,11 +284,24 @@ def _encode_multi(
             UserWarning, stacklevel=3,
         )
 
-    # Stringify upfront (per-col paralelo recebe valores ja' string)
-    table_str: dict[str, list[str]] = {
-        name: [_to_str(v) for v in values]
-        for name, values in table.items()
-    }
+    # Stringify upfront (per-col paralelo recebe valores ja' string).
+    # BUG-06 (T-QA-8 F0 lote 2): o check de \n/\r roda AQUI, fundido na MESMA
+    # passada do _to_str — valida o que VAI SER USADO (pos-transformacao), entao
+    # objetos cujo __str__ contem quebra nao furam mais; e substitui a passada
+    # separada do guard previo no caminho dict (1 passada em vez de 2).
+    table_str: dict[str, list[str]] = {}
+    for name, values in table.items():
+        out: list[str] = []
+        for i, v in enumerate(values):
+            s = _to_str(v)
+            if "\n" in s or "\r" in s:
+                bad = "\\n" if "\n" in s else "\\r"
+                raise ValueError(
+                    f"valor com quebra de linha ({bad}) nao e' representavel no "
+                    f"TCF (LF delimita linhas): coluna {name!r}, indice {i}: {s!r}"
+                )
+            out.append(s)
+        table_str[name] = out
 
     # Dispatch paralelo se solicitado E vale a pena (>= 2 cols)
     use_parallel = bool(parallel) and len(table_str) >= 2
@@ -458,16 +479,28 @@ def _decode_multi_impl(
     # core+view (paridade por construcao, BUG-02 T-QA-8 F0). Sizes em HEX.
     pairs = _parse_meta(meta_str)  # [(size|None, name|None, mode, nature_id|None)]
 
-    # cursor ja' aponta o inicio do body (apos line1 no V8, apos line2 no V7/6)
+    # cursor ja' aponta o inicio do body (apos a linha do shebang).
+    # BUG-05 (T-QA-8 F0 lote 2): 3 cheques de integridade DEDUZIDOS do que o
+    # formato ja' declara — zero byte novo, custo ~zero: (1) size do header vs
+    # bytes disponiveis; (2) fecho do blob (sem excedente); (3) n_rows igual em
+    # todas as colunas (invariante nunca gravado, deduzivel de graca no decode).
+    # Limite conhecido (registrado): ultima coluna SEM size + excedente
+    # row-consistente e' indetectavel (raw absorve). Profundo (streaming/
+    # completude na chegada) registrado no ticket.
     result: dict[str, list[str]] = {}
     nature_ids: dict[str, str] = {}
     for i, (size, name, mode, nat_id) in enumerate(pairs):
+        # Coluna anonima (name is None) -> nome POSICIONAL = ordem (ADR-0029).
+        col = name if name is not None else str(i)
         if size is None:
             body_bytes = raw[cursor:]              # ate' EOF (ultima coluna)
         else:
             body_bytes = raw[cursor:cursor + size]
-        # Coluna anonima (name is None) -> nome POSICIONAL = ordem (ADR-0029).
-        col = name if name is not None else str(i)
+            if len(body_bytes) != size:
+                raise ValueError(
+                    f"body truncado: coluna {col!r} declara {size}B no header, "
+                    f"restam {len(body_bytes)}B no blob (T-QA-8 BUG-05)"
+                )
         if mode == "raw":
             # V2-A: body raw = "\n".join(valores); split exato (sem '\n'
             # embutido, garantido por _fallback_safe no encode).
@@ -481,6 +514,20 @@ def _decode_multi_impl(
         if nat_id is not None:
             nature_ids[col] = nat_id
         cursor += len(body_bytes)
+
+    if cursor != len(raw):
+        # So' alcancavel com ultima coluna COM size (min_header=False): sobra
+        # de bytes que o header nao declara -> corrompido/concatenado.
+        raise ValueError(
+            f"bytes excedentes: {len(raw) - cursor}B apos a ultima coluna "
+            f"(header declara menos que o blob contem; T-QA-8 BUG-05)"
+        )
+    counts = {c: len(v) for c, v in result.items()}
+    if len(set(counts.values())) > 1:
+        raise ValueError(
+            f"colunas com n_rows divergentes {counts} — blob corrompido/"
+            f"truncado (T-QA-8 BUG-05)"
+        )
 
     return result, nature_ids
 

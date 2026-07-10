@@ -172,8 +172,23 @@ def encode(
     cfg = layers if layers is not None else DEFAULT_PIPELINE
     if min_len is not None and min_len < 1:
         raise ValueError(f"min_len deve ser >= 1 (ou None pra auto); got {min_len}")
-    _reject_linebreaks(data)  # T-CODE-RT-EDGES bug 2: \n/\r corromperia o RT em silencio
     if isinstance(data, list):
+        # Guard \n/\r do ramo LIST (T-CODE-RT-EDGES bug 2). O ramo DICT valida
+        # pos-stringify DENTRO de _encode_multi (BUG-06, T-QA-8 F0 lote 2:
+        # check fundido na passada do _to_str — valida o que VAI SER USADO,
+        # objetos com __str__ contendo \n nao furam mais; e economiza a
+        # passada separada do guard).
+        _reject_linebreaks(data)
+        if not data:
+            # BUG-03 (T-QA-8 F0 lote 2, owner 2026-07-10): 0 linhas colide com
+            # 1-linha-vazia por construcao (N valores = N-1 separadores; o
+            # formato nao grava row-count) -> fail-loud. Registro-'0' pra
+            # declarar schema fica pro trilho de armazenamento append/parquet/
+            # tcfx (registrado; ver T-QA-8 §3).
+            raise ValueError(
+                "entrada com 0 linhas: nao representavel (colide com 1 linha "
+                "vazia — o formato nao grava row-count); ver T-QA-8 BUG-03"
+            )
         nature_id = None
         if nature is not None:
             from tcf.natures.templated_checked import encode_value

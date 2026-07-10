@@ -517,12 +517,53 @@ economia ≥1% do blob em so' 11/60 formas (tiny-wide; dezenas de bytes), ≥5% 
 e group por slice. + parser de header com 2 semanticas. **Nao vale**; se o alvo e' header menor, usar
 O-FMT-18 (base-94), que ganha o mesmo SEM perder nada.
 
+## Categoria 7 — Registros profundos do F0/T-QA-8 (owner, 2026-07-10)
+
+> Origem: decisoes do owner ao aprovar os fixes de fronteira BUG-03/04/05/06
+> ([T-QA-8 §3](../../../../tickets/T-QA-8-material-comprobatorio.md)). Cada fix
+> ganhou um "pra agora" (welded no lote 2) e um REGISTRO profundo — os itens
+> abaixo. Nenhum e' 0.8; sao trilhos pra depois do material comprobatorio.
+
+- **O-FMT-20 — registro-'0' / schema-declare (armazenamento append)**: hoje
+  0-linhas e' fail-loud (colide com 1-linha-vazia; nada de onde deduzir). Visao
+  do owner: no trilho de ARMAZENAMENTO, um registro "0" declara so' o SCHEMA —
+  util pra armazenar em **append** quando transformar pra **parquet** (ou outro
+  formato "solido") ou com **index sidecar (`tcfx`)**. "Isso e' pra ser visto
+  mais no final, quando a gente ver melhor a parte de armazenar e transformar
+  em parquet". Cross-ref: T-FMT-OMIT-OR-DECLARE (omissao nao-deduzivel ->
+  declaracao obrigatoria).
+- **O-FMT-21 — auto-stamp em colisao de magic (inducao no ENCODE)**: o orfao e'
+  ambiguo por construcao com dado cuja 1a linha casa `#TCF.<digitos>`. O decode
+  0.8 fail-louda versao desconhecida (BUG-04) — o que cria superficie de
+  falso-positivo pra dado orfao patologico. Fix profundo: o ENCODE detecta a
+  colisao e prefixa sozinho o version-stamp `#TCF.8\n` (discriminador que o
+  decode ja' le) — so' paga ~7B quem colide, e o falso-positivo desaparece.
+- **O-FMT-22 — versionamento rumo ao `#TCF1`**: visao do owner — as subversoes
+  `#TCF.6/.7/.8` sao CONTROLE de dev ("checks intermediarios pra nao confundir
+  os arquivos desenvolvidos"); a rigor so' existira' um **`#TCF1`** depois
+  (ex.: `#TCF1M`), que fecha tudo pra 1.0 concluida. Compatibilidade REAL so'
+  a partir do 1.0 (reforca ADR-0024/0028: git-as-compat pre-1.0).
+- **O-FMT-23 — completude de transmissao / streaming (quanto esperar)**: o
+  decode 0.8 DEDUZ integridade do que o header ja' declara (BUG-05: size,
+  fecho, n_rows). O profundo (owner): em TRANSMISSAO stream (serial ou
+  paralela), o receptor precisa saber **quanto deveria estar esperando** — no
+  encode/preparo, saber se os dados que chegam estao completos; concluir que a
+  transmissao acabou ANTES da outra ponta avisar; timeout -> avisar
+  truncamento; ou "concluiu antes e faltou dado". Exige quantidade-esperada
+  deduzivel INCREMENTAL (nao so' no fim). Cross-ref: ADR-0018 V2-J (streaming
+  low-latency, anti buffer-over-buffer); limites atuais registrados (ultima
+  coluna EOF absorve excedente row-consistente; 1-coluna raw sem testemunha);
+  alimenta o reparador
+  [T-TOOL-TCF-FIX-CORRUPTION](../../../../tickets/T-TOOL-TCF-FIX-CORRUPTION.md).
+
 ## Atualizacao
 
 Atualizar quando: nova ideia chegar, ou alguma O-FMT-* mudar de
 status (testada/iniciada/refutada).
 
-**Ultima atualizacao**: 2026-06-19 (O-FMT-18 byte-size base-94 candidato + O-FMT-19 header-por-linhas
+**Ultima atualizacao**: 2026-07-10 (Categoria 7: O-FMT-20..23 — registros profundos do
+F0/T-QA-8: schema-declare/parquet/tcfx, auto-stamp, #TCF1, completude streaming). Antes:
+2026-06-19 (O-FMT-18 byte-size base-94 candidato + O-FMT-19 header-por-linhas
 REFUTADO — teste de proporcao; lazy/paralelo > economia ininima). Antes: 2026-06-16 (O-FMT-17 repeticao intra-linha / intra-valor, alvo 0.8
 — cross-ref roadmap Pacote 11). Antes: 2026-06-14 (O-FMT-15 ultima-coluna-sem-size + O-FMT-16
 espaco-do-meta-dispensavel + bundle "header v2 minimo" / reframe transmissoes minusculas),
