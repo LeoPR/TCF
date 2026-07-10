@@ -39,7 +39,8 @@ D17a=300 B (#TCF.8M, re-pin ADR-0032; contagem de testes vive na suíte).
 
 **Release `0.7.2` (formato #TCF.7, em curso)**: lazy básico endurecido shipado (`tcf.view`) + poda de
 legado pré-0.7 (T-CODE-LEGACY-PRUNE-PRE-07). **Plano em etapas (A lazy / C release)**:
-[`v08-plano-etapas.md`](experiments/lab/dirty/notas/v08-plano-etapas.md) (nome do arquivo é stale — é o ciclo 0.7.2).
+[`v08-plano-etapas.md`](experiments/lab/dirty/notas/v08-plano-etapas.md) (HISTÓRICO/encerrado 2026-07-09:
+A feito, B gate-falhou, C absorvido no 0.8.0 — ADR-0032).
 
 **Marco `0.8.0` = `#TCF.8` (futuro)**: cross-dict (H-GDICT, B2/B3) — paga o bump de formato com ganho
 medido; **F2/spec-dict/filtros por carona** no mesmo ciclo `#TCF.8`. **Defere também**: H-QUERY-04

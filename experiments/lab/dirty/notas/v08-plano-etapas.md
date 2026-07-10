@@ -1,4 +1,14 @@
-# v0.8 — Plano em etapas [plano]
+# v0.8 — Plano em etapas [plano → HISTÓRICO/ENCERRADO]
+
+> **ENCERRADO (2026-07-09, T-CLEAN-3 T2-b)** — o ciclo de vida deste plano COMPLETOU; documento agora
+> HISTÓRICO (não guia mais nada). Destino de cada workstream:
+> - **A (lazy)**: FEITO — shipado e promovido pro core (`src/tcf/view.py`, A1-A5).
+> - **B (cross-dict)**: gate GERAL **FALHOU** (2026-06-27; pivô H-DICT-HIGHCARD).
+> - **C (release 0.7.2)**: **ABSORVIDO no 0.8.0** ([ADR-0032](../../../../docs/adr/0032-tcf8-default-format.md):
+>   `#TCF.8` virou o formato DEFAULT; sem release intermediário).
+> Fontes vivas: [`tcf8-estrutura-plano.md`](tcf8-estrutura-plano.md) (família .8) + ADR-0032 + ROADMAP.
+> **Nome mantido de propósito** (evidência da era em que "0.8" nomeava este ciclo; renomear quebraria 18
+> cross-links históricos e gravaria uma 3ª geração de nome). Leia todo o conteúdo abaixo como registro.
 
 > **PARCIALMENTE SUPERADO (2026-06-25)** pra a parte de FORMATO: o `#TCF.8` que este plano
 > reservava pro **cross-dict (workstream B)** virou, nesta sessão, a **família self-describing**

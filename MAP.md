@@ -164,7 +164,7 @@ Pos-0.7 (2026-06, ainda referencia):
   testes vs oraculo + bug de contagem + otimizacao do caminho do algoritmo)
 - `experiments/lab/dirty/old/refuted/2026-06-19-header-rows-vs-bytes/` — teste de proporcao
   header linhas-vs-bytes (row-count REFUTADO; base-94 candidato)
-- Notas de design recentes (em `notas/`): `v08-plano-etapas.md` (plano 0.8),
+- Notas de design recentes (em `notas/`): `v08-plano-etapas.md` (HISTÓRICO/encerrado — ver tcf8-estrutura-plano),
   `rle-familia-estudo.md`, `dict-referencia-hipoteses.md` (H-REF),
   `hquery01-decode-dag-indices-design.md`, `transmissao-api-onde-tcf-importa.md`
   (guia de transmissao), `f2-nature-mark-header-design.md`, `cep-outer-dict-codebook-pesquisa.md`

@@ -79,8 +79,12 @@ A ordem de autoridade é o **histórico de commits, do agora pra trás**. Ao arr
   estrutural (Opção 3 — bloco-estado único + mover bridges/SESSÕES pra histórico) fica **DEFERIDA para
   DEPOIS de (1) publicar o 0.8 e (2) executar o T3-a** — os blocos SESSÃO do STATUS são a FONTE do diário
   retroativo; drenados pro diário, a Opção 3 vira remoção-com-ponteiro, muito mais segura.
-- [ ] **T2-b** `v08-plano-etapas.md` (nome stale + 0.7.2 absorvido no 0.8.0): anotar/renomear (git mv preserva
-  history) — comparar referências (ROADMAP/STATUS/2 notas) antes; categoria (b) vs (c).
+- [x] **T2-b** `v08-plano-etapas.md` — classificado **(c) HISTÓRICO com ciclo de vida COMPLETO** (A=feito/
+  shipado; B=gate falhou 2026-06-27; C=absorvido no 0.8.0 por ADR-0032). Executado: bridge de ENCERRAMENTO
+  no topo (destino de cada workstream + fontes vivas). **Decisão: NÃO renomear** — 18 links de entrada
+  (maioria em artefatos históricos que a regra 3 protege); o "nome certo" já mudou 2× (v08→0.7.2→absorvido)
+  e renomear gravaria uma 3ª geração; o nome stale é evidência da era. Refs VIVAS corrigidas: ROADMAP:42
+  (legenda "é o ciclo 0.7.2"→"HISTÓRICO/encerrado") + MAP:167 ("plano 0.8"→"HISTÓRICO/encerrado").
 
 ### T3 — ambíguo, exige comparação com git (CUIDADO — por último)
 - [ ] **T3-a** Diário: reconstruir entradas retroativas dos gaps (05-22→06-11, 06-16→06-30) a partir de
