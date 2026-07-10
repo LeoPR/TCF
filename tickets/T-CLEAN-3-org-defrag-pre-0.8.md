@@ -72,7 +72,13 @@ A ordem de autoridade é o **histórico de commits, do agora pra trás**. Ao arr
   alcançando a realidade; versão antiga recuperável no git.
 
 ### T2 — julgamento leve / decisão pendente
-- [ ] **T2-a** `STATUS.md` bridges: **aguarda decisão do owner** (3 opções levantadas). Sem isso, não mexer.
+- [x] **T2-a** `STATUS.md` bridges — **DECIDIDO pelo owner (2026-07-09): Opção 1** (chave-vigente no topo,
+  zero-move/zero-rewrite). Executado: bloco "⚑ ESTADO VIGENTE + REGRA DE LEITURA" antes de tudo (estado =
+  ADR-0032/0.8.0/suíte; regra = pilha é histórica antigo→novo, em conflito vence o mais novo/dispositivo).
+  Nenhum bloco movido/reescrito; ponteiros internos intactos. **SEQUENCIAMENTO acordado**: a consolidação
+  estrutural (Opção 3 — bloco-estado único + mover bridges/SESSÕES pra histórico) fica **DEFERIDA para
+  DEPOIS de (1) publicar o 0.8 e (2) executar o T3-a** — os blocos SESSÃO do STATUS são a FONTE do diário
+  retroativo; drenados pro diário, a Opção 3 vira remoção-com-ponteiro, muito mais segura.
 - [ ] **T2-b** `v08-plano-etapas.md` (nome stale + 0.7.2 absorvido no 0.8.0): anotar/renomear (git mv preserva
   history) — comparar referências (ROADMAP/STATUS/2 notas) antes; categoria (b) vs (c).
 

@@ -1,5 +1,16 @@
 # STATUS — TCF (compendio sempre-atualizado)
 
+> **⚑ ESTADO VIGENTE (2026-07-09) + REGRA DE LEITURA** — leia ISTO primeiro:
+> - **Formato**: `#TCF.8` e' o DEFAULT ([ADR-0032](docs/adr/0032-tcf8-default-format.md), accepted —
+>   multi-col `#TCF.8M`, hex, escaping; legado `.6/.7` CORTADO, git-as-compat). Single-col orfao intacto.
+> - **Pacote**: `0.8.0` (bump feito; publicacao PyPI = go explicito do owner — [T-DIST-RELEASE](tickets/T-DIST-RELEASE-0.8.0.md)).
+> - **Numeros**: a fonte e' a SUITE (`tests/test_regression_v1_baseline.py`, `test_real_world_snapshots.py`),
+>   nao as copias em compendio.
+> - **REGRA DE LEITURA da pilha abaixo**: os blocos datados (retificacoes/reconciliacoes/sessoes) sao
+>   CAMADAS HISTORICAS empilhadas do mais ANTIGO ao mais novo — em conflito, vence o mais NOVO e, acima
+>   de tudo, o DISPOSITIVO (ADRs accepted / codigo / testes). Nao leia o primeiro bloco como o vigente.
+>   (Guia completo: secao "Como ler este documento", mais abaixo.)
+
 > **RETIFICACAO DE VERSAO (ADR-0028, 2026-06-24)** — leia os blocos datados abaixo nesta chave:
 > o pacote e' `0.<formato>.<release>` (minor = numero do formato; release/patch = entrega DENTRO do
 > formato). **O ciclo do lazy + poda de legado = release `0.7.2`** (formato `#TCF.7` inalterado), NAO
