@@ -1,5 +1,11 @@
 # Plano — podar fallbacks/legado pré-0.7 do core (rumo a 1.0) [plano]
 
+> **ENCERRADA (2026-07-09, T-CLEAN-3 T3-b)** — executada e absorvida NO MESMO DIA (2026-06-24):
+> a poda S1-S5 vive no ticket [T-CODE-LEGACY-PRUNE-PRE-07](../../../../tickets/T-CODE-LEGACY-PRUNE-PRE-07.md)
+> (closed) e o modelo de 3 eixos virou dispositivo no
+> [ADR-0028](../../../../docs/adr/0028-pre-1.0-versioning-minor-format-coupling-release-cadence.md)
+> (accepted 2026-07-09). Registro histórico/proveniência.
+
 **Data**: 2026-06-24 · plano (NÃO implementa; aprovar antes de tocar `src/tcf`). Origem: owner —
 "tirar os fallbacks de versões pré-0.7; se for pra testar, isolar em estrutura de comparação OU
 aposentar; ao chegar no 1.0 o código todo fica na versão de formato final (#TCF.8/.9)". Cuidado

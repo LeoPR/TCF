@@ -1,5 +1,10 @@
 # Revisao: tecnicas implicitas vs. controles explicitos (2026-06-14)
 
+> **ENCERRADA (2026-07-09, T-CLEAN-3 T3-b)** — checklist de trabalho do ciclo 0.7, FECHADO em
+> 2026-06-15 (STATUS "FECHAMENTO DO CICLO 0.7"): itens #1-3/#5/#7 welded (knobs, sort_by, V2-B
+> ADR-0025, split ADR-0026); remanescentes re-registrados em `futuras-otimizacoes-formato.md`
+> (O-FMT-06/07/14/15) e `roadmap-hipoteses.md` (Pacote 8 H-HCC adiado; H-GDICT-01). Registro histórico.
+
 **Pedido do owner**: revisao geral pra continuar atacando o **0.7**. Inventario
 do que o TCF faz **automaticamente** (implicito) vs. o que ja' e' **controlavel**
 (explicito), e **o que dar' pra expor** pra modificar o comportamento. Mais os

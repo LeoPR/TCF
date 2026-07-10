@@ -1,5 +1,12 @@
 # F2 — H-NAT-MARK-01: nature-id viaja no header (#TCF.8) [design, pré-decisão]
 
+> **ENCERRADA (2026-07-09, T-CLEAN-3 T3-b)** — ciclo de vida COMPLETO: o design foi IMPLEMENTADO
+> como desenhado no [ADR-0027](../../../../docs/adr/0027-nature-mark-header-self-describing.md)
+> (welded 2026-06-24), formato refinado pelo ADR-0029 (discriminador) e o `#TCF.8` virou o formato
+> DEFAULT pelo [ADR-0032](../../../../docs/adr/0032-tcf8-default-format.md) (2026-07-09). O bridge
+> de 2026-06-21 abaixo ("NÃO implementar agora, ADR proposed") é registro da decisão DAQUELA era —
+> foi revertida 3 dias depois. Fonte viva: os ADRs.
+
 **Data**: 2026-06-17 · design (NÃO implementa). Origem: owner "f2".
 **Estado**: HISTÓRICO (faxina 2026-06-21) — design fechado, **decisão tomada: NÃO
 implementar agora** (opção A). Registrada em **ADR-0027 (proposed)** e **deferida pro

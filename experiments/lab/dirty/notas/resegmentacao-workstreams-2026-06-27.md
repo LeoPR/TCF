@@ -1,5 +1,10 @@
 # Re-segmentação — 5 workstreams (separação de concerns) [decisão de organização]
 
+> **NOTA 2026-07-09 (T-CLEAN-3 T3-b)** — o frame dos 5 workstreams segue VIVO (organiza a
+> [bibliografia](../../../../docs/reference/bibliografia.md)); só o **W1 teve desfecho**: o gate geral
+> do H-GDICT reprovou (1/5, 2026-06-27) e o teste-teto de 2026-07-01 fechou o cross-column share —
+> pivô = **H-DICT-HIGHCARD** (ver `arquitetura-share-header-lazy.md` + roadmap). W2-W5 seguem como registrados.
+
 **Data**: 2026-06-27. **Tipo**: decisão de organização (owner confirmou). Origem: brainstorm do
 owner conectando o B2 (cross-dict) a temas maiores (paralelismo, binarização, linguagem de spec,
 posicionamento). Aterrissado no que o repo JÁ mediu (3 explorações read-only). Separa cinco frentes

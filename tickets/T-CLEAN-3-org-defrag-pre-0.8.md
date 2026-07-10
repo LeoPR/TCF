@@ -1,9 +1,10 @@
 ---
 title: T-CLEAN-3 — defrag de organização (docs/tickets/diário) pós-#TCF.8-default, pré-review 0.8
-status: open
+status: closed-done (follow-up deferido: consolidacao STATUS pos-publicacao-0.8)
 priority: P2
 created: 2026-07-09
 updated: 2026-07-09
+closed: 2026-07-09
 blocked-by: []
 related:
   - tickets/META-STRATA-GOVERNANCE.md
@@ -98,9 +99,17 @@ A ordem de autoridade é o **histórico de commits, do agora pra trás**. Ao arr
   stale — faltavam 07-01/04/05/08/09 que EXISTIAM); retroativas marcadas `*(retroativa)*` + nota de método.
   **Consequência**: os blocos SESSÃO do STATUS agora têm espelho no diário → a Opção 3 (consolidação do
   STATUS) fica destravada pós-publicação 0.8, como sequenciado em T2-a.
-- [ ] **T3-b** Classificar as notas antigas restantes (`arquitetura-funil`, `welding-plan`, `dicas-limpeza`,
-  etc.) nas 3 categorias via git-history: (a) viva / (b) recuperada / (c) obsoleta→arquivar. Comparar com o
-  que MAP/STATUS/ROADMAP ainda referenciam. Arquivar (c) com tombstone; **nunca deletar**.
+- [x] **T3-b** Classificação das notas antigas — **FEITO 2026-07-09**. 30 notas (mtime ≤ 07-01) classificadas
+  por workflow (5 agentes; cada veredicto = git-history + refs de entrada vivas-vs-históricas + supersedência):
+  **17 (a)-vivas** (registries/referências ativas — ex. naturezas-numericas/templated apontadas por spec+código,
+  loss-taxonomia, hquery01-design, cep-outer-dict), **8 (b)-recuperadas-vivas** (bridges corretos já existiam
+  na maioria), **5 (c)-históricas-encerradas**. Ações executadas (anotar-não-sobrescrever, zero moves/deletes):
+  **4 tombstones-in-place** (revisao-implicito-vs-explicito → ciclo 0.7 fechado; f2-nature-mark-design →
+  absorvido por ADR-0027/0029/0032, bridge de 06-21 estava STALE; plano-poda-pre-0.7 → ADR-0028+ticket;
+  regex-otimizacao → ADR-0020) + **3 anotações datadas** (anotacoes-caso1-caso2 → row EI corrigida [encostada
+  06-27]; resegmentacao-workstreams → desfecho do W1 [gate falhou, pivô DICT-HIGHCARD]; fila-estudos-tcf8 →
+  snapshot congelado 07-01, status vivos no roadmap+estrutura-plano). 23 notas = nada a fazer (já corretas).
+  naming-compactacao já era auto-tombstoned (não duplicado).
 
 ## Avaliação honesta (owner: "veja se a decisão de arrumar é boa")
 

@@ -1,5 +1,11 @@
 # Fila de estudos #TCF.8 — consolidada (3 baldes + ordem) [plano]
 
+> **NOTA 2026-07-09 (T-CLEAN-3 T3-b)** — fila com status CONGELADOS em 2026-07-01; desde então:
+> T-CI-3 fechou (07-05), o `#TCF.8` virou formato DEFAULT
+> ([ADR-0032](../../../../docs/adr/0032-tcf8-default-format.md), 07-09 — a chave "opt-in" abaixo mudou)
+> e o arco bN/specs correu em 07-06..08. **Status vivos**: `roadmap-hipoteses.md` (registry) +
+> `tcf8-estrutura-plano.md` (fonte única) + STATUS/ROADMAP. Ler as rows abaixo como snapshot de 07-01.
+
 **Data**: 2026-06-25. Síntese da varredura (workflow read-only: registry de hipóteses +
 tickets + futuras-otimizações + artefatos da sessão). Objetivo do owner: *arrumar o que der
 pro #TCF.8*. Fonte da família: [tcf8-estrutura-plano.md](tcf8-estrutura-plano.md).

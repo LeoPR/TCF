@@ -1,5 +1,10 @@
 # Hipótese: regex como frente de otimização — AVALIADA (prioridade baixa)
 
+> **ENCERRADA (2026-07-09, T-CLEAN-3 T3-b)** — levantada, avaliada read-only e fechada no mesmo dia
+> (2026-06-25): "não é frente de otimização significativa". A frente real do hotspot
+> (`_detect_compositions`) é o [ADR-0020](../../../../docs/adr/0020-cython-optional-accelerator.md)
+> (Cython opcional). Condições de reabertura preservadas no corpo.
+
 **Data**: 2026-06-25. **Origem**: hipótese do owner — regex aparece em vários cenários
 de avaliação no código; perspectivas: precompilar, concatenação/alternação, regex no
 decode como acelerador. **Status**: avaliada read-only; **não é frente significativa**.

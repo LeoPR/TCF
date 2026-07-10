@@ -1,5 +1,10 @@
 # Anotações: caso 1 (escape) + caso 2 (base94) — status feito/fechado/não-feito
 
+> **NOTA 2026-07-09 (T-CLEAN-3 T3-b)** — registry segue VÁLIDO, com UMA correção: a row do
+> **escape-invertido (EI)** abaixo diz "ABERTO, VIÁVEL", mas a EI foi **ENCOSTADA em 2026-06-27**
+> ([lab EI-alcance](../2026-06-27-EI-alcance/): alcance estreito, brotli-negativo). Status vivo da
+> EI: `hipotese-escape-invertido-EI.md` + roadmap. As demais rows conferem (verificadas 2026-07-09).
+
 **Data**: 2026-06-25. Origem: inspeção dos outputs CPF (owner reconheceu que "algumas
 estavam feitas"). Registro do STATUS de cada item levantado, pra não re-investigar.
 Foco da sessão segue sendo o **fluxo** (H-NAT-SPEC); estes são itens ADJACENTES.
