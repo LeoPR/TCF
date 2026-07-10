@@ -33,6 +33,7 @@ Restricoes (INTERIM, ate' o escaping T-FMT-NAME-ESCAPING):
 from __future__ import annotations
 
 import os
+import warnings
 
 from tcf.multi.dict_v2b import _decode_v2b, _v2b_encode
 from tcf.multi.parallel import (
@@ -62,14 +63,18 @@ _NAME_SEP = ",=:\\"
 
 
 def _esc_name(name: str) -> str:
-    """Escapa (backslash) os chars estruturais de um nome de coluna no meta."""
+    """Escapa (backslash) os chars estruturais de um nome de coluna no meta.
+
+    Contrato: NUNCA recebe '' — nome vazio vira coluna ANONIMA na fronteira
+    (`_encode_multi`, BUG-01 T-QA-8 F0). O guard `s[:1] and` fecha o buraco
+    do idiom (`'' in "!@%"` e' True — substring vazia)."""
     out = []
     for ch in name:
         if ch in _NAME_SEP:
             out.append("\\")
         out.append(ch)
     s = "".join(out)
-    if s[:1] in "!@%":            # prefixo de modo no inicio colidiria (last-col bare)
+    if s[:1] and s[:1] in "!@%":  # prefixo de modo no inicio colidiria (last-col bare)
         s = "\\" + s
     return s
 
@@ -110,6 +115,89 @@ def _rsplit1_unesc(s: str, sep: str):
             last = i
         i += 1
     return None if last < 0 else (s[:last], s[last + 1:])
+
+
+def _unesc_name_strict(s: str) -> str:
+    """`_unesc_name` + fail-loud em backslash SOLTO no fim (escape de nada).
+
+    O encoder nunca emite dangling ('\\' legitimo no nome sai escapado '\\\\',
+    cauda PAR) — cauda IMPAR de '\\' = meta corrompido (BUG-01 decode, T-QA-8 F0;
+    marcador pra um futuro reparador, T-TOOL-TCF-FIX-CORRUPTION)."""
+    tail = len(s) - len(s.rstrip("\\"))
+    if tail % 2 == 1:
+        raise ValueError(
+            f"meta corrompido: escape dangling (backslash solto) no nome {s!r} — "
+            f"o encoder nunca emite isso (nome '' vira coluna anonima)"
+        )
+    return _unesc_name(s)
+
+
+def _hex_size(s: str) -> int:
+    """Size hex do meta -> int, com erro CLARO em corrupcao (fail-loud)."""
+    try:
+        return int(s, 16)
+    except ValueError:
+        raise ValueError(
+            f"meta corrompido: size hex invalido {s!r} no meta do #TCF.8M"
+        ) from None
+
+
+def _parse_meta(meta_str: str) -> list[tuple[int | None, str | None, str, str | None]]:
+    """Parse do meta INLINE do #TCF.8M -> [(size, name, mode, nature_id)] por coluna.
+
+    FONTE UNICA do parse do meta — `_decode_multi_impl` E `tcf.view` consomem
+    daqui: paridade decode/view por CONSTRUCAO, nao por verificacao (BUG-02,
+    T-QA-8 F0 2026-07-10). `size=None` = ultima coluna (corpo ate' EOF);
+    `name=None` = coluna ANONIMA (nome POSICIONAL str(i) fica no caller).
+
+    Fail-loud (marcadores de corrupcao; futuro reparador: T-TOOL-TCF-FIX-CORRUPTION):
+    - nome DECLARADO vazio ('<size>='): o encoder nunca emite ('' vira anonima);
+    - backslash solto no fim de nome (escape de nada);
+    - size hex invalido.
+    """
+    tokens = _split_unesc(meta_str, ",")             # ',' escapado no nome fica intacto
+    n_cols = len(tokens)
+    pairs: list[tuple[int | None, str | None, str, str | None]] = []
+    for i, p in enumerate(tokens):
+        if p.startswith("!"):
+            mode = "raw"
+            p = p[1:]
+        elif p.startswith("@"):
+            mode = "dict"          # V2-B dicionario (ADR-0025)
+            p = p[1:]
+        elif p.startswith("%"):
+            mode = "split"         # split estrutural (ADR-0026)
+            p = p[1:]
+        else:
+            mode = "tcf"
+        # Sufixo ':id' (nature, ADR-0027) = ULTIMO ':' NAO-escapado (um ':' no NOME
+        # vem escapado '\\:' via _esc_name). Split escape-aware (T-FMT-NAME-ESCAPING).
+        nat_id = None
+        r = _rsplit1_unesc(p, ":")
+        if r is not None:
+            p, nat_id = r
+        eq = _split_unesc(p, "=", 1)                  # primeiro '=' NAO-escapado
+        if len(eq) == 2:
+            # '<size>=<nome>' — nomeada. Nome des-escapado (nomes com ,/=/:/! etc).
+            size_str, name = eq
+            size = _hex_size(size_str)
+            name = _unesc_name_strict(name)
+            if name == "":
+                raise ValueError(
+                    "meta corrompido: nome de coluna DECLARADO vazio ('<size>=') — "
+                    "o encoder nunca emite (nome '' vira coluna anonima, sem '=')"
+                )
+        elif i == n_cols - 1:
+            # ultima coluna SEM '=': min_header (corpo ate' EOF). p = nome (vazio
+            # = anonima posicional).
+            size = None
+            name = _unesc_name_strict(p) if p else None
+        else:
+            # nao-ultima SEM '=' -> coluna ANONIMA: p = '<size>' (so' drop_names/'')
+            size = _hex_size(p)
+            name = None
+        pairs.append((size, name, mode, nat_id))
+    return pairs
 
 
 def _encode_multi(
@@ -166,6 +254,28 @@ def _encode_multi(
                 f"col name nao pode conter '\\n' (separador de linha do meta): {col_name!r}"
             )
 
+    # Nome VAZIO '' = coluna SEM nome (BUG-01, T-QA-8 F0 — decisao do owner 2026-07-10):
+    # a ENTRADA e' transformada na fronteira — a coluna vira ANONIMA no meta (sem
+    # '=nome', mesmo mecanismo do drop_names; decode da' o nome POSICIONAL). O meta
+    # NUNCA emite escape-vazio (evita o '\' solto que fundia tokens). Internamente
+    # nao faz diferenca: o tcf lida com nomes OU com a numeracao em ordem.
+    if "" in table:
+        pos = list(table.keys()).index("")
+        # Colisao SO' quando as demais colunas MANTEM nome (sem drop_names): com
+        # drop_names=True TODAS decodam posicionais — nao ha colisao possivel
+        # (falso-positivo achado na verificacao adversarial F0, 2026-07-10).
+        if str(pos) in table and not drop_names:
+            raise ValueError(
+                f"coluna com nome vazio '' vira anonima e decoda com o nome "
+                f"posicional {str(pos)!r}, que colidiria com a coluna existente "
+                f"{str(pos)!r} — renomeie uma das duas"
+            )
+        warnings.warn(
+            f"coluna com nome vazio '' tratada como ANONIMA — o decode retorna o "
+            f"nome posicional {str(pos)!r} (entrada sem nome, provavel engano)",
+            UserWarning, stacklevel=3,
+        )
+
     # Stringify upfront (per-col paralelo recebe valores ja' string)
     table_str: dict[str, list[str]] = {
         name: [_to_str(v) for v in values]
@@ -206,6 +316,7 @@ def _encode_multi(
     fallback_cols: list[str] = []
     dict_cols: list[str] = []
     split_cols: list[str] = []
+    col_modes: dict[str, str] = {}
     final_bodies: list[tuple[str, bytes, str]] = []  # (name, body, mode)
     for name, tcf_bytes in col_bodies_bytes:
         best_body, best_mode = tcf_bytes, "tcf"
@@ -228,6 +339,17 @@ def _encode_multi(
             dict_cols.append(name)
         elif best_mode == "split":
             split_cols.append(name)
+        if side_outputs is not None:
+            # BUG-07 (T-QA-8 F0, 2026-07-10): bytes EMITIDOS + modo vencedor
+            # capturados NO PONTO do min() — len(best_body) ja' foi computado pro
+            # proprio min() e pro size hex do header ("contar no processo", zero
+            # passada extra). `body_bytes` (per_col) MANTEM a semantica de
+            # CANDIDATO tcf (custo de compute/memoria) — semanticas distintas.
+            col_modes[name] = best_mode
+            pc = side_outputs.per_col.get(name) if side_outputs.per_col else None
+            if pc is not None:
+                pc.emitted_bytes = len(best_body)
+                pc.emitted_mode = best_mode
 
     used_fallback = bool(fallback_cols)
     used_v2 = used_fallback or bool(dict_cols) or bool(split_cols) or min_header
@@ -252,10 +374,17 @@ def _encode_multi(
         pre = {"raw": "!", "dict": "@", "split": "%"}.get(mode, "")
         # Sufixo ':id' (ADR-0027) SSE a coluna tem nature.
         suf = f":{nature_ids[name]}" if nature_ids and name in nature_ids else ""
-        if drop_names:
+        if drop_names or name == "":
             # Coluna ANONIMA (ADR-0029): nome omitido -> posicional no decode.
-            # Nao-ultima = '<size>[:spec]' (sem '=nome'); ultima = '[:spec]'/vazio.
-            parts.append(f"{pre}{suf}" if (min_header and i == last_i)
+            # Nao-ultima = '<size>[:spec]' (sem '=nome'); ultima = '[:spec]'/vazio,
+            # SEMPRE sem size — INCLUSIVE com min_header=False: '<size>' bare no
+            # ULTIMO token e' ambiguo com a gramatica de NOME (ex. size 0xc viraria
+            # nome 'c') e o parse leria chave errada / perderia coluna. Achado da
+            # verificacao adversarial F0 (2026-07-10); pre-F0 este combo ja' emitia
+            # blob mal-parseavel — corrigido aqui no EMIT (o formato nao tem forma
+            # nao-ambigua de ultima-anonima-com-size).
+            # name == '' entra aqui (BUG-01: '' = sem nome; _esc_name nunca ve '').
+            parts.append(f"{pre}{suf}" if i == last_i
                          else f"{pre}{_sz(len(b))}{suf}")
         elif min_header and i == last_i:
             parts.append(f"{pre}{_esc_name(name)}{suf}")        # ultima sem size
@@ -280,6 +409,9 @@ def _encode_multi(
             "fallback_cols": list(fallback_cols),
             "dict_cols": list(dict_cols),
             "split_cols": list(split_cols),
+            # Modo vencedor POR coluna (incl. 'tcf', que as listas acima nao dizem)
+            # — BUG-07: capturado no min(), chave = nome de ENTRADA da coluna.
+            "col_modes": dict(col_modes),
             "min_header": min_header,
             "nature_cols": dict(nature_ids) if nature_ids else {},
         }
@@ -319,50 +451,12 @@ def _decode_multi_impl(
             f"multi-col: esperado {MAGIC_MULTI_V3!r} (#TCF.8M). Legado #TCF.6/#TCF.7 "
             f"cortado (ADR-0032) — git checkout <pre-0.8> pra ler; got {line1[:20]!r}"
         )
-    is_v8 = True
     # meta INLINE na linha do shebang (#TCF.8M<meta>\n<bodies>).
     meta_str = line1[len(MAGIC_MULTI_V3):].decode("utf-8")
     cursor = nl1 + 1
-    # Parse POSITION-AWARE (ADR-0029): so' a ULTIMA coluna nao tem size (min_header).
-    # Logo nao-ultima sem '=nome' = coluna ANONIMA (size sozinho); ultima vazia = anonima.
-    tokens = _split_unesc(meta_str, ",")             # ',' escapado no nome fica intacto
-    n_cols = len(tokens)
-    _szbase = 16   # HEX sempre no .8 (T-FMT-HEADER-BASE-HEX + ADR-0032 §3)
-    pairs = []  # (size|None, name|None, mode, nature_id|None)
-    for i, p in enumerate(tokens):
-        if p.startswith("!"):
-            mode = "raw"
-            p = p[1:]
-        elif p.startswith("@"):
-            mode = "dict"          # V2-B dicionario (ADR-0025)
-            p = p[1:]
-        elif p.startswith("%"):
-            mode = "split"         # split estrutural (ADR-0026)
-            p = p[1:]
-        else:
-            mode = "tcf"
-        # Sufixo ':id' (nature, ADR-0027) = ULTIMO ':' NAO-escapado (um ':' no NOME
-        # vem escapado '\:' via _esc_name). Split escape-aware (T-FMT-NAME-ESCAPING).
-        nat_id = None
-        r = _rsplit1_unesc(p, ":")
-        if r is not None:
-            p, nat_id = r
-        eq = _split_unesc(p, "=", 1)                  # primeiro '=' NAO-escapado
-        if len(eq) == 2:
-            # '<size>=<nome>' — nomeada. Nome des-escapado (nomes com ,/=/:/! etc).
-            size_str, name = eq
-            size = int(size_str, _szbase)
-            name = _unesc_name(name)
-        elif i == n_cols - 1:
-            # ultima coluna SEM '=': min_header (corpo ate' EOF). p = nome (vazio
-            # = anonima posicional).
-            size = None
-            name = _unesc_name(p) if p else None
-        else:
-            # nao-ultima SEM '=' -> coluna ANONIMA: p = '<size>' (so' drop_names)
-            size = int(p, _szbase)
-            name = None
-        pairs.append((size, name, mode, nat_id))
+    # Parse POSITION-AWARE (ADR-0029) delegado a `_parse_meta` — FONTE UNICA
+    # core+view (paridade por construcao, BUG-02 T-QA-8 F0). Sizes em HEX.
+    pairs = _parse_meta(meta_str)  # [(size|None, name|None, mode, nature_id|None)]
 
     # cursor ja' aponta o inicio do body (apos line1 no V8, apos line2 no V7/6)
     result: dict[str, list[str]] = {}

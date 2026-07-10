@@ -53,7 +53,18 @@ class SideOutputs:
     seq_rle_runs: list[dict] = field(default_factory=list)
 
     # --- Bytes (per coluna, util pra schema builder/estatisticas) ---
+    # body_bytes = tamanho do CANDIDATO TCF da coluna (a coluna FOI encodada nesse
+    # tamanho antes do min() V2-A escolher) — telemetria valida de custo de
+    # compute/memoria do pipeline. NAO e' necessariamente o que foi pro body:
+    # ver emitted_bytes/emitted_mode (semanticas DISTINTAS por decisao do owner,
+    # BUG-07 T-QA-8 F0 2026-07-10).
     body_bytes: int | None = None
+    # Bytes REALMENTE emitidos no body da coluna + modo vencedor do min()
+    # ('tcf'|'raw'|'dict'|'split'). Capturados NO PONTO da selecao em
+    # multi/core.py — a contagem ja' existe pro size do header (zero passada
+    # extra; "contar no processo, nao no fim"). So' multi-col; None em single.
+    emitted_bytes: int | None = None
+    emitted_mode: str | None = None
 
     # --- Multi-col (so' populado se input foi dict) ---
     multi_info: dict | None = None

@@ -106,13 +106,25 @@ owner: "SE identificar algum bug sem querer, registre apenas pra arrumarmos depo
 
 ### Corrupção/RT (candidatos a fix pré-medição — tocam src/tcf, exigem aprovação)
 
-- [ ] **BUG-01 [alta]** `multi/core.py:72-74` — nome de coluna VAZIO `''`: `'' in "!@%"` é `True`
-  (substring vazia) → `_esc_name('')` devolve `'\'` solto que escapa a vírgula do meta → tokens
-  fundem → **perda silenciosa de coluna** (repro: `{'':['x'],'b':['y']}` → decode 1 coluna `',!b'`).
-  Fix candidato: `if s[:1] and s[:1] in "!@%"` OU rejeição fail-loud na fronteira.
-- [ ] **BUG-02 [alta]** `view.py:79-80` — mesmo idiom `part[:1] in "!@%"` com token vazio
-  (`drop_names=True` + última coluna modo tcf, blob LEGÍTIMO do encoder) → **IndexError na view**;
-  `decode()` funciona → **paridade view vs decode quebrada**. Também com `view('#TCF.8M\n')`.
+> **LOTE 1 EXECUTADO (2026-07-10, aprovação + decisões de design do owner)**: BUG-01+02+07 fixados
+> red→green (16 repros pinados em `tests/test_f0_boundary_fixes.py`; suíte 546 passed; pins intactos).
+> Verificação adversarial por workflow (3 agentes): **byte-neutralidade old-vs-new PROVADA em 122/122**
+> casos (encode E decode, incl. side_outputs e parallel=2); refutador rodou 320 checks (313 pass) e
+> achou 1 alta REAL — **gramática ambígua do último token** (`<size>` bare com `min_header=False` +
+> anônima parseava como NOME, pré-F0) — fechada no EMIT (última anônima SEMPRE sem size) + 1 falso-
+> positivo do guard de colisão com drop_names (fechado). Paridade view/decode confirmada até em
+> natures e meta-vazio.
+
+- [x] **BUG-01 [alta]** — **FIXADO 2026-07-10** (decisão owner: `''` = coluna SEM nome). Encode
+  TRANSFORMA na fronteira: `''` vira ANONIMA no meta (decode dá o nome posicional; warning
+  UserWarning; colisão `''`→`str(pos)` vs coluna existente = ValueError, exceto sob drop_names);
+  o meta nunca emite escape-vazio. Decode agora MARCA corrupção (fail-loud): nome DECLARADO vazio
+  (`<size>=`), backslash dangling (cauda ímpar), size hex inválido — ganchos do
+  [T-TOOL-TCF-FIX-CORRUPTION](T-TOOL-TCF-FIX-CORRUPTION.md). `_esc_name` com guard `s[:1] and`.
+- [x] **BUG-02 [alta]** — **FIXADO 2026-07-10** (decisão owner: mínimo de verificação, check
+  implícito): parse do meta extraído pra **fonte única `_parse_meta`** em `multi/core.py`; decode E
+  view consomem dela → **paridade por CONSTRUÇÃO**, zero verificação extra. Idiom `part[:1] in "!@%"`
+  eliminado da view; vars mortas `is_v8` removidas nos 2 arquivos.
 - [ ] **BUG-03 [média]** `encoder.py:189` + `multi/core.py:372-380` — **0 linhas viram 1 linha vazia**:
   `encode([]) == encode(['']) == '\n'`; `decode(encode({'a':[]})) == {'a':['']}`. Colisão por
   construção (formato não grava row-count). Single-col tem xfail documentado; multi não tem NADA.
@@ -125,9 +137,12 @@ owner: "SE identificar algum bug sem querer, registre apenas pra arrumarmos depo
   cross-check de n_rows entre colunas. Paridade mantida (decode e view aceitam a corrupção igual).
 - [ ] **BUG-06 [média]** `encoder.py:91` — bypass do guard de `\n`: `_reject_linebreaks` roda ANTES
   do `_to_str`; objeto não-str cujo `__str__` contém `\n` corrompe calado (coluna ganha linhas).
-- [ ] **BUG-07 [média]** `multi/core.py:195` — **SideOutputs multi mente**: `per_col[col].body_bytes`
-  reporta o candidato TCF, não o body emitido, quando o min() escolhe raw/dict/split; e não há campo
-  per-col do MODO escolhido. **Contamina a telemetria do material — corrigir ou contornar antes de F2.**
+- [x] **BUG-07 [média]** — **FIXADO 2026-07-10** (decisão owner: `body_bytes` é artefato VÁLIDO de
+  custo compute/memória — MANTIDO com semântica de candidato documentada; contar NO processo, não no
+  fim). Novos campos per-col `emitted_bytes`/`emitted_mode` + `multi_info['col_modes']`, capturados
+  **no ponto do min()** — a contagem já existia pro size hex do header, zero passada extra/serialização.
+  Nota (verificação): telemetria keyed pelo nome de ENTRADA (`''` na telemetria ↔ `'0'` no decode) —
+  documentado no código; consumidor cruza via posição.
 - [ ] **BUG-08 [baixa]** `multi/core.py:356-360` — `decode('#TCF.8M\n')` (meta vazio, não-emitível)
   fabrica `{'0': ['']}` em vez de fail-loud; view crasha (mesmo root do BUG-02).
 - [ ] **BUG-09 [baixa]** `multi/core.py:156` — `encode({'a': 'xyz'})` trata str como sequência de
@@ -137,6 +152,12 @@ owner: "SE identificar algum bug sem querer, registre apenas pra arrumarmos depo
   `parallel=-2` liga pool de 1 worker (docstring promete N≥1); `parallel=1` paga spawn sem paralelismo;
   `decode(int)` AttributeError em vez de TypeError; `name=` ignorado calado sem nature (validação de
   `:` só roda com nature); `stamp=`/`nature=` ignorados calados pra dict; `nature_per_col` idem pra list.
+- [ ] **BUG-11 [média]** *(registrado 2026-07-10 pela verificação adversarial do lote 1 — NÃO fixado)*
+  leniência residual do unescape do meta: (a) um `\` INSERIDO antes de separador funde duas colunas
+  caladas (`decode('#TCF.8M2=a\\,z\n...')` → 1 coluna `'a,z'`, dados da 2ª descartados); (b) escape
+  de char NÃO-separador é aceito e ALIASA nomes (`'2=a\bc'` ≡ `'2=abc'`). O encoder nunca emite
+  nenhum dos dois — candidatos a strict-mode/marcação (ganchos do T-TOOL-TCF-FIX-CORRUPTION). A
+  verificação também CONFIRMOU o BUG-05 com repros (bytes sobrando descartados; size>body decoda errado).
 
 ### Doc-drift 0.7→0.8 (bloqueia o "documento bem feito pro pip" — corrigir em F6 com números medidos)
 
@@ -169,12 +190,14 @@ owner: "SE identificar algum bug sem querer, registre apenas pra arrumarmos depo
 
 ### F0 — Gate de entrada: decisões do owner + lote de fixes (pré-medição)
 
-- [ ] **F0-1** Owner decide o lote de fix pré-medição (toca `src/tcf` → aprovação explícita).
-  Recomendação: **BUG-01+02 (corrupção/paridade) + BUG-07 (telemetria mentirosa) são bloqueantes**
-  do material; BUG-03/04/05/06 desejáveis no mesmo lote (são o "modo fail-loud" que o .8 promete);
-  BUG-08/09/10 podem esperar 0.8.1. Cada fix com teste-repro pinado ANTES do fix (red→green).
-- [ ] **F0-2** Rodar suíte completa + gates byte-canônicos pós-lote (mudança em fronteira não pode
-  mover D1-D9/D17a/real-world — se mover, o fix está errado).
+- [~] **F0-1** Owner decide o lote de fix pré-medição (toca `src/tcf` → aprovação explícita).
+  **LOTE 1 (BUG-01+02+07) EXECUTADO 2026-07-10** com as decisões de design do owner (ver §3) +
+  verificação adversarial (byte-neutralidade 122/122). **Restam à decisão do owner**: BUG-03/04/05/06
+  ("modo fail-loud", desejáveis pré-medição) e BUG-08/09/10/11 (podem esperar 0.8.1) — "retornamos
+  pra resolver os outros aos poucos" (owner, 2026-07-10).
+- [x] **F0-2** Suíte completa + gates pós-lote 1: **546 passed** (530 + 16 repros F0), D1-D9=1523B /
+  D17a=300B / real-world=89616B intactos (byte-neutralidade também provada em corpus de 122 casos
+  fora dos pins).
 - [ ] **F0-3** Owner decide: psutil como optional-dependency de bench (`[bench]`) ou stdlib-only
   (recomendação: stdlib-only nesta rodada; psutil só se F3 mostrar necessidade).
 - [ ] **F0-4** Higiene mecânica sem-risco: rotular `benchmark_compression.py` como quebrado-v0.5

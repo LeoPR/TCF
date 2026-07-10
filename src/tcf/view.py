@@ -28,7 +28,7 @@ from collections.abc import Callable
 from tcf.multi import (
     MAGIC_MULTI_V3,
     _decode_v2b, _decode_struct_split, _v2b_width, _V2B_BASE,
-    _rsplit1_unesc, _split_unesc, _unesc_name,
+    _parse_meta,
 )
 from tcf.decoder import _decode_column
 
@@ -67,34 +67,15 @@ class LazyTCF:
             raise ValueError(
                 f"não é #TCF.8M multi-col (legado #TCF.6/#TCF.7 cortado, ADR-0032; "
                 f"git checkout <pre-0.8> pra ler): {line1[:16]!r}")
-        is_v8 = True
         meta = line1[len(MAGIC_MULTI_V3):].decode("utf-8")   # inline
         cursor = nl1 + 1
 
-        tokens = _split_unesc(meta, ",")             # separadores escapados no nome
-        n_cols = len(tokens)
-        _szbase = 16   # HEX sempre no .8 (T-FMT-HEADER-BASE-HEX + ADR-0032 §3)
-        for i, part in enumerate(tokens):
-            mode = "tcf"
-            if part[:1] in "!@%":
-                mode = {"!": "raw", "@": "dict", "%": "split"}[part[0]]
-                part = part[1:]
-            # sufixo ':id' (nature) = ultimo ':' NAO-escapado (lockstep multi/core)
-            nat_id = None
-            r = _rsplit1_unesc(part, ":")
-            if r is not None:
-                part, nat_id = r
-            eq = _split_unesc(part, "=", 1)
-            if len(eq) == 2:
-                size_str, name = eq
-                size = int(size_str, _szbase)
-                name = _unesc_name(name)
-            elif i == n_cols - 1:
-                size = None                          # ultima: corpo ate' EOF
-                name = _unesc_name(part) if part else str(i)  # nome OU posicional
-            else:
-                size = int(part, _szbase)            # anonima nao-ultima -> so' size
-                name = str(i)                        # posicional (nome = ordem)
+        # Parse delegado a `_parse_meta` (tcf.multi.core) — FONTE UNICA core+view:
+        # paridade view/decode por CONSTRUCAO (BUG-02, T-QA-8 F0 2026-07-10).
+        # Aqui so' resolve anonimas -> nome posicional e fatia os bodies.
+        for i, (size, name, mode, nat_id) in enumerate(_parse_meta(meta)):
+            if name is None:
+                name = str(i)                        # anonima -> posicional (ADR-0029)
             body = raw[cursor:] if size is None else raw[cursor:cursor + size]
             self._mode[name] = mode
             self._body[name] = body
