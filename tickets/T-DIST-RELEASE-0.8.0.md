@@ -51,7 +51,11 @@ pacote `0.8.0`) ficam pro cross-dict, fora deste ticket.
 - [x] Versão **0.8.0** consistente (pyproject `0.8.0` + `__init__.__version__` + pino `test_version_pre_1_0`) — M5 2026-07-09.
 - [x] CHANGELOG 0.8.0 (formato #TCF.8 default, hex, escaping, legado cortado, lazy absorvido) — M5.
 - [x] Suíte verde (incl. gate real-world = 89616B): **530 passed**.
-- [ ] `from tcf import view` no wheel publicado (smoke test pós-build) — **na publicação**.
+- [~] `from tcf import view` no wheel publicado (smoke test pós-build) — **pré-verificado 2026-07-09 no wheel
+  LOCAL** (`dist/tcf_format-0.8.0-cp313-win_amd64.whl`, buildado com `uv build` + Cython): clean-room em venv
+  isolado (cwd fora do repo) passou import (`tcf`/`encode`/`decode`/`view`), `__version__==0.8.0`, RT single-col
+  (orphan), RT multi-col (`#TCF.8M` inline hex), RT escaping (`a\:b\,c\=d`), lazy `LazyTCF`. **Re-confirmar no
+  wheel PUBLICADO** na hora do go (Trusted Publishing sobe o mesmo arquivo).
 - [ ] tag `v0.8.0` → `release.yml` (Trusted Publishing) — **go explícito do owner** (PyPI segura em 0.7.1 até lá).
 
 ## Riscos / notas
@@ -69,3 +73,9 @@ pacote `0.8.0`) ficam pro cross-dict, fora deste ticket.
   explícito do owner.
 - **2026-06-24-b (ADR-0028, retificação)**: este release = **`0.7.2`** (não 0.8.0); cross-dict #TCF.8
   = `0.8.0` (não 0.9). Plano acima corrigido pra 0.7.2. Sem bump agora (PyPI segura no 0.7.1).
+- **2026-07-09 (pré-verificação de release, pós T-CLEAN-3)**: C1+C2+suíte **feitos** (M5). Rodada de
+  de-risking ANTES do go: `uv build` gerou sdist + wheel `0.8.0` (Cython compilou); clean-room install num
+  venv isolado passou o smoke completo (import + RT single/multi/escaping + lazy view; `__version__`
+  correto). **Estado**: só resta o go do owner (C3, tag `v0.8.0` → Trusted Publishing). **Nota de higiene**:
+  `dist/` ainda tem wheels stale `0.7.1` — a publicação deve subir só os arquivos `0.8.0` (ou limpar `dist/`
+  antes do build de release; `dist/` é gitignored, resíduo local, sem impacto no git).
