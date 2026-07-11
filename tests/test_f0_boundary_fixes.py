@@ -322,3 +322,102 @@ class TestBug06StringifyCheck:
             encode({"a": ["x\ny"]})
         with pytest.raises(ValueError, match="quebra de linha"):
             encode(["x\ny"])
+
+
+# ===========================================================================
+# LOTE 3 (2026-07-10, decisões do owner): BUG-08 fold + BUG-09 + BUG-10 + BUG-11b
+# Fronteiras = ISOLAMENTO ("o código tendo tratamento pode identificar eles e a
+# gente pode mudar comportamento") — revisão profunda pré-1.0 em ticket próprio.
+# ===========================================================================
+
+class TestLote3ApiBoundaries:
+    """BUG-09 + BUG-10: fronteiras da API fail-loud/consistentes."""
+
+    def test_str_as_column_value_raises(self):                 # BUG-09
+        with pytest.raises(TypeError, match="(?i)lista"):
+            encode({"a": "xyz"})
+
+    def test_bytes_as_column_value_raises(self):               # BUG-09
+        with pytest.raises(TypeError, match="(?i)lista"):
+            encode({"a": b"xyz"})
+
+    def test_list_nonstr_items_convert_like_dict(self):        # BUG-10a
+        # mesma semântica do dict (ADR-0013: None -> ''); antes crashava fundo
+        assert decode(encode([1, None, "x"])) == ["1", "", "x"]
+
+    def test_list_nonstr_sneaky_newline_raises(self):          # BUG-10a×06
+        class Sneaky:
+            def __str__(self):
+                return "a\nb"
+        with pytest.raises(ValueError, match="quebra de linha"):
+            encode([Sneaky()])
+
+    def test_layers_wrong_type_raises(self):                   # BUG-10b
+        with pytest.raises(TypeError, match="PipelineConfig"):
+            encode(["a", "b"], layers={"pre_pass": False})
+
+    def test_parallel_negative_raises(self):                   # BUG-10c
+        with pytest.raises(ValueError, match="parallel"):
+            encode({"a": ["1", "2"], "b": ["x", "y"]}, parallel=-2)
+
+    def test_parallel_one_is_serial_no_pool(self):             # BUG-10c
+        side = SideOutputs()
+        table = {"a": ["1", "2"], "b": ["x", "y"]}
+        blob = encode(table, parallel=1, side_outputs=side)
+        assert side.multi_info["parallel_workers"] == 0        # dedução: 1 worker ≡ serial
+        assert blob == encode(table)                           # byte-idêntico
+
+    def test_parallel_true_still_parallel(self):               # guarda (True==1 em Python!)
+        side = SideOutputs()
+        table = {"a": ["1", "2"], "b": ["x", "y"], "c": ["p", "q"]}
+        blob = encode(table, parallel=True, side_outputs=side)
+        assert side.multi_info["parallel_workers"] >= 2
+        assert blob == encode(table)
+
+    def test_decode_nonstr_raises_typeerror(self):             # BUG-10d
+        with pytest.raises(TypeError, match="str"):
+            decode(123)
+
+    def test_name_without_nature_raises(self):                 # BUG-10e
+        with pytest.raises(ValueError, match="nature"):
+            encode(["a", "b"], name="col")
+
+    def test_nature_with_dict_raises(self):                    # BUG-10g
+        from tcf import SPEC_CPF
+        with pytest.raises(ValueError, match="nature_per_col"):
+            encode({"a": ["111.444.777-35"]}, nature=SPEC_CPF)
+
+    def test_nature_per_col_with_list_raises(self):            # BUG-10g
+        from tcf import SPEC_CPF
+        with pytest.raises(ValueError, match="nature="):
+            encode(["111.444.777-35"], nature_per_col={"a": SPEC_CPF})
+
+
+class TestLote3MetaStrict:
+    """BUG-11b whitelist de escape + BUG-08 dobrado (não-emitível = erro)."""
+
+    def test_escape_of_nonstructural_char_is_error(self):      # BUG-11b
+        # encoder só escapa ,=:\ e !@% inicial; '\b' é não-emitível -> corrupção
+        with pytest.raises(ValueError, match="corromp|escape"):
+            decode("#TCF.8M2=a\\bc,!z\nXXYY")
+
+    def test_legit_escapes_still_roundtrip(self):
+        table = {"a,b": ["x", "y"], "c=d": ["p", "q"], "e:f": ["1", "2"],
+                 "g\\h": ["u", "v"], "!bang": ["m", "n"]}
+        assert decode(encode(table)) == table
+
+    def test_empty_meta_empty_body_is_error(self):             # BUG-08 fold
+        # '#TCF.8M\n' (meta vazio E body vazio) é não-emitível: 0-rows rejeitado
+        # no encode e 1-linha-vazia sempre gera >=1 byte de body ou marcador '!'
+        with pytest.raises(ValueError, match="vazio|corromp"):
+            decode("#TCF.8M\n")
+        with pytest.raises(ValueError, match="vazio|corromp"):
+            view("#TCF.8M\n")
+
+    def test_empty_meta_with_body_still_legit(self):
+        # achado da verificação: meta vazio COM body é blob legítimo do encoder
+        blob = encode({"a": ["constante-longa-x"] * 5}, drop_names=True)
+        assert blob.startswith("#TCF.8M\n")
+        assert decode(blob) == {"0": ["constante-longa-x"] * 5}
+        v = view(blob)
+        assert v._col("0") == ["constante-longa-x"] * 5

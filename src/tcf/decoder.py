@@ -85,6 +85,11 @@ def decode(
     Raises:
         ValueError: multi-col malformado (sem magic, sem meta line).
     """
+    if not isinstance(tcf_text, str):
+        # BUG-10d (lote 3): fronteira clara em vez de AttributeError fundo.
+        raise TypeError(
+            f"decode espera str (conteudo TCF em texto); got {type(tcf_text).__name__}"
+        )
     line1 = tcf_text.split("\n", 1)[0]
     # BUG-04 (T-QA-8 F0 lote 2): a VERSAO e' deduzivel do proprio magic —
     # '#TCF.' + run de digitos DECLARA a versao. Le o run COMPLETO (senao

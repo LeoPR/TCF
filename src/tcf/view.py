@@ -69,6 +69,13 @@ class LazyTCF:
                 f"git checkout <pre-0.8> pra ler): {line1[:16]!r}")
         meta = line1[len(MAGIC_MULTI_V3):].decode("utf-8")   # inline
         cursor = nl1 + 1
+        # BUG-08 fold (lote 3, paridade com _decode_multi_impl): meta vazio SEM
+        # body e' nao-emitivel -> fail-loud (meta vazio COM body e' legitimo).
+        if not meta and cursor >= len(raw):
+            raise ValueError(
+                "blob corrompido: meta vazio sem body ('#TCF.8M\\n' nao-emitivel "
+                "— 0 linhas nao e' representavel; T-QA-8 BUG-08)"
+            )
 
         # Parse delegado a `_parse_meta` (tcf.multi.core) — FONTE UNICA core+view:
         # paridade view/decode por CONSTRUCAO (BUG-02, T-QA-8 F0 2026-07-10).

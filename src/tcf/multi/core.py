@@ -117,19 +117,39 @@ def _rsplit1_unesc(s: str, sep: str):
     return None if last < 0 else (s[:last], s[last + 1:])
 
 
-def _unesc_name_strict(s: str) -> str:
-    """`_unesc_name` + fail-loud em backslash SOLTO no fim (escape de nada).
+_ESC_OK = ",=:\\!@%"   # whitelist canonica: o encoder SO' escapa estes chars
+                       # (_NAME_SEP em qualquer posicao + prefixo de modo !@%)
 
-    O encoder nunca emite dangling ('\\' legitimo no nome sai escapado '\\\\',
-    cauda PAR) — cauda IMPAR de '\\' = meta corrompido (BUG-01 decode, T-QA-8 F0;
-    marcador pra um futuro reparador, T-TOOL-TCF-FIX-CORRUPTION)."""
-    tail = len(s) - len(s.rstrip("\\"))
-    if tail % 2 == 1:
-        raise ValueError(
-            f"meta corrompido: escape dangling (backslash solto) no nome {s!r} — "
-            f"o encoder nunca emite isso (nome '' vira coluna anonima)"
-        )
-    return _unesc_name(s)
+
+def _unesc_name_strict(s: str) -> str:
+    """Unescape ESTRITO do nome (decode): so' aceita o que o encoder emite.
+
+    Fail-loud (marcadores de corrupcao — T-TOOL-TCF-FIX-CORRUPTION):
+    - backslash SOLTO no fim (escape de nada): '\\' legitimo sai '\\\\' (BUG-01);
+    - escape de char FORA da whitelist `_ESC_OK` ('\\b', '\\x'...): nao-emitivel;
+      aceitar mudaria o nome CALADO (BUG-11b, lote 3 — whitelist por deducao do
+      canone: escapes validos sao exatamente os que `_esc_name` produz)."""
+    out, i, n = [], 0, len(s)
+    while i < n:
+        c = s[i]
+        if c == "\\":
+            if i + 1 >= n:
+                raise ValueError(
+                    f"meta corrompido: escape dangling (backslash solto) no nome "
+                    f"{s!r} — o encoder nunca emite isso (nome '' vira coluna anonima)"
+                )
+            nxt = s[i + 1]
+            if nxt not in _ESC_OK:
+                raise ValueError(
+                    f"meta corrompido: escape de char nao-estrutural '\\{nxt}' no "
+                    f"nome {s!r} — o encoder so' escapa {_ESC_OK!r} (T-QA-8 BUG-11)"
+                )
+            out.append(nxt)
+            i += 2
+        else:
+            out.append(c)
+            i += 1
+    return "".join(out)
 
 
 def _hex_size(s: str) -> int:
@@ -241,6 +261,17 @@ def _encode_multi(
     if not table:
         raise ValueError("table vazia")
 
+    for col_name, vals in table.items():
+        # BUG-09 (T-QA-8 lote 3): str e' iteravel — {'a': 'xyz'} viraria 3
+        # linhas de 1 char CALADO. Nao auto-embrulhar (duas leituras possiveis
+        # -> declarar > deduzir); fail-loud que ensina.
+        if isinstance(vals, (str, bytes)):
+            raise TypeError(
+                f"coluna {col_name!r}: valor deve ser LISTA de valores, nao "
+                f"{type(vals).__name__} — envolva em [...] se e' 1 valor "
+                f"(uma str iteraria char a char; T-QA-8 BUG-09)"
+            )
+
     lengths = {col: len(vals) for col, vals in table.items()}
     if len(set(lengths.values())) > 1:
         raise ValueError(f"colunas com lengths diferentes: {lengths}")
@@ -303,8 +334,15 @@ def _encode_multi(
             out.append(s)
         table_str[name] = out
 
-    # Dispatch paralelo se solicitado E vale a pena (>= 2 cols)
-    use_parallel = bool(parallel) and len(table_str) >= 2
+    # Dispatch paralelo se solicitado E vale a pena (>= 2 cols).
+    # parallel=1 -> SERIAL por DEDUCAO (BUG-10c, lote 3): 1 worker produz os
+    # MESMOS bytes por construcao — economiza o spawn do pool inteiro.
+    # CUIDADO: True == 1 em Python — o isinstance(bool) preserva parallel=True.
+    use_parallel = len(table_str) >= 2 and (
+        parallel is True
+        or (not isinstance(parallel, bool)
+            and isinstance(parallel, int) and parallel >= 2)
+    )
     n_workers = 0
     if use_parallel:
         if parallel is True:
@@ -475,6 +513,16 @@ def _decode_multi_impl(
     # meta INLINE na linha do shebang (#TCF.8M<meta>\n<bodies>).
     meta_str = line1[len(MAGIC_MULTI_V3):].decode("utf-8")
     cursor = nl1 + 1
+    # BUG-08 (lote 3, fold): meta vazio + body vazio e' NAO-EMITIVEL (0-rows e'
+    # rejeitado no encode; 1-linha-vazia sempre gera >=1 byte de body ou
+    # marcador '!') — antes fabricava {'0': ['']} calado. Meta vazio COM body
+    # e' LEGITIMO (1 coluna anonima em modo tcf via drop_names). Semantica
+    # definitiva do vazio: T-API-BOUNDARY-CONTRACTS (pre-1.0).
+    if not meta_str and cursor >= len(raw):
+        raise ValueError(
+            "blob corrompido: meta vazio sem body ('#TCF.8M\\n' nao-emitivel — "
+            "0 linhas nao e' representavel; T-QA-8 BUG-08)"
+        )
     # Parse POSITION-AWARE (ADR-0029) delegado a `_parse_meta` — FONTE UNICA
     # core+view (paridade por construcao, BUG-02 T-QA-8 F0). Sizes em HEX.
     pairs = _parse_meta(meta_str)  # [(size|None, name|None, mode, nature_id|None)]

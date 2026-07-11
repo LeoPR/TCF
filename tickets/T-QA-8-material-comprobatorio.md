@@ -165,21 +165,37 @@ owner: "SE identificar algum bug sem querer, registre apenas pra arrumarmos depo
   **no ponto do min()** — a contagem já existia pro size hex do header, zero passada extra/serialização.
   Nota (verificação): telemetria keyed pelo nome de ENTRADA (`''` na telemetria ↔ `'0'` no decode) —
   documentado no código; consumidor cruza via posição.
-- [ ] **BUG-08 [baixa]** `multi/core.py:356-360` — `decode('#TCF.8M\n')` (meta vazio, não-emitível)
-  fabrica `{'0': ['']}` em vez de fail-loud; view crasha (mesmo root do BUG-02).
-- [ ] **BUG-09 [baixa]** `multi/core.py:156` — `encode({'a': 'xyz'})` trata str como sequência de
-  chars (3 linhas de 1 char) sem erro — uso plausível, tabela errada calada.
-- [ ] **BUG-10 [baixa]** fronteiras da API (lote): não-str em list crasha fundo (`analyze_column`,
-  assimetria com dict que faz `_to_str`); `layers=` sem validação (AttributeError obscuro);
-  `parallel=-2` liga pool de 1 worker (docstring promete N≥1); `parallel=1` paga spawn sem paralelismo;
-  `decode(int)` AttributeError em vez de TypeError; `name=` ignorado calado sem nature (validação de
-  `:` só roda com nature); `stamp=`/`nature=` ignorados calados pra dict; `nature_per_col` idem pra list.
-- [ ] **BUG-11 [média]** *(registrado 2026-07-10 pela verificação adversarial do lote 1 — NÃO fixado)*
-  leniência residual do unescape do meta: (a) um `\` INSERIDO antes de separador funde duas colunas
-  caladas (`decode('#TCF.8M2=a\\,z\n...')` → 1 coluna `'a,z'`, dados da 2ª descartados); (b) escape
-  de char NÃO-separador é aceito e ALIASA nomes (`'2=a\bc'` ≡ `'2=abc'`). O encoder nunca emite
-  nenhum dos dois — candidatos a strict-mode/marcação (ganchos do T-TOOL-TCF-FIX-CORRUPTION). A
-  verificação também CONFIRMOU o BUG-05 com repros (bytes sobrando descartados; size>body decoda errado).
+> **LOTE 3 EXECUTADO (2026-07-10, aprovação + decisões do owner)**: BUG-08(fold)+09+10+11b fixados
+> red→green (16 repros novos; suíte **582 passed**; pins intactos). Verificação adversarial
+> (2 agentes): refutação FALHOU em ~310 checks (100 nomes fuzz + 36 dirigidos: **zero** blob
+> legítimo rejeitado pela whitelist; `_ESC_OK` cobre exatamente o que `_esc_name` emite);
+> byte-neutralidade **103/103** + `parallel=1 ≡ serial` provado byte-a-byte + decode cross-check.
+> Filosofia (owner): fronteiras = **ISOLAMENTO** — o código identifica os casos, comportamento
+> re-decidível depois → [T-API-BOUNDARY-CONTRACTS](T-API-BOUNDARY-CONTRACTS.md) (pré-1.0);
+> integridade do meta → [T-FMT-META-STRICT](T-FMT-META-STRICT.md).
+
+- [x] **BUG-08 [baixa]** — **FIXADO 2026-07-10** (fold no strict; ticket de revisão mantido):
+  `decode('#TCF.8M\n')` (meta vazio SEM body, não-emitível — verificado: 1-linha-vazia emite
+  `#TCF.8M!\n`) → ValueError em decode E view (paridade); meta vazio COM body segue legítimo
+  (1 col anônima tcf). Semântica definitiva do vazio → T-API-BOUNDARY-CONTRACTS + O-FMT-20.
+- [x] **BUG-09 [baixa]** — **FIXADO 2026-07-10**: str/bytes como valor de coluna → TypeError que
+  ensina (`envolva em [...]`). Sem auto-embrulho (duas leituras possíveis → declarar > deduzir).
+- [x] **BUG-10 [baixa]** — **FIXADO 2026-07-10** (os 7 sub-itens): (a) list converte não-str via
+  `_to_str` (= semântica dict, None→''; check de quebra fundido na mesma passada; guard antigo
+  `_reject_linebreaks` removido — absorvido nos 2 ramos); (b) `layers` valida PipelineConfig;
+  (c) `parallel` negativo/tipo → erro, **`parallel=1` → serial DEDUZIDO** (sem spawn; 1 worker ≡
+  serial por construção, provado byte-a-byte); (d) `decode(não-str)` → TypeError; (e) `name=` sem
+  nature (ou com dict) → ValueError; (f) `stamp`+dict segue ignorado (M já é o stamp — semântica
+  correta, documentar em F6); (g) `nature=`+dict / `nature_per_col=`+list → ValueError cruzado.
+  Nota da verificação: `parallel=-1`/`2.0` eram tolerados fora-de-contrato no HEAD — agora erro
+  (intencional). Revisão profunda dos contratos (tipos anterior/próximo, diffs, specs) →
+  T-API-BOUNDARY-CONTRACTS pré-1.0.
+- [~] **BUG-11 [média]** — **(b) FIXADO 2026-07-10 (lote 3)**: whitelist de escape `_ESC_OK =
+  ",=:\\!@%"` no `_unesc_name_strict` — escape de char não-estrutural (não-emitível) → ValueError;
+  dangling integrado no mesmo scan. **(a) coberto em 2 camadas**: o caso comum do `\` inserido é
+  pego pelo fecho/n_rows do lote 2 (medido); o residual geometricamente-consistente é
+  indistinguível por construção → **checksum** no trilho tcfx/O-FMT-20. Vínculos e decisões
+  restantes → [T-FMT-META-STRICT](T-FMT-META-STRICT.md).
 - [ ] **BUG-12 [alta]** *(registrado 2026-07-10 pela verificação do lote 2 — PRÉ-existente, NÃO é
   regressão; NÃO fixado)* **DoS por não-terminação no decode HCC sob header corrompido**: 1 flip de
   hex-digit num size (`52=b`→`12=b`) desloca a fronteira das colunas e a fatia deslocada gira em
@@ -228,13 +244,13 @@ owner: "SE identificar algum bug sem querer, registre apenas pra arrumarmos depo
 ### F0 — Gate de entrada: decisões do owner + lote de fixes (pré-medição)
 
 - [~] **F0-1** Owner decide o lote de fix pré-medição (toca `src/tcf` → aprovação explícita).
-  **LOTE 1 (BUG-01+02+07) EXECUTADO 2026-07-10** (decisões de design do owner, ver §3; byte-neutro
-  122/122). **LOTE 2 (BUG-03+04+05+06) EXECUTADO 2026-07-10** (fail-loud + deduções implícitas;
-  byte-neutro 189/189; eficácia medida 1474 cortes). **Restam à decisão do owner**:
-  BUG-08/09/10/11/13 (fronteira/leniência, candidatos 0.8.1) e **BUG-12** (hang HCC pré-existente,
-  toca o CORE — lote próprio com gate completo) — "aos poucos" (owner).
-- [x] **F0-2** Suíte completa + gates pós-lotes: **566 passed** (530 + 36 repros F0), D1-D9=1523B /
-  D17a=300B / real-world=89616B intactos (byte-neutralidade provada em 122+189 casos fora dos pins).
+  **LOTE 1 (BUG-01+02+07)**, **LOTE 2 (BUG-03+04+05+06)** e **LOTE 3 (BUG-08+09+10+11b)**
+  EXECUTADOS 2026-07-10 (decisões de design do owner, ver §3; byte-neutro 122+189+103 casos;
+  eficácia medida 1474 cortes). **Restam à decisão do owner**: **BUG-12** (hang HCC pré-existente,
+  toca o CORE — lote próprio com gate completo) e **BUG-13 b/d/e** (decode estrito/view
+  incremental/invariantes V2-B — candidatos pós-material, ver T-FMT-META-STRICT) — "aos poucos".
+- [x] **F0-2** Suíte completa + gates pós-lotes: **582 passed** (530 + 52 repros F0), D1-D9=1523B /
+  D17a=300B / real-world=89616B intactos (byte-neutralidade provada em 414 casos fora dos pins).
 - [ ] **F0-3** Owner decide: psutil como optional-dependency de bench (`[bench]`) ou stdlib-only
   (recomendação: stdlib-only nesta rodada; psutil só se F3 mostrar necessidade).
 - [ ] **F0-4** Higiene mecânica sem-risco: rotular `benchmark_compression.py` como quebrado-v0.5

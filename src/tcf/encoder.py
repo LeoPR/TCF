@@ -73,27 +73,12 @@ def _nature_apply_stats(spec, statuses: list[str]) -> dict:
     }
 
 
-def _reject_linebreaks(data) -> None:
-    """Contrato lossless (T-CODE-RT-EDGES bug 2): valor com `\\n`/`\\r` quebra o
-    modelo de linha do TCF (LF delimita 1 valor por linha; decode usa
-    splitlines/split('\\n')) e corromperia o round-trip EM SILENCIO. Rejeita na
-    fronteira publica (erro explicito) em vez de perder dado. A filosofia "dados
-    felizes" e' comprimir o que receber — nao corromper calado.
-    So' valida str (None/ints seguem pro dispatch/conversao)."""
-    if isinstance(data, list):
-        cols = (("", data),)
-    elif isinstance(data, dict):
-        cols = data.items()
-    else:
-        return  # tipo invalido -> TypeError levantado pelo dispatch adiante
-    for name, vals in cols:
-        for i, v in enumerate(vals):
-            if isinstance(v, str) and ("\n" in v or "\r" in v):
-                bad = "\\n" if "\n" in v else "\\r"
-                loc = f"coluna {name!r}, " if name else ""
-                raise ValueError(
-                    f"valor com quebra de linha ({bad}) nao e' representavel no TCF "
-                    f"(LF delimita linhas): {loc}indice {i}: {v!r}")
+# (T-QA-8 lote 3) O antigo guard `_reject_linebreaks` foi absorvido: cada ramo
+# valida \n/\r FUNDIDO na passada de stringificacao (_to_str) — ramo dict em
+# `_encode_multi` (BUG-06), ramo list inline abaixo (BUG-10a). Valida-se o que
+# VAI SER USADO (pos-transformacao), em 1 passada. Contrato lossless
+# (T-CODE-RT-EDGES bug 2): LF delimita 1 valor por linha; \n embutido
+# corromperia o round-trip EM SILENCIO — fail-loud na fronteira.
 
 
 def encode(
@@ -169,16 +154,42 @@ def encode(
             TCF -> corromperia o RT; T-CODE-RT-EDGES). Tambem: (multi) table
             vazia, lengths divergentes, ou nomes com `,` / `=`.
     """
+    # --- Fronteiras da API (T-QA-8 F0 lote 3, BUG-10): fail-loud ANTES do
+    # pipeline — erro claro na porta, nao AttributeError/TypeError fundo. O
+    # tratamento da' ISOLAMENTO (decisao owner 2026-07-10): o codigo identifica
+    # os casos e o comportamento pode mudar depois (T-API-BOUNDARY-CONTRACTS).
+    if layers is not None and not isinstance(layers, PipelineConfig):
+        raise TypeError(
+            f"layers deve ser PipelineConfig (ou None); got {type(layers).__name__}"
+        )
+    if not isinstance(parallel, (bool, int)):
+        raise TypeError(
+            f"parallel deve ser bool ou int; got {type(parallel).__name__}"
+        )
+    if not isinstance(parallel, bool) and parallel < 0:
+        raise ValueError(
+            f"parallel deve ser >= 0 (0/False=serial; 1=serial deduzido; "
+            f"N>=2 = N workers); got {parallel}"
+        )
+    if isinstance(data, dict) and nature is not None:
+        raise ValueError(
+            "nature= aplica a single-col (list); pra dict use "
+            "nature_per_col={col: spec} (T-QA-8 BUG-10g)"
+        )
+    if isinstance(data, list) and nature_per_col:
+        raise ValueError(
+            "nature_per_col= aplica a multi-col (dict); pra list use nature= "
+            "(T-QA-8 BUG-10g)"
+        )
+    if name is not None and (isinstance(data, dict) or nature is None):
+        raise ValueError(
+            "name= so' tem efeito em single-col COM nature= (rotulo do header "
+            "'#TCF.8 nome:spec'); sem isso seria ignorado calado (T-QA-8 BUG-10e)"
+        )
     cfg = layers if layers is not None else DEFAULT_PIPELINE
     if min_len is not None and min_len < 1:
         raise ValueError(f"min_len deve ser >= 1 (ou None pra auto); got {min_len}")
     if isinstance(data, list):
-        # Guard \n/\r do ramo LIST (T-CODE-RT-EDGES bug 2). O ramo DICT valida
-        # pos-stringify DENTRO de _encode_multi (BUG-06, T-QA-8 F0 lote 2:
-        # check fundido na passada do _to_str — valida o que VAI SER USADO,
-        # objetos com __str__ contendo \n nao furam mais; e economiza a
-        # passada separada do guard).
-        _reject_linebreaks(data)
         if not data:
             # BUG-03 (T-QA-8 F0 lote 2, owner 2026-07-10): 0 linhas colide com
             # 1-linha-vazia por construcao (N valores = N-1 separadores; o
@@ -189,6 +200,22 @@ def encode(
                 "entrada com 0 linhas: nao representavel (colide com 1 linha "
                 "vazia — o formato nao grava row-count); ver T-QA-8 BUG-03"
             )
+        # BUG-10a (lote 3): itens nao-str convertem via _to_str — MESMA
+        # semantica do ramo dict (ADR-0013: None -> ''; antes crashava fundo em
+        # analyze_column). Check de \n/\r FUNDIDO na mesma passada (BUG-06):
+        # valida o que VAI SER USADO, pos-transformacao.
+        from tcf.multi.core import _to_str
+        conv: list[str] = []
+        for i, v in enumerate(data):
+            s = _to_str(v)
+            if "\n" in s or "\r" in s:
+                bad = "\\n" if "\n" in s else "\\r"
+                raise ValueError(
+                    f"valor com quebra de linha ({bad}) nao e' representavel no "
+                    f"TCF (LF delimita linhas): indice {i}: {s!r}"
+                )
+            conv.append(s)
+        data = conv
         nature_id = None
         if nature is not None:
             from tcf.natures.templated_checked import encode_value
