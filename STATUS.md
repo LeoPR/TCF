@@ -6,8 +6,9 @@
 > - **Pacote**: `0.8.0` (bump feito; wheel + clean-room smoke PRE-verificados 2026-07-09; publicacao
 >   PyPI = go explicito do owner — [T-DIST-RELEASE](tickets/T-DIST-RELEASE-0.8.0.md)).
 > - **Foco vigente**: [T-QA-8 material comprobatorio](tickets/T-QA-8-material-comprobatorio.md)
->   (2026-07-10, P1): controle → sinteticos → publicos, telemetria + dicts + paralelismo; 10 bugs +
->   5 doc-drifts REGISTRADOS no §3 (fix em F0 sob aprovacao); publicacao sequenciada via F6.
+>   (P1; F0 FEITO 2026-07-10: 12/13 bugs em 4 lotes, 590 passed) — a ORDEM de fechamento do .8 e'
+>   [T-REL-08-CLOSEOUT](tickets/T-REL-08-CLOSEOUT.md) (higiene → F1 runner → F2-F4 medicao → F6
+>   docs+wheel → C3 go do owner).
 > - **Numeros**: a fonte e' a SUITE (`tests/test_regression_v1_baseline.py`, `test_real_world_snapshots.py`),
 >   nao as copias em compendio.
 > - **REGRA DE LEITURA da pilha abaixo**: os blocos datados (retificacoes/reconciliacoes/sessoes) sao

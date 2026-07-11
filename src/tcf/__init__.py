@@ -1,5 +1,5 @@
-"""TCF — Tabular Compact Format (pré-1.0; multi-col default `#TCF.7`/0.7,
-`#TCF.6` legado ainda lido — ADR-0024 versionamento pré-1.0).
+"""TCF — Tabular Compact Format (pré-1.0; formato default `#TCF.8` — ADR-0032;
+legado `#TCF.6`/`#TCF.7` CORTADO, git-as-compat ADR-0024).
 
 API publica unificada (ADR-0014):
 
@@ -22,8 +22,10 @@ API publica unificada (ADR-0014):
     print(side.column_features)  # pre-pass features
     # ... etc
 
-Encoder dispatcha por tipo (list vs dict). Decoder dispatcha pelo
-shebang (`#TCF.6 M`/`#TCF.7 M` -> multi, senao -> single). Self-describing.
+Encoder dispatcha por tipo (list vs dict). Decoder dispatcha pela assinatura
+de formato: `#TCF.8M` -> multi; `#TCF.8 ...`/`#TCF.8\\n` -> single com spec/
+stamp; sem magic -> single orfao. Legado `.6/.7` e versao desconhecida ->
+ValueError (fail-loud). Self-describing.
 
 ## Componentes canonicos
 
@@ -53,9 +55,10 @@ Single-column (M10 canonical, ADR-0011):
 - Real-world Adult+TPC-H 57 cols: -11.73% weighted vs M9 puro
   [bytes em test_real_world_snapshots.py; % derivada, ADR-0011]
 
-Multi-column (M10 + ADR-0013/0025, T-EXP-MULTI-COL-SCALING):
-- D17a sint 13x4: 303B (0.7 default, V2-B); 322B = #TCF.6 legado (vs EXP-011)
-  [303B/322B pinados em test_multi_col_rt.py + test_regression_v1_baseline.py]
+Multi-column (M10 + ADR-0013/0025/0032, T-EXP-MULTI-COL-SCALING):
+- D17a sint 13x4: 300B (#TCF.8M default, hex inline; re-pin ADR-0032 — eras:
+  322B #TCF.6 / 303B #TCF.7+V2-B, vivem no git)
+  [300B pinado em test_multi_col_rt.py + test_regression_v1_baseline.py]
 - Real-world 9 tabelas (Adult + TPC-H tier 1+2, 136k linhas):
   -33.02% weighted vs raw, -31.46% vs single-col concat, RT 9/9
   [bytes em test_real_world_snapshots.py; % derivada, ADR-0013]

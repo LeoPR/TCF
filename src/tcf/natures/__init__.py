@@ -26,10 +26,12 @@ API publica:
     encoded, status = encode_value(SPEC_CPF, "123.456.789-09")
     original = decode_value(SPEC_CPF, encoded)
 
-    # Em coluna (via tcf.encode com nature param)
+    # Em coluna (via tcf.encode com nature param). O header e' SELF-DESCRIBING
+    # (#TCF.8 :cpf, ADR-0027): o decode resolve sozinho pelo registry — passar
+    # nature= no decode e' redundante (header vence; sem dupla aplicacao).
     from tcf import encode, decode
     text = encode(cpfs_list, nature=SPEC_CPF)
-    cpfs_back = decode(text, nature=SPEC_CPF)
+    cpfs_back = decode(text)
 """
 
 from tcf.natures.templated_checked import (

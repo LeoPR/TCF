@@ -33,20 +33,20 @@ de armazenamento (tcfx/O-FMT-20), não ao wire-format mínimo.
   BUG-11b); meta vazio sem body → erro (BUG-08 fold);
 - `#TCF.<N≠8>` → erro de versão (lote 2, BUG-04).
 
-## Residuais VINCULADOS (decidir aqui, depois do material comprobatório)
+## Residuais VINCULADOS
 
 1. **Fusão geometricamente consistente** (BUG-11a residual + BUG-13c): `\` inserido que funde
    tokens OU size-flip cujo consumo total ainda fecha — o caso comum é pego pelo fecho/n_rows
    (medido), o residual é indistinguível de blob legítimo **por construção** → só checksum
    (tcfx/O-FMT-20). NÃO tentar heurística no wire-format.
 2. **Flip de NOME no meta** (BUG-13a): renomeia chave calado — idem, só checksum.
-3. **nature-id desconhecido no header** (BUG-13b): hoje warning + segue com chave errada;
-   candidato a erro estrito pre-1.0 (sem forward-compat a proteger, ADR-0024). Decidir junto com
-   a simetria de natures do T-API-BOUNDARY-CONTRACTS.
-4. **view sobre blob EOF-truncado** (BUG-13d): candidato "cross-check incremental na
-   materialização" (compara len ao materializar a 2ª coluna — custo zero, preserva laziness).
-5. **Invariantes internas por modo** (BUG-13e): V2-B `len(stream) % width == 0` + coerência do
-   `ntable`; split idem — deduções de graça ainda não aplicadas.
+3. ~~**nature-id desconhecido**~~ — **FEITO 2026-07-10 (lote 4)**: ValueError em decode
+   (multi+single) e view; revoga o forward-compat de 2026-06-24 (testes re-pinados).
+4. ~~**view EOF-truncado**~~ — **FEITO 2026-07-10 (lote 4)**: cross-check incremental na
+   materialização (`_col` compara len com coluna já cacheada; laziness intacta).
+5. ~~**Invariantes internas por modo**~~ — **FEITO 2026-07-10 (lote 4)**: V2-B ntable bound +
+   stream%width + índice∈tabela (byte de editor virava índice NEGATIVO e wrapava calado);
+   split ntmpl bound; `_dict_parts` da view em paridade.
 6. **Posição do escape de prefixo**: whitelist atual aceita `\!`/`\@`/`\%` em QUALQUER posição
    (encoder só emite no início) — endurecer é opcional, ganho marginal.
 7. **BUG-12** (hang HCC decode sob header corrompido) tem lote PRÓPRIO (toca o CORE), mas o
@@ -54,6 +54,7 @@ de armazenamento (tcfx/O-FMT-20), não ao wire-format mínimo.
 
 ## Critério de aceite
 
-- [ ] Pós-material-comprobatório (T-QA-8 F2+), decidir itens 3-6 (cada um red→green, decode-only).
+- [x] Itens 3-5 executados (lote 4, 2026-07-10; red→green, decode-only, 590 passed).
 - [ ] Checksum (itens 1-2) especificado no trilho tcfx/O-FMT-20 — NÃO no wire-format mínimo.
+- [ ] Item 6 (posição do escape) decidir pós-material; BUG-12 em lote próprio.
 - [ ] Toda regra nova = "não-emitível pelo encoder" comprovado (dedução do cânone, nunca heurística).

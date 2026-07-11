@@ -114,24 +114,33 @@ def encode(
             seq_rle_runs, multi_info, per_col). Sem ele: descartado
             (comportamento pre-existente, overhead zero).
         parallel: paraleliza encode de colunas (multi-col so'). T-CODE-ENCODER-MANAGER Fase 1.
-            - `False` (default): serial, comportamento atual
+            - `False`/`0` (default): serial
             - `True`: ProcessPoolExecutor com `os.cpu_count()` workers
-            - `int N >= 1`: N workers explicitos
+            - `int N >= 2`: N workers explicitos
+            - `1`: SERIAL deduzido (1 worker ≡ serial byte-identico; sem spawn)
+            - negativo/nao-int: erro na fronteira (T-QA-8 BUG-10c)
             - Para list (single-col): parametro ignorado (1 coluna)
-            - Para dict com 1 coluna: ignorado (overhead nao compensa)
-        nature: pre-tx por natureza (ADR-0015, CAMADA 0 do funil). Se
-            fornecido, aplica `tcf.natures.encode_value(spec, v)` em cada
-            valor antes do pipeline M10. Decoder precisa receber MESMO
-            spec out-of-band. Pra list[str] apenas.
-        nature_per_col: dict mapeando col_name -> spec. Pra dict input
-            (multi-col); permite pre-tx natureza diferente por coluna.
-        fallback: (multi-col) por coluna escolhe min(TCF, raw). **Default True**
-            (0.7). False -> mantem TCF em toda coluna. Knob opt-out: o default
-            zero-param continua 0.7; passe False so' pra modificar comportamento
-            (ex: forcar #TCF.6 junto com `min_header=False`). Ignorado pra list.
-        min_header: (multi-col) header minimo (meta sem prefixo, ultima coluna
-            sem size). **Default True** (0.7). False -> header legado
-            `# size=name,...`. Knob opt-out. Ignorado pra list.
+        nature: pre-tx por natureza (ADR-0015; list apenas — pra dict use
+            nature_per_col, erro cruzado BUG-10g). Emite header self-describing
+            `#TCF.8 [nome]:id` — o decode resolve SOZINHO pelo registry
+            (cpf/cnpj/ip); spec out-of-band so' pra ids fora do registry.
+        nature_per_col: dict col_name -> spec (dict input apenas). Sufixo `:id`
+            por coluna no meta (ADR-0027, self-describing).
+        name: rotulo opcional do header single-col + nature (`#TCF.8 nome:id`).
+            SO' com nature (senao erro — seria ignorado calado; BUG-10e).
+        stamp: (list) prefixa version-stamp `#TCF.8\\n` (magic pra file/libmagic,
+            ADR-0029). Ignorado pra dict — o `M` do multi JA' e' o stamp.
+        drop_names: (multi-col) omite os nomes no meta (colunas ANONIMAS,
+            ADR-0029); decode retorna nomes posicionais '0','1',... Nome de
+            coluna '' equivale a anonima so' naquela coluna (warning).
+        fallback: (multi-col) por coluna escolhe min(tcf, raw, dict, split).
+            **Default True**. False -> so' candidato tcf em toda coluna
+            (comparacao/regressao; magic segue #TCF.8M — legado cortado,
+            ADR-0032). Ignorado pra list.
+        min_header: (multi-col) ultima coluna sem size (corpo ate' EOF,
+            ADR-0023/O-FMT-15). **Default True**. False -> todas as colunas com
+            size no meta (inspecao; meta segue INLINE no #TCF.8M). Ignorado
+            pra list.
         min_len: override manual do min_len do OBAT (afixos com `length <
             min_len` viram literal). **Default None -> auto** (detect_min_len
             por coluna; comportamento inalterado). int >= 1 aplica o mesmo
@@ -149,10 +158,13 @@ def encode(
         ao modo serial** (parallel apenas reordena computacao, nao bytes).
 
     Raises:
-        TypeError: se data nao for list nem dict.
-        ValueError: valor com `\\n`/`\\r` embutido (quebra o modelo de linha do
-            TCF -> corromperia o RT; T-CODE-RT-EDGES). Tambem: (multi) table
-            vazia, lengths divergentes, ou nomes com `,` / `=`.
+        TypeError: data nao-list/dict; coluna str/bytes (envolva em [...]);
+            layers nao-PipelineConfig; parallel de tipo invalido.
+        ValueError: valor com `\\n`/`\\r` embutido (quebra o modelo de linha ->
+            corromperia o RT); 0 linhas (BUG-03); (multi) table vazia, lengths
+            divergentes, nome com `\\n`, colisao posicional de nome '';
+            parallel negativo; name= sem nature; natures cruzados (BUG-10g).
+            Nomes com `,`/`=`/`:`/`\\` sao ACEITOS (escapados no meta, M2).
     """
     # --- Fronteiras da API (T-QA-8 F0 lote 3, BUG-10): fail-loud ANTES do
     # pipeline — erro claro na porta, nao AttributeError/TypeError fundo. O

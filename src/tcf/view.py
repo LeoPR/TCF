@@ -1,9 +1,10 @@
 """tcf.view — view lazy/consultável sobre um blob TCF: descomprime só o suficiente pra responder.
 
-Camada READ-ONLY do TCF (parte do pacote desde A4; lê `#TCF.8M`/`#TCF.7`/`#TCF.6` —
-NÃO muda encode/decode/formato). `#TCF.8` (ADR-0029): meta inline + natures (revertidas
-LAZY ao materializar a coluna) + colunas anônimas (nome = ordem). Caminho canônico:
-`from tcf import view`. O shim em
+Camada READ-ONLY do TCF (parte do pacote desde A4; lê SÓ `#TCF.8M` — legado
+`#TCF.6/.7` cortado, ADR-0032; NÃO muda encode/decode/formato). Meta inline +
+natures (revertidas LAZY ao materializar a coluna) + colunas anônimas (nome =
+ordem). Parse do meta = fonte única `_parse_meta` (paridade com o decode por
+construção). Caminho canônico: `from tcf import view`. O shim em
 `scripts/tcf_lazy/` re-exporta daqui pra compat com código/labs antigos.
 PoC de origem: `experiments/lab/dirty/old/welded/2026-06-16-lazy-query/`.
 
@@ -144,8 +145,26 @@ class LazyTCF:
             if nat_id is not None:
                 from tcf.natures import _resolve_nature_id
                 spec = _resolve_nature_id(nat_id)
-                if spec is not None:
-                    vals = [spec.decode_value(v) for v in vals]
+                if spec is None:
+                    # BUG-13b (lote 4, paridade com decode): id desconhecido =
+                    # ERRO na materializacao (dado cru calado corrompe).
+                    raise ValueError(
+                        f"nature-id desconhecido no header: {nat_id!r} (coluna "
+                        f"{name!r}) — registry fechado (cpf/cnpj/ip); ADR-0024"
+                    )
+                vals = [spec.decode_value(v) for v in vals]
+            # BUG-13d (lote 4): cross-check de n_rows INCREMENTAL — compara com
+            # qualquer coluna JA' materializada (ints, custo zero, laziness
+            # intacta). Fecha o buraco da view em blob EOF-truncado sem exigir
+            # decode completo (o cross-check global fica no decode()).
+            if self._cache:
+                other = next(iter(self._cache))
+                if len(vals) != len(self._cache[other]):
+                    raise ValueError(
+                        f"colunas com n_rows divergentes: {name!r}={len(vals)} "
+                        f"vs {other!r}={len(self._cache[other])} — blob "
+                        f"corrompido/truncado (T-QA-8 BUG-13d)"
+                    )
             self._cache[name] = vals
             if name not in self.touched:   # A2: evita dupla contagem (coluna ja' tocada via _dict_parts)
                 self.touched.append(name)
@@ -165,7 +184,15 @@ class LazyTCF:
         unicas = _decode_column(body[start:start + ntable].decode("utf-8"))
         if name not in self.touched:
             self.touched.append(name)
-        parts = (unicas, _v2b_width(len(unicas)), body[start + ntable:])
+        stream = body[start + ntable:]
+        width = _v2b_width(len(unicas))
+        if len(stream) % width != 0:
+            # BUG-13e (paridade estrutural com _decode_v2b): stream desalinhado.
+            raise ValueError(
+                f"slot V2-B corrompido: stream de {len(stream)}B nao e' "
+                f"multiplo da largura {width} (coluna {name!r}; T-QA-8 BUG-13e)"
+            )
+        parts = (unicas, width, stream)
         self._dict_cache[name] = parts
         return parts
 

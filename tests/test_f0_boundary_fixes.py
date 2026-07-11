@@ -421,3 +421,79 @@ class TestLote3MetaStrict:
         assert decode(blob) == {"0": ["constante-longa-x"] * 5}
         v = view(blob)
         assert v._col("0") == ["constante-longa-x"] * 5
+
+
+# ===========================================================================
+# LOTE 4 (2026-07-10, "vamos fechar os A"): BUG-13 b/d/e — decode estrito fino
+# ===========================================================================
+
+class TestLote4NatureIdStrict:
+    """BUG-13b: nature-id desconhecido no header = ERRO (revoga o contrato
+    forward-compat de 2026-06-24 — decisão owner 2026-07-10: pre-1.0 não tem
+    forward-compat a proteger, ADR-0024; seguir com dado cru base-94 calado é
+    corrupção silenciosa)."""
+
+    def _tampered_multi(self):
+        from tcf import SPEC_CNPJ
+        text = encode({"doc": ["11.222.333/0001-81"], "x": ["a"]},
+                      nature_per_col={"doc": SPEC_CNPJ})
+        return text.replace(":cnpj", ":zzz")
+
+    def test_unknown_nature_id_multi_raises(self):
+        with pytest.raises(ValueError, match="desconhecido"):
+            decode(self._tampered_multi())
+
+    def test_unknown_nature_id_single_raises(self):
+        from tcf import SPEC_CPF
+        text = encode(["529.982.247-25"], nature=SPEC_CPF)
+        with pytest.raises(ValueError, match="desconhecido"):
+            decode(text.replace(":cpf", ":zzz", 1))
+
+    def test_unknown_nature_id_view_raises_on_materialize(self):
+        v = view(self._tampered_multi())      # parse lazy passa; erro ao materializar
+        with pytest.raises(ValueError, match="desconhecido"):
+            v._col("doc")
+
+
+class TestLote4ViewIncremental:
+    """BUG-13d: cross-check de n_rows INCREMENTAL na materialização da view —
+    compara len ao materializar a 2ª coluna (ints, custo zero, laziness intacta)."""
+
+    def test_view_incremental_nrows_check(self):
+        blob = encode({"a": ["xx", "yy"], "b": ["pp", "qq"]})
+        v = view(blob[:-4])          # última col (EOF) truncada: parse lazy passa
+        assert v._col("a") == ["xx", "yy"]
+        with pytest.raises(ValueError, match="diverg|n_rows"):
+            v._col("b")              # materializa 1 row vs 2 -> incremental pega
+
+    def test_view_consistent_columns_unaffected(self):
+        blob = encode({"a": ["xx", "yy"], "b": ["pp", "qq"]})
+        v = view(blob)
+        assert v._col("a") == ["xx", "yy"] and v._col("b") == ["pp", "qq"]
+
+
+class TestLote4InternalInvariants:
+    """BUG-13e: invariantes internas dos slots deduzidas de graça — erro CLARO
+    em vez de IndexError críptico / dado errado."""
+
+    def test_v2b_trailing_byte_raises_clear(self):
+        # última coluna '@' EOF + '\n' de editor: antes IndexError 'list index
+        # out of range' (byte 0x0A vira índice negativo no stream base-94)
+        table = {"grp": [f"g{i % 3}" for i in range(30)],
+                 "txt": [f"linha de texto {i % 10} com recheio comum bem longo"
+                         for i in range(30)]}
+        blob = encode(table)
+        meta = blob.split("\n", 1)[0]
+        assert meta.rstrip("abgrptx=0123456789").endswith("@") or "@" in meta  # há coluna dict
+        with pytest.raises(ValueError, match="V2-B"):
+            decode(blob + "\n")
+
+    def test_v2b_table_truncated_raises(self):
+        from tcf.multi import _decode_v2b
+        with pytest.raises(ValueError, match="V2-B"):
+            _decode_v2b(b"99\nab!!")             # ntable 99 > bytes disponiveis
+
+    def test_split_template_truncated_raises(self):
+        from tcf.multi import _decode_struct_split
+        with pytest.raises(ValueError, match="split"):
+            _decode_struct_split(b"999\nxx")     # ntmpl 999 > bytes disponiveis

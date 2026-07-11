@@ -145,11 +145,14 @@ def decode(
                     result[name] = [spec.decode_value(v) for v in result[name]]
                     header_resolved.add(name)
                 else:
-                    import warnings
-                    warnings.warn(
-                        f"nature-id desconhecido no header: {nat_id!r} "
-                        f"(coluna {name!r}) -> valor mantido cru",
-                        stacklevel=2,
+                    # BUG-13b (T-QA-8 lote 4, owner 2026-07-10): id desconhecido
+                    # = ERRO. Revoga o forward-compat de 2026-06-24 (warning +
+                    # dado cru base-94 calado era corrupcao silenciosa) — pre-1.0
+                    # nao ha forward-compat a proteger (ADR-0024, git-as-compat).
+                    raise ValueError(
+                        f"nature-id desconhecido no header: {nat_id!r} (coluna "
+                        f"{name!r}) — registry fechado (cpf/cnpj/ip); blob de "
+                        f"versao que este decoder nao le (ADR-0024)"
                     )
         if nature_per_col:
             from tcf.natures.templated_checked import decode_value
@@ -171,16 +174,13 @@ def decode(
         spec = _resolve_nature_id(nat_id)
         if spec is not None:
             return [spec.decode_value(v) for v in values]   # header vence
-        import warnings
-        warnings.warn(
-            f"nature-id desconhecido no header single-col: {nat_id!r} "
-            f"-> valor mantido cru",
-            stacklevel=2,
+        # BUG-13b (lote 4): id desconhecido = ERRO (revoga forward-compat de
+        # 2026-06-24; pre-1.0 sem compat, ADR-0024 — dado cru calado corrompe).
+        raise ValueError(
+            f"nature-id desconhecido no header single-col: {nat_id!r} — "
+            f"registry fechado (cpf/cnpj/ip); blob de versao que este decoder "
+            f"nao le (ADR-0024)"
         )
-        if nature is not None:
-            from tcf.natures.templated_checked import decode_value
-            values = [decode_value(nature, v) for v in values]
-        return values
 
     # SINGLE version-stamp: line1 == '#TCF.8' (disc vazio). Carimbo de versao
     # (magic-number p/ file/libmagic, ADR-0029) — body single-col puro segue.

@@ -203,14 +203,17 @@ owner: "SE identificar algum bug sem querer, registre apenas pra arrumarmos depo
   antes do cross-check n_rows alcançar. Pior modo de falha (nem loud, nem errado: nunca retorna).
   Fix futuro toca o CORE HCC (guard de terminação/progresso no decode) → aprovação + gate
   byte-canônico completo + real-world obrigatórios.
-- [ ] **BUG-13 [média]** *(registrado 2026-07-10, verificação do lote 2 — residuais caladas, NÃO
-  fixado)*: (a) flips de NOME no meta renomeiam a chave calado — indetectável sem checksum
-  (inerente; candidato: checksum opcional no trilho tcfx/O-FMT-20); (b) `=`→`:` vira nature-id
-  desconhecido → hoje WARNING + segue com chave errada (candidato: strict no decode); (c) 32/365
-  size-flips com fronteira deslocada n_rows-consistente passam (limite geométrico); (d) **view sobre
-  blob EOF-truncado materializa dado errado calado** onde o decode() é loud (consequência prática da
-  divergência lazy documentada — candidato: `view(blob, validate=True)` opt-in); (e) última coluna
-  `@` dict + byte extra → IndexError críptico em vez de ValueError (pré-existente).
+- [~] **BUG-13 [média]** — **(b)(d)(e) FIXADOS 2026-07-10 (lote 4, "vamos fechar os A")**:
+  (b) nature-id desconhecido → **ValueError** em decode (multi+single) E view — REVOGA o
+  forward-compat de 2026-06-24 (2 testes re-pinados com rastreabilidade; pre-1.0 sem compat,
+  ADR-0024); (d) **cross-check incremental na view**: `_col()` compara `len` com qualquer coluna
+  já materializada (ints, custo zero, laziness intacta) — view não materializa mais dado errado
+  calado em blob EOF-truncado; (e) invariantes internas dos slots: V2-B (`ntable` bound, stream
+  múltiplo da width, **índice dentro da tabela** — o byte de editor virava índice NEGATIVO e
+  wrapava a tabela em silêncio) + split (`ntmpl` bound) + `_dict_parts` da view (paridade L3/L4).
+  8 repros novos; suíte **590 passed**; encode intocado (lote decode-only, pins por construção).
+  **Restam (a)(c)**: flips nome/size geometricamente consistentes — só checksum (trilho
+  tcfx/O-FMT-20, via [T-FMT-META-STRICT](T-FMT-META-STRICT.md)).
 
 ### Doc-drift 0.7→0.8 (bloqueia o "documento bem feito pro pip" — corrigir em F6 com números medidos)
 
@@ -220,13 +223,15 @@ owner: "SE identificar algum bug sem querer, registre apenas pra arrumarmos depo
   nature 27B → **39B** (header self-describing +12B que não existia); nega o marker self-describing
   que a 0.8 ENTREGA ("target 0.8" — já shipou); D17a 303/322 → **300**; "379 passed" → 530;
   seção "Format 0.7 (default)" inteira; view apontando pro gadget `scripts/tcf_lazy/` (hoje core).
-- [ ] **DOC-02 [média]** docstrings de `src/tcf` (user-facing via help(), vão na wheel):
-  `__init__.py:1-2,26,57` (0.7 default/.6 lido/D17a 303B); `decoder.py:5-8,72-74` (dispatch .6/.7 vivo);
-  `encoder.py:146-149,169-170` (forçar #TCF.6/header legado `# `/ValueError de `,`/`=` — hoje escapa);
-  `multi/core.py:27-30` (restrições INTERIM já resolvidas pelo escaping); `dict_v2b.py:5` (#TCF.7)
-  e `:21` (data do cap-raise 07-01 vs weld 07-02); `view.py:3` (lê .7/.6 — só lê 8M);
-  `natures/__init__.py:30-32` (exemplo manda passar nature no decode — redundante com self-describing);
-  var morta `is_v8` (`core.py:322`, `view.py:70`); `tests/test_tcf_lazy.py:3`.
+- [x] **DOC-02 [média]** — **FEITO 2026-07-10** (lote 4 + lotes anteriores): docstrings de `src/tcf`
+  corrigidas — `__init__.py` (formato #TCF.8 default, dispatch real, D17a 300B com eras no git);
+  `decoder.py` (lote 2); `encoder.py` (Args completos: parallel semântica nova, nature
+  self-describing, name/stamp/drop_names documentados; Raises real — nomes com separador são
+  ACEITOS/escapados); `multi/core.py` (módulo: contratos de fronteira pós-M2/F0; `_encode_multi`:
+  fallback/min_header sem promessa de #TCF.6); `dict_v2b.py` (meta #TCF.8M hex; data do weld
+  07-02); `view.py` (lê SÓ #TCF.8M; parser único); `natures/__init__.py` (exemplo self-describing,
+  decode sem spec); vars mortas `is_v8` removidas (lote 1); `tests/test_tcf_lazy.py`. **Nota**: tudo
+  que depende de NÚMERO MEDIDO (README/exemplo/curvas) segue no F6/DOC-01.
 - [ ] **DOC-03 [média]** `docs/algorithms/TCF-format.pt-BR.md:94` — exemplo `@a=uf,1e=nome` mostra
   size na ÚLTIMA coluna contradizendo a própria regra (última sem size); equivalente real:
   `#TCF.8M@14=uf,!nome`. Conferir o .en.md no mesmo ponto.
@@ -244,13 +249,18 @@ owner: "SE identificar algum bug sem querer, registre apenas pra arrumarmos depo
 ### F0 — Gate de entrada: decisões do owner + lote de fixes (pré-medição)
 
 - [~] **F0-1** Owner decide o lote de fix pré-medição (toca `src/tcf` → aprovação explícita).
-  **LOTE 1 (BUG-01+02+07)**, **LOTE 2 (BUG-03+04+05+06)** e **LOTE 3 (BUG-08+09+10+11b)**
-  EXECUTADOS 2026-07-10 (decisões de design do owner, ver §3; byte-neutro 122+189+103 casos;
-  eficácia medida 1474 cortes). **Restam à decisão do owner**: **BUG-12** (hang HCC pré-existente,
-  toca o CORE — lote próprio com gate completo) e **BUG-13 b/d/e** (decode estrito/view
-  incremental/invariantes V2-B — candidatos pós-material, ver T-FMT-META-STRICT) — "aos poucos".
-- [x] **F0-2** Suíte completa + gates pós-lotes: **582 passed** (530 + 52 repros F0), D1-D9=1523B /
-  D17a=300B / real-world=89616B intactos (byte-neutralidade provada em 414 casos fora dos pins).
+  **LOTES 1-4 EXECUTADOS 2026-07-10** (BUG-01..11b + 13b/d/e + DOC-02; decisões de design do
+  owner, ver §3; byte-neutro 122+189+103 casos; eficácia medida 1474 cortes). **Resta**: só
+  **BUG-12** (hang HCC pré-existente, toca o CORE — lote próprio com gate completo) e os
+  residuais-de-checksum 13a/c (trilho tcfx, T-FMT-META-STRICT).
+- [x] **F0-2** Suíte completa + gates pós-lotes: **590 passed** (530 + 60 repros F0), D1-D9=1523B /
+  D17a=300B / real-world=89616B intactos (byte-neutralidade provada em 414 casos fora dos pins;
+  lote 4 é decode-only+docstrings — encode intocado por construção).
+- [x] **F0-3** Dependência de medição: **stdlib-only** (recomendação aceita por default,
+  2026-07-10): tempo `perf_counter_ns`, heap `tracemalloc`, RSS via ctypes/psapi; workers do
+  ProcessPool são inobserváveis sem psutil → claims de paralelismo = wall-clock + byte-identidade
+  + `parallel_workers`. psutil só entra como optional `[bench]` se o F3 provar necessidade (go do
+  owner).
 - [ ] **F0-3** Owner decide: psutil como optional-dependency de bench (`[bench]`) ou stdlib-only
   (recomendação: stdlib-only nesta rodada; psutil só se F3 mostrar necessidade).
 - [ ] **F0-4** Higiene mecânica sem-risco: rotular `benchmark_compression.py` como quebrado-v0.5

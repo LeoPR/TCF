@@ -62,6 +62,12 @@ def _decode_struct_split(body_bytes: bytes) -> list[str]:
     nl = body_bytes.find(b"\n")
     ntmpl = int(body_bytes[:nl])
     start = nl + 1
+    if start + ntmpl > len(body_bytes):
+        # BUG-13e (T-QA-8 lote 4): invariante interna do slot — fail-loud claro.
+        raise ValueError(
+            f"slot split corrompido: template declara {ntmpl}B, restam "
+            f"{len(body_bytes) - start}B (T-QA-8 BUG-13e)"
+        )
     tmpl_blob = body_bytes[start:start + ntmpl]
     sub = body_bytes[start + ntmpl:]
     parts: list[str] = []

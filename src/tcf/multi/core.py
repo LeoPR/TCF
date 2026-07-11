@@ -24,10 +24,13 @@ byte-sizes em HEX (T-FMT-HEADER-BASE-HEX):
     - ULTIMA coluna sem size (corpo ate' EOF, O-FMT-15/ADR-0023): par sem `=`.
     - bodies concatenados byte-precise (sem delimitador; sizes hex no meta).
 
-Restricoes (INTERIM, ate' o escaping T-FMT-NAME-ESCAPING):
-- Nomes de coluna nao podem conter `,`/`=`/`:` nem comecar com `!@%` (fail-loud).
-- Todas colunas devem ter mesmo numero de valores.
-- NULL/None convertido pra '' (empty string).
+Contratos de fronteira (T-FMT-NAME-ESCAPING M2 + T-QA-8 F0):
+- Nomes de coluna com `,`/`=`/`:`/`\\` e prefixo `!@%` sao ESCAPADOS com
+  backslash no meta (aceitos); so' `\\n` e' proibido (separador de linha).
+- Nome '' = coluna ANONIMA (decode da' nome posicional; warning).
+- Todas colunas devem ter mesmo numero de valores (>= 1; 0 linhas = erro).
+- NULL/None convertido pra '' (empty string); coluna deve ser LISTA (str/bytes
+  = erro que ensina).
 """
 
 from __future__ import annotations
@@ -241,15 +244,15 @@ def _encode_multi(
             `_encode_column` por coluna via ProcessPoolExecutor.
         cfg: PipelineConfig pra controle de camadas (T-CODE-LAYERED-PIPELINE
             Fase 1). Default = M10 canonical.
-        fallback: V2-A fallback identity (ADR-0022). **Default True** (0.7 e' o
-            default, ADR-0024). Por coluna escolhe min(TCF, raw). False ->
-            mantem TCF em toda coluna (usado p/ produzir o legado #TCF.6 em
-            comparacao/regressao; o `encode()` publico nao expoe este toggle).
-        min_header: header v2 minimo (ADR-0023, O-FMT-15+16). **Default True**.
-            Meta sem prefixo (o flag M ja' declara colunas) + ultima coluna sem
-            size (corpo ate' EOF). False -> header legado `# size=name,...`.
-            (fallback=False E min_header=False juntos -> #TCF.6 byte-identico ao
-            legado, p/ comparacao.)
+        fallback: candidatos V2 por coluna (ADR-0022/0025/0026). **Default
+            True**: escolhe min(tcf, raw, dict, split). False -> so' candidato
+            tcf em toda coluna (comparacao/regressao; o magic segue #TCF.8M —
+            legado #TCF.6 CORTADO, ADR-0032, git-as-compat).
+        min_header: ultima coluna sem size (corpo ate' EOF; ADR-0023,
+            O-FMT-15). **Default True**. False -> todas as colunas com size
+            (inspecao); meta segue INLINE (#TCF.8M). Ultima coluna ANONIMA e'
+            SEMPRE sem size (gramatica: size bare no ultimo token colidiria
+            com nome — achado adversarial F0).
         min_len: override do min_len do OBAT (mesmo p/ todas as colunas). None
             (default) -> auto por coluna (inalterado). Threaded a _encode_column.
         nature_ids: dict[col_name -> nature-id STRING] (ADR-0027, self-describing).

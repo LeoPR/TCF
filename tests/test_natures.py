@@ -238,15 +238,15 @@ class TestNatureMarkHeader:
         assert text.startswith("#TCF.8M")     # inline meta (ADR-0029)
         assert decode(text) == table
 
-    def test_unknown_nature_id_raw_plus_warn(self):
-        """Forward-compat: id desconhecido -> valor cru + warning (não KeyError)."""
+    def test_unknown_nature_id_raises(self):
+        """Id desconhecido -> ERRO (T-QA-8 BUG-13b, owner 2026-07-10): revoga o
+        forward-compat de 2026-06-24 — warning + dado cru base-94 calado era
+        corrupção silenciosa; pre-1.0 sem compat (ADR-0024)."""
         table = {"doc": ["11.222.333/0001-81"], "x": ["a"]}
         text = encode(table, nature_per_col={"doc": SPEC_CNPJ})
         tampered = text.replace(":cnpj", ":FUTURE9")
-        with pytest.warns(UserWarning, match="desconhecido"):
-            result = decode(tampered)
-        # coluna fica crua (base-94), NÃO revertida pro CNPJ original
-        assert result["doc"][0] != "11.222.333/0001-81"
+        with pytest.raises(ValueError, match="desconhecido"):
+            decode(tampered)
 
     def test_colon_in_colname_with_nature_rt(self):
         """T-FMT-NAME-ESCAPING (M2): ':' no nome escapado '\\:'; a nature `:id` e' o
@@ -390,12 +390,12 @@ class TestNatureMarkSingleCol:
         assert text.startswith("#TCF.8 ")         # header na linha do shebang
         assert decode(text) == ips
 
-    def test_unknown_id_cru_warn(self):
+    def test_unknown_id_raises(self):
+        # ERRO estrito (BUG-13b, owner 2026-07-10 — antes: warning + cru calado)
         text = encode(["529.982.247-25"], nature=SPEC_CPF)
         tampered = text.replace(":cpf", ":FUTURE9", 1)
-        with pytest.warns(UserWarning, match="desconhecido"):
-            result = decode(tampered)
-        assert result[0] != "529.982.247-25"      # cru (base-94), nao revertido
+        with pytest.raises(ValueError, match="desconhecido"):
+            decode(tampered)
 
     def test_no_double_apply(self):
         """Precedencia header-vence: encode+decode ambos com nature -> RT."""

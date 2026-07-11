@@ -1,7 +1,8 @@
 """Testes da view lazy/consultável sobre blob TCF.
 
-Promovida pro core em `tcf.view` (A4, plano 0.8): camada read-only que lê #TCF.7,
-não muda encode/decode/formato. Shim de compat em scripts/tcf_lazy/.
+Promovida pro core em `tcf.view` (A4, plano 0.8): camada read-only que lê
+#TCF.8M (legado cortado, ADR-0032), não muda encode/decode/formato. Shim de
+compat em scripts/tcf_lazy/.
 """
 from __future__ import annotations
 
