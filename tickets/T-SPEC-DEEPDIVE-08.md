@@ -120,6 +120,39 @@ pra qualquer spec numérico.
   passa folgado o gate ≥15%. É spec-machinery nova (modo delta do corpo + decomposição de subcódigo),
   merece estudo próprio (multi-coluna real, CPF, sobrevive a brotli?, gate real-world).
 
+## §4-ter — As 3 FORMAS / 6 CAMADAS do spec (arquitetura do owner, 2026-07-12) — MEDIDAS
+
+Owner: o spec pode ser tratado em 3 formas — **A) entrada total** (transforma antes, núcleo nem
+trabalha = nature HOJE); **B) paralela** (núcleo trabalha, depois troca a base-94 ao menos nas
+REFERÊNCIAS); **C) misto** (limpa na entrada pra o núcleo achar padrões + troca na saída). Em ~6
+camadas: limpeza (máscara) · derivação (DV) · pré-forma (ordem/delta) · núcleo · troca nas
+referências · saída/header. Decode: "expande o base-94 e depois leva as chaves" (→ delta → zfill →
+DV → máscara), lossless por construção.
+
+**Lab `2026-07-12-spec-camadas/`** (escada S1-S5 pelo pipeline REAL, 4 regimes):
+
+| degrau | CNPJ ord | CNPJ shuf | CPF rand | CPF clust |
+|---|---:|---:|---:|---:|
+| S1 masked (baseline) | 32665 | 41332 | 7499 | 1043 |
+| S2 clean (só limpeza+DV) | 53709 | 64999 | 4999 | 68 |
+| S3 clean+delta | 17032 | 51891 | 5146 | 19 |
+| S4 base94 absoluto (**hoje**) | 39958 | 39958 | 2971 | 2999 |
+| **S5 delta→base94 (misto)** | **14270** | **32408** | 3207 | **14** |
+
+**Achados**:
+1. **A forma C (S5) é a única SEMPRE-boa**: melhor em 3 de 4 regimes (−56% ord, −22% shuf, −98.7%
+   clust) e quase-empatada no 4º (random: S4 2971 vs S5 3207 — absoluto fixo vence delta variável
+   em dado sem ordem). A forma A (hoje) é a PIOR em 2 de 4.
+2. **CPF clustered → 14 BYTES** (de 1043): delta constante `+3` vira RLE `*499|` — o lote inteiro
+   é "1º valor + (+3 × 499)". Informação-teórica quase perfeita.
+3. **SURPRESA — limpeza ISOLADA PIORA o CNPJ** (S2 +64%!): a MÁSCARA tem valor estrutural — o
+   split usa a pontuação como separador de campos; tirar a máscara sem pré-forma cega o núcleo.
+   As camadas NÃO são monotônicas → a escolha tem que ser POR COLUNA e MEDIDA — o que reforça o
+   "compete no min()" como mecanismo de chão em toda forma.
+4. **Nota de máquina**: S3/S5 exigem spec ESTATAL por coluna (delta depende da linha anterior) —
+   o `encode_value` per-value de hoje não expressa. É a capacidade nova a projetar: **column-wise
+   nature** (com S5 ≡ "troca nas referências" quando o dict vence).
+
 ## §5 — DECISÕES pro owner (o que fecha o 0.8 vs pré-1.0)
 
 1. **CRUX — a "nature compete" entra no 0.8 ou 0.8.1?** — **DECIDIDO (owner 2026-07-12): NO `.8`.**
