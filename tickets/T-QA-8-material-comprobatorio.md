@@ -233,16 +233,17 @@ owner: "SE identificar algum bug sem querer, registre apenas pra arrumarmos depo
   `U+2028`, `U+2029`). Execução: red inicial `5 failed, 5 passed`; pós-fix `10 passed`; gates
   `tests/test_core_rt.py` + `tests/test_regression_v1_baseline.py` +
   `tests/test_real_world_snapshots.py` = `104 passed`.
-- [ ] **BUG-15 [alta · domínio válido · NÃO fixado]** *(achado 2026-07-12 pelo RT counter-proof do
-  lab `2026-07-12-1917-spec-camadas-v1`)* — **valor literal começando com `^` (marcador de ref do
-  HCC) quebra o RT** em modo **tcf E dict** (raw sobrevive): `decode(encode(["^abc"]*30+["y"]*30))`
-  → `ValueError: invalid literal for int()`. O HCC escapa dígito-líder (pra não ler literal como
-  ref number) mas NÃO escapa `^`-líder. **Domínio válido**: qualquer coluna de texto com valores
-  começando com `^` (regex, markup, math). **Relevância pros specs**: o alfabeto BASE94 da nature
-  INCLUI `^` — a `nature-delta`/`field-split` (T-SPEC-DEEPDIVE §4-bis/ter) produz base-94 que pode
-  começar com `^` e venceria por dict → o CEILING depende deste fix. **Fix candidato**: estender o
-  escape-de-líder do HCC (o mesmo mecanismo do dígito) ao `^`; red→green + gate completo (CORE).
-  Descoberto porque o lab EXIGIU RT end-to-end — o número anterior (sem RT) escondia o defeito (§RT).
+- [x] **BUG-15 [alta · domínio válido]** — **FIXADO 2026-07-12** (owner: "fixe o bug-15"). Literal
+  começando com `^` (marcador de ref do HCC) quebrava o RT em tcf/dict (crash em não-dígito,
+  **corrupção SILENCIOSA em `^12`** — lido como ref pro eid 12); raw sobrevivia. Causa: `_escape_lit`
+  escapava `*`-líder (`\*`) mas não `^`. Fix cirúrgico em `composicional/syntax.py` `_emit_body`:
+  `^`-líder de linha → `\^` (ref-runs começam com dígito, nunca `^`, então só literal-líder colide);
+  o decode de-escapa via `_parse_decl` (mecanismo `\` já existente). **6 repros red→green** em
+  `tests/test_core_rt.py::TestBug15CaretLeadingLiteral` (tcf/dict/dígito-silencioso/multi-col/só-caret/
+  mid-string-byte-neutro). **Byte-NEUTRO**: suíte **616 passed**, pinos 1523/300/89616 exatos, Cython
+  inalterado (fix no emit, não em `_detect_compositions`). **Destrava o CEILING** dos specs
+  (nature-delta/field-split podia produzir base-94 `^`-líder). Achado SÓ porque o lab exigiu RT
+  end-to-end — a lição do §RT do owner, com bug real capturado.
 
 ### Doc-drift 0.7→0.8 (bloqueia o "documento bem feito pro pip" — corrigir em F6 com números medidos)
 

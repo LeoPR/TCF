@@ -562,6 +562,15 @@ class M8AVirtualRefsSyntax(Syntax):
                     prev_type = "refs"
 
             linha_resto = "".join(parts)
+            # BUG-15 (2026-07-12): '^'-LÍDER de linha colide com o marcador de
+            # repetição '^eid' do decode (linha 796). O '*'-líder já é escapado
+            # por _escape_lit; o '^' não era -> literal '^abc' era lido como ref
+            # (crash em não-dígito, corrupção SILENCIOSA em '^12'). Ref-runs
+            # começam com dígito (nunca '^'), então só o literal-líder colide:
+            # escape simétrico '\^' (o decode de-escapa via _parse_decl). Cirúrgico
+            # e byte-NEUTRO — dado válido de hoje nunca emite '^'-líder (crasharia).
+            if linha_resto.startswith("^"):
+                linha_resto = "\\" + linha_resto
             if count > 1:
                 body.append(f"*{count}|{linha_resto}")
             else:

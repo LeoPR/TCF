@@ -146,8 +146,10 @@ alfabeto MARKER-SAFE base-62 (a nature real usa BASE94 com `^`, que dispara o BU
 > blobs de S3/S5 em base-80 NÃO decodam (BUG-15). Só dizer "lossless por construção" não era
 > evidência; a contra-prova é que mede. A conclusão (S5 sempre-boa) sobrevive em base-62 com RT verde.
 
-> **BUG-15 (achado por ESTE lab)**: literal começando com `^` quebra o RT em tcf/dict. O alfabeto da
-> nature inclui `^` → **o CEILING (nature-delta/field-split) DEPENDE do fix do BUG-15** (T-QA-8 §3).
+> **BUG-15 (achado por ESTE lab) — FIXADO 2026-07-12**: literal começando com `^` quebrava o RT em
+> tcf/dict. Fix cirúrgico byte-neutro (escape `\^`-líder no emit; 616 passed). **O CEILING está
+> DESTRAVADO** — a nature-delta/field-split pode usar o alfabeto base-94 cheio (com `^`). Ver
+> T-QA-8 §3 BUG-15.
 
 **Achados**:
 1. **A forma C (S5) é a única SEMPRE-boa**: melhor em 3 de 4 regimes (−56% ord, −22% shuf, −98.7%

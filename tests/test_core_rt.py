@@ -392,3 +392,37 @@ class TestRTEdges:
             "b": ["1", "2"],
         }
         assert decode(encode(table)) == table
+
+
+class TestBug15CaretLeadingLiteral:
+    """BUG-15 (achado 2026-07-12 pelo RT counter-proof do lab spec-camadas): um
+    literal começando com '^' (marcador de ref do HCC) quebrava o RT em modo
+    tcf/dict — o decode lia a linha como '^eid' (crash em não-dígito, corrupção
+    SILENCIOSA em dígito). O '*'-líder já era escapado (`\*`); o '^'-líder não.
+    Fix: escape simétrico do '^'-líder no emit (decode de-escapa via _parse_decl)."""
+
+    def test_caret_literal_tcf_mode(self):
+        col = ["^abc"] * 30 + ["y"] * 30           # ganha tcf
+        assert decode(encode(col)) == col
+
+    def test_caret_literal_dict_mode(self):
+        col = ["^ab", "^cd"] * 40                   # ganha dict (K=2)
+        assert decode(encode(col)) == col
+
+    def test_caret_digit_no_silent_corruption(self):
+        # '^12' NÃO pode ser lido como ref pro eid 12 (era corrupção silenciosa)
+        col = ["^12"] * 30 + ["real"] * 30
+        assert decode(encode(col)) == col
+
+    def test_caret_multi_col(self):
+        table = {"a": ["^x"] * 20 + ["z"] * 20, "b": [str(i) for i in range(40)]}
+        assert decode(encode(table)) == table
+
+    def test_caret_only_and_empty_after(self):
+        for col in (["^"] * 30 + ["a"] * 30, ["^^^"] * 30 + ["b"] * 30):
+            assert decode(encode(col)) == col
+
+    def test_mid_string_caret_unchanged(self):
+        # '^' NO MEIO nunca foi ambíguo -> deve seguir byte-neutro (sem escape)
+        col = ["a^b", "c^d^e", "x"]
+        assert decode(encode(col)) == col
