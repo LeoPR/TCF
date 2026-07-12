@@ -273,37 +273,16 @@ def encode(
             key_col = data[sort_by]
             order = sorted(range(len(key_col)), key=lambda i: str(key_col[i]))
             data = {c: [v[i] for i in order] for c, v in data.items()}
-        nature_ids = None
-        if nature_per_col:
-            from tcf.natures.templated_checked import encode_value
-            if side_outputs is not None:
-                nature_stats = {}
-                new_data = {}
-                for name, vals in data.items():
-                    if name in nature_per_col:
-                        spec = nature_per_col[name]
-                        pairs = [encode_value(spec, v) for v in vals]
-                        new_data[name] = [p for p, _ in pairs]
-                        nature_stats[name] = _nature_apply_stats(
-                            spec, [s for _, s in pairs])
-                    else:
-                        new_data[name] = vals
-                data = new_data
-                side_outputs.nature_apply = nature_stats
-            else:
-                data = {
-                    name: ([encode_value(nature_per_col[name], v)[0] for v in vals]
-                           if name in nature_per_col else vals)
-                    for name, vals in data.items()
-                }
-            # Self-describing (ADR-0027, #TCF.8): a STRING do spec.name viaja no
-            # header (:id), so' das colunas que existem em data. Magic sobe pra
-            # #TCF.8 SSE nature_ids nao-vazio (byte-neutro: default-off intacto).
-            nature_ids = {name: nature_per_col[name].name
-                          for name in data if name in nature_per_col}
+        # FLOOR (T-SPEC-DEEPDIVE §5.1, owner 2026-07-12): a nature NAO e' mais
+        # pre-transformacao FORCADA — os SPECS descem pro _encode_multi, que a faz
+        # COMPETIR no min() por coluna (encoda original vs nature-transformada, fica
+        # a menor). So' as colunas onde a nature vence ganham ':id'. Safe-by-
+        # construction: nunca pior que o baseline (resolve a regressao F4).
+        nature_specs = ({name: spec for name, spec in nature_per_col.items()
+                         if name in data} if nature_per_col else None)
         return _encode_multi(data, side_outputs=side_outputs, parallel=parallel,
                              cfg=cfg, fallback=fallback, min_header=min_header,
-                             min_len=min_len, nature_ids=nature_ids,
+                             min_len=min_len, nature_specs=nature_specs,
                              drop_names=drop_names)
     raise TypeError(
         f"encode espera list[str] ou dict[str, list[str]], "

@@ -231,7 +231,7 @@ def _encode_multi(
     fallback: bool = True,
     min_header: bool = True,
     min_len: int | None = None,
-    nature_ids: dict[str, str] | None = None,
+    nature_specs: dict | None = None,
     drop_names: bool = False,
 ) -> str:
     """Interno: encode dict pra TCF multi-col. Chamado por `encode()`.
@@ -255,11 +255,13 @@ def _encode_multi(
             com nome — achado adversarial F0).
         min_len: override do min_len do OBAT (mesmo p/ todas as colunas). None
             (default) -> auto por coluna (inalterado). Threaded a _encode_column.
-        nature_ids: dict[col_name -> nature-id STRING] (ADR-0027, self-describing).
-            So' a STRING do spec.name (cpf/cnpj/ip), nunca o objeto. Se nao-vazio:
-            magic sobe pra #TCF.8 e cada col marcada ganha sufixo ':id' no nome do
-            meta-line. **byte-neutro**: condicionado EXCLUSIVAMENTE a bool(nature_ids)
-            — None/{} -> codepath identico ao de hoje (zero delta).
+        nature_specs: dict[col_name -> spec] (ADR-0027 + FLOOR, T-SPEC-DEEPDIVE-08
+            §5.1, owner 2026-07-12). A nature COMPETE no min() por coluna: encoda-se
+            a coluna ORIGINAL e a NATURE-transformada, fica a MENOR (incluindo o
+            custo do sufixo ':id'). Se a nature vence -> ':id' no meta + corpo
+            base-94; se perde/empata -> original, SEM ':id'. Safe-by-construction:
+            NUNCA pior que o baseline (resolve a regressao F4). None/{} -> codepath
+            identico ao de hoje (zero delta byte-canonical).
     """
     if not table:
         raise ValueError("table vazia")
@@ -363,25 +365,60 @@ def _encode_multi(
     # Candidatos por coluna: tcf (sempre), raw (V2-A, ADR-0022), dict (V2-B,
     # ADR-0025). Escolhe o MENOR -> zero-regressao por construcao. Tudo gated por
     # `fallback`: com fallback=False so' tcf -> #TCF.6 legado byte-identico.
+    # FLOOR (T-SPEC-DEEPDIVE §5.1): a nature vira candidato do min() por coluna.
+    # nature_ids EMITIDO = so' as colunas onde a nature venceu (nao mais input).
+    nature_ids: dict[str, str] = {}
+    nature_apply: dict = {}
     fallback_cols: list[str] = []
     dict_cols: list[str] = []
     split_cols: list[str] = []
     col_modes: dict[str, str] = {}
     final_bodies: list[tuple[str, bytes, str]] = []  # (name, body, mode)
-    for name, tcf_bytes in col_bodies_bytes:
-        best_body, best_mode = tcf_bytes, "tcf"
+
+    def _best_of(vals: list[str], tcf_body: bytes):
+        """min(tcf, raw, dict, split) de uma coluna -> (body, mode)."""
+        bb, bm = tcf_body, "tcf"
         if fallback:
-            vals = table_str[name]
             if _fallback_safe(vals):
-                raw_bytes = "\n".join(vals).encode("utf-8")
-                if len(raw_bytes) < len(best_body):
-                    best_body, best_mode = raw_bytes, "raw"
-            v2b_bytes = _v2b_encode(vals, cfg=cfg, min_len=min_len)
-            if v2b_bytes is not None and len(v2b_bytes) < len(best_body):
-                best_body, best_mode = v2b_bytes, "dict"
-            split_bytes = _struct_split_encode(vals, cfg=cfg, min_len=min_len)
-            if split_bytes is not None and len(split_bytes) < len(best_body):
-                best_body, best_mode = split_bytes, "split"
+                rb = "\n".join(vals).encode("utf-8")
+                if len(rb) < len(bb):
+                    bb, bm = rb, "raw"
+            vb = _v2b_encode(vals, cfg=cfg, min_len=min_len)
+            if vb is not None and len(vb) < len(bb):
+                bb, bm = vb, "dict"
+            sb = _struct_split_encode(vals, cfg=cfg, min_len=min_len)
+            if sb is not None and len(sb) < len(bb):
+                bb, bm = sb, "split"
+        return bb, bm
+
+    for name, tcf_bytes in col_bodies_bytes:
+        best_body, best_mode = _best_of(table_str[name], tcf_bytes)
+
+        spec = nature_specs.get(name) if nature_specs else None
+        if spec is not None:
+            # CANDIDATO nature: encoda os valores NATURE-transformados e compete.
+            # A nature so' vence se cobre o proprio custo do sufixo ':id' (never-worse
+            # inclui o header). apply-rate reportado SEMPRE (telemetria da transformacao).
+            from tcf.encoder import _encode_column
+            from tcf.natures.templated_checked import encode_value
+            pairs = [encode_value(spec, v) for v in table_str[name]]
+            transformed = [p for p, _ in pairs]
+            if side_outputs is not None:
+                from tcf.encoder import _nature_apply_stats
+                nature_apply[name] = _nature_apply_stats(
+                    spec, [s for _, s in pairs])
+            nat_tcf = _encode_column(transformed, header=name, cfg=cfg,
+                                     min_len=min_len).encode("utf-8")
+            nat_body, nat_mode = _best_of(transformed, nat_tcf)
+            id_cost = len(":" + spec.name)          # custo do sufixo no meta
+            if len(nat_body) + id_cost < len(best_body):
+                best_body, best_mode = nat_body, nat_mode
+                nature_ids[name] = spec.name
+                if side_outputs is not None:
+                    nature_apply[name]["used"] = True
+            elif side_outputs is not None:
+                nature_apply[name]["used"] = False
+
         final_bodies.append((name, best_body, best_mode))
         if best_mode == "raw":
             fallback_cols.append(name)
@@ -463,8 +500,13 @@ def _encode_multi(
             # — BUG-07: capturado no min(), chave = nome de ENTRADA da coluna.
             "col_modes": dict(col_modes),
             "min_header": min_header,
-            "nature_cols": dict(nature_ids) if nature_ids else {},
+            # nature_cols = so' as que VENCERAM o min() (FLOOR); nature_lost = as
+            # que foram propostas mas perderam (telemetria da competicao).
+            "nature_cols": dict(nature_ids),
+            "nature_lost": [c for c in (nature_specs or {}) if c not in nature_ids],
         }
+        if nature_apply:
+            side_outputs.nature_apply = nature_apply
 
     return text
 
