@@ -42,12 +42,15 @@ telemetria de F3/F4 demonstrar blocker ou ganho de fechamento claro; ideias de g
 | ROI | atividade | saída que fecha | próximo estado |
 |---|---|---|---|
 | **R0 — integridade do núcleo válido** | BUG-14 fechado (red→green; decoder LF-only + testes parametrizados + gates canônicos) | domínio público aceito voltou a ser lossless | F3 |
-| **R1 — evidência de fechamento** | F3: sintéticos/escala/paralelismo; depois F4 começando pelos 6 hubs já prontos | prova reproduzível de comportamento, escala e identidade serial/paralela | decisão F5 |
-| **R2 — superfície publicável** | F5 somente se gated; F6 reconcilia README EN/PT, referência, metadata, wheel e smoke clean-room | pacote/documentação descrevem o mesmo `#TCF.8` | C3 |
+| **R1 — evidência de fechamento** | F3 amostral + **F4-mínimo (FEITO 2026-07-12, 9/9 RT)** | prova reproduzível nos hubs prontos; população total = janela dedicada pós-release | R1.5 |
+| **R1.5 — investigação de specs (REDIRECT owner 2026-07-12)** | investigar a fundo o que comprime além do básico (CPF já estudado; CNPJ no básico); revisar o inventário geral de specs + o compilador (tirar specs do welded); PLANEJAMENTO pra fechar 0.8 E pré-1.0 | plano de specs registrado (o que atacar no .8 vs .9) | R2 |
+| **R2 — superfície publicável** | F5 somente se gated; F6 reconcilia README EN/PT, referência, metadata, wheel e smoke clean-room (+ **caveat nature-CNPJ-piora-em-real**) | pacote/documentação descrevem o mesmo `#TCF.8` | C3 |
 | **R3 — ato de release** | C3: tag `v0.8.0` + Trusted Publishing, somente com go explícito do owner | `0.8.0` publicado e closeout fechado | abrir ciclo seguinte |
 
-**Próxima ação concreta em nova sessão**: reler este bloco → iniciar **F3** no T-QA-8
-(sintéticos, curva de escala e paralelismo), mantendo F5 como condicional por evidência. O checkpoint temporal é
+**Próxima ação concreta em nova sessão**: reler este bloco → **R1.5 investigação de specs**
+(redirect do owner 2026-07-12: antes do F6, investigar o que comprime + revisar specs + compilador
+pra tirar do welded; planejamento 0.8+pré-1.0), depois R2 (F6). Specs do `.8` já DECIDIDOS
+(Opção A, [T-SPEC-STATUS-08](T-SPEC-STATUS-08.md)). Checkpoint temporal:
 [`2026-07-12-revisao-roi-fechamento-08.md`](../experiments/lab/dirty/notas/checkpoints/2026-07-12-revisao-roi-fechamento-08.md).
 
 ## Estado corrente (2026-07-12)

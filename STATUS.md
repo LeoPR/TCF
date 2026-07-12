@@ -7,11 +7,17 @@
 >   PyPI apenas apos a fila de fechamento + go explicito do owner —
 >   [T-DIST-RELEASE](tickets/T-DIST-RELEASE-0.8.0.md)).
 > - **Foco vigente / fila unica por ROI**: [T-REL-08-CLOSEOUT](tickets/T-REL-08-CLOSEOUT.md).
->   F0/F1/F2 do [T-QA-8](tickets/T-QA-8-material-comprobatorio.md) FEITOS; suite local completa
->   **600 passed, 2 skipped**. **R0 BUG-14 fechado (lote A, 2026-07-12)** com red→green e gates
->   `test_core_rt` + `test_regression_v1_baseline` + `test_real_world_snapshots` (**104 passed**).
->   Proximo: **F3** → F4 → F5 condicional → F6 → C3. Corrupcao/hardening
->   fica 0.8.1/pre-1.0; pesquisa fica `.9`, salvo reclassificacao explicita no T-REL.
+>   FEITOS ate' 2026-07-12: F0 (12/13 bugs, 4 lotes), R0 **BUG-14**, F1 (runner `bench_evidencia`),
+>   F2 (controle 29/29), **F3 amostral**, **F4-minimo** (9/9 RT nos hubs prontos), **C0** (dedup do
+>   core, [T-CODE-CORE-CONSOLIDATE](tickets/T-CODE-CORE-CONSOLIDATE.md)). Suite local **610 passed,
+>   2 skipped**; pinos 1523/300/89616 exatos.
+> - **REDIRECIONAMENTO do owner (2026-07-12)**: antes do F6/release, INVESTIGAR os SPECS a fundo
+>   (o que comprime alem do basico; CNPJ; compilador pra tirar specs do welded) — planejamento pra
+>   fechar 0.8 E pre-1.0. Specs do `.8` DECIDIDOS (**Opcao A**,
+>   [T-SPEC-STATUS-08](tickets/T-SPEC-STATUS-08.md)): so' CPF/CNPJ welded; classicos novos → `.9`.
+>   **ACHADO F4**: nature CNPJ PIORA a tabela em dado real (+7339B, split→raw) — caveat do F6.
+> - **Proximo**: investigacao de specs (redirect) → F6 (docs/README medidos + caveat) → C3 (go owner).
+>   Corrupcao/hardening fica 0.8.1/pre-1.0; C1/C2 (rename M8A→HCC + achatar decode) pos-release.
 > - **Retomada temporal**:
 >   [checkpoint 2026-07-12](experiments/lab/dirty/notas/checkpoints/2026-07-12-revisao-roi-fechamento-08.md)
 >   + [diario 2026-07-12](experiments/lab/dirty/notas/diario/2026-07-12.md).

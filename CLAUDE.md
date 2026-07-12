@@ -358,11 +358,15 @@ prosa/ticket ambiguo, dizer explicitamente "[dispositivo]" / "[probatorio]".
 ## Foco atual e checkpoint
 
 - **Foco**: fechar o nucleo `#TCF.8`/pacote `0.8.0` pela fila unica de ROI em
-  `tickets/T-REL-08-CLOSEOUT.md`. Nao abrir `.9` nem hardening amplo antes do closeout;
-  proximo concreto = BUG-14 (dominio valido) -> T-QA-8 F3.
+  `tickets/T-REL-08-CLOSEOUT.md`. FEITOS (2026-07-12): F0 (12/13 bugs), BUG-14, F1 (runner
+  `bench_evidencia`), F2 (29/29), F3 amostral, **F4-minimo** (9/9 RT), **C0** (dedup do core).
+  Suite **610 passed**. Specs `.8` decididos (**Opcao A**, T-SPEC-STATUS-08: so' CPF/CNPJ).
+  **REDIRECT do owner (2026-07-12)**: proximo concreto = **R1.5 investigacao de specs** (o que
+  comprime alem do basico; CNPJ; compilador pra tirar do welded; planejamento 0.8+pre-1.0) → F6 → C3.
 - **Checkpoint mais recente**:
   `experiments/lab/dirty/notas/checkpoints/2026-07-12-revisao-roi-fechamento-08.md`
-  (F0/F1/F2 feitos; 600 passed; ordem R0-R3; separa nucleo valido de hardening 0.8.1/pre-1.0)
+  (F0/F1/F2 feitos; ordem R0-R3; separa nucleo valido de hardening 0.8.1/pre-1.0). Estado ADIANTE
+  do checkpoint: F3-amostral/F4-minimo/C0/specs-A + redirect de specs — ver STATUS + T-REL-08.
 - **Diario mais recente**: `experiments/lab/dirty/notas/diario/2026-07-12.md`
 - **Ritual de reentrada**: `STATUS.md` (somente ESTADO VIGENTE) -> T-REL-08 -> checkpoint ->
   ultimo diario. O ticket e' dispositivo; checkpoint/memoria sao ponteiros probatorios.
