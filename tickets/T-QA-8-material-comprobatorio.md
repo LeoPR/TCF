@@ -3,11 +3,12 @@ title: T-QA-8 — material comprobatório do #TCF.8/0.8.0 (controle → sintéti
 status: open
 priority: P1
 created: 2026-07-10
-updated: 2026-07-10
+updated: 2026-07-12
 blocked-by: []
 related:
   - docs/adr/0032-tcf8-default-format.md
   - tickets/T-DIST-RELEASE-0.8.0.md
+  - tickets/T-REL-08-CLOSEOUT.md
   - tickets/T-CODE-DESCAPAR-V2B.md
   - tickets/T-CODE-ENCODER-MANAGER.md
   - tests/test_real_world_snapshots.py
@@ -104,6 +105,12 @@ Fonte do levantamento: workflow de 10 agentes (6 inventário + 4 sweep adversari
 8. gzip/brotli/zstd aparecem como sinal qualitativo de composição (TCF+br), nunca como gate.
 
 ## §3 — REGISTRO DE BUGS (achados no planejamento; arrumar em F0, NÃO agora)
+
+> **PONTE 2026-07-12 (revisão de fechamento por ROI)**: o inventário passa a 14 bugs. Os lotes
+> F0 fecharam 12/13 achados originais; a revisão pós-F2 encontrou o **BUG-14**, que quebra RT para
+> entrada aceita pelo encoder e por isso é gate R0 antes de F3. BUG-12 e guardas de expansão sob
+> blob corrompido continuam importantes, mas ficam no hardening 0.8.1 por decisão de prioridade do
+> owner. Ordem dispositiva: [T-REL-08-CLOSEOUT](T-REL-08-CLOSEOUT.md).
 
 Sweep adversarial 2026-07-10 (4 agentes; repros executados). Nenhum corrigido ainda — regra do
 owner: "SE identificar algum bug sem querer, registre apenas pra arrumarmos depois".
@@ -218,6 +225,14 @@ owner: "SE identificar algum bug sem querer, registre apenas pra arrumarmos depo
   8 repros novos; suíte **590 passed**; encode intocado (lote decode-only, pins por construção).
   **Restam (a)(c)**: flips nome/size geometricamente consistentes — só checksum (trilho
   tcfx/O-FMT-20, via [T-FMT-META-STRICT](T-FMT-META-STRICT.md)).
+- [x] **BUG-14 [alta · domínio válido · gate R0 do `.8`]** *(FEITO 2026-07-12, lote A)* —
+  o decoder dos dois níveis foi alinhado ao contrato LF-only (remoção de `splitlines()` em favor
+  de split exclusivo por `\n` em `src/tcf/composicional/syntax.py` e
+  `src/tcf/composicional/hcc_seqrle.py`). Prova red→green adicionada em
+  `tests/test_core_rt.py` com 10 casos parametrizados (single+multi para `\v`, `\f`, NEL,
+  `U+2028`, `U+2029`). Execução: red inicial `5 failed, 5 passed`; pós-fix `10 passed`; gates
+  `tests/test_core_rt.py` + `tests/test_regression_v1_baseline.py` +
+  `tests/test_real_world_snapshots.py` = `104 passed`.
 
 ### Doc-drift 0.7→0.8 (bloqueia o "documento bem feito pro pip" — corrigir em F6 com números medidos)
 
@@ -255,8 +270,9 @@ owner: "SE identificar algum bug sem querer, registre apenas pra arrumarmos depo
 - [~] **F0-1** Owner decide o lote de fix pré-medição (toca `src/tcf` → aprovação explícita).
   **LOTES 1-4 EXECUTADOS 2026-07-10** (BUG-01..11b + 13b/d/e + DOC-02; decisões de design do
   owner, ver §3; byte-neutro 122+189+103 casos; eficácia medida 1474 cortes). **Resta**: só
-  **BUG-12** (hang HCC pré-existente, toca o CORE — lote próprio com gate completo) e os
-  residuais-de-checksum 13a/c (trilho tcfx, T-FMT-META-STRICT).
+  **BUG-12** entre os achados originais (hang HCC sob blob corrompido) e os residuais-de-checksum
+  13a/c (trilho tcfx, T-FMT-META-STRICT). O BUG-14 foi descoberto depois do F2 e entra no gate
+  R0 separado abaixo, não reabre historicamente os lotes F0.
 - [x] **F0-2** Suíte completa + gates pós-lotes: **590 passed** (530 + 60 repros F0), D1-D9=1523B /
   D17a=300B / real-world=89616B intactos (byte-neutralidade provada em 414 casos fora dos pins;
   lote 4 é decode-only+docstrings — encode intocado por construção).
@@ -335,18 +351,27 @@ owner: "SE identificar algum bug sem querer, registre apenas pra arrumarmos depo
 
 ### F3 — Sintéticos maiores (escala controlada)
 
-- [ ] **F3-1** Suite D1-D17 completa (31 CSVs) no runner — tabela única; stress (D10/13/14)
+> **Gate R0 cumprido (2026-07-12, lote A)**: BUG-14 fechado red→green com suíte/pinos já
+> executados no lote técnico. F3 está liberado; BUG-12/corrupção segue em 0.8.1.
+
+> **Update 2026-07-12 (decisão de escopo do closeout `.8`)**: execução massiva foi interrompida
+> e consolidada como **amostra**. Foi gerado
+> `experiments/results/evidencia-0.8/f3/RESULT.md` com cobertura parcial explícita: F3-1 = 31/31,
+> F3-2 = 10/10, F3-3 = 9 casos (faltaram 7), F3-4 = 0. Registro formal: não-população total nesta
+> etapa; retomada completa fica para janela dedicada, sem bloquear o fechamento do núcleo `#TCF.8`.
+
+- [x] **F3-1** Suite D1-D17 completa (31 CSVs) no runner — tabela única; stress (D10/13/14)
   SEPARADO de design-realista na apresentação.
-- [ ] **F3-2** Curva de escala com `tests/fixtures/synthetic_domains.py` parametrizado:
+- [x] **F3-2** Curva de escala com `tests/fixtures/synthetic_domains.py` parametrizado:
   n ∈ {20, 100, 1k, 10k, 100k} single e multi (fecha o buraco 20→2000 que não existia);
   bytes/linha, tempo/linha, memória vs n — onde o ganho TCF "liga" (README hoje afirma isso sem curva).
-- [ ] **F3-3** Paralelismo (a verificação pedida pelo owner):
+- [~] **F3-3** Paralelismo (a verificação pedida pelo owner):
   (a) byte-identidade parallel==serial nos REAL-WORLD snapshots (hoje só D17a);
   (b) speedup vs workers {serial,2,4,8} em multi-col grande (tpch/adult via hub), mediana n≥9;
   (c) MEDIR a porção serial pós-pool (fase de candidatos V2-A/B/split) — % Amdahl documentada;
   (d) combos sem cobertura: parallel × natures_per_col × sort_by × drop_names (byte-identidade);
   (e) registrar limitações honestas: decode serial, Cython sem nogil (3.13t re-ativa GIL), IPC spawn.
-- [ ] **F3-4** br-identidades (600k, DV-válido seed 20260601): natures em volume, apply_rate==1.0,
+- [~] **F3-4** br-identidades (600k, DV-válido seed 20260601): natures em volume, apply_rate==1.0,
   medição efêmera (§2.3) — CPF/CNPJ/IP nos 3 codepaths (spec, fallback, misto).
 
 ### F4 — Públicos (bench)
