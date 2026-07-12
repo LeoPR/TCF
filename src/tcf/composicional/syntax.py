@@ -31,6 +31,24 @@ from tcf.core.online import TokLit, TokRefPref, TokRefSuf
 from tcf.core.syntax_base import Syntax
 
 
+def split_lf_body(tcf_text: str) -> list[str]:
+    """Separa o BODY em linhas — FONTE ÚNICA do contrato LF-only do decode.
+
+    BUG-14 (T-QA-8, 2026-07-12): o formato é LF-only; `splitlines()` trataria
+    \\v/\\f/NEL/U+2028/U+2029 como quebra e corromperia dado VÁLIDO — separa-se
+    APENAS por '\\n', preservando os demais chars como dados. Remove exatamente
+    o LF terminal estrutural (o body canônico emite 1).
+
+    Dedup C0 (T-CODE-CORE-CONSOLIDATE): o fix vivia duplicado neste decode e no
+    wrapper seq-RLE — toda regra de linha do decode entra AQUI, uma vez só.
+    """
+    if not tcf_text:
+        return []
+    if tcf_text.endswith("\n"):
+        return tcf_text[:-1].split("\n")
+    return tcf_text.split("\n")
+
+
 @dataclass
 class _EmitState:
     """Estado mutavel do emit (_emit_body/_emit_ref_run/_emit_alias).
@@ -752,17 +770,10 @@ class M8AVirtualRefsSyntax(Syntax):
         prox_idx = [0]
         nos_decl = []
         saida = []
-        # BUG-14 (T-QA-8, 2026-07-12): o formato e' LF-only. `splitlines()`
-        # trata outros separadores Unicode como quebra de linha e quebrava o RT
-        # para dados validos (\v, \f, NEL, U+2028, U+2029). Decoding passa a
-        # separar APENAS por '\n', preservando os demais chars como dados.
-        if not tcf_text:
-            raw_lines = []
-        elif tcf_text.endswith("\n"):
-            # Remove exatamente o LF terminal estrutural (o body canônico emite 1).
-            raw_lines = tcf_text[:-1].split("\n")
-        else:
-            raw_lines = tcf_text.split("\n")
+        # Contrato LF-only: FONTE ÚNICA em split_lf_body (BUG-14 + dedup C0 do
+        # T-CODE-CORE-CONSOLIDATE — o fix vivia DUPLICADO aqui e no wrapper
+        # seq-RLE; risco de dessincronização apontado pelo owner 2026-07-12).
+        raw_lines = split_lf_body(tcf_text)
 
         for raw in raw_lines:
             # Bug fixes 2026-05-18 (EXP-012 + EXP-013):

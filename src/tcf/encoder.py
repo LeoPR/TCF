@@ -212,22 +212,12 @@ def encode(
                 "entrada com 0 linhas: nao representavel (colide com 1 linha "
                 "vazia — o formato nao grava row-count); ver T-QA-8 BUG-03"
             )
-        # BUG-10a (lote 3): itens nao-str convertem via _to_str — MESMA
-        # semantica do ramo dict (ADR-0013: None -> ''; antes crashava fundo em
-        # analyze_column). Check de \n/\r FUNDIDO na mesma passada (BUG-06):
-        # valida o que VAI SER USADO, pos-transformacao.
-        from tcf.multi.core import _to_str
-        conv: list[str] = []
-        for i, v in enumerate(data):
-            s = _to_str(v)
-            if "\n" in s or "\r" in s:
-                bad = "\\n" if "\n" in s else "\\r"
-                raise ValueError(
-                    f"valor com quebra de linha ({bad}) nao e' representavel no "
-                    f"TCF (LF delimita linhas): indice {i}: {s!r}"
-                )
-            conv.append(s)
-        data = conv
+        # BUG-10a (lote 3): itens nao-str convertem (ADR-0013: None -> '') com
+        # o check de \n/\r FUNDIDO na mesma passada (BUG-06) — FONTE ÚNICA
+        # `_stringify_checked` compartilhada com o ramo dict (dedup C0 D2,
+        # T-CODE-CORE-CONSOLIDATE).
+        from tcf.multi.core import _stringify_checked
+        data = _stringify_checked(data)
         nature_id = None
         if nature is not None:
             from tcf.natures.templated_checked import encode_value

@@ -16,12 +16,14 @@ from tcf.multi.core import (
     MAGIC_SINGLE_V3,
     _decode_multi,
     _decode_multi_impl,
+    _decode_raw_body,
     _encode_multi,
     _esc_name,
     _fallback_safe,
     _parse_meta,
     _rsplit1_unesc,
     _split_unesc,
+    _stringify_checked,
     _to_str,
     _unesc_name,
 )
@@ -53,6 +55,7 @@ __all__ = [
     "MAGIC_MULTI_V3", "MAGIC_SINGLE_V3",
     "_encode_multi", "_decode_multi", "_decode_multi_impl", "_to_str", "_fallback_safe",
     "_esc_name", "_unesc_name", "_split_unesc", "_rsplit1_unesc", "_parse_meta",
+    "_stringify_checked", "_decode_raw_body",
     # dict_v2b (V2-B, ADR-0025)
     "_V2B_ALPHA", "_V2B_BASE", "_V2B_MAX_CARD",
     "_v2b_width", "_v2b_idx_chars", "_v2b_encode", "_decode_v2b",

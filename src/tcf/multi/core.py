@@ -318,24 +318,12 @@ def _encode_multi(
             UserWarning, stacklevel=3,
         )
 
-    # Stringify upfront (per-col paralelo recebe valores ja' string).
-    # BUG-06 (T-QA-8 F0 lote 2): o check de \n/\r roda AQUI, fundido na MESMA
-    # passada do _to_str — valida o que VAI SER USADO (pos-transformacao), entao
-    # objetos cujo __str__ contem quebra nao furam mais; e substitui a passada
-    # separada do guard previo no caminho dict (1 passada em vez de 2).
-    table_str: dict[str, list[str]] = {}
-    for name, values in table.items():
-        out: list[str] = []
-        for i, v in enumerate(values):
-            s = _to_str(v)
-            if "\n" in s or "\r" in s:
-                bad = "\\n" if "\n" in s else "\\r"
-                raise ValueError(
-                    f"valor com quebra de linha ({bad}) nao e' representavel no "
-                    f"TCF (LF delimita linhas): coluna {name!r}, indice {i}: {s!r}"
-                )
-            out.append(s)
-        table_str[name] = out
+    # Stringify upfront (per-col paralelo recebe valores ja' string) + check
+    # de \n/\r na MESMA passada — FONTE ÚNICA `_stringify_checked` (BUG-06
+    # lote 2; dedup C0 D2: o ramo list do encoder consome a mesma função).
+    table_str: dict[str, list[str]] = {
+        name: _stringify_checked(values, name) for name, values in table.items()
+    }
 
     # Dispatch paralelo se solicitado E vale a pena (>= 2 cols).
     # parallel=1 -> SERIAL por DEDUCAO (BUG-10c, lote 3): 1 worker produz os
@@ -553,9 +541,9 @@ def _decode_multi_impl(
                     f"restam {len(body_bytes)}B no blob (T-QA-8 BUG-05)"
                 )
         if mode == "raw":
-            # V2-A: body raw = "\n".join(valores); split exato (sem '\n'
-            # embutido, garantido por _fallback_safe no encode).
-            result[col] = body_bytes.decode("utf-8").split("\n")
+            # V2-A: fonte única `_decode_raw_body` (dedup C0 D3 — a view
+            # consome a mesma função; paridade por construção).
+            result[col] = _decode_raw_body(body_bytes)
         elif mode == "dict":
             result[col] = _decode_v2b(body_bytes)  # V2-B (ADR-0025)
         elif mode == "split":
@@ -597,6 +585,37 @@ def _to_str(v) -> str:
     if v is None:
         return ""
     return str(v)
+
+
+def _stringify_checked(values, col_name: str | None = None) -> list[str]:
+    """Stringify (_to_str) + validação de \\n/\\r na MESMA passada — FONTE
+    ÚNICA dos ramos list (encoder) e dict (_encode_multi).
+
+    Dedup C0 (T-CODE-CORE-CONSOLIDATE D2): os dois ramos carregavam loops
+    gêmeos (BUG-06 lote 2 + BUG-10a lote 3) — regra e mensagem agora vivem
+    aqui, uma vez. Valida o que VAI SER USADO (pós-transformação): objeto com
+    __str__ contendo quebra não fura. Contrato lossless: LF delimita 1 valor
+    por linha; \\n embutido corromperia o RT em silêncio -> fail-loud."""
+    out: list[str] = []
+    loc = f"coluna {col_name!r}, " if col_name is not None else ""
+    for i, v in enumerate(values):
+        s = _to_str(v)
+        if "\n" in s or "\r" in s:
+            bad = "\\n" if "\n" in s else "\\r"
+            raise ValueError(
+                f"valor com quebra de linha ({bad}) nao e' representavel no "
+                f"TCF (LF delimita linhas): {loc}indice {i}: {s!r}"
+            )
+        out.append(s)
+    return out
+
+
+def _decode_raw_body(body_bytes: bytes) -> list[str]:
+    """Body raw (V2-A `!`) -> valores — FONTE ÚNICA decode+view (dedup C0,
+    T-CODE-CORE-CONSOLIDATE D3; paridade por CONSTRUÇÃO, mesmo padrão do
+    _parse_meta). Split exato por LF: _fallback_safe garantiu no encode que
+    nenhum valor tem '\\n' embutido (sem LF terminal — body é join puro)."""
+    return body_bytes.decode("utf-8").split("\n")
 
 
 def _fallback_safe(values: list[str]) -> bool:

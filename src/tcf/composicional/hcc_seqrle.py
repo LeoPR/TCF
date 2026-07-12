@@ -30,7 +30,7 @@ GATE byte-canonical: qualquer mudanca aqui (seq-RLE / detector) DEVE passar
 
 from __future__ import annotations
 
-from tcf.composicional.syntax import M8AVirtualRefsSyntax
+from tcf.composicional.syntax import M8AVirtualRefsSyntax, split_lf_body
 
 
 def find_escape_digit_runs(line: str) -> list[tuple[int, int]]:
@@ -294,15 +294,10 @@ class HCCSeqRLE(M8AVirtualRefsSyntax):
 
     def decode(self, tcf_text):
         expanded_lines = []
-        # BUG-14 (T-QA-8, 2026-07-12): splitlines() quebrava dados validos com
-        # separadores Unicode. O formato e' LF-only, entao o wrapper seq-RLE
-        # tambem separa apenas por '\n'.
-        if not tcf_text:
-            raw_lines = []
-        elif tcf_text.endswith("\n"):
-            raw_lines = tcf_text[:-1].split("\n")
-        else:
-            raw_lines = tcf_text.split("\n")
+        # Contrato LF-only: FONTE ÚNICA em split_lf_body (BUG-14 + dedup C0 —
+        # o fix vivia duplicado aqui e no decode do syntax; ver
+        # T-CODE-CORE-CONSOLIDATE D1).
+        raw_lines = split_lf_body(tcf_text)
 
         for raw in raw_lines:
             # NAO strip: expand_seq_marker preserva o whitespace do template

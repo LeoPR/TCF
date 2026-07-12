@@ -29,7 +29,7 @@ from collections.abc import Callable
 from tcf.multi import (
     MAGIC_MULTI_V3,
     _decode_v2b, _decode_struct_split, _v2b_width, _V2B_BASE,
-    _parse_meta,
+    _decode_raw_body, _parse_meta,
 )
 from tcf.decoder import _decode_column
 
@@ -131,7 +131,8 @@ class LazyTCF:
         if name not in self._cache:
             mode, body = self._mode[name], self._body[name]
             if mode == "raw":
-                vals = body.decode("utf-8").split("\n")
+                # fonte única com o decode (dedup C0 D3 — paridade por construção)
+                vals = _decode_raw_body(body)
             elif mode == "dict":
                 vals = _decode_v2b(body)
             elif mode == "split":

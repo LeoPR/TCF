@@ -45,13 +45,33 @@ PROTÓTIPO** (a tecnologia foi fixada, mas o nome vivo é HCC) — o código ain
 (Cython!) + `tests/test_pyx_byte_equivalence.py` + `scripts/bench_evidencia_probes.py`. META-NAMING
 (2026-05-17) fixou HCC como nome oficial; o código nunca acompanhou.
 
+## Princípio "dois tempos do fix" (owner, 2026-07-12 — deixar rastro CLARO pra revisão)
+
+> "alguns bugs são de funcionamento importante em casos normais. Outros são de borda. Não digo que
+> os casos de borda não vão ocorrer, mas esses fechamentos costumam ser feitos em duas ou mais
+> formas: a PRIMEIRA sempre é mais 'suja' — a gente é obrigado a fazer 'ifs' que deixam o código
+> correto, mas sujo, feio e que afeta a performance. E depois a parte mais difícil: otimizar de
+> forma INTEGRADA, que fique inteligente e afete pouco a performance."
+
+Consequência operacional: todo fix de borda ganha o rótulo do TEMPO em que está —
+**T1 correto-sujo** (ifs na fronteira/caminho; aceito como primeiro fechamento) ou
+**T2 integrado** (a regra vira parte da estrutura, sem custo espalhado). Os fixes do F0
+(T-QA-8 lotes 1-4) são majoritariamente **T1 por design**: guards de fronteira em encode
+(BUG-01/03/06/09/10), cheques de integridade no loop do decode (BUG-05), whitelist no unescape
+(BUG-11b), cross-check incremental na view (BUG-13d), split LF-only duplicado (BUG-14). O **C2 é
+o tempo-2 deles**: ao achatar o decode em 1 passada, os cheques de linha/integridade se INTEGRAM
+à varredura (1 passada valida enquanto separa) em vez de serem ifs empilhados — revisar fix a fix
+nessa hora, com o material de latência (F1/F2) medindo o antes/depois.
+
 ## Fases propostas (cada uma = lote com gate próprio; NUNCA refactor + comportamento no mesmo commit)
 
-- [ ] **C0 — dedup cirúrgico (cabe no tail do .8; byte-neutro por construção, ~1 sessão)**:
-  fonte única das 3 lógicas duplicadas — (1) helper `split_lf_body(text)` no lugar dos 2 blocos
-  BUG-14 (D1); (2) stringify-com-check único (D2: `multi/core` exporta, `encoder` importa);
-  (3) split de body raw único decode+view (D3, mesmo padrão do `_parse_meta`). Gate: suíte 600 +
-  pins byte-canônicos + byte-neutralidade (a mudança não pode tocar 1 byte de output).
+- [x] **C0 — dedup cirúrgico FEITO (2026-07-12, aprovação owner "siga com o C0")**: fonte única
+  das 3 lógicas — (D1) `split_lf_body` em `composicional/syntax.py`, consumido pelos DOIS decodes
+  (o fix BUG-14 agora vive num lugar só); (D2) `_stringify_checked` em `multi/core.py`, consumido
+  pelos ramos dict E list do encoder; (D3) `_decode_raw_body` em `multi/core.py`, consumido por
+  decode E view (paridade por construção, padrão `_parse_meta`). Verificação: grep zero cópias
+  restantes; suíte **610 passed** (10 testes novos do BUG-14 da outra frente incluídos); pinos
+  exatos 1523/300/89616 (byte-neutro). D4 (camada dupla) fica pro C2, como planejado.
 - [ ] **C1 — rename M8A→HCC (pós-release 0.8.0; mecânico mas toca o `.pyx`)**: classe/refs/docstrings
   saem do codinome de protótipo (M8A/M8.A/M10 viram nota histórica no docstring, não identificador);
   inclui `_core/detect.pyx` + regen `.c` + tests + scripts. Gate: byte-equivalence Cython
