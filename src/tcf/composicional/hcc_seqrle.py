@@ -39,7 +39,7 @@ def find_escape_digit_runs(line: str) -> list[tuple[int, int]]:
     i = 0
     n = len(line)
     while i < n:
-        if line[i] == '\\':
+        if line[i] == "\\":
             i += 1
             if i < n and line[i].isdigit():
                 start = i
@@ -133,7 +133,7 @@ def shift_escape_digits(template: str, delta) -> str:
         out.append(new_str)
         cursor = end
     out.append(template[cursor:])
-    return ''.join(out)
+    return "".join(out)
 
 
 def detect_seq_runs(body_lines: list[str]) -> list[tuple[int, int, list[int]]]:
@@ -152,8 +152,7 @@ def detect_seq_runs(body_lines: list[str]) -> list[tuple[int, int, list[int]]]:
             continue
         run_end = i + 2
         while run_end < n:
-            next_deltas = compare_for_seq(body_lines[run_end - 1],
-                                           body_lines[run_end])
+            next_deltas = compare_for_seq(body_lines[run_end - 1], body_lines[run_end])
             if next_deltas != deltas:
                 break
             run_end += 1
@@ -187,27 +186,29 @@ def compact_body(body_lines: list[str]) -> tuple[list[str], list[dict]]:
             # M10 compat: se uniforme, emit `*N+delta|` single
             uniform = _is_uniform_delta(deltas)
             if uniform is not None:
-                sign = '+' if uniform >= 0 else ''
+                sign = "+" if uniform >= 0 else ""
                 marker = f"*{count}{sign}{uniform}|{body_lines[start]}"
             else:
                 # ADR-0016 multi-delta: `*N+d1,d2,...|template`
                 # Primeiro delta: sinal explicit (parser usa '+' ou '-' como
                 # separador count/deltas). Quando negativo, str() ja' inclui '-';
                 # quando >= 0, prependa '+'.
-                deltas_str = ','.join(str(d) for d in deltas)
-                sign_prefix = '+' if deltas[0] >= 0 else ''
+                deltas_str = ",".join(str(d) for d in deltas)
+                sign_prefix = "+" if deltas[0] >= 0 else ""
                 marker = f"*{count}{sign_prefix}{deltas_str}|{body_lines[start]}"
             out.append(marker)
-            info.append({
-                'start_line': start + 1,
-                'end_line': end,
-                'count': count,
-                'deltas': list(deltas),
-                'uniform_delta': uniform,
-                'template': body_lines[start],
-                'savings': sum(len(body_lines[k]) + 1
-                               for k in range(start, end)) - (len(marker) + 1),
-            })
+            info.append(
+                {
+                    "start_line": start + 1,
+                    "end_line": end,
+                    "count": count,
+                    "deltas": list(deltas),
+                    "uniform_delta": uniform,
+                    "template": body_lines[start],
+                    "savings": sum(len(body_lines[k]) + 1 for k in range(start, end))
+                    - (len(marker) + 1),
+                }
+            )
             i = end
             run_idx += 1
         else:
@@ -229,7 +230,7 @@ def expand_seq_marker(linha: str) -> list[str] | None:
     head = linha[1:bar]
     plus_pos = -1
     for k in range(len(head)):
-        if head[k] in ('+', '-') and k > 0:
+        if head[k] in ("+", "-") and k > 0:
             plus_pos = k
             break
     if plus_pos == -1:
@@ -241,9 +242,9 @@ def expand_seq_marker(linha: str) -> list[str] | None:
     delta_str = head[plus_pos:]
 
     # ADR-0016: multi-delta format `+d1,d2,d3,d4`
-    if ',' in delta_str:
+    if "," in delta_str:
         try:
-            deltas = [int(d) for d in delta_str.split(',')]
+            deltas = [int(d) for d in delta_str.split(",")]
         except ValueError:
             return None
         delta_arg = deltas
@@ -254,7 +255,7 @@ def expand_seq_marker(linha: str) -> list[str] | None:
         except ValueError:
             return None
 
-    template = linha[bar + 1:]
+    template = linha[bar + 1 :]
     out = [template]
     curr = template
     for _ in range(1, count):
@@ -286,14 +287,24 @@ class HCCSeqRLE(M8AVirtualRefsSyntax):
         # VAZIOS finais, perdendo-os no decode (len mismatch). Para body sem
         # vazios finais, [:-1] == rstrip (byte-canonical preservado).
         # Bug T-CODE-EMPTY-FRAG-INDEX-RT (2o modo: valor vazio no fim).
-        body_lines = body_text[:-1].split('\n')
+        body_lines = body_text[:-1].split("\n")
         compacted, info = compact_body(body_lines)
         self._seq_info = info
-        return '\n'.join(compacted) + '\n'
+        return "\n".join(compacted) + "\n"
 
     def decode(self, tcf_text):
         expanded_lines = []
-        for raw in tcf_text.splitlines():
+        # BUG-14 (T-QA-8, 2026-07-12): splitlines() quebrava dados validos com
+        # separadores Unicode. O formato e' LF-only, entao o wrapper seq-RLE
+        # tambem separa apenas por '\n'.
+        if not tcf_text:
+            raw_lines = []
+        elif tcf_text.endswith("\n"):
+            raw_lines = tcf_text[:-1].split("\n")
+        else:
+            raw_lines = tcf_text.split("\n")
+
+        for raw in raw_lines:
             # NAO strip: expand_seq_marker preserva o whitespace do template
             # (`linha[bar+1:]`). O `raw.strip()` antigo comia o whitespace final do
             # valor no template -> RT FAIL em trailing-space + seq-RLE
@@ -306,5 +317,5 @@ class HCCSeqRLE(M8AVirtualRefsSyntax):
                 expanded_lines.extend(expanded)
             else:
                 expanded_lines.append(raw)
-        expanded_text = '\n'.join(expanded_lines) + '\n'
+        expanded_text = "\n".join(expanded_lines) + "\n"
         return super().decode(expanded_text)

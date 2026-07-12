@@ -28,9 +28,15 @@ ROOT = Path(__file__).resolve().parent.parent
 DATASETS_DIR = ROOT / "datasets" / "synthetic"
 
 D1_D9 = [
-    "D1-emails-simples", "D2-emails-quote-id", "D3-stress-substring",
-    "D4-caos-mix", "D5-padroes-multiplos", "D6-poucos-em-ruido",
-    "D7-aninhamento", "D8-cabeca-cauda", "D9-frequencia-alta",
+    "D1-emails-simples",
+    "D2-emails-quote-id",
+    "D3-stress-substring",
+    "D4-caos-mix",
+    "D5-padroes-multiplos",
+    "D6-poucos-em-ruido",
+    "D7-aninhamento",
+    "D8-cabeca-cauda",
+    "D9-frequencia-alta",
 ]
 
 
@@ -44,6 +50,7 @@ def _ler_csv(name: str) -> list[str]:
 # ---------------------------------------------------------------------------
 # Round-trip basico
 # ---------------------------------------------------------------------------
+
 
 class TestRoundTripBasic:
     def test_empty(self):
@@ -87,6 +94,7 @@ class TestRoundTripBasic:
 # Bug T-CODE-EMPTY-FRAG-INDEX-RT (2026-06-13): valor vazio + back-ref HCC
 # ---------------------------------------------------------------------------
 
+
 class TestEmptyValueFragIndex:
     """String vazia nao podia deslocar o index de fragmento HCC.
 
@@ -99,25 +107,32 @@ class TestEmptyValueFragIndex:
     [:-1] == rstrip pra body sem vazios finais).
     """
 
-    @pytest.mark.parametrize("values", [
-        # repro real (receita) + minimos sinteticos (empty inicial + prefixo)
-        ['', 'RESTAURANTE AR DE MINAS', 'RESIDENCIAL NOVA BATALHA'],
-        ['', 'AAAB', 'AAAC'],
-        ['', 'PREFIXOxxx', 'PREFIXOyyy'],
-        ['', 'RES', 'RESID'],          # modo 1 crashava: KeyError
-        ['', '', 'AAAB', 'AAAC'],      # dois emptys iniciais
-        ['', 'ABCDEF', 'GHIJKL'],      # empty sem prefixo compartilhado
-        # empty NAO-primeiro + ref posterior (regrediu o 1o fix incondicional;
-        # OBAT nao conta '' apos outra unica -> decode nao pode reservar frag)
-        ['RED RETROSPOT MINI CASES', '',
-         'HEART OF WICKER LARGE', 'HEART OF WICKER SMALL'],
-        ['X', '', 'PREFIXOaaa', 'PREFIXObbb'],
-        # modo 2: empty no fim (era perdido por rstrip)
-        ['RESTAURANTE AR DE MINAS', 'RESIDENCIAL NOVA BATALHA', ''],
-        ['a', 'b', '', ''],            # multiplos emptys finais
-        # regressao: empty no meio JA passava — nao pode quebrar
-        ['RESTAURANTE AR DE MINAS', '', 'RESIDENCIAL NOVA BATALHA'],
-    ])
+    @pytest.mark.parametrize(
+        "values",
+        [
+            # repro real (receita) + minimos sinteticos (empty inicial + prefixo)
+            ["", "RESTAURANTE AR DE MINAS", "RESIDENCIAL NOVA BATALHA"],
+            ["", "AAAB", "AAAC"],
+            ["", "PREFIXOxxx", "PREFIXOyyy"],
+            ["", "RES", "RESID"],  # modo 1 crashava: KeyError
+            ["", "", "AAAB", "AAAC"],  # dois emptys iniciais
+            ["", "ABCDEF", "GHIJKL"],  # empty sem prefixo compartilhado
+            # empty NAO-primeiro + ref posterior (regrediu o 1o fix incondicional;
+            # OBAT nao conta '' apos outra unica -> decode nao pode reservar frag)
+            [
+                "RED RETROSPOT MINI CASES",
+                "",
+                "HEART OF WICKER LARGE",
+                "HEART OF WICKER SMALL",
+            ],
+            ["X", "", "PREFIXOaaa", "PREFIXObbb"],
+            # modo 2: empty no fim (era perdido por rstrip)
+            ["RESTAURANTE AR DE MINAS", "RESIDENCIAL NOVA BATALHA", ""],
+            ["a", "b", "", ""],  # multiplos emptys finais
+            # regressao: empty no meio JA passava — nao pode quebrar
+            ["RESTAURANTE AR DE MINAS", "", "RESIDENCIAL NOVA BATALHA"],
+        ],
+    )
     def test_empty_value_roundtrip(self, values):
         text = encode(values)
         assert decode(text) == values
@@ -125,8 +140,8 @@ class TestEmptyValueFragIndex:
     def test_multi_col_empty_value(self):
         # mesma classe no caminho multi-col (per-col passa por HCCSeqRLE)
         table = {
-            "nome": ['', 'RESTAURANTE AR DE MINAS', 'RESIDENCIAL NOVA BATALHA'],
-            "uf": ['SP', 'SP', 'RJ'],
+            "nome": ["", "RESTAURANTE AR DE MINAS", "RESIDENCIAL NOVA BATALHA"],
+            "uf": ["SP", "SP", "RJ"],
         }
         text = encode(table)
         assert decode(text) == table
@@ -136,12 +151,17 @@ class TestEmptyValueFragIndex:
 # min_len override (Segment 2, 2026-06-14)
 # ---------------------------------------------------------------------------
 
+
 class TestMinLenOverride:
     """`encode(..., min_len=N)` sobrepoe o auto (detect_min_len). Default None =
     auto -> comportamento inalterado."""
 
-    EMAILS = ["ana@acme.com.br", "bruno@acme.com.br", "carla@acme.com.br",
-              "diego@acme.com.br"]
+    EMAILS = [
+        "ana@acme.com.br",
+        "bruno@acme.com.br",
+        "carla@acme.com.br",
+        "diego@acme.com.br",
+    ]
 
     def test_default_none_equals_auto(self):
         assert encode(self.EMAILS) == encode(self.EMAILS, min_len=None)
@@ -168,6 +188,7 @@ class TestMinLenOverride:
 # M10 baseline D1-D9 (INVARIANT 1523B)
 # ---------------------------------------------------------------------------
 
+
 class TestM10Baseline:
     """D1-D9 single-col baseline M10 = 1523B (ADR-0011)."""
 
@@ -193,6 +214,7 @@ class TestM10Baseline:
 # ---------------------------------------------------------------------------
 # ColumnFeatures (H-DA-11c)
 # ---------------------------------------------------------------------------
+
 
 class TestColumnFeatures:
     def test_empty(self):
@@ -227,6 +249,7 @@ class TestColumnFeatures:
 # ---------------------------------------------------------------------------
 # detect_min_len (H-DA-11, ADR-0010)
 # ---------------------------------------------------------------------------
+
 
 class TestDetectMinLen:
     def test_gating_small_dataset(self):
@@ -268,6 +291,7 @@ class TestDetectMinLen:
 # Edge cases
 # ---------------------------------------------------------------------------
 
+
 class TestEdgeCases:
     def test_unicode(self):
         values = ["alpha", "beta", "gamma"]
@@ -301,24 +325,30 @@ class TestRTEdges:
     Bug 2: `\\n`/`\\r` embutido corrompia o RT em silencio (sem validacao na fronteira).
     """
 
-    @pytest.mark.parametrize("values", [
-        ["a1 ", "a2 ", "a3 "],              # trailing space (repro original)
-        ["a1\t", "a2\t", "a3\t"],           # trailing tab
-        ["a1  ", "a2  ", "a3  "],           # trailing double space
-        [" a1", " a2", " a3"],              # leading space
-        ["x1 y", "x2 y", "x3 y"],           # whitespace interno
-        ["1 ", "2 ", "3 "],                 # digito + space (seq puro)
-        ["ip10.0.0.1 ", "ip10.0.0.2 ", "ip10.0.0.3 "],  # multi-run + trailing
-    ])
+    @pytest.mark.parametrize(
+        "values",
+        [
+            ["a1 ", "a2 ", "a3 "],  # trailing space (repro original)
+            ["a1\t", "a2\t", "a3\t"],  # trailing tab
+            ["a1  ", "a2  ", "a3  "],  # trailing double space
+            [" a1", " a2", " a3"],  # leading space
+            ["x1 y", "x2 y", "x3 y"],  # whitespace interno
+            ["1 ", "2 ", "3 "],  # digito + space (seq puro)
+            ["ip10.0.0.1 ", "ip10.0.0.2 ", "ip10.0.0.3 "],  # multi-run + trailing
+        ],
+    )
     def test_seqrle_preserves_whitespace(self, values):
         # bug 1: o whitespace ESTA no template do marker; o decode nao pode strippar
         assert decode(encode(values)) == values
 
-    @pytest.mark.parametrize("values", [
-        ["a\nb", "c"],
-        ["a\rb"],
-        ["ok", "line\nbreak"],
-    ])
+    @pytest.mark.parametrize(
+        "values",
+        [
+            ["a\nb", "c"],
+            ["a\rb"],
+            ["ok", "line\nbreak"],
+        ],
+    )
     def test_reject_linebreak_single(self, values):
         with pytest.raises(ValueError):
             encode(values)
@@ -330,3 +360,35 @@ class TestRTEdges:
     def test_clean_data_still_encodes(self):
         # a validacao nao pode rejeitar dado limpo
         assert decode(encode(["ok", "fine", "clean"])) == ["ok", "fine", "clean"]
+
+    @pytest.mark.parametrize(
+        "sep",
+        [
+            "\v",  # vertical tab
+            "\f",  # form feed
+            "\u0085",  # NEL
+            "\u2028",  # line separator
+            "\u2029",  # paragraph separator
+        ],
+    )
+    def test_unicode_line_separators_single_roundtrip(self, sep):
+        # BUG-14: estes chars sao dados validos (LF-only no formato), nao delimitadores.
+        values = [f"a{sep}b", "ok"]
+        assert decode(encode(values)) == values
+
+    @pytest.mark.parametrize(
+        "sep",
+        [
+            "\v",  # vertical tab
+            "\f",  # form feed
+            "\u0085",  # NEL
+            "\u2028",  # line separator
+            "\u2029",  # paragraph separator
+        ],
+    )
+    def test_unicode_line_separators_multi_roundtrip(self, sep):
+        table = {
+            "a": [f"a{sep}b", "x"],
+            "b": ["1", "2"],
+        }
+        assert decode(encode(table)) == table

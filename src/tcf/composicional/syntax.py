@@ -45,16 +45,16 @@ class _EmitState:
     alias_to_final. Read-only: alias_to_sub. Debug (NAO afeta bytes, alimenta
     build_trace/build_rede): ref_seqs, ref_seq.
     """
-    current_id: int           # contador monotonico de id final (read-then-incr)
-    prov_to_final: dict        # rw: atom prov_id -> id final
-    alias_to_final: dict       # rw: alias_temp -> id final
-    alias_to_sub: dict         # ro: alias_temp -> sub-tupla de refs
-    ref_seqs: list             # debug: 1 entry por linha
-    ref_seq: list = None       # debug: acumulador da linha corrente
+
+    current_id: int  # contador monotonico de id final (read-then-incr)
+    prov_to_final: dict  # rw: atom prov_id -> id final
+    alias_to_final: dict  # rw: alias_temp -> id final
+    alias_to_sub: dict  # ro: alias_temp -> sub-tupla de refs
+    ref_seqs: list  # debug: 1 entry por linha
+    ref_seq: list = None  # debug: acumulador da linha corrente
 
 
 class M8AVirtualRefsSyntax(Syntax):
-
     name = "M8-A-virtual-refs"
 
     def __init__(self):
@@ -89,18 +89,18 @@ class M8AVirtualRefsSyntax(Syntax):
                 j = i
                 while j < n and text[j].isdigit():
                     j += 1
-                out.append('\\' + text[i:j])
-                term_seq = (j == n)
+                out.append("\\" + text[i:j])
+                term_seq = j == n
                 i = j
-            elif c in ('*', '\\', '~'):
-                out.append('\\' + c)
+            elif c in ("*", "\\", "~"):
+                out.append("\\" + c)
                 term_seq = False
                 i += 1
             else:
                 out.append(c)
                 term_seq = False
                 i += 1
-        return ''.join(out), term_seq
+        return "".join(out), term_seq
 
     @staticmethod
     def _runs_pos(refs):
@@ -215,7 +215,7 @@ class M8AVirtualRefsSyntax(Syntax):
                         idx = proximo_idx
                         proximo_idx += 1
                         frags_por_no[eid].append((a, b, idx))
-                        base.append(('lit', s[a:b], idx))
+                        base.append(("lit", s[a:b], idx))
                     pos = el
                 else:
                     if isinstance(tok, TokRefPref):
@@ -224,31 +224,37 @@ class M8AVirtualRefsSyntax(Syntax):
                         rs = len(unicas[tok.string_id - 1]) - tok.length
                     src_frags = frags_por_no[tok.string_id]
                     if isinstance(tok, TokRefSuf):
-                        herdados = [(a, b, idx) for (a, b, idx) in src_frags
-                                    if a >= rs and b > rs
-                                    and (a - rs) < tok.length
-                                    and (b - rs) <= tok.length]
+                        herdados = [
+                            (a, b, idx)
+                            for (a, b, idx) in src_frags
+                            if a >= rs
+                            and b > rs
+                            and (a - rs) < tok.length
+                            and (b - rs) <= tok.length
+                        ]
                     else:
-                        herdados = [(a, b, idx) for (a, b, idx) in src_frags
-                                    if a < tok.length and b <= tok.length]
-                    for (a, b, idx) in herdados:
-                        frags_por_no[eid].append(
-                            (pos + (a - rs), pos + (b - rs), idx))
-                        base.append(('ref', idx))
+                        herdados = [
+                            (a, b, idx)
+                            for (a, b, idx) in src_frags
+                            if a < tok.length and b <= tok.length
+                        ]
+                    for a, b, idx in herdados:
+                        frags_por_no[eid].append((pos + (a - rs), pos + (b - rs), idx))
+                        base.append(("ref", idx))
                     pos += tok.length
 
             pieces = []
             i = 0
             while i < len(base):
-                if base[i][0] == 'ref':
+                if base[i][0] == "ref":
                     refs = [base[i][1]]
                     i += 1
-                    while i < len(base) and base[i][0] == 'ref':
+                    while i < len(base) and base[i][0] == "ref":
                         refs.append(base[i][1])
                         i += 1
-                    pieces.append(('refs', refs))
+                    pieces.append(("refs", refs))
                 else:
-                    pieces.append(('lit', base[i][1], base[i][2]))
+                    pieces.append(("lit", base[i][1], base[i][2]))
                     i += 1
             pieces_per_line.append(pieces)
             line_meta.append((count, eid, False))
@@ -287,7 +293,7 @@ class M8AVirtualRefsSyntax(Syntax):
                 if pieces is None:
                     continue
                 for p in pieces:
-                    if p[0] == 'refs':
+                    if p[0] == "refs":
                         refs = p[1]
                         for a in range(len(refs)):
                             for b in range(a + 2, len(refs) + 1):
@@ -302,7 +308,7 @@ class M8AVirtualRefsSyntax(Syntax):
                 if pieces is None:
                     continue
                 for p in pieces:
-                    if p[0] == 'refs':
+                    if p[0] == "refs":
                         for ref in p[1]:
                             if ref < 0:
                                 a = -ref
@@ -346,11 +352,12 @@ class M8AVirtualRefsSyntax(Syntax):
                     if virt_pos > 0:
                         # Check body-order: alias deve estar resolvida antes
                         virt_alias = -sub[virt_pos]
-                        if alias_first_line.get(virt_alias,
-                                                  float('inf')) >= sub_first_line[sub]:
+                        if (
+                            alias_first_line.get(virt_alias, float("inf"))
+                            >= sub_first_line[sub]
+                        ):
                             continue
-                baseline = self._estimate_baseline_chars(
-                    sub, atom_count, comp_acc_k)
+                baseline = self._estimate_baseline_chars(sub, atom_count, comp_acc_k)
                 n_tam = len(str(atom_count + comp_acc_k + K - 1))
                 if baseline <= n_tam:
                     continue
@@ -363,16 +370,17 @@ class M8AVirtualRefsSyntax(Syntax):
                     best = (sub, R)
 
             iter_info = {
-                'n_pairs': sum(1 for v in contagem.values() if v >= 2),
-                'n_candidates': len(candidates),
-                'candidates_sorted': sorted(candidates, reverse=True,
-                                              key=lambda c: c[0]),
-                'picked': best,
-                'iter_num': len(iter_traces) + 1,
+                "n_pairs": sum(1 for v in contagem.values() if v >= 2),
+                "n_candidates": len(candidates),
+                "candidates_sorted": sorted(
+                    candidates, reverse=True, key=lambda c: c[0]
+                ),
+                "picked": best,
+                "iter_num": len(iter_traces) + 1,
             }
 
             if best is None:
-                iter_info['stopped'] = True
+                iter_info["stopped"] = True
                 iter_traces.append(iter_info)
                 break
 
@@ -382,9 +390,9 @@ class M8AVirtualRefsSyntax(Syntax):
             comp_acc_k += len(sub) - 1
             alias_to_sub[alias_temp] = list(sub)
             virtual_id = -alias_temp
-            iter_info['alias_temp'] = alias_temp
-            iter_info['lines_affected'] = []
-            iter_info['n_substituicoes'] = 0
+            iter_info["alias_temp"] = alias_temp
+            iter_info["lines_affected"] = []
+            iter_info["n_substituicoes"] = 0
 
             K = len(sub)
             for li in range(len(pieces_per_line)):
@@ -394,26 +402,25 @@ class M8AVirtualRefsSyntax(Syntax):
                 novos = []
                 line_had_sub = False
                 for p in pieces:
-                    if p[0] != 'refs':
+                    if p[0] != "refs":
                         novos.append(p)
                         continue
                     refs = p[1]
                     new_refs = []
                     i = 0
                     while i < len(refs):
-                        if (i + K <= len(refs)
-                                and tuple(refs[i:i + K]) == sub):
+                        if i + K <= len(refs) and tuple(refs[i : i + K]) == sub:
                             new_refs.append(virtual_id)
                             i += K
-                            iter_info['n_substituicoes'] += 1
+                            iter_info["n_substituicoes"] += 1
                             line_had_sub = True
                         else:
                             new_refs.append(refs[i])
                             i += 1
                     if new_refs:
-                        novos.append(('refs', new_refs))
+                        novos.append(("refs", new_refs))
                 if line_had_sub:
-                    iter_info['lines_affected'].append(li + 1)
+                    iter_info["lines_affected"].append(li + 1)
                 pieces_per_line[li] = novos
 
             iter_traces.append(iter_info)
@@ -507,36 +514,36 @@ class M8AVirtualRefsSyntax(Syntax):
             for p in pieces:
                 kind = p[0]
 
-                if kind == 'lit':
-                    if prev_type == 'lit':
-                        parts.append('*')
-                    elif prev_type == 'refs' and p[1] and p[1][0] in (',', '~'):
+                if kind == "lit":
+                    if prev_type == "lit":
+                        parts.append("*")
+                    elif prev_type == "refs" and p[1] and p[1][0] in (",", "~"):
                         # Bug fix 2026-05-19 (ADR-0007): separator `*` quando
                         # ref->lit transition e lit comeca com `,` ou `~`.
                         # Sem o separator, parser do decoder entra ref mode
                         # em "1,..." e consome o `,` como continuacao do ref
                         # expression, perdendo o `,` literal. Descoberto em
                         # EXP-013 TPC-H (p_comment 'pending, bold' -> 'pending bold').
-                        parts.append('*')
+                        parts.append("*")
                     state.current_id += 1
                     prov_to_final[p[2]] = state.current_id
                     text_emit, prev_lit_term_digit = self._escape_lit(p[1])
                     parts.append(text_emit)
-                    prev_type = 'lit'
+                    prev_type = "lit"
 
                 else:  # 'refs'
-                    if prev_type == 'refs':
-                        parts.append(',')
-                    elif prev_type == 'lit' and prev_lit_term_digit:
-                        parts.append('*')
+                    if prev_type == "refs":
+                        parts.append(",")
+                    elif prev_type == "lit" and prev_lit_term_digit:
+                        parts.append("*")
 
                     refs = p[1]
                     run_emit = self._emit_ref_run(refs, state)
                     parts.append(run_emit)
                     prev_lit_term_digit = True
-                    prev_type = 'refs'
+                    prev_type = "refs"
 
-            linha_resto = ''.join(parts)
+            linha_resto = "".join(parts)
             if count > 1:
                 body.append(f"*{count}|{linha_resto}")
             else:
@@ -559,7 +566,7 @@ class M8AVirtualRefsSyntax(Syntax):
                 while i < len(refs) and refs[i] > 0:
                     atom_run.append(state.prov_to_final[refs[i]])
                     i += 1
-                segments.append(self._emit_runs(atom_run, ','))
+                segments.append(self._emit_runs(atom_run, ","))
                 state.current_id += self._count_ids_in_refs(atom_run)
                 state.ref_seq.extend(atom_run)
             else:
@@ -568,7 +575,7 @@ class M8AVirtualRefsSyntax(Syntax):
                 seg = self._emit_alias(alias_temp, state)
                 segments.append(seg)
                 i += 1
-        return ','.join(segments)
+        return ",".join(segments)
 
     def _emit_alias(self, alias_temp, state):
         """Emit alias: bare final id (se ja' emitido) OU def composition.
@@ -609,7 +616,7 @@ class M8AVirtualRefsSyntax(Syntax):
             expand(elem)
         completions.append((len(linear) - 1, alias_temp))
 
-        emission = self._emit_runs(linear, '~')
+        emission = self._emit_runs(linear, "~")
         K = len(linear)
         base = state.current_id
         state.current_id += K - 1
@@ -627,16 +634,30 @@ class M8AVirtualRefsSyntax(Syntax):
 
     def encode(self, linhas, unicas, tokens_por_string, header):
         pieces_per_line, line_meta, atom_count = self._tokenize_pieces(
-            linhas, unicas, tokens_por_string)
+            linhas, unicas, tokens_por_string
+        )
         alias_to_sub, iter_traces = self._detect_compositions(
-            pieces_per_line, atom_count)
+            pieces_per_line, atom_count
+        )
         body, prov_to_final, alias_to_final, ref_seqs = self._emit_body(
-            pieces_per_line, line_meta, alias_to_sub)
-        self._trace = build_trace(self.name, iter_traces, prov_to_final,
-                                  dict(alias_to_final), ref_seqs,
-                                  lambda r: self._emit_runs(r, ','))
-        self._rede = build_rede(self.name, pieces_per_line, prov_to_final,
-                                dict(alias_to_final), alias_to_sub, ref_seqs)
+            pieces_per_line, line_meta, alias_to_sub
+        )
+        self._trace = build_trace(
+            self.name,
+            iter_traces,
+            prov_to_final,
+            dict(alias_to_final),
+            ref_seqs,
+            lambda r: self._emit_runs(r, ","),
+        )
+        self._rede = build_rede(
+            self.name,
+            pieces_per_line,
+            prov_to_final,
+            dict(alias_to_final),
+            alias_to_sub,
+            ref_seqs,
+        )
         # No brackets, single LF
         return "\n".join(body) + "\n"
 
@@ -658,31 +679,31 @@ class M8AVirtualRefsSyntax(Syntax):
             # byte-canonical-safe (encode intocado).
             if prox_idx[0] == 0:
                 prox_idx[0] += 1
-                frags[prox_idx[0]] = ''
-            return ''
+                frags[prox_idx[0]] = ""
+            return ""
         while i < n:
             ch = resto[i]
-            if ch == '*':
+            if ch == "*":
                 i += 1
             elif ch.isdigit():
                 j = i
                 while j < n:
                     c = resto[j]
-                    if c.isdigit() or c == ',':
+                    if c.isdigit() or c == ",":
                         j += 1
-                    elif c == '.' and j + 1 < n and resto[j + 1] == '.':
+                    elif c == "." and j + 1 < n and resto[j + 1] == ".":
                         j += 2
-                    elif c == '~':
+                    elif c == "~":
                         j += 1
                     else:
                         break
-                for unit in resto[i:j].split(','):
+                for unit in resto[i:j].split(","):
                     if not unit:
                         continue
                     refs = []
-                    for grp in unit.split('~'):
-                        if '..' in grp:
-                            a, b = grp.split('..')
+                    for grp in unit.split("~"):
+                        if ".." in grp:
+                            a, b = grp.split("..")
                             refs.extend(range(int(a), int(b) + 1))
                         else:
                             refs.append(int(grp))
@@ -701,7 +722,7 @@ class M8AVirtualRefsSyntax(Syntax):
                 buf = []
                 while i < n:
                     c = resto[i]
-                    if c == '\\':
+                    if c == "\\":
                         i += 1
                         if i >= n:
                             raise ValueError("escape no fim de linha")
@@ -715,23 +736,35 @@ class M8AVirtualRefsSyntax(Syntax):
                         else:
                             buf.append(nc)
                             i += 1
-                    elif c.isdigit() or c in ('*', '~'):
+                    elif c.isdigit() or c in ("*", "~"):
                         break
                     else:
                         buf.append(c)
                         i += 1
-                texto = ''.join(buf)
+                texto = "".join(buf)
                 prox_idx[0] += 1
                 frags[prox_idx[0]] = texto
                 partes.append(texto)
-        return ''.join(partes)
+        return "".join(partes)
 
     def decode(self, tcf_text):
         frags = {}
         prox_idx = [0]
         nos_decl = []
         saida = []
-        for raw in tcf_text.splitlines():
+        # BUG-14 (T-QA-8, 2026-07-12): o formato e' LF-only. `splitlines()`
+        # trata outros separadores Unicode como quebra de linha e quebrava o RT
+        # para dados validos (\v, \f, NEL, U+2028, U+2029). Decoding passa a
+        # separar APENAS por '\n', preservando os demais chars como dados.
+        if not tcf_text:
+            raw_lines = []
+        elif tcf_text.endswith("\n"):
+            # Remove exatamente o LF terminal estrutural (o body canônico emite 1).
+            raw_lines = tcf_text[:-1].split("\n")
+        else:
+            raw_lines = tcf_text.split("\n")
+
+        for raw in raw_lines:
             # Bug fixes 2026-05-18 (EXP-012 + EXP-013):
             # 1. NAO strip — strip removia leading/trailing whitespace
             #    de literais (descoberto em TPC-H region/nation comments
@@ -745,7 +778,7 @@ class M8AVirtualRefsSyntax(Syntax):
             if linha.startswith("*") and "|" in linha:
                 bar = linha.find("|")
                 count = int(linha[1:bar])
-                resto = linha[bar + 1:]
+                resto = linha[bar + 1 :]
             else:
                 count = 1
                 resto = linha
@@ -773,6 +806,7 @@ class M8AVirtualRefsSyntax(Syntax):
 M8AVirtualRefsSyntax._detect_compositions_py = M8AVirtualRefsSyntax._detect_compositions
 try:  # pragma: no cover - depende de build opcional
     from tcf._core.detect import _detect_compositions as _detect_compositions_cy
+
     M8AVirtualRefsSyntax._detect_compositions = _detect_compositions_cy
     M8AVirtualRefsSyntax._detect_compositions_accelerated = True
 except Exception:  # ImportError ou falha de carga da extensao
