@@ -1,0 +1,109 @@
+# 02 — DEBUG do FLUXO / NÚCLEO (SideOutputs: modo, cadência, seq-RLE, OBAT, HCC)
+
+[CNPJ ordenado / S3 clean+delta]  modo=dict  bytes=17032
+  cadence_detected=False obat_used_hint=False
+  seq_rle_runs=0 :: []
+  obat_log[:4]:
+    min_len = 3
+    
+    --- string 1: '666172700001' (len=12) ---
+      primeira string -> literal puro
+  hcc_trace[:4]:
+    # Optimization trace — syntax=M8-A-seq-rle
+    
+    === DETECTOR ITERATIONS (unified — atoms + virtuals) ===
+    
+
+[CNPJ ordenado / S5 delta->base94 (misto)]  modo=dict  bytes=14640
+  cadence_detected=False obat_used_hint=False
+  seq_rle_runs=0 :: []
+  obat_log[:4]:
+    min_len = 3
+    
+    --- string 1: 'Bj9kl5l' (len=7) ---
+      primeira string -> literal puro
+  hcc_trace[:4]:
+    # Optimization trace — syntax=M8-A-seq-rle
+    
+    === DETECTOR ITERATIONS (unified — atoms + virtuals) ===
+    
+
+[CNPJ embaralhado / S3 clean+delta]  modo=raw  bytes=51891
+  cadence_detected=True obat_used_hint=True
+  seq_rle_runs=505 :: [{'start_line': 2, 'end_line': 3, 'count': 2, 'deltas': [9770000], 'uniform_delta': 9770000, 'template': '\\173870000', 'savings': 0}, {'start_line': 6, 'end_line': 7, 'count': 2, 'deltas': [26260000], 'uniform_delta': 26260000, 'template': '-\\52260000', 'savings': -1}, {'start_line': 9, 'end_line': 10, 'count': 2, 'deltas': [-9380000], 'uniform_delta': -9380000, 'template': '-\\130830000', 'savings': 1}]
+  obat_log[:4]:
+    min_len=6
+    prefer_shape_consistency=True
+  hcc_trace[:4]:
+    # Optimization trace — syntax=M8-A-seq-rle
+    
+    === DETECTOR ITERATIONS (unified — atoms + virtuals) ===
+    
+
+[CNPJ embaralhado / S5 delta->base94 (misto)]  modo=raw  bytes=32954
+  cadence_detected=False obat_used_hint=False
+  seq_rle_runs=0 :: []
+  obat_log[:4]:
+    min_len = 4
+    
+    --- string 1: 'BjFeqnp' (len=7) ---
+      primeira string -> literal puro
+  hcc_trace[:4]:
+    # Optimization trace — syntax=M8-A-seq-rle
+    
+    === DETECTOR ITERATIONS (unified — atoms + virtuals) ===
+    
+
+[CPF random / S3 clean+delta]  modo=raw  bytes=5146
+  cadence_detected=True obat_used_hint=True
+  seq_rle_runs=80 :: [{'start_line': 1, 'end_line': 2, 'count': 2, 'deltas': [67231332], 'uniform_delta': 67231332, 'template': '\\245389554', 'savings': -1}, {'start_line': 7, 'end_line': 8, 'count': 2, 'deltas': [23225245], 'uniform_delta': 23225245, 'template': '\\322755606', 'savings': -1}, {'start_line': 9, 'end_line': 10, 'count': 2, 'deltas': [430152947], 'uniform_delta': 430152947, 'template': '-\\232868594', 'savings': -1}]
+  obat_log[:4]:
+    min_len=6
+    prefer_shape_consistency=True
+  hcc_trace[:4]:
+    # Optimization trace — syntax=M8-A-seq-rle
+    
+    === DETECTOR ITERATIONS (unified — atoms + virtuals) ===
+    
+
+[CPF random / S5 delta->base94 (misto)]  modo=raw  bytes=3237
+  cadence_detected=False obat_used_hint=False
+  seq_rle_runs=0 :: []
+  obat_log[:4]:
+    min_len = 4
+    
+    --- string 1: 'Gbd22' (len=5) ---
+      primeira string -> literal puro
+  hcc_trace[:4]:
+    # Optimization trace — syntax=M8-A-seq-rle
+    
+    === DETECTOR ITERATIONS (unified — atoms + virtuals) ===
+    
+
+[CPF clustered / S3 clean+delta]  modo=tcf  bytes=19
+  cadence_detected=False obat_used_hint=False
+  seq_rle_runs=0 :: []
+  obat_log[:4]:
+    min_len = 3
+    
+    --- string 1: '412529014' (len=9) ---
+      primeira string -> literal puro
+  hcc_trace[:4]:
+    # Optimization trace — syntax=M8-A-seq-rle
+    
+    === DETECTOR ITERATIONS (unified — atoms + virtuals) ===
+    
+
+[CPF clustered / S5 delta->base94 (misto)]  modo=tcf  bytes=14
+  cadence_detected=False obat_used_hint=False
+  seq_rle_runs=0 :: []
+  obat_log[:4]:
+    min_len = 3
+    
+    --- string 1: 'Ruvdm' (len=5) ---
+      primeira string -> literal puro
+  hcc_trace[:4]:
+    # Optimization trace — syntax=M8-A-seq-rle
+    
+    === DETECTOR ITERATIONS (unified — atoms + virtuals) ===
+    

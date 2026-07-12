@@ -233,6 +233,16 @@ owner: "SE identificar algum bug sem querer, registre apenas pra arrumarmos depo
   `U+2028`, `U+2029`). Execução: red inicial `5 failed, 5 passed`; pós-fix `10 passed`; gates
   `tests/test_core_rt.py` + `tests/test_regression_v1_baseline.py` +
   `tests/test_real_world_snapshots.py` = `104 passed`.
+- [ ] **BUG-15 [alta · domínio válido · NÃO fixado]** *(achado 2026-07-12 pelo RT counter-proof do
+  lab `2026-07-12-1917-spec-camadas-v1`)* — **valor literal começando com `^` (marcador de ref do
+  HCC) quebra o RT** em modo **tcf E dict** (raw sobrevive): `decode(encode(["^abc"]*30+["y"]*30))`
+  → `ValueError: invalid literal for int()`. O HCC escapa dígito-líder (pra não ler literal como
+  ref number) mas NÃO escapa `^`-líder. **Domínio válido**: qualquer coluna de texto com valores
+  começando com `^` (regex, markup, math). **Relevância pros specs**: o alfabeto BASE94 da nature
+  INCLUI `^` — a `nature-delta`/`field-split` (T-SPEC-DEEPDIVE §4-bis/ter) produz base-94 que pode
+  começar com `^` e venceria por dict → o CEILING depende deste fix. **Fix candidato**: estender o
+  escape-de-líder do HCC (o mesmo mecanismo do dígito) ao `^`; red→green + gate completo (CORE).
+  Descoberto porque o lab EXIGIU RT end-to-end — o número anterior (sem RT) escondia o defeito (§RT).
 
 ### Doc-drift 0.7→0.8 (bloqueia o "documento bem feito pro pip" — corrigir em F6 com números medidos)
 
@@ -408,13 +418,38 @@ owner: "SE identificar algum bug sem querer, registre apenas pra arrumarmos depo
 
 ### F6 — Empacotar pro pip com documento bem feito
 
-- [ ] **F6-1** Aplicar DOC-01..05 com os números MEDIDOS do material (README re-gravado do exemplo
-  242B + curvas F3-2; docstrings; spec; pyproject urls/classifiers). O README embarca na wheel —
-  é parte do pacote, não cosmético.
-- [ ] **F6-2** Re-build wheel + clean-room smoke (repetir o protocolo pré-verificado de 2026-07-09,
-  registrado em T-DIST-RELEASE-0.8.0) — agora com os fixes F0 e docs F6-1.
-- [ ] **F6-3** Publicação = T-DIST-RELEASE-0.8.0 C3 (tag v0.8.0 → Trusted Publishing),
-  **go explícito do owner**. Se F0 mudou comportamento observável, avaliar 0.8.0 vs 0.8.1 no CHANGELOG.
+> **PLANO DETALHADO (owner pediu revisar como o F6 será feito, 2026-07-12)** — o F6 é
+> doc-only + build (NÃO toca `src/tcf`); tudo com número MEDIDO do material (F2/F4), nada calculado.
+> Ordem e arquivos:
+
+- [ ] **F6-1a — README.md/README.pt-BR.md (o que embarca na wheel; DOC-01)**: substituir os números
+  da era 0.7 pelos medidos: exemplo-propaganda **244B→242B** (F2 c1); badges `0.7.1`→`0.8.0` e
+  `#TCF.7`→`#TCF.8`; header do exemplo `#TCF.7 M` decimal → `#TCF.8M` hex; remover "legacy #TCF.6
+  still read" e o knob "forces #TCF.6" (cortado); D17a 303/322→**300**; "379 passed"→número atual;
+  seção "Format 0.7" → "Format 0.8"; view aponta pro core (não `scripts/tcf_lazy/`). **Nature: o
+  bloco muda de história** — o exemplo do README ainda diz que CPF "does not compress" e usa
+  nature 27B→39B; substituir pela leitura HONESTA do F2/F4: nature CPF comprime em sintético MAS o
+  **caveat obrigatório** = "nature CNPJ PIORA a tabela em dado real (F4: +7339B, split→raw); nenhum
+  clássico é ganho de tabela garantido — o TCF já explora a estrutura inter-linha que a nature
+  normalizaria". Tabela "Results" com os Δ vs CSV reais (adult 81%, ibge 68%, receita 62%).
+- [ ] **F6-1b — docstrings src/tcf**: DOC-02 já FEITO (lote 4); só re-conferir que nada regrediu.
+- [ ] **F6-1c — spec docs/algorithms/TCF-format.{pt-BR,en}.md (DOC-03)**: exemplo de header que
+  contradiz a regra (última-sem-size mostrando size); corrigir com o output real.
+- [ ] **F6-1d — pyproject.toml (DOC-04)**: adicionar `[project.urls]` (repo/changelog/homepage) +
+  trove classifiers; conferir que o readme apontado é o corrigido.
+- [ ] **F6-1e — satélites (DOC-05)**: rotular `benchmark_compression.py` quebrado-v0.5; errata
+  T-DOC-3 (shebang→magic) de carona; `datasets/synthetic/README.md` (D1-D15→D17a).
+- [ ] **F6-1f — CHANGELOG.md**: conferir a entrada 0.8.0 (já criada em M5) + anexar os fixes F0
+  (lotes 1-4) e o C0 (dedup) como itens do 0.8.0.
+- [ ] **F6-2** Re-build wheel + clean-room smoke (protocolo pré-verificado 2026-07-09, T-DIST) —
+  agora com F0/C0 + docs F6-1; limpar `dist/` (wheels 0.7.1 stale) antes.
+- [ ] **F6-3** Publicação = T-DIST C3 (tag v0.8.0 → Trusted Publishing), **go explícito do owner**.
+  Avaliar 0.8.0 vs 0.8.1 no CHANGELOG se F0/C0 mudaram comportamento observável (mudaram: fail-loud
+  novos — decidir se é minor-note ou espera 0.8.1).
+
+**Pré-F6 (redirect owner 2026-07-12)**: a investigação de specs (R1.5 do T-REL-08) roda ANTES — o
+F6 herda dela o caveat definitivo da nature e qualquer decisão de spec pré-1.0. Ver
+[T-SPEC-STATUS-08](T-SPEC-STATUS-08.md) (Opção A decidida) + o plano de specs em curso.
 
 ## §5 — Critérios de aceite
 

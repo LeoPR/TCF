@@ -1,0 +1,121 @@
+# 03 — OUTPUT (amostras de blob) + input + decode + reconstrução
+
+[CNPJ ordenado / S1 masked (baseline)]  32665B split
+  input[:3] : '66.617.270/0001-54' | '66.617.282/0001-89' | '66.617.294/0001-03'
+  blob head : '#TCF.8M%c\n16\n0:1:.1:.1:/1:-0:#TCF.8M7f7=c0,e37=c1,@3b5a=c2,4d1=c3,@c4\n*13|\\66\n\\0'
+  decode[:3]: '66.617.270/0001-54' | '66.617.282/0001-89' | '66.617.294/0001-03'
+  recon[:3] : '66.617.270/0001-54' | '66.617.282/0001-89' | '66.617.294/0001-03'
+
+[CNPJ ordenado / S2 clean (mask+DV out)]  53709B tcf
+  input[:3] : '666172700001' | '666172820001' | '666172940001'
+  blob head : '#TCF.8Mc\n\\666172*\\700001\n*2+120000|1\\820001\n*2+110000|\\666173040001\n*3+110000|\\6'
+  decode[:3]: '666172700001' | '666172820001' | '666172940001'
+  recon[:3] : '66.617.270/0001-54' | '66.617.282/0001-89' | '66.617.294/0001-03'
+
+[CNPJ ordenado / S3 clean+delta]  17032B dict
+  input[:3] : '666172700001' | '120000' | '120000'
+  blob head : '#TCF.8M@c\n7027\n\\666172700001\n*2-20000|\\120000\n\\110000\n\\80000\n-\\573175629996\n\\573'
+  decode[:3]: '666172700001' | '120000' | '120000'
+  recon[:3] : '66.617.270/0001-54' | '66.617.282/0001-89' | '66.617.294/0001-03'
+
+[CNPJ ordenado / S4 base94 absoluto (=hoje)]  39988B raw
+  input[:3] : 'Bj9kl5l' | 'Bj9lGJF' | 'Bj9llWj'
+  blob head : '#TCF.8M!c\nBj9kl5l\nBj9lGJF\nBj9llWj\nBj9mBXd\nBj9me9p\nBj9n9NJ\nBj9nbzV\nBj9o4bh\nBj9oPQ'
+  decode[:3]: 'Bj9kl5l' | 'Bj9lGJF' | 'Bj9llWj'
+  recon[:3] : '66.617.270/0001-54' | '66.617.282/0001-89' | '66.617.294/0001-03'
+
+[CNPJ ordenado / S5 delta->base94 (misto)]  14640B dict
+  input[:3] : 'Bj9kl5l' | 'VDU' | 'VDU'
+  blob head : '#TCF.8M@c\n4635\nBj\\9kl\\5l\nVDU\nQ\\0u\nScC\nKoK\n-A\\5e\\6Wvk\nA\\5e\\7Hky\nNPc\nXom\n-\\4ibh\\08'
+  decode[:3]: 'Bj9kl5l' | 'VDU' | 'VDU'
+  recon[:3] : '66.617.270/0001-54' | '66.617.282/0001-89' | '66.617.294/0001-03'
+
+[CNPJ embaralhado / S1 masked (baseline)]  41332B split
+  input[:3] : '66.625.995/0001-94' | '66.643.382/0001-80' | '66.661.746/0001-54'
+  blob head : '#TCF.8M%c\n16\n0:1:.1:.1:/1:-0:#TCF.8M845=c0,@2ce8=c1,@3e0a=c2,501=c3,@c4\n*28|\\66\n'
+  decode[:3]: '66.625.995/0001-94' | '66.643.382/0001-80' | '66.661.746/0001-54'
+  recon[:3] : '66.625.995/0001-94' | '66.643.382/0001-80' | '66.661.746/0001-54'
+
+[CNPJ embaralhado / S2 clean (mask+DV out)]  64999B raw
+  input[:3] : '666259950001' | '666433820001' | '666617460001'
+  blob head : '#TCF.8M!c\n666259950001\n666433820001\n666617460001\n666609010001\n666659010001\n66660'
+  decode[:3]: '666259950001' | '666433820001' | '666617460001'
+  recon[:3] : '66.625.995/0001-94' | '66.643.382/0001-80' | '66.661.746/0001-54'
+
+[CNPJ embaralhado / S3 clean+delta]  51891B raw
+  input[:3] : '666259950001' | '173870000' | '183640000'
+  blob head : '#TCF.8M!c\n666259950001\n173870000\n183640000\n-8450000\n50000000\n-52260000\n-78520000'
+  decode[:3]: '666259950001' | '173870000' | '183640000'
+  recon[:3] : '66.625.995/0001-94' | '66.643.382/0001-80' | '66.661.746/0001-54'
+
+[CNPJ embaralhado / S4 base94 absoluto (=hoje)]  39988B raw
+  input[:3] : 'BjFeqnp' | 'BjRQOKf' | 'BjdqvU9'
+  blob head : '#TCF.8M!c\nBjFeqnp\nBjRQOKf\nBjdqvU9\nBjdHTFp\nBjgfGXR\nBjd7zKD\nBjXoWgb\nBjcsDB3\nBjU1GJ'
+  decode[:3]: 'BjFeqnp' | 'BjRQOKf' | 'BjdqvU9'
+  recon[:3] : '66.625.995/0001-94' | '66.643.382/0001-80' | '66.661.746/0001-54'
+
+[CNPJ embaralhado / S5 delta->base94 (misto)]  32954B raw
+  input[:3] : 'BjFeqnp' | 'BlXWq' | 'CQX9U'
+  blob head : '#TCF.8M!c\nBjFeqnp\nBlXWq\nCQX9U\n-ZSEK\n3NnHc\n-3XHDE\n-5JSdc\n53gUS\n-8qwrI\n-8Dagy\n-1SX'
+  decode[:3]: 'BjFeqnp' | 'BlXWq' | 'CQX9U'
+  recon[:3] : '66.625.995/0001-94' | '66.643.382/0001-80' | '66.661.746/0001-54'
+
+[CPF random / S1 masked (baseline)]  7499B raw
+  input[:3] : '245.389.554-00' | '558.010.440-51' | '100.072.510-33'
+  blob head : '#TCF.8M!c\n245.389.554-00\n558.010.440-51\n100.072.510-33\n014.401.823-37\n571.968.86'
+  decode[:3]: '245.389.554-00' | '558.010.440-51' | '100.072.510-33'
+  recon[:3] : '245.389.554-00' | '558.010.440-51' | '100.072.510-33'
+
+[CPF random / S2 clean (mask+DV out)]  4999B raw
+  input[:3] : '245389554' | '558010440' | '100072510'
+  blob head : '#TCF.8M!c\n245389554\n558010440\n100072510\n014401823\n571968865\n246124561\n568880167\n'
+  decode[:3]: '245389554' | '558010440' | '100072510'
+  recon[:3] : '245.389.554-00' | '558.010.440-51' | '100.072.510-33'
+
+[CPF random / S3 clean+delta]  5146B raw
+  input[:3] : '245389554' | '312620886' | '-457937930'
+  blob head : '#TCF.8M!c\n245389554\n312620886\n-457937930\n-85670687\n557567042\n-325844304\n32275560'
+  decode[:3]: '245389554' | '312620886' | '-457937930'
+  recon[:3] : '245.389.554-00' | '558.010.440-51' | '100.072.510-33'
+
+[CPF random / S4 base94 absoluto (=hoje)]  3032B raw
+  input[:3] : 'Gbd22' | 'blM0O' | '6ltQk'
+  blob head : '#TCF.8M!c\nGbd22\nblM0O\n6ltQk\nyQZT\nchvEH\nGeiEz\ncUxiZ\nzuf8s\nk9ZNo\n1HbBz\n10nrda\nWjvT'
+  decode[:3]: 'Gbd22' | 'blM0O' | '6ltQk'
+  recon[:3] : '245.389.554-00' | '558.010.440-51' | '100.072.510-33'
+
+[CPF random / S5 delta->base94 (misto)]  3237B raw
+  input[:3] : 'Gbd22' | 'L9iyM' | '-UzSZe'
+  blob head : '#TCF.8M!c\nGbd22\nL9iyM\n-UzSZe\n-5nSrH\nbjUeo\n-M3CzI\nLqFTa\nNPhQJ\n-Fl5l4\n-iryBp\nzWGRb'
+  decode[:3]: 'Gbd22' | 'L9iyM' | '-UzSZe'
+  recon[:3] : '245.389.554-00' | '558.010.440-51' | '100.072.510-33'
+
+[CPF clustered / S1 masked (baseline)]  1043B split
+  input[:3] : '412.529.014-88' | '412.529.017-20' | '412.529.020-26'
+  blob head : '#TCF.8M%c\n13\n0:1:.1:.1:-0:#TCF.8Ma=c0,14=c1,18=c2,@c3\n*500|\\412\n*329|\\529\n*171|\\'
+  decode[:3]: '412.529.014-88' | '412.529.017-20' | '412.529.020-26'
+  recon[:3] : '412.529.014-88' | '412.529.017-20' | '412.529.020-26'
+
+[CPF clustered / S2 clean (mask+DV out)]  68B tcf
+  input[:3] : '412529014' | '412529017' | '412529020'
+  blob head : '#TCF.8Mc\n\\412529*\\0*\\1*\\4\n1..3\\7\n*27+3|1,2\\20\n*300+3|1\\101\n*171+3|\\412530001\n'
+  decode[:3]: '412529014' | '412529017' | '412529020'
+  recon[:3] : '412.529.014-88' | '412.529.017-20' | '412.529.020-26'
+
+[CPF clustered / S3 clean+delta]  19B tcf
+  input[:3] : '412529014' | '3' | '3'
+  blob head : '#TCF.8Mc\n\\412529014\n*499|\\3\n'
+  decode[:3]: '412529014' | '3' | '3'
+  recon[:3] : '412.529.014-88' | '412.529.017-20' | '412.529.020-26'
+
+[CPF clustered / S4 base94 absoluto (=hoje)]  2830B tcf
+  input[:3] : 'Ruvdm' | 'Ruvdp' | 'Ruvds'
+  blob head : '#TCF.8Mc\nRuvd*m\n1p\n1s\n1v\n1y\n*3+3|Ruve\\1\nRuveA\nRuveD\nRuveG\nRuveJ\nRuveM\nRuveP\nRuve'
+  decode[:3]: 'Ruvdm' | 'Ruvdp' | 'Ruvds'
+  recon[:3] : '412.529.014-88' | '412.529.017-20' | '412.529.020-26'
+
+[CPF clustered / S5 delta->base94 (misto)]  14B tcf
+  input[:3] : 'Ruvdm' | '3' | '3'
+  blob head : '#TCF.8Mc\nRuvdm\n*499|\\3\n'
+  decode[:3]: 'Ruvdm' | '3' | '3'
+  recon[:3] : '412.529.014-88' | '412.529.017-20' | '412.529.020-26'

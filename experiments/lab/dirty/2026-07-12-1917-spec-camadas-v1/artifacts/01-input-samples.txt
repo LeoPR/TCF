@@ -1,0 +1,15 @@
+# 01 — INPUT (amostras do dado que entrou)
+§2.3: CPF efêmero; amostras de CPF MASCARADAS.
+
+## CNPJ real (receita, 5000, PK-sorted) — não-PII (registro público)
+    66.617.270/0001-54
+    66.617.282/0001-89
+    66.617.294/0001-03
+    66.617.304/0001-00
+    66.617.315/0001-90
+  filial '0001' = 97.6%  (enum, não 4 díg livres)
+
+## CPF sintético (efêmero §2.3, 500) — MASCARADO no display
+  RANDOM    corpos aleatórios (ex. corpo termina …54)
+  CLUSTERED base sequencial +3, prefixo '412529' — corpo +3/linha
+  (corpos completos NÃO gravados — §2.3)

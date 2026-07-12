@@ -129,15 +129,25 @@ camadas: limpeza (máscara) · derivação (DV) · pré-forma (ordem/delta) · n
 referências · saída/header. Decode: "expande o base-94 e depois leva as chaves" (→ delta → zfill →
 DV → máscara), lossless por construção.
 
-**Lab `2026-07-12-spec-camadas/`** (escada S1-S5 pelo pipeline REAL, 4 regimes):
+**Lab `2026-07-12-1917-spec-camadas-v1/`** (escada S1-S5 pelo pipeline REAL, 4 regimes,
+**RT end-to-end PROVADO 20/20** — decode→reconstrói→==original; artifacts/04). Números com
+alfabeto MARKER-SAFE base-62 (a nature real usa BASE94 com `^`, que dispara o BUG-15 — ver abaixo):
 
 | degrau | CNPJ ord | CNPJ shuf | CPF rand | CPF clust |
 |---|---:|---:|---:|---:|
 | S1 masked (baseline) | 32665 | 41332 | 7499 | 1043 |
 | S2 clean (só limpeza+DV) | 53709 | 64999 | 4999 | 68 |
 | S3 clean+delta | 17032 | 51891 | 5146 | 19 |
-| S4 base94 absoluto (**hoje**) | 39958 | 39958 | 2971 | 2999 |
-| **S5 delta→base94 (misto)** | **14270** | **32408** | 3207 | **14** |
+| S4 base94 absoluto (**hoje**) | 39988 | 39988 | 3032 | 2830 |
+| **S5 delta→base94 (misto)** | **14640** | **32954** | 3237 | **14** |
+
+> **NOTA DE HONESTIDADE (§RT)**: os números da 1ª versão deste lab (17032/14270 etc. em base-80,
+> commit `9f152d1`) foram reportados SEM RT validado — o RT counter-proof desta v1 revelou que os
+> blobs de S3/S5 em base-80 NÃO decodam (BUG-15). Só dizer "lossless por construção" não era
+> evidência; a contra-prova é que mede. A conclusão (S5 sempre-boa) sobrevive em base-62 com RT verde.
+
+> **BUG-15 (achado por ESTE lab)**: literal começando com `^` quebra o RT em tcf/dict. O alfabeto da
+> nature inclui `^` → **o CEILING (nature-delta/field-split) DEPENDE do fix do BUG-15** (T-QA-8 §3).
 
 **Achados**:
 1. **A forma C (S5) é a única SEMPRE-boa**: melhor em 3 de 4 regimes (−56% ord, −22% shuf, −98.7%

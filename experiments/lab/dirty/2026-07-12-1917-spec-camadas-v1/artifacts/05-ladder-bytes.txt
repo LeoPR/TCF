@@ -1,0 +1,9 @@
+# 05 — LADDER de bytes (todos com RT verde)
+
+| degrau | CNPJ ord | CNPJ shuf | CPF rand | CPF clust |
+|---|---:|---:|---:|---:|
+| S1 masked (baseline) | 32665 | 41332 | 7499 | 1043 |
+| S2 clean (mask+DV out) | 53709 | 64999 | 4999 | 68 |
+| S3 clean+delta | 17032 | 51891 | 5146 | 19 |
+| S4 base94 absoluto (=hoje) | 39988 | 39988 | 3032 | 2830 |
+| S5 delta->base94 (misto) | 14640 | 32954 | 3237 | 14 |

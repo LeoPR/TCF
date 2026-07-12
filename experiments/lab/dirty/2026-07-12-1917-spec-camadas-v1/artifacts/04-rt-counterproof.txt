@@ -1,0 +1,33 @@
+# 04 — CONTRA-PROVA de round-trip (decode -> reconstrói -> == original)
+
+Cada degrau: original --transform--> col --encode--> blob --decode--> col'
+--untransform--> reconstruído. RT=OK sse reconstruído == original.
+NENHUM byte foi reportado sem este RT verde (§RT).
+
+## CNPJ ordenado  (n=5000)
+  S1 masked (baseline)         bytes= 32665 (split) RT=OK
+  S2 clean (mask+DV out)       bytes= 53709 (tcf  ) RT=OK
+  S3 clean+delta               bytes= 17032 (dict ) RT=OK
+  S4 base94 absoluto (=hoje)   bytes= 39988 (raw  ) RT=OK
+  S5 delta->base94 (misto)     bytes= 14640 (dict ) RT=OK
+
+## CNPJ embaralhado  (n=5000)
+  S1 masked (baseline)         bytes= 41332 (split) RT=OK
+  S2 clean (mask+DV out)       bytes= 64999 (raw  ) RT=OK
+  S3 clean+delta               bytes= 51891 (raw  ) RT=OK
+  S4 base94 absoluto (=hoje)   bytes= 39988 (raw  ) RT=OK
+  S5 delta->base94 (misto)     bytes= 32954 (raw  ) RT=OK
+
+## CPF random  (n=500)
+  S1 masked (baseline)         bytes=  7499 (raw  ) RT=OK
+  S2 clean (mask+DV out)       bytes=  4999 (raw  ) RT=OK
+  S3 clean+delta               bytes=  5146 (raw  ) RT=OK
+  S4 base94 absoluto (=hoje)   bytes=  3032 (raw  ) RT=OK
+  S5 delta->base94 (misto)     bytes=  3237 (raw  ) RT=OK
+
+## CPF clustered  (n=500)
+  S1 masked (baseline)         bytes=  1043 (split) RT=OK
+  S2 clean (mask+DV out)       bytes=    68 (tcf  ) RT=OK
+  S3 clean+delta               bytes=    19 (tcf  ) RT=OK
+  S4 base94 absoluto (=hoje)   bytes=  2830 (tcf  ) RT=OK
+  S5 delta->base94 (misto)     bytes=    14 (tcf  ) RT=OK
