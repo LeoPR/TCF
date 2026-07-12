@@ -1,9 +1,10 @@
 ---
 title: T-SPEC-STATUS-08 — status dos specs (2 abordagens) antes do teste em massa; decisão do que fecha no .8
-status: open
+status: closed-decided (owner 2026-07-12: Opção A — só CPF/CNPJ no .8; clássicos novos → .9)
 priority: P1
 created: 2026-07-12
 updated: 2026-07-12
+closed: 2026-07-12
 blocked-by: []
 related:
   - tickets/T-QA-8-material-comprobatorio.md
@@ -15,6 +16,15 @@ related:
 ---
 
 # T-SPEC-STATUS-08 — onde os specs estão, pra decidir o que fechar antes do teste em massa
+
+> **DECIDIDO (owner 2026-07-12): OPÇÃO A.** Só CPF/CNPJ (já welded) no `.8` — o material reporta
+> CNPJ (receita REAL) e CPF (sintético-teto), COM o caveat medido no F4 (a nature CNPJ piora a
+> tabela em dado real). NENHUM spec novo no `.8` (zero core novo, zero risco no tail). Os clássicos
+> que cabem por construtor (CEP/PIS/renavam/título/CNH) e os que precisam máquina nova
+> (telefone/RG/placa) ficam registrados aqui + na linha FILTROS-POPULARES do ROADMAP → **`.9`**,
+> abertos só quando houver dataset real com a coluna (senão repete o gap sintético-vs-real). O F6
+> DEVE carregar o caveat "nenhum clássico, nem CNPJ, é ganho de tabela garantido em real".
+> Pré-requisitos p/ qualquer spec novo (.9): anonimizador §2.3 + gerador estendido — não existem.
 
 **[dispositivo→registro]** Pedido do owner (2026-07-12): "quero ver o status dos specs, pra poder
 lançar com os datasets. Os specs tinham duas abordagens: (1) revisão da LINGUAGEM pra ficar
@@ -119,7 +129,8 @@ escolher entre:
 
 ## Critério de aceite
 
-- [ ] Owner escolhe A/B/C pro `.8` (recomendação: A — fecha o `.8` sem core novo; B/C → `.9`).
-- [ ] Se B: gerador + anonimizador + registro dos specs-demo antes de qualquer blob publicado.
-- [ ] Clássicos (c) telefone/RG/placa registrados como "precisa decisão de formato/máquina" → `.9`
-  (linha no ROADMAP Tier 1 FILTROS-POPULARES já cobre; cross-ref daqui).
+- [x] Owner escolheu **A** (2026-07-12): `.8` só com CPF/CNPJ welded; nenhum spec novo.
+- [x] Clássicos (b)/(c) registrados aqui + cross-ref na linha FILTROS-POPULARES do ROADMAP → `.9`.
+- [ ] **F6**: caveat obrigatório "nature CNPJ piora a tabela em dado real (F4: +7339B, split→raw);
+  nenhum clássico é ganho de tabela garantido" no README/docs.
+- [ ] `.9` (quando abrir): anonimizador §2.3 + gerador estendido ANTES de qualquer spec novo com DV.
