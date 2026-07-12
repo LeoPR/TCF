@@ -78,6 +78,18 @@ brotli) só é atingível HOJE por CNPJ.
 | **RG** | varia por estado | ❌ formato/DV per-estado | ❌ | sim | (c) precisa decisão de política; não-.8 |
 | **Placa Mercosul** | nenhum | ❌ alfanumérico | ❌ | não | (c) precisa máquina alfanumérica nova |
 
+## Evidência nova do F4-mínimo (2026-07-12) — reforça a Opção A
+
+Medição do F4 (`evidencia-0.8/f4-minimo/`, RT 9/9) trouxe um dado que MUDA a leitura de "CNPJ fecha
+o gate": a nature CNPJ **piora em dado REAL a nível de TABELA**. Em receita-cnpj (200k→5k, REAL):
+sem nature 100121B, com `:cnpj` **107460B (+7339B)** — a coluna cnpj cai de `split` (32665B) pra
+`raw` (39999B), porque o corpo base-94 da nature DESTRÓI a estrutura (matriz/filial, prefixos de
+mesma empresa) que o split/dict do próprio TCF já explorava. No sintético (br-empresas) a MESMA
+nature AJUDA (55.3% vs CSV). O ganho per-coluna de 40.9% do T-DATA-2 (antigo) era isolado; a nível
+de tabela em dado real ele REVERTE — mesmo padrão do FILTRO-NUMERO (per-col dilui/reverte). Não
+invalida a máquina (RT ok), mas: **nenhum clássico — nem o CNPJ — é ganho de tabela garantido em
+dado real**. Isto empurra fortemente pra **Opção A** e é caveat obrigatório do F6.
+
 ## Decisão pendente do owner (o que "fechar" significa pro .8)
 
 Como CPF/CNPJ já estão welded, "fechar os specs pro teste em massa" NÃO é abrir spec novo — é

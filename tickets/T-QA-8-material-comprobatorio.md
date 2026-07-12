@@ -376,14 +376,29 @@ owner: "SE identificar algum bug sem querer, registre apenas pra arrumarmos depo
 
 ### F4 — Públicos (bench)
 
-- [ ] **F4-1** Hubs prontos: adult (48842), tpch-sf001 (60175), tpch-sf01 lineitem (600572),
-  ibge (5571), receita-cnpj (200k, CNPJ REAL não-PII — o dataset que fecha gate de nature).
-- [ ] **F4-2** Criar os 3 hubs faltantes com infra existente (`scripts/csv_to_sqlite.py`):
-  online-retail, beijing-pm25, wine-quality (NÃO é download novo — CSVs já em Z:/external/).
-- [ ] **F4-3** Matriz de medição por dataset: raw CSV/JSON vs TCF 0.8 (bytes+tempo+mem+RT) +
-  composição TCF+brotli como sinal (§2.8); degraus de volume via shaper (seed fixa, reproduzível).
-- [ ] **F4-4** Consolidação: tabela-mestra do material (todas as fases), cross-check com os pins,
-  e nota metodológica (Wohlin: ameaças a validade; sintético-construído-pra-testar declarado).
+> **F4-MÍNIMO FEITO 2026-07-12 (T-REL-08 R1/2d)**: driver `scripts/bench_evidencia_f4.py`,
+> 9 casos nos hubs PRONTOS, **RT 9/9** + determinístico; material em
+> `experiments/results/evidencia-0.8/f4-minimo/` (RESULT.md gerado). Amostras determinísticas
+> "primeiros 5000" (população total = janela dedicada pós-release, decisão ROI). Δ vs CSV medido:
+> adult **81.1%**, ibge **68.5%**, receita-real **62.4%**, lineitem-free-text **50.2%**,
+> br-empresas+cnpj **55.3%**. Sinal zlib9 sempre menor no TCF (brotli indisponível no venv → sonda
+> graciosa registrou ausência). **ACHADO FORTE (repro)**: a **nature CNPJ PIORA em dado REAL** —
+> receita 100121B → 107460B (+7339B) COM `:cnpj`: a coluna cai de `split` (32665B) pra `raw`
+> (39999B), porque o corpo base-94 da nature DESTRÓI a estrutura (matriz/filial, prefixos
+> compartilhados) que o split/dict já explorava. No SINTÉTICO (br-empresas) a mesma nature AJUDA
+> (55.3%). É o gap sintético-vs-real (anti-incidente 2026-05-21) com medição — **reforça a Opção A
+> do [T-SPEC-STATUS-08](T-SPEC-STATUS-08.md)** e é caveat obrigatório pro F6 (nunca claimar nature
+> CNPJ como ganho geral).
+
+- [x] **F4-1** hubs prontos medidos (adult 48842→5k, tpch-sf001 lineitem 60175→5k + customer FULL
+  1500, ibge FULL 5571, br-identidades pessoas/empresas 5k, receita-cnpj 200k→5k). tpch-sf01 600k =
+  janela dedicada.
+- [~] **F4-2** os 3 hubs faltantes (online-retail/beijing/wine) — **não no mínimo**; janela
+  dedicada pós-release (os CSVs já viram no gate real-world via `datasets/samples/`).
+- [x] **F4-3** matriz medida (bytes total/header/body + RT + timing indicativo + zlib9 sinal);
+  brotli fica pra venv com brotli (sonda registra ausência, F0-3).
+- [~] **F4-4** consolidação: RESULT.md por fase pronto; a tabela-mestra cross-fase + nota Wohlin
+  entra no F6 (junto do README).
 
 ### F5 — Otimização extra (janela pós-evidência; SÓ o que a telemetria apontar)
 

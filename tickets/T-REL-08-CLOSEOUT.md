@@ -113,8 +113,11 @@ design pós-F3).
   consolidado em `experiments/results/evidencia-0.8/f3/RESULT.md` (F3-1 31/31, F3-2 10/10,
   F3-3 parcial, F3-4 não executado). Decisão explícita 2026-07-12: **não rodar população total**
   durante o closeout do `.8`; completar massa fica para janela dedicada.
-- [ ] **2d** T-QA-8 **F4** — públicos (6 hubs prontos + 3 a criar via csv_to_sqlite) +
-  consolidação com nota metodológica.
+- [~] **2d** T-QA-8 **F4-mínimo** FEITO (2026-07-12): 9 casos nos hubs prontos, RT 9/9,
+  `evidencia-0.8/f4-minimo/`. Δ vs CSV 50-81%. **ACHADO**: nature CNPJ PIORA em receita REAL
+  (+7339B, split→raw) mas ajuda no sintético — gap sintético-vs-real com repro; reforça Opção A do
+  T-SPEC-STATUS-08 + caveat pro F6. População total (tpch-sf01 600k) + 3 hubs a criar = janela
+  dedicada pós-release (não bloqueia o closeout).
 - [ ] **2e** T-QA-8 **F5** — janela condicional, default **NO-ACTION**. Só o que a telemetria
   apontar como blocker ou ganho direto de fechamento vira sub-exp próprio com gate real-world;
   otimização de produto sem blocker vai para `.9`.
