@@ -385,10 +385,15 @@ class TestNatureMarkSingleCol:
         assert decode(text) == cpfs               # decodifica como single, nao multi
 
     def test_ip_single_col_self_describing(self):
+        # FLOOR body-based (owner 2026-07-12): o IP nature COMPETE. Achado: em
+        # single-col o padding do IP EMPATA com o pipeline (o núcleo já normaliza),
+        # então o IP nature raramente vence (só onde há estrutura de subnet que a
+        # nature explora melhor — ADR-0016). RT sempre; header condicional ao win.
         ips = ["192.168.1.1", "10.0.0.1", "172.16.0.1"]
         text = encode(ips, nature=SPEC_IP)
-        assert text.startswith("#TCF.8 ")         # header na linha do shebang
-        assert decode(text) == ips
+        assert decode(text) == ips                 # RT independe do win
+        line0 = text.split("\n")[0]
+        assert line0 == "#TCF.8 :ip" or not line0.startswith("#TCF.8")  # win OU órfão
 
     def test_unknown_id_raises(self):
         # ERRO estrito (BUG-13b, owner 2026-07-10 — antes: warning + cru calado)

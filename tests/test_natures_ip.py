@@ -103,14 +103,14 @@ class TestEncodeIntegrationIP:
         assert decoded == ips, "RT FAIL no D-IP-subnet 1000"
 
     def test_default_unchanged_without_nature(self):
-        """Sem nature, behavior identico ao M10 puro."""
+        """FLOOR (owner 2026-07-12): o IP nature COMPETE. Em 2 IPs o padding empata
+        com o núcleo -> nature perde -> with-nature == without (órfão). Contrato:
+        with-nature NUNCA maior; RT preserva ambos."""
         ips = ["192.168.1.1", "10.0.0.1"]
         text_with_nature = encode(ips, nature=SPEC_IP)
         text_without = encode(ips)
-        # Diferentes (nature comprime)
-        assert text_with_nature != text_without
-        # Mas RT preserva ambos
-        assert decode(text_with_nature, nature=SPEC_IP) == ips
+        assert len(text_with_nature.encode()) <= len(text_without.encode())  # never-worse
+        assert decode(text_with_nature) == ips     # header-driven (órfão ou :ip)
         assert decode(text_without) == ips
 
     def test_multi_col_mixed_natures(self):

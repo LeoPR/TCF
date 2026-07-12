@@ -410,8 +410,11 @@ def _encode_multi(
             nat_tcf = _encode_column(transformed, header=name, cfg=cfg,
                                      min_len=min_len).encode("utf-8")
             nat_body, nat_mode = _best_of(transformed, nat_tcf)
-            id_cost = len(":" + spec.name)          # custo do sufixo no meta
-            if len(nat_body) + id_cost < len(best_body):
+            # BODY-based (owner 2026-07-12): dropa a nature SÓ quando o original tem
+            # ESTRUTURA que ganha (corpo menor), NÃO pelo custo fixo do ':id' numa
+            # coluna pequena. "Não tendo estrutura, não temos como mudar o roteamento":
+            # sem estrutura, a nature (mais densa) vence e o arquivo se auto-explica.
+            if len(nat_body) < len(best_body):
                 best_body, best_mode = nat_body, nat_mode
                 nature_ids[name] = spec.name
                 if side_outputs is not None:

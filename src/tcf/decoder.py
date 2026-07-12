@@ -132,10 +132,14 @@ def decode(
     if disc8 == "M":
         from tcf.multi import _decode_multi_impl
         result, header_ids = _decode_multi_impl(tcf_text)
-        # Natures auto-descritas no header (#TCF.8): resolve+aplica. PRECEDENCIA:
-        # header vence pros 3 ids core; o usuario completa o resto via
-        # nature_per_col. Sem isso, encode(nature)+decode(nature) aplicaria DUAS
-        # vezes (header + usuario) e quebraria o RT.
+        # Natures auto-descritas no header (#TCF.8M e' SELF-DESCRIBING): o header e'
+        # AUTORITATIVO — resolve+aplica os :id. Pos-FLOOR (T-SPEC-DEEPDIVE §5.1), uma
+        # coluna SEM :id significa DEFINITIVAMENTE valores ORIGINAIS (a nature perdeu
+        # o min() ou nao foi passada). Logo o `nature_per_col` out-of-band do decode
+        # NAO deve tocar colunas nao-marcadas — fazia isso e CORROMPIA silenciosamente
+        # valores que casassem a forma base-94 (achado da verificacao adversarial do
+        # FLOOR, 2026-07-12). O param e' IGNORADO pra #TCF.8M (header manda); mantido
+        # na assinatura por compat da API.
         header_resolved: set[str] = set()
         if header_ids:
             from tcf.natures import _resolve_nature_id
@@ -154,14 +158,8 @@ def decode(
                         f"{name!r}) — registry fechado (cpf/cnpj/ip); blob de "
                         f"versao que este decoder nao le (ADR-0024)"
                     )
-        if nature_per_col:
-            from tcf.natures.templated_checked import decode_value
-            result = {
-                name: ([decode_value(nature_per_col[name], v) for v in vals]
-                       if (name in nature_per_col and name not in header_resolved)
-                       else vals)
-                for name, vals in result.items()
-            }
+        # (nature_per_col out-of-band intencionalmente NAO aplicado: #TCF.8M e'
+        # self-describing, header autoritativo — ver nota acima.)
         return result
 
     # SINGLE + SPEC: '#TCF.8 [nome]:spec' (disc espaco). Retorna LIST.
@@ -184,20 +182,16 @@ def decode(
 
     # SINGLE version-stamp: line1 == '#TCF.8' (disc vazio). Carimbo de versao
     # (magic-number p/ file/libmagic, ADR-0029) — body single-col puro segue.
+    # Out-of-band `nature=` NAO aplicado: pos-FLOOR (T-SPEC-DEEPDIVE §5.1) uma nature
+    # que VENCE emite '#TCF.8 :id' (self-describing); stamp/orfao = valores ORIGINAIS
+    # (a nature perdeu OU nao foi passada). Aplicar o spec aqui corromperia originais
+    # que casassem a forma base-94 (mesma classe do achado multi-col; o param fica na
+    # assinatura por compat, mas #TCF.8 e' self-describing e manda).
     if disc8 == "":
-        body = tcf_text[len(line1) + 1:]           # apos "#TCF.8\n"
-        values = _decode_column(body)
-        if nature is not None:
-            from tcf.natures.templated_checked import decode_value
-            values = [decode_value(nature, v) for v in values]
-        return values
+        return _decode_column(tcf_text[len(line1) + 1:])   # apos "#TCF.8\n"
 
     # ORFAO: single-col body puro (sem shebang) — camada 1 (ADR-0029).
-    values = _decode_column(tcf_text)
-    if nature is not None:
-        from tcf.natures.templated_checked import decode_value
-        values = [decode_value(nature, v) for v in values]
-    return values
+    return _decode_column(tcf_text)
 
 
 def _decode_column(tcf_text: str) -> list[str]:

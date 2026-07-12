@@ -191,6 +191,25 @@ alfabeto MARKER-SAFE base-62 (a nature real usa BASE94 com `^`, que dispara o BU
    item 1 (competir É a heurística ganho>0 exata). Não fazer os dois.
 4. **Confirmar Opção A** (§3 valida): nenhuma característica nova de byte no `.8`; tudo é pré-1.0/.9.
 
+## §6 — Ideias pro `.9` (owner 2026-07-12; registrar, pensar depois)
+
+- **Heurística estatística de aposta no min() (economia de processamento)**: hoje o FLOOR MEDE os
+  dois (original vs nature) e fica o menor — custa 2× encode por coluna-nature. Quando o
+  paralelismo pra medir NÃO está disponível, uma HEURÍSTICA ESTATÍSTICA (features baratas:
+  cardinalidade, ordenação, entropia por sub-campo, apply_rate amostral) poderia APOSTAR na forma
+  provável-min sem encodar ambas — trade: economia de compute × risco de errar a aposta. É o
+  min-de-curto estatístico. Cruza com o gate `H-TYPE`/detect_* e com `T-CODE-PARALLEL-BUDGET`
+  (quando não há worker, aposta; quando há, mede). **Pensar depois.**
+- **Self-explain vs compete (single-col)**: o FLOOR pode DROPAR a nature se ela perde → o arquivo
+  perde o marcador `:id` (deixa de se auto-explicar). Owner: "se a gente quiser que o arquivo se
+  explique, não tem o que fazer a não ser deixar o nature explícito". Tensão real — um modo
+  `force-nature` (marca sempre, custe o que custar, pra semântica downstream) OU o caminho abaixo.
+- **Dedução de spec (self-describing SEM marcador explícito)**: "se for algum base, dá pra supor
+  qual spec pertence" — deduzir a nature por experimentação/hipótese de tipo (o gabarito propõe,
+  RT confirma; = tipos-como-specs/T-OPT-INFERENCE). Se der pra deduzir, não precisa marcar. Também
+  hipótese. **Owner: "a gente precisa da estrutura; se ela existir fica mais fácil escolher; não
+  tendo estrutura, não temos como mudar o roteamento disso."**
+
 ## Critério de aceite
 
 - [ ] Owner decide o item §5.1 (nature-compete: 0.8 vs 0.8.1) — é o crux.

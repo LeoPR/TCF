@@ -114,3 +114,57 @@ class TestNatureCompeteFloor:
         base, _ = _col(cnpj)
         nat, _ = _col(cnpj, SPEC_CNPJ)
         assert nat <= base, f"nature CNPJ ainda regride: {nat} > {base}"
+
+
+class TestFloorDecodeSafety:
+    """Achados da verificação adversarial do FLOOR (2026-07-12): o decode
+    out-of-band não pode corromper colunas onde a nature PERDEU (agora originais)."""
+
+    def test_out_of_band_decode_no_corruption_when_nature_lost(self):
+        # 'xyzzy' = 5 chars, todos em BASE94 -> casaria a forma do payload CPF.
+        # A nature perde (curto/sem estrutura) -> :cpf ausente -> decode out-of-band
+        # NÃO pode aplicar o spec aos originais (era corrupção silenciosa).
+        col = ["xyzzy", "abc"]
+        blob = encode({"c": col}, nature_per_col={"c": SPEC_CPF})
+        assert ":cpf" not in blob.split("\n", 1)[0]        # nature perdeu
+        assert decode(blob)["c"] == col                     # header-driven
+        assert decode(blob, nature_per_col={"c": SPEC_CPF})["c"] == col  # out-of-band SAFE
+
+    def test_header_authoritative_even_with_wrong_out_of_band(self):
+        # nature venceu: header manda; out-of-band não duplica nem conflita
+        col = _random_cpfs(100)
+        blob = encode({"c": col}, nature_per_col={"c": SPEC_CPF})
+        assert decode(blob)["c"] == col
+        assert decode(blob, nature_per_col={"c": SPEC_CPF})["c"] == col
+        assert decode(blob, nature_per_col={"c": SPEC_CNPJ})["c"] == col  # ignorado
+
+    def test_none_spec_not_in_nature_lost(self):
+        side = SideOutputs()
+        encode({"c": ["a", "b"]}, nature_per_col={"c": None}, side_outputs=side)
+        assert side.multi_info["nature_lost"] == []         # None não é candidato
+        assert side.multi_info["nature_cols"] == {}
+
+
+class TestFloorSingleCol:
+    """FLOOR estendido pro single-col (owner 2026-07-12): nature= em list compete."""
+
+    def test_single_col_nature_wins_random(self):
+        col = _random_cpfs(200)
+        blob = encode(col, nature=SPEC_CPF)
+        assert blob.split("\n", 1)[0] == "#TCF.8 :cpf"      # venceu -> self-describing
+        assert decode(blob) == col
+
+    def test_single_col_nature_loses_clustered(self):
+        col = _clustered_cpfs(400)
+        blob = encode(col, nature=SPEC_CPF)
+        base = encode(col)
+        assert len(blob.encode()) <= len(base.encode())     # never-worse
+        assert decode(blob) == col                          # RT (órfão se perdeu)
+
+    def test_single_col_never_worse_various(self):
+        for col in (_random_cpfs(10), _clustered_cpfs(10), _random_cpfs(500),
+                    _clustered_cpfs(500)):
+            base = len(encode(col).encode())
+            nat = len(encode(col, nature=SPEC_CPF).encode())
+            assert nat <= base, f"single-col nature piorou: {nat} > {base}"
+            assert decode(encode(col, nature=SPEC_CPF)) == col

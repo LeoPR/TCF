@@ -216,44 +216,52 @@ def encode(
         # o check de \n/\r FUNDIDO na mesma passada (BUG-06) — FONTE ÚNICA
         # `_stringify_checked` compartilhada com o ramo dict (dedup C0 D2,
         # T-CODE-CORE-CONSOLIDATE).
-        from tcf.multi.core import _stringify_checked
+        from tcf.multi.core import _stringify_checked, MAGIC_SINGLE_V3
         data = _stringify_checked(data)
-        nature_id = None
-        if nature is not None:
-            from tcf.natures.templated_checked import encode_value
-            if side_outputs is not None:
-                pairs = [encode_value(nature, v) for v in data]
-                data = [p for p, _ in pairs]
-                side_outputs.nature_apply = {
-                    "val": _nature_apply_stats(nature, [s for _, s in pairs])
-                }
-            else:
-                data = [encode_value(nature, v)[0] for v in data]
-            nature_id = nature.name
-        body = _encode_column(data, header="val", side=side_outputs, cfg=cfg,
-                              min_len=min_len)
-        if nature_id is None:
-            if stamp:
-                # version-stamp opt-in (#TCF.8\n<body>): carimbo de versao /
-                # magic-number p/ file/libmagic (ADR-0029). Default-off -> single
-                # puro fica orfao byte-identico.
-                from tcf.multi.core import MAGIC_SINGLE_V3
-                return MAGIC_SINGLE_V3.decode("utf-8") + "\n" + body
-            return body                       # single-col puro orfao (byte-identico)
-        # Self-describing single-col (#TCF.8 SEM flag M, ADR-0027). Shebang
-        # opt-in SSE ha nature -> default-off byte-identico. Linha 2 =
-        # '[nome]:spec_id' (nome opcional, so' rotulo — nao volta no decode).
-        # byte-neutro: este ramo so' roda quando nature foi passado.
-        if name is not None and (':' in name or '\n' in name):
-            raise ValueError(
-                f"name de single-col nao pode conter ':' nem '\\n' "
-                f"(reservado pro meta #TCF.8): {name!r}"
-            )
-        from tcf.multi.core import MAGIC_SINGLE_V3
         magic = MAGIC_SINGLE_V3.decode("utf-8")          # "#TCF.8"
-        # Header numa LINHA SO', junto ao shebang (como o flag `M` do multi):
-        # '#TCF.8 [nome]:spec_id'. Body na linha seguinte. Sem linha extra.
-        return f"{magic} {name or ''}:{nature_id}\n{body}"
+        if nature is not None:
+            # FLOOR single-col (T-SPEC-DEEPDIVE §5.1, owner 2026-07-12): a nature
+            # COMPETE — encoda o original (órfão) e a nature-transformada
+            # (`#TCF.8 [nome]:id` header), fica a MENOR (incluindo o custo do
+            # header self-describing). So' vence se cobrir esse custo. Se perde ->
+            # órfão/stamp, SEM marcador (o arquivo deixa de se auto-explicar; o
+            # trade self-explain-vs-compete e a deducao de spec vao pro .9, §6).
+            if name is not None and (':' in name or '\n' in name):
+                raise ValueError(
+                    f"name de single-col nao pode conter ':' nem '\\n' "
+                    f"(reservado pro meta #TCF.8): {name!r}"
+                )
+            from tcf.natures.templated_checked import encode_value
+            pairs = [encode_value(nature, v) for v in data]
+            transformed = [p for p, _ in pairs]
+            body_orig = _encode_column(data, header="val", cfg=cfg, min_len=min_len)
+            body_nat = _encode_column(transformed, header="val", cfg=cfg,
+                                      min_len=min_len)
+            header_nat = f"{magic} {name or ''}:{nature.name}\n"
+            # BODY-based (owner 2026-07-12): a nature vence sse o corpo dela e' menor
+            # que o do original (ESTRUTURA), NAO pelo custo fixo do header ~12B numa
+            # coluna pequena — senao um CPF sozinho perderia o self-describe por um
+            # motivo nao-estrutural. Sem estrutura, a nature (densa) vence -> arquivo
+            # se auto-explica (o self-explain que o owner priorizou pro single-col).
+            win = len(body_nat.encode("utf-8")) < len(body_orig.encode("utf-8"))
+            if side_outputs is not None:
+                stats = _nature_apply_stats(nature, [s for _, s in pairs])
+                stats["used"] = win
+                side_outputs.nature_apply = {"val": stats}
+                _encode_column(transformed if win else data, header="val",
+                               side=side_outputs, cfg=cfg, min_len=min_len)
+            if win:
+                return header_nat + body_nat
+            body = body_orig                  # nature perdeu -> órfão/stamp abaixo
+        else:
+            body = _encode_column(data, header="val", side=side_outputs, cfg=cfg,
+                                  min_len=min_len)
+        if stamp:
+            # version-stamp opt-in (#TCF.8\n<body>): carimbo de versao /
+            # magic-number p/ file/libmagic (ADR-0029). Default-off -> single
+            # puro fica orfao byte-identico.
+            return magic + "\n" + body
+        return body                           # single-col puro orfao (byte-identico)
     if isinstance(data, dict):
         from tcf.multi import _encode_multi
         if sort_by is not None:
@@ -279,7 +287,8 @@ def encode(
         # a menor). So' as colunas onde a nature vence ganham ':id'. Safe-by-
         # construction: nunca pior que o baseline (resolve a regressao F4).
         nature_specs = ({name: spec for name, spec in nature_per_col.items()
-                         if name in data} if nature_per_col else None)
+                         if name in data and spec is not None}
+                        if nature_per_col else None)
         return _encode_multi(data, side_outputs=side_outputs, parallel=parallel,
                              cfg=cfg, fallback=fallback, min_header=min_header,
                              min_len=min_len, nature_specs=nature_specs,
