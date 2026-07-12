@@ -282,18 +282,30 @@ owner: "SE identificar algum bug sem querer, registre apenas pra arrumarmos depo
 
 ### F1 — Harness de telemetria (fora de src/tcf; é a régua de TODAS as fases seguintes)
 
-- [ ] **F1-1** `scripts/bench_evidencia.py` (runner): recebe dataset (inline/CSV/hub via
-  DatasetReader), roda encode/decode com kwargs parametrizáveis, e emite JSONL com:
-  bytes (total/header/body; per-col via meta), RT bool (obrigatório), timing
-  (mediana+p95 de n≥9 com warmup, encode E decode separados), memória (tracemalloc peak em run
-  separada + peak-RSS psapi), SideOutputs serializado (multi_info completo: fallback/dict/split cols),
-  ambiente (python/os/cpu/tcf-version/cython-flag), proveniência (dataset id, n_rows/n_cols, seed).
-- [ ] **F1-2** Serializador de SideOutputs (externo, `to_dict` no runner — dataclass não tem;
-  respeitar BUG-07: enquanto não corrigido, extrair bytes per-col do META, não do side).
-- [ ] **F1-3** Formato do artefato: `experiments/results/evidencia-0.8/<fase>/<dataset>.jsonl` +
-  `.tcf` de exemplo inspecionável + README da pasta com o schema dos campos.
-- [ ] **F1-4** Validar o runner nos 3 pins (D1-D9, D17a, real-world snapshot) — os bytes do runner
-  DEVEM bater com os testes (mesma régua); divergência = bug do runner, parar.
+> **F1 FEITO 2026-07-11/12 (T-REL-08 Passo 2a)**: `scripts/bench_evidencia.py` (runner) +
+> `scripts/bench_evidencia_probes.py` (conceitos portáveis F0-3: sondas isoladas por plataforma,
+> fallback gracioso — sonda RSS ativa nesta máquina: `k32-getprocessmemoryinfo`). 10 testes-guarda
+> em `tests/test_bench_evidencia.py`; suíte **600 passed**. Verificação adversarial (2 agentes,
+> passa-com-ressalvas → ressalvas FECHADAS): isolamento OS-specific confinado às sondas (grep
+> limpo), fallback sem sonda = campo AUSENTE (não crash), registro JSON-portável; protocolo
+> auditado POR EXECUÇÃO — RT-gate real (decode adulterado → registro sem números), mediana/p95
+> conferidos contra statistics, timing NÃO roda sob tracemalloc (5.3× de overhead evitado,
+> medido), validate_pins pega inflação de +1B. **Achado fechado**: idempotência sozinha aceitava
+> decode-constante → RT de transformação agora = **conteúdo-sob-transformação (multiset de
+> linhas / valores posicionais) + idempotência 2ª geração** (teste pinado). Notas de honestidade
+> gravadas: heap=Python-only (cross-linguagem usa RSS); Solaris ru_maxrss em páginas → sonda
+> se declara indisponível.
+
+- [x] **F1-1** runner: CSV single/multi (mesma carga da régua), kwargs parametrizáveis, JSONL com
+  bytes/RT/rt_mode/determinismo/timing(mediana+p95, n≥9+warmup)/memória(runs separadas)/side/env.
+  (Hub via DatasetReader entra no F4, quando os públicos rodarem.)
+- [x] **F1-2** `serialize_side` externo (BUG-07 já welded: usa emitted_bytes/col_modes direto;
+  traces opt-in).
+- [x] **F1-3** `experiments/results/evidencia-0.8/<fase>/<dataset>.jsonl` + `.tcf` via
+  `--save-blob` + README com schema `evidencia-0.8/v1`; exceção no .gitignore (outputs visíveis,
+  `phase0/reversibility.json` intocado).
+- [x] **F1-4** `--validate-pins`: D1-D9=**1523** · D17a=**300** · real-world=**89616** — exatos;
+  também é teste da suíte (roda em todo pytest).
 
 ### F2 — Controle minúsculo (o owner começa AQUI: single-col, com/sem header, readers, README)
 

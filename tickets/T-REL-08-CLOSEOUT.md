@@ -46,9 +46,11 @@ design pós-F3).
 
 ## PASSO 2 — alto valor (o caminho crítico do .8)
 
-- [ ] **2a** T-QA-8 **F1** — runner de telemetria (`scripts/bench_evidencia.py`, stdlib-only,
-  F0-3): destrava F2-F4. ABSORVE o ângulo de telemetria do `T-FLOW-ENCODE-STRATEGIES-TELEMETRY`
-  (anotar lá o ponteiro; o resto daquele ticket é do trilho H/.9).
+- [x] **2a** T-QA-8 **F1** — runner de telemetria FEITO (2026-07-12): `bench_evidencia.py` +
+  `bench_evidencia_probes.py` (conceitos portáveis F0-3), 10 testes-guarda, pinos exatos
+  (1523/300/89616), verificação adversarial com ressalvas fechadas (RT de transformação =
+  conteúdo+idempotência). Suíte 600 passed. NOTA: o ponteiro no T-FLOW-ENCODE-STRATEGIES-TELEMETRY
+  fica pro momento F3 (quando a telemetria de estratégias rodar de fato).
 - [ ] **2b** T-QA-8 **F2** — controle minúsculo (single c/s header ×3 formas, readers
   decode×view, README-propaganda re-medido, escaping/hex/fail-loud, 1 blob-exemplo por dict,
   boundary do cap 8192).

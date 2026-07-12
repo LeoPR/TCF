@@ -32,7 +32,11 @@ src/tcf/_core/*.so
 src/tcf/_core/*.html
 
 # Experiment results (large, regenerable)
-experiments/results/
+# EXCECAO (T-QA-8 F1-3, 2026-07-10): evidencia-0.8/ e' MATERIAL COMPROBATORIO
+# versionado (outputs visiveis pra auditoria — regra do material). O resto de
+# results/ segue ignorado ('/*' + negacao porque dir excluido nao re-inclui filho).
+experiments/results/*
+!experiments/results/evidencia-0.8/
 experiments/scratch/
 experiments/data/
 experiments/images/
