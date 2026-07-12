@@ -91,6 +91,35 @@ o compilador é a superfície de extensão. Fases de "tirar do welded":
   no-eval); pré-reqs (anonimizador §2.3 + gerador estendido) faltam.
 - **2.0/pesquisa**: W4 TCFL expressivo (DSL compõe DV+segment sobre primitivas fechadas).
 
+## §4-bis — REFINAMENTO do owner (2026-07-12): nature é matematizável → falta o DELTA
+
+O owner apontou (e MEDIMOS, `scripts/spec_demo.py` + medição inline): a nature não destrói a
+estrutura pela matemática — **nunca fizemos um delta da nature**. O corpo é um `int`; numa coluna
+ordenada os ints são ordenados e deveriam deltar como o pipeline faz. O que quebra hoje: a nature
+emite base-94 ABSOLUTO por linha, e `base94(N)` vs `base94(N+11)` não têm relação de afixo → OBAT/HCC
+não deltam → cai pra raw. Medido (CNPJ real ordenado, 5000):
+
+| abordagem | bytes | modo |
+|---|---|---|
+| A — sem nature (pipeline puro) | 32665 | split (baseline) |
+| B — nature absoluta (HOJE) | 39999 | raw (+7334, regressão) |
+| **C — nature DELTA (corpo-int deltado)** | **17032** | dict — a ideia do owner, **bate o split** |
+| **D — field-split (base8Δ \| filial-dict \| DV=0)** | **16137** | decompõe o subcódigo |
+
+E a natureza do CNPJ pelas regras da Receita (confirmar contra IN RFB oficial; empiricamente
+confirmado): **8 díg base = inscrição SEQUENCIAL (raiz) → ordenada/deltável; 4 díg filial = contador
+de estabelecimento, `0001`=matriz 97,6% → ENUM, não 4 díg livres; 2 díg DV = mod-11 derivável (0
+bits)**. Ou seja o CNPJ é "um código só com pouquíssimas coisas classificáveis" (owner) — a
+informação efetiva é MUITO menor que 14 dígitos. Isso generaliza: a mesma coisa vale pro CPF (o 9º
+díg é região fiscal; corpo pode ter cadência em lotes) e é o gabarito de "subcódigo posicional"
+pra qualquer spec numérico.
+
+**Consequência**: "o fix" tem 2 níveis agora —
+- **FLOOR (safe, barato)**: nature COMPETE no min() → nunca pior que baseline (recupera pra 32665).
+- **CEILING (otimização real)**: nature DELTA-AWARE / FIELD-DECOMPOSED → ~16-17KB (~2× o baseline),
+  passa folgado o gate ≥15%. É spec-machinery nova (modo delta do corpo + decomposição de subcódigo),
+  merece estudo próprio (multi-coluna real, CPF, sobrevive a brotli?, gate real-world).
+
 ## §5 — DECISÕES pro owner (o que fecha o 0.8 vs pré-1.0)
 
 1. **CRUX — a "nature compete" entra no 0.8 ou 0.8.1?** — **DECIDIDO (owner 2026-07-12): NO `.8`.**
