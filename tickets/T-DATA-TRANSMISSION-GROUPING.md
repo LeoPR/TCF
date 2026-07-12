@@ -1,9 +1,10 @@
 ---
 title: T-DATA-TRANSMISSION-GROUPING — Agrupar datasets por cenário de transmissão (matriz 3-eixos)
-status: matrix-done
+status: closed-done
 priority: P2
 created: 2026-07-05
-updated: 2026-07-05
+updated: 2026-07-10
+closed: 2026-07-10
 blocked-by: []
 related:
   - datasets/coverage-matrix.md
@@ -14,6 +15,11 @@ related:
   - scripts/shaper/request.py
   - C:/Users/leona/.claude/projects/c--Users-leona-OneDrive-Documents-Projects-Acad-micos-TCF/memory/project_dataset_coverage_map.md
 ---
+
+> **ENCERRADO (2026-07-10, T-REL-08-CLOSEOUT Passo 1c)**: a entrega É a matriz — completada em
+> `033bba3` (3 eixos, 7 formas-tx via nested-tcf-study) e materializada em
+> [datasets/coverage-matrix.md](../datasets/coverage-matrix.md) (artefato VIVO; atualizações
+> futuras acontecem lá, não aqui). O consumo prático segue no T-QA-8 F2-F4 (degraus de volume).
 
 > **MATRIZ COMPLETADA (2026-07-05)** — corpo (esquema 3-eixos + posicionamento + células vazias +
 > "experimento de sempre" com trace OBAT/HCC por forma-tx) em

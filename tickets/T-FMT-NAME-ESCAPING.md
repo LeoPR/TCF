@@ -1,9 +1,10 @@
 ---
 title: T-FMT-NAME-ESCAPING — Escape/quoting de nomes de coluna (e chaves de hierarquia) no meta do header
-status: open-parcial (interim backslash WELDED em M2 `58f7dee` 2026-07-09; resta estudo CSV-quoting/smart, deferido)
+status: closed-parcial (interim backslash = entrega do .8; estudo quoting -> filho T-FMT-QUOTING-STUDY, .9)
 priority: P1
 created: 2026-07-09
 updated: 2026-07-10
+closed: 2026-07-10
 gate: pre-.8-default
 blocked-by: []
 related:
@@ -14,6 +15,14 @@ related:
 ---
 
 # T-FMT-NAME-ESCAPING — escape/quoting de nomes no meta
+
+> **ENCERRADO PARCIAL (2026-07-10, T-REL-08-CLOSEOUT Passo 1d)**: o **interim backslash é a
+> entrega do `.8`** — welded em M2 (`58f7dee`), endurecido no F0 (whitelist estrita `_ESC_OK` +
+> gramática última-anônima, `a2e84b0`/`a0f30ae`) e validado por fuzz adversarial (~310 checks,
+> zero falso-positivo; byte-neutro). O ESTUDO que este ticket deixou pra depois (CSV-quoting /
+> quoting implícito/smart, "até pra ver se apenas o barra já resolve tudo") virou ticket-filho:
+> **[T-FMT-QUOTING-STUDY](T-FMT-QUOTING-STUDY.md)** (alvo .9, junto da hierarquia que adiciona
+> `{}[]` ao meta). Corpo abaixo = o design da era, intocado.
 
 **[dispositivo→código]** Direção do owner (2026-07-09): resolver as colisões de caractere em **nome de
 coluna** (e futuras chaves de hierarquia) com **escaping/quoting** — as técnicas já consagradas de CSV —

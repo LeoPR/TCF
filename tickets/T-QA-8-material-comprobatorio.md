@@ -86,11 +86,15 @@ Fonte do levantamento: workflow de 10 agentes (6 inventário + 4 sweep adversari
    - Anonimizador: re-invalidar trocando os 2 DVs por `(dv+1)%10` (não colide com o correto).
    - CPF reporta SEMPRE com ressalva "sintético é o teto" (PII → fonte real impossível);
      só CNPJ (receita-cnpj real) fecha confirmada-empirica (gate registrado).
-4. **Telemetria honesta no Windows**: tempo = `perf_counter_ns`, warmup + n≥9 runs + mediana (+p95);
-   memória = tracemalloc peak em RUN SEPARADA da de tempo (overhead) + peak-RSS via ctypes psapi;
-   claims de paralelismo = wall-clock speedup + byte-identidade + `multi_info['parallel_workers']`
-   (CPU/mem dos workers é INOBSERVÁVEL via stdlib — não claimar). Registrar sempre: python/os/cpu,
-   versão tcf, flag `_detect_compositions_accelerated` (Cython on/off muda latência, não bytes).
+4. **Telemetria honesta e PORTÁVEL** (F0-3, owner): conceitos independentes de OS/hardware/
+   linguagem, sondas isoladas por plataforma com fallback gracioso (campo ausente ≠ medição
+   quebrada). Tempo = `perf_counter_ns`, warmup + n≥9 runs + mediana (+p95) — no Windows o
+   `process_time` tem tick de 15.625ms, mais um motivo pro repeat ser parte do CONCEITO;
+   memória = tracemalloc peak em RUN SEPARADA da de tempo (overhead) + `peak_rss` melhor-esforço
+   por sonda; claims de paralelismo = wall-clock speedup + byte-identidade +
+   `multi_info['parallel_workers']` (CPU/mem dos workers é INOBSERVÁVEL via stdlib em qualquer
+   OS — não claimar). Registrar sempre: python/os/cpu, versão tcf, sondas ativas, flag
+   `_detect_compositions_accelerated` (Cython on/off muda latência, não bytes).
 5. **Outputs visíveis**: resultados em `experiments/results/evidencia-0.8/` (NÃO gitignored),
    JSONL com proveniência (dataset id, n_rows/n_cols, seed, ambiente) + artefatos `.tcf` de exemplo.
 6. **Nada toca `src/tcf` sem aprovação explícita** — runner/telemetria/anonimizador vivem em
@@ -256,11 +260,21 @@ owner: "SE identificar algum bug sem querer, registre apenas pra arrumarmos depo
 - [x] **F0-2** Suíte completa + gates pós-lotes: **590 passed** (530 + 60 repros F0), D1-D9=1523B /
   D17a=300B / real-world=89616B intactos (byte-neutralidade provada em 414 casos fora dos pins;
   lote 4 é decode-only+docstrings — encode intocado por construção).
-- [x] **F0-3** Dependência de medição: **stdlib-only** (recomendação aceita por default,
-  2026-07-10): tempo `perf_counter_ns`, heap `tracemalloc`, RSS via ctypes/psapi; workers do
-  ProcessPool são inobserváveis sem psutil → claims de paralelismo = wall-clock + byte-identidade
-  + `parallel_workers`. psutil só entra como optional `[bench]` se o F3 provar necessidade (go do
-  owner).
+- [x] **F0-3** Dependência de medição: **stdlib-only E PORTÁVEL** (owner 2026-07-10): a telemetria
+  é feita de **CONCEITOS independentes de OS/hardware/linguagem** — fáceis de identificar e de
+  transportar (ex.: Rust) — e, ficando em Python, tem que rodar **em qualquer lugar que o Python
+  rode** (nada engessado). Arquitetura do runner (F1):
+  - **Camada de conceitos** (portável, é a interface): `wall_time_ns`, `cpu_time_ns`,
+    `peak_heap_bytes`, `peak_rss_bytes`, `bytes_in/out`, `rt_ok`, `env_fingerprint` — nomes/
+    semântica que um port Rust implementa 1:1 (`Instant`, `jemalloc stats`, `/proc`/`GetProcessMemoryInfo`).
+  - **Sondas** (adaptadores ISOLADOS e rotulados por plataforma): tempo/heap = stdlib pura
+    (`perf_counter_ns`, `tracemalloc` — rodam em qualquer Python); `peak_rss` = melhor-esforço por
+    plataforma (`resource.getrusage` em POSIX; psapi via ctypes SÓ no adaptador win32) com
+    **fallback gracioso `None`** — medição NUNCA quebra por plataforma, o campo fica ausente e
+    o relatório declara qual sonda rodou.
+  - Workers do ProcessPool: inobserváveis via stdlib em QUALQUER OS → claims de paralelismo =
+    wall-clock + byte-identidade + `parallel_workers` (conceito portável). psutil só como
+    `[bench]` opcional se o F3 provar necessidade (go do owner).
 - [ ] **F0-3** Owner decide: psutil como optional-dependency de bench (`[bench]`) ou stdlib-only
   (recomendação: stdlib-only nesta rodada; psutil só se F3 mostrar necessidade).
 - [ ] **F0-4** Higiene mecânica sem-risco: rotular `benchmark_compression.py` como quebrado-v0.5

@@ -1,9 +1,10 @@
 ---
 title: T-CODE-DESCAPAR-V2B — Descapar o V2-B (dict como candidato do min() p/ high-card)
-status: welded-form-A-cap-raise (B/C deferidos)
+status: closed-parcial (forma A welded no .8; formas B/C -> .9, ver ROADMAP Tier 1)
 priority: P2
 created: 2026-07-01
-updated: 2026-07-02
+updated: 2026-07-10
+closed: 2026-07-10
 related:
   - experiments/lab/dirty/2026-07-01-dict-highcard/
   - experiments/lab/dirty/2026-07-01-descapar-v2b/
@@ -12,6 +13,13 @@ related:
 ---
 
 # T-CODE-DESCAPAR-V2B — Descapar o V2-B
+
+> **ENCERRADO PARCIAL (2026-07-10, T-REL-08-CLOSEOUT Passo 1b)**: **forma A welded** no `.8` —
+> `a201c1e` (cap de compute 1024→8192, byte-safe, gate verde sem re-pin; aprovação owner
+> 2026-07-02). O boundary do cap ganhou cobertura planejada no material comprobatório
+> ([T-QA-8 F2-7](T-QA-8-material-comprobatorio.md)) e o slot ganhou invariantes de decode no F0
+> lote 4 (`bf84fca`). **Formas B (+skip cadence) e C (descapar puro) → .9** (linha no ROADMAP
+> Tier 1 aponta de volta pra cá; o estudo vive nas seções abaixo, intocadas).
 
 ## Contexto / motivação
 

@@ -1,9 +1,10 @@
 ---
 title: T-FMT-HEADER-BASE-HEX — Base HEX implícita dos byte-sizes do header (decimal só como comando de inspeção/IO)
-status: welded
+status: closed-welded
 priority: P2
 created: 2026-07-09
-updated: 2026-07-09
+updated: 2026-07-10
+closed: 2026-07-10
 gate: pre-1.0
 blocked-by: []
 related:
@@ -16,6 +17,14 @@ related:
 ---
 
 # T-FMT-HEADER-BASE-HEX — base HEX implícita dos byte-sizes do header
+
+> **ENCERRADO (2026-07-10, T-REL-08-CLOSEOUT Passo 1a)**: entregue e SHIPADO no `.8` — weld
+> `a381cdb` (hex nos formatos vivos; D17a 303→302), ajuste do flip `da0ea35` (ADR-0032 §3: hex
+> vira feature EXCLUSIVA da família `.8`, legado cortado), claim corrigido em `6bbc86c` (revisão
+> pré-bump: decimal 0.7.1 decoda hex SILENCIOSAMENTE ERRADO, não fail-loud — git-as-compat cobre).
+> O "decimal como comando de inspeção" segue registrado no corpo abaixo (não implementado; sem
+> demanda até o material comprobatório). Bases dos DEMAIS sítios = registro
+> [bases-radix-usos-tcf.md](../experiments/lab/dirty/notas/bases-radix-usos-tcf.md) (gradual).
 
 **[dispositivo]** Ticket **super-específico** de UM sítio de radix: o **byte-size de cada coluna no header**.
 Escopo estreito de propósito (owner 2026-07-09): fechar o **processo** do ganho imediato, sem esperar a

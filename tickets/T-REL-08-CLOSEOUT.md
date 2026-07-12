@@ -30,17 +30,19 @@ design pós-F3).
 
 ## PASSO 1 — fácil e sem risco (higiene de status; só rotulação rastreável)
 
-- [ ] **1a** `T-FMT-HEADER-BASE-HEX`: `welded` → `closed-welded` (entregue e shipado no .8;
-  hex exclusivo do .8 por decisão owner 07-09).
-- [ ] **1b** `T-CODE-DESCAPAR-V2B`: `welded-form-A` → `closed-parcial` (forma A no .8; formas
-  B/C → item .9 no ROADMAP, com ponteiro).
-- [ ] **1c** `T-DATA-TRANSMISSION-GROUPING`: `matrix-done` → `closed-done`.
-- [ ] **1d** `T-FMT-NAME-ESCAPING`: `open-parcial` → `closed-parcial` (interim backslash = .8;
-  estudo CSV-quoting/smart → item .9 no ROADMAP).
-- [ ] **1e** `T-FMT-TCF8H-HEADER`: `decided-weld-gated` → `closed-decided` (slot `H` reservado
-  JÁ está no .8, ADR-0031; codec = trilho .9/lab via T-STUDY-HIERARCHICAL-TCF).
-- Regra: cada mudança de rótulo cita o commit/ADR que a justifica (colisão-zero; conteúdo
-  histórico intocado).
+- [x] **1a** `T-FMT-HEADER-BASE-HEX` → `closed-welded` (weld `a381cdb` + ADR-0032 §3 `da0ea35` +
+  claim `6bbc86c`). FEITO 2026-07-10.
+- [x] **1b** `T-CODE-DESCAPAR-V2B` → `closed-parcial` (forma A `a201c1e`; formas B/C → linha
+  V2B-DESCAPAR-B/C no ROADMAP Tier 1). FEITO 2026-07-10.
+- [x] **1c** `T-DATA-TRANSMISSION-GROUPING` → `closed-done` (entrega = coverage-matrix.md,
+  `033bba3`). FEITO 2026-07-10.
+- [x] **1d** `T-FMT-NAME-ESCAPING` → `closed-parcial` (interim `58f7dee` + endurecimento F0;
+  estudo → ticket-FILHO [T-FMT-QUOTING-STUDY](T-FMT-QUOTING-STUDY.md), .9 — preferência do owner:
+  filho em vez de linha solta; linha QUOTING-STUDY no ROADMAP aponta pro ticket). FEITO 2026-07-10.
+- [x] **1e** `T-FMT-TCF8H-HEADER` → `closed-decided` (slot `H` `a001fd3`/ADR-0031; codec → .9 via
+  T-STUDY-HIERARCHICAL-TCF, que segue ABERTO). FEITO 2026-07-10.
+- Regra cumprida: bloco de encerramento datado no topo de cada um citando commit/ADR; conteúdo
+  histórico intocado; zero moves/renames.
 
 ## PASSO 2 — alto valor (o caminho crítico do .8)
 
