@@ -93,12 +93,13 @@ o compilador é a superfície de extensão. Fases de "tirar do welded":
 
 ## §5 — DECISÕES pro owner (o que fecha o 0.8 vs pré-1.0)
 
-1. **CRUX — a "nature compete" entra no 0.8 ou 0.8.1?** É o fix de maior ROI (recupera +7339B,
-   torna a nature safe-by-construction) e resolve o F4 de raiz. MAS toca o core (`encoder.py` +
-   `multi/core.py` fallback) — sob a Opção A "sem core novo no tail". Não move os pinos (natures
-   não entram em D1-D9/D17a/real-world); RT preservado. **Recomendação**: registrar como candidato
-   **0.8.1** (o `.8` carrega só o caveat do F6), a menos que o owner queira o fix agora com gate
-   completo — é pequeno e byte-safe-por-construção, mas é core.
+1. **CRUX — a "nature compete" entra no 0.8 ou 0.8.1?** — **DECIDIDO (owner 2026-07-12): NO `.8`.**
+   Mas com uma pré-condição do owner: **PRIMEIRO demonstrações com dados** das intuições (CPF/CNPJ
+   ao menos, depois os outros) — o owner quer VER os exemplos com amostras pra entender a situação
+   ANTES da implementação. Ordem: (a) demo medido `scripts/spec_demo.py` → mostrar ao owner; (b)
+   implementar nature-compete (encode nos 2 modos, fica o menor) red→green + gate completo. O fix é
+   byte-safe-por-construção (nunca pior que o baseline) e não move os pinos (natures não entram em
+   D1-D9/D17a/real-world). Revisar 0.8.0 vs 0.8.1 no CHANGELOG (muda bytes de coluna-com-nature).
 2. **CPF real-world standalone** (medição, não código): rodar SPEC_CPF em coluna CPF real com
    clustering administrativo — fecha confirmada-empirica OU expõe a mesma regressão. Falta dataset
    CPF real não-PII/autorizado. **Baixo custo se houver dado**; senão fica registrado.
