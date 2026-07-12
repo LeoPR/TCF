@@ -66,3 +66,26 @@ Registro e critério red→green:
 
 Não iniciar `.9`, BUG-12, checksum ou otimização especulativa enquanto a fila acima estiver aberta,
 salvo decisão nova do owner registrada no T-REL-08.
+
+## Pendências abertas (revisão e continuidade)
+
+### Material/evidência
+
+- **F3 consolidado como amostra (não população total)**: artefato em
+  `experiments/results/evidencia-0.8/f3/RESULT.md`.
+- **Cobertura faltante em F3-3**: `lineitem-20k-p4`, `lineitem-20k-p8` e combos
+  `f3-3d-*` (5 arquivos) não executados nesta rodada.
+- **F3-4 não executado**: br-identidades 600k ficou para janela dedicada, sem bloquear
+  o closeout do núcleo `.8`.
+
+### Fila do .8 (ordem vigente)
+
+- Próximo passo operacional: **F4** (hubs públicos, começando pelos já prontos).
+- Depois: **F5 condicional** (default NO-ACTION) e **F6** (reconciliação docs/wheel/smoke),
+  antes de qualquer C3.
+
+### Higiene local (não funcional)
+
+- Resíduo de sessão local: `.claude/scheduled_tasks.lock` aparece como deletado no git status.
+- Artefato de laboratório fora da fila de closeout: `experiments/lab/dirty/2026-07-08-2355-f3-bn-seletivo/run.log`
+  segue não rastreado.
