@@ -357,12 +357,15 @@ prosa/ticket ambiguo, dizer explicitamente "[dispositivo]" / "[probatorio]".
 
 ## Foco atual e checkpoint
 
-- **Foco**: ver `STATUS.md`
+- **Foco**: fechar o nucleo `#TCF.8`/pacote `0.8.0` pela fila unica de ROI em
+  `tickets/T-REL-08-CLOSEOUT.md`. Nao abrir `.9` nem hardening amplo antes do closeout;
+  proximo concreto = BUG-14 (dominio valido) -> T-QA-8 F3.
 - **Checkpoint mais recente**:
-  `experiments/lab/dirty/notas/checkpoints/2026-05-24-sessao-maxima-natures-multi-delta.md`
-  (3 ADRs welded canonical 0014/0015/0016; 14 sub-exps dirty;
-  benchmark consolidado TCF vence 5/6 datasets; pronto pra retomada)
-- **Diario do dia ativo**: `experiments/lab/dirty/notas/diario/`
+  `experiments/lab/dirty/notas/checkpoints/2026-07-12-revisao-roi-fechamento-08.md`
+  (F0/F1/F2 feitos; 600 passed; ordem R0-R3; separa nucleo valido de hardening 0.8.1/pre-1.0)
+- **Diario mais recente**: `experiments/lab/dirty/notas/diario/2026-07-12.md`
+- **Ritual de reentrada**: `STATUS.md` (somente ESTADO VIGENTE) -> T-REL-08 -> checkpoint ->
+  ultimo diario. O ticket e' dispositivo; checkpoint/memoria sao ponteiros probatorios.
 
 ## Bibliografia bibliografica deste guia
 
@@ -380,7 +383,7 @@ Este sistema segue:
 - **Ecological validity** (Brunswik 1956) — separar datasets de
   design (realistico) de datasets de stress (artificial).
 
-**Doc-mae cross-projeto** (sintese metodologica):
-[`../README.methodology.md`](../README.methodology.md) — sintese
-operacional dos pilares acima, com refs canonicos. Consulta sob
-demanda via routing table do proprio doc.
+**Doc-mae cross-projeto** (oficina metodologica):
+[`../Methodologies/README.md`](../Methodologies/README.md) — ponto de entrada; aplicacao pronta no
+[`Strata`](../Methodologies/recipe/knowledge-architecture.md). Consulta sob demanda pela routing
+table da oficina.

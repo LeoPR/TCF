@@ -78,7 +78,7 @@ TCF/
 | Entender o projeto | `STATUS.md` -> aqui (`MAP.md`) -> `docs/algorithms/TCF-format.md` |
 | Saber o estado atual | `STATUS.md` |
 | Ver historico do dia | `experiments/lab/dirty/notas/diario/YYYY-MM-DD.md` |
-| Retomar de uma pausa | `experiments/lab/dirty/notas/checkpoints/` |
+| Retomar de uma pausa | `experiments/lab/dirty/notas/checkpoints/2026-07-12-revisao-roi-fechamento-08.md` (vigente) + diretório `checkpoints/` (histórico) |
 | Adicionar/usar dataset real | `scripts/dataset_reader.py` + `scripts/shaper/` |
 | Adicionar dataset sintetico | `datasets/synthetic/` + `README.md` la |
 | Entender OBAT (tokenizer) | `docs/algorithms/OBAT.md` |

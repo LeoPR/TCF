@@ -1,14 +1,20 @@
 # STATUS — TCF (compendio sempre-atualizado)
 
-> **⚑ ESTADO VIGENTE (2026-07-10) + REGRA DE LEITURA** — leia ISTO primeiro:
+> **⚑ ESTADO VIGENTE (2026-07-12) + REGRA DE LEITURA** — leia ISTO primeiro:
 > - **Formato**: `#TCF.8` e' o DEFAULT ([ADR-0032](docs/adr/0032-tcf8-default-format.md), accepted —
 >   multi-col `#TCF.8M`, hex, escaping; legado `.6/.7` CORTADO, git-as-compat). Single-col orfao intacto.
 > - **Pacote**: `0.8.0` (bump feito; wheel + clean-room smoke PRE-verificados 2026-07-09; publicacao
->   PyPI = go explicito do owner — [T-DIST-RELEASE](tickets/T-DIST-RELEASE-0.8.0.md)).
-> - **Foco vigente**: [T-QA-8 material comprobatorio](tickets/T-QA-8-material-comprobatorio.md)
->   (P1; F0 FEITO 2026-07-10: 12/13 bugs em 4 lotes, 590 passed) — a ORDEM de fechamento do .8 e'
->   [T-REL-08-CLOSEOUT](tickets/T-REL-08-CLOSEOUT.md) (higiene → F1 runner → F2-F4 medicao → F6
->   docs+wheel → C3 go do owner).
+>   PyPI apenas apos a fila de fechamento + go explicito do owner —
+>   [T-DIST-RELEASE](tickets/T-DIST-RELEASE-0.8.0.md)).
+> - **Foco vigente / fila unica por ROI**: [T-REL-08-CLOSEOUT](tickets/T-REL-08-CLOSEOUT.md).
+>   F0/F1/F2 do [T-QA-8](tickets/T-QA-8-material-comprobatorio.md) FEITOS; suite local completa
+>   **600 passed, 2 skipped**. **R0 BUG-14 fechado (lote A, 2026-07-12)** com red→green e gates
+>   `test_core_rt` + `test_regression_v1_baseline` + `test_real_world_snapshots` (**104 passed**).
+>   Proximo: **F3** → F4 → F5 condicional → F6 → C3. Corrupcao/hardening
+>   fica 0.8.1/pre-1.0; pesquisa fica `.9`, salvo reclassificacao explicita no T-REL.
+> - **Retomada temporal**:
+>   [checkpoint 2026-07-12](experiments/lab/dirty/notas/checkpoints/2026-07-12-revisao-roi-fechamento-08.md)
+>   + [diario 2026-07-12](experiments/lab/dirty/notas/diario/2026-07-12.md).
 > - **Numeros**: a fonte e' a SUITE (`tests/test_regression_v1_baseline.py`, `test_real_world_snapshots.py`),
 >   nao as copias em compendio.
 > - **REGRA DE LEITURA da pilha abaixo**: os blocos datados (retificacoes/reconciliacoes/sessoes) sao

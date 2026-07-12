@@ -30,6 +30,7 @@ divergencia, atualizar CLAUDE.md como fonte da verdade.
 
 ## Metodologia
 
-Este projeto segue a metodologia em
-[`../README.methodology.md`](../README.methodology.md) (pasta Academicos).
-Pilares aplicados: 1-4 + Versionamento + Disciplina de pesquisa + Tickets.
+Este projeto segue a oficina metodologica em
+[`../Methodologies/README.md`](../Methodologies/README.md), com Strata em
+[`../Methodologies/recipe/knowledge-architecture.md`](../Methodologies/recipe/knowledge-architecture.md).
+Pilares aplicados: separacao por durabilidade, rastreabilidade, disciplina de pesquisa e tickets.

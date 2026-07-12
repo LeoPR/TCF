@@ -105,3 +105,5 @@ commits mas nao tinham entrada.
   F0 lotes 1-4 executados (12/13 bugs); T-REL-08-CLOSEOUT materializado
 - [2026-07-11](2026-07-11.md) — F0-3 portável (conceitos+sondas); CLOSEOUT Passo 1 (5 fechamentos
   + T-FMT-QUOTING-STUDY) e Passo 2a: runner F1 (bench_evidencia, pinos exatos, 600 passed)
+- [2026-07-12](2026-07-12.md) — revisão de fechamento; suíte completa 600 passed; BUG-14 RT
+  Unicode registrado; T-REL-08 reorganizado como fila única R0-R3; checkpoint e memória de reentrada

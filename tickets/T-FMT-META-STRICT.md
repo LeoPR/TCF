@@ -3,7 +3,7 @@ title: T-FMT-META-STRICT — decode estrito do meta: o que já fecha por deduç�
 status: open
 priority: P3
 created: 2026-07-10
-updated: 2026-07-10
+updated: 2026-07-12
 blocked-by: []
 related:
   - tickets/T-QA-8-material-comprobatorio.md
@@ -50,11 +50,18 @@ de armazenamento (tcfx/O-FMT-20), não ao wire-format mínimo.
 6. **Posição do escape de prefixo**: whitelist atual aceita `\!`/`\@`/`\%` em QUALQUER posição
    (encoder só emite no início) — endurecer é opcional, ganho marginal.
 7. **BUG-12** (hang HCC decode sob header corrompido) tem lote PRÓPRIO (toca o CORE), mas o
-   guard de progresso é da mesma família: "todo parse válido avança".
+   guard de progresso é da mesma família: "todo parse válido avança". Destino vigente: 0.8.1,
+   depois do fechamento do núcleo `.8` (T-REL-08, decisão do owner 2026-07-12).
+8. **Orçamento defensivo de expansão**: counts RLE/seq-RLE, ranges e cadeias composicionais de
+   blob não-canônico podem solicitar saída desproporcional antes de qualquer cross-check final.
+   Registrar limites/contabilidade (`max_rows`, bytes/frags ou contrato equivalente) antes do 1.0,
+   mas **não inserir limite arbitrário no wire-format durante o closeout `.8`**: o encoder pode
+   produzir runs legítimos grandes. Quando abrir implementação, desmembrar ticket próprio com
+   contrato de API + testes de count zero/negativo/gigante, range inválido e expansão acumulada.
 
 ## Critério de aceite
 
 - [x] Itens 3-5 executados (lote 4, 2026-07-10; red→green, decode-only, 590 passed).
 - [ ] Checksum (itens 1-2) especificado no trilho tcfx/O-FMT-20 — NÃO no wire-format mínimo.
-- [ ] Item 6 (posição do escape) decidir pós-material; BUG-12 em lote próprio.
+- [ ] Item 6 decidir pós-material; BUG-12 em lote 0.8.1; item 8 vira ticket próprio pré-1.0.
 - [ ] Toda regra nova = "não-emitível pelo encoder" comprovado (dedução do cânone, nunca heurística).
