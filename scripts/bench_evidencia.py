@@ -238,11 +238,23 @@ def run_case(dataset_id: str, data, encode_kwargs: dict | None = None, *,
             "side": serialize_side(side, include_traces=include_traces)}
 
 
+def _json_safe(obj):
+    """Sanitiza pro JSONL: objetos não-JSON (ex.: spec de nature em
+    encode_kwargs/nature_apply) viram seu `name` (id portável) ou repr."""
+    if isinstance(obj, dict):
+        return {k: _json_safe(v) for k, v in obj.items()}
+    if isinstance(obj, (list, tuple)):
+        return [_json_safe(v) for v in obj]
+    if obj is None or isinstance(obj, (str, int, float, bool)):
+        return obj
+    return getattr(obj, "name", None) or repr(obj)
+
+
 def write_jsonl(records, out_path: Path) -> Path:
     out_path.parent.mkdir(parents=True, exist_ok=True)
     with out_path.open("a", encoding="utf-8", newline="\n") as f:
         for rec in records:
-            f.write(json.dumps(rec, ensure_ascii=False) + "\n")
+            f.write(json.dumps(_json_safe(rec), ensure_ascii=False) + "\n")
     return out_path
 
 

@@ -309,27 +309,29 @@ owner: "SE identificar algum bug sem querer, registre apenas pra arrumarmos depo
 
 ### F2 — Controle minúsculo (o owner começa AQUI: single-col, com/sem header, readers, README)
 
-- [ ] **F2-1** Single-col órfão (default 0B de header): lista de 3-6 valores (o exemplo
-  getting-started) + D1 — bytes/tempo/RT; registrar que `view()` NÃO cobre órfão (matriz de reader).
-- [ ] **F2-2** Single-col "com header", as 3 formas: (a) dict de 1 coluna → `#TCF.8M`;
-  (b) `stamp=True` → `#TCF.8\n`; (c) `nature=` → `#TCF.8 :cpf`. Medir o CUSTO de header de cada
-  uma vs órfão no mesmo dado (é a resposta concreta a "com e sem headers").
-- [ ] **F2-3** Variações de reader sobre os MESMOS blobs: `decode()` vs `view()` (columns/iteração/
-  agregação) — paridade de conteúdo + tempo + bytes tocados; matriz reader × {órfão, M, M+escaping,
-  M+drop_names, M+natures, M+sort_by, stamp, spec} com "não-suportado" explícito onde for o caso.
-- [ ] **F2-4** README-propaganda (4 rows × 5 cols) re-medido sob 0.8: gravar output REAL
-  (`#TCF.8M` hex, 242B), variantes fallback=False, min_header=False, drop_names=True, sort_by,
-  parallel=2 — tabela pro F6 re-escrever o README com números medidos.
-- [ ] **F2-5** Controles específicos do .8 que NÃO existem hoje (criar como strings inline no runner):
-  nomes com separadores escapados (`a:b,c=d`, `\`, unicode); hex na borda (15/16 → `f`/`10`,
-  size multi-dígito ≥256); discriminador fail-loud paramétrico (H, X, @, 9M...); multi de 1 coluna;
-  drop_names com última anônima (após BUG-02 fixado); coluna só-vazias `['','','']`.
-- [ ] **F2-6** Dicts em controle (1 blob-exemplo inspecionável POR mecanismo, com bytes+RT):
-  V2-B (low-card K=3 width1; K=95..200 width2 — cobre o gap), split `%` com V2-B interno
-  (a sinergia declarada nunca testada), dict implícito HCC (`^eid` + alias `~`), natures
-  :cpf/:cnpj/:ip DV-válido efêmero (§2.3, apply_rate==1.0) + coluna MISTA válido/inválido.
-- [ ] **F2-7** V2-B boundary do cap: K=8192 (candidato) vs K=8193 (skip) em coluna sintética —
-  o weld de 07-02 nunca teve teste dedicado; medir também o custo de compute nos dois lados.
+> **F2 FEITO 2026-07-12 (T-REL-08 P2b)**: driver reprodutível `scripts/bench_evidencia_f2.py` →
+> **29 casos, RT 29/29**, material em `experiments/results/evidencia-0.8/f2/` (JSONL + 13 blobs
+> `.tcf` inspecionáveis + `RESULT.md` GERADO). Régua re-validada antes da rodada. Leituras-chave
+> (medidas): custo de header no MESMO dado = órfão **0B** → stamp **+7B** → M-1col **+13B**;
+> README default **242B** (era 244 no 0.7 — número pro F6); drop_names 215B; `parallel=2`
+> byte-idêntico mas mediana 423ms vs 2ms serial (spawn por chamada — dado pro T-CODE-PARALLEL-BUDGET);
+> view toca **14.5%** do corpo num group_count; **boundary do cap V2-B**: K=8192→dict 98005B
+> (5.0s) vs K=8193→tcf 113296B (2.7s) = **13.5% de bytes deixados na mesa acima do cap** por
+> ~metade do compute (a caracterização que faltava pro V2B-DESCAPAR-B/C do .9). **ACHADO (o gate
+> §2.3 pegou)**: os placeholders do README (dígitos repetidos) são **mod-11-VÁLIDOS** — o spec
+> COMPRIME (apply_rate 1.0); a "invalidade" deles é convenção de cadastro → nota obrigatória no
+> F6/README; fallback-path publicável agora usa a ANONIMIZAÇÃO da regra do owner ((dv+1)%10).
+
+- [x] **F2-1** órfão (emails 32B, D1 118B = régua); view() não cobre órfão — na matriz.
+- [x] **F2-2** 3 formas de header medidas no mesmo dado (0/+7/+13B; spec medido em e5-e7).
+- [x] **F2-3** matriz decode×view: 8 formas, paridade "igual" em todas as M; órfão/stamp/spec =
+  fail-loud por design; seletividade L3 demonstrada (14.5%).
+- [x] **F2-4** README re-medido: default **242B** + 5 variantes (tabela pronta pro F6).
+- [x] **F2-5** escaping/hex-borda(`f`/`10`/3-dígitos)/fail-loud paramétrico (6 blobs, todos
+  loud)/multi-1col/anônima-última/só-vazias.
+- [x] **F2-6** 1 blob por mecanismo: V2-B w1+w2, split `%`, HCC implícito, natures cpf/cnpj/ip
+  (válidos EFÊMEROS apply_rate==1.0, sem blob salvo; misto 0.5; anonimizado 0.0 publicado).
+- [x] **F2-7** boundary 8192/8193 medido (acima).
 
 ### F3 — Sintéticos maiores (escala controlada)
 
