@@ -178,6 +178,20 @@ Isto torna B uma alternativa exercitada, mas nao uma decisao de formato: os byte
 packed pertence ao territorio `bN`/V2-L, e os dois desenhos ainda precisam de P4 (topologia regular,
 presence/repetition/definition) antes de P5. A gramatica usada e `#PROTO.*`, nunca `#TCF.8H`.
 
+## Update 2026-07-13 — P4 (parcial): def-level+kind fecha presença na forma regular
+
+Lab [`2026-07-13-1955-dataseth-regular-def-levels/`](../2026-07-13-1955-dataseth-regular-def-levels/):
+na forma REGULAR, kind **só por folha** foi REFUTADO por contra-exemplo executável (`{}` e `{"b":{}}`
+geram streams idênticos e colidem — mesma classe do `null=index` pós-stringificação: a informação
+estrutural precisa existir no símbolo). **R2 def-level+kind** (funde `cut@i` + kind terminal num
+símbolo por ocorrência; Dremel estendido com `null≠ausente` + especiais) fecha o contra-exemplo e
+passa RT em cadeias opcionais com especiais, ragged e 100 linhas regulares. Generaliza o HK do lab
+1921 para topologia. **Invariante emergente dos 3 labs**: kind tipado = semântica FIXA; a
+representação do stream (tag por instância / domínio no header / def+kind por coluna) é
+regime-dependente — candidatos do `min()`, filosofia FLOOR. Falta de P4: repetition levels completos
+(objeto-em-array, array-de-array na regular). P5 decide alfabeto/grafia na gramática + dado real
+(gate anti-incidente antes de `confirmada-empirica`). Detalhe: `result.md` do lab.
+
 ## Próxima leitura e próxima ação
 
 Leia este plano junto com:

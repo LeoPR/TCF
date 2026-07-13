@@ -1,0 +1,4 @@
+a            marks=['int', 'null', 'cut@0', 'nan', 'str']
+             payloads=['1', 'NaN']
+g.x.lat      marks=['num', 'cut@1', 'cut@2', 'pos_inf', 'cut@0']
+             payloads=['-0.0']

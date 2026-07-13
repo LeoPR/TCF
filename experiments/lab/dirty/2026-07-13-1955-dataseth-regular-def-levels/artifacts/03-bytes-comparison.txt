@@ -1,0 +1,4 @@
+perfil | folhas | marcas(simbolos) | b4-est(bytes) | payload(bytes) | V per-instance (bytes)
+opt-chain-specials | 2 | 10 | 5 | 8 | 159
+ragged-arrays-specials | 1 | 5 | 2 | 10 | 111
+mixed-regular-100 | 3 | 300 | 150 | 647 | 4346

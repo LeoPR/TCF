@@ -1,0 +1,9 @@
+R1 (leaf-kinds-only): {} vs {'b':{}} COLIDEM apos decode = True  -> REFUTADO
+  streams R1 da folha b.c: ['absent', 'absent', 'null', 'nan']  (linhas 0 e 1 identicas)
+R2 (def-level+kind): as 4 linhas RT-exatas e distintas = True
+  streams R2 da folha b.c: ['cut@0', 'cut@1', 'null', 'nan']  (cut@0 vs cut@1 vs null vs nan)
+
+perfil opt-chain-specials       R2 RT = True   (5 linhas, 2 folhas)
+perfil ragged-arrays-specials   R2 RT = True   (5 linhas, 1 folhas)
+perfil mixed-regular-100        R2 RT = True   (100 linhas, 3 folhas)
+

@@ -1,0 +1,5 @@
+linhas: {} | {'b':{}} | {'b':{'c':null}} | {'b':{'c':NaN}}
+R1 kinds b.c : ['absent', 'absent', 'null', 'nan']
+R1 decode    : linhas 0 e 1 reconstroem IGUAIS (perda estrutural)
+R2 marks b.c : ['cut@0', 'cut@1', 'null', 'nan']
+R2 decode    : 4/4 distintas, RT-exato
