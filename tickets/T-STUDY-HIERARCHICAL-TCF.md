@@ -30,6 +30,12 @@ pedido do owner (2026-07-05) por um "TCF aninhado similar ao JSON". **Não é 1 
 que se juntam.** Mapa do grupo + como as peças formam o todo:
 [estudo-tcf-hierarquico-mapa.md](../experiments/lab/dirty/notas/estudo-tcf-hierarquico-mapa.md).
 
+> **PROMOVIDO A WELD DO `.8` (owner 2026-07-13)**: o reescopo `.8`=feature-complete decidiu que a
+> hierarquia entra no `.8`. Este guarda-chuva (feasibility, `confirmada-conceitual`) permanece a base
+> **probatória**; o **weld** para `src/tcf` vive em **[T-CODE-TCF8H-WELD](T-CODE-TCF8H-WELD.md)**
+> (dispositivo→exec, gate de CAPACIDADE — RT-exato em JSON aninhado real + non-regressão + aprovação
+> `src/tcf`). O codec de referência é o EXP-015 (`experiments/lab/clean/EXP-015-tcf-hierarquico-csv-json/`).
+
 ## Peças (labs) — estado
 
 - **P1** `1509-...tabelao-vs-2tabelas` — desnormalizar vs normalizar; RLE↔referência. (medido, RT OK)

@@ -21,6 +21,29 @@ e os que ainda tem coisa pra implementar antes de ir pro .9"; e "mesmo a ordem d
 verificamos gera tickets — rastreabilidade e memória, não pode ficar tudo só na conversa").
 Este ticket é o GUIA da ordem; cada passo aponta o ticket/fase que o executa.
 
+## REESCOPO 2026-07-13 — `.8` = feature-complete "1.0" (decisão do owner, supersede parcial)
+
+**[dispositivo]** O owner redefiniu a estratégia: o `.8` **não** é mais "release mínimo agora, features
+→ `.9`". Agora **`.8` é o 1.0 com tudo que funciona**; `.9` fica **só** limpeza/perf/paralelismo/
+memória/simplificação/bug-fix-de-borda, DEPOIS de o `.8` estar funcionalmente completo.
+
+Auditoria dos 26 tickets abertos (workflow 2026-07-13): a **superfície tabular-plana já está
+feature-complete** — nenhuma feature pronta-e-que-paga-o-gate sobrou pra puxar. Duas expansões de
+CAPACIDADE entram no `.8` por decisão do owner e **saem do "Passo 3 → depois"**:
+
+1. **Hierarquia TCF.8H** — de "`.9` via T-STUDY-HIERARCHICAL-TCF" para **`.8` (weld do codec)**. Gate é de
+   **CAPACIDADE** (RT-exato em JSON aninhado real + non-regressão em `test_real_world_snapshots.py` +
+   aprovação explícita de `src/tcf`), **não** ≥15% de compressão (isso é gate de otimização; hierarquia
+   representa dado que a tabela plana não representa). Novo ticket: [T-CODE-TCF8H-WELD](T-CODE-TCF8H-WELD.md).
+2. **Contratos de borda JSON** (null vs vazio, tipos escalares, ragged, `\n`-em-valor) — de "pré-1.0" para
+   **congelar agora no `.8`**. [T-API-BOUNDARY-CONTRACTS](T-API-BOUNDARY-CONTRACTS.md) regatado pré-1.0 → `.8`.
+
+**Inalterado**: `parked-no-pay` continua parado (number-nature, bN, V2-RLE, specs BR sem dado real — puxar
+violaria o gate ≥15%/2-reais, que é dispositivo do owner); perf/refactor (C1/C2, parallel-budget,
+quoting-study) seguem `.9`; streaming/sinks/lossy seguem 2.0. A **regra de ROI abaixo continua válida**
+para o caminho de release (F3/F4/F6/C3); os dois itens acima passam a ser pré-requisitos de "feature-complete"
+antes do C3 (ou o owner decide publicar 0.8.x incremental — ver "timing de release" no fim).
+
 ## Regra vigente de ROI (decisão do owner, 2026-07-12)
 
 O objetivo corrente é **fechar o núcleo `#TCF.8` e publicar o pacote `0.8.0` antes de abrir
@@ -189,8 +212,8 @@ design pós-F3).
 | destino | itens | razão |
 |---|---|---|
 | **0.8.1** | BUG-12 (hang HCC decode) + guardas básicos de expansão/RLE sob blob corrompido | hardening importante, mas fora do domínio emitido pelo encoder; lote próprio + gate completo CORE |
-| **.9** | codec TCF.8H (T-STUDY-HIERARCHICAL-TCF + EXP-015); T-OPT-INFERENCE (specs induzidas + bN, gate H-TYPE-03); estudo CSV-quoting; V2-B formas B/C; T-FLOW (parte estratégias H) | slot/registro já no .8; carga é research |
-| **pré-1.0** | T-API-BOUNDARY-CONTRACTS; T-FMT-OMIT-OR-DECLARE; T-FMT-META-STRICT itens 1-2/6 (checksum→tcfx) | contratos definitivos, sem pressa pré-material |
+| **.9** | ~~codec TCF.8H~~ (**MOVIDO p/ `.8`**, reescopo 2026-07-13 → [T-CODE-TCF8H-WELD](T-CODE-TCF8H-WELD.md)); T-OPT-INFERENCE (specs induzidas + bN, gate H-TYPE-03); estudo CSV-quoting; V2-B formas B/C; T-FLOW (parte estratégias H) | slot/registro já no .8; carga restante é research/perf |
+| **pré-1.0** | ~~T-API-BOUNDARY-CONTRACTS~~ (**MOVIDO p/ `.8`**, reescopo 2026-07-13: congelar contratos de borda agora); T-FMT-OMIT-OR-DECLARE; T-FMT-META-STRICT itens 1-2/6 (checksum→tcfx) | contratos de borda agora no `.8`; resto (omit-contract, checksum) segue pré-material |
 | **paralelo** | T-TOOL-TCF-FIX-CORRUPTION; T-CODE-PARALLEL-BUDGET (design pós-F3); META-STRATA-GOVERNANCE (cadência) | não bloqueiam release |
 | **deferred (intocados)** | T-CODE-OUTPUT-SINKS, T-CODE-PLAN-CONTRACT, T-DATA-3, T-RECOVER-LLM-SCHEMA-MODE, T-SHAPER-CODE-HARDENING | sem relação com o .8 |
 

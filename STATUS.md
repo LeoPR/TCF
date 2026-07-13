@@ -1,5 +1,16 @@
 # STATUS — TCF (compendio sempre-atualizado)
 
+> **⚑ REESCOPO 2026-07-13 — `.8` = feature-complete "1.0" (decisão do owner, vigente sobre o bloco abaixo)**:
+> o `.8` deixa de ser "release mínimo, features → `.9`" e passa a ser **o 1.0 com tudo que funciona**;
+> `.9` fica **só** limpeza/perf/paralelismo/memória/simplificação/bug-fix-de-borda. Auditoria dos 26
+> tickets abertos (workflow 2026-07-13): a superfície **tabular-plana já está feature-complete** (0 features
+> prontas-e-que-pagam-o-gate a puxar). Entram no `.8` DUAS expansões de capacidade: **(1) hierarquia
+> `#TCF.8H`** ([T-CODE-TCF8H-WELD](tickets/T-CODE-TCF8H-WELD.md), gate de CAPACIDADE — RT-exato em JSON
+> aninhado real + non-regressão flat + aprovação `src/tcf`; NÃO ≥15%) e **(2) congelar contratos de borda
+> JSON** (null/tipos/ragged/`\n`; [T-API-BOUNDARY-CONTRACTS](tickets/T-API-BOUNDARY-CONTRACTS.md), regate
+> pré-1.0 → `.8`). `parked-no-pay` continua parado; perf/refactor segue `.9`. Guia: reescopo no topo do
+> [T-REL-08-CLOSEOUT](tickets/T-REL-08-CLOSEOUT.md) + ponte no [ROADMAP](ROADMAP.md).
+
 > **⚑ ESTADO VIGENTE (2026-07-12) + REGRA DE LEITURA** — leia ISTO primeiro:
 > - **Formato**: `#TCF.8` e' o DEFAULT ([ADR-0032](docs/adr/0032-tcf8-default-format.md), accepted —
 >   multi-col `#TCF.8M`, hex, escaping; legado `.6/.7` CORTADO, git-as-compat). Single-col orfao intacto.

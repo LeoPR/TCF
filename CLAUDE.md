@@ -360,9 +360,16 @@ prosa/ticket ambiguo, dizer explicitamente "[dispositivo]" / "[probatorio]".
 - **Foco**: fechar o nucleo `#TCF.8`/pacote `0.8.0` pela fila unica de ROI em
   `tickets/T-REL-08-CLOSEOUT.md`. FEITOS (2026-07-12): F0 (12/13 bugs), BUG-14, F1 (runner
   `bench_evidencia`), F2 (29/29), F3 amostral, **F4-minimo** (9/9 RT), **C0** (dedup do core).
-  Suite **610 passed**. Specs `.8` decididos (**Opcao A**, T-SPEC-STATUS-08: so' CPF/CNPJ).
-  **REDIRECT do owner (2026-07-12)**: proximo concreto = **R1.5 investigacao de specs** (o que
-  comprime alem do basico; CNPJ; compilador pra tirar do welded; planejamento 0.8+pre-1.0) → F6 → C3.
+  Suite **634 passed**. Specs `.8` decididos (**Opcao A**, T-SPEC-STATUS-08: so' CPF/CNPJ).
+- **REESCOPO 2026-07-13 (owner): `.8` = feature-complete "1.0"** — `.8` acumula tudo que FUNCIONA;
+  `.9` fica so' limpeza/perf/paralelismo/memoria/simplificacao/bug-fix-de-borda. Audit dos 26 tickets
+  (workflow): superficie tabular-plana JA feature-complete (0 features prontas-e-que-pagam-o-gate a
+  puxar). Entram no `.8`: **(1) hierarquia `#TCF.8H`** (T-CODE-TCF8H-WELD, gate de CAPACIDADE — RT-exato
+  em JSON aninhado real + non-regressao flat + aprovacao `src/tcf`, NAO ≥15%) + **(2) congelar contratos
+  de borda JSON** (null/tipos/ragged/`\n`, T-API-BOUNDARY-CONTRACTS regate pre-1.0→`.8`). `parked-no-pay`
+  continua parado. Guia: reescopo no topo do T-REL-08-CLOSEOUT + ponte no ROADMAP/STATUS. Proximo
+  concreto: (a) `\n`-em-valor decisao do owner; (b) plano W0-W5 da hierarquia; F6/C3 seguem (release
+  espera feature-complete OU sai 0.8.x incremental — owner decide).
 - **Checkpoint mais recente**:
   `experiments/lab/dirty/notas/checkpoints/2026-07-12-revisao-roi-fechamento-08.md`
   (F0/F1/F2 feitos; ordem R0-R3; separa nucleo valido de hardening 0.8.1/pre-1.0). Estado ADIANTE
