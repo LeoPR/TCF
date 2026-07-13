@@ -290,26 +290,19 @@ text = encode(table, sort_by="cidade")                  # sorts rows by the colu
 > 5-15% with a low-card key). It is **order-free**: `decode` returns the sorted
 > order, not the original. Use it only when row order does not matter.
 
-For the top 5-column record set, compared to the legacy `#TCF.6` format:
+For the top 5-column record set, the default `#TCF.8M` output is **242 B**
+(meta `!2c=nome,2a=email,1c=cidade,14=plano,!cpf`). That comes from the current fallback candidates
+and minimal inline header: the `cpf` column falls to **raw** (`!cpf`) instead of inflating; sizes are
+hexadecimal and the last column has no size. The gain is proportionally larger on **small payloads**.
 
-| format | meta line | bytes |
-|---|---|---:|
-| **0.8 / `#TCF.8M`** (default) | `!2c=nome,2a=email,1c=cidade,14=plano,!cpf` | **242** |
-| `#TCF.6` (historical) | legacy header/body | not emitted by current source |
-
-The 242 B result comes from the current fallback candidates and minimal inline header. The `cpf`
-column falls to **raw** (`!cpf`) instead of inflating; sizes are hexadecimal and the last column
-has no size. The gain is proportionally larger on **small payloads**.
-
-Pre-1.0, the encoder only writes the newest format.
-Legacy `#TCF.6`/`#TCF.7` are not read by the current source; `git checkout` reproduces historical
-eras ([ADR-0024](docs/adr/0024-pre-1.0-versioning-git-as-compat.md)).
+Pre-1.0, the encoder only writes the newest format; older blobs are reproduced via `git checkout`
+([ADR-0024](docs/adr/0024-pre-1.0-versioning-git-as-compat.md)).
 The low-card dictionary (V2-B) and the structural split are already in the default; lossy compression stays on the [roadmap](docs/adr/0018-v2-format-roadmap.md).
 
 ## Status (pre-1.0)
 
 - **Pre-1.0** ([ADR-0024](docs/adr/0024-pre-1.0-versioning-git-as-compat.md)).
-  The format minors (`#TCF.6/.7/.8`) are development iterations toward a **solid 1.0**, without rigid compat between them (git reproduces older versions).
+  The current format minor (`#TCF.8`) is a development iteration toward a **solid 1.0**, with no rigid compat between minors (git reproduces older versions).
   v2.0 comes later.
 - Canonical implementation in [`src/tcf/`](src/tcf/).
   Round-trip is always lossless (`decode(encode(x)) == x`).

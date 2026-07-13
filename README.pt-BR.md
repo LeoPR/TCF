@@ -293,26 +293,19 @@ text = encode(table, sort_by="cidade")                  # ordena linhas pela col
 > 5-15% com chave low-card). É **order-free**: o `decode` devolve a ordem
 > ordenada, não a original. Use só quando a ordem das linhas não importa.
 
-No cadastro de 5 colunas do topo, comparado ao formato legado `#TCF.6`:
+No cadastro de 5 colunas do topo, a saída default `#TCF.8M` dá **242 B**
+(meta `!2c=nome,2a=email,1c=cidade,14=plano,!cpf`). Isso vem dos candidatos de fallback e do header
+inline mínimo: a coluna `cpf` cai para **raw** (`!cpf`) em vez de inflar; os tamanhos são hexadecimais
+e a última coluna não leva tamanho. O ganho é proporcionalmente maior em **payloads pequenos**.
 
-| formato | meta line | bytes |
-|---|---|---:|
-| **0.8 / `#TCF.8M`** (default) | `!2c=nome,2a=email,1c=cidade,14=plano,!cpf` | **242** |
-| `#TCF.6` (histórico) | header/body legado | não emitido pelo código atual |
-
-O resultado de 242 B vem dos candidatos de fallback e do header inline mínimo. A coluna `cpf` cai
-para **raw** (`!cpf`) em vez de inflar; os tamanhos são hexadecimais e a última coluna não leva
-tamanho. O ganho é proporcionalmente maior em **payloads pequenos**.
-
-Pré-1.0, o encoder só escreve o formato mais novo.
-Os legados `#TCF.6`/`#TCF.7` não são lidos pelo código atual; `git checkout` reproduz as eras
-históricas ([ADR-0024](docs/adr/0024-pre-1.0-versioning-git-as-compat.md)).
+Pré-1.0, o encoder só escreve o formato mais novo; blobs antigos são reproduzidos via `git checkout`
+([ADR-0024](docs/adr/0024-pre-1.0-versioning-git-as-compat.md)).
 O dicionário low-card (V2-B) e o split estrutural já estão no default; a compressão lossy fica no [roadmap](docs/adr/0018-v2-format-roadmap.md).
 
 ## Estado (pré-1.0)
 
 - **Pré-1.0** ([ADR-0024](docs/adr/0024-pre-1.0-versioning-git-as-compat.md)).
-  Os minors do formato (`#TCF.6/.7/.8`) são iterações de desenvolvimento rumo a um **1.0 sólido**, sem compat rígida entre eles (git reproduz versões antigas).
+  O minor atual do formato (`#TCF.8`) é uma iteração de desenvolvimento rumo a um **1.0 sólido**, sem compat rígida entre minors (git reproduz versões antigas).
   v2.0 fica pra depois.
 - Implementação canônica em [`src/tcf/`](src/tcf/).
   Round-trip sempre lossless (`decode(encode(x)) == x`).
