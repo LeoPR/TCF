@@ -206,7 +206,7 @@ Original table:
 {'id': ['1', '2', '3'], 'name': ['Alice', 'Bob', 'Charlie']}
 
 TCF text:
-'#TCF.7 M\n!8=id,!18=name\n*3+1|\\1\nAlice\nBob\nCharlie\n'
+'#TCF.8M!5=id,!name\n1\n2\n3Alice\nBob\nCharlie'
 
 Decoded:
 {'id': ['1', '2', '3'], 'name': ['Alice', 'Bob', 'Charlie']}
@@ -216,11 +216,30 @@ Round-trip OK? True
 
 Notice the structure of the multi-column TCF text:
 
-- **Line 1**: `#TCF.7 M` — the format signature indicating TCF format (`#TCF.7`) Multi-column (`M`).
-- **Line 2**: `!8=id,!18=name` — metadata: `!` = raw mode (V2-A); 8/18 = body bytes; `id`/`name` = names. The decoder slices the body by those sizes. Details: [TCF-format.md](../algorithms/TCF-format.md).
-- **Following lines**: the column bodies concatenated byte-by-byte (each one compacted by the single-column pipeline).
+- **Line 1**: `#TCF.8M!5=id,!name` — the format signature and inline metadata. `M` means multi-column;
+    sizes are hexadecimal; `!` means raw mode (V2-A); the last column has no size and runs to EOF.
+- **Following bytes**: the column bodies are concatenated byte-by-byte; the decoder slices the first
+    body by its declared size and assigns the remainder to the last body. Details: [TCF-format.md](../algorithms/TCF-format.md).
 
 TCF guarantees that the shape of the table (column names, order) is preserved exactly.
+
+## Step 5 — Query the table without fully materializing it
+
+The read-only `view()` API provides SQL-like paths as Python methods. It is not a SQL parser, but it
+can filter, aggregate and project aligned rows while touching only the required columns when their
+stored mode supports it:
+
+```python
+from tcf import encode, view
+
+table = {"cidade": ["SP", "SP", "RJ"], "valor": ["10", "20", "30"]}
+v = view(encode(table))
+assert v.where("cidade", "SP").sum("valor") == 30.0
+print(v.report()["touched"])
+```
+
+The detailed contract and limits of the query-like surface are in
+[`docs/reference/lazy-view.md`](../reference/lazy-view.md).
 
 ## Next steps
 

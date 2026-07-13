@@ -84,5 +84,5 @@ from tcf import encode, decode, SPEC_CPF
 con = sqlite3.connect("Z:/tcf-data/interim/br-identidades.db")
 cpfs = [r[0] for r in con.execute("select cpf from pessoas limit 1000")]
 text = encode(cpfs, nature=SPEC_CPF)
-assert decode(text, nature=SPEC_CPF) == cpfs   # lossless
+assert decode(text) == cpfs   # header #TCF.8 autoritativo; lossless
 ```

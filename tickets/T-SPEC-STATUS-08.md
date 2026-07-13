@@ -1,10 +1,9 @@
 ---
 title: T-SPEC-STATUS-08 — status dos specs (2 abordagens) antes do teste em massa; decisão do que fecha no .8
-status: closed-decided (owner 2026-07-12: Opção A — só CPF/CNPJ no .8; clássicos novos → .9)
+status: in-progress (revisao cadastral 2026-07-12; conjunto canonico atual preservado)
 priority: P1
 created: 2026-07-12
 updated: 2026-07-12
-closed: 2026-07-12
 blocked-by: []
 related:
   - tickets/T-QA-8-material-comprobatorio.md
@@ -25,6 +24,12 @@ related:
 > abertos só quando houver dataset real com a coluna (senão repete o gap sintético-vs-real). O F6
 > DEVE carregar o caveat "nenhum clássico, nem CNPJ, é ganho de tabela garantido em real".
 > Pré-requisitos p/ qualquer spec novo (.9): anonimizador §2.3 + gerador estendido — não existem.
+
+> **REABERTURA DE EXPLORACAO (owner 2026-07-12)** — antes do fechamento documental, o owner pediu
+> revisar os campos cadastrais mais comuns (CEP, RG, identificacao de motorista, datas de aniversario,
+> telefone e codigos sem inferencia natural) e avaliar base64/base96. A decisao inicial A continua
+> valendo como baseline: nenhum novo spec foi welded nesta revisao. A evidencia nova esta em
+> [`2026-07-12-specs-cadastrais-v1`](../experiments/lab/dirty/2026-07-12-specs-cadastrais-v1/).
 
 **[dispositivo→registro]** Pedido do owner (2026-07-12): "quero ver o status dos specs, pra poder
 lançar com os datasets. Os specs tinham duas abordagens: (1) revisão da LINGUAGEM pra ficar
@@ -100,6 +105,41 @@ de tabela em dado real ele REVERTE — mesmo padrão do FILTRO-NUMERO (per-col d
 invalida a máquina (RT ok), mas: **nenhum clássico — nem o CNPJ — é ganho de tabela garantido em
 dado real**. Isto empurra fortemente pra **Opção A** e é caveat obrigatório do F6.
 
+## Revisao cadastral 2026-07-12 — o que cabe no `.8`
+
+O laboratorio mediu o **blob completo** com prototipos fora de `src/tcf`, sempre com RT. Os hubs
+usados nao fornecem RG, CEP ou CNH reais; `br-identidades` e' sintetico e TPC-H e' benchmark
+sintetico. Logo os numeros abaixo sao capacidade/triagem, nao gate ecologico.
+
+| campo/familia | estado observado | resultado da triagem | recomendacao |
+|---|---|---|---|
+| **data ISO / aniversario** | `YYYY-MM-DD` ja' entra no split; prototipo base-80 calendar-aware ainda nao existe | pessoas single 5000: 46417 -> 25979 (-44%); multi pessoas/empresas: empate; TPC-H orders: -0.4% | `DateSpec` ISO e' o unico candidato de baixo risco para `.8`, mas so' com validacao de calendario, dois gates reais e aprovacao explicita; caso contrario `.9` |
+| **datetime** | formato fixo em amostra publica online-retail | 100 valores: 165 -> 124B (-24.8%) no prototipo | `.9` ou mesma familia de `DateSpec`, apos medir em mais fontes |
+| **CEP** | nao tratado corretamente hoje: zero inicial significativo nao pode ser removido | CEP masked random 5000: 59665 -> 32425; sequencial: 33818 -> 31755; sem dado real no hub | `.9`; primeiro criar fixed-width zero-preserving + dataset real |
+| **RG** | nao existe formato nacional unico; mascara e politica variam por UF | RG SP-shaped sintetico ganhou, mas isso nao cobre o dominio | `.9`; uma nature nacional seria enganosa |
+| **CNH / identificacao de motorista** | numero e campos dependem do documento/politica; valor sem mascara cai hoje em `format_unmasked` | proxy de codigo decimal fixo 11 random ganhou 43%; sequencial empatou com OBAT/HCC | `.9`; criar `FixedDigitsSpec` generica antes de batizar CNH |
+| **RENAVAM/PIS/titulo** | alguns cabem em maquina checked com `check_fn`, mas nao ha dataset real nem anonimizador | nao medidos como fontes reais | `.9`, um por vez, com regra e dado reais |
+| **telefone** | largura e mascara variam (fixo, movel, DDD, pais) | TPC-H `c_phone` 180006 -> 170851 (-5.1%), benchmark sintetico | `.9`; var-width/normalizacao e fonte real antes do weld |
+| **codigo alfanumerico** | sem estrutura semantica, so' vale se alfabeto e largura forem declarados | nao ha ganho universal demonstrado | `.9`; `FixedAlphabetSpec` opt-in, nunca auto-inferido por formato |
+
+### Base64, base80 seguro e base96
+
+O nome historico `BASE94` representa **80 caracteres seguros** depois que a gramatica TCF remove
+marcadores e separadores. Para dominios decimais de 8/9/10 digitos, base64, base80 e base96 usam
+o mesmo numero de caracteres; em 11 e 15 digitos, base80 ja' empata ou vence base64. Base96 exigiria
+caracteres reservados, escaping adicional ou abandonar a promessa ASCII. Portanto nao entra no
+wire-format `.8`. A pesquisa `.9` deve preferir uma `FixedAlphabetSpec` com alfabeto seguro explicito,
+medir o custo do escape e manter o FLOOR contra dados ordenados.
+
+### Decisao operacional
+
+- O `.8` continua com CPF/CNPJ/IP canonicos e suporte out-of-band coincidente para specs customizados.
+- Nenhum RG, CNH, CEP, telefone ou codigo generico entra no registry canonico sem dado real e gate.
+- `DateSpec` ISO/calendar-aware fica como **candidato condicional**, nao bloqueia F6 nem a rodada de
+  massa. Se aprovado, deve ser um commit proprio, com testes, dois datasets reais e gate completo.
+- A rodada de massa acontece depois do fechamento do pacote e do smoke clean-room; a investigacao
+  cadastral fica separada dos numeros de closeout.
+
 ## Decisão pendente do owner (o que "fechar" significa pro .8)
 
 Como CPF/CNPJ já estão welded, "fechar os specs pro teste em massa" NÃO é abrir spec novo — é
@@ -129,7 +169,8 @@ escolher entre:
 
 ## Critério de aceite
 
-- [x] Owner escolheu **A** (2026-07-12): `.8` só com CPF/CNPJ welded; nenhum spec novo.
+- [x] Owner escolheu **A** (2026-07-12): `.8` só com CPF/CNPJ welded; nenhum spec novo foi welded
+  nesta revisao cadastral. `DateSpec` ISO ficou como candidato condicional separado.
 - [x] Clássicos (b)/(c) registrados aqui + cross-ref na linha FILTROS-POPULARES do ROADMAP → `.9`.
 - [ ] **F6**: caveat obrigatório "nature CNPJ piora a tabela em dado real (F4: +7339B, split→raw);
   nenhum clássico é ganho de tabela garantido" no README/docs.

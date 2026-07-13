@@ -1,7 +1,7 @@
 # Reference — knobs de `encode()`
 
 Referência dos parâmetros opt-in de [`tcf.encode`](../../src/tcf/encoder.py). O default
-(zero-param) produz o formato **0.7 / `#TCF.7`** lossless; os knobs abaixo só mudam bytes/layout
+(zero-param) produz o formato **0.8 / `#TCF.8M`** lossless; os knobs abaixo só mudam bytes/layout
 **quando passados explicitamente**.
 
 ```python
@@ -19,7 +19,7 @@ ignorados, exceto `min_len` e `nature`. Output é sempre UTF-8, LF only. `decode
 | knob | tipo | default | efeito | byte-impact |
 |---|---|---|---|---|
 | `fallback` | bool | `True` | por coluna escolhe `min(tcf, raw, dict, split)` | **zero-regressão** por construção (escolhe o menor) |
-| `min_header` | bool | `True` | header mínimo (meta sem prefixo, última coluna sem size) | economiza bytes de header vs `#TCF.6` legado |
+| `min_header` | bool | `True` | header mínimo (meta inline, tamanhos hex, última coluna sem size) | economiza bytes de header |
 | `min_len` | int\|None | `None` (auto) | override do `min_len` do OBAT (afixos com `length < min_len` viram literal) | muda bytes só quando passado |
 | `sort_by` | str\|None | `None` | reordena as **linhas** pela coluna nomeada antes de encodar | **trade-off** (ver nota), **order-free** |
 
@@ -29,11 +29,11 @@ Cada coluna é encodada por todos os modos disponíveis e fica com o menor: **tc
 menor, ligar nunca aumenta bytes. É o que põe colunas low-card em `@dict` automaticamente (e habilita
 as queries lazy via dict-stream).
 - `fallback=False` → mantém tcf em toda coluna (sem raw/dict/split).
-- Para reproduzir o legado `#TCF.6` byte-limpo: `encode(data, fallback=False, min_header=False)`.
+- O formato continua `#TCF.8M`; o legado `.6/.7` é recuperado via git, não por este knob.
 
 ### `min_header` (default `True`)
-Header compacto: meta sem o prefixo `# ` e **última coluna sem `size`** (corpo até EOF).
-- `min_header=False` → header legado `# size=name,size=name,...`.
+Header compacto: meta inline após `#TCF.8M`, tamanhos em hexadecimal e **última coluna sem `size`** (corpo até EOF).
+- `min_header=False` → todas as colunas não-anônimas recebem tamanho no meta.
 
 ### `min_len` (int ≥ 1, ou `None`)
 `None` (default) = auto por coluna (`detect_min_len`, ADR-0010) — comportamento inalterado.
@@ -55,15 +55,15 @@ Reordena as linhas pela coluna-chave antes de encodar, agrupando valores similar
 
 | knob | efeito |
 |---|---|
-| `nature` / `nature_per_col` | pré-transform por natureza (CPF/CNPJ/IP, ADR-0015); **out-of-band** — o `decode` precisa do mesmo spec. Ver [how-to/use-natures](../how-to/use-natures.md). |
+| `nature` / `nature_per_col` | candidato por natureza (CPF/CNPJ/IP, ADR-0015); FLOOR compara o blob completo e o header é autoritativo. Specs core decodificam sem argumento; customizados exigem spec coincidente. Ver [how-to/use-natures](../how-to/use-natures.md). |
 | `parallel` | `True`/`int` paraleliza o encode das colunas (multi-col); **output byte-idêntico** ao serial. |
 | `side_outputs` | captura logs/stats internos (`column_features`, `hcc_trace`, `seq_rle_runs`, `multi_info`, ...) sem custo quando ausente. |
 | `layers` | `PipelineConfig` alternativo (avançado). |
 
 ## Notas de versão
 
-O default zero-param é **0.7** (ADR-0024: projeto é pré-1.0; `#TCF.N` são marcadores de dev, não
-contratos rígidos). Os invariantes byte-canonical (D1-D9 = 1523 B, D17a = 303 B) são pinados em
+O default zero-param é **0.8** (ADR-0032: projeto é pré-1.0; `#TCF.N` são marcadores de dev, não
+contratos rígidos). Os invariantes byte-canonical (D1-D9 = 1523 B, D17a = 300 B) são pinados em
 [`tests/test_regression_v1_baseline.py`](../../tests/test_regression_v1_baseline.py) e
 re-pináveis só com ADR (ADR-0024/0025).
 

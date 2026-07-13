@@ -4,7 +4,7 @@
 > [`src/tcf/view.py`](../../src/tcf/view.py). Caminho canônico: **`from tcf import view`** (vai no
 > wheel). Esta pasta virou **shim de compat** (`from tcf_lazy import view` ainda funciona).
 
-Camada **read-only** do TCF (lê o `#TCF.7` existente; **não muda encode/decode/formato**).
+Camada **read-only** do TCF (lê o `#TCF.8M` existente; **não muda encode/decode/formato**).
 PoC de origem: `experiments/lab/dirty/old/welded/2026-06-16-lazy-query/`.
 
 A "venda" do TCF: **descomprimir só o suficiente pra responder**. O header já diz nome / modo /
@@ -50,6 +50,6 @@ pelo índice do dicionário + group-by por layout ordenado). `tests/test_tcf_laz
 valor com refs) — o ganho estrutural limpo vive no dicionário (`@`)/raw. **L5 trade-off**: o layout
 ordenado ajuda/atrapalha a compressão conforme o dataset/chave; o ganho de latência da query é
 sempre presente. Otimizações finas (binary-search nos runs, dicas no header) ficam como hooks
-em `lazy.py`. **Não é versão de formato** (lê `#TCF.7`).
+em `lazy.py`. **Não é versão de formato** (lê `#TCF.8M`).
 
-**Não é versão de formato**: lê o `#TCF.7` atual. Pode evoluir sem bump.
+**Não é versão de formato**: lê o `#TCF.8M` atual. Pode evoluir sem bump.

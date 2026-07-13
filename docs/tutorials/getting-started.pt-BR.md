@@ -209,7 +209,7 @@ Tabela original:
 {'id': ['1', '2', '3'], 'name': ['Alice', 'Bob', 'Charlie']}
 
 Texto TCF:
-'#TCF.7 M\n!8=id,!18=name\n*3+1|\\1\nAlice\nBob\nCharlie\n'
+'#TCF.8M!5=id,!name\n1\n2\n3Alice\nBob\nCharlie'
 
 Decodificado:
 {'id': ['1', '2', '3'], 'name': ['Alice', 'Bob', 'Charlie']}
@@ -219,11 +219,30 @@ Round-trip OK? True
 
 Observe a estrutura do texto TCF multi-coluna:
 
-- **Linha 1**: `#TCF.7 M` — a assinatura de formato indicando formato TCF (`#TCF.7`) Multi-coluna (`M`).
-- **Linha 2**: `!8=id,!18=name` — metadata: `!` = modo raw (V2-A); 8/18 = bytes do body; `id`/`name` = nomes. O decoder fatia o corpo por esses tamanhos. Detalhe: [TCF-format.md](../algorithms/TCF-format.md).
-- **Linhas seguintes**: bodies das colunas concatenados byte-a-byte (cada um compactado pelo pipeline single-column).
+- **Linha 1**: `#TCF.8M!5=id,!name` — a assinatura e o meta inline. `M` significa multi-coluna;
+    tamanhos estão em hexadecimal; `!` significa raw; a última coluna não leva tamanho e vai até o EOF.
+- **Bytes seguintes**: os corpos são concatenados byte a byte; o decoder fatia o primeiro pelo tamanho
+    declarado e atribui o restante à última coluna. Detalhe: [TCF-format.md](../algorithms/TCF-format.md).
 
 TCF garante que a forma da tabela (nomes de colunas, ordem) é preservada exatamente.
+
+## Passo 5 — Consultar a tabela sem materializar tudo
+
+A API read-only `view()` oferece caminhos de consulta SQL-like como métodos Python. Ela não é um
+parser SQL, mas filtra, agrega e projeta linhas alinhadas tocando apenas as colunas necessárias
+quando o modo armazenado permite:
+
+```python
+from tcf import encode, view
+
+table = {"cidade": ["SP", "SP", "RJ"], "valor": ["10", "20", "30"]}
+v = view(encode(table))
+assert v.where("cidade", "SP").sum("valor") == 30.0
+print(v.report()["touched"])
+```
+
+O contrato e os limites da superfície query-like estão em
+[`docs/reference/lazy-view.md`](../reference/lazy-view.md).
 
 ## Próximos passos
 

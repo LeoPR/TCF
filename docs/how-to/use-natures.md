@@ -9,6 +9,15 @@ updated: 2026-05-27
 
 # Como usar naturezas (CPF/CNPJ/IP)
 
+## Contrato do formato 0.8
+
+As naturezas são candidatos opt-in. O FLOOR compara o **blob serializado
+completo**, incluindo header, tamanhos e `:id`; se a nature perder, a coluna
+original permanece e o marcador não é emitido. Para `cpf`, `cnpj` e `ip`, o
+header do `#TCF.8` é autoritativo e `decode(blob)` resolve o spec pelo registry
+core. Um spec customizado exige declaração out-of-band com `spec.name` igual
+ao ID do header.
+
 Receita pra comprimir colunas com estrutura conhecida — CPF, CNPJ e
 endereços IP — aproveitando dígitos verificadores e formatos templated
 pra ganhar até 60% em ratio.
@@ -31,8 +40,8 @@ puro). Nature agrega 17 pontos percentuais.
 
 - Maioria dos valores quebra o padrão (ex: tabela heterogênea com CPFs
   + RG + passaporte)
-- Você quer que o encode funcione sem fornecer spec no decode (decoder
-  requer nature out-of-band por enquanto)
+- Você precisa de auto-detecção: naturezas são opt-in; o encode só aplica o
+  spec que você fornece
 
 ## Single-column: CPF
 
@@ -50,8 +59,8 @@ cpfs = [
 # Encode com nature
 text = encode(cpfs, nature=SPEC_CPF)
 
-# Decode requer MESMO spec
-cpfs_back = decode(text, nature=SPEC_CPF)
+# Para specs core, o header #TCF.8 permite decode sem argumento
+cpfs_back = decode(text)
 assert cpfs_back == cpfs  # round-trip lossless
 ```
 
@@ -61,7 +70,7 @@ assert cpfs_back == cpfs  # round-trip lossless
   digito for invalido, a natureza faz fallback pra literal: `_original`
   é armazenado. Round-trip preservado.
 - Encoder automaticamente classifica cada valor:
-  - `compressible`: CPF válido → codificado em base-94 (5 chars)
+  - `compressible`: CPF válido → codificado no alfabeto seguro atual (5 chars)
   - `check_invalid`: digito verificador errado → fallback literal
   - `format_mismatch`: formato diferente (ex: sem mascara) → fallback literal
 
@@ -90,9 +99,9 @@ Texto TCF: '\\111.\\444.\\777-\\35\n\\529.\\982.\\247-\\25\n^1\n'
 
 ```
 Coluna original: ['111.444.777-35', '529.982.247-25', '111.444.777-35']
-Bytes: 17
-Texto TCF: '%gc\\9g\n\\2y/h-\n^1\n'
-Ratio: 41.5% (ganho de 58.5 pontos percentuais)
+Bytes: 29
+Texto TCF: '#TCF.8 :cpf\n%gc\\9g\n\\2y/h-\n^1\n'
+Ratio: 70.7% do baseline; o custo do header já está incluído no FLOOR
 ```
 
 ## Single-column: CNPJ
@@ -109,15 +118,17 @@ cnpjs = [
 ]
 
 text = encode(cnpjs, nature=SPEC_CNPJ)
-cnpjs_back = decode(text, nature=SPEC_CNPJ)
+cnpjs_back = decode(text)
 assert cnpjs_back == cnpjs
 ```
 
 **Calculo de check digits**: CNPJ usa mod-11 dupla com pesos
 diferentes de CPF (especificados em `_W1_CNPJ` e `_W2_CNPJ` via ADR-0015).
 
-Ganho observado: CNPJ com 1000 valores uniforme/clustered comprime
-**54-61%** vs M10 puro (similar ao CPF).
+O ganho não é garantido: em dados pequenos ou ordenados, o FLOOR pode manter o
+baseline sem emitir `:cnpj`; em dados randomizados maiores, a nature pode vencer.
+O F4 também mediu uma regressão da nature CNPJ em uma tabela real ordenada,
+por isso não há uma porcentagem geral prometida.
 
 ## Single-column: IP (IPv4)
 
@@ -134,7 +145,7 @@ ips = [
 ]
 
 text = encode(ips, nature=SPEC_IP)
-ips_back = decode(text, nature=SPEC_IP)
+ips_back = decode(text)
 assert ips_back == ips
 ```
 
@@ -143,8 +154,8 @@ A natureza padroniza slots via **padding zero-leading** (ex: `192.168.001.001`
 = 12 digitos). Isso ativa detector HCC seq-RLE digit-centric, que aproveita
 cadencia quando IPs estao em subnet.
 
-**Ganho observado**: D-IP-subnet (1000 IPs em mesmo `/24`) comprime
-**1.71% ratio** vs M10 puro — **speedup 68x**. Em IPs aleatorios
+**Ganho observado em laboratório**: D-IP-subnet (1000 IPs em mesmo `/24`) pode
+comprimir até **1.71% ratio** vs M10 puro. Em amostras pequenas ou IPs aleatórios
 (D-IP-uniform), o ganho desaparece (102% ratio, ou seja, padrao nao
 ajuda quando nao ha cadencia).
 
@@ -167,11 +178,8 @@ text = encode(table, nature_per_col={
     'ip': SPEC_IP
 })
 
-# Decode: reaplica specs
-result = decode(text, nature_per_col={
-    'cpf': SPEC_CPF,
-    'ip': SPEC_IP
-})
+# Decode: o header autoritativo reaplica os specs que venceram
+result = decode(text)
 
 assert result == table
 ```
@@ -192,7 +200,7 @@ table = {
 }
 
 text = encode(table, nature_per_col={'cpf': SPEC_CPF})
-result = decode(text, nature_per_col={'cpf': SPEC_CPF})
+result = decode(text)
 
 assert result == table  # 'invalid-cpf' preservado via fallback
 ```
@@ -233,11 +241,12 @@ default** (M10 puro). Comportamento preservado sempre:
 text1 = encode(cpfs)
 
 # Com nature — pre-tx + M10
+# FLOOR: a nature so' permanece se o blob completo diminuir
 text2 = encode(cpfs, nature=SPEC_CPF)
 
-# text1 != text2, mas ambos preservam round-trip (com spec apropriado)
+# text1 pode ser diferente de text2, mas ambos preservam round-trip
 assert decode(text1) == cpfs
-assert decode(text2, nature=SPEC_CPF) == cpfs
+assert decode(text2) == cpfs
 ```
 
 Nature eh **opt-in**: seu uso nao quebra compatibilidade com codigo
@@ -278,6 +287,27 @@ for v in values:
 
 > Os nomes exatos das categorias sao definidos por cada spec. Rode
 > `classify_value(SPEC, valor)` pra ver o status real de um valor.
+
+## Campos cadastrais ainda em exploração
+
+O laboratório [`specs-cadastrais-v1`](../../experiments/lab/dirty/2026-07-12-specs-cadastrais-v1/)
+mediu protótipos fora do core, sempre com round-trip e FLOOR:
+
+- **Data ISO**: ganho forte em single-column, mas tabelas em que o split já vence podem empatar.
+  Uma futura `DateSpec` precisa validar calendário e só entra com gate real.
+- **CEP**: exige preservar zeros à esquerda (`01001-000`); o `TemplatedPaddedSpec` atual não deve
+  ser usado sem essa garantia. Sem fonte real no hub, fica fora do registry `.8`.
+- **RG**: não tem formato nacional único; uma nature única seria enganosa. Tratar por UF ou deixar
+  para uma extensão futura com dados autorizados.
+- **CNH/RENAVAM/PIS/título**: alguns podem caber em uma máquina de dígitos/verificador, mas a regra
+  e o dado precisam ser confirmados antes de batizar um spec.
+- **Telefone**: largura, DDD e máscara variam; não é um spec único nacional.
+- **Códigos sem inferência semântica**: base-encoding só ajuda quando alfabeto e largura são
+  declarados. O alfabeto seguro atual tem 80 caracteres; base64 não melhora os domínios medidos e
+  base96 exigiria escaping ou quebraria a promessa ASCII.
+
+Por isso, o `.8` mantém CPF/CNPJ/IP. Os demais candidatos ficam no `.9`, salvo aprovação separada
+para uma `DateSpec` calendar-aware com dois gates reais.
 
 ## Conexoes
 

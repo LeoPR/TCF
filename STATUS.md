@@ -11,13 +11,13 @@
 >   `bench_evidencia`), F2 (controle 29/29), **F3 amostral**, **F4-minimo** (9/9 RT nos hubs
 >   prontos), **C0** (dedup do core), **FLOOR total-byte** e fronteira de spec customizado.
 >   Suite local **634 passed, 2 skipped**; pinos 1523/300/89616 exatos.
-> - **REDIRECIONAMENTO do owner (2026-07-12)**: antes do F6/release, INVESTIGAR os SPECS a fundo
->   (o que comprime alem do basico; CNPJ; compilador pra tirar specs do welded) — planejamento pra
->   fechar 0.8 E pre-1.0. Specs do `.8` DECIDIDOS (**Opcao A**,
->   [T-SPEC-STATUS-08](tickets/T-SPEC-STATUS-08.md)): so' CPF/CNPJ welded; classicos novos → `.9`.
+> - **R1.5 concluído (redirect do owner, 2026-07-12)**: specs cadastrais, base segura e compilador
+>   foram revisados em laboratório; specs do `.8` permanecem CPF/CNPJ/IP (**Opcao A**), `DateSpec`
+>   ISO é candidato condicional e clássicos novos → `.9` ([T-SPEC-STATUS-08](tickets/T-SPEC-STATUS-08.md)).
 >   **ACHADO F4**: nature CNPJ PIORA a tabela em dado real (+7339B, split→raw) — caveat do F6.
-> - **Proximo**: fechar o registro R1.5 (specs + paralelismo/lazy/SQL/Parquet classificados) → F6
->   (docs/README medidos + caveat) → C3 (go owner).
+> - **Proximo**: executar F6 (R1.5 registrado: specs cadastrais explorados; DateSpec ISO apenas condicional) →
+>   rebuild/clean-room smoke → C3 (go owner). Depois do closeout, F3/F4 populacional
+>   pode rodar em janela separada com RT, bytes, custo e paralelismo registrados.
 >   Corrupcao/hardening fica 0.8.1/pre-1.0; C1/C2 (rename M8A→HCC + achatar decode) pos-release.
 > - **Retomada temporal**:
 >   [checkpoint 2026-07-12](experiments/lab/dirty/notas/checkpoints/2026-07-12-revisao-roi-fechamento-08.md)

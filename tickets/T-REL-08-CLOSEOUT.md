@@ -43,14 +43,14 @@ telemetria de F3/F4 demonstrar blocker ou ganho de fechamento claro; ideias de g
 |---|---|---|---|
 | **R0 — integridade do núcleo válido** | BUG-14 fechado (red→green; decoder LF-only + testes parametrizados + gates canônicos) | domínio público aceito voltou a ser lossless | F3 |
 | **R1 — evidência de fechamento** | F3 amostral + **F4-mínimo (FEITO 2026-07-12, 9/9 RT)** | prova reproduzível nos hubs prontos; população total = janela dedicada pós-release | R1.5 |
-| **R1.5 — investigação de specs (REDIRECT owner 2026-07-12)** | investigar a fundo o que comprime além do básico (CPF já estudado; CNPJ no básico); revisar o inventário geral de specs + o compilador (tirar specs do welded); PLANEJAMENTO pra fechar 0.8 E pré-1.0 | plano de specs registrado (o que atacar no .8 vs .9) | R2 |
+| **R1.5 — investigação de specs (REDIRECT owner 2026-07-12)** | investigar o que comprime alem do basico; revisar specs cadastrais, base segura e compilador | laboratorio versionado + matriz `.8`/`.9`; `DateSpec` ISO fica candidato condicional, demais familias aguardam dado real | R2 |
 | **R2 — superfície publicável** | F5 somente se gated; F6 reconcilia README EN/PT, referência, metadata, wheel e smoke clean-room (+ **caveat nature-CNPJ-piora-em-real**) | pacote/documentação descrevem o mesmo `#TCF.8` | C3 |
 | **R3 — ato de release** | C3: tag `v0.8.0` + Trusted Publishing, somente com go explícito do owner | `0.8.0` publicado e closeout fechado | abrir ciclo seguinte |
 
-**Próxima ação concreta em nova sessão**: reler este bloco → **R1.5 investigação de specs**
-(redirect do owner 2026-07-12: antes do F6, investigar o que comprime + revisar specs + compilador
-pra tirar do welded; planejamento 0.8+pré-1.0), depois R2 (F6). Specs do `.8` já DECIDIDOS
-(Opção A, [T-SPEC-STATUS-08](T-SPEC-STATUS-08.md)). Checkpoint temporal:
+**Próxima ação concreta em nova sessão**: reler este bloco → **R2/F6** (README EN/PT, manual,
+referência, metadata, wheel e smoke clean-room). R1.5 ficou registrado no laboratório cadastral e
+na matriz `.8`/`.9`; `DateSpec` ISO é apenas candidato condicional. Specs do `.8` permanecem
+CPF/CNPJ/IP ([T-SPEC-STATUS-08](T-SPEC-STATUS-08.md)). Checkpoint temporal:
 [`2026-07-12-revisao-roi-fechamento-08.md`](../experiments/lab/dirty/notas/checkpoints/2026-07-12-revisao-roi-fechamento-08.md).
 
 ## Auditoria ROI 2026-07-12 — specs, execucao e integracoes
@@ -61,7 +61,7 @@ posterior; nao abre uma nova frente de execucao em massa.
 
 | eixo | observado | decisao de fechamento |
 |---|---|---|
-| **Specs** | Core welded: `TemplatedCheckedSpec` (CPF/CNPJ) e `TemplatedPaddedSpec` (IP); compilador DSL/registry existe em `scripts/`, mas nao e' registry publicavel do core. FLOOR compete pelo blob completo. | `.8`: CPF/CNPJ/IP existentes, sem spec brasileiro novo. Spec customizado pode viajar com `:id`, mas o decode exige declaracao out-of-band com `spec.name` identico; ID core continua autoritativo. CEP/PIS/Renavam/Titulo/CNH, telefone/RG/placa e registry carregavel ficam `.9`, sempre com dado real antes do weld. |
+| **Specs** | Core welded: `TemplatedCheckedSpec` (CPF/CNPJ) e `TemplatedPaddedSpec` (IP); laboratorio cadastral mediu DateSpec/CEP/telefone/RG/codigo fixo fora do core. Compilador DSL/registry existe em `scripts/`, mas nao e' registry publicavel do core. FLOOR compete pelo blob completo. | `.8`: CPF/CNPJ/IP continuam canonicos; `DateSpec` ISO so' entra com aprovacao propria, validacao de calendario e dois gates reais. CEP/CNH/RENAVAM/PIS/titulo, telefone, RG e `FixedAlphabetSpec` ficam `.9`. Specs customizados podem viajar com `:id` mediante spec out-of-band coincidente. |
 | **Paralelismo** | `parallel=False|N` ja' e' byte-identico e RT-safe. F3-3 amostral mediu, em 20k Adult, speedup aproximado `1.21x/1.33x/1.34x` para 2/4/8 workers; Lineitem 20k mediu `1.41x` em 2 workers. Faltam Lineitem p4/p8 e cinco combos. | `.8`: documentar como evidencia amostral, sem prometer caracterizacao exaustiva; nao adicionar `TCF_MAX_WORKERS` sem nova medicao. Cap global e revisao da porcao serial vao para `T-CODE-PARALLEL-BUDGET` pos-release. |
 | **Processamento, latencia e memoria** | JSONL F3 registra wall-clock, p95, `process_time`, `tracemalloc`, RSS best-effort, ambiente e acelerador Cython. `SideOutputs` paga trace de encode sempre; decode e' serial. Windows exige repeticao/mediana. | `.8`: F6 publica limites e numeros medidos; F5 fica `NO-ACTION` salvo blocker. Benchmark de custo por camada e' `.9`/pre-1.0, nao motivo para alterar o core agora. |
 | **Lazy query** | `view()` L1-L4 esta' funcional para column-pruning, `@dict`/raw, filtros e agregacoes; L5 (`group_ranges`/`agg_by`) e' experimental. Coluna `tcf` entrelacada cai em materializacao total. | `.8`: manter API read-only e documentacao correta. QueryPlan/`execute()`, pushdown mais rico e indices derivados ficam em `H-QUERY-04`/`.9`; nao transformar `decode()` em executor monolitico. |
@@ -71,8 +71,9 @@ posterior; nao abre uma nova frente de execucao em massa.
 
 ### Fechamentos possiveis do `.8`
 
-1. Fechar R1.5 com `T-SPEC-STATUS-08` (Opcao A), FLOOR total-byte e fronteira de spec customizado
-  validada por RT. Nenhum spec novo entra no pacote.
+1. Fechar R1.5 com `T-SPEC-STATUS-08` (Opcao A), laboratorio cadastral, FLOOR total-byte e fronteira
+  de spec customizado validada por RT. Nenhum novo spec entra automaticamente no pacote; `DateSpec`
+  so' pode preemptar F6 por aprovacao explicita e gate proprio.
 2. Fechar F3/F4 como **evidencia amostral**, mantendo no material a lista explicita do que faltou
   (F3-3 residual, F3-4 populacao, hubs F4 fora do minimo). A afirmacao de paralelismo deve ser
   limitada aos casos medidos.
@@ -83,10 +84,28 @@ posterior; nao abre uma nova frente de execucao em massa.
 ### Revisoes deliberadamente deixadas para `.9` ou depois
 
 - Ceiling de nature (delta-aware/field-decomposed), novos specs BR e registry carregavel.
+- `DateSpec` ISO/calendar-aware, caso nao receba aprovacao e dois gates reais antes do F6.
 - Cap global de workers, paralelismo intra-coluna e reengenharia C1/C2 do core HCC.
 - QueryPlan/`execute()`, joins, indices/sidecar `.tcfx`, Parquet/Arrow/Polars e camada SQL.
 - Quoting avancado, inferencia de specs/tipos, TCF.8H e formas B/C do V2-B.
 - BUG-12, checksum/tcfx, orcamento de expansao e contratos definitivos pre-1.0.
+
+### Janela de execucao em massa apos o fechamento
+
+A execucao populacional pode ser feita **depois** de F6, do rebuild/smoke clean-room e do closeout
+do pacote, sem reabrir o escopo do `.8`. Ela deve ser registrada como uma atividade separada:
+
+1. **Gate de reentrada**: commit/tag do candidato, ambiente registrado, hubs em `Z:/tcf-data/`,
+  sem dados externos novos e sem alterações em `src/tcf` durante a rodada.
+2. **Passo de integridade**: `decode(encode(x)) == x`, byte-determinismo serial/paralelo, pins e
+  ausência de corrupção em cada dataset; falha interrompe a rodada.
+3. **Passo de custo**: wall-clock mediano/p95, memória heap/RSS best-effort, modo Cython,
+  workers efetivos e bytes total/header/body; claims de paralelismo ficam limitados ao ambiente.
+4. **Passo populacional**: F3-4 600k e hubs F4 fora do mínimo, sem misturar os números com os
+  artefatos de closeout; os resultados recebem runner, seed, proveniência e `RESULT.md` próprios.
+
+Essa janela não é pré-requisito para publicar se o owner mantiver a decisão amostral já registrada;
+é uma validação pós-closeout para escala e planejamento `.9`.
 
 ## Estado corrente (2026-07-12)
 

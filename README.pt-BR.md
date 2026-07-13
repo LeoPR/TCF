@@ -9,8 +9,8 @@
 [![CI](https://github.com/LeoPR/TCF/actions/workflows/ci.yml/badge.svg)](https://github.com/LeoPR/TCF/actions/workflows/ci.yml)
 ![Python](https://img.shields.io/badge/python-3.10+-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
-![Version](https://img.shields.io/badge/version-0.7.1%20(pré--1.0)-orange)
-![Format](https://img.shields.io/badge/format-%23TCF.7%20default-blue)
+![Version](https://img.shields.io/badge/version-0.8.0%20(pré--1.0)-orange)
+![Format](https://img.shields.io/badge/format-%23TCF.8%20default-blue)
 
 > **E se desse pra transmitir a mesma tabela com bem menos bytes,
 > sem virar um arquivo binário que ninguém mais consegue abrir e ler?**
@@ -38,11 +38,10 @@ Carla Nunes,carla@acme.com.br,Sao Paulo,Basic,333.333.333-33
 Diego Rocha,diego@acme.com.br,Rio de Janeiro,Premium,444.444.444-44
 ```
 
-**TCF** *(244 B, formato 0.7, saída real do `encode`)*: o que se repete vira referência; o que é único fica cru.
+**TCF** *(242 B, formato 0.8, saída real do `encode`)*: o que se repete vira referência; o que é único fica cru.
 
 ```
-#TCF.7 M
-!44=nome,42=email,28=cidade,20=plano,!cpf
+#TCF.8M!2c=nome,2a=email,1c=cidade,14=plano,!cpf
 Ana Souza
 Bruno Lima
 Carla Nunes
@@ -63,9 +62,10 @@ Basic
 
 **Como ler:**
 
-- Linha 1, a assinatura de formato: `#TCF.7 M` é o formato 0.7, multi-coluna.
-- Linha 2, meta das colunas (`tamanho=nome`).
-  O `!` marca uma coluna guardada **crua** (quando o raw fica menor que o TCF).
+- Linha 1, a assinatura e o meta inline: `#TCF.8M` é o formato 0.8, multi-coluna;
+  os tamanhos estão em hexadecimal.
+- O meta (`tamanho=nome`) usa `!` para raw, `@` para dicionário e `%` para split estrutural
+  quando esses candidatos vencem. O `!` marca uma coluna guardada **crua** (quando o raw fica menor que o TCF).
   A última (`cpf`) não leva tamanho: vai até o fim (e o `!` mostra que também é crua).
 - Os corpos vêm concatenados, **delimitados por tamanho, não por quebra de linha**.
   Por isso a coluna crua `nome` (`…Diego Rocha`) emenda direto no e-mail (`an*a*…`).
@@ -132,15 +132,15 @@ Alguns valores têm **estrutura conhecida** que o compressor genérico não expl
 Um CPF `123.456.789-09` são só **9 dígitos úteis**: a pontuação é fixa e os 2 dígitos
 finais (verificador) são **deriváveis** dos outros 9. Um *filtro de natureza* (opt-in) usa isso:
 
-- **encode** tira a pontuação, guarda os 9 dígitos como um número curto (base-94, ~5 chars)
+- **encode** tira a pontuação, guarda os 9 dígitos como um número curto (base segura, ~5 chars;
+  o alfabeto atual tem 80 caracteres utilizáveis)
   e **descarta o verificador**;
 - **decode** **recalcula** o verificador (mod-11) e reinsere a pontuação — reconstrução **exata**.
 
-Os mesmos 4 CPFs do exemplo, isolados numa coluna: sem filtro **76 B** (cru, com escapes);
-com `nature=SPEC_CPF`, **27 B** (−64%). Concretamente, como sai dos nossos labs
-([`2026-05-24-cpf-templated-checked/`](experiments/lab/dirty/old/welded/2026-05-24-cpf-templated-checked/)):
-`111.111.111-11` → `%g$.u` (14 → 5 chars); o decode regenera os 2 dígitos verificadores e a
-pontuação. (No cadastro inteiro: cru **244 → 208 B**, −15%.)
+Nature não é pré-transformação forçada. O **FLOOR** compara o blob serializado completo, incluindo
+o custo do header `:id`; se a nature perde, o pipeline original permanece e nenhum marcador é emitido.
+Isso protege dados ordenados em que split/dicionário vencem uma codificação base absoluta. O caveat
+medido do CNPJ é importante: uma nature pode ajudar no sintético e ainda aumentar uma tabela real.
 
 Filtros já implementados ([ADR-0015](docs/adr/0015-natures-templated-checked-weld.md)):
 
@@ -161,20 +161,21 @@ from tcf import SPEC_CPF
 
 cpfs = ["111.111.111-11", "222.222.222-22"]    # placeholders inválidos
 blob = encode(cpfs, nature=SPEC_CPF)
-assert decode(blob, nature=SPEC_CPF) == cpfs    # decode precisa da mesma nature
+assert decode(blob) == cpfs                     # IDs core vão no header quando vencem
 ```
 
 Dois detalhes honestos:
 
-- São **opt-in e, por ora, out-of-band**: o `.tcf` ainda **não carrega um marcador** dizendo
-  "esta coluna é CPF", então o `decode` precisa receber a mesma `nature`. Um marcador
-  auto-descritivo (decode reconhece sozinho) está registrado como evolução (alvo 0.8).
+- São **opt-in e auto-descritivas quando vencem**: single-column leva `#TCF.8 nome:id`; multi-column
+  leva `:id` no meta inline. O `decode(blob)` resolve `cpf`, `cnpj` e `ip` pelo registry core.
+- Spec customizado pode ser usado, mas o decoder precisa receber um spec cujo `name` coincide
+  exatamente com o ID do header.
 - Valor que não bate (verificador inválido, formato mascarado) cai em **literal** (`_`) sem
   nunca quebrar o round-trip — o filtro **nunca corrompe** o dado.
 
-> ⚠️ **Em evolução.** Os filtros já funcionam e estão validados nos labs, mas ainda são
-> **opt-in manuais**: o auto-detect e o **marcador auto-descritivo** (o `decode` reconhecer a
-> nature sozinho) estão sendo trabalhados (alvo 0.8). Trate esta seção como *work-in-progress*.
+> **Escopo cadastral em exploração.** CEP, RG, identificação de motorista, telefone e códigos
+> genéricos foram medidos fora do core. Nenhum é spec canônico do `.8` ainda; veja a matriz em
+> [`T-SPEC-STATUS-08`](tickets/T-SPEC-STATUS-08.md).
 
 ## Getting started (1 minuto)
 
@@ -204,9 +205,9 @@ text = encode(["111.111.111-11", "222.222.222-22"], nature=SPEC_CPF)  # placehol
 Tutorial passo-a-passo: [`docs/tutorials/getting-started.md`](docs/tutorials/getting-started.md).
 Guias praticos: [`docs/how-to/`](docs/how-to/).
 
-## Formato 0.7 (default): onde os bytes vão
+## Formato 0.8 (default): onde os bytes vão
 
-O `encode` multi-coluna sai em **0.7 / `#TCF.7`** por default ([ADR-0024](docs/adr/0024-pre-1.0-versioning-git-as-compat.md)).
+O `encode` multi-coluna sai em **0.8 / `#TCF.8M`** por default ([ADR-0032](docs/adr/0032-tcf8-default-format.md)).
 Quatro coisas, todas automáticas (sem flag), cada coluna escolhendo a menor representação:
 
 - **Fallback por coluna.**
@@ -221,15 +222,19 @@ Quatro coisas, todas automáticas (sem flag), cada coluna escolhendo a menor rep
   campos separados (o template guardado uma vez), e cada campo low-card cai no dicionário.
   Marcada com `%` no meta ([ADR-0026](docs/adr/0026-structural-split-weld.md)).
 - **Header mínimo.**
-  O flag `M` na assinatura já declara que vêm colunas, então o meta dispensa o prefixo `# `.
-  E a última coluna não leva tamanho, vai até o fim ([ADR-0023](docs/adr/0023-v2-minimal-header-weld.md)).
+  O flag `M` na assinatura já declara que vêm colunas, então o meta é inline, os tamanhos ficam em
+  hexadecimal, separadores de nomes são escapados e a última coluna não leva tamanho
+  ([ADR-0023](docs/adr/0023-v2-minimal-header-weld.md)).
+- **Competição de naturezas.**
+  CPF/CNPJ/IP são candidatos opt-in. O blob completo vence ou empata com o baseline; se a nature
+  perde, a coluna original permanece e nenhum `:id` é emitido.
 
 ```python
-text = encode(table)        # 0.7 / #TCF.7, é o default, sem flags
+text = encode(table)        # 0.8 / #TCF.8M, é o default, sem flags
 
 # knobs opt-out (default True) — pra modificar o comportamento / inspecionar:
-text = encode(table, fallback=False, min_header=False)  # força o legado #TCF.6
-text = encode(table, min_header=False)                  # #TCF.7 com header verboso
+text = encode(table, fallback=False, min_header=False)  # só candidatos TCF, meta verboso
+text = encode(table, min_header=False)                  # #TCF.8M com todos os tamanhos
 text = encode(table, min_len=5)                         # override do min_len do OBAT (default: auto)
 text = encode(table, sort_by="cidade")                  # ordena linhas pela coluna (order-free, +compressão)
 ```
@@ -242,28 +247,28 @@ No cadastro de 5 colunas do topo, comparado ao formato legado `#TCF.6`:
 
 | formato | meta line | bytes |
 |---|---|---:|
-| **0.7 / `#TCF.7`** (default) | `!44=nome,42=email,28=cidade,20=plano,!cpf` | **244** |
-| `#TCF.6` (legado) | `# 45=nome,42=email,28=cidade,20=plano,76=cpf` | 265 |
+| **0.8 / `#TCF.8M`** (default) | `!2c=nome,2a=email,1c=cidade,14=plano,!cpf` | **242** |
+| `#TCF.6` (histórico) | header/body legado | não emitido pelo código atual |
 
-A diferença (−21 B) vem de duas coisas que o 0.7 faz e o `#TCF.6` não: a coluna `cpf` cai
-pra **raw** (`!cpf`) em vez de inflar, e o **header mínimo** (sem `# `, última coluna sem
-tamanho). O ganho é proporcionalmente maior em **payloads pequenos**.
+O resultado de 242 B vem dos candidatos de fallback e do header inline mínimo. A coluna `cpf` cai
+para **raw** (`!cpf`) em vez de inflar; os tamanhos são hexadecimais e a última coluna não leva
+tamanho. O ganho é proporcionalmente maior em **payloads pequenos**.
 
 Pré-1.0, o encoder só escreve o formato mais novo.
-O `#TCF.6` legado ainda é **lido** pelo decoder, e `git checkout` reproduz a era 0.6 ([ADR-0024](docs/adr/0024-pre-1.0-versioning-git-as-compat.md)).
+Os legados `#TCF.6`/`#TCF.7` não são lidos pelo código atual; `git checkout` reproduz as eras
+históricas ([ADR-0024](docs/adr/0024-pre-1.0-versioning-git-as-compat.md)).
 O dicionário low-card (V2-B) e o split estrutural já estão no default; a compressão lossy fica no [roadmap](docs/adr/0018-v2-format-roadmap.md).
 
 ## Estado (pré-1.0)
 
 - **Pré-1.0** ([ADR-0024](docs/adr/0024-pre-1.0-versioning-git-as-compat.md)).
-  Os minors do formato (`#TCF.4/.5/.6/.7`) são iterações de desenvolvimento rumo a um **1.0 sólido**, sem compat rígida entre eles (git reproduz versões antigas).
+  Os minors do formato (`#TCF.6/.7/.8`) são iterações de desenvolvimento rumo a um **1.0 sólido**, sem compat rígida entre eles (git reproduz versões antigas).
   v2.0 fica pra depois.
 - Implementação canônica em [`src/tcf/`](src/tcf/).
   Round-trip sempre lossless (`decode(encode(x)) == x`).
-- Default **0.7 / `#TCF.7`**: fallback ([ADR-0022](docs/adr/0022-v2a-fallback-identity-weld.md)) + header mínimo ([ADR-0023](docs/adr/0023-v2-minimal-header-weld.md)), ver seção acima.
-  O `#TCF.6` legado é lido pelo decoder.
-- Suíte: **379 passed, 1 xfailed** na config de CI (`-m "not requires_data"`; inclui 27 do gadget
-  `tcf_lazy`) — rode `pytest` pro número vigente. <!-- [VERIFICAR: 2026-06-18] -->
+- Default **0.8 / `#TCF.8M`**: fallback, dicionário, split estrutural, meta hexadecimal inline,
+  escaping e IDs de nature autorizados pelo header; veja a seção acima. Os legados `.6/.7` são recuperados via git.
+- Suíte: **634 passed, 2 skipped** na execução local completa atual; rode `pytest` para o número do seu ambiente.
   Baselines de byte = guardas de regressão, re-pináveis em mudança intencional ([ADR-0024](docs/adr/0024-pre-1.0-versioning-git-as-compat.md)).
 - Mudanças: [`CHANGELOG.md`](CHANGELOG.md).
   História M0-M14: [`experiments/lab/dirty/notas/historia-dirty-lab.md`](experiments/lab/dirty/notas/historia-dirty-lab.md).
@@ -285,7 +290,7 @@ Nos 15 datasets sintéticos do [EXP-008](experiments/lab/clean/EXP-008-compressa
 
 ~36% menor que CSV e ~42% menor que JSON, continuando legível.
 
-Núcleo pinado em testes: D1-D9 = **1523 B** (51.1% do raw, single-col); D17a multi-col = **303 B** (0.7 com V2-B; legado `#TCF.6` = 322 B).
+Núcleo pinado em testes: D1-D9 = **1523 B** (51.1% do raw, single-col); D17a multi-col = **300 B** (`#TCF.8M`, meta hexadecimal inline).
 Real-world multi-coluna (9 tabelas Adult + TPC-H, 136k linhas): **−33.02% weighted** vs CSV raw.
 
 **E contra gzip / brotli / zstd?**
@@ -296,13 +301,13 @@ No **cadastro acima**, sob compressão HTTP (`Content-Encoding`):
 |---|---:|---:|---:|---:|
 | JSON | 596 | 218 | 212 | 211 |
 | CSV  | 277 | 177 | **162** | 165 |
-| TCF  | **244** | 209 | 185 | 194 |
+| TCF  | **242** | 206 | não medido | não medido |
 
-TCF é o menor **cru** (e legível); sob compressão binária o **CSV+brotli** ganha (162 vs 185) —
-porque o TCF já removeu a redundância que o gzip/brotli reaproveitam (o TCF comprime só 244→185;
-o CSV 277→162). O TCF **troca um pouco de ratio por legibilidade** e **se compõe** com eles
-(244 → 185 com brotli). O `gzip` ainda carrega ~18 B fixos de moldura por mensagem; `br`/`zstd`,
-quase nada — em payload minúsculo isso conta. (Os números usam os compressores no **nível máximo**
+TCF é o menor **cru** (e legível). O `#TCF.8M` atual mede 242B cru e 206B com gzip da stdlib;
+brotli/zstd precisam de uma nova rodada com os codecs instalados antes de entrarem como números do
+release. O TCF **troca um pouco de ratio por legibilidade** e **se compõe** com compressores externos.
+O `gzip` ainda carrega bytes fixos de moldura por mensagem; `br`/`zstd`, quase nada — em payload
+minúsculo isso conta. (Os números usam os compressores no **nível máximo**
 — melhor caso pra eles; numa API simples a compressão às vezes nem está ligada, e quando está usa
 nível baixo por default: nginx gzip `1`, brotli `6`. Ver [notas dos compressores](experiments/lab/clean/EXP-008-compressao-comparada/notes/classificacao-compressores.md).)
 
@@ -312,7 +317,7 @@ completas: [reports do EXP-008](experiments/lab/clean/EXP-008-compressao-compara
 
 **Atenção de escala — o cadastro acima é minúsculo (4 linhas).** Em **multi-coluna real**
 (milhares de linhas) o quadro **inverte**: o **TCF cheio + brotli vence o CSV + brotli** —
-ex.: Adult com 3 000 linhas, `tcf-0.7+brotli` = **21,8 KB** vs `csv+brotli` = 30,4 KB (−28%).
+ex.: Adult com 3 000 linhas, `tcf-0.8+brotli` = **21,8 KB** vs `csv+brotli` = 30,4 KB (−28%).
 E quanto **mais** TCF, **menor** o resultado pós-brotli (medido em 4 datasets reais:
 [`2026-06-16-staged-and-ordering-brotli/`](experiments/lab/dirty/old/refuted/2026-06-16-staged-and-ordering-brotli/)).
 Em payload minúsculo a moldura domina e não há o que fatorar; **a vantagem do TCF aparece com volume**.
@@ -336,12 +341,13 @@ que **alocar memória e descomprimir tudo** pra só então varrer os dados. É e
 natureza (CPF/CNPJ/IP e, no roadmap, numéricos) entram aqui — dão estrutura semântica explícita
 sem perder a legibilidade (ainda em evolução, ver acima).
 
-### `view()` — agregar com descompressão seletiva *(gadget funcional)*
+### `view()` — caminhos de consulta SQL-like com descompressão seletiva *(API read-only do core)*
 
 Uma API *lazy* sobre o blob: conecta **sem descomprimir**, e só materializa a coluna
 (e as linhas) que o agregador precisa. Filtrar por algo descomprime **só** o que tem relação.
-*(Gadget em [`scripts/tcf_lazy/`](scripts/tcf_lazy/) — lê o `#TCF.7`, **não toca `src/tcf` por design**;
-**27 testes**, L1–L5; PoC original em [`2026-06-16-lazy-query/`](experiments/lab/dirty/old/welded/2026-06-16-lazy-query/).)*
+Ela é SQL-like em capacidade, não um parser SQL: oferece projeção, filtros, encadeamento AND,
+agregadores e agrupamentos como métodos Python. Não implementa joins, NULL SQL, ORDER/LIMIT ou
+um planejador geral.
 
 ```python
 v = view(blob)                                # conecta, não descomprime nada
@@ -353,7 +359,7 @@ v.where("cidade", "Sao Paulo").count()        # 4        toca: cidade
 v.where("cidade", "Sao Paulo").sum("valor")   # 470      toca: cidade, valor
 ```
 
-O `toca:` é o ponto (saída real do PoC): a soma filtrada materializou **só** `cidade` +
+O `toca:` é o ponto (saída real): a soma filtrada materializou **só** `cidade` +
 `valor` — `cliente` e `plano` nunca foram descomprimidos. Um `decode()` (ou um gzip/brotli
 por cima) materializaria as 4 colunas **inteiras** antes de qualquer conta. Agregadores:
 `count`, `sum`, `min`, `max`, `avg` + `where`; **L3–L5 já implementados** — contar/agrupar
@@ -362,8 +368,13 @@ filtro pelo índice do dicionário, e group-by por **layout ordenado** (`sort_by
 
 Em dados reais (online-retail, 5 000 × 8), responder *"quantos itens o usuário X comprou"*
 (`where(CustomerID=X).sum("Quantity")`) **materializa 7,9% do blob** — `count()` toca 0,2% —
-contra 100% de um `decode()`. Memória e latência baixas caem direto da estrutura. E é
-**gadget, não versão de formato**: lê o `#TCF.7` atual.
+contra 100% de um `decode()`. Memória e latência baixas caem direto da estrutura. É uma
+API read-only do core e lê o `#TCF.8M` atual.
+
+Superfície atual: `count`, `sum`, `min`, `max`, `avg`, `where`, `select`, `group_count` e,
+experimentalmente, `group_ranges`/`agg_by` em layouts ordenados. Colunas `@dict`/raw podem ser
+consultadas estruturalmente; uma coluna `tcf` entrelaçada pode exigir materialização completa.
+O contrato detalhado está em [`docs/reference/lazy-view.md`](docs/reference/lazy-view.md).
 
 ## Roadmap 2.0
 
@@ -379,8 +390,8 @@ Depois de uma 1.0 sólida (registrado, **não** implementado — ver
 - **Camada binária interna (V2-L)** — empacotar o corpo em bytes mantendo header textual e
   grupos visíveis (estilo Parquet, mas ainda explicável). Não compete com gzip/brotli: é
   representação binária do **mesmo** conteúdo lógico.
-- **Mais specs** (templated/checksummed/numéricos) + **marcador auto-descritivo** de nature e
-  **repetição intra-valor** (fatorar `111.` dentro de um CPF) — alvo 0.8.
+- **Mais specs** (templated/checksummed/numéricos), Ceiling delta-aware, índices locais e
+  **repetição intra-valor** — pesquisa `.9`/pré-1.0, com gate real-world.
 
 ## Install
 
@@ -407,8 +418,8 @@ assert decode(blob) == tabela        # round-trip lossless
 Para CPF/CNPJ/IP há *natures* opt-in (ADR-0015, `encode(coluna, nature=SPEC_CPF)`)
 que regeneram o dígito verificador no decode.
 
-Pré-1.0 (ADR-0024): o pacote está em `0.7.x` — o *minor* acompanha o formato
-(`#TCF.7`) e o *patch* é contador de release, desacoplado do comportamento.
+Pré-1.0 (ADR-0024): o pacote está em `0.8.0` — o *minor* acompanha o formato
+(`#TCF.8`) e o *patch* é contador de release, desacoplado do comportamento.
 
 ## First-time setup (dev)
 
@@ -463,16 +474,16 @@ se Phase 2 for revivida.
 
 ```
 TCF/
-├── src/tcf/                 ← CANONICAL v0.7 API (OBAT+HCC, encode/decode, #TCF.7 + #TCF.6 legado)
+├── src/tcf/                 ← API CANÔNICA v0.8 (OBAT+HCC, encode/decode/view, #TCF.8)
 ├── old/tcf/                 ← motor v0.5 (niveis L0–L3), congelado-historico (ver LEVELS-REVIEW.md)
 ├── scripts/                 ← Shaper (stratified sampling), CSV→SQLite, setup_* datasets
-├── experiments/lab/         ← labs v0.7 (dirty + clean): compressao composicional
+├── experiments/lab/         ← labs v0.8 (dirty + clean): compressao composicional
 ├── llm-benchmark/           ← benchmark LLM v0.5 (harness: runners + llm_eval), acessorio
-├── tests/                   ← pytest suite (v0.7)
+├── tests/                   ← pytest suite (v0.8)
 ├── datasets/                ← canonical metadata + samples (dados reais em Z:)
 ├── tickets/                 ← planejamento markdown (YAML frontmatter)
 ├── docs/
-│   ├── algorithms/          ← specs canonicos v0.7 (OBAT, HCC, TCF-format) [reference]
+│   ├── algorithms/          ← specs canonicos v0.8 (OBAT, HCC, TCF-format) [reference]
 │   ├── adr/                 ← decisoes numeradas, imutaveis
 │   ├── theory/              ← fundamentos teoricos [explanation]
 │   ├── how-to/, tutorials/  ← Diataxis
@@ -490,7 +501,7 @@ TCF/
 
 ---
 
-## Tools shipped (v0.7)
+## Ferramentas entregues (v0.8)
 
 O encoder e' a ferramenta principal; auxiliares de suporte (NAO TCF-core):
 
@@ -510,12 +521,12 @@ O encoder e' a ferramenta principal; auxiliares de suporte (NAO TCF-core):
 
 ## Where to go next
 
-- **I want to use TCF in my pipeline** → API v0.7: `from tcf import encode, decode` ([src/tcf/](src/tcf/)); manual v0.7 pendente. v0.5: [docs/archive/manual_v05/](docs/archive/manual_v05/)
+- **Quero usar TCF no pipeline** → API v0.8: `from tcf import encode, decode` ([src/tcf/](src/tcf/)); veja o [tutorial](docs/tutorials/getting-started.pt-BR.md) e os [guias](docs/how-to/).
 - **I want to read the findings** → [docs/findings/](docs/findings/) (v0.5 LLM, historico)
 - **I want to run the LLM benchmark** → [llm-benchmark/](llm-benchmark/) (acessorio v0.5)
 - **I want to understand the architecture** → [docs/theory/](docs/theory/)
 - **I want to see the roadmap** → [ROADMAP.md](ROADMAP.md) (tiers: pré-1.0 / 2.0 / pesquisa); detalhe granular em [roadmap-hipoteses.md](experiments/lab/dirty/notas/roadmap-hipoteses.md)
-- **I want to query without decompressing** → [scripts/tcf_lazy/](scripts/tcf_lazy/) (gadget *lazy*: `count`/`sum`/`where`/group-by tocando só o necessário)
+- **Quero caminhos de consulta SQL-like sem materializar tudo** → [`tcf.view`](docs/reference/lazy-view.md) (`count`/`sum`/`where`/group-by, quando o modo da coluna permite)
 - **I want to share / pitch TCF** → [docs/divulgacao-tcf.md](docs/divulgacao-tcf.md) (material de divulgação, estilo post)
 - **I want to read the paper** → drafts v0.5: [docs/archive/article_v05/](docs/archive/article_v05/) (paper v0.7 pendente)
 - **I want to see how it evolved** → [CHANGELOG.md](CHANGELOG.md) +

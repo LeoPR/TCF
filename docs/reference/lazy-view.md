@@ -31,6 +31,27 @@ v.where("cidade", "SP").sum("valor") # toca só cidade + valor
   não-numérico levanta `ValueError` (intencional — não silencia dado sujo).
 - **Só leitura**: nenhuma operação muda o blob.
 
+## Consulta SQL-like, sem SQL
+
+`view()` oferece caminhos de consulta que lembram uma execução SQL, mas não
+interpreta uma string SQL nem tenta reproduzir todas as semânticas de um banco:
+
+| capacidade | API | observação |
+|---|---|---|
+| projeção | `select(cols)` | materializa apenas as colunas pedidas |
+| filtro | `where(col, value=...)` ou `where(col, pred=...)` | igualdade/predicado; encadeamento é AND |
+| agregação | `count`, `sum`, `min`, `max`, `avg` | valores vazios são ignorados nos agregadores numéricos |
+| agrupamento | `group_count(col)` | caminho estrutural em `@dict`; fallback nos demais modos |
+| layout agrupado | `group_ranges`, `agg_by` | experimental; requer ordem contígua de `sort_by` |
+| alinhamento | índices posicionais | a linha `i` de cada coluna é a mesma linha |
+
+Não há parser SQL, joins, `OR`, `NULL` SQL, `ORDER BY`, `LIMIT`, expressões
+calculadas ou plano multi-tabela. Uma coluna em modo `tcf` pode exigir
+materialização completa porque suas referências são entrelaçadas; o relatório
+`touched`/`materialized_bytes` deve ser usado para observar esse custo. A
+evolução de `QueryPlan`/`execute()` e índices locais pertence ao trabalho
+posterior de query, não ao formato `.8`.
+
 ## `view(blob) -> LazyTCF`  · estável
 
 Conecta a um blob TCF multi-coluna. `ValueError` se o blob não for multi-coluna
@@ -125,7 +146,7 @@ acima tocou ~56% (2 de 3 colunas) em vez de 100% que um `decode()` faria.
 
 - **Coluna em modo `tcf`** (OBAT+HCC entrelaçados): `group_count`/agregação caem em
   **fallback** (decode da coluna inteira) — o ganho estrutural limpo vive em `@dict`/raw.
-  Ligar `fallback=True` no `encode` (default 0.7) põe colunas low-card em `@dict`
+  Ligar `fallback=True` no `encode` (default 0.8) põe colunas low-card em `@dict`
   automaticamente, habilitando as queries sem expandir. Ver
   [encode-knobs.md](encode-knobs.md).
 - `sort_by` (para L5) é **order-free** mas reordena as linhas — `decode` devolve a tabela

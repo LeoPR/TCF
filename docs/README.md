@@ -2,7 +2,7 @@
 
 Hub central da documentacao do projeto **TCF (Tabular Compact Format)**.
 
-> **Estado 0.7 (`#TCF.7`, pré-1.0 ADR-0024)**: o core e' o algoritmo de
+> **Estado 0.8 (`#TCF.8`, pré-1.0 ADR-0032)**: o core e' o algoritmo de
 > compressao em duas camadas — **OBAT** (Online Bidirectional Affix
 > Tokenizer) + **HCC** (Hierarchical Compositional Coding) — mais as camadas
 > V2 multi-col (fallback/dicionario/split/header-minimo) e a view lazy
@@ -12,7 +12,7 @@ Hub central da documentacao do projeto **TCF (Tabular Compact Format)**.
 > Ciclo v0.5 (formato columnar para LLM benchmark) foi arquivado em
 > [`archive/`](archive/) — **acessorio** ao core.
 
-## Para entender o algoritmo (core canonico, 0.7)
+## Para entender o algoritmo (core canonico, 0.8)
 
 → [`algorithms/OBAT.md`](algorithms/OBAT.md) — camada 1: tokenizacao
 bidirecional online via LCP + LCS.
@@ -70,7 +70,7 @@ table = decode(text)
 v = view(text)              # camada read-only lazy/consultavel
 ```
 
-Multi-coluna (`#TCF.7 M`) e naturezas pre-tx (CPF/CNPJ/IP) **welded**. Receitas:
+Multi-coluna (`#TCF.8M`) e naturezas opt-in (CPF/CNPJ/IP) **welded**. Receitas:
 [`tutorials/getting-started.md`](tutorials/getting-started.md),
 [`how-to/encode-csv-file.md`](how-to/encode-csv-file.md),
 [`reference/encode-knobs.md`](reference/encode-knobs.md),

@@ -59,16 +59,16 @@ with open('dados.tcf', 'w', encoding='utf-8') as f:
 ```
 
 O arquivo `.tcf` contém:
-- Shebang `#TCF.7 M` (multi-coluna, default)
+- Assinatura de formato `#TCF.8M` (multi-coluna, default)
 - Mapa de colunas (modo + tamanho + nome)
 - Tokens comprimidos
 
 Exemplo de saída (aproximado — detalhe do header em [TCF-format.md](../algorithms/TCF-format.md)):
 ```
-#TCF.7 M
-!8=id,!18=nome,!35=email
-*3+1|\1
-Alice
+#TCF.8M!5=id,!11=nome,email
+1
+2
+3Alice
 Bob
 Charlie
 alic*e*@example.com
