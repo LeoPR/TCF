@@ -56,7 +56,7 @@ if TYPE_CHECKING:
 # 'M'=multi (#TCF.8M, meta inline), ' '=single+spec (#TCF.8 [nome]:spec),
 # ''=single version-stamp (#TCF.8, magic-number p/ file), 'H'=hierarquico RESERVADO
 # (ADR-0031, codec no lab -> fail-loud). Legado #TCF.6/#TCF.7 CORTADO (git-as-compat).
-_V8_MAGIC = "#TCF.8"                  # base do #TCF.8; o disc (char no indice 6) decide
+_V8_MAGIC = "#TCF.8"  # base do #TCF.8; o disc (char no indice 6) decide
 
 
 def _resolve_header_spec(nature_id: str, supplied, *, where: str):
@@ -144,13 +144,18 @@ def decode(
     # pode degradar pra decode orfao silencioso (corrompe). 'H' = hierarquico reservado
     # (ADR-0031), codec ainda no lab.
     if disc8 is not None and disc8 not in ("M", " ", ""):
-        detalhe = ("'H' = multi-col hierarquico RESERVADO (ADR-0031); codec no lab, "
-                   "nao implementado" if disc8 == "H" else f"discriminador {disc8!r} desconhecido")
+        detalhe = (
+            "'H' = multi-col hierarquico RESERVADO (ADR-0031); codec no lab, "
+            "nao implementado"
+            if disc8 == "H"
+            else f"discriminador {disc8!r} desconhecido"
+        )
         raise ValueError(f"#TCF.8: {detalhe} — nao decodavel.")
 
     # MULTI: #TCF.8M (disc 'M', meta inline).
     if disc8 == "M":
         from tcf.multi import _decode_multi_impl
+
         result, header_ids = _decode_multi_impl(tcf_text)
         # Natures auto-descritas no header (#TCF.8M e' SELF-DESCRIBING): o header e'
         # AUTORITATIVO — resolve+aplica os :id. Pos-FLOOR (T-SPEC-DEEPDIVE §5.1), uma
@@ -175,14 +180,12 @@ def decode(
 
     # SINGLE + SPEC: '#TCF.8 [nome]:spec' (disc espaco). Retorna LIST.
     if disc8 == " ":
-        meta = line1[len(_V8_MAGIC) + 1:]          # apos "#TCF.8 "
-        body = tcf_text[len(line1) + 1:]           # apos a 1a '\n'
-        _name, _, nat_id = meta.partition(":")     # nome opcional, descartado
+        meta = line1[len(_V8_MAGIC) + 1 :]  # apos "#TCF.8 "
+        body = tcf_text[len(line1) + 1 :]  # apos a 1a '\n'
+        _name, _, nat_id = meta.partition(":")  # nome opcional, descartado
         values = _decode_column(body)
-        spec = _resolve_header_spec(
-            nat_id, nature, where="single-col"
-        )
-        return [spec.decode_value(v) for v in values]   # header vence
+        spec = _resolve_header_spec(nat_id, nature, where="single-col")
+        return [spec.decode_value(v) for v in values]  # header vence
 
     # SINGLE version-stamp: line1 == '#TCF.8' (disc vazio). Carimbo de versao
     # (magic-number p/ file/libmagic, ADR-0029) — body single-col puro segue.
@@ -192,7 +195,7 @@ def decode(
     # que casassem a forma base-94 (mesma classe do achado multi-col; o param fica na
     # assinatura por compat, mas #TCF.8 e' self-describing e manda).
     if disc8 == "":
-        return _decode_column(tcf_text[len(line1) + 1:])   # apos "#TCF.8\n"
+        return _decode_column(tcf_text[len(line1) + 1 :])  # apos "#TCF.8\n"
 
     # ORFAO: single-col body puro (sem shebang) — camada 1 (ADR-0029).
     return _decode_column(tcf_text)

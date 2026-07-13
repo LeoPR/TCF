@@ -61,6 +61,7 @@ def _nature_apply_stats(spec, statuses: list[str]) -> dict:
     fallback literal, com o breakdown por razao (taxonomia Kim 2003). NAO afeta
     os bytes — alimenta SideOutputs.nature_apply (efeito colateral zero-custo)."""
     from collections import Counter
+
     by_status = Counter(statuses)
     total = len(statuses)
     compressible = by_status.get("compressible", 0)
@@ -175,9 +176,7 @@ def encode(
             f"layers deve ser PipelineConfig (ou None); got {type(layers).__name__}"
         )
     if not isinstance(parallel, (bool, int)):
-        raise TypeError(
-            f"parallel deve ser bool ou int; got {type(parallel).__name__}"
-        )
+        raise TypeError(f"parallel deve ser bool ou int; got {type(parallel).__name__}")
     if not isinstance(parallel, bool) and parallel < 0:
         raise ValueError(
             f"parallel deve ser >= 0 (0/False=serial; 1=serial deduzido; "
@@ -217,8 +216,9 @@ def encode(
         # `_stringify_checked` compartilhada com o ramo dict (dedup C0 D2,
         # T-CODE-CORE-CONSOLIDATE).
         from tcf.multi.core import _stringify_checked, MAGIC_SINGLE_V3
+
         data = _stringify_checked(data)
-        magic = MAGIC_SINGLE_V3.decode("utf-8")          # "#TCF.8"
+        magic = MAGIC_SINGLE_V3.decode("utf-8")  # "#TCF.8"
         if nature is not None:
             # FLOOR single-col (T-SPEC-DEEPDIVE §5.1, owner 2026-07-12): a nature
             # COMPETE — encoda o original (órfão) e a nature-transformada
@@ -226,17 +226,19 @@ def encode(
             # header self-describing). So' vence se cobrir esse custo. Se perde ->
             # órfão/stamp, SEM marcador (o arquivo deixa de se auto-explicar; o
             # trade self-explain-vs-compete e a deducao de spec vao pro .9, §6).
-            if name is not None and (':' in name or '\n' in name):
+            if name is not None and (":" in name or "\n" in name):
                 raise ValueError(
                     f"name de single-col nao pode conter ':' nem '\\n' "
                     f"(reservado pro meta #TCF.8): {name!r}"
                 )
             from tcf.natures.templated_checked import encode_value
+
             pairs = [encode_value(nature, v) for v in data]
             transformed = [p for p, _ in pairs]
             body_orig = _encode_column(data, header="val", cfg=cfg, min_len=min_len)
-            body_nat = _encode_column(transformed, header="val", cfg=cfg,
-                                      min_len=min_len)
+            body_nat = _encode_column(
+                transformed, header="val", cfg=cfg, min_len=min_len
+            )
             header_nat = f"{magic} {name or ''}:{nature.name}\n"
             # FLOOR: compara os blobs completos; empate fica no baseline.
             baseline = f"{magic}\n{body_orig}" if stamp else body_orig
@@ -246,30 +248,36 @@ def encode(
                 stats = _nature_apply_stats(nature, [s for _, s in pairs])
                 stats["used"] = win
                 side_outputs.nature_apply = {"val": stats}
-                _encode_column(transformed if win else data, header="val",
-                               side=side_outputs, cfg=cfg, min_len=min_len)
+                _encode_column(
+                    transformed if win else data,
+                    header="val",
+                    side=side_outputs,
+                    cfg=cfg,
+                    min_len=min_len,
+                )
             if win:
                 return header_nat + body_nat
-            body = body_orig                  # nature perdeu -> órfão/stamp abaixo
+            body = body_orig  # nature perdeu -> órfão/stamp abaixo
         else:
-            body = _encode_column(data, header="val", side=side_outputs, cfg=cfg,
-                                  min_len=min_len)
+            body = _encode_column(
+                data, header="val", side=side_outputs, cfg=cfg, min_len=min_len
+            )
         if stamp:
             # version-stamp opt-in (#TCF.8\n<body>): carimbo de versao /
             # magic-number p/ file/libmagic (ADR-0029). Default-off -> single
             # puro fica orfao byte-identico.
             return magic + "\n" + body
-        return body                           # single-col puro orfao (byte-identico)
+        return body  # single-col puro orfao (byte-identico)
     if isinstance(data, dict):
         from tcf.multi import _encode_multi
+
         if sort_by is not None:
             # O-FMT-02: reordena linhas pela coluna-chave (order-free). E' so'
             # um pre-encode transform; output e' TCF normal, decode retorna a
             # ordem ordenada (ordem original NAO recuperavel).
             if sort_by not in data:
                 raise ValueError(
-                    f"sort_by: coluna '{sort_by}' inexistente; "
-                    f"colunas: {list(data)}"
+                    f"sort_by: coluna '{sort_by}' inexistente; colunas: {list(data)}"
                 )
             if len({len(v) for v in data.values()}) > 1:
                 raise ValueError(
@@ -284,13 +292,26 @@ def encode(
         # COMPETIR no min() por coluna (encoda original vs nature-transformada, fica
         # a menor). So' as colunas onde a nature vence ganham ':id'. Safe-by-
         # construction: nunca pior que o baseline (resolve a regressao F4).
-        nature_specs = ({name: spec for name, spec in nature_per_col.items()
-                         if name in data and spec is not None}
-                        if nature_per_col else None)
-        return _encode_multi(data, side_outputs=side_outputs, parallel=parallel,
-                             cfg=cfg, fallback=fallback, min_header=min_header,
-                             min_len=min_len, nature_specs=nature_specs,
-                             drop_names=drop_names)
+        nature_specs = (
+            {
+                name: spec
+                for name, spec in nature_per_col.items()
+                if name in data and spec is not None
+            }
+            if nature_per_col
+            else None
+        )
+        return _encode_multi(
+            data,
+            side_outputs=side_outputs,
+            parallel=parallel,
+            cfg=cfg,
+            fallback=fallback,
+            min_header=min_header,
+            min_len=min_len,
+            nature_specs=nature_specs,
+            drop_names=drop_names,
+        )
     raise TypeError(
         f"encode espera list[str] ou dict[str, list[str]], "
         f"recebeu {type(data).__name__}"
@@ -362,7 +383,7 @@ def _encode_column(
         side.hcc_trace = syn.get_trace()
         side.hcc_rede = syn.get_rede()
         # seq_rle_runs so' existe em HCCSeqRLE; M8AVirtualRefsSyntax nao tem
-        side.seq_rle_runs = syn.get_seq_info() if hasattr(syn, 'get_seq_info') else []
+        side.seq_rle_runs = syn.get_seq_info() if hasattr(syn, "get_seq_info") else []
         side.body_bytes = len(body.encode("utf-8"))
 
     return body

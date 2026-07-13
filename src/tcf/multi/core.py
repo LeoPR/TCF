@@ -47,13 +47,13 @@ from tcf.multi.split import _decode_struct_split, _struct_split_encode
 from tcf.pipeline import DEFAULT_PIPELINE, PipelineConfig
 from tcf.side_outputs import SideOutputs
 
-MAGIC_MULTI_V3 = b"#TCF.8M"   # multi-col DEFAULT (ADR-0032). Discriminador de 1 char:
-                              # 'M' logo apos #TCF.8 (SEM espaco); meta INLINE na linha
-                              # do shebang ('#TCF.8M<meta>\n'). Legado #TCF.6/.7 cortado.
-MAGIC_SINGLE_V3 = b"#TCF.8"   # single-col self-describing (SEM flag M -> single,
-                              # decode retorna list). Header numa linha: '#TCF.8 [nome]:spec'
-                              # (espaco = single+spec) ou '#TCF.8' (newline = version-stamp).
-                              # Opt-in. ADR-0027/0029.
+MAGIC_MULTI_V3 = b"#TCF.8M"  # multi-col DEFAULT (ADR-0032). Discriminador de 1 char:
+# 'M' logo apos #TCF.8 (SEM espaco); meta INLINE na linha
+# do shebang ('#TCF.8M<meta>\n'). Legado #TCF.6/.7 cortado.
+MAGIC_SINGLE_V3 = b"#TCF.8"  # single-col self-describing (SEM flag M -> single,
+# decode retorna list). Header numa linha: '#TCF.8 [nome]:spec'
+# (espaco = single+spec) ou '#TCF.8' (newline = version-stamp).
+# Opt-in. ADR-0027/0029.
 
 
 # --- Escape de NOMES no meta (T-FMT-NAME-ESCAPING, M2 2026-07-09) ---
@@ -87,9 +87,11 @@ def _unesc_name(s: str) -> str:
     out, i, n = [], 0, len(s)
     while i < n:
         if s[i] == "\\" and i + 1 < n:
-            out.append(s[i + 1]); i += 2
+            out.append(s[i + 1])
+            i += 2
         else:
-            out.append(s[i]); i += 1
+            out.append(s[i])
+            i += 1
     return "".join(out)
 
 
@@ -99,10 +101,17 @@ def _split_unesc(s: str, sep: str, maxsplit: int = -1) -> list[str]:
     while i < n:
         c = s[i]
         if c == "\\" and i + 1 < n:
-            buf.append(s[i:i + 2]); i += 2; continue
+            buf.append(s[i : i + 2])
+            i += 2
+            continue
         if c == sep and (maxsplit < 0 or cnt < maxsplit):
-            parts.append("".join(buf)); buf = []; cnt += 1; i += 1; continue
-        buf.append(c); i += 1
+            parts.append("".join(buf))
+            buf = []
+            cnt += 1
+            i += 1
+            continue
+        buf.append(c)
+        i += 1
     parts.append("".join(buf))
     return parts
 
@@ -117,11 +126,11 @@ def _rsplit1_unesc(s: str, sep: str):
         if s[i] == sep:
             last = i
         i += 1
-    return None if last < 0 else (s[:last], s[last + 1:])
+    return None if last < 0 else (s[:last], s[last + 1 :])
 
 
-_ESC_OK = ",=:\\!@%"   # whitelist canonica: o encoder SO' escapa estes chars
-                       # (_NAME_SEP em qualquer posicao + prefixo de modo !@%)
+_ESC_OK = ",=:\\!@%"  # whitelist canonica: o encoder SO' escapa estes chars
+# (_NAME_SEP em qualquer posicao + prefixo de modo !@%)
 
 
 def _unesc_name_strict(s: str) -> str:
@@ -178,7 +187,7 @@ def _parse_meta(meta_str: str) -> list[tuple[int | None, str | None, str, str | 
     - backslash solto no fim de nome (escape de nada);
     - size hex invalido.
     """
-    tokens = _split_unesc(meta_str, ",")             # ',' escapado no nome fica intacto
+    tokens = _split_unesc(meta_str, ",")  # ',' escapado no nome fica intacto
     n_cols = len(tokens)
     pairs: list[tuple[int | None, str | None, str, str | None]] = []
     for i, p in enumerate(tokens):
@@ -186,10 +195,10 @@ def _parse_meta(meta_str: str) -> list[tuple[int | None, str | None, str, str | 
             mode = "raw"
             p = p[1:]
         elif p.startswith("@"):
-            mode = "dict"          # V2-B dicionario (ADR-0025)
+            mode = "dict"  # V2-B dicionario (ADR-0025)
             p = p[1:]
         elif p.startswith("%"):
-            mode = "split"         # split estrutural (ADR-0026)
+            mode = "split"  # split estrutural (ADR-0026)
             p = p[1:]
         else:
             mode = "tcf"
@@ -199,7 +208,7 @@ def _parse_meta(meta_str: str) -> list[tuple[int | None, str | None, str, str | 
         r = _rsplit1_unesc(p, ":")
         if r is not None:
             p, nat_id = r
-        eq = _split_unesc(p, "=", 1)                  # primeiro '=' NAO-escapado
+        eq = _split_unesc(p, "=", 1)  # primeiro '=' NAO-escapado
         if len(eq) == 2:
             # '<size>=<nome>' — nomeada. Nome des-escapado (nomes com ,/=/:/! etc).
             size_str, name = eq
@@ -318,7 +327,8 @@ def _encode_multi(
         warnings.warn(
             f"coluna com nome vazio '' tratada como ANONIMA — o decode retorna o "
             f"nome posicional {str(pos)!r} (entrada sem nome, provavel engano)",
-            UserWarning, stacklevel=3,
+            UserWarning,
+            stacklevel=3,
         )
 
     # Stringify upfront (per-col paralelo recebe valores ja' string) + check
@@ -334,8 +344,11 @@ def _encode_multi(
     # CUIDADO: True == 1 em Python — o isinstance(bool) preserva parallel=True.
     use_parallel = len(table_str) >= 2 and (
         parallel is True
-        or (not isinstance(parallel, bool)
-            and isinstance(parallel, int) and parallel >= 2)
+        or (
+            not isinstance(parallel, bool)
+            and isinstance(parallel, int)
+            and parallel >= 2
+        )
     )
     n_workers = 0
     if use_parallel:
@@ -345,12 +358,17 @@ def _encode_multi(
             n_workers = int(parallel)
         n_workers = max(1, min(n_workers, len(table_str)))
         col_bodies_bytes, per_col_sides = _encode_columns_parallel(
-            table_str, want_side=(side_outputs is not None),
-            n_workers=n_workers, cfg=cfg, min_len=min_len,
+            table_str,
+            want_side=(side_outputs is not None),
+            n_workers=n_workers,
+            cfg=cfg,
+            min_len=min_len,
         )
     else:
         col_bodies_bytes, per_col_sides = _encode_columns_serial(
-            table_str, want_side=(side_outputs is not None), cfg=cfg,
+            table_str,
+            want_side=(side_outputs is not None),
+            cfg=cfg,
             min_len=min_len,
         )
 
@@ -390,8 +408,7 @@ def _encode_multi(
             suf = f":{ids[name]}" if name in ids else ""
             if drop_names or name == "":
                 parts.append(
-                    f"{pre}{suf}" if i == last_i
-                    else f"{pre}{_sz(len(body))}{suf}"
+                    f"{pre}{suf}" if i == last_i else f"{pre}{_sz(len(body))}{suf}"
                 )
             elif min_header and i == last_i:
                 parts.append(f"{pre}{_esc_name(name)}{suf}")
@@ -426,14 +443,16 @@ def _encode_multi(
             # apply-rate reportado SEMPRE (telemetria da transformacao).
             from tcf.encoder import _encode_column
             from tcf.natures.templated_checked import encode_value
+
             pairs = [encode_value(spec, v) for v in table_str[name]]
             transformed = [p for p, _ in pairs]
             if side_outputs is not None:
                 from tcf.encoder import _nature_apply_stats
-                nature_apply[name] = _nature_apply_stats(
-                    spec, [s for _, s in pairs])
-            nat_tcf = _encode_column(transformed, header=name, cfg=cfg,
-                                     min_len=min_len).encode("utf-8")
+
+                nature_apply[name] = _nature_apply_stats(spec, [s for _, s in pairs])
+            nat_tcf = _encode_column(
+                transformed, header=name, cfg=cfg, min_len=min_len
+            ).encode("utf-8")
             nat_body, nat_mode = _best_of(transformed, nat_tcf)
             nature_candidates[name] = (nat_body, nat_mode, spec.name)
 
@@ -493,7 +512,7 @@ def _encode_multi(
             "header_bytes": header_bytes,
             "body_bytes": len(body_concat),
             "parallel_workers": n_workers if use_parallel else 0,
-            "format": "v3",   # #TCF.8M (ADR-0032 default); used_v2 abaixo detalha as features
+            "format": "v3",  # #TCF.8M (ADR-0032 default); used_v2 abaixo detalha as features
             "used_v2_features": used_v2,
             "fallback_cols": list(fallback_cols),
             "dict_cols": list(dict_cols),
@@ -546,7 +565,7 @@ def _decode_multi_impl(
             f"cortado (ADR-0032) — git checkout <pre-0.8> pra ler; got {line1[:20]!r}"
         )
     # meta INLINE na linha do shebang (#TCF.8M<meta>\n<bodies>).
-    meta_str = line1[len(MAGIC_MULTI_V3):].decode("utf-8")
+    meta_str = line1[len(MAGIC_MULTI_V3) :].decode("utf-8")
     cursor = nl1 + 1
     # BUG-08 (lote 3, fold): meta vazio + body vazio e' NAO-EMITIVEL (0-rows e'
     # rejeitado no encode; 1-linha-vazia sempre gera >=1 byte de body ou
@@ -576,9 +595,9 @@ def _decode_multi_impl(
         # Coluna anonima (name is None) -> nome POSICIONAL = ordem (ADR-0029).
         col = name if name is not None else str(i)
         if size is None:
-            body_bytes = raw[cursor:]              # ate' EOF (ultima coluna)
+            body_bytes = raw[cursor:]  # ate' EOF (ultima coluna)
         else:
-            body_bytes = raw[cursor:cursor + size]
+            body_bytes = raw[cursor : cursor + size]
             if len(body_bytes) != size:
                 raise ValueError(
                     f"body truncado: coluna {col!r} declara {size}B no header, "

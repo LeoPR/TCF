@@ -10,6 +10,7 @@ Decisões do owner (2026-07-10):
   telemetria válida nesse sentido); os bytes REALMENTE emitidos + modo vencedor são
   capturados NO PONTO do min() (contagem já existente pro header — zero passada extra).
 """
+
 from __future__ import annotations
 
 import pytest
@@ -18,14 +19,15 @@ from tcf import decode, encode, view
 from tcf.side_outputs import SideOutputs
 
 # Colunas de controle com modo PREVISÍVEL no min(tcf, raw, dict, split):
-VALS_RAW = ["q", "w", "e"]                      # curtas/únicas -> raw vence
-VALS_DICT = ["alpha", "beta"] * 50              # K=2, N=100 -> dict vence
+VALS_RAW = ["q", "w", "e"]  # curtas/únicas -> raw vence
+VALS_DICT = ["alpha", "beta"] * 50  # K=2, N=100 -> dict vence
 VALS_TCF = ["constante-longa-repetida-x"] * 20  # RLE *20| -> tcf vence
 
 
 # ---------------------------------------------------------------------------
 # BUG-01 — nome de coluna vazio '' (encode: transforma; decode: fail-loud)
 # ---------------------------------------------------------------------------
+
 
 class TestBug01EmptyColName:
     def test_empty_name_becomes_anonymous_with_warning(self):
@@ -57,7 +59,7 @@ class TestBug01EmptyColName:
         # nome terminando em backslash SOLTO (cauda ímpar = escape de nada): o
         # encoder nunca emite ('\' legítimo sai '\\', cauda par) -> corrupção.
         # Obs: '\,' NÃO é erro (vírgula escapada legítima de um nome com ',').
-        corrupt = "#TCF.8M!1=b,a\\\nxy"           # último token: 'a\' (dangling)
+        corrupt = "#TCF.8M!1=b,a\\\nxy"  # último token: 'a\' (dangling)
         with pytest.raises(ValueError, match="corromp|dangling|solto"):
             decode(corrupt)
 
@@ -79,8 +81,10 @@ class TestAnonLastColGrammar:
         table = {"c": ["k1", "k2", "k3", "k4"], "": ["abc", "de", "fg", "hi"]}
         with pytest.warns(UserWarning):
             blob = encode(table, min_header=False)
-        assert decode(blob) == {"c": ["k1", "k2", "k3", "k4"],
-                                "1": ["abc", "de", "fg", "hi"]}
+        assert decode(blob) == {
+            "c": ["k1", "k2", "k3", "k4"],
+            "1": ["abc", "de", "fg", "hi"],
+        }
         _parity(blob)
 
     def test_min_header_false_drop_names_all_positional(self):
@@ -101,6 +105,7 @@ class TestAnonLastColGrammar:
 # BUG-02 — paridade view vs decode (parser único)
 # ---------------------------------------------------------------------------
 
+
 def _parity(blob: str):
     """view e decode devem enxergar as MESMAS colunas com os MESMOS valores."""
     dec = decode(blob)
@@ -116,7 +121,7 @@ class TestBug02ViewParity:
         # -> último token do meta é VAZIO. view crashava (IndexError); decode ok.
         table = {"a": [str(i) for i in range(20)], "b": list(VALS_TCF)}
         blob = encode(table, drop_names=True)
-        meta = blob.split("\n", 1)[0][len("#TCF.8M"):]
+        meta = blob.split("\n", 1)[0][len("#TCF.8M") :]
         assert meta.split(",")[-1] == "", "pré-condição: último token vazio (modo tcf)"
         _parity(blob)
 
@@ -125,8 +130,11 @@ class TestBug02ViewParity:
         _parity(encode(table))
 
     def test_view_parity_mixed_modes(self):
-        table = {"r": list(VALS_RAW * 34)[:100], "d": list(VALS_DICT),
-                 "t": ["constante-longa-repetida-x"] * 100}
+        table = {
+            "r": list(VALS_RAW * 34)[:100],
+            "d": list(VALS_DICT),
+            "t": ["constante-longa-repetida-x"] * 100,
+        }
         _parity(encode(table))
 
     def test_view_parity_all_anonymous(self):
@@ -138,11 +146,12 @@ class TestBug02ViewParity:
 # BUG-07 — emitted_bytes/modo capturados no min(); body_bytes = candidato
 # ---------------------------------------------------------------------------
 
+
 def _body_slices(blob: str) -> list[int]:
     """Tamanho REAL do body de cada coluna, medido pelo header (fonte: formato)."""
     raw = blob.encode("utf-8")
     nl = raw.find(b"\n")
-    meta = raw[:nl].decode("utf-8")[len("#TCF.8M"):]
+    meta = raw[:nl].decode("utf-8")[len("#TCF.8M") :]
     total_body = len(raw) - (nl + 1)
     sizes = []
     for tok in meta.split(","):
@@ -162,9 +171,9 @@ class TestBug07EmittedBytes:
     def _table(self):
         # 100 linhas pra estabilizar os modos: r->raw, d->dict, t->tcf
         return {
-            "r": [f"u{i}x{i * 7}" for i in range(100)],   # únicos curtos -> raw
-            "d": list(VALS_DICT),                          # K=2 -> dict
-            "t": ["constante-longa-repetida-x"] * 100,     # RLE -> tcf
+            "r": [f"u{i}x{i * 7}" for i in range(100)],  # únicos curtos -> raw
+            "d": list(VALS_DICT),  # K=2 -> dict
+            "t": ["constante-longa-repetida-x"] * 100,  # RLE -> tcf
         }
 
     def test_emitted_bytes_match_header_and_modes_exposed(self):
@@ -203,13 +212,13 @@ class TestBug07EmittedBytes:
         assert b1 == b2  # byte-identidade (já pinada alhures; pré-condição aqui)
         assert s1.multi_info["col_modes"] == s2.multi_info["col_modes"]
         for name in table:
-            assert (s1.per_col[name].emitted_bytes
-                    == s2.per_col[name].emitted_bytes)
+            assert s1.per_col[name].emitted_bytes == s2.per_col[name].emitted_bytes
 
 
 # ===========================================================================
 # LOTE 2 (2026-07-10, decisões do owner): BUG-03/04/05/06
 # ===========================================================================
+
 
 class TestBug03ZeroRows:
     """0 linhas colide com 1-linha-vazia por construção (N valores = N-1
@@ -235,12 +244,15 @@ class TestBug04UnknownVersion:
     claro, não KeyError críptico do HCC. Subversões = controle de dev; compat
     real só no 1.0 (visão owner: '#TCF1M' fecha tudo — registrado)."""
 
-    @pytest.mark.parametrize("blob", [
-        "#TCF.9M2=a,b\nxxyy",
-        "#TCF.10M2=a,b\nxxyy",
-        "#TCF.85M2=a,b\nxxyy",   # dígitos completos: versão 85, NÃO disc '5' do .8
-        "#TCF.9\nqualquer",
-    ])
+    @pytest.mark.parametrize(
+        "blob",
+        [
+            "#TCF.9M2=a,b\nxxyy",
+            "#TCF.10M2=a,b\nxxyy",
+            "#TCF.85M2=a,b\nxxyy",  # dígitos completos: versão 85, NÃO disc '5' do .8
+            "#TCF.9\nqualquer",
+        ],
+    )
     def test_future_version_fails_loud(self, blob):
         with pytest.raises(ValueError, match="vers"):
             decode(blob)
@@ -284,7 +296,7 @@ class TestBug05Integrity:
             decode("#TCF.8M!5=a,!b\nxx\nyyp")
 
     def test_trailing_garbage_sized_last_raises(self):
-        blob = self._blob(min_header=False)      # última COM size -> fecho checável
+        blob = self._blob(min_header=False)  # última COM size -> fecho checável
         with pytest.raises(ValueError, match="exced|sobra"):
             decode(blob + "LIXO")
 
@@ -307,6 +319,7 @@ class TestBug06StringifyCheck:
         class Sneaky:
             def __str__(self):
                 return "linha1\nlinha2"
+
         with pytest.raises(ValueError, match="quebra de linha"):
             encode({"a": [Sneaky(), "v2"], "b": ["x", "y"]})
 
@@ -314,6 +327,7 @@ class TestBug06StringifyCheck:
         class SneakyCR:
             def __str__(self):
                 return "l1\rl2"
+
         with pytest.raises(ValueError, match="quebra de linha"):
             encode({"a": [SneakyCR()], "b": ["x"]})
 
@@ -330,65 +344,69 @@ class TestBug06StringifyCheck:
 # gente pode mudar comportamento") — revisão profunda pré-1.0 em ticket próprio.
 # ===========================================================================
 
+
 class TestLote3ApiBoundaries:
     """BUG-09 + BUG-10: fronteiras da API fail-loud/consistentes."""
 
-    def test_str_as_column_value_raises(self):                 # BUG-09
+    def test_str_as_column_value_raises(self):  # BUG-09
         with pytest.raises(TypeError, match="(?i)lista"):
             encode({"a": "xyz"})
 
-    def test_bytes_as_column_value_raises(self):               # BUG-09
+    def test_bytes_as_column_value_raises(self):  # BUG-09
         with pytest.raises(TypeError, match="(?i)lista"):
             encode({"a": b"xyz"})
 
-    def test_list_nonstr_items_convert_like_dict(self):        # BUG-10a
+    def test_list_nonstr_items_convert_like_dict(self):  # BUG-10a
         # mesma semântica do dict (ADR-0013: None -> ''); antes crashava fundo
         assert decode(encode([1, None, "x"])) == ["1", "", "x"]
 
-    def test_list_nonstr_sneaky_newline_raises(self):          # BUG-10a×06
+    def test_list_nonstr_sneaky_newline_raises(self):  # BUG-10a×06
         class Sneaky:
             def __str__(self):
                 return "a\nb"
+
         with pytest.raises(ValueError, match="quebra de linha"):
             encode([Sneaky()])
 
-    def test_layers_wrong_type_raises(self):                   # BUG-10b
+    def test_layers_wrong_type_raises(self):  # BUG-10b
         with pytest.raises(TypeError, match="PipelineConfig"):
             encode(["a", "b"], layers={"pre_pass": False})
 
-    def test_parallel_negative_raises(self):                   # BUG-10c
+    def test_parallel_negative_raises(self):  # BUG-10c
         with pytest.raises(ValueError, match="parallel"):
             encode({"a": ["1", "2"], "b": ["x", "y"]}, parallel=-2)
 
-    def test_parallel_one_is_serial_no_pool(self):             # BUG-10c
+    def test_parallel_one_is_serial_no_pool(self):  # BUG-10c
         side = SideOutputs()
         table = {"a": ["1", "2"], "b": ["x", "y"]}
         blob = encode(table, parallel=1, side_outputs=side)
-        assert side.multi_info["parallel_workers"] == 0        # dedução: 1 worker ≡ serial
-        assert blob == encode(table)                           # byte-idêntico
+        assert side.multi_info["parallel_workers"] == 0  # dedução: 1 worker ≡ serial
+        assert blob == encode(table)  # byte-idêntico
 
-    def test_parallel_true_still_parallel(self):               # guarda (True==1 em Python!)
+    def test_parallel_true_still_parallel(self):  # guarda (True==1 em Python!)
         side = SideOutputs()
         table = {"a": ["1", "2"], "b": ["x", "y"], "c": ["p", "q"]}
         blob = encode(table, parallel=True, side_outputs=side)
         assert side.multi_info["parallel_workers"] >= 2
         assert blob == encode(table)
 
-    def test_decode_nonstr_raises_typeerror(self):             # BUG-10d
+    def test_decode_nonstr_raises_typeerror(self):  # BUG-10d
         with pytest.raises(TypeError, match="str"):
             decode(123)
 
-    def test_name_without_nature_raises(self):                 # BUG-10e
+    def test_name_without_nature_raises(self):  # BUG-10e
         with pytest.raises(ValueError, match="nature"):
             encode(["a", "b"], name="col")
 
-    def test_nature_with_dict_raises(self):                    # BUG-10g
+    def test_nature_with_dict_raises(self):  # BUG-10g
         from tcf import SPEC_CPF
+
         with pytest.raises(ValueError, match="nature_per_col"):
             encode({"a": ["111.444.777-35"]}, nature=SPEC_CPF)
 
-    def test_nature_per_col_with_list_raises(self):            # BUG-10g
+    def test_nature_per_col_with_list_raises(self):  # BUG-10g
         from tcf import SPEC_CPF
+
         with pytest.raises(ValueError, match="nature="):
             encode(["111.444.777-35"], nature_per_col={"a": SPEC_CPF})
 
@@ -396,17 +414,22 @@ class TestLote3ApiBoundaries:
 class TestLote3MetaStrict:
     """BUG-11b whitelist de escape + BUG-08 dobrado (não-emitível = erro)."""
 
-    def test_escape_of_nonstructural_char_is_error(self):      # BUG-11b
+    def test_escape_of_nonstructural_char_is_error(self):  # BUG-11b
         # encoder só escapa ,=:\ e !@% inicial; '\b' é não-emitível -> corrupção
         with pytest.raises(ValueError, match="corromp|escape"):
             decode("#TCF.8M2=a\\bc,!z\nXXYY")
 
     def test_legit_escapes_still_roundtrip(self):
-        table = {"a,b": ["x", "y"], "c=d": ["p", "q"], "e:f": ["1", "2"],
-                 "g\\h": ["u", "v"], "!bang": ["m", "n"]}
+        table = {
+            "a,b": ["x", "y"],
+            "c=d": ["p", "q"],
+            "e:f": ["1", "2"],
+            "g\\h": ["u", "v"],
+            "!bang": ["m", "n"],
+        }
         assert decode(encode(table)) == table
 
-    def test_empty_meta_empty_body_is_error(self):             # BUG-08 fold
+    def test_empty_meta_empty_body_is_error(self):  # BUG-08 fold
         # '#TCF.8M\n' (meta vazio E body vazio) é não-emitível: 0-rows rejeitado
         # no encode e 1-linha-vazia sempre gera >=1 byte de body ou marcador '!'
         with pytest.raises(ValueError, match="vazio|corromp"):
@@ -427,6 +450,7 @@ class TestLote3MetaStrict:
 # LOTE 4 (2026-07-10, "vamos fechar os A"): BUG-13 b/d/e — decode estrito fino
 # ===========================================================================
 
+
 class TestLote4NatureIdStrict:
     """BUG-13b: nature-id desconhecido no header = ERRO (revoga o contrato
     forward-compat de 2026-06-24 — decisão owner 2026-07-10: pre-1.0 não tem
@@ -435,8 +459,11 @@ class TestLote4NatureIdStrict:
 
     def _tampered_multi(self):
         from tcf import SPEC_CNPJ
-        text = encode({"doc": ["11.222.333/0001-81"], "x": ["a"]},
-                      nature_per_col={"doc": SPEC_CNPJ})
+
+        text = encode(
+            {"doc": ["11.222.333/0001-81"], "x": ["a"]},
+            nature_per_col={"doc": SPEC_CNPJ},
+        )
         return text.replace(":cnpj", ":zzz")
 
     def test_unknown_nature_id_multi_raises(self):
@@ -445,12 +472,13 @@ class TestLote4NatureIdStrict:
 
     def test_unknown_nature_id_single_raises(self):
         from tcf import SPEC_CPF
+
         text = encode(["529.982.247-25", "111.444.777-35"], nature=SPEC_CPF)
         with pytest.raises(ValueError, match="desconhecido"):
             decode(text.replace(":cpf", ":zzz", 1))
 
     def test_unknown_nature_id_view_raises_on_materialize(self):
-        v = view(self._tampered_multi())      # parse lazy passa; erro ao materializar
+        v = view(self._tampered_multi())  # parse lazy passa; erro ao materializar
         with pytest.raises(ValueError, match="desconhecido"):
             v._col("doc")
 
@@ -461,10 +489,10 @@ class TestLote4ViewIncremental:
 
     def test_view_incremental_nrows_check(self):
         blob = encode({"a": ["xx", "yy"], "b": ["pp", "qq"]})
-        v = view(blob[:-4])          # última col (EOF) truncada: parse lazy passa
+        v = view(blob[:-4])  # última col (EOF) truncada: parse lazy passa
         assert v._col("a") == ["xx", "yy"]
         with pytest.raises(ValueError, match="diverg|n_rows"):
-            v._col("b")              # materializa 1 row vs 2 -> incremental pega
+            v._col("b")  # materializa 1 row vs 2 -> incremental pega
 
     def test_view_consistent_columns_unaffected(self):
         blob = encode({"a": ["xx", "yy"], "b": ["pp", "qq"]})
@@ -479,21 +507,29 @@ class TestLote4InternalInvariants:
     def test_v2b_trailing_byte_raises_clear(self):
         # última coluna '@' EOF + '\n' de editor: antes IndexError 'list index
         # out of range' (byte 0x0A vira índice negativo no stream base-94)
-        table = {"grp": [f"g{i % 3}" for i in range(30)],
-                 "txt": [f"linha de texto {i % 10} com recheio comum bem longo"
-                         for i in range(30)]}
+        table = {
+            "grp": [f"g{i % 3}" for i in range(30)],
+            "txt": [
+                f"linha de texto {i % 10} com recheio comum bem longo"
+                for i in range(30)
+            ],
+        }
         blob = encode(table)
         meta = blob.split("\n", 1)[0]
-        assert meta.rstrip("abgrptx=0123456789").endswith("@") or "@" in meta  # há coluna dict
+        assert (
+            meta.rstrip("abgrptx=0123456789").endswith("@") or "@" in meta
+        )  # há coluna dict
         with pytest.raises(ValueError, match="V2-B"):
             decode(blob + "\n")
 
     def test_v2b_table_truncated_raises(self):
         from tcf.multi import _decode_v2b
+
         with pytest.raises(ValueError, match="V2-B"):
-            _decode_v2b(b"99\nab!!")             # ntable 99 > bytes disponiveis
+            _decode_v2b(b"99\nab!!")  # ntable 99 > bytes disponiveis
 
     def test_split_template_truncated_raises(self):
         from tcf.multi import _decode_struct_split
+
         with pytest.raises(ValueError, match="split"):
-            _decode_struct_split(b"999\nxx")     # ntmpl 999 > bytes disponiveis
+            _decode_struct_split(b"999\nxx")  # ntmpl 999 > bytes disponiveis
