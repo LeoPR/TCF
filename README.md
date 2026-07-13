@@ -35,7 +35,8 @@ Carla Nunes,carla@acme.com.br,Sao Paulo,Basic,333.333.333-33
 Diego Rocha,diego@acme.com.br,Rio de Janeiro,Premium,444.444.444-44
 ```
 
-**TCF** *(242 B, format 0.8, real `encode` output)*: what repeats becomes a reference; what is unique stays raw.
+**TCF** *(242 B, format 0.8, real `encode` output)*: what repeats becomes a reference; what is unique
+stays raw.
 
 ```
 #TCF.8M!2c=nome,2a=email,1c=cidade,14=plano,!cpf
@@ -57,25 +58,50 @@ Basic
 444.444.444-44
 ```
 
+**TCF + CPF nature** *(210 B)*: turning on the opt-in `cpf` nature shrinks even the all-unique column.
+
+```
+#TCF.8M!2c=nome,2a=email,1c=cidade,14=plano,!cpf:cpf
+Ana Souza
+Bruno Lima
+Carla Nunes
+Diego Rochaan*a*@acme.com.br
+brun*o3
+carl2,3
+dieg5,3
+*3|Sao Paulo
+Rio de Janeiro
+*2|Premium
+Basic
+^1
+%g$.u
+)K%7l
+.1&Cc
+0r(LU
+```
+
+The `cpf` column carries no factorable repetition, so the default pipeline stores it raw (`!cpf`). The
+CPF *nature* (`:cpf`) drops the punctuation and the derivable check digit and stores the 9-digit body
+in a compact base — each value goes from 14 chars to 5 (`%g$.u` = `111.111.111-11`), recomputed exactly
+on decode.
+
 **How to read it** *(the example data is Portuguese — `nome`=name, `cidade`=city, `plano`=plan, `cpf`=Brazilian tax ID — kept verbatim because the byte counts are measured from it):*
 
 - Line 1, the format signature and inline meta: `#TCF.8M` is format 0.8, multi-column;
   sizes are hexadecimal.
 - The column meta (`size=name`) uses `!` for raw, `@` for dictionary and `%` for structural
   split when those candidates win. The `!` marks a column stored **raw** (when raw comes out smaller than TCF).
-  The last one (`cpf`) carries no size: it runs to the end (and the `!` shows it is raw too).
+  The last one (`cpf`) carries no size (it runs to the end) and shows `!cpf:cpf`: `!` raw + the
+  self-describing nature id `:cpf` (so `decode` reverses it with no spec passed in).
 - The bodies come concatenated, **delimited by size, not by line break**.
   That is why the raw `nome` column (`…Diego Rocha`) runs straight into the email (`an*a*…`).
 - In the body: `*3|Sao Paulo` means *"Sao Paulo, 3×"* (a repetition).
   `^1` means *"same as line 1"* (a substitution).
 - In the **email** column TCF goes deeper (unique prefix + a referenced common domain).
   That is where it saves the most, and where the text gets densest.
-- The **`cpf`** column is the opposite: values almost all unique, **nothing to factor out** by the
-  default pipeline. TCF stores it **raw** (`!cpf`) — it does not compress, but it does not **inflate**
-  either (that is the fallback).
+- The **`cpf`** nature is opted in via `nature_per_col={"cpf": SPEC_CPF}` (see the two blocks above).
   *(These are repeated-digit placeholders: mod-11-valid but never issued by the tax office — safe
-  fakes. The opt-in* `nature` *(ADR-0015) strips `.`/`-` and drops the derivable check digit, so with
-  `nature_per_col={"cpf": SPEC_CPF}` this very column DOES compress — see "Nature filters" below.)*
+  fakes. See "Nature filters" below.)*
 
 JSON repeats the whole structure.
 CSV repeats the values.

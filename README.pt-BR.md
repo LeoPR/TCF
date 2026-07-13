@@ -38,7 +38,8 @@ Carla Nunes,carla@acme.com.br,Sao Paulo,Basic,333.333.333-33
 Diego Rocha,diego@acme.com.br,Rio de Janeiro,Premium,444.444.444-44
 ```
 
-**TCF** *(242 B, formato 0.8, saída real do `encode`)*: o que se repete vira referência; o que é único fica cru.
+**TCF** *(242 B, formato 0.8, saída real do `encode`)*: o que se repete vira referência; o que é único
+fica cru.
 
 ```
 #TCF.8M!2c=nome,2a=email,1c=cidade,14=plano,!cpf
@@ -60,24 +61,49 @@ Basic
 444.444.444-44
 ```
 
+**TCF + nature CPF** *(210 B)*: ligar a *nature* opt-in `cpf` encolhe até a coluna toda-única.
+
+```
+#TCF.8M!2c=nome,2a=email,1c=cidade,14=plano,!cpf:cpf
+Ana Souza
+Bruno Lima
+Carla Nunes
+Diego Rochaan*a*@acme.com.br
+brun*o3
+carl2,3
+dieg5,3
+*3|Sao Paulo
+Rio de Janeiro
+*2|Premium
+Basic
+^1
+%g$.u
+)K%7l
+.1&Cc
+0r(LU
+```
+
+A coluna `cpf` não tem repetição a fatorar, então o pipeline default a guarda crua (`!cpf`). A *nature*
+CPF (`:cpf`) tira a pontuação e o dígito verificador derivável e guarda o corpo de 9 dígitos numa base
+compacta — cada valor cai de 14 chars para 5 (`%g$.u` = `111.111.111-11`), recalculado exato no decode.
+
 **Como ler:**
 
 - Linha 1, a assinatura e o meta inline: `#TCF.8M` é o formato 0.8, multi-coluna;
   os tamanhos estão em hexadecimal.
 - O meta (`tamanho=nome`) usa `!` para raw, `@` para dicionário e `%` para split estrutural
   quando esses candidatos vencem. O `!` marca uma coluna guardada **crua** (quando o raw fica menor que o TCF).
-  A última (`cpf`) não leva tamanho: vai até o fim (e o `!` mostra que também é crua).
+  A última (`cpf`) não leva tamanho (vai até o fim) e mostra `!cpf:cpf`: `!` raw + o id de nature
+  auto-descritivo `:cpf` (então o `decode` reverte sem receber spec).
 - Os corpos vêm concatenados, **delimitados por tamanho, não por quebra de linha**.
   Por isso a coluna crua `nome` (`…Diego Rocha`) emenda direto no e-mail (`an*a*…`).
 - No corpo: `*3|Sao Paulo` é *"Sao Paulo, 3×"* (repetição).
   `^1` é *"igual à linha 1"* (substituição).
 - Na coluna de **e-mail** o TCF vai mais fundo (prefixo único + domínio comum referenciado).
   É onde mais economiza, e onde o texto fica mais denso.
-- Já a coluna **`cpf`** é o oposto: valores quase todos únicos, **nada a fatorar** pelo pipeline
-  default. O TCF guarda **cru** (`!cpf`) — não comprime, mas também **não infla** (é o fallback).
+- A *nature* **`cpf`** é opt-in via `nature_per_col={"cpf": SPEC_CPF}` (ver os dois blocos acima).
   *(São placeholders de dígitos repetidos: mod-11-válidos, mas a Receita nunca os emite — fakes
-  seguros. A* `nature` *opt-in (ADR-0015) tira `.`/`-` e dropa o dígito verificador derivável; com
-  `nature_per_col={"cpf": SPEC_CPF}` esta MESMA coluna comprime — ver "Nature filters" abaixo.)*
+  seguros. Ver "Nature filters" abaixo.)*
 
 JSON repete a estrutura inteira.
 CSV repete os valores.
