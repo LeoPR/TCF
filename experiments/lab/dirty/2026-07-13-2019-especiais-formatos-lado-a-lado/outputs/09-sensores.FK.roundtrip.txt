@@ -1,0 +1,13 @@
+linha | original -> decodificado (tipado)
+l0: {'estacao': 'PA-001', 'temperatura_c': 21.4, 'variacao_pct': 1.8, 'amostras': 90, 'obs': ''}
+  -> {'estacao': 'PA-001', 'temperatura_c': 21.4, 'variacao_pct': 1.8, 'amostras': 90, 'obs': ''}
+l1: {'estacao': 'PA-002', 'temperatura_c': nan, 'variacao_pct': nan, 'amostras': 0, 'obs': 'sensor em manutencao'}
+  -> {'estacao': 'PA-002', 'temperatura_c': nan, 'variacao_pct': nan, 'amostras': 0, 'obs': 'sensor em manutencao'}
+l2: {'estacao': 'PA-003', 'temperatura_c': 24.0, 'variacao_pct': inf, 'amostras': 90, 'obs': 'janela anterior zerada'}
+  -> {'estacao': 'PA-003', 'temperatura_c': 24.0, 'variacao_pct': inf, 'amostras': 90, 'obs': 'janela anterior zerada'}
+l3: {'estacao': 'PA-004', 'temperatura_c': 19.8, 'variacao_pct': -2.4, 'amostras': 88, 'obs': 'None'}
+  -> {'estacao': 'PA-004', 'temperatura_c': 19.8, 'variacao_pct': -2.4, 'amostras': 88, 'obs': 'None'}
+l4: {'estacao': 'PA-005', 'temperatura_c': nan, 'variacao_pct': 0.0, 'amostras': 0, 'obs': None}
+  -> {'estacao': 'PA-005', 'temperatura_c': nan, 'variacao_pct': 0.0, 'amostras': 0, 'obs': None}
+l5: {'estacao': 'PA-006', 'temperatura_c': 22.7, 'variacao_pct': -0.0, 'amostras': 91, 'obs': 'nan'}
+  -> {'estacao': 'PA-006', 'temperatura_c': 22.7, 'variacao_pct': -0.0, 'amostras': 91, 'obs': 'nan'}

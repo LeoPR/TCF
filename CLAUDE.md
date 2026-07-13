@@ -287,8 +287,18 @@ independente por camada).
 
 ## CONVENCOES
 
+### Estrutura de lab dirty — OBRIGATÓRIA (owner repetiu 10+ vezes; violar = refazer)
+Fonte canônica: `experiments/lab/dirty/notas/dirty-lab-convencoes.md`. Resumo inegociável:
+- Pastas por estágio com numeração DENTRO: **`inputs/` + `intermediates/` + `outputs/`**
+  (+ `README.md`, `result.md`, `run.py`, `datasets-provenance.md`).
+- **EXTENSÃO REAL sempre**: JSON→`.json` · tabular→`.csv` · wire TCF→**`.tcf`** (labs têm
+  exceção no `.gitignore`; NÃO usar `.tcf.txt` em lab novo) · `.txt` só prosa/debug/contraprova.
+- **Roundtrip é ARQUIVO diffável** na extensão da entrada, byte-idêntico ao canônico de
+  `intermediates/` (assert no run.py). NUNCA só prosa/print.
+- Gabarito: `experiments/lab/dirty/2026-07-13-2019-especiais-formatos-lado-a-lado/`.
+
 ### Naming
-- Labs dirty: `YYYY-MM-DD-name/`
+- Labs dirty: `YYYY-MM-DD-HHMM-name/` (dia+hora — só o dia não ordena)
 - Labs clean: `EXP-NNN-name/`
 - Sub-exps: `NN-description/` (numerados dentro do lab)
 - ADRs: `NNNN-imperative-phrase.md`

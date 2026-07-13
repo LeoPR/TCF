@@ -51,9 +51,11 @@ from model_ext import from_jsonlike, from_python_ext, semantic_key  # noqa: E402
 from wire_ac import decode as decode_a, encode as encode_a  # noqa: E402
 from regular import decode_r2, derive_schema, encode_r2, leaf_paths  # noqa: E402
 
-ART = HERE / "artifacts"
-ART.mkdir(exist_ok=True)
-INP = HERE / "inputs"
+INP = HERE / "inputs"          # entradas com extensao real (.json/.csv)
+INTER = HERE / "intermediates"  # fluxo interno/semantica/canonicos
+OUT = HERE / "outputs"          # saidas com extensao real (.tcf/.json) + contraprova
+INTER.mkdir(exist_ok=True)
+OUT.mkdir(exist_ok=True)
 
 MARK2CHAR = {
     "null": "z", "nan": "q", "pos_inf": "p", "neg_inf": "m",
@@ -310,12 +312,27 @@ def main() -> None:
     doc2 = from_jsonlike(src2)
     rows2 = [r for r in doc2.root.items]
 
-    # ============ ENTRADA 3: sensores tabular (tipado, sem hierarquia) ============
+    # ============ ENTRADA 3: sensores tabular ============
+    # Origem TIPADA (SENSORES, driver/Arrow) + o export stringly em inputs/03 (CSV).
+    # O CSV E' a prova da colisao: linhas 4 e 5 tem obs='None' identico vindo de
+    # verdades diferentes (string literal vs null exportado).
+    import csv as _csv
+    with (INP / "03-sensores-tabular.csv").open(encoding="utf-8", newline="") as f:
+        r = _csv.reader(f)
+        header = next(r)
+        csv_cols = {h: [] for h in header}
+        for rowv in r:
+            for h, v in zip(header, rowv):
+                csv_cols[h].append(v)
+    # consistencia: o CSV e' exatamente o str() da origem tipada
+    assert csv_cols == {c: [str(v) for v in cells] for c, cells in SENSORES.items()}, \
+        "inputs/03 divergiu da origem tipada"
     tbl_render = ["estacao | temperatura_c | variacao_pct | amostras | obs", "---"]
     for i in range(6):
         tbl_render.append(" | ".join(repr(SENSORES[c][i]) for c in SENSORES))
-    (ART / "01-sensores-tabular-entrada.txt").write_text(
-        "origem TIPADA (Python) — reparar: obs linha3='None' (string) vs linha4=None (null);\n"
+    (INTER / "01-sensores-origem-tipada.txt").write_text(
+        "origem TIPADA (driver/Arrow) — o CSV em inputs/03 e' o export str() dela.\n"
+        "reparar: obs linha3='None' (string) vs linha4=None (null) — NO CSV os dois viram 'None';\n"
         "obs linha5='nan' (string) vs temperatura linha1=nan (float); variacao -0.0 vs 0.0.\n\n"
         + "\n".join(tbl_render) + "\n",
         encoding="utf-8",
@@ -334,58 +351,64 @@ def main() -> None:
                          "f" if k == "boolean" else
                          {"string": "s", "integer": "i", "number": "d"}.get(k) or MARK2CHAR[k])
         flow.append(f"  {cname:16s} {''.join(chars)}")
-    (ART / "02-fluxo-semantico.txt").write_text("\n".join(flow) + "\n", encoding="utf-8")
+    (INTER / "02-fluxo-semantico.txt").write_text("\n".join(flow) + "\n", encoding="utf-8")
+
+    # canonicos (p/ diff byte-a-byte com os roundtrips em outputs/)
+    (INTER / "03-clientes-canonico.json").write_text(
+        dumps(to_python_ext(doc1.root)) + "\n", encoding="utf-8")
+    (INTER / "04-telemetria-canonico.json").write_text(
+        dumps(to_python_ext(doc2.root)) + "\n", encoding="utf-8")
 
     # ============ SAIDAS + ROUNDTRIP ============
-    def rt_hier(tag: str, doc: DatasetH, rows: list, base: str) -> None:
+    def rt_hier(tag: str, doc: DatasetH, rows: list, na: str, nrh: str, nrt: str, canon: str) -> None:
         # A per-instance
-        wire = encode_a(doc, "A")
-        pa = ART / f"03{base}A-per-instance.txt"
-        pa.write_text(wire, encoding="utf-8")
+        pa = OUT / na
+        pa.write_text(encode_a(doc, "A"), encoding="utf-8")
         back = decode_a(pa.read_text(encoding="utf-8"), "A")
         ok_a = semantic_key(back.root) == semantic_key(doc.root)
         # RH regular
-        pr = ART / f"03{base}RH-regular.txt"
+        pr = OUT / nrh
         rh_write(tag, rows, pr)
         rows_back = rh_read(pr)
         ok_rh = [semantic_key(r) for r in rows_back] == [semantic_key(r) for r in rows]
         assert ok_a and ok_rh, f"RT falhou em {tag}"
-        orig = dumps(to_python_ext(doc.root))
-        deco = dumps([to_python_ext(r) for r in rows_back])
+        # roundtrip como ARQUIVO .json — diffavel contra o canonico em intermediates/
+        deco = dumps([to_python_ext(r) for r in rows_back]) + "\n"
+        (OUT / nrt).write_text(deco, encoding="utf-8")
+        canon_txt = (INTER / canon).read_text(encoding="utf-8")
+        identical = deco == canon_txt
+        assert identical
         rt_log.append(f"== {tag} ==")
-        rt_log.append(f"A  per-instance : semantico identico = {ok_a} ({pa.name}, {pa.stat().st_size} B)")
-        rt_log.append(f"RH regular      : semantico identico = {ok_rh} ({pr.name}, {pr.stat().st_size} B)")
-        rt_log.append("--- original (adaptador de saida -> JSON) ---")
-        rt_log.append(orig)
-        rt_log.append("--- decodificado do RH -> JSON ---")
-        rt_log.append(deco)
-        rt_log.append(f"textos identicos = {orig == deco}")
+        rt_log.append(f"A  per-instance : semantico identico = {ok_a} ({na}, {pa.stat().st_size} B)")
+        rt_log.append(f"RH regular      : semantico identico = {ok_rh} ({nrh}, {pr.stat().st_size} B)")
+        rt_log.append(f"roundtrip       : outputs/{nrt} BYTE-IDENTICO a intermediates/{canon} = {identical}")
         rt_log.append("")
-        assert orig == deco
 
-    rt_hier("clientes", doc1, rows1, "a-clientes-")
-    rt_hier("telemetria", doc2, rows2, "b-telemetria-")
+    rt_hier("clientes", doc1, rows1,
+            "01-clientes.A.tcf", "02-clientes.RH.tcf",
+            "07-clientes.roundtrip.json", "03-clientes-canonico.json")
+    rt_hier("telemetria", doc2, rows2,
+            "03-telemetria.A.tcf", "04-telemetria.RH.tcf",
+            "08-telemetria.roundtrip.json", "04-telemetria-canonico.json")
 
-    # tabular HOJE (stringify + tcf real) — a perda aparece
-    stringified = {c: [str(v) for v in cells] for c, cells in SENSORES.items()}
-    hoje_blob = tcf_encode(stringified)
-    ph = ART / "03c-sensores-HOJE-stringify.tcf.txt"
-    ph.write_text(hoje_blob, encoding="utf-8")
+    # tabular HOJE (o CSV stringly de inputs/03 + tcf real) — a perda aparece
+    ph = OUT / "05-sensores.HOJE.tcf"
+    ph.write_text(tcf_encode(csv_cols), encoding="utf-8")
     hoje_back = tcf_decode(ph.read_text(encoding="utf-8"))
     losses = []
     if hoje_back["obs"][3] == hoje_back["obs"][4]:
         losses.append("obs: 'None'(string, l3) e None(null, l4) viraram AMBOS 'None' — indistinguiveis")
     if hoje_back["temperatura_c"][1] == "nan" and SENSORES["obs"][5] == "nan":
         losses.append("temperatura nan(float) e obs 'nan'(string) soletram IGUAL apos str() — tipo perdido")
-    losses.append("todos os numeros viraram string ('87.5' etc.) — tipo perdido em TODA celula")
-    rt_log.append("== sensores tabular — HOJE (stringify + tcf.encode real) ==")
-    rt_log.append(f"blob: {ph.name} ({ph.stat().st_size} B); RT das STRINGS = {hoje_back == stringified}")
+    losses.append("todos os numeros viraram string ('21.4' etc.) — tipo perdido em TODA celula")
+    rt_log.append("== sensores tabular — HOJE (CSV stringly de inputs/03 + tcf.encode real) ==")
+    rt_log.append(f"blob: {ph.name} ({ph.stat().st_size} B); RT das STRINGS do CSV = {hoje_back == csv_cols}")
     rt_log.append("PERDAS vs origem tipada (por isso RT tipado = False):")
     rt_log += [f"  - {l}" for l in losses]
     rt_log.append("")
 
     # tabular FK (kind-channel + tcf real) — lossless
-    pf = ART / "03d-sensores-FK-kind-channel.txt"
+    pf = OUT / "06-sensores.FK.tcf"
     fk_write("sensores", SENSORES, pf)
     fk_back = fk_read(pf)
     ok_fk = all(
@@ -394,27 +417,31 @@ def main() -> None:
         for c in SENSORES
     )
     assert ok_fk, "RT FK falhou"
-    rt_log.append("== sensores tabular — FK (kind-channel + payload tcf.encode real) ==")
-    rt_log.append(f"arquivo: {pf.name} ({pf.stat().st_size} B); RT TIPADO semantico = {ok_fk}")
-    rt_log.append("linha a linha (original -> decodificado):")
+    rt_lines = ["linha | original -> decodificado (tipado)"]
     for i in range(6):
         o = {c: SENSORES[c][i] for c in SENSORES}
         d = {c: fk_back[c][i] for c in SENSORES}
-        rt_log.append(f"  l{i}: {o!r}")
-        rt_log.append(f"      -> {d!r}")
-    (ART / "04-roundtrip.txt").write_text("\n".join(rt_log) + "\n", encoding="utf-8")
+        rt_lines.append(f"l{i}: {o!r}")
+        rt_lines.append(f"  -> {d!r}")
+    (OUT / "09-sensores.FK.roundtrip.txt").write_text("\n".join(rt_lines) + "\n", encoding="utf-8")
+    rt_log.append("== sensores tabular — FK (kind-channel + payload tcf.encode real) ==")
+    rt_log.append(f"arquivo: {pf.name} ({pf.stat().st_size} B); RT TIPADO semantico = {ok_fk}")
+    rt_log.append("linha a linha em outputs/09-sensores.FK.roundtrip.txt")
+    (OUT / "10-roundtrip-contraprova.txt").write_text("\n".join(rt_log) + "\n", encoding="utf-8")
 
     # ============ BYTES ============
     sizes = ["entrada | formato | arquivo | bytes"]
-    for base, label in [("a-clientes-", "clientes"), ("b-telemetria-", "telemetria")]:
-        for f, nm in [(f"03{base}A-per-instance.txt", "A per-instance"),
-                      (f"03{base}RH-regular.txt", "RH regular")]:
-            sizes.append(f"{label} | {nm} | {f} | {(ART / f).stat().st_size}")
-    sizes.append(f"clientes | JSON original | inputs/01 | {len(src1.encode())}")
-    sizes.append(f"telemetria | JSON-like original | inputs/02 | {len(src2.encode())}")
-    sizes.append(f"sensores | HOJE stringify | {ph.name} | {ph.stat().st_size}")
-    sizes.append(f"sensores | FK kind-channel | {pf.name} | {pf.stat().st_size}")
-    (ART / "05-bytes.txt").write_text("\n".join(sizes) + "\n", encoding="utf-8")
+    for f, label, nm in [("01-clientes.A.tcf", "clientes", "A per-instance"),
+                         ("02-clientes.RH.tcf", "clientes", "RH regular"),
+                         ("03-telemetria.A.tcf", "telemetria", "A per-instance"),
+                         ("04-telemetria.RH.tcf", "telemetria", "RH regular")]:
+        sizes.append(f"{label} | {nm} | outputs/{f} | {(OUT / f).stat().st_size}")
+    sizes.append(f"clientes | JSON original | inputs/01-clientes-api.json | {len(src1.encode())}")
+    sizes.append(f"telemetria | JSON-like original | inputs/02-telemetria-jsonlike.json | {len(src2.encode())}")
+    sizes.append(f"sensores | CSV original | inputs/03-sensores-tabular.csv | {(INP / '03-sensores-tabular.csv').stat().st_size}")
+    sizes.append(f"sensores | HOJE stringify | outputs/{ph.name} | {ph.stat().st_size}")
+    sizes.append(f"sensores | FK kind-channel | outputs/{pf.name} | {pf.stat().st_size}")
+    (OUT / "11-bytes.txt").write_text("\n".join(sizes) + "\n", encoding="utf-8")
 
     print("especiais-formatos-lado-a-lado: all checks PASS")
     print("\n".join(sizes))

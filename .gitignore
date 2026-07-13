@@ -47,8 +47,16 @@ experiments/eval_plan.json
 Thumbs.db
 .DS_Store
 output*
+# EXCECAO (2026-07-13, convencao de labs): pastas outputs/ dos labs sao EVIDENCIA versionada
+!experiments/lab/**/outputs/
+!experiments/lab/**/outputs/**
 restored*/
 *.tcf
+# EXCECAO (2026-07-13, convencao de labs): wire TCF de lab (inputs/outputs) com extensao real
+!experiments/lab/**/inputs/**/*.tcf
+!experiments/lab/**/outputs/**/*.tcf
+# labs HISTORICOS (old/) ficam como estavam — imutaveis, nao versionar retroativo
+experiments/lab/dirty/old/**/outputs/
 
 # Archive (legacy materials kept locally for history, not for public repo)
 archive/legacy_results/

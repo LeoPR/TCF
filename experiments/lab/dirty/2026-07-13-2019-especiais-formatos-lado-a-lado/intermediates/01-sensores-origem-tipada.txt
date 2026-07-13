@@ -1,4 +1,5 @@
-origem TIPADA (Python) — reparar: obs linha3='None' (string) vs linha4=None (null);
+origem TIPADA (driver/Arrow) — o CSV em inputs/03 e' o export str() dela.
+reparar: obs linha3='None' (string) vs linha4=None (null) — NO CSV os dois viram 'None';
 obs linha5='nan' (string) vs temperatura linha1=nan (float); variacao -0.0 vs 0.0.
 
 estacao | temperatura_c | variacao_pct | amostras | obs

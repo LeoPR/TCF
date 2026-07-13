@@ -1,9 +1,10 @@
 # Resultado — formatos lado a lado (material de decisão; SEM veredito)
 
-**[probatório]** `run.py` valida todos os roundtrips ANTES dos bytes. Contra-prova
-completa em [`04-roundtrip.txt`](artifacts/04-roundtrip.txt); dados sintéticos
-realistas com viés declarado (construídos para exercitar as bordas — não são medida
-de ganho, são material de forma).
+**[probatório]** `run.py` valida todos os roundtrips ANTES dos bytes. Contra-prova em
+[`outputs/10-roundtrip-contraprova.txt`](outputs/10-roundtrip-contraprova.txt); roundtrips
+como ARQUIVO diffável (`outputs/07-08-*.roundtrip.json` byte-idênticos aos canônicos de
+`intermediates/`); proveniência e viés declarados em
+[`datasets-provenance.md`](datasets-provenance.md) (material de forma, não medida de ganho).
 
 ## Bytes (após RT verde)
 
@@ -15,20 +16,22 @@ de ganho, são material de forma).
 
 ## O que cada arquivo mostra (abra-os)
 
-- **RH** (`03a/03b-*-RH-regular.txt`): schema por coluna + 1 char/ocorrência + payload
-  comprimido pelo **motor real** (OBAT/HCC/dict/seq-RLE trabalhando: `an*a*@acme…`,
-  `*2|Sao Paulo`, `*5+1|…`, `^1`). A linha `C endereco.rua sss0s1` conta a história
-  inteira: 3 strings, Diego sem endereço (`0` = cut@0), Eva string, Fabio endereço
-  vazio (`1` = cut@1). Menor que o JSON original nos dois casos.
-- **A** (`03a/03b-*-A-per-instance.txt`): estrutura repetida por registro; maior que
-  RH em dado regular, mas não exige schema comum — serve árvore irregular/doc único.
-- **HOJE** (`03c`): o menor arquivo — e **lossy**: `'None'`(string) e `None`(null)
-  colidem; `nan`(float) e `'nan'`(string) soletram igual; TODO número vira string.
-  As perdas estão listadas uma a uma no `04-roundtrip.txt`.
-- **FK** (`03d`): +107 B sobre HOJE (nesta tabela minúscula, 6 linhas) para
-  fidelidade total de tipo: `-0.0` ≠ `0.0`, `nan`/`inf` de volta como floats,
-  `'None'` string ≠ `None` null. O canal de kind é 1 char/célula (empacotável b4
-  depois — território V2-L); o custo relativo CAI com volume (payload domina).
+- **RH** (`outputs/02-clientes.RH.tcf`, `04-telemetria.RH.tcf`): schema por coluna +
+  1 char/ocorrência + payload comprimido pelo **motor real** (OBAT/HCC/dict/seq-RLE:
+  `an*a*@acme…`, `*2|Sao Paulo`, `*5+1|…`, `^1`). A linha `C endereco.rua sss0s1`
+  conta a história inteira: 3 strings, Diego sem endereço (`0` = cut@0), Eva string,
+  Fabio endereço vazio (`1` = cut@1). Menor que o JSON original nos dois casos.
+- **A** (`outputs/01-clientes.A.tcf`, `03-telemetria.A.tcf`): estrutura repetida por
+  registro; maior que RH em dado regular, mas não exige schema comum — serve árvore
+  irregular/doc único.
+- **HOJE** (`outputs/05-sensores.HOJE.tcf`): o menor arquivo — e **lossy**: `'None'`
+  (string) e `None`(null) colidem; `nan`(float) e `'nan'`(string) soletram igual;
+  TODO número vira string. Perdas listadas uma a uma em `outputs/10`.
+- **FK** (`outputs/06-sensores.FK.tcf`): +107 B sobre HOJE (nesta tabela minúscula,
+  6 linhas) para fidelidade total de tipo: `-0.0` ≠ `0.0`, `nan`/`inf` de volta como
+  floats, `'None'` string ≠ `None` null (`outputs/09` linha a linha). O canal de kind
+  é 1 char/célula (empacotável b4 depois — território V2-L); o custo relativo CAI com
+  volume (payload domina).
 
 ## Fatos que a comparação estabelece (para a decisão)
 

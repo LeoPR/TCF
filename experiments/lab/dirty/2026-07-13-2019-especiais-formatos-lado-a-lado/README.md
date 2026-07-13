@@ -14,18 +14,31 @@ null/NaN/Inf independe de hierarquia.
 
 | entrada | o que é | irregularidades reais |
 |---|---|---|
-| `01-clientes-api.json` | cadastro aninhado, **JSON padrão** | `ultima_compra: null`; Diego **sem** `endereco`; Fabio `endereco: {}`; Carla `geo: {}`; Eva sem `geo`; `telefones` ragged 0–3 |
-| `02-telemetria-jsonlike.json` | export Python real (`json.dumps` emite `NaN`/`Infinity`) — gramática **declarada** JSON+constantes | sensor falho → `NaN`; divisão por zero na origem → `Infinity`; estufa-04 sem `umidade` |
-| sensores (tabular, tipado) | colunas Python/driver — **sem hierarquia** | `nan` float; `inf`; `-0.0` vs `0.0`; `obs` linha3=`"None"` string (upstream já stringificou) vs linha4=`None` null; linha5=`"nan"` string |
+| `inputs/01-clientes-api.json` | cadastro aninhado, **JSON padrão** | `ultima_compra: null`; Diego **sem** `endereco`; Fabio `endereco: {}`; Carla `geo: {}`; Eva sem `geo`; `telefones` ragged 0–3 |
+| `inputs/02-telemetria-jsonlike.json` | export Python real (`json.dumps` emite `NaN`/`Infinity`) — gramática **declarada** JSON+constantes | sensor falho → `NaN`; divisão por zero na origem → `Infinity`; estufa-04 sem `umidade` |
+| `inputs/03-sensores-tabular.csv` | export stringly do upstream (origem TIPADA em `run.py`, renderizada em `intermediates/01`) — **sem hierarquia** | no CSV, `None`-null e `"None"`-string viram o MESMO texto (linhas 4–5); `nan`/`inf` soletrados; `-0.0` vs `0.0` |
 
-## Formatos comparados (saídas em `artifacts/03*`)
+## Estrutura (convenção de labs: pastas por estágio + extensão real)
+
+```
+inputs/          entradas (.json / .csv)
+intermediates/   fluxo semântico, origem tipada, canônicos p/ diff (.txt / .json)
+outputs/         saídas por formato (.tcf), roundtrips (.json), contraprova, bytes
+```
+
+## Formatos comparados (saídas em `outputs/`)
 
 | entrada | formato | arquivo |
 |---|---|---|
-| hierárquicas | **A** per-instance (tag por ocorrência) | `03a/03b-*-A-per-instance.txt` |
-| hierárquicas | **RH** regular (stream def+kind por coluna + payload `tcf.encode` **real**) | `03a/03b-*-RH-regular.txt` |
-| tabular | **HOJE** (stringify + `tcf.encode` real — comportamento atual; perda explícita) | `03c-sensores-HOJE-stringify.tcf.txt` |
-| tabular | **FK** (kind-channel por coluna + payload `tcf.encode` real) | `03d-sensores-FK-kind-channel.txt` |
+| hierárquicas | **A** per-instance (tag por ocorrência) | `01-clientes.A.tcf`, `03-telemetria.A.tcf` |
+| hierárquicas | **RH** regular (stream def+kind por coluna + payload `tcf.encode` **real**) | `02-clientes.RH.tcf`, `04-telemetria.RH.tcf` |
+| tabular | **HOJE** (o CSV stringly + `tcf.encode` real — comportamento atual; perda explícita) | `05-sensores.HOJE.tcf` |
+| tabular | **FK** (kind-channel por coluna + payload `tcf.encode` real) | `06-sensores.FK.tcf` |
+
+**Roundtrip como arquivo**: `outputs/07-clientes.roundtrip.json` e
+`08-telemetria.roundtrip.json` são **byte-idênticos** aos canônicos em
+`intermediates/03-04` (asserted; dê `diff` você mesmo). Tabular linha a linha em
+`outputs/09-sensores.FK.roundtrip.txt`.
 
 Alfabeto de marcas (1 char/ocorrência; candidato em estudo): `s i d t f` (string/int/
 decimal/true/false) · `z q p m` (null/NaN/+Inf/−Inf) · `a` array-presente ·
@@ -34,14 +47,16 @@ que o contrato de especiais é ortogonal à hierarquia.
 
 ## Como ler a evidência
 
-1. `artifacts/01-sensores-tabular-entrada.txt` — a tabela tipada de origem.
-2. `artifacts/02-fluxo-semantico.txt` — o kind por valor (ex.: `endereco.rua sss0s1`
+1. `intermediates/01-sensores-origem-tipada.txt` — a origem tipada (o CSV de
+   `inputs/03` é o `str()` dela, asserted).
+2. `intermediates/02-fluxo-semantico.txt` — o kind por valor (ex.: `endereco.rua sss0s1`
    = Diego cut@0, Fabio cut@1; `ultima_compra szszsz`; `temperatura.media dqdd`).
-3. `artifacts/03*` — os arquivos de saída (payloads comprimidos pelo motor REAL:
+3. `outputs/01..06-*.tcf` — os arquivos de saída (payloads comprimidos pelo motor REAL:
    `an*a*@acme…`/`brun*o3`, `*2|Sao Paulo`, seq-RLE `*5+1|…`, refs `^1`).
-4. `artifacts/04-roundtrip.txt` — original vs decodificado (JSON gerado e linha a
-   linha tabular); as PERDAS do caminho HOJE listadas explicitamente.
-5. `artifacts/05-bytes.txt` — tamanhos.
+4. `outputs/07-08-*.roundtrip.json` — diffáveis contra `intermediates/03-04-*-canonico.json`
+   (byte-idênticos); `outputs/10-roundtrip-contraprova.txt` — asserts + PERDAS do HOJE
+   listadas uma a uma; `outputs/09` — tabular linha a linha.
+5. `outputs/11-bytes.txt` — tamanhos.
 
 ## Rodar
 

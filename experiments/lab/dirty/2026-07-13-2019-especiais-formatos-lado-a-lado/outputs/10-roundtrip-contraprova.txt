@@ -1,0 +1,20 @@
+== clientes ==
+A  per-instance : semantico identico = True (01-clientes.A.tcf, 1379 B)
+RH regular      : semantico identico = True (02-clientes.RH.tcf, 932 B)
+roundtrip       : outputs/07-clientes.roundtrip.json BYTE-IDENTICO a intermediates/03-clientes-canonico.json = True
+
+== telemetria ==
+A  per-instance : semantico identico = True (03-telemetria.A.tcf, 923 B)
+RH regular      : semantico identico = True (04-telemetria.RH.tcf, 715 B)
+roundtrip       : outputs/08-telemetria.roundtrip.json BYTE-IDENTICO a intermediates/04-telemetria-canonico.json = True
+
+== sensores tabular — HOJE (CSV stringly de inputs/03 + tcf.encode real) ==
+blob: 05-sensores.HOJE.tcf (235 B); RT das STRINGS do CSV = True
+PERDAS vs origem tipada (por isso RT tipado = False):
+  - obs: 'None'(string, l3) e None(null, l4) viraram AMBOS 'None' — indistinguiveis
+  - temperatura nan(float) e obs 'nan'(string) soletram IGUAL apos str() — tipo perdido
+  - todos os numeros viraram string ('21.4' etc.) — tipo perdido em TODA celula
+
+== sensores tabular — FK (kind-channel + payload tcf.encode real) ==
+arquivo: 06-sensores.FK.tcf (342 B); RT TIPADO semantico = True
+linha a linha em outputs/09-sensores.FK.roundtrip.txt

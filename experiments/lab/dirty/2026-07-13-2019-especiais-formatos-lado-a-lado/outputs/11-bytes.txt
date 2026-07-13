@@ -1,0 +1,10 @@
+entrada | formato | arquivo | bytes
+clientes | A per-instance | outputs/01-clientes.A.tcf | 1379
+clientes | RH regular | outputs/02-clientes.RH.tcf | 932
+telemetria | A per-instance | outputs/03-telemetria.A.tcf | 923
+telemetria | RH regular | outputs/04-telemetria.RH.tcf | 715
+clientes | JSON original | inputs/01-clientes-api.json | 1599
+telemetria | JSON-like original | inputs/02-telemetria-jsonlike.json | 1031
+sensores | CSV original | inputs/03-sensores-tabular.csv | 219
+sensores | HOJE stringify | outputs/05-sensores.HOJE.tcf | 235
+sensores | FK kind-channel | outputs/06-sensores.FK.tcf | 342
