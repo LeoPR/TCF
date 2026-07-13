@@ -1,0 +1,41 @@
+[
+  {
+    "device": "estufa-01",
+    "janela": "2026-07-13T06:00/06:15",
+    "sensores": {
+      "temperatura": { "media": 21.4, "max": 22.1, "min": 20.9 },
+      "umidade": { "media": 63.0, "max": 65.5, "min": 61.2 }
+    },
+    "variacao_pct": 1.8,
+    "amostras": 90
+  },
+  {
+    "device": "estufa-02",
+    "janela": "2026-07-13T06:00/06:15",
+    "sensores": {
+      "temperatura": { "media": NaN, "max": NaN, "min": NaN },
+      "umidade": { "media": 58.7, "max": 60.0, "min": 57.1 }
+    },
+    "variacao_pct": NaN,
+    "amostras": 0
+  },
+  {
+    "device": "estufa-03",
+    "janela": "2026-07-13T06:00/06:15",
+    "sensores": {
+      "temperatura": { "media": 24.0, "max": 24.6, "min": 23.5 },
+      "umidade": { "media": 70.2, "max": 71.0, "min": 69.9 }
+    },
+    "variacao_pct": Infinity,
+    "amostras": 90
+  },
+  {
+    "device": "estufa-04",
+    "janela": "2026-07-13T06:00/06:15",
+    "sensores": {
+      "temperatura": { "media": 19.8, "max": 20.3, "min": 19.1 }
+    },
+    "variacao_pct": -2.4,
+    "amostras": 88
+  }
+]

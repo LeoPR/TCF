@@ -1,0 +1,9 @@
+entrada | formato | arquivo | bytes
+clientes | A per-instance | 03a-clientes-A-per-instance.txt | 1379
+clientes | RH regular | 03a-clientes-RH-regular.txt | 932
+telemetria | A per-instance | 03b-telemetria-A-per-instance.txt | 923
+telemetria | RH regular | 03b-telemetria-RH-regular.txt | 715
+clientes | JSON original | inputs/01 | 1599
+telemetria | JSON-like original | inputs/02 | 1031
+sensores | HOJE stringify | 03c-sensores-HOJE-stringify.tcf.txt | 235
+sensores | FK kind-channel | 03d-sensores-FK-kind-channel.txt | 342

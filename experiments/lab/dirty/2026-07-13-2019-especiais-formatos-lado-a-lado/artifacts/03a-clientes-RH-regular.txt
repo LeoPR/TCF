@@ -1,0 +1,76 @@
+#PROTO.RH clientes
+R 6
+C nome ssssss
+P nome 69
+Ana Souza
+Bruno Lima
+Carla Nunes
+Diego Rocha
+Eva Martins
+Fabio Alves
+
+C email ssssss
+P email 52
+an*a*@acme.com.br
+brun*o3
+carl2~3
+dieg5~3
+ev7
+fabi9
+
+C endereco.rua sss0s1
+P endereco.rua 79
+Rua *d*as Acacias, \100
+Av. Paulista, \1500
+1XV de Novembro, \90
+1,2o Sol, \45
+
+C endereco.cidade sss0s1
+P endereco.cidade 29
+*2|Sao Paulo
+Curitiba
+Recife
+
+C endereco.geo.lat dd2011
+P endereco.geo.lat 19
+-\23.\5*\505
+1\614
+
+C endereco.geo.lon dd2011
+P endereco.geo.lon 19
+-\46.\6*\333
+1\559
+
+A telefones[] aaaaaa
+n telefones[] 2,1,0,3,1,0
+E telefones[] sssssss
+P telefones[] 114
++\55 *\11 *\99999*-\000*\1
+1~2\3333*4,5
+6,3,4\2
+1\21 *\98888*-\000*\4
+1~9\2222*11,12
+13,14,11\5
+1\81 \97777*11,15
+
+C plano ssssss
+P plano 28
+*2|Premium
+Basic
+^1
+^2
+Free
+
+C ultima_compra szszsz
+P ultima_compra 32
+\2026-\0*\7-*\01
+1\6-\12
+1,2\10
+
+C score dddddd
+P score 45
+\87.\5
+*2+24,0|\42.\0
+\91.\25
+*2-43,0|\55.\0
+

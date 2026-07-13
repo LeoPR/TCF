@@ -192,6 +192,19 @@ regime-dependente — candidatos do `min()`, filosofia FLOOR. Falta de P4: repet
 (objeto-em-array, array-de-array na regular). P5 decide alfabeto/grafia na gramática + dado real
 (gate anti-incidente antes de `confirmada-empirica`). Detalhe: `result.md` do lab.
 
+## Update 2026-07-13 — REDO com dados realistas: formatos lado a lado (material P5)
+
+Pedido do owner: os labs anteriores provaram semântica com fixtures pobres; a decisão exige VER os
+formatos com dados realistas. Lab
+[`2026-07-13-2019-especiais-formatos-lado-a-lado/`](../2026-07-13-2019-especiais-formatos-lado-a-lado/):
+entradas visíveis (clientes JSON padrão aninhado; telemetria JSON-like com NaN/Inf de export Python;
+tabela tipada de sensores SEM hierarquia) → fluxo semântico (kind por valor) → arquivo de saída real
+por formato (A per-instance; RH regular def+kind com payload `tcf.encode` REAL; HOJE stringify; FK
+kind-channel) → roundtrip explícito. Fatos estabelecidos: (1) o contrato de especiais é **ortogonal à
+hierarquia** (FK = mesmo alfabeto sem cuts); (2) HOJE é menor porque **descarta tipo** (perdas listadas
+uma a uma); (3) RH < JSON original nos dois docs; (4) A×RH = regimes, não disputa. **SEM veredito** —
+decisão de grafia/alfabeto é do owner (P5), com os arquivos na mão.
+
 ## Próxima leitura e próxima ação
 
 Leia este plano junto com:

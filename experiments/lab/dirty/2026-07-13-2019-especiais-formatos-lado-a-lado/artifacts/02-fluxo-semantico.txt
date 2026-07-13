@@ -1,0 +1,51 @@
+### clientes (JSON padrao) — kind por valor (linhas -> colunas-de-folha)
+  nome                     ssssss
+                           payloads=['Ana Souza', 'Bruno Lima', 'Carla Nunes', 'Diego Rocha', 'Eva Martins', 'Fabio Alves']
+  email                    ssssss
+                           payloads=['ana@acme.com.br', 'bruno@acme.com.br', 'carla@acme.com.br', 'diego@acme.com.br', 'eva@acme.com.br', 'fabio@acme.com.br']
+  endereco.rua             sss0s1
+                           payloads=['Rua das Acacias, 100', 'Av. Paulista, 1500', 'Rua XV de Novembro, 90', 'Rua do Sol, 45']
+  endereco.cidade          sss0s1
+                           payloads=['Sao Paulo', 'Sao Paulo', 'Curitiba', 'Recife']
+  endereco.geo.lat         dd2011
+                           payloads=['-23.5505', '-23.5614']
+  endereco.geo.lon         dd2011
+                           payloads=['-46.6333', '-46.6559']
+  telefones[]              aaaaaa
+                           counts=2,1,0,3,1,0
+                           payloads=['+55 11 99999-0001', '+55 11 3333-0001', '+55 11 99999-0002', '+55 21 98888-0004', '+55 21 2222-0004', '+55 21 2222-0005']...
+  plano                    ssssss
+                           payloads=['Premium', 'Premium', 'Basic', 'Premium', 'Basic', 'Free']
+  ultima_compra            szszsz
+                           payloads=['2026-07-01', '2026-06-12', '2026-07-10']
+  score                    dddddd
+                           payloads=['87.5', '42.0', '66.0', '91.25', '55.0', '12.0']
+
+### telemetria (JSON-like declarado) — kind por valor (linhas -> colunas-de-folha)
+  device                   ssss
+                           payloads=['estufa-01', 'estufa-02', 'estufa-03', 'estufa-04']
+  janela                   ssss
+                           payloads=['2026-07-13T06:00/06:15', '2026-07-13T06:00/06:15', '2026-07-13T06:00/06:15', '2026-07-13T06:00/06:15']
+  sensores.temperatura.media dqdd
+                           payloads=['21.4', '24.0', '19.8']
+  sensores.temperatura.max dqdd
+                           payloads=['22.1', '24.6', '20.3']
+  sensores.temperatura.min dqdd
+                           payloads=['20.9', '23.5', '19.1']
+  sensores.umidade.media   ddd1
+                           payloads=['63.0', '58.7', '70.2']
+  sensores.umidade.max     ddd1
+                           payloads=['65.5', '60.0', '71.0']
+  sensores.umidade.min     ddd1
+                           payloads=['61.2', '57.1', '69.9']
+  variacao_pct             dqpd
+                           payloads=['1.8', '-2.4']
+  amostras                 iiii
+                           payloads=['90', '0', '90', '88']
+
+### sensores tabular — kind por celula (mesmo alfabeto, SEM cuts)
+  estacao          ssssss
+  temperatura_c    dqddqd
+  variacao_pct     dqpddd
+  amostras         iiiiii
+  obs              sssszs

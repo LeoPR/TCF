@@ -1,0 +1,38 @@
+#PROTO.FK sensores
+R 6
+C estacao ssssss
+P estacao 19
+PA-\00*\1
+*5+1|1\2
+
+C temperatura_c dqddqd
+P temperatura_c 28
+\21.\4
+\24.\0
+\19.\8
+\22.\7
+
+C variacao_pct dqpddd
+P variacao_pct 26
+\1.\8
+-\2.\4
+\0.\0
+-\0.\0
+
+C amostras iiiiii
+P amostras 21
+\90
+\0
+^1
+\88
+^2
+\91
+
+C obs sssszs
+P obs 54
+
+sensor em manutencao
+janela anterior zerada
+None
+nan
+

@@ -1,0 +1,127 @@
+#TCF.8H
+A6
+O7
+K4
+nomeS9
+Ana SouzaK5
+emailS15
+ana@acme.com.brK8
+enderecoO3
+K3
+ruaS20
+Rua das Acacias, 100K6
+cidadeS9
+Sao PauloK3
+geoO2
+K3
+latN-23.5505
+K3
+lonN-46.6333
+K9
+telefonesA2
+S17
++55 11 99999-0001S16
++55 11 3333-0001K5
+planoS7
+PremiumK13
+ultima_compraS10
+2026-07-01K5
+scoreN87.5
+O7
+K4
+nomeS10
+Bruno LimaK5
+emailS17
+bruno@acme.com.brK8
+enderecoO3
+K3
+ruaS18
+Av. Paulista, 1500K6
+cidadeS9
+Sao PauloK3
+geoO2
+K3
+latN-23.5614
+K3
+lonN-46.6559
+K9
+telefonesA1
+S17
++55 11 99999-0002K5
+planoS7
+PremiumK13
+ultima_compraZ
+K5
+scoreN42.0
+O7
+K4
+nomeS11
+Carla NunesK5
+emailS17
+carla@acme.com.brK8
+enderecoO3
+K3
+ruaS22
+Rua XV de Novembro, 90K6
+cidadeS8
+CuritibaK3
+geoO0
+K9
+telefonesA0
+K5
+planoS5
+BasicK13
+ultima_compraS10
+2026-06-12K5
+scoreN66.0
+O6
+K4
+nomeS11
+Diego RochaK5
+emailS17
+diego@acme.com.brK9
+telefonesA3
+S17
++55 21 98888-0004S16
++55 21 2222-0004S16
++55 21 2222-0005K5
+planoS7
+PremiumK13
+ultima_compraZ
+K5
+scoreN91.25
+O7
+K4
+nomeS11
+Eva MartinsK5
+emailS15
+eva@acme.com.brK8
+enderecoO2
+K3
+ruaS14
+Rua do Sol, 45K6
+cidadeS6
+RecifeK9
+telefonesA1
+S17
++55 81 97777-0005K5
+planoS5
+BasicK13
+ultima_compraS10
+2026-07-10K5
+scoreN55.0
+O7
+K4
+nomeS11
+Fabio AlvesK5
+emailS17
+fabio@acme.com.brK8
+enderecoO0
+K9
+telefonesA0
+K5
+planoS4
+FreeK13
+ultima_compraZ
+K5
+scoreN12.0

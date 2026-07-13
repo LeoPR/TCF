@@ -1,0 +1,23 @@
+#TCF.8M13=estacao,!1b=temperatura_c,!19=variacao_pct,!f=amostras,obs
+PA-\00*\1
+*5+1|1\2
+21.4
+nan
+24.0
+19.8
+nan
+22.71.8
+nan
+inf
+-2.4
+0.0
+-0.090
+0
+90
+88
+0
+91
+sensor em manutencao
+janela anterior zerada
+*2|None
+nan

@@ -1,0 +1,11 @@
+origem TIPADA (Python) — reparar: obs linha3='None' (string) vs linha4=None (null);
+obs linha5='nan' (string) vs temperatura linha1=nan (float); variacao -0.0 vs 0.0.
+
+estacao | temperatura_c | variacao_pct | amostras | obs
+---
+'PA-001' | 21.4 | 1.8 | 90 | ''
+'PA-002' | nan | nan | 0 | 'sensor em manutencao'
+'PA-003' | 24.0 | inf | 90 | 'janela anterior zerada'
+'PA-004' | 19.8 | -2.4 | 88 | 'None'
+'PA-005' | nan | 0.0 | 0 | None
+'PA-006' | 22.7 | -0.0 | 91 | 'nan'
