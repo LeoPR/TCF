@@ -1,0 +1,52 @@
+oracle traps: naive == collapses -0.0/0.0 = True ; oracle distinguishes = True
+oracle traps: NaN reflexive under oracle (typed kind) = True
+
+two origins (python tree vs JSON-like declared grammar): same DatasetH = True
+
+matrix absent-field                 RT(A) = True   RT(C) = True
+matrix null-field                   RT(A) = True   RT(C) = True
+matrix empty-string                 RT(A) = True   RT(C) = True
+matrix string-null-word             RT(A) = True   RT(C) = True
+matrix nan-value                    RT(A) = True   RT(C) = True
+matrix string-NaN                   RT(A) = True   RT(C) = True
+matrix pos-inf-value                RT(A) = True   RT(C) = True
+matrix string-Infinity              RT(A) = True   RT(C) = True
+matrix neg-inf-value                RT(A) = True   RT(C) = True
+matrix string-neg-Infinity          RT(A) = True   RT(C) = True
+matrix string-escape-stress         RT(A) = True   RT(C) = True
+matrix int-1                        RT(A) = True   RT(C) = True
+matrix number-1.0                   RT(A) = True   RT(C) = True
+matrix string-1                     RT(A) = True   RT(C) = True
+matrix string-1.0                   RT(A) = True   RT(C) = True
+matrix neg-zero                     RT(A) = True   RT(C) = True
+matrix pos-zero                     RT(A) = True   RT(C) = True
+matrix empty-object                 RT(A) = True   RT(C) = True
+matrix empty-array                  RT(A) = True   RT(C) = True
+matrix mixed-array-with-specials    RT(A) = True   RT(C) = True
+matrix array-in-array-specials      RT(A) = True   RT(C) = True
+
+distinctness (dataset + wire A + wire C):
+  absent-field             != null-field               : oracle=True wireA=True wireC=True
+  null-field               != empty-string             : oracle=True wireA=True wireC=True
+  empty-string             != string-null-word         : oracle=True wireA=True wireC=True
+  nan-value                != string-NaN               : oracle=True wireA=True wireC=True
+  pos-inf-value            != string-Infinity          : oracle=True wireA=True wireC=True
+  neg-inf-value            != string-neg-Infinity      : oracle=True wireA=True wireC=True
+  int-1                    != number-1.0               : oracle=True wireA=True wireC=True
+  number-1.0               != string-1.0               : oracle=True wireA=True wireC=True
+  neg-zero                 != pos-zero                 : oracle=True wireA=True wireC=True
+  empty-object             != empty-array              : oracle=True wireA=True wireC=True
+
+declared equivalence: 1e3 == 1000.0 (value preserved, lexeme not) = True
+
+fail-loud: V tag under variant C = True
+fail-loud: Nnan (non-finite on N channel, A) = True
+fail-loud: Nnan (non-finite on N channel, C) = True
+fail-loud: NInfinity = True
+fail-loud: negative count = True
+fail-loud: I+5 non-canonical int = True
+fail-loud: S03 leading-zero length = True
+fail-loud: unterminated V token = True
+fail-loud: duplicate key on wire = True
+model guard: non-str key fail-loud (no str() coercion) = True
+model guard: from_jsonlike rejects duplicate keys = True

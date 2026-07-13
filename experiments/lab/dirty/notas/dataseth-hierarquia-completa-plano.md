@@ -144,6 +144,21 @@ semântica antes de chegar ao DatasetH.
 O plano é o ponto de leitura enquanto a ideia está em pesquisa. Não criar ainda documentação estável em
 `docs/theory/`, `docs/algorithms/` ou `docs/how-to/`: isso confundiria hipótese com contrato vigente.
 
+## Update 2026-07-13 — P1+P2 executados (A vs C)
+
+Lab [`2026-07-13-1835-dataseth-special-scalars/`](../2026-07-13-1835-dataseth-special-scalars/):
+matriz de falsificação executável (21 casos × A/C, 10 pares de distinctness, 2 origens — árvore
+Python e JSON-like com gramática declarada) + oráculo `semantic_key` (NaN reflexivo como kind;
+`-0.0` ≠ `0.0` via repr; `==` ingênuo comprovadamente colapsa). **Resultado**: **A (folha tipada)
+sobrevive a todos os falsificadores e nunca perde em bytes**; C (string escapada) = refutada-parcial
+(RT ok, mas imposto de escape GLOBAL ao canal de string + semântica escondida). B segue
+ortogonal-depois; D segue bloqueada. Detalhe: `result.md` do lab. P3 (duas origens) tem primeira
+prova no mesmo lab; P4 (topologia × especiais) tem os casos mixed-array/array-de-array cobertos,
+faltando def/repetition levels da forma regular. Stage 1 (topologia RT-exato, por-instância) está
+no lab-ponte `2026-07-13-dataseth-json-bridge/` (codec_h). Próximo: P4 restante → P5 (decisão de
+representação + gramática, com a nota de que o kind tipado deve sobreviver à forma por-instância E
+à forma regular multirow-com-header).
+
 ## Próxima leitura e próxima ação
 
 Leia este plano junto com:

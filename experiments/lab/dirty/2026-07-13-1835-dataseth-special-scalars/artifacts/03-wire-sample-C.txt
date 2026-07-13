@@ -1,0 +1,9 @@
+#TCF.8H
+O1
+K1
+vA5
+S3
+NaNS4
+\NaNS8
+InfinityS3
+\\xN-0.0

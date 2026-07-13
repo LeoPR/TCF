@@ -1,0 +1,9 @@
+#TCF.8H
+O1
+K1
+vA5
+Vnan
+S3
+NaNVinf
+S2
+\xN-0.0

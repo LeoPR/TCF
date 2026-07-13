@@ -1,0 +1,5 @@
+profile | bytes A | bytes C | delta C-A
+specials-heavy (100 NaN leaves) | 513 | 613 | +100
+lookalike-strings (100 'NaN' strings) | 613 | 713 | +100
+backslash-strings (100 '\\x' strings) | 513 | 613 | +100
+neutral (100 plain strings) | 613 | 613 | +0

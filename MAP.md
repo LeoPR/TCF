@@ -146,6 +146,10 @@ Faxina 2026-06-21: 17 labs movidos pra `old/welded/` ou `old/refuted/`
   from_json/from_python) + `run.py`. **Stage 1 (codec TCF.H, topologia-primeiro)**: `codec_h.py` +
   `run_codec.py` — `DatasetH↔#TCF.8H` RT-exato (22/22 + fail-loud), fecha `\n`-em-string; tipos/compressão
   = stage 2. Plano: `notas/dataseth-hierarquia-completa-plano.md`; weld: `tickets/T-CODE-TCF8H-WELD.md`.
+- **`experiments/lab/dirty/2026-07-13-1835-dataseth-special-scalars/`** — **stage 2 (P1+P2)**:
+  escalares especiais `NaN`/`±Inf`/`-0.0` — oráculo `semantic_key` + matriz 21×2 + 2 origens.
+  **A (folha tipada) confirmada** (nunca perde bytes, wire inspecionável); C (string escapada)
+  refutada-parcial (imposto de escape global). Ver `result.md`.
 - **Sessao 2026-07-05..08 (specs/tipos/bN/hierarquico — research-track)**: indexados nos mapas
   `experiments/lab/dirty/notas/estudo-tcf-hierarquico-mapa.md` (P1-P9 + EXP-015 CSV↔JSON `#TCF.8H`) +
   `tipos-como-specs.md` (reframe + labs 2026-07-06/07 do bN) + `2026-07-08-1938-bn-gate-realworld-5fontes/`
