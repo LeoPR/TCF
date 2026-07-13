@@ -36,7 +36,9 @@ Fail-loud: any malformed stream raises `TCFHDecodeError` (never silent corruptio
 
 from __future__ import annotations
 
-from dataset_h import DatasetH, HArray, HObject, HScalar
+import math
+
+from dataset_h import DatasetH, DuplicateFieldError, HArray, HObject, HScalar
 
 MAGIC = "#TCF.8H"
 
@@ -108,14 +110,30 @@ def decode_h(text: str) -> DatasetH:
     return DatasetH(node)
 
 
-def _read_int_line(data: bytes, pos: int) -> tuple[int, int]:
+def _canonical_int(tok: bytes, *, allow_negative: bool) -> bool:
+    """Only the canonical str(int) form: no '+', '_', whitespace, leading zeros or '-0'.
+
+    (Verification finding: bare int() accepts 'O-1'/'I+5'/'0_5'/' 3' — silent laxity
+    against the declared decimal grammar; decoder must be fail-loud and injective.)
+    """
+    if allow_negative and tok.startswith(b"-"):
+        tok = tok[1:]
+        if not tok.isdigit() or tok == b"0":  # '-' alone, '-0', '-x' rejected
+            return False
+        return not tok.startswith(b"0")
+    if not tok.isdigit():
+        return False
+    return tok == b"0" or not tok.startswith(b"0")
+
+
+def _read_int_line(data: bytes, pos: int, *, allow_negative: bool = False) -> tuple[int, int]:
     nl = data.find(b"\n", pos)
     if nl == -1:
         raise TCFHDecodeError(f"unterminated count/length at byte {pos}")
-    try:
-        return int(data[pos:nl]), nl + 1
-    except ValueError:
-        raise TCFHDecodeError(f"invalid integer token {data[pos:nl]!r} at byte {pos}")
+    tok = data[pos:nl]
+    if not _canonical_int(tok, allow_negative=allow_negative):
+        raise TCFHDecodeError(f"invalid integer token {tok!r} at byte {pos}")
+    return int(tok), nl + 1
 
 
 def _read(data: bytes, pos: int):
@@ -130,11 +148,15 @@ def _read(data: bytes, pos: int):
             if data[pos : pos + 1] != b"K":
                 raise TCFHDecodeError(f"expected field key 'K' at byte {pos}")
             klen, pos = _read_int_line(data, pos + 1)
-            key = data[pos : pos + klen].decode("utf-8")
+            key = _decode_utf8(data[pos : pos + klen], "field key", pos)
             pos += klen
             child, pos = _read(data, pos)
             fields.append((key, child))
-        return HObject(tuple(fields)), pos
+        try:
+            return HObject(tuple(fields)), pos
+        except DuplicateFieldError as exc:
+            # wire com chave duplicada = malformado; fail-loud com o TIPO prometido
+            raise TCFHDecodeError(str(exc)) from exc
     if tag == b"A":
         count, pos = _read_int_line(data, pos)
         items = []
@@ -149,7 +171,7 @@ def _read(data: bytes, pos: int):
     if tag == b"F":
         return _scalar_nl(data, pos, HScalar("boolean", False))
     if tag == b"I":
-        val, pos = _read_int_line(data, pos)
+        val, pos = _read_int_line(data, pos, allow_negative=True)
         return HScalar("integer", val), pos
     if tag == b"N":
         nl = data.find(b"\n", pos)
@@ -159,13 +181,19 @@ def _read(data: bytes, pos: int):
             val = float(data[pos:nl])
         except ValueError:
             raise TCFHDecodeError(f"invalid number token {data[pos:nl]!r}")
+        if not math.isfinite(val):
+            # float() aceita 'nan'/'inf'/'Infinity' — mas o canal N e' so' de finitos
+            # (nenhuma origem/encode produz nao-finito aqui; achado da verificacao).
+            raise TCFHDecodeError(
+                f"non-finite on N channel {data[pos:nl]!r} (stage-2 carries specials as kinds)"
+            )
         return HScalar("number", val), nl + 1
     if tag == b"S":
         slen, pos = _read_int_line(data, pos)
         sb = data[pos : pos + slen]
         if len(sb) != slen:
             raise TCFHDecodeError(f"string truncated (wanted {slen} bytes)")
-        return HScalar("string", sb.decode("utf-8")), pos + slen
+        return HScalar("string", _decode_utf8(sb, "string body", pos)), pos + slen
     raise TCFHDecodeError(f"unknown node tag {tag!r} at byte {pos - 1}")
 
 
@@ -173,3 +201,10 @@ def _scalar_nl(data: bytes, pos: int, scalar: HScalar):
     if data[pos : pos + 1] != b"\n":
         raise TCFHDecodeError(f"expected newline after scalar tag at byte {pos}")
     return scalar, pos + 1
+
+
+def _decode_utf8(raw: bytes, what: str, pos: int) -> str:
+    try:
+        return raw.decode("utf-8")
+    except UnicodeDecodeError as exc:
+        raise TCFHDecodeError(f"invalid UTF-8 in {what} at byte {pos}: {exc}") from exc

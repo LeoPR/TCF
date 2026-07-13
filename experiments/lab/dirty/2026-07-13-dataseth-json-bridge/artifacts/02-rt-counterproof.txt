@@ -39,3 +39,11 @@ fail-loud on malformed (must raise):
   raised TCFHDecodeError on '#TCF.8H\nQ\n'                           OK
   raised TCFHDecodeError on '#TCF.8H\nS5\nhi'                        OK
   raised TCFHDecodeError on '#TCF.8H\nO1\nK1\naZ\nextra'             OK
+  raised TCFHDecodeError on '#TCF.8H\nNnan\n'                        OK
+  raised TCFHDecodeError on '#TCF.8H\nNinf\n'                        OK
+  raised TCFHDecodeError on '#TCF.8H\nN-Infinity\n'                  OK
+  raised TCFHDecodeError on '#TCF.8H\nO-1\n'                         OK
+  raised TCFHDecodeError on '#TCF.8H\nI+5\n'                         OK
+  raised TCFHDecodeError on '#TCF.8H\nI0_5\n'                        OK
+  raised TCFHDecodeError on '#TCF.8H\nS03\nabc'                      OK
+  raised TCFHDecodeError on '#TCF.8H\nO2\nK1\naZ\nK1\naT\n'          OK

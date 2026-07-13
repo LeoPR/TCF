@@ -103,7 +103,15 @@ def main() -> None:
         lines.append(f"  {a:20s} != {b:20s} : dataset={distinct} wire={wire_distinct}")
 
     # (3) fail-loud on malformed input
-    malformed = ["", "#TCF.8M\nx", "#TCF.8H\nQ\n", "#TCF.8H\nS5\nhi", "#TCF.8H\nO1\nK1\naZ\nextra"]
+    # (Nnan/Ninf, O-1, I+5, S03, dup-key: guards adicionados pela verificacao
+    # adversarial 2026-07-13 — float()/int() lenientes aceitavam formas que
+    # nenhum encode produz; canal N e' so' de finitos.)
+    malformed = [
+        "", "#TCF.8M\nx", "#TCF.8H\nQ\n", "#TCF.8H\nS5\nhi", "#TCF.8H\nO1\nK1\naZ\nextra",
+        "#TCF.8H\nNnan\n", "#TCF.8H\nNinf\n", "#TCF.8H\nN-Infinity\n",
+        "#TCF.8H\nO-1\n", "#TCF.8H\nI+5\n", "#TCF.8H\nI0_5\n", "#TCF.8H\nS03\nabc",
+        "#TCF.8H\nO2\nK1\naZ\nK1\naT\n",  # chave duplicada no wire
+    ]
     lines.append("")
     lines.append("fail-loud on malformed (must raise):")
     for m in malformed:
