@@ -53,9 +53,45 @@ pra tirar do welded; planejamento 0.8+pré-1.0), depois R2 (F6). Specs do `.8` j
 (Opção A, [T-SPEC-STATUS-08](T-SPEC-STATUS-08.md)). Checkpoint temporal:
 [`2026-07-12-revisao-roi-fechamento-08.md`](../experiments/lab/dirty/notas/checkpoints/2026-07-12-revisao-roi-fechamento-08.md).
 
+## Auditoria ROI 2026-07-12 — specs, execucao e integracoes
+
+**[probatório -> ordem]** Revisao feita antes do F6, cruzando tickets ativos, codigo, testes e
+artefatos F3/F4. O resultado separa o que pode fechar o `.8` do que e' pesquisa ou integracao
+posterior; nao abre uma nova frente de execucao em massa.
+
+| eixo | observado | decisao de fechamento |
+|---|---|---|
+| **Specs** | Core welded: `TemplatedCheckedSpec` (CPF/CNPJ) e `TemplatedPaddedSpec` (IP); compilador DSL/registry existe em `scripts/`, mas nao e' registry publicavel do core. FLOOR compete pelo blob completo. | `.8`: CPF/CNPJ/IP existentes, sem spec brasileiro novo. Spec customizado pode viajar com `:id`, mas o decode exige declaracao out-of-band com `spec.name` identico; ID core continua autoritativo. CEP/PIS/Renavam/Titulo/CNH, telefone/RG/placa e registry carregavel ficam `.9`, sempre com dado real antes do weld. |
+| **Paralelismo** | `parallel=False|N` ja' e' byte-identico e RT-safe. F3-3 amostral mediu, em 20k Adult, speedup aproximado `1.21x/1.33x/1.34x` para 2/4/8 workers; Lineitem 20k mediu `1.41x` em 2 workers. Faltam Lineitem p4/p8 e cinco combos. | `.8`: documentar como evidencia amostral, sem prometer caracterizacao exaustiva; nao adicionar `TCF_MAX_WORKERS` sem nova medicao. Cap global e revisao da porcao serial vao para `T-CODE-PARALLEL-BUDGET` pos-release. |
+| **Processamento, latencia e memoria** | JSONL F3 registra wall-clock, p95, `process_time`, `tracemalloc`, RSS best-effort, ambiente e acelerador Cython. `SideOutputs` paga trace de encode sempre; decode e' serial. Windows exige repeticao/mediana. | `.8`: F6 publica limites e numeros medidos; F5 fica `NO-ACTION` salvo blocker. Benchmark de custo por camada e' `.9`/pre-1.0, nao motivo para alterar o core agora. |
+| **Lazy query** | `view()` L1-L4 esta' funcional para column-pruning, `@dict`/raw, filtros e agregacoes; L5 (`group_ranges`/`agg_by`) e' experimental. Coluna `tcf` entrelacada cai em materializacao total. | `.8`: manter API read-only e documentacao correta. QueryPlan/`execute()`, pushdown mais rico e indices derivados ficam em `H-QUERY-04`/`.9`; nao transformar `decode()` em executor monolitico. |
+| **SQL** | SQL existe no `DatasetReader`/SQLite e no gadget LLM, fora do core; `view()` nao implementa parser SQL, joins, semantica de NULL/tipos, ORDER/LIMIT/DISTINCT ou plano multi-tabela. | `.8`: nenhuma camada SQL nova. O gadget LLM/schema continua deferred/spin-off; SQL sobre TCF deve consumir `view()` ou dados materializados sem acoplamento ao formato. |
+| **Parquet/Arrow/Polars** | Core recebe estruturas Python genericas; nao ha adapter Parquet no pacote. Parquet aparece como trilho de armazenamento, referencia de column-store e pesquisa V2-K/L. | `.8`: nenhuma mudanca. Adapter/Polars, sidecar `.tcfx`, chunking/footer e index-on-arrival sao `.9`/2.0, com benchmark de leitura e custo de memoria proprio. |
+| **Corrupcao/hardening** | BUG-12, checksum e orcamento de expansao continuam registrados e fora do dominio emitido pelo encoder. | `0.8.1`/pre-1.0 conforme a regra vigente; nao furam F6/C3 sem reclassificacao neste ticket. |
+
+### Fechamentos possiveis do `.8`
+
+1. Fechar R1.5 com `T-SPEC-STATUS-08` (Opcao A), FLOOR total-byte e fronteira de spec customizado
+  validada por RT. Nenhum spec novo entra no pacote.
+2. Fechar F3/F4 como **evidencia amostral**, mantendo no material a lista explicita do que faltou
+  (F3-3 residual, F3-4 populacao, hubs F4 fora do minimo). A afirmacao de paralelismo deve ser
+  limitada aos casos medidos.
+3. Executar F6 doc-only + wheel + clean-room: README EN/PT, referencia lazy/formato, metadata,
+  changelog, satelites e smoke. So' depois avaliar C3.
+4. C3 permanece ato separado: tag/publicacao `v0.8.0` exige go explicito do owner.
+
+### Revisoes deliberadamente deixadas para `.9` ou depois
+
+- Ceiling de nature (delta-aware/field-decomposed), novos specs BR e registry carregavel.
+- Cap global de workers, paralelismo intra-coluna e reengenharia C1/C2 do core HCC.
+- QueryPlan/`execute()`, joins, indices/sidecar `.tcfx`, Parquet/Arrow/Polars e camada SQL.
+- Quoting avancado, inferencia de specs/tipos, TCF.8H e formas B/C do V2-B.
+- BUG-12, checksum/tcfx, orcamento de expansao e contratos definitivos pre-1.0.
+
 ## Estado corrente (2026-07-12)
 
-- F0 e Passo 1 concluídos; F1/F2 concluídos e versionados; suíte local completa: **600 passed,
+- F0 e Passo 1 concluídos; F1/F2 concluídos e versionados; FLOOR + fronteira de spec customizado
+  verificados; suíte local completa: **634 passed,
   2 skipped** (inclui os testes `requires_data` com os hubs de `Z:`).
 - Avaliação de fechamento confirmou o core regular verde e separou dívida de release de pesquisa.
 - R0 concluído: BUG-14 fechado no lote A (decoder LF-only, testes parametrizados e gates

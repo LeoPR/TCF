@@ -40,6 +40,7 @@ corrupção espalhada. Este ticket guarda a lista do que re-inspecionar **antes 
 | BUG-10g: nature=+dict / nature_per_col=+list | ValueError cruzado | unificar num kwarg só (`nature=` aceitando spec OU dict)? decode tem a MESMA assimetria calada (decode(single, nature_per_col=) ignora) — alinhar |
 | tuple como valor de coluna | aceito (len+iter funcionam) | formalizar ou rejeitar |
 | parallel= com list | ignorado calado | warning? single-col paralelo não existe |
+| spec customizado fora do `SPEC_REGISTRY` | header `:id` exige `decode(..., nature=spec)` ou `nature_per_col` com `spec.name == id`; registry core vence | decidir antes do 1.0 se haverá registry carregável; nunca inferir spec por forma |
 
 ## Por que não decidir agora
 

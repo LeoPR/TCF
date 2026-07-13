@@ -245,6 +245,13 @@ owner: "SE identificar algum bug sem querer, registre apenas pra arrumarmos depo
   (nature-delta/field-split podia produzir base-94 `^`-líder). Achado SÓ porque o lab exigiu RT
   end-to-end — a lição do §RT do owner, com bug real capturado.
 
+- [x] **BUG-16 [alta · fronteira pública de spec]** — **FIXADO 2026-07-12**. A API aceitava um
+  `TemplatedCheckedSpec` customizado, emitia `:id` no header e depois rejeitava o próprio blob no
+  `decode(..., nature=spec)` porque o `SPEC_REGISTRY` core é fechado. Agora o registry core continua
+  autoritativo; para IDs externos, o decode aceita somente um spec out-of-band cujo `name` coincide
+  exatamente com o ID do header. Ausência ou divergência permanece fail-loud. Regressões single+multi
+  em `tests/test_natures.py` e `tests/test_nature_compete.py`; suite final **634 passed, 2 skipped**.
+
 ### Doc-drift 0.7→0.8 (bloqueia o "documento bem feito pro pip" — corrigir em F6 com números medidos)
 
 - [ ] **DOC-01 [alta]** `README.md` (embarcado como long-description da wheel!): badges 0.7.1/#TCF.7;
