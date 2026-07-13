@@ -1,0 +1,58 @@
+HK ordinary payload SideOutputs
+
+column_features=ColumnFeatures(n_rows=6, n_unicas=6, avg_len=5.166666666666667, cardinality=1.0, is_numeric=False, sample=('null', 'NaN', 'Infinity', '-Infinity', '-0.0', '0.0'))
+cadence_detected=False
+cadence_info={'n_strings_total': 6, 'n_sample': 5, 'threshold': 0.7, 'numeric_card_threshold': 0.5, 'rule_hit': None, 'lengths': [4, 3, 8, 9, 4], 'cardinality': 1.0, 'is_numeric': False, 'reason': 'nenhuma regra acionou'}
+min_len=3
+body_bytes=31
+seq_rle_runs=[]
+
+OBAT log:
+min_len = 3
+
+--- string 1: 'null' (len=4) ---
+  primeira string -> literal puro
+
+--- string 2: 'NaN' (len=3) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 3
+  tokens: [L('NaN')]
+
+--- string 3: 'Infinity' (len=8) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 8
+  tokens: [L('Infinity')]
+
+--- string 4: '-Infinity' (len=9) ---
+  pref: len=0 de string 0
+  suf:  len=8 de string 3
+  cobertura: 8 de 9
+  tokens: [L('-') + S(3,8)]
+
+--- string 5: '-0.0' (len=4) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 4
+  tokens: [L('-0.0')]
+
+--- string 6: '0.0' (len=3) ---
+  pref: len=0 de string 0
+  suf:  len=3 de string 5
+  cobertura: 3 de 3
+  tokens: [S(5,3)]
+
+HCC trace:
+# Optimization trace — syntax=M8-A-seq-rle
+
+=== DETECTOR ITERATIONS (unified — atoms + virtuals) ===
+
+--- Iter 1 ---
+Sub-tuplas K>=2 com R>=2: 0  net>0: 0
+Nenhum candidato com net > 0. STOP.
+
+=== MISSED OPPORTUNITIES (post-hoc) ===
+  (nenhum)
+
+Total estimated missed: 0

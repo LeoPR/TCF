@@ -644,7 +644,12 @@ nova hipotese identificada.
   **Restrição inegociável**: `null` ≠ ausente ≠ `"null"`; `NaN` ≠ `"NaN"`; os infinitos preservam sinal;
   a igualdade do DatasetH não pode depender de `nan == nan`. O `bN` atual é portador de domínio/índices,
   não a semântica do valor; só entra após um domínio tipado sobreviver ao RT. `aberta`, confiança: Baixa.
-  Plano e falsificadores: [dataseth-hierarquia-completa-plano.md](dataseth-hierarquia-completa-plano.md).
+  **Update 2026-07-13**: o lab
+  [`2026-07-13-1921-dataseth-typed-header-domain/`](../2026-07-13-1921-dataseth-typed-header-domain/result.md)
+  refutou `null=index` depois de stringificar (colisao com a string `"null"`) e exercitou duas formas
+  lossless: dominio tipado inteiro no header (B direta, `k<=16`) e mapa de kinds no header + payload TCF
+  string normal (B hibrida, alta cardinalidade). Evidencia sintetica, regular, sem decisao de gramatica;
+  P4 ainda aberto. Plano e falsificadores: [dataseth-hierarquia-completa-plano.md](dataseth-hierarquia-completa-plano.md).
 
 - **H-TYPE-02** (bit-packing por largura `bN` p/ enum/bool baixa-cardinalidade, owner 2026-07-07): familia
   `b`/`b2`/`b4`/`b8` (k<=2/4/16/256, 1/2/4/8 bits, dominio embutido = referencia). **CORRIGIDA apos revisao

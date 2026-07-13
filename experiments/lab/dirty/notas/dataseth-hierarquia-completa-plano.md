@@ -151,13 +151,32 @@ matriz de falsificação executável (21 casos × A/C, 10 pares de distinctness,
 Python e JSON-like com gramática declarada) + oráculo `semantic_key` (NaN reflexivo como kind;
 `-0.0` ≠ `0.0` via repr; `==` ingênuo comprovadamente colapsa). **Resultado**: **A (folha tipada)
 sobrevive a todos os falsificadores e nunca perde em bytes**; C (string escapada) = refutada-parcial
-(RT ok, mas imposto de escape GLOBAL ao canal de string + semântica escondida). B segue
-ortogonal-depois; D segue bloqueada. Detalhe: `result.md` do lab. P3 (duas origens) tem primeira
+(RT ok, mas imposto de escape GLOBAL ao canal de string + semântica escondida). B recebeu depois uma
+primeira prova separada de dominio tipado no header; D segue bloqueada. Detalhe: `result.md` do lab. P3 (duas origens) tem primeira
 prova no mesmo lab; P4 (topologia × especiais) tem os casos mixed-array/array-de-array cobertos,
 faltando def/repetition levels da forma regular. Stage 1 (topologia RT-exato, por-instância) está
 no lab-ponte `2026-07-13-dataseth-json-bridge/` (codec_h). Próximo: P4 restante → P5 (decisão de
 representação + gramática, com a nota de que o kind tipado deve sobreviver à forma por-instância E
 à forma regular multirow-com-header).
+
+## Update 2026-07-13 - primeira prova de B: dominio tipado no header
+
+Lab [`2026-07-13-1921-dataseth-typed-header-domain/`](../2026-07-13-1921-dataseth-typed-header-domain/):
+o desenho direto `null=index_ref` foi refutado na forma ingenua quando a indexacao ocorre depois da
+stringificacao: `null` e string `"null"` caem no mesmo indice e o header ja nao tem informacao para
+recuperar as ocorrencias. Duas formas tipadas passaram RT semantico e distinctness em cinco perfis
+sinteticos:
+
+- **HDOM**: header carrega o dominio inteiro com tag por entrada e body carrega indices `b1`/`b2`/`b4`.
+   E a forma direta de `tipo -> index_ref`; funciona quando o dominio total e pequeno (`k<=16`).
+- **HK**: header carrega somente o mapa de kinds ativos; body tem indices de kind mais um payload produzido
+   pelo `tcf.encode(list[str])` comum para strings/inteiros/numeros. `null`/NaN/infinito nao levam payload;
+   a string que os soletra continua no canal string e nao colide. Ele continua aplicavel no perfil de 100
+   strings distintas, onde HDOM nao se aplica.
+
+Isto torna B uma alternativa exercitada, mas nao uma decisao de formato: os bytes sao sinteticos, o stream
+packed pertence ao territorio `bN`/V2-L, e os dois desenhos ainda precisam de P4 (topologia regular,
+presence/repetition/definition) antes de P5. A gramatica usada e `#PROTO.*`, nunca `#TCF.8H`.
 
 ## Próxima leitura e próxima ação
 
@@ -167,6 +186,6 @@ Leia este plano junto com:
 2. [tipos-como-specs.md](tipos-como-specs.md) - o que `bN` já mede e o que ele não decide.
 3. [estudo-tcf-hierarquico-mapa.md](estudo-tcf-hierarquico-mapa.md) - topologia, cardinalidade e protótipos anteriores.
 
-A próxima ação proposta é P1: registrar a matriz de fixtures e o oráculo de igualdade semântica em um lab
-novo, externo e reproduzível. Ela depende de revisão deste plano pelo owner; não há autorização implícita
-para alterar o POC atual, o formato ou o core.
+A próxima ação proposta é P4: cruzar as formas HDOM/HK com presence/definition/repetition levels, arrays
+ragged e a forma regular multirow-com-header. Ela depende de revisão deste plano pelo owner; não há
+autorização implícita para alterar o POC atual, o formato ou o core.

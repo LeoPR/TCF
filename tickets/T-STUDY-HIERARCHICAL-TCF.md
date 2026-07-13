@@ -21,6 +21,7 @@ related:
   - experiments/lab/dirty/2026-07-05-nested-tcf-study/result.md
   - experiments/lab/dirty/2026-07-13-dataseth-json-bridge/
   - experiments/lab/dirty/2026-07-13-1835-dataseth-special-scalars/
+  - experiments/lab/dirty/2026-07-13-1921-dataseth-typed-header-domain/
   - experiments/lab/dirty/notas/dataseth-hierarquia-completa-plano.md
   - datasets/coverage-matrix.md
   - experiments/lab/dirty/notas/dirty-lab-convencoes.md

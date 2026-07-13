@@ -1,0 +1,6 @@
+profile | HDOM typed-domain | HK kind-map + TCF strings | Python output adapter
+collision-matrix | OK | OK | OK
+specials-dense-100 | OK | OK | OK
+low-card-mixed-100 | OK | OK | OK
+sparse-special-high-card | N/A (k>16) | OK | OK
+numbers-and-strings | OK | OK | OK

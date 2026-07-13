@@ -1,0 +1,10 @@
+Naive string-domain counterexample
+
+input semantic atoms: [Atom(kind='null', payload=None), Atom(kind='string', payload='null'), Atom(kind='nan', payload=None), Atom(kind='string', payload='NaN'), Atom(kind='pos_inf', payload=None), Atom(kind='string', payload='Infinity'), Atom(kind='neg_inf', payload=None), Atom(kind='string', payload='-Infinity')]
+stringified domain: ['null', 'NaN', 'Infinity', '-Infinity']
+per-row indices: [0, 0, 1, 1, 2, 2, 3, 3]
+header special refs: {'null': 0, 'nan': 1, 'pos_inf': 2, 'neg_inf': 3}
+
+Both null and literal 'null' point to the same ordinary string-domain index.
+A header declaration null=<index> cannot recover which occurrences were null.
+The domain must be typed, or the stream must carry a distinct kind code per occurrence.
