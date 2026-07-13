@@ -445,7 +445,7 @@ class TestLote4NatureIdStrict:
 
     def test_unknown_nature_id_single_raises(self):
         from tcf import SPEC_CPF
-        text = encode(["529.982.247-25"], nature=SPEC_CPF)
+        text = encode(["529.982.247-25", "111.444.777-35"], nature=SPEC_CPF)
         with pytest.raises(ValueError, match="desconhecido"):
             decode(text.replace(":cpf", ":zzz", 1))
 

@@ -62,8 +62,8 @@ SPEC_REGISTRY = {
 
 def _resolve_nature_id(nature_id: str):
     """Resolve a STRING de um nature-id (header #TCF.8) -> spec, ou None se
-    desconhecido. TOLERANTE: NUNCA levanta KeyError (forward-compat — um id de
-    versao futura deixa o valor CRU em vez de quebrar). NAO reusar
+    desconhecido. A funcao interna permanece total; o decoder publico converte
+    `None` em ValueError fail-loud para ids fora do registry fechado. NAO reusar
     `scripts/natures_compiler/registry.py:get()` aqui (esse faz raise)."""
     return SPEC_REGISTRY.get(nature_id)
 

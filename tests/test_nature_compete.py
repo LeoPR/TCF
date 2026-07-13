@@ -9,10 +9,11 @@ CNPJ piorava +7339B em receita real) sem perder o ganho onde a nature vence.
 from __future__ import annotations
 
 import random
+from dataclasses import replace
 
 import pytest
 
-from tcf import SPEC_CNPJ, SPEC_CPF, decode, encode
+from tcf import SPEC_CNPJ, SPEC_CPF, SPEC_IP, decode, encode
 from tcf.side_outputs import SideOutputs
 
 
@@ -168,3 +169,31 @@ class TestFloorSingleCol:
             nat = len(encode(col, nature=SPEC_CPF).encode())
             assert nat <= base, f"single-col nature piorou: {nat} > {base}"
             assert decode(encode(col, nature=SPEC_CPF)) == col
+
+    def test_single_col_header_cost_is_in_floor(self):
+        col = ["192.168.0.0"]
+        baseline = encode(col)
+        candidate = encode(col, nature=SPEC_IP)
+        assert len(candidate.encode()) <= len(baseline.encode())
+        assert ":ip" not in candidate.split("\n", 1)[0]
+        assert decode(candidate) == col
+
+
+class TestFloorMultiHeaderCost:
+    def test_multi_col_header_cost_is_in_floor(self):
+        col = ["192.168.0.0", "192.168.0.1"]
+        table = {"c": col}
+        baseline = encode(table)
+        candidate = encode(table, nature_per_col={"c": SPEC_IP})
+        assert len(candidate.encode()) <= len(baseline.encode())
+        assert ":ip" not in candidate.split("\n", 1)[0]
+        assert decode(candidate) == table
+
+    def test_custom_spec_roundtrip_requires_matching_out_of_band(self):
+        custom = replace(SPEC_CPF, name="custom-cpf")
+        table = {"c": _random_cpfs(100)}
+        blob = encode(table, nature_per_col={"c": custom})
+        assert ":custom-cpf" in blob.split("\n", 1)[0]
+        with pytest.raises(ValueError, match="desconhecido"):
+            decode(blob)
+        assert decode(blob, nature_per_col={"c": custom}) == table

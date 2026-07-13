@@ -59,6 +59,26 @@ if TYPE_CHECKING:
 _V8_MAGIC = "#TCF.8"                  # base do #TCF.8; o disc (char no indice 6) decide
 
 
+def _resolve_header_spec(nature_id: str, supplied, *, where: str):
+    """Resolve um ID do header pelo registry core ou por spec declarado fora dele."""
+    from tcf.natures import _resolve_nature_id
+
+    spec = _resolve_nature_id(nature_id)
+    if spec is not None:
+        return spec
+    if supplied is not None and getattr(supplied, "name", None) == nature_id:
+        return supplied
+    if supplied is not None:
+        raise ValueError(
+            f"nature-id {nature_id!r} no header {where} nao coincide com o spec "
+            f"out-of-band {getattr(supplied, 'name', None)!r}"
+        )
+    raise ValueError(
+        f"nature-id desconhecido no header {where}: {nature_id!r} — registry core "
+        "fechado; forneca o spec correspondente out-of-band para decodificar"
+    )
+
+
 def decode(
     tcf_text: str,
     *,
@@ -138,28 +158,19 @@ def decode(
         # o min() ou nao foi passada). Logo o `nature_per_col` out-of-band do decode
         # NAO deve tocar colunas nao-marcadas — fazia isso e CORROMPIA silenciosamente
         # valores que casassem a forma base-94 (achado da verificacao adversarial do
-        # FLOOR, 2026-07-12). O param e' IGNORADO pra #TCF.8M (header manda); mantido
-        # na assinatura por compat da API.
+        # FLOOR, 2026-07-12). Para IDs fora do registry core, o spec out-of-band so'
+        # entra se o nome coincidir exatamente com o ID do header.
         header_resolved: set[str] = set()
         if header_ids:
-            from tcf.natures import _resolve_nature_id
             for name, nat_id in header_ids.items():
-                spec = _resolve_nature_id(nat_id)
-                if spec is not None:
-                    result[name] = [spec.decode_value(v) for v in result[name]]
-                    header_resolved.add(name)
-                else:
-                    # BUG-13b (T-QA-8 lote 4, owner 2026-07-10): id desconhecido
-                    # = ERRO. Revoga o forward-compat de 2026-06-24 (warning +
-                    # dado cru base-94 calado era corrupcao silenciosa) — pre-1.0
-                    # nao ha forward-compat a proteger (ADR-0024, git-as-compat).
-                    raise ValueError(
-                        f"nature-id desconhecido no header: {nat_id!r} (coluna "
-                        f"{name!r}) — registry fechado (cpf/cnpj/ip); blob de "
-                        f"versao que este decoder nao le (ADR-0024)"
-                    )
-        # (nature_per_col out-of-band intencionalmente NAO aplicado: #TCF.8M e'
-        # self-describing, header autoritativo — ver nota acima.)
+                supplied = nature_per_col.get(name) if nature_per_col else None
+                spec = _resolve_header_spec(
+                    nat_id, supplied, where=f"multi-col coluna {name!r}"
+                )
+                result[name] = [spec.decode_value(v) for v in result[name]]
+                header_resolved.add(name)
+        # Colunas sem :id continuam definitivamente originais; o parâmetro
+        # out-of-band não pode inferir uma nature perdida pelo FLOOR.
         return result
 
     # SINGLE + SPEC: '#TCF.8 [nome]:spec' (disc espaco). Retorna LIST.
@@ -168,17 +179,10 @@ def decode(
         body = tcf_text[len(line1) + 1:]           # apos a 1a '\n'
         _name, _, nat_id = meta.partition(":")     # nome opcional, descartado
         values = _decode_column(body)
-        from tcf.natures import _resolve_nature_id
-        spec = _resolve_nature_id(nat_id)
-        if spec is not None:
-            return [spec.decode_value(v) for v in values]   # header vence
-        # BUG-13b (lote 4): id desconhecido = ERRO (revoga forward-compat de
-        # 2026-06-24; pre-1.0 sem compat, ADR-0024 — dado cru calado corrompe).
-        raise ValueError(
-            f"nature-id desconhecido no header single-col: {nat_id!r} — "
-            f"registry fechado (cpf/cnpj/ip); blob de versao que este decoder "
-            f"nao le (ADR-0024)"
+        spec = _resolve_header_spec(
+            nat_id, nature, where="single-col"
         )
+        return [spec.decode_value(v) for v in values]   # header vence
 
     # SINGLE version-stamp: line1 == '#TCF.8' (disc vazio). Carimbo de versao
     # (magic-number p/ file/libmagic, ADR-0029) — body single-col puro segue.

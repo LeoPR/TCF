@@ -11,6 +11,7 @@ Valida:
 from __future__ import annotations
 
 import csv
+from dataclasses import replace
 from pathlib import Path
 
 import pytest
@@ -314,7 +315,7 @@ class TestDiscriminatorV8:
         assert decode(t) == {"doc": ["11.222.333/0001-81"], "x": ["a"]}
 
     def test_disc_single_space(self):
-        t = encode(["529.982.247-25"], nature=SPEC_CPF)
+        t = encode(["529.982.247-25", "111.444.777-35"], nature=SPEC_CPF)
         assert t[:7] == "#TCF.8 "             # espaco apos #TCF.8
 
     def test_version_stamp_emit_and_interpret(self):
@@ -361,7 +362,7 @@ class TestNatureMarkSingleCol:
         assert decode(text) == cpfs               # SEM nature no decode
 
     def test_magic_sem_m_uma_linha(self):
-        cpfs = ["529.982.247-25"]
+        cpfs = ["529.982.247-25", "111.444.777-35"]
         text = encode(cpfs, nature=SPEC_CPF)
         # header numa LINHA SO': '#TCF.8 :cpf' (sem ' M' -> single; nome vazio)
         assert text.split("\n")[0] == "#TCF.8 :cpf"
@@ -385,7 +386,7 @@ class TestNatureMarkSingleCol:
         assert decode(text) == cpfs               # decodifica como single, nao multi
 
     def test_ip_single_col_self_describing(self):
-        # FLOOR body-based (owner 2026-07-12): o IP nature COMPETE. Achado: em
+        # FLOOR total-byte (owner 2026-07-12): o IP nature COMPETE. Achado: em
         # single-col o padding do IP EMPATA com o pipeline (o núcleo já normaliza),
         # então o IP nature raramente vence (só onde há estrutura de subnet que a
         # nature explora melhor — ADR-0016). RT sempre; header condicional ao win.
@@ -397,7 +398,7 @@ class TestNatureMarkSingleCol:
 
     def test_unknown_id_raises(self):
         # ERRO estrito (BUG-13b, owner 2026-07-10 — antes: warning + cru calado)
-        text = encode(["529.982.247-25"], nature=SPEC_CPF)
+        text = encode(["529.982.247-25", "111.444.777-35"], nature=SPEC_CPF)
         tampered = text.replace(":cpf", ":FUTURE9", 1)
         with pytest.raises(ValueError, match="desconhecido"):
             decode(tampered)
@@ -407,6 +408,18 @@ class TestNatureMarkSingleCol:
         cpfs = ["529.982.247-25", "111.444.777-35"]
         text = encode(cpfs, nature=SPEC_CPF)
         assert decode(text, nature=SPEC_CPF) == cpfs
+
+    def test_custom_spec_roundtrip_requires_matching_out_of_band(self):
+        custom = replace(SPEC_CPF, name="custom-cpf")
+        cpfs = ["529.982.247-25", "111.444.777-35"]
+        text = encode(cpfs, nature=custom)
+        assert text.split("\n", 1)[0] == "#TCF.8 :custom-cpf"
+        with pytest.raises(ValueError, match="desconhecido"):
+            decode(text)
+        assert decode(text, nature=custom) == cpfs
+        wrong = replace(SPEC_CPF, name="other-cpf")
+        with pytest.raises(ValueError, match="nao coincide"):
+            decode(text, nature=wrong)
 
     def test_name_com_colon_rejeitado(self):
         with pytest.raises(ValueError, match="':'|reservado"):

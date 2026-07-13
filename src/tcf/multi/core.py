@@ -257,8 +257,9 @@ def _encode_multi(
             (default) -> auto por coluna (inalterado). Threaded a _encode_column.
         nature_specs: dict[col_name -> spec] (ADR-0027 + FLOOR, T-SPEC-DEEPDIVE-08
             §5.1, owner 2026-07-12). A nature COMPETE no min() por coluna: encoda-se
-            a coluna ORIGINAL e a NATURE-transformada, fica a MENOR (incluindo o
-            custo do sufixo ':id'). Se a nature vence -> ':id' no meta + corpo
+            a coluna ORIGINAL e a NATURE-transformada, fica a MENOR pelo blob
+            serializado completo (incluindo meta, sizes e o custo do ':id'). Se a
+            nature vence -> ':id' no meta + corpo
             base-94; se perde/empata -> original, SEM ':id'. Safe-by-construction:
             NUNCA pior que o baseline (resolve a regressao F4). None/{} -> codepath
             identico ao de hoje (zero delta byte-canonical).
@@ -374,6 +375,30 @@ def _encode_multi(
     split_cols: list[str] = []
     col_modes: dict[str, str] = {}
     final_bodies: list[tuple[str, bytes, str]] = []  # (name, body, mode)
+    nature_candidates: dict[str, tuple[bytes, str, str]] = {}
+
+    def _serialize(
+        bodies: list[tuple[str, bytes, str]],
+        ids: dict[str, str],
+    ) -> bytes:
+        """Monta um blob multi-col para comparar candidatos do FLOOR."""
+        last_i = len(bodies) - 1
+        parts = []
+        _sz = lambda n: format(n, "x")  # noqa: E731
+        for i, (name, body, mode) in enumerate(bodies):
+            pre = {"raw": "!", "dict": "@", "split": "%"}.get(mode, "")
+            suf = f":{ids[name]}" if name in ids else ""
+            if drop_names or name == "":
+                parts.append(
+                    f"{pre}{suf}" if i == last_i
+                    else f"{pre}{_sz(len(body))}{suf}"
+                )
+            elif min_header and i == last_i:
+                parts.append(f"{pre}{_esc_name(name)}{suf}")
+            else:
+                parts.append(f"{pre}{_sz(len(body))}={_esc_name(name)}{suf}")
+        header = MAGIC_MULTI_V3 + ",".join(parts).encode("utf-8") + b"\n"
+        return header + b"".join(body for _, body, _ in bodies)
 
     def _best_of(vals: list[str], tcf_body: bytes):
         """min(tcf, raw, dict, split) de uma coluna -> (body, mode)."""
@@ -397,8 +422,8 @@ def _encode_multi(
         spec = nature_specs.get(name) if nature_specs else None
         if spec is not None:
             # CANDIDATO nature: encoda os valores NATURE-transformados e compete.
-            # A nature so' vence se cobre o proprio custo do sufixo ':id' (never-worse
-            # inclui o header). apply-rate reportado SEMPRE (telemetria da transformacao).
+            # A nature so' vence se reduz o blob serializado completo (never-worse).
+            # apply-rate reportado SEMPRE (telemetria da transformacao).
             from tcf.encoder import _encode_column
             from tcf.natures.templated_checked import encode_value
             pairs = [encode_value(spec, v) for v in table_str[name]]
@@ -410,19 +435,32 @@ def _encode_multi(
             nat_tcf = _encode_column(transformed, header=name, cfg=cfg,
                                      min_len=min_len).encode("utf-8")
             nat_body, nat_mode = _best_of(transformed, nat_tcf)
-            # BODY-based (owner 2026-07-12): dropa a nature SÓ quando o original tem
-            # ESTRUTURA que ganha (corpo menor), NÃO pelo custo fixo do ':id' numa
-            # coluna pequena. "Não tendo estrutura, não temos como mudar o roteamento":
-            # sem estrutura, a nature (mais densa) vence e o arquivo se auto-explica.
-            if len(nat_body) < len(best_body):
-                best_body, best_mode = nat_body, nat_mode
-                nature_ids[name] = spec.name
-                if side_outputs is not None:
-                    nature_apply[name]["used"] = True
-            elif side_outputs is not None:
-                nature_apply[name]["used"] = False
+            nature_candidates[name] = (nat_body, nat_mode, spec.name)
 
         final_bodies.append((name, best_body, best_mode))
+
+    # Todas as colunas ja' estao presentes: com min_header=True, isso e' necessario
+    # para que o custo de size/meta seja calculado na posicao final correta.
+    for i, (name, _best_body, _best_mode) in enumerate(final_bodies):
+        candidate = nature_candidates.get(name)
+        if candidate is None:
+            continue
+        nat_body, nat_mode, nature_id = candidate
+        candidate_bodies = list(final_bodies)
+        candidate_bodies[i] = (name, nat_body, nat_mode)
+        candidate_ids = dict(nature_ids)
+        candidate_ids[name] = nature_id
+        if len(_serialize(candidate_bodies, candidate_ids)) < len(
+            _serialize(final_bodies, nature_ids)
+        ):
+            final_bodies = candidate_bodies
+            nature_ids[name] = nature_id
+            if side_outputs is not None:
+                nature_apply[name]["used"] = True
+        elif side_outputs is not None:
+            nature_apply[name]["used"] = False
+
+    for name, best_body, best_mode in final_bodies:
         if best_mode == "raw":
             fallback_cols.append(name)
         elif best_mode == "dict":
@@ -430,11 +468,6 @@ def _encode_multi(
         elif best_mode == "split":
             split_cols.append(name)
         if side_outputs is not None:
-            # BUG-07 (T-QA-8 F0, 2026-07-10): bytes EMITIDOS + modo vencedor
-            # capturados NO PONTO do min() — len(best_body) ja' foi computado pro
-            # proprio min() e pro size hex do header ("contar no processo", zero
-            # passada extra). `body_bytes` (per_col) MANTEM a semantica de
-            # CANDIDATO tcf (custo de compute/memoria) — semanticas distintas.
             col_modes[name] = best_mode
             pc = side_outputs.per_col.get(name) if side_outputs.per_col else None
             if pc is not None:
@@ -447,43 +480,9 @@ def _encode_multi(
     # #TCF.6/#TCF.7 foi CORTADO de src/tcf (git-as-compat pra comparacao historica).
     # Single-col NAO muda (orfao default, 0029/0030). used_v2 mantido so' p/ o campo
     # de side_outputs (nao decide mais o magic).
-    magic = MAGIC_MULTI_V3
-
-    # #TCF.8M: meta INLINE na linha do shebang (discriminador 1-char, ADR-0029) ->
-    # '#TCF.8M<meta>\n<bodies>'. Sem espaco, sem linha de meta separada, sem prefixo.
-    # min_header OMITE o size da ULTIMA coluna (corpo ate' EOF, O-FMT-15). '!'/'@'/'%'
-    # (raw/dict/split) compoem normalmente.
-    last_i = len(final_bodies) - 1
-    parts = []
-    # Byte-size do header em HEX (T-FMT-HEADER-BASE-HEX + ADR-0032 §3: hex e' feature
-    # exclusiva da familia .8). Colisao-livre ([0-9a-f] disjunto de ,=:{}[] e !@%) e
-    # win-or-tie vs decimal. Canonico: format(n,'x') = minusculo, sem '0x', sem zero a
-    # esquerda -> round-trip exato via int(_,16). Parse simetrico no decode.
-    _sz = lambda n: format(n, "x")                       # noqa: E731
-    for i, (name, b, mode) in enumerate(final_bodies):
-        pre = {"raw": "!", "dict": "@", "split": "%"}.get(mode, "")
-        # Sufixo ':id' (ADR-0027) SSE a coluna tem nature.
-        suf = f":{nature_ids[name]}" if nature_ids and name in nature_ids else ""
-        if drop_names or name == "":
-            # Coluna ANONIMA (ADR-0029): nome omitido -> posicional no decode.
-            # Nao-ultima = '<size>[:spec]' (sem '=nome'); ultima = '[:spec]'/vazio,
-            # SEMPRE sem size — INCLUSIVE com min_header=False: '<size>' bare no
-            # ULTIMO token e' ambiguo com a gramatica de NOME (ex. size 0xc viraria
-            # nome 'c') e o parse leria chave errada / perderia coluna. Achado da
-            # verificacao adversarial F0 (2026-07-10); pre-F0 este combo ja' emitia
-            # blob mal-parseavel — corrigido aqui no EMIT (o formato nao tem forma
-            # nao-ambigua de ultima-anonima-com-size).
-            # name == '' entra aqui (BUG-01: '' = sem nome; _esc_name nunca ve '').
-            parts.append(f"{pre}{suf}" if i == last_i
-                         else f"{pre}{_sz(len(b))}{suf}")
-        elif min_header and i == last_i:
-            parts.append(f"{pre}{_esc_name(name)}{suf}")        # ultima sem size
-        else:
-            parts.append(f"{pre}{_sz(len(b))}={_esc_name(name)}{suf}")
-    meta_pairs = ",".join(parts)
-    header = magic + meta_pairs.encode("utf-8") + b"\n"
     body_concat = b"".join(b for _, b, _ in final_bodies)
-    full = header + body_concat
+    full = _serialize(final_bodies, nature_ids)
+    header_bytes = len(full) - len(body_concat)
     text = full.decode("utf-8")
 
     if side_outputs is not None:
@@ -491,7 +490,7 @@ def _encode_multi(
             "n_rows": next(iter(lengths.values())),
             "n_cols": len(table),
             "total_bytes": len(full),
-            "header_bytes": len(header),
+            "header_bytes": header_bytes,
             "body_bytes": len(body_concat),
             "parallel_workers": n_workers if use_parallel else 0,
             "format": "v3",   # #TCF.8M (ADR-0032 default); used_v2 abaixo detalha as features

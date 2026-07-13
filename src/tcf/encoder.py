@@ -238,12 +238,10 @@ def encode(
             body_nat = _encode_column(transformed, header="val", cfg=cfg,
                                       min_len=min_len)
             header_nat = f"{magic} {name or ''}:{nature.name}\n"
-            # BODY-based (owner 2026-07-12): a nature vence sse o corpo dela e' menor
-            # que o do original (ESTRUTURA), NAO pelo custo fixo do header ~12B numa
-            # coluna pequena — senao um CPF sozinho perderia o self-describe por um
-            # motivo nao-estrutural. Sem estrutura, a nature (densa) vence -> arquivo
-            # se auto-explica (o self-explain que o owner priorizou pro single-col).
-            win = len(body_nat.encode("utf-8")) < len(body_orig.encode("utf-8"))
+            # FLOOR: compara os blobs completos; empate fica no baseline.
+            baseline = f"{magic}\n{body_orig}" if stamp else body_orig
+            candidate = header_nat + body_nat
+            win = len(candidate.encode("utf-8")) < len(baseline.encode("utf-8"))
             if side_outputs is not None:
                 stats = _nature_apply_stats(nature, [s for _, s in pairs])
                 stats["used"] = win

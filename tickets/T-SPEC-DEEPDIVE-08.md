@@ -170,18 +170,18 @@ alfabeto MARKER-SAFE base-62 (a nature real usa BASE94 com `^`, que dispara o BU
 1. **CRUX — a "nature compete"** — **DECIDIDO (owner 2026-07-12): NO `.8`. FLOOR IMPLEMENTADO.**
    Demo medido (`scripts/spec_demo.py`) + lab RT-provado (`2026-07-12-1917-spec-camadas-v1`) →
    BUG-15 fixado (destravou) → **nature-compete welded**: `multi/core.py` `_encode_multi` agora faz
-   a nature COMPETIR no min() por coluna (encoda original vs transformada, fica a menor incluindo o
-   custo do `:id`; `nature_specs` desce em vez de pré-transformar). Só as colunas onde a nature vence
-   ganham `:id`. **F4 RESOLVIDO** (medido): receita real com `nature_per_col` = 32665B (a nature
-   perdeu, manteve o split) vs 40017B antes. Contrato `never-worse` em 8 testes red→green
-   (`tests/test_nature_compete.py`); suíte **624 passed**, pinos exatos (caminho sem-nature
-   byte-idêntico). Telemetria: `multi_info.nature_cols` (venceram) + `nature_lost` (perderam) +
-   `nature_apply[col].used`.
-   - **ABERTO (decisão do owner)**: single-col `nature=` em LIST ainda FORÇA (não compete) — o header
-     `#TCF.8 :cpf` tem custo fixo ~12B, então competir faria a nature PERDER em colunas pequenas,
-     mudando o exemplo do README + testes single-col existentes. É simétrico ao multi-col em
-     princípio, mas com efeito colateral maior. Estender OU manter a assimetria (single = pedido
-     explícito de representação) = decisão do owner.
+   a nature COMPETIR no min() por coluna (encoda original vs transformada, fica a menor pelo blob
+   serializado completo, incluindo meta, sizes e o custo do `:id`; `nature_specs` desce em vez de
+   pré-transformar). Só as colunas onde a nature vence por redução estrita ganham `:id`; empate fica
+   no baseline.
+   **F4 RESOLVIDO** (medido): receita real com `nature_per_col` = 32665B (a nature perdeu, manteve
+   o split) vs 40017B antes. Contrato `never-worse` em 10 testes red→green
+  (`tests/test_nature_compete.py`); suíte **634 passed, 2 skipped**, pinos exatos (caminho
+   sem-nature byte-idêntico). Telemetria: `multi_info.nature_cols` (venceram) + `nature_lost`
+   (perderam) + `nature_apply[col].used`.
+   - **RESOLVIDO (owner 2026-07-12):** single-col `nature=` em LIST usa a mesma competição pelo
+     blob completo. O header `#TCF.8 :cpf` só é emitido quando a economia do corpo cobre o próprio
+     custo; em colunas pequenas, o baseline órfão permanece byte-menor e continua com RT.
    - **CHANGELOG**: o FLOOR muda bytes de coluna-com-nature-que-perde (antes pior, agora igual ao
      baseline) → nota no 0.8.0 (não move pinos; comportamento observável melhora).
 2. **CPF real-world standalone** (medição, não código): rodar SPEC_CPF em coluna CPF real com
@@ -212,7 +212,8 @@ alfabeto MARKER-SAFE base-62 (a nature real usa BASE94 com `^`, que dispara o BU
 
 ## Critério de aceite
 
-- [ ] Owner decide o item §5.1 (nature-compete: 0.8 vs 0.8.1) — é o crux.
+- [x] Owner decidiu e o item §5.1 foi implementado no `.8`: nature-compete multi e single pelo
+  blob serializado completo, com regressões de custo de header cobertas.
 - [ ] F6 herda o caveat definitivo (§0) + a nota do compilador-é-data-driven (§4).
 - [ ] Direções CNPJ (§2) e mapa (§3) registrados no ROADMAP `.9`/pré-1.0 com cross-ref.
 - [ ] CPF-model (§1, 10 eixos) vira o gabarito de qualquer spec novo (cross-ref no T-SPEC-STATUS-08).
