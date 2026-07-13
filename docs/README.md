@@ -2,11 +2,11 @@
 
 Hub central da documentacao do projeto **TCF (Tabular Compact Format)**.
 
-> **Estado 0.8 (`#TCF.8`, pré-1.0 ADR-0032)**: o core e' o algoritmo de
-> compressao em duas camadas — **OBAT** (Online Bidirectional Affix
-> Tokenizer) + **HCC** (Hierarchical Compositional Coding) — mais as camadas
-> V2 multi-col (fallback/dicionario/split/header-minimo) e a view lazy
-> read-only (`from tcf import view`). Codigo canonico em
+> **Estado 0.8 (`#TCF.8`, pré-1.0 ADR-0032)**: o core combina dois mecanismos
+> de compressão — **OBAT** (Online Bidirectional Affix Tokenizer) e **HCC**
+> (Hierarchical Compositional Coding) — com fallback, dicionário, split
+> estrutural, cabeçalho compacto e uma consulta somente leitura (`view`).
+> Código canônico em
 > [`../src/tcf/`](../src/tcf/). Estado vivo: [`../STATUS.md`](../STATUS.md).
 >
 > Ciclo v0.5 (formato columnar para LLM benchmark) foi arquivado em
@@ -67,10 +67,11 @@ from tcf import encode, decode, view
 
 text = encode({"email": ["joao@gmail.com", "maria@gmail.com", "pedro@gmail.com"]})
 table = decode(text)
-v = view(text)              # camada read-only lazy/consultavel
+v = view(text)              # consulta somente leitura
 ```
 
-Multi-coluna (`#TCF.8M`) e naturezas opt-in (CPF/CNPJ/IP) **welded**. Receitas:
+Multi-coluna (`#TCF.8M`) e filtros opt-in para CPF, CNPJ e IP fazem parte da
+versão 0.8. Receitas:
 [`tutorials/getting-started.md`](tutorials/getting-started.md),
 [`how-to/encode-csv-file.md`](how-to/encode-csv-file.md),
 [`reference/encode-knobs.md`](reference/encode-knobs.md),

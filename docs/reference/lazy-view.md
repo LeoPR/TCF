@@ -1,11 +1,11 @@
-# Reference — `tcf.view` (view lazy/consultável)
+# Referência — `tcf.view` (consulta sob demanda)
 
-Referência da camada **read-only** [`tcf.view`](../../src/tcf/view.py): conecta a um blob
-TCF multi-coluna e responde consultas (`count/sum/min/max/avg`, `where`, group-by)
-**descomprimindo só o necessário**. Lê `#TCF.8M` (self-describing: natures revertidas
-LAZY ao materializar a coluna + colunas anônimas posicionais); `#TCF.6` e `#TCF.7` não são
-aceitos no pacote `0.8.0` (compatibilidade histórica via git);
-**não muda encode/decode/formato**. Promovida do gadget `scripts/tcf_lazy/` (A4, plano 0.8).
+Referência da camada de consulta somente leitura [`tcf.view`](../../src/tcf/view.py): conecta a um
+blob TCF multi-coluna e responde consultas (`count/sum/min/max/avg`, `where`, group-by),
+**descomprimindo só o necessário**. Lê `#TCF.8M`; os filtros registrados no cabeçalho são
+reaplicados quando a coluna é lida, e colunas anônimas continuam posicionais. `#TCF.6` e `#TCF.7`
+não são aceitos no pacote `0.8.0` (compatibilidade histórica via git). A consulta não muda
+`encode`, `decode` nem o formato.
 
 ```python
 from tcf import encode, view

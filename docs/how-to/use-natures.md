@@ -9,39 +9,35 @@ updated: 2026-05-27
 
 # Como usar naturezas (CPF/CNPJ/IP)
 
+Uma *nature* é um filtro opt-in para valores com formato conhecido, como CPF, CNPJ e IP. Ela pode
+remover uma parte previsível do valor e reconstruir o original no `decode`.
+
 ## Contrato do formato 0.8
 
-As naturezas são candidatos opt-in. O FLOOR compara o **blob serializado
-completo**, incluindo header, tamanhos e `:id`; se a nature perder, a coluna
-original permanece e o marcador não é emitido. Para `cpf`, `cnpj` e `ip`, o
-header do `#TCF.8` é autoritativo e `decode(blob)` resolve o spec pelo registry
-core. Um spec customizado exige declaração out-of-band com `spec.name` igual
-ao ID do header.
+Cada filtro é apenas uma candidata: o TCF compara o **blob serializado completo**, incluindo
+cabeçalho, tamanhos e o identificador do filtro. Se a versão filtrada ficar maior, a coluna original
+permanece e o identificador não é emitido. Para `cpf`, `cnpj` e `ip`, o cabeçalho do `#TCF.8` registra
+o filtro usado, e `decode(blob)` o reconhece sozinho. Um filtro customizado também pode ser usado,
+mas o `decode` precisa receber um filtro com o mesmo nome registrado no cabeçalho.
 
-Receita pra comprimir colunas com estrutura conhecida — CPF, CNPJ e
-endereços IP — aproveitando dígitos verificadores e formatos templated
-pra ganhar até 60% em ratio.
+Este guia mostra como comprimir colunas com estrutura conhecida — CPF, CNPJ e endereços IP —
+aproveitando dígitos verificadores e formatos fixos.
 
 ## Quando usar
 
-Aplique naturezas quando seus dados satisfazem:
+Aplique uma *nature* quando seus dados tiverem:
 
-- **Estrutura conhecida**: o valor segue template fixo (ex: `NNN.NNN.NNN-DD`
-  para CPF)
-- **Padrão repetido**: muitos valores com mesma estrutura na coluna
-- **Valores comprimíveis**: dígito verificador derivável (CPF, CNPJ) ou
-  slots padronizáveis (IP com padding)
+- **Estrutura conhecida**: o valor segue um formato fixo (ex.: `NNN.NNN.NNN-DD` para CPF)
+- **Padrão repetido**: muitos valores com a mesma estrutura na coluna
+- **Valores comprimíveis**: dígito verificador calculável (CPF, CNPJ) ou slots padronizáveis (IP)
 
-**Exemplo de ganho**: coluna com 1000 CPFs válidos comprime de 15 KB
-→ 8.5 KB (43% ratio). Sem nature: 15 KB → 9 KB (60% ratio do M10
-puro). Nature agrega 17 pontos percentuais.
+**Exemplo medido**: uma coluna com 1000 CPFs válidos caiu de 15 KB para 8,5 KB com a *nature*.
+Sem ela, caiu para 9 KB.
 
-**Não use naturezas quando**:
+**Não use uma *nature* quando**:
 
-- Maioria dos valores quebra o padrão (ex: tabela heterogênea com CPFs
-  + RG + passaporte)
-- Você precisa de auto-detecção: naturezas são opt-in; o encode só aplica o
-  spec que você fornece
+- A maioria dos valores quebra o padrão (ex.: tabela heterogênea com CPFs, RG e passaporte)
+- Você precisa de autodetecção: naturezas são opt-in; o `encode` só aplica o filtro que você fornece
 
 ## Single-column: CPF
 
@@ -59,35 +55,34 @@ cpfs = [
 # Encode com nature
 text = encode(cpfs, nature=SPEC_CPF)
 
-# Para specs core, o header #TCF.8 permite decode sem argumento
+# Para os filtros oficiais, o cabeçalho #TCF.8 permite decodificar sem argumento
 cpfs_back = decode(text)
-assert cpfs_back == cpfs  # round-trip lossless
+assert cpfs_back == cpfs  # round-trip sem perdas
 ```
 
-**Observacoes**:
+**Observações**:
 
-- CPF valido requer digito verificador correto (mod-11 dupla). Se o
-  digito for invalido, a natureza faz fallback pra literal: `_original`
-  é armazenado. Round-trip preservado.
-- Encoder automaticamente classifica cada valor:
-  - `compressible`: CPF válido → codificado no alfabeto seguro atual (5 chars)
-  - `check_invalid`: digito verificador errado → fallback literal
-  - `format_mismatch`: formato diferente (ex: sem mascara) → fallback literal
+- CPF válido requer dígito verificador correto (duplo módulo 11). Se o dígito for inválido, o filtro
+  guarda o valor como literal: `_original`. O round-trip continua preservado.
+- O encoder classifica cada valor:
+  - `compressible`: CPF válido, codificado no alfabeto seguro atual (5 caracteres)
+  - `check_invalid`: dígito verificador errado, guardado como literal
+  - `format_mismatch`: formato diferente (ex.: sem máscara), guardado como literal
 
-Exemplos de classificacao:
+Exemplos de classificação:
 
 ```python
 from tcf.natures import classify_value, SPEC_CPF
 
 classify_value(SPEC_CPF, '111.444.777-35')   # 'compressible'
-classify_value(SPEC_CPF, '111.444.777-99')   # 'check_invalid' (digito errado)
-classify_value(SPEC_CPF, '11144477735')      # 'format_unmasked' (sem mascara)
+classify_value(SPEC_CPF, '111.444.777-99')   # 'check_invalid' (dígito errado)
+classify_value(SPEC_CPF, '11144477735')      # 'format_unmasked' (sem máscara)
 classify_value(SPEC_CPF, '111-444-777-35')   # 'format_mismatch' (separadores errados)
 ```
 
-### Comparacao com e sem nature
+### Comparação com e sem *nature*
 
-**Sem nature** (M10 puro):
+**Sem filtro** (codificação comum):
 
 ```
 Coluna original: ['111.444.777-35', '529.982.247-25', '111.444.777-35']
@@ -95,13 +90,13 @@ Bytes: 41
 Texto TCF: '\\111.\\444.\\777-\\35\n\\529.\\982.\\247-\\25\n^1\n'
 ```
 
-**Com nature**:
+**Com filtro**:
 
 ```
 Coluna original: ['111.444.777-35', '529.982.247-25', '111.444.777-35']
 Bytes: 29
 Texto TCF: '#TCF.8 :cpf\n%gc\\9g\n\\2y/h-\n^1\n'
-Ratio: 70.7% do baseline; o custo do header já está incluído no FLOOR
+Ratio: 70,7% da codificação comum; o custo do cabeçalho já está incluído na comparação
 ```
 
 ## Single-column: CNPJ
@@ -122,18 +117,16 @@ cnpjs_back = decode(text)
 assert cnpjs_back == cnpjs
 ```
 
-**Calculo de check digits**: CNPJ usa mod-11 dupla com pesos
-diferentes de CPF (especificados em `_W1_CNPJ` e `_W2_CNPJ` via ADR-0015).
+**Cálculo dos dígitos verificadores**: CNPJ usa duas etapas de cálculo por módulo 11, com pesos
+ diferentes dos usados no CPF. A regra está registrada em [ADR-0015](../adr/0015-natures-templated-checked-weld.md).
 
-O ganho não é garantido: em dados pequenos ou ordenados, o FLOOR pode manter o
-baseline sem emitir `:cnpj`; em dados randomizados maiores, a nature pode vencer.
-O F4 também mediu uma regressão da nature CNPJ em uma tabela real ordenada,
+O ganho não é garantido: em dados pequenos ou ordenados, a versão com filtro pode perder para a
+codificação comum e não emitir `:cnpj`. Em uma tabela real ordenada, o teste mediu aumento de tamanho;
 por isso não há uma porcentagem geral prometida.
 
 ## Single-column: IP (IPv4)
 
-Coluna com endereos IP `NNN.NNN.NNN.NNN` (canonico, sem zeros a esquerda
-nos octetos).
+Coluna com endereços IP no formato `N.N.N.N`, sem zeros à esquerda nos octetos.
 
 ```python
 from tcf import encode, decode, SPEC_IP
@@ -149,19 +142,17 @@ ips_back = decode(text)
 assert ips_back == ips
 ```
 
-**Mecanismo IP**: diferente de CPF/CNPJ, IP nao tem digito verificador.
-A natureza padroniza slots via **padding zero-leading** (ex: `192.168.001.001`
-= 12 digitos). Isso ativa detector HCC seq-RLE digit-centric, que aproveita
-cadencia quando IPs estao em subnet.
+**Mecanismo IP**: diferente de CPF/CNPJ, IP não tem dígito verificador. O filtro padroniza cada
+parte com zeros à esquerda (por exemplo, `192.168.001.001` = 12 dígitos). Isso ajuda o compressor a
+reconhecer a cadência quando os IPs estão na mesma subnet.
 
-**Ganho observado em laboratório**: D-IP-subnet (1000 IPs em mesmo `/24`) pode
-comprimir até **1.71% ratio** vs M10 puro. Em amostras pequenas ou IPs aleatórios
-(D-IP-uniform), o ganho desaparece (102% ratio, ou seja, padrao nao
-ajuda quando nao ha cadencia).
+**Ganho observado em laboratório**: 1000 IPs na mesma `/24` chegaram a **1,71% do tamanho** da
+codificação comum. Em amostras pequenas ou IPs aleatórios, o filtro não ajudou (102% do tamanho,
+ou seja, ficou ligeiramente maior).
 
-## Multi-column: nature_per_col
+## Multi-column: `nature_per_col`
 
-Use `nature_per_col` pra aplicar natureza diferente por coluna.
+Use `nature_per_col` para aplicar filtros diferentes por coluna.
 
 ```python
 from tcf import encode, decode, SPEC_CPF, SPEC_IP
@@ -178,7 +169,7 @@ text = encode(table, nature_per_col={
     'ip': SPEC_IP
 })
 
-# Decode: o header autoritativo reaplica os specs que venceram
+# Decode: o cabeçalho reaplica os filtros escolhidos
 result = decode(text)
 
 assert result == table
@@ -186,13 +177,13 @@ assert result == table
 
 **Detalhes**:
 
-- Colunas sem entrada em `nature_per_col` usam M10 puro (sem pre-tx)
-- Cada coluna codifica/decodifica independentemente
-- Round-trip lossless preservado mesmo com fallback em alguns valores
+- Colunas sem entrada em `nature_per_col` usam a codificação comum (sem filtro)
+- Cada coluna codifica e decodifica independentemente
+- O round-trip sem perdas é preservado mesmo com fallback em alguns valores
 
 ### Exemplo com fallback em multi-column
 
-Valor invalido (`'invalid-cpf'`) na coluna CPF:
+Valor inválido (`'invalid-cpf'`) na coluna CPF:
 
 ```python
 table = {
@@ -207,68 +198,66 @@ assert result == table  # 'invalid-cpf' preservado via fallback
 
 ## Fallback e round-trip
 
-Quando um valor nao casa o padrao, natureza faz **fallback literal**:
+Quando um valor não segue o padrão, o filtro o guarda como **literal**:
 
 ```python
 from tcf.natures import encode_value, decode_value, SPEC_CPF
 
-# Valor com check digit invalido
+# Valor com dígito verificador inválido
 invalid_cpf = '111.444.777-99'
 encoded, status = encode_value(SPEC_CPF, invalid_cpf)
 
-print(encoded)  # '_111.444.777-99' (prefixo '_' = fallback marker)
+print(encoded)  # '_111.444.777-99' (prefixo '_' = marcador de fallback)
 print(status)   # 'check_invalid'
 
-# Decode remove marker e restaura original
+# Decode remove o marcador e restaura o original
 decoded = decode_value(SPEC_CPF, encoded)
 assert decoded == invalid_cpf
 ```
 
-**Filosofia**: opt-in por valor. Cada valor que passa na validacao eh
-comprimido; falhas caem pra literal. Nenhum valor eh perdido.
+**Regra**: o filtro é opt-in por valor. Cada valor que passa na validação é comprimido; os demais
+caem para literal. Nenhum valor é perdido.
 
-Taxa de compressao sobe quando **maioria** dos valores eh comprimível
-(exemplo: dataset com 95% CPFs válidos e 5% invalidos ganha ainda 50%+
-de compressao).
+A taxa de compressão sobe quando a **maioria** dos valores é comprimível (por exemplo, um conjunto
+com 95% de CPFs válidos e 5% inválidos ainda pode ganhar mais de 50%).
 
-## Nota: Nature e byte-canonical
+## Nota: escolha da menor representação
 
-Sem `nature=` ou `nature_per_col=`, o encoder usa **byte-canonical
-default** (M10 puro). Comportamento preservado sempre:
+Sem `nature=` ou `nature_per_col=`, o encoder usa a representação padrão. Com uma *nature*, ele
+compara a versão filtrada com a codificação comum e mantém a menor:
 
 ```python
-# Sem nature — M10 puro (comportamento default)
+# Sem nature — comportamento padrão
 text1 = encode(cpfs)
 
-# Com nature — pre-tx + M10
-# FLOOR: a nature so' permanece se o blob completo diminuir
+# Com nature — filtro + pipeline padrão
+# O filtro só permanece se o blob completo diminuir
 text2 = encode(cpfs, nature=SPEC_CPF)
 
-# text1 pode ser diferente de text2, mas ambos preservam round-trip
+# text1 pode ser diferente de text2, mas ambos preservam o round-trip
 assert decode(text1) == cpfs
 assert decode(text2) == cpfs
 ```
 
-Nature eh **opt-in**: seu uso nao quebra compatibilidade com codigo
-antigo.
+O uso de uma *nature* é **opt-in**: ele não quebra a compatibilidade com código antigo.
 
-## Validacao e diagnostico
+## Validação e diagnóstico
 
-Use `classify_value` pra inspecionar por que um valor nao comprimiu:
+Use `classify_value` para inspecionar por que um valor não foi comprimido:
 
 ```python
 from tcf.natures import classify_value, SPEC_CPF
 
 values = [
     '111.444.777-35',    # OK
-    '111.444.777-99',    # check invalido
+    '111.444.777-99',    # dígito inválido
     '111-444-777-35',    # formato errado
     '',                  # vazio
 ]
 
-for v in values:
-    status = classify_value(SPEC_CPF, v)
-    print(f'{v:20} -> {status}')
+for value in values:
+    status = classify_value(SPEC_CPF, value)
+    print(f'{value:20} -> {status}')
 
 # Output:
 # 111.444.777-35       -> compressible
@@ -277,45 +266,45 @@ for v in values:
 #                       -> empty_value
 ```
 
-**Categorias** (taxa Kim 2003):
+**Categorias de classificação**:
 
-- `compressible` — passou validacao, sera' codificado
-- `check_invalid` — digito verificador errado
-- `format_mismatch` — nao casa regex do template (ex: separadores errados)
-- `format_unmasked` — digitos corretos mas sem mascara (ex: `11144477735`)
+- `compressible` — passou na validação e será codificado
+- `check_invalid` — dígito verificador errado
+- `format_mismatch` — não corresponde ao formato (ex.: separadores errados)
+- `format_unmasked` — dígitos corretos, mas sem máscara (ex.: `11144477735`)
 - `empty_value` — string vazia
 
-> Os nomes exatos das categorias sao definidos por cada spec. Rode
-> `classify_value(SPEC, valor)` pra ver o status real de um valor.
+> Os nomes exatos das categorias são definidos por cada filtro. Rode
+> `classify_value(SPEC, valor)` para ver o status real de um valor.
 
 ## Campos cadastrais ainda em exploração
 
 O laboratório [`specs-cadastrais-v1`](../../experiments/lab/dirty/2026-07-12-specs-cadastrais-v1/)
-mediu protótipos fora do core, sempre com round-trip e FLOOR:
+mediu protótipos fora do core, sempre com round-trip e comparação do blob completo:
 
 - **Data ISO**: ganho forte em single-column, mas tabelas em que o split já vence podem empatar.
-  Uma futura `DateSpec` precisa validar calendário e só entra com gate real.
+  Uma futura `DateSpec` precisa validar o calendário e só entra com testes em dados reais.
 - **CEP**: exige preservar zeros à esquerda (`01001-000`); o `TemplatedPaddedSpec` atual não deve
-  ser usado sem essa garantia. Sem fonte real no hub, fica fora do registry `.8`.
+  ser usado sem essa garantia. Sem fonte real no hub, fica fora da lista de filtros do `.8`.
 - **RG**: não tem formato nacional único; uma nature única seria enganosa. Tratar por UF ou deixar
   para uma extensão futura com dados autorizados.
-- **CNH/RENAVAM/PIS/título**: alguns podem caber em uma máquina de dígitos/verificador, mas a regra
-  e o dado precisam ser confirmados antes de batizar um spec.
-- **Telefone**: largura, DDD e máscara variam; não é um spec único nacional.
-- **Códigos sem inferência semântica**: base-encoding só ajuda quando alfabeto e largura são
-  declarados. O alfabeto seguro atual tem 80 caracteres; base64 não melhora os domínios medidos e
-  base96 exigiria escaping ou quebraria a promessa ASCII.
+- **CNH/RENAVAM/PIS/título**: alguns podem caber em uma máquina de dígitos verificadores, mas a regra
+  e o dado precisam ser confirmados antes de batizar um filtro.
+- **Telefone**: largura, DDD e máscara variam; não é um filtro nacional único.
+- **Códigos sem inferência semântica**: codificar em uma base numérica só ajuda quando o alfabeto e a
+  largura são declarados. O alfabeto seguro atual tem 80 caracteres; base64 não melhora os domínios
+  medidos e base96 exigiria escaping ou quebraria a promessa ASCII.
 
 Por isso, o `.8` mantém CPF/CNPJ/IP. Os demais candidatos ficam no `.9`, salvo aprovação separada
-para uma `DateSpec` calendar-aware com dois gates reais.
+para uma `DateSpec` com validação de calendário e dois testes em dados reais.
 
-## Conexoes
+## Conexões
 
 - **ADR-0015**: [0015-natures-templated-checked-weld.md](../adr/0015-natures-templated-checked-weld.md) —
-  decisao de welding e filosofia opt-in
-- **API publica**: [`tcf/__init__.py`](../../src/tcf/__init__.py) —
+  decisão de integração dos filtros e filosofia opt-in
+- **API pública**: [`tcf/__init__.py`](../../src/tcf/__init__.py) —
   exports `SPEC_CPF`, `SPEC_CNPJ`, `SPEC_IP`
-- **Implementacao**: [`tcf/natures/`](../../src/tcf/natures/) —
+- **Implementação**: [`tcf/natures/`](../../src/tcf/natures/) —
   `TemplatedCheckedSpec` e `TemplatedPaddedSpec`
 - **Testes**: [`tests/test_natures_*.py`](../../tests/) —
-  validacao de round-trip e fallback
+  validação de round-trip e fallback

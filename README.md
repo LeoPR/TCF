@@ -58,7 +58,7 @@ Basic
 444.444.444-44
 ```
 
-**TCF + CPF nature** *(210 B)*: turning on the opt-in `cpf` nature shrinks even the all-unique column.
+**TCF + CPF nature** *(210 B)*: in this example, an opt-in CPF filter called the `cpf` *nature* shrinks even a column with no repeated values.
 
 ```
 #TCF.8M!2c=nome,2a=email,1c=cidade,14=plano,!cpf:cpf
@@ -81,9 +81,9 @@ Basic
 ```
 
 The `cpf` column carries no factorable repetition, so the default pipeline stores it raw (`!cpf`). The
-CPF *nature* (`:cpf`) drops the punctuation and the derivable check digit and stores the 9-digit body
-in a compact base — each value goes from 14 chars to 5 (`%g$.u` = `111.111.111-11`), recomputed exactly
-on decode.
+`cpf` *nature* removes the punctuation and check digit, stores the 9 useful digits in a compact form
+and rebuilds the original value on `decode`. If the result is smaller, the header records `:cpf`; each
+value goes from 14 characters to 5 (`%g$.u` = `111.111.111-11`).
 
 **How to read it** *(the example data is Portuguese — `nome`=name, `cidade`=city, `plano`=plan, `cpf`=Brazilian tax ID — kept verbatim because the byte counts are measured from it):*
 
@@ -91,8 +91,9 @@ on decode.
   sizes are hexadecimal.
 - The column meta (`size=name`) uses `!` for raw, `@` for dictionary and `%` for structural
   split when those candidates win. The `!` marks a column stored **raw** (when raw comes out smaller than TCF).
-  The last one (`cpf`) carries no size (it runs to the end) and shows `!cpf:cpf`: `!` raw + the
-  self-describing nature id `:cpf` (so `decode` reverses it with no spec passed in).
+  The last one (`cpf`) carries no size (it runs to the end) and shows `!cpf:cpf`: `!` means the body was
+  kept raw by the general pipeline, while `:cpf` identifies the filter (so `decode` reverses it without
+  receiving that filter).
 - The bodies come concatenated, **delimited by size, not by line break**.
   That is why the raw `nome` column (`…Diego Rocha`) runs straight into the email (`an*a*…`).
 - In the body: `*3|Sao Paulo` means *"Sao Paulo, 3×"* (a repetition).
@@ -139,16 +140,16 @@ In practice OBAT speeds up that search with a **trigram index**, which drops the
 *(Swapping the index for a Patricia trie is a future candidate: [exploration](docs/theory/patricia-trie-exploration.md).)*
 
 **HCC** (Hierarchical Compositional Coding) *decides what is worth naming and groups repetitions.*
-It takes OBAT's tokens, factors recurring compositions into **reusable named references** (the `~` operator) and collapses repeats (RLE, including near-identical sequences, like IDs that only change at the end).
+It takes OBAT's tokens, factors recurring compositions into **reusable named references** (the `~` operator) and collapses repeated runs, including near-identical sequences, like IDs that only change at the end.
 
 Since a reference points to a reference, the result is a **directed acyclic graph (DAG) of fragments**: in practice a *grammar* / straight-line program of the content.
 It is the spirit of **Re-Pair** (Larsson & Moffat 1999) and **Sequitur** (Nevill-Manning & Witten 1997), but operating on OBAT's **tokens** (not on bytes) and with its own operators (`~` creates a named node, `,` just concatenates).
 
-That is what keeps the output small **and** inspectable: the `*N|...` groups stay in plain sight.
+That is what keeps the output small **and** inspectable: the `*N|...` repetition groups stay in plain sight.
 
 **Speed.**
 The expensive side is the **encode** (OBAT's affix search), brought to near-linear by the trigram index (plus the optional Cython accelerator).
-The **decode** is a **single linear pass**: it only expands references (O(1) lookups) and RLE groups, with no search at all.
+The **decode** is a **single linear pass**: it only expands references (O(1) lookups) and repetition groups, with no search at all.
 Fast and predictable.
 
 ## Nature filters (opt-in)
@@ -162,11 +163,11 @@ A CPF `123.456.789-09` is really just **9 useful digits**: the punctuation is fi
   and **discards the check digit**;
 - **decode** **recomputes** the check digit (mod-11) and reinserts the punctuation — an **exact** reconstruction.
 
-Nature is a candidate, not a forced pre-transform. The **FLOOR** compares the complete serialized
-blob, including the `:id` header cost; if the nature loses, the original pipeline is kept and no
-nature marker is emitted. This protects ordered data where split/dictionary structure can beat an
-absolute base encoding. The measured CNPJ caveat is important: a nature can help a synthetic column
-and still make a real ordered table larger.
+Each nature is a candidate, not a mandatory transformation. For each column, TCF compares the complete
+blob, including the header that identifies the filter. If the filtered version is larger, it keeps the
+ordinary encoding and omits `:id`. Tests showed why this matters for CNPJ: the filter reduced synthetic
+columns but increased a real ordered table. The measured cases are recorded in
+[`T-SPEC-STATUS-08`](tickets/T-SPEC-STATUS-08.md).
 
 Filters already implemented ([ADR-0015](docs/adr/0015-natures-templated-checked-weld.md)):
 
@@ -174,11 +175,11 @@ Filters already implemented ([ADR-0015](docs/adr/0015-natures-templated-checked-
 |---|---|---|
 | `SPEC_CPF`  | `NNN.NNN.NNN-DD`     | punctuation + 2 check digits (mod-11) |
 | `SPEC_CNPJ` | `NN.NNN.NNN/NNNN-DD` | punctuation + 2 check digits (mod-11) |
-| `SPEC_IP`   | IPv4 `N.N.N.N`      | dots + canonical octets (normalizes to enable RLE on subnets) |
+| `SPEC_IP`   | IPv4 `N.N.N.N`      | dots + canonical octets (normalizes to make subnet repetitions visible) |
 
-The same spec mechanism works for **numbers**: `SPEC_IP` above is already numeric (octets);
-numeric sequences and IDs with cadence the *delta-aware* pipeline captures on its own
-(`*N+delta|`, seq-RLE); and **decimal / monetary / precision** specs are on the roadmap
+The same filter mechanism works for **numbers**: `SPEC_IP` above is already numeric (octets);
+numeric sequences and IDs with cadence the difference-based pipeline captures on its own
+(`*N+delta|`); and **decimal / monetary / precision** specs are on the roadmap
 (they cross into lossy → 2.0).
 
 ```python
@@ -207,8 +208,8 @@ assert decode(blob) == cpfs            # decode reads `:cpf` from the header, no
 Two honest details:
 
 - Core natures are **opt-in and self-describing when they win**: single-column output carries
-  `#TCF.8 name:id`; multi-column output carries `:id` in the inline meta. `decode(blob)` resolves
-  `cpf`, `cnpj` and `ip` from the core registry.
+  `#TCF.8 name:id`; multi-column output carries `:id` in the inline meta. `decode(blob)` recognizes
+  the official `cpf`, `cnpj` and `ip` filters automatically.
 - A custom spec can also be used, but its decoder declaration must match the header ID exactly:
   `decode(blob, nature=custom_spec)` or `decode(blob, nature_per_col={"col": custom_spec})`.
 - A value that does not match (invalid check digit, masked format) falls back to **literal** (`_`) without
@@ -235,9 +236,9 @@ table = {
 text = encode(table)
 assert decode(text) == table  # lossless round-trip
 
-# Natures (opt-in): CPF/CNPJ/IP compressed without the check digit/padding.
-# The nature self-describes in the header (#TCF.8 :cpf) when it wins the size
-# comparison, so decode needs no spec.
+# Optional filter for structured values: CPF/CNPJ/IP.
+# The header records the filter when it produces the smaller result, so decode
+# does not need to receive it.
 from tcf import SPEC_CPF
 cpfs = ["111.111.111-11", "222.222.222-22", "333.333.333-33"]  # repeated digits: mod-11-valid, never issued (safe fakes)
 text = encode(cpfs, nature=SPEC_CPF)
@@ -270,9 +271,10 @@ Four things, all automatic (no flag), each column choosing the smallest represen
   The `M` flag in the signature already declares that columns follow, so the meta is inline, sizes
   are hexadecimal, separators in names are escaped, and the last column carries no size
   ([ADR-0023](docs/adr/0023-v2-minimal-header-weld.md)).
-- **Nature competition.**
-  CPF/CNPJ/IP are optional candidates. The complete blob wins-or-ties against the baseline; a
-  losing nature leaves the original column and emits no `:id`.
+- **Filters for structured values.**
+  CPF/CNPJ/IP are optional candidates. The encoder compares each option with the ordinary column
+  encoding using the complete blob; if the filtered version is not smaller, it keeps the original
+  column and emits no `:id`.
 
 ```python
 text = encode(table)        # 0.8 / #TCF.8M, the default, no flags
@@ -312,7 +314,7 @@ The low-card dictionary (V2-B) and the structural split are already in the defau
 - Canonical implementation in [`src/tcf/`](src/tcf/).
   Round-trip is always lossless (`decode(encode(x)) == x`).
 - Default **0.8 / `#TCF.8M`**: fallback, dictionary, structural split, hexadecimal inline meta,
-  escaping and header-authoritative nature IDs, see the section above. Legacy `.6/.7` are recovered through git.
+  escaping and header-authoritative filter IDs, see the section above. Legacy `.6/.7` are recovered through git.
 - Test suite: **634 passed, 2 skipped** in the current local full run; run `pytest` for the number in your environment.
   Byte baselines = regression guards, re-pinnable on an intentional change ([ADR-0024](docs/adr/0024-pre-1.0-versioning-git-as-compat.md)).
 - Changes: [`CHANGELOG.md`](CHANGELOG.md).
@@ -375,7 +377,7 @@ The textual output already carries hints that work as metadata:
 - `*N|Sao Paulo` says there are **N equal rows** there — a **count/grouping** ready to go,
   without expanding the N items.
 - `^1` says "same as line 1" — multiplicity/dedup made visible.
-- `*N+delta|template` (seq-RLE) describes a **progression** (e.g. sequential IDs) without listing
+- `*N+delta|template` describes a **progression** (e.g. sequential IDs) without listing
   each value.
 
 In other words, you can **count elements, group, and even sum** by reading the markers — materializing
@@ -434,7 +436,7 @@ After a solid 1.0 (registered, **not** implemented — see
 - **Internal binary layer (V2-L)** — pack the body into bytes while keeping the textual header and
   visible groups (Parquet-style, but still explainable). It does not compete with gzip/brotli: it is
   a binary representation of the **same** logical content.
-- **More specs** (templated/checksummed/numeric), Ceiling delta-aware, local query indexes and
+- **More specs** (templated/checksummed/numeric), gain limits, local query indexes and
   **intra-value repetition** (factoring `111.` inside a CPF) — target `.9`/pre-1.0 with gates.
 
 ## Install

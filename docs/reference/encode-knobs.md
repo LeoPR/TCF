@@ -1,7 +1,7 @@
 # Reference — knobs de `encode()`
 
-Referência dos parâmetros opt-in de [`tcf.encode`](../../src/tcf/encoder.py). O default
-(zero-param) produz o formato **0.8 / `#TCF.8M`** lossless; os knobs abaixo só mudam bytes/layout
+Referência dos parâmetros opt-in de [`tcf.encode`](../../src/tcf/encoder.py). O uso sem argumentos
+produz o formato **0.8 / `#TCF.8M`** sem perdas; os parâmetros abaixo só mudam bytes/layout
 **quando passados explicitamente**.
 
 ```python
@@ -55,14 +55,14 @@ Reordena as linhas pela coluna-chave antes de encodar, agrupando valores similar
 
 | knob | efeito |
 |---|---|
-| `nature` / `nature_per_col` | candidato por natureza (CPF/CNPJ/IP, ADR-0015); FLOOR compara o blob completo e o header é autoritativo. Specs core decodificam sem argumento; customizados exigem spec coincidente. Ver [how-to/use-natures](../how-to/use-natures.md). |
+| `nature` / `nature_per_col` | filtro opcional para CPF/CNPJ/IP; o encoder compara o blob completo e mantém a menor representação. Filtros oficiais decodificam sem argumento; customizados exigem o mesmo nome no cabeçalho. Ver [how-to/use-natures](../how-to/use-natures.md). |
 | `parallel` | `True`/`int` paraleliza o encode das colunas (multi-col); **output byte-idêntico** ao serial. |
 | `side_outputs` | captura logs/stats internos (`column_features`, `hcc_trace`, `seq_rle_runs`, `multi_info`, ...) sem custo quando ausente. |
 | `layers` | `PipelineConfig` alternativo (avançado). |
 
 ## Notas de versão
 
-O default zero-param é **0.8** (ADR-0032: projeto é pré-1.0; `#TCF.N` são marcadores de dev, não
+O uso sem argumentos produz **0.8** (ADR-0032: projeto é pré-1.0; `#TCF.N` são marcadores de dev, não
 contratos rígidos). Os invariantes byte-canonical (D1-D9 = 1523 B, D17a = 300 B) são pinados em
 [`tests/test_regression_v1_baseline.py`](../../tests/test_regression_v1_baseline.py) e
 re-pináveis só com ADR (ADR-0024/0025).

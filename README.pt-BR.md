@@ -61,7 +61,7 @@ Basic
 444.444.444-44
 ```
 
-**TCF + nature CPF** *(210 B)*: ligar a *nature* opt-in `cpf` encolhe até a coluna toda-única.
+**TCF + nature CPF** *(210 B)*: neste exemplo, um filtro opt-in para CPF, chamado *nature* `cpf`, encolhe até mesmo uma coluna sem valores repetidos.
 
 ```
 #TCF.8M!2c=nome,2a=email,1c=cidade,14=plano,!cpf:cpf
@@ -83,9 +83,10 @@ Basic
 0r(LU
 ```
 
-A coluna `cpf` não tem repetição a fatorar, então o pipeline default a guarda crua (`!cpf`). A *nature*
-CPF (`:cpf`) tira a pontuação e o dígito verificador derivável e guarda o corpo de 9 dígitos numa base
-compacta — cada valor cai de 14 chars para 5 (`%g$.u` = `111.111.111-11`), recalculado exato no decode.
+A coluna `cpf` não tem repetição a fatorar, então o pipeline padrão a guarda crua (`!cpf`). O filtro
+*nature* `cpf` remove a pontuação e o dígito verificador, guarda os 9 dígitos úteis em uma base compacta
+e os recompõe no `decode`. Se o resultado for menor, o cabeçalho registra `:cpf`; cada valor cai de
+14 caracteres para 5 (`%g$.u` = `111.111.111-11`).
 
 **Como ler:**
 
@@ -93,8 +94,9 @@ compacta — cada valor cai de 14 chars para 5 (`%g$.u` = `111.111.111-11`), rec
   os tamanhos estão em hexadecimal.
 - O meta (`tamanho=nome`) usa `!` para raw, `@` para dicionário e `%` para split estrutural
   quando esses candidatos vencem. O `!` marca uma coluna guardada **crua** (quando o raw fica menor que o TCF).
-  A última (`cpf`) não leva tamanho (vai até o fim) e mostra `!cpf:cpf`: `!` raw + o id de nature
-  auto-descritivo `:cpf` (então o `decode` reverte sem receber spec).
+  A última (`cpf`) não leva tamanho (vai até o fim) e mostra `!cpf:cpf`: `!` indica que o corpo foi
+  mantido cru pelo pipeline geral, e `:cpf` identifica o filtro aplicado (então o `decode` reverte
+  sem receber esse filtro).
 - Os corpos vêm concatenados, **delimitados por tamanho, não por quebra de linha**.
   Por isso a coluna crua `nome` (`…Diego Rocha`) emenda direto no e-mail (`an*a*…`).
 - No corpo: `*3|Sao Paulo` é *"Sao Paulo, 3×"* (repetição).
@@ -102,8 +104,8 @@ compacta — cada valor cai de 14 chars para 5 (`%g$.u` = `111.111.111-11`), rec
 - Na coluna de **e-mail** o TCF vai mais fundo (prefixo único + domínio comum referenciado).
   É onde mais economiza, e onde o texto fica mais denso.
 - A *nature* **`cpf`** é opt-in via `nature_per_col={"cpf": SPEC_CPF}` (ver os dois blocos acima).
-  *(São placeholders de dígitos repetidos: mod-11-válidos, mas a Receita nunca os emite — fakes
-  seguros. Ver "Nature filters" abaixo.)*
+  (São placeholders de dígitos repetidos: passam no cálculo do CPF, mas a Receita nunca os emite —
+  fakes seguros. Ver "Filtros por natureza" abaixo.)
 
 JSON repete a estrutura inteira.
 CSV repete os valores.
@@ -141,33 +143,37 @@ Na prática o OBAT acelera essa busca com um **índice de trigramas**, que derru
 *(Trocar o índice por uma Patricia trie é candidato futuro: [exploração](docs/theory/patricia-trie-exploration.md).)*
 
 **HCC** (Hierarchical Compositional Coding) *decide o que vale a pena nomear e agrupa repetições.*
-Pega os tokens do OBAT, fatora composições recorrentes em **referências nomeadas reutilizáveis** (operador `~`) e colapsa repetidos (RLE, inclusive sequências quase-iguais, tipo IDs que só mudam no fim).
+Pega os tokens do OBAT, fatora composições recorrentes em **referências nomeadas reutilizáveis** (operador `~`) e colapsa repetições consecutivas, inclusive sequências quase-iguais, tipo IDs que só mudam no fim.
 
-Como referência aponta para referência, o resultado é um **grafo acíclico (DAG) de fragmentos**: na prática uma *gramática* / straight-line program do conteúdo.
+Como referência aponta para referência, o resultado é um **grafo acíclico de fragmentos**: na prática uma *gramática* / straight-line program do conteúdo.
 É o espírito do **Re-Pair** (Larsson & Moffat 1999) e do **Sequitur** (Nevill-Manning & Witten 1997), mas operando sobre os **tokens** do OBAT (não sobre bytes) e com operadores próprios (`~` cria nó nomeado, `,` só concatena).
 
-É o que mantém a saída pequena **e** inspecionável: os grupos `*N|...` ficam à vista.
+É o que mantém a saída pequena **e** inspecionável: os grupos de repetição `*N|...` ficam à vista.
 
 **Velocidade.**
 O lado caro é o **encode** (a busca de afixos do OBAT), trazido a quase-linear pelo índice de trigramas (mais o acelerador Cython opcional).
-O **decode** é uma **passada linear única**: só expande as referências (lookups O(1)) e os grupos RLE, sem nenhuma busca.
+O **decode** é uma **passada linear única**: só expande as referências (lookups O(1)) e os grupos de repetição, sem nenhuma busca.
 Rápido e previsível.
 
 ## Filtros por natureza (opt-in)
 
-Alguns valores têm **estrutura conhecida** que o compressor genérico não explora.
-Um CPF `123.456.789-09` são só **9 dígitos úteis**: a pontuação é fixa e os 2 dígitos
-finais (verificador) são **deriváveis** dos outros 9. Um *filtro de natureza* (opt-in) usa isso:
+Alguns valores têm uma estrutura fixa que o compressor genérico não aproveita. Para esses casos, o TCF
+oferece um filtro opt-in chamado *nature*: ele guarda apenas a parte necessária e reconstrói o valor
+original no `decode`.
+
+Um CPF `123.456.789-09` tem **9 dígitos úteis**: a pontuação é fixa, e os 2 dígitos finais podem ser
+calculados a partir deles. O filtro:
 
 - **encode** tira a pontuação, guarda os 9 dígitos como um número curto (base segura, ~5 chars;
   o alfabeto atual tem 80 caracteres utilizáveis)
   e **descarta o verificador**;
 - **decode** **recalcula** o verificador (mod-11) e reinsere a pontuação — reconstrução **exata**.
 
-Nature não é pré-transformação forçada. O **FLOOR** compara o blob serializado completo, incluindo
-o custo do header `:id`; se a nature perde, o pipeline original permanece e nenhum marcador é emitido.
-Isso protege dados ordenados em que split/dicionário vencem uma codificação base absoluta. O caveat
-medido do CNPJ é importante: uma nature pode ajudar no sintético e ainda aumentar uma tabela real.
+Essa opção é uma candidata, não uma transformação obrigatória. Para cada coluna, o TCF compara o blob
+completo, incluindo o cabeçalho que identifica o filtro. Se o resultado ficar maior, mantém a codificação
+comum e não grava `:id`. Nos testes, isso fez diferença para CNPJ: o filtro reduziu colunas sintéticas,
+mas aumentou uma tabela real ordenada. Os casos medidos estão em
+[`T-SPEC-STATUS-08`](tickets/T-SPEC-STATUS-08.md).
 
 Filtros já implementados ([ADR-0015](docs/adr/0015-natures-templated-checked-weld.md)):
 
@@ -175,11 +181,11 @@ Filtros já implementados ([ADR-0015](docs/adr/0015-natures-templated-checked-we
 |---|---|---|
 | `SPEC_CPF`  | `NNN.NNN.NNN-DD`     | pontuação + 2 díg. verificadores (mod-11) |
 | `SPEC_CNPJ` | `NN.NNN.NNN/NNNN-DD` | pontuação + 2 díg. verificadores (mod-11) |
-| `SPEC_IP`   | IPv4 `N.N.N.N`      | pontos + octetos canônicos (padroniza p/ ativar RLE em subnets) |
+| `SPEC_IP`   | IPv4 `N.N.N.N`      | pontos + octetos canônicos (padroniza para facilitar repetições em subnets) |
 
-O mesmo mecanismo de spec vale pra **números**: o `SPEC_IP` acima já é numérico (octetos);
-sequências e IDs numéricos com cadência o pipeline *delta-aware* captura sozinho
-(`*N+delta|`, seq-RLE); e specs de **decimal / monetário / precisão** estão no roadmap
+O mesmo mecanismo de filtro vale para **números**: o `SPEC_IP` acima já é numérico (octetos);
+sequências e IDs numéricos com cadência o pipeline de diferenças captura sozinho (`*N+delta|`);
+e specs de **decimal / monetário / precisão** estão no roadmap
 (cruzam a linha lossy → 2.0).
 
 ```python
@@ -207,7 +213,7 @@ assert decode(blob) == cpfs            # decode lê `:cpf` do header, sem passar
 Dois detalhes honestos:
 
 - São **opt-in e auto-descritivas quando vencem**: single-column leva `#TCF.8 nome:id`; multi-column
-  leva `:id` no meta inline. O `decode(blob)` resolve `cpf`, `cnpj` e `ip` pelo registry core.
+  leva `:id` no meta inline. O `decode(blob)` reconhece automaticamente os filtros oficiais `cpf`, `cnpj` e `ip`.
 - Spec customizado pode ser usado, mas o decoder precisa receber um spec cujo `name` coincide
   exatamente com o ID do header.
 - Valor que não bate (verificador inválido, formato mascarado) cai em **literal** (`_`) sem
@@ -234,9 +240,9 @@ table = {
 text = encode(table)
 assert decode(text) == table  # round-trip lossless
 
-# Naturezas (opt-in): CPF/CNPJ/IP comprimidos sem dígito verificador/padding.
-# A nature se auto-descreve no header (#TCF.8 :cpf) quando vence a comparação de
-# tamanho, então o decode não precisa do spec.
+# Filtro opcional para valores estruturados: CPF/CNPJ/IP.
+# O cabeçalho registra o filtro quando ele produz o menor resultado, então o
+# decode não precisa recebê-lo.
 from tcf import SPEC_CPF
 cpfs = ["111.111.111-11", "222.222.222-22", "333.333.333-33"]  # dígitos repetidos: mod-11-válidos, nunca emitidos (fakes seguros)
 text = encode(cpfs, nature=SPEC_CPF)
@@ -269,9 +275,9 @@ Quatro coisas, todas automáticas (sem flag), cada coluna escolhendo a menor rep
   O flag `M` na assinatura já declara que vêm colunas, então o meta é inline, os tamanhos ficam em
   hexadecimal, separadores de nomes são escapados e a última coluna não leva tamanho
   ([ADR-0023](docs/adr/0023-v2-minimal-header-weld.md)).
-- **Competição de naturezas.**
-  CPF/CNPJ/IP são candidatos opt-in. O blob completo vence ou empata com o baseline; se a nature
-  perde, a coluna original permanece e nenhum `:id` é emitido.
+- **Filtros para valores estruturados.**
+  CPF/CNPJ/IP são candidatos opt-in. O encoder compara cada opção com a codificação comum usando o
+  blob completo; se a versão filtrada não ficar menor, a coluna original permanece e nenhum `:id` é emitido.
 
 ```python
 text = encode(table)        # 0.8 / #TCF.8M, é o default, sem flags
@@ -311,7 +317,8 @@ O dicionário low-card (V2-B) e o split estrutural já estão no default; a comp
 - Implementação canônica em [`src/tcf/`](src/tcf/).
   Round-trip sempre lossless (`decode(encode(x)) == x`).
 - Default **0.8 / `#TCF.8M`**: fallback, dicionário, split estrutural, meta hexadecimal inline,
-  escaping e IDs de nature autorizados pelo header; veja a seção acima. Os legados `.6/.7` são recuperados via git.
+  escaping e identificadores de filtros autorizados pelo cabeçalho; veja a seção acima. Os legados `.6/.7`
+  são recuperados via git.
 - Suíte: **634 passed, 2 skipped** na execução local completa atual; rode `pytest` para o número do seu ambiente.
   Baselines de byte = guardas de regressão, re-pináveis em mudança intencional ([ADR-0024](docs/adr/0024-pre-1.0-versioning-git-as-compat.md)).
 - Mudanças: [`CHANGELOG.md`](CHANGELOG.md).
@@ -375,7 +382,7 @@ A saída textual já carrega dicas que valem como metadados:
 - `*N|Sao Paulo` diz que há **N linhas iguais** ali — uma **contagem/agrupamento** pronta,
   sem expandir os N itens.
 - `^1` diz "igual à linha 1" — multiplicidade/dedup visível.
-- `*N+delta|template` (seq-RLE) descreve uma **progressão** (ex.: IDs sequenciais) sem listar
+- `*N+delta|template` descreve uma **progressão** (ex.: IDs sequenciais) sem listar
   cada valor.
 
 Ou seja, dá pra **contar elementos, agrupar e até somar** lendo os marcadores — materializando
@@ -434,7 +441,7 @@ Depois de uma 1.0 sólida (registrado, **não** implementado — ver
 - **Camada binária interna (V2-L)** — empacotar o corpo em bytes mantendo header textual e
   grupos visíveis (estilo Parquet, mas ainda explicável). Não compete com gzip/brotli: é
   representação binária do **mesmo** conteúdo lógico.
-- **Mais specs** (templated/checksummed/numéricos), Ceiling delta-aware, índices locais e
+- **Mais specs** (templated/checksummed/numéricos), limites de ganho, índices locais e
   **repetição intra-valor** — pesquisa `.9`/pré-1.0, com gate real-world.
 
 ## Install

@@ -14,8 +14,8 @@ escopo, não criar specs canônicos.
 ## Regras
 
 - Não altera `src/tcf/` nem o `SPEC_REGISTRY`.
-- Todo candidato compara o blob serializado completo do FLOOR.
-- Todo resultado exige round-trip com o spec declarado out-of-band.
+- Todo candidato é comparado com a codificação comum pelo blob serializado completo.
+- Todo resultado exige round-trip com o filtro declarado separadamente.
 - Hubs locais são usados apenas como amostras; RG/CEP/CNH não têm fonte real
   neste repositório.
 - `BASE94` é o nome histórico do alfabeto, que hoje possui 80 caracteres
