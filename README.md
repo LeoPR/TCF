@@ -340,17 +340,21 @@ On the **record set above**, under HTTP compression (`Content-Encoding`, max lev
 
 | format | raw | gzip | br | zstd |
 |---|---:|---:|---:|---:|
-| JSON | 596 | 218 | 212 | 211 |
-| CSV  | 277 | 177 | **162** | 165 |
-| TCF  | **242** | 206 | 185 | 193 |
+| JSON  | 596 | 218 | 212 | 211 |
+| JSONL | 449 | **205** | 194 | 194 |
+| TCF   | **242** | 206 | **185** | **193** |
 
-TCF is the smallest **raw** (and readable). At this tiny 4-row size a binary compressor beats TCF once
-applied (CSV+br 162 < TCF+br 185): TCF **trades some ratio for readability** and composes with them —
-its advantage in *ratio* shows up with volume (see below), while its advantage in *inspectability and
-selective decompression* (`view()`) holds at any size. `gzip` still carries fixed framing bytes per
-message; `br`/`zstd`, almost none — on a tiny payload that counts. (The numbers use the compressors at
-**maximum level** — best case for them; on a simple API compression is sometimes not even on, and when
-it is it uses a low default level: nginx gzip `1`, brotli `6`. See [compressor notes](experiments/lab/clean/EXP-008-compressao-comparada/notes/classificacao-compressores.md).)
+Against the formats an API actually sends — JSON and its streaming/bulk cousin JSONL — TCF is the
+smallest **raw** and stays competitive once compressed (smallest under `br`/`zstd`; within a byte of
+JSONL under `gzip`), while remaining readable and `view()`-able. (A compact *tabular* format like CSV —
+not a typical API payload — is smaller still and edges TCF once compressed at this tiny size:
+CSV 277 raw, and CSV+br 162 < TCF+br 185; that gap closes and flips with volume, see below.) TCF
+**trades some ratio for readability** and composes with these compressors — its advantage in *ratio*
+shows up with volume, while *inspectability and selective decompression* (`view()`) hold at any size.
+`gzip` still carries fixed framing bytes per message; `br`/`zstd`, almost none — on a tiny payload that
+counts. (The numbers use the compressors at **maximum level** — best case for them; on a simple API
+compression is sometimes not even on, and when it is it uses a low default level: nginx gzip `1`,
+brotli `6`. See [compressor notes](experiments/lab/clean/EXP-008-compressao-comparada/notes/classificacao-compressores.md).)
 
 Across the aggregate of 15 synthetic **single-column** datasets (EXP-008, where the 0.7 multi-col welds
 do not apply) the same story: `csv+brotli` = 1742 B against `tcf+brotli` = 2116 B. Full tables:

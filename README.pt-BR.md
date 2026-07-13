@@ -344,15 +344,19 @@ No **cadastro acima**, sob compressão HTTP (`Content-Encoding`, nível máximo)
 
 | formato | cru | gzip | br | zstd |
 |---|---:|---:|---:|---:|
-| JSON | 596 | 218 | 212 | 211 |
-| CSV  | 277 | 177 | **162** | 165 |
-| TCF  | **242** | 206 | 185 | 193 |
+| JSON  | 596 | 218 | 212 | 211 |
+| JSONL | 449 | **205** | 194 | 194 |
+| TCF   | **242** | 206 | **185** | **193** |
 
-TCF é o menor **cru** (e legível). Neste tamanho minúsculo (4 linhas) um compressor binário ganha do
-TCF depois de aplicado (CSV+br 162 < TCF+br 185): o TCF **troca um pouco de ratio por legibilidade** e
-**se compõe** com eles — a vantagem em *ratio* aparece com volume (ver abaixo), enquanto a vantagem em
-*inspecionabilidade e descompressão seletiva* (`view()`) vale em qualquer tamanho. O `gzip` ainda
-carrega bytes fixos de moldura por mensagem; `br`/`zstd`, quase nada — em payload minúsculo isso conta.
+Contra os formatos que uma API de fato transmite — JSON e seu primo de streaming/bulk JSONL — o TCF é o
+menor **cru** e segue competitivo depois de comprimido (menor sob `br`/`zstd`; a um byte do JSONL sob
+`gzip`), continuando legível e consultável por `view()`. (Um formato *tabular* compacto como o CSV — que
+normalmente não é payload de API — é ainda menor e passa o TCF neste tamanho minúsculo depois de
+comprimido: CSV 277 cru, e CSV+br 162 < TCF+br 185; essa diferença fecha e inverte com volume, ver
+abaixo.) O TCF **troca um pouco de ratio por legibilidade** e **se compõe** com esses compressores — a
+vantagem em *ratio* aparece com volume, enquanto *inspecionabilidade e descompressão seletiva* (`view()`)
+valem em qualquer tamanho. O `gzip` ainda carrega bytes fixos de moldura por mensagem; `br`/`zstd`,
+quase nada — em payload minúsculo isso conta.
 (Os números usam os compressores no **nível máximo** — melhor caso pra eles; numa API simples a
 compressão às vezes nem está ligada, e quando está usa nível baixo por default: nginx gzip `1`,
 brotli `6`. Ver [notas dos compressores](experiments/lab/clean/EXP-008-compressao-comparada/notes/classificacao-compressores.md).)
