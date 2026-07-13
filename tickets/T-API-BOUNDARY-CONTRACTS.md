@@ -1,5 +1,5 @@
 ---
-title: T-API-BOUNDARY-CONTRACTS — congelar as fronteiras/semânticas da API no .8 (= 1.0)
+title: T-API-BOUNDARY-CONTRACTS — contrato flat e fronteira DatasetH
 status: open
 priority: P1
 created: 2026-07-10
@@ -13,7 +13,7 @@ related:
   - src/tcf/multi/core.py
 ---
 
-# T-API-BOUNDARY-CONTRACTS — fronteiras da API: isolamento agora, semântica definitiva pré-1.0
+# T-API-BOUNDARY-CONTRACTS — contrato flat e fronteira DatasetH
 
 **[dispositivo→registro]** Direção do owner (2026-07-10, ao aprovar o lote 3 do T-QA-8 F0):
 
@@ -42,28 +42,28 @@ corrupção espalhada. Este ticket guarda a lista do que re-inspecionar **antes 
 | parallel= com list | ignorado calado | warning? single-col paralelo não existe |
 | spec customizado fora do `SPEC_REGISTRY` | header `:id` exige `decode(..., nature=spec)` ou `nature_per_col` com `spec.name == id`; registry core vence | decidir antes do 1.0 se haverá registry carregável; nunca inferir spec por forma |
 
-## FREEZE 2026-07-13 (owner: `.8` = 1.0 — decidir AGORA, supersede "não decidir agora")
+## REFOCO 2026-07-13 — contrato flat congelado; DatasetH em pesquisa
 
-O reescopo `.8`=feature-complete (2026-07-13) **inverte** a seção "Por que não decidir agora" abaixo:
-se o `.8` é o 1.0, os contratos de borda **congelam agora**. Além da tabela do lote 3, o congelamento
-resolve as lacunas do **modelo JSON** levantadas na avaliação 2026-07-13 (o `.8` cobre o subconjunto
-plano/homogêneo/string; estas são as bordas onde ele diverge do JSON):
+O reescopo `.8`=feature-complete (2026-07-13) congela o contrato da tabela flat, mas não transforma a
+coerção de strings em contrato do DatasetH. JSON e outras fontes entram por adaptadores externos; a
+semântica hierárquica vive no estudo [T-STUDY-HIERARCHICAL-TCF](T-STUDY-HIERARCHICAL-TCF.md) e no weld
+[T-CODE-TCF8H-WELD](T-CODE-TCF8H-WELD.md). As bordas abaixo são o que a fronteira flat observa hoje e o
+que o estudo precisa comparar:
 
-| borda JSON | comportamento MEDIDO hoje | decisão a congelar no `.8` |
+| borda de origem hierárquica | comportamento MEDIDO na tabela flat | decisão para DatasetH/H |
 |---|---|---|
-| `null` (≠ `""` ≠ ausente) | `None` não preserva (RT False; coage) | **decidir**: fail-loud em `None` (núcleo é strings, não há null) OU sentinela reversível. Default recomendado: **fail-loud claro** ("None não é representável; use '' ou um sentinela seu") — não inventar null no formato |
-| tipos escalares (number/bool) | preservados como STRING byte-exato (`1.0`/`007`/`1e3`) | **congelar**: `.8` é lossless de STRING; tipo não é distinguido. `123`(num JSON) e `"123"` viram a mesma string. Documentar como contrato (quem quer tipo usa schema-gadget / `:tipo` da hierarquia em W4 do TCF.8H) |
-| registros ragged (keys diferentes por objeto) | `ValueError` (colunas de tamanhos diferentes) | **congelar fail-loud**: tabela exige colunas alinhadas. JSON ragged → responsabilidade do produtor alinhar (ou vai por hierarquia) |
-| `\n` dentro de valor | `ValueError` (LF delimita linhas) | **DECISÃO PENDENTE do owner**: (a) manter fail-loud declarado, ou (b) **escape de LF no corpo** (format-change, precisa RT+gate) — cruza T-FMT-QUOTING-STUDY. É a maior lacuna funcional vs JSON |
-| `""` vazio vs coluna vazia | RT OK (`''` preservado); coluna toda-vazia → registro-'0'/schema (BUG-03/O-FMT-20) | **congelar**: `''` é valor legítimo; semântica de coluna/registro vazio já isolada (T-FMT-OMIT-OR-DECLARE) |
+| `null` (≠ `""` ≠ ausente) | `None` coage para `''` no flat | DatasetH deve distinguir `null`, vazio e ausência; representação ainda em pesquisa |
+| tipos escalares (number/bool) | converte para strings; `123` e `"123"` podem colidir | DatasetH deve preservar tipo e valor segundo contrato semântico; não decidir por `str()` |
+| registros ragged (keys diferentes por objeto) | tabela exige colunas alinhadas e pode falhar | DatasetH precisa de presença/definition level ou equivalente |
+| `\n` dentro de valor | `ValueError` (LF delimita linhas) | H precisa de framing próprio; não herdar a delimitação flat sem teste |
+| `""` vazio vs coluna vazia | `''` é valor; coluna/registro vazio tem restrições do flat | DatasetH deve testar vazios de folha, objeto e array separadamente |
 
 **Tabela do lote 3** (BUG-08..10g abaixo): cada linha ganha uma decisão **manter/mudar** registrada,
-com teste de contrato. A maioria = **manter o fail-loud/conversão atual** (já é o comportamento certo
-pro núcleo-de-strings); as exceções a decidir são `\n`-em-valor (acima) e a unificação `nature=`/
-`nature_per_col=` (BUG-10g — alinhar encode/decode).
+com teste de contrato. A maioria continua sendo contrato do núcleo de strings. Ela não decide o DatasetH;
+as exceções estruturais são investigadas no estudo antes de qualquer weld em `src/tcf`.
 
-> A hierarquia (T-CODE-TCF8H-WELD) **herda** este contrato: se o `.8` congela "tudo string", `#TCF.8H`
-> preserva escalares como string; se entrar `:tipo`, é decisão conjunta (W4 daquele ticket).
+> A hierarquia **não herda automaticamente** a coerção flat. O contrato compartilhado é o round-trip da
+> estrutura aceita; DatasetH e tabela flat são fronteiras distintas.
 
 ## Por que não decidir agora (SUPERSEDED 2026-07-13 — mantido por histórico)
 
@@ -78,3 +78,4 @@ chute.
   (manter/mudar) e testes de contrato atualizados.
 - [ ] Simetria encode/decode conferida (kwargs ignorados calados no decode também).
 - [ ] Cruzado com T-FMT-OMIT-OR-DECLARE (vazios) e META-TYPE-ENCODERS (tipos/specs).
+- [ ] DatasetH definido no T-STUDY-HIERARCHICAL-TCF e referenciado sem introduzir `encode_json` no core.

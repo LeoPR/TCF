@@ -1,0 +1,157 @@
+---
+title: DatasetH - plano de pesquisa para hierarquia completa e escalares especiais
+type: experiment
+status: aberta
+created: 2026-07-13
+updated: 2026-07-13
+ticket: tickets/T-STUDY-HIERARCHICAL-TCF.md
+related:
+  - experiments/lab/dirty/notas/estudo-tcf-hierarquico-mapa.md
+  - experiments/lab/dirty/notas/tipos-como-specs.md
+  - experiments/lab/dirty/notas/roadmap-hipoteses.md
+  - tickets/T-CODE-TCF8H-WELD.md
+  - experiments/lab/dirty/2026-07-13-dataseth-json-bridge/
+---
+
+# DatasetH - plano de pesquisa para hierarquia completa e escalares especiais
+
+**[probatório]** Plano de pesquisa aberto a pedido do owner (2026-07-13). Ele registra a pergunta,
+as alternativas e os falsificadores antes de criar outro protótipo ou alterar o formato. Não decide a
+gramática `#TCF.8H`, não altera `src/tcf` e não cria `encode_json`.
+
+## Enunciado
+
+O objetivo não é "suportar JSON". O objetivo é transportar uma **estrutura hierárquica completa** por um
+intermediário source-agnostic chamado provisoriamente **DatasetH**. JSON é apenas uma primeira fonte/saída
+útil porque expõe objetos, arrays e alguns escalares; uma API, Arrow, uma árvore nativa, um banco ou outro
+adaptador podem produzir o mesmo DatasetH.
+
+"JSON-like" é apenas uma descrição de ergonomia: árvore com containers e folhas. Não é a gramática de
+entrada do core nem limita o modelo ao JSON. Em particular, JSON padrão possui `null`, mas não possui
+`NaN`, `+Infinity` ou `-Infinity`; esses valores podem vir de fontes numéricas, Arrow, Python ou de uma
+fonte textual que use uma gramática JSON-like mais ampla.
+
+## Hipótese registrada
+
+**H-HIER-SCALAR-01 - escalares especiais são parte do domínio do DatasetH, não uma peculiaridade de JSON.**
+
+`null`, `NaN`, `+Infinity` e `-Infinity` podem ser representados como folhas com tipo especial. Quando um
+ramo ou coluna possui domínio pequeno, `bN` pode transportar seus índices compactamente. Como alternativa,
+os valores podem ser tratados como strings especiais com escape ou marcador explícito. A escolha só é
+aceitável se preservar a identidade entre o valor especial, a string que o soletra e a ausência estrutural.
+
+**Falsificador mínimo:** a proposta falha se qualquer caso abaixo fizer colisão ou perder informação:
+
+| categoria | exemplos que devem continuar distintos |
+|---|---|
+| presença | campo ausente; `null`; string vazia `""`; string `"null"` |
+| não finitos | `NaN`; string `"NaN"`; `+Infinity`; string `"+Infinity"`; `-Infinity` |
+| números | `1`; `1.0`; `"1"`; `"1.0"`; `-0.0` se a fonte declarar sinal relevante |
+| containers | objeto vazio; array vazio; array misto com valor especial; array dentro de array |
+
+`NaN` exige atenção adicional: em IEEE/Python, `nan != nan`. Portanto, o oráculo de round-trip não pode
+usar igualdade ingênua de `float`; DatasetH precisa de uma identidade semântica declarada, por exemplo um
+kind canônico de escalar especial, ou uma comparação que o trate explicitamente como reflexivo.
+
+## O que já se sabe
+
+- **H-TYPE-01** já caracterizou `null` como folha tipada (`n`) e mostrou que dedução pura é lossy:
+  ela confunde `null` com string vazia. A fronteira `null` em coluna ou array misto ainda requer presença e
+  nullable/definition level.
+- **H-TYPE-02/04/07** já caracterizaram `bN` como domínio embutido mais índices bit-packed. `bN` é um
+  **portador de domínio**, não uma definição de `null` ou de não finitos. Antes de usá-lo aqui, o domínio
+  precisa carregar tipo para que `NaN` e `"NaN"` não recebam o mesmo índice.
+- **H-TYPE-07** reservou rótulos de tipos especiais no estudo `bN`, mas não definiu semântica nem wire
+  grammar para `NaN` ou infinitos. Esta pesquisa não aloca esses rótulos.
+- O POC `2026-07-13-dataseth-json-bridge/` rejeita hoje `NaN`/`Infinity` para manter uma baseline de JSON
+  padrão. Isso é um limite do POC inicial, não uma decisão do DatasetH.
+
+## Alternativas a comparar
+
+| alternativa | ideia | vantagem a testar | risco a refutar |
+|---|---|---|---|
+| A. folha tipada | `null`, `nan`, `pos_inf`, `neg_inf` são kinds explícitos; strings ficam strings | semântica clara e comparação confiável | custo de tag/framing por folha |
+| B. domínio tipado + `bN` | A define os valores; `bN` guarda domínio tipado e stream de índices | baixo custo para repetição e baixa cardinalidade | `bN` não pode apagar tipo; ganho só é relevante no perfil terminal já medido |
+| C. string especial escapada | valores especiais usam léxico reservado com escape reversível | reaproveita corpo textual | colisão com texto literal, regra de escape e semântica escondida |
+| D. dicionário interno | código fixo para um conjunto pequeno, por exemplo bool/null | domínio de 0 bytes e acesso tipado | exige decisão de formato e não deve preceder a semântica/RT |
+
+Nenhuma alternativa está escolhida. A e C devem ser comparadas primeiro; B e D só fazem sentido depois que
+o domínio semântico estiver definido. O resultado pode ser híbrido: tipo explícito para identidade e `bN`
+como representação escolhida pelo `min()` somente quando houver domínio pequeno e perfil terminal.
+
+## Escopo da estrutura hierárquica
+
+DatasetH deve separar **topologia**, **presença** e **folhas**:
+
+- raiz única que pode ser objeto, array ou escalar;
+- objetos com campos ordenados; arrays com itens ordenados; profundidade recursiva;
+- folhas string, integer, finite number, boolean, null e os especiais em estudo;
+- ausência como propriedade estrutural de um campo ou posição, nunca sinônimo de `null`;
+- objetos e arrays vazios como valores presentes;
+- arrays ragged, arrays de arrays e objetos dentro de arrays.
+
+Grafos, referências compartilhadas, ciclos, múltiplas raízes e identidade de objeto não entram por inferência.
+Se uma fonte tiver grafo em vez de árvore, o adaptador precisa materializar uma árvore ou declarar outra
+semântica antes de chegar ao DatasetH.
+
+## Plano de ataque
+
+1. **P0 - registro e vocabulário**: este plano, H-HIER-SCALAR-01 e os ponteiros de navegação. Nenhum
+   comportamento de POC ou core muda nesta fase.
+2. **P1 - matriz semântica**: escrever fixtures mínimos para a tabela de falsificação e declarar a
+   equivalência do DatasetH. Cobrir `null` versus ausência, strings colidentes, não finitos, vazios,
+   arrays mistos e raiz escalar. Resultado esperado: contrato de teste, não codec.
+3. **P2 - comparação de representações externas**: em um dirty lab novo e reproduzível, comparar A
+   (folha tipada) e C (string escapada) em `DatasetH -> DatasetH`; medir RT, inspeção e bytes. Não tocar
+   `src/tcf`. Se A sobreviver, testar B como portador de domínio tipado; D fica bloqueada por decisão de
+   formato.
+4. **P3 - fontes e saídas**: provar o mesmo DatasetH por duas origens. JSON padrão cobre `null`; uma
+   origem não-JSON, como árvore Python/Arrow, cobre `NaN` e infinitos. O adaptador JSON-like, se houver,
+   deve declarar sua gramática em vez de alegar que é JSON padrão.
+5. **P4 - topologia completa**: cruzar os escalares especiais com presença, repetition/definition levels,
+   arrays nested e objetos ragged. Uma solução que funcione apenas em uma folha plana não fecha o contrato H.
+6. **P5 - decisão de representação**: só depois de P1-P4, escolher tags, escape ou domínio tipado;
+   registrar uma ADR se a semântica ou wire grammar for aceita. Reavaliar `bN` contra V2-B e o perfil
+   terminal, sem usar bytes como substituto de RT.
+7. **P6 - codec e weld**: implementar `DatasetH -> TCF.H -> DatasetH` externamente, passar os gates do
+   ticket T-CODE-TCF8H-WELD e pedir aprovação explícita antes de tocar `src/tcf`.
+
+## Gates e evidência
+
+| gate | prova exigida | reprova a etapa se |
+|---|---|---|
+| identidade | `decode(encode(dataset_h)) == dataset_h` sob igualdade semântica declarada | valor especial, string ou ausência colidem |
+| fonte | duas fontes produzem o mesmo DatasetH | a semântica depender de `json.loads` ou de um parser específico |
+| topologia | fixtures exercitam containers vazios, ragged e nested | tipos funcionam apenas em tabela plana homogênea |
+| representação | comparação A/C/B registra RT, bytes e inspeção | bN/escape é escolhido só por microbytes sem preservar o domínio |
+| formato | grammar e char registry aprovados | um rótulo reservado recebe semântica por acidente |
+| core | non-regressão flat e aprovação explícita | qualquer mudança em `src/tcf` ocorrer antes dos gates anteriores |
+
+## Estratificação e Diataxis
+
+| camada/artefato | papel nesta pesquisa | local agora ou destino depois |
+|---|---|---|
+| **L0 Mneme** | topologia separada de valor; ausência separada de `null`; round-trip sem colisão | princípios neste plano e nos testes |
+| **L1 Morfé** | DatasetH, tags, ADR, Diataxis e contrato de equivalência | formalizar somente após P1-P5 sobreviverem |
+| **L2 Órganon** | Python, `json`, Arrow, `ijson`, POC atual e protótipos `bN` | labs/gadgets externos, trocáveis |
+| **exploração probatória** | hipótese, fixtures, medições e resultados negativos | `experiments/lab/dirty/` |
+| **decisão dispositiva** | aceitar semântica/grammar e autorizar weld | ADR + ticket de weld |
+| **Explanation (Diataxis)** | por que DatasetH separa fonte, topologia e escalares | futuro `docs/theory/`, após confirmação conceitual |
+| **Reference (Diataxis)** | grammar `#TCF.8H`, tags e contrato de decode | futuro `docs/algorithms/`, após formato aceito |
+| **How-to (Diataxis)** | adaptar JSON, Arrow ou banco para DatasetH | futuro `docs/how-to/`, quando adaptadores estiverem estáveis |
+| **Tutorial (Diataxis)** | primeiro fluxo completo para usuário | só depois de API e codec públicos |
+
+O plano é o ponto de leitura enquanto a ideia está em pesquisa. Não criar ainda documentação estável em
+`docs/theory/`, `docs/algorithms/` ou `docs/how-to/`: isso confundiria hipótese com contrato vigente.
+
+## Próxima leitura e próxima ação
+
+Leia este plano junto com:
+
+1. [T-STUDY-HIERARCHICAL-TCF](../../../../tickets/T-STUDY-HIERARCHICAL-TCF.md) - guarda-chuva e sequência R0-R5.
+2. [tipos-como-specs.md](tipos-como-specs.md) - o que `bN` já mede e o que ele não decide.
+3. [estudo-tcf-hierarquico-mapa.md](estudo-tcf-hierarquico-mapa.md) - topologia, cardinalidade e protótipos anteriores.
+
+A próxima ação proposta é P1: registrar a matriz de fixtures e o oráculo de igualdade semântica em um lab
+novo, externo e reproduzível. Ela depende de revisão deste plano pelo owner; não há autorização implícita
+para alterar o POC atual, o formato ou o core.

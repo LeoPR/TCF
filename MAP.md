@@ -89,7 +89,7 @@ TCF/
 | **Tipos como specs** (round-trip = indução; 8 eixos; meta-grupo H-TYPE-00..06; bN irmão do dict) | `experiments/lab/dirty/notas/tipos-como-specs.md` (estende `specs-capacity-map.md`) + `tipos-meta-grupo-fluxo.md` |
 | **Família bN** (bit-packing enum baixa-card) + **gate real-world** + **3 fluxos medidos** | roadmap H-TYPE-02/07 (status vivo; números = cópia, fonte = labs) + gate D3 `experiments/lab/dirty/2026-07-08-1938-bn-gate-realworld-5fontes/` (N=8; terminal 8.8%* / 1.7% pós-brotli — *w≤4 honesto = 5.9%, ver F3) + F1 latência `2026-07-08-2302-f1-bypass-latencia/` (bypass 2.4×) + F3 seletivo `2026-07-08-2355-f3-bn-seletivo/` (5.9%/0.5%; reforça o EnumSpec no-go) |
 | **Contrato de omissão** (deduzir/convenção-default/declarar + fail-loud, pré-1.0) | `tickets/T-FMT-OMIT-OR-DECLARE.md` |
-| **Codec hierárquico CSV↔JSON** (protótipo `#TCF.8H`, research-track, fora do release) | `experiments/lab/clean/EXP-015-tcf-hierarquico-csv-json/` + mapa `experiments/lab/dirty/notas/estudo-tcf-hierarquico-mapa.md` |
+| **Hierarquia completa / DatasetH** (fonte-agnóstica; JSON é só adaptador) + escalares especiais `null`/`NaN`/infinitos | `experiments/lab/dirty/notas/dataseth-hierarquia-completa-plano.md` + mapa `experiments/lab/dirty/notas/estudo-tcf-hierarquico-mapa.md`; EXP-015 CSV↔JSON é prior art de notação, não contrato |
 | **Registry de chars do header .8** (discriminador + marcadores por-coluna + reserva; fecha os fluxos, evita colisão tipo `#TCF.8H`) | `experiments/lab/dirty/notas/tcf8-header-char-registry.md` |
 | **Arquiteturas futuras** (Parquet/V2-L · gadget schema · gadget IA — "depois", âncoras) | `experiments/lab/dirty/notas/arquiteturas-futuras-parquet-schema-ia.md` |
 | **Primitivas com nomes diferentes = coisa parecida** (audit p/ consolidar: dict/índice, RLE, spec/nature/tipo, omitir/declarar…) | `experiments/lab/dirty/notas/primitivas-consolidacao-audit.md` |
@@ -141,6 +141,11 @@ Faxina 2026-06-21: 17 labs movidos pra `old/welded/` ou `old/refuted/`
 - `experiments/lab/clean/EXP-010-tcf-delta-aware-prototype/` —
   prototype antigo (referencia historica)
 - `experiments/lab/clean/EXP-011-multi-column-basic/` — multi-col basico
+- **`experiments/lab/dirty/2026-07-13-dataseth-json-bridge/`** — **DatasetH** (intermediário
+  source-agnostic p/ hierarquia; JSON = adaptador de prova). R0/R1: `dataset_h.py` (árvore tipada +
+  from_json/from_python) + `run.py`. **Stage 1 (codec TCF.H, topologia-primeiro)**: `codec_h.py` +
+  `run_codec.py` — `DatasetH↔#TCF.8H` RT-exato (22/22 + fail-loud), fecha `\n`-em-string; tipos/compressão
+  = stage 2. Plano: `notas/dataseth-hierarquia-completa-plano.md`; weld: `tickets/T-CODE-TCF8H-WELD.md`.
 - **Sessao 2026-07-05..08 (specs/tipos/bN/hierarquico — research-track)**: indexados nos mapas
   `experiments/lab/dirty/notas/estudo-tcf-hierarquico-mapa.md` (P1-P9 + EXP-015 CSV↔JSON `#TCF.8H`) +
   `tipos-como-specs.md` (reframe + labs 2026-07-06/07 do bN) + `2026-07-08-1938-bn-gate-realworld-5fontes/`

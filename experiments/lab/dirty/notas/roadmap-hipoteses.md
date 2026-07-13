@@ -638,6 +638,14 @@ nova hipotese identificada.
     Nota [`tipos-como-specs.md`](tipos-como-specs.md) + lab [`2026-07-06-2310-tipos-como-specs/`](../2026-07-06-2310-tipos-como-specs/result.md).
     Unifica H-TYPE-01 + T-OPT-INFERENCE (hex=sub-spec numerica) + natures (ADR-0015). `confirmada-conceitual`.
 
+- **H-HIER-SCALAR-01** (escalares especiais no DatasetH, owner 2026-07-13): `null`, `NaN`, `+Infinity` e
+  `-Infinity` pertencem ao domínio de folhas da estrutura hierárquica, não ao JSON. Há três alternativas
+  abertas: tag tipada explícita; domínio tipado + índices `bN`; string especial com escape reversível.
+  **Restrição inegociável**: `null` ≠ ausente ≠ `"null"`; `NaN` ≠ `"NaN"`; os infinitos preservam sinal;
+  a igualdade do DatasetH não pode depender de `nan == nan`. O `bN` atual é portador de domínio/índices,
+  não a semântica do valor; só entra após um domínio tipado sobreviver ao RT. `aberta`, confiança: Baixa.
+  Plano e falsificadores: [dataseth-hierarquia-completa-plano.md](dataseth-hierarquia-completa-plano.md).
+
 - **H-TYPE-02** (bit-packing por largura `bN` p/ enum/bool baixa-cardinalidade, owner 2026-07-07): familia
   `b`/`b2`/`b4`/`b8` (k<=2/4/16/256, 1/2/4/8 bits, dominio embutido = referencia). **CORRIGIDA apos revisao
   (2026-07-07)**: medida inicialmente contra baseline ERRADO (`encode(list[str])` single-col, ignora

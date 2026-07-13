@@ -1,9 +1,9 @@
 ---
-title: T-STUDY-HIERARCHICAL-TCF — TCF para JSON aninhado (guarda-chuva: grupo de labs / peças)
+title: T-STUDY-HIERARCHICAL-TCF — TCF para estrutura hierárquica completa
 status: open
 priority: P2
 created: 2026-07-05
-updated: 2026-07-05
+updated: 2026-07-13
 blocked-by: []
 related:
   - experiments/lab/dirty/notas/estudo-tcf-hierarquico-mapa.md
@@ -19,22 +19,103 @@ related:
   - experiments/lab/dirty/2026-07-01-header-minimal/
   - experiments/lab/dirty/notas/teoria-cardinalidade.md
   - experiments/lab/dirty/2026-07-05-nested-tcf-study/result.md
+  - experiments/lab/dirty/2026-07-13-dataseth-json-bridge/
+  - experiments/lab/dirty/notas/dataseth-hierarquia-completa-plano.md
   - datasets/coverage-matrix.md
   - experiments/lab/dirty/notas/dirty-lab-convencoes.md
 ---
 
-# T-STUDY-HIERARCHICAL-TCF — TCF hierárquico (guarda-chuva)
+# T-STUDY-HIERARCHICAL-TCF — TCF para estrutura hierárquica completa
 
-**[probatório]** Estuda como representar um documento **aninhado** de API em TCF (tabular). Decorre do
-pedido do owner (2026-07-05) por um "TCF aninhado similar ao JSON". **Não é 1 lab — é um GRUPO de peças
+**[probatório]** Estuda como representar uma estrutura de dados **hierárquica** em TCF. JSON é a primeira
+fonte de pesquisa, não o contrato de origem. Decorre do pedido do owner (2026-07-05) por um "TCF aninhado
+similar ao JSON". **Não é 1 lab — é um GRUPO de peças
 que se juntam.** Mapa do grupo + como as peças formam o todo:
 [estudo-tcf-hierarquico-mapa.md](../experiments/lab/dirty/notas/estudo-tcf-hierarquico-mapa.md).
+
+O plano atual de pesquisa, incluindo a hipótese de `null`, `NaN` e infinitos, está em
+[dataseth-hierarquia-completa-plano.md](../experiments/lab/dirty/notas/dataseth-hierarquia-completa-plano.md).
 
 > **PROMOVIDO A WELD DO `.8` (owner 2026-07-13)**: o reescopo `.8`=feature-complete decidiu que a
 > hierarquia entra no `.8`. Este guarda-chuva (feasibility, `confirmada-conceitual`) permanece a base
 > **probatória**; o **weld** para `src/tcf` vive em **[T-CODE-TCF8H-WELD](T-CODE-TCF8H-WELD.md)**
-> (dispositivo→exec, gate de CAPACIDADE — RT-exato em JSON aninhado real + non-regressão + aprovação
-> `src/tcf`). O codec de referência é o EXP-015 (`experiments/lab/clean/EXP-015-tcf-hierarquico-csv-json/`).
+> (dispositivo→exec, gate de CAPACIDADE — RT-exato do DatasetH + adaptador JSON de prova + non-regressão
+> + aprovação `src/tcf`). O codec de referência é o EXP-015 (`experiments/lab/clean/EXP-015-tcf-hierarquico-csv-json/`).
+
+## REFOCO 2026-07-13 — pesquisa antes do acoplamento
+
+**[dispositivo→pesquisa]** O requisito é que o TCF entenda **estrutura hierárquica**, qualquer que seja a
+fonte. JSON é apenas a primeira fonte conveniente para estudar o problema. O core não deve conhecer JSON,
+nem criar uma API `encode_json`: `encode` continua sendo a única entrada de codificação do core, e os
+adaptadores de fonte/saída ficam fora de `src/tcf`.
+
+### Vocabulário provisório
+
+- **Documento de origem**: JSON, resposta de API, banco, Arrow, ou outra fonte que contenha uma árvore.
+- **DatasetH**: nome provisório do dataset hierárquico intermediário. Ele deve carregar a estrutura de
+  objetos/arrays, folhas, ordem, tipos, `null`, ausência/presença e repetição sem depender de JSON.
+- **TCF.H**: representação textual dessa estrutura no wire format `#TCF.8H`.
+- **Adaptador de saída**: transforma o DatasetH decodificado em JSON, outro banco ou outra representação.
+
+O tipo Python concreto de DatasetH ainda não está decidido. Primeiro se congela a semântica; depois se
+escolhe a representação que melhor separa topologia, folhas e metadados.
+
+### Caminho feliz de pesquisa
+
+```text
+fonte (JSON, API, banco, ...)
+  -> adaptador da fonte
+  -> DatasetH
+  -> encode(DatasetH)
+  -> TCF.H (#TCF.8H)
+  -> blob_tcf
+  -> decode(blob_tcf)
+  -> DatasetH
+  -> adaptador de saída
+  -> JSON, outro banco ou outra representação
+```
+
+O primeiro caso executável será:
+
+```text
+JSON -> DatasetH -> TCF.H -> blob_tcf -> DatasetH -> JSON
+```
+
+O teste central do core será `decode(encode(dataset_h)) == dataset_h`. O teste JSON fica na camada do
+adaptador: `json -> DatasetH` e `DatasetH -> json`. Assim, uma aprovação do caminho JSON não transforma
+JSON em dependência semântica do TCF.
+
+### Pesquisa das bibliotecas
+
+| biblioteca | o que entrega | papel possível | limite para o DatasetH |
+|---|---|---|---|
+| [`json`](https://docs.python.org/3/library/json.html) | `dict`/`list`/escalares Python; `object_hook` e `object_pairs_hook` | primeiro parser e adaptador de fonte | não define dataset, schema ou topologia colunar |
+| [`pandas.json_normalize`](https://pandas.pydata.org/docs/reference/api/pandas.json_normalize.html) | DataFrame flat por `record_path`/`meta` | steelman de flatten e comparação | achata a árvore e exige decisões de normalização |
+| [`pyarrow.json`](https://arrow.apache.org/docs/python/json.html) + tipos Arrow | `struct`/`list`/`map`, tipos e nulls em arrays colunares | referência externa para uma árvore colunar | dependência opcional; leitor JSON aceita JSON Lines, não é contrato do core |
+| [`ijson`](https://github.com/ICRAR/ijson) | itens por prefixo ou eventos `start_map`/`map_key`/`start_array` | parser streaming para fontes grandes | produz eventos/objetos; o adaptador ainda precisa construir DatasetH |
+
+Conclusão da primeira passada: a biblioteca `json` resolve a **leitura da árvore**, `pandas` resolve um
+**flatten tabular**, Arrow oferece a comparação mais próxima de um **dataset colunar hierárquico**, e
+`ijson` resolve a **leitura incremental**. Nenhuma substitui a especificação do DatasetH. O core continua
+sem dependências externas; as comparações vivem em experimento ou gadget.
+
+### Etapas de pesquisa
+
+- [x] **R0a — plano de escopo**: registrar o estudo de DatasetH/hierarquia completa e a hipótese
+  H-HIER-SCALAR-01 em [dataseth-hierarquia-completa-plano.md](../experiments/lab/dirty/notas/dataseth-hierarquia-completa-plano.md).
+- [ ] **R0b — vocabulário e contrato**: definir DatasetH, topologia, tipos, presença, repetição, ordem,
+  raízes escalares e limites; separar equivalência semântica de preservação lexical do JSON. Inclui a
+  matriz de `null`, `NaN`, `+Infinity`, `-Infinity`, strings colidentes e ausência; `bN` é candidato de
+  representação, não a definição desses valores.
+- [ ] **R1 — adaptador JSON**: `json.loads`/`object_pairs_hook` para a primeira implementação; testar
+  `null`, objetos ragged, arrays mistos/nested, vazios, Unicode, LF e números sem stringificação.
+- [ ] **R2 — comparação de representações**: comparar árvore Python, `json_normalize`, Arrow nested e
+  eventos `ijson`; medir o que cada forma preserva e o que precisa de side-channel.
+- [ ] **R3 — DatasetH independente da fonte**: construir um fixture equivalente sem passar por JSON e
+  provar que o mesmo DatasetH pode ser alimentado por outra origem.
+- [ ] **R4 — codec externo TCF.H**: testar `DatasetH -> TCF.H -> DatasetH` sem tocar `src/tcf`.
+- [ ] **R5 — decisão de acoplamento**: somente após R0-R4 definir a superfície de `encode`/`decode` e
+  abrir o weld do core; nenhum import de JSON deve entrar em `src/tcf`.
 
 ## Peças (labs) — estado
 
@@ -64,13 +145,13 @@ que se juntam.** Mapa do grupo + como as peças formam o todo:
 > **Próximo do owner**: revisar tickets → voltar ao header-minimal. Consolidação (P9) fica para quando o
 > owner decidir a base A/B/C.
 
-## Pergunta
+## Pergunta histórica
 
 Duas representações do mesmo documento aninhado:
 - **A · tabelão (cross)**: desnormaliza (contexto repetido por linha) → 1 TCF; o RLE colapsa a repetição.
 - **B · duas tabelas**: normaliza (T0 contexto 1×, T1 série + fk) + manifest → 2 TCFs ligados por cabeçalho.
 
-Qual custa menos, e sob qual condição (payload plano vs reconstrução exata do JSON)?
+Qual custa menos, e sob qual condição (payload plano vs reconstrução exata da estrutura de origem)?
 
 ## Estado (2026-07-05) — feasibility MEDIDA (lab)
 
