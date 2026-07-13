@@ -11,6 +11,8 @@ e "se compoe" com eles. Este lab MEDE essa afirmacao em vez de assumi-la:
 2. **Composicao**: `compressor(TCF)` vs `compressor(raw)` — TCF ajuda a camada de transporte
    HTTP (`Content-Encoding`) ou a pagina Parquet, ou atrapalha?
 3. Trade-off de legibilidade: TCF continua texto ASCII; os demais viram blob opaco.
+4. **Tempo** (compress/descompress, throughput MB/s) e **memoria** (`view()` seletivo vs
+   decode/descompressao total) — descomprimir MENOS custa proporcionalmente menos tempo e memoria.
 
 ## Familias medidas
 
@@ -26,8 +28,10 @@ sintetica realista (2000 linhas x 5 colunas, seed 20260713) pra exercitar `#TCF.
 ## Como rodar
 
 ```
-python driver.py            # gera artifacts/results.json + amostras + contra-prova RT
-python gen_result.py        # gera result.md a partir do JSON
+python driver.py            # bytes: raw/TCF/composicao + amostras + contra-prova RT
+python timing_memory.py     # tempo (throughput MB/s) + memoria (view vs decode, tracemalloc)
+python gen_svg.py           # docs/img/view-memory.svg (barras proporcionais aos bytes medidos)
+python gen_result.py        # gera result.md a partir dos dois JSON
 ```
 
 ## Artefatos (rastreabilidade)

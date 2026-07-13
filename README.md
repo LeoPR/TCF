@@ -341,21 +341,23 @@ Core pinned in tests: D1-D9 = **1523 B** (51.1% of raw, single-col); D17a multi-
 Real-world multi-column (9 Adult + TPC-H tables, 136k rows): **−33.02% weighted** vs raw CSV.
 
 **And against gzip / brotli / zstd?**
-A different category: those are *opaque* binary compressors (you must decompress to read anything).
-On the **record set above**, under HTTP compression (`Content-Encoding`):
+A different category: those are *opaque* binary compressors (you must decompress to read anything —
+and, crucially, **you cannot `view()` them**: any query means fully inflating the payload first).
+On the **record set above**, under HTTP compression (`Content-Encoding`, max level):
 
 | format | raw | gzip | br | zstd |
 |---|---:|---:|---:|---:|
 | JSON | 596 | 218 | 212 | 211 |
 | CSV  | 277 | 177 | **162** | 165 |
-| TCF  | **242** | 206 | not remeasured | not remeasured |
+| TCF  | **242** | 206 | 185 | 193 |
 
-TCF is the smallest **raw** (and readable). The current `#TCF.8M` value is 242B raw and 206B with
-stdlib gzip; brotli/zstd need a codec-enabled rerun before those columns are claimed for this release.
-TCF **trades some ratio for readability** and composes with external compressors. `gzip` still carries
-fixed framing bytes per message; `br`/`zstd`, almost none — on a tiny payload that counts. (The numbers use the compressors at **maximum level**
-— best case for them; on a simple API compression is sometimes not even on, and when it is it uses
-a low default level: nginx gzip `1`, brotli `6`. See [compressor notes](experiments/lab/clean/EXP-008-compressao-comparada/notes/classificacao-compressores.md).)
+TCF is the smallest **raw** (and readable). At this tiny 4-row size a binary compressor beats TCF once
+applied (CSV+br 162 < TCF+br 185): TCF **trades some ratio for readability** and composes with them —
+its advantage in *ratio* shows up with volume (see below), while its advantage in *inspectability and
+selective decompression* (`view()`) holds at any size. `gzip` still carries fixed framing bytes per
+message; `br`/`zstd`, almost none — on a tiny payload that counts. (The numbers use the compressors at
+**maximum level** — best case for them; on a simple API compression is sometimes not even on, and when
+it is it uses a low default level: nginx gzip `1`, brotli `6`. See [compressor notes](experiments/lab/clean/EXP-008-compressao-comparada/notes/classificacao-compressores.md).)
 
 Across the aggregate of 15 synthetic **single-column** datasets (EXP-008, where the 0.7 multi-col welds
 do not apply) the same story: `csv+brotli` = 1742 B against `tcf+brotli` = 2116 B. Full tables:
@@ -370,7 +372,8 @@ On a tiny payload the framing dominates and there is nothing to factor; **TCF's 
 
 The same pattern holds across the **Parquet** compressor family (snappy, lz4, zstd), not just the HTTP
 ones (gzip, brotli, zstd): on a **single dense free-text column** the binary compressor alone wins and
-putting TCF underneath *hurts* it (−7% to −41% — TCF's reference rewriting disrupts its entropy model);
+putting TCF underneath *usually hurts* it (as much as −41% — TCF's reference rewriting disrupts its
+entropy model; a few cells are near-neutral and one, lz4 on retail-description, even helps +7%);
 on a **structured multi-column table** TCF wins standalone (−72% vs CSV) **and** composes (`tcf+brotli`
 −30% vs `brotli(raw)`). **Structure, not the container, decides.** Measured with RT counter-proof in
 [`2026-07-13-0156-compressores-http-parquet/`](experiments/lab/dirty/2026-07-13-0156-compressores-http-parquet/result.md).
@@ -416,7 +419,7 @@ table = {
 
 blob = encode(table)                           # 183 B of ASCII text — this is what you store/transmit
 v = view(blob)                                 # connects, decompresses nothing
-v.count()                                      # 6        touches: (header only)
+v.count()                                      # 6        touches: valor (cheapest column)
 v.sum("valor")                                 # 750      touches: valor
 v.avg("valor")                                 # 125
 v.max("valor"), v.min("valor")                 # 200, 80
@@ -444,8 +447,8 @@ contracts are in [`docs/reference/lazy-view.md`](docs/reference/lazy-view.md).
 
 **End-to-end: transmit the compact text, query it on arrival.** Because the blob stays small **and**
 stays text, the producer can `encode` once and send it as a normal HTTP body; the consumer runs
-`view()` and only decompresses the columns a given question touches — nothing is expanded just to answer
-`count()`.
+`view()` and only decompresses the columns a given question touches — nothing else is expanded to answer
+a `count()` or a filtered aggregate.
 
 ```mermaid
 flowchart LR
@@ -454,14 +457,27 @@ flowchart LR
     end
     B -->|"HTTP body<br/>(gzip/brotli optional, on top)"| C
     subgraph Consumer
-        C["view(blob)<br/>connects, decompresses nothing"] -->|"count()"| D[header only]
+        C["view(blob)<br/>connects, decompresses nothing"] -->|"count()"| D["cheapest column<br/>(rows only)"]
         C -->|"where(cidade=SP).sum(valor)"| E["materializes only<br/>cidade + valor"]
         C -->|"decode(blob)"| F[full table<br/>all columns]
     end
 ```
 
-The same blob serves three access levels off one transmission: a header-only `count()`, a selective
+The same blob serves three access levels off one transmission: a cheap `count()`, a selective
 filtered aggregate, or a full `decode()` — the caller picks how much to pay.
+
+An opaque compressor cannot do this: to answer *any* question you must `gunzip`/`unbrotli` the **whole**
+payload first — which is also where the memory goes.
+
+![Memory: view() vs full decode — same blob, one query, two footprints](docs/img/view-memory.svg)
+
+Measured with round-trip counter-proof (timing throughput + `tracemalloc` peaks) in
+[`2026-07-13-0156-compressores-http-parquet/`](experiments/lab/dirty/2026-07-13-0156-compressores-http-parquet/result.md):
+answering `where(Country).sum(Quantity)` on online-retail (100×8) peaks at **10.4 KB** through `view()`
+versus **45.2 KB** through a full decode — **≈4.3× less** (cadastro 2000×5: 3.95×). Decompression
+throughput is high for every codec (gzip ~60, zstd ~130, lz4 ~850 MB/s decompress), but a compressor
+pays it over **100%** of the payload; `view()` pays it over the touched fraction (**6.3%** here). The
+latency win is not decompressing *faster* — it is decompressing **less**.
 
 ## Roadmap 2.0
 

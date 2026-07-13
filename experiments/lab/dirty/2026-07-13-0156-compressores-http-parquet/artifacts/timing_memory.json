@@ -1,0 +1,185 @@
+{
+  "timing": {
+    "retail-description-2k": [
+      {
+        "codec": "gzip",
+        "in_bytes": 27581,
+        "comp_bytes": 13725,
+        "comp_ms": 1.4151,
+        "decomp_ms": 0.2098,
+        "comp_mbps": 19.5,
+        "decomp_mbps": 65.4
+      },
+      {
+        "codec": "brotli",
+        "in_bytes": 27581,
+        "comp_bytes": 12497,
+        "comp_ms": 48.0961,
+        "decomp_ms": 0.229,
+        "comp_mbps": 0.6,
+        "decomp_mbps": 54.6
+      },
+      {
+        "codec": "zstd",
+        "in_bytes": 27581,
+        "comp_bytes": 13360,
+        "comp_ms": 8.1095,
+        "decomp_ms": 0.0985,
+        "comp_mbps": 3.4,
+        "decomp_mbps": 135.6
+      },
+      {
+        "codec": "snappy",
+        "in_bytes": 27581,
+        "comp_bytes": 21084,
+        "comp_ms": 0.1201,
+        "decomp_ms": 0.0421,
+        "comp_mbps": 229.7,
+        "decomp_mbps": 500.8
+      },
+      {
+        "codec": "lz4",
+        "in_bytes": 27581,
+        "comp_bytes": 20491,
+        "comp_ms": 0.119,
+        "decomp_ms": 0.0203,
+        "comp_mbps": 231.8,
+        "decomp_mbps": 1009.4
+      }
+    ],
+    "lineitem-comment-2k": [
+      {
+        "codec": "gzip",
+        "in_bytes": 50598,
+        "comp_bytes": 19194,
+        "comp_ms": 2.7798,
+        "decomp_ms": 0.3063,
+        "comp_mbps": 18.2,
+        "decomp_mbps": 62.7
+      },
+      {
+        "codec": "brotli",
+        "in_bytes": 50598,
+        "comp_bytes": 17355,
+        "comp_ms": 93.5571,
+        "decomp_ms": 0.2859,
+        "comp_mbps": 0.5,
+        "decomp_mbps": 60.7
+      },
+      {
+        "codec": "zstd",
+        "in_bytes": 50598,
+        "comp_bytes": 18229,
+        "comp_ms": 20.8515,
+        "decomp_ms": 0.1221,
+        "comp_mbps": 2.4,
+        "decomp_mbps": 149.3
+      },
+      {
+        "codec": "snappy",
+        "in_bytes": 50598,
+        "comp_bytes": 30217,
+        "comp_ms": 0.2012,
+        "decomp_ms": 0.0739,
+        "comp_mbps": 251.5,
+        "decomp_mbps": 408.9
+      },
+      {
+        "codec": "lz4",
+        "in_bytes": 50598,
+        "comp_bytes": 30264,
+        "comp_ms": 0.2013,
+        "decomp_ms": 0.0359,
+        "comp_mbps": 251.4,
+        "decomp_mbps": 843.0
+      }
+    ],
+    "cadastro-multi-2k": [
+      {
+        "codec": "gzip",
+        "in_bytes": 30788,
+        "comp_bytes": 11791,
+        "comp_ms": 2.0493,
+        "decomp_ms": 0.1716,
+        "comp_mbps": 15.0,
+        "decomp_mbps": 68.7
+      },
+      {
+        "codec": "brotli",
+        "in_bytes": 30788,
+        "comp_bytes": 8669,
+        "comp_ms": 61.1279,
+        "decomp_ms": 0.2278,
+        "comp_mbps": 0.5,
+        "decomp_mbps": 38.1
+      },
+      {
+        "codec": "zstd",
+        "in_bytes": 30788,
+        "comp_bytes": 10552,
+        "comp_ms": 10.7469,
+        "decomp_ms": 0.1133,
+        "comp_mbps": 2.9,
+        "decomp_mbps": 93.1
+      },
+      {
+        "codec": "snappy",
+        "in_bytes": 30788,
+        "comp_bytes": 17314,
+        "comp_ms": 0.09,
+        "decomp_ms": 0.0418,
+        "comp_mbps": 342.1,
+        "decomp_mbps": 414.2
+      },
+      {
+        "codec": "lz4",
+        "in_bytes": 30788,
+        "comp_bytes": 19889,
+        "comp_ms": 0.0869,
+        "decomp_ms": 0.029,
+        "comp_mbps": 354.3,
+        "decomp_mbps": 685.8
+      }
+    ]
+  },
+  "memory": [
+    {
+      "dataset": "online-retail-100x8",
+      "n_rows": 100,
+      "n_cols": 8,
+      "blob_bytes": 3470,
+      "query": "where(Country='United Kingdom').sum(Quantity)",
+      "count_materialized_bytes": 175,
+      "count_pct": 5.2,
+      "filter_materialized_bytes": 212,
+      "filter_pct": 6.3,
+      "filter_touched": [
+        "Country",
+        "Quantity"
+      ],
+      "total_logical_bytes": 3355,
+      "peak_view_bytes": 10651,
+      "peak_decode_bytes": 46244,
+      "peak_ratio": 4.34
+    },
+    {
+      "dataset": "cadastro-multi-2k",
+      "n_rows": 2000,
+      "n_cols": 5,
+      "blob_bytes": 30788,
+      "query": "where(cidade='Sao Paulo').sum(valor)",
+      "count_materialized_bytes": 2059,
+      "count_pct": 6.7,
+      "filter_materialized_bytes": 8562,
+      "filter_pct": 27.9,
+      "filter_touched": [
+        "cidade",
+        "valor"
+      ],
+      "total_logical_bytes": 30729,
+      "peak_view_bytes": 164943,
+      "peak_decode_bytes": 651991,
+      "peak_ratio": 3.95
+    }
+  ]
+}

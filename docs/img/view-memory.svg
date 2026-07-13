@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="470" viewBox="0 0 900 470" font-family="-apple-system,Segoe UI,Roboto,sans-serif">
+<rect x="0" y="0" width="900" height="470" rx="14" fill="#ffffff"/>
+<rect x="12" y="12" width="876" height="446" rx="10" fill="#f6f8fa"/>
+<text x="40" y="52" font-size="21" font-weight="700" fill="#1f2328">One blob, one query — two memory footprints</text>
+<text x="40" y="78" font-size="13" fill="#57606a">online-retail · 100 rows × 8 cols · query: where(Country="United Kingdom").sum(Quantity)</text>
+
+<!-- LEGEND: which columns each path materializes -->
+<text x="40" y="116" font-size="13" fill="#57606a">columns materialized (of 8):</text>
+<text x="40" y="150" font-size="13" font-weight="600" fill="#1a7f37">view():</text>
+<rect x="120" y="138" width="26" height="14" rx="2" fill="#d0d7de"/>
+<rect x="149" y="138" width="26" height="14" rx="2" fill="#d0d7de"/>
+<rect x="178" y="138" width="26" height="14" rx="2" fill="#d0d7de"/>
+<rect x="207" y="138" width="26" height="14" rx="2" fill="#1a7f37"/>
+<rect x="236" y="138" width="26" height="14" rx="2" fill="#d0d7de"/>
+<rect x="265" y="138" width="26" height="14" rx="2" fill="#d0d7de"/>
+<rect x="294" y="138" width="26" height="14" rx="2" fill="#d0d7de"/>
+<rect x="323" y="138" width="26" height="14" rx="2" fill="#1a7f37"/>
+<text x="360" y="150" font-size="12" fill="#57606a">2 of 8 — Country + Quantity</text>
+<text x="40" y="176" font-size="13" font-weight="600" fill="#cf222e">decode():</text>
+<rect x="120" y="164" width="26" height="14" rx="2" fill="#8c959f"/>
+<rect x="149" y="164" width="26" height="14" rx="2" fill="#8c959f"/>
+<rect x="178" y="164" width="26" height="14" rx="2" fill="#8c959f"/>
+<rect x="207" y="164" width="26" height="14" rx="2" fill="#8c959f"/>
+<rect x="236" y="164" width="26" height="14" rx="2" fill="#8c959f"/>
+<rect x="265" y="164" width="26" height="14" rx="2" fill="#8c959f"/>
+<rect x="294" y="164" width="26" height="14" rx="2" fill="#8c959f"/>
+<rect x="323" y="164" width="26" height="14" rx="2" fill="#8c959f"/>
+<text x="360" y="176" font-size="12" fill="#57606a">8 of 8 — the whole table</text>
+
+<!-- BARS: peak process memory (tracemalloc), proportional -->
+<text x="40" y="238" font-size="14" font-weight="600" fill="#1f2328">peak memory to answer the query (tracemalloc, proportional):</text>
+
+<text x="40" y="286" font-size="14" font-weight="600" fill="#1f2328">TCF view()</text>
+<rect x="300" y="272" width="82.9" height="26" rx="4" fill="#1a7f37"/>
+<text x="392.9" y="291" font-size="13" fill="#1f2328">10.4 KB  ·  materializes 6.3%</text>
+
+<text x="40" y="336" font-size="14" font-weight="600" fill="#1f2328">TCF decode() then filter</text>
+<rect x="300" y="322" width="360.0" height="26" rx="4" fill="#8c959f"/>
+<text x="670.0" y="341" font-size="13" fill="#1f2328">45.2 KB  ·  materializes 100%</text>
+
+<!-- callout -->
+<rect x="40" y="376" width="820" height="72" rx="8" fill="#aceebb" opacity="0.55"/>
+<text x="60" y="402" font-size="15" font-weight="700" fill="#1f2328">~ 4.34x less peak memory (measured: view() vs full decode())</text>
+<text x="60" y="423" font-size="12.5" fill="#57606a">view() inflates only the columns the query touches; a full decode() inflates all 8. An opaque compressor</text>
+<text x="60" y="440" font-size="12.5" fill="#57606a">(gzip/brotli/zstd) has no partial option — it must inflate the whole payload first. (cadastro 2000x5: 3.95x.)</text>
+</svg>

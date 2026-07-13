@@ -68,3 +68,59 @@
 multi-coluna; para **coluna free-text densa unica** o compressor binario sozinho vence e o TCF
 por baixo atrapalha — ali o TCF entrega inspecionabilidade, nao menor payload. zstd/gzip do mundo
 Parquet exibem o MESMO padrao dos de HTTP (a estrutura, nao o container, decide).
+
+## Tempo (proporcional ao volume) — mediana N=9, com warmup
+
+> **Caveat de portabilidade** (CLAUDE.md F0-3): os ms ABSOLUTOS sao desta maquina.
+> O invariante e' o **throughput (MB/s)** e o fato estrutural: descomprimir menos custa
+> proporcionalmente menos tempo. Tempo NUNCA e' pinado em teste.
+
+### retail-description-2k  (entrada 27581 B de texto TCF)
+
+| codec | comp (ms) | decomp (ms) | comp MB/s | decomp MB/s |
+|---|---:|---:|---:|---:|
+| gzip | 1.4151 | 0.2098 | 19.5 | 65.4 |
+| brotli | 48.0961 | 0.229 | 0.6 | 54.6 |
+| zstd | 8.1095 | 0.0985 | 3.4 | 135.6 |
+| snappy | 0.1201 | 0.0421 | 229.7 | 500.8 |
+| lz4 | 0.119 | 0.0203 | 231.8 | 1009.4 |
+
+### lineitem-comment-2k  (entrada 50598 B de texto TCF)
+
+| codec | comp (ms) | decomp (ms) | comp MB/s | decomp MB/s |
+|---|---:|---:|---:|---:|
+| gzip | 2.7798 | 0.3063 | 18.2 | 62.7 |
+| brotli | 93.5571 | 0.2859 | 0.5 | 60.7 |
+| zstd | 20.8515 | 0.1221 | 2.4 | 149.3 |
+| snappy | 0.2012 | 0.0739 | 251.5 | 408.9 |
+| lz4 | 0.2013 | 0.0359 | 251.4 | 843.0 |
+
+### cadastro-multi-2k  (entrada 30788 B de texto TCF)
+
+| codec | comp (ms) | decomp (ms) | comp MB/s | decomp MB/s |
+|---|---:|---:|---:|---:|
+| gzip | 2.0493 | 0.1716 | 15.0 | 68.7 |
+| brotli | 61.1279 | 0.2278 | 0.5 | 38.1 |
+| zstd | 10.7469 | 0.1133 | 2.9 | 93.1 |
+| snappy | 0.09 | 0.0418 | 342.1 | 414.2 |
+| lz4 | 0.0869 | 0.029 | 354.3 | 685.8 |
+
+**Leitura do tempo:** descompressao e' barata em todos (dezenas a centenas de MB/s), mas com um
+compressor opaco voce paga a descompressao sobre **100% do payload** antes de qualquer filtro;
+no `view()` do TCF paga-se so' sobre a fracao das colunas tocadas. brotli comprime lento (q=11,
+~0,5 MB/s) e descomprime rapido; lz4/snappy descomprimem a ~700-1000 / ~410-490 MB/s e comprimem
+a ~250-350 MB/s (por isso o Parquet os usa por padrao). O ganho de latencia do TCF nao vem de
+descomprimir mais rapido — vem de descomprimir **menos**.
+
+## Memoria — view seletivo vs decode/descompressao total
+
+Pico de memoria Python (tracemalloc) pra responder UMA query no MESMO blob:
+
+| dataset | query | view() pico | decode() pico | materializa (view) | menos memoria |
+|---|---|---:|---:|---:|---:|
+| online-retail-100x8 (100x8) | `where(Country='United Kingdom').sum(Quantity)` | 10.4 KB | 45.2 KB | 6.3% | 4.34x |
+| cadastro-multi-2k (2000x5) | `where(cidade='Sao Paulo').sum(valor)` | 161.1 KB | 636.7 KB | 27.9% | 3.95x |
+
+Um compressor opaco (gzip/brotli/zstd) **exige** inflar o payload inteiro antes de filtrar —
+pico = a tabela toda. O `view()` infla so' as colunas que a pergunta toca. Grafico:
+[`docs/img/view-memory.svg`](../../../../docs/img/view-memory.svg) (gerado por `gen_svg.py`).
