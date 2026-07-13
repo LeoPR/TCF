@@ -70,10 +70,12 @@ Basic
   `^1` means *"same as line 1"* (a substitution).
 - In the **email** column TCF goes deeper (unique prefix + a referenced common domain).
   That is where it saves the most, and where the text gets densest.
-- The **`cpf`** column is the opposite: values almost all unique, **nothing to factor out**.
-  TCF stores it **raw** (`!cpf`) — it does not compress, but it does not **inflate** either (that is the fallback).
-  *(These are invalid placeholders — repeated digits. For real CPF/CNPJ there is an opt-in* nature *,
-  ADR-0015, that strips `.`/`-` and regenerates the check digit — then it does compress.)*
+- The **`cpf`** column is the opposite: values almost all unique, **nothing to factor out** by the
+  default pipeline. TCF stores it **raw** (`!cpf`) — it does not compress, but it does not **inflate**
+  either (that is the fallback).
+  *(These are repeated-digit placeholders: mod-11-valid but never issued by the tax office — safe
+  fakes. The opt-in* `nature` *(ADR-0015) strips `.`/`-` and drops the derivable check digit, so with
+  `nature_per_col={"cpf": SPEC_CPF}` this very column DOES compress — see "Nature filters" below.)*
 
 JSON repeats the whole structure.
 CSV repeats the values.
@@ -157,9 +159,23 @@ numeric sequences and IDs with cadence the *delta-aware* pipeline captures on it
 from tcf import encode, decode
 from tcf import SPEC_CPF
 
-cpfs = ["111.111.111-11", "222.222.222-22"]    # invalid placeholders
-blob = encode(cpfs, nature=SPEC_CPF)
-assert decode(blob) == cpfs                     # core IDs are in the #TCF.8 header when they win
+# Repeated-digit placeholders: they PASS the mod-11 check (so the nature
+# compresses them), but the tax office never issues them, so they do not map
+# to a real person — safe for public examples.
+cpfs = ["111.111.111-11", "222.222.222-22", "333.333.333-33", "444.444.444-44"]
+
+blob = encode(cpfs, nature=SPEC_CPF)   # the nature WINS here (4 distinct CPFs)
+print(blob)
+# #TCF.8 :cpf     <- self-describing single-col header: the spec IS applied
+# %g$.u           <- "111.111.111-11" (14 B) -> 5 chars: 9-digit body in base-80,
+# )K%\7l             the mask and the 2 check digits dropped (decode recomputes them)
+# .\1&Cc
+# \0r(LU
+assert decode(blob) == cpfs            # decode reads `:cpf` from the header, no spec needed
+
+# Same 4 CPFs: 76 B raw single-col -> 39 B with the nature (-49%). In a table,
+# pass it per column: encode(table, nature_per_col={"cpf": SPEC_CPF}); the cpf
+# column's inline meta then carries `:cpf` (e.g. `#TCF.8M!15=nome,!cpf:cpf`).
 ```
 
 Two honest details:
@@ -193,9 +209,13 @@ table = {
 text = encode(table)
 assert decode(text) == table  # lossless round-trip
 
-# Natures (opt-in): CPF/CNPJ/IP compressed without the check digit/padding
+# Natures (opt-in): CPF/CNPJ/IP compressed without the check digit/padding.
+# The nature self-describes in the header (#TCF.8 :cpf) when it wins the size
+# comparison, so decode needs no spec.
 from tcf import SPEC_CPF
-text = encode(["111.111.111-11", "222.222.222-22"], nature=SPEC_CPF)  # invalid placeholders
+cpfs = ["111.111.111-11", "222.222.222-22", "333.333.333-33"]  # repeated digits: mod-11-valid, never issued (safe fakes)
+text = encode(cpfs, nature=SPEC_CPF)
+assert decode(text) == cpfs
 ```
 
 `encode` dispatches by type (list → single-column, dict → multi-column).

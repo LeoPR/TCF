@@ -73,10 +73,11 @@ Basic
   `^1` é *"igual à linha 1"* (substituição).
 - Na coluna de **e-mail** o TCF vai mais fundo (prefixo único + domínio comum referenciado).
   É onde mais economiza, e onde o texto fica mais denso.
-- Já a coluna **`cpf`** é o oposto: valores quase todos únicos, **nada a fatorar**.
-  O TCF guarda **cru** (`!cpf`) — não comprime, mas também **não infla** (é o fallback).
-  *(São placeholders inválidos — dígitos repetidos. Para CPF/CNPJ real há uma* nature *opt-in,
-  ADR-0015, que tira `.`/`-` e regenera o dígito verificador — aí sim comprime.)*
+- Já a coluna **`cpf`** é o oposto: valores quase todos únicos, **nada a fatorar** pelo pipeline
+  default. O TCF guarda **cru** (`!cpf`) — não comprime, mas também **não infla** (é o fallback).
+  *(São placeholders de dígitos repetidos: mod-11-válidos, mas a Receita nunca os emite — fakes
+  seguros. A* `nature` *opt-in (ADR-0015) tira `.`/`-` e dropa o dígito verificador derivável; com
+  `nature_per_col={"cpf": SPEC_CPF}` esta MESMA coluna comprime — ver "Nature filters" abaixo.)*
 
 JSON repete a estrutura inteira.
 CSV repete os valores.
@@ -159,9 +160,22 @@ sequências e IDs numéricos com cadência o pipeline *delta-aware* captura sozi
 from tcf import encode, decode
 from tcf import SPEC_CPF
 
-cpfs = ["111.111.111-11", "222.222.222-22"]    # placeholders inválidos
-blob = encode(cpfs, nature=SPEC_CPF)
-assert decode(blob) == cpfs                     # IDs core vão no header quando vencem
+# Placeholders de dígitos repetidos: PASSAM no mod-11 (então a nature os comprime),
+# mas a Receita nunca os emite — não mapeiam pessoa real (fakes seguros p/ exemplo).
+cpfs = ["111.111.111-11", "222.222.222-22", "333.333.333-33", "444.444.444-44"]
+
+blob = encode(cpfs, nature=SPEC_CPF)   # a nature VENCE aqui (4 CPFs distintos)
+print(blob)
+# #TCF.8 :cpf     <- header single-col auto-descritivo: o spec ESTÁ aplicado
+# %g$.u           <- "111.111.111-11" (14 B) -> 5 chars: corpo de 9 díg em base-80,
+# )K%\7l             a máscara e os 2 díg verificadores caem (o decode recalcula)
+# .\1&Cc
+# \0r(LU
+assert decode(blob) == cpfs            # decode lê `:cpf` do header, sem passar spec
+
+# Os mesmos 4 CPFs: 76 B raw single-col -> 39 B com a nature (-49%). Em tabela,
+# passe por coluna: encode(tabela, nature_per_col={"cpf": SPEC_CPF}); a meta inline
+# da coluna cpf então carrega `:cpf` (ex.: `#TCF.8M!15=nome,!cpf:cpf`).
 ```
 
 Dois detalhes honestos:
@@ -194,9 +208,13 @@ table = {
 text = encode(table)
 assert decode(text) == table  # round-trip lossless
 
-# Naturezas (opt-in): CPF/CNPJ/IP comprimidos sem digito verificador/padding
+# Naturezas (opt-in): CPF/CNPJ/IP comprimidos sem dígito verificador/padding.
+# A nature se auto-descreve no header (#TCF.8 :cpf) quando vence a comparação de
+# tamanho, então o decode não precisa do spec.
 from tcf import SPEC_CPF
-text = encode(["111.111.111-11", "222.222.222-22"], nature=SPEC_CPF)  # placeholders inválidos
+cpfs = ["111.111.111-11", "222.222.222-22", "333.333.333-33"]  # dígitos repetidos: mod-11-válidos, nunca emitidos (fakes seguros)
+text = encode(cpfs, nature=SPEC_CPF)
+assert decode(text) == cpfs
 ```
 
 `encode` dispatcha por tipo (list → single-column, dict → multi-column).
