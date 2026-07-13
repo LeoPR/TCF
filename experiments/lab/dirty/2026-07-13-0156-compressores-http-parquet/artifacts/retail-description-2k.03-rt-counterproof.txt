@@ -1,0 +1,3 @@
+dataset=retail-description-2k
+RT decode(encode(x))==x: True
+raw=55897B  tcf=27581B  tcf_vs_raw=50.66%

@@ -1,0 +1,12 @@
+Cliente 0000,user0000@example.org,Belo Horizonte,Premium,71
+Cliente 0001,user0001@example.org,Rio de Janeiro,Premium,83
+Cliente 0002,user0002@mail.com,Sao Paulo,Enterprise,169
+Cliente 0003,user0003@mail.com,Sao Paulo,Free,336
+Cliente 0004,user0004@acme.com.br,Recife,Free,348
+Cliente 0005,user0005@example.org,Sao Paulo,Enterprise,433
+Cliente 0006,user0006@mail.com,Sao Paulo,Free,287
+Cliente 0007,user0007@mail.com,Belo Horizonte,Basic,154
+Cliente 0008,user0008@acme.com.br,Belo Horizonte,Enterprise,236
+Cliente 0009,user0009@example.org,Recife,Basic,353
+Cliente 0010,user0010@example.org,Rio de Janeiro,Premium,427
+Cliente 0011,user0011@acme.com.br,Belo Horizonte,Basic,412

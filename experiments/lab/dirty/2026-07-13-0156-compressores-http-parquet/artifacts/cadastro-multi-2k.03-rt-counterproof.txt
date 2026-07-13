@@ -1,0 +1,3 @@
+dataset=cadastro-multi-2k
+RT decode(encode(x))==x: True
+raw=111467B  tcf=30788B  tcf_vs_raw=72.38%

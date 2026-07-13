@@ -373,6 +373,13 @@ E quanto **mais** TCF, **menor** o resultado pós-brotli (medido em 4 datasets r
 [`2026-06-16-staged-and-ordering-brotli/`](experiments/lab/dirty/old/refuted/2026-06-16-staged-and-ordering-brotli/)).
 Em payload minúsculo a moldura domina e não há o que fatorar; **a vantagem do TCF aparece com volume**.
 
+O mesmo padrão vale para a família de compressores do **Parquet** (snappy, lz4, zstd), não só os de
+**HTTP** (gzip, brotli, zstd): numa **coluna free-text densa única** o compressor binário sozinho vence
+e pôr o TCF por baixo *atrapalha* (−7% a −41% — a reescrita em referências do TCF perturba o modelo de
+entropia dele); numa **tabela multi-coluna estruturada** o TCF vence sozinho (−72% vs CSV) **e** compõe
+(`tcf+brotli` −30% vs `brotli(raw)`). **A estrutura, não o container, decide.** Medido com contra-prova
+de RT em [`2026-07-13-0156-compressores-http-parquet/`](experiments/lab/dirty/2026-07-13-0156-compressores-http-parquet/result.md).
+
 ## Pra onde vai a 1.0 — consultar quase sem descomprimir
 
 O que o TCF já faz hoje aponta pra meta da **1.0**: usar a **própria estrutura da compressão
@@ -401,14 +408,27 @@ agregadores e agrupamentos como métodos Python. Não implementa joins, NULL SQL
 um planejador geral.
 
 ```python
-v = view(blob)                                # conecta, não descomprime nada
-v.count()                                     # 6        toca: valor
-v.sum("valor")                                # 750      toca: valor
-v.avg("valor")                                # 125
-v.max("valor"), v.min("valor")                # 200, 80
-v.where("cidade", "Sao Paulo").count()        # 4        toca: cidade
-v.where("cidade", "Sao Paulo").sum("valor")   # 470      toca: cidade, valor
+from tcf import encode
+from tcf_lazy import view                        # scripts/ no sys.path
+
+# um cadastro pequeno de vendas — carregado de um CSV, dump de banco, onde for
+table = {
+    "cliente": ["Ana Souza", "Bruno Lima", "Carla Nunes", "Diego Rocha", "Eva Martins", "Ana Souza"],
+    "cidade":  ["Sao Paulo", "Sao Paulo", "Sao Paulo", "Rio de Janeiro", "Sao Paulo", "Rio de Janeiro"],
+    "plano":   ["Premium",   "Premium",   "Basic",     "Premium",        "Basic",     "Premium"],
+    "valor":   ["120",       "100",       "170",       "200",            "80",        "80"],
+}
+
+blob = encode(table)                            # 183 B de texto ASCII — é isto que se armazena/transmite
+v = view(blob)                                  # conecta, não descomprime nada
+v.count()                                       # 6        toca: (só o header)
+v.sum("valor")                                  # 750      toca: valor
+v.avg("valor")                                  # 125
+v.max("valor"), v.min("valor")                  # 200, 80
+v.where("cidade", "Sao Paulo").count()          # 4        toca: cidade
+v.where("cidade", "Sao Paulo").sum("valor")     # 470      toca: cidade, valor
 ```
+*(Saída real do PoC — a tabela acima faz `encode` para um blob de 183 B e volta exata no round-trip.)*
 
 O `toca:` é o ponto (saída real): a soma filtrada materializou **só** `cidade` +
 `valor` — `cliente` e `plano` nunca foram descomprimidos. Um `decode()` (ou um gzip/brotli
@@ -426,6 +446,27 @@ Superfície atual: `count`, `sum`, `min`, `max`, `avg`, `where`, `select`, `grou
 experimentalmente, `group_ranges`/`agg_by` em layouts ordenados. Colunas `@dict`/raw podem ser
 consultadas estruturalmente; uma coluna `tcf` entrelaçada pode exigir materialização completa.
 O contrato detalhado está em [`docs/reference/lazy-view.md`](docs/reference/lazy-view.md).
+
+**Fim a fim: transmita o texto compacto e consulte na chegada.** Como o blob fica pequeno **e**
+continua texto, o produtor faz `encode` uma vez e envia como corpo HTTP normal; o consumidor roda
+`view()` e só descomprime as colunas que a pergunta toca — nada é expandido só pra responder um
+`count()`.
+
+```mermaid
+flowchart LR
+    subgraph Produtor
+        A[tabela<br/>CSV / dump de banco] -->|encode| B["blob<br/>183 B, texto #TCF.8M"]
+    end
+    B -->|"corpo HTTP<br/>(gzip/brotli opcional, por cima)"| C
+    subgraph Consumidor
+        C["view(blob)<br/>conecta, não descomprime nada"] -->|"count()"| D[só o header]
+        C -->|"where(cidade=SP).sum(valor)"| E["materializa só<br/>cidade + valor"]
+        C -->|"decode(blob)"| F[tabela inteira<br/>todas as colunas]
+    end
+```
+
+O mesmo blob serve três níveis de acesso a partir de uma transmissão: um `count()` só de header, um
+agregado filtrado seletivo, ou um `decode()` completo — quem chama escolhe quanto paga.
 
 ## Roadmap 2.0
 

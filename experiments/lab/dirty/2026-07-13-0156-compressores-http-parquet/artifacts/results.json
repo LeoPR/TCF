@@ -1,0 +1,148 @@
+{
+  "results": [
+    {
+      "dataset": "retail-description-2k",
+      "n_rows": 2000,
+      "n_cols": 1,
+      "raw_bytes": 55897,
+      "tcf_bytes": 27581,
+      "tcf_vs_raw_pct": 50.66,
+      "rt_ok": true,
+      "comp": {
+        "gzip": {
+          "on_raw": 12758,
+          "on_tcf": 13725,
+          "tcf_helps_pct": -7.58
+        },
+        "brotli": {
+          "on_raw": 11333,
+          "on_tcf": 12497,
+          "tcf_helps_pct": -10.27
+        },
+        "zstd": {
+          "on_raw": 11628,
+          "on_tcf": 13360,
+          "tcf_helps_pct": -14.9
+        },
+        "snappy": {
+          "on_raw": 20926,
+          "on_tcf": 21084,
+          "tcf_helps_pct": -0.76
+        },
+        "lz4": {
+          "on_raw": 22120,
+          "on_tcf": 20491,
+          "tcf_helps_pct": 7.36
+        }
+      }
+    },
+    {
+      "dataset": "retail-stockcode-2k",
+      "n_rows": 2000,
+      "n_cols": 1,
+      "raw_bytes": 12236,
+      "tcf_bytes": 11437,
+      "tcf_vs_raw_pct": 6.53,
+      "rt_ok": true,
+      "comp": {
+        "gzip": {
+          "on_raw": 4471,
+          "on_tcf": 5118,
+          "tcf_helps_pct": -14.47
+        },
+        "brotli": {
+          "on_raw": 3654,
+          "on_tcf": 4696,
+          "tcf_helps_pct": -28.52
+        },
+        "zstd": {
+          "on_raw": 3784,
+          "on_tcf": 4836,
+          "tcf_helps_pct": -27.8
+        },
+        "snappy": {
+          "on_raw": 7562,
+          "on_tcf": 8466,
+          "tcf_helps_pct": -11.95
+        },
+        "lz4": {
+          "on_raw": 7865,
+          "on_tcf": 8657,
+          "tcf_helps_pct": -10.07
+        }
+      }
+    },
+    {
+      "dataset": "lineitem-comment-2k",
+      "n_rows": 2000,
+      "n_cols": 1,
+      "raw_bytes": 55940,
+      "tcf_bytes": 50598,
+      "tcf_vs_raw_pct": 9.55,
+      "rt_ok": true,
+      "comp": {
+        "gzip": {
+          "on_raw": 13914,
+          "on_tcf": 19194,
+          "tcf_helps_pct": -37.95
+        },
+        "brotli": {
+          "on_raw": 12718,
+          "on_tcf": 17355,
+          "tcf_helps_pct": -36.46
+        },
+        "zstd": {
+          "on_raw": 12923,
+          "on_tcf": 18229,
+          "tcf_helps_pct": -41.06
+        },
+        "snappy": {
+          "on_raw": 22940,
+          "on_tcf": 30217,
+          "tcf_helps_pct": -31.72
+        },
+        "lz4": {
+          "on_raw": 25895,
+          "on_tcf": 30264,
+          "tcf_helps_pct": -16.87
+        }
+      }
+    },
+    {
+      "dataset": "cadastro-multi-2k",
+      "n_rows": 2000,
+      "n_cols": 5,
+      "raw_bytes": 111467,
+      "tcf_bytes": 30788,
+      "tcf_vs_raw_pct": 72.38,
+      "rt_ok": true,
+      "comp": {
+        "gzip": {
+          "on_raw": 18794,
+          "on_tcf": 11791,
+          "tcf_helps_pct": 37.26
+        },
+        "brotli": {
+          "on_raw": 12411,
+          "on_tcf": 8669,
+          "tcf_helps_pct": 30.15
+        },
+        "zstd": {
+          "on_raw": 13807,
+          "on_tcf": 10552,
+          "tcf_helps_pct": 23.57
+        },
+        "snappy": {
+          "on_raw": 34483,
+          "on_tcf": 17314,
+          "tcf_helps_pct": 49.79
+        },
+        "lz4": {
+          "on_raw": 33716,
+          "on_tcf": 19889,
+          "tcf_helps_pct": 41.01
+        }
+      }
+    }
+  ]
+}

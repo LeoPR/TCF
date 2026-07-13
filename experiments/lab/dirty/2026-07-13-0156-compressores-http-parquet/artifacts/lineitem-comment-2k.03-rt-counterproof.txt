@@ -1,0 +1,3 @@
+dataset=lineitem-comment-2k
+RT decode(encode(x))==x: True
+raw=55940B  tcf=50598B  tcf_vs_raw=9.55%

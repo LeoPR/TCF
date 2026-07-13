@@ -368,6 +368,13 @@ And the **more** TCF, the **smaller** the post-brotli result (measured on 4 real
 [`2026-06-16-staged-and-ordering-brotli/`](experiments/lab/dirty/old/refuted/2026-06-16-staged-and-ordering-brotli/)).
 On a tiny payload the framing dominates and there is nothing to factor; **TCF's advantage shows up with volume**.
 
+The same pattern holds across the **Parquet** compressor family (snappy, lz4, zstd), not just the HTTP
+ones (gzip, brotli, zstd): on a **single dense free-text column** the binary compressor alone wins and
+putting TCF underneath *hurts* it (−7% to −41% — TCF's reference rewriting disrupts its entropy model);
+on a **structured multi-column table** TCF wins standalone (−72% vs CSV) **and** composes (`tcf+brotli`
+−30% vs `brotli(raw)`). **Structure, not the container, decides.** Measured with RT counter-proof in
+[`2026-07-13-0156-compressores-http-parquet/`](experiments/lab/dirty/2026-07-13-0156-compressores-http-parquet/result.md).
+
 ## Where 1.0 is headed — querying almost without decompressing
 
 What TCF already does today points to the **1.0** goal: use the **compression's own structure
@@ -396,14 +403,27 @@ aggregates and group operations are exposed as Python methods. It does not imple
 NULL semantics, ordering/limit or a general query planner.
 
 ```python
-v = view(blob)                                # connects, decompresses nothing
-v.count()                                     # 6        touches: valor
-v.sum("valor")                                # 750      touches: valor
-v.avg("valor")                                # 125
-v.max("valor"), v.min("valor")                # 200, 80
-v.where("cidade", "Sao Paulo").count()        # 4        touches: cidade
-v.where("cidade", "Sao Paulo").sum("valor")   # 470      touches: cidade, valor
+from tcf import encode
+from tcf_lazy import view                       # scripts/ on sys.path
+
+# a small sales table — loaded from a CSV, a DB dump, wherever
+table = {
+    "cliente": ["Ana Souza", "Bruno Lima", "Carla Nunes", "Diego Rocha", "Eva Martins", "Ana Souza"],
+    "cidade":  ["Sao Paulo", "Sao Paulo", "Sao Paulo", "Rio de Janeiro", "Sao Paulo", "Rio de Janeiro"],
+    "plano":   ["Premium",   "Premium",   "Basic",     "Premium",        "Basic",     "Premium"],
+    "valor":   ["120",       "100",       "170",       "200",            "80",        "80"],
+}
+
+blob = encode(table)                           # 183 B of ASCII text — this is what you store/transmit
+v = view(blob)                                 # connects, decompresses nothing
+v.count()                                      # 6        touches: (header only)
+v.sum("valor")                                 # 750      touches: valor
+v.avg("valor")                                 # 125
+v.max("valor"), v.min("valor")                 # 200, 80
+v.where("cidade", "Sao Paulo").count()         # 4        touches: cidade
+v.where("cidade", "Sao Paulo").sum("valor")    # 470      touches: cidade, valor
 ```
+*(Real PoC output — the table above `encode`s to a 183 B blob and round-trips exactly.)*
 
 The `touches:` is the point (real PoC output): the filtered sum materialized **only** `cidade` +
 `valor` — `cliente` and `plano` were never decompressed. A `decode()` (or a gzip/brotli on top)
@@ -421,6 +441,27 @@ Current query-like surface: `count`, `sum`, `min`, `max`, `avg`, `where`, `selec
 `group_count`, plus experimental `group_ranges`/`agg_by` for sorted layouts. Dictionary/raw columns
 can be scanned structurally; an interleaved `tcf` column may require full materialization. The detailed
 contracts are in [`docs/reference/lazy-view.md`](docs/reference/lazy-view.md).
+
+**End-to-end: transmit the compact text, query it on arrival.** Because the blob stays small **and**
+stays text, the producer can `encode` once and send it as a normal HTTP body; the consumer runs
+`view()` and only decompresses the columns a given question touches — nothing is expanded just to answer
+`count()`.
+
+```mermaid
+flowchart LR
+    subgraph Producer
+        A[table<br/>CSV / DB dump] -->|encode| B["blob<br/>183 B, #TCF.8M text"]
+    end
+    B -->|"HTTP body<br/>(gzip/brotli optional, on top)"| C
+    subgraph Consumer
+        C["view(blob)<br/>connects, decompresses nothing"] -->|"count()"| D[header only]
+        C -->|"where(cidade=SP).sum(valor)"| E["materializes only<br/>cidade + valor"]
+        C -->|"decode(blob)"| F[full table<br/>all columns]
+    end
+```
+
+The same blob serves three access levels off one transmission: a header-only `count()`, a selective
+filtered aggregate, or a full `decode()` — the caller picks how much to pay.
 
 ## Roadmap 2.0
 

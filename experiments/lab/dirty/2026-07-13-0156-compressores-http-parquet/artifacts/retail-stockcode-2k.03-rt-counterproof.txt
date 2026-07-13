@@ -1,0 +1,3 @@
+dataset=retail-stockcode-2k
+RT decode(encode(x))==x: True
+raw=12236B  tcf=11437B  tcf_vs_raw=6.53%
