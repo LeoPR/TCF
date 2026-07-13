@@ -1,0 +1,41 @@
+fixture SOURCE_JSON: DatasetH->TCF.H->DatasetH RT = True
+bridge json->DatasetH->TCF.H->DatasetH->json (semantic) = True
+matrix absent-field               RT = True
+matrix null-field                 RT = True
+matrix empty-string               RT = True
+matrix string-null-word           RT = True
+matrix int-1                      RT = True
+matrix number-1.0                 RT = True
+matrix string-1                   RT = True
+matrix string-1.0                 RT = True
+matrix bool-true                  RT = True
+matrix bool-false                 RT = True
+matrix empty-object               RT = True
+matrix empty-array                RT = True
+matrix array-in-array             RT = True
+matrix ragged-objects             RT = True
+matrix mixed-array-with-null      RT = True
+matrix newline-in-string          RT = True
+matrix string-spells-structure    RT = True
+matrix scalar-root-string         RT = True
+matrix scalar-root-int            RT = True
+matrix scalar-root-null           RT = True
+matrix unicode-key-and-value      RT = True
+matrix deep-nesting               RT = True
+
+distinctness (must NOT collide after codec):
+  absent-field         != null-field           : dataset=True wire=True
+  null-field           != empty-string         : dataset=True wire=True
+  empty-string         != string-null-word     : dataset=True wire=True
+  int-1                != number-1.0           : dataset=True wire=True
+  int-1                != string-1             : dataset=True wire=True
+  number-1.0           != string-1.0           : dataset=True wire=True
+  empty-object         != empty-array          : dataset=True wire=True
+  bool-true            != string-1             : dataset=True wire=True
+
+fail-loud on malformed (must raise):
+  raised TCFHDecodeError on ''                                       OK
+  raised TCFHDecodeError on '#TCF.8M\nx'                             OK
+  raised TCFHDecodeError on '#TCF.8H\nQ\n'                           OK
+  raised TCFHDecodeError on '#TCF.8H\nS5\nhi'                        OK
+  raised TCFHDecodeError on '#TCF.8H\nO1\nK1\naZ\nextra'             OK

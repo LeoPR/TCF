@@ -1,0 +1,45 @@
+#TCF.8H
+O10
+K2
+idI7
+K6
+activeT
+K8
+nullableZ
+K7
+profileO2
+K4
+nameS3
+AdaK8
+nicknameS0
+K8
+contactsA2
+O3
+K4
+kindS5
+emailK5
+valueS16
+ada@example.testK8
+verifiedT
+O2
+K4
+kindS5
+phoneK5
+valueS17
++55 11 99999-0000K6
+matrixA3
+A2
+I1
+I2
+A0
+A1
+I3
+K5
+notesS13
+line 1
+line 2K12
+empty_objectO0
+K10
+empty_listA0
+K5
+scoreN1.5

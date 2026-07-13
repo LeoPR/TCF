@@ -1,0 +1,231 @@
+### absent-field
+python: {'a': 1}
+tcf.h:
+#TCF.8H
+O1
+K1
+aI1
+
+
+### null-field
+python: {'a': 1, 'b': None}
+tcf.h:
+#TCF.8H
+O2
+K1
+aI1
+K1
+bZ
+
+
+### empty-string
+python: {'a': ''}
+tcf.h:
+#TCF.8H
+O1
+K1
+aS0
+
+
+### string-null-word
+python: {'a': 'null'}
+tcf.h:
+#TCF.8H
+O1
+K1
+aS4
+null
+
+### int-1
+python: {'a': 1}
+tcf.h:
+#TCF.8H
+O1
+K1
+aI1
+
+
+### number-1.0
+python: {'a': 1.0}
+tcf.h:
+#TCF.8H
+O1
+K1
+aN1.0
+
+
+### string-1
+python: {'a': '1'}
+tcf.h:
+#TCF.8H
+O1
+K1
+aS1
+1
+
+### string-1.0
+python: {'a': '1.0'}
+tcf.h:
+#TCF.8H
+O1
+K1
+aS3
+1.0
+
+### bool-true
+python: {'a': True}
+tcf.h:
+#TCF.8H
+O1
+K1
+aT
+
+
+### bool-false
+python: {'a': False}
+tcf.h:
+#TCF.8H
+O1
+K1
+aF
+
+
+### empty-object
+python: {'a': {}}
+tcf.h:
+#TCF.8H
+O1
+K1
+aO0
+
+
+### empty-array
+python: {'a': []}
+tcf.h:
+#TCF.8H
+O1
+K1
+aA0
+
+
+### array-in-array
+python: {'a': [[1, 2], [], [3]]}
+tcf.h:
+#TCF.8H
+O1
+K1
+aA3
+A2
+I1
+I2
+A0
+A1
+I3
+
+
+### ragged-objects
+python: [{'k': 'email', 'v': 'x', 'verified': True}, {'k': 'phone', 'v': 'y'}]
+tcf.h:
+#TCF.8H
+A2
+O3
+K1
+kS5
+emailK1
+vS1
+xK8
+verifiedT
+O2
+K1
+kS5
+phoneK1
+vS1
+y
+
+### mixed-array-with-null
+python: [1, '1', None, True]
+tcf.h:
+#TCF.8H
+A4
+I1
+S1
+1Z
+T
+
+
+### newline-in-string
+python: {'note': 'line 1\nline 2'}
+tcf.h:
+#TCF.8H
+O1
+K4
+noteS13
+line 1
+line 2
+
+### string-spells-structure
+python: {'a': 'O3', 'b': '{x:1}', 'c': 'S5\nZ'}
+tcf.h:
+#TCF.8H
+O3
+K1
+aS2
+O3K1
+bS5
+{x:1}K1
+cS4
+S5
+Z
+
+### scalar-root-string
+python: 'just a string'
+tcf.h:
+#TCF.8H
+S13
+just a string
+
+### scalar-root-int
+python: 42
+tcf.h:
+#TCF.8H
+I42
+
+
+### scalar-root-null
+python: None
+tcf.h:
+#TCF.8H
+Z
+
+
+### unicode-key-and-value
+python: {'naïve': 'José 日本語 \xa0'}
+tcf.h:
+#TCF.8H
+O1
+K6
+naïveS18
+José 日本語  
+
+### deep-nesting
+python: {'a': {'b': {'c': {'d': [{'e': [1, [2, [3]]]}]}}}}
+tcf.h:
+#TCF.8H
+O1
+K1
+aO1
+K1
+bO1
+K1
+cO1
+K1
+dA1
+O1
+K1
+eA2
+I1
+A2
+I2
+A1
+I3
+
