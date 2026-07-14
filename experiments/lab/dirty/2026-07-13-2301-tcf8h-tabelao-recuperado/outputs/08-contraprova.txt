@@ -1,0 +1,16 @@
+CONTRA-PROVA — TCF.8H tabelão (denormaliza + RLE de pai + re-aninha)
+
+== 01-telefones (01-pessoas-telefones.json) ==
+árvore: [('scalar', 'nome'), ('scalar', 'cidade'), ('arr_scalars', 'telefones')]
+tabelão: 8 linhas x 3 colunas
+decode(encode)==original: True
+outputs/05-telefones.roundtrip.json BYTE-IDÊNTICO a intermediates/03-telefones-canonico.json: True
+wire outputs/01-telefones.tcf: 263 B  (JSON original 452 B)
+
+== 02-pedidos (02-pessoas-pedidos.json) ==
+árvore: [('scalar', 'cliente'), ('scalar', 'plano'), ('arr_objects', 'pedidos', ['item', 'qtd'])]
+tabelão: 6 linhas x 4 colunas
+decode(encode)==original: True
+outputs/06-pedidos.roundtrip.json BYTE-IDÊNTICO a intermediates/04-pedidos-canonico.json: True
+wire outputs/02-pedidos.tcf: 167 B  (JSON original 456 B)
+

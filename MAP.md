@@ -149,7 +149,12 @@ Faxina 2026-06-21: 17 labs movidos pra `old/welded/` ou `old/refuted/`
 - **`experiments/lab/dirty/2026-07-13-1835-dataseth-special-scalars/`** — **stage 2 (P1+P2)**:
   escalares especiais `NaN`/`±Inf`/`-0.0` — oráculo `semantic_key` + matriz 21×2 + 2 origens.
   **A (folha tipada) confirmada** (nunca perde bytes, wire inspecionável); C (string escapada)
-  refutada-parcial (imposto de escape global). Ver `result.md`.
+  refutada-parcial (imposto de escape global). Ver `result.md`. (1955 def-levels + 2019 formatos
+  lado-a-lado seguem esta trilha de TIPOS — camada SEGUINTE, ver o lab da base abaixo.)
+- **`experiments/lab/dirty/2026-07-13-2301-tcf8h-tabelao-recuperado/`** — **A BASE (volta à prancheta)**:
+  hierarquia = tabelão denormalizado (pai repete, RLE `*N|pai` = multiplicidade) + header de colchetes
+  `#TCF.8H nome:sz,cidade:sz,telefones[`; motor multi-col REAL, RT-exato (263 B vs 452 JSON, + array de
+  objetos). Modelo do lab 1509 + contrato 1830/EXP-015/ADR-0031. **Tipos/nulos = camada sobre esta base.**
 - **Sessao 2026-07-05..08 (specs/tipos/bN/hierarquico — research-track)**: indexados nos mapas
   `experiments/lab/dirty/notas/estudo-tcf-hierarquico-mapa.md` (P1-P9 + EXP-015 CSV↔JSON `#TCF.8H`) +
   `tipos-como-specs.md` (reframe + labs 2026-07-06/07 do bN) + `2026-07-08-1938-bn-gate-realworld-5fontes/`

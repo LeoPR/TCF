@@ -1,0 +1,20 @@
+### coluna 'nome'  (tcf.encode do tabelão)
+*2|Ana Souza
+Bruno Lima
+*3|Carla Nunes
+*2|Diego Rocha
+
+### coluna 'cidade'  (tcf.encode do tabelão)
+*3|Sao Paulo
+*3|Curitiba
+*2|Rio de Janeiro
+
+### coluna 'telefones'  (tcf.encode do tabelão)
++\55 *\11 *\99999*-\000*\1
+1~2\3333*4,5
+6,3,4\2
+1\41 *\98888*-\000*\3
+1~9\3232*11,12
+13,14,11\4
+1\21 *\97777*-\0005
+1,16\2222*18

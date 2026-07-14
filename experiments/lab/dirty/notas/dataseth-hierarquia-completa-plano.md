@@ -205,6 +205,19 @@ hierarquia** (FK = mesmo alfabeto sem cuts); (2) HOJE é menor porque **descarta
 uma a uma); (3) RH < JSON original nos dois docs; (4) A×RH = regimes, não disputa. **SEM veredito** —
 decisão de grafia/alfabeto é do owner (P5), com os arquivos na mão.
 
+## Update 2026-07-13 — VOLTA À BASE: estrutura do tabelão recuperada (owner: "estávamos nos perdendo")
+
+O owner puxou de volta ao insight fundador: hierarquia = **tabela combinatória denormalizada**,
+idêntica à multi-col; pai repete por filho; RLE `*N|pai` colapsa e **o run = a multiplicidade**; header
+de colchetes só guarda a árvore. Lab
+[`2026-07-13-2301-tcf8h-tabelao-recuperado/`](../2026-07-13-2301-tcf8h-tabelao-recuperado/) reproduz isso
+com o motor multi-col REAL (`tcf.encode`): `#TCF.8H nome:54,cidade:43,telefones[` + corpo com `*2|Ana`
+(2 tel), `*3|Carla` (3 tel); RT-exato (263 B vs 452 B JSON) + array-de-objetos (167 B, com `^1` cross-ref
+e seq-RLE do motor). É o dual do EXP-015 (que guarda o pai uma vez, ragged): aqui o pai repete e o RLE
+conta — "exatamente a mesma estrutura". **Reordenação de prioridade**: os labs de nulos/NaN/def-levels/
+tipos (1835/1955/2019) são a camada SEGUINTE, sobre esta base — não antes dela. Próximo sobre a base:
+`{}` 1:1 aninhado, fronteira pai/filho carregada (ambiguidade FD do 1509), multi-array; SÓ ENTÃO tipos.
+
 ## Próxima leitura e próxima ação
 
 Leia este plano junto com:

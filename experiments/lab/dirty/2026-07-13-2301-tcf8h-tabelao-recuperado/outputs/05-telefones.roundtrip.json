@@ -1,0 +1,34 @@
+[
+  {
+    "nome": "Ana Souza",
+    "cidade": "Sao Paulo",
+    "telefones": [
+      "+55 11 99999-0001",
+      "+55 11 3333-0001"
+    ]
+  },
+  {
+    "nome": "Bruno Lima",
+    "cidade": "Sao Paulo",
+    "telefones": [
+      "+55 11 99999-0002"
+    ]
+  },
+  {
+    "nome": "Carla Nunes",
+    "cidade": "Curitiba",
+    "telefones": [
+      "+55 41 98888-0003",
+      "+55 41 3232-0003",
+      "+55 41 3232-0004"
+    ]
+  },
+  {
+    "nome": "Diego Rocha",
+    "cidade": "Rio de Janeiro",
+    "telefones": [
+      "+55 21 97777-0005",
+      "+55 21 2222-0005"
+    ]
+  }
+]

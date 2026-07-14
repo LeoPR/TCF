@@ -1,0 +1,9 @@
+### 01-pessoas-telefones
+base (todos sizes, closes explícitos)   meta='nome:54,cidade:43,telefones[]:129'  total=268 B
++última-folha-sem-size                   meta='nome:54,cidade:43,telefones[]'  total=264 B
++omit-closes (CONSAGRADO, default)       meta='nome:54,cidade:43,telefones['  total=263 B
+
+### 02-pessoas-pedidos
+base (todos sizes, closes explícitos)   meta='cliente:39,plano:23,pedidos[item:40,qtd:17]'  total=171 B
++última-folha-sem-size                   meta='cliente:39,plano:23,pedidos[item:40,qtd]'  total=168 B
++omit-closes (CONSAGRADO, default)       meta='cliente:39,plano:23,pedidos[item:40,qtd'  total=167 B

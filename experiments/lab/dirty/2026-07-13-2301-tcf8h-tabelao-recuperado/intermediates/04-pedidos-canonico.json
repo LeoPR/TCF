@@ -1,0 +1,44 @@
+[
+  {
+    "cliente": "Ana Souza",
+    "plano": "Premium",
+    "pedidos": [
+      {
+        "item": "Teclado",
+        "qtd": "1"
+      },
+      {
+        "item": "Mouse",
+        "qtd": "2"
+      }
+    ]
+  },
+  {
+    "cliente": "Bruno Lima",
+    "plano": "Basic",
+    "pedidos": [
+      {
+        "item": "Monitor",
+        "qtd": "1"
+      }
+    ]
+  },
+  {
+    "cliente": "Carla Nunes",
+    "plano": "Premium",
+    "pedidos": [
+      {
+        "item": "Teclado",
+        "qtd": "1"
+      },
+      {
+        "item": "Headset",
+        "qtd": "1"
+      },
+      {
+        "item": "Webcam",
+        "qtd": "3"
+      }
+    ]
+  }
+]

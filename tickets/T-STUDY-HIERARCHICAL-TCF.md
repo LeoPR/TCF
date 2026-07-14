@@ -24,6 +24,7 @@ related:
   - experiments/lab/dirty/2026-07-13-1921-dataseth-typed-header-domain/
   - experiments/lab/dirty/2026-07-13-1955-dataseth-regular-def-levels/
   - experiments/lab/dirty/2026-07-13-2019-especiais-formatos-lado-a-lado/
+  - experiments/lab/dirty/2026-07-13-2301-tcf8h-tabelao-recuperado/
   - experiments/lab/dirty/notas/dataseth-hierarquia-completa-plano.md
   - datasets/coverage-matrix.md
   - experiments/lab/dirty/notas/dirty-lab-convencoes.md
