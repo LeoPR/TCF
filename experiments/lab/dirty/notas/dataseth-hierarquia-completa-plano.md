@@ -218,6 +218,20 @@ conta — "exatamente a mesma estrutura". **Reordenação de prioridade**: os la
 tipos (1835/1955/2019) são a camada SEGUINTE, sobre esta base — não antes dela. Próximo sobre a base:
 `{}` 1:1 aninhado, fronteira pai/filho carregada (ambiguidade FD do 1509), multi-array; SÓ ENTÃO tipos.
 
+## Update 2026-07-13 — hierarquia FORTIFICADA + cardinalidade (sobre a base)
+
+Owner: firmar a hierarquia primeiro (gramática do header + uso) + recuperar 1:1/1:N/N:1/N:N; tipos
+especiais são ortogonais e vêm depois. Lab
+[`2026-07-13-2325-hierarquia-cardinalidade/`](../2026-07-13-2325-hierarquia-cardinalidade/): header
+recursivo firme `{}` 1:1 + `[]` 1:N aninhados (chaveado por CAMINHO — corrige o bug de nome-repetido do
+1830), RT-exato (endereco⊃geo + telefones = 392 B vs 735 JSON; pedidos⊃itens aninhado = 175 B). **Estudo
+de cardinalidade** (peça 7): 1:1→`{}` e 1:N→`[]` ANINHAM; N:1→coluna @dict low-card (não é ramo);
+N:N→ponte (fail-loud, 2 arrays/nível = produto cartesiano). Eixo ortogonal (peça 8):
+cardinalidade⊥compressibilidade (multiplicidade RLE↔fk vs largura-de-valor @dict). **Segurança**: encode
+auto-verifica e recusa (`AmbiguityError`) o que a re-nestação por chave contígua não reverteria (limite
+FD/chave — precisa repetition-level, peça 9) — nunca corromper calado. Falta p/ firmar: repetition-level,
+N:N/link-posicional, gate real-world. Tipos/nulos = camada SEGUINTE, não bloqueiam.
+
 ## Próxima leitura e próxima ação
 
 Leia este plano junto com:

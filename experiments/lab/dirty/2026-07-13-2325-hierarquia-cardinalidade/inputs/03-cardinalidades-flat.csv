@@ -1,0 +1,14 @@
+caso,A,B
+1x1,cpf-111,Ana
+1x1,cpf-222,Bruno
+1x1,cpf-333,Carla
+1xN,Ana,tel-1
+1xN,Ana,tel-2
+1xN,Bruno,tel-3
+Nx1,Teclado,eletronico
+Nx1,Mouse,eletronico
+Nx1,Arroz,alimento
+Nx1,Feijao,alimento
+NxN,Ana,Matematica
+NxN,Ana,Fisica
+NxN,Bruno,Matematica

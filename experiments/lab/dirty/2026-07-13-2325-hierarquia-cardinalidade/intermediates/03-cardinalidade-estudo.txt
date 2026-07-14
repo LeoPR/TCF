@@ -1,0 +1,19 @@
+ESTUDO DE DIMENSIONALIDADE — cardinalidade -> mecânica -> hierarquia
+(teste de contagem de distintos = descoberta de FD; peça 7)
+
+par               dA  dB  dAB  classe aninha?          mecânica TCF
+--------------------------------------------------------------------------------------------
+1x1 (A-B)          3   3    3  1:1    `{}` objeto aninhado nativo / dict bijetivo
+1xN (A-B)          2   3    3  1:N    `[]` array       hierarquia = dual do RLE `*N|pai`
+Nx1 (A-B)          4   2    4  N:1    coluna compartilhada @dict low-card (o TCF já emite)
+NxN (A-B)          2   2    3  N:N    —                tabela-ponte (2 dicts + pares)
+
+Mapa (o que UNE as peças do grupo):
+  1:1  ambas FDs         -> `{}` objeto aninhado          (ANINHA na hierarquia)
+  1:N  só B->A (A repete)-> `[]` array = dual do RLE `*N|`(ANINHA na hierarquia)
+  N:1  só A->B (B repete)-> coluna @dict low-card          (NÃO é ramo — é coluna)
+  N:N  nenhuma FD        -> tabela-ponte (2 dicts + pares) (NÃO aninha)
+
+Refinamentos: CHAVE (d=n) != GRUPO (d<<n) — 1:1 de 2 chaves é dict bijetivo, não
+árvore. Cardinalidade ⊥ compressibilidade: multiplicidade (RLE↔fk) é separada de
+largura-de-valor (@dict encolhe). O ganho de bytes do N:1 é a LARGURA, não o ×N.

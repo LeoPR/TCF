@@ -155,6 +155,10 @@ Faxina 2026-06-21: 17 labs movidos pra `old/welded/` ou `old/refuted/`
   hierarquia = tabelão denormalizado (pai repete, RLE `*N|pai` = multiplicidade) + header de colchetes
   `#TCF.8H nome:sz,cidade:sz,telefones[`; motor multi-col REAL, RT-exato (263 B vs 452 JSON, + array de
   objetos). Modelo do lab 1509 + contrato 1830/EXP-015/ADR-0031. **Tipos/nulos = camada sobre esta base.**
+- **`experiments/lab/dirty/2026-07-13-2325-hierarquia-cardinalidade/`** — **FORTIFICA a base**: header
+  recursivo firme `{}` 1:1 + `[]` 1:N (aninhados, chaveado por CAMINHO), fail-loud (N:N + ambiguidade
+  FD/chave — encode auto-verifica, nunca corrompe calado). + **estudo de cardinalidade** (1:1→`{}`,
+  1:N→`[]` ANINHAM; N:1→coluna @dict; N:N→ponte); cardinalidade⊥compressibilidade. Tipos/nulos ortogonais.
 - **Sessao 2026-07-05..08 (specs/tipos/bN/hierarquico — research-track)**: indexados nos mapas
   `experiments/lab/dirty/notas/estudo-tcf-hierarquico-mapa.md` (P1-P9 + EXP-015 CSV↔JSON `#TCF.8H`) +
   `tipos-como-specs.md` (reframe + labs 2026-07-06/07 do bN) + `2026-07-08-1938-bn-gate-realworld-5fontes/`

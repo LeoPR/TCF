@@ -1,0 +1,21 @@
+N:1 NA HIERARQUIA — coluna compartilhada = @dict/RLE (não vira ramo)
+(nº de registros = 3; distintos < isso = N:1 real; == isso = pai do 1:N)
+
+coluna 'nome': 6 linhas, 3 distintos -> pai do 1:N (multiplicidade)
+  tcf.encode: *2|Ana Souza | Bruno Lima | *3|Carla Nunes
+
+coluna 'plano': 6 linhas, 2 distintos -> N:1 compartilhado (dict)
+  tcf.encode: *3|Premium | *3|Basic
+
+coluna 'endereco.rua': 6 linhas, 3 distintos -> pai do 1:N (multiplicidade)
+  tcf.encode: *2|Rua *das Acacias, \100 | Av. Paulista, \1500 | *3|1XV, \90
+
+coluna 'endereco.cidade': 6 linhas, 2 distintos -> N:1 compartilhado (dict)
+  tcf.encode: *3|Sao Paulo | *3|Curitiba
+
+coluna 'endereco.geo.lat': 6 linhas, 3 distintos -> pai do 1:N (multiplicidade)
+  tcf.encode: *2|-\23.\5*\505 | 1\614 | *3|-\25.\4284
+
+coluna 'endereco.geo.lon': 6 linhas, 3 distintos -> pai do 1:N (multiplicidade)
+  tcf.encode: *2|-\46.\6*\333 | 1\559 | *3|-\49.\2733
+

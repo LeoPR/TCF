@@ -1,0 +1,12 @@
+FORTIFICAÇÃO — hierarquia recursiva {} 1:1 + [] 1:N + estudo de cardinalidade
+
+== 01-endereco (01-clientes-endereco-telefones.json) ==
+  header: #TCF.8H nome:39,plano:20,endereco{rua:58,cidade:25,geo{lat:36,lon:36}},telefones[
+  tabelão 6x7  |  RT decode==original: True  |  roundtrip .json == canônico: True
+  wire outputs/01-endereco.tcf: 392 B (JSON 735 B)
+
+== 02-pedidos (02-clientes-pedidos-itens.json) ==
+  header: #TCF.8H cliente:27,pedidos[data:38,itens[produto:37,qtd
+  tabelão 5x4  |  RT decode==original: True  |  roundtrip .json == canônico: True
+  wire outputs/02-pedidos.tcf: 175 B (JSON 469 B)
+

@@ -1,0 +1,12 @@
+[
+  { "cliente": "Ana Souza", "pedidos": [
+      { "data": "2026-01-05", "itens": [
+          { "produto": "Teclado", "qtd": "1" },
+          { "produto": "Mouse",   "qtd": "2" } ] },
+      { "data": "2026-02-11", "itens": [
+          { "produto": "Monitor", "qtd": "1" } ] } ] },
+  { "cliente": "Bruno Lima", "pedidos": [
+      { "data": "2026-03-02", "itens": [
+          { "produto": "Webcam",  "qtd": "3" },
+          { "produto": "Headset", "qtd": "1" } ] } ] }
+]

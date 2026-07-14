@@ -1,0 +1,17 @@
+N:N NA HIERARQUIA — não vira árvore simples (fail-loud) + o caminho
+
+encode_h({aluno, cursos[], clubes[]}) -> NNError:
+  raiz: 2 arrays no mesmo nível (['cursos', 'clubes']) = N:N (produto cartesiano semanticamente errado); use tabela-ponte / dois 1:N.
+
+Por quê: dois arrays irmãos = produto cartesiano (cursos × clubes) que INVENTA
+pares inexistentes — semanticamente errado. Caminhos válidos (não neste protótipo):
+  (a) tabela-ponte/junction: dict(aluno) + dict(curso) + lista de pares (aluno,curso);
+  (b) dois 1:N separados (aluno->cursos[] E aluno->clubes[]) em blocos/tabelas distintos.
+N:N é o caso que precisa de link posicional (a peça 9 do grupo), fora do escopo aqui.
+
+--- LIMITE FD/CHAVE (fail-loud, nunca corromper calado) ---
+Instâncias irmãs de MESMA chave abrigando array aninhado se fundiriam na re-nestação
+por chave contígua. encode SE AUTO-VERIFICA e recusa (não produz blob que não reverte):
+  encode_h({2 pedidos data='2026-X', cada um com itens[]}) -> AmbiguityError:
+    este documento não reverte com a re-nestação por chave contígua: há instâncias irmãs de mesma chave abrigando array aninhado (fusão). Precisa de fronteira/repetition-level (peça 9) — encode recusa em vez de corromper.
+  (datas DISTINTAS revertem normal; o caminho geral = fronteira/repetition-level, peça 9.)
