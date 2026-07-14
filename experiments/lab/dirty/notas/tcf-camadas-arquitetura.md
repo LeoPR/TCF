@@ -58,6 +58,25 @@ o que falta desacoplar**: hoje as deduções (count, omit-closes, escolha tabel�
 estão embutidas no encode; deveriam ser um **passe de otimização** sobre um L2 "cru" — assim dá
 pra ligar/desligar, medir cada uma, e paralelizar L1 por coluna independente de L2/L3.
 
+## L3 medido — multiplicidade EXPLÍCITA vs DEDUZIDA (o "cobertor curto", 2026-07-14)
+
+Owner: no L3 não há troca perfeita; mesmo a hierarquia dizendo que o pai não expande, o NÚMERO
+pode ser necessário — EXPLÍCITO (`#count`/`*N|`) dá independência/paralelismo; DEDUZIDO (do run do
+pai) economiza bytes mas as colunas se conversam. Medido em
+[`2026-07-14-2043-l3-multiplicidade-independencia`](../2026-07-14-2043-l3-multiplicidade-independencia/):
+
+- **Crossover por largura**: estreito (K=1-2 campos-pai) → deduzida ganha bytes ("independência
+  custa"); **largo (K≥4, o comum em transmissão) → EXPLÍCITA é PARETO-melhor** (menos bytes E
+  independência — a deduzida paga `*N|` em cada coluna-pai; a explícita, 1 count constante de ~20 B).
+- **Dependência**: explícita = 1 coluna de controle minúscula (count) → dado independente
+  (paralelo) + **estrutura legível SEM materializar o dado (lazy, como o `view()`)**. Deduzida =
+  estrutura entrelaçada no dado do pai → filho depende do pai → menos assíncrono.
+- **Mitigação**: o count é minúsculo/constante → independência quase-grátis no caso comum. **O
+  default do weld (`#count` explícito) está certo.** O trade vira PARÂMETRO só no nicho estreito.
+- **H-L3-MULTIPLICITY-01** (otimização, DEIXAR PRO FIM): knob `multiplicity='explicit'|'deduced'`
+  OU `min()` por documento (como o FLOOR). `aberta`, confiança: Média. Não implementar agora
+  (owner: soldar em etapas, otimizações no final).
+
 ## Corolário — multi-tabela como SUPER-hierarquia (hipótese do owner, REGISTRAR, não fazer ainda)
 
 **H-HIER-MULTITABELA-01**: o header pode aninhar MAIS DE UM TCF — não só hierarquia/multi-col, mas

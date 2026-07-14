@@ -1,0 +1,34 @@
+L3 — multiplicidade EXPLÍCITA (independência) vs DEDUZIDA (menos bytes, conversa)
+
+Bytes por LARGURA do registro (nº de campos-pai), 6 registros:
+
+ K pais | EXPLÍCITA(#count) | DEDUZIDA(tabelão) |      Δ |  só o count | vence
+----------------------------------------------------------------------------------
+      1 |               192 |               163 |    +29 |          20 | deduzida (só -bytes)
+      2 |               239 |               223 |    +16 |          20 | deduzida (só -bytes)
+      4 |               333 |               343 |    -10 |          20 | EXPLÍCITA (Pareto: -bytes E +independência)
+      8 |               521 |               583 |    -62 |          20 | EXPLÍCITA (Pareto: -bytes E +independência)
+     16 |               909 |              1069 |   -160 |          20 | EXPLÍCITA (Pareto: -bytes E +independência)
+
+CARACTERIZAÇÃO DA DEPENDÊNCIA (o que a MONTAGEM precisa ler):
+- EXPLÍCITA: lê 1 coluna de controle DEDICADA e minúscula (#count). As colunas de
+  DADO (pai, filhos) decodificam INDEPENDENTES → paralelismo total; e dá pra ler a
+  ESTRUTURA (quantos filhos por registro) SEM materializar o dado (lazy-friendly,
+  como o view()).
+- DEDUZIDA: a montagem tem que DECODIFICAR a coluna de DADO do pai e analisar seus
+  runs pra achar as fronteiras → a estrutura fica ENTRELAÇADA com o dado do pai; o
+  bloco-filho DEPENDE do bloco-pai → menos assíncrono; não dá pra ler estrutura sem dado.
+
+MITIGAÇÃO / VEREDITO:
+- O 'imposto de independência' (a coluna de count) é MINÚSCULO e seq-RLE'd (col. 'só o
+  count' acima) — não é o gargalo.
+- A hipótese 'independência custa bytes' é VERDADE só p/ registro ESTREITO (K=1): aí a
+  deduzida economiza o count. Para registro LARGO (K>=2, o comum em transmissão —
+  cadastro é largo), a EXPLÍCITA é PARETO-melhor: MENOS bytes E MAIS independência
+  (a deduzida paga o `*N|` repetido em CADA coluna-pai; a explícita paga 1 count só).
+- Logo o default do weld (#count EXPLÍCITO) é o certo: independência quase-grátis no
+  caso comum. O 'cobertor curto' vira um PARÂMETRO só p/ o nicho estreito+min-bytes.
+
+OTIMIZAÇÃO (deixar pro fim, como o owner pediu): expor um knob de L3
+  `multiplicity='explicit'|'deduced'` (independência vs -bytes no nicho estreito).
+  min() por documento também é candidato (como o FLOOR). NÃO implementar agora.

@@ -169,6 +169,9 @@ Faxina 2026-06-21: 17 labs movidos pra `old/welded/` ou `old/refuted/`
   codec por SHREDDING (blocos + counts) faz RT-exato nos clássicos de transmissão (cadastro c/ 2 listas
   irmãs, pedido aninhado, telemetria). Fecha o que o tabelão não fechava (múltiplas listas, ambiguidade,
   array vazio). Dois fluxos: funcional + transmissão simulada (encode→gzip/brotli→decode). Perf real = `.9`.
+- **`experiments/lab/dirty/2026-07-14-2043-l3-multiplicidade-independencia/`** — **L3 medido**: multiplicidade
+  EXPLÍCITA (`#count`, independência/lazy) vs DEDUZIDA (−bytes, colunas conversam). Crossover: estreito→deduzida,
+  **largo (comum)→explícita PARETO** (−bytes E independência). Default do weld (explícito) confirmado; knob = `.9`.
 - **Sessao 2026-07-05..08 (specs/tipos/bN/hierarquico — research-track)**: indexados nos mapas
   `experiments/lab/dirty/notas/estudo-tcf-hierarquico-mapa.md` (P1-P9 + EXP-015 CSV↔JSON `#TCF.8H`) +
   `tipos-como-specs.md` (reframe + labs 2026-07-06/07 do bN) + `2026-07-08-1938-bn-gate-realworld-5fontes/`
