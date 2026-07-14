@@ -22,7 +22,7 @@
   ```
 
 - **EXTENSÃO = o formato do conteúdo, SEMPRE**: JSON→`.json`, tabular→`.csv`, wire TCF→**`.tcf`**
-  (labs têm exceção no `.gitignore`: `!experiments/lab/**/*.tcf` — evidência de lab é versionada
+  (labs têm exceção no `.gitignore`: `!experiments/lab/dirty/**/{inputs,outputs}/**/*.tcf` — evidência de lab é versionada
   com a extensão real; o `.tcf.txt` antigo era workaround, não usar em lab novo). `.txt` só para
   prosa/debug/contraprova.
 - **Roundtrip é ARQUIVO diffável na extensão da entrada**: `outputs/NN-nome.roundtrip.json` deve ser

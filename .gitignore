@@ -47,16 +47,19 @@ experiments/eval_plan.json
 Thumbs.db
 .DS_Store
 output*
-# EXCECAO (2026-07-13, convencao de labs): pastas outputs/ dos labs sao EVIDENCIA versionada
-!experiments/lab/**/outputs/
-!experiments/lab/**/outputs/**
+# EXCECAO (2026-07-13, convencao de labs): pastas outputs/ dos labs DIRTY (novos) sao
+# EVIDENCIA versionada. Escopo so' em dirty/ p/ nao expor outputs regeneraveis de labs
+# antigos (clean/EXP-*, dirty/old/, baseline) que precedem a convencao.
+!experiments/lab/dirty/**/outputs/
+!experiments/lab/dirty/**/outputs/**
+# re-ignora os PRE-convencao (regeneraveis, ficam como estavam):
+experiments/lab/dirty/old/**/outputs/
+experiments/lab/dirty/2026-05-27-baseline-consolidado/outputs/
 restored*/
 *.tcf
-# EXCECAO (2026-07-13, convencao de labs): wire TCF de lab (inputs/outputs) com extensao real
-!experiments/lab/**/inputs/**/*.tcf
-!experiments/lab/**/outputs/**/*.tcf
-# labs HISTORICOS (old/) ficam como estavam — imutaveis, nao versionar retroativo
-experiments/lab/dirty/old/**/outputs/
+# EXCECAO (2026-07-13, convencao de labs): wire TCF de lab dirty (inputs/outputs) com extensao real
+!experiments/lab/dirty/**/inputs/**/*.tcf
+!experiments/lab/dirty/**/outputs/**/*.tcf
 
 # Archive (legacy materials kept locally for history, not for public repo)
 archive/legacy_results/
