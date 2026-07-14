@@ -82,6 +82,18 @@ segundo elo com um codec externo, não promover o POC diretamente para `src/tcf`
   (B1/B2 fix provado, B3/B4 deferido). Checklist: [tcf8h-header-checklist](tcf8h-header-checklist.md).
   Próximo: Ciclo 2 (fluxo S1/S2/S3) · Ciclo 3 (inferências/implicitude) · Ciclo N (spec + welding gated).
 
+## Inventário de hipóteses — exaustão (2026-07-14)
+
+[hierarquia-inventario-hipoteses.md](hierarquia-inventario-hipoteses.md) consolida a EXAUSTÃO da questão
+(workflow: recupera as peças + 30 hipóteses + crítico). Achados-chave: (1) **"TCFs concatenados" = já
+provado** (P2/P3) pra classe coberta (raiz única, contenção, objeto⊃objeto, array-folha) — inclui
+heterogêneo pais/filhos/netos de estruturas diferentes SOB uma raiz, zero mudança de gramática, child-side
+append-only; (2) **taxonomia settled**: contenção → presença(def-level) → repetição(rep-level, o único
+primitivo faltante = um NÚMERO posicional) → normalização(N:N/snowflake = FK, não contenção); (3)
+assimetria de SEGURANÇA: envelope falha-loud fora da classe, tabelão-integrado corrompe calado em
+array-em-array (mitigado no lab 2325 pelo self-verify); (4) próximo = **corrida de 3 vias real-world**
+(envelope vs tabelão vs union-rectangle) — precisa de 1 payload de API real.
+
 ## Convenção do grupo
 
 - Cada peça = 1 lab dirty com nome **`YYYY-MM-DD-HHMM-descrição`** (ordenável) + `artifacts/NN-*`
