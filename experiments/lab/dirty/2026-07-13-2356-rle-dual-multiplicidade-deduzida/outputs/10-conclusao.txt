@@ -1,0 +1,27 @@
+DUAL DO RLE — multiplicidade repetida (tabelão A) vs deduzida/1x (nível-aware B)
+
+== 01-estreito-nome-telefones.json ==
+  3 registros, 1 campos-pai, array 'telefones' (scalars)
+  Modelo A (tabelão, RLE por coluna-pai): 135 B
+  Modelo B (nível-aware, counts 1x):      140 B   (RT: True)
+  => B gasta 5 B (a multiplicidade sai de 1 colunas-pai e vira 1 counts)
+
+== 02-largo-cadastro-completo.json ==
+  3 registros, 11 campos-pai, array 'telefones' (scalars)
+  Modelo A (tabelão, RLE por coluna-pai): 466 B
+  Modelo B (nível-aware, counts 1x):      423 B   (RT: True)
+  => B economiza 43 B (a multiplicidade sai de 11 colunas-pai e vira 1 counts)
+
+CONCLUSÃO (recupera peça 9 / 2328 + H-CARD-06 + teoria §1-4):
+- A multiplicidade [n_i] é INFORMAÇÃO e mora em UM lugar; RLE-por-coluna (A),
+  counts (B) e fk são DUAIS, conservam ×N (~log N). O schema/header compra
+  RECONSTRUÇÃO, não bytes de multiplicidade (teoria §3-4).
+- No TABELÃO (A) a mesma multiplicidade [n_i] repete no RLE de CADA coluna-pai —
+  redundante entre irmãs. Quanto mais campos-pai (registro largo), pior.
+- NÍVEL-AWARE (B) carrega [n_i] UMA vez (counts) e mantém as colunas-pai na
+  granularidade da pessoa (1x). É a forma MÍNIMA da peça 9 ('custo ZERO' p/ doc
+  único, deduzido do filho; multi-registro paga o counts UMA vez).
+- O 'sincronismo' que o owner citou = o canal counts/rep-level que liga as
+  colunas de níveis diferentes. É H-CARD-06 (Order Dependency = rep/def do Dremel).
+- Reconciliação do protótipo: 2301/2325 = Modelo A (dual explícito, mais simples,
+  RT-exato). Para FIRMAR o mínimo, migrar p/ B (counts uma vez) — decisão do owner.

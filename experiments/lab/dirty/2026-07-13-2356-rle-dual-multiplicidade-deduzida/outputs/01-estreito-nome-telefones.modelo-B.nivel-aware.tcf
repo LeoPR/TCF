@@ -1,0 +1,15 @@
+#TCF.8H(B) counts + colunas por nivel
+--- nome ---
+Ana Souza
+Bruno Lima
+Carla Nunes
+--- telefones ---
++\55 *\11 *\99999*-\000*\1
+1~2\3333*4,5
+6,3,4\2
+1\41 *\98888*-\000*\3
+1~9\3232*11,12
+13,14,11\4
+--- #counts ---
+*2-1|\2
+\3

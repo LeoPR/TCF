@@ -1,0 +1,51 @@
+#TCF.8H(B) counts + colunas por nivel
+--- nome ---
+Ana Souza
+Bruno Lima
+Carla Nunes
+--- cpf ---
+\111.\111.\111-\11
+\222.\222.\222-\22
+\333.\333.\333-\33
+--- plano ---
+*2|Premium
+Basic
+--- status ---
+*2|ativo
+in1
+--- endereco.rua ---
+Rua *das Acacias, \100
+Av. Paulista, \1500
+1XV, \90
+--- endereco.bairro ---
+Centro
+Bela Vista
+^1
+--- endereco.cidade ---
+*2|Sao Paulo
+Curitiba
+--- endereco.uf ---
+*2|SP
+PR
+--- endereco.cep ---
+\01*\00*\0-\000
+\0131*3
+\80*2,3
+--- endereco.geo.lat ---
+-\23.\5*\505
+1\614
+-\25.\4284
+--- endereco.geo.lon ---
+-\46.\6*\333
+1\559
+-\49.\2733
+--- telefones ---
++\55 *\11 *\99999*-\000*\1
+1~2\3333*4,5
+6,3,4\2
+1\41 *\98888*-\000*\3
+1~9\3232*11,12
+13,14,11\4
+--- #counts ---
+*2-1|\2
+\3

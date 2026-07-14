@@ -159,6 +159,10 @@ Faxina 2026-06-21: 17 labs movidos pra `old/welded/` ou `old/refuted/`
   recursivo firme `{}` 1:1 + `[]` 1:N (aninhados, chaveado por CAMINHO), fail-loud (N:N + ambiguidade
   FD/chave — encode auto-verifica, nunca corrompe calado). + **estudo de cardinalidade** (1:1→`{}`,
   1:N→`[]` ANINHAM; N:1→coluna @dict; N:N→ponte); cardinalidade⊥compressibilidade. Tipos/nulos ortogonais.
+- **`experiments/lab/dirty/2026-07-13-2356-rle-dual-multiplicidade-deduzida/`** — **dual do RLE MEDIDO**
+  (recupera peça 9/2328 + H-CARD-06): multiplicidade repetida por coluna (tabelão A) vs carregada 1×
+  (nível-aware B, o "sincronismo"). **Crossover por largura**: estreito→A, largo→B (423<466 em 11
+  campos-pai). RLE↔counts↔fk duais; A e B = candidatos de `min()`. RT-exato nos dois.
 - **Sessao 2026-07-05..08 (specs/tipos/bN/hierarquico — research-track)**: indexados nos mapas
   `experiments/lab/dirty/notas/estudo-tcf-hierarquico-mapa.md` (P1-P9 + EXP-015 CSV↔JSON `#TCF.8H`) +
   `tipos-como-specs.md` (reframe + labs 2026-07-06/07 do bN) + `2026-07-08-1938-bn-gate-realworld-5fontes/`

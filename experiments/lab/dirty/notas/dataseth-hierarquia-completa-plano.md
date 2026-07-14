@@ -232,6 +232,18 @@ auto-verifica e recusa (`AmbiguityError`) o que a re-nestação por chave contí
 FD/chave — precisa repetition-level, peça 9) — nunca corromper calado. Falta p/ firmar: repetition-level,
 N:N/link-posicional, gate real-world. Tipos/nulos = camada SEGUINTE, não bloqueiam.
 
+## Update 2026-07-13 — dual do RLE MEDIDO (owner reapontou; já estava concluído na peça 9)
+
+Owner: na hierarquia o pai não expande de fato (RLE deduzível; colunas com sincronismo). Confere e já
+estava concluído — peça 9 (2328): multiplicidade DEDUZÍVEL do nº de filhos, "custo ZERO"; H-CARD-06
+(Order Dependency = rep/def do Dremel); teoria §3-4 (RLE↔counts↔fk DUAIS, ×N conservada). Lab
+[`2026-07-13-2356-rle-dual-multiplicidade-deduzida/`](../2026-07-13-2356-rle-dual-multiplicidade-deduzida/)
+MEDE os dois: **Modelo A** (tabelão, protótipo 2301/2325 — RLE por coluna-pai, multiplicidade repetida
+entre irmãs) vs **Modelo B** (nível-aware — colunas na sua granularidade + counts 1×). **Crossover por
+largura**: estreito (1 campo-pai) A vence (135<140); largo (11 campos-pai) B vence (423<466). RT-exato
+nos dois. Resposta TCF: A e B são candidatos de `min()` (como o FLOOR das natures) — o menor por documento.
+Reconciliação: meu protótipo = A (dual explícito, simples); o mínimo p/ registro largo = B. Firmar = owner.
+
 ## Próxima leitura e próxima ação
 
 Leia este plano junto com:

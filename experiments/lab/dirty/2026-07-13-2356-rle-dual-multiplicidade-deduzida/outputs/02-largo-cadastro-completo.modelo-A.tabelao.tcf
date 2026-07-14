@@ -1,0 +1,48 @@
+#TCF.8H(A) nome,cpf,plano,status,endereco.rua,endereco.bairro,endereco.cidade,endereco.uf,endereco.cep,endereco.geo.lat,endereco.geo.lon
+--- nome ---
+*2|Ana Souza
+Bruno Lima
+*3|Carla Nunes
+--- cpf ---
+*2|\111.\111.\111-\11
+\222.\222.\222-\22
+*3|\333.\333.\333-\33
+--- plano ---
+*3|Premium
+*3|Basic
+--- status ---
+*3|ativo
+*3|in1
+--- endereco.rua ---
+*2|Rua *das Acacias, \100
+Av. Paulista, \1500
+*3|1XV, \90
+--- endereco.bairro ---
+*2|Centro
+Bela Vista
+*3|^1
+--- endereco.cidade ---
+*3|Sao Paulo
+*3|Curitiba
+--- endereco.uf ---
+*3|SP
+*3|PR
+--- endereco.cep ---
+*2|\01*\00*\0-\000
+\0131*3
+*3|\80*2,3
+--- endereco.geo.lat ---
+*2|-\23.\5*\505
+1\614
+*3|-\25.\4284
+--- endereco.geo.lon ---
+*2|-\46.\6*\333
+1\559
+*3|-\49.\2733
+--- telefones ---
++\55 *\11 *\99999*-\000*\1
+1~2\3333*4,5
+6,3,4\2
+1\41 *\98888*-\000*\3
+1~9\3232*11,12
+13,14,11\4

@@ -1,0 +1,14 @@
+[
+  { "nome": "Ana Souza", "cpf": "111.111.111-11", "plano": "Premium", "status": "ativo",
+    "endereco": { "rua": "Rua das Acacias, 100", "bairro": "Centro", "cidade": "Sao Paulo",
+                  "uf": "SP", "cep": "01000-000", "geo": { "lat": "-23.5505", "lon": "-46.6333" } },
+    "telefones": ["+55 11 99999-0001", "+55 11 3333-0001"] },
+  { "nome": "Bruno Lima", "cpf": "222.222.222-22", "plano": "Premium", "status": "ativo",
+    "endereco": { "rua": "Av. Paulista, 1500", "bairro": "Bela Vista", "cidade": "Sao Paulo",
+                  "uf": "SP", "cep": "01310-000", "geo": { "lat": "-23.5614", "lon": "-46.6559" } },
+    "telefones": ["+55 11 99999-0002"] },
+  { "nome": "Carla Nunes", "cpf": "333.333.333-33", "plano": "Basic", "status": "inativo",
+    "endereco": { "rua": "Rua XV, 90", "bairro": "Centro", "cidade": "Curitiba",
+                  "uf": "PR", "cep": "80000-000", "geo": { "lat": "-25.4284", "lon": "-49.2733" } },
+    "telefones": ["+55 41 98888-0003", "+55 41 3232-0003", "+55 41 3232-0004"] }
+]
