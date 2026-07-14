@@ -1,0 +1,15 @@
+[
+  { "device": "estufa-01", "firmware": "1.4.2",
+    "sensores": { "temperatura": { "unidade": "C", "precisao": "0.1" },
+                  "umidade":     { "unidade": "%", "precisao": "0.5" } },
+    "leituras": [
+      { "ts": "2026-07-14T06:00", "temperatura": "21.4", "umidade": "63.0" },
+      { "ts": "2026-07-14T06:15", "temperatura": "21.6", "umidade": "63.4" },
+      { "ts": "2026-07-14T06:30", "temperatura": "21.9", "umidade": "62.8" } ] },
+  { "device": "estufa-02", "firmware": "1.4.2",
+    "sensores": { "temperatura": { "unidade": "C", "precisao": "0.1" },
+                  "umidade":     { "unidade": "%", "precisao": "0.5" } },
+    "leituras": [
+      { "ts": "2026-07-14T06:00", "temperatura": "24.0", "umidade": "70.2" },
+      { "ts": "2026-07-14T06:15", "temperatura": "24.2", "umidade": "70.5" } ] }
+]

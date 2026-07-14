@@ -1,0 +1,15 @@
+[
+  { "cliente": "Ana Souza", "canal": "web",
+    "pedidos": [
+      { "data": "2026-01-05", "status": "entregue", "itens": [
+          { "produto": "Teclado Mecanico", "qtd": "1", "preco": "299.90" },
+          { "produto": "Mouse Sem Fio",    "qtd": "2", "preco": "89.90" } ] },
+      { "data": "2026-02-11", "status": "enviado", "itens": [
+          { "produto": "Monitor 27",       "qtd": "1", "preco": "1499.00" } ] } ] },
+  { "cliente": "Bruno Lima", "canal": "app",
+    "pedidos": [
+      { "data": "2026-03-02", "status": "entregue", "itens": [
+          { "produto": "Webcam HD",        "qtd": "3", "preco": "199.00" },
+          { "produto": "Headset",          "qtd": "1", "preco": "349.00" } ] } ] },
+  { "cliente": "Carla Nunes", "canal": "web", "pedidos": [] }
+]

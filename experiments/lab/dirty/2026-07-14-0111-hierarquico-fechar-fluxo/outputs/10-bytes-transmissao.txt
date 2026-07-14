@@ -1,0 +1,5 @@
+entrada | JSON | TCF.H | TCF+gzip | TCF+brotli | JSON+brotli
+---|---:|---:|---:|---:|---:
+01-cadastro-clientes | 842 | 520 | 379 | 362 | 330
+02-pedidos-itens | 635 | 328 | 270 | 246 | 255
+03-telemetria-dispositivos | 698 | 314 | 231 | 204 | 196

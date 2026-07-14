@@ -244,6 +244,20 @@ largura**: estreito (1 campo-pai) A vence (135<140); largo (11 campos-pai) B ven
 nos dois. Resposta TCF: A e B são candidatos de `min()` (como o FLOOR das natures) — o menor por documento.
 Reconciliação: meu protótipo = A (dual explícito, simples); o mínimo p/ registro largo = B. Firmar = owner.
 
+## Update 2026-07-14 — FUNCIONALIDADE + FLUXO do hierárquico FECHADOS (clássicos de transmissão)
+
+Owner: sem payload de API real (isso é gate de PERFORMANCE = `.9`; dá pra simular com encode+compress+
+decompress+decode). Agora fechar FUNCIONALIDADE + FLUXO encode/decode com os clássicos de transmissão
+(cadastro, pedido, telemetria — a maioria JSON). Lab
+[`2026-07-14-0111-hierarquico-fechar-fluxo/`](../2026-07-14-0111-hierarquico-fechar-fluxo/): codec por
+SHREDDING em blocos + counts (generaliza envelope P2/P3 + Modelo B/2356). Fecha o que o tabelão integrado
+NÃO fechava: **múltiplas listas irmãs** (cadastro tel[] E email[]), **arrays aninhados** (pedido⊃itens),
+**ambiguidade de chave** (count ESCRITO, não deduzido), **arrays vazios**. Colunas-pai à granularidade da
+pessoa (sem `*N|` redundante); multiplicidade nos `#count`. Dois fluxos RT-exatos: (A) funcional
+encode/decode; (B) transmissão simulada encode→gzip/brotli→decode. TCF.H ~40-55% < JSON (forma; performance
+= `.9`). Falta p/ firmar: ragged/presença (máscara def-level), N raízes, reconciliar ADR-0031, gate
+real-world+perf, tipos (ortogonal). Sem firmar.
+
 ## Próxima leitura e próxima ação
 
 Leia este plano junto com:

@@ -1,0 +1,17 @@
+FECHAR FLUXO — hierárquico por shredding (blocos + counts), clássicos de transmissão
+
+== 01-cadastro-clientes ==
+  header: #TCF.8H nome:33,cpf:57,plano:17,endereco{rua:52,cidade:22,uf:9,geo{lat:30,lon:30}},telefones#:11[]:96,emails#:8[
+  FLUXO A funcional  (JSON->encode->decode->JSON): RT=True  (roundtrip.json == canonico: True)
+  FLUXO B transmissão (encode->gzip->gunzip->decode): RT gzip=True, brotli=True
+
+== 02-pedidos-itens ==
+  header: #TCF.8H cliente:33,canal:11,pedidos#:8[data:32,status:20,itens#:11[produto:61,qtd:17,preco
+  FLUXO A funcional  (JSON->encode->decode->JSON): RT=True  (roundtrip.json == canonico: True)
+  FLUXO B transmissão (encode->gzip->gunzip->decode): RT gzip=True, brotli=True
+
+== 03-telemetria-dispositivos ==
+  header: #TCF.8H device:17,firmware:12,sensores{temperatura{unidade:5,precisao:9},umidade{unidade:5,precisao:9}},leituras#:8[ts:40,temperatura:31,umidade
+  FLUXO A funcional  (JSON->encode->decode->JSON): RT=True  (roundtrip.json == canonico: True)
+  FLUXO B transmissão (encode->gzip->gunzip->decode): RT gzip=True, brotli=True
+

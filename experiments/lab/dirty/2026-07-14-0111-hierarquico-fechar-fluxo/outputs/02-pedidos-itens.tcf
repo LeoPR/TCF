@@ -1,0 +1,29 @@
+#TCF.8H cliente:33,canal:11,pedidos#:8[data:32,status:20,itens#:11[produto:61,qtd:17,preco
+Ana Souza
+Bruno Lima
+Carla Nunes
+web
+app
+^1
+*3-1|\2
+\2026-\0*\1-\05
+1\2-\11
+1\3-\02
+entregue
+enviado
+^1
+*2-1|\2
+^1
+Teclado Mecanico
+Mouse Sem Fio
+Monitor \27
+Webcam HD
+Headset
+*2+1|\1
+^1
+\3
+^1
+\29*\9.\90
+\8*2
+\1499.\00
+*2+150,0|\199.\00

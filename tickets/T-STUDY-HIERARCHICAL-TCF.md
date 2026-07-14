@@ -28,6 +28,7 @@ related:
   - experiments/lab/dirty/2026-07-13-2325-hierarquia-cardinalidade/
   - experiments/lab/dirty/2026-07-13-2356-rle-dual-multiplicidade-deduzida/
   - experiments/lab/dirty/notas/hierarquia-inventario-hipoteses.md
+  - experiments/lab/dirty/2026-07-14-0111-hierarquico-fechar-fluxo/
   - experiments/lab/dirty/notas/dataseth-hierarquia-completa-plano.md
   - datasets/coverage-matrix.md
   - experiments/lab/dirty/notas/dirty-lab-convencoes.md

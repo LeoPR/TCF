@@ -164,6 +164,10 @@ Faxina 2026-06-21: 17 labs movidos pra `old/welded/` ou `old/refuted/`
   (recupera peça 9/2328 + H-CARD-06): multiplicidade repetida por coluna (tabelão A) vs carregada 1×
   (nível-aware B, o "sincronismo"). **Crossover por largura**: estreito→A, largo→B (423<466 em 11
   campos-pai). RLE↔counts↔fk duais; A e B = candidatos de `min()`. RT-exato nos dois.
+- **`experiments/lab/dirty/2026-07-14-0111-hierarquico-fechar-fluxo/`** — **FECHA funcionalidade+fluxo**:
+  codec por SHREDDING (blocos + counts) faz RT-exato nos clássicos de transmissão (cadastro c/ 2 listas
+  irmãs, pedido aninhado, telemetria). Fecha o que o tabelão não fechava (múltiplas listas, ambiguidade,
+  array vazio). Dois fluxos: funcional + transmissão simulada (encode→gzip/brotli→decode). Perf real = `.9`.
 - **Sessao 2026-07-05..08 (specs/tipos/bN/hierarquico — research-track)**: indexados nos mapas
   `experiments/lab/dirty/notas/estudo-tcf-hierarquico-mapa.md` (P1-P9 + EXP-015 CSV↔JSON `#TCF.8H`) +
   `tipos-como-specs.md` (reframe + labs 2026-07-06/07 do bN) + `2026-07-08-1938-bn-gate-realworld-5fontes/`
