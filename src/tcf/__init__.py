@@ -73,6 +73,7 @@ Para historia: `experiments/lab/dirty/notas/historia-dirty-lab.md`.
 
 from tcf.decoder import decode
 from tcf.encoder import encode
+from tcf.hierarchical import encode_hierarchical  # #TCF.8H (T-CODE-TCF8H-WELD); decode auto-roteia
 from tcf.natures import (
     SPEC_CPF, SPEC_CNPJ, SPEC_IP,
     TemplatedCheckedSpec, TemplatedPaddedSpec,
@@ -91,6 +92,7 @@ __version__ = "0.8.0"   # #TCF.8 default (ADR-0032); minor segue o formato (ADR-
 __all__ = [
     "encode",
     "decode",
+    "encode_hierarchical",  # #TCF.8H (decode() auto-roteia pelo magic)
     "SideOutputs",
     "build_schema",
     "TableSchema",

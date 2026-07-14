@@ -1,5 +1,16 @@
 # STATUS — TCF (compendio sempre-atualizado)
 
+> **⚑ WELD 2026-07-14 — HIERARQUIA `#TCF.8H` no `src/tcf` (1º incremento, gate verde)**: codec
+> hierárquico weldado ADITIVO em 3 camadas (arquitetura do owner:
+> [tcf-camadas-arquitetura.md](experiments/lab/dirty/notas/tcf-camadas-arquitetura.md)) — L1 compressor
+> de coluna REUSADO sem tocar; L2 `src/tcf/hierarchical.py` (NOVO, shredding em blocos + `#count`, header
+> sem-espaço ADR-0031); L3 deduções. `decoder.py` roteia `H` (era fail-loud) → `decode_hierarchical`;
+> `__init__` exporta `encode_hierarchical` (decode auto-roteia). **Suíte 646 passed, 2 skipped; FLAT
+> BYTE-IDÊNTICO** (D1-D9/D17a/real-world pinados). RT-exato nos clássicos de transmissão (cadastro c/ 2
+> listas irmãs, pedido aninhado, telemetria, arrays vazios, ambiguidade de chave). **Cobre**: raiz única,
+> chaves uniformes, `{}`/`[]` recursivos. **Fail-loud/próximo**: ragged (def-level), tipos/null, N raízes,
+> N:N/snowflake. Ticket: [T-CODE-TCF8H-WELD](tickets/T-CODE-TCF8H-WELD.md) (W2/W3 feitos, W5 ADR pendente).
+
 > **⚑ REESCOPO 2026-07-13 — `.8` = feature-complete "1.0" (decisão do owner, vigente sobre o bloco abaixo)**:
 > o `.8` deixa de ser "release mínimo, features → `.9`" e passa a ser **o 1.0 com tudo que funciona**;
 > `.9` fica **só** limpeza/perf/paralelismo/memória/simplificação/bug-fix-de-borda. Auditoria dos 26

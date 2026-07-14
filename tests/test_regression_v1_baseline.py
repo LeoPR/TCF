@@ -49,6 +49,7 @@ EXPECTED_PUBLIC_API = {
     "view",       # camada read-only lazy/consultavel (A4, plano 0.8)
     "LazyTCF",    # A4
     "Filtered",   # A4
+    "encode_hierarchical",  # #TCF.8H (T-CODE-TCF8H-WELD; decode() auto-roteia pelo magic)
     # encode_table/decode_table APOSENTADOS 2026-06-24 (T-CODE-LEGACY-PRUNE-PRE-07)
 }
 

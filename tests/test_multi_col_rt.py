@@ -536,10 +536,19 @@ class TestEdgeCases:
         with pytest.raises(ValueError, match="legado"):
             decode("#TCF.7 M\nbad\n")
 
-    def test_decode_reserved_discriminator_raises(self):
-        # #TCF.8H (hierarquico reservado, ADR-0031) -> fail-loud, nao decode orfao
-        with pytest.raises(ValueError, match="RESERVADO|reservado"):
-            decode("#TCF.8Hfoo\nbody")
+    def test_decode_unknown_discriminator_raises(self):
+        # discriminador desconhecido apos #TCF.8 -> fail-loud, nao decode orfao silencioso.
+        # ('H' NAO e' mais reservado — foi WELDED, T-CODE-TCF8H-WELD; ver test abaixo.)
+        with pytest.raises(ValueError, match="desconhecido"):
+            decode("#TCF.8Zfoo\nbody")
+
+    def test_decode_hierarchical_welded(self):
+        # #TCF.8H agora DECODA (weld T-CODE-TCF8H-WELD): RT de um documento aninhado.
+        from tcf import encode_hierarchical
+
+        doc = [{"nome": "Ana", "telefones": ["t1", "t2"]},
+               {"nome": "Bruno", "telefones": ["t3"]}]
+        assert decode(encode_hierarchical(doc)) == doc
 
 
 # Aliases v0.6 encode_table/decode_table APOSENTADOS 2026-06-24

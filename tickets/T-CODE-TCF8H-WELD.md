@@ -40,6 +40,24 @@ definido no estudo e não deve criar `encode_json` nem importar parser JSON em `
   de pesquisa é T-STUDY-HIERARCHICAL-TCF (P1–P9, `confirmada-conceitual`).
 - **Produção hoje**: `src/tcf/decoder.py` só **reserva + fail-loud** o `H` (não decoda). Zero codec no core.
 
+## Update 2026-07-14 — arquitetura em 3 CAMADAS (reframe do owner) + codec base
+
+Owner: o weld deve respeitar 3 camadas desacopladas
+([tcf-camadas-arquitetura.md](../experiments/lab/dirty/notas/tcf-camadas-arquitetura.md)):
+- **L1 compressor de COLUNAS** — o mesmo p/ single/multi/hierarquia/multi-tabela; **REUSAR o
+  `encode`/`decode` de coluna do core SEM tocá-lo**. O hierárquico é 100% CLIENTE dele.
+- **L2 RELACIONAMENTO entre colunas** — a natureza do vínculo (multi-col, hierarquia, ragged, N:N).
+  Vive no HEADER; **só a descrição no header já reconstrói o dataset**, independente da compressão.
+  Módulo NOVO (`src/tcf/hierarchical.py`), aditivo.
+- **L3 OTIMIZAÇÃO pelo relacionamento** — deduções (count, omit-closes, projeção tabelão×nível-aware).
+  Passe opt-in; tirar L3 e ainda reconstrói (só maior).
+
+Por isso o weld é **aditivo e de baixo risco**: flat byte-idêntico; hierárquico = cliente do
+compressor + dispatch por `H`. **Codec base** (extrair a ideia, não copiar): `shred.py` do lab
+[2026-07-14-0111-hierarquico-fechar-fluxo](../experiments/lab/dirty/2026-07-14-0111-hierarquico-fechar-fluxo/)
+— blocos + `#count`, RT-exato nos clássicos de transmissão (cadastro c/ 2 listas irmãs, pedido
+aninhado, telemetria; arrays vazios; ambiguidade resolvida). Supera o EXP-015 (múltiplas listas irmãs).
+
 ## Gate de CAPACIDADE (não é ≥15% de compressão)
 
 Hierarquia **não** é otimização de bytes — é **representar dado que a tabela plana não representa**
@@ -55,6 +73,29 @@ aplica**. O gate de aceite deste weld é:
    **inalterados** (D1-D9=1523B, D17a=300B, real-world=89616B). O caminho `#TCF.8M`/single/órfão não muda
    **1 byte**. Hierarquia é aditiva (dispatch por `H`).
 3. **Aprovação explícita de `src/tcf`** (invariante do projeto) para cada arquivo tocado.
+
+## WELD 2026-07-14 — 1º INCREMENTO (classe coberta) FEITO, gate verde
+
+**[dispositivo→feito]** Owner deu o go ("vamos fazer o weld"). Weld ADITIVO em 3 camadas:
+- **`src/tcf/hierarchical.py`** (NOVO, L2/L3): shredding em blocos + `#count`; header sem-espaço
+  `#TCF.8H<meta>` (ADR-0031); `{}` 1:1 · `[]` 1:N · counts · última-sem-size · omit-closes.
+- **`src/tcf/decoder.py`**: o branch `H` (era fail-loud reservado) agora **roteia** p/
+  `decode_hierarchical` — dispatch O(1). `M`/single/órfão INTACTOS.
+- **`src/tcf/__init__.py`**: exporta `encode_hierarchical`; `decode()` auto-roteia pelo magic.
+- **L1 REUSADO sem tocar**: o hierárquico é cliente de `encode(coluna)`/`decode(body)`.
+
+**Gate verde**: suíte **646 passed, 2 skipped** (12 testes hierárquicos novos em
+`tests/test_hierarchical_rt.py`). **Flat BYTE-IDÊNTICO** (D1-D9=1523, D17a=300, real-world=89616
+pinados passaram). RT-exato nos clássicos de transmissão: cadastro (2 listas irmãs + endereco{geo}),
+pedido aninhado, telemetria, arrays vazios, ambiguidade de chave (count resolve).
+
+**Cobre** (classe coberta): uma raiz, chaves UNIFORMES por nível, `{}`/`[]` recursivos, arrays vazios.
+**Fail-loud / próximos incrementos**: objetos **ragged** (chave faltando → máscara def-level, peça 11);
+**tipos**/`null` (tudo string; camada ortogonal); **N raízes**; **N:N/snowflake** (FK, super-hierarquia
+H-HIER-MULTITABELA-01). ADR de weld + reconciliação final = W5 (pendente).
+
+Fases W abaixo: **W2/W3 FEITOS** (classe coberta); **W4 gate verde** p/ a classe; W0/W1 cobertos pelos
+labs (records = DatasetH source-agnostic, list[dict]); **W5 (ADR + ragged/tipos)** pendente.
 
 ## Plano (fases)
 

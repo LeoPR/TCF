@@ -22,6 +22,7 @@ TCF/
 │   ├── auto_min_len.py ... detect_min_len (ADR-0010, H-DA-11)
 │   ├── column_features.py  ColumnFeatures + analyze_column (H-DA-11c)
 │   ├── encoder.py, decoder.py .... API publica (pipeline delta-aware)
+│   ├── hierarchical.py .......... codec #TCF.8H (shredding blocos+counts; L2/L3; reusa L1) — WELD 2026-07-14
 │   ├── multi/ ................... encode/decode multi-coluna (core.py + dict_v2b.py; #TCF.8M default)
 │   ├── schema.py ................. build_schema per-tabela (CORE)
 │   ├── side_outputs.py ........... SideOutputs (efeito colateral opt-in)

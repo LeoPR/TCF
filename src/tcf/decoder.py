@@ -140,17 +140,16 @@ def decode(
     # Discriminador #TCF.8 (ADR-0029): char logo apos '#TCF.8'. 'M'=multi (#TCF.8M),
     # ' '=single+spec (#TCF.8 ...), ''=version-stamp (line1 == '#TCF.8').
     disc8 = line1[6:7] if _ver == "8" else None
+    # HIER: #TCF.8H (disc 'H', ADR-0031) — codec hierarquico (weld T-CODE-TCF8H-WELD).
+    # Camada L2 aditiva: dispatch O(1) pelo char; L1 (compressor de coluna) reusado.
+    if disc8 == "H":
+        from tcf.hierarchical import decode_hierarchical
+
+        return decode_hierarchical(tcf_text)
     # FAIL-LOUD (ADR-0032 §6): discriminador reservado/desconhecido apos '#TCF.8' NAO
-    # pode degradar pra decode orfao silencioso (corrompe). 'H' = hierarquico reservado
-    # (ADR-0031), codec ainda no lab.
+    # pode degradar pra decode orfao silencioso (corrompe).
     if disc8 is not None and disc8 not in ("M", " ", ""):
-        detalhe = (
-            "'H' = multi-col hierarquico RESERVADO (ADR-0031); codec no lab, "
-            "nao implementado"
-            if disc8 == "H"
-            else f"discriminador {disc8!r} desconhecido"
-        )
-        raise ValueError(f"#TCF.8: {detalhe} — nao decodavel.")
+        raise ValueError(f"#TCF.8: discriminador {disc8!r} desconhecido — nao decodavel.")
 
     # MULTI: #TCF.8M (disc 'M', meta inline).
     if disc8 == "M":
