@@ -1,0 +1,567 @@
+#TCF.8Hcustkey:8,nome:31,endereco:74,fone:60,segmento:23,saldo:28,pedidos#:10[orderkey:138,status:49,total:217,data:225,prioridade:94,itens#:61[linha:194,qtd:378,preco:732,desconto:232,flag:97,envio:773,modo:220,obs
+*3+1|\1
+Customer#\00000000*\1
+*2+1|1\2
+j\5JsirBM\9PsCy\0O\1m
+\487LW\1dovn\6Q\4dMVymKwwLE\9OKf\3QG
+fkRGN\8nY\4pkE
+\25-\989-\741-\2988
+\23-\768-\687-\3665
+\11-\719-\748-\3364
+BUILDING
+*2|AUTOMOBILE
+\711.\56
+\121.\65
+\7498.\12
+\9
+\10
+\0
+\9154
+*2+9666|\14656
+*2+2366|\31653
+*2+7457|\36422
+*2+1020|\52263
+\6980
+*2+5566|\10563
+*2+7910|\20257
+*2+548|\29408
+*2+1794|\38276
+\44962
+*3|O
+F
+*2|^1
+*2|^2
+^1
+*2|^2
+*3|^1
+*2|^2
+*2|^1
+^2
+\357345.\46
+\28599.\83
+\231040.\44
+\152411.\41
+\89230.\03
+\270087.\44
+\83095.\85
+\51134.\82
+\165928.\33
+\170842.\93
+\143707.\7
+\50178.\44
+\181875.\6
+\37156.\97
+\154867.\09
+\116247.\57
+\201568.\55
+\54402.\2
+\45657.\87
+\199*\7*-*\0*\6-\23
+1..3\11*-\18
+7~4\1*-\29
+1\3-\0*\6-\05
+1\8-\0*\3*12
+10\3*-\04
+1~13\8*-\13
+1\4-*\0*\5-\08
+1\5-\10*12
+19\2-\19
+19\9-\30
+1,15\5*9
+1\6*3,4,17,18
+10\5-\24
+19\5-\03
+1~22,23\8-\15
+1~29~3~4,17,21
+36\9-\17
+32\12*12
+\4-NOT SPECIFIED
+\2-HIGH
+\1-URGENT
+^2
+\5-LOW
+\3-MEDIUM
+^2
+^1
+^2
+^1
+^3
+^4
+^1
+^5
+^1
+^3
+^4
+*2|^5
+*2-6|\7
+*2-1|\6
+\2
+^1
+^5
+^2
+\4
+^1
+^6
+^5
+^4
+^5
+^6
+^5
+^4
+^2
+^5
+*7+1|\1
+*2|^1
+^2
+^3
+^4
+^5
+^6
+^1
+^2
+^3
+^4
+^5
+^1
+^2
+^1
+^2
+^3
+^4
+^5
+^6
+^7
+^1
+^2
+*2|^1
+^2
+^3
+^4
+^1
+^2
+^3
+^4
+^5
+^6
+^7
+^1
+^2
+^3
+^4
+^1
+^2
+^1
+^2
+^3
+^4
+^5
+^1
+^2
+^1
+^2
+^3
+^4
+^1
+^2
+^1
+^2
+^3
+^4
+^5
+*2|^1
+^2
+\45.\0
+\7.\0
+*2-15,0|\46.\0
+*2+28,0|\12.\0
+*2-26,0|\47.\0
+\16.\0
+\4.\0
+*2+15,0|\29.\0
+*2+28,0|\22.\0
+^3
+\15.\0
+^5
+\33.\0
+\6.\0
+*2+16,0|\19.\0
+*2+10,0|\27.\0
+*2-28,0|\42.\0
+^4
+\9.\0
+^20
+\17.\0
+^21
+^20
+\48.\0
+^2
+^20
+^14
+^16
+\11.\0
+^6
+^13
+^17
+\3.\0
+*2|^5
+^19
+*2|^3
+^6
+*2+23,0|\13.\0
+^20
+^26
+\1.\0
+^8
+\2.\0
+\32.\0
+^6
+^9
+^15
+^12
+*2+15,0|\34.\0
+^21
+\10.\0
+^30
+^2
+^1
+\41.\0
+^28
+\23.\0
+\79508.\7
+\7301.\98
+\65988.\38
+\57937.\76
+\20061.\24
+\52176.\0
+\76926.\31
+\31428.\39
+\27020.\48
+\3996.\36
+\50658.\36
+\69241.\48
+\31801.\88
+\50004.\5
+\82242.\48
+\16758.\15
+\11941.\08
+\40964.\22
+\7171.\74
+\28150.\02
+\66114.\3
+\38975.\58
+\50596.\02
+\57096.\9
+\25310.\6
+\53997.\04
+\9640.\53
+\37326.\96
+\19554.\25
+\65373.\82
+\49732.\38
+\67608.\0
+\7154.\84
+\30543.\21
+\68923.\5
+\54408.\42
+\20030.\12
+\39283.\2
+\20746.\88
+\11213.\76
+\2892.\18
+\22259.\4
+\16517.\64
+\44462.\6
+\41492.\0
+\46418.\6
+\37561.\2
+\12793.\04
+\45192.\6
+\49272.\84
+\59872.\32
+\1113.\21
+\38428.\32
+\1968.\16
+\36743.\68
+\67511.\2
+\20662.\24
+\18274.\65
+\43739.\96
+\47480.\66
+\71567.\44
+\62188.\49
+\13344.\3
+\49480.\92
+\8317.\96
+\68202.\45
+\54752.\63
+\4495.\77
+\40706.\78
+\0.\0*\6
+*2-5|1\9
+*2|1
+1\3
+^3
+^2
+1\8
+^1
+*2|1\2
+^6
+1\7
+^2
+^1
+^6
+1\1
+^7
+^6
+\0.\1
+^9
+^3
+^8
+^4
+^2
+*2|^1
+^4
+^10
+^5
+^1
+^4
+^9
+^2
+^5
+^6
+^5
+^2
+^6
+*2|^3
+^1
+^10
+1\5
+^8
+^11
+^6
+^11
+*2|^10
+^5
+^6
+^11
+^6
+^7
+^5
+^7
+^5
+^4
+^6
+^1
+^11
+^7
+^4
+^1
+^6
+^5
+^11
+*14|N
+A
+*4|R
+*9|^1
+^3
+*2|^2
+*4|^1
+*2|^2
+^3
+*4|^2
+*2|^3
+^2
+^3
+*9|^1
+^3
+*2|^2
+*2|^3
+^2
+*6|^1
+*2|^2
+\199*\7-\0*\9-\2*\4
+1~2,3\8
+5\7-\18
+*2+0,-8|5\8-\28
+5\6-\24
+5\7-\07
+1\8-\01-\23
+1\7-\03-\12
+1\7-\05-\07
+*2+0,0,1|1\7-\03-\04
+*2+0,1,0|1\7-\03-\26
+*2+0,0,7|1\3-\09-\11
+1\3-\07-\08
+1\3-\08-\12
+1\3-\06-\07
+*2+0,2,2|1\8-\05-\03
+*2+0,1,1|1\7-\05-\02
+1\7-\05-\18
+1\7-\06-\27
+1\7-\03-\29
+*2+0,0,8|1\7-\06-\10
+*2+0,0,-12|1\3-\09-\28
+1\4-\05-\24
+1\5-\12-\28
+*2+0,0,-4|1\5-\11-\18
+1\5-\11-\28
+1\3-\06-\16
+1\3-\05-\26
+1\3-\03-\25
+1\3-\06-\09
+1\3-\05-\03
+1\3-\02-\25
+1\3-\03-\27
+1\4-\01-\04
+*2+0,0,-4|1\3-\11-\15
+1\4-\01-\10
+1\8-\08-\21
+1\8-\09-\01
+1\6-\05-\18
+*2+0,2,2|1\6-\03-\13
+*2+0,0,-10|1\6-\03-\31
+1\7-\09-\22
+1\7-\07-\04
+*2|1\3-\08-\21
+1\3-\08-\26
+1\3-\06-\14
+1\4-\11-\04
+1\4-\10-\14
+*2+0,0,7|1\6-\05-\22
+1\6-\05-\16
+1\6-\03-\26
+1\6-\04-\06
+1\6-\12-\21
+1\5-\03-\25
+1\5-\02-\10
+FOB
+SHIP
+M*AIL
+AIR
+R4
+TRUCK
+^2
+^4
+^1
+^5
+^6
+^5
+^4
+^1
+^2
+*2|REG 5
+^3
+^5
+*2|^3
+^6
+^2
+^3
+^2
+*2|^7
+^4
+^2
+^5
+^6
+^2
+^7
+^3
+^7
+^4
+^5
+*2|^2
+^3
+^2
+^6
+^2
+^5
+^3
+^5
+*2|^7
+^4
+^5
+^1
+^5
+^7
+^4
+^7
+^5
+^2
+^1
+^6
+^4
+^7
+^2
+^1
+*2|^6
+^1
+^4
+*2|^6
+orses. quickly even packages engage careful
+ts after the idl
+ over the bold, unusual th*eodolites. i
+g. furiously pending foxes maintain f
+are fluffily above the blithely express de
+g the braids
+s. final theodolites sleep car
+eep against the dolphins. even, silent th
+against the deposits. careful*ly 
+ar packages. furiously regular* req
+ requests. ironically dogged 
+across the unusual, special deposits. fi
+y ironic i*deas thrash furiously about the s
+nstructions s
+ final13
+ ironic pinto beans. carefully even r
+yly after the unusu
+e. pending, iron
+silent depo
+ly *ruthless requests hang. flu
+, express deposits
+ccounts across the carefully* pendi
+e carefully carefully ironi
+instructions boost slyly aro
+the slyly final requests. furious11
+ests nod blithely
+into bea*ns. 
+ pinto beans promise accordin
+e blithely ironic requests 
+r platelets haggle sile
+cross the slyly ironic instructions pri
+usly. furiously bold deposit
+ furiously furiously iro
+ld instructions 
+ quickly ironic instructions wake f
+ express ins
+ainments. express theodolites pla
+le carefully* sl
+en deposits are slyly final,
+ent, final dolphins. carefully even ac
+nts are ironic instructio34
+ accounts believe slyly. bus
+16nstructions above the blith
+4
+pending* dep
+e regular accounts. slyly special packag
+24express platelets are. sil
+ dinos:28
+ ideas are. pending requ
+ress requests boost slyly stealthy,28
+ts. carefully final packages boos
+e slyly final d
+xpress pinto beans sleep silentl
+ deposits. fluffily ca
+ instructions wake always. furiously regu
+s sleep46
+ing packages. blithely even requests a
+ecial courts about the fluffily regular a
+tructions nag regularly final pa
+onic dependencies 
+ular accounts: furiously even foxes ar
+ blithe packages wake furiously. qu
+deposits nag slyly against
+s wake. furiously even requests r
+es eat near the deposits. carefull
+ of the46
+kly bold platelets--
+ckages before the grouc
+thrash slyly.53

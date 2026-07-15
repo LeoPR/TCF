@@ -1,0 +1,892 @@
+[
+  {
+    "custkey": "1",
+    "nome": "Customer#000000001",
+    "endereco": "j5JsirBM9PsCy0O1m",
+    "fone": "25-989-741-2988",
+    "segmento": "BUILDING",
+    "saldo": "711.56",
+    "pedidos": [
+      {
+        "orderkey": "9154",
+        "status": "O",
+        "total": "357345.46",
+        "data": "1997-06-23",
+        "prioridade": "4-NOT SPECIFIED",
+        "itens": [
+          {
+            "linha": "1",
+            "qtd": "45.0",
+            "preco": "79508.7",
+            "desconto": "0.06",
+            "flag": "N",
+            "envio": "1997-09-24",
+            "modo": "FOB",
+            "obs": "orses. quickly even packages engage careful"
+          },
+          {
+            "linha": "2",
+            "qtd": "7.0",
+            "preco": "7301.98",
+            "desconto": "0.09",
+            "flag": "N",
+            "envio": "1997-09-28",
+            "modo": "SHIP",
+            "obs": "ts after the idl"
+          },
+          {
+            "linha": "3",
+            "qtd": "46.0",
+            "preco": "65988.38",
+            "desconto": "0.04",
+            "flag": "N",
+            "envio": "1997-07-18",
+            "modo": "MAIL",
+            "obs": " over the bold, unusual theodolites. i"
+          },
+          {
+            "linha": "4",
+            "qtd": "31.0",
+            "preco": "57937.76",
+            "desconto": "0.0",
+            "flag": "N",
+            "envio": "1997-08-28",
+            "modo": "AIR",
+            "obs": "g. furiously pending foxes maintain f"
+          },
+          {
+            "linha": "5",
+            "qtd": "12.0",
+            "preco": "20061.24",
+            "desconto": "0.0",
+            "flag": "N",
+            "envio": "1997-08-20",
+            "modo": "RAIL",
+            "obs": "are fluffily above the blithely express de"
+          },
+          {
+            "linha": "6",
+            "qtd": "40.0",
+            "preco": "52176.0",
+            "desconto": "0.03",
+            "flag": "N",
+            "envio": "1997-06-24",
+            "modo": "TRUCK",
+            "obs": "g the braids"
+          },
+          {
+            "linha": "7",
+            "qtd": "47.0",
+            "preco": "76926.31",
+            "desconto": "0.04",
+            "flag": "N",
+            "envio": "1997-07-07",
+            "modo": "SHIP",
+            "obs": "s. final theodolites sleep car"
+          }
+        ]
+      },
+      {
+        "orderkey": "14656",
+        "status": "O",
+        "total": "28599.83",
+        "data": "1997-11-18",
+        "prioridade": "2-HIGH",
+        "itens": [
+          {
+            "linha": "1",
+            "qtd": "21.0",
+            "preco": "31428.39",
+            "desconto": "0.09",
+            "flag": "N",
+            "envio": "1998-01-23",
+            "modo": "AIR",
+            "obs": "eep against the dolphins. even, silent th"
+          }
+        ]
+      },
+      {
+        "orderkey": "24322",
+        "status": "O",
+        "total": "231040.44",
+        "data": "1997-01-29",
+        "prioridade": "1-URGENT",
+        "itens": [
+          {
+            "linha": "1",
+            "qtd": "16.0",
+            "preco": "27020.48",
+            "desconto": "0.08",
+            "flag": "N",
+            "envio": "1997-03-12",
+            "modo": "FOB",
+            "obs": "against the deposits. carefully "
+          },
+          {
+            "linha": "2",
+            "qtd": "4.0",
+            "preco": "3996.36",
+            "desconto": "0.06",
+            "flag": "N",
+            "envio": "1997-05-07",
+            "modo": "RAIL",
+            "obs": "ar packages. furiously regular req"
+          },
+          {
+            "linha": "3",
+            "qtd": "29.0",
+            "preco": "50658.36",
+            "desconto": "0.02",
+            "flag": "N",
+            "envio": "1997-03-04",
+            "modo": "TRUCK",
+            "obs": " requests. ironically dogged "
+          },
+          {
+            "linha": "4",
+            "qtd": "44.0",
+            "preco": "69241.48",
+            "desconto": "0.02",
+            "flag": "N",
+            "envio": "1997-03-05",
+            "modo": "RAIL",
+            "obs": "across the unusual, special deposits. fi"
+          },
+          {
+            "linha": "5",
+            "qtd": "22.0",
+            "preco": "31801.88",
+            "desconto": "0.08",
+            "flag": "N",
+            "envio": "1997-03-26",
+            "modo": "AIR",
+            "obs": "y ironic ideas thrash furiously about the s"
+          },
+          {
+            "linha": "6",
+            "qtd": "50.0",
+            "preco": "50004.5",
+            "desconto": "0.07",
+            "flag": "N",
+            "envio": "1997-04-26",
+            "modo": "FOB",
+            "obs": "nstructions s"
+          }
+        ]
+      },
+      {
+        "orderkey": "31653",
+        "status": "F",
+        "total": "152411.41",
+        "data": "1993-06-05",
+        "prioridade": "2-HIGH",
+        "itens": [
+          {
+            "linha": "1",
+            "qtd": "46.0",
+            "preco": "82242.48",
+            "desconto": "0.09",
+            "flag": "A",
+            "envio": "1993-09-11",
+            "modo": "SHIP",
+            "obs": " final req"
+          },
+          {
+            "linha": "2",
+            "qtd": "15.0",
+            "preco": "16758.15",
+            "desconto": "0.06",
+            "flag": "R",
+            "envio": "1993-09-18",
+            "modo": "REG AIR",
+            "obs": " ironic pinto beans. carefully even r"
+          },
+          {
+            "linha": "3",
+            "qtd": "12.0",
+            "preco": "11941.08",
+            "desconto": "0.08",
+            "flag": "R",
+            "envio": "1993-07-08",
+            "modo": "REG AIR",
+            "obs": "yly after the unusu"
+          },
+          {
+            "linha": "4",
+            "qtd": "33.0",
+            "preco": "40964.22",
+            "desconto": "0.01",
+            "flag": "R",
+            "envio": "1993-08-12",
+            "modo": "MAIL",
+            "obs": "e. pending, iron"
+          },
+          {
+            "linha": "5",
+            "qtd": "6.0",
+            "preco": "7171.74",
+            "desconto": "0.02",
+            "flag": "R",
+            "envio": "1993-06-07",
+            "modo": "RAIL",
+            "obs": "silent depo"
+          }
+        ]
+      },
+      {
+        "orderkey": "34019",
+        "status": "O",
+        "total": "89230.03",
+        "data": "1998-03-29",
+        "prioridade": "5-LOW",
+        "itens": [
+          {
+            "linha": "1",
+            "qtd": "19.0",
+            "preco": "28150.02",
+            "desconto": "0.08",
+            "flag": "N",
+            "envio": "1998-05-03",
+            "modo": "MAIL",
+            "obs": "ly ruthless requests hang. flu"
+          },
+          {
+            "linha": "2",
+            "qtd": "35.0",
+            "preco": "66114.3",
+            "desconto": "0.1",
+            "flag": "N",
+            "envio": "1998-07-05",
+            "modo": "MAIL",
+            "obs": ", express deposits"
+          }
+        ]
+      },
+      {
+        "orderkey": "36422",
+        "status": "O",
+        "total": "270087.44",
+        "data": "1997-03-04",
+        "prioridade": "3-MEDIUM",
+        "itens": [
+          {
+            "linha": "1",
+            "qtd": "27.0",
+            "preco": "38975.58",
+            "desconto": "0.01",
+            "flag": "N",
+            "envio": "1997-05-02",
+            "modo": "TRUCK",
+            "obs": "ccounts across the carefully pendi"
+          },
+          {
+            "linha": "2",
+            "qtd": "37.0",
+            "preco": "50596.02",
+            "desconto": "0.04",
+            "flag": "N",
+            "envio": "1997-06-03",
+            "modo": "SHIP",
+            "obs": "e carefully carefully ironi"
+          },
+          {
+            "linha": "3",
+            "qtd": "42.0",
+            "preco": "57096.9",
+            "desconto": "0.07",
+            "flag": "N",
+            "envio": "1997-05-18",
+            "modo": "MAIL",
+            "obs": "instructions boost slyly aro"
+          },
+          {
+            "linha": "4",
+            "qtd": "14.0",
+            "preco": "25310.6",
+            "desconto": "0.0",
+            "flag": "N",
+            "envio": "1997-06-27",
+            "modo": "SHIP",
+            "obs": "the slyly final requests. furiously "
+          },
+          {
+            "linha": "5",
+            "qtd": "31.0",
+            "preco": "53997.04",
+            "desconto": "0.09",
+            "flag": "N",
+            "envio": "1997-03-29",
+            "modo": "REG AIR",
+            "obs": "ests nod blithely"
+          },
+          {
+            "linha": "6",
+            "qtd": "9.0",
+            "preco": "9640.53",
+            "desconto": "0.06",
+            "flag": "N",
+            "envio": "1997-06-10",
+            "modo": "REG AIR",
+            "obs": "into beans. "
+          },
+          {
+            "linha": "7",
+            "qtd": "27.0",
+            "preco": "37326.96",
+            "desconto": "0.06",
+            "flag": "N",
+            "envio": "1997-06-18",
+            "modo": "AIR",
+            "obs": " pinto beans promise accordin"
+          }
+        ]
+      },
+      {
+        "orderkey": "43879",
+        "status": "F",
+        "total": "83095.85",
+        "data": "1993-08-13",
+        "prioridade": "2-HIGH",
+        "itens": [
+          {
+            "linha": "1",
+            "qtd": "17.0",
+            "preco": "19554.25",
+            "desconto": "0.0",
+            "flag": "R",
+            "envio": "1993-09-28",
+            "modo": "SHIP",
+            "obs": "e blithely ironic requests "
+          },
+          {
+            "linha": "2",
+            "qtd": "37.0",
+            "preco": "65373.82",
+            "desconto": "0.1",
+            "flag": "A",
+            "envio": "1993-09-16",
+            "modo": "RAIL",
+            "obs": "r platelets haggle sile"
+          }
+        ]
+      },
+      {
+        "orderkey": "52263",
+        "status": "F",
+        "total": "51134.82",
+        "data": "1994-05-08",
+        "prioridade": "4-NOT SPECIFIED",
+        "itens": [
+          {
+            "linha": "1",
+            "qtd": "27.0",
+            "preco": "49732.38",
+            "desconto": "0.03",
+            "flag": "A",
+            "envio": "1994-05-24",
+            "modo": "TRUCK",
+            "obs": "cross the slyly ironic instructions pri"
+          }
+        ]
+      },
+      {
+        "orderkey": "53283",
+        "status": "O",
+        "total": "165928.33",
+        "data": "1995-10-29",
+        "prioridade": "2-HIGH",
+        "itens": [
+          {
+            "linha": "1",
+            "qtd": "48.0",
+            "preco": "67608.0",
+            "desconto": "0.06",
+            "flag": "N",
+            "envio": "1995-12-28",
+            "modo": "SHIP",
+            "obs": "usly. furiously bold deposit"
+          },
+          {
+            "linha": "2",
+            "qtd": "7.0",
+            "preco": "7154.84",
+            "desconto": "0.0",
+            "flag": "N",
+            "envio": "1995-11-18",
+            "modo": "REG AIR",
+            "obs": " furiously furiously iro"
+          },
+          {
+            "linha": "3",
+            "qtd": "27.0",
+            "preco": "30543.21",
+            "desconto": "0.01",
+            "flag": "N",
+            "envio": "1995-11-14",
+            "modo": "MAIL",
+            "obs": "ld instructions "
+          },
+          {
+            "linha": "4",
+            "qtd": "50.0",
+            "preco": "68923.5",
+            "desconto": "0.09",
+            "flag": "N",
+            "envio": "1995-11-28",
+            "modo": "REG AIR",
+            "obs": " quickly ironic instructions wake f"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "custkey": "2",
+    "nome": "Customer#000000002",
+    "endereco": "487LW1dovn6Q4dMVymKwwLE9OKf3QG",
+    "fone": "23-768-687-3665",
+    "segmento": "AUTOMOBILE",
+    "saldo": "121.65",
+    "pedidos": [
+      {
+        "orderkey": "6980",
+        "status": "F",
+        "total": "170842.93",
+        "data": "1993-02-19",
+        "prioridade": "4-NOT SPECIFIED",
+        "itens": [
+          {
+            "linha": "1",
+            "qtd": "33.0",
+            "preco": "54408.42",
+            "desconto": "0.03",
+            "flag": "A",
+            "envio": "1993-06-16",
+            "modo": "AIR",
+            "obs": " express ins"
+          },
+          {
+            "linha": "2",
+            "qtd": "11.0",
+            "preco": "20030.12",
+            "desconto": "0.08",
+            "flag": "A",
+            "envio": "1993-05-26",
+            "modo": "RAIL",
+            "obs": "ainments. express theodolites pla"
+          },
+          {
+            "linha": "3",
+            "qtd": "40.0",
+            "preco": "39283.2",
+            "desconto": "0.03",
+            "flag": "R",
+            "envio": "1993-03-25",
+            "modo": "SHIP",
+            "obs": "le carefully sl"
+          },
+          {
+            "linha": "4",
+            "qtd": "22.0",
+            "preco": "20746.88",
+            "desconto": "0.09",
+            "flag": "A",
+            "envio": "1993-06-09",
+            "modo": "SHIP",
+            "obs": "en deposits are slyly final,"
+          },
+          {
+            "linha": "5",
+            "qtd": "6.0",
+            "preco": "11213.76",
+            "desconto": "0.08",
+            "flag": "A",
+            "envio": "1993-05-03",
+            "modo": "MAIL",
+            "obs": "ent, final dolphins. carefully even ac"
+          },
+          {
+            "linha": "6",
+            "qtd": "3.0",
+            "preco": "2892.18",
+            "desconto": "0.04",
+            "flag": "A",
+            "envio": "1993-02-25",
+            "modo": "SHIP",
+            "obs": "nts are ironic instructions. "
+          },
+          {
+            "linha": "7",
+            "qtd": "12.0",
+            "preco": "22259.4",
+            "desconto": "0.04",
+            "flag": "A",
+            "envio": "1993-03-27",
+            "modo": "TRUCK",
+            "obs": " accounts believe slyly. bus"
+          }
+        ]
+      },
+      {
+        "orderkey": "10563",
+        "status": "F",
+        "total": "143707.7",
+        "data": "1993-09-30",
+        "prioridade": "1-URGENT",
+        "itens": [
+          {
+            "linha": "1",
+            "qtd": "12.0",
+            "preco": "16517.64",
+            "desconto": "0.06",
+            "flag": "R",
+            "envio": "1994-01-04",
+            "modo": "SHIP",
+            "obs": "y ironic instructions above the blith"
+          },
+          {
+            "linha": "2",
+            "qtd": "35.0",
+            "preco": "44462.6",
+            "desconto": "0.1",
+            "flag": "R",
+            "envio": "1993-11-15",
+            "modo": "RAIL",
+            "obs": "eodolites. i"
+          },
+          {
+            "linha": "3",
+            "qtd": "46.0",
+            "preco": "41492.0",
+            "desconto": "0.05",
+            "flag": "A",
+            "envio": "1993-11-11",
+            "modo": "MAIL",
+            "obs": "pending dep"
+          },
+          {
+            "linha": "4",
+            "qtd": "46.0",
+            "preco": "46418.6",
+            "desconto": "0.07",
+            "flag": "R",
+            "envio": "1994-01-10",
+            "modo": "RAIL",
+            "obs": "e regular accounts. slyly special packag"
+          }
+        ]
+      },
+      {
+        "orderkey": "16129",
+        "status": "O",
+        "total": "50178.44",
+        "data": "1998-05-18",
+        "prioridade": "5-LOW",
+        "itens": [
+          {
+            "linha": "1",
+            "qtd": "40.0",
+            "preco": "37561.2",
+            "desconto": "0.05",
+            "flag": "N",
+            "envio": "1998-08-21",
+            "modo": "REG AIR",
+            "obs": "ly express platelets are. sil"
+          },
+          {
+            "linha": "2",
+            "qtd": "13.0",
+            "preco": "12793.04",
+            "desconto": "0.08",
+            "flag": "N",
+            "envio": "1998-09-01",
+            "modo": "REG AIR",
+            "obs": " dinos: pendi"
+          }
+        ]
+      },
+      {
+        "orderkey": "20257",
+        "status": "O",
+        "total": "181875.6",
+        "data": "1996-03-04",
+        "prioridade": "4-NOT SPECIFIED",
+        "itens": [
+          {
+            "linha": "1",
+            "qtd": "36.0",
+            "preco": "45192.6",
+            "desconto": "0.05",
+            "flag": "N",
+            "envio": "1996-05-18",
+            "modo": "AIR",
+            "obs": " ideas are. pending requ"
+          },
+          {
+            "linha": "2",
+            "qtd": "27.0",
+            "preco": "49272.84",
+            "desconto": "0.1",
+            "flag": "N",
+            "envio": "1996-03-13",
+            "modo": "RAIL",
+            "obs": "ress requests boost slyly stealthy, pendi"
+          },
+          {
+            "linha": "3",
+            "qtd": "48.0",
+            "preco": "59872.32",
+            "desconto": "0.1",
+            "flag": "N",
+            "envio": "1996-05-15",
+            "modo": "FOB",
+            "obs": "ts. carefully final packages boos"
+          },
+          {
+            "linha": "4",
+            "qtd": "1.0",
+            "preco": "1113.21",
+            "desconto": "0.03",
+            "flag": "N",
+            "envio": "1996-03-31",
+            "modo": "RAIL",
+            "obs": "e slyly final d"
+          },
+          {
+            "linha": "5",
+            "qtd": "21.0",
+            "preco": "38428.32",
+            "desconto": "0.08",
+            "flag": "N",
+            "envio": "1996-03-21",
+            "modo": "REG AIR",
+            "obs": "xpress pinto beans sleep silentl"
+          }
+        ]
+      },
+      {
+        "orderkey": "28167",
+        "status": "O",
+        "total": "37156.97",
+        "data": "1997-05-24",
+        "prioridade": "3-MEDIUM",
+        "itens": [
+          {
+            "linha": "1",
+            "qtd": "2.0",
+            "preco": "1968.16",
+            "desconto": "0.05",
+            "flag": "N",
+            "envio": "1997-09-22",
+            "modo": "AIR",
+            "obs": " deposits. fluffily ca"
+          },
+          {
+            "linha": "2",
+            "qtd": "32.0",
+            "preco": "36743.68",
+            "desconto": "0.08",
+            "flag": "N",
+            "envio": "1997-07-04",
+            "modo": "REG AIR",
+            "obs": " instructions wake always. furiously regu"
+          }
+        ]
+      },
+      {
+        "orderkey": "29408",
+        "status": "F",
+        "total": "154867.09",
+        "data": "1993-05-03",
+        "prioridade": "4-NOT SPECIFIED",
+        "itens": [
+          {
+            "linha": "1",
+            "qtd": "40.0",
+            "preco": "67511.2",
+            "desconto": "0.02",
+            "flag": "R",
+            "envio": "1993-08-21",
+            "modo": "RAIL",
+            "obs": "s sleep sl"
+          },
+          {
+            "linha": "2",
+            "qtd": "16.0",
+            "preco": "20662.24",
+            "desconto": "0.03",
+            "flag": "A",
+            "envio": "1993-08-21",
+            "modo": "SHIP",
+            "obs": "ing packages. blithely even requests a"
+          },
+          {
+            "linha": "3",
+            "qtd": "15.0",
+            "preco": "18274.65",
+            "desconto": "0.02",
+            "flag": "A",
+            "envio": "1993-08-26",
+            "modo": "FOB",
+            "obs": "ecial courts about the fluffily regular a"
+          },
+          {
+            "linha": "4",
+            "qtd": "44.0",
+            "preco": "43739.96",
+            "desconto": "0.03",
+            "flag": "R",
+            "envio": "1993-06-14",
+            "modo": "TRUCK",
+            "obs": "tructions nag regularly final pa"
+          }
+        ]
+      },
+      {
+        "orderkey": "29956",
+        "status": "F",
+        "total": "116247.57",
+        "data": "1994-08-15",
+        "prioridade": "1-URGENT",
+        "itens": [
+          {
+            "linha": "1",
+            "qtd": "34.0",
+            "preco": "47480.66",
+            "desconto": "0.0",
+            "flag": "R",
+            "envio": "1994-11-04",
+            "modo": "AIR",
+            "obs": "onic dependencies "
+          },
+          {
+            "linha": "2",
+            "qtd": "49.0",
+            "preco": "71567.44",
+            "desconto": "0.08",
+            "flag": "A",
+            "envio": "1994-10-14",
+            "modo": "REG AIR",
+            "obs": "ular accounts: furiously even foxes ar"
+          }
+        ]
+      },
+      {
+        "orderkey": "38276",
+        "status": "O",
+        "total": "201568.55",
+        "data": "1996-03-13",
+        "prioridade": "5-LOW",
+        "itens": [
+          {
+            "linha": "1",
+            "qtd": "37.0",
+            "preco": "62188.49",
+            "desconto": "0.06",
+            "flag": "N",
+            "envio": "1996-05-22",
+            "modo": "SHIP",
+            "obs": " blithe packages wake furiously. qu"
+          },
+          {
+            "linha": "2",
+            "qtd": "10.0",
+            "preco": "13344.3",
+            "desconto": "0.05",
+            "flag": "N",
+            "envio": "1996-05-29",
+            "modo": "FOB",
+            "obs": "deposits nag slyly against"
+          },
+          {
+            "linha": "3",
+            "qtd": "36.0",
+            "preco": "49480.92",
+            "desconto": "0.02",
+            "flag": "N",
+            "envio": "1996-05-16",
+            "modo": "TRUCK",
+            "obs": "s wake. furiously even requests r"
+          },
+          {
+            "linha": "4",
+            "qtd": "7.0",
+            "preco": "8317.96",
+            "desconto": "0.0",
+            "flag": "N",
+            "envio": "1996-03-26",
+            "modo": "TRUCK",
+            "obs": "es eat near the deposits. carefull"
+          },
+          {
+            "linha": "5",
+            "qtd": "45.0",
+            "preco": "68202.45",
+            "desconto": "0.06",
+            "flag": "N",
+            "envio": "1996-04-06",
+            "modo": "FOB",
+            "obs": " of the sl"
+          }
+        ]
+      },
+      {
+        "orderkey": "40070",
+        "status": "O",
+        "total": "54402.2",
+        "data": "1996-09-17",
+        "prioridade": "3-MEDIUM",
+        "itens": [
+          {
+            "linha": "1",
+            "qtd": "41.0",
+            "preco": "54752.63",
+            "desconto": "0.08",
+            "flag": "N",
+            "envio": "1996-12-21",
+            "modo": "AIR",
+            "obs": "kly bold platelets--"
+          }
+        ]
+      },
+      {
+        "orderkey": "44962",
+        "status": "F",
+        "total": "45657.87",
+        "data": "1994-12-29",
+        "prioridade": "3-MEDIUM",
+        "itens": [
+          {
+            "linha": "1",
+            "qtd": "3.0",
+            "preco": "4495.77",
+            "desconto": "0.03",
+            "flag": "A",
+            "envio": "1995-03-25",
+            "modo": "TRUCK",
+            "obs": "ckages before the grouc"
+          },
+          {
+            "linha": "2",
+            "qtd": "23.0",
+            "preco": "40706.78",
+            "desconto": "0.05",
+            "flag": "A",
+            "envio": "1995-02-10",
+            "modo": "TRUCK",
+            "obs": "thrash slyly. dep"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "custkey": "3",
+    "nome": "Customer#000000003",
+    "endereco": "fkRGN8nY4pkE",
+    "fone": "11-719-748-3364",
+    "segmento": "AUTOMOBILE",
+    "saldo": "7498.12",
+    "pedidos": []
+  }
+]

@@ -1,0 +1,11 @@
+TESTE EM MASSA — hierarquia com DADO REAL (TPC-H sf001, aninhado pela FK)
+
+Formas reais (aninhamento via FK; o shaper achata, aqui invertemos):
+  [OK] customer>orders>lineitem (2 níveis): 1500 docs · 75175 filhos aninhados · 4774688 B · RT=True determinismo=True invariante=True
+  [OK] orders>lineitem (1 nível, outro pai): 15000 docs · 60175 filhos aninhados · 999849 B · RT=True determinismo=True invariante=True
+
+amostra diffável: intermediates/01-nested-sample.json -> outputs/01-sample.tcf -> outputs/02-roundtrip-sample.json (byte-idêntico ao intermediate: True)
+
+VEREDITO: TODAS as formas reais fazem RT byte-exato em massa.
+Escopo: classe coberta (all-string via str(); tipos/null = camada ortogonal, pro fim).
+Zero mudança em src/tcf (API pública read-only).
