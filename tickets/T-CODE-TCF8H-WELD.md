@@ -139,6 +139,32 @@ otimizações, deixado pro fim) — lab `2026-07-14-2043`. Próximos INCREMENTOS
 - **Tipos**: o H não herda a coerção do flat. A representação tipada, `null` e presença devem ser
   definidos no DatasetH antes de escolher tags ou deduções no header.
 
+## AUDITORIA ADVERSARIAL 2026-07-15 — BUGS R0-class no header do `H` (repro pinado)
+
+**[probatório→preempção]** Workflow de auditoria (4 lentes + síntese) sobre o estudo de amostragem
+honesta encontrou — e os probes verificaram
+([lab 2336/probes_auditoria.py](../experiments/lab/dirty/2026-07-14-2336-hierarquia-amostra-populacao-honesta/probes_auditoria.py)) —
+**nomes de chave com chars da gramática do meta quebram RT** (entrada que o encoder aceita →
+critério 1 da regra de ROI do T-REL-08, preempta):
+
+| entrada | comportamento HOJE | classe |
+|---|---|---|
+| nome com `,` | **corrupção SILENCIOSA** (`{'c,d':'2'}` → `[{'c':'2','d':'2'}]`) | pior |
+| nome com `{` | **corrupção SILENCIOSA** (objeto fantasma `{'i':{'j':...}}`) | pior |
+| nome com `[` | **HANG** no parse do meta (classe BUG-12) | pior |
+| nome com `:` / `#` | fail-loud TARDIO (no decode, erro confuso) | médio |
+| espaço / `\` em nome; `\t`/`\x00` em valor; vazios | RT-OK (robustos) | — |
+| `\n` em valor | fail-loud CLARO do core (contrato pendente, boundary) | ok |
+
+**Causa**: `_build_meta` emite nomes CRUS; `_parse_meta` corta nome em `,[]{}:#`. O header plano
+`.8M` já **escapa nomes com `\`** (T-FMT-NAME-ESCAPING) — o `.8H` nasceu sem portar o escaping.
+**Fix proposto** (1 função de escape/unescape + guarda no encode; AGUARDA APROVAÇÃO do owner p/
+mexer em `src/tcf`): portar a convenção de escaping do `.8M` pro meta do `.8H` e adicionar os
+probes como testes red→green. Correções de rotulagem do estudo (ESTRUTURAL→robusto-a-valores;
+br-identidades é 1:N puro fan-out 1.03, não N:N; N:N é INEXPRESSÁVEL no contrato, não "fail-loud")
+já aplicadas no result do lab 2336. Probes de dado real pendentes registrados: receita-cnpj
+matriz→filiais (hub pronto) e online-retail InvoiceNo→itens (precisa build).
+
 ## PRÓXIMO — teste em massa via shaper (owner 2026-07-14, "depois de fechar os tickets")
 
 **[probatório, planejado]** Owner: *"depois precisamos de um teste em massa disso, nem que o esquema
