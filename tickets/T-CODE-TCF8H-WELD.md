@@ -156,14 +156,19 @@ critério 1 da regra de ROI do T-REL-08, preempta):
 | espaço / `\` em nome; `\t`/`\x00` em valor; vazios | RT-OK (robustos) | — |
 | `\n` em valor | fail-loud CLARO do core (contrato pendente, boundary) | ok |
 
-**Causa**: `_build_meta` emite nomes CRUS; `_parse_meta` corta nome em `,[]{}:#`. O header plano
+**Causa**: `_build_meta` emitia nomes CRUS; `_parse_meta` cortava nome em `,[]{}:#`. O header plano
 `.8M` já **escapa nomes com `\`** (T-FMT-NAME-ESCAPING) — o `.8H` nasceu sem portar o escaping.
-**Fix proposto** (1 função de escape/unescape + guarda no encode; AGUARDA APROVAÇÃO do owner p/
-mexer em `src/tcf`): portar a convenção de escaping do `.8M` pro meta do `.8H` e adicionar os
-probes como testes red→green. Correções de rotulagem do estudo (ESTRUTURAL→robusto-a-valores;
-br-identidades é 1:N puro fan-out 1.03, não N:N; N:N é INEXPRESSÁVEL no contrato, não "fail-loud")
-já aplicadas no result do lab 2336. Probes de dado real pendentes registrados: receita-cnpj
-matriz→filiais (hub pronto) e online-retail InvoiceNo→itens (precisa build).
+**FIX WELDED (aprovado pelo owner, commit `40a7e10`)**: escaping portado (`_esc_name`/`_unesc_name`
+estrito + `nm()` escape-aware + `_rstrip_closes` que preserva closers ESCAPADOS no omit-closes).
+Red→green: 14 nomes adversariais parametrizados + interações árvore/omit-closes + fail-loud claro
+p/ nome vazio e `\n`-em-nome; fuzz agora gera ~25% nomes adversariais. **Suíte 666 passed**, pins
+flat byte-canônicos verdes; probes 13/13 conforme esperado (nomes RT-OK; `\n`-em-valor segue
+fail-loud claro do core, contrato boundary pendente). Wire: nomes sem chars especiais ficam
+byte-idênticos (sem regressão de blob válido).
+Correções de rotulagem do estudo (ESTRUTURAL→robusto-a-valores; br-identidades é 1:N puro fan-out
+1.03, não N:N; N:N é INEXPRESSÁVEL no contrato, não "fail-loud") já aplicadas no result do lab 2336.
+Probes de dado real pendentes registrados: receita-cnpj matriz→filiais (hub pronto) e
+online-retail InvoiceNo→itens (precisa build).
 
 ## PRÓXIMO — teste em massa via shaper (owner 2026-07-14, "depois de fechar os tickets")
 
