@@ -1,0 +1,50 @@
+ESTUDO — amostra de POPULAÇÃO com seleção HONESTA (hierarquia/ligações diversas)
+
+(A) RT em ESTRATOS HONESTOS do TPC-H (Shaper: estratificação proporcional + integridade ref.):
+  distribuição de MULTIPLICIDADE na população (o que estressa o codec): pedidos/cliente min=2 max=32 media=15.0 · itens/pedido min=1 max=7 media=4.0 · clientes SEM pedido (cauda vazia)=500
+  [OK] estrato by=c_mktsegment vol=0.1 seed=7: 96 customers, RT=True, representatividade TVD=0.0040
+  [OK] estrato by=c_mktsegment vol=0.1 seed=42: 93 customers, RT=True, representatividade TVD=0.0040
+  [OK] estrato by=c_mktsegment vol=0.1 seed=101: 102 customers, RT=True, representatividade TVD=0.0040
+  [OK] estrato by=c_mktsegment vol=0.3 seed=7: 302 customers, RT=True, representatividade TVD=0.0016
+  [OK] estrato by=c_mktsegment vol=0.3 seed=42: 291 customers, RT=True, representatividade TVD=0.0016
+  [OK] estrato by=c_mktsegment vol=0.3 seed=101: 299 customers, RT=True, representatividade TVD=0.0016
+  [OK] estrato by=c_mktsegment vol=0.6 seed=7: 605 customers, RT=True, representatividade TVD=0.0011
+  [OK] estrato by=c_mktsegment vol=0.6 seed=42: 610 customers, RT=True, representatividade TVD=0.0011
+  [OK] estrato by=c_mktsegment vol=0.6 seed=101: 602 customers, RT=True, representatividade TVD=0.0011
+  [OK] estrato by=c_nationkey vol=0.1 seed=7: 101 customers, RT=True, representatividade TVD=0.0293
+  [OK] estrato by=c_nationkey vol=0.1 seed=42: 97 customers, RT=True, representatividade TVD=0.0293
+  [OK] estrato by=c_nationkey vol=0.1 seed=101: 109 customers, RT=True, representatividade TVD=0.0293
+  [OK] estrato by=c_nationkey vol=0.3 seed=7: 306 customers, RT=True, representatividade TVD=0.0069
+  [OK] estrato by=c_nationkey vol=0.3 seed=42: 314 customers, RT=True, representatividade TVD=0.0069
+  [OK] estrato by=c_nationkey vol=0.3 seed=101: 296 customers, RT=True, representatividade TVD=0.0069
+  [OK] estrato by=c_nationkey vol=0.6 seed=7: 582 customers, RT=True, representatividade TVD=0.0038
+  [OK] estrato by=c_nationkey vol=0.6 seed=42: 619 customers, RT=True, representatividade TVD=0.0038
+  [OK] estrato by=c_nationkey vol=0.6 seed=101: 597 customers, RT=True, representatividade TVD=0.0038
+  → 18/18 estratos honestos com RT byte-exato (cada estrato inclui a cauda: pai sem filho E pai com muitos). Se fosse sorte de fatia, falharia em algum; passar em todos = ESTRUTURAL.
+  RESSALVA HONESTA: estratificado por segmento/nação, NÃO diretamente pela multiplicidade; mas os 18 estratos varrem 10-60% da pop c/ 3 seeds → a cauda de fan-out É exercitada.
+
+(B) FRONTIER — ligações diversas (o que NÃO é contenção 1:N):
+  partsupp: 8000 arestas N:N (part↔supplier). part tem até 4 suppliers; supplier até 80 parts → NÃO é árvore (multi-pai). Fora da classe coberta.
+  lineitem: aponta pra orders (l_orderkey) E part (l_partkey) E supplier (l_suppkey)
+    → snowflake / multi-pai. Nesta como filho de orders (o teste A); como filho de
+    part OU supplier seria OUTRA projeção do MESMO fato (1:N≡N:1 por ponto de vista).
+  VEREDITO honesto: o weld cobre CONTENÇÃO (árvore 1:N). N:N/multi-pai = super-
+    hierarquia (FK/junção, H-HIER-MULTITABELA-01) — hoje fail-loud, não corrompe.
+
+(C) 2ª fonte REAL — br-identidades (tabelas: ['pessoas', 'empresas']); FK empresas.socio_cpf→pessoas.cpf (N:N):
+  pessoa→[empresas] (contenção 1:N, 500 pessoas, 3 com >1 empresa): RT=True. A N:N vira 1:N ao escolher a raiz (pessoa) — projeção honesta.
+
+(D) VALORES-QUEBRADORES reais (\n / controle → quebrariam RT; contratos de borda):
+  0 valores com \n/controle nas colunas free-text reais varridas → nesta amostra
+  real, nenhum valor quebra o RT. MAS: é achado desta população; o contrato de
+  \n-em-valor (T-API-BOUNDARY-CONTRACTS) segue pendente — não deduzir 'nunca ocorre'.
+
+SÍNTESE HONESTA:
+- CONTENÇÃO (árvore 1:N): coberta — RT byte-exato em 18/18 estratos honestos TPC-H + 2ª fonte real (br-identidades). Estrutural, não fatia de sorte.
+- LIGAÇÕES DIVERSAS (N:N / multi-pai / snowflake): FRONTIER declarado — fora da classe coberta,
+  fail-loud (não corrompe); alvo da super-hierarquia H-HIER-MULTITABELA-01 (FK/junção).
+- 1:N ≡ N:1 por ponto de vista: a N:N vira 1:N ao ESCOLHER a raiz (projeção); o que falta é a
+  representação de MÚLTIPLAS raízes/junção simultâneas (não uma projeção só).
+- Pobreza de dados com ligação no repo (só TPC-H rico + br-identidades): o Shaper mitiga dando
+  amostras honestas; ampliar população (mais fontes reais ligadas OU shaper gerando) fica registrado.
+Zero mudança em src/tcf.
