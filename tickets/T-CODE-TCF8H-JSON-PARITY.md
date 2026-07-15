@@ -21,6 +21,16 @@ related:
 > pré-existente do L1 ([BUG-SEQRLE-RANGE-EMPTY-B](BUG-SEQRLE-RANGE-EMPTY-B.md), R0, separado do P1).
 > **Próximo (owner): null (P3)** — o mais barato (`0` já reservado na máscara do P1). Depois P2 tipos, P4 rep-level.
 
+> **REVISÃO DE ESCOPO 2026-07-15 — opinião registrada; decisão pendente do owner.** P3 não é um
+> único incremento mecânico. **P3a** = null em CAMPO de objeto (`{x:null}`), inclusive quando o campo
+> não-nulo é escalar/objeto/array: reutiliza diretamente `0` na definition mask e não consome corpo nem
+> descendentes. **P3b** = null em ELEMENTO de array (`["a",null,"b"]` ou `[{},null,{}]`): precisa de
+> máscara alinhada aos elementos, pois a máscara P1 está alinhada às instâncias do campo. **Null na
+> raiz** fica junto da decisão P4/N-raízes. Recomendação probatória: P3a → P3b, com gates separados;
+> não declarar “família null fechada” após P3a. NaN/±Infinity ficam fora (não são JSON RFC 8259 e
+> dependem da camada de tipos P2). Fonte do raciocínio e ordem de retomada: checkpoint
+> [2026-07-15-revisao-null-pos-p1](../experiments/lab/dirty/notas/checkpoints/2026-07-15-revisao-null-pos-p1.md).
+
 # T-CODE-TCF8H-JSON-PARITY — fechar "hierarquia" com critério REALISTA (JSON) + algo além
 
 **[dispositivo→roadmap]** Owner (2026-07-15): *"veja o que falta pra fecharmos bem a questão de
@@ -43,7 +53,9 @@ realista, não sintético). O weld atual (ADR-0033) cobre a ESPINHA; faltam os c
 | **chave OPCIONAL / objeto ragged** | ✅ **WELDED** (P1, 2026-07-15) | — (`nome?:msize`, máscara 3-estados; ADR-0033 §Update P1) |
 | **number (int/float) preservado** | ❌ `str()` coerção (H-TYPE-01) | **P2 — tipos** (C-híbrida decidida conceitual) |
 | **`true`/`false`** | ❌ `str()`→`"True"` | P2 (junto de tipos) |
-| **`null`** (≠ ausente ≠ `"null"`) | ❌ `str()`→`"None"` | **P3 — H-HIER-SCALAR-01** |
+| **`null` em campo** (≠ ausente ≠ `"null"`) | ❌ fail-loud | **P3a — definition mask `0`** |
+| **`null` em elemento de array** | ❌ fail-loud | **P3b — máscara no nível dos elementos** |
+| **`null` na raiz** | ❌ fora do contrato `list[dict]` | decisão junto de **P4/N-raízes** |
 | **array-em-array / N raízes / array no topo** | ❌ fail-loud | **P4 — rep-level** (B3, caracterizado, não implementado) |
 | **array polimórfico** (elementos de schema variável) | ❌ fail-loud | P5 — union/def-level (a fronteira mais afiada) |
 | `\n` em valor | ❌ fail-loud (core) | **congelar** contrato (boundary) |
@@ -57,17 +69,27 @@ Gate de cada um: RT-exato + non-regressão flat byte-idêntica + aprovação `sr
 adversariais (a lição do escape: testar nome/valor/borda, não só o caminho feliz).
 
 1. ~~**P1 · Presença/ragged** (chave opcional)~~ **✅ WELDED 2026-07-15** — `nome?:msize`, máscara
-   3-estados; endureceu tipo/null/frame junto (auditoria); suíte 684. Falta só o probe real-world (PW3).
-2. **P2 · Tipos** (number/bool preservados) — C-híbrida (deduz número/bool grátis, tag só na
+   3-estados; endureceu tipo/null/frame junto (auditoria); probe real-world amostral fechado; suíte
+   vigente 685 passed, 2 skipped, 1 xfailed (bug L1 separado e pinado).
+2. **P3 · null (campo + elemento)** — **MECANISMO REVISTO (owner 2026-07-15): índices de substituição**
+   (dicionário por-coluna pré-semeado no header), NÃO máscara-`0`. Ganho: unifica null-em-campo (P3a) e
+   null-em-elemento (P3b) no MESMO mecanismo (a máscara precisaria de element-mask nova). Toca L1 core →
+   estudo-primeiro + medições + aprovação. Plano:
+   [substituicao-indices-especiais-plano.md](../experiments/lab/dirty/notas/substituicao-indices-especiais-plano.md)
+   (H-SUBST-INDEX-01). Gate distingue ausente/null/`"null"`/`""`; campo escalar/objeto/array; all-null;
+   null em elemento (inicial/meio/fim). A máscara de presença `.`/`-` do P1 permanece p/ AUSÊNCIA
+   (ausência-como-índice = a medir, owner D).
+4. **P2 · Tipos** (number/bool preservados) — C-híbrida (deduz número/bool grátis, tag só na
    colisão-string; análogo ao hex-default). Fecha o `str()`-lossy do H-TYPE-01.
-3. **P3 · null** distinto (ausente/`null`/`"null"`) — H-HIER-SCALAR-01; entra junto ou logo após P2.
-4. **P4 · Rep-level** (array-em-array, N-raízes) — um NÚMERO posicional (onde o array reinicia).
-5. **P5 · Array polimórfico** (union) — a fronteira; pode ficar por último ou virar fail-loud honesto.
-6. **Congelar contratos de borda** — `\n`-em-valor + gramática-de-nome (escaping) →
+5. **P4 · Rep-level** (array-em-array, N-raízes e decisão de null na raiz) — um NÚMERO posicional
+   (onde o array reinicia).
+6. **P5 · Array polimórfico** (union) — a fronteira; pode ficar por último ou virar fail-loud honesto.
+7. **Congelar contratos de borda** — `\n`-em-valor + gramática-de-nome (escaping) →
    [T-API-BOUNDARY-CONTRACTS](T-API-BOUNDARY-CONTRACTS.md), antes do freeze pré-1.0.
 
-Com P1–P4 + contratos, o `.8H` faz RT de praticamente qualquer JSON de transmissão real = **paridade
-JSON** (o critério realista do owner).
+Com P1, P3a/P3b, P2, P4 + contratos, o `.8H` se aproxima da paridade JSON de transmissão real. P5
+continua sendo a fronteira explícita; portanto o fechamento deve reportar a fração in-class, não usar
+“qualquer JSON” enquanto arrays polimórficos permanecerem fora.
 
 ## A capacidade EXCLUSIVA (além do JSON) — o "algo mais avançado"
 

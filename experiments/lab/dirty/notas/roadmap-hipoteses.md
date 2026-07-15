@@ -638,6 +638,19 @@ nova hipotese identificada.
     Nota [`tipos-como-specs.md`](tipos-como-specs.md) + lab [`2026-07-06-2310-tipos-como-specs/`](../2026-07-06-2310-tipos-como-specs/result.md).
     Unifica H-TYPE-01 + T-OPT-INFERENCE (hex=sub-spec numerica) + natures (ADR-0015). `confirmada-conceitual`.
 
+- **H-SUBST-INDEX-01** (índices de substituição p/ especiais via dicionário pré-semeado, owner 2026-07-15):
+  tratar null (e a família de especiais) na **camada de referência/dicionário do L1** — o dicionário
+  por-coluna **nasce PRÉ-SEMEADO** com os reservados nos índices baixos (byte combinatório no header →
+  até 8 especiais em 0..7), não como estado de máscara. NÃO é "if null desloca"; é "a tabela já começa
+  preenchida" (menos lógica). Sentinelas **não-string** → sem colisão com `"null"`/`""` (corrige a
+  refutação do lab `2026-07-13-1921`). **Ganho vs máscara-`0`**: unifica null-em-campo (P3a) E
+  null-em-elemento (P3b) no MESMO mecanismo (a máscara precisaria de element-mask nova); estende a
+  NaN/Inf (P2) e à ausência (owner D, a medir). **Custo**: toca o L1 core (numeração de refs, mesmo
+  arquivo do BUG-SEQRLE) → estudo-primeiro + gate byte-canônico + aprovação. Deslocamento é DECIMAL
+  (Δbytes em fronteiras 9/99/999 — medir, não assumir). `aberta`, confiança: Média (design forte,
+  medição pendente). Plano: [substituicao-indices-especiais-plano.md](substituicao-indices-especiais-plano.md).
+  Candidato a SUBSTITUIR a máscara-`0` como mecanismo de P3 (a máscara de presença `.`/`-` do P1 fica).
+
 - **H-HIER-SCALAR-01** (escalares especiais no DatasetH, owner 2026-07-13): `null`, `NaN`, `+Infinity` e
   `-Infinity` pertencem ao domínio de folhas da estrutura hierárquica, não ao JSON. Há três alternativas
   abertas: tag tipada explícita; domínio tipado + índices `bN`; string especial com escape reversível.
