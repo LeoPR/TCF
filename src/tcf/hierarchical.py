@@ -42,6 +42,58 @@ class HierarchicalError(ValueError):
     """Entrada/blob hierárquico malformado ou fora da classe coberta (fail-loud)."""
 
 
+# ---------------- escaping de NOME no meta (portado do .8M, T-FMT-NAME-ESCAPING) ----------------
+# Auditoria 2026-07-15: nomes CRUS com chars da gramática (`,[]{}:#`) corrompiam calado ou
+# travavam o parse. Mesma convenção do multi/core.py: backslash-escape + unescape ESTRITO
+# (whitelist; escape fora dela = marcador de corrupção, fail-loud).
+_H_NAME_SEP = ",[]{}:#\\"      # chars estruturais do meta-árvore — escapados em QUALQUER posição
+_H_ESC_OK = _H_NAME_SEP + " "  # whitelist do unescape (espaço: escapado só se INICIAL)
+
+
+def _esc_name(name: str) -> str:
+    if not name:
+        raise HierarchicalError(
+            "nome de campo vazio nao e' representavel no meta do #TCF.8H"
+        )
+    if "\n" in name:
+        raise HierarchicalError(
+            "nome de campo com \\n nao e' representavel (meta de 1 linha)"
+        )
+    out = []
+    for ch in name:
+        if ch in _H_NAME_SEP:
+            out.append("\\")
+        out.append(ch)
+    s = "".join(out)
+    if s[0] == " ":  # espaço INICIAL: o parser come separadores " ," antes do nome
+        s = "\\" + s
+    return s
+
+
+def _unesc_name(s: str) -> str:
+    """Unescape ESTRITO (só aceita o que `_esc_name` emite; resto = corrupção)."""
+    out, i, n = [], 0, len(s)
+    while i < n:
+        c = s[i]
+        if c == "\\":
+            if i + 1 >= n:
+                raise HierarchicalError(
+                    f"meta corrompido: escape dangling (backslash solto) no nome {s!r}"
+                )
+            nxt = s[i + 1]
+            if nxt not in _H_ESC_OK:
+                raise HierarchicalError(
+                    f"meta corrompido: escape de char nao-estrutural '\\{nxt}' no nome "
+                    f"{s!r} — o encoder so' escapa {_H_ESC_OK!r}"
+                )
+            out.append(nxt)
+            i += 2
+        else:
+            out.append(c)
+            i += 1
+    return "".join(out)
+
+
 # ============================================================ L2: schema (topologia)
 # nó: ('scalar', name) | ('object', name, [filhos]) |
 #     ('arr_scalars', name) | ('arr_objects', name, [filhos])
@@ -139,26 +191,51 @@ def _build_meta(schema: list, bodies: dict) -> str:
         parts = []
         for node in children:
             p = prefix + (node[1],)
+            nome = _esc_name(node[1])  # nomes ESCAPADOS no wire (auditoria 2026-07-15)
             if node[0] == "scalar":
-                parts.append(f"{node[1]}{sz(p, 'scalar')}")
+                parts.append(f"{nome}{sz(p, 'scalar')}")
             elif node[0] == "arr_scalars":
-                parts.append(f"{node[1]}#{sz(p, 'count')}[]{sz(p, 'arr_scalars')}")
+                parts.append(f"{nome}#{sz(p, 'count')}[]{sz(p, 'arr_scalars')}")
             elif node[0] == "object":
-                parts.append(f"{node[1]}{{{emit(node[2], p)}}}")
+                parts.append(f"{nome}{{{emit(node[2], p)}}}")
             else:
-                parts.append(f"{node[1]}#{sz(p, 'count')}[{emit(node[2], p)}]")
+                parts.append(f"{nome}#{sz(p, 'count')}[{emit(node[2], p)}]")
         return ",".join(parts)
 
-    return emit(schema, ()).rstrip("]}")   # omit-closes (L3)
+    return _rstrip_closes(emit(schema, ()))   # omit-closes (L3)
+
+
+def _rstrip_closes(s: str) -> str:
+    """Omit-closes: dropa do fim APENAS closers ESTRUTURAIS (não-escapados).
+
+    Um `\\]`/`\\}` no fim é conteúdo de NOME escapado — dropá-lo deixaria escape
+    dangling (interação omit-closes × escaping, auditoria 2026-07-15)."""
+    end = len(s)
+    while end > 0 and s[end - 1] in "]}":
+        k, nb = end - 1, 0
+        while k > 0 and s[k - 1] == "\\":
+            nb += 1
+            k -= 1
+        if nb % 2 == 1:   # ímpar = o closer está escapado (pertence ao nome)
+            break
+        end -= 1
+    return s[:end]
 
 
 def _parse_meta(meta: str):
     order, i, n = [], 0, len(meta)
 
     def nm(stop):
+        # escape-aware: um char precedido de '\' NUNCA termina o token (nome escapado);
+        # devolve o trecho CRU (quem é nome des-escapa com _unesc_name; size é dígito puro)
         nonlocal i
         j = i
-        while i < n and meta[i] not in stop:
+        while i < n:
+            if meta[i] == "\\" and i + 1 < n:
+                i += 2
+                continue
+            if meta[i] in stop:
+                break
             i += 1
         return meta[j:i]
 
@@ -181,7 +258,7 @@ def _parse_meta(meta: str):
                 i += 1
             if i >= n or (closer and meta[i] == closer):
                 break
-            name = nm(",[]{}:#")
+            name = _unesc_name(nm(",[]{}:#"))
             p = prefix + (name,)
             if i < n and meta[i] == "#":                 # array (com count)
                 i += 1

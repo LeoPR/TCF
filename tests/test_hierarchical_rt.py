@@ -78,6 +78,56 @@ def test_malformed_blob_fail_loud():
         decode("#TCF.8Hnome#:X[]\nbody")   # count size invalido
 
 
+# --- nomes ADVERSARIAIS (auditoria 2026-07-15): chars da gramática do meta em NOMES ---
+# Antes do escaping (portado do .8M): ','/'{' corrompiam CALADO, '['/']'/'}' TRAVAVAM o
+# parse, ':'/'#' falhavam tarde, espaço inicial era comido. Agora: RT byte-exato.
+ADVERSARIAL_NAMES = [
+    "a:b", "c,d", "ef#", "g[h", "i{j", "a]b", "a}b",     # chars estruturais do meta
+    "Order Date", " x", "x ",                            # espaços (inicial/interno/final)
+    "k\\l", "a\\,b", "fim\\",                            # backslash literal + combinações
+    "tudo,:#[]{}\\ junto",
+]
+
+
+@pytest.mark.parametrize("nome", ADVERSARIAL_NAMES)
+def test_nome_adversarial_escalar_rt(nome):
+    docs = [{nome: "1", "outro": "2"}, {nome: "3", "outro": "4"}]
+    assert decode(encode_hierarchical(docs)) == docs
+
+
+def test_nome_adversarial_em_toda_posicao_da_arvore():
+    # nome com meta-chars em OBJETO, ARRAY-de-objetos e ARRAY-escalar (interações
+    # escaping × colchetes estruturais × omit-closes)
+    docs = [{"p,e{d": [{"it[em]": "1", "en{d": {"r,ua": "A"}}],
+             "tag#s": ["x", "y"], "no}me": "Ana"}]
+    assert decode(encode_hierarchical(docs)) == docs
+
+
+def test_nome_escapado_no_fim_nao_quebra_omit_closes():
+    # último campo DFS com nome terminando em ']'/'}': o omit-closes não pode comer
+    # o closer ESCAPADO (só os estruturais)
+    docs = [{"a": [{"ultimo]": "1"}]}, {"a": []}]
+    assert decode(encode_hierarchical(docs)) == docs
+    docs2 = [{"b": {"fecha}": "2"}}]
+    assert decode(encode_hierarchical(docs2)) == docs2
+
+
+def test_nome_vazio_fail_loud():
+    with pytest.raises(HierarchicalError, match="vazio"):
+        encode_hierarchical([{"": "v"}])
+
+
+def test_nome_com_newline_fail_loud():
+    with pytest.raises(HierarchicalError, match="\\\\n"):
+        encode_hierarchical([{"a\nb": "v"}])
+
+
+def test_escape_invalido_no_blob_fail_loud():
+    # escape fora da whitelist = marcador de corrupção (unescape ESTRITO, como no .8M)
+    with pytest.raises(HierarchicalError, match="nao-estrutural|dangling"):
+        decode("#TCF.8H\\qx\ncorpo")
+
+
 # --- property-test seedado: fuzz da classe coberta (promovido do lab 2026-07-14-2120) ---
 # Guarda permanente: milhares de documentos aleatorios DENTRO da classe coberta devem
 # fazer RT byte-exato. Seed fixa -> deterministico, sem flakiness. N modesto p/ a suite;
@@ -96,15 +146,19 @@ def _gen_scalar(rng):
 def _gen_schema(rng, depth):
     schema = {}
     for i in range(rng.randint(1, 4)):
+        # ~25% dos nomes carregam chars adversariais do meta (auditoria 2026-07-15)
+        nome = f"f{i}"
+        if rng.random() < 0.25:
+            nome += rng.choice([",a", ":b", "#c", "[d", "]e", "{f", "}g", " h", "\\i"])
         r = rng.random()
         if depth > 0 and r < 0.22:
-            schema[f"f{i}"] = ("obj", _gen_schema(rng, depth - 1))
+            schema[nome] = ("obj", _gen_schema(rng, depth - 1))
         elif depth > 0 and r < 0.44:
-            schema[f"f{i}"] = ("arr_obj", _gen_schema(rng, depth - 1))
+            schema[nome] = ("arr_obj", _gen_schema(rng, depth - 1))
         elif r < 0.60:
-            schema[f"f{i}"] = ("arr_sca", None)
+            schema[nome] = ("arr_sca", None)
         else:
-            schema[f"f{i}"] = ("scalar", None)
+            schema[nome] = ("scalar", None)
     return schema
 
 
