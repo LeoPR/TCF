@@ -97,6 +97,18 @@ H-HIER-MULTITABELA-01). ADR de weld + reconciliação final = W5 (pendente).
 Fases W abaixo: **W2/W3 FEITOS** (classe coberta); **W4 gate verde** p/ a classe; W0/W1 cobertos pelos
 labs (records = DatasetH source-agnostic, list[dict]); **W5 (ADR + ragged/tipos)** pendente.
 
+## FIXAR O ÓBVIO 2026-07-14 — fuzz EM MASSA da classe coberta (óbvio fechado)
+
+**[probatório]** Owner: *"fixar o óbvio primeiro. fechar, testar em massa e ir fechando os outros."*
+Lab [`2026-07-14-2120-hierarquia-massa-classe-coberta`](../experiments/lab/dirty/2026-07-14-2120-hierarquia-massa-classe-coberta/):
+fuzz DETERMINÍSTICO (seed 20260714) de **8000 documentos** aleatórios DENTRO da classe coberta →
+RT byte-exato `decode(encode_hierarchical(recs))==recs`: **8000/8000, 0 falhas**. Cobertura: 5263
+arrays vazios · 2379 ≥2 arrays irmãos · 1609 aninhados. → A **classe coberta está FIXADA** (fuzz +
+clássicos pinados em `tests/test_hierarchical_rt.py`). Candidato a promover a property-test seedado
+em `tests/` (guarda permanente). Estudo L3 (multiplicidade) de-firmado como HIPÓTESE (bloco de
+otimizações, deixado pro fim) — lab `2026-07-14-2043`. Próximos INCREMENTOS de funcionalidade abaixo;
+**`null`/tipos ficam pro FIM** (decisão do owner 2026-07-14).
+
 ## Plano (fases)
 
 - [ ] **W0 — contrato do DatasetH**: definir a estrutura intermediária e o significado de folhas,
