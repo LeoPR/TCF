@@ -170,6 +170,14 @@ Correções de rotulagem do estudo (ESTRUTURAL→robusto-a-valores; br-identidad
 Probes de dado real pendentes registrados: receita-cnpj matriz→filiais (hub pronto) e
 online-retail InvoiceNo→itens (precisa build).
 
+## PRÓXIMOS INCREMENTOS — roadmap de paridade JSON (2026-07-15)
+
+O que falta pra fechar "hierarquia" (amplo) foi consolidado em
+[T-CODE-TCF8H-JSON-PARITY](T-CODE-TCF8H-JSON-PARITY.md): critério = RT lossless de qualquer JSON
+real (fundamento do owner). Ordem: **P1 presença/ragged → P2 tipos → P3 null → P4 rep-level** +
+congelar contratos de borda; depois a capacidade EXCLUSIVA (shared-ref/grafo, além do JSON). O
+escape ganhou ticket de estudo próprio ([T-FMT-ESCAPE-COMBINATORIAL-STUDY](T-FMT-ESCAPE-COMBINATORIAL-STUDY.md)).
+
 ## PRÓXIMO — teste em massa via shaper (owner 2026-07-14, "depois de fechar os tickets")
 
 **[probatório, planejado]** Owner: *"depois precisamos de um teste em massa disso, nem que o esquema
