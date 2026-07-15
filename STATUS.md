@@ -1,5 +1,16 @@
 # STATUS — TCF (compendio sempre-atualizado)
 
+> **⚑ PAUSA 2026-07-15 (retomar de dia, ~8h)** — **P1 presença/ragged WELDADO** (`bcb6405`):
+> `#TCF.8H` agora aceita **chave opcional** (`nome?:msize`, máscara 3-estados; ADR-0033 §Update P1);
+> endureceu tipo/null/frame junto (auditoria adversarial fechou corrupções silenciosas pré-existentes);
+> **suíte 684 passed**, uniforme byte-idêntico. **PUSH SEGURADO**: o probe real-world (PW3, receita-cnpj)
+> revelou um **crash no DECODE do L1** (seq-RLE range `int('')`, `syntax.py:734`) que **NÃO é do P1**
+> (coerido E ragged crasham idêntico; colunas isoladas RT; suíte verde) — diagnóstico é lento (encode 200k),
+> adiado. **1º da retomada**: rodar `experiments/lab/dirty/2026-07-15-0125-p1-presenca-ragged-estudo/diagnostico_l1_seqrle_crash.py`.
+> Checkpoint: [`2026-07-15-p1-weldado-pw3-crash-l1-a-diagnosticar.md`](experiments/lab/dirty/notas/checkpoints/2026-07-15-p1-weldado-pw3-crash-l1-a-diagnosticar.md).
+> Depois: mapa de paridade JSON ([T-CODE-TCF8H-JSON-PARITY](tickets/T-CODE-TCF8H-JSON-PARITY.md)) —
+> **null primeiro** (owner). Fila de paridade: P1✅ · null(P3) · tipos(P2) · rep-level(P4).
+
 > **⚑ WELD 2026-07-14 — HIERARQUIA `#TCF.8H` no `src/tcf` (1º incremento, gate verde)**: codec
 > hierárquico weldado ADITIVO em 3 camadas (arquitetura do owner:
 > [tcf-camadas-arquitetura.md](experiments/lab/dirty/notas/tcf-camadas-arquitetura.md)) — L1 compressor
