@@ -174,9 +174,15 @@ online-retail InvoiceNo→itens (precisa build).
 
 O que falta pra fechar "hierarquia" (amplo) foi consolidado em
 [T-CODE-TCF8H-JSON-PARITY](T-CODE-TCF8H-JSON-PARITY.md): critério = RT lossless de qualquer JSON
-real (fundamento do owner). Ordem: **P1 presença/ragged → P2 tipos → P3 null → P4 rep-level** +
-congelar contratos de borda; depois a capacidade EXCLUSIVA (shared-ref/grafo, além do JSON). O
-escape ganhou ticket de estudo próprio ([T-FMT-ESCAPE-COMBINATORIAL-STUDY](T-FMT-ESCAPE-COMBINATORIAL-STUDY.md)).
+real (fundamento do owner). Ordem: ~~**P1 presença/ragged**~~ **✅ WELDED (`bcb6405`)** → **P3 null**
+(próximo, owner: mais fácil; `0` já reservado na máscara) → P2 tipos → P4 rep-level + congelar
+contratos de borda; depois a capacidade EXCLUSIVA (shared-ref/grafo, além do JSON). O escape ganhou
+ticket próprio ([T-FMT-ESCAPE-COMBINATORIAL-STUDY](T-FMT-ESCAPE-COMBINATORIAL-STUDY.md)).
+
+**Achado colateral do P1 (2026-07-15)**: o probe real-world do P1 (receita-cnpj) EXPÔS um bug R0
+pré-existente do L1 seq-RLE — [BUG-SEQRLE-RANGE-EMPTY-B](BUG-SEQRLE-RANGE-EMPTY-B.md) (sufixo `..`
+colide com o range `A..B`; `decode(encode(["ETC & TAL","ETC & TAL..."]))` crasha). Codec PLANO,
+separado do P1; `xfail` em `test_core_rt.py`; fix toca HCC core (aprovação + gate byte-canônico).
 
 ## PRÓXIMO — teste em massa via shaper (owner 2026-07-14, "depois de fechar os tickets")
 

@@ -426,3 +426,26 @@ class TestBug15CaretLeadingLiteral:
         # '^' NO MEIO nunca foi ambíguo -> deve seguir byte-neutro (sem escape)
         col = ["a^b", "c^d^e", "x"]
         assert decode(encode(col)) == col
+
+
+class TestSeqRleRangeDotDotBug:
+    """BUG-SEQRLE-RANGE-EMPTY-B (R0, PRÉ-EXISTENTE, descoberto 2026-07-15 via P1 real-world).
+
+    decode(encode(x)) crasha quando um valor estende outro por sufixo contendo '..' (colisão
+    com o operador de range A..B do seq-RLE). Real: texto com elipse ('ETC...'). Marcado xfail
+    ATÉ o fix (toca HCC core → aprovação + gate byte-canônico). Ticket: BUG-SEQRLE-RANGE-EMPTY-B.
+    """
+
+    @pytest.mark.xfail(reason="BUG-SEQRLE-RANGE-EMPTY-B: sufixo '..' colide com range do seq-RLE",
+                       strict=True, raises=ValueError)
+    def test_afixo_sufixo_dotdot_crasha(self):
+        col = ["ETC & TAL", "ETC & TAL..."]
+        assert decode(encode(col)) == col
+
+    def test_caracterizacao_nao_afeta_casos_vizinhos(self):
+        # os casos SEM o gatilho continuam RT (garante que o fix futuro não precisa mexer nesses)
+        for col in (["ETC & TAL", "ETC & TAL."],      # 1 ponto: ok
+                    ["ETC & TAL", "..ETC & TAL"],     # prefixo, não sufixo: ok
+                    ["ETC & TAL..."],                  # valor único, sem afixo: ok
+                    ["casa", "casa123"]):              # afixo sem '..': ok
+            assert decode(encode(col)) == col

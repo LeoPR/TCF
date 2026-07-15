@@ -9,10 +9,17 @@ blocked-by: []
 related:
   - tickets/T-CODE-TCF8H-WELD.md
   - tickets/T-API-BOUNDARY-CONTRACTS.md
+  - tickets/BUG-SEQRLE-RANGE-EMPTY-B.md
   - experiments/lab/dirty/notas/hierarquia-inventario-hipoteses.md
   - experiments/lab/dirty/notas/tcf-camadas-arquitetura.md
   - docs/adr/0033-hierarchical-codec-weld.md
 ---
+
+> **PROGRESSO 2026-07-15**: **P1 (presença/ragged) WELDED** (`bcb6405`) — chave opcional faz RT;
+> endureceu tipo/null/frame junto (auditoria fechou corrupções silenciosas pré-existentes). Probe
+> real-world (receita-cnpj ragged) RT byte-exato em sample; população inteira esbarra em bug
+> pré-existente do L1 ([BUG-SEQRLE-RANGE-EMPTY-B](BUG-SEQRLE-RANGE-EMPTY-B.md), R0, separado do P1).
+> **Próximo (owner): null (P3)** — o mais barato (`0` já reservado na máscara do P1). Depois P2 tipos, P4 rep-level.
 
 # T-CODE-TCF8H-JSON-PARITY — fechar "hierarquia" com critério REALISTA (JSON) + algo além
 
