@@ -123,9 +123,10 @@ otimizações, deixado pro fim) — lab `2026-07-14-2043`. Próximos INCREMENTOS
 - [x] **W4 — gate de capacidade**: RT dos clássicos + bordas + fuzz seedado (1200) em
   `tests/test_hierarchical_rt.py`; lab `2026-07-14-2120` roda 8000/8000; flat byte-idêntico; suíte 647
   passed. FEITO.
-- [~] **W5 — docs e weld**: **ADR-0033 FEITO** (weld welded 2026-07-14, indexado). **Revisão arquivo-a-arquivo
-  de `src/tcf` APRESENTADA** (3 arquivos: `hierarchical.py` novo + 2 linhas em `__init__.py` + ramo `H` em
-  `decoder.py`); owner **cauteloso em mexer agora** (weld verde, sem refactor). README/referência de formato
+- [x] **W5 — docs e weld**: **ADR-0033 FEITO** (weld welded 2026-07-14, indexado). **`src/tcf` APROVADO
+  arquivo-a-arquivo pelo owner (2026-07-15)** — aprovação condicionada à ESTABILIDADE, demonstrada pelo teste
+  em massa com dado real (TPC-H aninhado, RT byte-exato estável em volume, lab `2026-07-14-2231`). 3 arquivos:
+  `hierarchical.py` novo + 2 linhas em `__init__.py` + ramo `H` em `decoder.py`. README/referência de formato
   do `H` = pendente (entra no F6/docs do release). Otimização/decouple de L3 = `.9` (não soldar demais).
 
 ## Riscos
@@ -153,6 +154,9 @@ a forma; falta **dado REAL em massa**. Plano ancorado:
 - **Gate**: RT byte-exato `decode(encode_hierarchical(docs)) == docs` em massa + invariantes estruturais
   (contagens de filhos preservadas) + byte-determinismo. Adversarial: caçar corrupção silenciosa.
 - Vive em lab dirty (`inputs/`+`intermediates/`+`outputs/`, extensões reais); NÃO toca `src/tcf`.
+- **FEITO 2026-07-14/15** (labs `2026-07-14-2231` massa + `2026-07-14-2336` amostra honesta 18/18
+  estratos). O aninhamento foi feito À MÃO nos labs; capacidade nativa no Shaper registrada em
+  [T-SHAPER-NESTED-OUTPUT](T-SHAPER-NESTED-OUTPUT.md) (ferramental até 1.0, não bloqueia .8).
 
 ## Critério de aceite
 
