@@ -111,21 +111,22 @@ otimizações, deixado pro fim) — lab `2026-07-14-2043`. Próximos INCREMENTOS
 
 ## Plano (fases)
 
-- [ ] **W0 — contrato do DatasetH**: definir a estrutura intermediária e o significado de folhas,
-  objetos, arrays, tipos, presença, `null`, ordem, repetição e raízes. Não criar `encode_json` e não
-  auto-detectar a origem; `encode` continua sendo a única entrada do core.
-- [ ] **W1 — pesquisa de adaptadores**: implementar fora do core o caminho `JSON -> DatasetH` com stdlib
-  `json` e comparar `json_normalize`, Arrow nested e `ijson`. Construir também um DatasetH sem JSON para
-  provar que a hierarquia não está acoplada à fonte.
-- [ ] **W2 — codec externo** (regra dirty-lab: extrai a ideia, não copia `codec.py`): implementar
-  `DatasetH -> TCF.H -> DatasetH`, incluindo framing de folhas e side-channel de topologia. Alinhar ao
-  sem-espaço do ADR-0031; o protótipo usa espaço.
-- [ ] **W3 — dispatch no core**: somente após W0-W2, `decoder.py` troca o fail-loud de `H` por rota real
-  e `encode` passa a aceitar a estrutura hierárquica definida. `M`/single/órfão permanecem intactos.
-- [ ] **W4 — gate de capacidade**: RT do DatasetH, adaptador JSON em ida e volta, segunda origem,
-  determinismo, malformed input, limites e não regressão flat. Fixtures ficam fora de `src/tcf`.
-- [ ] **W5 — docs e weld**: README, referência do formato, ADR de weld e aprovação arquivo-a-arquivo de
-  `src/tcf`; o codec só entra no core depois do gate.
+- [x] **W0 — contrato do DatasetH**: `records = list[dict]` source-agnostic (JSON é adapter, não contrato).
+  Folhas string; `{}` 1:1; `[]` 1:N; classe coberta = schema uniforme. `null`/tipos/ragged/N-raízes/N:N =
+  fail-loud (fronteira registrada no ADR-0033). FEITO (labs + ADR-0033).
+- [x] **W1 — pesquisa de adaptadores**: DatasetH sem JSON provado (records nativos); labs cobriram o
+  caminho. FEITO.
+- [x] **W2 — codec externo**: shredding em blocos + `#count` (labs `2026-07-14-0111`); ideia extraída, não
+  copiada. FEITO.
+- [x] **W3 — dispatch no core**: `decoder.py` roteia `H` → `decode_hierarchical` (O(1)); `M`/single/órfão
+  intactos. FEITO (commit a20ddf7).
+- [x] **W4 — gate de capacidade**: RT dos clássicos + bordas + fuzz seedado (1200) em
+  `tests/test_hierarchical_rt.py`; lab `2026-07-14-2120` roda 8000/8000; flat byte-idêntico; suíte 647
+  passed. FEITO.
+- [~] **W5 — docs e weld**: **ADR-0033 FEITO** (weld welded 2026-07-14, indexado). **Revisão arquivo-a-arquivo
+  de `src/tcf` APRESENTADA** (3 arquivos: `hierarchical.py` novo + 2 linhas em `__init__.py` + ramo `H` em
+  `decoder.py`); owner **cauteloso em mexer agora** (weld verde, sem refactor). README/referência de formato
+  do `H` = pendente (entra no F6/docs do release). Otimização/decouple de L3 = `.9` (não soldar demais).
 
 ## Riscos
 
@@ -137,10 +138,27 @@ otimizações, deixado pro fim) — lab `2026-07-14-2043`. Próximos INCREMENTOS
 - **Tipos**: o H não herda a coerção do flat. A representação tipada, `null` e presença devem ser
   definidos no DatasetH antes de escolher tags ou deduções no header.
 
+## PRÓXIMO — teste em massa via shaper (owner 2026-07-14, "depois de fechar os tickets")
+
+**[probatório, planejado]** Owner: *"depois precisamos de um teste em massa disso, nem que o esquema
+hierárquico venha do shaper montando pra gente nosso dataset de teste."* O fuzz sintético (2120) já cobre
+a forma; falta **dado REAL em massa**. Plano ancorado:
+- **Fonte**: hub `Z:/tcf-data/interim/tpch-sf001.db` (e `tpch-sf01.db` p/ escala). FK real dá cadeia
+  pai→filho: `customer` (c_custkey) ← `orders` (o_custkey) ← `lineitem` (l_orderkey). Cadeia 1:N em 2 níveis.
+- **Bridge**: o shaper ACHATA (join.py); aqui é o INVERSO — usar modo `normalized` + metadata de FK pra pegar
+  as tabelas separadas e **aninhar** (group filhos sob o pai pela FK) → documentos hierárquicos reais.
+- **Coerção**: classe coberta = all-string; `str()` em todas as folhas ANTES (input == decode output). Sem
+  ragged (schema uniforme por tabela). Nulls → decidir (parte da família `null`, deixada pro fim) ou
+  stringificar p/ o teste de topologia.
+- **Gate**: RT byte-exato `decode(encode_hierarchical(docs)) == docs` em massa + invariantes estruturais
+  (contagens de filhos preservadas) + byte-determinismo. Adversarial: caçar corrupção silenciosa.
+- Vive em lab dirty (`inputs/`+`intermediates/`+`outputs/`, extensões reais); NÃO toca `src/tcf`.
+
 ## Critério de aceite
 
-- [ ] DatasetH definido e independente de JSON; adaptador JSON e segunda origem comprovam o caminho de entrada.
-- [ ] `decode(encode(dataset_h)) == dataset_h`, com fixtures reais committadas e RT/non-regressão pinados.
-- [ ] `src/tcf` aprovado arquivo-a-arquivo pelo owner; flat byte-idêntico.
-- [ ] Fronteira de API (W0) e de tipos/bordas (W0-W2) decididas e documentadas (cruzam T-API-BOUNDARY-CONTRACTS).
-- [ ] ADR de weld (formato final do meta-árvore) se a gramática divergir do T-FMT-TCF8H-HEADER decidido.
+- [x] DatasetH definido e independente de JSON (`records=list[dict]`); segunda origem (records nativos) comprova.
+- [x] `decode(encode(dataset_h)) == dataset_h`, com fixtures (clássicos + fuzz seedado) committadas e RT/non-regressão pinados.
+- [~] `src/tcf` **revisão apresentada** arquivo-a-arquivo; flat byte-idêntico ✅. Aprovação final = owner (cauteloso em mexer agora).
+- [~] Fronteira de tipos/bordas: classe coberta decidida + fail-loud registrado (ADR-0033). `null`/tipos/ragged = próximos incrementos (cruzam T-API-BOUNDARY-CONTRACTS), deixados pro FIM.
+- [x] ADR de weld: **ADR-0033** (a gramática do meta-árvore consolidada; consome T-FMT-TCF8H-HEADER).
+- [ ] **Teste em massa via shaper** (dado real TPC-H aninhado) — planejado acima, próximo passo.

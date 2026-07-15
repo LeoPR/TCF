@@ -16,11 +16,27 @@ o cross-dict pegou `&<G>`; o bN queria `#`. Sem registry, cada fluxo novo arrisc
 | `M` | multi-col (meta inline: `#TCF.8M<meta>`) | ✅ welded | ADR-0029; `multi/core.py` |
 | ` ` (espaço) | single-col + spec (`#TCF.8 [nome]:spec`) | ✅ welded | ADR-0029; `encoder.py` |
 | `\n` | single-col version-stamp (`#TCF.8\n<body>`) | ✅ welded | ADR-0029; `decoder.py` |
-| `H` | **multi-col hierárquico** (especialização de `M`; `#TCF.8H<meta-árvore>`, sem-espaço) | ✅ **reservado** ([ADR-0031](../../../../docs/adr/0031-hierarchical-discriminator-H.md), owner 2026-07-09) — char + semântica; **codec gated** (EXP-015 research-track, não weldado) | ADR-0031 |
+| `H` | **multi-col hierárquico** (especialização de `M`; `#TCF.8H<meta-árvore>`, sem-espaço) | ✅ **welded** ([ADR-0033](../../../../docs/adr/0033-hierarchical-codec-weld.md), owner 2026-07-14) — codec no core (`src/tcf/hierarchical.py`, L2/L3 sobre L1); char + dispatch do [ADR-0031](../../../../docs/adr/0031-hierarchical-discriminator-H.md) | ADR-0031/0033 |
 | *(livres)* | qualquer estrutura futura | reservável | — |
 
 **Regra de dispatch** (ADR-0029): match EXATO no char do índice 6; `M`/` `/`\n` distintos; um nome de coluna
 começando em `M` não colide (o discriminador é o char após `#TCF.8`, não dentro do meta).
+
+### Propósito DUPLO do discriminador (dica, não `if` rígido) — HIPÓTESE (owner 2026-07-14)
+
+Além de rotear a estrutura, o char do discriminador é uma **DICA** com dois usos futuros (H-DISC-ACCEL-01,
+`aberta`, confiança Baixa — verificar antes de implementar):
+1. **Aceleração por-forma**: SE o header traz `H`/`M`/espaço, o consumidor *pode* rotear pra um bloco de
+   código **compilado/acelerado** específico daquela forma. **Não é do TCF**, **não é pra virar `if`s
+   rígidos** — é pra o TCF ficar **modular** o bastante pra que a aceleração *seja possível* depois. Já
+   parcialmente realizado: dispatch O(1) (ADR-0029/0031) + camadas L1/L2/L3 desacopladas (ADR-0033).
+2. **Mimemagic externo**: o discriminador logo após `#TCF.8` facilita **identificar o arquivo por fora**
+   (libmagic/mimemagic) sem parsear o corpo.
+
+**Consequência de design (não de otimização)**: manter as peças **separadas por funcionalidade** e **não
+"soldar" demais** — otimização é baixa prioridade, mas a modularidade que a habilita deve ser preservada
+desde já. Otimizar tudo agora NÃO é o objetivo; **não fechar portas** é. Ver
+[tcf-camadas-arquitetura](tcf-camadas-arquitetura.md) (camadas desacopladas) + roadmap H-DISC-ACCEL-01.
 
 ## Eixo 2 — MARCADORES POR-COLUNA (dentro do meta multi-col `#TCF.8M`)
 

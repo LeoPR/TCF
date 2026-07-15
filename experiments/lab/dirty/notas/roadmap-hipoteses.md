@@ -651,6 +651,17 @@ nova hipotese identificada.
   string normal (B hibrida, alta cardinalidade). Evidencia sintetica, regular, sem decisao de gramatica;
   P4 ainda aberto. Plano e falsificadores: [dataseth-hierarquia-completa-plano.md](dataseth-hierarquia-completa-plano.md).
 
+- **H-DISC-ACCEL-01** (discriminador como DICA de aceleração + mimemagic, owner 2026-07-14): os chars do
+  discriminador (`H`/`M`/espaço/`\n`/órfão) — e por extensão os marcadores por-coluna — são **DICAS** que
+  permitem, TEORICAMENTE, (a) rotear pra blocos de código **compilado/acelerado por-forma** e (b) facilitar
+  a **identificação do arquivo por fora** (mimemagic/libmagic). **NÃO é do TCF** e **NÃO é pra virar `if`s
+  rígidos** disso — é pra o TCF ficar **modular** o bastante pra que, SE o header tiver a dica, aquela parte
+  *possa* ser acelerada depois. HIPÓTESE (verificar antes de implementar; a modularidade em si já faz sentido
+  e está parcialmente realizada: dispatch O(1) do ADR-0029/0031 + camadas L1/L2/L3 do ADR-0033). Otimização =
+  **baixa prioridade** → NÃO implementar agora; só **preservar a separação** (não "soldar" demais as peças).
+  Separação por funcionalidade > otimizar tudo agora. `aberta`, confiança: Baixa. Ver
+  [tcf8-header-char-registry](tcf8-header-char-registry.md) + [tcf-camadas-arquitetura](tcf-camadas-arquitetura.md).
+
 - **H-TYPE-02** (bit-packing por largura `bN` p/ enum/bool baixa-cardinalidade, owner 2026-07-07): familia
   `b`/`b2`/`b4`/`b8` (k<=2/4/16/256, 1/2/4/8 bits, dominio embutido = referencia). **CORRIGIDA apos revisao
   (2026-07-07)**: medida inicialmente contra baseline ERRADO (`encode(list[str])` single-col, ignora

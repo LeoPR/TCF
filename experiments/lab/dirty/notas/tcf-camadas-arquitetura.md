@@ -79,6 +79,21 @@ explícita/deduzida; e outros a levantar) com eixos **latência × memória × v
 em massa; talvez `min()` por documento. `aberta`, confiança: Baixa. Multiplicidade = 1 item do bloco, não o
 bloco. Não implementar agora (owner: fixar o óbvio primeiro, otimizações no final).
 
+## Restrição de design — NÃO "soldar" demais (owner 2026-07-14)
+
+**[dispositivo]** Reforço do owner ao fechar o weld: **otimização é baixa prioridade**; a **separação por
+funcionalidade** importa mais que ter tudo ótimo agora. Regras:
+- **Não "soldar" demais as peças** — se vamos otimizar depois, L1/L2/L3 devem ficar **desacopláveis**. O
+  L3 (deduções: count, omit-closes, tabelão-vs-nível-aware) hoje está parcialmente embutido no L2 (encode);
+  a dívida de desacoplá-lo num **passe separado opt-in** fica registrada pra `.9` — NÃO refatorar agora.
+- **Cauteloso em mexer no core agora**: o weld está verde (flat byte-idêntico); mudanças de otimização
+  esperam. O que fazemos agora é **fechar funcionalidade + fluxo**, não otimizar.
+- **Discriminador = dica, não `if` rígido** (H-DISC-ACCEL-01): a modularidade que permitiria acelerar
+  blocos por-forma (`H`/`M`/espaço) e o mimemagic externo deve ser **preservada**, mas **não implementada**
+  agora. Só não fechar portas. Ver [char-registry §propósito duplo](tcf8-header-char-registry.md).
+- **Sequência**: fechar os tickets de cada parte (pra não se perder) → **depois** teste em massa (até via
+  shaper montando o dataset hierárquico — TPC-H `customer→orders→lineitem`).
+
 ## Corolário — multi-tabela como SUPER-hierarquia (hipótese do owner, REGISTRAR, não fazer ainda)
 
 **H-HIER-MULTITABELA-01**: o header pode aninhar MAIS DE UM TCF — não só hierarquia/multi-col, mas
