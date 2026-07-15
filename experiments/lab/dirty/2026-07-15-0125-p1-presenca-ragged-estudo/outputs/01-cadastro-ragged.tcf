@@ -1,0 +1,39 @@
+#TCF.8Hnome:56,cpf:95,email?:13:32,telefone?:13:49,endereco{rua:51,cidade:32,complemento?:13
+Ana Souza
+Bruno Lima
+Carla Dias
+Daniel Reis
+Elisa Costa
+\111.\111.\111-\11
+\222.\222.\222-\22
+\333.\333.\333-\33
+\444.\444.\444-\44
+\555.\555.\555-\55
+.
+-
+^1
+^2
+^1
+an*a@exemplo.com.br
+carl2
+elis2
+*2|.
+*2|-
+^1
++\55 \1*\1 \99999-\000*\1
+1,2\2
+1\3 \98888-\0005
+Rua *A, \100
+Av. *B, \1500
+1C, \42
+1D, \7
+3E, \900
+*2|Sao Paulo
+Campinas
+*2|Santos
+.
+*2|-
+^1
+^2
+apto \32
+fundos

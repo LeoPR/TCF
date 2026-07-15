@@ -1,0 +1,7 @@
+[
+  {"nome": "Ana Souza", "cpf": "111.111.111-11", "email": "ana@exemplo.com.br", "telefone": "+55 11 99999-0001", "endereco": {"rua": "Rua A, 100", "cidade": "Sao Paulo", "complemento": "apto 32"}},
+  {"nome": "Bruno Lima", "cpf": "222.222.222-22", "telefone": "+55 11 99999-0002", "endereco": {"rua": "Av. B, 1500", "cidade": "Sao Paulo"}},
+  {"nome": "Carla Dias", "cpf": "333.333.333-33", "email": "carla@exemplo.com.br", "endereco": {"rua": "Rua C, 42", "cidade": "Campinas"}},
+  {"nome": "Daniel Reis", "cpf": "444.444.444-44", "endereco": {"rua": "Rua D, 7", "cidade": "Santos", "complemento": "fundos"}},
+  {"nome": "Elisa Costa", "cpf": "555.555.555-55", "email": "elisa@exemplo.com.br", "telefone": "+55 13 98888-0005", "endereco": {"rua": "Av. E, 900", "cidade": "Santos"}}
+]

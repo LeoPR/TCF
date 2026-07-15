@@ -1,0 +1,10 @@
+[
+  {"device": "estufa-01", "ts": "06:00", "temp": "21.4", "umid": "63.0"},
+  {"device": "estufa-01", "ts": "06:15", "temp": "21.6", "umid": "63.4"},
+  {"device": "estufa-01", "ts": "06:30", "temp": "21.9", "umid": "63.9", "erro": "sensor umid instavel"},
+  {"device": "estufa-01", "ts": "06:45", "temp": "22.1", "umid": "64.1"},
+  {"device": "estufa-01", "ts": "07:00", "temp": "22.4", "umid": "64.8"},
+  {"device": "estufa-01", "ts": "07:15", "temp": "22.8", "umid": "65.0"},
+  {"device": "estufa-01", "ts": "07:30", "temp": "23.1", "umid": "65.3", "erro": "leitura fora da faixa"},
+  {"device": "estufa-01", "ts": "07:45", "temp": "23.3", "umid": "65.5"}
+]

@@ -1,0 +1,38 @@
+ESTUDO P1 — presença/ragged (def-level) no #TCF.8H
+
+RT dos clássicos ragged (roundtrip = ARQUIVO diffável):
+  [OK] 01-cadastro-ragged.json: RT=True · tcf= 463B vs json-compacto= 714B · header: #TCF.8Hnome:56,cpf:95,email?:13:32,telefone?:13:49,endereco{rua:51,cidade:32,complemento?:13
+  [OK] 02-telemetria-ragged.json: RT=True · tcf= 282B vs json-compacto= 574B · header: #TCF.8Hdevice:14,ts:54,temp:52,umid:52,erro?:19
+  [OK] 03-pedido-aninhado-ragged.json: RT=True · tcf= 275B vs json-compacto= 435B · header: #TCF.8Hcliente:29,cupom?:13:21,itens?:10#:11[produto:47,qtd:20,obs?:16
+
+M1 — custo da MÁSCARA (coluna de controle, comprimida pelo L1):
+  n= 100 regime=raro(1/20 ausente): máscara=  48B (0.48 B/registro) · blob total=201B
+  n= 100 regime=alternado(1/2): máscara= 298B (2.98 B/registro) · blob total=408B
+  n=2000 regime=raro(1/20 ausente): máscara= 998B (0.50 B/registro) · blob total=2371B
+  n=2000 regime=alternado(1/2): máscara=5998B (3.00 B/registro) · blob total=6165B
+  → máscara regular colapsa por RLE (runs de '.'); alternada paga ~1 B/linha + \n.
+
+M2 — contraprova: sentinela '' NO LUGAR da máscara é LOSSY:
+  entrada: [{'x': '1', 'op': ''}, {'x': '2'}]
+  com sentinela '' os dois registros viram: [{'x': '1', 'op': ''}, {'x': '2', 'op': ''}] → ''-vazio e ausente COLIDEM
+  com MÁSCARA: RT=True (preserva ''≠ausente) — por isso presença precisa de canal próprio.
+
+M3 — compat: dado SEM ragged → wire BYTE-IDÊNTICO ao weld atual (src/tcf):
+  proto == weld: True (75B) — campos uniformes não pagam nada,
+  '?' só aparece onde há raggedness real (deduzido do dado, como o resto do header).
+
+M4 — escala API-like (n=1000, 3 opcionais com frequências 90%/50%/5%):
+  RT=True · tcf=10329B vs json-compacto=81130B (87.3% menor)
+  (JSON 'paga' ausência omitindo nome+valor; TCF paga máscara mas NUNCA repete nome —
+   quanto mais registros, mais o header fixo dilui.)
+
+M5 — bordas de forma (RT em cada):
+  [OK] objeto opcional COM filho opcional: RT=True
+  [OK] opcional presente em SO' 1 registro: RT=True
+  [OK] ordem de chave heterogenea (dict == ignora ordem): RT=True
+  [OK] array opcional: ausente vs vazio vs cheio: RT=True
+  [OK] opcional dentro de array de objetos (mask por INSTANCIA): RT=True
+
+M5b — fail-loud declarado (fronteiras de P1):
+  [OK] null em valor (P3): P1Error (null em ('x',) — P3 (null) nao implementado; P1 e' presenca)
+  [OK] nome com '?' e' ESCAPADO e faz RT: True

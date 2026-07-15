@@ -1,0 +1,53 @@
+[
+  {
+    "cliente": "Ana",
+    "cupom": "PROMO10",
+    "itens": [
+      {
+        "produto": "Teclado",
+        "qtd": "1",
+        "obs": "embrulhar presente"
+      },
+      {
+        "produto": "Mouse",
+        "qtd": "2"
+      }
+    ]
+  },
+  {
+    "cliente": "Bruno",
+    "itens": [
+      {
+        "produto": "Monitor",
+        "qtd": "1"
+      }
+    ]
+  },
+  {
+    "cliente": "Carla",
+    "itens": []
+  },
+  {
+    "cliente": "Daniel",
+    "cupom": "FRETEGRATIS"
+  },
+  {
+    "cliente": "Elisa",
+    "itens": [
+      {
+        "produto": "Cabo HDMI",
+        "qtd": "3",
+        "obs": "urgente"
+      },
+      {
+        "produto": "Hub USB",
+        "qtd": "1"
+      },
+      {
+        "produto": "Webcam",
+        "qtd": "1",
+        "obs": "modelo novo"
+      }
+    ]
+  }
+]

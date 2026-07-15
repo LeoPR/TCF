@@ -1,0 +1,58 @@
+# Resultado — estudo P1 presença/ragged (PARA REVISÃO; nada weldado)
+
+**[probatório]** Protótipo em [proto.py](proto.py) (fora de `src/tcf`; L1 reusado read-only).
+Números: [outputs/00-medicoes.txt](outputs/00-medicoes.txt). Exemplos vistoriáveis:
+[inputs/](inputs/) → [outputs/*.tcf](outputs/) → [outputs/*-rt.json](outputs/) (diffáveis).
+
+## O que o estudo estabelece
+
+1. **A máscara integra LIMPO na gramática weldada**: `nome?:msize` é uma extensão local (o parser
+   só ganha um branch no `?`); máscara = coluna de controle como o `#count`, comprimida pelo L1
+   (o wire mostra `*2|-` e o HCC referenciando `^1`/`^2` — de graça, sem código novo de compressão).
+2. **Compat total**: dado uniforme → **byte-idêntico** ao weld atual (M3). O `?` é DEDUZIDO do dado
+   (campo faltando em algum registro), como todo o resto do header. Zero custo pra quem não usa.
+3. **Custo honesto**: ~0,5 B/registro no regime API típico (ausência rara, RLE colapsa);
+   pior caso alternado ~3 B/registro (declarado; candidato a knob L3 — máscara-como-string
+   ~1 B/registro — registrar, não fazer).
+4. **Semântica completa**: ausente ≠ `""` ≠ `[]` (M2/M5) — o sentinela é LOSSY, máscara é o canal
+   certo. Mask por INSTÂNCIA cobre opcional dentro de array/objeto aninhado (M5 5/5).
+5. **Fronteiras não engolidas**: null → fail-loud claro apontando P3; `0` na máscara reservado.
+
+## Alternativas consideradas (e por quê não)
+
+| alternativa | por quê não |
+|---|---|
+| sentinela `""` p/ ausente | LOSSY (M2): colide com string vazia legítima |
+| union-rectangle (todas as chaves sempre, valor dummy) | mesmo problema + paga valor dummy por buraco |
+| `?` sem msize (máscara embutida no corpo) | quebra o modelo header-declara-frames; header deixa de bastar p/ fatiar (L2) |
+| máscara-como-string única (n chars, 1 linha) | não reusa L1/RLE; ganha só no caso alternado — fica como knob L3 futuro |
+| Parquet def-levels binários | quebra o pilar texto/explicabilidade; a máscara `.`/`-` é o def-level TEXTUAL |
+
+## Plano de WELD (após aprovação do owner — em etapas, como sempre)
+
+- **PW0 — aprovação deste estudo** (gramática `?`, alfabeto 3-estados, escape de `?`, semânticas).
+- **PW1 — port pro core**: `src/tcf/hierarchical.py` ganha (a) `optional` no schema-node
+  (`_derive_schema` deixa de exigir chave em todos — vira união + flag); (b) coluna `mask` em
+  `_leaves`/`_emit_row`/`_read_object`; (c) `?` no meta (emit+parse) e no `_H_NAME_SEP` (escape).
+  Estimativa: ~40 linhas de delta, aditivo, mesma forma do protótipo.
+- **PW2 — testes red→green**: `test_ragged_fail_loud` INVERTE (ragged agora RT) — é mudança de
+  CONTRATO declarada, não regressão; migram os casos M1–M5 do estudo (clássicos + bordas +
+  fail-loud null/`0`-reservado); fuzz seedado ganha `optional` no gerador (~25% dos campos).
+- **PW3 — gate**: suíte completa + pins flat byte-canônicos (D1-D9/D17a/real-world) + M3 do estudo
+  vira teste (uniforme byte-idêntico pré/pós — a não-regressão do PRÓPRIO `.8H`).
+- **PW4 — probes adversariais** (lição da auditoria): nomes com `?`/meta-chars em campos opcionais;
+  máscara corrompida (`0`, char inválido, tamanho errado) → fail-loud, nunca corrupção silenciosa;
+  hang-check com timeout.
+- **PW5 — docs**: ADR curto (ou apêndice no ADR-0033) + atualizar T-CODE-TCF8H-JSON-PARITY (P1 ✅)
+  + registro do knob L3 (máscara-string) em tcf-camadas-arquitetura.
+- **Depois** (fora do P1): P2 tipos → P3 null (`0` já reservado) → P4 rep-level, cada um com seu estudo.
+
+## Riscos conhecidos
+
+- `?` estrutural muda o wire p/ nomes que contêm `?` (raros; passam a `\?`) — declarar no ADR.
+- Corpus heterogêneo demais (schema union explode se cada registro tem chaves diferentes) — é o
+  regime union-schema/Jaccard do inventário (H-*), fora do P1; fail-loud continua pra tipos mistos.
+- Custo do pior caso (alternado ~3 B/registro) — declarado; knob L3 futuro se doer em dado real.
+
+`confianca: Media-Alta` p/ a forma (RT 100% no estudo; falta o gate real do weld). Sintético
+declarado (inputs construídos pra vistoria; M4 gerado com seed).
