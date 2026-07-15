@@ -67,3 +67,20 @@ amostra, contrato `\n` pendente). A auditoria apontou que censo ≠ probe; os **
 `confianca: Média` p/ generalização (rebaixada de Alta pela auditoria — a evidência real cobre uma
 topologia; o resto é sintético). Auditoria completa: workflow `wf_4960112e-d45`, 4 lentes, síntese
 com 6 lacunas confirmadas + 11 probes ranqueados.
+
+## (E) PROBE de dado real não-sintético — receita-cnpj matriz→filiais (ROI-7 da auditoria)
+
+A auditoria apontou que TPC-H é in-class **por construção** (dbgen: fan-out uniforme, sem null).
+[probe_receita.py](probe_receita.py) roda o oposto — agrupamento real matriz+filiais por raiz-CNPJ
+([outputs/03-probe-receita.txt](outputs/03-probe-receita.txt)):
+- **(1) topologia, população inteira**: 51536 raízes, **200000 estabelecimentos**, fan-out
+  **max 396** (cauda pesada real, ausente no TPC-H uniforme), avg 3.88 → **RT byte-exato**.
+- **(2a) conteúdo real + null coerido**: 5% estratificado por UF (27 estratos), 4723 nulls reais
+  coeridos a `""` (declarado) → **RT byte-exato**.
+- **(2b) null CRU**: **coerção silenciosa de TIPO** (`str(None)='None'` → decode devolve `'None'`) —
+  achado conhecido (H-TYPE-01). Null real em 48% de `nome_fantasia` **reforça** que o contrato null
+  (deixado pro fim pelo owner) é pré-requisito p/ ingerir sem coerção declarada.
+
+**Efeito na confiança**: contenção 1:N agora vale em **fonte real não-sintética com cauda pesada**,
+não só TPC-H. Sobe de volta a **Média-Alta** p/ contenção 1:N all-string; o gap que resta é
+topológico-sintético (profundidades/`{}`/irmãos = fuzz) + o contrato de tipo/null (pro fim).

@@ -1,0 +1,13 @@
+PROBE receita-cnpj — matriz→filiais (fonte hierárquica REAL, cauda pesada + null real)
+
+(1) TOPOLOGIA pop. inteira: 51536 raízes, 200000 estabelecimentos, fan-out max=396 avg=3.88 — RT=True
+    cauda pesada REAL exercitada no #count (o regime que o TPC-H uniforme não tem).
+(2a) CONTEÚDO c/ free-text real + null→'' (coerção DECLARADA): 2577 raízes (5% estratificado por uf, 27 estratos), 4723 nulls reais coeridos — RT=True
+(2b) null CRU no codec: COERÇÃO SILENCIOSA DE TIPO: str(None)='None' → decode devolve 'None' != None (RT quebra por tipo; obtido=[{'raiz': 'x', 'estabelecimentos': [{'f': 'None'}]}])
+     → achado CONHECIDO (H-TYPE-01: codec faz str(v); lossless só all-string).
+     null real em 48% de nome_fantasia REFORÇA: o contrato null (pro fim, decisão
+     do owner) é pré-requisito pra ingerir receita-cnpj SEM coerção declarada.
+
+SÍNTESE: contenção 1:N em fonte REAL não-sintética com cauda pesada — RT byte-exato
+na população inteira (topologia) e na amostra honesta com free-text+null-coerido.
+Null cru segue fora da classe coberta (coerção de tipo documentada, não silenciada).
