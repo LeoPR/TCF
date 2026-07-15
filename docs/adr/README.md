@@ -60,6 +60,7 @@ Registros numerados das decisoes arquiteturais do TCF. Inspirado em
 | [0030](0030-freeze-single-col-body-at-1.0.md) | Congelar o body single-col no 1.0 (contrato imutavel do orfao default; linchpin do 0029). Otimizacoes futuras viram desvios opt-in marcados, nao mutacao da base. Pre-1.0 ainda refinavel (0024). | **accepted** (politica; efeito no 1.0) |
 | [0031](0031-hierarchical-discriminator-H.md) | Discriminador `H` = multi-col hierarquico (especializacao de `M`, sem-espaco); estende 0029 com o 5o valor. Reserva o char + dispatch O(1); codec hierarquico (EXP-015) segue research-track, weld gated. | **accepted** (2026-07-09; char reservado, codec nao-weldado) |
 | [0032](0032-tcf8-default-format.md) | #TCF.8 vira o formato DEFAULT (multi-col); supersede o "opt-in estrito" do 0027. Corta legado .6/.7 de src/tcf; hex e escaping na familia .8; hierarquia = slot+fail-loud (codec pro lab); pacote 0.8.0 (lazy absorvido). Single-col orfao intacto (0029/0030). | **accepted** (2026-07-09) |
+| [0033](0033-hierarchical-codec-weld.md) | Weld do codec hierarquico `#TCF.8H` no core: modulo novo `hierarchical.py` (L2/L3) cliente do compressor de coluna (L1 intocado); shredding em blocos + `#count` explicito. Fecha o gate do 0031. Classe coberta (schema uniforme); ragged/tipos/null/N-raizes/N:N = fail-loud (incrementos). Flat byte-identico; gate de CAPACIDADE. | **welded** (2026-07-14) |
 
 ## Quando criar ADR
 

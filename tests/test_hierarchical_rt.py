@@ -76,3 +76,56 @@ def test_nao_dict_fail_loud():
 def test_malformed_blob_fail_loud():
     with pytest.raises(HierarchicalError):
         decode("#TCF.8Hnome#:X[]\nbody")   # count size invalido
+
+
+# --- property-test seedado: fuzz da classe coberta (promovido do lab 2026-07-14-2120) ---
+# Guarda permanente: milhares de documentos aleatorios DENTRO da classe coberta devem
+# fazer RT byte-exato. Seed fixa -> deterministico, sem flakiness. N modesto p/ a suite;
+# o lab roda 8000 (fuzz.py).
+def _gen_scalar(rng):
+    r = rng.random()
+    if r < 0.25:
+        return str(rng.randint(0, 999999))
+    if r < 0.45:
+        return rng.choice(["ativo", "inativo", "SP", "RJ", "MG"])
+    if r < 0.60:
+        return rng.choice(["a,b", "x|y", "l\\m", "p:q", "c#d"])   # separadores -> escaping
+    return "".join(rng.choice("abcdefghij .-_0123456789") for _ in range(rng.randint(1, 20)))
+
+
+def _gen_schema(rng, depth):
+    schema = {}
+    for i in range(rng.randint(1, 4)):
+        r = rng.random()
+        if depth > 0 and r < 0.22:
+            schema[f"f{i}"] = ("obj", _gen_schema(rng, depth - 1))
+        elif depth > 0 and r < 0.44:
+            schema[f"f{i}"] = ("arr_obj", _gen_schema(rng, depth - 1))
+        elif r < 0.60:
+            schema[f"f{i}"] = ("arr_sca", None)
+        else:
+            schema[f"f{i}"] = ("scalar", None)
+    return schema
+
+
+def _gen_record(rng, schema):
+    rec = {}
+    for name, (kind, sub) in schema.items():
+        if kind == "scalar":
+            rec[name] = _gen_scalar(rng)
+        elif kind == "obj":
+            rec[name] = _gen_record(rng, sub)
+        elif kind == "arr_obj":
+            rec[name] = [_gen_record(rng, sub) for _ in range(rng.choice([0, 1, 1, 2, 3]))]
+        elif kind == "arr_sca":
+            rec[name] = [_gen_scalar(rng) for _ in range(rng.choice([0, 1, 1, 2, 4]))]
+    return rec
+
+
+def test_fuzz_classe_coberta_seedado():
+    import random
+    rng = random.Random(20260714)   # seed fixa (reproduzivel)
+    for _ in range(1200):
+        schema = _gen_schema(rng, depth=rng.randint(0, 3))
+        recs = [_gen_record(rng, schema) for _ in range(rng.randint(1, 8))]
+        assert decode(encode_hierarchical(recs)) == recs
