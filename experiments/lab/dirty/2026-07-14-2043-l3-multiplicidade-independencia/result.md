@@ -5,28 +5,28 @@ Contra-prova/números: [`outputs/01-resultado.txt`](outputs/01-resultado.txt). S
 (gerador paramétrico por largura), viés declarado
 ([datasets-provenance.md](datasets-provenance.md)).
 
-## Veredito
+## Sinal-piloto (NÃO veredito — 1 lente, sintético, N pequeno)
 
-A hipótese do owner — **explícita = independência/paralelismo; deduzida = menos bytes mas
-colunas se conversam** — é **verdade, com crossover**:
+Owner (reforço): multiplicidade explícita×deduzida é **só UMA hipótese ilustrativa**, uma entre
+várias condições de um futuro **bloco de otimizações** (eixos: latência, memória, velocidade,
+compressão). Este experimento mediu **1 eixo (largura) × 1 métrica (bytes-pré-brotli)** — é sinal,
+não conclusão:
 
-- **Estreito (K=1–2)**: deduzida ganha em bytes (economiza o count). "Independência custa" ✅.
-- **Largo (K≥4, o comum em transmissão)**: a EXPLÍCITA é **Pareto-melhor** — menos bytes E
-  independência (a deduzida paga `*N|` em cada coluna-pai; a explícita, 1 count constante).
-- **Dependência**: explícita = 1 coluna de controle minúscula → dado independente + estrutura
-  legível sem dado (lazy). Deduzida = estrutura entrelaçada com o dado do pai → filho depende
-  do pai → menos assíncrono.
+- **Estreito (K=1–2)**: a forma deduzida gastou menos bytes (economizou o count).
+- **Largo (K≥4)**: a forma explícita gastou menos E manteve independência (a deduzida repete `*N|`
+  em cada coluna-pai; a explícita, 1 count constante ~20 B).
+- **Dependência (qualitativo)**: explícita = 1 coluna de controle minúscula → dado independente +
+  estrutura legível sem dado (lazy). Deduzida = estrutura entrelaçada no dado do pai → filho
+  depende do pai → menos assíncrono.
 
-**Mitigação**: o count é minúsculo/constante (20 B, seq-RLE) → a independência é quase-grátis
-no caso comum. O default do weld (`#count` explícito) está certo; o trade vira **parâmetro**
-só no nicho estreito.
+## O que isto NÃO estabelece
 
-## Ligação com o weld + a estratégia de etapas
+- Só 1 eixo (largura) e 1 métrica (bytes). **Latência/memória/velocidade não medidas**; sem dado
+  real; sem brotli a jusante (o Δ sobrevive à compressão externa?).
+- O weld usa `#count` explícito **por ora** — não porque esteja "provado ótimo".
 
-- O weld atual (a20ddf7) já usa a forma EXPLÍCITA — confirmado como o default certo (independência
-  + lazy + Pareto no comum). Nenhuma mudança necessária no core agora.
-- **Otimização** (o knob `multiplicity` / `min()` por documento) = H-L3-MULTIPLICITY-01, **deixada
-  pro fim** (owner: soldar em etapas, otimizações no final). NÃO implementar agora.
+## Encaminhamento
 
-`confianca: Média` (sintético, medida de forma). Falta: dado real + a interação com brotli a
-jusante (o Δ sobrevive à compressão externa?).
+- Nada a mudar no core agora. O bloco de otimizações (parâmetros L3) = **H-L3-OPT-BLOCK**, `aberta`,
+  confiança **Baixa**, **deixado pro fim** (owner: fixar o óbvio primeiro). Multiplicidade = 1 item
+  do bloco, não o bloco.

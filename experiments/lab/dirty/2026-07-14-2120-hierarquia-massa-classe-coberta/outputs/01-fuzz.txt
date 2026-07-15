@@ -1,0 +1,12 @@
+FIXAR O ÓBVIO — fuzz em massa da classe coberta do weld hierárquico
+
+documentos aleatórios (seed 20260714, determinístico): 8000
+RT byte-exato decode(encode_hierarchical(recs))==recs: 8000/8000
+falhas: 0
+
+cobertura exercitada (documentos que contêm o caso):
+  arrays vazios [] .............. 5263
+  >=2 arrays irmãos no registro . 2379
+  arrays aninhados (arr>obj>arr)  1609
+
+0 falhas — a classe coberta do weld está robusta neste fuzz.

@@ -26,32 +26,29 @@ Bytes por LARGURA do registro (nº de campos-pai `K`), 6 registros:
 | 8 | **521** | 583 | −62 | 20 | **EXPLÍCITA** |
 | 16 | **909** | 1069 | −160 | 20 | **EXPLÍCITA** |
 
-## Veredito (a hipótese é verdade... só num nicho)
+## Sinal-piloto (NÃO veredito — 1 eixo × 1 métrica, sintético)
 
-1. **"Independência custa bytes" vale SÓ para registro ESTREITO** (K=1–2): aí a deduzida
-   economiza a coluna de count. Crossover ~K=3.
-2. **Para registro LARGO (K≥4, o comum em transmissão** — cadastro é largo), a EXPLÍCITA é
-   **PARETO-melhor: MENOS bytes E MAIS independência**. Porque a deduzida paga o `*N|`
-   repetido em CADA coluna-pai; a explícita paga **1 count só** (20 B, constante, seq-RLE'd).
-3. **A dependência caracterizada**: EXPLÍCITA → a montagem lê 1 coluna de controle DEDICADA
-   e minúscula (count); as colunas de DADO decodificam INDEPENDENTES (paralelismo) e dá pra
-   ler a ESTRUTURA sem materializar o dado (**lazy-friendly, como o `view()`**). DEDUZIDA →
-   a montagem decodifica a coluna de DADO do pai e analisa runs → estrutura ENTRELAÇADA com
-   dado → bloco-filho DEPENDE do bloco-pai → menos assíncrono.
+> Owner: multiplicidade é **só UMA hipótese ilustrativa**, uma entre várias condições. O L3 é um
+> **bloco de otimizações** (eixos: latência, memória, velocidade, compressão) a **testar em massa**.
 
-## Mitigação
+1. **Estreito (K=1–2)**: a deduzida gastou menos bytes (economizou o count). Crossover ~K=3 neste dado.
+2. **Largo (K≥4)**: a explícita gastou menos E manteve independência (a deduzida repete `*N|` em CADA
+   coluna-pai; a explícita, 1 count ~20 B constante).
+3. **Dependência (qualitativo)**: explícita = 1 coluna de controle minúscula (count) → dado
+   independente + estrutura legível sem materializar o dado (lazy, como o `view()`). Deduzida =
+   estrutura entrelaçada no dado do pai → filho depende do pai → menos assíncrono.
 
-O "imposto de independência" (a coluna de count) é **minúsculo e constante** (20 B, seq-RLE) —
-não é gargalo. Logo o default do weld (`#count` EXPLÍCITO) é o certo: independência
-**quase-grátis** no caso comum, e ainda dá o bônus lazy (estrutura sem dado). O "cobertor
-curto" vira um **PARÂMETRO** só para o nicho estreito+min-bytes.
+## O que NÃO estabelece
+
+Só 1 eixo (largura) × 1 métrica (bytes-pré-brotli), sintético, N pequeno. Latência/memória/velocidade
+não medidas, sem dado real, sem brotli a jusante. O weld usa `#count` explícito **por ora**, não por
+estar "provado ótimo".
 
 ## Otimização — DEIXAR PRO FIM (owner)
 
-Como o owner pediu (soldar em etapas, otimizações no fim): registrar, não implementar agora.
-- **H-L3-MULTIPLICITY-01**: knob `multiplicity='explicit'|'deduced'` (independência × −bytes no
-  nicho estreito); OU `min()` por documento (como o FLOOR das natures). Confiança: Média
-  (sintético, forma).
+- **H-L3-OPT-BLOCK**: parâmetros de L3 (multiplicidade explícita/deduzida é 1 item; outros a levantar)
+  medidos nos eixos latência × memória × velocidade × compressão; talvez `min()` por documento.
+  `aberta`, confiança **Baixa**. Registrar, **não implementar agora**.
 
 ## Rodar
 
