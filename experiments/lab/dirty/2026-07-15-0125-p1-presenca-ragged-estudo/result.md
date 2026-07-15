@@ -1,8 +1,39 @@
-# Resultado — estudo P1 presença/ragged (PARA REVISÃO; nada weldado)
+# Resultado — estudo P1 presença/ragged
 
 **[probatório]** Protótipo em [proto.py](proto.py) (fora de `src/tcf`; L1 reusado read-only).
 Números: [outputs/00-medicoes.txt](outputs/00-medicoes.txt). Exemplos vistoriáveis:
 [inputs/](inputs/) → [outputs/*.tcf](outputs/) → [outputs/*-rt.json](outputs/) (diffáveis).
+
+## AUDITORIA + WELD (2026-07-15) — correções e desfecho
+
+> **Estado**: WELDADO no core (aprovação do owner), com os furos da verificação adversarial
+> (workflow `wf_e548aeaa-055`) CORRIGIDOS antes de tocar `src/tcf`. Ver
+> [ADR-0033 §Update P1](../../../../docs/adr/0033-hierarchical-codec-weld.md).
+
+A verificação adversarial (3 lentes + síntese) confirmou que a **forma sobrevive** (gramática,
+máscara, corpo denso, byte-idêntico no uniforme — zero redesign), mas o PROTÓTIPO tinha furos que o
+weld fechou. **Correções a claims deste estudo** (eram imprecisas/falsas no protótipo):
+
+- ❌→✅ "fail-loud pra tipos mistos" **era FALSO no protótipo** (str()-engolia scalar/dict, list/str).
+  **No weld: fail-loud tipado** (`_derive_schema` varre TODOS os presentes; tipo estrutural misto ou
+  null = `HierarchicalError`). Testes: `test_p1_tipos_estruturais_mistos_fail_loud`.
+- ❌→✅ **null em ELEMENTO de array** virava `'None'` calado no protótipo. **No weld: fail-loud** por
+  elemento (aponta P3). Teste: `test_p1_null_em_elemento_de_array_fail_loud`.
+- ❌→✅ **array de objetos VAZIOS** `[{}]` colidia com `arr_scalars` (corrupção silenciosa, **também
+  no weld anterior**). **No weld: fail-loud** ("sem chaves"). Teste dedicado.
+- ✅ **decode endurecido** (furos de frame): size negativo, size omitido fora da última coluna,
+  máscara `0`/inválida, coluna não-exaurida, `[{}]`/raiz-não-lista → todos `HierarchicalError`
+  (nunca corrupção silenciosa). Fecha bugs pré-existentes do weld (size-None-no-meio).
+- ⚠️ **custo da máscara**: o §3 abaixo dizia "comprimida de graça"; no regime ALTERNADO o L1
+  INFLA ~1 B/registro (refs `^1`/`^2` no lugar do literal). Bracket 0.5–3 B/reg CONFERE; a
+  inflação é do L1, não da máscara — candidato ao knob "L1 não emitir ref quando ref≥literal"
+  (futuras-otimizações, não fazer). Alfabeto: o `0` reservado trafega **L1-escapado** (`\0`, ~3 B).
+- ⚠️ **última-folha-sem-size é indetectável a truncamento de cauda** (limitação herdada do weld;
+  vale p/ `.8M`/`.8H`). Declarada; decisão de emitir size explícito na última (~4 B) fica pro owner.
+
+**Gate do weld**: suíte **684 passed**; pins flat byte-canônicos verdes; uniforme byte-idêntico;
+os repros da auditoria viram testes red→green. Falta o probe real-world (JSON aninhado real com
+opcionais) — registrado pro PW3 (mesma esteira TPC-H/receita do weld anterior).
 
 ## O que o estudo estabelece
 

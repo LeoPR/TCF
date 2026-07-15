@@ -99,6 +99,29 @@ latência/memória/velocidade/compressão), **hipótese aberta deixada pro fim**
 - L3 hoje está parcialmente misturada no L2 (deduções embutidas no encode) — desacoplar em passe
   próprio é dívida registrada pra `.9`.
 
+## Update 2026-07-15 — P1 presença/ragged (chave opcional) welded
+
+**[dispositivo→feito]** 1º incremento de paridade JSON (T-CODE-TCF8H-JSON-PARITY): chave OPCIONAL
+(objeto ragged), o construto JSON de API mais comum que o codec rejeitava. Gramática:
+`nome?:msize` — `?` cola no nome (vira char estrutural, entra no escape), `msize` = tamanho da
+coluna-MÁSCARA de presença (vem ANTES das colunas do campo, como o `#count`). Alfabeto 3-estados:
+`.`=presente · `-`=ausente · `0`=RESERVADO null (P3, fail-loud). Corpo denso (só instâncias
+presentes). É o **definition-level do Dremel** em forma textual inspecionável (pilar explicabilidade).
+
+**Aditivo e compatível**: dado SEM raggedness → wire **byte-idêntico** (o `?` só aparece onde há
+campo opcional, deduzido do dado). Estudo: [lab 2026-07-15-0125](../../experiments/lab/dirty/2026-07-15-0125-p1-presenca-ragged-estudo/).
+
+**Endurecimento (auditoria adversarial `wf_e548aeaa-055`)**: junto com o P1, o `_derive_schema`
+passou a **validar tipo honestamente** — tipo estrutural misto (scalar/object/array), `null`,
+array-de-objetos-sem-chaves = `HierarchicalError`, NUNCA `str()`-engolido. O decode ganhou guardas
+de frame (size≥0, size omitido só na última coluna, máscara válida, coluna exaurida, raiz-lista).
+Isso fecha **corrupções silenciosas pré-existentes** do próprio weld (array-de-objetos-vazios,
+size-None-no-meio). Gate: suíte 684 passed, pins flat byte-canônicos verdes.
+
+**Fronteira ainda fail-loud** (próximos incrementos): tipos escalares preservados (P2), `null`
+distinto (P3, `0` já reservado), rep-level/N-raízes (P4), N:N (super-hierarquia). Limitação
+declarada: truncamento da última folha (size omitido) é indetectável — vale p/ `.8M`/`.8H`.
+
 ## Relation to other ADRs
 
 - **Fecha o gate** deixado por [ADR-0031](0031-hierarchical-discriminator-H.md) (que reservou `H` e

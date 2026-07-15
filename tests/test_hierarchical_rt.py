@@ -62,10 +62,123 @@ def test_flat_intacto():
     assert decode(encode({"id": ["1", "2"], "n": ["a", "b"]})) == {"id": ["1", "2"], "n": ["a", "b"]}
 
 
-def test_ragged_fail_loud():
-    # objeto com chave faltando = fora da classe coberta (precisa def-level) -> fail-loud
-    with pytest.raises(HierarchicalError, match="ausente|ragged"):
-        encode_hierarchical([{"a": "1", "b": "2"}, {"a": "3"}])
+def test_ragged_agora_rt():
+    # P1 (2026-07-15): chave OPCIONAL agora faz RT (era fail-loud). Mudança de CONTRATO.
+    docs = [{"a": "1", "b": "2"}, {"a": "3"}]
+    blob = encode_hierarchical(docs)
+    assert "?" in blob.split("\n", 1)[0]                  # 'b' é opcional no header
+    assert decode(blob) == docs
+
+
+# --- P1 presença/ragged: RT dos clássicos + bordas (estudo lab 2026-07-15-0125) ---
+P1_RAGGED = {
+    "cadastro-campos-opcionais": [
+        {"nome": "Ana", "cpf": "1", "email": "a@x", "tel": "9", "end": {"rua": "R1", "comp": "ap"}},
+        {"nome": "Bruno", "cpf": "2", "tel": "8", "end": {"rua": "R2"}},
+        {"nome": "Carla", "cpf": "3", "email": "c@x", "end": {"rua": "R3"}},
+    ],
+    "telemetria-erro-raro": [
+        {"ts": "06:00", "temp": "21"},
+        {"ts": "06:15", "temp": "22", "erro": "instavel"},
+        {"ts": "06:30", "temp": "23"},
+    ],
+    "pedido-cupom-e-itens-opcionais": [
+        {"cli": "Ana", "cupom": "P10", "itens": [{"p": "T", "q": "1", "obs": "x"}, {"p": "M", "q": "2"}]},
+        {"cli": "Bruno", "itens": [{"p": "Mon", "q": "1"}]},
+        {"cli": "Carla", "itens": []},                   # vazio ≠ ausente
+        {"cli": "Daniel", "cupom": "FG"},                # itens AUSENTE
+    ],
+    "opcional-em-elemento-de-array": [
+        {"g": [{"v": "1", "op": "a"}, {"v": "2"}]},
+        {"g": []},
+        {"g": [{"v": "3"}, {"v": "4", "op": "b"}]},
+    ],
+    "objeto-opcional-com-filho-opcional": [
+        {"a": "1", "cfg": {"tema": "dark", "fonte": "14"}},
+        {"a": "2"},
+        {"a": "3", "cfg": {"tema": "light"}},
+    ],
+    "string-vazia-vs-ausente": [{"x": "1", "op": ""}, {"x": "2"}],  # ''≠ausente
+    "presente-em-so-um": [{"x": "1"}, {"x": "2"}, {"x": "3", "raro": "s"}, {"x": "4"}],
+    "ordem-de-chave-heterogenea": [{"a": "1", "b": "2"}, {"b": "3", "a": "4"}],
+}
+
+
+@pytest.mark.parametrize("name", list(P1_RAGGED))
+def test_p1_ragged_rt(name):
+    docs = P1_RAGGED[name]
+    assert decode(encode_hierarchical(docs)) == docs
+
+
+def test_p1_compat_uniforme_byte_identico():
+    # dado SEM raggedness → wire idêntico ao que seria sem P1 (sem '?'); '?' só onde há opcional
+    uni = [{"n": "Ana", "t": ["a", "b"], "e": {"r": "R1"}}, {"n": "Bob", "t": [], "e": {"r": "R2"}}]
+    blob = encode_hierarchical(uni)
+    assert "?" not in blob.split("\n", 1)[0]              # nenhum campo opcional
+    assert decode(blob) == uni
+
+
+# --- fail-loud declarado (auditoria 2026-07-15): NUNCA str()-engolir fora da classe ---
+def test_p1_null_campo_fail_loud():
+    with pytest.raises(HierarchicalError, match="null"):
+        encode_hierarchical([{"x": "1"}, {"x": None}])
+
+
+def test_p1_null_em_elemento_de_array_fail_loud():
+    with pytest.raises(HierarchicalError, match="null"):
+        encode_hierarchical([{"xs": ["a", None]}])
+
+
+def test_p1_tipos_estruturais_mistos_fail_loud():
+    # scalar-depois-dict / list-depois-str: eram str()-engolidos (corrupção silenciosa)
+    with pytest.raises(HierarchicalError, match="mistos|divergente"):
+        encode_hierarchical([{"x": "s"}, {"x": {"a": "1"}}])
+    with pytest.raises(HierarchicalError, match="mistos|divergente"):
+        encode_hierarchical([{"x": ["a"]}, {"x": "bc"}])
+
+
+def test_p1_array_de_objetos_vazios_fail_loud():
+    # [{}] colidia com arr_scalars no wire (corrupção silenciosa pré-existente do weld)
+    with pytest.raises(HierarchicalError, match="sem chaves|objetos"):
+        encode_hierarchical([{"g": [{}]}, {"g": [{}]}])
+
+
+def test_p1_registros_sem_campos_fail_loud():
+    with pytest.raises(HierarchicalError):
+        encode_hierarchical([{}])                          # nº de registros irrepresentável
+    with pytest.raises(HierarchicalError):
+        encode_hierarchical([])                            # lista vazia
+
+
+def test_p1_raiz_nao_lista_fail_loud():
+    with pytest.raises(HierarchicalError):
+        encode_hierarchical({"a": "1"})                    # dict na raiz, não lista
+
+
+def test_p1_mask_reservado_e_invalido_fail_loud():
+    from tcf.encoder import encode as _enc_col
+    # máscara '0' (null reservado P3) trafega L1-escapada ('\0'); decode deve fail-loud tipado
+    mask_body = _enc_col([".", "0"])                        # rec0 presente, rec1 null-reservado
+    scalar_body = _enc_col(["A"])                           # só o presente
+    blob = f"#TCF.8Hx?:{len(mask_body.encode())}\n{mask_body}{scalar_body}"
+    with pytest.raises(HierarchicalError, match="reservado P3"):
+        decode(blob)
+    # máscara com char inválido = fail-loud (corrupção, nunca silenciosa)
+    bad = _enc_col([".", "Z"])
+    blob2 = f"#TCF.8Hx?:{len(bad.encode())}\n{bad}{scalar_body}"
+    with pytest.raises(HierarchicalError, match="máscara inválida|corrompida"):
+        decode(blob2)
+
+
+def test_p1_size_none_no_meio_fail_loud():
+    # size omitido fora da última coluna lia bytes repetidos (corrupção pré-existente)
+    with pytest.raises(HierarchicalError, match="size ausente"):
+        decode("#TCF.8Ha,b\nva\nvb")
+
+
+def test_p1_size_negativo_e_frame_inconsistente_fail_loud():
+    with pytest.raises(HierarchicalError, match="negativo"):
+        decode("#TCF.8Hx:-4\nvvvv")
 
 
 def test_nao_dict_fail_loud():

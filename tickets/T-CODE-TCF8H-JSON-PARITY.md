@@ -33,7 +33,7 @@ realista, não sintético). O weld atual (ADR-0033) cobre a ESPINHA; faltam os c
 | string (incl. unicode, separadores) | ✅ coberto | — |
 | nome de chave c/ char do meta | ✅ **escaping welded** (`40a7e10`) | **congelar** contrato |
 | aninhamento arbitrário (contenção) | ✅ classe coberta | — |
-| **chave OPCIONAL / objeto ragged** | ❌ fail-loud | **P1 — presença/def-level** (RT-provado nos labs B1/B2, não weldado) |
+| **chave OPCIONAL / objeto ragged** | ✅ **WELDED** (P1, 2026-07-15) | — (`nome?:msize`, máscara 3-estados; ADR-0033 §Update P1) |
 | **number (int/float) preservado** | ❌ `str()` coerção (H-TYPE-01) | **P2 — tipos** (C-híbrida decidida conceitual) |
 | **`true`/`false`** | ❌ `str()`→`"True"` | P2 (junto de tipos) |
 | **`null`** (≠ ausente ≠ `"null"`) | ❌ `str()`→`"None"` | **P3 — H-HIER-SCALAR-01** |
@@ -49,8 +49,8 @@ Fonte da taxonomia: [hierarquia-inventario-hipoteses.md](../experiments/lab/dirt
 Gate de cada um: RT-exato + non-regressão flat byte-idêntica + aprovação `src/tcf` + fuzz/probes
 adversariais (a lição do escape: testar nome/valor/borda, não só o caminho feliz).
 
-1. **P1 · Presença/ragged** (chave opcional) — o construto JSON de API MAIS comum. Máscara def-level
-   3-estados (`.`/`0`/`-`), RT-provado nos labs; falta weldar. **Maior ROI de paridade.**
+1. ~~**P1 · Presença/ragged** (chave opcional)~~ **✅ WELDED 2026-07-15** — `nome?:msize`, máscara
+   3-estados; endureceu tipo/null/frame junto (auditoria); suíte 684. Falta só o probe real-world (PW3).
 2. **P2 · Tipos** (number/bool preservados) — C-híbrida (deduz número/bool grátis, tag só na
    colisão-string; análogo ao hex-default). Fecha o `str()`-lossy do H-TYPE-01.
 3. **P3 · null** distinto (ausente/`null`/`"null"`) — H-HIER-SCALAR-01; entra junto ou logo após P2.
