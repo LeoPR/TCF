@@ -1,0 +1,15 @@
+{
+  "_comment": "DIDÁTICO P2 — cada tipo escalar (number/bool) + a disambiguação vs string. Inspecionável.",
+  "int": [{"idade": 30}, {"idade": 25}],
+  "float": [{"nota": 9.5}, {"nota": 7.25}],
+  "int+float misto (JSON number)": [{"qtd": 1}, {"qtd": 1.5}, {"qtd": 3}],
+  "bool": [{"ativo": true}, {"ativo": false}],
+  "todos-os-tipos-juntos": [{"nome": "Ana", "idade": 30, "vip": true, "saldo": 1250.75}],
+  "array de number": [{"medidas": [21.4, 21.6, 22.0]}],
+  "array de bool": [{"flags": [true, false, true]}],
+  "disambiguacao string vs tipo": [
+    {"a": "30", "b": "true", "c": 30, "d": true}
+  ],
+  "number nullable (P2+P3a)": [{"x": 30}, {"x": null}, {"x": 40}],
+  "array number com null-elemento (P2+P3b)": [{"xs": [1, null, 3]}]
+}

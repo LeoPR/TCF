@@ -10,7 +10,14 @@ related:
   - experiments/lab/dirty/notas/substituicao-indices-especiais-plano.md (bool→índice, Ciclo 2)
 ---
 
-# Levantamento — P2 tipos (o que vamos fazer). NÃO implementado; para inspeção.
+# Levantamento — P2 tipos (o que vamos fazer). Para inspeção.
+
+> **DECISÕES FECHADAS (owner 2026-07-16)**: as 5 recomendações abaixo APROVADAS. (1) tag de 1 letra;
+> (2) UM tag `n` p/ number (json distingue int/float); (3) tag `b` p/ bool AGORA — e a **letra pode
+> virar vantagem p/ marcar rápido como índice-interno depois** (a MEDIR sob [[H-PROFILE-01]], não
+> bloqueia); (4) number+bool JUNTOS (P2); (5) number na forma `json.dumps` canônica. Regra extra
+> (descoberta): **colunas TIPADAS sempre emitem `:size<tag>`** (só string-default pode omitir size na
+> última folha) — resolve a ambiguidade `nomen` vs nome-tipo na última folha. Segue a implementação.
 
 ## O que é P2 (e o que NÃO é)
 

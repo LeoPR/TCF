@@ -167,6 +167,32 @@ suíte 710 passed, flat byte-canônico intacto.
 
 **Fronteira ainda fail-loud**: tipos escalares preservados (P2), rep-level/N-raízes (P4), N:N.
 
+## Update 2026-07-16 — P2 tipos escalares (number/bool) welded
+
+**[dispositivo→feito]** 4º incremento de paridade JSON: **tipos escalares** — `number` (int/float) e
+`bool` (true/false). `null` já era P3; `string` é o default. **Insight (owner)**: o codec recebe
+OBJETOS Python → o tipo é CONHECIDO no encode (`isinstance`), NÃO deduzido de string ambígua — o que
+elimina a parte difícil do H-TYPE-01 (`007`/`1e3`). P2 vira **tag por-COLUNA** (não dedução por-valor).
+
+Mecanismo (L2, aditivo): `_scalar_type` deduz do Python (bool antes de int); `_enc_scalar`/`_dec_scalar`
+— **number** via `json.dumps`/`json.loads` (distingue int/float por-valor, cobre misto `[1, 1.5]`);
+**bool** `true`/`false`; **string** identidade (default). Meta: tag 1-letra após o size — `nome:size n`
+(number) · `nome:size b` (bool) · `nome:size`/`nome` (string). **Regra**: coluna TIPADA sempre emite
+`:size`+tag (só string-default omite size na última folha) → resolve ambiguidade `nomen`. `size()`
+virou digit-only (para no tag). Nó do schema virou 6-tupla (+`stype`). Compõe com P1/P3a/P3b (tag ⊥
+máscara). **Distingue** `string "30"` ≠ int `30`, `string "true"` ≠ bool `True`.
+
+**Decisões (owner 2026-07-16, [levantamento](../../experiments/lab/dirty/notas/p2-tipos-levantamento.md))**:
+1 tag de 1 letra; UM tag `n` p/ number (json distingue int/float); tag `b` p/ bool agora (índice-interno
+= nicho a medir sob [[H-PROFILE-01]] — a letra já marca); number+bool juntos; number na forma
+`json.dumps` canônica.
+
+**Fronteira fail-loud** (NUNCA str()-engolido): tipo escalar MISTO numa coluna (P5 union), NaN/±Inf
+(não-JSON). **Byte-compat**: all-string → ZERO tag (byte-idêntico ao pré-P2). Evidência (didático 10/10
++ realista + massa 6000/6000): [lab 2026-07-16-0110](../../experiments/lab/dirty/2026-07-16-0110-p2-tipos-weld/).
+Gate: suíte 727 passed, flat byte-canônico intacto. **Escalares JSON COMPLETOS** (string/number/bool/null).
+Falta ESTRUTURA: P4 (rep-level/N-raízes) e P5 (union polimórfico).
+
 ## Relation to other ADRs
 
 - **Fecha o gate** deixado por [ADR-0031](0031-hierarchical-discriminator-H.md) (que reservou `H` e

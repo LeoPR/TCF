@@ -28,17 +28,24 @@ Wire (ADR-0031, sem-espaço, LF-only):
     name#:csize?:emsize[...]  array com ELEMENTOS mascarados (P3b): #emsize = element-mask
                          (2-estados '.'=valor '0'=null, SEM '-' — a posição existe via count),
                          entre count e '['. Ordem: count → emask → elementos densos.
+    name:size<tag>       coluna escalar TIPADA (P2): tag='n' number (json) · 'b' bool (true/false).
+                         String = default (sem tag). Coluna TIPADA sempre emite :size+tag (só
+                         string-default pode omitir size na última folha).
     última folha DFS omite size; omit-closes dropa o `]`/`}` final.
 
 Escopo (classe coberta): uma raiz (lista de registros), `{}`/`[]` recursivos, chaves
-OPCIONAIS (P1), `null` em CAMPO (P3a — escalar/objeto/array/all-null) e `null` em ELEMENTO
-de array (P3b — escalar e objeto; element-mask). Distingue ausente≠null≠"null"≠"". Fora
-(fail-loud, NUNCA str()-engolido — auditoria 2026-07-15): tipos estruturais mistos (P2), array
-de objetos sem chaves, N raízes, N:N/snowflake (FK). Escalares (str/int/bool) coeridos str() (P2).
+OPCIONAIS (P1), `null` em CAMPO (P3a) e em ELEMENTO de array (P3b), e TIPOS escalares
+(P2 — string/number/bool por coluna; int/float via json, distingue por-valor). Distingue
+ausente≠null≠"null"≠""≠30(int)≠True(bool). Fora (fail-loud, NUNCA str()-engolido): tipos
+escalares MISTOS numa coluna (P5 union), NaN/±Inf (não-JSON), array de objetos sem chaves,
+N raízes, N:N/snowflake (FK).
 
 Aditivo: `#TCF.8M`/single/órfão intactos. Este módulo é CLIENTE de `encode`/`decode`.
 """
 from __future__ import annotations
+
+import json
+import math
 
 from tcf.decoder import decode as _decode_col   # L1: decode de 1 coluna (body órfão)
 from tcf.encoder import encode as _encode_col    # L1: encode de 1 coluna (lista -> body)
@@ -117,7 +124,44 @@ def _kind_of(v):
         return "object"
     if isinstance(v, list):
         return "array"
-    return "scalar"          # str/int/float/bool — str() coage (tipos = P2, camada ortogonal)
+    return "scalar"          # str/int/float/bool — sub-tipo em _scalar_type (P2)
+
+
+# ---- P2: sub-tipo escalar por-COLUNA (tag no meta) ----
+# stype: 's'=string(default) · 'n'=number(int/float, json) · 'b'=bool(true/false)
+def _scalar_type(values: list) -> str:
+    """Deduz o tipo da coluna dos valores Python NÃO-nulos. Misto (str+num etc.) = fail-loud (P5)."""
+    ts = set()
+    for v in values:
+        if isinstance(v, bool):            # bool ANTES de int (bool ⊂ int em Python)
+            ts.add("b")
+        elif isinstance(v, (int, float)):
+            if isinstance(v, float) and not math.isfinite(v):
+                raise HierarchicalError("NaN/Infinity fora do JSON (RFC 8259) — não é P2")
+            ts.add("n")
+        elif isinstance(v, str):
+            ts.add("s")
+        else:
+            raise HierarchicalError(f"valor escalar de tipo não suportado: {type(v).__name__}")
+    if len(ts) > 1:
+        raise HierarchicalError(f"tipos escalares MISTOS {ts} numa coluna — fora da classe (P5 union)")
+    return ts.pop() if ts else "s"         # coluna vazia/all-null → string default
+
+
+def _enc_scalar(v, stype: str) -> str:
+    if stype == "n":
+        return json.dumps(v)               # int/float canônico ('30', '9.5', '1000.0')
+    if stype == "b":
+        return "true" if v else "false"
+    return str(v)                          # string (identidade p/ str)
+
+
+def _dec_scalar(s: str, stype: str):
+    if stype == "n":
+        return json.loads(s)               # int OU float (o '.'/'e' no texto distingue)
+    if stype == "b":
+        return s == "true"
+    return s
 
 
 def _derive_schema(records: list) -> list:
@@ -152,14 +196,14 @@ def _field_node(name, present: list, optional: bool):
     masked = optional or has_null                    # def-mask cobre AUSENTE ('-') e NULL ('0')
     present_nn = [v for v in present if v is not None]
     if not non_null:                                 # só-null-quando-presente → escalar vazio
-        return ("scalar", name, masked, None, False)
+        return ("scalar", name, masked, None, False, "s")
     if len(non_null) > 1:
         raise HierarchicalError(
             f"campo {name!r} com tipos ESTRUTURAIS mistos {non_null} — fora da classe (P2 tipos)"
         )
     kind = non_null.pop()
     if kind == "object":
-        return ("object", name, masked, _derive_schema(present_nn), False)
+        return ("object", name, masked, _derive_schema(present_nn), False, "s")
     if kind == "array":
         elems = [e for arr in present_nn for e in arr]
         elem_null = any(e is None for e in elems)    # P3b: algum elemento null → element-mask
@@ -176,16 +220,16 @@ def _field_node(name, present: list, optional: bool):
                     f"array de objetos SEM chaves em {name!r} — fora da classe "
                     "(colidiria com array de escalares no wire)"
                 )
-            return ("arr_objects", name, masked, kids, elem_null)
-        return ("arr_scalars", name, masked, None, elem_null)  # vazio/all-null caem aqui
-    return ("scalar", name, masked, None, False)
+            return ("arr_objects", name, masked, kids, elem_null, "s")
+        return ("arr_scalars", name, masked, None, elem_null, _scalar_type(elems_nn))  # P2: tipo do elemento
+    return ("scalar", name, masked, None, False, _scalar_type(present_nn))              # P2: tipo do campo
 
 
 def _leaves(schema: list, prefix=()):
     """[(path, kind)] em ordem DFS. kind: 'mask' | 'scalar' | 'count' | 'arr_scalars'.
     A coluna de MÁSCARA (presença) vem ANTES das colunas do campo (como o count)."""
     out = []
-    for kind, name, masked, kids, elem_null in schema:
+    for kind, name, masked, kids, elem_null, stype in schema:
         p = prefix + (name,)
         if masked:
             out.append((p, "mask"))
@@ -230,7 +274,7 @@ def _emit_array(instances: list, children: list, prefix: tuple, cols: dict):
 def _emit_row(obj: dict, children: list, prefix: tuple, cols: dict):
     if not isinstance(obj, dict):
         raise HierarchicalError(f"esperava objeto em {'/'.join(prefix) or 'raiz'}")
-    for kind, name, masked, kids, elem_null in children:
+    for kind, name, masked, kids, elem_null, stype in children:
         p = prefix + (name,)
         if name not in obj:
             if not masked:
@@ -248,7 +292,7 @@ def _emit_row(obj: dict, children: list, prefix: tuple, cols: dict):
         if kind == "scalar":
             if isinstance(v, (dict, list)):
                 raise HierarchicalError(f"tipo divergente em {p}: esperava escalar, veio {type(v).__name__}")
-            cols[(p, "scalar")].append(str(v))
+            cols[(p, "scalar")].append(_enc_scalar(v, stype))      # P2: str/number(json)/bool
         elif kind == "object":
             _emit_row(v, kids, p, cols)                            # inline (1:1); valida dict dentro
         elif kind == "arr_scalars":
@@ -265,7 +309,7 @@ def _emit_row(obj: dict, children: list, prefix: tuple, cols: dict):
                     raise HierarchicalError(f"elemento não-escalar em {p}")
                 if elem_null:
                     cols[(p, "emask")].append(".")
-                cols[(p, "arr_scalars")].append(str(e))
+                cols[(p, "arr_scalars")].append(_enc_scalar(e, stype))   # P2: tipo do elemento
         else:  # arr_objects
             if not isinstance(v, list):
                 raise HierarchicalError(f"tipo divergente em {p}: esperava array")
@@ -295,18 +339,21 @@ def _build_meta(schema: list, bodies: dict, order: list) -> str:
     def csz(path, kind):  # colunas de CONTROLE (mask/emask/count) NUNCA omitem (auditoria F1:
         return f":{len(bodies[(path, kind)].encode())}"  # obj vazio mascarado punha mask como última folha
 
+    def dsz(path, kind, stype):  # coluna de DADO: string pode omitir (última); TIPADA sempre :size+tag
+        return sz(path, kind) if stype == "s" else f"{csz(path, kind)}{stype}"
+
     def emit(children, prefix):
         parts = []
-        for kind, name, masked, kids, elem_null in children:
+        for kind, name, masked, kids, elem_null, stype in children:
             p = prefix + (name,)
             head = _esc_name(name)                                 # nome ESCAPADO (inclui '?' agora)
             if masked:
                 head += "?" + csz(p, "mask")                       # '?:msize' (controle: nunca omite)
             em = ("?" + csz(p, "emask")) if elem_null else ""      # P3b: '?:emsize' entre count e '['
             if kind == "scalar":
-                parts.append(f"{head}{sz(p, 'scalar')}")
+                parts.append(f"{head}{dsz(p, 'scalar', stype)}")   # P2: tag n/b após size (ou string)
             elif kind == "arr_scalars":
-                parts.append(f"{head}#{csz(p, 'count')}{em}[]{sz(p, 'arr_scalars')}")
+                parts.append(f"{head}#{csz(p, 'count')}{em}[]{dsz(p, 'arr_scalars', stype)}")
             elif kind == "object":
                 parts.append(f"{head}{{{emit(kids, p)}}}")
             else:
@@ -359,19 +406,36 @@ def _parse_meta(meta: str):
             raise HierarchicalError(f"size negativo no header: {v}")
         return v
 
-    def size():                                           # size REGULAR (stop-set estrito do weld)
+    def _digits():                                        # lê '-'? dígitos (para em delim OU tag n/b)
+        nonlocal i
+        j = i
+        if i < n and meta[i] == "-":
+            i += 1
+        while i < n and meta[i].isdigit():
+            i += 1
+        return meta[j:i]
+
+    def size():                                            # size REGULAR (só dígitos → tag pode seguir)
         nonlocal i
         if i < n and meta[i] == ":":
             i += 1
-            return _to_size(nm(",]}#[?"))
+            return _to_size(_digits())
         return None
 
-    def msize():                                          # size da MÁSCARA (para também em ':'/'{')
+    def msize():                                          # size da MÁSCARA (controle; sempre presente)
         nonlocal i
         if not (i < n and meta[i] == ":"):
             raise HierarchicalError("'?' sem tamanho de máscara (:msize)")
         i += 1
-        return _to_size(nm(",]}#[:{?"))
+        return _to_size(_digits())
+
+    def stag():                                           # P2: tag de tipo (n/b) após size de DADO
+        nonlocal i
+        if i < n and meta[i] in ("n", "b"):
+            t = meta[i]
+            i += 1
+            return t
+        return "s"
 
     def seq(closer, prefix):
         nonlocal i
@@ -403,15 +467,15 @@ def _parse_meta(meta: str):
                     if i < n and meta[i] == "]":          # array de escalares
                         i += 1
                         order.append((p, "arr_scalars", size()))
-                        nodes.append(("arr_scalars", name, masked, None, elem_null))
-                    elif i >= n or meta[i] == ",":        # `[` omit-closed
+                        nodes.append(("arr_scalars", name, masked, None, elem_null, stag()))
+                    elif i >= n or meta[i] == ",":        # `[` omit-closed = string (tipado sempre emite ])
                         order.append((p, "arr_scalars", None))
-                        nodes.append(("arr_scalars", name, masked, None, elem_null))
+                        nodes.append(("arr_scalars", name, masked, None, elem_null, "s"))
                     else:                                  # array de objetos
                         kids = seq("]", p)
                         if i < n and meta[i] == "]":
                             i += 1
-                        nodes.append(("arr_objects", name, masked, kids, elem_null))
+                        nodes.append(("arr_objects", name, masked, kids, elem_null, "s"))
                 else:
                     raise HierarchicalError(f"esperava '[' após '#' em {p}")
             elif i < n and meta[i] == "{":               # objeto 1:1
@@ -419,10 +483,10 @@ def _parse_meta(meta: str):
                 kids = seq("}", p)
                 if i < n and meta[i] == "}":
                     i += 1
-                nodes.append(("object", name, masked, kids, False))
+                nodes.append(("object", name, masked, kids, False, "s"))
             else:                                         # escalar
                 order.append((p, "scalar", size()))
-                nodes.append(("scalar", name, masked, None, False))
+                nodes.append(("scalar", name, masked, None, False, stag()))
         return nodes
 
     return seq(None, ()), order
@@ -469,7 +533,7 @@ def decode_hierarchical(tcf_text: str) -> list:
 
 def _read_object(children: list, prefix: tuple, cols: dict, cur: dict) -> dict:
     obj = {}
-    for kind, name, masked, kids, elem_null in children:
+    for kind, name, masked, kids, elem_null, stype in children:
         p = prefix + (name,)
         if masked:
             m = _take(cols, cur, (p, "mask"))
@@ -481,13 +545,13 @@ def _read_object(children: list, prefix: tuple, cols: dict, cur: dict) -> dict:
             if m != ".":
                 raise HierarchicalError(f"máscara inválida {m!r} em {p}")
         if kind == "scalar":
-            obj[name] = _take(cols, cur, (p, "scalar"))
+            obj[name] = _dec_scalar(_take(cols, cur, (p, "scalar")), stype)   # P2: str/number/bool
         elif kind == "object":
             obj[name] = _read_object(kids, p, cols, cur)
         elif kind == "arr_scalars":
             k = _count(_take(cols, cur, (p, "count")), p)
             obj[name] = [(None if _emask_null(cols, cur, p, elem_null)
-                          else _take(cols, cur, (p, "arr_scalars"))) for _ in range(k)]
+                          else _dec_scalar(_take(cols, cur, (p, "arr_scalars")), stype)) for _ in range(k)]
         else:  # arr_objects
             k = _count(_take(cols, cur, (p, "count")), p)
             obj[name] = [(None if _emask_null(cols, cur, p, elem_null)

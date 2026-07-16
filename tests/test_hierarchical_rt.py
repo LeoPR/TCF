@@ -385,3 +385,56 @@ def test_fuzz_classe_coberta_seedado():
         schema = _gen_schema(rng, depth=rng.randint(0, 3))
         recs = [_gen_record(rng, schema) for _ in range(rng.randint(1, 8))]
         assert decode(encode_hierarchical(recs)) == recs
+
+
+# --- P2: tipos escalares (number/bool) — tag por-coluna, 2026-07-16 ---
+P2_TIPOS = {
+    "int": [{"idade": 30}, {"idade": 40}],
+    "float": [{"nota": 9.5}, {"nota": 10.0}],
+    "int+float misto (JSON number)": [{"q": 1}, {"q": 1.5}, {"q": 2}],
+    "bool": [{"ativo": True}, {"ativo": False}],
+    "big-int": [{"x": 10 ** 30}],
+    "negativo + zero": [{"a": -5, "b": 0}, {"a": 7, "b": -3}],
+    "todos-os-tipos": [{"nome": "Ana", "idade": 30, "ativo": True, "nota": 9.5}],
+    "array-de-number": [{"xs": [1, 2, 3]}, {"xs": [4]}],
+    "array-de-bool": [{"flags": [True, False]}],
+    "int-ULTIMA-folha (tag+size)": [{"nome": "Ana", "idade": 30}],
+    "number-nullable (P2+P3a)": [{"x": 30}, {"x": None}, {"x": 40}],
+    "array-number-null-elem (P2+P3b)": [{"xs": [1, None, 3]}],
+    "bool-nullable + array-bool": [{"a": True, "fs": [False, True]}, {"a": None, "fs": []}],
+}
+
+
+@pytest.mark.parametrize("name", list(P2_TIPOS))
+def test_p2_tipos_rt(name):
+    docs = P2_TIPOS[name]
+    assert decode(encode_hierarchical(docs)) == docs
+
+
+def test_p2_disambiguacao_string_vs_tipo():
+    # a assinatura do P2: string "30" ≠ int 30; string "true" ≠ bool True
+    assert decode(encode_hierarchical([{"a": "30"}, {"a": "40"}])) == [{"a": "30"}, {"a": "40"}]
+    assert decode(encode_hierarchical([{"a": "true"}])) == [{"a": "true"}]
+    assert decode(encode_hierarchical([{"a": 30}])) == [{"a": 30}]         # int, não "30"
+    assert decode(encode_hierarchical([{"a": True}])) == [{"a": True}]     # bool, não "true"
+
+
+def test_p2_byte_compat_all_string():
+    # dado all-string → NENHUM tag no header (byte-idêntico ao pré-P2)
+    uni = [{"n": "Ana", "t": ["a", "b"]}, {"n": "Bob", "t": []}]
+    meta = encode_hierarchical(uni).split("\n", 1)[0]
+    assert meta == "#TCF.8Hn:8,t#:8["                                     # sem 'n'/'b' de tag
+    assert decode(encode_hierarchical(uni)) == uni
+
+
+def test_p2_nan_inf_fail_loud():
+    for bad in (float("nan"), float("inf"), float("-inf")):
+        with pytest.raises(HierarchicalError, match="NaN|Infinity"):
+            encode_hierarchical([{"x": bad}])
+
+
+def test_p2_tipo_misto_str_num_fail_loud():
+    with pytest.raises(HierarchicalError, match="MISTOS|mistos"):
+        encode_hierarchical([{"x": 30}, {"x": "texto"}])                  # int + str = P5 union
+    with pytest.raises(HierarchicalError, match="MISTOS|mistos"):
+        encode_hierarchical([{"xs": [1, "a"]}])                           # number + string no array

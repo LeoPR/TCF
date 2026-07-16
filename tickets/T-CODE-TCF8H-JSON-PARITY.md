@@ -26,7 +26,12 @@ related:
 > §Update P3b; lab 2026-07-15-2230 didático 8/8 + realista + massa 6000/6000; auditoria adversarial fechou
 > F1 data-loss pré-existente + F2). **Família null COMPLETA** (campo + elemento; raiz depende de P4/N-raízes).
 > **Decisão de mecanismo (Ciclo 4)**: máscara = canônico (O(1)/stream/view; converge Arrow/Parquet/ORC);
-> índice-de-substituição = nicho de perfil ([[H-PROFILE-01]]). Próximo: **P2 tipos** OU **P4 rep-level**.
+> índice-de-substituição = nicho de perfil ([[H-PROFILE-01]]).
+>
+> **P2 tipos WELDED 2026-07-16** (number tag `n` json / bool tag `b`; insight Python-tipado → tag por-coluna;
+> ADR-0033 §Update P2; lab 2026-07-16-0110 didático 10/10 + realista + massa 6000/6000). **ESCALARES JSON
+> COMPLETOS** (string/number/bool/null). Falta ESTRUTURA: **P4** (rep-level: array-em-array, N-raízes,
+> null-raiz) e **P5** (union: array polimórfico / tipo-misto). Próximo: levantamento do P4.
 
 > **REVISÃO DE ESCOPO 2026-07-15 — opinião registrada; decisão pendente do owner.** P3 não é um
 > único incremento mecânico. **P3a** = null em CAMPO de objeto (`{x:null}`), inclusive quando o campo
@@ -58,8 +63,8 @@ realista, não sintético). O weld atual (ADR-0033) cobre a ESPINHA; faltam os c
 | nome de chave c/ char do meta | ✅ **escaping welded** (`40a7e10`) | **congelar** contrato |
 | aninhamento arbitrário (contenção) | ✅ classe coberta | — |
 | **chave OPCIONAL / objeto ragged** | ✅ **WELDED** (P1, 2026-07-15) | — (`nome?:msize`, máscara 3-estados; ADR-0033 §Update P1) |
-| **number (int/float) preservado** | ❌ `str()` coerção (H-TYPE-01) | **P2 — tipos** (C-híbrida decidida conceitual) |
-| **`true`/`false`** | ❌ `str()`→`"True"` | P2 (junto de tipos) |
+| **number (int/float) preservado** | ✅ **WELDED** (P2, 2026-07-16) | — (tag `n`, json.dumps/loads; ADR-0033 §Update P2) |
+| **`true`/`false`** | ✅ **WELDED** (P2, 2026-07-16) | — (tag `b`, true/false) |
 | **`null` em campo** (≠ ausente ≠ `"null"`) | ✅ **WELDED** (P3a, 2026-07-15) | — (máscara `0`=None; ADR-0033 §Update P3a) |
 | **`null` em elemento de array** | ✅ **WELDED** (P3b, 2026-07-15) | — (element-mask 2-estados; ADR-0033 §Update P3b) |
 | **`null` na raiz** | ❌ fora do contrato `list[dict]` | decisão junto de **P4/N-raízes** |

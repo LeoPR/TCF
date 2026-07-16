@@ -1,0 +1,28 @@
+#TCF.8Hpedido:17n,cliente:32,pago:14b,total:21n,cupom?:7:9,itens#:8[sku:24,qtd:11n,preco:22n,brinde:14b
+\100*\1
+*2+1|1\2
+Ana Souza
+Bruno Lima
+Carla Dias
+true
+false
+^1
+\25*\9.\9
+\8*2
+\0.\0
+.
+\0
+-
+PROMO\10
+*3-1|\2
+TEC-\01
+MOU-\02
+MON-\03
+*2+1|\1
+^1
+\199.\9
+\30.\0
+\89.\9
+false
+true
+^1

@@ -1,0 +1,22 @@
+WELD P2 — tipos escalares (number/bool). didático → realista → massa (RT obrigatório).
+
+(1) DIDÁTICO — cada tipo + disambiguação (roundtrip diffável):
+  [RT-OK] int: 25B · header: #TCF.8Hidade:9n
+  [RT-OK] float: 29B · header: #TCF.8Hnota:13n
+  [RT-OK] int+float misto (JSON number): 27B · header: #TCF.8Hqtd:12n
+  [RT-OK] bool: 28B · header: #TCF.8Hativo:11b
+  [RT-OK] todos-os-tipos-juntos: 63B · header: #TCF.8Hnome:4,idade:4n,vip:5b,saldo:10n
+  [RT-OK] array de number: 46B · header: #TCF.8Hmedidas#:3[]:19n
+  [RT-OK] array de bool: 39B · header: #TCF.8Hflags#:3[]:14b
+  [RT-OK] disambiguacao string vs tipo: 43B · header: #TCF.8Ha:4,b:5,c:4n,d:5b
+  [RT-OK] number nullable (P2+P3a): 34B · header: #TCF.8Hx?:8:10n
+  [RT-OK] array number com null-elemento (P2+P3b): 40B · header: #TCF.8Hxs#:3?:8[]:8n
+
+(2) REALISTA — pedidos (int/float/bool + cupom null + itens tipados aninhados):
+  [RT-OK] 3 pedidos: tcf=283B vs json=414B · header: #TCF.8Hpedido:17n,cliente:32,pago:14b,total:21n,cupom?:7:9,itens#:8[sku:24,qtd
+
+(3) MASSA — fuzz seedado (colunas tipadas str/number/bool, nullable, arrays tipados):
+  RT byte-exato: 6000/6000
+
+VEREDITO: P2 (number/bool) — RT em TODAS as etapas. Evidência diffável em outputs/.
+Tag por-coluna ('n'/'b', string=default); json distingue int/float; compõe com P3a/P3b.

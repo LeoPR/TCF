@@ -1,0 +1,45 @@
+[
+  {
+    "pedido": 1001,
+    "cliente": "Ana Souza",
+    "pago": true,
+    "total": 259.9,
+    "cupom": "PROMO10",
+    "itens": [
+      {
+        "sku": "TEC-01",
+        "qtd": 1,
+        "preco": 199.9,
+        "brinde": false
+      },
+      {
+        "sku": "MOU-02",
+        "qtd": 2,
+        "preco": 30.0,
+        "brinde": true
+      }
+    ]
+  },
+  {
+    "pedido": 1002,
+    "cliente": "Bruno Lima",
+    "pago": false,
+    "total": 89.9,
+    "cupom": null,
+    "itens": [
+      {
+        "sku": "MON-03",
+        "qtd": 1,
+        "preco": 89.9,
+        "brinde": false
+      }
+    ]
+  },
+  {
+    "pedido": 1003,
+    "cliente": "Carla Dias",
+    "pago": true,
+    "total": 0.0,
+    "itens": []
+  }
+]
