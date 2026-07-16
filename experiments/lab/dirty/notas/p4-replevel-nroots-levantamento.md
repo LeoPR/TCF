@@ -3,6 +3,7 @@ title: LEVANTAMENTO — P4 rep-level / N-raízes / root (o STRUCTURAL que falta)
 type: plan
 status: aberta
 created: 2026-07-16
+updated: 2026-07-16
 related:
   - tickets/T-CODE-TCF8H-JSON-PARITY.md
   - experiments/lab/dirty/2026-07-06-2246-tcf8h-fronteira-link-posicional/ (B3 caracterizado)
@@ -88,3 +89,58 @@ byte-canônico + **auditoria adversarial** (gramática nova esconde corrupção 
 `Média` no design (o recursive-count é natural; o root muda contrato — mais decisão que técnica). O
 difícil é a gramática do array-interno e o contrato do root. Depois de P4, falta só **P5 union** p/
 a fronteira JSON completa (reportar fração in-class até lá).
+
+## Revisão crítica independente — 2026-07-16
+
+**[probatório→opinião; não é decisão do owner]** Revisão read-only do P2 welded e deste levantamento,
+seguida de probes adversariais e suíte completa. Estado observado: P2 preserva tipo nos caminhos
+válidos e compõe com P3a/P3b; o endurecimento de decode de `268608d` rejeita bool/number inválidos,
+NaN e infinitos. Suíte no estado revisado: **731 passed, 2 skipped, 2 xfailed**. Os `xfail` são bugs
+L1 pré-existentes e separados (`BUG-SEQRLE-RANGE-EMPTY-B` e `BUG-BRACKET-CELL-LOSS`).
+
+### Achado residual do P2
+
+O parser de metadata ainda não rejeita toda **tag desconhecida** depois do tamanho de dado. Probe com
+header corretamente enquadrado `x:<size>x` resultou em `[]`, pois `stag()` não consome `x` e o parser
+o reinterpreta como novo campo. Não afeta wire emitido pelo encoder, mas viola fail-loud para blob
+estrangeiro/corrompido. Tratar como hardening de framing: tag após size deve ser `n`, `b` ou ausência;
+qualquer outro caractere não estrutural deve levantar `HierarchicalError`, com teste adversarial.
+
+### Parecer sobre P4a — estrutura
+
+O **count recursivo** é a direção recomendada. Ele não elimina conceitualmente repetition-level;
+representa a mesma informação posicional em forma hierárquica por nível, alinhada ao `#count` já
+existente. Para `[[1,2],[3]]`: count externo `2`, counts internos `[2,1]`, folhas `[1,2,3]`. Não há
+evidência de que um stream flat de rep-level pague a gramática e o mecanismo adicionais nesta etapa.
+
+Gate mínimo antes de weld:
+
+- matriz rasa, profundidade >2 e arrays internos vazios;
+- array de arrays de objetos;
+- null como elemento entre arrays (`[[1], null, [2]]`): decidir se P3b cobre o slot estrutural ou se
+  fica fora; não classificá-lo automaticamente como union P5;
+- count interno truncado, excedente e fechamento/tag inválidos;
+- custo de header/streams medido por profundidade, sem impor limite arbitrário antes da evidência.
+
+### Parecer sobre P4b — contrato de raiz
+
+Separar P4b de P4a. P4a adiciona um kind estrutural interno; P4b muda entrada e saída públicas de
+`encode_hierarchical(list[dict])` para uma raiz generalizada. Os dois incrementos exigem decisões e
+gates distintos.
+
+Terminologia: JSON tem **uma raiz**. Um array na raiz tem N elementos, não N raízes. Usar daqui em
+diante **raiz generalizada** / **array na raiz**; conservar “N-raízes” apenas como nome histórico da
+hipótese e dos links existentes.
+
+A ordem de arrays é semântica e **não é livre**. Uma raiz sintética só é aceitável se for envelope
+transparente e explicitamente discriminado no wire: o decoder precisa restaurar exatamente o tipo da
+raiz e nunca devolver o envelope. Sem um `root_kind` inequívoco, `list[dict]` fica ambíguo entre o
+DatasetH atual e um documento cujo valor-raiz é um array. Gate de P4b deve distinguir e preservar:
+`[]`, `[{}]`, `{}`, objeto único, array de escalares, escalar, string vazia e `null` na raiz.
+
+### Ordem recomendada de investigação
+
+1. **P4a** em lab próprio: fechar modelo recursivo + gramática + adversarial.
+2. Weld de P4a somente após aprovação de `src/tcf` e gates flat/real-world.
+3. **P4b** em estudo separado: decidir envelope/discriminador e contrato de API.
+4. P5 union continua fora; não usar “qualquer JSON” antes dele.

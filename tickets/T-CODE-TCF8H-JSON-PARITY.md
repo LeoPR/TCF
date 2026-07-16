@@ -3,7 +3,7 @@ title: T-CODE-TCF8H-JSON-PARITY — o que falta pra fechar "hierarquia" (paridad
 status: open
 priority: P1
 created: 2026-07-15
-updated: 2026-07-15
+updated: 2026-07-16
 gate: capability (paridade JSON), não ≥15%
 blocked-by: []
 related:
@@ -32,6 +32,14 @@ related:
 > ADR-0033 §Update P2; lab 2026-07-16-0110 didático 10/10 + realista + massa 6000/6000). **ESCALARES JSON
 > COMPLETOS** (string/number/bool/null). Falta ESTRUTURA: **P4** (rep-level: array-em-array, N-raízes,
 > null-raiz) e **P5** (union: array polimórfico / tipo-misto). Próximo: levantamento do P4.
+>
+> **REVISÃO P2/P4 2026-07-16 [probatório→opinião]**: P2 válido e endurecido em `268608d`; suíte
+> **731 passed, 2 skipped, 2 xfailed**. Resta hardening de metadata: tag desconhecida após size pode
+> ser reinterpretada como campo e produzir `[]` silenciosamente (`x:<size>x`), portanto deve falhar
+> alto. Para P4, investigar em dois atos: **P4a count recursivo/array-em-array** primeiro; **P4b raiz
+> generalizada** depois, pois muda o contrato público. “N-raízes” fica como termo histórico; JSON tem
+> uma raiz e arrays preservam ordem. Parecer e matriz de gates:
+> [p4-replevel-nroots-levantamento.md](../experiments/lab/dirty/notas/p4-replevel-nroots-levantamento.md).
 
 > **REVISÃO DE ESCOPO 2026-07-15 — opinião registrada; decisão pendente do owner.** P3 não é um
 > único incremento mecânico. **P3a** = null em CAMPO de objeto (`{x:null}`), inclusive quando o campo
@@ -68,7 +76,7 @@ realista, não sintético). O weld atual (ADR-0033) cobre a ESPINHA; faltam os c
 | **`null` em campo** (≠ ausente ≠ `"null"`) | ✅ **WELDED** (P3a, 2026-07-15) | — (máscara `0`=None; ADR-0033 §Update P3a) |
 | **`null` em elemento de array** | ✅ **WELDED** (P3b, 2026-07-15) | — (element-mask 2-estados; ADR-0033 §Update P3b) |
 | **`null` na raiz** | ❌ fora do contrato `list[dict]` | decisão junto de **P4/N-raízes** |
-| **array-em-array / N raízes / array no topo** | ❌ fail-loud | **P4 — rep-level** (B3, caracterizado, não implementado) |
+| **array-em-array / array no topo / raiz generalizada** | ❌ fail-loud | **P4a estrutura + P4b contrato de raiz** (caracterizados, não implementados) |
 | **array polimórfico** (elementos de schema variável) | ❌ fail-loud | P5 — union/def-level (a fronteira mais afiada) |
 | `\n` em valor | ❌ fail-loud (core) | **congelar** contrato (boundary) |
 
@@ -83,21 +91,17 @@ adversariais (a lição do escape: testar nome/valor/borda, não só o caminho f
 1. ~~**P1 · Presença/ragged** (chave opcional)~~ **✅ WELDED 2026-07-15** — `nome?:msize`, máscara
    3-estados; endureceu tipo/null/frame junto (auditoria); probe real-world amostral fechado; suíte
    vigente 685 passed, 2 skipped, 1 xfailed (bug L1 separado e pinado).
-2. **P3 · null (campo + elemento)** — **MECANISMO REVISTO (owner 2026-07-15): índices de substituição**
-   (dicionário por-coluna pré-semeado no header), NÃO máscara-`0`. Ganho: unifica null-em-campo (P3a) e
-   null-em-elemento (P3b) no MESMO mecanismo (a máscara precisaria de element-mask nova). Toca L1 core →
-   estudo-primeiro + medições + aprovação. Plano:
-   [substituicao-indices-especiais-plano.md](../experiments/lab/dirty/notas/substituicao-indices-especiais-plano.md)
-   (H-SUBST-INDEX-01). Gate distingue ausente/null/`"null"`/`""`; campo escalar/objeto/array; all-null;
-   null em elemento (inicial/meio/fim). A máscara de presença `.`/`-` do P1 permanece p/ AUSÊNCIA
-   (ausência-como-índice = a medir, owner D). **Método (owner 2026-07-15, ciclo 3)**: NÃO firmar
-   forma-do-header nem máscara×índice agora — estrutura **preparada pra ambos**, decidida por
-   parâmetro/heurística (**perfil de uso** API×armazenamento, [[H-PROFILE-01]]), default por **medição
-   em massa depois**. Agora = funcionalidade; forma definitiva da ausência em aberto.
-4. **P2 · Tipos** (number/bool preservados) — C-híbrida (deduz número/bool grátis, tag só na
-   colisão-string; análogo ao hex-default). Fecha o `str()`-lossy do H-TYPE-01.
-5. **P4 · Rep-level** (array-em-array, N-raízes e decisão de null na raiz) — um NÚMERO posicional
-   (onde o array reinicia).
+2. ~~**P3 · null (campo + elemento)**~~ **✅ WELDED 2026-07-15** — P3a usa estado `0` na máscara
+   de campo; P3b usa element-mask alinhada aos elementos. Índices de substituição permanecem hipótese
+   física futura, não representação semântica canônica. Fonte da decisão e do histórico comparativo:
+   [substituicao-indices-especiais-plano.md](../experiments/lab/dirty/notas/substituicao-indices-especiais-plano.md).
+3. ~~**P2 · Tipos** (number/bool preservados)~~ **✅ WELDED 2026-07-16** — tags por-coluna `n`/`b`,
+   identidade Python-tipado, string default; decode tipado endurecido em `268608d`. Resta o hardening
+   de tag desconhecida no framing, registrado abaixo no critério de aceite.
+4. **P4a · Repetição estrutural** (array-em-array) — count recursivo como representação hierárquica
+   da informação posicional; fechar gramática e adversarial em lab próprio.
+5. **P4b · Raiz generalizada** (array no topo, objeto/escalar/null na raiz) — contrato público e
+   envelope/discriminador explícito; preservar ordem e tipo-raiz exatamente.
 6. **P5 · Array polimórfico** (union) — a fronteira; pode ficar por último ou virar fail-loud honesto.
 7. **Congelar contratos de borda** — `\n`-em-valor + gramática-de-nome (escaping) →
    [T-API-BOUNDARY-CONTRACTS](T-API-BOUNDARY-CONTRACTS.md), antes do freeze pré-1.0.
@@ -123,7 +127,9 @@ e responde ao "ligações diversas" recorrente do owner. Hoje N:N é **inexpress
 
 ## Critério de aceite
 
-- [ ] P1–P4 weldados incrementalmente (cada um com gate de capacidade + non-regressão + adversarial).
+- [x] P1 presença, P3 null e P2 tipos weldados incrementalmente com gates próprios.
+- [ ] P4a estrutura e P4b raiz decididos/weldados separadamente, com non-regressão e adversarial.
+- [ ] Metadata P2 rejeita tag desconhecida após size sem reinterpretar como novo campo.
 - [ ] Suíte de paridade: RT de um corpus de JSONs reais de transmissão (API, logs, catálogos) —
   fração in-class vs fronteira reportada (fundamentar no JSON que as pessoas usam).
 - [ ] Contratos de borda (`\n`, nome) congelados antes do freeze pré-1.0.

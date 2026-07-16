@@ -1,15 +1,25 @@
 # STATUS — TCF (compendio sempre-atualizado)
 
-> **⚑ PAUSA 2026-07-15 (retomar de dia, ~8h)** — **P1 presença/ragged WELDADO** (`bcb6405`):
-> `#TCF.8H` agora aceita **chave opcional** (`nome?:msize`, máscara 3-estados; ADR-0033 §Update P1);
-> endureceu tipo/null/frame junto (auditoria adversarial fechou corrupções silenciosas pré-existentes);
-> **suíte 684 passed**, uniforme byte-idêntico. **PUSH SEGURADO**: o probe real-world (PW3, receita-cnpj)
-> revelou um **crash no DECODE do L1** (seq-RLE range `int('')`, `syntax.py:734`) que **NÃO é do P1**
-> (coerido E ragged crasham idêntico; colunas isoladas RT; suíte verde) — diagnóstico é lento (encode 200k),
-> adiado. **1º da retomada**: rodar `experiments/lab/dirty/2026-07-15-0125-p1-presenca-ragged-estudo/diagnostico_l1_seqrle_crash.py`.
-> Checkpoint: [`2026-07-15-p1-weldado-pw3-crash-l1-a-diagnosticar.md`](experiments/lab/dirty/notas/checkpoints/2026-07-15-p1-weldado-pw3-crash-l1-a-diagnosticar.md).
-> Depois: mapa de paridade JSON ([T-CODE-TCF8H-JSON-PARITY](tickets/T-CODE-TCF8H-JSON-PARITY.md)) —
-> **null primeiro** (owner). Fila de paridade: P1✅ · null(P3) · tipos(P2) · rep-level(P4).
+> **⚑ PAUSA 2026-07-16 — P2 revisado; investigação P4 decomposta.** P1, P3a, P3b e P2 estão
+> welded. Auditoria P2 válida no caminho normal e endurecida em `268608d`; suíte observada **731
+> passed, 2 skipped, 2 xfailed**. Achado residual: metadata com tag desconhecida após size pode ser
+> reinterpretada como campo e produzir `[]` silenciosamente; registrar como hardening fail-loud, não
+> como falha do encoder. Parecer P4: **P4a count recursivo/array-em-array** primeiro; **P4b raiz
+> generalizada** depois, pois altera API e exige envelope/discriminador que preserve tipo e ordem.
+> “N-raízes” é termo histórico; JSON tem uma raiz. Nenhum código P4 foi iniciado. Fonte probatória e
+> gates: [levantamento P4](experiments/lab/dirty/notas/p4-replevel-nroots-levantamento.md). Retomada:
+> [checkpoint 2026-07-16](experiments/lab/dirty/notas/checkpoints/2026-07-16-revisao-p2-p4.md).
+
+> **⚑ PAUSA 2026-07-15 — revisão pós-P1 registrada; decisão de null pendente do owner.** P1
+> presença/ragged está **WELDADO e fechado** (`bcb6405` + `69db6bc`), com probe real-world amostral e
+> suíte vigente **685 passed, 2 skipped, 1 xfailed**. O crash do PW3 foi diagnosticado como bug
+> pré-existente do L1 (`BUG-SEQRLE-RANGE-EMPTY-B`), isolado e pinado em `xfail`; não é regressão do P1.
+> Revisão crítica não encontrou outra feature de grande ROI pronta que deva passar à frente de null.
+> **Opinião registrada, não decisão**: decompor P3 em **P3a null em campo** (baixo custo; usa `0` da
+> definition mask) e **P3b null em elemento de array** (máscara alinhada aos elementos); null na raiz
+> depende do contrato de P4/N-raízes. NaN/infinitos ficam fora de P3. Próximo ato é o owner decidir
+> P3a/P3b; nenhum código de null foi alterado. Checkpoint vigente:
+> [`2026-07-15-revisao-null-pos-p1.md`](experiments/lab/dirty/notas/checkpoints/2026-07-15-revisao-null-pos-p1.md).
 
 > **⚑ WELD 2026-07-14 — HIERARQUIA `#TCF.8H` no `src/tcf` (1º incremento, gate verde)**: codec
 > hierárquico weldado ADITIVO em 3 camadas (arquitetura do owner:
