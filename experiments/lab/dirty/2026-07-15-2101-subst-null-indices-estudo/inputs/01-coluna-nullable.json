@@ -1,0 +1,10 @@
+{
+  "descricao": "coluna nullable ILUSTRATIVA — as 4 vias que o mecanismo tem que distinguir",
+  "coluna": ["ativo", null, "ativo", "null", "", "inativo", null, "ativo"],
+  "legenda": {
+    "null (real)": "posições 1 e 6 — o valor JSON null (→ None)",
+    "\"null\" (string)": "posição 3 — a string literal 'null' (≠ null)",
+    "\"\" (vazia)": "posição 4 — string vazia (≠ null, ≠ ausente)",
+    "ausente": "NÃO representável numa coluna densa — é presença (P1, máscara '-'), fora deste estudo"
+  }
+}

@@ -637,6 +637,10 @@ nova hipotese identificada.
     e' BINARIA (V2-L); em texto o tipo vale por ACELERACAO. Numero comprime via HCC (rule_hit=None no default).
     Nota [`tipos-como-specs.md`](tipos-como-specs.md) + lab [`2026-07-06-2310-tipos-como-specs/`](../2026-07-06-2310-tipos-como-specs/result.md).
     Unifica H-TYPE-01 + T-OPT-INFERENCE (hex=sub-spec numerica) + natures (ADR-0015). `confirmada-conceitual`.
+  - **Revisão (owner 2026-07-15, ciclo H-SUBST-INDEX-01)**: **bool** provavelmente migra da tag C-híbrida
+    para o **framework de índices de substituição** (índice reservado 1=`True`/2=`False`; resolve
+    `true`-string vs `True`-bool por QUAL índice, mais limpo que a tag). **Número fica na dedução**
+    (cardinalidade infinita não reserva índice). Ver [substituicao-indices-especiais-plano.md](substituicao-indices-especiais-plano.md).
 
 - **H-SUBST-INDEX-01** (índices de substituição p/ especiais via dicionário pré-semeado, owner 2026-07-15):
   tratar null (e a família de especiais) na **camada de referência/dicionário do L1** — o dicionário
@@ -709,6 +713,10 @@ nova hipotese identificada.
     enumerated implicito". O bN NAO overturna esse no-go: e' a variante **bit-level** que so' ganha
     **terminal** (8.8%, colapsa pos-brotli); no geral/re-comprimido o implicito vence, consistente com o no-go.
     Refina, nao contradiz.
+  - **Posição no pipeline (owner 2026-07-15, ciclo H-SUBST-INDEX-01)**: bN é o **estágio 3** do pipeline
+    de refinamento de especiais (descobrir → reservar índice → **bN**). O framework de índices de
+    substituição deve deixar o **stream de referências empacotável por bN** (hook `.9`, sem acoplar
+    agora). Ver [substituicao-indices-especiais-plano.md](substituicao-indices-especiais-plano.md).
 - **H-TYPE-03** (TCF como representacao terminal = o escopo honesto p/ bit-packing bit-level, owner
   2026-07-07): reenquadramento proposto (NAO testado como decisao de produto): bN so' entrega ganho liquido
   quando o `.tcf` e' consumido diretamente, sem brotli/gzip/zstd depois — mesmo nicho ja' declarado pra

@@ -42,6 +42,28 @@ SENTINELAS NÃO-STRING** (marcadores que nunca são iguais a nenhuma string real
   posicional na tabela, não por valor string).
 - decode: referência a um índice reservado → materializa o especial (índice 0 → `None`).
 
+## Ciclo 2 (owner 2026-07-15) — natureza única + pipeline de refinamento + dono-versão
+
+**null/true/false são a MESMA natureza** — valores identificados cujo índice reservado mapeia pra um
+**valor Python tipado** (0→`None`, 1→`True`, 2→`False`), não pra uma string. **A string SAI do
+arquivo** e passa a viver no **dicionário da VERSÃO** (não no `.tcf`): arquivo + versão recupera. Não
+tratar null como super-especial — é só um tipo identificado cuja string inicial some, sobrando o marcador.
+
+- **Dono-versão do dicionário de especiais**: o mapa (índice→valor especial) é parte do FORMATO; freeze
+  no 1.0, evolutivo pré-1.0 (ADR-0024). Documentar (ADR quando weldar). É o que torna "a string some" lossless.
+- **Pipeline de refinamento** (composável, cada estágio opcional):
+  1. **descobrir** (pré-pass/OBAT ou pré-filtro reconhece null/bool como candidatos) →
+  2. **reservar índice** (ESTE plano — string sai do arquivo, vira referência) →
+  3. **bN** (`.9`/H-TYPE-02 — empacota o stream de refs em bits p/ baixa-cardinalidade).
+  null usa só o (2); bool ganha no (3).
+- **Insight**: o índice reservado resolve `true`-string vs `True`-bool **mais limpo que a tag C-híbrida**
+  do H-TYPE-01 — é QUAL índice se referencia (índice 1 = bool `True`; string `"true"` = índice
+  descoberto). **bool migra pro framework de índices; número (cardinalidade infinita) fica na dedução.**
+- **Escopo (owner)**: protótipo **null-only** agora; design generaliza pra family+bN mas NÃO implementa.
+  Hook do `.9`: manter o stream de refs **empacotável por bN** (não acoplar índice-substituição ao
+  encoding físico) + tabela de reservados **extensível** (true/false depois, sem rework). Fazer funcionar,
+  deixar preparado, não encher de lixo pra limpar depois.
+
 ## Espaço de design a MAPEAR (o que o estudo decide)
 
 1. **Forma do header** (2 candidatos a protótipar + medir):

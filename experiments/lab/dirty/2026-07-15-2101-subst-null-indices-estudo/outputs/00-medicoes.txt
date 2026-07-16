@@ -1,0 +1,43 @@
+ESTUDO — índices de substituição (null pré-semeado) + 2 formas de header
+
+(1) RT + 4 VIAS (col ilustrativa):
+  entrada:  ['ativo', None, 'ativo', 'null', '', 'inativo', None, 'ativo']
+  dict (strings no arquivo): ['ativo', 'null', '', 'inativo']   <- 'null'/'' estão aqui; None NÃO (vive na versão)
+  stream de índices (decimal): [1, 0, 1, 2, 3, 4, 0, 1]   special_byte=00000001
+  RT exato (null≠'null'≠''): True
+
+(5) null em ELEMENTO de array (mesmo codec, sem gramática nova):
+  elementos: ['a', '<null>', 'b', 'a', '<null>'] -> RT=True
+  → P3a (campo) e P3b (elemento) usam o MESMO mecanismo (o ganho vs máscara).
+
+(2) Form A (byte inline/coluna) vs Form B (bloco bitmap) — 16 colunas, 200 linhas:
+    varia a FRAÇÃO de colunas que têm null:
+   0/16 colunas c/ null: Form A=6736B · Form B=6738B · Δ=-2 · vence A(inline)
+   4/16 colunas c/ null: Form A=6740B · Form B=6738B · Δ=+2 · vence B(bloco)
+   8/16 colunas c/ null: Form A=6744B · Form B=6738B · Δ=+6 · vence B(bloco)
+  16/16 colunas c/ null: Form A=6752B · Form B=6738B · Δ=+14 · vence B(bloco)
+  → A paga 1 byte por COLUNA-com-especial; B paga 1 bitmap fixo (ceil(ncols/8)).
+    A vence com POUCAS colunas-null; B vence quando MUITAS têm (bitmap amortiza).
+  (4) byte-compat: fração 0.0 → nenhuma coluna paga byte de especial (idêntico ao sem-mecanismo).
+
+(3) custo DECIMAL do deslocamento +1 (null reserva índice 0):
+    coluna com N valores DISTINTOS + alguns null; mede o stream com/sem o shift:
+  card=   8: stream índices COM shift(+1)=19B vs base=15B · Δ=+4B (2 refs a null + deslocamento decimal)
+  card=   9: stream índices COM shift(+1)=21B vs base=17B · Δ=+4B (2 refs a null + deslocamento decimal)
+  card=  10: stream índices COM shift(+1)=24B vs base=19B · Δ=+5B (2 refs a null + deslocamento decimal)
+  card=  98: stream índices COM shift(+1)=288B vs base=283B · Δ=+5B (2 refs a null + deslocamento decimal)
+  card=  99: stream índices COM shift(+1)=291B vs base=286B · Δ=+5B (2 refs a null + deslocamento decimal)
+  card= 100: stream índices COM shift(+1)=295B vs base=289B · Δ=+6B (2 refs a null + deslocamento decimal)
+  card= 998: stream índices COM shift(+1)=3887B vs base=3881B · Δ=+6B (2 refs a null + deslocamento decimal)
+  card= 999: stream índices COM shift(+1)=3891B vs base=3885B · Δ=+6B (2 refs a null + deslocamento decimal)
+  card=1000: stream índices COM shift(+1)=3896B vs base=3889B · Δ=+7B (2 refs a null + deslocamento decimal)
+  → o +1 é barato longe das fronteiras; perto de 9/99/999 alguns índices ganham 1 dígito.
+    Confirma o ponto do owner: medir, não assumir. (Aqui é só o stream; dict e byte-header à parte.)
+
+Baseline máscara-'0' (P1) vs índice de substituição (mesma coluna nullable):
+  n=200 p(null)=0.1: índice(Form A)=413B vs máscara-0=562B · Δ=-149
+  n=200 p(null)=0.5: índice(Form A)=413B vs máscara-0=400B · Δ=+13
+  RESSALVA: a máscara-baseline aqui é CRUA (1 char/linha, sem RLE); o L1 real a COMPRIME
+    (runs de '.'), então o Δ de bytes é aproximado. O resultado ROBUSTO não é o byte exato,
+    e sim a UNIFICAÇÃO (P3a+P3b no mesmo mecanismo) + índice vencer no null RARO (caso comum).
+  (medição de FORMA; o L1 real é afixo/HCC, não dict puro — o weld integra na numeração real.)
