@@ -1,5 +1,19 @@
 # STATUS — TCF (compendio sempre-atualizado)
 
+> **⚑ DIREÇÃO 2026-07-16 (noite) — contrato externalizado + aceleradores; estrutura-sem-dado.**
+> Owner ditou direção (registro pra estudo, NADA é `.8`): (1) TCF **auto-contido por default**,
+> modificadores externalizam diretivas de header/schema pra **contrato nas pontas** (por versão,
+> assinatura-de-contrato fail-loud) — REVISA materialização-minimal (self-containment = default,
+> não invariante); (2) **arquivos de aceleração** droppable (profiler PGO-style via SideOutputs,
+> dicas de view, índice); (3) **encode em pulsos** por deadline (~1ms) — a linguagem permite, o
+> código não; saída não-canônica → modo de perfil. Sobre o gate P4b: formas vazias são "formatos
+> opacos" → **definições**, não compressão; lab estrutura-sem-dado a criar. Registros:
+> [contrato-externalizado-e-aceleradores](experiments/lab/dirty/notas/contrato-externalizado-e-aceleradores.md) ·
+> [estrutura-sem-dado-levantamento](experiments/lab/dirty/notas/estrutura-sem-dado-levantamento.md) ·
+> 7 hipóteses novas (H-CONTRACT-EXTERN-01 · H-ACCEL-SIDECAR-01 · H-ENCODE-DEADLINE-01 ·
+> H-STRUCT-{DEF,AMORT,META,ASDATA}-01) no roadmap. Antes disso, no mesmo dia: lab P4a consertado
+> (24 `.tcf`, errata da tabela confundida) + levantamento P4b (`46ac5f3`).
+
 > **⚑ PAUSA 2026-07-16 — P2 revisado; investigação P4 decomposta.** P1, P3a, P3b e P2 estão
 > welded. Auditoria P2 válida no caminho normal e endurecida em `268608d`; suíte observada **731
 > passed, 2 skipped, 2 xfailed**. Achado residual: metadata com tag desconhecida após size pode ser

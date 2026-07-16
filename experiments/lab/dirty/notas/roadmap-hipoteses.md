@@ -568,7 +568,18 @@ prototipo clean (`experiments/lab/clean/EXP-XXX-*`) e' pra testar
 Atualizar quando: hipotese confirmada/refutada/movida-de-status, OU
 nova hipotese identificada.
 
-**Ultima atualizacao**: 2026-07-08 — **GATE D3 do bN em 8 fontes reais: weighted 8.8% terminal / 1.7% pos-brotli → H-TYPE-02 bifurcada (terminal confirmada-empirica Media / re-comprimido refutada-real-world); nicho estreito (perde pra tcf-RLE em cadenciado)** · META-GRUPO DE TIPOS fechado (H-TYPE-00 round-trip transversal + 01/02/03 + 04 projetada + 05 perfil) + taxonomia QUANDO (entrada/processo/pos-HCC) + design de fluxo/header** ([`tipos-meta-grupo-fluxo.md`](tipos-meta-grupo-fluxo.md)); bN = irmao bit-packed do dict/V2-B, encaixa no min() por-coluna · H-TYPE-02/03 COM CORRECAO (baseline errado V2-B + colapso sob brotli; H-REF-05 idem) · Ciclo 1 fechado (1a tipos / 1b A-B-C / 1c fronteiras) + reframe TIPOS COMO SPECS (round-trip como regra universal de inducao) · estudo TCF-hierarquico: grupo de 8 pecas + teoria de cardinalidade (H-CARD-01..07) + nested (H-NEST-01) + T1 (H-TX-01)
+**Ultima atualizacao**: 2026-07-16 — **7 hipoteses novas da direcao do owner (2026-07-16)**:
+H-CONTRACT-EXTERN-01 (contrato externalizado + assinatura-de-contrato; REVISA materializacao-minimal:
+self-containment vira default, nao invariante) · H-ACCEL-SIDECAR-01 (profiler PGO-style/dicas de
+view/indice — classe droppable) · H-ENCODE-DEADLINE-01 (encode em pulsos/anytime; tensao com
+byte-canonicidade → modo de perfil) · H-STRUCT-DEF-01/AMORT-01/META-01/ASDATA-01 (estrutura sem dado:
+definicoes p/ formas opacas; amortizacao via contrato; meta-RLE `.9`; estrutura-como-dado). Registros:
+[contrato-externalizado-e-aceleradores.md](contrato-externalizado-e-aceleradores.md) +
+[estrutura-sem-dado-levantamento.md](estrutura-sem-dado-levantamento.md). Nota: as entradas 2026-07-14/15
+(H-SUBST-INDEX-01, H-PROFILE-01, H-DISC-ACCEL-01, H-REPLEVEL-FLAT-VS-PORNIVEL-01) entraram no corpo sem
+atualizar este rodape — reconciliado agora.
+
+**Atualizacao anterior**: 2026-07-08 — **GATE D3 do bN em 8 fontes reais: weighted 8.8% terminal / 1.7% pos-brotli → H-TYPE-02 bifurcada (terminal confirmada-empirica Media / re-comprimido refutada-real-world); nicho estreito (perde pra tcf-RLE em cadenciado)** · META-GRUPO DE TIPOS fechado (H-TYPE-00 round-trip transversal + 01/02/03 + 04 projetada + 05 perfil) + taxonomia QUANDO (entrada/processo/pos-HCC) + design de fluxo/header** ([`tipos-meta-grupo-fluxo.md`](tipos-meta-grupo-fluxo.md)); bN = irmao bit-packed do dict/V2-B, encaixa no min() por-coluna · H-TYPE-02/03 COM CORRECAO (baseline errado V2-B + colapso sob brotli; H-REF-05 idem) · Ciclo 1 fechado (1a tipos / 1b A-B-C / 1c fronteiras) + reframe TIPOS COMO SPECS (round-trip como regra universal de inducao) · estudo TCF-hierarquico: grupo de 8 pecas + teoria de cardinalidade (H-CARD-01..07) + nested (H-NEST-01) + T1 (H-TX-01)
 
 - **ESTUDO TCF-HIERARQUICO (grupo de pecas, owner 2026-07-05)** — como representar documento JSON aninhado
   em TCF. NAO e' 1 lab; e' um GRUPO de 8 pecas ordenadas (dia+HHMM). Mapa:
@@ -707,6 +718,81 @@ nova hipotese identificada.
   **baixa prioridade** → NÃO implementar agora; só **preservar a separação** (não "soldar" demais as peças).
   Separação por funcionalidade > otimizar tudo agora. `aberta`, confiança: Baixa. Ver
   [tcf8-header-char-registry](tcf8-header-char-registry.md) + [tcf-camadas-arquitetura](tcf-camadas-arquitetura.md).
+
+- **H-CONTRACT-EXTERN-01** (contrato externalizado — diretivas de header fora do wire, owner 2026-07-16):
+  TCF **auto-contido por DEFAULT**; **modificadores** opt-in tiram do arquivo o compromisso de guardar as
+  diretivas (header/schema/specs) e as delegam às PONTAS via **contrato padronizado** (expressável em TCF
+  ou JSON), acoplado **por versão**; o wire stripped carrega só uma **assinatura-de-contrato** (3º sentido
+  de "assinatura": fingerprint que IDENTIFICA o contrato — ≠ magic ADR-0001, ≠ checksum tcfx). Classe
+  SEMÂNTICA: sem o contrato certo o wire stripped não decodifica → assinatura é load-bearing, verificação
+  fail-loud obrigatória (mismatch nunca "tenta assim mesmo"). **Embrião JÁ no core**: `_resolve_header_spec`
+  (`decoder.py:62-79`) — wire carrega `:id`, spec vem por fora, aceito sse `spec.name == id`. Precedentes:
+  Avro fingerprint/single-message, Confluent Schema Registry, HPACK. **REVISA** o princípio
+  materialização-minimal ("nunca hint externo") → self-containment vira default, não invariante; pilar
+  explicabilidade fica (default textual). Engole a forma-do-header A×B (Ciclo 3) como caso particular.
+  `aberta`, confiança: Baixa (direção registrada; formato/assinatura sem design). NÃO é `.8`. Registro:
+  [contrato-externalizado-e-aceleradores.md](contrato-externalizado-e-aceleradores.md).
+
+- **H-ACCEL-SIDECAR-01** (arquivos de aceleração — profiler/dicas de view/índice, owner 2026-07-16):
+  sidecars gerados do comportamento dos dados, **sem comprimir/descomprimir de fato** — métricas e ajustes
+  que mudam o DEFAULT do encode pras condições da transmissão ("o encode não fica adivinhando"); dicas de
+  intenção do view remoto (filtrar/agrupar) importáveis pelo encode/decode; índice como exemplo. Classe de
+  ACELERAÇÃO: **droppable por construção** — perder o sidecar = perder só velocidade, NUNCA corretude
+  (guard-rail: todo wire decodifica sem nenhum sidecar). Analogia exata: **PGO** (`.profdata` — coleta
+  perfil, muda defaults da compilação seguinte). **Embriões JÁ existentes**: SideOutputs (15 campos,
+  zero-custo) + `build_schema`→`to_json` + **S3 do T-FLOW-ENCODE-STRATEGIES-TELEMETRY** (telemetria
+  sugestiva OFFLINE que move o custo pra 1×) + view lazy no core (H-QUERY-01) + H-QUERY-04 (índices, DESIGN)
+  + H-DISC-ACCEL-01 (generalizado por esta). `aberta`, confiança: Baixa. NÃO é `.8`. Registro:
+  [contrato-externalizado-e-aceleradores.md](contrato-externalizado-e-aceleradores.md).
+
+- **H-ENCODE-DEADLINE-01** (desistência de encode por latência — pulsos/anytime, owner 2026-07-16):
+  estourou o orçamento (~1ms) → **libera saída válida** e segue em pulsos. O owner distingue: a LINGUAGEM
+  permite (qualquer encoding válido decodifica — verificado em execução: RLE não emitido → linhas
+  literais; ref não descoberta → linha literal NA GRAMÁTICA do wire, com dígitos finais escapados `\`,
+  a mesma forma que o encode de 1 linha isolada emite), o CÓDIGO atual não (seq-RLE exige full body —
+  bloqueador já mapeado no V2-J,
+  ADR-0018:167). Análogo: anytime algorithms / tiering de JIT / rate-control de vídeo. **Tensão central a
+  decidir antes de qualquer weld**: saída sob deadline é válida porém **NÃO-canônica por construção** →
+  conflita com gates byte-canônicos e reprodutibilidade → tem de ser MODO declarado de perfil
+  ([[H-PROFILE-01]]), default segue canônico/determinístico. Interage com V2-J (mesmo bloqueador de sizes)
+  e com paralelismo predefinido (T-CODE-PARALLEL-BUDGET, T-CODE-PLAN-CONTRACT). `aberta`, confiança:
+  Baixa. NÃO é `.8`. Registro: [contrato-externalizado-e-aceleradores.md](contrato-externalizado-e-aceleradores.md).
+
+- **H-STRUCT-DEF-01** (formas opacas → DEFINIÇÕES de wire, não compressão, owner 2026-07-16 — família
+  H-STRUCT-{DEF,AMORT,META,ASDATA} = "estrutura-sem-dado"; SEM relação com o pré-existente H-STRUCT-01,
+  split estrutural+V2-B, welded ADR-0026): as formas
+  sem dado (`[]`, `{}`, `[{}]`×N, null/escalar na raiz) são "formatos opacos... relação com a estrutura,
+  não com o dado" → alfabeto FINITO de shapes → o ato certo é **definição** (tabela fechada `root_kind` +
+  count explícito quando não há coluna portadora), não mecanismo de compressão — não há entropia a remover,
+  há nomeação. Precisão: alfabeto é de FORMAS; contagens continuam numéricas (`[{},{}]`×1M = forma + count,
+  nunca enumeração). **Interlock**: é o problema B do P4b (contagem irrepresentável — `total` vem de
+  `len(1ª coluna)`) + O-FMT-20 (registro-'0' no flat) + régua do T-FMT-OMIT-OR-DECLARE (não-dedutível →
+  declaração obrigatória) — estudar junto, decidir junto do P4b. `aberta`, confiança: Média (a decomposição
+  é medida; a forma da definição é decisão do owner). Levantamento:
+  [estrutura-sem-dado-levantamento.md](estrutura-sem-dado-levantamento.md).
+
+- **H-STRUCT-AMORT-01** (estrutura repetida amortiza via contrato, 2026-07-16): num stream de N docs com o
+  MESMO schema, a "compressão de estrutura" mais efetiva é **não transmiti-la N vezes** — o header sai do
+  wire e vive no contrato ([[H-CONTRACT-EXTERN-01]]); wire remanescente = corpo + assinatura. Medível JÁ
+  (bytes de header × N vs 1×), sem implementação: é a resposta de maior alavanca à pergunta do owner
+  "estrutura é otimizada como?". `aberta`, confiança: Média (aritmética direta; depende do design do
+  contrato). Levantamento: [estrutura-sem-dado-levantamento.md](estrutura-sem-dado-levantamento.md).
+
+- **H-STRUCT-META-01** (o próprio meta é comprimível?, 2026-07-16, `.9`): o framing profundo repete
+  literal (`m#:3[#:3[#:3[#:3[#:3[#:3[` — lab P4a `02a-framing-prof6`, +7 B/nível exato) → meta-RLE p/
+  níveis uniformes é concebível. **Trade declarado**: o header É a parte human-readable do pilar
+  explicabilidade — comprimir só sob perfil ([[H-PROFILE-01]]), nunca default. Medir primeiro em que
+  regime o header domina o payload. `aberta`, confiança: Baixa. NÃO é `.8`.
+  Levantamento: [estrutura-sem-dado-levantamento.md](estrutura-sem-dado-levantamento.md).
+
+- **H-STRUCT-ASDATA-01** (estrutura-como-dado — quando a shape É a informação, 2026-07-16): regime
+  (árvores, malhas, matrizes; folhas triviais) onde as colunas de CONTROLE dominam os bytes. Elas JÁ
+  passam pelo L1 (counts `2,1` → `*2-1|\2`; retangular colapsa `*N|`) — "TCF não comprime estrutura" é
+  meia-verdade: controle É comprimido, header NÃO é, formas-sem-coluna nem representáveis são. Medir se
+  RLE/seq-RLE basta pros padrões de counts reais ou se counts pedem natureza própria (fan-out fixo,
+  progressões) — a versão estrutural da pergunta que as natures respondem pra valores. Lab proposto (3
+  buckets: meta/controle/folhas). `aberta`, confiança: Baixa.
+  Levantamento: [estrutura-sem-dado-levantamento.md](estrutura-sem-dado-levantamento.md).
 
 - **H-TYPE-02** (bit-packing por largura `bN` p/ enum/bool baixa-cardinalidade, owner 2026-07-07): familia
   `b`/`b2`/`b4`/`b8` (k<=2/4/16/256, 1/2/4/8 bits, dominio embutido = referencia). **CORRIGIDA apos revisao

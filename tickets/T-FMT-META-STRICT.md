@@ -59,9 +59,23 @@ de armazenamento (tcfx/O-FMT-20), não ao wire-format mínimo.
    produzir runs legítimos grandes. Quando abrir implementação, desmembrar ticket próprio com
    contrato de API + testes de count zero/negativo/gigante, range inválido e expansão acumulada.
 
+## Achado 2026-07-16 — KeyError cru no decode flat de blob estrangeiro (CORPO, não meta)
+
+**[probatório]** Achado lateral da verificação adversarial dos registros de direção (workflow
+`wf_154282a3`), reproduzido em execução: `decode('abc123')`, `decode('x9')` e
+`decode('#TCF.8\nabc123')` vazam **`KeyError: 123`/`KeyError: 9` crus** — linha de corpo terminada
+em dígitos NÃO-escapados é parseada como ref HCC inexistente e a exceção sobe sem re-tipagem.
+O encoder nunca emite isso (dígito final sai escapado `\123`), então é a mesma doutrina deste
+ticket: blob estrangeiro deve falhar **tipado** (ValueError "ref inválida/blob corrompido?"), não
+com KeyError — mesma família dos re-tipados do F0 (lote 3) e do hardening `.8H` (UnicodeDecodeError,
+`int()` leniente). **Não consertado** (toca `src/tcf`, exige aprovação); regra candidata: resolução
+de ref fora do range de nodes → erro tipado, "não-emitível pelo encoder" comprovado.
+
 ## Critério de aceite
 
 - [x] Itens 3-5 executados (lote 4, 2026-07-10; red→green, decode-only, 590 passed).
 - [ ] Checksum (itens 1-2) especificado no trilho tcfx/O-FMT-20 — NÃO no wire-format mínimo.
 - [ ] Item 6 decidir pós-material; BUG-12 em lote 0.8.1; item 8 vira ticket próprio pré-1.0.
 - [ ] Toda regra nova = "não-emitível pelo encoder" comprovado (dedução do cânone, nunca heurística).
+- [ ] Achado 2026-07-16 (KeyError cru em ref inexistente de blob estrangeiro) re-tipado quando o
+      owner aprovar mexer no decode flat.

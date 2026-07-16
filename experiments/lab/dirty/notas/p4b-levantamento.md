@@ -83,6 +83,14 @@ ticketado em outro lugar. Se P4b for tratado como um bloco único, ele **arrasta
 formato (vazios/schema-declare) que tem escopo próprio. Recomendo separar: **P4b = A + C**; B vai
 para o ticket de vazios e os dois se encontram no gate.
 
+> **Update 2026-07-16 (owner, sobre este gate)**: *"alguns podemos pensar em fazer simplesmente
+> DEFINIÇÕES pois são formatos opacos e que não têm relação com o dado em si, mas com a estrutura"* —
+> ou seja, pro alfabeto finito de formas vazias o ato é **definição de wire** (tabela fechada), não
+> mecanismo de compressão. Levantamento de hipóteses derivado (estudar junto, decidir junto do P4b):
+> [estrutura-sem-dado-levantamento.md](estrutura-sem-dado-levantamento.md) ([[H-STRUCT-DEF-01]] —
+> `root_kind` + count explícito quando não há coluna portadora cobre A e B numa forma só; a análise
+> A/B/C acima continua valendo como decomposição do problema).
+
 Cruzamento com P5: `[1,2,3]` (homogêneo) é P4b puro; `[1,"a"]` é P4b **+** P5. A fronteira P5
 continua valendo dentro da raiz.
 
