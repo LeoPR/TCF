@@ -443,13 +443,19 @@ def _parse_meta(meta: str):
         i += 1
         return _to_size(_digits())
 
-    def stag():                                           # P2: tag de tipo (n/b) após size de DADO
+    def stag():                                           # P2: tag de tipo após size de DADO
+        # n/b = tag; delimitador estrutural OU fim = string (sem tag); QUALQUER outro char = corrupção
+        # (revisão owner 2026-07-16: 'x:<size>x' reinterpretava o 'x' como campo e decodava [] calado).
         nonlocal i
-        if i < n and meta[i] in ("n", "b"):
-            t = meta[i]
+        if i >= n:
+            return "s"
+        c = meta[i]
+        if c in ("n", "b"):
             i += 1
-            return t
-        return "s"
+            return c
+        if c in ",]}":
+            return "s"
+        raise HierarchicalError(f"tag de tipo desconhecida {c!r} após size (esperava n/b ou delimitador)")
 
     def seq(closer, prefix):
         nonlocal i

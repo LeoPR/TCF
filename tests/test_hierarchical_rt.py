@@ -469,3 +469,14 @@ def test_p2_number_nan_inf_no_decode_fail_loud():
         blob = f"#TCF.8Hx:{len(b.encode())}n\n{b}"
         with pytest.raises(HierarchicalError, match="NaN|Infinity"):         # decode∘encode fechado
             decode(blob)
+
+
+def test_p2_tag_desconhecida_fail_loud():
+    # revisão owner 2026-07-16: 'x:<size>x' reinterpretava o 'x' como campo -> [] CALADO
+    from tcf.encoder import encode as _enc_col
+    b = _enc_col(["abc"])
+    for meta in [f"x:{len(b.encode())}x", f"a:{len(b.encode())}z", f"n:{len(b.encode())}q"]:
+        with pytest.raises(HierarchicalError, match="tag de tipo desconhecida"):
+            decode(f"#TCF.8H{meta}\n{b}")
+    # delimitador/tag válido/campo-nomeado-n seguem OK
+    assert decode(encode_hierarchical([{"n": "v", "x": 30}])) == [{"n": "v", "x": 30}]

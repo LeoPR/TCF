@@ -96,8 +96,9 @@ adversariais (a lição do escape: testar nome/valor/borda, não só o caminho f
    física futura, não representação semântica canônica. Fonte da decisão e do histórico comparativo:
    [substituicao-indices-especiais-plano.md](../experiments/lab/dirty/notas/substituicao-indices-especiais-plano.md).
 3. ~~**P2 · Tipos** (number/bool preservados)~~ **✅ WELDED 2026-07-16** — tags por-coluna `n`/`b`,
-   identidade Python-tipado, string default; decode tipado endurecido em `268608d`. Resta o hardening
-   de tag desconhecida no framing, registrado abaixo no critério de aceite.
+   identidade Python-tipado, string default; decode tipado endurecido em `268608d`. **Hardening de tag
+   desconhecida FECHADO** (revisão do owner): `stag()` rejeita char não-n/b/delimitador após size
+   (`x:<size>x` era `[]` calado → agora `HierarchicalError`); teste `test_p2_tag_desconhecida_fail_loud`.
 4. **P4a · Repetição estrutural** (array-em-array) — count recursivo como representação hierárquica
    da informação posicional; fechar gramática e adversarial em lab próprio.
 5. **P4b · Raiz generalizada** (array no topo, objeto/escalar/null na raiz) — contrato público e
