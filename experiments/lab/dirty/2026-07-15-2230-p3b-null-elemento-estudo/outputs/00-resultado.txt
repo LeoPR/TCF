@@ -1,0 +1,23 @@
+ESTUDO P3b — null em ELEMENTO de array (element-mask). RT + meta inspecionável.
+
+  [RT-OK] null-no-meio (escalar)
+       meta: tags#?[]
+  [RT-OK] null-inicio-e-fim
+       meta: xs#?[]
+  [RT-OK] array-todo-null
+       meta: xs#?[]
+  [RT-OK] array-vazio-vs-com-null (≠)
+       meta: xs#?[]
+  [RT-OK] elemento-OBJETO null
+       meta: itens#?[p,q]
+  [RT-OK] misto null + '' + 'null' (4 vias no elemento)
+       meta: xs#?[]
+  [RT-OK] duas listas, uma com null
+       meta: tel#?[],email#[]
+  [RT-OK] null-elemento aninhado (array em objeto em array)
+       meta: pedidos#[itens#?[]]
+
+VEREDITO: element-mask faz RT em TODAS as formas didáticas.
+Alinhamento count×emask×dense consistente. Alfabeto 2-estados ('.'/'0'), sem '-'.
+Meta demonstra a gramática: nome#?[...] (o '?' após #count = elementos mascarados).
+Próximo: se o owner aprovar, weld no core (element-mask no L2) OU medir vs índice (H-PROFILE-01).

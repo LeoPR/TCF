@@ -1,0 +1,13 @@
+{
+  "_comment": "DIDÁTICO P3b — null como ELEMENTO de array (não campo). Poucos dados que forçam cada forma.",
+  "null-no-meio (escalar)": [{"tags": ["a", null, "b"]}],
+  "null-inicio-e-fim": [{"xs": [null, "meio", null]}],
+  "array-todo-null": [{"xs": [null, null, null]}],
+  "array-vazio-vs-com-null (≠)": [{"xs": []}, {"xs": [null]}, {"xs": ["v"]}],
+  "elemento-OBJETO null": [{"itens": [{"p": "T", "q": "1"}, null, {"p": "M", "q": "2"}]}],
+  "misto null + '' + 'null' (4 vias no elemento)": [{"xs": [null, "", "null", "v"]}],
+  "duas listas, uma com null": [{"tel": ["1", null], "email": ["a@x", "b@x"]}],
+  "null-elemento aninhado (array em objeto em array)": [
+    {"pedidos": [{"itens": ["x", null]}, {"itens": [null]}]}
+  ]
+}
