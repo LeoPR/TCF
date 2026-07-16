@@ -1,0 +1,58 @@
+[
+  {
+    "device": "estufa-01",
+    "leituras": [
+      {
+        "ts": "06:00",
+        "temp": "21.4",
+        "umid": "63.0"
+      },
+      {
+        "ts": "06:15",
+        "temp": "21.6",
+        "umid": null
+      },
+      null,
+      {
+        "ts": "06:45",
+        "temp": "22.1",
+        "umid": "64.1"
+      }
+    ],
+    "alertas": [
+      "boot ok",
+      null,
+      "sensor umid reconectado"
+    ]
+  },
+  {
+    "device": "estufa-02",
+    "leituras": [
+      {
+        "ts": "06:00",
+        "temp": "19.8",
+        "umid": "70.2"
+      },
+      {
+        "ts": "06:15",
+        "temp": "19.9",
+        "umid": "70.0"
+      }
+    ],
+    "alertas": []
+  },
+  {
+    "device": "estufa-03",
+    "leituras": [
+      null,
+      {
+        "ts": "06:15",
+        "temp": "24.0",
+        "umid": "55.1"
+      }
+    ],
+    "alertas": [
+      null
+    ]
+  }
+]

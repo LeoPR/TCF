@@ -1,7 +1,14 @@
-# Lab 2026-07-15-2230 — ESTUDO P3b: null em elemento de array (element-mask)
+# Lab 2026-07-15-2230 — P3b: null em elemento de array (element-mask) — estudo + WELD
 
-**Status**: estudo/protótipo PARA REVISÃO — nada weldado. **Ticket**:
-[T-CODE-TCF8H-JSON-PARITY](../../../../tickets/T-CODE-TCF8H-JSON-PARITY.md) (P3b).
+**Status**: **WELDED** (2026-07-15, decisão de mecanismo do owner via princípio O(1)/stream/view).
+**Ticket**: [T-CODE-TCF8H-JSON-PARITY](../../../../tickets/T-CODE-TCF8H-JSON-PARITY.md) (P3b) ·
+[ADR-0033 §Update P3b](../../../../docs/adr/0033-hierarchical-codec-weld.md).
+
+> **WELD** (`run_weld.py`, pelo CORE): didático 8/8 + realista (telemetria, element-object null + campo
+> `umid?` juntos) + massa fuzz **6000/6000**. **Auditoria adversarial** (`wf_e50ecb01-1f4`): a element-mask
+> resistiu (150k+ fuzz, 0 corrupção silenciosa); achou/corrigiu **F1** (data-loss PRÉ-EXISTENTE P1/P3a:
+> objeto vazio `{}` mascarado como última folha → controle nunca omite size) + **F2** (emask no guard).
+> Suíte 710 passed. F3 = BUG-SEQRLE (core, gatilho novo, ticketado). `proto.py` = o estudo original (design).
 
 **P3b** = `null` como ELEMENTO de array (`["a", null, "b"]`, `[{...}, null, {...}]`) — hoje fail-loud.
 Gramática NOVA (por isso estudo-primeiro, ≠ P3a que reusou a máscara). Protótipo **extrai a ideia**

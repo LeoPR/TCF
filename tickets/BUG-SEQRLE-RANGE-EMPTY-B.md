@@ -47,6 +47,7 @@ sufixo como o **operador de range `A..B`**, com B vazio → `int('')`.
 | `["ETC & TAL..."]` (valor único, sem afixo) | RT OK |
 | `["casa", "casa123"]` (afixo sem `..`) | RT OK |
 | `["1","2","3","4","5"]` (range numérico real) | RT OK |
+| `[" 121. ", " 12..b_"]` (espaço-inicial + afixo c/ `..`) | **CRASH** (gatilho novo, auditoria P3b 2026-07-15) |
 
 ## Causa (src/tcf/composicional/syntax.py:727-736)
 

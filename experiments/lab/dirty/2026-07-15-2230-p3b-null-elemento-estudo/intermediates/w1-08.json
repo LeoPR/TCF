@@ -1,0 +1,17 @@
+[
+  {
+    "pedidos": [
+      {
+        "itens": [
+          "x",
+          null
+        ]
+      },
+      {
+        "itens": [
+          null
+        ]
+      }
+    ]
+  }
+]

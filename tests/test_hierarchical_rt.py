@@ -154,10 +154,73 @@ def test_p3a_mask_reservado_agora_null():
     assert decode(blob) == [{"x": "A"}, {"x": None}]
 
 
+# --- P3b: null em ELEMENTO de array agora faz RT (element-mask; 2026-07-15) ---
+P3B_NULL = {
+    "null-no-meio": [{"tags": ["a", None, "b"]}],
+    "null-inicio-fim": [{"xs": [None, "m", None]}],
+    "array-todo-null": [{"xs": [None, None]}],
+    "vazio≠[null]≠[v]": [{"xs": []}, {"xs": [None]}, {"xs": ["v"]}],
+    "elemento-objeto-null": [{"itens": [{"p": "T", "q": "1"}, None, {"p": "M", "q": "2"}]}],
+    "4-vias-no-elemento": [{"xs": [None, "", "null", "v"]}],
+    "duas-listas-so-uma-null": [{"tel": ["1", None], "email": ["a@x", "b@x"]}],
+    "aninhado-array-obj-array": [{"ped": [{"itens": ["x", None]}, {"itens": [None]}]}],
+    "campo-opcional+elemento-null (compose)": [{"a": "1", "xs": ["v", None]}, {"a": "2"}, {"a": "3", "xs": None}],
+    "campo-null+array-elem-null (compose)": [{"xs": ["a", None]}, {"xs": None}, {"ys": "outro"}],
+}
+
+
+@pytest.mark.parametrize("name", list(P3B_NULL))
+def test_p3b_null_elemento_rt(name):
+    docs = P3B_NULL[name]
+    assert decode(encode_hierarchical(docs)) == docs
+
+
+def test_p3b_vazio_null_valor_distintos():
+    docs = [{"xs": []}, {"xs": [None]}, {"xs": ["v"]}]
+    back = decode(encode_hierarchical(docs))
+    assert back == docs
+    assert back[0]["xs"] == [] and back[1]["xs"] == [None] and back[2]["xs"] == ["v"]
+
+
+def test_p3b_emask_invalida_fail_loud():
+    from tcf.encoder import encode as _enc_col
+    # element-mask com char inválido → fail-loud (corrupção, nunca silenciosa)
+    docs = [{"xs": ["a", None]}]                             # produz emask '.0'
+    blob = encode_hierarchical(docs)
+    # corromper: substituir a coluna emask por um char inválido é frágil; garante via encode
+    bad_em = _enc_col([".", "Z"])                            # emask inválida
+    cnt = _enc_col(["2"]); val = _enc_col(["a"])
+    b = f"#TCF.8Hxs#:{len(cnt.encode())}?:{len(bad_em.encode())}[]\n{cnt}{bad_em}{val}"
+    with pytest.raises(HierarchicalError, match="element-mask inválida|corrompida"):
+        decode(b)
+
+
 # --- fail-loud declarado (auditoria 2026-07-15): NUNCA str()-engolir fora da classe ---
-def test_p3b_null_em_elemento_de_array_fail_loud():
-    with pytest.raises(HierarchicalError, match="null"):
-        encode_hierarchical([{"xs": ["a", None]}])
+def test_p3b_tipo_misto_em_elemento_fail_loud():
+    with pytest.raises(HierarchicalError, match="mistos"):
+        encode_hierarchical([{"xs": ["a", {"b": "1"}]}])    # escalar + objeto no mesmo array
+
+
+# --- F1 (auditoria P3b): objeto vazio {} mascarado como ÚLTIMA folha (data-loss pré-existente) ---
+@pytest.mark.parametrize("docs", [
+    [{"a": "1"}, {"a": "2", "b": {}}],                      # opcional → {} vazio, última folha
+    [{"a": {}}, {"a": None}],                               # null-P3a → {} vazio
+    [{"f0": {}}, {}],                                       # dois registros, um {} opcional
+    [{"x": "1"}, {"x": "2", "f0": {}}],
+])
+def test_f1_objeto_vazio_mascarado_ultima_folha_rt(docs):
+    # controle nunca omite size → encode/decode simétricos (antes: encode aceitava, decode rejeitava)
+    assert decode(encode_hierarchical(docs)) == docs
+
+
+def test_f2_emask_body_corrompido_fail_loud_tipado():
+    from tcf.encoder import encode as _enc_col
+    cnt = _enc_col(["2"])
+    crash = _enc_col(["ETC & TAL", "ETC & TAL..."])         # body que dispara o L1 (BUG-SEQRLE)
+    val = _enc_col(["a"])
+    blob = f"#TCF.8Hxs#:{len(cnt.encode())}?:{len(crash.encode())}[]\n{cnt}{crash}{val}"
+    with pytest.raises(HierarchicalError, match="coluna de controle emask corrompida"):
+        decode(blob)
 
 
 def test_p1_tipos_estruturais_mistos_fail_loud():

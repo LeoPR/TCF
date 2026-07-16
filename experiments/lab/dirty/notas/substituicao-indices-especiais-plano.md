@@ -143,3 +143,126 @@ silenciosa); non-regressão flat byte-idêntica (D1-D9/D17a/real-world); probe r
 - **Supersede a máscara-`0` do P1** como candidato de P3 (a decisão é do estudo). A máscara de
   **presença** (`.`/`-`) do P1 permanece; o slot `0` reservado fica livre.
 - Registrado como **H-SUBST-INDEX-01** no roadmap.
+
+## Revisão crítica 2026-07-15 — element-mask versus índice de substituição
+
+**[probatório→opinião técnica; sem weld nesta seção]** Após o estudo P3b de element-mask
+([lab `2026-07-15-2230-p3b-null-elemento-estudo`](../2026-07-15-2230-p3b-null-elemento-estudo/result.md),
+RT 8/8 didático), as duas rotas foram comparadas contra o `src/tcf` real e contra formatos
+colunares estabelecidos. A conclusão é separar a **unificação semântica** da **unificação física**:
+P3a e P3b pertencem à mesma família de definition/validity levels, mas não precisam usar o mesmo
+stream físico.
+
+### Falsificadores da unificação pelo índice
+
+1. **O L1 não é um dicionário obrigatório.** O caminho real é OBAT + HCC + seq-RLE. O protótipo de
+   índices (`2026-07-15-2101`) modela um dicionário puro; reservar `0` no protótipo não prova que o
+   índice possa entrar no L1 sem alterar a numeração de referências, o fallback, o framing e os
+   gates byte-canônicos. A integração seria uma mudança no núcleo, não uma extensão L2 transparente.
+2. **Null estrutural não tem stream de valor para receber índice.** P3a já faz RT de campo escalar,
+   objeto, array e all-null. Um objeto inline não possui coluna de valores própria; um array possui
+   count e colunas filhas. Para representar `objeto=null` ou `array=null` com índice seria necessário
+   criar um stream de validade por instância. Esse stream seria semanticamente uma máscara, apenas
+   com outro nome.
+3. **Null de elemento-objeto precisa preservar a estrutura.** Em `[{}, null, {}]`, o decoder precisa
+   saber que o elemento nulo não consome nenhuma coluna descendente. Um índice de valor escalar não
+   codifica sozinho essa decisão estrutural; a element-mask faz isso diretamente e mantém os nomes e
+   a topologia dos filhos.
+4. **A P3a já está soldada com máscara.** Trocar retroativamente o mecanismo para obter uma
+   unificação física criaria uma mudança de contrato no caminho que já foi validado com dado real.
+   A vantagem alegada do índice para P3b só existe se também reabrirmos P3a e os gates do L1.
+5. **O custo medido do índice ainda é de forma, não do L1.** O estudo admite que seus bytes são
+   aproximados: a máscara comparada era crua e o índice não passou pelo OBAT/HCC real. O resultado
+   robusto é a hipótese de unificação e o crossover dependente do perfil, não um ganho byte-canônico.
+
+### Forma recomendada para P3b
+
+Manter a semântica comum de definition stream, mas materializá-la na cardinalidade correta:
+
+- P3a: máscara por instância do campo, com `.`=valor, `-`=ausente e `0`=null.
+- P3b: máscara por elemento do array, com `.`=valor e `0`=null; não precisa de `-` porque o `count`
+  já determina quais posições existem.
+- Array element-nullable: ordem **count → emask → densos**.
+- Invariante de alinhamento:
+
+  $$
+  |emask| = \sum_i count_i
+  $$
+
+- Invariante de consumo: `count` determina quantos símbolos da `emask` são lidos; `0` não consome
+  corpo; `.` consome exatamente um valor escalar ou uma instância de objeto-filho.
+
+Isso preserva sem ambiguidade:
+
+| forma | representação lógica |
+|---|---|
+| `[]` | `count=0`, sem slots de `emask` |
+| `[null]` | `count=1`, `emask=0`, sem denso |
+| `[valor]` | `count=1`, `emask=.`, um denso |
+| `[valor, null, valor]` | `count=3`, `emask=.0.`, dois densos |
+
+O header demonstrado pelo estudo, `nome#?[...]`, deve ser lido como “este array tem element-mask”,
+não como um novo tipo de valor. Para um array de objetos, a mesma marca protege o consumo das colunas
+descendentes.
+
+### Literatura convergente
+
+- [Apache Arrow — Columnar Format](https://arrow.apache.org/docs/format/Columnar.html): cada array
+  possui validity bitmap próprio, inclusive arrays filhos de listas e structs. Em dictionary
+  encoding, os índices têm validade separada; `null` não precisa ser uma entrada do dicionário.
+- [Apache Parquet — Nulls](https://parquet.apache.org/docs/file-format/nulls/): nullidade é
+  codificada em definition levels e nulls não entram no stream de dados.
+- [Apache Parquet — Nested Encoding](https://parquet.apache.org/docs/file-format/nestedencoding/):
+  definition levels e repetition levels são streams distintos, calculados a partir da estrutura
+  aninhada; dictionary indices são outra codificação.
+- [Dremel (Melnik et al., 2010)](https://research.google/pubs/dremel-interactive-analysis-of-web-scale-datasets-2/):
+  fundamenta a separação entre definição/presença e repetição em dados aninhados.
+- [Apache ORC — Specification](https://orc.apache.org/specification/ORCv1/): `PRESENT` é separado
+  de `DATA` mesmo quando a coluna usa dictionary encoding; listas usam `PRESENT + LENGTH + child`,
+  e o child tem nulidade independente.
+
+Esses formatos não tratam validade como um valor comum do dicionário. A element-mask do TCF é a
+tradução textual, inspecionável e comprimível pelo próprio L1 dessa mesma separação.
+
+### Recomendação registrada
+
+**Weld recomendado: element-mask em L2 para P3b.** É aditivo, mantém OBAT/HCC intactos, preserva a
+topologia de objetos nulos e segue a separação já validada em P3a. O índice-de-substituição permanece
+como possível representação física futura, especialmente para folhas escalares e perfis de null
+raro, mas não deve ser o mecanismo semântico canônico de P3 nem bloquear o weld.
+
+H-PROFILE-01 pode comparar posteriormente, em massa e no L1 real, máscara versus índice para folhas
+compatíveis. Se o índice vencer nesse subdomínio, ele entra como otimização escolhida por perfil; não
+substitui os streams de definição necessários para objetos, arrays e elementos de objeto.
+
+### Gate antes do weld
+
+O estudo didático cobre 8/8 formas. O weld deve ainda provar: emask com tamanho curto/longo,
+caractere inválido, coluna densa exaurida ou sobrando, combinação de field-mask e element-mask,
+array todo-null, elemento-objeto null, aninhamento e byte-idêntico quando nenhum elemento é null.
+
+**Confiança:** Média-Alta. A forma tem RT didático e respaldo arquitetural/literário; ainda falta o
+gate realista e adversarial integrado ao core.
+
+## Ciclo 4 (owner 2026-07-15) — o PRINCÍPIO DECISOR: O(1)/stream/separável/view
+
+**[dispositivo — fecha a decisão de mecanismo]** O perfil do TCF é ser **o mais O(1) possível no
+decode**: isso o torna **stream**, com **partes separáveis e analisáveis**, com **menos memória,
+processamento e/ou latência**. O diferencial é esse foco **+ o `view()` com agregação geral
+inter-compression** (operar sobre o comprimido sem materializar).
+
+Esse princípio é o **EIXO que decide** o mecanismo de especiais (não é preferência):
+- A **máscara é um stream de validade SEPARADO** → responde nulidade/presença **sem materializar os
+  valores** (contar non-null, filtrar presentes, agregar por presença rodam na máscara sozinha). É
+  exatamente o diferencial view/agregação-inter-compression + streamável + baixa-memória.
+- O **índice enterra a validade no stream de valores** → analisar nulidade exige o stream de dados;
+  contra o diferencial. E não representa null estrutural (objeto/array) sem virar máscara com outro nome.
+- Convergência de estado-da-arte: **Arrow (validity bitmap) · Parquet/Dremel (definition levels) ·
+  ORC (PRESENT)** separam validade de dados MESMO sob dictionary encoding — nunca tratam null como
+  entrada do dicionário. A element-mask é a tradução textual/inspecionável/L1-comprimível disso.
+
+**DECISÃO FECHADA**: a **máscara** (presença P1 · null-campo P3a · element-mask P3b) é o mecanismo
+**canônico** de definição/validade — coerente com o eixo O(1)/view, e unifica P1/P3a/P3b/L3 como a
+mesma escolha "separabilidade primeiro". O **índice-de-substituição** fica como **nicho** do perfil
+"armazenamento/max-compressão" (folhas escalares, null raro), medido depois sob [[H-PROFILE-01]] no
+L1 real — NUNCA para null estrutural, nunca bloqueia o weld. Segue o weld da **element-mask (L2)** p/ P3b.

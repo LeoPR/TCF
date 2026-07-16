@@ -8,5 +8,11 @@ pra inspeção/prova de conceito; não é medida de ganho).
   duas listas (só uma com null), e aninhamento (array em objeto em array). Cada uma isola um aspecto
   do alinhamento count×emask×dense.
 
-Sem dado real neste estudo (validação real = fase do weld, padrão P3a: didático→realista→massa com
-receita-cnpj/etc., RT obrigatório + gate byte-canônico). Roundtrip diffável em `outputs/*-rt.json`.
+- `inputs/02-realista-telemetria.json` — **REALISTA** (weld): telemetria com `leituras` (array de
+  objetos, com elemento null E campo interno `umid` null) + `alertas` (array de escalares com null).
+  Sintético-realista; exercita element-object-null + P3a compondo, plausível de IoT/logs.
+- **MASSA** (weld, `run_weld.py`): fuzz seedado (`random.Random(20260715)`), ~30% dos elementos null,
+  arrays de escalar E de objeto, schema fixo por batch (in-class). 6000 docs. Cobertura reportada.
+
+Roundtrip diffável em `outputs/*-rt.json`. O `proto.py` (estudo) e o `run_weld.py` (evidência do core)
+são distintos: o estudo extraiu a IDEIA; o weld usa o `src/tcf` real.

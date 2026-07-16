@@ -140,6 +140,33 @@ Gate: suíte 693 passed, flat byte-canônico intacto.
 trocável na costura `_emit_row`/`_read_object` sem mudar a API. **Fronteira ainda fail-loud**: null em
 ELEMENTO de array (P3b), tipos escalares preservados (P2), rep-level/N-raízes (P4).
 
+## Update 2026-07-15 — P3b null em elemento de array (element-mask) welded
+
+**[dispositivo→feito]** 3º incremento de paridade JSON: `null` como ELEMENTO de array
+(`["a", null, "b"]`, `[{...}, null, {...}]`). Mecanismo: **element-mask** — máscara alinhada aos
+ELEMENTOS (não às instâncias do campo), **2-estados** `.`=valor · `0`=null (sem `-`; a posição
+existe via count). Ordem das colunas: **count → emask → elementos densos**. Meta:
+`nome#:csize?:emsize[...]` (o `?:emsize` entre count e `[`). Nó do schema virou 5-tupla
+(+`elem_null`). Cobre elemento escalar e objeto (o `0` NÃO consome colunas-filhas); compõe com
+P3a (campo null) e P1 (presença) no mesmo array.
+
+**Decisão de mecanismo (Ciclo 4, princípio O(1)/stream/view)**: a MÁSCARA (stream de validade
+SEPARADO) é o mecanismo canônico de definição/validade — permite `view()`/agregação sobre o
+comprimido SEM materializar valores, e converge com Arrow (validity bitmap) / Parquet-Dremel
+(definition levels) / ORC (PRESENT). O índice-de-substituição fica como nicho do perfil
+armazenamento/max-compressão ([[H-PROFILE-01]]), nunca para null estrutural.
+
+**Aditivo (L2)**, OBAT/HCC intactos. Evidência (didático 8/8 + realista + massa fuzz 6000/6000):
+[lab 2026-07-15-2230](../../experiments/lab/dirty/2026-07-15-2230-p3b-null-elemento-estudo/).
+**Verificação adversarial** (workflow `wf_e50ecb01-1f4`): a element-mask resistiu (150k+ fuzz, 0
+corrupção silenciosa); achou e corrigiu 2 furos do maquinário compartilhado — **F1 (data-loss
+pré-existente P1/P3a)**: objeto vazio `{}` mascarado como última folha DFS punha a máscara sem
+`:msize` (encode aceitava, decode rejeitava) → **colunas de controle (mask/emask/count) nunca
+omitem size**; **F2**: `emask` faltava no guard de coluna-de-controle → vazava exceção crua. Gate:
+suíte 710 passed, flat byte-canônico intacto.
+
+**Fronteira ainda fail-loud**: tipos escalares preservados (P2), rep-level/N-raízes (P4), N:N.
+
 ## Relation to other ADRs
 
 - **Fecha o gate** deixado por [ADR-0031](0031-hierarchical-discriminator-H.md) (que reservou `H` e

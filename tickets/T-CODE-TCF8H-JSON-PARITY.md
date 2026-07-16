@@ -22,8 +22,11 @@ related:
 > **Próximo (owner): null (P3)** — o mais barato (`0` já reservado na máscara do P1). Depois P2 tipos, P4 rep-level.
 >
 > **P3a WELDED 2026-07-15** (`0`=None na máscara; ADR-0033 §Update P3a; lab 2026-07-15-2130 didático→realista→massa,
-> null REAL de receita RT byte-exato). Índice-de-substituição = alternativa a medir sob [[H-PROFILE-01]].
-> Próximo: **P3b** (null em elemento de array).
+> null REAL de receita RT byte-exato). **P3b WELDED 2026-07-15** (element-mask, null em elemento; ADR-0033
+> §Update P3b; lab 2026-07-15-2230 didático 8/8 + realista + massa 6000/6000; auditoria adversarial fechou
+> F1 data-loss pré-existente + F2). **Família null COMPLETA** (campo + elemento; raiz depende de P4/N-raízes).
+> **Decisão de mecanismo (Ciclo 4)**: máscara = canônico (O(1)/stream/view; converge Arrow/Parquet/ORC);
+> índice-de-substituição = nicho de perfil ([[H-PROFILE-01]]). Próximo: **P2 tipos** OU **P4 rep-level**.
 
 > **REVISÃO DE ESCOPO 2026-07-15 — opinião registrada; decisão pendente do owner.** P3 não é um
 > único incremento mecânico. **P3a** = null em CAMPO de objeto (`{x:null}`), inclusive quando o campo
@@ -58,7 +61,7 @@ realista, não sintético). O weld atual (ADR-0033) cobre a ESPINHA; faltam os c
 | **number (int/float) preservado** | ❌ `str()` coerção (H-TYPE-01) | **P2 — tipos** (C-híbrida decidida conceitual) |
 | **`true`/`false`** | ❌ `str()`→`"True"` | P2 (junto de tipos) |
 | **`null` em campo** (≠ ausente ≠ `"null"`) | ✅ **WELDED** (P3a, 2026-07-15) | — (máscara `0`=None; ADR-0033 §Update P3a) |
-| **`null` em elemento de array** | ❌ fail-loud | **P3b — máscara no nível dos elementos** (índice unificaria) |
+| **`null` em elemento de array** | ✅ **WELDED** (P3b, 2026-07-15) | — (element-mask 2-estados; ADR-0033 §Update P3b) |
 | **`null` na raiz** | ❌ fora do contrato `list[dict]` | decisão junto de **P4/N-raízes** |
 | **array-em-array / N raízes / array no topo** | ❌ fail-loud | **P4 — rep-level** (B3, caracterizado, não implementado) |
 | **array polimórfico** (elementos de schema variável) | ❌ fail-loud | P5 — union/def-level (a fronteira mais afiada) |

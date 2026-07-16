@@ -1,0 +1,20 @@
+WELD P3b — null em ELEMENTO (element-mask). didático → realista → massa (RT obrigatório).
+
+(1) DIDÁTICO — 8 formas (roundtrip diffável em outputs/):
+  [RT-OK] null-no-meio (escalar): 34B · header: #TCF.8Htags#:3?:8[
+  [RT-OK] null-inicio-e-fim: 33B · header: #TCF.8Hxs#:3?:8[
+  [RT-OK] array-todo-null: 26B · header: #TCF.8Hxs#:3?:6[
+  [RT-OK] array-vazio-vs-com-null (≠): 33B · header: #TCF.8Hxs#:9?:5[
+  [RT-OK] elemento-OBJETO null: 48B · header: #TCF.8Hitens#:3?:8[p:4,q
+  [RT-OK] misto null + '' + 'null' (4 vias no elemento): 36B · header: #TCF.8Hxs#:3?:8[
+  [RT-OK] duas listas, uma com null: 53B · header: #TCF.8Htel#:3?:5[]:3,email#:3[
+  [RT-OK] null-elemento aninhado (array em objeto em array): 52B · header: #TCF.8Hpedidos#:3[itens#:8?:8[
+
+(2) REALISTA — telemetria c/ leituras/alertas null (elemento-objeto E escalar):
+  [RT-OK] 3 devices: 296B · header: #TCF.8Hdevice:22,leituras#:9?:20[ts:29,temp:40,umid?:11:34],alertas#:11?:11[
+
+(3) MASSA — fuzz seedado (arrays com ~30% elementos null, escalar+objeto, aninhado):
+  RT byte-exato: 6000/6000 · cobertura: elem-null 5289 · arr-vazio 3817 · elem-objeto-null 2693
+
+VEREDITO: P3b (null em elemento) — RT em TODAS as etapas. Evidência diffável em outputs/w*.
+Zero engenhoca (core real). Alfabeto element-mask 2-estados; count×emask×dense alinhado.
