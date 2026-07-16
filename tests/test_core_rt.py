@@ -449,3 +449,22 @@ class TestSeqRleRangeDotDotBug:
                     ["ETC & TAL..."],                  # valor único, sem afixo: ok
                     ["casa", "casa123"]):              # afixo sem '..': ok
             assert decode(encode(col)) == col
+
+
+class TestBracketCellLossBug:
+    """BUG-BRACKET-CELL-LOSS (R0, PRÉ-EXISTENTE, descoberto 2026-07-16 via auditoria P2).
+
+    Célula string que é EXATAMENTE '[' ou ']' (1 char) é perdida silenciosamente no RT
+    (o L1/HCC a confunde com estrutura do corpo). Marcado xfail ATÉ o fix (toca HCC core →
+    aprovação + gate byte-canônico). Ticket: BUG-BRACKET-CELL-LOSS.
+    """
+
+    @pytest.mark.xfail(reason="BUG-BRACKET-CELL-LOSS: '['/']' isolado some no RT", strict=True)
+    def test_bracket_cell_isolado_perde(self):
+        col = ["[", "x", "]"]
+        assert decode(encode(col)) == col
+
+    def test_bracket_nao_isolado_ok(self):
+        # '['/']' NÃO-isolado (parte de string maior) ou '{'/'}' seguem RT (isola o gatilho)
+        for col in (["[[", "y"], ["a[", "b"], ["{"], ["}"], ["<", ">"]):
+            assert decode(encode(col)) == col

@@ -30,9 +30,21 @@ Array de objetos sem chaves. Todos `HierarchicalError`.
 
 ## Gate
 
-Suíte **727 passed**, 2 skipped, 1 xfailed; flat byte-canônico (D1-D9/D17a/real-world) intacto;
-**all-string byte-idêntico** (sem tag). `confianca: Alta` p/ P2 (3 etapas + suíte + massa + auditoria
-adversarial `wf_10194874-083`, achados dobrados quando fechar).
+Suíte **731 passed**, 2 skipped, 2 xfailed; flat byte-canônico (D1-D9/D17a/real-world) intacto;
+**all-string byte-idêntico** (sem tag). `confianca: Alta` p/ P2.
+
+## Auditoria adversarial (wf_10194874-083) — DOBRADA
+
+O RT de dados P2 VÁLIDOS resistiu (30k+ fuzz type-exato, 0 corrupção silenciosa, byte-compat). Furos
+achados no DECODE (raiz única: `_dec_scalar` de dado sem a defesa fail-loud das colunas de controle) —
+CORRIGIDOS:
+- **bool corrupção SILENCIOSA (média)**: body ≠ `true` → `False` calado (1 byte flipado em transmissão).
+  Fix: whitelist `true`/`false` → `HierarchicalError`.
+- **number leak (baixa)**: body corrompido vazava `JSONDecodeError` cru. Fix: wrap → `HierarchicalError`.
+- **NaN/Inf no decode (baixa)**: `json.loads` aceitava `Infinity`/`NaN`; decode∘encode não fechado.
+  Fix: `isfinite` no decode. Testes: `test_p2_{bool,number}_corrompido`, `test_p2_number_nan_inf_no_decode`.
+- **furo #5 = bug CORE novo** (não P2): célula string `[`/`]`-isolada some silenciosamente no L1 →
+  [BUG-BRACKET-CELL-LOSS](../../../../tickets/BUG-BRACKET-CELL-LOSS.md) (R0, xfail, mesma família do BUG-SEQRLE).
 
 ## Próximo
 

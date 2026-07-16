@@ -438,3 +438,34 @@ def test_p2_tipo_misto_str_num_fail_loud():
         encode_hierarchical([{"x": 30}, {"x": "texto"}])                  # int + str = P5 union
     with pytest.raises(HierarchicalError, match="MISTOS|mistos"):
         encode_hierarchical([{"xs": [1, "a"]}])                           # number + string no array
+
+
+# --- P2 decode fail-loud (auditoria wf_10194874-083): dado tipado corrompido nunca calado/cru ---
+def test_p2_bool_corrompido_fail_loud():
+    from tcf.encoder import encode as _enc_col
+    # bool body != 'true'/'false' → HierarchicalError (era: qualquer != 'true' → False SILENCIOSO)
+    for bad in ["tru", "True", "1", "", "falseX"]:
+        b = _enc_col([bad])
+        blob = f"#TCF.8Hx:{len(b.encode())}b\n{b}"
+        with pytest.raises(HierarchicalError, match="bool inválido"):
+            decode(blob)
+    # true/false válidos seguem RT
+    assert decode(encode_hierarchical([{"x": True}, {"x": False}])) == [{"x": True}, {"x": False}]
+
+
+def test_p2_number_corrompido_fail_loud_tipado():
+    from tcf.encoder import encode as _enc_col
+    for bad in ["abc", "01", "+5", "0x10"]:
+        b = _enc_col([bad])
+        blob = f"#TCF.8Hx:{len(b.encode())}n\n{b}"
+        with pytest.raises(HierarchicalError, match="number inválido"):     # não JSONDecodeError cru
+            decode(blob)
+
+
+def test_p2_number_nan_inf_no_decode_fail_loud():
+    from tcf.encoder import encode as _enc_col
+    for bad in ["Infinity", "-Infinity", "NaN", "1e999"]:
+        b = _enc_col([bad])
+        blob = f"#TCF.8Hx:{len(b.encode())}n\n{b}"
+        with pytest.raises(HierarchicalError, match="NaN|Infinity"):         # decode∘encode fechado
+            decode(blob)

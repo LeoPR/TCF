@@ -157,10 +157,24 @@ def _enc_scalar(v, stype: str) -> str:
 
 
 def _dec_scalar(s: str, stype: str):
+    # DADO tipado tem a MESMA disciplina fail-loud-tipado das colunas de controle (auditoria P2):
+    # blob corrompido/estrangeiro NUNCA vira valor errado calado nem vaza exceção crua.
     if stype == "n":
-        return json.loads(s)               # int OU float (o '.'/'e' no texto distingue)
+        try:
+            v = json.loads(s)              # int OU float (o '.'/'e' no texto distingue)
+        except ValueError as ex:           # JSONDecodeError ⊂ ValueError — re-tipa
+            raise HierarchicalError(f"corpo number inválido {s!r}: {ex}")
+        if isinstance(v, bool) or not isinstance(v, (int, float)):
+            raise HierarchicalError(f"corpo number não-numérico {s!r}")
+        if isinstance(v, float) and not math.isfinite(v):   # decode∘encode fechado (encoder rejeita)
+            raise HierarchicalError(f"NaN/Infinity no corpo number {s!r} — fora do JSON")
+        return v
     if stype == "b":
-        return s == "true"
+        if s == "true":
+            return True
+        if s == "false":                   # whitelist estrita (era: qualquer != 'true' → False CALADO)
+            return False
+        raise HierarchicalError(f"corpo bool inválido {s!r} (esperava 'true'/'false')")
     return s
 
 
