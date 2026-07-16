@@ -655,6 +655,24 @@ nova hipotese identificada.
   medição pendente). Plano: [substituicao-indices-especiais-plano.md](substituicao-indices-especiais-plano.md).
   Candidato a SUBSTITUIR a máscara-`0` como mecanismo de P3 (a máscara de presença `.`/`-` do P1 fica).
 
+- **H-REPLEVEL-FLAT-VS-PORNIVEL-01** (níveis "colunas com buracos" vs counts-por-nível, owner 2026-07-16,
+  `.9`): na inspeção do P4a o owner aprovou o count recursivo mas registrou a preocupação: em
+  profundidades maiores COM NÍVEIS EM COMUM, dá pra REUSAR partes? — "de certa forma dá pra tratar tudo
+  como **colunas com buracos**", contanto que a ASSOCIAÇÃO entre níveis não se perca; o risco é "perder
+  otimização semântica criando muitos marcadores só pra satisfazer o preenchimento".
+  **Opinião crítica (Claude, registrada a pedido)**: (a) a preocupação é REAL mas limitada — profundidade
+  D custa D colunas de count (+D emask); os counts regulares colapsam por seq-RLE, mas o custo FIXO de
+  framing por coluna (size no header) é linear em D; (b) "colunas com buracos" ≈ o **def/rep-level FLAT
+  do Dremel**: UM stream de números-de-nível no lugar de máscaras/counts por-nível — menos marcadores,
+  PORÉM cada entrada vira um número 0..D e perde-se a separabilidade por-nível (responder "nível k" exige
+  varrer o stream inteiro) → conflita com o princípio O(1)/stream/view (Ciclo 4); é EXATAMENTE um trade
+  de PERFIL (API/lazy = por-nível · armazenamento/min-marcadores = flat) → candidato do [[H-PROFILE-01]];
+  (c) a associação entre níveis NÃO se perde em nenhuma das duas formas (counts fixam posições; rep-levels
+  fixam reinícios) — o que muda é onde a informação mora; (d) reuso de níveis comuns entre CAMPOS
+  (dois campos-matriz compartilhando streams de count) = território cross-column/cross-dict, também `.9`.
+  Owner: "qualquer coisa revisamos no .9; fica difícil fechar todas as visões". `aberta`, confiança:
+  Baixa. NÃO bloqueia o weld do P4a (a forma por-nível é a canônica do `.8`).
+
 - **H-PROFILE-01** (PERFIL DE USO — parâmetro/heurística guarda-chuva, owner 2026-07-15, nome PROVISÓRIO):
   família de escolhas de representação decididas por **parâmetro OU heurística**, com **default por
   medição em MASSA depois** (não firmar agora; agora = funcionalidade). Eixo: "otimizado p/

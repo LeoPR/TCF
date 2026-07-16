@@ -31,14 +31,19 @@ Wire (ADR-0031, sem-espaço, LF-only):
     name:size<tag>       coluna escalar TIPADA (P2): tag='n' number (json) · 'b' bool (true/false).
                          String = default (sem tag). Coluna TIPADA sempre emite :size+tag (só
                          string-default pode omitir size na última folha).
+    name#:c0?:e0[#:c1?:e1[...]]  array-EM-array (P4a, count RECURSIVO): cada '#' abre um NÍVEL
+                         com count (e emask) PRÓPRIOS; o elemento entre '[...]' é a spec recursiva
+                         (outro '#' = nível interno · '{campos}' = objetos · '[]<tag>' = escalares).
+                         Colunas por nível: count/emask (nível 0, byte-compat) · count1/emask1 · …
+                         Counts do nível k+1 = 1 entrada por elemento NÃO-null do nível k (denso).
     última folha DFS omite size; omit-closes dropa o `]`/`}` final.
 
-Escopo (classe coberta): uma raiz (lista de registros), `{}`/`[]` recursivos, chaves
-OPCIONAIS (P1), `null` em CAMPO (P3a) e em ELEMENTO de array (P3b), e TIPOS escalares
-(P2 — string/number/bool por coluna; int/float via json, distingue por-valor). Distingue
-ausente≠null≠"null"≠""≠30(int)≠True(bool). Fora (fail-loud, NUNCA str()-engolido): tipos
-escalares MISTOS numa coluna (P5 union), NaN/±Inf (não-JSON), array de objetos sem chaves,
-N raízes, N:N/snowflake (FK).
+Escopo (classe coberta): uma raiz (lista de registros), `{}`/`[]` recursivos INCLUSIVE
+array-em-array a profundidade arbitrária (P4a), chaves OPCIONAIS (P1), `null` em CAMPO (P3a)
+e em ELEMENTO por nível (P3b), e TIPOS escalares (P2 — string/number/bool por coluna).
+Distingue ausente≠null≠"null"≠""≠30(int)≠True(bool); []≠[[]]≠[[1]]. Fora (fail-loud, NUNCA
+str()-engolido): tipos MISTOS num nível (P5 union — inclui array+escalar no mesmo nível),
+NaN/±Inf (não-JSON), array de objetos sem chaves, raiz generalizada (P4b), N:N/snowflake (FK).
 
 Aditivo: `#TCF.8M`/single/órfão intactos. Este módulo é CLIENTE de `encode`/`decode`.
 """
@@ -220,48 +225,76 @@ def _field_node(name, present: list, optional: bool):
         return ("object", name, masked, _derive_schema(present_nn), False, "s")
     if kind == "array":
         elems = [e for arr in present_nn for e in arr]
-        elem_null = any(e is None for e in elems)    # P3b: algum elemento null → element-mask
-        elems_nn = [e for e in elems if e is not None]
-        ekinds = {_kind_of(e) for e in elems_nn}
-        if len(ekinds) > 1:
-            raise HierarchicalError(
-                f"array {name!r} com elementos de tipos mistos {ekinds} — fora da classe"
-            )
-        if elems_nn and next(iter(ekinds)) == "object":
-            kids = _derive_schema(elems_nn)
-            if not _leaves(kids):
-                raise HierarchicalError(
-                    f"array de objetos SEM chaves em {name!r} — fora da classe "
-                    "(colidiria com array de escalares no wire)"
-                )
-            return ("arr_objects", name, masked, kids, elem_null, "s")
-        return ("arr_scalars", name, masked, None, elem_null, _scalar_type(elems_nn))  # P2: tipo do elemento
+        return _array_node(name, masked, elems)
     return ("scalar", name, masked, None, False, _scalar_type(present_nn))              # P2: tipo do campo
+
+
+_MAX_ARRAY_DEPTH = 128   # cap de aninhamento (folga real: classe coberta usa ≤4; evita RecursionError cru)
+
+
+def _array_node(name, masked, elems, depth=0):
+    """Nó de ARRAY com spec de ELEMENTO recursiva (P4a): elemento ∈ {scalar, object, array}.
+    Elemento-array → kind 'arr_arrays', cujo `kids` é o nó ANÔNIMO (name='') do nível interno —
+    o count recursivo: cada nível de aninhamento tem sua própria coluna de counts (+emask)."""
+    if depth > _MAX_ARRAY_DEPTH:                     # auditoria P4a: fail-loud tipado, não RecursionError
+        raise HierarchicalError(f"aninhamento de array excede o limite de {_MAX_ARRAY_DEPTH} níveis")
+    elem_null = any(e is None for e in elems)        # P3b: element-mask DESTE nível
+    elems_nn = [e for e in elems if e is not None]
+    ekinds = {_kind_of(e) for e in elems_nn}
+    if len(ekinds) > 1:
+        raise HierarchicalError(
+            f"array {name!r} com elementos de tipos mistos {ekinds} — fora da classe"
+        )
+    if elems_nn and next(iter(ekinds)) == "array":   # P4a: elemento é ARRAY → nível interno
+        subs = [x for e in elems_nn for x in e]
+        inner = _array_node("", False, subs, depth + 1)
+        return ("arr_arrays", name, masked, inner, elem_null, "s")
+    if elems_nn and next(iter(ekinds)) == "object":
+        kids = _derive_schema(elems_nn)
+        if not _leaves(kids):
+            raise HierarchicalError(
+                f"array de objetos SEM chaves em {name!r} — fora da classe "
+                "(colidiria com array de escalares no wire)"
+            )
+        return ("arr_objects", name, masked, kids, elem_null, "s")
+    return ("arr_scalars", name, masked, None, elem_null, _scalar_type(elems_nn))  # vazio/all-null aqui
+
+
+def _sfx(lvl: int) -> str:
+    """Sufixo da coluna de controle por NÍVEL: nível 0 = '' (byte-compat), 1+ = '1','2',…"""
+    return "" if lvl == 0 else str(lvl)
 
 
 def _leaves(schema: list, prefix=()):
     """[(path, kind)] em ordem DFS. kind: 'mask' | 'scalar' | 'count' | 'arr_scalars'.
     A coluna de MÁSCARA (presença) vem ANTES das colunas do campo (como o count)."""
     out = []
-    for kind, name, masked, kids, elem_null, stype in schema:
+    for node in schema:
+        kind, name, masked, kids, elem_null, stype = node
         p = prefix + (name,)
         if masked:
             out.append((p, "mask"))
         if kind == "scalar":
             out.append((p, "scalar"))
-        elif kind == "arr_scalars":
-            out.append((p, "count"))
-            if elem_null:                            # P3b: element-mask entre count e elementos
-                out.append((p, "emask"))
-            out.append((p, "arr_scalars"))
         elif kind == "object":
             out += _leaves(kids, p)
-        else:  # arr_objects
-            out.append((p, "count"))
-            if elem_null:
-                out.append((p, "emask"))
-            out += _leaves(kids, p)
+        else:                                        # arr_* : recursão por NÍVEL (P4a)
+            _array_leaves(node, p, 0, out)
     return out
+
+
+def _array_leaves(node, p, lvl, out):
+    """Colunas de um nível de array: count → emask? → (folhas | filhos | nível interno)."""
+    kind, _name, _masked, kids, elem_null, _stype = node
+    out.append((p, "count" + _sfx(lvl)))
+    if elem_null:                                    # P3b: element-mask DESTE nível
+        out.append((p, "emask" + _sfx(lvl)))
+    if kind == "arr_scalars":
+        out.append((p, "arr_scalars"))
+    elif kind == "arr_objects":
+        out.extend(_leaves(kids, p))
+    else:                                            # arr_arrays: nível interno (P4a)
+        _array_leaves(kids, p, lvl + 1, out)
 
 
 # ============================================================ encode (L2 shred + L1)
@@ -288,7 +321,8 @@ def _emit_array(instances: list, children: list, prefix: tuple, cols: dict):
 def _emit_row(obj: dict, children: list, prefix: tuple, cols: dict):
     if not isinstance(obj, dict):
         raise HierarchicalError(f"esperava objeto em {'/'.join(prefix) or 'raiz'}")
-    for kind, name, masked, kids, elem_null, stype in children:
+    for node in children:
+        kind, name, masked, kids, elem_null, stype = node
         p = prefix + (name,)
         if name not in obj:
             if not masked:
@@ -309,38 +343,34 @@ def _emit_row(obj: dict, children: list, prefix: tuple, cols: dict):
             cols[(p, "scalar")].append(_enc_scalar(v, stype))      # P2: str/number(json)/bool
         elif kind == "object":
             _emit_row(v, kids, p, cols)                            # inline (1:1); valida dict dentro
-        elif kind == "arr_scalars":
-            if not isinstance(v, list):
-                raise HierarchicalError(f"tipo divergente em {p}: esperava array")
-            cols[(p, "count")].append(str(len(v)))
-            for e in v:                                            # P3b: null em elemento → emask '0'
-                if e is None:
-                    if not elem_null:
-                        raise HierarchicalError(f"null inesperado em elemento de {p}")
-                    cols[(p, "emask")].append("0")
-                    continue
-                if isinstance(e, (dict, list)):
-                    raise HierarchicalError(f"elemento não-escalar em {p}")
-                if elem_null:
-                    cols[(p, "emask")].append(".")
-                cols[(p, "arr_scalars")].append(_enc_scalar(e, stype))   # P2: tipo do elemento
-        else:  # arr_objects
-            if not isinstance(v, list):
-                raise HierarchicalError(f"tipo divergente em {p}: esperava array")
-            cols[(p, "count")].append(str(len(v)))
-            nn = []
-            for e in v:                                            # P3b: elemento-objeto null → emask '0'
-                if e is None:
-                    if not elem_null:
-                        raise HierarchicalError(f"null inesperado em elemento de {p}")
-                    cols[(p, "emask")].append("0")
-                    continue
-                if not isinstance(e, dict):
-                    raise HierarchicalError(f"elemento não-objeto em array {p}: {type(e).__name__}")
-                if elem_null:
-                    cols[(p, "emask")].append(".")
-                nn.append(e)
-            _emit_array(nn, kids, p, cols)                         # bloco filho: só elementos não-null
+        else:                                                      # arr_* (P4a: recursivo por nível)
+            _emit_array_value(v, node, p, 0, cols)
+
+
+def _emit_array_value(v, node, p: tuple, lvl: int, cols: dict):
+    """Emite UM valor-array num nível: count → por elemento (emask? + folha/filho/nível interno)."""
+    kind, _name, _masked, kids, elem_null, stype = node
+    if not isinstance(v, list):
+        raise HierarchicalError(f"tipo divergente em {p}: esperava array (nível {lvl})")
+    cols[(p, "count" + _sfx(lvl))].append(str(len(v)))
+    for e in v:
+        if e is None:                                              # P3b: null DESTE nível → emask '0'
+            if not elem_null:
+                raise HierarchicalError(f"null inesperado em elemento de {p} (nível {lvl})")
+            cols[(p, "emask" + _sfx(lvl))].append("0")
+            continue
+        if elem_null:
+            cols[(p, "emask" + _sfx(lvl))].append(".")
+        if kind == "arr_scalars":
+            if isinstance(e, (dict, list)):
+                raise HierarchicalError(f"elemento não-escalar em {p}")
+            cols[(p, "arr_scalars")].append(_enc_scalar(e, stype))  # P2: tipo do elemento
+        elif kind == "arr_objects":
+            if not isinstance(e, dict):
+                raise HierarchicalError(f"elemento não-objeto em array {p}: {type(e).__name__}")
+            _emit_row(e, kids, p, cols)                            # bloco filho
+        else:                                                      # arr_arrays: desce um nível (P4a)
+            _emit_array_value(e, kids, p, lvl + 1, cols)
 
 
 # ============================================================ L3: header (meta)
@@ -356,22 +386,31 @@ def _build_meta(schema: list, bodies: dict, order: list) -> str:
     def dsz(path, kind, stype):  # coluna de DADO: string pode omitir (última); TIPADA sempre :size+tag
         return sz(path, kind) if stype == "s" else f"{csz(path, kind)}{stype}"
 
+    def arr_meta(node, p, lvl):
+        """Meta de UM nível de array: '#:csize[?:emsize][ elemento ]' — recursivo (P4a)."""
+        kind, _name, _masked, kids, elem_null, stype = node
+        c = csz(p, "count" + _sfx(lvl))
+        em = ("?" + csz(p, "emask" + _sfx(lvl))) if elem_null else ""
+        if kind == "arr_scalars":
+            return f"#{c}{em}[]{dsz(p, 'arr_scalars', stype)}"
+        if kind == "arr_objects":
+            return f"#{c}{em}[{emit(kids, p)}]"
+        return f"#{c}{em}[{arr_meta(kids, p, lvl + 1)}]"           # arr_arrays: nível interno
+
     def emit(children, prefix):
         parts = []
-        for kind, name, masked, kids, elem_null, stype in children:
+        for node in children:
+            kind, name, masked, kids, elem_null, stype = node
             p = prefix + (name,)
             head = _esc_name(name)                                 # nome ESCAPADO (inclui '?' agora)
             if masked:
                 head += "?" + csz(p, "mask")                       # '?:msize' (controle: nunca omite)
-            em = ("?" + csz(p, "emask")) if elem_null else ""      # P3b: '?:emsize' entre count e '['
             if kind == "scalar":
                 parts.append(f"{head}{dsz(p, 'scalar', stype)}")   # P2: tag n/b após size (ou string)
-            elif kind == "arr_scalars":
-                parts.append(f"{head}#{csz(p, 'count')}{em}[]{dsz(p, 'arr_scalars', stype)}")
             elif kind == "object":
                 parts.append(f"{head}{{{emit(kids, p)}}}")
-            else:
-                parts.append(f"{head}#{csz(p, 'count')}{em}[{emit(kids, p)}]")
+            else:                                                  # arr_* (P4a: recursivo)
+                parts.append(f"{head}{arr_meta(node, p, 0)}")
         return ",".join(parts)
 
     return _rstrip_closes(emit(schema, ()))   # omit-closes (L3)
@@ -420,12 +459,12 @@ def _parse_meta(meta: str):
             raise HierarchicalError(f"size negativo no header: {v}")
         return v
 
-    def _digits():                                        # lê '-'? dígitos (para em delim OU tag n/b)
+    def _digits():                                        # lê '-'? dígitos ASCII (para em delim OU tag)
         nonlocal i
         j = i
         if i < n and meta[i] == "-":
             i += 1
-        while i < n and meta[i].isdigit():
+        while i < n and "0" <= meta[i] <= "9":            # ASCII estrito (não dígito unicode)
             i += 1
         return meta[j:i]
 
@@ -457,9 +496,45 @@ def _parse_meta(meta: str):
             return "s"
         raise HierarchicalError(f"tag de tipo desconhecida {c!r} após size (esperava n/b ou delimitador)")
 
+    def parse_array(p, lvl):
+        """Parse de UM nível de array (cursor no '#'). Recursivo p/ arr_arrays (P4a).
+        Devolve nó ANÔNIMO (name=''), que o chamador re-nomeia."""
+        nonlocal i
+        if lvl > _MAX_ARRAY_DEPTH:                    # auditoria P4a: header hostil não estoura pilha
+            raise HierarchicalError(f"aninhamento de array excede o limite de {_MAX_ARRAY_DEPTH} níveis")
+        i += 1                                        # consome '#'
+        order.append((p, "count" + _sfx(lvl), size()))
+        elem_null = False
+        if i < n and meta[i] == "?":                  # P3b: element-mask DESTE nível
+            elem_null = True
+            i += 1
+            order.append((p, "emask" + _sfx(lvl), msize()))
+        if not (i < n and meta[i] == "["):
+            raise HierarchicalError(f"esperava '[' após '#' em {p}")
+        i += 1
+        if i < n and meta[i] == "]":                  # array de escalares
+            i += 1
+            order.append((p, "arr_scalars", size()))
+            return ("arr_scalars", "", False, None, elem_null, stag())
+        if i >= n or meta[i] == ",":                  # `[` omit-closed = escalares string
+            order.append((p, "arr_scalars", None))
+            return ("arr_scalars", "", False, None, elem_null, "s")
+        if meta[i] == "#":                            # P4a: elemento é ARRAY (nível interno)
+            inner = parse_array(p, lvl + 1)
+            if i < n and meta[i] == "]":
+                i += 1
+            elif i < n:                               # auditoria: ']' deletado NÃO passa calado
+                raise HierarchicalError(f"esperava ']' fechando nível de array em {p}")
+            return ("arr_arrays", "", False, inner, elem_null, "s")
+        kids = seq("]", p)                            # array de objetos
+        if i < n and meta[i] == "]":
+            i += 1
+        return ("arr_objects", "", False, kids, elem_null, "s")
+
     def seq(closer, prefix):
         nonlocal i
         nodes = []
+        seen = set()                                      # auditoria P4a: duplicado descartava coluna calado
         while i < n and (closer is None or meta[i] != closer):
             while i < n and meta[i] in " ,":
                 i += 1
@@ -468,36 +543,18 @@ def _parse_meta(meta: str):
             name = _unesc_name(nm(",[]{}:#?"))
             if name == "":                                # nome vazio = corrupção (auditoria)
                 raise HierarchicalError("nome de campo vazio no header")
+            if name in seen:
+                raise HierarchicalError(f"campo duplicado {name!r} no header")
+            seen.add(name)
             p = prefix + (name,)
             masked = False
             if i < n and meta[i] == "?":                  # campo MASCARADO (ausente '-' e/ou null '0')
                 masked = True
                 i += 1
                 order.append((p, "mask", msize()))
-            if i < n and meta[i] == "#":                  # array (com count)
-                i += 1
-                order.append((p, "count", size()))
-                elem_null = False
-                if i < n and meta[i] == "?":              # P3b: element-mask (entre count e '[')
-                    elem_null = True
-                    i += 1
-                    order.append((p, "emask", msize()))
-                if i < n and meta[i] == "[":
-                    i += 1
-                    if i < n and meta[i] == "]":          # array de escalares
-                        i += 1
-                        order.append((p, "arr_scalars", size()))
-                        nodes.append(("arr_scalars", name, masked, None, elem_null, stag()))
-                    elif i >= n or meta[i] == ",":        # `[` omit-closed = string (tipado sempre emite ])
-                        order.append((p, "arr_scalars", None))
-                        nodes.append(("arr_scalars", name, masked, None, elem_null, "s"))
-                    else:                                  # array de objetos
-                        kids = seq("]", p)
-                        if i < n and meta[i] == "]":
-                            i += 1
-                        nodes.append(("arr_objects", name, masked, kids, elem_null, "s"))
-                else:
-                    raise HierarchicalError(f"esperava '[' após '#' em {p}")
+            if i < n and meta[i] == "#":                  # array (recursivo por nível — P4a)
+                a = parse_array(p, 0)
+                nodes.append((a[0], name, masked, a[3], a[4], a[5]))
             elif i < n and meta[i] == "{":               # objeto 1:1
                 i += 1
                 kids = seq("}", p)
@@ -512,6 +569,29 @@ def _parse_meta(meta: str):
     return seq(None, ()), order
 
 
+def _find_stype(schema, path, kind):
+    """stype do nó de DADO em `path` (desce objetos e níveis de arr_arrays). 's' se não achar."""
+    for node in schema:
+        nkind, name, _m, kids, _e, stype = node
+        if not path or name != path[0]:
+            continue
+        rest = path[1:]
+        if not rest:
+            cur = node
+            while cur[0] == "arr_arrays":               # folha de dado vive no nível mais interno
+                cur = cur[3]
+            return cur[5] if cur[0] in ("scalar", "arr_scalars") else "s"
+        if nkind == "object" or nkind == "arr_objects":
+            return _find_stype(kids, rest, kind)
+        if nkind == "arr_arrays":                        # objetos dentro de níveis internos
+            cur = kids
+            while cur[0] == "arr_arrays":
+                cur = cur[3]
+            if cur[0] == "arr_objects":
+                return _find_stype(cur[3], rest, kind)
+    return "s"
+
+
 # ============================================================ decode (L1 + L2 rebuild)
 def decode_hierarchical(tcf_text: str) -> list:
     if not tcf_text.startswith(MAGIC):
@@ -524,24 +604,40 @@ def decode_hierarchical(tcf_text: str) -> list:
     for idx, (_p, _k, size) in enumerate(order):
         if size is None and idx != len(order) - 1:
             raise HierarchicalError("size ausente fora da última coluna do header")
+    # canonicidade da ÚLTIMA coluna (auditoria P4a): DADO string com size EXPLÍCITO é inemitível
+    # (o encoder omite; size aqui = meta truncado que perdeu a tag → int viraria string CALADO)
+    lp, lk, lsize = order[-1]
+    if lsize is not None and lk in ("scalar", "arr_scalars") and _find_stype(schema, lp, lk) == "s":
+        raise HierarchicalError(
+            f"última coluna {lk} string com size explícito em {lp} — meta não-canônico (truncado?)"
+        )
     raw = tcf_text[len(line1) + 1:].encode("utf-8")
     cols, off = {}, 0
     for path, kind, size in order:
-        if size is not None:
-            if off + size > len(raw):
-                raise HierarchicalError(f"size {size} excede o corpo em {path} (blob truncado?)")
-            body = raw[off:off + size].decode()
-            off += size
-        else:
-            body = raw[off:].decode()
+        try:
+            if size is not None:
+                if off + size > len(raw):
+                    raise HierarchicalError(f"size {size} excede o corpo em {path} (blob truncado?)")
+                body = raw[off:off + size].decode()
+                off += size
+            else:
+                body = raw[off:].decode()
+        except UnicodeDecodeError as e:                     # size fatia char multibyte (auditoria)
+            raise HierarchicalError(f"size fatia char UTF-8 em {path} (blob corrompido?): {e}")
         try:
             cols[(path, kind)] = _decode_col(body) if body else []   # L1: decode de coluna
-        except Exception as e:                              # coluna de CONTROLE corrompida = fail-loud tipado
-            if kind in ("mask", "count", "emask"):          # F2: emask também é controle (auditoria)
-                raise HierarchicalError(f"coluna de controle {kind} corrompida em {path}: {e}")
-            raise
+        except Exception as e:                              # QUALQUER coluna corrompida = fail-loud tipado
+            grupo = ("controle" if (kind == "mask" or kind.startswith("count")
+                                    or kind.startswith("emask")) else "dado")
+            raise HierarchicalError(f"coluna de {grupo} {kind} corrompida em {path}: {e}")
+    if order[-1][2] is not None and off != len(raw):        # bytes residuais = blob adulterado (auditoria)
+        raise HierarchicalError(
+            f"{len(raw) - off} bytes não referenciados após a última coluna — blob adulterado?"
+        )
     cur = {key: 0 for key in cols}
     total = len(cols[(order[0][0], order[0][1])])           # 1ª coluna = 1 entrada por registro-raiz
+    if total == 0:                                          # encoder exige ≥1 registro (auditoria: corpo perdido)
+        raise HierarchicalError("frame vazio — nenhum registro (blob truncado?)")
     result = [_read_object(schema, (), cols, cur) for _ in range(total)]
     for key, vals in cols.items():                          # toda coluna deve exaurir (frame consistente)
         if cur[key] != len(vals):
@@ -553,7 +649,8 @@ def decode_hierarchical(tcf_text: str) -> list:
 
 def _read_object(children: list, prefix: tuple, cols: dict, cur: dict) -> dict:
     obj = {}
-    for kind, name, masked, kids, elem_null, stype in children:
+    for node in children:
+        kind, name, masked, kids, elem_null, stype = node
         p = prefix + (name,)
         if masked:
             m = _take(cols, cur, (p, "mask"))
@@ -568,37 +665,38 @@ def _read_object(children: list, prefix: tuple, cols: dict, cur: dict) -> dict:
             obj[name] = _dec_scalar(_take(cols, cur, (p, "scalar")), stype)   # P2: str/number/bool
         elif kind == "object":
             obj[name] = _read_object(kids, p, cols, cur)
-        elif kind == "arr_scalars":
-            k = _count(_take(cols, cur, (p, "count")), p)
-            obj[name] = [(None if _emask_null(cols, cur, p, elem_null)
-                          else _dec_scalar(_take(cols, cur, (p, "arr_scalars")), stype)) for _ in range(k)]
-        else:  # arr_objects
-            k = _count(_take(cols, cur, (p, "count")), p)
-            obj[name] = [(None if _emask_null(cols, cur, p, elem_null)
-                          else _read_object(kids, p, cols, cur)) for _ in range(k)]
+        else:                                               # arr_* (P4a: recursivo por nível)
+            obj[name] = _read_array(node, p, 0, cols, cur)
     return obj
 
 
-def _emask_null(cols, cur, p, elem_null) -> bool:
-    """P3b: consome 1 símbolo da element-mask (se houver). '0'→null, '.'→valor. Fail-loud tipado."""
-    if not elem_null:
-        return False
-    m = _take(cols, cur, (p, "emask"))
-    if m == "0":
-        return True
-    if m != ".":
-        raise HierarchicalError(f"element-mask inválida {m!r} em {p}")
-    return False
+def _read_array(node, p: tuple, lvl: int, cols: dict, cur: dict) -> list:
+    """Lê UM valor-array num nível: count → por elemento (emask? + folha/filho/nível interno)."""
+    kind, _name, _masked, kids, elem_null, stype = node
+    k = _count(_take(cols, cur, (p, "count" + _sfx(lvl))), p)
+    out = []
+    for _ in range(k):
+        if elem_null:                                       # P3b: element-mask DESTE nível
+            m = _take(cols, cur, (p, "emask" + _sfx(lvl)))
+            if m == "0":
+                out.append(None)
+                continue
+            if m != ".":
+                raise HierarchicalError(f"element-mask inválida {m!r} em {p} (nível {lvl})")
+        if kind == "arr_scalars":
+            out.append(_dec_scalar(_take(cols, cur, (p, "arr_scalars")), stype))
+        elif kind == "arr_objects":
+            out.append(_read_object(kids, p, cols, cur))
+        else:                                               # arr_arrays: desce um nível (P4a)
+            out.append(_read_array(kids, p, lvl + 1, cols, cur))
+    return out
 
 
 def _count(s, p):
-    try:
-        k = int(s)
-    except (ValueError, TypeError):
+    # dígitos ASCII estritos (auditoria: int() aceitava '+2', ' 2', '1_0', dígito unicode)
+    if not (isinstance(s, str) and s.isascii() and s.isdigit()):
         raise HierarchicalError(f"count inválido em {p}: {s!r}")
-    if k < 0:
-        raise HierarchicalError(f"count negativo em {p}: {k}")
-    return k
+    return int(s)
 
 
 def _take(cols: dict, cur: dict, key):

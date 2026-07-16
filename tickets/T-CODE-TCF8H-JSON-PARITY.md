@@ -76,7 +76,8 @@ realista, não sintético). O weld atual (ADR-0033) cobre a ESPINHA; faltam os c
 | **`null` em campo** (≠ ausente ≠ `"null"`) | ✅ **WELDED** (P3a, 2026-07-15) | — (máscara `0`=None; ADR-0033 §Update P3a) |
 | **`null` em elemento de array** | ✅ **WELDED** (P3b, 2026-07-15) | — (element-mask 2-estados; ADR-0033 §Update P3b) |
 | **`null` na raiz** | ❌ fora do contrato `list[dict]` | decisão junto de **P4/N-raízes** |
-| **array-em-array / array no topo / raiz generalizada** | ❌ fail-loud | **P4a estrutura + P4b contrato de raiz** (caracterizados, não implementados) |
+| **array-em-array** (profundidade arbitrária) | ✅ **WELDED** (P4a, 2026-07-16) | — (count recursivo por nível; ADR-0033 §Update P4a) |
+| **array no topo / raiz generalizada** | ❌ fail-loud | **P4b — contrato de raiz** (ato separado, muda API) |
 | **array polimórfico** (elementos de schema variável) | ❌ fail-loud | P5 — union/def-level (a fronteira mais afiada) |
 | `\n` em valor | ❌ fail-loud (core) | **congelar** contrato (boundary) |
 
@@ -99,8 +100,10 @@ adversariais (a lição do escape: testar nome/valor/borda, não só o caminho f
    identidade Python-tipado, string default; decode tipado endurecido em `268608d`. **Hardening de tag
    desconhecida FECHADO** (revisão do owner): `stag()` rejeita char não-n/b/delimitador após size
    (`x:<size>x` era `[]` calado → agora `HierarchicalError`); teste `test_p2_tag_desconhecida_fail_loud`.
-4. **P4a · Repetição estrutural** (array-em-array) — count recursivo como representação hierárquica
-   da informação posicional; fechar gramática e adversarial em lab próprio.
+4. ~~**P4a · Repetição estrutural** (array-em-array)~~ **✅ WELDED 2026-07-16** — count recursivo por
+   nível (gramática `#:c?:e[...]` recursiva, inspecionada/aprovada pelo owner); estudo lab
+   2026-07-16-0213 (gate 12/12 + fuzz 4000) + weld com suíte 748; null-entre-arrays = P3b∘P4a firmado.
+   Preocupação do owner ("colunas com buracos"/reuso entre níveis) → H-REPLEVEL-FLAT-VS-PORNIVEL-01 (`.9`).
 5. **P4b · Raiz generalizada** (array no topo, objeto/escalar/null na raiz) — contrato público e
    envelope/discriminador explícito; preservar ordem e tipo-raiz exatamente.
 6. **P5 · Array polimórfico** (union) — a fronteira; pode ficar por último ou virar fail-loud honesto.

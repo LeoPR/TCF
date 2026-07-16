@@ -72,6 +72,21 @@ ainda vai revelar o que os usos reais pedem. As questões de TIPO (anterior/pró
 specs) dependem do rumo do META-TYPE-ENCODERS — decidir contrato de container antes disso seria
 chute.
 
+## LIMITAÇÕES INERENTES do wire `.8H` (auditoria P4a 2026-07-16 — registrar, indetectável sem checksum)
+
+Formas de adulteração de blob que são **indistinguíveis por construção** de um blob canônico de
+OUTRO documento (a informação não existe no wire; detecção = trilha checksum/tcfx, pré-1.0):
+1. **Meta truncado até forma canônica string**: cortar `:size<tag>` inteiro da última coluna de dado
+   (ex.: `m#:3[#:8[]:8n` → `m#:3[#:8[]`) produz um meta VÁLIDO de schema all-string — ints decodam
+   como strings sem erro. (Cortes PARCIAIS são detectados: size-explícito-na-última-string e tag
+   truncada = fail-loud desde 2026-07-16.)
+2. **Truncamento de cauda unsized**: a última coluna sem size absorve o que restar; perda parcial do
+   fim do corpo em coluna única/unsized não é detectável (herdado do omit-size; declarado no P1).
+3. **`]` deletado em arr_objects no FIM do meta** (omit-closes torna o fim-de-meta fechamento válido) —
+   pode re-bindar campos irmãos pra dentro do array em metas específicos.
+4. **Bytes apendados quando a última coluna é unsized** (single-column string): viram conteúdo da
+   coluna (registro fantasma). Com última coluna SIZED, apêndice é rejeitado (guard 2026-07-16).
+
 ## Critério de aceite
 
 - [ ] Passada única pré-1.0 revisando a tabela acima, caso a caso, com decisão registrada

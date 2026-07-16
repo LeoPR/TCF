@@ -480,3 +480,109 @@ def test_p2_tag_desconhecida_fail_loud():
             decode(f"#TCF.8H{meta}\n{b}")
     # delimitador/tag válido/campo-nomeado-n seguem OK
     assert decode(encode_hierarchical([{"n": "v", "x": 30}])) == [{"n": "v", "x": 30}]
+
+
+# --- P4a: array-em-array via COUNT RECURSIVO (2026-07-16; estudo lab 2026-07-16-0213) ---
+P4A_NESTED = {
+    "basico [[1,2],[3]]": [{"m": [[1, 2], [3]]}],
+    "matriz retangular": [{"g": [[1, 2, 3], [4, 5, 6]]}],
+    "profundidade 3": [{"cubo": [[[1, 2]], [[3], [4, 5]]]}],
+    "inners vazios": [{"m": [[], [1], []]}],
+    "[]≠[[]]≠[[1]]": [{"m": []}, {"m": [[]]}, {"m": [[1]]}],
+    "arrays de arrays de OBJETOS": [{"t": [[{"n": "Ana"}, {"n": "Bob"}], [{"n": "C"}]]}],
+    "null ENTRE arrays (P3b∘P4a externo)": [{"m": [[1], None, [2]]}],
+    "null no inner (P3b interno)": [{"m": [[1, None, 2], [3]]}],
+    "compose total P2+P3b+P4a": [{"m": [[1, None, 2], None, [3]], "r": "x", "ok": True}],
+    "strings aninhadas": [{"tags": [["a", "b"], ["c"]]}],
+    "bool em matriz": [{"bits": [[True, False], [False]]}],
+    "campo no meio + externo vazio": [{"id": 1, "m": [[1], [2, 3]], "nome": "x"},
+                                      {"id": 2, "m": [], "nome": "y"}],
+    "array-em-array OPCIONAL (P1)": [{"a": "1", "m": [[1]]}, {"a": "2"}],
+    "array-em-array NULL de campo (P3a)": [{"m": [[1]]}, {"m": None}],
+}
+
+
+@pytest.mark.parametrize("name", list(P4A_NESTED))
+def test_p4a_array_em_array_rt(name):
+    docs = P4A_NESTED[name]
+    assert decode(encode_hierarchical(docs)) == docs
+
+
+def test_p4a_fuzz_profundidade_seedado():
+    import random
+    rng = random.Random(20260716)
+
+    def gen_arr(depth, st):
+        k = rng.randint(0, 3)
+        if depth == 0:
+            base = {"n": lambda: rng.randint(0, 99), "b": lambda: rng.random() < 0.5,
+                    "s": lambda: rng.choice(["a", "b,c", "x"])}[st]
+            return [None if rng.random() < 0.2 else base() for _ in range(k)]
+        return [None if rng.random() < 0.15 else gen_arr(depth - 1, st) for _ in range(k)]
+
+    for _ in range(400):
+        depth = rng.randint(1, 4)
+        st = rng.choice(["n", "b", "s"])
+        docs = [{"id": i, "m": gen_arr(depth, st)} for i in range(rng.randint(1, 4))]
+        assert decode(encode_hierarchical(docs)) == docs
+
+
+def test_p4a_tipo_misto_entre_niveis_fail_loud():
+    # array com elemento array E elemento escalar no MESMO nível = P5 union
+    with pytest.raises(HierarchicalError, match="mistos"):
+        encode_hierarchical([{"m": [[1], 2]}])
+
+
+# --- Hardening da auditoria P4a (wf_5fa61459-a9e): blob adulterado fail-loud, nunca calado/cru ---
+def test_p4a_meta_truncado_tag_parcial_fail_loud():
+    # cortar 1 byte do meta (some a tag, sobra o size) → size-explícito-na-última-string = não-canônico
+    blob = encode_hierarchical([{"m": [[1, 2], [3]]}])
+    m, c = blob.split("\n", 1)
+    with pytest.raises(HierarchicalError, match="não-canônico|size explícito"):
+        decode(m[:-1] + "\n" + c)
+
+
+def test_p4a_profundidade_cap_fail_loud():
+    # header hostil profundo → fail-loud tipado (era RecursionError cru); encode idem
+    with pytest.raises(HierarchicalError, match="excede o limite"):
+        decode("#TCF.8Hm" + "#:0[" * 1000 + "\n")
+    v = [1]
+    for _ in range(200):
+        v = [v]
+    with pytest.raises(HierarchicalError, match="excede o limite"):
+        encode_hierarchical([{"m": v}])
+
+
+def test_p4a_bracket_deletado_fail_loud():
+    # ']' deletado no meio do meta (nível interno) não passa calado
+    blob = encode_hierarchical([{"m": [[1]], "y": "z"}])
+    m, c = blob.split("\n", 1)
+    assert "]" in m
+    m2 = m.replace("],", ",", 1)                        # deleta o ']' interno
+    with pytest.raises(HierarchicalError):
+        decode(m2 + "\n" + c)
+
+
+def test_nome_duplicado_fail_loud():
+    from tcf.encoder import encode as _enc_col
+    cnt = _enc_col(["1"])
+    with pytest.raises(HierarchicalError, match="duplicado"):
+        decode(f"#TCF.8Ha:{len(cnt.encode())},a\n{cnt}{cnt}")
+
+
+def test_corpo_perdido_e_bytes_apendados_fail_loud():
+    with pytest.raises(HierarchicalError, match="frame vazio"):
+        decode("#TCF.8Hx\n")                            # corpo inteiro perdido
+    blob = encode_hierarchical([{"x": 30}])             # typed → all-sized
+    with pytest.raises(HierarchicalError, match="não referenciados"):
+        decode(blob + "LIXO")                           # bytes apendados
+
+
+def test_coluna_de_dado_corrompida_fail_loud_tipado():
+    # size mentiroso caindo em coluna de DADO agora re-tipa (era exceção crua do L1)
+    from tcf.encoder import encode as _enc_col
+    crash = _enc_col(["ETC & TAL", "ETC & TAL..."])     # body que estoura o L1 (BUG-SEQRLE)
+    blob = f"#TCF.8Hx:{len(crash.encode())}\n{crash}"   # em coluna de DADO string... precisa 2ª coluna
+    blob = f"#TCF.8Hx:{len(crash.encode())},y\n{crash}" + _enc_col(["v", "w"])
+    with pytest.raises(HierarchicalError, match="corrompida"):
+        decode(blob)

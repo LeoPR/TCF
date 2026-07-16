@@ -193,6 +193,37 @@ máscara). **Distingue** `string "30"` ≠ int `30`, `string "true"` ≠ bool `T
 Gate: suíte 727 passed, flat byte-canônico intacto. **Escalares JSON COMPLETOS** (string/number/bool/null).
 Falta ESTRUTURA: P4 (rep-level/N-raízes) e P5 (union polimórfico).
 
+## Update 2026-07-16 — P4a array-em-array (count recursivo) welded
+
+**[dispositivo→feito]** 5º incremento de paridade JSON: **array-em-array a profundidade arbitrária**
+(`[[1,2],[3]]`, matrizes, `[[[...]]]`). Mecanismo: **count recursivo** — o repetition-level do Dremel
+colapsa em **counts por NÍVEL**: cada nível de aninhamento tem coluna de counts (e element-mask)
+próprias; counts do nível k+1 têm 1 entrada por elemento NÃO-null do nível k (denso). A estrutura
+(contagens por nível) é legível SEM materializar folhas — princípio O(1)/stream/view (Ciclo 4).
+
+Meta recursivo: `campo#:c0?:e0[#:c1?:e1[...]]` — cada `#` abre um nível; `?` após o `#` = element-mask
+DAQUELE nível; o elemento entre `[...]` é a spec recursiva (`#`=array interno · `{campos}`=objetos ·
+`[]<tag>`=escalares). Colunas: `count`/`emask` (nível 0, **byte-compat** — wire nível-único idêntico) ·
+`count1`/`emask1` · … Novo kind `arr_arrays` (kids = nó anônimo do nível interno); `parse_array`/
+`_emit_array_value`/`_read_array` recursivos, em blocos legíveis (diretriz `.9`/port).
+
+**Firmado**: null-entre-arrays = **P3b∘P4a** (element-mask por nível), NÃO é P5; tipo MISTO num nível
+(array+escalar) segue fail-loud (P5). Estudo (gate do owner 12/12 + fuzz prof. 1-4 4000/4000 +
+adversarial de frame): [lab 2026-07-16-0213](../../experiments/lab/dirty/2026-07-16-0213-p4a-array-em-array-estudo/);
+gramática inspecionada e aprovada pelo owner. Preocupação registrada p/ `.9`: reuso entre níveis /
+"colunas com buracos" (H-REPLEVEL-FLAT-VS-PORNIVEL-01 — flat-Dremel como perfil, não canônico).
+Gate: suíte 754 passed, flat byte-canônico intacto. Resta: **P4b raiz generalizada** (contrato) e P5.
+
+**Auditoria adversarial do weld (wf_5fa61459-a9e, dobrada)**: a mecânica de níveis RESISTIU (50k+9k
+fuzz RT, codificação injetiva, 0 corrupção silenciosa na mecânica, byte-compat 14/14 byte-idêntico,
+0 hang). 14 claims → 8 consertos de hardening (blob adulterado/estrangeiro): cap de profundidade 128
+(era RecursionError cru), `]` deletado, nome duplicado, corpo perdido (total=0), bytes apendados,
+size-explícito-na-última-string (meta truncado perdendo tag), guard de coluna de DADO re-tipado,
+UnicodeDecodeError re-tipado, count/digits ASCII-estritos. **Limitações INERENTES registradas** no
+[T-API-BOUNDARY-CONTRACTS](../../tickets/T-API-BOUNDARY-CONTRACTS.md) (meta truncado até forma
+canônica string; cauda unsized; `]`-final omit-closed; apêndice em unsized) — indetectáveis sem
+checksum (trilha tcfx/pré-1.0).
+
 ## Relation to other ADRs
 
 - **Fecha o gate** deixado por [ADR-0031](0031-hierarchical-discriminator-H.md) (que reservou `H` e
