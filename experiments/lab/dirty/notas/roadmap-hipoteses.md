@@ -766,6 +766,13 @@ nova hipotese identificada.
   PREDITOR O(1) que evita o custo, ou um pre-filtro. Prior-art no repo: detect_cadence/detect_min_len
   (arvores de decisao das features) ja' fazem isso pro OBAT. Plano de estudo: fechar a lista de tipos/specs,
   medir preditor-O(1) vs min()-por-medicao. `aberta`, estudo. NAO e' bloqueador do #TCF.8.
+  - **NOTA (owner percebeu 2026-07-15)**: no lab P3a, CPF/CNPJ **nao** viraram spec automatica. Estado
+    CONFIRMADO: (1) natures CPF/CNPJ/IP sao WELDED mas **opt-in** (declara spec id por coluna); (2)
+    **auto-deteccao NAO existe** em src/tcf (grep: sem `detect_spec`/`infer_spec`) — e' exatamente ESTE
+    H-TYPE-06 + T-OPT-INFERENCE, ambos ABERTOS; (3) **gap adicional do `.8H`**: o codec hierarquico
+    passa strings PURAS pro `encode` por coluna, SEM config de spec → nem a nature opt-in esta' ligada no
+    caminho hierarquico ainda (wiring de spec por-coluna no `.8H` = trabalho proprio, futuro). NAO e'
+    do escopo do P3 (null); so' registrado pra nao se perder.
 - **H-TYPE-07** (dicionario INTERNO classico + duas perspectivas do bN, owner 2026-07-08, PROPOSTA):
   bN e `@dict` sao a mesma primitiva em DOIS papeis — (a) REATIVA: pos-nucleo, `@dict`-index bit-packed
   (bN ⊂ @dict, dominio na coluna, via min()); (b) PREEMPTIVA: **dicionario interno congelado no formato**
