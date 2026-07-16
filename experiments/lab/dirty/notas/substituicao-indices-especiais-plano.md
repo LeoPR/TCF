@@ -64,6 +64,27 @@ tratar null como super-especial — é só um tipo identificado cuja string inic
   encoding físico) + tabela de reservados **extensível** (true/false depois, sem rework). Fazer funcionar,
   deixar preparado, não encher de lixo pra limpar depois.
 
+## Ciclo 3 (owner 2026-07-15) — PERFIL DE USO (parâmetro/heurística) + preparar-para-ambos
+
+Decisão de método (owner): **não firmar uma escolha agora** — construir a ESTRUTURA que suporta as
+duas opções, decidida por **parâmetro OU heurística**, com o **default vindo de medição em MASSA
+depois** (não agora; agora = ter a funcionalidade, não otimizar prematuramente).
+
+Não é só o header. É uma **família de escolhas** sob um mesmo guarda-chuva de **PERFIL DE USO**
+(nome PROVISÓRIO — owner não quer firmar nome ainda; a IDEIA é o eixo):
+- **eixo**: "otimizado p/ **API/transmissão**" (payload minúsculo, latência, terminal) × "p/
+  **armazenamento/massa de dados**" (grande, re-comprimido) — OU uma **heurística** que decide sozinha.
+- **escolhas que vivem sob o perfil**:
+  - **forma do header** (A inline × B bloco) — por densidade de colunas-especiais (medido: crossover);
+  - **null/ausência**: máscara (P1) × índice de substituição (este) — a "fix dos elementos" pode ser
+    no HCC ou depois; dá pra **deduzir automático** por heurística;
+  - **bN** (H-TYPE-05, "bN sob perfil de compressão" — JÁ era essa ideia);
+  - **L3 multiplicidade** explícita×deduzida (H-L3-OPT-BLOCK).
+- **requisito estrutural**: o código nasce **preparado pra ambos** (não hard-code de uma opção), pra
+  a medição em massa poder comparar depois. Registrado como **H-PROFILE-01** no roadmap.
+- **TCF tem que ganhar em transmissão realista estilo API** (norte declarado) — mas ATÉ isso pode ser
+  o perfil "API"; a medição em massa dirá o default provável.
+
 ## Espaço de design a MAPEAR (o que o estudo decide)
 
 1. **Forma do header** (2 candidatos a protótipar + medir):
@@ -71,8 +92,10 @@ tratar null como super-especial — é só um tipo identificado cuja string inic
    - (b) um bloco de header separado que declara os especiais da coluna/documento uma vez.
 2. **Quais especiais no P3/JSON**: só **null** (bit 0). NaN/±Inf ficam FORA (não são JSON RFC 8259;
    entram com P2/tipos — mas o mecanismo já nasce pronto pra eles).
-3. **Ausência como índice? (owner D)** — hoje ausência é máscara `-` (P1). Medir se ausência-como-
-   índice-reservado ganha da máscara de presença. Se sim, presença e null unificam no MESMO framework.
+3. **Ausência como índice? (owner D, ciclo 3)** — hoje ausência é máscara `-` (P1, forma de TRABALHO).
+   **Forma definitiva EM ABERTO** (owner: "podemos discutir ainda uma forma mais definitiva"). O
+   requisito agora não é decidir, é **ter a estrutura pra MEDIR em massa depois** (máscara `-` ×
+   ausência-como-índice-reservado). Se índice ganhar, presença e null unificam no MESMO framework.
 4. **Ordem canônica dos reservados** (qual bit → qual índice) — fixar p/ determinismo.
 
 ## Medições (os "fundamentos" — owner: as medições dão base)

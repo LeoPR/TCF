@@ -78,7 +78,10 @@ adversariais (a lição do escape: testar nome/valor/borda, não só o caminho f
    [substituicao-indices-especiais-plano.md](../experiments/lab/dirty/notas/substituicao-indices-especiais-plano.md)
    (H-SUBST-INDEX-01). Gate distingue ausente/null/`"null"`/`""`; campo escalar/objeto/array; all-null;
    null em elemento (inicial/meio/fim). A máscara de presença `.`/`-` do P1 permanece p/ AUSÊNCIA
-   (ausência-como-índice = a medir, owner D).
+   (ausência-como-índice = a medir, owner D). **Método (owner 2026-07-15, ciclo 3)**: NÃO firmar
+   forma-do-header nem máscara×índice agora — estrutura **preparada pra ambos**, decidida por
+   parâmetro/heurística (**perfil de uso** API×armazenamento, [[H-PROFILE-01]]), default por **medição
+   em massa depois**. Agora = funcionalidade; forma definitiva da ausência em aberto.
 4. **P2 · Tipos** (number/bool preservados) — C-híbrida (deduz número/bool grátis, tag só na
    colisão-string; análogo ao hex-default). Fecha o `str()`-lossy do H-TYPE-01.
 5. **P4 · Rep-level** (array-em-array, N-raízes e decisão de null na raiz) — um NÚMERO posicional

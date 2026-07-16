@@ -655,6 +655,17 @@ nova hipotese identificada.
   medição pendente). Plano: [substituicao-indices-especiais-plano.md](substituicao-indices-especiais-plano.md).
   Candidato a SUBSTITUIR a máscara-`0` como mecanismo de P3 (a máscara de presença `.`/`-` do P1 fica).
 
+- **H-PROFILE-01** (PERFIL DE USO — parâmetro/heurística guarda-chuva, owner 2026-07-15, nome PROVISÓRIO):
+  família de escolhas de representação decididas por **parâmetro OU heurística**, com **default por
+  medição em MASSA depois** (não firmar agora; agora = funcionalidade). Eixo: "otimizado p/
+  **API/transmissão**" (payload minúsculo, latência, terminal) × "**armazenamento/massa**" (grande,
+  re-comprimido) — ou heurística automática. **Consolida** sob um só guarda-chuva: (a) forma do header
+  A×B (por densidade — crossover medido no lab 2026-07-15-2101); (b) null/ausência máscara×índice
+  ([[H-SUBST-INDEX-01]]); (c) **bN sob perfil** (JÁ era [[H-TYPE-05]]); (d) L3 multiplicidade
+  explícita×deduzida ([[H-L3-OPT-BLOCK]], em tcf-camadas-arquitetura). **Requisito estrutural**: o
+  código nasce **preparado pra AMBOS** (não hard-code), pra a medição em massa comparar. `aberta`,
+  confiança: Baixa (ideia registrada, sem firmar). Não construir o parâmetro agora — preparar a estrutura.
+
 - **H-HIER-SCALAR-01** (escalares especiais no DatasetH, owner 2026-07-13): `null`, `NaN`, `+Infinity` e
   `-Infinity` pertencem ao domínio de folhas da estrutura hierárquica, não ao JSON. Há três alternativas
   abertas: tag tipada explícita; domínio tipado + índices `bN`; string especial com escape reversível.
@@ -742,6 +753,8 @@ nova hipotese identificada.
   pilar, MAS o V2-B (dict base-94) JA' e' default e JA' e' semi-opaco → bN continua a tendencia, nao a quebra
   (grau: bN mais opaco que V2-B — bits crus vs tabela-dict-textual). Desenho a fechar depois. `aberta`,
   `confianca: Baixa`. Design: [`tipos-meta-grupo-fluxo.md`](tipos-meta-grupo-fluxo.md) §8.
+  - **Absorvido em [[H-PROFILE-01]]** (owner 2026-07-15): o "perfil de compressão" daqui é o mesmo
+    guarda-chuva do "perfil de uso" (API×armazenamento) que decide header-form, máscara×índice e L3.
 - **H-TYPE-06** (heuristica de APLICACAO de spec — O(1) das features, owner 2026-07-08, ABERTA/estudo-futuro):
   decidir QUAL spec aplicar por coluna de forma barata (O(1) a partir das features que o pre-pass JA computa:
   is_numeric, cardinality, sample) SEM re-encodar pra testar cada candidato. O gate D3 deu as "escalas": bN
