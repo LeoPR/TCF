@@ -1,0 +1,22 @@
+WELD P3a — null em CAMPO. Metodologia: didático → realista → massa (RT obrigatório).
+
+(1) DIDÁTICO — cada caso de null-em-campo (roundtrip diffável em outputs/):
+  [RT-OK] null-escalar: 48B · header: #TCF.8Hnome:10,apelido?:5
+  [RT-OK] null-objeto: 57B · header: #TCF.8Hnome:10,end?:5{rua:4,cidade
+  [RT-OK] null-array (null != [] != presente): 67B · header: #TCF.8Hnome:16,tels?:8#:8[
+  [RT-OK] all-null (campo null em todos): 38B · header: #TCF.8Hnome:10,obs?:6
+  [RT-OK] null + ausente (as 3 coisas distintas): 67B · header: #TCF.8Hnome:16,email?:7:6,tel
+  [RT-OK] 4-vias null/'null'/''/ausente: 63B · header: #TCF.8Hstatus?:10:6,outro?:7
+  [RT-OK] null aninhado dentro de objeto: 46B · header: #TCF.8Hcad{nome:10,cpf?:5
+
+(2) REALISTA pequeno — cadastro API-like c/ opcionais E null (email/obs/nascimento):
+  [RT-OK] 5 registros: tcf=601B vs json-compacto=942B
+
+(3) MASSA — receita-cnpj matriz→filiais com null REAL (fantasia=None, SEM coerção):
+  frac=0.05: 2577 raízes · 10225 est · fantasia NULL 4750/10225 → RT byte-exato=True
+  frac=0.1: 5154 raízes · 20153 est · fantasia NULL 9506/20153 → RT byte-exato=True
+  frac=0.25: 12884 raízes · 50105 est · fantasia NULL 24069/50105 → RT byte-exato=True
+  → null REAL faz RT byte-exato em massa (maior sample: 12884 raízes / 50105 est / 24069 nulls). Amostra diffável: outputs/03-massa-amostra*.
+
+VEREDITO: P3a (null em campo) — RT em TODAS as etapas. null≠ausente≠'null'≠''.
+Evidência inspecionável em outputs/ (cada .tcf + -rt.json diffável). Zero engenhoca (core real).

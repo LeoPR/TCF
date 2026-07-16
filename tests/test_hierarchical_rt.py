@@ -118,13 +118,44 @@ def test_p1_compat_uniforme_byte_identico():
     assert decode(blob) == uni
 
 
+# --- P3a: null em CAMPO agora faz RT (mudança de contrato 2026-07-15; máscara '0'=None) ---
+P3A_NULL = {
+    "null-escalar": [{"x": "a"}, {"x": None}, {"x": "b"}],
+    "null-objeto": [{"cfg": {"t": "dark", "f": "14"}}, {"cfg": None}, {"cfg": {"t": "light"}}],
+    "null-array (≠[] ≠presente)": [{"itens": ["a", "b"]}, {"itens": None}, {"itens": []}],
+    "all-null": [{"x": None}, {"x": None}],
+    "null+ausente (ausente≠null)": [{"a": "1", "b": "2"}, {"a": "3", "b": None}, {"a": "4"}],
+    "4-vias null/'null'/''/ausente": [{"x": None}, {"x": "null"}, {"x": ""}, {"y": "so-y"}],
+    "null aninhado em objeto": [{"o": {"a": "1", "b": None}}, {"o": {"a": "2", "b": "x"}}],
+}
+
+
+@pytest.mark.parametrize("name", list(P3A_NULL))
+def test_p3a_null_campo_rt(name):
+    docs = P3A_NULL[name]
+    assert decode(encode_hierarchical(docs)) == docs
+
+
+def test_p3a_quatro_vias_distintas():
+    # null(None) ≠ "null"(str) ≠ ""(str) ≠ ausente — a assinatura do P3a
+    docs = [{"x": None}, {"x": "null"}, {"x": ""}, {"y": "outra"}]
+    back = decode(encode_hierarchical(docs))
+    assert back == docs
+    assert back[0]["x"] is None and back[1]["x"] == "null" and back[2]["x"] == ""
+    assert "x" not in back[3]                            # ausente ≠ null
+
+
+def test_p3a_mask_reservado_agora_null():
+    # o slot '0' da máscara (reservado no P1) agora materializa None (era fail-loud)
+    from tcf.encoder import encode as _enc_col
+    mask_body = _enc_col([".", "0"])
+    scalar_body = _enc_col(["A"])
+    blob = f"#TCF.8Hx?:{len(mask_body.encode())}\n{mask_body}{scalar_body}"
+    assert decode(blob) == [{"x": "A"}, {"x": None}]
+
+
 # --- fail-loud declarado (auditoria 2026-07-15): NUNCA str()-engolir fora da classe ---
-def test_p1_null_campo_fail_loud():
-    with pytest.raises(HierarchicalError, match="null"):
-        encode_hierarchical([{"x": "1"}, {"x": None}])
-
-
-def test_p1_null_em_elemento_de_array_fail_loud():
+def test_p3b_null_em_elemento_de_array_fail_loud():
     with pytest.raises(HierarchicalError, match="null"):
         encode_hierarchical([{"xs": ["a", None]}])
 
@@ -155,19 +186,14 @@ def test_p1_raiz_nao_lista_fail_loud():
         encode_hierarchical({"a": "1"})                    # dict na raiz, não lista
 
 
-def test_p1_mask_reservado_e_invalido_fail_loud():
+def test_p3a_mask_invalido_fail_loud():
     from tcf.encoder import encode as _enc_col
-    # máscara '0' (null reservado P3) trafega L1-escapada ('\0'); decode deve fail-loud tipado
-    mask_body = _enc_col([".", "0"])                        # rec0 presente, rec1 null-reservado
-    scalar_body = _enc_col(["A"])                           # só o presente
-    blob = f"#TCF.8Hx?:{len(mask_body.encode())}\n{mask_body}{scalar_body}"
-    with pytest.raises(HierarchicalError, match="reservado P3"):
-        decode(blob)
-    # máscara com char inválido = fail-loud (corrupção, nunca silenciosa)
+    # máscara com char inválido (nem '.'/'-'/'0') = fail-loud (corrupção, nunca silenciosa)
+    scalar_body = _enc_col(["A"])
     bad = _enc_col([".", "Z"])
-    blob2 = f"#TCF.8Hx?:{len(bad.encode())}\n{bad}{scalar_body}"
+    blob = f"#TCF.8Hx?:{len(bad.encode())}\n{bad}{scalar_body}"
     with pytest.raises(HierarchicalError, match="máscara inválida|corrompida"):
-        decode(blob2)
+        decode(blob)
 
 
 def test_p1_size_none_no_meio_fail_loud():

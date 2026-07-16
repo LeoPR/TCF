@@ -1,0 +1,17 @@
+[
+  {
+    "nome": "Ana",
+    "tels": [
+      "1",
+      "2"
+    ]
+  },
+  {
+    "nome": "Bruno",
+    "tels": null
+  },
+  {
+    "nome": "Carla",
+    "tels": []
+  }
+]

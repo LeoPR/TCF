@@ -22,15 +22,16 @@ Wire (ADR-0031, sem-espaço, LF-only):
     name{...}            objeto 1:1 (inline, mesmo bloco)
     name#:csize[...]     array de objetos (bloco filho; #csize = coluna de counts)
     name#:csize[]:asize  array de escalares (coluna name = elementos; #csize = counts)
-    name?:msize...       campo OPCIONAL (P1): #msize = coluna-MÁSCARA (presença), vem ANTES
-                         das colunas do campo. Alfabeto '.'=presente '-'=ausente
-                         '0'=RESERVADO null (P3, fail-loud). Corpo denso: só instâncias presentes.
+    name?:msize...       campo MASCARADO (P1 presença + P3a null): #msize = coluna-MÁSCARA,
+                         vem ANTES das colunas do campo. Alfabeto '.'=presente(valor não-nulo)
+                         '-'=ausente (P1) '0'=null (P3a). Corpo denso: só instâncias '.'.
     última folha DFS omite size; omit-closes dropa o `]`/`}` final.
 
 Escopo (classe coberta): uma raiz (lista de registros), `{}`/`[]` recursivos, chaves
-OPCIONAIS (P1, máscara de presença). Fora (fail-loud, NUNCA str()-engolido — auditoria
-2026-07-15): tipos estruturais mistos (P2), `null` (P3), array de objetos sem chaves,
-N raízes, N:N/snowflake (FK). Tipos escalares (str/int/bool) ainda coeridos por str() (P2).
+OPCIONAIS (P1) e `null` em CAMPO (P3a — escalar/objeto/array/all-null; distingue
+ausente≠null≠"null"≠""). Fora (fail-loud, NUNCA str()-engolido — auditoria 2026-07-15):
+`null` em ELEMENTO de array (P3b, próximo), tipos estruturais mistos (P2), array de objetos
+sem chaves, N raízes, N:N/snowflake (FK). Escalares (str/int/bool) coeridos por str() (P2).
 
 Aditivo: `#TCF.8M`/single/órfão intactos. Este módulo é CLIENTE de `encode`/`decode`.
 """
@@ -99,9 +100,13 @@ def _unesc_name(s: str) -> str:
 
 
 # ============================================================ L2: schema (topologia)
-# nó UNIFORME: (kind, name, optional, kids)
+# nó UNIFORME: (kind, name, masked, kids)
 #   kind: 'scalar' | 'object' | 'arr_scalars' | 'arr_objects'   ·   kids=None p/ escalar/arr_scalars
-#   optional=True  ->  campo pode faltar em alguns registros (P1: máscara de presença def-level)
+#   masked=True -> campo tem MÁSCARA def-level 3-estados: '.'=presente · '-'=ausente (P1) ·
+#                  '0'=null (P3a). masked = (pode faltar) OU (pode ser null).
+# NOTA (H-PROFILE-01): null usa a MÁSCARA (slot '0' reservado no P1). O índice-de-substituição
+# (lab 2026-07-15-2101) é a alternativa a MEDIR sob perfil de uso — trocável aqui depois, sem
+# mudar a API. O null-repr fica localizado em _emit_row/_read_object (a "costura" pra o swap).
 def _kind_of(v):
     if v is None:
         return "null"
@@ -135,24 +140,29 @@ def _derive_schema(records: list) -> list:
 
 
 def _field_node(name, present: list, optional: bool):
+    """P3a (2026-07-15): null em CAMPO é aceito (máscara '0' = None); kind vem dos NÃO-nulos;
+    all-null → escalar de corpo vazio (mask '0' garante que nunca é lido). null em ELEMENTO de
+    array segue fail-loud (P3b, próximo incremento). Tipos estruturais mistos = fail-loud."""
     kinds = {_kind_of(v) for v in present}
-    if "null" in kinds:
+    has_null = "null" in kinds
+    non_null = kinds - {"null"}
+    masked = optional or has_null                    # def-mask cobre AUSENTE ('-') e NULL ('0')
+    present_nn = [v for v in present if v is not None]
+    if not non_null:                                 # só-null-quando-presente → escalar vazio
+        return ("scalar", name, masked, None)
+    if len(non_null) > 1:
         raise HierarchicalError(
-            f"campo {name!r} tem valor null — null fora da classe coberta (P3; use a decisão do owner)"
+            f"campo {name!r} com tipos ESTRUTURAIS mistos {non_null} — fora da classe (P2 tipos)"
         )
-    if len(kinds) > 1:
-        raise HierarchicalError(
-            f"campo {name!r} com tipos ESTRUTURAIS mistos {kinds} — fora da classe (P2 tipos)"
-        )
-    kind = kinds.pop()
+    kind = non_null.pop()
     if kind == "object":
-        return ("object", name, optional, _derive_schema(present))
+        return ("object", name, masked, _derive_schema(present_nn))
     if kind == "array":
-        elems = [e for arr in present for e in arr]
+        elems = [e for arr in present_nn for e in arr]
         ekinds = {_kind_of(e) for e in elems}
         if "null" in ekinds:
             raise HierarchicalError(
-                f"null em elemento do array {name!r} — fora da classe (P3)"
+                f"null em elemento do array {name!r} — P3b (próximo incremento), fora deste weld"
             )
         if len(ekinds) > 1:
             raise HierarchicalError(
@@ -165,18 +175,18 @@ def _field_node(name, present: list, optional: bool):
                     f"array de objetos SEM chaves em {name!r} — fora da classe "
                     "(colidiria com array de escalares no wire)"
                 )
-            return ("arr_objects", name, optional, kids)
-        return ("arr_scalars", name, optional, None)   # vazio-em-todos também cai aqui (count=0)
-    return ("scalar", name, optional, None)
+            return ("arr_objects", name, masked, kids)
+        return ("arr_scalars", name, masked, None)   # vazio-em-todos também cai aqui (count=0)
+    return ("scalar", name, masked, None)
 
 
 def _leaves(schema: list, prefix=()):
     """[(path, kind)] em ordem DFS. kind: 'mask' | 'scalar' | 'count' | 'arr_scalars'.
     A coluna de MÁSCARA (presença) vem ANTES das colunas do campo (como o count)."""
     out = []
-    for kind, name, optional, kids in schema:
+    for kind, name, masked, kids in schema:
         p = prefix + (name,)
-        if optional:
+        if masked:
             out.append((p, "mask"))
         if kind == "scalar":
             out.append((p, "scalar"))
@@ -215,18 +225,21 @@ def _emit_array(instances: list, children: list, prefix: tuple, cols: dict):
 def _emit_row(obj: dict, children: list, prefix: tuple, cols: dict):
     if not isinstance(obj, dict):
         raise HierarchicalError(f"esperava objeto em {'/'.join(prefix) or 'raiz'}")
-    for kind, name, optional, kids in children:
+    for kind, name, masked, kids in children:
         p = prefix + (name,)
         if name not in obj:
-            if not optional:
+            if not masked:
                 raise HierarchicalError(f"campo obrigatório ausente {p}")
             cols[(p, "mask")].append("-")                          # AUSENTE: nada nas colunas de dado
             continue
         v = obj[name]
-        if v is None:
-            raise HierarchicalError(f"null em {p} — fora da classe coberta (P3)")
-        if optional:
-            cols[(p, "mask")].append(".")                          # PRESENTE
+        if v is None:                                              # NULL (P3a): máscara '0', sem corpo
+            if not masked:                                         # derive marca masked se há null — guarda
+                raise HierarchicalError(f"null inesperado em {p}")
+            cols[(p, "mask")].append("0")
+            continue
+        if masked:
+            cols[(p, "mask")].append(".")                          # PRESENTE (valor não-nulo)
         if kind == "scalar":
             if isinstance(v, (dict, list)):
                 raise HierarchicalError(f"tipo divergente em {p}: esperava escalar, veio {type(v).__name__}")
@@ -262,10 +275,10 @@ def _build_meta(schema: list, bodies: dict, order: list) -> str:
 
     def emit(children, prefix):
         parts = []
-        for kind, name, optional, kids in children:
+        for kind, name, masked, kids in children:
             p = prefix + (name,)
             head = _esc_name(name)                                 # nome ESCAPADO (inclui '?' agora)
-            if optional:
+            if masked:
                 head += "?" + sz(p, "mask")                        # '?:msize' (mask nunca é a última folha)
             if kind == "scalar":
                 parts.append(f"{head}{sz(p, 'scalar')}")
@@ -349,9 +362,9 @@ def _parse_meta(meta: str):
             if name == "":                                # nome vazio = corrupção (auditoria)
                 raise HierarchicalError("nome de campo vazio no header")
             p = prefix + (name,)
-            optional = False
-            if i < n and meta[i] == "?":                  # campo OPCIONAL (P1)
-                optional = True
+            masked = False
+            if i < n and meta[i] == "?":                  # campo MASCARADO (ausente '-' e/ou null '0')
+                masked = True
                 i += 1
                 order.append((p, "mask", msize()))
             if i < n and meta[i] == "#":                  # array (com count)
@@ -362,15 +375,15 @@ def _parse_meta(meta: str):
                     if i < n and meta[i] == "]":          # array de escalares
                         i += 1
                         order.append((p, "arr_scalars", size()))
-                        nodes.append(("arr_scalars", name, optional, None))
+                        nodes.append(("arr_scalars", name, masked, None))
                     elif i >= n or meta[i] == ",":        # `[` omit-closed
                         order.append((p, "arr_scalars", None))
-                        nodes.append(("arr_scalars", name, optional, None))
+                        nodes.append(("arr_scalars", name, masked, None))
                     else:                                  # array de objetos
                         kids = seq("]", p)
                         if i < n and meta[i] == "]":
                             i += 1
-                        nodes.append(("arr_objects", name, optional, kids))
+                        nodes.append(("arr_objects", name, masked, kids))
                 else:
                     raise HierarchicalError(f"esperava '[' após '#' em {p}")
             elif i < n and meta[i] == "{":               # objeto 1:1
@@ -378,10 +391,10 @@ def _parse_meta(meta: str):
                 kids = seq("}", p)
                 if i < n and meta[i] == "}":
                     i += 1
-                nodes.append(("object", name, optional, kids))
+                nodes.append(("object", name, masked, kids))
             else:                                         # escalar
                 order.append((p, "scalar", size()))
-                nodes.append(("scalar", name, optional, None))
+                nodes.append(("scalar", name, masked, None))
         return nodes
 
     return seq(None, ()), order
@@ -428,14 +441,15 @@ def decode_hierarchical(tcf_text: str) -> list:
 
 def _read_object(children: list, prefix: tuple, cols: dict, cur: dict) -> dict:
     obj = {}
-    for kind, name, optional, kids in children:
+    for kind, name, masked, kids in children:
         p = prefix + (name,)
-        if optional:
+        if masked:
             m = _take(cols, cur, (p, "mask"))
             if m == "-":
                 continue                                    # chave OMITIDA (ausente)
-            if m == "0":
-                raise HierarchicalError(f"máscara '0' (null) em {p} — reservado P3, não implementado")
+            if m == "0":                                    # NULL (P3a) — não lê corpo/filhos
+                obj[name] = None
+                continue
             if m != ".":
                 raise HierarchicalError(f"máscara inválida {m!r} em {p}")
         if kind == "scalar":

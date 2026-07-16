@@ -1,0 +1,13 @@
+[
+  {
+    "nome": "Ana",
+    "end": {
+      "rua": "R1",
+      "cidade": "SP"
+    }
+  },
+  {
+    "nome": "Bruno",
+    "end": null
+  }
+]

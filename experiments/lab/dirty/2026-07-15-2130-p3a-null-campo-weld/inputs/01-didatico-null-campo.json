@@ -1,0 +1,26 @@
+{
+  "_comment": "DIDÁTICO — poucos dados que FORÇAM cada forma de null-em-campo (P3a), pra inspeção.",
+  "null-escalar": [{"nome": "Ana", "apelido": "Aninha"}, {"nome": "Bruno", "apelido": null}],
+  "null-objeto": [{"nome": "Ana", "end": {"rua": "R1", "cidade": "SP"}}, {"nome": "Bruno", "end": null}],
+  "null-array (null != [] != presente)": [
+    {"nome": "Ana", "tels": ["1", "2"]},
+    {"nome": "Bruno", "tels": null},
+    {"nome": "Carla", "tels": []}
+  ],
+  "all-null (campo null em todos)": [{"nome": "Ana", "obs": null}, {"nome": "Bruno", "obs": null}],
+  "null + ausente (as 3 coisas distintas)": [
+    {"nome": "Ana", "email": "ana@x", "tel": "1"},
+    {"nome": "Bruno", "email": null, "tel": "2"},
+    {"nome": "Carla", "tel": "3"}
+  ],
+  "4-vias null/'null'/''/ausente": [
+    {"status": null},
+    {"status": "null"},
+    {"status": ""},
+    {"outro": "sem-status"}
+  ],
+  "null aninhado dentro de objeto": [
+    {"cad": {"nome": "Ana", "cpf": null}},
+    {"cad": {"nome": "Bruno", "cpf": "222"}}
+  ]
+}

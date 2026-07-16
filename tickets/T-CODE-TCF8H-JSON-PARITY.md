@@ -20,6 +20,10 @@ related:
 > real-world (receita-cnpj ragged) RT byte-exato em sample; população inteira esbarra em bug
 > pré-existente do L1 ([BUG-SEQRLE-RANGE-EMPTY-B](BUG-SEQRLE-RANGE-EMPTY-B.md), R0, separado do P1).
 > **Próximo (owner): null (P3)** — o mais barato (`0` já reservado na máscara do P1). Depois P2 tipos, P4 rep-level.
+>
+> **P3a WELDED 2026-07-15** (`0`=None na máscara; ADR-0033 §Update P3a; lab 2026-07-15-2130 didático→realista→massa,
+> null REAL de receita RT byte-exato). Índice-de-substituição = alternativa a medir sob [[H-PROFILE-01]].
+> Próximo: **P3b** (null em elemento de array).
 
 > **REVISÃO DE ESCOPO 2026-07-15 — opinião registrada; decisão pendente do owner.** P3 não é um
 > único incremento mecânico. **P3a** = null em CAMPO de objeto (`{x:null}`), inclusive quando o campo
@@ -53,8 +57,8 @@ realista, não sintético). O weld atual (ADR-0033) cobre a ESPINHA; faltam os c
 | **chave OPCIONAL / objeto ragged** | ✅ **WELDED** (P1, 2026-07-15) | — (`nome?:msize`, máscara 3-estados; ADR-0033 §Update P1) |
 | **number (int/float) preservado** | ❌ `str()` coerção (H-TYPE-01) | **P2 — tipos** (C-híbrida decidida conceitual) |
 | **`true`/`false`** | ❌ `str()`→`"True"` | P2 (junto de tipos) |
-| **`null` em campo** (≠ ausente ≠ `"null"`) | ❌ fail-loud | **P3a — definition mask `0`** |
-| **`null` em elemento de array** | ❌ fail-loud | **P3b — máscara no nível dos elementos** |
+| **`null` em campo** (≠ ausente ≠ `"null"`) | ✅ **WELDED** (P3a, 2026-07-15) | — (máscara `0`=None; ADR-0033 §Update P3a) |
+| **`null` em elemento de array** | ❌ fail-loud | **P3b — máscara no nível dos elementos** (índice unificaria) |
 | **`null` na raiz** | ❌ fora do contrato `list[dict]` | decisão junto de **P4/N-raízes** |
 | **array-em-array / N raízes / array no topo** | ❌ fail-loud | **P4 — rep-level** (B3, caracterizado, não implementado) |
 | **array polimórfico** (elementos de schema variável) | ❌ fail-loud | P5 — union/def-level (a fronteira mais afiada) |

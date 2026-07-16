@@ -1,0 +1,14 @@
+[
+  {
+    "cad": {
+      "nome": "Ana",
+      "cpf": null
+    }
+  },
+  {
+    "cad": {
+      "nome": "Bruno",
+      "cpf": "222"
+    }
+  }
+]

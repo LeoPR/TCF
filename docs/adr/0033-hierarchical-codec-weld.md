@@ -122,6 +122,24 @@ size-None-no-meio). Gate: suíte 684 passed, pins flat byte-canônicos verdes.
 distinto (P3, `0` já reservado), rep-level/N-raízes (P4), N:N (super-hierarquia). Limitação
 declarada: truncamento da última folha (size omitido) é indetectável — vale p/ `.8M`/`.8H`.
 
+## Update 2026-07-15 — P3a null em campo welded
+
+**[dispositivo→feito]** 2º incremento de paridade JSON: `null` em CAMPO de objeto. Estende a
+máscara do P1 — o slot `0` (reservado no §Update P1) agora materializa `None`. Alfabeto da máscara:
+`.`=presente(valor não-nulo) · `-`=ausente (P1) · `0`=null (P3a). O `?` no meta passa a significar
+"campo MASCARADO" (pode faltar E/OU ser null). Corpo denso (só `.`). Cobre null escalar/objeto/array
++ all-null (escalar de corpo vazio; a máscara garante que nunca é lido). **Distingue as 4 vias**:
+`null`(None) ≠ ausente ≠ `"null"`(string) ≠ `""`(string).
+
+**Aditivo (L2)**: `_field_node`/`_emit_row`/`_read_object` — NÃO toca o L1 (`syntax.py`). Uniforme
+byte-idêntico. Estudo/evidência (didático→realista→massa, RT): [lab 2026-07-15-2130](../../experiments/lab/dirty/2026-07-15-2130-p3a-null-campo-weld/).
+Gate: suíte 693 passed, flat byte-canônico intacto.
+
+**Nota de design (H-PROFILE-01)**: null usa a MÁSCARA por ora; o **índice-de-substituição**
+(dicionário pré-semeado, lab 2026-07-15-2101) é a alternativa a MEDIR em massa sob "perfil de uso" —
+trocável na costura `_emit_row`/`_read_object` sem mudar a API. **Fronteira ainda fail-loud**: null em
+ELEMENTO de array (P3b), tipos escalares preservados (P2), rep-level/N-raízes (P4).
+
 ## Relation to other ADRs
 
 - **Fecha o gate** deixado por [ADR-0031](0031-hierarchical-discriminator-H.md) (que reservou `H` e

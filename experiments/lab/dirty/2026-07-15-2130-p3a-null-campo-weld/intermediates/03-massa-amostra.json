@@ -1,0 +1,3335 @@
+[
+  {
+    "raiz": "00.000.0",
+    "est": [
+      {
+        "cnpj": "00.000.000/0004-34",
+        "mf": "2",
+        "sit": "02",
+        "uf": "SP",
+        "fantasia": "SANTOS - SANTOS (SP)"
+      },
+      {
+        "cnpj": "00.000.000/0006-04",
+        "mf": "2",
+        "sit": "02",
+        "uf": "BA",
+        "fantasia": "SALVADOR (BA)"
+      },
+      {
+        "cnpj": "00.000.000/0024-88",
+        "mf": "2",
+        "sit": "02",
+        "uf": "MG",
+        "fantasia": "EMPRESA JUIZ DE FORA (MG)"
+      },
+      {
+        "cnpj": "00.000.000/0035-30",
+        "mf": "2",
+        "sit": "02",
+        "uf": "RS",
+        "fantasia": "SANTANA DO LIVRAMENTO (RS)"
+      },
+      {
+        "cnpj": "00.000.000/0038-83",
+        "mf": "2",
+        "sit": "02",
+        "uf": "SC",
+        "fantasia": "JOINVILLE EST.UNIF."
+      },
+      {
+        "cnpj": "00.000.000/0041-89",
+        "mf": "2",
+        "sit": "02",
+        "uf": "BA",
+        "fantasia": "FEIRA DE SANTANA (BA)"
+      },
+      {
+        "cnpj": "00.000.000/0042-60",
+        "mf": "2",
+        "sit": "02",
+        "uf": "RS",
+        "fantasia": "CACHOEIRA DO SUL (RS)"
+      },
+      {
+        "cnpj": "00.000.000/0048-55",
+        "mf": "2",
+        "sit": "02",
+        "uf": "MS",
+        "fantasia": "AFONSO PENA - CAMPO GRANDE (MS)"
+      },
+      {
+        "cnpj": "00.000.000/0056-65",
+        "mf": "2",
+        "sit": "02",
+        "uf": "SP",
+        "fantasia": "PIRACICABA ( SP)"
+      },
+      {
+        "cnpj": "00.000.000/0080-95",
+        "mf": "2",
+        "sit": "02",
+        "uf": "RJ",
+        "fantasia": "PETROPOLIS (RJ)"
+      },
+      {
+        "cnpj": "00.000.000/0122-89",
+        "mf": "2",
+        "sit": "02",
+        "uf": "CE",
+        "fantasia": "IGUATU (CE)"
+      },
+      {
+        "cnpj": "00.000.000/0133-31",
+        "mf": "2",
+        "sit": "02",
+        "uf": "SP",
+        "fantasia": "TUPA (SP)"
+      },
+      {
+        "cnpj": "00.000.000/0147-37",
+        "mf": "2",
+        "sit": "02",
+        "uf": "RS",
+        "fantasia": "JAGUARAO (RS)"
+      },
+      {
+        "cnpj": "00.000.000/0182-10",
+        "mf": "2",
+        "sit": "02",
+        "uf": "PR",
+        "fantasia": "IRATI (PR)"
+      },
+      {
+        "cnpj": "00.000.000/0188-05",
+        "mf": "2",
+        "sit": "02",
+        "uf": "BA",
+        "fantasia": "VITORIA DA CONQUISTA-EST.UNIF."
+      },
+      {
+        "cnpj": "00.000.000/0215-12",
+        "mf": "2",
+        "sit": "02",
+        "uf": "MG",
+        "fantasia": "AIMORES - AIMORES (MG)"
+      },
+      {
+        "cnpj": "00.000.000/0247-08",
+        "mf": "2",
+        "sit": "02",
+        "uf": "MT",
+        "fantasia": "GUIRATINGA (MT)"
+      },
+      {
+        "cnpj": "00.000.000/0253-48",
+        "mf": "2",
+        "sit": "02",
+        "uf": "PA",
+        "fantasia": "BRAGANCA PA EST UNIF"
+      },
+      {
+        "cnpj": "00.000.000/0260-77",
+        "mf": "2",
+        "sit": "02",
+        "uf": "EX",
+        "fantasia": "MONTEVIDEU URUGUAI"
+      },
+      {
+        "cnpj": "00.000.000/0262-39",
+        "mf": "2",
+        "sit": "02",
+        "uf": "RJ",
+        "fantasia": "VOLTA REDONDA (RJ)"
+      },
+      {
+        "cnpj": "00.000.000/0271-20",
+        "mf": "2",
+        "sit": "02",
+        "uf": "RS",
+        "fantasia": "ITAQUI (RS)"
+      },
+      {
+        "cnpj": "00.000.000/0277-15",
+        "mf": "2",
+        "sit": "02",
+        "uf": "GO",
+        "fantasia": "GOIAS - GO"
+      },
+      {
+        "cnpj": "00.000.000/0323-95",
+        "mf": "2",
+        "sit": "02",
+        "uf": "CE",
+        "fantasia": "RUSSAS (CE)"
+      },
+      {
+        "cnpj": "00.000.000/0342-58",
+        "mf": "2",
+        "sit": "02",
+        "uf": "RS",
+        "fantasia": "GUAIBA (RS)"
+      },
+      {
+        "cnpj": "00.000.000/0355-72",
+        "mf": "2",
+        "sit": "02",
+        "uf": "PR",
+        "fantasia": "APUCARANA (PR)"
+      },
+      {
+        "cnpj": "00.000.000/0377-88",
+        "mf": "2",
+        "sit": "02",
+        "uf": "GO",
+        "fantasia": "FORMOSA (GO)"
+      },
+      {
+        "cnpj": "00.000.000/0380-83",
+        "mf": "2",
+        "sit": "02",
+        "uf": "MG",
+        "fantasia": "PARACATU (MG)"
+      },
+      {
+        "cnpj": "00.000.000/0382-45",
+        "mf": "2",
+        "sit": "02",
+        "uf": "TO",
+        "fantasia": "DIANOPOLIS (TO)"
+      },
+      {
+        "cnpj": "00.000.000/0388-30",
+        "mf": "2",
+        "sit": "02",
+        "uf": "PR",
+        "fantasia": "ASSAI (PR)"
+      },
+      {
+        "cnpj": "00.000.000/0400-61",
+        "mf": "2",
+        "sit": "02",
+        "uf": "PR",
+        "fantasia": "URAI (PR)"
+      },
+      {
+        "cnpj": "00.000.000/0413-86",
+        "mf": "2",
+        "sit": "02",
+        "uf": "SP",
+        "fantasia": "MOCOCA (SP)"
+      },
+      {
+        "cnpj": "00.000.000/0423-58",
+        "mf": "2",
+        "sit": "02",
+        "uf": "RS",
+        "fantasia": "ENCANTADO (RS)"
+      },
+      {
+        "cnpj": "00.000.000/0428-62",
+        "mf": "2",
+        "sit": "02",
+        "uf": "MG",
+        "fantasia": "VICOSA (MG)"
+      },
+      {
+        "cnpj": "00.000.000/0431-68",
+        "mf": "2",
+        "sit": "02",
+        "uf": "RS",
+        "fantasia": "GUAPORE (RS)"
+      },
+      {
+        "cnpj": "00.000.000/0490-18",
+        "mf": "2",
+        "sit": "02",
+        "uf": "RS",
+        "fantasia": "SOLEDADE (RS)"
+      },
+      {
+        "cnpj": "00.000.000/0515-00",
+        "mf": "2",
+        "sit": "02",
+        "uf": "GO",
+        "fantasia": "PALMEIRAS DE GOIAS (GO)"
+      },
+      {
+        "cnpj": "00.000.000/0536-35",
+        "mf": "2",
+        "sit": "02",
+        "uf": "CE",
+        "fantasia": "QUIXERAMOBIM (CE)"
+      },
+      {
+        "cnpj": "00.000.000/0549-50",
+        "mf": "2",
+        "sit": "02",
+        "uf": "RJ",
+        "fantasia": "ILHA DO GOVERNADOR - RIO DE JANEIRO (RJ)"
+      },
+      {
+        "cnpj": "00.000.000/0556-89",
+        "mf": "2",
+        "sit": "02",
+        "uf": "BA",
+        "fantasia": "POCOES (BA)"
+      },
+      {
+        "cnpj": "00.000.000/0559-21",
+        "mf": "2",
+        "sit": "02",
+        "uf": "GO",
+        "fantasia": "ITAPURANGA (GO)"
+      },
+      {
+        "cnpj": "00.000.000/0567-31",
+        "mf": "2",
+        "sit": "02",
+        "uf": "PA",
+        "fantasia": "ALTAMIRA (PA)"
+      },
+      {
+        "cnpj": "00.000.000/0574-60",
+        "mf": "2",
+        "sit": "02",
+        "uf": "SP",
+        "fantasia": "PINDAMONHANGABA (SP)"
+      },
+      {
+        "cnpj": "00.000.000/0594-04",
+        "mf": "2",
+        "sit": "02",
+        "uf": "BA",
+        "fantasia": "REMANSO - BA"
+      },
+      {
+        "cnpj": "00.000.000/0600-97",
+        "mf": "2",
+        "sit": "02",
+        "uf": "PE",
+        "fantasia": "ARARIPINA (PE)"
+      },
+      {
+        "cnpj": "00.000.000/0603-30",
+        "mf": "2",
+        "sit": "02",
+        "uf": "MA",
+        "fantasia": "SAO JOAO DOS PATOS (MA)"
+      },
+      {
+        "cnpj": "00.000.000/0605-00",
+        "mf": "2",
+        "sit": "02",
+        "uf": "PE",
+        "fantasia": "CABROBO (PE)"
+      },
+      {
+        "cnpj": "00.000.000/0617-35",
+        "mf": "2",
+        "sit": "02",
+        "uf": "RS",
+        "fantasia": "CANGUCU (RS)"
+      },
+      {
+        "cnpj": "00.000.000/0630-02",
+        "mf": "2",
+        "sit": "02",
+        "uf": "PR",
+        "fantasia": "LAPA (PR)"
+      },
+      {
+        "cnpj": "00.000.000/0653-07",
+        "mf": "2",
+        "sit": "02",
+        "uf": "RS",
+        "fantasia": "SAPIRANGA (RS)"
+      },
+      {
+        "cnpj": "00.000.000/0680-71",
+        "mf": "2",
+        "sit": "02",
+        "uf": "RS",
+        "fantasia": "FREDERICO WESTPHALEN (RS)"
+      },
+      {
+        "cnpj": "00.000.000/0693-96",
+        "mf": "2",
+        "sit": "02",
+        "uf": "BA",
+        "fantasia": "CASTRO ALVES - BA"
+      },
+      {
+        "cnpj": "00.000.000/0741-28",
+        "mf": "2",
+        "sit": "02",
+        "uf": "RJ",
+        "fantasia": "TERESOPOLIS (RJ)"
+      },
+      {
+        "cnpj": "00.000.000/0755-23",
+        "mf": "2",
+        "sit": "02",
+        "uf": "RS",
+        "fantasia": "CAMPO BOM (RS)"
+      },
+      {
+        "cnpj": "00.000.000/0759-57",
+        "mf": "2",
+        "sit": "02",
+        "uf": "PB",
+        "fantasia": "SOUSA (PB)"
+      },
+      {
+        "cnpj": "00.000.000/0778-10",
+        "mf": "2",
+        "sit": "02",
+        "uf": "RS",
+        "fantasia": "TORRES (RS)"
+      },
+      {
+        "cnpj": "00.000.000/0793-59",
+        "mf": "2",
+        "sit": "02",
+        "uf": "MS",
+        "fantasia": "GLORIA DE DOURADOS (MS)"
+      },
+      {
+        "cnpj": "00.000.000/0828-13",
+        "mf": "2",
+        "sit": "02",
+        "uf": "SP",
+        "fantasia": "CUBATAO (SP)"
+      },
+      {
+        "cnpj": "00.000.000/0861-34",
+        "mf": "2",
+        "sit": "02",
+        "uf": "SP",
+        "fantasia": "VILA FORMOSA SP"
+      },
+      {
+        "cnpj": "00.000.000/0874-59",
+        "mf": "2",
+        "sit": "02",
+        "uf": "PB",
+        "fantasia": "VARADOURO (PB)"
+      },
+      {
+        "cnpj": "00.000.000/0885-01",
+        "mf": "2",
+        "sit": "02",
+        "uf": "RJ",
+        "fantasia": null
+      },
+      {
+        "cnpj": "00.000.000/0891-50",
+        "mf": "2",
+        "sit": "08",
+        "uf": "MG",
+        "fantasia": null
+      },
+      {
+        "cnpj": "00.000.000/0897-45",
+        "mf": "2",
+        "sit": "08",
+        "uf": "RS",
+        "fantasia": "VOLUNTARIOS DA PATRIA PORTO ALEGRE RS EST UNIF"
+      },
+      {
+        "cnpj": "00.000.000/0916-42",
+        "mf": "2",
+        "sit": "08",
+        "uf": "ES",
+        "fantasia": null
+      },
+      {
+        "cnpj": "00.000.000/0925-33",
+        "mf": "2",
+        "sit": "08",
+        "uf": "DF",
+        "fantasia": null
+      },
+      {
+        "cnpj": "00.000.000/0940-72",
+        "mf": "2",
+        "sit": "02",
+        "uf": "BA",
+        "fantasia": "GUANAMBI - BA"
+      },
+      {
+        "cnpj": "00.000.000/0953-97",
+        "mf": "2",
+        "sit": "02",
+        "uf": "RJ",
+        "fantasia": "IMPERADOR - PETROPOLIS (RJ)"
+      },
+      {
+        "cnpj": "00.000.000/0956-30",
+        "mf": "2",
+        "sit": "02",
+        "uf": "RJ",
+        "fantasia": null
+      },
+      {
+        "cnpj": "00.000.000/0958-00",
+        "mf": "2",
+        "sit": "02",
+        "uf": "PE",
+        "fantasia": "SAO JOSE DO BELMONTE (PE)"
+      },
+      {
+        "cnpj": "00.000.000/0978-45",
+        "mf": "2",
+        "sit": "02",
+        "uf": "SP",
+        "fantasia": "SERTAOZINHO (SP)"
+      },
+      {
+        "cnpj": "00.000.000/1000-64",
+        "mf": "2",
+        "sit": "02",
+        "uf": "RN",
+        "fantasia": "UMARIZAL (RN)"
+      },
+      {
+        "cnpj": "00.000.000/1009-00",
+        "mf": "2",
+        "sit": "02",
+        "uf": "PA",
+        "fantasia": "SERRA DOS CARAJAS - PARAUAPEBAS (PA)"
+      },
+      {
+        "cnpj": "00.000.000/1022-70",
+        "mf": "2",
+        "sit": "02",
+        "uf": "RS",
+        "fantasia": "PIRATINI RS"
+      },
+      {
+        "cnpj": "00.000.000/1025-12",
+        "mf": "2",
+        "sit": "02",
+        "uf": "PR",
+        "fantasia": "MARECHAL CANDIDO RONDON (PR)"
+      },
+      {
+        "cnpj": "00.000.000/1048-09",
+        "mf": "2",
+        "sit": "02",
+        "uf": "MT",
+        "fantasia": "JACIARA (MT)"
+      },
+      {
+        "cnpj": "00.000.000/1060-03",
+        "mf": "2",
+        "sit": "02",
+        "uf": "ES",
+        "fantasia": "GUARAPARI (ES)"
+      },
+      {
+        "cnpj": "00.000.000/1080-49",
+        "mf": "2",
+        "sit": "02",
+        "uf": "SC",
+        "fantasia": "MONDAI SC-EST UNIF"
+      },
+      {
+        "cnpj": "00.000.000/1107-01",
+        "mf": "2",
+        "sit": "02",
+        "uf": "RS",
+        "fantasia": "CAMPO NOVO (RS)"
+      },
+      {
+        "cnpj": "00.000.000/1136-38",
+        "mf": "2",
+        "sit": "08",
+        "uf": "SP",
+        "fantasia": "AGUA RASA - SAO PAULO (SP)"
+      },
+      {
+        "cnpj": "00.000.000/1161-49",
+        "mf": "2",
+        "sit": "08",
+        "uf": "RS",
+        "fantasia": null
+      },
+      {
+        "cnpj": "00.000.000/1199-11",
+        "mf": "2",
+        "sit": "08",
+        "uf": "SC",
+        "fantasia": null
+      },
+      {
+        "cnpj": "00.000.000/1217-38",
+        "mf": "2",
+        "sit": "02",
+        "uf": "CE",
+        "fantasia": "INDEPENDENCIA (CE)"
+      },
+      {
+        "cnpj": "00.000.000/1246-72",
+        "mf": "2",
+        "sit": "02",
+        "uf": "SE",
+        "fantasia": "POCO VERDE (SE)"
+      },
+      {
+        "cnpj": "00.000.000/1273-45",
+        "mf": "2",
+        "sit": "08",
+        "uf": "RS",
+        "fantasia": "PREFEITURA MUNICIPAL DE SAO DOMINGOS DO SUL"
+      },
+      {
+        "cnpj": "00.000.000/1276-98",
+        "mf": "2",
+        "sit": "02",
+        "uf": "MT",
+        "fantasia": "SORRISO (MT)"
+      },
+      {
+        "cnpj": "00.000.000/1297-12",
+        "mf": "2",
+        "sit": "08",
+        "uf": "DF",
+        "fantasia": "CINGAPURA"
+      },
+      {
+        "cnpj": "00.000.000/1329-34",
+        "mf": "2",
+        "sit": "02",
+        "uf": "MG",
+        "fantasia": "SERRO - SERRO (MG)"
+      },
+      {
+        "cnpj": "00.000.000/1333-10",
+        "mf": "2",
+        "sit": "02",
+        "uf": "SE",
+        "fantasia": "RIBEIROPOLIS (SE)"
+      },
+      {
+        "cnpj": "00.000.000/1353-64",
+        "mf": "2",
+        "sit": "08",
+        "uf": "SP",
+        "fantasia": null
+      },
+      {
+        "cnpj": "00.000.000/1363-36",
+        "mf": "2",
+        "sit": "02",
+        "uf": "PE",
+        "fantasia": "FLORES (PE)"
+      },
+      {
+        "cnpj": "00.000.000/1379-01",
+        "mf": "2",
+        "sit": "02",
+        "uf": "BA",
+        "fantasia": "SANTA RITA DE CASSIA - BA"
+      },
+      {
+        "cnpj": "00.000.000/1384-60",
+        "mf": "2",
+        "sit": "08",
+        "uf": "RJ",
+        "fantasia": null
+      },
+      {
+        "cnpj": "00.000.000/1413-30",
+        "mf": "2",
+        "sit": "02",
+        "uf": "GO",
+        "fantasia": "NIQUELANDIA (GO)"
+      },
+      {
+        "cnpj": "00.000.000/1435-45",
+        "mf": "2",
+        "sit": "02",
+        "uf": "CE",
+        "fantasia": "CATARINA (CE)"
+      },
+      {
+        "cnpj": "00.000.000/1455-99",
+        "mf": "2",
+        "sit": "02",
+        "uf": "BA",
+        "fantasia": "SAO SEBASTIAO DO PASSE-EST.UNIF."
+      },
+      {
+        "cnpj": "00.000.000/1464-80",
+        "mf": "2",
+        "sit": "08",
+        "uf": "SC",
+        "fantasia": null
+      },
+      {
+        "cnpj": "00.000.000/1480-08",
+        "mf": "2",
+        "sit": "02",
+        "uf": "MG",
+        "fantasia": "SAO PEDRO DOS FERROS - SAO PEDRO DOS FERROS (MG)"
+      },
+      {
+        "cnpj": "00.000.000/1488-57",
+        "mf": "2",
+        "sit": "02",
+        "uf": "SP",
+        "fantasia": "ARTUR ALVIM - SAO PAULO (SP)"
+      },
+      {
+        "cnpj": "00.000.000/1498-29",
+        "mf": "2",
+        "sit": "08",
+        "uf": "PE",
+        "fantasia": null
+      },
+      {
+        "cnpj": "00.000.000/1501-69",
+        "mf": "2",
+        "sit": "08",
+        "uf": "PE",
+        "fantasia": null
+      },
+      {
+        "cnpj": "00.000.000/1526-17",
+        "mf": "2",
+        "sit": "02",
+        "uf": "SC",
+        "fantasia": "MAJOR VIEIRA (SC)"
+      },
+      {
+        "cnpj": "00.000.000/1538-50",
+        "mf": "2",
+        "sit": "02",
+        "uf": "RN",
+        "fantasia": "CANGUARETAMA (RN)"
+      },
+      {
+        "cnpj": "00.000.000/1552-09",
+        "mf": "2",
+        "sit": "02",
+        "uf": "BA",
+        "fantasia": "ANTAS (BA)"
+      },
+      {
+        "cnpj": "00.000.000/1560-19",
+        "mf": "2",
+        "sit": "02",
+        "uf": "BA",
+        "fantasia": "UTINGA (BA)"
+      },
+      {
+        "cnpj": "00.000.000/1587-39",
+        "mf": "2",
+        "sit": "02",
+        "uf": "CE",
+        "fantasia": "JAGUARUANA (CE)"
+      },
+      {
+        "cnpj": "00.000.000/1590-34",
+        "mf": "2",
+        "sit": "08",
+        "uf": "CE",
+        "fantasia": "SANTANA DO CARIRI (CE)"
+      },
+      {
+        "cnpj": "00.000.000/1596-20",
+        "mf": "2",
+        "sit": "02",
+        "uf": "MG",
+        "fantasia": "JEQUERI - JEQUERI (MG)"
+      },
+      {
+        "cnpj": "00.000.000/1600-40",
+        "mf": "2",
+        "sit": "02",
+        "uf": "MG",
+        "fantasia": "VIRGOLANDIA - VIRGOLANDIA (MG)"
+      },
+      {
+        "cnpj": "00.000.000/1602-02",
+        "mf": "2",
+        "sit": "02",
+        "uf": "PR",
+        "fantasia": "IMBITUVA (PR)"
+      },
+      {
+        "cnpj": "00.000.000/1610-12",
+        "mf": "2",
+        "sit": "02",
+        "uf": "RS",
+        "fantasia": "CONSTANTINA (RS)"
+      },
+      {
+        "cnpj": "00.000.000/1617-99",
+        "mf": "2",
+        "sit": "02",
+        "uf": "SP",
+        "fantasia": "BROTAS (SP)"
+      },
+      {
+        "cnpj": "00.000.000/1657-86",
+        "mf": "2",
+        "sit": "02",
+        "uf": "PR",
+        "fantasia": "SANTA IZABEL OESTE (PR)"
+      },
+      {
+        "cnpj": "00.000.000/1661-62",
+        "mf": "2",
+        "sit": "02",
+        "uf": "MG",
+        "fantasia": "POMPEU - POMPEU (MG)"
+      },
+      {
+        "cnpj": "00.000.000/1669-10",
+        "mf": "2",
+        "sit": "02",
+        "uf": "MS",
+        "fantasia": "BRASILANDIA-MS"
+      },
+      {
+        "cnpj": "00.000.000/1674-87",
+        "mf": "2",
+        "sit": "08",
+        "uf": "BA",
+        "fantasia": "CEDIP SALVADOR"
+      },
+      {
+        "cnpj": "00.000.000/1675-68",
+        "mf": "2",
+        "sit": "08",
+        "uf": "PB",
+        "fantasia": null
+      },
+      {
+        "cnpj": "00.000.000/1693-40",
+        "mf": "2",
+        "sit": "08",
+        "uf": "PR",
+        "fantasia": null
+      },
+      {
+        "cnpj": "00.000.000/1700-03",
+        "mf": "2",
+        "sit": "08",
+        "uf": "PR",
+        "fantasia": null
+      },
+      {
+        "cnpj": "00.000.000/1713-28",
+        "mf": "2",
+        "sit": "02",
+        "uf": "BA",
+        "fantasia": "ANGICAL - BA"
+      },
+      {
+        "cnpj": "00.000.000/1716-70",
+        "mf": "2",
+        "sit": "02",
+        "uf": "CE",
+        "fantasia": "VICOSA DO CEARA (CE)"
+      },
+      {
+        "cnpj": "00.000.000/1739-67",
+        "mf": "2",
+        "sit": "08",
+        "uf": "RS",
+        "fantasia": null
+      },
+      {
+        "cnpj": "00.000.000/1746-96",
+        "mf": "2",
+        "sit": "08",
+        "uf": "PI",
+        "fantasia": null
+      },
+      {
+        "cnpj": "00.000.000/1779-54",
+        "mf": "2",
+        "sit": "08",
+        "uf": "PR",
+        "fantasia": null
+      },
+      {
+        "cnpj": "00.000.000/1784-11",
+        "mf": "2",
+        "sit": "02",
+        "uf": "MT",
+        "fantasia": null
+      },
+      {
+        "cnpj": "00.000.000/1793-02",
+        "mf": "2",
+        "sit": "02",
+        "uf": "BA",
+        "fantasia": "BONINAL (BA)"
+      },
+      {
+        "cnpj": "00.000.000/1802-38",
+        "mf": "2",
+        "sit": "02",
+        "uf": "SP",
+        "fantasia": "AVENIDA BRASIL-CAMPINAS (SP)"
+      },
+      {
+        "cnpj": "00.000.000/1808-23",
+        "mf": "2",
+        "sit": "02",
+        "uf": "MG",
+        "fantasia": "SAO JOAO DA PONTE (MG)"
+      },
+      {
+        "cnpj": "00.000.000/1811-29",
+        "mf": "2",
+        "sit": "08",
+        "uf": "PR",
+        "fantasia": "DOUTOR CAMARGO PR"
+      },
+      {
+        "cnpj": "00.000.000/1827-96",
+        "mf": "2",
+        "sit": "02",
+        "uf": "PI",
+        "fantasia": "COCAL (PI)"
+      },
+      {
+        "cnpj": "00.000.000/1845-78",
+        "mf": "2",
+        "sit": "02",
+        "uf": "MA",
+        "fantasia": "TUTOIA (MA)"
+      },
+      {
+        "cnpj": "00.000.000/1848-10",
+        "mf": "2",
+        "sit": "02",
+        "uf": "PR",
+        "fantasia": "CEU AZUL (PR)"
+      },
+      {
+        "cnpj": "00.000.000/1853-88",
+        "mf": "2",
+        "sit": "02",
+        "uf": "MG",
+        "fantasia": "JOAIMA - JOAIMA (MG)"
+      },
+      {
+        "cnpj": "00.000.000/1878-36",
+        "mf": "2",
+        "sit": "08",
+        "uf": "PI",
+        "fantasia": null
+      },
+      {
+        "cnpj": "00.000.000/1912-72",
+        "mf": "2",
+        "sit": "08",
+        "uf": "GO",
+        "fantasia": "CESEC ITUMBIARA GO"
+      },
+      {
+        "cnpj": "00.000.000/1934-88",
+        "mf": "2",
+        "sit": "02",
+        "uf": "BA",
+        "fantasia": "CORRENTINA BA EST UNIF"
+      },
+      {
+        "cnpj": "00.000.000/1937-20",
+        "mf": "2",
+        "sit": "02",
+        "uf": "RS",
+        "fantasia": "GENERAL CAMARA (RS)"
+      },
+      {
+        "cnpj": "00.000.000/1944-50",
+        "mf": "2",
+        "sit": "02",
+        "uf": "PB",
+        "fantasia": "JACARAU (PB)"
+      },
+      {
+        "cnpj": "00.000.000/1953-40",
+        "mf": "2",
+        "sit": "08",
+        "uf": "MG",
+        "fantasia": "PAA RIACHO DOS MACHADOS (MG)"
+      },
+      {
+        "cnpj": "00.000.000/1977-18",
+        "mf": "2",
+        "sit": "08",
+        "uf": "PI",
+        "fantasia": null
+      },
+      {
+        "cnpj": "00.000.000/1991-76",
+        "mf": "2",
+        "sit": "02",
+        "uf": "GO",
+        "fantasia": "PETROLINA DE GOIAS (GO)"
+      },
+      {
+        "cnpj": "00.000.000/2025-76",
+        "mf": "2",
+        "sit": "08",
+        "uf": "RN",
+        "fantasia": "CESEC PAU DOS FERROS RN"
+      },
+      {
+        "cnpj": "00.000.000/2028-19",
+        "mf": "2",
+        "sit": "08",
+        "uf": "SP",
+        "fantasia": "CESEC REGISTRO-SP"
+      },
+      {
+        "cnpj": "00.000.000/2043-58",
+        "mf": "2",
+        "sit": "02",
+        "uf": "CE",
+        "fantasia": "MILAGRES (CE)"
+      },
+      {
+        "cnpj": "00.000.000/2049-43",
+        "mf": "2",
+        "sit": "08",
+        "uf": "SP",
+        "fantasia": "BANCO DO BRASIL S.A."
+      },
+      {
+        "cnpj": "00.000.000/2056-72",
+        "mf": "2",
+        "sit": "08",
+        "uf": "BA",
+        "fantasia": null
+      },
+      {
+        "cnpj": "00.000.000/2058-34",
+        "mf": "2",
+        "sit": "02",
+        "uf": "BA",
+        "fantasia": "SANTA CRUZ CABRALIA - BA"
+      },
+      {
+        "cnpj": "00.000.000/2059-15",
+        "mf": "2",
+        "sit": "02",
+        "uf": "MG",
+        "fantasia": "COMERCINHO (MG)"
+      },
+      {
+        "cnpj": "00.000.000/2078-88",
+        "mf": "2",
+        "sit": "08",
+        "uf": "PR",
+        "fantasia": "CESEC UMUARAMA PR"
+      },
+      {
+        "cnpj": "00.000.000/2096-60",
+        "mf": "2",
+        "sit": "08",
+        "uf": "PR",
+        "fantasia": null
+      },
+      {
+        "cnpj": "00.000.000/2100-80",
+        "mf": "2",
+        "sit": "08",
+        "uf": "PI",
+        "fantasia": "CESEC PICOS PI"
+      },
+      {
+        "cnpj": "00.000.000/2140-78",
+        "mf": "2",
+        "sit": "02",
+        "uf": "MG",
+        "fantasia": "AVENIDA AFONSO PENA - BELO HORIZONTE (MG)"
+      },
+      {
+        "cnpj": "00.000.000/2165-26",
+        "mf": "2",
+        "sit": "02",
+        "uf": "MG",
+        "fantasia": "POCO FUNDO - POCO FUNDO (MG)"
+      },
+      {
+        "cnpj": "00.000.000/2192-07",
+        "mf": "2",
+        "sit": "08",
+        "uf": "SE",
+        "fantasia": null
+      },
+      {
+        "cnpj": "00.000.000/2218-72",
+        "mf": "2",
+        "sit": "02",
+        "uf": "RS",
+        "fantasia": "PRACA VINTE - NOVO HAMBURGO(RS)"
+      },
+      {
+        "cnpj": "00.000.000/2225-00",
+        "mf": "2",
+        "sit": "02",
+        "uf": "RS",
+        "fantasia": "ROQUE GONZALES (RS)"
+      },
+      {
+        "cnpj": "00.000.000/2229-25",
+        "mf": "2",
+        "sit": "02",
+        "uf": "SP",
+        "fantasia": "DOIS CORREGOS (SP)"
+      },
+      {
+        "cnpj": "00.000.000/2245-45",
+        "mf": "2",
+        "sit": "02",
+        "uf": "MG",
+        "fantasia": "SAO BENEDITO - UBERABA (MG)"
+      },
+      {
+        "cnpj": "00.000.000/2276-41",
+        "mf": "2",
+        "sit": "02",
+        "uf": "PR",
+        "fantasia": "SENGES (PR)"
+      },
+      {
+        "cnpj": "00.000.000/2309-44",
+        "mf": "2",
+        "sit": "02",
+        "uf": "MG",
+        "fantasia": "INDIANOPOLIS (MG)"
+      },
+      {
+        "cnpj": "00.000.000/2317-54",
+        "mf": "2",
+        "sit": "02",
+        "uf": "PR",
+        "fantasia": "RONCADOR (PR)"
+      },
+      {
+        "cnpj": "00.000.000/2321-30",
+        "mf": "2",
+        "sit": "02",
+        "uf": "PR",
+        "fantasia": "PONTE DA AMIZADE - FOZ DO IGUACU (PR)"
+      },
+      {
+        "cnpj": "00.000.000/2328-07",
+        "mf": "2",
+        "sit": "08",
+        "uf": "PR",
+        "fantasia": null
+      },
+      {
+        "cnpj": "00.000.000/2336-17",
+        "mf": "2",
+        "sit": "02",
+        "uf": "MG",
+        "fantasia": "ITAMBACURI - ITAMBACURI (MG)"
+      },
+      {
+        "cnpj": "00.000.000/2368-02",
+        "mf": "2",
+        "sit": "02",
+        "uf": "RN",
+        "fantasia": "TIROL - NATAL (RN)"
+      },
+      {
+        "cnpj": "00.000.000/2371-08",
+        "mf": "2",
+        "sit": "02",
+        "uf": "SC",
+        "fantasia": "AGROLANDIA (SC)"
+      },
+      {
+        "cnpj": "00.000.000/2377-95",
+        "mf": "2",
+        "sit": "08",
+        "uf": "MG",
+        "fantasia": null
+      },
+      {
+        "cnpj": "00.000.000/2396-58",
+        "mf": "2",
+        "sit": "08",
+        "uf": "BA",
+        "fantasia": null
+      },
+      {
+        "cnpj": "00.000.000/2400-79",
+        "mf": "2",
+        "sit": "02",
+        "uf": "RS",
+        "fantasia": "SAO VALENTIM (RS)"
+      },
+      {
+        "cnpj": "00.000.000/2405-83",
+        "mf": "2",
+        "sit": "08",
+        "uf": "RS",
+        "fantasia": null
+      },
+      {
+        "cnpj": "00.000.000/2412-02",
+        "mf": "2",
+        "sit": "02",
+        "uf": "PA",
+        "fantasia": "CAPANEMA PA EST UNTF"
+      },
+      {
+        "cnpj": "00.000.000/2425-27",
+        "mf": "2",
+        "sit": "02",
+        "uf": "MG",
+        "fantasia": "JACUI - JACUI (MG)"
+      },
+      {
+        "cnpj": "00.000.000/2432-56",
+        "mf": "2",
+        "sit": "02",
+        "uf": "PA",
+        "fantasia": "MOJU PA-EST UNIF"
+      },
+      {
+        "cnpj": "00.000.000/2439-22",
+        "mf": "2",
+        "sit": "08",
+        "uf": "SC",
+        "fantasia": null
+      },
+      {
+        "cnpj": "00.000.000/2460-00",
+        "mf": "2",
+        "sit": "02",
+        "uf": "CE",
+        "fantasia": "MARACANAU-CE"
+      },
+      {
+        "cnpj": "00.000.000/2472-43",
+        "mf": "2",
+        "sit": "02",
+        "uf": "SC",
+        "fantasia": "POMERODE SC EST UNIF"
+      },
+      {
+        "cnpj": "00.000.000/2482-15",
+        "mf": "2",
+        "sit": "02",
+        "uf": "MA",
+        "fantasia": "SAO LUIS GONZAGA DO MARANHAO (MA)"
+      },
+      {
+        "cnpj": "00.000.000/2497-00",
+        "mf": "2",
+        "sit": "02",
+        "uf": "SC",
+        "fantasia": "EMPRESA JOINVILLE (SC)"
+      },
+      {
+        "cnpj": "00.000.000/2518-60",
+        "mf": "2",
+        "sit": "02",
+        "uf": "BA",
+        "fantasia": "CATU - BA"
+      },
+      {
+        "cnpj": "00.000.000/2573-97",
+        "mf": "2",
+        "sit": "08",
+        "uf": "BA",
+        "fantasia": "AG COMERCIO"
+      },
+      {
+        "cnpj": "00.000.000/2582-88",
+        "mf": "2",
+        "sit": "08",
+        "uf": "SP",
+        "fantasia": "VILA BERTIOGA-SAO PAULO-SP"
+      },
+      {
+        "cnpj": "00.000.000/2597-64",
+        "mf": "2",
+        "sit": "02",
+        "uf": "RS",
+        "fantasia": "ARROIO DO MEIO (RS)"
+      },
+      {
+        "cnpj": "00.000.000/2601-85",
+        "mf": "2",
+        "sit": "02",
+        "uf": "MG",
+        "fantasia": "CAMPANHA MG"
+      },
+      {
+        "cnpj": "00.000.000/2646-87",
+        "mf": "2",
+        "sit": "02",
+        "uf": "SC",
+        "fantasia": "GUARAMIRIM (SC)"
+      },
+      {
+        "cnpj": "00.000.000/2651-44",
+        "mf": "2",
+        "sit": "02",
+        "uf": "SE",
+        "fantasia": "CAMPO DO BRITO (SE)"
+      },
+      {
+        "cnpj": "00.000.000/2659-00",
+        "mf": "2",
+        "sit": "02",
+        "uf": "SP",
+        "fantasia": "CANDIDO MOTA (SP)"
+      },
+      {
+        "cnpj": "00.000.000/2678-64",
+        "mf": "2",
+        "sit": "02",
+        "uf": "AL",
+        "fantasia": "OLIVENCA (AL)"
+      },
+      {
+        "cnpj": "00.000.000/2681-60",
+        "mf": "2",
+        "sit": "08",
+        "uf": "PB",
+        "fantasia": "PAA - ARARA (PB)"
+      },
+      {
+        "cnpj": "00.000.000/2688-36",
+        "mf": "2",
+        "sit": "02",
+        "uf": "RS",
+        "fantasia": "IVOTI (RS)"
+      },
+      {
+        "cnpj": "00.000.000/2692-12",
+        "mf": "2",
+        "sit": "08",
+        "uf": "SP",
+        "fantasia": null
+      },
+      {
+        "cnpj": "00.000.000/2707-33",
+        "mf": "2",
+        "sit": "02",
+        "uf": "SP",
+        "fantasia": "SETE BARRAS (SP)"
+      },
+      {
+        "cnpj": "00.000.000/2731-63",
+        "mf": "2",
+        "sit": "02",
+        "uf": "MG",
+        "fantasia": "ERVALIA MG"
+      },
+      {
+        "cnpj": "00.000.000/2734-06",
+        "mf": "2",
+        "sit": "02",
+        "uf": "MG",
+        "fantasia": "ITINGA - ITINGA (MG)"
+      },
+      {
+        "cnpj": "00.000.000/2743-05",
+        "mf": "2",
+        "sit": "02",
+        "uf": "SC",
+        "fantasia": "SAO JOSE-SC-EST.UNIF"
+      },
+      {
+        "cnpj": "00.000.000/2759-64",
+        "mf": "2",
+        "sit": "08",
+        "uf": "CE",
+        "fantasia": null
+      },
+      {
+        "cnpj": "00.000.000/2791-02",
+        "mf": "2",
+        "sit": "02",
+        "uf": "MG",
+        "fantasia": "LAGAMAR MG"
+      },
+      {
+        "cnpj": "00.000.000/2805-34",
+        "mf": "2",
+        "sit": "08",
+        "uf": "BA",
+        "fantasia": "PAU BRASIL (BA)"
+      },
+      {
+        "cnpj": "00.000.000/2813-44",
+        "mf": "2",
+        "sit": "02",
+        "uf": "MG",
+        "fantasia": "MARIA DA FE - MARIA DA FE (MG)"
+      },
+      {
+        "cnpj": "00.000.000/2816-97",
+        "mf": "2",
+        "sit": "02",
+        "uf": "SP",
+        "fantasia": "PONTAL (SP)"
+      },
+      {
+        "cnpj": "00.000.000/2819-30",
+        "mf": "2",
+        "sit": "02",
+        "uf": "MG",
+        "fantasia": "BRAZOPOLIS - BRAZOPOLIS (MG)"
+      },
+      {
+        "cnpj": "00.000.000/2924-60",
+        "mf": "2",
+        "sit": "08",
+        "uf": "SP",
+        "fantasia": null
+      },
+      {
+        "cnpj": "00.000.000/2925-40",
+        "mf": "2",
+        "sit": "02",
+        "uf": "BA",
+        "fantasia": "LAJE - BA"
+      },
+      {
+        "cnpj": "00.000.000/2942-41",
+        "mf": "2",
+        "sit": "02",
+        "uf": "PB",
+        "fantasia": "BAYEUX (PB)"
+      },
+      {
+        "cnpj": "00.000.000/2956-47",
+        "mf": "2",
+        "sit": "08",
+        "uf": "AM",
+        "fantasia": null
+      },
+      {
+        "cnpj": "00.000.000/2962-95",
+        "mf": "2",
+        "sit": "08",
+        "uf": "PE",
+        "fantasia": "INFRA REGIONAL - INFRE RECIFE - PE"
+      },
+      {
+        "cnpj": "00.000.000/2969-61",
+        "mf": "2",
+        "sit": "02",
+        "uf": "SP",
+        "fantasia": "AUTONOMISTAS OSASCO-SP"
+      },
+      {
+        "cnpj": "00.000.000/2975-00",
+        "mf": "2",
+        "sit": "08",
+        "uf": "DF",
+        "fantasia": null
+      },
+      {
+        "cnpj": "00.000.000/3014-77",
+        "mf": "2",
+        "sit": "02",
+        "uf": "ES",
+        "fantasia": "ITAGUACU (ES)"
+      },
+      {
+        "cnpj": "00.000.000/3021-04",
+        "mf": "2",
+        "sit": "02",
+        "uf": "MS",
+        "fantasia": "DOURADINA (MS)"
+      },
+      {
+        "cnpj": "00.000.000/3025-20",
+        "mf": "2",
+        "sit": "08",
+        "uf": "PR",
+        "fantasia": null
+      },
+      {
+        "cnpj": "00.000.000/3035-00",
+        "mf": "2",
+        "sit": "02",
+        "uf": "SP",
+        "fantasia": "LARGE CORPORATE SIDERURGIA, INDUSTRIA E COMERCIO (SP)"
+      },
+      {
+        "cnpj": "00.000.000/3043-01",
+        "mf": "2",
+        "sit": "02",
+        "uf": "SP",
+        "fantasia": "ANTONIO DE BARROS-SAO PAULO (SP)"
+      },
+      {
+        "cnpj": "00.000.000/3075-99",
+        "mf": "2",
+        "sit": "02",
+        "uf": "ES",
+        "fantasia": "SERRA (ES)"
+      },
+      {
+        "cnpj": "00.000.000/3079-12",
+        "mf": "2",
+        "sit": "02",
+        "uf": "PR",
+        "fantasia": "ARAPOTI (PR)"
+      },
+      {
+        "cnpj": "00.000.000/3116-00",
+        "mf": "2",
+        "sit": "02",
+        "uf": "SP",
+        "fantasia": "UFSCAR - SAO CARLOS (SP)"
+      },
+      {
+        "cnpj": "00.000.000/3126-73",
+        "mf": "2",
+        "sit": "02",
+        "uf": "RO",
+        "fantasia": "OURO PRETO DO OESTE RO EST UNIF"
+      },
+      {
+        "cnpj": "00.000.000/3193-33",
+        "mf": "2",
+        "sit": "02",
+        "uf": "BA",
+        "fantasia": "BROTAS - SALVADOR (BA)"
+      },
+      {
+        "cnpj": "00.000.000/3195-03",
+        "mf": "2",
+        "sit": "02",
+        "uf": "BA",
+        "fantasia": "ITAPUA SALVADOR BA"
+      },
+      {
+        "cnpj": "00.000.000/3198-48",
+        "mf": "2",
+        "sit": "08",
+        "uf": "BA",
+        "fantasia": "RIO VERMELHO SALVADOR BA"
+      },
+      {
+        "cnpj": "00.000.000/3204-20",
+        "mf": "2",
+        "sit": "02",
+        "uf": "DF",
+        "fantasia": "GILBERTO SALOMAO - BRASILIA (DF)"
+      },
+      {
+        "cnpj": "00.000.000/3229-89",
+        "mf": "2",
+        "sit": "08",
+        "uf": "CE",
+        "fantasia": null
+      },
+      {
+        "cnpj": "00.000.000/3245-07",
+        "mf": "2",
+        "sit": "08",
+        "uf": "RJ",
+        "fantasia": null
+      },
+      {
+        "cnpj": "00.000.000/3252-28",
+        "mf": "2",
+        "sit": "08",
+        "uf": "AM",
+        "fantasia": null
+      },
+      {
+        "cnpj": "00.000.000/3264-61",
+        "mf": "2",
+        "sit": "08",
+        "uf": "SC",
+        "fantasia": null
+      },
+      {
+        "cnpj": "00.000.000/3267-04",
+        "mf": "2",
+        "sit": "08",
+        "uf": "PI",
+        "fantasia": null
+      },
+      {
+        "cnpj": "00.000.000/3273-52",
+        "mf": "2",
+        "sit": "08",
+        "uf": "PE",
+        "fantasia": null
+      },
+      {
+        "cnpj": "00.000.000/3309-06",
+        "mf": "2",
+        "sit": "02",
+        "uf": "MG",
+        "fantasia": "SAO JOAO DO PARAISO - SAO JOAO DO PARAISO (MG)"
+      },
+      {
+        "cnpj": "00.000.000/3319-70",
+        "mf": "2",
+        "sit": "02",
+        "uf": "GO",
+        "fantasia": "MONTES CLAROS DE GOIAS (GO)"
+      },
+      {
+        "cnpj": "00.000.000/3334-09",
+        "mf": "2",
+        "sit": "02",
+        "uf": "SC",
+        "fantasia": "VARGEAO (SC)"
+      },
+      {
+        "cnpj": "00.000.000/3357-03",
+        "mf": "2",
+        "sit": "02",
+        "uf": "SE",
+        "fantasia": "PAA - PIRAMBU SE"
+      },
+      {
+        "cnpj": "00.000.000/3372-34",
+        "mf": "2",
+        "sit": "08",
+        "uf": "MG",
+        "fantasia": null
+      },
+      {
+        "cnpj": "00.000.000/3378-20",
+        "mf": "2",
+        "sit": "02",
+        "uf": "SC",
+        "fantasia": "IRANI (SC)"
+      },
+      {
+        "cnpj": "00.000.000/3404-56",
+        "mf": "2",
+        "sit": "02",
+        "uf": "PI",
+        "fantasia": "PICARRA - TERESINA (PI)"
+      },
+      {
+        "cnpj": "00.000.000/3422-38",
+        "mf": "2",
+        "sit": "08",
+        "uf": "MA",
+        "fantasia": null
+      },
+      {
+        "cnpj": "00.000.000/3442-81",
+        "mf": "2",
+        "sit": "02",
+        "uf": "MG",
+        "fantasia": "CENTRAL DE MINAS (MG)"
+      },
+      {
+        "cnpj": "00.000.000/3447-96",
+        "mf": "2",
+        "sit": "08",
+        "uf": "BA",
+        "fantasia": null
+      },
+      {
+        "cnpj": "00.000.000/3461-44",
+        "mf": "2",
+        "sit": "08",
+        "uf": "SP",
+        "fantasia": null
+      },
+      {
+        "cnpj": "00.000.000/3469-00",
+        "mf": "2",
+        "sit": "08",
+        "uf": "GO",
+        "fantasia": null
+      },
+      {
+        "cnpj": "00.000.000/3481-98",
+        "mf": "2",
+        "sit": "02",
+        "uf": "SP",
+        "fantasia": "ITUPEVA (SP)"
+      },
+      {
+        "cnpj": "00.000.000/3484-30",
+        "mf": "2",
+        "sit": "08",
+        "uf": "MG",
+        "fantasia": null
+      },
+      {
+        "cnpj": "00.000.000/3492-40",
+        "mf": "2",
+        "sit": "08",
+        "uf": "MG",
+        "fantasia": null
+      },
+      {
+        "cnpj": "00.000.000/3497-55",
+        "mf": "2",
+        "sit": "08",
+        "uf": "SP",
+        "fantasia": null
+      },
+      {
+        "cnpj": "00.000.000/3508-42",
+        "mf": "2",
+        "sit": "08",
+        "uf": "RS",
+        "fantasia": null
+      },
+      {
+        "cnpj": "00.000.000/3533-53",
+        "mf": "2",
+        "sit": "02",
+        "uf": "MG",
+        "fantasia": "ALIPIO DE MELO BELO HORIZONTE MG"
+      },
+      {
+        "cnpj": "00.000.000/3538-68",
+        "mf": "2",
+        "sit": "08",
+        "uf": "MT",
+        "fantasia": null
+      },
+      {
+        "cnpj": "00.000.000/3551-35",
+        "mf": "2",
+        "sit": "08",
+        "uf": "MG",
+        "fantasia": null
+      },
+      {
+        "cnpj": "00.000.000/3555-69",
+        "mf": "2",
+        "sit": "08",
+        "uf": "BA",
+        "fantasia": null
+      },
+      {
+        "cnpj": "00.000.000/3593-94",
+        "mf": "2",
+        "sit": "08",
+        "uf": "MG",
+        "fantasia": null
+      },
+      {
+        "cnpj": "00.000.000/3602-10",
+        "mf": "2",
+        "sit": "08",
+        "uf": "MG",
+        "fantasia": null
+      },
+      {
+        "cnpj": "00.000.000/3611-00",
+        "mf": "2",
+        "sit": "08",
+        "uf": "SP",
+        "fantasia": null
+      },
+      {
+        "cnpj": "00.000.000/3615-34",
+        "mf": "2",
+        "sit": "02",
+        "uf": "RS",
+        "fantasia": "IPE (RS)"
+      },
+      {
+        "cnpj": "00.000.000/3618-87",
+        "mf": "2",
+        "sit": "02",
+        "uf": "MS",
+        "fantasia": "DOIS IRMAOS DO BURITI (MS)"
+      },
+      {
+        "cnpj": "00.000.000/3624-25",
+        "mf": "2",
+        "sit": "02",
+        "uf": "BA",
+        "fantasia": "TEOFILANDIA (BA)"
+      },
+      {
+        "cnpj": "00.000.000/3658-74",
+        "mf": "2",
+        "sit": "02",
+        "uf": "MG",
+        "fantasia": "MONSENHOR PAULO - MONSENHOR PAULO (MG)"
+      },
+      {
+        "cnpj": "00.000.000/3662-50",
+        "mf": "2",
+        "sit": "08",
+        "uf": "MG",
+        "fantasia": null
+      },
+      {
+        "cnpj": "00.000.000/3683-85",
+        "mf": "2",
+        "sit": "08",
+        "uf": "ES",
+        "fantasia": null
+      },
+      {
+        "cnpj": "00.000.000/3690-04",
+        "mf": "2",
+        "sit": "08",
+        "uf": "RS",
+        "fantasia": null
+      },
+      {
+        "cnpj": "00.000.000/3691-95",
+        "mf": "2",
+        "sit": "02",
+        "uf": "PA",
+        "fantasia": "PARAUAPEBAS (PA)"
+      },
+      {
+        "cnpj": "00.000.000/3741-99",
+        "mf": "2",
+        "sit": "08",
+        "uf": "PR",
+        "fantasia": null
+      },
+      {
+        "cnpj": "00.000.000/3753-22",
+        "mf": "2",
+        "sit": "02",
+        "uf": "MT",
+        "fantasia": "RIO BRANCO (MT)"
+      },
+      {
+        "cnpj": "00.000.000/3793-10",
+        "mf": "2",
+        "sit": "08",
+        "uf": "BA",
+        "fantasia": null
+      },
+      {
+        "cnpj": "00.000.000/3797-43",
+        "mf": "2",
+        "sit": "02",
+        "uf": "PR",
+        "fantasia": null
+      },
+      {
+        "cnpj": "00.000.000/3809-11",
+        "mf": "2",
+        "sit": "02",
+        "uf": "PA",
+        "fantasia": "CASTANHEIRA - BELEM (PA)"
+      },
+      {
+        "cnpj": "00.000.000/3857-19",
+        "mf": "2",
+        "sit": "02",
+        "uf": "PR",
+        "fantasia": "AVENIDA BANDEIRANTES - LONDRINA (PR)"
+      },
+      {
+        "cnpj": "00.000.000/3864-48",
+        "mf": "2",
+        "sit": "02",
+        "uf": "PA",
+        "fantasia": "BARCARENA (PA)"
+      },
+      {
+        "cnpj": "00.000.000/3865-29",
+        "mf": "2",
+        "sit": "08",
+        "uf": "RJ",
+        "fantasia": "SAQUAREMA RJ"
+      },
+      {
+        "cnpj": "00.000.000/3876-81",
+        "mf": "2",
+        "sit": "08",
+        "uf": "RS",
+        "fantasia": "BAIRRO CANUDOS NOVO HAMBURGO RS"
+      },
+      {
+        "cnpj": "00.000.000/3892-00",
+        "mf": "2",
+        "sit": "08",
+        "uf": "BA",
+        "fantasia": "CENTRO INDUSTRIAL SUBAE FEIRA DE SANTANA BA"
+      },
+      {
+        "cnpj": "00.000.000/3901-27",
+        "mf": "2",
+        "sit": "08",
+        "uf": "RS",
+        "fantasia": "RINCAO DOS ILHEUS ESTANCIA VELHA RS"
+      },
+      {
+        "cnpj": "00.000.000/3907-12",
+        "mf": "2",
+        "sit": "02",
+        "uf": "SC",
+        "fantasia": "COQUEIROS FLORIANOPOLIS SC"
+      },
+      {
+        "cnpj": "00.000.000/3975-63",
+        "mf": "2",
+        "sit": "08",
+        "uf": "SP",
+        "fantasia": "NOVA CACHOEIRINHA SAO PAULO SP"
+      },
+      {
+        "cnpj": "00.000.000/3981-01",
+        "mf": "2",
+        "sit": "02",
+        "uf": "CE",
+        "fantasia": "PARANGABA - FORTALEZA (CE)"
+      },
+      {
+        "cnpj": "00.000.000/4011-88",
+        "mf": "2",
+        "sit": "02",
+        "uf": "SP",
+        "fantasia": "RUA MARIA MARCOLINA SAO PAULO SP"
+      },
+      {
+        "cnpj": "00.000.000/4020-79",
+        "mf": "2",
+        "sit": "08",
+        "uf": "CE",
+        "fantasia": "SANTOS DUMONT FORTALEZA CE"
+      },
+      {
+        "cnpj": "00.000.000/4024-00",
+        "mf": "2",
+        "sit": "02",
+        "uf": "GO",
+        "fantasia": "SAO SIMAO (GO)"
+      },
+      {
+        "cnpj": "00.000.000/4031-21",
+        "mf": "2",
+        "sit": "08",
+        "uf": "SP",
+        "fantasia": "QUINTINO-JAU-SP"
+      },
+      {
+        "cnpj": "00.000.000/4046-08",
+        "mf": "2",
+        "sit": "02",
+        "uf": "SP",
+        "fantasia": "VARGEM GRANDE PAULISTA-SP"
+      },
+      {
+        "cnpj": "00.000.000/4088-67",
+        "mf": "2",
+        "sit": "02",
+        "uf": "MG",
+        "fantasia": "BENFICA - JUIZ DE FORA (MG)"
+      },
+      {
+        "cnpj": "00.000.000/4097-58",
+        "mf": "2",
+        "sit": "08",
+        "uf": "RS",
+        "fantasia": "NAVEGANTES - PORTO ALEGRE (RS)"
+      },
+      {
+        "cnpj": "00.000.000/4123-84",
+        "mf": "2",
+        "sit": "08",
+        "uf": "ES",
+        "fantasia": "CESEC NOVA VENECIA-ES"
+      },
+      {
+        "cnpj": "00.000.000/4141-66",
+        "mf": "2",
+        "sit": "02",
+        "uf": "PE",
+        "fantasia": "BELEM DE MARIA (PE)"
+      },
+      {
+        "cnpj": "00.000.000/4151-38",
+        "mf": "2",
+        "sit": "02",
+        "uf": "PE",
+        "fantasia": "ITAPETIM (PE)"
+      },
+      {
+        "cnpj": "00.000.000/4164-52",
+        "mf": "2",
+        "sit": "08",
+        "uf": "PE",
+        "fantasia": "PAA - RIACHO DAS ALMAS (PE)"
+      },
+      {
+        "cnpj": "00.000.000/4169-67",
+        "mf": "2",
+        "sit": "08",
+        "uf": "PE",
+        "fantasia": "TERRA NOVA PE"
+      },
+      {
+        "cnpj": "00.000.000/4183-15",
+        "mf": "2",
+        "sit": "02",
+        "uf": "SP",
+        "fantasia": "VILA XAVIER - ARARAQUARA (SP)"
+      },
+      {
+        "cnpj": "00.000.000/4213-75",
+        "mf": "2",
+        "sit": "08",
+        "uf": "CE",
+        "fantasia": "PAA - SAO JOAO DO JAGUARIBE (CE)"
+      },
+      {
+        "cnpj": "00.000.000/4234-08",
+        "mf": "2",
+        "sit": "02",
+        "uf": "TO",
+        "fantasia": "DIVINOPOLIS DO TOCANTINS (TO)"
+      },
+      {
+        "cnpj": "00.000.000/4257-96",
+        "mf": "2",
+        "sit": "08",
+        "uf": "BA",
+        "fantasia": "GERAT - BARREIRAS (BA)"
+      },
+      {
+        "cnpj": "00.000.000/4274-97",
+        "mf": "2",
+        "sit": "08",
+        "uf": "SP",
+        "fantasia": "GERAT - ABC PAULISTA (SP)"
+      },
+      {
+        "cnpj": "00.000.000/4325-71",
+        "mf": "2",
+        "sit": "08",
+        "uf": "RN",
+        "fantasia": "URR NATAL(RN)"
+      },
+      {
+        "cnpj": "00.000.000/4327-33",
+        "mf": "2",
+        "sit": "08",
+        "uf": "MG",
+        "fantasia": "CESEC COMPE BELO HORIZONTE (MG)"
+      },
+      {
+        "cnpj": "00.000.000/4329-03",
+        "mf": "2",
+        "sit": "08",
+        "uf": "RJ",
+        "fantasia": "GERAT - RIO DE JANEIRO (RJ)"
+      },
+      {
+        "cnpj": "00.000.000/4358-30",
+        "mf": "2",
+        "sit": "08",
+        "uf": "MT",
+        "fantasia": "URC DIAMANTINO (MT)"
+      },
+      {
+        "cnpj": "00.000.000/4381-89",
+        "mf": "2",
+        "sit": "02",
+        "uf": "SP",
+        "fantasia": "GIOVANNI GRONCHI - SAO PAULO (SP)"
+      },
+      {
+        "cnpj": "00.000.000/4391-50",
+        "mf": "2",
+        "sit": "02",
+        "uf": "SP",
+        "fantasia": "BORBA GATO-SAO PAULO(SP)"
+      },
+      {
+        "cnpj": "00.000.000/4393-12",
+        "mf": "2",
+        "sit": "02",
+        "uf": "SP",
+        "fantasia": "BAIRRO ASSUNCAO - SAO BERNARDO DO CAMPO (SP)"
+      },
+      {
+        "cnpj": "00.000.000/4403-29",
+        "mf": "2",
+        "sit": "02",
+        "uf": "RO",
+        "fantasia": "MONTE NEGRO (RO)"
+      },
+      {
+        "cnpj": "00.000.000/4408-33",
+        "mf": "2",
+        "sit": "02",
+        "uf": "MT",
+        "fantasia": "URC CUIABA II -MT"
+      },
+      {
+        "cnpj": "00.000.000/4410-58",
+        "mf": "2",
+        "sit": "08",
+        "uf": "RN",
+        "fantasia": "BANCO DO BRASIL S. A. - AVENIDA RIO BRANCO-NATAL(RN)"
+      },
+      {
+        "cnpj": "00.000.000/4426-15",
+        "mf": "2",
+        "sit": "08",
+        "uf": "RO",
+        "fantasia": "URC PORTO VELHO-RO"
+      },
+      {
+        "cnpj": "00.000.000/4441-54",
+        "mf": "2",
+        "sit": "02",
+        "uf": "TO",
+        "fantasia": "SILVANOPOLIS (TO)"
+      },
+      {
+        "cnpj": "00.000.000/4447-40",
+        "mf": "2",
+        "sit": "02",
+        "uf": "MS",
+        "fantasia": "ITAQUIRAI (MS)"
+      },
+      {
+        "cnpj": "00.000.000/4474-12",
+        "mf": "2",
+        "sit": "02",
+        "uf": "BA",
+        "fantasia": "JIQUIRICA (BA)"
+      },
+      {
+        "cnpj": "00.000.000/4480-60",
+        "mf": "2",
+        "sit": "02",
+        "uf": "MT",
+        "fantasia": "QUERENCIA (MT)"
+      },
+      {
+        "cnpj": "00.000.000/4506-34",
+        "mf": "2",
+        "sit": "08",
+        "uf": "RS",
+        "fantasia": "PAA - SAO JOAO DO POLESINE (RS)"
+      },
+      {
+        "cnpj": "00.000.000/4557-84",
+        "mf": "2",
+        "sit": "08",
+        "uf": "RS",
+        "fantasia": "PAA - COLINAS S/A"
+      },
+      {
+        "cnpj": "00.000.000/4562-41",
+        "mf": "2",
+        "sit": "08",
+        "uf": "ES",
+        "fantasia": "MINERACAO CAPIXABA"
+      },
+      {
+        "cnpj": "00.000.000/4596-90",
+        "mf": "2",
+        "sit": "02",
+        "uf": "RJ",
+        "fantasia": "ESTILO INVESTIDOR RIO DE JANEIRO (RJ)"
+      },
+      {
+        "cnpj": "00.000.000/4635-31",
+        "mf": "2",
+        "sit": "02",
+        "uf": "CE",
+        "fantasia": "FORTALEZA"
+      },
+      {
+        "cnpj": "00.000.000/4639-65",
+        "mf": "2",
+        "sit": "02",
+        "uf": "CE",
+        "fantasia": "TURURU (CE)"
+      },
+      {
+        "cnpj": "00.000.000/4652-32",
+        "mf": "2",
+        "sit": "02",
+        "uf": "CE",
+        "fantasia": "CATUNDA (CE)"
+      },
+      {
+        "cnpj": "00.000.000/4674-48",
+        "mf": "2",
+        "sit": "02",
+        "uf": "AL",
+        "fantasia": "LAGOA DA CANOA (AL)"
+      },
+      {
+        "cnpj": "00.000.000/4676-00",
+        "mf": "2",
+        "sit": "02",
+        "uf": "MG",
+        "fantasia": "PSV JUIZ DE FORA - MG"
+      },
+      {
+        "cnpj": "00.000.000/4688-43",
+        "mf": "2",
+        "sit": "02",
+        "uf": "MG",
+        "fantasia": "PALACIO DAS ARTES (MG)"
+      },
+      {
+        "cnpj": "00.000.000/4729-56",
+        "mf": "2",
+        "sit": "02",
+        "uf": "CE",
+        "fantasia": "SUREG FORTALEZA (CE)"
+      },
+      {
+        "cnpj": "00.000.000/4733-32",
+        "mf": "2",
+        "sit": "08",
+        "uf": "MT",
+        "fantasia": "ALTO PARAGUAI (MT)"
+      },
+      {
+        "cnpj": "00.000.000/4757-00",
+        "mf": "2",
+        "sit": "02",
+        "uf": "SP",
+        "fantasia": "JOSE MENINO SANTOS (SP)"
+      },
+      {
+        "cnpj": "00.000.000/4782-10",
+        "mf": "2",
+        "sit": "02",
+        "uf": "PA",
+        "fantasia": "PAA - SAO DOMINGOS DO ARAGUAIA (PA)"
+      },
+      {
+        "cnpj": "00.000.000/4811-90",
+        "mf": "2",
+        "sit": "08",
+        "uf": "SP",
+        "fantasia": "INFRA/SERET FERNANDOPOLIS (SP)"
+      },
+      {
+        "cnpj": "00.000.000/4820-80",
+        "mf": "2",
+        "sit": "02",
+        "uf": "SP",
+        "fantasia": "PORTAL DO MORUMBI - SAO PAULO (SP)"
+      },
+      {
+        "cnpj": "00.000.000/4860-78",
+        "mf": "2",
+        "sit": "02",
+        "uf": "MG",
+        "fantasia": "CATAGUASES"
+      },
+      {
+        "cnpj": "00.000.000/4869-06",
+        "mf": "2",
+        "sit": "02",
+        "uf": "ES",
+        "fantasia": "RUBEM BRAGA - CACHOEIRO DE ITAPEMIRIM (ES)"
+      },
+      {
+        "cnpj": "00.000.000/4923-96",
+        "mf": "2",
+        "sit": "02",
+        "uf": "RJ",
+        "fantasia": "ABOLICAO - RIO DE JANEIRO (RJ)"
+      },
+      {
+        "cnpj": "00.000.000/4929-81",
+        "mf": "2",
+        "sit": "02",
+        "uf": "PR",
+        "fantasia": "UNIVERSIDADE - CURITIBA (PR)"
+      },
+      {
+        "cnpj": "00.000.000/4934-49",
+        "mf": "2",
+        "sit": "02",
+        "uf": "MG",
+        "fantasia": "ESCRIT. CORPORATE BANKING MINAS GERAIS (MG)"
+      },
+      {
+        "cnpj": "00.000.000/4942-59",
+        "mf": "2",
+        "sit": "02",
+        "uf": "RJ",
+        "fantasia": "ESCRITORIO EXC. CIDADE OLIMPICA - RIO DE JANEIRO (RJ)"
+      },
+      {
+        "cnpj": "00.000.000/4944-10",
+        "mf": "2",
+        "sit": "08",
+        "uf": "RJ",
+        "fantasia": "PRACA DAS NACOES - RIO DE JANEIRO (RJ)"
+      },
+      {
+        "cnpj": "00.000.000/4970-02",
+        "mf": "2",
+        "sit": "02",
+        "uf": "BA",
+        "fantasia": "JEQUIE"
+      },
+      {
+        "cnpj": "00.000.000/4984-08",
+        "mf": "2",
+        "sit": "02",
+        "uf": "AC",
+        "fantasia": "RIO BRANCO"
+      },
+      {
+        "cnpj": "00.000.000/4996-41",
+        "mf": "2",
+        "sit": "08",
+        "uf": "GO",
+        "fantasia": "INFRA - SERET CERES (GO)"
+      },
+      {
+        "cnpj": "00.000.000/4998-03",
+        "mf": "2",
+        "sit": "02",
+        "uf": "GO",
+        "fantasia": "INFRA - SERET RIO VERDE (GO)"
+      },
+      {
+        "cnpj": "00.000.000/5003-21",
+        "mf": "2",
+        "sit": "02",
+        "uf": "MT",
+        "fantasia": "SERET CACERES (MT)"
+      },
+      {
+        "cnpj": "00.000.000/5012-12",
+        "mf": "2",
+        "sit": "02",
+        "uf": "RO",
+        "fantasia": "SAO FRANCISCO DO GUAPORE (RO)"
+      },
+      {
+        "cnpj": "00.000.000/5028-80",
+        "mf": "2",
+        "sit": "02",
+        "uf": "AP",
+        "fantasia": "MACAPA"
+      },
+      {
+        "cnpj": "00.000.000/5042-38",
+        "mf": "2",
+        "sit": "02",
+        "uf": "PR",
+        "fantasia": "EMPRESARIAL NORTE (PR)"
+      },
+      {
+        "cnpj": "00.000.000/5054-71",
+        "mf": "2",
+        "sit": "02",
+        "uf": "PA",
+        "fantasia": "EMPRESARIAL BELEM (PA)"
+      },
+      {
+        "cnpj": "00.000.000/5080-63",
+        "mf": "2",
+        "sit": "02",
+        "uf": "RJ",
+        "fantasia": "ARRAIAL DO CABO(RJ)"
+      },
+      {
+        "cnpj": "00.000.000/5092-05",
+        "mf": "2",
+        "sit": "02",
+        "uf": "MG",
+        "fantasia": "BAIRRO OURO PRETO (MG)"
+      },
+      {
+        "cnpj": "00.000.000/5109-80",
+        "mf": "2",
+        "sit": "02",
+        "uf": "AM",
+        "fantasia": "COMPENSA (AM)"
+      },
+      {
+        "cnpj": "00.000.000/5145-43",
+        "mf": "2",
+        "sit": "02",
+        "uf": "SP",
+        "fantasia": "PAA JUMIRIM (SP)"
+      },
+      {
+        "cnpj": "00.000.000/5146-24",
+        "mf": "2",
+        "sit": "02",
+        "uf": "SP",
+        "fantasia": "AGENCIA JARDIM URANO - SAO JOSE DO RIO PRETO (SP)"
+      },
+      {
+        "cnpj": "00.000.000/5150-00",
+        "mf": "2",
+        "sit": "02",
+        "uf": "SP",
+        "fantasia": "AGENCIA PEROLA (SP)"
+      },
+      {
+        "cnpj": "00.000.000/5159-49",
+        "mf": "2",
+        "sit": "02",
+        "uf": "TO",
+        "fantasia": "BOSQUE DOS PIONEIROS (TO)"
+      },
+      {
+        "cnpj": "00.000.000/5164-06",
+        "mf": "2",
+        "sit": "08",
+        "uf": "SP",
+        "fantasia": "VICENTE DE CARVALHO (SP)"
+      },
+      {
+        "cnpj": "00.000.000/5196-93",
+        "mf": "2",
+        "sit": "02",
+        "uf": "SP",
+        "fantasia": "SAUDE-SAO PAULO (SP)"
+      },
+      {
+        "cnpj": "00.000.000/5220-58",
+        "mf": "2",
+        "sit": "02",
+        "uf": "PA",
+        "fantasia": "PAA ITUPIRANGA (PA)"
+      },
+      {
+        "cnpj": "00.000.000/5223-09",
+        "mf": "2",
+        "sit": "02",
+        "uf": "PA",
+        "fantasia": "PIONEIRA - MARABA (PA)"
+      },
+      {
+        "cnpj": "00.000.000/5228-05",
+        "mf": "2",
+        "sit": "02",
+        "uf": "RJ",
+        "fantasia": "FIOCRUZ-RIO DE JANEIRO(RJ)"
+      },
+      {
+        "cnpj": "00.000.000/5231-00",
+        "mf": "2",
+        "sit": "08",
+        "uf": "SC",
+        "fantasia": "QUARTA AVENIDA - BALNEARIO CAMBORIU (SC)"
+      },
+      {
+        "cnpj": "00.000.000/5240-00",
+        "mf": "2",
+        "sit": "08",
+        "uf": "SP",
+        "fantasia": "RUA DR FREITAS-BRAGANCA PAULISTA (SP)"
+      },
+      {
+        "cnpj": "00.000.000/5245-06",
+        "mf": "2",
+        "sit": "08",
+        "uf": "MT",
+        "fantasia": "EMPRESA MATO GROSSO - CUIABA (MT)"
+      },
+      {
+        "cnpj": "00.000.000/5248-59",
+        "mf": "2",
+        "sit": "02",
+        "uf": "SP",
+        "fantasia": "NOVA APARECIDA -CAMPINAS (PS)"
+      },
+      {
+        "cnpj": "00.000.000/5256-69",
+        "mf": "2",
+        "sit": "02",
+        "uf": "PA",
+        "fantasia": "CIDADE NOVA ANANINDEUA (PA)"
+      },
+      {
+        "cnpj": "00.000.000/5266-30",
+        "mf": "2",
+        "sit": "08",
+        "uf": "SP",
+        "fantasia": "NOVA INDAIA - INDAIATUBA (SP)"
+      },
+      {
+        "cnpj": "00.000.000/5268-00",
+        "mf": "2",
+        "sit": "08",
+        "uf": "SP",
+        "fantasia": "CASTELO (SP)"
+      },
+      {
+        "cnpj": "00.000.000/5271-06",
+        "mf": "2",
+        "sit": "08",
+        "uf": "SP",
+        "fantasia": "AMERICO BRASILIENSE - SAO PAULO (SP)"
+      },
+      {
+        "cnpj": "00.000.000/5283-31",
+        "mf": "2",
+        "sit": "02",
+        "uf": "SP",
+        "fantasia": "EMPRESA CENTRO-SAO PAULO (SP)"
+      },
+      {
+        "cnpj": "00.000.000/5284-12",
+        "mf": "2",
+        "sit": "02",
+        "uf": "SP",
+        "fantasia": "D'AVO SAO MIGUEL - SAO PAULO (SP)"
+      },
+      {
+        "cnpj": "00.000.000/5292-22",
+        "mf": "2",
+        "sit": "08",
+        "uf": "SP",
+        "fantasia": "NACOES UNIDAS - BAURU (SP)"
+      },
+      {
+        "cnpj": "00.000.000/5296-56",
+        "mf": "2",
+        "sit": "08",
+        "uf": "RJ",
+        "fantasia": "SANTA ROSA - NITEROI (RJ)"
+      },
+      {
+        "cnpj": "00.000.000/5302-39",
+        "mf": "2",
+        "sit": "02",
+        "uf": "RJ",
+        "fantasia": "CONSELHEIRO PAULINO (RJ)"
+      },
+      {
+        "cnpj": "00.000.000/5317-15",
+        "mf": "2",
+        "sit": "02",
+        "uf": "RJ",
+        "fantasia": "VILA VALQUEIRE (RJ)"
+      },
+      {
+        "cnpj": "00.000.000/5350-36",
+        "mf": "2",
+        "sit": "02",
+        "uf": "MS",
+        "fantasia": "JARDIM ALVORADA - TRES LAGOAS (MS)"
+      },
+      {
+        "cnpj": "00.000.000/5410-01",
+        "mf": "2",
+        "sit": "08",
+        "uf": "BA",
+        "fantasia": "PAA SEBASTIAO LARANJEIRAS (BA)"
+      },
+      {
+        "cnpj": "00.000.000/5412-73",
+        "mf": "2",
+        "sit": "02",
+        "uf": "SP",
+        "fantasia": "ESTILO VILA MARIANA"
+      },
+      {
+        "cnpj": "00.000.000/5418-69",
+        "mf": "2",
+        "sit": "02",
+        "uf": "RS",
+        "fantasia": "EMPRESARIAL SANTA CRUZ DO SUL (RS)"
+      },
+      {
+        "cnpj": "00.000.000/5428-30",
+        "mf": "2",
+        "sit": "08",
+        "uf": "RO",
+        "fantasia": "URR PORTO VELHO (RO)"
+      },
+      {
+        "cnpj": "00.000.000/5471-23",
+        "mf": "2",
+        "sit": "02",
+        "uf": "SP",
+        "fantasia": "GUARIBA (SP)"
+      },
+      {
+        "cnpj": "00.000.000/5515-89",
+        "mf": "2",
+        "sit": "02",
+        "uf": "ES",
+        "fantasia": "ITARANA (ES)"
+      },
+      {
+        "cnpj": "00.000.000/5518-21",
+        "mf": "2",
+        "sit": "08",
+        "uf": "MT",
+        "fantasia": "OURO BRANCO DO SUL - ITIQUIRA (MT"
+      },
+      {
+        "cnpj": "00.000.000/5529-84",
+        "mf": "2",
+        "sit": "08",
+        "uf": "SP",
+        "fantasia": "SARAPUI (SP)"
+      },
+      {
+        "cnpj": "00.000.000/5547-66",
+        "mf": "2",
+        "sit": "02",
+        "uf": "RS",
+        "fantasia": "PARAI (RS)"
+      },
+      {
+        "cnpj": "00.000.000/5549-28",
+        "mf": "2",
+        "sit": "08",
+        "uf": "BA",
+        "fantasia": "BREJOES (BA)"
+      },
+      {
+        "cnpj": "00.000.000/5554-95",
+        "mf": "2",
+        "sit": "02",
+        "uf": "PA",
+        "fantasia": "IGARAPE-MIRI (PA)"
+      },
+      {
+        "cnpj": "00.000.000/5566-29",
+        "mf": "2",
+        "sit": "02",
+        "uf": "SP",
+        "fantasia": "SANTO ANTONIO DE POSSE (SP)"
+      },
+      {
+        "cnpj": "00.000.000/5587-53",
+        "mf": "2",
+        "sit": "02",
+        "uf": "PA",
+        "fantasia": "AFUA (PA)"
+      },
+      {
+        "cnpj": "00.000.000/5602-27",
+        "mf": "2",
+        "sit": "08",
+        "uf": "TO",
+        "fantasia": "SERRA DO CARMO - PALMAS (TO)"
+      },
+      {
+        "cnpj": "00.000.000/5613-80",
+        "mf": "2",
+        "sit": "02",
+        "uf": "SP",
+        "fantasia": "BRODOWSKI (SP)"
+      },
+      {
+        "cnpj": "00.000.000/5624-32",
+        "mf": "2",
+        "sit": "02",
+        "uf": "PR",
+        "fantasia": "BAIRRO SAO PEDRO - SAO JOSE DOS PINHAIS (PR)"
+      },
+      {
+        "cnpj": "00.000.000/5627-85",
+        "mf": "2",
+        "sit": "02",
+        "uf": "CE",
+        "fantasia": "MAURITI (CE)"
+      },
+      {
+        "cnpj": "00.000.000/5629-47",
+        "mf": "2",
+        "sit": "02",
+        "uf": "SP",
+        "fantasia": "CHERVESON - RIO CLARO (SP)"
+      },
+      {
+        "cnpj": "00.000.000/5660-04",
+        "mf": "2",
+        "sit": "08",
+        "uf": "PR",
+        "fantasia": "AVENIDA MANDACARU (PR)"
+      },
+      {
+        "cnpj": "00.000.000/5688-05",
+        "mf": "2",
+        "sit": "08",
+        "uf": "AL",
+        "fantasia": "SHOPPING IGUATEMI - MACEIO (AL)"
+      },
+      {
+        "cnpj": "00.000.000/5709-66",
+        "mf": "2",
+        "sit": "02",
+        "uf": "SP",
+        "fantasia": "AVENIDA CILLO - AMERICANA (SP)"
+      },
+      {
+        "cnpj": "00.000.000/5714-23",
+        "mf": "2",
+        "sit": "02",
+        "uf": "SP",
+        "fantasia": "FAZENDINHA - SANTANA DE PARNAIBA (SP)"
+      },
+      {
+        "cnpj": "00.000.000/5728-29",
+        "mf": "2",
+        "sit": "08",
+        "uf": "RS",
+        "fantasia": "PICADA CAFE (RS)"
+      },
+      {
+        "cnpj": "00.000.000/5741-04",
+        "mf": "2",
+        "sit": "08",
+        "uf": "RN",
+        "fantasia": "TRT NATAL RN"
+      },
+      {
+        "cnpj": "00.000.000/5745-20",
+        "mf": "2",
+        "sit": "08",
+        "uf": "ES",
+        "fantasia": "AVENIDA SANTOS NEVES - CACHOEIRO DE ITAPEMIRIM (ES)"
+      },
+      {
+        "cnpj": "00.000.000/5747-91",
+        "mf": "2",
+        "sit": "02",
+        "uf": "RN",
+        "fantasia": "PETROBRAS - MOSSORO (RN)"
+      },
+      {
+        "cnpj": "00.000.000/5752-59",
+        "mf": "2",
+        "sit": "02",
+        "uf": "SP",
+        "fantasia": "BAIRRO CAPELA - MOGI GUACU (SP)"
+      },
+      {
+        "cnpj": "00.000.007/0001-03",
+        "mf": "1",
+        "sit": "08",
+        "uf": "SP",
+        "fantasia": null
+      },
+      {
+        "cnpj": "00.000.025/0001-95",
+        "mf": "1",
+        "sit": "08",
+        "uf": "SP",
+        "fantasia": null
+      },
+      {
+        "cnpj": "00.000.030/0001-06",
+        "mf": "1",
+        "sit": "02",
+        "uf": "SP",
+        "fantasia": null
+      },
+      {
+        "cnpj": "00.000.054/0001-57",
+        "mf": "1",
+        "sit": "04",
+        "uf": "SP",
+        "fantasia": null
+      },
+      {
+        "cnpj": "00.000.065/0001-37",
+        "mf": "1",
+        "sit": "08",
+        "uf": "SP",
+        "fantasia": null
+      },
+      {
+        "cnpj": "00.000.069/0001-15",
+        "mf": "1",
+        "sit": "08",
+        "uf": "SP",
+        "fantasia": null
+      },
+      {
+        "cnpj": "00.000.083/0011-90",
+        "mf": "2",
+        "sit": "08",
+        "uf": "DF",
+        "fantasia": null
+      },
+      {
+        "cnpj": "00.000.085/0001-08",
+        "mf": "1",
+        "sit": "08",
+        "uf": "SP",
+        "fantasia": null
+      }
+    ]
+  },
+  {
+    "raiz": "00.000.1",
+    "est": [
+      {
+        "cnpj": "00.000.108/0001-84",
+        "mf": "1",
+        "sit": "02",
+        "uf": "SP",
+        "fantasia": null
+      },
+      {
+        "cnpj": "00.000.125/0002-00",
+        "mf": "2",
+        "sit": "08",
+        "uf": "DF",
+        "fantasia": null
+      },
+      {
+        "cnpj": "00.000.141/0011-86",
+        "mf": "2",
+        "sit": "08",
+        "uf": "DF",
+        "fantasia": "LAVANDERIA ALVORADA"
+      },
+      {
+        "cnpj": "00.000.154/0001-83",
+        "mf": "1",
+        "sit": "02",
+        "uf": "SP",
+        "fantasia": "G.P.Z. ADMINISTRACAO"
+      },
+      {
+        "cnpj": "00.000.158/0001-61",
+        "mf": "1",
+        "sit": "08",
+        "uf": "DF",
+        "fantasia": "ORGANIZACAO CARVALHO DE MORAES"
+      },
+      {
+        "cnpj": "00.000.166/0003-70",
+        "mf": "2",
+        "sit": "08",
+        "uf": "DF",
+        "fantasia": "GARAGEM ALAMEDA II"
+      },
+      {
+        "cnpj": "00.000.189/0001-12",
+        "mf": "1",
+        "sit": "04",
+        "uf": "SP",
+        "fantasia": null
+      }
+    ]
+  },
+  {
+    "raiz": "00.000.2",
+    "est": [
+      {
+        "cnpj": "00.000.204/0001-22",
+        "mf": "1",
+        "sit": "04",
+        "uf": "SP",
+        "fantasia": null
+      },
+      {
+        "cnpj": "00.000.208/0008-87",
+        "mf": "2",
+        "sit": "02",
+        "uf": "DF",
+        "fantasia": "BRB ESTABELECIMENTO UNIFICADO"
+      },
+      {
+        "cnpj": "00.000.208/0021-54",
+        "mf": "2",
+        "sit": "08",
+        "uf": "GO",
+        "fantasia": null
+      },
+      {
+        "cnpj": "00.000.208/0026-69",
+        "mf": "2",
+        "sit": "02",
+        "uf": "DF",
+        "fantasia": "BRB ESTABELECIMENTO UNIFICADO"
+      },
+      {
+        "cnpj": "00.000.208/0027-40",
+        "mf": "2",
+        "sit": "02",
+        "uf": "DF",
+        "fantasia": "BRB"
+      },
+      {
+        "cnpj": "00.000.208/0039-83",
+        "mf": "2",
+        "sit": "08",
+        "uf": "GO",
+        "fantasia": "BRB"
+      },
+      {
+        "cnpj": "00.000.212/0001-79",
+        "mf": "1",
+        "sit": "08",
+        "uf": "SP",
+        "fantasia": null
+      },
+      {
+        "cnpj": "00.000.233/0001-94",
+        "mf": "1",
+        "sit": "08",
+        "uf": "SP",
+        "fantasia": null
+      },
+      {
+        "cnpj": "00.000.239/0001-61",
+        "mf": "1",
+        "sit": "08",
+        "uf": "SP",
+        "fantasia": null
+      },
+      {
+        "cnpj": "00.000.255/0001-54",
+        "mf": "1",
+        "sit": "02",
+        "uf": "SP",
+        "fantasia": null
+      },
+      {
+        "cnpj": "00.000.258/0001-98",
+        "mf": "1",
+        "sit": "04",
+        "uf": "SP",
+        "fantasia": null
+      },
+      {
+        "cnpj": "00.000.268/0001-23",
+        "mf": "1",
+        "sit": "02",
+        "uf": "SP",
+        "fantasia": null
+      },
+      {
+        "cnpj": "00.000.290/0001-73",
+        "mf": "1",
+        "sit": "04",
+        "uf": "SP",
+        "fantasia": null
+      }
+    ]
+  },
+  {
+    "raiz": "00.000.3",
+    "est": [
+      {
+        "cnpj": "00.000.310/0001-06",
+        "mf": "1",
+        "sit": "08",
+        "uf": "SP",
+        "fantasia": null
+      },
+      {
+        "cnpj": "00.000.315/0001-39",
+        "mf": "1",
+        "sit": "08",
+        "uf": "DF",
+        "fantasia": null
+      },
+      {
+        "cnpj": "00.000.318/0001-72",
+        "mf": "1",
+        "sit": "08",
+        "uf": "SP",
+        "fantasia": null
+      },
+      {
+        "cnpj": "00.000.324/0001-20",
+        "mf": "1",
+        "sit": "08",
+        "uf": "SP",
+        "fantasia": null
+      },
+      {
+        "cnpj": "00.000.332/0001-76",
+        "mf": "1",
+        "sit": "08",
+        "uf": "SP",
+        "fantasia": null
+      },
+      {
+        "cnpj": "00.000.339/0001-98",
+        "mf": "1",
+        "sit": "08",
+        "uf": "SP",
+        "fantasia": null
+      }
+    ]
+  },
+  {
+    "raiz": "00.000.4",
+    "est": [
+      {
+        "cnpj": "00.000.404/0001-85",
+        "mf": "1",
+        "sit": "08",
+        "uf": "SP",
+        "fantasia": "MONTE CASTELO"
+      },
+      {
+        "cnpj": "00.000.416/0001-00",
+        "mf": "1",
+        "sit": "04",
+        "uf": "SP",
+        "fantasia": null
+      },
+      {
+        "cnpj": "00.000.431/0001-58",
+        "mf": "1",
+        "sit": "08",
+        "uf": "SP",
+        "fantasia": "TRIOCON"
+      },
+      {
+        "cnpj": "00.000.471/0001-08",
+        "mf": "1",
+        "sit": "04",
+        "uf": "DF",
+        "fantasia": "MAJESTIC"
+      },
+      {
+        "cnpj": "00.000.496/0001-01",
+        "mf": "1",
+        "sit": "08",
+        "uf": "SP",
+        "fantasia": null
+      }
+    ]
+  },
+  {
+    "raiz": "00.000.5",
+    "est": [
+      {
+        "cnpj": "00.000.502/0001-12",
+        "mf": "1",
+        "sit": "02",
+        "uf": "SP",
+        "fantasia": "EPS"
+      },
+      {
+        "cnpj": "00.000.525/0001-27",
+        "mf": "1",
+        "sit": "04",
+        "uf": "SP",
+        "fantasia": "IRMAOS BAHIA"
+      },
+      {
+        "cnpj": "00.000.535/0001-62",
+        "mf": "1",
+        "sit": "08",
+        "uf": "SP",
+        "fantasia": null
+      },
+      {
+        "cnpj": "00.000.544/0001-53",
+        "mf": "1",
+        "sit": "08",
+        "uf": "SP",
+        "fantasia": null
+      },
+      {
+        "cnpj": "00.000.545/0001-06",
+        "mf": "1",
+        "sit": "08",
+        "uf": "SP",
+        "fantasia": null
+      },
+      {
+        "cnpj": "00.000.548/0001-31",
+        "mf": "1",
+        "sit": "08",
+        "uf": "SP",
+        "fantasia": null
+      },
+      {
+        "cnpj": "00.000.551/0001-55",
+        "mf": "1",
+        "sit": "08",
+        "uf": "SP",
+        "fantasia": null
+      },
+      {
+        "cnpj": "00.000.556/0001-88",
+        "mf": "1",
+        "sit": "04",
+        "uf": "SP",
+        "fantasia": "SILVA RANGEL IMOVEIS"
+      },
+      {
+        "cnpj": "00.000.583/0001-50",
+        "mf": "1",
+        "sit": "08",
+        "uf": "SP",
+        "fantasia": null
+      },
+      {
+        "cnpj": "00.000.597/0001-74",
+        "mf": "1",
+        "sit": "08",
+        "uf": "SP",
+        "fantasia": null
+      }
+    ]
+  },
+  {
+    "raiz": "00.000.6",
+    "est": [
+      {
+        "cnpj": "00.000.619/0001-04",
+        "mf": "1",
+        "sit": "08",
+        "uf": "SP",
+        "fantasia": null
+      },
+      {
+        "cnpj": "00.000.668/0001-39",
+        "mf": "1",
+        "sit": "08",
+        "uf": "SP",
+        "fantasia": null
+      }
+    ]
+  },
+  {
+    "raiz": "00.000.7",
+    "est": [
+      {
+        "cnpj": "00.000.703/0001-10",
+        "mf": "1",
+        "sit": "08",
+        "uf": "DF",
+        "fantasia": "BAR E RESTAURANTE CANTINA ALTEROSA"
+      },
+      {
+        "cnpj": "00.000.752/0001-52",
+        "mf": "1",
+        "sit": "04",
+        "uf": "GO",
+        "fantasia": "ASSOCIACAO POR MORADIA DO ESTADO DE GOIAS APMEG-GO"
+      },
+      {
+        "cnpj": "00.000.769/0001-00",
+        "mf": "1",
+        "sit": "08",
+        "uf": "SP",
+        "fantasia": null
+      },
+      {
+        "cnpj": "00.000.772/0001-23",
+        "mf": "1",
+        "sit": "08",
+        "uf": "SP",
+        "fantasia": null
+      },
+      {
+        "cnpj": "00.000.785/0001-00",
+        "mf": "1",
+        "sit": "08",
+        "uf": "SP",
+        "fantasia": null
+      },
+      {
+        "cnpj": "00.000.799/0001-16",
+        "mf": "1",
+        "sit": "02",
+        "uf": "SP",
+        "fantasia": null
+      }
+    ]
+  },
+  {
+    "raiz": "00.000.8",
+    "est": [
+      {
+        "cnpj": "00.000.802/0021-45",
+        "mf": "2",
+        "sit": "02",
+        "uf": "CE",
+        "fantasia": "HC PNEUS"
+      },
+      {
+        "cnpj": "00.000.802/0026-50",
+        "mf": "2",
+        "sit": "02",
+        "uf": "PA",
+        "fantasia": "HC PNEUS"
+      },
+      {
+        "cnpj": "00.000.802/0027-30",
+        "mf": "2",
+        "sit": "02",
+        "uf": "MA",
+        "fantasia": "HC PNEUS"
+      },
+      {
+        "cnpj": "00.000.802/0029-00",
+        "mf": "2",
+        "sit": "08",
+        "uf": "RN",
+        "fantasia": "HC PNEUS"
+      },
+      {
+        "cnpj": "00.000.804/0001-90",
+        "mf": "1",
+        "sit": "08",
+        "uf": "SP",
+        "fantasia": null
+      },
+      {
+        "cnpj": "00.000.815/0001-70",
+        "mf": "1",
+        "sit": "02",
+        "uf": "SP",
+        "fantasia": "CHAVEIRO 499"
+      },
+      {
+        "cnpj": "00.000.826/0001-50",
+        "mf": "1",
+        "sit": "08",
+        "uf": "SP",
+        "fantasia": "BAR CHIARI"
+      },
+      {
+        "cnpj": "00.000.832/0001-08",
+        "mf": "1",
+        "sit": "08",
+        "uf": "SP",
+        "fantasia": null
+      },
+      {
+        "cnpj": "00.000.841/0001-07",
+        "mf": "1",
+        "sit": "04",
+        "uf": "SP",
+        "fantasia": null
+      },
+      {
+        "cnpj": "00.000.850/0001-90",
+        "mf": "1",
+        "sit": "08",
+        "uf": "SP",
+        "fantasia": "AQUI AGORA"
+      },
+      {
+        "cnpj": "00.000.863/0001-69",
+        "mf": "1",
+        "sit": "08",
+        "uf": "SP",
+        "fantasia": null
+      },
+      {
+        "cnpj": "00.000.877/0001-82",
+        "mf": "1",
+        "sit": "02",
+        "uf": "GO",
+        "fantasia": "ICEA"
+      },
+      {
+        "cnpj": "00.000.893/0001-75",
+        "mf": "1",
+        "sit": "02",
+        "uf": "GO",
+        "fantasia": "ASBAN"
+      },
+      {
+        "cnpj": "00.000.894/0003-81",
+        "mf": "2",
+        "sit": "08",
+        "uf": "SP",
+        "fantasia": "DATAMAX-INFORMATICA"
+      }
+    ]
+  },
+  {
+    "raiz": "00.000.9",
+    "est": [
+      {
+        "cnpj": "00.000.909/0001-40",
+        "mf": "1",
+        "sit": "08",
+        "uf": "SP",
+        "fantasia": "N S ASSIS REPRESENTACOES E COMERCIO"
+      },
+      {
+        "cnpj": "00.000.913/0001-08",
+        "mf": "1",
+        "sit": "08",
+        "uf": "SP",
+        "fantasia": null
+      },
+      {
+        "cnpj": "00.000.953/0001-50",
+        "mf": "1",
+        "sit": "08",
+        "uf": "SP",
+        "fantasia": "MERCEARIA PIMENTA"
+      },
+      {
+        "cnpj": "00.000.958/0001-82",
+        "mf": "1",
+        "sit": "08",
+        "uf": "SP",
+        "fantasia": null
+      },
+      {
+        "cnpj": "00.000.961/0001-04",
+        "mf": "1",
+        "sit": "08",
+        "uf": "SP",
+        "fantasia": null
+      },
+      {
+        "cnpj": "00.000.966/0001-29",
+        "mf": "1",
+        "sit": "08",
+        "uf": "SP",
+        "fantasia": "TREVO BAR"
+      },
+      {
+        "cnpj": "00.000.967/0001-73",
+        "mf": "1",
+        "sit": "02",
+        "uf": "SP",
+        "fantasia": "JR-MC"
+      },
+      {
+        "cnpj": "00.000.990/0001-68",
+        "mf": "1",
+        "sit": "02",
+        "uf": "SP",
+        "fantasia": "MOTO SHOPPING"
+      },
+      {
+        "cnpj": "00.000.993/0001-00",
+        "mf": "1",
+        "sit": "02",
+        "uf": "SP",
+        "fantasia": "SUPERMERCADO SERVE TODOS"
+      },
+      {
+        "cnpj": "00.000.997/0001-80",
+        "mf": "1",
+        "sit": "08",
+        "uf": "SP",
+        "fantasia": "OPTICA SANTA CLARA"
+      }
+    ]
+  }
+]
