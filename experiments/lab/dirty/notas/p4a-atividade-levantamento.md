@@ -7,7 +7,7 @@ related:
   - tickets/T-CODE-TCF8H-JSON-PARITY.md
   - docs/adr/0033-hierarchical-codec-weld.md (§Update P4a)
   - experiments/lab/dirty/2026-07-16-0213-p4a-array-em-array-estudo/
-  - experiments/lab/dirty/notas/p4-replevel-nroots-levantamento.md (o parecer que orientou)
+  - experiments/lab/dirty/notas/p4-replevel-nroots-levantamento.md (a revisão crítica que orientou — marcada lá como opinião, não decisão)
   - tickets/T-API-BOUNDARY-CONTRACTS.md (limitações inerentes)
 ---
 
@@ -15,6 +15,25 @@ related:
 
 **[probatório]** Relato do que FOI FEITO no P4a (não é plano). Fatos verificados no repo em
 `191babf` (pushado). Escopo: `.8` = funcionalidade; otimização/limpeza = `.9`.
+
+> ## Errata 2026-07-16 (achados do owner, todos procedentes)
+>
+> **(1) O lab não tinha evidência.** Este levantamento foi escrito sobre um lab **sem nenhum `.tcf`**:
+> o protótipo devolvia dicionários em memória e nunca serializou wire, então as conclusões se apoiavam
+> em print, não em artefato inspecionável — violando a convenção do dirty lab. Corrigido: `run.py`
+> passa pelo core e emite **24 `.tcf`** + roundtrip byte-idêntico ao canônico (`assert` + `diff`).
+> Foi regressão minha num padrão já estabelecido (P1=3, P3a=9, P3b=9, P2=11 `.tcf`; P4a=0).
+>
+> **(2) A tabela de custo estava confundida.** A versão anterior (28/45/67/101/160 B) variava
+> profundidade **e** número de folhas ao mesmo tempo (folhas dobram por nível), e o "~7 B/nível" era
+> *interpretação* minha, não leitura da tabela. Refeito com carga constante (§3): o **valor 7 B/nível
+> se confirma exato**, mas a evidência anterior não o sustentava. Tabela corrigida abaixo.
+>
+> **(3) Atribuição errada.** Onde este documento dizia "**seu** parecer"/"o gate do **seu** parecer",
+> o texto citado é a seção *Revisão crítica independente* de `p4-replevel-nroots-levantamento.md`,
+> que **você mesmo marcou** `[probatório→opinião; não é decisão do owner]`. Ela virou operativa por
+> **sua adoção explícita** ao aprovar o lab — não por ser um parecer seu. A distinção é material
+> para o **P4b**, onde nada foi adotado e portanto **nada está decidido**.
 
 ## 1. Cronologia (4 commits, todos pushados)
 
@@ -25,12 +44,12 @@ related:
 | `c9d9ce7` | **ESTUDO P4a** (lab `2026-07-16-0213`) — count recursivo, gramática, gate 12/12 |
 | `191babf` | **WELD P4a** no core + hardening da auditoria adversarial |
 
-Sequência seguiu o ritual do seu parecer: *estudo em lab próprio → inspeção/aprovação do owner →
+Sequência seguiu o ritual da ordem recomendada na revisão crítica: *estudo em lab próprio → inspeção/aprovação do owner →
 weld → gates → auditoria*.
 
 ## 2. O que foi decidido e implementado
 
-**Mecanismo**: count recursivo (sua decisão 1, confirmada pelo parecer). Cada nível de aninhamento
+**Mecanismo**: count recursivo (recomendado na revisão crítica; adotado por você ao aprovar o lab). Cada nível de aninhamento
 tem coluna de **counts** (e **element-mask**) próprias; counts do nível k+1 = 1 entrada por elemento
 **não-null** do nível k (denso). Novo kind `arr_arrays`, cujo `kids` é o **nó anônimo** do nível interno.
 
@@ -40,7 +59,7 @@ nível; `?` após o `#` = element-mask **daquele** nível; o elemento entre `[..
 
 **Colunas**: nível 0 = `count`/`emask` **sem sufixo** (byte-compat); internos = `count1`/`emask1`, …
 
-**Firmado** (a decisão que seu gate pedia explícita): **null entre arrays = P3b∘P4a** (element-mask
+**Firmado** (o item que o gate pedia explícito): **null entre arrays = P3b∘P4a** (element-mask
 por nível cobre `[[1],null,[2]]` e `[[1,null,2]]`) — **não é P5**; P5 segue sendo tipo-misto
 (array+escalar no mesmo nível = fail-loud).
 
@@ -48,9 +67,9 @@ por nível cobre `[[1],null,[2]]` e `[[1,null,2]]`) — **não é P5**; P5 segue
 `_emit_array_value` · `arr_meta` · `parse_array` · `_read_array` — recursivos, em **blocos legíveis**
 (diretriz `.9`/port Rust do 1.0).
 
-## 3. O gate do seu parecer — item a item
+## 3. O gate (da revisão crítica, adotado por você ao aprovar o lab) — item a item
 
-| item do seu gate | status |
+| item do gate | status |
 |---|---|
 | matriz rasa | ✅ RT |
 | profundidade > 2 | ✅ RT (prof. 3 didático; fuzz até nível 4; cap em 128) |
@@ -61,24 +80,46 @@ por nível cobre `[[1],null,[2]]` e `[[1,null,2]]`) — **não é P5**; P5 segue
 | fechamento/tag inválidos | ✅ fail-loud (`]` deletado, tag desconhecida) |
 | **custo por profundidade, sem limite arbitrário antes da evidência** | ✅ **medido** (abaixo); cap 128 introduzido **só** após evidência de `RecursionError` cru na auditoria |
 
-**Custo medido** (campo com aninhamento crescente):
+**Custo medido** — desenho corrigido (ver Errata (2)). "Profundidade" e "nº de folhas" são variáveis
+**separadas**; medi-las juntas confunde framing com carga. Artefatos: `outputs/02a-framing-prof{1..6}.tcf`
+e `outputs/02b-arvore-prof{1..5}.tcf`.
 
-| prof. | `.tcf` | json compacto | header |
-|---:|---:|---:|---|
-| 1 | 28 B | 13 B | `m#:3[]:8n` |
-| 2 | 45 B | 21 B | `m#:3[#:6[]:14n` |
-| 3 | 67 B | 37 B | `m#:3[#:6[#:6[]:26n` |
-| 4 | 101 B | 69 B | `m#:3[#:6[#:6[#:6[]:50n` |
-| 5 | 160 B | 133 B | `m#:3[#:6[#:6[#:6[#:7[]:98n` |
+**(a) Framing ISOLADO** — carga constante (`[1,2]`), só a profundidade varia. É este o custo do nível:
 
-→ overhead **fixo ~7 B/nível** no header (o size da coluna de count); os counts em si colapsam por
-RLE. É exatamente o que sua preocupação "muitos marcadores" aponta — registrado (§5).
+| prof. | `.tcf` | json | Δ/nível | header |
+|---:|---:|---:|---:|---|
+| 1 | 28 B | 13 B | — | `m#:3[]:8n` |
+| 2 | 35 B | 15 B | **+7 B** | `m#:3[#:3[]:8n` |
+| 3 | 42 B | 17 B | **+7 B** | `m#:3[#:3[#:3[]:8n` |
+| 4 | 49 B | 19 B | **+7 B** | `m#:3[#:3[#:3[#:3[]:8n` |
+| 5 | 56 B | 21 B | **+7 B** | `m#:3[#:3[#:3[#:3[#:3[]:8n` |
+| 6 | 63 B | 23 B | **+7 B** | `m#:3[#:3[#:3[#:3[#:3[#:3[]:8n` |
 
-## 4. Evidência (2 camadas)
+→ overhead **+7 B/nível, exato e constante**: o framing (a coluna de count daquele nível). Os counts
+em si colapsam por RLE. É o que sua preocupação "muitos marcadores" aponta — registrado (§5).
 
-**Estudo** (lab `2026-07-16-0213`, protótipo que extrai a ideia): didático **12/12** · fuzz de
-profundidade seedado (níveis 1–4, ~20% null/nível, n/b/s) **4000/4000** · adversarial de frame
-(count truncado/excedente, folha faltando/sobrando) **fail-loud 4/4**.
+**(b) Árvore binária cheia** — realista, **confundido de propósito** (folhas dobram junto): 28/38/48/68/80 B
+(Δ +10/+10/+20/+12). **Não** é custo de nível; está no lab justamente para não sugerir que o framing cresce.
+
+## 4. Evidência (3 camadas)
+
+**Estudo — a IDEIA** (lab `2026-07-16-0213`, `study.py`+`proto.py`, pré-weld): didático **12/12** ·
+fuzz de profundidade seedado (níveis 1–4, ~20% null/nível, n/b/s) **4000/4000** · adversarial de frame
+(count truncado/excedente, folha faltando/sobrando) **fail-loud 4/4**. O protótipo **não serializa
+wire** — seus metas são pedagógicos (sem sizes). Foi essa a origem da Errata (1).
+
+**Wire — o ARTEFATO** (mesmo lab, `run.py`, pós-weld, pelo core): **24 `.tcf` inspecionáveis**, um por
+caso do gate + 11 de profundidade + base adversarial; cada roundtrip é **arquivo byte-idêntico** ao
+canônico de `intermediates/` (`assert` no run + `diff` externo conferido); adversarial no wire real
+(tag desconhecida, `]` deletado, bytes apendados, corpo esvaziado) **fail-loud 4/4**. Exemplo legível
+inteiro — `[{"m":[[1,2],[3]]}]`:
+
+```
+#TCF.8Hm#:3[#:8[]:8n
+\2          <- 1 registro, 2 elementos no nível externo
+*2-1|\2     <- counts internos: 2, 1   (seq-RLE)
+*3+1|\1     <- folhas: 1, 2, 3
+```
 
 **Weld** (core real): 14 casos P4a + fuzz seedado + tipo-misto + 6 de hardening → **117 passed** no
 módulo; **suíte 754 passed, 2 skipped, 2 xfailed**; **flat byte-canônico intacto**; **byte-compat de
@@ -124,7 +165,7 @@ stream) → conflita com o eixo O(1)/stream/view do Ciclo 4 → é trade de **pe
 
 ✅ objetos · arrays · strings · escaping · aninhamento · **P1** presença · **P3a/P3b** null ·
 **P2** tipos · **P4a** array-em-array.
-❌ **P4b raiz generalizada** (próximo; seu parecer: envelope/discriminador `root_kind` explícito, a
+❌ **P4b raiz generalizada** (próximo; **nada decidido** — a revisão crítica RECOMENDA envelope/discriminador `root_kind` explícito, a
 ordem de arrays **não é livre**, gate deve distinguir `[]`/`[{}]`/`{}`/escalar/`""`/`null` na raiz) ·
 **P5 union** (fronteira; não usar "qualquer JSON" antes dele) · congelar contratos de borda.
 

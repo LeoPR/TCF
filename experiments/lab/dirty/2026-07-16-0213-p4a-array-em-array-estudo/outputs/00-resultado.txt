@@ -1,40 +1,57 @@
-ESTUDO P4a — array-em-array via COUNT RECURSIVO. RT + meta por nível.
+EVIDÊNCIA P4a — wire REAL do core. Cada caso tem .tcf inspecionável + roundtrip diffável.
 
-(1) DIDÁTICO (gate do checkpoint 2026-07-16):
+(1) DIDÁTICO — gate do checkpoint 2026-07-16 (wire real, header à direita):
   [RT-OK] basico [[1,2],[3]]
-       meta: m#[#[]n]
+          01-01-basico-1-2-3.tcf · 40B · header: #TCF.8Hm#:3[#:8[]:8n
   [RT-OK] matriz retangular
-       meta: grade#[#[]n]
+          01-02-matriz-retangular.tcf · 42B · header: #TCF.8Hgrade#:3[#:6[]:8n
   [RT-OK] profundidade 3
-       meta: cubo#[#[#[]n]]
+          01-03-profundidade-3.tcf · 59B · header: #TCF.8Hcubo#:3[#:8[#:11[]:8n
   [RT-OK] arrays internos VAZIOS
-       meta: m#[#[]n]
+          01-04-arrays-internos-vazios.tcf · 39B · header: #TCF.8Hm#:3[#:11[]:3n
   [RT-OK] array externo vazio vs com-vazio
-       meta: m#[#[]n]
+          01-05-array-externo-vazio-vs-com-vazio.tcf · 41B · header: #TCF.8Hm#:9[#:8[]:3n
   [RT-OK] array de arrays de OBJETOS
-       meta: turmas#[#[nome]]
+          01-06-array-de-arrays-de-objetos.tcf · 51B · header: #TCF.8Hturmas#:3[#:8[nome
   [RT-OK] null ENTRE arrays (P3b∘P4a)
-       meta: m#?[#[]n]
+          01-07-null-entre-arrays-p3bp4a.tcf · 49B · header: #TCF.8Hm#:3?:8[#:6[]:8n
   [RT-OK] null DENTRO do inner (P3b no nível interno)
-       meta: m#[#?[]n]
+          01-08-null-dentro-do-inner-p3b-no-nivel-inte.tcf · 55B · header: #TCF.8Hm#:3[#:8?:11[]:8n
   [RT-OK] compose TOTAL (P2+P3b+P4a)
-       meta: m#?[#?[]n],rotulo,okb
+          01-09-compose-total-p2-p3b-p4a.tcf · 95B · header: #TCF.8Hm#:3?:8[#:8?:11[]:8n],rotulo:8,ok:5b
   [RT-OK] strings em arrays aninhados
-       meta: tags#[#[]]
+          01-10-strings-em-arrays-aninhados.tcf · 37B · header: #TCF.8Htags#:3[#:8[
   [RT-OK] bool em matriz
-       meta: bits#[#[]b]
+          01-11-bool-em-matriz.tcf · 50B · header: #TCF.8Hbits#:3[#:8[]:14b
   [RT-OK] campo array-em-array no MEIO de outros
-       meta: idn,m#[#[]n],nome
+          01-12-campo-array-em-array-no-meio-de-outros.tcf · 69B · header: #TCF.8Hid:8n,m#:8[#:8[]:8n],nome
 
-(2) FUZZ de profundidade (seedado; arrays aninhados até nível 4, nulls, tipos):
-  RT byte-exato: 4000/4000 (profundidade 1-4, ~20% null por nível, n/b/s)
+(2a) CUSTO DO FRAMING, ISOLADO — carga CONSTANTE ([1,2]), só a profundidade varia:
+     prof |  .tcf | json |  Δ/nível | header
+        1 |   28B |  13B |        — | #TCF.8Hm#:3[]:8n
+        2 |   35B |  15B |      +7B | #TCF.8Hm#:3[#:3[]:8n
+        3 |   42B |  17B |      +7B | #TCF.8Hm#:3[#:3[#:3[]:8n
+        4 |   49B |  19B |      +7B | #TCF.8Hm#:3[#:3[#:3[#:3[]:8n
+        5 |   56B |  21B |      +7B | #TCF.8Hm#:3[#:3[#:3[#:3[#:3[]:8n
+        6 |   63B |  23B |      +7B | #TCF.8Hm#:3[#:3[#:3[#:3[#:3[#:3[]:8n
+     → carga fixa: cada nível a mais custa SÓ o framing (coluna de count do nível).
 
-(3) ADVERSARIAL de frame (invariantes por nível — fail-loud, nunca silencioso):
-  [fail-loud OK] count interno TRUNCADO: coluna (('m',), 'count', 1) exaurida — frame incon
-  [fail-loud OK] count interno EXCEDENTE: coluna (('m',), 'count', 1) não exaurida
-  [fail-loud OK] folha faltando: coluna (('m',), 'leaf') exaurida — frame inconsist
-  [fail-loud OK] folha sobrando: coluna (('m',), 'leaf') não exaurida
+(2b) ÁRVORE BINÁRIA CHEIA — realista, mas CONFUNDIDO de propósito (folhas dobram junto):
+     prof | folhas |  .tcf | json |  Δ/nível | header
+        1 |      2 |   28B |  13B |        — | #TCF.8Hm#:3[]:8n
+        2 |      4 |   38B |  21B |     +10B | #TCF.8Hm#:3[#:6[]:8n
+        3 |      8 |   48B |  37B |     +10B | #TCF.8Hm#:3[#:6[#:6[]:8n
+        4 |     16 |   68B |  76B |     +20B | #TCF.8Hm#:3[#:6[#:6[#:6[]:17n
+        5 |     32 |   80B | 156B |     +12B | #TCF.8Hm#:3[#:6[#:6[#:6[#:7[]:18n
+     → aqui o Δ NÃO é custo de nível: folhas dobram a cada linha. Ler (2a) pro framing.
+     Artefatos: outputs/02a-framing-prof{1..6}.tcf · outputs/02b-arvore-prof{1..5}.tcf
 
-VEREDITO: count recursivo faz RT no gate inteiro + fuzz de profundidade; frames
-mutilados fail-loud. Estrutura (counts por nível) legível sem materializar folhas (O(1)/view).
-Gramática por nível demonstrada: m#[#[]] (2 níveis), cubo#[#[#[]]] (3), com '?' por nível.
+(3) ADVERSARIAL no wire REAL (blob adulterado → fail-loud, nunca silencioso):
+  [fail-loud OK] tag desconhecida (n->q): HierarchicalError: tag de tipo desconhecida 'q' após size (esperava n/b ou de
+  [fail-loud OK] ']' interno deletado: HierarchicalError: nome de campo vazio no header
+  [fail-loud OK] bytes apendados no corpo: HierarchicalError: 4 bytes não referenciados após a última coluna — blob adul
+  [fail-loud OK] corpo esvaziado: HierarchicalError: size 3 excede o corpo em ('m',) (blob truncado?)
+
+VEREDITO: P4a tem evidência de WIRE, não só de prosa. Todo caso do gate é um .tcf legível;
+todo roundtrip é arquivo byte-idêntico ao canônico (assert); blob adulterado é fail-loud.
+study.py (protótipo, pré-weld) validou a IDEIA; este run.py mede o que foi SOLDADO.

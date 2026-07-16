@@ -1,0 +1,5 @@
+(3) ADVERSARIAL no wire REAL (blob adulterado → fail-loud, nunca silencioso):
+  [fail-loud OK] tag desconhecida (n->q): HierarchicalError: tag de tipo desconhecida 'q' após size (esperava n/b ou de
+  [fail-loud OK] ']' interno deletado: HierarchicalError: nome de campo vazio no header
+  [fail-loud OK] bytes apendados no corpo: HierarchicalError: 4 bytes não referenciados após a última coluna — blob adul
+  [fail-loud OK] corpo esvaziado: HierarchicalError: size 3 excede o corpo em ('m',) (blob truncado?)

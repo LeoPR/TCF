@@ -1,0 +1,41 @@
+ESTUDO P4a — array-em-array via COUNT RECURSIVO. RT + meta por nível.
+
+(1) DIDÁTICO (gate do checkpoint 2026-07-16):
+  [RT-OK] basico [[1,2],[3]]
+       meta (PEDAGÓGICO, não é wire — o wire real está em run.py): m#[#[]n]
+  [RT-OK] matriz retangular
+       meta (PEDAGÓGICO, não é wire — o wire real está em run.py): grade#[#[]n]
+  [RT-OK] profundidade 3
+       meta (PEDAGÓGICO, não é wire — o wire real está em run.py): cubo#[#[#[]n]]
+  [RT-OK] arrays internos VAZIOS
+       meta (PEDAGÓGICO, não é wire — o wire real está em run.py): m#[#[]n]
+  [RT-OK] array externo vazio vs com-vazio
+       meta (PEDAGÓGICO, não é wire — o wire real está em run.py): m#[#[]n]
+  [RT-OK] array de arrays de OBJETOS
+       meta (PEDAGÓGICO, não é wire — o wire real está em run.py): turmas#[#[nome]]
+  [RT-OK] null ENTRE arrays (P3b∘P4a)
+       meta (PEDAGÓGICO, não é wire — o wire real está em run.py): m#?[#[]n]
+  [RT-OK] null DENTRO do inner (P3b no nível interno)
+       meta (PEDAGÓGICO, não é wire — o wire real está em run.py): m#[#?[]n]
+  [RT-OK] compose TOTAL (P2+P3b+P4a)
+       meta (PEDAGÓGICO, não é wire — o wire real está em run.py): m#?[#?[]n],rotulo,okb
+  [RT-OK] strings em arrays aninhados
+       meta (PEDAGÓGICO, não é wire — o wire real está em run.py): tags#[#[]]
+  [RT-OK] bool em matriz
+       meta (PEDAGÓGICO, não é wire — o wire real está em run.py): bits#[#[]b]
+  [RT-OK] campo array-em-array no MEIO de outros
+       meta (PEDAGÓGICO, não é wire — o wire real está em run.py): idn,m#[#[]n],nome
+
+(2) FUZZ de profundidade (seedado; arrays aninhados até nível 4, nulls, tipos):
+  RT byte-exato: 4000/4000 (profundidade 1-4, ~20% null por nível, n/b/s)
+
+(3) ADVERSARIAL de frame (invariantes por nível — fail-loud, nunca silencioso):
+  [fail-loud OK] count interno TRUNCADO: coluna (('m',), 'count', 1) exaurida — frame incon
+  [fail-loud OK] count interno EXCEDENTE: coluna (('m',), 'count', 1) não exaurida
+  [fail-loud OK] folha faltando: coluna (('m',), 'leaf') exaurida — frame inconsist
+  [fail-loud OK] folha sobrando: coluna (('m',), 'leaf') não exaurida
+
+VEREDITO (da IDEIA): count recursivo faz RT no gate inteiro + fuzz de profundidade;
+frames mutilados fail-loud. Estrutura (counts por nível) legível sem materializar folhas.
+Gramática por nível demonstrada: m#[#[]] (2 níveis), cubo#[#[#[]]] (3), com '?' por nível.
+NOTA: metas acima são PEDAGÓGICOS (sem sizes). Wire real + .tcf: run.py / 00-resultado.txt.

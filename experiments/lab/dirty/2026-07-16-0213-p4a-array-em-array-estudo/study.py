@@ -1,4 +1,9 @@
-"""ESTUDO P4a — valida o count recursivo no gate do owner (didático + fuzz de profundidade)."""
+"""ESTUDO P4a (PRÉ-WELD) — valida a IDEIA do count recursivo (didático + fuzz de profundidade).
+
+Papel: protótipo. `proto.py` extrai a ideia, não serializa wire — por isso este script NÃO produz
+`.tcf` e NÃO é dono dos artefatos do lab. A evidência de WIRE (o que foi soldado) está em `run.py`,
+que passa pelo core e emite `outputs/*.tcf` + roundtrip diffável. Ver result.md.
+"""
 from __future__ import annotations
 
 import json
@@ -8,6 +13,7 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
+sys.stdout.reconfigure(encoding="utf-8")  # console cp1252 não imprime '∘'
 from proto import P4Error, decode, encode, meta_str  # noqa: E402
 
 
@@ -29,14 +35,10 @@ def main():
             back = f"{type(e).__name__}: {e}"
         all_ok &= ok
         out.append(f"  [{'RT-OK' if ok else 'FALHA!!'}] {nome}")
-        out.append(f"       meta: {meta_str(fields)}")
+        out.append(f"       meta (PEDAGÓGICO, não é wire — o wire real está em run.py): {meta_str(fields)}")
         if not ok:
             out.append(f"       obtido: {back}")
-        stem = f"01-{j:02d}"
-        (HERE / "intermediates" / f"{stem}.json").write_bytes(
-            (json.dumps(docs, ensure_ascii=False, indent=2) + "\n").encode())
-        (HERE / "outputs" / f"{stem}-rt.json").write_bytes(
-            (json.dumps(back, ensure_ascii=False, indent=2, default=str) + "\n").encode())
+        _ = j  # artefatos são de run.py (wire real); o protótipo não serializa
 
     # ---------- fuzz de PROFUNDIDADE (custo + RT em escala) ----------
     out.append("")
@@ -85,11 +87,12 @@ def main():
         except P4Error as e:
             out.append(f"  [fail-loud OK] {nome}: {str(e)[:50]}")
 
-    out += ["", ("VEREDITO: count recursivo faz RT no gate inteiro + fuzz de profundidade; frames"
+    out += ["", ("VEREDITO (da IDEIA): count recursivo faz RT no gate inteiro + fuzz de profundidade;"
                  if all_ok else "HÁ FALHA — revisar design."),
-            "mutilados fail-loud. Estrutura (counts por nível) legível sem materializar folhas (O(1)/view).",
-            "Gramática por nível demonstrada: m#[#[]] (2 níveis), cubo#[#[#[]]] (3), com '?' por nível."]
-    (HERE / "outputs" / "00-resultado.txt").write_bytes(("\n".join(out) + "\n").encode("utf-8"))
+            "frames mutilados fail-loud. Estrutura (counts por nível) legível sem materializar folhas.",
+            "Gramática por nível demonstrada: m#[#[]] (2 níveis), cubo#[#[#[]]] (3), com '?' por nível.",
+            "NOTA: metas acima são PEDAGÓGICOS (sem sizes). Wire real + .tcf: run.py / 00-resultado.txt."]
+    (HERE / "outputs" / "00-estudo-proto.txt").write_bytes(("\n".join(out) + "\n").encode("utf-8"))
     print("\n".join(out))
     assert all_ok
 

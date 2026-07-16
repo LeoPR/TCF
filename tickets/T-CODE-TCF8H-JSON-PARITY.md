@@ -106,6 +106,17 @@ adversariais (a lição do escape: testar nome/valor/borda, não só o caminho f
    Preocupação do owner ("colunas com buracos"/reuso entre níveis) → H-REPLEVEL-FLAT-VS-PORNIVEL-01 (`.9`).
 5. **P4b · Raiz generalizada** (array no topo, objeto/escalar/null na raiz) — contrato público e
    envelope/discriminador explícito; preservar ordem e tipo-raiz exatamente.
+   **LEVANTAMENTO 2026-07-16** → [notas/p4b-levantamento.md](../experiments/lab/dirty/notas/p4b-levantamento.md).
+   Medido: **14/14 formas de raiz fail-loud hoje** (0 wire, 0 corrupção silenciosa — funcionalidade
+   ausente e declarada, não dívida escondida). **Ambiguidade byte-confirmada**: `encode([{"a":"1"}])`
+   e a raiz-objeto `{"a":"1"}` embrulhada dão wire **idêntico** (`#TCF.8Ha\n\1\n`) → raiz sintética
+   sem discriminador é **provadamente lossy**. Achado do levantamento: o gate de 8 formas **decompõe
+   em 3 problemas distintos** — (A) discriminação de raiz, (B) **contagem irrepresentável** (`[]`,
+   `[{}]`, `[{},{}]`: o count vem de `len(1ª coluna)`, sem colunas não há onde contar → é
+   [T-FMT-OMIT-OR-DECLARE](T-FMT-OMIT-OR-DECLARE.md)/registro-'0', **não** se resolve com `root_kind`),
+   (C) raiz não-objeto. Recomendação: **P4b = A + C**; B fica no ticket de vazios.
+   **Nada decidido** — 5 decisões abertas do owner em §5 do levantamento (escopo no `.8`; separar B;
+   discriminador (1) char sempre presente vs (2) só quando ≠ dataset; contrato de API; terminologia).
 6. **P5 · Array polimórfico** (union) — a fronteira; pode ficar por último ou virar fail-loud honesto.
 7. **Congelar contratos de borda** — `\n`-em-valor + gramática-de-nome (escaping) →
    [T-API-BOUNDARY-CONTRACTS](T-API-BOUNDARY-CONTRACTS.md), antes do freeze pré-1.0.
