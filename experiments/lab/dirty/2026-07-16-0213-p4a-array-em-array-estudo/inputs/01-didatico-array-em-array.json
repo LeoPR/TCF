@@ -1,0 +1,18 @@
+{
+  "_comment": "DIDÁTICO P4a — array-em-array via COUNT RECURSIVO. Gate do owner (checkpoint 2026-07-16).",
+  "basico [[1,2],[3]]": [{"m": [[1, 2], [3]]}],
+  "matriz retangular": [{"grade": [[1, 2, 3], [4, 5, 6]]}],
+  "profundidade 3": [{"cubo": [[[1, 2]], [[3], [4, 5]]]}],
+  "arrays internos VAZIOS": [{"m": [[], [1], []]}],
+  "array externo vazio vs com-vazio": [{"m": []}, {"m": [[]]}, {"m": [[1]]}],
+  "array de arrays de OBJETOS": [{"turmas": [[{"nome": "Ana"}, {"nome": "Bob"}], [{"nome": "Carla"}]]}],
+  "null ENTRE arrays (P3b∘P4a)": [{"m": [[1], null, [2]]}],
+  "null DENTRO do inner (P3b no nível interno)": [{"m": [[1, null, 2], [3]]}],
+  "compose TOTAL (P2+P3b+P4a)": [{"m": [[1, null, 2], null, [3]], "rotulo": "medidas", "ok": true}],
+  "strings em arrays aninhados": [{"tags": [["a", "b"], ["c"]]}],
+  "bool em matriz": [{"bits": [[true, false], [false]]}],
+  "campo array-em-array no MEIO de outros": [
+    {"id": 1, "m": [[1], [2, 3]], "nome": "x"},
+    {"id": 2, "m": [], "nome": "y"}
+  ]
+}
