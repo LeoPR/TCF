@@ -59,6 +59,32 @@ related:
 > dependem da camada de tipos P2). Fonte do raciocínio e ordem de retomada: checkpoint
 > [2026-07-15-revisao-null-pos-p1](../experiments/lab/dirty/notas/checkpoints/2026-07-15-revisao-null-pos-p1.md).
 
+> **CRITÉRIO EXECUTÁVEL + ESCALA DE ROI 2026-07-17 [dispositivo→registro]**: owner fixou o critério
+> como **equivalência de FLUXO** — *"dataset→encode→json→transmite→recebe→json→decode→dataset; basta
+> o tcf ter comportamento similar"*. Formalizado e MEDIDO: **∀D: J-RT-TX(D) ⟹ T-RT(D)** (com a etapa
+> TRANSMITE medida em **bytes UTF-8**, não no str em memória — sem ela o lone surrogate falsearia a
+> paridade). Lab [2026-07-17-0140](../experiments/lab/dirty/2026-07-17-0140-paridade-fluxo-json-vs-tcf/);
+> pinos em `tests/test_json_flow_parity.py` (24 passed + **3 `xfail(strict)`** — lacuna não fecha em
+> silêncio: implementar faz XPASS e obriga a promover o caso).
+>
+> **PLACAR: PARIDADE=14 · LACUNA=3 · LACUNA-RAIZ=7 (P4b) · TCF-ESTRITO=2 · AMBOS-RECUSAM=7.**
+> A superfície inteira de implementação são **3 lacunas de dataset** (chave `""` · `\n` em valor ·
+> chave com `\n`) **+ o eixo raiz**. Bônus medido: **TCF ⊃ I-JSON** em inteiros > 2^53 (RFC 7493 §2.2
+> os proíbe; nós fazemos RT).
+>
+> **ESCALA (ROI)** → [escala-implementacao-paridade-json.md](../experiments/lab/dirty/notas/escala-implementacao-paridade-json.md):
+> **E0 critério ✅ feito** → **E1 tipar 3 erros crus** (baixo, não toca wire) → **E3 canal SideOutputs
+> no `.8H`** (destrava o *warning* + profiler) → **E2 chave `""`** (1 lacuna; "nome vazio" hoje é
+> sentinela de corrupção → estudo-primeiro) → **E5 P4b raiz** (**7 lacunas de uma vez** = maior ROI)
+> → avaliar E4 (chave com `\n`) → **E6 `\n` em valor SEGURAR** (toca o **L1**: re-pina D1-D9/D17a/
+> real-world; é o T-FMT-ESCAPE-COMBINATORIAL-STUDY) → E7 além-do-json (formato/versão).
+>
+> **"É problema do Python ou do JSON?"** (pergunta do owner) — provado por **compilação** (`rustc
+> 1.82`): chave int+str no mesmo mapa → **erro E0308**; lone surrogate → **erro de compilação**
+> (`char::from_u32(0xD800)`=`None`). **2 dos 5 defeitos são inexprimíveis em Rust** → somem de graça
+> no port do 1.0. NaN é físico (IEEE 754: `f64::NAN == f64::NAN` é `false`; o rustc avisa) → só se
+> resolve REPRESENTANDO (E7), nunca tolerando.
+
 # T-CODE-TCF8H-JSON-PARITY — fechar "hierarquia" com critério REALISTA (JSON) + algo além
 
 **[dispositivo→roadmap]** Owner (2026-07-15): *"veja o que falta pra fecharmos bem a questão de

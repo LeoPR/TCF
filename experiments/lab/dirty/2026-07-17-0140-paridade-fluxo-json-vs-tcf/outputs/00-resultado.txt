@@ -1,0 +1,57 @@
+CRITÉRIO DO FLUXO — J-RT-TX(D) ⟹ T-RT(D)  ('se o json faz, o tcf tem de fazer')
+TRANSMITE medido em BYTES UTF-8 (não no str em memória). N1 = I-JSON (RFC 7493).
+
+    caso                               json  json-ascii                 tcf  I-JSON  veredito
+    escalares comuns                     RT          RT                  RT      OK  PARIDADE
+    aninhado                             RT          RT                  RT      OK  PARIDADE
+    unicode                              RT          RT                  RT      OK  PARIDADE
+    NFC vs NFD                           RT          RT                  RT      OK  PARIDADE
+    tab em valor                         RT          RT                  RT      OK  PARIDADE
+    nul \x00 em valor                    RT          RT                  RT      OK  PARIDADE
+    -0.0                                 RT          RT                  RT      OK  PARIDADE
+    0.1+0.2                              RT          RT                  RT      OK  PARIDADE
+    array vazio                          RT          RT                  RT      OK  PARIDADE
+    objeto vazio                         RT          RT                  RT      OK  PARIDADE
+    null em campo                        RT          RT                  RT      OK  PARIDADE
+    ragged (chave tardia)                RT          RT                  RT      OK  PARIDADE
+    chave vazia ''                       RT          RT   HierarchicalError      OK  LACUNA
+    \n em valor                          RT          RT          ValueError      OK  LACUNA
+    chave com \n                         RT          RT   HierarchicalError      OK  LACUNA
+    NaN                             DIVERGE     DIVERGE   HierarchicalError   viola  AMBOS-RECUSAM
+    +Infinity                            RT          RT   HierarchicalError   viola  TCF-ESTRITO
+    -Infinity                            RT          RT   HierarchicalError   viola  TCF-ESTRITO
+    tuple                           DIVERGE     DIVERGE   HierarchicalError   viola  AMBOS-RECUSAM
+    chave int                       DIVERGE     DIVERGE           TypeError      OK  AMBOS-RECUSAM
+    chave int + str (DUPLICATA)     DIVERGE     DIVERGE           TypeError   viola  AMBOS-RECUSAM
+    chave bool                      DIVERGE     DIVERGE           TypeError      OK  AMBOS-RECUSAM
+    chave None                      DIVERGE     DIVERGE   HierarchicalError      OK  AMBOS-RECUSAM
+    lone surrogate em valor       UnicodeEncodeError          RT  UnicodeEncodeError   viola  AMBOS-RECUSAM
+    int > 2^53 (I-JSON)                  RT          RT                  RT   viola  PARIDADE
+    int gigante 10**30                   RT          RT                  RT   viola  PARIDADE
+
+VIOLAÇÕES I-JSON detectadas (RFC 7493 — o perfil INTEROPERÁVEL):
+    NaN                            $[0].a: não-finito (nan) — RFC 8259 §6 não permite; I-JSON idem
+    +Infinity                      $[0].a: não-finito (inf) — RFC 8259 §6 não permite; I-JSON idem
+    -Infinity                      $[0].a: não-finito (-inf) — RFC 8259 §6 não permite; I-JSON idem
+    tuple                          $[0].a: tuple não existe no modelo JSON (vira array; tipo não volta)
+    chave int + str (DUPLICATA)    $[0]: nomes DUPLICADOS após serialização ['1'] (RFC 7493 §2.3 MUST NOT)
+    lone surrogate em valor        $[0].a: string contém surrogate solto — não é UTF-8 (RFC 7493 §2.1 MUST)
+    int > 2^53 (I-JSON)            $[0].a: inteiro |9007199254740993| > 2^53-1 (RFC 7493 §2.2: fora da faixa segura)
+    int gigante 10**30             $[0].a: inteiro |1000000000000000000000000000000| > 2^53-1 (RFC 7493 §2.2: fora da faixa segura)
+
+PLACAR: AMBOS-RECUSAM=7 · LACUNA=3 · PARIDADE=14 · TCF-ESTRITO=2
+
+LACUNAS REAIS (json I-JSON-conforme faz RT, TCF não) = 3:
+    - chave vazia ''
+    - \n em valor
+    - chave com \n
+TCF recusa onde o json NÃO é interoperável = 2: +Infinity, -Infinity
+
+RAIZ (eixo separado — P4b; o TCF aceita só list[dict] hoje):
+    objeto único           json=RT        tcf=HierarchicalError                    LACUNA(P4b)
+    array de escalares     json=RT        tcf=HierarchicalError                    LACUNA(P4b)
+    escalar                json=RT        tcf=HierarchicalError                    LACUNA(P4b)
+    string                 json=RT        tcf=HierarchicalError                    LACUNA(P4b)
+    null                   json=RT        tcf=HierarchicalError                    LACUNA(P4b)
+    array vazio            json=RT        tcf=HierarchicalError                    LACUNA(P4b)
+    [{}]                   json=RT        tcf=HierarchicalError                    LACUNA(P4b)
