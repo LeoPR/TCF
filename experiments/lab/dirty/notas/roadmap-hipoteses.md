@@ -817,6 +817,34 @@ atualizar este rodape — reconciliado agora.
   regime o header domina o payload. `aberta`, confiança: Baixa. NÃO é `.8`.
   Levantamento: [estrutura-sem-dado-levantamento.md](estrutura-sem-dado-levantamento.md).
 
+- **H-PROFILE-JSONLIKE-01** (perfil "json-like" como política de ADAPTADOR, owner 2026-07-17): owner
+  propôs *"warning para comportamento similar ao json"* + *"um default com um conjunto de
+  comportamentos json-like é útil"*. **Reavaliação medida** (10 bordas json × `.8H`): "json-like"
+  **não é um eixo** — decompõe em (A) **capacidade** (json faz, TCF não: chave `""`, `\n` em
+  valor/chave, ordem por-registro — warning seria "avisei que não sei fazer" → **implementar**);
+  (B) **política de adaptador** (chave duplicada em texto — única borda onde warning é certo);
+  (C) **defeito do json** (NaN/`Infinity` = **inválidos por RFC 8259**, `allow_nan=True` é o default
+  do Python, e NaN quebra RT por `nan != nan`; `tuple`→`list` perde tipo; **chave não-str EMITE
+  duplicata** por coerção; lone surrogate faz RT mas não é UTF-8 transmissível → copiar = importar o
+  bug; TCF estrito = FEATURE); (D) **além do json** (representar em vez de tolerar → [[H-HIER-SCALAR-01]]).
+  **Veredito**: das 10 bordas **exatamente 1 vira parâmetro**, e vive no ADAPTADOR (texto→DatasetH),
+  fora do core — perfil `strict` (default, = contrato S0) × `json_like` (opt-in, reproduz o CPython
+  json) **com cada desvio reportado**. Core segue com UM comportamento (é o que torna
+  pins/gates/byte-canonicidade possíveis). `aberta`, confiança: Média. NÃO é `.8` (gadget/adaptador).
+  Condições + teste: [perfil-json-like-condicoes-parametro.md](perfil-json-like-condicoes-parametro.md).
+
+- **H-HIER-SIDEOUTPUTS-01** (canal de efeito colateral no `.8H` — **pré-requisito de qualquer
+  warning**, 2026-07-17): **medido**: `encode_hierarchical(records) -> str`; `side_outputs`/
+  `SideOutputs` **não aparecem** em `hierarchical.py` (o flat tem `encode(..., side_outputs=)`) →
+  **hoje um warning no `.8H` não tem onde morar**. Precedentes: `warnings.warn(UserWarning)` em
+  `multi/core.py:327` (nome vazio→anônima — a forma "aceita mas sinaliza"), mas `warnings` é global
+  e dedupado por local ("once"), ruim em stream/massa; **SideOutputs** é a ponte oficial e
+  `anomaly_flags`/`format_inconsistencies` **já estão previstos** (CLAUDE.md:240, zero-custo,
+  "só detecta, NUNCA arruma"). Ligar SideOutputs no `.8H` destrava: warnings estruturados, profiler
+  ([[H-ACCEL-SIDECAR-01]]) e schema tool sobre hierarquia. `aberta`, confiança: Média (gap medido;
+  forma não desenhada). Toca `src/tcf` → aprovação + gate.
+  Fonte: [perfil-json-like-condicoes-parametro.md](perfil-json-like-condicoes-parametro.md) §4.
+
 - **H-HIER-EMASK-SPARSE-01** (emask densa global → por-instância/esparsa, 2026-07-16, achado da
   revisão de fluxo): `elem_null` é flag GLOBAL por campo (`hierarchical.py:241`) — **um** null em
   **um** array liga emask O(total-elementos) pro dataset inteiro; e null periódico não-adjacente não

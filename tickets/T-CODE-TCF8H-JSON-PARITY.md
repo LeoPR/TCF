@@ -87,7 +87,11 @@ realista, não sintético). O weld atual (ADR-0033) cobre a ESPINHA; faltam os c
 | **array-em-array** (profundidade arbitrária) | ✅ **WELDED** (P4a, 2026-07-16) | — (count recursivo por nível; ADR-0033 §Update P4a) |
 | **array no topo / raiz generalizada** | ❌ fail-loud | **P4b — contrato de raiz** (ato separado, muda API) |
 | **array polimórfico** (elementos de schema variável) | ❌ fail-loud | P5 — union/def-level (a fronteira mais afiada) |
-| `\n` em valor | ❌ fail-loud (core) | **congelar** contrato (boundary) |
+| `\n` em valor | ❌ fail-loud (core), **`ValueError` CRU** (medido 2026-07-17) | **congelar** contrato (boundary) + re-tipar |
+| **chave vazia `{"": "x"}`** | ❌ `HierarchicalError: nome de campo vazio` (medido 2026-07-17) | **lacuna de CAPACIDADE**: é JSON válido e comum; json faz RT-OK. A mais barata das 4 lacunas A ([perfil-json-like](../experiments/lab/dirty/notas/perfil-json-like-condicoes-parametro.md) §1) |
+| **chave contendo `\n`** | ❌ fail-loud tipado (medido 2026-07-17) | implementar OU declarar fronteira (json faz RT-OK) |
+| ✅ paridade JÁ medida (2026-07-17) | `\t` · `\x00` em valor · int gigante `10**30` · `-0.0` · `0.1+0.2` (precisão) — **idênticos ao json** | — |
+| ⭐ TCF **mais seguro** que o json (medido 2026-07-17) | `NaN`/`Infinity` (json emite — **inválido RFC 8259**, `allow_nan` default; NaN quebra RT) · `tuple`→`list` (json perde tipo) · chave não-str (json **emite duplicata**) · lone surrogate (json faz RT mas não é UTF-8 transmissível) — `.8H` fail-loud nos 4 | NÃO afrouxar: estrito é feature. Evoluir por REPRESENTAÇÃO ([[H-HIER-SCALAR-01]]), não por tolerância |
 | **ordem de chaves por-registro em ragged** | ⚠️ semântica preservada; ORDEM vira a do schema (chave que estreia tarde volta ao fim) — achado 2026-07-17 da suíte de controle, pinado em `test_hierarchical_control_synthetics.py` | decisão de contrato (S6/P4b): schema-order canônica OU por-registro; contrato S0 preserva por-registro ([T-API-BOUNDARY-CONTRACTS](T-API-BOUNDARY-CONTRACTS.md)) |
 
 Fonte da taxonomia: [hierarquia-inventario-hipoteses.md](../experiments/lab/dirty/notas/hierarquia-inventario-hipoteses.md)
