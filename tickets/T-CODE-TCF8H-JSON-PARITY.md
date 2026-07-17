@@ -41,6 +41,14 @@ related:
 > uma raiz e arrays preservam ordem. Parecer e matriz de gates:
 > [p4-replevel-nroots-levantamento.md](../experiments/lab/dirty/notas/p4-replevel-nroots-levantamento.md).
 
+> **PROGRAMA S0–S7 2026-07-16 [dispositivo→pesquisa]**: capacidade semântica passa a ser fechada antes
+> da simplificação de representação. S0–S3 executados em
+> [lab próprio](../experiments/lab/dirty/2026-07-16-1708-dataseth-s0-s3-semantica-vinculos/): 20/20 RT,
+> 20/20 álgebras de vínculo, 8/8 fail-loud e round-trip canônico byte-idêntico, sem tocar `src/tcf`.
+> Tickets: [semântica](T-STUDY-DATASETH-COMPLETE-SEMANTICS.md),
+> [vínculos](T-STUDY-HIERARCHY-LINK-ALGEBRA.md) e [execução](T-EXP-DATASETH-S0-S3.md). O resultado é
+> probatório sintético; header, busca no corpo e forma física ficam para S4–S7 antes de novo weld.
+
 > **REVISÃO DE ESCOPO 2026-07-15 — opinião registrada; decisão pendente do owner.** P3 não é um
 > único incremento mecânico. **P3a** = null em CAMPO de objeto (`{x:null}`), inclusive quando o campo
 > não-nulo é escalar/objeto/array: reutiliza diretamente `0` na definition mask e não consome corpo nem

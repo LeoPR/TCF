@@ -101,6 +101,9 @@ referencias a commits que o resolveram.
 | [T-SHAPER-CODE-HARDENING](T-SHAPER-CODE-HARDENING.md) | Hardening de codigo do shaper (escala, dedup, bugs latentes) | **DEFERRED** (ult. commit 2026-07-05) |
 | [T-SHAPER-SCIENTIFIC-GATING](T-SHAPER-SCIENTIFIC-GATING.md) | Gate cientifico de uso do shaper (tests estatisticos assertados) | **CLOSED-DONE** (ult. commit 2026-05-31) |
 | [T-STUDY-HIERARCHICAL-TCF](T-STUDY-HIERARCHICAL-TCF.md) | TCF para JSON aninhado (guarda-chuva: grupo de labs / peças; liga EXP-015 `#TCF.8H`) | **OPEN** (ult. commit 2026-07-05) |
+| [T-STUDY-DATASETH-COMPLETE-SEMANTICS](T-STUDY-DATASETH-COMPLETE-SEMANTICS.md) | S0–S1: contrato DatasetH e codec-oráculo antes do wire canônico | **IN-PROGRESS 2026-07-16** |
+| [T-STUDY-HIERARCHY-LINK-ALGEBRA](T-STUDY-HIERARCHY-LINK-ALGEBRA.md) | S2–S7: IR, equivalência dos vínculos e comparação física | **IN-PROGRESS 2026-07-16** |
+| [T-EXP-DATASETH-S0-S3](T-EXP-DATASETH-S0-S3.md) | Executar corpus, oráculo, IR e álgebra S0–S3 | **CLOSED 2026-07-16** |
 
 ## Politica
 

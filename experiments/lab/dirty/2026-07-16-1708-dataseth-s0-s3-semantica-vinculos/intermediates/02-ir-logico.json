@@ -1,0 +1,968 @@
+[
+  {
+    "name": "root-null",
+    "root": 0,
+    "nodes": [
+      {
+        "id": 0,
+        "kind": "null"
+      }
+    ],
+    "edges": [],
+    "value_lanes": {
+      "null": [
+        {
+          "node": 0,
+          "value": null
+        }
+      ]
+    }
+  },
+  {
+    "name": "root-true",
+    "root": 0,
+    "nodes": [
+      {
+        "id": 0,
+        "kind": "boolean"
+      }
+    ],
+    "edges": [],
+    "value_lanes": {
+      "boolean": [
+        {
+          "node": 0,
+          "value": true
+        }
+      ]
+    }
+  },
+  {
+    "name": "root-false",
+    "root": 0,
+    "nodes": [
+      {
+        "id": 0,
+        "kind": "boolean"
+      }
+    ],
+    "edges": [],
+    "value_lanes": {
+      "boolean": [
+        {
+          "node": 0,
+          "value": false
+        }
+      ]
+    }
+  },
+  {
+    "name": "root-integer",
+    "root": 0,
+    "nodes": [
+      {
+        "id": 0,
+        "kind": "integer"
+      }
+    ],
+    "edges": [],
+    "value_lanes": {
+      "integer": [
+        {
+          "node": 0,
+          "value": 123456789012345678901234567890
+        }
+      ]
+    }
+  },
+  {
+    "name": "root-number",
+    "root": 0,
+    "nodes": [
+      {
+        "id": 0,
+        "kind": "number"
+      }
+    ],
+    "edges": [],
+    "value_lanes": {
+      "number": [
+        {
+          "node": 0,
+          "value": "1.25"
+        }
+      ]
+    }
+  },
+  {
+    "name": "root-string-controls",
+    "root": 0,
+    "nodes": [
+      {
+        "id": 0,
+        "kind": "string"
+      }
+    ],
+    "edges": [],
+    "value_lanes": {
+      "string": [
+        {
+          "node": 0,
+          "value": "linha 1\nlinha 2\r\u0000 fim"
+        }
+      ]
+    }
+  },
+  {
+    "name": "empty-object",
+    "root": 0,
+    "nodes": [
+      {
+        "id": 0,
+        "kind": "object"
+      }
+    ],
+    "edges": [],
+    "value_lanes": {}
+  },
+  {
+    "name": "empty-array",
+    "root": 0,
+    "nodes": [
+      {
+        "id": 0,
+        "kind": "array"
+      }
+    ],
+    "edges": [],
+    "value_lanes": {}
+  },
+  {
+    "name": "array-empty-objects",
+    "root": 0,
+    "nodes": [
+      {
+        "id": 0,
+        "kind": "array"
+      },
+      {
+        "id": 1,
+        "kind": "object"
+      },
+      {
+        "id": 2,
+        "kind": "object"
+      }
+    ],
+    "edges": [
+      {
+        "parent": 0,
+        "child": 1,
+        "ordinal": 0,
+        "label": null
+      },
+      {
+        "parent": 0,
+        "child": 2,
+        "ordinal": 1,
+        "label": null
+      }
+    ],
+    "value_lanes": {}
+  },
+  {
+    "name": "absent",
+    "root": 0,
+    "nodes": [
+      {
+        "id": 0,
+        "kind": "object"
+      }
+    ],
+    "edges": [],
+    "value_lanes": {}
+  },
+  {
+    "name": "present-null",
+    "root": 0,
+    "nodes": [
+      {
+        "id": 0,
+        "kind": "object"
+      },
+      {
+        "id": 1,
+        "kind": "null"
+      }
+    ],
+    "edges": [
+      {
+        "parent": 0,
+        "child": 1,
+        "ordinal": 0,
+        "label": "a"
+      }
+    ],
+    "value_lanes": {
+      "null": [
+        {
+          "node": 1,
+          "value": null
+        }
+      ]
+    }
+  },
+  {
+    "name": "present-empty-string",
+    "root": 0,
+    "nodes": [
+      {
+        "id": 0,
+        "kind": "object"
+      },
+      {
+        "id": 1,
+        "kind": "string"
+      }
+    ],
+    "edges": [
+      {
+        "parent": 0,
+        "child": 1,
+        "ordinal": 0,
+        "label": "a"
+      }
+    ],
+    "value_lanes": {
+      "string": [
+        {
+          "node": 1,
+          "value": ""
+        }
+      ]
+    }
+  },
+  {
+    "name": "mixed-array",
+    "root": 0,
+    "nodes": [
+      {
+        "id": 0,
+        "kind": "array"
+      },
+      {
+        "id": 1,
+        "kind": "integer"
+      },
+      {
+        "id": 2,
+        "kind": "string"
+      },
+      {
+        "id": 3,
+        "kind": "null"
+      },
+      {
+        "id": 4,
+        "kind": "boolean"
+      },
+      {
+        "id": 5,
+        "kind": "object"
+      },
+      {
+        "id": 6,
+        "kind": "array"
+      },
+      {
+        "id": 7,
+        "kind": "array"
+      },
+      {
+        "id": 8,
+        "kind": "number"
+      }
+    ],
+    "edges": [
+      {
+        "parent": 0,
+        "child": 1,
+        "ordinal": 0,
+        "label": null
+      },
+      {
+        "parent": 0,
+        "child": 2,
+        "ordinal": 1,
+        "label": null
+      },
+      {
+        "parent": 0,
+        "child": 3,
+        "ordinal": 2,
+        "label": null
+      },
+      {
+        "parent": 0,
+        "child": 4,
+        "ordinal": 3,
+        "label": null
+      },
+      {
+        "parent": 0,
+        "child": 5,
+        "ordinal": 4,
+        "label": null
+      },
+      {
+        "parent": 0,
+        "child": 6,
+        "ordinal": 5,
+        "label": null
+      },
+      {
+        "parent": 0,
+        "child": 7,
+        "ordinal": 6,
+        "label": null
+      },
+      {
+        "parent": 7,
+        "child": 8,
+        "ordinal": 0,
+        "label": null
+      }
+    ],
+    "value_lanes": {
+      "integer": [
+        {
+          "node": 1,
+          "value": 1
+        }
+      ],
+      "string": [
+        {
+          "node": 2,
+          "value": "1"
+        }
+      ],
+      "null": [
+        {
+          "node": 3,
+          "value": null
+        }
+      ],
+      "boolean": [
+        {
+          "node": 4,
+          "value": true
+        }
+      ],
+      "number": [
+        {
+          "node": 8,
+          "value": "2.5"
+        }
+      ]
+    }
+  },
+  {
+    "name": "nested-arrays",
+    "root": 0,
+    "nodes": [
+      {
+        "id": 0,
+        "kind": "array"
+      },
+      {
+        "id": 1,
+        "kind": "array"
+      },
+      {
+        "id": 2,
+        "kind": "array"
+      },
+      {
+        "id": 3,
+        "kind": "integer"
+      },
+      {
+        "id": 4,
+        "kind": "array"
+      },
+      {
+        "id": 5,
+        "kind": "array"
+      },
+      {
+        "id": 6,
+        "kind": "array"
+      },
+      {
+        "id": 7,
+        "kind": "array"
+      },
+      {
+        "id": 8,
+        "kind": "integer"
+      },
+      {
+        "id": 9,
+        "kind": "integer"
+      }
+    ],
+    "edges": [
+      {
+        "parent": 0,
+        "child": 1,
+        "ordinal": 0,
+        "label": null
+      },
+      {
+        "parent": 0,
+        "child": 5,
+        "ordinal": 1,
+        "label": null
+      },
+      {
+        "parent": 0,
+        "child": 6,
+        "ordinal": 2,
+        "label": null
+      },
+      {
+        "parent": 1,
+        "child": 2,
+        "ordinal": 0,
+        "label": null
+      },
+      {
+        "parent": 1,
+        "child": 4,
+        "ordinal": 1,
+        "label": null
+      },
+      {
+        "parent": 2,
+        "child": 3,
+        "ordinal": 0,
+        "label": null
+      },
+      {
+        "parent": 6,
+        "child": 7,
+        "ordinal": 0,
+        "label": null
+      },
+      {
+        "parent": 7,
+        "child": 8,
+        "ordinal": 0,
+        "label": null
+      },
+      {
+        "parent": 7,
+        "child": 9,
+        "ordinal": 1,
+        "label": null
+      }
+    ],
+    "value_lanes": {
+      "integer": [
+        {
+          "node": 3,
+          "value": 1
+        },
+        {
+          "node": 8,
+          "value": 2
+        },
+        {
+          "node": 9,
+          "value": 3
+        }
+      ]
+    }
+  },
+  {
+    "name": "ordered-object",
+    "root": 0,
+    "nodes": [
+      {
+        "id": 0,
+        "kind": "object"
+      },
+      {
+        "id": 1,
+        "kind": "integer"
+      },
+      {
+        "id": 2,
+        "kind": "integer"
+      },
+      {
+        "id": 3,
+        "kind": "integer"
+      }
+    ],
+    "edges": [
+      {
+        "parent": 0,
+        "child": 1,
+        "ordinal": 0,
+        "label": "z"
+      },
+      {
+        "parent": 0,
+        "child": 2,
+        "ordinal": 1,
+        "label": "a"
+      },
+      {
+        "parent": 0,
+        "child": 3,
+        "ordinal": 2,
+        "label": "m"
+      }
+    ],
+    "value_lanes": {
+      "integer": [
+        {
+          "node": 1,
+          "value": 1
+        },
+        {
+          "node": 2,
+          "value": 2
+        },
+        {
+          "node": 3,
+          "value": 3
+        }
+      ]
+    }
+  },
+  {
+    "name": "unicode",
+    "root": 0,
+    "nodes": [
+      {
+        "id": 0,
+        "kind": "object"
+      },
+      {
+        "id": 1,
+        "kind": "string"
+      },
+      {
+        "id": 2,
+        "kind": "string"
+      }
+    ],
+    "edges": [
+      {
+        "parent": 0,
+        "child": 1,
+        "ordinal": 0,
+        "label": "município"
+      },
+      {
+        "parent": 0,
+        "child": 2,
+        "ordinal": 1,
+        "label": "漢字"
+      }
+    ],
+    "value_lanes": {
+      "string": [
+        {
+          "node": 1,
+          "value": "São Luís"
+        },
+        {
+          "node": 2,
+          "value": "雪"
+        }
+      ]
+    }
+  },
+  {
+    "name": "ragged-objects",
+    "root": 0,
+    "nodes": [
+      {
+        "id": 0,
+        "kind": "array"
+      },
+      {
+        "id": 1,
+        "kind": "object"
+      },
+      {
+        "id": 2,
+        "kind": "integer"
+      },
+      {
+        "id": 3,
+        "kind": "object"
+      },
+      {
+        "id": 4,
+        "kind": "integer"
+      },
+      {
+        "id": 5,
+        "kind": "object"
+      },
+      {
+        "id": 6,
+        "kind": "null"
+      },
+      {
+        "id": 7,
+        "kind": "array"
+      }
+    ],
+    "edges": [
+      {
+        "parent": 0,
+        "child": 1,
+        "ordinal": 0,
+        "label": null
+      },
+      {
+        "parent": 0,
+        "child": 3,
+        "ordinal": 1,
+        "label": null
+      },
+      {
+        "parent": 0,
+        "child": 5,
+        "ordinal": 2,
+        "label": null
+      },
+      {
+        "parent": 1,
+        "child": 2,
+        "ordinal": 0,
+        "label": "a"
+      },
+      {
+        "parent": 3,
+        "child": 4,
+        "ordinal": 0,
+        "label": "b"
+      },
+      {
+        "parent": 5,
+        "child": 6,
+        "ordinal": 0,
+        "label": "a"
+      },
+      {
+        "parent": 5,
+        "child": 7,
+        "ordinal": 1,
+        "label": "b"
+      }
+    ],
+    "value_lanes": {
+      "integer": [
+        {
+          "node": 2,
+          "value": 1
+        },
+        {
+          "node": 4,
+          "value": 2
+        }
+      ],
+      "null": [
+        {
+          "node": 6,
+          "value": null
+        }
+      ]
+    }
+  },
+  {
+    "name": "empty-parent-gap",
+    "root": 0,
+    "nodes": [
+      {
+        "id": 0,
+        "kind": "object"
+      },
+      {
+        "id": 1,
+        "kind": "array"
+      },
+      {
+        "id": 2,
+        "kind": "object"
+      },
+      {
+        "id": 3,
+        "kind": "array"
+      },
+      {
+        "id": 4,
+        "kind": "integer"
+      },
+      {
+        "id": 5,
+        "kind": "object"
+      },
+      {
+        "id": 6,
+        "kind": "array"
+      },
+      {
+        "id": 7,
+        "kind": "object"
+      },
+      {
+        "id": 8,
+        "kind": "array"
+      },
+      {
+        "id": 9,
+        "kind": "integer"
+      },
+      {
+        "id": 10,
+        "kind": "integer"
+      }
+    ],
+    "edges": [
+      {
+        "parent": 0,
+        "child": 1,
+        "ordinal": 0,
+        "label": "groups"
+      },
+      {
+        "parent": 1,
+        "child": 2,
+        "ordinal": 0,
+        "label": null
+      },
+      {
+        "parent": 1,
+        "child": 5,
+        "ordinal": 1,
+        "label": null
+      },
+      {
+        "parent": 1,
+        "child": 7,
+        "ordinal": 2,
+        "label": null
+      },
+      {
+        "parent": 2,
+        "child": 3,
+        "ordinal": 0,
+        "label": "children"
+      },
+      {
+        "parent": 3,
+        "child": 4,
+        "ordinal": 0,
+        "label": null
+      },
+      {
+        "parent": 5,
+        "child": 6,
+        "ordinal": 0,
+        "label": "children"
+      },
+      {
+        "parent": 7,
+        "child": 8,
+        "ordinal": 0,
+        "label": "children"
+      },
+      {
+        "parent": 8,
+        "child": 9,
+        "ordinal": 0,
+        "label": null
+      },
+      {
+        "parent": 8,
+        "child": 10,
+        "ordinal": 1,
+        "label": null
+      }
+    ],
+    "value_lanes": {
+      "integer": [
+        {
+          "node": 4,
+          "value": 1
+        },
+        {
+          "node": 9,
+          "value": 2
+        },
+        {
+          "node": 10,
+          "value": 3
+        }
+      ]
+    }
+  },
+  {
+    "name": "sibling-arrays",
+    "root": 0,
+    "nodes": [
+      {
+        "id": 0,
+        "kind": "object"
+      },
+      {
+        "id": 1,
+        "kind": "array"
+      },
+      {
+        "id": 2,
+        "kind": "integer"
+      },
+      {
+        "id": 3,
+        "kind": "integer"
+      },
+      {
+        "id": 4,
+        "kind": "array"
+      },
+      {
+        "id": 5,
+        "kind": "array"
+      },
+      {
+        "id": 6,
+        "kind": "integer"
+      }
+    ],
+    "edges": [
+      {
+        "parent": 0,
+        "child": 1,
+        "ordinal": 0,
+        "label": "left"
+      },
+      {
+        "parent": 0,
+        "child": 4,
+        "ordinal": 1,
+        "label": "right"
+      },
+      {
+        "parent": 0,
+        "child": 5,
+        "ordinal": 2,
+        "label": "tail"
+      },
+      {
+        "parent": 1,
+        "child": 2,
+        "ordinal": 0,
+        "label": null
+      },
+      {
+        "parent": 1,
+        "child": 3,
+        "ordinal": 1,
+        "label": null
+      },
+      {
+        "parent": 5,
+        "child": 6,
+        "ordinal": 0,
+        "label": null
+      }
+    ],
+    "value_lanes": {
+      "integer": [
+        {
+          "node": 2,
+          "value": 1
+        },
+        {
+          "node": 3,
+          "value": 2
+        },
+        {
+          "node": 6,
+          "value": 3
+        }
+      ]
+    }
+  },
+  {
+    "name": "structure-without-leaves",
+    "root": 0,
+    "nodes": [
+      {
+        "id": 0,
+        "kind": "object"
+      },
+      {
+        "id": 1,
+        "kind": "array"
+      },
+      {
+        "id": 2,
+        "kind": "object"
+      },
+      {
+        "id": 3,
+        "kind": "array"
+      },
+      {
+        "id": 4,
+        "kind": "object"
+      },
+      {
+        "id": 5,
+        "kind": "object"
+      }
+    ],
+    "edges": [
+      {
+        "parent": 0,
+        "child": 1,
+        "ordinal": 0,
+        "label": "a"
+      },
+      {
+        "parent": 0,
+        "child": 5,
+        "ordinal": 1,
+        "label": "c"
+      },
+      {
+        "parent": 1,
+        "child": 2,
+        "ordinal": 0,
+        "label": null
+      },
+      {
+        "parent": 1,
+        "child": 4,
+        "ordinal": 1,
+        "label": null
+      },
+      {
+        "parent": 2,
+        "child": 3,
+        "ordinal": 0,
+        "label": "b"
+      }
+    ],
+    "value_lanes": {}
+  }
+]

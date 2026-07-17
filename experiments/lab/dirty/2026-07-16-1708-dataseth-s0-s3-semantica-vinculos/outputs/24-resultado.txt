@@ -1,0 +1,8 @@
+S0-S3 RESULTADO PROBATORIO
+cases_rt=20/20
+link_algebra=20/20
+fail_loud=8/8
+wire_files=20
+wire_bytes_total=801
+canonical_roundtrip=BYTE_IDENTICAL
+src_tcf_imported=NO

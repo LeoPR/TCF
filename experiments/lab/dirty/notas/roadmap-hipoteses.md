@@ -568,7 +568,15 @@ prototipo clean (`experiments/lab/clean/EXP-XXX-*`) e' pra testar
 Atualizar quando: hipotese confirmada/refutada/movida-de-status, OU
 nova hipotese identificada.
 
-**Ultima atualizacao**: 2026-07-16 — **7 hipoteses novas da direcao do owner (2026-07-16)**:
+**Ultima atualizacao**: 2026-07-16 (3ª do dia) — **S0-S3 + revisao de fluxo**: owner registrou
+H-DATASETH-COMPLETE-01, H-HIER-LINK-ALGEBRA-01, H-HIER-BOUNDARY-EMPTY-01 (programa S0-S7,
+confirmada-conceitual no lab 2026-07-16-1708); a revisao de fluxo adicionou **H-HIER-EMASK-SPARSE-01**
+(emask densa global — 449 B > 307 B de dados, medido), **H-HIER-FANOUT-SPLIT-01** (fan-out fixo →
+colunas irmas; folhas periodicas = 96,5% do wire da telemetria sintetica) e **H-HIER-PREP-RUNS-01**
+(`.9`, preparacao emite runs). Mapa hipotese→estagio S4-S7 em
+[revisao-generosa-hierarquia-2026-07-16.md](revisao-generosa-hierarquia-2026-07-16.md) §4.
+
+**Atualizacao anterior**: 2026-07-16 — **7 hipoteses novas da direcao do owner (2026-07-16)**:
 H-CONTRACT-EXTERN-01 (contrato externalizado + assinatura-de-contrato; REVISA materializacao-minimal:
 self-containment vira default, nao invariante) · H-ACCEL-SIDECAR-01 (profiler PGO-style/dicas de
 view/indice — classe droppable) · H-ENCODE-DEADLINE-01 (encode em pulsos/anytime; tensao com
@@ -684,6 +692,30 @@ atualizar este rodape — reconciliado agora.
   Owner: "qualquer coisa revisamos no .9; fica difícil fechar todas as visões". `aberta`, confiança:
   Baixa. NÃO bloqueia o weld do P4a (a forma por-nível é a canônica do `.8`).
 
+- **H-DATASETH-COMPLETE-01** (capacidade semântica antes do wire, owner 2026-07-16): um modelo
+  recursivo fechado — objeto ordenado com nomes únicos, array ordenado e escalares JSON tipados —
+  representa qualquer valor JSON padrão sem decidir header, counts, rep-level ou layout de colunas.
+  Ausência ≠ `null` ≠ `"null"` ≠ `""`; número finito usa precisão decimal; duplicate keys, ciclos e
+  profundidade acima do limite falham alto. **S0–S1 medido** no lab
+  [`2026-07-16-1708-dataseth-s0-s3-semantica-vinculos/`](../2026-07-16-1708-dataseth-s0-s3-semantica-vinculos/result.md):
+  20/20 RT, 8/8 fail-loud, corpus canônico byte-idêntico, 20 wires `.tcf`; zero `src/tcf`.
+  `confirmada-conceitual`, confiança: Média (corpus sintético de design; falta corpus realista e firmar
+  política pública de identidade numérica). Ticket:
+  [T-STUDY-DATASETH-COMPLETE-SEMANTICS](../../../../tickets/T-STUDY-DATASETH-COMPLETE-SEMANTICS.md).
+
+- **H-HIER-LINK-ALGEBRA-01** (álgebra dos portadores de vínculo, owner 2026-07-16): dado um domínio
+  ordenado e explícito de pais mais payload ordenado de arestas, `counts ↔ offsets ↔ parent-index ↔
+  steps` preservam o mesmo vínculo. **S2–S3 medido** no mesmo lab: 20/20 IRs reconstruíram o vetor de
+  pais pelas quatro formas. `confirmada-conceitual`, confiança: Média; faltam wires físicos, custos de
+  busca/decode e perfis realistas S4–S6. Ticket:
+  [T-STUDY-HIERARCHY-LINK-ALGEBRA](../../../../tickets/T-STUDY-HIERARCHY-LINK-ALGEBRA.md).
+
+- **H-HIER-BOUNDARY-EMPTY-01** (fronteira sem skip perde pai vazio, owner 2026-07-16): somente um bit
+  `first-child` não identifica quantos pais vazios foram atravessados. Contraprova construtiva:
+  parent-index `[0,2,2]` e `[0,1,1]` produzem os mesmos bits `[start,start,continue]`; `step` ou bitmap
+  de vazios é load-bearing. `confirmada-conceitual`, confiança: Alta para a impossibilidade no modelo;
+  não decide qual portador deve ser canônico. Evidência: `outputs/23-contraprovas.txt` do lab S0–S3.
+
 - **H-PROFILE-01** (PERFIL DE USO — parâmetro/heurística guarda-chuva, owner 2026-07-15, nome PROVISÓRIO):
   família de escolhas de representação decididas por **parâmetro OU heurística**, com **default por
   medição em MASSA depois** (não firmar agora; agora = funcionalidade). Eixo: "otimizado p/
@@ -784,6 +816,38 @@ atualizar este rodape — reconciliado agora.
   explicabilidade — comprimir só sob perfil ([[H-PROFILE-01]]), nunca default. Medir primeiro em que
   regime o header domina o payload. `aberta`, confiança: Baixa. NÃO é `.8`.
   Levantamento: [estrutura-sem-dado-levantamento.md](estrutura-sem-dado-levantamento.md).
+
+- **H-HIER-EMASK-SPARSE-01** (emask densa global → por-instância/esparsa, 2026-07-16, achado da
+  revisão de fluxo): `elem_null` é flag GLOBAL por campo (`hierarchical.py:241`) — **um** null em
+  **um** array liga emask O(total-elementos) pro dataset inteiro; e null periódico não-adjacente não
+  colapsa (RLE é adjacente). **Medido**: 50 regs com `v=[1.5,None,3.5]` → emask 449 B > 307 B da
+  própria coluna de dados. Candidatas: flag/emask por-instância; emask esparsa (índices dos nulls —
+  o trade máscara×índice do Ciclo 4 reaparecendo em ELEMENTO, logo decisão de perfil); padrão
+  periódico no L1. Onde: **S4** (wires lado a lado, T-STUDY-HIERARCHY-LINK-ALGEBRA), com o oráculo
+  S1 como comparador. `aberta`, confiança: Média (sintoma medido; alternativas não).
+  Fonte: [revisao-generosa-hierarquia-2026-07-16.md](revisao-generosa-hierarquia-2026-07-16.md) §2.2b.
+
+- **H-HIER-FANOUT-SPLIT-01** (fan-out FIXO deduzido → desaninhar em k colunas irmãs, 2026-07-16):
+  a "entrada inteligente" do argumento mega-tabela do owner. Array de fan-out constante k é k
+  colunas disfarçadas: como array, as folhas periódicas NÃO colapsam (seq-RLE é adjacente) —
+  **medido**: telemetria 200×`{'t':i,'v':[1.5,2.5,3.5]}` → folhas 1804 B = **96,5% do wire**
+  (counts colapsam em 8 B; TCF ainda 66% < JSON, mas o headroom é óbvio); desaninhado, seriam 3
+  colunas CONSTANTES que o L1 mata em `*200|…` cada. Fan-out constante é dedutível na entrada
+  (mesma família do detect_cadence); a associação não se perde (k fixo declarado no header = o
+  count declarado 1×, cruza com [[H-STRUCT-ASDATA-01]] e [[H-STRUCT-AMORT-01]]). É a forma
+  "tabelão/RLE" que o owner JÁ listou pro **S4**. RT deve preservar `[1.5,2.5,3.5]` como ARRAY
+  (split é representação interna, não mudança de semântica). `aberta`, confiança: Média (sintoma
+  e aritmética medidos; forma não desenhada).
+  Fonte: [revisao-generosa-hierarquia-2026-07-16.md](revisao-generosa-hierarquia-2026-07-16.md) §2.2c.
+
+- **H-HIER-PREP-RUNS-01** (preparação emite runs, não listas densas, 2026-07-16, **`.9`**): a
+  PREPARAÇÃO do encode hierárquico materializa listas Python O(instâncias) de controle
+  (counts `:355`, mask `:330/336/339`, emask `:357-363`) mesmo quando uniformes — o L1 então
+  RE-detecta como run o que o emit já sabia (`len(v)` a cada append); e a derivação de schema faz
+  ≥2 passadas com 4 pontos de cópia O(N) (`:202/:227/:242/:249`). Consertar = emitir runs direto
+  do emit + fundir derive+emit. **Zero mudança de wire** (bytes idênticos) → é limpeza/perf pura,
+  gate byte-canônico como rede. `aberta`, confiança: Baixa. NÃO fazer agora (diretriz: `.8` =
+  funcionalidade). Fonte: [revisao-generosa-hierarquia-2026-07-16.md](revisao-generosa-hierarquia-2026-07-16.md) §2.2a.
 
 - **H-STRUCT-ASDATA-01** (estrutura-como-dado — quando a shape É a informação, 2026-07-16): regime
   (árvores, malhas, matrizes; folhas triviais) onde as colunas de CONTROLE dominam os bytes. Elas JÁ

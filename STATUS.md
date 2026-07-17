@@ -1,5 +1,16 @@
 # STATUS — TCF (compendio sempre-atualizado)
 
+> **⚑ DIREÇÃO 2026-07-16 — JSON completo: capacidade antes da simplificação.** Programa S0–S7
+> adotado: DatasetH semântico → IR lógico → representações físicas → decisão de weld. **S0–S3
+> executados**, sem tocar `src/tcf`: 20/20 RT, 20/20 álgebras de vínculo, 8/8 fail-loud, 20 wires
+> `.tcf` e corpus canônico byte-idêntico. Contraprova: bit `first-child` sem skip perde pai vazio;
+> `[0,2,2]` e `[0,1,1]` colidem. Estado científico: confirmação conceitual sintética, não decisão de
+> header/wire. Próximo: S4 wires físicos lado a lado → S5 decode/busca/paralelismo → S6 header → S7
+> default/fallback e eventual weld. Fontes: [lab S0–S3](experiments/lab/dirty/2026-07-16-1708-dataseth-s0-s3-semantica-vinculos/) ·
+> [semântica](tickets/T-STUDY-DATASETH-COMPLETE-SEMANTICS.md) ·
+> [vínculos](tickets/T-STUDY-HIERARCHY-LINK-ALGEBRA.md) · [execução](tickets/T-EXP-DATASETH-S0-S3.md) ·
+> [checkpoint S4](experiments/lab/dirty/notas/checkpoints/2026-07-16-s0-s3-capacidade-json.md).
+
 > **⚑ DIREÇÃO 2026-07-16 (noite) — contrato externalizado + aceleradores; estrutura-sem-dado.**
 > Owner ditou direção (registro pra estudo, NADA é `.8`): (1) TCF **auto-contido por default**,
 > modificadores externalizam diretivas de header/schema pra **contrato nas pontas** (por versão,

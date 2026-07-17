@@ -1,0 +1,30 @@
+S0/S1 FAIL-LOUD
+OK duplicate-key: DuplicateFieldError: duplicate JSON field: 'a'
+OK NaN: DatasetHError: non-standard JSON constant: NaN
+OK Infinity: DatasetHError: non-standard JSON constant: Infinity
+OK cycle: CycleError: DatasetH source contains a cycle
+OK total-depth: DepthLimitError: DatasetH depth exceeds 128
+OK wire-trailing: OracleWireError: trailing bytes after root (1)
+OK wire-unknown-tag: OracleWireError: unknown node tag b'X' at byte 26
+OK wire-truncated: OracleWireError: unterminated token at byte 27
+
+S3 FRONTEIRA LOSSY
+{
+  "parent_count": 3,
+  "parent_index": [
+    0,
+    2,
+    2
+  ],
+  "competing_parent_index": [
+    0,
+    1,
+    1
+  ],
+  "first_child_bits_both": [
+    true,
+    true,
+    false
+  ],
+  "conclusion": "first-child bits alone lose the skipped empty parent; steps retain it"
+}

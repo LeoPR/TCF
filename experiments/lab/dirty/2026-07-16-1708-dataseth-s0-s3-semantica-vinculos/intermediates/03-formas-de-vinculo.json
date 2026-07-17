@@ -1,0 +1,793 @@
+[
+  {
+    "name": "root-null",
+    "parent_domain": [],
+    "edge_payload": [],
+    "counts": [],
+    "offsets": [
+      0
+    ],
+    "parent_index": [],
+    "steps": []
+  },
+  {
+    "name": "root-true",
+    "parent_domain": [],
+    "edge_payload": [],
+    "counts": [],
+    "offsets": [
+      0
+    ],
+    "parent_index": [],
+    "steps": []
+  },
+  {
+    "name": "root-false",
+    "parent_domain": [],
+    "edge_payload": [],
+    "counts": [],
+    "offsets": [
+      0
+    ],
+    "parent_index": [],
+    "steps": []
+  },
+  {
+    "name": "root-integer",
+    "parent_domain": [],
+    "edge_payload": [],
+    "counts": [],
+    "offsets": [
+      0
+    ],
+    "parent_index": [],
+    "steps": []
+  },
+  {
+    "name": "root-number",
+    "parent_domain": [],
+    "edge_payload": [],
+    "counts": [],
+    "offsets": [
+      0
+    ],
+    "parent_index": [],
+    "steps": []
+  },
+  {
+    "name": "root-string-controls",
+    "parent_domain": [],
+    "edge_payload": [],
+    "counts": [],
+    "offsets": [
+      0
+    ],
+    "parent_index": [],
+    "steps": []
+  },
+  {
+    "name": "empty-object",
+    "parent_domain": [
+      0
+    ],
+    "edge_payload": [],
+    "counts": [
+      0
+    ],
+    "offsets": [
+      0,
+      0
+    ],
+    "parent_index": [],
+    "steps": []
+  },
+  {
+    "name": "empty-array",
+    "parent_domain": [
+      0
+    ],
+    "edge_payload": [],
+    "counts": [
+      0
+    ],
+    "offsets": [
+      0,
+      0
+    ],
+    "parent_index": [],
+    "steps": []
+  },
+  {
+    "name": "array-empty-objects",
+    "parent_domain": [
+      0,
+      1,
+      2
+    ],
+    "edge_payload": [
+      {
+        "child": 1,
+        "ordinal": 0,
+        "label": null
+      },
+      {
+        "child": 2,
+        "ordinal": 1,
+        "label": null
+      }
+    ],
+    "counts": [
+      2,
+      0,
+      0
+    ],
+    "offsets": [
+      0,
+      2,
+      2,
+      2
+    ],
+    "parent_index": [
+      0,
+      0
+    ],
+    "steps": [
+      1,
+      0
+    ]
+  },
+  {
+    "name": "absent",
+    "parent_domain": [
+      0
+    ],
+    "edge_payload": [],
+    "counts": [
+      0
+    ],
+    "offsets": [
+      0,
+      0
+    ],
+    "parent_index": [],
+    "steps": []
+  },
+  {
+    "name": "present-null",
+    "parent_domain": [
+      0
+    ],
+    "edge_payload": [
+      {
+        "child": 1,
+        "ordinal": 0,
+        "label": "a"
+      }
+    ],
+    "counts": [
+      1
+    ],
+    "offsets": [
+      0,
+      1
+    ],
+    "parent_index": [
+      0
+    ],
+    "steps": [
+      1
+    ]
+  },
+  {
+    "name": "present-empty-string",
+    "parent_domain": [
+      0
+    ],
+    "edge_payload": [
+      {
+        "child": 1,
+        "ordinal": 0,
+        "label": "a"
+      }
+    ],
+    "counts": [
+      1
+    ],
+    "offsets": [
+      0,
+      1
+    ],
+    "parent_index": [
+      0
+    ],
+    "steps": [
+      1
+    ]
+  },
+  {
+    "name": "mixed-array",
+    "parent_domain": [
+      0,
+      5,
+      6,
+      7
+    ],
+    "edge_payload": [
+      {
+        "child": 1,
+        "ordinal": 0,
+        "label": null
+      },
+      {
+        "child": 2,
+        "ordinal": 1,
+        "label": null
+      },
+      {
+        "child": 3,
+        "ordinal": 2,
+        "label": null
+      },
+      {
+        "child": 4,
+        "ordinal": 3,
+        "label": null
+      },
+      {
+        "child": 5,
+        "ordinal": 4,
+        "label": null
+      },
+      {
+        "child": 6,
+        "ordinal": 5,
+        "label": null
+      },
+      {
+        "child": 7,
+        "ordinal": 6,
+        "label": null
+      },
+      {
+        "child": 8,
+        "ordinal": 0,
+        "label": null
+      }
+    ],
+    "counts": [
+      7,
+      0,
+      0,
+      1
+    ],
+    "offsets": [
+      0,
+      7,
+      7,
+      7,
+      8
+    ],
+    "parent_index": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      3
+    ],
+    "steps": [
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      3
+    ]
+  },
+  {
+    "name": "nested-arrays",
+    "parent_domain": [
+      0,
+      1,
+      2,
+      4,
+      5,
+      6,
+      7
+    ],
+    "edge_payload": [
+      {
+        "child": 1,
+        "ordinal": 0,
+        "label": null
+      },
+      {
+        "child": 5,
+        "ordinal": 1,
+        "label": null
+      },
+      {
+        "child": 6,
+        "ordinal": 2,
+        "label": null
+      },
+      {
+        "child": 2,
+        "ordinal": 0,
+        "label": null
+      },
+      {
+        "child": 4,
+        "ordinal": 1,
+        "label": null
+      },
+      {
+        "child": 3,
+        "ordinal": 0,
+        "label": null
+      },
+      {
+        "child": 7,
+        "ordinal": 0,
+        "label": null
+      },
+      {
+        "child": 8,
+        "ordinal": 0,
+        "label": null
+      },
+      {
+        "child": 9,
+        "ordinal": 1,
+        "label": null
+      }
+    ],
+    "counts": [
+      3,
+      2,
+      1,
+      0,
+      0,
+      1,
+      2
+    ],
+    "offsets": [
+      0,
+      3,
+      5,
+      6,
+      6,
+      6,
+      7,
+      9
+    ],
+    "parent_index": [
+      0,
+      0,
+      0,
+      1,
+      1,
+      2,
+      5,
+      6,
+      6
+    ],
+    "steps": [
+      1,
+      0,
+      0,
+      1,
+      0,
+      1,
+      3,
+      1,
+      0
+    ]
+  },
+  {
+    "name": "ordered-object",
+    "parent_domain": [
+      0
+    ],
+    "edge_payload": [
+      {
+        "child": 1,
+        "ordinal": 0,
+        "label": "z"
+      },
+      {
+        "child": 2,
+        "ordinal": 1,
+        "label": "a"
+      },
+      {
+        "child": 3,
+        "ordinal": 2,
+        "label": "m"
+      }
+    ],
+    "counts": [
+      3
+    ],
+    "offsets": [
+      0,
+      3
+    ],
+    "parent_index": [
+      0,
+      0,
+      0
+    ],
+    "steps": [
+      1,
+      0,
+      0
+    ]
+  },
+  {
+    "name": "unicode",
+    "parent_domain": [
+      0
+    ],
+    "edge_payload": [
+      {
+        "child": 1,
+        "ordinal": 0,
+        "label": "município"
+      },
+      {
+        "child": 2,
+        "ordinal": 1,
+        "label": "漢字"
+      }
+    ],
+    "counts": [
+      2
+    ],
+    "offsets": [
+      0,
+      2
+    ],
+    "parent_index": [
+      0,
+      0
+    ],
+    "steps": [
+      1,
+      0
+    ]
+  },
+  {
+    "name": "ragged-objects",
+    "parent_domain": [
+      0,
+      1,
+      3,
+      5,
+      7
+    ],
+    "edge_payload": [
+      {
+        "child": 1,
+        "ordinal": 0,
+        "label": null
+      },
+      {
+        "child": 3,
+        "ordinal": 1,
+        "label": null
+      },
+      {
+        "child": 5,
+        "ordinal": 2,
+        "label": null
+      },
+      {
+        "child": 2,
+        "ordinal": 0,
+        "label": "a"
+      },
+      {
+        "child": 4,
+        "ordinal": 0,
+        "label": "b"
+      },
+      {
+        "child": 6,
+        "ordinal": 0,
+        "label": "a"
+      },
+      {
+        "child": 7,
+        "ordinal": 1,
+        "label": "b"
+      }
+    ],
+    "counts": [
+      3,
+      1,
+      1,
+      2,
+      0
+    ],
+    "offsets": [
+      0,
+      3,
+      4,
+      5,
+      7,
+      7
+    ],
+    "parent_index": [
+      0,
+      0,
+      0,
+      1,
+      2,
+      3,
+      3
+    ],
+    "steps": [
+      1,
+      0,
+      0,
+      1,
+      1,
+      1,
+      0
+    ]
+  },
+  {
+    "name": "empty-parent-gap",
+    "parent_domain": [
+      0,
+      1,
+      2,
+      3,
+      5,
+      6,
+      7,
+      8
+    ],
+    "edge_payload": [
+      {
+        "child": 1,
+        "ordinal": 0,
+        "label": "groups"
+      },
+      {
+        "child": 2,
+        "ordinal": 0,
+        "label": null
+      },
+      {
+        "child": 5,
+        "ordinal": 1,
+        "label": null
+      },
+      {
+        "child": 7,
+        "ordinal": 2,
+        "label": null
+      },
+      {
+        "child": 3,
+        "ordinal": 0,
+        "label": "children"
+      },
+      {
+        "child": 4,
+        "ordinal": 0,
+        "label": null
+      },
+      {
+        "child": 6,
+        "ordinal": 0,
+        "label": "children"
+      },
+      {
+        "child": 8,
+        "ordinal": 0,
+        "label": "children"
+      },
+      {
+        "child": 9,
+        "ordinal": 0,
+        "label": null
+      },
+      {
+        "child": 10,
+        "ordinal": 1,
+        "label": null
+      }
+    ],
+    "counts": [
+      1,
+      3,
+      1,
+      1,
+      1,
+      0,
+      1,
+      2
+    ],
+    "offsets": [
+      0,
+      1,
+      4,
+      5,
+      6,
+      7,
+      7,
+      8,
+      10
+    ],
+    "parent_index": [
+      0,
+      1,
+      1,
+      1,
+      2,
+      3,
+      4,
+      6,
+      7,
+      7
+    ],
+    "steps": [
+      1,
+      1,
+      0,
+      0,
+      1,
+      1,
+      1,
+      2,
+      1,
+      0
+    ]
+  },
+  {
+    "name": "sibling-arrays",
+    "parent_domain": [
+      0,
+      1,
+      4,
+      5
+    ],
+    "edge_payload": [
+      {
+        "child": 1,
+        "ordinal": 0,
+        "label": "left"
+      },
+      {
+        "child": 4,
+        "ordinal": 1,
+        "label": "right"
+      },
+      {
+        "child": 5,
+        "ordinal": 2,
+        "label": "tail"
+      },
+      {
+        "child": 2,
+        "ordinal": 0,
+        "label": null
+      },
+      {
+        "child": 3,
+        "ordinal": 1,
+        "label": null
+      },
+      {
+        "child": 6,
+        "ordinal": 0,
+        "label": null
+      }
+    ],
+    "counts": [
+      3,
+      2,
+      0,
+      1
+    ],
+    "offsets": [
+      0,
+      3,
+      5,
+      5,
+      6
+    ],
+    "parent_index": [
+      0,
+      0,
+      0,
+      1,
+      1,
+      3
+    ],
+    "steps": [
+      1,
+      0,
+      0,
+      1,
+      0,
+      2
+    ]
+  },
+  {
+    "name": "structure-without-leaves",
+    "parent_domain": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "edge_payload": [
+      {
+        "child": 1,
+        "ordinal": 0,
+        "label": "a"
+      },
+      {
+        "child": 5,
+        "ordinal": 1,
+        "label": "c"
+      },
+      {
+        "child": 2,
+        "ordinal": 0,
+        "label": null
+      },
+      {
+        "child": 4,
+        "ordinal": 1,
+        "label": null
+      },
+      {
+        "child": 3,
+        "ordinal": 0,
+        "label": "b"
+      }
+    ],
+    "counts": [
+      2,
+      2,
+      1,
+      0,
+      0,
+      0
+    ],
+    "offsets": [
+      0,
+      2,
+      4,
+      5,
+      5,
+      5,
+      5
+    ],
+    "parent_index": [
+      0,
+      0,
+      1,
+      1,
+      2
+    ],
+    "steps": [
+      1,
+      0,
+      1,
+      0,
+      1
+    ]
+  }
+]

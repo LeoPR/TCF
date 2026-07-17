@@ -3,7 +3,7 @@ title: T-STUDY-HIERARCHICAL-TCF — TCF para estrutura hierárquica completa
 status: open
 priority: P2
 created: 2026-07-05
-updated: 2026-07-13
+updated: 2026-07-16
 blocked-by: []
 related:
   - experiments/lab/dirty/notas/estudo-tcf-hierarquico-mapa.md
@@ -32,6 +32,10 @@ related:
   - experiments/lab/dirty/notas/dataseth-hierarquia-completa-plano.md
   - datasets/coverage-matrix.md
   - experiments/lab/dirty/notas/dirty-lab-convencoes.md
+  - tickets/T-STUDY-DATASETH-COMPLETE-SEMANTICS.md
+  - tickets/T-STUDY-HIERARCHY-LINK-ALGEBRA.md
+  - tickets/T-EXP-DATASETH-S0-S3.md
+  - experiments/lab/dirty/2026-07-16-1708-dataseth-s0-s3-semantica-vinculos/
 ---
 
 # T-STUDY-HIERARCHICAL-TCF — TCF para estrutura hierárquica completa
@@ -44,6 +48,13 @@ que se juntam.** Mapa do grupo + como as peças formam o todo:
 
 O plano atual de pesquisa, incluindo a hipótese de `null`, `NaN` e infinitos, está em
 [dataseth-hierarquia-completa-plano.md](../experiments/lab/dirty/notas/dataseth-hierarquia-completa-plano.md).
+
+> **PROGRAMA S0–S7 ADOTADO 2026-07-16**: primeiro capacidade, depois simplificação física. S0–S3
+> possuem lab próprio e tickets separados para [semântica/oráculo](T-STUDY-DATASETH-COMPLETE-SEMANTICS.md),
+> [álgebra de vínculos](T-STUDY-HIERARCHY-LINK-ALGEBRA.md) e
+> [execução](T-EXP-DATASETH-S0-S3.md). S4–S6 compararão wires, dependências de decode/busca e header;
+> S7 é a decisão de default/fallback e eventual proposta de weld. O codec-oráculo não é proposta de
+> gramática canônica.
 
 > **PROMOVIDO A WELD DO `.8` (owner 2026-07-13)**: o reescopo `.8`=feature-complete decidiu que a
 > hierarquia entra no `.8`. Este guarda-chuva (feasibility, `confirmada-conceitual`) permanece a base
