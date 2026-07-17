@@ -49,19 +49,28 @@ silêncio**: implementar uma faz o teste dar XPASS e obriga a promovê-la).
 **Bônus medido — TCF ⊃ I-JSON num eixo**: inteiros acima de 2^53 fazem RT no TCF; o I-JSON os
 proíbe (RFC 7493 §2.2, faixa segura IEEE 754). Capacidade extra que já temos de graça.
 
-## 2. "É problema do Python ou do JSON?" — a pergunta do owner, medida
+## 2. "É problema do Python ou do JSON?" — REENQUADRADO (correção do owner, 2026-07-17)
 
-Provado por **compilação** (`rustc 1.82.0`, o alvo do 1.0):
+> **Correção**: "limite da linguagem" não é argumento — **a norma define o modelo; a documentação
+> oficial da lib declara o mapeamento e ONDE desvia**. O CPython **não alega** conformidade total:
+> a doc declara *"This module does not comply with the RFC in a strict fashion"* e lista os desvios
+> um a um, com os interruptores de modo estrito (`allow_nan=False` = *"in strict compliance with
+> the JSON specification"*; `parse_constant`; `object_pairs_hook`) e o aviso explícito
+> *"loads(dumps(x)) != x if x has non-string keys"*. Nada disso é surpresa: é **contrato
+> documentado**. Enquadramento completo + pesquisa cross-language (JS/Rust/Go/C++, com fonte):
+> [dataset-json-dois-contratos.md](dataset-json-dois-contratos.md).
 
-| condição | Python | Rust | veredito |
-|---|---|---|---|
-| chave int + chave str no mesmo mapa (o que **fabrica** a duplicata) | `{1:'x','1':'y'}` é legal → `json.dumps` **emite duplicata**, RT perde calado | **erro de compilação** E0308 (`expected i32, found &str`) | **problema do Python** (tipagem dinâmica) — inexprimível em linguagem tipada |
-| lone surrogate | `str` aceita; `dumps` escapa; a string não é UTF-8 | `"\u{D800}"` → **erro de compilação**; `char::from_u32(0xD800)` → `None`; `String::from_utf8([ED,A0,80])` → `Err` | **problema do Python** — inexprimível em Rust |
-| NaN quebra identidade | `nan != nan` | `f64::NAN == f64::NAN` → `false` (o rustc **avisa**: "incorrect NaN comparison") | **problema do IEEE 754** — universal, não some em lugar nenhum |
+O que as medições de compilação (rustc 1.82) continuam valendo COMO FATO (não como desculpa):
+chave int+str no mesmo mapa → E0308; lone surrogate → não compila / `String` é UTF-8 por
+construção; `f64::NAN != f64::NAN` (IEEE 754, universal). **Leitura corrigida**: esses datasets
+estão **fora da classe D_json** definida pela norma + tabela oficial de conversão — o TCF os
+recusa porque **a classe não os contém**, não porque uma linguagem não os expressa.
 
-→ **2 dos 5 "defeitos" desaparecem por construção no port Rust do 1.0.** A rigidez atual do TCF não
-é parochialismo Python: é exatamente o que o sistema de tipos do Rust vai impor de graça. O que
-sobra (NaN) é físico (IEEE 754) e só se resolve **representando** (categoria D), nunca tolerando.
+**⚠ Achado da pesquisa que INVERTE uma suposição (port Rust 1.0)**: `serde_json` com defaults
+serializa NaN/Inf → **`null` SILENCIOSO** (não é erro!) e **corrompe números grandes calado**
+(precisa da feature `arbitrary_precision`) — quebraria nosso fail-loud E o "TCF ⊃ I-JSON" de
+inteiros > 2^53. O port 1.0 não herda segurança do serde_json: ou configura explicitamente, ou
+não o usa no caminho de dados (nosso wire não é JSON; serde só serve a ADAPTADORES).
 
 ## 3. A escala (dois eixos: custo × lacunas fechadas)
 

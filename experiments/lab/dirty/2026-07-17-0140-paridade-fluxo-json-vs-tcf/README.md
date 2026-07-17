@@ -18,6 +18,17 @@ ASCII o esconde) e mediríamos uma paridade que não existe no fio.
 **3 níveis por caso**: N0 = json realista (`ensure_ascii=False` → bytes) · N0a = json ASCII ·
 **N1 = I-JSON (RFC 7493)**, o perfil interoperável restrito.
 
+## Re-enquadramento (owner, 2026-07-17) — o TCF lê DATASET, não JSON
+
+> São **dois contratos independentes**: Contrato A (da lib json: `texto→dataset→texto`; nossa
+> responsabilidade é CONHECER os limites que a doc oficial declara) e Contrato B (do TCF:
+> `dataset→tcf→dataset` sobre a classe **D_json**, definida pela tabela oficial de conversão +
+> RFC 8259/7493). O critério `J-RT-TX ⟹ T-RT` vale **só dentro de D_json**; os casos
+> NaN/Inf/tuple/chave-não-str/surrogate estão FORA da classe (a própria doc do CPython os declara
+> desvio/lossy) e **não são paridade** — os vereditos "TCF-ESTRITO"/"AMBOS-RECUSAM" abaixo devem
+> ser lidos assim. Placar e medições permanecem válidos.
+> Enquadramento: [../notas/dataset-json-dois-contratos.md](../notas/dataset-json-dois-contratos.md).
+
 ## Resultado — [outputs/00-resultado.txt](outputs/00-resultado.txt)
 
 **PLACAR: PARIDADE=14 · LACUNA=3 · AMBOS-RECUSAM=7 · TCF-ESTRITO=2**
