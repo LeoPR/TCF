@@ -88,6 +88,7 @@ realista, não sintético). O weld atual (ADR-0033) cobre a ESPINHA; faltam os c
 | **array no topo / raiz generalizada** | ❌ fail-loud | **P4b — contrato de raiz** (ato separado, muda API) |
 | **array polimórfico** (elementos de schema variável) | ❌ fail-loud | P5 — union/def-level (a fronteira mais afiada) |
 | `\n` em valor | ❌ fail-loud (core) | **congelar** contrato (boundary) |
+| **ordem de chaves por-registro em ragged** | ⚠️ semântica preservada; ORDEM vira a do schema (chave que estreia tarde volta ao fim) — achado 2026-07-17 da suíte de controle, pinado em `test_hierarchical_control_synthetics.py` | decisão de contrato (S6/P4b): schema-order canônica OU por-registro; contrato S0 preserva por-registro ([T-API-BOUNDARY-CONTRACTS](T-API-BOUNDARY-CONTRACTS.md)) |
 
 Fonte da taxonomia: [hierarquia-inventario-hipoteses.md](../experiments/lab/dirty/notas/hierarquia-inventario-hipoteses.md)
 (presença→repetição→normalização, SETTLED). Tipos = camada ortogonal (item 11 do inventário).

@@ -1,0 +1,60 @@
+SINTETICOS DE CONTROLE — navegacao do fluxo .8H (buckets meta/controle/folhas).
+Vies declarado: casos de DESIGN construidos pra OBSERVAR mecanismos, nao pra ganhar bytes.
+
+(1) NAVEGACAO — pra onde os bytes vao (RT-validado caso a caso):
+    caso                     docs   json    tcf  meta  ctrl folhas    %f #ctrl
+    c01-uniforme              100   4893    798    30     0    768 96.2%    0
+    c02-telemetria-array      200   8001   3134    26     8   3100 98.9%    1
+    c03-telemetria-split      200  10801   2836    43     0   2793 98.5%    0
+    c04-ragged                120   3868    685    31    78    576 84.1%    1
+    c05-null-campo            120   6662    842    33    90    719 85.4%    1
+    c06-null-elemento          60   2582   1422    40   409    973 68.4%    2
+    c07-arrays-vazios         100   2608    467    25   201    241 51.6%    1
+    c08-matriz                 40   1087    646    27    14    605 93.7%    2
+    c09-espinha                80   8676   3219    57   238   2924 90.8%    1
+    c10-tipos-cadenciados     150   5013   1317    34     0   1283 97.4%    0
+    c11-categorico            300   9180   1688    21     0   1667 98.8%    0
+    c12-compose-total          40   3409   1459    75   436    948 65.0%    5
+
+(2) LEITURA por mecanismo (o que cada caso observa):
+    c01-uniforme: baseline flat-like: todo campo presente, sem arrays
+        alvo: zero colunas de controle (mask so' quando opcional/null)
+        colunas: id/scalar=23B · nome/scalar=422B · cidade/scalar=323B
+    c02-telemetria-array: fan-out FIXO 3 como array (fraqueza conhecida: folha periodica)
+        alvo: counts colapsam; folhas periodicas NAO colapsam (seq-RLE e' adjacente)
+        colunas: t/scalar=75B · v/count=8B · v/arr_scalars=3025B
+    c03-telemetria-split: MESMOS dados do c02 como 3 campos irmaos (par de controle do fan-out-split)
+        alvo: cada serie vira coluna propria -> L1 ve a deriva por coluna
+        colunas: t/scalar=75B · temp/scalar=809B · hum/scalar=1058B · pres/scalar=851B
+    c04-ragged: campo opcional presente em ~10% (P1)
+        alvo: mask 2-estados com runs longas de '-' -> RLE colapsa
+        colunas: id/scalar=29B · nome/scalar=488B · obs/mask=78B · obs/scalar=59B
+    c05-null-campo: campo com ~8% null (P3a)
+        alvo: mask 3-estados; '0' esparso quebra runs da mask
+        colunas: id/scalar=29B · nome/scalar=488B · email/mask=90B · email/scalar=202B
+    c06-null-elemento: null esparso EM ELEMENTO (~15%, nao-adjacente) — sintoma da emask densa
+        alvo: 1 null liga emask O(total-elementos); padrao esparso nao colapsa
+        colunas: id/scalar=18B · leituras/count=167B · leituras/emask=242B · leituras/arr_scalars=955B
+    c07-arrays-vazios: 60% arrays vazios (repeticao de vazio ESTRUTURAL)
+        alvo: count \0 em runs -> RLE colapsa; body de dados minimo
+        colunas: id/scalar=23B · tags/count=201B · tags/arr_scalars=218B
+    c08-matriz: matriz 2x2 regular por registro (P4a raso)
+        alvo: counts de 2 niveis, ambos constantes -> colapsam
+        colunas: grade/count=7B · grade/count1=7B · grade/arr_scalars=605B
+    c09-espinha: 1:N classico com fan-out VARIAVEL 0..4 (espinha TPC-H-like)
+        alvo: counts variaveis (nao colapsam inteiros) + folhas de filho densas
+        colunas: id/scalar=18B · nome/scalar=356B · pedidos/count=238B · pedidos/num/scalar=1094B · pedidos/valor/scalar=1456B
+    c10-tipos-cadenciados: int sequencial + bool quase-constante + float cadenciado (P2 x seq-RLE)
+        alvo: seq-RLE deve pegar as 3 colunas tipadas
+        colunas: seq/scalar=30B · ok/scalar=203B · temp/scalar=1050B
+    c11-categorico: 2 colunas categoricas repetitivas (dict/refs do L1)
+        alvo: refs/aliases dominam; folhas ~O(cardinalidade), nao O(N)
+        colunas: status/scalar=800B · uf/scalar=867B
+    c12-compose-total: P1+P2+P3a+P3b+P4a juntos, moderado
+        alvo: todos os mecanismos ao mesmo tempo (integracao)
+        colunas: id/scalar=18B · nome/scalar=227B · email/mask=49B · email/scalar=96B · m/count=7B · m/count1=242B · m/emask1=68B · m/arr_scalars=435B · ok/scalar=125B · obs/mask=70B · obs/scalar=47B
+
+(3) PARES DE CONTROLE:
+    fan-out-split (H-HIER-FANOUT-SPLIT-01): array=3134B vs split=2836B -> delta=+298B (9.5% do array)
+    emask densa (H-HIER-EMASK-SPARSE-01): controle=409B vs folhas=973B (razao 0.42)
+    baseline uniforme: 0 colunas de controle (esperado 0)

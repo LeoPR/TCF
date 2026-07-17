@@ -826,6 +826,11 @@ atualizar este rodape — reconciliado agora.
   periódico no L1. Onde: **S4** (wires lado a lado, T-STUDY-HIERARCHY-LINK-ALGEBRA), com o oráculo
   S1 como comparador. `aberta`, confiança: Média (sintoma medido; alternativas não).
   Fonte: [revisao-generosa-hierarquia-2026-07-16.md](revisao-generosa-hierarquia-2026-07-16.md) §2.2b.
+  - **Update 2026-07-17 (suíte de controle)**: sintoma confirmado em regime realista (c06: controle
+    = 29% do wire) e AMPLIADO — **counts variáveis espalhados têm o mesmo sintoma** (c07: 60%
+    arrays vazios intercalados → count 201 B ≈ dados 218 B; RLE é adjacente). O portador
+    esparso/por-instância candidato deve cobrir emask E counts. Pinos:
+    `tests/test_hierarchical_control_synthetics.py`.
 
 - **H-HIER-FANOUT-SPLIT-01** (fan-out FIXO deduzido → desaninhar em k colunas irmãs, 2026-07-16):
   a "entrada inteligente" do argumento mega-tabela do owner. Array de fan-out constante k é k
@@ -839,6 +844,10 @@ atualizar este rodape — reconciliado agora.
   (split é representação interna, não mudança de semântica). `aberta`, confiança: Média (sintoma
   e aritmética medidos; forma não desenhada).
   Fonte: [revisao-generosa-hierarquia-2026-07-16.md](revisao-generosa-hierarquia-2026-07-16.md) §2.2c.
+  - **Update 2026-07-17 (par de controle c02×c03, MESMOS dados)**: com série REALISTA (random-walk)
+    o split ganha **−9,5%** (3134→2836 B); o caso constante da revisão (96,5% em folhas) é o teto.
+    O prêmio é função da entropia por série → decidir por medição no S4, não por regra fixa.
+    Pino do SINAL (split < array) em `tests/test_hierarchical_control_synthetics.py`.
 
 - **H-HIER-PREP-RUNS-01** (preparação emite runs, não listas densas, 2026-07-16, **`.9`**): a
   PREPARAÇÃO do encode hierárquico materializa listas Python O(instâncias) de controle

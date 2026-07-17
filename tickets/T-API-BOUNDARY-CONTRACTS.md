@@ -57,6 +57,7 @@ que o estudo precisa comparar:
 | registros ragged (keys diferentes por objeto) | tabela exige colunas alinhadas e pode falhar | DatasetH precisa de presença/definition level ou equivalente |
 | `\n` dentro de valor | `ValueError` (LF delimita linhas) | H precisa de framing próprio; não herdar a delimitação flat sem teste |
 | `""` vazio vs coluna vazia | `''` é valor; coluna/registro vazio tem restrições do flat | DatasetH deve testar vazios de folha, objeto e array separadamente |
+| **ordem de chaves em ragged** (achado 2026-07-17, suíte de controle) | `.8H` devolve chaves na ordem do SCHEMA (união por 1ª aparição): chave opcional que estreia após o 1º registro volta ao FIM do dict. Igualdade semântica (dict) preservada; byte-igualdade do `json.dumps` NÃO. Mínimo: `[{a,c},{a,obs,c}]` → reg. 2 volta `[a,c,obs]`. Pinado em `test_ordem_de_chaves_ragged_e_do_schema` | decidir contrato: declarar ordem-do-schema como canônica OU preservar ordem por-registro (custo de wire). O contrato S0 do DatasetH (lab 2026-07-16-1708) preserva por-registro — gap S0×`.8H`; decisão junto do S6/P4b |
 
 **Tabela do lote 3** (BUG-08..10g abaixo): cada linha ganha uma decisão **manter/mudar** registrada,
 com teste de contrato. A maioria continua sendo contrato do núcleo de strings. Ela não decide o DatasetH;

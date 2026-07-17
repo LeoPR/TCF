@@ -1,0 +1,1202 @@
+[
+  {
+    "status": "inativo",
+    "uf": "PR"
+  },
+  {
+    "status": "inativo",
+    "uf": "RJ"
+  },
+  {
+    "status": "pendente",
+    "uf": "AM"
+  },
+  {
+    "status": "pendente",
+    "uf": "PE"
+  },
+  {
+    "status": "ativo",
+    "uf": "PE"
+  },
+  {
+    "status": "ativo",
+    "uf": "SP"
+  },
+  {
+    "status": "ativo",
+    "uf": "SP"
+  },
+  {
+    "status": "pendente",
+    "uf": "AM"
+  },
+  {
+    "status": "ativo",
+    "uf": "SP"
+  },
+  {
+    "status": "inativo",
+    "uf": "PE"
+  },
+  {
+    "status": "ativo",
+    "uf": "SP"
+  },
+  {
+    "status": "pendente",
+    "uf": "RJ"
+  },
+  {
+    "status": "ativo",
+    "uf": "AM"
+  },
+  {
+    "status": "pendente",
+    "uf": "PE"
+  },
+  {
+    "status": "pendente",
+    "uf": "SP"
+  },
+  {
+    "status": "pendente",
+    "uf": "SP"
+  },
+  {
+    "status": "inativo",
+    "uf": "PE"
+  },
+  {
+    "status": "pendente",
+    "uf": "AM"
+  },
+  {
+    "status": "pendente",
+    "uf": "RJ"
+  },
+  {
+    "status": "inativo",
+    "uf": "SP"
+  },
+  {
+    "status": "inativo",
+    "uf": "PR"
+  },
+  {
+    "status": "ativo",
+    "uf": "RJ"
+  },
+  {
+    "status": "inativo",
+    "uf": "RJ"
+  },
+  {
+    "status": "pendente",
+    "uf": "SP"
+  },
+  {
+    "status": "pendente",
+    "uf": "RJ"
+  },
+  {
+    "status": "pendente",
+    "uf": "PE"
+  },
+  {
+    "status": "ativo",
+    "uf": "SP"
+  },
+  {
+    "status": "pendente",
+    "uf": "PR"
+  },
+  {
+    "status": "pendente",
+    "uf": "SP"
+  },
+  {
+    "status": "pendente",
+    "uf": "SP"
+  },
+  {
+    "status": "pendente",
+    "uf": "PE"
+  },
+  {
+    "status": "ativo",
+    "uf": "AM"
+  },
+  {
+    "status": "ativo",
+    "uf": "PE"
+  },
+  {
+    "status": "ativo",
+    "uf": "RJ"
+  },
+  {
+    "status": "pendente",
+    "uf": "PE"
+  },
+  {
+    "status": "pendente",
+    "uf": "AM"
+  },
+  {
+    "status": "inativo",
+    "uf": "SP"
+  },
+  {
+    "status": "ativo",
+    "uf": "PR"
+  },
+  {
+    "status": "pendente",
+    "uf": "AM"
+  },
+  {
+    "status": "ativo",
+    "uf": "RJ"
+  },
+  {
+    "status": "ativo",
+    "uf": "RJ"
+  },
+  {
+    "status": "pendente",
+    "uf": "PE"
+  },
+  {
+    "status": "ativo",
+    "uf": "PR"
+  },
+  {
+    "status": "inativo",
+    "uf": "RJ"
+  },
+  {
+    "status": "ativo",
+    "uf": "AM"
+  },
+  {
+    "status": "pendente",
+    "uf": "SP"
+  },
+  {
+    "status": "inativo",
+    "uf": "RJ"
+  },
+  {
+    "status": "pendente",
+    "uf": "PE"
+  },
+  {
+    "status": "ativo",
+    "uf": "AM"
+  },
+  {
+    "status": "ativo",
+    "uf": "RJ"
+  },
+  {
+    "status": "ativo",
+    "uf": "RJ"
+  },
+  {
+    "status": "ativo",
+    "uf": "PE"
+  },
+  {
+    "status": "pendente",
+    "uf": "PR"
+  },
+  {
+    "status": "inativo",
+    "uf": "RJ"
+  },
+  {
+    "status": "pendente",
+    "uf": "PE"
+  },
+  {
+    "status": "inativo",
+    "uf": "RJ"
+  },
+  {
+    "status": "inativo",
+    "uf": "PR"
+  },
+  {
+    "status": "inativo",
+    "uf": "RJ"
+  },
+  {
+    "status": "pendente",
+    "uf": "RJ"
+  },
+  {
+    "status": "ativo",
+    "uf": "AM"
+  },
+  {
+    "status": "pendente",
+    "uf": "SP"
+  },
+  {
+    "status": "ativo",
+    "uf": "RJ"
+  },
+  {
+    "status": "inativo",
+    "uf": "AM"
+  },
+  {
+    "status": "ativo",
+    "uf": "RJ"
+  },
+  {
+    "status": "inativo",
+    "uf": "AM"
+  },
+  {
+    "status": "pendente",
+    "uf": "RJ"
+  },
+  {
+    "status": "inativo",
+    "uf": "AM"
+  },
+  {
+    "status": "inativo",
+    "uf": "RJ"
+  },
+  {
+    "status": "pendente",
+    "uf": "PE"
+  },
+  {
+    "status": "inativo",
+    "uf": "RJ"
+  },
+  {
+    "status": "inativo",
+    "uf": "RJ"
+  },
+  {
+    "status": "pendente",
+    "uf": "PR"
+  },
+  {
+    "status": "inativo",
+    "uf": "PE"
+  },
+  {
+    "status": "pendente",
+    "uf": "PR"
+  },
+  {
+    "status": "ativo",
+    "uf": "PE"
+  },
+  {
+    "status": "inativo",
+    "uf": "PE"
+  },
+  {
+    "status": "ativo",
+    "uf": "PR"
+  },
+  {
+    "status": "pendente",
+    "uf": "AM"
+  },
+  {
+    "status": "pendente",
+    "uf": "AM"
+  },
+  {
+    "status": "ativo",
+    "uf": "SP"
+  },
+  {
+    "status": "pendente",
+    "uf": "PE"
+  },
+  {
+    "status": "inativo",
+    "uf": "PE"
+  },
+  {
+    "status": "pendente",
+    "uf": "PR"
+  },
+  {
+    "status": "pendente",
+    "uf": "PE"
+  },
+  {
+    "status": "ativo",
+    "uf": "SP"
+  },
+  {
+    "status": "ativo",
+    "uf": "PR"
+  },
+  {
+    "status": "ativo",
+    "uf": "RJ"
+  },
+  {
+    "status": "inativo",
+    "uf": "PE"
+  },
+  {
+    "status": "ativo",
+    "uf": "SP"
+  },
+  {
+    "status": "inativo",
+    "uf": "AM"
+  },
+  {
+    "status": "pendente",
+    "uf": "PR"
+  },
+  {
+    "status": "inativo",
+    "uf": "RJ"
+  },
+  {
+    "status": "ativo",
+    "uf": "PR"
+  },
+  {
+    "status": "ativo",
+    "uf": "RJ"
+  },
+  {
+    "status": "ativo",
+    "uf": "PR"
+  },
+  {
+    "status": "inativo",
+    "uf": "RJ"
+  },
+  {
+    "status": "ativo",
+    "uf": "PE"
+  },
+  {
+    "status": "pendente",
+    "uf": "AM"
+  },
+  {
+    "status": "ativo",
+    "uf": "PR"
+  },
+  {
+    "status": "pendente",
+    "uf": "AM"
+  },
+  {
+    "status": "ativo",
+    "uf": "SP"
+  },
+  {
+    "status": "ativo",
+    "uf": "PR"
+  },
+  {
+    "status": "pendente",
+    "uf": "AM"
+  },
+  {
+    "status": "ativo",
+    "uf": "SP"
+  },
+  {
+    "status": "ativo",
+    "uf": "PE"
+  },
+  {
+    "status": "ativo",
+    "uf": "PE"
+  },
+  {
+    "status": "ativo",
+    "uf": "PR"
+  },
+  {
+    "status": "ativo",
+    "uf": "RJ"
+  },
+  {
+    "status": "pendente",
+    "uf": "PR"
+  },
+  {
+    "status": "ativo",
+    "uf": "AM"
+  },
+  {
+    "status": "inativo",
+    "uf": "PE"
+  },
+  {
+    "status": "ativo",
+    "uf": "PR"
+  },
+  {
+    "status": "ativo",
+    "uf": "SP"
+  },
+  {
+    "status": "ativo",
+    "uf": "SP"
+  },
+  {
+    "status": "inativo",
+    "uf": "RJ"
+  },
+  {
+    "status": "inativo",
+    "uf": "RJ"
+  },
+  {
+    "status": "pendente",
+    "uf": "AM"
+  },
+  {
+    "status": "ativo",
+    "uf": "PE"
+  },
+  {
+    "status": "ativo",
+    "uf": "AM"
+  },
+  {
+    "status": "ativo",
+    "uf": "AM"
+  },
+  {
+    "status": "inativo",
+    "uf": "RJ"
+  },
+  {
+    "status": "ativo",
+    "uf": "RJ"
+  },
+  {
+    "status": "ativo",
+    "uf": "AM"
+  },
+  {
+    "status": "pendente",
+    "uf": "AM"
+  },
+  {
+    "status": "pendente",
+    "uf": "SP"
+  },
+  {
+    "status": "ativo",
+    "uf": "SP"
+  },
+  {
+    "status": "ativo",
+    "uf": "PE"
+  },
+  {
+    "status": "pendente",
+    "uf": "RJ"
+  },
+  {
+    "status": "inativo",
+    "uf": "PR"
+  },
+  {
+    "status": "inativo",
+    "uf": "AM"
+  },
+  {
+    "status": "ativo",
+    "uf": "PE"
+  },
+  {
+    "status": "inativo",
+    "uf": "SP"
+  },
+  {
+    "status": "pendente",
+    "uf": "PR"
+  },
+  {
+    "status": "ativo",
+    "uf": "PR"
+  },
+  {
+    "status": "ativo",
+    "uf": "PE"
+  },
+  {
+    "status": "inativo",
+    "uf": "RJ"
+  },
+  {
+    "status": "pendente",
+    "uf": "SP"
+  },
+  {
+    "status": "pendente",
+    "uf": "AM"
+  },
+  {
+    "status": "inativo",
+    "uf": "RJ"
+  },
+  {
+    "status": "ativo",
+    "uf": "SP"
+  },
+  {
+    "status": "inativo",
+    "uf": "PE"
+  },
+  {
+    "status": "inativo",
+    "uf": "AM"
+  },
+  {
+    "status": "inativo",
+    "uf": "AM"
+  },
+  {
+    "status": "inativo",
+    "uf": "RJ"
+  },
+  {
+    "status": "inativo",
+    "uf": "RJ"
+  },
+  {
+    "status": "pendente",
+    "uf": "AM"
+  },
+  {
+    "status": "inativo",
+    "uf": "PE"
+  },
+  {
+    "status": "ativo",
+    "uf": "SP"
+  },
+  {
+    "status": "ativo",
+    "uf": "SP"
+  },
+  {
+    "status": "inativo",
+    "uf": "PR"
+  },
+  {
+    "status": "inativo",
+    "uf": "SP"
+  },
+  {
+    "status": "pendente",
+    "uf": "SP"
+  },
+  {
+    "status": "pendente",
+    "uf": "PE"
+  },
+  {
+    "status": "ativo",
+    "uf": "SP"
+  },
+  {
+    "status": "pendente",
+    "uf": "AM"
+  },
+  {
+    "status": "pendente",
+    "uf": "RJ"
+  },
+  {
+    "status": "pendente",
+    "uf": "RJ"
+  },
+  {
+    "status": "inativo",
+    "uf": "PR"
+  },
+  {
+    "status": "ativo",
+    "uf": "PR"
+  },
+  {
+    "status": "pendente",
+    "uf": "SP"
+  },
+  {
+    "status": "pendente",
+    "uf": "PR"
+  },
+  {
+    "status": "pendente",
+    "uf": "PR"
+  },
+  {
+    "status": "pendente",
+    "uf": "PR"
+  },
+  {
+    "status": "inativo",
+    "uf": "RJ"
+  },
+  {
+    "status": "ativo",
+    "uf": "RJ"
+  },
+  {
+    "status": "inativo",
+    "uf": "PE"
+  },
+  {
+    "status": "pendente",
+    "uf": "PR"
+  },
+  {
+    "status": "inativo",
+    "uf": "PR"
+  },
+  {
+    "status": "ativo",
+    "uf": "PR"
+  },
+  {
+    "status": "ativo",
+    "uf": "PR"
+  },
+  {
+    "status": "inativo",
+    "uf": "PE"
+  },
+  {
+    "status": "inativo",
+    "uf": "AM"
+  },
+  {
+    "status": "inativo",
+    "uf": "RJ"
+  },
+  {
+    "status": "inativo",
+    "uf": "PE"
+  },
+  {
+    "status": "ativo",
+    "uf": "PR"
+  },
+  {
+    "status": "ativo",
+    "uf": "AM"
+  },
+  {
+    "status": "ativo",
+    "uf": "SP"
+  },
+  {
+    "status": "pendente",
+    "uf": "SP"
+  },
+  {
+    "status": "inativo",
+    "uf": "SP"
+  },
+  {
+    "status": "ativo",
+    "uf": "RJ"
+  },
+  {
+    "status": "ativo",
+    "uf": "AM"
+  },
+  {
+    "status": "pendente",
+    "uf": "PR"
+  },
+  {
+    "status": "ativo",
+    "uf": "PR"
+  },
+  {
+    "status": "inativo",
+    "uf": "SP"
+  },
+  {
+    "status": "pendente",
+    "uf": "RJ"
+  },
+  {
+    "status": "pendente",
+    "uf": "AM"
+  },
+  {
+    "status": "pendente",
+    "uf": "PE"
+  },
+  {
+    "status": "inativo",
+    "uf": "SP"
+  },
+  {
+    "status": "pendente",
+    "uf": "SP"
+  },
+  {
+    "status": "pendente",
+    "uf": "SP"
+  },
+  {
+    "status": "pendente",
+    "uf": "SP"
+  },
+  {
+    "status": "ativo",
+    "uf": "PR"
+  },
+  {
+    "status": "inativo",
+    "uf": "SP"
+  },
+  {
+    "status": "ativo",
+    "uf": "RJ"
+  },
+  {
+    "status": "pendente",
+    "uf": "RJ"
+  },
+  {
+    "status": "inativo",
+    "uf": "PE"
+  },
+  {
+    "status": "pendente",
+    "uf": "RJ"
+  },
+  {
+    "status": "ativo",
+    "uf": "SP"
+  },
+  {
+    "status": "inativo",
+    "uf": "AM"
+  },
+  {
+    "status": "inativo",
+    "uf": "PE"
+  },
+  {
+    "status": "pendente",
+    "uf": "RJ"
+  },
+  {
+    "status": "ativo",
+    "uf": "RJ"
+  },
+  {
+    "status": "ativo",
+    "uf": "RJ"
+  },
+  {
+    "status": "ativo",
+    "uf": "PE"
+  },
+  {
+    "status": "inativo",
+    "uf": "PE"
+  },
+  {
+    "status": "ativo",
+    "uf": "PR"
+  },
+  {
+    "status": "pendente",
+    "uf": "PR"
+  },
+  {
+    "status": "ativo",
+    "uf": "PR"
+  },
+  {
+    "status": "ativo",
+    "uf": "SP"
+  },
+  {
+    "status": "inativo",
+    "uf": "PR"
+  },
+  {
+    "status": "ativo",
+    "uf": "RJ"
+  },
+  {
+    "status": "inativo",
+    "uf": "RJ"
+  },
+  {
+    "status": "ativo",
+    "uf": "RJ"
+  },
+  {
+    "status": "ativo",
+    "uf": "RJ"
+  },
+  {
+    "status": "inativo",
+    "uf": "SP"
+  },
+  {
+    "status": "ativo",
+    "uf": "RJ"
+  },
+  {
+    "status": "inativo",
+    "uf": "SP"
+  },
+  {
+    "status": "ativo",
+    "uf": "PE"
+  },
+  {
+    "status": "pendente",
+    "uf": "RJ"
+  },
+  {
+    "status": "ativo",
+    "uf": "PR"
+  },
+  {
+    "status": "ativo",
+    "uf": "SP"
+  },
+  {
+    "status": "inativo",
+    "uf": "RJ"
+  },
+  {
+    "status": "pendente",
+    "uf": "RJ"
+  },
+  {
+    "status": "ativo",
+    "uf": "SP"
+  },
+  {
+    "status": "ativo",
+    "uf": "PR"
+  },
+  {
+    "status": "inativo",
+    "uf": "PE"
+  },
+  {
+    "status": "pendente",
+    "uf": "RJ"
+  },
+  {
+    "status": "inativo",
+    "uf": "PE"
+  },
+  {
+    "status": "inativo",
+    "uf": "RJ"
+  },
+  {
+    "status": "pendente",
+    "uf": "PR"
+  },
+  {
+    "status": "ativo",
+    "uf": "PE"
+  },
+  {
+    "status": "inativo",
+    "uf": "AM"
+  },
+  {
+    "status": "inativo",
+    "uf": "PE"
+  },
+  {
+    "status": "pendente",
+    "uf": "RJ"
+  },
+  {
+    "status": "pendente",
+    "uf": "PR"
+  },
+  {
+    "status": "pendente",
+    "uf": "RJ"
+  },
+  {
+    "status": "inativo",
+    "uf": "SP"
+  },
+  {
+    "status": "pendente",
+    "uf": "PR"
+  },
+  {
+    "status": "pendente",
+    "uf": "PR"
+  },
+  {
+    "status": "inativo",
+    "uf": "PR"
+  },
+  {
+    "status": "pendente",
+    "uf": "SP"
+  },
+  {
+    "status": "ativo",
+    "uf": "SP"
+  },
+  {
+    "status": "inativo",
+    "uf": "PR"
+  },
+  {
+    "status": "pendente",
+    "uf": "AM"
+  },
+  {
+    "status": "ativo",
+    "uf": "PE"
+  },
+  {
+    "status": "ativo",
+    "uf": "PR"
+  },
+  {
+    "status": "ativo",
+    "uf": "PR"
+  },
+  {
+    "status": "ativo",
+    "uf": "AM"
+  },
+  {
+    "status": "pendente",
+    "uf": "AM"
+  },
+  {
+    "status": "pendente",
+    "uf": "PE"
+  },
+  {
+    "status": "ativo",
+    "uf": "SP"
+  },
+  {
+    "status": "pendente",
+    "uf": "SP"
+  },
+  {
+    "status": "ativo",
+    "uf": "RJ"
+  },
+  {
+    "status": "inativo",
+    "uf": "PR"
+  },
+  {
+    "status": "ativo",
+    "uf": "AM"
+  },
+  {
+    "status": "inativo",
+    "uf": "SP"
+  },
+  {
+    "status": "pendente",
+    "uf": "PR"
+  },
+  {
+    "status": "ativo",
+    "uf": "RJ"
+  },
+  {
+    "status": "pendente",
+    "uf": "PR"
+  },
+  {
+    "status": "ativo",
+    "uf": "AM"
+  },
+  {
+    "status": "ativo",
+    "uf": "PR"
+  },
+  {
+    "status": "pendente",
+    "uf": "RJ"
+  },
+  {
+    "status": "ativo",
+    "uf": "SP"
+  },
+  {
+    "status": "ativo",
+    "uf": "AM"
+  },
+  {
+    "status": "pendente",
+    "uf": "SP"
+  },
+  {
+    "status": "pendente",
+    "uf": "AM"
+  },
+  {
+    "status": "inativo",
+    "uf": "PR"
+  },
+  {
+    "status": "pendente",
+    "uf": "AM"
+  },
+  {
+    "status": "pendente",
+    "uf": "PE"
+  },
+  {
+    "status": "pendente",
+    "uf": "AM"
+  },
+  {
+    "status": "pendente",
+    "uf": "PE"
+  },
+  {
+    "status": "pendente",
+    "uf": "AM"
+  },
+  {
+    "status": "pendente",
+    "uf": "PE"
+  },
+  {
+    "status": "ativo",
+    "uf": "RJ"
+  },
+  {
+    "status": "inativo",
+    "uf": "RJ"
+  },
+  {
+    "status": "inativo",
+    "uf": "PR"
+  },
+  {
+    "status": "pendente",
+    "uf": "AM"
+  },
+  {
+    "status": "inativo",
+    "uf": "PR"
+  },
+  {
+    "status": "pendente",
+    "uf": "AM"
+  },
+  {
+    "status": "ativo",
+    "uf": "PE"
+  },
+  {
+    "status": "ativo",
+    "uf": "RJ"
+  },
+  {
+    "status": "ativo",
+    "uf": "PE"
+  },
+  {
+    "status": "ativo",
+    "uf": "AM"
+  },
+  {
+    "status": "inativo",
+    "uf": "PE"
+  },
+  {
+    "status": "inativo",
+    "uf": "PE"
+  },
+  {
+    "status": "ativo",
+    "uf": "PR"
+  },
+  {
+    "status": "inativo",
+    "uf": "PR"
+  },
+  {
+    "status": "pendente",
+    "uf": "AM"
+  },
+  {
+    "status": "ativo",
+    "uf": "PR"
+  },
+  {
+    "status": "inativo",
+    "uf": "AM"
+  },
+  {
+    "status": "pendente",
+    "uf": "AM"
+  },
+  {
+    "status": "ativo",
+    "uf": "PR"
+  },
+  {
+    "status": "pendente",
+    "uf": "AM"
+  },
+  {
+    "status": "ativo",
+    "uf": "RJ"
+  },
+  {
+    "status": "ativo",
+    "uf": "PE"
+  },
+  {
+    "status": "pendente",
+    "uf": "RJ"
+  },
+  {
+    "status": "inativo",
+    "uf": "PR"
+  },
+  {
+    "status": "pendente",
+    "uf": "RJ"
+  },
+  {
+    "status": "inativo",
+    "uf": "SP"
+  },
+  {
+    "status": "pendente",
+    "uf": "PR"
+  }
+]

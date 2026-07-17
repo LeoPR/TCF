@@ -1,0 +1,13 @@
+caso;n_docs;json_B;tcf_B;meta_B;controle_B;folhas_B;pct_folhas;n_cols_controle
+c01-uniforme;100;4893;798;30;0;768;96.2;0
+c02-telemetria-array;200;8001;3134;26;8;3100;98.9;1
+c03-telemetria-split;200;10801;2836;43;0;2793;98.5;0
+c04-ragged;120;3868;685;31;78;576;84.1;1
+c05-null-campo;120;6662;842;33;90;719;85.4;1
+c06-null-elemento;60;2582;1422;40;409;973;68.4;2
+c07-arrays-vazios;100;2608;467;25;201;241;51.6;1
+c08-matriz;40;1087;646;27;14;605;93.7;2
+c09-espinha;80;8676;3219;57;238;2924;90.8;1
+c10-tipos-cadenciados;150;5013;1317;34;0;1283;97.4;0
+c11-categorico;300;9180;1688;21;0;1667;98.8;0
+c12-compose-total;40;3409;1459;75;436;948;65.0;5
