@@ -1,0 +1,7 @@
+#TCF.8Hlvl:11,msg:44,path
+ERROR
+INFO
+Traceback:\\n  File "a.py"\\n    raise X
+ok
+C:\\\\app\\\\a.py
+/var/log

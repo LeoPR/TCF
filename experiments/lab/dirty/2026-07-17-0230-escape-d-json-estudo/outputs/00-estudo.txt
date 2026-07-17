@@ -1,0 +1,53 @@
+ESTUDO — escape D_json (valores + nomes). Injetividade > fuzz > adversarial.
+
+(1) INJETIVIDADE EXAUSTIVA (alfabeto crítico {\, n, LF, a}, len 0..3):
+    85 strings · RT valor 85/85 · RT nome 85/85 · colisões: NENHUMA
+
+(2) O valor escapado atravessa o L1 intacto (o ponto do desenho):
+    'x\ny'                 -> 'x\\ny'                    L1=True  total=True
+    'a\\b'                 -> 'a\\\\b'                   L1=True  total=True
+    'a\\nb'                -> 'a\\\\nb'                  L1=True  total=True
+    'x'                    -> 'x'                        L1=True  total=True
+    '\\'                   -> '\\\\'                     L1=True  total=True
+    '\n'                   -> '\\n'                      L1=True  total=True
+    '\\\n'                 -> '\\\\\\n'                  L1=True  total=True
+    '\\n'                  -> '\\\\n'                    L1=True  total=True
+    '\n\n'                 -> '\\n\\n'                   L1=True  total=True
+    '\\123'                -> '\\\\123'                  L1=True  total=True
+    'café 中文'              -> 'café 中文'                  L1=True  total=True
+    '\\\\\n'               -> '\\\\\\\\\\n'              L1=True  total=True
+    ''                     -> ''                         L1=True  total=True
+    'linha1\nlinha2'       -> 'linha1\\nlinha2'          L1=True  total=True
+
+(3) FUZZ seedado (strings aleatórias sobre o alfabeto crítico + unicode):
+    valor 20000/20000 · nome 20000/20000
+
+(4) ADVERSARIAL — unescape ESTRITO (blob estrangeiro nunca vira valor calado):
+    [fail-loud OK] valor '\\'       backslash solto (dangling)         escape dangling no valor '\\'
+    [fail-loud OK] valor '\\x'      escape invalido                    escape invalido '\x' no valor '\\x
+    [fail-loud OK] valor '\\t'      escape de outro alfabeto (tab-style) escape invalido '\t' no valor '\\t
+    [fail-loud OK] valor 'a\\'      dangling no fim                    escape dangling no valor 'a\\'
+    [fail-loud OK] valor '\\u0041'  escape unicode (nao emitimos)      escape invalido '\u' no valor '\\u
+    [fail-loud OK] nome  '\\q'      escape nao-estrutural              escape de char nao-estrutural '\q'
+    [fail-loud OK] nome  '\\'       dangling                           escape dangling no nome '\\'
+    [fail-loud OK] nome  '\\za'     \z + lixo                          escape de char nao-estrutural '\z'
+
+(5) O sentinela 'nome vazio no header' SOBREVIVE (nome vazio legítimo vira \z):
+    esc_name('')        = '\\z'   -> meta NUNCA tem nome vazio literal
+    unesc_name('')      = tratado pelo PARSE do core como corrupção (inalterado)
+    esc_name('z')       = 'z'      (nome 'z' real NÃO colide com \z)
+    esc_name(BS+'z')    = '\\\\z'   (nome '\z' real -> backslash dobrado)
+
+(6) CUSTO em bytes (só paga quem tem '\' ou LF):
+    'Ana Souza'                -> +0B (inalterado)
+    'user@mail.com'            -> +0B (inalterado)
+    'SP'                       -> +0B (inalterado)
+    '2026-07-17'               -> +0B (inalterado)
+    'R$ 1.234,56'              -> +0B (inalterado)
+    'path/to/file'             -> +0B (inalterado)
+    'C:\\temp\\x'              -> +2B 
+    'linha1\nlinha2'           -> +1B 
+
+VEREDITO: escape injetivo (exaustivo len<=3 + 20k fuzz), atravessa o L1 sem tocá-lo,
+unescape estrito recusa blob estrangeiro, sentinela de corrupção preservado.
+Fecha 3 lacunas de D_json: LF em valor · LF em nome · nome vazio.

@@ -72,6 +72,17 @@ related:
 > chave com `\n`) **+ o eixo raiz**. Bônus medido: **TCF ⊃ I-JSON** em inteiros > 2^53 (RFC 7493 §2.2
 > os proíbe; nós fazemos RT).
 >
+> ### ⚡ AS 3 LACUNAS DE DATASET FECHARAM — WELD 2026-07-17 (escape D_json)
+> Owner aprovou o caminho feliz (*"pode revisar mais uma vez e fazer"*) e **a revisão refutou a
+> premissa que segurava a mais cara**: `\n` em valor NÃO toca o L1 (o LF morria em
+> `encoder.py:220`←**`hierarchical.py:311`** — era o `.8H` entregando o valor cru). O DatasetH tem
+> **framing próprio** → escapando na própria camada, **E2 + E4 + E6 fecharam JUNTOS** com um só
+> mecanismo (`\`→`\\` · LF→`\n` · nome vazio→`\z`), + **E1 parcial** (chave não-str tipada).
+> **Suíte 821 passed · flat byte-canônico INTACTO · os 3 `xfail(strict)` viraram XPASS e foram
+> promovidos a PARIDADE.** ADR-0033 §Update escape; lab
+> [2026-07-17-0230](../experiments/lab/dirty/2026-07-17-0230-escape-d-json-estudo/).
+> **D_json não tem mais exceção de dataset — resta só o eixo RAIZ (P4b).**
+>
 > **ESCALA (ROI)** → [escala-implementacao-paridade-json.md](../experiments/lab/dirty/notas/escala-implementacao-paridade-json.md):
 > **E0 critério ✅ feito** → **E1 tipar 3 erros crus** (baixo, não toca wire) → **E3 canal SideOutputs
 > no `.8H`** (destrava o *warning* + profiler) → **E2 chave `""`** (1 lacuna; "nome vazio" hoje é
@@ -113,9 +124,9 @@ realista, não sintético). O weld atual (ADR-0033) cobre a ESPINHA; faltam os c
 | **array-em-array** (profundidade arbitrária) | ✅ **WELDED** (P4a, 2026-07-16) | — (count recursivo por nível; ADR-0033 §Update P4a) |
 | **array no topo / raiz generalizada** | ❌ fail-loud | **P4b — contrato de raiz** (ato separado, muda API) |
 | **array polimórfico** (elementos de schema variável) | ❌ fail-loud | P5 — union/def-level (a fronteira mais afiada) |
-| `\n` em valor | ❌ fail-loud (core), **`ValueError` CRU** (medido 2026-07-17) | **congelar** contrato (boundary) + re-tipar |
-| **chave vazia `{"": "x"}`** | ❌ `HierarchicalError: nome de campo vazio` (medido 2026-07-17) | **lacuna de CAPACIDADE**: é JSON válido e comum; json faz RT-OK. A mais barata das 4 lacunas A ([perfil-json-like](../experiments/lab/dirty/notas/perfil-json-like-condicoes-parametro.md) §1) |
-| **chave contendo `\n`** | ❌ fail-loud tipado (medido 2026-07-17) | implementar OU declarar fronteira (json faz RT-OK) |
+| **`\n` em valor** (string multilinha) | ✅ **WELDED 2026-07-17** (escape `\n` na folha) | — a premissa "toca o L1" era FALSA: o `.8H` escapa na própria camada, **L1 INTOCADO** (ADR-0033 §Update escape) |
+| **chave vazia `{"": "x"}`** | ✅ **WELDED 2026-07-17** (marcador `\z`) | — sentinela de corrupção preservado (o parse checa o TOKEN CRU) |
+| **chave contendo `\n`** | ✅ **WELDED 2026-07-17** (`\n` no meta) | — mesmo mecanismo (o `\` é sempre dobrado primeiro ⟹ injetivo) |
 | ✅ paridade JÁ medida (2026-07-17) | `\t` · `\x00` em valor · int gigante `10**30` · `-0.0` · `0.1+0.2` (precisão) — **idênticos ao json** | — |
 | ⭐ TCF **mais seguro** que o json (medido 2026-07-17) | `NaN`/`Infinity` (json emite — **inválido RFC 8259**, `allow_nan` default; NaN quebra RT) · `tuple`→`list` (json perde tipo) · chave não-str (json **emite duplicata**) · lone surrogate (json faz RT mas não é UTF-8 transmissível) — `.8H` fail-loud nos 4 | NÃO afrouxar: estrito é feature. Evoluir por REPRESENTAÇÃO ([[H-HIER-SCALAR-01]]), não por tolerância |
 | **ordem de chaves por-registro em ragged** | ⚠️ semântica preservada; ORDEM vira a do schema (chave que estreia tarde volta ao fim) — achado 2026-07-17 da suíte de controle, pinado em `test_hierarchical_control_synthetics.py` | decisão de contrato (S6/P4b): schema-order canônica OU por-registro; contrato S0 preserva por-registro ([T-API-BOUNDARY-CONTRACTS](T-API-BOUNDARY-CONTRACTS.md)) |

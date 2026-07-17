@@ -234,3 +234,72 @@ checksum (trilha tcfx/pré-1.0).
   [T-FMT-HEADER-BASE-HEX](../../tickets/T-FMT-HEADER-BASE-HEX.md) só onde aplicável (sizes de coluna).
 - Sob a política [ADR-0024](0024-pre-1.0-versioning-git-as-compat.md) (pré-1.0, git-as-compat): o
   weld é dispositivo; baselines flat permanecem pinados; a hierarquia é feature nova, não muda o passado.
+
+---
+
+## Update — ESCAPE D_json (2026-07-17): fecha as 3 lacunas de dataset
+
+**[dispositivo]** Owner (2026-07-17) fixou o critério como **equivalência de FLUXO** e aprovou o
+caminho feliz: *"o tcf apenas usa esse dataset → encode pra tcf, depois decode do tcf para esse
+dataset e esse dataset pode voltar à ser o json… O caminho feliz me parece bom, pode revisar mais
+uma vez e fazer."*
+
+**Critério** (`tests/test_json_flow_parity.py`): `∀D ∈ D_json: J-RT-TX(D) ⟹ T-RT(D)`, com a etapa
+TRANSMITE medida em **bytes UTF-8**. **D_json** é a classe definida por DOCUMENTO (tabela oficial
+de conversão do módulo `json` + RFC 8259/7493), não por experimento: `dict[str,·] · list · str ·
+int · float finito · bool · None`, raiz livre.
+
+### A revisão que mudou o plano
+
+A escala classificava `\n` em valor como **E6 = "SEGURAR"** por *"tocar o L1"*. **Medição
+refutou**: o LF morria em `encoder.py:220`→`core.py:668` **chamado de `hierarchical.py:311`** — era
+o `.8H` entregando o valor cru ao L1. O DatasetH tem **framing próprio** (direção já registrada em
+[T-API-BOUNDARY-CONTRACTS](../../tickets/T-API-BOUNDARY-CONTRACTS.md): *"H precisa de framing
+próprio; não herdar a delimitação flat sem teste"*). Escapando na própria camada, **o L1 fica
+intocado** e as 3 lacunas fecham com UM mecanismo.
+
+### Mecanismo (alfabeto do próprio JSON)
+
+| | escape | função |
+|---|---|---|
+| **valor** (folha string) — `_esc_leaf`/`_unesc_leaf` | `\` → `\` · LF → `\n` | o corpo do L1 é delimitado por LF |
+| **nome** (meta) — `_esc_name`/`_unesc_name` | idem + **vazio → `\z`** | o meta é 1 linha; `{"": v}` é JSON válido |
+
+**Invariante de injetividade**: o backslash é **sempre dobrado primeiro** ⟹ no fluxo escapado
+`\`+letra **nunca vem de dado** ⟹ `\n`=LF, `\z`=vazio, `\n`=backslash+n literal.
+
+**`\z` (e não "emitir nada")**: *"nome vazio no header"* é o **sentinela de corrupção** do parse;
+emitir nada tornaria `{"":1}` indistinguível de meta corrompido. O parse passou a checar o **TOKEN
+CRU** — o sentinela fica de pé e `\z` é inemitível por dado.
+
+**Unescape ESTRITO** nas duas pontas: escape fora do alfabeto = `HierarchicalError` (blob
+estrangeiro nunca vira valor calado). **Chave não-str** passou de `TypeError` cru a erro tipado que
+ensina (fora de D_json: o json coage e perde — a própria doc avisa *"loads(dumps(x)) != x if x has
+non-string keys"*).
+
+### Evidência
+
+- **Estudo** (lab [2026-07-17-0230](../../experiments/lab/dirty/2026-07-17-0230-escape-d-json-estudo/)):
+  injetividade **exaustiva** (alfabeto crítico, len 0..3 — **0 colisões**) · fuzz **20000/20000**
+  (valor e nome) · valor escapado atravessa o L1 **14/14** · adversarial **8/8 fail-loud**.
+- **Weld**: suíte **821 passed**, 3 skipped, 2 xfailed (bugs L1 pré-existentes) · **flat
+  byte-canônico INTACTO** (D1-D9=1523 B · D17a=300 B · real-world=89616 B; 31 passed) · os 3
+  `xfail(strict)` de D_json viraram **XPASS** e foram promovidos a PARIDADE.
+- **Byte-compat**: os pinos de navegação dos sintéticos de controle
+  (`tests/test_hierarchical_control_synthetics.py`, buckets byte-exatos) passaram **sem re-pinar** —
+  wire sem `\`/LF é idêntico ao pré-weld.
+- **Custo**: **+0 char** em todo valor sem `\`/LF (no-op no caso comum); 1 char por `\`/LF, que o
+  L1 re-escapa (duplo) → ~3 B por `\` no wire. Só paga quem tem.
+
+### Fronteira (após este update)
+
+✅ D_json **sem exceção de dataset**. ❌ Resta o **eixo raiz** (P4b, 7 formas — 5 decisões abertas
+do owner). Fora de D_json (NaN/±Inf, tuple, chave não-str, lone surrogate) segue fail-loud: **não é
+lacuna** — é a fronteira onde a própria doc das libs declara perda; evoluir por REPRESENTAÇÃO
+([[H-HIER-SCALAR-01]]), nunca por tolerância.
+
+**Camadas (medido, registrar)**: o L1 tem escape próprio e já consome `\X` → `X` (leniência
+**pré-existente** dele, mesma família do `KeyError` cru registrado em
+[T-FMT-META-STRICT](../../tickets/T-FMT-META-STRICT.md)). Para o `_unesc_leaf` ver um `\q`, o wire
+precisa trazer `\q` — aí é fail-loud. A estrita­mente do escape do `.8H` é limitada pela leniência
+do L1 — fora do escopo deste weld.

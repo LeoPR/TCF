@@ -1,0 +1,46 @@
+EVIDÊNCIA — escape D_json (wire REAL do core, pós-weld).
+Fecha 3 lacunas: chave vazia · LF em valor · LF em nome. L1 INTOCADO.
+
+(1) CASOS — cada um com .tcf inspecionável e roundtrip byte-idêntico:
+  [RT-OK] chave vazia
+          01-chave-vazia.tcf · tcf=22B json=16B · header: #TCF.8H\z:2,a:3n
+  [RT-OK] LF em valor (multilinha real)
+          02-lf-em-valor-multilinha-real.tcf · tcf=50B json=47B · header: #TCF.8Hnome:4,obs
+  [RT-OK] chave com LF
+          03-chave-com-lf.tcf · tcf=14B json=14B · header: #TCF.8Ha\nb
+  [RT-OK] backslash em valor
+          04-backslash-em-valor.tcf · tcf=28B json=24B · header: #TCF.8Hpath
+  [RT-OK] backslash + LF compostos
+          05-backslash-lf-compostos.tcf · tcf=29B json=22B · header: #TCF.8Ha
+  [RT-OK] nome z real vs marcador de vazio
+          06-nome-z-real-vs-marcador-de-vazio.tcf · tcf=26B json=28B · header: #TCF.8H\z:2,z:2,\\z
+  [RT-OK] so LF
+          07-so-lf.tcf · tcf=27B json=25B · header: #TCF.8Ha:4,b
+  [RT-OK] compose: vazio + LF + null + array
+          08-compose-vazio-lf-null-array.tcf · tcf=64B json=39B · header: #TCF.8H\z?:3:0,x\ny#:3?:8[]:8n,ok:5b
+  [RT-OK] json-ish realista (log multilinha)
+          09-json-ish-realista-log-multilinha.tcf · tcf=108B json=133B · header: #TCF.8Hlvl:11,msg:44,path
+
+(2) CUSTO — só o que ESTA camada adiciona (medido em _esc_leaf, sem confundir
+    com o escape de dígitos do PRÓPRIO L1, que é pré-existente):
+    valor                         chars +   wire final
+    'Ana Souza'                        +0   19B
+    'user@mail.com'                    +0   23B
+    '2026-07-17'                       +0   23B
+    'C:\\temp'                         +1   20B
+    'x\ny'                             +1   15B
+    '\n'                               +1   13B
+    '\\'                               +1   14B
+    '\\\\'                             +2   18B
+    → +0 char em TODO valor sem `\`/LF (o caso comum): a camada é no-op.
+    → 1 char por `\` e por LF; o L1 depois escapa o `\` que emitimos (duplo),
+      então no WIRE um `\` custa ~3B e um LF ~2-3B. Só paga quem tem.
+    → PROVA de byte-compat: os pinos de navegação dos sintéticos de controle
+      (tests/test_hierarchical_control_synthetics.py, buckets byte-exatos)
+      passaram SEM re-pinar. Wire sem `\`/LF = idêntico ao pré-weld.
+
+(3) O wire, legível — {'obs': 'linha1\nlinha2'}:
+    '#TCF.8Hobs'
+    'linha\\1\\\\nlinha\\2'
+    ''
+    → o LF virou `\n` na folha; o L1 recebeu 1 linha válida e ficou INTOCADO.

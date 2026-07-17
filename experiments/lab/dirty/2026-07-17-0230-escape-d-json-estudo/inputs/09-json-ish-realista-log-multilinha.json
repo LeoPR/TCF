@@ -1,0 +1,12 @@
+[
+  {
+    "lvl": "ERROR",
+    "msg": "Traceback:\n  File \"a.py\"\n    raise X",
+    "path": "C:\\app\\a.py"
+  },
+  {
+    "lvl": "INFO",
+    "msg": "ok",
+    "path": "/var/log"
+  }
+]

@@ -98,13 +98,20 @@ PARIDADE = {
     # TCF ⊃ I-JSON: RFC 7493 §2.2 restringe a 2^53-1; int é D_json (RFC 8259 não limita) e RT-a
     "int-acima-2^53": [{"a": 2 ** 53 + 1}],
     "int-gigante": [{"a": 10 ** 30}],
+    # --- PROMOVIDOS 2026-07-17 (eram LACUNA; weld do escape D_json fechou as 3) ---
+    "chave-vazia": [{"": "x", "a": 1}],                 # str "" é D_json ({"": v} é JSON válido)
+    "lf-em-valor": [{"a": "x\ny"}],                     # str com LF é D_json (multilinha real)
+    "chave-com-lf": [{"a\nb": "x"}],
+    "backslash-em-valor": [{"a": "C:\\temp\\x"}],       # o escape-do-escape (custo: +1B por `\`)
+    "backslash-e-lf": [{"a": "a\\b\nc\\\\d"}],          # composição adversarial
+    "chave-vazia-e-lf": [{"": "x\ny", "a\nb": "\\"}],   # nome vazio + LF em nome + `\` em valor
+    "so-lf": [{"a": "\n", "b": "\n\n\n"}],
+    "so-backslash": [{"a": "\\", "b": "\\\\"}],
 }
 
-LACUNAS = {
-    "chave-vazia": [{"": "x", "a": 1}],                 # str "" é D_json
-    "lf-em-valor": [{"a": "x\ny"}],                     # str com \n é D_json
-    "chave-com-lf": [{"a\nb": "x"}],
-}
+# Vazio: as 3 lacunas de DATASET fecharam no weld do escape (2026-07-17). Resta só o eixo RAIZ.
+# Se uma nova lacuna aparecer, entra aqui como xfail(strict) — some em silêncio nunca.
+LACUNAS: dict[str, list] = {}
 
 RAIZ_LACUNAS = {
     "objeto-unico": {"a": 1},

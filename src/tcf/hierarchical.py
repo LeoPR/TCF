@@ -71,19 +71,28 @@ _H_ESC_OK = _H_NAME_SEP + " "  # whitelist do unescape (espaço: escapado só se
 
 
 def _esc_name(name: str) -> str:
-    if not name:
+    # D_json: a chave é `str` — qualquer str (a tabela oficial do json só produz str).
+    # Chave não-str é FORA da classe: erro TIPADO que ensina (era TypeError cru do `in`).
+    if not isinstance(name, str):
         raise HierarchicalError(
-            "nome de campo vazio nao e' representavel no meta do #TCF.8H"
+            f"chave de objeto deve ser str, veio {type(name).__name__} ({name!r}) — fora da "
+            f"classe D_json (o json coage chaves p/ str e o round-trip perde: "
+            f"loads(dumps(x)) != x)"
         )
-    if "\n" in name:
-        raise HierarchicalError(
-            "nome de campo com \\n nao e' representavel (meta de 1 linha)"
-        )
+    if name == "":
+        return "\\z"                        # nome VAZIO (D_json: `{"": v}` é JSON válido).
+        # Por que um marcador e não "emitir nada": "nome vazio no header" é o SENTINELA DE
+        # CORRUPÇÃO do parse (auditoria). Com `\z` o sentinela FICA de pé e `{"":v}` vira
+        # representável. `\z` é inemitível por dado: o `\` de dado é SEMPRE dobrado antes.
     out = []
     for ch in name:
-        if ch in _H_NAME_SEP:
+        if ch == "\n":
+            out.append("\\n")               # LF no nome (o meta é 1 linha) — D_json
+        elif ch in _H_NAME_SEP:
             out.append("\\")
-        out.append(ch)
+            out.append(ch)
+        else:
+            out.append(ch)
     s = "".join(out)
     if s[0] == " ":  # espaço INICIAL: o parser come separadores " ," antes do nome
         s = "\\" + s
@@ -92,6 +101,8 @@ def _esc_name(name: str) -> str:
 
 def _unesc_name(s: str) -> str:
     """Unescape ESTRITO (só aceita o que `_esc_name` emite; resto = corrupção)."""
+    if s == "\\z":                          # nome vazio (só como nome INTEIRO; `\z` embutido = erro)
+        return ""
     out, i, n = [], 0, len(s)
     while i < n:
         c = s[i]
@@ -101,12 +112,15 @@ def _unesc_name(s: str) -> str:
                     f"meta corrompido: escape dangling (backslash solto) no nome {s!r}"
                 )
             nxt = s[i + 1]
-            if nxt not in _H_ESC_OK:
+            if nxt == "n":                  # `\n` = LF (o `\` de dado vem dobrado -> injetivo)
+                out.append("\n")
+            elif nxt in _H_ESC_OK:
+                out.append(nxt)
+            else:
                 raise HierarchicalError(
                     f"meta corrompido: escape de char nao-estrutural '\\{nxt}' no nome "
-                    f"{s!r} — o encoder so' escapa {_H_ESC_OK!r}"
+                    f"{s!r} — o encoder so' escapa {_H_ESC_OK!r} + 'n' (LF) + '\\z' (nome vazio)"
                 )
-            out.append(nxt)
             i += 2
         else:
             out.append(c)
@@ -153,12 +167,53 @@ def _scalar_type(values: list) -> str:
     return ts.pop() if ts else "s"         # coluna vazia/all-null → string default
 
 
+def _esc_leaf(s: str) -> str:
+    """Escapa a folha string p/ o framing do L1 (o corpo é delimitado por LF).
+
+    O DatasetH tem framing PRÓPRIO — não herda a delimitação do flat (T-API-BOUNDARY-CONTRACTS:
+    "H precisa de framing próprio; não herdar a delimitação flat sem teste"). Escapando AQUI,
+    o L1 recebe uma linha sempre válida e fica INTOCADO (baselines flat byte-canônicos idem).
+
+    Alfabeto (o do próprio JSON): `\\` -> `\\\\` · LF -> `\\n`. O backslash é SEMPRE dobrado
+    primeiro => `\\n` no fluxo escapado NUNCA vem de dado => injetivo (estudo: exaustivo
+    len<=3 + 20k fuzz). Custo: 0 B em valor sem `\\`/LF (o caso comum).
+    """
+    return s.replace("\\", "\\\\").replace("\n", "\\n")
+
+
+def _unesc_leaf(s: str) -> str:
+    """Unescape ESTRITO (só aceita o que `_esc_leaf` emite; resto = blob estrangeiro)."""
+    if "\\" not in s:                      # fast-path: o caso comum não paga varredura
+        return s
+    out, i, n = [], 0, len(s)
+    while i < n:
+        c = s[i]
+        if c == "\\":
+            if i + 1 >= n:
+                raise HierarchicalError(f"corpo corrompido: escape dangling na folha {s!r}")
+            nxt = s[i + 1]
+            if nxt == "n":
+                out.append("\n")
+            elif nxt == "\\":
+                out.append("\\")
+            else:
+                raise HierarchicalError(
+                    f"corpo corrompido: escape invalido '\\{nxt}' na folha {s!r} — "
+                    f"o encoder so' emite '\\\\' e '\\n'"
+                )
+            i += 2
+        else:
+            out.append(c)
+            i += 1
+    return "".join(out)
+
+
 def _enc_scalar(v, stype: str) -> str:
     if stype == "n":
         return json.dumps(v)               # int/float canônico ('30', '9.5', '1000.0')
     if stype == "b":
         return "true" if v else "false"
-    return str(v)                          # string (identidade p/ str)
+    return _esc_leaf(v)                    # string: escapa `\`/LF (framing próprio do H)
 
 
 def _dec_scalar(s: str, stype: str):
@@ -180,7 +235,7 @@ def _dec_scalar(s: str, stype: str):
         if s == "false":                   # whitelist estrita (era: qualquer != 'true' → False CALADO)
             return False
         raise HierarchicalError(f"corpo bool inválido {s!r} (esperava 'true'/'false')")
-    return s
+    return _unesc_leaf(s)                  # string: desfaz o escape de `\`/LF (estrito)
 
 
 def _derive_schema(records: list) -> list:
@@ -540,9 +595,12 @@ def _parse_meta(meta: str):
                 i += 1
             if i >= n or (closer and meta[i] == closer):
                 break
-            name = _unesc_name(nm(",[]{}:#?"))
-            if name == "":                                # nome vazio = corrupção (auditoria)
+            raw = nm(",[]{}:#?")
+            if raw == "":                                 # TOKEN vazio = corrupção (auditoria)
                 raise HierarchicalError("nome de campo vazio no header")
+            # o sentinela acima é do TOKEN CRU; o nome vazio LEGÍTIMO (`{"": v}`, D_json) chega
+            # como `\z` — inemitível por dado (o `\` de dado vem dobrado) → sentinela preservado.
+            name = _unesc_name(raw)
             if name in seen:
                 raise HierarchicalError(f"campo duplicado {name!r} no header")
             seen.add(name)

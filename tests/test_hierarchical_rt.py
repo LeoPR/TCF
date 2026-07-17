@@ -314,14 +314,81 @@ def test_nome_escapado_no_fim_nao_quebra_omit_closes():
     assert decode(encode_hierarchical(docs2)) == docs2
 
 
-def test_nome_vazio_fail_loud():
+# --- escape D_json (weld 2026-07-17): 3 lacunas viraram CAPACIDADE ---------------------
+# Antes: `test_nome_vazio_fail_loud` / `test_nome_com_newline_fail_loud` pinavam a RECUSA.
+# `{"": v}` e `{"a\nb": v}` são JSON válido (D_json) e o caminho json faz RT -> o TCF tinha de
+# fazer (critério J-RT-TX => T-RT). Agora fazem. Os pinos abaixo cobrem o que SUBSTITUIU a recusa.
+
+def test_nome_vazio_agora_faz_rt():
+    """`{"": v}` é JSON válido — vira `\\z` no meta (marcador inemitível por dado)."""
+    docs = [{"": "v"}]
+    blob = encode_hierarchical(docs)
+    assert "\\z" in blob.split("\n")[0], "nome vazio deve virar o marcador \\z no meta"
+    assert decode(blob) == docs
+
+
+def test_nome_vazio_LITERAL_no_meta_continua_corrupcao():
+    """O SENTINELA sobrevive: TOKEN CRU vazio no header = corrupção (o `\\z` não é vazio).
+
+    Mecânica (medida): o parser come runs de ' ,' — então `,,` NÃO produz token vazio.
+    O token vazio real é um separador estrutural logo no início do campo (ex.: `:`).
+    """
     with pytest.raises(HierarchicalError, match="vazio"):
-        encode_hierarchical([{"": "v"}])
+        decode("#TCF.8H:2\nxy\n")                  # nome ausente antes do ':' = token vazio
 
 
-def test_nome_com_newline_fail_loud():
-    with pytest.raises(HierarchicalError, match="\\\\n"):
-        encode_hierarchical([{"a\nb": "v"}])
+def test_nome_z_real_nao_colide_com_marcador_de_vazio():
+    """Injetividade: o nome `z` sai como `z`; o nome `\\z` sai com o `\\` dobrado."""
+    for docs in ([{"z": "v"}], [{"\\z": "v"}], [{"": "a", "z": "b", "\\z": "c"}]):
+        assert decode(encode_hierarchical(docs)) == docs
+
+
+def test_nome_com_newline_agora_faz_rt():
+    """`{"a\\nb": v}` é JSON válido — LF no nome vira `\\n` (meta continua 1 linha)."""
+    docs = [{"a\nb": "v"}]
+    blob = encode_hierarchical(docs)
+    assert len(blob.split("\n")[0]) > 0 and "\\n" in blob.split("\n")[0]
+    assert decode(blob) == docs
+
+
+def test_lf_em_valor_agora_faz_rt_sem_tocar_o_L1():
+    """A lacuna mais comum da vida real (string multilinha). O L1 nunca vê o LF."""
+    docs = [{"a": "linha1\nlinha2", "b": "x"}]
+    assert decode(encode_hierarchical(docs)) == docs
+
+
+def test_escape_de_folha_e_injetivo():
+    """`\\` e LF compõem sem ambiguidade (o `\\` é sempre dobrado primeiro)."""
+    for docs in ([{"a": "\\"}], [{"a": "\\n"}], [{"a": "\n"}], [{"a": "\\\n"}],
+                 [{"a": "a\\\\nb"}], [{"a": "C:\\temp\\x"}], [{"a": "\\123"}]):
+        assert decode(encode_hierarchical(docs)) == docs
+
+
+def test_folha_com_escape_invalido_fail_loud():
+    """Blob estrangeiro: escape que o encoder NUNCA emite = corrupção tipada, nunca calada.
+
+    Camadas (medido): o L1 tem escape PRÓPRIO e já consome `\\X` -> `X` (leniência dele,
+    pré-existente). Para o nosso `_unesc_leaf` VER um `\\q`, o wire precisa trazer `\\\\q`.
+    """
+    blob = encode_hierarchical([{"a": "x"}])
+    hostil = blob.replace("\nx\n", "\n\\\\q\n")          # wire `\\q` -> L1 entrega `\q` a nós
+    with pytest.raises(HierarchicalError, match="escape invalido|dangling"):
+        decode(hostil)
+
+
+def test_folha_escape_dangling_fail_loud():
+    """`\\` sozinho no fim da folha (inemitível: o encoder sempre dobra)."""
+    blob = encode_hierarchical([{"a": "x"}])
+    hostil = blob.replace("\nx\n", "\n\\\\\\\\\\\\\n")   # wire `\\\\\\` -> L1 entrega `\\\` (ímpar)
+    with pytest.raises(HierarchicalError, match="dangling|escape invalido"):
+        decode(hostil)
+
+
+def test_chave_nao_str_erro_TIPADO_que_ensina():
+    """Fora de D_json (o json coage e perde: 'loads(dumps(x)) != x'). Era TypeError CRU."""
+    for k in (1, True, 3.5):
+        with pytest.raises(HierarchicalError, match="deve ser str|D_json"):
+            encode_hierarchical([{k: "v"}])
 
 
 def test_escape_invalido_no_blob_fail_loud():

@@ -85,14 +85,24 @@ E7 = além do json.
 | **E3** | **canal SideOutputs no `.8H`** | médio | 0 | **não** (aditivo) | suíte | **fazer** — destrava o *warning* que o owner quer + profiler + schema-tool |
 | **E4** | **chave contendo `\n`** | médio | **1** | sim (escape do meta) | RT + adversarial | avaliar — cruza com o estudo do escape |
 | **E5** | **raiz generalizada (P4b)** | médio-alto | **7** | sim (discriminador) | contrato + RT das 8 formas | **maior ROI em lacunas** — 7 de uma vez; 5 decisões suas já levantadas |
-| **E6** | **`\n` em valor** | **ALTO** | **1** | **sim, no L1** | byte-canônico D1-D9 + real-world | **SEGURAR** — ver §5 |
+| ~~**E6**~~ | ~~**`\n` em valor**~~ — **premissa REFUTADA na revisão**: não toca o L1 | ~~ALTO~~ **baixo** | **1** | sim, só no `.8H` | byte-canônico (passou intacto) | ✅ **FEITO** junto do E2/E4 |
 | **E7** | **além do json** (NaN/Inf tipados, chave não-str tipada) | alto | 0 (superset) | sim (versão) | formato | **estudar depois** |
 
-### Ordem recomendada
-**E1 → E3 → E2 → E5** (fecha 8 das 10 lacunas) → reavaliar **E4**; **E6/E7 ficam para estudo**.
+> ## ⚡ EXECUTADO 2026-07-17 — a revisão refutou a premissa do E6 e ele saiu junto
+>
+> **LF em valor NÃO toca o L1**: o LF morria em `encoder.py:220`←`hierarchical.py:311` — era o
+> `.8H` entregando o valor cru. Escapando na PRÓPRIA camada (o DatasetH tem framing próprio), o L1
+> fica intocado. Resultado: **E2 + E4 + E6 fecharam JUNTOS** (um mecanismo) + **E1 parcial**
+> (chave não-str tipada). **As 3 lacunas de dataset de D_json acabaram.**
+> Suíte 821 passed · flat byte-canônico intacto · ADR-0033 §Update escape · lab
+> [2026-07-17-0230](../2026-07-17-0230-escape-d-json-estudo/).
+> **Resta**: E5 (P4b raiz, 7 lacunas — maior ROI agora) · E3 (canal SideOutputs) · E1 residual
+> (surrogate `UnicodeEncodeError` cru) · E7 (além do json, estudo).
 
-E3 antes de E2 porque destrava a observabilidade (SideOutputs) que os próximos usam — e porque é
-o pré-requisito do *warning* que você pediu.
+### Ordem recomendada (histórica — superada pelo bloco EXECUTADO acima)
+~~**E1 → E3 → E2 → E5**~~ — a revisão pedida pelo owner refutou a premissa do E6, então
+**E2+E4+E6 saíram juntos** (um mecanismo) com E1 parcial. **Ordem restante: E5 (P4b) → E3 →
+E1 residual → E7.**
 
 ## 4. Por que E2 (`chave ""`) não é trivial (e mesmo assim é barato)
 
@@ -102,13 +112,26 @@ detectar blob adulterado). Aceitar `""` como nome legítimo exige distinguir *no
 L1), mas **precisa de estudo-primeiro**: é grama nova, e a lição do escape (`40a7e10`) diz para
 testar nome/valor/borda antes de soldar.
 
-## 5. Por que E6 (`\n` em valor) é o "complexo demais" — e o que fazer
+## 5. ~~Por que E6 é o "complexo demais"~~ — ERRATA 2026-07-17: a premissa era FALSA
 
-O corpo do TCF é **delimitado por LF**: um `\n` dentro de um valor não é um problema do `.8H`, é do
-**L1** (`src/tcf/encoder.py`, o núcleo que comprime toda coluna). Fechar isso significa:
-escape/quoting no corpo → **muda o byte-canônico de tudo** (D1-D9=1523 B, D17a=300 B,
-real-world=89616 B) → re-pinar todos os baselines, rodar o gate real-world, e passar pelo
-`T-FMT-ESCAPE-COMBINATORIAL-STUDY` (que você já abriu justamente porque "o escape me incomoda").
+> **Errata (a revisão que o owner pediu achou o erro)**: o texto abaixo afirmava que `\n` em valor
+> "é do **L1**". **Medição refutou**: o LF morria em `encoder.py:220`←`core.py:668`, mas **chamado
+> de `hierarchical.py:311`** — era o `.8H` entregando o valor CRU ao L1. O DatasetH tem **framing
+> próprio** (o T-API-BOUNDARY-CONTRACTS já registrava: *"H precisa de framing próprio; não herdar a
+> delimitação flat sem teste"*). Escapando na própria camada: **L1 intocado, byte-canônico intacto,
+> custo +0 char no caso comum**. Feito no mesmo ato que E2/E4 (ADR-0033 §Update escape).
+>
+> **Lição de método**: "custo alto" foi uma *inferência de camada*, não uma medição. O erro
+> segurou por 1 dia a lacuna mais comum da vida real (string multilinha). Medir a camada antes de
+> estimar o custo — a mesma disciplina que a errata da tabela confundida (P4a) ensinou.
+
+O texto original (mantido por honestidade): *"O corpo do TCF é delimitado por LF: um `\n` dentro de
+um valor não é um problema do `.8H`, é do L1 (`src/tcf/encoder.py`, o núcleo que comprime toda
+coluna). Fechar isso significa escape/quoting no corpo → muda o byte-canônico de tudo → re-pinar
+todos os baselines…"* — **falso**: o escape do `.8H` nunca chega ao corpo do L1 como LF.
+
+O `T-FMT-ESCAPE-COMBINATORIAL-STUDY` continua valendo para o **flat** (onde `\n` em valor segue
+fail-loud — é o contrato da tabela plana, não do DatasetH).
 
 É a lacuna mais **cara** e a mais **comum na vida real** (strings multilinha em JSON são triviais).
 Recomendação: **segurar** — mas registrar que ela é a única lacuna de nível-1 (I-JSON) que fica
