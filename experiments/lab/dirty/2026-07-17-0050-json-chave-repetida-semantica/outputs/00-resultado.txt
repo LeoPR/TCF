@@ -1,0 +1,57 @@
+ESTUDO chave repetida — medições (json import/export, modelo dict+array, bordas .8H).
+
+(1) IMPORT — json.loads em texto com chave repetida (o que ele constrói):
+  01-raso                      {"a":1,"a":2}                -> {"a": 2}
+      pares reais (pairs_hook, LOSSLESS): [('a', 1), ('a', 2)]
+  02-raso-intercalado          {"a":1,"b":9,"a":2}          -> {"a": 2, "b": 9}
+      pares reais (pairs_hook, LOSSLESS): [('a', 1), ('b', 9), ('a', 2)]
+  03-nivel2-objeto             {"o":{"a":1,"a":2}}          -> {"o": {"a": 2}}
+      pares reais (pairs_hook, LOSSLESS): [('o', [('a', 1), ('a', 2)])]
+  04-nivel2-array-de-objetos   [{"a":1,"a":2},{"a":3}]      -> [{"a": 2}, {"a": 3}]
+      pares reais (pairs_hook, LOSSLESS): [[('a', 1), ('a', 2)], [('a', 3)]]
+  05-tipos-diferentes          {"a":1,"a":[1,2]}            -> {"a": [1, 2]}
+      pares reais (pairs_hook, LOSSLESS): [('a', 1), ('a', [1, 2])]
+  06-mesmo-valor               {"a":1,"a":1}                -> {"a": 1}
+      pares reais (pairs_hook, LOSSLESS): [('a', 1), ('a', 1)]
+  07-tripla                    {"a":1,"a":2,"a":3}          -> {"a": 3}
+      pares reais (pairs_hook, LOSSLESS): [('a', 1), ('a', 2), ('a', 3)]
+  08-dup-nos-2-niveis          {"a":1,"a":{"b":2,"b":3}}    -> {"a": {"b": 3}}
+      pares reais (pairs_hook, LOSSLESS): [('a', 1), ('a', [('b', 2), ('b', 3)])]
+  09-alvo-da-ambiguidade       {"a":[1,2]}                  -> {"a": [1, 2]}
+  REGRA MEDIDA: last-wins CALADO em todo nível; posição = 1ª aparição, valor = última.
+  ÚNICA observação sem perda: object_pairs_hook (lista de pares) — fora do modelo dict.
+
+(2) POLÍTICAS de import possíveis (medidas) e onde cada uma perde/colide:
+  P1 last-wins (DEFAULT py/js): {'a': 2}  <- perda CALADA
+  P2 first-wins:                {'a': 1}  <- perda CALADA
+  P3 collect->array:            {'a': [1, 2]}
+     COLISÃO PROVADA: collect('{"a":1,"a":2}') == loads('{"a":[1,2]}') -> True  <- indistinguível do array LEGÍTIMO
+  P4 lista-de-pares (lossless): [('a', 1), ('a', 2)]  <- preserva TUDO, mas SAI do modelo dict
+  P0 fail-loud (S0 do owner):   ValueError: chave duplicada: ['a']  <- não decide pelo usuário
+
+(3) EXPORT — 'o json colidiria chaves?' (a inferência de reconstrução):
+  dict literal {'a':1,'a':2} -> {'a': 2}  <- o MODELO colapsa ANTES de serializar
+  dict {True:'x', 1:'y'}     -> {True: 'y'}  <- True==1: colapsa NO MODELO (hash igual)
+  *** O FURO: dumps({1:'x','1':'y'}) = '{"1": "x", "1": "y"}'  <- json.dumps EMITE DUPLICATA (coerção int->str)
+      loads de volta = {'1': 'y'}  <- PERDA CALADA no round-trip
+  dumps({None:'x'}) = '{"null": "x"}'  <- None->'null' pode colidir com chave 'null' literal
+  dumps(nan) = 'NaN'  <- INVÁLIDO por RFC 8259 (allow_nan=True é o DEFAULT!)
+  dumps((1,2)) -> loads -> [1, 2]  <- tuple vira list (tipo não volta)
+  dumps(set) -> TypeError (export fail-loud)
+  dumps(bytes) -> TypeError (export fail-loud)
+  CONCLUSÃO MEDIDA: com chaves STRING o modelo NUNCA colide (a duplicata é inexpressível);
+  o ÚNICO furo é chave NÃO-string (coerção int/None->str pode emitir duplicata/colidir).
+
+(4) REPRESENTAÇÕES de multi-valor no modelo dict+array (todas RT-medidas):
+  R1 array-valued        {"a": [1, 2]}                RT=True  | canônica (HTTP APIs, xmltodict); NÃO distingue 'lista' de 'repetida' — escolha do PRODUTOR
+  R2 lista-de-pares      [["a", 1], ["a", 2]]         RT=True  | preserva ordem+multiplicidade+duplicata; MUDA o modelo (não é objeto)
+  R3 sufixo-renomeio     {"a": 1, "a__2": 2}          RT=True  | colide com chave literal 'a__2' — exigiria escape (regressão ao problema)
+  R4 envelope-marcador   {"a": {"__dup__": [1, 2]}}   RT=True  | colide com chave literal '__dup__' — idem
+
+(5) BORDAS do .8H (medidas):
+  API: duplicata INEXPRESSÍVEL (o dict colapsa antes do encode) — TCF nunca a vê.
+  WIRE estrangeiro c/ coluna duplicada -> HierarchicalError: campo duplicado 'a' no header  (hardening P4a)
+  chave int: TypeError CRU: argument of type 'int' is not iterable  <- rejeita (BEM), erro NÃO-tipado (registrar)
+  chave bool: TypeError CRU: argument of type 'bool' is not iterable  <- rejeita (BEM), erro NÃO-tipado (registrar)
+  chave None: HierarchicalError: nome de campo vazio nao e' representavel no meta do #TCF.8  <- tipado, msg ENGANOSA p/ None
+  NFC vs NFD ('café' composto x decomposto): chaves DISTINTAS, .8H RT=True (sem normalização — igual ao json)
