@@ -1,5 +1,18 @@
 # STATUS — TCF (compendio sempre-atualizado)
 
+> **⚑ MARCO 2026-07-17 — J0 PLENO + J1 FECHADOS (funil J0-J2/L/G).** Aprovação "1→2→3" executada:
+> **(1)** par R0 fechado no L1 (`e8c8be1`: SEQRLE `..` + BRACKET skip; **byte-neutro** — gates
+> D1-D9/D17a/real-world SEM re-pin; **PW3 em POPULAÇÃO INTEIRA**: receita 51.536 raízes/200.000
+> estab. RT byte-exato) → **J0 pleno** pela régua do funil; **(2)** P4b raiz generalizada welded
+> (`cccf1bb`: `#D`/`#E`/`#O`/`#V`; dataset **0 B idêntico**; decode devolve o TIPO EXATO; defaults
+> vetáveis do owner) → **J1 fechado**; **(3)** E3 canal SideOutputs no `.8H` (`3c767d7`:
+> `encode_hierarchical_so`, hier_info+per_col, bytes idênticos) → pré-requisito do warning/profiler.
+> Antes, no mesmo dia: escape D_json (chave `""`/LF/CR em valor e nome — `da1aa73`+`d72b9eb`) com
+> auditoria (~57k RT adversarial). **Suíte 845 passed, 0 xfail de bug** · paridade `LACUNAS = {}`
+> = **D_json COMPLETO**. Pausa do marco (funil §4) ANTES de J2/P5. Fontes: ADR-0033 §escape+§P4b ·
+> [funil](experiments/lab/dirty/notas/funil-fechamento-json-language-2026-07-17.md) ·
+> [matriz](experiments/lab/dirty/notas/matriz-caminhos-hierarquia-2026-07-17.md) · diário 2026-07-17.
+
 > **⚑ DIREÇÃO 2026-07-16 — JSON completo: capacidade antes da simplificação.** Programa S0–S7
 > adotado: DatasetH semântico → IR lógico → representações físicas → decisão de weld. **S0–S3
 > executados**, sem tocar `src/tcf`: 20/20 RT, 20/20 álgebras de vínculo, 8/8 fail-loud, 20 wires

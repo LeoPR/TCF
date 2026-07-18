@@ -3,7 +3,7 @@ title: T-CODE-TCF8H-JSON-PARITY — o que falta pra fechar "hierarquia" (paridad
 status: open
 priority: P1
 created: 2026-07-15
-updated: 2026-07-16
+updated: 2026-07-17
 gate: capability (paridade JSON), não ≥15%
 blocked-by: []
 related:
@@ -96,6 +96,16 @@ related:
 > no port do 1.0. NaN é físico (IEEE 754: `f64::NAN == f64::NAN` é `false`; o rustc avisa) → só se
 > resolve REPRESENTANDO (E7), nunca tolerando.
 
+> ### ✅ MARCO 2026-07-17 — J0 PLENO + J1 FECHADOS (funil do owner)
+> Aprovação "pode fazer o 1->2->3" executada: **(1) par R0 fechado** no L1 (`e8c8be1` —
+> byte-neutro, PW3 em POPULAÇÃO INTEIRA: receita 51.536 raízes/200.000 estab. RT byte-exato) →
+> **J0 PLENO**; **(2) P4b raiz generalizada welded** (`cccf1bb` — `#D`/`#E`/`#O`/`#V`; dataset
+> 0 B idêntico; tipo EXATO no decode) → **J1 FECHADO**; **(3) E3 canal SideOutputs** (`3c767d7` —
+> `encode_hierarchical_so`; hier_info + per_col; bytes idênticos). Suíte **845 passed, 0 xfail**.
+> `LACUNAS = {}` na paridade — **D_json COMPLETO**. Restam (fora do marco, por decisão): **P5/J2**
+> (pausa do funil antes) · fronteiras declaradas (`{"a":{}}` all-marcadores = problema B residual ·
+> ordem de chaves ragged = S6) · L/G por demanda.
+
 # T-CODE-TCF8H-JSON-PARITY — fechar "hierarquia" com critério REALISTA (JSON) + algo além
 
 **[dispositivo→roadmap]** Owner (2026-07-15): *"veja o que falta pra fecharmos bem a questão de
@@ -120,9 +130,9 @@ realista, não sintético). O weld atual (ADR-0033) cobre a ESPINHA; faltam os c
 | **`true`/`false`** | ✅ **WELDED** (P2, 2026-07-16) | — (tag `b`, true/false) |
 | **`null` em campo** (≠ ausente ≠ `"null"`) | ✅ **WELDED** (P3a, 2026-07-15) | — (máscara `0`=None; ADR-0033 §Update P3a) |
 | **`null` em elemento de array** | ✅ **WELDED** (P3b, 2026-07-15) | — (element-mask 2-estados; ADR-0033 §Update P3b) |
-| **`null` na raiz** | ❌ fora do contrato `list[dict]` | decisão junto de **P4/N-raízes** |
+| **`null` na raiz** | ✅ **WELDED 2026-07-17** (P4b: `#V` envelope) | — |
 | **array-em-array** (profundidade arbitrária) | ✅ **WELDED** (P4a, 2026-07-16) | — (count recursivo por nível; ADR-0033 §Update P4a) |
-| **array no topo / raiz generalizada** | ❌ fail-loud | **P4b — contrato de raiz** (ato separado, muda API) |
+| **array no topo / raiz generalizada** | ✅ **WELDED 2026-07-17** (P4b: `#D`/`#E`/`#O`/`#V`; dataset 0 B idêntico; tipo EXATO no decode; J1 do funil) | — (ADR-0033 §Update P4b) |
 | **array polimórfico** (elementos de schema variável) | ❌ fail-loud | P5 — union/def-level (a fronteira mais afiada) |
 | **`\n` em valor** (string multilinha) | ✅ **WELDED 2026-07-17** (escape `\n` na folha) | — a premissa "toca o L1" era FALSA: o `.8H` escapa na própria camada, **L1 INTOCADO** (ADR-0033 §Update escape) |
 | **chave vazia `{"": "x"}`** | ✅ **WELDED 2026-07-17** (marcador `\z`) | — sentinela de corrupção preservado (o parse checa o TOKEN CRU) |

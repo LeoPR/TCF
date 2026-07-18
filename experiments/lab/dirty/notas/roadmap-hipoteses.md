@@ -799,8 +799,10 @@ atualizar este rodape — reconciliado agora.
   há nomeação. Precisão: alfabeto é de FORMAS; contagens continuam numéricas (`[{},{}]`×1M = forma + count,
   nunca enumeração). **Interlock**: é o problema B do P4b (contagem irrepresentável — `total` vem de
   `len(1ª coluna)`) + O-FMT-20 (registro-'0' no flat) + régua do T-FMT-OMIT-OR-DECLARE (não-dedutível →
-  declaração obrigatória) — estudar junto, decidir junto do P4b. `aberta`, confiança: Média (a decomposição
-  é medida; a forma da definição é decisão do owner). Levantamento:
+  declaração obrigatória) — estudar junto, decidir junto do P4b. **Update 2026-07-17**: PARCIALMENTE `welded` via P4b — `#D<N>` ([], [{}]×N,
+  contagem explícita) e `#E` ({}) SÃO as definições de raiz; resíduo aberto: dataset/objeto cujos
+  campos são TODOS marcadores vazios (`{"a":{}}`) — família O-FMT-20. `aberta` (resíduo), confiança:
+  Média (a decomposição é medida; a forma da definição de raiz está decidida e soldada). Levantamento:
   [estrutura-sem-dado-levantamento.md](estrutura-sem-dado-levantamento.md).
 
 - **H-STRUCT-AMORT-01** (estrutura repetida amortiza via contrato, 2026-07-16): num stream de N docs com o
@@ -841,8 +843,10 @@ atualizar este rodape — reconciliado agora.
   e dedupado por local ("once"), ruim em stream/massa; **SideOutputs** é a ponte oficial e
   `anomaly_flags`/`format_inconsistencies` **já estão previstos** (CLAUDE.md:240, zero-custo,
   "só detecta, NUNCA arruma"). Ligar SideOutputs no `.8H` destrava: warnings estruturados, profiler
-  ([[H-ACCEL-SIDECAR-01]]) e schema tool sobre hierarquia. `aberta`, confiança: Média (gap medido;
-  forma não desenhada). Toca `src/tcf` → aprovação + gate.
+  ([[H-ACCEL-SIDECAR-01]]) e schema tool sobre hierarquia. **`welded`-mínimo 2026-07-17**
+  (`3c767d7`): `encode_hierarchical_so` popula `hier_info` (root_kind/n_records/n_cols/controle×dado/
+  fields) + `per_col` (SideOutputs do L1 por coluna); bytes idênticos; API pública intacta.
+  Warnings/política ficam pro adaptador (fora do core).
   Fonte: [perfil-json-like-condicoes-parametro.md](perfil-json-like-condicoes-parametro.md) §4.
 
 - **H-HIER-EMASK-SPARSE-01** (emask densa global → por-instância/esparsa, 2026-07-16, achado da

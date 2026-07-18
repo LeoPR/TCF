@@ -443,7 +443,7 @@ def _encode_dataset(records: list, side_outputs=None) -> str:
             bodies[key] = _encode_col(cols[key], side_outputs=child) if cols[key] else ""
             per_col["/".join(key[0]) + ":" + key[1]] = child
         side_outputs.per_col = per_col
-        ctrl = sum(1 for _p, k, *_ in [(p, k) for (p, k) in order]
+        ctrl = sum(1 for _p, k in order
                    if k == "mask" or k.startswith(("count", "emask")))
         side_outputs.hier_info = {
             **(side_outputs.hier_info or {}),
