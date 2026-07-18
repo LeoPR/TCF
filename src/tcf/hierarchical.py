@@ -379,25 +379,51 @@ def encode_hierarchical(data) -> str:
       `#O<meta>` objeto único · `#V<meta>` valor via ENVELOPE [{"": V}] (o decode
       desembrulha e NUNCA devolve o envelope — parecer P4b).
     """
+    return _encode_root(data, None)
+
+
+def encode_hierarchical_so(data, side_outputs) -> str:
+    """Variante com canal de efeito colateral (E3): popula `side_outputs.hier_info` +
+    `per_col` (SideOutputs do L1 por coluna). Bytes IDÊNTICOS a `encode_hierarchical`."""
+    return _encode_root(data, side_outputs)
+
+
+def _mark(so, kind):
+    if so is not None:
+        so.hier_info = {**(so.hier_info or {}), "root_kind": kind}
+    return so
+
+
+def _encode_root(data, so) -> str:
     if isinstance(data, list):
         if not data:
+            _mark(so, "D")
+            if so is not None:
+                so.hier_info.update(n_records=0, n_cols=0, cols={"controle": 0, "dado": 0}, fields=[])
             return f"{MAGIC}#D0\n"                                   # [] (lista vazia)
         if all(isinstance(r, dict) for r in data):
             if any(data):                                            # ≥1 registro com campos
-                return _encode_dataset(data)                         # DATASET — intacto
+                return _encode_dataset(data, so)                     # DATASET — intacto
+            _mark(so, "D")
+            if so is not None:
+                so.hier_info.update(n_records=len(data), n_cols=0,
+                                    cols={"controle": 0, "dado": 0}, fields=[])
             return f"{MAGIC}#D{len(data)}\n"                         # [{}]×N
         if any(isinstance(r, dict) for r in data):                   # misto dict+valor
             raise HierarchicalError(
                 "raiz lista MISTA (objetos e valores) — fora da classe (P5 union)")
-        return _encode_dataset([{"": data}]).replace(MAGIC, MAGIC + "#V", 1)
+        return _encode_dataset([{"": data}], _mark(so, "V")).replace(MAGIC, MAGIC + "#V", 1)
     if isinstance(data, dict):
         if data:
-            return _encode_dataset([data]).replace(MAGIC, MAGIC + "#O", 1)
+            return _encode_dataset([data], _mark(so, "O")).replace(MAGIC, MAGIC + "#O", 1)
+        _mark(so, "E")
+        if so is not None:
+            so.hier_info.update(n_records=1, n_cols=0, cols={"controle": 0, "dado": 0}, fields=[])
         return MAGIC + "#E\n"                                        # {} = definição
-    return _encode_dataset([{"": data}]).replace(MAGIC, MAGIC + "#V", 1)
+    return _encode_dataset([{"": data}], _mark(so, "V")).replace(MAGIC, MAGIC + "#V", 1)
 
 
-def _encode_dataset(records: list) -> str:
+def _encode_dataset(records: list, side_outputs=None) -> str:
     schema = _derive_schema(records)
     order = _leaves(schema)
     if not order:                                # nenhuma coluna -> nº de registros irrepresentável
@@ -407,7 +433,26 @@ def _encode_dataset(records: list) -> str:
     cols = {key: [] for key in order}
     _emit_array(records, schema, (), cols)
     # L1: encode por coluna (o compressor do core). Coluna vazia -> body vazio.
-    bodies = {key: (_encode_col(cols[key]) if cols[key] else "") for key in order}
+    if side_outputs is None:
+        bodies = {key: (_encode_col(cols[key]) if cols[key] else "") for key in order}
+    else:                                            # E3: canal de efeito colateral (aditivo;
+        from tcf.side_outputs import SideOutputs     # bytes IDÊNTICOS com ou sem side_outputs)
+        bodies, per_col = {}, {}
+        for key in order:
+            child = SideOutputs()
+            bodies[key] = _encode_col(cols[key], side_outputs=child) if cols[key] else ""
+            per_col["/".join(key[0]) + ":" + key[1]] = child
+        side_outputs.per_col = per_col
+        ctrl = sum(1 for _p, k, *_ in [(p, k) for (p, k) in order]
+                   if k == "mask" or k.startswith(("count", "emask")))
+        side_outputs.hier_info = {
+            **(side_outputs.hier_info or {}),
+            "root_kind": (side_outputs.hier_info or {}).get("root_kind", "dataset"),
+            "n_records": len(records),
+            "n_cols": len(order),
+            "cols": {"controle": ctrl, "dado": len(order) - ctrl},
+            "fields": [n for _k, n, *_r in schema],
+        }
     meta = _build_meta(schema, bodies, order)
     return f"{MAGIC}{meta}\n" + "".join(bodies[key] for key in order)
 

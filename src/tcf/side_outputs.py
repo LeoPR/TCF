@@ -69,3 +69,12 @@ class SideOutputs:
     # --- Multi-col (so' populado se input foi dict) ---
     multi_info: dict | None = None
     per_col: dict[str, "SideOutputs"] | None = None
+
+    # --- Hierarquico .8H (E3, 2026-07-17; so' populado por encode_hierarchical) ---
+    # {'root_kind': 'dataset'|'D'|'E'|'O'|'V', 'n_records', 'n_cols',
+    #  'cols': {'controle': n, 'dado': n}, 'fields': [nomes de topo]}.
+    # per_col e' reusado: chave = 'path/kind' da coluna (controle E dado), valor =
+    # SideOutputs do encode L1 daquela coluna. Zero custo extra (o L1 ja' computa);
+    # e' a ponte oficial pra warnings estruturados/profiler/schema-tool sobre
+    # hierarquia (H-HIER-SIDEOUTPUTS-01) — "so' detecta, NUNCA arruma".
+    hier_info: dict | None = None

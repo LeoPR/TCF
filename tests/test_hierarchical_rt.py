@@ -319,6 +319,32 @@ def test_p4b_dataset_com_campo_vazio_nao_vira_envelope():
     assert decode(w) == ds
 
 
+# --- E3 (2026-07-17): canal SideOutputs no .8H — aditivo, bytes idênticos ----------------
+
+def test_e3_side_outputs_bytes_identicos_e_populado():
+    from tcf.hierarchical import encode_hierarchical_so
+    from tcf.side_outputs import SideOutputs
+    docs = [{"id": 1, "nome": "Ana", "tags": ["x", None]}, {"id": 2, "nome": "Bob", "tags": []}]
+    so = SideOutputs()
+    assert encode_hierarchical_so(docs, so) == encode_hierarchical(docs)   # zero mudança de wire
+    assert so.hier_info["root_kind"] == "dataset"
+    assert so.hier_info["n_records"] == 2
+    assert so.hier_info["cols"] == {"controle": 2, "dado": 3}              # count+emask · id/nome/leaf
+    assert set(so.per_col) == {"id:scalar", "nome:scalar", "tags:count", "tags:emask",
+                               "tags:arr_scalars"}
+    assert so.per_col["tags:count"].body_bytes is not None                 # L1 child populado
+
+
+def test_e3_root_kind_por_forma():
+    from tcf.hierarchical import encode_hierarchical_so
+    from tcf.side_outputs import SideOutputs
+    for raiz, kind in [({"a": 1}, "O"), (42, "V"), ("", "V"), (None, "V"),
+                       ({}, "E"), ([], "D"), ([{}, {}], "D"), ([1, 2], "V")]:
+        so = SideOutputs()
+        encode_hierarchical_so(raiz, so)
+        assert so.hier_info["root_kind"] == kind, (raiz, so.hier_info)
+
+
 def test_malformed_blob_fail_loud():
     with pytest.raises(HierarchicalError):
         decode("#TCF.8Hnome#:X[]\nbody")   # count size invalido
