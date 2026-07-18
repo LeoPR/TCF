@@ -8,6 +8,7 @@ related:
   - experiments/lab/dirty/notas/p4b-levantamento.md
   - experiments/lab/dirty/notas/escala-implementacao-paridade-json.md
   - experiments/lab/dirty/notas/revisao-generosa-hierarquia-2026-07-16.md
+   - experiments/lab/dirty/notas/funil-fechamento-json-language-2026-07-17.md
   - tickets/BUG-SEQRLE-RANGE-EMPTY-B.md
   - tickets/T-SHAPER-NESTED-OUTPUT.md
   - docs/adr/0033-hierarchical-codec-weld.md
@@ -67,3 +68,6 @@ explícita pra tocar o HCC — e o gate byte-canônico existe exatamente pra ess
 
 As 5 decisões do P4b são suas; a aprovação do L1 é sua; o timing do estudo-amplas é seu (você já
 registrou: JSON é o alvo prático, a estrutura ampla é v1.0/v2.0 — nada aqui contradiz isso).
+
+Régua de fechamento sugerida, sem ampliar o gate deste documento:
+[funil JSON-language → datasets → estruturas gerais](funil-fechamento-json-language-2026-07-17.md).

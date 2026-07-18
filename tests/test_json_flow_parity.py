@@ -107,6 +107,10 @@ PARIDADE = {
     "chave-vazia-e-lf": [{"": "x\ny", "a\nb": "\\"}],   # nome vazio + LF em nome + `\` em valor
     "so-lf": [{"a": "\n", "b": "\n\n\n"}],
     "so-backslash": [{"a": "\\", "b": "\\\\"}],
+    # --- PROMOVIDO 2026-07-17 (auditoria do escape: CR é D_json e ficara de fora do alfabeto) ---
+    "cr-em-valor": [{"a": "x\ry"}],
+    "crlf-em-valor": [{"a": "linha1\r\nlinha2"}],       # o par CRLF real (Windows)
+    "cr-em-nome": [{"a\rb": "v"}],
 }
 
 # Vazio: as 3 lacunas de DATASET fecharam no weld do escape (2026-07-17). Resta só o eixo RAIZ.

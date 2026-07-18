@@ -391,6 +391,52 @@ def test_chave_nao_str_erro_TIPADO_que_ensina():
             encode_hierarchical([{k: "v"}])
 
 
+# --- auditoria do escape (2026-07-17): CR é D_json + cap de profundidade TOTAL ----------
+
+def test_cr_em_valor_e_nome_faz_rt():
+    """CR (`\\r`) é D_json (json.loads('"x\\ru"') é válido). A auditoria pegou: o alfabeto
+    do escape não cobria CR (ValueError CRU do L1) e havia assimetria nome/valor."""
+    for docs in ([{"a": "x\ry"}], [{"a": "\r"}], [{"a": "linha1\r\nlinha2"}],
+                 [{"a\rb": "v"}], [{"a": ["x\ry", None, "z"]}],
+                 [{"a": "\r\\n\r"}], [{"": "\r", "b\rc": "\n"}]):
+        assert decode(encode_hierarchical(docs)) == docs
+
+
+def test_profundidade_objeto_puro_fail_loud_tipado():
+    """Auditoria: objeto puro não tinha cap NENHUM — RecursionError cru a ~497 níveis."""
+    d = "x"
+    for _ in range(600):
+        d = {"a": d}
+    with pytest.raises(HierarchicalError, match="excede o limite"):
+        encode_hierarchical([d])
+
+
+def test_profundidade_alternancia_evadia_o_cap():
+    """Auditoria: array→objeto→array… evadia o cap por-array (o contador zerava);
+    RecursionError cru a ~331 níveis com o limite de 128 NUNCA disparando."""
+    d = "x"
+    for _ in range(400):
+        d = [{"k": d}]
+    with pytest.raises(HierarchicalError, match="excede o limite"):
+        encode_hierarchical([{"a": d}])
+
+
+def test_profundidade_sana_continua_rt():
+    """O cap TOTAL (128) não pode rejeitar profundidade legítima da classe coberta."""
+    d = 7
+    for i in range(40):                       # 80 níveis estruturais alternados — bem abaixo do cap
+        d = [{"k": d}] if i % 2 else {"a": d}
+    docs = [{"raiz": d}]
+    assert decode(encode_hierarchical(docs)) == docs
+
+
+def test_profundidade_parse_header_hostil_tipado():
+    """O cap TOTAL vale também no PARSE: header hostil de objetos puros não estoura pilha."""
+    meta = "a{" * 300 + "x" + "}" * 300
+    with pytest.raises(HierarchicalError, match="excede o limite"):
+        decode("#TCF.8H" + meta + "\n" + "v\n")
+
+
 def test_escape_invalido_no_blob_fail_loud():
     # escape fora da whitelist = marcador de corrupção (unescape ESTRITO, como no .8M)
     with pytest.raises(HierarchicalError, match="nao-estrutural|dangling"):

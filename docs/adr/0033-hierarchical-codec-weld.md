@@ -303,3 +303,31 @@ lacuna** — é a fronteira onde a própria doc das libs declara perda; evoluir 
 [T-FMT-META-STRICT](../../tickets/T-FMT-META-STRICT.md)). Para o `_unesc_leaf` ver um `\q`, o wire
 precisa trazer `\q` — aí é fail-loud. A estrita­mente do escape do `.8H` é limitada pela leniência
 do L1 — fora do escopo deste weld.
+
+### Auditoria adversarial do escape (2026-07-17, wf_54f7e39c) — desfecho
+
+**RESISTIU no núcleo**: injetividade intacta em ~57.000 roundtrips adversariais (varredura
+exaustiva do alfabeto crítico até 5 unidades × 5 famílias de dataset; nomes em 5 posições do meta;
+pares de nomes hostis; valores que imitam wire do L1; chars de quebra exóticos do `splitlines`;
+colisão global cross-shape) — **0 colisões, 0 RT divergente**. **Byte-compat PROVADA** (não só
+testada): wires do encoder novo vs `HEAD~1` byte-idênticos em todo corpus sem `\`/LF (12/12
+sintéticos de controle + 715 datasets de fuzz). Custo medido com dict do L1 amortizando: ~0.06 B
+por `\` em corpus repetitivo.
+
+**2 furos CONFIRMADOS → consertados no mesmo dia** (suíte 829 passed; flat intacto):
+1. **CR (`\r`) em valor** — CR é D_json (`json.loads('"x\ru"')` é válido) e ficara FORA do
+   alfabeto: vazava `ValueError` CRU do L1, com assimetria (CR em NOME viajava cru no meta).
+   Fix: mesmo mecanismo — `\r` no alfabeto de folha E de nome, whitelist estrita idem. O alfabeto
+   final do escape: `\` · `\n` · `\r` (+ `\z` nome vazio).
+2. **Cap de profundidade EVADÍVEL** — objeto puro não tinha cap nenhum (`RecursionError` cru a
+   ~497 níveis) e alternância array/objeto evadia o cap por-array (cru a ~331, com o 128 nunca
+   disparando) — tudo alcançável por JSON VÁLIDO (`json.loads` aceita ~2998 níveis). Fix: contador
+   de profundidade **TOTAL** (objetos+arrays) roscado nas recursões de encode (`_derive_schema`/
+   `_field_node`/`_array_node`) E de parse (`seq`/`parse_array`), cap 128, fail-loud tipado.
+   `_MAX_ARRAY_DEPTH` vira alias de `_MAX_DEPTH`.
+
+**REFUTADOS como furos deste weld** (registrados nos lugares certos): lone surrogate = fora de
+D_json por dispositivo (E1 residual: validar UTF-8 na entrada quando E1 rodar); linha `[`/`]`
+skipada = **BUG-BRACKET-CELL-LOSS pré-existente do L1, AMPLIADO** (perda silenciosa posicional no
+flat: `['a',']','b']` → `['a','b']` — ticket atualizado; mesma família SEQRLE, fix conjunto com
+aprovação).

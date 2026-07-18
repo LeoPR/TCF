@@ -58,8 +58,19 @@ Escapar/quotar a célula `[`/`]`-isolada na EMISSÃO (como o `*`/`^`-líder já 
 o parser distinguir `[`/`]` estrutural de conteúdo. Escolher por byte-custo + simplicidade. Mesma
 família do `BUG-SEQRLE-RANGE-EMPTY-B` (conteúdo colide com sintaxe do corpo) — pensar juntos.
 
+## AMPLIAÇÃO 2026-07-17 (auditoria do escape D_json, verificador confirmou a causa-raiz)
+
+O furo é MAIOR que o repro original (célula única): a linha `[`/`]` é skipada em QUALQUER posição
+da coluna (`syntax.py:796`, skip de back-compat sem escape correspondente na emissão):
+- flat: `decode(encode(['a', ']', 'b']))` → `['a', 'b']` — **perda SILENCIOSA no meio da coluna**;
+- flat: `decode(encode([']']))` → `[]`;
+- `.8H` single-col: wire com registro `]` perde o registro do meio CALADO;
+- `.8H` multi-col: `HierarchicalError "coluna exaurida"` (o frame do H detecta — fail-loud por
+  acidente de contagem, não por desenho).
+Severidade sobe: não é só "célula exata vira []", é **corrupção silenciosa posicional** no flat.
+
 ## Critério de aceite
 
-- [ ] Repro mínimo vira teste red→green (+ a matriz de caracterização).
+- [ ] Repro mínimo vira teste red→green (+ a matriz de caracterização **+ os repros da ampliação**).
 - [ ] `test_real_world_snapshots.py` verde (+ snapshot que exercite `[`/`]`-isolado).
 - [ ] Baselines re-pinados se o wire mudar; aprovação arquivo-a-arquivo do owner (HCC core).

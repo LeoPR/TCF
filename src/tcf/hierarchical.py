@@ -88,6 +88,8 @@ def _esc_name(name: str) -> str:
     for ch in name:
         if ch == "\n":
             out.append("\\n")               # LF no nome (o meta é 1 linha) — D_json
+        elif ch == "\r":
+            out.append("\\r")               # CR idem (auditoria: simetria nome/valor + header 1 linha)
         elif ch in _H_NAME_SEP:
             out.append("\\")
             out.append(ch)
@@ -114,6 +116,8 @@ def _unesc_name(s: str) -> str:
             nxt = s[i + 1]
             if nxt == "n":                  # `\n` = LF (o `\` de dado vem dobrado -> injetivo)
                 out.append("\n")
+            elif nxt == "r":                # `\r` = CR (auditoria 2026-07-17)
+                out.append("\r")
             elif nxt in _H_ESC_OK:
                 out.append(nxt)
             else:
@@ -178,7 +182,7 @@ def _esc_leaf(s: str) -> str:
     primeiro => `\\n` no fluxo escapado NUNCA vem de dado => injetivo (estudo: exaustivo
     len<=3 + 20k fuzz). Custo: 0 B em valor sem `\\`/LF (o caso comum).
     """
-    return s.replace("\\", "\\\\").replace("\n", "\\n")
+    return s.replace("\\", "\\\\").replace("\n", "\\n").replace("\r", "\\r")
 
 
 def _unesc_leaf(s: str) -> str:
@@ -194,12 +198,14 @@ def _unesc_leaf(s: str) -> str:
             nxt = s[i + 1]
             if nxt == "n":
                 out.append("\n")
+            elif nxt == "r":               # CR (auditoria 2026-07-17: CR é D_json; o L1 o rejeita)
+                out.append("\r")
             elif nxt == "\\":
                 out.append("\\")
             else:
                 raise HierarchicalError(
                     f"corpo corrompido: escape invalido '\\{nxt}' na folha {s!r} — "
-                    f"o encoder so' emite '\\\\' e '\\n'"
+                    f"o encoder so' emite '\\\\', '\\n' e '\\r'"
                 )
             i += 2
         else:
@@ -238,7 +244,7 @@ def _dec_scalar(s: str, stype: str):
     return _unesc_leaf(s)                  # string: desfaz o escape de `\`/LF (estrito)
 
 
-def _derive_schema(records: list) -> list:
+def _derive_schema(records: list, depth: int = 0) -> list:
     """Schema robusto: união de chaves (ordem de 1ª aparição), presença por campo, e
     validação de TIPO HONESTA — campo com tipos ESTRUTURAIS mistos (scalar/object/array)
     ou `null` é fail-loud (fora da classe; P2 tipos / P3 null), NUNCA str()-engolido.
@@ -247,6 +253,10 @@ def _derive_schema(records: list) -> list:
         raise HierarchicalError("hierárquico espera uma lista NÃO-VAZIA de objetos (registros)")
     if not all(isinstance(r, dict) for r in records):
         raise HierarchicalError("hierárquico espera objetos (dict) em cada registro")
+    if depth > _MAX_DEPTH:                       # auditoria escape: objeto puro/alternância também capa
+        raise HierarchicalError(
+            f"profundidade estrutural excede o limite de {_MAX_DEPTH} níveis (objetos+arrays)"
+        )
     keys = []                                    # união preservando ordem de aparição
     for r in records:
         for k in r:
@@ -256,11 +266,11 @@ def _derive_schema(records: list) -> list:
     for k in keys:
         present = [r[k] for r in records if k in r]
         optional = len(present) < len(records)   # deduzido do dado (como todo o header)
-        nodes.append(_field_node(k, present, optional))
+        nodes.append(_field_node(k, present, optional, depth))
     return nodes
 
 
-def _field_node(name, present: list, optional: bool):
+def _field_node(name, present: list, optional: bool, depth: int = 0):
     """P3a: null em CAMPO (máscara '0'). P3b: null em ELEMENTO de array (element-mask 2-estados,
     flag `elem_null`). kind vem dos NÃO-nulos; all-null → escalar vazio. Tipos mistos = fail-loud.
     nó: (kind, name, masked, kids, elem_null)."""
@@ -277,22 +287,28 @@ def _field_node(name, present: list, optional: bool):
         )
     kind = non_null.pop()
     if kind == "object":
-        return ("object", name, masked, _derive_schema(present_nn), False, "s")
+        return ("object", name, masked, _derive_schema(present_nn, depth + 1), False, "s")
     if kind == "array":
         elems = [e for arr in present_nn for e in arr]
-        return _array_node(name, masked, elems)
+        return _array_node(name, masked, elems, depth + 1)
     return ("scalar", name, masked, None, False, _scalar_type(present_nn))              # P2: tipo do campo
 
 
-_MAX_ARRAY_DEPTH = 128   # cap de aninhamento (folga real: classe coberta usa ≤4; evita RecursionError cru)
+_MAX_DEPTH = 128         # cap de profundidade estrutural TOTAL — objetos E arrays, encode E parse
+_MAX_ARRAY_DEPTH = _MAX_DEPTH   # alias histórico (P4a); auditoria do escape unificou o contador:
+# objeto puro não tinha cap (RecursionError cru a ~497) e alternância array/objeto EVADIA o cap
+# por-array (RecursionError cru a ~331 com o limite nunca disparando). Um contador TOTAL fecha os 3.
 
 
 def _array_node(name, masked, elems, depth=0):
     """Nó de ARRAY com spec de ELEMENTO recursiva (P4a): elemento ∈ {scalar, object, array}.
     Elemento-array → kind 'arr_arrays', cujo `kids` é o nó ANÔNIMO (name='') do nível interno —
-    o count recursivo: cada nível de aninhamento tem sua própria coluna de counts (+emask)."""
-    if depth > _MAX_ARRAY_DEPTH:                     # auditoria P4a: fail-loud tipado, não RecursionError
-        raise HierarchicalError(f"aninhamento de array excede o limite de {_MAX_ARRAY_DEPTH} níveis")
+    o count recursivo: cada nível de aninhamento tem sua própria coluna de counts (+emask).
+    `depth` é a profundidade estrutural TOTAL (objetos+arrays), não só de arrays."""
+    if depth > _MAX_DEPTH:                           # fail-loud tipado, não RecursionError
+        raise HierarchicalError(
+            f"profundidade estrutural excede o limite de {_MAX_DEPTH} níveis (objetos+arrays)"
+        )
     elem_null = any(e is None for e in elems)        # P3b: element-mask DESTE nível
     elems_nn = [e for e in elems if e is not None]
     ekinds = {_kind_of(e) for e in elems_nn}
@@ -305,7 +321,7 @@ def _array_node(name, masked, elems, depth=0):
         inner = _array_node("", False, subs, depth + 1)
         return ("arr_arrays", name, masked, inner, elem_null, "s")
     if elems_nn and next(iter(ekinds)) == "object":
-        kids = _derive_schema(elems_nn)
+        kids = _derive_schema(elems_nn, depth + 1)
         if not _leaves(kids):
             raise HierarchicalError(
                 f"array de objetos SEM chaves em {name!r} — fora da classe "
@@ -551,12 +567,15 @@ def _parse_meta(meta: str):
             return "s"
         raise HierarchicalError(f"tag de tipo desconhecida {c!r} após size (esperava n/b ou delimitador)")
 
-    def parse_array(p, lvl):
+    def parse_array(p, lvl, depth):
         """Parse de UM nível de array (cursor no '#'). Recursivo p/ arr_arrays (P4a).
-        Devolve nó ANÔNIMO (name=''), que o chamador re-nomeia."""
+        Devolve nó ANÔNIMO (name=''), que o chamador re-nomeia. `lvl` = nível de ARRAY
+        (sufixo das colunas); `depth` = profundidade estrutural TOTAL (o cap)."""
         nonlocal i
-        if lvl > _MAX_ARRAY_DEPTH:                    # auditoria P4a: header hostil não estoura pilha
-            raise HierarchicalError(f"aninhamento de array excede o limite de {_MAX_ARRAY_DEPTH} níveis")
+        if depth > _MAX_DEPTH:                        # header hostil não estoura pilha (cap TOTAL)
+            raise HierarchicalError(
+                f"profundidade estrutural excede o limite de {_MAX_DEPTH} níveis (objetos+arrays)"
+            )
         i += 1                                        # consome '#'
         order.append((p, "count" + _sfx(lvl), size()))
         elem_null = False
@@ -575,19 +594,23 @@ def _parse_meta(meta: str):
             order.append((p, "arr_scalars", None))
             return ("arr_scalars", "", False, None, elem_null, "s")
         if meta[i] == "#":                            # P4a: elemento é ARRAY (nível interno)
-            inner = parse_array(p, lvl + 1)
+            inner = parse_array(p, lvl + 1, depth + 1)
             if i < n and meta[i] == "]":
                 i += 1
             elif i < n:                               # auditoria: ']' deletado NÃO passa calado
                 raise HierarchicalError(f"esperava ']' fechando nível de array em {p}")
             return ("arr_arrays", "", False, inner, elem_null, "s")
-        kids = seq("]", p)                            # array de objetos
+        kids = seq("]", p, depth + 1)                 # array de objetos
         if i < n and meta[i] == "]":
             i += 1
         return ("arr_objects", "", False, kids, elem_null, "s")
 
-    def seq(closer, prefix):
+    def seq(closer, prefix, depth=0):
         nonlocal i
+        if depth > _MAX_DEPTH:                            # cap TOTAL também no parse de objetos
+            raise HierarchicalError(
+                f"profundidade estrutural excede o limite de {_MAX_DEPTH} níveis (objetos+arrays)"
+            )
         nodes = []
         seen = set()                                      # auditoria P4a: duplicado descartava coluna calado
         while i < n and (closer is None or meta[i] != closer):
@@ -611,11 +634,11 @@ def _parse_meta(meta: str):
                 i += 1
                 order.append((p, "mask", msize()))
             if i < n and meta[i] == "#":                  # array (recursivo por nível — P4a)
-                a = parse_array(p, 0)
+                a = parse_array(p, 0, depth + 1)
                 nodes.append((a[0], name, masked, a[3], a[4], a[5]))
             elif i < n and meta[i] == "{":               # objeto 1:1
                 i += 1
-                kids = seq("}", p)
+                kids = seq("}", p, depth + 1)
                 if i < n and meta[i] == "}":
                     i += 1
                 nodes.append(("object", name, masked, kids, False, "s"))
