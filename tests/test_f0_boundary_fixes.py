@@ -411,6 +411,35 @@ class TestLote3ApiBoundaries:
             encode(["111.444.777-35"], nature_per_col={"a": SPEC_CPF})
 
 
+class TestLote3FreezeAssimetrias:
+    """PASSADA DE CONGELAMENTO 2026-07-17 (T-API-BOUNDARY-CONTRACTS, gate .8).
+
+    3 assimetrias MEDIDAS que estavam sem pino. Decisão do owner: **MANTER** (nenhuma é
+    corrupção — o contrato flat está congelado, ADR-0024). Estes testes CONGELAM o
+    comportamento atual; melhorias de ergonomia ficam registradas como follow-up pré-1.0.
+    """
+
+    def test_tuple_como_valor_de_coluna_converte(self):
+        # tuple é ITERÁVEL de str-áveis -> aceito como VALOR de coluna (converte p/ list).
+        assert decode(encode({"a": ("x", "y")})) == {"a": ["x", "y"]}
+
+    def test_tuple_como_tabela_inteira_rejeitado(self):
+        # a SHAPE de topo do contrato público é list|dict — tuple no topo ensina (assimetria
+        # INTENCIONAL: topo = shape do contrato; valores de coluna = containers de str).
+        with pytest.raises(TypeError, match="(?i)list.*dict|espera"):
+            encode(("a", "b"))
+
+    def test_decode_nature_per_col_em_single_ignorado_sem_corromper(self):
+        # decode(single-col, nature_per_col=) IGNORA o kwarg (single usa nature=, não _per_col).
+        # NÃO corrompe (mesma saída); a re-tipagem/alinhamento é follow-up pré-1.0.
+        w = encode(["a", "b"])
+        assert decode(w, nature_per_col={"z": None}) == decode(w) == ["a", "b"]
+
+    def test_parallel_true_em_single_col_serial_silencioso(self):
+        # single-col não tem pool: parallel=True é serial silencioso (byte-idêntico).
+        assert encode(["a", "b"], parallel=True) == encode(["a", "b"])
+
+
 class TestLote3MetaStrict:
     """BUG-11b whitelist de escape + BUG-08 dobrado (não-emitível = erro)."""
 

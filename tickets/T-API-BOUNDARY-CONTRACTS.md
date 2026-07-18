@@ -1,9 +1,9 @@
 ---
 title: T-API-BOUNDARY-CONTRACTS — contrato flat e fronteira DatasetH
-status: open
+status: closed
 priority: P1
 created: 2026-07-10
-updated: 2026-07-13
+updated: 2026-07-17
 gate: .8
 blocked-by: []
 related:
@@ -97,10 +97,44 @@ OUTRO documento (a informação não existe no wire; detecção = trilha checksu
    (qualquer texto = coluna única, discriminador 0 B — ADR-0029/0031). Herdado do desenho do
    órfão, não do P4b.
 
+## PASSADA DE CONGELAMENTO 2026-07-17 (gate `.8` — decisão manter/mudar, MEDIDA)
+
+Comportamento **medido hoje** (o código evoluiu desde julho) e decidido caso a caso. Regra-mestra
+do reescopo: **contrato flat CONGELADO** (ADR-0024, custo de mudar depois = 0). Default = **MANTER**
+com teste que pina; assimetrias de ergonomia (não-corrupção) viram follow-up pré-1.0.
+
+| caso | medido 2026-07-17 | decisão | teste |
+|---|---|---|---|
+| BUG-08 vazio (0-rows) | `encode([])`/`encode({})`/`encode({'a':[]})` → ValueError; **`['']` (1 linha) faz RT**; `decode('#TCF.8\n')`→`['']` | **MANTER** — fronteira ≥1 linha; 0-rows/registro-'0' é O-FMT-20 (trilho armazenamento, não `.8`) | `TestBug03ZeroRows` |
+| BUG-09 str/bytes como dados/coluna | TypeError que ensina | **MANTER** | `test_str/bytes_as_column_value_raises` |
+| BUG-10a não-str em list | converte via `str()` (int→RLE, `None`→`''`, `True`→`"True"`, dict→`str`) — **string-core**; tipagem JSON vive no `.8H` (`"true"`) | **MANTER** — a coerção É a semântica do núcleo de strings (o `.8H` é a fronteira tipada) | `test_list_nonstr_items_convert_like_dict` |
+| BUG-10b/c/d layers/parallel/decode | TypeError/ValueError na porta | **MANTER** (estável) | `test_layers/parallel/decode_*` |
+| BUG-10e name= sem nature | ValueError | **MANTER** | `test_name_without_nature_raises` |
+| BUG-10f stamp+dict | ignorado (M já é magic) | **MANTER** (documentado) | — |
+| BUG-10g nature/nature_per_col cruzados (encode) | ValueError cruzado | **MANTER** | `test_nature*_raises` |
+| **tuple** como valor de coluna vs tabela inteira | coluna → **aceito** (converte); topo → **TypeError** | **MANTER** (assimetria INTENCIONAL: topo = shape do contrato `list\|dict`; valor de coluna = container de str) | `test_tuple_como_*` (novos) |
+| **decode(single, nature_per_col=)** | **ignorado calado** (mesma saída) | **MANTER** p/ `.8` (não corrompe); alinhamento = follow-up | `test_decode_nature_per_col_em_single_*` (novo) |
+| **parallel=True em single-col** | serial silencioso (byte-idêntico) | **MANTER** (single não tem pool) | `test_parallel_true_em_single_*` (novo) |
+| spec fora do `SPEC_REGISTRY` | `:id` exige `spec.name==id`; registry vence; nunca inferir por forma | **MANTER** | `test_natures.py` |
+
+**Follow-ups pré-1.0 (registrados, NÃO bloqueiam `.8`)**: (a) `decode` alinhar simetria de kwargs
+(hoje `nature_per_col=` em single-col é no-op silencioso — encode RAISES no cruzado, decode não);
+(b) `parallel=`/`name=` em single-col poderiam emitir `UserWarning` (hoje no-op); (c) `tuple` no topo
+poderia ser aceito (hoje TypeError) SE o contrato de container for relaxado — cruza com BUG-09.
+Nenhum é corrupção; todos custam 0 pra mudar depois (pré-1.0).
+
 ## Critério de aceite
 
-- [ ] Passada única pré-1.0 revisando a tabela acima, caso a caso, com decisão registrada
-  (manter/mudar) e testes de contrato atualizados.
-- [ ] Simetria encode/decode conferida (kwargs ignorados calados no decode também).
-- [ ] Cruzado com T-FMT-OMIT-OR-DECLARE (vazios) e META-TYPE-ENCODERS (tipos/specs).
-- [ ] DatasetH definido no T-STUDY-HIERARCHICAL-TCF e referenciado sem introduzir `encode_json` no core.
+- [x] Passada única revisando a tabela acima, caso a caso, com decisão registrada (manter/mudar) e
+  testes de contrato — **FEITA 2026-07-17** (todas MANTER; 3 assimetrias novas pinadas; 63 passed
+  em `test_f0_boundary_fixes.py`).
+- [x] Simetria encode/decode conferida — decode só tem `(nature, nature_per_col)`; `nature_per_col=`
+  em single-col é **no-op silencioso** (medido e pinado); demais kwargs de encode não existem no
+  decode (TypeError). Alinhamento = follow-up (a) acima.
+- [x] Cruzado com T-FMT-OMIT-OR-DECLARE (vazios → O-FMT-20/registro-'0', fora do `.8`) e
+  META-TYPE-ENCODERS (BUG-10a: string-core vs `.8H` tipado — fronteiras distintas, ambas registradas).
+- [x] DatasetH: as bordas hierárquicas (null/tipos/ragged/`\n`/`""`/CR/chave-repetida/ordem-de-chaves)
+  foram TODAS resolvidas ou decididas nos welds 2026-07-17 (escape D_json + P4b + tabela acima);
+  `encode_json` NÃO foi introduzido no core (adaptadores ficam fora).
+
+**Contratos de borda CONGELADOS — o item (2) do reescopo `.8`=feature-complete está fechado.**

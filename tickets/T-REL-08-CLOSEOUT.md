@@ -35,8 +35,19 @@ CAPACIDADE entram no `.8` por decisão do owner e **saem do "Passo 3 → depois"
    **CAPACIDADE** (RT-exato em JSON aninhado real + non-regressão em `test_real_world_snapshots.py` +
    aprovação explícita de `src/tcf`), **não** ≥15% de compressão (isso é gate de otimização; hierarquia
    representa dado que a tabela plana não representa). Novo ticket: [T-CODE-TCF8H-WELD](T-CODE-TCF8H-WELD.md).
+   **✅ FEITO 2026-07-17 (funil J0 PLENO + J1 fechados)**: P1/P2/P3a/P3b/P4a + escape D_json (chave `""`/
+   LF/CR) + **P4b raiz generalizada** (`#D`/`#E`/`#O`/`#V`) → **D_json COMPLETO** (`LACUNAS = {}` em
+   `test_json_flow_parity`); par R0 do L1 fechado (byte-neutro, PW3 população inteira); E3 SideOutputs.
+   Gate de capacidade cumprido (RT-exato + non-regressão byte-canônica + aprovação). ADR-0033 §escape+§P4b.
 2. **Contratos de borda JSON** (null vs vazio, tipos escalares, ragged, `\n`-em-valor) — de "pré-1.0" para
    **congelar agora no `.8`**. [T-API-BOUNDARY-CONTRACTS](T-API-BOUNDARY-CONTRACTS.md) regatado pré-1.0 → `.8`.
+   **✅ FEITO 2026-07-17 (CLOSED)**: passada de congelamento — todas as bordas resolvidas nos welds do dia
+   ou decididas MANTER com teste de contrato (63 passed em `test_f0_boundary_fixes.py`); 3 assimetrias
+   ergonômicas pinadas + follow-ups pré-1.0 registrados (não bloqueiam `.8`).
+
+**➡ Os DOIS pré-requisitos de "feature-complete" estão FECHADOS.** O caminho de release fica com
+F3/F4/F6/C3 (material comprobatório + closeout) — nenhuma CAPACIDADE pendente. **Decisão de timing de
+release é do owner** (publicar 0.8.0 feature-complete agora vs 0.8.x incremental — ver fim do ticket).
 
 **Inalterado**: `parked-no-pay` continua parado (number-nature, bN, V2-RLE, specs BR sem dado real — puxar
 violaria o gate ≥15%/2-reais, que é dispositivo do owner); perf/refactor (C1/C2, parallel-budget,
