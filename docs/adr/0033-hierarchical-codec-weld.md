@@ -331,3 +331,35 @@ D_json por dispositivo (E1 residual: validar UTF-8 na entrada quando E1 rodar); 
 skipada = **BUG-BRACKET-CELL-LOSS pré-existente do L1, AMPLIADO** (perda silenciosa posicional no
 flat: `['a',']','b']` → `['a','b']` — ticket atualizado; mesma família SEQRLE, fix conjunto com
 aprovação).
+
+---
+
+## Update — P4b RAIZ GENERALIZADA (2026-07-17): J1 do funil fechado
+
+**[dispositivo]** Owner aprovou a sequência 1→2→3 delegando os defaults ("pode fazer"). Decisões
+aplicadas (vetáveis): escopo = J1 inteiro no `.8`; discriminador = `#`+kind SÓ para raiz ≠ dataset
+(posição que era fail-loud → decoder antigo falha alto; dataset fica 0 B/byte-idêntico — o eixo
+"cada byte conta" e o precedente de welds aditivos decidiram contra o char-sempre-presente);
+API = `encode_hierarchical(qualquer raiz D_json)` / `decode` devolve o TIPO EXATO; terminologia =
+"raiz generalizada".
+
+**Gramática**: `#D<N>` ([] · [{}]×N — contagem explícita, o problema B do funil) · `#E` ({} —
+DEFINIÇÃO, H-STRUCT-DEF-01) · `#O<meta>` (objeto único, dataset-de-1 desembrulhado) · `#V<meta>`
+(valor via ENVELOPE `[{"": V}]`, campo `\z`; o envelope NUNCA escapa — canonicidade ≠1
+registro/campo = fail-loud). Zero gramática nova de corpo: tudo reusa counts/masks/tags/escape.
+
+**Evidência**: estudo (lab 2026-07-17-0233) 19/19 RT tipo-exato + adversarial 9/9 + fuzz
+7408/7408 · weld: suíte **843 passed**, gates de bytes **49/49** (flat + navegação, zero re-pin) ·
+paridade: **D_json COMPLETO** (`LACUNAS = {}` em test_json_flow_parity; RAIZ promovida) ·
+auditoria inline: fuzz de raízes **14738/14738** tipo-exato, mutações 28 fail-loud tipados; os 6
+aceitos-divergentes são da classe indistinguível-por-construção (kind-swap = wire canônico de
+OUTRO documento; magic truncado = contrato órfão) — registrados em T-API-BOUNDARY-CONTRACTS §5-6.
+
+**Fronteira pós-J1**: `{"a": {}}` all-marcadores segue fail-loud (problema B residual, família
+O-FMT-20) · lista MISTA = P5 (J2) · ordem de chaves ragged = decisão S6. Custos: dataset +0 B ·
+objeto único +2 B · `[]` 11 B.
+
+**Junto, no mesmo dia (aprovação "1→2→3")**: o par R0 (BUG-SEQRLE `..` + BUG-BRACKET skip) foi
+fechado no L1 — byte-neutro, gates sem re-pin, PW3 em POPULAÇÃO INTEIRA (receita-cnpj 51.536
+raízes / 200.000 estabelecimentos, RT byte-exato) → **J0 PLENO pela régua do funil** (zero
+corrupção silenciosa no domínio aceito + validade populacional).

@@ -1,0 +1,60 @@
+ESTUDO P4b — raiz generalizada (#D/#O/#V sobre a API pública; core INTOCADO).
+
+(1) GATE do parecer + J1 (roundtrip ARQUIVO byte-idêntico; tipo da raiz EXATO):
+  [RT-OK] dataset classico (INTACTO)               #TCF.8Hid:8n,nome
+  [RT-OK] objeto unico                             #TCF.8H#Odevice:4,leituras#:3[]:13n,ok:5b
+  [RT-OK] objeto unico aninhado                    #TCF.8H#Oa{b#:3[]:8n},c?:3
+  [RT-OK] objeto VAZIO                             #TCF.8H#E
+  [RT-OK] array de escalares                       #TCF.8H#V\z#:3[]:8n
+  [RT-OK] array de strings                         #TCF.8H#V\z#:3[
+  [RT-OK] array-em-array na raiz                   #TCF.8H#V\z#:3[#:8[]:8n
+  [RT-OK] array com null (P3b na raiz)             #TCF.8H#V\z#:3?:8[]:8n
+  [RT-OK] escalar int                              #TCF.8H#V\z:4n
+  [RT-OK] escalar float                            #TCF.8H#V\z:7n
+  [RT-OK] escalar bool                             #TCF.8H#V\z:5b
+  [RT-OK] string                                   #TCF.8H#V\z
+  [RT-OK] string VAZIA                             #TCF.8H#V\z
+  [RT-OK] string multilinha (escape)               #TCF.8H#V\z
+  [RT-OK] null na raiz                             #TCF.8H#V\z?:3
+  [RT-OK] lista vazia []                           #TCF.8H#D0
+  [RT-OK] [{}] um registro vazio                   #TCF.8H#D1
+  [RT-OK] [{},{}] dois registros vazios            #TCF.8H#D2
+  [RT-OK] [{},{a}] ragged com vazio (dataset J0)   #TCF.8Ha?:4:3n
+
+(2) BYTE-COMPAT do dataset (J0): wire idêntico ao core puro:
+  encode_root(dataset) == encode_hierarchical(dataset)? True   <- 0 bytes de diferença
+
+(3) CUSTO do discriminador (só quem NÃO é dataset paga):
+  dataset              57B   #TCF.8Hid:8n,nome:8,tags#:8[
+  objeto unico         21B   #TCF.8H#Oa:3n,b
+  array escalares      31B   #TCF.8H#V\z#:3[]:8n
+  escalar              19B   #TCF.8H#V\z:4n
+  null                 18B   #TCF.8H#V\z?:3
+  []                   11B   #TCF.8H#D0
+
+(4) ADVERSARIAL (blob adulterado/estrangeiro → fail-loud tipado):
+  [fail-loud OK] #D sem contagem            contagem inválida em #D: ''
+  [fail-loud OK] #D contagem lixo           contagem inválida em #D: 'xx'
+  [fail-loud OK] #D negativo                contagem inválida em #D: '-1'
+  [fail-loud OK] #D unicode digit           contagem inválida em #D: '٣'
+  [fail-loud OK] #D com corpo apendado      5 bytes após #D — blob adulterado?
+  [fail-loud OK] root-kind desconhecido     root-kind desconhecido '#X' — versão mais nova ou bl
+  [fail-loud OK] # sozinho                  root-kind desconhecido '#
+' — versão mais nova ou bl
+  [fail-loud OK] #O com 2 registros         #O (objeto único) com 2 registros — blob adulterado?
+  [fail-loud OK] #V com 2 campos            #V (envelope) não-canônico: 1 registro(s), campos [[
+
+(5) DISTINÇÕES preservadas (tipo exato, nunca o envelope):
+    '[]' -> #TCF.8H#D0       ->     []  tipo-exato=True
+  '[{}]' -> #TCF.8H#D1       ->   [{}]  tipo-exato=True
+    '{}' -> #TCF.8H#E        ->     {}  tipo-exato=True
+  'None' -> #TCF.8H#V\z?:3   ->   None  tipo-exato=True
+      '' -> #TCF.8H#V\z      ->     ''  tipo-exato=True
+     '0' -> #TCF.8H#V\z:3n   ->      0  tipo-exato=True
+  'False' -> #TCF.8H#V\z:6b   ->  False  tipo-exato=True
+  [OK] dataset [{'':'x'}] segue DATASET (sem #): '#TCF.8H\\z'
+
+(6) FUZZ seedado de raízes: RT tipo-exato 7408/7408 (fora-da-classe fail-loud: 592)
+
+VEREDITO: #D/#O/#V cobre o gate inteiro do parecer + J1, dataset byte-idêntico,
+envelope NUNCA escapa, adversarial fail-loud, fuzz tipo-exato. Pronto pro weld.

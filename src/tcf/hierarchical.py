@@ -369,7 +369,35 @@ def _array_leaves(node, p, lvl, out):
 
 
 # ============================================================ encode (L2 shred + L1)
-def encode_hierarchical(records: list) -> str:
+def encode_hierarchical(data) -> str:
+    """Qualquer raiz D_json → wire `.8H` (P4b/J1, raiz generalizada — 2026-07-17).
+
+    Dataset (list[dict] com ≥1 registro com campos) = caminho original, byte-IDÊNTICO.
+    Demais raízes = discriminadas por `#`+kind logo após o magic (posição que era
+    fail-loud → decoder antigo falha ALTO em wire novo; pré-1.0 correto):
+      `#D<N>` dataset sem colunas ([]·[{}]×N) · `#E` = `{}` (definição, H-STRUCT-DEF-01) ·
+      `#O<meta>` objeto único · `#V<meta>` valor via ENVELOPE [{"": V}] (o decode
+      desembrulha e NUNCA devolve o envelope — parecer P4b).
+    """
+    if isinstance(data, list):
+        if not data:
+            return f"{MAGIC}#D0\n"                                   # [] (lista vazia)
+        if all(isinstance(r, dict) for r in data):
+            if any(data):                                            # ≥1 registro com campos
+                return _encode_dataset(data)                         # DATASET — intacto
+            return f"{MAGIC}#D{len(data)}\n"                         # [{}]×N
+        if any(isinstance(r, dict) for r in data):                   # misto dict+valor
+            raise HierarchicalError(
+                "raiz lista MISTA (objetos e valores) — fora da classe (P5 union)")
+        return _encode_dataset([{"": data}]).replace(MAGIC, MAGIC + "#V", 1)
+    if isinstance(data, dict):
+        if data:
+            return _encode_dataset([data]).replace(MAGIC, MAGIC + "#O", 1)
+        return MAGIC + "#E\n"                                        # {} = definição
+    return _encode_dataset([{"": data}]).replace(MAGIC, MAGIC + "#V", 1)
+
+
+def _encode_dataset(records: list) -> str:
     schema = _derive_schema(records)
     order = _leaves(schema)
     if not order:                                # nenhuma coluna -> nº de registros irrepresentável
@@ -674,9 +702,43 @@ def _find_stype(schema, path, kind):
 
 
 # ============================================================ decode (L1 + L2 rebuild)
-def decode_hierarchical(tcf_text: str) -> list:
+def decode_hierarchical(tcf_text: str):
+    """Wire `.8H` → raiz ORIGINAL (P4b/J1): o tipo da raiz é restaurado EXATO; o envelope
+    `#V` nunca escapa (canonicidade verificada fail-loud). Dataset → list[dict], como sempre."""
     if not tcf_text.startswith(MAGIC):
         raise HierarchicalError(f"magic inesperado (esperava {MAGIC})")
+    resto = tcf_text[len(MAGIC):]
+    if resto.startswith("#"):                        # P4b: raiz discriminada (posição era fail-loud)
+        kind = resto[1:2]
+        if kind == "D":                              # dataset sem colunas: []·[{}]×N
+            linha, _sep, sobra = resto[2:].partition("\n")
+            if not linha or not linha.isascii() or not linha.isdigit():
+                raise HierarchicalError(f"contagem inválida em #D: {linha!r}")
+            if sobra:
+                raise HierarchicalError(f"{len(sobra)} bytes após #D — blob adulterado?")
+            return [dict() for _ in range(int(linha))]
+        if kind == "E":                              # {} na raiz (definição)
+            if resto[2:] not in ("", "\n"):
+                raise HierarchicalError(f"bytes após #E — blob adulterado? {resto[2:]!r}")
+            return {}
+        if kind == "O":                              # objeto único (dataset de 1, desembrulhado)
+            recs = _decode_dataset(MAGIC + resto[2:])
+            if len(recs) != 1:
+                raise HierarchicalError(
+                    f"#O (objeto único) com {len(recs)} registros — blob adulterado?")
+            return recs[0]
+        if kind == "V":                              # valor via envelope [{"": V}]
+            recs = _decode_dataset(MAGIC + resto[2:])
+            if len(recs) != 1 or list(recs[0].keys()) != [""]:
+                raise HierarchicalError(
+                    f"#V (envelope) não-canônico ({len(recs)} registro(s)) — blob adulterado?")
+            return recs[0][""]
+        raise HierarchicalError(
+            f"root-kind desconhecido '#{kind}' — versão mais nova ou blob adulterado")
+    return _decode_dataset(tcf_text)
+
+
+def _decode_dataset(tcf_text: str) -> list:
     line1 = tcf_text.split("\n", 1)[0]
     schema, order = _parse_meta(line1[len(MAGIC):])
     if not order:

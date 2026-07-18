@@ -240,16 +240,24 @@ def test_p1_array_de_objetos_vazios_fail_loud():
         encode_hierarchical([{"g": [{}]}, {"g": [{}]}])
 
 
-def test_p1_registros_sem_campos_fail_loud():
-    with pytest.raises(HierarchicalError):
-        encode_hierarchical([{}])                          # nº de registros irrepresentável
-    with pytest.raises(HierarchicalError):
-        encode_hierarchical([])                            # lista vazia
+def test_p1_registros_sem_campos_agora_fazem_rt():
+    """PROMOVIDO 2026-07-17 (P4b): [{}]×N e [] viraram `#D<N>` (contagem explícita — funil J1)."""
+    for docs in ([{}], [], [{}, {}], [{}] * 7):
+        back = decode(encode_hierarchical(docs))
+        assert back == docs and type(back) is type(docs)
+    assert encode_hierarchical([]) == "#TCF.8H#D0\n"       # pino do wire (re-pinável, ADR-0024)
+    assert encode_hierarchical([{}, {}]) == "#TCF.8H#D2\n"
+    a = decode(encode_hierarchical([{}, {}]))
+    a[0]["k"] = 1                                          # N dicts DISTINTOS (não o mesmo objeto)
+    assert a[1] == {}
 
 
-def test_p1_raiz_nao_lista_fail_loud():
-    with pytest.raises(HierarchicalError):
-        encode_hierarchical({"a": "1"})                    # dict na raiz, não lista
+def test_p1_raiz_objeto_unico_agora_faz_rt():
+    """PROMOVIDO 2026-07-17 (P4b): objeto único na raiz = `#O<meta>` (desembrulhado no decode)."""
+    for raiz in ({"a": "1"}, {"device": "s1", "v": [1.5, 2.5], "ok": True}, {"a": {"b": None}}):
+        back = decode(encode_hierarchical(raiz))
+        assert back == raiz and type(back) is dict
+    assert encode_hierarchical({"a": "1"}).startswith("#TCF.8H#O")
 
 
 def test_p3a_mask_invalido_fail_loud():
@@ -273,9 +281,42 @@ def test_p1_size_negativo_e_frame_inconsistente_fail_loud():
         decode("#TCF.8Hx:-4\nvvvv")
 
 
-def test_nao_dict_fail_loud():
-    with pytest.raises(HierarchicalError):
-        encode_hierarchical(["nao", "e", "objeto"])
+def test_raiz_lista_de_valores_agora_faz_rt():
+    """PROMOVIDO 2026-07-17 (P4b): lista de VALORES na raiz = `#V` (envelope; nunca escapa)."""
+    for raiz in (["nao", "e", "objeto"], [1, 2, 3], [1, None, 2], [[1], [2, 3]]):
+        back = decode(encode_hierarchical(raiz))
+        assert back == raiz
+    with pytest.raises(HierarchicalError, match="MISTA|P5"):
+        encode_hierarchical([1, {"a": 2}])                 # misto continua P5 fail-loud
+
+
+# --- P4b (2026-07-17): raiz generalizada — adversarial e canonicidade -------------------
+
+def test_p4b_adversarial_fail_loud():
+    for blob, motivo in [("#TCF.8H#D\n", "contagem ausente"), ("#TCF.8H#Dxx\n", "contagem lixo"),
+                         ("#TCF.8H#D-1\n", "negativo"), ("#TCF.8H#D٣\n", "unicode digit"),
+                         ("#TCF.8H#D2\nlixo\n", "corpo apendado"), ("#TCF.8H#E lixo", "bytes após #E"),
+                         ("#TCF.8H#X\n", "kind desconhecido"), ("#TCF.8H#\n", "kind vazio")]:
+        with pytest.raises(HierarchicalError):
+            decode(blob), motivo
+
+
+def test_p4b_O_e_V_nao_canonicos_fail_loud():
+    from tcf.hierarchical import _encode_dataset
+    w2 = _encode_dataset([{"a": "1"}, {"a": "2"}]).replace("#TCF.8H", "#TCF.8H#O", 1)
+    with pytest.raises(HierarchicalError, match="objeto único"):
+        decode(w2)                                          # #O com 2 registros
+    wv = _encode_dataset([{"": "x", "b": "y"}]).replace("#TCF.8H", "#TCF.8H#V", 1)
+    with pytest.raises(HierarchicalError, match="envelope"):
+        decode(wv)                                          # #V com 2 campos
+
+
+def test_p4b_dataset_com_campo_vazio_nao_vira_envelope():
+    """[{"": "x"}] é DATASET legítimo de J0 (campo de nome vazio) — segue sem `#`."""
+    ds = [{"": "x"}]
+    w = encode_hierarchical(ds)
+    assert not w.startswith("#TCF.8H#")
+    assert decode(w) == ds
 
 
 def test_malformed_blob_fail_loud():

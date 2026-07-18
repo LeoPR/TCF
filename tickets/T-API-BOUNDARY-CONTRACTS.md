@@ -90,6 +90,12 @@ OUTRO documento (a informação não existe no wire; detecção = trilha checksu
    pode re-bindar campos irmãos pra dentro do array em metas específicos.
 4. **Bytes apendados quando a última coluna é unsized** (single-column string): viram conteúdo da
    coluna (registro fantasma). Com última coluna SIZED, apêndice é rejeitado (guard 2026-07-16).
+5. **Troca de root-kind `#V`↔`#O`** (P4b, auditoria 2026-07-17): o wire mutado é o wire CANÔNICO
+   de outro documento legítimo (`V` vs `{"": V}`) — indistinguível por construção. Idem qualquer
+   1-char-flip que produza kind válido com meta compatível.
+6. **Truncamento do PRÓPRIO magic**: o prefixo truncado (`#TCF.`) cai no contrato ÓRFÃO do flat
+   (qualquer texto = coluna única, discriminador 0 B — ADR-0029/0031). Herdado do desenho do
+   órfão, não do P4b.
 
 ## Critério de aceite
 

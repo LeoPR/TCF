@@ -111,21 +111,24 @@ PARIDADE = {
     "cr-em-valor": [{"a": "x\ry"}],
     "crlf-em-valor": [{"a": "linha1\r\nlinha2"}],       # o par CRLF real (Windows)
     "cr-em-nome": [{"a\rb": "v"}],
+    # --- PROMOVIDO 2026-07-17 (P4b/J1: raiz generalizada #D/#E/#O/#V — eram RAIZ_LACUNAS) ---
+    "raiz-objeto-unico": {"a": 1},
+    "raiz-array-de-escalares": [1, 2],
+    "raiz-escalar": 42,
+    "raiz-string": "x",
+    "raiz-nulo": None,
+    "raiz-array-vazio": [],
+    "raiz-lista-objeto-vazio": [{}],
+    "raiz-objeto-vazio": {},
+    "raiz-string-vazia": "",
+    "raiz-array-em-array": [[1, 2], [3]],
 }
 
-# Vazio: as 3 lacunas de DATASET fecharam no weld do escape (2026-07-17). Resta só o eixo RAIZ.
-# Se uma nova lacuna aparecer, entra aqui como xfail(strict) — some em silêncio nunca.
+# Vazio: as lacunas de DATASET (escape, 2026-07-17) e as de RAIZ (P4b/J1, 2026-07-17) fecharam.
+# D_json COMPLETO. Se uma lacuna nova aparecer, entra aqui como xfail(strict) — nunca some calada.
 LACUNAS: dict[str, list] = {}
 
-RAIZ_LACUNAS = {
-    "objeto-unico": {"a": 1},
-    "array-de-escalares": [1, 2],
-    "escalar": 42,
-    "string": "x",
-    "nulo": None,
-    "array-vazio": [],
-    "lista-objeto-vazio": [{}],
-}
+# (RAIZ_LACUNAS promovido a PARIDADE em 2026-07-17 — P4b/J1 welded: #D/#E/#O/#V.)
 
 
 @pytest.mark.parametrize("nome", list(PARIDADE))
@@ -146,12 +149,13 @@ def test_lacuna_d_json(nome):
     assert t_rt_tx(docs), f"{nome}: TCF ainda não cobre (esperado)"
 
 
-@pytest.mark.parametrize("nome", list(RAIZ_LACUNAS))
-def test_raiz_d_json_ainda_fail_loud(nome):
-    """Raiz livre é D_json (RFC 8259 §2). O TCF aceita só list[dict] — pino do estado (P4b)."""
-    v = RAIZ_LACUNAS[nome]
-    assert j_rt_tx(v), f"{nome}: premissa — Contrato A vale na raiz"
-    assert not t_rt_tx(v), f"{nome}: raiz aceita — P4b implementado? atualizar pino"
+def test_raiz_tipo_exato_e_envelope_nunca_escapa():
+    """P4b/J1: o decode restaura o TIPO EXATO da raiz (o envelope #V nunca escapa) e as
+    distinções []≠[{}]≠{}≠None≠''≠0≠False sobrevivem — o gate do parecer do P4b."""
+    import tcf
+    for raiz in ([], [{}], [{}, {}], {}, {"a": 1}, [1, 2], 42, "x", "", None, 0, False, [[1], [2]]):
+        back = tcf.decode(tcf.encode_hierarchical(raiz))
+        assert back == raiz and type(back) is type(raiz), f"{raiz!r} -> {back!r}"
 
 
 def test_criterio_global_d_json():
