@@ -437,6 +437,17 @@ def test_profundidade_parse_header_hostil_tipado():
         decode("#TCF.8H" + meta + "\n" + "v\n")
 
 
+@pytest.mark.xfail(strict=True, reason="BUG-BRACKET-CELL-LOSS (L1 pré-existente, R0): valor "
+                   "exatamente ']'/'[' é skipado pelo decode do L1 (syntax.py:796) → registro some "
+                   "CALADO no single-col. Pela régua do funil (J0 exige zero corrupção silenciosa "
+                   "no domínio aceito), este é o BLOQUEADOR formal do fechamento pleno de J0. "
+                   "Fix exige aprovação do owner (HCC core) + gate byte-canônico.")
+def test_valor_bracket_isolado_single_col_BLOQUEIA_J0():
+    """Quando o par R0 for consertado, isto XPASSa e obriga a promover o caso (e declarar J0)."""
+    docs = [{"a": "x"}, {"a": "]"}, {"a": "y"}]
+    assert decode(encode_hierarchical(docs)) == docs
+
+
 def test_escape_invalido_no_blob_fail_loud():
     # escape fora da whitelist = marcador de corrupção (unescape ESTRITO, como no .8M)
     with pytest.raises(HierarchicalError, match="nao-estrutural|dangling"):

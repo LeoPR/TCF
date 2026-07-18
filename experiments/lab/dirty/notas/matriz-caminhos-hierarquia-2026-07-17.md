@@ -8,7 +8,7 @@ related:
   - experiments/lab/dirty/notas/p4b-levantamento.md
   - experiments/lab/dirty/notas/escala-implementacao-paridade-json.md
   - experiments/lab/dirty/notas/revisao-generosa-hierarquia-2026-07-16.md
-   - experiments/lab/dirty/notas/funil-fechamento-json-language-2026-07-17.md
+  - experiments/lab/dirty/notas/funil-fechamento-json-language-2026-07-17.md
   - tickets/BUG-SEQRLE-RANGE-EMPTY-B.md
   - tickets/T-SHAPER-NESTED-OUTPUT.md
   - docs/adr/0033-hierarchical-codec-weld.md
