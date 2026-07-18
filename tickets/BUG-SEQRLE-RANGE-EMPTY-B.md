@@ -1,6 +1,6 @@
 ---
 title: BUG-SEQRLE-RANGE-EMPTY-B — decode(encode(x)) crasha quando um afixo tem sufixo `..`/`...`
-status: open
+status: closed
 priority: P1
 severity: R0
 created: 2026-07-15
@@ -13,6 +13,14 @@ related:
   - experiments/lab/dirty/2026-07-15-0125-p1-presenca-ragged-estudo/probe_realworld.py
   - tickets/T-REL-08-CLOSEOUT.md
 ---
+
+> **CLOSED 2026-07-17 (red->green; aprovacao do owner "pode fazer o 1->2->3")**. fix: separador `*` na transicao refs->lit quando o lit comeca com `..` (familia ADR-0007/BUG-15).
+> BYTE-NEUTRO comprovado: gates byte-canonicos (D1-D9=1523B, D17a=300B, real-world=89616B)
+> verdes SEM re-pin; suite 836 passed, 0 xfail de bug pela 1a vez. Auditoria inline (workflow
+> caiu por spend-limit): familia dotdot 15000/15000 RT + bracket/celulas-especiais 8120 casos,
+> 0 falhas. PW3 DESTRAVADO: receita-cnpj POPULACAO INTEIRA (51536 raizes / 200000 estab.,
+> fantasia 52%) RT byte-exato no .8H. Pinos promovidos em test_core_rt.py (+ matriz de
+> caracterizacao + wire pinado) e test_hierarchical_rt.py (bloqueador de J0 -> RT).
 
 # BUG-SEQRLE-RANGE-EMPTY-B — colisão do range `A..B` do seq-RLE com `..` literal em afixo
 

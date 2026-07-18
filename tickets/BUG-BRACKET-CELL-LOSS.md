@@ -1,6 +1,6 @@
 ---
 title: BUG-BRACKET-CELL-LOSS — célula string que é exatamente '[' ou ']' é PERDIDA silenciosamente
-status: open
+status: closed
 priority: P1
 severity: R0
 created: 2026-07-16
@@ -12,6 +12,14 @@ related:
   - tickets/BUG-SEQRLE-RANGE-EMPTY-B.md
   - tickets/T-REL-08-CLOSEOUT.md
 ---
+
+> **CLOSED 2026-07-17 (red->green; aprovacao do owner "pode fazer o 1->2->3")**. fix: skip back-compat de `[`/`]` REMOVIDO do decode (ADR-0024: formato antigo vive no git).
+> BYTE-NEUTRO comprovado: gates byte-canonicos (D1-D9=1523B, D17a=300B, real-world=89616B)
+> verdes SEM re-pin; suite 836 passed, 0 xfail de bug pela 1a vez. Auditoria inline (workflow
+> caiu por spend-limit): familia dotdot 15000/15000 RT + bracket/celulas-especiais 8120 casos,
+> 0 falhas. PW3 DESTRAVADO: receita-cnpj POPULACAO INTEIRA (51536 raizes / 200000 estab.,
+> fantasia 52%) RT byte-exato no .8H. Pinos promovidos em test_core_rt.py (+ matriz de
+> caracterizacao + wire pinado) e test_hierarchical_rt.py (bloqueador de J0 -> RT).
 
 # BUG-BRACKET-CELL-LOSS — '['/']' isolado some no round-trip
 

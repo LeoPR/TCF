@@ -4,9 +4,9 @@ PW3 — P1 (chave opcional) em DADO REAL (receita-cnpj, fantasia omitida = ragge
   frac=0.1 :  5154 raízes ·  20153 est · fantasia 10647/20153 (52%) → RT byte-exato=True
   frac=0.25: 12884 raízes ·  50105 est · fantasia 26036/50105 (51%) → RT byte-exato=True
   frac=0.5 : 25768 raízes · 100370 est · fantasia 52316/100370 (52%) → RT byte-exato=True
-  frac=1.0 : 51536 raízes · 200000 est → CRASH ValueError (bug L1 seq-RLE — BUG-SEQRLE-RANGE-EMPTY-B, NÃO do P1)
+  frac=1.0 : 51536 raízes · 200000 est · fantasia 104148/200000 (52%) → RT byte-exato=True
 
 → P1 (chave opcional) faz RT byte-exato em dado REAL não-sintético com opcionalidade
-  genuína — maior sample OK: 25768 raízes / 100370 estabelecimentos, fantasia presente em 52316.
+  genuína — maior sample OK: 51536 raízes / 200000 estabelecimentos, fantasia presente em 104148.
   Fecha o gate anti-incidente 2026-05-21 pro P1 (dado real, opcionalidade não-construída).
   A população inteira esbarra no bug L1 seq-RLE (free-text), registrado à parte.

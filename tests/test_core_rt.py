@@ -429,18 +429,31 @@ class TestBug15CaretLeadingLiteral:
 
 
 class TestSeqRleRangeDotDotBug:
-    """BUG-SEQRLE-RANGE-EMPTY-B (R0, PRÉ-EXISTENTE, descoberto 2026-07-15 via P1 real-world).
+    """BUG-SEQRLE-RANGE-EMPTY-B — **FIXADO 2026-07-17** (aprovação do owner; red→green).
 
-    decode(encode(x)) crasha quando um valor estende outro por sufixo contendo '..' (colisão
-    com o operador de range A..B do seq-RLE). Real: texto com elipse ('ETC...'). Marcado xfail
-    ATÉ o fix (toca HCC core → aprovação + gate byte-canônico). Ticket: BUG-SEQRLE-RANGE-EMPTY-B.
+    Era: lit começando com '..' após refs era absorvido pelo scanner como range A..B →
+    int('') crashava. Fix: separador `*` na transição refs→lit quando o lit começa com '..'
+    (mesma família ADR-0007 `,`/`~` e BUG-15 `^`). Byte-NEUTRO p/ dado válido de hoje
+    (comprovado: gates D1-D9/D17a/real-world verdes SEM re-pin). Descoberto via P1 real-world
+    (elipse em nome_fantasia da receita). Ticket: BUG-SEQRLE-RANGE-EMPTY-B (closed).
     """
 
-    @pytest.mark.xfail(reason="BUG-SEQRLE-RANGE-EMPTY-B: sufixo '..' colide com range do seq-RLE",
-                       strict=True, raises=ValueError)
-    def test_afixo_sufixo_dotdot_crasha(self):
+    def test_afixo_sufixo_dotdot_faz_rt(self):
         col = ["ETC & TAL", "ETC & TAL..."]
         assert decode(encode(col)) == col
+
+    def test_matriz_caracterizacao_dotdot(self):
+        """Variações do sufixo/posição do `..` (a matriz do critério de aceite)."""
+        for col in (["ETC", "ETC.."], ["ETC", "ETC...."], ["ETC", "ETC. . ."],
+                    ["a.b", "a.b..c"], ["x", "x..", "x...."], ["..", "...."],
+                    ["fim.", "fim.."], ["a", "a..b..c"]):
+            assert decode(encode(col)) == col, col
+
+    def test_range_legitimo_continua_funcionando(self):
+        """O operador A..B do seq-RLE segue vivo (runs de consecutivos ainda colapsam)."""
+        col = [f"prefixo-comum-{i}" for i in range(1, 30)]
+        w = encode(col)
+        assert decode(w) == col
 
     def test_caracterizacao_nao_afeta_casos_vizinhos(self):
         # os casos SEM o gatilho continuam RT (garante que o fix futuro não precisa mexer nesses)
@@ -452,17 +465,29 @@ class TestSeqRleRangeDotDotBug:
 
 
 class TestBracketCellLossBug:
-    """BUG-BRACKET-CELL-LOSS (R0, PRÉ-EXISTENTE, descoberto 2026-07-16 via auditoria P2).
+    """BUG-BRACKET-CELL-LOSS — **FIXADO 2026-07-17** (aprovação do owner; red→green).
 
-    Célula string que é EXATAMENTE '[' ou ']' (1 char) é perdida silenciosamente no RT
-    (o L1/HCC a confunde com estrutura do corpo). Marcado xfail ATÉ o fix (toca HCC core →
-    aprovação + gate byte-canônico). Ticket: BUG-BRACKET-CELL-LOSS.
+    Era: linha exatamente '['/']' era SKIPADA pelo decode (back-compat de formato antigo) →
+    perda posicional SILENCIOSA (['a',']','b'] → ['a','b']). Fix: skip REMOVIDO — pela
+    política pré-1.0 (ADR-0024, git-as-compat) o formato antigo vive no git, não no decoder.
+    Byte-NEUTRO (o encoder atual nunca emite bracket estrutural; gates verdes SEM re-pin).
+    O conteúdo segue tratado como QUALQUER caractere — não há escape novo: o valor '['
+    sempre foi emitido intacto; era o DECODE que o jogava fora. Ticket: BUG-BRACKET (closed).
     """
 
-    @pytest.mark.xfail(reason="BUG-BRACKET-CELL-LOSS: '['/']' isolado some no RT", strict=True)
-    def test_bracket_cell_isolado_perde(self):
+    def test_bracket_cell_isolado_faz_rt(self):
         col = ["[", "x", "]"]
         assert decode(encode(col)) == col
+
+    def test_matriz_caracterizacao_bracket(self):
+        """Posições/combinações (a matriz do critério de aceite + ampliação da auditoria)."""
+        for col in (["["], ["]"], ["a", "]", "b"], ["[", "["], ["]", "[", "]"],
+                    ["[]"], ["[x]"], ["a[", "]b"], ["", "[", ""]):
+            assert decode(encode(col)) == col, col
+
+    def test_bracket_wire_pinado(self):
+        """Pino do wire novo (capacidade nova = pino novo; re-pinável, ADR-0024)."""
+        assert encode(["a", "]", "b"]) == "a\n]\nb\n"
 
     def test_bracket_nao_isolado_ok(self):
         # '['/']' NÃO-isolado (parte de string maior) ou '{'/'}' seguem RT (isola o gatilho)

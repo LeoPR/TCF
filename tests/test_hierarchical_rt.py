@@ -214,10 +214,13 @@ def test_f1_objeto_vazio_mascarado_ultima_folha_rt(docs):
 
 
 def test_f2_emask_body_corrompido_fail_loud_tipado():
+    # gatilho: body HOSTIL cru `5..` (range com fim vazio) — estoura o decoder do L1.
+    # (era o par ETC&TAL/ETC&TAL... emitido pelo ENCODER, que deixou de estourar com o
+    # fix do BUG-SEQRLE — a emissão agora separa; o DECODER continua rejeitando blob cru.)
     from tcf.encoder import encode as _enc_col
     cnt = _enc_col(["2"])
-    crash = _enc_col(["ETC & TAL", "ETC & TAL..."])         # body que dispara o L1 (BUG-SEQRLE)
-    val = _enc_col(["a"])
+    crash = "5..\n"
+    val = _enc_col(["a", "b"])
     blob = f"#TCF.8Hxs#:{len(cnt.encode())}?:{len(crash.encode())}[]\n{cnt}{crash}{val}"
     with pytest.raises(HierarchicalError, match="coluna de controle emask corrompida"):
         decode(blob)
@@ -437,15 +440,16 @@ def test_profundidade_parse_header_hostil_tipado():
         decode("#TCF.8H" + meta + "\n" + "v\n")
 
 
-@pytest.mark.xfail(strict=True, reason="BUG-BRACKET-CELL-LOSS (L1 pré-existente, R0): valor "
-                   "exatamente ']'/'[' é skipado pelo decode do L1 (syntax.py:796) → registro some "
-                   "CALADO no single-col. Pela régua do funil (J0 exige zero corrupção silenciosa "
-                   "no domínio aceito), este é o BLOQUEADOR formal do fechamento pleno de J0. "
-                   "Fix exige aprovação do owner (HCC core) + gate byte-canônico.")
-def test_valor_bracket_isolado_single_col_BLOQUEIA_J0():
-    """Quando o par R0 for consertado, isto XPASSa e obriga a promover o caso (e declarar J0)."""
+def test_valor_bracket_isolado_single_col_faz_rt():
+    """PROMOVIDO 2026-07-17 (fix do par R0, aprovado pelo owner): era o BLOQUEADOR formal de
+    J0 (corrupção silenciosa no domínio aceito — régua do funil, condição 4). Com o skip
+    back-compat removido do L1 (BUG-BRACKET), o registro `]` sobrevive. J0 pleno."""
     docs = [{"a": "x"}, {"a": "]"}, {"a": "y"}]
     assert decode(encode_hierarchical(docs)) == docs
+    docs2 = [{"a": "["}, {"a": "]"}, {"a": "[]"}]
+    assert decode(encode_hierarchical(docs2)) == docs2
+    docs3 = [{"a": "ETC & TAL"}, {"a": "ETC & TAL..."}]      # o outro R0, no .8H
+    assert decode(encode_hierarchical(docs3)) == docs3
 
 
 def test_escape_invalido_no_blob_fail_loud():
@@ -703,10 +707,10 @@ def test_corpo_perdido_e_bytes_apendados_fail_loud():
 
 
 def test_coluna_de_dado_corrompida_fail_loud_tipado():
-    # size mentiroso caindo em coluna de DADO agora re-tipa (era exceção crua do L1)
+    # size mentiroso caindo em coluna de DADO re-tipa (era exceção crua do L1).
+    # gatilho: body hostil cru `5..` (o antigo, via encoder, deixou de estourar — fix SEQRLE).
     from tcf.encoder import encode as _enc_col
-    crash = _enc_col(["ETC & TAL", "ETC & TAL..."])     # body que estoura o L1 (BUG-SEQRLE)
-    blob = f"#TCF.8Hx:{len(crash.encode())}\n{crash}"   # em coluna de DADO string... precisa 2ª coluna
+    crash = "5..\n"
     blob = f"#TCF.8Hx:{len(crash.encode())},y\n{crash}" + _enc_col(["v", "w"])
     with pytest.raises(HierarchicalError, match="corrompida"):
         decode(blob)

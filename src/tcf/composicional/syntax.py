@@ -535,13 +535,23 @@ class M8AVirtualRefsSyntax(Syntax):
                 if kind == "lit":
                     if prev_type == "lit":
                         parts.append("*")
-                    elif prev_type == "refs" and p[1] and p[1][0] in (",", "~"):
+                    elif prev_type == "refs" and p[1] and (
+                        p[1][0] in (",", "~") or p[1].startswith("..")
+                    ):
                         # Bug fix 2026-05-19 (ADR-0007): separator `*` quando
                         # ref->lit transition e lit comeca com `,` ou `~`.
                         # Sem o separator, parser do decoder entra ref mode
                         # em "1,..." e consome o `,` como continuacao do ref
                         # expression, perdendo o `,` literal. Descoberto em
                         # EXP-013 TPC-H (p_comment 'pending, bold' -> 'pending bold').
+                        #
+                        # BUG-SEQRLE-RANGE-EMPTY-B (2026-07-17, mesma familia): lit
+                        # comecando com `..` (elipse real: 'ETC & TAL...') era ABSORVIDO
+                        # pelo scanner de refs como operador de range A..B -> int('')
+                        # crashava no decode. `.` ISOLADO e' seguro (o scanner so' consome
+                        # pares `..`); digito-lider ja' sai como `\d` via _escape_lit.
+                        # Byte-NEUTRO p/ dado valido de hoje (lit `..`-lider crashava:
+                        # nao existia wire valido) — mesmo argumento do BUG-15 (`^`).
                         parts.append("*")
                     state.current_id += 1
                     prov_to_final[p[2]] = state.current_id
@@ -791,10 +801,14 @@ class M8AVirtualRefsSyntax(Syntax):
             #    com trailing space).
             # 2. NAO skipar empty linha — representa string vazia
             #    legitima (encoder emite body.append('') quando lit e' "").
-            # Brackets `[`/`]` ainda skipados pra back-compat de formato antigo.
+            # BUG-BRACKET-CELL-LOSS (fix 2026-07-17, aprovacao do owner): o skip de
+            # `[`/`]` era back-compat de formato ANTIGO (bracketed) e engolia CALADO
+            # celula cujo conteudo e' exatamente '[' ou ']' (perda posicional:
+            # ['a',']','b'] -> ['a','b']). Pela politica pre-1.0 (ADR-0024,
+            # git-as-compat) o formato antigo vive no git, nao no decoder — skip
+            # REMOVIDO. Byte-NEUTRO: o encoder atual nunca emite bracket estrutural
+            # (gates D1-D9/D17a/real-world verdes sem re-pin comprovam).
             linha = raw
-            if linha in ("[", "]"):
-                continue
             if linha.startswith("*") and "|" in linha:
                 bar = linha.find("|")
                 count = int(linha[1:bar])
