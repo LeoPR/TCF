@@ -1,5 +1,14 @@
 # STATUS — TCF (compendio sempre-atualizado)
 
+> **⚑ ESTRUTURA DO `.8` COMPLETA 2026-07-17.** P5/union RATIFICADO (fora do `.8`, fronteira
+> declarada; msg de fail-loud ENSINA o fallback-string) + 2 bordas de contrato DECIDIDAS:
+> **(1)** contagem-de-contêiner-vazio (problema B) = fail-loud que ensina; representação plena =
+> registro-'0'/O-FMT-20 (armazenamento, pré-1.0); **(2)** ordem-de-chaves = **schema-order CANÔNICA**
+> (o `.8H` é colunar-shredded como Arrow/Parquet; ECMA-404: ordem não é significativa; dict-eq
+> sempre preservada). **Não há mais estrutura JSON pendente.** Caminho vira RELEASE (F3/F4/F6/C3) +
+> decisão de timing (0.8.0 feature-complete agora vs 0.8.x). Suíte 853 passed. Ponteiro:
+> H-P5-STRING-FALLBACK-01 (degradar union→string opt-in, revisar depois).
+
 > **⚑ MARCO 2026-07-17 — J0 PLENO + J1 FECHADOS (funil J0-J2/L/G).** Aprovação "1→2→3" executada:
 > **(1)** par R0 fechado no L1 (`e8c8be1`: SEQRLE `..` + BRACKET skip; **byte-neutro** — gates
 > D1-D9/D17a/real-world SEM re-pin; **PW3 em POPULAÇÃO INTEIRA**: receita 51.536 raízes/200.000

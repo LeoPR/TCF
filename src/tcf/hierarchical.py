@@ -435,8 +435,16 @@ def _encode_dataset(records: list, side_outputs=None) -> str:
     schema = _derive_schema(records)
     order = _leaves(schema)
     if not order:                                # nenhuma coluna -> nº de registros irrepresentável
+        # BORDA CONTAGEM-VAZIO (problema B, ratificado 2026-07-17): os registros TÊM campos, mas
+        # TODAS as folhas são objetos-vazios (`{"a":{}}`, `{"a":{"b":{}}}`) — nenhuma coluna com N
+        # entradas, logo o nº de registros é irrepresentável. `[]`/`[{}]` (raiz) já viram `#D`;
+        # campo array-vazio (`{"a":[]}`) funciona (o count `\0` É coluna). A representação plena
+        # (schema-declare + contagem explícita, sem coluna de dado) é o registro-'0' / O-FMT-20 —
+        # trilho de ARMAZENAMENTO (append/parquet/tcfx), pré-1.0. No `.8` = fail-loud que ENSINA.
         raise HierarchicalError(
-            "nenhuma coluna derivável (registros sem campos) — nº de registros irrepresentável"
+            "todas as folhas são objetos-vazios {} — sem coluna p/ contar registros (contagem-vazio, "
+            "problema B): adicione ao menos um campo com valor/array, ou o dado não carrega nada além "
+            "de nomes de campo (schema-declare/registro-'0' é trilho de armazenamento, O-FMT-20/pré-1.0)"
         )
     cols = {key: [] for key in order}
     _emit_array(records, schema, (), cols)

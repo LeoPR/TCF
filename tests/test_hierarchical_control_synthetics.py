@@ -103,19 +103,42 @@ def test_sintoma_emask_densa(wires):
     assert d["controle"] * 4 >= d["total"]
 
 
-def test_ordem_de_chaves_ragged_e_do_schema():
-    """FRONTEIRA OBSERVADA (achado 2026-07-17 da suite de controle; NAO consertar
-    sem decisao de contrato do owner): chave opcional que aparece pela 1a vez
-    DEPOIS do 1o registro volta na ordem do SCHEMA (uniao por 1a aparicao) — ao
-    FIM do dict — nao na posicao por-registro. Igualdade semantica (dict) passa;
-    byte-igualdade do json.dumps nao. Registro: T-API-BOUNDARY-CONTRACTS +
-    T-CODE-TCF8H-JSON-PARITY. O contrato S0 do DatasetH (lab 2026-07-16-1708)
-    preserva ordem por-registro — gap S0 x .8H a decidir no S6/P4b.
+def test_ordem_de_chaves_schema_order_e_CANONICA():
+    """BORDA 2 — DECIDIDA 2026-07-17 (owner: "fechar as duas bordas").
+
+    DECISAO: no `.8H` a ordem de chaves e' a do SCHEMA (uniao por 1a aparicao) — CANONICA,
+    nao um bug. Fundamento: (a) o `.8H` e' um codec COLUNAR-shredded — como Arrow/Parquet, as
+    colunas sao COMPARTILHADAS entre registros, entao ordem por-registro e' inexpressivel por
+    construcao; (b) JSON/ECMA-404: "does not assign any significance to the ordering of
+    name/value pairs" — ordem de chave NAO e' significativa; (c) dict-equality (a igualdade
+    SEMANTICA) e' sempre preservada. So' a byte-ordem de um json.dumps re-serializado pode
+    diferir, o que a RFC PERMITE. Quem precisa de byte-ordem por-registro usa outra camada
+    (o modelo S0 do DatasetH preserva preorder; o flat/adaptador tambem). NAO e' gap de
+    capacidade — e' propriedade declarada do contrato colunar.
     """
     back = decode(encode_hierarchical(KEY_ORDER_PROBE))
-    assert back == KEY_ORDER_PROBE                      # semantica preservada
-    assert [list(d) for d in back] == [list(d) for d in KEY_ORDER_EXPECTED_BACK]
-    assert json.dumps(back) != json.dumps(KEY_ORDER_PROBE)   # byte-igualdade NAO
+    assert back == KEY_ORDER_PROBE                      # semantica (dict) preservada — SEMPRE
+    assert [list(d) for d in back] == [list(d) for d in KEY_ORDER_EXPECTED_BACK]  # ordem = schema
+    assert json.dumps(back) != json.dumps(KEY_ORDER_PROBE)   # byte-ordem difere (RFC permite)
+
+
+def test_borda1_contagem_vazio_fail_loud_que_ensina():
+    """BORDA 1 — DECIDIDA 2026-07-17 (RATIFICAR): objeto cujas folhas sao TODAS objetos-vazios
+    nao tem coluna p/ contar registros (problema B). Fail-loud que ENSINA o workaround; a
+    representacao plena (schema-declare/registro-'0') e' O-FMT-20 (armazenamento, pre-1.0)."""
+    from tcf.hierarchical import HierarchicalError
+    for degenerado in ({"a": {}}, {"a": {}, "b": {}}, [{"a": {}}], [{"a": {}}, {"a": {}}],
+                       {"a": {"b": {}}}):
+        with pytest.raises(HierarchicalError, match="contagem-vazio|folhas s.o objetos-vazios"):
+            encode_hierarchical(degenerado)
+
+
+def test_borda1_workarounds_funcionam():
+    """A assimetria e' declarada: campo array-vazio funciona (count e' coluna); campo real
+    junto resolve; ragged vazio-depois-cheio resolve. So' o all-empty-object e' fail-loud."""
+    for ok in ({"a": []}, {"a": [], "b": []}, [{"a": []}], {"a": {}, "b": 1},
+               [{"a": {}}, {"a": {"x": 1}}]):
+        assert decode(encode_hierarchical(ok)) == ok
 
 
 def test_geracao_deterministica():
