@@ -133,7 +133,7 @@ realista, não sintético). O weld atual (ADR-0033) cobre a ESPINHA; faltam os c
 | **`null` na raiz** | ✅ **WELDED 2026-07-17** (P4b: `#V` envelope) | — |
 | **array-em-array** (profundidade arbitrária) | ✅ **WELDED** (P4a, 2026-07-16) | — (count recursivo por nível; ADR-0033 §Update P4a) |
 | **array no topo / raiz generalizada** | ✅ **WELDED 2026-07-17** (P4b: `#D`/`#E`/`#O`/`#V`; dataset 0 B idêntico; tipo EXATO no decode; J1 do funil) | — (ADR-0033 §Update P4b) |
-| **array polimórfico** (elementos de schema variável) | ❌ fail-loud | P5 — union/def-level (a fronteira mais afiada) |
+| **array polimórfico** (elementos de schema variável) | ❌ fail-loud (honesto) | **P5 — LEVANTAMENTO 2026-07-17: RECOMENDA RATIFICAR a fronteira**. Union real = 1 col/165 no hub (contaminação 0,007%); Parquet (ref. colunar) também recusa union nativo; funil = J2. → não weld no `.8`; refinar msg de fail-loud (é `.8`); WELD (dense-union) = 1.0. Ver [p5-union-levantamento](../experiments/lab/dirty/notas/p5-union-levantamento.md) |
 | **`\n` em valor** (string multilinha) | ✅ **WELDED 2026-07-17** (escape `\n` na folha) | — a premissa "toca o L1" era FALSA: o `.8H` escapa na própria camada, **L1 INTOCADO** (ADR-0033 §Update escape) |
 | **chave vazia `{"": "x"}`** | ✅ **WELDED 2026-07-17** (marcador `\z`) | — sentinela de corrupção preservado (o parse checa o TOKEN CRU) |
 | **chave contendo `\n`** | ✅ **WELDED 2026-07-17** (`\n` no meta) | — mesmo mecanismo (o `\` é sempre dobrado primeiro ⟹ injetivo) |
