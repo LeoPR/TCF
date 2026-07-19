@@ -106,6 +106,15 @@ related:
 > (pausa do funil antes) · fronteiras declaradas (`{"a":{}}` all-marcadores = problema B residual ·
 > ordem de chaves ragged = S6) · L/G por demanda.
 
+> ### ✅ P5/UNION RATIFICADO 2026-07-17 — ESTRUTURA JSON DO `.8` COMPLETA
+> Owner ratificou (levantamento `p5-union-levantamento.md`): union fica FORA do `.8` (fronteira
+> declarada). Fatos: union real ~0 no hub (1 col/165, contaminação 0,007%); **Parquet — ref.
+> colunar — também recusa union nativo**; funil = J2. Mensagens de fail-loud refinadas p/ ENSINAR
+> (`_P5_HINT`: separar por tipo OU string-fallback). WELD (escalar→pleno, dense-union) = 1.0/J2 com
+> desenho pronto. Ponteiro do owner: H-P5-STRING-FALLBACK-01 (modo opt-in de degradação p/ string,
+> revisar depois). Suíte 851 passed. **NÃO HÁ MAIS ESTRUTURA JSON pendente no `.8`** — restam 2
+> bordas de CONTRATO (problema B / ordem-de-chaves-S6) e o caminho de RELEASE.
+
 # T-CODE-TCF8H-JSON-PARITY — fechar "hierarquia" com critério REALISTA (JSON) + algo além
 
 **[dispositivo→roadmap]** Owner (2026-07-15): *"veja o que falta pra fecharmos bem a questão de

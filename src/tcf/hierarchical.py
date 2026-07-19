@@ -57,6 +57,14 @@ from tcf.encoder import encode as _encode_col    # L1: encode de 1 coluna (lista
 
 MAGIC = "#TCF.8H"
 
+# P5/union RATIFICADO fora do `.8` (levantamento 2026-07-17: union real ~0 em dado tabular;
+# Parquet — ref. colunar — também recusa union nativo). O `.8H` é shredded-schema-fixo: uma coluna
+# tem UM tipo. Tipo-misto no mesmo slot = union, a fronteira declarada. Mensagem ENSINA a saída
+# acionável — inclusive o fallback-pra-string (o TCF faz RT de QUALQUER string).
+_P5_HINT = ("union/tipo-misto no mesmo slot está fora do #TCF.8H (fronteira declarada, ratificada "
+            "2026-07-17) — separe por tipo, OU converta a coluna toda para string (o TCF faz "
+            "round-trip de qualquer string)")
+
 
 class HierarchicalError(ValueError):
     """Entrada/blob hierárquico malformado ou fora da classe coberta (fail-loud)."""
@@ -167,7 +175,7 @@ def _scalar_type(values: list) -> str:
         else:
             raise HierarchicalError(f"valor escalar de tipo não suportado: {type(v).__name__}")
     if len(ts) > 1:
-        raise HierarchicalError(f"tipos escalares MISTOS {ts} numa coluna — fora da classe (P5 union)")
+        raise HierarchicalError(f"tipos escalares MISTOS {ts} numa coluna — {_P5_HINT}")
     return ts.pop() if ts else "s"         # coluna vazia/all-null → string default
 
 
@@ -283,7 +291,7 @@ def _field_node(name, present: list, optional: bool, depth: int = 0):
         return ("scalar", name, masked, None, False, "s")
     if len(non_null) > 1:
         raise HierarchicalError(
-            f"campo {name!r} com tipos ESTRUTURAIS mistos {non_null} — fora da classe (P2 tipos)"
+            f"campo {name!r} com tipos ESTRUTURAIS mistos {non_null} (scalar/object/array) — {_P5_HINT}"
         )
     kind = non_null.pop()
     if kind == "object":
@@ -314,7 +322,7 @@ def _array_node(name, masked, elems, depth=0):
     ekinds = {_kind_of(e) for e in elems_nn}
     if len(ekinds) > 1:
         raise HierarchicalError(
-            f"array {name!r} com elementos de tipos mistos {ekinds} — fora da classe"
+            f"array {name!r} com elementos de tipos mistos {ekinds} — {_P5_HINT}"
         )
     if elems_nn and next(iter(ekinds)) == "array":   # P4a: elemento é ARRAY → nível interno
         subs = [x for e in elems_nn for x in e]

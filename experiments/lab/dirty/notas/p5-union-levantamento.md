@@ -1,7 +1,7 @@
 ---
 title: LEVANTAMENTO — P5/union (array polimórfico / tipo-misto) — a última estrutura JSON
 type: report
-status: aberta
+status: ratificada
 created: 2026-07-17
 related:
   - tickets/T-CODE-TCF8H-JSON-PARITY.md
@@ -12,6 +12,12 @@ related:
 ---
 
 # Levantamento — P5/union. Para inspeção e DECISÃO do owner.
+
+> **✅ DECISÃO DO OWNER 2026-07-17: RATIFICAR.** union fica fora do `.8` (fronteira declarada).
+> Mensagens de fail-loud refinadas p/ ENSINAR (constante `_P5_HINT` em hierarchical.py; os 3
+> lugares apontam a saída: separar por tipo OU converter a coluna p/ string). WELD (escalar→pleno)
+> = 1.0/J2 com o desenho de §4 pronto. Owner registrou ponteiro: *"o TCF é capaz de fazer fallback
+> pra qualquer coisa em string — revisamos isso depois"* → H-P5-STRING-FALLBACK-01 (abaixo).
 
 **[probatório + recomendação]** A questão que fecha (ou declara) a estrutura do `.8`. §1–§2
 medido (executado contra o core em `3dc4a81`); §3 pesquisa com fonte; §4–§6 análise/parecer.
@@ -182,3 +188,25 @@ o resto é otimização/ferramenta/release). As duas bordas declaradas (contagem
 problema B → T-FMT-OMIT-OR-DECLARE; ordem-de-chaves-ragged = S6) são **decisões de contrato**, não
 capacidade — podem fechar no `.8` (barato) ou pré-1.0. O caminho vira **RELEASE** (F3/F4/F6/C3) +
 a decisão de timing (0.8.0 feature-complete agora vs 0.8.x incremental).
+
+## 8. Ponteiro do owner — H-P5-STRING-FALLBACK-01 (revisar depois)
+
+Owner (2026-07-17, ao ratificar): *"o TCF é capaz de fazer fallback pra qualquer coisa em string.
+Mas revisamos novamente isso depois."*
+
+**A ideia** (registrada, NÃO decidida): em vez de fail-loud na union, o `.8H` PODERIA (opt-in ou
+por perfil) **coagir a coluna union inteira para string** — como o flat já faz no BUG-10a — e fazer
+RT como string homogênea. Isso transformaria "union = erro" em "union = degrada pra string,
+lossless-como-texto (perde o TIPO, não o VALOR)".
+
+**Por que é ponteiro e não decisão agora**:
+- Tensão com a doutrina: o `.8H` é a fronteira TIPADA; coagir silenciosamente reintroduz a perda-de-
+  tipo-calada que o P2 justamente removeu. Se entrar, tem de ser **opt-in declarado + reportado**
+  (via SideOutputs/E3), nunca default silencioso — senão vira o "accept-bug" que o owner critica.
+- Cruza com H-PROFILE-01 (perfil de uso decide) e com o fallback-pra-literal das natures (§ medido
+  2026-07-17: o mecanismo de bypass já existe no L1).
+- O parecer §6 (ratificar) NÃO muda: a fronteira fica declarada; este ponteiro é sobre um MODO
+  opt-in futuro de degradação graciosa, não sobre soldar union de verdade.
+
+`aberta`, confiança: Baixa (ideia registrada). Revisar quando o owner retomar. Classe: mais
+provável `.9`/perfil (é política de coerção, não estrutura nova — o dado já faz RT como string).

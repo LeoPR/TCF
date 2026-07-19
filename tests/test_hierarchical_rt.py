@@ -635,6 +635,32 @@ def test_p2_tipo_misto_str_num_fail_loud():
         encode_hierarchical([{"xs": [1, "a"]}])                           # number + string no array
 
 
+def test_p5_union_fronteira_ratificada_mensagem_ensina():
+    """P5/union RATIFICADO fora do `.8` (2026-07-17). A mensagem de fail-loud ENSINA as duas
+    saídas: separar por tipo OU converter a coluna toda p/ string (o fallback que o owner apontou).
+    Cobre os 3 lugares: escalar-em-array, escalar-entre-registros, estrutural."""
+    casos = [
+        [{"v": [1, "a"]}],            # escalar misto em array
+        [{"x": 1}, {"x": "a"}],       # escalar misto entre registros
+        [{"v": [1, {"a": 2}]}],       # estrutural: scalar + object
+        [{"x": 5}, {"x": [1, 2]}],    # estrutural: scalar + array entre registros
+    ]
+    for docs in casos:
+        with pytest.raises(HierarchicalError, match="union") as ei:
+            encode_hierarchical(docs)
+        msg = str(ei.value)
+        assert "string" in msg, f"mensagem deve ensinar o fallback-pra-string: {msg!r}"
+
+
+def test_p5_workaround_string_realmente_funciona():
+    """O que a mensagem promete: converter a coluna union toda p/ string FAZ RT (é o fallback)."""
+    # union: [1, "a"] -> se o produtor stringifica tudo, vira dado válido de D_json
+    docs_str = [{"v": ["1", "a"]}]                    # o mesmo array, agora homogêneo-string
+    assert decode(encode_hierarchical(docs_str)) == docs_str
+    docs_str2 = [{"x": "1"}, {"x": "a"}]              # campo homogêneo-string entre registros
+    assert decode(encode_hierarchical(docs_str2)) == docs_str2
+
+
 # --- P2 decode fail-loud (auditoria wf_10194874-083): dado tipado corrompido nunca calado/cru ---
 def test_p2_bool_corrompido_fail_loud():
     from tcf.encoder import encode as _enc_col
