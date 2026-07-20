@@ -11,6 +11,7 @@ Saída: experiments/results/evidencia-0.8/f4/RESULT-SCALE.md
 """
 from __future__ import annotations
 
+import argparse
 import sys
 import time
 from pathlib import Path
@@ -47,8 +48,8 @@ def _to_str_cols(cols: dict) -> dict:
     return out
 
 
-def run_table(reader: DatasetReader, table: str) -> dict:
-    cols = _to_str_cols(reader.columns(table, limit=None))
+def run_table(reader: DatasetReader, table: str, limit: int | None = None) -> dict:
+    cols = _to_str_cols(reader.columns(table, limit=limit))
     n_rows = len(next(iter(cols.values()))) if cols else 0
     t0 = time.perf_counter()
     blob = encode(cols)
@@ -62,10 +63,19 @@ def run_table(reader: DatasetReader, table: str) -> dict:
             "enc_s": round(t_enc, 2), "dec_s": round(t_dec, 2)}
 
 
-def main() -> int:
+def main(argv=None) -> int:
+    ap = argparse.ArgumentParser(description="F4-escala: RT byte-exato em populacao inteira")
+    ap.add_argument("--hub", help="roda so' este hub (smoke rapido antes da run cheia)")
+    ap.add_argument("--limit", type=int, default=None,
+                    help="max de linhas por tabela (smoke). Default: populacao INTEIRA.")
+    args = ap.parse_args(argv)
+
     OUT.mkdir(parents=True, exist_ok=True)
+    hubs = [(d, t) for d, t in HUBS if not args.hub or d == args.hub]
+    if args.hub and not hubs:
+        raise SystemExit(f"hub desconhecido: {args.hub!r} (opcoes: {[d for d, _ in HUBS]})")
     rows, skipped = [], []
-    for ds, tables in HUBS:
+    for ds, tables in hubs:
         if not interim_db(ds).exists():
             skipped.append((ds, "hub .db ausente"))
             continue
@@ -77,7 +87,7 @@ def main() -> int:
             continue
         for table in tlist:
             try:
-                r = run_table(reader, table)
+                r = run_table(reader, table, limit=args.limit)
                 r["dataset"] = ds
                 rows.append(r)
                 flag = "OK " if r["rt"] else "FALHA!!"
@@ -89,10 +99,17 @@ def main() -> int:
 
     ok = sum(1 for r in rows if r["rt"])
     total_rows = sum(r["n_rows"] for r in rows)
+    # NAO-EVIDENCIA: zero tabela medida nao e' sucesso. O `ok == len(rows)` de antes
+    # dava 0 == 0 -> True e a run saia com exit 0 anunciando 0/0 (2026-07-19: os 9 hubs
+    # erraram e ninguem viu). Falha alto, e o proprio RESULT diz que nao serve.
+    vazio = not rows
     L = ["# F4-ESCALA — RT byte-exato em população inteira (gerado por bench_evidencia_f4_scale.py)",
-         "",
-         f"**{ok}/{len(rows)} tabelas RT byte-exato** · {total_rows:,} linhas totais · "
-         f"{len(rows)} tabelas de {len({r['dataset'] for r in rows})} hubs.", "",
+         ""]
+    if vazio:
+        L += ["> ⚠️ **NÃO É EVIDÊNCIA — zero tabelas medidas.** Todos os hubs foram pulados",
+              "> (ver lista abaixo). Corrija a infra e rode de novo.", ""]
+    L += [f"**{ok}/{len(rows)} tabelas RT byte-exato** · {total_rows:,} linhas totais · "
+          f"{len(rows)} tabelas de {len({r['dataset'] for r in rows})} hubs.", "",
          "| hub | tabela | linhas | cols | tcf_B | RT | enc_s | dec_s |",
          "|---|---|---:|---:|---:|:--:|---:|---:|"]
     for r in sorted(rows, key=lambda x: (x["dataset"], x["table"])):
@@ -105,6 +122,9 @@ def main() -> int:
     (OUT / "RESULT-SCALE.md").write_text("\n".join(L) + "\n", encoding="utf-8")
     print(f"\n{ok}/{len(rows)} tabelas RT byte-exato · {total_rows:,} linhas · "
           f"{len(skipped)} pulados. -> {OUT / 'RESULT-SCALE.md'}")
+    if vazio:
+        print("ERRO: zero tabelas medidas — isto NAO e' evidencia.")
+        return 2
     return 0 if ok == len(rows) else 1
 
 

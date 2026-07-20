@@ -8,6 +8,8 @@ Saidas:
 
 from __future__ import annotations
 
+import argparse
+import json
 import random
 import shutil
 import statistics
@@ -580,23 +582,83 @@ def emit_result(
     return out
 
 
-def main() -> int:
+_STATE = F3 / "_state"
+
+
+def _save_block(n: int, payload, summary_slice: list[dict]) -> None:
+    """Checkpoint do bloco: retorno + a fatia de `_summary` que ele produziu.
+
+    Sem isto, uma run que morre num bloco tardio perde TUDO — a sintese so'
+    existia em memoria. Foi o que aconteceu em 2026-07-19: o bloco 4/4 morreu
+    e as ~4h dos blocos 1-3 viraram JSONL orfaos, sem RESULT.md possivel.
+    """
+    _STATE.mkdir(parents=True, exist_ok=True)
+    # default=str: um tipo exotico degrada p/ string em vez de estourar o dump — um
+    # checkpoint que crasha derrota o proprio proposito (perder o bloco que acabou de rodar).
+    (_STATE / f"block{n}.json").write_text(
+        json.dumps({"payload": payload, "summary": summary_slice},
+                   ensure_ascii=False, default=str),
+        encoding="utf-8", newline="\n",
+    )
+
+
+def _load_block(n: int):
+    p = _STATE / f"block{n}.json"
+    if not p.exists():
+        raise SystemExit(
+            f"[F3] bloco {n} nao tem checkpoint em {p} — rode-o antes "
+            f"(--only-block {n}) ou faca a run completa."
+        )
+    d = json.loads(p.read_text(encoding="utf-8"))
+    return d["payload"], d["summary"]
+
+
+def main(argv=None) -> int:
+    ap = argparse.ArgumentParser(description="F3 - sinteticos maiores (T-QA-8)")
+    ap.add_argument("--only-block", help="roda so' estes blocos (ex: 4 ou 2,4). Implica --no-wipe.")
+    ap.add_argument("--no-wipe", action="store_true",
+                    help="nao apaga f3/ no inicio (preserva blocos ja' rodados)")
+    ap.add_argument("--emit-only", action="store_true",
+                    help="nao roda bloco nenhum: sintetiza RESULT.md dos checkpoints")
+    args = ap.parse_args(argv)
+
     assert validate_pins(verbose=False), "regua divergiu - nao produza material"
 
-    if F3.exists():
+    blocks = [
+        (1, "suite D1..D17", f3_1_suite_d1_d17),
+        (2, "curva de escala", f3_2_scale_curve),
+        (3, "paralelismo", f3_3_parallel),
+        (4, "br-identidades 600k", f3_4_br_identidades),
+    ]
+    if args.emit_only:
+        want: set[int] = set()
+    elif args.only_block:
+        want = {int(x) for x in args.only_block.split(",")}
+    else:
+        want = {n for n, _l, _f in blocks}
+
+    # so' a run COMPLETA limpa o dir; parcial/emit preservam checkpoints
+    if not (args.no_wipe or args.only_block or args.emit_only) and F3.exists():
         shutil.rmtree(F3)
     F3.mkdir(parents=True, exist_ok=True)
 
-    print("[F3] bloco 1/4: suite D1..D17")
-    rows_f3_1 = f3_1_suite_d1_d17()
-    print("[F3] bloco 2/4: curva de escala")
-    rows_f3_2 = f3_2_scale_curve()
-    print("[F3] bloco 3/4: paralelismo")
-    data_f3_3 = f3_3_parallel()
-    print("[F3] bloco 4/4: br-identidades 600k")
-    rows_f3_4 = f3_4_br_identidades()
-    out = emit_result(rows_f3_1, rows_f3_2, data_f3_3, rows_f3_4)
+    payloads: dict[int, object] = {}
+    summaries: dict[int, list[dict]] = {}
+    for n, label, fn in blocks:
+        if n in want:
+            print(f"[F3] bloco {n}/4: {label}")
+            before = len(_summary)
+            payloads[n] = fn()
+            summaries[n] = _summary[before:]
+            _save_block(n, payloads[n], summaries[n])   # sobrevive a morte de bloco posterior
+        else:
+            payloads[n], summaries[n] = _load_block(n)
+            print(f"[F3] bloco {n}/4: {label} (checkpoint, {len(summaries[n])} casos)")
 
+    # emit_result itera _summary; recompoe os 4 blocos NA ORDEM
+    _summary[:] = [r for n, _l, _f in blocks for r in summaries[n]]
+
+    out = emit_result(payloads[1], payloads[2], payloads[3], payloads[4])
     print(f"F3 completo: {len(_summary)} casos -> {out}")
     return 0
 
