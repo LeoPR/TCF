@@ -36,7 +36,7 @@ type: reference
   como otimizacao de IO/transport, **sem alterar a semantica textual
   observavel** do formato
 
-## Filosofia de design (registrada em CLAUDE.md)
+## Filosofia de design (registrada em AGENTS.md)
 
 - **Texto + explicabilidade** enquanto comprimido (RLE `*N|linha` mostra
   N items sem expansao — agrupamento natural)

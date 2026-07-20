@@ -248,7 +248,7 @@ Em codigo (comentarios):
 
 ## See also
 
-- [CLAUDE.md](../../CLAUDE.md) — guia raiz
+- [AGENTS.md](../../AGENTS.md) — guia canonico
 - [MAP.md](../../MAP.md) — wayfinding
 - [vocabulary.md](../vocabulary.md) — termos
 - [audit-memorias-e-documentacao.md](audit-memorias-e-documentacao.md) — manutencao

@@ -17,7 +17,7 @@ backing dataset**).
 - **SYNTHETIC**: identifiers (random mod-11-valid bodies — no regional 9th-digit
   encoding, not issued documents), names, dates, emails.
 
-**Declared bias (Brunswik 1956 / CLAUDE.md anti-incident checklist Q4):** this
+**Declared bias (Brunswik 1956 / AGENTS.md gate de evidencia Q4):** this
 dataset validates **lossless round-trip** and the **activation gate**, but by the
 project methodology it **cannot alone justify a `confirmada-empirica` claim**.
 Only a real source can close the generalization gate — see

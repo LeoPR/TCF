@@ -19,7 +19,7 @@ related:
 ## 1. Posição (o que É e o que NÃO É)
 
 O gadget é uma ferramenta **auxiliar, externa ao TCF-core**, que **só
-detecta e alerta — nunca arruma** (filosofia "dados felizes" do CLAUDE.md).
+detecta e alerta — nunca arruma** (filosofia "dados felizes" do AGENTS.md).
 Vive em `scripts/schema_gadget/` (spin-off recomendado quando crescer).
 
 **Distinção crítica de nome (existem 4 `schema.py` no repo):**

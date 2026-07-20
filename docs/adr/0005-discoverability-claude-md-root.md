@@ -1,6 +1,13 @@
 # 0005 — Discoverability: CLAUDE.md root + MAP.md + hooks
 
-**Status**: accepted
+> **AMENDADO em 2026-07-19** (não revogado): a decisão — *um guia operacional
+> no root + MAP.md + cross-links* — segue valendo. O que mudou é **qual arquivo**
+> carrega o conteúdo canônico: agora é [`AGENTS.md`](../../AGENTS.md) (brand-free),
+> e `CLAUDE.md` / `.github/copilot-instructions.md` viraram **ponteiros**. Motivo:
+> a re-expressão destilada pro Copilot derivou da fonte (ficou anunciando `#TCF.6`
+> congelado e baselines velhos) — duplicação custa deriva. Leia o guia em `AGENTS.md`.
+
+**Status**: accepted (amendado 2026-07-19 — ver nota acima)
 **Date**: 2026-05-18
 **Deciders**: project owner
 **Tags**: documentation, discoverability, claude-code, anti-incidente

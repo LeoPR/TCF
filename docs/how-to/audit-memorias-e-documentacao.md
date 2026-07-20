@@ -86,7 +86,7 @@ Abrir `experiments/lab/dirty/notas/roadmap-hipoteses.md`:
 
 Abrir `~/.claude/projects/*/memory/MEMORY.md`:
 - Entries user-scope que sao na verdade project-scope: migrar
-  pra `CLAUDE.md` ou ADR
+  pra `AGENTS.md` ou ADR
 - Entries project-scope no user-scope-only: migrar
 - Duplicacao entre memoria e ADR: consolidar em UM lugar (ADR ganha)
 
@@ -134,7 +134,7 @@ Quando notar sinal → audit imediato dessa area.
 
 ## See also
 
-- [CLAUDE.md](../../CLAUDE.md) — guia raiz de discoverability
+- [AGENTS.md](../../AGENTS.md) — guia canonico do projeto
 - [MAP.md](../../MAP.md) — wayfinding
 - [vocabulary.md](../vocabulary.md) — termos controlados
 - [ADR-0005](../adr/0005-discoverability-claude-md-root.md) — decisao
