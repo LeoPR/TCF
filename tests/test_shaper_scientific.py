@@ -26,7 +26,8 @@ from pathlib import Path
 
 import pytest
 
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts"))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts"))  # dataset_reader fica em scripts/
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))      # shaper movido p/ src/ (2026-07-19; fica em index 0)
 
 from shaper import ShapeRequest, Shaper  # noqa: E402
 from shaper._stratify_metrics import compute_stratification_metrics  # noqa: E402

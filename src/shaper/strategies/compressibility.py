@@ -17,7 +17,7 @@ from pathlib import Path
 from typing import Any
 
 import sys
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent.parent / "scripts"))  # _paths/dataset_reader ficam em scripts/ (gadget movido p/ src/, 2026-07-19)
 from _paths import data_root  # noqa: E402
 from dataset_reader import is_text  # noqa: E402
 

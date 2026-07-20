@@ -1,7 +1,7 @@
 # INDEX — auto-gerado por `scripts/index.py`
 
-Total READMEs com frontmatter: 7
-Total READMEs sem frontmatter: 48
+Total READMEs com frontmatter: 9
+Total READMEs sem frontmatter: 75
 
 > Para adicionar entrada nova: adicionar YAML frontmatter no README e re-rodar.
 
@@ -21,11 +21,23 @@ Total READMEs sem frontmatter: 48
 |---|---|---|---|---|
 | [experiments\lab\dirty\2026-05-27-baseline-consolidado](./experiments/lab/dirty/2026-05-27-baseline-consolidado/README.md) | 2026-05-27 — Baseline consolidado pos-consolidacao | ATIVO (baseline-de-referencia) |  | ? |
 
+## Type: `experiment`
+
+| Path | Title | Status | Tags | Updated |
+|---|---|---|---|---|
+| [experiments\lab\dirty\2026-07-12-specs-cadastrais-v1](./experiments/lab/dirty/2026-07-12-specs-cadastrais-v1/README.md) | Specs cadastrais v1 — triagem para .8/.9 | open |  | ? |
+
 ## Type: `summary`
 
 | Path | Title | Status | Tags | Updated |
 |---|---|---|---|---|
 | [docs\findings](./docs/findings/README.md) | (sem title) | HISTORIC (Phase 1 LLM benchmark — ciclo v0.5) |  | ? |
+
+## Type: `untyped`
+
+| Path | Title | Status | Tags | Updated |
+|---|---|---|---|---|
+| [src\llm_query](./src/llm_query/README.md) | llm_query — geração de query de consulta por LLM (gadget) | v0.6-broken | gadget, llm, sql, query-gen | 2026-07-19 |
 
 ## READMEs sem frontmatter (candidatos a adicionar)
 
@@ -72,11 +84,14 @@ Total READMEs sem frontmatter: 48
 - `experiments/lab/dirty/2026-07-08-1938-bn-gate-realworld-5fontes/README.md`
 - `experiments/lab/dirty/2026-07-08-2302-f1-bypass-latencia/README.md`
 - `experiments/lab/dirty/2026-07-08-2355-f3-bn-seletivo/README.md`
-- `experiments/lab/dirty/README.md`
-- `experiments/lab/dirty/notas/diario/README.md`
-- `scripts/natures_compiler/README.md`
-- `scripts/shaper/README.md`
-- `scripts/tcf_lazy/README.md`
+- `experiments/lab/dirty/2026-07-12-1917-spec-camadas-v1/README.md`
+- `experiments/lab/dirty/2026-07-13-0156-compressores-http-parquet/README.md`
+- `experiments/lab/dirty/2026-07-13-1835-dataseth-special-scalars/README.md`
+- `experiments/lab/dirty/2026-07-13-1921-dataseth-typed-header-domain/README.md`
+- `experiments/lab/dirty/2026-07-13-1955-dataseth-regular-def-levels/README.md`
+- `experiments/lab/dirty/2026-07-13-2019-especiais-formatos-lado-a-lado/README.md`
+- `experiments/lab/dirty/2026-07-13-2301-tcf8h-tabelao-recuperado/README.md`
+- ... (+25 mais)
 
 ---
 

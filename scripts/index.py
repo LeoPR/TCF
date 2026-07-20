@@ -31,6 +31,7 @@ SCAN_PATHS = [
     ROOT / "experiments" / "lab" / "dirty",
     ROOT / "docs",
     ROOT / "scripts",
+    ROOT / "src",           # gadgets auxiliares consolidados sob src/ (shaper, ...) — 2026-07-19
 ]
 
 # Skip these (historic / archived)

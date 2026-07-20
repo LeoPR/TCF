@@ -31,9 +31,10 @@ TCF/
 │   ├── _core/detect.pyx .......... acelerador Cython opcional (ADR-0020)
 │   └── __init__.py
 │
+├── src/shaper/ .......... GADGET auxiliar (nao-core): sampler multidim. (movido de scripts/, 2026-07-19)
+│
 ├── scripts/ .............. FERRAMENTAS DE SUPORTE (nao e' TCF-CORE)
-│   ├── dataset_reader.py . le SQLite hubs em Z:
-│   ├── shaper/ ........... sampler multidimensional
+│   ├── dataset_reader.py . le SQLite hubs em Z: (usado pelo shaper via sys.path)
 │   ├── _paths.py ......... resolve storage via config
 │   ├── setup_adult.py, setup_tpch.py
 │   ├── benchmark_*.py
@@ -124,8 +125,11 @@ TCF/
   definitivamente; `src/tcf/` (canonical `#TCF.8`/v0.8, ADR-0032) tem acoplamento ZERO com ele.
   Semantica dos niveis revista em
   [`old/tcf/LEVELS-REVIEW.md`](old/tcf/LEVELS-REVIEW.md). **Nao use** salvo historia.
-- `llm-benchmark/eval/` — benchmark LLM v0.5 (acessorio; reorg concluida,
-  era `experiments/eval/`). **Nao e' TCF-core.**
+- `src/llm_query/` — **gadget** geracao de QUERY por LLM (Linha-B: LLM gera SQL/
+  polars/pandas, runner executa). Produto vivo do antigo `llm-benchmark/` (dissolvido
+  2026-07-19). **Nao e' TCF-core** (fora do wheel). v0.6-quebrado hoje (API v0.5).
+- `old/llm-benchmark/` — Linha-A (data-into-LLM, refutada) + mortos + benchmark_*,
+  **congelado-historico**. Era `llm-benchmark/` (era `experiments/eval/`).
 
 ## Entradas de lab atualmente ativas
 
