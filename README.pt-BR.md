@@ -107,6 +107,48 @@ e os recompõe no `decode`. Se o resultado for menor, o cabeçalho registra `:cp
   (São placeholders de dígitos repetidos: passam no cálculo do CPF, mas a Receita nunca os emite —
   fakes seguros. Ver "Filtros por natureza" abaixo.)
 
+**E os mesmos registros aninhados** — o JSON que sua API de fato envia. Desde a 0.8, o `#TCF.8H` faz
+round-trip do **dataset que sua linguagem constrói a partir do JSON**: objetos/arrays aninhados,
+`null`, e `true`/`false`/números tipados. Ele lê o *dataset* (dict / list / escalar), nunca o texto JSON.
+
+**JSON** *(184 B)*:
+
+```json
+[ {"nome":"Ana Souza","cpf":"111.111.111-11","ativo":true,"fones":["11 98765-4321","11 3555-0100"]},
+  {"nome":"Bruno Lima","cpf":"999.999.999-99","ativo":false,"fones":["21 99888-7766"]} ]
+```
+
+**TCF + nature CPF** *(146 B, saída real do `encode_hierarchical`)*: o objeto é *fatiado em colunas*
+(uma por campo), então os nomes de campo são escritos **uma vez** no header — não por registro; a mesma
+nature `cpf` opt-in da tabela plana também vale aqui:
+
+```
+#TCF.8Hnome:21,cpf:12:cpf,ativo:11b,fones#:8[
+Ana Souza
+Bruno Lima
+%g$.u
+AJ/}}
+true
+false
+*2-1|\2
+\11 *\98765-\4321
+1\3555-\0100
+\21 \99888-\7766
+```
+
+- `cpf:12:cpf` é a mesma nature **`cpf`** opt-in da tabela plana acima — remove a pontuação e o dígito
+  verificador, então os dois valores comprimem pra `%g$.u` / `AJ/}}`; o `:cpf` no fim deixa o `decode`
+  reconstruir sem receber o filtro.
+- `ativo:…b` é um **bool tipado** — `true`/`false`, distinto da string `"true"`; um campo numérico
+  também levaria uma tag de tipo.
+- `fones#:…[` é uma coluna **array**; `*2-1|\2` lê os tamanhos dos arrays como repetição — *2 fones,
+  depois 1* — então você conta a estrutura **sem expandi-la**. Dígitos ganham um escape `\` pra nunca
+  colidir com a sintaxe de referência (`\11 ` = `11 `); o `decode` reverte exatamente.
+
+Toda a classe JSON faz round-trip byte-exato — objetos/arrays aninhados, `null` (distinto de ausente e
+de `"null"`), registros ragged, qualquer valor na raiz. Mapa completo e a fronteira declarada:
+[`docs/reference/json-equivalence.md`](docs/reference/json-equivalence.md).
+
 JSON repete a estrutura inteira.
 CSV repete os valores.
 O **TCF fatora o que se repete**, referencia o resto e **mantém cru o que é único** (sem inflar), continuando **texto ASCII que você abre e lê**.
@@ -312,7 +354,7 @@ O dicionário low-card (V2-B) e o split estrutural já estão no default; a comp
 - Default **0.8 / `#TCF.8M`**: fallback, dicionário, split estrutural, meta hexadecimal inline,
   escaping e identificadores de filtros autorizados pelo cabeçalho; veja a seção acima. Os legados `.6/.7`
   são recuperados via git.
-- Suíte: **634 passed, 2 skipped** na execução local completa atual; rode `pytest` para o número do seu ambiente.
+- Suíte: **861 passed, 3 skipped** na execução local completa atual; rode `pytest` para o número do seu ambiente.
   Baselines de byte = guardas de regressão, re-pináveis em mudança intencional ([ADR-0024](docs/adr/0024-pre-1.0-versioning-git-as-compat.md)).
 - Mudanças: [`CHANGELOG.md`](CHANGELOG.md).
   História M0-M14: [`experiments/lab/dirty/notas/historia-dirty-lab.md`](experiments/lab/dirty/notas/historia-dirty-lab.md).

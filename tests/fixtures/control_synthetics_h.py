@@ -146,7 +146,7 @@ def decompose(wire: str) -> dict:
     from tcf.hierarchical import MAGIC, _parse_meta
 
     line1 = wire.split("\n", 1)[0]
-    _schema, order = _parse_meta(line1[len(MAGIC):])
+    _schema, order, _nat = _parse_meta(line1[len(MAGIC):])
     raw = wire[len(line1) + 1:].encode("utf-8")
     meta_b = len(line1.encode("utf-8")) + 1                      # header + \n
     buckets = {"meta": meta_b, "controle": 0, "folhas": 0}

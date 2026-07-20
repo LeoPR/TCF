@@ -377,8 +377,13 @@ def _array_leaves(node, p, lvl, out):
 
 
 # ============================================================ encode (L2 shred + L1)
-def encode_hierarchical(data) -> str:
+def encode_hierarchical(data, nature_per_col=None) -> str:
     """Qualquer raiz D_json → wire `.8H` (P4b/J1, raiz generalizada — 2026-07-17).
+
+    `nature_per_col` (2026-07-19, OTIMIZAÇÃO — não estrutura): {path→spec}, path = nome do campo
+    ou "a/b" p/ aninhado. Aplica um spec (CPF/CNPJ/IP) a uma coluna-folha STRING, reusando 100%
+    do codec flat (o body vira a forma comprimida do nature; o `:id` viaja no meta, auto-descritivo
+    pelo registry no decode). O flat byte-canônico fica intocado (nature só toca colunas .8H).
 
     Dataset (list[dict] com ≥1 registro com campos) = caminho original, byte-IDÊNTICO.
     Demais raízes = discriminadas por `#`+kind logo após o magic (posição que era
@@ -387,7 +392,7 @@ def encode_hierarchical(data) -> str:
       `#O<meta>` objeto único · `#V<meta>` valor via ENVELOPE [{"": V}] (o decode
       desembrulha e NUNCA devolve o envelope — parecer P4b).
     """
-    return _encode_root(data, None)
+    return _encode_root(data, None, nature_per_col)
 
 
 def encode_hierarchical_so(data, side_outputs) -> str:
@@ -402,7 +407,7 @@ def _mark(so, kind):
     return so
 
 
-def _encode_root(data, so) -> str:
+def _encode_root(data, so, nat=None) -> str:
     if isinstance(data, list):
         if not data:
             _mark(so, "D")
@@ -411,7 +416,7 @@ def _encode_root(data, so) -> str:
             return f"{MAGIC}#D0\n"                                   # [] (lista vazia)
         if all(isinstance(r, dict) for r in data):
             if any(data):                                            # ≥1 registro com campos
-                return _encode_dataset(data, so)                     # DATASET — intacto
+                return _encode_dataset(data, so, nat)                # DATASET — intacto
             _mark(so, "D")
             if so is not None:
                 so.hier_info.update(n_records=len(data), n_cols=0,
@@ -420,18 +425,31 @@ def _encode_root(data, so) -> str:
         if any(isinstance(r, dict) for r in data):                   # misto dict+valor
             raise HierarchicalError(
                 "raiz lista MISTA (objetos e valores) — fora da classe (P5 union)")
-        return _encode_dataset([{"": data}], _mark(so, "V")).replace(MAGIC, MAGIC + "#V", 1)
+        return _encode_dataset([{"": data}], _mark(so, "V"), nat).replace(MAGIC, MAGIC + "#V", 1)
     if isinstance(data, dict):
         if data:
-            return _encode_dataset([data], _mark(so, "O")).replace(MAGIC, MAGIC + "#O", 1)
+            return _encode_dataset([data], _mark(so, "O"), nat).replace(MAGIC, MAGIC + "#O", 1)
         _mark(so, "E")
         if so is not None:
             so.hier_info.update(n_records=1, n_cols=0, cols={"controle": 0, "dado": 0}, fields=[])
         return MAGIC + "#E\n"                                        # {} = definição
-    return _encode_dataset([{"": data}], _mark(so, "V")).replace(MAGIC, MAGIC + "#V", 1)
+    return _encode_dataset([{"": data}], _mark(so, "V"), nat).replace(MAGIC, MAGIC + "#V", 1)
 
 
-def _encode_dataset(records: list, side_outputs=None) -> str:
+def _scalar_leaf_specs(schema, prefix=()):
+    """[(kind, path, stype)] das folhas SCALAR (p/ validar nature_per_col). DFS, desce objetos."""
+    out = []
+    for node in schema:
+        kind, name, _m, kids, _e, stype = node
+        p = prefix + (name,)
+        if kind == "scalar":
+            out.append(("scalar", p, stype))
+        elif kind == "object":
+            out += _scalar_leaf_specs(kids, p)
+    return out
+
+
+def _encode_dataset(records: list, side_outputs=None, nature_per_col=None) -> str:
     schema = _derive_schema(records)
     order = _leaves(schema)
     if not order:                                # nenhuma coluna -> nº de registros irrepresentável
@@ -448,15 +466,54 @@ def _encode_dataset(records: list, side_outputs=None) -> str:
         )
     cols = {key: [] for key in order}
     _emit_array(records, schema, (), cols)
+
+    # nature (2026-07-19, OTIMIZAÇÃO): mapa path→spec, só p/ folha scalar-STRING. Valida cedo.
+    nat_id = {}                                       # (path,'scalar') -> spec.name (id no meta)
+    nat_spec = {}                                     # (path,'scalar') -> spec
+    if nature_per_col:
+        stype_of = {p: st for (kind, p, st) in _scalar_leaf_specs(schema)}  # path -> stype
+        for path_str, spec in nature_per_col.items():
+            path = tuple(path_str.split("/"))
+            if (path, "scalar") not in cols:
+                raise HierarchicalError(
+                    f"nature_per_col: {path_str!r} não é folha ESCALAR do dataset — "
+                    f"nature só aplica a coluna scalar-string (não objeto/array/inexistente)")
+            if stype_of.get(path) != "s":
+                raise HierarchicalError(
+                    f"nature_per_col: {path_str!r} é coluna TIPADA (number/bool), não string — "
+                    f"nature aplica só a strings")
+            nat_spec[(path, "scalar")] = spec
+
+    def _body(key):
+        """Body da coluna: nature (comprime + reusa codec flat) OU pipeline .8H normal."""
+        if key in nat_spec and cols[key]:
+            spec = nat_spec[key]
+            raw = [_unesc_leaf(x) for x in cols[key]]          # recupera valor original (des-escapa)
+            try:
+                fw = _encode_col(raw, nature=spec)             # '#TCF.8 :id\n<body>' (reusa flat)
+            except Exception:                                  # nature não representa o valor (ex: LF
+                nat_id.pop(key, None)                          # no raw, que o flat não carrega) → piso
+                return _encode_col(cols[key])                  # body ESCAPADO (idêntico ao caminho normal)
+            hdr, _sep, body = fw.partition("\n")
+            marker = "#TCF.8 :"
+            if not hdr.startswith(marker):                     # nature não venceu (piso: raw menor)
+                nat_id.pop(key, None)                          # sem :id no meta
+                return _encode_col(cols[key])                  # body ESCAPADO (idêntico ao caminho normal)
+            nat_id[key] = hdr[len(marker):]                    # id auto-descritivo (registry no decode)
+            return body
+        return _encode_col(cols[key]) if cols[key] else ""
+
     # L1: encode por coluna (o compressor do core). Coluna vazia -> body vazio.
     if side_outputs is None:
-        bodies = {key: (_encode_col(cols[key]) if cols[key] else "") for key in order}
+        bodies = {key: _body(key) for key in order}
     else:                                            # E3: canal de efeito colateral (aditivo;
         from tcf.side_outputs import SideOutputs     # bytes IDÊNTICOS com ou sem side_outputs)
         bodies, per_col = {}, {}
         for key in order:
             child = SideOutputs()
-            bodies[key] = _encode_col(cols[key], side_outputs=child) if cols[key] else ""
+            bodies[key] = _body(key)                 # nature-aware (bytes idênticos ao caminho normal)
+            if key not in nat_spec and cols[key]:    # telemetria L1 só nas colunas sem nature
+                _encode_col(cols[key], side_outputs=child)
             per_col["/".join(key[0]) + ":" + key[1]] = child
         side_outputs.per_col = per_col
         ctrl = sum(1 for _p, k in order
@@ -469,7 +526,7 @@ def _encode_dataset(records: list, side_outputs=None) -> str:
             "cols": {"controle": ctrl, "dado": len(order) - ctrl},
             "fields": [n for _k, n, *_r in schema],
         }
-    meta = _build_meta(schema, bodies, order)
+    meta = _build_meta(schema, bodies, order, nat_id)
     return f"{MAGIC}{meta}\n" + "".join(bodies[key] for key in order)
 
 
@@ -534,8 +591,9 @@ def _emit_array_value(v, node, p: tuple, lvl: int, cols: dict):
 
 
 # ============================================================ L3: header (meta)
-def _build_meta(schema: list, bodies: dict, order: list) -> str:
+def _build_meta(schema: list, bodies: dict, order: list, nat_id=None) -> str:
     last = order[-1]
+    nat_id = nat_id or {}
 
     def sz(path, kind):  # última folha DFS omite size (L3) — SÓ colunas de DADO
         return "" if (path, kind) == last else f":{len(bodies[(path, kind)].encode())}"
@@ -544,6 +602,8 @@ def _build_meta(schema: list, bodies: dict, order: list) -> str:
         return f":{len(bodies[(path, kind)].encode())}"  # obj vazio mascarado punha mask como última folha
 
     def dsz(path, kind, stype):  # coluna de DADO: string pode omitir (última); TIPADA sempre :size+tag
+        if (path, kind) in nat_id:                        # nature: `:size:id` (força size; não omite)
+            return f"{csz(path, kind)}:{nat_id[(path, kind)]}"
         return sz(path, kind) if stype == "s" else f"{csz(path, kind)}{stype}"
 
     def arr_meta(node, p, lvl):
@@ -595,6 +655,7 @@ def _rstrip_closes(s: str) -> str:
 
 def _parse_meta(meta: str):
     order, i, n = [], 0, len(meta)
+    nat_cols = {}                                          # (path,'scalar') -> nature id (2026-07-19)
 
     def nm(stop):
         # escape-aware: um char precedido de '\' NUNCA termina o token (nome escapado);
@@ -655,6 +716,19 @@ def _parse_meta(meta: str):
         if c in ",]}":
             return "s"
         raise HierarchicalError(f"tag de tipo desconhecida {c!r} após size (esperava n/b ou delimitador)")
+
+    def snat():                                           # nature: ':id' após size de DADO scalar-string
+        nonlocal i
+        if i < n and meta[i] == ":":
+            i += 1
+            j = i
+            while i < n and meta[i] not in ",]}":         # id vai até o delimitador de coluna
+                i += 1
+            nid = meta[j:i]
+            if not nid:
+                raise HierarchicalError("nature id vazio após ':' no header")
+            return nid
+        return None
 
     def parse_array(p, lvl, depth):
         """Parse de UM nível de array (cursor no '#'). Recursivo p/ arr_arrays (P4a).
@@ -733,10 +807,15 @@ def _parse_meta(meta: str):
                 nodes.append(("object", name, masked, kids, False, "s"))
             else:                                         # escalar
                 order.append((p, "scalar", size()))
-                nodes.append(("scalar", name, masked, None, False, stag()))
+                nid = snat()                              # nature id opcional (':id' após size)
+                if nid is not None:
+                    nat_cols[(p, "scalar")] = nid
+                    nodes.append(("scalar", name, masked, None, False, "s"))
+                else:
+                    nodes.append(("scalar", name, masked, None, False, stag()))
         return nodes
 
-    return seq(None, ()), order
+    return seq(None, ()), order, nat_cols
 
 
 def _find_stype(schema, path, kind):
@@ -801,7 +880,7 @@ def decode_hierarchical(tcf_text: str):
 
 def _decode_dataset(tcf_text: str) -> list:
     line1 = tcf_text.split("\n", 1)[0]
-    schema, order = _parse_meta(line1[len(MAGIC):])
+    schema, order, nat_cols = _parse_meta(line1[len(MAGIC):])
     if not order:
         raise HierarchicalError("header hierárquico sem colunas")
     # size OMITIDO só é válido na ÚLTIMA coluna (auditoria: size-None-no-meio lia bytes repetidos)
@@ -811,7 +890,9 @@ def _decode_dataset(tcf_text: str) -> list:
     # canonicidade da ÚLTIMA coluna (auditoria P4a): DADO string com size EXPLÍCITO é inemitível
     # (o encoder omite; size aqui = meta truncado que perdeu a tag → int viraria string CALADO)
     lp, lk, lsize = order[-1]
-    if lsize is not None and lk in ("scalar", "arr_scalars") and _find_stype(schema, lp, lk) == "s":
+    if (lsize is not None and lk in ("scalar", "arr_scalars")
+            and (lp, lk) not in nat_cols                      # nature'd força size (não é truncamento)
+            and _find_stype(schema, lp, lk) == "s"):
         raise HierarchicalError(
             f"última coluna {lk} string com size explícito em {lp} — meta não-canônico (truncado?)"
         )
@@ -829,7 +910,15 @@ def _decode_dataset(tcf_text: str) -> list:
         except UnicodeDecodeError as e:                     # size fatia char multibyte (auditoria)
             raise HierarchicalError(f"size fatia char UTF-8 em {path} (blob corrompido?): {e}")
         try:
-            cols[(path, kind)] = _decode_col(body) if body else []   # L1: decode de coluna
+            if (path, kind) in nat_cols:                    # nature (2026-07-19): decode via wire flat
+                if body:
+                    wire = "#TCF.8 :" + nat_cols[(path, kind)] + "\n" + body
+                    raw_vals = _decode_col(wire)            # flat auto-resolve o spec pelo registry
+                    cols[(path, kind)] = [_esc_leaf(v) for v in raw_vals]  # re-escapa p/ _dec_scalar
+                else:
+                    cols[(path, kind)] = []
+            else:
+                cols[(path, kind)] = _decode_col(body) if body else []   # L1: decode de coluna
         except Exception as e:                              # QUALQUER coluna corrompida = fail-loud tipado
             grupo = ("controle" if (kind == "mask" or kind.startswith("count")
                                     or kind.startswith("emask")) else "dado")

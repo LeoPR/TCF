@@ -104,6 +104,48 @@ value goes from 14 characters to 5 (`%g$.u` = `111.111.111-11`).
   *(These are repeated-digit placeholders: mod-11-valid but never issued by the tax office — safe
   fakes. See "Nature filters" below.)*
 
+**And the same records nested** — the JSON your API actually sends. Since 0.8, `#TCF.8H` round-trips
+the **dataset your language builds from JSON**: nested objects/arrays, `null`, and typed
+`true`/`false`/numbers. It reads the *dataset* (dict / list / scalar), never the JSON text.
+
+**JSON** *(184 B)*:
+
+```json
+[ {"nome":"Ana Souza","cpf":"111.111.111-11","ativo":true,"fones":["11 98765-4321","11 3555-0100"]},
+  {"nome":"Bruno Lima","cpf":"999.999.999-99","ativo":false,"fones":["21 99888-7766"]} ]
+```
+
+**TCF + CPF nature** *(146 B, real `encode_hierarchical` output)*: the object is *shredded into columns*
+(one per field), so field names are written **once** in the header — not per record; the same opt-in
+`cpf` nature from the flat table applies here too:
+
+```
+#TCF.8Hnome:21,cpf:12:cpf,ativo:11b,fones#:8[
+Ana Souza
+Bruno Lima
+%g$.u
+AJ/}}
+true
+false
+*2-1|\2
+\11 *\98765-\4321
+1\3555-\0100
+\21 \99888-\7766
+```
+
+- `cpf:12:cpf` is the same opt-in **`cpf` nature** as the flat table above — it strips the punctuation
+  and check digit, so the two values compress to `%g$.u` / `AJ/}}`; the trailing `:cpf` lets `decode`
+  rebuild them without being told the filter.
+- `ativo:…b` is a **typed bool** — `true`/`false`, distinct from the string `"true"`; a number field
+  would carry a type tag too.
+- `fones#:…[` is an **array** column; `*2-1|\2` reads the array lengths as a run — *2 phones, then 1*
+  — so you count the structure **without expanding it**. Digits get a `\` escape so they never collide
+  with the reference syntax (`\11 ` = `11 `); `decode` reverses it exactly.
+
+The whole JSON class round-trips byte-exact — nested objects/arrays, `null` (distinct from absent and
+from `"null"`), ragged records, any value at the root. Full mapping and the declared frontier:
+[`docs/reference/json-equivalence.md`](docs/reference/json-equivalence.md).
+
 JSON repeats the whole structure.
 CSV repeats the values.
 **TCF factors out what repeats**, references the rest and **keeps unique data raw** (without inflating), while staying **ASCII text you can open and read**.
@@ -308,7 +350,7 @@ The low-card dictionary (V2-B) and the structural split are already in the defau
   Round-trip is always lossless (`decode(encode(x)) == x`).
 - Default **0.8 / `#TCF.8M`**: fallback, dictionary, structural split, hexadecimal inline meta,
   escaping and header-authoritative filter IDs, see the section above. Legacy `.6/.7` are recovered through git.
-- Test suite: **634 passed, 2 skipped** in the current local full run; run `pytest` for the number in your environment.
+- Test suite: **861 passed, 3 skipped** in the current local full run; run `pytest` for the number in your environment.
   Byte baselines = regression guards, re-pinnable on an intentional change ([ADR-0024](docs/adr/0024-pre-1.0-versioning-git-as-compat.md)).
 - Changes: [`CHANGELOG.md`](CHANGELOG.md).
   M0-M14 history: [`experiments/lab/dirty/notas/historia-dirty-lab.md`](experiments/lab/dirty/notas/historia-dirty-lab.md).

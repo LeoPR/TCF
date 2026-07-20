@@ -807,3 +807,72 @@ def test_coluna_de_dado_corrompida_fail_loud_tipado():
     blob = f"#TCF.8Hx:{len(crash.encode())},y\n{crash}" + _enc_col(["v", "w"])
     with pytest.raises(HierarchicalError, match="corrompida"):
         decode(blob)
+
+
+# ============================================================ nature no .8H (2026-07-19)
+# A mesma nature do flat (ADR-0015/0027) aplica a folhas scalar-string do .8H via
+# nature_per_col={path: spec}. O decode é SELF-DESCRIBING: o id viaja no meta (`:id`
+# após o size), o registry (SPEC_REGISTRY) resolve — decode NÃO recebe a spec.
+def test_hier_nature_cpf_rt_e_comprime():
+    from tcf.natures import SPEC_CPF
+    dados = [
+        {"nome": "Ana Souza", "cpf": "111.111.111-11", "ativo": True,
+         "fones": ["11 98765-4321", "11 3555-0100"]},
+        {"nome": "Bruno Lima", "cpf": "222.222.222-22", "ativo": False,
+         "fones": ["21 99888-7766"]},
+    ]
+    sem = encode_hierarchical(dados)
+    com = encode_hierarchical(dados, nature_per_col={"cpf": SPEC_CPF})
+    assert decode(sem) == dados                                  # baseline RT
+    assert decode(com) == dados                                  # nature RT (self-describing)
+    assert len(com.encode()) < len(sem.encode())                # nature comprimiu
+    assert ":cpf" in com.split("\n", 1)[0]                       # id no meta (registry no decode)
+
+
+def test_hier_nature_folha_aninhada_e_ultima_coluna():
+    # nature em folha de OBJETO aninhado + sendo a ÚLTIMA coluna (força size; a checagem
+    # de canonicidade da última-coluna-string exclui nature'd — senão fail-loud espúrio).
+    from tcf.natures import SPEC_CPF
+    dados = [{"id": "A", "doc": {"cpf": "111.111.111-11"}},
+             {"id": "B", "doc": {"cpf": "222.222.222-22"}}]
+    com = encode_hierarchical(dados, nature_per_col={"doc/cpf": SPEC_CPF})
+    assert decode(com) == dados
+
+
+def test_hier_nature_piso_cai_pra_coluna_normal():
+    # valores NÃO-conformes ⇒ nature não vence ⇒ piso: coluna normal (sem `:id`), RT intacto.
+    from tcf.natures import SPEC_CPF
+    dados = [{"cpf": "nao-e-cpf-nenhum"}, {"cpf": "outro texto qualquer aqui"}]
+    com = encode_hierarchical(dados, nature_per_col={"cpf": SPEC_CPF})
+    assert decode(com) == dados
+    assert ":cpf" not in com.split("\n", 1)[0]                   # piso: sem id no meta
+
+
+def test_hier_nature_preserva_escape_no_piso():
+    # piso deve cair na coluna ESCAPADA (não no raw des-escapado): valor com '\' sobrevive.
+    from tcf.natures import SPEC_CPF
+    dados = [{"cpf": "a\\b"}, {"cpf": "x\\y\\z"}]
+    com = encode_hierarchical(dados, nature_per_col={"cpf": SPEC_CPF})
+    assert decode(com) == dados
+
+
+def test_hier_nature_valor_com_LF_degrada_pra_plain():
+    # LF no valor não é representável no codec flat da nature ⇒ degrada p/ coluna .8H
+    # (que carrega LF via escape). RT intacto, sem :id no meta.
+    from tcf.natures import SPEC_CPF
+    dados = [{"cpf": "a\nb"}, {"cpf": "c\nd"}]
+    com = encode_hierarchical(dados, nature_per_col={"cpf": SPEC_CPF})
+    assert decode(com) == dados
+    assert ":cpf" not in com.split("\n", 1)[0]
+
+
+@pytest.mark.parametrize("path,motivo", [
+    ("ativo", "TIPADA"),          # bool não é string
+    ("doc", "ESCALAR"),           # objeto não é folha scalar
+    ("inexistente", "ESCALAR"),   # path fora do dataset
+])
+def test_hier_nature_path_invalido_fail_loud(path, motivo):
+    from tcf.natures import SPEC_CPF
+    dados = [{"ativo": True, "doc": {"x": "1"}, "nome": "Ana"}]
+    with pytest.raises(HierarchicalError, match=motivo):
+        encode_hierarchical(dados, nature_per_col={path: SPEC_CPF})
