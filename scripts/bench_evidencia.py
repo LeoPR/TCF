@@ -189,7 +189,12 @@ def run_case(dataset_id: str, data, encode_kwargs: dict | None = None, *,
                 content_ok = list(decoded.values()) == list(data.values())
         else:
             content_ok = False
-        rt_ok = content_ok and decode(encode(decoded, **kw)) == decoded
+        # Re-encode da idempotência: se o decoded está com nomes POSICIONAIS (drop_names ou
+        # "" na entrada), o `sort_by=<nome-original>` não se aplica (o nome sumiu) — e o dado
+        # JÁ está ordenado (o 1º encode ordenou), então re-encodar sem sort_by preserva a ordem.
+        # (Sem isto, o combo drop_names+sort_by crashava com "coluna inexistente".)
+        reenc_kw = {k: v for k, v in kw.items() if not (anon_t and k == "sort_by")}
+        rt_ok = content_ok and decode(encode(decoded, **reenc_kw)) == decoded
         base["rt_mode"] = "conteudo-sob-transformacao + idempotencia-2a-geracao"
     else:
         rt_ok = decoded == data
