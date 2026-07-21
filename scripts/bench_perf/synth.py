@@ -15,21 +15,34 @@ import string
 from .pivot import Pivot
 
 _ALFA = string.ascii_lowercase
-_PALAVRAS = ("dados", "coluna", "registro", "sistema", "cliente", "produto",
-             "servico", "pedido", "entrega", "contrato", "unidade", "valor")
 
 
-def _valor(rng: random.Random, forma: str, L: int, i: int) -> str:
+def _vocab(seed: int, n: int = 4000) -> list[str]:
+    """Vocabulario pseudo-aleatorio DETERMINISTICO, grande o bastante pra dar
+    TRIGRAMAS DIVERSOS (como free-text real). Um vocabulario pequeno degenera o
+    indice do OBAT e cria um penhasco ARTIFICIAL — o caso `structured` ja' cobre
+    o regime de prefixo compartilhado de proposito; free-text nao deve faze-lo
+    por acidente."""
+    rng = random.Random(seed ^ 0x5F3759DF)
+    palavras: list[str] = []
+    for _ in range(n):
+        L = rng.randint(3, 11)
+        palavras.append("".join(rng.choice(_ALFA) for _ in range(L)))
+    return palavras
+
+
+def _valor(rng: random.Random, forma: str, L: int, i: int, vocab: list[str]) -> str:
     if forma == "structured":
-        # cadencia forte: prefixo fixo + contador zero-padded (exercita pre-pass)
+        # cadencia forte: prefixo fixo + contador zero-padded (exercita pre-pass).
+        # Este E' o caso de prefixo compartilhado, DECLARADO — nao acidental.
         return f"REG-{i:0{max(4, L - 4)}d}"
     if forma == "low-entropy":
-        return _PALAVRAS[i % len(_PALAVRAS)]
+        return vocab[i % 12]
     if forma == "free-text":
-        # cauda longa: comprimento variavel em torno de L (exercita HCC no regime caro)
+        # frases de vocabulario DIVERSO, comprimento com cauda (regime real do HCC)
         n = max(4, int(rng.gauss(L, L * 0.45)))
-        return " ".join(rng.choice(_PALAVRAS) for _ in range(max(1, n // 7)))
-    # flat-mixed: comprimento ~uniforme em torno de L
+        return " ".join(rng.choice(vocab) for _ in range(max(1, n // 7)))
+    # flat-mixed: comprimento ~uniforme em torno de L, alfabeto pleno
     n = max(1, L + rng.randint(-2, 2))
     return "".join(rng.choice(_ALFA) for _ in range(n))
 
@@ -38,11 +51,12 @@ def synth_pivot(R: int, C: int, L: int = 32, K: float = 0.1,
                 forma: str = "flat-mixed", seed: int = 20260721) -> Pivot:
     """Pivo determinístico com os 4 eixos de escala controlados independentemente."""
     rng = random.Random(seed)
+    vocab = _vocab(seed)
     n_unicos = max(1, min(R, int(round(R * K))))
     piv: Pivot = {}
     for c in range(C):
         rc = random.Random(seed + c * 7919)
-        pool = [_valor(rc, forma, L, i) for i in range(n_unicos)]
+        pool = [_valor(rc, forma, L, i, vocab) for i in range(n_unicos)]
         # repete o pool ate R deterministicamente (cardinalidade = K por construcao)
         col = [pool[i % n_unicos] for i in range(R)]
         if forma != "structured":
