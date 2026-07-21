@@ -80,12 +80,55 @@ def to_columns(recs: Records) -> Pivot:
 
 
 def to_json_text(obj: Any) -> str:
-    """Serializacao canonica do eixo de referencia. Congelada no manifesto."""
-    return json.dumps(obj, ensure_ascii=False, separators=(",", ":"))
+    """Serializacao canonica do eixo de referencia. `allow_nan=False`: o json do
+    Python EMITE NaN/Infinity por default (nao-RFC); a estrita rejeita — e uma lib
+    compilada/de-outra-linguagem tambem rejeitaria. Congelada no manifesto."""
+    return json.dumps(obj, ensure_ascii=False, separators=(",", ":"), allow_nan=False)
+
+
+def _reject_const(tok: str):
+    raise ValueError(f"constante nao-RFC no JSON: {tok!r}")
 
 
 def from_json_text(txt: str) -> Any:
-    return json.loads(txt)
+    # parse_constant rejeita NaN/Infinity/-Infinity tambem na ENTRADA
+    return json.loads(txt, parse_constant=_reject_const)
+
+
+# RFC 7493 (I-JSON): o range de inteiro que TODA implementacao round-trip sem
+# perda e' o double-seguro. Fora dele, um parser int64/double de outra linguagem
+# (ou o Rust do 1.0) perderia precisao — logo NAO esta' na classe portavel.
+_MAX_SAFE_INT = 2 ** 53 - 1
+
+
+def _assert_portavel(obj: Any, caminho: str = "$") -> None:
+    """Anda o objeto e exige a classe que QUALQUER lib json round-trip:
+    o TCF entende DATASET (dict/list/escalar); o JSON e' so' uma materializacao,
+    e so' vale se sobrevive ao round-trip em toda implementacao — nao so' no
+    Python permissivo."""
+    if isinstance(obj, dict):
+        for k, v in obj.items():
+            if not isinstance(k, str):
+                raise ClasseRejeitada("G2", f"chave nao-string em {caminho}: {type(k).__name__} "
+                                      f"(o Python coage int->str; a compilada nao)")
+            _assert_portavel(v, f"{caminho}.{k}")
+    elif isinstance(obj, list):
+        for i, v in enumerate(obj):
+            _assert_portavel(v, f"{caminho}[{i}]")
+    elif isinstance(obj, bool):
+        pass                                            # bool antes de int (bool ⊂ int)
+    elif isinstance(obj, int):
+        if not (-_MAX_SAFE_INT <= obj <= _MAX_SAFE_INT):
+            raise ClasseRejeitada("G2", f"int fora do range I-JSON (±2^53-1) em {caminho}: {obj} "
+                                  f"(um parser int64/double de outra linguagem perderia precisao)")
+    elif isinstance(obj, float):
+        import math
+        if not math.isfinite(obj):
+            raise ClasseRejeitada("G2", f"float nao-finito em {caminho}: {obj}")
+    elif obj is None or isinstance(obj, str):
+        pass
+    else:
+        raise ClasseRejeitada("G2", f"tipo fora da classe json em {caminho}: {type(obj).__name__}")
 
 
 def to_csv_text(recs: Records) -> str:
@@ -233,16 +276,45 @@ def g1_retangular(p: Pivot) -> None:
         raise ClasseRejeitada("G1", "to_columns(to_records(P)) != P")
 
 
-def g2_classe_json(obj: Any) -> str:
-    """O CORACAO da diretriz: prova de pertencimento + custo de referencia.
+# Lib compilada/estrita, se existir no ambiente — confirma a classe por uma
+# SEGUNDA implementacao (Rust/C), nao so' pelo Python. Ausente: a checagem
+# manual _assert_portavel (RFC 8259 + I-JSON) ja' cobre o essencial.
+_STRICT = None
+for _m in ("orjson", "msgspec", "ujson"):
+    try:
+        _STRICT = __import__(_m)
+        _STRICT_NOME = _m
+        break
+    except ImportError:
+        continue
 
-    Devolve o texto JSON (que e' o insumo do caminho de referencia). Se o
-    roundtrip da propria lib nao for identidade, o dado esta' fora da classe e a
-    celula e' rejeitada — NUNCA "consertamos o JSON" pra ele passar.
+
+def g2_classe_json(obj: Any) -> str:
+    """O CORACAO da diretriz do owner: prova de pertencimento + custo de referencia.
+
+    "ter um json pra testar nao e' a mesma coisa que um json que aguente um
+     roundtrip mesmo pelas libs json da linguagem (...) e a compilada tambem."
+
+    O TCF entende DATASET (dict/list/escalar). O JSON e' so' uma materializacao.
+    A classe valida e' a INTERSECAO das implementacoes — o que Python E uma lib
+    compilada round-trip — nao o que so' o Python permissivo aceita. Fora dela:
+    celula REJEITADA, nunca "consertamos o JSON" pra ele passar.
+
+    Devolve o texto JSON (insumo do caminho de referencia).
     """
-    txt = to_json_text(obj)
-    if from_json_text(txt) != obj:
-        raise ClasseRejeitada("G2", "json.loads(json.dumps(X)) != X — fora da classe jsonlib")
+    _assert_portavel(obj)                               # RFC 8259 + I-JSON, manual
+    try:
+        txt = to_json_text(obj)                         # allow_nan=False (estrito)
+    except (ValueError, TypeError) as e:
+        raise ClasseRejeitada("G2", f"json.dumps estrito rejeitou: {e}")
+    if from_json_text(txt) != obj:                      # round-trip identidade (Python)
+        raise ClasseRejeitada("G2", "python json.loads(dumps(X)) != X — fora da classe")
+    if _STRICT is not None:                             # segunda implementacao (compilada)
+        try:
+            if _STRICT.loads(_STRICT.dumps(obj)) != obj:
+                raise ClasseRejeitada("G2", f"{_STRICT_NOME}(compilada) round-trip != X")
+        except (TypeError, ValueError) as e:
+            raise ClasseRejeitada("G2", f"{_STRICT_NOME}(compilada) rejeitou: {e}")
     return txt
 
 
