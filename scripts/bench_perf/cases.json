@@ -1,0 +1,3608 @@
+{
+ "schema": "perf-baseline-09/cases-v1",
+ "seed": 20260721,
+ "orcamento_celulas": 4000000,
+ "n_casos": 132,
+ "n_dedup": 2,
+ "por_bloco": {
+  "B0": 8,
+  "B1": 9,
+  "B2": 38,
+  "B3": 18,
+  "B4": 16,
+  "B5": 14,
+  "B6": 18,
+  "B7": 6,
+  "B8": 7
+ },
+ "casos": [
+  {
+   "case_id": "tcf-flat|pin-D1-D9|flat-mixed|base|call|serial+t1|-|none|cython",
+   "fonte": "pin-D1-D9",
+   "vectors": {
+    "caminho": "tcf-flat",
+    "forma": "flat-mixed",
+    "escala": {
+     "point_id": "base",
+     "R": 10000,
+     "C": 4,
+     "L": 32,
+     "K": 0.1
+    },
+    "granularidade": "call",
+    "concorrencia": {
+     "internal": "serial",
+     "test": "t1"
+    },
+    "knobs": {},
+    "compressao": "none",
+    "accel": "cython"
+   },
+   "nota": "validate-pins cronometrado: D1-D9",
+   "blocos": [
+    "B0"
+   ]
+  },
+  {
+   "case_id": "tcf-flat|pin-D17a|flat-mixed|base|call|serial+t1|-|none|cython",
+   "fonte": "pin-D17a",
+   "vectors": {
+    "caminho": "tcf-flat",
+    "forma": "flat-mixed",
+    "escala": {
+     "point_id": "base",
+     "R": 10000,
+     "C": 4,
+     "L": 32,
+     "K": 0.1
+    },
+    "granularidade": "call",
+    "concorrencia": {
+     "internal": "serial",
+     "test": "t1"
+    },
+    "knobs": {},
+    "compressao": "none",
+    "accel": "cython"
+   },
+   "nota": "validate-pins cronometrado: D17a",
+   "blocos": [
+    "B0"
+   ]
+  },
+  {
+   "case_id": "tcf-flat|pin-real-world|flat-mixed|base|call|serial+t1|-|none|cython",
+   "fonte": "pin-real-world",
+   "vectors": {
+    "caminho": "tcf-flat",
+    "forma": "flat-mixed",
+    "escala": {
+     "point_id": "base",
+     "R": 10000,
+     "C": 4,
+     "L": 32,
+     "K": 0.1
+    },
+    "granularidade": "call",
+    "concorrencia": {
+     "internal": "serial",
+     "test": "t1"
+    },
+    "knobs": {},
+    "compressao": "none",
+    "accel": "cython"
+   },
+   "nota": "validate-pins cronometrado: real-world",
+   "blocos": [
+    "B0"
+   ]
+  },
+  {
+   "case_id": "tcf-flat|sentinela|flat-mixed|sentinela0|call|serial+t1|-|none|cython",
+   "fonte": "sentinela",
+   "vectors": {
+    "caminho": "tcf-flat",
+    "forma": "flat-mixed",
+    "escala": {
+     "point_id": "sentinela0",
+     "R": 10000,
+     "C": 4,
+     "L": 32,
+     "K": 0.1
+    },
+    "granularidade": "call",
+    "concorrencia": {
+     "internal": "serial",
+     "test": "t1"
+    },
+    "knobs": {},
+    "compressao": "none",
+    "accel": "cython"
+   },
+   "nota": "piso de ruido / deriva termica",
+   "blocos": [
+    "B0"
+   ]
+  },
+  {
+   "case_id": "tcf-flat|sentinela|flat-mixed|sentinela1|call|serial+t1|-|none|cython",
+   "fonte": "sentinela",
+   "vectors": {
+    "caminho": "tcf-flat",
+    "forma": "flat-mixed",
+    "escala": {
+     "point_id": "sentinela1",
+     "R": 10000,
+     "C": 4,
+     "L": 32,
+     "K": 0.1
+    },
+    "granularidade": "call",
+    "concorrencia": {
+     "internal": "serial",
+     "test": "t1"
+    },
+    "knobs": {},
+    "compressao": "none",
+    "accel": "cython"
+   },
+   "nota": "piso de ruido / deriva termica",
+   "blocos": [
+    "B0"
+   ]
+  },
+  {
+   "case_id": "tcf-flat|sentinela|flat-mixed|sentinela2|call|serial+t1|-|none|cython",
+   "fonte": "sentinela",
+   "vectors": {
+    "caminho": "tcf-flat",
+    "forma": "flat-mixed",
+    "escala": {
+     "point_id": "sentinela2",
+     "R": 10000,
+     "C": 4,
+     "L": 32,
+     "K": 0.1
+    },
+    "granularidade": "call",
+    "concorrencia": {
+     "internal": "serial",
+     "test": "t1"
+    },
+    "knobs": {},
+    "compressao": "none",
+    "accel": "cython"
+   },
+   "nota": "piso de ruido / deriva termica",
+   "blocos": [
+    "B0"
+   ]
+  },
+  {
+   "case_id": "tcf-flat|sentinela|flat-mixed|sentinela-concorrente|call|serial+t4|-|none|cython",
+   "fonte": "sentinela",
+   "vectors": {
+    "caminho": "tcf-flat",
+    "forma": "flat-mixed",
+    "escala": {
+     "point_id": "sentinela-concorrente",
+     "R": 10000,
+     "C": 4,
+     "L": 32,
+     "K": 0.1
+    },
+    "granularidade": "call",
+    "concorrencia": {
+     "internal": "serial",
+     "test": "t4"
+    },
+    "knobs": {},
+    "compressao": "none",
+    "accel": "cython"
+   },
+   "nota": "sentinela solo vs concorrente (contencao do proprio teste)",
+   "blocos": [
+    "B0"
+   ]
+  },
+  {
+   "case_id": "tcf-flat|sondas|flat-mixed|base|call|serial+t1|-|none|cython",
+   "fonte": "sondas",
+   "vectors": {
+    "caminho": "tcf-flat",
+    "forma": "flat-mixed",
+    "escala": {
+     "point_id": "base",
+     "R": 10000,
+     "C": 4,
+     "L": 32,
+     "K": 0.1
+    },
+    "granularidade": "call",
+    "concorrencia": {
+     "internal": "serial",
+     "test": "t1"
+    },
+    "knobs": {},
+    "compressao": "none",
+    "accel": "cython"
+   },
+   "nota": "smoke de cada sonda (wall/cpu/heap/rss)",
+   "blocos": [
+    "B0"
+   ]
+  },
+  {
+   "case_id": "tcf-flat|synth|flat-mixed|base|call|serial+t1|-|none|cython",
+   "fonte": "synth",
+   "vectors": {
+    "caminho": "tcf-flat",
+    "forma": "flat-mixed",
+    "escala": {
+     "point_id": "base",
+     "R": 10000,
+     "C": 4,
+     "L": 32,
+     "K": 0.1
+    },
+    "granularidade": "call",
+    "concorrencia": {
+     "internal": "serial",
+     "test": "t1"
+    },
+    "knobs": {},
+    "compressao": "none",
+    "accel": "cython"
+   },
+   "nota": "",
+   "blocos": [
+    "B1",
+    "B2"
+   ]
+  },
+  {
+   "case_id": "tcf-flat|synth|free-text|base|call|serial+t1|-|none|cython",
+   "fonte": "synth",
+   "vectors": {
+    "caminho": "tcf-flat",
+    "forma": "free-text",
+    "escala": {
+     "point_id": "base",
+     "R": 10000,
+     "C": 4,
+     "L": 32,
+     "K": 0.1
+    },
+    "granularidade": "call",
+    "concorrencia": {
+     "internal": "serial",
+     "test": "t1"
+    },
+    "knobs": {},
+    "compressao": "none",
+    "accel": "cython"
+   },
+   "nota": "",
+   "blocos": [
+    "B1"
+   ]
+  },
+  {
+   "case_id": "tcf-flat|synth|structured|base|call|serial+t1|-|none|cython",
+   "fonte": "synth",
+   "vectors": {
+    "caminho": "tcf-flat",
+    "forma": "structured",
+    "escala": {
+     "point_id": "base",
+     "R": 10000,
+     "C": 4,
+     "L": 32,
+     "K": 0.1
+    },
+    "granularidade": "call",
+    "concorrencia": {
+     "internal": "serial",
+     "test": "t1"
+    },
+    "knobs": {},
+    "compressao": "none",
+    "accel": "cython"
+   },
+   "nota": "",
+   "blocos": [
+    "B1"
+   ]
+  },
+  {
+   "case_id": "json-ref-str|synth|flat-mixed|base|call|serial+t1|-|none|cython",
+   "fonte": "synth",
+   "vectors": {
+    "caminho": "json-ref-str",
+    "forma": "flat-mixed",
+    "escala": {
+     "point_id": "base",
+     "R": 10000,
+     "C": 4,
+     "L": 32,
+     "K": 0.1
+    },
+    "granularidade": "call",
+    "concorrencia": {
+     "internal": "serial",
+     "test": "t1"
+    },
+    "knobs": {},
+    "compressao": "none",
+    "accel": "cython"
+   },
+   "nota": "",
+   "blocos": [
+    "B1",
+    "B2"
+   ]
+  },
+  {
+   "case_id": "json-ref-str|synth|free-text|base|call|serial+t1|-|none|cython",
+   "fonte": "synth",
+   "vectors": {
+    "caminho": "json-ref-str",
+    "forma": "free-text",
+    "escala": {
+     "point_id": "base",
+     "R": 10000,
+     "C": 4,
+     "L": 32,
+     "K": 0.1
+    },
+    "granularidade": "call",
+    "concorrencia": {
+     "internal": "serial",
+     "test": "t1"
+    },
+    "knobs": {},
+    "compressao": "none",
+    "accel": "cython"
+   },
+   "nota": "",
+   "blocos": [
+    "B1"
+   ]
+  },
+  {
+   "case_id": "json-ref-str|synth|structured|base|call|serial+t1|-|none|cython",
+   "fonte": "synth",
+   "vectors": {
+    "caminho": "json-ref-str",
+    "forma": "structured",
+    "escala": {
+     "point_id": "base",
+     "R": 10000,
+     "C": 4,
+     "L": 32,
+     "K": 0.1
+    },
+    "granularidade": "call",
+    "concorrencia": {
+     "internal": "serial",
+     "test": "t1"
+    },
+    "knobs": {},
+    "compressao": "none",
+    "accel": "cython"
+   },
+   "nota": "",
+   "blocos": [
+    "B1"
+   ]
+  },
+  {
+   "case_id": "csv-ref|synth|flat-mixed|base|call|serial+t1|-|none|cython",
+   "fonte": "synth",
+   "vectors": {
+    "caminho": "csv-ref",
+    "forma": "flat-mixed",
+    "escala": {
+     "point_id": "base",
+     "R": 10000,
+     "C": 4,
+     "L": 32,
+     "K": 0.1
+    },
+    "granularidade": "call",
+    "concorrencia": {
+     "internal": "serial",
+     "test": "t1"
+    },
+    "knobs": {},
+    "compressao": "none",
+    "accel": "cython"
+   },
+   "nota": "",
+   "blocos": [
+    "B1"
+   ]
+  },
+  {
+   "case_id": "csv-ref|synth|free-text|base|call|serial+t1|-|none|cython",
+   "fonte": "synth",
+   "vectors": {
+    "caminho": "csv-ref",
+    "forma": "free-text",
+    "escala": {
+     "point_id": "base",
+     "R": 10000,
+     "C": 4,
+     "L": 32,
+     "K": 0.1
+    },
+    "granularidade": "call",
+    "concorrencia": {
+     "internal": "serial",
+     "test": "t1"
+    },
+    "knobs": {},
+    "compressao": "none",
+    "accel": "cython"
+   },
+   "nota": "",
+   "blocos": [
+    "B1"
+   ]
+  },
+  {
+   "case_id": "csv-ref|synth|structured|base|call|serial+t1|-|none|cython",
+   "fonte": "synth",
+   "vectors": {
+    "caminho": "csv-ref",
+    "forma": "structured",
+    "escala": {
+     "point_id": "base",
+     "R": 10000,
+     "C": 4,
+     "L": 32,
+     "K": 0.1
+    },
+    "granularidade": "call",
+    "concorrencia": {
+     "internal": "serial",
+     "test": "t1"
+    },
+    "knobs": {},
+    "compressao": "none",
+    "accel": "cython"
+   },
+   "nota": "",
+   "blocos": [
+    "B1"
+   ]
+  },
+  {
+   "case_id": "tcf-flat|synth|flat-mixed|R1e2|call|serial+t1|-|none|cython",
+   "fonte": "synth",
+   "vectors": {
+    "caminho": "tcf-flat",
+    "forma": "flat-mixed",
+    "escala": {
+     "point_id": "R1e2",
+     "R": 100,
+     "C": 4,
+     "L": 32,
+     "K": 0.1
+    },
+    "granularidade": "call",
+    "concorrencia": {
+     "internal": "serial",
+     "test": "t1"
+    },
+    "knobs": {},
+    "compressao": "none",
+    "accel": "cython"
+   },
+   "nota": "",
+   "blocos": [
+    "B2"
+   ]
+  },
+  {
+   "case_id": "tcf-flat|synth|flat-mixed|R1e3|call|serial+t1|-|none|cython",
+   "fonte": "synth",
+   "vectors": {
+    "caminho": "tcf-flat",
+    "forma": "flat-mixed",
+    "escala": {
+     "point_id": "R1e3",
+     "R": 1000,
+     "C": 4,
+     "L": 32,
+     "K": 0.1
+    },
+    "granularidade": "call",
+    "concorrencia": {
+     "internal": "serial",
+     "test": "t1"
+    },
+    "knobs": {},
+    "compressao": "none",
+    "accel": "cython"
+   },
+   "nota": "",
+   "blocos": [
+    "B2"
+   ]
+  },
+  {
+   "case_id": "tcf-flat|synth|flat-mixed|R1e5|call|serial+t1|-|none|cython",
+   "fonte": "synth",
+   "vectors": {
+    "caminho": "tcf-flat",
+    "forma": "flat-mixed",
+    "escala": {
+     "point_id": "R1e5",
+     "R": 100000,
+     "C": 4,
+     "L": 32,
+     "K": 0.1
+    },
+    "granularidade": "call",
+    "concorrencia": {
+     "internal": "serial",
+     "test": "t1"
+    },
+    "knobs": {},
+    "compressao": "none",
+    "accel": "cython"
+   },
+   "nota": "",
+   "blocos": [
+    "B2"
+   ]
+  },
+  {
+   "case_id": "tcf-flat|synth|flat-mixed|R6e5|call|serial+t1|-|none|cython",
+   "fonte": "synth",
+   "vectors": {
+    "caminho": "tcf-flat",
+    "forma": "flat-mixed",
+    "escala": {
+     "point_id": "R6e5",
+     "R": 600000,
+     "C": 4,
+     "L": 32,
+     "K": 0.1
+    },
+    "granularidade": "call",
+    "concorrencia": {
+     "internal": "serial",
+     "test": "t1"
+    },
+    "knobs": {},
+    "compressao": "none",
+    "accel": "cython"
+   },
+   "nota": "",
+   "blocos": [
+    "B2"
+   ]
+  },
+  {
+   "case_id": "tcf-flat|synth|flat-mixed|C1|call|serial+t1|-|none|cython",
+   "fonte": "synth",
+   "vectors": {
+    "caminho": "tcf-flat",
+    "forma": "flat-mixed",
+    "escala": {
+     "point_id": "C1",
+     "R": 2000,
+     "C": 1,
+     "L": 32,
+     "K": 0.1
+    },
+    "granularidade": "call",
+    "concorrencia": {
+     "internal": "serial",
+     "test": "t1"
+    },
+    "knobs": {},
+    "compressao": "none",
+    "accel": "cython"
+   },
+   "nota": "",
+   "blocos": [
+    "B2"
+   ]
+  },
+  {
+   "case_id": "tcf-flat|synth|flat-mixed|C8|call|serial+t1|-|none|cython",
+   "fonte": "synth",
+   "vectors": {
+    "caminho": "tcf-flat",
+    "forma": "flat-mixed",
+    "escala": {
+     "point_id": "C8",
+     "R": 2000,
+     "C": 8,
+     "L": 32,
+     "K": 0.1
+    },
+    "granularidade": "call",
+    "concorrencia": {
+     "internal": "serial",
+     "test": "t1"
+    },
+    "knobs": {},
+    "compressao": "none",
+    "accel": "cython"
+   },
+   "nota": "",
+   "blocos": [
+    "B2"
+   ]
+  },
+  {
+   "case_id": "tcf-flat|synth|flat-mixed|C32|call|serial+t1|-|none|cython",
+   "fonte": "synth",
+   "vectors": {
+    "caminho": "tcf-flat",
+    "forma": "flat-mixed",
+    "escala": {
+     "point_id": "C32",
+     "R": 2000,
+     "C": 32,
+     "L": 32,
+     "K": 0.1
+    },
+    "granularidade": "call",
+    "concorrencia": {
+     "internal": "serial",
+     "test": "t1"
+    },
+    "knobs": {},
+    "compressao": "none",
+    "accel": "cython"
+   },
+   "nota": "",
+   "blocos": [
+    "B2"
+   ]
+  },
+  {
+   "case_id": "tcf-flat|synth|flat-mixed|C128|call|serial+t1|-|none|cython",
+   "fonte": "synth",
+   "vectors": {
+    "caminho": "tcf-flat",
+    "forma": "flat-mixed",
+    "escala": {
+     "point_id": "C128",
+     "R": 2000,
+     "C": 128,
+     "L": 32,
+     "K": 0.1
+    },
+    "granularidade": "call",
+    "concorrencia": {
+     "internal": "serial",
+     "test": "t1"
+    },
+    "knobs": {},
+    "compressao": "none",
+    "accel": "cython"
+   },
+   "nota": "",
+   "blocos": [
+    "B2"
+   ]
+  },
+  {
+   "case_id": "tcf-flat|synth|flat-mixed|L8|call|serial+t1|-|none|cython",
+   "fonte": "synth",
+   "vectors": {
+    "caminho": "tcf-flat",
+    "forma": "flat-mixed",
+    "escala": {
+     "point_id": "L8",
+     "R": 10000,
+     "C": 4,
+     "L": 8,
+     "K": 0.1
+    },
+    "granularidade": "call",
+    "concorrencia": {
+     "internal": "serial",
+     "test": "t1"
+    },
+    "knobs": {},
+    "compressao": "none",
+    "accel": "cython"
+   },
+   "nota": "",
+   "blocos": [
+    "B2"
+   ]
+  },
+  {
+   "case_id": "tcf-flat|synth|flat-mixed|L128|call|serial+t1|-|none|cython",
+   "fonte": "synth",
+   "vectors": {
+    "caminho": "tcf-flat",
+    "forma": "flat-mixed",
+    "escala": {
+     "point_id": "L128",
+     "R": 10000,
+     "C": 4,
+     "L": 128,
+     "K": 0.1
+    },
+    "granularidade": "call",
+    "concorrencia": {
+     "internal": "serial",
+     "test": "t1"
+    },
+    "knobs": {},
+    "compressao": "none",
+    "accel": "cython"
+   },
+   "nota": "",
+   "blocos": [
+    "B2"
+   ]
+  },
+  {
+   "case_id": "tcf-flat|synth|flat-mixed|L512|call|serial+t1|-|none|cython",
+   "fonte": "synth",
+   "vectors": {
+    "caminho": "tcf-flat",
+    "forma": "flat-mixed",
+    "escala": {
+     "point_id": "L512",
+     "R": 10000,
+     "C": 4,
+     "L": 512,
+     "K": 0.1
+    },
+    "granularidade": "call",
+    "concorrencia": {
+     "internal": "serial",
+     "test": "t1"
+    },
+    "knobs": {},
+    "compressao": "none",
+    "accel": "cython"
+   },
+   "nota": "",
+   "blocos": [
+    "B2"
+   ]
+  },
+  {
+   "case_id": "tcf-flat|synth|flat-mixed|K0001|call|serial+t1|-|none|cython",
+   "fonte": "synth",
+   "vectors": {
+    "caminho": "tcf-flat",
+    "forma": "flat-mixed",
+    "escala": {
+     "point_id": "K0001",
+     "R": 10000,
+     "C": 4,
+     "L": 32,
+     "K": 0.001
+    },
+    "granularidade": "call",
+    "concorrencia": {
+     "internal": "serial",
+     "test": "t1"
+    },
+    "knobs": {},
+    "compressao": "none",
+    "accel": "cython"
+   },
+   "nota": "",
+   "blocos": [
+    "B2"
+   ]
+  },
+  {
+   "case_id": "tcf-flat|synth|flat-mixed|K001|call|serial+t1|-|none|cython",
+   "fonte": "synth",
+   "vectors": {
+    "caminho": "tcf-flat",
+    "forma": "flat-mixed",
+    "escala": {
+     "point_id": "K001",
+     "R": 10000,
+     "C": 4,
+     "L": 32,
+     "K": 0.01
+    },
+    "granularidade": "call",
+    "concorrencia": {
+     "internal": "serial",
+     "test": "t1"
+    },
+    "knobs": {},
+    "compressao": "none",
+    "accel": "cython"
+   },
+   "nota": "",
+   "blocos": [
+    "B2"
+   ]
+  },
+  {
+   "case_id": "tcf-flat|synth|flat-mixed|K1|call|serial+t1|-|none|cython",
+   "fonte": "synth",
+   "vectors": {
+    "caminho": "tcf-flat",
+    "forma": "flat-mixed",
+    "escala": {
+     "point_id": "K1",
+     "R": 10000,
+     "C": 4,
+     "L": 32,
+     "K": 1.0
+    },
+    "granularidade": "call",
+    "concorrencia": {
+     "internal": "serial",
+     "test": "t1"
+    },
+    "knobs": {},
+    "compressao": "none",
+    "accel": "cython"
+   },
+   "nota": "",
+   "blocos": [
+    "B2"
+   ]
+  },
+  {
+   "case_id": "tcf-flat|synth|flat-mixed|cantoRC-min|call|serial+t1|-|none|cython",
+   "fonte": "synth",
+   "vectors": {
+    "caminho": "tcf-flat",
+    "forma": "flat-mixed",
+    "escala": {
+     "point_id": "cantoRC-min",
+     "R": 100,
+     "C": 1,
+     "L": 32,
+     "K": 0.1
+    },
+    "granularidade": "call",
+    "concorrencia": {
+     "internal": "serial",
+     "test": "t1"
+    },
+    "knobs": {},
+    "compressao": "none",
+    "accel": "cython"
+   },
+   "nota": "",
+   "blocos": [
+    "B2"
+   ]
+  },
+  {
+   "case_id": "tcf-flat|synth|flat-mixed|cantoRC-larg|call|serial+t1|-|none|cython",
+   "fonte": "synth",
+   "vectors": {
+    "caminho": "tcf-flat",
+    "forma": "flat-mixed",
+    "escala": {
+     "point_id": "cantoRC-larg",
+     "R": 100,
+     "C": 128,
+     "L": 32,
+     "K": 0.1
+    },
+    "granularidade": "call",
+    "concorrencia": {
+     "internal": "serial",
+     "test": "t1"
+    },
+    "knobs": {},
+    "compressao": "none",
+    "accel": "cython"
+   },
+   "nota": "",
+   "blocos": [
+    "B2"
+   ]
+  },
+  {
+   "case_id": "tcf-flat|synth|flat-mixed|cantoRC-alto|call|serial+t1|-|none|cython",
+   "fonte": "synth",
+   "vectors": {
+    "caminho": "tcf-flat",
+    "forma": "flat-mixed",
+    "escala": {
+     "point_id": "cantoRC-alto",
+     "R": 100000,
+     "C": 1,
+     "L": 32,
+     "K": 0.1
+    },
+    "granularidade": "call",
+    "concorrencia": {
+     "internal": "serial",
+     "test": "t1"
+    },
+    "knobs": {},
+    "compressao": "none",
+    "accel": "cython"
+   },
+   "nota": "",
+   "blocos": [
+    "B2"
+   ]
+  },
+  {
+   "case_id": "tcf-flat|synth|flat-mixed|cantoRC-both|call|serial+t1|-|none|cython",
+   "fonte": "synth",
+   "vectors": {
+    "caminho": "tcf-flat",
+    "forma": "flat-mixed",
+    "escala": {
+     "point_id": "cantoRC-both",
+     "R": 100000,
+     "C": 32,
+     "L": 32,
+     "K": 0.1
+    },
+    "granularidade": "call",
+    "concorrencia": {
+     "internal": "serial",
+     "test": "t1"
+    },
+    "knobs": {},
+    "compressao": "none",
+    "accel": "cython"
+   },
+   "nota": "",
+   "blocos": [
+    "B2"
+   ]
+  },
+  {
+   "case_id": "json-ref-str|synth|flat-mixed|R1e2|call|serial+t1|-|none|cython",
+   "fonte": "synth",
+   "vectors": {
+    "caminho": "json-ref-str",
+    "forma": "flat-mixed",
+    "escala": {
+     "point_id": "R1e2",
+     "R": 100,
+     "C": 4,
+     "L": 32,
+     "K": 0.1
+    },
+    "granularidade": "call",
+    "concorrencia": {
+     "internal": "serial",
+     "test": "t1"
+    },
+    "knobs": {},
+    "compressao": "none",
+    "accel": "cython"
+   },
+   "nota": "",
+   "blocos": [
+    "B2"
+   ]
+  },
+  {
+   "case_id": "json-ref-str|synth|flat-mixed|R1e3|call|serial+t1|-|none|cython",
+   "fonte": "synth",
+   "vectors": {
+    "caminho": "json-ref-str",
+    "forma": "flat-mixed",
+    "escala": {
+     "point_id": "R1e3",
+     "R": 1000,
+     "C": 4,
+     "L": 32,
+     "K": 0.1
+    },
+    "granularidade": "call",
+    "concorrencia": {
+     "internal": "serial",
+     "test": "t1"
+    },
+    "knobs": {},
+    "compressao": "none",
+    "accel": "cython"
+   },
+   "nota": "",
+   "blocos": [
+    "B2"
+   ]
+  },
+  {
+   "case_id": "json-ref-str|synth|flat-mixed|R1e5|call|serial+t1|-|none|cython",
+   "fonte": "synth",
+   "vectors": {
+    "caminho": "json-ref-str",
+    "forma": "flat-mixed",
+    "escala": {
+     "point_id": "R1e5",
+     "R": 100000,
+     "C": 4,
+     "L": 32,
+     "K": 0.1
+    },
+    "granularidade": "call",
+    "concorrencia": {
+     "internal": "serial",
+     "test": "t1"
+    },
+    "knobs": {},
+    "compressao": "none",
+    "accel": "cython"
+   },
+   "nota": "",
+   "blocos": [
+    "B2"
+   ]
+  },
+  {
+   "case_id": "json-ref-str|synth|flat-mixed|R6e5|call|serial+t1|-|none|cython",
+   "fonte": "synth",
+   "vectors": {
+    "caminho": "json-ref-str",
+    "forma": "flat-mixed",
+    "escala": {
+     "point_id": "R6e5",
+     "R": 600000,
+     "C": 4,
+     "L": 32,
+     "K": 0.1
+    },
+    "granularidade": "call",
+    "concorrencia": {
+     "internal": "serial",
+     "test": "t1"
+    },
+    "knobs": {},
+    "compressao": "none",
+    "accel": "cython"
+   },
+   "nota": "",
+   "blocos": [
+    "B2"
+   ]
+  },
+  {
+   "case_id": "json-ref-str|synth|flat-mixed|C1|call|serial+t1|-|none|cython",
+   "fonte": "synth",
+   "vectors": {
+    "caminho": "json-ref-str",
+    "forma": "flat-mixed",
+    "escala": {
+     "point_id": "C1",
+     "R": 2000,
+     "C": 1,
+     "L": 32,
+     "K": 0.1
+    },
+    "granularidade": "call",
+    "concorrencia": {
+     "internal": "serial",
+     "test": "t1"
+    },
+    "knobs": {},
+    "compressao": "none",
+    "accel": "cython"
+   },
+   "nota": "",
+   "blocos": [
+    "B2"
+   ]
+  },
+  {
+   "case_id": "json-ref-str|synth|flat-mixed|C8|call|serial+t1|-|none|cython",
+   "fonte": "synth",
+   "vectors": {
+    "caminho": "json-ref-str",
+    "forma": "flat-mixed",
+    "escala": {
+     "point_id": "C8",
+     "R": 2000,
+     "C": 8,
+     "L": 32,
+     "K": 0.1
+    },
+    "granularidade": "call",
+    "concorrencia": {
+     "internal": "serial",
+     "test": "t1"
+    },
+    "knobs": {},
+    "compressao": "none",
+    "accel": "cython"
+   },
+   "nota": "",
+   "blocos": [
+    "B2"
+   ]
+  },
+  {
+   "case_id": "json-ref-str|synth|flat-mixed|C32|call|serial+t1|-|none|cython",
+   "fonte": "synth",
+   "vectors": {
+    "caminho": "json-ref-str",
+    "forma": "flat-mixed",
+    "escala": {
+     "point_id": "C32",
+     "R": 2000,
+     "C": 32,
+     "L": 32,
+     "K": 0.1
+    },
+    "granularidade": "call",
+    "concorrencia": {
+     "internal": "serial",
+     "test": "t1"
+    },
+    "knobs": {},
+    "compressao": "none",
+    "accel": "cython"
+   },
+   "nota": "",
+   "blocos": [
+    "B2"
+   ]
+  },
+  {
+   "case_id": "json-ref-str|synth|flat-mixed|C128|call|serial+t1|-|none|cython",
+   "fonte": "synth",
+   "vectors": {
+    "caminho": "json-ref-str",
+    "forma": "flat-mixed",
+    "escala": {
+     "point_id": "C128",
+     "R": 2000,
+     "C": 128,
+     "L": 32,
+     "K": 0.1
+    },
+    "granularidade": "call",
+    "concorrencia": {
+     "internal": "serial",
+     "test": "t1"
+    },
+    "knobs": {},
+    "compressao": "none",
+    "accel": "cython"
+   },
+   "nota": "",
+   "blocos": [
+    "B2"
+   ]
+  },
+  {
+   "case_id": "json-ref-str|synth|flat-mixed|L8|call|serial+t1|-|none|cython",
+   "fonte": "synth",
+   "vectors": {
+    "caminho": "json-ref-str",
+    "forma": "flat-mixed",
+    "escala": {
+     "point_id": "L8",
+     "R": 10000,
+     "C": 4,
+     "L": 8,
+     "K": 0.1
+    },
+    "granularidade": "call",
+    "concorrencia": {
+     "internal": "serial",
+     "test": "t1"
+    },
+    "knobs": {},
+    "compressao": "none",
+    "accel": "cython"
+   },
+   "nota": "",
+   "blocos": [
+    "B2"
+   ]
+  },
+  {
+   "case_id": "json-ref-str|synth|flat-mixed|L128|call|serial+t1|-|none|cython",
+   "fonte": "synth",
+   "vectors": {
+    "caminho": "json-ref-str",
+    "forma": "flat-mixed",
+    "escala": {
+     "point_id": "L128",
+     "R": 10000,
+     "C": 4,
+     "L": 128,
+     "K": 0.1
+    },
+    "granularidade": "call",
+    "concorrencia": {
+     "internal": "serial",
+     "test": "t1"
+    },
+    "knobs": {},
+    "compressao": "none",
+    "accel": "cython"
+   },
+   "nota": "",
+   "blocos": [
+    "B2"
+   ]
+  },
+  {
+   "case_id": "json-ref-str|synth|flat-mixed|L512|call|serial+t1|-|none|cython",
+   "fonte": "synth",
+   "vectors": {
+    "caminho": "json-ref-str",
+    "forma": "flat-mixed",
+    "escala": {
+     "point_id": "L512",
+     "R": 10000,
+     "C": 4,
+     "L": 512,
+     "K": 0.1
+    },
+    "granularidade": "call",
+    "concorrencia": {
+     "internal": "serial",
+     "test": "t1"
+    },
+    "knobs": {},
+    "compressao": "none",
+    "accel": "cython"
+   },
+   "nota": "",
+   "blocos": [
+    "B2"
+   ]
+  },
+  {
+   "case_id": "json-ref-str|synth|flat-mixed|K0001|call|serial+t1|-|none|cython",
+   "fonte": "synth",
+   "vectors": {
+    "caminho": "json-ref-str",
+    "forma": "flat-mixed",
+    "escala": {
+     "point_id": "K0001",
+     "R": 10000,
+     "C": 4,
+     "L": 32,
+     "K": 0.001
+    },
+    "granularidade": "call",
+    "concorrencia": {
+     "internal": "serial",
+     "test": "t1"
+    },
+    "knobs": {},
+    "compressao": "none",
+    "accel": "cython"
+   },
+   "nota": "",
+   "blocos": [
+    "B2"
+   ]
+  },
+  {
+   "case_id": "json-ref-str|synth|flat-mixed|K001|call|serial+t1|-|none|cython",
+   "fonte": "synth",
+   "vectors": {
+    "caminho": "json-ref-str",
+    "forma": "flat-mixed",
+    "escala": {
+     "point_id": "K001",
+     "R": 10000,
+     "C": 4,
+     "L": 32,
+     "K": 0.01
+    },
+    "granularidade": "call",
+    "concorrencia": {
+     "internal": "serial",
+     "test": "t1"
+    },
+    "knobs": {},
+    "compressao": "none",
+    "accel": "cython"
+   },
+   "nota": "",
+   "blocos": [
+    "B2"
+   ]
+  },
+  {
+   "case_id": "json-ref-str|synth|flat-mixed|K1|call|serial+t1|-|none|cython",
+   "fonte": "synth",
+   "vectors": {
+    "caminho": "json-ref-str",
+    "forma": "flat-mixed",
+    "escala": {
+     "point_id": "K1",
+     "R": 10000,
+     "C": 4,
+     "L": 32,
+     "K": 1.0
+    },
+    "granularidade": "call",
+    "concorrencia": {
+     "internal": "serial",
+     "test": "t1"
+    },
+    "knobs": {},
+    "compressao": "none",
+    "accel": "cython"
+   },
+   "nota": "",
+   "blocos": [
+    "B2"
+   ]
+  },
+  {
+   "case_id": "json-ref-str|synth|flat-mixed|cantoRC-min|call|serial+t1|-|none|cython",
+   "fonte": "synth",
+   "vectors": {
+    "caminho": "json-ref-str",
+    "forma": "flat-mixed",
+    "escala": {
+     "point_id": "cantoRC-min",
+     "R": 100,
+     "C": 1,
+     "L": 32,
+     "K": 0.1
+    },
+    "granularidade": "call",
+    "concorrencia": {
+     "internal": "serial",
+     "test": "t1"
+    },
+    "knobs": {},
+    "compressao": "none",
+    "accel": "cython"
+   },
+   "nota": "",
+   "blocos": [
+    "B2"
+   ]
+  },
+  {
+   "case_id": "json-ref-str|synth|flat-mixed|cantoRC-larg|call|serial+t1|-|none|cython",
+   "fonte": "synth",
+   "vectors": {
+    "caminho": "json-ref-str",
+    "forma": "flat-mixed",
+    "escala": {
+     "point_id": "cantoRC-larg",
+     "R": 100,
+     "C": 128,
+     "L": 32,
+     "K": 0.1
+    },
+    "granularidade": "call",
+    "concorrencia": {
+     "internal": "serial",
+     "test": "t1"
+    },
+    "knobs": {},
+    "compressao": "none",
+    "accel": "cython"
+   },
+   "nota": "",
+   "blocos": [
+    "B2"
+   ]
+  },
+  {
+   "case_id": "json-ref-str|synth|flat-mixed|cantoRC-alto|call|serial+t1|-|none|cython",
+   "fonte": "synth",
+   "vectors": {
+    "caminho": "json-ref-str",
+    "forma": "flat-mixed",
+    "escala": {
+     "point_id": "cantoRC-alto",
+     "R": 100000,
+     "C": 1,
+     "L": 32,
+     "K": 0.1
+    },
+    "granularidade": "call",
+    "concorrencia": {
+     "internal": "serial",
+     "test": "t1"
+    },
+    "knobs": {},
+    "compressao": "none",
+    "accel": "cython"
+   },
+   "nota": "",
+   "blocos": [
+    "B2"
+   ]
+  },
+  {
+   "case_id": "json-ref-str|synth|flat-mixed|cantoRC-both|call|serial+t1|-|none|cython",
+   "fonte": "synth",
+   "vectors": {
+    "caminho": "json-ref-str",
+    "forma": "flat-mixed",
+    "escala": {
+     "point_id": "cantoRC-both",
+     "R": 100000,
+     "C": 32,
+     "L": 32,
+     "K": 0.1
+    },
+    "granularidade": "call",
+    "concorrencia": {
+     "internal": "serial",
+     "test": "t1"
+    },
+    "knobs": {},
+    "compressao": "none",
+    "accel": "cython"
+   },
+   "nota": "",
+   "blocos": [
+    "B2"
+   ]
+  },
+  {
+   "case_id": "tcf-flat|synth|flat-mixed|R1e3|layer|serial+t1|-|none|cython",
+   "fonte": "synth",
+   "vectors": {
+    "caminho": "tcf-flat",
+    "forma": "flat-mixed",
+    "escala": {
+     "point_id": "R1e3",
+     "R": 1000,
+     "C": 4,
+     "L": 32,
+     "K": 0.1
+    },
+    "granularidade": "layer",
+    "concorrencia": {
+     "internal": "serial",
+     "test": "t1"
+    },
+    "knobs": {},
+    "compressao": "none",
+    "accel": "cython"
+   },
+   "nota": "perfil por camada (serial; monkeypatch nao atravessa spawn)",
+   "blocos": [
+    "B3"
+   ]
+  },
+  {
+   "case_id": "tcf-flat|synth|free-text|R1e3|layer|serial+t1|-|none|cython",
+   "fonte": "synth",
+   "vectors": {
+    "caminho": "tcf-flat",
+    "forma": "free-text",
+    "escala": {
+     "point_id": "R1e3",
+     "R": 1000,
+     "C": 4,
+     "L": 32,
+     "K": 0.1
+    },
+    "granularidade": "layer",
+    "concorrencia": {
+     "internal": "serial",
+     "test": "t1"
+    },
+    "knobs": {},
+    "compressao": "none",
+    "accel": "cython"
+   },
+   "nota": "perfil por camada (serial; monkeypatch nao atravessa spawn)",
+   "blocos": [
+    "B3"
+   ]
+  },
+  {
+   "case_id": "tcf-flat|synth|flat-mixed|R1e3|candidate|serial+t1|fallback=False|none|cython",
+   "fonte": "synth",
+   "vectors": {
+    "caminho": "tcf-flat",
+    "forma": "flat-mixed",
+    "escala": {
+     "point_id": "R1e3",
+     "R": 1000,
+     "C": 4,
+     "L": 32,
+     "K": 0.1
+    },
+    "granularidade": "candidate",
+    "concorrencia": {
+     "internal": "serial",
+     "test": "t1"
+    },
+    "knobs": {
+     "fallback": false
+    },
+    "compressao": "none",
+    "accel": "cython"
+   },
+   "nota": "A/B do custo dos candidatos perdedores do _best_of",
+   "blocos": [
+    "B3"
+   ]
+  },
+  {
+   "case_id": "tcf-flat|synth|flat-mixed|base|layer|serial+t1|-|none|cython",
+   "fonte": "synth",
+   "vectors": {
+    "caminho": "tcf-flat",
+    "forma": "flat-mixed",
+    "escala": {
+     "point_id": "base",
+     "R": 10000,
+     "C": 4,
+     "L": 32,
+     "K": 0.1
+    },
+    "granularidade": "layer",
+    "concorrencia": {
+     "internal": "serial",
+     "test": "t1"
+    },
+    "knobs": {},
+    "compressao": "none",
+    "accel": "cython"
+   },
+   "nota": "perfil por camada (serial; monkeypatch nao atravessa spawn)",
+   "blocos": [
+    "B3"
+   ]
+  },
+  {
+   "case_id": "tcf-flat|synth|free-text|base|layer|serial+t1|-|none|cython",
+   "fonte": "synth",
+   "vectors": {
+    "caminho": "tcf-flat",
+    "forma": "free-text",
+    "escala": {
+     "point_id": "base",
+     "R": 10000,
+     "C": 4,
+     "L": 32,
+     "K": 0.1
+    },
+    "granularidade": "layer",
+    "concorrencia": {
+     "internal": "serial",
+     "test": "t1"
+    },
+    "knobs": {},
+    "compressao": "none",
+    "accel": "cython"
+   },
+   "nota": "perfil por camada (serial; monkeypatch nao atravessa spawn)",
+   "blocos": [
+    "B3"
+   ]
+  },
+  {
+   "case_id": "tcf-flat|synth|flat-mixed|base|candidate|serial+t1|fallback=False|none|cython",
+   "fonte": "synth",
+   "vectors": {
+    "caminho": "tcf-flat",
+    "forma": "flat-mixed",
+    "escala": {
+     "point_id": "base",
+     "R": 10000,
+     "C": 4,
+     "L": 32,
+     "K": 0.1
+    },
+    "granularidade": "candidate",
+    "concorrencia": {
+     "internal": "serial",
+     "test": "t1"
+    },
+    "knobs": {
+     "fallback": false
+    },
+    "compressao": "none",
+    "accel": "cython"
+   },
+   "nota": "A/B do custo dos candidatos perdedores do _best_of",
+   "blocos": [
+    "B3"
+   ]
+  },
+  {
+   "case_id": "tcf-flat|synth|flat-mixed|R1e5|layer|serial+t1|-|none|cython",
+   "fonte": "synth",
+   "vectors": {
+    "caminho": "tcf-flat",
+    "forma": "flat-mixed",
+    "escala": {
+     "point_id": "R1e5",
+     "R": 100000,
+     "C": 4,
+     "L": 32,
+     "K": 0.1
+    },
+    "granularidade": "layer",
+    "concorrencia": {
+     "internal": "serial",
+     "test": "t1"
+    },
+    "knobs": {},
+    "compressao": "none",
+    "accel": "cython"
+   },
+   "nota": "perfil por camada (serial; monkeypatch nao atravessa spawn)",
+   "blocos": [
+    "B3"
+   ]
+  },
+  {
+   "case_id": "tcf-flat|synth|free-text|R1e5|layer|serial+t1|-|none|cython",
+   "fonte": "synth",
+   "vectors": {
+    "caminho": "tcf-flat",
+    "forma": "free-text",
+    "escala": {
+     "point_id": "R1e5",
+     "R": 100000,
+     "C": 4,
+     "L": 32,
+     "K": 0.1
+    },
+    "granularidade": "layer",
+    "concorrencia": {
+     "internal": "serial",
+     "test": "t1"
+    },
+    "knobs": {},
+    "compressao": "none",
+    "accel": "cython"
+   },
+   "nota": "perfil por camada (serial; monkeypatch nao atravessa spawn)",
+   "blocos": [
+    "B3"
+   ]
+  },
+  {
+   "case_id": "tcf-flat|synth|flat-mixed|R1e5|candidate|serial+t1|fallback=False|none|cython",
+   "fonte": "synth",
+   "vectors": {
+    "caminho": "tcf-flat",
+    "forma": "flat-mixed",
+    "escala": {
+     "point_id": "R1e5",
+     "R": 100000,
+     "C": 4,
+     "L": 32,
+     "K": 0.1
+    },
+    "granularidade": "candidate",
+    "concorrencia": {
+     "internal": "serial",
+     "test": "t1"
+    },
+    "knobs": {
+     "fallback": false
+    },
+    "compressao": "none",
+    "accel": "cython"
+   },
+   "nota": "A/B do custo dos candidatos perdedores do _best_of",
+   "blocos": [
+    "B3"
+   ]
+  },
+  {
+   "case_id": "tcf-flat|synth|flat-mixed|C8-col0|column|serial+t1|-|none|cython",
+   "fonte": "synth",
+   "vectors": {
+    "caminho": "tcf-flat",
+    "forma": "flat-mixed",
+    "escala": {
+     "point_id": "C8-col0",
+     "R": 2000,
+     "C": 8,
+     "L": 32,
+     "K": 0.1
+    },
+    "granularidade": "column",
+    "concorrencia": {
+     "internal": "serial",
+     "test": "t1"
+    },
+    "knobs": {},
+    "compressao": "none",
+    "accel": "cython"
+   },
+   "nota": "decomposicao por coluna (amostras independentes)",
+   "blocos": [
+    "B3"
+   ]
+  },
+  {
+   "case_id": "tcf-flat|synth|flat-mixed|C8-col1|column|serial+t1|-|none|cython",
+   "fonte": "synth",
+   "vectors": {
+    "caminho": "tcf-flat",
+    "forma": "flat-mixed",
+    "escala": {
+     "point_id": "C8-col1",
+     "R": 2000,
+     "C": 8,
+     "L": 32,
+     "K": 0.1
+    },
+    "granularidade": "column",
+    "concorrencia": {
+     "internal": "serial",
+     "test": "t1"
+    },
+    "knobs": {},
+    "compressao": "none",
+    "accel": "cython"
+   },
+   "nota": "decomposicao por coluna (amostras independentes)",
+   "blocos": [
+    "B3"
+   ]
+  },
+  {
+   "case_id": "tcf-flat|synth|flat-mixed|C8-col2|column|serial+t1|-|none|cython",
+   "fonte": "synth",
+   "vectors": {
+    "caminho": "tcf-flat",
+    "forma": "flat-mixed",
+    "escala": {
+     "point_id": "C8-col2",
+     "R": 2000,
+     "C": 8,
+     "L": 32,
+     "K": 0.1
+    },
+    "granularidade": "column",
+    "concorrencia": {
+     "internal": "serial",
+     "test": "t1"
+    },
+    "knobs": {},
+    "compressao": "none",
+    "accel": "cython"
+   },
+   "nota": "decomposicao por coluna (amostras independentes)",
+   "blocos": [
+    "B3"
+   ]
+  },
+  {
+   "case_id": "tcf-flat|synth|flat-mixed|C8-col3|column|serial+t1|-|none|cython",
+   "fonte": "synth",
+   "vectors": {
+    "caminho": "tcf-flat",
+    "forma": "flat-mixed",
+    "escala": {
+     "point_id": "C8-col3",
+     "R": 2000,
+     "C": 8,
+     "L": 32,
+     "K": 0.1
+    },
+    "granularidade": "column",
+    "concorrencia": {
+     "internal": "serial",
+     "test": "t1"
+    },
+    "knobs": {},
+    "compressao": "none",
+    "accel": "cython"
+   },
+   "nota": "decomposicao por coluna (amostras independentes)",
+   "blocos": [
+    "B3"
+   ]
+  },
+  {
+   "case_id": "tcf-flat|synth|flat-mixed|C8-col4|column|serial+t1|-|none|cython",
+   "fonte": "synth",
+   "vectors": {
+    "caminho": "tcf-flat",
+    "forma": "flat-mixed",
+    "escala": {
+     "point_id": "C8-col4",
+     "R": 2000,
+     "C": 8,
+     "L": 32,
+     "K": 0.1
+    },
+    "granularidade": "column",
+    "concorrencia": {
+     "internal": "serial",
+     "test": "t1"
+    },
+    "knobs": {},
+    "compressao": "none",
+    "accel": "cython"
+   },
+   "nota": "decomposicao por coluna (amostras independentes)",
+   "blocos": [
+    "B3"
+   ]
+  },
+  {
+   "case_id": "tcf-flat|synth|flat-mixed|C8-col5|column|serial+t1|-|none|cython",
+   "fonte": "synth",
+   "vectors": {
+    "caminho": "tcf-flat",
+    "forma": "flat-mixed",
+    "escala": {
+     "point_id": "C8-col5",
+     "R": 2000,
+     "C": 8,
+     "L": 32,
+     "K": 0.1
+    },
+    "granularidade": "column",
+    "concorrencia": {
+     "internal": "serial",
+     "test": "t1"
+    },
+    "knobs": {},
+    "compressao": "none",
+    "accel": "cython"
+   },
+   "nota": "decomposicao por coluna (amostras independentes)",
+   "blocos": [
+    "B3"
+   ]
+  },
+  {
+   "case_id": "tcf-flat|synth|flat-mixed|C8-col6|column|serial+t1|-|none|cython",
+   "fonte": "synth",
+   "vectors": {
+    "caminho": "tcf-flat",
+    "forma": "flat-mixed",
+    "escala": {
+     "point_id": "C8-col6",
+     "R": 2000,
+     "C": 8,
+     "L": 32,
+     "K": 0.1
+    },
+    "granularidade": "column",
+    "concorrencia": {
+     "internal": "serial",
+     "test": "t1"
+    },
+    "knobs": {},
+    "compressao": "none",
+    "accel": "cython"
+   },
+   "nota": "decomposicao por coluna (amostras independentes)",
+   "blocos": [
+    "B3"
+   ]
+  },
+  {
+   "case_id": "tcf-flat|synth|flat-mixed|C8-col7|column|serial+t1|-|none|cython",
+   "fonte": "synth",
+   "vectors": {
+    "caminho": "tcf-flat",
+    "forma": "flat-mixed",
+    "escala": {
+     "point_id": "C8-col7",
+     "R": 2000,
+     "C": 8,
+     "L": 32,
+     "K": 0.1
+    },
+    "granularidade": "column",
+    "concorrencia": {
+     "internal": "serial",
+     "test": "t1"
+    },
+    "knobs": {},
+    "compressao": "none",
+    "accel": "cython"
+   },
+   "nota": "decomposicao por coluna (amostras independentes)",
+   "blocos": [
+    "B3"
+   ]
+  },
+  {
+   "case_id": "tcf-flat|synth|flat-mixed|base|call|serial+t1|side_outputs=True|none|cython",
+   "fonte": "synth",
+   "vectors": {
+    "caminho": "tcf-flat",
+    "forma": "flat-mixed",
+    "escala": {
+     "point_id": "base",
+     "R": 10000,
+     "C": 4,
+     "L": 32,
+     "K": 0.1
+    },
+    "granularidade": "call",
+    "concorrencia": {
+     "internal": "serial",
+     "test": "t1"
+    },
+    "knobs": {
+     "side_outputs": true
+    },
+    "compressao": "none",
+    "accel": "cython"
+   },
+   "nota": "mede a alegacao 'overhead zero' do ADR-0014 — nunca foi medida",
+   "blocos": [
+    "B3"
+   ]
+  },
+  {
+   "case_id": "tcf-flat|adult-20k|flat-mixed|base|call|p2+t1|-|none|cython",
+   "fonte": "adult-20k",
+   "vectors": {
+    "caminho": "tcf-flat",
+    "forma": "flat-mixed",
+    "escala": {
+     "point_id": "base",
+     "R": 10000,
+     "C": 4,
+     "L": 32,
+     "K": 0.1
+    },
+    "granularidade": "call",
+    "concorrencia": {
+     "internal": "p2",
+     "test": "t1"
+    },
+    "knobs": {},
+    "compressao": "none",
+    "accel": "cython"
+   },
+   "nota": "",
+   "blocos": [
+    "B4"
+   ]
+  },
+  {
+   "case_id": "tcf-flat|adult-20k|flat-mixed|base|call|p4+t1|-|none|cython",
+   "fonte": "adult-20k",
+   "vectors": {
+    "caminho": "tcf-flat",
+    "forma": "flat-mixed",
+    "escala": {
+     "point_id": "base",
+     "R": 10000,
+     "C": 4,
+     "L": 32,
+     "K": 0.1
+    },
+    "granularidade": "call",
+    "concorrencia": {
+     "internal": "p4",
+     "test": "t1"
+    },
+    "knobs": {},
+    "compressao": "none",
+    "accel": "cython"
+   },
+   "nota": "",
+   "blocos": [
+    "B4"
+   ]
+  },
+  {
+   "case_id": "tcf-flat|adult-20k|flat-mixed|base|call|p8+t1|-|none|cython",
+   "fonte": "adult-20k",
+   "vectors": {
+    "caminho": "tcf-flat",
+    "forma": "flat-mixed",
+    "escala": {
+     "point_id": "base",
+     "R": 10000,
+     "C": 4,
+     "L": 32,
+     "K": 0.1
+    },
+    "granularidade": "call",
+    "concorrencia": {
+     "internal": "p8",
+     "test": "t1"
+    },
+    "knobs": {},
+    "compressao": "none",
+    "accel": "cython"
+   },
+   "nota": "",
+   "blocos": [
+    "B4"
+   ]
+  },
+  {
+   "case_id": "tcf-flat|adult-20k|flat-mixed|base|call|serial+t2|-|none|cython",
+   "fonte": "adult-20k",
+   "vectors": {
+    "caminho": "tcf-flat",
+    "forma": "flat-mixed",
+    "escala": {
+     "point_id": "base",
+     "R": 10000,
+     "C": 4,
+     "L": 32,
+     "K": 0.1
+    },
+    "granularidade": "call",
+    "concorrencia": {
+     "internal": "serial",
+     "test": "t2"
+    },
+    "knobs": {},
+    "compressao": "none",
+    "accel": "cython"
+   },
+   "nota": "paralelismo do TESTE: N encodes independentes concorrentes",
+   "blocos": [
+    "B4"
+   ]
+  },
+  {
+   "case_id": "tcf-flat|adult-20k|flat-mixed|base|call|serial+t4|-|none|cython",
+   "fonte": "adult-20k",
+   "vectors": {
+    "caminho": "tcf-flat",
+    "forma": "flat-mixed",
+    "escala": {
+     "point_id": "base",
+     "R": 10000,
+     "C": 4,
+     "L": 32,
+     "K": 0.1
+    },
+    "granularidade": "call",
+    "concorrencia": {
+     "internal": "serial",
+     "test": "t4"
+    },
+    "knobs": {},
+    "compressao": "none",
+    "accel": "cython"
+   },
+   "nota": "paralelismo do TESTE: N encodes independentes concorrentes",
+   "blocos": [
+    "B4"
+   ]
+  },
+  {
+   "case_id": "tcf-flat|adult-20k|flat-mixed|base|call|serial+t8|-|none|cython",
+   "fonte": "adult-20k",
+   "vectors": {
+    "caminho": "tcf-flat",
+    "forma": "flat-mixed",
+    "escala": {
+     "point_id": "base",
+     "R": 10000,
+     "C": 4,
+     "L": 32,
+     "K": 0.1
+    },
+    "granularidade": "call",
+    "concorrencia": {
+     "internal": "serial",
+     "test": "t8"
+    },
+    "knobs": {},
+    "compressao": "none",
+    "accel": "cython"
+   },
+   "nota": "paralelismo do TESTE: N encodes independentes concorrentes",
+   "blocos": [
+    "B4"
+   ]
+  },
+  {
+   "case_id": "tcf-flat|adult-20k|flat-mixed|base|call|p4+t2|-|none|cython",
+   "fonte": "adult-20k",
+   "vectors": {
+    "caminho": "tcf-flat",
+    "forma": "flat-mixed",
+    "escala": {
+     "point_id": "base",
+     "R": 10000,
+     "C": 4,
+     "L": 32,
+     "K": 0.1
+    },
+    "granularidade": "call",
+    "concorrencia": {
+     "internal": "p4",
+     "test": "t2"
+    },
+    "knobs": {},
+    "compressao": "none",
+    "accel": "cython"
+   },
+   "nota": "interacao interno x teste",
+   "blocos": [
+    "B4"
+   ]
+  },
+  {
+   "case_id": "tcf-flat|adult-20k|flat-mixed|base|process-tree|p4+t1|-|none|cython",
+   "fonte": "adult-20k",
+   "vectors": {
+    "caminho": "tcf-flat",
+    "forma": "flat-mixed",
+    "escala": {
+     "point_id": "base",
+     "R": 10000,
+     "C": 4,
+     "L": 32,
+     "K": 0.1
+    },
+    "granularidade": "process-tree",
+    "concorrencia": {
+     "internal": "p4",
+     "test": "t1"
+    },
+    "knobs": {},
+    "compressao": "none",
+    "accel": "cython"
+   },
+   "nota": "memoria por arvore de processos (tracemalloc do pai nao ve filhos)",
+   "blocos": [
+    "B4"
+   ]
+  },
+  {
+   "case_id": "tcf-flat|lineitem-20k|flat-mixed|base|call|p2+t1|-|none|cython",
+   "fonte": "lineitem-20k",
+   "vectors": {
+    "caminho": "tcf-flat",
+    "forma": "flat-mixed",
+    "escala": {
+     "point_id": "base",
+     "R": 10000,
+     "C": 4,
+     "L": 32,
+     "K": 0.1
+    },
+    "granularidade": "call",
+    "concorrencia": {
+     "internal": "p2",
+     "test": "t1"
+    },
+    "knobs": {},
+    "compressao": "none",
+    "accel": "cython"
+   },
+   "nota": "",
+   "blocos": [
+    "B4"
+   ]
+  },
+  {
+   "case_id": "tcf-flat|lineitem-20k|flat-mixed|base|call|p4+t1|-|none|cython",
+   "fonte": "lineitem-20k",
+   "vectors": {
+    "caminho": "tcf-flat",
+    "forma": "flat-mixed",
+    "escala": {
+     "point_id": "base",
+     "R": 10000,
+     "C": 4,
+     "L": 32,
+     "K": 0.1
+    },
+    "granularidade": "call",
+    "concorrencia": {
+     "internal": "p4",
+     "test": "t1"
+    },
+    "knobs": {},
+    "compressao": "none",
+    "accel": "cython"
+   },
+   "nota": "",
+   "blocos": [
+    "B4"
+   ]
+  },
+  {
+   "case_id": "tcf-flat|lineitem-20k|flat-mixed|base|call|p8+t1|-|none|cython",
+   "fonte": "lineitem-20k",
+   "vectors": {
+    "caminho": "tcf-flat",
+    "forma": "flat-mixed",
+    "escala": {
+     "point_id": "base",
+     "R": 10000,
+     "C": 4,
+     "L": 32,
+     "K": 0.1
+    },
+    "granularidade": "call",
+    "concorrencia": {
+     "internal": "p8",
+     "test": "t1"
+    },
+    "knobs": {},
+    "compressao": "none",
+    "accel": "cython"
+   },
+   "nota": "",
+   "blocos": [
+    "B4"
+   ]
+  },
+  {
+   "case_id": "tcf-flat|lineitem-20k|flat-mixed|base|call|serial+t2|-|none|cython",
+   "fonte": "lineitem-20k",
+   "vectors": {
+    "caminho": "tcf-flat",
+    "forma": "flat-mixed",
+    "escala": {
+     "point_id": "base",
+     "R": 10000,
+     "C": 4,
+     "L": 32,
+     "K": 0.1
+    },
+    "granularidade": "call",
+    "concorrencia": {
+     "internal": "serial",
+     "test": "t2"
+    },
+    "knobs": {},
+    "compressao": "none",
+    "accel": "cython"
+   },
+   "nota": "paralelismo do TESTE: N encodes independentes concorrentes",
+   "blocos": [
+    "B4"
+   ]
+  },
+  {
+   "case_id": "tcf-flat|lineitem-20k|flat-mixed|base|call|serial+t4|-|none|cython",
+   "fonte": "lineitem-20k",
+   "vectors": {
+    "caminho": "tcf-flat",
+    "forma": "flat-mixed",
+    "escala": {
+     "point_id": "base",
+     "R": 10000,
+     "C": 4,
+     "L": 32,
+     "K": 0.1
+    },
+    "granularidade": "call",
+    "concorrencia": {
+     "internal": "serial",
+     "test": "t4"
+    },
+    "knobs": {},
+    "compressao": "none",
+    "accel": "cython"
+   },
+   "nota": "paralelismo do TESTE: N encodes independentes concorrentes",
+   "blocos": [
+    "B4"
+   ]
+  },
+  {
+   "case_id": "tcf-flat|lineitem-20k|flat-mixed|base|call|serial+t8|-|none|cython",
+   "fonte": "lineitem-20k",
+   "vectors": {
+    "caminho": "tcf-flat",
+    "forma": "flat-mixed",
+    "escala": {
+     "point_id": "base",
+     "R": 10000,
+     "C": 4,
+     "L": 32,
+     "K": 0.1
+    },
+    "granularidade": "call",
+    "concorrencia": {
+     "internal": "serial",
+     "test": "t8"
+    },
+    "knobs": {},
+    "compressao": "none",
+    "accel": "cython"
+   },
+   "nota": "paralelismo do TESTE: N encodes independentes concorrentes",
+   "blocos": [
+    "B4"
+   ]
+  },
+  {
+   "case_id": "tcf-flat|lineitem-20k|flat-mixed|base|call|p4+t2|-|none|cython",
+   "fonte": "lineitem-20k",
+   "vectors": {
+    "caminho": "tcf-flat",
+    "forma": "flat-mixed",
+    "escala": {
+     "point_id": "base",
+     "R": 10000,
+     "C": 4,
+     "L": 32,
+     "K": 0.1
+    },
+    "granularidade": "call",
+    "concorrencia": {
+     "internal": "p4",
+     "test": "t2"
+    },
+    "knobs": {},
+    "compressao": "none",
+    "accel": "cython"
+   },
+   "nota": "interacao interno x teste",
+   "blocos": [
+    "B4"
+   ]
+  },
+  {
+   "case_id": "tcf-flat|lineitem-20k|flat-mixed|base|process-tree|p4+t1|-|none|cython",
+   "fonte": "lineitem-20k",
+   "vectors": {
+    "caminho": "tcf-flat",
+    "forma": "flat-mixed",
+    "escala": {
+     "point_id": "base",
+     "R": 10000,
+     "C": 4,
+     "L": 32,
+     "K": 0.1
+    },
+    "granularidade": "process-tree",
+    "concorrencia": {
+     "internal": "p4",
+     "test": "t1"
+    },
+    "knobs": {},
+    "compressao": "none",
+    "accel": "cython"
+   },
+   "nota": "memoria por arvore de processos (tracemalloc do pai nao ve filhos)",
+   "blocos": [
+    "B4"
+   ]
+  },
+  {
+   "case_id": "tcf-8h|synth|nested-object|R1e3|call|serial+t1|-|none|cython",
+   "fonte": "synth",
+   "vectors": {
+    "caminho": "tcf-8h",
+    "forma": "nested-object",
+    "escala": {
+     "point_id": "R1e3",
+     "R": 1000,
+     "C": 4,
+     "L": 32,
+     "K": 0.1
+    },
+    "granularidade": "call",
+    "concorrencia": {
+     "internal": "serial",
+     "test": "t1"
+    },
+    "knobs": {},
+    "compressao": "none",
+    "accel": "cython"
+   },
+   "nota": "",
+   "blocos": [
+    "B5"
+   ]
+  },
+  {
+   "case_id": "tcf-8h|synth|nested-object|base|call|serial+t1|-|none|cython",
+   "fonte": "synth",
+   "vectors": {
+    "caminho": "tcf-8h",
+    "forma": "nested-object",
+    "escala": {
+     "point_id": "base",
+     "R": 10000,
+     "C": 4,
+     "L": 32,
+     "K": 0.1
+    },
+    "granularidade": "call",
+    "concorrencia": {
+     "internal": "serial",
+     "test": "t1"
+    },
+    "knobs": {},
+    "compressao": "none",
+    "accel": "cython"
+   },
+   "nota": "",
+   "blocos": [
+    "B5"
+   ]
+  },
+  {
+   "case_id": "tcf-8h|synth|nested-array|R1e3|call|serial+t1|-|none|cython",
+   "fonte": "synth",
+   "vectors": {
+    "caminho": "tcf-8h",
+    "forma": "nested-array",
+    "escala": {
+     "point_id": "R1e3",
+     "R": 1000,
+     "C": 4,
+     "L": 32,
+     "K": 0.1
+    },
+    "granularidade": "call",
+    "concorrencia": {
+     "internal": "serial",
+     "test": "t1"
+    },
+    "knobs": {},
+    "compressao": "none",
+    "accel": "cython"
+   },
+   "nota": "",
+   "blocos": [
+    "B5"
+   ]
+  },
+  {
+   "case_id": "tcf-8h|synth|nested-array|base|call|serial+t1|-|none|cython",
+   "fonte": "synth",
+   "vectors": {
+    "caminho": "tcf-8h",
+    "forma": "nested-array",
+    "escala": {
+     "point_id": "base",
+     "R": 10000,
+     "C": 4,
+     "L": 32,
+     "K": 0.1
+    },
+    "granularidade": "call",
+    "concorrencia": {
+     "internal": "serial",
+     "test": "t1"
+    },
+    "knobs": {},
+    "compressao": "none",
+    "accel": "cython"
+   },
+   "nota": "",
+   "blocos": [
+    "B5"
+   ]
+  },
+  {
+   "case_id": "tcf-8h|synth|nested-optional|R1e3|call|serial+t1|-|none|cython",
+   "fonte": "synth",
+   "vectors": {
+    "caminho": "tcf-8h",
+    "forma": "nested-optional",
+    "escala": {
+     "point_id": "R1e3",
+     "R": 1000,
+     "C": 4,
+     "L": 32,
+     "K": 0.1
+    },
+    "granularidade": "call",
+    "concorrencia": {
+     "internal": "serial",
+     "test": "t1"
+    },
+    "knobs": {},
+    "compressao": "none",
+    "accel": "cython"
+   },
+   "nota": "",
+   "blocos": [
+    "B5"
+   ]
+  },
+  {
+   "case_id": "tcf-8h|synth|nested-optional|base|call|serial+t1|-|none|cython",
+   "fonte": "synth",
+   "vectors": {
+    "caminho": "tcf-8h",
+    "forma": "nested-optional",
+    "escala": {
+     "point_id": "base",
+     "R": 10000,
+     "C": 4,
+     "L": 32,
+     "K": 0.1
+    },
+    "granularidade": "call",
+    "concorrencia": {
+     "internal": "serial",
+     "test": "t1"
+    },
+    "knobs": {},
+    "compressao": "none",
+    "accel": "cython"
+   },
+   "nota": "",
+   "blocos": [
+    "B5"
+   ]
+  },
+  {
+   "case_id": "json-ref-nested|synth|nested-object|R1e3|call|serial+t1|-|none|cython",
+   "fonte": "synth",
+   "vectors": {
+    "caminho": "json-ref-nested",
+    "forma": "nested-object",
+    "escala": {
+     "point_id": "R1e3",
+     "R": 1000,
+     "C": 4,
+     "L": 32,
+     "K": 0.1
+    },
+    "granularidade": "call",
+    "concorrencia": {
+     "internal": "serial",
+     "test": "t1"
+    },
+    "knobs": {},
+    "compressao": "none",
+    "accel": "cython"
+   },
+   "nota": "",
+   "blocos": [
+    "B5"
+   ]
+  },
+  {
+   "case_id": "json-ref-nested|synth|nested-object|base|call|serial+t1|-|none|cython",
+   "fonte": "synth",
+   "vectors": {
+    "caminho": "json-ref-nested",
+    "forma": "nested-object",
+    "escala": {
+     "point_id": "base",
+     "R": 10000,
+     "C": 4,
+     "L": 32,
+     "K": 0.1
+    },
+    "granularidade": "call",
+    "concorrencia": {
+     "internal": "serial",
+     "test": "t1"
+    },
+    "knobs": {},
+    "compressao": "none",
+    "accel": "cython"
+   },
+   "nota": "",
+   "blocos": [
+    "B5"
+   ]
+  },
+  {
+   "case_id": "json-ref-nested|synth|nested-array|R1e3|call|serial+t1|-|none|cython",
+   "fonte": "synth",
+   "vectors": {
+    "caminho": "json-ref-nested",
+    "forma": "nested-array",
+    "escala": {
+     "point_id": "R1e3",
+     "R": 1000,
+     "C": 4,
+     "L": 32,
+     "K": 0.1
+    },
+    "granularidade": "call",
+    "concorrencia": {
+     "internal": "serial",
+     "test": "t1"
+    },
+    "knobs": {},
+    "compressao": "none",
+    "accel": "cython"
+   },
+   "nota": "",
+   "blocos": [
+    "B5"
+   ]
+  },
+  {
+   "case_id": "json-ref-nested|synth|nested-array|base|call|serial+t1|-|none|cython",
+   "fonte": "synth",
+   "vectors": {
+    "caminho": "json-ref-nested",
+    "forma": "nested-array",
+    "escala": {
+     "point_id": "base",
+     "R": 10000,
+     "C": 4,
+     "L": 32,
+     "K": 0.1
+    },
+    "granularidade": "call",
+    "concorrencia": {
+     "internal": "serial",
+     "test": "t1"
+    },
+    "knobs": {},
+    "compressao": "none",
+    "accel": "cython"
+   },
+   "nota": "",
+   "blocos": [
+    "B5"
+   ]
+  },
+  {
+   "case_id": "json-ref-nested|synth|nested-optional|R1e3|call|serial+t1|-|none|cython",
+   "fonte": "synth",
+   "vectors": {
+    "caminho": "json-ref-nested",
+    "forma": "nested-optional",
+    "escala": {
+     "point_id": "R1e3",
+     "R": 1000,
+     "C": 4,
+     "L": 32,
+     "K": 0.1
+    },
+    "granularidade": "call",
+    "concorrencia": {
+     "internal": "serial",
+     "test": "t1"
+    },
+    "knobs": {},
+    "compressao": "none",
+    "accel": "cython"
+   },
+   "nota": "",
+   "blocos": [
+    "B5"
+   ]
+  },
+  {
+   "case_id": "json-ref-nested|synth|nested-optional|base|call|serial+t1|-|none|cython",
+   "fonte": "synth",
+   "vectors": {
+    "caminho": "json-ref-nested",
+    "forma": "nested-optional",
+    "escala": {
+     "point_id": "base",
+     "R": 10000,
+     "C": 4,
+     "L": 32,
+     "K": 0.1
+    },
+    "granularidade": "call",
+    "concorrencia": {
+     "internal": "serial",
+     "test": "t1"
+    },
+    "knobs": {},
+    "compressao": "none",
+    "accel": "cython"
+   },
+   "nota": "",
+   "blocos": [
+    "B5"
+   ]
+  },
+  {
+   "case_id": "tcf-8h|synth|flat-mixed|base|call|serial+t1|-|none|cython",
+   "fonte": "synth",
+   "vectors": {
+    "caminho": "tcf-8h",
+    "forma": "flat-mixed",
+    "escala": {
+     "point_id": "base",
+     "R": 10000,
+     "C": 4,
+     "L": 32,
+     "K": 0.1
+    },
+    "granularidade": "call",
+    "concorrencia": {
+     "internal": "serial",
+     "test": "t1"
+    },
+    "knobs": {},
+    "compressao": "none",
+    "accel": "cython"
+   },
+   "nota": "nao-regressao do .8H sobre dado plano",
+   "blocos": [
+    "B5"
+   ]
+  },
+  {
+   "case_id": "json-ref-typed|synth|structured|base|call|serial+t1|-|none|cython",
+   "fonte": "synth",
+   "vectors": {
+    "caminho": "json-ref-typed",
+    "forma": "structured",
+    "escala": {
+     "point_id": "base",
+     "R": 10000,
+     "C": 4,
+     "L": 32,
+     "K": 0.1
+    },
+    "granularidade": "call",
+    "concorrencia": {
+     "internal": "serial",
+     "test": "t1"
+    },
+    "knobs": {},
+    "compressao": "none",
+    "accel": "cython"
+   },
+   "nota": "isola o custo de TIPAR (e' do dado, nao do TCF)",
+   "blocos": [
+    "B5"
+   ]
+  },
+  {
+   "case_id": "tcf-flat|synth|flat-mixed|base|call|serial+t1|-|gzip-6|cython",
+   "fonte": "synth",
+   "vectors": {
+    "caminho": "tcf-flat",
+    "forma": "flat-mixed",
+    "escala": {
+     "point_id": "base",
+     "R": 10000,
+     "C": 4,
+     "L": 32,
+     "K": 0.1
+    },
+    "granularidade": "call",
+    "concorrencia": {
+     "internal": "serial",
+     "test": "t1"
+    },
+    "knobs": {},
+    "compressao": "gzip-6",
+    "accel": "cython"
+   },
+   "nota": "cadeia total: serialize+compress / decompress+parse",
+   "blocos": [
+    "B6"
+   ]
+  },
+  {
+   "case_id": "tcf-flat|synth|flat-mixed|base|call|serial+t1|-|zstd-3|cython",
+   "fonte": "synth",
+   "vectors": {
+    "caminho": "tcf-flat",
+    "forma": "flat-mixed",
+    "escala": {
+     "point_id": "base",
+     "R": 10000,
+     "C": 4,
+     "L": 32,
+     "K": 0.1
+    },
+    "granularidade": "call",
+    "concorrencia": {
+     "internal": "serial",
+     "test": "t1"
+    },
+    "knobs": {},
+    "compressao": "zstd-3",
+    "accel": "cython"
+   },
+   "nota": "cadeia total: serialize+compress / decompress+parse",
+   "blocos": [
+    "B6"
+   ]
+  },
+  {
+   "case_id": "tcf-flat|synth|flat-mixed|base|call|serial+t1|-|brotli-5|cython",
+   "fonte": "synth",
+   "vectors": {
+    "caminho": "tcf-flat",
+    "forma": "flat-mixed",
+    "escala": {
+     "point_id": "base",
+     "R": 10000,
+     "C": 4,
+     "L": 32,
+     "K": 0.1
+    },
+    "granularidade": "call",
+    "concorrencia": {
+     "internal": "serial",
+     "test": "t1"
+    },
+    "knobs": {},
+    "compressao": "brotli-5",
+    "accel": "cython"
+   },
+   "nota": "cadeia total: serialize+compress / decompress+parse",
+   "blocos": [
+    "B6"
+   ]
+  },
+  {
+   "case_id": "json-ref-str|synth|flat-mixed|base|call|serial+t1|-|gzip-6|cython",
+   "fonte": "synth",
+   "vectors": {
+    "caminho": "json-ref-str",
+    "forma": "flat-mixed",
+    "escala": {
+     "point_id": "base",
+     "R": 10000,
+     "C": 4,
+     "L": 32,
+     "K": 0.1
+    },
+    "granularidade": "call",
+    "concorrencia": {
+     "internal": "serial",
+     "test": "t1"
+    },
+    "knobs": {},
+    "compressao": "gzip-6",
+    "accel": "cython"
+   },
+   "nota": "cadeia total: serialize+compress / decompress+parse",
+   "blocos": [
+    "B6"
+   ]
+  },
+  {
+   "case_id": "json-ref-str|synth|flat-mixed|base|call|serial+t1|-|zstd-3|cython",
+   "fonte": "synth",
+   "vectors": {
+    "caminho": "json-ref-str",
+    "forma": "flat-mixed",
+    "escala": {
+     "point_id": "base",
+     "R": 10000,
+     "C": 4,
+     "L": 32,
+     "K": 0.1
+    },
+    "granularidade": "call",
+    "concorrencia": {
+     "internal": "serial",
+     "test": "t1"
+    },
+    "knobs": {},
+    "compressao": "zstd-3",
+    "accel": "cython"
+   },
+   "nota": "cadeia total: serialize+compress / decompress+parse",
+   "blocos": [
+    "B6"
+   ]
+  },
+  {
+   "case_id": "json-ref-str|synth|flat-mixed|base|call|serial+t1|-|brotli-5|cython",
+   "fonte": "synth",
+   "vectors": {
+    "caminho": "json-ref-str",
+    "forma": "flat-mixed",
+    "escala": {
+     "point_id": "base",
+     "R": 10000,
+     "C": 4,
+     "L": 32,
+     "K": 0.1
+    },
+    "granularidade": "call",
+    "concorrencia": {
+     "internal": "serial",
+     "test": "t1"
+    },
+    "knobs": {},
+    "compressao": "brotli-5",
+    "accel": "cython"
+   },
+   "nota": "cadeia total: serialize+compress / decompress+parse",
+   "blocos": [
+    "B6"
+   ]
+  },
+  {
+   "case_id": "csv-ref|synth|flat-mixed|base|call|serial+t1|-|gzip-6|cython",
+   "fonte": "synth",
+   "vectors": {
+    "caminho": "csv-ref",
+    "forma": "flat-mixed",
+    "escala": {
+     "point_id": "base",
+     "R": 10000,
+     "C": 4,
+     "L": 32,
+     "K": 0.1
+    },
+    "granularidade": "call",
+    "concorrencia": {
+     "internal": "serial",
+     "test": "t1"
+    },
+    "knobs": {},
+    "compressao": "gzip-6",
+    "accel": "cython"
+   },
+   "nota": "cadeia total: serialize+compress / decompress+parse",
+   "blocos": [
+    "B6"
+   ]
+  },
+  {
+   "case_id": "csv-ref|synth|flat-mixed|base|call|serial+t1|-|zstd-3|cython",
+   "fonte": "synth",
+   "vectors": {
+    "caminho": "csv-ref",
+    "forma": "flat-mixed",
+    "escala": {
+     "point_id": "base",
+     "R": 10000,
+     "C": 4,
+     "L": 32,
+     "K": 0.1
+    },
+    "granularidade": "call",
+    "concorrencia": {
+     "internal": "serial",
+     "test": "t1"
+    },
+    "knobs": {},
+    "compressao": "zstd-3",
+    "accel": "cython"
+   },
+   "nota": "cadeia total: serialize+compress / decompress+parse",
+   "blocos": [
+    "B6"
+   ]
+  },
+  {
+   "case_id": "csv-ref|synth|flat-mixed|base|call|serial+t1|-|brotli-5|cython",
+   "fonte": "synth",
+   "vectors": {
+    "caminho": "csv-ref",
+    "forma": "flat-mixed",
+    "escala": {
+     "point_id": "base",
+     "R": 10000,
+     "C": 4,
+     "L": 32,
+     "K": 0.1
+    },
+    "granularidade": "call",
+    "concorrencia": {
+     "internal": "serial",
+     "test": "t1"
+    },
+    "knobs": {},
+    "compressao": "brotli-5",
+    "accel": "cython"
+   },
+   "nota": "cadeia total: serialize+compress / decompress+parse",
+   "blocos": [
+    "B6"
+   ]
+  },
+  {
+   "case_id": "tcf-8h|synth|flat-mixed|base|call|serial+t1|-|gzip-6|cython",
+   "fonte": "synth",
+   "vectors": {
+    "caminho": "tcf-8h",
+    "forma": "flat-mixed",
+    "escala": {
+     "point_id": "base",
+     "R": 10000,
+     "C": 4,
+     "L": 32,
+     "K": 0.1
+    },
+    "granularidade": "call",
+    "concorrencia": {
+     "internal": "serial",
+     "test": "t1"
+    },
+    "knobs": {},
+    "compressao": "gzip-6",
+    "accel": "cython"
+   },
+   "nota": "cadeia total: serialize+compress / decompress+parse",
+   "blocos": [
+    "B6"
+   ]
+  },
+  {
+   "case_id": "tcf-8h|synth|flat-mixed|base|call|serial+t1|-|zstd-3|cython",
+   "fonte": "synth",
+   "vectors": {
+    "caminho": "tcf-8h",
+    "forma": "flat-mixed",
+    "escala": {
+     "point_id": "base",
+     "R": 10000,
+     "C": 4,
+     "L": 32,
+     "K": 0.1
+    },
+    "granularidade": "call",
+    "concorrencia": {
+     "internal": "serial",
+     "test": "t1"
+    },
+    "knobs": {},
+    "compressao": "zstd-3",
+    "accel": "cython"
+   },
+   "nota": "cadeia total: serialize+compress / decompress+parse",
+   "blocos": [
+    "B6"
+   ]
+  },
+  {
+   "case_id": "tcf-8h|synth|flat-mixed|base|call|serial+t1|-|brotli-5|cython",
+   "fonte": "synth",
+   "vectors": {
+    "caminho": "tcf-8h",
+    "forma": "flat-mixed",
+    "escala": {
+     "point_id": "base",
+     "R": 10000,
+     "C": 4,
+     "L": 32,
+     "K": 0.1
+    },
+    "granularidade": "call",
+    "concorrencia": {
+     "internal": "serial",
+     "test": "t1"
+    },
+    "knobs": {},
+    "compressao": "brotli-5",
+    "accel": "cython"
+   },
+   "nota": "cadeia total: serialize+compress / decompress+parse",
+   "blocos": [
+    "B6"
+   ]
+  },
+  {
+   "case_id": "tcf-flat|synth|flat-mixed|base|call|serial+t1|-|gzip-9|cython",
+   "fonte": "synth",
+   "vectors": {
+    "caminho": "tcf-flat",
+    "forma": "flat-mixed",
+    "escala": {
+     "point_id": "base",
+     "R": 10000,
+     "C": 4,
+     "L": 32,
+     "K": 0.1
+    },
+    "granularidade": "call",
+    "concorrencia": {
+     "internal": "serial",
+     "test": "t1"
+    },
+    "knobs": {},
+    "compressao": "gzip-9",
+    "accel": "cython"
+   },
+   "nota": "",
+   "blocos": [
+    "B6"
+   ]
+  },
+  {
+   "case_id": "tcf-flat|synth|flat-mixed|base|call|serial+t1|-|zstd-19|cython",
+   "fonte": "synth",
+   "vectors": {
+    "caminho": "tcf-flat",
+    "forma": "flat-mixed",
+    "escala": {
+     "point_id": "base",
+     "R": 10000,
+     "C": 4,
+     "L": 32,
+     "K": 0.1
+    },
+    "granularidade": "call",
+    "concorrencia": {
+     "internal": "serial",
+     "test": "t1"
+    },
+    "knobs": {},
+    "compressao": "zstd-19",
+    "accel": "cython"
+   },
+   "nota": "",
+   "blocos": [
+    "B6"
+   ]
+  },
+  {
+   "case_id": "tcf-flat|synth|flat-mixed|base|call|serial+t1|-|brotli-11|cython",
+   "fonte": "synth",
+   "vectors": {
+    "caminho": "tcf-flat",
+    "forma": "flat-mixed",
+    "escala": {
+     "point_id": "base",
+     "R": 10000,
+     "C": 4,
+     "L": 32,
+     "K": 0.1
+    },
+    "granularidade": "call",
+    "concorrencia": {
+     "internal": "serial",
+     "test": "t1"
+    },
+    "knobs": {},
+    "compressao": "brotli-11",
+    "accel": "cython"
+   },
+   "nota": "",
+   "blocos": [
+    "B6"
+   ]
+  },
+  {
+   "case_id": "json-ref-str|synth|flat-mixed|base|call|serial+t1|-|gzip-9|cython",
+   "fonte": "synth",
+   "vectors": {
+    "caminho": "json-ref-str",
+    "forma": "flat-mixed",
+    "escala": {
+     "point_id": "base",
+     "R": 10000,
+     "C": 4,
+     "L": 32,
+     "K": 0.1
+    },
+    "granularidade": "call",
+    "concorrencia": {
+     "internal": "serial",
+     "test": "t1"
+    },
+    "knobs": {},
+    "compressao": "gzip-9",
+    "accel": "cython"
+   },
+   "nota": "",
+   "blocos": [
+    "B6"
+   ]
+  },
+  {
+   "case_id": "json-ref-str|synth|flat-mixed|base|call|serial+t1|-|zstd-19|cython",
+   "fonte": "synth",
+   "vectors": {
+    "caminho": "json-ref-str",
+    "forma": "flat-mixed",
+    "escala": {
+     "point_id": "base",
+     "R": 10000,
+     "C": 4,
+     "L": 32,
+     "K": 0.1
+    },
+    "granularidade": "call",
+    "concorrencia": {
+     "internal": "serial",
+     "test": "t1"
+    },
+    "knobs": {},
+    "compressao": "zstd-19",
+    "accel": "cython"
+   },
+   "nota": "",
+   "blocos": [
+    "B6"
+   ]
+  },
+  {
+   "case_id": "json-ref-str|synth|flat-mixed|base|call|serial+t1|-|brotli-11|cython",
+   "fonte": "synth",
+   "vectors": {
+    "caminho": "json-ref-str",
+    "forma": "flat-mixed",
+    "escala": {
+     "point_id": "base",
+     "R": 10000,
+     "C": 4,
+     "L": 32,
+     "K": 0.1
+    },
+    "granularidade": "call",
+    "concorrencia": {
+     "internal": "serial",
+     "test": "t1"
+    },
+    "knobs": {},
+    "compressao": "brotli-11",
+    "accel": "cython"
+   },
+   "nota": "",
+   "blocos": [
+    "B6"
+   ]
+  },
+  {
+   "case_id": "tcf-flat|synth|free-text|R1e3|call|serial+t1|-|none|pure",
+   "fonte": "synth",
+   "vectors": {
+    "caminho": "tcf-flat",
+    "forma": "free-text",
+    "escala": {
+     "point_id": "R1e3",
+     "R": 1000,
+     "C": 4,
+     "L": 32,
+     "K": 0.1
+    },
+    "granularidade": "call",
+    "concorrencia": {
+     "internal": "serial",
+     "test": "t1"
+    },
+    "knobs": {},
+    "compressao": "none",
+    "accel": "pure"
+   },
+   "nota": "processo filho dedicado: monkeypatch global contaminaria o resto",
+   "blocos": [
+    "B7"
+   ]
+  },
+  {
+   "case_id": "tcf-flat|synth|free-text|base|call|serial+t1|-|none|pure",
+   "fonte": "synth",
+   "vectors": {
+    "caminho": "tcf-flat",
+    "forma": "free-text",
+    "escala": {
+     "point_id": "base",
+     "R": 10000,
+     "C": 4,
+     "L": 32,
+     "K": 0.1
+    },
+    "granularidade": "call",
+    "concorrencia": {
+     "internal": "serial",
+     "test": "t1"
+    },
+    "knobs": {},
+    "compressao": "none",
+    "accel": "pure"
+   },
+   "nota": "processo filho dedicado: monkeypatch global contaminaria o resto",
+   "blocos": [
+    "B7"
+   ]
+  },
+  {
+   "case_id": "tcf-flat|synth|free-text|R1e5|call|serial+t1|-|none|pure",
+   "fonte": "synth",
+   "vectors": {
+    "caminho": "tcf-flat",
+    "forma": "free-text",
+    "escala": {
+     "point_id": "R1e5",
+     "R": 100000,
+     "C": 4,
+     "L": 32,
+     "K": 0.1
+    },
+    "granularidade": "call",
+    "concorrencia": {
+     "internal": "serial",
+     "test": "t1"
+    },
+    "knobs": {},
+    "compressao": "none",
+    "accel": "pure"
+   },
+   "nota": "processo filho dedicado: monkeypatch global contaminaria o resto",
+   "blocos": [
+    "B7"
+   ]
+  },
+  {
+   "case_id": "tcf-flat|synth|flat-mixed|R1e3|call|serial+t1|-|none|pure",
+   "fonte": "synth",
+   "vectors": {
+    "caminho": "tcf-flat",
+    "forma": "flat-mixed",
+    "escala": {
+     "point_id": "R1e3",
+     "R": 1000,
+     "C": 4,
+     "L": 32,
+     "K": 0.1
+    },
+    "granularidade": "call",
+    "concorrencia": {
+     "internal": "serial",
+     "test": "t1"
+    },
+    "knobs": {},
+    "compressao": "none",
+    "accel": "pure"
+   },
+   "nota": "processo filho dedicado: monkeypatch global contaminaria o resto",
+   "blocos": [
+    "B7"
+   ]
+  },
+  {
+   "case_id": "tcf-flat|synth|flat-mixed|base|call|serial+t1|-|none|pure",
+   "fonte": "synth",
+   "vectors": {
+    "caminho": "tcf-flat",
+    "forma": "flat-mixed",
+    "escala": {
+     "point_id": "base",
+     "R": 10000,
+     "C": 4,
+     "L": 32,
+     "K": 0.1
+    },
+    "granularidade": "call",
+    "concorrencia": {
+     "internal": "serial",
+     "test": "t1"
+    },
+    "knobs": {},
+    "compressao": "none",
+    "accel": "pure"
+   },
+   "nota": "processo filho dedicado: monkeypatch global contaminaria o resto",
+   "blocos": [
+    "B7"
+   ]
+  },
+  {
+   "case_id": "tcf-flat|synth|flat-mixed|R1e5|call|serial+t1|-|none|pure",
+   "fonte": "synth",
+   "vectors": {
+    "caminho": "tcf-flat",
+    "forma": "flat-mixed",
+    "escala": {
+     "point_id": "R1e5",
+     "R": 100000,
+     "C": 4,
+     "L": 32,
+     "K": 0.1
+    },
+    "granularidade": "call",
+    "concorrencia": {
+     "internal": "serial",
+     "test": "t1"
+    },
+    "knobs": {},
+    "compressao": "none",
+    "accel": "pure"
+   },
+   "nota": "processo filho dedicado: monkeypatch global contaminaria o resto",
+   "blocos": [
+    "B7"
+   ]
+  },
+  {
+   "case_id": "tcf-flat|synth|flat-mixed|base|call|serial+t1|sort_by=col00|none|cython",
+   "fonte": "synth",
+   "vectors": {
+    "caminho": "tcf-flat",
+    "forma": "flat-mixed",
+    "escala": {
+     "point_id": "base",
+     "R": 10000,
+     "C": 4,
+     "L": 32,
+     "K": 0.1
+    },
+    "granularidade": "call",
+    "concorrencia": {
+     "internal": "serial",
+     "test": "t1"
+    },
+    "knobs": {
+     "sort_by": "col00"
+    },
+    "compressao": "none",
+    "accel": "cython"
+   },
+   "nota": "",
+   "blocos": [
+    "B8"
+   ]
+  },
+  {
+   "case_id": "tcf-flat|synth|flat-mixed|base|call|serial+t1|drop_names=True|none|cython",
+   "fonte": "synth",
+   "vectors": {
+    "caminho": "tcf-flat",
+    "forma": "flat-mixed",
+    "escala": {
+     "point_id": "base",
+     "R": 10000,
+     "C": 4,
+     "L": 32,
+     "K": 0.1
+    },
+    "granularidade": "call",
+    "concorrencia": {
+     "internal": "serial",
+     "test": "t1"
+    },
+    "knobs": {
+     "drop_names": true
+    },
+    "compressao": "none",
+    "accel": "cython"
+   },
+   "nota": "",
+   "blocos": [
+    "B8"
+   ]
+  },
+  {
+   "case_id": "tcf-flat|synth|flat-mixed|base|call|serial+t1|nature=cpf|none|cython",
+   "fonte": "synth",
+   "vectors": {
+    "caminho": "tcf-flat",
+    "forma": "flat-mixed",
+    "escala": {
+     "point_id": "base",
+     "R": 10000,
+     "C": 4,
+     "L": 32,
+     "K": 0.1
+    },
+    "granularidade": "call",
+    "concorrencia": {
+     "internal": "serial",
+     "test": "t1"
+    },
+    "knobs": {
+     "nature": "cpf"
+    },
+    "compressao": "none",
+    "accel": "cython"
+   },
+   "nota": "",
+   "blocos": [
+    "B8"
+   ]
+  },
+  {
+   "case_id": "tcf-flat|synth|flat-mixed|base|call|serial+t1|min_len=3|none|cython",
+   "fonte": "synth",
+   "vectors": {
+    "caminho": "tcf-flat",
+    "forma": "flat-mixed",
+    "escala": {
+     "point_id": "base",
+     "R": 10000,
+     "C": 4,
+     "L": 32,
+     "K": 0.1
+    },
+    "granularidade": "call",
+    "concorrencia": {
+     "internal": "serial",
+     "test": "t1"
+    },
+    "knobs": {
+     "min_len": 3
+    },
+    "compressao": "none",
+    "accel": "cython"
+   },
+   "nota": "",
+   "blocos": [
+    "B8"
+   ]
+  },
+  {
+   "case_id": "tcf-flat|synth|flat-mixed|base|call|serial+t1|pre_pass=False|none|cython",
+   "fonte": "synth",
+   "vectors": {
+    "caminho": "tcf-flat",
+    "forma": "flat-mixed",
+    "escala": {
+     "point_id": "base",
+     "R": 10000,
+     "C": 4,
+     "L": 32,
+     "K": 0.1
+    },
+    "granularidade": "call",
+    "concorrencia": {
+     "internal": "serial",
+     "test": "t1"
+    },
+    "knobs": {
+     "pre_pass": false
+    },
+    "compressao": "none",
+    "accel": "cython"
+   },
+   "nota": "",
+   "blocos": [
+    "B8"
+   ]
+  },
+  {
+   "case_id": "tcf-flat|synth|flat-mixed|base|call|serial+t1|hcc_seq_rle=False|none|cython",
+   "fonte": "synth",
+   "vectors": {
+    "caminho": "tcf-flat",
+    "forma": "flat-mixed",
+    "escala": {
+     "point_id": "base",
+     "R": 10000,
+     "C": 4,
+     "L": 32,
+     "K": 0.1
+    },
+    "granularidade": "call",
+    "concorrencia": {
+     "internal": "serial",
+     "test": "t1"
+    },
+    "knobs": {
+     "hcc_seq_rle": false
+    },
+    "compressao": "none",
+    "accel": "cython"
+   },
+   "nota": "",
+   "blocos": [
+    "B8"
+   ]
+  },
+  {
+   "case_id": "tcf-flat|synth|flat-mixed|base|call|serial+t1|obat_shape_preserve=False|none|cython",
+   "fonte": "synth",
+   "vectors": {
+    "caminho": "tcf-flat",
+    "forma": "flat-mixed",
+    "escala": {
+     "point_id": "base",
+     "R": 10000,
+     "C": 4,
+     "L": 32,
+     "K": 0.1
+    },
+    "granularidade": "call",
+    "concorrencia": {
+     "internal": "serial",
+     "test": "t1"
+    },
+    "knobs": {
+     "obat_shape_preserve": false
+    },
+    "compressao": "none",
+    "accel": "cython"
+   },
+   "nota": "",
+   "blocos": [
+    "B8"
+   ]
+  }
+ ]
+}
