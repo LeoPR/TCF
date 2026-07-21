@@ -93,6 +93,18 @@ def _lcs_len_capped(a, b, la, lb, cap):
     return i
 
 
+# P2 (2026-07-21) — tres podas no laco de scan, BYTE-NEUTRAS por construcao.
+# Motivo: com trigrama degenerado (todo IP '10.x.x.x' cai no mesmo bucket '10.'),
+# o laco varre TODO o bucket. Medido: `_lcp_len_capped` recebeu 3.882.189 chamadas
+# num encode de IP contra 21.636 no de CPF (179x). As podas nao mudam o vencedor —
+# so' deixam de AVALIAR candidatos que ja' nao podiam vencer:
+#   (1) teto: L <= min(ls, max_len); atingido o teto, nenhum candidato supera -> break
+#   (2) cota: L <= min(ls, lens[idx], max_len); se essa cota <= best_len -> continue
+#   (3) inline do helper: elimina uma chamada Python por candidato (aritmetica identica)
+# Empate segue com o MENOR id: a atualizacao exige L > best_len (estrito), e o break
+# so' ocorre depois de uma atualizacao — quem empata depois nunca venceria mesmo.
+
+
 def _melhor_pref(s, ls, strings, lens, prefix_index, max_len, min_len):
     """Hash-indexed: busca so' candidatos com mesmo trigrama inicial.
     Bucket ordenado por ordem de insercao = id ascendente, preserva
@@ -104,10 +116,22 @@ def _melhor_pref(s, ls, strings, lens, prefix_index, max_len, min_len):
     if not bucket:
         return 0, 0
     best_id, best_len = 0, 0
+    teto = ls if ls < max_len else max_len
     for idx in bucket:
-        L = _lcp_len_capped(s, strings[idx], ls, lens[idx], max_len)
-        if L >= min_len and L > best_len:
-            best_len, best_id = L, idx + 1
+        lb = lens[idx]
+        n = ls if ls < lb else lb
+        if max_len < n:
+            n = max_len
+        if n <= best_len:                       # (2) cota superior nao bate o melhor
+            continue
+        b = strings[idx]                        # (3) corpo de _lcp_len_capped inline
+        i = 0
+        while i < n and s[i] == b[i]:
+            i += 1
+        if i >= min_len and i > best_len:
+            best_len, best_id = i, idx + 1
+            if best_len == teto:                # (1) ninguem supera o teto
+                break
     return best_id, best_len
 
 
@@ -118,10 +142,24 @@ def _melhor_suf(s, ls, strings, lens, suffix_index, max_len, min_len):
     if not bucket:
         return 0, 0
     best_id, best_len = 0, 0
+    teto = ls if ls < max_len else max_len
+    s_back = ls - 1
     for idx in bucket:
-        L = _lcs_len_capped(s, strings[idx], ls, lens[idx], max_len)
-        if L >= min_len and L > best_len:
-            best_len, best_id = L, idx + 1
+        lb = lens[idx]
+        n = ls if ls < lb else lb
+        if max_len < n:
+            n = max_len
+        if n <= best_len:                       # (2) cota superior nao bate o melhor
+            continue
+        b = strings[idx]                        # (3) corpo de _lcs_len_capped inline
+        b_back = lb - 1
+        i = 0
+        while i < n and s[s_back - i] == b[b_back - i]:
+            i += 1
+        if i >= min_len and i > best_len:
+            best_len, best_id = i, idx + 1
+            if best_len == teto:                # (1) ninguem supera o teto
+                break
     return best_id, best_len
 
 
