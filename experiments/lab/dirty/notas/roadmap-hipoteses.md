@@ -571,7 +571,23 @@ prototipo clean (`experiments/lab/clean/EXP-XXX-*`) e' pra testar
 Atualizar quando: hipotese confirmada/refutada/movida-de-status, OU
 nova hipotese identificada.
 
-**Ultima atualizacao**: 2026-07-21 — **H-JSON-CLARITY-WARN-01** (owner, QUESTAO ABERTA sem solucao):
+**Ultima atualizacao**: 2026-07-22 — **H-LAZY-INPUT-01** (owner, direcao — "apenas pensar"):
+o `encode` hoje exige o dataset TODO materializado (`dict[str, list[str]]`) — pico de memoria =
+O(dataset), e um "dicionario gigante com elementos enormes" pode ser desnecessario. Tres niveis de
+laziness na ENTRADA (do mais tratavel ao 2.0): (1) **streaming por coluna** — processa 1 coluna,
+emite o body, libera; o multi-col ja' itera coluna a coluna, muda o contrato de entrada pra um
+iterador de colunas; pico O(1 coluna + bodies). (2) **uniques on-the-fly** — materializa so' o set
+unico por coluna (o pre-pass/OBAT precisam dele; ≥1 passada), nao as linhas cruas. (3)
+**iterador/gerador de entrada** (cursor de DB/arquivo, puxa sob demanda) = a visao 2.0, pilar de
+streaming ADR-0018 V2-J/K (time-to-first-byte, zero-copy IO). CRITERIO DE MEDICAO (relacionado): a
+performance do TCF e' medida ENTRADA(dataset)->SAIDA(wire), com o dataset PRE-MATERIALIZADO; o custo
+de ler disco/json e montar o dict e' FORMALISMO, fica FORA (o harness bench_perf ja' mede `prepare`
+a' parte, nao no numero de encode). Quando o TCF ganhar entrada lazy, o harness mede o caminho
+streaming (pico de memoria + latencia) sem confundir com o build. Status: `aberta` (.9 nivel 1 /
+2.0 nivel 3, familia ADR-0018 streaming + limite-de-memoria); confianca: Media (nivel 1 tratavel;
+ganho a medir). Nao e' `.8`.
+
+**Atualizacao anterior**: 2026-07-21 — **H-JSON-CLARITY-WARN-01** (owner, QUESTAO ABERTA sem solucao):
 o TCF nunca gera JSON — gera um **dataset** possivel-de-RFC-JSON; quem serializa e' uma libjson (melhor)
 consumindo esse dataset. Escala N1/N2/N3 (ver `docs/reference/json-equivalence.md` §1-bis). PROBLEMA:
 "ser melhor que o json nao gera clareza sozinho" — se o TCF deixa um dataset que uma libjson popular
