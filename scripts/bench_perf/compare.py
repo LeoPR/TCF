@@ -125,20 +125,29 @@ def main(argv=None) -> int:
     ap.add_argument("candidato", nargs="?")
     ap.add_argument("--self", dest="autoteste", action="store_true",
                     help="auto-teste: baseline vs si mesmo -> tudo IGUAL, fator 1.0")
+    ap.add_argument("--dev", action="store_true",
+                    help="rebaixa o fail-closed p/ aviso (desenvolvimento) — NAO use p/ evidencia")
     args = ap.parse_args(argv)
 
     base = Path(args.baseline)
     cand = base if args.autoteste else Path(args.candidato)
     r = comparar(base, cand)
 
-    # GUARDA DE RUN primeiro — se a matriz difere, o resto do join nao vale
+    # GUARDA DE RUN FAIL-CLOSED (parecer §63): matriz diferente OU status invalido
+    # (parcial/termicamente-reprovado/sem-resumo) => a comparacao NAO vale como
+    # evidencia. Recusa sem emitir veredicto e sai !=0. --dev rebaixa p/ aviso.
+    invalido = []
     if not r["matriz_igual"]:
-        print(f"!! MATRIZ DIFERENTE (base {r['matriz_sha']['base']} vs cand "
-              f"{r['matriz_sha']['cand']}) — comparacao INVALIDA. Rode os dois lados "
-              f"com o mesmo cases.json.")
+        invalido.append(f"matriz diferente ({r['matriz_sha']['base']} vs {r['matriz_sha']['cand']})")
     for lado, st in r["status_termico"].items():
-        if st == "termicamente-reprovado":
-            print(f"!! {lado} = termicamente-reprovado — normalizacao nao sustenta o claim; re-rode quieto")
+        if st != "completo":
+            invalido.append(f"{lado}={st or 'sem-resumo'}")
+    if invalido and not args.dev:
+        print("!! COMPARACAO RECUSADA (fail-closed): " + " · ".join(invalido))
+        print("   corrija/re-rode os dois lados aceitos, ou use --dev p/ inspecionar (nao-evidencia).")
+        return 2
+    for m in invalido:
+        print(f"!! AVISO (--dev): {m}")
 
     print(f"fator_calibrador (maquina .9/.8) = {r['fator_calibrador']}")
     print(f"veredictos: {r['contagem']}")
@@ -160,11 +169,15 @@ def main(argv=None) -> int:
         print(f"  PIOR   {l['delta_pct']:+6.1f}% (lim {l['limiar_pct']}%)  {l['case_id'][:50]}")
 
     if args.autoteste:
-        # auto-teste: mesmo arquivo -> matriz igual, fator 1.0, zero PIOR/MELHOR/protocolo-desigual
-        ok = (r["matriz_igual"] and r["fator_calibrador"] == 1.0
+        # auto-teste: mesmo arquivo -> matriz igual, fator 1.0, zero PIOR/MELHOR/protocolo,
+        # E o proprio run ACEITO (status completo) — um run termicamente-reprovado ou
+        # parcial NAO passa mesmo comparado a si (parecer §71).
+        run_ok = r["status_termico"]["baseline"] == "completo"
+        ok = (r["matriz_igual"] and r["fator_calibrador"] == 1.0 and run_ok
               and r["contagem"]["PIOR"] == 0 and r["contagem"]["MELHOR"] == 0
               and r["contagem"]["protocolo-desigual"] == 0)
-        print("AUTO-TESTE:", "PASSOU" if ok else "FALHOU")
+        print(f"AUTO-TESTE: {'PASSOU' if ok else 'FALHOU'}"
+              f"{'' if run_ok else ' (run nao-aceito: status='+str(r['status_termico']['baseline'])+')'}")
         return 0 if ok else 1
     return 0
 

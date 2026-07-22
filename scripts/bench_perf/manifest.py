@@ -92,9 +92,13 @@ def gerar() -> dict:
 
 
 def _cython_ativo() -> bool:
+    # BUG (achado 2026-07-22 pela revisao do owner): `_detect_compositions_accelerated`
+    # e' ATRIBUTO DE CLASSE (M8AVirtualRefsSyntax.…), nao global de modulo — o import
+    # antigo falhava e caia calado em False, rotulando TODO run como cython_accel=False
+    # mesmo com a extensao carregada. Um baseline probatorio nao pode mentir o accel.
     try:
-        from tcf.composicional.syntax import _detect_compositions_accelerated
-        return bool(_detect_compositions_accelerated)
+        from tcf.composicional.syntax import M8AVirtualRefsSyntax
+        return bool(getattr(M8AVirtualRefsSyntax, "_detect_compositions_accelerated", False))
     except Exception:
         return False
 

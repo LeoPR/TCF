@@ -563,6 +563,9 @@ def main(argv=None) -> int:
     ap.add_argument("--stamp-utc", default=None, help="timestamp ISO (reprodutibilidade)")
     ap.add_argument("--resume", action="store_true",
                     help="continua um JSONL existente: pula case_id ja' feitos (mesmo git+matriz)")
+    ap.add_argument("--probative", action="store_true",
+                    help="rodada de EVIDENCIA: fail-closed — aborta antes se arvore suja OU cython "
+                         "ausente; ao fim, exit!=0 se nao ficar 'completo'")
     args = ap.parse_args(argv)
 
     cases_path = AQUI / "cases.json"
@@ -575,8 +578,22 @@ def main(argv=None) -> int:
     man = MAN.gerar()
     git12 = man["git"]["head"][:12]
     cases12 = str(man.get("cases_sha256"))[:12]
-    if man["git"]["dirty"] and not args.smoke:
-        print("AVISO: arvore git suja — baseline nao e' reproduzivel (ok em --smoke)")
+
+    # PRE-GATE PROBATORIO (parecer §3, fail-closed): uma rodada de evidencia so'
+    # comeca de commit LIMPO e com o acelerador da distribuicao ATIVO. Aborta ANTES,
+    # nao mede lixo. Fora de --probative, so' avisa (desenvolvimento).
+    problemas = []
+    if man["git"]["dirty"]:
+        problemas.append("arvore git SUJA (baseline nao reproduzivel)")
+    if not man.get("cython_accel"):
+        problemas.append("acelerador Cython AUSENTE (casos 'cython' mediriam pure-Python)")
+    if problemas:
+        if args.probative:
+            print("ABORTA (probatorio): " + " · ".join(problemas)
+                  + ". Corrija antes de rodar evidencia.")
+            return 3
+        if not args.smoke:
+            print("AVISO: " + " · ".join(problemas) + " (ok em --smoke; use --probative p/ evidencia)")
 
     stamp = args.stamp_utc or datetime.now(timezone.utc).isoformat()
     SAIDA.mkdir(parents=True, exist_ok=True)
@@ -645,10 +662,18 @@ def main(argv=None) -> int:
     n_registro = len(vistos)
     n_comparavel = contagem.get("ok", 0)                       # so' celulas de dado 'ok'
     n_envelope = contagem.get("envelope", 0)
+    rt_q = contagem.get("rt-quebrado", 0)
+    err = contagem.get("erro", 0)
     d = drift.resumo()
-    completo = n_registro >= len(casos)
+    # 'completo' agora EXIGE: todos registrados + ZERO rt-quebrado + ZERO erro
+    # (parecer §32: 'completo' antes contava registros, deixando passar rt-quebrado).
+    # A distincao obrigatorio/opcional por-plano e' a Fase 3b; aqui, correcao
+    # (rt-quebrado/erro) sempre invalida.
+    tudo_registrado = n_registro >= len(casos)
+    sao = tudo_registrado and rt_q == 0 and err == 0
     status = ("termicamente-reprovado" if (d and d.get("thermally_suspect"))
-              else "completo" if completo else "parcial")
+              else "completo" if sao
+              else "parcial")
 
     resumo = {
         "schema": "perf-baseline-09/run-v2", "tag": tag, "status": status, "stamp_utc": stamp,
@@ -666,7 +691,16 @@ def main(argv=None) -> int:
     if d:
         print(f"drift: ratio_max={d['drift_ratio_max']} noise_floor_cv={d['noise_floor_cv']} "
               f"{'TERMICAMENTE SUSPEITO' if d['thermally_suspect'] else 'estavel'}")
-    return 0 if contagem.get("erro", 0) == 0 else 1
+
+    # RETURN FAIL-CLOSED (parecer §38): correcao (erro/rt-quebrado) SEMPRE falha;
+    # rodada probatoria falha tambem se nao ficar 'completo' (parcial/termico).
+    if err or rt_q:
+        print(f"FALHA: {err} erro + {rt_q} rt-quebrado — evidencia invalida.")
+        return 1
+    if args.probative and status != "completo":
+        print(f"FALHA (probatorio): status={status} — nao serve como referencia.")
+        return 1
+    return 0
 
 
 if __name__ == "__main__":
