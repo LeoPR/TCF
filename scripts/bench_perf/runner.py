@@ -270,6 +270,99 @@ def _run_concorrencia(case: dict, rec: dict, vet: dict, smoke: bool) -> dict:
     return rec
 
 
+# ----------------------------------------------------------------- candidate / column / accel (B3/B7)
+
+def _run_candidate(case: dict, rec: dict, smoke: bool) -> dict:
+    """Custo dos candidatos PERDEDORES do _best_of, via A/B fallback=True/False.
+    fallback=True (default) roda _v2b/_struct_split completos por coluna; False pula."""
+    from tcf import encode, decode
+    piv = build_pivot(case, smoke)
+    V.g1_retangular(piv)
+    bt, bf = encode(piv), encode(piv, fallback=False)
+    rec["rt_ok"] = (decode(bt) == piv and decode(bf) == piv)
+    rec["bytes"], rec["bytes_no_candidates"] = len(bt.encode()), len(bf.encode())
+    rec["workload"] = SY.descrever(piv)
+    if not rec["rt_ok"]:
+        rec["status"] = "rt-quebrado"; rec["motivo"] = "RT falhou (fallback T/F)"; return rec
+    rec["encode"] = P.medir(lambda: encode(piv))                   # com candidatos (default)
+    rec["encode_no_candidates"] = P.medir(lambda: encode(piv, fallback=False))
+    et, ef = rec["encode"]["point_ns"], rec["encode_no_candidates"]["point_ns"]
+    rec["candidate_overhead"] = round(et / ef, 3) if ef else None  # >1 = perdedores custam tempo
+    rec["bytes_ganho_candidatos"] = rec["bytes_no_candidates"] - rec["bytes"]  # >0 = valeram bytes
+    rec["status"] = "ok"; return rec
+
+
+def _run_column(case: dict, rec: dict, smoke: bool) -> dict:
+    """Decomposicao por coluna: cada coluna e' amostra independente do MESMO
+    caminho de codigo em escala. Mede UMA coluna da tabela C8 (single-col)."""
+    from tcf import encode, decode
+    pid = case["vectors"]["escala"].get("point_id", "")
+    idx = int(pid.split("col")[-1]) if "col" in pid else 0
+    R = _escala(case, smoke).get("R", 100)
+    piv = SY.synth_pivot(R, 8, 32, 0.1, "flat-mixed", seed=SEED)
+    name = f"col{idx:02d}"
+    col = piv[name]
+    blob = encode(col)                                             # single-col (list)
+    rec["rt_ok"] = decode(blob) == col
+    rec["bytes"] = len(blob.encode())
+    rec["coluna"], rec["n_valores"], rec["n_unicos"] = name, len(col), len(set(col))
+    if not rec["rt_ok"]:
+        rec["status"] = "rt-quebrado"; return rec
+    rec["encode"] = P.medir(lambda: encode(col))
+    rec["decode"] = P.medir(lambda: decode(blob))
+    rec["status"] = "ok"; return rec
+
+
+def _worker_pure_encode(payload):
+    """Subprocesso: restaura o detector PURE-Python (monkeypatch global contamina),
+    encoda, devolve (min_ns, bytes). O byte tem que bater com o Cython."""
+    R, C, L, K, forma, reps = payload
+    from tcf.composicional.syntax import M8AVirtualRefsSyntax as M
+    M._detect_compositions = M._detect_compositions_py
+    M._detect_compositions_accelerated = False
+    from tcf import encode
+    piv = _mc_or_synth(R, C, L, K, forma)
+    best, blob = 1 << 62, None
+    for _ in range(reps):
+        t0 = time.perf_counter_ns()
+        blob = encode(piv)
+        dt = time.perf_counter_ns() - t0
+        if dt < best:
+            best = dt
+    return best, len(blob.encode("utf-8"))
+
+
+def _mc_or_synth(R, C, L, K, forma):
+    return SY.synth_pivot(R, C, L, K, forma, seed=SEED)
+
+
+def _run_accel(case: dict, rec: dict, smoke: bool) -> dict:
+    """A/B Cython vs pure-Python do detector HCC. O '2.1-2.3x' vivia num comentario;
+    aqui e' curva medida. Pure roda em SUBPROCESSO (patch global). Gate: bytes iguais."""
+    from tcf import encode, decode
+    from tcf.composicional.syntax import M8AVirtualRefsSyntax as M
+    e, forma = _escala(case, smoke), case["vectors"]["forma"]
+    R, C, L, K = e.get("R", 100), e.get("C", 4), e.get("L", 32), e.get("K", 0.1)
+    piv = _mc_or_synth(R, C, L, K, forma)
+    blob = encode(piv)
+    rec["rt_ok"] = decode(blob) == piv
+    rec["bytes"] = len(blob.encode())
+    rec["cython_ativo"] = bool(getattr(M, "_detect_compositions_accelerated", False))
+    if not rec["rt_ok"]:
+        rec["status"] = "rt-quebrado"; return rec
+    rec["encode"] = P.medir(lambda: encode(piv))                  # cython (in-process)
+    from concurrent.futures import ProcessPoolExecutor
+    with ProcessPoolExecutor(max_workers=1) as ex:
+        pure_min, pure_bytes = ex.submit(_worker_pure_encode, (R, C, L, K, forma, 5)).result()
+    rec["accel_pure_min_ns"] = pure_min
+    rec["accel_bytes_identicos"] = (pure_bytes == rec["bytes"])   # cython == pure (gate ADR-0020)
+    cm = rec["encode"]["min_ns"]
+    rec["speedup_cython"] = round(pure_min / cm, 3) if cm else None
+    if not rec["cython_ativo"]:
+        rec["motivo"] = "cython nao carregado — speedup ~1 (ambos puros)"
+    rec["status"] = "ok"; return rec
+
+
 def run_case(case: dict, order_index: int, smoke: bool) -> dict:
     cid = case["case_id"]
     vet = case["vectors"]
@@ -338,14 +431,21 @@ def run_case(case: dict, order_index: int, smoke: bool) -> dict:
             rec["status"] = "erro"; rec["motivo"] = f"{type(e).__name__}: {str(e)[:200]}"
             return rec
 
-    if vet["granularidade"] in ("candidate", "column"):
-        rec["status"] = "pendente"
-        rec["motivo"] = f"granularidade '{vet['granularidade']}' pendente"
-        return rec
-    if vet["accel"] != "cython":
-        rec["status"] = "pendente"
-        rec["motivo"] = "accel 'pure' pendente no runner"
-        return rec
+    if vet["granularidade"] == "candidate":
+        try:
+            return _run_candidate(case, rec, smoke)
+        except Exception as e:
+            rec["status"] = "erro"; rec["motivo"] = f"{type(e).__name__}: {str(e)[:200]}"; return rec
+    if vet["granularidade"] == "column":
+        try:
+            return _run_column(case, rec, smoke)
+        except Exception as e:
+            rec["status"] = "erro"; rec["motivo"] = f"{type(e).__name__}: {str(e)[:200]}"; return rec
+    if vet["accel"] == "pure":
+        try:
+            return _run_accel(case, rec, smoke)
+        except Exception as e:
+            rec["status"] = "erro"; rec["motivo"] = f"{type(e).__name__}: {str(e)[:200]}"; return rec
 
     # LAYER (B3): perfil por camada do encode tcf-flat, FORA do src/tcf (layers.py),
     # com gate de bytes identicos. So' faz sentido no caminho plano.
