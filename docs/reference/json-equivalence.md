@@ -39,6 +39,19 @@ Python permissivo *aceita*. `NaN`/`Infinity`/chave-não-string **saem** (JSON in
 `int > 2^53` **fica** (a jsonlib round-trip`a) mas leva **ressalva de interop** (I-JSON; um parser
 int64/double de outra linguagem perde precisão) — a ressalva é **sinal, não recusa** (isso é N2).
 
+**Teto (owner, 2026-07-21): o TCF nunca gera JSON — gera um DATASET.** Só emitimos um dataset na
+linguagem; mesmo que o round-trip cubra construtos complexos do RFC, ainda **não produzimos JSON de
+fato** — quem serializa é uma libjson (melhor) consumindo o nosso dataset. Logo o máximo do TCF é
+deixar um **dataset POSSÍVEL de RFC-JSON**, e as libs que se encarreguem de serializar bem. Igualar o
+melhor json-que-funciona-na-linguagem (N1) já é o alvo útil e obrigatório do `.8`.
+
+**Questão aberta — clareza/warning** (`H-JSON-CLARITY-WARN-01`, sem solução): ser *mais capaz* que o
+json não gera clareza sozinho. Se o TCF deixa um dataset que uma libjson popular não round-trip`a
+(int gigante, ou N2/N3) **sem avisar**, confunde — JSON é popularíssimo. Falta um mecanismo de
+**comunicação** (warning apontando pra manual/RFC, ou "extrapolamos a limitação"). O `ijson_flags`
+(`scripts/bench_perf/pivot.py`) é semente; o mecanismo pleno é **pós-`.8`, indefinido** (registrado no
+roadmap-hipoteses). Anotado, não resolvido.
+
 ## 2. Tabela de equivalência (construto JSON → `.8H`)
 
 | construto JSON | incremento | wire `.8H` (exemplo) | RT |

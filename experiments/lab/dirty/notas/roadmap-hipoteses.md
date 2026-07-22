@@ -571,7 +571,18 @@ prototipo clean (`experiments/lab/clean/EXP-XXX-*`) e' pra testar
 Atualizar quando: hipotese confirmada/refutada/movida-de-status, OU
 nova hipotese identificada.
 
-**Ultima atualizacao**: 2026-07-16 (3ª do dia) — **S0-S3 + revisao de fluxo**: owner registrou
+**Ultima atualizacao**: 2026-07-21 — **H-JSON-CLARITY-WARN-01** (owner, QUESTAO ABERTA sem solucao):
+o TCF nunca gera JSON — gera um **dataset** possivel-de-RFC-JSON; quem serializa e' uma libjson (melhor)
+consumindo esse dataset. Escala N1/N2/N3 (ver `docs/reference/json-equivalence.md` §1-bis). PROBLEMA:
+"ser melhor que o json nao gera clareza sozinho" — se o TCF deixa um dataset que uma libjson popular
+NAO round-trip'a (ex.: `int > 2^53`, ou N2/N3), sem avisar, confunde (JSON e' popularissimo). Precisa de
+um **warning/comunicacao de clareza** quando extrapola a limitacao do json-da-linguagem — talvez apontando
+pra um manual nosso ou pro RFC. **MECANISMO DESCONHECIDO** — o owner explicitamente nao sabe como resolver
+ainda, so' registrar. Semente ja' existe: `scripts/bench_perf/pivot.py:ijson_flags` (sinaliza `int>2^53`
+como ressalva de interop, N2, sem recusar). Status: `aberta` (pos-`.8`, sem alvo); confianca: n/a (questao
+de design, nao hipotese mensuravel).
+
+**Atualizacao anterior**: 2026-07-16 (3ª do dia) — **S0-S3 + revisao de fluxo**: owner registrou
 H-DATASETH-COMPLETE-01, H-HIER-LINK-ALGEBRA-01, H-HIER-BOUNDARY-EMPTY-01 (programa S0-S7,
 confirmada-conceitual no lab 2026-07-16-1708); a revisao de fluxo adicionou **H-HIER-EMASK-SPARSE-01**
 (emask densa global — 449 B > 307 B de dados, medido), **H-HIER-FANOUT-SPLIT-01** (fan-out fixo →
