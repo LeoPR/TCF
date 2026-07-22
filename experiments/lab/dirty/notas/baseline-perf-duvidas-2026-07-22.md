@@ -1,5 +1,9 @@
 # Dúvidas levantadas pelo baseline de performance (2026-07-22)
 
+**Parecer posterior**: [política de baseline dividida por cadência](baseline-perf-parecer-2026-07-22.md).
+As dúvidas abaixo permanecem como registro do achado original; o parecer avalia as alternativas sem
+alterar o instrumento ou o core.
+
 **Contexto**: a primeira tentativa de rodar o baseline real (`bench_perf.runner`, escala
 cheia) foi **morta em 84/132 após ~2h26min**. O run expôs questões de desenho do
 processo que precisam ser resolvidas **antes** de re-rodar. Registro aqui pra a
