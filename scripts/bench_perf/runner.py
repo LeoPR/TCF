@@ -22,6 +22,7 @@ from __future__ import annotations
 import argparse
 import json
 import sys
+import time
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -163,6 +164,112 @@ CAMINHOS_PENDENTES: set[str] = set()   # tcf-8h/nested/typed cobertos; B4 concor
 
 # ----------------------------------------------------------------- medicao de 1 caso
 
+# ----------------------------------------------------------------- concorrencia (B4)
+# Presets multi-col que aproximam adult/lineitem em (n_cols, n_rows). Perfil MISTO:
+# colunas de custo variado, pra a "coluna mais cara" (que limita o paralelismo
+# por-coluna do TCF) aparecer — e' a hipotese do owner sobre saturacao interna.
+_MC_PRESETS = {"adult-20k": (15, 20000), "lineitem-20k": (16, 20000)}
+_MC_FORMAS = ("free-text", "structured", "low-entropy", "flat-mixed")
+
+
+def _synth_multicol(R: int, C: int, seed: int) -> V.Pivot:
+    piv: V.Pivot = {}
+    for c in range(C):
+        col = SY.synth_pivot(R, 1, 32, 0.1, _MC_FORMAS[c % len(_MC_FORMAS)], seed=seed + c * 13)
+        piv[f"col{c:02d}"] = col["col00"]
+    return piv
+
+
+def _worker_min_encode(payload) -> int:
+    """Roda num PROCESSO separado (test-concurrency). Reconstroi o dado (spawn
+    re-importa) e devolve o MIN de `reps` encodes — steady-state, sem o spawn."""
+    R, C, seed, reps = payload
+    from tcf import encode
+    piv = _synth_multicol(R, C, seed)
+    best = 1 << 62
+    for _ in range(reps):
+        t0 = time.perf_counter_ns()
+        encode(piv)
+        dt = time.perf_counter_ns() - t0
+        if dt < best:
+            best = dt
+    return best
+
+
+def _mc_dims(case: dict, smoke: bool) -> tuple[int, int]:
+    C, R = _MC_PRESETS.get(case["fonte"], (8, 20000))
+    return (200 if smoke else R), C
+
+
+def _run_concorrencia(case: dict, rec: dict, vet: dict, smoke: bool) -> dict:
+    from tcf import encode, decode
+    R, C = _mc_dims(case, smoke)
+    piv = _synth_multicol(R, C, SEED)
+    V.g1_retangular(piv)
+    interno = vet["concorrencia"]["internal"]     # serial|p2|p4|p8
+    teste = vet["concorrencia"]["test"]           # t1|t2|t4|t8
+    workers = int(interno[1:]) if interno.startswith("p") else 1
+    kproc = int(teste[1:]) if teste.startswith("t") else 1
+
+    # RT gate (com o parallel pedido) — sem RT, nenhum numero
+    blob = encode(piv, parallel=workers) if workers > 1 else encode(piv)
+    if decode(blob) != piv:
+        rec["status"] = "rt-quebrado"; rec["motivo"] = "RT sob parallel falhou"; return rec
+    rec["rt_ok"] = True
+    rec["bytes"] = len(blob.encode("utf-8"))
+    rec["workload"] = SY.descrever(piv)
+    rec["concorrencia"] = {"internal_workers": workers, "test_procs": kproc, "n_cols": C}
+
+    if vet["granularidade"] == "process-tree":
+        # memoria da ARVORE de processos: tracemalloc do pai nao ve os filhos, e
+        # somar RSS por-PID sem psutil (stdlib-only) e' fragil no Windows.
+        rec["status"] = "pendente"
+        rec["motivo"] = "memoria de arvore de processos precisa de psutil (stdlib nao soma filhos)"
+        return rec
+
+    # EIXO 1 — paralelismo INTERNO: encode(parallel=N). cpu_wall_ratio revela se
+    # o paralelo AJUDOU (>1 = trabalho real concorrente) ou nem rodou (~1 serial).
+    if workers > 1:
+        rec["encode"] = P.medir(lambda: encode(piv, parallel=workers))
+        rec["encode_serial_ref"] = P.medir(lambda: encode(piv))
+        eb = rec["encode"]["point_ns"]; sb = rec["encode_serial_ref"]["point_ns"]
+        rec["speedup_interno"] = round(sb / eb, 3) if eb else None
+    else:
+        rec["encode"] = P.medir(lambda: encode(piv))
+
+    # EIXO 2 — paralelismo do TESTE: K encodes independentes concorrentes. Se o
+    # interno satura no nº de colunas, disparar K processos pode escalar melhor.
+    if kproc > 1:
+        from concurrent.futures import ProcessPoolExecutor
+        solo = rec["encode"]["min_ns"]
+        payload = (R, C, SEED, 3)
+        t0 = time.perf_counter_ns()
+        try:
+            with ProcessPoolExecutor(max_workers=kproc) as ex:
+                mins = list(ex.map(_worker_min_encode, [payload] * kproc))
+            batch_wall = time.perf_counter_ns() - t0
+            med = sorted(mins)[len(mins) // 2]
+            cont = (med / solo) if solo else None
+            rec["test_concurrency"] = {
+                "k": kproc,
+                "solo_min_ns": solo,
+                "por_worker_min_ns": mins,
+                "mediana_min_ns": med,
+                # SINAL LIMPO (steady-state): ~1 = K encodes independentes nao se atrapalham
+                "contention_ratio": round(cont, 3) if cont else None,
+                # escala efetiva: com contention~1, ~= K (paralelismo do teste paga)
+                "escala_efetiva": round(kproc / cont, 2) if cont else None,
+                "batch_wall_ns": batch_wall,
+                # POLUIDO PELO SPAWN (Windows): o batch inclui o custo de criar K procs;
+                # NAO e' o throughput steady-state. Use contention_ratio pra escalar.
+                "batch_throughput_com_spawn": round((kproc * solo) / batch_wall, 3) if batch_wall else None,
+            }
+        except Exception as e:
+            rec["test_concurrency_erro"] = f"{type(e).__name__}: {str(e)[:120]}"
+    rec["status"] = "ok"
+    return rec
+
+
 def run_case(case: dict, order_index: int, smoke: bool) -> dict:
     cid = case["case_id"]
     vet = case["vectors"]
@@ -219,14 +326,25 @@ def run_case(case: dict, order_index: int, smoke: bool) -> dict:
         rec["status"] = "pendente"
         rec["motivo"] = f"caminho '{cam}' desconhecido"
         return rec
-    if vet["granularidade"] in ("candidate", "column", "process-tree"):
+    # CONCORRENCIA (B4): paralelismo interno (encode parallel=N) x do teste (K procs)
+    if vet["concorrencia"]["internal"] != "serial" or vet["concorrencia"]["test"] != "t1" \
+            or vet["granularidade"] == "process-tree":
+        if vet["accel"] != "cython" or vet["compressao"] != "none":
+            rec["status"] = "pendente"; rec["motivo"] = "concorrencia + accel/compressao pendente"
+            return rec
+        try:
+            return _run_concorrencia(case, rec, vet, smoke)
+        except Exception as e:
+            rec["status"] = "erro"; rec["motivo"] = f"{type(e).__name__}: {str(e)[:200]}"
+            return rec
+
+    if vet["granularidade"] in ("candidate", "column"):
         rec["status"] = "pendente"
         rec["motivo"] = f"granularidade '{vet['granularidade']}' pendente"
         return rec
-    if vet["concorrencia"]["internal"] != "serial" \
-            or vet["concorrencia"]["test"] != "t1" or vet["accel"] != "cython":
+    if vet["accel"] != "cython":
         rec["status"] = "pendente"
-        rec["motivo"] = "vetor concorrencia/accel pendente no runner"
+        rec["motivo"] = "accel 'pure' pendente no runner"
         return rec
 
     # LAYER (B3): perfil por camada do encode tcf-flat, FORA do src/tcf (layers.py),
