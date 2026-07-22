@@ -363,6 +363,9 @@ def _run_accel(case: dict, rec: dict, smoke: bool) -> dict:
     rec["status"] = "ok"; return rec
 
 
+_ENVELOPE_FONTES = {"sentinela", "sondas"}   # B0: infra do run, nao celula de dado
+
+
 def run_case(case: dict, order_index: int, smoke: bool) -> dict:
     cid = case["case_id"]
     vet = case["vectors"]
@@ -370,6 +373,16 @@ def run_case(case: dict, order_index: int, smoke: bool) -> dict:
         "case_id": cid, "blocos": case.get("blocos", []), "order_index": order_index,
         "vectors": vet, "fonte": case["fonte"],
     }
+
+    # B0 como ENVELOPE (parecer §3): pins/sondas/sentinela VALIDAM a rodada
+    # (manifesto + calibrador + sentinela ja' fazem isso no cabecalho), nao sao
+    # workload de produto. Status proprio, FORA da contagem de comparaveis — nao
+    # 'pendente' artificial.
+    fonte = case["fonte"]
+    if fonte in _ENVELOPE_FONTES or fonte.startswith("pin-"):
+        rec["status"] = "envelope"
+        rec["motivo"] = "regua/infra do run (manifesto+calibrador validam); nao e' celula comparavel"
+        return rec
 
     cam = vet["caminho"]
 
@@ -548,6 +561,8 @@ def main(argv=None) -> int:
     ap.add_argument("--only", help="blocos a rodar (ex: B1,B2)")
     ap.add_argument("--out", default=None)
     ap.add_argument("--stamp-utc", default=None, help="timestamp ISO (reprodutibilidade)")
+    ap.add_argument("--resume", action="store_true",
+                    help="continua um JSONL existente: pula case_id ja' feitos (mesmo git+matriz)")
     args = ap.parse_args(argv)
 
     cases_path = AQUI / "cases.json"
@@ -558,55 +573,100 @@ def main(argv=None) -> int:
         casos = [c for c in casos if set(c.get("blocos", [])) & alvo]
 
     man = MAN.gerar()
+    git12 = man["git"]["head"][:12]
+    cases12 = str(man.get("cases_sha256"))[:12]
     if man["git"]["dirty"] and not args.smoke:
         print("AVISO: arvore git suja — baseline nao e' reproduzivel (ok em --smoke)")
 
     stamp = args.stamp_utc or datetime.now(timezone.utc).isoformat()
-    drift = CAL.DriftTracker()
-    print(f"[perf] {len(casos)} casos {'(SMOKE)' if args.smoke else ''} · "
-          f"calibrando maquina...", flush=True)
-    calib = CAL.medir_calibradores()
-
-    registros: list[dict] = []
-    contagem = {"ok": 0, "pendente": 0, "rejeitado": 0, "erro": 0, "rt-quebrado": 0}
-    for i, case in enumerate(casos):
-        if i % SENTINELA_CADA == 0:
-            drift.bater(i)                                     # deriva termica
-        rec = run_case(case, i, args.smoke)
-        rec["manifest_git"] = man["git"]["head"][:12]
-        rec["stamp_utc"] = stamp
-        registros.append(rec)
-        contagem[rec.get("status", "erro")] = contagem.get(rec.get("status", "erro"), 0) + 1
-        st = rec.get("status")
-        if st == "ok":
-            e = rec["encode"]
-            print(f"  [{i+1}/{len(casos)}] {rec['case_id'][:48]:<48} "
-                  f"enc={e['point_ns']/1e6:.2f}ms tier={e['tier']} n={e['n']}", flush=True)
-        else:
-            print(f"  [{i+1}/{len(casos)}] {rec['case_id'][:48]:<48} {st}: "
-                  f"{rec.get('motivo','')[:40]}", flush=True)
-    drift.bater(len(casos))
-
     SAIDA.mkdir(parents=True, exist_ok=True)
     tag = "smoke" if args.smoke else "baseline"
     out = Path(args.out) if args.out else SAIDA / f"perf-{tag}.jsonl"
-    with out.open("w", encoding="utf-8", newline="\n") as f:
-        for r in registros:
-            f.write(json.dumps(r, ensure_ascii=False) + "\n")
+
+    # RETOMADA (parecer §4): persistencia incremental deixa o JSONL parcial. Aqui
+    # so' retomamos registros do MESMO codigo+matriz — misturar .8-velho com
+    # .8-novo produziria um baseline cientificamente desigual.
+    feitos: set[str] = set()
+    if args.resume and out.exists():
+        for line in out.read_text(encoding="utf-8").splitlines():
+            if not line.strip():
+                continue
+            r = json.loads(line)
+            if r.get("manifest_git") == git12 and r.get("cases_sha") == cases12:
+                feitos.add(r["case_id"])
+            else:
+                print(f"ABORTA retomada: registro {r.get('case_id','?')[:40]} de git/matriz "
+                      f"DIFERENTE ({r.get('manifest_git')} vs {git12}). Comece um artefato novo.")
+                return 2
+        print(f"[resume] {len(feitos)} casos ja' feitos serao pulados", flush=True)
+
+    drift = CAL.DriftTracker()
+    print(f"[perf] {len(casos)} casos {'(SMOKE)' if args.smoke else ''} · calibrando...", flush=True)
+    calib = CAL.medir_calibradores()
+
+    fh = out.open("a" if feitos else "w", encoding="utf-8", newline="\n")
+    n_medido = 0
+    try:
+        for i, case in enumerate(casos):
+            if case["case_id"] in feitos:
+                continue                                       # ja' feito (retomada)
+            if n_medido % SENTINELA_CADA == 0:
+                drift.bater(i)                                 # deriva termica
+            rec = run_case(case, i, args.smoke)
+            rec["manifest_git"] = git12
+            rec["cases_sha"] = cases12                         # (git, matriz) verificados na retomada
+            rec["stamp_utc"] = stamp
+            fh.write(json.dumps(rec, ensure_ascii=False) + "\n")
+            fh.flush()                                         # INCREMENTAL: sobrevive a morte
+            n_medido += 1
+            st = rec.get("status")
+            if st == "ok":
+                e = rec["encode"]
+                print(f"  [{i+1}/{len(casos)}] {rec['case_id'][:46]:<46} "
+                      f"enc={e['point_ns']/1e6:.2f}ms tier={e['tier']}", flush=True)
+            else:
+                print(f"  [{i+1}/{len(casos)}] {rec['case_id'][:46]:<46} {st}: "
+                      f"{rec.get('motivo','')[:38]}", flush=True)
+        drift.bater(len(casos))
+    finally:
+        fh.close()                                             # o JSONL fica valido mesmo se morrer
+
+    # RESUMO: le o JSONL COMPLETO (feitos + novos), separa envelope de comparavel
+    contagem: dict[str, int] = {}
+    vistos: set[str] = set()
+    for line in out.read_text(encoding="utf-8").splitlines():
+        if not line.strip():
+            continue
+        r = json.loads(line)
+        if r["case_id"] in vistos:
+            continue
+        vistos.add(r["case_id"])
+        contagem[r.get("status", "erro")] = contagem.get(r.get("status", "erro"), 0) + 1
+    n_registro = len(vistos)
+    n_comparavel = contagem.get("ok", 0)                       # so' celulas de dado 'ok'
+    n_envelope = contagem.get("envelope", 0)
+    d = drift.resumo()
+    completo = n_registro >= len(casos)
+    status = ("termicamente-reprovado" if (d and d.get("thermally_suspect"))
+              else "completo" if completo else "parcial")
+
     resumo = {
-        "schema": "perf-baseline-09/run-v1", "tag": tag, "stamp_utc": stamp,
-        "manifest": man, "calibradores": calib, "drift": drift.resumo(),
-        "contagem": contagem, "n_casos": len(casos),
+        "schema": "perf-baseline-09/run-v2", "tag": tag, "status": status, "stamp_utc": stamp,
+        "manifest": man, "calibradores": calib, "drift": d,
+        "n_casos_total": len(casos), "n_com_registro": n_registro,
+        "n_comparaveis_ok": n_comparavel, "n_envelope": n_envelope,
+        "contagem": contagem,
+        "nota_drift": "drift e' da SESSAO atual; retomada cross-sessao nao unifica (bloco = Fase 3)",
     }
     (out.with_suffix(".run.json")).write_text(
         json.dumps(resumo, ensure_ascii=False, indent=1), encoding="utf-8", newline="\n")
 
-    print(f"\n{contagem}  ->  {out}")
-    d = resumo["drift"]
+    print(f"\nstatus={status}  comparaveis(ok)={n_comparavel}  envelope={n_envelope}  "
+          f"registro={n_registro}/{len(casos)}  {contagem}  ->  {out}")
     if d:
         print(f"drift: ratio_max={d['drift_ratio_max']} noise_floor_cv={d['noise_floor_cv']} "
               f"{'TERMICAMENTE SUSPEITO' if d['thermally_suspect'] else 'estavel'}")
-    return 0 if contagem["erro"] == 0 else 1
+    return 0 if contagem.get("erro", 0) == 0 else 1
 
 
 if __name__ == "__main__":
