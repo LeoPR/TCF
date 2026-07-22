@@ -35,6 +35,7 @@ from bench_perf import pivot as V                                # noqa: E402
 from bench_perf import synth as SY                               # noqa: E402
 from bench_perf import calibrators as CAL                        # noqa: E402
 from bench_perf import manifest as MAN                           # noqa: E402
+from bench_perf import crosscompat as CC                         # noqa: E402
 
 SAIDA = REPO / "experiments" / "results" / "perf-baseline"
 SENTINELA_CADA = 10
@@ -63,6 +64,55 @@ def build_pivot(case: dict, smoke: bool) -> V.Pivot:
 
 class _Pendente(Exception):
     """Vetor/fonte reconhecido mas nao implementado — status pendente, nao erro."""
+
+
+def build_nested(case: dict, smoke: bool):
+    """Records ANINHADOS a partir de um pivo flat, exercitando os caminhos do .8H.
+    Dados-string (portaveis por construcao). O gate real do .8H e' o RT identidade."""
+    fonte = case["fonte"]
+    if fonte != "synth":
+        raise _Pendente(f"fonte '{fonte}' ainda nao suportada")
+    e = _escala(case, smoke)
+    forma = case["vectors"]["forma"]
+    C = max(2, e.get("C", 4))
+    piv = SY.synth_pivot(e.get("R", 100), C, e.get("L", 32), e.get("K", 0.1),
+                         "flat-mixed", seed=SEED)
+    recs = V.to_records(piv)
+    cols = list(piv.keys())
+    if forma == "flat-mixed":                          # nao-regressao do .8H sobre dado PLANO
+        return recs
+    if forma == "nested-object":                       # metade das colunas -> sub-objeto
+        meta = cols[: len(cols) // 2] or cols[:1]
+        resto = [c for c in cols if c not in meta]
+        return [{**{c: r[c] for c in resto}, "grupo": {c: r[c] for c in meta}} for r in recs]
+    if forma == "nested-array":                        # agrupa linhas pela 1a coluna (K = fan-out)
+        return V.nest_array_by_key(recs, cols[0])
+    if forma == "nested-optional":                     # ~30% omitem a ultima coluna (mask P1)
+        import random
+        rng = random.Random(SEED)
+        last = cols[-1]
+        return [{k: v for k, v in r.items() if not (k == last and rng.random() < 0.3)}
+                for r in recs]
+    raise _Pendente(f"forma aninhada '{forma}' nao suportada")
+
+
+def build_typed(case: dict, smoke: bool):
+    """Records TIPADOS (int/float/bool/str), valores I-JSON-safe (dentro da classe
+    N1). Isola o custo de TIPAR (do dado, nao do TCF). Aqui a cross-compat mais
+    pega — o gate flag'aria int>2^53, mas o synth fica limpo de proposito."""
+    import random
+    e = _escala(case, smoke)
+    n = e.get("R", 100)
+    rng = random.Random(SEED ^ 0x7A17ED)
+    recs = []
+    for i in range(n):
+        recs.append({
+            "id": i,                                    # int (I-JSON-safe)
+            "valor": round(rng.uniform(0, 1_000_000), 4),   # float finito
+            "ativo": (i % 3 == 0),                      # bool
+            "rotulo": f"item-{i % max(1, int(n * e.get('K', 0.1)))}",  # str
+        })
+    return recs
 
 
 # ----------------------------------------------------------------- caminhos
@@ -108,7 +158,7 @@ CAMINHOS = {
     "repr-null": _repr_null,
 }
 
-CAMINHOS_PENDENTES = {"tcf-8h", "json-ref-nested", "json-ref-typed"}
+CAMINHOS_PENDENTES: set[str] = set()   # tcf-8h/nested/typed cobertos; B4 concorrencia via vetor
 
 
 # ----------------------------------------------------------------- medicao de 1 caso
@@ -122,6 +172,45 @@ def run_case(case: dict, order_index: int, smoke: bool) -> dict:
     }
 
     cam = vet["caminho"]
+
+    # .8H / json aninhado: dados aninhados (builder proprio). Handler paralelo ao
+    # caminho plano. json-ref-typed fica pendente (precisa de synth tipado).
+    if cam in ("tcf-8h", "json-ref-nested", "json-ref-typed"):
+        if vet["granularidade"] != "call" or vet["compressao"] != "none" \
+                or vet["concorrencia"]["internal"] != "serial":
+            rec["status"] = "pendente"
+            rec["motivo"] = "vetor extra pendente no caminho aninhado"
+            return rec
+        try:
+            data = build_typed(case, smoke) if cam == "json-ref-typed" else build_nested(case, smoke)
+            V.g2_classe_json(data)                     # a jsonlib round-trip'a? (N1)
+            rec["crosscompat"] = CC.resumo(CC.alertas(data))
+            if cam == "tcf-8h":
+                from tcf.hierarchical import encode_hierarchical, decode_hierarchical
+                ser, des = encode_hierarchical, decode_hierarchical
+            else:
+                ser, des = V.to_json_text, V.from_json_text
+            wire = ser(data)
+            rec["rt_ok"] = des(wire) == data           # G5: RT identidade do .8H
+            rec["bytes"] = len(wire.encode("utf-8"))
+            if not rec["rt_ok"]:
+                rec["status"] = "rt-quebrado"
+                rec["motivo"] = "decode(encode(data)) != data"
+                return rec
+            rec["encode"] = P.medir(lambda: ser(data))
+            rec["decode"] = P.medir(lambda: des(wire))
+            rec["status"] = "ok"
+            return rec
+        except V.ClasseRejeitada as ex:
+            rec["status"] = "rejeitado"; rec["gate"], rec["motivo"] = ex.gate, ex.motivo
+            return rec
+        except _Pendente as ex:
+            rec["status"] = "pendente"; rec["motivo"] = str(ex)
+            return rec
+        except Exception as ex:
+            rec["status"] = "erro"; rec["motivo"] = f"{type(ex).__name__}: {str(ex)[:200]}"
+            return rec
+
     if cam in CAMINHOS_PENDENTES:
         rec["status"] = "pendente"
         rec["motivo"] = f"caminho '{cam}' ainda nao implementado no runner"
@@ -175,10 +264,8 @@ def run_case(case: dict, order_index: int, smoke: bool) -> dict:
         obj, ser, des = CAMINHOS[cam](pivot)
         rec["prepare_ns"] = P.time.perf_counter_ns() - t0
 
-        if cam.startswith("json"):                              # ressalvas de interop (N2) -> metadado
-            fl = V.ijson_flags(obj)
-            if fl:
-                rec["ijson_flags"] = fl
+        if cam.startswith("json") or cam.startswith("tcf"):     # alertas cross-compat -> metadado
+            rec["crosscompat"] = CC.resumo(CC.alertas(obj if isinstance(obj, list) else V.to_records(obj)))
         wire = ser(obj)                                         # 1x pra pegar bytes + RT
         back = des(wire)
         rt_ok = back == obj
