@@ -1,0 +1,19 @@
+{
+ "plan_id": "campanha",
+ "schema": "perf-baseline-09/plan-v1",
+ "protocolo_versao": "1",
+ "intencao": "caracterizacao-fotografia",
+ "campanha": true,
+ "descricao": "Caro, rodado 1x como fotografia do .8 pro .9 — FORA do loop recorrente. B4 (concorrencia escala-cheia), o extremo R6e5 e process-tree (memoria multiprocesso). Escala representativa, poucas repeticoes, MDE alto; se uma celula ficar inconclusiva, refina SO' essa celula. NAO trava a publicacao do .8.",
+ "pin_cases_sha256": "de10e05252cb5463ee6a303c8c8105ee289bda4c86b23630d20ae9ac8f761432",
+ "incluir": [
+  {"bloco": ["B4"]},
+  {"escala": ["R6e5"]},
+  {"granularidade": ["process-tree"]}
+ ],
+ "excluir": [],
+ "opcional": [
+  {"granularidade": ["process-tree"]}
+ ],
+ "sentinela_cada": 4
+}

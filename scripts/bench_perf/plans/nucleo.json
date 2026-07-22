@@ -1,0 +1,20 @@
+{
+ "plan_id": "nucleo",
+ "schema": "perf-baseline-09/plan-v1",
+ "protocolo_versao": "1",
+ "intencao": "referencia-recorrente-comparavel",
+ "campanha": false,
+ "descricao": "Nucleo barato e representativo: caminhos, escala moderada, camadas, compressao, .8H, typed, candidate/column, accel. Curto o bastante p/ ficar sob o piso de ruido. Exclui B4 (concorrencia cara), o extremo R6e5 e process-tree — esses vao pra campanha.",
+ "pin_cases_sha256": "de10e05252cb5463ee6a303c8c8105ee289bda4c86b23630d20ae9ac8f761432",
+ "incluir": [
+  {"bloco": ["B1", "B2", "B3", "B5", "B6", "B7", "B8"]}
+ ],
+ "excluir": [
+  {"escala": ["R6e5"]},
+  {"granularidade": ["process-tree"]}
+ ],
+ "opcional": [
+  {"caminho": ["tcf-8h", "json-ref-nested"], "compressao": ["gzip-6", "zstd-3", "brotli-5"]}
+ ],
+ "sentinela_cada": 10
+}

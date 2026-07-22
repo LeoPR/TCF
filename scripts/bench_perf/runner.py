@@ -37,6 +37,7 @@ from bench_perf import synth as SY                               # noqa: E402
 from bench_perf import calibrators as CAL                        # noqa: E402
 from bench_perf import manifest as MAN                           # noqa: E402
 from bench_perf import crosscompat as CC                         # noqa: E402
+from bench_perf import plans as PL                               # noqa: E402
 
 SAIDA = REPO / "experiments" / "results" / "perf-baseline"
 SENTINELA_CADA = 10
@@ -555,6 +556,36 @@ def run_case(case: dict, order_index: int, smoke: bool) -> dict:
 SEED = 20260721
 
 
+def avaliar_rodada(por_id: dict[str, str], opcionais: "set[str] | None",
+                   n_casos_total: int, thermally_suspect: bool) -> dict:
+    """Decisao de status a partir dos status por case_id — PURA (testavel isolada).
+
+    Regras (parecer Fase 3a+3b):
+      - correcao (rt-quebrado/erro) SEMPRE invalida 'completo';
+      - com plano, um caso NAO-opcional fora de ok/envelope tambem invalida;
+      - opcional pode ficar pendente/nao-medido sem invalidar;
+      - deriva termica reprova antes de tudo (o numero nao vale como evidencia).
+    """
+    contagem: dict[str, int] = {}
+    for st in por_id.values():
+        contagem[st] = contagem.get(st, 0) + 1
+    n_registro = len(por_id)
+    obrig_falhou = 0
+    if opcionais is not None:
+        obrig_falhou = sum(1 for cid, st in por_id.items()
+                           if cid not in opcionais and st not in ("ok", "envelope"))
+    rt_q = contagem.get("rt-quebrado", 0)
+    err = contagem.get("erro", 0)
+    tudo_registrado = n_registro >= n_casos_total
+    sao = tudo_registrado and rt_q == 0 and err == 0 and obrig_falhou == 0
+    status = ("termicamente-reprovado" if thermally_suspect
+              else "completo" if sao
+              else "parcial")
+    return {"status": status, "contagem": contagem, "n_registro": n_registro,
+            "n_comparavel": contagem.get("ok", 0), "n_envelope": contagem.get("envelope", 0),
+            "rt_q": rt_q, "err": err, "obrig_falhou": obrig_falhou}
+
+
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description="Runner do baseline de performance")
     ap.add_argument("--smoke", action="store_true", help="dry-run: toda celula em R<=100")
@@ -566,18 +597,36 @@ def main(argv=None) -> int:
     ap.add_argument("--probative", action="store_true",
                     help="rodada de EVIDENCIA: fail-closed — aborta antes se arvore suja OU cython "
                          "ausente; ao fim, exit!=0 se nao ficar 'completo'")
+    ap.add_argument("--plan", help="plano de execucao (nucleo/campanha/smoke): seleciona casos + "
+                                   "aceite obrigatorio/opcional (matriz-mestra intocada)")
     args = ap.parse_args(argv)
 
     cases_path = AQUI / "cases.json"
     cj = json.loads(cases_path.read_text(encoding="utf-8"))
     casos = cj["casos"]
-    if args.only:
-        alvo = set(args.only.split(","))
-        casos = [c for c in casos if set(c.get("blocos", [])) & alvo]
 
     man = MAN.gerar()
     git12 = man["git"]["head"][:12]
     cases12 = str(man.get("cases_sha256"))[:12]
+
+    # PLANO (Fase 3b): a cadencia, separada da matriz. Seleciona um subconjunto +
+    # declara intencao e aceite. O plano e' PRA ESTA matriz (pin) — se a matriz
+    # mudou, o plano nao vale.
+    plano = plano_sha = opcionais = None
+    if args.plan:
+        plano = PL.carregar(args.plan)
+        if not PL.pin_ok(plano, man.get("cases_sha256")):
+            print(f"ABORTA: plano '{args.plan}' e' pra outra matriz "
+                  f"(pin {str(plano.get('pin_cases_sha256'))[:12]} != {cases12}).")
+            return 4
+        plano_sha = PL.hash_plano(plano)
+        casos = PL.selecionar(plano, casos)
+        opcionais = {c["case_id"] for c in casos if PL.e_opcional(plano, c)}
+        print(f"[plano {args.plan}] intencao={plano.get('intencao')} · {len(casos)} casos "
+              f"({len(opcionais)} opcionais) · campanha={plano.get('campanha')}", flush=True)
+    elif args.only:
+        alvo = set(args.only.split(","))
+        casos = [c for c in casos if set(c.get("blocos", [])) & alvo]
 
     # PRE-GATE PROBATORIO (parecer §3, fail-closed): uma rodada de evidencia so'
     # comeca de commit LIMPO e com o acelerador da distribuicao ATIVO. Aborta ANTES,
@@ -597,8 +646,10 @@ def main(argv=None) -> int:
 
     stamp = args.stamp_utc or datetime.now(timezone.utc).isoformat()
     SAIDA.mkdir(parents=True, exist_ok=True)
-    tag = "smoke" if args.smoke else "baseline"
+    # artefato proprio por plano (Fase 3c: cada cadencia = arquivo/resumo proprios)
+    tag = args.plan if args.plan else ("smoke" if args.smoke else "baseline")
     out = Path(args.out) if args.out else SAIDA / f"perf-{tag}.jsonl"
+    sentinela_cada = (plano.get("sentinela_cada", SENTINELA_CADA) if plano else SENTINELA_CADA)
 
     # RETOMADA (parecer §4): persistencia incremental deixa o JSONL parcial. Aqui
     # so' retomamos registros do MESMO codigo+matriz — misturar .8-velho com
@@ -627,7 +678,7 @@ def main(argv=None) -> int:
         for i, case in enumerate(casos):
             if case["case_id"] in feitos:
                 continue                                       # ja' feito (retomada)
-            if n_medido % SENTINELA_CADA == 0:
+            if n_medido % sentinela_cada == 0:
                 drift.bater(i)                                 # deriva termica
             rec = run_case(case, i, args.smoke)
             rec["manifest_git"] = git12
@@ -648,39 +699,35 @@ def main(argv=None) -> int:
     finally:
         fh.close()                                             # o JSONL fica valido mesmo se morrer
 
-    # RESUMO: le o JSONL COMPLETO (feitos + novos), separa envelope de comparavel
-    contagem: dict[str, int] = {}
-    vistos: set[str] = set()
+    # RESUMO: le o JSONL COMPLETO (feitos + novos), dedup por case_id (ultimo vence)
+    por_id: dict[str, str] = {}
     for line in out.read_text(encoding="utf-8").splitlines():
         if not line.strip():
             continue
         r = json.loads(line)
-        if r["case_id"] in vistos:
-            continue
-        vistos.add(r["case_id"])
-        contagem[r.get("status", "erro")] = contagem.get(r.get("status", "erro"), 0) + 1
-    n_registro = len(vistos)
-    n_comparavel = contagem.get("ok", 0)                       # so' celulas de dado 'ok'
-    n_envelope = contagem.get("envelope", 0)
-    rt_q = contagem.get("rt-quebrado", 0)
-    err = contagem.get("erro", 0)
+        por_id[r["case_id"]] = r.get("status", "erro")
     d = drift.resumo()
-    # 'completo' agora EXIGE: todos registrados + ZERO rt-quebrado + ZERO erro
-    # (parecer §32: 'completo' antes contava registros, deixando passar rt-quebrado).
-    # A distincao obrigatorio/opcional por-plano e' a Fase 3b; aqui, correcao
-    # (rt-quebrado/erro) sempre invalida.
-    tudo_registrado = n_registro >= len(casos)
-    sao = tudo_registrado and rt_q == 0 and err == 0
-    status = ("termicamente-reprovado" if (d and d.get("thermally_suspect"))
-              else "completo" if sao
-              else "parcial")
+    av = avaliar_rodada(por_id, opcionais, len(casos),
+                        thermally_suspect=bool(d and d.get("thermally_suspect")))
+    status = av["status"]
+    contagem = av["contagem"]
+    n_registro = av["n_registro"]
+    n_comparavel = av["n_comparavel"]
+    n_envelope = av["n_envelope"]
+    rt_q, err, obrig_falhou = av["rt_q"], av["err"], av["obrig_falhou"]
 
     resumo = {
         "schema": "perf-baseline-09/run-v2", "tag": tag, "status": status, "stamp_utc": stamp,
         "manifest": man, "calibradores": calib, "drift": d,
         "n_casos_total": len(casos), "n_com_registro": n_registro,
         "n_comparaveis_ok": n_comparavel, "n_envelope": n_envelope,
+        "n_obrig_falhou": obrig_falhou, "n_opcional": (len(opcionais) if opcionais else 0),
         "contagem": contagem,
+        # PLANO (Fase 3b): a CADENCIA vira parte da identidade da rodada. Duas rodadas
+        # so' sao comparaveis se compartilham plano_sha + intencao (o comparador exige).
+        "plano": ({"id": plano.get("plan_id"), "sha": plano_sha,
+                   "intencao": plano.get("intencao"),
+                   "campanha": bool(plano.get("campanha"))} if plano else None),
         "nota_drift": "drift e' da SESSAO atual; retomada cross-sessao nao unifica (bloco = Fase 3)",
     }
     (out.with_suffix(".run.json")).write_text(

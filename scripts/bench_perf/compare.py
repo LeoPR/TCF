@@ -80,6 +80,16 @@ def comparar(base: Path, cand: Path) -> dict:
     matriz_igual = (ma is not None) and (ma == mb)        # matriz != => join INVALIDO
     termico = {"baseline": resa.get("status"), "candidato": resb.get("status")}
 
+    # GUARDA DE PLANO (Fase 3b): a cadencia e' parte da identidade. Mesma matriz mas
+    # planos/intencoes diferentes => subconjuntos/aceites diferentes => join enganoso.
+    # Um lado sem plano (None) so' casa com o outro sem plano.
+    pa, pb = resa.get("plano"), resb.get("plano")
+    plano_sha_a = (pa or {}).get("sha")
+    plano_sha_b = (pb or {}).get("sha")
+    plano_igual = (plano_sha_a == plano_sha_b)            # cobre None==None (ambos sem plano)
+    intencao = {"baseline": (pa or {}).get("intencao"), "candidato": (pb or {}).get("intencao")}
+    intencao_igual = (intencao["baseline"] == intencao["candidato"])
+
     so_base = sorted(set(ra) - set(rb))
     so_cand = sorted(set(rb) - set(ra))
     linhas = []
@@ -112,6 +122,9 @@ def comparar(base: Path, cand: Path) -> dict:
         "fator_calibrador": round(fator, 4),
         "matriz_igual": matriz_igual,
         "matriz_sha": {"base": str(ma)[:12], "cand": str(mb)[:12]},
+        "plano_igual": plano_igual, "intencao_igual": intencao_igual,
+        "plano_sha": {"base": str(plano_sha_a)[:12], "cand": str(plano_sha_b)[:12]},
+        "intencao": intencao,
         "status_termico": termico,
         "contagem": contagem,
         "so_no_baseline": so_base, "so_no_candidato": so_cand,
@@ -139,6 +152,10 @@ def main(argv=None) -> int:
     invalido = []
     if not r["matriz_igual"]:
         invalido.append(f"matriz diferente ({r['matriz_sha']['base']} vs {r['matriz_sha']['cand']})")
+    if not r["plano_igual"]:
+        invalido.append(f"plano diferente ({r['plano_sha']['base']} vs {r['plano_sha']['cand']})")
+    if not r["intencao_igual"]:
+        invalido.append(f"intencao diferente ({r['intencao']['baseline']} vs {r['intencao']['candidato']})")
     for lado, st in r["status_termico"].items():
         if st != "completo":
             invalido.append(f"{lado}={st or 'sem-resumo'}")

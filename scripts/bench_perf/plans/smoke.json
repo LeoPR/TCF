@@ -1,0 +1,18 @@
+{
+ "plan_id": "smoke",
+ "schema": "perf-baseline-09/plan-v1",
+ "protocolo_versao": "1",
+ "intencao": "validacao-do-instrumento",
+ "campanha": false,
+ "descricao": "Toda a matriz em escala minima (o runner forca R<=100 com --smoke). ZERO valor probatorio de performance — so' valida que o instrumento roda ponta a ponta. process-tree e tcf-8h+compressao ficam opcionais.",
+ "pin_cases_sha256": "de10e05252cb5463ee6a303c8c8105ee289bda4c86b23630d20ae9ac8f761432",
+ "incluir": [
+  {"bloco": ["B0", "B1", "B2", "B3", "B4", "B5", "B6", "B7", "B8"]}
+ ],
+ "excluir": [],
+ "opcional": [
+  {"granularidade": ["process-tree"]},
+  {"caminho": ["tcf-8h", "json-ref-nested"], "compressao": ["gzip-6", "zstd-3", "brotli-5"]}
+ ],
+ "sentinela_cada": 10
+}
