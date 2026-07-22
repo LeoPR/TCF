@@ -10,8 +10,8 @@ related:
   - tickets/T-CODE-TCF8H-WELD.md
   - tickets/T-API-BOUNDARY-CONTRACTS.md
   - tickets/BUG-SEQRLE-RANGE-EMPTY-B.md
-  - experiments/lab/dirty/notas/hierarquia-inventario-hipoteses.md
-  - experiments/lab/dirty/notas/tcf-camadas-arquitetura.md
+  - experiments/lab/dirty/notas/2026-07/hierarquia-inventario-hipoteses.md
+  - experiments/lab/dirty/notas/2026-07/tcf-camadas-arquitetura.md
   - docs/adr/0033-hierarchical-codec-weld.md
 ---
 
@@ -39,11 +39,11 @@ related:
 > alto. Para P4, investigar em dois atos: **P4a count recursivo/array-em-array** primeiro; **P4b raiz
 > generalizada** depois, pois muda o contrato público. “N-raízes” fica como termo histórico; JSON tem
 > uma raiz e arrays preservam ordem. Parecer e matriz de gates:
-> [p4-replevel-nroots-levantamento.md](../experiments/lab/dirty/notas/p4-replevel-nroots-levantamento.md).
+> [p4-replevel-nroots-levantamento.md](../experiments/lab/dirty/notas/2026-07/p4-replevel-nroots-levantamento.md).
 
 > **PROGRAMA S0–S7 2026-07-16 [dispositivo→pesquisa]**: capacidade semântica passa a ser fechada antes
 > da simplificação de representação. S0–S3 executados em
-> [lab próprio](../experiments/lab/dirty/2026-07-16-1708-dataseth-s0-s3-semantica-vinculos/): 20/20 RT,
+> [lab próprio](../experiments/lab/dirty/2026-07/2026-07-16/2026-07-16-1708-dataseth-s0-s3-semantica-vinculos/): 20/20 RT,
 > 20/20 álgebras de vínculo, 8/8 fail-loud e round-trip canônico byte-idêntico, sem tocar `src/tcf`.
 > Tickets: [semântica](T-STUDY-DATASETH-COMPLETE-SEMANTICS.md),
 > [vínculos](T-STUDY-HIERARCHY-LINK-ALGEBRA.md) e [execução](T-EXP-DATASETH-S0-S3.md). O resultado é
@@ -63,7 +63,7 @@ related:
 > como **equivalência de FLUXO** — *"dataset→encode→json→transmite→recebe→json→decode→dataset; basta
 > o tcf ter comportamento similar"*. Formalizado e MEDIDO: **∀D: J-RT-TX(D) ⟹ T-RT(D)** (com a etapa
 > TRANSMITE medida em **bytes UTF-8**, não no str em memória — sem ela o lone surrogate falsearia a
-> paridade). Lab [2026-07-17-0140](../experiments/lab/dirty/2026-07-17-0140-paridade-fluxo-json-vs-tcf/);
+> paridade). Lab [2026-07-17-0140](../experiments/lab/dirty/2026-07/2026-07-17/2026-07-17-0140-paridade-fluxo-json-vs-tcf/);
 > pinos em `tests/test_json_flow_parity.py` (24 passed + **3 `xfail(strict)`** — lacuna não fecha em
 > silêncio: implementar faz XPASS e obriga a promover o caso).
 >
@@ -80,10 +80,10 @@ related:
 > mecanismo (`\`→`\\` · LF→`\n` · nome vazio→`\z`), + **E1 parcial** (chave não-str tipada).
 > **Suíte 821 passed · flat byte-canônico INTACTO · os 3 `xfail(strict)` viraram XPASS e foram
 > promovidos a PARIDADE.** ADR-0033 §Update escape; lab
-> [2026-07-17-0230](../experiments/lab/dirty/2026-07-17-0230-escape-d-json-estudo/).
+> [2026-07-17-0230](../experiments/lab/dirty/2026-07/2026-07-17/2026-07-17-0230-escape-d-json-estudo/).
 > **D_json não tem mais exceção de dataset — resta só o eixo RAIZ (P4b).**
 >
-> **ESCALA (ROI)** → [escala-implementacao-paridade-json.md](../experiments/lab/dirty/notas/escala-implementacao-paridade-json.md):
+> **ESCALA (ROI)** → [escala-implementacao-paridade-json.md](../experiments/lab/dirty/notas/2026-07/escala-implementacao-paridade-json.md):
 > **E0 critério ✅ feito** → **E1 tipar 3 erros crus** (baixo, não toca wire) → **E3 canal SideOutputs
 > no `.8H`** (destrava o *warning* + profiler) → **E2 chave `""`** (1 lacuna; "nome vazio" hoje é
 > sentinela de corrupção → estudo-primeiro) → **E5 P4b raiz** (**7 lacunas de uma vez** = maior ROI)
@@ -142,7 +142,7 @@ realista, não sintético). O weld atual (ADR-0033) cobre a ESPINHA; faltam os c
 | **`null` na raiz** | ✅ **WELDED 2026-07-17** (P4b: `#V` envelope) | — |
 | **array-em-array** (profundidade arbitrária) | ✅ **WELDED** (P4a, 2026-07-16) | — (count recursivo por nível; ADR-0033 §Update P4a) |
 | **array no topo / raiz generalizada** | ✅ **WELDED 2026-07-17** (P4b: `#D`/`#E`/`#O`/`#V`; dataset 0 B idêntico; tipo EXATO no decode; J1 do funil) | — (ADR-0033 §Update P4b) |
-| **array polimórfico** (elementos de schema variável) | ❌ fail-loud (honesto) | **P5 — LEVANTAMENTO 2026-07-17: RECOMENDA RATIFICAR a fronteira**. Union real = 1 col/165 no hub (contaminação 0,007%); Parquet (ref. colunar) também recusa union nativo; funil = J2. → não weld no `.8`; refinar msg de fail-loud (é `.8`); WELD (dense-union) = 1.0. Ver [p5-union-levantamento](../experiments/lab/dirty/notas/p5-union-levantamento.md) |
+| **array polimórfico** (elementos de schema variável) | ❌ fail-loud (honesto) | **P5 — LEVANTAMENTO 2026-07-17: RECOMENDA RATIFICAR a fronteira**. Union real = 1 col/165 no hub (contaminação 0,007%); Parquet (ref. colunar) também recusa union nativo; funil = J2. → não weld no `.8`; refinar msg de fail-loud (é `.8`); WELD (dense-union) = 1.0. Ver [p5-union-levantamento](../experiments/lab/dirty/notas/2026-07/p5-union-levantamento.md) |
 | **`\n` em valor** (string multilinha) | ✅ **WELDED 2026-07-17** (escape `\n` na folha) | — a premissa "toca o L1" era FALSA: o `.8H` escapa na própria camada, **L1 INTOCADO** (ADR-0033 §Update escape) |
 | **chave vazia `{"": "x"}`** | ✅ **WELDED 2026-07-17** (marcador `\z`) | — sentinela de corrupção preservado (o parse checa o TOKEN CRU) |
 | **chave contendo `\n`** | ✅ **WELDED 2026-07-17** (`\n` no meta) | — mesmo mecanismo (o `\` é sempre dobrado primeiro ⟹ injetivo) |
@@ -150,7 +150,7 @@ realista, não sintético). O weld atual (ADR-0033) cobre a ESPINHA; faltam os c
 | ⭐ TCF **mais seguro** que o json (medido 2026-07-17) | `NaN`/`Infinity` (json emite — **inválido RFC 8259**, `allow_nan` default; NaN quebra RT) · `tuple`→`list` (json perde tipo) · chave não-str (json **emite duplicata**) · lone surrogate (json faz RT mas não é UTF-8 transmissível) — `.8H` fail-loud nos 4 | NÃO afrouxar: estrito é feature. Evoluir por REPRESENTAÇÃO ([[H-HIER-SCALAR-01]]), não por tolerância |
 | **ordem de chaves por-registro em ragged** | ⚠️ semântica preservada; ORDEM vira a do schema (chave que estreia tarde volta ao fim) — achado 2026-07-17 da suíte de controle, pinado em `test_hierarchical_control_synthetics.py` | decisão de contrato (S6/P4b): schema-order canônica OU por-registro; contrato S0 preserva por-registro ([T-API-BOUNDARY-CONTRACTS](T-API-BOUNDARY-CONTRACTS.md)) |
 
-Fonte da taxonomia: [hierarquia-inventario-hipoteses.md](../experiments/lab/dirty/notas/hierarquia-inventario-hipoteses.md)
+Fonte da taxonomia: [hierarquia-inventario-hipoteses.md](../experiments/lab/dirty/notas/2026-07/hierarquia-inventario-hipoteses.md)
 (presença→repetição→normalização, SETTLED). Tipos = camada ortogonal (item 11 do inventário).
 
 ## Ordem proposta (incrementos funcionais, um de cada vez — "soldar em etapas")
@@ -164,7 +164,7 @@ adversariais (a lição do escape: testar nome/valor/borda, não só o caminho f
 2. ~~**P3 · null (campo + elemento)**~~ **✅ WELDED 2026-07-15** — P3a usa estado `0` na máscara
    de campo; P3b usa element-mask alinhada aos elementos. Índices de substituição permanecem hipótese
    física futura, não representação semântica canônica. Fonte da decisão e do histórico comparativo:
-   [substituicao-indices-especiais-plano.md](../experiments/lab/dirty/notas/substituicao-indices-especiais-plano.md).
+   [substituicao-indices-especiais-plano.md](../experiments/lab/dirty/notas/2026-07/substituicao-indices-especiais-plano.md).
 3. ~~**P2 · Tipos** (number/bool preservados)~~ **✅ WELDED 2026-07-16** — tags por-coluna `n`/`b`,
    identidade Python-tipado, string default; decode tipado endurecido em `268608d`. **Hardening de tag
    desconhecida FECHADO** (revisão do owner): `stag()` rejeita char não-n/b/delimitador após size
@@ -175,7 +175,7 @@ adversariais (a lição do escape: testar nome/valor/borda, não só o caminho f
    Preocupação do owner ("colunas com buracos"/reuso entre níveis) → H-REPLEVEL-FLAT-VS-PORNIVEL-01 (`.9`).
 5. **P4b · Raiz generalizada** (array no topo, objeto/escalar/null na raiz) — contrato público e
    envelope/discriminador explícito; preservar ordem e tipo-raiz exatamente.
-   **LEVANTAMENTO 2026-07-16** → [notas/p4b-levantamento.md](../experiments/lab/dirty/notas/p4b-levantamento.md).
+   **LEVANTAMENTO 2026-07-16** → [notas/p4b-levantamento.md](../experiments/lab/dirty/notas/2026-07/p4b-levantamento.md).
    Medido: **14/14 formas de raiz fail-loud hoje** (0 wire, 0 corrupção silenciosa — funcionalidade
    ausente e declarada, não dívida escondida). **Ambiguidade byte-confirmada**: `encode([{"a":"1"}])`
    e a raiz-objeto `{"a":"1"}` embrulhada dão wire **idêntico** (`#TCF.8Ha\n\1\n`) → raiz sintética
@@ -200,7 +200,7 @@ continua sendo a fronteira explícita; portanto o fechamento deve reportar a fra
 JSON só faz ÁRVORE: um filho compartilhado por dois pais é **duplicado** (blow-up) ou exige `$ref`/
 `$id` manual (não-padrão, JSON-Schema). O TCF pode expressar a **junção/FK no HEADER** (camada L2) —
 o filho compartilhado é armazenado **UMA vez** e referenciado → representa **N:N / snowflake / grafo
-SEM duplicação**. É a super-hierarquia ([H-HIER-MULTITABELA-01](../experiments/lab/dirty/notas/tcf-camadas-arquitetura.md))
+SEM duplicação**. É a super-hierarquia ([H-HIER-MULTITABELA-01](../experiments/lab/dirty/notas/2026-07/tcf-camadas-arquitetura.md))
 e responde ao "ligações diversas" recorrente do owner. Hoje N:N é **inexpressável** no contrato
 `list[dict]` (a auditoria 2026-07-15 corrigiu: não é "fail-loud", é fora do modelo) — esta capacidade
 é o que o abre. Bônus que só o TCF tem: **explicabilidade comprimida** (grupos `*N|` visíveis) e

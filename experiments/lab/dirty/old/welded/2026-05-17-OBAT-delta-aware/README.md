@@ -9,7 +9,7 @@ welded_to: experiments/lab/clean/EXP-010-tcf-delta-aware-prototype/
 related:
   - docs/adr/0002-vertice-triplice-restricao.md
   - docs/adr/0003-tripartite-pre-obat-hcc.md
-  - experiments/lab/dirty/notas/roadmap-hipoteses.md
+  - experiments/lab/dirty/notas/2026-05/roadmap-hipoteses.md
 sub_experiments:
   - 01-baseline-obat-hcc-atual
   - 02-hcc-sozinho-rle-near-identical

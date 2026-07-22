@@ -9,7 +9,7 @@ related:
   - tickets/T-QA-8-material-comprobatorio.md
   - tickets/T-TOOL-TCF-FIX-CORRUPTION.md
   - tickets/T-API-BOUNDARY-CONTRACTS.md
-  - experiments/lab/dirty/notas/futuras-otimizacoes-formato.md
+  - experiments/lab/dirty/notas/2026-05/futuras-otimizacoes-formato.md
 ---
 
 # T-FMT-META-STRICT — integridade do meta além do lote 3

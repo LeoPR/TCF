@@ -43,14 +43,14 @@ fluem entre as camadas):
 
 Os codnomes (`alg16`, `M8.A`) foram usados durante o desenvolvimento
 experimental no dirty lab. Permanecem documentados em
-`experiments/lab/dirty/notas/historia-dirty-lab.md` como identificadores
+`experiments/lab/dirty/notas/2026-05/historia-dirty-lab.md` como identificadores
 de **origem experimental**. Os nomes oficiais (OBAT, HCC) são usados
 no código, docs públicas e referências externas.
 
 ## Veja também
 
-- `../../experiments/lab/dirty/notas/historia-dirty-lab.md` —
+- `../../experiments/lab/dirty/notas/2026-05/historia-dirty-lab.md` —
   narrativa M0-M14 do desenvolvimento
-- `../../experiments/lab/dirty/notas/roadmap-hipoteses.md` — direções
+- `../../experiments/lab/dirty/notas/2026-05/roadmap-hipoteses.md` — direções
   futuras
 - `../../src/tcf/` — implementação canônica

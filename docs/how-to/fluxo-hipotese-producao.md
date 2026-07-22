@@ -53,7 +53,7 @@ de uma vez OU bloqueia alguma direcao).
 
 **Trigger**: ideia merece teste sistematico.
 
-**Onde fica**: `experiments/lab/dirty/notas/roadmap-hipoteses.md`,
+**Onde fica**: `experiments/lab/dirty/notas/2026-05/roadmap-hipoteses.md`,
 com ID (`H-DA-NN`, `H-RW-NN`, `H-ED-NN`, `H-FIX-NN`).
 
 **O que registrar**:
@@ -171,7 +171,7 @@ justificado e aprovado.
 **O que faz parte**:
 - API publica: `from tcf import encode, decode`
 - Documentacao canonical em `docs/algorithms/`
-- Welding documentado em `experiments/lab/dirty/notas/welding-plan.md`
+- Welding documentado em `experiments/lab/dirty/notas/2026-05/welding-plan.md`
 
 **Manutencao continua**:
 - Auditoria periodica
@@ -253,4 +253,4 @@ Em codigo (comentarios):
 - [vocabulary.md](../vocabulary.md) — termos
 - [audit-memorias-e-documentacao.md](audit-memorias-e-documentacao.md) — manutencao
 - [ADR-0005](../adr/0005-discoverability-claude-md-root.md) — discoverability
-- [welding-plan.md](../../experiments/lab/dirty/notas/welding-plan.md) — exemplo de processo de welding
+- [welding-plan.md](../../experiments/lab/dirty/notas/2026-05/welding-plan.md) — exemplo de processo de welding

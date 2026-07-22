@@ -85,10 +85,10 @@ Decode:
   (uniformizado 2026-05-17, +7B por arquivo)
 - Nomes com `,`/`=` precisam escaping
 - Outros flags alem de `M` pra v0.6
-- Multi-tabela (varias tabelas no mesmo arquivo) — [O-FMT-13](../../experiments/lab/dirty/notas/futuras-otimizacoes-formato.md) (per-channel header)
+- Multi-tabela (varias tabelas no mesmo arquivo) — [O-FMT-13](../../experiments/lab/dirty/notas/2026-05/futuras-otimizacoes-formato.md) (per-channel header)
 
 ## Cross-references
 
 - [ADR-0001](0001-tcf-format-shebang.md) — shebang versao
-- `experiments/lab/dirty/notas/futuras-otimizacoes-formato.md` —
+- `experiments/lab/dirty/notas/2026-05/futuras-otimizacoes-formato.md` —
   O-FMT-11, O-FMT-11b, O-FMT-13

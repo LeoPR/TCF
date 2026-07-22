@@ -126,7 +126,7 @@ sem aprovacao).
 - [sub-exp dirty](../experiments/lab/dirty/2026-05-23-multi-column-scaling/)
 - [ADR-0004](../docs/adr/0004-multi-column-header-compacto.md)
 - [ADR-0011](../docs/adr/0011-pacote1-weld-canonical.md)
-- [O-FMT-* registry](../experiments/lab/dirty/notas/futuras-otimizacoes-formato.md)
+- [O-FMT-* registry](../experiments/lab/dirty/notas/2026-05/futuras-otimizacoes-formato.md)
 
 ## Updates datados
 

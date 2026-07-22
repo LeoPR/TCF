@@ -34,7 +34,7 @@ Protocolo: [[reference-strata-knowledge-architecture-review]] · gatilho L0 [[fe
 
 ## Estado / retomada
 
-- **Foco 0.8** (plano: [`v08-plano-etapas.md`](../v08-plano-etapas.md)). Workstream **A** (lazy) em
+- **Foco 0.8** (plano: [`v08-plano-etapas.md`](../2026-06/v08-plano-etapas.md)). Workstream **A** (lazy) em
   **A1✅ A2✅ A3✅**; falta **A4** (promover → `tcf.view`, toca `src/tcf` aditivo → aprovação) + **A5**.
   Workstream **B** (cross-dict): **B1** caracterizar (não-feito). **T1** (TCF vs NDJSON+brotli) = teste
   decisivo de transmissão pendente.

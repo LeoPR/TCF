@@ -342,11 +342,11 @@ Trigrama de meio s[L//2-1:L//2+2] testado para dispersar buckets em colunas date
 
 **Contexto H-TH-02 (hipotese teorica aberta 2026-05-13)**  
 Registrada como abstracao em experiments/lab/dirty/old/2026-05-13-M4-desfragmentacao-arvore/notas/indice-incremental-de-padroes.md: 'Indice incremental de padroes (Patricia tree generalizada). Comparacao como parametro modular em OBAT/HCC.' Nunca foi testada empiricamente no OBAT; existem 40+ implementacoes de Patricia em M0-fase-exploratoria-inicial (2026-05-10-02 ate 2026-05-10-12) mas em contexto diferente (encoding full, nao indexacao de candidatos).  
-*source*: experiments/lab/dirty/notas/roadmap-hipoteses.md (linhas 185-186), experiments/lab/dirty/old/2026-05-13-M4-desfragmentacao-arvore/notas/indice-incremental-de-padroes.md
+*source*: experiments/lab/dirty/notas/2026-05/roadmap-hipoteses.md (linhas 185-186), experiments/lab/dirty/old/2026-05-13-M4-desfragmentacao-arvore/notas/indice-incremental-de-padroes.md
 
 **Roadmap v2.0 (ADR-0018, 2026-05-27)**  
 Patricia registrada como candidato futuro (nao v1.0) para resolver datetime baixa-dispersao. V2-A (fallback identity) priorizado primeiro pq prototipo pronto; V2-B (dicionario) para baixa-cardinalidade (beijing hour 24 unicos inflou 228.8%). Patricia subsumida em discussao mas nao reaberta como v2.0 proprio candidato — fica como fallback conceitual de H-PERF-04 se H-PERF-05 (HCC opt) insuficiente.  
-*source*: docs/adr/0018-v2-format-roadmap.md, experiments/lab/dirty/notas/roadmap-hipoteses.md (linhas 102-104)
+*source*: docs/adr/0018-v2-format-roadmap.md, experiments/lab/dirty/notas/2026-05/roadmap-hipoteses.md (linhas 102-104)
 
 **Escala de datasets TCF**  
 D1-D9: 9 datasets sinteticos, M9 baseline 1615B. D17a: 13 strings pequenas (teste baseline). Wine: ~6500 rows (UCI real). Beijing PM2.5: 43,824 rows, 24 unicos numericos (hour column extremo). Adult Census: 48,842 rows, 15 cols. TPC-H lineitem: 60,175 rows (full), subdivisoes 1k/5k/10k/20k testadas. Online Retail: ~500k rows (fallback test). String lengths: avg 5-25 chars em colunas categoricas; 1-4 chars em numericas (IDs).  
@@ -630,7 +630,7 @@ SUCESSOR DIRETO mas eixo diferente. H-PERF-04 tentou mitigar BIAS de hash (distr
 
 **Hipótese teórica H-TH-02: status e registro**  
 H-TH-02 'Indice incremental de padroes (Patricia generalizada)' registrada 2026-05-13 em roadmap-hipoteses.md com status 'adiada'. Conecta com H-PERF-04 (como fallback se hash falhar), ADR-0018 V2-C (roadmap v2.0 Patricia como substituto do hash trigrama em v2.0). Nunca foi testada isoladamente.  
-*source*: experiments/lab/dirty/notas/roadmap-hipoteses.md linha 185, e docs/adr/0018-v2-format-roadmap.md
+*source*: experiments/lab/dirty/notas/2026-05/roadmap-hipoteses.md linha 185, e docs/adr/0018-v2-format-roadmap.md
 
 **Risco de refutação prematura em dataset enviesado**  
 H-PERF-04 foi decisiva em datas TPC-H (dataset com estrutura artificial: 1992-1998 prefixo constante). Mas nenhuma validação em: 1) datas reais variadas (diferente período), 2) não-datetime com prefixos populares (URLs de mesmo domínio, IDs com prefixo comum). H-PERF-04 foi refutada como 'hash tradicional falha' — correto — mas a CAUSA foi dataset enviesado, não inviabilidade do problema em geral.  

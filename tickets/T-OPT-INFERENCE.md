@@ -8,9 +8,9 @@ blocked-by: []
 related:
   - tickets/T-FMT-TCF8H-HEADER.md
   - tickets/T-FMT-OMIT-OR-DECLARE.md
-  - experiments/lab/dirty/notas/tcf8h-header-checklist.md
+  - experiments/lab/dirty/notas/2026-07/tcf8h-header-checklist.md
   - experiments/lab/clean/EXP-015-tcf-hierarquico-csv-json/
-  - experiments/lab/dirty/notas/tcf8h-proximas-ideias.md
+  - experiments/lab/dirty/notas/2026-07/tcf8h-proximas-ideias.md
 ---
 
 # T-OPT-INFERENCE — otimizações por inferência/dedução
@@ -30,8 +30,8 @@ mínimo (`string`/`int`/`bool`) ao rico (CPF/datetime). Cada spec:
 - é **proposta pelo gabarito** (1ª amostra, `analyze_column.sample`) e **confirmada pelo round-trip** em todas.
 
 O **Item 1 (hex)** abaixo é uma **sub-spec numérica** (a base do número) sob essa regra. Análise medida:
-nota [tipos-como-specs](../experiments/lab/dirty/notas/tipos-como-specs.md) + lab
-[`2026-07-06-2310-tipos-como-specs`](../experiments/lab/dirty/2026-07-06-2310-tipos-como-specs/result.md).
+nota [tipos-como-specs](../experiments/lab/dirty/notas/2026-07/tipos-como-specs.md) + lab
+[`2026-07-06-2310-tipos-como-specs`](../experiments/lab/dirty/2026-07/2026-07-06/2026-07-06-2310-tipos-como-specs/result.md).
 Achado a lembrar: em TCF **textual** a compressão de tipo é modesta (bool ~6B flat/dict); o forte é
 **aceleração** + o espaço **binário** (bool-bitmap V2-L). Não superestimar compressão de tipo em texto.
 
@@ -70,7 +70,7 @@ se auto-explica **por convenção**, sem marcador. O **decimal** é opt-in só p
 > **hex-default implícito armazenado**; decimal NÃO é formato alternativo, é só **comando** de apresentação
 > (inspeção/legibilidade/declarar-em-IO/debug). O survey de bases confirmou: hex é o ganho no HEADER e
 > **colide/quebra no corpo** (refs `^N`/seq-RLE usam digit-escape) → mapa em
-> [bases-radix-usos-tcf](../experiments/lab/dirty/notas/bases-radix-usos-tcf.md). O framework "specs
+> [bases-radix-usos-tcf](../experiments/lab/dirty/notas/2026-07/bases-radix-usos-tcf.md). O framework "specs
 > induzidas por round-trip" e as outras inferências deste ticket seguem aqui.
 
 > Hex-default = **convenção-default** no contrato de omissão ([T-FMT-OMIT-OR-DECLARE](T-FMT-OMIT-OR-DECLARE.md),
@@ -98,19 +98,19 @@ casos) — o brotli já acha a entropia que V2-B deixou; o bit-pack não adicion
 empiricamente o caveat de H-REF-05 (2026-06-19, qualitativo até então). **Escopo honesto**: só vale como
 TCF representação **terminal** (sem re-compressão a jusante) — mesmo nicho que V2-L já declara (não
 compete com gzip/brotli/zstd). NÃO é welding candidate nesta forma. Ver
-[H-TYPE-02](../experiments/lab/dirty/notas/roadmap-hipoteses.md) (status vivo),
-[tipos-como-specs.md](../experiments/lab/dirty/notas/tipos-como-specs.md) (seção "CONSOLIDAÇÃO E CORREÇÃO
+[H-TYPE-02](../experiments/lab/dirty/notas/2026-05/roadmap-hipoteses.md) (status vivo),
+[tipos-como-specs.md](../experiments/lab/dirty/notas/2026-07/tipos-como-specs.md) (seção "CONSOLIDAÇÃO E CORREÇÃO
 2026-07-07"), labs
-[2026-07-06-2354-spec-bin-motor](../experiments/lab/dirty/2026-07-06-2354-spec-bin-motor/result.md),
-[2026-07-07-0028-spec-bitwidth-bN](../experiments/lab/dirty/2026-07-07-0028-spec-bitwidth-bN/result.md).
+[2026-07-06-2354-spec-bin-motor](../experiments/lab/dirty/2026-07/2026-07-06/2026-07-06-2354-spec-bin-motor/result.md),
+[2026-07-07-0028-spec-bitwidth-bN](../experiments/lab/dirty/2026-07/2026-07-07/2026-07-07-0028-spec-bitwidth-bN/result.md).
 
 > **UPDATE pós-gate D3 (2026-07-08, mesmo dia, após a edição acima)**: a justificativa "N<5" caducou — o
-> [gate D3](../experiments/lab/dirty/2026-07-08-1938-bn-gate-realworld-5fontes/result.md) rodou **N=8**
+> [gate D3](../experiments/lab/dirty/2026-07/2026-07-08/2026-07-08-1938-bn-gate-realworld-5fontes/result.md) rodou **N=8**
 > fontes: terminal **8.8%** weighted (PASSA ≥5%) / pós-brotli **1.7%** (reprova). A conclusão anti-weld
 > SOBREVIVE por outros motivos: colapso pós-brotli + H-TYPE-03 (decisão de produto: terminal é
 > representativo?) + F3 (sub-byte honesto w≤4 = 5.9%; pós-brotli pode ir NET-negativo, receita −0.2%).
 > Status vivo: H-TYPE-02/07 no roadmap (bifurcada). Nomenclatura resolvida (owner): b1/b2/b4 física; b3
-> trio; b5-7 reservados; B interno — [char-registry](../experiments/lab/dirty/notas/tcf8-header-char-registry.md).
+> trio; b5-7 reservados; B interno — [char-registry](../experiments/lab/dirty/notas/2026-07/tcf8-header-char-registry.md).
 
 ## Itens futuros (outras inferências)
 

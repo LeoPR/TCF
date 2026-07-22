@@ -22,7 +22,7 @@ Restricoes assumidas:
 - Header sempre emitido por default; exception: `include_shebang=False`
   quando caller garante formato/versao out-of-band
 - Mobile per-channel header pra transmissao paralela: ver O-FMT-13
-  em `../../dirty/notas/futuras-otimizacoes-formato.md`
+  em `../../dirty/notas/2026-05/futuras-otimizacoes-formato.md`
 """
 
 from __future__ import annotations

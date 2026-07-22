@@ -526,7 +526,7 @@ supersede o "frozen" do ADR-0017): aditiva, sem compat rígida entre minors de d
 **Benchmark vs csv/jsonl + gzip/brotli/zstd** (9 datasets totais):
 **TCF venceu em 7/9** datasets. Perdeu em D17a tiny (header overhead
 domina) e wine-quality (decimais quase unicos = sem estrutura).
-Detalhes: [experiments/lab/dirty/2026-05-24-benchmark-formats-compression/](../../experiments/lab/dirty/2026-05-24-benchmark-formats-compression/).
+Detalhes: [experiments/lab/dirty/2026-05/2026-05-24/2026-05-24-benchmark-formats-compression/](../../experiments/lab/dirty/2026-05/2026-05-24/2026-05-24-benchmark-formats-compression/).
 
 **Suite de testes** (snapshot 2026-05-27: 259 passed; contagem atual em
 [STATUS.md](../../STATUS.md)). Guardião byte-canonical:
@@ -567,10 +567,10 @@ referência histórica e enquanto Phase 1 LLM findings (em
 - [META-TYPE-ENCODERS](../../tickets/META-TYPE-ENCODERS.md) — naturezas (T02-T07)
 
 ### Narrativa
-- [`historia-dirty-lab.md`](../../experiments/lab/dirty/notas/historia-dirty-lab.md) — M0-M14 desenvolvimento
-- [`roadmap-hipoteses.md`](../../experiments/lab/dirty/notas/roadmap-hipoteses.md) — hipóteses ativas/fechadas
-- [`naturezas-numericas-2026-05-23.md`](../../experiments/lab/dirty/notas/naturezas-numericas-2026-05-23.md) — catalogação 12 naturezas
-- [`futuras-otimizacoes-formato.md`](../../experiments/lab/dirty/notas/futuras-otimizacoes-formato.md) — O-FMT-* registry
+- [`historia-dirty-lab.md`](../../experiments/lab/dirty/notas/2026-05/historia-dirty-lab.md) — M0-M14 desenvolvimento
+- [`roadmap-hipoteses.md`](../../experiments/lab/dirty/notas/2026-05/roadmap-hipoteses.md) — hipóteses ativas/fechadas
+- [`naturezas-numericas-2026-05-23.md`](../../experiments/lab/dirty/notas/2026-05/naturezas-numericas-2026-05-23.md) — catalogação 12 naturezas
+- [`futuras-otimizacoes-formato.md`](../../experiments/lab/dirty/notas/2026-05/futuras-otimizacoes-formato.md) — O-FMT-* registry
 
 ### Plano de design v0.4 (referência arquitetural)
 - [`2026-05-05-v04-design-recap.md`](../workbench/research-notes/_archive/2026-05-05-v04-design-recap.md) — D1-D18, EncodeManager (D13), Plan, 3 camadas

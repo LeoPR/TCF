@@ -46,6 +46,6 @@ e libera foco pra novos pacotes (H-PERF-05d, T02-T07 META-TYPE-ENCODERS).
 ## Conexoes
 
 - [Ticket T-REVAL-H-DA-01-06-10](../../../../tickets/T-REVAL-H-DA-01-06-10.md)
-- [Revisao conceitual](../notas/revisao-conceitual-2026-05-21.md)
+- [Revisao conceitual](../notas/2026-05-21-0138-revisao-conceitual.md)
 - [Roadmap hipoteses](../notas/roadmap-hipoteses.md)
 - [Pacote 2 incidente motivador](../2026-05-21-escape-deduction/)

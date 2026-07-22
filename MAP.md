@@ -63,9 +63,9 @@ TCF/
 ├── experiments/lab/
 │   ├── clean/EXP-NNN-*/ .. prototypes consolidados
 │   └── dirty/
-│       ├── notas/ ........ narrativa + diario + roadmap + checkpoints
-│       ├── 2026-*/ ....... labs ativos (3) + baseline-consolidado
-│       └── old/ .......... labs historicos
+│       ├── notas/ ........ registries + <YYYY-MM>/ notas + diario/ + checkpoints/
+│       ├── <YYYY-MM>/<YYYY-MM-DD>/<lab>/  .. macros aninhados por data (conv. §Naming AGENTS.md)
+│       └── old/ .......... labs historicos (layout proprio, nao aninhado)
 │           ├── M0-M14/ ... pre-canonical (NAO USAR salvo historia)
 │           ├── welded/ ... pos-canonical welded em src/tcf/
 │           └── refuted/ .. pos-canonical refutados/insufficient-gain
@@ -86,34 +86,34 @@ TCF/
 | Entender OBAT (tokenizer) | `docs/algorithms/OBAT.md` |
 | Entender HCC (composicional) | `docs/algorithms/HCC.md` |
 | **Portar o CORE pra C/Rust** (estruturas + fronteira CORE↔HOST) | `docs/algorithms/core-data-model.md` |
-| **Capacidade dos SPECS/natures** (mapa único + EnumSpec no-go + self-describing) | `experiments/lab/dirty/notas/specs-capacity-map.md` |
-| **Estrutura + plano do #TCF.8** (família self-describing, features, sequência, cross-dict, tcfx) | `experiments/lab/dirty/notas/tcf8-estrutura-plano.md` (**fonte única**; a `tcf8-vista-o-que-falta.md` da sessão 07-08 é subordinada) |
-| **Tipos como specs** (round-trip = indução; 8 eixos; meta-grupo H-TYPE-00..06; bN irmão do dict) | `experiments/lab/dirty/notas/tipos-como-specs.md` (estende `specs-capacity-map.md`) + `tipos-meta-grupo-fluxo.md` |
-| **Família bN** (bit-packing enum baixa-card) + **gate real-world** + **3 fluxos medidos** | roadmap H-TYPE-02/07 (status vivo; números = cópia, fonte = labs) + gate D3 `experiments/lab/dirty/2026-07-08-1938-bn-gate-realworld-5fontes/` (N=8; terminal 8.8%* / 1.7% pós-brotli — *w≤4 honesto = 5.9%, ver F3) + F1 latência `2026-07-08-2302-f1-bypass-latencia/` (bypass 2.4×) + F3 seletivo `2026-07-08-2355-f3-bn-seletivo/` (5.9%/0.5%; reforça o EnumSpec no-go) |
+| **Capacidade dos SPECS/natures** (mapa único + EnumSpec no-go + self-describing) | `experiments/lab/dirty/notas/2026-06/specs-capacity-map.md` |
+| **Estrutura + plano do #TCF.8** (família self-describing, features, sequência, cross-dict, tcfx) | `experiments/lab/dirty/notas/2026-06/tcf8-estrutura-plano.md` (**fonte única**; a `tcf8-vista-o-que-falta.md` da sessão 07-08 é subordinada) |
+| **Tipos como specs** (round-trip = indução; 8 eixos; meta-grupo H-TYPE-00..06; bN irmão do dict) | `experiments/lab/dirty/notas/2026-07/tipos-como-specs.md` (estende `specs-capacity-map.md`) + `tipos-meta-grupo-fluxo.md` |
+| **Família bN** (bit-packing enum baixa-card) + **gate real-world** + **3 fluxos medidos** | roadmap H-TYPE-02/07 (status vivo; números = cópia, fonte = labs) + gate D3 `experiments/lab/dirty/2026-07/2026-07-08/2026-07-08-1938-bn-gate-realworld-5fontes/` (N=8; terminal 8.8%* / 1.7% pós-brotli — *w≤4 honesto = 5.9%, ver F3) + F1 latência `2026-07-08-2302-f1-bypass-latencia/` (bypass 2.4×) + F3 seletivo `2026-07-08-2355-f3-bn-seletivo/` (5.9%/0.5%; reforça o EnumSpec no-go) |
 | **Contrato de omissão** (deduzir/convenção-default/declarar + fail-loud, pré-1.0) | `tickets/T-FMT-OMIT-OR-DECLARE.md` |
-| **Hierarquia completa / DatasetH** (fonte-agnóstica; JSON é só adaptador) + escalares especiais `null`/`NaN`/infinitos | `experiments/lab/dirty/notas/dataseth-hierarquia-completa-plano.md` + mapa `experiments/lab/dirty/notas/estudo-tcf-hierarquico-mapa.md`; EXP-015 CSV↔JSON é prior art de notação, não contrato |
-| **Hierarquia — INVENTÁRIO de hipóteses** (exaustão: heterogêneo=TCFs concatenados JÁ provado p/ classe coberta; taxonomia contenção/presença/repetição/normalização; 30 hipóteses; corrida de 3 vias = próximo) | `experiments/lab/dirty/notas/hierarquia-inventario-hipoteses.md` |
-| **Registry de chars do header .8** (discriminador + marcadores por-coluna + reserva; fecha os fluxos, evita colisão tipo `#TCF.8H`) | `experiments/lab/dirty/notas/tcf8-header-char-registry.md` |
-| **Arquiteturas futuras** (Parquet/V2-L · gadget schema · gadget IA — "depois", âncoras) | `experiments/lab/dirty/notas/arquiteturas-futuras-parquet-schema-ia.md` |
-| **Primitivas com nomes diferentes = coisa parecida** (audit p/ consolidar: dict/índice, RLE, spec/nature/tipo, omitir/declarar…) | `experiments/lab/dirty/notas/primitivas-consolidacao-audit.md` |
-| **Bases/radix em cada parte do TCF** (mapa: header→hex, índices base-94, refs LOCKED decimal, bN bits; fechar aos poucos) | `experiments/lab/dirty/notas/bases-radix-usos-tcf.md` + ticket `tickets/T-FMT-HEADER-BASE-HEX.md` |
-| **bN × @dict (2 perspectivas) + dict interno clássico** (reativa vs preemptiva; true/false/null congelado; H-TYPE-07) | `experiments/lab/dirty/notas/bn-dict-perspectivas-e-dict-interno.md` |
+| **Hierarquia completa / DatasetH** (fonte-agnóstica; JSON é só adaptador) + escalares especiais `null`/`NaN`/infinitos | `experiments/lab/dirty/notas/2026-07/dataseth-hierarquia-completa-plano.md` + mapa `experiments/lab/dirty/notas/2026-07/estudo-tcf-hierarquico-mapa.md`; EXP-015 CSV↔JSON é prior art de notação, não contrato |
+| **Hierarquia — INVENTÁRIO de hipóteses** (exaustão: heterogêneo=TCFs concatenados JÁ provado p/ classe coberta; taxonomia contenção/presença/repetição/normalização; 30 hipóteses; corrida de 3 vias = próximo) | `experiments/lab/dirty/notas/2026-07/hierarquia-inventario-hipoteses.md` |
+| **Registry de chars do header .8** (discriminador + marcadores por-coluna + reserva; fecha os fluxos, evita colisão tipo `#TCF.8H`) | `experiments/lab/dirty/notas/2026-07/tcf8-header-char-registry.md` |
+| **Arquiteturas futuras** (Parquet/V2-L · gadget schema · gadget IA — "depois", âncoras) | `experiments/lab/dirty/notas/2026-07/arquiteturas-futuras-parquet-schema-ia.md` |
+| **Primitivas com nomes diferentes = coisa parecida** (audit p/ consolidar: dict/índice, RLE, spec/nature/tipo, omitir/declarar…) | `experiments/lab/dirty/notas/2026-07/primitivas-consolidacao-audit.md` |
+| **Bases/radix em cada parte do TCF** (mapa: header→hex, índices base-94, refs LOCKED decimal, bN bits; fechar aos poucos) | `experiments/lab/dirty/notas/2026-07/bases-radix-usos-tcf.md` + ticket `tickets/T-FMT-HEADER-BASE-HEX.md` |
+| **bN × @dict (2 perspectivas) + dict interno clássico** (reativa vs preemptiva; true/false/null congelado; H-TYPE-07) | `experiments/lab/dirty/notas/2026-07/bn-dict-perspectivas-e-dict-interno.md` |
 | **Bibliografia / literatura** (column-store Abadi/Parquet/Dremel, bitpacking, DSL — 24 refs) | `docs/reference/bibliografia.md` |
-| **Arquitetura share × header × lazy** (balanço compressão↔lazy; cross-dict FECHADO; header=índice) | `experiments/lab/dirty/notas/arquitetura-share-header-lazy.md` |
-| Ver hipoteses ativas/fechadas | `experiments/lab/dirty/notas/roadmap-hipoteses.md` (registry **ativo**; homônimo em `docs/theory/` é histórico) |
-| Entender a **familia RLE** (linha/stream/intra-valor) | `experiments/lab/dirty/notas/rle-familia-estudo.md` |
+| **Arquitetura share × header × lazy** (balanço compressão↔lazy; cross-dict FECHADO; header=índice) | `experiments/lab/dirty/notas/2026-07/arquitetura-share-header-lazy.md` |
+| Ver hipoteses ativas/fechadas | `experiments/lab/dirty/notas/2026-05/roadmap-hipoteses.md` (registry **ativo**; homônimo em `docs/theory/` é histórico) |
+| Entender a **familia RLE** (linha/stream/intra-valor) | `experiments/lab/dirty/notas/2026-06/rle-familia-estudo.md` |
 | **V2-RLE-STREAM** (follow-up V2-B) | `experiments/lab/dirty/old/refuted/2026-06-19-v2rle-stream-caracterizacao/result.md` + registry Pacote 11-bis |
-| **Lazy/queryable view** (descomprimir o minimo) | `src/tcf/view.py` (`from tcf import view`; A4) · reference `docs/reference/lazy-view.md` · design 0.9 `experiments/lab/dirty/notas/hquery01-decode-dag-indices-design.md` |
+| **Lazy/queryable view** (descomprimir o minimo) | `src/tcf/view.py` (`from tcf import view`; A4) · reference `docs/reference/lazy-view.md` · design 0.9 `experiments/lab/dirty/notas/2026-06/hquery01-decode-dag-indices-design.md` |
 | Knobs de encode + view (reference) | `docs/reference/encode-knobs.md`, `docs/reference/lazy-view.md` |
 | **TCF ↔ JSON — equivalências** (o que traduz, o que faz a mais, a fronteira) | `docs/reference/json-equivalence.md` (semente do manual; wires confirmados por execução) |
 | Entender uma decisao tomada | `docs/adr/` (numerada) ou `experiments/lab/dirty/notas/diario/` |
-| Continuar um sub-experimento | `experiments/lab/dirty/<lab>/<sub-exp>/README.md` |
+| Continuar um sub-experimento | `experiments/lab/dirty/<YYYY-MM>/<YYYY-MM-DD>/<lab>/<sub-exp>/README.md` |
 | Comparar EXP-010 ao baseline | `experiments/lab/clean/EXP-010-*/report.md` |
 | Format do .tcf | `docs/algorithms/TCF-format.md` |
-| Convencao de header | `docs/algorithms/TCF-format.{pt-BR,en}.md` (#TCF.8 default, discriminador 5-valores c/ `H`, hex, escaping) + ADRs (0029/0031/0032) + **registry de chars** `experiments/lab/dirty/notas/tcf8-header-char-registry.md` (`H` já no spec via ADR-0031; `#`/`&` research) |
-| Welding pra src/tcf | `experiments/lab/dirty/notas/welding-plan.md` |
-| Ideias futuras de formato | `experiments/lab/dirty/notas/futuras-otimizacoes-formato.md` |
-| Adicionar novo lab | `experiments/lab/dirty/YYYY-MM-DD-name/` |
+| Convencao de header | `docs/algorithms/TCF-format.{pt-BR,en}.md` (#TCF.8 default, discriminador 5-valores c/ `H`, hex, escaping) + ADRs (0029/0031/0032) + **registry de chars** `experiments/lab/dirty/notas/2026-07/tcf8-header-char-registry.md` (`H` já no spec via ADR-0031; `#`/`&` research) |
+| Welding pra src/tcf | `experiments/lab/dirty/notas/2026-05/welding-plan.md` |
+| Ideias futuras de formato | `experiments/lab/dirty/notas/2026-05/futuras-otimizacoes-formato.md` |
+| Adicionar novo lab | `experiments/lab/dirty/<YYYY-MM>/<YYYY-MM-DD>/<YYYY-MM-DD-HHMM-name>/` (conv. §Naming AGENTS.md) |
 | Adicionar EXP clean | `experiments/lab/clean/EXP-NNN-name/` |
 
 ## Pontos cegos (evitar confusao)
@@ -136,49 +136,49 @@ TCF/
 Faxina 2026-06-21: 17 labs movidos pra `old/welded/` ou `old/refuted/`
 (inclui naturezas-e-camada e cpf-templated-checked). Labs vivos:
 
-- `experiments/lab/dirty/2026-05-24-benchmark-formats-compression/` —
+- `experiments/lab/dirty/2026-05/2026-05-24/2026-05-24-benchmark-formats-compression/` —
   benchmark csv/json/tcf x gzip/brotli/zstd (TCF vence 4/6); `out_files/` removidos
-- **`experiments/lab/dirty/2026-05-27-baseline-consolidado/`** —
+- **`experiments/lab/dirty/2026-05/2026-05-27/2026-05-27-baseline-consolidado/`** —
   baseline de referencia (METRICS + ADRs-INDEX + lessons-learned + run-baseline.py)
-- `experiments/lab/dirty/2026-06-19-lazy-testbank/` — banco de testes lazy A1/A2/A3
-- `experiments/lab/dirty/2026-06-21-gdict-caracterizacao/` — B1 cross-dict (H-GDICT) + B2 design/revisao
-- `experiments/lab/dirty/2026-06-27-gdict-b2-prototype/` — B2 prototype (formato `&<G>` RT-lossless) + gate N≥5 (FALHOU)
-- `experiments/lab/dirty/2026-07-01-crossdict-emprestimo-indices/` — reabertura cross-dict + teste-teto (FECHADO)
-- `experiments/lab/dirty/2026-07-01-dict-highcard/` + `2026-07-01-descapar-v2b/` — DICT-HIGHCARD → descapar V2-B (byte-safe)
+- `experiments/lab/dirty/2026-06/2026-06-19/2026-06-19-lazy-testbank/` — banco de testes lazy A1/A2/A3
+- `experiments/lab/dirty/2026-06/2026-06-21/2026-06-21-gdict-caracterizacao/` — B1 cross-dict (H-GDICT) + B2 design/revisao
+- `experiments/lab/dirty/2026-06/2026-06-27/2026-06-27-gdict-b2-prototype/` — B2 prototype (formato `&<G>` RT-lossless) + gate N≥5 (FALHOU)
+- `experiments/lab/dirty/2026-07/2026-07-01/2026-07-01-crossdict-emprestimo-indices/` — reabertura cross-dict + teste-teto (FECHADO)
+- `experiments/lab/dirty/2026-07/2026-07-01/2026-07-01-dict-highcard/` + `2026-07-01-descapar-v2b/` — DICT-HIGHCARD → descapar V2-B (byte-safe)
 - `experiments/lab/clean/EXP-010-tcf-delta-aware-prototype/` —
   prototype antigo (referencia historica)
 - `experiments/lab/clean/EXP-011-multi-column-basic/` — multi-col basico
-- **`experiments/lab/dirty/2026-07-13-dataseth-json-bridge/`** — **DatasetH** (intermediário
+- **`experiments/lab/dirty/2026-07/2026-07-13/2026-07-13-dataseth-json-bridge/`** — **DatasetH** (intermediário
   source-agnostic p/ hierarquia; JSON = adaptador de prova). R0/R1: `dataset_h.py` (árvore tipada +
   from_json/from_python) + `run.py`. **Stage 1 (codec TCF.H, topologia-primeiro)**: `codec_h.py` +
   `run_codec.py` — `DatasetH↔#TCF.8H` RT-exato (22/22 + fail-loud), fecha `\n`-em-string; tipos/compressão
   = stage 2. Plano: `notas/dataseth-hierarquia-completa-plano.md`; weld: `tickets/T-CODE-TCF8H-WELD.md`.
-- **`experiments/lab/dirty/2026-07-13-1835-dataseth-special-scalars/`** — **stage 2 (P1+P2)**:
+- **`experiments/lab/dirty/2026-07/2026-07-13/2026-07-13-1835-dataseth-special-scalars/`** — **stage 2 (P1+P2)**:
   escalares especiais `NaN`/`±Inf`/`-0.0` — oráculo `semantic_key` + matriz 21×2 + 2 origens.
   **A (folha tipada) confirmada** (nunca perde bytes, wire inspecionável); C (string escapada)
   refutada-parcial (imposto de escape global). Ver `result.md`. (1955 def-levels + 2019 formatos
   lado-a-lado seguem esta trilha de TIPOS — camada SEGUINTE, ver o lab da base abaixo.)
-- **`experiments/lab/dirty/2026-07-13-2301-tcf8h-tabelao-recuperado/`** — **A BASE (volta à prancheta)**:
+- **`experiments/lab/dirty/2026-07/2026-07-13/2026-07-13-2301-tcf8h-tabelao-recuperado/`** — **A BASE (volta à prancheta)**:
   hierarquia = tabelão denormalizado (pai repete, RLE `*N|pai` = multiplicidade) + header de colchetes
   `#TCF.8H nome:sz,cidade:sz,telefones[`; motor multi-col REAL, RT-exato (263 B vs 452 JSON, + array de
   objetos). Modelo do lab 1509 + contrato 1830/EXP-015/ADR-0031. **Tipos/nulos = camada sobre esta base.**
-- **`experiments/lab/dirty/2026-07-13-2325-hierarquia-cardinalidade/`** — **FORTIFICA a base**: header
+- **`experiments/lab/dirty/2026-07/2026-07-13/2026-07-13-2325-hierarquia-cardinalidade/`** — **FORTIFICA a base**: header
   recursivo firme `{}` 1:1 + `[]` 1:N (aninhados, chaveado por CAMINHO), fail-loud (N:N + ambiguidade
   FD/chave — encode auto-verifica, nunca corrompe calado). + **estudo de cardinalidade** (1:1→`{}`,
   1:N→`[]` ANINHAM; N:1→coluna @dict; N:N→ponte); cardinalidade⊥compressibilidade. Tipos/nulos ortogonais.
-- **`experiments/lab/dirty/2026-07-13-2356-rle-dual-multiplicidade-deduzida/`** — **dual do RLE MEDIDO**
+- **`experiments/lab/dirty/2026-07/2026-07-13/2026-07-13-2356-rle-dual-multiplicidade-deduzida/`** — **dual do RLE MEDIDO**
   (recupera peça 9/2328 + H-CARD-06): multiplicidade repetida por coluna (tabelão A) vs carregada 1×
   (nível-aware B, o "sincronismo"). **Crossover por largura**: estreito→A, largo→B (423<466 em 11
   campos-pai). RLE↔counts↔fk duais; A e B = candidatos de `min()`. RT-exato nos dois.
-- **`experiments/lab/dirty/2026-07-14-0111-hierarquico-fechar-fluxo/`** — **FECHA funcionalidade+fluxo**:
+- **`experiments/lab/dirty/2026-07/2026-07-14/2026-07-14-0111-hierarquico-fechar-fluxo/`** — **FECHA funcionalidade+fluxo**:
   codec por SHREDDING (blocos + counts) faz RT-exato nos clássicos de transmissão (cadastro c/ 2 listas
   irmãs, pedido aninhado, telemetria). Fecha o que o tabelão não fechava (múltiplas listas, ambiguidade,
   array vazio). Dois fluxos: funcional + transmissão simulada (encode→gzip/brotli→decode). Perf real = `.9`.
-- **`experiments/lab/dirty/2026-07-14-2043-l3-multiplicidade-independencia/`** — **L3 medido**: multiplicidade
+- **`experiments/lab/dirty/2026-07/2026-07-14/2026-07-14-2043-l3-multiplicidade-independencia/`** — **L3 medido**: multiplicidade
   EXPLÍCITA (`#count`, independência/lazy) vs DEDUZIDA (−bytes, colunas conversam). Crossover: estreito→deduzida,
   **largo (comum)→explícita PARETO** (−bytes E independência). Default do weld (explícito) confirmado; knob = `.9`.
 - **Sessao 2026-07-05..08 (specs/tipos/bN/hierarquico — research-track)**: indexados nos mapas
-  `experiments/lab/dirty/notas/estudo-tcf-hierarquico-mapa.md` (P1-P9 + EXP-015 CSV↔JSON `#TCF.8H`) +
+  `experiments/lab/dirty/notas/2026-07/estudo-tcf-hierarquico-mapa.md` (P1-P9 + EXP-015 CSV↔JSON `#TCF.8H`) +
   `tipos-como-specs.md` (reframe + labs 2026-07-06/07 do bN) + `2026-07-08-1938-bn-gate-realworld-5fontes/`
   (gate D3) + `2026-07-08-2302-f1-bypass-latencia/` (F1, 2.4×) + `2026-07-08-2355-f3-bn-seletivo/` (F3,
   5.9%/0.5%). **Tudo fora de `src/tcf`**; relacao com o release em `tcf8-vista-o-que-falta.md`
@@ -196,7 +196,7 @@ Pos-0.7 (2026-06, ainda referencia):
 - `experiments/lab/dirty/old/refuted/2026-06-16-number-nature-caracterizacao/` — number-nature (PARK)
 - `experiments/lab/dirty/old/refuted/2026-06-19-v2rle-stream-caracterizacao/` — RLE no stream
   V2-B (CLOSED-geral / nicho textual-puro ABERTO)
-- `experiments/lab/dirty/2026-06-19-lazy-testbank/` — A1/A2/A3 do lazy (banco de
+- `experiments/lab/dirty/2026-06/2026-06-19/2026-06-19-lazy-testbank/` — A1/A2/A3 do lazy (banco de
   testes vs oraculo + bug de contagem + otimizacao do caminho do algoritmo)
 - `experiments/lab/dirty/old/refuted/2026-06-19-header-rows-vs-bytes/` — teste de proporcao
   header linhas-vs-bytes (row-count REFUTADO; base-94 candidato)

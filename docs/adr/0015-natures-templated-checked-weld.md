@@ -99,7 +99,7 @@ NAO welded nesta ADR:
 - TCU-NoCheckVarLength (IP) — sub-exps 08/09/12 mostraram que padding+M10
   ou base94 vencem; SlotBehavior nao agregou (sub-exp 13 refutado)
 - Lossy-recoverable, Composite, Hierarchical — registradas em
-  `experiments/lab/dirty/notas/naturezas-templated-2026-05-24.md`,
+  `experiments/lab/dirty/notas/2026-05/naturezas-templated-2026-05-24.md`,
   aguardando datasets dedicados
 
 Categorias acima podem adicionar specs novas seguindo mesmo padrao
@@ -148,8 +148,8 @@ Categorias acima podem adicionar specs novas seguindo mesmo padrao
 - [Sub-exp 05 fallback marker CPF](../../experiments/lab/dirty/old/welded/2026-05-24-cpf-templated-checked/05-fallback-per-value/report.md)
 - [Sub-exp 06 NatureApplyStats](../../experiments/lab/dirty/old/welded/2026-05-24-cpf-templated-checked/06-stats-estruturadas/SUMMARY.md)
 - [Sub-exp 07 CNPJ generalization](../../experiments/lab/dirty/old/welded/2026-05-24-cpf-templated-checked/07-generalizar-CNPJ/report.md)
-- [Naturezas templated catalogacao](../../experiments/lab/dirty/notas/naturezas-templated-2026-05-24.md)
-- [Arquitetura funil de camadas](../../experiments/lab/dirty/notas/arquitetura-funil-camadas-2026-05-24.md)
+- [Naturezas templated catalogacao](../../experiments/lab/dirty/notas/2026-05/naturezas-templated-2026-05-24.md)
+- [Arquitetura funil de camadas](../../experiments/lab/dirty/notas/2026-05/arquitetura-funil-camadas-2026-05-24.md)
 - [ADR-0014 API unificada](0014-unified-api-side-outputs.md) — base
 - [T-CODE-SCHEMA-BUILDER](../../tickets/T-CODE-SCHEMA-BUILDER.md) — Fase 3
   consumira specs registradas pra auto-detect

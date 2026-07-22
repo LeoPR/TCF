@@ -121,7 +121,7 @@ Re-validar todos pos cada welding.
 - [Pacote 4 sub-pacote 1 (welded)](../experiments/lab/dirty/2026-05-19-obat-perf-optimization/)
 - [ADR-0009](../docs/adr/0009-obat-trigram-index-optimization.md)
 - [EXP-014 baseline](../experiments/lab/clean/EXP-014-tpch-lineitem-scale/)
-- [Roadmap hipoteses (H-PERF-04/05/06)](../experiments/lab/dirty/notas/roadmap-hipoteses.md)
+- [Roadmap hipoteses (H-PERF-04/05/06)](../experiments/lab/dirty/notas/2026-05/roadmap-hipoteses.md)
 - [META-TYPE-ENCODERS](META-TYPE-ENCODERS.md) (escopo Perf transferido deste ticket)
 
 ## Criterio de aceite (deste meta-ticket)

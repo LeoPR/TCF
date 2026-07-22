@@ -11,7 +11,7 @@ related:
   - tickets/META-TYPE-ENCODERS.md
   - docs/adr/0015-natures-templated-checked-weld.md
   - src/tcf/natures/templated_checked.py
-  - experiments/lab/dirty/notas/specs-capacity-map.md
+  - experiments/lab/dirty/notas/2026-06/specs-capacity-map.md
 ---
 
 # T-SPEC-STATUS-08 — onde os specs estão, pra decidir o que fechar antes do teste em massa
@@ -29,7 +29,7 @@ related:
 > revisar os campos cadastrais mais comuns (CEP, RG, identificacao de motorista, datas de aniversario,
 > telefone e codigos sem inferencia natural) e avaliar base64/base96. A decisao inicial A continua
 > valendo como baseline: nenhum novo spec foi welded nesta revisao. A evidencia nova esta em
-> [`2026-07-12-specs-cadastrais-v1`](../experiments/lab/dirty/2026-07-12-specs-cadastrais-v1/).
+> [`2026-07-12-specs-cadastrais-v1`](../experiments/lab/dirty/2026-07/2026-07-12/2026-07-12-specs-cadastrais-v1/).
 
 **[dispositivo→registro]** Pedido do owner (2026-07-12): "quero ver o status dos specs, pra poder
 lançar com os datasets. Os specs tinham duas abordagens: (1) revisão da LINGUAGEM pra ficar
@@ -52,7 +52,7 @@ degenerada — o re-survey CORRIGIU um erro material do primeiro sobre o `check_
   ACELERAÇÃO + espaço binário V2-L. Gate `H-TYPE-03` aberto (decisão de produto do owner:
   "terminal é representativo?"). Medições fechadas (D3 N=8: 8.8% terminal / 1.7% pós-brotli).
 - **Trilho literal de DSL de spec** (a "linguagem generalista" no sentido estrito) = W4 "TCFL"
-  (`resegmentacao-workstreams-2026-06-27.md`) + `filtros-dsl-plano.md` — registrado, deferido 2.0.
+  (`2026-06-27-0310-resegmentacao-workstreams.md`) + `filtros-dsl-plano.md` — registrado, deferido 2.0.
 - **Pro teste em massa AGORA**: só o que está welded (natures ADR-0015 + self-describing `:id`
   ADR-0027 + SPEC_REGISTRY). Todo o resto = `.9`, gated. Nada a fazer aqui pro `.8`.
 

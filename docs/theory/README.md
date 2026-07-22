@@ -15,7 +15,7 @@
 - [`../algorithms/output-convention.md`](../algorithms/output-convention.md) — Convencao de output
 
 **Narrativa do desenvolvimento**:
-- [`../../experiments/lab/dirty/notas/historia-dirty-lab.md`](../../experiments/lab/dirty/notas/historia-dirty-lab.md)
+- [`../../experiments/lab/dirty/notas/2026-05/historia-dirty-lab.md`](../../experiments/lab/dirty/notas/2026-05/historia-dirty-lab.md)
   — historia M0-M14 do dirty lab
 
 ## Notas teoricas + hipoteses (em ordem de relevancia)

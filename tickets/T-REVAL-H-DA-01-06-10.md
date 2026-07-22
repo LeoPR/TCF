@@ -8,8 +8,8 @@ updated: 2026-05-21
 closed: 2026-05-21
 blocked-by: []
 related:
-  - experiments/lab/dirty/notas/revisao-conceitual-2026-05-21.md
-  - experiments/lab/dirty/notas/roadmap-hipoteses.md
+  - experiments/lab/dirty/notas/2026-05/2026-05-21-0138-revisao-conceitual.md
+  - experiments/lab/dirty/notas/2026-05/roadmap-hipoteses.md
   - experiments/lab/dirty/2026-05-17-OBAT-delta-aware/
   - experiments/lab/dirty/2026-05-21-revalidacao-categoria-B/
   - docs/adr/0008-detect-cadence-numeric-high-cardinality.md
@@ -98,7 +98,7 @@ em D1-D9 + Adult-1k/5k + TPC-H region/customer/lineitem-5k).
 - [ ] 3 sub-exps com result.md
 - [ ] Roadmap atualizado com status final (incluindo 3 campos:
   evidencia_realworld, n_datasets_diversos, confianca)
-- [ ] revisao-conceitual-2026-05-21.md atualizado (categoria B → A
+- [ ] 2026-05-21-0138-revisao-conceitual.md atualizado (categoria B → A
   ou C)
 - [ ] Commit unico por sub-exp ou consolidado
 
@@ -114,7 +114,7 @@ em D1-D9 + Adult-1k/5k + TPC-H region/customer/lineitem-5k).
 
 ## Conexoes
 
-- [Revisao conceitual 2026-05-21](../experiments/lab/dirty/notas/revisao-conceitual-2026-05-21.md)
+- [Revisao conceitual 2026-05-21](../experiments/lab/dirty/notas/2026-05/2026-05-21-0138-revisao-conceitual.md)
   — origem da categorizacao A/B/C
 - [Pacote 1 lab](../experiments/lab/dirty/2026-05-17-OBAT-delta-aware/)
   — sub-exps 02, 05, 08 originais
@@ -158,7 +158,7 @@ overfitting) quanto pra "marginais" (suspeita subutilizacao).
 **Outputs**:
 - 3 result.md em sub-exps
 - roadmap-hipoteses.md atualizado (H-DA-01/06/10 status final + nova H-DA-11)
-- revisao-conceitual-2026-05-21.md atualizada com secao "Resultados
+- 2026-05-21-0138-revisao-conceitual.md atualizada com secao "Resultados
   revalidacao"
 - Nova hipotese decorrente: **H-DA-11** auto-detect min_len por coluna
   (candidata sub-exp ~10% ganho potencial)

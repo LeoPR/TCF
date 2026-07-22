@@ -83,7 +83,7 @@ Declare explicitamente o resultado da hipotese do experimento:
 - `inconclusive` — dado insuficiente; revisitar
 
 **Por que importa**: o registry de hipoteses
-([`experiments/lab/dirty/notas/roadmap-hipoteses.md`](../../experiments/lab/dirty/notas/roadmap-hipoteses.md))
+([`experiments/lab/dirty/notas/2026-05/roadmap-hipoteses.md`](../../experiments/lab/dirty/notas/2026-05/roadmap-hipoteses.md))
 e o campo `outcome` sao a salvaguarda contra **storytelling
 post-hoc** (so' positivos registrados). Ver discussao em
 [`../algorithms/`](../algorithms/) e
@@ -103,4 +103,4 @@ nao referencia".
 
 - Helper: [`scripts/run_metadata.py`](../../scripts/run_metadata.py)
 - Metodologia subjacente: [`../../../README.methodology.md`](../../../README.methodology.md) §"Aprofundando Pilar 4 → Manifest.jsonl"
-- Roadmap hipoteses: [`../../experiments/lab/dirty/notas/roadmap-hipoteses.md`](../../experiments/lab/dirty/notas/roadmap-hipoteses.md)
+- Roadmap hipoteses: [`../../experiments/lab/dirty/notas/2026-05/roadmap-hipoteses.md`](../../experiments/lab/dirty/notas/2026-05/roadmap-hipoteses.md)

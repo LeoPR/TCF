@@ -357,7 +357,7 @@ O dicionário low-card (V2-B) e o split estrutural já estão no default; a comp
 - Suíte: **861 passed, 3 skipped** na execução local completa atual; rode `pytest` para o número do seu ambiente.
   Baselines de byte = guardas de regressão, re-pináveis em mudança intencional ([ADR-0024](docs/adr/0024-pre-1.0-versioning-git-as-compat.md)).
 - Mudanças: [`CHANGELOG.md`](CHANGELOG.md).
-  História M0-M14: [`experiments/lab/dirty/notas/historia-dirty-lab.md`](experiments/lab/dirty/notas/historia-dirty-lab.md).
+  História M0-M14: [`experiments/lab/dirty/notas/2026-05/historia-dirty-lab.md`](experiments/lab/dirty/notas/2026-05/historia-dirty-lab.md).
 
 > O ciclo **v0.5** (formato columnar para LLM benchmark) é acessório e vive separado.
 > Ver a seção "Benchmark LLM v0.5" mais abaixo.
@@ -420,7 +420,7 @@ e pôr o TCF por baixo *em geral atrapalha* (até −41% — a reescrita em refe
 modelo de entropia dele; algumas células ficam quase neutras e uma, lz4 em retail-description, chega a
 ajudar +7%); numa **tabela multi-coluna estruturada** o TCF vence sozinho (−72% vs CSV) **e** compõe
 (`tcf+brotli` −30% vs `brotli(raw)`). **A estrutura, não o container, decide.** Medido com contra-prova
-de RT em [`2026-07-13-0156-compressores-http-parquet/`](experiments/lab/dirty/2026-07-13-0156-compressores-http-parquet/result.md).
+de RT em [`2026-07-13-0156-compressores-http-parquet/`](experiments/lab/dirty/2026-07/2026-07-13/2026-07-13-0156-compressores-http-parquet/result.md).
 
 ## Pra onde vai a 1.0 — consultar quase sem descomprimir
 
@@ -516,7 +516,7 @@ payload **inteiro** antes — e é aí que a memória também vai.
 ![Memória: view() vs decode completo — mesmo blob, uma query, dois consumos](docs/img/view-memory.svg)
 
 Medido com contra-prova de round-trip (throughput de tempo + picos de `tracemalloc`) em
-[`2026-07-13-0156-compressores-http-parquet/`](experiments/lab/dirty/2026-07-13-0156-compressores-http-parquet/result.md):
+[`2026-07-13-0156-compressores-http-parquet/`](experiments/lab/dirty/2026-07/2026-07-13/2026-07-13-0156-compressores-http-parquet/result.md):
 responder `where(Country).sum(Quantity)` no online-retail (100×8) tem pico de **10,4 KB** pelo `view()`
 contra **45,2 KB** por um decode completo — **≈4,3× menos** (cadastro 2000×5: 3,95×). O throughput de
 descompressão é alto em todo codec (gzip ~60, zstd ~130, lz4 ~850 MB/s), mas um compressor o paga sobre
@@ -531,7 +531,7 @@ Depois de uma 1.0 sólida (registrado, **não** implementado — ver
 - **Agregados sem perda mesmo sendo lossy por linha** — somas/médias exatas no agregado ao
   arredondar com resíduo (ex.: parcelamento, `valor = soma(parcelas)`) e *drop* de coluna
   derivável (`total = base + imposto`). Cruza a linha lossless → decisão explícita + GATE
-  (Pacote 10, [`loss-taxonomia.md`](experiments/lab/dirty/notas/loss-taxonomia.md)).
+  (Pacote 10, [`loss-taxonomia.md`](experiments/lab/dirty/notas/2026-06/loss-taxonomia.md)).
 - **Streaming / baixa latência (V2-J)** e **disco zero-copy / column-pruning (V2-K)** —
   transmitir e ler por pedaço, sem buffer-over-buffer.
 - **Camada binária interna (V2-L)** — empacotar o corpo em bytes mantendo header textual e
@@ -672,7 +672,7 @@ O encoder e' a ferramenta principal; auxiliares de suporte (NAO TCF-core):
 - **I want to read the findings** → [docs/findings/](docs/findings/) (v0.5 LLM, historico)
 - **I want to run the LLM benchmark** → [llm-benchmark/](llm-benchmark/) (acessorio v0.5)
 - **I want to understand the architecture** → [docs/theory/](docs/theory/)
-- **I want to see the roadmap** → [ROADMAP.md](ROADMAP.md) (tiers: pré-1.0 / 2.0 / pesquisa); detalhe granular em [roadmap-hipoteses.md](experiments/lab/dirty/notas/roadmap-hipoteses.md)
+- **I want to see the roadmap** → [ROADMAP.md](ROADMAP.md) (tiers: pré-1.0 / 2.0 / pesquisa); detalhe granular em [roadmap-hipoteses.md](experiments/lab/dirty/notas/2026-05/roadmap-hipoteses.md)
 - **Quero caminhos de consulta SQL-like sem materializar tudo** → [`tcf.view`](docs/reference/lazy-view.md) (`count`/`sum`/`where`/group-by, quando o modo da coluna permite)
 - **I want to share / pitch TCF** → [docs/divulgacao-tcf.md](docs/divulgacao-tcf.md) (material de divulgação, estilo post)
 - **I want to read the paper** → drafts v0.5: [docs/archive/article_v05/](docs/archive/article_v05/) (paper v0.7 pendente)

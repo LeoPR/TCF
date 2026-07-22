@@ -158,5 +158,5 @@ acima tocou ~56% (2 de 3 colunas) em vez de 100% que um `decode()` faria.
 - Implementação: [`src/tcf/view.py`](../../src/tcf/view.py)
 - Knobs do encode (`fallback`/`sort_by`): [encode-knobs.md](encode-knobs.md)
 - Formato (modos `!`/`@`/`%`): [../algorithms/TCF-format.md](../algorithms/TCF-format.md)
-- Design da expansão 0.9 (decode-DAG, índices): [`hquery01-decode-dag-indices-design.md`](../../experiments/lab/dirty/notas/hquery01-decode-dag-indices-design.md)
+- Design da expansão 0.9 (decode-DAG, índices): [`hquery01-decode-dag-indices-design.md`](../../experiments/lab/dirty/notas/2026-06/hquery01-decode-dag-indices-design.md)
 - Ticket: [T-DOC-LAZY-REFERENCE](../../tickets/T-DOC-LAZY-REFERENCE.md) · promoção: [T-CODE-LAZY-VIEW-PROMOTE](../../tickets/T-CODE-LAZY-VIEW-PROMOTE.md)

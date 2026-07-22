@@ -76,6 +76,6 @@ em 2026-05-17:
 
 ## Cross-references
 
-- T01 v2 critica: `experiments/lab/dirty/notas/T01-v2-critica-e-direcao.md`
+- T01 v2 critica: `experiments/lab/dirty/notas/2026-05/T01-v2-critica-e-direcao.md`
 - Diario 2026-05-17 D1, D2
 - Memoria user `feedback_rigor_cientifico.md`

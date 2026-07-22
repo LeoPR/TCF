@@ -279,7 +279,7 @@ owner: "SE identificar algum bug sem querer, registre apenas pra arrumarmos depo
   `datasets/synthetic/README.md` título "D1-D15" e faltam D11f-m nas tabelas; `metadata.json` dos
   canônicos sem row_count; `tickets/README.md:64` row do T-FMT-NAME-ESCAPING diz OPEN mas o interim
   backslash foi WELDED (M2, `58f7dee`) — resta só o estudo CSV-quoting (re-rotular parcial);
-  `experiments/lab/dirty/2026-07-08-2355-f3-bn-seletivo/run.log` untracked (sujeira de lab).
+  `experiments/lab/dirty/2026-07/2026-07-08/2026-07-08-2355-f3-bn-seletivo/run.log` untracked (sujeira de lab).
 
 ## §4 — FASES (microtarefas na ordem; cada fase fecha antes da seguinte)
 

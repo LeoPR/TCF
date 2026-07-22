@@ -1,7 +1,7 @@
 # Research notes — workbench v0.6
 
 > **Fonte da verdade atual**: dirty lab v0.6, sintetizado em
-> [`historia-dirty-lab.md`](../../../experiments/lab/dirty/notas/historia-dirty-lab.md)
+> [`historia-dirty-lab.md`](../../../experiments/lab/dirty/notas/2026-05/historia-dirty-lab.md)
 > (atualizada ate' M9, 2026-05-17).
 >
 > Esta pasta contem notas vivas do ciclo v0.6 (reset 2026-05-10).
@@ -28,9 +28,9 @@ Stress D1-D9: 1615 bytes / 2973 raw = 54.3% ratio.
 
 | Data | Nota | Conteudo |
 |------|------|----------|
-| 2026-05-17 | [historia-dirty-lab](../../../experiments/lab/dirty/notas/historia-dirty-lab.md) | **Narrativa canonica M0-M9** (substitui a sintese 2026-05-11) |
-| 2026-05-17 | [roadmap-hipoteses](../../../experiments/lab/dirty/notas/roadmap-hipoteses.md) | Hipoteses futuras (pre-tx, decomposicao, escala) |
-| 2026-05-17 | [naming-compactacao-composicional](../../../experiments/lab/dirty/notas/naming-compactacao-composicional.md) | Terminologia oficial |
+| 2026-05-17 | [historia-dirty-lab](../../../experiments/lab/dirty/notas/2026-05/historia-dirty-lab.md) | **Narrativa canonica M0-M9** (substitui a sintese 2026-05-11) |
+| 2026-05-17 | [roadmap-hipoteses](../../../experiments/lab/dirty/notas/2026-05/roadmap-hipoteses.md) | Hipoteses futuras (pre-tx, decomposicao, escala) |
+| 2026-05-17 | [naming-compactacao-composicional](../../../experiments/lab/dirty/notas/2026-05/naming-compactacao-composicional.md) | Terminologia oficial |
 | 2026-05-16 | [convencao-output-tcf](../../../experiments/lab/dirty/notas/convencao-output-tcf.md) | Output: sem brackets, LF only |
 | 2026-05-14 | [marcadores-multiplo-proposito](../../../experiments/lab/dirty/notas/marcadores-multiplo-proposito.md) | Operadores composicionais |
 | 2026-05-14 | [comparacao-modular-camadas](../../../experiments/lab/dirty/notas/comparacao-modular-camadas.md) | Pre-tx layers |
@@ -54,11 +54,11 @@ em ticket, finding ou paper sem ser re-validada pelo dirty v0.6.
 ## Para leitura rapida ("quem chegou agora")
 
 1. Comecar pela
-   [historia-dirty-lab](../../../experiments/lab/dirty/notas/historia-dirty-lab.md).
+   [historia-dirty-lab](../../../experiments/lab/dirty/notas/2026-05/historia-dirty-lab.md).
 2. Depois ver o macro mais recente
    ([M9](../../../experiments/lab/dirty/old/2026-05-17-M9-stress-adversarial/README.md)
    ou
    [M8](../../../experiments/lab/dirty/old/2026-05-16-M8-virtual-refs-clean-output/README.md))
    para o estado tecnico atual.
 3. Para direcoes futuras, ver
-   [roadmap-hipoteses](../../../experiments/lab/dirty/notas/roadmap-hipoteses.md).
+   [roadmap-hipoteses](../../../experiments/lab/dirty/notas/2026-05/roadmap-hipoteses.md).

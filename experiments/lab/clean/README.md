@@ -33,7 +33,7 @@ LLM). Validos como historico; **NAO sao canonicos do v0.6**.
 EXP-007 sera o primeiro experimento clean do v0.6, apos o welding
 do algoritmo (alg16 + M8.A composicional) do dirty para `src/`. Em
 andamento — ver
-[`../dirty/notas/welding-plan.md`](../dirty/notas/welding-plan.md).
+[`../dirty/notas/2026-05/welding-plan.md`](../dirty/notas/2026-05/welding-plan.md).
 
 | EXP | Tema | Status |
 |---|---|---|
@@ -43,4 +43,4 @@ andamento — ver
 
 - Para entender ciclo v0.5: ler READMEs de EXP-001..EXP-006.
 - Para entender ciclo v0.6: ler
-  [`../dirty/notas/historia-dirty-lab.md`](../dirty/notas/historia-dirty-lab.md).
+  [`../dirty/notas/2026-05/historia-dirty-lab.md`](../dirty/notas/2026-05/historia-dirty-lab.md).

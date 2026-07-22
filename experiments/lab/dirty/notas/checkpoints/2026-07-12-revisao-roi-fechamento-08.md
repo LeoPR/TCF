@@ -25,7 +25,7 @@ Bugs e bordas não somem: são classificados pelo domínio que afetam.
 - F1/F2 estão commitidos; na avaliação a branch `main` estava 10 commits à frente de
   `origin/main`. Nenhum push ou release foi feito.
 - Resíduos preexistentes preservados: `.claude/scheduled_tasks.lock` deletado e
-  `experiments/lab/dirty/2026-07-08-2355-f3-bn-seletivo/run.log` não rastreado.
+  `experiments/lab/dirty/2026-07/2026-07-08/2026-07-08-2355-f3-bn-seletivo/run.log` não rastreado.
 - A revisão não alterou `src/tcf/`.
 
 ## Achado que muda a fila
@@ -87,5 +87,5 @@ salvo decisão nova do owner registrada no T-REL-08.
 ### Higiene local (não funcional)
 
 - Resíduo de sessão local: `.claude/scheduled_tasks.lock` aparece como deletado no git status.
-- Artefato de laboratório fora da fila de closeout: `experiments/lab/dirty/2026-07-08-2355-f3-bn-seletivo/run.log`
+- Artefato de laboratório fora da fila de closeout: `experiments/lab/dirty/2026-07/2026-07-08/2026-07-08-2355-f3-bn-seletivo/run.log`
   segue não rastreado.

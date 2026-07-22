@@ -83,7 +83,7 @@ Quando um experimento sujo gera resultado interessante:
 Atualmente: **welding do algoritmo do dirty (M0 + M8.A em M11) para
 `src/tcf/`** — primeira saida do dirty pro src/clean depois do ciclo
 v0.6 maduro. Pre-EXP-007. Ver
-[`dirty/notas/welding-plan.md`](dirty/notas/welding-plan.md).
+[`dirty/notas/welding-plan.md`](dirty/notas/2026-05/welding-plan.md).
 
 ## Estado atual
 
@@ -113,10 +113,10 @@ python experiments/lab/clean/EXP-001-csv-baseline/run.py
 ## Notas
 
 - Para narrativa do algoritmo, sempre comecar por
-  [`dirty/notas/historia-dirty-lab.md`](dirty/notas/historia-dirty-lab.md).
+  [`dirty/notas/historia-dirty-lab.md`](dirty/notas/2026-05/historia-dirty-lab.md).
 - Para direcoes futuras:
-  [`dirty/notas/roadmap-hipoteses.md`](dirty/notas/roadmap-hipoteses.md).
+  [`dirty/notas/roadmap-hipoteses.md`](dirty/notas/2026-05/roadmap-hipoteses.md).
 - Para entender o "welding" (saida do dirty pro src/):
-  [`dirty/notas/welding-plan.md`](dirty/notas/welding-plan.md).
+  [`dirty/notas/welding-plan.md`](dirty/notas/2026-05/welding-plan.md).
 - Phase 1 (LLM benchmark, ciclo v0.5) e' acessorio ao foco atual —
   pode virar projeto a parte.

@@ -11,7 +11,7 @@ related:
   - tickets/T-FMT-HEADER-BASE-HEX.md
   - tickets/T-FMT-TCF8H-HEADER.md
   - docs/adr/0029-version-format-identification-semi-implicit.md
-  - experiments/lab/dirty/notas/tcf8-header-char-registry.md
+  - experiments/lab/dirty/notas/2026-07/tcf8-header-char-registry.md
 ---
 
 # T-FMT-NAME-ESCAPING — escape/quoting de nomes no meta
@@ -56,7 +56,7 @@ estruturais; des-escapar no parse. Chars a escapar: `,` `=` `:` `\` + `#`/`!`/`@
 **Smart (o alvo deste ticket)** — desenhar a forma inteligente: **quoting implícito** (envolver o nome em
 aspas SSE contém separador — como CSV) vs **escape por char** (`\:`); decidir qual é mais limpo/inspecionável;
 cobrir TODOS os separadores + os chars de hierarquia; provar round-trip; medir o custo em byte (escape só
-paga quando o nome tem o char — caso raro). Reusar o vocabulário do [char-registry Eixo 3](../experiments/lab/dirty/notas/tcf8-header-char-registry.md).
+paga quando o nome tem o char — caso raro). Reusar o vocabulário do [char-registry Eixo 3](../experiments/lab/dirty/notas/2026-07/tcf8-header-char-registry.md).
 
 ## Escopo / relação
 - **Desbloqueia** o `.8-default` (decisão owner 2026-07-09): sem isso o `:` quebra RT no default. Deve

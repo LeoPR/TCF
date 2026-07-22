@@ -68,7 +68,7 @@ Abrir `docs/vocabulary.md`:
 
 ## Passo 6 — Roadmap de hipoteses
 
-Abrir `experiments/lab/dirty/notas/roadmap-hipoteses.md`:
+Abrir `experiments/lab/dirty/notas/2026-05/roadmap-hipoteses.md`:
 - Hipoteses `em-exp` ha' muito tempo: tem sub-exp ativo?
 - Hipoteses `aberta` sem progresso: ainda relevante? mover pra
   `adiada`?

@@ -11,7 +11,7 @@ related:
   - docs/adr/0008-detect-cadence-numeric-rule.md
   - docs/adr/0011-pacote1-weld-canonical.md
   - experiments/lab/dirty/2026-05-23-h-da-09c-d-e-refinos-cadence/
-  - experiments/lab/dirty/notas/roadmap-hipoteses.md
+  - experiments/lab/dirty/notas/2026-05/roadmap-hipoteses.md
 ---
 
 # T-EXP-H-DA-09c-d-e — Refinos detect_cadence
@@ -73,7 +73,7 @@ sub-segmentos da coluna).
 
 - [ADR-0008 detect_cadence](../docs/adr/0008-detect-cadence-numeric-rule.md)
 - [ADR-0011 Pacote 1 canonical](../docs/adr/0011-pacote1-weld-canonical.md)
-- [Roadmap H-DA-09c/d/e](../experiments/lab/dirty/notas/roadmap-hipoteses.md)
+- [Roadmap H-DA-09c/d/e](../experiments/lab/dirty/notas/2026-05/roadmap-hipoteses.md)
 
 ## Updates datados
 

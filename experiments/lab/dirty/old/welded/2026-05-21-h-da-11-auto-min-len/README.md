@@ -27,4 +27,4 @@ Heuristica captura >= 50% do oracle (i.e., >= 5% weighted real-world).
 
 - [Ticket T-EXP-H-DA-11](../../../../tickets/T-EXP-H-DA-11.md)
 - [Sub-exp H-DA-10 (oracle source)](../2026-05-21-revalidacao-categoria-B/03-h-da-10-min-len-realworld/result.md)
-- [Revisao conceitual](../notas/revisao-conceitual-2026-05-21.md)
+- [Revisao conceitual](../notas/2026-05-21-0138-revisao-conceitual.md)

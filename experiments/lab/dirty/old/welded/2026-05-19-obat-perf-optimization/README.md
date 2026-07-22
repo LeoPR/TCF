@@ -6,7 +6,7 @@ tags: [obat, performance, scale, profiling, lineitem]
 created: 2026-05-19
 related:
   - experiments/lab/clean/EXP-014-tpch-lineitem-scale/
-  - experiments/lab/dirty/notas/roadmap-hipoteses.md
+  - experiments/lab/dirty/notas/2026-05/roadmap-hipoteses.md
   - src/tcf/core/online.py
 ---
 

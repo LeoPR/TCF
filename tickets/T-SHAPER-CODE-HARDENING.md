@@ -21,7 +21,7 @@ related:
 > se a escala >100k virar necessidade real.
 
 > **REABERTURA PARCIAL (2026-07-05) — só A1, à luz do assessment de cobertura**: o
-> [assessment 2026-07-05](../experiments/lab/dirty/notas/2026-07-05-cobertura-datasets-shaper-assessment.md)
+> [assessment 2026-07-05](../experiments/lab/dirty/notas/2026-07/2026-07-05-1316-cobertura-datasets-shaper-assessment.md)
 > (gap **G2**) identificou que o tier **XL (>1M linhas)** dos cenários de transmissão é o único
 > descoberto na ponta grande, e o **A1 (filter-before-load) é exatamente o bloqueador**: o shaper
 > trava >100k porque carrega tudo antes de filtrar. A "escala >100k virar necessidade real" (gatilho

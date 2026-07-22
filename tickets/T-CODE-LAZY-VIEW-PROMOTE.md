@@ -5,8 +5,8 @@ priority: P1
 created: 2026-06-21
 updated: 2026-06-21
 related:
-  - experiments/lab/dirty/notas/v08-plano-etapas.md
-  - experiments/lab/dirty/2026-06-19-lazy-testbank/result.md
+  - experiments/lab/dirty/notas/2026-06/v08-plano-etapas.md
+  - experiments/lab/dirty/2026-06/2026-06-19/2026-06-19-lazy-testbank/result.md
   - src/tcf/view.py
   - tickets/T-DOC-LAZY-REFERENCE.md
   - tickets/T-DIST-RELEASE-0.8.0.md

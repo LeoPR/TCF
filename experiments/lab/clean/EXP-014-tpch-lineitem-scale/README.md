@@ -7,7 +7,7 @@ created: 2026-05-19
 updated: 2026-05-19
 predecessor: EXP-013-real-world-tpch
 related:
-  - experiments/lab/dirty/notas/roadmap-hipoteses.md
+  - experiments/lab/dirty/notas/2026-05/roadmap-hipoteses.md
   - docs/adr/0008-detect-cadence-numeric-rule.md
 ---
 

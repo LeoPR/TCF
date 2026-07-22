@@ -10,7 +10,7 @@ blocked-by: []
 related:
   - src/tcf/composicional/syntax.py
   - src/tcf/composicional/hcc_seqrle.py
-  - experiments/lab/dirty/2026-07-15-0125-p1-presenca-ragged-estudo/probe_realworld.py
+  - experiments/lab/dirty/2026-07/2026-07-15/2026-07-15-0125-p1-presenca-ragged-estudo/probe_realworld.py
   - tickets/T-REL-08-CLOSEOUT.md
 ---
 

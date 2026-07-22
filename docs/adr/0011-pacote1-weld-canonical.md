@@ -202,4 +202,4 @@ M10 1523B como baseline.
 - [ADR-0009 OBAT trigram index](0009-obat-trigram-index-optimization.md)
 - [ADR-0010 auto-detect min_len](0010-auto-detect-min-len.md)
 - [Ticket T-CODE-PACOTE1-WELD-CANONICAL](../../tickets/T-CODE-PACOTE1-WELD-CANONICAL.md)
-- [Roadmap H-DA-*](../../experiments/lab/dirty/notas/roadmap-hipoteses.md)
+- [Roadmap H-DA-*](../../experiments/lab/dirty/notas/2026-05/roadmap-hipoteses.md)

@@ -8,10 +8,10 @@ blocked-by: []
 related:
   - tickets/T-STUDY-HIERARCHICAL-TCF.md
   - tickets/T-EXP-DATASETH-S0-S3.md
-  - experiments/lab/dirty/2026-07-16-1708-dataseth-s0-s3-semantica-vinculos/
-  - experiments/lab/dirty/2026-07-13-2356-rle-dual-multiplicidade-deduzida/
-  - experiments/lab/dirty/2026-07-14-2043-l3-multiplicidade-independencia/
-  - experiments/lab/dirty/notas/roadmap-hipoteses.md
+  - experiments/lab/dirty/2026-07/2026-07-16/2026-07-16-1708-dataseth-s0-s3-semantica-vinculos/
+  - experiments/lab/dirty/2026-07/2026-07-13/2026-07-13-2356-rle-dual-multiplicidade-deduzida/
+  - experiments/lab/dirty/2026-07/2026-07-14/2026-07-14-2043-l3-multiplicidade-independencia/
+  - experiments/lab/dirty/notas/2026-05/roadmap-hipoteses.md
 ---
 
 # T-STUDY-HIERARCHY-LINK-ALGEBRA — equivalência dos portadores de vínculo
@@ -51,7 +51,7 @@ pais vazios intermediários tornam duas topologias distintas indistinguíveis.
 
 ## Update 2026-07-16
 
-Lab [S0–S3](../experiments/lab/dirty/2026-07-16-1708-dataseth-s0-s3-semantica-vinculos/):
+Lab [S0–S3](../experiments/lab/dirty/2026-07/2026-07-16/2026-07-16-1708-dataseth-s0-s3-semantica-vinculos/):
 **20/20** IRs reconstruíram o mesmo vetor de pai via counts, offsets e steps. A contraprova fixou
 `[0,2,2]` versus `[0,1,1]`: ambas produzem bits `[start,start,continue]`, logo a forma sem skip perde o
 pai vazio. `H-HIER-LINK-ALGEBRA-01`: confirmada-conceitual no modelo; `H-HIER-BOUNDARY-EMPTY-01`:

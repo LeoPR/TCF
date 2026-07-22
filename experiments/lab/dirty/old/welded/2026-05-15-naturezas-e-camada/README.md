@@ -63,4 +63,4 @@ plano-mestre pra escolher proxima natureza ou redirecionar.
 - [`tickets/META-TYPE-ENCODERS.md`](../../../../tickets/META-TYPE-ENCODERS.md) — plano-mestre
 - [`docs/theory/perspectiva-triplice-e-pre-tx.md`](../../../../docs/theory/perspectiva-triplice-e-pre-tx.md) — roadmap 3 estrategias
 - [`experiments/lab/clean/EXP-008-compressao-comparada/`](../../clean/EXP-008-compressao-comparada/) — motivacao
-- [`experiments/lab/dirty/notas/historia-dirty-lab.md`](../notas/historia-dirty-lab.md) — analogo metodologico (M0-M14 do lab anterior)
+- [`experiments/lab/dirty/notas/2026-05/historia-dirty-lab.md`](../notas/historia-dirty-lab.md) — analogo metodologico (M0-M14 do lab anterior)

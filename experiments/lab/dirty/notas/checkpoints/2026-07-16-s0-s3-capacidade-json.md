@@ -10,7 +10,7 @@
 - Gate: 20/20 RT, 20/20 álgebras, 8/8 fail-loud, round-trip canônico byte-idêntico.
 - `src/tcf`: intocado.
 
-Fonte probatória: [lab S0–S3](../../2026-07-16-1708-dataseth-s0-s3-semantica-vinculos/).
+Fonte probatória: [lab S0–S3](../../2026-07/2026-07-16/2026-07-16-1708-dataseth-s0-s3-semantica-vinculos/).
 
 ## Hipóteses após o gate
 

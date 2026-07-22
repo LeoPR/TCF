@@ -210,7 +210,7 @@ Experimental origin:
 
 - [OBAT](OBAT.md) — the layer that produces the root tokens consumed by HCC
 - [TCF-format](TCF-format.md) — positioning of the format
-- `experiments/lab/dirty/notas/historia-dirty-lab.md` — narrative of the
+- `experiments/lab/dirty/notas/2026-05/historia-dirty-lab.md` — narrative of the
   development (codename M8.A)
 - `experiments/lab/dirty/notas/no-funcional-marca-e-troca.md` —
   future direction: extension of HCC with a variable slot

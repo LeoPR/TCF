@@ -7,7 +7,7 @@ updated: 2026-06-15
 blocked-by: []
 related:
   - docs/workbench/research-notes/_archive/2026-05-05-v04-design-recap.md
-  - experiments/lab/dirty/notas/futuras-otimizacoes-formato.md
+  - experiments/lab/dirty/notas/2026-05/futuras-otimizacoes-formato.md
   - tickets/T-CODE-ENCODER-MANAGER.md
 ---
 
@@ -90,7 +90,7 @@ no body. Vale se `body_savings > header_cost`.
 
 - [T-CODE-ENCODER-MANAGER](T-CODE-ENCODER-MANAGER.md) — manager consome Plan
 - [T-CODE-SCHEMA-BUILDER](T-CODE-SCHEMA-BUILDER.md) — pode produzir Plan auto
-- [O-FMT-01..04](../experiments/lab/dirty/notas/futuras-otimizacoes-formato.md)
+- [O-FMT-01..04](../experiments/lab/dirty/notas/2026-05/futuras-otimizacoes-formato.md)
   — ordering reversivel
 - [v04-design-recap D8/D11/D13](../docs/workbench/research-notes/_archive/2026-05-05-v04-design-recap.md)
 

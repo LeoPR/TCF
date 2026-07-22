@@ -33,7 +33,7 @@ src/tcf/composicional/syntax.py:734
 
 ## PRÓXIMO PASSO (rodar de dia — 1º da retomada)
 
-1. `python experiments/lab/dirty/2026-07-15-0125-p1-presenca-ragged-estudo/diagnostico_l1_seqrle_crash.py`
+1. `python experiments/lab/dirty/2026-07/2026-07-15/2026-07-15-0125-p1-presenca-ragged-estudo/diagnostico_l1_seqrle_crash.py`
    — bisseca até o menor prefixo que crasha + decodifica coluna-a-coluna → nomeia a culpada.
 2. **Se COLUNA** (bug L1 seq-RLE pré-existente, R0-class): abrir `tickets/BUG-SEQRLE-RANGE-EMPTY-B`
    com o repro mínimo; fix separado no core (aprovação + gate byte-canônico); ajustar PW3 pra não

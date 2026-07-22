@@ -11,7 +11,7 @@ Pins = marcadores de dev re-pinaveis (ADR-0024 git-as-compat): mudanca conscient
 de representacao re-pina COM investigacao; mudanca silenciosa = alarme.
 
 Fonte unica dos casos: tests/fixtures/control_synthetics_h.py (mesmo gerador do
-lab experiments/lab/dirty/2026-07-17-0014-sinteticos-controle-fluxo-hierarquia/,
+lab experiments/lab/dirty/2026-07/2026-07-17/2026-07-17-0014-sinteticos-controle-fluxo-hierarquia/,
 que produz os .tcf inspecionaveis e a tabela de navegacao).
 """
 from __future__ import annotations

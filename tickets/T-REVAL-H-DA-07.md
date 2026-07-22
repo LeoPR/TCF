@@ -11,8 +11,8 @@ related:
   - tickets/T-REVAL-H-DA-01-06-10.md
   - tickets/T-CODE-PACOTE1-WELD-CANONICAL.md
   - experiments/lab/dirty/2026-05-22-h-da-07-shape-preserve-revalidacao/
-  - experiments/lab/dirty/notas/roadmap-hipoteses.md
-  - experiments/lab/dirty/notas/revisao-conceitual-2026-05-21.md
+  - experiments/lab/dirty/notas/2026-05/roadmap-hipoteses.md
+  - experiments/lab/dirty/notas/2026-05/2026-05-21-0138-revisao-conceitual.md
 ---
 
 # T-REVAL-H-DA-07 — Revalidacao OBAT shape-preserve
@@ -76,8 +76,8 @@ Per total: weighted gain/loss.
 
 - [T-REVAL Categoria B](T-REVAL-H-DA-01-06-10.md) — onde H-DA-07 ficou pendente
 - [T-CODE-PACOTE1-WELD-CANONICAL](T-CODE-PACOTE1-WELD-CANONICAL.md) — welding canonical
-- [Revisao conceitual](../experiments/lab/dirty/notas/revisao-conceitual-2026-05-21.md)
-- [Roadmap H-DA-07](../experiments/lab/dirty/notas/roadmap-hipoteses.md)
+- [Revisao conceitual](../experiments/lab/dirty/notas/2026-05/2026-05-21-0138-revisao-conceitual.md)
+- [Roadmap H-DA-07](../experiments/lab/dirty/notas/2026-05/roadmap-hipoteses.md)
 
 ## Updates datados
 

@@ -1,0 +1,12 @@
+foo@*example.*com*|\550e\8400-e\29b-\41d\4
+bar@*example.*com*|\550e\8400-e\29b-\41d\5
+1,2org4
+5,6org8
+baz@*example.com*|*\550e\8400-e\29b-\41d\6
+qux@*example.org13,14
+1test.io|*\6ba\7b\810-\9dad-\11d\1-*aa
+5test.io|\6ba\7b\810-\9dad-\11d\1-ab
+11,17~18,19
+15,20
+1,21cc
+11..13,18,22

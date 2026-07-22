@@ -8,7 +8,7 @@ updated: 2026-05-23
 closed: 2026-05-23
 blocked-by: []
 related:
-  - experiments/lab/dirty/notas/naturezas-numericas-2026-05-23.md
+  - experiments/lab/dirty/notas/2026-05/naturezas-numericas-2026-05-23.md
   - experiments/lab/dirty/2026-05-23-naturezas-raras-exploracao/
   - tickets/T-EXP-PACOTE5-T03-ENUMERATED.md
   - docs/theory/data-natures-taxonomy.md
@@ -70,7 +70,7 @@ afetadas: GO sub-exp 02 (prototype). Caso contrario: NO-GO documentado.
 
 ## Conexoes
 
-- [Reflexao naturezas numericas](../experiments/lab/dirty/notas/naturezas-numericas-2026-05-23.md)
+- [Reflexao naturezas numericas](../experiments/lab/dirty/notas/2026-05/naturezas-numericas-2026-05-23.md)
 - [T-EXP-PACOTE5-T03-ENUMERATED](T-EXP-PACOTE5-T03-ENUMERATED.md) — precedente NO-GO
 - [Taxonomia natureza](../docs/theory/data-natures-taxonomy.md)
 

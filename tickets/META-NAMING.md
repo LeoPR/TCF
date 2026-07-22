@@ -83,8 +83,8 @@ Brisaboa et al. 2011 RPDac, HTFC)
    - `src/tcf/encoder.py`, `src/tcf/decoder.py`
    - `src/tcf/core/__init__.py`
    - `src/tcf/composicional/__init__.py`
-   - `experiments/lab/dirty/notas/historia-dirty-lab.md`
-   - `experiments/lab/dirty/notas/naming-compactacao-composicional.md`
+   - `experiments/lab/dirty/notas/2026-05/historia-dirty-lab.md`
+   - `experiments/lab/dirty/notas/2026-05/naming-compactacao-composicional.md`
    - `README.md` (raiz)
    - `CHANGELOG.md`
    - `pyproject.toml` (description + keywords)

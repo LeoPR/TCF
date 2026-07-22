@@ -348,4 +348,4 @@ Antes de tag v1.0.0 (ordem de dependencia):
 - [ADR-0001 — TCF format shebang](0001-tcf-format-shebang.md)
 - [ADR-0014 — API unificada](0014-unified-api-side-outputs.md)
 - [Suite regressao](../../tests/test_regression_v1_baseline.py)
-- [METRICS baseline](../../experiments/lab/dirty/2026-05-27-baseline-consolidado/METRICS.md)
+- [METRICS baseline](../../experiments/lab/dirty/2026-05/2026-05-27/2026-05-27-baseline-consolidado/METRICS.md)

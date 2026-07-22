@@ -4,23 +4,30 @@
 src/tcf, fase v0.6 inicial) movidos para [`old/`](old/) preservando
 historia git. **Faxina 2026-06-21**: lab `2026-05-15-naturezas-e-camada/`
 movido para `old/welded/` (absorvido no Pacote 1, ADR-0008/0010/0011).
+**Nichado por data em 2026-07-22**: os macros (66 nessa data) viraram
+grandes demais numa pasta so' flat; passaram a viver sob
+`<YYYY-MM>/<YYYY-MM-DD>/` (nome do macro **inalterado**, so' a posicao
+mudou) — mesma logica aplicada a `notas/` (~85 notas soltas → por mes
+de 1o commit). `old/`, `clean/` (numeracao EXP-NNN propria) e `archive/`
+ficaram de fora (esquemas ja' deliberados, ou baixo volume).
 
 ## Layout atual
 
 ```
 experiments/lab/dirty/
-├── README.md                              # este arquivo
-├── notas/                                 # narrativas cross-cutting
-│   ├── historia-dirty-lab.md              # narrativa M0-M9 (M10+ em ADRs+checkpoints)
-│   ├── welding-plan.md                    # HISTORICO (faxina 2026-06-21)
-│   └── naming-compactacao-composicional.md
-├── 2026-05-24-benchmark-formats-compression/ # ativo — csv/json/tcf x gzip/brotli/zstd
-├── 2026-05-27-baseline-consolidado/       # ativo — baseline de referencia
-├── 2026-06-19-lazy-testbank/              # ativo — banco de testes lazy A1/A2/A3
-└── old/                                   # historico
-    ├── M0-M14-series/                     # pre-canonical (NAO USAR)
-    ├── welded/                            # 11 labs welded em src/tcf
-    └── refuted/                           # 6 labs refutados/insufficient-gain
+├── README.md                                   # este arquivo
+├── notas/                                       # narrativas cross-cutting
+│   ├── 2026-05/ · 2026-06/ · 2026-07/           # por mes do 1o commit
+│   ├── diario/                                  # 1 arquivo por dia (YYYY-MM-DD.md)
+│   └── checkpoints/                             # pausas/retomadas datadas
+├── 2026-05/2026-05-24/2026-05-24-benchmark-formats-compression/
+├── 2026-05/2026-05-27/2026-05-27-baseline-consolidado/
+├── 2026-06/2026-06-19/2026-06-19-lazy-testbank/
+├── ...                                          # <YYYY-MM>/<YYYY-MM-DD>/<macro>/
+└── old/                                         # historico (layout proprio, nao nichado)
+    ├── M0-M14-series/                           # pre-canonical (NAO USAR)
+    ├── welded/                                  # labs welded em src/tcf
+    └── refuted/                                 # labs refutados/insufficient-gain
 ```
 
 ## Compendio sempre-atualizado
@@ -61,9 +68,14 @@ de vantagem em algum cenario. Nao estabelece superioridade.
 
 ### Naming pra novos experimentos
 
-- Macros ativos sob `<datetime-YYYY-MM-DD>-<descritor>/` no nivel
-  do dirty (data ate' aqui significa **inicio do projeto**, nao
-  incremento por macro — erro do passado preservado em `old/`).
+- Nome do macro continua `<YYYY-MM-DD-HHMM>-<descritor>/` — **so' o dia
+  NAO basta** (macros do mesmo dia ficam sem ordem); HHMM (ou `-vNN-`)
+  + descricao do que esta' sendo feito (detalhe em
+  [`notas/dirty-lab-convencoes.md`](notas/2026-07/dirty-lab-convencoes.md) §1).
+- **Posicao no disco** (desde 2026-07-22): `<YYYY-MM>/<YYYY-MM-DD>/<nome-do-macro>/`
+  — a data ja' esta' no nome, os 2 niveis de pasta so' evitam uma `dirty/`
+  flat com 60+ entradas. Ao criar um macro novo, crie (ou reuse) esses
+  2 niveis de pasta ANTES; o nome do macro em si nao muda.
 - Sub-experimentos dentro de macros: `NN-<descritor>/` com NN
   numerico crescente.
 - Cada pasta tem README.md curto explicando proposito.
@@ -77,7 +89,8 @@ nao criterio de descarte.
 
 ## Como navegar (resumo pra um sistema novo)
 
-1. Comece pelo [`STATUS.md`](../../../STATUS.md) raiz pra estado atual.
-2. Labs ativos: `2026-05-24-benchmark-formats-compression/`, `2026-05-27-baseline-consolidado/`, `2026-06-19-lazy-testbank/`.
+1. Comece pelo [`STATUS.md`](../../../STATUS.md) raiz pra estado atual (lista os macros/notas
+   relevantes do momento, ja' com o caminho `<YYYY-MM>/<YYYY-MM-DD>/` correto).
+2. Pra achar um macro por data: `<YYYY-MM>/<YYYY-MM-DD>/<nome-completo-do-macro>/`.
 3. Leia o README.md de cada nivel pra contexto.
-4. Para historia anterior (M0-M14), entre em [`old/`](old/).
+4. Para historia anterior (M0-M14), entre em [`old/`](old/) (layout proprio, nao nichado por data).

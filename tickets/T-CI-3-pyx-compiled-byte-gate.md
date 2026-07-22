@@ -12,8 +12,8 @@ related:
   - hatch_build.py
   - pyproject.toml
   - .github/workflows/ci.yml
-  - experiments/lab/dirty/2026-06-25-tci3-pyx-gate/
-  - experiments/lab/dirty/notas/estrategia-distribuicao-cython.md
+  - experiments/lab/dirty/2026-06/2026-06-25/2026-06-25-tci3-pyx-gate/
+  - experiments/lab/dirty/notas/2026-06/estrategia-distribuicao-cython.md
 ---
 
 ## FECHADO (2026-07-05) — cadeia Cython completa (revisão 6-lentes, direção 3)
@@ -52,7 +52,7 @@ pure-Python no MESMO processo (enabler `M8AVirtualRefsSyntax._detect_composition
 salvo em syntax.py antes do override) — sinteticos + real-world (datasets/samples) +
 aleatorios. **Skip gracioso se accel=False** (so' roda onde a extensao compilou). Provado
 neste ambiente (Cython 3.2.5 + MSVC): 42 checks passam com accel=True; 0-diff direto em
-31 datasets. Inspecao: `experiments/lab/dirty/2026-06-25-tci3-pyx-gate/`.
+31 datasets. Inspecao: `experiments/lab/dirty/2026-06/2026-06-25/2026-06-25-tci3-pyx-gate/`.
 
 **FALTA (follow-up) → FEITO 2026-07-05 (ver bloco no topo)**: job de CI que COMPILE a extensao
 e rode este teste com accel=True (matrix). Sem isso, o gate so' roda onde alguem compilou
@@ -98,7 +98,7 @@ por inspeção manual lado-a-lado, que erra em detalhe de prune/tie-break.
 > não compila no código) + **cibuildwheel** (uv frontend) p/ wheels por plataforma + T-CI-3
 > no build da wheel. Forward: free-threading 3.14t+ (TCF é puro → naturalmente thread-safe),
 > abi3/abi3t (PEP 803, reduz matriz), meson-python/maturin se crescer/Rust. Doc:
-> [`estrategia-distribuicao-cython.md`](../experiments/lab/dirty/notas/estrategia-distribuicao-cython.md).
+> [`estrategia-distribuicao-cython.md`](../experiments/lab/dirty/notas/2026-06/estrategia-distribuicao-cython.md).
 
 O owner lembrou: **quando for feita a distribuição, a compilação Cython tem que
 funcionar de fato — a otimização não pode ser só do ambiente de dev.** Hoje o
@@ -138,4 +138,4 @@ chegue ao usuário*. Opções a avaliar (na hora da distribuição, não agora):
   rode encode pelos DOIS caminhos (`accelerated True` vs `False`) sobre os
   mesmos inputs e compare bytes diretamente — não precisa pinar baseline, só
   igualdade `.py == .pyx`.
-- Caracterização completa do contexto (P4): [`p4-detect-emit-caracterizacao.md`](../experiments/lab/dirty/notas/p4-detect-emit-caracterizacao.md).
+- Caracterização completa do contexto (P4): [`p4-detect-emit-caracterizacao.md`](../experiments/lab/dirty/notas/2026-06/p4-detect-emit-caracterizacao.md).

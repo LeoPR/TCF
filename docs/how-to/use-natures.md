@@ -279,7 +279,7 @@ for value in values:
 
 ## Campos cadastrais ainda em exploração
 
-O laboratório [`specs-cadastrais-v1`](../../experiments/lab/dirty/2026-07-12-specs-cadastrais-v1/)
+O laboratório [`specs-cadastrais-v1`](../../experiments/lab/dirty/2026-07/2026-07-12/2026-07-12-specs-cadastrais-v1/)
 mediu protótipos fora do core, sempre com round-trip e comparação do blob completo:
 
 - **Data ISO**: ganho forte em single-column, mas tabelas em que o split já vence podem empatar.

@@ -71,4 +71,4 @@ Forma final:
 ## Cross-references
 
 - [ADR-0004](0004-multi-column-header-compacto.md) — flag `M` + meta line
-- [O-FMT-11 em futuras-otimizacoes](../../experiments/lab/dirty/notas/futuras-otimizacoes-formato.md) — historico de iteracoes
+- [O-FMT-11 em futuras-otimizacoes](../../experiments/lab/dirty/notas/2026-05/futuras-otimizacoes-formato.md) — historico de iteracoes

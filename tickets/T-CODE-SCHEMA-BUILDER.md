@@ -8,7 +8,7 @@ blocked-by: []
 related:
   - docs/adr/0014-unified-api-side-outputs.md
   - tickets/META-TYPE-ENCODERS.md
-  - experiments/lab/dirty/notas/naturezas-numericas-2026-05-23.md
+  - experiments/lab/dirty/notas/2026-05/naturezas-numericas-2026-05-23.md
 ---
 
 # T-CODE-SCHEMA-BUILDER — Helper orquestrador
@@ -124,7 +124,7 @@ Cada detector consome ColumnFeatures + amostra; produz hint/natureza.
 
 - [ADR-0014](../docs/adr/0014-unified-api-side-outputs.md) — SideOutputs
 - [META-TYPE-ENCODERS](META-TYPE-ENCODERS.md) — T02-T07 naturezas
-- [naturezas-numericas-2026-05-23](../experiments/lab/dirty/notas/naturezas-numericas-2026-05-23.md)
+- [naturezas-numericas-2026-05-23](../experiments/lab/dirty/notas/2026-05/naturezas-numericas-2026-05-23.md)
 - [scripts/dataset_reader.py](../scripts/dataset_reader.py) — column_stats
 - [datasets/canonical/*/metadata.json](../datasets/canonical/) — formato existente
 

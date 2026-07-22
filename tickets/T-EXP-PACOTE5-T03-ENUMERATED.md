@@ -9,7 +9,7 @@ closed: 2026-05-23
 blocked-by: []
 related:
   - tickets/META-TYPE-ENCODERS.md
-  - experiments/lab/dirty/notas/naturezas-numericas-2026-05-23.md
+  - experiments/lab/dirty/notas/2026-05/naturezas-numericas-2026-05-23.md
   - experiments/lab/dirty/2026-05-23-pacote5-t03-enumerated/
   - tickets/T-CODE-PACOTE1-WELD-CANONICAL.md
   - docs/adr/0011-pacote1-weld-canonical.md
@@ -103,7 +103,7 @@ Se ganho confirmado e RT 100%:
 
 ## Conexoes
 
-- [Reflexao naturezas numericas](../experiments/lab/dirty/notas/naturezas-numericas-2026-05-23.md)
+- [Reflexao naturezas numericas](../experiments/lab/dirty/notas/2026-05/naturezas-numericas-2026-05-23.md)
 - [META-TYPE-ENCODERS T03](META-TYPE-ENCODERS.md)
 - [Taxonomia natureza enumerated](../docs/theory/data-natures-taxonomy.md)
 - [ADR-0011 Pacote 1 canonical](../docs/adr/0011-pacote1-weld-canonical.md)

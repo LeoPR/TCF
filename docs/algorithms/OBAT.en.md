@@ -162,4 +162,4 @@ origin: `experiments/lab/dirty/old/M0-fase-exploratoria-inicial/2026-05-11-16-on
 
 - [HCC](HCC.md) — the layer that consumes OBAT's tokens
 - [TCF-format](TCF-format.md) — positioning of the format
-- `experiments/lab/dirty/notas/historia-dirty-lab.md` — development narrative
+- `experiments/lab/dirty/notas/2026-05/historia-dirty-lab.md` — development narrative

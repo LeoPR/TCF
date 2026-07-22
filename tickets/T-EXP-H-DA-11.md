@@ -11,7 +11,7 @@ related:
   - tickets/T-REVAL-H-DA-01-06-10.md
   - experiments/lab/dirty/2026-05-21-revalidacao-categoria-B/03-h-da-10-min-len-realworld/
   - experiments/lab/dirty/2026-05-21-h-da-11-auto-min-len/
-  - experiments/lab/dirty/notas/roadmap-hipoteses.md
+  - experiments/lab/dirty/notas/2026-05/roadmap-hipoteses.md
   - docs/adr/0010-auto-detect-min-len.md
   - docs/adr/0008-detect-cadence-numeric-high-cardinality.md
 ---
@@ -98,7 +98,7 @@ sinteticos, ou volumes Adult 100/500).
   — origem dos dados (9.92% oracle)
 - [ADR-0008 detect_cadence](../docs/adr/0008-detect-cadence-numeric-high-cardinality.md)
   — modelo de pre-pass heuristico similar (H-DA-09b-v2)
-- [Roadmap H-DA-11](../experiments/lab/dirty/notas/roadmap-hipoteses.md)
+- [Roadmap H-DA-11](../experiments/lab/dirty/notas/2026-05/roadmap-hipoteses.md)
 
 ## Updates datados
 

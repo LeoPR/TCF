@@ -5,7 +5,7 @@ priority: P2
 created: 2026-06-24
 updated: 2026-06-24
 related:
-  - experiments/lab/dirty/notas/plano-poda-legado-pre-0.7-2026-06-24.md
+  - experiments/lab/dirty/notas/2026-06/2026-06-24-0120-plano-poda-legado-pre-0.7.md
   - docs/adr/0024-pre-1.0-versioning-git-as-compat.md
   - tickets/T-DIST-RELEASE-0.8.0.md
 ---
@@ -16,7 +16,7 @@ related:
 
 Owner: o desenvolvimento gerou muitos artefatos; tirar os fallbacks pré-0.7, isolando o que serve de
 comparação ou aposentando. Rumo a 1.0 o código converge para o formato final. Plano + inventário +
-modelo de 3 eixos (formato/encoder-gen/pacote): [`plano-poda-legado-pre-0.7-2026-06-24.md`](../experiments/lab/dirty/notas/plano-poda-legado-pre-0.7-2026-06-24.md).
+modelo de 3 eixos (formato/encoder-gen/pacote): [`2026-06-24-0120-plano-poda-legado-pre-0.7.md`](../experiments/lab/dirty/notas/2026-06/2026-06-24-0120-plano-poda-legado-pre-0.7.md).
 
 ## Decisões (owner 2026-06-24)
 1. Leitura `#TCF.6` → **isolar em `_legacy_read`** (dropar no 1.0).

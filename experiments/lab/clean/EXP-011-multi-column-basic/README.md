@@ -8,7 +8,7 @@ updated: 2026-05-18
 predecessor: EXP-010-tcf-delta-aware-prototype
 related:
   - docs/adr/0004-multi-column-header-compacto.md
-  - experiments/lab/dirty/notas/futuras-otimizacoes-formato.md
+  - experiments/lab/dirty/notas/2026-05/futuras-otimizacoes-formato.md
 ---
 
 # EXP-011 — Multi-column basic (sem ordering)
@@ -40,7 +40,7 @@ Especificamente:
 - Validacao RT byte-canonical em dataset sintetico multi-coluna
 
 **Exclui (futuro — ver
-[`../../dirty/notas/futuras-otimizacoes-formato.md`](../../dirty/notas/futuras-otimizacoes-formato.md))**:
+[`../../dirty/notas/2026-05/futuras-otimizacoes-formato.md`](../../dirty/notas/2026-05/futuras-otimizacoes-formato.md))**:
 - Ordering de colunas/linhas pra compressao (O-FMT-01..04)
 - Cross-column dictionary (O-FMT-06)
 - Streaming/chunked (O-FMT-08)
@@ -84,7 +84,7 @@ compacto, sem descricoes livres, byte-precise:
 ```
 
 **Princ-ipios aplicados** (cf.
-[`../../dirty/notas/futuras-otimizacoes-formato.md`](../../dirty/notas/futuras-otimizacoes-formato.md)):
+[`../../dirty/notas/2026-05/futuras-otimizacoes-formato.md`](../../dirty/notas/2026-05/futuras-otimizacoes-formato.md)):
 - Magic line estilo shebang (`#TCF6` = 5 bytes)
 - Flag `M` indica multi-column (sem flag = single-column)
 - Meta line: pares `size=name` separados por virgula (compacto)
@@ -139,6 +139,6 @@ EXP-011-multi-column-basic/
 - **Single-column base**: [EXP-010](../EXP-010-tcf-delta-aware-prototype/)
 - **Decisao do header multi**: [ADR-0004](../../../../docs/adr/0004-multi-column-header-compacto.md)
 - **Decisao do shebang**: [ADR-0001](../../../../docs/adr/0001-tcf-format-shebang.md)
-- **Otimizacoes futuras**: [`futuras-otimizacoes-formato.md`](../../dirty/notas/futuras-otimizacoes-formato.md) (O-FMT-11, 11b, 13)
+- **Otimizacoes futuras**: [`futuras-otimizacoes-formato.md`](../../dirty/notas/2026-05/futuras-otimizacoes-formato.md) (O-FMT-11, 11b, 13)
 - **Checkpoint pos-EXP-011**: [`2026-05-18 pausa`](../../dirty/notas/checkpoints/2026-05-18-pausa-para-organizar-documentacao.md) (proximo: EXP-012 real-world via shaper)
 - **Dataset usado**: [D17a synthetic](../../../../datasets/synthetic/D17a-multi-column-mixed.csv)

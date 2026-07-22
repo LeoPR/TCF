@@ -5,10 +5,10 @@ status: closed-welded  # faxina 2026-06-21: ADR-0015 (natures) + ADR-0016 (seq-R
 tags: [tcf, natureza, templated, checksummed, cpf, pacote-7, fase-1]
 created: 2026-05-24
 related:
-  - experiments/lab/dirty/notas/naturezas-templated-2026-05-24.md
+  - experiments/lab/dirty/notas/2026-05/naturezas-templated-2026-05-24.md
   - tickets/META-TYPE-ENCODERS.md
   - tickets/T-CODE-SCHEMA-BUILDER.md
-  - experiments/lab/dirty/notas/roadmap-hipoteses.md
+  - experiments/lab/dirty/notas/2026-05/roadmap-hipoteses.md
 ---
 
 # CPF templated+checked — primeira natureza estrutural
@@ -16,7 +16,7 @@ related:
 ## Contexto
 
 Pacote 7 (registrado 2026-05-24, ver
-[`naturezas-templated-2026-05-24.md`](../../../notas/naturezas-templated-2026-05-24.md))
+[`naturezas-templated-2026-05-24.md`](../../../notas/2026-05/naturezas-templated-2026-05-24.md))
 cataloga sub-naturezas TM-CPF/CNPJ/IP/etc. Owner aprovou iniciar
 dirty lab pelo **CPF como caso concreto** pra destilar metodologia
 genérica.
@@ -35,7 +35,7 @@ genérica.
   + Unique-Discrete". Mesma maquina serve CNPJ/IBAN/Luhn variando
   template + check_fn.
 
-## Mapeamento academico (ver `notas/metodologia-avaliacao-dados-2026-05-24.md`)
+## Mapeamento academico (ver `notas/2026-05-24-2248-metodologia-avaliacao-dados.md`)
 
 Cada dataset segue framework estabelecido na literatura:
 
@@ -219,7 +219,7 @@ Caso contrario M10 puro eh melhor.
 
 ## Conexao
 
-- [Naturezas templated](../../../notas/naturezas-templated-2026-05-24.md) — catalogacao
+- [Naturezas templated](../../../notas/2026-05/naturezas-templated-2026-05-24.md) — catalogacao
 - [META-TYPE-ENCODERS](../../../../tickets/META-TYPE-ENCODERS.md) — T02 + T04
 - [T-CODE-SCHEMA-BUILDER](../../../../tickets/T-CODE-SCHEMA-BUILDER.md) — Fase 3 consumidora
-- [Roadmap H-TM-CPF/CNPJ](../../../notas/roadmap-hipoteses.md) — Pacote 7
+- [Roadmap H-TM-CPF/CNPJ](../../../notas/2026-05/roadmap-hipoteses.md) — Pacote 7

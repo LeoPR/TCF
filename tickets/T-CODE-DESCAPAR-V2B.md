@@ -6,8 +6,8 @@ created: 2026-07-01
 updated: 2026-07-10
 closed: 2026-07-10
 related:
-  - experiments/lab/dirty/2026-07-01-dict-highcard/
-  - experiments/lab/dirty/2026-07-01-descapar-v2b/
+  - experiments/lab/dirty/2026-07/2026-07-01/2026-07-01-dict-highcard/
+  - experiments/lab/dirty/2026-07/2026-07-01/2026-07-01-descapar-v2b/
   - src/tcf/multi/dict_v2b.py
   - src/tcf/multi/core.py
 ---
@@ -26,9 +26,9 @@ related:
 Pivô do cross-dict fechado ([T-EXP-H-GDICT-01](T-EXP-H-GDICT-01.md)): a direção certa não é
 compartilhar entre colunas, é **fortalecer o `min(tcf,raw,v2b,split)` per-coluna**. O cap
 `_V2B_MAX_CARD=1024` (`dict_v2b.py`) faz `_v2b_encode` retornar `None` p/ K>1024 → o dict **nunca é
-candidato** p/ high-card. Caracterização ([dict-highcard](../experiments/lab/dirty/2026-07-01-dict-highcard/result.md)):
+candidato** p/ high-card. Caracterização ([dict-highcard](../experiments/lab/dirty/2026-07/2026-07-01/2026-07-01-dict-highcard/result.md)):
 o dict vence OBAT/HCC em high-card **espalhado** (l_partkey −46%, municipio −40%, razao_social −40%),
-perde em **estruturado** (seq-RLE). Prototype read-only ([descapar-v2b](../experiments/lab/dirty/2026-07-01-descapar-v2b/result.md)).
+perde em **estruturado** (seq-RLE). Prototype read-only ([descapar-v2b](../experiments/lab/dirty/2026-07/2026-07-01/2026-07-01-descapar-v2b/result.md)).
 
 ## Pergunta
 

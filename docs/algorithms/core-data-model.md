@@ -186,5 +186,5 @@ quiser ou rodar serial.
 - [output-convention.md](output-convention.md), [TCF-format.md](TCF-format.md)
   — gramática textual e header.
 - `../adr/0020-*` (Cython opt-in), `../adr/0022/0023/0025/0026-*` (modos V2).
-- `../../experiments/lab/dirty/notas/historia-dirty-lab.md` — narrativa M0-M14.
+- `../../experiments/lab/dirty/notas/2026-05/historia-dirty-lab.md` — narrativa M0-M14.
 - `src/tcf/` — implementação canonical (a fonte; este doc descreve, não substitui).

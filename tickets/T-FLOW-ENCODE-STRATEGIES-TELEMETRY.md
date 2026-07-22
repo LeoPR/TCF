@@ -7,10 +7,10 @@ updated: 2026-07-05
 blocked-by: []
 related:
   - tickets/T-FMT-TCF8H-HEADER.md
-  - experiments/lab/dirty/notas/tcf8h-header-checklist.md
+  - experiments/lab/dirty/notas/2026-07/tcf8h-header-checklist.md
   - src/tcf/side_outputs.py
   - experiments/lab/clean/EXP-015-tcf-hierarquico-csv-json/
-  - experiments/lab/dirty/notas/tcf8h-proximas-ideias.md
+  - experiments/lab/dirty/notas/2026-07/tcf8h-proximas-ideias.md
 ---
 
 # T-FLOW-ENCODE-STRATEGIES-TELEMETRY — o vetor speed/memória (ortogonal aos bytes)

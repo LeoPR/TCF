@@ -4,7 +4,7 @@ History of TCF condensed into logical versions. For commit-level detail
 see `git log`. For per-experiment timeline (v0.5) see
 [`docs/workbench/_archive/DEVELOPMENT.md`](docs/workbench/_archive/DEVELOPMENT.md);
 for v0.6 (atual) ver
-[`experiments/lab/dirty/notas/historia-dirty-lab.md`](experiments/lab/dirty/notas/historia-dirty-lab.md).
+[`experiments/lab/dirty/notas/2026-05/historia-dirty-lab.md`](experiments/lab/dirty/notas/2026-05/historia-dirty-lab.md).
 
 A partir de v1.0.0 o versionamento e' **semver** com format `#TCF.6`
 congelado (ADR-0017). Versoes anteriores marcavam milestones logicos
@@ -177,8 +177,8 @@ ao foco. Codigo v0.5 (`old/tcf/`, antes `src/tcf/`) mantido para
 referencia historica.
 
 Ver:
-- [`experiments/lab/dirty/notas/historia-dirty-lab.md`](experiments/lab/dirty/notas/historia-dirty-lab.md) — narrativa M0-M14
-- [`experiments/lab/dirty/notas/roadmap-hipoteses.md`](experiments/lab/dirty/notas/roadmap-hipoteses.md) — 12 direcoes futuras
+- [`experiments/lab/dirty/notas/2026-05/historia-dirty-lab.md`](experiments/lab/dirty/notas/2026-05/historia-dirty-lab.md) — narrativa M0-M14
+- [`experiments/lab/dirty/notas/2026-05/roadmap-hipoteses.md`](experiments/lab/dirty/notas/2026-05/roadmap-hipoteses.md) — 12 direcoes futuras
 - [`docs/algorithms/`](docs/algorithms/) — OBAT, HCC, TCF-format
 
 ---

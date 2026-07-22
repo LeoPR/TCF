@@ -44,7 +44,7 @@
 > bit-level em vez de char-level). Confirma que o nicho de V2-L e' TCF como
 > representacao TERMINAL (sem re-compressao a jusante) — nao substituto de
 > compressor generico. Ver H-TYPE-02 (`roadmap-hipoteses.md`) +
-> `experiments/lab/dirty/notas/tipos-como-specs.md`. Nao promove bN a candidato
+> `experiments/lab/dirty/notas/2026-07/tipos-como-specs.md`. Nao promove bN a candidato
 > de weld (N<5 fontes, gate brotli reprovado nesta forma).
 
 ## Context and Problem Statement
@@ -312,5 +312,5 @@ v2.0 abre quando o owner decidir priorizar. Pre-requisitos tecnicos:
 
 - [Lab 2026-05-27-naturezas-reais-uci](../../experiments/lab/dirty/old/welded/2026-05-27-naturezas-reais-uci/result.md) — evidencia
 - [ADR-0017 — Format freeze v1.0](0017-format-spec-v1-frozen.md)
-- [futuras-otimizacoes-formato.md](../../experiments/lab/dirty/notas/futuras-otimizacoes-formato.md) — O-FMT-* registry
-- [roadmap-hipoteses.md](../../experiments/lab/dirty/notas/roadmap-hipoteses.md)
+- [futuras-otimizacoes-formato.md](../../experiments/lab/dirty/notas/2026-05/futuras-otimizacoes-formato.md) — O-FMT-* registry
+- [roadmap-hipoteses.md](../../experiments/lab/dirty/notas/2026-05/roadmap-hipoteses.md)

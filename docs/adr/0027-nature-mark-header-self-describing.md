@@ -13,7 +13,7 @@
 > `multi.py`, mas pós-P1 (2026-06-24) o código vive em `src/tcf/multi/core.py`
 > (pacote). **Rota IMPLÍCITA avaliada e DESCARTADA** (insegura por construção: o
 > reconhecimento `len+BASE94` pressupõe o spec, não o descobre → falso-positivo
-> corromperia dado comum; ver [mapa de capacidade](../../experiments/lab/dirty/notas/specs-capacity-map.md)).
+> corromperia dado comum; ver [mapa de capacidade](../../experiments/lab/dirty/notas/2026-06/specs-capacity-map.md)).
 > Diferenças MVP vs design: id desconhecido surfaceia via `warnings.warn` (decode
 > não tem `side_outputs`), não `SideOutputs.unknown_nature_ids`; precedência
 > header-vence implementada em `decode()` (header resolve → aplica; usuário completa
@@ -150,5 +150,5 @@ emitido; com opt-in (só quando há nature), o caminho sem-spec fica intacto.
 
 ## Links
 
-- [Design note + revisão crítica](../../experiments/lab/dirty/notas/f2-nature-mark-header-design.md)
-- [Pesquisa CEP/outer-dict](../../experiments/lab/dirty/notas/cep-outer-dict-codebook-pesquisa.md)
+- [Design note + revisão crítica](../../experiments/lab/dirty/notas/2026-06/f2-nature-mark-header-design.md)
+- [Pesquisa CEP/outer-dict](../../experiments/lab/dirty/notas/2026-06/cep-outer-dict-codebook-pesquisa.md)

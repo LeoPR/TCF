@@ -13,7 +13,7 @@ payload pequeno o header de tamanho fixo domina o total, entao economias
 O(1)-por-tabela no header deixam de ser ruido.
 
 Duas redundancias no header multi-col (`#TCF.6 M\n# <s1>=<n1>,...,<sN>=<nN>\n`),
-registradas em [O-FMT-15 e O-FMT-16](../../experiments/lab/dirty/notas/futuras-otimizacoes-formato.md):
+registradas em [O-FMT-15 e O-FMT-16](../../experiments/lab/dirty/notas/2026-05/futuras-otimizacoes-formato.md):
 - **O-FMT-16**: o ESPACO apos o `#` no meta line e' dispensavel.
 - **O-FMT-15**: o size da ULTIMA coluna e' redundante — o corpo dela vai ate' o
   EOF (mesma logica do single-col, que ja' nao tem header nem size).
@@ -85,7 +85,7 @@ Formato minimo (dispensa o prefixo do meta + omite o size da ultima coluna):
 
 ## Links
 
-- [O-FMT-15/16 + bundle "header v2 minimo"](../../experiments/lab/dirty/notas/futuras-otimizacoes-formato.md)
+- [O-FMT-15/16 + bundle "header v2 minimo"](../../experiments/lab/dirty/notas/2026-05/futuras-otimizacoes-formato.md)
 - [ADR-0022 V2-A fallback](0022-v2a-fallback-identity-weld.md)
 - [ADR-0018 roadmap v2.0](0018-v2-format-roadmap.md)
 - Diretriz: memoria user `project-byte-level-compression-focus`

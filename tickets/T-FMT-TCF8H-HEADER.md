@@ -7,10 +7,10 @@ updated: 2026-07-10
 closed: 2026-07-10
 blocked-by: []
 related:
-  - experiments/lab/dirty/notas/tcf8h-header-checklist.md
+  - experiments/lab/dirty/notas/2026-07/tcf8h-header-checklist.md
   - experiments/lab/clean/EXP-015-tcf-hierarquico-csv-json/
-  - experiments/lab/dirty/notas/tcf8h-proximas-ideias.md
-  - experiments/lab/dirty/2026-07-01-header-minimal/result.md
+  - experiments/lab/dirty/notas/2026-07/tcf8h-proximas-ideias.md
+  - experiments/lab/dirty/2026-07/2026-07-01/2026-07-01-header-minimal/result.md
   - tickets/T-STUDY-HIERARCHICAL-TCF.md
 ---
 
@@ -33,7 +33,7 @@ colchete (`{}`=objeto, `[]`=array); **M/N/cardinalidade DEDUZIDOS** (não escrit
 > hierarquia). Além de formalizar, dá dispatch **O(1)** no decode (roteia pro codec-árvore sem parsear o
 > meta). **Sem-espaço** (herda de `M`): `#TCF.8H<meta>`, NÃO `#TCF.8H <meta>` — o protótipo EXP-015 usou
 > espaço e deve alinhar no weld. Formalizado em **[ADR-0031](../docs/adr/0031-hierarchical-discriminator-H.md)**
-> (accepted); registrado no [char-registry Eixo 1](../experiments/lab/dirty/notas/tcf8-header-char-registry.md).
+> (accepted); registrado no [char-registry Eixo 1](../experiments/lab/dirty/notas/2026-07/tcf8-header-char-registry.md).
 > **Escopo do ADR-0031**: reserva o char + a semântica; o CODEC hierárquico (gramática do meta, omit-closes,
 > etc.) segue research-track — welding = ticket próprio gated. `src/tcf` NÃO muda agora.
 

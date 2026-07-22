@@ -8,7 +8,7 @@ blocked-by: []
 related:
   - tickets/T-EXP-NATUREZAS-RARAS-EXPLORACAO.md
   - tickets/T-EXP-PACOTE5-T03-ENUMERATED.md
-  - experiments/lab/dirty/notas/naturezas-numericas-2026-05-23.md
+  - experiments/lab/dirty/notas/2026-05/naturezas-numericas-2026-05-23.md
   - scripts/setup_adult.py
   - scripts/setup_tpch.py
 ---

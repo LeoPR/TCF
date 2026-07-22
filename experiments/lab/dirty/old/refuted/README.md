@@ -37,5 +37,5 @@ Alguns sub-exps refutados estao **dentro** de um lab cujo agregado e welded
 - `../welded/2026-05-24-cpf-templated-checked/12-hex-ip-variant/` — variante hex
   abandonada (sub-exp dentro de lab CPF)
 
-Ver [`../../notas/roadmap-hipoteses.md`](../../notas/roadmap-hipoteses.md)
+Ver [`../../notas/2026-05/roadmap-hipoteses.md`](../../notas/2026-05/roadmap-hipoteses.md)
 pra registry cross-lab de hipoteses (incluindo refutadas).

@@ -6,7 +6,7 @@ created: 2026-06-18
 updated: 2026-07-01
 blocked-by: []
 related:
-  - experiments/lab/dirty/notas/hquery01-decode-dag-indices-design.md
+  - experiments/lab/dirty/notas/2026-06/hquery01-decode-dag-indices-design.md
   - docs/adr/0024-pre-1.0-versioning-git-as-compat.md
   - C:/Users/leona/OneDrive/Documents/Projects/Acadêmicos/Methodologies/recipe/knowledge-architecture.md
 ---
@@ -68,7 +68,7 @@ localizada** — sem reorganização estrutural.
 ## Backlog EXECUTADO 2026-07-01 (DB-1,3,4,5,6,7 feitos; DB-2 = owner)
 
 - [x] **DB-1** `docs/theory/roadmap-hipoteses.md`: zero links de entrada → **nota de cabeçalho** apontando
-      pro registry ativo (`experiments/lab/dirty/notas/roadmap-hipoteses.md`). Não deletado (traço).
+      pro registry ativo (`experiments/lab/dirty/notas/2026-05/roadmap-hipoteses.md`). Não deletado (traço).
 - [x] **DB-2** **RESOLVIDO ANTECIPADAMENTE (2026-07-04)**: a memória estava stale — as 3 perguntas
       do `[VERIFICAR: 2026-08-18]` já tinham resposta no repo (welding = ADR-0011 welded canonical;
       real-world = 11.73% weighted testado; decorrentes = H-DA-09c/d/e fechadas + H-DA-10b→H-DA-11

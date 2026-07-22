@@ -8,7 +8,7 @@ blocked-by: []
 related:
   - tickets/T-STUDY-DATASETH-COMPLETE-SEMANTICS.md
   - tickets/T-STUDY-HIERARCHY-LINK-ALGEBRA.md
-  - experiments/lab/dirty/2026-07-16-1708-dataseth-s0-s3-semantica-vinculos/
+  - experiments/lab/dirty/2026-07/2026-07-16/2026-07-16-1708-dataseth-s0-s3-semantica-vinculos/
 ---
 
 # T-EXP-DATASETH-S0-S3 — executar S0–S3
@@ -28,7 +28,7 @@ vínculos antes de simplificar a representação do `#TCF.8H`.
 
 ## Resultado 2026-07-16
 
-Fonte: [outputs/24-resultado.txt](../experiments/lab/dirty/2026-07-16-1708-dataseth-s0-s3-semantica-vinculos/outputs/24-resultado.txt).
+Fonte: [outputs/24-resultado.txt](../experiments/lab/dirty/2026-07/2026-07-16/2026-07-16-1708-dataseth-s0-s3-semantica-vinculos/outputs/24-resultado.txt).
 
 - RT semântico: **20/20**;
 - álgebra de vínculo: **20/20**;

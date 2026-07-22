@@ -11,7 +11,7 @@ related:
   - tickets/META-PERF-PHASE2.md
   - experiments/lab/dirty/2026-05-20-hcc-perf-optimization/
   - experiments/lab/dirty/2026-05-22-h-perf-05d-counter-incremental/
-  - experiments/lab/dirty/notas/roadmap-hipoteses.md
+  - experiments/lab/dirty/notas/2026-05/roadmap-hipoteses.md
 ---
 
 # T-EXP-H-PERF-05d — Counter incremental HCC
@@ -122,7 +122,7 @@ Se speedup >= 30% E zero byte loss E RT 100%:
 - [Lab HCC perf (sub-exp anteriores)](../experiments/lab/dirty/2026-05-20-hcc-perf-optimization/)
 - [META-PERF-PHASE2](META-PERF-PHASE2.md) — closed-parcial
 - [src/tcf/composicional/syntax.py _detect_compositions](../src/tcf/composicional/syntax.py)
-- [Roadmap H-PERF-05d](../experiments/lab/dirty/notas/roadmap-hipoteses.md)
+- [Roadmap H-PERF-05d](../experiments/lab/dirty/notas/2026-05/roadmap-hipoteses.md)
 
 ## Updates datados
 
@@ -192,7 +192,7 @@ Alternativas: Cython/Rust port (H-PERF-06), otimizacao build_candidates
 ### 2026-06-24 — re-caracterização (código atual) + FECHAMENTO
 
 Owner reabriu pra otimizar código (alvo H-PERF-05d), lab read-only novo
-[`2026-06-24-h-perf-05d-recaracterizacao/`](../experiments/lab/dirty/2026-06-24-h-perf-05d-recaracterizacao/)
+[`2026-06-24-h-perf-05d-recaracterizacao/`](../experiments/lab/dirty/2026-06/2026-06-24/2026-06-24-h-perf-05d-recaracterizacao/)
 (não toca este lab nem src/tcf). Profile fresco: o prune ADR-0019 já minimizou a avaliação de
 candidatos (`_estimate_baseline_chars` ~3% do `_dc`); sobrou o rebuild do Counter (~46% do encode).
 

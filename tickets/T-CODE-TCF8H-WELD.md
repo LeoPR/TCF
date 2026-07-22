@@ -11,8 +11,8 @@ related:
   - tickets/T-FMT-TCF8H-HEADER.md
   - docs/adr/0031-hierarchical-discriminator-H.md
   - experiments/lab/clean/EXP-015-tcf-hierarquico-csv-json/
-  - experiments/lab/dirty/2026-07-13-dataseth-json-bridge/
-  - experiments/lab/dirty/notas/dataseth-hierarquia-completa-plano.md
+  - experiments/lab/dirty/2026-07/2026-07-13/2026-07-13-dataseth-json-bridge/
+  - experiments/lab/dirty/notas/2026-07/dataseth-hierarquia-completa-plano.md
   - tests/test_real_world_snapshots.py
   - src/tcf/decoder.py
 ---
@@ -43,7 +43,7 @@ definido no estudo e não deve criar `encode_json` nem importar parser JSON em `
 ## Update 2026-07-14 — arquitetura em 3 CAMADAS (reframe do owner) + codec base
 
 Owner: o weld deve respeitar 3 camadas desacopladas
-([tcf-camadas-arquitetura.md](../experiments/lab/dirty/notas/tcf-camadas-arquitetura.md)):
+([tcf-camadas-arquitetura.md](../experiments/lab/dirty/notas/2026-07/tcf-camadas-arquitetura.md)):
 - **L1 compressor de COLUNAS** — o mesmo p/ single/multi/hierarquia/multi-tabela; **REUSAR o
   `encode`/`decode` de coluna do core SEM tocá-lo**. O hierárquico é 100% CLIENTE dele.
 - **L2 RELACIONAMENTO entre colunas** — a natureza do vínculo (multi-col, hierarquia, ragged, N:N).
@@ -54,7 +54,7 @@ Owner: o weld deve respeitar 3 camadas desacopladas
 
 Por isso o weld é **aditivo e de baixo risco**: flat byte-idêntico; hierárquico = cliente do
 compressor + dispatch por `H`. **Codec base** (extrair a ideia, não copiar): `shred.py` do lab
-[2026-07-14-0111-hierarquico-fechar-fluxo](../experiments/lab/dirty/2026-07-14-0111-hierarquico-fechar-fluxo/)
+[2026-07-14-0111-hierarquico-fechar-fluxo](../experiments/lab/dirty/2026-07/2026-07-14/2026-07-14-0111-hierarquico-fechar-fluxo/)
 — blocos + `#count`, RT-exato nos clássicos de transmissão (cadastro c/ 2 listas irmãs, pedido
 aninhado, telemetria; arrays vazios; ambiguidade resolvida). Supera o EXP-015 (múltiplas listas irmãs).
 
@@ -100,7 +100,7 @@ labs (records = DatasetH source-agnostic, list[dict]); **W5 (ADR + ragged/tipos)
 ## FIXAR O ÓBVIO 2026-07-14 — fuzz EM MASSA da classe coberta (óbvio fechado)
 
 **[probatório]** Owner: *"fixar o óbvio primeiro. fechar, testar em massa e ir fechando os outros."*
-Lab [`2026-07-14-2120-hierarquia-massa-classe-coberta`](../experiments/lab/dirty/2026-07-14-2120-hierarquia-massa-classe-coberta/):
+Lab [`2026-07-14-2120-hierarquia-massa-classe-coberta`](../experiments/lab/dirty/2026-07/2026-07-14/2026-07-14-2120-hierarquia-massa-classe-coberta/):
 fuzz DETERMINÍSTICO (seed 20260714) de **8000 documentos** aleatórios DENTRO da classe coberta →
 RT byte-exato `decode(encode_hierarchical(recs))==recs`: **8000/8000, 0 falhas**. Cobertura: 5263
 arrays vazios · 2379 ≥2 arrays irmãos · 1609 aninhados. → A **classe coberta está FIXADA** (fuzz +
@@ -143,7 +143,7 @@ otimizações, deixado pro fim) — lab `2026-07-14-2043`. Próximos INCREMENTOS
 
 **[probatório→preempção]** Workflow de auditoria (4 lentes + síntese) sobre o estudo de amostragem
 honesta encontrou — e os probes verificaram
-([lab 2336/probes_auditoria.py](../experiments/lab/dirty/2026-07-14-2336-hierarquia-amostra-populacao-honesta/probes_auditoria.py)) —
+([lab 2336/probes_auditoria.py](../experiments/lab/dirty/2026-07/2026-07-14/2026-07-14-2336-hierarquia-amostra-populacao-honesta/probes_auditoria.py)) —
 **nomes de chave com chars da gramática do meta quebram RT** (entrada que o encoder aceita →
 critério 1 da regra de ROI do T-REL-08, preempta):
 

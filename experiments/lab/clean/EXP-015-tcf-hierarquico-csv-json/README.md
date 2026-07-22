@@ -1,7 +1,7 @@
 # EXP-015 — TCF hierárquico: lê CSV e JSON, reverte pros dois (protótipo v0) [probatório]
 
 **Lab clean / protótipo** que consolida as IDEIAS do estudo dirty (grupo hierárquico, peças 1-9 +
-[mapa](../../dirty/notas/estudo-tcf-hierarquico-mapa.md) + [teoria-cardinalidade](../../dirty/notas/teoria-cardinalidade.md)),
+[mapa](../../dirty/notas/2026-07/estudo-tcf-hierarquico-mapa.md) + [teoria-cardinalidade](../../dirty/notas/2026-07/teoria-cardinalidade.md)),
 **reconstruído do zero** (não copia a engenhoca dirty — extrai a ideia, per a filosofia). `python run.py`
 regenera `outputs/`.
 
@@ -49,7 +49,7 @@ sintéticos/fictícios. **Ponteiro para escalar**: `datasets/synthetic/` (D1-D17
 - **É**: protótipo v0 — JSON hierárquico + CSV plano, RT exato; o limite (link posicional) mapeado.
 - **Será**: escalar (datasets sintéticos) · tipos (num/bool/null) · o **link posicional** (peça 10) p/
   hierarquizar CSV multi-pai e arrays aninhados · cross-convert JSON↔CSV. Welding em `src/tcf` = decisão futura.
-- **Ideias registradas** (owner, a explorar com calma): [tcf8h-proximas-ideias](../../dirty/notas/tcf8h-proximas-ideias.md)
+- **Ideias registradas** (owner, a explorar com calma): [tcf8h-proximas-ideias](../../dirty/notas/2026-07/tcf8h-proximas-ideias.md)
   — consumo DIRETO da estrutura (sem reconstruir JSON; muda o RT-alvo → reorder order-free vira normal) ·
   enriquecimento por **spec com gabarito** (CPF/CEP/telefone; 1º-valor = molde implícito).
 

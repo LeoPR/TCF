@@ -164,4 +164,4 @@ experimental: `experiments/lab/dirty/old/M0-fase-exploratoria-inicial/2026-05-11
 
 - [HCC](HCC.md) — camada que consome os tokens de OBAT
 - [TCF-format](TCF-format.md) — posicionamento do formato
-- `experiments/lab/dirty/notas/historia-dirty-lab.md` — narrativa do desenvolvimento
+- `experiments/lab/dirty/notas/2026-05/historia-dirty-lab.md` — narrativa do desenvolvimento

@@ -110,7 +110,7 @@ Comparar output bytes pre-refactor vs pos-refactor:
 - [ADR-0008](../docs/adr/0008-detect-cadence-numeric-rule.md) — detect_cadence
   (em EXP-010 prototype; weld canonical futuro pode reaproveitar
   ColumnFeatures)
-- [Roadmap H-DA-11c](../experiments/lab/dirty/notas/roadmap-hipoteses.md)
+- [Roadmap H-DA-11c](../experiments/lab/dirty/notas/2026-05/roadmap-hipoteses.md)
 
 ## Updates datados
 

@@ -6,7 +6,7 @@ created: 2026-06-21
 updated: 2026-06-21
 blocked-by: [T-CODE-LAZY-VIEW-PROMOTE]
 related:
-  - experiments/lab/dirty/notas/v08-plano-etapas.md
+  - experiments/lab/dirty/notas/2026-06/v08-plano-etapas.md
   - src/tcf/view.py
   - docs/reference/encode-knobs.md
 ---

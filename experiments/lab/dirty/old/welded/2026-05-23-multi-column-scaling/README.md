@@ -8,7 +8,7 @@ predecessor: EXP-011-multi-column-basic
 related:
   - docs/adr/0004-multi-column-header-compacto.md
   - docs/adr/0011-pacote1-weld-canonical.md
-  - experiments/lab/dirty/notas/futuras-otimizacoes-formato.md
+  - experiments/lab/dirty/notas/2026-05/futuras-otimizacoes-formato.md
 ---
 
 # Multi-column scaling — port canonical + real-world

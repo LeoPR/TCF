@@ -353,7 +353,7 @@ The low-card dictionary (V2-B) and the structural split are already in the defau
 - Test suite: **861 passed, 3 skipped** in the current local full run; run `pytest` for the number in your environment.
   Byte baselines = regression guards, re-pinnable on an intentional change ([ADR-0024](docs/adr/0024-pre-1.0-versioning-git-as-compat.md)).
 - Changes: [`CHANGELOG.md`](CHANGELOG.md).
-  M0-M14 history: [`experiments/lab/dirty/notas/historia-dirty-lab.md`](experiments/lab/dirty/notas/historia-dirty-lab.md).
+  M0-M14 history: [`experiments/lab/dirty/notas/2026-05/historia-dirty-lab.md`](experiments/lab/dirty/notas/2026-05/historia-dirty-lab.md).
 
 > The **v0.5** cycle (columnar format for the LLM benchmark) is accessory and lives separately.
 > See the "LLM Benchmark v0.5" section further down.
@@ -415,7 +415,7 @@ putting TCF underneath *usually hurts* it (as much as −41% — TCF's reference
 entropy model; a few cells are near-neutral and one, lz4 on retail-description, even helps +7%);
 on a **structured multi-column table** TCF wins standalone (−72% vs CSV) **and** composes (`tcf+brotli`
 −30% vs `brotli(raw)`). **Structure, not the container, decides.** Measured with RT counter-proof in
-[`2026-07-13-0156-compressores-http-parquet/`](experiments/lab/dirty/2026-07-13-0156-compressores-http-parquet/result.md).
+[`2026-07-13-0156-compressores-http-parquet/`](experiments/lab/dirty/2026-07/2026-07-13/2026-07-13-0156-compressores-http-parquet/result.md).
 
 ## Where 1.0 is headed — querying almost without decompressing
 
@@ -511,7 +511,7 @@ payload first — which is also where the memory goes.
 ![Memory: view() vs full decode — same blob, one query, two footprints](docs/img/view-memory.svg)
 
 Measured with round-trip counter-proof (timing throughput + `tracemalloc` peaks) in
-[`2026-07-13-0156-compressores-http-parquet/`](experiments/lab/dirty/2026-07-13-0156-compressores-http-parquet/result.md):
+[`2026-07-13-0156-compressores-http-parquet/`](experiments/lab/dirty/2026-07/2026-07-13/2026-07-13-0156-compressores-http-parquet/result.md):
 answering `where(Country).sum(Quantity)` on online-retail (100×8) peaks at **10.4 KB** through `view()`
 versus **45.2 KB** through a full decode — **≈4.3× less** (cadastro 2000×5: 3.95×). Decompression
 throughput is high for every codec (gzip ~60, zstd ~130, lz4 ~850 MB/s decompress), but a compressor
@@ -526,7 +526,7 @@ After a solid 1.0 (registered, **not** implemented — see
 - **Lossless aggregates even while lossy per row** — exact sums/averages in the aggregate when
   rounding with a residual (e.g. installments, `valor = sum(installments)`) and *dropping* a
   derivable column (`total = base + tax`). Crosses the lossless line → explicit decision + a GATE
-  (Package 10, [`loss-taxonomia.md`](experiments/lab/dirty/notas/loss-taxonomia.md)).
+  (Package 10, [`loss-taxonomia.md`](experiments/lab/dirty/notas/2026-06/loss-taxonomia.md)).
 - **Streaming / low latency (V2-J)** and **zero-copy disk / column-pruning (V2-K)** —
   transmit and read in chunks, without buffer-over-buffer.
 - **Internal binary layer (V2-L)** — pack the body into bytes while keeping the textual header and
@@ -667,7 +667,7 @@ The encoder is the main tool; support helpers (NOT TCF-core):
 - **I want to read the findings** → [docs/findings/](docs/findings/) (v0.5 LLM, historical)
 - **I want to run the LLM benchmark** → [llm-benchmark/](llm-benchmark/) (accessory v0.5)
 - **I want to understand the architecture** → [docs/theory/](docs/theory/)
-- **I want to see the roadmap** → [ROADMAP.md](ROADMAP.md) (tiers: pre-1.0 / 2.0 / research); granular detail in [roadmap-hipoteses.md](experiments/lab/dirty/notas/roadmap-hipoteses.md)
+- **I want to see the roadmap** → [ROADMAP.md](ROADMAP.md) (tiers: pre-1.0 / 2.0 / research); granular detail in [roadmap-hipoteses.md](experiments/lab/dirty/notas/2026-05/roadmap-hipoteses.md)
 - **I want SQL-like query paths without full materialization** → [`tcf.view`](docs/reference/lazy-view.md) (`count`/`sum`/`where`/group-by touching only what is needed where the column mode permits)
 - **I want to share / pitch TCF** → [docs/divulgacao-tcf.md](docs/divulgacao-tcf.md) (outreach material, post style)
 - **I want to read the paper** → v0.5 drafts: [docs/archive/article_v05/](docs/archive/article_v05/) (v0.7 paper pending)

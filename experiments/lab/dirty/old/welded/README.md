@@ -18,7 +18,7 @@ via welding formal (ADR + commit em src/tcf). Movidos pra ca em
 | [`2026-05-19-h-da-09b-refino-real-world/`](2026-05-19-h-da-09b-refino-real-world/) | 2026-05-19 | Refino detect_cadence em real-world | [ADR-0008 update](../../../../../docs/adr/0008-detect-cadence-rules.md) | `auto_cadence.py` regra 2 |
 | [`2026-05-19-obat-perf-optimization/`](2026-05-19-obat-perf-optimization/) | 2026-05-19 | OBAT perf phase 1 (LCS opt) | — | `src/tcf/core/online.py` micro-opt |
 | [`2026-05-21-h-da-11-auto-min-len/`](2026-05-21-h-da-11-auto-min-len/) | 2026-05-21 | Auto-detect min_len v3 + gating n>=100 | [ADR-0010](../../../../../docs/adr/0010-detect-min-len.md) | `src/tcf/auto_min_len.py` |
-| [`2026-05-21-revalidacao-categoria-B/`](2026-05-21-revalidacao-categoria-B/) | 2026-05-21 | Re-validacao de hipoteses Cat-B em real-world | [`revisao-conceitual-2026-05-21.md`](../../notas/revisao-conceitual-2026-05-21.md) | criterio `confirmada-empirica` reforcado |
+| [`2026-05-21-revalidacao-categoria-B/`](2026-05-21-revalidacao-categoria-B/) | 2026-05-21 | Re-validacao de hipoteses Cat-B em real-world | [`2026-05-21-0138-revisao-conceitual.md`](../../notas/2026-05/2026-05-21-0138-revisao-conceitual.md) | criterio `confirmada-empirica` reforcado |
 | [`2026-05-22-h-da-07-shape-preserve-revalidacao/`](2026-05-22-h-da-07-shape-preserve-revalidacao/) | 2026-05-22 | Re-validacao shape-preserve em real-world | confirmada `confianca: Alta` | `obat_shape.py` permanece |
 | [`2026-05-22-h-da-11c-features-unificadas/`](2026-05-22-h-da-11c-features-unificadas/) | 2026-05-22 | ColumnFeatures unified pre-pass | — | `src/tcf/column_features.py` |
 | [`2026-05-22-pacote1-weld-canonical/`](2026-05-22-pacote1-weld-canonical/) | 2026-05-22 | Welding formal Pacote 1 -> src/tcf | [ADR-0011](../../../../../docs/adr/0011-pipeline-canonical-m10.md) | M10 baseline (1523B em D1-D9) |
@@ -40,5 +40,5 @@ Welding mais recente: [ADR-0015 naturezas](../../../../../docs/adr/0015-natures-
 saiu de [`2026-05-24-cpf-templated-checked/`](2026-05-24-cpf-templated-checked/)
 (movido pra ca na faxina 2026-06-21 — achado welded, ADR-0015/0016).
 
-Ver tambem [`../../2026-05-27-baseline-consolidado/`](../../2026-05-27-baseline-consolidado/)
+Ver tambem [`../../2026-05-27-baseline-consolidado/`](../../2026-05/2026-05-27/2026-05-27-baseline-consolidado/)
 pra nova baseline + indices comparativos.

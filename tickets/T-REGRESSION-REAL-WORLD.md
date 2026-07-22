@@ -25,7 +25,7 @@ online-retail 20k**: +2458B / +0.59% (413.648B → 416.106B).
 
 Padrao identico ao incidente 2026-05-21 (Pacote 2 escape deduction: 15.7%
 sintetico vs 0.13-1.13% real-world). Confirma empiricamente a [filosofia
-ja' registrada](experiments/lab/dirty/notas/revisao-conceitual-2026-05-21.md)
+ja' registrada](experiments/lab/dirty/notas/2026-05/2026-05-21-0138-revisao-conceitual.md)
 de que sintetico/mini-suite NAO basta.
 
 **Sem este ticket fechado, NAO weldar prune algoritmico** (e.g., #15

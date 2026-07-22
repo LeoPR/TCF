@@ -6,36 +6,36 @@ created: 2026-07-05
 updated: 2026-07-16
 blocked-by: []
 related:
-  - experiments/lab/dirty/notas/estudo-tcf-hierarquico-mapa.md
-  - experiments/lab/dirty/2026-07-05-1509-tcf-hierarquico-tabelao-vs-2tabelas/
-  - experiments/lab/dirty/2026-07-05-1543-tcf8-estrutura-aninhada-pessoa-telefones/
-  - experiments/lab/dirty/2026-07-05-1608-linking-pai-filho-cabecalho/
-  - experiments/lab/dirty/2026-07-05-1650-multicol-n-hierarquia/
-  - experiments/lab/dirty/2026-07-05-1830-bracket-meta-hierarquia/
-  - experiments/lab/dirty/2026-07-05-1840-estudo-notacoes-agrupamento/
-  - experiments/lab/dirty/2026-07-05-1906-cardinalidades-inferencia/
-  - experiments/lab/dirty/2026-07-05-2017-teoria-cardinalidade-forca/
-  - experiments/lab/dirty/2026-07-05-2328-tcf8-schema-cardinalidade-explicito-implicito/
-  - experiments/lab/dirty/2026-07-01-header-minimal/
-  - experiments/lab/dirty/notas/teoria-cardinalidade.md
-  - experiments/lab/dirty/2026-07-05-nested-tcf-study/result.md
-  - experiments/lab/dirty/2026-07-13-dataseth-json-bridge/
-  - experiments/lab/dirty/2026-07-13-1835-dataseth-special-scalars/
-  - experiments/lab/dirty/2026-07-13-1921-dataseth-typed-header-domain/
-  - experiments/lab/dirty/2026-07-13-1955-dataseth-regular-def-levels/
-  - experiments/lab/dirty/2026-07-13-2019-especiais-formatos-lado-a-lado/
-  - experiments/lab/dirty/2026-07-13-2301-tcf8h-tabelao-recuperado/
-  - experiments/lab/dirty/2026-07-13-2325-hierarquia-cardinalidade/
-  - experiments/lab/dirty/2026-07-13-2356-rle-dual-multiplicidade-deduzida/
-  - experiments/lab/dirty/notas/hierarquia-inventario-hipoteses.md
-  - experiments/lab/dirty/2026-07-14-0111-hierarquico-fechar-fluxo/
-  - experiments/lab/dirty/notas/dataseth-hierarquia-completa-plano.md
+  - experiments/lab/dirty/notas/2026-07/estudo-tcf-hierarquico-mapa.md
+  - experiments/lab/dirty/2026-07/2026-07-05/2026-07-05-1509-tcf-hierarquico-tabelao-vs-2tabelas/
+  - experiments/lab/dirty/2026-07/2026-07-05/2026-07-05-1543-tcf8-estrutura-aninhada-pessoa-telefones/
+  - experiments/lab/dirty/2026-07/2026-07-05/2026-07-05-1608-linking-pai-filho-cabecalho/
+  - experiments/lab/dirty/2026-07/2026-07-05/2026-07-05-1650-multicol-n-hierarquia/
+  - experiments/lab/dirty/2026-07/2026-07-05/2026-07-05-1830-bracket-meta-hierarquia/
+  - experiments/lab/dirty/2026-07/2026-07-05/2026-07-05-1840-estudo-notacoes-agrupamento/
+  - experiments/lab/dirty/2026-07/2026-07-05/2026-07-05-1906-cardinalidades-inferencia/
+  - experiments/lab/dirty/2026-07/2026-07-05/2026-07-05-2017-teoria-cardinalidade-forca/
+  - experiments/lab/dirty/2026-07/2026-07-05/2026-07-05-2328-tcf8-schema-cardinalidade-explicito-implicito/
+  - experiments/lab/dirty/2026-07/2026-07-01/2026-07-01-header-minimal/
+  - experiments/lab/dirty/notas/2026-07/teoria-cardinalidade.md
+  - experiments/lab/dirty/2026-07/2026-07-05/2026-07-05-nested-tcf-study/result.md
+  - experiments/lab/dirty/2026-07/2026-07-13/2026-07-13-dataseth-json-bridge/
+  - experiments/lab/dirty/2026-07/2026-07-13/2026-07-13-1835-dataseth-special-scalars/
+  - experiments/lab/dirty/2026-07/2026-07-13/2026-07-13-1921-dataseth-typed-header-domain/
+  - experiments/lab/dirty/2026-07/2026-07-13/2026-07-13-1955-dataseth-regular-def-levels/
+  - experiments/lab/dirty/2026-07/2026-07-13/2026-07-13-2019-especiais-formatos-lado-a-lado/
+  - experiments/lab/dirty/2026-07/2026-07-13/2026-07-13-2301-tcf8h-tabelao-recuperado/
+  - experiments/lab/dirty/2026-07/2026-07-13/2026-07-13-2325-hierarquia-cardinalidade/
+  - experiments/lab/dirty/2026-07/2026-07-13/2026-07-13-2356-rle-dual-multiplicidade-deduzida/
+  - experiments/lab/dirty/notas/2026-07/hierarquia-inventario-hipoteses.md
+  - experiments/lab/dirty/2026-07/2026-07-14/2026-07-14-0111-hierarquico-fechar-fluxo/
+  - experiments/lab/dirty/notas/2026-07/dataseth-hierarquia-completa-plano.md
   - datasets/coverage-matrix.md
-  - experiments/lab/dirty/notas/dirty-lab-convencoes.md
+  - experiments/lab/dirty/notas/2026-07/dirty-lab-convencoes.md
   - tickets/T-STUDY-DATASETH-COMPLETE-SEMANTICS.md
   - tickets/T-STUDY-HIERARCHY-LINK-ALGEBRA.md
   - tickets/T-EXP-DATASETH-S0-S3.md
-  - experiments/lab/dirty/2026-07-16-1708-dataseth-s0-s3-semantica-vinculos/
+  - experiments/lab/dirty/2026-07/2026-07-16/2026-07-16-1708-dataseth-s0-s3-semantica-vinculos/
 ---
 
 # T-STUDY-HIERARCHICAL-TCF — TCF para estrutura hierárquica completa
@@ -44,10 +44,10 @@ related:
 fonte de pesquisa, não o contrato de origem. Decorre do pedido do owner (2026-07-05) por um "TCF aninhado
 similar ao JSON". **Não é 1 lab — é um GRUPO de peças
 que se juntam.** Mapa do grupo + como as peças formam o todo:
-[estudo-tcf-hierarquico-mapa.md](../experiments/lab/dirty/notas/estudo-tcf-hierarquico-mapa.md).
+[estudo-tcf-hierarquico-mapa.md](../experiments/lab/dirty/notas/2026-07/estudo-tcf-hierarquico-mapa.md).
 
 O plano atual de pesquisa, incluindo a hipótese de `null`, `NaN` e infinitos, está em
-[dataseth-hierarquia-completa-plano.md](../experiments/lab/dirty/notas/dataseth-hierarquia-completa-plano.md).
+[dataseth-hierarquia-completa-plano.md](../experiments/lab/dirty/notas/2026-07/dataseth-hierarquia-completa-plano.md).
 
 > **PROGRAMA S0–S7 ADOTADO 2026-07-16**: primeiro capacidade, depois simplificação física. S0–S3
 > possuem lab próprio e tickets separados para [semântica/oráculo](T-STUDY-DATASETH-COMPLETE-SEMANTICS.md),
@@ -122,7 +122,7 @@ sem dependências externas; as comparações vivem em experimento ou gadget.
 ### Etapas de pesquisa
 
 - [x] **R0a — plano de escopo**: registrar o estudo de DatasetH/hierarquia completa e a hipótese
-  H-HIER-SCALAR-01 em [dataseth-hierarquia-completa-plano.md](../experiments/lab/dirty/notas/dataseth-hierarquia-completa-plano.md).
+  H-HIER-SCALAR-01 em [dataseth-hierarquia-completa-plano.md](../experiments/lab/dirty/notas/2026-07/dataseth-hierarquia-completa-plano.md).
 - [ ] **R0b — vocabulário e contrato**: definir DatasetH, topologia, tipos, presença, repetição, ordem,
   raízes escalares e limites; separar equivalência semântica de preservação lexical do JSON. Inclui a
   matriz de `null`, `NaN`, `+Infinity`, `-Infinity`, strings colidentes e ausência; `bN` é candidato de
@@ -150,7 +150,7 @@ sem dependências externas; as comparações vivem em experimento ou gadget.
   profundidade): bytes ~empatam, precisa de 1 portador de forma; escolha é parse/stream. (RT topologia OK)
 - **P7** `1906-...cardinalidades-inferencia` — **cardinalidade** 1×1/1×N/N×1/N×N deduzida dos dados (FD)
   → mecânica TCF. **Amarra o grupo**: 1:N↔hierarquia (dual RLE), N:1↔@dict (já existe), N:N↔ponte. (4 casos OK)
-- **P8** `2017-...teoria-cardinalidade-forca` + [teoria-cardinalidade.md](../experiments/lab/dirty/notas/teoria-cardinalidade.md)
+- **P8** `2017-...teoria-cardinalidade-forca` + [teoria-cardinalidade.md](../experiments/lab/dirty/notas/2026-07/teoria-cardinalidade.md)
   — **TEORIA**: força (forte/fraca/quase/induzida) + rápido(RLE)-vs-pleno(OBAT/HCC) + **ortogonalidade**
   (cardinalidade ⊥ compressibilidade) + **cascade** (Parquet). Hipóteses **H-CARD-01..07** no roadmap. (medido)
 - **P9** `2328-...tcf8-schema-cardinalidade-explicito-implicito` — **PONTE com o header-minimal**: a
@@ -175,7 +175,7 @@ Qual custa menos, e sob qual condição (payload plano vs reconstrução exata d
 
 ## Estado (2026-07-05) — feasibility MEDIDA (lab)
 
-Lab [2026-07-05-1509-tcf-hierarquico-tabelao-vs-2tabelas](../experiments/lab/dirty/2026-07-05-1509-tcf-hierarquico-tabelao-vs-2tabelas/)
+Lab [2026-07-05-1509-tcf-hierarquico-tabelao-vs-2tabelas](../experiments/lab/dirty/2026-07/2026-07-05/2026-07-05-1509-tcf-hierarquico-tabelao-vs-2tabelas/)
 — artefatos reproduzíveis (`run.py`), decode reconstrói o JSON (OK). Achado (`artifacts/05-bytes-medida.txt`, brotli q11):
 - **Reconstrução** (precisa do JSON): **B vence** M=1 (297<314) e M=3 (354<370) — robusto.
 - **Plano** (só a tabela): empate dentro do ruído (<1KB, overhead-dominado).

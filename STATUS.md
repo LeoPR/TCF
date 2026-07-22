@@ -19,8 +19,8 @@
 > Antes, no mesmo dia: escape D_json (chave `""`/LF/CR em valor e nome — `da1aa73`+`d72b9eb`) com
 > auditoria (~57k RT adversarial). **Suíte 845 passed, 0 xfail de bug** · paridade `LACUNAS = {}`
 > = **D_json COMPLETO**. Pausa do marco (funil §4) ANTES de J2/P5. Fontes: ADR-0033 §escape+§P4b ·
-> [funil](experiments/lab/dirty/notas/funil-fechamento-json-language-2026-07-17.md) ·
-> [matriz](experiments/lab/dirty/notas/matriz-caminhos-hierarquia-2026-07-17.md) · diário 2026-07-17.
+> [funil](experiments/lab/dirty/notas/2026-07/2026-07-17-0124-funil-fechamento-json-language.md) ·
+> [matriz](experiments/lab/dirty/notas/2026-07/matriz-caminhos-hierarquia-2026-07-17.md) · diário 2026-07-17.
 
 > **⚑ DIREÇÃO 2026-07-16 — JSON completo: capacidade antes da simplificação.** Programa S0–S7
 > adotado: DatasetH semântico → IR lógico → representações físicas → decisão de weld. **S0–S3
@@ -28,7 +28,7 @@
 > `.tcf` e corpus canônico byte-idêntico. Contraprova: bit `first-child` sem skip perde pai vazio;
 > `[0,2,2]` e `[0,1,1]` colidem. Estado científico: confirmação conceitual sintética, não decisão de
 > header/wire. Próximo: S4 wires físicos lado a lado → S5 decode/busca/paralelismo → S6 header → S7
-> default/fallback e eventual weld. Fontes: [lab S0–S3](experiments/lab/dirty/2026-07-16-1708-dataseth-s0-s3-semantica-vinculos/) ·
+> default/fallback e eventual weld. Fontes: [lab S0–S3](experiments/lab/dirty/2026-07/2026-07-16/2026-07-16-1708-dataseth-s0-s3-semantica-vinculos/) ·
 > [semântica](tickets/T-STUDY-DATASETH-COMPLETE-SEMANTICS.md) ·
 > [vínculos](tickets/T-STUDY-HIERARCHY-LINK-ALGEBRA.md) · [execução](tickets/T-EXP-DATASETH-S0-S3.md) ·
 > [checkpoint S4](experiments/lab/dirty/notas/checkpoints/2026-07-16-s0-s3-capacidade-json.md).
@@ -41,8 +41,8 @@
 > dicas de view, índice); (3) **encode em pulsos** por deadline (~1ms) — a linguagem permite, o
 > código não; saída não-canônica → modo de perfil. Sobre o gate P4b: formas vazias são "formatos
 > opacos" → **definições**, não compressão; lab estrutura-sem-dado a criar. Registros:
-> [contrato-externalizado-e-aceleradores](experiments/lab/dirty/notas/contrato-externalizado-e-aceleradores.md) ·
-> [estrutura-sem-dado-levantamento](experiments/lab/dirty/notas/estrutura-sem-dado-levantamento.md) ·
+> [contrato-externalizado-e-aceleradores](experiments/lab/dirty/notas/2026-07/contrato-externalizado-e-aceleradores.md) ·
+> [estrutura-sem-dado-levantamento](experiments/lab/dirty/notas/2026-07/estrutura-sem-dado-levantamento.md) ·
 > 7 hipóteses novas (H-CONTRACT-EXTERN-01 · H-ACCEL-SIDECAR-01 · H-ENCODE-DEADLINE-01 ·
 > H-STRUCT-{DEF,AMORT,META,ASDATA}-01) no roadmap. Antes disso, no mesmo dia: lab P4a consertado
 > (24 `.tcf`, errata da tabela confundida) + levantamento P4b (`46ac5f3`).
@@ -54,7 +54,7 @@
 > como falha do encoder. Parecer P4: **P4a count recursivo/array-em-array** primeiro; **P4b raiz
 > generalizada** depois, pois altera API e exige envelope/discriminador que preserve tipo e ordem.
 > “N-raízes” é termo histórico; JSON tem uma raiz. Nenhum código P4 foi iniciado. Fonte probatória e
-> gates: [levantamento P4](experiments/lab/dirty/notas/p4-replevel-nroots-levantamento.md). Retomada:
+> gates: [levantamento P4](experiments/lab/dirty/notas/2026-07/p4-replevel-nroots-levantamento.md). Retomada:
 > [checkpoint 2026-07-16](experiments/lab/dirty/notas/checkpoints/2026-07-16-revisao-p2-p4.md).
 
 > **⚑ PAUSA 2026-07-15 — revisão pós-P1 registrada; decisão de null pendente do owner.** P1
@@ -70,7 +70,7 @@
 
 > **⚑ WELD 2026-07-14 — HIERARQUIA `#TCF.8H` no `src/tcf` (1º incremento, gate verde)**: codec
 > hierárquico weldado ADITIVO em 3 camadas (arquitetura do owner:
-> [tcf-camadas-arquitetura.md](experiments/lab/dirty/notas/tcf-camadas-arquitetura.md)) — L1 compressor
+> [tcf-camadas-arquitetura.md](experiments/lab/dirty/notas/2026-07/tcf-camadas-arquitetura.md)) — L1 compressor
 > de coluna REUSADO sem tocar; L2 `src/tcf/hierarchical.py` (NOVO, shredding em blocos + `#count`, header
 > sem-espaço ADR-0031); L3 deduções. `decoder.py` roteia `H` (era fail-loud) → `decode_hierarchical`;
 > `__init__` exporta `encode_hierarchical` (decode auto-roteia). **Suíte 646 passed, 2 skipped; FLAT
@@ -144,9 +144,9 @@
 > - **Fonte do GATE byte-canonical** = os testes (`tests/test_regression_v1_baseline.py` D1-D9=1523B/D17a=303B;
 >   `tests/test_real_world_snapshots.py` RW=89616B) — qualquer numero repetido em compendio (CLAUDE.md/STATUS)
 >   e' COPIA de conveniencia; o teste e' que mede (principio Strata: apontar, nao duplicar).
-> - **Plano CANONICO do .8** = [`tcf8-estrutura-plano.md`](experiments/lab/dirty/notas/tcf8-estrutura-plano.md)
->   (fonte unica da familia #TCF.8) + [`specs-capacity-map.md`](experiments/lab/dirty/notas/specs-capacity-map.md)
->   (specs/natures, EnumSpec no-go). A [`tcf8-vista-o-que-falta.md`](experiments/lab/dirty/notas/tcf8-vista-o-que-falta.md)
+> - **Plano CANONICO do .8** = [`tcf8-estrutura-plano.md`](experiments/lab/dirty/notas/2026-06/tcf8-estrutura-plano.md)
+>   (fonte unica da familia #TCF.8) + [`specs-capacity-map.md`](experiments/lab/dirty/notas/2026-06/specs-capacity-map.md)
+>   (specs/natures, EnumSpec no-go). A [`tcf8-vista-o-que-falta.md`](experiments/lab/dirty/notas/2026-07/tcf8-vista-o-que-falta.md)
 >   da sessao 2026-07-06/08 e' subordinada: mapeia como bN/specs/TCF.8H se relacionam (research-track, FORA do release).
 
 > **RECONCILIACAO 2026-07-09 (#TCF.8 = DEFAULT — [ADR-0032](docs/adr/0032-tcf8-default-format.md), accepted)** —
@@ -177,7 +177,7 @@
 >
 > **Proximo foco (2026-06-14)**: continuar no 0.7 (detalhes de compressao). Revisao
 > implicito-vs-explicito + candidatos a knob explicito + detalhes "passaram batido"
-> em `experiments/lab/dirty/notas/revisao-implicito-vs-explicito-2026-06-14.md`.
+> em `experiments/lab/dirty/notas/2026-06/2026-06-14-1947-revisao-implicito-vs-explicito.md`.
 > FEITO: knobs explicitos #1-3 (fallback/min_header opt-out, min_len override);
 > #5 ordering (O-FMT-02 `sort_by` order-free welded); **V2-B dicionario WELDED**
 > ([ADR-0025](docs/adr/0025-v2b-dictionary-categorical-weld.md), `@`, 13.9% weighted);
@@ -188,7 +188,7 @@
 > REFUTADO** (subsumido pelo OBAT, 0.11%; sinal real era split estrutural).
 > **LOSS ampliado (Pacote 10, 2026-06-14)**: owner ampliou o escopo lossy ("loss e
 > PRO TCF FAZER SIM"). Revisao exaustiva de TODAS as vertentes (9 facets + critico,
-> workflow) em `experiments/lab/dirty/notas/loss-taxonomia.md`. Ideia-chave: loss
+> workflow) em `experiments/lab/dirty/notas/2026-06/loss-taxonomia.md`. Ideia-chave: loss
 > por-linha + LOSSLESS NO AGREGADO (soma; parcelamento) — PoC do maior-resto OK.
 > Mais promissora = loss CROSS-COLUNA (`valor=soma(parcelas)`). Decisao de weld
 > PENDENTE (owner; cruza a linha lossless, GATE N>=5).
@@ -229,12 +229,12 @@
 >   do DSL == a' mao. **Zero `src/tcf`.** Achado: CEP/MAC precisariam spec novo.
 > - **CEP + outer-dict pesquisados** -> **nenhuma acao**: o TCF ja' trata CEP (split/OBAT+dict, lossless,
 >   zeros preservados); outer-dict subsumido por V2-B+split no caso tabular (nicho = payload minusculo
->   indexando tabela-padrao grande). [pesquisa](experiments/lab/dirty/notas/cep-outer-dict-codebook-pesquisa.md).
+>   indexando tabela-padrao grande). [pesquisa](experiments/lab/dirty/notas/2026-06/cep-outer-dict-codebook-pesquisa.md).
 > - **F2 (H-NAT-MARK-01) — DESIGN FEITO, PARADO em (A)** (decisao owner): nature-id viaja no header
 >   (`#TCF.7->#TCF.8`, tag `:` no nome, resolucao core-only, id desconhecido->cru+flag). **Nao implementado**
 >   — o magic permanente nao se justifica so' por DX (gate >=15%/2-reais nao bate; registry gadget ja'
 >   cobre quase de graca). [ADR-0027 `proposed`](docs/adr/0027-nature-mark-header-self-describing.md) +
->   [design](experiments/lab/dirty/notas/f2-nature-mark-header-design.md). **`src/tcf` intocado.**
+>   [design](experiments/lab/dirty/notas/2026-06/f2-nature-mark-header-design.md). **`src/tcf` intocado.**
 >
 > **SESSAO 2026-06-19 (pre-1.0: cheap-wins fechados + V2-RLE-STREAM + defrag)**:
 > - **Cheap-wins fechados**: Tier A (release.yml, [reference de knobs](docs/reference/encode-knobs.md),
@@ -245,24 +245,24 @@
 >   (+1,19% weighted/7 reais, 0/7 >=15%, -1,39% sob brotli). **Nicho textual-puro ABERTO** p/ decisao
 >   do owner (low-card skewed, ordem natural: situacao +55%, workclass +22%). Achado: **clusterizado
 >   flipa pro tcf-`*N|`** (overlap com o run-RLE de linha). Registry: roadmap-hipoteses Pacote 11-bis;
->   familia RLE em [`rle-familia-estudo.md`](experiments/lab/dirty/notas/rle-familia-estudo.md).
+>   familia RLE em [`rle-familia-estudo.md`](experiments/lab/dirty/notas/2026-06/rle-familia-estudo.md).
 >   RLE intra-valor (H-INTRA) ADIADO. **`src/tcf` intocado** (lab-first).
 > - **Defrag/Strata**: tickets [T-CLEAN-2](tickets/T-CLEAN-2-strata-defrag.md) (QW feitos + backlog) +
 >   [META-STRATA-GOVERNANCE](tickets/META-STRATA-GOVERNANCE.md). Diretiva: sempre cross-reference.
 >
 > **SESSAO 2026-06-21 (plano 0.8 + lazy endurecido + transmissao + dict/H-REF)**:
-> - **Plano 0.8** ([`v08-plano-etapas.md`](experiments/lab/dirty/notas/v08-plano-etapas.md)): 0.8 =
+> - **Plano 0.8** ([`v08-plano-etapas.md`](experiments/lab/dirty/notas/2026-06/v08-plano-etapas.md)): 0.8 =
 >   lazy basico shipado+endurecido + cross dict (se pagar); Q-04 avancado -> 0.9. Pacote 0.8.0 != #TCF.8.
 > - **Lazy endurecido (workstream A)**: A1 banco de testes (4 modos + bordas, verde) + A2 fecha bug de
 >   dupla contagem em `touched` + A3 otimiza o CAMINHO do algoritmo (count 1->0 decode; redundancia
->   3->1; Python deferido). 381 passed. [lab](experiments/lab/dirty/2026-06-19-lazy-testbank/result.md).
+>   3->1; Python deferido). 381 passed. [lab](experiments/lab/dirty/2026-06/2026-06-19/2026-06-19-lazy-testbank/result.md).
 >   `src/tcf` intocado (tudo no gadget). Falta A4 (promover -> `tcf.view`, sob aprovacao) + A5.
 > - **Cross dict / referencia**: achado — `^N` ja' e' dict implicito; ideia do owner = dict GLOBAL no
->   header ([H-GDICT-01](experiments/lab/dirty/notas/roadmap-hipoteses.md)) + familia H-REF
->   ([`dict-referencia-hipoteses.md`](experiments/lab/dirty/notas/dict-referencia-hipoteses.md)). Nao caracterizado.
+>   header ([H-GDICT-01](experiments/lab/dirty/notas/2026-05/roadmap-hipoteses.md)) + familia H-REF
+>   ([`dict-referencia-hipoteses.md`](experiments/lab/dirty/notas/2026-06/dict-referencia-hipoteses.md)). Nao caracterizado.
 > - **Header linhas-vs-bytes**: row-count REFUTADO (solid-block; ganho ininfimo, perde O(1)/paralelo);
 >   base-94 size = O-FMT-18 candidato (so' nicho transmissao-minuscula). [lab](experiments/lab/dirty/old/refuted/2026-06-19-header-rows-vs-bytes/result.md).
-> - **Guia de transmissao por API** ([`transmissao-api-onde-tcf-importa.md`](experiments/lab/dirty/notas/transmissao-api-onde-tcf-importa.md)):
+> - **Guia de transmissao por API** ([`transmissao-api-onde-tcf-importa.md`](experiments/lab/dirty/notas/2026-06/transmissao-api-onde-tcf-importa.md)):
 >   honesto — nicho do TCF ~5-15% (batch/export tabular grande); **teste decisivo pendente**:
 >   TCF+brotli vs **NDJSON+brotli** (so' comparamos com CSV+brotli).
 > - Checkpoint Strata: [`checkpoints/2026-06-21-avaliacao-documental-strata.md`](experiments/lab/dirty/notas/checkpoints/2026-06-21-avaliacao-documental-strata.md).
@@ -282,7 +282,7 @@
 > - **A completo** (A1-A5): lazy promovido + reference Diataxis ([docs/reference/lazy-view.md]).
 > - **Drift de superficie #TCF.6-default corrigido** (commit aa92642): TCF-format.md diagrama/Estado,
 >   STATUS visao/foco, docs/README hub -> 0.7. ADRs/codnomes preservados (historico).
-> - **B1 caracterizado** ([lab gdict](experiments/lab/dirty/2026-06-21-gdict-caracterizacao/)): 3 tensoes
+> - **B1 caracterizado** ([lab gdict](experiments/lab/dirty/2026-06/2026-06-21/2026-06-21-gdict-caracterizacao/)): 3 tensoes
 >   do owner; medicao sintetica + reais. **Correcao metodologica do owner: brotli NAO e' gate** (nem
 >   sempre aplicado + incompativel com lazy; [[gzip-e-compressao-externa...]]). Re-medindo TCF-nativo
 >   (textual+paralelismo+lazy): **cross-dict GANHA no regime same-domain-refs** (origem/destino, de/para,
@@ -292,7 +292,7 @@
 >   SNAP ca-GrQc (grafo from/to) **−19.3% textual** (cruza 15% com 2 colunas); OpenFlights (airport
 >   src/dest IATA −4.6%, ids −6.6%); lazy cross-col le' o dict 1x. Ganho escala com K/N + nº cols
 >   same-domain. → recomendacao **ir pro B2** (#TCF.8 opt-in + hibrido V2 + ADR + GATE).
-> - **Filtros/naturezas revisitados** (owner 2026-06-24, [lente](experiments/lab/dirty/notas/filtros-graus-de-entrega-2026-06-24.md)):
+> - **Filtros/naturezas revisitados** (owner 2026-06-24, [lente](experiments/lab/dirty/notas/2026-06/2026-06-24-0034-filtros-graus-de-entrega.md)):
 >   reframe "graus de entrega" (otimizar-formato -> bypass) + 3 tiers de ONDE o dict mora (V2-B in-blob /
 >   B1 cross-dict / H-CODEBOOK out-of-blob universal = "dict roubado"). Consolidado: graus 1-2 welded
 >   (ADR-0015), enumerated in-blob refutado, spec-dict universal = nicho payload-minusculo NAO-MEDIDO +
@@ -394,7 +394,7 @@ encontrado e corrigido (decoder rejeitava); suite regressao formal
 pos-canonical movidos pra `experiments/lab/dirty/old/welded/` (10) ou
 `old/refuted/` (7). Topo do dirty agora tem **3 labs ativos +
 1 baseline-consolidado**. Novo
-[`2026-05-27-baseline-consolidado/`](experiments/lab/dirty/2026-05-27-baseline-consolidado/)
+[`2026-05-27-baseline-consolidado/`](experiments/lab/dirty/2026-05/2026-05-27/2026-05-27-baseline-consolidado/)
 com METRICS.md (D1-D9 1523B, D17a 322B INVARIANT), ADRs-INDEX.md
 (16 ADRs 0001-0016), lessons-learned.md, run-baseline.py reproduzivel.
 MAP.md atualizado. **Source of truth pra comparacoes futuras**.
@@ -749,7 +749,7 @@ intocado** em toda a reorg/datasets.
   realinhado: T01 absorvido como OBAT-level, T02-T07 e L01-L05
   permanecem adiados aguardando 2-3 naturezas validadas.
 
-**Roadmap cross-lab**: [`experiments/lab/dirty/notas/roadmap-hipoteses.md`](experiments/lab/dirty/notas/roadmap-hipoteses.md)
+**Roadmap cross-lab**: [`experiments/lab/dirty/notas/2026-05/roadmap-hipoteses.md`](experiments/lab/dirty/notas/2026-05/roadmap-hipoteses.md)
 **Diario mais recente**: [`experiments/lab/dirty/notas/diario/2026-05-19.md`](experiments/lab/dirty/notas/diario/2026-05-19.md)
 
 ---

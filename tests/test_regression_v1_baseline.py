@@ -3,7 +3,7 @@
 Snapshot byte-count + RT pra datasets-chave. Qualquer mudanca em
 src/tcf/ que mude um byte aqui = regressao. Bytes documentados em:
 
-    experiments/lab/dirty/2026-05-27-baseline-consolidado/METRICS.md
+    experiments/lab/dirty/2026-05/2026-05-27/2026-05-27-baseline-consolidado/METRICS.md
 
 Estrategia (Beizer 1995 — characteristic outputs):
 - D1-D9: 9 datasets sinteticos single-col (M10 baseline = 1523B total)

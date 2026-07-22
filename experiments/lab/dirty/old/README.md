@@ -52,5 +52,5 @@ Pastas datadas `YYYY-MM-DD-M<N>-<descritor>/`. As datas:
 
 ## Narrativa completa
 
-Ver [`../notas/historia-dirty-lab.md`](../notas/historia-dirty-lab.md)
+Ver [`../notas/2026-05/historia-dirty-lab.md`](../notas/2026-05/historia-dirty-lab.md)
 pra cronologia M0-M14 com decisoes e learnings.

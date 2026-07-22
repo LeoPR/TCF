@@ -8,10 +8,10 @@ closed: 2026-07-10
 blocked-by: []
 related:
   - datasets/coverage-matrix.md
-  - experiments/lab/dirty/2026-07-05-nested-tcf-study/result.md
-  - experiments/lab/dirty/notas/2026-07-05-cobertura-datasets-shaper-assessment.md
-  - experiments/lab/dirty/2026-07-05-t1-ndjson-brotli/result.md
-  - experiments/lab/dirty/notas/transmissao-api-onde-tcf-importa.md
+  - experiments/lab/dirty/2026-07/2026-07-05/2026-07-05-nested-tcf-study/result.md
+  - experiments/lab/dirty/notas/2026-07/2026-07-05-1316-cobertura-datasets-shaper-assessment.md
+  - experiments/lab/dirty/2026-07/2026-07-05/2026-07-05-t1-ndjson-brotli/result.md
+  - experiments/lab/dirty/notas/2026-06/transmissao-api-onde-tcf-importa.md
   - scripts/shaper/request.py
   - C:/Users/leona/.claude/projects/c--Users-leona-OneDrive-Documents-Projects-Acad-micos-TCF/memory/project_dataset_coverage_map.md
 ---
@@ -25,7 +25,7 @@ related:
 > "experimento de sempre" com trace OBAT/HCC por forma-tx) em
 > **[datasets/coverage-matrix.md](../datasets/coverage-matrix.md)**, lastreado por medição real.
 > O eixo forma-tx foi **refinado de 4 → 7 formas** pelo
-> [nested-tcf-study](../experiments/lab/dirty/2026-07-05-nested-tcf-study/result.md) (owner pediu
+> [nested-tcf-study](../experiments/lab/dirty/2026-07/2026-07-05/2026-07-05-nested-tcf-study/result.md) (owner pediu
 > estudar nested/JSON antes de fechar a matriz): +`upload-batch`, +`download-narrow-high-card` (o
 > LIMITE medido), +`nested-response` (envelope). **Q1 = PARCIAL** (matriz consistente, células vazias
 > em XL / cadenced-real / µ / nested-real); **Q2 = PARCIAL 2/4** (shaper dimensiona quantidade, não
@@ -102,7 +102,7 @@ fk). → o shaper dimensiona quantidade (linhas+arquitetura), não natureza. Gap
 
 ## Conexões
 
-- Assessment: `experiments/lab/dirty/notas/2026-07-05-cobertura-datasets-shaper-assessment.md`
+- Assessment: `experiments/lab/dirty/notas/2026-07/2026-07-05-1316-cobertura-datasets-shaper-assessment.md`
 - Não-gap (manter deferido): [T-DATA-3-EDGE-QUALITY-FIXTURES](T-DATA-3-EDGE-QUALITY-FIXTURES.md) (é
   insumo dos gadgets de qualidade, não cenário de transmissão; alinhado a "dados felizes").
 - Reabrir parcial: [T-SHAPER-CODE-HARDENING](T-SHAPER-CODE-HARDENING.md) (A1 filter-before-load, se XL).

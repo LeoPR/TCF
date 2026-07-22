@@ -207,4 +207,4 @@ Implementacao em DUAS etapas (mesmo padrao de ADR-0008):
 - [Lab H-DA-11 (heuristica + validacao)](../../experiments/lab/dirty/2026-05-21-h-da-11-auto-min-len/)
 - [Ticket T-EXP-H-DA-11](../../tickets/T-EXP-H-DA-11.md)
 - [ADR-0008 detect_cadence (template similar)](0008-detect-cadence-numeric-rule.md)
-- [Roadmap H-DA-11](../../experiments/lab/dirty/notas/roadmap-hipoteses.md)
+- [Roadmap H-DA-11](../../experiments/lab/dirty/notas/2026-05/roadmap-hipoteses.md)

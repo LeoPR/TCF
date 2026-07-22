@@ -17,7 +17,7 @@
 
 Owner detalhou sub-naturezas concretas de T02 (Templated) e T04 (Checked),
 plus extensoes de #10 (Lossy) catalogadas em
-[`experiments/lab/dirty/notas/naturezas-templated-2026-05-24.md`](../experiments/lab/dirty/notas/naturezas-templated-2026-05-24.md):
+[`experiments/lab/dirty/notas/2026-05/naturezas-templated-2026-05-24.md`](../experiments/lab/dirty/notas/2026-05/naturezas-templated-2026-05-24.md):
 
 - **TM-IP4/IP6/MAC/CEP/EAN** (Templated puro)
 - **TM-CPF/CNPJ/TITULO/IBAN/LUHN** (Templated + Checksummed dual)
@@ -26,7 +26,7 @@ plus extensoes de #10 (Lossy) catalogadas em
 - **CP-DATETIME/ENDERECO/MONEY/VERSION** (Composite multi-nature)
 
 Hipoteses H-TM-* / H-LR-* / H-CP-* registradas em
-[`roadmap-hipoteses.md`](../experiments/lab/dirty/notas/roadmap-hipoteses.md)
+[`roadmap-hipoteses.md`](../experiments/lab/dirty/notas/2026-05/roadmap-hipoteses.md)
 secao "Pacote 7 — Templated / Checksummed / Lossy".
 
 **Status**: catalogado, **lab nao iniciado**. Mesmo criterio de reabertura
@@ -597,4 +597,4 @@ Quando hipoteses se confirmarem em dirty, abrir:
 - Memoria: [feedback-exp-format-for-comparative](../memory/feedback_exp_format_for_comparative.md), [project-teoria-comparacao-modular](../memory/project_teoria_comparacao_modular.md)
 - Roadmap: [docs/theory/perspectiva-triplice-e-pre-tx.md](../docs/theory/perspectiva-triplice-e-pre-tx.md)
 - EXP-008: [reports](../experiments/lab/clean/EXP-008-compressao-comparada/reports/) (motivacao)
-- Dirty antigo: [historia M0-M14](../experiments/lab/dirty/notas/historia-dirty-lab.md) (analogo metodologico)
+- Dirty antigo: [historia M0-M14](../experiments/lab/dirty/notas/2026-05/historia-dirty-lab.md) (analogo metodologico)

@@ -39,7 +39,7 @@ não conflitam. A prosa aponta; o teste mede.
 | `Z:/tcf-data/` | Dados grandes via `config/storage.json`; hubs SQLite em `interim/`. **Nunca baixar externo se já existe aqui.** |
 | `old/` | **Congelado-histórico**: `old/tcf` (motor v0.5) · `old/llm-benchmark` (Linha-A refutada). Não modificar, não importar. |
 | `docs/adr/` | Decisões numeradas. `docs/findings/` = catálogo v0.5 (**histórico**; findings novos vão em `docs/theory/` ou ADR). |
-| `experiments/lab/{dirty,clean}/` | Labs. `dirty/notas/` = diário, checkpoints, `roadmap-hipoteses.md`. |
+| `experiments/lab/{dirty,clean}/` | Labs. `dirty/` aninha macros por `<YYYY-MM>/<YYYY-MM-DD>/` (§6); `dirty/notas/` = diário, checkpoints, registries (`roadmap-hipoteses.md`) + notas por mês. |
 | `datasets/` | `synthetic/` = CSVs D1-D17 no repo. `canonical/` = só metadata+README (dado real em Z:). |
 
 ⚠️ Existem **4 `schema.py`** no repo (`src/tcf` core · `old/tcf` · `src/shaper/strategies` ·
@@ -122,7 +122,7 @@ Mapa de estratégias: [`docs/theory/strategies/INDEX.md`](docs/theory/strategies
 
 ### Estrutura de lab dirty — OBRIGATÓRIA (violar = refazer)
 
-Fonte canônica: `experiments/lab/dirty/notas/dirty-lab-convencoes.md`. Inegociável:
+Fonte canônica: `experiments/lab/dirty/notas/2026-07/dirty-lab-convencoes.md`. Inegociável:
 
 - Pastas por estágio, numeração DENTRO: **`inputs/` + `intermediates/` + `outputs/`**
   (+ `README.md`, `result.md`, `run.py`, `datasets-provenance.md`).
@@ -130,13 +130,22 @@ Fonte canônica: `experiments/lab/dirty/notas/dirty-lab-convencoes.md`. Inegoci�
   `.txt` só pra prosa/debug/contraprova.
 - **Roundtrip é ARQUIVO diffável**, byte-idêntico ao canônico de `intermediates/`
   (assert no `run.py`). Nunca só prosa/print.
-- Gabarito: `experiments/lab/dirty/2026-07-13-2019-especiais-formatos-lado-a-lado/`.
+- Gabarito: `experiments/lab/dirty/2026-07/2026-07-13/2026-07-13-2019-especiais-formatos-lado-a-lado/`.
 
-### Naming
+### Naming e organização de pastas
 
-Labs dirty `YYYY-MM-DD-HHMM-nome/` (dia+hora — só o dia não ordena) · labs clean
-`EXP-NNN-nome/` · sub-exps `NN-descricao/` · ADRs `NNNN-frase-imperativa.md` ·
-datasets `D<num><sufixo>-<descricao>.csv`.
+**Labs dirty** — nome `YYYY-MM-DD-HHMM-descricao/` (dia+hora; só o dia não ordena),
+**aninhados por data** (nesting 2026-07-22, evita a `dirty/` flat com 60+ macros):
+`experiments/lab/dirty/<YYYY-MM>/<YYYY-MM-DD>/<YYYY-MM-DD-HHMM-descricao>/`. Sub-exps
+`NN-descricao/` dentro. `old/` tem layout próprio (welded/refuted/…), **não** aninhado por data.
+**Notas** (`dirty/notas/`) — agrupadas por **mês do 1º commit** (`<YYYY-MM>/`); `diario/` e
+`checkpoints/` ficam fora do agrupamento. Duas naturezas de nota:
+*registry/referência vivo* = **nome-nu estável** (ex. `roadmap-hipoteses.md`,
+`tcf8-estrutura-plano.md` — datá-lo mente, ele vive) · *one-shot datado* (parecer/revisão de
+sessão única) = `YYYY-MM-DD-HHMM-descricao.md`.
+**Outros** — labs clean `EXP-NNN-nome/` · ADRs `NNNN-frase-imperativa.md` · datasets
+`D<num><sufixo>-<descricao>.csv`.
+Detalhe canônico + gabarito: `experiments/lab/dirty/notas/2026-07/dirty-lab-convencoes.md` §1.
 
 ### Formato TCF (wire)
 

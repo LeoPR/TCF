@@ -5,7 +5,7 @@
 > O pipeline descrito e' o de M10 (canonical 0.7.1); verifique `STATUS.md` para o estado vivo.
 > Categoria Diataxis: **Explanation** (entender como funciona, alem da reference).
 >
-> Fonte completa (extracao bruta): [STRATEGIES-MAP-EXTRACTED](../../experiments/lab/dirty/notas/STRATEGIES-MAP-EXTRACTED.md).
+> Fonte completa (extracao bruta): [STRATEGIES-MAP-EXTRACTED](../../experiments/lab/dirty/notas/2026-05/STRATEGIES-MAP-EXTRACTED.md).
 
 Pipeline canonical TCF v1.0:
 

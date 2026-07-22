@@ -9,9 +9,9 @@ related:
   - tickets/T-STUDY-HIERARCHICAL-TCF.md
   - tickets/T-CODE-TCF8H-JSON-PARITY.md
   - tickets/T-EXP-DATASETH-S0-S3.md
-  - experiments/lab/dirty/2026-07-16-1708-dataseth-s0-s3-semantica-vinculos/
-  - experiments/lab/dirty/notas/roadmap-hipoteses.md
-  - experiments/lab/dirty/notas/dataseth-hierarquia-completa-plano.md (mesmo território, 2026-07-13)
+  - experiments/lab/dirty/2026-07/2026-07-16/2026-07-16-1708-dataseth-s0-s3-semantica-vinculos/
+  - experiments/lab/dirty/notas/2026-05/roadmap-hipoteses.md
+  - experiments/lab/dirty/notas/2026-07/dataseth-hierarquia-completa-plano.md (mesmo território, 2026-07-13)
 ---
 
 # T-STUDY-DATASETH-COMPLETE-SEMANTICS — fechar semântica antes do wire
@@ -54,7 +54,7 @@ Políticas do estudo:
 
 ## Update 2026-07-16
 
-Lab [S0–S3](../experiments/lab/dirty/2026-07-16-1708-dataseth-s0-s3-semantica-vinculos/):
+Lab [S0–S3](../experiments/lab/dirty/2026-07/2026-07-16/2026-07-16-1708-dataseth-s0-s3-semantica-vinculos/):
 **20/20 RT**, **8/8 fail-loud**, 20 wires `.tcf`, corpus round-trip byte-idêntico; evidência sintética
 de design. A hipótese sobre capacidade recebe `confirmada-conceitual`, confiança Média, limitada ao
 contrato implementado. Continua aberta para corpus realista, política numérica pública e integração.

@@ -8,7 +8,7 @@ fixa (geracao deterministica).
 
 Consumidores:
   - tests/test_hierarchical_control_synthetics.py (pins de comportamento)
-  - experiments/lab/dirty/2026-07-17-0014-sinteticos-controle-fluxo-hierarquia/
+  - experiments/lab/dirty/2026-07/2026-07-17/2026-07-17-0014-sinteticos-controle-fluxo-hierarquia/
 
 decompose() usa _parse_meta (interno, LEITURA diagnostica apenas): a regra de
 classificacao controle/dado e' a MESMA do decode do core (mask | count* | emask*).

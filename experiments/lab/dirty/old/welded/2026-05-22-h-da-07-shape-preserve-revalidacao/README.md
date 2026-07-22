@@ -17,4 +17,4 @@ parte do pipeline default — preciso validar zero regressao.
 - [Ticket T-REVAL-H-DA-07](../../../../tickets/T-REVAL-H-DA-07.md)
 - [Pacote 1 weld canonical](../../../../tickets/T-CODE-PACOTE1-WELD-CANONICAL.md)
 - [Roadmap H-DA-07](../notas/roadmap-hipoteses.md)
-- [Revisao conceitual](../notas/revisao-conceitual-2026-05-21.md)
+- [Revisao conceitual](../notas/2026-05-21-0138-revisao-conceitual.md)

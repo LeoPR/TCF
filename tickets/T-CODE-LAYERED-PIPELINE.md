@@ -6,7 +6,7 @@ created: 2026-05-24
 updated: 2026-06-15
 blocked-by: []
 related:
-  - experiments/lab/dirty/notas/arquitetura-funil-camadas-2026-05-24.md
+  - experiments/lab/dirty/notas/2026-05/arquitetura-funil-camadas-2026-05-24.md
   - docs/algorithms/TCF-format.md
   - src/tcf/pipeline.py
 ---
@@ -29,7 +29,7 @@ HCC) deve poder ser:
   fallback pra identity sem comprimir restante
 
 Sintese arquitetural em
-[`arquitetura-funil-camadas-2026-05-24.md`](../experiments/lab/dirty/notas/arquitetura-funil-camadas-2026-05-24.md).
+[`arquitetura-funil-camadas-2026-05-24.md`](../experiments/lab/dirty/notas/2026-05/arquitetura-funil-camadas-2026-05-24.md).
 
 ## Hipotese / Objetivo
 
@@ -136,7 +136,7 @@ configuracao de camadas propria (schema_builder Fase 3 decide).
 
 ## Conexao
 
-- [Arquitetura funil de camadas](../experiments/lab/dirty/notas/arquitetura-funil-camadas-2026-05-24.md)
+- [Arquitetura funil de camadas](../experiments/lab/dirty/notas/2026-05/arquitetura-funil-camadas-2026-05-24.md)
 - [T-CODE-ENCODER-MANAGER](T-CODE-ENCODER-MANAGER.md) — pre-requisito P2
 - [T-CODE-SCHEMA-BUILDER](T-CODE-SCHEMA-BUILDER.md) — alimenta config camada 0
 

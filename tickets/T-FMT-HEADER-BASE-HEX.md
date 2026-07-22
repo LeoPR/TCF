@@ -11,9 +11,9 @@ related:
   - tickets/T-OPT-INFERENCE.md
   - tickets/T-FMT-OMIT-OR-DECLARE.md
   - tickets/T-FMT-TCF8H-HEADER.md
-  - experiments/lab/dirty/notas/tcf8h-header-checklist.md
-  - experiments/lab/dirty/notas/bases-radix-usos-tcf.md
-  - experiments/lab/dirty/notas/futuras-otimizacoes-formato.md
+  - experiments/lab/dirty/notas/2026-07/tcf8h-header-checklist.md
+  - experiments/lab/dirty/notas/2026-07/bases-radix-usos-tcf.md
+  - experiments/lab/dirty/notas/2026-05/futuras-otimizacoes-formato.md
 ---
 
 # T-FMT-HEADER-BASE-HEX — base HEX implícita dos byte-sizes do header
@@ -24,11 +24,11 @@ related:
 > pré-bump: decimal 0.7.1 decoda hex SILENCIOSAMENTE ERRADO, não fail-loud — git-as-compat cobre).
 > O "decimal como comando de inspeção" segue registrado no corpo abaixo (não implementado; sem
 > demanda até o material comprobatório). Bases dos DEMAIS sítios = registro
-> [bases-radix-usos-tcf.md](../experiments/lab/dirty/notas/bases-radix-usos-tcf.md) (gradual).
+> [bases-radix-usos-tcf.md](../experiments/lab/dirty/notas/2026-07/bases-radix-usos-tcf.md) (gradual).
 
 **[dispositivo]** Ticket **super-específico** de UM sítio de radix: o **byte-size de cada coluna no header**.
 Escopo estreito de propósito (owner 2026-07-09): fechar o **processo** do ganho imediato, sem esperar a
-otimização geral de bases (essa é gradual — ver o [registro de bases/radix](../experiments/lab/dirty/notas/bases-radix-usos-tcf.md)).
+otimização geral de bases (essa é gradual — ver o [registro de bases/radix](../experiments/lab/dirty/notas/2026-07/bases-radix-usos-tcf.md)).
 Desmembrado do [T-OPT-INFERENCE](T-OPT-INFERENCE.md) Item 1.
 
 ## Decisão (owner 2026-07-09)
@@ -70,7 +70,7 @@ os pins byte-canônicos (D1-D9, real-world) são baseline de comparação, não 
 
 Este ticket fecha **apenas** a base do byte-size do header. Os outros sítios de radix (índices `@dict`
 base-94, `bN` bits, refs OBAT/HCC decimais, `^N`, ref-stream…) estão **catalogados** no
-[registro de bases/radix](../experiments/lab/dirty/notas/bases-radix-usos-tcf.md) e serão estudados/fechados
+[registro de bases/radix](../experiments/lab/dirty/notas/2026-07/bases-radix-usos-tcf.md) e serão estudados/fechados
 **aos poucos** — cada um no seu ticket, quando pagar.
 
 ## Weld (gated — implementação, não coberta por "concluir a decisão")
@@ -106,7 +106,7 @@ custo zero (o default passará a emitir v8 hex de qualquer forma) e colisão-liv
 publicados. Alternativa (hex fica no v7): implementar a guarda de fechamento do body. Aguarda decisão.
 
 Mapa completo dos outros sítios de base:
-[registro de bases/radix](../experiments/lab/dirty/notas/bases-radix-usos-tcf.md).
+[registro de bases/radix](../experiments/lab/dirty/notas/2026-07/bases-radix-usos-tcf.md).
 
 ## Critério de aceite
 

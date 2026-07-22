@@ -63,5 +63,5 @@ encontrada outra feature de grande ROI pronta que deva passar à frente. Ordem r
 - `src/tcf/hierarchical.py`: `_field_node`, `_emit_row`, `_read_object`.
 - `tickets/T-CODE-TCF8H-JSON-PARITY.md`.
 - `tickets/BUG-SEQRLE-RANGE-EMPTY-B.md`.
-- `experiments/lab/dirty/2026-07-06-2246-tcf8h-fronteira-link-posicional/mask_codec.py`.
+- `experiments/lab/dirty/2026-07/2026-07-06/2026-07-06-2246-tcf8h-fronteira-link-posicional/mask_codec.py`.
 - Diário `experiments/lab/dirty/notas/diario/2026-07-15.md`.

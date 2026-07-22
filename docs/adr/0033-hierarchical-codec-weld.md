@@ -109,7 +109,7 @@ coluna-MÁSCARA de presença (vem ANTES das colunas do campo, como o `#count`). 
 presentes). É o **definition-level do Dremel** em forma textual inspecionável (pilar explicabilidade).
 
 **Aditivo e compatível**: dado SEM raggedness → wire **byte-idêntico** (o `?` só aparece onde há
-campo opcional, deduzido do dado). Estudo: [lab 2026-07-15-0125](../../experiments/lab/dirty/2026-07-15-0125-p1-presenca-ragged-estudo/).
+campo opcional, deduzido do dado). Estudo: [lab 2026-07-15-0125](../../experiments/lab/dirty/2026-07/2026-07-15/2026-07-15-0125-p1-presenca-ragged-estudo/).
 
 **Endurecimento (auditoria adversarial `wf_e548aeaa-055`)**: junto com o P1, o `_derive_schema`
 passou a **validar tipo honestamente** — tipo estrutural misto (scalar/object/array), `null`,
@@ -132,7 +132,7 @@ máscara do P1 — o slot `0` (reservado no §Update P1) agora materializa `None
 `null`(None) ≠ ausente ≠ `"null"`(string) ≠ `""`(string).
 
 **Aditivo (L2)**: `_field_node`/`_emit_row`/`_read_object` — NÃO toca o L1 (`syntax.py`). Uniforme
-byte-idêntico. Estudo/evidência (didático→realista→massa, RT): [lab 2026-07-15-2130](../../experiments/lab/dirty/2026-07-15-2130-p3a-null-campo-weld/).
+byte-idêntico. Estudo/evidência (didático→realista→massa, RT): [lab 2026-07-15-2130](../../experiments/lab/dirty/2026-07/2026-07-15/2026-07-15-2130-p3a-null-campo-weld/).
 Gate: suíte 693 passed, flat byte-canônico intacto.
 
 **Nota de design (H-PROFILE-01)**: null usa a MÁSCARA por ora; o **índice-de-substituição**
@@ -157,7 +157,7 @@ comprimido SEM materializar valores, e converge com Arrow (validity bitmap) / Pa
 armazenamento/max-compressão ([[H-PROFILE-01]]), nunca para null estrutural.
 
 **Aditivo (L2)**, OBAT/HCC intactos. Evidência (didático 8/8 + realista + massa fuzz 6000/6000):
-[lab 2026-07-15-2230](../../experiments/lab/dirty/2026-07-15-2230-p3b-null-elemento-estudo/).
+[lab 2026-07-15-2230](../../experiments/lab/dirty/2026-07/2026-07-15/2026-07-15-2230-p3b-null-elemento-estudo/).
 **Verificação adversarial** (workflow `wf_e50ecb01-1f4`): a element-mask resistiu (150k+ fuzz, 0
 corrupção silenciosa); achou e corrigiu 2 furos do maquinário compartilhado — **F1 (data-loss
 pré-existente P1/P3a)**: objeto vazio `{}` mascarado como última folha DFS punha a máscara sem
@@ -182,14 +182,14 @@ Mecanismo (L2, aditivo): `_scalar_type` deduz do Python (bool antes de int); `_e
 virou digit-only (para no tag). Nó do schema virou 6-tupla (+`stype`). Compõe com P1/P3a/P3b (tag ⊥
 máscara). **Distingue** `string "30"` ≠ int `30`, `string "true"` ≠ bool `True`.
 
-**Decisões (owner 2026-07-16, [levantamento](../../experiments/lab/dirty/notas/p2-tipos-levantamento.md))**:
+**Decisões (owner 2026-07-16, [levantamento](../../experiments/lab/dirty/notas/2026-07/p2-tipos-levantamento.md))**:
 1 tag de 1 letra; UM tag `n` p/ number (json distingue int/float); tag `b` p/ bool agora (índice-interno
 = nicho a medir sob [[H-PROFILE-01]] — a letra já marca); number+bool juntos; number na forma
 `json.dumps` canônica.
 
 **Fronteira fail-loud** (NUNCA str()-engolido): tipo escalar MISTO numa coluna (P5 union), NaN/±Inf
 (não-JSON). **Byte-compat**: all-string → ZERO tag (byte-idêntico ao pré-P2). Evidência (didático 10/10
-+ realista + massa 6000/6000): [lab 2026-07-16-0110](../../experiments/lab/dirty/2026-07-16-0110-p2-tipos-weld/).
++ realista + massa 6000/6000): [lab 2026-07-16-0110](../../experiments/lab/dirty/2026-07/2026-07-16/2026-07-16-0110-p2-tipos-weld/).
 Gate: suíte 727 passed, flat byte-canônico intacto. **Escalares JSON COMPLETOS** (string/number/bool/null).
 Falta ESTRUTURA: P4 (rep-level/N-raízes) e P5 (union polimórfico).
 
@@ -209,7 +209,7 @@ DAQUELE nível; o elemento entre `[...]` é a spec recursiva (`#`=array interno 
 
 **Firmado**: null-entre-arrays = **P3b∘P4a** (element-mask por nível), NÃO é P5; tipo MISTO num nível
 (array+escalar) segue fail-loud (P5). Estudo (gate do owner 12/12 + fuzz prof. 1-4 4000/4000 +
-adversarial de frame): [lab 2026-07-16-0213](../../experiments/lab/dirty/2026-07-16-0213-p4a-array-em-array-estudo/);
+adversarial de frame): [lab 2026-07-16-0213](../../experiments/lab/dirty/2026-07/2026-07-16/2026-07-16-0213-p4a-array-em-array-estudo/);
 gramática inspecionada e aprovada pelo owner. Preocupação registrada p/ `.9`: reuso entre níveis /
 "colunas com buracos" (H-REPLEVEL-FLAT-VS-PORNIVEL-01 — flat-Dremel como perfil, não canônico).
 Gate: suíte 754 passed, flat byte-canônico intacto. Resta: **P4b raiz generalizada** (contrato) e P5.
@@ -279,7 +279,7 @@ non-string keys"*).
 
 ### Evidência
 
-- **Estudo** (lab [2026-07-17-0230](../../experiments/lab/dirty/2026-07-17-0230-escape-d-json-estudo/)):
+- **Estudo** (lab [2026-07-17-0230](../../experiments/lab/dirty/2026-07/2026-07-17/2026-07-17-0230-escape-d-json-estudo/)):
   injetividade **exaustiva** (alfabeto crítico, len 0..3 — **0 colisões**) · fuzz **20000/20000**
   (valor e nome) · valor escapado atravessa o L1 **14/14** · adversarial **8/8 fail-loud**.
 - **Weld**: suíte **821 passed**, 3 skipped, 2 xfailed (bugs L1 pré-existentes) · **flat

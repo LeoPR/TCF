@@ -8,7 +8,7 @@
 > **accepted 2026-07-09.** Estende o discriminador de 1 char do [ADR-0029](0029-version-format-identification-semi-implicit.md)
 > com `H` = **multi-col COM hierarquia**, uma especialização de `M`. Formaliza o char que o
 > protótipo `#TCF.8H` (EXP-015, research-track) já usava ad-hoc, fechando a colisão latente
-> registrada no [char-registry](../../experiments/lab/dirty/notas/tcf8-header-char-registry.md).
+> registrada no [char-registry](../../experiments/lab/dirty/notas/2026-07/tcf8-header-char-registry.md).
 > **Reserva o char + a semântica de dispatch; NÃO welda o codec hierárquico** (isso é gated,
 > ticket próprio). Consome as decisões de [T-FMT-TCF8H-HEADER](../../tickets/T-FMT-TCF8H-HEADER.md).
 

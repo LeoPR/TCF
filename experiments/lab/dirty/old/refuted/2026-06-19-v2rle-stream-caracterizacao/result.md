@@ -9,7 +9,7 @@ medições brutas: [`result.txt`](result.txt).
 > **Escopo e correções (2026-06-19, pós-revisão do owner)** — leia antes:
 > - Este lab testou o **V2-RLE-STREAM = RLE no stream de índices do V2-B**: uma micro-otimização
 >   ESTREITA. **NÃO é** a ideia mais ampla de **dicionário global/cross-column no cabeçalho** — essa é
->   outra coisa, registrada em [H-GDICT-01](../../../notas/roadmap-hipoteses.md) (não testada aqui).
+>   outra coisa, registrada em [H-GDICT-01](../../../notas/2026-05/roadmap-hipoteses.md) (não testada aqui).
 > - **Correção factual**: versão anterior dizia que single-col "não tem dict". **Errado.** O TCF cria
 >   um **dicionário implícito** via `^N` (índice do N-ésimo valor distinto). Os exemplos abaixo são a
 >   **saída real do encoder**, não esquema.
@@ -102,7 +102,7 @@ SIM
 ```
 Cada coluna guarda **sua própria** tabela. A ideia de **dicionário global no cabeçalho** elimina isso:
 **uma** tabela `{SIM, NAO}` no header, ambas as colunas só carregam o stream de índices. É a ideia
-[H-GDICT-01](../../../notas/roadmap-hipoteses.md) (= "cross-column dict", O-FMT-06/07) — **distinta** do
+[H-GDICT-01](../../../notas/2026-05/roadmap-hipoteses.md) (= "cross-column dict", O-FMT-06/07) — **distinta** do
 RLE-no-stream deste lab, e não caracterizada.
 
 ## Método
@@ -184,7 +184,7 @@ real (situacao +55%, workclass +22%) e **nada mais o captura** — mas é estrei
   owner** — passa ≥15% em 2 reais *nesse nicho* (situacao 55%, workclass 22%), mas é estreito,
   brotli-frágil, e overlap com tcf-`*N|` na ordem clusterizada. Weld = format change (#TCF.8) + GATE
   + re-pin → só se o owner julgar o nicho prioritário. **Não weldado; src/tcf intocado.**
-- **A ideia mais ampla do owner — dicionário GLOBAL/cross-column no header — é [H-GDICT-01](../../../notas/roadmap-hipoteses.md)**,
+- **A ideia mais ampla do owner — dicionário GLOBAL/cross-column no header — é [H-GDICT-01](../../../notas/2026-05/roadmap-hipoteses.md)**,
   hipótese distinta (não testada aqui).
 
 ## Encaminhamento
@@ -192,16 +192,16 @@ real (situacao +55%, workclass +22%) e **nada mais o captura** — mas é estrei
 - **`src/tcf` intocado** (lab-first; nada weldado).
 - `V2-RLE-STREAM`: `closed-insufficient-gain` pro geral; **nicho textual-puro registrado, decisão do
   owner pendente** (ROADMAP).
-- **Dicionário global/cross-column = [H-GDICT-01](../../../notas/roadmap-hipoteses.md)** — a ideia que o owner
+- **Dicionário global/cross-column = [H-GDICT-01](../../../notas/2026-05/roadmap-hipoteses.md)** — a ideia que o owner
   de fato queria; concern distinto deste lab.
-- **RLE na célula (intra-valor) = [H-INTRA-01/02/03](../../../notas/roadmap-hipoteses.md#pacote-11) → adiado
+- **RLE na célula (intra-valor) = [H-INTRA-01/02/03](../../../notas/2026-05/roadmap-hipoteses.md#pacote-11) → adiado
   a pedido do owner** ("depois revisamos o RLE na célula"). Repetição DENTRO do valor, não entre linhas.
 
 ## Referências (família RLE + família DICT + cadeia de formato)
 
-- **Estudo consolidado**: [`rle-familia-estudo.md`](../../../notas/rle-familia-estudo.md) — entrar por aqui.
-- **Registry**: [roadmap-hipoteses.md](../../../notas/roadmap-hipoteses.md) — Pacote 11-bis (V2-RLE = H-V2RLE),
-  H-GDICT-01 (dict global), [Pacote 11 H-INTRA](../../../notas/roadmap-hipoteses.md#pacote-11) (intra-valor).
+- **Estudo consolidado**: [`rle-familia-estudo.md`](../../../notas/2026-06/rle-familia-estudo.md) — entrar por aqui.
+- **Registry**: [roadmap-hipoteses.md](../../../notas/2026-05/roadmap-hipoteses.md) — Pacote 11-bis (V2-RLE = H-V2RLE),
+  H-GDICT-01 (dict global), [Pacote 11 H-INTRA](../../../notas/2026-05/roadmap-hipoteses.md#pacote-11) (intra-valor).
 - **V2-B (base)**: [ADR-0025](../../../../../../docs/adr/0025-v2b-dictionary-categorical-weld.md).
 - **RLE de linha / dict implícito `^N`**: [ADR-0016 seq-RLE](../../../../../../docs/adr/0016-hcc-multi-delta-seq-rle.md),
   [HCC](../../../../../../docs/algorithms/HCC.md), [OBAT](../../../../../../docs/algorithms/OBAT.md).

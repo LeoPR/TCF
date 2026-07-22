@@ -1,6 +1,6 @@
 # natures_compiler — DSL textual de filtro → nature executável (gadget)
 
-**F1 do plano** [`filtros-dsl-plano.md`](../../experiments/lab/dirty/notas/filtros-dsl-plano.md).
+**F1 do plano** [`filtros-dsl-plano.md`](../../experiments/lab/dirty/notas/2026-06/filtros-dsl-plano.md).
 Gadget auxiliar (`scripts/`, **não toca `src/tcf`**): compila uma **definição textual** de filtro
 num spec executável (`TemplatedCheckedSpec`/`TemplatedPaddedSpec` do core), validando
 **reversibilidade (round-trip lossless)** no compile-time. A única parte "código" (`check_fn`) vem

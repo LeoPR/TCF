@@ -2,7 +2,7 @@
 
 **Tipo**: reference (Diataxis). **Construída**: 2026-06-27 via survey multi-workstream +
 **verify anti-alucinação** (cada citação checada na web; 24 recomendadas, **24 verificadas reais,
-0 rejeitadas**). Organiza a literatura pelos [5 workstreams](../../experiments/lab/dirty/notas/resegmentacao-workstreams-2026-06-27.md).
+0 rejeitadas**). Organiza a literatura pelos [5 workstreams](../../experiments/lab/dirty/notas/2026-06/2026-06-27-0310-resegmentacao-workstreams.md).
 
 > **Estado**: NÃO há PDFs baixados pra esses temas (os PDFs em `Z:/caches/corpus/pdf2md/` são
 > corpus do pdf2md — Transformer/BERT, sem relação). **Este doc É a biblioteca** (lista curada +
@@ -98,7 +98,7 @@
 Os demais são reforço. Roaring e FOR já estavam citados (não precisa re-introduzir).
 
 ## Cross-links
-[re-segmentação 5 workstreams](../../experiments/lab/dirty/notas/resegmentacao-workstreams-2026-06-27.md),
-[dict-referencia-hipoteses](../../experiments/lab/dirty/notas/dict-referencia-hipoteses.md) (W1),
-[filtros-dsl-plano](../../experiments/lab/dirty/notas/filtros-dsl-plano.md) (W4/F5),
+[re-segmentação 5 workstreams](../../experiments/lab/dirty/notas/2026-06/2026-06-27-0310-resegmentacao-workstreams.md),
+[dict-referencia-hipoteses](../../experiments/lab/dirty/notas/2026-06/dict-referencia-hipoteses.md) (W1),
+[filtros-dsl-plano](../../experiments/lab/dirty/notas/2026-06/filtros-dsl-plano.md) (W4/F5),
 ADR-0016 (seq-RLE), ADR-0018 (V2-L/V2-J/V2-K), ADR-0025 (V2-B).

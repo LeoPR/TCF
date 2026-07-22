@@ -27,10 +27,10 @@ final, posicionamento na literatura, quando usar TCF vs alternativas.
 
 ## Para entender a evolucao do projeto
 
-→ [`../experiments/lab/dirty/notas/historia-dirty-lab.md`](../experiments/lab/dirty/notas/historia-dirty-lab.md)
+→ [`../experiments/lab/dirty/notas/2026-05/historia-dirty-lab.md`](../experiments/lab/dirty/notas/2026-05/historia-dirty-lab.md)
 — **narrativa canonica M0-M14** do desenvolvimento.
 
-→ [`../experiments/lab/dirty/notas/roadmap-hipoteses.md`](../experiments/lab/dirty/notas/roadmap-hipoteses.md)
+→ [`../experiments/lab/dirty/notas/2026-05/roadmap-hipoteses.md`](../experiments/lab/dirty/notas/2026-05/roadmap-hipoteses.md)
 — direcoes futuras (pre-tx delta, multi-coluna, escala, etc.).
 
 → [`../tickets/`](../tickets/) — tickets ativos e fechados.

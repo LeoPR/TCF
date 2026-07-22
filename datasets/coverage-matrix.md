@@ -2,13 +2,13 @@
 
 **Data**: 2026-07-05 · **Tipo**: [probatório] · Corpo do ticket
 [T-DATA-TRANSMISSION-GROUPING](../tickets/T-DATA-TRANSMISSION-GROUPING.md). Materializa o esquema
-3-eixos do [assessment de cobertura](../experiments/lab/dirty/notas/2026-07-05-cobertura-datasets-shaper-assessment.md)
+3-eixos do [assessment de cobertura](../experiments/lab/dirty/notas/2026-07/2026-07-05-1316-cobertura-datasets-shaper-assessment.md)
 (VEREDITO 1 = PARCIAL) e responde as duas perguntas do owner: **(Q1)** os datasets estão agrupados
 de forma consistente para os cenários de transmissão? **(Q2)** o shaper dimensiona em todas as direções?
 
 Cada célula é lastreada por **medição real** (não estimativa): bytes brotli-q11 + RT, do
-[nested-tcf-study](../experiments/lab/dirty/2026-07-05-nested-tcf-study/) (harness `nested_bench.py`
-+ `trace_experiment.py`, saída bruta em `trace_output.txt`) e do [T1](../experiments/lab/dirty/2026-07-05-t1-ndjson-brotli/result.md).
+[nested-tcf-study](../experiments/lab/dirty/2026-07/2026-07-05/2026-07-05-nested-tcf-study/) (harness `nested_bench.py`
++ `trace_experiment.py`, saída bruta em `trace_output.txt`) e do [T1](../experiments/lab/dirty/2026-07/2026-07-05/2026-07-05-t1-ndjson-brotli/result.md).
 A prosa aponta; o número vem do harness. `py -3` + `tcf 0.7.1` + `brotli 1.2.0`.
 
 ---
@@ -84,7 +84,7 @@ nested-real. → confirma **VEREDITO 1 = PARCIAL** e nomeia o que falta adquirir
 ## Experimento de sempre — amostra entrada→saída + trace por forma-tx
 
 Uma célula representativa por forma-tx. Trace completo (OBAT + HCC + seq-RLE) em
-[`trace_output.txt`](../experiments/lab/dirty/2026-07-05-nested-tcf-study/trace_output.txt);
+[`trace_output.txt`](../experiments/lab/dirty/2026-07/2026-07-05/2026-07-05-nested-tcf-study/trace_output.txt);
 aqui vai o essencial. Todos com **RT=True**.
 
 ### (1) upload-small — config/instrução multi-camada `(path, value)` — TCF ✗
@@ -176,7 +176,7 @@ localizam o limite do TCF.
 ## Cross-links
 
 [T-DATA-TRANSMISSION-GROUPING](../tickets/T-DATA-TRANSMISSION-GROUPING.md) ·
-[assessment cobertura](../experiments/lab/dirty/notas/2026-07-05-cobertura-datasets-shaper-assessment.md) ·
-[nested-tcf-study](../experiments/lab/dirty/2026-07-05-nested-tcf-study/result.md) ·
-[T1](../experiments/lab/dirty/2026-07-05-t1-ndjson-brotli/result.md) ·
-[nota transmissão](../experiments/lab/dirty/notas/transmissao-api-onde-tcf-importa.md).
+[assessment cobertura](../experiments/lab/dirty/notas/2026-07/2026-07-05-1316-cobertura-datasets-shaper-assessment.md) ·
+[nested-tcf-study](../experiments/lab/dirty/2026-07/2026-07-05/2026-07-05-nested-tcf-study/result.md) ·
+[T1](../experiments/lab/dirty/2026-07/2026-07-05/2026-07-05-t1-ndjson-brotli/result.md) ·
+[nota transmissão](../experiments/lab/dirty/notas/2026-06/transmissao-api-onde-tcf-importa.md).

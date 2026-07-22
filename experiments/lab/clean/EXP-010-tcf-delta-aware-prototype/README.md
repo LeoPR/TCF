@@ -10,7 +10,7 @@ predecessor: EXP-007-prototipo-tcf-core
 related:
   - docs/adr/0003-tripartite-pre-obat-hcc.md
   - experiments/lab/clean/EXP-011-multi-column-basic/
-  - experiments/lab/dirty/notas/roadmap-hipoteses.md
+  - experiments/lab/dirty/notas/2026-05/roadmap-hipoteses.md
 ---
 
 # EXP-010 — Prototype TCF delta-aware (single-column)
@@ -115,5 +115,5 @@ EXP-010-tcf-delta-aware-prototype/
 - **Decisao arquitetural**: [ADR-0003 tripartite Pre/OBAT/HCC](../../../../docs/adr/0003-tripartite-pre-obat-hcc.md)
 - **Restricoes**: [ADR-0002 vertice triplice](../../../../docs/adr/0002-vertice-triplice-restricao.md)
 - **Format**: [ADR-0001 shebang](../../../../docs/adr/0001-tcf-format-shebang.md)
-- **Roadmap**: [hipoteses cross-lab](../../dirty/notas/roadmap-hipoteses.md)
+- **Roadmap**: [hipoteses cross-lab](../../dirty/notas/2026-05/roadmap-hipoteses.md)
 - **Memoria projeto**: `project_pacote1_delta_aware_summary` (user memory)

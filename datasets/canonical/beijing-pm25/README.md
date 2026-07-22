@@ -58,4 +58,4 @@ Saida:
 ## Conexoes
 
 - [T-DATA-1](../../../tickets/T-DATA-1-datasets-financeiros-cientificos.md)
-- [Reflexao naturezas numericas](../../../experiments/lab/dirty/notas/naturezas-numericas-2026-05-23.md)
+- [Reflexao naturezas numericas](../../../experiments/lab/dirty/notas/2026-05/naturezas-numericas-2026-05-23.md)

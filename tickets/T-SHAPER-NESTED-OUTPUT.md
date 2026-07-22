@@ -11,8 +11,8 @@ related:
   - scripts/shaper/strategies/fk_preserving.py
   - tickets/T-CODE-TCF8H-WELD.md
   - tickets/T-SHAPER-CODE-HARDENING.md
-  - experiments/lab/dirty/2026-07-14-2231-hierarquia-massa-shaper-tpch/
-  - experiments/lab/dirty/2026-07-14-2336-hierarquia-amostra-populacao-honesta/
+  - experiments/lab/dirty/2026-07/2026-07-14/2026-07-14-2231-hierarquia-massa-shaper-tpch/
+  - experiments/lab/dirty/2026-07/2026-07-14/2026-07-14-2336-hierarquia-amostra-populacao-honesta/
 ---
 
 # T-SHAPER-NESTED-OUTPUT — o Shaper aninhando (hierarquia como saída de 1ª classe)
