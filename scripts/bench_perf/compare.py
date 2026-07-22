@@ -61,19 +61,40 @@ def _limiar(rec_a: dict, res_a: dict) -> float:
     return max(mde, piso)
 
 
+def _protocolo_igual(ea: dict, eb: dict) -> bool:
+    """Mesmo tier E mesmo n? (parecer §2) Mudar repeticao/tier sem registrar produz
+    um join sintaticamente valido e cientificamente DESIGUAL. Nota: com `samples_ns`
+    crus (R1) da' pra re-estatisticar a um n comum — refinamento futuro; aqui, o
+    conservador: nao compara celula de protocolo divergente."""
+    return ea.get("tier") == eb.get("tier") and ea.get("n") == eb.get("n")
+
+
 def comparar(base: Path, cand: Path) -> dict:
     ra, resa = _carrega(base)
     rb, resb = _carrega(cand)
     fator = _fator_calibrador(resa, resb)
 
+    # GUARDA DE RUN (parecer §2): matriz e estado termico dos DOIS lados.
+    ma = resa.get("manifest", {}).get("cases_sha256")
+    mb = resb.get("manifest", {}).get("cases_sha256")
+    matriz_igual = (ma is not None) and (ma == mb)        # matriz != => join INVALIDO
+    termico = {"baseline": resa.get("status"), "candidato": resb.get("status")}
+
     so_base = sorted(set(ra) - set(rb))
     so_cand = sorted(set(rb) - set(ra))
-    linhas, contagem = [], {"MELHOR": 0, "PIOR": 0, "IGUAL": 0, "RUIDO": 0, "n/a": 0}
+    linhas = []
+    contagem = {"MELHOR": 0, "PIOR": 0, "IGUAL": 0, "RUIDO": 0, "protocolo-desigual": 0, "n/a": 0}
     for cid in sorted(set(ra) & set(rb)):
         a, b = ra[cid], rb[cid]
         ea, eb = a.get("encode"), b.get("encode")
         if a.get("status") != "ok" or b.get("status") != "ok" or not ea or not eb:
             contagem["n/a"] += 1
+            continue
+        if not _protocolo_igual(ea, eb):                  # tier/n divergem => nao compara
+            contagem["protocolo-desigual"] += 1
+            linhas.append({"case_id": cid, "verdict": "protocolo-desigual",
+                           "tier_base": ea.get("tier"), "tier_cand": eb.get("tier"),
+                           "n_base": ea.get("n"), "n_cand": eb.get("n")})
             continue
         ta = ea["point_ns"]
         tb = eb["point_ns"] / fator                       # normaliza a maquina do .9
@@ -89,9 +110,12 @@ def comparar(base: Path, cand: Path) -> dict:
                        "base_ns": ta, "cand_ns_norm": round(tb)})
     return {
         "fator_calibrador": round(fator, 4),
+        "matriz_igual": matriz_igual,
+        "matriz_sha": {"base": str(ma)[:12], "cand": str(mb)[:12]},
+        "status_termico": termico,
         "contagem": contagem,
         "so_no_baseline": so_base, "so_no_candidato": so_cand,
-        "linhas": sorted(linhas, key=lambda x: x["delta_pct"]),
+        "linhas": sorted(linhas, key=lambda x: x.get("delta_pct", 0)),
     }
 
 
@@ -107,23 +131,39 @@ def main(argv=None) -> int:
     cand = base if args.autoteste else Path(args.candidato)
     r = comparar(base, cand)
 
+    # GUARDA DE RUN primeiro — se a matriz difere, o resto do join nao vale
+    if not r["matriz_igual"]:
+        print(f"!! MATRIZ DIFERENTE (base {r['matriz_sha']['base']} vs cand "
+              f"{r['matriz_sha']['cand']}) — comparacao INVALIDA. Rode os dois lados "
+              f"com o mesmo cases.json.")
+    for lado, st in r["status_termico"].items():
+        if st == "termicamente-reprovado":
+            print(f"!! {lado} = termicamente-reprovado — normalizacao nao sustenta o claim; re-rode quieto")
+
     print(f"fator_calibrador (maquina .9/.8) = {r['fator_calibrador']}")
     print(f"veredictos: {r['contagem']}")
+    if r["contagem"]["protocolo-desigual"]:
+        pd = [l for l in r["linhas"] if l["verdict"] == "protocolo-desigual"][:3]
+        print(f"  protocolo-desigual ({r['contagem']['protocolo-desigual']}): "
+              + ", ".join(f"{l['case_id'][:24]}(tier {l['tier_base']}!={l['tier_cand']} "
+                          f"n {l['n_base']}!={l['n_cand']})" for l in pd))
     if r["so_no_baseline"]:
         print(f"  so' no baseline ({len(r['so_no_baseline'])}): {r['so_no_baseline'][:3]}...")
     if r["so_no_candidato"]:
         print(f"  so' no candidato ({len(r['so_no_candidato'])}): {r['so_no_candidato'][:3]}...")
-    piores = [l for l in r["linhas"] if l["verdict"] == "PIOR"][-5:]
-    melhores = [l for l in r["linhas"] if l["verdict"] == "MELHOR"][:5]
+    comparaveis = [l for l in r["linhas"] if "delta_pct" in l]
+    melhores = [l for l in comparaveis if l["verdict"] == "MELHOR"][:5]
+    piores = [l for l in comparaveis if l["verdict"] == "PIOR"][-5:]
     for l in melhores:
         print(f"  MELHOR {l['delta_pct']:+6.1f}% (lim {l['limiar_pct']}%)  {l['case_id'][:50]}")
     for l in piores:
         print(f"  PIOR   {l['delta_pct']:+6.1f}% (lim {l['limiar_pct']}%)  {l['case_id'][:50]}")
 
     if args.autoteste:
-        # auto-teste: mesmo arquivo -> fator 1.0, zero PIOR/MELHOR
-        ok = (r["fator_calibrador"] == 1.0 and r["contagem"]["PIOR"] == 0
-              and r["contagem"]["MELHOR"] == 0)
+        # auto-teste: mesmo arquivo -> matriz igual, fator 1.0, zero PIOR/MELHOR/protocolo-desigual
+        ok = (r["matriz_igual"] and r["fator_calibrador"] == 1.0
+              and r["contagem"]["PIOR"] == 0 and r["contagem"]["MELHOR"] == 0
+              and r["contagem"]["protocolo-desigual"] == 0)
         print("AUTO-TESTE:", "PASSOU" if ok else "FALHOU")
         return 0 if ok else 1
     return 0
