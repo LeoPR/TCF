@@ -23,6 +23,22 @@ Critério de equivalência (executável, `tests/test_json_flow_parity.py`):
 **∀D ∈ D_json:  json faz round-trip ⟹ TCF faz round-trip** (medido sobre bytes UTF-8, com a etapa
 de transmissão). Hoje: **`LACUNAS = {}`** — D_json completo.
 
+### 1-bis. Escala de atendimentos (owner, 2026-07-21)
+
+O TCF **entende dataset** (dict/array/escalar), não JSON — o JSON é só uma *materialização* de um
+dataset possível. O objetivo é uma **escala de níveis**, e o `.8` contrata só o primeiro:
+
+| Nível | O que é | Estado |
+|---|---|---|
+| **N1 — imitar a jsonlib** | entender todo dataset **possível pro json** e, perante o resto, **comportar-se como um consumidor json** (o que a lib não round-trip`a, o TCF recusa igual). É o **contrato do `.8`**. | **contratado** |
+| **N2 — além da borda** | o que a lib json *não* faz mas o TCF poderia, tipando: `"NaN"`/`"Infinity"` como valor tipado, um RFC teórico completo, `int > 2^53` exato (§3). | registrado, pós-`.8` |
+| **N3 — dataset complexo** | formato de dataset rico e completo (N:N/grafo, tipos ricos) — "faria qualquer coisa" (§5). | registrado, 1.0/2.0 |
+
+Corolário do N1 (o que o gate mede): a **classe** é o que a jsonlib **round-trip`a** — não o que só o
+Python permissivo *aceita*. `NaN`/`Infinity`/chave-não-string **saem** (JSON inválido; `loads(dumps)≠x`).
+`int > 2^53` **fica** (a jsonlib round-trip`a) mas leva **ressalva de interop** (I-JSON; um parser
+int64/double de outra linguagem perde precisão) — a ressalva é **sinal, não recusa** (isso é N2).
+
 ## 2. Tabela de equivalência (construto JSON → `.8H`)
 
 | construto JSON | incremento | wire `.8H` (exemplo) | RT |

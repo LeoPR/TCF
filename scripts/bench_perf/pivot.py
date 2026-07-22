@@ -95,40 +95,61 @@ def from_json_text(txt: str) -> Any:
     return json.loads(txt, parse_constant=_reject_const)
 
 
-# RFC 7493 (I-JSON): o range de inteiro que TODA implementacao round-trip sem
-# perda e' o double-seguro. Fora dele, um parser int64/double de outra linguagem
-# (ou o Rust do 1.0) perderia precisao — logo NAO esta' na classe portavel.
+# ESCALA DE ATENDIMENTOS (owner, 2026-07-21). O proposito do .8 e' IMITAR A
+# JSONLIB — entender todo dataset POSSIVEL pro json, e tratar o resto como um
+# consumidor json trataria. Distincao principiada entre HARD-REJECT e FLAG:
+#
+#   HARD (fora da classe json — a lib nao round-trip'a; N1/.8 rejeita):
+#     - NaN / Infinity: nao sao JSON valido (RFC 8259 proibe); dumps(allow_nan=False)
+#       levanta, e um consumidor json real recusa o texto.
+#     - chave nao-string: o Python COAGE int->str, entao o round-trip !=X; fora do
+#       objeto-json.
+#     - tipo estranho (set, bytes, obj): a lib nem serializa.
+#   FLAG (JSON valido, mas com ressalva de INTEROP — N2, "coisa a mais pra depois"):
+#     - int fora de ±(2^53-1): o Python round-trip'a (logo esta' na classe do .8),
+#       mas um parser int64/double de outra linguagem perderia precisao (RFC 7493
+#       I-JSON e' RECOMENDACAO, nao regra). Sinalizado, nunca rejeitado no .8.
 _MAX_SAFE_INT = 2 ** 53 - 1
 
 
-def _assert_portavel(obj: Any, caminho: str = "$") -> None:
-    """Anda o objeto e exige a classe que QUALQUER lib json round-trip:
-    o TCF entende DATASET (dict/list/escalar); o JSON e' so' uma materializacao,
-    e so' vale se sobrevive ao round-trip em toda implementacao — nao so' no
-    Python permissivo."""
+def _assert_classe_json(obj: Any, caminho: str = "$") -> None:
+    """HARD: o dataset e' POSSIVEL pro json (a jsonlib round-trip'a)? Senao rejeita."""
     if isinstance(obj, dict):
         for k, v in obj.items():
             if not isinstance(k, str):
                 raise ClasseRejeitada("G2", f"chave nao-string em {caminho}: {type(k).__name__} "
-                                      f"(o Python coage int->str; a compilada nao)")
-            _assert_portavel(v, f"{caminho}.{k}")
+                                      f"(a jsonlib coage int->str; round-trip !=X)")
+            _assert_classe_json(v, f"{caminho}.{k}")
     elif isinstance(obj, list):
         for i, v in enumerate(obj):
-            _assert_portavel(v, f"{caminho}[{i}]")
+            _assert_classe_json(v, f"{caminho}[{i}]")
     elif isinstance(obj, bool):
         pass                                            # bool antes de int (bool ⊂ int)
-    elif isinstance(obj, int):
-        if not (-_MAX_SAFE_INT <= obj <= _MAX_SAFE_INT):
-            raise ClasseRejeitada("G2", f"int fora do range I-JSON (±2^53-1) em {caminho}: {obj} "
-                                  f"(um parser int64/double de outra linguagem perderia precisao)")
+    elif isinstance(obj, (int, str)) or obj is None:
+        pass                                            # int de qualquer tamanho: jsonlib aceita
     elif isinstance(obj, float):
         import math
-        if not math.isfinite(obj):
-            raise ClasseRejeitada("G2", f"float nao-finito em {caminho}: {obj}")
-    elif obj is None or isinstance(obj, str):
-        pass
+        if not math.isfinite(obj):                      # NaN/Inf: nao e' JSON valido
+            raise ClasseRejeitada("G2", f"float nao-finito em {caminho}: {obj} (fora do JSON RFC)")
     else:
         raise ClasseRejeitada("G2", f"tipo fora da classe json em {caminho}: {type(obj).__name__}")
+
+
+def ijson_flags(obj: Any, caminho: str = "$", out: list | None = None) -> list[str]:
+    """SOFT: ressalvas de interop (N2). NAO rejeita — vira metadado no registro."""
+    if out is None:
+        out = []
+    if isinstance(obj, dict):
+        for k, v in obj.items():
+            ijson_flags(v, f"{caminho}.{k}", out)
+    elif isinstance(obj, list):
+        for i, v in enumerate(obj):
+            ijson_flags(v, f"{caminho}[{i}]", out)
+    elif isinstance(obj, bool):
+        pass
+    elif isinstance(obj, int) and not (-_MAX_SAFE_INT <= obj <= _MAX_SAFE_INT):
+        out.append(f"int-fora-de-I-JSON em {caminho}: {obj} (interop int64/double perde precisao)")
+    return out
 
 
 def to_csv_text(recs: Records) -> str:
@@ -300,16 +321,18 @@ def g2_classe_json(obj: Any) -> str:
     compilada round-trip — nao o que so' o Python permissivo aceita. Fora dela:
     celula REJEITADA, nunca "consertamos o JSON" pra ele passar.
 
-    Devolve o texto JSON (insumo do caminho de referencia).
+    Devolve o texto JSON (insumo do caminho de referencia). Ressalvas de interop
+    (N2, ex.: int gigante) NAO rejeitam — sao coletadas por `ijson_flags` e viram
+    metadado no registro; o .8 imita a jsonlib, e a jsonlib round-trip'a.
     """
-    _assert_portavel(obj)                               # RFC 8259 + I-JSON, manual
+    _assert_classe_json(obj)                            # HARD: possivel pro json?
     try:
-        txt = to_json_text(obj)                         # allow_nan=False (estrito)
+        txt = to_json_text(obj)                         # allow_nan=False (recusa NaN/Inf)
     except (ValueError, TypeError) as e:
-        raise ClasseRejeitada("G2", f"json.dumps estrito rejeitou: {e}")
-    if from_json_text(txt) != obj:                      # round-trip identidade (Python)
-        raise ClasseRejeitada("G2", "python json.loads(dumps(X)) != X — fora da classe")
-    if _STRICT is not None:                             # segunda implementacao (compilada)
+        raise ClasseRejeitada("G2", f"json.dumps rejeitou: {e}")
+    if from_json_text(txt) != obj:                      # a jsonlib round-trip'a? (o gate do .8)
+        raise ClasseRejeitada("G2", "json.loads(dumps(X)) != X — a jsonlib nao round-trip'a")
+    if _STRICT is not None:                             # se houver lib compilada, confirma (N2+)
         try:
             if _STRICT.loads(_STRICT.dumps(obj)) != obj:
                 raise ClasseRejeitada("G2", f"{_STRICT_NOME}(compilada) round-trip != X")
@@ -341,5 +364,5 @@ __all__ = [
     "nest_object_group", "unnest_object_group", "nest_optional", "unnest_optional",
     "nest_typed", "untyped", "nest_array_by_key", "unnest_array_by_key",
     "ClasseRejeitada", "g1_retangular", "g2_classe_json", "g3_classe_csv",
-    "g6_aninhamento_sem_perda",
+    "g6_aninhamento_sem_perda", "ijson_flags",
 ]

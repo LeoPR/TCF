@@ -175,6 +175,10 @@ def run_case(case: dict, order_index: int, smoke: bool) -> dict:
         obj, ser, des = CAMINHOS[cam](pivot)
         rec["prepare_ns"] = P.time.perf_counter_ns() - t0
 
+        if cam.startswith("json"):                              # ressalvas de interop (N2) -> metadado
+            fl = V.ijson_flags(obj)
+            if fl:
+                rec["ijson_flags"] = fl
         wire = ser(obj)                                         # 1x pra pegar bytes + RT
         back = des(wire)
         rt_ok = back == obj
