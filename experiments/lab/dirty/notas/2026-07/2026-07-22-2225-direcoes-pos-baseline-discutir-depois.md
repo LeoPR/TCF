@@ -46,3 +46,20 @@ gate real-world [T-DATA-2-RECEITA-CNPJ](../../../../../tickets/T-DATA-2-RECEITA-
 > ⚠️ Enquanto não resolvido, o número do F4 (CNPJ piora em real) fica **sob
 > suspeita** — não fechar o README do `.8` afirmando isso como propriedade sem a
 > revisão.
+
+## 4. `encode_hierarchical` exposto é ERRO de API (viola API unificada)
+
+O owner apontou: **não deveria existir `encode_hierarchical` público — só `encode`.**
+Hoje `src/tcf/__init__.py` exporta `encode_hierarchical` em `__all__`, e o `encode`
+só aceita **flat** (`list[str]` | `dict[str, list[str]]`), sem rotear aninhado — então
+o dev é **forçado** a chamar a função separada. Isso viola a API unificada (ADR-0014:
+"`encode(list|dict)`") e é **assimétrico** com o `decode`, que JÁ auto-roteia pelo magic
+(`#TCF.8M`/`#TCF.8H`/órfão).
+
+**Correção esperada**: `encode` detecta input aninhado (dataset/dict-de-dicts/
+list-de-dicts) e roteia pro `#TCF.8H` internamente; `encode_hierarchical` sai do
+`__all__` (no máximo vira interno). Toca `src/tcf` (dispatch do encoder) → precisa de
+aprovação. Candidato a fechar no F6/pré-1.0 (a superfície pública do dev deve ser só
+`encode`/`decode` + `view` + `SideOutputs` + specs).
+Relaciona: `src/tcf/encoder.py`, `src/tcf/hierarchical.py`, ADR-0014,
+[T-CODE-TCF8H-WELD](../../../../../tickets/T-CODE-TCF8H-WELD.md).
