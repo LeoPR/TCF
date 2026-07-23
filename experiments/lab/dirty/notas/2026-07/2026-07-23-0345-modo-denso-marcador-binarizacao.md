@@ -40,6 +40,26 @@ diz {tipo do elemento, largura em bits, alfabeto de saída}. Fica **legível na 
 é texto) e **denso no corpo** (base64). Precisa casar com o slot `:` do `#TCF.8` (livre hoje) e com
 o desvio opt-in MARCADO da [ADR-0030](../../../../docs/adr/0030-freeze-single-col-body-at-1.0.md).
 
+## Conclusão VERIFICADA do 1º ciclo (bool/RLE/denso) — 2026-07-23
+
+Técnica aplicada (guardar e repetir): **entender-grounded → medir no lab com gates → verificar
+adversarialmente → CORRIGIR a evidência**. Cadeia de 3 labs:
+- [`1533`](../../2026-07/2026-07-23/2026-07-23-1533-decisao-rle-vs-denso-passe-unico/) — a decisão
+  RLE-vs-denso é **determinística** (tamanho por fórmula == real) e de **passe único** (`reads/n==1.0`).
+- [`1548`](../../2026-07/2026-07-23/2026-07-23-1548-telemetria-decide-lote-rle-vs-b64/) — decisão por
+  segmento pela telemetria. **v1 OBSOLETA** (reportou −23% do batch de S FIXO — era artefato de
+  bloco==S; achado pela verificação `wf_876541f7`). **v2 ATUALIZADA**: batch de S fixo é frágil
+  (perde no desalinhado, até +72); **segmentação ADAPTATIVA** (fronteira na virada de regime, do
+  run-list) ganha independente de alinhamento (−22 a −49), **nunca-pior sob FLOOR**.
+
+O que fica **fixado como verdade** (evidência gravada + verificada):
+1. Composição vencedora = **adaptativa por regime**, NÃO lote de tamanho fixo.
+2. Decisão sai da telemetria + materializa só o vencedor + passe único + RT — mecanismo válido.
+3. **Enquadramento honesto do custo** (grounding `wf_876541f7`): só o **run-list** é "de qualquer
+   forma" (o `_rle_adjacente` já roda no bool); o **tamanho base64** e a **segmentação** são passo
+   NOVO barato; `emitted_mode` é do `.8M` — o `.8H` single-col **não tem ponto de seleção hoje** (é a
+   mudança de código real que isto implicaria).
+
 ## Aberto — o que estudar antes de fixar (sem tocar src/tcf)
 
 - [ ] **Outros tipos single-col** na mesma escada: int/float (a nota 0259 já aponta), pra ver se o
