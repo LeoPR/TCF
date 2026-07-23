@@ -50,7 +50,6 @@ def _valor(rng: random.Random, forma: str, L: int, i: int, vocab: list[str]) -> 
 def synth_pivot(R: int, C: int, L: int = 32, K: float = 0.1,
                 forma: str = "flat-mixed", seed: int = 20260721) -> Pivot:
     """Pivo determinístico com os 4 eixos de escala controlados independentemente."""
-    rng = random.Random(seed)
     vocab = _vocab(seed)
     n_unicos = max(1, min(R, int(round(R * K))))
     piv: Pivot = {}

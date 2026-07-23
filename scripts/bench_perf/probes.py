@@ -123,12 +123,11 @@ def resumir(samples_ns: list[int]) -> dict:
 # ----------------------------------------------------------------- medicao
 
 
-def medir(fn: Callable[[], object], *, tier: Tier | None = None,
-          probe: bool = True) -> dict:
+def medir(fn: Callable[[], object], *, tier: Tier | None = None) -> dict:
     """Cronometra `fn` com wall E cpu, devolvendo amostras cruas + derivadas.
 
-    Se `tier` e' None e `probe` e' True, roda UMA vez pra classificar o tier —
-    esse probe run tambem serve de warmup e NAO entra nas amostras.
+    Se `tier` e' None, roda UMA vez pra classificar o tier — esse probe run tambem
+    serve de warmup e NAO entra nas amostras. Com `tier` dado, pula essa sonda.
     """
     if tier is None:
         t0, c0 = time.perf_counter_ns(), time.process_time_ns()
@@ -165,10 +164,10 @@ def medir(fn: Callable[[], object], *, tier: Tier | None = None,
         "cpu": resumir(cpu),
         **probe_info,
     })
-    # ~1.0 = serial ligado em CPU · <1.0 = espera/IPC/spawn · >1.0 = paralelo real
+    # cpu/wall: ~1.0 = serial ligado em CPU · <1.0 = espera/IPC/spawn · >1.0 = paralelo real
     w = res.get("median_ns") or 0
     c = res["cpu"].get("median_ns") or 0
-    res["wall_cpu_ratio"] = round(c / w, 4) if w else None
+    res["cpu_wall_ratio"] = round(c / w, 4) if w else None   # nome casa com o valor (cpu/wall)
     # o estimador primario do tier, explicito, pra o comparador nao ter que adivinhar
     res["point_ns"] = res["min_ns"] if tier.estimator == "min" else res["median_ns"]
     return res

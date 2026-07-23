@@ -62,9 +62,19 @@ def carregar(plan_id: str) -> dict:
     return json.loads(p.read_text(encoding="utf-8"))
 
 
+# A IDENTIDADE de um plano (o que define a comparabilidade da cadencia) e' a SELECAO
+# + versao-de-protocolo + pin da matriz. `descricao`/`schema`/`plan_id`/`campanha`/
+# `sentinela_cada` NAO entram (editar a descricao ou renomear nao deve quebrar uma
+# comparacao .8<->.9). `intencao` tambem NAO — e' um eixo SEMANTICO proprio, checado
+# a parte pelo comparador (assim plano_sha e intencao sao de fato ortogonais).
+_CAMPOS_IDENTIDADE = ("protocolo_versao", "pin_cases_sha256", "incluir", "excluir", "opcional")
+
+
 def hash_plano(plan: dict) -> str:
-    """Hash CANONICO do plano (independente de ordem de chave) — vai no manifesto."""
-    canon = json.dumps(plan, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+    """Hash CANONICO da IDENTIDADE (selecao+versao+pin), independente de ordem de chave.
+    Vai no run.json; duas rodadas so' comparam se compartilham este sha (mesma selecao)."""
+    ident = {k: plan.get(k) for k in _CAMPOS_IDENTIDADE}
+    canon = json.dumps(ident, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
     return hashlib.sha256(canon.encode("utf-8")).hexdigest()
 
 

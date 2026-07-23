@@ -47,7 +47,9 @@ def _compressores() -> dict:
     import gzip
     import zlib
     out["gzip"] = {"presente": True, "zlib_version": zlib.ZLIB_VERSION}
-    for nome, mod in (("brotli", "brotli"), ("zstandard", "zstandard"),
+    # chave = NOME CANONICO do codec (o mesmo de cases/plans/compress) p/ o cross-ref
+    # codec->presenca casar; modulo importado a parte. 'zstd' (nao 'zstandard'), 'lz4' informativo.
+    for nome, mod in (("brotli", "brotli"), ("zstd", "zstandard"),
                       ("lz4", "lz4")):
         try:
             m = __import__(mod)

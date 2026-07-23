@@ -34,6 +34,8 @@ from pathlib import Path
 def _carrega(p: Path):
     regs, resumo = [], {}
     for line in p.read_text(encoding="utf-8").splitlines():
+        if not line.strip():                              # pula linha em branco (robusto)
+            continue
         regs.append(json.loads(line))
     rp = p.with_suffix(".run.json")
     if rp.exists():
@@ -61,6 +63,22 @@ def _limiar(rec_a: dict, res_a: dict) -> float:
     return max(mde, piso)
 
 
+def _adj(res: dict) -> tuple:
+    """(validade_de_dados, termico) de um resumo, robusto ao schema.
+
+    run-v3 (novo): `status` = validade ('completo'/'parcial'), `runner_thermal_status`
+    = termico ('estavel'/'termicamente-suspeito') — ORTOGONAIS.
+    run-v2 (antigo): `status` podia ser 'termicamente-reprovado' (fundia os dois);
+    mapeia p/ (completo, termicamente-suspeito) — o termico era o unico problema."""
+    st = res.get("status")
+    thermal = res.get("runner_thermal_status")
+    if thermal is None:  # schema antigo
+        if st == "termicamente-reprovado":
+            return "completo", "termicamente-suspeito"
+        return st, "estavel"
+    return st, thermal
+
+
 def _protocolo_igual(ea: dict, eb: dict) -> bool:
     """Mesmo tier E mesmo n? (parecer §2) Mudar repeticao/tier sem registrar produz
     um join sintaticamente valido e cientificamente DESIGUAL. Nota: com `samples_ns`
@@ -74,11 +92,18 @@ def comparar(base: Path, cand: Path) -> dict:
     rb, resb = _carrega(cand)
     fator = _fator_calibrador(resa, resb)
 
-    # GUARDA DE RUN (parecer §2): matriz e estado termico dos DOIS lados.
+    # GUARDA DE RUN (parecer §2): matriz dos DOIS lados.
     ma = resa.get("manifest", {}).get("cases_sha256")
     mb = resb.get("manifest", {}).get("cases_sha256")
     matriz_igual = (ma is not None) and (ma == mb)        # matriz != => join INVALIDO
-    termico = {"baseline": resa.get("status"), "candidato": resb.get("status")}
+
+    # VALIDADE (dados) e TERMICO (estabilidade) sao ORTOGONAIS (parecer 2340 §1).
+    # Validade bloqueia; termico so' avisa (--strict-thermal bloqueia). _adj le os
+    # dois de forma robusta (schema novo run-v3; compat com run-v2 antigo).
+    val_a, term_a = _adj(resa)
+    val_b, term_b = _adj(resb)
+    validade = {"baseline": val_a, "candidato": val_b}
+    termico = {"baseline": term_a, "candidato": term_b}
 
     # GUARDA DE PLANO (Fase 3b): a cadencia e' parte da identidade. Mesma matriz mas
     # planos/intencoes diferentes => subconjuntos/aceites diferentes => join enganoso.
@@ -125,7 +150,8 @@ def comparar(base: Path, cand: Path) -> dict:
         "plano_igual": plano_igual, "intencao_igual": intencao_igual,
         "plano_sha": {"base": str(plano_sha_a)[:12], "cand": str(plano_sha_b)[:12]},
         "intencao": intencao,
-        "status_termico": termico,
+        "validade": validade,          # dados: bloqueia se != completo
+        "status_termico": termico,     # estabilidade: so' avisa (--strict-thermal bloqueia)
         "contagem": contagem,
         "so_no_baseline": so_base, "so_no_candidato": so_cand,
         "linhas": sorted(linhas, key=lambda x: x.get("delta_pct", 0)),
@@ -140,15 +166,21 @@ def main(argv=None) -> int:
                     help="auto-teste: baseline vs si mesmo -> tudo IGUAL, fator 1.0")
     ap.add_argument("--dev", action="store_true",
                     help="rebaixa o fail-closed p/ aviso (desenvolvimento) — NAO use p/ evidencia")
+    ap.add_argument("--strict-thermal", action="store_true",
+                    help="tambem BLOQUEIA se algum lado for termicamente-suspeito (precisao). "
+                         "Default: termico e' so' aviso (comparacao first-order .8<->.9).")
     args = ap.parse_args(argv)
 
+    if not args.autoteste and not args.candidato:
+        ap.error("informe o <candidato> (ou use --self p/ auto-teste)")
     base = Path(args.baseline)
     cand = base if args.autoteste else Path(args.candidato)
     r = comparar(base, cand)
 
-    # GUARDA DE RUN FAIL-CLOSED (parecer §63): matriz diferente OU status invalido
-    # (parcial/termicamente-reprovado/sem-resumo) => a comparacao NAO vale como
-    # evidencia. Recusa sem emitir veredicto e sai !=0. --dev rebaixa p/ aviso.
+    # GUARDA DE RUN FAIL-CLOSED: BLOQUEIA (evidencia invalida) por matriz/plano/intencao
+    # divergentes OU VALIDADE-DE-DADOS != completo (parcial/sem-resumo). O TERMICO NAO
+    # bloqueia por default — first-order aceita suspeito (parecer 2340 §1); so' bloqueia
+    # em --strict-thermal. --dev rebaixa tudo p/ aviso.
     invalido = []
     if not r["matriz_igual"]:
         invalido.append(f"matriz diferente ({r['matriz_sha']['base']} vs {r['matriz_sha']['cand']})")
@@ -156,15 +188,24 @@ def main(argv=None) -> int:
         invalido.append(f"plano diferente ({r['plano_sha']['base']} vs {r['plano_sha']['cand']})")
     if not r["intencao_igual"]:
         invalido.append(f"intencao diferente ({r['intencao']['baseline']} vs {r['intencao']['candidato']})")
-    for lado, st in r["status_termico"].items():
+    for lado, st in r["validade"].items():
         if st != "completo":
-            invalido.append(f"{lado}={st or 'sem-resumo'}")
+            invalido.append(f"dados {lado}={st or 'sem-resumo'}")
+    if args.strict_thermal:
+        for lado, st in r["status_termico"].items():
+            if st != "estavel":
+                invalido.append(f"termico {lado}={st} (--strict-thermal)")
     if invalido and not args.dev:
         print("!! COMPARACAO RECUSADA (fail-closed): " + " · ".join(invalido))
         print("   corrija/re-rode os dois lados aceitos, ou use --dev p/ inspecionar (nao-evidencia).")
         return 2
     for m in invalido:
         print(f"!! AVISO (--dev): {m}")
+    # AVISO termico (nao bloqueia): first-order tolera suspeito, mas registra o caveat.
+    suspeito = [lado for lado, st in r["status_termico"].items() if st != "estavel"]
+    if suspeito and not args.strict_thermal:
+        print(f"!! AVISO termico (first-order, nao bloqueia): {', '.join(suspeito)} "
+              f"termicamente-suspeito — deltas pequenos podem ser ruido; use --strict-thermal p/ precisao.")
 
     print(f"fator_calibrador (maquina .9/.8) = {r['fator_calibrador']}")
     print(f"veredictos: {r['contagem']}")
@@ -187,14 +228,14 @@ def main(argv=None) -> int:
 
     if args.autoteste:
         # auto-teste: mesmo arquivo -> matriz igual, fator 1.0, zero PIOR/MELHOR/protocolo,
-        # E o proprio run ACEITO (status completo) — um run termicamente-reprovado ou
-        # parcial NAO passa mesmo comparado a si (parecer §71).
-        run_ok = r["status_termico"]["baseline"] == "completo"
+        # E os DADOS validos (validade completo). Um run 'parcial' nao passa nem contra si;
+        # termico-suspeito NAO reprova (e' first-order, aviso).
+        run_ok = r["validade"]["baseline"] == "completo"
         ok = (r["matriz_igual"] and r["fator_calibrador"] == 1.0 and run_ok
               and r["contagem"]["PIOR"] == 0 and r["contagem"]["MELHOR"] == 0
               and r["contagem"]["protocolo-desigual"] == 0)
         print(f"AUTO-TESTE: {'PASSOU' if ok else 'FALHOU'}"
-              f"{'' if run_ok else ' (run nao-aceito: status='+str(r['status_termico']['baseline'])+')'}")
+              f"{'' if run_ok else ' (dados nao-completos: validade='+str(r['validade']['baseline'])+')'}")
         return 0 if ok else 1
     return 0
 

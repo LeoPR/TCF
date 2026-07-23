@@ -12,11 +12,12 @@ registra quem existe), nunca fallback calado.
 from __future__ import annotations
 
 import gzip
-import zlib
 
 
 def _gzip(level):
-    return (lambda b: zlib.compress(b, level), zlib.decompress)
+    # container GZIP de verdade (RFC 1952), nao o stream zlib/DEFLATE cru — o rotulo
+    # 'gzip-N' tem que casar com o gzip real p/ a comparacao de bytes ser honesta.
+    return (lambda b: gzip.compress(b, compresslevel=level), gzip.decompress)
 
 
 def _brotli(quality):

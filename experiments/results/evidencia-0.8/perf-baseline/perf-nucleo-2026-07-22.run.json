@@ -1,7 +1,7 @@
 {
- "schema": "perf-baseline-09/run-v2",
+ "schema": "perf-baseline-09/run-v3",
  "tag": "nucleo",
- "status": "termicamente-reprovado",
+ "status": "completo",
  "stamp_utc": "2026-07-23T00:16:16.346801+00:00",
  "manifest": {
   "schema": "perf-baseline-09/manifest-v1",
@@ -416,9 +416,11 @@
  },
  "plano": {
   "id": "nucleo",
-  "sha": "a6c1a4899267a47d9b5fddbffc5387c7bfb6aa30f87895b8e2349a34017a8140",
+  "sha": "661b5971dbbd4986ddb465b191697268144de36437f7226261157cbfb16c9269",
   "intencao": "referencia-recorrente-comparavel",
   "campanha": false
  },
- "nota_drift": "drift e' da SESSAO atual; retomada cross-sessao nao unifica (bloco = Fase 3)"
+ "nota_drift": "drift e' da SESSAO atual; retomada cross-sessao nao unifica (bloco = Fase 3)",
+ "runner_thermal_status": "termicamente-suspeito",
+ "nota_adjudicacao": "MIGRADO de run-v2 (status='termicamente-reprovado') sem re-medir: os DADOS eram completos (obrig_falhou=0, rt/erro=0); o 'termicamente-reprovado' era so' o gate intra-run REFUTADO. Veredito owner: accepted-first-order (analise entre-runs, CV 3%). runner_thermal_status e' AVISO, nao invalida."
 }

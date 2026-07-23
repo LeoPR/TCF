@@ -1,4 +1,4 @@
-"""Runner do baseline — o PROCESSO cristalizado (schema perf-baseline-09/v1).
+"""Runner do baseline — o PROCESSO cristalizado (schema perf-baseline-09/run-v3).
 
 Le a matriz congelada (cases.json), constroi cada caso de forma DETERMINISTICA,
 roda os gates de classe ANTES do cronometro, mede encode/decode/prepare/verify
@@ -159,8 +159,6 @@ CAMINHOS = {
     "csv-ref": _csv_ref,
     "repr-null": _repr_null,
 }
-
-CAMINHOS_PENDENTES: set[str] = set()   # tcf-8h/nested/typed cobertos; B4 concorrencia via vetor
 
 
 # ----------------------------------------------------------------- medicao de 1 caso
@@ -425,10 +423,6 @@ def run_case(case: dict, order_index: int, smoke: bool) -> dict:
             rec["status"] = "erro"; rec["motivo"] = f"{type(ex).__name__}: {str(ex)[:200]}"
             return rec
 
-    if cam in CAMINHOS_PENDENTES:
-        rec["status"] = "pendente"
-        rec["motivo"] = f"caminho '{cam}' ainda nao implementado no runner"
-        return rec
     if cam not in CAMINHOS:
         rec["status"] = "pendente"
         rec["motivo"] = f"caminho '{cam}' desconhecido"
@@ -490,11 +484,11 @@ def run_case(case: dict, order_index: int, smoke: bool) -> dict:
     try:
         # PREPARE medido (montar o dado que o caminho consome — hoje fora do cronometro
         # no harness antigo; aqui e' fronteira propria)
-        t0 = P.time.perf_counter_ns()
+        t0 = time.perf_counter_ns()
         pivot = build_pivot(case, smoke)
         V.g1_retangular(pivot)
         obj, ser, des = CAMINHOS[cam](pivot)
-        rec["prepare_ns"] = P.time.perf_counter_ns() - t0
+        rec["prepare_ns"] = time.perf_counter_ns() - t0
 
         if cam.startswith("json") or cam.startswith("tcf"):     # alertas cross-compat -> metadado
             rec["crosscompat"] = CC.resumo(CC.alertas(obj if isinstance(obj, list) else V.to_records(obj)))
@@ -560,11 +554,14 @@ def avaliar_rodada(por_id: dict[str, str], opcionais: "set[str] | None",
                    n_casos_total: int, thermally_suspect: bool) -> dict:
     """Decisao de status a partir dos status por case_id — PURA (testavel isolada).
 
-    Regras (parecer Fase 3a+3b):
-      - correcao (rt-quebrado/erro) SEMPRE invalida 'completo';
-      - com plano, um caso NAO-opcional fora de ok/envelope tambem invalida;
-      - opcional pode ficar pendente/nao-medido sem invalidar;
-      - deriva termica reprova antes de tudo (o numero nao vale como evidencia).
+    DUAS dimensoes ORTOGONAIS (parecer 2340 §1 — o termico NAO e' o status final):
+      - `status` = VALIDADE DE DADOS: 'completo' | 'parcial'. correcao (rt-quebrado/
+        erro) SEMPRE invalida; com plano, caso NAO-opcional fora de ok/envelope
+        invalida; opcional pode ficar pendente sem invalidar.
+      - `runner_thermal_status` = ESTABILIDADE do ambiente: 'estavel' |
+        'termicamente-suspeito'. E' um AVISO do gate intra-run, NAO um veredito de
+        validade. Um run pode ser 'completo' E 'termicamente-suspeito' — comparavel
+        first-order (o comparador avisa, nao bloqueia; --strict-thermal p/ precisao).
     """
     contagem: dict[str, int] = {}
     for st in por_id.values():
@@ -578,10 +575,10 @@ def avaliar_rodada(por_id: dict[str, str], opcionais: "set[str] | None",
     err = contagem.get("erro", 0)
     tudo_registrado = n_registro >= n_casos_total
     sao = tudo_registrado and rt_q == 0 and err == 0 and obrig_falhou == 0
-    status = ("termicamente-reprovado" if thermally_suspect
-              else "completo" if sao
-              else "parcial")
-    return {"status": status, "contagem": contagem, "n_registro": n_registro,
+    status = "completo" if sao else "parcial"
+    thermal = "termicamente-suspeito" if thermally_suspect else "estavel"
+    return {"status": status, "runner_thermal_status": thermal,
+            "contagem": contagem, "n_registro": n_registro,
             "n_comparavel": contagem.get("ok", 0), "n_envelope": contagem.get("envelope", 0),
             "rt_q": rt_q, "err": err, "obrig_falhou": obrig_falhou}
 
@@ -596,7 +593,11 @@ def main(argv=None) -> int:
                     help="continua um JSONL existente: pula case_id ja' feitos (mesmo git+matriz)")
     ap.add_argument("--probative", action="store_true",
                     help="rodada de EVIDENCIA: fail-closed — aborta antes se arvore suja OU cython "
-                         "ausente; ao fim, exit!=0 se nao ficar 'completo'")
+                         "ausente; ao fim, exit!=0 se os DADOS nao ficarem 'completo' (o termico "
+                         "e' aviso, nao bloqueia)")
+    ap.add_argument("--strict-thermal", action="store_true",
+                    help="com --probative: exige tambem estabilidade termica (falha se "
+                         "termicamente-suspeito). Default: termico e' so' aviso (first-order).")
     ap.add_argument("--plan", help="plano de execucao (nucleo/campanha/smoke): seleciona casos + "
                                    "aceite obrigatorio/opcional (matriz-mestra intocada)")
     args = ap.parse_args(argv)
@@ -646,8 +647,11 @@ def main(argv=None) -> int:
 
     stamp = args.stamp_utc or datetime.now(timezone.utc).isoformat()
     SAIDA.mkdir(parents=True, exist_ok=True)
-    # artefato proprio por plano (Fase 3c: cada cadencia = arquivo/resumo proprios)
-    tag = args.plan if args.plan else ("smoke" if args.smoke else "baseline")
+    # artefato proprio por plano (Fase 3c: cada cadencia = arquivo/resumo proprios).
+    # smoke SEMPRE no tag -> artefato smoke (dados R<=100 de brinquedo) nunca compartilha
+    # arquivo com um baseline real, nem se mistura nele via --resume.
+    tag = (f"{args.plan}-smoke" if args.smoke else args.plan) if args.plan \
+        else ("smoke" if args.smoke else "baseline")
     out = Path(args.out) if args.out else SAIDA / f"perf-{tag}.jsonl"
     sentinela_cada = (plano.get("sentinela_cada", SENTINELA_CADA) if plano else SENTINELA_CADA)
 
@@ -681,6 +685,7 @@ def main(argv=None) -> int:
             if n_medido % sentinela_cada == 0:
                 drift.bater(i)                                 # deriva termica
             rec = run_case(case, i, args.smoke)
+            rec["smoke"] = bool(args.smoke)                    # proveniencia: smoke != baseline
             rec["manifest_git"] = git12
             rec["cases_sha"] = cases12                         # (git, matriz) verificados na retomada
             rec["stamp_utc"] = stamp
@@ -710,6 +715,7 @@ def main(argv=None) -> int:
     av = avaliar_rodada(por_id, opcionais, len(casos),
                         thermally_suspect=bool(d and d.get("thermally_suspect")))
     status = av["status"]
+    thermal = av["runner_thermal_status"]
     contagem = av["contagem"]
     n_registro = av["n_registro"]
     n_comparavel = av["n_comparavel"]
@@ -717,7 +723,12 @@ def main(argv=None) -> int:
     rt_q, err, obrig_falhou = av["rt_q"], av["err"], av["obrig_falhou"]
 
     resumo = {
-        "schema": "perf-baseline-09/run-v2", "tag": tag, "status": status, "stamp_utc": stamp,
+        "schema": "perf-baseline-09/run-v3", "tag": tag, "smoke": bool(args.smoke),
+        # VALIDADE DE DADOS (status) e ESTABILIDADE (runner_thermal_status) sao ORTOGONAIS
+        # (parecer 2340 §1). O termico e' AVISO, nao veredito — o comparador nao bloqueia
+        # por ele (salvo --strict-thermal).
+        "status": status, "runner_thermal_status": thermal,
+        "stamp_utc": stamp,
         "manifest": man, "calibradores": calib, "drift": d,
         "n_casos_total": len(casos), "n_com_registro": n_registro,
         "n_comparaveis_ok": n_comparavel, "n_envelope": n_envelope,
@@ -728,24 +739,33 @@ def main(argv=None) -> int:
         "plano": ({"id": plano.get("plan_id"), "sha": plano_sha,
                    "intencao": plano.get("intencao"),
                    "campanha": bool(plano.get("campanha"))} if plano else None),
+        "nota_adjudicacao": ("status=validade-de-dados; runner_thermal_status=estabilidade "
+                             "intra-run (AVISO). 'termicamente-suspeito' NAO invalida — first-order "
+                             "aceita via analise entre-runs (piloto). --strict-thermal exige estavel."),
         "nota_drift": "drift e' da SESSAO atual; retomada cross-sessao nao unifica (bloco = Fase 3)",
     }
     (out.with_suffix(".run.json")).write_text(
         json.dumps(resumo, ensure_ascii=False, indent=1), encoding="utf-8", newline="\n")
 
-    print(f"\nstatus={status}  comparaveis(ok)={n_comparavel}  envelope={n_envelope}  "
-          f"registro={n_registro}/{len(casos)}  {contagem}  ->  {out}")
+    print(f"\nstatus={status}  termico={thermal}  comparaveis(ok)={n_comparavel}  "
+          f"envelope={n_envelope}  registro={n_registro}/{len(casos)}  {contagem}  ->  {out}")
     if d:
         print(f"drift: ratio_max={d['drift_ratio_max']} noise_floor_cv={d['noise_floor_cv']} "
-              f"{'TERMICAMENTE SUSPEITO' if d['thermally_suspect'] else 'estavel'}")
+              f"{'TERMICAMENTE SUSPEITO (aviso, nao bloqueia)' if d['thermally_suspect'] else 'estavel'}")
 
-    # RETURN FAIL-CLOSED (parecer §38): correcao (erro/rt-quebrado) SEMPRE falha;
-    # rodada probatoria falha tambem se nao ficar 'completo' (parcial/termico).
+    # RETURN FAIL-CLOSED: correcao (erro/rt-quebrado) SEMPRE falha; probatoria exige
+    # VALIDADE DE DADOS ('completo'). O termico e' AVISO — so' falha em --strict-thermal.
     if err or rt_q:
         print(f"FALHA: {err} erro + {rt_q} rt-quebrado — evidencia invalida.")
         return 1
     if args.probative and status != "completo":
-        print(f"FALHA (probatorio): status={status} — nao serve como referencia.")
+        print(f"FALHA (probatorio): status={status} (dados incompletos) — nao serve como referencia.")
+        return 1
+    if args.probative and n_comparavel == 0:
+        print("FALHA (probatorio): 0 celulas comparaveis (so' envelope/opcional) — sem numero pra referenciar.")
+        return 1
+    if args.probative and args.strict_thermal and thermal != "estavel":
+        print(f"FALHA (--strict-thermal): {thermal} — exigida estabilidade termica.")
         return 1
     return 0
 

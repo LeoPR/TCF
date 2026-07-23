@@ -65,14 +65,17 @@ def test_opcional_nao_e_obrigatorio():
         assert PL.e_opcional(plano, c), f"process-tree devia ser opcional: {c['case_id']}"
 
 
-def test_hash_canonico_e_estavel():
-    """Hash independe da ordem das chaves (senao 'mesmo plano' viraria 'plano diferente')."""
+def test_hash_e_da_identidade_nao_da_prosa():
+    """Hash = IDENTIDADE (selecao+versao+pin), independente de ordem de chave. Editar
+    descricao/intencao (prosa/semantica) NAO muda o sha; mudar a SELECAO muda."""
     plano = PL.carregar("nucleo")
     baralhado = dict(reversed(list(plano.items())))
-    assert PL.hash_plano(plano) == PL.hash_plano(baralhado)
-    # e discrimina conteudo: mexer na intencao muda o hash
-    outro = dict(plano, intencao="outra-coisa")
-    assert PL.hash_plano(plano) != PL.hash_plano(outro)
+    assert PL.hash_plano(plano) == PL.hash_plano(baralhado)          # ordem nao importa
+    # prosa/intencao NAO entram (senao um typo na descricao quebraria a comparacao .9)
+    assert PL.hash_plano(dict(plano, descricao="typo corrigido")) == PL.hash_plano(plano)
+    assert PL.hash_plano(dict(plano, intencao="outra-coisa")) == PL.hash_plano(plano)
+    # a SELECAO entra: mexer em incluir/excluir/opcional muda o sha
+    assert PL.hash_plano(dict(plano, excluir=[])) != PL.hash_plano(plano)
 
 
 def test_pin_amarra_a_matriz():
@@ -101,10 +104,19 @@ def test_obrigatorio_pendente_invalida_mas_opcional_nao():
     assert av["obrig_falhou"] == 1
 
 
-def test_termico_reprova_antes_de_tudo():
+def test_termico_ortogonal_ao_status():
+    # DESACOPLADO (parecer 2340 §1): termico-suspeito NAO invalida os dados —
+    # status fica 'completo' e o termico vira campo proprio (aviso).
     por_id = {"a": "ok", "b": "ok"}
     av = avaliar_rodada(por_id, set(), 2, thermally_suspect=True)
-    assert av["status"] == "termicamente-reprovado"
+    assert av["status"] == "completo"
+    assert av["runner_thermal_status"] == "termicamente-suspeito"
+    # sem suspeita -> estavel
+    av2 = avaliar_rodada(por_id, set(), 2, thermally_suspect=False)
+    assert av2["status"] == "completo" and av2["runner_thermal_status"] == "estavel"
+    # dados parciais + termico-suspeito: status=parcial, termico=suspeito (ortogonais)
+    av3 = avaliar_rodada({"a": "ok"}, set(), 2, thermally_suspect=True)  # falta 1 registro
+    assert av3["status"] == "parcial" and av3["runner_thermal_status"] == "termicamente-suspeito"
 
 
 def test_sem_plano_tolera_pendente():
@@ -120,8 +132,9 @@ def _rec(cid, ns, tier="micro", n=31, status="ok"):
 
 
 def _run(cases_sha="AAA", plano_sha="P1", intencao="referencia-recorrente-comparavel",
-         status="completo"):
-    return {"status": status, "manifest": {"cases_sha256": cases_sha},
+         status="completo", thermal="estavel"):
+    return {"status": status, "runner_thermal_status": thermal,
+            "manifest": {"cases_sha256": cases_sha},
             "calibradores": {"C1": {"point_ns": 100}}, "drift": {"noise_floor_cv": 0.0},
             "plano": {"id": "nucleo", "sha": plano_sha, "intencao": intencao, "campanha": False}}
 
@@ -190,6 +203,39 @@ def test_compare_detecta_pior_alem_do_limiar():
         r = CMP.comparar(a, b)
         assert r["contagem"]["PIOR"] == 1
     _com_tmp(corpo)
+
+
+def test_compare_termico_suspeito_e_comparavel_por_default():
+    # DESACOPLADO: um lado termico-suspeito mas com DADOS completos NAO invalida a
+    # comparacao (first-order). validade=completo dos dois lados; termico=suspeito no b.
+    def corpo(d: Path):
+        a = _escreve(d, "a", [_rec("k1", 1000)], _run(thermal="estavel"))
+        b = _escreve(d, "b", [_rec("k1", 1010)], _run(thermal="termicamente-suspeito"))
+        r = CMP.comparar(a, b)
+        assert r["validade"] == {"baseline": "completo", "candidato": "completo"}
+        assert r["status_termico"]["candidato"] == "termicamente-suspeito"
+        # nenhum campo de validade bloqueia -> a comparacao procede (nao ha n/a por status)
+        assert r["contagem"]["n/a"] == 0
+    _com_tmp(corpo)
+
+
+def test_compare_dados_parciais_invalidam():
+    # validade!=completo BLOQUEIA (o main recusa) — aqui checamos o campo validade
+    def corpo(d: Path):
+        a = _escreve(d, "a", [_rec("k1", 1000)], _run(status="parcial"))
+        b = _escreve(d, "b", [_rec("k1", 1000)], _run())
+        assert CMP.comparar(a, b)["validade"]["baseline"] == "parcial"
+    _com_tmp(corpo)
+
+
+def test_adj_compat_schema_antigo():
+    # run-v2 antigo: status='termicamente-reprovado' -> (completo, suspeito)
+    assert CMP._adj({"status": "termicamente-reprovado"}) == ("completo", "termicamente-suspeito")
+    # run-v2 completo sem campo termico -> estavel
+    assert CMP._adj({"status": "completo"}) == ("completo", "estavel")
+    # run-v3 novo: le os dois campos direto
+    assert CMP._adj({"status": "completo", "runner_thermal_status": "termicamente-suspeito"}) \
+        == ("completo", "termicamente-suspeito")
 
 
 # ------------------------------------------------------------------- main ---
