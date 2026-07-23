@@ -18,6 +18,13 @@ related:
 
 # T-QA-8 — material comprobatório do #TCF.8/0.8.0
 
+> **⚑ ERRATA 2026-07-22** ([parecer 2340](../experiments/lab/dirty/notas/2026-07/2026-07-22-2340-revisao-fechamento-08-ordem-foco.md)):
+> **(1)** o achado F4 "nature CNPJ PIORA em real (`+7339 B`)" descreve a forma ABSOLUTA pré-FLOOR,
+> **não** o resultado público (o FLOOR nunca regride); está **sob revisão estrutural** (lab de natures
+> a abrir) — o F6 **não** deve claimar isso como propriedade. **(2)** novo material disponível:
+> baseline de perf first-order (`evidencia-0.8/perf-baseline/`) alimenta o F6/DOC-01. **(3)** o F6 só
+> depois da API única + decisão do lab de natures + fechamento de `view` (ordem no parecer).
+
 **[dispositivo→execução]** Diretriz do owner (2026-07-10): gerar o **material comprobatório**
 de TUDO que foi feito no `.8` até o momento, com dados mais sólidos — todos os **dicts**,
 verificação de **paralelismo**, **telemetria** interna (derivada dos dados via SideOutputs)

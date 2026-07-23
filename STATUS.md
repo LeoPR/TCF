@@ -1,5 +1,15 @@
 # STATUS — TCF (compendio sempre-atualizado)
 
+> **⚑ ERRATA 2026-07-22 (parecer de fechamento do `.8`, corte b0e3bf1) — controla as leituras abaixo.**
+> **(1) baseline perf**: a adjudicação vigente é a análise ENTRE-runs (CV 3%, aceito *first-order*); o
+> `status: termicamente-reprovado` no manifesto bruto é o gate intra-run REFUTADO, **não** o status
+> metodológico final. **(2) CNPJ**: o `+7339 B` do F4 é a forma ABSOLUTA pré-FLOOR, não o resultado
+> público (o FLOOR escolhe o menor blob); a modelagem estrutural da nature está **SOB REVISÃO** (owner
+> suspeita de ganho real mascarado por lab). **(3) API**: remover `encode_hierarchical` do público é
+> **bloqueador pré-`.9`** (API única `encode`/`decode`). **(4) versão**: metadata/READMEs já em
+> `0.8.0/#TCF.8`; o snapshot do survey 22/07 é foto datada, não estado vigente. Ordem de foco e gates:
+> [parecer 2340](experiments/lab/dirty/notas/2026-07/2026-07-22-2340-revisao-fechamento-08-ordem-foco.md).
+
 > **⚑ BASELINE DE PERFORMANCE DO `.8` REGISTRADO 2026-07-22.** Processo `bench_perf` (Fase 3
 > completa, `da4544a`) rodado como referência first-order pro `.9` — grandeza + pontos quentes,
 > **não** precisão (protótipo; extremos → `.9`/`1.0`). Reprodutibilidade validada (piloto B1×7

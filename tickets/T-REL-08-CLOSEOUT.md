@@ -15,6 +15,16 @@ related:
 
 # T-REL-08-CLOSEOUT — fechamento do 0.8, na ordem
 
+> **⚑ ERRATA/SUPERSESSÃO 2026-07-22** — os checkboxes deste ticket são de 2026-07-12 (antes do
+> feature-complete de 07-17, suíte 861 passed). A **ordem de foco vigente** e os gates estão no
+> [parecer 2340](../experiments/lab/dirty/notas/2026-07/2026-07-22-2340-revisao-fechamento-08-ordem-foco.md).
+> Ajustes que controlam a leitura abaixo: **(a)** 4 trabalhos pré-`.9` ANTES do F6 — API única
+> (remover `encode_hierarchical`), lab estrutural de natures (CNPJ), fechar bordas+baseline de `view`,
+> reconciliar docs; **(b)** o caveat "CNPJ piora em real" (F4, `+7339 B`) é forma absoluta pré-FLOOR
+> e está **sob revisão** — não fechar o README afirmando-o como propriedade; **(c)** baseline de perf
+> aceito *first-order* (adjudicação entre-runs, não o gate térmico). Passo 3 (fronteira `.9`/depois)
+> segue válido.
+
 **[dispositivo→execução]** Materializa o levantamento de 2026-07-10 (pedido do owner: listar os
 tickets abertos e a ordem de ataque com critérios — "fácil e sem risco primeiro, os de alto valor,
 e os que ainda tem coisa pra implementar antes de ir pro .9"; e "mesmo a ordem de execução do que

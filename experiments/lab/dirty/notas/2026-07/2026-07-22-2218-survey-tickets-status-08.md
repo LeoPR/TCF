@@ -1,5 +1,10 @@
 # Survey de tickets + estado do closeout do #TCF.8 — 2026-07-22 [referência]
 
+> **ERRATA 2026-07-22 (23:40)**: foto DATADA, não estado vigente. A ordem de foco e as decisões
+> de fechamento passam a ser controladas pelo [parecer 2340](2026-07-22-2340-revisao-fechamento-08-ordem-foco.md)
+> (supersede a leitura do closeout aqui quando divergir). Versão já em `0.8.0/#TCF.8` no repo.
+
+
 **Data**: 2026-07-22 22:18. Snapshot de status dos 82 tickets (survey automatizado, 14 readers) +
 reconciliação do [`T-REL-08-CLOSEOUT`](../../../../../tickets/T-REL-08-CLOSEOUT.md) com o estado
 atual (feature-complete 2026-07-17, suíte ~853). Fonte viva = os próprios tickets; isto é foto datada.

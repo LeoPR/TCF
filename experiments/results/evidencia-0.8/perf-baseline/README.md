@@ -9,6 +9,18 @@ Georges, Buytaert & Eeckhout, *Statistically Rigorous Java Performance Evaluatio
 (OOPSLA 2007) — múltiplas invocações → reportar variação, não número solto — e
 Kalibera & Jones, *Rigorous Benchmarking in Reasonable Time* (ISMM 2013).
 
+## Adjudicação (leia antes de olhar o run.json)
+
+**Veredito: `accepted-first-order`** (owner, 2026-07-22). Critério: a análise ENTRE-runs
+(piloto B1×7, CV mediano 3%, máx 5% — `reproducibilidade-piloto.txt`) confirma a máquina como
+instrumento pro propósito declarado (ordem de grandeza + pontos quentes).
+
+> O `run.json` tem `status: termicamente-reprovado` — esse é o **`runner_thermal_status`**, um
+> gate binário **intra-run** que se mostrou inadequado pra esta pergunta e foi **REFUTADO**. Ele
+> fica preservado como proveniência do gate antigo; **não** é o status metodológico final. O
+> comparador (`bench_perf.compare`) ainda interpreta só esse campo — corrigi-lo p/ consumir a
+> adjudicação vigente é higiene pendente (bench_perf, não core; ver parecer 2340 §1).
+
 Estudo/leitura completa:
 [`../../../lab/dirty/notas/2026-07/2026-07-22-2207-baseline-perf-08-first-order.md`](../../../lab/dirty/notas/2026-07/2026-07-22-2207-baseline-perf-08-first-order.md).
 

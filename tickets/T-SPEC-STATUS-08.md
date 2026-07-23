@@ -16,6 +16,15 @@ related:
 
 # T-SPEC-STATUS-08 — onde os specs estão, pra decidir o que fechar antes do teste em massa
 
+> **⚑ ERRATA 2026-07-22** ([parecer 2340](../experiments/lab/dirty/notas/2026-07/2026-07-22-2340-revisao-fechamento-08-ordem-foco.md)
+> §3): o caveat "a nature CNPJ piora a tabela em real" (base da Opção A) está **SOB REVISÃO
+> ESTRUTURAL**. O owner suspeita que o spec/forma está mal-conduzido (RT+compressão ok, forma não) e
+> que **há ganho real** — o `+7339 B` é a forma absoluta pré-FLOOR, não teto do spec. Trabalho pré-`.9`:
+> **lab estrutural de natures** (CNPJ real da Receita; CPF/IP controle) tratando código como composição
+> de subcódigos/transformação de coluna, e desenhar uma **IR/DSL de spec** (natures como linguagem).
+> A Opção A (não expandir catálogo no `.8`) permanece; o que muda é que o **caveat não é conclusão
+> fechada**. Ver [direções §3](../experiments/lab/dirty/notas/2026-07/2026-07-22-2225-direcoes-pos-baseline-discutir-depois.md).
+
 > **DECIDIDO (owner 2026-07-12): OPÇÃO A.** Só CPF/CNPJ (já welded) no `.8` — o material reporta
 > CNPJ (receita REAL) e CPF (sintético-teto), COM o caveat medido no F4 (a nature CNPJ piora a
 > tabela em dado real). NENHUM spec novo no `.8` (zero core novo, zero risco no tail). Os clássicos
