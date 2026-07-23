@@ -45,9 +45,10 @@ def gen(k, regime, n, seed):
     C = cats(k)
     r = _lcg(seed)
     if regime == "runny":                                   # runs longos (baixa entropia)
-        out = []
+        out, j = [], 0
         while len(out) < n:
-            out += [C[r(k)]] * (8 + r(40))
+            out += [C[j % k]] * (8 + r(40))                 # CICLA as k categorias -> realiza w
+            j += 1
         return out[:n]
     if regime == "noisy":                                   # 1 símbolo aleatório por posição
         return [C[r(k)] for _ in range(n)]
@@ -111,31 +112,35 @@ def rodar():
             f"{wa - wbest:+d} | {'1.0' if reads_one else '>1'} | {'✅' if ok else '❌'} |")
 
     linhas.append("\n## Leitura — as peças conversam?\n")
-    linhas.append("- **SIM, compõem mecanicamente**: a MESMA peça `seg_adapt(runs, w)` roda pra "
-                  "k∈{2,4,16} (w=1/2/4) sem código novo — só `w` muda (de `width_for(k)`). RT fecha nos 9 "
-                  "→ cardinalidade→largura casa com a segmentação. Bool = caso w=1 com domínio implícito.")
+    linhas.append("- **A CADEIA VERTICAL compõe** (é o que o RT prova): `build_and_scan → width_for(k) → "
+                  "codec(runs,w) → decoder → domínio`. A mesma `seg_adapt(runs,w)` roda em w=1/2/4 sem "
+                  "código novo, RT fecha nos 9. Os 3 modos (dense/rle/seg-adapt) NÃO se encadeiam — são "
+                  "SUBSTITUÍVEIS sob o contrato comum `(runs,w)`, unificados por um `min()` externo.")
     linhas.append("- **Passe único preservado** (`reads/n==1.0`): 1 scan constrói domínio + índices + "
-                  "runs juntos. A telemetria (k, runs) sai desse mesmo passe.")
-    linhas.append("- **MAS seg-adapt NÃO é vitória geral** (corrige o otimismo anterior): ele só bate o "
-                  "melhor modo único em dados GENUINAMENTE MISTOS e w≥2 — `k4-hetero` −29, `k16-hetero` "
-                  "−136. Em dados UNIFORMES perde: `runny` (k4 +21, k16 +17) o whole-rle compacto já ganha; "
-                  "`noisy` (+5) o whole-dense já ganha; e em k2 (bool) o piso denso é tão baixo (1 bit/elem) "
-                  "que o misto quase nunca compensa (k2-hetero +10). A segmentação por-segmento só paga "
-                  "quando NENHUM modo único é bom o tempo todo.")
-    linhas.append("- **w AMPLIFICA o ganho do misto**: quanto maior o piso denso (w maior), mais os "
-                  "segmentos RLE têm o que bater → o ganho no heterogêneo cresce com k (−29 em w=2, −136 "
-                  "em w=4). Bool (w=1) é o pior caso pro misto.")
-    linhas.append("- **FLOOR é obrigatório, não opcional**: como seg-adapt perde na maioria, ele SÓ é "
-                  "seguro competindo em `min(whole-dense, whole-rle, seg-adapt)` — aí os +Δ viram fallback "
-                  "pro modo único e o líquido é nunca-pior. A peça a soldar é o FLOOR/min (já é padrão), "
-                  "com seg-adapt como mais um candidato — não seg-adapt como default.")
-    linhas.append("- **Custo novo do bN vs bool**: o `domínio B` (bool tem domínio implícito {0,1}; "
-                  "low-card embute os k distintos). Constante aditivo aos 3 modos — não muda QUAL vence, "
-                  "mas conta no total.")
-    linhas.append("- **Seguro soltar/manter?** As peças são lab-local, compõem por contrato estreito "
-                  "(`runs`+`w`) e são reusáveis pelos próximos SEM tocar src/tcf. A 'terceira desavio' "
-                  "(integração) NÃO é incompatibilidade entre as peças (elas conversam) — é o "
-                  "ponto-de-seleção inexistente no `.8H`, que segue sendo o risco real de weld.")
+                  "runs juntos; os encoders consomem `runs` (nunca a fonte). A telemetria sai desse passe.")
+    linhas.append("- **seg-adapt NÃO é vitória geral** (corrige o otimismo anterior): perde em 7/9. Só "
+                  "bate o modo único em MISTO genuíno e w≥2 — `k4-hetero` −29, `k16-hetero` −136. Em "
+                  "UNIFORME perde: `runny` o modo compacto já ganha (whole-rle p/ k≥4: k4 +29, k16 +15; "
+                  "whole-dense p/ bool k2 +23), `noisy` o whole-dense ganha (+5), e em bool k2 o piso "
+                  "denso baixo faz o misto perder também no hetero (+10). Segmentar só paga quando NENHUM "
+                  "modo único é bom o tempo todo.")
+    linhas.append("- **w AMPLIFICA o ganho do misto**: piso denso maior → segmentos RLE têm mais o que "
+                  "bater → o ganho no heterogêneo cresce com k (−29 em w=2, −136 em w=4). Bool (w=1) é o "
+                  "PIOR caso pro misto — o oposto do otimismo inicial.")
+    linhas.append("- **FLOOR obrigatório**: como seg-adapt perde na maioria, só é seguro em `min(whole-"
+                  "dense, whole-rle, seg-adapt)` — os +Δ viram fallback e o líquido é nunca-pior. A peça a "
+                  "soldar é o FLOOR/min (já padrão), com seg-adapt como candidato, não default. RESSALVA: "
+                  "este `min` é só de bytes-de-corpo; NÃO conta o byte do seletor de modo nem o custo de "
+                  "computar os 3 — em payload minúsculo (k2-runny rle=88 vs seg-adapt=111) 1 byte importa.")
+    linhas.append("- **Custo do bN low-card = domínio embutido** (`domínio B`: 5→11→53 conforme k). "
+                  "NOTA: este lab usa categorias-string `c0/c1`, então k=2 TAMBÉM paga domínio (5B) — a "
+                  "economia de um bool REAL (domínio implícito {0,1}, 0B) não é medida aqui, é conceitual. "
+                  "O domínio é constante aditivo aos 3 modos, não muda QUAL vence.")
+    linhas.append("- **Seguro soltar/manter?** As peças são lab-local, substituíveis sob contrato "
+                  "estreito (`runs`+`w`), reusáveis pelos próximos SEM tocar src/tcf. Este lab DESCARTA "
+                  "incompatibilidade entre as peças (RT fecha), mas NÃO mede integração — o `.8H` nunca é "
+                  "tocado. Logo o ponto-de-seleção inexistente no `.8H` é o risco de weld por ELIMINAÇÃO "
+                  "(hipótese herdada), não uma medição deste lab.")
     linhas.append(f"\n**{len(casos)} casos · {falhas} falhas (RT + passe único).** Regenera: `python run.py`.")
     (AQUI / "result.md").write_text("\n".join(linhas), encoding="utf-8", newline="\n")
     print(f"OK · {len(casos)} casos · {falhas} falhas (RT + passe unico)")
