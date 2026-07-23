@@ -1,0 +1,25 @@
+K = 7 invocacoes · t_{0.975,6} = 2.447
+
+=== calibradores (point_ns) por run — estabilidade da maquina ===
+  C1_aritmetica  media=  52.317ms  CV_entre_runs= 3.85%
+  C2_hash        media=   7.847ms  CV_entre_runs= 8.04%
+  C3_alloc       media=   1.313ms  CV_entre_runs= 6.97%
+
+=== 9 celulas · variancia ENTRE 7 runs ===
+celula                                                    media    CV%  CI95±%  veredito
+tcf-flat|synth|structured|base|call|serial+t1|-|none  676.588ms   5.01    4.63  estavel
+json-ref-str|synth|flat-mixed|base|call|serial+t1|-|   20.661ms   3.89    3.60  estavel
+csv-ref|synth|free-text|base|call|serial+t1|-|none|c   63.179ms   3.77    3.49  estavel
+csv-ref|synth|structured|base|call|serial+t1|-|none|   62.014ms   3.55    3.28  estavel
+tcf-flat|synth|flat-mixed|base|call|serial+t1|-|none  603.533ms   3.00    2.78  estavel
+json-ref-str|synth|structured|base|call|serial+t1|-|   19.810ms   2.82    2.61  estavel
+tcf-flat|synth|free-text|base|call|serial+t1|-|none|  641.761ms   2.79    2.58  estavel
+csv-ref|synth|flat-mixed|base|call|serial+t1|-|none|   63.216ms   2.52    2.33  estavel
+json-ref-str|synth|free-text|base|call|serial+t1|-|n   20.662ms   1.38    1.27  estavel
+
+=== SUMARIO ===
+CV entre-runs:  mediana=3.00%  max=5.01%
+CI95 (±% da media): mediana=2.78%  max=4.63%
+celulas com CI95 <=5%: 9/9 · <=10%: 9/9
+
+REPRODUZIVEL (>95% conf.): a variacao entre runs e' ruido do processador

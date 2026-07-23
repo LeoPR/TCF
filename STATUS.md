@@ -1,5 +1,15 @@
 # STATUS — TCF (compendio sempre-atualizado)
 
+> **⚑ BASELINE DE PERFORMANCE DO `.8` REGISTRADO 2026-07-22.** Processo `bench_perf` (Fase 3
+> completa, `da4544a`) rodado como referência first-order pro `.9` — grandeza + pontos quentes,
+> **não** precisão (protótipo; extremos → `.9`/`1.0`). Reprodutibilidade validada (piloto B1×7
+> pinado: CV entre-runs 3%, Georges 2007). **Achado**: encode é **LINEAR O(n)** no nº de linhas
+> (tcf-flat/json-ref/tcf-8h, slope ~1.0); a super-linearidade está só no **canto R×C extremo** —
+> `cantoRC-both`=44.6s vs base 595ms = **~75×**, o penhasco do OBAT (índice de trigramas degenera
+> com prefixos parecidos). Alvo do `.9` = esse penhasco (escada de prefixo adaptativa P1). Snapshot
+> versionado: [`evidencia-0.8/perf-baseline/`](experiments/results/evidencia-0.8/perf-baseline/) ·
+> estudo: [`2026-07-22-2207-baseline-perf-08-first-order`](experiments/lab/dirty/notas/2026-07/2026-07-22-2207-baseline-perf-08-first-order.md).
+
 > **⚑ ESTRUTURA DO `.8` COMPLETA 2026-07-17.** P5/union RATIFICADO (fora do `.8`, fronteira
 > declarada; msg de fail-loud ENSINA o fallback-string) + 2 bordas de contrato DECIDIDAS:
 > **(1)** contagem-de-contêiner-vazio (problema B) = fail-loud que ensina; representação plena =
