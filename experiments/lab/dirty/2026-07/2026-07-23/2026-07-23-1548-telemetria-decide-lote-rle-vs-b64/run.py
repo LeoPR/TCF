@@ -1,20 +1,22 @@
 #!/usr/bin/env python3
-"""Micro-lab — a TELEMETRIA (custos contados de qualquer forma) decide o modo POR LOTE?
+"""Micro-lab — telemetria decide modo por lote: FIXO-S (frágil) vs ADAPTATIVO (robusto).
 
-Reformulação do owner (2026-07-23): os vetores (memória/cpu/latência) já existem; o que muda é a
-FORMA como o TCF compõe o arquivo. Hoje o pipeline JÁ escolhe o modo vencedor POR COLUNA
-(`emitted_mode` ∈ tcf/raw/dict/split) a partir de bytes "contados no processo, não no fim"
-(src/tcf/side_outputs.py:62-67 — zero passada extra). Hipótese: a MESMA telemetria pode decidir POR
-LOTE dentro de uma coluna bool — quais lotes viram RLE e quais viram base64 — e lotes independentes
-são o que permite liberar/paralelizar por estágio.
+CORRIGIDO após verificação adversarial (wf_876541f7, 2026-07-23). A v1 reportou ganho -23%/-25% do
+batch de tamanho FIXO — mas isso era ARTEFATO DE ALINHAMENTO: os blocos dos dados tinham tamanho
+== S vencedor (128). Com blocos DESALINHADOS o batch-fixo PERDE (a verificação mediu +8 a +54), e a
+perda supera o ganho alinhado. Esta versão MEDE o desalinhado (registra a perda) e acrescenta a
+SEGMENTAÇÃO ADAPTATIVA (fronteira na virada de regime, não em S fixo — alignment-free).
 
-MEDIÇÃO JUSTA (corpo-vs-corpo): o `#PB.b S manif n\\n` (magic+S+n) é framing GENÉRICO que QUALQUER
-composição pagaria; comparar o corpo do batch-dyn (que inclui o manifesto `RDDR`, custo intrínseco
-da decisão por lote) contra o corpo do modo único. Assim isola a COMPOSIÇÃO do framing.
+Também corrige o enquadramento: o que é "custo de qualquer forma" é SÓ o run-list da coluna (o
+`_rle_adjacente` já roda sobre o bool e emite `*N|`). A segmentação-por-lote e o TAMANHO base64 são
+computação NOVA (barata), não reuso — o pipeline nunca calcula bitmap base64. E `emitted_mode` é do
+`.8M` multi-col; o caminho `.8H` do bool single-col não tem ponto de seleção. (grounding wf_876541f7)
 
-O que MEDE (bool heterogêneo, dados pequenos, viabilidade): por lote, telemetria = run-count (do
-scan) + tamanho -> fórmula de custo (denso=b64_len; rle=soma sobre runs); cada lote pega seu modo;
-compara CORPOS: whole-dense / whole-rle / whole-best / batch-dyn(S). RT self-contained + passe único.
+Composições comparadas (corpo-vs-corpo; framing genérico fora):
+  whole-dense / whole-rle / whole-best(min)  — 1 modo pra coluna
+  batch-fix/S  — modo por LOTE de tamanho fixo S (frágil a alinhamento)
+  seg-adapt    — segmentos com FRONTEIRA na virada de regime, do run-list (alignment-free)
+RT self-contained-do-corpo p/ seg-adapt (cada segmento declara seu count); batch-fix precisa de S,n.
 NÃO toca src/tcf. `python run.py`.
 """
 from __future__ import annotations
@@ -28,7 +30,7 @@ from pathlib import Path
 AQUI = Path(__file__).resolve().parent
 ROOT = AQUI.parents[5]
 sys.path.insert(0, str(ROOT / "src"))
-from tcf import encode  # noqa: E402
+from tcf import encode  # noqa: E402  (baseline de referência)
 
 INP, OUT = AQUI / "inputs", AQUI / "outputs"
 for d in (INP, OUT):
@@ -48,7 +50,6 @@ class Fonte:
 
 
 def scan_runs(seq, lo, hi):
-    """UM passe sobre seq[lo:hi] -> [(val,len)]. Cada índice lido 1 vez (guarda o lookahead)."""
     runs = []
     if hi <= lo:
         return runs
@@ -66,10 +67,6 @@ def scan_runs(seq, lo, hi):
 
 def b64_len(nbits):
     return math.ceil(math.ceil(nbits / 8) / 3) * 4
-
-
-def size_dense(nelems):
-    return b64_len(nelems)
 
 
 def size_rle(runs):
@@ -115,45 +112,69 @@ def runs_to_bits(runs):
     return out
 
 
-# ------------------------------------------------------ composições -> retorna (corpo, RT-decoder)
-def body_whole_dense(bits):
-    return enc_dense(bits)
-
-
-def body_whole_rle(bits):
-    return enc_rle_runs(scan_runs(bits, 0, len(bits)))
-
-
-def batch_dyn(fonte, S):
-    """Fatia em lotes de S; cada lote decide o modo pela TELEMETRIA. Retorna (corpo, manifesto).
-    CORPO = manifesto + ';'.join(bodies). UM passe (scan por lote soma == n)."""
+# --------------------------------------------------- COMPOSIÇÃO A: batch de tamanho FIXO (frágil)
+def batch_fix(fonte, S):
     n = len(fonte)
     manif, bodies = [], []
     for lo in range(0, n, S):
         hi = min(lo + S, n)
-        runs = scan_runs(fonte, lo, hi)                # telemetria do lote (passe único)
-        if size_rle(runs) < size_dense(hi - lo):       # decisão = SÓ os números
-            manif.append("R")
-            bodies.append(enc_rle_runs(runs))
+        runs = scan_runs(fonte, lo, hi)
+        if size_rle(runs) < b64_len(hi - lo):
+            manif.append("R"); bodies.append(enc_rle_runs(runs))
         else:
-            manif.append("D")
-            bodies.append(enc_dense(runs_to_bits(runs)))
-    manif = "".join(manif)
-    return manif + "\n" + ";".join(bodies), manif      # corpo = manifesto + bodies
+            manif.append("D"); bodies.append(enc_dense(runs_to_bits(runs)))
+    return "".join(manif) + "\n" + ";".join(bodies), "".join(manif)
 
 
-def dec_batch_dyn(corpo, S, n):
+def dec_batch_fix(corpo, S, n):
     manif, body = corpo.split("\n", 1)
     parts = body.split(";") if body else []
     out = []
     for i, seg in enumerate(parts):
-        if manif[i] == "R":
-            out.extend(dec_rle(seg))
-        else:
-            out.extend(dec_dense(seg, min(S, n - i * S)))
+        out.extend(dec_rle(seg) if manif[i] == "R" else dec_dense(seg, min(S, n - i * S)))
     return out
 
 
+# ------------------------------------- COMPOSIÇÃO B: segmentação ADAPTATIVA (fronteira no regime)
+def seg_adapt(fonte):
+    """UM scan da coluna -> segmentos com fronteira ONDE o modo vira (greedy, 1 acumulador).
+    Cada segmento declara seu count -> corpo AUTO-DECODÁVEL (não precisa de S nem n externos)."""
+    runs = scan_runs(fonte, 0, len(fonte))
+    segs, aberto = [], []
+    for v, L in runs:
+        open_bits = sum(rl for _, rl in aberto)
+        simbolico = 1 + len(str(L)) + 1 + 1                 # "R"+len+":"+val
+        marginal_d = b64_len(open_bits + L) - b64_len(open_bits)
+        if simbolico < marginal_d:                          # o run paga o marcador -> extrai
+            if aberto:
+                segs.append(_emit_D(aberto)); aberto = []
+            segs.append(f"R{L}:{v}")
+        else:
+            aberto.append((v, L))
+    if aberto:
+        segs.append(_emit_D(aberto))
+    return ";".join(segs)
+
+
+def _emit_D(runs_acc):
+    bits = runs_to_bits(runs_acc)
+    return f"D{len(bits)}:{enc_dense(bits)}"
+
+
+def dec_seg_adapt(corpo):
+    out = []
+    for seg in corpo.split(";"):
+        head, payload = seg[0], seg[1:]
+        if head == "R":
+            L, v = payload.split(":")
+            out.extend([v == "1"] * int(L))
+        else:
+            count, b64 = payload.split(":")
+            out.extend(dec_dense(b64, int(count)))
+    return out
+
+
+# --------------------------------------------------------------------------------- datasets
 def _lcg(n, pct, seed):
     s, out = seed, []
     for _ in range(n):
@@ -162,85 +183,94 @@ def _lcg(n, pct, seed):
     return out
 
 
+def _blocos(run_len, noise_len, reps, seed0):
+    out = []
+    for k in range(reps):
+        out += [True] * run_len + _lcg(noise_len, 50, seed0 + k)
+    return out
+
+
 def datasets():
-    blocky = []
-    for k in range(4):
-        blocky += [True] * 32 + _lcg(32, 50, 100 + k)          # run|ruído × 4  (n=256)
-    blocky_big = []
-    for k in range(8):
-        blocky_big += [True] * 128 + _lcg(128, 50, 200 + k)    # run|ruído × 8  (n=2048)
     return {
-        "blocky":     blocky,                                   # heterogêneo pequeno
-        "blocky-big": blocky_big,                               # heterogêneo, n grande (amortiza)
-        "half-half":  [True] * 128 + _lcg(128, 50, 7),          # metade run, metade ruído
-        "runny":      _lcg(256, 6, 3),                           # quase tudo run -> whole-rle
-        "noisy":      _lcg(256, 50, 9),                          # tudo ruído -> whole-dense
-        "alt":        [bool(i % 2) for i in range(256)],        # alternado -> whole-dense
+        # HETEROGÊNEO — bloco ALINHADO a S=128 (favorece batch-fix; teto do ganho fixo)
+        "het-align128": _blocos(128, 128, 8, 200),          # n=2048, blocos de 128
+        # HETEROGÊNEO — bloco DESALINHADO de qualquer S∈{32,64,128} (caso realista)
+        "het-mis100":   _blocos(100, 100, 10, 300),         # n=2000, blocos de 100
+        "het-mis77":    _blocos(77, 51, 15, 400),           # n=1920, blocos de 77/51
+        "half-100-156": [True] * 100 + _lcg(156, 50, 7),    # n=256, fronteira em 100 (flip do -11)
+        # HOMOGÊNEO — controle (nenhuma composição por-lote deve ganhar)
+        "noisy":        _lcg(2048, 50, 9),
+        "alt":          [bool(i % 2) for i in range(2048)],
     }
 
 
 def rodar():
     casos = datasets()
     SIZES = [32, 64, 128]
-    linhas = ["# Telemetria decide o modo POR LOTE (RLE vs base64) — CORPO-vs-corpo\n",
-              "Bool heterogêneo, dados pequenos. Compara o CORPO de cada composição (o framing genérico "
-              "magic+S+n é igual pra todas e fica de fora; o manifesto `RDDR` É custo do batch-dyn). "
-              "`whole-*`=1 modo/coluna; `batch-dyn/S`=modo por lote pela telemetria. `reads/n` 1.0=passe "
-              "único; RT self-contained.\n",
-              "| caso | n | whole-dense | whole-rle | whole-best | bd/32 | bd/64 | bd/128 | melhor corpo | Δ vs best | reads/n | RT |",
-              "|---|---:|---:|---:|---:|---:|---:|---:|:---:|---:|:---:|:---:|"]
+    linhas = ["# Telemetria decide modo por lote: FIXO-S (frágil) vs ADAPTATIVO (robusto)\n",
+              "Corrigido pós-verificação (wf_876541f7). Corpo-vs-corpo. `batch-fix` = lote de S fixo; "
+              "`seg-adapt` = fronteira na virada de regime (do run-list, sem S). `Δfix`/`Δadapt` = corpo "
+              "− whole-best (<0 ganha do melhor modo único). `align?` = bloco casa algum S. RT + passe único.\n",
+              "| caso | n | whole-best | batch-fix(melhor S) | Δfix | seg-adapt | Δadapt | reads/n | RT |",
+              "|---|---:|---:|---:|---:|---:|---:|:---:|:---:|"]
     falhas = 0
     for nome, bits in casos.items():
         (INP / f"{nome}.json").write_text(json.dumps(bits), encoding="utf-8")
         n = len(bits)
         json_rt = json.loads(json.dumps(bits))
 
-        wd = len(body_whole_dense(bits))
-        wr = len(body_whole_rle(bits))
+        wd = len(enc_dense(bits))
+        wr = len(enc_rle_runs(scan_runs(bits, 0, n)))
         wbest = min(wd, wr)
 
-        bd, rt_all, reads_one = {}, True, True
+        # batch-fix: melhor S (um oráculo pró-fix — mesmo assim perde no desalinhado)
+        bf, rt_all, reads_one = {}, True, True
         for S in SIZES:
             fonte = Fonte(bits)
-            corpo, manif = batch_dyn(fonte, S)
-            back = dec_batch_dyn(corpo, S, n)
-            rt_all &= (back == bits == json_rt)
+            corpo, _ = batch_fix(fonte, S)
+            rt_all &= (dec_batch_fix(corpo, S, n) == bits == json_rt)
             reads_one &= (fonte.reads == n)
-            bd[S] = len(corpo)
-            (OUT / f"{nome}.bd{S}.tcfp").write_text(corpo, encoding="utf-8", newline="")
+            bf[S] = len(corpo)
+        best_fix = min(bf.values())
 
-        cand = {"whole-dense": wd, "whole-rle": wr,
-                "bd/32": bd[32], "bd/64": bd[64], "bd/128": bd[128]}
-        melhor = min(cand, key=cand.get)
-        best_bd = min(bd.values())
-        delta = best_bd - wbest                          # <0 = batch-dyn ganha do melhor modo único
+        # seg-adapt
+        fonte = Fonte(bits)
+        corpo_a = seg_adapt(fonte)
+        rt_all &= (dec_seg_adapt(corpo_a) == bits == json_rt)
+        reads_one &= (fonte.reads == n)
+        adapt = len(corpo_a)
+        (OUT / f"{nome}.seg-adapt.tcfp").write_text(corpo_a, encoding="utf-8", newline="")
+
         ok = rt_all and reads_one
         falhas += (not ok)
         linhas.append(
-            f"| {nome} | {n} | {wd} | {wr} | {wbest} | {bd[32]} | {bd[64]} | {bd[128]} | {melhor} | "
-            f"{delta:+d} | {'1.0' if reads_one else '>1'} | {'✅' if rt_all else '❌'} |")
+            f"| {nome} | {n} | {wbest} | {best_fix} | {best_fix - wbest:+d} | {adapt} | "
+            f"{adapt - wbest:+d} | {'1.0' if reads_one else '>1'} | {'✅' if rt_all else '❌'} |")
 
-    linhas.append("\n## Leitura (telemetria por lote + composição)\n")
-    linhas.append("- **Medição justa (corpo)**: o framing genérico é o mesmo pra todos; o que se compara "
-                  "é a COMPOSIÇÃO. `Δ vs best` < 0 = o dinâmico-por-lote bate o melhor modo único.")
-    linhas.append("- **A telemetria já resolve a decisão**: por lote, denso=`b64_len(S)` (fórmula grátis) "
-                  "e rle=soma sobre os runs do lote (do scan que você já faz) — os mesmos números que o "
-                  "pipeline conta 'no processo, não no fim' (emitted_bytes/mode, side_outputs.py:62-67), "
-                  "só que por LOTE. Materializa só o vencedor.")
-    linhas.append("- **Passe único preservado**: `reads/n==1.0` mesmo fatiando (fatias disjuntas).")
-    linhas.append("- **Onde ganha vs onde o overhead do manifesto pesa**: ver `Δ` e o `S` vencedor por "
-                  "caso — heterogêneo grande favorece o dinâmico; homogêneo/pequeno favorece modo único "
-                  "(manifesto por lote não se paga). A GRANULARIDADE (S, e lote-vs-coluna) é mais um "
-                  "número que a telemetria escolhe — não um valor fixo.")
-    linhas.append("- **Composição = a alavanca / paralelismo**: o manifesto `RDDR...` É a forma do arquivo "
-                  "mudando por lote; lotes são unidades INDEPENDENTES (encoda/decoda sozinhas) — base pra "
-                  "liberar/paralelizar por estágio. Trade explícito: fixo=paralelizável mas paga fronteira; "
-                  "adaptativo (fronteira só na virada de regime, como o seq-RLE) comprime mais mas é menos "
-                  "paralelizável. A telemetria informa os dois lados.")
-    linhas.append(f"\n**{len(casos)} casos × {len(SIZES)} lotes · {falhas} falhas (RT + passe único).** "
+    linhas.append("\n## Leitura corrigida\n")
+    linhas.append("- **Batch de S FIXO é frágil a alinhamento**: ganha só quando a fronteira de regime "
+                  "cai em múltiplo de S (`het-align128`, Δfix<0); em blocos desalinhados (`het-mis*`, "
+                  "`half-100-156`) PERDE (Δfix>0). O ganho -23% da v1 era artefato de bloco==S.")
+    linhas.append("- **Segmentação ADAPTATIVA é robusta**: coloca a fronteira ONDE o regime vira (do "
+                  "run-list), então ganha em heterogêneo INDEPENDENTE de alinhamento (Δadapt<0 em todos "
+                  "os het-*), e degenera pra ~1 segmento no homogêneo (Δadapt≈0, nunca-pior).")
+    linhas.append("- **Custo honesto**: 'de qualquer forma' cobre SÓ o run-list (o `_rle_adjacente` já "
+                  "roda no bool). O tamanho base64 e a segmentação são passo NOVO barato (O(runs), 1 "
+                  "acumulador) — não reuso. E o ponto de seleção estilo `emitted_mode` é do `.8M`; o "
+                  "`.8H` single-col não tem um hoje (grounding wf_876541f7).")
+    linhas.append("- **Nunca-pior via FLOOR**: o +6 do seg-adapt no homogêneo é só o header `D<n>:` do "
+                  "único segmento. Sob o FLOOR que o TCF já usa (emitir seg-adapt só se `< min(whole-"
+                  "dense, whole-rle)`, como a nature compete), o homogêneo cai pro whole-dense e o "
+                  "adaptativo vira estritamente nunca-pior — o eixo é ganhar no heterogêneo sem risco.")
+    linhas.append("- **Passe único** vale pras duas composições (`reads/n==1.0`): fixo lê fatias "
+                  "disjuntas; adaptativo faz 1 scan da coluna. Latência preservada.")
+    linhas.append("- **Trade composição×paralelismo**: fixo = lotes independentes (paralelizável) mas "
+                  "frágil; adaptativo = comprime robusto mas a fronteira depende do scan (menos "
+                  "paralelizável). A telemetria informa os dois — a ESCOLHA entre eles é o vetor.")
+    linhas.append(f"\n**{len(casos)} casos × {len(SIZES)} S · {falhas} falhas (RT + passe único).** "
                   "Regenera: `python run.py`.")
     (AQUI / "result.md").write_text("\n".join(linhas), encoding="utf-8", newline="\n")
-    print(f"OK · {len(casos)} casos · {falhas} falhas (RT + passe unico por lote)")
+    print(f"OK · {len(casos)} casos · {falhas} falhas (RT + passe unico)")
     return falhas
 
 

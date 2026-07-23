@@ -1,20 +1,20 @@
-# Proveniência — telemetria decide o modo por lote
+# Proveniência — telemetria decide modo por lote (corrigido)
 
 **Origem**: 100% sintético/determinístico. Nenhum dado real, nenhum download. Ruído via LCG local
-(seeds fixas por bloco), reprodutível byte-a-byte, sem `random` global. Domínio bool, bit1=true.
+(seeds fixas), reprodutível byte-a-byte, sem `random` global. Domínio bool, bit1=true.
 
-**Dados PEQUENOS/heterogêneos de propósito** (viabilidade efêmera). Construídos para exercitar o
-contraste modo-único vs por-lote:
-- `blocky` (n=256) / `blocky-big` (n=2048) — blocos alternados de run (all-true) e ruído 50%; o
-  `-big` existe só para ver a **amortização** do manifesto quando n cresce (não é teste massivo, é o
-  mínimo pra o overhead fixo parar de dominar).
-- `half-half` (n=256) — metade run, metade ruído: o caso limpo onde 2 lotes bastam.
-- `runny` (6% true) / `noisy` (50%) / `alt` — homogêneos, controle: por-lote NÃO deve ganhar.
+**Correção de viés (o motivo desta v2)**: a v1 usava blocos de 128 == S vencedor, o que INFLAVA o
+ganho do batch fixo (artefato de alinhamento, apontado por `wf_876541f7`). Esta versão inclui de
+propósito:
+- **alinhado** (`het-align128`, bloco=128) — teto do ganho fixo, para contraste.
+- **desalinhado** (`het-mis100` bloco=100, `het-mis77` bloco=77/51, `half-100-156` fronteira=100) —
+  o caso realista onde nenhum S fixo casa. É onde o fixo perde e o adaptativo tem que provar valor.
+- **homogêneo** (`noisy`, `alt`) — controle: nenhuma composição por-lote deve ganhar.
 
-**Viés declarado**: os blocos têm tamanho 32/128 alinhados a alguns S testados — isso FAVORECE o
-batch-dyn quando S casa a fronteira. É proposital (mostra o teto do ganho) e está dito: o resultado
-diz "quando a granularidade casa o regime", não "sempre". Desalinhamento perde — é a ressalva.
+**Viés declarado**: `het-align128` favorece o batch fixo por construção; está rotulado como tal e
+serve só de contraste (não de resultado). O resultado central vem dos desalinhados + homogêneos.
 
-**Reprodutibilidade**: `python run.py` regenera. RT self-contained por lote (decode==orig==json_rt);
-fonte instrumentada prova passe único (`reads/n==1.0`). Bytes só com RT ✅. Comparação corpo-vs-corpo
-(framing genérico fora) para isolar a composição.
+**Reprodutibilidade**: `python run.py` regenera. RT por composição (decode==orig==json_rt); Fonte
+instrumentada prova passe único (`reads/n==1.0`). Bytes só com RT ✅. Comparação corpo-vs-corpo — mas
+ver README: o corpo do batch-fix precisa de S,n externos; o do seg-adapt é auto-decodável (cada
+segmento declara seu count).

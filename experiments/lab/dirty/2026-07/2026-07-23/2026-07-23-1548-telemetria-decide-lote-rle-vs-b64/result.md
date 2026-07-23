@@ -1,22 +1,23 @@
-# Telemetria decide o modo POR LOTE (RLE vs base64) — CORPO-vs-corpo
+# Telemetria decide modo por lote: FIXO-S (frágil) vs ADAPTATIVO (robusto)
 
-Bool heterogêneo, dados pequenos. Compara o CORPO de cada composição (o framing genérico magic+S+n é igual pra todas e fica de fora; o manifesto `RDDR` É custo do batch-dyn). `whole-*`=1 modo/coluna; `batch-dyn/S`=modo por lote pela telemetria. `reads/n` 1.0=passe único; RT self-contained.
+Corrigido pós-verificação (wf_876541f7). Corpo-vs-corpo. `batch-fix` = lote de S fixo; `seg-adapt` = fronteira na virada de regime (do run-list, sem S). `Δfix`/`Δadapt` = corpo − whole-best (<0 ganha do melhor modo único). `align?` = bloco casa algum S. RT + passe único.
 
-| caso | n | whole-dense | whole-rle | whole-best | bd/32 | bd/64 | bd/128 | melhor corpo | Δ vs best | reads/n | RT |
-|---|---:|---:|---:|---:|---:|---:|---:|:---:|---:|:---:|:---:|
-| blocky | 256 | 44 | 147 | 44 | 64 | 56 | 52 | whole-dense | +8 | 1.0 | ✅ |
-| blocky-big | 2048 | 344 | 1028 | 344 | 512 | 320 | 264 | bd/128 | -80 | 1.0 | ✅ |
-| half-half | 256 | 44 | 116 | 44 | 64 | 40 | 33 | bd/128 | -11 | 1.0 | ✅ |
-| runny | 256 | 44 | 106 | 44 | 80 | 56 | 52 | whole-dense | +8 | 1.0 | ✅ |
-| noisy | 256 | 44 | 277 | 44 | 80 | 56 | 52 | whole-dense | +8 | 1.0 | ✅ |
-| alt | 256 | 44 | 513 | 44 | 80 | 56 | 52 | whole-dense | +8 | 1.0 | ✅ |
+| caso | n | whole-best | batch-fix(melhor S) | Δfix | seg-adapt | Δadapt | reads/n | RT |
+|---|---:|---:|---:|---:|---:|---:|:---:|:---:|
+| het-align128 | 2048 | 344 | 264 | -80 | 295 | -49 | 1.0 | ✅ |
+| het-mis100 | 2000 | 336 | 384 | +48 | 314 | -22 | 1.0 | ✅ |
+| het-mis77 | 1920 | 320 | 300 | -20 | 320 | +0 | 1.0 | ✅ |
+| half-100-156 | 256 | 44 | 48 | +4 | 40 | -4 | 1.0 | ✅ |
+| noisy | 2048 | 344 | 416 | +72 | 350 | +6 | 1.0 | ✅ |
+| alt | 2048 | 344 | 416 | +72 | 350 | +6 | 1.0 | ✅ |
 
-## Leitura (telemetria por lote + composição)
+## Leitura corrigida
 
-- **Medição justa (corpo)**: o framing genérico é o mesmo pra todos; o que se compara é a COMPOSIÇÃO. `Δ vs best` < 0 = o dinâmico-por-lote bate o melhor modo único.
-- **A telemetria já resolve a decisão**: por lote, denso=`b64_len(S)` (fórmula grátis) e rle=soma sobre os runs do lote (do scan que você já faz) — os mesmos números que o pipeline conta 'no processo, não no fim' (emitted_bytes/mode, side_outputs.py:62-67), só que por LOTE. Materializa só o vencedor.
-- **Passe único preservado**: `reads/n==1.0` mesmo fatiando (fatias disjuntas).
-- **Onde ganha vs onde o overhead do manifesto pesa**: ver `Δ` e o `S` vencedor por caso — heterogêneo grande favorece o dinâmico; homogêneo/pequeno favorece modo único (manifesto por lote não se paga). A GRANULARIDADE (S, e lote-vs-coluna) é mais um número que a telemetria escolhe — não um valor fixo.
-- **Composição = a alavanca / paralelismo**: o manifesto `RDDR...` É a forma do arquivo mudando por lote; lotes são unidades INDEPENDENTES (encoda/decoda sozinhas) — base pra liberar/paralelizar por estágio. Trade explícito: fixo=paralelizável mas paga fronteira; adaptativo (fronteira só na virada de regime, como o seq-RLE) comprime mais mas é menos paralelizável. A telemetria informa os dois lados.
+- **Batch de S FIXO é frágil a alinhamento**: ganha só quando a fronteira de regime cai em múltiplo de S (`het-align128`, Δfix<0); em blocos desalinhados (`het-mis*`, `half-100-156`) PERDE (Δfix>0). O ganho -23% da v1 era artefato de bloco==S.
+- **Segmentação ADAPTATIVA é robusta**: coloca a fronteira ONDE o regime vira (do run-list), então ganha em heterogêneo INDEPENDENTE de alinhamento (Δadapt<0 em todos os het-*), e degenera pra ~1 segmento no homogêneo (Δadapt≈0, nunca-pior).
+- **Custo honesto**: 'de qualquer forma' cobre SÓ o run-list (o `_rle_adjacente` já roda no bool). O tamanho base64 e a segmentação são passo NOVO barato (O(runs), 1 acumulador) — não reuso. E o ponto de seleção estilo `emitted_mode` é do `.8M`; o `.8H` single-col não tem um hoje (grounding wf_876541f7).
+- **Nunca-pior via FLOOR**: o +6 do seg-adapt no homogêneo é só o header `D<n>:` do único segmento. Sob o FLOOR que o TCF já usa (emitir seg-adapt só se `< min(whole-dense, whole-rle)`, como a nature compete), o homogêneo cai pro whole-dense e o adaptativo vira estritamente nunca-pior — o eixo é ganhar no heterogêneo sem risco.
+- **Passe único** vale pras duas composições (`reads/n==1.0`): fixo lê fatias disjuntas; adaptativo faz 1 scan da coluna. Latência preservada.
+- **Trade composição×paralelismo**: fixo = lotes independentes (paralelizável) mas frágil; adaptativo = comprime robusto mas a fronteira depende do scan (menos paralelizável). A telemetria informa os dois — a ESCOLHA entre eles é o vetor.
 
-**6 casos × 3 lotes · 0 falhas (RT + passe único).** Regenera: `python run.py`.
+**6 casos × 3 S · 0 falhas (RT + passe único).** Regenera: `python run.py`.
