@@ -1,13 +1,13 @@
 """RT do codec hierárquico #TCF.8H (weld T-CODE-TCF8H-WELD, ADR-0031).
 
-Gate de CAPACIDADE: decode(encode_hierarchical(x)) == x nos clássicos de transmissão
+Gate de CAPACIDADE: decode(encode(x)) == x nos clássicos de transmissão
 (cadastro, pedido, telemetria) e nas bordas da classe coberta. O compressor de coluna
 (L1) é reusado; este módulo (L2/L3) é aditivo — o flat fica byte-idêntico (guardado
 pelos test_core_rt / test_regression_v1_baseline / test_real_world_snapshots).
 """
 import pytest
 
-from tcf import decode, encode, encode_hierarchical
+from tcf import decode, encode
 from tcf.hierarchical import HierarchicalError
 
 
@@ -51,7 +51,7 @@ CLASSICOS = {
 @pytest.mark.parametrize("name", list(CLASSICOS))
 def test_roundtrip_classicos(name):
     doc = CLASSICOS[name]
-    blob = encode_hierarchical(doc)
+    blob = encode(doc)
     assert blob.startswith("#TCF.8H")           # sem-espaco (ADR-0031)
     assert decode(blob) == doc                  # decode() auto-roteia pelo magic
 
@@ -65,7 +65,7 @@ def test_flat_intacto():
 def test_ragged_agora_rt():
     # P1 (2026-07-15): chave OPCIONAL agora faz RT (era fail-loud). Mudança de CONTRATO.
     docs = [{"a": "1", "b": "2"}, {"a": "3"}]
-    blob = encode_hierarchical(docs)
+    blob = encode(docs)
     assert "?" in blob.split("\n", 1)[0]                  # 'b' é opcional no header
     assert decode(blob) == docs
 
@@ -107,13 +107,13 @@ P1_RAGGED = {
 @pytest.mark.parametrize("name", list(P1_RAGGED))
 def test_p1_ragged_rt(name):
     docs = P1_RAGGED[name]
-    assert decode(encode_hierarchical(docs)) == docs
+    assert decode(encode(docs)) == docs
 
 
 def test_p1_compat_uniforme_byte_identico():
     # dado SEM raggedness → wire idêntico ao que seria sem P1 (sem '?'); '?' só onde há opcional
     uni = [{"n": "Ana", "t": ["a", "b"], "e": {"r": "R1"}}, {"n": "Bob", "t": [], "e": {"r": "R2"}}]
-    blob = encode_hierarchical(uni)
+    blob = encode(uni)
     assert "?" not in blob.split("\n", 1)[0]              # nenhum campo opcional
     assert decode(blob) == uni
 
@@ -133,13 +133,13 @@ P3A_NULL = {
 @pytest.mark.parametrize("name", list(P3A_NULL))
 def test_p3a_null_campo_rt(name):
     docs = P3A_NULL[name]
-    assert decode(encode_hierarchical(docs)) == docs
+    assert decode(encode(docs)) == docs
 
 
 def test_p3a_quatro_vias_distintas():
     # null(None) ≠ "null"(str) ≠ ""(str) ≠ ausente — a assinatura do P3a
     docs = [{"x": None}, {"x": "null"}, {"x": ""}, {"y": "outra"}]
-    back = decode(encode_hierarchical(docs))
+    back = decode(encode(docs))
     assert back == docs
     assert back[0]["x"] is None and back[1]["x"] == "null" and back[2]["x"] == ""
     assert "x" not in back[3]                            # ausente ≠ null
@@ -172,12 +172,12 @@ P3B_NULL = {
 @pytest.mark.parametrize("name", list(P3B_NULL))
 def test_p3b_null_elemento_rt(name):
     docs = P3B_NULL[name]
-    assert decode(encode_hierarchical(docs)) == docs
+    assert decode(encode(docs)) == docs
 
 
 def test_p3b_vazio_null_valor_distintos():
     docs = [{"xs": []}, {"xs": [None]}, {"xs": ["v"]}]
-    back = decode(encode_hierarchical(docs))
+    back = decode(encode(docs))
     assert back == docs
     assert back[0]["xs"] == [] and back[1]["xs"] == [None] and back[2]["xs"] == ["v"]
 
@@ -186,7 +186,7 @@ def test_p3b_emask_invalida_fail_loud():
     from tcf.encoder import encode as _enc_col
     # element-mask com char inválido → fail-loud (corrupção, nunca silenciosa)
     docs = [{"xs": ["a", None]}]                             # produz emask '.0'
-    blob = encode_hierarchical(docs)
+    blob = encode(docs)
     # corromper: substituir a coluna emask por um char inválido é frágil; garante via encode
     bad_em = _enc_col([".", "Z"])                            # emask inválida
     cnt = _enc_col(["2"]); val = _enc_col(["a"])
@@ -198,7 +198,7 @@ def test_p3b_emask_invalida_fail_loud():
 # --- fail-loud declarado (auditoria 2026-07-15): NUNCA str()-engolir fora da classe ---
 def test_p3b_tipo_misto_em_elemento_fail_loud():
     with pytest.raises(HierarchicalError, match="mistos"):
-        encode_hierarchical([{"xs": ["a", {"b": "1"}]}])    # escalar + objeto no mesmo array
+        encode([{"xs": ["a", {"b": "1"}]}])    # escalar + objeto no mesmo array
 
 
 # --- F1 (auditoria P3b): objeto vazio {} mascarado como ÚLTIMA folha (data-loss pré-existente) ---
@@ -210,7 +210,7 @@ def test_p3b_tipo_misto_em_elemento_fail_loud():
 ])
 def test_f1_objeto_vazio_mascarado_ultima_folha_rt(docs):
     # controle nunca omite size → encode/decode simétricos (antes: encode aceitava, decode rejeitava)
-    assert decode(encode_hierarchical(docs)) == docs
+    assert decode(encode(docs)) == docs
 
 
 def test_f2_emask_body_corrompido_fail_loud_tipado():
@@ -229,25 +229,25 @@ def test_f2_emask_body_corrompido_fail_loud_tipado():
 def test_p1_tipos_estruturais_mistos_fail_loud():
     # scalar-depois-dict / list-depois-str: eram str()-engolidos (corrupção silenciosa)
     with pytest.raises(HierarchicalError, match="mistos|divergente"):
-        encode_hierarchical([{"x": "s"}, {"x": {"a": "1"}}])
+        encode([{"x": "s"}, {"x": {"a": "1"}}])
     with pytest.raises(HierarchicalError, match="mistos|divergente"):
-        encode_hierarchical([{"x": ["a"]}, {"x": "bc"}])
+        encode([{"x": ["a"]}, {"x": "bc"}])
 
 
 def test_p1_array_de_objetos_vazios_fail_loud():
     # [{}] colidia com arr_scalars no wire (corrupção silenciosa pré-existente do weld)
     with pytest.raises(HierarchicalError, match="sem chaves|objetos"):
-        encode_hierarchical([{"g": [{}]}, {"g": [{}]}])
+        encode([{"g": [{}]}, {"g": [{}]}])
 
 
 def test_p1_registros_sem_campos_agora_fazem_rt():
     """PROMOVIDO 2026-07-17 (P4b): [{}]×N e [] viraram `#D<N>` (contagem explícita — funil J1)."""
     for docs in ([{}], [], [{}, {}], [{}] * 7):
-        back = decode(encode_hierarchical(docs))
+        back = decode(encode(docs))
         assert back == docs and type(back) is type(docs)
-    assert encode_hierarchical([]) == "#TCF.8H#D0\n"       # pino do wire (re-pinável, ADR-0024)
-    assert encode_hierarchical([{}, {}]) == "#TCF.8H#D2\n"
-    a = decode(encode_hierarchical([{}, {}]))
+    assert encode([]) == "#TCF.8H#D0\n"       # pino do wire (re-pinável, ADR-0024)
+    assert encode([{}, {}]) == "#TCF.8H#D2\n"
+    a = decode(encode([{}, {}]))
     a[0]["k"] = 1                                          # N dicts DISTINTOS (não o mesmo objeto)
     assert a[1] == {}
 
@@ -255,9 +255,9 @@ def test_p1_registros_sem_campos_agora_fazem_rt():
 def test_p1_raiz_objeto_unico_agora_faz_rt():
     """PROMOVIDO 2026-07-17 (P4b): objeto único na raiz = `#O<meta>` (desembrulhado no decode)."""
     for raiz in ({"a": "1"}, {"device": "s1", "v": [1.5, 2.5], "ok": True}, {"a": {"b": None}}):
-        back = decode(encode_hierarchical(raiz))
+        back = decode(encode(raiz))
         assert back == raiz and type(back) is dict
-    assert encode_hierarchical({"a": "1"}).startswith("#TCF.8H#O")
+    assert encode({"a": "1"}).startswith("#TCF.8H#O")
 
 
 def test_p3a_mask_invalido_fail_loud():
@@ -284,10 +284,10 @@ def test_p1_size_negativo_e_frame_inconsistente_fail_loud():
 def test_raiz_lista_de_valores_agora_faz_rt():
     """PROMOVIDO 2026-07-17 (P4b): lista de VALORES na raiz = `#V` (envelope; nunca escapa)."""
     for raiz in (["nao", "e", "objeto"], [1, 2, 3], [1, None, 2], [[1], [2, 3]]):
-        back = decode(encode_hierarchical(raiz))
+        back = decode(encode(raiz))
         assert back == raiz
     with pytest.raises(HierarchicalError, match="MISTA|P5"):
-        encode_hierarchical([1, {"a": 2}])                 # misto continua P5 fail-loud
+        encode([1, {"a": 2}])                 # misto continua P5 fail-loud
 
 
 # --- P4b (2026-07-17): raiz generalizada — adversarial e canonicidade -------------------
@@ -314,7 +314,7 @@ def test_p4b_O_e_V_nao_canonicos_fail_loud():
 def test_p4b_dataset_com_campo_vazio_nao_vira_envelope():
     """[{"": "x"}] é DATASET legítimo de J0 (campo de nome vazio) — segue sem `#`."""
     ds = [{"": "x"}]
-    w = encode_hierarchical(ds)
+    w = encode(ds)
     assert not w.startswith("#TCF.8H#")
     assert decode(w) == ds
 
@@ -322,11 +322,10 @@ def test_p4b_dataset_com_campo_vazio_nao_vira_envelope():
 # --- E3 (2026-07-17): canal SideOutputs no .8H — aditivo, bytes idênticos ----------------
 
 def test_e3_side_outputs_bytes_identicos_e_populado():
-    from tcf.hierarchical import encode_hierarchical_so
     from tcf.side_outputs import SideOutputs
     docs = [{"id": 1, "nome": "Ana", "tags": ["x", None]}, {"id": 2, "nome": "Bob", "tags": []}]
     so = SideOutputs()
-    assert encode_hierarchical_so(docs, so) == encode_hierarchical(docs)   # zero mudança de wire
+    assert encode(docs, side_outputs=so) == encode(docs)   # zero mudança de wire
     assert so.hier_info["root_kind"] == "dataset"
     assert so.hier_info["n_records"] == 2
     assert so.hier_info["cols"] == {"controle": 2, "dado": 3}              # count+emask · id/nome/leaf
@@ -336,12 +335,11 @@ def test_e3_side_outputs_bytes_identicos_e_populado():
 
 
 def test_e3_root_kind_por_forma():
-    from tcf.hierarchical import encode_hierarchical_so
     from tcf.side_outputs import SideOutputs
     for raiz, kind in [({"a": 1}, "O"), (42, "V"), ("", "V"), (None, "V"),
                        ({}, "E"), ([], "D"), ([{}, {}], "D"), ([1, 2], "V")]:
         so = SideOutputs()
-        encode_hierarchical_so(raiz, so)
+        encode(raiz, side_outputs=so)
         assert so.hier_info["root_kind"] == kind, (raiz, so.hier_info)
 
 
@@ -364,7 +362,7 @@ ADVERSARIAL_NAMES = [
 @pytest.mark.parametrize("nome", ADVERSARIAL_NAMES)
 def test_nome_adversarial_escalar_rt(nome):
     docs = [{nome: "1", "outro": "2"}, {nome: "3", "outro": "4"}]
-    assert decode(encode_hierarchical(docs)) == docs
+    assert decode(encode(docs)) == docs
 
 
 def test_nome_adversarial_em_toda_posicao_da_arvore():
@@ -372,16 +370,16 @@ def test_nome_adversarial_em_toda_posicao_da_arvore():
     # escaping × colchetes estruturais × omit-closes)
     docs = [{"p,e{d": [{"it[em]": "1", "en{d": {"r,ua": "A"}}],
              "tag#s": ["x", "y"], "no}me": "Ana"}]
-    assert decode(encode_hierarchical(docs)) == docs
+    assert decode(encode(docs)) == docs
 
 
 def test_nome_escapado_no_fim_nao_quebra_omit_closes():
     # último campo DFS com nome terminando em ']'/'}': o omit-closes não pode comer
     # o closer ESCAPADO (só os estruturais)
     docs = [{"a": [{"ultimo]": "1"}]}, {"a": []}]
-    assert decode(encode_hierarchical(docs)) == docs
+    assert decode(encode(docs)) == docs
     docs2 = [{"b": {"fecha}": "2"}}]
-    assert decode(encode_hierarchical(docs2)) == docs2
+    assert decode(encode(docs2)) == docs2
 
 
 # --- escape D_json (weld 2026-07-17): 3 lacunas viraram CAPACIDADE ---------------------
@@ -392,7 +390,7 @@ def test_nome_escapado_no_fim_nao_quebra_omit_closes():
 def test_nome_vazio_agora_faz_rt():
     """`{"": v}` é JSON válido — vira `\\z` no meta (marcador inemitível por dado)."""
     docs = [{"": "v"}]
-    blob = encode_hierarchical(docs)
+    blob = encode(docs)
     assert "\\z" in blob.split("\n")[0], "nome vazio deve virar o marcador \\z no meta"
     assert decode(blob) == docs
 
@@ -410,13 +408,13 @@ def test_nome_vazio_LITERAL_no_meta_continua_corrupcao():
 def test_nome_z_real_nao_colide_com_marcador_de_vazio():
     """Injetividade: o nome `z` sai como `z`; o nome `\\z` sai com o `\\` dobrado."""
     for docs in ([{"z": "v"}], [{"\\z": "v"}], [{"": "a", "z": "b", "\\z": "c"}]):
-        assert decode(encode_hierarchical(docs)) == docs
+        assert decode(encode(docs)) == docs
 
 
 def test_nome_com_newline_agora_faz_rt():
     """`{"a\\nb": v}` é JSON válido — LF no nome vira `\\n` (meta continua 1 linha)."""
     docs = [{"a\nb": "v"}]
-    blob = encode_hierarchical(docs)
+    blob = encode(docs)
     assert len(blob.split("\n")[0]) > 0 and "\\n" in blob.split("\n")[0]
     assert decode(blob) == docs
 
@@ -424,14 +422,14 @@ def test_nome_com_newline_agora_faz_rt():
 def test_lf_em_valor_agora_faz_rt_sem_tocar_o_L1():
     """A lacuna mais comum da vida real (string multilinha). O L1 nunca vê o LF."""
     docs = [{"a": "linha1\nlinha2", "b": "x"}]
-    assert decode(encode_hierarchical(docs)) == docs
+    assert decode(encode(docs)) == docs
 
 
 def test_escape_de_folha_e_injetivo():
     """`\\` e LF compõem sem ambiguidade (o `\\` é sempre dobrado primeiro)."""
     for docs in ([{"a": "\\"}], [{"a": "\\n"}], [{"a": "\n"}], [{"a": "\\\n"}],
                  [{"a": "a\\\\nb"}], [{"a": "C:\\temp\\x"}], [{"a": "\\123"}]):
-        assert decode(encode_hierarchical(docs)) == docs
+        assert decode(encode(docs)) == docs
 
 
 def test_folha_com_escape_invalido_fail_loud():
@@ -440,7 +438,7 @@ def test_folha_com_escape_invalido_fail_loud():
     Camadas (medido): o L1 tem escape PRÓPRIO e já consome `\\X` -> `X` (leniência dele,
     pré-existente). Para o nosso `_unesc_leaf` VER um `\\q`, o wire precisa trazer `\\\\q`.
     """
-    blob = encode_hierarchical([{"a": "x"}])
+    blob = encode([{"a": "x"}])
     hostil = blob.replace("\nx\n", "\n\\\\q\n")          # wire `\\q` -> L1 entrega `\q` a nós
     with pytest.raises(HierarchicalError, match="escape invalido|dangling"):
         decode(hostil)
@@ -448,7 +446,7 @@ def test_folha_com_escape_invalido_fail_loud():
 
 def test_folha_escape_dangling_fail_loud():
     """`\\` sozinho no fim da folha (inemitível: o encoder sempre dobra)."""
-    blob = encode_hierarchical([{"a": "x"}])
+    blob = encode([{"a": "x"}])
     hostil = blob.replace("\nx\n", "\n\\\\\\\\\\\\\n")   # wire `\\\\\\` -> L1 entrega `\\\` (ímpar)
     with pytest.raises(HierarchicalError, match="dangling|escape invalido"):
         decode(hostil)
@@ -458,7 +456,7 @@ def test_chave_nao_str_erro_TIPADO_que_ensina():
     """Fora de D_json (o json coage e perde: 'loads(dumps(x)) != x'). Era TypeError CRU."""
     for k in (1, True, 3.5):
         with pytest.raises(HierarchicalError, match="deve ser str|D_json"):
-            encode_hierarchical([{k: "v"}])
+            encode([{k: "v"}])
 
 
 # --- auditoria do escape (2026-07-17): CR é D_json + cap de profundidade TOTAL ----------
@@ -469,7 +467,7 @@ def test_cr_em_valor_e_nome_faz_rt():
     for docs in ([{"a": "x\ry"}], [{"a": "\r"}], [{"a": "linha1\r\nlinha2"}],
                  [{"a\rb": "v"}], [{"a": ["x\ry", None, "z"]}],
                  [{"a": "\r\\n\r"}], [{"": "\r", "b\rc": "\n"}]):
-        assert decode(encode_hierarchical(docs)) == docs
+        assert decode(encode(docs)) == docs
 
 
 def test_profundidade_objeto_puro_fail_loud_tipado():
@@ -478,7 +476,7 @@ def test_profundidade_objeto_puro_fail_loud_tipado():
     for _ in range(600):
         d = {"a": d}
     with pytest.raises(HierarchicalError, match="excede o limite"):
-        encode_hierarchical([d])
+        encode([d])
 
 
 def test_profundidade_alternancia_evadia_o_cap():
@@ -488,7 +486,7 @@ def test_profundidade_alternancia_evadia_o_cap():
     for _ in range(400):
         d = [{"k": d}]
     with pytest.raises(HierarchicalError, match="excede o limite"):
-        encode_hierarchical([{"a": d}])
+        encode([{"a": d}])
 
 
 def test_profundidade_sana_continua_rt():
@@ -497,7 +495,7 @@ def test_profundidade_sana_continua_rt():
     for i in range(40):                       # 80 níveis estruturais alternados — bem abaixo do cap
         d = [{"k": d}] if i % 2 else {"a": d}
     docs = [{"raiz": d}]
-    assert decode(encode_hierarchical(docs)) == docs
+    assert decode(encode(docs)) == docs
 
 
 def test_profundidade_parse_header_hostil_tipado():
@@ -512,11 +510,11 @@ def test_valor_bracket_isolado_single_col_faz_rt():
     J0 (corrupção silenciosa no domínio aceito — régua do funil, condição 4). Com o skip
     back-compat removido do L1 (BUG-BRACKET), o registro `]` sobrevive. J0 pleno."""
     docs = [{"a": "x"}, {"a": "]"}, {"a": "y"}]
-    assert decode(encode_hierarchical(docs)) == docs
+    assert decode(encode(docs)) == docs
     docs2 = [{"a": "["}, {"a": "]"}, {"a": "[]"}]
-    assert decode(encode_hierarchical(docs2)) == docs2
+    assert decode(encode(docs2)) == docs2
     docs3 = [{"a": "ETC & TAL"}, {"a": "ETC & TAL..."}]      # o outro R0, no .8H
-    assert decode(encode_hierarchical(docs3)) == docs3
+    assert decode(encode(docs3)) == docs3
 
 
 def test_escape_invalido_no_blob_fail_loud():
@@ -579,7 +577,7 @@ def test_fuzz_classe_coberta_seedado():
     for _ in range(1200):
         schema = _gen_schema(rng, depth=rng.randint(0, 3))
         recs = [_gen_record(rng, schema) for _ in range(rng.randint(1, 8))]
-        assert decode(encode_hierarchical(recs)) == recs
+        assert decode(encode(recs)) == recs
 
 
 # --- P2: tipos escalares (number/bool) — tag por-coluna, 2026-07-16 ---
@@ -603,36 +601,36 @@ P2_TIPOS = {
 @pytest.mark.parametrize("name", list(P2_TIPOS))
 def test_p2_tipos_rt(name):
     docs = P2_TIPOS[name]
-    assert decode(encode_hierarchical(docs)) == docs
+    assert decode(encode(docs)) == docs
 
 
 def test_p2_disambiguacao_string_vs_tipo():
     # a assinatura do P2: string "30" ≠ int 30; string "true" ≠ bool True
-    assert decode(encode_hierarchical([{"a": "30"}, {"a": "40"}])) == [{"a": "30"}, {"a": "40"}]
-    assert decode(encode_hierarchical([{"a": "true"}])) == [{"a": "true"}]
-    assert decode(encode_hierarchical([{"a": 30}])) == [{"a": 30}]         # int, não "30"
-    assert decode(encode_hierarchical([{"a": True}])) == [{"a": True}]     # bool, não "true"
+    assert decode(encode([{"a": "30"}, {"a": "40"}])) == [{"a": "30"}, {"a": "40"}]
+    assert decode(encode([{"a": "true"}])) == [{"a": "true"}]
+    assert decode(encode([{"a": 30}])) == [{"a": 30}]         # int, não "30"
+    assert decode(encode([{"a": True}])) == [{"a": True}]     # bool, não "true"
 
 
 def test_p2_byte_compat_all_string():
     # dado all-string → NENHUM tag no header (byte-idêntico ao pré-P2)
     uni = [{"n": "Ana", "t": ["a", "b"]}, {"n": "Bob", "t": []}]
-    meta = encode_hierarchical(uni).split("\n", 1)[0]
+    meta = encode(uni).split("\n", 1)[0]
     assert meta == "#TCF.8Hn:8,t#:8["                                     # sem 'n'/'b' de tag
-    assert decode(encode_hierarchical(uni)) == uni
+    assert decode(encode(uni)) == uni
 
 
 def test_p2_nan_inf_fail_loud():
     for bad in (float("nan"), float("inf"), float("-inf")):
         with pytest.raises(HierarchicalError, match="NaN|Infinity"):
-            encode_hierarchical([{"x": bad}])
+            encode([{"x": bad}])
 
 
 def test_p2_tipo_misto_str_num_fail_loud():
     with pytest.raises(HierarchicalError, match="MISTOS|mistos"):
-        encode_hierarchical([{"x": 30}, {"x": "texto"}])                  # int + str = P5 union
+        encode([{"x": 30}, {"x": "texto"}])                  # int + str = P5 union
     with pytest.raises(HierarchicalError, match="MISTOS|mistos"):
-        encode_hierarchical([{"xs": [1, "a"]}])                           # number + string no array
+        encode([{"xs": [1, "a"]}])                           # number + string no array
 
 
 def test_p5_union_fronteira_ratificada_mensagem_ensina():
@@ -647,7 +645,7 @@ def test_p5_union_fronteira_ratificada_mensagem_ensina():
     ]
     for docs in casos:
         with pytest.raises(HierarchicalError, match="union") as ei:
-            encode_hierarchical(docs)
+            encode(docs)
         msg = str(ei.value)
         assert "string" in msg, f"mensagem deve ensinar o fallback-pra-string: {msg!r}"
 
@@ -656,9 +654,9 @@ def test_p5_workaround_string_realmente_funciona():
     """O que a mensagem promete: converter a coluna union toda p/ string FAZ RT (é o fallback)."""
     # union: [1, "a"] -> se o produtor stringifica tudo, vira dado válido de D_json
     docs_str = [{"v": ["1", "a"]}]                    # o mesmo array, agora homogêneo-string
-    assert decode(encode_hierarchical(docs_str)) == docs_str
+    assert decode(encode(docs_str)) == docs_str
     docs_str2 = [{"x": "1"}, {"x": "a"}]              # campo homogêneo-string entre registros
-    assert decode(encode_hierarchical(docs_str2)) == docs_str2
+    assert decode(encode(docs_str2)) == docs_str2
 
 
 # --- P2 decode fail-loud (auditoria wf_10194874-083): dado tipado corrompido nunca calado/cru ---
@@ -671,7 +669,7 @@ def test_p2_bool_corrompido_fail_loud():
         with pytest.raises(HierarchicalError, match="bool inválido"):
             decode(blob)
     # true/false válidos seguem RT
-    assert decode(encode_hierarchical([{"x": True}, {"x": False}])) == [{"x": True}, {"x": False}]
+    assert decode(encode([{"x": True}, {"x": False}])) == [{"x": True}, {"x": False}]
 
 
 def test_p2_number_corrompido_fail_loud_tipado():
@@ -700,7 +698,7 @@ def test_p2_tag_desconhecida_fail_loud():
         with pytest.raises(HierarchicalError, match="tag de tipo desconhecida"):
             decode(f"#TCF.8H{meta}\n{b}")
     # delimitador/tag válido/campo-nomeado-n seguem OK
-    assert decode(encode_hierarchical([{"n": "v", "x": 30}])) == [{"n": "v", "x": 30}]
+    assert decode(encode([{"n": "v", "x": 30}])) == [{"n": "v", "x": 30}]
 
 
 # --- P4a: array-em-array via COUNT RECURSIVO (2026-07-16; estudo lab 2026-07-16-0213) ---
@@ -726,7 +724,7 @@ P4A_NESTED = {
 @pytest.mark.parametrize("name", list(P4A_NESTED))
 def test_p4a_array_em_array_rt(name):
     docs = P4A_NESTED[name]
-    assert decode(encode_hierarchical(docs)) == docs
+    assert decode(encode(docs)) == docs
 
 
 def test_p4a_fuzz_profundidade_seedado():
@@ -745,19 +743,19 @@ def test_p4a_fuzz_profundidade_seedado():
         depth = rng.randint(1, 4)
         st = rng.choice(["n", "b", "s"])
         docs = [{"id": i, "m": gen_arr(depth, st)} for i in range(rng.randint(1, 4))]
-        assert decode(encode_hierarchical(docs)) == docs
+        assert decode(encode(docs)) == docs
 
 
 def test_p4a_tipo_misto_entre_niveis_fail_loud():
     # array com elemento array E elemento escalar no MESMO nível = P5 union
     with pytest.raises(HierarchicalError, match="mistos"):
-        encode_hierarchical([{"m": [[1], 2]}])
+        encode([{"m": [[1], 2]}])
 
 
 # --- Hardening da auditoria P4a (wf_5fa61459-a9e): blob adulterado fail-loud, nunca calado/cru ---
 def test_p4a_meta_truncado_tag_parcial_fail_loud():
     # cortar 1 byte do meta (some a tag, sobra o size) → size-explícito-na-última-string = não-canônico
-    blob = encode_hierarchical([{"m": [[1, 2], [3]]}])
+    blob = encode([{"m": [[1, 2], [3]]}])
     m, c = blob.split("\n", 1)
     with pytest.raises(HierarchicalError, match="não-canônico|size explícito"):
         decode(m[:-1] + "\n" + c)
@@ -771,12 +769,12 @@ def test_p4a_profundidade_cap_fail_loud():
     for _ in range(200):
         v = [v]
     with pytest.raises(HierarchicalError, match="excede o limite"):
-        encode_hierarchical([{"m": v}])
+        encode([{"m": v}])
 
 
 def test_p4a_bracket_deletado_fail_loud():
     # ']' deletado no meio do meta (nível interno) não passa calado
-    blob = encode_hierarchical([{"m": [[1]], "y": "z"}])
+    blob = encode([{"m": [[1]], "y": "z"}])
     m, c = blob.split("\n", 1)
     assert "]" in m
     m2 = m.replace("],", ",", 1)                        # deleta o ']' interno
@@ -794,7 +792,7 @@ def test_nome_duplicado_fail_loud():
 def test_corpo_perdido_e_bytes_apendados_fail_loud():
     with pytest.raises(HierarchicalError, match="frame vazio"):
         decode("#TCF.8Hx\n")                            # corpo inteiro perdido
-    blob = encode_hierarchical([{"x": 30}])             # typed → all-sized
+    blob = encode([{"x": 30}])             # typed → all-sized
     with pytest.raises(HierarchicalError, match="não referenciados"):
         decode(blob + "LIXO")                           # bytes apendados
 
@@ -821,8 +819,8 @@ def test_hier_nature_cpf_rt_e_comprime():
         {"nome": "Bruno Lima", "cpf": "222.222.222-22", "ativo": False,
          "fones": ["21 99888-7766"]},
     ]
-    sem = encode_hierarchical(dados)
-    com = encode_hierarchical(dados, nature_per_col={"cpf": SPEC_CPF})
+    sem = encode(dados)
+    com = encode(dados, nature_per_col={"cpf": SPEC_CPF})
     assert decode(sem) == dados                                  # baseline RT
     assert decode(com) == dados                                  # nature RT (self-describing)
     assert len(com.encode()) < len(sem.encode())                # nature comprimiu
@@ -835,7 +833,7 @@ def test_hier_nature_folha_aninhada_e_ultima_coluna():
     from tcf.natures import SPEC_CPF
     dados = [{"id": "A", "doc": {"cpf": "111.111.111-11"}},
              {"id": "B", "doc": {"cpf": "222.222.222-22"}}]
-    com = encode_hierarchical(dados, nature_per_col={"doc/cpf": SPEC_CPF})
+    com = encode(dados, nature_per_col={"doc/cpf": SPEC_CPF})
     assert decode(com) == dados
 
 
@@ -843,7 +841,7 @@ def test_hier_nature_piso_cai_pra_coluna_normal():
     # valores NÃO-conformes ⇒ nature não vence ⇒ piso: coluna normal (sem `:id`), RT intacto.
     from tcf.natures import SPEC_CPF
     dados = [{"cpf": "nao-e-cpf-nenhum"}, {"cpf": "outro texto qualquer aqui"}]
-    com = encode_hierarchical(dados, nature_per_col={"cpf": SPEC_CPF})
+    com = encode(dados, nature_per_col={"cpf": SPEC_CPF})
     assert decode(com) == dados
     assert ":cpf" not in com.split("\n", 1)[0]                   # piso: sem id no meta
 
@@ -852,7 +850,7 @@ def test_hier_nature_preserva_escape_no_piso():
     # piso deve cair na coluna ESCAPADA (não no raw des-escapado): valor com '\' sobrevive.
     from tcf.natures import SPEC_CPF
     dados = [{"cpf": "a\\b"}, {"cpf": "x\\y\\z"}]
-    com = encode_hierarchical(dados, nature_per_col={"cpf": SPEC_CPF})
+    com = encode(dados, nature_per_col={"cpf": SPEC_CPF})
     assert decode(com) == dados
 
 
@@ -861,7 +859,7 @@ def test_hier_nature_valor_com_LF_degrada_pra_plain():
     # (que carrega LF via escape). RT intacto, sem :id no meta.
     from tcf.natures import SPEC_CPF
     dados = [{"cpf": "a\nb"}, {"cpf": "c\nd"}]
-    com = encode_hierarchical(dados, nature_per_col={"cpf": SPEC_CPF})
+    com = encode(dados, nature_per_col={"cpf": SPEC_CPF})
     assert decode(com) == dados
     assert ":cpf" not in com.split("\n", 1)[0]
 
@@ -875,4 +873,4 @@ def test_hier_nature_path_invalido_fail_loud(path, motivo):
     from tcf.natures import SPEC_CPF
     dados = [{"ativo": True, "doc": {"x": "1"}, "nome": "Ana"}]
     with pytest.raises(HierarchicalError, match=motivo):
-        encode_hierarchical(dados, nature_per_col={path: SPEC_CPF})
+        encode(dados, nature_per_col={path: SPEC_CPF})

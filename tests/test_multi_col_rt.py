@@ -111,9 +111,14 @@ class TestUnifiedDispatch:
         text = encode(["a", "b", "c"])
         assert isinstance(decode(text), list)
 
-    def test_encode_invalid_type_raises(self):
-        with pytest.raises(TypeError):
-            encode(123)
+    def test_encode_escalar_solto_vira_8h(self):
+        # CONTRATO ATUALIZADO (Passo 2): escalar solto deixou de ser TypeError e vira `.8H`
+        # `#V` (envelope; decode desembrulha e devolve o escalar). Dado nao-serializavel
+        # (ex.: funcao) continua fail-loud na fronteira do .8H.
+        assert decode(encode(123)) == 123
+        assert encode(123).startswith("#TCF.8H#V")
+        with pytest.raises(Exception):
+            encode(lambda: 1)
 
     def test_round_trip_identity_list(self):
         data = ["one", "two", "three"]
@@ -497,13 +502,17 @@ class TestStructSplit:
 # ---------------------------------------------------------------------------
 
 class TestEdgeCases:
-    def test_empty_table_raises(self):
-        with pytest.raises(ValueError, match="vazia"):
-            encode({})
+    def test_dict_vazio_vira_8h_E(self):
+        # CONTRATO ATUALIZADO (Passo 2): `{}` (definicao vazia) vira `.8H` `#E`, nao fail-loud.
+        assert encode({}) == "#TCF.8H#E\n"
+        assert decode(encode({})) == {}
 
-    def test_mismatched_lengths_raises(self):
-        with pytest.raises(ValueError, match="lengths"):
-            encode({"a": ["1", "2"], "b": ["x"]})
+    def test_dict_ragged_vira_8h_objeto(self):
+        # CONTRATO ATUALIZADO (Passo 2): dict com colunas de tamanhos diferentes (ragged) deixa
+        # de ser erro-de-tabela e vira `.8H` OBJETO (cada campo = seu proprio array). RT preserva.
+        d = {"a": ["1", "2"], "b": ["x"]}
+        assert encode(d).startswith("#TCF.8H#O")
+        assert decode(encode(d)) == d
 
     @pytest.mark.parametrize("table", [
         {"a,b": ["1", "2"], "c": ["x", "y"]},           # virgula
@@ -523,11 +532,13 @@ class TestEdgeCases:
         with pytest.raises(ValueError, match="separador de linha"):
             encode({"a\nb": ["1", "2"]})
 
-    def test_null_values_converted_to_empty_str(self):
+    def test_coluna_com_none_vira_8h_tipado(self):
+        # CONTRATO ATUALIZADO (Passo 2, type-coherent): coluna com valor NAO-str (None/int/bool)
+        # deixa de ser stringificada no multi-col flat e vira `.8H` TIPADO — o None e' PRESERVADO
+        # (nao vira ''). Elimina o deslize de perda-de-tipo silenciosa. (Coluna all-str segue flat.)
         table = {"a": ["x", None, "y"]}
-        text = encode(table)
-        decoded = decode(text)
-        assert decoded == {"a": ["x", "", "y"]}
+        assert encode(table).startswith("#TCF.8H")
+        assert decode(encode(table)) == {"a": ["x", None, "y"]}   # None PRESERVADO
 
     def test_decode_legacy_magic_raises(self):
         # #TCF.6/.7 CORTADOS (ADR-0032) -> fail-loud com dica de git
@@ -543,12 +554,11 @@ class TestEdgeCases:
             decode("#TCF.8Zfoo\nbody")
 
     def test_decode_hierarchical_welded(self):
-        # #TCF.8H agora DECODA (weld T-CODE-TCF8H-WELD): RT de um documento aninhado.
-        from tcf import encode_hierarchical
-
+        # #TCF.8H agora DECODA (weld T-CODE-TCF8H-WELD): RT de um documento aninhado via
+        # a API unica encode()/decode() (Passo 2 — encode rota list[dict] pro .8H).
         doc = [{"nome": "Ana", "telefones": ["t1", "t2"]},
                {"nome": "Bruno", "telefones": ["t3"]}]
-        assert decode(encode_hierarchical(doc)) == doc
+        assert decode(encode(doc)) == doc
 
 
 # Aliases v0.6 encode_table/decode_table APOSENTADOS 2026-06-24

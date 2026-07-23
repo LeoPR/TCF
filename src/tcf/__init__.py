@@ -22,10 +22,13 @@ API publica unificada (ADR-0014):
     print(side.column_features)  # pre-pass features
     # ... etc
 
-Encoder dispatcha por tipo (list vs dict). Decoder dispatcha pela assinatura
-de formato: `#TCF.8M` -> multi; `#TCF.8 ...`/`#TCF.8\\n` -> single com spec/
-stamp; sem magic -> single orfao. Legado `.6/.7` e versao desconhecida ->
-ValueError (fail-loud). Self-describing.
+`encode` e `decode` sao a PORTA UNICA do dev (Passo 2, API unica). Encoder rota por
+TIPO: flat puro (`list[str]` / `dict[str,list[str]]` retangular >=1 linha) fica flat;
+aninhado/tipado/vazio (list[dict], objeto, escalar, `[]`/`{}`, ragged/0-linha) vai pro
+`#TCF.8H` — simetrico ao decoder, que rota pela assinatura (`#TCF.8M` -> multi;
+`#TCF.8H` -> hierarquico; `#TCF.8 ...`/`#TCF.8\\n` -> single spec/stamp; sem magic ->
+single orfao). Legado `.6/.7` e versao desconhecida -> ValueError (fail-loud).
+Contrato de dispatch: `docs/reference/api.md`. Self-describing.
 
 ## Componentes canonicos
 
@@ -73,7 +76,6 @@ Para historia: `experiments/lab/dirty/notas/historia-dirty-lab.md`.
 
 from tcf.decoder import decode
 from tcf.encoder import encode
-from tcf.hierarchical import encode_hierarchical  # #TCF.8H (T-CODE-TCF8H-WELD); decode auto-roteia
 from tcf.natures import (
     SPEC_CPF, SPEC_CNPJ, SPEC_IP,
     TemplatedCheckedSpec, TemplatedPaddedSpec,
@@ -90,9 +92,8 @@ from tcf.view import Filtered, LazyTCF, view  # camada read-only (A4, plano 0.8)
 __version__ = "0.8.0"   # #TCF.8 default (ADR-0032); minor segue o formato (ADR-0028)
 
 __all__ = [
-    "encode",
-    "decode",
-    "encode_hierarchical",  # #TCF.8H (decode() auto-roteia pelo magic)
+    "encode",       # rota flat (single/multi-col) E aninhado (.8H) por tipo — API unica (Passo 2)
+    "decode",       # auto-roteia pelo magic (single/multi/.8H)
     "SideOutputs",
     "build_schema",
     "TableSchema",

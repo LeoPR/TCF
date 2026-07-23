@@ -20,7 +20,7 @@ import json
 
 import pytest
 
-from tcf import decode, encode_hierarchical
+from tcf import decode, encode
 
 from fixtures.control_synthetics_h import (
     KEY_ORDER_EXPECTED_BACK,
@@ -53,7 +53,7 @@ def wires():
     """Encoda cada caso 1x por sessao de teste (RT validado aqui mesmo)."""
     out = {}
     for key, (_desc, _mec, docs) in _CASES.items():
-        wire = encode_hierarchical(docs)
+        wire = encode(docs)
         assert decode(wire) == docs, f"RT falhou em {key}"
         out[key] = wire
     return out
@@ -116,7 +116,7 @@ def test_ordem_de_chaves_schema_order_e_CANONICA():
     (o modelo S0 do DatasetH preserva preorder; o flat/adaptador tambem). NAO e' gap de
     capacidade — e' propriedade declarada do contrato colunar.
     """
-    back = decode(encode_hierarchical(KEY_ORDER_PROBE))
+    back = decode(encode(KEY_ORDER_PROBE))
     assert back == KEY_ORDER_PROBE                      # semantica (dict) preservada — SEMPRE
     assert [list(d) for d in back] == [list(d) for d in KEY_ORDER_EXPECTED_BACK]  # ordem = schema
     assert json.dumps(back) != json.dumps(KEY_ORDER_PROBE)   # byte-ordem difere (RFC permite)
@@ -130,7 +130,7 @@ def test_borda1_contagem_vazio_fail_loud_que_ensina():
     for degenerado in ({"a": {}}, {"a": {}, "b": {}}, [{"a": {}}], [{"a": {}}, {"a": {}}],
                        {"a": {"b": {}}}):
         with pytest.raises(HierarchicalError, match="contagem-vazio|folhas s.o objetos-vazios"):
-            encode_hierarchical(degenerado)
+            encode(degenerado)
 
 
 def test_borda1_workarounds_funcionam():
@@ -138,7 +138,7 @@ def test_borda1_workarounds_funcionam():
     junto resolve; ragged vazio-depois-cheio resolve. So' o all-empty-object e' fail-loud."""
     for ok in ({"a": []}, {"a": [], "b": []}, [{"a": []}], {"a": {}, "b": 1},
                [{"a": {}}, {"a": {"x": 1}}]):
-        assert decode(encode_hierarchical(ok)) == ok
+        assert decode(encode(ok)) == ok
 
 
 def test_geracao_deterministica():

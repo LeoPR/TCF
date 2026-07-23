@@ -54,12 +54,12 @@ def _ler_csv(name: str) -> list[str]:
 
 class TestRoundTripBasic:
     def test_empty(self):
-        # Contrato definido no BUG-03 (T-QA-8 F0 lote 2, owner 2026-07-10):
-        # 0 linhas e 1-linha-vazia colidem por construcao no formato -> encode
-        # fail-loud (era xfail documentando o RT quebrado). Registro-'0' pra
-        # declarar schema fica pro trilho de armazenamento (parquet/tcfx).
-        with pytest.raises(ValueError, match="0 linhas|linhas"):
-            encode([])
+        # CONTRATO ATUALIZADO (Passo 2, API unica 2026-07-23): `[]` deixou de ser fail-loud
+        # (BUG-03 — colisao 0-linhas x 1-linha-vazia no FLAT) e passou a ser REPRESENTAVEL
+        # via `.8H` `#D0` — o dispatch type-coherent rota lista vazia pro hierarquico, que
+        # grava contagem explicita. RT byte-exato. (O flat single-col segue sem 0-linhas.)
+        assert encode([]) == "#TCF.8H#D0\n"
+        assert decode(encode([])) == []
 
     def test_single_string(self):
         values = ["hello"]

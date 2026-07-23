@@ -29,7 +29,7 @@ import json
 
 import pytest
 
-from tcf import decode, encode_hierarchical
+from tcf import decode, encode
 
 
 def j_rt_tx(docs) -> bool:
@@ -44,7 +44,7 @@ def j_rt_tx(docs) -> bool:
 def t_rt_tx(docs) -> bool:
     """Contrato B com transmissão: encode -> bytes UTF-8 -> decode. True se volta igual."""
     try:
-        wire = encode_hierarchical(docs).encode("utf-8")
+        wire = encode(docs).encode("utf-8")
         return decode(wire.decode("utf-8")) == docs
     except Exception:                                   # noqa: BLE001
         return False
@@ -154,7 +154,7 @@ def test_raiz_tipo_exato_e_envelope_nunca_escapa():
     distinções []≠[{}]≠{}≠None≠''≠0≠False sobrevivem — o gate do parecer do P4b."""
     import tcf
     for raiz in ([], [{}], [{}, {}], {}, {"a": 1}, [1, 2], 42, "x", "", None, 0, False, [[1], [2]]):
-        back = tcf.decode(tcf.encode_hierarchical(raiz))
+        back = tcf.decode(tcf.encode(raiz))
         assert back == raiz and type(back) is type(raiz), f"{raiz!r} -> {back!r}"
 
 

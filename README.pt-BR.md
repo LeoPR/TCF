@@ -118,7 +118,7 @@ round-trip do **dataset que sua linguagem constrói a partir do JSON**: objetos/
   {"nome":"Bruno Lima","cpf":"999.999.999-99","ativo":false,"fones":["21 99888-7766"]} ]
 ```
 
-**TCF + nature CPF** *(146 B, saída real do `encode_hierarchical`)*: o objeto é *fatiado em colunas*
+**TCF + nature CPF** *(146 B, saída real do `encode` — entrada aninhada roteia pro `#TCF.8H`)*: o objeto é *fatiado em colunas*
 (uma por campo), então os nomes de campo são escritos **uma vez** no header — não por registro; a mesma
 nature `cpf` opt-in da tabela plana também vale aqui:
 

@@ -115,7 +115,7 @@ the **dataset your language builds from JSON**: nested objects/arrays, `null`, a
   {"nome":"Bruno Lima","cpf":"999.999.999-99","ativo":false,"fones":["21 99888-7766"]} ]
 ```
 
-**TCF + CPF nature** *(146 B, real `encode_hierarchical` output)*: the object is *shredded into columns*
+**TCF + CPF nature** *(146 B, real `encode` output — nested input routes to `#TCF.8H`)*: the object is *shredded into columns*
 (one per field), so field names are written **once** in the header — not per record; the same opt-in
 `cpf` nature from the flat table applies here too:
 

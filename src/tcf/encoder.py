@@ -82,8 +82,47 @@ def _nature_apply_stats(spec, statuses: list[str]) -> dict:
 # corromperia o round-trip EM SILENCIO — fail-loud na fronteira.
 
 
+# --- DISPATCH type-coherent (Passo 2, API unica: encode/decode sao a porta do dev) ---
+def _lista_flat(data) -> bool:
+    """list single-col FLAT: nao-vazia e TODOS str. Lista vazia/tipada/de-dict -> .8H."""
+    return isinstance(data, list) and bool(data) and all(isinstance(x, str) for x in data)
+
+
+def _tabela_flat(data) -> bool:
+    """dict multi-col FLAT: nao-vazio, todos os valores sao list[str] de MESMO tamanho
+    (tabela retangular). dict com valor escalar/aninhado, colunas tipadas ou ragged -> .8H.
+    Precedencia flat (parecer 2340 §2): dict[str,list[str]] retangular preserva compat/bytes."""
+    if not (isinstance(data, dict) and data):
+        return False
+    vals = list(data.values())
+    if not all(isinstance(v, list) for v in vals):
+        return False
+    tamanhos = {len(v) for v in vals}
+    if len(tamanhos) != 1 or 0 in tamanhos:              # ragged OU 0-linhas -> .8H
+        return False                                     # (0-linha: `{"a":[]}` = objeto c/ array vazio)
+    return all(isinstance(x, str) for v in vals for x in v)
+
+
+# kwargs SO'-flat (default) -> em rota .8H, se != default = fail-loud (nunca ignorar calado,
+# parecer 2340 §2.4). `side_outputs` e `nature_per_col` VALEM no .8H e nao entram aqui.
+_KWARGS_FLAT_DEFAULT = {
+    "parallel": False, "nature": None, "layers": None, "fallback": True,
+    "min_header": True, "min_len": None, "sort_by": None, "name": None,
+    "stamp": False, "drop_names": False,
+}
+
+
+def _rejeita_kwargs_flat_no_8h(**kw) -> None:
+    ruins = [k for k, v in kw.items() if v != _KWARGS_FLAT_DEFAULT[k]]
+    if ruins:
+        raise ValueError(
+            f"kwargs {ruins} nao se aplicam a entrada hierarquica (.8H); so' valem no flat "
+            f"(single/multi-col). Use nature_per_col= p/ specs no .8H, ou reformate a entrada."
+        )
+
+
 def encode(
-    data: list[str] | dict[str, list[str]],
+    data,
     *,
     side_outputs: SideOutputs | None = None,
     parallel: bool | int = False,
@@ -98,18 +137,30 @@ def encode(
     stamp: bool = False,
     drop_names: bool = False,
 ) -> str:
-    """Encode lista de strings OU dict de colunas em texto TCF.
+    """Encode QUALQUER dataset (flat OU aninhado) em texto TCF — PORTA UNICA (Passo 2).
 
-    Multi-col sai no formato **`#TCF.8M`** por default (ADR-0032): por coluna
-    escolhe min(TCF, raw, dict, split) e usa o header minimo (meta inline, ultima
-    coluna sem size, sizes em HEX). Single-col nao tem header — inalterado (orfao,
-    ADR-0029/0030). Legado #TCF.6/#TCF.7 cortado (git-as-compat pra comparacao).
+    Rota por TIPO de entrada, simetrico ao `decode` (que rota pelo magic). Contrato
+    completo em `docs/reference/api.md`. Resumo:
+      - `list[str]` (todos str, >=1)       -> single-col flat (orfao, sem header)
+      - `dict[str, list[str]]` retangular >=1 linha -> multi-col `#TCF.8M`
+      - list[dict] / objeto / escalar / `[]` / `{}` / tipado / ragged / 0-linha
+                                            -> hierarquico `#TCF.8H` (rota interna)
+      - tipo nao-JSON (bytes/tuple/func) ou array de tipos mistos -> FAIL-LOUD
+
+    Type-coherent: so' o flat PURO (todos str) fica flat; o resto vai pro `.8H`, que
+    PRESERVA o tipo (`[1,2,3]` -> array int; `None` nao vira `""`). NAO existe
+    `encode_hierarchical` publico — use so' `encode`/`decode`.
+
+    kwargs SO'-flat (parallel/layers/fallback/min_header/min_len/sort_by/name/stamp/
+    drop_names): passados com entrada `.8H` = fail-loud. `side_outputs` e `nature_per_col`
+    valem no `.8H`; `nature` (spec unico) so' no single-col flat.
+
+    Multi-col `#TCF.8M` (default, ADR-0032): por coluna min(TCF, raw, dict, split) +
+    header minimo (meta inline, ultima sem size, sizes HEX). Single-col = orfao (ADR-0029/30).
 
     Args:
-        data:
-            - `list[str]`: single-column. Output = body puro (sem shebang).
-            - `dict[str, list[str]]`: multi-column. Output = `#TCF.8M<meta>\\n`
-              + bodies concatenados byte-precise.
+        data: dataset — `list[str]` (single flat) · `dict[str, list[str]]` (multi flat) ·
+            ou raiz aninhada/tipada/vazia (rota `.8H`). Ver a tabela de dispatch acima.
         side_outputs: opcional. Se fornecido, captura logs/info interna
             (column_features, cadence_info, OBAT log, HCC trace/rede,
             seq_rle_runs, multi_info, per_col). Sem ele: descartado
@@ -187,10 +238,12 @@ def encode(
             "nature= aplica a single-col (list); pra dict use "
             "nature_per_col={col: spec} (T-QA-8 BUG-10g)"
         )
-    if isinstance(data, list) and nature_per_col:
+    if _lista_flat(data) and nature_per_col:
+        # so' a list FLAT single-col (all-str) rejeita nature_per_col (usa nature=). list[dict]
+        # (dataset .8H) ACEITA nature_per_col={path: spec} — e' a rota de nature hierarquica.
         raise ValueError(
-            "nature_per_col= aplica a multi-col (dict); pra list use nature= "
-            "(T-QA-8 BUG-10g)"
+            "nature_per_col= aplica a multi-col (dict) ou dataset (.8H); pra single-col (list[str]) "
+            "use nature= (T-QA-8 BUG-10g)"
         )
     if name is not None and (isinstance(data, dict) or nature is None):
         raise ValueError(
@@ -200,21 +253,11 @@ def encode(
     cfg = layers if layers is not None else DEFAULT_PIPELINE
     if min_len is not None and min_len < 1:
         raise ValueError(f"min_len deve ser >= 1 (ou None pra auto); got {min_len}")
-    if isinstance(data, list):
-        if not data:
-            # BUG-03 (T-QA-8 F0 lote 2, owner 2026-07-10): 0 linhas colide com
-            # 1-linha-vazia por construcao (N valores = N-1 separadores; o
-            # formato nao grava row-count) -> fail-loud. Registro-'0' pra
-            # declarar schema fica pro trilho de armazenamento append/parquet/
-            # tcfx (registrado; ver T-QA-8 §3).
-            raise ValueError(
-                "entrada com 0 linhas: nao representavel (colide com 1 linha "
-                "vazia — o formato nao grava row-count); ver T-QA-8 BUG-03"
-            )
-        # BUG-10a (lote 3): itens nao-str convertem (ADR-0013: None -> '') com
-        # o check de \n/\r FUNDIDO na mesma passada (BUG-06) — FONTE ÚNICA
-        # `_stringify_checked` compartilhada com o ramo dict (dedup C0 D2,
-        # T-CODE-CORE-CONSOLIDATE).
+    if _lista_flat(data):
+        # SINGLE-COL FLAT (list, nao-vazia, TODOS str). Lista vazia (BUG-03 resolvido: `[]`
+        # agora e' representavel via .8H `#D0`), lista tipada (`[1,2,3]` -> array .8H) e
+        # list[dict] caem na ROTA .8H abaixo (dispatch type-coherent, Passo 2).
+        # `_stringify_checked` valida \n/\r (BUG-06); a conversao e' no-op aqui (all-str).
         from tcf.multi.core import _stringify_checked, MAGIC_SINGLE_V3
 
         data = _stringify_checked(data)
@@ -268,7 +311,7 @@ def encode(
             # puro fica orfao byte-identico.
             return magic + "\n" + body
         return body  # single-col puro orfao (byte-identico)
-    if isinstance(data, dict):
+    if _tabela_flat(data):
         from tcf.multi import _encode_multi
 
         if sort_by is not None:
@@ -312,10 +355,17 @@ def encode(
             nature_specs=nature_specs,
             drop_names=drop_names,
         )
-    raise TypeError(
-        f"encode espera list[str] ou dict[str, list[str]], "
-        f"recebeu {type(data).__name__}"
+    # ROTA HIERARQUICA .8H (dispatch type-coherent, Passo 2, API unica): tudo que NAO e'
+    # flat puro — lista vazia/tipada/list[dict], dict objeto/ragged/tipado, escalar solto,
+    # `{}`. Simetrico ao decode (que rota pelo magic `#TCF.8H`). kwargs so'-flat = fail-loud.
+    _rejeita_kwargs_flat_no_8h(
+        parallel=parallel, nature=nature, layers=layers, fallback=fallback,
+        min_header=min_header, min_len=min_len, sort_by=sort_by, name=name,
+        stamp=stamp, drop_names=drop_names,
     )
+    from tcf.hierarchical import _encode_hierarchical
+
+    return _encode_hierarchical(data, nature_per_col=nature_per_col, side_outputs=side_outputs)
 
 
 def _encode_column(

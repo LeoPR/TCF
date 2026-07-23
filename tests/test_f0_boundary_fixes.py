@@ -225,13 +225,18 @@ class TestBug03ZeroRows:
     separadores). Decisão: fail-loud AGORA; registro-'0' declarando schema fica
     pro trilho de armazenamento append/parquet/tcfx (registrado, ver ticket)."""
 
-    def test_encode_empty_list_raises(self):
-        with pytest.raises(ValueError, match="0 linhas|linhas"):
-            encode([])
+    def test_encode_empty_list_vira_8h(self):
+        # CONTRATO ATUALIZADO (Passo 2): `[]` vira `.8H` `#D0` (representavel), nao fail-loud.
+        # (Tabela 0-linha `{"a":[],"b":[]}` segue flat fail-loud — ver teste abaixo.)
+        assert encode([]) == "#TCF.8H#D0\n"
+        assert decode(encode([])) == []
 
-    def test_encode_zero_row_table_raises(self):
-        with pytest.raises(ValueError, match="0 linhas|linhas"):
-            encode({"a": [], "b": []})
+    def test_dict_colunas_vazias_vira_8h(self):
+        # CONTRATO ATUALIZADO (Passo 2): dict com TODAS as colunas vazias (0 linhas) deixa de
+        # ser fail-loud e vira `.8H` OBJETO (campo = array vazio; o count `\0` E' coluna). O
+        # flat 0-linha (irrepresentavel) so' se aplica a tabela COM ao menos 1 linha.
+        assert encode({"a": [], "b": []}).startswith("#TCF.8H#O")
+        assert decode(encode({"a": [], "b": []})) == {"a": [], "b": []}
 
     def test_single_empty_string_still_ok(self):
         # 1 linha vazia é DADO legítimo — não confundir com 0 linhas
@@ -315,20 +320,23 @@ class TestBug06StringifyCheck:
     """Validar o que VAI SER USADO (pós _to_str), na MESMA passada que já
     stringifica — o guard prévio não via objetos cujo __str__ tem quebra."""
 
-    def test_nonstr_with_newline_raises(self):
+    def test_nonstr_custom_no_8h_fail_loud(self):
+        # CONTRATO ATUALIZADO (Passo 2): coluna com valor NAO-str rota pro `.8H`; um objeto
+        # custom (nao-JSON) falha alto na fronteira (tipo nao suportado) — antes o flat
+        # stringificava e so' pegava o \n. (str-com-\n em valor .8H e' ESCAPADO, D_json.)
         class Sneaky:
             def __str__(self):
                 return "linha1\nlinha2"
 
-        with pytest.raises(ValueError, match="quebra de linha"):
+        with pytest.raises(Exception, match="suportado"):
             encode({"a": [Sneaky(), "v2"], "b": ["x", "y"]})
 
-    def test_nonstr_with_cr_raises(self):
+    def test_nonstr_cr_custom_no_8h_fail_loud(self):
         class SneakyCR:
             def __str__(self):
                 return "l1\rl2"
 
-        with pytest.raises(ValueError, match="quebra de linha"):
+        with pytest.raises(Exception, match="suportado"):
             encode({"a": [SneakyCR()], "b": ["x"]})
 
     def test_plain_str_newline_still_raises_both_branches(self):
@@ -348,24 +356,31 @@ class TestBug06StringifyCheck:
 class TestLote3ApiBoundaries:
     """BUG-09 + BUG-10: fronteiras da API fail-loud/consistentes."""
 
-    def test_str_as_column_value_raises(self):  # BUG-09
-        with pytest.raises(TypeError, match="(?i)lista"):
-            encode({"a": "xyz"})
+    def test_str_como_valor_de_coluna_vira_8h_objeto(self):  # BUG-09 (contrato atualizado)
+        # CONTRATO ATUALIZADO (Passo 2): dict com valor str (nao-lista) vira `.8H` OBJETO
+        # (campo = str), nao mais TypeError. decode devolve a mesma estrutura.
+        assert encode({"a": "xyz"}).startswith("#TCF.8H#O")
+        assert decode(encode({"a": "xyz"})) == {"a": "xyz"}
 
-    def test_bytes_as_column_value_raises(self):  # BUG-09
-        with pytest.raises(TypeError, match="(?i)lista"):
+    def test_bytes_como_valor_no_8h_fail_loud(self):  # BUG-09 (contrato atualizado)
+        # bytes nao e' tipo JSON -> rota .8H -> fail-loud (tipo nao suportado).
+        with pytest.raises(Exception, match="suportado"):
             encode({"a": b"xyz"})
 
-    def test_list_nonstr_items_convert_like_dict(self):  # BUG-10a
-        # mesma semântica do dict (ADR-0013: None -> ''); antes crashava fundo
-        assert decode(encode([1, None, "x"])) == ["1", "", "x"]
+    def test_list_nonstr_vira_8h_tipado(self):  # BUG-10a (contrato atualizado)
+        # CONTRATO ATUALIZADO (Passo 2, type-coherent): list nao-str vira `.8H`. Array UNIFORME
+        # tipado PRESERVA o tipo (fim da perda-de-tipo silenciosa); array de tipos MISTOS (union
+        # int+null+str) e' fail-loud — fora do .8H (P5), ensina a converter/separar.
+        assert decode(encode([1, 2, 3])) == [1, 2, 3]              # int uniforme: tipo preservado
+        with pytest.raises(Exception, match="MISTOS|suportado"):
+            encode([1, None, "x"])                                 # tipos mistos = union P5
 
-    def test_list_nonstr_sneaky_newline_raises(self):  # BUG-10a×06
+    def test_list_custom_nao_json_fail_loud(self):  # BUG-10a×06 (contrato atualizado)
         class Sneaky:
             def __str__(self):
                 return "a\nb"
 
-        with pytest.raises(ValueError, match="quebra de linha"):
+        with pytest.raises(Exception, match="suportado"):
             encode([Sneaky()])
 
     def test_layers_wrong_type_raises(self):  # BUG-10b
@@ -419,14 +434,16 @@ class TestLote3FreezeAssimetrias:
     comportamento atual; melhorias de ergonomia ficam registradas como follow-up pré-1.0.
     """
 
-    def test_tuple_como_valor_de_coluna_converte(self):
-        # tuple é ITERÁVEL de str-áveis -> aceito como VALOR de coluna (converte p/ list).
-        assert decode(encode({"a": ("x", "y")})) == {"a": ["x", "y"]}
+    def test_tuple_como_valor_de_coluna_fail_loud(self):
+        # CONTRATO ATUALIZADO (Passo 2): tuple NAO e' list -> nao e' tabela flat -> rota `.8H`,
+        # e tuple nao e' tipo JSON -> fail-loud (era: convertia p/ list silenciosamente).
+        with pytest.raises(Exception, match="suportado"):
+            encode({"a": ("x", "y")})
 
-    def test_tuple_como_tabela_inteira_rejeitado(self):
-        # a SHAPE de topo do contrato público é list|dict — tuple no topo ensina (assimetria
-        # INTENCIONAL: topo = shape do contrato; valores de coluna = containers de str).
-        with pytest.raises(TypeError, match="(?i)list.*dict|espera"):
+    def test_tuple_no_topo_fail_loud(self):
+        # CONTRATO ATUALIZADO (Passo 2): tuple no topo -> rota `.8H` (envelope #V) -> tipo nao
+        # suportado (fail-loud claro, nao stringifica).
+        with pytest.raises(Exception, match="suportado"):
             encode(("a", "b"))
 
     def test_decode_nature_per_col_em_single_ignorado_sem_corromper(self):

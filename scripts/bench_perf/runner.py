@@ -398,8 +398,8 @@ def run_case(case: dict, order_index: int, smoke: bool) -> dict:
             V.g2_classe_json(data)                     # a jsonlib round-trip'a? (N1)
             rec["crosscompat"] = CC.resumo(CC.alertas(data))
             if cam == "tcf-8h":
-                from tcf.hierarchical import encode_hierarchical, decode_hierarchical
-                ser, des = encode_hierarchical, decode_hierarchical
+                from tcf import encode as _enc, decode as _dec   # API unica: encode rota .8H
+                ser, des = _enc, _dec
             else:
                 ser, des = V.to_json_text, V.from_json_text
             wire = ser(data)

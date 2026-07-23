@@ -70,7 +70,7 @@ class SideOutputs:
     multi_info: dict | None = None
     per_col: dict[str, "SideOutputs"] | None = None
 
-    # --- Hierarquico .8H (E3, 2026-07-17; so' populado por encode_hierarchical) ---
+    # --- Hierarquico .8H (E3, 2026-07-17; populado pela rota .8H de encode(x, side_outputs=)) ---
     # {'root_kind': 'dataset'|'D'|'E'|'O'|'V', 'n_records', 'n_cols',
     #  'cols': {'controle': n, 'dado': n}, 'fields': [nomes de topo]}.
     # per_col e' reusado: chave = 'path/kind' da coluna (controle E dado), valor =

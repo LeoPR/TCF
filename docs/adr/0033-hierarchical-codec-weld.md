@@ -1,5 +1,13 @@
 # 0033 — Weld do codec hierárquico `#TCF.8H` no core (L2/L3 aditivo sobre L1 reusado)
 
+> **⚑ EMENDA 2026-07-23 (Passo 2 — API única).** A **capacidade e o wire `#TCF.8H` deste ADR são
+> INALTERADOS**. O que mudou é só a **porta de entrada**: `encode_hierarchical`/`encode_hierarchical_so`
+> (citados abaixo como API pública) foram **removidos do público** e viraram interno `_encode_hierarchical`.
+> A API do dev é **só `encode`/`decode`** — `encode()` detecta entrada aninhada (list[dict], objeto,
+> escalar, `[]`/`{}`, tipada/ragged) e **rota pro `.8H`**, simétrico ao `decode` que rota pelo magic.
+> `nature_per_col=` e `side_outputs=` seguem via `encode`. Contrato de dispatch:
+> [`docs/reference/api.md`](../reference/api.md). Nenhum byte de wire foi tocado; a suíte segue verde.
+
 **Status**: welded (2026-07-14)
 **Date**: 2026-07-14
 **Deciders**: project owner

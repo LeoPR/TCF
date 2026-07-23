@@ -78,6 +78,7 @@ TCF/
 | Quero... | Va para |
 |---|---|
 | Entender o projeto | `STATUS.md` -> aqui (`MAP.md`) -> `docs/algorithms/TCF-format.md` |
+| **API pública do dev** (o que usar + dispatch de `encode`) | `docs/reference/api.md` (fonte única; `encode`/`decode` únicos; sem `encode_hierarchical`) |
 | Saber o estado atual | `STATUS.md` |
 | Ver historico do dia | `experiments/lab/dirty/notas/diario/YYYY-MM-DD.md` |
 | Retomar de uma pausa | `experiments/lab/dirty/notas/checkpoints/2026-07-12-revisao-roi-fechamento-08.md` (vigente) + diretório `checkpoints/` (histórico) |

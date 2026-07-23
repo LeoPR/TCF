@@ -2,7 +2,7 @@
 
 > **Semente do manual.** Registro consolidado do que o `#TCF.8H` traduz de/para JSON, o que faz a
 > MAIS, e a fronteira declarada. Todos os wires abaixo foram **confirmados por execução**
-> (`encode_hierarchical` → `.tcf` → `decode`, RT). Estado: 2026-07-17, suíte 853 passed.
+> (`encode` → `.tcf` → `decode`, RT — entrada aninhada roteia pro `#TCF.8H`). Estado: 2026-07-23, suíte 861 passed.
 >
 > **Escopo**: o TCF **não lê texto JSON** — ele lê o **dataset** (dict/array/escalar) que a
 > linguagem constrói ao parsear a fonte. São **dois contratos independentes**: o da lib json

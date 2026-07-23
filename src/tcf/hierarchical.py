@@ -377,28 +377,23 @@ def _array_leaves(node, p, lvl, out):
 
 
 # ============================================================ encode (L2 shred + L1)
-def encode_hierarchical(data, nature_per_col=None) -> str:
-    """Qualquer raiz D_json → wire `.8H` (P4b/J1, raiz generalizada — 2026-07-17).
+def _encode_hierarchical(data, nature_per_col=None, side_outputs=None) -> str:
+    """Qualquer raiz D_json → wire `.8H` (P4b/J1, raiz generalizada — 2026-07-17). INTERNO.
 
-    `nature_per_col` (2026-07-19, OTIMIZAÇÃO — não estrutura): {path→spec}, path = nome do campo
-    ou "a/b" p/ aninhado. Aplica um spec (CPF/CNPJ/IP) a uma coluna-folha STRING, reusando 100%
-    do codec flat (o body vira a forma comprimida do nature; o `:id` viaja no meta, auto-descritivo
-    pelo registry no decode). O flat byte-canônico fica intocado (nature só toca colunas .8H).
+    A **porta pública é `encode()`** (`tcf.encoder`), que ROTA aqui por tipo de entrada —
+    simétrico ao `decode`, que rota pelo magic (`#TCF.8H`). Não chamar direto de fora do core;
+    a API do dev é `encode`/`decode` (Passo 2, API única). Funde a antiga `encode_hierarchical_so`:
+    `side_outputs` (E3) popula `hier_info` + `per_col` sem mudar um byte do wire.
+
+    `nature_per_col` (OTIMIZAÇÃO — não estrutura): {path→spec}, path = nome do campo ou "a/b".
+    Aplica um spec (CPF/CNPJ/IP) a folha-STRING, reusando o codec flat; `:id` no meta,
+    auto-descritivo no decode. O flat byte-canônico fica intocado.
 
     Dataset (list[dict] com ≥1 registro com campos) = caminho original, byte-IDÊNTICO.
-    Demais raízes = discriminadas por `#`+kind logo após o magic (posição que era
-    fail-loud → decoder antigo falha ALTO em wire novo; pré-1.0 correto):
-      `#D<N>` dataset sem colunas ([]·[{}]×N) · `#E` = `{}` (definição, H-STRUCT-DEF-01) ·
-      `#O<meta>` objeto único · `#V<meta>` valor via ENVELOPE [{"": V}] (o decode
-      desembrulha e NUNCA devolve o envelope — parecer P4b).
+    Demais raízes: `#D<N>` ([]·[{}]×N) · `#E` = `{}` · `#O<meta>` objeto · `#V<meta>` valor
+    via ENVELOPE [{"": V}] (decode desembrulha, nunca devolve o envelope — P4b).
     """
-    return _encode_root(data, None, nature_per_col)
-
-
-def encode_hierarchical_so(data, side_outputs) -> str:
-    """Variante com canal de efeito colateral (E3): popula `side_outputs.hier_info` +
-    `per_col` (SideOutputs do L1 por coluna). Bytes IDÊNTICOS a `encode_hierarchical`."""
-    return _encode_root(data, side_outputs)
+    return _encode_root(data, side_outputs, nature_per_col)
 
 
 def _mark(so, kind):

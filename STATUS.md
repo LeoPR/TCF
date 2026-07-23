@@ -1,5 +1,15 @@
 # STATUS — TCF (compendio sempre-atualizado)
 
+> **⚑ PASSO 2 — API ÚNICA `encode`/`decode` (2026-07-23, suíte 861 passed).** `encode_hierarchical`
+> saiu do público (virou interno `_encode_hierarchical`); **`encode()` rota por TIPO** — flat puro
+> (list[str]/dict[str,list[str]] retangular ≥1 linha) fica flat, o resto (list[dict]/objeto/escalar/
+> `[]`/`{}`/tipado/ragged/0-linha) vai pro `#TCF.8H`, simétrico ao `decode`. **type-coherent**: preserva
+> tipo (`[1,2,3]`→array int; `None` não vira `""`); tipo não-JSON/union→fail-loud. Wire `.8H` INALTERADO
+> (só a porta mudou). **Contrato pré-1.0 declarado** (ADR-0024): `encode([])`/`encode({})` viram `.8H`
+> (resolve BUG-03); non-str→`.8H` tipado; tuple/bytes→fail-loud. Fonte única da superfície:
+> [`docs/reference/api.md`](docs/reference/api.md) · emenda [ADR-0033](docs/adr/0033-hierarchical-codec-weld.md) ·
+> plano [parecer 2340 §2](experiments/lab/dirty/notas/2026-07/2026-07-22-2340-revisao-fechamento-08-ordem-foco.md).
+
 > **⚑ ERRATA 2026-07-22 (parecer de fechamento do `.8`, corte b0e3bf1) — controla as leituras abaixo.**
 > **(1) baseline perf**: a adjudicação vigente é a análise ENTRE-runs (CV 3%, aceito *first-order*); o
 > `status: termicamente-reprovado` no manifesto bruto é o gate intra-run REFUTADO, **não** o status
