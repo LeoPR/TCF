@@ -1,5 +1,28 @@
 # STATUS — TCF (compendio sempre-atualizado)
 
+> **⚑ DECISÃO PENDENTE — weld do bN-dense no FLOOR (2026-07-23).** Estudo implicitude/bool/RLE/bN
+> fechado com evidência medida e VERIFICADA (10 labs em `experiments/lab/dirty/2026-07/2026-07-23/`,
+> nenhuma linha de `src/tcf` tocada). **Estabelecido**: (1) **segmentação misto RLE+b64 DERRUBADA** —
+> reality-check em dados reais deu 0/18 vitórias (o regime "misto genuíno" é artefato sintético);
+> (2) **bN-dense base64 VENCE o `dict/V2-B` atual** — tabela real adult-census 9 col × 10k:
+> **89.902 → 48.224 B = 1,86× menor**; (3) **não existe limiar simples de `k`** (cruzamento
+> NÃO-monotônico: bN ganha k≤32, perde k≈64–94, volta a ganhar k≥95 pq base-94 esgota e o dict pula
+> p/ 2 chars/símbolo) ⇒ a forma correta é **competir no FLOOR/`min()`**, nunca-pior por construção;
+> (4) ressalvas medidas: **gzip encolhe muito o ganho** (0,17×→0,75×) e **N pequeno o anula** (N=5 ≈
+> empate) — colide com o foco em payload minúsculo.
+>
+> **Plano de weld pronto (NÃO executado)**: escopo **multi-col `.8M` apenas** (o `.8H` single-col fica
+> fora — não tem ponto de seleção); novo `src/tcf/multi/bn_dense.py` espelhando `dict_v2b.py`; 3 pontos
+> de fiação (`_best_of` candidato, `_serialize` prefixo, `_parse_meta` dispatch); marcador **`#`** já
+> **RESERVADO** pro bN no [registry de chars](experiments/lab/dirty/notas/2026-07/tcf8-header-char-registry.md)
+> (Eixo 2) — não é char novo; largura **exata `ceil(log2 k)`** (a escada {1,2,4,8} desperdiça 33%).
+>
+> **⛔ FALTA DECIDIR (owner)** — como entrar: **(a)** ligado por padrão + **re-pin de D17a (300B) e
+> real-world (89616B) com ADR** (o ganho entra em vigor; há precedente: D17a já foi 307→303→302→300 a
+> cada modo novo), ou **(b)** atrás de flag desligado (`fallback_bn=False`) — zero mudança de baseline,
+> ganho opt-in, decisão de ligar fica pro `.9`. **D1–D9 (1523B) fica intacto nas duas** (é single-col,
+> não passa pelo `min()` multi-col). Evidência: labs `1857` (v2 corrigida), `1832`, `1759`, `1548`.
+
 > **⚑ PASSO 2 — API ÚNICA `encode`/`decode` (2026-07-23, suíte 861 passed).** `encode_hierarchical`
 > saiu do público (virou interno `_encode_hierarchical`); **`encode()` rota por TIPO** — flat puro
 > (list[str]/dict[str,list[str]] retangular ≥1 linha) fica flat, o resto (list[dict]/objeto/escalar/
@@ -983,6 +1006,13 @@ TCF/
 
 ### Prioridade media (decisao pendente)
 
+0. **⛔ bN-dense no FLOOR — COMO entrar (owner decide)**: (a) ligado por
+   padrao + re-pin D17a/real-world com ADR, ou (b) atras de flag desligado
+   (`fallback_bn=False`). Plano pronto, escopo multi-col `.8M`, marcador `#`
+   ja' reservado no registry, nunca-pior por construcao (entra no `min()`).
+   Ganho medido: tabela real 1.86x menor; mas gzip encolhe e N pequeno anula.
+   Ver bloco ⚑ no topo + labs `2026-07-23-1857` (v2) e `-1832`. **Nada em
+   `src/tcf` foi tocado.**
 3. **H-PERF-05d counter incremental HCC** — unico zero-risk de alto
    potencial no Pacote 4 ainda aberto (~50-70% HCC perf). Implementacao
    complexa (state entre iters).
