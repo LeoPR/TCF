@@ -1,0 +1,4 @@
+CASE C5 — tuple no lugar de lista — FAIL-LOUD (tipo não-JSON, não converte calado)
+FONTE: dict · kwargs: {}
+INPUT: {'a': ('x', 'y')}
+RESULTADO: FAIL-LOUD (esperado): HierarchicalError: valor escalar de tipo não suportado: tuple

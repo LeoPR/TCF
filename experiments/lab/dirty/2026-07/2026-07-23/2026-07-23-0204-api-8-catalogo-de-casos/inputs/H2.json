@@ -1,0 +1,9 @@
+{
+ "cidade": "SP",
+ "populacao": 12300000,
+ "capital": true,
+ "prefeito": {
+  "nome": "X",
+  "partido": "Y"
+ }
+}

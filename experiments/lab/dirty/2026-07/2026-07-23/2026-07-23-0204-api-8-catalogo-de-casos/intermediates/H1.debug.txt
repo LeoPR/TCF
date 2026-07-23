@@ -1,0 +1,13 @@
+CASE H1 — dataset (list[dict]) c/ escalares tipados + array — #TCF.8H dataset
+FONTE: dataset · kwargs: {}
+INPUT: [{'nome': 'Ana', 'idade': 30, 'ativo': True, 'fones': ['11 9999-0001', '11 3000-0002']}, {'nome': 'Bruno', 'idade': 25, 'ativo': False, 'fones': ['21 9888-7766'
+WIRE (128 B): '#TCF.8Hnome:10,idade:9n,ativo:11b,fones#:8[\nAna\nBruno\n*2-5|\\30\ntrue\nfalse\n*2-1|\\2\n\\11 *\\9999-\\0001\n1\\3000-\\0002\n\\21 \\9888-\\7766\n'
+HEADER: hierárquico #TCF.8H · DATASET (list[dict]) · meta 'nome:10,idade:9n,ativo:11b'
+ROUNDTRIP (identidade): OK
+DEBUG (SideOutputs):
+  hier_info: root_kind=dataset n_records=2 cols={'controle': 1, 'dado': 4} fields=['nome', 'idade', 'ativo', 'fones']
+  per_col[nome:scalar]: body_bytes=10 features=ColumnFeatures(n_rows=2, n_unicas=2, avg_len=4.0, cardinality=1.0, is_numeric=False, sample=('Ana', 'Bruno'))
+  per_col[idade:scalar]: body_bytes=9 features=ColumnFeatures(n_rows=2, n_unicas=2, avg_len=2.0, cardinality=1.0, is_numeric=True, sample=('30', '25'))
+  per_col[ativo:scalar]: body_bytes=11 features=ColumnFeatures(n_rows=2, n_unicas=2, avg_len=4.5, cardinality=1.0, is_numeric=False, sample=('true', 'false'))
+  per_col[fones:count]: body_bytes=8 features=ColumnFeatures(n_rows=2, n_unicas=2, avg_len=1.0, cardinality=1.0, is_numeric=True, sample=('2', '1'))
+  per_col[fones:arr_scalars]: body_bytes=46 features=ColumnFeatures(n_rows=3, n_unicas=3, avg_len=12.0, cardinality=1.0, is_numeric=False, sample=('11 9999-0001', '11 3000-0002', '21 9888-7766'))

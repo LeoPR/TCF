@@ -1,0 +1,14 @@
+CASE S2 — linhas idênticas adjacentes — RLE de linha (*N|linha)
+FONTE: list · kwargs: {}
+INPUT: ['ok', 'ok', 'ok', 'erro', 'ok', 'ok']
+WIRE (17 B): '*3|ok\nerro\n*2|^1\n'
+HEADER: (sem header — single-col órfão)
+ROUNDTRIP (identidade): OK
+DEBUG (SideOutputs):
+  column_features: ColumnFeatures(n_rows=6, n_unicas=2, avg_len=2.3333333333333335, cardinality=0.3333333333333333, is_numeric=False, sample=('ok', 'ok', 'ok', 'erro', 'ok', 'ok'))
+  hcc_trace: # Optimization trace — syntax=M8-A-seq-rle
+
+=== DETECTOR ITERATIONS (unified — atoms + virtuals) ===
+
+--- Iter 1 ---
+Sub

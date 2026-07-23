@@ -1,0 +1,13 @@
+CASE H2 — objeto único (dict com valores escalar/nested) — #TCF.8H #O
+FONTE: json · kwargs: {}
+INPUT: {'cidade': 'SP', 'populacao': 12300000, 'capital': True, 'prefeito': {'nome': 'X', 'partido': 'Y'}}
+WIRE (89 B): '#TCF.8H#Ocidade:3,populacao:10n,capital:5b,prefeito{nome:2,partido\nSP\n\\12300000\ntrue\nX\nY\n'
+HEADER: hierárquico #TCF.8H · objeto único (#O) · meta '#Ocidade:3,pop'
+ROUNDTRIP (identidade): OK
+DEBUG (SideOutputs):
+  hier_info: root_kind=O n_records=1 cols={'controle': 0, 'dado': 5} fields=['cidade', 'populacao', 'capital', 'prefeito']
+  per_col[cidade:scalar]: body_bytes=3 features=ColumnFeatures(n_rows=1, n_unicas=1, avg_len=2.0, cardinality=1.0, is_numeric=False, sample=('SP',))
+  per_col[populacao:scalar]: body_bytes=10 features=ColumnFeatures(n_rows=1, n_unicas=1, avg_len=8.0, cardinality=1.0, is_numeric=True, sample=('12300000',))
+  per_col[capital:scalar]: body_bytes=5 features=ColumnFeatures(n_rows=1, n_unicas=1, avg_len=4.0, cardinality=1.0, is_numeric=False, sample=('true',))
+  per_col[prefeito/nome:scalar]: body_bytes=2 features=ColumnFeatures(n_rows=1, n_unicas=1, avg_len=1.0, cardinality=1.0, is_numeric=False, sample=('X',))
+  per_col[prefeito/partido:scalar]: body_bytes=2 features=ColumnFeatures(n_rows=1, n_unicas=1, avg_len=1.0, cardinality=1.0, is_numeric=False, sample=('Y',))

@@ -1,0 +1,9 @@
+CASE H3 — escalar solto — #TCF.8H #V (envelope; decode desembrulha)
+FONTE: scalar · kwargs: {}
+INPUT: 42
+WIRE (19 B): '#TCF.8H#V\\z:4n\n\\42\n'
+HEADER: hierárquico #TCF.8H · valor escalar (#V, envelope) · meta '#V\\z:4n'
+ROUNDTRIP (identidade): OK
+DEBUG (SideOutputs):
+  hier_info: root_kind=V n_records=1 cols={'controle': 0, 'dado': 1} fields=['']
+  per_col[:scalar]: body_bytes=4 features=ColumnFeatures(n_rows=1, n_unicas=1, avg_len=2.0, cardinality=1.0, is_numeric=True, sample=('42',))

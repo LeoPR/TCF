@@ -1,0 +1,8 @@
+CASE H4c — [{}, {}] — #TCF.8H #D2 (N registros, zero colunas)
+FONTE: dataset · kwargs: {}
+INPUT: [{}, {}]
+WIRE (11 B): '#TCF.8H#D2\n'
+HEADER: hierárquico #TCF.8H · dataset sem-colunas (#D<N>) · meta '#D2'
+ROUNDTRIP (identidade): OK
+DEBUG (SideOutputs):
+  hier_info: root_kind=D n_records=2 cols={'controle': 0, 'dado': 0} fields=[]

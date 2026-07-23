@@ -1,0 +1,13 @@
+#TCF.8M11=hora,27=codigo,2a=nome
+*3+1|\0
+^1
+^2
+^3
+\0000
+\79b\1
+f\362
+\6d\13
+e\6c\4
+\6075
+pedido_\00*\0*_descricao_unica
+*5+1|1\1*3

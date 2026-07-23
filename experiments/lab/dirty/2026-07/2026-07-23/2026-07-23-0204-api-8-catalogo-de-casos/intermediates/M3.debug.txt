@@ -1,0 +1,11 @@
+CASE M3 — sort_by='hora' + drop_names=True — linhas reordenadas + colunas anônimas
+FONTE: dict · kwargs: {'sort_by': 'hora', 'drop_names': True}
+INPUT: {'hora': ['0', '1', '2', '0', '1', '2'], 'codigo': ['0000', '79b1', 'f362', '6d13', 'e6c4', '6075'], 'nome': ['pedido_000_descricao_unica', 'pedido_001_descrica
+WIRE (113 B): '#TCF.8Mb,!1d,\n*3+1|*2|\\0\n0000\n6d13\n79b1\ne6c4\nf362\n6075pedido_\\00*\\0*_descricao_unica\n*2-2|1\\3*3\n*2-2|1\\4*3\n1\\5*3\n'
+HEADER: multi-col #TCF.8M · meta inline: 'b,!1d,'
+ROUNDTRIP (idempotencia-2a-geracao): OK
+DEBUG (SideOutputs):
+  multi_info: {'n_rows': 6, 'n_cols': 3, 'total_bytes': 113, 'header_bytes': 14, 'body_bytes': 99, 'parallel_workers': 0, 'format': 'v3', 'used_v2_features': True, 'fallback_cols': ['codigo'], 'dict_cols': [], 'split_cols': [], 'col_modes': {'hora': 'tcf', 'codigo': 'raw', 'nome': 'tcf'}, 'min_header': True, 'nature_cols': {}, 'nature_lost': []}
+  per_col[hora]: body_bytes=11 features=ColumnFeatures(n_rows=6, n_unicas=3, avg_len=1.0, cardinality=0.5, is_numeric=True, sample=('0', '0', '1', '1', '2', '2'))
+  per_col[codigo]: body_bytes=39 features=ColumnFeatures(n_rows=6, n_unicas=6, avg_len=4.0, cardinality=1.0, is_numeric=False, sample=('0000', '6d13', '79b1', 'e6c4', 'f362', '6075'))
+  per_col[nome]: body_bytes=59 features=ColumnFeatures(n_rows=6, n_unicas=6, avg_len=26.0, cardinality=1.0, is_numeric=False, sample=('pedido_000_descricao_unica', 'pedido_003_descricao_unica', 'pedido_001_descricao_unica', 'pedido_004_descricao_unica', 'pedido_002_descricao_unica', 'pedido_005_descricao_unica'))

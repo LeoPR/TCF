@@ -1,0 +1,4 @@
+CASE C6 — kwarg SÓ-flat (parallel) com entrada .8H — FAIL-LOUD (nunca ignora calado)
+FONTE: dataset · kwargs: {'parallel': 4}
+INPUT: [{'a': '1'}]
+RESULTADO: FAIL-LOUD (esperado): ValueError: kwargs ['parallel'] nao se aplicam a entrada hierarquica (.8H); so' valem no flat (single/

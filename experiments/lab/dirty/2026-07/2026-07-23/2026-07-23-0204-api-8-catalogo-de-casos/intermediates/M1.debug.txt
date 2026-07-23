@@ -1,0 +1,11 @@
+CASE M1 — tabela mista — #TCF.8M, marcadores por-coluna (! raw · @ dict · % split), hex
+FONTE: dict · kwargs: {}
+INPUT: {'hora': ['0', '1', '2', '0', '1', '2'], 'codigo': ['0000', '79b1', 'f362', '6d13', 'e6c4', '6075'], 'nome': ['pedido_000_descricao_unica', 'pedido_001_descrica
+WIRE (113 B): '#TCF.8M!b=hora,!1d=codigo,nome\n0\n1\n2\n0\n1\n20000\n79b1\nf362\n6d13\ne6c4\n6075pedido_\\00*\\0*_descricao_unica\n*5+1|1\\1*3\n'
+HEADER: multi-col #TCF.8M · meta inline: '!b=hora,!1d=codigo,nome'
+ROUNDTRIP (identidade): OK
+DEBUG (SideOutputs):
+  multi_info: {'n_rows': 6, 'n_cols': 3, 'total_bytes': 113, 'header_bytes': 31, 'body_bytes': 82, 'parallel_workers': 0, 'format': 'v3', 'used_v2_features': True, 'fallback_cols': ['hora', 'codigo'], 'dict_cols': [], 'split_cols': [], 'col_modes': {'hora': 'raw', 'codigo': 'raw', 'nome': 'tcf'}, 'min_header': True, 'nature_cols': {}, 'nature_lost': []}
+  per_col[hora]: body_bytes=17 features=ColumnFeatures(n_rows=6, n_unicas=3, avg_len=1.0, cardinality=0.5, is_numeric=True, sample=('0', '1', '2', '0', '1', '2'))
+  per_col[codigo]: body_bytes=39 features=ColumnFeatures(n_rows=6, n_unicas=6, avg_len=4.0, cardinality=1.0, is_numeric=False, sample=('0000', '79b1', 'f362', '6d13', 'e6c4', '6075'))
+  per_col[nome]: body_bytes=42 features=ColumnFeatures(n_rows=6, n_unicas=6, avg_len=26.0, cardinality=1.0, is_numeric=False, sample=('pedido_000_descricao_unica', 'pedido_001_descricao_unica', 'pedido_002_descricao_unica', 'pedido_003_descricao_unica', 'pedido_004_descricao_unica', 'pedido_005_descricao_unica'))

@@ -1,0 +1,12 @@
+CASE C3 — dict ragged (colunas de tamanhos != ) — .8H OBJETO (cada campo = array)
+FONTE: dict · kwargs: {}
+INPUT: {'a': ['1', '2'], 'b': ['x']}
+WIRE (40 B): '#TCF.8H#Oa#:3[]:8,b#:3[\n\\2\n*2+1|\\1\n\\1\nx\n'
+HEADER: hierárquico #TCF.8H · objeto único (#O) · meta '#Oa#:3[]:8,b#:'
+ROUNDTRIP (identidade): OK
+DEBUG (SideOutputs):
+  hier_info: root_kind=O n_records=1 cols={'controle': 2, 'dado': 2} fields=['a', 'b']
+  per_col[a:count]: body_bytes=3 features=ColumnFeatures(n_rows=1, n_unicas=1, avg_len=1.0, cardinality=1.0, is_numeric=True, sample=('2',))
+  per_col[a:arr_scalars]: body_bytes=8 features=ColumnFeatures(n_rows=2, n_unicas=2, avg_len=1.0, cardinality=1.0, is_numeric=True, sample=('1', '2'))
+  per_col[b:count]: body_bytes=3 features=ColumnFeatures(n_rows=1, n_unicas=1, avg_len=1.0, cardinality=1.0, is_numeric=True, sample=('1',))
+  per_col[b:arr_scalars]: body_bytes=2 features=ColumnFeatures(n_rows=1, n_unicas=1, avg_len=1.0, cardinality=1.0, is_numeric=False, sample=('x',))

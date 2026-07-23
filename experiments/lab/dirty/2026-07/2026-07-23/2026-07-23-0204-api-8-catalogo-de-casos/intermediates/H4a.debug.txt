@@ -1,0 +1,8 @@
+CASE H4a — lista vazia [] — #TCF.8H #D0 (BUG-03 resolvido: representável)
+FONTE: list · kwargs: {}
+INPUT: []
+WIRE (11 B): '#TCF.8H#D0\n'
+HEADER: hierárquico #TCF.8H · dataset sem-colunas (#D<N>) · meta '#D0'
+ROUNDTRIP (identidade): OK
+DEBUG (SideOutputs):
+  hier_info: root_kind=D n_records=0 cols={'controle': 0, 'dado': 0} fields=[]

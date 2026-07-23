@@ -1,0 +1,11 @@
+CASE M4 — nature CNPJ por-coluna (nature_per_col) — o FLOOR escolhe por coluna
+FONTE: dict · kwargs: {'nature_per_col': {'cnpj': TemplatedCheckedSpec(name='cnpj', regex=re.compile('^(\\d{2})\\.(\\d{3})\\.(\\d{3})/(\\d{4})-(\\d{2})$'), body_length=12, check_length=2, check_fn=<function _cnpj_check_fn at 0x000001968139C2C0>, formatter=<function _cnpj_formatter at 0x000001968139C360>, encoded_length=7)}}
+INPUT: {'cnpj': ['11.222.333/0001-81', '11.444.777/0001-61', '11.222.333/0001-81', '11.444.777/0001-61', '11.222.333/0001-81', '11.444.777/0001-61'], 'valor': ['0', '1
+WIRE (68 B): '#TCF.8M@1c=cnpj:cnpj,valor\n19\n!K\\9p\\5B$\n!Kx\\0n)$\n!"!"!"\\0\n*5+10|\\10\n'
+HEADER: multi-col #TCF.8M · meta inline: '@1c=cnpj:cnpj,valor'
+ROUNDTRIP (identidade): OK
+DEBUG (SideOutputs):
+  multi_info: {'n_rows': 6, 'n_cols': 2, 'total_bytes': 68, 'header_bytes': 27, 'body_bytes': 41, 'parallel_workers': 0, 'format': 'v3', 'used_v2_features': True, 'fallback_cols': [], 'dict_cols': ['cnpj'], 'split_cols': [], 'col_modes': {'cnpj': 'dict', 'valor': 'tcf'}, 'min_header': True, 'nature_cols': {'cnpj': 'cnpj'}, 'nature_lost': []}
+  nature_apply: {'cnpj': {'spec': 'cnpj', 'total': 6, 'compressible': 6, 'apply_rate': 1.0, 'by_status': {'compressible': 6}, 'used': True}}
+  per_col[cnpj]: body_bytes=58 features=ColumnFeatures(n_rows=6, n_unicas=2, avg_len=18.0, cardinality=0.3333333333333333, is_numeric=False, sample=('11.222.333/0001-81', '11.444.777/0001-61', '11.222.333/0001-81', '11.444.777/0001-61', '11.222.333/0001-81', '11.444.777/0001-61'))
+  per_col[valor]: body_bytes=13 features=ColumnFeatures(n_rows=6, n_unicas=6, avg_len=1.8333333333333333, cardinality=1.0, is_numeric=True, sample=('0', '10', '20', '30', '40', '50'))

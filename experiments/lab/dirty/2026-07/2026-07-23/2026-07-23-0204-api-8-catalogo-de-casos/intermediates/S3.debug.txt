@@ -1,0 +1,14 @@
+CASE S3 — version-stamp opt-in (#TCF.8\n) — magic p/ file/libmagic
+FONTE: list · kwargs: {'stamp': True}
+INPUT: ['a', 'ab', 'abc']
+WIRE (16 B): '#TCF.8\na\nab\nabc\n'
+HEADER: single-col version-stamp (#TCF.8\n)
+ROUNDTRIP (identidade): OK
+DEBUG (SideOutputs):
+  column_features: ColumnFeatures(n_rows=3, n_unicas=3, avg_len=2.0, cardinality=1.0, is_numeric=False, sample=('a', 'ab', 'abc'))
+  hcc_trace: # Optimization trace — syntax=M8-A-seq-rle
+
+=== DETECTOR ITERATIONS (unified — atoms + virtuals) ===
+
+--- Iter 1 ---
+Sub
