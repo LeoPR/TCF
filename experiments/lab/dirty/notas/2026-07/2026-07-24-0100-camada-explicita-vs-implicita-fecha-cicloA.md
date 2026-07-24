@@ -98,6 +98,28 @@ sempre que as invariantes de "formato forte" seguram** (tag 1-char, modo 1-char,
 migrar pra 3 se um caso de categoria 2 aparecer (ex.: subtipo com código multi-char). A camada (iii)
 de presença é a fronteira explícito↔implícito e classifica cada char em 1/2/3/4.
 
+### O MECANISMO — nada some, muda de camada (owner 2026-07-24)
+
+A cadeia sempre termina em `significado → função`; varia ONDE começa e quantos passos são deduzidos:
+
+| forma | fluxo | quem materializa |
+|---|---|---|
+| explícita (sempre existe) | `caractere → significado → função` | o **byte no wire** |
+| deduz o caractere | `sequência → deduz-1-caractere → significado → função` | **variável no código** (caractere virtual) |
+| deduz o significado (otimização) | `sequência → deduz-significado → função` | **variável no código** (pula o caractere) |
+
+**A coisa SEMPRE se materializa**: a ideia precisa virar variável no código de qualquer forma. Então a
+representação é **o caractere fixo (wire) OU a variável (código) OU os dois** — no fluxo completo, a
+mesma ideia tem forma-de-arquivo e forma-de-código, e ambas coexistem.
+
+**Consequência pro `~` (categoria 4)**: ele não "some" — **muda de camada**. Deixa de ser byte de wire
+e vira **variável no código** (`modo`). Na forma mais otimizada (deduzir o *significado* direto), nem é
+reconstruído como caractere virtual — é **absorvido inteiro** na variável de significado (que já vale a
+largura). Se o `~` aparecer, é só **valor de uma variável, por coincidência** — não entidade de
+primeira classe. No decode do #4: lê o byte no índice 7 → variável `modo`; ela guarda o valor de
+largura direto (não `~`). "Não precisar do caractere" = a representação migrou do wire pra variável;
+"otimizar" = deduzir o significado sem reconstruir o caractere no meio.
+
 ## O que fica pendente de DECISÃO do owner (não é medição — é escolha)
 
 1. **Adotar a convenção terminador** e tornar o decode *tolerante-com-warning* (hoje é tolerante-
