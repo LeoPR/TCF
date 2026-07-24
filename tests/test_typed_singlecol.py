@@ -55,3 +55,27 @@ class TestTypedSingleColDecode:
         assert decode(encode({"x": ["1", "2"]})) == {"x": ["1", "2"]}  # multi
         assert decode(encode([])) == []                            # vazio flat (weld #2)
         assert decode(encode([{"k": "v"}])) == [{"k": "v"}]        # .8H
+
+
+class TestBoolEncodeTyped:
+    """#4a-encode: lista bool de topo vira '#TCF.8b\n<core>' (era .8H). RT end-to-end tipado."""
+
+    def test_bool_vira_typed_e_rt(self):
+        for vals in ([True, False, True, True], [True] * 8, [False] * 3,
+                     [bool(i % 2) for i in range(6)], [True], [False]):
+            w = encode(vals)
+            assert w.startswith("#TCF.8b\n"), (vals, w[:16])
+            back = decode(w)
+            assert back == vals and all(isinstance(x, bool) for x in back)
+
+    def test_bool_menor_que_8h(self):
+        # o envelope .8H (so' pra preservar o tipo) vira 1 char de tag -> menor
+        vals = [True] * 32
+        assert len(encode(vals).encode()) < len("#TCF.8H#V\\z#:32[]:...b".encode()) + 40
+
+    def test_nao_flipa_int_float_str_mixed(self):
+        assert encode([1, 2, 3]).startswith("#TCF.8H")            # int -> .8H (nao flipado)
+        assert encode([1.5, 2.0]).startswith("#TCF.8H")           # float -> .8H
+        assert not encode(["a", "b"]).startswith("#TCF.8")        # str -> orfao
+        with pytest.raises(ValueError, match="MISTOS|union|misto"):
+            encode([True, 1])                                     # mixed bool+int -> fail-loud

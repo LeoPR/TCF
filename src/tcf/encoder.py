@@ -326,6 +326,25 @@ def encode(
             stamp=stamp, drop_names=drop_names,
         )
         return MAGIC_SINGLE_V3.decode("utf-8") + "\n"
+    if isinstance(data, list) and data and all(isinstance(x, bool) for x in data):
+        # SINGLE-COL TIPADO bool (weld #4a, owner 2026-07-24): '#TCF.8b\n<core>'. Antes ia pro .8H
+        # (envelope #V/count/[] so' pra PRESERVAR o tipo); agora o tipo vira 1 char de TAG e o corpo
+        # REUSA o core (_encode_column dos literais true/false) — pre-avaliador de apelidos, core
+        # intocado. Simetrico ao _decode_typed (decoder). Modo CORE (implicito, sem char de modo no
+        # indice 7); denso bN = #4b; namespace do <modo> preparado. `bool` antes de int (bool<:int).
+        # Re-pina testes que fixavam bool -> .8H (wire re-pinavel, ADR-0024).
+        from tcf.multi.core import MAGIC_SINGLE_V3
+
+        _rejeita_kwargs_flat_no_8h(
+            parallel=parallel, nature=nature, layers=layers, fallback=fallback,
+            min_header=min_header, min_len=min_len, sort_by=sort_by, name=name,
+            stamp=stamp, drop_names=drop_names,
+        )
+        corpo = _encode_column(
+            ["true" if x else "false" for x in data],
+            header="val", side=side_outputs, cfg=cfg, min_len=min_len,
+        )
+        return MAGIC_SINGLE_V3.decode("utf-8") + "b\n" + corpo
     if _tabela_flat(data):
         from tcf.multi import _encode_multi
 
