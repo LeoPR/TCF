@@ -120,6 +120,14 @@ primeira classe. No decode do #4: lê o byte no índice 7 → variável `modo`; 
 largura direto (não `~`). "Não precisar do caractere" = a representação migrou do wire pra variável;
 "otimizar" = deduzir o significado sem reconstruir o caractere no meio.
 
+**O fecho (owner 2026-07-24)**: a **função é acionada pela VARIÁVEL, não pelo caractere** — o caractere
+é só uma das formas de preencher a variável. Como o `~` nunca vira compromisso no wire (categoria 4:
+nunca "usado de fato"), **o nome é LIVRE**: pode ser `modo`, um sentinela `~`, ou qualquer coisa — sem
+consequência, porque não é um byte que o formato precise honrar. O `~` deixou de ser compromisso e
+virou rótulo à escolha. **Regra prática**: antes de reservar QUALQUER caractere no wire, checar se ele
+não é categoria 4 disfarçada — se a variável já é preenchível por posição/contexto, o caractere é nome,
+não byte.
+
 ## O que fica pendente de DECISÃO do owner (não é medição — é escolha)
 
 1. **Adotar a convenção terminador** e tornar o decode *tolerante-com-warning* (hoje é tolerante-
