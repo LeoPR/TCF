@@ -5,12 +5,27 @@
 índices especiais. Direção do owner: *"focar no que funciona e deixar apenas a parte que cuida disso
 preparada pra mapear outros subtipos pra aproveitar espaço."*
 
-## Por que `~<modo>` (e não o G2 marker-free)
+## O `~` NÃO é necessário (correção 2026-07-24, pergunta do owner)
 
-O lab `0253` mostrou que o G2 (`n` no header, sem marcador) é seguro e −1 byte — **para 2 modos**. Mas
-o `<modo>` **não é um flag binário**: é um **namespace** onde largura E subtipos convivem. Como o
-roadmap tem a família bN + subtipos, o namespace é load-bearing → **`~<modo><n>` é a forma certa**. O
-G2 fica como nota: se algum dia só existirem 2 modos, ele seria mais barato.
+**Revisão da 1ª versão desta nota** (que dizia "`~<modo><n>` é a forma certa porque o namespace é
+load-bearing"): o namespace É load-bearing, mas **não exige o `~`**. O disambiguador é o próprio
+**char de `<modo>`, posicional no índice 7** (logo após a tag) — mesmo mecanismo do G2, generalizado:
+
+```
+#TCF.8b\n<corpo>            → índice 7 = '\n'  → CORE  (implícito, default)
+#TCF.8b<modo><n>\n<base64>  → índice 7 = modo → DENSO (o char já diz QUAL modo)
+```
+
+O índice 7 é `\n` (core) OU um char de modo (denso) — **disjuntos por construção** (o encode sempre põe
+`\n` ali no core; o namespace de `<modo>` exclui `\n`). O char de modo faz **duplo papel**: sinaliza
+"denso" E carrega qual (largura `1/2/4/8` ou subtipo). **Nenhum separador dedicado é preciso.**
+
+**O `~` compra só LEGIBILIDADE** (separador visual ao abrir num editor: `#TCF.8b~4123` vs `#TCF.8b4123`)
+ao custo de +1 byte/denso. É decisão de gosto — **não função**. Ambos (com ou sem `~`) são gramática
+válida; o namespace do `<modo>` (abaixo) independe dessa escolha.
+
+**Decisão pendente do owner** (agora reduzida a legibilidade × 1 byte): manter `~` (legível, +1B) ou
+colar `<modo>` na tag (mais denso). O default sensato pra payload minúsculo = **sem `~`** (colado).
 
 ## O namespace do `<modo>` (recall + consolidação)
 
