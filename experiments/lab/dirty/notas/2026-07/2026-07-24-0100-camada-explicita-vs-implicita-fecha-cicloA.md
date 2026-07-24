@@ -75,6 +75,29 @@ decode. Isolado (colunas vazias aninhadas usam `if cols[key] else ''`, não pass
 +22 linhas em encoder+decoder; 3 testes re-pinados (ADR-0024) + 1 root_kind ajustado; catálogo
 regenerado; **suíte 861 verde, baselines byte-canônicos intactos** (D1-D9=1523B/D17a=300B/real=89616B).
 
+## Taxonomia dos disambiguadores (owner 2026-07-24) — critério geral
+
+Um "caractere de desambiguação" tem **3 camadas independentes**: (i) **o caractere** (byte no wire ou
+não); (ii) **a lógica do SIGNIFICADO** (`char → o que representa`); (iii) **a lógica de PRESENÇA**
+(quando precisa estar escrito vs quando a *função* é servida sem o byte — é a validação que o parser
+roda de qualquer forma). As três são independentes: um char pode ter significado claro E presença zero
+(o `~`: significado sem caractere).
+
+**4 categorias por grau de necessidade** (o critério pra CADA disambiguador futuro — tipo, modo, subtipo):
+
+| # | necessidade | no wire? | exemplo TCF |
+|---|---|---|---|
+| **1** | ABSOLUTA — a *função* de delimitar é inescapável | sempre | `\n` separador de elementos do corpo |
+| **2** | condicional ao FORMATO — depende de outras escolhas | quando a condição vale | separador de modo *se* modo fosse multi-char |
+| **3** | redundante na instância, mandado por REGRA (que serve os casos do #2) | sim, por uniformidade | manter 1 separador em todo caso pra ter regra única |
+| **4** | NUNCA — dispatch posicional já resolve | não, só no código/doc | o `~` do #4 (função interna, byte ausente) |
+
+**3 vs 4 é DECISÃO de design, não fato**: 3 = o formato pôs o byte (uniformidade/extensibilidade); 4 =
+via posicional/implícita (char só como conceito). **Preferência TCF (payload minúsculo): categoria 4
+sempre que as invariantes de "formato forte" seguram** (tag 1-char, modo 1-char, modo≠`\n`), aceitando
+migrar pra 3 se um caso de categoria 2 aparecer (ex.: subtipo com código multi-char). A camada (iii)
+de presença é a fronteira explícito↔implícito e classifica cada char em 1/2/3/4.
+
 ## O que fica pendente de DECISÃO do owner (não é medição — é escolha)
 
 1. **Adotar a convenção terminador** e tornar o decode *tolerante-com-warning* (hoje é tolerante-
