@@ -1,0 +1,71 @@
+# Namespace do `<modo>` — larguras (funciona) + subtipos (preparado) [design / consolidação]
+
+**Data**: 2026-07-24 03:22. Fecha a escolha do marcador (`~<modo>` vence o G2 marker-free do lab
+`0253`) e **alinha** o modo tipado com dois designs JÁ registrados: o sub-namespace bN e o mecanismo de
+índices especiais. Direção do owner: *"focar no que funciona e deixar apenas a parte que cuida disso
+preparada pra mapear outros subtipos pra aproveitar espaço."*
+
+## Por que `~<modo>` (e não o G2 marker-free)
+
+O lab `0253` mostrou que o G2 (`n` no header, sem marcador) é seguro e −1 byte — **para 2 modos**. Mas
+o `<modo>` **não é um flag binário**: é um **namespace** onde largura E subtipos convivem. Como o
+roadmap tem a família bN + subtipos, o namespace é load-bearing → **`~<modo><n>` é a forma certa**. O
+G2 fica como nota: se algum dia só existirem 2 modos, ele seria mais barato.
+
+## O namespace do `<modo>` (recall + consolidação)
+
+Sub-namespace bN já registrado (registry de chars, owner 2026-07-08): `b1/b2/b4` = **largura física**
+(1/2/4 bits, únicas que tile-de-byte) · `b3` = trio "b2+null" · `b5/b6/b7` = especiais reservados ·
+`B` = bool+dict interno. Consolidando no `<modo>`:
+
+| `<modo>` | significado | estado |
+|---|---|---|
+| `1` `2` `4` `8` | **LARGURA física** (bits/símbolo). É o bN puro. | **FUNCIONA — entra no weld** |
+| (ausente) | core/text (default, sem `~`) | já é o default |
+| letras / outros dígitos | **SUBTIPOS** mapeados (gênero M/F, enums internos, null, NaN, ±Inf) | **PREPARADO, não construído** |
+
+O `<modo>` é 1 char extensível: hoje ele carrega largura; amanhã, uma letra aponta pra um **subtipo
+registrado** sem rework de gramática.
+
+## O hook de subtipos — mecanismo de ÍNDICES ESPECIAIS (recall)
+
+O "mapear subtipos pra aproveitar espaço" JÁ tem mecanismo desenhado
+([substituicao-indices-especiais-plano](substituicao-indices-especiais-plano.md), refutação de
+"null=índice-stringificado" já corrigida):
+
+- A tabela de refs da coluna **nasce PRÉ-SEMEADA** com especiais nos índices 0..k−1 (não é "if null
+  desloca" — a tabela já começa preenchida; menos lógica, não mais).
+- Um **byte combinatório no header** declara QUAIS especiais estão reservados → até 8 (null, ausência,
+  NaN, ±Inf, + reservados) em ordem canônica.
+- No corpo, um especial é **referência ao índice reservado** (sentinela NÃO-string → sem colisão com a
+  string real `"null"`). decode: ref a índice reservado → materializa (0 → `None`).
+- **null/true/false = a MESMA natureza** (Ciclo 2): índice → valor Python tipado (0→None, 1→True,
+  2→False); a string SAI do arquivo e vive no dicionário da VERSÃO (freeze 1.0). É o que torna lossless.
+- Sua lembrança confere: **índice 0 = null SE houver declaração de null no header** (o byte combinatório).
+
+## Escopo do weld #4 (o que funciona) vs o que fica preparado
+
+**Entra agora (funciona):**
+- Header tipado `#TCF.8<tag>` + modo denso `~<modo><n>` com `<modo>` ∈ {1,2,4,8} = largura.
+- Os dois algoritmos de corpo (core/RLE default, denso bN) competindo no FLOOR.
+
+**Fica PREPARADO (estrutura extensível, não construída — evita lixo pra limpar depois):**
+- O `<modo>` como **namespace de 1 char** — o parser lê o char e despacha; hoje só reconhece larguras,
+  mas o ponto de despacho é o hook pros subtipos.
+- O **stream de refs empacotável por bN** desacoplado do encoding físico (hook do `.9`, Ciclo 2).
+- A **tabela de reservados extensível** (null primeiro; true/false/NaN depois, sem rework).
+- O **byte combinatório de especiais no header** — projetado, weld só quando o subtipo for exercido.
+
+**NÃO entra**: os subtipos em si (gênero, enums, NaN, ±Inf), o dicionário-de-versão, o preditor
+estatístico do modo. Tudo com dono-de-decisão no `.9` (ticket
+[T-TYPED-SINGLECOL-MODE-HEURISTIC](../../../../tickets/T-TYPED-SINGLECOL-MODE-HEURISTIC.md)).
+
+## Princípio (owner, reafirmado 3×: 2026-07-15 e 2026-07-24)
+
+**Fazer funcionar, deixar preparado, não otimizar prematuramente.** A parte que "cuida disso" = o
+ponto de despacho do `<modo>` + os hooks acima; o resto é `.9`.
+
+Relaciona: lab [`0253`](../../2026-07/2026-07-24/2026-07-24-0253-cicloB-gramatica-marcador-modo-inferivel/)
+· [registry de chars](tcf8-header-char-registry.md) · [índices especiais](substituicao-indices-especiais-plano.md)
+· [camada explícita↔implícita](2026-07-24-0100-camada-explicita-vs-implicita-fecha-cicloA.md) ·
+plano `.8` §S3.
