@@ -246,15 +246,26 @@ def _decode_typed(tcf_text: str, tag: str) -> list:
     """Decode do single-col tipado. A variavel `modo` (o '~' conceitual) e' deduzida da POSICAO."""
     line1, _sep, body = tcf_text.partition("\n")
     resto = line1[7:]                              # apos '#TCF.8<tag>' (tag = 1 char, indice 6)
-    # A VARIAVEL DE DECISAO: resto vazio -> modo CORE (implicito); senao -> modo denso.
+    # A VARIAVEL DE DECISAO: resto vazio -> modo CORE (implicito); senao -> modo DENSO bN.
     if resto == "":
         strs = _decode_column(body) if body else []
         return _cast_tipo(strs, tag)
-    # MODO DENSO (bN) — reservado pro weld #4b (exige bit-pack no core). Namespace ja' preparado.
-    modo_c = resto[:1]
-    if modo_c in _LARGURA_MODO:
-        raise ValueError(
-            f"#TCF.8{tag}: modo denso {modo_c!r} ainda nao implementado (weld #4b); "
-            f"por ora so' o modo core '#TCF.8{tag}\\n<corpo>'"
-        )
-    raise ValueError(f"#TCF.8{tag}: byte de modo invalido {modo_c!r} no indice 7")
+    # MODO DENSO bN (weld #4b): resto = '<modo><n>'. modo = 1 char (largura); n = digitos.
+    modo_c, ndig = resto[:1], resto[1:]
+    if modo_c not in _LARGURA_MODO or not ndig.isdigit() or ndig == "":
+        raise ValueError(f"#TCF.8{tag}: header de modo denso invalido: {resto!r} (esperado <modo><n>)")
+    return _decode_denso(body, tag, _LARGURA_MODO[modo_c], int(ndig))
+
+
+def _decode_denso(b64: str, tag: str, w: int, n: int) -> list:
+    """Modo denso: base64 -> bit-unpack a w bits -> indices -> tipo (dominio implicito)."""
+    import base64 as _b64
+
+    from tcf.bitpack import unpack_w
+    if tag == "b":
+        if w != 1:                                 # bool = 2 simbolos = 1 bit; outra largura = invalido
+            raise ValueError(f"#TCF.8b: largura denso invalida w={w} p/ bool (esperado 1)")
+        idx = unpack_w(_b64.b64decode(b64), 1, n)
+        return [i == 1 for i in idx]               # dominio implicito FIXO: false=0, true=1
+    # n/s densos exigiriam dominio EMBUTIDO (nao implicito) — fora do escopo #4b. Namespace preparado.
+    raise ValueError(f"#TCF.8{tag}: modo denso so' implementado p/ bool (w=1); n/s exigem dominio embutido")

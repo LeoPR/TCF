@@ -327,12 +327,13 @@ def encode(
         )
         return MAGIC_SINGLE_V3.decode("utf-8") + "\n"
     if isinstance(data, list) and data and all(isinstance(x, bool) for x in data):
-        # SINGLE-COL TIPADO bool (weld #4a, owner 2026-07-24): '#TCF.8b\n<core>'. Antes ia pro .8H
-        # (envelope #V/count/[] so' pra PRESERVAR o tipo); agora o tipo vira 1 char de TAG e o corpo
-        # REUSA o core (_encode_column dos literais true/false) — pre-avaliador de apelidos, core
-        # intocado. Simetrico ao _decode_typed (decoder). Modo CORE (implicito, sem char de modo no
-        # indice 7); denso bN = #4b; namespace do <modo> preparado. `bool` antes de int (bool<:int).
-        # Re-pina testes que fixavam bool -> .8H (wire re-pinavel, ADR-0024).
+        # SINGLE-COL TIPADO bool (weld #4a/#4b, owner 2026-07-24): antes ia pro .8H (envelope
+        # #V/count/[] so' pra PRESERVAR o tipo); agora o tipo vira 1 char de TAG. DOIS algoritmos de
+        # corpo competem no FLOOR (a variavel `modo`, o '~' conceitual; SEM '~' no wire):
+        #   A core   '#TCF.8b\n<core>'      -> reusa _encode_column (seq-RLE/aliases de graca)
+        #   B denso  '#TCF.8b1<n>\n<b64>'   -> bit-pack 1 bit/elem (false=0,true=1) -> base64
+        # min() nunca-pior; materializa os dois e emite o menor. `bool` antes de int (bool<:int).
+        # Refino da heuristica (preditor, sem materializar os 2) -> .9 (T-TYPED-SINGLECOL-MODE-HEURISTIC).
         from tcf.multi.core import MAGIC_SINGLE_V3
 
         _rejeita_kwargs_flat_no_8h(
@@ -340,11 +341,21 @@ def encode(
             min_header=min_header, min_len=min_len, sort_by=sort_by, name=name,
             stamp=stamp, drop_names=drop_names,
         )
-        corpo = _encode_column(
+        magic = MAGIC_SINGLE_V3.decode("utf-8")
+        corpo_core = _encode_column(
             ["true" if x else "false" for x in data],
             header="val", side=side_outputs, cfg=cfg, min_len=min_len,
         )
-        return MAGIC_SINGLE_V3.decode("utf-8") + "b\n" + corpo
+        wire_core = f"{magic}b\n{corpo_core}"
+        import base64
+
+        from tcf.bitpack import pack_w
+
+        idx = [1 if x else 0 for x in data]                # dominio implicito FIXO (canonico)
+        b64 = base64.b64encode(pack_w(idx, 1)).decode("ascii")
+        wire_denso = f"{magic}b1{len(data)}\n{b64}"        # modo '1' = largura 1 bit
+        # FLOOR: a variavel `modo` = argmin. Empate fica no core (mais legivel/inspecionavel).
+        return wire_core if len(wire_core.encode("utf-8")) <= len(wire_denso.encode("utf-8")) else wire_denso
     if _tabela_flat(data):
         from tcf.multi import _encode_multi
 

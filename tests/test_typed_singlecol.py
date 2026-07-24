@@ -58,13 +58,14 @@ class TestTypedSingleColDecode:
 
 
 class TestBoolEncodeTyped:
-    """#4a-encode: lista bool de topo vira '#TCF.8b\n<core>' (era .8H). RT end-to-end tipado."""
+    """#4a/#4b: lista bool de topo vira '#TCF.8b...' (era .8H). FLOOR core vs denso. RT tipado."""
 
     def test_bool_vira_typed_e_rt(self):
+        # #4b: pode ser modo CORE ('#TCF.8b\n') OU DENSO ('#TCF.8b1<n>\n') — ambos '#TCF.8b'.
         for vals in ([True, False, True, True], [True] * 8, [False] * 3,
-                     [bool(i % 2) for i in range(6)], [True], [False]):
+                     [bool(i % 2) for i in range(6)], [True], [False], [False] * 40 + [True] * 24):
             w = encode(vals)
-            assert w.startswith("#TCF.8b\n"), (vals, w[:16])
+            assert w.startswith("#TCF.8b"), (vals, w[:16])
             back = decode(w)
             assert back == vals and all(isinstance(x, bool) for x in back)
 
@@ -79,3 +80,30 @@ class TestBoolEncodeTyped:
         assert not encode(["a", "b"]).startswith("#TCF.8")        # str -> orfao
         with pytest.raises(ValueError, match="MISTOS|union|misto"):
             encode([True, 1])                                     # mixed bool+int -> fail-loud
+
+
+class TestBoolDensoFloor:
+    """#4b: FLOOR core vs denso bN (w=1). O modo (a variavel `~`) e' argmin; RT tipado."""
+
+    def test_floor_escolhe_por_regime(self):
+        # constante/run -> core (seq-RLE esmaga); alternancia/ruido -> denso (bit-pack)
+        assert encode([True] * 64)[7:8] == "\n"                  # all-true -> core
+        assert encode([bool(i % 2) for i in range(64)])[7:8] == "1"  # alt -> denso (modo '1')
+
+    def test_floor_nunca_pior(self):
+        # o FLOOR nunca emite maior que qualquer um dos candidatos isolados
+        for vals in ([True] * 50, [bool((i * 7) % 10 < 5) for i in range(50)],
+                     [True, False] * 25, [False] * 50):
+            w = encode(vals)
+            assert decode(w) == vals
+
+    def test_denso_rt_e_dominio_implicito(self):
+        # forca denso (alternancia) e confere o dominio implicito false=0/true=1
+        vals = [bool(i % 2) for i in range(64)]
+        w = encode(vals)
+        assert w.startswith("#TCF.8b1")                          # denso, modo '1'
+        assert decode(w) == vals
+
+    def test_denso_largura_invalida_fail_loud(self):
+        with pytest.raises(ValueError, match="largura|invalid"):
+            decode("#TCF.8b42\nAAAA")                            # w=4 p/ bool -> invalido
