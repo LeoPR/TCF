@@ -1,0 +1,11 @@
+{
+  "nota": "ref de linha '^N' (valores repetidos)",
+  "dados": [
+    "ativo",
+    "inativo",
+    "ativo",
+    "pendente",
+    "ativo",
+    "inativo"
+  ]
+}

@@ -757,19 +757,33 @@ class M8AVirtualRefsSyntax(Syntax):
                             refs.extend(range(int(a), int(b) + 1))
                         else:
                             refs.append(int(grp))
-                    if len(refs) >= 2:
-                        prev = frags[refs[0]]
-                        for r in refs[1:]:
-                            new = prev + frags[r]
-                            prox_idx[0] += 1
-                            frags[prox_idx[0]] = new
-                            prev = new
-                        partes.append(prev)
-                    else:
-                        partes.append(frags[refs[0]])
+                    # FAIL-LOUD por referencia PENDENTE (weld 2026-07-24). Wire valido
+                    # nunca cai aqui: o encoder so' emite indice de fragmento ja'
+                    # materializado. Corpo adulterado/truncado dava `KeyError: 9` cru
+                    # (achado do lab 1832, PRE-EXISTENTE ao ramo tipado — reproduz no
+                    # orfao puro). try/except = custo ZERO no caminho feliz (nao ha'
+                    # checagem por acesso); so' traduz a excecao crua em ValueError.
+                    try:
+                        if len(refs) >= 2:
+                            prev = frags[refs[0]]
+                            for r in refs[1:]:
+                                new = prev + frags[r]
+                                prox_idx[0] += 1
+                                frags[prox_idx[0]] = new
+                                prev = new
+                            partes.append(prev)
+                        else:
+                            partes.append(frags[refs[0]])
+                    except KeyError as e:
+                        raise ValueError(
+                            f"referencia a fragmento inexistente: {e.args[0]!r} "
+                            f"(declarados 1..{prox_idx[0]}) — corpo nao-canonico "
+                            f"(wire adulterado, truncado ou editado a mao)"
+                        ) from None
                 i = j
             else:
                 buf = []
+                i_ini = i          # sentinela de PROGRESSO (ver guard abaixo)
                 while i < n:
                     c = resto[i]
                     if c == "\\":
@@ -791,6 +805,18 @@ class M8AVirtualRefsSyntax(Syntax):
                     else:
                         buf.append(c)
                         i += 1
+                if i == i_ini:
+                    # LOOP INFINITO (achado do lab 2026-07-24-2010, wire '*~2'): um '~' em
+                    # inicio de segmento nao e' consumido por ramo NENHUM — o laco interno
+                    # da' `break` sem avancar `i` e o `while` externo nunca progride. Pior
+                    # que travar: `frags` cresce a cada volta (memoria sem teto). Wire de 8 B
+                    # derrubava o processo. Guard de PROGRESSO generico: se a iteracao nao
+                    # consumiu 1 char, o corpo e' malformado -> fail-loud (vale p/ qualquer
+                    # caractere futuro que caia no mesmo buraco, nao so' '~').
+                    raise ValueError(
+                        f"caractere inesperado {resto[i]!r} na posicao {i} da declaracao "
+                        f"{resto!r} — corpo nao-canonico (o parser nao progrediria)"
+                    )
                 texto = "".join(buf)
                 prox_idx[0] += 1
                 frags[prox_idx[0]] = texto
@@ -824,13 +850,37 @@ class M8AVirtualRefsSyntax(Syntax):
             linha = raw
             if linha.startswith("*") and "|" in linha:
                 bar = linha.find("|")
-                count = int(linha[1:bar])
+                try:
+                    count = int(linha[1:bar])
+                except ValueError:
+                    raise ValueError(
+                        f"contador RLE invalido: {linha[1:bar]!r} (esperado inteiro "
+                        f"decimal em '*N|') — corpo nao-canonico"
+                    ) from None
                 resto = linha[bar + 1 :]
             else:
                 count = 1
                 resto = linha
             if resto.startswith("^"):
-                s_no = nos_decl[int(resto[1:]) - 1]
+                # FAIL-LOUD por referencia de LINHA fora de faixa (weld 2026-07-24).
+                # `^N` e' 1-based; `nos_decl[N-1]` cru ACEITAVA CALADO `^0` -> indice -1
+                # do Python -> devolvia o ULTIMO no' declarado (corrupcao SILENCIOSA,
+                # pior que crash). Faixa validada explicitamente.
+                alvo = resto[1:]
+                try:
+                    idx = int(alvo)
+                except ValueError:
+                    raise ValueError(
+                        f"referencia de linha invalida: '^{alvo}' (esperado inteiro "
+                        f"decimal) — corpo nao-canonico"
+                    ) from None
+                if not 1 <= idx <= len(nos_decl):
+                    raise ValueError(
+                        f"referencia de linha fora de faixa: '^{alvo}' "
+                        f"(declaradas 1..{len(nos_decl)}) — corpo nao-canonico "
+                        f"(wire adulterado, truncado ou editado a mao)"
+                    )
+                s_no = nos_decl[idx - 1]
             else:
                 s_no = self._parse_decl(resto, frags, prox_idx)
                 nos_decl.append(s_no)
