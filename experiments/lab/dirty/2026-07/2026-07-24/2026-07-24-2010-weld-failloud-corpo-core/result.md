@@ -4,14 +4,14 @@
 
 | id | n | wire (B) | RT | cabecalho |
 |---|---:|---:|---|---|
-| A-repetidos | 6 | 28 | OK | `'ativo'` |
-| B-run | 43 | 16 | OK | `'*40|ok'` |
-| C-prefixo | 30 | 49 | OK | `'pedido-\\2026-\\'` |
+| A-repetidos | 6 | 35 | OK | `'#TCF.8'` |
+| B-run | 43 | 23 | OK | `'#TCF.8'` |
+| C-prefixo | 30 | 56 | OK | `'#TCF.8'` |
 | D-bool | 24 | 15 | OK | `'#TCF.8b118'` |
-| E-bordas | 5 | 12 | OK | `''` |
+| E-bordas | 5 | 19 | OK | `'#TCF.8'` |
 
 RT: **5/5** ok.
-Gates byte-canonicos (pinados ANTES do weld): **PASSOU** — `31 passed in 2.86s`
+Gates byte-canonicos (pinados ANTES do weld): **PASSOU** — `31 passed in 3.00s`
 
 ## B. FAIL-LOUD sob corrupcao
 

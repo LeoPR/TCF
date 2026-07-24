@@ -42,6 +42,16 @@ FONTES = {
 }
 
 
+def _enc(dados):
+    """Encode COM cabecalho (owner 2026-07-24: as saidas de exemplo tem que mostrar a forma
+    com `#TCF.8`). ATENCAO — inversao: para `list[str]` o default do codigo e' SEM header
+    (docstring: "single-col flat (orfao, sem header)"); `stamp=True` e' o que ADICIONA. As
+    demais rotas (bool tipado, [], .8M, .8H) ja' emitem header e REJEITAM `stamp`."""
+    if dados and all(isinstance(x, str) for x in dados):
+        return encode(dados, stamp=True)
+    return encode(dados)
+
+
 def _w(p, obj):
     p.write_text(json.dumps(obj, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
@@ -54,7 +64,7 @@ def parte_a():
         _w(RAIZ / "inputs" / f"{eid}-fonte.json", {"nota": meta["nota"], "dados": dados})
         _w(RAIZ / "intermediates" / f"{eid}-dataset-consumido.json", dados)
 
-        wire = encode(dados)
+        wire = _enc(dados)
         (RAIZ / "outputs" / f"{eid}-wire.tcf").write_text(wire, encoding="utf-8")
         volta = decode(wire)
         _w(RAIZ / "outputs" / f"{eid}-dataset.roundtrip.json", volta)
@@ -81,9 +91,8 @@ def _mutacoes(wire):
     """Mutacoes DETERMINISTICAS (nao aleatorias): corpo truncado, char trocado por digito
     (fabrica referencia pendente), '^' injetado, contador RLE corrompido."""
     fora = []
-    # CORRECAO da rodada 2: wire ORFAO (lista de strings) NAO tem cabecalho — `partition('\n')`
-    # tratava a 1a linha de DADOS como header e blindava ela das mutacoes. So' o wire tipado
-    # (#TCF.*) tem cabecalho de fato.
+    # Rodada 3: com `stamp=True` TODO wire do lab tem cabecalho. O ramo `else` fica como rede
+    # (a rodada 2 tratava a 1a linha de DADOS como header e a blindava das mutacoes).
     if wire.startswith("#TCF."):
         cab, sep, corpo = wire.partition("\n")
         if not sep:
@@ -129,7 +138,7 @@ def parte_b():
     total = cruas = valerr = aceitou = bombas = 0
     exemplos_crus = []
     for eid, meta in FONTES.items():
-        wire = encode(meta["dados"])
+        wire = _enc(meta["dados"])
         for mut in _mutacoes(wire):
             total += 1
             if _bomba(mut):

@@ -39,6 +39,29 @@ Tudo e' **caminho-de-erro** => byte-neutro por construcao.
 owner (wire legitimo tambem tem count alto), nao correcao obvia, e esta' fora do escopo deste
 weld — que e' so' fail-loud. Foi o que travou a rodada 1 deste lab.
 
+## Achado de contrato: o default do cabecalho esta INVERTIDO
+
+O owner reportou que as saidas sairam sem `#TCF.8`. Investigado — **o codigo faz o contrario
+do contrato declarado pelo owner**:
+
+- para `list[str]`, o default do `encode` e' **SEM header** (docstring: *"single-col flat
+  (orfao, sem header)"*); `stamp=True` e' o que **ADICIONA**
+- a regra do owner (2026-07-24) e' a inversa: *"o default e' COM cabecalho; se FORCAR pedir
+  sem cabecalho e' possivel desde que o meta seja passado nos dois lados"*
+- as demais rotas (bool tipado, `[]`, `.8M`, `.8H`) ja' emitem header e **rejeitam** `stamp`
+
+Por que so' apareceu agora: os labs anteriores **nunca** codificaram uma `list[str]` pura —
+eram todos `.8H`/`.8M`, que carregam header por construcao. Este foi o primeiro.
+
+Custo da forma com header: **+7 B** (ex.: A-repetidos 28 -> 35 B).
+
+Este lab passou a usar `stamp=True` (helper `_enc`) para que as saidas mostrem a forma que o
+owner quer ver. **Decisao de contrato em aberto** — nada em `src/tcf` foi tocado por isso.
+
+Nota lateral: o bool tipado rejeita `stamp` com a mensagem *"nao se aplicam a entrada
+hierarquica (.8H)"*, texto que ficou desatualizado com o weld #4a — bool nao vai mais pro
+`.8H`, vai pro `#TCF.8b`. So' a mensagem, o comportamento esta' correto.
+
 ## Erros DESTE lab (corrigidos, registrados)
 
 1. wire orfao **nao tem cabecalho** — o gerador tratava a 1a linha de dados como header e a
@@ -48,6 +71,8 @@ weld — que e' so' fail-loud. Foi o que travou a rodada 1 deste lab.
    quase reportei isso como quebra
 4. parte C usava valores `v0`/`v1`: o digito vira **referencia de fragmento**, entao o proprio
    corpo-base era invalido e todo o controle positivo falhava
+5. as saidas sairam **sem cabecalho** (rodadas 1-2) — eu segui o default do codigo em vez do
+   contrato do owner; corrigido com `stamp=True`, e a divergencia virou achado (secao acima)
 
 ## Rodar / layout
 
