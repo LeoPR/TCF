@@ -1,63 +1,75 @@
-# 2026-07-23-2330 — Ciclo A: cabeçalho single-col (tipo × nature × nome)
+# 2026-07-23-2330 — Ciclo A: cabeçalho single-col (tipo × nature × nome) — **v3**
 
 Primeiro ciclo do [plano de revisão integral do `.8`](../../../notas/2026-06/tcf8-estrutura-plano.md)
-(§5 S1). Matriz **declarada antes de medir** em [`MANIFESTO.md`](MANIFESTO.md) (protocolo `cicloA-v2`).
+(§5 S1), seguindo o **fluxo §3.2** e a convenção do catálogo
+[`2026-07-23-0204`](../2026-07-23-0204-api-8-catalogo-de-casos/).
 
-**Pergunta focal**: qual é a menor moldura canônica que declara só o que o body não deduz — e **como
-TIPO, NATURE/spec e NOME de coluna coexistem sem ambiguidade** (a pergunta do owner)?
+> **v1/v2 DESCARTADAS** — eram manipulação abstrata de strings, sem dataset/JSON/encode/roundtrip, e
+> **inventaram comportamento** (um escaping que não existe; a forma (1) "refutada" sem base). O porquê
+> e a tabela do que foi inventado × o que é real estão no [`MANIFESTO.md`](MANIFESTO.md#cicloa-v3--reescrita-2026-07-23-correção-do-owner).
 
-**Escopo**: BODY CONGELADO (só a moldura varia) · `order_free` FORA ([adiado `.9`](../../../notas/2026-07/2026-07-23-2324-order-free-e-ordenacao-adiado-09.md))
-· nada em `src/tcf/`.
-
-## Resultado (440 células)
-
-| gramática | pass | fail | N/A | **hijack** | rotas confundidas | header mín |
-|---|---:|---:|---:|---:|---:|---:|
-| G1 slot único (`#TCF.8 {nome}:{id}`) | 0 | 55 | 55 | 0 | 0 | 9 B |
-| **G2 eixos separados** (`#TCF.8:{tipo} {nome}:{nature}`) | **88** | **0** | 22 | **0** | **0** | 8 B |
-| G3 tag colada (`#TCF.8{tipo}`) | 44 | 44 | 22 | **2** | 44 | 7 B |
-| G4 sem assinatura (`:{tipo}`) | 88 | 0 | 22 | 0 | 0 | 2 B |
-
-`hijack` = teste decisivo: o parser aceita uma forma EXISTENTE do `.8` como header tipado.
-
-## Conclusões
-
-- **G1 REFUTADA** — tipo e nature não cabem num slot só (55 N/A); quando um cabe, o parser não sabe
-  qual é (`AMBIGUO(slot único)`). É a colisão tipo↔nature materializada.
-- **G3 REFUTADA** — `hijack=2`: o parser engole `#TCF.8M`→`tipo='M'` e `#TCF.8H`→`tipo='H'`. Pôr TIPO
-  no índice 6 **sequestra o Eixo-1 (estrutura)**. Confirma a hipótese do manifesto.
-- **G2 é a única que sobrevive** — 88/88 recupera a tripla (nome, tipo, nature), `hijack=0`, 0 rotas
-  confundidas. Tipo no discriminador `:`, nature no sufixo: **namespaces distinguíveis** (§S1.6).
-- **G4** passa mecanicamente mas **não é identificável externamente** — piso de bytes, não candidata.
-
-### Resposta à pergunta do owner
-
-Com **eixos separados**, um nome de coluna igual a uma **tag de tipo** (`b`) ou a um **id de nature**
-(`cpf`) **deixa de ser problema**: cada campo vive em namespace próprio, e escaping + split no último
-`:` não-escapado sustenta nomes com `:`/espaço/`\`/`\n`/`M`/`H`. O conflito só aparece quando os eixos
-são **compartilhados** (G1) ou quando o tipo **invade** o eixo de estrutura (G3).
-
-### Requisito descoberto (§S1.5)
-
-G2 é estruturalmente sã mas aceita `#TCF.8:b\` como `tipo='b\'` — o escaping é validado no *nome*, não
-na *tag*. ⇒ **a tag de tipo precisa de namespace FECHADO (whitelist)**, não texto livre. Vira requisito
-da gramática, não detalhe de implementação.
-
-## Emenda `cicloA-v2` (declarada, não silenciosa)
-
-A rodada v1 expôs falha **na própria matriz**: (a) testava colisão na direção errada (header→forma, em
-vez de parser→forma), deixando G3 com "0 colisões" enquanto sequestrava rotas; (b) falso positivo em G1
-(extensão da forma-espaço lida como colisão); (c) faltavam tags adversariais `M`/`H`. Correções e
-justificativa no [`MANIFESTO.md`](MANIFESTO.md#cicloa-v2--emenda-declarada-2026-07-23-após-a-rodada-v1).
-
-## Rodar / artefatos
+## Fluxo por caso (materializado em arquivo)
 
 ```
-python run.py     # 440 células · regenera tudo deterministicamente
+inputs/<ID>-fonte.json                     fonte literal
+  -> json.loads
+intermediates/<ID>-dataset-consumido.json  o dataset que o TCF consome
+  -> tcf.encode(dataset)
+outputs/<ID>-wire.tcf                      WIRE REAL (nunca reconstruído à mão)
+  -> tcf.decode
+outputs/<ID>-dataset.roundtrip.json        RT real
 ```
-`intermediates/00-matrix.csv` (toda célula: pass/fail/N-A) · `01-cases.json` (matriz + protocolo) ·
-`02-header-breakdown.txt` (header byte a byte) · `outputs/01-malformed-results.json` (aceitação/rejeição)
-· `result.md`.
 
-**Não conclui o cabeçalho** — entrega a tabela propriedades × wire. Faltam os critérios de julgamento
-(§S1.7 inspeção, §S1.9 streaming, §S1.10 paridade S/M/H) e o custo em contexto de body real.
+`outputs/` só contém o que o TCF **realmente emite**. As gramáticas hipotéticas ficam em
+`intermediates/` marcadas como hipótese.
+
+## Casos (11 · RT 8/8 ✅ · 3 fail-loud esperados)
+
+| id | investiga | wire real (linha-0) |
+|---|---|---|
+| A1 | nada a declarar | *(órfão, sem header)* |
+| A2 | forma (1) com nome vazio | `#TCF.8 :cpf` |
+| A3 | forma (1) completa | `#TCF.8 doc:cpf` |
+| A4 | nome = tag de tipo (`b`) | `#TCF.8 b:cpf` ✅ funciona |
+| A5 | nome = discriminador (`M`) | `#TCF.8 M:cpf` ✅ funciona |
+| A6 / A6b | nome com `:` / `\n` | **rejeitado** (fail-loud) |
+| A6c | `name=` sem `nature=` | **rejeitado** — forma (3) não existe |
+| A7 / A8 | bool / int single-col | `#TCF.8H#V\z#:3[]:17b` — **a lacuna** |
+| A9 | version-stamp | `#TCF.8` + `\n` |
+
+## As 6 formas do owner — veredito ancorado em wire real
+
+| forma | status | índice 6 | veredito |
+|---|---|---|---|
+| (1) `#TCF.8 {nome}:{id}` | **REAL** | `' '` | **robusta** — nome `b`/`M` funcionam (A4/A5) |
+| (2) `#TCF.8{nome}:{id}` | hipotética | 1º char do NOME | frágil (contraste com A5) |
+| (3) `#TCF.8 {nome}` | **não existe** | `' '` | A6c rejeita — rótulo sozinho não é rota |
+| (4) `#TCF.8{nome}` | hipotética | 1º char do NOME | **indistinguível de (6)** + frágil |
+| (5) `#TCF.8:{id}` | hipotética *sem espaço* | `':'` **livre** | discriminador novo viável (−1 B) |
+| (6) `#TCF.8{id}` | hipotética | 1º char do ID | **defensável** — id é namespace FECHADO |
+
+**O cerne — (4) vs (6)**: como *forma* são idênticas (`#TCF.8` + token nu). O que as separa é a
+**natureza do token**: **nome** é ABERTO (dado do usuário, não restringível sem quebrar contrato);
+**id** é FECHADO (vocabulário do formato, pode excluir `M`/`H` por definição). A intuição do owner de
+que 4 e 6 se confundem **confirma-se**.
+
+**Por que (1) não quebra com nome colidente**: o índice 6 é o **espaço** (a marca da rota), então o 1º
+char do nome nunca compete com o Eixo-1; o id sai pelo **último** `:`.
+
+**Escaping**: o formato **proíbe**, não escapa (A6/A6b) — contrato fail-loud em vez de sequência de
+escape. Simplifica o parse, restringe nomes.
+
+**Combinação que a evidência favorece: (1)+(6)** — espaço marca "tem nome"; ausência marca "token nu
+do namespace fechado". A hipótese de que ` ` e `:` desambiguam é *parcialmente* verdadeira: separam as
+rotas, mas (2)/(4) seguem expondo o índice 6 a nome arbitrário.
+
+## O que este ciclo NÃO conclui
+
+Não escolhe gramática. Não mede custo em body real nem os critérios de julgamento (§S1.7 inspeção,
+§S1.9 streaming, §S1.10 paridade S/M/H). **Nada em `src/tcf/`.**
+
+## Rodar
+
+```
+python run.py     # 11 casos · regenera inputs/ intermediates/ outputs/ + result.md
+```

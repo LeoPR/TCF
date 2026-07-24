@@ -1,0 +1,27 @@
+CASE A2 [ok] — nature CPF SEM nome — forma (1) com nome vazio == forma (5)
+INVESTIGA: forma (5) `#TCF.8:{id}` é o caso degenerado de (1) com nome vazio?
+kwargs: {'nature': 'cpf'}
+
+-- FLUXO (§3.2) --
+1. inputs/A2-fonte.json           (fonte literal)
+2. intermediates/A2-dataset-consumido.json  -> ['111.111.111-11', '222.222.222-22', '333.333.333-33', '111.111.111-11']
+3. outputs/A2-wire.tcf            (35 B) REAL
+4. outputs/A2-dataset.roundtrip.json  -> RT OK
+
+-- WIRE REAL --
+'#TCF.8 :cpf\n%g$.u\n)K%\\7l\n.\\1&Cc\n^1\n'
+
+-- MOLDURA (decomposta do wire real) --
+linha-0 do wire: '#TCF.8 :cpf'  (11 B + 1 B LF)
+  bytes: '#' 'T' 'C' 'F' '.' '8' ' ' ':' 'c' 'p' 'f'
+  índice 6 (discriminador do Eixo-1) = ' ' -> single-col+spec
+  forma (1) `#TCF.8 {nome}:{id}` -> nome='' · id='cpf'
+  nome vazio? SIM -> degenera na forma (5)
+
+-- AS 6 FORMAS DO OWNER (HIPOTÉTICO — não são saída do TCF) --
+  (1) '#TCF.8 <nome>:cpf'
+  (2) '#TCF.8<nome>:cpf'
+  (3) '#TCF.8 <nome>'
+  (4) '#TCF.8<nome>'
+  (5) '#TCF.8:cpf'
+  (6) '#TCF.8cpf'

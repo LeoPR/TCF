@@ -1,0 +1,73 @@
+ANÁLISE DAS 6 FORMAS — ancorada no que o TCF REALMENTE emite
+================================================================
+
+Eixo-1 (índice 6, logo após '#TCF.8') JÁ OCUPADO por:
+  'M' = multi-col · 'H' = hierárquico · ' ' = single-col+spec · '\n' = version-stamp
+
+Formas:
+
+(1) #TCF.8 {nome}:{id}  — *** REAL HOJE ***, com evidência nos wires:
+      A2 -> '#TCF.8 :cpf'      (nome vazio)
+      A3 -> '#TCF.8 doc:cpf'   (nome normal)
+      A4 -> '#TCF.8 b:cpf'     (nome 'b' = igual a uma TAG DE TIPO hipotética) -> FUNCIONA
+      A5 -> '#TCF.8 M:cpf'     (nome 'M' = igual ao discriminador multi-col)   -> FUNCIONA
+    POR QUE não quebra: o índice 6 é o ESPAÇO (a marca da rota), então o 1º char do NOME
+    nunca chega a competir com o Eixo-1; e o id é separado pelo ÚLTIMO ':'. Ou seja, a forma
+    (1) é ROBUSTA a nome colidente — provado, não suposto.
+
+(2) #TCF.8{nome}:{id}   — HIPOTÉTICA. Índice 6 = 1º char do NOME. COLIDE se o nome começar
+    com 'M'/'H' (viraria multi-col/hierárquico). Contraste direto com A5: em (1) o nome 'M'
+    é inofensivo; em (2) seria fatal. A fragilidade está em expor o índice 6 a dado do usuário.
+
+(3) #TCF.8 {nome}       — *** NÃO EXISTE HOJE ***: A6c prova que `name=` sem `nature=` é
+    REJEITADO ('name= so' tem efeito em single-col COM nature='). Rótulo sozinho não é uma
+    rota do formato. Como forma futura seria segura (índice 6 = ' ') mas não declara tipo —
+    não resolve a lacuna de A7/A8.
+
+(4) #TCF.8{nome}        — HIPOTÉTICA. Índice 6 = 1º char do nome: mesma fragilidade de (2),
+    E é INDISTINGUÍVEL de (6) — ambas são '#TCF.8' + token nu. A intuição do owner CONFIRMA-SE.
+
+(5) #TCF.8:{id}         — HIPOTÉTICA *sem espaço*. Atenção: o que existe hoje (A2) é
+    '#TCF.8 :cpf' — COM espaço. Uma forma (5) verdadeira (sem espaço) usaria ':' no índice 6,
+    que está LIVRE no Eixo-1 -> seria um discriminador NOVO válido, e economizaria 1 B.
+
+(6) #TCF.8{id}          — HIPOTÉTICA. Índice 6 = 1º char do ID. COLIDIRIA se um id começasse
+    com 'M'/'H'. MAS: diferente do nome, o ID vem de namespace FECHADO (whitelist do formato)
+    — basta EXCLUIR 'M','H',' ','\n' do vocabulário e a colisão some por definição.
+    *** ESTA É A DIFERENÇA ENTRE (4) E (6) ***: como FORMA são idênticas; o que as separa é a
+    NATUREZA do token — nome é ABERTO (dado do usuário, não se pode restringir sem quebrar
+    contrato) e id é FECHADO (vocabulário do formato, restringível por definição).
+
+----------------------------------------------------------------
+ESCAPING: o formato PROÍBE, não escapa.
+  A6  -> name='a:b'  REJEITADO: "name de single-col nao pode conter ':' nem '\n'"
+  A6b -> name='a\nb' REJEITADO (idem)
+  Ou seja: o separador é protegido por CONTRATO (fail-loud), não por escape. Isso simplifica
+  o parse (não há sequência de escape a interpretar no nome) ao custo de restringir nomes.
+
+----------------------------------------------------------------
+COMBINAÇÕES COERENTES (a pergunta do owner):
+
+  (2)+(5): coerente entre si — (5) é (2) com nome vazio. Mas herda a fragilidade de (2):
+           o índice 6 passa a depender do 1º char de um NOME de usuário. Contraindicado
+           pela evidência de A5.
+
+  (1)+(6): COERENTE E SEGURA — o ESPAÇO marca 'tem nome' (rota 1, já real e robusta por A4/A5)
+           e a AUSÊNCIA de espaço marca 'token nu do namespace fechado' (rota 6). Como (6) só
+           admite ids da whitelist (sem M/H), não há ambiguidade. O espaço é o desambiguador.
+           É a combinação que a evidência favorece.
+
+  (1)+(2)+(5)+(6): a hipótese do owner de que ' ' e ':' desambiguam quando os 1ºs chars
+           competem com um primitivo é PARCIALMENTE verdadeira: ' ' e ':' de fato separam as
+           rotas, mas (2)/(4) continuam expondo o índice 6 a nome arbitrário. O conjunto só
+           fecha se (2) proibir nome iniciando em char reservado — o que reintroduz no NOME
+           a restrição que (1) evita de graça.
+
+CONCLUSÃO DA ANÁLISE (não é decisão):
+  - a forma (1) NÃO precisa falhar e NÃO falha: funciona hoje e é robusta a nome colidente
+    (A4/A5). CORRIGE a v2 deste lab, que a havia declarado 'refutada' — aquilo era um
+    enquadramento inventado (tipo e nature disputando um slot), não o comportamento real.
+  - o que (1) não faz é carregar TIPO e NATURE juntos no mesmo slot. Isso só é limitação se
+    os dois precisarem coexistir; com namespaces DISJUNTOS um slot basta.
+  - a lacuna real (A7/A8): bool e int não têm HOJE nenhuma forma single-col tipada — vão
+    para '#TCF.8H#V...' (envelope hierárquico) só para preservar o tipo.

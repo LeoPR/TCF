@@ -1,7 +1,0 @@
-G1-slot-unico: N/A — G1 tem UM slot: tipo e nature não cabem juntos
-G2-eixos-separados: '#TCF.8:b idade:cpf'  (18 B)
-  '#' 'T' 'C' 'F' '.' '8' ':' 'b' ' ' 'i' 'd' 'a' 'd' 'e' ':' 'c' 'p' 'f'
-G3-tag-colada: '#TCF.8b idade:cpf'  (17 B)
-  '#' 'T' 'C' 'F' '.' '8' 'b' ' ' 'i' 'd' 'a' 'd' 'e' ':' 'c' 'p' 'f'
-G4-sem-assinatura: ':b idade:cpf'  (12 B)
-  ':' 'b' ' ' 'i' 'd' 'a' 'd' 'e' ':' 'c' 'p' 'f'

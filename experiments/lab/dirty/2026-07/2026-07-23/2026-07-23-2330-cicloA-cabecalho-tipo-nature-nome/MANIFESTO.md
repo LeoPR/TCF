@@ -95,3 +95,30 @@ editada em silêncio, conforme a regra do topo.
 - `EXTENDE` declarado: G1→`#TCF.8 ` · G2→(nenhuma, abre `#TCF.8:`) · G3→(nenhuma) · G4→(nenhuma).
 
 **Não muda**: body congelado, `order_free` fora, eixos de nome/nature/conteúdo, contraprovas.
+
+---
+
+## `cicloA-v3` — REESCRITA (2026-07-23, correção do owner)
+
+**As v1/v2 eram inválidas como lab.** Eram manipulação ABSTRATA de strings: sem dataset, sem JSON,
+sem `encode`/`decode`, sem roundtrip, sem `inputs/`+`intermediates/`+`outputs/` reais. Violavam a
+convenção do catálogo [`2026-07-23-0204`](../2026-07-23-0204-api-8-catalogo-de-casos/) e o fluxo
+§3.2 do plano. Pior: **inventaram comportamento** em vez de medir o real.
+
+**O que as v1/v2 inventaram (e a v3 corrige com evidência):**
+
+| v1/v2 inventou | realidade medida (v3) |
+|---|---|
+| um escaping `esc()`/`unesc()` de nome | o formato **PROÍBE** `:`/`\n` no nome (fail-loud) — A6/A6b |
+| forma (1) "refutada" por colisão tipo↔nature | forma (1) **funciona hoje** e é **robusta** a nome `b`/`M` — A3/A4/A5 |
+| forma (3) tratada como candidata | **não existe**: `name=` sem `nature=` é rejeitado — A6c |
+| gramáticas G1–G4 de invenção própria | as **6 formas enumeradas pelo owner**, ancoradas nos wires reais |
+
+**Regras da v3 (herdadas do catálogo e do §3.2):**
+
+1. Fluxo materializado por caso: `inputs/<ID>-fonte.json` → `intermediates/<ID>-dataset-consumido.json`
+   → `outputs/<ID>-wire.tcf` → `outputs/<ID>-dataset.roundtrip.json`.
+2. **`outputs/` só contém o que o TCF REALMENTE emite.** Gramáticas hipotéticas vivem em
+   `intermediates/`, marcadas como hipótese — nunca como se fossem saída.
+3. Contraprovas (fail-loud) são caso de primeira classe: sem wire, com o erro real registrado.
+4. Nenhuma conclusão sem wire real por trás.

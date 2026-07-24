@@ -1,44 +1,92 @@
-# Ciclo A — cabeçalho single-col: tipo × nature × nome
+# Ciclo A (v3) — cabeçalho single-col: fluxo REAL de dados
 
-Protocolo `cicloA-v2` (matriz declarada em MANIFESTO.md ANTES de medir). BODY CONGELADO; só a moldura varia. `order_free` fora (adiado .9).
+Fluxo §3.2 do plano: `inputs/-fonte.json` -> `intermediates/-dataset-consumido.json` -> `outputs/-wire.tcf` (REAL) -> `outputs/-dataset.roundtrip.json`. As gramáticas hipotéticas ficam em `intermediates/`, NUNCA em outputs.
 
-## Resumo por gramática
+- **A1** — string órfã — sem header nenhum (piso: o TCF não escreve moldura)
+    - investiga: o que o formato faz quando NADA precisa ser declarado
+    - fonte: `['ana@site.com', 'ana.b@site.com', 'carlos@site.com']`
+    - wire REAL (27 B), linha-0: `(órfão)`
+    - roundtrip: ✅
+- **A2** — nature CPF SEM nome — forma (1) com nome vazio == forma (5)
+    - investiga: forma (5) `#TCF.8:{id}` é o caso degenerado de (1) com nome vazio?
+    - fonte: `['111.111.111-11', '222.222.222-22', '333.333.333-33', '111.111.111-11`
+    - wire REAL (35 B), linha-0: `#TCF.8 :cpf`
+    - roundtrip: ✅
+- **A3** — nature CPF COM nome 'doc' — forma (1) completa, REAL hoje
+    - investiga: forma (1) `#TCF.8 {nome}:{id}` — já existe em produção
+    - fonte: `['111.111.111-11', '222.222.222-22', '333.333.333-33', '111.111.111-11`
+    - wire REAL (38 B), linha-0: `#TCF.8 doc:cpf`
+    - roundtrip: ✅
+- **A4** — nature CPF com nome 'b' (= colide com uma TAG DE TIPO hipotética)
+    - investiga: nome igual a tag de tipo quebra a forma (1)?
+    - fonte: `['111.111.111-11', '222.222.222-22', '333.333.333-33', '111.111.111-11`
+    - wire REAL (36 B), linha-0: `#TCF.8 b:cpf`
+    - roundtrip: ✅
+- **A5** — nature CPF com nome 'M' (= colide com o Eixo-1 multi-col)
+    - investiga: nome igual a discriminador de ESTRUTURA quebra a forma (1)?
+    - fonte: `['111.111.111-11', '222.222.222-22', '333.333.333-33', '111.111.111-11`
+    - wire REAL (36 B), linha-0: `#TCF.8 M:cpf`
+    - roundtrip: ✅
+- **A6** — nature CPF com nome contendo ':' — contrato REJEITA (não escapa)
+    - investiga: o formato ESCAPA ou PROÍBE o separador no nome?
+    - resultado: `FAIL-LOUD (esperado): ValueError: name de single-col nao pode conter ':' nem '\n' (reservado pro meta #TCF.8): 'a:b'`
+- **A6b** — nature CPF com nome contendo LF — idem
+    - investiga: idem A6 para quebra de linha
+    - resultado: `FAIL-LOUD (esperado): ValueError: name de single-col nao pode conter ':' nem '\n' (reservado pro meta #TCF.8): 'a\nb'`
+- **A6c** — name= SEM nature — rótulo sozinho não existe (forma (3) não é suportada)
+    - investiga: a forma (3) `#TCF.8 {nome}` existe hoje?
+    - resultado: `FAIL-LOUD (esperado): ValueError: name= so' tem efeito em single-col COM nature= (rotulo do header '#TCF.8 nome:spec'); sem isso seria ignorado calado`
+- **A7** — lista de BOOL — hoje NÃO tem forma single-col tipada (vai pro .8H)
+    - investiga: A LACUNA que motiva o estudo: tipo não tem onde morar em single-col
+    - fonte: `[True, False, True, True]`
+    - wire REAL (41 B), linha-0: `#TCF.8H#V\z#:3[]:17b`
+    - roundtrip: ✅
+- **A8** — lista de INT — mesma lacuna
+    - investiga: idem A7 para number
+    - fonte: `[1, 2, 3]`
+    - wire REAL (31 B), linha-0: `#TCF.8H#V\z#:3[]:8n`
+    - roundtrip: ✅
+- **A9** — version-stamp — ocupa o índice 6 com '\n'
+    - investiga: prova que o índice 6 é o eixo de ESTRUTURA, não de tipo
+    - fonte: `['a', 'ab', 'abc']`
+    - wire REAL (16 B), linha-0: `#TCF.8`
+    - roundtrip: ✅
 
-`hijack` = **teste decisivo**: o parser aceita uma forma EXISTENTE (`#TCF.8M/H/espaço/\n`) como header tipado. Qualquer valor > 0 **refuta** o candidato — ele sequestra rotas do formato.
+## Análise das 6 formas
 
-| gramática | aplicáveis | pass | fail | N/A | **hijack** | rota confundida | malformados rejeitados | header mín (B) |
-|---|---:|---:|---:|---:|---:|---:|---:|---:|
-| G1-slot-unico | 55 | 0 | 55 | 55 | **0** | 0 | 9/9 | 9 |
-| G2-eixos-separados | 88 | 88 | 0 | 22 | **0** | 0 | 8/9 | 8 |
-| G3-tag-colada | 88 | 44 | 44 | 22 | **2** | 44 | 4/9 | 7 |
-| G4-sem-assinatura | 88 | 88 | 0 | 22 | **0** | 0 | 8/9 | 2 |
+Íntegra em [`intermediates/00-analise-6-formas.txt`](intermediates/00-analise-6-formas.txt). Resumo:
 
-**Detalhe dos hijacks:**
+| forma | status | índice 6 | evidência | veredito |
+|---|---|---|---|---|
+| (1) `#TCF.8 {nome}:{id}` | **REAL hoje** | `' '` | A2/A3/A4/A5 | **robusta** — nome `b` e `M` funcionam |
+| (2) `#TCF.8{nome}:{id}` | hipotética | 1º char do NOME | — | frágil (contraste c/ A5) |
+| (3) `#TCF.8 {nome}` | **não existe** | `' '` | A6c rejeita | rótulo sozinho não é rota |
+| (4) `#TCF.8{nome}` | hipotética | 1º char do NOME | — | **indistinguível de (6)** + frágil |
+| (5) `#TCF.8:{id}` | hipotética *sem espaço* | `':'` (livre) | A2 é a versão COM espaço | `:` livre no Eixo-1 → discriminador novo viável |
+| (6) `#TCF.8{id}` | hipotética | 1º char do ID | — | **defensável** — id é namespace FECHADO |
 
-- `G1-slot-unico`: —
-- `G2-eixos-separados`: —
-- `G3-tag-colada`: '#TCF.8M'->tipo='M'; '#TCF.8H'->tipo='H'
-- `G4-sem-assinatura`: —
+### A diferença entre (4) e (6) — o cerne
 
-## Headers representativos (tipo=b, nature=cpf, nome=idade)
-```
-G1-slot-unico: N/A — G1 tem UM slot: tipo e nature não cabem juntos
-G2-eixos-separados: '#TCF.8:b idade:cpf'  (18 B)
-  '#' 'T' 'C' 'F' '.' '8' ':' 'b' ' ' 'i' 'd' 'a' 'd' 'e' ':' 'c' 'p' 'f'
-G3-tag-colada: '#TCF.8b idade:cpf'  (17 B)
-  '#' 'T' 'C' 'F' '.' '8' 'b' ' ' 'i' 'd' 'a' 'd' 'e' ':' 'c' 'p' 'f'
-G4-sem-assinatura: ':b idade:cpf'  (12 B)
-  ':' 'b' ' ' 'i' 'd' 'a' 'd' 'e' ':' 'c' 'p' 'f'
-```
+Como **forma** são idênticas (`#TCF.8` + token nu). O que as separa é a **natureza do token**: **nome** é ABERTO (dado do usuário — não dá pra restringir sem quebrar contrato) e **id** é FECHADO (vocabulário do formato — dá pra excluir `M`/`H` por definição). Por isso (6) é defensável e (4) não. A sua intuição de que 4 e 6 se confundem **se confirma**.
 
-## Leitura
+### Por que a forma (1) NÃO quebra com nome colidente (evidência)
 
-- **G1 (slot único) — REFUTADA**: 55 células N/A porque tipo e nature NÃO CABEM JUNTOS num só slot; e quando só um cabe, o parser não sabe se o `{id}` é tipo ou nature (`AMBIGUO(slot unico)`). É exatamente a colisão tipo↔nature que o owner pediu pra ver. (Na v1 ela aparecia também com 33 'colisões' — era FALSO POSITIVO: G1 estende legitimamente a forma-espaço. A v2 separa extensão de colisão.)
-- **G3 (tag colada) — REFUTADA pelo teste decisivo**: `hijack=2` — o parser aceita as formas existentes como se fossem tipos (`#TCF.8M`→`tipo='M'`, `#TCF.8H`→`tipo='H'`). Pôr TIPO no índice 6 **sequestra o Eixo-1** (estrutura). Confirma a hipótese do manifesto — e só ficou visível com as tags adversariais `M`/`H` da v2.
-- **G2 (eixos separados) — ÚNICA candidata que sobrevive**: 88/88 recuperam a tripla (nome, tipo, nature), `hijack=0`, 0 rotas confundidas. Tipo no discriminador `:`, nature no sufixo — namespaces distinguíveis (§S1.6). Custo: 8 B no caso com nome+nature.
-- **G4 (sem assinatura)**: header mínimo (2 B) e `hijack=0`, mas **não identificável externamente** — perde §S1.1 (autocontenção) e §S1.7 (inspeção). Fica como PISO de comparação de bytes, não como candidata.
-- **REQUISITO descoberto pelo lab (§S1.5 fail-loud)**: G2 é estruturalmente sã (`hijack=0`) mas aceita `#TCF.8:b\` como `tipo='b\'` — o escaping é validado no NOME, não na TAG. ⇒ a tag de tipo precisa de **namespace FECHADO (whitelist)**, não texto livre. É o único malformado que G2 aceita, e vira requisito da gramática, não detalhe de implementação.
-- **Resposta à pergunta do owner (tipo × spec × nome)**: com **eixos separados**, um nome igual a uma tag de tipo (`b`) ou a um id de nature (`cpf`) **deixa de ser problema** — cada campo vive num namespace próprio e o escaping + split no último `:` não-escapado resolve nomes com `:`/espaço/`\`/`\n`. O conflito só existe quando os eixos são compartilhados (G1) ou quando o tipo invade o eixo de estrutura (G3).
-- **Nome adversarial**: o escaping de `:`/`\`/`\n` + split no ÚLTIMO `:` não-escapado (convenção do multi-col real) sustenta nome `a:b`, `M`, `H`, `b` e `cpf` sem colisão nas gramáticas de eixos separados. **Nome igual a tag de tipo ou a id de nature deixa de ser problema quando os eixos são separados** — é o achado central pra pergunta do owner.
+- A4 → `#TCF.8 b:cpf` (nome `b`, igual a uma tag de tipo) — **funciona**
+- A5 → `#TCF.8 M:cpf` (nome `M`, igual ao discriminador multi-col) — **funciona**
 
-**440 células · 99 fail · 121 N/A · malformados: 29/36 rejeitados.** Artefatos: `intermediates/00-matrix.csv`, `01-cases.json`, `02-header-breakdown.txt`, `outputs/01-malformed-results.json`. Regenera: `python run.py`.
+Porque o índice 6 é o **espaço** (a marca da rota), então o 1º char do nome nunca compete com o Eixo-1; e o id é separado pelo **último** `:`.
+
+### Escaping: o formato PROÍBE, não escapa
+
+A6 (`name='a:b'`) e A6b (`name='a\nb'`) são **rejeitados**: *"name de single-col nao pode conter ':' nem '\n'"*. O separador é protegido por **contrato fail-loud**, não por sequência de escape — simplifica o parse ao custo de restringir nomes.
+
+### Combinação que a evidência favorece: **(1)+(6)**
+
+O espaço marca 'tem nome' (rota 1, já real e robusta); a ausência marca 'token nu do namespace fechado' (rota 6). Sem ambiguidade. A sua hipótese de que ` ` e `:` desambiguam é **parcialmente** verdadeira: eles separam as rotas, mas (2)/(4) continuam expondo o índice 6 a nome arbitrário — o conjunto (1)+(2)+(5)+(6) só fecha se (2) proibir nome iniciando em char reservado, reintroduzindo no NOME a restrição que (1) evita de graça.
+
+### ⚠️ Correção da v2 deste lab
+
+A v2 declarou a forma (1) **'refutada'** — **estava errado**. Ela funciona hoje (A3) e é robusta a nome colidente (A4/A5). Aquela 'refutação' vinha de um enquadramento que eu inventei (tipo e nature disputando o mesmo slot), não do comportamento real. As v1/v2 também inventaram um escaping `esc()`/`unesc()` que **não existe** — o formato proíbe.
+
+---
+**Roundtrip: 8 OK, 0 falhas.** Artefatos: `inputs/*-fonte.json` · `intermediates/*-dataset-consumido.json` · `intermediates/*.debug.txt` · `intermediates/00-analise-6-formas.txt` · `outputs/*-wire.tcf` · `outputs/*-dataset.roundtrip.json`. Regenera: `python run.py`.

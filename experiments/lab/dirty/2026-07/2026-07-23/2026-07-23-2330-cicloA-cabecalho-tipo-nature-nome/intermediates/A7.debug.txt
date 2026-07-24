@@ -1,0 +1,25 @@
+CASE A7 [ok] — lista de BOOL — hoje NÃO tem forma single-col tipada (vai pro .8H)
+INVESTIGA: A LACUNA que motiva o estudo: tipo não tem onde morar em single-col
+kwargs: {}
+
+-- FLUXO (§3.2) --
+1. inputs/A7-fonte.json           (fonte literal)
+2. intermediates/A7-dataset-consumido.json  -> [True, False, True, True]
+3. outputs/A7-wire.tcf            (41 B) REAL
+4. outputs/A7-dataset.roundtrip.json  -> RT OK
+
+-- WIRE REAL --
+'#TCF.8H#V\\z#:3[]:17b\n\\4\ntrue\nfalse\n*2|^1\n'
+
+-- MOLDURA (decomposta do wire real) --
+linha-0 do wire: '#TCF.8H#V\\z#:3[]:17b'  (20 B + 1 B LF)
+  bytes: '#' 'T' 'C' 'F' '.' '8' 'H' '#' 'V' '\\' 'z' '#' ':' '3' '[' ']' ':' '1' '7' 'b'
+  índice 6 (discriminador do Eixo-1) = 'H' -> hierárquico
+
+-- AS 6 FORMAS DO OWNER (HIPOTÉTICO — não são saída do TCF) --
+  (1) '#TCF.8 <nome>:<id>'
+  (2) '#TCF.8<nome>:<id>'
+  (3) '#TCF.8 <nome>'
+  (4) '#TCF.8<nome>'
+  (5) '#TCF.8:<id>'
+  (6) '#TCF.8<id>'

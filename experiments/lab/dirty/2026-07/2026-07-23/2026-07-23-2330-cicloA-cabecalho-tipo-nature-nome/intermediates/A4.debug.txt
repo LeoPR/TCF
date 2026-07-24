@@ -1,0 +1,27 @@
+CASE A4 [ok] — nature CPF com nome 'b' (= colide com uma TAG DE TIPO hipotética)
+INVESTIGA: nome igual a tag de tipo quebra a forma (1)?
+kwargs: {'nature': 'cpf', 'name': 'b'}
+
+-- FLUXO (§3.2) --
+1. inputs/A4-fonte.json           (fonte literal)
+2. intermediates/A4-dataset-consumido.json  -> ['111.111.111-11', '222.222.222-22', '333.333.333-33', '111.111.111-11']
+3. outputs/A4-wire.tcf            (36 B) REAL
+4. outputs/A4-dataset.roundtrip.json  -> RT OK
+
+-- WIRE REAL --
+'#TCF.8 b:cpf\n%g$.u\n)K%\\7l\n.\\1&Cc\n^1\n'
+
+-- MOLDURA (decomposta do wire real) --
+linha-0 do wire: '#TCF.8 b:cpf'  (12 B + 1 B LF)
+  bytes: '#' 'T' 'C' 'F' '.' '8' ' ' 'b' ':' 'c' 'p' 'f'
+  índice 6 (discriminador do Eixo-1) = ' ' -> single-col+spec
+  forma (1) `#TCF.8 {nome}:{id}` -> nome='b' · id='cpf'
+  nome vazio? não
+
+-- AS 6 FORMAS DO OWNER (HIPOTÉTICO — não são saída do TCF) --
+  (1) '#TCF.8 b:cpf'
+  (2) '#TCF.8b:cpf'
+  (3) '#TCF.8 b'
+  (4) '#TCF.8b'
+  (5) '#TCF.8:cpf'
+  (6) '#TCF.8cpf'

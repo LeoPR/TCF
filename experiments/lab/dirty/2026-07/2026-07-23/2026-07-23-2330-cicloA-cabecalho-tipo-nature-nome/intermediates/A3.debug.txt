@@ -1,0 +1,27 @@
+CASE A3 [ok] — nature CPF COM nome 'doc' — forma (1) completa, REAL hoje
+INVESTIGA: forma (1) `#TCF.8 {nome}:{id}` — já existe em produção
+kwargs: {'nature': 'cpf', 'name': 'doc'}
+
+-- FLUXO (§3.2) --
+1. inputs/A3-fonte.json           (fonte literal)
+2. intermediates/A3-dataset-consumido.json  -> ['111.111.111-11', '222.222.222-22', '333.333.333-33', '111.111.111-11']
+3. outputs/A3-wire.tcf            (38 B) REAL
+4. outputs/A3-dataset.roundtrip.json  -> RT OK
+
+-- WIRE REAL --
+'#TCF.8 doc:cpf\n%g$.u\n)K%\\7l\n.\\1&Cc\n^1\n'
+
+-- MOLDURA (decomposta do wire real) --
+linha-0 do wire: '#TCF.8 doc:cpf'  (14 B + 1 B LF)
+  bytes: '#' 'T' 'C' 'F' '.' '8' ' ' 'd' 'o' 'c' ':' 'c' 'p' 'f'
+  índice 6 (discriminador do Eixo-1) = ' ' -> single-col+spec
+  forma (1) `#TCF.8 {nome}:{id}` -> nome='doc' · id='cpf'
+  nome vazio? não
+
+-- AS 6 FORMAS DO OWNER (HIPOTÉTICO — não são saída do TCF) --
+  (1) '#TCF.8 doc:cpf'
+  (2) '#TCF.8doc:cpf'
+  (3) '#TCF.8 doc'
+  (4) '#TCF.8doc'
+  (5) '#TCF.8:cpf'
+  (6) '#TCF.8cpf'

@@ -1,0 +1,23 @@
+CASE A1 [ok] — string órfã — sem header nenhum (piso: o TCF não escreve moldura)
+INVESTIGA: o que o formato faz quando NADA precisa ser declarado
+kwargs: {}
+
+-- FLUXO (§3.2) --
+1. inputs/A1-fonte.json           (fonte literal)
+2. intermediates/A1-dataset-consumido.json  -> ['ana@site.com', 'ana.b@site.com', 'carlos@site.com']
+3. outputs/A1-wire.tcf            (27 B) REAL
+4. outputs/A1-dataset.roundtrip.json  -> RT OK
+
+-- WIRE REAL --
+'ana*@site.com\n1.b2\ncarlos2\n'
+
+-- MOLDURA (decomposta do wire real) --
+(sem header — single-col órfão: o body começa no byte 0)
+
+-- AS 6 FORMAS DO OWNER (HIPOTÉTICO — não são saída do TCF) --
+  (1) '#TCF.8 <nome>:<id>'
+  (2) '#TCF.8<nome>:<id>'
+  (3) '#TCF.8 <nome>'
+  (4) '#TCF.8<nome>'
+  (5) '#TCF.8:<id>'
+  (6) '#TCF.8<id>'

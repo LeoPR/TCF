@@ -1,25 +1,27 @@
-# Proveniência — Ciclo A (cabeçalho)
+# Proveniência — Ciclo A (cabeçalho) v3
 
-**Sem dataset externo.** Este ciclo estuda **moldura**, não representação: o BODY está CONGELADO e não
-participa da medição. Portanto não há fonte de dados real nem sintética a declarar — os "dados" são as
-**combinações de campos de header** enumeradas no [`MANIFESTO.md`](MANIFESTO.md).
+**Fonte**: 100% sintético/determinístico, escrito literalmente em `inputs/<ID>-fonte.json`. Nenhum
+download, nenhum dado real. Sem aleatório (nenhuma seed necessária).
 
-**Enumeração (determinística, sem aleatório)**:
-- `tipo` ∈ {ausente, `b`, `n`, **`M`**, **`H`**} — as duas últimas são **adversariais** (colidem com o
-  Eixo-1 do registry) e foram acrescentadas na emenda `cicloA-v2`.
-- `nature` ∈ {ausente, `cpf`}.
-- `nome` ∈ 11 variações, incluindo adversariais: `a:b`, `a b`, `a\b`, `a\nb`, `M`, `H`, `b` (= tag de
-  tipo), `cpf` (= id de nature), vazio, ausente.
-- 4 gramáticas candidatas × 9 entradas malformadas.
+**Dados por caso** (pequenos e inspecionáveis — o objeto de estudo é a MOLDURA, não o volume):
+- e-mails com prefixo/sufixo compartilhado (A1) — exercita o órfão sem header.
+- **CPFs placeholder SEGUROS** (A2–A6c): dígitos repetidos mod-11-válidos
+  (`111.111.111-11`, `222.222.222-22`, `333.333.333-33`) — **nunca CPF real**, mesma convenção do
+  catálogo `2026-07-23-0204` e da suíte.
+- bool (A7) e int (A8) — materializam a lacuna: hoje não há forma single-col tipada.
+- strings curtas (A9) — version-stamp.
 
-**CPF**: usado apenas como **identificador de nature** (`cpf`), nunca como valor — não há CPF nos
-dados. Nenhum dado pessoal envolvido.
+**Nomes adversariais** (o eixo pedido pelo owner): `doc` (normal) · `b` (= tag de tipo hipotética) ·
+`M` (= discriminador multi-col do Eixo-1) · `a:b` (separador) · `a\nb` (LF). Os dois últimos são
+**contraprovas** — devem falhar alto.
 
-**Reprodutibilidade**: `python run.py` regenera todos os artefatos byte-a-byte (produto cartesiano
-puro, sem seed). Células inaplicáveis aparecem como `N/A` **com a regra que as torna inaplicáveis**,
-nunca omitidas (§3.1 do plano).
+**Cadeia materializada** (§3.2 do plano): a fonte JSON é lida com `json.loads` e o resultado é gravado
+em `intermediates/<ID>-dataset-consumido.json` — é ele que vai pro `encode`. Assim fica visível onde
+cada tradução acontece (fonte → dataset → wire → dataset de volta).
 
-**Limites declarados**: só os critérios §S1 mecanicamente testáveis entram como célula (autocontenção,
-canonicidade, dispatch local, prefixo/hijack, fail-loud, extensibilidade, custo em bytes). Os de
-julgamento (§S1.7 inspeção, §S1.9 streaming, §S1.10 paridade S/M/H) ficam como leitura. O custo em
-bytes é do **header isolado** — não em contexto de body real.
+**Separação real × hipotético**: `outputs/` contém SÓ wire e roundtrip que o `src/tcf` realmente
+produziu. As 6 formas candidatas do owner são **hipóteses** e vivem em `intermediates/*.debug.txt` e
+`intermediates/00-analise-6-formas.txt`, rotuladas como tal.
+
+**Reprodutibilidade**: `python run.py` regenera tudo byte-a-byte. Bytes e vereditos só são reportados
+com RT ✅ (ou, nas contraprovas, com o erro real do encoder registrado). Zero toque em `src/tcf`.
