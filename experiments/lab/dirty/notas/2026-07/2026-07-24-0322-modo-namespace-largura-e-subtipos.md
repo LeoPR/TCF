@@ -27,6 +27,28 @@ válida; o namespace do `<modo>` (abaixo) independe dessa escolha.
 **Decisão pendente do owner** (agora reduzida a legibilidade × 1 byte): manter `~` (legível, +1B) ou
 colar `<modo>` na tag (mais denso). O default sensato pra payload minúsculo = **sem `~`** (colado).
 
+## FECHADO — o `~` é FUNÇÃO INTERNA de detecção, não caractere de wire (owner 2026-07-24)
+
+Insight do owner: um "caractere de desambiguação" é, na verdade, o **nome de uma etapa de validação
+que o parser roda de qualquer forma**. Pra decodar `b333`, o parser JÁ tem que perguntar "o que vem
+após a tag?" — e essa pergunta É a desambiguação. Logo o `~` não acrescenta nada ao wire: ele é
+redundante com a validação posicional que já existe. **Vive só no código** (flag/conceito interno),
+**nunca no arquivo** — a menos que ajude (legibilidade), o que pra payload minúsculo não vale.
+
+**Condição de "formato forte" (quando o `~` pode ser interno-só)** — a dispatch posicional é inambígua
+em TODOS os casos SOB 3 invariantes:
+1. **tag = exatamente 1 char** (índice 6): `\n`→`[]` · `M`→multi · `H`→hier · ` `→spec · `b/n/s`→tipado.
+2. **modo = exatamente 1 char** (índice 7, no tipado): `\n`→core · char-de-modo→denso.
+3. **namespace de modo exclui `\n`**; `n`≥1 dígito termina no `\n`; base64 vem depois.
+
+Sob os 3, `#TCF.8b4123\n<b64>` → tag=`b`, modo=`4`, n=`123` — inambíguo, sem separador. **Único
+cenário que reabriria um char no wire**: subtipo futuro com código de modo MULTI-char (quebra a
+invariante 2) → aí um delimitador/length-prefix volta, mas por escolha consciente. Enquanto modo = 1
+char, o `~` é interno pra sempre.
+
+**Portanto o wire canônico do #4 NÃO tem `~`**: `#TCF.8<tag><modo><n>\n<base64>` (denso) ·
+`#TCF.8<tag>\n<corpo>` (core). O `~` fica como conceito de código/doc, não como byte.
+
 ## O namespace do `<modo>` (recall + consolidação)
 
 Sub-namespace bN já registrado (registry de chars, owner 2026-07-08): `b1/b2/b4` = **largura física**
