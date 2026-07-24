@@ -194,7 +194,13 @@ def decode(
     # que casassem a forma base-94 (mesma classe do achado multi-col; o param fica na
     # assinatura por compat, mas #TCF.8 e' self-describing e manda).
     if disc8 == "":
-        return _decode_column(tcf_text[len(line1) + 1 :])  # apos "#TCF.8\n"
+        body = tcf_text[len(line1) + 1 :]  # apos "#TCF.8\n"
+        if body == "":
+            # '#TCF.8\n' (corpo vazio) = [] — canonicidade do vazio (owner 2026-07-24,
+            # simetrico ao encode). Distinto de '#TCF.8\n\n' (corpo '\n' -> ['']) e do
+            # orfao. O version-stamp SEMPRE tem corpo nao-vazio, entao nao colide.
+            return []
+        return _decode_column(body)
 
     # ORFAO: single-col body puro (sem shebang) — camada 1 (ADR-0029).
     return _decode_column(tcf_text)

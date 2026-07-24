@@ -66,10 +66,10 @@ Um exemplo de cada situação de dispatch. Artefatos por caso em `inputs/` · `o
     - wire (19 B): `'#TCF.8H#V\\z:4n\n\\42\n'`
     - header: hierárquico #TCF.8H · valor escalar (#V, envelope) · meta '#V\\z:4n'
     - roundtrip: ✅ OK
-- **H4a** — lista vazia [] — #TCF.8H #D0 (BUG-03 resolvido: representável)
+- **H4a** — lista vazia [] — FLAT #TCF.8\n (weld #2 2026-07-24: canonicidade do vazio; era .8H #D0)
     - input `[]`
-    - wire (11 B): `'#TCF.8H#D0\n'`
-    - header: hierárquico #TCF.8H · dataset sem-colunas (#D<N>) · meta '#D0'
+    - wire (7 B): `'#TCF.8\n'`
+    - header: single-col version-stamp (#TCF.8\n)
     - roundtrip: ✅ OK
 - **H4b** — dict vazio {} — #TCF.8H #E (definição)
     - input `{}`

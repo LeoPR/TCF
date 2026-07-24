@@ -81,7 +81,7 @@ def casos():
                "prefeito": {"nome": "X", "partido": "Y"}}, {}, "json")
     add("H3", "hier", "escalar solto — #TCF.8H #V (envelope; decode desembrulha)",
         "ok", 42, {}, "scalar")
-    add("H4a", "hier", "lista vazia [] — #TCF.8H #D0 (BUG-03 resolvido: representável)",
+    add("H4a", "hier", "lista vazia [] — FLAT #TCF.8\\n (weld #2 2026-07-24: canonicidade do vazio; era .8H #D0)",
         "ok", [], {}, "list")
     add("H4b", "hier", "dict vazio {} — #TCF.8H #E (definição)", "ok", {}, {}, "dict")
     add("H4c", "hier", "[{}, {}] — #TCF.8H #D2 (N registros, zero colunas)", "ok", [{}, {}], {}, "dataset")

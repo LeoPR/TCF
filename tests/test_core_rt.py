@@ -54,12 +54,14 @@ def _ler_csv(name: str) -> list[str]:
 
 class TestRoundTripBasic:
     def test_empty(self):
-        # CONTRATO ATUALIZADO (Passo 2, API unica 2026-07-23): `[]` deixou de ser fail-loud
-        # (BUG-03 — colisao 0-linhas x 1-linha-vazia no FLAT) e passou a ser REPRESENTAVEL
-        # via `.8H` `#D0` — o dispatch type-coherent rota lista vazia pro hierarquico, que
-        # grava contagem explicita. RT byte-exato. (O flat single-col segue sem 0-linhas.)
-        assert encode([]) == "#TCF.8H#D0\n"
+        # CONTRATO ATUALIZADO (weld #2, canonicidade do vazio, owner 2026-07-24): `[]` passou
+        # a ser expressa na forma FLAT como `#TCF.8\n` (7 B), em vez de fugir pro `.8H` `#D0`
+        # (11 B). Distinto de `#TCF.8\n\n` -> `['']` (fronteira do vazio canonica). O `#D0`
+        # legado ainda decoda `[]` (tolerante). Wire re-pinavel (ADR-0024).
+        assert encode([]) == "#TCF.8\n"
         assert decode(encode([])) == []
+        assert decode("#TCF.8\n\n") == [""]        # fronteira: 1 LF de corpo = 1 elemento vazio
+        assert decode("#TCF.8H#D0\n") == []        # legado #D0 ainda tolerado
 
     def test_single_string(self):
         values = ["hello"]

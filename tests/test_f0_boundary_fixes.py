@@ -225,10 +225,11 @@ class TestBug03ZeroRows:
     separadores). Decisão: fail-loud AGORA; registro-'0' declarando schema fica
     pro trilho de armazenamento append/parquet/tcfx (registrado, ver ticket)."""
 
-    def test_encode_empty_list_vira_8h(self):
-        # CONTRATO ATUALIZADO (Passo 2): `[]` vira `.8H` `#D0` (representavel), nao fail-loud.
+    def test_encode_empty_list_vira_flat(self):
+        # CONTRATO ATUALIZADO (weld #2, canonicidade do vazio, owner 2026-07-24): `[]` vira a
+        # forma FLAT `#TCF.8\n` (era `.8H` `#D0` no Passo 2). Nao fail-loud, representavel.
         # (Tabela 0-linha `{"a":[],"b":[]}` segue flat fail-loud — ver teste abaixo.)
-        assert encode([]) == "#TCF.8H#D0\n"
+        assert encode([]) == "#TCF.8\n"
         assert decode(encode([])) == []
 
     def test_dict_colunas_vazias_vira_8h(self):

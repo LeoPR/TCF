@@ -68,6 +68,13 @@ performance, mas a MODULARIZAÇÃO limpa é essa.)
 tolerar-com-warning o corpo sem terminador canônico — o decode começou a *sinalizar* desvio da forma
 explícita, sem mudar nenhum byte (aditivo, +13 linhas, suíte 861 verde, baselines intactos).
 
+**Weld #2 (2026-07-24, FEITO)** — canonicidade do vazio: `[]` passou a ser expressa na forma FLAT
+`#TCF.8\n` (7 B) em vez de fugir pro `.8H` `#D0` (11 B). Fronteira do vazio agora canônica:
+`#TCF.8\n`→`[]` · `#TCF.8\n\n`→`['']` · `#TCF.8\n\n\n`→`['','']`. O `#D0` legado ainda é tolerado no
+decode. Isolado (colunas vazias aninhadas usam `if cols[key] else ''`, não passam pelo top-level).
++22 linhas em encoder+decoder; 3 testes re-pinados (ADR-0024) + 1 root_kind ajustado; catálogo
+regenerado; **suíte 861 verde, baselines byte-canônicos intactos** (D1-D9=1523B/D17a=300B/real=89616B).
+
 ## O que fica pendente de DECISÃO do owner (não é medição — é escolha)
 
 1. **Adotar a convenção terminador** e tornar o decode *tolerante-com-warning* (hoje é tolerante-

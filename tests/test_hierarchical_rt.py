@@ -241,11 +241,14 @@ def test_p1_array_de_objetos_vazios_fail_loud():
 
 
 def test_p1_registros_sem_campos_agora_fazem_rt():
-    """PROMOVIDO 2026-07-17 (P4b): [{}]×N e [] viraram `#D<N>` (contagem explícita — funil J1)."""
+    """PROMOVIDO 2026-07-17 (P4b): [{}]×N vira `#D<N>` (contagem explícita — funil J1).
+    ATUALIZADO (weld #2, 2026-07-24): `[]` saiu do `#D0` e virou FLAT `#TCF.8\n`
+    (canonicidade do vazio); `[{}]×N` (N≥1) segue `#D<N>`. RT preservado nos dois."""
     for docs in ([{}], [], [{}, {}], [{}] * 7):
         back = decode(encode(docs))
         assert back == docs and type(back) is type(docs)
-    assert encode([]) == "#TCF.8H#D0\n"       # pino do wire (re-pinável, ADR-0024)
+    assert encode([]) == "#TCF.8\n"           # [] agora FLAT (re-pinável, ADR-0024)
+    assert decode("#TCF.8H#D0\n") == []       # #D0 legado ainda tolerado no decode
     assert encode([{}, {}]) == "#TCF.8H#D2\n"
     a = decode(encode([{}, {}]))
     a[0]["k"] = 1                                          # N dicts DISTINTOS (não o mesmo objeto)
@@ -336,11 +339,17 @@ def test_e3_side_outputs_bytes_identicos_e_populado():
 
 def test_e3_root_kind_por_forma():
     from tcf.side_outputs import SideOutputs
+    # `[]` SAIU desta lista (weld #2, 2026-07-24): virou FLAT `#TCF.8\n`, logo NAO tem
+    # root_kind hierarquico (hier_info=None). `[{}]×N` (N≥1) segue `#D`.
     for raiz, kind in [({"a": 1}, "O"), (42, "V"), ("", "V"), (None, "V"),
-                       ({}, "E"), ([], "D"), ([{}, {}], "D"), ([1, 2], "V")]:
+                       ({}, "E"), ([{}, {}], "D"), ([1, 2], "V")]:
         so = SideOutputs()
         encode(raiz, side_outputs=so)
         assert so.hier_info["root_kind"] == kind, (raiz, so.hier_info)
+    # [] agora e' flat -> sem hier_info (nao passa pelo .8H)
+    so = SideOutputs()
+    encode([], side_outputs=so)
+    assert so.hier_info is None, ("[] deveria ser flat", so.hier_info)
 
 
 def test_malformed_blob_fail_loud():

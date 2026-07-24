@@ -311,6 +311,21 @@ def encode(
             # puro fica orfao byte-identico.
             return magic + "\n" + body
         return body  # single-col puro orfao (byte-identico)
+    if isinstance(data, list) and not data:
+        # [] FLAT (owner 2026-07-24, canonicidade do vazio): a forma flat passa a
+        # expressar a lista vazia como '#TCF.8\n' (7 B), em vez de fugir pro .8H '#D0'
+        # (11 B). Simetrico ao decode (disc '' + corpo vazio -> []). Colunas vazias
+        # ANINHADAS nao passam aqui (o .8H usa `if cols[key] else ''`, hierarchical.py:499),
+        # entao a mudanca e' isolada ao top-level. kwargs so'-flat rejeitados (mesmo contrato
+        # do .8H). Re-pina test_core_rt/test_f0/test_hierarchical (wire re-pinavel, ADR-0024).
+        from tcf.multi.core import MAGIC_SINGLE_V3
+
+        _rejeita_kwargs_flat_no_8h(
+            parallel=parallel, nature=nature, layers=layers, fallback=fallback,
+            min_header=min_header, min_len=min_len, sort_by=sort_by, name=name,
+            stamp=stamp, drop_names=drop_names,
+        )
+        return MAGIC_SINGLE_V3.decode("utf-8") + "\n"
     if _tabela_flat(data):
         from tcf.multi import _encode_multi
 
