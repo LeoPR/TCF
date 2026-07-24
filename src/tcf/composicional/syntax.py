@@ -19,6 +19,7 @@ por `,`, depois o alias externo como composition unit).
 Convencao output: sem brackets, single LF (docs/algorithms/output-convention.md).
 """
 
+import warnings
 from collections import Counter
 from dataclasses import dataclass
 
@@ -46,6 +47,18 @@ def split_lf_body(tcf_text: str) -> list[str]:
         return []
     if tcf_text.endswith("\n"):
         return tcf_text[:-1].split("\n")
+    # NAO-CANONICO: body sem o LF terminador estrutural. Tolerante-COM-WARNING
+    # (owner 2026-07-24, modelo camada-explicita-vs-implicita): aceita e decoda,
+    # mas AVISA — a grafia canonica termina em '\n' (o encode SEMPRE emite). Este
+    # ramo so' e' alcancado por wire truncado/editado a mao. Nao muda o retorno
+    # (aditivo): a camada explicita permanece a mesma, so' passa a sinalizar desvio.
+    warnings.warn(
+        "corpo single-col sem o LF terminador canonico — decodificando "
+        "tolerantemente (grafia nao-canonica; wire possivelmente truncado ou "
+        "editado). A forma canonica termina em '\\n'.",
+        UserWarning,
+        stacklevel=2,
+    )
     return tcf_text.split("\n")
 
 

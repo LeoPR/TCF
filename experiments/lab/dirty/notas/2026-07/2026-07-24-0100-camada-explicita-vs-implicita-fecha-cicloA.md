@@ -40,12 +40,33 @@ Cada "simplificação" estudada é uma dedução da MESMA forma explícita — n
   `#TCF.8b\n` é legal porém redundante; a canônica é `#TCF.8\n` (sem tag). `#TCF.8b\n\n` = fail-loud
   (`''` não é `true`/`false`) — aqui aceitar corromperia, então é o caso de fail-loud legítimo.
 
-## Consequência prática
+## Consequência prática — o "pré-avaliador de apelidos" (owner 2026-07-24)
 
 A implicitude **nunca precisa de código de decode novo por forma** — precisa de um passo que
 **expande a forma implícita para a explícita** e delega o resto ao decode canônico. É barato e
 mantém uma fonte-da-verdade única. Foi assim que o gate da tipagem fechou (lab `0006`): a tag expande
 para o tipo; o corpo é o mesmo do explícito.
+
+**Não é competição simplificado-vs-completo — é simplificado VIRA completo e segue.** Modelo do owner:
+
+> *Toda versão tem uma forma completa; ela só precisa ser preenchida. O macete da parte implícita é
+> que ela deduz o que DEVERIA estar completo; o resto do código segue a parte completa sempre, sem
+> mutar nada — a gramática em si não muda, o que muda é um pré-avaliador de apelidos.*
+
+- **Camada 1 (implícita)** = *pré-avaliador de apelidos*: um passe fino na BORDA que, ao ver uma forma
+  curta, a **normaliza para a forma explícita completa** (preenche o que foi deduzido).
+- **Camada 2+ (o resto)** = encode/decode canônicos, que **só veem a forma completa**, intocados.
+
+**Analogia (owner)**: o contrato inicial padroniza "só nomes completos" para formalizar o padrão;
+DEPOIS cria-se a camada de apelidos. O padrão fica na 2ª camada, mas **não muda a interpretação do
+resto**. Isto **derruba o risco do weld #4** (single-col tipado): não se toca no core da gramática —
+adiciona-se um normalizador `implícito → explícito` na entrada e um compactador `explícito → implícito`
+opcional na saída. (Otimizações internas podem depois "curto-circuitar" as duas camadas por
+performance, mas a MODULARIZAÇÃO limpa é essa.)
+
+**Weld #1 (2026-07-24, FEITO)** é o primeiro tijolo dessa camada: `split_lf_body` passou a
+tolerar-com-warning o corpo sem terminador canônico — o decode começou a *sinalizar* desvio da forma
+explícita, sem mudar nenhum byte (aditivo, +13 linhas, suíte 861 verde, baselines intactos).
 
 ## O que fica pendente de DECISÃO do owner (não é medição — é escolha)
 
