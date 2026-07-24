@@ -17,18 +17,44 @@ GATE do owner: *a vantagem em arquivo não faz a tipagem sumir internamente* —
 
 **Gate: 6/6 ✅.** O tipo viaja como TAG (1 char) e é reconstruído no decode — a moldura encolhe, a semântica NÃO. `D-bool` volta `True/False` (bool), não `'true'/'false'` (string). É a confirmação do alerta do owner.
 
-## 1b. O que isso vale contra o TCF de HOJE (wire inteiro, dado idêntico)
+## 1b. O que vale contra o TCF de HOJE — baseline com `#TCF.8` (corrigida)
 
-| dataset | tag | TCF hoje | F6 hipotético | Δ |
-|---|---|---:|---:|---:|
-| `D-bool` | `b` | 41 B | 25 B | **-16 B** |
-| `D-int` | `n` | 36 B | 20 B | **-16 B** |
-| `D-float` | `n` | 43 B | 27 B | **-16 B** |
-| `D-str` | `s` | 16 B | 24 B | **+8 B** |
-| `D-n1` | `b` | 28 B | 13 B | **-15 B** |
+> **Correção do owner**: comparar contra o órfão *sem header* era injusto. Os formatos estudados têm no mínimo a declarativa `#TCF.8`; ficar abaixo disso deveria exigir parâmetro explícito. Onde o dado aceita `stamp=True`, a baseline é a estampada.
 
-- **Tipados (bool/int/float)**: o TCF hoje embrulha no `.8H` (`#V\z#:N[]:...`) só pra preservar o tipo. A forma implícita economiza **63 B em 4 casos** (~15 B cada) — é o envelope inteiro virando 1 char de tag.
-- **⚠️ String PIORA (+8 B)**: hoje `D-str` já é órfão com **header 0 B** — a string é o default implícito. Escrever `#TCF.8s` custa 8 B para declarar o que já era dedutível. ⇒ **a forma tipada só deve valer para tipos NÃO-string**; string permanece órfã. Confirma a regra de implicitude do primeiro estudo.
+| dataset | tag | TCF hoje (rota real) | baseline c/ `#TCF.8` | F6 | Δ vs baseline |
+|---|---|---:|---:|---:|---:|
+| `D-bool` | `b` | .8H (envelope) | 41 B | 25 B | **-16 B** |
+| `D-int` | `n` | .8H (envelope) | 36 B | 20 B | **-16 B** |
+| `D-float` | `n` | .8H (envelope) | 43 B | 27 B | **-16 B** |
+| `D-str` | `s` | órfão (0 B header) | 23 B | 24 B | **+1 B** |
+| `D-n1` | `b` | .8H (envelope) | 28 B | 13 B | **-15 B** |
+
+- **Tipados (bool/int/float)**: hoje o TCF embrulha no `.8H` (`#V\z#:N[]:…`) só pra preservar o tipo — e `stamp` nem se aplica (é rota hierárquica). A forma implícita economiza **~15 B por coluna**: o envelope inteiro vira 1 char.
+- **String, com baseline JUSTA**: `#TCF.8\n`+corpo = 23 B vs `#TCF.8s\n`+corpo = 24 B ⇒ a tag custa **+1 B**, não +8. A conclusão qualitativa se mantém (string é o default implícito, não vale declarar), mas a magnitude era artefato de baseline errada.
+
+## 1c. O VAZIO — `[]` vs `[""]` (sugestão do owner, MEDIDA)
+
+| dataset | wire REAL | bytes | rota | decode | RT |
+|---|---|---:|---|---|:---:|
+| `[]` | `'#TCF.8H#D0\n'` | 11 | .8H | `[]` | ✅ |
+| `[""]` | `'\n'` | 1 | flat/órfão | `['']` | ✅ |
+| `["",""]` | `'*2|\n'` | 4 | flat/órfão | `['', '']` | ✅ |
+
+**Canonicidade (§S1.2)**: `'#TCF.8\n'` → `['']` · `'#TCF.8\n\n'` → `['']`
+
+⚠️ **DUAS GRAFIAS, MESMO DATASET** — viola §S1.2 (*um dataset + uma config ⇒ uma única grafia*). Corpo vazio e corpo com uma linha vazia colapsam em `['']`. **Consequência**: a forma flat NÃO CONSEGUE expressar `[]` — por isso `[]` foge pro `#TCF.8H#D0`.
+
+### Reavaliação da sugestão do owner
+
+O owner sugeriu: *quando está vazio não precisa de nada, nem o `b`*; e que `#TCF.8` sem tag (string implícita) com corpo vazio seria `[""]`. **A medição sustenta e refina:**
+
+1. **A tag É dispensável no vazio** — e por motivo mais forte que economia: uma lista vazia **não tem elemento algum**, logo não há tipo a preservar. `[]` de bool e `[]` de int são o MESMO dataset. Declarar `b` ali é escrever informação que não existe.
+2. **A ambiguidade intuída é REAL e já está no formato de hoje**, não é hipotética: `#TCF.8\n` e `#TCF.8\n\n` decodificam ambos para `['']`.
+3. **Saída natural** (a estudar, não decidida): fixar **0 linhas ⇒ `[]`** e **1 linha vazia ⇒ `[""]`**. Isso (a) restaura a canonicidade, (b) deixa a forma flat expressar `[]` sem o `.8H#D0` — elimina uma rota inteira, e (c) dispensa a tag no vazio, exatamente como o owner propôs.
+4. **Custo atual do desvio**: `[]` gasta 11 B via `.8H#D0` onde `#TCF.8\n` (7 B) bastaria — e pior, obriga uma ROTA hierárquica só pra dizer 'nada'.
+
+## 2. Resistência da moldura a variações
+
 | forma | combos | ok | rejeitados | **sequestros do Eixo-1** | nome perdido |
 |---|---:|---:|---:|---:|---:|
 | `F1 (real) #TCF.8 {nome}:{id}` | 63 | 63 | 0 | 0 | 0 |

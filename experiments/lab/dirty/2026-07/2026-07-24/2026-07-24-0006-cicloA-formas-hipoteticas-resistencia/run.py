@@ -229,26 +229,80 @@ def rodar():
                   "economizar moldura às custas de perder tipo viola o requisito do owner.")
 
     # ---------------- comparação com o que o TCF gasta HOJE ----------------
-    ct.append("\n## 1b. O que isso vale contra o TCF de HOJE (wire inteiro, dado idêntico)\n")
-    ct.append("| dataset | tag | TCF hoje | F6 hipotético | Δ |")
-    ct.append("|---|---|---:|---:|---:|")
+    # CORREÇÃO (owner): a baseline tem que ter ao menos `#TCF.8`. O órfão sem header é caso
+    # ESPECIAL (deveria exigir parâmetro explícito), não o default do estudo. Onde o dado aceita
+    # `stamp=True`, a baseline justa é a ESTAMPADA.
+    ct.append("\n## 1b. O que vale contra o TCF de HOJE — baseline com `#TCF.8` (corrigida)\n")
+    ct.append("> **Correção do owner**: comparar contra o órfão *sem header* era injusto. Os formatos "
+              "estudados têm no mínimo a declarativa `#TCF.8`; ficar abaixo disso deveria exigir "
+              "parâmetro explícito. Onde o dado aceita `stamp=True`, a baseline é a estampada.\n")
+    ct.append("| dataset | tag | TCF hoje (rota real) | baseline c/ `#TCF.8` | F6 | Δ vs baseline |")
+    ct.append("|---|---|---:|---:|---:|---:|")
+    tot_tip = n_tip = 0
     for (did, tag, br, bh) in comparacao:
         if did == "D-n0":
             continue
-        ct.append(f"| `{did}` | `{tag}` | {br} B | {bh} B | **{bh-br:+d} B** |")
-    tip = [c for c in comparacao if c[1] != "s" and c[0] != "D-n0"]
-    strs = [c for c in comparacao if c[1] == "s"]
-    ct.append(f"\n- **Tipados (bool/int/float)**: o TCF hoje embrulha no `.8H` (`#V\\z#:N[]:...`) só "
-              f"pra preservar o tipo. A forma implícita economiza "
-              f"**{sum(br-bh for _,_,br,bh in tip)} B em {len(tip)} casos** "
-              f"(~{sum(br-bh for _,_,br,bh in tip)//max(1,len(tip))} B cada) — é o envelope inteiro "
-              "virando 1 char de tag.")
-    if strs:
-        d = strs[0][3] - strs[0][2]
-        ct.append(f"- **⚠️ String PIORA ({d:+d} B)**: hoje `D-str` já é órfão com **header 0 B** — a "
-                  "string é o default implícito. Escrever `#TCF.8s` custa 8 B para declarar o que já "
-                  "era dedutível. ⇒ **a forma tipada só deve valer para tipos NÃO-string**; string "
-                  "permanece órfã. Confirma a regra de implicitude do primeiro estudo.")
+        dados = dict((d[0], d[1]) for d in [(x[0], x[1]) for x in comparacao])  # noqa
+        # baseline estampada só existe pra rota flat (string); tipados vão pro .8H (stamp inválido)
+        if tag == "s":
+            base = br + len("#TCF.8\n".encode())
+            rota = "órfão (0 B header)"
+        else:
+            base = br
+            rota = ".8H (envelope)"
+        d = bh - base
+        if tag != "s":
+            tot_tip += -d; n_tip += 1
+        ct.append(f"| `{did}` | `{tag}` | {rota} | {base} B | {bh} B | **{d:+d} B** |")
+    ct.append(f"\n- **Tipados (bool/int/float)**: hoje o TCF embrulha no `.8H` (`#V\\z#:N[]:…`) só pra "
+              f"preservar o tipo — e `stamp` nem se aplica (é rota hierárquica). A forma implícita "
+              f"economiza **~{tot_tip//max(1,n_tip)} B por coluna**: o envelope inteiro vira 1 char.")
+    ct.append("- **String, com baseline JUSTA**: `#TCF.8\\n`+corpo = 23 B vs `#TCF.8s\\n`+corpo = 24 B "
+              "⇒ a tag custa **+1 B**, não +8. A conclusão qualitativa se mantém (string é o default "
+              "implícito, não vale declarar), mas a magnitude era artefato de baseline errada.")
+
+    # ---------------- VAZIO: [] vs [""] — a "sugestão duvidosa" do owner, MEDIDA ----------------
+    ct.append("\n## 1c. O VAZIO — `[]` vs `[\"\"]` (sugestão do owner, MEDIDA)\n")
+    ct.append("| dataset | wire REAL | bytes | rota | decode | RT |")
+    ct.append("|---|---|---:|---|---|:---:|")
+    for rot, d, fn in [("[]", [], "vazia"), ('[""]', [""], "1vazia"), ('["",""]', ["", ""], "2vazias")]:
+        w = encode(d)
+        b = decode(w)
+        rota = ".8H" if w.startswith("#TCF.8H") else "flat/órfão"
+        ct.append(f"| `{rot}` | `{w!r}` | {len(w.encode())} | {rota} | `{b!r}` | "
+                  f"{'✅' if b == d else '❌'} |")
+        (INT / f"E-{fn}-real.tcf").write_text(w, encoding="utf-8", newline="")
+
+    graf = ["#TCF.8\n", "#TCF.8\n\n"]
+    decs = []
+    for g in graf:
+        try:
+            decs.append(repr(decode(g)))
+        except Exception as e:
+            decs.append(f"ERRO {type(e).__name__}")
+    ct.append(f"\n**Canonicidade (§S1.2)**: `{graf[0]!r}` → `{decs[0]}` · `{graf[1]!r}` → `{decs[1]}`")
+    if decs[0] == decs[1]:
+        ct.append("\n⚠️ **DUAS GRAFIAS, MESMO DATASET** — viola §S1.2 (*um dataset + uma config ⇒ uma "
+                  "única grafia*). Corpo vazio e corpo com uma linha vazia colapsam em `['']`. "
+                  "**Consequência**: a forma flat NÃO CONSEGUE expressar `[]` — por isso `[]` foge "
+                  "pro `#TCF.8H#D0`.")
+
+    ct.append("\n### Reavaliação da sugestão do owner\n")
+    ct.append("O owner sugeriu: *quando está vazio não precisa de nada, nem o `b`*; e que `#TCF.8` sem "
+              "tag (string implícita) com corpo vazio seria `[\"\"]`. **A medição sustenta e refina:**\n")
+    ct.append("1. **A tag É dispensável no vazio** — e por motivo mais forte que economia: uma lista "
+              "vazia **não tem elemento algum**, logo não há tipo a preservar. `[]` de bool e `[]` de "
+              "int são o MESMO dataset. Declarar `b` ali é escrever informação que não existe.")
+    ct.append("2. **A ambiguidade intuída é REAL e já está no formato de hoje**, não é hipotética: "
+              "`#TCF.8\\n` e `#TCF.8\\n\\n` decodificam ambos para `['']`.")
+    ct.append("3. **Saída natural** (a estudar, não decidida): fixar **0 linhas ⇒ `[]`** e **1 linha "
+              "vazia ⇒ `[\"\"]`**. Isso (a) restaura a canonicidade, (b) deixa a forma flat expressar "
+              "`[]` sem o `.8H#D0` — elimina uma rota inteira, e (c) dispensa a tag no vazio, "
+              "exatamente como o owner propôs.")
+    ct.append(f"4. **Custo atual do desvio**: `[]` gasta {len(encode([]).encode())} B via `.8H#D0` onde "
+              "`#TCF.8\\n` (7 B) bastaria — e pior, obriga uma ROTA hierárquica só pra dizer 'nada'.")
+
+    ct.append("\n## 2. Resistência da moldura a variações\n")
     ct.append("| forma | combos | ok | rejeitados | **sequestros do Eixo-1** | nome perdido |")
     ct.append("|---|---:|---:|---:|---:|---:|")
     det = []

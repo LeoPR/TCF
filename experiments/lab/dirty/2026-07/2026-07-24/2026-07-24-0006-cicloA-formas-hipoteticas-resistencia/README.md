@@ -15,20 +15,43 @@ Com a moldura mínima `#TCF.8b`, o decode devolve `[True, False, True, True]` �
 `["true","false",...]`. O tipo sai do envelope hierárquico e passa a ocupar **1 char**. A semântica é
 idêntica; só a moldura encolheu.
 
-## 2. O que vale contra o TCF de hoje
+## 2. O que vale contra o TCF de hoje — **baseline corrigida**
 
-| dataset | TCF hoje (`.8H`) | F6 hipotético | Δ |
-|---|---:|---:|---:|
-| bool | 41 B | 25 B | **−16 B** |
-| int | 36 B | 20 B | **−16 B** |
-| float | 43 B | 27 B | **−16 B** |
-| **string** | **16 B** | 24 B | **+8 B** ⚠️ |
+> **Correção do owner**: comparar contra o órfão *sem header* era injusto. Os formatos estudados têm
+> no mínimo a declarativa `#TCF.8`; ficar abaixo disso deveria exigir **parâmetro explícito** (hoje é
+> o contrário: órfão é default e `stamp=True` é opt-in). Baseline = estampada onde aplicável.
 
-- **Tipados**: hoje o TCF embrulha bool/int/float no `.8H` (`#V\z#:N[]:…`) **só para preservar o
-  tipo** — o envelope inteiro vira 1 char de tag. ~15 B por coluna.
-- **⚠️ String PIORA**: hoje já é órfã com **header 0 B**. Escrever `#TCF.8s` custa 8 B para declarar o
-  que já era dedutível. ⇒ **a forma tipada só vale para tipos NÃO-string**; string permanece órfã.
-  Confirma a regra de implicitude do primeiro estudo — e é o tipo de coisa que só aparece medindo.
+| dataset | rota real hoje | baseline c/ `#TCF.8` | F6 | Δ |
+|---|---|---:|---:|---:|
+| bool | `.8H` envelope | 41 B | 25 B | **−16 B** |
+| int | `.8H` envelope | 36 B | 20 B | **−16 B** |
+| float | `.8H` envelope | 43 B | 27 B | **−16 B** |
+| string | órfão (0 B header) | 23 B | 24 B | **+1 B** |
+
+- **Tipados**: o `.8H` existe aqui **só para preservar o tipo** — e `stamp` nem se aplica (é rota
+  hierárquica). O envelope inteiro vira 1 char: **~15 B por coluna**.
+- **String**: com baseline justa a tag custa **+1 B**, não +8. A conclusão qualitativa se mantém
+  (string é o default implícito, não vale declarar), mas **a magnitude anterior era artefato de
+  baseline errada** — corrigido.
+
+## 2b. O VAZIO — a "sugestão duvidosa" que se confirmou
+
+| dataset | wire real | bytes | rota |
+|---|---|---:|---|
+| `[]` | `#TCF.8H#D0\n` | 11 | `.8H` |
+| `[""]` | `\n` | 1 | flat |
+| `["",""]` | `*2\|\n` | 4 | flat |
+
+**Canonicidade quebrada (§S1.2)**: `'#TCF.8\n'` → `['']` e `'#TCF.8\n\n'` → `['']` — **duas grafias,
+mesmo dataset**. Consequência: a forma flat **não consegue expressar `[]`**, e por isso `[]` foge para
+`#TCF.8H#D0` (11 B) — uma rota hierárquica inteira só para dizer "nada".
+
+**A sugestão do owner se sustenta, e por um motivo mais forte que economia**: uma lista vazia **não
+tem elemento algum**, logo **não há tipo a preservar** — `[]` de bool e `[]` de int são o mesmo
+dataset. Declarar `b` ali é escrever informação que não existe.
+
+**Saída natural** (a estudar, não decidida): fixar **0 linhas ⇒ `[]`** e **1 linha vazia ⇒ `[""]`**.
+Restaura a canonicidade, deixa a flat expressar `[]` sem o `.8H#D0`, e dispensa a tag no vazio.
 
 ## 3. Resistência a variações (63 combos por forma)
 
