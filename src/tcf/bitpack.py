@@ -22,10 +22,13 @@ def pack_w(indices: "list[int]", w: int) -> bytes:
 
 
 def unpack_w(data: bytes, w: int, n: int) -> "list[int]":
-    """bytes -> os primeiros `n` índices de w bits (descarta o padding). Espelho de pack_w."""
+    """bytes -> os primeiros `n` índices de w bits. Espelho de pack_w. FAIL-LOUD por integridade:
+    payload curto E bits de padding nao-zero (pack_w pad com 0) => wire adulterado/nao-canonico."""
     if w == 0:
         return [0] * n
     allbits = "".join(format(b, "08b") for b in data)
     if len(allbits) < n * w:                               # payload curto p/ (n,w) -> fail-loud
         raise ValueError(f"payload denso curto: {len(data)} bytes nao cobrem {n} simbolos de {w} bits")
+    if "1" in allbits[n * w:]:                             # padding deve ser 0 (canonicidade)
+        raise ValueError("bits de padding nao-zero no payload denso (wire adulterado/nao-canonico)")
     return [int(allbits[i * w:(i + 1) * w], 2) for i in range(n)]

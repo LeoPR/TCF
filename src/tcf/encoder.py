@@ -332,7 +332,9 @@ def encode(
         # corpo competem no FLOOR (a variavel `modo`, o '~' conceitual; SEM '~' no wire):
         #   A core   '#TCF.8b\n<core>'      -> reusa _encode_column (seq-RLE/aliases de graca)
         #   B denso  '#TCF.8b1<n>\n<b64>'   -> bit-pack 1 bit/elem (false=0,true=1) -> base64
-        # min() nunca-pior; materializa os dois e emite o menor. `bool` antes de int (bool<:int).
+        # min() nunca-pior ENTRE os 2 candidatos tipados (materializa os dois, emite o menor); nao e'
+        # garantia formal vs o .8H antigo, mas empiricamente 0 regressao (verif. wf_85fcea32, 300+ listas
+        # + testes: typed sempre <= .8H). `bool` antes de int (bool <: int em Python).
         # Refino da heuristica (preditor, sem materializar os 2) -> .9 (T-TYPED-SINGLECOL-MODE-HEURISTIC).
         from tcf.multi.core import MAGIC_SINGLE_V3
 

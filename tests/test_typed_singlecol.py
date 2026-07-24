@@ -26,14 +26,13 @@ class TestTypedSingleColDecode:
             back = decode(w)
             assert back == vals and all(isinstance(x, bool) for x in back), (vals, back)
 
-    def test_number_core_roundtrip(self):
-        assert decode(_typed_core_wire([1, 2, 3, 42], "n", str)) == [1, 2, 3, 42]
-        assert decode(_typed_core_wire([1.5, 2.0, 3.25], "n", repr)) == [1.5, 2.0, 3.25]
-        got = decode(_typed_core_wire([7, 3.5], "n", lambda v: repr(v) if isinstance(v, float) else str(v)))
-        assert got == [7, 3.5] and isinstance(got[0], int) and isinstance(got[1], float)
-
-    def test_string_core_identity(self):
-        assert decode(_typed_core_wire(["a", "b", "ana"], "s", str)) == ["a", "b", "ana"]
+    def test_n_s_reservados_fail_loud(self):
+        # 'n'/'s' estao no namespace (registry) mas NAO sao decodaveis ainda (encoder nunca emite) ->
+        # fail-loud 'discriminador desconhecido', nao aceite-silencioso/crash cripto (verif. wf_85fcea32).
+        with pytest.raises(ValueError, match="desconhecido"):
+            decode("#TCF.8n\n1\n2\n3\n")
+        with pytest.raises(ValueError, match="desconhecido"):
+            decode("#TCF.8s\nfoo\nbar\n")
 
     def test_bool_fora_do_dominio_fail_loud(self):
         # corpo com literal != true/false sob tag 'b' -> fail-loud (a tag CONSTRANGE o dominio)
@@ -107,3 +106,18 @@ class TestBoolDensoFloor:
     def test_denso_largura_invalida_fail_loud(self):
         with pytest.raises(ValueError, match="largura|invalid"):
             decode("#TCF.8b42\nAAAA")                            # w=4 p/ bool -> invalido
+
+    def test_denso_adulterado_fail_loud(self):
+        # INTEGRIDADE (verif. wf_85fcea32): wire denso adulterado para ALTO, nunca corrompe silencioso.
+        w = encode([bool(i % 2) for i in range(24)])            # denso valido (n=24)
+        head, _, b64 = w.partition("\n")
+        with pytest.raises(ValueError, match="padding|payload|base64"):
+            decode(head[:-2] + "3\n" + b64)                     # n rebaixado 24->3 (padding vira lixo)
+        with pytest.raises(ValueError, match="base64|payload"):
+            decode("#TCF.8b13\noA= =")                          # base64 nao-canonico (espaco no padding)
+        with pytest.raises(ValueError, match="padding|payload|base64"):
+            decode("#TCF.8b10\ngA==")                           # n=0 com payload -> nao ignora silencioso
+
+    def test_denso_n0_vazio_ok(self):
+        # n=0 com payload VAZIO e' o unico n=0 canonico -> [] (tolerante, inofensivo)
+        assert decode("#TCF.8b10\n") == []

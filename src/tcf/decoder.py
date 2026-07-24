@@ -44,6 +44,8 @@ Invariante `decode(encode(x)) == x` guardado por `tests/test_core_rt.py`
 
 from __future__ import annotations
 
+import base64
+import binascii as _binascii
 from typing import TYPE_CHECKING
 
 from tcf.composicional.hcc_seqrle import HCCSeqRLE
@@ -220,7 +222,10 @@ def _decode_column(tcf_text: str) -> list[str]:
 
 # --- SINGLE-COL TIPADO (weld #4) — pre-avaliador: header tipado -> forma explicita -> core ---
 # Camada 2 (SIGNIFICADO): tag -> tipo, char de modo -> largura. O '~' NAO esta' aqui (nunca e' byte).
-_TAGS_TIPO = frozenset({"b", "n", "s"})            # whitelist fechada (namespace do tipo)
+# Whitelist do DECODE = so' o que o encoder EMITE (simetria; verif. wf_85fcea32). Hoje: bool.
+# 'n'/'s' ficam RESERVADOS no namespace (registry/notas) mas NAO decodaveis ainda -> caem no
+# fail-loud 'discriminador desconhecido' em vez de aceitar wire que o encoder nunca produz.
+_TAGS_TIPO = frozenset({"b"})
 _LARGURA_MODO = {"1": 1, "2": 2, "4": 4, "8": 8}   # modo denso bN (larguras); subtipos = preparado
 
 
@@ -258,14 +263,26 @@ def _decode_typed(tcf_text: str, tag: str) -> list:
 
 
 def _decode_denso(b64: str, tag: str, w: int, n: int) -> list:
-    """Modo denso: base64 -> bit-unpack a w bits -> indices -> tipo (dominio implicito)."""
-    import base64 as _b64
+    """Modo denso: base64 -> bit-unpack a w bits -> indices -> tipo (dominio implicito).
 
+    FAIL-LOUD por integridade (verif. adversarial wf_85fcea32, alinhado a ADR-0032 §6 e ao
+    cross-check byte-exato do .8H): base64 ESTRITO + payload de tamanho EXATO. Wire adulterado
+    (n != payload, char fora do alfabeto, padding lixo) para alto — nunca corrompe em silencio.
+    """
     from tcf.bitpack import unpack_w
-    if tag == "b":
-        if w != 1:                                 # bool = 2 simbolos = 1 bit; outra largura = invalido
-            raise ValueError(f"#TCF.8b: largura denso invalida w={w} p/ bool (esperado 1)")
-        idx = unpack_w(_b64.b64decode(b64), 1, n)
-        return [i == 1 for i in idx]               # dominio implicito FIXO: false=0, true=1
-    # n/s densos exigiriam dominio EMBUTIDO (nao implicito) — fora do escopo #4b. Namespace preparado.
-    raise ValueError(f"#TCF.8{tag}: modo denso so' implementado p/ bool (w=1); n/s exigem dominio embutido")
+    if tag != "b":
+        # n/s densos exigiriam dominio EMBUTIDO (nao implicito) — fora do escopo #4b (namespace reservado).
+        raise ValueError(f"#TCF.8{tag}: modo denso so' implementado p/ bool; n/s exigem dominio embutido")
+    if w != 1:                                     # bool = 2 simbolos = 1 bit; outra largura = invalido
+        raise ValueError(f"#TCF.8b: largura denso invalida w={w} p/ bool (esperado 1)")
+    try:
+        raw = base64.b64decode(b64, validate=True)  # ESTRITO: rejeita char fora do alfabeto/padding lixo
+    except (ValueError, _binascii.Error) as e:
+        raise ValueError(f"#TCF.8b: payload denso nao e' base64 canonico: {e}") from e
+    esperado = -(-n * w // 8)                       # ceil(n*w/8): tamanho EXATO do payload bem-formado
+    if len(raw) != esperado:
+        raise ValueError(
+            f"#TCF.8b: payload denso = {len(raw)} bytes, esperado {esperado} p/ n={n} w={w} "
+            f"(wire truncado/adulterado)"
+        )
+    return [i == 1 for i in unpack_w(raw, 1, n)]     # dominio implicito FIXO: false=0, true=1
