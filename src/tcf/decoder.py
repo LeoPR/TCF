@@ -255,11 +255,23 @@ def _decode_typed(tcf_text: str, tag: str) -> list:
     if resto == "":
         strs = _decode_column(body) if body else []
         return _cast_tipo(strs, tag)
-    # MODO DENSO bN (weld #4b): resto = '<modo><n>'. modo = 1 char (largura); n = digitos.
-    modo_c, ndig = resto[:1], resto[1:]
-    if modo_c not in _LARGURA_MODO or not ndig.isdigit() or ndig == "":
-        raise ValueError(f"#TCF.8{tag}: header de modo denso invalido: {resto!r} (esperado <modo><n>)")
-    return _decode_denso(body, tag, _LARGURA_MODO[modo_c], int(ndig))
+    # MODO DENSO bN (weld #4b): resto = '<modo><n>'. modo = 1 char (largura); n = HEX (owner
+    # 2026-07-24: len(hex(n))<=len(dec(n)) p/ todo n>=0, nunca pior, O(1)). Parse posicional: modo
+    # sempre 1o char, entao hex nao colide com o namespace do <modo>.
+    modo_c, nhex = resto[:1], resto[1:]
+    n = None
+    if modo_c in _LARGURA_MODO and nhex:
+        try:
+            n = int(nhex, 16)
+        except ValueError:
+            n = None
+        # CANONICIDADE (evita '0a'/'a' colidirem no mesmo valor — mesma classe do weld #2/LF):
+        # a grafia hex precisa ser a MINIMA (sem zero a esquerda, minusculo); re-formata e compara.
+        if n is not None and f"{n:x}" != nhex:
+            n = None
+    if n is None:
+        raise ValueError(f"#TCF.8{tag}: header de modo denso invalido: {resto!r} (esperado <modo><n-hex>)")
+    return _decode_denso(body, tag, _LARGURA_MODO[modo_c], n)
 
 
 def _decode_denso(b64: str, tag: str, w: int, n: int) -> list:

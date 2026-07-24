@@ -121,3 +121,27 @@ class TestBoolDensoFloor:
     def test_denso_n0_vazio_ok(self):
         # n=0 com payload VAZIO e' o unico n=0 canonico -> [] (tolerante, inofensivo)
         assert decode("#TCF.8b10\n") == []
+
+
+class TestDensoHexN:
+    """`n` do modo denso em HEX (owner 2026-07-24): len(hex(n))<=len(dec(n)) p/ todo n>=0 -> nunca
+    pior, O(1), sem custo de ambiguidade (parse posicional: modo sempre 1o char)."""
+
+    def test_n_e_hex_no_wire(self):
+        assert encode([bool(i % 2) for i in range(255)]).split("\n", 1)[0].endswith("ff")
+        assert encode([bool(i % 2) for i in range(256)]).split("\n", 1)[0].endswith("100")
+
+    def test_rt_fronteiras_hex(self):
+        for n in (1, 9, 10, 15, 16, 63, 64, 65, 100, 255, 256, 1000, 4095, 4096):
+            v = [bool(i % 2) for i in range(n)]
+            assert decode(encode(v)) == v
+
+    def test_grafia_nao_canonica_fail_loud(self):
+        # canonicidade: '0a' (zero a esquerda) tem que FALHAR, nao colidir com 'a' (mesma classe do
+        # weld #2/LF — duas grafias, mesmo valor, violaria S1.2)
+        w = encode([bool(i % 2) for i in range(10)])              # wire canonico com n='a'
+        head, body = w.split("\n", 1)
+        assert head.endswith("a") and not head.endswith("0a")
+        nao_canonico = head[:-1] + "0a" + "\n" + body
+        with pytest.raises(ValueError, match="invalido"):
+            decode(nao_canonico)

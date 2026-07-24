@@ -355,7 +355,11 @@ def encode(
 
         idx = [1 if x else 0 for x in data]                # dominio implicito FIXO (canonico)
         b64 = base64.b64encode(pack_w(idx, 1)).decode("ascii")
-        wire_denso = f"{magic}b1{len(data)}\n{b64}"        # modo '1' = largura 1 bit
+        # `n` em HEX (owner 2026-07-24): len(hex(n)) <= len(dec(n)) p/ TODO n >= 0 (base 16 > base 10)
+        # -- propriedade matematica, nunca pior, O(1) (sem FLOOR extra pra decidir a base). Parse e'
+        # posicional (modo = 1o char, sempre), entao hex nao colide com o namespace do <modo>.
+        wire_denso = f"{magic}b1{len(data):x}\n{b64}"      # modo '1' = largura 1 bit; n em hex
+
         # FLOOR: a variavel `modo` = argmin. Empate fica no core (mais legivel/inspecionavel).
         return wire_core if len(wire_core.encode("utf-8")) <= len(wire_denso.encode("utf-8")) else wire_denso
     if _tabela_flat(data):
