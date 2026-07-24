@@ -146,6 +146,12 @@ def decode(
         from tcf.hierarchical import decode_hierarchical
 
         return decode_hierarchical(tcf_text)
+    # TIPADO: #TCF.8<tag> (tag in {b,n,s}) — single-col TIPADO (weld #4). Pre-avaliador de
+    # apelidos (camada implicita, owner 2026-07-24): expande o header tipado -> forma explicita
+    # e delega o CORPO ao core (_decode_column), castando pro tipo. A variavel `modo` (o conceito
+    # do '~') e' DEDUZIDA DA POSICAO (indice 7); NAO ha '~' no wire. #4a = modo CORE; denso bN = #4b.
+    if disc8 in _TAGS_TIPO:
+        return _decode_typed(tcf_text, disc8)
     # FAIL-LOUD (ADR-0032 §6): discriminador reservado/desconhecido apos '#TCF.8' NAO
     # pode degradar pra decode orfao silencioso (corrompe).
     if disc8 is not None and disc8 not in ("M", " ", ""):
@@ -210,3 +216,45 @@ def _decode_column(tcf_text: str) -> list[str]:
     """Decode body single-col. Cf. _encode_column no encoder."""
     syn = HCCSeqRLE()
     return syn.decode(tcf_text)
+
+
+# --- SINGLE-COL TIPADO (weld #4) — pre-avaliador: header tipado -> forma explicita -> core ---
+# Camada 2 (SIGNIFICADO): tag -> tipo, char de modo -> largura. O '~' NAO esta' aqui (nunca e' byte).
+_TAGS_TIPO = frozenset({"b", "n", "s"})            # whitelist fechada (namespace do tipo)
+_LARGURA_MODO = {"1": 1, "2": 2, "4": 4, "8": 8}   # modo denso bN (larguras); subtipos = preparado
+
+
+def _cast_tipo(strs: "list[str]", tag: str) -> list:
+    """Camada explicita->tipo: os literais do core viram o tipo TIPADO (a semantica nao some)."""
+    if tag == "b":
+        for s in strs:
+            if s not in ("true", "false"):
+                raise ValueError(f"#TCF.8b: valor fora do dominio bool: {s!r}")
+        return [s == "true" for s in strs]
+    if tag == "n":
+        out = []
+        for s in strs:
+            try:
+                out.append(int(s))
+            except ValueError:
+                out.append(float(s))
+        return out
+    return list(strs)                              # 's' = string (identidade)
+
+
+def _decode_typed(tcf_text: str, tag: str) -> list:
+    """Decode do single-col tipado. A variavel `modo` (o '~' conceitual) e' deduzida da POSICAO."""
+    line1, _sep, body = tcf_text.partition("\n")
+    resto = line1[7:]                              # apos '#TCF.8<tag>' (tag = 1 char, indice 6)
+    # A VARIAVEL DE DECISAO: resto vazio -> modo CORE (implicito); senao -> modo denso.
+    if resto == "":
+        strs = _decode_column(body) if body else []
+        return _cast_tipo(strs, tag)
+    # MODO DENSO (bN) — reservado pro weld #4b (exige bit-pack no core). Namespace ja' preparado.
+    modo_c = resto[:1]
+    if modo_c in _LARGURA_MODO:
+        raise ValueError(
+            f"#TCF.8{tag}: modo denso {modo_c!r} ainda nao implementado (weld #4b); "
+            f"por ora so' o modo core '#TCF.8{tag}\\n<corpo>'"
+        )
+    raise ValueError(f"#TCF.8{tag}: byte de modo invalido {modo_c!r} no indice 7")
