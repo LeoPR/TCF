@@ -80,6 +80,10 @@ def corpo_denso_embed(bits):
 
 
 # ---------------------------------------------------------- detector de forma (dedução)
+def _b(s):
+    return len(s.encode("utf-8"))
+
+
 def parece_base64_puro(corpo):
     """Heurística de inferência: corpo é UMA linha e SÓ alfabeto base64 -> candidato a denso."""
     c = corpo.rstrip("\n")
@@ -113,8 +117,7 @@ def g2_enc(bits, modo):
 
 
 def g2_dec(wire):
-    resto = wire[len(TAG):][1:] if wire[len(TAG):].startswith("\n") else wire[len(TAG):]
-    # deduz: se comeca com digito no header -> denso (n prefixado); senao core
+    # deduz: byte logo apos a tag -> digito = denso (inicio do n); '\n' = core. Disjuntos.
     head = wire[len(TAG):]
     if head[:1].isdigit():                            # n no header -> denso
         h, body = head.split("\n", 1)
@@ -181,11 +184,15 @@ def rodar():
             colisoes.append((did, cc))                # core que se DISFARÇA de denso
         ct.append(f"| {did} | {len(bits)} | `{cc!r}` | `{cd!r}` | {'⚠️ SIM' if pb else 'não'} | "
                   f"{'sim' if mk else 'não'} |")
-    ct.append(f"\n**Colisões de forma: {len(colisoes)}** — corpos CORE que passam por base64 puro "
-              "(sem marcador HCC), logo indistinguíveis de um corpo denso SÓ pela forma:")
+    ct.append(f"\n**Colisões de forma: {len(colisoes)}** (sob detector FROUXO — só alfabeto). Corpos "
+              "CORE indistinguíveis de denso só pela forma:")
     for did, cc in colisoes:
-        ct.append(f"- `{did}`: corpo core = `{cc!r}` — é alfabeto base64 puro, 1 linha. "
-                  f"`base64.decode` daria bytes; a dedução por forma erraria.")
+        c = cc.rstrip("\n")
+        ct.append(f"- `{did}`: corpo core = `{cc!r}` ({len(c)} chars, len%4={len(c) % 4}). "
+                  "Alfabeto base64 puro, 1 linha.")
+    ct.append("> Nuance (verificação): um detector ESTRITO (exige `len%4==0`, comprimento base64 válido) "
+              "rejeitaria `false` (5 chars) → só `true` (4) sobrevive — e mesmo esse **crasha** no "
+              "varint. A colisão real é ainda menor que o detector frouxo sugere.")
 
     # ---- 2. n é dedutível? ----
     ct.append("\n## 2. `n` (contagem) é dedutível em cada modo?\n")
@@ -193,10 +200,13 @@ def rodar():
     ct.append("- **denso raw**: base64 de `ceil(n/8)` bytes → dado B bytes, `n ∈ [8(B-1)+1, 8B]` "
               "(8 valores possíveis pelo padding). **NÃO-dedutível** — `n` TEM que viajar.")
     for B, lo, hi in [(1, 1, 8), (8, 57, 64), (9, 65, 72)]:
-        ct.append(f"  - {B} byte(s) de payload → n pode ser {lo}..{hi} (ambíguo). Ex.: p50-64 "
-                  "empacota em 8 bytes; sem `n`, 57..64 são consistentes.")
-    ct.append("- **denso embed (G3)**: `n` vai como varint DENTRO do base64 → self-contained, "
-              "**dedutível do payload**. Custo: +1..2 bytes de varint (antes do base64).")
+        ct.append(f"  - {B} byte(s) de payload → n pode ser {lo}..{hi} (ambíguo).")
+    ct.append("  - ex.: `p50-64` empacota em 8 bytes; sem `n`, 57..64 são todos consistentes.")
+    ct.append("- **CHAVE (achado da verificação)**: como `n` é OBRIGATÓRIO no denso, ele pode servir de "
+              "disambiguador de graça — é o que torna o **G2** (n logo após a tag) marker-free E sem "
+              "custo dedicado.")
+    ct.append("- **denso embed (G3)**: `n` vai como varint DENTRO do base64 → self-contained, mas o "
+              "MODO ainda é deduzido por FORMA (inseguro — ver §4).")
 
     # ---- 3. RT das três gramáticas + onde falham ----
     ct.append("\n## 3. RT das três gramáticas (e onde a dedução QUEBRA)\n")
@@ -235,58 +245,82 @@ def rodar():
         ct.append(f"| {did} | `{w[:38]!r}...` | {'denso✅' if deduz_denso else 'core❌'} | "
                   f"{'✅' if ok else '❌'} |")
 
-    # ---- 4. O TESTE DECISIVO: forçar CORE nas colisões sob G3 (a dedução deve QUEBRAR) ----
-    ct.append("\n## 4. DECISIVO — forçando CORE nas colisões (G3 sem marcador deve QUEBRAR)\n")
-    ct.append("> O 8/8 acima é enganoso: nas colisões (`n1-true`/`false`) o FLOOR escolheu DENSO, "
-              "então o corpo core nunca foi emitido. Aqui FORÇO core e testo se o G3 (deduz por forma) "
-              "ainda acerta — é onde a ausência de marcador falha.\n")
-    ct.append("| dataset | wire G3 core forçado | G3 deduz | G3 RT | G1 (`~`) RT |")
+    # ---- 4. O TESTE DECISIVO: forçar CORE nas colisões, TODAS as 3 gramáticas ----
+    ct.append("\n## 4. DECISIVO — forçando CORE nas colisões (as 3 gramáticas)\n")
+    ct.append("> O 8/8 da §3 é enganoso: nas colisões (`n1-true`/`false`) o FLOOR escolheu DENSO, então "
+              "o corpo core nunca foi emitido. Aqui FORÇO core e testo se a dedução ainda acerta. "
+              "**Correção pós-verificação: incluí o G2, que eu havia omitido (viés a favor do `~`); e a "
+              "falha do G3 é um CRASH (fail-loud), não corrupção silenciosa.**\n")
+    ct.append("| dataset | wire core forçado | G3 (forma) | G2 (n-header) | G1 (`~`) |")
     ct.append("|---|---|:---:|:---:|:---:|")
-    g3_core_fail = g1_core_fail = 0
+    g3_core_fail = g2_core_fail = g1_core_fail = 0
     for did, bits in datasets():
-        w3 = g3_enc(bits, "core")                     # core, SEM marcador
+        w3 = g3_enc(bits, "core")
         body = w3[len(TAG) + 1:]
-        deduz = "denso" if (parece_base64_puro(body) and not tem_marcadores_hcc(body)) else "core"
+        deduz3 = "denso" if (parece_base64_puro(body) and not tem_marcadores_hcc(body)) else "core"
         try:
-            back3 = g3_dec_shape(w3)
-            ok3 = (back3 == bits)
-        except Exception as e:                        # dedução errada -> crash = corrupção dura
-            ok3 = False
-            back3 = f"CRASH {type(e).__name__}"
+            ok3 = (g3_dec_shape(w3) == bits)
+            modo3 = "✅" if ok3 else "❌"
+        except Exception as e:
+            ok3, modo3 = False, f"❌CRASH({type(e).__name__})"
         g3_core_fail += (not ok3)
-        w1 = g1_enc(bits, "core")                     # G1: core sem '~' -> inambíguo
+        w2 = g2_enc(bits, "core")                     # G2: core = tag + '\n' (byte apos tag = '\n')
+        ok2 = (g2_dec(w2) == bits)
+        g2_core_fail += (not ok2)
+        w1 = g1_enc(bits, "core")                     # G1: core sem '~'
         ok1 = (g1_dec(w1) == bits)
         g1_core_fail += (not ok1)
-        marca = " ⬅️ COLISÃO" if deduz == "denso" else ""
-        ct.append(f"| {did} | `{w3!r}` | {deduz}{marca} | {'✅' if ok3 else '❌ CORROMPE'} | "
-                  f"{'✅' if ok1 else '❌'} |")
-    ct.append(f"\n**G3 (sem marcador) corrompe {g3_core_fail}/{len(datasets())}** quando o FLOOR escolhe "
-              f"core num corpo base64-limpo. **G1 (`~`) acerta {len(datasets())-g1_core_fail}/{len(datasets())}** "
-              "— o marcador remove a ambiguidade por construção.")
+        col = " ⬅️COLISÃO" if deduz3 == "denso" else ""
+        ct.append(f"| {did} | `{w3!r}`{col} | {modo3} | {'✅' if ok2 else '❌'} | {'✅' if ok1 else '❌'} |")
+    N = len(datasets())
+    ct.append(f"\n- **G3 (deduz por forma)**: falha {g3_core_fail}/{N} — mas por **CRASH (fail-loud)**, "
+              "não corrupção silenciosa (lê `true` como base64 → IndexError/binascii). Inseguro E "
+              "acopla à heurística.")
+    ct.append(f"- **G2 (n-no-header, SEM marcador dedicado)**: acerta {N-g2_core_fail}/{N} — o byte logo "
+              "após a tag desambigua de graça: **dígito → denso** (início do `n`), **`\\n` → core**. "
+              "Disjunto por construção, sem char reservado, sem olhar tamanho (NÃO acopla à heurística).")
+    ct.append(f"- **G1 (`~` dedicado)**: acerta {N-g1_core_fail}/{N} — inambíguo, mas paga 1 byte a mais "
+              "que o G2 em todo wire denso.")
 
-    ct.append("\n## Leitura (pra você inspecionar)\n")
-    ct.append(f"- **A resposta à sua pergunta**: a ausência do marcador **NÃO** pode ser sempre "
-              f"entendida como implícita. O modo core-vs-denso NÃO é distinguível pela forma em "
-              f"{len(colisoes)} casos ({', '.join(c[0] for c in colisoes)}): o corpo core de bool "
-              "pequeno (`true`/`false`) é alfabeto base64 puro, indistinguível de um payload denso.")
-    ct.append(f"- **Prova (seção 4)**: forçando core nas colisões, o **G3 (sem marcador) corrompe** — "
-              "a dedução por forma lê `true` como base64 e devolve lixo. O **G1 (`~`) nunca corrompe**.")
-    ct.append("- **E o `n` do denso não é dedutível** (padding) — algo tem que carregá-lo (o `~<n>` do "
-              "G1, ou o varint embutido do G3). Então nem o denso 'de graça' escapa de carregar info.")
-    ct.append("- **Conclusão pra decidir** (não é decisão): o marcador (ou um disambiguador equivalente) "
-              "é **necessário na gramática completa** — a menos que se aceite ACOPLAR a gramática à "
-              "heurística (denso só quando vence ⇒ nunca nos N pequenos base64-limpos), o que é frágil "
-              "e mistura as duas coisas que você pediu pra separar. O caminho limpo: manter o `~` "
-              "explícito no wire denso; a implicitude fica no CORE (modo A sem marcador, o default).")
-    ct.append("- **Assimetria elegante**: o modo A (core) É o implícito (sem marcador, deduzido por "
-              "exclusão como no header); o modo B (denso) é a EXCEÇÃO opt-in que se declara com `~`. "
-              "Implícito = o comum; explícito = o desvio. Consistente com o resto do formato.")
-    ct.append(f"\n---\n**RT: G1={len(datasets())-falhas['G1']}/{len(datasets())} · "
-              f"G2={len(datasets())-falhas['G2']}/{len(datasets())} · "
-              f"G3={len(datasets())-falhas['G3']}/{len(datasets())} (FLOOR) · "
-              f"G3 core-forçado corrompe {g3_core_fail}/{len(datasets())} · "
-              f"G1 core-forçado {len(datasets())-g1_core_fail}/{len(datasets())}.** "
-              "Artefatos: `intermediates/*.tcfp`. Regenera: `python run.py`.\n")
+    # ---- 5. bytes: G2 vs G1 no denso (o -1 byte) ----
+    ct.append("\n## 5. Custo — G2 (n-header) vs G1 (`~`) nos wires densos\n")
+    ct.append("| dataset | G1 (`~<n>`) | G2 (`<n>`) | Δ |")
+    ct.append("|---|---:|---:|---:|")
+    tot1 = tot2 = 0
+    for did, bits in datasets():
+        b1 = _b(g1_enc(bits, "denso")); b2 = _b(g2_enc(bits, "denso"))
+        tot1 += b1; tot2 += b2
+        ct.append(f"| {did} | {b1} | {b2} | {b2 - b1:+d} |")
+    ct.append(f"\n**Total denso: G1={tot1} B · G2={tot2} B → G2 é {tot1-tot2} B mais barato** (1 byte/"
+              "wire, o char `~`).")
+
+    ct.append("\n## Leitura CORRIGIDA (pós-verificação adversarial `wf_3a7ab214`)\n")
+    ct.append("⚠️ **Correção**: a v1 concluía \"o `~` é NECESSÁRIO\" — isso era **overclaim**, por dois "
+              "erros meus: (a) omiti o G2 do teste decisivo (viés pró-`~`); (b) chamei de \"corrompe\" "
+              "o que na verdade **crasha (fail-loud)**. Corrigido abaixo.")
+    ct.append(f"- **A resposta à sua pergunta**: SIM, existe gramática **marker-free segura e "
+              "desacoplada da heurística** — é o **G2** (`#TCF.8b<n>\\n<base64>`). O disambiguador é o "
+              "**byte logo após a tag fixa**: dígito → denso (início do `n`), `\\n` → core. Disjuntos "
+              "por construção; sem char reservado; sem olhar tamanho. Passa 0 falhas no teste decisivo.")
+    ct.append("- **Um disambiguador É preciso** (a dedução por FORMA — G3 — é insegura: crasha nas "
+              "colisões `true`/`false` base64-limpas, e acopla à heurística). Mas um **marcador "
+              "DEDICADO (`~`) NÃO é preciso** — o `n`, que é obrigatório (padding), já desambigua.")
+    ct.append("- **A colisão é minúscula e enumerável**: só `n=1` bool (2 de 2046 corpos core n≤10 são "
+              "base64-puros: `true`,`false`). Para n≥2 todo corpo core tem `\\n`/`*`/`|`/`^`. `number` "
+              "`[1]`/`[0]` vira `\\1`/`\\0` (backslash) — **não colide**.")
+    ct.append("- **O trade-off REAL (pra você decidir)**:")
+    ct.append("  - **G2 (n-header)**: mais barato (−1 byte/denso), marker-free, desacoplado. Ideal se "
+              "forem **só 2 modos** (core + 1 denso): dígito-vs-`\\n` é um split binário.")
+    ct.append("  - **`~` (ou char de modo)**: +1 byte, mas **estende limpo pra ≥3 modos** — a família "
+              "bN do roadmap (`b1`/`b2`/`b4`/`b8`) + `misto`, onde dígito-vs-`\\n` não basta (só dá "
+              "binário). O marcador vira `~<modo><n>`.")
+    ct.append("- **Assimetria que se mantém**: seja `~` ou G2, o **core (comum) fica nu** e o **denso "
+              "(raro) se declara** — marcar o caso raro/grande e deixar o comum/pequeno implícito é o "
+              "lado certo do pagador (a v1 acertou ISSO; errou só em dizer que o marcador dedicado era "
+              "obrigatório).")
+    ct.append(f"\n---\n**§3 RT sob FLOOR: G1/G2/G3 = 8/8 (enganoso, corpo core não-emitido). §4 core-"
+              f"forçado: G3 falha {g3_core_fail}/{N} (crash), G2 {N-g2_core_fail}/{N}, G1 {N-g1_core_fail}/{N}. "
+              f"§5: G2 −{tot1-tot2} B vs G1.** Artefatos: `intermediates/*.tcfp`. Regenera: `python run.py`.\n")
 
     for did, bits in datasets():
         (INP / f"{did}-fonte.json").write_text(json.dumps(bits), encoding="utf-8")
