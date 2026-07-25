@@ -1,0 +1,8 @@
+{
+  "nota": "string + null (slot 0)", 
+  "dados": [
+    "a", 
+    null, 
+    "b"
+  ]
+}

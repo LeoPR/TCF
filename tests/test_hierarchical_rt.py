@@ -339,17 +339,20 @@ def test_e3_side_outputs_bytes_identicos_e_populado():
 
 def test_e3_root_kind_por_forma():
     from tcf.side_outputs import SideOutputs
-    # `[]` SAIU desta lista (weld #2, 2026-07-24): virou FLAT `#TCF.8\n`, logo NAO tem
-    # root_kind hierarquico (hier_info=None). `[{}]×N` (N≥1) segue `#D`.
+    # `[]` SAIU desta lista (weld #2, 2026-07-24) e `[1, 2]` saiu em 2026-07-25 (rota tipada
+    # `#TCF.8n`): os dois viraram FLAT, logo NAO tem root_kind hierarquico (hier_info=None).
+    # `[{}]×N` (N≥1) segue `#D`. Escalar SOLTO (42, "", None) continua `#V` — o `.8H` segue
+    # sendo a rota de tudo que nao e' coluna plana.
     for raiz, kind in [({"a": 1}, "O"), (42, "V"), ("", "V"), (None, "V"),
-                       ({}, "E"), ([{}, {}], "D"), ([1, 2], "V")]:
+                       ({}, "E"), ([{}, {}], "D")]:
         so = SideOutputs()
         encode(raiz, side_outputs=so)
         assert so.hier_info["root_kind"] == kind, (raiz, so.hier_info)
-    # [] agora e' flat -> sem hier_info (nao passa pelo .8H)
-    so = SideOutputs()
-    encode([], side_outputs=so)
-    assert so.hier_info is None, ("[] deveria ser flat", so.hier_info)
+    # colunas planas agora sao flat -> sem hier_info (nao passam pelo .8H)
+    for plano in ([], [1, 2], [True, False], ["a", "b"], [1, None]):
+        so = SideOutputs()
+        encode(plano, side_outputs=so)
+        assert so.hier_info is None, (f"{plano} deveria ser flat", so.hier_info)
 
 
 def test_malformed_blob_fail_loud():

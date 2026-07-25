@@ -108,11 +108,18 @@ class TestEncodeEmiteNull:
         assert decode(encode([None, ""])) == [None, ""]
         assert encode([None]) != encode([""])
 
-    def test_rota_por_tipo_inalterada(self):
-        assert encode([1, None, 3]).startswith("#TCF.8H")      # int preservado -> .8H
-        assert encode([True, None]).startswith("#TCF.8H")      # bool preservado -> .8H
-        assert encode({"a": ["x", None]}).startswith("#TCF.8H")  # multi c/ null -> .8H
+    def test_null_convive_com_qualquer_tag(self):
+        """2026-07-25: a rota tipada foi generalizada e null passou a conviver com as tags.
+        null nao pertence a um TIPO — e' a ausencia do valor, no slot 0."""
+        assert encode([1, None, 3]).startswith("#TCF.8n\n")    # numero + null -> tipado
+        assert encode([True, None]).startswith("#TCF.8b\n")    # bool + null -> tipado CORE
         assert decode(encode([1, None, 3])) == [1, None, 3]
+        assert decode(encode([True, None])) == [True, None]
+
+    def test_multi_col_com_null_ainda_no_8h(self):
+        """LACUNA conhecida: a rota aberta e' a do single-col; multi-col c/ null segue no .8H."""
+        assert encode({"a": ["x", None]}).startswith("#TCF.8H")
+        assert decode(encode({"a": ["x", None]})) == {"a": ["x", None]}
 
 
 class TestByteNeutroSemNull:

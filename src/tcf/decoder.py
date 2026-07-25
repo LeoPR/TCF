@@ -235,24 +235,43 @@ def _decode_column(tcf_text: str, max_length: int | None = None) -> "list[str | 
 # Whitelist do DECODE = so' o que o encoder EMITE (simetria; verif. wf_85fcea32). Hoje: bool.
 # 'n'/'s' ficam RESERVADOS no namespace (registry/notas) mas NAO decodaveis ainda -> caem no
 # fail-loud 'discriminador desconhecido' em vez de aceitar wire que o encoder nunca produz.
-_TAGS_TIPO = frozenset({"b"})
+_TAGS_TIPO = frozenset({"b", "n", "s"})
 _LARGURA_MODO = {"1": 1, "2": 2, "4": 4, "8": 8}   # modo denso bN (larguras); subtipos = preparado
 
 
-def _cast_tipo(strs: "list[str]", tag: str) -> list:
-    """Camada explicita->tipo: os literais do core viram o tipo TIPADO (a semantica nao some)."""
+def _cast_tipo(strs: "list[str | None]", tag: str) -> list:
+    """Camada explicita->tipo: os literais do core viram o tipo TIPADO (a semantica nao some).
+
+    `None` (slot 0 pre-alocado) ATRAVESSA qualquer tag: null nao pertence a um tipo, ele e'
+    a ausencia do valor. Casta-se so' o que e' literal.
+    """
     if tag == "b":
         for s in strs:
-            if s not in ("true", "false"):
+            if s is not None and s not in ("true", "false"):
                 raise ValueError(f"#TCF.8b: valor fora do dominio bool: {s!r}")
-        return [s == "true" for s in strs]
+        return [None if s is None else s == "true" for s in strs]
     if tag == "n":
+        from math import isfinite
+
         out = []
         for s in strs:
+            if s is None:
+                out.append(None)
+                continue
             try:
                 out.append(int(s))
+                continue
             except ValueError:
-                out.append(float(s))
+                pass
+            try:
+                v = float(s)
+            except ValueError:
+                raise ValueError(f"#TCF.8n: valor fora do dominio numerico: {s!r}") from None
+            if not isfinite(v):
+                # NaN/±Inf ficam FORA do JSON (RFC 8259) e o encoder nunca os emite —
+                # aceitar aqui seria assimetria (decode entendendo o que encode recusa).
+                raise ValueError(f"#TCF.8n: NaN/Infinity nao e' JSON (RFC 8259): {s!r}")
+            out.append(v)
         return out
     return list(strs)                              # 's' = string (identidade)
 

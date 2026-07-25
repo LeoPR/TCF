@@ -95,6 +95,34 @@ def _lista_flat(data) -> bool:
             and all(x is None or isinstance(x, str) for x in data))
 
 
+def _tipo_single_col(data):
+    """`(tag, render)` se `data` e' uma coluna single-col TIPADA; senao `None`.
+
+    FONTE UNICA da deteccao de tipo do single-col (2026-07-25). Antes so' o bool tinha ramo;
+    generalizado p/ que cada tipo novo seja uma LINHA aqui, nao um bloco novo no `encode`.
+
+    - `None` NAO define o tipo: ele mora no slot 0 pre-alocado e convive com qualquer tag.
+      Coluna so'-null nao e' tipada -> cai no flat de string (que ja' materializa o slot).
+    - `bool` ANTES de int: em Python `bool <: int`, entao a ordem e' load-bearing.
+    - float nao-finito (NaN/±Inf) NAO entra: fica fora do JSON (RFC 8259) e o `.8H` ja'
+      fail-loud. Deixar entrar aqui aceitaria calado o que o formato recusa.
+    """
+    if not isinstance(data, list) or not data:
+        return None
+    vals = [x for x in data if x is not None]
+    if not vals:
+        return None
+    if all(type(x) is bool for x in vals):
+        return "b", lambda v: "true" if v else "false"
+    if all(type(x) is int or type(x) is float for x in vals):
+        from math import isfinite
+
+        if any(type(x) is float and not isfinite(x) for x in vals):
+            return None                                  # NaN/±Inf -> .8H -> fail-loud
+        return "n", str
+    return None
+
+
 def _tabela_flat(data) -> bool:
     """dict multi-col FLAT: nao-vazio, todos os valores sao list[str] de MESMO tamanho
     (tabela retangular). dict com valor escalar/aninhado, colunas tipadas ou ragged -> .8H.
@@ -343,42 +371,51 @@ def encode(
             stamp=stamp, drop_names=drop_names,
         )
         return MAGIC_SINGLE_V3.decode("utf-8") + "\n"
-    if isinstance(data, list) and data and all(isinstance(x, bool) for x in data):
-        # SINGLE-COL TIPADO bool (weld #4a/#4b, owner 2026-07-24): antes ia pro .8H (envelope
-        # #V/count/[] so' pra PRESERVAR o tipo); agora o tipo vira 1 char de TAG. DOIS algoritmos de
-        # corpo competem no FLOOR (a variavel `modo`, o '~' conceitual; SEM '~' no wire):
-        #   A core   '#TCF.8b\n<core>'      -> reusa _encode_column (seq-RLE/aliases de graca)
-        #   B denso  '#TCF.8b1<n>\n<b64>'   -> bit-pack 1 bit/elem (false=0,true=1) -> base64
-        # min() nunca-pior ENTRE os 2 candidatos tipados (materializa os dois, emite o menor); nao e'
-        # garantia formal vs o .8H antigo, mas empiricamente 0 regressao (verif. wf_85fcea32, 300+ listas
-        # + testes: typed sempre <= .8H). `bool` antes de int (bool <: int em Python).
-        # Refino da heuristica (preditor, sem materializar os 2) -> .9 (T-TYPED-SINGLECOL-MODE-HEURISTIC).
+    _tipado = _tipo_single_col(data)
+    if _tipado is not None:
+        # SINGLE-COL TIPADO (weld #4a/#4b 2026-07-24 p/ bool; GENERALIZADO 2026-07-25 p/ numero
+        # e p/ conviver com null). Antes ia tudo pro .8H — um envelope de estrutura aninhada
+        # (`#V`/count/`[]`) gasto so' pra PRESERVAR o tipo de uma coluna plana. Agora o tipo e'
+        # 1 char de TAG no indice 6, e o corpo e' o core de sempre.
+        #
+        # Candidatos de MODO competindo no FLOOR (a variavel `modo`; o '~' e' conceitual, NAO
+        # vai no wire):
+        #   A core   '#TCF.8<tag>\n<core>'    -> reusa _encode_column (seq-RLE/aliases de graca)
+        #   B denso  '#TCF.8b1<n>\n<b64>'     -> bit-pack 1 bit/elem; SO' bool SEM null
+        # O denso e' bool-only por construcao: 1 bit = 2 estados, e o trio {null,false,true}
+        # nao cabe. Com null a coluna usa o core, que enderaça o slot 0 normalmente.
+        # min() nunca-pior ENTRE os candidatos (materializa e emite o menor). Refino do
+        # preditor (sem materializar os dois) -> .9 (T-TYPED-SINGLECOL-MODE-HEURISTIC).
         from tcf.multi.core import MAGIC_SINGLE_V3
 
+        tag, render = _tipado
         _rejeita_kwargs_flat_no_8h(
             parallel=parallel, nature=nature, layers=layers, fallback=fallback,
             min_header=min_header, min_len=min_len, sort_by=sort_by, name=name,
             stamp=stamp, drop_names=drop_names,
         )
         magic = MAGIC_SINGLE_V3.decode("utf-8")
+        tem_nulo = any(x is None for x in data)
         corpo_core = _encode_column(
-            ["true" if x else "false" for x in data],
+            [None if x is None else render(x) for x in data],
             header="val", side=side_outputs, cfg=cfg, min_len=min_len,
         )
-        wire_core = f"{magic}b\n{corpo_core}"
-        import base64
+        candidatos = [f"{magic}{tag}\n{corpo_core}"]
 
-        from tcf.bitpack import pack_w
+        if tag == "b" and not tem_nulo:
+            import base64
 
-        idx = [1 if x else 0 for x in data]                # dominio implicito FIXO (canonico)
-        b64 = base64.b64encode(pack_w(idx, 1)).decode("ascii")
-        # `n` em HEX (owner 2026-07-24): len(hex(n)) <= len(dec(n)) p/ TODO n >= 0 (base 16 > base 10)
-        # -- propriedade matematica, nunca pior, O(1) (sem FLOOR extra pra decidir a base). Parse e'
-        # posicional (modo = 1o char, sempre), entao hex nao colide com o namespace do <modo>.
-        wire_denso = f"{magic}b1{len(data):x}\n{b64}"      # modo '1' = largura 1 bit; n em hex
+            from tcf.bitpack import pack_w
 
-        # FLOOR: a variavel `modo` = argmin. Empate fica no core (mais legivel/inspecionavel).
-        return wire_core if len(wire_core.encode("utf-8")) <= len(wire_denso.encode("utf-8")) else wire_denso
+            idx = [1 if x else 0 for x in data]            # dominio implicito FIXO (canonico)
+            b64 = base64.b64encode(pack_w(idx, 1)).decode("ascii")
+            # `n` em HEX: len(hex(n)) <= len(dec(n)) p/ TODO n >= 0 -- propriedade matematica,
+            # nunca pior, O(1). Parse e' POSICIONAL (modo = 1o char), entao hex nao colide
+            # com o namespace do <modo>.
+            candidatos.append(f"{magic}b1{len(data):x}\n{b64}")
+
+        # FLOOR: a variavel `modo` = argmin. Empate fica no 1o (core, mais inspecionavel).
+        return min(candidatos, key=lambda w: len(w.encode("utf-8")))
     if _tabela_flat(data):
         from tcf.multi import _encode_multi
 

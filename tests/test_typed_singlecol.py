@@ -28,13 +28,31 @@ class TestTypedSingleColDecode:
             back = decode(w)
             assert back == vals and all(isinstance(x, bool) for x in back), (vals, back)
 
-    def test_n_s_reservados_fail_loud(self):
-        # 'n'/'s' estao no namespace (registry) mas NAO sao decodaveis ainda (encoder nunca emite) ->
-        # fail-loud 'discriminador desconhecido', nao aceite-silencioso/crash cripto (verif. wf_85fcea32).
-        with pytest.raises(ValueError, match="desconhecido"):
-            decode("#TCF.8n\n1\n2\n3\n")
-        with pytest.raises(ValueError, match="desconhecido"):
-            decode("#TCF.8s\nfoo\nbar\n")
+    def test_n_e_s_decodam(self):
+        """2026-07-25: `n` (numero) passou a ser EMITIDO; `s` (string) decoda mas o encoder
+        NAO emite — string e' o tipo implicito por exclusao (camada 1 do ADR-0029). Aceitar
+        `#TCF.8s` fecha a coerencia do modelo: todo mecanismo aceita a forma explicita."""
+        # NOTA: no corpo, digito NU e' REFERENCIA DE FRAGMENTO — o literal `1` se escreve `\1`.
+        # Por isso todo numero paga +1 B de escape sob a tag `n` (registrado no lab 1746).
+        assert decode("#TCF.8n\n\\1\n\\2\n\\3\n") == [1, 2, 3]
+        assert decode("#TCF.8s\nfoo\nbar\n") == ["foo", "bar"]
+        assert not encode(["foo", "bar"]).startswith("#TCF.8s")   # encoder nao emite `s`
+
+    def test_tag_fora_do_namespace_fail_loud(self):
+        # digito NAO entra: '#TCF.81' e' lido como VERSAO 81, outro ramo de fail-loud (ADR-0032)
+        for tag in ("z", "x", "Q"):
+            with pytest.raises(ValueError, match="desconhecido"):
+                decode(f"#TCF.8{tag}\nfoo\n")
+
+    def test_n_fora_do_dominio_fail_loud(self):
+        with pytest.raises(ValueError, match="dominio numerico"):
+            decode("#TCF.8n\nabc\n")
+
+    def test_n_nao_aceita_nan_inf(self):
+        """Simetria: o encoder recusa NaN/±Inf (RFC 8259), entao o decode tambem."""
+        for lit in ("nan", "inf", "-inf", "Infinity"):
+            with pytest.raises(ValueError, match="RFC 8259|dominio numerico"):
+                decode(f"#TCF.8n\n{lit}\n")
 
     def test_bool_fora_do_dominio_fail_loud(self):
         # corpo com literal != true/false sob tag 'b' -> fail-loud (a tag CONSTRANGE o dominio)
@@ -75,9 +93,26 @@ class TestBoolEncodeTyped:
         vals = [True] * 32
         assert len(encode(vals).encode()) < len("#TCF.8H#V\\z#:32[]:...b".encode()) + 40
 
-    def test_nao_flipa_int_float_str_mixed(self):
-        assert encode([1, 2, 3]).startswith("#TCF.8H")            # int -> .8H (nao flipado)
-        assert encode([1.5, 2.0]).startswith("#TCF.8H")           # float -> .8H
+    def test_numero_vira_tag_n(self):
+        """2026-07-25: int/float sairam do `.8H` e ganharam a tag `n` (mesma generalizacao)."""
+        assert encode([1, 2, 3]).startswith("#TCF.8n\n")
+        assert encode([1.5, 2.0]).startswith("#TCF.8n\n")
+        assert decode(encode([1, 2, 3])) == [1, 2, 3]
+        assert decode(encode([1.5, 2.0])) == [1.5, 2.0]
+
+    def test_int_vs_float_preservado(self):
+        """A tag e' uma so' (`n`, como no JSON), entao o RT precisa distinguir pela GRAFIA."""
+        for v in ([1, 2], [1.0, 2.0], [1, 2.5], [-0.0], [10 ** 25], [1e100]):
+            volta = decode(encode(v))
+            assert volta == v and [type(x) for x in volta] == [type(x) for x in v], v
+
+    def test_nan_inf_seguem_fail_loud(self):
+        """NaN/±Inf ficam FORA do JSON (RFC 8259) — nao entram na rota tipada."""
+        for v in ([float("nan")], [float("inf")], [1.0, float("-inf")]):
+            with pytest.raises(Exception, match="NaN|Infinity"):
+                encode(v)
+
+    def test_str_e_mixed_inalterados(self):
         # str -> single-col NAO-tipado: version-stamp puro, sem tag de tipo no indice 6
         assert encode(["a", "b"]).startswith("#TCF.8\n")
         with pytest.raises(ValueError, match="MISTOS|union|misto"):

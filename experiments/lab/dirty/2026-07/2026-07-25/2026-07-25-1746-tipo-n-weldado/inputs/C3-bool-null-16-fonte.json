@@ -1,0 +1,21 @@
+{
+  "nota": "bool + null, n=16", 
+  "dados": [
+    null, 
+    true, 
+    false, 
+    true, 
+    null, 
+    true, 
+    false, 
+    true, 
+    null, 
+    true, 
+    false, 
+    true, 
+    null, 
+    true, 
+    false, 
+    true
+  ]
+}

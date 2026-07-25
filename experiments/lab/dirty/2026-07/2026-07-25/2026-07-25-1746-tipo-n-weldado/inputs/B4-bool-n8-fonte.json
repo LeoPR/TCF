@@ -1,0 +1,13 @@
+{
+  "nota": "bool, n=8", 
+  "dados": [
+    false, 
+    true, 
+    false, 
+    true, 
+    false, 
+    true, 
+    false, 
+    true
+  ]
+}

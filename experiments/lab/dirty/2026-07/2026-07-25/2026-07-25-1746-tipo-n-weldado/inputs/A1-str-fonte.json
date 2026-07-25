@@ -1,0 +1,8 @@
+{
+  "nota": "string nativa (implícita)", 
+  "dados": [
+    "a", 
+    "b", 
+    "a"
+  ]
+}

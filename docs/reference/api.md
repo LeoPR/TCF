@@ -29,13 +29,29 @@ from tcf import SPEC_CPF, SPEC_CNPJ, SPEC_IP, TemplatedCheckedSpec, TemplatedPad
 | entrada | rota | wire |
 |---|---|---|
 | `list[str \| None]` (str e/ou null), ≥1 item | single-col flat | `#TCF.8` (7 B, **default**; ADR-0034) |
+| `list[bool \| None]` · `list[int \| float \| None]` | single-col **tipada** | `#TCF.8b` · `#TCF.8n` |
 | `dict[str, list[str]]` retangular, **≥1 linha** | multi-col flat | `#TCF.8M` |
 | `list[dict]` (dataset) · `dict` com valor escalar/aninhado · dict **ragged** ou **0-linha** · escalar solto · `[]` · `{}` · `list`/coluna **tipada** (item não-str) | hierárquico | `#TCF.8H` (`#D`/`#E`/`#O`/`#V`) |
 | tipo não-JSON (bytes, tuple, função, objeto custom) ou **array de tipos mistos** (union) | **fail-loud** | — (ensina a converter/separar) |
 
-**Regra**: só **str e/ou null** fica flat; qualquer coisa tipada/aninhada/vazia vai pro `.8H`,
-que **preserva o tipo** (`[1,2,3]` → array int). `None` é preservado nas **duas** rotas — nunca
-vira `""` — o que elimina o deslize de stringificação silenciosa do pré-Passo-2.
+**Regra**: uma **coluna plana de um tipo só** fica no single-col — string (implícita, sem tag),
+bool (`b`) ou número (`n`); `None` convive com qualquer uma delas (slot 0). Aninhado, misto,
+escalar solto ou `{}` vai pro `.8H`. `None` é preservado em **todas** as rotas — nunca vira
+`""` — o que elimina o deslize de stringificação silenciosa do pré-Passo-2.
+
+### Tags de tipo do single-col
+
+| tag | tipo | emitida? |
+|---|---|---|
+| *(nenhuma)* | string — o tipo **implícito por exclusão** | sim (default) |
+| `b` | bool; modo denso `b1` (bit-pack) compete no FLOOR | sim |
+| `n` | número (int/float, uma tag só como no JSON) | sim |
+| `s` | string **explícita** | **não** — decoda, mas o encoder usa a forma implícita |
+
+O modo denso é **bool sem null**, por construção: 1 bit são 2 estados e o trio
+`{null, false, true}` não cabe. Com null, a coluna usa o modo core.
+
+**NaN/±Inf ficam fora** (RFC 8259) nas duas pontas: o encoder recusa e o decode também.
 
 **Contrato pré-1.0 (mudanças do Passo 2, declaradas)**: `encode([])`/`encode({})` deixaram de ser
 fail-loud e viram `.8H` (`#D0`/`#E`, representáveis); `encode([1,2,3])` vira array `.8H` tipado (era
@@ -87,7 +103,7 @@ composição (`1~0`, `0..3`) continua sendo referência de **fragmento** — ent
 string com null" permanece inexprimível na gramática.
 
 **Rota flat aceita `list[str | None]`** (2026-07-25): uma coluna de string com nulls fica no
-flat em vez de ser expulsa pro `.8H`. Medido no lab `2026-07-25-0030`: **−36% mediano** em
+flat em vez de ser expulsa pro `.8H`. Medido no lab `2026-07-25-1630`: **−36% mediano** em
 colunas com null (pior caso −4%, melhor −58%), e **0%** — byte-idêntico — em colunas sem null.
 
 `decode` de single-col pode devolver `list[str | None]`. Rota por tipo **inalterada**:
