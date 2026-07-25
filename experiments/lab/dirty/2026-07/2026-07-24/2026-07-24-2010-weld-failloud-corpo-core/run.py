@@ -158,15 +158,23 @@ def parte_b():
 
 # =========================================================== D. AMPLIFICACAO (achado NOVO)
 def parte_d():
-    """Mede a razao de amplificacao do contador RLE. NAO ha' weld aqui: o teto e' decisao
-    de POLITICA do owner (wire legitimo tambem tem count alto), nao correcao obvia."""
+    """Amplificacao do contador RLE. FECHADO: virou o weld `max_length` (owner aprovou o
+    teto default + override; nome roubado do zlib/bz2/lzma). Aqui a medicao ORIGINAL e'
+    preservada com `max_length=0` (sem teto) e, ao lado, o veredito do teto default —
+    evidencia dos dois lados, nao so' 'agora barra'."""
     import time
     linhas = []
-    for d in ("999", "99999", "9999999"):
+    for d in ("999", "99999", "9999999", "999999999"):
         w = f"x\n*{d}|y\n"
         t = time.time()
-        n = len(decode(w))
-        linhas.append((len(w.encode()), n, n * 2 // len(w.encode()), time.time() - t))
+        n = len(decode(w, max_length=0))            # medicao original (sem teto)
+        dt = time.time() - t
+        try:
+            decode(w)                                # teto DEFAULT
+            veredito = "passa"
+        except ValueError:
+            veredito = "**barrado**"
+        linhas.append((len(w.encode()), n, n * 2 // len(w.encode()), dt, veredito))
     return linhas
 
 
@@ -234,13 +242,15 @@ def main():
     out += [f"| {d} | {n} | {v} | {t} |" for d, n, v, t in c_linhas]
     out += ["", f"Falhas: **{c_falhas}** (inclui controle positivo da faixa valida).", ""]
 
-    out += ["## D. Amplificacao do contador RLE (achado NOVO, NAO soldado)", "",
-            "| wire (B) | elementos | amplificacao | tempo |", "|---:|---:|---:|---:|"]
-    out += [f"| {b} | {n:,} | {r:,}x | {t:.2f}s |" for b, n, r, t in d_linhas]
-    out += ["", "`*N|` nao tem teto: um wire minusculo materializa lista arbitraria "
-            "(`saida.extend([no] * count)`). **Sem weld aqui de proposito** — o teto e' "
-            "decisao de POLITICA (wire legitimo tambem tem count alto), nao correcao obvia. "
-            "Fora do escopo deste weld (que e' so' fail-loud).", ""]
+    out += ["## D. Amplificacao do contador RLE — FECHADO pelo weld `max_length`", "",
+            "| wire (B) | elementos (sem teto) | amplificacao | tempo | teto default |",
+            "|---:|---:|---:|---:|---|"]
+    out += [f"| {b} | {n:,} | {r:,}x | {t:.2f}s | {v} |" for b, n, r, t, v in d_linhas]
+    out += ["", "A coluna 'sem teto' e' a medicao ORIGINAL (`max_length=0`), preservada como "
+            "evidencia do problema; a ultima coluna e' o veredito do teto default. Nome "
+            "`max_length` e a convencao `0 == sem teto` vem do zlib/bz2/lzma — nada "
+            "reinventado. Unidade = ELEMENTOS (e' o que a bomba aloca), por coluna, no funil "
+            "unico `_decode_column` (protege single/multi/view/hierarquico).", ""]
 
     ok = a_falhas == 0 and gate_ok and b_cruas == 0 and c_falhas == 0
     out += ["## Veredito", "",

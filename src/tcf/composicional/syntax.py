@@ -23,6 +23,39 @@ import warnings
 from collections import Counter
 from dataclasses import dataclass
 
+# --------------------------------------------------------------------------------------
+# TETO DE DESCOMPRESSAO (owner 2026-07-24). Nome `max_length` ROUBADO do zlib/bz2/lzma —
+# nada a reinventar, e a convencao `0 == sem teto` vem do zlib tambem.
+#
+# UNIDADE = ELEMENTOS decodificados (linhas), nao bytes: o que a bomba aloca e' a lista
+# (`saida.extend([no] * count)`), entao elementos e' o que protege. Por COLUNA — todas as
+# rotas (single, multi, view, hierarquico) passam pelo mesmo `_decode_column`.
+#
+# Wire produzido pelo `encode` NUNCA encosta nisto: o maior caso ja' medido no projeto e' de
+# ~50k elementos (lab 2026-07-24-1832) e o gate real-world tem 89 KB. 10M da' ~200x de folga
+# sobre qualquer coisa que o projeto processa, e ainda assim barra o `*999999999|` de 15 B.
+# So' entrada HOSTIL (wire escrito a mao) chega aqui.
+# --------------------------------------------------------------------------------------
+MAX_LENGTH_PADRAO = 10_000_000
+
+
+def resolve_max_length(max_length):
+    """`None` -> default; `0` -> sem teto (convencao do zlib); N>0 -> teto explicito."""
+    if max_length is None:
+        return MAX_LENGTH_PADRAO
+    if not isinstance(max_length, int) or max_length < 0:
+        raise ValueError(f"max_length deve ser int >= 0 (0 = sem teto), recebido {max_length!r}")
+    return max_length
+
+
+def estouro_max_length(pedido, limite):
+    return (
+        f"descompressao excede o teto: o wire pede >= {pedido:,} elementos, "
+        f"max_length={limite:,}. Wire gerado pelo TCF nunca encosta nesse teto — "
+        f"suspeite de corrupcao ou de wire hostil. Para forcar, passe "
+        f"decode(..., max_length=<maior>) ou max_length=0 (sem teto)."
+    )
+
 # Welding step 2 (2026-05-17): adaptado de
 # experiments/lab/dirty/old/2026-05-16-.../M8-A-detector-unificado/syntax.py.
 # Apenas estes 2 imports mudaram (path do dirty para src/tcf/core/);
@@ -823,11 +856,12 @@ class M8AVirtualRefsSyntax(Syntax):
                 partes.append(texto)
         return "".join(partes)
 
-    def decode(self, tcf_text):
+    def decode(self, tcf_text, max_length=None):
         frags = {}
         prox_idx = [0]
         nos_decl = []
         saida = []
+        limite = resolve_max_length(max_length)
         # Contrato LF-only: FONTE ÚNICA em split_lf_body (BUG-14 + dedup C0 do
         # T-CODE-CORE-CONSOLIDATE — o fix vivia DUPLICADO aqui e no wrapper
         # seq-RLE; risco de dessincronização apontado pelo owner 2026-07-12).
@@ -884,6 +918,11 @@ class M8AVirtualRefsSyntax(Syntax):
             else:
                 s_no = self._parse_decl(resto, frags, prox_idx)
                 nos_decl.append(s_no)
+            # TETO DE DESCOMPRESSAO: checa ANTES do extend — `count` vem do wire e um
+            # `*999999999|x` de 15 B materializaria 1e9 elementos (~8 GB). Acumulado, nao
+            # por marcador: 2000 linhas de `*999|` (counts inocentes) somam 2M.
+            if limite and len(saida) + count > limite:
+                raise ValueError(estouro_max_length(len(saida) + count, limite))
             saida.extend([s_no] * count)
         return saida
 

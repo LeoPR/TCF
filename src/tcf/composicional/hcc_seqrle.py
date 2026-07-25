@@ -30,7 +30,27 @@ GATE byte-canonical: qualquer mudanca aqui (seq-RLE / detector) DEVE passar
 
 from __future__ import annotations
 
-from tcf.composicional.syntax import M8AVirtualRefsSyntax, split_lf_body
+from tcf.composicional.syntax import (
+    M8AVirtualRefsSyntax,
+    estouro_max_length,
+    resolve_max_length,
+    split_lf_body,
+)
+
+
+def _contador_declarado(linha: str) -> int:
+    """Le o contador de um marcador `*N|` / `*N+d|` SEM expandir — a pre-checagem do teto
+    tem que acontecer antes da materializacao, senao a memoria ja' foi. Retorna 0 se a
+    linha nao declara contador (nao e' marcador)."""
+    if not linha.startswith("*"):
+        return 0
+    bar = linha.find("|")
+    if bar == -1:
+        return 0
+    i, head = 0, linha[1:bar]
+    while i < len(head) and head[i].isdigit():
+        i += 1
+    return int(head[:i]) if i else 0
 
 
 def find_escape_digit_runs(line: str) -> list[tuple[int, int]]:
@@ -292,8 +312,12 @@ class HCCSeqRLE(M8AVirtualRefsSyntax):
         self._seq_info = info
         return "\n".join(compacted) + "\n"
 
-    def decode(self, tcf_text):
+    def decode(self, tcf_text, max_length=None):
         expanded_lines = []
+        # TETO tambem AQUI, nao so' no core: o seq-RLE expande `*N+d|` ANTES do
+        # super().decode(), entao um `*99999999+1|x` estouraria a memoria antes de
+        # qualquer guard la' embaixo. Pre-checa o contador SEM materializar.
+        limite = resolve_max_length(max_length)
         # Contrato LF-only: FONTE ÚNICA em split_lf_body (BUG-14 + dedup C0 —
         # o fix vivia duplicado aqui e no decode do syntax; ver
         # T-CODE-CORE-CONSOLIDATE D1).
@@ -307,10 +331,17 @@ class HCCSeqRLE(M8AVirtualRefsSyntax):
             # decode do syntax.py, que o wrapper seq-RLE reintroduziu).
             # Markers comecam com '*' na posicao 0 (compact_body nunca poe leading
             # whitespace); linha vazia/whitespace-only/nao-marker -> expand=None -> raw.
+            # `startswith` inline ANTES da chamada: este laco e' caminho quente (roda por
+            # linha em todo decode) e so' marcador comeca com '*' — evita call por linha.
+            if limite and raw[:1] == "*":
+                pedido = _contador_declarado(raw)
+                if pedido and len(expanded_lines) + pedido > limite:
+                    raise ValueError(
+                        estouro_max_length(len(expanded_lines) + pedido, limite))
             expanded = expand_seq_marker(raw)
             if expanded is not None:
                 expanded_lines.extend(expanded)
             else:
                 expanded_lines.append(raw)
         expanded_text = "\n".join(expanded_lines) + "\n"
-        return super().decode(expanded_text)
+        return super().decode(expanded_text, max_length=max_length)

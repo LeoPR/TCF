@@ -86,6 +86,7 @@ def decode(
     *,
     nature: "TemplatedCheckedSpec | None" = None,
     nature_per_col: "dict[str, TemplatedCheckedSpec] | None" = None,
+    max_length: int | None = None,
 ) -> list[str] | dict[str, list[str]]:
     """Decode texto TCF. Roteia pela assinatura de formato (magic).
 
@@ -153,7 +154,7 @@ def decode(
     # e delega o CORPO ao core (_decode_column), castando pro tipo. A variavel `modo` (o conceito
     # do '~') e' DEDUZIDA DA POSICAO (indice 7); NAO ha '~' no wire. #4a = modo CORE; denso bN = #4b.
     if disc8 in _TAGS_TIPO:
-        return _decode_typed(tcf_text, disc8)
+        return _decode_typed(tcf_text, disc8, max_length=max_length)
     # FAIL-LOUD (ADR-0032 §6): discriminador reservado/desconhecido apos '#TCF.8' NAO
     # pode degradar pra decode orfao silencioso (corrompe).
     if disc8 is not None and disc8 not in ("M", " ", ""):
@@ -190,7 +191,7 @@ def decode(
         meta = line1[len(_V8_MAGIC) + 1 :]  # apos "#TCF.8 "
         body = tcf_text[len(line1) + 1 :]  # apos a 1a '\n'
         _name, _, nat_id = meta.partition(":")  # nome opcional, descartado
-        values = _decode_column(body)
+        values = _decode_column(body, max_length=max_length)
         spec = _resolve_header_spec(nat_id, nature, where="single-col")
         return [spec.decode_value(v) for v in values]  # header vence
 
@@ -208,16 +209,21 @@ def decode(
             # simetrico ao encode). Distinto de '#TCF.8\n\n' (corpo '\n' -> ['']) e do
             # orfao. O version-stamp SEMPRE tem corpo nao-vazio, entao nao colide.
             return []
-        return _decode_column(body)
+        return _decode_column(body, max_length=max_length)
 
     # ORFAO: single-col body puro (sem shebang) — camada 1 (ADR-0029).
-    return _decode_column(tcf_text)
+    return _decode_column(tcf_text, max_length=max_length)
 
 
-def _decode_column(tcf_text: str) -> list[str]:
-    """Decode body single-col. Cf. _encode_column no encoder."""
+def _decode_column(tcf_text: str, max_length: int | None = None) -> list[str]:
+    """Decode body single-col. Cf. _encode_column no encoder.
+
+    FUNIL UNICO de coluna — single-col, `.8M`, `view` e hierarquico passam todos por aqui,
+    entao o teto `max_length` (default em `syntax.MAX_LENGTH_PADRAO`) protege TODAS as rotas
+    mesmo que so' o `decode` publico exponha o override.
+    """
     syn = HCCSeqRLE()
-    return syn.decode(tcf_text)
+    return syn.decode(tcf_text, max_length=max_length)
 
 
 # --- SINGLE-COL TIPADO (weld #4) — pre-avaliador: header tipado -> forma explicita -> core ---
@@ -247,13 +253,13 @@ def _cast_tipo(strs: "list[str]", tag: str) -> list:
     return list(strs)                              # 's' = string (identidade)
 
 
-def _decode_typed(tcf_text: str, tag: str) -> list:
+def _decode_typed(tcf_text: str, tag: str, max_length: int | None = None) -> list:
     """Decode do single-col tipado. A variavel `modo` (o '~' conceitual) e' deduzida da POSICAO."""
     line1, _sep, body = tcf_text.partition("\n")
     resto = line1[7:]                              # apos '#TCF.8<tag>' (tag = 1 char, indice 6)
     # A VARIAVEL DE DECISAO: resto vazio -> modo CORE (implicito); senao -> modo DENSO bN.
     if resto == "":
-        strs = _decode_column(body) if body else []
+        strs = _decode_column(body, max_length=max_length) if body else []
         return _cast_tipo(strs, tag)
     # MODO DENSO bN (weld #4b): resto = '<modo><n>'. modo = 1 char (largura); n = HEX (owner
     # 2026-07-24: len(hex(n))<=len(dec(n)) p/ todo n>=0, nunca pior, O(1)). Parse posicional: modo

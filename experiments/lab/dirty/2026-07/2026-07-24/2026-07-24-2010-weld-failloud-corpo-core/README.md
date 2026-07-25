@@ -32,12 +32,28 @@ Tudo e' **caminho-de-erro** => byte-neutro por construcao.
 - **C. aceite-calado** — 15/15 fail-loud, e a faixa valida `1..len` intacta (controle positivo)
 - **D. amplificacao RLE** — **achado NOVO, NAO soldado** (abaixo)
 
-## Achado em aberto: amplificacao do contador RLE
+## Amplificacao do contador RLE — FECHADO (weld `max_length`)
 
-`*N|` nao tem teto — 13 B de wire materializam 10M elementos (`saida.extend([no] * count)`);
-15 B chegam a 1e9 (~8 GB). **Deliberadamente sem weld**: o teto e' decisao de POLITICA do
-owner (wire legitimo tambem tem count alto), nao correcao obvia, e esta' fora do escopo deste
-weld — que e' so' fail-loud. Foi o que travou a rodada 1 deste lab.
+`*N|` nao tinha teto — 13 B de wire materializavam 10M elementos
+(`saida.extend([no] * count)`); 15 B chegavam a 1e9 (~8 GB). Foi o que travou a rodada 1
+deste lab. Owner aprovou fechar seguindo a tradicao:
+
+- nome **`max_length`** e convencao **`0 == sem teto`** roubados do `zlib`/`bz2`/`lzma`
+- **unidade = elementos** decodificados, nao bytes: e' o que a bomba aloca
+- default **10M**, ~200x de folga sobre o maior caso ja' medido no projeto (~50k)
+- ancorado nos **dois** pontos de expansao: o core (`*N|`) e o seq-RLE (`*N+d|`, que expande
+  ANTES do core) — este ultimo com pre-checagem do contador **sem materializar**
+- no funil unico `_decode_column`, entao single/multi/view/hierarquico ficam protegidos mesmo
+  sem expor o override
+- custo medido: **+0,5%** no decode de 20k linhas (dentro do ruido)
+
+**Limitacao assumida do default escolhido**: 10M e' generoso de proposito (nao pode barrar
+wire legitimo), entao um wire de 13 B ainda produz 10M elementos — ~80 MB de lista. O teto
+corta o **catastrofico** (8 GB), nao o **caro**. Quem processa entrada hostil deve baixar o
+`max_length` explicitamente. Visivel na tabela D (`teto default` = `passa` na linha de 13 B).
+
+Por que fail-loud e nao warning: quando o warning sairia, a memoria ja' foi alocada. A
+mensagem nomeia o parametro a subir — e' o aviso em tempo de servir pra algo.
 
 ## Achado de contrato: o default do cabecalho esta INVERTIDO
 

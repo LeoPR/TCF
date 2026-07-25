@@ -50,3 +50,25 @@ no lugar de lista viram fail-loud de tipo (eram convertidos calados).
   só **flat**. Passados com entrada `.8H` → **fail-loud** (nunca ignorados calados).
 
 Knobs detalhados por camada: [`encode-knobs.md`](encode-knobs.md).
+
+## kwargs de `decode`
+
+- **`nature`** / **`nature_per_col`**: reverse da pré-tx (ADR-0015).
+- **`max_length`** — **teto de descompressão**. Nome e a convenção `0 == sem teto` vêm do
+  `zlib`/`bz2`/`lzma`. Unidade = **elementos** decodificados (não bytes: é o que a expansão
+  aloca), **por coluna**. `None` → default `10_000_000`.
+
+  Existe porque `*N|` é um repetidor: sem teto, um wire de 15 B pede 1e9 elementos (~8 GB).
+  Wire produzido pelo `encode` **nunca** encosta no teto — só entrada corrompida ou hostil.
+  Estourar é **fail-loud** (um warning sairia depois da alocação, tarde demais); a mensagem
+  nomeia o parâmetro a subir.
+
+  ```python
+  decode(wire)                          # teto default
+  decode(wire, max_length=50_000_000)   # afrouxa
+  decode(wire, max_length=0)            # sem teto (convenção zlib)
+  decode(wire, max_length=10_000)       # aperta, p/ entrada não-confiável
+  ```
+
+  O default é generoso para nunca barrar wire legítimo — logo corta o **catastrófico**, não o
+  **caro**: 13 B ainda produzem 10M elementos. Quem processa entrada hostil deve apertar.

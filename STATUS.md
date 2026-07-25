@@ -1022,13 +1022,6 @@ TCF/
    `list[str]` pura. Custo de alinhar: **+7 B**. Junto: `#TCF.8\n<corpo>` e
    `<corpo>` decodam igual — **duas grafias** pro mesmo valor (declarar qual e'
    canonica). Ver lab `2026-07-24-2010`. **Nada em `src/tcf` tocado.**
-1. **⛔ Teto do contador RLE `*N|` — POLITICA (owner decide)**: o count nao tem
-   limite. `saida.extend([no] * count)` materializa lista arbitraria: **13 B de
-   wire => 10M elementos; 15 B => 1e9 (~8 GB)**. Medido no lab
-   `2026-07-24-2010` (parte D). Nao soldado de proposito: wire legitimo tambem
-   tem count alto, entao o teto e' escolha (absoluto? proporcional ao tamanho do
-   wire? so' com `strict=`?), nao correcao obvia. Vale tambem p/ a forma seq-RLE
-   `*N+M|`. **Nada em `src/tcf` foi tocado por isso.**
 3. **H-PERF-05d counter incremental HCC** — unico zero-risk de alto
    potencial no Pacote 4 ainda aberto (~50-70% HCC perf). Implementacao
    complexa (state entre iters).
