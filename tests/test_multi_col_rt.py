@@ -216,7 +216,7 @@ class TestDefault08:
 
     def test_single_col_unaffected(self):
         text = encode(["abc", "abcd"])
-        assert not text.startswith("#TCF.")
+        assert text.startswith("#TCF.8\n")   # version-stamp, nao o multi '#TCF.8M'
         assert decode(text) == ["abc", "abcd"]
 
     @pytest.mark.parametrize("table", [
@@ -281,7 +281,7 @@ class TestExplicitControls:
 
     def test_single_col_ignores_knobs(self):
         text = encode(["abc", "abcd"], fallback=False, min_header=False)
-        assert not text.startswith("#TCF.")
+        assert text.startswith("#TCF.8\n")   # version-stamp, nao o multi '#TCF.8M'
         assert decode(text) == ["abc", "abcd"]
 
     # --- min_len override (Segment 2) em multi-col ---

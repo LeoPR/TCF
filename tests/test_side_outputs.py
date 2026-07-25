@@ -67,7 +67,10 @@ class TestSideOutputsSingleCol:
     def test_side_outputs_captures_body_bytes(self):
         side = SideOutputs()
         text = encode(["a", "b", "c"], side_outputs=side)
-        assert side.body_bytes == len(text.encode("utf-8"))
+        # `body_bytes` mede o CORPO; desde o ADR-0034 o wire leva `#TCF.8\n` por default,
+        # entao o total = header + corpo. Confere pelas duas pontas.
+        assert side.body_bytes == len(text.encode("utf-8")) - len(b"#TCF.8\n")
+        assert side.body_bytes == len(encode(["a", "b", "c"], stamp=False).encode("utf-8"))
 
 
 class TestSideOutputsMultiCol:

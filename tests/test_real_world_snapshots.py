@@ -38,12 +38,12 @@ SAMPLES = ROOT / "datasets" / "samples"
 # Cada fixture provou DIVERGIR no candidato #03 (regime n_tam_est>=3) e
 # MANTER no #15 — ver lab 2026-05-31-regression-real-world/REPORT.md.
 REAL_WORLD_BYTES_FROZEN = {
-    "retail-description-2k": (27581, "online-retail/description-2k.csv"),
-    "retail-stockcode-2k":   (11437, "online-retail/stockcode-2k.csv"),
-    "lineitem-comment-2k":   (50598, "tpch-sf001/lcomment-2k.csv"),
+    "retail-description-2k": (27588, "online-retail/description-2k.csv"),
+    "retail-stockcode-2k":   (11444, "online-retail/stockcode-2k.csv"),
+    "lineitem-comment-2k":   (50605, "tpch-sf001/lcomment-2k.csv"),
 }
 
-REAL_WORLD_TOTAL = 89616  # 27581 + 11437 + 50598
+REAL_WORLD_TOTAL = 89637  # 27588 + 11444 + 50605 (era 89616; +21 = 3 x 7 B, ADR-0034)
 
 
 def _load_single_col(rel: str) -> list[str]:

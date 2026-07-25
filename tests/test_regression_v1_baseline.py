@@ -6,7 +6,7 @@ src/tcf/ que mude um byte aqui = regressao. Bytes documentados em:
     experiments/lab/dirty/2026-05/2026-05-27/2026-05-27-baseline-consolidado/METRICS.md
 
 Estrategia (Beizer 1995 — characteristic outputs):
-- D1-D9: 9 datasets sinteticos single-col (M10 baseline = 1523B total)
+- D1-D9: 9 datasets sinteticos single-col (M10 baseline + header = 1586B total)
 - D17a: 1 dataset sintetico multi-col (300B INVARIANT, #TCF.8M hex — ADR-0032 default)
 
 Regressao byte-canonical REAL-WORLD (colunas free-text, regime
@@ -78,19 +78,22 @@ class TestPublicAPISurface:
         assert tcf.__version__ == "0.8.0"
 
 
+# RE-PIN 2026-07-24 (ADR-0034, git-as-compat ADR-0024): o header `#TCF.8` + LF passou a
+# ser DEFAULT no single-col -> +7 B EXATOS por dataset. NAO e' regressao de compressao:
+# o core nao mudou 1 byte, so' o header entrou. Valores anteriores vivem no git.
 D1_D9_BYTES_FROZEN = {
-    "D1-emails-simples":    118,
-    "D2-emails-quote-id":   166,
-    "D3-stress-substring":  177,
-    "D4-caos-mix":          113,
-    "D5-padroes-multiplos": 281,
-    "D6-poucos-em-ruido":   287,
-    "D7-aninhamento":       215,
-    "D8-cabeca-cauda":      100,
-    "D9-frequencia-alta":    66,
+    "D1-emails-simples":    125,
+    "D2-emails-quote-id":   173,
+    "D3-stress-substring":  184,
+    "D4-caos-mix":          120,
+    "D5-padroes-multiplos": 288,
+    "D6-poucos-em-ruido":   294,
+    "D7-aninhamento":       222,
+    "D8-cabeca-cauda":      107,
+    "D9-frequencia-alta":    73,
 }
 
-D1_D9_TOTAL = 1523  # sum acima
+D1_D9_TOTAL = 1586  # sum acima (era 1523; +63 = 9 x 7 B de header, ADR-0034)
 
 D17A_INVARIANT = 300  # #TCF.8M default (ADR-0032): era 307 (sem V2-B) -> 303 (V2-B
                       # decimal) -> 302 (V2-B hex #TCF.7) -> 300 (#TCF.8M hex inline,
@@ -136,7 +139,7 @@ class TestD1D9ByteCanonical:
         assert decode(text) == values, f"RT broken em {name}"
 
     def test_d1_d9_total_invariant(self):
-        """Total D1-D9 = 1523B (baseline canonical M10)."""
+        """Total D1-D9 = 1586B (baseline canonical M10 + header default, ADR-0034)."""
         total = 0
         for name in D1_D9_BYTES_FROZEN:
             values = _load_single_col(name)

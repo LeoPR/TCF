@@ -11,7 +11,7 @@
 | E-bordas | 5 | 19 | OK | `'#TCF.8'` |
 
 RT: **5/5** ok.
-Gates byte-canonicos (pinados ANTES do weld): **PASSOU** — `31 passed in 3.02s`
+Gates byte-canonicos (pinados ANTES do weld): **PASSOU** — `31 passed in 2.80s`
 
 ## B. FAIL-LOUD sob corrupcao
 
@@ -50,7 +50,7 @@ Falhas: **0** (inclui controle positivo da faixa valida).
 | 9 | 1,000 | 222x | 0.00s | passa |
 | 11 | 100,000 | 18,181x | 0.00s | passa |
 | 13 | 10,000,000 | 1,538,461x | 0.08s | passa |
-| 15 | 1,000,000,000 | 133,333,333x | 8.04s | **barrado** |
+| 15 | 1,000,000,000 | 133,333,333x | 7.73s | **barrado** |
 
 A coluna 'sem teto' e' a medicao ORIGINAL (`max_length=0`), preservada como evidencia do problema; a ultima coluna e' o veredito do teto default. Nome `max_length` e a convencao `0 == sem teto` vem do zlib/bz2/lzma — nada reinventado. Unidade = ELEMENTOS (e' o que a bomba aloca), por coluna, no funil unico `_decode_column` (protege single/multi/view/hierarquico).
 

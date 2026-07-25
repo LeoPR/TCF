@@ -62,6 +62,8 @@ Registros numerados das decisoes arquiteturais do TCF. Inspirado em
 | [0032](0032-tcf8-default-format.md) | #TCF.8 vira o formato DEFAULT (multi-col); supersede o "opt-in estrito" do 0027. Corta legado .6/.7 de src/tcf; hex e escaping na familia .8; hierarquia = slot+fail-loud (codec pro lab); pacote 0.8.0 (lazy absorvido). Single-col orfao intacto (0029/0030). | **accepted** (2026-07-09) |
 | [0033](0033-hierarchical-codec-weld.md) | Weld do codec hierarquico `#TCF.8H` no core: modulo novo `hierarchical.py` (L2/L3) cliente do compressor de coluna (L1 intocado); shredding em blocos + `#count` explicito. Fecha o gate do 0031. Classe coberta (schema uniforme); ragged/tipos/null/N-raizes/N:N = fail-loud (incrementos). Flat byte-identico; gate de CAPACIDADE. | **welded** (2026-07-14) |
 
+| [0034](0034-header-default-100-porcento-single-col.md) | Header `#TCF.8` e' DEFAULT em 100% dos casos no single-col (mesmo vazio); orfao vira ESCAPE explicito (`stamp=False`) p/ transmissao/container tipo parquet. **Supersede o DEFAULT do 0029** (premissa mal registrada, revisada pelo owner). 1 header por ARTEFATO (o .8H passa stamp=False nas colunas). Re-pina D1-D9 1523->1586 e real-world 89616->89637 (+7 B/dataset; core inalterado). | **accepted** (2026-07-24) |
+
 ## Quando criar ADR
 
 Crie ADR quando:

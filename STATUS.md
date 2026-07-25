@@ -1013,15 +1013,6 @@ TCF/
    Ganho medido: tabela real 1.86x menor; mas gzip encolhe e N pequeno anula.
    Ver bloco ⚑ no topo + labs `2026-07-23-1857` (v2) e `-1832`. **Nada em
    `src/tcf` foi tocado.**
-1. **⛔ Default do cabecalho INVERTIDO em `list[str]` (owner decide)**: o
-   contrato do owner e' "default COM `#TCF.8`; sem cabecalho so' FORCANDO, com
-   meta nos dois lados". O codigo faz o oposto: `list[str]` sai **sem** header
-   e `stamp=True` e' que ADICIONA (docstring: "single-col flat (orfao, sem
-   header)"). As outras rotas (`b`/`[]`/`.8M`/`.8H`) ja' emitem header e
-   rejeitam `stamp`. So' apareceu agora porque nenhum lab anterior codificou
-   `list[str]` pura. Custo de alinhar: **+7 B**. Junto: `#TCF.8\n<corpo>` e
-   `<corpo>` decodam igual — **duas grafias** pro mesmo valor (declarar qual e'
-   canonica). Ver lab `2026-07-24-2010`. **Nada em `src/tcf` tocado.**
 3. **H-PERF-05d counter incremental HCC** — unico zero-risk de alto
    potencial no Pacote 4 ainda aberto (~50-70% HCC perf). Implementacao
    complexa (state entre iters).

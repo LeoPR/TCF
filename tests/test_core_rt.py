@@ -201,14 +201,15 @@ class TestM10Baseline:
         assert decode(text) == values
 
     def test_m10_baseline_invariant(self):
-        """Total bytes D1-D9 = 1523B (INVARIANT desde 2026-05-22)."""
+        """Total bytes D1-D9 = 1586B (era 1523 ate' 2026-07-24; +63 = 9 x 7 B do header
+        `#TCF.8` que virou DEFAULT, ADR-0034. O core nao mudou 1 byte)."""
         total = 0
         for ds in D1_D9:
             values = _ler_csv(ds)
             text = encode(values)
             total += len(text.encode("utf-8"))
-        assert total == 1523, (
-            f"M10 baseline mudou: {total}B (esperado 1523B). "
+        assert total == 1586, (
+            f"M10 baseline mudou: {total}B (esperado 1586B). "
             "Welding nao-zero-risk pode ter alterado pipeline canonical."
         )
 
@@ -489,7 +490,7 @@ class TestBracketCellLossBug:
 
     def test_bracket_wire_pinado(self):
         """Pino do wire novo (capacidade nova = pino novo; re-pinável, ADR-0024)."""
-        assert encode(["a", "]", "b"]) == "a\n]\nb\n"
+        assert encode(["a", "]", "b"]) == "#TCF.8\na\n]\nb\n"  # header default (ADR-0034)
 
     def test_bracket_nao_isolado_ok(self):
         # '['/']' NÃO-isolado (parte de string maior) ou '{'/'}' seguem RT (isola o gatilho)

@@ -13,7 +13,7 @@ from tcf import SPEC_CPF, SPEC_CNPJ, SPEC_IP, TemplatedCheckedSpec, TemplatedPad
 | símbolo | papel |
 |---|---|
 | **`encode(data, **kwargs)`** | dataset → wire `str`. **Porta única de encode**; rota por TIPO (tabela abaixo). |
-| **`decode(str)`** | wire → dataset. Auto-rota pelo magic (`#TCF.8M`/`#TCF.8H`/single órfão). |
+| **`decode(str)`** | wire → dataset. Auto-rota pelo magic (`#TCF.8M`/`#TCF.8H`/`#TCF.8`/órfão). |
 | **`view(...)` · `LazyTCF` · `Filtered`** | consulta lazy read-only (só `#TCF.8M`; ver [`lazy-view.md`](lazy-view.md)). |
 | **`SideOutputs`** | telemetria opt-in (`encode(x, side_outputs=so)`). |
 | **`PipelineConfig`** | toggles do pipeline flat (`encode(x, layers=cfg)`). |
@@ -28,7 +28,7 @@ from tcf import SPEC_CPF, SPEC_CNPJ, SPEC_IP, TemplatedCheckedSpec, TemplatedPad
 
 | entrada | rota | wire |
 |---|---|---|
-| `list[str]` (todos str), ≥1 item | single-col flat | órfão (0 B header) |
+| `list[str]` (todos str), ≥1 item | single-col flat | `#TCF.8` (7 B, **default**; ADR-0034) |
 | `dict[str, list[str]]` retangular, **≥1 linha** | multi-col flat | `#TCF.8M` |
 | `list[dict]` (dataset) · `dict` com valor escalar/aninhado · dict **ragged** ou **0-linha** · escalar solto · `[]` · `{}` · `list`/coluna **tipada** (item não-str) | hierárquico | `#TCF.8H` (`#D`/`#E`/`#O`/`#V`) |
 | tipo não-JSON (bytes, tuple, função, objeto custom) ou **array de tipos mistos** (union) | **fail-loud** | — (ensina a converter/separar) |
@@ -48,6 +48,19 @@ no lugar de lista viram fail-loud de tipo (eram convertidos calados).
 - **`nature`** (spec único): só **single-col flat** (`list[str]`).
 - **`parallel`, `layers`, `fallback`, `min_header`, `min_len`, `sort_by`, `name`, `stamp`, `drop_names`**:
   só **flat**. Passados com entrada `.8H` → **fail-loud** (nunca ignorados calados).
+
+### `stamp` — o header do single-col
+
+`None` (default) e `True` → wire **com** `#TCF.8\n`. **É o default em 100% dos casos**, mesmo
+com conteúdo vazio ([ADR-0034](../adr/0034-header-default-100-porcento-single-col.md)): o
+artefato se auto-explica em vez de depender de quem o produziu. Custa 7 B, e isso é aceito.
+
+`stamp=False` → **escape explícito** (órfão, sem header). Só para (a) **transmissão**, onde o
+contrato vive nas pontas, e (b) **container que já carrega o contrato** (ex.: parquet). Fora
+disso, sair do default é erro.
+
+O header é do **artefato**, não da coluna: o `.8H` usa `encode` internamente como compressor
+de coluna e passa `stamp=False` — todo wire tem **exatamente 1** header.
 
 Knobs detalhados por camada: [`encode-knobs.md`](encode-knobs.md).
 

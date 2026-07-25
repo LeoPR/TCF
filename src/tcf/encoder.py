@@ -108,7 +108,7 @@ def _tabela_flat(data) -> bool:
 _KWARGS_FLAT_DEFAULT = {
     "parallel": False, "nature": None, "layers": None, "fallback": True,
     "min_header": True, "min_len": None, "sort_by": None, "name": None,
-    "stamp": False, "drop_names": False,
+    "stamp": None, "drop_names": False,
 }
 
 
@@ -116,8 +116,9 @@ def _rejeita_kwargs_flat_no_8h(**kw) -> None:
     ruins = [k for k, v in kw.items() if v != _KWARGS_FLAT_DEFAULT[k]]
     if ruins:
         raise ValueError(
-            f"kwargs {ruins} nao se aplicam a entrada hierarquica (.8H); so' valem no flat "
-            f"(single/multi-col). Use nature_per_col= p/ specs no .8H, ou reformate a entrada."
+            f"kwargs {ruins} so' valem no flat de STRING (single/multi-col); nao se aplicam a "
+            f"esta entrada (hierarquica .8H, tipada #TCF.8<tag> ou vazia). Use nature_per_col= "
+            f"p/ specs no .8H, ou reformate a entrada."
         )
 
 
@@ -134,14 +135,14 @@ def encode(
     min_len: int | None = None,
     sort_by: str | None = None,
     name: str | None = None,
-    stamp: bool = False,
+    stamp: bool | None = None,
     drop_names: bool = False,
 ) -> str:
     """Encode QUALQUER dataset (flat OU aninhado) em texto TCF — PORTA UNICA (Passo 2).
 
     Rota por TIPO de entrada, simetrico ao `decode` (que rota pelo magic). Contrato
     completo em `docs/reference/api.md`. Resumo:
-      - `list[str]` (todos str, >=1)       -> single-col flat (orfao, sem header)
+      - `list[str]` (todos str, >=1)       -> single-col flat `#TCF.8` (header por DEFAULT)
       - `dict[str, list[str]]` retangular >=1 linha -> multi-col `#TCF.8M`
       - list[dict] / objeto / escalar / `[]` / `{}` / tipado / ragged / 0-linha
                                             -> hierarquico `#TCF.8H` (rota interna)
@@ -156,7 +157,8 @@ def encode(
     valem no `.8H`; `nature` (spec unico) so' no single-col flat.
 
     Multi-col `#TCF.8M` (default, ADR-0032): por coluna min(TCF, raw, dict, split) +
-    header minimo (meta inline, ultima sem size, sizes HEX). Single-col = orfao (ADR-0029/30).
+    header minimo (meta inline, ultima sem size, sizes HEX). Single-col = version-stamp
+    `#TCF.8` + body (header default 100%; ADR-0034 supersede o default do ADR-0029).
 
     Args:
         data: dataset — `list[str]` (single flat) · `dict[str, list[str]]` (multi flat) ·
@@ -180,8 +182,11 @@ def encode(
             por coluna no meta (ADR-0027, self-describing).
         name: rotulo opcional do header single-col + nature (`#TCF.8 nome:id`).
             SO' com nature (senao erro — seria ignorado calado; BUG-10e).
-        stamp: (list) prefixa version-stamp `#TCF.8\\n` (magic pra file/libmagic,
-            ADR-0029). Ignorado pra dict — o `M` do multi JA' e' o stamp.
+        stamp: (list) controla o header `#TCF.8\\n` do single-col. `None` (default) e
+            `True` -> COM header, 100% dos casos (ADR-0034). `False` -> ESCAPE explicito
+            (orfao, sem header): so' pra transmissao ou container que ja' carrega o
+            contrato (parquet) — ai o contrato vive nas PONTAS, nao no arquivo.
+            Ignorado pra dict — o `M` do multi JA' e' o stamp.
         drop_names: (multi-col) omite os nomes no meta (colunas ANONIMAS,
             ADR-0029); decode retorna nomes posicionais '0','1',... Nome de
             coluna '' equivale a anonima so' naquela coluna (warning).
@@ -284,7 +289,8 @@ def encode(
             )
             header_nat = f"{magic} {name or ''}:{nature.name}\n"
             # FLOOR: compara os blobs completos; empate fica no baseline.
-            baseline = f"{magic}\n{body_orig}" if stamp else body_orig
+            # o baseline compete na MESMA grafia que sera' emitida (com header por default)
+            baseline = body_orig if stamp is False else f"{magic}\n{body_orig}"
             candidate = header_nat + body_nat
             win = len(candidate.encode("utf-8")) < len(baseline.encode("utf-8"))
             if side_outputs is not None:
@@ -305,12 +311,16 @@ def encode(
             body = _encode_column(
                 data, header="val", side=side_outputs, cfg=cfg, min_len=min_len
             )
-        if stamp:
-            # version-stamp opt-in (#TCF.8\n<body>): carimbo de versao /
-            # magic-number p/ file/libmagic (ADR-0029). Default-off -> single
-            # puro fica orfao byte-identico.
-            return magic + "\n" + body
-        return body  # single-col puro orfao (byte-identico)
+        if stamp is False:
+            # ESCAPE EXPLICITO (owner 2026-07-24): single-col orfao, sem `#TCF.8`. So' por
+            # pedido — casos de transmissao e de embutir em container que ja' carrega o
+            # contrato (parquet), onde o header nao paga. O contrato passa a viver nas
+            # pontas: quem produz e quem consome combinam fora do arquivo.
+            return body
+        # DEFAULT = COM cabecalho, 100% dos casos (owner 2026-07-24). O `#TCF.8\n` infla o
+        # single-col em 7 B, e isso e' INEVITAVEL — o arquivo se auto-explica em vez de
+        # depender de quem o produziu. Supersede o default do ADR-0029 (ver ADR-0034).
+        return magic + "\n" + body
     if isinstance(data, list) and not data:
         # [] FLAT (owner 2026-07-24, canonicidade do vazio): a forma flat passa a
         # expressar a lista vazia como '#TCF.8\n' (7 B), em vez de fugir pro .8H '#D0'

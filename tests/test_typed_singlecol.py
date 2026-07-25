@@ -14,7 +14,9 @@ from tcf import encode, decode
 
 def _typed_core_wire(vals, tag, render):
     """Constroi um wire tipado-core a mao: '#TCF.8<tag>\n' + corpo core dos literais renderizados."""
-    body = encode([render(v) for v in vals]) if vals else ""
+    # stamp=False: aqui o encode e' usado so' pra gerar o CORPO — o header do wire tipado
+    # e' o `#TCF.8<tag>` construido logo abaixo (ADR-0034: header e' do artefato, 1 so').
+    body = encode([render(v) for v in vals], stamp=False) if vals else ""
     return f"#TCF.8{tag}\n{body}"
 
 
@@ -76,7 +78,8 @@ class TestBoolEncodeTyped:
     def test_nao_flipa_int_float_str_mixed(self):
         assert encode([1, 2, 3]).startswith("#TCF.8H")            # int -> .8H (nao flipado)
         assert encode([1.5, 2.0]).startswith("#TCF.8H")           # float -> .8H
-        assert not encode(["a", "b"]).startswith("#TCF.8")        # str -> orfao
+        # str -> single-col NAO-tipado: version-stamp puro, sem tag de tipo no indice 6
+        assert encode(["a", "b"]).startswith("#TCF.8\n")
         with pytest.raises(ValueError, match="MISTOS|union|misto"):
             encode([True, 1])                                     # mixed bool+int -> fail-loud
 

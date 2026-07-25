@@ -30,7 +30,7 @@ Tudo e' **caminho-de-erro** => byte-neutro por construcao.
 - **A. byte-neutro** — RT 5/5; gates byte-canonicos (pinados ANTES do weld) **passam**
 - **B. fail-loud** — 501 mutacoes deterministicas, **0 excecao crua** (era a metrica do weld)
 - **C. aceite-calado** — 15/15 fail-loud, e a faixa valida `1..len` intacta (controle positivo)
-- **D. amplificacao RLE** — **achado NOVO, NAO soldado** (abaixo)
+- **D. amplificacao RLE** — achado NOVO, **soldado** como `max_length` (abaixo)
 
 ## Amplificacao do contador RLE — FECHADO (weld `max_length`)
 
@@ -55,7 +55,7 @@ corta o **catastrofico** (8 GB), nao o **caro**. Quem processa entrada hostil de
 Por que fail-loud e nao warning: quando o warning sairia, a memoria ja' foi alocada. A
 mensagem nomeia o parametro a subir — e' o aviso em tempo de servir pra algo.
 
-## Achado de contrato: o default do cabecalho esta INVERTIDO
+## Achado de contrato: o default do cabecalho estava INVERTIDO — FECHADO (ADR-0034)
 
 O owner reportou que as saidas sairam sem `#TCF.8`. Investigado — **o codigo faz o contrario
 do contrato declarado pelo owner**:
@@ -71,8 +71,11 @@ eram todos `.8H`/`.8M`, que carregam header por construcao. Este foi o primeiro.
 
 Custo da forma com header: **+7 B** (ex.: A-repetidos 28 -> 35 B).
 
-Este lab passou a usar `stamp=True` (helper `_enc`) para que as saidas mostrem a forma que o
-owner quer ver. **Decisao de contrato em aberto** — nada em `src/tcf` foi tocado por isso.
+**FECHADO** — o owner revisou e declarou que a premissa do ADR-0029 estava mal registrada:
+provavelmente descrevia uma condicao especifica (transmissao/container) e o *default* escapou
+para o texto. O header passou a ser DEFAULT em 100% dos casos (ADR-0034); o orfao virou
+escape explicito (`stamp=False`). Gates re-pinados: D1-D9 1523->1586, real-world 89616->89637
+(+7 B/dataset; o core nao mudou 1 byte). O helper `_enc` deste lab virou passthrough.
 
 Nota lateral: o bool tipado rejeita `stamp` com a mensagem *"nao se aplicam a entrada
 hierarquica (.8H)"*, texto que ficou desatualizado com o weld #4a — bool nao vai mais pro
@@ -88,7 +91,7 @@ hierarquica (.8H)"*, texto que ficou desatualizado com o weld #4a — bool nao v
 4. parte C usava valores `v0`/`v1`: o digito vira **referencia de fragmento**, entao o proprio
    corpo-base era invalido e todo o controle positivo falhava
 5. as saidas sairam **sem cabecalho** (rodadas 1-2) — eu segui o default do codigo em vez do
-   contrato do owner; corrigido com `stamp=True`, e a divergencia virou achado (secao acima)
+   contrato do owner. A divergencia virou achado e, revisada pelo owner, virou o ADR-0034
 
 ## Rodar / layout
 

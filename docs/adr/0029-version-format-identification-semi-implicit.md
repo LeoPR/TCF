@@ -1,6 +1,9 @@
 # 0029 — Estratégia de identificação de versão/formato: semi-implícito + major-externo
 
-**Status**: accepted (2026-06-24)
+**Status**: accepted (2026-06-24) — **DEFAULT SUPERSEDIDO** pelo [ADR-0034](0034-header-default-100-porcento-single-col.md) (2026-07-24): o header e' default em
+100% dos casos; o orfao virou escape explicito. O owner revisou e declarou que a premissa
+"orfao = default" foi mal interpretada no registro deste ADR. O RESTO do 0029 segue valido
+(tabela de discriminadores, `#TCF.8 :id` self-describing, `drop_names`, major-externo).
 **Date**: 2026-06-24
 **Deciders**: project owner
 **Tags**: format, versioning, self-describing, byte-economy, 1.0, identification

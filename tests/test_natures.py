@@ -351,13 +351,16 @@ class TestDiscriminatorV8:
         assert t.split("\n")[0] == "#TCF.8"  # linha so' '#TCF.8' (disc = newline)
         assert decode(t) == vals  # interpreta -> list (single-col)
 
-    def test_version_stamp_nao_e_default(self):
+    def test_version_stamp_e_o_default(self):
+        """ADR-0034 (supersede o default do ADR-0029): header e' DEFAULT em 100% dos casos.
+        O escape (orfao) existe, mas so' EXPLICITO — transmissao / container tipo parquet."""
         vals = ["a@b.com", "c@d.com"]
-        assert not encode(vals).startswith("#TCF.8")  # default = orfao (body puro)
+        assert encode(vals).startswith("#TCF.8\n")                 # default = COM header
+        assert not encode(vals, stamp=False).startswith("#TCF.")   # escape explicito
 
     def test_version_stamp_interpret_construido(self):
         """Capacidade de interpretar um #TCF.8\\n<body> (mesmo construido a mao)."""
-        plain = encode(["x", "y", "x"])  # body orfao
+        plain = encode(["x", "y", "x"], stamp=False)  # body orfao (escape explicito)
         stamped = "#TCF.8\n" + plain
         assert decode(stamped) == ["x", "y", "x"]
 
@@ -375,10 +378,11 @@ class TestDiscriminatorV8:
 
 class TestNatureMarkSingleCol:
     def test_no_spec_byte_identico(self):
-        """INVARIANTE byte-neutro: single-col SEM spec -> body puro, sem shebang."""
+        """Single-col SEM spec -> version-stamp `#TCF.8`, nunca header de spec (ADR-0034)."""
         vals = ["529.982.247-25", "111.444.777-35", "529.982.247-25"]
         text = encode(vals)  # sem nature
-        assert not text.startswith("#TCF.8")  # nenhum shebang
+        assert text.startswith("#TCF.8\n")     # version-stamp (default), nao '#TCF.8 :id'
+        assert not text.startswith("#TCF.8 ")  # nenhum header de spec
         assert text == encode(vals)  # deterministico
         assert decode(text) == vals
 
@@ -421,7 +425,7 @@ class TestNatureMarkSingleCol:
         text = encode(ips, nature=SPEC_IP)
         assert decode(text) == ips  # RT independe do win
         line0 = text.split("\n")[0]
-        assert line0 == "#TCF.8 :ip" or not line0.startswith("#TCF.8")  # win OU órfão
+        assert line0 in ("#TCF.8 :ip", "#TCF.8")  # win (spec) OU piso (version-stamp)
 
     def test_unknown_id_raises(self):
         # ERRO estrito (BUG-13b, owner 2026-07-10 — antes: warning + cru calado)

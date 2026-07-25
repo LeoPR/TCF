@@ -9,7 +9,7 @@ Regras que este runner IMPÕE (T-QA-8 §2):
   RT quebrado -> registro de ERRO sem bytes/tempo (nunca número órfão).
 - Medir, não calcular: todo campo sai de execução.
 - Régua: `--validate-pins` confere o runner contra os 3 pinos da suíte
-  (D1-D9=1523B, D17a=300B, real-world=89616B) — divergiu, é bug DO RUNNER
+  (D1-D9=1586B, D17a=300B, real-world=89637B) — divergiu, é bug DO RUNNER
   (F1-4): não produza material.
 
 Uso:
@@ -47,9 +47,9 @@ RESULTS_DIR = ROOT / "experiments" / "results" / "evidencia-0.8"
 # --- Pinos da régua (F1-4). FONTE = a suíte (tests/test_regression_v1_baseline.py
 # + tests/test_real_world_snapshots.py); duplicado AQUI só pra validação cruzada
 # do runner — em divergência, O TESTE MANDA (princípio: a prosa aponta, o teste mede).
-PIN_D1_D9_TOTAL = 1523
+PIN_D1_D9_TOTAL = 1586      # era 1523; +63 = 9 x 7 B do header default (ADR-0034)
 PIN_D17A = 300
-PIN_REAL_WORLD_TOTAL = 89616
+PIN_REAL_WORLD_TOTAL = 89637   # era 89616; +21 = 3 x 7 B (ADR-0034)
 _D1_D9 = [
     "D1-emails-simples", "D2-emails-quote-id", "D3-stress-substring",
     "D4-caos-mix", "D5-padroes-multiplos", "D6-poucos-em-ruido",

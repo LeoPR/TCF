@@ -55,7 +55,8 @@ TCF distingue **versão de FORMATO** (assinatura `#TCF.N`, eixo A) de **versão 
 | `#TCF.5` | superseded | 2026-04 (v0.5) | tcf 0.5.x (legacy, nao manter) |
 
 **`#TCF.8` e' o formato DEFAULT** ([ADR-0032](../adr/0032-tcf8-default-format.md), 2026-07-09): todo
-multi-col emite `#TCF.8M`; single-col plano segue **orfao** (0 bytes de header, ADR-0029 camada 1 /
+multi-col emite `#TCF.8M`; single-col plano emite **`#TCF.8`** por DEFAULT (7 B, ADR-0034 — o orfao
+virou escape explicito `stamp=False`; ADR-0029 camada 1 /
 [ADR-0030](../adr/0030-freeze-single-col-body-at-1.0.md) freeze). O legado `#TCF.6`/`#TCF.7` foi
 **cortado** de `src/tcf` (decode fail-loud com dica de git). Self-describing: natures (ADR-0027) + hex
 + escaping viajam no header.
@@ -66,7 +67,9 @@ estrutura. 5 valores:
 
 | apos `#TCF.8` | tipo | header |
 |---|---|---|
-| *(nada, body direto)* | single-col orfao (DEFAULT, 0 B) | — |
+| `
+` | single-col version-stamp (**DEFAULT**, 7 B, ADR-0034) | `#TCF.8` |
+| *(nada, body direto)* | single-col orfao (ESCAPE explicito `stamp=False`: transmissao/parquet) | — |
 | `M` | multi-col plano | `#TCF.8M<meta>` (meta INLINE na linha da assinatura) |
 | `H` | multi-col hierarquico (especializacao de `M`) — **reservado** (ADR-0031; codec no lab, fail-loud) | `#TCF.8H<meta-arvore>` |
 | ` ` (espaco) | single + spec | `#TCF.8 [nome]:spec` (nome opcional, so' rotulo) |
@@ -95,7 +98,8 @@ Exemplos (body na(s) linha(s) seguinte(s)):
     #TCF.8 docs:cpf              <- single + spec cpf, nome 'docs'
     #TCF.8                       <- single version-stamp (body single-col puro)
 
-- **byte-neutro do single-col**: single-col plano = body puro **orfao** (sem assinatura, D1-D9=1523B e
+- **single-col**: `#TCF.8
+` + body (D1-D9=1586B pos-ADR-0034; era 1523B como orfao, e
   real-world=89616B intactos — ADR-0032 nao mexe no single-col). So' o MULTI-COL virou `#TCF.8M`.
 
 **Candidatos de coluna** (o fallback per-coluna, todos no `#TCF.8M`; `min(tcf,raw,dict,split)`):

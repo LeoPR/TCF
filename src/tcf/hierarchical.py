@@ -485,18 +485,21 @@ def _encode_dataset(records: list, side_outputs=None, nature_per_col=None) -> st
             spec = nat_spec[key]
             raw = [_unesc_leaf(x) for x in cols[key]]          # recupera valor original (des-escapa)
             try:
-                fw = _encode_col(raw, nature=spec)             # '#TCF.8 :id\n<body>' (reusa flat)
+                fw = _encode_col(raw, nature=spec, stamp=False)  # '#TCF.8 :id\n<body>' (reusa flat)
             except Exception:                                  # nature não representa o valor (ex: LF
                 nat_id.pop(key, None)                          # no raw, que o flat não carrega) → piso
-                return _encode_col(cols[key])                  # body ESCAPADO (idêntico ao caminho normal)
+                return _encode_col(cols[key], stamp=False)     # body ESCAPADO (idêntico ao caminho normal)
             hdr, _sep, body = fw.partition("\n")
             marker = "#TCF.8 :"
             if not hdr.startswith(marker):                     # nature não venceu (piso: raw menor)
                 nat_id.pop(key, None)                          # sem :id no meta
-                return _encode_col(cols[key])                  # body ESCAPADO (idêntico ao caminho normal)
+                return _encode_col(cols[key], stamp=False)     # body ESCAPADO (idêntico ao caminho normal)
             nat_id[key] = hdr[len(marker):]                    # id auto-descritivo (registry no decode)
             return body
-        return _encode_col(cols[key]) if cols[key] else ""
+        # stamp=False: uso INTERNO do encode como compressor de COLUNA. O header `#TCF.8` e'
+        # do ARQUIVO, nao de cada coluna aninhada — o container .8H ja' carrega o contrato
+        # (mesmo caso de escape do parquet/transmissao, ADR-0034).
+        return _encode_col(cols[key], stamp=False) if cols[key] else ""
 
     # L1: encode por coluna (o compressor do core). Coluna vazia -> body vazio.
     if side_outputs is None:
@@ -508,7 +511,7 @@ def _encode_dataset(records: list, side_outputs=None, nature_per_col=None) -> st
             child = SideOutputs()
             bodies[key] = _body(key)                 # nature-aware (bytes idênticos ao caminho normal)
             if key not in nat_spec and cols[key]:    # telemetria L1 só nas colunas sem nature
-                _encode_col(cols[key], side_outputs=child)
+                _encode_col(cols[key], side_outputs=child, stamp=False)
             per_col["/".join(key[0]) + ":" + key[1]] = child
         side_outputs.per_col = per_col
         ctrl = sum(1 for _p, k in order

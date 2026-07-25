@@ -43,12 +43,12 @@ FONTES = {
 
 
 def _enc(dados):
-    """Encode COM cabecalho (owner 2026-07-24: as saidas de exemplo tem que mostrar a forma
-    com `#TCF.8`). ATENCAO — inversao: para `list[str]` o default do codigo e' SEM header
-    (docstring: "single-col flat (orfao, sem header)"); `stamp=True` e' o que ADICIONA. As
-    demais rotas (bool tipado, [], .8M, .8H) ja' emitem header e REJEITAM `stamp`."""
-    if dados and all(isinstance(x, str) for x in dados):
-        return encode(dados, stamp=True)
+    """Encode no DEFAULT — que desde o ADR-0034 ja' e' COM cabecalho em 100% dos casos.
+
+    Historico: nas rodadas 1-2 este helper precisava de `stamp=True` porque o codigo fazia o
+    inverso (`list[str]` saia orfao por default). Foi este lab que expos a divergencia — o
+    primeiro a codificar `list[str]` pura; todos os anteriores usavam .8H/.8M, que ja' tinham
+    header. O owner revisou e o default foi corrigido no src, entao o helper virou passthrough."""
     return encode(dados)
 
 
