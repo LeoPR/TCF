@@ -1,0 +1,8 @@
+{
+  "nota": "bool (tag `b`)", 
+  "dados": [
+    true, 
+    false, 
+    true
+  ]
+}

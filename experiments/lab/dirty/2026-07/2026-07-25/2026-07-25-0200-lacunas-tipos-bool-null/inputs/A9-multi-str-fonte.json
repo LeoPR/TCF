@@ -1,0 +1,13 @@
+{
+  "nota": "multi-col de string", 
+  "dados": {
+    "a": [
+      "x", 
+      "y"
+    ], 
+    "b": [
+      "p", 
+      "q"
+    ]
+  }
+}

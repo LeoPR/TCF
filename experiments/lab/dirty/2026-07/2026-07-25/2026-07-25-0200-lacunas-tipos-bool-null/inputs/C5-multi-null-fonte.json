@@ -1,0 +1,13 @@
+{
+  "nota": "multi-col + null", 
+  "dados": {
+    "a": [
+      "x", 
+      null
+    ], 
+    "b": [
+      "p", 
+      "q"
+    ]
+  }
+}
