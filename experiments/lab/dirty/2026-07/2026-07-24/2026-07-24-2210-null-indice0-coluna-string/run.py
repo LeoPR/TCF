@@ -30,35 +30,78 @@ CAB = "#TCF.8\n"
 
 
 # ============================================================ protótipo: encode / decode
+def _split(ln):
+    """`*N|resto` -> ('*N|', resto); senão ('', ln)."""
+    if ln.startswith("*") and "|" in ln:
+        bar = ln.find("|")
+        return ln[:bar + 1], ln[bar + 1:]
+    return "", ln
+
+
 def enc_proto(col):
-    """Coluna (str|None) -> wire `#TCF.8` com null como referência ao índice 0.
+    """Coluna (str|None) -> wire `#TCF.8` com null como `0` = ENDEREÇO RESERVADO.
+
+    Grafia decidida pelo owner (2026-07-24, revisão): o `0` cru é a *representação otimizada*
+    de `^0` — logo herda a SEMÂNTICA do `^0`: **não declara nó**. Assim TODO null é `0` (1
+    char), em vez de o 1º declarar e os demais virarem `^k`. Medido −479 B em 17 casos contra
+    a grafia que declarava. Ver `colisao-e-grafia-final.py`.
+
+    Desambiguação POSICIONAL (mesma classe do char de modo no índice 7): a **linha inteira**
+    igual a `0` é o especial; um `0` dentro de composição (`1~0`) segue sendo FRAGMENTO.
 
     TRUQUE (não é reimplementação): passa a coluna pro encode REAL com null trocado por "0";
-    o core escapa como `\\0` e resolve repetições com `^N` sozinho. Trocar a DECLARAÇÃO `\\0`
-    por `0` preserva a numeração `^N` exatamente — o nó continua sendo o mesmo nó.
+    o core escapa como `\\0` e resolve repetições sozinho. Como `0` não declara nó, os nós
+    reais renumeram para baixo.
     """
     if any(v == MARCA for v in col if v is not None):
         raise ValueError("coluna contém a string '0' — colidiria com o placeholder do protótipo")
-    corpo = encode([MARCA if v is None else v for v in col], stamp=False)
-    linhas = []
-    for ln in corpo.split("\n"):
-        pre, _, resto = ln.rpartition("|") if ln.startswith("*") and "|" in ln else ("", "", ln)
-        cab = pre + "|" if pre else ""
-        linhas.append(cab + "0" if resto == "\\0" else ln)   # `\0` (literal) -> `0` (ref reservada)
-    return CAB + "\n".join(linhas)
+    linhas = encode([MARCA if v is None else v for v in col], stamp=False).split("\n")
+    z, no = None, 0                                   # z = nó que a declaração do null ocuparia
+    for ln in linhas:
+        _pre, r = _split(ln)
+        if r.startswith("^") or ln == "":
+            continue
+        no += 1
+        if r == "\\0":
+            z = no
+    out = []
+    for ln in linhas:
+        pre, r = _split(ln)
+        if r == "\\0":
+            out.append(pre + "0")                     # declaração -> endereço reservado
+        elif r.startswith("^"):
+            k = int(r[1:])
+            out.append(pre + ("0" if k == z else f"^{k - 1 if z and k > z else k}"))
+        else:
+            out.append(ln)
+    return CAB + "\n".join(out)
 
 
 def dec_proto(wire):
-    """Pre-avaliador: `0` (índice reservado) -> forma explícita -> core REAL -> materializa None."""
+    """Pré-avaliador: `0` (otimizado) -> `^0` -> forma explícita -> core REAL -> None."""
     if not wire.startswith(CAB):
         raise ValueError("wire do protótipo sem cabeçalho #TCF.8")
-    corpo = wire[len(CAB):]
-    linhas = []
-    for ln in corpo.split("\n"):
-        pre, _, resto = ln.rpartition("|") if ln.startswith("*") and "|" in ln else ("", "", ln)
-        cab = pre + "|" if pre else ""
-        linhas.append(cab + "\\0" if resto == "0" else ln)   # expande p/ a camada explícita
-    return [None if v == MARCA else v for v in decode("\n".join(linhas))]
+    linhas = wire[len(CAB):].split("\n")
+    m = 0                                             # nós declarados ANTES do 1º `0`
+    for ln in linhas:
+        _pre, r = _split(ln)
+        if r == "0":
+            break
+        if r.startswith("^") or ln == "":
+            continue
+        m += 1
+    z, visto, out = m + 1, False, []
+    for ln in linhas:
+        pre, r = _split(ln)
+        if r == "0":
+            out.append(pre + ("\\0" if not visto else f"^{z}"))
+            visto = True
+        elif r.startswith("^"):
+            k = int(r[1:])
+            out.append(pre + f"^{k + 1 if k >= z else k}")
+        else:
+            out.append(ln)
+    return [None if v == MARCA else v for v in decode("\n".join(out))]
 
 
 # ============================================================ datasets
@@ -149,11 +192,15 @@ def main():
         out.append(f"| {eid} | {a} | {b} | {c} | {a - b:+} | {b - c:+} |")
     out += [f"| **TOTAL** | | | | **{te:+}** | **{ti:+}** |", "",
             f"Do ganho total de {te + ti} B: **envelope = {100 * te / (te + ti):.0f}%**, "
-            f"**índice = {100 * ti / (te + ti):.0f}%** (exatamente +1 B por coluna — o `\\0`→`0` "
-            "da linha de declaração).", "",
-            "**O valor do índice reservado NÃO é o 1 byte.** É que a forma (b), que captura os "
-            "99%, é **inviável**: um literal colide com a string real. O índice 0 é o que torna "
-            "ficar no flat **lossless** — ele não gera o ganho, ele o VIABILIZA.", ""]
+            f"**índice = {100 * ti / (te + ti):.0f}%**.", "",
+            "A parcela do índice cresceu com a grafia decidida pelo owner (`0` como endereço "
+            "reservado que NÃO declara nó): **todo** null vira 1 char, contra 2 do literal "
+            "`\\0` e 2+ do `^k` que a grafia anterior gerava nas repetições. Por isso ela "
+            "escala com a densidade de null (+249 B em `R-n1000-p50`).", "",
+            "**Mas o valor estrutural do índice não é essa parcela.** A forma (b), que sozinha "
+            "captura a maior parte, é **inviável**: um literal colide com a string real `\"0\"` "
+            "— foi exatamente a refutação do lab `2026-07-13-1921`. O índice reservado é o que "
+            "torna ficar no flat **lossless**; ele não só gera ganho, ele **VIABILIZA** o resto.", ""]
 
     out += ["## Wire lado a lado — exemplo do owner", ""]
     col = FONTES["A-exemplo-owner"][0]

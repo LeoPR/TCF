@@ -205,3 +205,21 @@ E o índice segue sendo necessário: a forma que captura os 99% sem ele (null �
 índice 0 é ocupado por um nó que já existia (a declaração do null), sem empurrar os demais.
 A pergunta "sempre 0 vs declarado" continua aberta para o caso **sem** null na coluna — mas o
 controle `E-sem-null` saiu byte-idêntico, o que é evidência a favor do "sempre" ser grátis.
+
+### 8.1 Grafia decidida (owner, revisão do mesmo dia)
+
+O owner rejeitou a 1a grafia e propos `^0`; depois preferiu o **`0` cru** pelo ganho, com a
+leitura de que ele e' a *representacao otimizada* que "internamente representa `^0`". Isso
+fecha melhor do que as duas formas anteriores, porque implica que o `0` **herda a semantica do
+`^0`**: endereco RESERVADO que **nao declara no'**. Assim TODO null e' `0` (1 char) — na 1a
+rodada o `0` declarava e o 2o null virava `^1`. Medido: **-479 B** em 17 casos.
+
+**Regra**: desambiguacao POSICIONAL — a **linha inteira** igual a `0` e' o especial; um `0`
+dentro de composicao (`1~0`) segue sendo FRAGMENTO. Logo "compor string com null" continua
+inexprimivel, que era a unica objecao real ao digito nu.
+
+**Gate de colisao**: 1179 colunas adversariais -> 0 linhas `0` emitidas, 0 RT quebrado. A
+string `"0"` e' sempre escapada como ` `; a tabela de fragmentos e' 1-based. Slot livre.
+
+Numeros finais: RT 17/17, **delta mediano -33%**, controle sem-null byte-identico.
+Decomposicao: envelope 84%, indice 16% (a parcela do indice escala com a densidade de null).

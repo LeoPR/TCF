@@ -11,23 +11,41 @@ Escala do owner: **uma coluna de UM tipo**. `[null, "", "true", "false", "oi", n
 ```
 coluna : [None, '', 'true', 'false', 'oi', None, 'null']
 hoje   : '#TCF.8H#V\z#:3?:14[\n\7\n\0\n*4|.\n^1\n^2\n\ntrue\nfalse\noi\nnull\n'   57 B
-proto  : '#TCF.8\n0\n\ntrue\nfalse\noi\n^1\nnull\n'                                32 B
+proto  : '#TCF.8\n0\n\ntrue\nfalse\noi\n0\nnull\n'                                  31 B
 ```
+
+## Grafia (revisada pelo owner)
+
+O `0` cru é a **representação otimizada de `^0`** — logo herda a semântica dele: **endereço
+RESERVADO que NÃO declara nó**. Assim **todo** null é `0` (1 char). A 1ª rodada tinha o `0`
+declarando um nó, o que fazia o 2º null virar `^1` — grafia inconsistente e mais cara. Medido:
+**−479 B** em 17 casos contra a forma que declarava.
+
+**Desambiguação POSICIONAL** (mesma classe do char de modo no índice 7): a **linha inteira**
+igual a `0` é o especial. Um `0` DENTRO de composição (`1~0`, `0..3`) continua no espaço de
+FRAGMENTO e não vira null — então a classe absurda "compor uma string com null" permanece
+**inexprimível**, que era a única objeção real ao dígito nu.
+
+**Caça a colisões**: **1179 colunas** com vocabulário adversarial (`"0"`, `"00"`, `"01"`,
+`"10"`, `"-0"`, `"0.0"`, `"000"`, `"^0"`, `"\0"`, `"*2|0"`, `"0~0"`, vazia) em singleton,
+pares, trios, repetição (RLE) e intercalado → **0 linhas `0` emitidas pelo encoder, 0 RT
+quebrado**. A string `"0"` é sempre escapada como `\0` e a tabela de fragmentos é 1-based: o
+slot está livre. Ver `colisao-e-grafia-final.py` / `result-grafia-final.md`.
 
 ## Resultado
 
-**RT 17/17** (hoje E protótipo, os dois validados) · **Δ mediano −28%** · controle sem-null
+**RT 17/17** (hoje E protótipo, os dois validados) · **Δ mediano −33%** · controle sem-null
 **byte-idêntico** ao flat (quem não tem null não paga nada).
 
-Ganho por regime: cresce com a densidade de null (−4% em 1%, −30% em 50%) e é maior em **n
-pequeno** (−44% no exemplo do owner, 7 elementos) — o regime de payload minúsculo.
+Ganho por regime: cresce com a densidade de null (−4% em 1%, −36% em 50%) e é maior em **n
+pequeno** (−46% no exemplo do owner, 7 elementos) — o regime de payload minúsculo.
 
 ## O achado que importa (auto-adversarial)
 
-Decompus o ganho e **99% dele vem do ENVELOPE, não do índice** — o índice em si vale
-exatamente **+1 B por coluna** (o `\0`→`0` da linha de declaração).
+Decompus o ganho: **84% vem do ENVELOPE, 16% do índice**. A parcela do índice cresce com a
+densidade de null (a grafia `0` faz todo null custar 1 char) — +249 B em `R-n1000-p50`.
 
-Mas a forma que captura os 99% sem o índice — deixar null virar o **literal** `"0"` — é
+Mas a forma que captura a maior parte sem o índice — deixar null virar o **literal** `"0"` — é
 **inviável**: colide com a string real `"0"`, não é lossless. Foi exatamente por isso que o
 lab `2026-07-13-1921` refutou "null = índice" (ele **stringificava**).
 
