@@ -1,0 +1,12 @@
+{
+  "nota": "n pequeno, 1 null",
+  "dados": [
+    null,
+    "ativo",
+    "inativo",
+    "ativo",
+    "pendente",
+    "ativo",
+    "inativo"
+  ]
+}

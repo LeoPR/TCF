@@ -181,3 +181,27 @@ que:
 4. teste as 4 vias (§1) sob o novo mecanismo, que é a assinatura de corretude do P3.
 
 Só com isso a pergunta "null entra de graça sempre?" tem resposta medida em vez de intuída.
+
+---
+
+## 8. ADENDO (mesmo dia) — protótipo feito, e ele reposiciona o alvo
+
+Lab [`2026-07-24-2210-null-indice0-coluna-string`](../../2026-07/2026-07-24/2026-07-24-2210-null-indice0-coluna-string/).
+Escala do owner: **uma coluna de UM tipo** (string com nulls).
+
+**RT 17/17, Δ mediano −28%**, controle sem-null byte-idêntico. Ganho maior em n pequeno
+(−44% no exemplo do owner) e crescente com a densidade de null.
+
+**Mas a decomposição corrige o §2 deste levantamento**: **99% do ganho é o ENVELOPE**, não o
+índice. O índice vale +1 B por coluna. O custo real do null hoje **não é a máscara** — ela é
+barata e comprime bem, como o §2 mediu. É **a expulsão da coluna para o `.8H`**, que só
+acontece porque `None` não é `str`.
+
+E o índice segue sendo necessário: a forma que captura os 99% sem ele (null → literal `"0"`)
+**colide com a string real** — foi exatamente a refutação do lab `2026-07-13-1921`.
+**O índice reservado não gera o ganho; ele o viabiliza.**
+
+**Corrige também o §4**: o custo do deslocamento não apareceu porque, na forma medida, o
+índice 0 é ocupado por um nó que já existia (a declaração do null), sem empurrar os demais.
+A pergunta "sempre 0 vs declarado" continua aberta para o caso **sem** null na coluna — mas o
+controle `E-sem-null` saiu byte-idêntico, o que é evidência a favor do "sempre" ser grátis.

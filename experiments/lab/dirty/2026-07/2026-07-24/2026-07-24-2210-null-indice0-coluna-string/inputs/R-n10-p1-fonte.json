@@ -1,0 +1,15 @@
+{
+  "nota": "regime n=10, 1% null",
+  "dados": [
+    "ativo",
+    "inativo",
+    "pendente",
+    "revisao",
+    "cancelado",
+    "ativo",
+    "inativo",
+    "pendente",
+    "revisao",
+    "cancelado"
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "nota": "CONTROLE: sem null -> protótipo tem que ser byte-idêntico ao flat",
+  "dados": [
+    "ativo",
+    "inativo",
+    "ativo",
+    "pendente"
+  ]
+}
