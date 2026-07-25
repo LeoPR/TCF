@@ -277,10 +277,15 @@ class M8AVirtualRefsSyntax(Syntax):
           is_rep = True sse pieces_per_line[i] is None.
         """
         quebras = self._coletar_quebras(unicas, tokens_por_string)
-        unica_to_eid = {s: i + 1 for i, s in enumerate(unicas)}
+        # PRE-ALOCACAO simetrica ao decode (`nos_decl = list(_SLOTS_RESERVADOS)`): o slot 0
+        # nasce OCUPADO pelo null e ja' EMITIDO, entao toda ocorrencia vira REFERENCIA e
+        # nenhuma vira declaracao — nao ha' "1o null declara, demais referenciam". `unicas`
+        # so' tem literais descobertos, entao os eids de dado seguem em 1.. (byte-identico).
+        unica_to_eid = {NULO: 0}
+        unica_to_eid.update({s: i + 1 for i, s in enumerate(unicas)})
         frags_por_no = {}
         proximo_idx = 1
-        eid_emitido = set()
+        eid_emitido = {0}
         pieces_per_line = []
         line_meta = []
 
@@ -570,10 +575,13 @@ class M8AVirtualRefsSyntax(Syntax):
                 # com count>=2 no grupo posterior. Caso nao exercitado em D1-D9
                 # (byte-canonical preservado), mas exercitado por pre-tx
                 # incremental (deltas repetidos em grupos separados).
+                # eid 0 = slot RESERVADO (null). A camada explicita e' `^0`; o wire leva a
+                # grafia OTIMIZADA `0` (o pre-avaliador do decode expande de volta).
+                ref = GRAFIA_NULO if eid == 0 else f"^{eid}"
                 if count > 1:
-                    body.append(f"*{count}|^{eid}")
+                    body.append(f"*{count}|{ref}")
                 else:
-                    body.append(f"^{eid}")
+                    body.append(ref)
                 # TRACE-ONLY: placeholder vazio mantem o alinhamento posicional
                 # li <-> ref_seqs[li] que build_trace/build_rede assumem
                 # (enumerate). NAO afeta bytes; um port descarta ref_seqs.

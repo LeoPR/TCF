@@ -84,8 +84,15 @@ def _nature_apply_stats(spec, statuses: list[str]) -> dict:
 
 # --- DISPATCH type-coherent (Passo 2, API unica: encode/decode sao a porta do dev) ---
 def _lista_flat(data) -> bool:
-    """list single-col FLAT: nao-vazia e TODOS str. Lista vazia/tipada/de-dict -> .8H."""
-    return isinstance(data, list) and bool(data) and all(isinstance(x, str) for x in data)
+    """list single-col FLAT: nao-vazia e todos `str` OU `None`. Lista vazia/tipada/de-dict -> .8H.
+
+    `None` entra no flat desde a pre-alocacao do slot 0 (2026-07-25): null e' mais um valor da
+    coluna, referenciado como `0`. Antes, uma unica ocorrencia expulsava a coluna inteira pro
+    envelope `.8H` — que compra generalidade (aninhamento, tipos mistos) que uma coluna de
+    string com nulls nao usa. Ganho medido no lab 2026-07-24-2210.
+    """
+    return (isinstance(data, list) and bool(data)
+            and all(x is None or isinstance(x, str) for x in data))
 
 
 def _tabela_flat(data) -> bool:
@@ -450,13 +457,23 @@ def _encode_column(
     -> auto (detect_min_len, ou 3 se pre_pass off). Comportamento inalterado
     no default.
     """
+    # `unicas` = literais DESCOBERTOS (slots altos da tabela). `None` NAO entra: ele mora no
+    # slot 0, PRE-ALOCADO pelo formato (ver syntax._SLOTS_RESERVADOS). Por isso os eids de
+    # dado seguem comecando em 1 e o wire de coluna sem null e' byte-identico.
     seen: OrderedDict[str, bool] = OrderedDict()
+    tem_nulo = False
     for s in values:
-        seen[s] = True
+        if s is None:
+            tem_nulo = True
+        else:
+            seen[s] = True
     unicas = list(seen.keys())
 
-    # CAMADA 1 — Pre-pass (toggleable)
-    features = analyze_column(values)  # sempre computa (barato, util pra side)
+    # CAMADA 1 — Pre-pass (toggleable). Roda sobre os LITERAIS: null nao tem forma textual,
+    # entao nao participa de cadencia/min_len (e nao pode virar '' calado). Sem null, a lista
+    # e' a mesma referencia de antes -> zero custo e zero risco de mudanca de bytes.
+    valores_lit = [s for s in values if s is not None] if tem_nulo else values
+    features = analyze_column(valores_lit)  # sempre computa (barato, util pra side)
     if cfg.pre_pass:
         cadence_detected, cadence_info = detect_cadence_from_features(features, unicas)
         auto_min_len = detect_min_len_from_features(features)

@@ -1,0 +1,10 @@
+{
+  "nota": "null na primeira e na última posição",
+  "dados": [
+    null,
+    "a",
+    "b",
+    "c",
+    null
+  ]
+}

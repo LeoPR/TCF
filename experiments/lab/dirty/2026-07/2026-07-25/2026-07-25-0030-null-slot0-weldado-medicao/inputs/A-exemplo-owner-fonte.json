@@ -1,0 +1,12 @@
+{
+  "nota": "exemplo literal do owner — as 4 vias numa coluna de string",
+  "dados": [
+    null,
+    "",
+    "true",
+    "false",
+    "oi",
+    null,
+    "null"
+  ]
+}

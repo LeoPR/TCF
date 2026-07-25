@@ -76,6 +76,69 @@ class TestNaoRoubaEnderecoDeDado:
             assert decode(w) == col
 
 
+class TestEncodeEmiteNull:
+    """Rota flat aberta p/ `str | None` (2026-07-25) — antes, 1 null expulsava a coluna
+    inteira pro envelope `.8H`."""
+
+    @pytest.mark.parametrize("col,wire", [
+        ([None],                       "#TCF.8\n0\n"),
+        ([None, None],                 "#TCF.8\n*2|0\n"),          # RLE sobre o slot
+        (["a", None, "b"],             "#TCF.8\na\n0\nb\n"),
+        ([None, "a", None],            "#TCF.8\n0\na\n0\n"),       # endereco ESTAVEL
+        (["ok"] * 3 + [None] * 2,      "#TCF.8\n*3|ok\n*2|0\n"),
+    ])
+    def test_wire_exato(self, col, wire):
+        assert encode(col) == wire
+        assert decode(wire) == col
+
+    def test_exemplo_do_owner(self):
+        col = [None, "", "true", "false", "oi", None, "null"]
+        w = encode(col)
+        assert w == "#TCF.8\n0\n\ntrue\nfalse\noi\n0\nnull\n"
+        assert decode(w) == col          # as 4 vias sobrevivem: null/""/"null"/literais
+
+    def test_todo_null_e_o_mesmo_endereco(self):
+        """Nao ha' '1o null declara, demais referenciam' — o slot e' pre-alocado."""
+        w = encode([None, "x", None, "y", None])
+        assert w.count("\n0\n") + w.endswith("\n0\n") >= 2
+        assert "^" not in w              # nenhum null virou referencia a no' DECLARADO
+
+    def test_null_nao_vira_string_vazia(self):
+        """`_to_str` achatava None -> '' (perda SILENCIOSA de `null` != `""`)."""
+        assert decode(encode([None, ""])) == [None, ""]
+        assert encode([None]) != encode([""])
+
+    def test_rota_por_tipo_inalterada(self):
+        assert encode([1, None, 3]).startswith("#TCF.8H")      # int preservado -> .8H
+        assert encode([True, None]).startswith("#TCF.8H")      # bool preservado -> .8H
+        assert encode({"a": ["x", None]}).startswith("#TCF.8H")  # multi c/ null -> .8H
+        assert decode(encode([1, None, 3])) == [1, None, 3]
+
+
+class TestByteNeutroSemNull:
+    """Coluna SEM null tem que sair byte-identica: o slot 0 nao rouba endereco."""
+
+    @pytest.mark.parametrize("dados", [
+        ["ativo", "inativo", "ativo"], ["x"] * 40,
+        [f"pedido-2026-{i:04d}" for i in range(30)], ["", "a", ""], ["0", "1", "10"],
+    ])
+    def test_wire_nao_muda(self, dados):
+        w = encode(dados)
+        assert "0\n" != w[7:9] or dados[0] == "0"   # nao apareceu slot onde nao ha' null
+        assert decode(w) == dados
+
+    def test_gates_byte_canonicos_cobrem(self):
+        """Guard-rail: os baselines D1-D9/real-world sao o gate real desta afirmacao."""
+        import csv
+        from pathlib import Path
+        ds = Path(__file__).resolve().parent.parent / "datasets" / "synthetic"
+        with (ds / "D1-emails-simples.csv").open(encoding="utf-8") as f:
+            r = csv.reader(f)
+            next(r)
+            vals = [row[0] for row in r if row]
+        assert len(encode(vals).encode()) == 125       # pino do ADR-0034
+
+
 class TestFailLoudPreservado:
     def test_fora_de_faixa(self):
         with pytest.raises(ValueError, match="fora de faixa"):

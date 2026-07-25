@@ -659,9 +659,17 @@ def _stringify_checked(values, col_name: str | None = None) -> list[str]:
     aqui, uma vez. Valida o que VAI SER USADO (pós-transformação): objeto com
     __str__ contendo quebra não fura. Contrato lossless: LF delimita 1 valor
     por linha; \\n embutido corromperia o RT em silêncio -> fail-loud."""
-    out: list[str] = []
+    out: list[str | None] = []
     loc = f"coluna {col_name!r}, " if col_name is not None else ""
     for i, v in enumerate(values):
+        if v is None:
+            # `None` ATRAVESSA (2026-07-25): null tem slot PRE-ALOCADO na tabela de
+            # referencias (syntax._SLOTS_RESERVADOS), nao e' string a stringificar. O
+            # `_to_str` antigo o achatava em `''` — perda SILENCIOSA da distincao
+            # `null` != `""` (as duas viravam a mesma linha vazia). Quem nao aceita null
+            # barra ANTES, no dispatch (`_lista_flat`/`_tabela_flat`).
+            out.append(None)
+            continue
         s = _to_str(v)
         if "\n" in s or "\r" in s:
             bad = "\\n" if "\n" in s else "\\r"

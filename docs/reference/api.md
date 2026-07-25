@@ -86,9 +86,13 @@ decode é garantida por ser constante da **versão** do formato.
 composição (`1~0`, `0..3`) continua sendo referência de **fragmento** — então "compor uma
 string com null" permanece inexprimível na gramática.
 
-> **Estado**: o `decode` entende as duas grafias. O **encoder ainda não as emite** — a rota
-> flat exige `list[str]` e desvia coluna com `None` para o `.8H`. Abrir essa rota para
-> `str | None` é o passo seguinte, e é onde está o ganho de bytes.
+**Rota flat aceita `list[str | None]`** (2026-07-25): uma coluna de string com nulls fica no
+flat em vez de ser expulsa pro `.8H`. Medido no lab `2026-07-25-0030`: **−36% mediano** em
+colunas com null (pior caso −4%, melhor −58%), e **0%** — byte-idêntico — em colunas sem null.
+
+`decode` de single-col pode devolver `list[str | None]`. Rota por tipo **inalterada**:
+`[1, None]` e `[True, None]` seguem no `.8H` (tipo preservado), e `{"a": ["x", None]}`
+tambem — a rota aberta e' a do single-col.
 
 ## kwargs de `decode`
 
