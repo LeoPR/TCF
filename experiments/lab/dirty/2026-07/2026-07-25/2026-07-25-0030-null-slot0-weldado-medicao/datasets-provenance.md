@@ -41,3 +41,16 @@ determinístico.
 
 `python run.py` regenera byte-a-byte. **Este lab não escreve em `src/tcf`** — o weld foi
 feito à parte e está versionado (suíte 937 passed, gates verdes).
+
+## Baseline JSON (adicionado na 3ª rodada, pedido do owner)
+
+`json.dumps(col, separators=(",", ":"), ensure_ascii=False)` — a forma **mais enxuta** do JSON
+equivalente. Comparar contra JSON indentado inflaria o ganho de graça, então não se usa.
+`null` é grafia **nativa** do JSON, logo a coluna com null não paga nada extra no baseline —
+ele não é enviesado a favor do TCF.
+
+Gravado em `outputs/<ID>-equivalente.json` para conferência byte a byte na mão.
+
+**Atribuição**: a maior parte do ganho vs JSON é do CORE (dedup/RLE/composição), não deste
+weld — as colunas sem null nenhum já dão −24% a −43%. A coluna `Δ do weld` na tabela isola o
+que a mudança acrescentou.

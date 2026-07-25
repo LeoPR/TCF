@@ -64,6 +64,16 @@ def _w(p, obj):
     p.write_text(json.dumps(obj, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
 
+def _json_compacto(col):
+    """JSON equivalente na forma MAIS ENXUTA — sem espaço nos separadores e sem `\\uXXXX`.
+
+    É a referência honesta de escala: comparar contra JSON indentado inflaria o ganho de
+    graça. `null` é a grafia nativa do JSON, então a coluna com null não paga nada extra
+    aqui — o baseline não é enviesado a favor do TCF.
+    """
+    return json.dumps(col, separators=(",", ":"), ensure_ascii=False)
+
+
 def main():
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
     linhas, falhas, ganhos = [], 0, []
@@ -71,33 +81,55 @@ def main():
         _w(RAIZ / "inputs" / f"{eid}-fonte.json", {"nota": nota, "dados": col})
         _w(RAIZ / "intermediates" / f"{eid}-dataset-consumido.json", col)
 
-        wa, wd = _antes(col), encode(col)
+        wa, wd, wj = _antes(col), encode(col), _json_compacto(col)
         rt = decode(wd) == col
         falhas += not rt
         (RAIZ / "outputs" / f"{eid}-antes-8H.tcf").write_text(wa, encoding="utf-8")
         (RAIZ / "outputs" / f"{eid}-wire.tcf").write_text(wd, encoding="utf-8")
+        (RAIZ / "outputs" / f"{eid}-equivalente.json").write_text(wj, encoding="utf-8")
         _w(RAIZ / "outputs" / f"{eid}-dataset.roundtrip.json", decode(wd))
 
-        a, d = len(wa.encode()), len(wd.encode())
+        a, d, j = len(wa.encode()), len(wd.encode()), len(wj.encode())
         pct = 100 * (d - a) / a
         ganhos.append(pct)
-        linhas.append((eid, len(col), sum(v is None for v in col), a, d, d - a, pct,
-                       "OK" if rt else "FALHOU"))
+        linhas.append((eid, len(col), sum(v is None for v in col), j, a, d, d - a, pct,
+                       100 * (d - j) / j, "OK" if rt else "FALHOU"))
 
     out = ["# Resultado — null no slot 0 SOLDADO (2026-07-25-0030)", "",
-           "`antes` = rota `.8H` (o que a coluna com null produzia até o weld) · "
-           "`depois` = `encode()` atual, medido no produto REAL.", "",
-           "| id | n | nulls | antes `.8H` | depois | Δ | Δ% | RT |",
-           "|---|---:|---:|---:|---:|---:|---:|---|"]
-    out += [f"| {e} | {n} | {k} | {a} | {d} | {x:+} | {p:+.0f}% | {s} |"
-            for e, n, k, a, d, x, p, s in linhas]
-    com = [p for _e, _n, k, _a, _d, _x, p, _s in linhas if k]
-    sem = [p for _e, _n, k, _a, _d, _x, p, _s in linhas if not k]
+           "`JSON` = JSON equivalente **compacto** (`separators=(',',':')`, sem `\\uXXXX`) — "
+           "referência de escala. `antes` = rota `.8H` (o que a coluna com null produzia até "
+           "o weld). `depois` = `encode()` atual, produto REAL.", "",
+           "| id | n | nulls | JSON | `.8H` | vs JSON | depois | vs JSON | Δ do weld | RT |",
+           "|---|---:|---:|---:|---:|---:|---:|---:|---:|---|"]
+    out += [f"| {e} | {n} | {k} | {j} | {a} | {100 * (a - j) / j:+.0f}% | {d} | **{q:+.0f}%** | {p:+.0f}% | {s} |"
+            for e, n, k, j, a, d, x, p, q, s in linhas]
+    com = [p for _e, _n, k, _j, _a, _d, _x, p, _q, _s in linhas if k]
+    sem = [p for _e, _n, k, _j, _a, _d, _x, p, _q, _s in linhas if not k]
+    vsj = [q for *_, q, _s in linhas]
+    vsj_com = [q for _e, _n, k, _j, _a, _d, _x, _p, q, _s in linhas if k]
     out += ["", f"RT: **{len(linhas) - falhas}/{len(linhas)}**", "",
-            f"- colunas **com** null ({len(com)}): Δ mediano **{statistics.median(com):+.0f}%**, "
-            f"pior caso {max(com):+.0f}%, melhor {min(com):+.0f}%",
-            f"- colunas **sem** null ({len(sem)}): Δ **{max(sem):+.0f}%** — byte-idênticas, "
-            "como tem que ser (o slot 0 era espaço morto)", ""]
+            f"- **vs JSON compacto** — mediana **{statistics.median(vsj):+.0f}%** "
+            f"(pior {max(vsj):+.0f}%, melhor {min(vsj):+.0f}%); "
+            f"só as colunas com null: **{statistics.median(vsj_com):+.0f}%**",
+            f"- vs `.8H`, colunas **com** null ({len(com)}): Δ mediano "
+            f"**{statistics.median(com):+.0f}%**, pior {max(com):+.0f}%, melhor {min(com):+.0f}%",
+            f"- vs `.8H`, colunas **sem** null ({len(sem)}): Δ **{max(sem):+.0f}%** — "
+            "byte-idênticas, como tem que ser (o slot 0 era espaço morto)", ""]
+
+    piores = [(e, j, a, 100 * (a - j) / j) for e, _n, k, j, a, _d, _x, _p, _q, _s in linhas
+              if k and a > j]
+    if piores:
+        out += ["### O achado: o `.8H` era MAIOR que o JSON em payload pequeno", "",
+                "Antes do weld, uma coluna minúscula com null saía **maior como TCF do que "
+                "como JSON** — o envelope hierárquico custava mais que os bytes que "
+                "economizava. Isso contradizia frontalmente o foco declarado (cada byte "
+                "conta em payload minúsculo).", "",
+                "| id | JSON | `.8H` | era | virou |", "|---|---:|---:|---:|---:|"]
+        for e, j, a, pc in piores:
+            d = [x[5] for x in linhas if x[0] == e][0]
+            out.append(f"| {e} | {j} | {a} | **{pc:+.0f}%** | **{100 * (d - j) / j:+.0f}%** |")
+        out += ["", f"**{len(piores)} de {len(com)} colunas com null** estavam nessa "
+                "situação; todas viraram ganho.", ""]
 
     # ---- byte-neutralidade em dados REAIS (o que o protótipo não podia medir)
     out += ["## Byte-neutralidade — D1-D9 (datasets reais do gate)", "",
@@ -119,11 +151,12 @@ def main():
 
     # ---- gzip: sinal qualitativo, NAO criterio (feedback gzip-nao-e-TCF)
     out += ["## Sob gzip (sinal qualitativo, não critério)", "",
-            "| id | antes gz | depois gz | Δ% |", "|---|---:|---:|---:|"]
+            "| id | JSON gz | `.8H` gz | TCF gz | vs JSON gz |", "|---|---:|---:|---:|---:|"]
     for eid, (col, _n) in list(FONTES.items())[:5]:
+        gj = len(gzip.compress(_json_compacto(col).encode(), 9))
         ga = len(gzip.compress(_antes(col).encode(), 9))
         gd = len(gzip.compress(encode(col).encode(), 9))
-        out.append(f"| {eid} | {ga} | {gd} | {100 * (gd - ga) / ga:+.0f}% |")
+        out.append(f"| {eid} | {gj} | {ga} | {gd} | {100 * (gd - gj) / gj:+.0f}% |")
     out += ["", "gzip **não é o TCF** — entra só como sinal de que o ganho não é artefato "
                 "de redundância textual que um entropy-coder colapsaria.", ""]
 
