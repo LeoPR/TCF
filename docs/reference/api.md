@@ -28,14 +28,14 @@ from tcf import SPEC_CPF, SPEC_CNPJ, SPEC_IP, TemplatedCheckedSpec, TemplatedPad
 
 | entrada | rota | wire |
 |---|---|---|
-| `list[str]` (todos str), ≥1 item | single-col flat | `#TCF.8` (7 B, **default**; ADR-0034) |
+| `list[str \| None]` (str e/ou null), ≥1 item | single-col flat | `#TCF.8` (7 B, **default**; ADR-0034) |
 | `dict[str, list[str]]` retangular, **≥1 linha** | multi-col flat | `#TCF.8M` |
 | `list[dict]` (dataset) · `dict` com valor escalar/aninhado · dict **ragged** ou **0-linha** · escalar solto · `[]` · `{}` · `list`/coluna **tipada** (item não-str) | hierárquico | `#TCF.8H` (`#D`/`#E`/`#O`/`#V`) |
 | tipo não-JSON (bytes, tuple, função, objeto custom) ou **array de tipos mistos** (union) | **fail-loud** | — (ensina a converter/separar) |
 
-**Regra**: só o **flat puro** (todos str) fica flat; qualquer coisa tipada/aninhada/vazia vai pro
-`.8H`, que **preserva o tipo** (`[1,2,3]` → array int; `None` preservado, não vira `""`). Isso
-elimina o deslize de stringificação silenciosa do pré-Passo-2.
+**Regra**: só **str e/ou null** fica flat; qualquer coisa tipada/aninhada/vazia vai pro `.8H`,
+que **preserva o tipo** (`[1,2,3]` → array int). `None` é preservado nas **duas** rotas — nunca
+vira `""` — o que elimina o deslize de stringificação silenciosa do pré-Passo-2.
 
 **Contrato pré-1.0 (mudanças do Passo 2, declaradas)**: `encode([])`/`encode({})` deixaram de ser
 fail-loud e viram `.8H` (`#D0`/`#E`, representáveis); `encode([1,2,3])` vira array `.8H` tipado (era
