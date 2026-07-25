@@ -215,8 +215,12 @@ def decode(
     return _decode_column(tcf_text, max_length=max_length)
 
 
-def _decode_column(tcf_text: str, max_length: int | None = None) -> list[str]:
+def _decode_column(tcf_text: str, max_length: int | None = None) -> "list[str | None]":
     """Decode body single-col. Cf. _encode_column no encoder.
+
+    `None` no retorno so' aparece via `^0`/`0` (slot 0 pre-alocado = null). O encoder ATUAL
+    nunca emite essas grafias — a rota flat exige `list[str]` e desvia coluna com `None` pro
+    `.8H` —, entao na pratica o retorno segue `list[str]` ate' a rota flat abrir p/ `str|None`.
 
     FUNIL UNICO de coluna — single-col, `.8M`, `view` e hierarquico passam todos por aqui,
     entao o teto `max_length` (default em `syntax.MAX_LENGTH_PADRAO`) protege TODAS as rotas

@@ -32,10 +32,18 @@ class TestCorpoMalformadoFailLoud:
         with pytest.raises(ValueError, match=trecho):
             decode(wire)
 
-    def test_ref_zero_nao_e_aceite_silencioso(self):
-        """REGRESSAO da corrupcao silenciosa: '^0' devolvia nos_decl[-1] (o ultimo no')."""
+    def test_ref_zero_e_o_slot_reservado(self):
+        """REGRESSAO da corrupcao silenciosa: `^0` devolvia `nos_decl[-1]` (o ULTIMO no'
+        declarado), calado. Desde a pre-alocacao (slot 0 = null) `^0` tem significado
+        proprio — o que NAO pode voltar e' ele resolver pra um no' de DADO."""
+        assert decode("ab\ncd\n^0\n") == ["ab", "cd", None]      # nao 'cd'
+        assert decode("ab\ncd\n0\n") == ["ab", "cd", None]       # grafia otimizada
+
+    def test_ref_negativa_ainda_fail_loud(self):
+        """A faixa agora comeca em 0, mas negativo segue fora dela (indice negativo do
+        Python continuaria sendo corrupcao silenciosa)."""
         with pytest.raises(ValueError, match="fora de faixa"):
-            decode("ab\ncd\n^0\n")
+            decode("ab\ncd\n^-1\n")
 
     def test_propaga_pelo_ramo_tipado(self):
         """A tag `b` nao mascara nem re-embrulha: o fail-loud do core atravessa."""

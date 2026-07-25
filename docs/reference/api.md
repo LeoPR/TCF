@@ -64,6 +64,32 @@ de coluna e passa `stamp=False` — todo wire tem **exatamente 1** header.
 
 Knobs detalhados por camada: [`encode-knobs.md`](encode-knobs.md).
 
+## Índices de referência PRÉ-ALOCADOS (slot 0 = null)
+
+A tabela de referências de uma coluna tem **duas metades**: os slots altos vêm do **dado**
+(literais descobertos no encode) e os slots baixos vêm do **formato** (dicionário da versão,
+que **não viaja no arquivo**). Essa segunda metade já existia — é o domínio `{false,true}` do
+modo denso do bool. **null é outra entrada dela**, não um caso com regra própria.
+
+| grafia | significado |
+|---|---|
+| `^0` | slot reservado 0 = `null` (forma explícita) |
+| `0` | mesma coisa, grafia **otimizada** (a linha **inteira** igual a `0`) |
+| `^1`, `^2`, … | 1º, 2º, … nó **declarado** — inalterado |
+
+**Incondicional e grátis**: `^N` sempre foi 1-based, então `^0` era espaço morto. Ocupá-lo não
+tira endereço de nenhum dado (`^1` continua sendo o 1º nó declarado, byte-idêntico) e evita
+que null consuma um endereço **vivo**. Como nada viaja no wire, a consistência entre encode e
+decode é garantida por ser constante da **versão** do formato.
+
+**Desambiguação posicional**: só a linha inteira igual a `0` é o especial. Um `0` dentro de
+composição (`1~0`, `0..3`) continua sendo referência de **fragmento** — então "compor uma
+string com null" permanece inexprimível na gramática.
+
+> **Estado**: o `decode` entende as duas grafias. O **encoder ainda não as emite** — a rota
+> flat exige `list[str]` e desvia coluna com `None` para o `.8H`. Abrir essa rota para
+> `str | None` é o passo seguinte, e é onde está o ganho de bytes.
+
 ## kwargs de `decode`
 
 - **`nature`** / **`nature_per_col`**: reverse da pré-tx (ADR-0015).

@@ -38,6 +38,32 @@ from dataclasses import dataclass
 # --------------------------------------------------------------------------------------
 MAX_LENGTH_PADRAO = 10_000_000
 
+# --------------------------------------------------------------------------------------
+# PRE-ALOCACAO DE INDICES DE REFERENCIA (owner 2026-07-24) — slot 0 = null.
+#
+# A tabela de referencias tem DUAS metades: os slots altos vem do DADO (literais
+# descobertos no encode) e os slots baixos vem do FORMATO (dicionario da versao, que NAO
+# viaja no arquivo). A segunda metade ja' existia: e' o dominio {false,true} do modo denso
+# do bool (weld #4b), que vem da versao e nao do wire. null e' outra entrada dela.
+#
+# POR QUE O SLOT 0, E POR QUE INCONDICIONAL:
+#   - `^N` sempre foi 1-based, entao `^0` era ESPACO MORTO (fail-loud). Ocupa-lo nao tira
+#     endereco de ninguem: `^1` continua sendo o 1o no' declarado, byte-identico.
+#   - null e' o unico candidato SEM grafia propria (`""` ja' tem a linha vazia; true/false
+#     tem a rota da tag `b`), entao e' o ocupante certo do endereco mais barato.
+#   - incondicional => NADA viaja no arquivo. A consistencia encode/decode/wire e' garantida
+#     por ser constante da VERSAO do formato — superficie de sincronia zero. Especiais
+#     sob demanda (NaN/Inf) precisariam de declaracao no header + ordem canonica, que
+#     seguem NAO fixadas.
+#
+# O `- 1` do lookup SUMIU: o slot reservado ocupa exatamente a posicao que ele compensava.
+# Nao ha' ramo novo nem `if null` — null entra pela mesma porta de qualquer outra
+# referencia de linha (principio do owner: nada de caso exclusivo de tratamento).
+# --------------------------------------------------------------------------------------
+NULO = None                 # sentinela do slot reservado 0 (materializa `None` no decode)
+_SLOTS_RESERVADOS = [NULO]  # pre-alocados; dado descoberto comeca em len(_SLOTS_RESERVADOS)
+GRAFIA_NULO = "0"           # grafia OTIMIZADA de `^0` (expande na camada implicita)
+
 
 def resolve_max_length(max_length):
     """`None` -> default; `0` -> sem teto (convencao do zlib); N>0 -> teto explicito."""
@@ -859,7 +885,7 @@ class M8AVirtualRefsSyntax(Syntax):
     def decode(self, tcf_text, max_length=None):
         frags = {}
         prox_idx = [0]
-        nos_decl = []
+        nos_decl = list(_SLOTS_RESERVADOS)   # tabela NASCE pre-alocada (slot 0 = null)
         saida = []
         limite = resolve_max_length(max_length)
         # Contrato LF-only: FONTE ÚNICA em split_lf_body (BUG-14 + dedup C0 do
@@ -895,11 +921,18 @@ class M8AVirtualRefsSyntax(Syntax):
             else:
                 count = 1
                 resto = linha
+            # CAMADA IMPLICITA (pre-avaliador de apelidos): a grafia OTIMIZADA expande pra
+            # EXPLICITA e o resto do fluxo segue igual. `0` -> `^0`. Desambiguacao POSICIONAL
+            # (mesma classe do char de modo no indice 7): so' a linha INTEIRA igual a `0` e' o
+            # especial — um `0` dentro de composicao (`1~0`, `0..3`) continua sendo FRAGMENTO,
+            # entao "compor uma string com null" segue INEXPRIMIVEL na gramatica.
+            if resto == GRAFIA_NULO:
+                resto = "^0"
             if resto.startswith("^"):
                 # FAIL-LOUD por referencia de LINHA fora de faixa (weld 2026-07-24).
-                # `^N` e' 1-based; `nos_decl[N-1]` cru ACEITAVA CALADO `^0` -> indice -1
-                # do Python -> devolvia o ULTIMO no' declarado (corrupcao SILENCIOSA,
-                # pior que crash). Faixa validada explicitamente.
+                # Antes do pre-alocamento, `nos_decl[N-1]` cru aceitava CALADO `^0` -> indice
+                # -1 do Python -> devolvia o ULTIMO no' declarado (corrupcao SILENCIOSA). Hoje
+                # `^0` e' o slot RESERVADO e a faixa comeca em 0; fora dela segue fail-loud.
                 alvo = resto[1:]
                 try:
                     idx = int(alvo)
@@ -908,13 +941,13 @@ class M8AVirtualRefsSyntax(Syntax):
                         f"referencia de linha invalida: '^{alvo}' (esperado inteiro "
                         f"decimal) — corpo nao-canonico"
                     ) from None
-                if not 1 <= idx <= len(nos_decl):
+                if not 0 <= idx < len(nos_decl):
                     raise ValueError(
                         f"referencia de linha fora de faixa: '^{alvo}' "
-                        f"(declaradas 1..{len(nos_decl)}) — corpo nao-canonico "
-                        f"(wire adulterado, truncado ou editado a mao)"
+                        f"(validas 0..{len(nos_decl) - 1}; 0 = slot reservado) — "
+                        f"corpo nao-canonico (wire adulterado, truncado ou editado a mao)"
                     )
-                s_no = nos_decl[idx - 1]
+                s_no = nos_decl[idx]   # sem `- 1`: o slot reservado ocupa a posicao dele
             else:
                 s_no = self._parse_decl(resto, frags, prox_idx)
                 nos_decl.append(s_no)
