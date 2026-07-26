@@ -1,0 +1,6 @@
+{
+  "presentes": "*,.0123456789ABCDEFGHJLMNOPRST~",
+  "livres_na_faixa": "!\"#$%&'()+-/:;<=>?@IKQUVWXYZ[]_`abcdefghijklmnopqrstuvwxyz{}",
+  "n_livres": 60,
+  "faixa": 88
+}
