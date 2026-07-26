@@ -29,7 +29,9 @@ REPO = RAIZ.parents[5]
 sys.path.insert(0, str(REPO / "src"))
 sys.path.insert(0, str(RAIZ))
 
-from polaridade import DELIM, corpo_de_flip, corpo_para_flip  # noqa: E402
+from polaridade import (  # noqa: E402
+    DELIM, bloqueadores, corpo_de_flip, corpo_para_flip,
+)
 
 from tcf import decode, encode  # noqa: E402
 from tcf.encoder import _encode_column  # noqa: E402
@@ -113,7 +115,8 @@ def caso(forma, dados):
     for nome, sempre in (("flipA", False), ("flipB", True)):
         corpo_volta = corpo_de_flip(wires[nome].partition("\n")[2], sempre)
         rt[nome] = decode(cab_real + "\n" + corpo_volta) == dados
-    return wires, rt, tem_tag
+    bloq = {n: bloqueadores(corpo, c) for n, c in (("flipA", corpo_a), ("flipB", corpo_b))}
+    return wires, rt, tem_tag, bloq
 
 
 def main():
@@ -126,7 +129,7 @@ def main():
         _wj(RAIZ / "intermediates" / f"{forma}-dataset-consumido.json", dados)
         nj = _wj(RAIZ / "outputs" / f"{forma}-equivalente.json", dados, compacto=True)
 
-        wires, rt, tem_tag = caso(forma, dados)
+        wires, rt, tem_tag, bloq = caso(forma, dados)
         (RAIZ / "outputs" / f"{forma}-wire-normal.tcf").write_text(
             wires["normal"], encoding="utf-8")
         for nome in ("flipA", "flipB"):
@@ -136,7 +139,7 @@ def main():
 
         b = {k: len(v.encode()) for k, v in wires.items()}
         falhas += sum(not v for v in rt.values())
-        linhas.append((forma, "n" if tem_tag else "s", nj, b, rt))
+        linhas.append((forma, "n" if tem_tag else "s", nj, b, rt, bloq))
 
     out = ["# O delimitador do flip — variantes MATERIALIZADAS (2026-07-26-0038)", "",
            "Correção da 1ª rodada: os ganhos eram **estimativa** (`ganho − contagem × 1 B`) e "
@@ -145,18 +148,34 @@ def main():
            "`normal` = wire REAL de hoje · `flipA` = delimitador só na adjacência · "
            "`flipB` = toda referência terminada. Delimitador `;` é **placeholder**.", "",
            "**Bytes do wire INTEIRO** (cabeçalho + corpo), n=500:", "",
-           "| forma | tag | JSON | normal | flipA | Δ A | flipB | Δ B | RT |",
+           "| forma | tag | JSON | normal | flipA | Δ A | flipB | Δ B | wire flipado |",
            "|---|---|---:|---:|---:|---:|---:|---:|---|"]
-    for forma, tag, nj, b, rt in linhas:
-        ok = "OK" if all(rt.values()) else "FALHOU"
+    for forma, tag, nj, b, rt, bloq in linhas:
+        nb = sum(bloq["flipA"].values())
+        ok = ("**wire INVÁLIDO**" if nb else "ok") if all(rt.values()) else "RT FALHOU"
         out.append(f"| `{forma}` | `{tag}` | {nj} | {b['normal']} | {b['flipA']} | "
                    f"**{b['flipA'] - b['normal']:+}** | {b['flipB']} | "
                    f"**{b['flipB'] - b['normal']:+}** | {ok} |")
 
-    ga = [b["flipA"] - b["normal"] for _f, _t, _j, b, _r in linhas]
-    gb = [b["flipB"] - b["normal"] for _f, _t, _j, b, _r in linhas]
-    out += ["", f"RT: **{3 * len(linhas) - falhas}/{3 * len(linhas)}** "
-                "(as três formas de cada coluna decodam para o dado original).", "",
+    ga = [b["flipA"] - b["normal"] for _f, _t, _j, b, _r, _q in linhas]
+    gb = [b["flipB"] - b["normal"] for _f, _t, _j, b, _r, _q in linhas]
+    inval = [(f, q["flipA"]) for f, _t, _j, _b, _r, q in linhas if sum(q["flipA"].values())]
+    out += ["", "## O RT deste lab é CIRCULAR — e a verificação adversarial provou", "",
+            "O lab faz `flip -> des-flip -> decode`. Isso testa a consistência do par de "
+            "funções do próprio lab, **não a decodabilidade da forma flipada** — nenhum "
+            "`.tcfp` é passado ao `decode`. Um verificador independente escreveu um leitor do "
+            "corpo FLIP e achou **2 de 12 colunas com RT=OK e wire corrompido**.", "",
+            "Detector estrutural (independente do round-trip), sobre o corpo FLIP:", "",
+            "| forma | linha `0` = null | seq-RLE perde o escape | linha vira `^` |",
+            "|---|---:|---:|---:|"]
+    for f, q in inval:
+        out.append(f"| `{f}` | {q['linha_null']} | {q['seqrle_perde_escape']} | "
+                   f"{q['linha_circunflexo']} |")
+    if not inval:
+        out.append("| — | 0 | 0 | 0 |")
+    out += ["", "**As linhas marcadas `wire INVÁLIDO` na tabela acima medem bytes de um corpo "
+            "que nenhum decoder consegue ler.** O número é real; o que ele mede não serve.", "",
+            f"RT interno (não-conclusivo): {3 * len(linhas) - falhas}/{3 * len(linhas)}.", "",
             f"- **flipA** ganha em {sum(1 for x in ga if x < 0)} de {len(ga)} colunas; "
             f"soma onde ganha **{sum(x for x in ga if x < 0)} B**, "
             f"perde **+{sum(x for x in ga if x > 0)} B** onde perde",
@@ -179,7 +198,7 @@ def main():
     out += ["## Amostra — as três formas lado a lado", "", "```"]
     for forma in ("int-ruido", "data-br", "email", "com-delim"):
         dados = gera(forma, 500)
-        wires, _rt, _t = caso(forma, dados)
+        wires, _rt, _t, _b = caso(forma, dados)
         out.append(f"--- {forma}")
         for nome in ("normal", "flipA", "flipB"):
             prim = wires[nome].split("\n")[1] if "\n" in wires[nome] else ""
