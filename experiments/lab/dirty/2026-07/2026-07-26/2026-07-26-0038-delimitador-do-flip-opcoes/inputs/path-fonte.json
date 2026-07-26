@@ -1,0 +1,11 @@
+{
+  "forma": "path",
+  "n": 500,
+  "amostra": [
+    "/var/log/app9/642.log",
+    "/var/log/app43/60.log",
+    "/var/log/app78/304.log",
+    "/var/log/app57/621.log",
+    "/var/log/app63/630.log"
+  ]
+}
