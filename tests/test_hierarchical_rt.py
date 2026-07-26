@@ -626,9 +626,12 @@ def test_p2_disambiguacao_string_vs_tipo():
 
 def test_p2_byte_compat_all_string():
     # dado all-string → NENHUM tag no header (byte-idêntico ao pré-P2)
+    # RE-PIN 2026-07-25 (ADR-0024): o size da coluna `t` caiu de 8 p/ 6 — o seq-RLE ganhou
+    # FLOOR e deixou de emitir um marcador que era MAIOR que as linhas cruas. O que este
+    # teste guarda (ausência de tag de tipo no header all-string) segue intacto.
     uni = [{"n": "Ana", "t": ["a", "b"]}, {"n": "Bob", "t": []}]
     meta = encode(uni).split("\n", 1)[0]
-    assert meta == "#TCF.8Hn:8,t#:8["                                     # sem 'n'/'b' de tag
+    assert meta == "#TCF.8Hn:8,t#:6["                                     # sem 'n'/'b' de tag
     assert decode(encode(uni)) == uni
 
 

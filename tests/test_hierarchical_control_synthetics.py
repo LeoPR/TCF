@@ -30,19 +30,22 @@ from fixtures.control_synthetics_h import (
 )
 
 # (total, meta, controle, folhas, n_cols_controle) — medidos 2026-07-17 no weld P4a (suite 754).
+# RE-PIN 2026-07-25 (ADR-0024): o seq-RLE ganhou FLOOR (so' compacta se ENCOLHER). 6 casos
+# DIMINUIRAM (c02/c03/c06/c07/c09/c12) porque em trechos sem cadencia o marcador `*N+d|`
+# custava mais que as linhas cruas. Melhora pura -- nenhum pino subiu.
 PINS = {
     "c01-uniforme":          (798,  30,   0,  768, 0),
-    "c02-telemetria-array":  (3134, 26,   8, 3100, 1),
-    "c03-telemetria-split":  (2836, 43,   0, 2793, 0),
+    "c02-telemetria-array":  (3132, 26,   8, 3098, 1),
+    "c03-telemetria-split":  (2830, 43,   0, 2787, 0),
     "c04-ragged":            (685,  31,  78,  576, 1),
     "c05-null-campo":        (842,  33,  90,  719, 1),
-    "c06-null-elemento":     (1422, 40, 409,  973, 2),
-    "c07-arrays-vazios":     (467,  25, 201,  241, 1),
+    "c06-null-elemento":     (1420, 40, 407,  973, 2),
+    "c07-arrays-vazios":     (465,  25, 199,  241, 1),
     "c08-matriz":            (646,  27,  14,  605, 2),
-    "c09-espinha":           (3219, 57, 238, 2924, 1),
+    "c09-espinha":           (3218, 57, 237, 2924, 1),
     "c10-tipos-cadenciados": (1317, 34,   0, 1283, 0),
     "c11-categorico":        (1688, 21,   0, 1667, 0),
-    "c12-compose-total":     (1459, 75, 436,  948, 5),
+    "c12-compose-total":     (1453, 75, 434,  944, 5),
 }
 
 _CASES = gen_cases()

@@ -310,7 +310,23 @@ class HCCSeqRLE(M8AVirtualRefsSyntax):
         body_lines = body_text[:-1].split("\n")
         compacted, info = compact_body(body_lines)
         self._seq_info = info
-        return "\n".join(compacted) + "\n"
+        compactado = "\n".join(compacted) + "\n"
+        # FLOOR (owner 2026-07-25): o marcador `*N+delta|` tem CUSTO, e ate' agora ele nao
+        # entrava na decisao — `compact_body` era aplicado incondicionalmente. Em dado sem
+        # cadencia o detector acha pares espurios e o marcador fica MAIOR que as linhas que
+        # substitui:
+        #     *2+498217|\168116   17 B     vs     \168116 + \666333 + 2 LF   16 B
+        # Medido (lab 2026-07-25-2107, 16 casos): piorava em 7; ~8-9% do corpo em ruido de
+        # alta cardinalidade (ruido 1e6 n=1000: 8573 -> 7854). Onde ganha segue ganhando
+        # (seq n=1000: 4890 -> 31) porque isto e' `min`, nunca-pior por construcao.
+        #
+        # Por CORPO, nao por marcador: a granularidade fina foi medida e deu resultado
+        # IDENTICO em todos os casos (dentro de um corpo os marcadores sao uniformemente
+        # bons ou uniformemente ruins) — nao paga a complexidade.
+        #
+        # Mesmo padrao do `min()` que ja' governa o multi-col (`min(tcf, raw, dict, split)`)
+        # e a escolha de modo do single-col tipado.
+        return compactado if len(compactado.encode("utf-8")) <= len(body_text.encode("utf-8")) else body_text
 
     def decode(self, tcf_text, max_length=None):
         expanded_lines = []
