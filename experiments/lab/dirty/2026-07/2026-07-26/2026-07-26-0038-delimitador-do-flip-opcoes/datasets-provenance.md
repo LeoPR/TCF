@@ -1,43 +1,55 @@
-# Proveniência — delimitador do flip (2026-07-26-0038)
+# Proveniência — delimitador do flip, variantes materializadas (2026-07-26-0038)
 
 **Fonte**: 100% sintético/determinístico (LCG de seed fixa). Nenhum download, nenhum dado real.
 
-## As 10 formas, e por que essas
+## As 12 formas
 
-Escolhidas para **cobrir os chars candidatos** — não para amostrar frequência real de uso.
-Cada uma existe porque introduz um caractere diferente no dado:
+Escolhidas para **cobrir chars e regimes**, não para amostrar frequência de uso real:
 
-| forma | traz o char |
-|---|---|
-| `int-ruido`, `hex` | nenhum — controle sem char especial |
-| `data-br`, `path`, `url` | `/` |
-| `telefone` | `(` `)` |
-| `moeda` | `$` |
-| `versao` | `.` (já estrutural) |
-| `email` | `@` |
-| `url` | `:` `?` `=` |
-| `json-ish` | `"` `{` `}` `:` |
+| forma | tag | por que existe |
+|---|---|---|
+| `int-ruido` | `n` | número puro sem cadência — o caso que o owner apontou |
+| `int-seq` | `n` | cadência limpa: corpo minúsculo, o flip é irrelevante |
+| `hex` | `s` | dígitos sem separador — o melhor caso do flip |
+| `data-br` | `s` | traz `/` e a **adjacência ambígua** |
+| `telefone` | `s` | traz `(` `)`; ganha **apesar** de ter adjacência |
+| `moeda` | `s` | traz `$`; ganho grande com poucas adjacências |
+| `versao` | `s` | pontuação densa entre números |
+| `email` | `s` | mais referência que escape — controle negativo |
+| `url` | `s` | traz `:` `?` `=`; texto com números |
+| `path` | `s` | traz `/`; texto com números |
+| `json-ish` | `s` | traz `"` `{` `}` `:` — o pior caso medido |
+| `com-delim` | `s` | **o delimitador `;` aparece no dado** — testa o escape do próprio delimitador |
 
-`n = 500` em todas, para a frequência ser comparável entre formas.
+`n = 500` em todas, para os bytes serem comparáveis entre formas.
 
-## Limite importante da amostra
+## O que é medição e o que não é
 
-A tabela de frequência mede **esta amostra**, não o mundo. Um char com zero aqui pode ser
-comum em outro domínio — `%` em query string, `;` em CSV europeu, `<` `>` em XML/HTML. A
-tabela serve para **eliminar** os obviamente ruins (`/`, `"`, `:`), não para eleger o bom.
+**Tudo nesta rodada é medição.** As três formas são materializadas e gravadas; os bytes são
+`len(wire.encode())` do arquivo real, cabeçalho incluído.
 
-## O que é medição e o que é estimativa
+Isso corrige a 1ª rodada, que estimava (`ganho − contagem × 1 B`) e só gravava o corpo normal.
+A estimativa acabou batendo em 1–2 B com o medido — o desvio é exatamente o cabeçalho, que
+ela não contabilizava. Mas **sem os arquivos não havia como conferir**, que era a objeção.
 
-- **Medição**: os corpos (`_encode_column` real), a contagem de escapes, de referências e de
-  adjacências — tudo percorrendo o corpo com a mesma lógica do parser.
-- **Estimativa**: os "líquidos" do eixo 2 são `ganho − (adjacências ou referências) × 1 B`.
-  **Nenhuma das opções foi materializada.** O lab anterior (`2026-07-25-2337`) mostrou que
-  contagem pode errar feio — lá a estimativa deu −38 B onde o real era +221 B, porque
-  composições `1~2` precisam de um escape por corrida, não por token. Aqui o risco é menor
-  (o delimitador é literalmente 1 B por posição contada), mas a ressalva vale: **antes de
-  soldar, materializar**.
-- **Eixo 3** não tem medição própria — os números vêm do lab anterior (terceira linha) ou são
-  dedução direta do esquema (linhas 1 e 2).
+## Validação
+
+- **Inversas**: `polaridade.py` define `para_flip_*` e `de_flip`; o lab exige
+  `de_X(para_X(corpo)) == corpo` byte a byte. Sem isso, qualquer medida de tamanho seria
+  medida de uma transformação com perda.
+- **RT ponta a ponta**: cada wire flipado é des-flipado, remontado com o cabeçalho normal e
+  passado pelo `decode` **REAL** do `src/tcf`. 36/36.
+- A forma `com-delim` é o teste de que o esquema aguenta o **próprio delimitador** dentro do
+  dado.
+
+## Limites declarados
+
+- **`;` é placeholder.** A escolha do char é decisão do owner; trocá-lo altera só a linha
+  `com-delim`.
+- **Protótipo**: os `.tcfp` não são decodáveis pelo `src/tcf` — daí a extensão. Nada soldado.
+- **Single-col apenas.** Multi-col e `.8H` fora do escopo.
+- **Métrica única: bytes.** Sem gzip, sem latência, sem custo de CPU do parser (que é
+  justamente onde `flipA` e `flipB` diferem — e isso **não** foi medido).
 
 ## Reprodutibilidade
 

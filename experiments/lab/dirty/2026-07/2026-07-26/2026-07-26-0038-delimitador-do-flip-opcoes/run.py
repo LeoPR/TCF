@@ -1,52 +1,43 @@
-"""Lab 2026-07-26-0038 — o delimitador do flip: opções para o owner escolher.
+"""Lab 2026-07-26-0038 — o delimitador do flip, com as variantes MATERIALIZADAS.
 
-O flip de polaridade (lab `2026-07-25-2337`) esbarra numa adjacência inexpressável: em modo
-FLIP, uma referência `\\1` colada num literal-dígito `2` colapsa em `\\12`. Medido: 13 de 33
-colunas que ganhariam têm essa adjacência, incluindo as valiosas (telefone, moeda, data-BR).
+Correção do owner sobre a 1ª rodada: *"mas ganho do que exatamente, as pastas não têm as
+variações, sem cabeçalho nem nada. elas ficaram em sua imaginação. preciso de evidências."*
 
-Owner: *"não sei que char, e imagino algumas condições... faça uns testes pra eu ver primeiro."*
+Estava certo — a 1ª rodada estimava (`ganho − contagem × 1 B`) e só gravava o corpo NORMAL.
+Agora as três formas são **construídas, gravadas com cabeçalho e round-trip-adas**:
 
-Este lab **não decide** — levanta o espaço de escolha com número em cada eixo:
+    NORMAL   `\\168116` = literal   ·  `1`    = referência           (o de hoje)
+    FLIP-A   `168116`   = literal   ·  `\\1`   = referência, delimitador SÓ na adjacência
+    FLIP-B   `168116`   = literal   ·  `\\1;`  = referência SEMPRE terminada
 
-  EIXO 1  QUAL char             — quais estão livres, e quanto cada um custaria por já
-                                  aparecer no dado (viraria escape novo)
-  EIXO 2  ONDE aplicar          — só na posição ambígua (mínimo) × terminar TODA referência
-                                  (mais simples de parsear)
-  EIXO 3  SEM char novo         — alternativas que não gastam um caractere do namespace
+Delimitador `;` é **placeholder** (da lista de zero-ocorrência) — a escolha do char é do owner.
 
-Escopo: **uma coluna, single-col** — como o owner delimitou.
+CUSTO DE CABEÇALHO, que a 1ª rodada ignorou: o flag de polaridade mora no char de MODO
+(índice 7), que só existe **depois de uma tag**. Então:
+  - coluna de NÚMERO já tem a tag `n` -> o flag entra no modo: **+1 B**
+  - coluna de STRING é implícita (`#TCF.8`) -> flipar exige torná-la explícita
+    (`#TCF.8s` + flag): **+2 B**
+
+RT: cada wire flipado é decodificado de volta (des-flipa -> corpo normal -> `decode` REAL).
 """
 import json
 import pathlib
 import sys
-from collections import Counter
 
 RAIZ = pathlib.Path(__file__).parent
 REPO = RAIZ.parents[5]
 sys.path.insert(0, str(REPO / "src"))
+sys.path.insert(0, str(RAIZ))
 
+from polaridade import DELIM, corpo_de_flip, corpo_para_flip  # noqa: E402
+
+from tcf import decode, encode  # noqa: E402
 from tcf.encoder import _encode_column  # noqa: E402
 
-BS = chr(92)
+FLAG = "f"                       # placeholder do flag de polaridade no char de MODO
 
 for d in ("inputs", "intermediates", "outputs"):
     (RAIZ / d).mkdir(exist_ok=True)
-
-# --------------------------------------------------------------- chars já tomados
-# Levantados do `src/tcf` (syntax.py `_escape_lit` / `_parse_decl` / `decode`), não de memória.
-TOMADOS = {
-    BS:   "escape (literal de dígito, `*`, `~`, `\\`)",
-    "*":  "início de marcador RLE / seq-RLE, e separador de fragmento no literal",
-    "|":  "separa contador do template no marcador",
-    "~":  "composição de fragmentos",
-    "^":  "referência de LINHA (início de linha)",
-    ",":  "separa unidades num grupo de referências",
-    ".":  "`..` = range de referências",
-    "\n": "delimitador de valor (contrato LF-only)",
-    "+":  "sinal de delta no marcador seq-RLE",
-    "-":  "sinal de delta negativo no marcador seq-RLE",
-}
-CANDIDATOS = list("!\"#$%&'()/:;<=>?@[]_`{}")
 
 
 def _lcg(seed):
@@ -59,7 +50,11 @@ def _lcg(seed):
 def gera(forma, n, seed=7):
     g = _lcg(seed)
     if forma == "int-ruido":
-        return [str(next(g) % 10 ** 6) for _ in range(n)]
+        return [next(g) % 10 ** 6 for _ in range(n)]
+    if forma == "int-seq":
+        return list(range(n))
+    if forma == "hex":
+        return [f"{next(g) % 16 ** 8:08x}" for _ in range(n)]
     if forma == "data-br":
         return [f"{next(g) % 28 + 1:02d}/{next(g) % 12 + 1:02d}/20{next(g) % 30 + 10}"
                 for _ in range(n)]
@@ -74,179 +69,129 @@ def gera(forma, n, seed=7):
         return [f"user{next(g) % 10000}@d{next(g) % 9}.com" for _ in range(n)]
     if forma == "url":
         return [f"https://site{next(g) % 99}.com/p?id={next(g) % 9999}" for _ in range(n)]
-    if forma == "json-ish":
-        return [f'{{"id":{next(g) % 9999},"ok":true}}' for _ in range(n)]
     if forma == "path":
         return [f"/var/log/app{next(g) % 99}/{next(g) % 999}.log" for _ in range(n)]
-    if forma == "hex":
-        return [f"{next(g) % 16 ** 8:08x}" for _ in range(n)]
+    if forma == "json-ish":
+        return [f'{{"id":{next(g) % 9999},"ok":true}}' for _ in range(n)]
+    if forma == "com-delim":
+        return [f"a{DELIM}b{next(g) % 999}{DELIM}c" for _ in range(n)]
     raise ValueError(forma)
 
 
-FORMAS = ["int-ruido", "data-br", "telefone", "moeda", "versao", "email", "url",
-          "json-ish", "path", "hex"]
+FORMAS = ["int-ruido", "int-seq", "hex", "data-br", "telefone", "moeda", "versao",
+          "email", "url", "path", "json-ish", "com-delim"]
 
 
-# --------------------------------------------------------------- medições
-def adjacencias(corpo):
-    """Posições onde, sob FLIP, a referência colaria num literal-dígito."""
-    n_amb = 0
-    for linha in corpo.split("\n"):
-        resto = linha.split("|", 1)[1] if linha.startswith("*") and "|" in linha else linha
-        if resto.startswith("^"):
-            continue
-        i, n = 0, len(resto)
-        while i < n:
-            if resto[i] == BS:
-                i += 2
-                while i < n and resto[i - 1].isdigit() and resto[i].isdigit():
-                    i += 1
-            elif resto[i].isdigit():
-                while i < n and resto[i].isdigit():
-                    i += 1
-                if i < n and resto[i] == BS and i + 1 < n and resto[i + 1].isdigit():
-                    n_amb += 1
-            else:
-                i += 1
-    return n_amb
+def _wj(p, obj, compacto=False):
+    txt = json.dumps(obj, ensure_ascii=False,
+                     separators=(",", ":") if compacto else (", ", ": "),
+                     indent=None if compacto else 2)
+    p.write_text(txt + ("" if compacto else "\n"), encoding="utf-8")
+    return len(txt.encode())
 
 
-def n_referencias(corpo):
-    """Quantas referências de fragmento existem (para o custo de 'terminar TODAS')."""
-    total = 0
-    for linha in corpo.split("\n"):
-        resto = linha.split("|", 1)[1] if linha.startswith("*") and "|" in linha else linha
-        if resto.startswith("^"):
-            continue
-        i, n = 0, len(resto)
-        while i < n:
-            if resto[i] == BS:
-                i += 2
-                while i < n and resto[i - 1].isdigit() and resto[i].isdigit():
-                    i += 1
-            elif resto[i].isdigit():
-                total += 1
-                while i < n and resto[i].isdigit():
-                    i += 1
-            else:
-                i += 1
-    return total
+def caso(forma, dados):
+    """Materializa as TRÊS formas com cabeçalho e valida o RT de cada uma."""
+    wire_real = encode(dados)                       # o wire de HOJE, do src/tcf
+    cab_real, _sep, _corpo = wire_real.partition("\n")
+    tem_tag = len(cab_real) > 6                     # '#TCF.8n' tem tag; '#TCF.8' não
 
+    corpo = _encode_column([str(v) for v in dados])
+    corpo_a = corpo_para_flip(corpo, sempre=False)
+    corpo_b = corpo_para_flip(corpo, sempre=True)
 
-def ganho_flip(corpo):
-    """Economia bruta do flip: escapes de dígito − referências (cada um vale 1 B)."""
-    esc = ref = 0
-    for linha in corpo.split("\n"):
-        resto = linha.split("|", 1)[1] if linha.startswith("*") and "|" in linha else linha
-        if resto.startswith("^"):
-            continue
-        i, n = 0, len(resto)
-        while i < n:
-            if resto[i] == BS:
-                i += 1
-                if i < n and resto[i].isdigit():
-                    esc += 1
-                    while i < n and resto[i].isdigit():
-                        i += 1
-                else:
-                    i += 1
-            elif resto[i].isdigit():
-                ref += 1
-                while i < n and resto[i].isdigit():
-                    i += 1
-            else:
-                i += 1
-    return esc - ref
+    # cabeçalho flipado: o flag entra no MODO, que exige uma tag antes.
+    cab_flip = (cab_real + FLAG) if tem_tag else ("#TCF.8s" + FLAG)
+
+    wires = {
+        "normal": cab_real + "\n" + corpo,
+        "flipA": cab_flip + "\n" + corpo_a,
+        "flipB": cab_flip + "\n" + corpo_b,
+    }
+    # RT: des-flipa o corpo, remonta o wire NORMAL e decoda com o `decode` REAL
+    rt = {"normal": decode(wires["normal"]) == dados}
+    for nome, sempre in (("flipA", False), ("flipB", True)):
+        corpo_volta = corpo_de_flip(wires[nome].partition("\n")[2], sempre)
+        rt[nome] = decode(cab_real + "\n" + corpo_volta) == dados
+    return wires, rt, tem_tag
 
 
 def main():
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
-    dados = {f: gera(f, 500) for f in FORMAS}
-    corpos = {f: _encode_column(v) for f, v in dados.items()}
-    for f, v in dados.items():
-        (RAIZ / "inputs" / f"{f}-fonte.json").write_text(
-            json.dumps({"forma": f, "n": len(v), "amostra": v[:5]},
-                       ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-        (RAIZ / "intermediates" / f"{f}-dataset-consumido.json").write_text(
-            json.dumps(v, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-        (RAIZ / "outputs" / f"{f}-corpo.tcfp").write_text(corpos[f], encoding="utf-8")
+    linhas, falhas = [], 0
+    for forma in FORMAS:
+        dados = gera(forma, 500)
+        _wj(RAIZ / "inputs" / f"{forma}-fonte.json",
+            {"forma": forma, "n": len(dados), "amostra": dados[:5]})
+        _wj(RAIZ / "intermediates" / f"{forma}-dataset-consumido.json", dados)
+        nj = _wj(RAIZ / "outputs" / f"{forma}-equivalente.json", dados, compacto=True)
 
-    out = ["# O delimitador do flip — opções (2026-07-26-0038)", "",
-           "Levanta o espaço de escolha com número em cada eixo. **Não decide nada.** "
-           "Escopo: uma coluna, single-col.", ""]
+        wires, rt, tem_tag = caso(forma, dados)
+        (RAIZ / "outputs" / f"{forma}-wire-normal.tcf").write_text(
+            wires["normal"], encoding="utf-8")
+        for nome in ("flipA", "flipB"):
+            (RAIZ / "outputs" / f"{forma}-wire-{nome}.tcfp").write_text(
+                wires[nome], encoding="utf-8")
+        _wj(RAIZ / "outputs" / f"{forma}-dataset.roundtrip.json", decode(wires["normal"]))
 
-    # ---------------- EIXO 1: chars tomados e candidatos
-    out += ["## Eixo 1 — qual char", "", "### Já tomados no corpo (levantado do `src/tcf`)", "",
-            "| char | papel |", "|---|---|"]
-    out += [f"| `{c if c != chr(10) else 'LF'}` | {p} |" for c, p in TOMADOS.items()]
+        b = {k: len(v.encode()) for k, v in wires.items()}
+        falhas += sum(not v for v in rt.values())
+        linhas.append((forma, "n" if tem_tag else "s", nj, b, rt))
 
-    freq = Counter()
-    total_chars = 0
-    for f, v in dados.items():
-        for s in v:
-            freq.update(s)
-            total_chars += len(s)
-    out += ["", "### Candidatos livres — e quanto cada um já aparece no dado", "",
-            "Se o char escolhido ocorre no dado, ele passa a precisar de escape em modo FLIP "
-            "— o que **cobra de volta** parte do ganho. Frequência medida nas 10 formas "
-            "(n=500 cada, "
-            f"{total_chars:,} chars):", "",
-            "| char | ocorrências no dado | em quais formas |", "|---|---:|---|"]
-    for c in CANDIDATOS:
-        onde = [f for f, v in dados.items() if any(c in s for s in v)]
-        out.append(f"| `{c}` | {freq.get(c, 0)} | {', '.join(onde) if onde else '—'} |")
-    livres = [c for c in CANDIDATOS if freq.get(c, 0) == 0]
-    out += ["", f"**{len(livres)} candidatos com zero ocorrência** nesta amostra: "
-            + " ".join(f"`{c}`" for c in livres) + ".", "",
-            "Ressalva: *zero nesta amostra* não é *zero no mundo*. `%`, `&`, `=`, `?`, `#` "
-            "aparecem em URL/query; `:` em hora e JSON; `;` em CSV europeu. O char mais "
-            "seguro é o que **nunca** aparece em dado tabular — mas nenhum é impossível, "
-            "então o esquema tem que suportar escapá-lo.", ""]
+    out = ["# O delimitador do flip — variantes MATERIALIZADAS (2026-07-26-0038)", "",
+           "Correção da 1ª rodada: os ganhos eram **estimativa** (`ganho − contagem × 1 B`) e "
+           "só o corpo NORMAL ia pra pasta. Agora as três formas são construídas, gravadas "
+           "**com cabeçalho** e round-trip-adas.", "",
+           "`normal` = wire REAL de hoje · `flipA` = delimitador só na adjacência · "
+           "`flipB` = toda referência terminada. Delimitador `;` é **placeholder**.", "",
+           "**Bytes do wire INTEIRO** (cabeçalho + corpo), n=500:", "",
+           "| forma | tag | JSON | normal | flipA | Δ A | flipB | Δ B | RT |",
+           "|---|---|---:|---:|---:|---:|---:|---:|---|"]
+    for forma, tag, nj, b, rt in linhas:
+        ok = "OK" if all(rt.values()) else "FALHOU"
+        out.append(f"| `{forma}` | `{tag}` | {nj} | {b['normal']} | {b['flipA']} | "
+                   f"**{b['flipA'] - b['normal']:+}** | {b['flipB']} | "
+                   f"**{b['flipB'] - b['normal']:+}** | {ok} |")
 
-    # ---------------- EIXO 2: onde aplicar
-    out += ["## Eixo 2 — onde aplicar o delimitador", "",
-            "**(a) só na posição ambígua** — 1 B por adjacência · "
-            "**(b) terminar TODA referência** — 1 B por referência (parser mais simples)", "",
-            "| forma | corpo | ganho bruto | adjac. | (a) líquido | refs | (b) líquido |",
-            "|---|---:|---:|---:|---:|---:|---:|"]
-    soma_a = soma_b = 0
-    for f in FORMAS:
-        c = corpos[f]
-        g, a, r = ganho_flip(c), adjacencias(c), n_referencias(c)
-        la, lb = g - a, g - r
-        soma_a += max(0, la)
-        soma_b += max(0, lb)
-        out.append(f"| {f} | {len(c.encode())} | {g:+} | {a} | **{la:+}** | {r} | **{lb:+}** |")
-    out += ["", f"Somando só onde cada esquema ganha: **(a) {soma_a} B** · **(b) {soma_b} B**.",
-            "", "A opção (b) é mais simples de parsear (toda referência tem terminador, sem "
-            "olhar o que vem depois), mas paga em **toda** referência — e em coluna de texto "
-            "as referências são muitas. A (a) paga só onde precisa, ao custo de o parser "
-            "decidir por contexto.", ""]
+    ga = [b["flipA"] - b["normal"] for _f, _t, _j, b, _r in linhas]
+    gb = [b["flipB"] - b["normal"] for _f, _t, _j, b, _r in linhas]
+    out += ["", f"RT: **{3 * len(linhas) - falhas}/{3 * len(linhas)}** "
+                "(as três formas de cada coluna decodam para o dado original).", "",
+            f"- **flipA** ganha em {sum(1 for x in ga if x < 0)} de {len(ga)} colunas; "
+            f"soma onde ganha **{sum(x for x in ga if x < 0)} B**, "
+            f"perde **+{sum(x for x in ga if x > 0)} B** onde perde",
+            f"- **flipB** ganha em {sum(1 for x in gb if x < 0)} de {len(gb)}; "
+            f"soma onde ganha **{sum(x for x in gb if x < 0)} B**, "
+            f"perde **+{sum(x for x in gb if x > 0)} B**", "",
+            "O `min(normal, flipA, flipB)` por coluna nunca emite o pior — as linhas positivas "
+            "seriam simplesmente descartadas, como já acontece no FLOOR do seq-RLE.", ""]
 
-    # ---------------- EIXO 3: sem char novo
-    out += ["## Eixo 3 — alternativas que NÃO gastam um char do namespace", "",
-            "| alternativa | como funciona | custo | observação |", "|---|---|---|---|",
-            "| escape duplo | na posição ambígua, o literal vira `\\\\` + dígitos | "
-            "**2 B** por adjacência (o dobro de (a)) | não gasta char novo; "
-            "`\\\\` já é escape de `\\` hoje, então colide — precisaria de outra grafia |",
-            "| referência de largura fixa | `\\` + N dígitos fixos, sem terminador | "
-            "custo = (largura − dígitos reais) por referência | só compensa se a tabela "
-            "for pequena e as refs curtas; some o ganho em coluna com muitas refs |",
-            "| flip só onde não há adjacência | o detector já existe; desiste da coluna | "
-            "**0 B** | cobre 20 das 33 colunas que ganhariam — deixa na mesa os casos "
-            "valiosos (telefone, moeda) |", ""]
-    out += ["Números da terceira linha vêm do lab `2026-07-25-2337` parte 2.", ""]
+    out += ["## Custo de cabeçalho (o que a 1ª rodada ignorou)", "",
+            "O flag de polaridade mora no char de **modo** (índice 7), que só existe **depois "
+            "de uma tag**:", "",
+            "| tipo | cabeçalho hoje | com flag | custo |", "|---|---|---|---:|",
+            "| número | `#TCF.8n` | `#TCF.8n" + FLAG + "` | **+1 B** |",
+            "| string | `#TCF.8` (implícita) | `#TCF.8s" + FLAG + "` | **+2 B** |", "",
+            "Flipar uma coluna de string **força torná-la explícita** — a tag `s`, que hoje o "
+            "encoder nunca emite, passaria a aparecer. É consequência de desenho, não custo "
+            "escondido: já está somado nos números da tabela acima.", ""]
 
-    # ---------------- amostras
-    out += ["## Amostras dos corpos (para inspeção)", "", "```"]
-    for f in ("int-ruido", "data-br", "telefone", "email"):
-        prim = corpos[f].split("\n")[0]
-        out.append(f"{f:11} {prim[:60]!r}")
-    out += ["```", ""]
+    out += ["## Amostra — as três formas lado a lado", "", "```"]
+    for forma in ("int-ruido", "data-br", "email", "com-delim"):
+        dados = gera(forma, 500)
+        wires, _rt, _t = caso(forma, dados)
+        out.append(f"--- {forma}")
+        for nome in ("normal", "flipA", "flipB"):
+            prim = wires[nome].split("\n")[1] if "\n" in wires[nome] else ""
+            out.append(f"  {nome:7} {wires[nome].split(chr(10))[0]!r} + {prim[:38]!r}")
+    out += ["```", "",
+            "`com-delim` existe para exercitar o caso em que o **delimitador aparece no dado**: "
+            "em FLIP o `;` vira estrutural e o literal precisa de escape (`\\;`). O RT dessa "
+            "coluna é a prova de que o esquema aguenta o próprio delimitador.", ""]
 
     (RAIZ / "result.md").write_text("\n".join(out) + "\n", encoding="utf-8")
     print("\n".join(out))
-    return 0
+    return 0 if falhas == 0 else 1
 
 
 if __name__ == "__main__":

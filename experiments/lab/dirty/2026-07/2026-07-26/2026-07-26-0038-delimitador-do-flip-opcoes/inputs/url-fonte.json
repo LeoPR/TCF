@@ -1,11 +1,11 @@
 {
-  "forma": "url",
-  "n": 500,
+  "forma": "url", 
+  "n": 500, 
   "amostra": [
-    "https://site9.com/p?id=606",
-    "https://site43.com/p?id=186",
-    "https://site78.com/p?id=4579",
-    "https://site57.com/p?id=7452",
+    "https://site9.com/p?id=606", 
+    "https://site43.com/p?id=186", 
+    "https://site78.com/p?id=4579", 
+    "https://site57.com/p?id=7452", 
     "https://site63.com/p?id=9243"
   ]
 }
