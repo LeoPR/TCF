@@ -143,6 +143,50 @@ CASOS = [
 ]
 
 
+# ------------------------------------------------------------------ varredura (parte 2)
+FORMAS_SWEEP = ["int-ruido", "int-pequeno", "seq", "data-iso", "data-br", "ip", "telefone",
+                "moeda", "sku", "email", "texto", "hex", "ts", "versao", "coord"]
+
+
+def gera_sweep(forma, n, seed=7):
+    """Formas REAIS de coluna — o objetivo é cobrir onde número e texto se misturam."""
+    g = _lcg(seed)
+    if forma == "int-ruido":
+        return [next(g) % 10 ** 6 for _ in range(n)]
+    if forma == "int-pequeno":
+        return [next(g) % 100 for _ in range(n)]
+    if forma == "seq":
+        return list(range(n))
+    if forma == "data-iso":
+        return [f"20{next(g) % 30 + 10}-{next(g) % 12 + 1:02d}-{next(g) % 28 + 1:02d}"
+                for _ in range(n)]
+    if forma == "data-br":
+        return [f"{next(g) % 28 + 1:02d}/{next(g) % 12 + 1:02d}/20{next(g) % 30 + 10}"
+                for _ in range(n)]
+    if forma == "ip":
+        return [".".join(str(next(g) % 256) for _ in range(4)) for _ in range(n)]
+    if forma == "telefone":
+        return [f"({next(g) % 90 + 10}) 9{next(g) % 10000:04d}-{next(g) % 10000:04d}"
+                for _ in range(n)]
+    if forma == "moeda":
+        return [f"R$ {next(g) % 10000}.{next(g) % 100:02d}" for _ in range(n)]
+    if forma == "sku":
+        return [f"SKU-{next(g) % 1000:03d}-{chr(65 + next(g) % 26)}" for _ in range(n)]
+    if forma == "email":
+        return [f"user{next(g) % 10000}@d{next(g) % 9}.com" for _ in range(n)]
+    if forma == "texto":
+        return [f"palavra{chr(97 + next(g) % 26)}" for _ in range(n)]
+    if forma == "hex":
+        return [f"{next(g) % 16 ** 8:08x}" for _ in range(n)]
+    if forma == "ts":
+        return [1735689600 + next(g) % 10 ** 7 for _ in range(n)]
+    if forma == "versao":
+        return [f"{next(g) % 9}.{next(g) % 20}.{next(g) % 50}" for _ in range(n)]
+    if forma == "coord":
+        return [f"-{next(g) % 90}.{next(g) % 10 ** 6:06d}" for _ in range(n)]
+    raise ValueError(forma)
+
+
 def _wj(p, obj, compacto=False):
     txt = json.dumps(obj, ensure_ascii=False,
                      separators=(",", ":") if compacto else (", ", ": "),
@@ -200,6 +244,41 @@ def main():
             "As colunas que **perdem** (emails, texto sem dígito) são a razão de isto não "
             "poder virar default novo — tem que ser **decisão por coluna**, um `min()` como "
             "os outros. É exatamente o que o owner descreveu: *o que tiver mais, troca*.", ""]
+
+    # ---------------------------------------------------------------- PARTE 2
+    # A pergunta do owner: "se conseguirmos ver algo que não deixe ambíguo".
+    # Hipótese barata: talvez as colunas onde o flip GANHA não tenham a adjacência —
+    # aí o guia no cabeçalho bastaria. Varredura de 15 formas x 3 tamanhos para testar.
+    out += ["## Parte 2 — o guia no cabeçalho basta sozinho?", "",
+            "Hipótese testada: *as colunas onde o flip ganha talvez não tenham a "
+            "adjacência ambígua*. Se valesse, o flag no header resolveria tudo.", "",
+            "**REFUTADA.** Varredura de 15 formas × 3 tamanhos:", "",
+            "| forma | n | ganho bruto | adjac. | ganho c/ delimitador | decisão |",
+            "|---|---:|---:|---:|---:|---|"]
+    vale = perde = com_adj = 0
+    for forma in FORMAS_SWEEP:
+        for n in (50, 200, 1000):
+            col = [str(v) for v in gera_sweep(forma, n)]
+            c = _encode_column(col)
+            g = len(c.encode()) - len(flip(c).encode())
+            a = adjacencia_ambigua(c)
+            if g <= 0:
+                continue                                # o min() já descarta
+            liq = g - a
+            vale += liq > 0
+            perde += liq <= 0
+            com_adj += a > 0
+            out.append(f"| {forma} | {n} | {g:+} | {a} | **{liq:+}** | "
+                       f"{'FLIP' if liq > 0 else 'normal'} |")
+    out += ["", f"**{vale + perde} colunas ganhariam** com o flip puro, e "
+            f"**{com_adj} delas têm adjacência ambígua** — o header sozinho não fecha.", "",
+            "Com um **delimitador de 1 B** em cada posição ambígua: "
+            f"**{vale} ainda ganham**, {perde} deixam de ganhar. E essas {perde} o `min()` "
+            "rejeita sozinho, materializando as duas polaridades e emitindo a menor — "
+            "o mesmo padrão do FLOOR do seq-RLE.", "",
+            "Ou seja: **existe esquema não-ambíguo** (guia no header + delimitador na "
+            "adjacência) e ele **sobrevive economicamente** — os ganhos grandes "
+            "(hex, coord, moeda, telefone) atravessam o custo do delimitador.", ""]
 
     out += ["## Lado a lado — as duas polaridades", "", "```"]
     for eid in ("A-ruido1e6-n100", "C-texto-n200"):

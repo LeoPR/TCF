@@ -62,7 +62,38 @@ duas adjacências é proibida — e a proibida no flip **ocorre** em dado real (
 Detectei a adjacência com um contador independente, e ele **casa exatamente** com a falha de
 involução (assert no `run.py`): 74 nas datas, 0 nas outras nove.
 
-## Estado: a ideia é boa, o esquema simples não fecha
+## Parte 2 — o guia no cabeçalho basta sozinho? **Não.**
+
+Owner: *"o barato e objetivo é colocar um guia no cabeçalho pra orientar a polaridade. mas se
+conseguirmos ver algo que não deixe ambíguo…"*
+
+Testei a hipótese barata: **talvez as colunas onde o flip ganha não tenham a adjacência**.
+Varredura de 15 formas reais × 3 tamanhos (int, seq, data ISO/BR, IP, telefone, moeda, SKU,
+email, texto, hex, timestamp, versão, coordenada).
+
+**Refutada.** 33 colunas ganhariam com o flip, e **13 delas têm adjacência ambígua** —
+inclusive as mais valiosas:
+
+| forma | n | ganho bruto | adjac. |
+|---|---:|---:|---:|
+| telefone | 1000 | +1247 | 910 |
+| moeda | 1000 | +1582 | 363 |
+| data-br | 200 | +154 | 105 |
+
+### Mas o esquema não-ambíguo existe, e sobrevive
+
+**Guia no header + delimitador de 1 B em cada posição ambígua.** Com esse custo:
+
+- **30 das 33 continuam ganhando** — hex n=1000 **+2398 B**, coord n=1000 **+1966 B**,
+  moeda n=1000 **+1219 B**, telefone n=1000 **+337 B**
+- as **3** que deixam de ganhar (data-iso n=200, moeda n=50, sku n=200) o **`min()` rejeita
+  sozinho** — materializa as duas polaridades e emite a menor, mesmo padrão do FLOOR do
+  seq-RLE
+
+Ou seja: os ganhos grandes **atravessam** o custo do delimitador, e a decisão volta a ser um
+`min()` por coluna como todo o resto do formato.
+
+## Estado: a ideia é boa, e o caminho está mapeado
 
 Antes de soldar, falta resolver a adjacência. Caminhos possíveis (nenhum medido ainda):
 
