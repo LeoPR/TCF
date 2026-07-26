@@ -1,0 +1,1 @@
+318 adjacencias — a mascara nao reconstroi a fronteira; usa-se o inline de hoje (data-iso, n=500).
