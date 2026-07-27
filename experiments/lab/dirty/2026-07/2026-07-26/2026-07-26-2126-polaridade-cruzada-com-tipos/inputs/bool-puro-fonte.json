@@ -1,0 +1,12 @@
+{
+  "coluna": "bool-puro",
+  "n": 50,
+  "amostra": [
+    false,
+    true,
+    false,
+    true,
+    false,
+    true
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "coluna": "real-adult-sex-bool",
+  "n": 50,
+  "amostra": [
+    true,
+    true,
+    true,
+    true,
+    false,
+    true
+  ]
+}

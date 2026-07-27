@@ -1,0 +1,12 @@
+{
+  "coluna": "bool-null-maioria",
+  "n": 50,
+  "amostra": [
+    false,
+    null,
+    null,
+    true,
+    null,
+    null
+  ]
+}

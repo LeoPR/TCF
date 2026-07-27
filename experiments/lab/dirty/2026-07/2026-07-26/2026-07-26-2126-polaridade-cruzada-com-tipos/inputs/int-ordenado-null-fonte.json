@@ -1,0 +1,12 @@
+{
+  "coluna": "int-ordenado-null",
+  "n": 50,
+  "amostra": [
+    null,
+    10,
+    17,
+    24,
+    31,
+    38
+  ]
+}

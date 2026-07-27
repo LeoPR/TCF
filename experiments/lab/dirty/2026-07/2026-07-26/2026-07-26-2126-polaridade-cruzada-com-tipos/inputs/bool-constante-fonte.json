@@ -1,0 +1,12 @@
+{
+  "coluna": "bool-constante",
+  "n": 50,
+  "amostra": [
+    true,
+    true,
+    true,
+    true,
+    true,
+    true
+  ]
+}

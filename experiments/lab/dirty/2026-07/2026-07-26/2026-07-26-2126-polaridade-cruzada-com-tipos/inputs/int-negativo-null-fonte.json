@@ -1,0 +1,12 @@
+{
+  "coluna": "int-negativo-null",
+  "n": 50,
+  "amostra": [
+    null,
+    110,
+    159,
+    -388,
+    5,
+    -454
+  ]
+}
