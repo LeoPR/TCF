@@ -96,7 +96,9 @@ class TestBoolEncodeTyped:
     def test_numero_vira_tag_n(self):
         """2026-07-25: int/float sairam do `.8H` e ganharam a tag `n` (mesma generalizacao)."""
         assert encode([1, 2, 3]).startswith("#TCF.8n\n")
-        assert encode([1.5, 2.0]).startswith("#TCF.8n\n")
+        # o sufixo de POLARIDADE (weld 2026-07-26) e' opcional e entra DEPOIS da tag:
+        # `#TCF.8n`, `#TCF.8n!` ou `#TCF.8n!!`. A tag continua sendo o indice 6.
+        assert encode([1.5, 2.0]).split("\n")[0].startswith("#TCF.8n")
         assert decode(encode([1, 2, 3])) == [1, 2, 3]
         assert decode(encode([1.5, 2.0])) == [1.5, 2.0]
 

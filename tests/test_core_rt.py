@@ -201,15 +201,20 @@ class TestM10Baseline:
         assert decode(text) == values
 
     def test_m10_baseline_invariant(self):
-        """Total bytes D1-D9 = 1586B (era 1523 ate' 2026-07-24; +63 = 9 x 7 B do header
-        `#TCF.8` que virou DEFAULT, ADR-0034. O core nao mudou 1 byte)."""
+        """Total bytes D1-D9 = 1545B.
+
+        1523 -> 1586 em 2026-07-24 (+63 = 9 x 7 B do header `#TCF.8` que virou DEFAULT,
+        ADR-0034; o core nao mudou 1 byte). 1586 -> 1545 em 2026-07-26 (-41): delimitador
+        de POLARIDADE, camada de borda que troca `1 escape por LITERAL` por `1 byte por
+        TRANSICAO`. FLOOR nunca-pior -> so' D5 e D6 mexeram.
+        """
         total = 0
         for ds in D1_D9:
             values = _ler_csv(ds)
             text = encode(values)
             total += len(text.encode("utf-8"))
-        assert total == 1586, (
-            f"M10 baseline mudou: {total}B (esperado 1586B). "
+        assert total == 1545, (
+            f"M10 baseline mudou: {total}B (esperado 1545B). "
             "Welding nao-zero-risk pode ter alterado pipeline canonical."
         )
 

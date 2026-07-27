@@ -39,11 +39,13 @@ SAMPLES = ROOT / "datasets" / "samples"
 # MANTER no #15 — ver lab 2026-05-31-regression-real-world/REPORT.md.
 REAL_WORLD_BYTES_FROZEN = {
     "retail-description-2k": (27588, "online-retail/description-2k.csv"),
-    "retail-stockcode-2k":   (11444, "online-retail/stockcode-2k.csv"),
+    "retail-stockcode-2k":   (11237, "online-retail/stockcode-2k.csv"),
     "lineitem-comment-2k":   (50605, "tpch-sf001/lcomment-2k.csv"),
 }
 
-REAL_WORLD_TOTAL = 89637  # 27588 + 11444 + 50605 (era 89616; +21 = 3 x 7 B, ADR-0034)
+REAL_WORLD_TOTAL = 89430  # 27588 + 11237 + 50605. 89616 -> 89637 (+21 = 3 x 7 B,
+                          # ADR-0034) -> 89430 (-207 no stockcode, polaridade
+                          # 2026-07-26; as 2 colunas de texto livre nao mexeram).
 
 
 def _load_single_col(rel: str) -> list[str]:

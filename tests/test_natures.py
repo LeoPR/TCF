@@ -381,7 +381,10 @@ class TestNatureMarkSingleCol:
         """Single-col SEM spec -> version-stamp `#TCF.8`, nunca header de spec (ADR-0034)."""
         vals = ["529.982.247-25", "111.444.777-35", "529.982.247-25"]
         text = encode(vals)  # sem nature
-        assert text.startswith("#TCF.8\n")     # version-stamp (default), nao '#TCF.8 :id'
+        # version-stamp (default), nao '#TCF.8 :id'. O sufixo de POLARIDADE (weld
+        # 2026-07-26) pode acompanhar o stamp: `#TCF.8`, `#TCF.8!` ou `#TCF.8!!`.
+        linha0 = text.split("\n")[0]
+        assert linha0.startswith("#TCF.8") and ":" not in linha0
         assert not text.startswith("#TCF.8 ")  # nenhum header de spec
         assert text == encode(vals)  # deterministico
         assert decode(text) == vals
@@ -425,7 +428,8 @@ class TestNatureMarkSingleCol:
         text = encode(ips, nature=SPEC_IP)
         assert decode(text) == ips  # RT independe do win
         line0 = text.split("\n")[0]
-        assert line0 in ("#TCF.8 :ip", "#TCF.8")  # win (spec) OU piso (version-stamp)
+        # win (spec) OU piso (version-stamp, com ou sem sufixo de polaridade)
+        assert line0 == "#TCF.8 :ip" or (line0.startswith("#TCF.8") and ":" not in line0)
 
     def test_unknown_id_raises(self):
         # ERRO estrito (BUG-13b, owner 2026-07-10 — antes: warning + cru calado)

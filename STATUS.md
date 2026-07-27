@@ -1,5 +1,27 @@
 # STATUS — TCF (compendio sempre-atualizado)
 
+> **✅ WELD — delimitador de POLARIDADE no single-col (2026-07-26, ADR-0035, suíte 1010 passed).**
+> O corpo gastava **1 byte por LITERAL** (o `\` de corrida de dígito). Agora marca-se a **troca**
+> literal↔referência: **1 byte por TRANSIÇÃO**. E, por estar *entre* as duas corridas, o
+> delimitador carrega também a **fronteira** — o ponto que derrubou 3 propostas anteriores
+> (labs `0038`/`0200`/`0330`: apagar o escape funde `56` + `\033` em `56033`).
+>
+> **Camada de BORDA**: `encode` polariza depois do corpo canônico pronto (já com seq-RLE),
+> `decode` despolariza antes de tudo. O seq-RLE — que acha o dígito incrementável **pelo
+> escape** — só vê corpo canônico dos dois lados, e não foi tocado.
+>
+> **O char é ELEITO por coluna**, do complemento do alfabeto que ela usa (conflito zero por
+> construção, sem escapar o próprio delimitador). `FAIXA` = só **pontuação**: exclusão por
+> **classe** porque a auditoria adversarial reproduziu que **dígito** eleito funde com a corrida
+> e **letra** eleita colide com o slot do discriminador (`#TCF.8b` de uma coluna de string).
+> Cabeçalho: `#TCF.8<tag><sufixo>`, sufixo de 1 char = polaridade `R`, dobrado = `L`.
+>
+> **FLOOR nunca-pior incluindo o próprio sufixo.** Baselines re-pinados (ADR-0024):
+> **D1-D9 1586 → 1545**, **real-world 89637 → 89430**, **D17a 300 intacto** (`.8M` fora do escopo).
+> Escopo do weld: single-col stamp + tipado. **Fora**: `.8M`, `.8H`, spec, órfão.
+> **Aberto**: delimitador como grafia canônica interna (exigiria o seq-RLE localizar pela
+> polaridade). Evidência: `experiments/lab/dirty/2026-07/2026-07-26/{1853,1913,1954,2126}`.
+
 > **⚑ DECISÃO PENDENTE — weld do bN-dense no FLOOR (2026-07-23).** Estudo implicitude/bool/RLE/bN
 > fechado com evidência medida e VERIFICADA (10 labs em `experiments/lab/dirty/2026-07/2026-07-23/`,
 > nenhuma linha de `src/tcf` tocada). **Estabelecido**: (1) **segmentação misto RLE+b64 DERRUBADA** —

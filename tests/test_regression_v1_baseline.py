@@ -6,7 +6,7 @@ src/tcf/ que mude um byte aqui = regressao. Bytes documentados em:
     experiments/lab/dirty/2026-05/2026-05-27/2026-05-27-baseline-consolidado/METRICS.md
 
 Estrategia (Beizer 1995 — characteristic outputs):
-- D1-D9: 9 datasets sinteticos single-col (M10 baseline + header = 1586B total)
+- D1-D9: 9 datasets sinteticos single-col (M10 baseline + header = 1545B total)
 - D17a: 1 dataset sintetico multi-col (300B INVARIANT, #TCF.8M hex — ADR-0032 default)
 
 Regressao byte-canonical REAL-WORLD (colunas free-text, regime
@@ -86,14 +86,17 @@ D1_D9_BYTES_FROZEN = {
     "D2-emails-quote-id":   173,
     "D3-stress-substring":  184,
     "D4-caos-mix":          120,
-    "D5-padroes-multiplos": 288,
-    "D6-poucos-em-ruido":   294,
+    "D5-padroes-multiplos": 267,
+    "D6-poucos-em-ruido":   274,
     "D7-aninhamento":       222,
     "D8-cabeca-cauda":      107,
     "D9-frequencia-alta":    73,
 }
 
-D1_D9_TOTAL = 1586  # sum acima (era 1523; +63 = 9 x 7 B de header, ADR-0034)
+D1_D9_TOTAL = 1545  # sum acima. 1523 -> 1586 (+63 = 9 x 7 B de header, ADR-0034)
+                    # -> 1545 (-41 em D5/D6, delimitador de POLARIDADE 2026-07-26:
+                    # 1 byte por TRANSICAO em vez de 1 por LITERAL; FLOOR nunca-pior,
+                    # por isso os outros 7 nao mexeram). Re-pinavel (ADR-0024).
 
 D17A_INVARIANT = 300  # #TCF.8M default (ADR-0032): era 307 (sem V2-B) -> 303 (V2-B
                       # decimal) -> 302 (V2-B hex #TCF.7) -> 300 (#TCF.8M hex inline,
@@ -139,7 +142,7 @@ class TestD1D9ByteCanonical:
         assert decode(text) == values, f"RT broken em {name}"
 
     def test_d1_d9_total_invariant(self):
-        """Total D1-D9 = 1586B (baseline canonical M10 + header default, ADR-0034)."""
+        """Total D1-D9 = 1545B (M10 + header default ADR-0034 + polaridade 2026-07-26)."""
         total = 0
         for name in D1_D9_BYTES_FROZEN:
             values = _load_single_col(name)

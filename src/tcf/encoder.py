@@ -325,7 +325,15 @@ def encode(
             header_nat = f"{magic} {name or ''}:{nature.name}\n"
             # FLOOR: compara os blobs completos; empate fica no baseline.
             # o baseline compete na MESMA grafia que sera' emitida (com header por default)
-            baseline = body_orig if stamp is False else f"{magic}\n{body_orig}"
+            # — inclusive POLARIZADA (weld 2026-07-26). Comparar contra a grafia antiga daria
+            # vitoria a' nature em disputa que ela perde de fato.
+            if stamp is False:
+                baseline = body_orig
+            else:
+                from tcf.composicional.polaridade import polariza
+
+                _suf_b, _body_b = polariza(body_orig)
+                baseline = f"{magic}{_suf_b}\n{_body_b}"
             candidate = header_nat + body_nat
             win = len(candidate.encode("utf-8")) < len(baseline.encode("utf-8"))
             if side_outputs is not None:
@@ -355,7 +363,16 @@ def encode(
         # DEFAULT = COM cabecalho, 100% dos casos (owner 2026-07-24). O `#TCF.8\n` infla o
         # single-col em 7 B, e isso e' INEVITAVEL — o arquivo se auto-explica em vez de
         # depender de quem o produziu. Supersede o default do ADR-0029 (ver ADR-0034).
-        return magic + "\n" + body
+        #
+        # POLARIDADE (weld 2026-07-26): camada de BORDA, a ultima coisa do encode. Troca
+        # `1 escape por LITERAL` por `1 byte por TRANSICAO`, com FLOOR nunca-pior que ja'
+        # inclui o custo do proprio sufixo. Sufixo vazio = a grafia de hoje, byte a byte.
+        # So' aqui e no tipado: orfao (`stamp=False`) nao tem cabecalho onde declarar, e
+        # `.8M`/`.8H`/spec ficam de fora deste weld.
+        from tcf.composicional.polaridade import polariza
+
+        sufixo, body = polariza(body)
+        return magic + sufixo + "\n" + body
     if isinstance(data, list) and not data:
         # [] FLAT (owner 2026-07-24, canonicidade do vazio): a forma flat passa a
         # expressar a lista vazia como '#TCF.8\n' (7 B), em vez de fugir pro .8H '#D0'
@@ -400,7 +417,16 @@ def encode(
             [None if x is None else render(x) for x in data],
             header="val", side=side_outputs, cfg=cfg, min_len=min_len,
         )
+        # POLARIDADE (weld 2026-07-26): mais um candidato do MESMO min(), nao um caminho
+        # a parte. O sufixo e' pontuacao e a tag e' letra/digito, entao `#TCF.8n!` se le
+        # sem ambiguidade — e nenhum discriminador de hoje (`M`/`H`/`b`/`n`/`s`/espaco) e'
+        # pontuacao. Sufixo vazio -> este candidato E' o core, e o min() nao muda nada.
+        from tcf.composicional.polaridade import polariza
+
+        _suf, _corpo_pol = polariza(corpo_core)
         candidatos = [f"{magic}{tag}\n{corpo_core}"]
+        if _suf:
+            candidatos.append(f"{magic}{tag}{_suf}\n{_corpo_pol}")
 
         if tag == "b" and not tem_nulo:
             import base64

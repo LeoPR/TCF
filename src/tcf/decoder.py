@@ -140,6 +140,18 @@ def decode(
             f"#TCF.8, ADR-0032). Versoes de dev vivem no git (ADR-0024); "
             f"compatibilidade real so' a partir do 1.0."
         )
+    # POLARIDADE (weld 2026-07-26): camada de BORDA, a PRIMEIRA coisa do decode. Desfaz o
+    # delimitador e devolve o corpo CANONICO — dai' pra baixo todo o dispatch e o parser sao
+    # os de sempre, e o seq-RLE (que localiza o digito incrementavel PELO ESCAPE) continua
+    # vendo so' corpo canonico. Ver `composicional/polaridade.py`.
+    if _ver == "8":
+        _tag, _sufixo = _separa_sufixo_polaridade(line1[6:])
+        if _sufixo:
+            from tcf.composicional.polaridade import despolariza
+
+            _corpo = tcf_text[len(line1) + 1 :]
+            line1 = _V8_MAGIC + _tag
+            tcf_text = line1 + "\n" + despolariza(_corpo, _sufixo)
     # Discriminador #TCF.8 (ADR-0029): char logo apos '#TCF.8'. 'M'=multi (#TCF.8M),
     # ' '=single+spec (#TCF.8 ...), ''=version-stamp (line1 == '#TCF.8').
     disc8 = line1[6:7] if _ver == "8" else None
@@ -235,6 +247,31 @@ def _decode_column(tcf_text: str, max_length: int | None = None) -> "list[str | 
 # Whitelist do DECODE = so' o que o encoder EMITE (simetria; verif. wf_85fcea32). Hoje: bool.
 # 'n'/'s' ficam RESERVADOS no namespace (registry/notas) mas NAO decodaveis ainda -> caem no
 # fail-loud 'discriminador desconhecido' em vez de aceitar wire que o encoder nunca produz.
+def _separa_sufixo_polaridade(resto: str) -> "tuple[str, str]":
+    """`'#TCF.8<resto>'` -> `(tag, sufixo_de_polaridade)`. `('', '')` quando nao ha' sufixo.
+
+    O sufixo e' 1-2 chars IGUAIS de pontuacao no fim; a tag e' o prefixo alfanumerico. A
+    separacao e' inequivoca por construcao: a FAIXA do delimitador exclui digito e letra, e
+    nenhum discriminador de hoje (`M`, `H`, `b`, `n`, `s`, espaco, vazio) e' pontuacao.
+
+    Conservador de proposito — so' separa quando o resto inteiro casa `[alnum]*[pont]{1,2}`.
+    `'#TCF.8 nome:id'` tem espaco e `:`, nao casa, e segue pro caminho de spec intocado.
+    """
+    from tcf.composicional.polaridade import FAIXA
+
+    faixa = frozenset(FAIXA)
+    i = len(resto)
+    while i > 0 and resto[i - 1] in faixa:
+        i -= 1
+    sufixo = resto[i:]
+    if not sufixo or len(sufixo) > 2 or any(c != sufixo[0] for c in sufixo):
+        return "", ""
+    tag = resto[:i]
+    if not tag.isalnum() and tag != "":
+        return "", ""
+    return tag, sufixo
+
+
 _TAGS_TIPO = frozenset({"b", "n", "s"})
 _LARGURA_MODO = {"1": 1, "2": 2, "4": 4, "8": 8}   # modo denso bN (larguras); subtipos = preparado
 
