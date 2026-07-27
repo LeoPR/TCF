@@ -1,0 +1,12 @@
+{
+  "coluna": "bool-sem-null",
+  "n": 200,
+  "amostra": [
+    false,
+    true,
+    false,
+    true,
+    false,
+    true
+  ]
+}

@@ -1,0 +1,7 @@
+{
+  "coluna": "adult-workclass",
+  "arquivo": "adult-census/adult-sample.csv",
+  "campo": "workclass",
+  "n": 93,
+  "k": 6
+}

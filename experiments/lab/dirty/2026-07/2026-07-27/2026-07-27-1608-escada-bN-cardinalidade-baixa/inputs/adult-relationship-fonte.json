@@ -1,0 +1,7 @@
+{
+  "coluna": "adult-relationship",
+  "arquivo": "adult-census/adult-sample.csv",
+  "campo": "relationship",
+  "n": 100,
+  "k": 5
+}

@@ -248,16 +248,23 @@ def main():
     seed = "".join(c for c in [chr(x) for x in range(0x21, 0x7F)]
                    if c < "b" and c not in set("*~^,|" + chr(92)))
     d_letra = [seed] + [f"{i * 7 + 100000000}" for i in range(30)]
-    for nome, dd, quebra in [("dígito eleito", d_digito, "`0` eleito funde com a corrida"),
-                             ("letra eleita", d_letra, "`b` eleito vira `#TCF.8b` de bool")]:
+    for slug, nome, dd, quebra in [
+            ("digito", "dígito eleito", d_digito, "`0` eleito funde com a corrida"),
+            ("letra", "letra eleita", d_letra, "`b` eleito vira `#TCF.8b` de bool")]:
         w = encode(dd)
         h = w.split("\n")[0]
-        ok = decode(w) == dd
+        obtido = decode(w)
+        ok = obtido == dd
         char = h[len(MAGIC):][:1]
         out.append(f"| {nome} | {quebra} | `{h}` — char `{char}` "
                    f"({'pontuação' if char and not char.isalnum() else '**ALNUM!**'}), "
                    f"RT {'OK' if ok else '**FALHOU**'} |")
-        (RAIZ / "outputs" / f"adversarial-{nome.split()[0]}.tcf").write_text(w, encoding="utf-8")
+        # slug ASCII: `adversarial-dígito.tcf` com acento e' ruim de abrir/citar.
+        # E o roundtrip TEM de sair junto — sem ele o artefato nao se explica sozinho.
+        (RAIZ / "outputs" / f"adversarial-{slug}.tcf").write_text(w, encoding="utf-8")
+        _wj(RAIZ / "inputs" / f"adversarial-{slug}-fonte.json",
+            {"caso": nome, "n": len(dd), "quebrava": quebra, "valores": dd[:4]})
+        _wj(RAIZ / "outputs" / f"adversarial-{slug}-dataset.roundtrip.json", obtido)
     out += ["", f"`FAIXA` = `{''.join(FAIXA)}` ({len(FAIXA)} chars). Nem dígito, nem letra, "
             "nem gramática.", ""]
 

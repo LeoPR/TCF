@@ -1,0 +1,7 @@
+{
+  "coluna": "ibge-uf",
+  "arquivo": "ibge-municipios/ibge-municipios-sample.csv",
+  "campo": "uf_sigla",
+  "n": 100,
+  "k": 3
+}

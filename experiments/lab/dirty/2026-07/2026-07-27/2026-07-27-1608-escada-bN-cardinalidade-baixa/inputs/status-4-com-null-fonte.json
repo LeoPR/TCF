@@ -1,0 +1,12 @@
+{
+  "coluna": "status-4-com-null",
+  "n": 200,
+  "amostra": [
+    null,
+    "inativo",
+    "susp",
+    "canc",
+    "ativo",
+    "inativo"
+  ]
+}

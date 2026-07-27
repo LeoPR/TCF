@@ -1,0 +1,7 @@
+{
+  "coluna": "cnpj-situacao",
+  "arquivo": "receita-cnpj/cnpj-2k.csv",
+  "campo": "situacao",
+  "n": 2000,
+  "k": 2
+}

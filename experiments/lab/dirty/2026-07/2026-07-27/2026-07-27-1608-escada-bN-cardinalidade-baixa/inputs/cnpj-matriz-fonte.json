@@ -1,0 +1,7 @@
+{
+  "coluna": "cnpj-matriz",
+  "arquivo": "receita-cnpj/cnpj-2k.csv",
+  "campo": "matriz_filial",
+  "n": 2000,
+  "k": 2
+}
