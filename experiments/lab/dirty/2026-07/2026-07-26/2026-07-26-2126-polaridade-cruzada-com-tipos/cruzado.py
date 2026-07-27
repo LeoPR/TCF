@@ -29,7 +29,24 @@ import base64
 BS = chr(92)
 
 GRAMATICA = set("*~^,|" + BS + "\n")
-FAIXA = [chr(c) for c in range(0x21, 0x7F) if chr(c) not in GRAMATICA]
+
+# FAIXA = só PONTUAÇÃO ASCII, fora da gramática. Nem dígito, nem letra — e isso não é
+# blocklist, é regra, por dois bugs que a auditoria adversarial reproduziu:
+#
+#   dígito  o delimitador FUNDE com a corrida que deveria delimitar. Com `0` eleito,
+#           `1\22.\33` vira `1022.33` e volta como `1022.33`: o scanner de corrida engole
+#           o delimitador e o literal vira referência. Reconstrução deixa de ser exata.
+#
+#   letra   o sufixo V3 pousa no índice 6, que é o slot do DISCRIMINADOR (`#TCF.8b`,
+#           `#TCF.8n`, `#TCF.8H`…). Uma coluna de STRING com alfabeto largo elegia `b` e
+#           emitia `#TCF.8b` — byte-idêntico ao cabeçalho canônico de uma coluna bool.
+#
+# Excluir por CLASSE (dígito/letra) e não por lista fecha os dois de uma vez, e continua
+# fechado quando surgir tag nova.
+FAIXA = [chr(c) for c in range(0x21, 0x7F)
+         if chr(c) not in GRAMATICA and not chr(c).isdigit() and not chr(c).isalpha()]
+
+MAGIC = "#TCF.8"
 
 # tags de modo que o mecanismo entende (corpo = declarações, uma por linha)
 TAGS_DECL = {"", "b", "n", "s"}
@@ -46,9 +63,15 @@ FLIP = _Flip()
 
 
 def parte_wire(wire):
-    """`(cabecalho, tag, corpo)`. `tag` é o que vem depois de `#TCF.8`."""
-    cab, _, corpo = wire.partition("\n")
-    return cab, cab[len("#TCF.8"):], corpo
+    """`(cabecalho, tag, corpo)`. `tag` é o que vem depois do magic.
+
+    **Verifica o magic** (achado da auditoria): sem isso, um wire órfão (`stamp=False`, sem
+    cabeçalho) era aceito e a **primeira linha de dado** era consumida como cabeçalho.
+    """
+    cab, sep, corpo = wire.partition("\n")
+    if not sep or not cab.startswith(MAGIC):
+        raise ValueError(f"wire sem magic {MAGIC!r}: {cab[:20]!r}")
+    return cab, cab[len(MAGIC):], corpo
 
 
 def aplicavel(tag):

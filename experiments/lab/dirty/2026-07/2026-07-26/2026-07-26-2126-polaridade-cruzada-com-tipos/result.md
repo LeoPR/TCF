@@ -1,6 +1,6 @@
 # Polaridade × tipos — bool, binário, null (2026-07-26-2126)
 
-Escala pequena de propósito: **50 linhas por coluna**, **18 sintéticas** + **15 reais**. Não é benchmark — é observação de comportamento e caça a bug.
+Escala pequena de propósito: **até 50 linhas por coluna** (2 fixtures reais têm menos — a coluna `n` da tabela diz o real), **19 sintéticas** + **15 reais**. Não é benchmark — é observação de comportamento e caça a bug.
 
 `RT` compara **valor E tipo**, elemento a elemento: um `"0"` virando `None` (ou o contrário) passaria num RT frouxo.
 
@@ -24,8 +24,9 @@ Escala pequena de propósito: **50 linhas por coluna**, **18 sintéticas** + **1
 | `float-null` | 50 | `n` | 8 | 339 | 78 | 39 | 8 | delim `!`L | -68 | OK |
 | `str-zero-e-null` | 50 | `(nenhuma)` | 17 | 133 | 1 | 1 | 17 | recusa (1 esc) | +0 | OK |
 | `str-zero-misto` | 50 | `(nenhuma)` | 13 | 148 | 12 | 12 | 13 | recusa (12 esc) | +0 | OK |
-| `cpf-mascara-null` | 50 | `(nenhuma)` | 5 | 864 | 164 | 68 | 30 | delim `!`L | -132 | OK |
-| `cartao-null` | 50 | `(nenhuma)` | 5 | 1090 | 181 | 48 | 8 | delim `!`L | -171 | OK |
+| `zero-null-ATIVO` | 50 | `(nenhuma)` | 9 | 666 | 124 | 48 | 23 | delim `!`L | -99 | OK |
+| `cpf-mascara-null` | 50 | `(nenhuma)` | 5 | 853 | 156 | 69 | 37 | delim `!`L | -117 | OK |
+| `cartao-null` | 50 | `(nenhuma)` | 5 | 1094 | 183 | 46 | 10 | delim `!`L | -171 | OK |
 
 ## Reais (fixtures do repo, 50 linhas)
 
@@ -49,38 +50,91 @@ Escala pequena de propósito: **50 linhas por coluna**, **18 sintéticas** + **1
 
 ## Resultado
 
-- colunas medidas: **33** (18 sintéticas + 15 reais)
+- colunas medidas: **34** (19 sintéticas + 15 reais)
 - **N/A** (corpo não é declaração): **3** — `bool-puro` (`b132`), `real-adult-sex-bool` (`b132`), `real-adult-class-bool` (`b132`)
-- delimitador ativa: **16 de 30** aplicáveis
-- RT estrito (valor **e** tipo): **30/30**
+- delimitador ativa: **17 de 31** aplicáveis
+- **RT com transformação real** (a regra ativou, o corpo foi para o delimitador e voltou): **17/17**
+- RT das colunas que **recusaram** — é IDENTIDADE, não prova do mecanismo: **14**
 - divergência de TIPO: **0** (nenhuma)
-- Δ somado: **-993 B**
+- Δ somado: **-1077 B**
+
+**O decoder REAL nunca recebe a grafia da proposta.** Ele recebe o corpo canônico *reconstruído* — que é o desenho (camada de borda), mas precisa ser dito: o que está provado é a **reconstrução**, não que um `.tcfp` seja um wire válido. Alimentar o `.tcfp` direto ao `decode` **falha alto** (`ValueError`), graças ao fail-loud soldado antes nesta sessão — não corrompe em silêncio.
 
 ## O `0` do null: dígito que não é dado
 
 O slot nulo é escrito como `0` cru — grafia otimizada de `^0`. Ele é **dígito** no corpo, mas é **referência**, não dado. Se o mecanismo o tratasse como corrida literal, a reconstrução emitiria `\0` = a string `"0"`, e um RT frouxo não veria: o tamanho bate, o tipo da lista bate.
 
-Este lab trata a linha `0` como **opaca** (junto de `^N` e da linha vazia) e compara tipo elemento a elemento. As colunas que exercem isso:
+A correção foi **tirar** a regra especial: o null é referência ao slot 0, e a máquina de polaridade classifica dígito nu como `R` = referência. Ela acerta sozinha.
 
-| coluna | nulls | tem `"0"` como dado? | RT |
-|---|---:|:-:|:-:|
-| `bool-null` | 10 | não | OK |
-| `bool-null-maioria` | 33 | não | OK |
-| `binario-01-null` | 13 | sim | OK |
-| `null-puro` | 50 | não | OK |
-| `null-quase-tudo` | 49 | não | OK |
-| `null-esparso` | 1 | não | OK |
-| `int-null` | 9 | não | OK |
-| `int-ordenado-null` | 6 | não | OK |
-| `int-negativo-null` | 7 | não | OK |
-| `float-null` | 8 | não | OK |
-| `str-zero-e-null` | 17 | sim | OK |
-| `str-zero-misto` | 13 | sim | OK |
-| `cpf-mascara-null` | 5 | não | OK |
-| `cartao-null` | 5 | não | OK |
-| `real-pm25-com-NA` | 24 | não | OK |
-| `real-cnpj-fantasia-null` | 42 | não | OK |
-| `real-pessoas-email-null` | 5 | não | OK |
+A coluna que importa é a que tem `"0"` como **dado**, `null` na mesma coluna, **e** a regra ATIVADA — sem as três coisas juntas o RT é identidade e não prova nada. Foi um achado da auditoria: as 4 primeiras abaixo **recusam**.
 
-`str-zero-e-null` e `binario-01-null` são o par crítico: o mesmo char `0` aparece como **dado** e como **slot nulo** na mesma coluna.
+| coluna | nulls | `"0"` como dado? | regra ativou? | RT |
+|---|---:|:-:|:-:|:-:|
+| `bool-null` | 10 | não | não (identidade) | OK |
+| `bool-null-maioria` | 33 | não | não (identidade) | OK |
+| `binario-01-null` | 13 | sim | não (identidade) | OK |
+| `null-puro` | 50 | não | não (identidade) | OK |
+| `null-quase-tudo` | 49 | não | não (identidade) | OK |
+| `null-esparso` | 1 | não | **sim** | OK |
+| `int-null` | 9 | não | **sim** | OK |
+| `int-ordenado-null` | 6 | não | não (identidade) | OK |
+| `int-negativo-null` | 7 | não | **sim** | OK |
+| `float-null` | 8 | não | **sim** | OK |
+| `str-zero-e-null` | 17 | sim | não (identidade) | OK |
+| `str-zero-misto` | 13 | sim | não (identidade) | OK |
+| `zero-null-ATIVO` | 9 | sim | **sim** | OK |
+| `cpf-mascara-null` | 5 | não | **sim** | OK |
+| `cartao-null` | 5 | não | **sim** | OK |
+| `real-pm25-com-NA` | 24 | não | **sim** | OK |
+| `real-cnpj-fantasia-null` | 42 | não | não (identidade) | OK |
+| `real-pessoas-email-null` | 5 | não | não (identidade) | OK |
+
+`zero-null-ATIVO` foi construída depois da auditoria exatamente para fechar esse buraco: `"0"` como dado, `null`, e corridas de dígito suficientes para o FLOOR ativar. Ela ativa (`-99 B`) e o RT passa.
+
+## A FAIXA encolheu — ainda sobra char?
+
+A auditoria adversarial reproduziu dois bugs de eleição: **dígito** eleito funde com a corrida vizinha (`1\\22.\\33` → `1022.33`, e a volta deixa de ser exata), e **letra** eleita colide com o slot do discriminador — uma coluna de STRING emitia `#TCF.8b`, byte-idêntico ao cabeçalho canônico de uma coluna bool. A correção exclui por **classe**, não por lista: só pontuação.
+
+```
+FAIXA = !"#$%&'()+-./:;<=>?@[]_`{}
+26 chars (era 88 — caiu 70%)
+```
+
+Isso encolhe muito o espaço, então a pergunta vira empírica:
+
+| coluna | usados da FAIXA | livres | eleito |
+|---|---:|---:|:-:|
+| `bool-constante` | 0 | 26 | `!` |
+| `bool-null` | 0 | 26 | `!` |
+| `bool-null-maioria` | 0 | 26 | `!` |
+| `binario-01` | 0 | 26 | `!` |
+| `binario-01-null` | 0 | 26 | `!` |
+| `binario-sn` | 0 | 26 | `!` |
+| `null-puro` | 0 | 26 | `!` |
+| `null-quase-tudo` | 0 | 26 | `!` |
+| `null-esparso` | 0 | 26 | `!` |
+| `int-null` | 0 | 26 | `!` |
+| `int-ordenado-null` | 0 | 26 | `!` |
+| `int-negativo-null` | 1 | 25 | `!` |
+| `float-null` | 1 | 25 | `!` |
+| `str-zero-e-null` | 0 | 26 | `!` |
+| `str-zero-misto` | 0 | 26 | `!` |
+| `zero-null-ATIVO` | 2 | 24 | `!` |
+| `cpf-mascara-null` | 2 | 24 | `!` |
+| `cartao-null` | 1 | 25 | `!` |
+| `real-adult-age-int` | 0 | 26 | `!` |
+| `real-adult-capgain-int` | 0 | 26 | `!` |
+| `real-pm25-com-NA` | 0 | 26 | `!` |
+| `real-pm25-Iws-float` | 1 | 25 | `!` |
+| `real-cnpj-matriz-bin` | 0 | 26 | `!` |
+| `real-cnpj-fantasia-null` | 1 | 25 | `!` |
+| `real-cnpj-doc` | 3 | 23 | `!` |
+| `real-pessoas-cpf` | 2 | 24 | `!` |
+| `real-pessoas-email-null` | 2 | 24 | `!` |
+| `real-ibge-id` | 1 | 25 | `!` |
+| `real-retail-stockcode` | 0 | 26 | `!` |
+| `real-tpch-phone` | 1 | 25 | `!` |
+| `real-tpch-acctbal` | 2 | 24 | `!` |
+
+Mínimo de chars livres: **23 de 26** (em `real-cnpj-doc`). Nenhuma coluna ficou sem opção nesta amostra — mas a margem caiu, e é uma amostra pequena.
 

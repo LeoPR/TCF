@@ -1,6 +1,7 @@
 # Proveniência — polaridade × tipos (2026-07-26-2126)
 
-**Escala pequena de propósito**: 50 linhas por coluna, 33 colunas. Não é benchmark nem teste
+**Escala pequena de propósito**: até 50 linhas por coluna, 34 colunas. Duas fixtures reais
+(`real-tpch-*`) têm só 20 linhas — a coluna `n` do `result.md` diz o número real de cada uma. Não é benchmark nem teste
 de resistência — é observação de comportamento e caça a bug, como pedido.
 
 ## 18 colunas sintéticas — LCG determinístico
@@ -68,9 +69,29 @@ dados -> encode            -> wire REAL (cabeçalho + corpo canônico)
 O `rt` compara **valor E tipo, elemento a elemento**. Foi isso que pegou o primeiro bug: um
 `"0"` virando `None` mantém o tamanho da lista e o tipo `list`, e passaria num RT frouxo.
 
+## Auditoria adversarial
+
+Rodei 6 lentes independentes contra este lab (marcador virtual, tags, seq-RLE, colisão do
+char, sufixo V3, força da validação). Elas levantaram 18 hipóteses. **A fase de refutação
+automática não rodou** — caiu por limite de gasto — então o "descartadas" que o orquestrador
+reportou **não vale nada**: elas não foram refutadas, não foram verificadas.
+
+Verifiquei cada família **à mão**, rodando código:
+
+| família | veredito |
+|---|---|
+| `FAIXA` inclui dígitos → delimitador funde com a corrida | **confirmado**, corrigido |
+| sufixo V3 no slot do discriminador → `#TCF.8b` de coluna string | **confirmado**, corrigido |
+| par crítico (`"0"` dado × slot nulo) nunca exercido — as colunas recusam | **confirmado**, coluna nova |
+| "RT 30/30" mistura transformação com identidade | **confirmado**, contagem separada |
+| higiene: `_col` mudo, `zip` sem guarda, escala errada, magic não conferido | **confirmado**, corrigidos |
+| V3 destrói o seq-RLE com corrupção silenciosa | **REFUTADO** — reconstrução byte-exata; `.tcfp` direto ao `decode` falha alto |
+
 ## Limites declarados
 
 - **Nada soldado**; `src/tcf` intocado.
+- A `FAIXA` do delimitador caiu de 88 para **26 chars** (só pontuação — nem dígito, nem
+  letra). Mínimo de livres nas 31 colunas aplicáveis: **23**. Amostra pequena.
 - 50 linhas por coluna: bom para achar bug, **inútil para medir ganho**. Os `Δ` da tabela são
   observação, não resultado.
 - O modo denso (`b<N>` + base64) e o hierárquico (`H`) saem como **N/A** — o mecanismo recusa

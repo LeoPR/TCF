@@ -76,6 +76,15 @@ def sinteticas():
     c["str-zero-misto"] = [None if i % 4 == 0 else ("0" if i % 2 else str(L(100)))
                            for i in range(N)]
 
+    # --- o par critico, agora com escapes suficientes para o FLOOR ATIVAR.
+    # Achado da auditoria: nas 4 colunas acima o decide() RECUSA, entao o RT delas era
+    # IDENTIDADE -- nao exercia o bug do slot nulo. Esta coluna tem "0" como dado, null, e
+    # 5 corridas de digito por linha para o ganho pagar o prefixo.
+    c["zero-null-ATIVO"] = [None if i % 6 == 0 else
+                            ("0" if i % 5 == 0 else
+                             f"{L(1000):03d}.{L(1000):03d}.{L(1000):03d}-{L(100):02d}")
+                            for i in range(N)]
+
     # --- formatadas com null (o regime onde a polaridade ganha)
     c["cpf-mascara-null"] = [None if i % 10 == 0 else
                              f"{L(1000):03d}.{L(1000):03d}.{L(1000):03d}-{L(100):02d}"
@@ -87,14 +96,21 @@ def sinteticas():
 
 # ---------------------------------------------------------------- colunas reais (pequenas)
 def _col(rel, nome, n=N, mapa=None):
+    """Le uma coluna de fixture. **Fail-loud** em nome de coluna inexistente.
+
+    Achado da auditoria: `row.get(nome)` devolvia `None` para nome errado, a coluna saia
+    100% null e era listada no result.md como medicao valida -- sem medir nada.
+    """
     p = SAMPLES / rel
     if not p.exists():
         return None
     with p.open(encoding="utf-8", newline="") as f:
         r = csv.DictReader(f)
+        if nome not in (r.fieldnames or []):
+            raise KeyError(f"coluna {nome!r} nao existe em {rel} (tem: {r.fieldnames})")
         vals = []
         for row in r:
-            v = row.get(nome)
+            v = row[nome]
             if mapa:
                 v = mapa(v)
             vals.append(v)
@@ -165,6 +181,7 @@ def caso(nome, dados):
 
     toks, presentes, tR, tL, literais = varredura_unica(corpo)
     modo, char, inicial, custo = decide(presentes, tR, tL, literais)
+    r["pres"] = presentes
     r.update({"lit": literais, "tR": tR, "tL": tL, "modo": modo, "char": char,
               "inicial": inicial, "custo": custo})
 
@@ -179,14 +196,20 @@ def caso(nome, dados):
     else:
         volta, r["delta"] = corpo, 0
 
+    # A regra RECUSOU? entao `volta is corpo` e o RT abaixo e' IDENTIDADE, nao prova do
+    # mecanismo. A auditoria pegou isso: reportar "30/30" misturava as duas coisas.
+    r["transformou"] = modo == "delim"
     r["exato"] = volta == corpo
     # RT ESTRITO: valor E tipo, elemento a elemento (bool nao pode virar int, "0" nao pode
     # virar None, e vice-versa)
     if r["exato"]:
         obtido = decode(cab + "\n" + volta)
-        r["rt"] = (obtido == dados
-                   and all(type(a) is type(b) for a, b in zip(obtido, dados)))
-        r["rt_tipo_ok"] = all(type(a) is type(b) for a, b in zip(obtido, dados))
+        # GUARDA DE COMPRIMENTO (achado da auditoria): `zip` TRUNCA, entao um decode que
+        # devolvesse menos elementos passaria no teste de tipo, e a linha "divergencia de
+        # TIPO: 0" mentiria ao lado de um RT falhado.
+        mesmo_n = len(obtido) == len(dados)
+        r["rt_tipo_ok"] = mesmo_n and all(type(a) is type(b) for a, b in zip(obtido, dados))
+        r["rt"] = mesmo_n and obtido == dados and r["rt_tipo_ok"]
     else:
         r["rt"] = r["rt_tipo_ok"] = False
 
@@ -227,7 +250,8 @@ def main():
     todas = res_s + res_r
 
     out = ["# Polaridade × tipos — bool, binário, null (2026-07-26-2126)", "",
-           f"Escala pequena de propósito: **{N} linhas por coluna**, "
+           f"Escala pequena de propósito: **até {N} linhas por coluna** (2 fixtures reais "
+           f"têm menos — a coluna `n` da tabela diz o real), "
            f"**{len(res_s)} sintéticas** + **{len(res_r)} reais**. Não é benchmark — é "
            "observação de comportamento e caça a bug.", "",
            "`RT` compara **valor E tipo**, elemento a elemento: um `\"0\"` virando `None` "
@@ -246,12 +270,18 @@ def main():
             f"- **N/A** (corpo não é declaração): **{len(na)}** — "
             + (", ".join(f"`{r['nome']}` (`{r['tag']}`)" for r in na) if na else "nenhuma"),
             f"- delimitador ativa: **{len(usa)} de {len(ok)}** aplicáveis",
-            f"- RT estrito (valor **e** tipo): "
-            f"**{len(ok) - len(falhas)}/{len(ok)}**"
-            + (f" — falha em {falhas}" if falhas else ""),
+            f"- **RT com transformação real** (a regra ativou, o corpo foi para o "
+            f"delimitador e voltou): **{len(usa) - len([f for f in falhas if f in {r['nome'] for r in usa}])}/{len(usa)}**",
+            f"- RT das colunas que **recusaram** — é IDENTIDADE, não prova do mecanismo: "
+            f"**{len(ok) - len(usa)}**",
             f"- divergência de TIPO: **{len(tipo_ruim)}**"
             + (f" — {tipo_ruim}" if tipo_ruim else " (nenhuma)"),
-            f"- Δ somado: **{sum(r['delta'] for r in ok)} B**", ""]
+            f"- Δ somado: **{sum(r['delta'] for r in ok)} B**", "",
+            "**O decoder REAL nunca recebe a grafia da proposta.** Ele recebe o corpo "
+            "canônico *reconstruído* — que é o desenho (camada de borda), mas precisa ser "
+            "dito: o que está provado é a **reconstrução**, não que um `.tcfp` seja um wire "
+            "válido. Alimentar o `.tcfp` direto ao `decode` **falha alto** (`ValueError`), "
+            "graças ao fail-loud soldado antes nesta sessão — não corrompe em silêncio.", ""]
 
     # ---------------------------------------------------------- o null como referência
     com_null = [r for r in ok if r["nulls"] > 0]
@@ -260,15 +290,51 @@ def main():
             "no corpo, mas é **referência**, não dado. Se o mecanismo o tratasse como corrida "
             "literal, a reconstrução emitiria `\\0` = a string `\"0\"`, e um RT frouxo não "
             "veria: o tamanho bate, o tipo da lista bate.", "",
-            "Este lab trata a linha `0` como **opaca** (junto de `^N` e da linha vazia) e "
-            "compara tipo elemento a elemento. As colunas que exercem isso:", "",
-            "| coluna | nulls | tem `\"0\"` como dado? | RT |", "|---|---:|:-:|:-:|"]
+            "A correção foi **tirar** a regra especial: o null é referência ao slot 0, e a "
+            "máquina de polaridade classifica dígito nu como `R` = referência. Ela acerta "
+            "sozinha.", "",
+            "A coluna que importa é a que tem `\"0\"` como **dado**, `null` na mesma coluna, "
+            "**e** a regra ATIVADA — sem as três coisas juntas o RT é identidade e não prova "
+            "nada. Foi um achado da auditoria: as 4 primeiras abaixo **recusam**.", "",
+            "| coluna | nulls | `\"0\"` como dado? | regra ativou? | RT |",
+            "|---|---:|:-:|:-:|:-:|"]
     for r in com_null:
         zero = "sim" if "zero" in r["nome"] or "binario-01" in r["nome"] else "não"
-        out.append(f"| `{r['nome']}` | {r['nulls']} | {zero} | "
+        at = "**sim**" if r["modo"] == "delim" else "não (identidade)"
+        out.append(f"| `{r['nome']}` | {r['nulls']} | {zero} | {at} | "
                    f"{'OK' if r['rt'] else '**FALHOU**'} |")
-    out += ["", "`str-zero-e-null` e `binario-01-null` são o par crítico: o mesmo char `0` "
-            "aparece como **dado** e como **slot nulo** na mesma coluna.", ""]
+    ativo = [r for r in com_null if r["modo"] == "delim"
+             and ("zero" in r["nome"] or "binario-01" in r["nome"])]
+    out += ["", "`zero-null-ATIVO` foi construída depois da auditoria exatamente para fechar "
+            "esse buraco: `\"0\"` como dado, `null`, e corridas de dígito suficientes para o "
+            "FLOOR ativar. "
+            + (f"Ela ativa (`{ativo[0]['delta']:+} B`) e o RT passa."
+               if ativo else "**Ela não ativou — o buraco continua aberto.**"), ""]
+
+    # ------------------------------------------------- o alfabeto livre com a FAIXA reduzida
+    from cruzado import FAIXA, elege
+    out += ["## A FAIXA encolheu — ainda sobra char?", "",
+            "A auditoria adversarial reproduziu dois bugs de eleição: **dígito** eleito funde "
+            "com a corrida vizinha (`1\\\\22.\\\\33` → `1022.33`, e a volta deixa de ser "
+            "exata), e **letra** eleita colide com o slot do discriminador — uma coluna de "
+            "STRING emitia `#TCF.8b`, byte-idêntico ao cabeçalho canônico de uma coluna "
+            "bool. A correção exclui por **classe**, não por lista: só pontuação.", "",
+            f"```\nFAIXA = {''.join(FAIXA)}\n{len(FAIXA)} chars (era 88 — caiu 70%)\n```", "",
+            "Isso encolhe muito o espaço, então a pergunta vira empírica:", "",
+            "| coluna | usados da FAIXA | livres | eleito |", "|---|---:|---:|:-:|"]
+    livres_min, pior = len(FAIXA) + 1, None
+    for r in todas:
+        if not r["aplicavel"] or not r.get("pres"):
+            continue
+        nl = sum(1 for c in FAIXA if c not in r["pres"])
+        if nl < livres_min:
+            livres_min, pior = nl, r["nome"]
+        out.append(f"| `{r['nome']}` | {len(FAIXA) - nl} | {nl} | "
+                   f"`{elege(r['pres']) or '—'}` |")
+    out += ["", f"Mínimo de chars livres: **{livres_min} de {len(FAIXA)}** (em `{pior}`). "
+            + ("Nenhuma coluna ficou sem opção nesta amostra — mas a margem caiu, e é uma "
+               "amostra pequena." if livres_min > 0 else
+               "**Alguma coluna ficou sem char livre.**"), ""]
 
     (RAIZ / "result.md").write_text("\n".join(out) + "\n", encoding="utf-8")
     print("\n".join(out))
