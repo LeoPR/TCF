@@ -1,0 +1,14 @@
+{
+  "coluna": "bool-null",
+  "n": 200,
+  "k": 3,
+  "w": 2,
+  "amostra": [
+    null,
+    "true",
+    "false",
+    "true",
+    "false",
+    "true"
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "coluna": "str-k6-null",
+  "n": 200,
+  "k": 7,
+  "w": 3,
+  "amostra": [
+    null,
+    "inativo",
+    "suspenso",
+    "cancelado",
+    "revisao",
+    "arquivado"
+  ]
+}

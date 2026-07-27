@@ -1,0 +1,14 @@
+{
+  "coluna": "str-k5",
+  "n": 200,
+  "k": 5,
+  "w": 3,
+  "amostra": [
+    "ativo",
+    "inativo",
+    "suspenso",
+    "cancelado",
+    "revisao",
+    "ativo"
+  ]
+}

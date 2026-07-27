@@ -1,0 +1,14 @@
+{
+  "coluna": "str-k2-null",
+  "n": 200,
+  "k": 3,
+  "w": 2,
+  "amostra": [
+    null,
+    "inativo",
+    "ativo",
+    "inativo",
+    "ativo",
+    "inativo"
+  ]
+}

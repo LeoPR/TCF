@@ -1,0 +1,14 @@
+{
+  "coluna": "str-k3",
+  "n": 200,
+  "k": 3,
+  "w": 2,
+  "amostra": [
+    "ativo",
+    "inativo",
+    "suspenso",
+    "ativo",
+    "inativo",
+    "suspenso"
+  ]
+}
