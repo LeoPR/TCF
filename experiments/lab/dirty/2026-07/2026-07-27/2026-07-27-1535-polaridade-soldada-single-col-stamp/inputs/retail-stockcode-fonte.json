@@ -1,0 +1,11 @@
+{
+  "coluna": "retail-stockcode",
+  "n": 200,
+  "real": true,
+  "amostra": [
+    "85123A",
+    "71053",
+    "84406B",
+    "84029G"
+  ]
+}

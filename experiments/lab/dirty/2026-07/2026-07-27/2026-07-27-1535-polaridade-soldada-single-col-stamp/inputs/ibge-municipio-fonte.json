@@ -1,0 +1,11 @@
+{
+  "coluna": "ibge-municipio",
+  "n": 100,
+  "real": true,
+  "amostra": [
+    "Alta Floresta D'Oeste",
+    "Ariquemes",
+    "Cabixi",
+    "Cacoal"
+  ]
+}

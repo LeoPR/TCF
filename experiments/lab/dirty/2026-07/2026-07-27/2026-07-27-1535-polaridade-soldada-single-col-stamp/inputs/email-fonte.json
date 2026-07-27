@@ -1,0 +1,11 @@
+{
+  "coluna": "email",
+  "n": 200,
+  "real": false,
+  "amostra": [
+    "user1300@d8.com",
+    "user6562@d3.com",
+    "user4944@d2.com",
+    "user9374@d2.com"
+  ]
+}
