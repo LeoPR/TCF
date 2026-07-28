@@ -1,0 +1,12 @@
+{
+  "coluna": "str-k4",
+  "n": 200,
+  "amostra": [
+    "ativo",
+    "inativo",
+    "suspenso",
+    "cancelado",
+    "ativo",
+    "inativo"
+  ]
+}
