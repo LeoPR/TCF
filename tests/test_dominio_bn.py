@@ -9,7 +9,7 @@ import pytest
 
 from tcf import decode, encode
 from tcf.composicional.dominio_bn import (
-    DISC_LOTE, DISC_STREAM, MARCADOR, MAX_W, candidatos, dominio,
+    BS, DISC_LOTE, DISC_STREAM, MARCADOR, MAX_W, _grafa, _le_grafia, candidatos, dominio,
 )
 from tcf.encoder import _encode_column
 
@@ -109,6 +109,73 @@ class TestModoLote:
         dados = [str(i % 2) for i in range(200)]
         b, c = _cands(dados)
         assert len(c.encode()) < len(b.encode())
+
+
+class TestGrafiaInjetiva:
+    """Bug de CORRUPCAO SILENCIOSA achado pela auditoria adversarial (2026-07-28).
+
+    `_grafa` escapava `"0"` -> `"\\0"` mas devolvia o resto intacto, entao o valor de dado
+    que JA' era `"\\0"` saia igual — duas entradas, uma grafia. `encode(['\\0','x']*30)`
+    devolvia `['0','x',...]` **sem excecao**, pela API publica, com `list[str]` trivial.
+    """
+
+    def test_grafa_e_injetiva(self):
+        vals = [None, "0", BS + "0", BS, BS + BS, "x", BS + "x", BS + BS + "0", "00"]
+        grafados = [_grafa(v) for v in vals]
+        assert len(grafados) == len(set(grafados)), f"colisao: {grafados}"
+
+    def test_le_grafia_e_inversa_exata(self):
+        for v in (None, "0", BS + "0", BS, BS + BS, "x", BS + "x", "00", ""):
+            assert _le_grafia(_grafa(v)) == v
+
+    @pytest.mark.parametrize("dados", [
+        [chr(92) + "0", "x"] * 30,                       # o caso que corrompia
+        ["0", chr(92) + "0", "y"] * 20,                  # os dois na MESMA coluna
+        [chr(92), chr(92) * 2, "z"] * 20,
+        [None, "0", chr(92) + "0"] * 20,                 # + o slot nulo
+    ])
+    def test_rt_com_backslash_no_dominio(self, dados):
+        obtido = decode(encode(dados))
+        assert len(obtido) == len(dados)
+        assert obtido == dados
+
+    def test_core_ja_preservava(self):
+        """Contra-prova: era regressao do bN, nao limitacao do formato."""
+        dados = [BS + "0", "x"] * 30
+        assert decode(encode(dados, stamp=False)) == dados
+
+
+class TestCanonicidadeDoCabecalho:
+    """O bN violava um invariante que o irmao no MESMO indice 7 ja' travava.
+
+    `int(x, 16)` aceita zero a esquerda, maiuscula, underscore (PEP 515), `0x` e sinal;
+    `str.isdigit()` aceita digito Unicode. Familia INFINITA de grafias para o mesmo valor —
+    o modo denso rejeita tudo isso desde sempre (`test_typed_singlecol.py`).
+    """
+
+    @pytest.mark.parametrize("cab", [
+        "#TCF.8B20c8",      # zero a esquerda
+        "#TCF.8B200c8",     # dois
+        "#TCF.8B2C8",       # hex maiusculo
+        "#TCF.8B2c_8",      # underscore (PEP 515)
+        "#TCF.8B20xc8",     # prefixo 0x
+        "#TCF.8B2+c8",      # sinal
+        "#TCF.8B2 c8",      # whitespace
+        "#TCF.8B٢c8",  # digito arabe-indico na largura
+        "#TCF.8B2c٨",  # digito arabe-indico no hex
+        "#TCF.8B9c8",       # largura fora de 1..8
+        "#TCF.8B0c8",       # largura 0
+    ])
+    def test_grafia_nao_canonica_fail_loud(self, cab):
+        corpo = encode([f"v{i % 3}" for i in range(200)]).partition("\n")[2]
+        with pytest.raises(ValueError):
+            decode(cab + "\n" + corpo)
+
+    def test_o_canonico_passa(self):
+        dados = [f"v{i % 3}" for i in range(200)]
+        w = encode(dados)
+        assert w.partition("\n")[0] == "#TCF.8B2c8"
+        assert decode(w) == dados
 
 
 class TestFailLoud:

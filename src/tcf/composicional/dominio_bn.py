@@ -74,15 +74,31 @@ def _largura(k: int) -> int:
 
 
 def _grafa(v: "str | None") -> str:
-    """`0` cru = slot nulo; `\\0` = o literal `"0"`. SO' esse valor e' escapado aqui."""
-    return "0" if v is None else (BS + v if v == "0" else v)
+    """`0` cru = slot nulo; `\\0` = o literal `"0"`. INJETIVA.
+
+    **Bug corrigido 2026-07-28 (auditoria adversarial), corrupcao SILENCIOSA no weld
+    ADR-0036.** A primeira versao escapava so' o valor `"0"` e devolvia o resto intacto:
+
+        _grafa("0")   -> "\\0"
+        _grafa("\\0")  -> "\\0"      <- MESMA saida, valores DIFERENTES
+
+    Quem escapa tem de escapar tambem o proprio char de escape, senao a funcao deixa de ser
+    injetiva. `encode(['\\0','x']*30)` devolvia `['0','x',...]` — sem excecao, pela API
+    publica, com `list[str]` trivial. A rota core preservava; era regressao do bN.
+
+    5a aparicao da mesma familia de assimetria no projeto. A regra, agora sem excecao:
+    **escapa o `\\` inicial E o `0` solitario; nada mais.**
+    """
+    if v is None:
+        return "0"
+    return BS + v if (v == "0" or v.startswith(BS)) else v
 
 
 def _le_grafia(s: str) -> "str | None":
-    """Desfaz `_grafa`, e SO' ela. Desfazer mais mutila dado que ja' vem com `\\`."""
+    """Inversa exata de `_grafa`."""
     if s == "0":
         return None
-    return "0" if s == BS + "0" else s
+    return s[1:] if s.startswith(BS) else s
 
 
 def dominio(valores: "list[str | None]") -> "list[str | None]":
@@ -131,15 +147,27 @@ def decode_bn(tcf_text: str, disc: str, decode_col) -> "list[str | None]":
     if not sep:
         raise ValueError(f"wire bN sem corpo: {cab[:24]!r}")
     campos = cab[len(MAGIC) + 1:]
-    if not campos or not campos[0].isdigit():
-        raise ValueError(f"cabecalho bN sem largura: {cab[:24]!r}")
+    # CANONICIDADE DO CABECALHO — bug corrigido 2026-07-28 (auditoria adversarial).
+    # A 1a versao usava `campos[0].isdigit()` e `int(campos[1:], 16)` CRUS. `str.isdigit()`
+    # aceita digito Unicode (`٢`), e `int(x, 16)` aceita zero a esquerda, maiuscula,
+    # underscore (PEP 515), prefixo `0x` e sinal — uma familia INFINITA de grafias para o
+    # mesmo valor. O irmao no MESMO indice 7 (modo denso, `decoder.py`) ja' rejeitava tudo
+    # isso, e `test_typed_singlecol.py::test_grafia_nao_canonica_fail_loud` ja' travava o
+    # invariante ("duas grafias, mesmo valor, violaria S1.2"). O bN o violava.
+    if len(campos) < 2 or campos[0] not in "12345678":
+        raise ValueError(
+            f"cabecalho bN nao-canonico: largura {campos[:1]!r} fora de 1..{MAX_W}"
+        )
     w = int(campos[0])
-    if not 1 <= w <= MAX_W:
-        raise ValueError(f"largura bN fora de 1..{MAX_W}: {w}")
-    try:
-        n = int(campos[1:], 16)
-    except ValueError:
-        raise ValueError(f"contagem bN nao-hexadecimal: {campos[1:]!r}") from None
+    nhex = campos[1:]
+    if any(c not in "0123456789abcdef" for c in nhex):
+        raise ValueError(f"contagem bN nao-hexadecimal-canonica: {nhex!r}")
+    n = int(nhex, 16)
+    if f"{n:x}" != nhex:                      # grafia MINIMA: sem zero a esquerda
+        raise ValueError(
+            f"contagem bN nao-canonica: {nhex!r} (canonico: {n:x}) — duas grafias para o "
+            f"mesmo valor violariam a canonicidade do wire"
+        )
 
     if disc == DISC_LOTE:
         nb = _b64_len(n, w)
