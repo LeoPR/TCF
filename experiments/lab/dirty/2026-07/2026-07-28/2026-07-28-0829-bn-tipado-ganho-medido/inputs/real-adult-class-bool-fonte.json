@@ -1,0 +1,14 @@
+{
+  "coluna": "real-adult-class-bool",
+  "n": 100,
+  "tag": "b",
+  "w": 1,
+  "amostra": [
+    false,
+    false,
+    true,
+    true,
+    false,
+    false
+  ]
+}
