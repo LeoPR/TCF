@@ -372,7 +372,20 @@ def encode(
         from tcf.composicional.polaridade import polariza
 
         sufixo, body = polariza(body)
-        return magic + sufixo + "\n" + body
+        # bN DE DOMINIO (weld 2026-07-27, ADR-0036): mais candidatos do MESMO min(). Coluna
+        # de cardinalidade baixa gasta ~3 B/linha em `^N`; com `k` distintos bastam
+        # ceil(log2(k)) BITS. Nunca-pior: o FLOOR so' troca se encolher.
+        from tcf.composicional.dominio_bn import candidatos as _bn_cands
+
+        # So' o modo `B` (dominio primeiro) concorre por DEFAULT. O `C` (dominio por ultimo)
+        # e' ~1 B menor e por isso venceria SEMPRE num min() cego — mas ele NAO STREAMA: o
+        # leitor precisa do payload inteiro antes de emitir o 1o valor (17x mais buffer numa
+        # coluna de 2000 linhas, lab 2026-07-27-2211). Trocar streaming por 1 byte, calado,
+        # seria a decisao errada tomada pelo criterio errado. O `C` fica DECODAVEL (wire
+        # produzido por outra ponta le' normalmente) e o opt-in de emissao e' T-BN-LOTE.
+        _bn = _bn_cands(data, lambda vs: _encode_column(vs, header="val", cfg=cfg), None)
+        _cands = [magic + sufixo + "\n" + body] + _bn[:1]
+        return min(_cands, key=lambda w: len(w.encode("utf-8")))
     if isinstance(data, list) and not data:
         # [] FLAT (owner 2026-07-24, canonicidade do vazio): a forma flat passa a
         # expressar a lista vazia como '#TCF.8\n' (7 B), em vez de fugir pro .8H '#D0'
@@ -427,6 +440,12 @@ def encode(
         candidatos = [f"{magic}{tag}\n{corpo_core}"]
         if _suf:
             candidatos.append(f"{magic}{tag}{_suf}\n{_corpo_pol}")
+
+        # bN DE DOMINIO: NAO entra aqui. O wire `#TCF.8B…` devolve STRING, e a rota tipada
+        # tem de preservar o tipo — um `bool` voltando `"true"` seria corrupcao silenciosa.
+        # Levar o bN pro tipado exige a tag DENTRO do cabecalho (`#TCF.8bB…`), que e' grafia
+        # nova. Fica pendente: T-BN-TIPADO (ADR-0036 §aberto). E' onde `bool + null` — hoje
+        # 546 B contra 92 B possiveis — ainda esta' na mesa.
 
         if tag == "b" and not tem_nulo:
             import base64

@@ -167,6 +167,14 @@ def decode(
     # do '~') e' DEDUZIDA DA POSICAO (indice 7); NAO ha '~' no wire. #4a = modo CORE; denso bN = #4b.
     if disc8 in _TAGS_TIPO:
         return _decode_typed(tcf_text, disc8, max_length=max_length)
+    # bN DE DOMINIO: #TCF.8B<w><n> (dominio primeiro) / #TCF.8C<w><n> (dominio por ultimo).
+    # Densidade por CARDINALIDADE — ver composicional/dominio_bn.py e ADR-0036.
+    if disc8 in _DISCS_BN:
+        from tcf.composicional.dominio_bn import decode_bn
+
+        return decode_bn(
+            tcf_text, disc8, lambda b: _decode_column(b, max_length=max_length)
+        )
     # FAIL-LOUD (ADR-0032 §6): discriminador reservado/desconhecido apos '#TCF.8' NAO
     # pode degradar pra decode orfao silencioso (corrompe).
     if disc8 is not None and disc8 not in ("M", " ", ""):
@@ -271,6 +279,10 @@ def _separa_sufixo_polaridade(resto: str) -> "tuple[str, str]":
         return "", ""
     return tag, sufixo
 
+
+#: Discriminadores do bN de dominio (ADR-0036). `B` = dominio primeiro (streaming);
+#: `C` = dominio por ultimo (lote). Ver `composicional/dominio_bn.py`.
+_DISCS_BN = frozenset({"B", "C"})
 
 _TAGS_TIPO = frozenset({"b", "n", "s"})
 _LARGURA_MODO = {"1": 1, "2": 2, "4": 4, "8": 8}   # modo denso bN (larguras); subtipos = preparado

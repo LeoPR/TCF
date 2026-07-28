@@ -1,5 +1,45 @@
 # STATUS — TCF (compendio sempre-atualizado)
 
+> ## 🔖 PENDENTES NOMEADOS — não deixar cair no esquecimento
+>
+> Tickets criados pelos welds de 2026-07-26/27. **Nenhum é bloqueante; todos são ganho
+> medido esperando encaixe.** Detalhe em ADR-0036 §aberto e no
+> [guia de encaixe pro `.9`](experiments/lab/dirty/notas/2026-07/2026-07-27-guia-de-encaixe-para-o-dot9.md).
+>
+> | ticket | ganho medido | por que ainda não |
+> |---|---|---|
+> | **`T-BN-TIPADO`** | `bool + null`: **546 B → 92 B** | o wire `B` devolve string; a rota tipada tem de preservar o tipo. Exige tag no cabeçalho (`#TCF.8bB…`) |
+> | **`T-BN-LOTE`** | ~1 B/coluna | falta o opt-in; o modo `C` já é decodável |
+> | **`T-BN-MULTICOL`** | ver decisão pendente abaixo | escopo `.8M`, diferente do single-col |
+> | **`T-BN-LARGURA-VARIAVEL`** | slots desperdiçados em `k` = 3, 5, 6, 7 | largura fixa arredonda pra cima |
+> | **`T-BN-GZIP`** | — | o gzip encolhe muito o ganho do bN (medido no estudo multi-col) |
+> | **`T-POLARIDADE-FUSE`** | 1 varredura a menos, **byte-neutro** | fundir no laço que `_escape_lit` já roda |
+> | **`T-GATES-ANTES`** | CPU, **byte-neutro** | avaliar gates C1-C7 antes de materializar candidatos |
+> | **`T-SEQRLE-INCREMENTAL`** | CPU, **byte-neutro** | janela de 2 em vez de re-varredura |
+> | **`T-SPEC-L0L1`** | detecção automática de spec | **muda byte**; CPU piloto |
+> | **`T-FEATURES-STREAM`** | perfil parcial em `k=20` | destrava decisão precoce |
+> | **`T-OBAT-TRIGRAMA`** | CPU | bucket por `min_len` em vez de 3 fixo |
+> | **`T-FLOAT-SLOTS`** | NaN/±Inf hoje é fail-loud | falta fixar a **ordem canônica dos slots reservados** (null=0, e depois?) |
+
+> **✅ WELD — bN de DOMÍNIO no single-col flat (2026-07-27, ADR-0036, suíte 1042 passed).**
+> Coluna de cardinalidade baixa gastava ~3 B/linha em `^N`. Com `k` distintos bastam
+> **`ceil(log2 k)` bits**: o domínio viaja uma vez (comprimido pelo próprio core) e os índices
+> vão empacotados. `['0','1']*100`: **609 → 54 B**.
+>
+> **Densidade por CARDINALIDADE, não por tipo declarado** — era problema de ROTA: `list[str]`
+> nunca chegava ao modo denso, que além disso é bool-**sem-null**.
+>
+> Duas grafias, escolhidas pelo **transporte**: `B` (domínio primeiro) streama nos dois lados
+> e é o **único emitido**; `C` (domínio por último) é ~1 B menor mas **não streama** (17× mais
+> buffer numa coluna de 2000 linhas) — fica decodável, com opt-in pendente.
+>
+> Marcador `=` com escape `\=`, seguro porque **o core nunca emite `\` + char fora de
+> `* 0-9 \ ^ ~`**. `null` é mais um slot — o **0**, que já era dele.
+>
+> **Nenhum baseline moveu** (D1-D9 1545, D17a 300, real-world 89430): nenhuma coluna dos gates
+> tem cardinalidade baixa o bastante, o que confirma o FLOOR nunca-pior.
+> Evidência: `experiments/lab/dirty/2026-07/2026-07-27/{1608,1647,2211,2231,2247}`.
+
 > **✅ WELD — delimitador de POLARIDADE no single-col (2026-07-26, ADR-0035, suíte 1010 passed).**
 > O corpo gastava **1 byte por LITERAL** (o `\` de corrida de dígito). Agora marca-se a **troca**
 > literal↔referência: **1 byte por TRANSIÇÃO**. E, por estar *entre* as duas corridas, o
