@@ -1,0 +1,13 @@
+{
+  "coluna": "pm25-cbwd",
+  "n": 100,
+  "k": 4,
+  "w": 2,
+  "amostra": [
+    "NW",
+    "NW",
+    "NW",
+    "NW",
+    "NW"
+  ]
+}

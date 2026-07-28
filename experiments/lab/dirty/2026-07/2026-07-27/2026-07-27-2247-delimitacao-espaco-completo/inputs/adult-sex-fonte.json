@@ -1,0 +1,13 @@
+{
+  "coluna": "adult-sex",
+  "n": 100,
+  "k": 2,
+  "w": 1,
+  "amostra": [
+    "Male",
+    "Male",
+    "Male",
+    "Male",
+    "Female"
+  ]
+}
