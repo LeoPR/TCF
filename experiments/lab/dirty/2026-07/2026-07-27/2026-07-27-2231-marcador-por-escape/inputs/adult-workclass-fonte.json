@@ -1,0 +1,12 @@
+{
+  "coluna": "adult-workclass",
+  "n": 93,
+  "k": 6,
+  "amostra": [
+    "Private",
+    "Private",
+    "Local-gov",
+    "Private",
+    "Private"
+  ]
+}
