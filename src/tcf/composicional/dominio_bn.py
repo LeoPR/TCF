@@ -126,7 +126,13 @@ def candidatos(valores, encode_col, decode_col):
         return []
     idx = {v: i for i, v in enumerate(dom)}
     b64 = base64.b64encode(pack_w([idx[v] for v in valores], w)).decode("ascii").rstrip("=")
-    bloco = encode_col([_grafa(v) for v in dom]).rstrip("\n")
+    # `[:-1]` e NAO `rstrip("\n")` (bug corrigido 2026-07-28, auditoria adversarial): o corpo
+    # canonico termina em EXATAMENTE um `\n`, mas `rstrip` come TODOS — e um dominio cujo
+    # ULTIMO valor e' a string vazia acaba em `\n\n`. `['a','b','']` perdia o 3o valor, e o
+    # `decode` estourava com "indice 2 fora do dominio de 2 valores": RT quebrado pela API
+    # publica. Cortar um so' preserva a linha vazia final.
+    _bl = encode_col([_grafa(v) for v in dom])
+    bloco = _bl[:-1] if _bl.endswith("\n") else _bl
     n = len(valores)
     escapado = "\n".join(BS + ln if ln.startswith(MARCADOR) else ln
                          for ln in bloco.split("\n"))
@@ -179,6 +185,14 @@ def decode_bn(tcf_text: str, disc: str, decode_col) -> "list[str | None]":
             raise ValueError(
                 f"wire bN sem o marcador {MARCADOR!r} que separa dominio e bits "
                 f"— corpo nao-canonico (truncado ou editado a mao)"
+            )
+        # Nada pode vir DEPOIS do bloco de bits (bug corrigido 2026-07-28): linha extra era
+        # ignorada CALADA, enquanto o irmao no mesmo indice 7 (modo denso) falha alto na
+        # mesma sonda. Silencio aqui esconde wire truncado, concatenado ou editado a mao.
+        if any(ln for ln in linhas[alvo + 1:]):
+            raise ValueError(
+                f"conteudo apos o bloco de bits do bN: {linhas[alvo + 1:][:1]!r} "
+                f"— corpo nao-canonico (wire concatenado ou editado a mao)"
             )
         b64 = linhas[alvo][1:]
         bloco = "\n".join(ln[1:] if ln.startswith(BS + MARCADOR) else ln

@@ -130,7 +130,29 @@ O **irmão no mesmo índice 7** (o modo denso) já rejeitava tudo isso, e
 (*"duas grafias, mesmo valor, violaria S1.2"*). **O bN o violava.** Agora re-formata e
 compara, como o irmão.
 
-Suíte após as correções: **1061 passed, 3 skipped**. Gates inalterados.
+### 3. String vazia como ÚLTIMO valor do domínio
+
+`bloco.rstrip("
+")` comia **todos** os `
+` finais, mas o corpo canônico termina em
+exatamente um. `["a","b",""]` perdia o terceiro valor e o `decode` estourava. Falhava alto
+(não corrompia), mas era **RT quebrado pela API pública**. Corrigido para `[:-1]`.
+
+### 4. Conteúdo depois do bloco de bits, ignorado calado
+
+Linha extra após o b64 era descartada em silêncio — o irmão no mesmo índice 7 **falha alto**
+na mesma sonda. Agora também falha.
+
+### Onde isto está analisado
+
+A auditoria produziu **14 achados**; 4 eram bugs reais (os acima), 2 foram refutados por mim
+rodando código, 1 era sobre a proposta e 1 virou ticket. A análise crítica — por que a mesma
+assimetria de escape apareceu **5 vezes**, e por que o invariante de canonicidade existia,
+era testado, e não foi aplicado ao módulo novo — está em
+[`experiments/lab/dirty/notas/2026-07/2026-07-31-incidente-bn-4-bugs-e-a-analise-critica.md`](../../experiments/lab/dirty/notas/2026-07/2026-07-31-incidente-bn-4-bugs-e-a-analise-critica.md).
+
+Suíte após as correções: **1061 passed, 3 skipped**; `test_dominio_bn.py` foi de 32 a 58
+testes. Gates inalterados.
 
 ## Aberto — registrado, não esquecido
 

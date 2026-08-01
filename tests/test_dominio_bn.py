@@ -178,6 +178,45 @@ class TestCanonicidadeDoCabecalho:
         assert decode(w) == dados
 
 
+class TestStringVaziaNoDominio:
+    """Bug achado pela auditoria adversarial (2026-07-28), achado [5].
+
+    `bloco.rstrip("\\n")` comia TODOS os `\\n` finais, mas o corpo canonico termina em
+    EXATAMENTE um. Dominio cujo ULTIMO valor e' a string vazia perdia esse valor, e o
+    `decode` estourava com "indice fora do dominio" — RT quebrado pela API publica.
+    """
+
+    @pytest.mark.parametrize("dados", [
+        ["a", "b", ""] * 40,          # vazia por ULTIMO no dominio: o caso que quebrava
+        ["", "a", "b"] * 40,          # vazia primeiro (ja' funcionava)
+        ["a", "", "b"] * 40,          # vazia no meio
+        ["a", "b", "", "c"] * 30,
+        ["", ""] * 30,
+    ])
+    def test_rt_com_string_vazia(self, dados):
+        obtido = decode(encode(dados))
+        assert len(obtido) == len(dados)
+        assert obtido == dados
+
+
+class TestNadaDepoisDosBits:
+    """Bug achado pela auditoria adversarial (2026-07-28), achado [10].
+
+    Linha extra apos o bloco de bits era IGNORADA calada, enquanto o irmao no mesmo indice 7
+    (modo denso) falha alto na mesma sonda. Silencio esconde wire concatenado ou truncado.
+    """
+
+    def test_linha_extra_fail_loud(self):
+        w = encode([f"v{i % 3}" for i in range(200)])
+        with pytest.raises(ValueError):
+            decode(w.rstrip("\n") + "\nxxx")
+
+    def test_linha_vazia_final_e_tolerada(self):
+        dados = [f"v{i % 3}" for i in range(200)]
+        w = encode(dados)
+        assert decode(w.rstrip("\n") + "\n") == dados
+
+
 class TestFailLoud:
     @pytest.mark.parametrize("wire", [
         "#TCF.8B\n",                                    # sem largura

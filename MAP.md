@@ -89,6 +89,7 @@ TCF/
 | **Portar o CORE pra C/Rust** (estruturas + fronteira CORE↔HOST) | `docs/algorithms/core-data-model.md` |
 | **Capacidade dos SPECS/natures** (mapa único + EnumSpec no-go + self-describing) | `experiments/lab/dirty/notas/2026-06/specs-capacity-map.md` |
 | **Estrutura + plano do #TCF.8** (família self-describing, features, sequência, cross-dict, tcfx) | `experiments/lab/dirty/notas/2026-06/tcf8-estrutura-plano.md` (**fonte única**; a `tcf8-vista-o-que-falta.md` da sessão 07-08 é subordinada) |
+| **Incidente 2026-07-31 — 4 bugs no weld bN + analise critica** (a assimetria de escape apareceu 5x; o invariante de canonicidade existia e nao foi aplicado) | `experiments/lab/dirty/notas/2026-07/2026-07-31-incidente-bn-4-bugs-e-a-analise-critica.md` |
 | **Balanco 2026-07-28** (o que foi soldado, o que falta soldar, o que falta revisar antes do float) | `experiments/lab/dirty/notas/2026-07/2026-07-28-balanco-soldado-pendente-revisar.md` |
 | **Guia de encaixe pro `.9`** (censo dos ~29 pontos de decisao; o que da' pra antecipar; specs em camadas com CPF piloto) | `experiments/lab/dirty/notas/2026-07/2026-07-27-guia-de-encaixe-para-o-dot9.md` (**vivo**; usa o mapa descritivo `2026-07-27-mapa-do-pipeline-e-o-que-falta-pro-float.md`) |
 | **Tipos como specs** (round-trip = indução; 8 eixos; meta-grupo H-TYPE-00..06; bN irmão do dict) | `experiments/lab/dirty/notas/2026-07/tipos-como-specs.md` (estende `specs-capacity-map.md`) + `tipos-meta-grupo-fluxo.md` |

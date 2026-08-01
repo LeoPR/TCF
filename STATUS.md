@@ -19,6 +19,9 @@
 > | **`T-SPEC-L0L1`** | detecção automática de spec | **muda byte**; CPU piloto |
 > | **`T-FEATURES-STREAM`** | perfil parcial em `k=20` | destrava decisão precoce |
 > | **`T-OBAT-TRIGRAMA`** | CPU | bucket por `min_len` em vez de 3 fixo |
+> | **`T-GRAFIA-CHECKLIST`** | previne a 6a recorrencia | a assimetria escapar/desescapar ja' apareceu **5 vezes**; a frase no ADR nao impediu — o teste impede |
+> | **`T-DENSO-PADDING`** | 1-2 B em ~2/3 dos wires densos | o denso `b1` emite padding `=`, o bN nao; o padding e' deduzivel de `n` e `w` |
+> | **`T-BN-B64-VALIDATE`** | mensagem de erro | b64 invalido e' rejeitado, mas com `binascii.Error` em vez de mensagem de nivel TCF |
 > | **`T-FLOAT-SLOTS`** | NaN/±Inf hoje é fail-loud | falta fixar a **ordem canônica dos slots reservados** (null=0, e depois?) |
 
 > **✅ WELD — bN de DOMÍNIO no single-col flat (2026-07-27, ADR-0036, suíte 1042 passed).**
