@@ -1,0 +1,14 @@
+{
+  "coluna": "bool-varre-n1000",
+  "n": 1000,
+  "tag": "b",
+  "w": 2,
+  "amostra": [
+    null,
+    true,
+    false,
+    null,
+    false,
+    true
+  ]
+}

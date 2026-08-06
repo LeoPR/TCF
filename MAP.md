@@ -26,6 +26,7 @@ TCF/
 │   ├── multi/ ................... encode/decode multi-coluna (core.py + dict_v2b.py; #TCF.8M default)
 │   ├── schema.py ................. build_schema per-tabela (CORE)
 │   ├── side_outputs.py ........... SideOutputs (efeito colateral opt-in)
+│   ├── tipos_internos.py ......... FONTE ÚNICA das tabelas congeladas de slots (bool: 0=null,1=false,2=true; ADR-0037/0038)
 │   ├── view.py .................. view lazy/consultavel read-only (A4, `from tcf import view`)
 │   ├── natures/ .................. pre-tx por natureza (CPF/CNPJ/IP, ADR-0015)
 │   ├── _core/detect.pyx .......... acelerador Cython opcional (ADR-0020)

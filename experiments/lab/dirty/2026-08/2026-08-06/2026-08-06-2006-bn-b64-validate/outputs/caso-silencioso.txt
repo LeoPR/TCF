@@ -1,0 +1,41 @@
+=== s04-insere-4x-exclamacao-meio × rota bn-B (arquivo: sondas/bn-B-s04-insere-4x-exclamacao-meio.tcf): ATUAL = SILENCIOSO-IGUAL -> PROPOSTO = FAIL-LOUD TCF -> PROPOSTO+TAMANHO-EXATO = FAIL-LOUD TCF
+payload original : 'VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVQ'
+payload sonda    : 'VVVVVVVVVVVVVVVVV!!!!VVVVVVVVVVVVVVVVQ'
+detalhe atual    : (valores idênticos ao original)
+valores orig[:12] : ['0', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '1']
+valores sonda[:12]: ['0', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '1']
+
+=== s04-insere-4x-exclamacao-meio × rota ref-silencioso (arquivo: sondas/ref-silencioso-s04-insere-4x-exclamacao-meio.tcf): ATUAL = SILENCIOSO-IGUAL -> PROPOSTO = FAIL-LOUD TCF -> PROPOSTO+TAMANHO-EXATO = FAIL-LOUD TCF
+payload original : 'VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV'
+payload sonda    : 'VVVVVVVVVVVVVVVV!!!!VVVVVVVVVVVVVVVV'
+detalhe atual    : (valores idênticos ao original)
+valores orig[:12] : ['0', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '1']
+valores sonda[:12]: ['0', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '1']
+
+=== s06-padding-extra-fim × rota bn-B (arquivo: sondas/bn-B-s06-padding-extra-fim.tcf): ATUAL = SILENCIOSO-IGUAL -> PROPOSTO = SILENCIOSO-IGUAL -> PROPOSTO+TAMANHO-EXATO = SILENCIOSO-IGUAL
+payload original : 'VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVQ'
+payload sonda    : 'VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVQ=='
+detalhe atual    : (valores idênticos ao original)
+valores orig[:12] : ['0', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '1']
+valores sonda[:12]: ['0', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '1']
+
+=== s06-padding-extra-fim × rota ref-silencioso (arquivo: sondas/ref-silencioso-s06-padding-extra-fim.tcf): ATUAL = SILENCIOSO-IGUAL -> PROPOSTO = FAIL-LOUD TCF -> PROPOSTO+TAMANHO-EXATO = FAIL-LOUD TCF
+payload original : 'VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV'
+payload sonda    : 'VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV=='
+detalhe atual    : (valores idênticos ao original)
+valores orig[:12] : ['0', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '1']
+valores sonda[:12]: ['0', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '1']
+
+=== s08-payload-longo × rota bn-B (arquivo: sondas/bn-B-s08-payload-longo.tcf): ATUAL = SILENCIOSO-IGUAL -> PROPOSTO = SILENCIOSO-IGUAL -> PROPOSTO+TAMANHO-EXATO = FAIL-LOUD TCF
+payload original : 'VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVQ'
+payload sonda    : 'VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVQAA'
+detalhe atual    : (valores idênticos ao original)
+valores orig[:12] : ['0', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '1']
+valores sonda[:12]: ['0', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '1']
+
+=== s08-payload-longo × rota ref-silencioso (arquivo: sondas/ref-silencioso-s08-payload-longo.tcf): ATUAL = SILENCIOSO-IGUAL -> PROPOSTO = SILENCIOSO-IGUAL -> PROPOSTO+TAMANHO-EXATO = FAIL-LOUD TCF
+payload original : 'VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV'
+payload sonda    : 'VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVAA'
+detalhe atual    : (valores idênticos ao original)
+valores orig[:12] : ['0', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '1']
+valores sonda[:12]: ['0', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '1']

@@ -1,0 +1,17 @@
+{
+  "coluna": "extras-frequentes",
+  "n": 200,
+  "extras": [
+    "other"
+  ],
+  "amostra": [
+    null,
+    true,
+    false,
+    true,
+    "other",
+    true,
+    false,
+    true
+  ]
+}

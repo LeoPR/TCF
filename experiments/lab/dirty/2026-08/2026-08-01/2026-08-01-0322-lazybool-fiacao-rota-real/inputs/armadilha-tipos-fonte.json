@@ -1,0 +1,19 @@
+{
+  "coluna": "armadilha-tipos",
+  "n": 200,
+  "extras": [
+    "1",
+    "0",
+    "true"
+  ],
+  "amostra": [
+    null,
+    true,
+    false,
+    true,
+    false,
+    "1",
+    false,
+    true
+  ]
+}

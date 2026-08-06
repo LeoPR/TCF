@@ -1,0 +1,6 @@
+bn-B              54 B  roundtrip byte-idêntico  (bN flat modo B (dominio primeiro, streaming), payload 34 chars ≡ 2 (mod 4))
+bn-C              49 B  roundtrip byte-idêntico  (bN modo C (dominio por ultimo, lote; decodavel-nao-emitido, ADR-0036))
+denso-b1          47 B  roundtrip byte-idêntico  (denso b1 (bool puro, 1 bit) — padrão-ouro (validate=True))
+denso-b2          71 B  roundtrip byte-idêntico  (denso b2 (ternário, 2 bits) — padrão-ouro (validate=True))
+lazy-bB           86 B  roundtrip byte-idêntico  (lazy bB (ADR-0039) — padrão-ouro (validate=True))
+ref-silencioso    52 B  roundtrip byte-idêntico  (bN modo B de REFERÊNCIA do caso silencioso (controle de tamanho do b64))

@@ -112,7 +112,11 @@ class TestEncodeEmiteNull:
         """2026-07-25: a rota tipada foi generalizada e null passou a conviver com as tags.
         null nao pertence a um TIPO — e' a ausencia do valor, no slot 0."""
         assert encode([1, None, 3]).startswith("#TCF.8n\n")    # numero + null -> tipado
-        assert encode([True, None]).startswith("#TCF.8b\n")    # bool + null -> tipado CORE
+        # bool + null -> tipado. Weld b2 (2026-07-31, ADR-0037): o FLOOR escolhe o modo —
+        # CORE ('#TCF.8b\n') ou DENSO TERNARIO ('#TCF.8b2<n>'). Com a grafia slot default
+        # (2026-08-01, ADR-0038) o core de n=2 EMPATA com o b2 (12 = 12) e o FLOOR fica no
+        # 1o candidato (core, mais inspecionavel). Nomes seguem decodaveis.
+        assert encode([True, None]) == "#TCF.8b\n\\2\n0\n"     # bool + null -> core em slots
         assert decode(encode([1, None, 3])) == [1, None, 3]
         assert decode(encode([True, None])) == [True, None]
 

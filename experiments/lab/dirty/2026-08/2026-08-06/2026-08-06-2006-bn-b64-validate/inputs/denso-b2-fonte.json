@@ -1,0 +1,21 @@
+{
+  "coluna": "denso-b2",
+  "rota": "denso b2 (ternário, 2 bits) — padrão-ouro (validate=True)",
+  "gerador": "[True, None, False]*60 — ternário com null",
+  "n": 180,
+  "distintos": [
+    false,
+    true
+  ],
+  "amostra": [
+    true,
+    null,
+    false,
+    true,
+    null,
+    false,
+    true,
+    null
+  ],
+  "seed": null
+}

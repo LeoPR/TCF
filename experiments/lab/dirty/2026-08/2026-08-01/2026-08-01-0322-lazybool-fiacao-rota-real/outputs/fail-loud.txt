@@ -1,0 +1,3 @@
+# canonicidade — lazy bB (gerado por run.py)
+
+[OK] domínio redeclarando cabeça (`0` cru) → ValueError: dominio lazy redeclara a cabeça congelada (slot 0 = null) — grafia nao-canonica; a cabeça 

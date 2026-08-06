@@ -1,0 +1,21 @@
+{
+  "coluna": "k-extras-05",
+  "n": 200,
+  "extras": [
+    "e3",
+    "e0",
+    "e2",
+    "e4",
+    "e1"
+  ],
+  "amostra": [
+    null,
+    true,
+    false,
+    "e3",
+    false,
+    true,
+    false,
+    true
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "coluna": "extras-raro",
+  "n": 200,
+  "extras": [
+    "other"
+  ],
+  "amostra": [
+    null,
+    true,
+    false,
+    true,
+    false,
+    true,
+    false,
+    "other"
+  ]
+}

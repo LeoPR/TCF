@@ -293,12 +293,18 @@ def _cast_tipo(strs: "list[str | None]", tag: str) -> list:
 
     `None` (slot 0 pre-alocado) ATRAVESSA qualquer tag: null nao pertence a um tipo, ele e'
     a ausencia do valor. Casta-se so' o que e' literal.
+
+    Tag `b` — DUAS grafias, uma emitida: **slots** `"1"`/`"2"` (canonica, UNICA emitida desde
+    o weld 2026-08-01, ADR-0038) e **nomes** `"false"`/`"true"` (decodavel-NAO-emitido:
+    wires legados + futuro opt-in legivel; mesmo contrato do modo `C` da ADR-0036).
+    O resto e' fail-loud. FONTE UNICA da tabela: `tcf/tipos_internos.py` (CAST_B).
     """
     if tag == "b":
+        from tcf.tipos_internos import CAST_B
         for s in strs:
-            if s is not None and s not in ("true", "false"):
-                raise ValueError(f"#TCF.8b: valor fora do dominio bool: {s!r}")
-        return [None if s is None else s == "true" for s in strs]
+            if s is not None and s not in CAST_B:
+                raise ValueError(f"#TCF.8b: valor fora do dominio bool (slots 1/2): {s!r}")
+        return [None if s is None else CAST_B[s] for s in strs]
     if tag == "n":
         from math import isfinite
 
@@ -326,9 +332,18 @@ def _cast_tipo(strs: "list[str | None]", tag: str) -> list:
 
 
 def _decode_typed(tcf_text: str, tag: str, max_length: int | None = None) -> list:
-    """Decode do single-col tipado. A variavel `modo` (o '~' conceitual) e' deduzida da POSICAO."""
+    """Decode do single-col tipado. A variavel `modo` (o '~' conceitual) e' deduzida da POSICAO.
+
+    Contratos de retorno: modo core/denso -> lista do TIPO da tag (`b` -> bool/None);
+    lazy `#TCF.8bB` (ADR-0039) -> lista mista [bool | None | str] (contrato UNIAO —
+    ver `_decode_lazy_bool`)."""
     line1, _sep, body = tcf_text.partition("\n")
     resto = line1[7:]                              # apos '#TCF.8<tag>' (tag = 1 char, indice 6)
+    # LAZY BOOL .8bB (ADR-0039): resto = 'B<w><n-hex>' — dominio de extras + bits.
+    # Uniao bool+str(+null) com tipo preservado; decode DEDICADO (_decode_lazy_bool).
+    # n/s com 'B' caem no fail-loud de header denso abaixo (lazy numerico = outro ticket).
+    if resto[:1] == "B" and tag == "b":
+        return _decode_lazy_bool(tcf_text, max_length=max_length)
     # A VARIAVEL DE DECISAO: resto vazio -> modo CORE (implicito); senao -> modo DENSO bN.
     if resto == "":
         strs = _decode_column(body, max_length=max_length) if body else []
@@ -355,6 +370,10 @@ def _decode_typed(tcf_text: str, tag: str, max_length: int | None = None) -> lis
 def _decode_denso(b64: str, tag: str, w: int, n: int) -> list:
     """Modo denso: base64 -> bit-unpack a w bits -> indices -> tipo (dominio implicito).
 
+    Dominio implicito CONGELADO: w=1 (b1) -> false=0/true=1; w=2 (b2 ternario, weld
+    2026-07-31, ADR-0037) -> null=0/false=1/true=2, simbolo 3 = RESERVADO (fail-loud).
+    FONTE UNICA das tabelas: `tcf/tipos_internos.py` (TABELA_B1/TABELA_B2).
+
     FAIL-LOUD por integridade (verif. adversarial wf_85fcea32, alinhado a ADR-0032 §6 e ao
     cross-check byte-exato do .8H): base64 ESTRITO + payload de tamanho EXATO. Wire adulterado
     (n != payload, char fora do alfabeto, padding lixo) para alto — nunca corrompe em silencio.
@@ -363,8 +382,8 @@ def _decode_denso(b64: str, tag: str, w: int, n: int) -> list:
     if tag != "b":
         # n/s densos exigiriam dominio EMBUTIDO (nao implicito) — fora do escopo #4b (namespace reservado).
         raise ValueError(f"#TCF.8{tag}: modo denso so' implementado p/ bool; n/s exigem dominio embutido")
-    if w != 1:                                     # bool = 2 simbolos = 1 bit; outra largura = invalido
-        raise ValueError(f"#TCF.8b: largura denso invalida w={w} p/ bool (esperado 1)")
+    if w not in (1, 2):                            # b1 = bool puro; b2 = ternario. Outra largura = invalido
+        raise ValueError(f"#TCF.8b: largura denso invalida w={w} p/ bool (esperado 1 ou 2)")
     try:
         raw = base64.b64decode(b64, validate=True)  # ESTRITO: rejeita char fora do alfabeto/padding lixo
     except (ValueError, _binascii.Error) as e:
@@ -375,4 +394,83 @@ def _decode_denso(b64: str, tag: str, w: int, n: int) -> list:
             f"#TCF.8b: payload denso = {len(raw)} bytes, esperado {esperado} p/ n={n} w={w} "
             f"(wire truncado/adulterado)"
         )
-    return [i == 1 for i in unpack_w(raw, 1, n)]     # dominio implicito FIXO: false=0, true=1
+    idx = unpack_w(raw, w, n)
+    # Dominio implicito CONGELADO — FONTE UNICA: `tcf/tipos_internos.py` (TABELA_B1/B2).
+    from tcf.tipos_internos import TABELA_B1, TABELA_B2
+    if w == 1:
+        return [TABELA_B1[i] for i in idx]
+    # b2 TERNARIO: indice fora da tabela (3 = RESERVADO) -> fail-loud (wire adulterado)
+    if any(i >= len(TABELA_B2) for i in idx):
+        raise ValueError("#TCF.8b: simbolo 3 fora do dominio ternario do denso b2 (wire adulterado)")
+    return [TABELA_B2[i] for i in idx]
+
+
+def _decode_lazy_bool(tcf_text: str, max_length: int | None = None) -> list:
+    """Lazy bool `#TCF.8bB<w><n>` (ADR-0039): uniao bool+str(+null) com tipo preservado.
+
+    Cabeca CONGELADA implicita null=0/false=1/true=2 (TABELA_B2 de `tcf/tipos_internos.py`)
+    + extras str declarados no arquivo a partir do slot 3 — a mecanica do `decode_bn`
+    (ADR-0036) com a cabeca bool implicita. Contrato UNIAO: devolve lista mista
+    `[bool | None | str]`. NAO reusa `decode_bn` de proposito: ele mapearia indice->dominio
+    declarado escondendo a distincao cabeca/extra — e um pos-mapeamento `"true"->True`
+    fundiria o EXTRA `"true"` com o `True` da cabeca (a armadilha de tipos, lab 0322).
+
+    FAIL-LOUD (espelho do `decode_bn` + o check da fiacao 2026-08-01-0322): header hex
+    MINIMO canonico, marcador `=` ausente, conteudo apos o bloco de bits, dominio
+    REDECLARANDO a cabeca (`0` cru le como None = slot 0 — a cabeca 0/1/2 e' implicita e
+    NUNCA se declara), tabela maior que 2^w, indice fora da tabela, payload nao-base64.
+    """
+    from tcf.bitpack import unpack_w
+    from tcf.composicional.dominio_bn import BS, MARCADOR, MAX_W, _le_grafia
+    from tcf.tipos_internos import TABELA_B2
+
+    line1, _sep, resto = tcf_text.partition("\n")
+    campos = line1[8:]                               # apos '#TCF.8bB'
+    if len(campos) < 2 or campos[0] not in "12345678":
+        raise ValueError(
+            f"#TCF.8bB: cabecalho nao-canonico: largura {campos[:1]!r} fora de 1..{MAX_W}"
+        )
+    w = int(campos[0])
+    nhex = campos[1:]
+    if any(c not in "0123456789abcdef" for c in nhex):
+        raise ValueError(f"#TCF.8bB: contagem nao-hexadecimal-canonica: {nhex!r}")
+    n = int(nhex, 16)
+    if f"{n:x}" != nhex:                             # grafia MINIMA: sem zero a esquerda
+        raise ValueError(f"#TCF.8bB: contagem nao-canonica: {nhex!r} (canonico: {n:x})")
+    linhas = resto.split("\n")
+    alvo = next((j for j, ln in enumerate(linhas) if ln.startswith(MARCADOR)), None)
+    if alvo is None:
+        raise ValueError(f"#TCF.8bB: wire sem o marcador {MARCADOR!r} — corpo nao-canonico")
+    if any(ln for ln in linhas[alvo + 1:]):
+        raise ValueError("#TCF.8bB: conteudo apos o bloco de bits — corpo nao-canonico")
+    b64 = linhas[alvo][1:]
+    bloco = "\n".join(ln[1:] if ln.startswith(BS + MARCADOR) else ln
+                      for ln in linhas[:alvo])
+    # `_decode_column` ja' devolve o `0` cru como None (slot 0) — None aqui = cabeca
+    # redeclarada. Dominio de linha VAZIA e' VALIDO: e' o extra "" (string vazia);
+    # `_decode_column("\n")` devolve [""] — espelho do bugfix `[:-1]` do dominio_bn.
+    decod = _decode_column(bloco + "\n", max_length=max_length)
+    if not decod:
+        raise ValueError("#TCF.8bB: dominio lazy vazio — corpo nao-canonico")
+    if any(s is None for s in decod):
+        raise ValueError(
+            "#TCF.8bB: dominio redeclara a cabeca congelada (slot 0 = null) — grafia "
+            "nao-canonica; a cabeca 0/1/2 e' implicita e NUNCA se declara"
+        )
+    extras = [_le_grafia(s) for s in decod]
+    tabela = list(TABELA_B2) + extras
+    if len(tabela) > (1 << w):
+        raise ValueError(f"#TCF.8bB: tabela lazy com {len(tabela)} valores nao cabe em {w} bits")
+    try:
+        raw = base64.b64decode(b64 + "=" * (-len(b64) % 4), validate=True)
+    except (ValueError, _binascii.Error) as e:
+        raise ValueError(f"#TCF.8bB: payload nao e' base64 canonico: {e}") from e
+    saida = []
+    for i in unpack_w(raw, w, n):
+        if i >= len(tabela):
+            raise ValueError(
+                f"#TCF.8bB: indice {i} fora da tabela lazy de {len(tabela)} valores "
+                f"— corpo nao-canonico"
+            )
+        saida.append(tabela[i])
+    return saida

@@ -56,7 +56,9 @@ Cada coluna = `<prefixo?><size>[=nome][:id]`. **Prefixo** = modo de representaç
 **Sub-namespace do bN** (nomenclatura owner 2026-07-08 — código reusado como rótulo, não largura):
 `b1/b2/b4` = LARGURA FÍSICA (1/2/4 bits, únicas que tile-de-byte) · `b3` = trio "b2+null" (2 bits) ·
 `b5/b6/b7` = tipos especiais reservados · **`B` maiúsculo** = bool com dict INTERNO congelado (não declara
-referência). Opção "largura exata" descartada (3/5/6/7 bits não tile-de-byte). Ver
+referência) — **SUBSUMIDA (2026-07-31)**: a ADR-0036 deu ao `B` outro sentido (domínio DECLARADO primeiro)
+e a ideia do dict congelado realizou-se no índice 7 do tipado — modo `1` = bool binário, modo `2` =
+ternário (ADR-0037). Opção "largura exata" descartada (3/5/6/7 bits não tile-de-byte). Ver
 [bn-dict-perspectivas §resolução](bn-dict-perspectivas-e-dict-interno.md) + [F1 lab](../../2026-07/2026-07-08/2026-07-08-2302-f1-bypass-latencia/result.md).
 
 **Composição** (verificada no código): prefixo + sufixo compõem — `@7=doc:cnpj` (dict + nature),

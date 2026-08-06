@@ -1,0 +1,8 @@
+# fail-loud — denso b2 (gerado por run.py)
+
+[OK] símbolo 3 no payload (RESERVADO)
+     ValueError: simbolo 3 no denso b2: RESERVADO, wire invalido
+[OK] payload truncado (1 byte a menos)
+     ValueError: payload denso b2 de tamanho errado: 48 bytes, esperado 50
+[OK] b64 não-canônico (`!` no payload)
+     ValueError: Only base64 data is allowed

@@ -1,0 +1,15 @@
+{
+  "coluna": "alternado",
+  "n": 200,
+  "tag": "b",
+  "amostra": [
+    false,
+    true,
+    false,
+    true,
+    false,
+    true,
+    false,
+    true
+  ]
+}

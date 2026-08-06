@@ -1,0 +1,5 @@
+# fail-loud — cast de slots da tag b (gerado por run.py)
+
+[OK] `\0` (literal '0' (colide com o slot do null)) → ValueError: #TCF.8b: valor fora do dominio bool (slots 1/2): '0'
+[OK] `\3` (slot 3 (reservado, como no b2)) → ValueError: #TCF.8b: valor fora do dominio bool (slots 1/2): '3'
+[OK] `\15` (slot 15 (fora do domínio)) → ValueError: #TCF.8b: valor fora do dominio bool (slots 1/2): '15'

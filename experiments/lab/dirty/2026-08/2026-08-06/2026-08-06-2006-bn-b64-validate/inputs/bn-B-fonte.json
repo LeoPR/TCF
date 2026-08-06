@@ -1,0 +1,21 @@
+{
+  "coluna": "bn-B",
+  "rota": "bN flat modo B (dominio primeiro, streaming), payload 34 chars ≡ 2 (mod 4)",
+  "gerador": "['0','1']*100 — alternado, 2 distintos (cardinalidade mínima do bN)",
+  "n": 200,
+  "distintos": [
+    "0",
+    "1"
+  ],
+  "amostra": [
+    "0",
+    "1",
+    "0",
+    "1",
+    "0",
+    "1",
+    "0",
+    "1"
+  ],
+  "seed": null
+}

@@ -8,7 +8,7 @@
 >
 > | ticket | ganho medido | por que ainda não |
 > |---|---|---|
-> | **`T-BN-TIPADO`** | `bool + null`: **546 B → 92 B** | o wire `B` devolve string; a rota tipada tem de preservar o tipo. Exige tag no cabeçalho (`#TCF.8bB…`) |
+> | **`T-BN-TIPADO`** | enum tipado NUMÉRICO: `int`/`float` de baixa cardinalidade (**−555/−519 B**, lab 0829) | a família bool foi fechada pelo denso b2 (ADR-0037). O wire `B` devolve string; a rota tipada tem de preservar o tipo. Exige tag no cabeçalho (`#TCF.8nB…`) |
 > | **`T-BN-LOTE`** | ~1 B/coluna | falta o opt-in; o modo `C` já é decodável |
 > | **`T-BN-MULTICOL`** | ver decisão pendente abaixo | escopo `.8M`, diferente do single-col |
 > | **`T-BN-LARGURA-VARIAVEL`** | slots desperdiçados em `k` = 3, 5, 6, 7 | largura fixa arredonda pra cima |
@@ -20,9 +20,25 @@
 > | **`T-FEATURES-STREAM`** | perfil parcial em `k=20` | destrava decisão precoce |
 > | **`T-OBAT-TRIGRAMA`** | CPU | bucket por `min_len` em vez de 3 fixo |
 > | **`T-GRAFIA-CHECKLIST`** | previne a 6a recorrencia | a assimetria escapar/desescapar ja' apareceu **5 vezes**; a frase no ADR nao impediu — o teste impede |
-> | **`T-DENSO-PADDING`** | 1-2 B em ~2/3 dos wires densos | o denso `b1` emite padding `=`, o bN nao; o padding e' deduzivel de `n` e `w` |
+> | **`T-DENSO-PADDING`** | 1-2 B em ~2/3 dos wires densos | os densos `b1` e `b2` emitem padding `=`, o bN nao; o padding e' deduzivel de `n` e `w` (vale pros dois modos, ADR-0037) |
 > | **`T-BN-B64-VALIDATE`** | mensagem de erro | b64 invalido e' rejeitado, mas com `binascii.Error` em vez de mensagem de nivel TCF |
-> | **`T-FLOAT-SLOTS`** | NaN/±Inf hoje é fail-loud | falta fixar a **ordem canônica dos slots reservados** (null=0, e depois?) |
+> | **`T-FLOAT-SLOTS`** | NaN/±Inf hoje é fail-loud | falta fixar a **ordem canônica dos slots reservados**. Precedente fixado p/ bool (ADR-0037): **null=0, valores na ordem de declaração do tipo** |
+> | **`T-TIPADO-LEGIVEL-PARAM`** | legibilidade/inspeção (custa bytes) | opt-in de grafia legível (nomes no wire tipado); o DECODE já aceita nomes (ADR-0038) — falta só o plumbing de encoder (kwarg/`PipelineConfig`) |
+> | **`T-MISTO-RLE-B64-SINGLE`** | ganho desconhecido | misto RLE+b64 no single-col tipado. CAVEAT: segmentação mista DERRUBADA no multi-col denso (0/18 real-world, bloco DECISÃO PENDENTE abaixo) — contexto diferente, mas medir real-world primeiro; serialização mais complexa |
+> | **`T-FORCAR-MECANISMO-PARAM`** | heurística/experimento | forçar mecanismo (RLE/b64/refs) via params — demanda explícita do owner; destrava medição de candidatos sem depender do FLOOR |
+> | **`T-TIPOS-CONFORTO-MAP`** | tipos de formulário como slots internos (ex. masc/fem = 14/15) | preparado em `src/tcf/tipos_internos.py` (fonte única, byte-neutro); o DESIGN do mapa (externo × config; alocação de índices) é decisão do owner — sem isso, nenhum tipo novo |
+> | **`T-LAZYTYPE-OUTROS`** | o padrão lazy nos outros tipos/specs | bool já é a **referência soldada** (ADR-0039, weld 2026-08-01); resta testar `n` (int/float + extras, ex. `"N/A"` em coluna numérica) e **revisar as natures/SPEC sob a lente unificada** (hoje caem no literal; cair no slot declarado?) — memorizado por direção do owner 2026-08-01 |
+> | **`T-MODO-JSON-IMITADOR`** | interop consciente com ecossistema json | param hipotético: TCF **alerta** como o json alertaria (nunca arruma); régua **medida** no lab `2026-08-01-0309` (29 casos: json-lib ALTERA em 0 casos que o TCF aceita — o conjunto de alertas ganha corpo com lazytype + cross-ecossistema); catálogo de alertas no `result.md` §2; sem flag, TCF faz tudo que pode; ambíguos "fogem" pro comportamento json |
+> | **`BUG-CHAVE-VAZIA-POSICIONAL`** | o ÚNICO caso onde o TCF **altera** | `{"":[…]}` → `{"0":[…]}` com warning (rota flat/multi trata `""` como anônima); `.8H` já preserva via escape. Opções no [ticket](tickets/BUG-CHAVE-VAZIA-POSICIONAL.md) — fail-loud × preservar |
+
+
+> **▶ PLANO VIGENTE — fechamento bool/binário/bN single-col (2026-08-01).** Fila aprovada:
+> 1 `T-BN-B64-VALIDATE` · 2 `T-GRAFIA-CHECKLIST` · 3 `T-DENSO-PADDING` · 4 params de wire
+> (`T-BN-LOTE` + `T-TIPADO-LEGIVEL-PARAM` + `T-FORCAR-MECANISMO-PARAM`, 1 superfície) ·
+> 5 `T-MISTO-RLE-B64-SINGLE` (estudo real-world primeiro) · 6 revisão de conformidade de
+> cabeçalhos (fecho). Decisão do owner no caminho: `BUG-CHAVE-VAZIA-POSICIONAL`.
+> Triagem completa (o que fica pra int/float, `.9` e multi-col) e critério de "universo
+> fechado": [plano](experiments/lab/dirty/notas/2026-08/2026-08-01-0453-plano-fechamento-bool-bn-single-col.md).
 
 > **✅ WELD — bN de DOMÍNIO no single-col flat (2026-07-27, ADR-0036, suíte 1042 passed).**
 > Coluna de cardinalidade baixa gastava ~3 B/linha em `^N`. Com `k` distintos bastam
@@ -42,6 +58,54 @@
 > **Nenhum baseline moveu** (D1-D9 1545, D17a 300, real-world 89430): nenhuma coluna dos gates
 > tem cardinalidade baixa o bastante, o que confirma o FLOOR nunca-pior.
 > Evidência: `experiments/lab/dirty/2026-07/2026-07-27/{1608,1647,2211,2231,2247}`.
+
+> **✅ WELD — denso b2 TERNÁRIO: bool com null a 2 bits, domínio IMPLÍCITO (2026-07-31,
+> ADR-0037, suíte 1077 passed).** O trio `{null,false,true}` não cabia em 1 bit e caía no
+> core (**546 B**, n=200). Mas `null/false/true` são tipos puros do JSON — o domínio é
+> conhecido a priori, declará-lo é redundante. Agora `#TCF.8b2<n>`: domínio implícito
+> congelado `null=0, false=1, true=2` (símbolo 3 = fail-loud), mesmo `bitpack` do `b1`,
+> mais um candidato do mesmo `min()`. **546 → 79 B** (15 B a menos que o bN tipado, que
+> declarava o domínio) e **vence inclusive n=3** (14 vs 21 B) — o domínio implícito zera o
+> custo fixo. Reais Adult ternário (n=100): 232–250 → 47 B. Bool puro segue no `b1` (FLOOR).
+> **Nenhum baseline moveu** (D1-D9 1545, D17a 300, real-world 89430 — gates são rota flat).
+> Evidência: `experiments/lab/dirty/2026-07/2026-07-31/2026-07-31-2350-denso-b2-ternario/`.
+> O T-BN-TIPADO perde a família bool do escopo — restam os números.
+
+> **✅ WELD — índice interno DEFAULT no core tipado bool (2026-08-01, ADR-0038, suíte 1084
+> passed).** O null já viajava como `0` cru no core tipado (slot 0 pré-alocado), mas
+> `true`/`false` viajavam como NOMES. Agora o render da tag `b` emite **slots congelados** —
+> a MESMA tabela do b2 (`null=0, false=1, true=2`) — completando a tabela da ADR-0037 no
+> core: `*200|true` (18 B) → `*200|\2` (**16 B**). Run-heavy 30 → **25 B**; reais Adult
+> ordenados 27 → **22 B**; **nunca pior em 11 colunas** (nos densos o render nem
+> materializa). Caso run-heavy confirmado: o core **vence o b2 nos dois renders** — é o
+> nicho que o b2 não cobre. Nomes seguem **decodáveis-não-emitidos** (contrato do modo `C`,
+> ADR-0036) — wires legados leem, e o opt-in legível fica pendente
+> (`T-TIPADO-LEGIVEL-PARAM`, decode já pronto). Adversidades inertes: polaridade 0 disparos
+> (estrutural: ≤2 literais), seq-RLE não dispara em 2 valores, fail-loud 3/3.
+> **Nenhum baseline moveu** (gates são rota flat); 1 pin alterado (empate byte-neutro n=2).
+> A **família bool fecha ponta a ponta**: b1 · b2 · core-com-slots.
+> Evidência: `experiments/lab/dirty/2026-08/2026-08-01/2026-08-01-0037-tipado-bool-indice-default/`.
+
+> **✅ WELD — lazytype bool: cabeça congelada + extras declarados (2026-08-01, ADR-0039,
+> suíte 1105 passed).** A união bool+str (true/false/null **com exceções string** —
+> "other", " ?") era **fail-loud** (o `.8H` recusa escalar misto) e a única saída era o
+> flat-string, que perde o tipo. Agora `#TCF.8bB<w><n>`: cabeça CONGELADA implícita
+> `null=0/false=1/true=2` (a MESMA `TABELA_B2` do b2/core — NUNCA se declara;
+> redeclaração = fail-loud) + extras str declarados do slot 3 por 1ª aparição, domínio
+> comprimido pelo próprio core (disciplina `dominio_bn`). A justificativa decisiva é a
+> **armadilha `"true"`**: declarar o domínio completo funde `"true"` str com `True` no
+> mesmo slot — perda silenciosa de tipo; a cabeça congelada elimina isso por construção.
+> **CONTRATO UNIÃO novo**: 1ª rota que emite lista mista [bool/None/str] por construção
+> (decisão do owner — lazy = default; estrito = param futuro, `T-FORCAR-MECANISMO-PARAM`).
+> Ganho da cabeça 9–14 B × domínio completo; real Adult `sex`+" ?" (n=100): **50 B** vs
+> 64 completo / 61 flat-str; detecção 8/8 borda, 0 FP/FN; gates da fiação 12/12.
+> **Nenhum baseline moveu** (a rota só captura ex-fail-loud); 18 testes novos
+> (`TestLazyBool`); **pins alterados: nenhum**. Desvios do lab registrados: decode
+> dedicado (não reusa `decode_bn` — fundiria a armadilha) + b64 `validate=True`.
+> Com este weld, o grupo "TCF ⊃ json" do `T-MODO-JSON-IMITADOR` passa a existir — a
+> união que o json-lib aceita e o TCF recusava agora round-tripa.
+> Evidência: `experiments/lab/dirty/2026-08/2026-08-01/2026-08-01-0229-lazytype-bool-extras/`
+> + `.../2026-08-01-0322-lazybool-fiacao-rota-real/`.
 
 > **✅ WELD — delimitador de POLARIDADE no single-col (2026-07-26, ADR-0035, suíte 1010 passed).**
 > O corpo gastava **1 byte por LITERAL** (o `\` de corrida de dígito). Agora marca-se a **troca**

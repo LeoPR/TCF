@@ -1,0 +1,10 @@
+{
+  "coluna": "tiny-ternario",
+  "n": 3,
+  "tag": "b",
+  "amostra": [
+    true,
+    null,
+    false
+  ]
+}

@@ -106,6 +106,8 @@ def _tipo_single_col(data):
     - `bool` ANTES de int: em Python `bool <: int`, entao a ordem e' load-bearing.
     - float nao-finito (NaN/±Inf) NAO entra: fica fora do JSON (RFC 8259) e o `.8H` ja'
       fail-loud. Deixar entrar aqui aceitaria calado o que o formato recusa.
+    - Uniao bool+str(+null) NAO e' tipo unico -> `None` aqui. Quem a captura e' a rota
+      LAZY BOOL `#TCF.8bB` (ADR-0039), dispensada no `encode` antes do `.8H`.
     """
     if not isinstance(data, list) or not data:
         return None
@@ -113,7 +115,13 @@ def _tipo_single_col(data):
     if not vals:
         return None
     if all(type(x) is bool for x in vals):
-        return "b", lambda v: "true" if v else "false"
+        # RENDER EM SLOTS CONGELADOS (weld 2026-08-01, ADR-0038): o core grafava `true`/`false`
+        # como NOMES; agora grafa o INDICE — FONTE UNICA da tabela: `tcf/tipos_internos.py`
+        # (RENDER_B; mesma tabela do denso b2, ADR-0037). Nomes seguem DECODAVEIS
+        # (decodavel-nao-emitido; precedente: modo `C` da ADR-0036).
+        from tcf.tipos_internos import RENDER_B
+
+        return "b", lambda v: RENDER_B[v]
     if all(type(x) is int or type(x) is float for x in vals):
         from math import isfinite
 
@@ -157,6 +165,63 @@ def _rejeita_kwargs_flat_no_8h(**kw) -> None:
         )
 
 
+def _encode_lazy_bool(data, side: SideOutputs | None = None) -> "str | None":
+    """Candidato lazy bool `#TCF.8bB<w><n>` (ADR-0039) ou `None` quando nao se oferece.
+
+    Uniao {bool, str, None} com >=1 bool E >=1 str: hoje essa coluna cai no `.8H` e
+    FAIL-LOUD (uniao de tipos nao e' hierarquizavel) — o lazy e' o UNICO candidato que
+    preserva o tipo, entao emite o wire direto, SEM min() (fiacao do lab
+    2026-08-01-0322, sem bloqueadores).
+
+    Cabeca CONGELADA implicita null=0/false=1/true=2 (TABELA_B2 de `tcf/tipos_internos.py`)
+    + extras str declarados no arquivo a partir do slot 3, por 1a aparicao — a mecanica do
+    `dominio_bn` (ADR-0036) com a cabeca bool implicita. Dominio comprimido pelo proprio
+    core (mesma disciplina: `_grafa`, `[:-1]` da linha vazia final, escape `\\=` de linha
+    comecando com `=`), b64 sem padding, n em hex minimo. Lab de origem:
+    2026-08-01-0229-lazytype-bool-extras.
+
+    NAO se oferece (devolve `None` -> cai no `.8H`, que fail-loud na uniao):
+    - extra com LF embutido (achado da fiacao 0322: `_encode_column(['a\\nb'])` devolve
+      CALADO — o fail-loud de LF mora no encode flat publico, nao no `_encode_column`;
+      um extra com LF corromperia o parse do dominio. Check EXPLICITO aqui);
+    - w > 8 (extras > 253) — teto do namespace bN (MAX_W do `dominio_bn`).
+    """
+    if not isinstance(data, list) or not data:
+        return None
+    tipos = {type(x) for x in data}
+    if not tipos <= {bool, str, type(None)} or not {bool, str} <= tipos:
+        return None
+    extras: list[str] = []
+    vistos: set[str] = set()
+    for x in data:
+        if type(x) is str and x not in vistos:
+            vistos.add(x)
+            extras.append(x)
+    if any("\n" in e for e in extras):
+        return None
+    import base64
+
+    from tcf.bitpack import pack_w
+    from tcf.composicional.dominio_bn import BS, MARCADOR, MAX_W, _grafa
+    from tcf.multi.core import MAGIC_SINGLE_V3
+    from tcf.tipos_internos import TABELA_B2
+
+    w = (3 + len(extras) - 1).bit_length()           # ceil(log2(3 + k)), k >= 1 -> w >= 2
+    if w > MAX_W:
+        return None
+    idx = {v: i for i, v in enumerate(TABELA_B2)}    # None:0, False:1, True:2
+    ex_idx = {e: 3 + i for i, e in enumerate(extras)}
+    # `type(x) is str` separa extra da cabeca — evita a colisao de dict "1" vs True.
+    packed = pack_w([ex_idx[x] if type(x) is str else idx[x] for x in data], w)
+    b64 = base64.b64encode(packed).decode("ascii").rstrip("=")
+    _bl = _encode_column([_grafa(e) for e in extras], header="val", side=side)
+    bloco = _bl[:-1] if _bl.endswith("\n") else _bl
+    escapado = "\n".join(BS + ln if ln.startswith(MARCADOR) else ln
+                         for ln in bloco.split("\n"))
+    magic = MAGIC_SINGLE_V3.decode("utf-8")
+    return f"{magic}bB{w}{len(data):x}\n{escapado}\n{MARCADOR}{b64}"
+
+
 def encode(
     data,
     *,
@@ -179,6 +244,7 @@ def encode(
     completo em `docs/reference/api.md`. Resumo:
       - `list[str]` (todos str, >=1)       -> single-col flat `#TCF.8` (header por DEFAULT)
       - `dict[str, list[str]]` retangular >=1 linha -> multi-col `#TCF.8M`
+      - `list[bool|str|None]` misto (>=1 bool E >=1 str) -> lazy bool `#TCF.8bB` (ADR-0039)
       - list[dict] / objeto / escalar / `[]` / `{}` / tipado / ragged / 0-linha
                                             -> hierarquico `#TCF.8H` (rota interna)
       - tipo nao-JSON (bytes/tuple/func) ou array de tipos mistos -> FAIL-LOUD
@@ -410,10 +476,15 @@ def encode(
         #
         # Candidatos de MODO competindo no FLOOR (a variavel `modo`; o '~' e' conceitual, NAO
         # vai no wire):
-        #   A core   '#TCF.8<tag>\n<core>'    -> reusa _encode_column (seq-RLE/aliases de graca)
-        #   B denso  '#TCF.8b1<n>\n<b64>'     -> bit-pack 1 bit/elem; SO' bool SEM null
-        # O denso e' bool-only por construcao: 1 bit = 2 estados, e o trio {null,false,true}
-        # nao cabe. Com null a coluna usa o core, que enderaça o slot 0 normalmente.
+        #   A core   '#TCF.8<tag>\n<core>'    -> reusa _encode_column (seq-RLE/aliases de graca).
+        #                                      Para a tag b o corpo e' grafado em SLOTS
+        #                                      (null=0/false=1/true=2, ADR-0038) — mesma
+        #                                      tabela do denso b2.
+        #   B denso  '#TCF.8b1<n>\n<b64>'     -> bit-pack 1 bit/elem; bool SEM null
+        #      denso  '#TCF.8b2<n>\n<b64>'     -> bit-pack 2 bits/elem; bool COM null (ternario)
+        # O denso e' bool-only por construcao: o dominio e' IMPLICITO e congelado
+        # (b1: false=0/true=1; b2: null=0/false=1/true=2, 3 reservado). Weld b2:
+        # lab 2026-07-31-2350-denso-b2-ternario, ADR-0037.
         # min() nunca-pior ENTRE os candidatos (materializa e emite o menor). Refino do
         # preditor (sem materializar os dois) -> .9 (T-TYPED-SINGLECOL-MODE-HEURISTIC).
         from tcf.multi.core import MAGIC_SINGLE_V3
@@ -444,20 +515,29 @@ def encode(
         # bN DE DOMINIO: NAO entra aqui. O wire `#TCF.8B…` devolve STRING, e a rota tipada
         # tem de preservar o tipo — um `bool` voltando `"true"` seria corrupcao silenciosa.
         # Levar o bN pro tipado exige a tag DENTRO do cabecalho (`#TCF.8bB…`), que e' grafia
-        # nova. Fica pendente: T-BN-TIPADO (ADR-0036 §aberto). E' onde `bool + null` — hoje
-        # 546 B contra 92 B possiveis — ainda esta' na mesa.
+        # nova. Fica pendente: T-BN-TIPADO (ADR-0036 §aberto) — agora so' p/ NUMEROS: o
+        # `bool + null` saiu da mesa com o denso b2 abaixo (546 B -> 79 B, lab
+        # 2026-07-31-2350-denso-b2-ternario).
 
-        if tag == "b" and not tem_nulo:
+        if tag == "b":
             import base64
 
             from tcf.bitpack import pack_w
 
-            idx = [1 if x else 0 for x in data]            # dominio implicito FIXO (canonico)
-            b64 = base64.b64encode(pack_w(idx, 1)).decode("ascii")
-            # `n` em HEX: len(hex(n)) <= len(dec(n)) p/ TODO n >= 0 -- propriedade matematica,
-            # nunca pior, O(1). Parse e' POSICIONAL (modo = 1o char), entao hex nao colide
-            # com o namespace do <modo>.
-            candidatos.append(f"{magic}b1{len(data):x}\n{b64}")
+            if tem_nulo:
+                # DENSO b2 TERNARIO (weld 2026-07-31, ADR-0037): dominio implicito CONGELADO
+                # null=0, false=1, true=2 (3 = reservado, fail-loud no decode). Medido:
+                # 546 B (core) -> 79 B p/ n=200, vence ate' n=3 (lab 2026-07-31-2350).
+                idx = [0 if x is None else (2 if x else 1) for x in data]
+                b64 = base64.b64encode(pack_w(idx, 2)).decode("ascii")
+                candidatos.append(f"{magic}b2{len(data):x}\n{b64}")
+            else:
+                idx = [1 if x else 0 for x in data]            # dominio implicito FIXO (canonico)
+                b64 = base64.b64encode(pack_w(idx, 1)).decode("ascii")
+                # `n` em HEX: len(hex(n)) <= len(dec(n)) p/ TODO n >= 0 -- propriedade matematica,
+                # nunca pior, O(1). Parse e' POSICIONAL (modo = 1o char), entao hex nao colide
+                # com o namespace do <modo>.
+                candidatos.append(f"{magic}b1{len(data):x}\n{b64}")
 
         # FLOOR: a variavel `modo` = argmin. Empate fica no 1o (core, mais inspecionavel).
         return min(candidatos, key=lambda w: len(w.encode("utf-8")))
@@ -505,6 +585,18 @@ def encode(
             nature_specs=nature_specs,
             drop_names=drop_names,
         )
+    # ROTA LAZY BOOL .8bB (ADR-0039): uniao bool+str(+null) — hoje cai no `.8H` e
+    # fail-loud; o lazy e' o unico candidato que preserva o tipo. kwargs so'-flat
+    # rejeitados ANTES de emitir (mesmo contrato do tipado/.8H); se o lazy NAO se
+    # oferece (LF em extra / w>8), cai no `.8H` abaixo, que fail-loud na uniao.
+    _lazy = _encode_lazy_bool(data, side=side_outputs)
+    if _lazy is not None:
+        _rejeita_kwargs_flat_no_8h(
+            parallel=parallel, nature=nature, layers=layers, fallback=fallback,
+            min_header=min_header, min_len=min_len, sort_by=sort_by, name=name,
+            stamp=stamp, drop_names=drop_names,
+        )
+        return _lazy
     # ROTA HIERARQUICA .8H (dispatch type-coherent, Passo 2, API unica): tudo que NAO e'
     # flat puro — lista vazia/tipada/list[dict], dict objeto/ragged/tipado, escalar solto,
     # `{}`. Simetrico ao decode (que rota pelo magic `#TCF.8H`). kwargs so'-flat = fail-loud.
