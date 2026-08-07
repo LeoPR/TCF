@@ -20,9 +20,20 @@ matizar a conclusao:
 | Streaming-encode compat | analise estrutural (preambulo bloqueia) | algebrico, ja' avaliado |
 | Streaming-decode compat | analise estrutural (single-pass possivel?) | algebrico, ja' avaliado |
 | Latencia first-byte encode | tempo ate emitir 1a linha | empirico, requer instrumentacao |
-| Random access decode | possivel pular linha N sem reprocessar? | algebrico, todos atuais sao sequenciais |
+| Random access decode | possivel pular linha N sem reprocessar? | algebrico, todos atuais sao sequenciais **(era verdade em 2026-05-14; o bN de dominio quebrou isso — ver nota abaixo)** |
 | Complexidade Big-O detector | analise algebrica | algebrico |
 | Complexidade Big-O decoder | analise algebrica | algebrico |
+
+> **Atualizacao 2026-08-07 — o vetor "random access" deixou de ser uniforme.** A tabela
+> acima compara as SINTAXES INTERNAS do TCF (M2.A / M4.C1' / M4.C1 v1), nao compressores
+> externos; nesse escopo "todos atuais sao sequenciais" estava certo em 2026-05-14. O bN de
+> dominio (ADR-0036) mudou o quadro: o payload de bits tem LARGURA FIXA, entao a celula `i`
+> mora no bit `i*w` e o base64 preserva o endereco (RFC 4648 e' posicional puro). Sonda de
+> terminal: 4 B de payload tocados por celula, independente de n=2000. O dominio, por ser
+> corpo TCF de tamanho variavel, ainda custa O(k) uma vez. Regime honesto: **O(k) uma vez +
+> O(1) por celula**, e a propriedade esta' no FORMATO, nao no codigo (nao ha' acessor).
+> Levantamento e ressalvas:
+> [`2026-08-07-descompressao-o1-levantamento-e-onde-o-bn-cai`](../../experiments/lab/dirty/notas/2026-08/2026-08-07-descompressao-o1-levantamento-e-onde-o-bn-cai.md).
 
 ## Diferencas algebricas conhecidas (M2.A vs M4.C1' vs M4.C1 v1)
 
