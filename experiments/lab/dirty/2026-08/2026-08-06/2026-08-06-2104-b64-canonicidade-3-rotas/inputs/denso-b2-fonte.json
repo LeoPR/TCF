@@ -1,0 +1,11 @@
+{
+  "rota": "denso-b2",
+  "n": 200,
+  "amostra": [
+    null,
+    true,
+    false,
+    null,
+    false
+  ]
+}

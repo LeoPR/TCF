@@ -10,6 +10,7 @@ import pytest
 from tcf import decode, encode
 from tcf.composicional.dominio_bn import (
     BS, DISC_LOTE, DISC_STREAM, MARCADOR, MAX_W, _grafa, _le_grafia, candidatos, dominio,
+    valida_payload_b64,
 )
 from tcf.encoder import _encode_column
 
@@ -215,6 +216,93 @@ class TestNadaDepoisDosBits:
         dados = [f"v{i % 3}" for i in range(200)]
         w = encode(dados)
         assert decode(w.rstrip("\n") + "\n") == dados
+
+
+class TestPayloadB64Canonico:
+    """`T-BN-B64-VALIDATE` — lab `2026-08-06-2104` (9 sondas x 5 rotas, 45 celulas).
+
+    Tres checagens, e o lab mostrou que **nenhuma subsome as outras**:
+
+        validate=True        char fora do alfabeto, espaco, padding em lugar errado
+        re-codifica+compara  padding a mais, caixa trocada (grafia dupla dos MESMOS bytes)
+        tamanho exato        extensao com bytes ZERO, truncamento
+
+    O `_decode_denso` ja' fazia as tres; o `decode_bn` nao fazia nenhuma e o
+    `_decode_lazy_bool` fazia so' a primeira.
+    """
+
+    #: as tres rotas que carregam payload base64, e como achar o payload em cada wire
+    ROTAS = {
+        "bn-B": [f"v{i % 3}" for i in range(200)],
+        "denso-b1": [bool(i % 2) for i in range(200)],
+        "denso-b2": [None if i % 3 == 0 else bool(i % 2) for i in range(200)],
+        "lazy-bB": [None if i % 7 == 0 else ([True, False][i % 2] if i % 3 else f"x{i % 4}")
+                    for i in range(200)],
+    }
+
+    @staticmethod
+    def _muta(wire, fn):
+        """Aplica `fn` ao payload b64, seja ele apos `=` (bN/lazy) ou na ultima linha."""
+        ls = wire.rstrip("\n").split("\n")
+        i = next((j for j, l in enumerate(ls) if l.startswith("=")), len(ls) - 1)
+        pre = "=" if ls[i].startswith("=") else ""
+        ls[i] = pre + fn(ls[i][len(pre):])
+        return "\n".join(ls) + "\n"
+
+    @pytest.mark.parametrize("rota", list(ROTAS))
+    @pytest.mark.parametrize("nome,mut", [
+        ("char-invalido", lambda p: p[:5] + "!" + p[5:]),
+        ("espaco", lambda p: p[:5] + " " + p[5:]),
+        ("quatro-invalidos", lambda p: p[:5] + "!!!!" + p[5:]),
+        ("padding-extra", lambda p: p.rstrip("=") + "=="),
+        ("truncado", lambda p: p[:-4]),
+        # A sonda que o lab ANTERIOR nao tinha: bytes ZERO em base64 CANONICO.
+        # Atravessa o `validate` E a checagem de bits-de-padding do `unpack_w`.
+        ("extensao-zero", lambda p: p.rstrip("=") + "AAAA"),
+    ])
+    def test_payload_adulterado_falha_alto(self, rota, nome, mut):
+        dados = self.ROTAS[rota]
+        with pytest.raises(ValueError) as exc:
+            decode(self._muta(encode(dados), mut))
+        assert "#TCF.8" in str(exc.value), f"mensagem sem nivel TCF: {exc.value}"
+
+    @pytest.mark.parametrize("rota", list(ROTAS))
+    def test_wire_valido_continua_passando(self, rota):
+        """Byte-neutro: a validacao so' toca caminho de erro."""
+        dados = self.ROTAS[rota]
+        assert decode(encode(dados)) == dados
+
+    def test_as_tres_checagens_sao_independentes(self):
+        """Nenhuma subsome as outras — foi o que fechou a discussao de "opcional"."""
+        import base64 as _b64
+
+        raw = bytes(range(25))
+        canon = _b64.b64encode(raw).decode().rstrip("=")
+        n, w = 200, 1                                    # 200*1/8 = 25 bytes
+
+        def _classes(payload):
+            try:
+                valida_payload_b64(payload, n, w, "#TCF.8B")
+                return "passa"
+            except ValueError as e:
+                return str(e)
+
+        # so' o validate pega
+        assert "nao e' base64" in _classes(canon[:5] + "!" + canon[5:])
+        # so' a re-codificacao pega (bytes validos, grafia dupla)
+        assert "nao-canonico" in _classes(canon + "==")
+        # so' o tamanho pega (base64 canonico, bytes ZERO a mais)
+        assert "esperado 25" in _classes(canon + "AAAA")
+        # o canonico passa
+        assert _classes(canon) == "passa"
+
+    def test_mensagem_e_de_nivel_tcf_nas_tres_rotas(self):
+        """O buraco original: o bN vazava `binascii.Error` cru."""
+        for rota, dados in self.ROTAS.items():
+            mut = self._muta(encode(dados), lambda p: p[:5] + "!" + p[5:])
+            with pytest.raises(ValueError) as exc:
+                decode(mut)
+            assert "payload" in str(exc.value), f"{rota}: {exc.value}"
 
 
 class TestFailLoud:

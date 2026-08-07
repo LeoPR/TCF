@@ -21,7 +21,6 @@
 > | **`T-OBAT-TRIGRAMA`** | CPU | bucket por `min_len` em vez de 3 fixo |
 > | **`T-GRAFIA-CHECKLIST`** | previne a 6a recorrencia | a assimetria escapar/desescapar ja' apareceu **5 vezes**; a frase no ADR nao impediu — o teste impede |
 > | **`T-DENSO-PADDING`** | 1-2 B em ~2/3 dos wires densos | os densos `b1` e `b2` emitem padding `=`, o bN nao; o padding e' deduzivel de `n` e `w` (vale pros dois modos, ADR-0037) |
-> | **`T-BN-B64-VALIDATE`** | mensagem de erro | b64 invalido e' rejeitado, mas com `binascii.Error` em vez de mensagem de nivel TCF |
 > | **`T-FLOAT-SLOTS`** | NaN/±Inf hoje é fail-loud | falta fixar a **ordem canônica dos slots reservados**. Precedente fixado p/ bool (ADR-0037): **null=0, valores na ordem de declaração do tipo** |
 > | **`T-TIPADO-LEGIVEL-PARAM`** | legibilidade/inspeção (custa bytes) | opt-in de grafia legível (nomes no wire tipado); o DECODE já aceita nomes (ADR-0038) — falta só o plumbing de encoder (kwarg/`PipelineConfig`) |
 > | **`T-MISTO-RLE-B64-SINGLE`** | ganho desconhecido | misto RLE+b64 no single-col tipado. CAVEAT: segmentação mista DERRUBADA no multi-col denso (0/18 real-world, bloco DECISÃO PENDENTE abaixo) — contexto diferente, mas medir real-world primeiro; serialização mais complexa |

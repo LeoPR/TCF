@@ -50,6 +50,7 @@ escape), `2247` (o espaco completo de delimitacao).
 from __future__ import annotations
 
 import base64
+import binascii as _binascii
 import math
 
 from tcf.bitpack import pack_w, unpack_w
@@ -142,6 +143,51 @@ def candidatos(valores, encode_col, decode_col):
     ]
 
 
+def valida_payload_b64(b64: str, n: int, w: int, rotulo: str,
+                       padded: bool = False) -> bytes:
+    """Payload base64 -> bytes. TRES checagens, nenhuma redundante (T-BN-B64-VALIDATE).
+
+    Fonte unica de validacao de payload denso do formato — o `decode_bn` (bN `B`/`C`) e o
+    `decoder._decode_lazy_bool` (lazy `bB`) chamam esta funcao; o `_decode_denso` ja' fazia
+    o equivalente inline desde sempre e serviu de modelo.
+
+    Medido no lab `2026-08-06-2104` (9 sondas x 5 rotas, 45 celulas): **nenhuma das tres
+    subsome as outras.**
+
+        1. validate=True        char fora do alfabeto, espaco, padding em lugar errado
+        2. re-codifica+compara  padding a mais, caixa trocada -> grafia dupla dos MESMOS bytes
+        3. tamanho exato        extensao com bytes ZERO e truncamento
+
+    A (2) e' a MESMA tecnica que o cabecalho ja' usa pro hex (`f"{n:x}" != nhex`, ADR-0036):
+    canonicidade por re-emissao. A (3) e' o que o `_decode_denso` ja' fazia — e e' a unica
+    que pega `payload + "AAAA"`, porque bytes zero atravessam ate' a checagem de
+    bits-de-padding do `unpack_w`.
+
+    `padded` diz a forma canonica DESTA rota: o denso emite com `=`, o bN e o lazy sem.
+    """
+    try:
+        raw = base64.b64decode(b64 + "=" * (-len(b64) % 4), validate=True)
+    except (ValueError, _binascii.Error) as e:
+        raise ValueError(f"{rotulo}: payload nao e' base64 canonico: {e}") from e
+
+    volta = base64.b64encode(raw).decode("ascii")
+    if not padded:
+        volta = volta.rstrip("=")
+    if volta != b64:
+        raise ValueError(
+            f"{rotulo}: payload base64 nao-canonico — recebido {b64[:20]!r}…, canonico "
+            f"{volta[:20]!r}… (duas grafias para os mesmos bytes)"
+        )
+
+    esperado = -(-n * w // 8)                    # ceil(n*w/8) — a mesma conta do _decode_denso
+    if len(raw) != esperado:
+        raise ValueError(
+            f"{rotulo}: payload = {len(raw)} bytes, esperado {esperado} p/ n={n} w={w} "
+            f"(wire truncado, estendido ou concatenado)"
+        )
+    return raw
+
+
 def _b64_len(n: int, w: int) -> int:
     """Comprimento do bloco base64 SEM padding — deduzivel de `n` e `w`."""
     return (((n * w + 7) // 8) * 8 + 5) // 6
@@ -203,7 +249,7 @@ def decode_bn(tcf_text: str, disc: str, decode_col) -> "list[str | None]":
         raise ValueError("dominio bN vazio — corpo nao-canonico")
     if len(dom) > (1 << w):
         raise ValueError(f"dominio bN com {len(dom)} valores nao cabe em {w} bits")
-    raw = base64.b64decode(b64 + "=" * (-len(b64) % 4))
+    raw = valida_payload_b64(b64, n, w, f"{MAGIC}{disc}")
     saida = []
     for i in unpack_w(raw, w, n):
         if i >= len(dom):

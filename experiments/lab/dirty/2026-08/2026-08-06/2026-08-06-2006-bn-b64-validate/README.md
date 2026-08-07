@@ -1,3 +1,19 @@
+> ## ⚠️ CONCLUSÕES SUPERSEDIDAS — ver `../2026-08-06-2104-b64-canonicidade-3-rotas/`
+>
+> A **evidência** deste lab continua válida (48 wires, matriz, proveniência). As
+> **conclusões** foram corrigidas em três pontos pelo lab `2104`:
+>
+> 1. **O lazy `bB` não é padrão-ouro.** Aqui ele aparece como "48/48 fail-loud"; ele valida
+>    mas **não confere tamanho**, e aceita `payload + "AAAA"` (bytes zero) em silêncio. A
+>    correção vai em **duas** rotas, não em uma.
+> 2. **`tamanho exato` não é "recomendação".** Medindo qual checagem pega o quê, nenhuma das
+>    três subsome as outras — são o mínimo, e são o que o denso já fazia.
+> 3. **O padding não é "decisão do owner".** Re-codificar-e-comparar é a mesma técnica que o
+>    cabeçalho já usa para o hex (ADR-0036); a regra existia, faltava aplicá-la.
+>
+> E o "**0 SILENCIOSO-CORROMPIDO**" reportado aqui é artefato da bateria: faltava a sonda de
+> **caixa trocada**, que corrompe valores em silêncio em 3 das 5 rotas.
+
 # Lab — T-BN-B64-VALIDATE: payload b64 sem `validate` no `decode_bn`
 
 - **Data**: 2026-08-06 (sessão 2006) · **Ticket**: T-BN-B64-VALIDATE (fila de fechamento bool/bN)

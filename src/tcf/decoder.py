@@ -461,10 +461,12 @@ def _decode_lazy_bool(tcf_text: str, max_length: int | None = None) -> list:
     tabela = list(TABELA_B2) + extras
     if len(tabela) > (1 << w):
         raise ValueError(f"#TCF.8bB: tabela lazy com {len(tabela)} valores nao cabe em {w} bits")
-    try:
-        raw = base64.b64decode(b64 + "=" * (-len(b64) % 4), validate=True)
-    except (ValueError, _binascii.Error) as e:
-        raise ValueError(f"#TCF.8bB: payload nao e' base64 canonico: {e}") from e
+    # FONTE UNICA de validacao de payload (T-BN-B64-VALIDATE, lab 2026-08-06-2104): o
+    # `validate=True` sozinho NAO pega extensao com bytes ZERO — `payload + "AAAA"` era
+    # aceito CALADO aqui. Faltavam a re-codificacao (grafia canonica) e o tamanho exato,
+    # que o `_decode_denso` ja' fazia. As tres sao independentes.
+    from tcf.composicional.dominio_bn import valida_payload_b64
+    raw = valida_payload_b64(b64, n, w, "#TCF.8bB")
     saida = []
     for i in unpack_w(raw, w, n):
         if i >= len(tabela):

@@ -1,0 +1,11 @@
+{
+  "rota": "lazy-bB",
+  "n": 200,
+  "amostra": [
+    null,
+    false,
+    true,
+    "x3",
+    true
+  ]
+}
