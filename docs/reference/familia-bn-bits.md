@@ -33,7 +33,7 @@ Essa invariante é testada caso a caso no EXP-016 (prova *nunca-pior* e prova *c
 #TCF.8 B  w  n ↵  <domínio, uma linha por valor> ↵ = <base64 dos índices>
        │  │  │
        │  │  └─ n = número de células, em hex minúsculo, sem zero à esquerda
-       │  └──── w = bits por índice ∈ {1,2,4,8}
+       │  └──── w = bits por índice = ceil(log2(k)), 1..8
        └─────── discriminador: B = domínio primeiro · C = domínio por último
 ```
 
@@ -106,14 +106,32 @@ colidiam, silenciosamente, até a auditoria de 2026-07-28
 
 `k` = número de valores distintos (incluindo o slot nulo, se houver).
 
+A largura é `w = ceil(log2(k))` — **não** arredondada pra potência de 2. Um domínio de 5
+valores usa 3 bits, não 4; um de 100 usa 7, não 8. É o `_largura` em
+`composicional/dominio_bn.py`.
+
+> Esta tabela estava errada aqui (dizia `w ∈ {1,2,4,8}`) até 2026-08-07. Agora ela é
+> **gerada do código** em
+> [`EXP-016/outputs/tabela-larguras.md`](../../experiments/lab/clean/EXP-016-bn-familia-bits/outputs/tabela-larguras.md),
+> e o lab falha se as faixas deixarem de ser contíguas — a cópia abaixo é conferida, não
+> digitada.
+
 | `k` | `w` | o que acontece |
 |---:|---:|---|
-| 1 | — | **não ativa** — o core resolve com RLE (`*100\|a`, 14 B) |
+| 1 | 0 | **não ativa** — o core resolve com RLE (`*100\|a`, 14 B) |
 | 2 | 1 | ativa |
 | 3–4 | 2 | ativa |
-| 5–16 | 4 | ativa |
-| 17–256 | 8 | ativa |
-| ≥257 | — | **não ativa** — passa do teto `MAX_W=8` |
+| 5–8 | 3 | ativa |
+| 9–16 | 4 | ativa |
+| 17–32 | 5 | ativa |
+| 33–64 | 6 | ativa |
+| 65–128 | 7 | ativa |
+| 129–256 | 8 | ativa |
+| ≥257 | 9 | **não ativa** — passa do teto `MAX_W=8` |
+
+Isso importa pro `T-BN-LARGURA-VARIAVEL`: o desperdício não é o arredondamento pra potência
+de 2 (não existe), é o arredondamento pro **inteiro** — `k=5` gasta 3 bits onde a entropia
+pede 2,32.
 
 Ativar não é automático: mesmo dentro da faixa, o `min()` pode preferir outro mecanismo. O
 caso mais claro é o corpo perfeitamente RLE-ável:

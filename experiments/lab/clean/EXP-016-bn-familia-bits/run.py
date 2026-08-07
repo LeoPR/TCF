@@ -38,7 +38,7 @@ sys.path.insert(0, str(RAIZ))
 from casos import CASOS  # noqa: E402
 
 from tcf import decode, encode  # noqa: E402
-from tcf.composicional.dominio_bn import DISCS, candidatos  # noqa: E402
+from tcf.composicional.dominio_bn import DISCS, MAX_W, _largura, candidatos  # noqa: E402
 from tcf.composicional.polaridade import polariza  # noqa: E402
 from tcf.decoder import _decode_column, _separa_sufixo_polaridade  # noqa: E402
 from tcf.encoder import _encode_column, _tipo_single_col  # noqa: E402
@@ -176,6 +176,8 @@ def rota(wire: str) -> str:
 def main() -> int:
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
     linhas, falhas, perdem, lacunas = [], [], [], []
+    # varre a tabela de larguras uma faixa alem do teto, pra a linha da RECUSA aparecer
+    MAX_K = 2 ** (MAX_W + 1)
 
     for c in CASOS:
         nome, vals = c["nome"], c["valores"]
@@ -286,6 +288,34 @@ def main() -> int:
             "- **em todos** os casos de rota flat, o core sozinho também faz RT: o bN nunca "
             "é necessário para correção, só para tamanho;",
             "- `encode` é determinístico em 100% dos casos.", ""]
+
+    # ── a tabela de larguras, GERADA do código ──────────────────────────────
+    # O manual (docs/reference/familia-bn-bits.md) trazia `w ∈ {1,2,4,8}` — errado: é
+    # ceil(log2(k)), todo inteiro de 1 a 8. Tabela digitada à mão apodrece; esta sai do
+    # `_largura` e falha se a faixa não for contígua.
+    larg, k = [], 2
+    while k <= MAX_K:
+        w = _largura(k)
+        fim = k
+        while fim + 1 <= MAX_K and _largura(fim + 1) == w:
+            fim += 1
+        larg.append((k, fim, w))
+        k = fim + 1
+    for lo, hi, w in larg:
+        if any(_largura(x) != w for x in (lo, hi, (lo + hi) // 2)):
+            falhas.append(f"tabela de larguras: faixa {lo}..{hi} não é contígua em w={w}")
+    _escreve(RAIZ / "outputs" / "tabela-larguras.md", "\n".join([
+        "# Larguras do índice bN — gerada de `_largura`, não digitada", "",
+        "`w = ceil(log2(k))`, **não** arredondado pra potência de 2: `k=5` usa 3 bits, não 4.",
+        f"O teto é `MAX_W={MAX_W}` — a primeira faixa com `w > {MAX_W}` é onde o bN se retira.",
+        "", "| `k` | `w` | |", "|---:|---:|---|",
+        f"| 1 | {_largura(1)} | não ativa — o core resolve com RLE |",
+        *(f"| {lo}{'' if lo == hi else f'–{hi}'} | {w} | "
+          f"{'ativa' if w <= MAX_W else f'**não ativa** — passa do teto MAX_W={MAX_W}'} |"
+          for lo, hi, w in larg),
+        "", "O desperdício que o `T-BN-LARGURA-VARIAVEL` ataca não é arredondamento pra",
+        "potência de 2 (não existe) — é arredondamento pro **inteiro**: `k=5` gasta 3 bits",
+        "onde a entropia pede log2(5) ≈ 2,32.", ""]))
 
     # ── regimes que não ativam ──────────────────────────────────────────────
     tot_hoje = sum(h for *_, h, _e, _ok in lacunas)

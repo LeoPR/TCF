@@ -51,7 +51,7 @@ medido; então a checagem virou prova.
 | **F8** tipos | int, float, `-0.0`, misto int/float, int grande — a rota **tipada** |
 | **F9** unicode | acento, CJK, emoji, combining, RTL |
 | **F10** bN×RLE | o corpo perfeitamente RLE-ável, onde o bN **deve perder** |
-| **F11** fronteira | as larguras `w ∈ {1,2,4,8}` e o salto entre elas |
+| **F11** fronteira | a vizinhança da virada do FLOOR (`n` e `len(valor)`) — que a decisão é estável, sem oscilação |
 
 O catálogo é [`casos.py`](casos.py) — declarativo. Cada caso traz `nome`, `familia`,
 `valores`, `porque` (por que existe), `espera` (`ativa`/`recusa`) e `falha` (a exceção
