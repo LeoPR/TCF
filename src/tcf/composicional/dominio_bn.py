@@ -244,19 +244,39 @@ def decode_bn(tcf_text: str, disc: str, decode_col) -> "list[str | None]":
         bloco = "\n".join(ln[1:] if ln.startswith(BS + MARCADOR) else ln
                           for ln in linhas[:alvo])
 
+    rotulo = f"{MAGIC}{disc}"
     dom = [_le_grafia(s) for s in decode_col(bloco + "\n")]
     if not dom:
         raise ValueError("dominio bN vazio — corpo nao-canonico")
     if len(dom) > (1 << w):
         raise ValueError(f"dominio bN com {len(dom)} valores nao cabe em {w} bits")
-    raw = valida_payload_b64(b64, n, w, f"{MAGIC}{disc}")
+    raw = valida_payload_b64(b64, n, w, rotulo)
     saida = []
+    maior = -1
     for i in unpack_w(raw, w, n):
         if i >= len(dom):
             # `w` bits enderecam 2^w slots, mas o dominio pode ter menos. Indice fora da
             # faixa e' wire adulterado — fail-loud, nao IndexError cru.
             raise ValueError(
-                f"indice {i} fora do dominio bN de {len(dom)} valores — corpo nao-canonico"
+                f"{rotulo}: indice {i} fora do dominio bN de {len(dom)} valores "
+                f"— corpo nao-canonico"
             )
+        if i > maior:
+            maior = i
         saida.append(dom[i])
+    # TODO SLOT DO DOMINIO E' REFERENCIADO (invariante, medido em 35/35 colunas canonicas
+    # incluindo com null): `dominio()` monta a lista a partir da PRIMEIRA APARICAO de cada
+    # valor distinto, entao todo indice 0..k-1 aparece no corpo. Slot sobrando = wire
+    # adulterado.
+    #
+    # Sem isto os DOIS modos aceitavam calados uma entrada extra no dominio (achado da
+    # varredura 2026-08-07). No `B` ela entra antes do marcador; no `C`, no fim — e o
+    # guard `len(dom) > 2^w` so' pegava por acaso, quando a largura nao tinha folga.
+    # E' a MESMA classe do "conteudo apos o bloco de bits": aceitar em silencio o que o
+    # encoder canonico nunca produz.
+    if maior + 1 != len(dom):
+        raise ValueError(
+            f"{rotulo}: dominio bN tem {len(dom)} valores mas so' {maior + 1} sao "
+            f"referenciados — corpo nao-canonico (o encoder nunca emite slot sobrando)"
+        )
     return saida

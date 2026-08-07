@@ -193,6 +193,25 @@ apareceu por auditoria. `padded` distingue a forma canônica de cada rota (o den
 Suíte **1135 passed**; `test_dominio_bn.py` 58 → 88. Gates inalterados — a mudança só toca
 caminho de erro.
 
+### Invariante de canonicidade: todo slot do domínio é referenciado
+
+Varredura de fechamento (2026-08-07): os **dois modos** aceitavam calados uma entrada extra
+no domínio — no `B` antes do marcador, no `C` no fim. O guard `len(dom) > 2^w` só pegava por
+acaso, quando a largura não tinha folga.
+
+`dominio()` monta a lista pela **primeira aparição** de cada valor distinto, então todo índice
+`0..k-1` aparece no corpo. **Slot sobrando = wire adulterado.** Medido: vale em **35/35**
+colunas canônicas, inclusive com `null`. Agora é checado, e é a mesma classe do "conteúdo após
+o bloco de bits": recusar o que o encoder canônico nunca produz.
+
+### O que a varredura confirmou íntegro
+
+- **auto-consistência**: **608 wires** (modos `B` e `C`, `k` de 2 a 39 × `n` de 2 a 401) —
+  tudo que o encoder produz passa pelo próprio validador, **0 falhas**;
+- **fronteira do namespace**: `k=256` usa `w=8`; `k=257` recusa e o core assume;
+- **`unpack_w`**: a checagem de bits-de-padding continua alcançável — não virou código morto
+  com a checagem de tamanho.
+
 ### Tolerância × erro — analisado, não soldado
 
 A política de aceitar-com-warning as adulterações **provadamente recuperáveis** (extensão,

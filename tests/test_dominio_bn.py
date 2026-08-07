@@ -305,6 +305,73 @@ class TestPayloadB64Canonico:
             assert "payload" in str(exc.value), f"{rota}: {exc.value}"
 
 
+class TestTodoSlotEReferenciado:
+    """Invariante achado na varredura de fechamento (2026-08-07).
+
+    `dominio()` monta a lista pela PRIMEIRA APARICAO de cada valor distinto — entao todo
+    indice `0..k-1` aparece no corpo. **Slot sobrando = wire adulterado.** Medido: vale em
+    35/35 colunas canonicas, inclusive com null.
+
+    Sem esta checagem os DOIS modos aceitavam calados uma entrada extra no dominio (no `B`
+    antes do marcador, no `C` no fim). O guard `len(dom) > 2^w` so' pegava por acaso, quando
+    a largura nao tinha folga.
+    """
+
+    @staticmethod
+    def _com_slot_extra(wire, modo):
+        ls = wire.rstrip("\n").split("\n")
+        if modo == 0:                                        # B: dominio ANTES do marcador
+            i = next(j for j, l in enumerate(ls) if j > 0 and l.startswith(MARCADOR))
+            return "\n".join(ls[:i] + ["LIXO"] + ls[i:])
+        return "\n".join(ls + ["LIXO"])                      # C: dominio no FIM
+
+    #: `k` com FOLGA na largura (`k < 2^w`) — o slot extra ainda cabe, entao quem tem de
+    #: pegar e' a checagem de referencia, nao o guard de largura.
+    @pytest.mark.parametrize("k", [3, 5, 6, 7, 9, 17])
+    @pytest.mark.parametrize("modo", [0, 1])
+    def test_slot_sobrando_com_folga(self, k, modo):
+        dados = [f"v{i % k}" for i in range(200)]
+        with pytest.raises(ValueError, match="referenciad"):
+            decode(self._com_slot_extra(_cands(dados)[modo], modo))
+
+    #: `k` POTENCIA DE 2 — sem folga, o slot extra estoura a largura e o guard mais antigo
+    #: dispara antes. Tambem e' fail-loud; so' com outra mensagem.
+    @pytest.mark.parametrize("k", [2, 4, 8, 16, 64])
+    @pytest.mark.parametrize("modo", [0, 1])
+    def test_slot_sobrando_sem_folga(self, k, modo):
+        dados = [f"v{i % k}" for i in range(200)]
+        with pytest.raises(ValueError, match="nao cabe em"):
+            decode(self._com_slot_extra(_cands(dados)[modo], modo))
+
+    @pytest.mark.parametrize("k", [2, 3, 5, 16, 64, 256])
+    def test_o_canonico_continua_passando(self, k):
+        dados = [f"v{i % k}" for i in range(max(k, 400))]
+        for wire in _cands(dados):
+            assert decode(wire) == dados
+
+    def test_invariante_vale_com_null(self):
+        for dados in ([None, "a", "b"] * 30, [None] * 3 + ["x"] * 3,
+                      ["a", None, "b", None] * 20):
+            dom = dominio(dados)
+            idx = {v: j for j, v in enumerate(dom)}
+            usados = {idx[v] for v in dados}
+            assert usados == set(range(len(dom))), f"{dados[:4]}: {sorted(usados)}"
+
+
+class TestFronteirasDaLargura:
+    """`w` de 1 a 8 -> ate' 256 valores. Acima disso o bN recusa e o core assume."""
+
+    @pytest.mark.parametrize("k,qualifica", [(2, True), (255, True), (256, True),
+                                             (257, False), (300, False)])
+    def test_teto_do_namespace(self, k, qualifica):
+        dados = [f"v{i % k}" for i in range(max(k, 400))]
+        assert bool(_cands(dados)) is qualifica
+        assert decode(encode(dados)) == dados            # o FLOOR cobre os dois lados
+
+    def test_max_w_declarado(self):
+        assert MAX_W == 8
+
+
 class TestFailLoud:
     @pytest.mark.parametrize("wire", [
         "#TCF.8B\n",                                    # sem largura
