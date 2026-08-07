@@ -154,6 +154,53 @@ era testado, e não foi aplicado ao módulo novo — está em
 Suíte após as correções: **1061 passed, 3 skipped**; `test_dominio_bn.py` foi de 32 a 58
 testes. Gates inalterados.
 
+## Validação canônica de payload b64 — fonte única (2026-08-06/07)
+
+`T-BN-B64-VALIDATE`. O `decode_bn` decodava o payload **sem nenhuma checagem**, vazando
+`binascii.Error` cru. O lab `2026-08-06-2104` (9 sondas × 5 rotas, 45 células) mostrou que o
+buraco era maior do que o ticket dizia:
+
+- o **lazy `bB`** também tinha buraco — validava, mas não conferia tamanho, e aceitava
+  `payload + "AAAA"` (bytes zero) em silêncio;
+- havia **corrupção de valor** (o ticket dizia que não): trocar a caixa do último char muda
+  valores em silêncio quando o payload tem bits mortos.
+
+### As três checagens, e por que nenhuma é dispensável
+
+```
+1. validate=True        char fora do alfabeto, espaço, padding em lugar errado
+2. re-codifica+compara  padding a mais, caixa trocada — grafia dupla dos MESMOS bytes
+3. tamanho exato        extensão com bytes ZERO, truncamento
+```
+
+Medido: **nenhuma subsome as outras.** A (2) é a mesma técnica que o cabeçalho já usa para o
+hex (`f"{n:x}" != nhex`) — canonicidade por re-emissão, em outro campo.
+
+E a (2) é a **única que protege valor** (lab `2026-08-06-2250`): as outras duas só detectam
+adulteração que devolveria valores corretos. Como as três juntas custam **< 1%** do `decode`,
+não há trade-off a fazer — ficam ligadas, sem toggle.
+
+### Fonte única
+
+`dominio_bn.valida_payload_b64` é a única implementação. As três rotas com payload denso a
+chamam: `decode_bn` (`B`/`C`), `_decode_lazy_bool` (`bB`) e `_decode_denso` (`b1`/`b2`) — este
+último **fazia as checagens inline e serviu de modelo**; foi consolidado em 2026-08-07.
+
+Deixar duplicado era a causa-raiz: o denso evoluiu, o bN e o lazy não, e a divergência só
+apareceu por auditoria. `padded` distingue a forma canônica de cada rota (o denso emite com
+`=`; bN e lazy sem).
+
+Suíte **1135 passed**; `test_dominio_bn.py` 58 → 88. Gates inalterados — a mudança só toca
+caminho de erro.
+
+### Tolerância × erro — analisado, não soldado
+
+A política de aceitar-com-warning as adulterações **provadamente recuperáveis** (extensão,
+padding a mais, bits mortos sujos) está analisada em
+[`notas/2026-08/2026-08-06-2329-tolerancia-vs-erro-politica-de-wire-nao-canonico.md`](../../experiments/lab/dirty/notas/2026-08/2026-08-06-2329-tolerancia-vs-erro-politica-de-wire-nao-canonico.md),
+com levantamento de gzip/xz/zstd/PNG/protobuf/JSON/CSV/HTML5 e da RFC 4648. **Hoje é erro
+duro**, que é o default conservador. Ticket `T-B64-TOLERANTE`.
+
 ## Aberto — registrado, não esquecido
 
 | ticket | o quê | por quê importa |
@@ -162,6 +209,8 @@ testes. Gates inalterados.
 | **`T-BN-LOTE`** | opt-in para emitir o modo `C` | ~1 B/coluna, para quem não lê incrementalmente |
 | **`T-BN-MULTICOL`** | o bN no `.8M` | é a decisão pendente que já está no `STATUS.md`; escopo diferente deste |
 | **`T-BN-LARGURA-VARIAVEL`** | não desperdiçar slots em `k` = 3, 5, 6, 7 | largura fixa arredonda para cima; `k` potência de 2 é o caso justo |
+| **`T-B64-TOLERANTE`** | `on_noncanonical='error'\|'warn'` no `decode` | só para as 3 classes provadamente recuperáveis; default `error`. Soldar só se houver caso de uso real de recuperação de arquivo |
+| **`T-B64-BITS-MORTOS`** | trocar a re-codificação O(n) por checagem O(1) | mesma garantia; só vale se o custo (~0,17%) um dia importar |
 | **`T-BN-GZIP`** | medir sob gzip | o estudo multi-col registrou que o gzip encolhe muito o ganho do bN |
 
 ## Evidência

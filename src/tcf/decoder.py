@@ -384,16 +384,13 @@ def _decode_denso(b64: str, tag: str, w: int, n: int) -> list:
         raise ValueError(f"#TCF.8{tag}: modo denso so' implementado p/ bool; n/s exigem dominio embutido")
     if w not in (1, 2):                            # b1 = bool puro; b2 = ternario. Outra largura = invalido
         raise ValueError(f"#TCF.8b: largura denso invalida w={w} p/ bool (esperado 1 ou 2)")
-    try:
-        raw = base64.b64decode(b64, validate=True)  # ESTRITO: rejeita char fora do alfabeto/padding lixo
-    except (ValueError, _binascii.Error) as e:
-        raise ValueError(f"#TCF.8b: payload denso nao e' base64 canonico: {e}") from e
-    esperado = -(-n * w // 8)                       # ceil(n*w/8): tamanho EXATO do payload bem-formado
-    if len(raw) != esperado:
-        raise ValueError(
-            f"#TCF.8b: payload denso = {len(raw)} bytes, esperado {esperado} p/ n={n} w={w} "
-            f"(wire truncado/adulterado)"
-        )
+    # FONTE UNICA (consolidacao 2026-08-07): este ramo fazia as checagens INLINE e serviu de
+    # modelo pro `valida_payload_b64`. Deixar duplicado e' o que causou o problema original —
+    # o denso evoluiu, o bN e o lazy nao, e a divergencia so' apareceu por auditoria. Agora as
+    # tres rotas chamam a mesma funcao; quem melhorar a regra melhora as tres.
+    # `padded=True`: o denso emite base64 COM `=` (as outras duas emitem sem).
+    from tcf.composicional.dominio_bn import valida_payload_b64
+    raw = valida_payload_b64(b64, n, w, "#TCF.8b", padded=True)
     idx = unpack_w(raw, w, n)
     # Dominio implicito CONGELADO — FONTE UNICA: `tcf/tipos_internos.py` (TABELA_B1/B2).
     from tcf.tipos_internos import TABELA_B1, TABELA_B2
