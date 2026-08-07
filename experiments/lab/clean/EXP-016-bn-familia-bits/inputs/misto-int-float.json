@@ -1,0 +1,15 @@
+{
+  "caso": "misto-int-float",
+  "familia": "F8 tipos",
+  "porque": "int e float na MESMA coluna",
+  "espera": "qualquer",
+  "n": 200,
+  "amostra": [
+    1,
+    2.5,
+    3,
+    4.5,
+    1,
+    2.5
+  ]
+}

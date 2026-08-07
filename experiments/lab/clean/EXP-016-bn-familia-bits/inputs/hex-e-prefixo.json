@@ -1,0 +1,15 @@
+{
+  "caso": "hex-e-prefixo",
+  "familia": "F5 número",
+  "porque": "o que `int(x,16)` aceitaria no cabeçalho, mas aqui é DADO",
+  "espera": "ativa",
+  "n": 200,
+  "amostra": [
+    "0x10",
+    "16",
+    "0X10",
+    "0x10",
+    "16",
+    "0X10"
+  ]
+}

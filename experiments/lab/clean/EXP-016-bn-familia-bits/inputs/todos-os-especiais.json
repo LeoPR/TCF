@@ -1,0 +1,15 @@
+{
+  "caso": "todos-os-especiais",
+  "familia": "F7 escape",
+  "porque": "os 6 chars da gramática do corpo, um por valor",
+  "espera": "ativa",
+  "n": 200,
+  "amostra": [
+    "*",
+    "~",
+    "^",
+    ",",
+    "|",
+    "\\"
+  ]
+}

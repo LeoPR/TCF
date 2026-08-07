@@ -1,0 +1,15 @@
+{
+  "caso": "espaco-simples",
+  "familia": "F4 espaços",
+  "porque": "o valor É um espaço",
+  "espera": "ativa",
+  "n": 200,
+  "amostra": [
+    " ",
+    "x",
+    " ",
+    "x",
+    " ",
+    "x"
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "caso": "nan",
+  "familia": "F8 tipos",
+  "porque": "NaN: fora do JSON (RFC 8259) — deve FALHAR ALTO",
+  "espera": "qualquer",
+  "n": 2,
+  "amostra": [
+    1.0,
+    NaN
+  ]
+}

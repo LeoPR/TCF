@@ -1,0 +1,15 @@
+{
+  "caso": "null-e-vazio",
+  "familia": "F2 null",
+  "porque": "null E string vazia na MESMA coluna: dois 'nadas' que não podem se fundir",
+  "espera": "ativa",
+  "n": 200,
+  "amostra": [
+    null,
+    "",
+    "x",
+    null,
+    "",
+    "x"
+  ]
+}

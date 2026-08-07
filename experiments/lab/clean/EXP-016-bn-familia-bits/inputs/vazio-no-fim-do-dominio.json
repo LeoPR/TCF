@@ -1,0 +1,15 @@
+{
+  "caso": "vazio-no-fim-do-dominio",
+  "familia": "F4 espaços",
+  "porque": "string vazia como ÚLTIMO valor do domínio — o bug do `rstrip` (2026-07-28)",
+  "espera": "ativa",
+  "n": 200,
+  "amostra": [
+    "a",
+    "b",
+    "",
+    "a",
+    "b",
+    ""
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "caso": "k-256",
+  "familia": "F3 bordas",
+  "porque": "k=256 = 2^8: o TETO do namespace, w=8",
+  "espera": "ativa",
+  "n": 512,
+  "amostra": [
+    "v0",
+    "v1",
+    "v2",
+    "v3",
+    "v4",
+    "v5"
+  ]
+}

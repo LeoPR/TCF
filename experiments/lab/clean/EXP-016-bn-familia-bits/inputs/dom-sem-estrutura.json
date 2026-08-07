@@ -1,0 +1,15 @@
+{
+  "caso": "dom-sem-estrutura",
+  "familia": "F10 bN×RLE",
+  "porque": "domínio que NÃO comprime — o custo dele é o cru",
+  "espera": "ativa",
+  "n": 200,
+  "amostra": [
+    "zqx",
+    "mfw",
+    "pkv",
+    "bhn",
+    "zqx",
+    "mfw"
+  ]
+}

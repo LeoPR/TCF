@@ -30,14 +30,23 @@ LLM). Validos como historico; **NAO sao canonicos do v0.6**.
 
 ### Ciclo v0.6 (2026-05-10 → em curso) — algoritmo TCF-CORE
 
-EXP-007 sera o primeiro experimento clean do v0.6, apos o welding
-do algoritmo (alg16 + M8.A composicional) do dirty para `src/`. Em
-andamento — ver
+EXP-007 foi o primeiro experimento clean do v0.6, apos o welding do
+algoritmo (alg16 + M8.A composicional) do dirty para `src/` — ver
 [`../dirty/notas/2026-05/welding-plan.md`](../dirty/notas/2026-05/welding-plan.md).
+Dai em diante o ciclo segue ativo.
 
 | EXP | Tema | Status |
 |---|---|---|
 | **EXP-007** | Prototipo TCF-CORE (`from tcf import encode, decode`) validado vs M14 baseline | **foi** (fechado 2026-05-17; RT 9/9 OK, byte-identico a M14) |
+| EXP-008 | TCF vs gzip/brotli/zstd/lzma/bz2 (4 formatos x 15 datasets) | foi |
+| EXP-009 | Pre-tx por natureza — meta-pasta (sub-experimentos nascem ao fechar macros dirty) | stub |
+| EXP-010 | Prototipo delta-aware do Pacote 1 (single-column, 20/20 RT) | ativo |
+| EXP-011 | Multi-column basic (per-coluna independente, RT OK em D17a) | ativo |
+| EXP-012 | Real-world Adult Census via shaper (RT 4/4 OK) | foi |
+| EXP-013 | Real-world TPC-H, 8 tabelas (RT 8/8 OK apos ADR-0007) | foi |
+| EXP-014 | Escala de performance no lineitem (1k-20k + full 60175) | foi |
+| EXP-015 | TCF hierarquico: le CSV e JSON, reverte pros dois (prototipo v0) | foi |
+| **EXP-016** | Familia bN/bits: bateria sintetica completa (72 casos, 11 familias, 4 provas por caso) | **foi** (fechado 2026-08-07; 0 falhas, bN ativa em 52) |
 
 ## Para entrar
 

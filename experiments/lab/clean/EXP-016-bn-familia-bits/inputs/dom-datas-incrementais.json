@@ -1,0 +1,15 @@
+{
+  "caso": "dom-datas-incrementais",
+  "familia": "F10 bN×RLE",
+  "porque": "domínio que o seq-RLE encadeia — o caso mais realista do colapso",
+  "espera": "ativa",
+  "n": 200,
+  "amostra": [
+    "2026-01-01",
+    "2026-01-02",
+    "2026-01-03",
+    "2026-01-01",
+    "2026-01-02",
+    "2026-01-03"
+  ]
+}

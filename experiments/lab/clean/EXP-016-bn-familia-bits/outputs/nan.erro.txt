@@ -1,0 +1,1 @@
+HierarchicalError: NaN/Infinity fora do JSON (RFC 8259) — não é P2

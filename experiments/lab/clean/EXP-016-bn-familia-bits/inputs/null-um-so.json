@@ -1,0 +1,15 @@
+{
+  "caso": "null-um-so",
+  "familia": "F2 null",
+  "porque": "1 null em N-1 iguais: k=2 mas RLE domina",
+  "espera": "qualquer",
+  "n": 200,
+  "amostra": [
+    null,
+    "x",
+    "x",
+    "x",
+    "x",
+    "x"
+  ]
+}

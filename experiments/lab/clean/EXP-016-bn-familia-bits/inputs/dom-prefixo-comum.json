@@ -1,0 +1,15 @@
+{
+  "caso": "dom-prefixo-comum",
+  "familia": "F10 bN×RLE",
+  "porque": "domínio que o OBAT/HCC fatora por afixo, sem seq-RLE",
+  "espera": "ativa",
+  "n": 200,
+  "amostra": [
+    "Self-emp-not-inc",
+    "Self-emp-inc",
+    "Self-gov",
+    "Self-emp-not-inc",
+    "Self-emp-inc",
+    "Self-gov"
+  ]
+}

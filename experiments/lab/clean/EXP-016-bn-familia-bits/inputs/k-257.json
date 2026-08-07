@@ -1,0 +1,15 @@
+{
+  "caso": "k-257",
+  "familia": "F3 bordas",
+  "porque": "k=257: PASSA do teto — o bN deve recusar e o core assumir",
+  "espera": "recusa",
+  "n": 514,
+  "amostra": [
+    "v0",
+    "v1",
+    "v2",
+    "v3",
+    "v4",
+    "v5"
+  ]
+}

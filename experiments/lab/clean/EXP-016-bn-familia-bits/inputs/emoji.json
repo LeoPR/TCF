@@ -1,0 +1,15 @@
+{
+  "caso": "emoji",
+  "familia": "F9 unicode",
+  "porque": "4 bytes por char — o domínio paga, o corpo não",
+  "espera": "ativa",
+  "n": 200,
+  "amostra": [
+    "🔥",
+    "✅",
+    "x",
+    "🔥",
+    "✅",
+    "x"
+  ]
+}

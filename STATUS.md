@@ -28,6 +28,7 @@
 > | **`T-MISTO-RLE-B64-SINGLE`** | ganho desconhecido | misto RLE+b64 no single-col tipado. CAVEAT: segmentação mista DERRUBADA no multi-col denso (0/18 real-world, bloco DECISÃO PENDENTE abaixo) — contexto diferente, mas medir real-world primeiro; serialização mais complexa |
 > | **`T-FORCAR-MECANISMO-PARAM`** | heurística/experimento | forçar mecanismo (RLE/b64/refs) via params — demanda explícita do owner; destrava medição de candidatos sem depender do FLOOR |
 > | **`T-TIPOS-CONFORTO-MAP`** | tipos de formulário como slots internos (ex. masc/fem = 14/15) | preparado em `src/tcf/tipos_internos.py` (fonte única, byte-neutro); o DESIGN do mapa (externo × config; alocação de índices) é decisão do owner — sem isso, nenhum tipo novo |
+> | **`T-ERRO-SET-ORDEM`** | reprodutibilidade, **byte-neutro no wire** | achado no EXP-016: `HierarchicalError` interpola um `set` cru (`tipos escalares MISTOS {'b', 'n'}`) e o repr varia com `PYTHONHASHSEED` — a mensagem muda de rodada pra rodada. Não afeta encode/decode, mas quebra diff de evidência e teste de mensagem. Fix: `sorted()` na interpolação. O lab normaliza no lado dele enquanto isso |
 > | **`T-LAZYTYPE-OUTROS`** | o padrão lazy nos outros tipos/specs | bool já é a **referência soldada** (ADR-0039, weld 2026-08-01); resta testar `n` (int/float + extras, ex. `"N/A"` em coluna numérica) e **revisar as natures/SPEC sob a lente unificada** (hoje caem no literal; cair no slot declarado?) — memorizado por direção do owner 2026-08-01 |
 > | **`T-MODO-JSON-IMITADOR`** | interop consciente com ecossistema json | param hipotético: TCF **alerta** como o json alertaria (nunca arruma); régua **medida** no lab `2026-08-01-0309` (29 casos: json-lib ALTERA em 0 casos que o TCF aceita — o conjunto de alertas ganha corpo com lazytype + cross-ecossistema); catálogo de alertas no `result.md` §2; sem flag, TCF faz tudo que pode; ambíguos "fogem" pro comportamento json |
 > | **`BUG-CHAVE-VAZIA-POSICIONAL`** | o ÚNICO caso onde o TCF **altera** | `{"":[…]}` → `{"0":[…]}` com warning (rota flat/multi trata `""` como anônima); `.8H` já preserva via escape. Opções no [ticket](tickets/BUG-CHAVE-VAZIA-POSICIONAL.md) — fail-loud × preservar |
@@ -1053,6 +1054,8 @@ nao guia de evolucao (cf. diretriz dados-realistas).
 | EXP-012-real-world-adult-census | Real-world Adult Census via shaper (RT 4/4 OK, ratio 38-42% em 100-5000 rows) | concluido |
 | EXP-013-real-world-tpch | Real-world TPC-H 8 tabelas (RT 8/8 OK apos welding ADR-0007; ratio 90.6% total raw->tcf) | concluido |
 | EXP-014-tpch-lineitem-scale | Performance scale lineitem (1k-20k + full 60175). Pre-ADR-0009: O(N^1.75) / 71min full. **Pos-ADR-0009: O(N^1.42) / 18.5min estimado, 21.3min REAL (+15%, RT OK).** RT 5/5 OK | concluido |
+| EXP-015-tcf-hierarquico-csv-json | Prototipo TCF.8H: JSON<->TCF.8H<->JSON preserva a arvore; CSV nao precisa de hierarquia | concluido |
+| EXP-016-bn-familia-bits | Bateria sintetica da familia bN + polaridade: 72 casos / 11 familias, 4 provas por caso (RT estrito, determinismo, nunca-pior, correcao≠bN). **0 falhas**; bN ativa em 52. Lacuna medida da rota tipada em `outputs/regimes-que-perdem.md` §2 (`T-BN-TIPADO`) | concluido |
 
 EXP-009.1+ ainda nao abertos (criterio: macro dirty fechar com hipotese
 confirmada).

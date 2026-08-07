@@ -1,0 +1,15 @@
+{
+  "caso": "bool-nativo-null",
+  "familia": "F1 bool/binário",
+  "porque": "com null o denso `b1` não se aplica; quem cobre é o `b2`/lazy",
+  "espera": "qualquer",
+  "n": 200,
+  "amostra": [
+    null,
+    true,
+    false,
+    null,
+    false,
+    true
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "caso": "escape-duplo",
+  "familia": "F7 escape",
+  "porque": "1, 2 e 3 barras: a injetividade sob repetição",
+  "espera": "ativa",
+  "n": 200,
+  "amostra": [
+    "\\",
+    "\\\\",
+    "\\\\\\",
+    "\\",
+    "\\\\",
+    "\\\\\\"
+  ]
+}

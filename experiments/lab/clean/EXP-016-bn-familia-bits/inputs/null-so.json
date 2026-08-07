@@ -1,0 +1,15 @@
+{
+  "caso": "null-so",
+  "familia": "F2 null",
+  "porque": "coluna 100% null: k=1, o core resolve com RLE",
+  "espera": "recusa",
+  "n": 200,
+  "amostra": [
+    null,
+    null,
+    null,
+    null,
+    null,
+    null
+  ]
+}

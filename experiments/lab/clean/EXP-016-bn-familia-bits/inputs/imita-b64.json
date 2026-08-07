@@ -1,0 +1,15 @@
+{
+  "caso": "imita-b64",
+  "familia": "F6 cabeçalho",
+  "porque": "o valor É base64 válido — não pode ser confundido com payload",
+  "espera": "ativa",
+  "n": 200,
+  "amostra": [
+    "GGGGGGGG",
+    "AAAA",
+    "x",
+    "GGGGGGGG",
+    "AAAA",
+    "x"
+  ]
+}

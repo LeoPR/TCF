@@ -1,0 +1,15 @@
+{
+  "caso": "fronteira-len08",
+  "familia": "F11 fronteira",
+  "porque": "len(valor)=8 com k=4: o teto real é `k x len(valor)`, não `k`",
+  "espera": "qualquer",
+  "n": 200,
+  "amostra": [
+    "xxxxxxxa",
+    "xxxxxxxb",
+    "xxxxxxxc",
+    "xxxxxxxd",
+    "xxxxxxxa",
+    "xxxxxxxb"
+  ]
+}

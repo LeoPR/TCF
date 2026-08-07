@@ -1,0 +1,15 @@
+{
+  "caso": "bool-nativo",
+  "familia": "F1 bool/binário",
+  "porque": "bool Python puro: o modo denso `b1` tem domínio IMPLÍCITO e deve vencer o bN",
+  "espera": "recusa",
+  "n": 200,
+  "amostra": [
+    false,
+    true,
+    false,
+    true,
+    false,
+    true
+  ]
+}

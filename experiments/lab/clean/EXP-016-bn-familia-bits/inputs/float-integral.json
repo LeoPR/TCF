@@ -1,0 +1,15 @@
+{
+  "caso": "float-integral",
+  "familia": "F8 tipos",
+  "porque": "float que parece int no `repr`",
+  "espera": "qualquer",
+  "n": 200,
+  "amostra": [
+    1.0,
+    2.0,
+    1.0,
+    2.0,
+    1.0,
+    2.0
+  ]
+}

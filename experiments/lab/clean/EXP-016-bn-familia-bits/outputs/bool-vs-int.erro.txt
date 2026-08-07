@@ -1,0 +1,1 @@
+HierarchicalError: tipos escalares MISTOS {'b', 'n'} numa coluna — union/tipo-misto no mesmo slot está fora do #TCF.8H (fronteira declarada, ratificada 2026-07-17) — separe por tipo, OU converta a coluna toda para string (o TCF faz round-trip de qualquer string)

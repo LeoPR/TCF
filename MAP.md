@@ -112,6 +112,7 @@ TCF/
 | **Lazy/queryable view** (descomprimir o minimo) | `src/tcf/view.py` (`from tcf import view`; A4) · reference `docs/reference/lazy-view.md` · design 0.9 `experiments/lab/dirty/notas/2026-06/hquery01-decode-dag-indices-design.md` |
 | Knobs de encode + view (reference) | `docs/reference/encode-knobs.md`, `docs/reference/lazy-view.md` |
 | **TCF ↔ JSON — equivalências** (o que traduz, o que faz a mais, a fronteira) | `docs/reference/json-equivalence.md` (semente do manual; wires confirmados por execução) |
+| **Família bN — bits densos de domínio** (wire `#TCF.8B`/`C`, marcador `=`, slot nulo, quando ativa, integridade b64, canonicidade) | `docs/reference/familia-bn-bits.md` (**manual preliminar**; wires medidos) · contraprova `experiments/lab/clean/EXP-016-bn-familia-bits/` (72 casos, 0 falhas) · ADR-0035/0036 |
 | Entender uma decisao tomada | `docs/adr/` (numerada) ou `experiments/lab/dirty/notas/diario/` |
 | Continuar um sub-experimento | `experiments/lab/dirty/<YYYY-MM>/<YYYY-MM-DD>/<lab>/<sub-exp>/README.md` |
 | Comparar EXP-010 ao baseline | `experiments/lab/clean/EXP-010-*/report.md` |

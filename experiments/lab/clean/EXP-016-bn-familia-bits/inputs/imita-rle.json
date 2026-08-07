@@ -1,0 +1,15 @@
+{
+  "caso": "imita-rle",
+  "familia": "F6 cabeçalho",
+  "porque": "o valor parece marcador RLE / seq-RLE",
+  "espera": "ativa",
+  "n": 200,
+  "amostra": [
+    "*3|x",
+    "*2+1|y",
+    "z",
+    "*3|x",
+    "*2+1|y",
+    "z"
+  ]
+}

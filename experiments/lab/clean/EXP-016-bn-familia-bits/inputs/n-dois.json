@@ -1,0 +1,11 @@
+{
+  "caso": "n-dois",
+  "familia": "F3 bordas",
+  "porque": "k=2 com n=2: o cabeçalho+domínio não se pagam",
+  "espera": "recusa",
+  "n": 2,
+  "amostra": [
+    "a",
+    "b"
+  ]
+}

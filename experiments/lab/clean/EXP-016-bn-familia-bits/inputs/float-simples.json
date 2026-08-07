@@ -1,0 +1,15 @@
+{
+  "caso": "float-simples",
+  "familia": "F8 tipos",
+  "porque": "float k=3: rota tipada `n`; o bN não entra (T-BN-TIPADO)",
+  "espera": "qualquer",
+  "n": 200,
+  "amostra": [
+    1.5,
+    2.5,
+    3.5,
+    1.5,
+    2.5,
+    3.5
+  ]
+}

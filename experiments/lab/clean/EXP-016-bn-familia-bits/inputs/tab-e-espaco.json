@@ -1,0 +1,15 @@
+{
+  "caso": "tab-e-espaco",
+  "familia": "F4 espaços",
+  "porque": "tab é whitespace mas não é o separador do formato",
+  "espera": "ativa",
+  "n": 200,
+  "amostra": [
+    "\t",
+    " ",
+    "\t ",
+    "\t",
+    " ",
+    "\t "
+  ]
+}

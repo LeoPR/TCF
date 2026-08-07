@@ -1,0 +1,11 @@
+{
+  "caso": "inf",
+  "familia": "F8 tipos",
+  "porque": "±Inf: idem",
+  "espera": "qualquer",
+  "n": 2,
+  "amostra": [
+    1.0,
+    Infinity
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "caso": "dom-seqrle-alfanum",
+  "familia": "F10 bN×RLE",
+  "porque": "idem com prefixo: `*5+1|A\u0001`",
+  "espera": "ativa",
+  "n": 200,
+  "amostra": [
+    "A1",
+    "A2",
+    "A3",
+    "A4",
+    "A5",
+    "A1"
+  ]
+}

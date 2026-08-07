@@ -1,0 +1,15 @@
+{
+  "caso": "circunflexo-lider",
+  "familia": "F7 escape",
+  "porque": "`^` líder é escapado à parte pelo core",
+  "espera": "ativa",
+  "n": 200,
+  "amostra": [
+    "^topo",
+    "meio^",
+    "^",
+    "^topo",
+    "meio^",
+    "^"
+  ]
+}

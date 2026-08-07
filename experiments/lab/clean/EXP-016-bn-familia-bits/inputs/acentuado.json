@@ -1,0 +1,15 @@
+{
+  "caso": "acentuado",
+  "familia": "F9 unicode",
+  "porque": "acentos: 2 bytes por char em UTF-8",
+  "espera": "ativa",
+  "n": 200,
+  "amostra": [
+    "café",
+    "ção",
+    "naïve",
+    "café",
+    "ção",
+    "naïve"
+  ]
+}

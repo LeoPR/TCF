@@ -1,0 +1,8 @@
+{
+  "caso": "n-zero",
+  "familia": "F3 bordas",
+  "porque": "coluna vazia: `[]` tem grafia própria (`#TCF.8\\n`)",
+  "espera": "recusa",
+  "n": 0,
+  "amostra": []
+}

@@ -1,0 +1,15 @@
+{
+  "caso": "fronteira-n11",
+  "familia": "F11 fronteira",
+  "porque": "n=11: a vizinhança da virada em k=2 (medida em ~10 no lab 1608)",
+  "espera": "qualquer",
+  "n": 11,
+  "amostra": [
+    "a",
+    "b",
+    "a",
+    "b",
+    "a",
+    "b"
+  ]
+}

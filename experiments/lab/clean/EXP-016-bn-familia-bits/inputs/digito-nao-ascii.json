@@ -1,0 +1,15 @@
+{
+  "caso": "digito-nao-ascii",
+  "familia": "F5 número",
+  "porque": "dígito árabe-índico e sobrescrito: `str.isdigit()` aceita, o formato não deve confundir",
+  "espera": "ativa",
+  "n": 200,
+  "amostra": [
+    "٢",
+    "2",
+    "²",
+    "٢",
+    "2",
+    "²"
+  ]
+}

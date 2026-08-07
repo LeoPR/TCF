@@ -1,0 +1,15 @@
+{
+  "caso": "zeros-a-esquerda",
+  "familia": "F5 número",
+  "porque": "`0`, `00`, `000` são valores DISTINTOS — não podem colapsar",
+  "espera": "ativa",
+  "n": 200,
+  "amostra": [
+    "0",
+    "00",
+    "000",
+    "0",
+    "00",
+    "000"
+  ]
+}

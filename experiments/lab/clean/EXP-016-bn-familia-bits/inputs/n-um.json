@@ -1,0 +1,10 @@
+{
+  "caso": "n-um",
+  "familia": "F3 bordas",
+  "porque": "1 valor: k=1",
+  "espera": "recusa",
+  "n": 1,
+  "amostra": [
+    "x"
+  ]
+}

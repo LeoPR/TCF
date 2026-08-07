@@ -1,0 +1,15 @@
+{
+  "caso": "dom-seqrle-colapsa",
+  "familia": "F10 bN×RLE",
+  "porque": "o seq-RLE colapsa o domínio inteiro em `*4+1|@` — 4 valores, 1 linha",
+  "espera": "ativa",
+  "n": 200,
+  "amostra": [
+    "100",
+    "101",
+    "102",
+    "103",
+    "100",
+    "101"
+  ]
+}

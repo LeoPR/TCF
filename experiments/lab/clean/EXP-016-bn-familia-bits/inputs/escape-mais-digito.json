@@ -1,0 +1,15 @@
+{
+  "caso": "escape-mais-digito",
+  "familia": "F7 escape",
+  "porque": "`\\1` (literal) × `1` (que o core escaparia) — a colisão de grafia",
+  "espera": "ativa",
+  "n": 200,
+  "amostra": [
+    "\\1",
+    "\\12",
+    "1",
+    "\\1",
+    "\\12",
+    "1"
+  ]
+}

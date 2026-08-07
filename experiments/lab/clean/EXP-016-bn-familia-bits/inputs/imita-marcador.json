@@ -1,0 +1,15 @@
+{
+  "caso": "imita-marcador",
+  "familia": "F6 cabeçalho",
+  "porque": "o valor começa com o marcador `=` que abre o bloco de bits",
+  "espera": "ativa",
+  "n": 200,
+  "amostra": [
+    "=AAAA",
+    "x",
+    "=AAAA",
+    "x",
+    "=AAAA",
+    "x"
+  ]
+}

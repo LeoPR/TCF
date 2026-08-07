@@ -1,0 +1,15 @@
+{
+  "caso": "til-e-asterisco",
+  "familia": "F7 escape",
+  "porque": "os separadores dentro do valor",
+  "espera": "ativa",
+  "n": 200,
+  "amostra": [
+    "a~b",
+    "a*b",
+    "a|b",
+    "a~b",
+    "a*b",
+    "a|b"
+  ]
+}

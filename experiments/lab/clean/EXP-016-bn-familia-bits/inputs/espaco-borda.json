@@ -1,0 +1,15 @@
+{
+  "caso": "espaco-borda",
+  "familia": "F4 espaços",
+  "porque": "espaço no início/fim/ambos: o core NÃO faz strip (regressão conhecida)",
+  "espera": "ativa",
+  "n": 200,
+  "amostra": [
+    " a",
+    "a ",
+    " a ",
+    " a",
+    "a ",
+    " a "
+  ]
+}

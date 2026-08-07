@@ -1,0 +1,15 @@
+{
+  "caso": "imita-magic",
+  "familia": "F6 cabeçalho",
+  "porque": "o valor É o magic do formato",
+  "espera": "ativa",
+  "n": 200,
+  "amostra": [
+    "#TCF.8",
+    "x",
+    "#TCF.8",
+    "x",
+    "#TCF.8",
+    "x"
+  ]
+}

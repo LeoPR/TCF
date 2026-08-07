@@ -1,0 +1,15 @@
+{
+  "caso": "bool-vs-int",
+  "familia": "F8 tipos",
+  "porque": "`True == 1` em Python. FRONTEIRA DECLARADA: união bool+int no mesmo slot está fora do `.8H` (ratificada 2026-07-17) — tem de falhar alto, não deduplicar em silêncio",
+  "espera": "qualquer",
+  "n": 200,
+  "amostra": [
+    true,
+    1,
+    false,
+    0,
+    true,
+    1
+  ]
+}

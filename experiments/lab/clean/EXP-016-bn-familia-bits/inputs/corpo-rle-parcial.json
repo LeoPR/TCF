@@ -1,0 +1,15 @@
+{
+  "caso": "corpo-rle-parcial",
+  "familia": "F10 bN×RLE",
+  "porque": "blocos de 3 iguais: RLE parcial contra bits fixos",
+  "espera": "qualquer",
+  "n": 200,
+  "amostra": [
+    "a",
+    "a",
+    "a",
+    "b",
+    "a",
+    "a"
+  ]
+}

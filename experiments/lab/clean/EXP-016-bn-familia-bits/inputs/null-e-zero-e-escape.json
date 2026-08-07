@@ -1,0 +1,15 @@
+{
+  "caso": "null-e-zero-e-escape",
+  "familia": "F2 null",
+  "porque": "os TRÊS: null, `\"0\"` e `\"\\0\"` — a injetividade de `_grafa` no limite",
+  "espera": "ativa",
+  "n": 200,
+  "amostra": [
+    null,
+    "0",
+    "\\0",
+    null,
+    "0",
+    "\\0"
+  ]
+}

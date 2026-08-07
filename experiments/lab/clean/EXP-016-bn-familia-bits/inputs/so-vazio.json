@@ -1,0 +1,15 @@
+{
+  "caso": "so-vazio",
+  "familia": "F4 espaços",
+  "porque": "todos vazios: k=1",
+  "espera": "recusa",
+  "n": 200,
+  "amostra": [
+    "",
+    "",
+    "",
+    "",
+    "",
+    ""
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "caso": "underscore-numerico",
+  "familia": "F5 número",
+  "porque": "PEP 515: `int('1_000')` funciona — como dado são distintos",
+  "espera": "ativa",
+  "n": 200,
+  "amostra": [
+    "1_000",
+    "1000",
+    "1_000",
+    "1000",
+    "1_000",
+    "1000"
+  ]
+}

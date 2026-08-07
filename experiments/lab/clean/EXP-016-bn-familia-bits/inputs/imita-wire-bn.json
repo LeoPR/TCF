@@ -1,0 +1,15 @@
+{
+  "caso": "imita-wire-bn",
+  "familia": "F6 cabeçalho",
+  "porque": "o valor é um CABEÇALHO bN completo",
+  "espera": "ativa",
+  "n": 200,
+  "amostra": [
+    "#TCF.8B2c8",
+    "x",
+    "#TCF.8B2c8",
+    "x",
+    "#TCF.8B2c8",
+    "x"
+  ]
+}

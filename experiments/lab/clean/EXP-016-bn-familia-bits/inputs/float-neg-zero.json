@@ -1,0 +1,15 @@
+{
+  "caso": "float-neg-zero",
+  "familia": "F8 tipos",
+  "porque": "`-0.0 == 0.0` em Python: só o `copysign` distingue",
+  "espera": "qualquer",
+  "n": 200,
+  "amostra": [
+    -0.0,
+    0.0,
+    1.0,
+    -0.0,
+    0.0,
+    1.0
+  ]
+}

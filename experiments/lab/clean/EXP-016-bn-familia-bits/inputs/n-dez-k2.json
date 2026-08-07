@@ -1,0 +1,15 @@
+{
+  "caso": "n-dez-k2",
+  "familia": "F3 bordas",
+  "porque": "n=10 é ~onde o bN passa a ganhar (medido no lab 1608)",
+  "espera": "qualquer",
+  "n": 10,
+  "amostra": [
+    "a",
+    "b",
+    "a",
+    "b",
+    "a",
+    "b"
+  ]
+}

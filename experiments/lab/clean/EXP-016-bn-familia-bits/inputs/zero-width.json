@@ -1,0 +1,15 @@
+{
+  "caso": "zero-width",
+  "familia": "F9 unicode",
+  "porque": "zero-width space: invisível mas distinto",
+  "espera": "ativa",
+  "n": 200,
+  "amostra": [
+    "a​b",
+    "ab",
+    "a",
+    "a​b",
+    "ab",
+    "a"
+  ]
+}

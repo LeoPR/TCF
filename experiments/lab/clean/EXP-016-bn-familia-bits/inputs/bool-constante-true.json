@@ -1,0 +1,15 @@
+{
+  "caso": "bool-constante-true",
+  "familia": "F1 bool/binário",
+  "porque": "k=1: o core resolve com RLE; o bN nem se qualifica",
+  "espera": "recusa",
+  "n": 200,
+  "amostra": [
+    true,
+    true,
+    true,
+    true,
+    true,
+    true
+  ]
+}

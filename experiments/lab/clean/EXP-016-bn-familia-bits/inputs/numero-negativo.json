@@ -1,0 +1,15 @@
+{
+  "caso": "numero-negativo",
+  "familia": "F5 número",
+  "porque": "`-0` × `0`: distintos como string",
+  "espera": "ativa",
+  "n": 200,
+  "amostra": [
+    "-0",
+    "0",
+    "-1",
+    "-0",
+    "0",
+    "-1"
+  ]
+}

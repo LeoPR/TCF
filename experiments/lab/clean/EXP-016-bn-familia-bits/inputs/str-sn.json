@@ -1,0 +1,15 @@
+{
+  "caso": "str-sn",
+  "familia": "F1 bool/binário",
+  "porque": "binário não-numérico: nenhum escape de dígito envolvido",
+  "espera": "ativa",
+  "n": 200,
+  "amostra": [
+    "S",
+    "N",
+    "S",
+    "N",
+    "S",
+    "N"
+  ]
+}

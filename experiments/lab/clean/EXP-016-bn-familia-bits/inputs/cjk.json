@@ -1,0 +1,15 @@
+{
+  "caso": "cjk",
+  "familia": "F9 unicode",
+  "porque": "3 bytes por char",
+  "espera": "ativa",
+  "n": 200,
+  "amostra": [
+    "日本",
+    "中文",
+    "한글",
+    "日本",
+    "中文",
+    "한글"
+  ]
+}

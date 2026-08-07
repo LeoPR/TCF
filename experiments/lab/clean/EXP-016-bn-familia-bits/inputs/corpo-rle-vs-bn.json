@@ -1,0 +1,15 @@
+{
+  "caso": "corpo-rle-vs-bn",
+  "familia": "F10 bN×RLE",
+  "porque": "corpo perfeitamente RLE-ável (2 blocos): o core faz `*100|a`+`*100|b` e VENCE o bN",
+  "espera": "recusa",
+  "n": 200,
+  "amostra": [
+    "a",
+    "a",
+    "a",
+    "a",
+    "a",
+    "a"
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "caso": "imita-referencia",
+  "familia": "F6 cabeçalho",
+  "porque": "o valor parece referência de linha do core",
+  "espera": "ativa",
+  "n": 200,
+  "amostra": [
+    "^1",
+    "^2",
+    "x",
+    "^1",
+    "^2",
+    "x"
+  ]
+}

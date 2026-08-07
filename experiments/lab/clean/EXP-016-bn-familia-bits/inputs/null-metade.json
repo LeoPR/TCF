@@ -1,0 +1,15 @@
+{
+  "caso": "null-metade",
+  "familia": "F2 null",
+  "porque": "null alternado — exerce o slot 0 no meio do stream",
+  "espera": "qualquer",
+  "n": 200,
+  "amostra": [
+    null,
+    "v1",
+    null,
+    "v0",
+    null,
+    "v2"
+  ]
+}
