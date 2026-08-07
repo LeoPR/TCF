@@ -19,6 +19,7 @@
 > | **`T-SPEC-L0L1`** | detecção automática de spec | **muda byte**; CPU piloto |
 > | **`T-FEATURES-STREAM`** | perfil parcial em `k=20` | destrava decisão precoce |
 > | **`T-OBAT-TRIGRAMA`** | CPU | bucket por `min_len` em vez de 3 fixo |
+> | **`T-B64-BITS-MORTOS`** | trocar O(n) por O(1) | a re-codificacao custa ~0,17%; checar so' os bits mortos do ultimo char da' a MESMA garantia em O(1). So' vale se o custo um dia importar — medido em `2026-08-06-2250` |
 > | **`T-GRAFIA-CHECKLIST`** | previne a 6a recorrencia | a assimetria escapar/desescapar ja' apareceu **5 vezes**; a frase no ADR nao impediu — o teste impede |
 > | **`T-DENSO-PADDING`** | 1-2 B em ~2/3 dos wires densos | os densos `b1` e `b2` emitem padding `=`, o bN nao; o padding e' deduzivel de `n` e `w` (vale pros dois modos, ADR-0037) |
 > | **`T-FLOAT-SLOTS`** | NaN/±Inf hoje é fail-loud | falta fixar a **ordem canônica dos slots reservados**. Precedente fixado p/ bool (ADR-0037): **null=0, valores na ordem de declaração do tipo** |
