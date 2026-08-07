@@ -2,7 +2,7 @@
   "caso": "int-grande",
   "familia": "F8 tipos",
   "porque": "int além de 64 bits",
-  "espera": "qualquer",
+  "espera": "recusa",
   "n": 200,
   "amostra": [
     1000000000000000000,

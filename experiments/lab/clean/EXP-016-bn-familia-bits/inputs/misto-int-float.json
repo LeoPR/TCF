@@ -2,7 +2,7 @@
   "caso": "misto-int-float",
   "familia": "F8 tipos",
   "porque": "int e float na MESMA coluna",
-  "espera": "qualquer",
+  "espera": "recusa",
   "n": 200,
   "amostra": [
     1,

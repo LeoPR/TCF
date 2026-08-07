@@ -2,7 +2,7 @@
   "caso": "null-e-zero",
   "familia": "F2 null",
   "porque": "o par crítico mínimo: slot nulo (`0` cru) × literal `\"0\"` (`\\0`)",
-  "espera": "qualquer",
+  "espera": "ativa",
   "n": 200,
   "amostra": [
     null,

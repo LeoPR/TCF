@@ -2,7 +2,7 @@
   "caso": "corpo-rle-parcial",
   "familia": "F10 bN×RLE",
   "porque": "blocos de 3 iguais: RLE parcial contra bits fixos",
-  "espera": "qualquer",
+  "espera": "ativa",
   "n": 200,
   "amostra": [
     "a",

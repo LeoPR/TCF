@@ -2,7 +2,7 @@
   "caso": "fronteira-len01",
   "familia": "F11 fronteira",
   "porque": "len(valor)=1 com k=4: o teto real é `k x len(valor)`, não `k`",
-  "espera": "qualquer",
+  "espera": "ativa",
   "n": 200,
   "amostra": [
     "a",

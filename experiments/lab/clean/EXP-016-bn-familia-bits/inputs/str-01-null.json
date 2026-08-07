@@ -2,7 +2,7 @@
   "caso": "str-01-null",
   "familia": "F1 bool/binário",
   "porque": "`\"0\"` como dado E o slot nulo na mesma coluna — a colisão que custou 4 bugs",
-  "espera": "qualquer",
+  "espera": "ativa",
   "n": 200,
   "amostra": [
     null,

@@ -54,8 +54,16 @@ medido; então a checagem virou prova.
 | **F11** fronteira | as larguras `w ∈ {1,2,4,8}` e o salto entre elas |
 
 O catálogo é [`casos.py`](casos.py) — declarativo. Cada caso traz `nome`, `familia`,
-`valores`, `porque` (por que existe), `espera` (`ativa`/`recusa`/`qualquer`) e `falha` (a
-exceção esperada, quando o caso é de fail-loud).
+`valores`, `porque` (por que existe), `espera` (`ativa`/`recusa`) e `falha` (a exceção
+esperada, quando o caso é de fail-loud).
+
+**`espera` é um pin, não uma descrição.** Todo caso que produz wire declara `ativa` ou
+`recusa` — 52 e 17. Só os 3 casos de `falha` ficam em `qualquer`, e ali por construção:
+levantam antes de haver rota. Isso importa porque um caso que aceita qualquer rota não
+prova nada sobre o FLOOR — vira teste de RT com nome de teste de decisão. Com o pin,
+**mudar a decisão do FLOOR quebra o lab**, que é o ponto; quando um ticket mover a
+fronteira de propósito (o `T-BN-TIPADO` vai mover 6 destes de `recusa` pra `ativa`),
+re-pinar é parte do weld — mesmo regime dos baselines de bytes (ADR-0024).
 
 ## Resultado (medido, `report.md`)
 

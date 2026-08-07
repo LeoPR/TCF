@@ -2,7 +2,7 @@
   "caso": "int-01",
   "familia": "F1 bool/binário",
   "porque": "`0`/`1` como int: rota tipada `n`, não flat — o bN não alcança (T-BN-TIPADO)",
-  "espera": "qualquer",
+  "espera": "recusa",
   "n": 200,
   "amostra": [
     0,

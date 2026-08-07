@@ -13,8 +13,18 @@ comprobatório de um descritivo.
     espera      'ativa' (o bN vence o FLOOR) | 'recusa' (o core vence) | 'qualquer'
     falha       se o encode deve levantar (tipo de exceção esperado) ou None
 
-`espera='qualquer'` é usado onde o resultado depende de detalhe de compressão que não é o
-alvo do caso — ali o que se testa é RT e estabilidade, não a escolha do FLOOR.
+## `espera` é um PIN, não uma descrição
+
+Todo caso que chega a produzir wire declara `'ativa'` ou `'recusa'` — **52 e 17**. Só os
+3 casos de `falha` ficam em `'qualquer'`, e ali por construção: eles levantam antes de
+haver rota pra classificar.
+
+`'qualquer'` era o default e 25 casos o herdavam por omissão. Um caso que aceita qualquer
+rota não prova nada sobre o FLOOR: ele vira um teste de RT com nome de teste de decisão.
+Foram fixados no que de fato acontece, e a partir daí **mudar a decisão do FLOOR quebra o
+lab** — que é o ponto. Quando um ticket mover a fronteira de propósito (o `T-BN-TIPADO`
+vai mover 6 destes de `recusa` pra `ativa`), re-pinar é parte do weld, do mesmo jeito que
+os baselines de bytes são re-pináveis (ADR-0024).
 
 `src/tcf` NÃO é tocado por este lab.
 """
@@ -34,6 +44,8 @@ CASOS: list[dict] = []
 
 
 def _c(nome, familia, valores, porque, espera="qualquer", falha=None):
+    # `espera` continua com default por causa dos casos de `falha`; caso NOVO que produza
+    # wire deve declarar. Ver "espera é um PIN" no topo.
     CASOS.append({"nome": nome, "familia": familia, "valores": valores,
                   "porque": porque, "espera": espera, "falha": falha})
 
@@ -43,32 +55,32 @@ _c("bool-nativo", "F1 bool/binário", [bool(i % 2) for i in range(N)],
    "bool Python puro: o modo denso `b1` tem domínio IMPLÍCITO e deve vencer o bN",
    espera="recusa")
 _c("bool-nativo-null", "F1 bool/binário", [None if i % 3 == 0 else bool(i % 2) for i in range(N)],
-   "com null o denso `b1` não se aplica; quem cobre é o `b2`/lazy")
+   "com null o denso `b1` não se aplica; quem cobre é o `b2`/lazy", espera="recusa")
 _c("bool-constante-true", "F1 bool/binário", [True] * N,
    "k=1: o core resolve com RLE; o bN nem se qualifica", espera="recusa")
 _c("str-01", "F1 bool/binário", _cic(["0", "1"]),
    "o caso que abriu a investigação: `\"0\"`/`\"1\"` como STRING", espera="ativa")
 _c("str-01-null", "F1 bool/binário", [None if i % 4 == 0 else str(i % 2) for i in range(N)],
-   "`\"0\"` como dado E o slot nulo na mesma coluna — a colisão que custou 4 bugs")
+   "`\"0\"` como dado E o slot nulo na mesma coluna — a colisão que custou 4 bugs", espera="ativa")
 _c("str-sn", "F1 bool/binário", _cic(["S", "N"]),
    "binário não-numérico: nenhum escape de dígito envolvido", espera="ativa")
 _c("str-true-false", "F1 bool/binário", _cic(["true", "false"]),
    "as PALAVRAS que o denso usa implicitamente, mas como string de dado", espera="ativa")
 _c("int-01", "F1 bool/binário", _cic([0, 1]),
-   "`0`/`1` como int: rota tipada `n`, não flat — o bN não alcança (T-BN-TIPADO)")
+   "`0`/`1` como int: rota tipada `n`, não flat — o bN não alcança (T-BN-TIPADO)", espera="recusa")
 
 # ── F2. NULL em todas as densidades ──────────────────────────────────────────
 _c("null-so", "F2 null", [None] * N,
    "coluna 100% null: k=1, o core resolve com RLE", espera="recusa")
 _c("null-um-so", "F2 null", [None] + ["x"] * (N - 1),
-   "1 null em N-1 iguais: k=2 mas RLE domina")
+   "1 null em N-1 iguais: k=2 mas RLE domina", espera="recusa")
 _c("null-metade", "F2 null", [None if i % 2 == 0 else f"v{i % 3}" for i in range(N)],
-   "null alternado — exerce o slot 0 no meio do stream")
+   "null alternado — exerce o slot 0 no meio do stream", espera="ativa")
 _c("null-e-vazio", "F2 null", _cic([None, "", "x"]),
    "null E string vazia na MESMA coluna: dois 'nadas' que não podem se fundir",
    espera="ativa")
 _c("null-e-zero", "F2 null", _cic([None, "0"]),
-   "o par crítico mínimo: slot nulo (`0` cru) × literal `\"0\"` (`\\0`)")
+   "o par crítico mínimo: slot nulo (`0` cru) × literal `\"0\"` (`\\0`)", espera="ativa")
 _c("null-e-zero-e-escape", "F2 null", _cic([None, "0", BS + "0"]),
    "os TRÊS: null, `\"0\"` e `\"\\0\"` — a injetividade de `_grafa` no limite", espera="ativa")
 
@@ -80,7 +92,7 @@ _c("n-um", "F3 bordas", ["x"],
 _c("n-dois", "F3 bordas", ["a", "b"],
    "k=2 com n=2: o cabeçalho+domínio não se pagam", espera="recusa")
 _c("n-dez-k2", "F3 bordas", _cic(["a", "b"], 10),
-   "n=10 é ~onde o bN passa a ganhar (medido no lab 1608)")
+   "n=10 é ~onde o bN passa a ganhar (medido no lab 1608)", espera="ativa")
 _c("k-256", "F3 bordas", [f"v{i % 256}" for i in range(512)],
    "k=256 = 2^8: o TETO do namespace, w=8", espera="ativa")
 _c("k-257", "F3 bordas", [f"v{i % 257}" for i in range(514)],
@@ -149,19 +161,19 @@ _c("til-e-asterisco", "F7 escape", _cic(["a~b", "a*b", "a|b"]),
 
 # ── F8. Tipos especiais (rota tipada — o bN não alcança hoje) ───────────────
 _c("float-simples", "F8 tipos", _cic([1.5, 2.5, 3.5]),
-   "float k=3: rota tipada `n`; o bN não entra (T-BN-TIPADO)")
+   "float k=3: rota tipada `n`; o bN não entra (T-BN-TIPADO)", espera="recusa")
 _c("float-integral", "F8 tipos", _cic([1.0, 2.0]),
-   "float que parece int no `repr`")
+   "float que parece int no `repr`", espera="recusa")
 _c("float-neg-zero", "F8 tipos", _cic([-0.0, 0.0, 1.0]),
-   "`-0.0 == 0.0` em Python: só o `copysign` distingue")
+   "`-0.0 == 0.0` em Python: só o `copysign` distingue", espera="recusa")
 _c("misto-int-float", "F8 tipos", _cic([1, 2.5, 3, 4.5]),
-   "int e float na MESMA coluna")
+   "int e float na MESMA coluna", espera="recusa")
 _c("bool-vs-int", "F8 tipos", _cic([True, 1, False, 0]),
    "`True == 1` em Python. FRONTEIRA DECLARADA: união bool+int no mesmo slot está fora do "
    "`.8H` (ratificada 2026-07-17) — tem de falhar alto, não deduplicar em silêncio",
    falha=Exception)
 _c("int-grande", "F8 tipos", _cic([10 ** 18, 10 ** 18 + 1]),
-   "int além de 64 bits")
+   "int além de 64 bits", espera="recusa")
 _c("nan", "F8 tipos", [1.0, float("nan")],
    "NaN: fora do JSON (RFC 8259) — deve FALHAR ALTO", falha=Exception)
 _c("inf", "F8 tipos", [1.0, float("inf")],
@@ -196,15 +208,17 @@ _c("corpo-rle-vs-bn", "F10 bN×RLE", ["a"] * 100 + ["b"] * 100,
    "corpo perfeitamente RLE-ável (2 blocos): o core faz `*100|a`+`*100|b` e VENCE o bN",
    espera="recusa")
 _c("corpo-rle-parcial", "F10 bN×RLE", _cic(["a", "a", "a", "b"]),
-   "blocos de 3 iguais: RLE parcial contra bits fixos")
+   "blocos de 3 iguais: RLE parcial contra bits fixos", espera="ativa")
 
 # ── F11. A fronteira da decisão automática (o FLOOR) ────────────────────────
 # O FLOOR é `min()` sobre candidatos materializados. Estes casos varrem a vizinhança da
 # virada para checar que ela é ESTÁVEL (sem oscilação) e que o nunca-pior vale em cada passo.
 for _n in (8, 9, 10, 11, 12):
     _c(f"fronteira-n{_n:02d}", "F11 fronteira", _cic(["a", "b"], _n),
-       f"n={_n}: a vizinhança da virada em k=2 (medida em ~10 no lab 1608)")
+       f"n={_n}: a vizinhança da virada em k=2 (medida em ~10 no lab 1608)",
+       espera="ativa")
 for _lv in (1, 8, 16, 32):
     _c(f"fronteira-len{_lv:02d}", "F11 fronteira",
        _cic([("x" * _lv + s)[-_lv:] for s in "abcd"]),
-       f"len(valor)={_lv} com k=4: o teto real é `k x len(valor)`, não `k`")
+       f"len(valor)={_lv} com k=4: o teto real é `k x len(valor)`, não `k`",
+       espera="ativa")

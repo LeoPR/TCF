@@ -18,23 +18,23 @@
 | caso | rota | bytes | sem bN | espera | veredito | por que existe |
 |---|---|---:|---:|:-:|:-:|---|
 | `bool-nativo` | tipado-b | 47 | — | recusa | OK | bool Python puro: o modo denso `b1` tem domínio IMPLÍCITO e deve vencer o bN |
-| `bool-nativo-null` | tipado-b | 79 | — | qualquer | OK | com null o denso `b1` não se aplica; quem cobre é o `b2`/lazy |
+| `bool-nativo-null` | tipado-b | 79 | — | recusa | OK | com null o denso `b1` não se aplica; quem cobre é o `b2`/lazy |
 | `bool-constante-true` | tipado-b | 16 | — | recusa | OK | k=1: o core resolve com RLE; o bN nem se qualifica |
 | `str-01` | bN-B | 54 | 607 | ativa | OK | o caso que abriu a investigação: `"0"`/`"1"` como STRING |
-| `str-01-null` | bN-B | 90 | 557 | qualquer | OK | `"0"` como dado E o slot nulo na mesma coluna — a colisão que custou 4 bugs |
+| `str-01-null` | bN-B | 90 | 557 | ativa | OK | `"0"` como dado E o slot nulo na mesma coluna — a colisão que custou 4 bugs |
 | `str-sn` | bN-B | 50 | 605 | ativa | OK | binário não-numérico: nenhum escape de dígito envolvido |
 | `str-true-false` | bN-B | 57 | 612 | ativa | OK | as PALAVRAS que o denso usa implicitamente, mas como string de dado |
-| `int-01` | tipado-n | 608 | — | qualquer | OK | `0`/`1` como int: rota tipada `n`, não flat — o bN não alcança (T-BN-TIPADO) |
+| `int-01` | tipado-n | 608 | — | recusa | OK | `0`/`1` como int: rota tipada `n`, não flat — o bN não alcança (T-BN-TIPADO) |
 
 ## F2 null
 
 | caso | rota | bytes | sem bN | espera | veredito | por que existe |
 |---|---|---:|---:|:-:|:-:|---|
 | `null-so` | core | 14 | 14 | recusa | OK | coluna 100% null: k=1, o core resolve com RLE |
-| `null-um-so` | core | 16 | 16 | qualquer | OK | 1 null em N-1 iguais: k=2 mas RLE domina |
-| `null-metade` | bN-B | 94 | 510 | qualquer | OK | null alternado — exerce o slot 0 no meio do stream |
+| `null-um-so` | core | 16 | 16 | recusa | OK | 1 null em N-1 iguais: k=2 mas RLE domina |
+| `null-metade` | bN-B | 94 | 510 | ativa | OK | null alternado — exerce o slot 0 no meio do stream |
 | `null-e-vazio` | bN-B | 85 | 537 | ativa | OK | null E string vazia na MESMA coluna: dois 'nadas' que não podem se fundir |
-| `null-e-zero` | bN-B | 54 | 507 | qualquer | OK | o par crítico mínimo: slot nulo (`0` cru) × literal `"0"` (`\0`) |
+| `null-e-zero` | bN-B | 54 | 507 | ativa | OK | o par crítico mínimo: slot nulo (`0` cru) × literal `"0"` (`\0`) |
 | `null-e-zero-e-escape` | bN-B | 94 | 542 | ativa | OK | os TRÊS: null, `"0"` e `"\0"` — a injetividade de `_grafa` no limite |
 
 ## F3 bordas
@@ -44,7 +44,7 @@
 | `n-zero` | core | 7 | — | recusa | OK | coluna vazia: `[]` tem grafia própria (`#TCF.8\n`) |
 | `n-um` | core | 9 | 9 | recusa | OK | 1 valor: k=1 |
 | `n-dois` | core | 11 | 11 | recusa | OK | k=2 com n=2: o cabeçalho+domínio não se pagam |
-| `n-dez-k2` | bN-B | 18 | 35 | qualquer | OK | n=10 é ~onde o bN passa a ganhar (medido no lab 1608) |
+| `n-dez-k2` | bN-B | 18 | 35 | ativa | OK | n=10 é ~onde o bN passa a ganhar (medido no lab 1608) |
 | `k-256` | bN-B | 730 | 1212 | ativa | OK | k=256 = 2^8: o TETO do namespace, w=8 |
 | `k-257` | core+pol | 1217 | 1217 | recusa | OK | k=257: PASSA do teto — o bN deve recusar e o core assumir |
 | `k-3-folga` | bN-B | 85 | 604 | ativa | OK | k=3 com w=2: sobra 1 slot — é onde o guard de largura NÃO pega slot extra |
@@ -96,12 +96,12 @@
 
 | caso | rota | bytes | sem bN | espera | veredito | por que existe |
 |---|---|---:|---:|:-:|:-:|---|
-| `float-simples` | tipado-n | 612 | — | qualquer | OK | float k=3: rota tipada `n`; o bN não entra (T-BN-TIPADO) |
-| `float-integral` | tipado-n+pol | 612 | — | qualquer | OK | float que parece int no `repr` |
-| `float-neg-zero` | tipado-n+pol | 614 | — | qualquer | OK | `-0.0 == 0.0` em Python: só o `copysign` distingue |
-| `misto-int-float` | tipado-n+pol | 610 | — | qualquer | OK | int e float na MESMA coluna |
+| `float-simples` | tipado-n | 612 | — | recusa | OK | float k=3: rota tipada `n`; o bN não entra (T-BN-TIPADO) |
+| `float-integral` | tipado-n+pol | 612 | — | recusa | OK | float que parece int no `repr` |
+| `float-neg-zero` | tipado-n+pol | 614 | — | recusa | OK | `-0.0 == 0.0` em Python: só o `copysign` distingue |
+| `misto-int-float` | tipado-n+pol | 610 | — | recusa | OK | int e float na MESMA coluna |
 | `bool-vs-int` | — | — | — | qualquer | fail-loud | `True == 1` em Python. FRONTEIRA DECLARADA: união bool+int no mesmo slot está fora do `.8H` (ratificada 2026-07-17) — tem de falhar alto, não deduplicar em silêncio |
-| `int-grande` | tipado-n | 629 | — | qualquer | OK | int além de 64 bits |
+| `int-grande` | tipado-n | 629 | — | recusa | OK | int além de 64 bits |
 | `nan` | — | — | — | qualquer | fail-loud | NaN: fora do JSON (RFC 8259) — deve FALHAR ALTO |
 | `inf` | — | — | — | qualquer | fail-loud | ±Inf: idem |
 
@@ -124,21 +124,21 @@
 | `dom-prefixo-comum` | bN-B | 110 | 629 | ativa | OK | domínio que o OBAT/HCC fatora por afixo, sem seq-RLE |
 | `dom-sem-estrutura` | bN-B | 95 | 611 | ativa | OK | domínio que NÃO comprime — o custo dele é o cru |
 | `corpo-rle-vs-bn` | core | 21 | 21 | recusa | OK | corpo perfeitamente RLE-ável (2 blocos): o core faz `*100\|a`+`*100\|b` e VENCE o bN |
-| `corpo-rle-parcial` | bN-B | 50 | 455 | qualquer | OK | blocos de 3 iguais: RLE parcial contra bits fixos |
+| `corpo-rle-parcial` | bN-B | 50 | 455 | ativa | OK | blocos de 3 iguais: RLE parcial contra bits fixos |
 
 ## F11 fronteira
 
 | caso | rota | bytes | sem bN | espera | veredito | por que existe |
 |---|---|---:|---:|:-:|:-:|---|
-| `fronteira-n08` | bN-B | 17 | 29 | qualquer | OK | n=8: a vizinhança da virada em k=2 (medida em ~10 no lab 1608) |
-| `fronteira-n09` | bN-B | 18 | 32 | qualquer | OK | n=9: a vizinhança da virada em k=2 (medida em ~10 no lab 1608) |
-| `fronteira-n10` | bN-B | 18 | 35 | qualquer | OK | n=10: a vizinhança da virada em k=2 (medida em ~10 no lab 1608) |
-| `fronteira-n11` | bN-B | 18 | 38 | qualquer | OK | n=11: a vizinhança da virada em k=2 (medida em ~10 no lab 1608) |
-| `fronteira-n12` | bN-B | 18 | 41 | qualquer | OK | n=12: a vizinhança da virada em k=2 (medida em ~10 no lab 1608) |
-| `fronteira-len01` | bN-B | 87 | 603 | qualquer | OK | len(valor)=1 com k=4: o teto real é `k x len(valor)`, não `k` |
-| `fronteira-len08` | bN-B | 98 | 614 | qualquer | OK | len(valor)=8 com k=4: o teto real é `k x len(valor)`, não `k` |
-| `fronteira-len16` | bN-B | 106 | 622 | qualquer | OK | len(valor)=16 com k=4: o teto real é `k x len(valor)`, não `k` |
-| `fronteira-len32` | bN-B | 122 | 638 | qualquer | OK | len(valor)=32 com k=4: o teto real é `k x len(valor)`, não `k` |
+| `fronteira-n08` | bN-B | 17 | 29 | ativa | OK | n=8: a vizinhança da virada em k=2 (medida em ~10 no lab 1608) |
+| `fronteira-n09` | bN-B | 18 | 32 | ativa | OK | n=9: a vizinhança da virada em k=2 (medida em ~10 no lab 1608) |
+| `fronteira-n10` | bN-B | 18 | 35 | ativa | OK | n=10: a vizinhança da virada em k=2 (medida em ~10 no lab 1608) |
+| `fronteira-n11` | bN-B | 18 | 38 | ativa | OK | n=11: a vizinhança da virada em k=2 (medida em ~10 no lab 1608) |
+| `fronteira-n12` | bN-B | 18 | 41 | ativa | OK | n=12: a vizinhança da virada em k=2 (medida em ~10 no lab 1608) |
+| `fronteira-len01` | bN-B | 87 | 603 | ativa | OK | len(valor)=1 com k=4: o teto real é `k x len(valor)`, não `k` |
+| `fronteira-len08` | bN-B | 98 | 614 | ativa | OK | len(valor)=8 com k=4: o teto real é `k x len(valor)`, não `k` |
+| `fronteira-len16` | bN-B | 106 | 622 | ativa | OK | len(valor)=16 com k=4: o teto real é `k x len(valor)`, não `k` |
+| `fronteira-len32` | bN-B | 122 | 638 | ativa | OK | len(valor)=32 com k=4: o teto real é `k x len(valor)`, não `k` |
 
 ## Resultado
 

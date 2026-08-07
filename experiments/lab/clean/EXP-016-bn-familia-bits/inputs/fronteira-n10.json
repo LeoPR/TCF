@@ -2,7 +2,7 @@
   "caso": "fronteira-n10",
   "familia": "F11 fronteira",
   "porque": "n=10: a vizinhança da virada em k=2 (medida em ~10 no lab 1608)",
-  "espera": "qualquer",
+  "espera": "ativa",
   "n": 10,
   "amostra": [
     "a",
