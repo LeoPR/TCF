@@ -1,0 +1,13 @@
+{
+ "caso": "sujo-25pct",
+ "porque": "25% de valor que não parseia",
+ "n": 500,
+ "amostra": [
+  "data invalida 0",
+  "2026-01-02",
+  "2026-01-03",
+  "2026-01-04",
+  "2026-01-05",
+  "2026-01-06"
+ ]
+}

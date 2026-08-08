@@ -1,0 +1,13 @@
+{
+ "caso": "limpo-mensal",
+ "porque": "ISO puro, passo 30 — onde o core mais sofre",
+ "n": 500,
+ "amostra": [
+  "2026-01-01",
+  "2026-01-31",
+  "2026-03-02",
+  "2026-04-01",
+  "2026-05-01",
+  "2026-05-31"
+ ]
+}

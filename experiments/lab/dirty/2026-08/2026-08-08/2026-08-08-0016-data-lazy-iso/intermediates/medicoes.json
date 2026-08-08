@@ -1,0 +1,279 @@
+[
+  {
+    "caso": "limpo-diario",
+    "porque": "ISO puro, passo 1 — o melhor caso",
+    "n": 500,
+    "compressiveis_pct": 100.0,
+    "status": {
+      "compressible": 500
+    },
+    "bytes_sem": 348,
+    "bytes_com": 22,
+    "delta_pct": -93.7,
+    "vence": "lazy",
+    "rt": true
+  },
+  {
+    "caso": "limpo-mensal",
+    "porque": "ISO puro, passo 30 — onde o core mais sofre",
+    "n": 500,
+    "compressiveis_pct": 100.0,
+    "status": {
+      "compressible": 500
+    },
+    "bytes_sem": 4856,
+    "bytes_com": 23,
+    "delta_pct": -99.5,
+    "vence": "lazy",
+    "rt": true
+  },
+  {
+    "caso": "limpo-espalhado",
+    "porque": "ISO puro, sem ordem — onde o ordinal não ajuda",
+    "n": 500,
+    "compressiveis_pct": 100.0,
+    "status": {
+      "compressible": 500
+    },
+    "bytes_sem": 4592,
+    "bytes_com": 3548,
+    "delta_pct": -22.7,
+    "vence": "lazy",
+    "rt": true
+  },
+  {
+    "caso": "sujo-01pct",
+    "porque": "1% de valor que não parseia",
+    "n": 500,
+    "compressiveis_pct": 99.0,
+    "status": {
+      "compressible": 495,
+      "comprimento": 5
+    },
+    "bytes_sem": 1784,
+    "bytes_com": 1488,
+    "delta_pct": -16.6,
+    "vence": "lazy",
+    "rt": true
+  },
+  {
+    "caso": "sujo-02pct",
+    "porque": "2% de valor que não parseia",
+    "n": 500,
+    "compressiveis_pct": 98.0,
+    "status": {
+      "compressible": 490,
+      "comprimento": 10
+    },
+    "bytes_sem": 1807,
+    "bytes_com": 1519,
+    "delta_pct": -15.9,
+    "vence": "lazy",
+    "rt": true
+  },
+  {
+    "caso": "sujo-05pct",
+    "porque": "5% de valor que não parseia",
+    "n": 500,
+    "compressiveis_pct": 95.0,
+    "status": {
+      "compressible": 475,
+      "comprimento": 25
+    },
+    "bytes_sem": 1968,
+    "bytes_com": 1692,
+    "delta_pct": -14.0,
+    "vence": "lazy",
+    "rt": true
+  },
+  {
+    "caso": "sujo-10pct",
+    "porque": "10% de valor que não parseia",
+    "n": 500,
+    "compressiveis_pct": 90.0,
+    "status": {
+      "compressible": 450,
+      "comprimento": 50
+    },
+    "bytes_sem": 2210,
+    "bytes_com": 1947,
+    "delta_pct": -11.9,
+    "vence": "lazy",
+    "rt": true
+  },
+  {
+    "caso": "sujo-25pct",
+    "porque": "25% de valor que não parseia",
+    "n": 500,
+    "compressiveis_pct": 75.0,
+    "status": {
+      "compressible": 375,
+      "comprimento": 125
+    },
+    "bytes_sem": 2954,
+    "bytes_com": 2409,
+    "delta_pct": -18.4,
+    "vence": "lazy",
+    "rt": true
+  },
+  {
+    "caso": "sujo-50pct",
+    "porque": "50% de valor que não parseia",
+    "n": 500,
+    "compressiveis_pct": 50.0,
+    "status": {
+      "compressible": 250,
+      "comprimento": 250
+    },
+    "bytes_sem": 3403,
+    "bytes_com": 3298,
+    "delta_pct": -3.1,
+    "vence": "lazy",
+    "rt": true
+  },
+  {
+    "caso": "com-nulo",
+    "porque": "5% de null — o slot do core, não do spec",
+    "n": 500,
+    "compressiveis_pct": 95.0,
+    "status": {
+      "compressible": 475,
+      "nulo": 25
+    },
+    "bytes_sem": 782,
+    "bytes_com": 407,
+    "delta_pct": -48.0,
+    "vence": "lazy",
+    "rt": true
+  },
+  {
+    "caso": "com-vazio",
+    "porque": "10% de string vazia",
+    "n": 500,
+    "compressiveis_pct": 90.0,
+    "status": {
+      "compressible": 450,
+      "vazio": 50
+    },
+    "bytes_sem": 2084,
+    "bytes_com": 2089,
+    "delta_pct": 0.2,
+    "vence": "hoje",
+    "rt": true
+  },
+  {
+    "caso": "misto-iso-br",
+    "porque": "25% em BR na mesma coluna — o chute errado",
+    "n": 500,
+    "compressiveis_pct": 75.0,
+    "status": {
+      "compressible": 375,
+      "nao-parseia": 125
+    },
+    "bytes_sem": 3601,
+    "bytes_com": 3403,
+    "delta_pct": -5.5,
+    "vence": "lazy",
+    "rt": true
+  },
+  {
+    "caso": "tudo-br",
+    "porque": "coluna inteira em BR: o spec ISO erra em 100%",
+    "n": 500,
+    "compressiveis_pct": 0.0,
+    "status": {
+      "nao-parseia": 500
+    },
+    "bytes_sem": 369,
+    "bytes_com": 387,
+    "delta_pct": 4.9,
+    "vence": "hoje",
+    "rt": true
+  },
+  {
+    "caso": "ambiguo-br-us",
+    "porque": "só dias 1..12 — BR e US indistinguíveis",
+    "n": 500,
+    "compressiveis_pct": 100.0,
+    "status": {
+      "compressible": 500
+    },
+    "bytes_sem": 418,
+    "bytes_com": 425,
+    "delta_pct": 1.7,
+    "vence": "hoje",
+    "rt": true
+  },
+  {
+    "caso": "grafia-frouxa",
+    "porque": "`2026-1-01` parseia mas não é a grafia canônica",
+    "n": 500,
+    "compressiveis_pct": 99.8,
+    "status": {
+      "compressible": 499,
+      "comprimento": 1
+    },
+    "bytes_sem": 1732,
+    "bytes_com": 1442,
+    "delta_pct": -16.7,
+    "vence": "lazy",
+    "rt": true
+  },
+  {
+    "caso": "bissexto",
+    "porque": "29/02 em ano bissexto e o dia seguinte",
+    "n": 498,
+    "compressiveis_pct": 100.0,
+    "status": {
+      "compressible": 498
+    },
+    "bytes_sem": 212,
+    "bytes_com": 198,
+    "delta_pct": -6.6,
+    "vence": "lazy",
+    "rt": true
+  },
+  {
+    "caso": "bissexto-invalido",
+    "porque": "29/02 em ano NÃO-bissexto — não existe",
+    "n": 498,
+    "compressiveis_pct": 66.7,
+    "status": {
+      "compressible": 332,
+      "nao-parseia": 166
+    },
+    "bytes_sem": 212,
+    "bytes_com": 209,
+    "delta_pct": -1.4,
+    "vence": "lazy",
+    "rt": true
+  },
+  {
+    "caso": "virada-ano",
+    "porque": "31/12 -> 01/01, onde o afixo quebra",
+    "n": 500,
+    "compressiveis_pct": 100.0,
+    "status": {
+      "compressible": 500
+    },
+    "bytes_sem": 1758,
+    "bytes_com": 22,
+    "delta_pct": -98.7,
+    "vence": "lazy",
+    "rt": true
+  },
+  {
+    "caso": "epoca-remota",
+    "porque": "ano 1 e ano 9999 — as bordas do calendário",
+    "n": 500,
+    "compressiveis_pct": 100.0,
+    "status": {
+      "compressible": 500
+    },
+    "bytes_sem": 125,
+    "bytes_com": 109,
+    "delta_pct": -12.8,
+    "vence": "lazy",
+    "rt": true
+  }
+]
