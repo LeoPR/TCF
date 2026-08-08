@@ -1,0 +1,37 @@
+{
+ "_o_que_e": "por onde 'ambiguo-sem-ordem' com spec ERRADO-US passou no codec — telemetria real (`SideOutputs`)",
+ "_o_que_olhar": "compare `deltas_uniformes` entre o spec certo e o errado: é ali que a regularidade aparece ou some",
+ "wire_bytes": 1667,
+ "1_entrada": {
+  "n_linhas": 480,
+  "n_unicas": 140,
+  "cardinalidade": 0.2916666666666667
+ },
+ "2_pre_passe": {
+  "cadencia_detectada": false,
+  "min_len_escolhido": 4
+ },
+ "4_hcc_composicional": {
+  "seq_rle_disparou": true,
+  "n_corridas": 2,
+  "deltas_uniformes": [
+   1
+  ],
+  "corridas": [
+   {
+    "linhas": "17..18",
+    "count": 2,
+    "delta_uniforme": 1
+   },
+   {
+    "linhas": "28..29",
+    "count": 2,
+    "delta_uniforme": null
+   }
+  ]
+ },
+ "5_saida": {
+  "body_bytes": 2260,
+  "primeira_linha": "#TCF.8B81e0"
+ }
+}

@@ -1,0 +1,58 @@
+{
+ "_o_que_e": "por onde 'consecutivo-no-mes-espelhado' com spec CERTO-BR passou no codec — telemetria real (`SideOutputs`)",
+ "_o_que_olhar": "compare `deltas_uniformes` entre o spec certo e o errado: é ali que a regularidade aparece ou some",
+ "wire_bytes": 3159,
+ "1_entrada": {
+  "n_linhas": 480,
+  "n_unicas": 480,
+  "cardinalidade": 1.0
+ },
+ "2_pre_passe": {
+  "cadencia_detectada": true,
+  "min_len_escolhido": 6
+ },
+ "4_hcc_composicional": {
+  "seq_rle_disparou": true,
+  "n_corridas": 239,
+  "deltas_uniformes": [
+   -334,
+   -333,
+   20,
+   28,
+   29,
+   30,
+   31
+  ],
+  "corridas": [
+   {
+    "linhas": "1..2",
+    "count": 2,
+    "delta_uniforme": 31
+   },
+   {
+    "linhas": "3..4",
+    "count": 2,
+    "delta_uniforme": 31
+   },
+   {
+    "linhas": "5..6",
+    "count": 2,
+    "delta_uniforme": 31
+   },
+   {
+    "linhas": "7..9",
+    "count": 3,
+    "delta_uniforme": 31
+   },
+   {
+    "linhas": "10..11",
+    "count": 2,
+    "delta_uniforme": 31
+   }
+  ]
+ },
+ "5_saida": {
+  "body_bytes": 3390,
+  "primeira_linha": "#TCF.8!!"
+ }
+}

@@ -1,0 +1,41 @@
+{
+ "_o_que_e": "round-trip de 'ambiguo-k12' com o spec CERTO-BR",
+ "_a_tese": "o spec ERRADO tem de fazer RT igual ao certo. Se fizer, a ambiguidade custa BYTES e não INTEGRIDADE.",
+ "spec_usado": "br",
+ "formato_do_spec": "%d/%m/%Y",
+ "rt_fechou": true,
+ "valores_compressiveis_pct": 100.0,
+ "entrada_br": [
+  "01/01/2026",
+  "02/02/2026",
+  "03/03/2026",
+  "04/04/2026",
+  "05/05/2026",
+  "06/06/2026"
+ ],
+ "apos_o_spec": [
+  "739617",
+  "739649",
+  "739678",
+  "739710",
+  "739741",
+  "739773"
+ ],
+ "decode_do_wire": [
+  "739617",
+  "739649",
+  "739678",
+  "739710",
+  "739741",
+  "739773"
+ ],
+ "depois_da_inversa": [
+  "01/01/2026",
+  "02/02/2026",
+  "03/03/2026",
+  "04/04/2026",
+  "05/05/2026",
+  "06/06/2026"
+ ],
+ "_amostra": "6 primeiros de 480"
+}

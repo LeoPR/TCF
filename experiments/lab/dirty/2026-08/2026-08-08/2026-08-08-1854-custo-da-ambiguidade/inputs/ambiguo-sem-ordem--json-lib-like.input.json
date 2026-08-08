@@ -1,0 +1,23 @@
+{
+ "_o_que_e": "480 datas escritas em BR (DD/MM/YYYY), TODAS ambíguas (dia e mês ≤ 12): a mesma string tem leitura válida em BR e em US",
+ "_por_que_este_caso": "dia e mês ≤ 12 sem ordem — nenhuma leitura ganha regularidade",
+ "_higiene": {
+  "sobrevive_json": true,
+  "como": "json.loads(json.dumps(x)) == x"
+ },
+ "amostra_12": [
+  "08/11/2026",
+  "10/04/2026",
+  "10/01/2026",
+  "09/06/2026",
+  "01/11/2026",
+  "08/08/2026",
+  "07/01/2026",
+  "06/06/2026",
+  "09/07/2026",
+  "02/12/2026",
+  "09/05/2026",
+  "11/06/2026"
+ ],
+ "n_total": 480
+}
