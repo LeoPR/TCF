@@ -1,5 +1,20 @@
 # STATUS — TCF (compendio sempre-atualizado)
 
+> ## 🎯 ESCALA DE VERIFICAÇÃO (decisão de processo, 2026-08-07)
+>
+> **E0** ingênuo · **E1** round-trip · **E2** assimetria · **E3** fail-loud barato ·
+> **E4** canonicidade · **E5** adulteração ("homem no meio").
+>
+> **`.8` = E1/E2 obrigatórios + E3 (custa zero) + E4 quando trivial. `.9` = E4
+> sistemático + E5 opt-in.** Evidência: **4 dos 6 bugs catastróficos do ciclo eram
+> E1/E2** — os únicos alcançáveis por `encode→decode`. Orçamento de auditoria vai pra
+> round-trip e assimetria, não pra wire escrito à mão. Ressalva do próprio `malloc`:
+> ele não pré-verifica, mas devolve `NULL` — E3 fica no `.8` porque falhar CORRETAMENTE
+> custa zero no caminho feliz.
+>
+> Detalhe + classificação das 17 checagens do bN:
+> [`escala-de-verificacao-e-fechamento-do-bn`](experiments/lab/dirty/notas/2026-08/2026-08-07-escala-de-verificacao-e-fechamento-do-bn.md).
+
 > ## 🔖 PENDENTES NOMEADOS — não deixar cair no esquecimento
 >
 > Tickets criados pelos welds de 2026-07-26/27. **Nenhum é bloqueante; todos são ganho
