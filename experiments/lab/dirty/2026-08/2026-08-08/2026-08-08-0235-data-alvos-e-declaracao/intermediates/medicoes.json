@@ -1,0 +1,489 @@
+{
+  "alvos": [
+    {
+      "regime": "diario",
+      "alvo": "iso",
+      "porque": "linha de base — o que o TCF faz hoje",
+      "bytes": 414,
+      "chars_por_valor": 10
+    },
+    {
+      "regime": "diario",
+      "alvo": "ordinal-dec",
+      "porque": "decimal: o `*N+M|` enxerga a aritmética",
+      "bytes": 22,
+      "chars_por_valor": 6
+    },
+    {
+      "regime": "diario",
+      "alvo": "ordinal-denso",
+      "porque": "base-80 largura 4 — o alvo do CPF",
+      "bytes": 2736,
+      "chars_por_valor": 4
+    },
+    {
+      "regime": "diario",
+      "alvo": "ordinal-b64",
+      "porque": "base64 de 3 bytes = 4 chars, sem padding",
+      "bytes": 2663,
+      "chars_por_valor": 4
+    },
+    {
+      "regime": "diario",
+      "alvo": "epoch-seg",
+      "porque": "segundos desde 1970 — o formato timestamp",
+      "bytes": 30,
+      "chars_por_valor": 10
+    },
+    {
+      "regime": "diario",
+      "alvo": "compacto",
+      "porque": "YYYYMMDD: numérico E legível",
+      "bytes": 329,
+      "chars_por_valor": 8
+    },
+    {
+      "regime": "diario",
+      "alvo": "delta-dias",
+      "porque": "1ª por extenso + diferenças",
+      "bytes": 27,
+      "chars_por_valor": 10
+    },
+    {
+      "regime": "semanal",
+      "alvo": "iso",
+      "porque": "linha de base — o que o TCF faz hoje",
+      "bytes": 2744,
+      "chars_por_valor": 10
+    },
+    {
+      "regime": "semanal",
+      "alvo": "ordinal-dec",
+      "porque": "decimal: o `*N+M|` enxerga a aritmética",
+      "bytes": 22,
+      "chars_por_valor": 6
+    },
+    {
+      "regime": "semanal",
+      "alvo": "ordinal-denso",
+      "porque": "base-80 largura 4 — o alvo do CPF",
+      "bytes": 3009,
+      "chars_por_valor": 4
+    },
+    {
+      "regime": "semanal",
+      "alvo": "ordinal-b64",
+      "porque": "base64 de 3 bytes = 4 chars, sem padding",
+      "bytes": 3061,
+      "chars_por_valor": 4
+    },
+    {
+      "regime": "semanal",
+      "alvo": "epoch-seg",
+      "porque": "segundos desde 1970 — o formato timestamp",
+      "bytes": 31,
+      "chars_por_valor": 10
+    },
+    {
+      "regime": "semanal",
+      "alvo": "compacto",
+      "porque": "YYYYMMDD: numérico E legível",
+      "bytes": 1956,
+      "chars_por_valor": 8
+    },
+    {
+      "regime": "semanal",
+      "alvo": "delta-dias",
+      "porque": "1ª por extenso + diferenças",
+      "bytes": 27,
+      "chars_por_valor": 10
+    },
+    {
+      "regime": "mensal",
+      "alvo": "iso",
+      "porque": "linha de base — o que o TCF faz hoje",
+      "bytes": 6338,
+      "chars_por_valor": 10
+    },
+    {
+      "regime": "mensal",
+      "alvo": "ordinal-dec",
+      "porque": "decimal: o `*N+M|` enxerga a aritmética",
+      "bytes": 23,
+      "chars_por_valor": 6
+    },
+    {
+      "regime": "mensal",
+      "alvo": "ordinal-denso",
+      "porque": "base-80 largura 4 — o alvo do CPF",
+      "bytes": 3009,
+      "chars_por_valor": 4
+    },
+    {
+      "regime": "mensal",
+      "alvo": "ordinal-b64",
+      "porque": "base64 de 3 bytes = 4 chars, sem padding",
+      "bytes": 3009,
+      "chars_por_valor": 4
+    },
+    {
+      "regime": "mensal",
+      "alvo": "epoch-seg",
+      "porque": "segundos desde 1970 — o formato timestamp",
+      "bytes": 32,
+      "chars_por_valor": 10
+    },
+    {
+      "regime": "mensal",
+      "alvo": "compacto",
+      "porque": "YYYYMMDD: numérico E legível",
+      "bytes": 4672,
+      "chars_por_valor": 8
+    },
+    {
+      "regime": "mensal",
+      "alvo": "delta-dias",
+      "porque": "1ª por extenso + diferenças",
+      "bytes": 28,
+      "chars_por_valor": 10
+    },
+    {
+      "regime": "agrupado",
+      "alvo": "iso",
+      "porque": "linha de base — o que o TCF faz hoje",
+      "bytes": 64,
+      "chars_por_valor": 10
+    },
+    {
+      "regime": "agrupado",
+      "alvo": "ordinal-dec",
+      "porque": "decimal: o `*N+M|` enxerga a aritmética",
+      "bytes": 143,
+      "chars_por_valor": 6
+    },
+    {
+      "regime": "agrupado",
+      "alvo": "ordinal-denso",
+      "porque": "base-80 largura 4 — o alvo do CPF",
+      "bytes": 221,
+      "chars_por_valor": 4
+    },
+    {
+      "regime": "agrupado",
+      "alvo": "ordinal-b64",
+      "porque": "base64 de 3 bytes = 4 chars, sem padding",
+      "bytes": 165,
+      "chars_por_valor": 4
+    },
+    {
+      "regime": "agrupado",
+      "alvo": "epoch-seg",
+      "porque": "segundos desde 1970 — o formato timestamp",
+      "bytes": 473,
+      "chars_por_valor": 10
+    },
+    {
+      "regime": "agrupado",
+      "alvo": "compacto",
+      "porque": "YYYYMMDD: numérico E legível",
+      "bytes": 62,
+      "chars_por_valor": 8
+    },
+    {
+      "regime": "agrupado",
+      "alvo": "delta-dias",
+      "porque": "1ª por extenso + diferenças",
+      "bytes": 235,
+      "chars_por_valor": 10
+    },
+    {
+      "regime": "repetido-k12",
+      "alvo": "iso",
+      "porque": "linha de base — o que o TCF faz hoje",
+      "bytes": 529,
+      "chars_por_valor": 10
+    },
+    {
+      "regime": "repetido-k12",
+      "alvo": "ordinal-dec",
+      "porque": "decimal: o `*N+M|` enxerga a aritmética",
+      "bytes": 449,
+      "chars_por_valor": 6
+    },
+    {
+      "regime": "repetido-k12",
+      "alvo": "ordinal-denso",
+      "porque": "base-80 largura 4 — o alvo do CPF",
+      "bytes": 467,
+      "chars_por_valor": 4
+    },
+    {
+      "regime": "repetido-k12",
+      "alvo": "ordinal-b64",
+      "porque": "base64 de 3 bytes = 4 chars, sem padding",
+      "bytes": 478,
+      "chars_por_valor": 4
+    },
+    {
+      "regime": "repetido-k12",
+      "alvo": "epoch-seg",
+      "porque": "segundos desde 1970 — o formato timestamp",
+      "bytes": 458,
+      "chars_por_valor": 10
+    },
+    {
+      "regime": "repetido-k12",
+      "alvo": "compacto",
+      "porque": "YYYYMMDD: numérico E legível",
+      "bytes": 500,
+      "chars_por_valor": 8
+    },
+    {
+      "regime": "repetido-k12",
+      "alvo": "delta-dias",
+      "porque": "1ª por extenso + diferenças",
+      "bytes": 237,
+      "chars_por_valor": 10
+    },
+    {
+      "regime": "espalhado",
+      "alvo": "iso",
+      "porque": "linha de base — o que o TCF faz hoje",
+      "bytes": 5364,
+      "chars_por_valor": 10
+    },
+    {
+      "regime": "espalhado",
+      "alvo": "ordinal-dec",
+      "porque": "decimal: o `*N+M|` enxerga a aritmética",
+      "bytes": 4193,
+      "chars_por_valor": 6
+    },
+    {
+      "regime": "espalhado",
+      "alvo": "ordinal-denso",
+      "porque": "base-80 largura 4 — o alvo do CPF",
+      "bytes": 2990,
+      "chars_por_valor": 4
+    },
+    {
+      "regime": "espalhado",
+      "alvo": "ordinal-b64",
+      "porque": "base64 de 3 bytes = 4 chars, sem padding",
+      "bytes": 2991,
+      "chars_por_valor": 4
+    },
+    {
+      "regime": "espalhado",
+      "alvo": "epoch-seg",
+      "porque": "segundos desde 1970 — o formato timestamp",
+      "bytes": 6254,
+      "chars_por_valor": 10
+    },
+    {
+      "regime": "espalhado",
+      "alvo": "compacto",
+      "porque": "YYYYMMDD: numérico E legível",
+      "bytes": 5074,
+      "chars_por_valor": 8
+    },
+    {
+      "regime": "espalhado",
+      "alvo": "delta-dias",
+      "porque": "1ª por extenso + diferenças",
+      "bytes": 3068,
+      "chars_por_valor": 10
+    },
+    {
+      "regime": "espalhado-ord",
+      "alvo": "iso",
+      "porque": "linha de base — o que o TCF faz hoje",
+      "bytes": 5376,
+      "chars_por_valor": 10
+    },
+    {
+      "regime": "espalhado-ord",
+      "alvo": "ordinal-dec",
+      "porque": "decimal: o `*N+M|` enxerga a aritmética",
+      "bytes": 3455,
+      "chars_por_valor": 6
+    },
+    {
+      "regime": "espalhado-ord",
+      "alvo": "ordinal-denso",
+      "porque": "base-80 largura 4 — o alvo do CPF",
+      "bytes": 2867,
+      "chars_por_valor": 4
+    },
+    {
+      "regime": "espalhado-ord",
+      "alvo": "ordinal-b64",
+      "porque": "base64 de 3 bytes = 4 chars, sem padding",
+      "bytes": 2921,
+      "chars_por_valor": 4
+    },
+    {
+      "regime": "espalhado-ord",
+      "alvo": "epoch-seg",
+      "porque": "segundos desde 1970 — o formato timestamp",
+      "bytes": 5753,
+      "chars_por_valor": 10
+    },
+    {
+      "regime": "espalhado-ord",
+      "alvo": "compacto",
+      "porque": "YYYYMMDD: numérico E legível",
+      "bytes": 4089,
+      "chars_por_valor": 8
+    },
+    {
+      "regime": "espalhado-ord",
+      "alvo": "delta-dias",
+      "porque": "1ª por extenso + diferenças",
+      "bytes": 643,
+      "chars_por_valor": 10
+    },
+    {
+      "regime": "decada-espalhada",
+      "alvo": "iso",
+      "porque": "linha de base — o que o TCF faz hoje",
+      "bytes": 6848,
+      "chars_por_valor": 10
+    },
+    {
+      "regime": "decada-espalhada",
+      "alvo": "ordinal-dec",
+      "porque": "decimal: o `*N+M|` enxerga a aritmética",
+      "bytes": 4199,
+      "chars_por_valor": 6
+    },
+    {
+      "regime": "decada-espalhada",
+      "alvo": "ordinal-denso",
+      "porque": "base-80 largura 4 — o alvo do CPF",
+      "bytes": 3007,
+      "chars_por_valor": 4
+    },
+    {
+      "regime": "decada-espalhada",
+      "alvo": "ordinal-b64",
+      "porque": "base64 de 3 bytes = 4 chars, sem padding",
+      "bytes": 3007,
+      "chars_por_valor": 4
+    },
+    {
+      "regime": "decada-espalhada",
+      "alvo": "epoch-seg",
+      "porque": "segundos desde 1970 — o formato timestamp",
+      "bytes": 6583,
+      "chars_por_valor": 10
+    },
+    {
+      "regime": "decada-espalhada",
+      "alvo": "compacto",
+      "porque": "YYYYMMDD: numérico E legível",
+      "bytes": 5625,
+      "chars_por_valor": 8
+    },
+    {
+      "regime": "decada-espalhada",
+      "alvo": "delta-dias",
+      "porque": "1ª por extenso + diferenças",
+      "bytes": 3755,
+      "chars_por_valor": 10
+    }
+  ],
+  "declaracao": {
+    "h1_header": 10,
+    "h2_template": {
+      "iso": 9,
+      "br": 9,
+      "us": 9,
+      "compacto": 7,
+      "ponto": 9,
+      "iso-invertido": 9
+    },
+    "h3_inferencia": {
+      "iso": {
+        "total": 366,
+        "desambigua": 366,
+        "taxa": 100.0,
+        "exemplos_ambiguos": []
+      },
+      "br": {
+        "total": 366,
+        "desambigua": 221,
+        "taxa": 60.4,
+        "exemplos_ambiguos": [
+          [
+            "01/01/2026",
+            [
+              "br",
+              "us"
+            ]
+          ],
+          [
+            "02/01/2026",
+            [
+              "br",
+              "us"
+            ]
+          ],
+          [
+            "03/01/2026",
+            [
+              "br",
+              "us"
+            ]
+          ]
+        ]
+      },
+      "us": {
+        "total": 366,
+        "desambigua": 221,
+        "taxa": 60.4,
+        "exemplos_ambiguos": [
+          [
+            "01/01/2026",
+            [
+              "br",
+              "us"
+            ]
+          ],
+          [
+            "01/02/2026",
+            [
+              "br",
+              "us"
+            ]
+          ],
+          [
+            "01/03/2026",
+            [
+              "br",
+              "us"
+            ]
+          ]
+        ]
+      },
+      "compacto": {
+        "total": 366,
+        "desambigua": 366,
+        "taxa": 100.0,
+        "exemplos_ambiguos": []
+      },
+      "ponto": {
+        "total": 366,
+        "desambigua": 366,
+        "taxa": 100.0,
+        "exemplos_ambiguos": []
+      },
+      "iso-invertido": {
+        "total": 366,
+        "desambigua": 366,
+        "taxa": 100.0,
+        "exemplos_ambiguos": []
+      }
+    }
+  }
+}
