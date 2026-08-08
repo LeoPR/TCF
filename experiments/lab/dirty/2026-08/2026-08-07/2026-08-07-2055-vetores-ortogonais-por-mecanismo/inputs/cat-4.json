@@ -1,0 +1,16 @@
+{
+  "caso": "cat-4",
+  "porque": "k=4, categórico curto",
+  "n": 2000,
+  "k": 4,
+  "amostra": [
+    "alfa",
+    "beta",
+    "gama",
+    "delta",
+    "alfa",
+    "beta",
+    "gama",
+    "delta"
+  ]
+}

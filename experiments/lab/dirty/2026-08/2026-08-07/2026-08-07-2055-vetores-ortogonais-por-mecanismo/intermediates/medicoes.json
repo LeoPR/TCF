@@ -1,0 +1,877 @@
+[
+  {
+    "caso": "bool-2",
+    "variante": "core",
+    "n": 2000,
+    "k": 2,
+    "bytes": 6005,
+    "decode": {
+      "mediana_us": 3035.2,
+      "cv": 20.4,
+      "por_rodada_us": [
+        3144.1,
+        3198.5,
+        2908.3,
+        2943.6
+      ]
+    },
+    "pico_decode_KiB": 243.2,
+    "online": {
+      "0": {
+        "metodo": "truncamento",
+        "prefixo_B": 9,
+        "prefixo_pct": 0.1
+      },
+      "1": {
+        "metodo": "truncamento",
+        "prefixo_B": 11,
+        "prefixo_pct": 0.2
+      },
+      "1000": {
+        "metodo": "truncamento",
+        "prefixo_B": 3008,
+        "prefixo_pct": 50.1
+      },
+      "1999": {
+        "metodo": "truncamento",
+        "prefixo_B": 6005,
+        "prefixo_pct": 100.0
+      }
+    }
+  },
+  {
+    "caso": "bool-2",
+    "variante": "+bN(B)",
+    "n": 2000,
+    "k": 2,
+    "bytes": 351,
+    "decode": {
+      "mediana_us": 1346.0,
+      "cv": 20.3,
+      "por_rodada_us": [
+        1543.3,
+        1300.0,
+        1365.7,
+        1203.3
+      ]
+    },
+    "pico_decode_KiB": 33.6,
+    "online": {
+      "0": {
+        "metodo": "extracao",
+        "prefixo_B": 21,
+        "prefixo_pct": 6.0
+      },
+      "1": {
+        "metodo": "extracao",
+        "prefixo_B": 21,
+        "prefixo_pct": 6.0
+      },
+      "1000": {
+        "metodo": "extracao",
+        "prefixo_B": 21,
+        "prefixo_pct": 6.0
+      },
+      "1999": {
+        "metodo": "extracao",
+        "prefixo_B": 19,
+        "prefixo_pct": 5.4
+      }
+    },
+    "delta_cpu_por_rodada": [
+      "-51%",
+      "-59%",
+      "-53%",
+      "-59%"
+    ],
+    "sinal_cpu": "mais rápido"
+  },
+  {
+    "caso": "bool-2",
+    "variante": "+bN(C)",
+    "n": 2000,
+    "k": 2,
+    "bytes": 350,
+    "decode": {
+      "mediana_us": 1381.0,
+      "cv": 20.6,
+      "por_rodada_us": [
+        1424.5,
+        1212.0,
+        1571.0,
+        1435.2
+      ]
+    },
+    "pico_decode_KiB": 33.2,
+    "online": {
+      "0": {
+        "metodo": "estrutural",
+        "prefixo_B": 350,
+        "prefixo_pct": 100.0,
+        "motivo": "domínio depois do payload"
+      },
+      "1": {
+        "metodo": "estrutural",
+        "prefixo_B": 350,
+        "prefixo_pct": 100.0,
+        "motivo": "domínio depois do payload"
+      },
+      "1000": {
+        "metodo": "estrutural",
+        "prefixo_B": 350,
+        "prefixo_pct": 100.0,
+        "motivo": "domínio depois do payload"
+      },
+      "1999": {
+        "metodo": "estrutural",
+        "prefixo_B": 350,
+        "prefixo_pct": 100.0,
+        "motivo": "domínio depois do payload"
+      }
+    },
+    "delta_cpu_por_rodada": [
+      "-55%",
+      "-62%",
+      "-46%",
+      "-51%"
+    ],
+    "sinal_cpu": "mais rápido"
+  },
+  {
+    "caso": "cat-4",
+    "variante": "core",
+    "n": 2000,
+    "k": 4,
+    "bytes": 6016,
+    "decode": {
+      "mediana_us": 2956.2,
+      "cv": 23.6,
+      "por_rodada_us": [
+        2340.3,
+        3111.9,
+        3874.8,
+        2914.5
+      ]
+    },
+    "pico_decode_KiB": 243.6,
+    "online": {
+      "0": {
+        "metodo": "truncamento",
+        "prefixo_B": 12,
+        "prefixo_pct": 0.2
+      },
+      "1": {
+        "metodo": "truncamento",
+        "prefixo_B": 17,
+        "prefixo_pct": 0.3
+      },
+      "1000": {
+        "metodo": "truncamento",
+        "prefixo_B": 3019,
+        "prefixo_pct": 50.2
+      },
+      "1999": {
+        "metodo": "truncamento",
+        "prefixo_B": 6016,
+        "prefixo_pct": 100.0
+      }
+    }
+  },
+  {
+    "caso": "cat-4",
+    "variante": "+bN(B)",
+    "n": 2000,
+    "k": 4,
+    "bytes": 701,
+    "decode": {
+      "mediana_us": 1678.9,
+      "cv": 21.8,
+      "por_rodada_us": [
+        1136.8,
+        1772.3,
+        1804.0,
+        1362.0
+      ]
+    },
+    "pico_decode_KiB": 35.8,
+    "online": {
+      "0": {
+        "metodo": "extracao",
+        "prefixo_B": 38,
+        "prefixo_pct": 5.4
+      },
+      "1": {
+        "metodo": "extracao",
+        "prefixo_B": 38,
+        "prefixo_pct": 5.4
+      },
+      "1000": {
+        "metodo": "extracao",
+        "prefixo_B": 38,
+        "prefixo_pct": 5.4
+      },
+      "1999": {
+        "metodo": "extracao",
+        "prefixo_B": 37,
+        "prefixo_pct": 5.3
+      }
+    },
+    "delta_cpu_por_rodada": [
+      "-51%",
+      "-43%",
+      "-53%",
+      "-53%"
+    ],
+    "sinal_cpu": "mais rápido"
+  },
+  {
+    "caso": "cat-4",
+    "variante": "+bN(C)",
+    "n": 2000,
+    "k": 4,
+    "bytes": 700,
+    "decode": {
+      "mediana_us": 1439.0,
+      "cv": 19.5,
+      "por_rodada_us": [
+        1187.9,
+        1590.6,
+        1432.7,
+        1660.8
+      ]
+    },
+    "pico_decode_KiB": 34.9,
+    "online": {
+      "0": {
+        "metodo": "estrutural",
+        "prefixo_B": 700,
+        "prefixo_pct": 100.0,
+        "motivo": "domínio depois do payload"
+      },
+      "1": {
+        "metodo": "estrutural",
+        "prefixo_B": 700,
+        "prefixo_pct": 100.0,
+        "motivo": "domínio depois do payload"
+      },
+      "1000": {
+        "metodo": "estrutural",
+        "prefixo_B": 700,
+        "prefixo_pct": 100.0,
+        "motivo": "domínio depois do payload"
+      },
+      "1999": {
+        "metodo": "estrutural",
+        "prefixo_B": 700,
+        "prefixo_pct": 100.0,
+        "motivo": "domínio depois do payload"
+      }
+    },
+    "delta_cpu_por_rodada": [
+      "-49%",
+      "-49%",
+      "-63%",
+      "-43%"
+    ],
+    "sinal_cpu": "mais rápido"
+  },
+  {
+    "caso": "cat-16",
+    "variante": "core",
+    "n": 2000,
+    "k": 16,
+    "bytes": 6898,
+    "decode": {
+      "mediana_us": 3020.9,
+      "cv": 23.3,
+      "por_rodada_us": [
+        3086.4,
+        2604.6,
+        2365.2,
+        4026.5
+      ]
+    },
+    "pico_decode_KiB": 248.1,
+    "online": {
+      "0": {
+        "metodo": "truncamento",
+        "prefixo_B": 12,
+        "prefixo_pct": 0.2
+      },
+      "1": {
+        "metodo": "truncamento",
+        "prefixo_B": 18,
+        "prefixo_pct": 0.3
+      },
+      "1000": {
+        "metodo": "truncamento",
+        "prefixo_B": 3460,
+        "prefixo_pct": 50.2
+      },
+      "1999": {
+        "metodo": "truncamento",
+        "prefixo_B": 6898,
+        "prefixo_pct": 100.0
+      }
+    }
+  },
+  {
+    "caso": "cat-16",
+    "variante": "+bN(B)",
+    "n": 2000,
+    "k": 16,
+    "bytes": 1418,
+    "decode": {
+      "mediana_us": 1981.5,
+      "cv": 15.8,
+      "por_rodada_us": [
+        2078.5,
+        2169.4,
+        1577.6,
+        2168.8
+      ]
+    },
+    "pico_decode_KiB": 71.9,
+    "online": {
+      "0": {
+        "metodo": "extracao",
+        "prefixo_B": 88,
+        "prefixo_pct": 6.2
+      },
+      "1": {
+        "metodo": "extracao",
+        "prefixo_B": 88,
+        "prefixo_pct": 6.2
+      },
+      "1000": {
+        "metodo": "extracao",
+        "prefixo_B": 88,
+        "prefixo_pct": 6.2
+      },
+      "1999": {
+        "metodo": "extracao",
+        "prefixo_B": 86,
+        "prefixo_pct": 6.1
+      }
+    },
+    "delta_cpu_por_rodada": [
+      "-33%",
+      "-17%",
+      "-33%",
+      "-46%"
+    ],
+    "sinal_cpu": "mais rápido"
+  },
+  {
+    "caso": "cat-16",
+    "variante": "+bN(C)",
+    "n": 2000,
+    "k": 16,
+    "bytes": 1417,
+    "decode": {
+      "mediana_us": 1688.6,
+      "cv": 18.2,
+      "por_rodada_us": [
+        1752.0,
+        1527.8,
+        2070.6,
+        1444.2
+      ]
+    },
+    "pico_decode_KiB": 69.7,
+    "online": {
+      "0": {
+        "metodo": "estrutural",
+        "prefixo_B": 1417,
+        "prefixo_pct": 100.0,
+        "motivo": "domínio depois do payload"
+      },
+      "1": {
+        "metodo": "estrutural",
+        "prefixo_B": 1417,
+        "prefixo_pct": 100.0,
+        "motivo": "domínio depois do payload"
+      },
+      "1000": {
+        "metodo": "estrutural",
+        "prefixo_B": 1417,
+        "prefixo_pct": 100.0,
+        "motivo": "domínio depois do payload"
+      },
+      "1999": {
+        "metodo": "estrutural",
+        "prefixo_B": 1417,
+        "prefixo_pct": 100.0,
+        "motivo": "domínio depois do payload"
+      }
+    },
+    "delta_cpu_por_rodada": [
+      "-43%",
+      "-41%",
+      "-12%",
+      "-64%"
+    ],
+    "sinal_cpu": "mais rápido"
+  },
+  {
+    "caso": "cat-100",
+    "variante": "core",
+    "n": 2000,
+    "k": 100,
+    "bytes": 7489,
+    "decode": {
+      "mediana_us": 3727.7,
+      "cv": 19.1,
+      "por_rodada_us": [
+        2981.2,
+        3693.3,
+        4252.0,
+        3786.9
+      ]
+    },
+    "pico_decode_KiB": 264.7,
+    "online": {
+      "0": {
+        "metodo": "truncamento",
+        "prefixo_B": 19,
+        "prefixo_pct": 0.3
+      },
+      "1": {
+        "metodo": "truncamento",
+        "prefixo_B": 30,
+        "prefixo_pct": 0.4
+      },
+      "1000": {
+        "metodo": "truncamento",
+        "prefixo_B": 3572,
+        "prefixo_pct": 47.7
+      },
+      "1999": {
+        "metodo": "truncamento",
+        "prefixo_B": 7489,
+        "prefixo_pct": 100.0
+      }
+    }
+  },
+  {
+    "caso": "cat-100",
+    "variante": "+pol",
+    "n": 2000,
+    "k": 100,
+    "bytes": 7488,
+    "decode": {
+      "mediana_us": 5110.9,
+      "cv": 17.6,
+      "por_rodada_us": [
+        4007.1,
+        5243.9,
+        5307.1,
+        5214.5
+      ]
+    },
+    "pico_decode_KiB": 279.4,
+    "online": {
+      "0": {
+        "metodo": "truncamento",
+        "prefixo_B": 18,
+        "prefixo_pct": 0.2
+      },
+      "1": {
+        "metodo": "truncamento",
+        "prefixo_B": 29,
+        "prefixo_pct": 0.4
+      },
+      "1000": {
+        "metodo": "truncamento",
+        "prefixo_B": 3571,
+        "prefixo_pct": 47.7
+      },
+      "1999": {
+        "metodo": "truncamento",
+        "prefixo_B": 7488,
+        "prefixo_pct": 100.0
+      }
+    },
+    "delta_cpu_por_rodada": [
+      "+34%",
+      "+42%",
+      "+25%",
+      "+38%"
+    ],
+    "sinal_cpu": "mais lento"
+  },
+  {
+    "caso": "cat-100",
+    "variante": "+bN(B)",
+    "n": 2000,
+    "k": 100,
+    "bytes": 2381,
+    "decode": {
+      "mediana_us": 3251.2,
+      "cv": 14.0,
+      "por_rodada_us": [
+        2944.9,
+        3308.3,
+        3406.9,
+        3211.4
+      ]
+    },
+    "pico_decode_KiB": 126.6,
+    "online": {
+      "0": {
+        "metodo": "extracao",
+        "prefixo_B": 51,
+        "prefixo_pct": 2.1
+      },
+      "1": {
+        "metodo": "extracao",
+        "prefixo_B": 51,
+        "prefixo_pct": 2.1
+      },
+      "1000": {
+        "metodo": "extracao",
+        "prefixo_B": 51,
+        "prefixo_pct": 2.1
+      },
+      "1999": {
+        "metodo": "extracao",
+        "prefixo_B": 49,
+        "prefixo_pct": 2.1
+      }
+    },
+    "delta_cpu_por_rodada": [
+      "-1%",
+      "-10%",
+      "-20%",
+      "-15%"
+    ],
+    "sinal_cpu": "mais rápido"
+  },
+  {
+    "caso": "cat-100",
+    "variante": "+bN(C)",
+    "n": 2000,
+    "k": 100,
+    "bytes": 2380,
+    "decode": {
+      "mediana_us": 3128.2,
+      "cv": 14.4,
+      "por_rodada_us": [
+        3020.3,
+        3090.2,
+        3562.7,
+        2837.4
+      ]
+    },
+    "pico_decode_KiB": 124.1,
+    "online": {
+      "0": {
+        "metodo": "estrutural",
+        "prefixo_B": 2380,
+        "prefixo_pct": 100.0,
+        "motivo": "domínio depois do payload"
+      },
+      "1": {
+        "metodo": "estrutural",
+        "prefixo_B": 2380,
+        "prefixo_pct": 100.0,
+        "motivo": "domínio depois do payload"
+      },
+      "1000": {
+        "metodo": "estrutural",
+        "prefixo_B": 2380,
+        "prefixo_pct": 100.0,
+        "motivo": "domínio depois do payload"
+      },
+      "1999": {
+        "metodo": "estrutural",
+        "prefixo_B": 2380,
+        "prefixo_pct": 100.0,
+        "motivo": "domínio depois do payload"
+      }
+    },
+    "delta_cpu_por_rodada": [
+      "+1%",
+      "-16%",
+      "-16%",
+      "-25%"
+    ],
+    "sinal_cpu": "INDEFINIDO (sinal troca entre rodadas)"
+  },
+  {
+    "caso": "uf-27",
+    "variante": "core",
+    "n": 2000,
+    "k": 27,
+    "bytes": 7321,
+    "decode": {
+      "mediana_us": 3219.7,
+      "cv": 20.7,
+      "por_rodada_us": [
+        3281.7,
+        3110.8,
+        3078.8,
+        3694.4
+      ]
+    },
+    "pico_decode_KiB": 250.8,
+    "online": {
+      "0": {
+        "metodo": "truncamento",
+        "prefixo_B": 10,
+        "prefixo_pct": 0.1
+      },
+      "1": {
+        "metodo": "truncamento",
+        "prefixo_B": 13,
+        "prefixo_pct": 0.2
+      },
+      "1000": {
+        "metodo": "truncamento",
+        "prefixo_B": 3658,
+        "prefixo_pct": 50.0
+      },
+      "1999": {
+        "metodo": "truncamento",
+        "prefixo_B": 7321,
+        "prefixo_pct": 100.0
+      }
+    }
+  },
+  {
+    "caso": "uf-27",
+    "variante": "+bN(B)",
+    "n": 2000,
+    "k": 27,
+    "bytes": 1761,
+    "decode": {
+      "mediana_us": 2024.0,
+      "cv": 16.8,
+      "por_rodada_us": [
+        2012.3,
+        1873.8,
+        1962.2,
+        2201.1
+      ]
+    },
+    "pico_decode_KiB": 90.5,
+    "online": {
+      "0": {
+        "metodo": "extracao",
+        "prefixo_B": 98,
+        "prefixo_pct": 5.6
+      },
+      "1": {
+        "metodo": "extracao",
+        "prefixo_B": 98,
+        "prefixo_pct": 5.6
+      },
+      "1000": {
+        "metodo": "extracao",
+        "prefixo_B": 98,
+        "prefixo_pct": 5.6
+      },
+      "1999": {
+        "metodo": "extracao",
+        "prefixo_B": 97,
+        "prefixo_pct": 5.5
+      }
+    },
+    "delta_cpu_por_rodada": [
+      "-39%",
+      "-40%",
+      "-36%",
+      "-40%"
+    ],
+    "sinal_cpu": "mais rápido"
+  },
+  {
+    "caso": "uf-27",
+    "variante": "+bN(C)",
+    "n": 2000,
+    "k": 27,
+    "bytes": 1760,
+    "decode": {
+      "mediana_us": 2137.2,
+      "cv": 14.0,
+      "por_rodada_us": [
+        2050.7,
+        2092.2,
+        2071.2,
+        2337.8
+      ]
+    },
+    "pico_decode_KiB": 87.5,
+    "online": {
+      "0": {
+        "metodo": "estrutural",
+        "prefixo_B": 1760,
+        "prefixo_pct": 100.0,
+        "motivo": "domínio depois do payload"
+      },
+      "1": {
+        "metodo": "estrutural",
+        "prefixo_B": 1760,
+        "prefixo_pct": 100.0,
+        "motivo": "domínio depois do payload"
+      },
+      "1000": {
+        "metodo": "estrutural",
+        "prefixo_B": 1760,
+        "prefixo_pct": 100.0,
+        "motivo": "domínio depois do payload"
+      },
+      "1999": {
+        "metodo": "estrutural",
+        "prefixo_B": 1760,
+        "prefixo_pct": 100.0,
+        "motivo": "domínio depois do payload"
+      }
+    },
+    "delta_cpu_por_rodada": [
+      "-38%",
+      "-33%",
+      "-33%",
+      "-37%"
+    ],
+    "sinal_cpu": "mais rápido"
+  },
+  {
+    "caso": "digito",
+    "variante": "core",
+    "n": 2000,
+    "k": 2,
+    "bytes": 6007,
+    "decode": {
+      "mediana_us": 2983.2,
+      "cv": 23.4,
+      "por_rodada_us": [
+        2336.5,
+        3519.3,
+        3318.3,
+        2444.5
+      ]
+    },
+    "pico_decode_KiB": 243.4,
+    "online": {
+      "0": {
+        "metodo": "truncamento",
+        "prefixo_B": 10,
+        "prefixo_pct": 0.2
+      },
+      "1": {
+        "metodo": "truncamento",
+        "prefixo_B": 13,
+        "prefixo_pct": 0.2
+      },
+      "1000": {
+        "metodo": "truncamento",
+        "prefixo_B": 3010,
+        "prefixo_pct": 50.1
+      },
+      "1999": {
+        "metodo": "truncamento",
+        "prefixo_B": 6007,
+        "prefixo_pct": 100.0
+      }
+    }
+  },
+  {
+    "caso": "digito",
+    "variante": "+bN(B)",
+    "n": 2000,
+    "k": 2,
+    "bytes": 355,
+    "decode": {
+      "mediana_us": 1533.7,
+      "cv": 19.3,
+      "por_rodada_us": [
+        1584.3,
+        1553.1,
+        1508.8,
+        1087.2
+      ]
+    },
+    "pico_decode_KiB": 33.7,
+    "online": {
+      "0": {
+        "metodo": "extracao",
+        "prefixo_B": 25,
+        "prefixo_pct": 7.0
+      },
+      "1": {
+        "metodo": "extracao",
+        "prefixo_B": 25,
+        "prefixo_pct": 7.0
+      },
+      "1000": {
+        "metodo": "extracao",
+        "prefixo_B": 25,
+        "prefixo_pct": 7.0
+      },
+      "1999": {
+        "metodo": "extracao",
+        "prefixo_B": 23,
+        "prefixo_pct": 6.5
+      }
+    },
+    "delta_cpu_por_rodada": [
+      "-32%",
+      "-56%",
+      "-55%",
+      "-56%"
+    ],
+    "sinal_cpu": "mais rápido"
+  },
+  {
+    "caso": "digito",
+    "variante": "+bN(C)",
+    "n": 2000,
+    "k": 2,
+    "bytes": 354,
+    "decode": {
+      "mediana_us": 1495.7,
+      "cv": 21.5,
+      "por_rodada_us": [
+        1529.2,
+        1541.3,
+        1298.1,
+        1214.5
+      ]
+    },
+    "pico_decode_KiB": 33.2,
+    "online": {
+      "0": {
+        "metodo": "estrutural",
+        "prefixo_B": 354,
+        "prefixo_pct": 100.0,
+        "motivo": "domínio depois do payload"
+      },
+      "1": {
+        "metodo": "estrutural",
+        "prefixo_B": 354,
+        "prefixo_pct": 100.0,
+        "motivo": "domínio depois do payload"
+      },
+      "1000": {
+        "metodo": "estrutural",
+        "prefixo_B": 354,
+        "prefixo_pct": 100.0,
+        "motivo": "domínio depois do payload"
+      },
+      "1999": {
+        "metodo": "estrutural",
+        "prefixo_B": 354,
+        "prefixo_pct": 100.0,
+        "motivo": "domínio depois do payload"
+      }
+    },
+    "delta_cpu_por_rodada": [
+      "-35%",
+      "-56%",
+      "-61%",
+      "-50%"
+    ],
+    "sinal_cpu": "mais rápido"
+  }
+]

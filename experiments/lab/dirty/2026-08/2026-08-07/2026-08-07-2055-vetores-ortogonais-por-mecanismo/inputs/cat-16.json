@@ -1,0 +1,16 @@
+{
+  "caso": "cat-16",
+  "porque": "k=16, sem prefixo comum",
+  "n": 2000,
+  "k": 16,
+  "amostra": [
+    "alfa",
+    "beta",
+    "gama",
+    "delta",
+    "zeta",
+    "eta",
+    "teta",
+    "iota"
+  ]
+}

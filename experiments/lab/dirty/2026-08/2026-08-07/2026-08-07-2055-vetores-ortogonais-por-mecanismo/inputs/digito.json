@@ -1,0 +1,16 @@
+{
+  "caso": "digito",
+  "porque": "k=2 que colide com dígito",
+  "n": 2000,
+  "k": 2,
+  "amostra": [
+    "0",
+    "1",
+    "0",
+    "1",
+    "0",
+    "1",
+    "0",
+    "1"
+  ]
+}

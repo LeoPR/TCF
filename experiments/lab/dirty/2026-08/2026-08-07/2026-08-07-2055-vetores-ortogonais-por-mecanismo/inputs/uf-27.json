@@ -1,0 +1,16 @@
+{
+  "caso": "uf-27",
+  "porque": "k=27, realista (UF)",
+  "n": 2000,
+  "k": 27,
+  "amostra": [
+    "AC",
+    "AL",
+    "AP",
+    "AM",
+    "BA",
+    "CE",
+    "DF",
+    "ES"
+  ]
+}
