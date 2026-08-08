@@ -1,0 +1,56 @@
+{
+ "_o_que_e": "round-trip de 'diario--compacto' — a CONTRAPROVA do lab",
+ "_como_ler": [
+  "1. o TCF só vê `apos_o_alvo`: é isso que virou o .tcf",
+  "2. `decode_do_wire` tem de ser IGUAL a `apos_o_alvo` (RT do formato)",
+  "3. `depois_da_inversa` tem de ser IGUAL a `entrada_iso` (RT do alvo)",
+  "os dois níveis fecham = o alvo é reversível E o wire é fiel"
+ ],
+ "alvo": "compacto",
+ "o_que_o_alvo_faz": "YYYYMMDD: numérico E legível",
+ "confere": {
+  "rt_do_formato": true,
+  "rt_do_alvo": true
+ },
+ "entrada_iso": [
+  "2026-01-01",
+  "2026-01-02",
+  "2026-01-03",
+  "2026-01-04",
+  "2026-01-05",
+  "2026-01-06",
+  "2026-01-07",
+  "2026-01-08"
+ ],
+ "apos_o_alvo": [
+  "20260101",
+  "20260102",
+  "20260103",
+  "20260104",
+  "20260105",
+  "20260106",
+  "20260107",
+  "20260108"
+ ],
+ "decode_do_wire": [
+  "20260101",
+  "20260102",
+  "20260103",
+  "20260104",
+  "20260105",
+  "20260106",
+  "20260107",
+  "20260108"
+ ],
+ "depois_da_inversa": [
+  "2026-01-01",
+  "2026-01-02",
+  "2026-01-03",
+  "2026-01-04",
+  "2026-01-05",
+  "2026-01-06",
+  "2026-01-07",
+  "2026-01-08"
+ ],
+ "_amostra": "8 primeiros de 600"
+}

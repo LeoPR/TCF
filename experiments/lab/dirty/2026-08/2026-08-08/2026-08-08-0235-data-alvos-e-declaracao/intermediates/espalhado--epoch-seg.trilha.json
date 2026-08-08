@@ -1,0 +1,71 @@
+{
+ "_o_que_e": "por onde 'espalhado--epoch-seg' passou dentro do codec — telemetria REAL (`SideOutputs`), não narrativa",
+ "_ordem": "1 entrada → 2 pré-passe → 3 OBAT → 4 HCC/seq-RLE → 5 saída",
+ "wire_bytes": 6254,
+ "1_entrada": {
+  "n_linhas": 600,
+  "n_unicas": 544,
+  "cardinalidade": 0.9066666666666666,
+  "comprimento_medio": 10.0,
+  "parece_numerico": true
+ },
+ "2_pre_passe": {
+  "cadencia_detectada": true,
+  "regra_que_bateu": "2-numeric-high-cardinality",
+  "min_len_escolhido": 6
+ },
+ "3_obat_tokenizer": {
+  "usou_hint_de_forma": true,
+  "log": [
+   "min_len=6",
+   "prefer_shape_consistency=True"
+  ]
+ },
+ "4_hcc_composicional": {
+  "seq_rle_disparou": true,
+  "n_corridas": 259,
+  "corridas": [
+   {
+    "linhas": "1..2",
+    "count": 2,
+    "delta_uniforme": -52444800,
+    "template": "\\2038780800"
+   },
+   {
+    "linhas": "3..4",
+    "count": 2,
+    "delta_uniforme": 85622400,
+    "template": "\\1912809600"
+   },
+   {
+    "linhas": "5..6",
+    "count": 2,
+    "delta_uniforme": -221616000,
+    "template": "\\2060899200"
+   },
+   {
+    "linhas": "7..8",
+    "count": 2,
+    "delta_uniforme": 46569600,
+    "template": "\\1950307200"
+   },
+   {
+    "linhas": "9..10",
+    "count": 2,
+    "delta_uniforme": 111196800,
+    "template": "\\1966550400"
+   },
+   {
+    "linhas": "11..12",
+    "count": 2,
+    "delta_uniforme": 78192000,
+    "template": "\\1963785600"
+   }
+  ],
+  "corridas_omitidas": 253
+ },
+ "5_saida": {
+  "body_bytes": 6789,
+  "primeira_linha": "#TCF.8!!"
+ }
+}

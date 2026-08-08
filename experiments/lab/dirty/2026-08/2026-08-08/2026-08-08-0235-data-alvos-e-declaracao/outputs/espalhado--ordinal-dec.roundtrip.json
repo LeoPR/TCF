@@ -1,0 +1,56 @@
+{
+ "_o_que_e": "round-trip de 'espalhado--ordinal-dec' — a CONTRAPROVA do lab",
+ "_como_ler": [
+  "1. o TCF só vê `apos_o_alvo`: é isso que virou o .tcf",
+  "2. `decode_do_wire` tem de ser IGUAL a `apos_o_alvo` (RT do formato)",
+  "3. `depois_da_inversa` tem de ser IGUAL a `entrada_iso` (RT do alvo)",
+  "os dois níveis fecham = o alvo é reversível E o wire é fiel"
+ ],
+ "alvo": "ordinal-dec",
+ "o_que_o_alvo_faz": "decimal: o `*N+M|` enxerga a aritmética",
+ "confere": {
+  "rt_do_formato": true,
+  "rt_do_alvo": true
+ },
+ "entrada_iso": [
+  "2034-08-10",
+  "2032-12-11",
+  "2030-08-13",
+  "2033-04-30",
+  "2035-04-23",
+  "2028-04-14",
+  "2031-10-21",
+  "2033-04-12"
+ ],
+ "apos_o_alvo": [
+  "742760",
+  "742153",
+  "741302",
+  "742293",
+  "743016",
+  "740451",
+  "741736",
+  "742275"
+ ],
+ "decode_do_wire": [
+  "742760",
+  "742153",
+  "741302",
+  "742293",
+  "743016",
+  "740451",
+  "741736",
+  "742275"
+ ],
+ "depois_da_inversa": [
+  "2034-08-10",
+  "2032-12-11",
+  "2030-08-13",
+  "2033-04-30",
+  "2035-04-23",
+  "2028-04-14",
+  "2031-10-21",
+  "2033-04-12"
+ ],
+ "_amostra": "8 primeiros de 600"
+}

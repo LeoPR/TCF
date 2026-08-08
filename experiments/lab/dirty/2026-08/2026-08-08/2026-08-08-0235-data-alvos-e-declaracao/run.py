@@ -38,6 +38,7 @@ sys.path.insert(0, str(RAIZ))
 from alvos import ALFA, ALVOS, GRAFIAS, LARG_DENSO, infere_do_primeiro  # noqa: E402
 
 from tcf import decode, encode  # noqa: E402
+from tcf.side_outputs import SideOutputs  # noqa: E402
 
 for x in ("inputs", "intermediates", "outputs"):
     (RAIZ / x).mkdir(exist_ok=True)
@@ -58,6 +59,59 @@ def _lcg(n, mod, semente=4242):
     return out
 
 
+def higiene_json(vals) -> dict:
+    """O input sobrevive a um round-trip por `json.dumps`/`json.loads`?
+
+    E' a pergunta "este dado e' json-lib like, ou e' estrutura mais ampla que o JSON?".
+    Se sobrevive IDENTICO, qualquer pipeline que passe por JSON entrega a mesma coisa —
+    o lab nao esta medindo um artefato de serializacao.
+    """
+    volta = json.loads(json.dumps(vals))
+    igual = volta == vals and [type(a) is type(b) for a, b in zip(volta, vals)].count(False) == 0
+    return {"sobrevive_json": igual,
+            "classe": "json-lib-like" if igual else "fora-do-json",
+            "como_foi_testado": "json.loads(json.dumps(x)) == x, com tipo"}
+
+
+def trilha(vals) -> dict:
+    """De onde o dado passou DENTRO do codec — lido da telemetria real (`SideOutputs`).
+
+    Nao e' narrativa: cada campo abaixo e' produzido pelo proprio encode.
+    """
+    so = SideOutputs()
+    w = encode(vals, side_outputs=so)
+    cf = so.column_features
+    runs = so.seq_rle_runs or []
+    return {
+        "wire_bytes": len(w.encode()),
+        "1_entrada": {
+            "n_linhas": getattr(cf, "n_rows", None),
+            "n_unicas": getattr(cf, "n_unicas", None),
+            "cardinalidade": getattr(cf, "cardinality", None),
+            "comprimento_medio": getattr(cf, "avg_len", None),
+            "parece_numerico": getattr(cf, "is_numeric", None),
+        },
+        "2_pre_passe": {
+            "cadencia_detectada": so.cadence_detected,
+            "regra_que_bateu": (so.cadence_info or {}).get("rule_hit"),
+            "min_len_escolhido": so.min_len,
+        },
+        "3_obat_tokenizer": {
+            "usou_hint_de_forma": so.obat_used_hint,
+            "log": (so.obat_log or "").strip().splitlines(),
+        },
+        "4_hcc_composicional": {
+            "seq_rle_disparou": bool(runs),
+            "n_corridas": len(runs),
+            "corridas": [{"linhas": f"{r.get('start_line')}..{r.get('end_line')}",
+                          "count": r.get("count"), "delta_uniforme": r.get("uniform_delta"),
+                          "template": r.get("template")} for r in runs[:6]],
+            "corridas_omitidas": max(0, len(runs) - 6),
+        },
+        "5_saida": {"body_bytes": so.body_bytes, "primeira_linha": w.split("\n")[0]},
+    }
+
+
 REGIMES = {
     "diario": [BASE + _dt.timedelta(days=i) for i in range(N)],
     "semanal": [BASE + _dt.timedelta(days=7 * i) for i in range(N)],
@@ -70,25 +124,80 @@ REGIMES = {
 }
 
 
+#: Regimes cujos artefatos vão pra disco. Os outros só entram nas tabelas — gravar 56×3
+#: arquivos não ajuda ninguém a se orientar.
+GRAVA = ("diario", "espalhado")
+
+
 def parte1():
     linhas, falhas = [], []
     for reg, datas in REGIMES.items():
-        _escreve(RAIZ / "inputs" / f"regime-{reg}.json",
-                 json.dumps([d.isoformat() for d in datas[:12]], indent=1) + "\n")
+        iso = [d.isoformat() for d in datas]
+        hig = higiene_json(iso)
+
+        # ── INPUT: o dado de partida, com a HIGIENE declarada no arquivo E no nome ──
+        _escreve(RAIZ / "inputs" / f"regime-{reg}--{hig['classe']}.input.json",
+                 json.dumps({
+                     "_o_que_e": f"coluna de {len(iso)} datas, regime '{reg}', grafia ISO",
+                     "_higiene": hig,
+                     "_por_que_este_regime": {
+                         "diario": "passo +1 — o caso mais regular",
+                         "semanal": "passo +7", "mensal": "passo +30 (o passo mais irregular em texto)",
+                         "agrupado": "blocos de 20 iguais — o RLE simples domina",
+                         "repetido-k12": "12 datas cicladas — baixa cardinalidade",
+                         "espalhado": "10 anos sem ordem — nada a explorar",
+                         "espalhado-ord": "o mesmo, ordenado — deltas pequenos",
+                         "decada-espalhada": "100 anos sem ordem — domínio largo",
+                     }.get(reg, ""),
+                     "amostra_12_primeiros": iso[:12],
+                     "n_total": len(iso),
+                 }, ensure_ascii=False, indent=1) + "\n")
+
         for alvo, (para, de, porque) in ALVOS.items():
             vals = para(datas)
             w = encode(vals)
             if decode(w) != vals:
                 falhas.append(f"{reg}/{alvo}: RT do wire quebrou")
                 continue
-            if de(decode(w)) != datas:                  # a inversa do ALVO
+            volta = de(decode(w))                       # a inversa do ALVO
+            if volta != datas:
                 falhas.append(f"{reg}/{alvo}: a inversa do alvo não devolve as datas")
                 continue
             linhas.append({"regime": reg, "alvo": alvo, "porque": porque,
                            "bytes": len(w.encode()),
                            "chars_por_valor": round(len(vals[0]), 1)})
-            if reg in ("diario", "espalhado"):
-                _escreve(RAIZ / "outputs" / f"{reg}--{alvo}.tcf", w)
+
+            if reg not in GRAVA:
+                continue
+            base = f"{reg}--{alvo}"
+            # ── OUTPUT: o fio, e o round-trip pra inspecionar ────────────────
+            _escreve(RAIZ / "outputs" / f"{base}.tcf", w)
+            _escreve(RAIZ / "outputs" / f"{base}.roundtrip.json", json.dumps({
+                "_o_que_e": f"round-trip de '{base}' — a CONTRAPROVA do lab",
+                "_como_ler": [
+                    "1. o TCF só vê `apos_o_alvo`: é isso que virou o .tcf",
+                    "2. `decode_do_wire` tem de ser IGUAL a `apos_o_alvo` (RT do formato)",
+                    "3. `depois_da_inversa` tem de ser IGUAL a `entrada_iso` (RT do alvo)",
+                    "os dois níveis fecham = o alvo é reversível E o wire é fiel",
+                ],
+                "alvo": alvo, "o_que_o_alvo_faz": porque,
+                "confere": {
+                    "rt_do_formato": decode(w) == vals,
+                    "rt_do_alvo": [d.isoformat() for d in volta] == iso,
+                },
+                "entrada_iso": iso[:8],
+                "apos_o_alvo": vals[:8],
+                "decode_do_wire": decode(w)[:8],
+                "depois_da_inversa": [d.isoformat() for d in volta][:8],
+                "_amostra": "8 primeiros de %d" % len(iso),
+            }, ensure_ascii=False, indent=1) + "\n")
+            # ── INTERMEDIATE: por onde o dado passou DENTRO do codec ─────────
+            _escreve(RAIZ / "intermediates" / f"{base}.trilha.json", json.dumps({
+                "_o_que_e": f"por onde '{base}' passou dentro do codec — telemetria REAL "
+                            "(`SideOutputs`), não narrativa",
+                "_ordem": "1 entrada → 2 pré-passe → 3 OBAT → 4 HCC/seq-RLE → 5 saída",
+                **trilha(vals),
+            }, ensure_ascii=False, indent=1, default=str) + "\n")
     return linhas, falhas
 
 

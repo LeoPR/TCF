@@ -1,0 +1,56 @@
+{
+ "_o_que_e": "round-trip de 'diario--iso' — a CONTRAPROVA do lab",
+ "_como_ler": [
+  "1. o TCF só vê `apos_o_alvo`: é isso que virou o .tcf",
+  "2. `decode_do_wire` tem de ser IGUAL a `apos_o_alvo` (RT do formato)",
+  "3. `depois_da_inversa` tem de ser IGUAL a `entrada_iso` (RT do alvo)",
+  "os dois níveis fecham = o alvo é reversível E o wire é fiel"
+ ],
+ "alvo": "iso",
+ "o_que_o_alvo_faz": "linha de base — o que o TCF faz hoje",
+ "confere": {
+  "rt_do_formato": true,
+  "rt_do_alvo": true
+ },
+ "entrada_iso": [
+  "2026-01-01",
+  "2026-01-02",
+  "2026-01-03",
+  "2026-01-04",
+  "2026-01-05",
+  "2026-01-06",
+  "2026-01-07",
+  "2026-01-08"
+ ],
+ "apos_o_alvo": [
+  "2026-01-01",
+  "2026-01-02",
+  "2026-01-03",
+  "2026-01-04",
+  "2026-01-05",
+  "2026-01-06",
+  "2026-01-07",
+  "2026-01-08"
+ ],
+ "decode_do_wire": [
+  "2026-01-01",
+  "2026-01-02",
+  "2026-01-03",
+  "2026-01-04",
+  "2026-01-05",
+  "2026-01-06",
+  "2026-01-07",
+  "2026-01-08"
+ ],
+ "depois_da_inversa": [
+  "2026-01-01",
+  "2026-01-02",
+  "2026-01-03",
+  "2026-01-04",
+  "2026-01-05",
+  "2026-01-06",
+  "2026-01-07",
+  "2026-01-08"
+ ],
+ "_amostra": "8 primeiros de 600"
+}
