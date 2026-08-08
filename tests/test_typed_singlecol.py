@@ -457,10 +457,15 @@ class TestLazyBool:
         with pytest.raises(ValueError, match="marcador"):
             decode("#TCF.8bB24\ntrue\nsQ")
 
-    def test_n_s_com_B_fail_loud(self):
-        """Lazy numerico/string e' OUTRO ticket: `nB`/`sB` caem no fail-loud de header."""
+    def test_s_com_B_fail_loud(self):
+        """`sB` continua fail-loud: a string tipada nunca foi soldada.
+
+        RE-PIN 2026-08-07 (weld T-BN-TIPADO): este teste pinava `nB`/`sB` juntos, porque os
+        dois eram inexistentes. O `nB` PASSOU A EXISTIR (denso bN numerico) — a cobertura
+        dele mora em `TestBNTipadoNumerico`. O `sB` segue sem rota.
+        """
         with pytest.raises(ValueError, match="invalido"):
-            decode("#TCF.8nB24\nx\n=sQ")
+            decode("#TCF.8sB24\nx\n=sQ")
 
     # ---- Determinismo + pin byte-exato ----
     def test_determinismo(self):
@@ -472,3 +477,113 @@ class TestLazyBool:
         (outputs/extra-true-lazy.tcf): [True,'true',None,False] -> 19 B."""
         assert encode([True, "true", None, False]) == "#TCF.8bB24\ntrue\n=sQ"
         assert encode([True, "", None, False, True]) == "#TCF.8bB25\n\n=sYA"
+
+
+class TestBNTipadoNumerico:
+    """`#TCF.8nB<w><n>` — denso bN na rota NUMERICA (weld T-BN-TIPADO, 2026-08-07).
+
+    Era o unico buraco de EXISTENCIA da familia de bits: coluna numerica de baixa
+    cardinalidade nao tinha faceta densa nenhuma, e gastava ~608 B onde 55 bastam.
+
+    A forma NAO e' grafia nova — e' a mesma do `#TCF.8bB` (ADR-0039): tag no indice 6, modo
+    no 7, depois `<w><n>`. O decode reescreve o cabecalho e DELEGA ao `decode_bn`, entao
+    todas as checagens do bN valem aqui de graca; os testes abaixo confirmam isso em vez de
+    supor.
+    """
+
+    # ---- existencia + RT estrito ----
+    @pytest.mark.parametrize("vals", [
+        [0, 1] * 100,                      # k=2 int
+        [0, 1, 2, 3] * 50,                 # k=4 int
+        [1.5, 2.5] * 100,                  # float
+        [0, 1, None] * 67,                 # com o slot nulo
+        [-0.0, 1.0] * 100,                 # zero negativo
+        [1, 2.5] * 100,                    # int e float na mesma coluna
+        [10 ** 18, 10 ** 18 + 1] * 100,    # int grande
+    ])
+    def test_rt_estrito_valor_tipo_e_sinal(self, vals):
+        from math import copysign, isnan
+
+        w = encode(vals)
+        assert w.startswith("#TCF.8nB"), w[:12]
+        obtido = decode(w)
+        assert len(obtido) == len(vals)
+        for a, b in zip(obtido, vals):
+            assert type(a) is type(b), f"{a!r} vs {b!r}"
+            if isinstance(a, float) and isnan(a):
+                assert isnan(b)
+                continue
+            assert a == b
+            if isinstance(a, float) and a == 0:
+                assert copysign(1, a) == copysign(1, b), "sinal do zero"
+
+    def test_ganho_medido(self):
+        """O motivo do weld, pinado: sem o bN a mesma coluna custava ~608 B."""
+        w = encode([0, 1] * 100)
+        assert len(w.encode()) == 55
+        # o corpo core da MESMA coluna, pra prova ficar no teste e nao na prosa
+        core = _typed_core_wire([0, 1] * 100, "n", str)
+        assert len(core.encode()) > 600
+        assert decode(core) == [0, 1] * 100          # o core sozinho tambem faz RT
+
+    # ---- FLOOR: candidato, nunca substituto ----
+    @pytest.mark.parametrize("vals", [
+        [7] * 200,            # k=1 -> RLE do core vence
+        [42],                 # n=1
+        [1, 2],               # n=2, curto demais
+        list(range(300)),     # k=300 -> passa do teto MAX_W=8
+    ])
+    def test_nunca_pior_o_floor_recusa(self, vals):
+        w = encode(vals)
+        assert not w.startswith("#TCF.8nB"), f"bN nao devia ativar: {w[:16]!r}"
+        assert decode(w) == vals
+
+    def test_determinismo(self):
+        vals = [0, 1, 2, None] * 50
+        assert encode(vals) == encode(vals)
+
+    # ---- herda as checagens do bN (delegacao, nao duplicacao) ----
+    def test_header_nao_canonico_fail_loud(self):
+        base = encode([0, 1] * 100)
+        assert base.startswith("#TCF.8nB1c8\n")
+        corpo = base.partition("\n")[2]
+        with pytest.raises(ValueError, match="contagem"):
+            decode("#TCF.8nB10c8\n" + corpo)          # zero a esquerda no n
+        with pytest.raises(ValueError, match="contagem"):
+            decode("#TCF.8nB1C8\n" + corpo)           # hex maiusculo
+        with pytest.raises(ValueError, match="largura"):
+            decode("#TCF.8nB9c8\n" + corpo)           # w acima do teto
+
+    def test_marcador_e_trailing_fail_loud(self):
+        base = encode([0, 1] * 100)
+        with pytest.raises(ValueError, match="apos o bloco"):
+            decode(base + "\nlixo")
+        with pytest.raises(ValueError, match="marcador"):
+            decode(base.replace("\n=", "\n", 1))
+
+    def test_payload_b64_adulterado_fail_loud(self):
+        base = encode([0, 1] * 100)
+        cab, _, corpo = base.partition("=")
+        with pytest.raises(ValueError):
+            decode(cab + "=" + corpo + "AAAA")        # payload estendido
+        with pytest.raises(ValueError):
+            decode(cab + "=" + corpo[:-1])            # payload truncado
+
+    # ---- canonicidade da GRAFIA numerica (o buraco que este weld fechou) ----
+    @pytest.mark.parametrize("grafia,valor", [
+        ("01", "1"), ("1.50", "1.5"), ("+1", "1"), ("1e3", "1000.0"), ("1_0", "10"),
+    ])
+    def test_grafia_numerica_nao_canonica_fail_loud(self, grafia, valor):
+        """Cinco familias de grafia colidiam no mesmo valor — medido antes do weld.
+
+        Vale para as DUAS rotas numericas, porque o gate mora no `_cast_tipo` (fonte unica):
+        gate numa so' criaria a divergencia entre irmaos que ja' custou 4 bugs no bN.
+        """
+        wire = _typed_core_wire([grafia, "2"], "n", str)
+        with pytest.raises(ValueError, match="nao-canonica"):
+            decode(wire)
+
+    def test_grafia_canonica_passa(self):
+        """Contraprova do teste acima: a grafia que o encoder emite continua passando."""
+        for vals in ([1, 2], [1.5, -0.0], [10 ** 18, 0], [1e30, 1.0]):
+            assert decode(encode(vals)) == vals

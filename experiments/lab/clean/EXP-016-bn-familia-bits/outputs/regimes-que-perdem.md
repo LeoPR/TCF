@@ -16,22 +16,17 @@ corrigir; ficam listados para o estudo de volume — *são comuns no dado real?*
 | `so-vazio` | F4 espaços | 13 | todos vazios: k=1 |
 | `corpo-rle-vs-bn` | F10 bN×RLE | 21 | corpo perfeitamente RLE-ável (2 blocos): o core faz `*100\|a`+`*100\|b` e VENCE o bN |
 
-## §2 — a rota TIPADA nem consulta o bN (`T-BN-TIPADO`)
+## §2 — a rota TIPADA (`T-BN-TIPADO`) — **FECHADO 2026-08-07**
 
-Aqui a perda é real e é nossa: `#TCF.8n`/`#TCF.8b` não somam o candidato bN ao seu
-`min()`. A coluna `estimativa` é o wire bN **construído de verdade** sobre as grafias
-canônicas que o tipado já emite, **com RT conferido**, mais 1 byte para o char de tag
-de tipo (índice 6; o modo denso mora no 7, ADR-0029). Não é um wire válido hoje — é a
-meta do ticket, ancorada num wire que funciona.
+Esta seção media a lacuna da rota tipada, que não consultava o candidato bN.
+O `T-BN-TIPADO` foi soldado: `#TCF.8nB<w><n>` — a mesma forma do `#TCF.8bB`
+(tag no índice 6, modo no 7), com cast numérico na volta. Os 6 casos que
+moravam aqui foram re-pinados de `recusa` para `ativa` no `casos.py`.
+
+A lista abaixo está VAZIA — é assim que se vê que fechou. Se algum caso voltar a aparecer, a rota tipada regrediu.
 
 | caso | família | rota hoje | bytes hoje | estimativa bN | RT da estimativa | Δ |
 |---|---|---|---:|---:|:-:|---:|
-| `int-01` | F1 bool/binário | tipado-n | 608 | 54 | ok | −554 |
-| `float-simples` | F8 tipos | tipado-n | 612 | 92 | ok | −520 |
-| `float-integral` | F8 tipos | tipado-n+pol | 612 | 58 | ok | −554 |
-| `float-neg-zero` | F8 tipos | tipado-n+pol | 614 | 95 | ok | −519 |
-| `misto-int-float` | F8 tipos | tipado-n+pol | 610 | 97 | ok | −513 |
-| `int-grande` | F8 tipos | tipado-n | 629 | 73 | ok | −556 |
 
-**Total nesta bateria sintética:** 3685 B → 469 B (−3216 B em 6 colunas). O número que vale para decidir
+**Total nesta bateria sintética:** 0 B → 0 B (−0 B em 0 colunas). O número que vale para decidir
 o ticket é o de dado real, não este — a bateria é sintética por construção.

@@ -1,8 +1,8 @@
 {
   "caso": "float-simples",
   "familia": "F8 tipos",
-  "porque": "float k=3: rota tipada `n`; o bN não entra (T-BN-TIPADO)",
-  "espera": "recusa",
+  "porque": "float k=3 na rota tipada `n` com bN: a grafia canônica vira domínio",
+  "espera": "ativa",
   "n": 200,
   "amostra": [
     1.5,

@@ -224,7 +224,7 @@ duro**, que é o default conservador. Ticket `T-B64-TOLERANTE`.
 
 | ticket | o quê | por quê importa |
 |---|---|---|
-| **`T-BN-TIPADO`** | levar o bN à rota tipada (`#TCF.8bB…`) | `bool + null` custa **546 B** hoje contra **92 B** possíveis. Não entrou porque o wire `B` devolve **string**, e a rota tipada tem de preservar o tipo — um `bool` voltando `"true"` seria corrupção silenciosa. Exige tag dentro do cabeçalho, que é grafia nova. |
+| ~~`T-BN-TIPADO`~~ | **SOLDADO 2026-08-07** | Fechou em duas etapas: o `bool + null` saiu do escopo com o denso `b2` (ADR-0037, 546→79 B), e o NUMÉRICO ganhou `#TCF.8nB<w><n>`. A objeção ("exige tag dentro do cabeçalho, que é grafia nova") **estava errada**: o `#TCF.8bB` (ADR-0039) já usava esta forma exata desde 2026-08-01 — tag no índice 6, modo no 7. O decode reescreve o cabeçalho e delega ao `decode_bn`. Medido n=200: `int` 0/1 608→55 B, `int` 0..3 604→93 B, `float` 612→59 B. |
 | **`T-BN-LOTE`** | opt-in para emitir o modo `C` | ~1 B/coluna, para quem não lê incrementalmente |
 | **`T-BN-MULTICOL`** | o bN no `.8M` | é a decisão pendente que já está no `STATUS.md`; escopo diferente deste |
 | **`T-BN-LARGURA-VARIAVEL`** | não desperdiçar slots em `k` = 3, 5, 6, 7 | largura fixa arredonda para cima; `k` potência de 2 é o caso justo |
@@ -237,3 +237,93 @@ duro**, que é o default conservador. Ticket `T-B64-TOLERANTE`.
 `experiments/lab/dirty/2026-07/2026-07-27/`: `1608` (a escada `k → largura`), `1647` (domínio
 comprimido pelo core + alinhamento exaustivo 936/936), `2211` (o eixo de streaming), `2231`
 (marcador por escape), `2247` (o espaço completo de delimitação, 7 opções).
+
+---
+
+## Weld T-BN-TIPADO (2026-08-07) — a rota numérica e a canonicidade da grafia
+
+Fechado o único buraco de **existência** da família de bits: coluna numérica de baixa
+cardinalidade não tinha faceta densa nenhuma.
+
+### O wire
+
+```
+#TCF.8nB<w><n>↵<domínio>↵=<b64>
+       │└─ discriminador bN, índice 7
+       └── tag de tipo, índice 6
+```
+
+Não é grafia nova. O `#TCF.8bB` (lazy bool, ADR-0039) já usava esta forma desde 2026-08-01.
+A objeção registrada na §aberto (*"exige tag dentro do cabeçalho, que é grafia nova"*)
+**estava errada** — o precedente existia e não foi consultado. Vale como lição de processo:
+o inventário das formas já emitidas tem de ser conferido antes de declarar bloqueio.
+
+### Como foi soldado: reescrever e delegar, não duplicar
+
+O decode do `nB` **reescreve o cabeçalho** para a forma explícita e chama `decode_bn`:
+
+```python
+return _cast_tipo(decode_bn(_V8_MAGIC + tcf_text[7:], "B", ...), tag)
+```
+
+É o mesmo idioma que a rota tipada já usava para o corpo core (*expande o apelido, delega,
+casta*). Delegar em vez de duplicar o parser faz o `nB` herdar **de graça**: canonicidade do
+header, marcador obrigatório, nada depois dos bits, todo slot referenciado, e as três
+validações do payload b64. Um parser paralelo seria a divergência-entre-irmãos que já custou
+4 bugs nesta mesma ADR.
+
+No encode, o candidato entra no **mesmo `min()`** que já tinha core e polaridade — nunca
+substitui. Só o modo `B`, pela mesma razão da rota flat.
+
+### Medido (n=200)
+
+| coluna | antes | depois |
+|---|---:|---:|
+| `int` 0/1 | 608 B | **55 B** |
+| `int` 0..3 | 604 B | **93 B** |
+| `float` | 612 B | **59 B** |
+
+`bool` **não** entra: o denso `b1`/`b2` tem domínio implícito e vence por construção (47 B
+contra 57 B sem null; 79 B contra 92 B com null).
+
+### O buraco colateral: a grafia numérica não era canônica
+
+Auditando o weld apareceu um defeito **pré-existente**, da mesma família dos 4 acima. A rota
+`#TCF.8n` aceitava **cinco famílias de grafia** para o mesmo valor:
+
+| wire | decodificava para |
+|---|---|
+| `01` | `1` |
+| `1.50` | `1.5` |
+| `+1` | `1` |
+| `1e3` | `1000.0` |
+| `1_0` | `10` (PEP-515) |
+
+É exatamente a classe do bug de cabeçalho corrigido em 2026-07-28 — e o
+`test_grafia_nao_canonica_fail_loud` já travava o invariante **para o header** enquanto o
+**valor** ficava aberto. Mais uma vez: *o invariante existia e não foi aplicado*.
+
+Corrigido por **canonicidade por re-emissão**, a mesma técnica do header: o encoder grafa com
+`str`, logo a grafia canônica de `v` é `str(v)`.
+
+```python
+if str(v) != s:
+    raise ValueError(f"#TCF.8n: grafia numerica nao-canonica {s!r} (canonica: {str(v)!r})")
+```
+
+O gate mora no **`_cast_tipo`**, que é o ponto único por onde passam as duas rotas numéricas
+(corpo core e denso bN). Gate numa só criaria a divergência que esta ADR já documenta como
+causa raiz.
+
+Simetria conferida em 26 valores exóticos (subnormais, `2**53±1`, `1e-300`, `0.1+0.2`,
+`-0.0`, `1e100`): **0 falhas** — o encoder nunca emite grafia que o decoder recusa.
+
+### Efeito no EXP-016
+
+Os 6 casos tipados estavam pinados em `espera="recusa"` — a previsão registrada era que o
+weld os moveria para `ativa`. Moveu.
+
+E o lab **passou mesmo assim na primeira rodada**, porque o classificador de rota devolvia
+`tipado-n` para um wire que já era bN. Pin só protege contra o que o classificador enxerga;
+classificador defasado transforma pin em anestesia. Corrigido: `rota()` reconhece
+`<tag><disc>`, e o lab agora reporta `bN-B-tipado-n`. bN ativa em **58** dos 72.

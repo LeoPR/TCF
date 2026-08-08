@@ -24,7 +24,7 @@
 | `str-01-null` | bN-B | 90 | 557 | ativa | OK | `"0"` como dado E o slot nulo na mesma coluna — a colisão que custou 4 bugs |
 | `str-sn` | bN-B | 50 | 605 | ativa | OK | binário não-numérico: nenhum escape de dígito envolvido |
 | `str-true-false` | bN-B | 57 | 612 | ativa | OK | as PALAVRAS que o denso usa implicitamente, mas como string de dado |
-| `int-01` | tipado-n | 608 | — | recusa | OK | `0`/`1` como int: rota tipada `n`, não flat — o bN não alcança (T-BN-TIPADO) |
+| `int-01` | bN-B-tipado-n | 55 | — | ativa | OK | `0`/`1` como int: rota tipada `n` COM bN (weld T-BN-TIPADO) — 608 B viraram 55 |
 
 ## F2 null
 
@@ -96,12 +96,12 @@
 
 | caso | rota | bytes | sem bN | espera | veredito | por que existe |
 |---|---|---:|---:|:-:|:-:|---|
-| `float-simples` | tipado-n | 612 | — | recusa | OK | float k=3: rota tipada `n`; o bN não entra (T-BN-TIPADO) |
-| `float-integral` | tipado-n+pol | 612 | — | recusa | OK | float que parece int no `repr` |
-| `float-neg-zero` | tipado-n+pol | 614 | — | recusa | OK | `-0.0 == 0.0` em Python: só o `copysign` distingue |
-| `misto-int-float` | tipado-n+pol | 610 | — | recusa | OK | int e float na MESMA coluna |
+| `float-simples` | bN-B-tipado-n | 93 | — | ativa | OK | float k=3 na rota tipada `n` com bN: a grafia canônica vira domínio |
+| `float-integral` | bN-B-tipado-n | 59 | — | ativa | OK | float que parece int no `repr` |
+| `float-neg-zero` | bN-B-tipado-n | 96 | — | ativa | OK | `-0.0 == 0.0` em Python: só o `copysign` distingue |
+| `misto-int-float` | bN-B-tipado-n | 98 | — | ativa | OK | int e float na MESMA coluna |
 | `bool-vs-int` | — | — | — | qualquer | fail-loud | `True == 1` em Python. FRONTEIRA DECLARADA: união bool+int no mesmo slot está fora do `.8H` (ratificada 2026-07-17) — tem de falhar alto, não deduplicar em silêncio |
-| `int-grande` | tipado-n | 629 | — | recusa | OK | int além de 64 bits |
+| `int-grande` | bN-B-tipado-n | 74 | — | ativa | OK | int além de 64 bits |
 | `nan` | — | — | — | qualquer | fail-loud | NaN: fora do JSON (RFC 8259) — deve FALHAR ALTO |
 | `inf` | — | — | — | qualquer | fail-loud | ±Inf: idem |
 
@@ -147,7 +147,7 @@
 
 ## Contraprova agregada
 
-- o bN **ativou** em 52 dos 72 casos; nos demais o FLOOR escolheu o core, o denso ou o tipado — e **em nenhum** o wire ficou maior;
+- o bN **ativou** em 58 dos 72 casos; nos demais o FLOOR escolheu o core, o denso ou o tipado — e **em nenhum** o wire ficou maior;
 - **em todos** os casos de rota flat, o core sozinho também faz RT: o bN nunca é necessário para correção, só para tamanho;
 - `encode` é determinístico em 100% dos casos.
 

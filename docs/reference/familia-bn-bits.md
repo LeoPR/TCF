@@ -48,6 +48,31 @@ linhas, e `w` já está no header.
 | **`B`** — domínio primeiro | `#TCF.8B<w><n>↵<domínio>↵=<b64>` | **default.** O leitor já tem a tabela de tradução quando os bits começam a chegar — serve streaming |
 | **`C`** — domínio por último | `#TCF.8C<w><n>↵<b64>↵<domínio>` | lote. Decodável, não emitido pelo encoder de hoje |
 
+O `C` é **1 byte menor** que o `B` e mesmo assim não é emitido. A razão é medida: para
+emitir qualquer valor, o `B` precisa de **2,1–7,0%** do fio e o `C` precisa de **100%** — o
+domínio dele vem depois do payload
+([lab 2026-08-07-2055](../../experiments/lab/dirty/2026-08/2026-08-07/2026-08-07-2055-vetores-ortogonais-por-mecanismo/)).
+
+### A forma TIPADA — `#TCF.8nB<w><n>`
+
+Coluna **numérica** de baixa cardinalidade usa o mesmo mecanismo, com a tag de tipo no
+índice 6 e o discriminador empurrado pro 7:
+
+```
+['0','1'] como STRING  →  #TCF.8B1c8↵…      (rota flat)
+[0, 1]    como INT     →  #TCF.8nB1c8↵…     (rota tipada, +1 byte de tag)
+```
+
+Não é grafia nova: o `#TCF.8bB` (lazy bool, ADR-0039) já usa esta forma. O corpo é o mesmo,
+e o decode **reescreve o cabeçalho e delega** ao `decode_bn` — então herda todas as
+checagens de canonicidade sem duplicá-las. Na volta, o cast reconstrói `int`/`float` pela
+grafia.
+
+Medido (n=200): `int` 0/1 **608 → 55 B**; `int` 0..3 **604 → 93 B**; `float` **612 → 59 B**.
+
+`bool` **não** entra nesta rota: o denso `b1`/`b2` tem domínio implícito e vence por
+construção (47 B contra 57 B sem null; 79 B contra 92 B com null).
+
 `C` é *decodável-não-emitido*: o decoder aceita, o encoder não produz. É o mesmo precedente
 dos nomes `true`/`false` no bool tipado — a forma existe no wire para quem a escrever, sem
 custar uma decisão no encode.
@@ -169,6 +194,11 @@ seriam legíveis. Isso mantém `encode` determinístico e o wire diffável.
 
 - **header**: zero à esquerda em `n`, hex maiúsculo, `0x`, sinal, `_` do PEP-515, dígito
   Unicode — todos recusados (a checagem é por **re-emissão**: `f"{n:x}" != nhex` → erro);
+- **grafia numérica do valor** (rota tipada, desde 2026-08-07): mesma técnica aplicada ao
+  dado, não só ao header — `str(v) != s` → erro. Sem isso, cinco famílias colidiam no mesmo
+  valor: `01`→1, `1.50`→1.5, `+1`→1, `1e3`→1000.0, `1_0`→10 (PEP-515). O gate mora no
+  `_cast_tipo`, que é por onde passam as **duas** rotas numéricas — gate numa só criaria a
+  divergência entre irmãos que já custou 4 bugs;
 - **conteúdo depois do bloco de bits** — recusado;
 - **slot de domínio não referenciado** — recusado. Todo slot `0..k-1` aparece nos índices,
   porque o domínio é construído *pela primeira aparição*. Um domínio com slot sobrando não
@@ -190,9 +220,11 @@ pontuação.
 Comportamento **conhecido e medido**, mas ainda não soldado — cada um é ticket aberto no
 [`STATUS.md`](../../STATUS.md):
 
+> `T-BN-TIPADO` **fechou em 2026-08-07** — é a seção [A forma TIPADA](#a-forma-tipada--tcf8nbwn)
+> acima. Era o único buraco de existência da família.
+
 | ticket | o que falta |
 |---|---|
-| `T-BN-TIPADO` | a rota tipada (`#TCF.8n`/`#TCF.8b`) **não consulta** o candidato bN. É a maior lacuna medida — ver [§2 de `regimes-que-perdem.md`](../../experiments/lab/clean/EXP-016-bn-familia-bits/outputs/regimes-que-perdem.md) |
 | `T-BN-LOTE` | o modo `C` é decodável mas nunca emitido |
 | `T-BN-LARGURA-VARIAVEL` | `w` é uniforme; larguras mistas não foram exploradas |
 | `T-BN-MULTICOL` | o bN só entra na rota single-col |

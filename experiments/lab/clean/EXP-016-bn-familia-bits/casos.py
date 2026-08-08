@@ -67,7 +67,7 @@ _c("str-sn", "F1 bool/binário", _cic(["S", "N"]),
 _c("str-true-false", "F1 bool/binário", _cic(["true", "false"]),
    "as PALAVRAS que o denso usa implicitamente, mas como string de dado", espera="ativa")
 _c("int-01", "F1 bool/binário", _cic([0, 1]),
-   "`0`/`1` como int: rota tipada `n`, não flat — o bN não alcança (T-BN-TIPADO)", espera="recusa")
+   "`0`/`1` como int: rota tipada `n` COM bN (weld T-BN-TIPADO) — 608 B viraram 55", espera="ativa")
 
 # ── F2. NULL em todas as densidades ──────────────────────────────────────────
 _c("null-so", "F2 null", [None] * N,
@@ -161,19 +161,19 @@ _c("til-e-asterisco", "F7 escape", _cic(["a~b", "a*b", "a|b"]),
 
 # ── F8. Tipos especiais (rota tipada — o bN não alcança hoje) ───────────────
 _c("float-simples", "F8 tipos", _cic([1.5, 2.5, 3.5]),
-   "float k=3: rota tipada `n`; o bN não entra (T-BN-TIPADO)", espera="recusa")
+   "float k=3 na rota tipada `n` com bN: a grafia canônica vira domínio", espera="ativa")
 _c("float-integral", "F8 tipos", _cic([1.0, 2.0]),
-   "float que parece int no `repr`", espera="recusa")
+   "float que parece int no `repr`", espera="ativa")
 _c("float-neg-zero", "F8 tipos", _cic([-0.0, 0.0, 1.0]),
-   "`-0.0 == 0.0` em Python: só o `copysign` distingue", espera="recusa")
+   "`-0.0 == 0.0` em Python: só o `copysign` distingue", espera="ativa")
 _c("misto-int-float", "F8 tipos", _cic([1, 2.5, 3, 4.5]),
-   "int e float na MESMA coluna", espera="recusa")
+   "int e float na MESMA coluna", espera="ativa")
 _c("bool-vs-int", "F8 tipos", _cic([True, 1, False, 0]),
    "`True == 1` em Python. FRONTEIRA DECLARADA: união bool+int no mesmo slot está fora do "
    "`.8H` (ratificada 2026-07-17) — tem de falhar alto, não deduplicar em silêncio",
    falha=Exception)
 _c("int-grande", "F8 tipos", _cic([10 ** 18, 10 ** 18 + 1]),
-   "int além de 64 bits", espera="recusa")
+   "int além de 64 bits", espera="ativa")
 _c("nan", "F8 tipos", [1.0, float("nan")],
    "NaN: fora do JSON (RFC 8259) — deve FALHAR ALTO", falha=Exception)
 _c("inf", "F8 tipos", [1.0, float("inf")],

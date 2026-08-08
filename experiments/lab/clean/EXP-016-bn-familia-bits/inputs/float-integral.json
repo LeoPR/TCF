@@ -2,7 +2,7 @@
   "caso": "float-integral",
   "familia": "F8 tipos",
   "porque": "float que parece int no `repr`",
-  "espera": "recusa",
+  "espera": "ativa",
   "n": 200,
   "amostra": [
     1.0,

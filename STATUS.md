@@ -8,7 +8,7 @@
 >
 > | ticket | ganho medido | por que ainda não |
 > |---|---|---|
-> | **`T-BN-TIPADO`** | enum tipado NUMÉRICO: `int`/`float` de baixa cardinalidade (**−555/−519 B**, lab 0829) | a família bool foi fechada pelo denso b2 (ADR-0037). O wire `B` devolve string; a rota tipada tem de preservar o tipo. Exige tag no cabeçalho (`#TCF.8nB…`) |
+> | ~~`T-BN-TIPADO`~~ | **SOLDADO 2026-08-07** | `#TCF.8nB<w><n>` — a MESMA forma do `#TCF.8bB` (ADR-0039), não grafia nova. Medido n=200: `int` 0/1 **608→55 B**, `int` 0..3 **604→93 B**, `float` **612→59 B**. O decode reescreve o cabeçalho e DELEGA ao `decode_bn`, herdando todas as checagens. De quebra fechou a canonicidade da GRAFIA numérica (5 famílias colidiam: `01`/`1.50`/`+1`/`1e3`/`1_0`) no `_cast_tipo`, que serve as DUAS rotas. Suite 1192. |
 > | **`T-BN-LOTE`** | ~1 B/coluna | falta o opt-in; o modo `C` já é decodável |
 > | **`T-BN-MULTICOL`** | ver decisão pendente abaixo | escopo `.8M`, diferente do single-col |
 > | **`T-BN-LARGURA-VARIAVEL`** | slots desperdiçados em `k` = 3, 5, 6, 7 | largura fixa arredonda pra cima |
@@ -73,7 +73,7 @@
 > custo fixo. Reais Adult ternário (n=100): 232–250 → 47 B. Bool puro segue no `b1` (FLOOR).
 > **Nenhum baseline moveu** (D1-D9 1545, D17a 300, real-world 89430 — gates são rota flat).
 > Evidência: `experiments/lab/dirty/2026-07/2026-07-31/2026-07-31-2350-denso-b2-ternario/`.
-> O T-BN-TIPADO perde a família bool do escopo — restam os números.
+> O T-BN-TIPADO perdeu a família bool do escopo (denso b2 a cobriu) e SOLDOU os números em 2026-08-07.
 
 > **✅ WELD — índice interno DEFAULT no core tipado bool (2026-08-01, ADR-0038, suíte 1084
 > passed).** O null já viajava como `0` cru no core tipado (slot 0 pré-alocado), mas
@@ -1057,7 +1057,7 @@ nao guia de evolucao (cf. diretriz dados-realistas).
 | EXP-013-real-world-tpch | Real-world TPC-H 8 tabelas (RT 8/8 OK apos welding ADR-0007; ratio 90.6% total raw->tcf) | concluido |
 | EXP-014-tpch-lineitem-scale | Performance scale lineitem (1k-20k + full 60175). Pre-ADR-0009: O(N^1.75) / 71min full. **Pos-ADR-0009: O(N^1.42) / 18.5min estimado, 21.3min REAL (+15%, RT OK).** RT 5/5 OK | concluido |
 | EXP-015-tcf-hierarquico-csv-json | Prototipo TCF.8H: JSON<->TCF.8H<->JSON preserva a arvore; CSV nao precisa de hierarquia | concluido |
-| EXP-016-bn-familia-bits | Bateria sintetica da familia bN + polaridade: 72 casos / 11 familias, 4 provas por caso (RT estrito, determinismo, nunca-pior, correcao≠bN). **0 falhas**; bN ativa em 52. Lacuna medida da rota tipada em `outputs/regimes-que-perdem.md` §2 (`T-BN-TIPADO`) | concluido |
+| EXP-016-bn-familia-bits | Bateria sintetica da familia bN + polaridade: 72 casos / 11 familias, 4 provas por caso (RT estrito, determinismo, nunca-pior, correcao≠bN). **0 falhas**; bN ativa em 52. A lacuna da rota tipada (`regimes-que-perdem.md` §2) FECHOU com o weld do `T-BN-TIPADO` 2026-08-07; 6 casos re-pinados de `recusa` p/ `ativa`, bN ativa em 58 | concluido |
 
 EXP-009.1+ ainda nao abertos (criterio: macro dirty fechar com hipotese
 confirmada).

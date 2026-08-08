@@ -58,17 +58,17 @@ O catálogo é [`casos.py`](casos.py) — declarativo. Cada caso traz `nome`, `f
 esperada, quando o caso é de fail-loud).
 
 **`espera` é um pin, não uma descrição.** Todo caso que produz wire declara `ativa` ou
-`recusa` — 52 e 17. Só os 3 casos de `falha` ficam em `qualquer`, e ali por construção:
+`recusa` — 58 e 11 (era 52/17; o weld `T-BN-TIPADO` moveu 6). Só os 3 casos de `falha` ficam em `qualquer`, e ali por construção:
 levantam antes de haver rota. Isso importa porque um caso que aceita qualquer rota não
 prova nada sobre o FLOOR — vira teste de RT com nome de teste de decisão. Com o pin,
 **mudar a decisão do FLOOR quebra o lab**, que é o ponto; quando um ticket mover a
-fronteira de propósito (o `T-BN-TIPADO` vai mover 6 destes de `recusa` pra `ativa`),
+fronteira de propósito — o `T-BN-TIPADO` moveu exatamente os 6 previstos em 2026-08-07 —
 re-pinar é parte do weld — mesmo regime dos baselines de bytes (ADR-0024).
 
 ## Resultado (medido, `report.md`)
 
 - **72 casos, 0 falhas.**
-- o bN **ativou em 52**; nos outros o FLOOR escolheu core, denso ou tipado — e **em nenhum**
+- o bN **ativou em 58** (era 52 antes do weld `T-BN-TIPADO`); nos outros o FLOOR escolheu core, denso ou tipado — e **em nenhum**
   o wire ficou maior;
 - `encode` determinístico em **100%**;
 - **em todos** os casos de rota flat o core sozinho também faz RT.
@@ -105,16 +105,15 @@ coisas que são diferentes:
 
 - **§1 — o FLOOR recusou, e recusou certo.** Nada a corrigir; ficam listadas para o estudo
   de volume (*são comuns no dado real?*), que é outro trabalho.
-- **§2 — a rota TIPADA nem consulta o bN** (`T-BN-TIPADO`). Essa perda é nossa. A estimativa
-  na tabela é o wire bN **construído de verdade** sobre as grafias canônicas que o tipado já
-  emite, **com RT conferido**, mais 1 byte pro char de tag. Não é um wire válido hoje — é a
-  meta do ticket, ancorada num wire que funciona. Nesta bateria: **3685 B → 469 B em 6
-  colunas**. O número que decide o ticket é o de dado real, não este.
+- **§2 — a rota TIPADA** (`T-BN-TIPADO`): **FECHADO em 2026-08-07**. Media a lacuna dos 6
+  casos tipados; o weld os moveu de `recusa` para `ativa` (`#TCF.8nB<w><n>`). A seção agora
+  fica **vazia de propósito** — é assim que se vê que fechou, e se algum caso reaparecer a
+  rota regrediu.
 
 ## Arquivos
 
 - [`casos.py`](casos.py) — o catálogo declarativo (72 casos, 11 famílias).
-- [`run.py`](run.py) — as quatro provas + o relatório. Exit 1 em qualquer falha.
+- [`run.py`](run.py) — as cinco provas + o relatório. Exit 1 em qualquer falha.
 - [`report.md`](report.md) — tabela por família, com rota, bytes, bytes-sem-bN e veredito.
 - [`inputs/`](inputs/) — um JSON por caso (amostra + o que se espera).
 - [`outputs/`](outputs/) — o `.tcf` e o roundtrip de cada caso, mais

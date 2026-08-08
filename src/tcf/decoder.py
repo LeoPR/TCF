@@ -314,18 +314,35 @@ def _cast_tipo(strs: "list[str | None]", tag: str) -> list:
                 out.append(None)
                 continue
             try:
-                out.append(int(s))
-                continue
+                v = int(s)
             except ValueError:
-                pass
-            try:
-                v = float(s)
-            except ValueError:
-                raise ValueError(f"#TCF.8n: valor fora do dominio numerico: {s!r}") from None
-            if not isfinite(v):
-                # NaN/±Inf ficam FORA do JSON (RFC 8259) e o encoder nunca os emite —
-                # aceitar aqui seria assimetria (decode entendendo o que encode recusa).
-                raise ValueError(f"#TCF.8n: NaN/Infinity nao e' JSON (RFC 8259): {s!r}")
+                try:
+                    v = float(s)
+                except ValueError:
+                    raise ValueError(
+                        f"#TCF.8n: valor fora do dominio numerico: {s!r}") from None
+                if not isfinite(v):
+                    # NaN/±Inf ficam FORA do JSON (RFC 8259) e o encoder nunca os emite —
+                    # aceitar aqui seria assimetria (decode entendendo o que encode recusa).
+                    raise ValueError(f"#TCF.8n: NaN/Infinity nao e' JSON (RFC 8259): {s!r}")
+            # CANONICIDADE POR RE-EMISSAO (weld T-BN-TIPADO, 2026-08-07). O encoder grafa
+            # com `str` (o `render` do `_tipo_single_col`); entao a grafia canonica de `v` e'
+            # `str(v)`, e qualquer outra e' um wire que o encoder nunca produziria.
+            #
+            # Sem esta linha, CINCO familias de grafia colidiam no mesmo valor — medido:
+            #   '01'->1  '1.50'->1.5  '+1'->1  '1e3'->1000.0  '1_0'->10   (PEP 515!)
+            # E' a MESMA classe do bug de cabecalho que a auditoria de 2026-07-28 pegou no
+            # bN, e o `test_grafia_nao_canonica_fail_loud` ja' travava o invariante para o
+            # HEADER enquanto o VALOR ficava aberto. O invariante existia e nao era aplicado.
+            #
+            # Mora aqui, no `_cast_tipo`, porque este e' o ponto unico por onde passam as
+            # DUAS rotas numericas (corpo core `#TCF.8n` e denso bN `#TCF.8nB`). Gate numa
+            # so' criaria exatamente a divergencia entre irmaos que ja' custou 4 bugs.
+            if str(v) != s:
+                raise ValueError(
+                    f"#TCF.8n: grafia numerica nao-canonica {s!r} (canonica: {str(v)!r}) "
+                    f"— duas grafias para o mesmo valor violariam a canonicidade do wire"
+                )
             out.append(v)
         return out
     return list(strs)                              # 's' = string (identidade)
@@ -344,6 +361,25 @@ def _decode_typed(tcf_text: str, tag: str, max_length: int | None = None) -> lis
     # n/s com 'B' caem no fail-loud de header denso abaixo (lazy numerico = outro ticket).
     if resto[:1] == "B" and tag == "b":
         return _decode_lazy_bool(tcf_text, max_length=max_length)
+    # DENSO bN TIPADO `#TCF.8nB<w><n>` (weld T-BN-TIPADO, 2026-08-07). A coluna numerica de
+    # baixa cardinalidade nao tinha NENHUMA faceta de bits: `int 0/1` x200 gastava 608 B onde
+    # 55 bastam. O bloqueio registrado na ADR-0036 era "exige tag DENTRO do cabecalho, que e'
+    # grafia nova" — nao e': o `#TCF.8bB` (lazy bool, ADR-0039) ja' usa esta forma exata
+    # (tag no indice 6, modo no 7, depois `<w><n>`). O que muda e' so' o CAST na volta.
+    #
+    # Reescreve o cabecalho pra forma explicita e DELEGA ao `decode_bn` — mesmo idioma que a
+    # rota tipada ja' usa pro corpo core (expande o apelido, delega, casta). Delegar em vez de
+    # duplicar o parser e' o que faz o `nB` herdar de graca TODAS as checagens do bN:
+    # canonicidade do header, marcador obrigatorio, nada depois dos bits, todo slot
+    # referenciado, e as tres validacoes do payload b64.
+    if resto[:1] == "B" and tag == "n":
+        from tcf.composicional.dominio_bn import decode_bn
+
+        return _cast_tipo(
+            decode_bn(_V8_MAGIC + tcf_text[7:], "B",
+                      lambda b: _decode_column(b, max_length=max_length)),
+            tag,
+        )
     # A VARIAVEL DE DECISAO: resto vazio -> modo CORE (implicito); senao -> modo DENSO bN.
     if resto == "":
         strs = _decode_column(body, max_length=max_length) if body else []

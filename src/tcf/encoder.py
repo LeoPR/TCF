@@ -512,12 +512,31 @@ def encode(
         if _suf:
             candidatos.append(f"{magic}{tag}{_suf}\n{_corpo_pol}")
 
-        # bN DE DOMINIO: NAO entra aqui. O wire `#TCF.8B…` devolve STRING, e a rota tipada
-        # tem de preservar o tipo — um `bool` voltando `"true"` seria corrupcao silenciosa.
-        # Levar o bN pro tipado exige a tag DENTRO do cabecalho (`#TCF.8bB…`), que e' grafia
-        # nova. Fica pendente: T-BN-TIPADO (ADR-0036 §aberto) — agora so' p/ NUMEROS: o
-        # `bool + null` saiu da mesa com o denso b2 abaixo (546 B -> 79 B, lab
-        # 2026-07-31-2350-denso-b2-ternario).
+        # bN DE DOMINIO TIPADO (weld T-BN-TIPADO, 2026-08-07) — so' p/ NUMERO.
+        #
+        # A objecao antiga ("o wire `#TCF.8B…` devolve STRING e a rota tipada tem de
+        # preservar o tipo") continua valendo, e e' exatamente por isso que a tag vai DENTRO
+        # do cabecalho: `#TCF.8nB<w><n>`. Isso NAO e' grafia nova — o `#TCF.8bB` (lazy bool,
+        # ADR-0039) ja' usa esta forma exata desde 2026-08-01. O corpo e' o mesmo
+        # `candidatos()` do bN de sempre; o decode reescreve o cabecalho e delega.
+        #
+        # So' o modo `B` concorre, pela MESMA razao da rota flat: o `C` e' ~1 B menor e
+        # venceria sempre num min() cego, mas nao streama (dominio depois do payload —
+        # medido: 100% do fio antes do 1o valor, contra 2,1-7,0% do `B`).
+        #
+        # `bool` NAO entra: o denso b1/b2 tem dominio IMPLICITO e vence por construcao
+        # (medido: 47 B contra 57 B sem null; 79 B contra 92 B com null). `s` tambem nao —
+        # a rota flat ja' consulta o bN pra string.
+        if tag == "n":
+            from tcf.composicional.dominio_bn import candidatos as _bn_cands
+
+            _grafias = [None if x is None else render(x) for x in data]
+            for _c in _bn_cands(
+                _grafias, lambda vs: _encode_column(vs, header="val", cfg=cfg), None
+            )[:1]:
+                # A tag entra no indice 6, empurrando o disc pro 7 — o mesmo slot posicional
+                # de `b1`/`b2`/`bB` (ADR-0029). Custo: 1 byte.
+                candidatos.append(_c[:6] + tag + _c[6:])
 
         if tag == "b":
             import base64

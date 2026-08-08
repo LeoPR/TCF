@@ -160,14 +160,20 @@ def rota(wire: str) -> str:
     # `_separa` devolve `("", "")` quando NAO ha' sufixo — nesse caso o decoder olha o
     # `resto` cru. Reproduzir isso, e nao so' o `tag`, e' o que torna a rota fiel.
     corpo_tag = tag if sufixo else resto
-    d = corpo_tag[:1]
+    d, d2 = corpo_tag[:1], corpo_tag[1:2]
     pol = "+pol" if sufixo else ""
     if d in DISCS:
         return f"bN-{d}{pol}"
     if d == "":                              # `#TCF.8` puro — version-stamp, corpo do core
         return f"core{pol}"
-    if d == "b" and corpo_tag[1:2] == "B":
+    if d == "b" and d2 == "B":               # lazy bool: cabeça congelada + extras (ADR-0039)
         return f"lazy-bB{pol}"
+    # bN TIPADO `#TCF.8nB…` (weld T-BN-TIPADO, 2026-08-07). Antes deste ramo o classificador
+    # devolvia `tipado-n` para um wire que É bN — e como 6 casos estavam pinados em `recusa`,
+    # o lab PASSAVA relatando o oposto do que acontecia. O pin só protege contra o que o
+    # classificador enxerga; classificador defasado transforma pin em anestesia.
+    if d in ("b", "n", "s") and d2 in DISCS:
+        return f"bN-{d2}-tipado-{d}{pol}"
     if d in ("b", "n", "s"):
         return f"tipado-{d}{pol}"
     return f"outro-{d!r}{pol}"
@@ -329,12 +335,14 @@ def main() -> int:
         "corrigir; ficam listados para o estudo de volume — *são comuns no dado real?*", "",
         "| caso | família | bytes | por que existe |", "|---|---|---:|---|",
         *(f"| `{n}` | {f} | {b} | {_esc_md(p)} |" for n, f, b, p in perdem),
-        "", "## §2 — a rota TIPADA nem consulta o bN (`T-BN-TIPADO`)", "",
-        "Aqui a perda é real e é nossa: `#TCF.8n`/`#TCF.8b` não somam o candidato bN ao seu",
-        "`min()`. A coluna `estimativa` é o wire bN **construído de verdade** sobre as grafias",
-        "canônicas que o tipado já emite, **com RT conferido**, mais 1 byte para o char de tag",
-        "de tipo (índice 6; o modo denso mora no 7, ADR-0029). Não é um wire válido hoje — é a",
-        "meta do ticket, ancorada num wire que funciona.", "",
+        "", "## §2 — a rota TIPADA (`T-BN-TIPADO`) — **FECHADO 2026-08-07**", "",
+        "Esta seção media a lacuna da rota tipada, que não consultava o candidato bN.",
+        "O `T-BN-TIPADO` foi soldado: `#TCF.8nB<w><n>` — a mesma forma do `#TCF.8bB`",
+        "(tag no índice 6, modo no 7), com cast numérico na volta. Os 6 casos que",
+        "moravam aqui foram re-pinados de `recusa` para `ativa` no `casos.py`.", "",
+        ("A lista abaixo está VAZIA — é assim que se vê que fechou. Se algum caso "
+         "voltar a aparecer, a rota tipada regrediu." if not lacunas else
+         "**REGRESSÃO**: casos abaixo deviam estar vazios."), "",
         "| caso | família | rota hoje | bytes hoje | estimativa bN | RT da estimativa | Δ |",
         "|---|---|---|---:|---:|:-:|---:|",
         *(f"| `{n}` | {f} | {r} | {h} | {e} | {'ok' if ok else '**FALHOU**'} | −{h - e} |"
