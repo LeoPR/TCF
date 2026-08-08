@@ -101,10 +101,16 @@ escolhendo o que fazer com uma tradução que já aconteceu antes dele.**
 
 | origem | recomendação | por quê |
 |---|---|---|
-| **SQL `DATE`** | serialize em **ISO** (`YYYY-MM-DD`) | grafia única, 100% desambigua sozinha, e o driver já faz |
-| **JSON** | **ISO 8601 como string** — não epoch numérico | epoch em segundos foi medido e **nunca vence** para data pura: ×86400 acrescenta 5 dígitos sem informação |
-| **CSV** | ISO, e **uma grafia só por coluna** | coluna com formatos misturados degrada: medido 25% em BR dentro de ISO → o ganho cai de −93,7% para −5,5% |
+| **SQL `DATE`** | já sai certo em Postgres/MySQL/MariaDB/SQL Server/SQLite/DuckDB. **Oracle exige `TO_CHAR`** | o Oracle usa `DD-MON-RR` por locale — ano de 2 dígitos, mês por extenso — e o `NLS_LANG` do CLIENTE sobrescreve o servidor |
+| **JSON** | **converta para `YYYY-MM-DD` explicitamente** | o JSON não tem tipo de data, e o de-facto (`JSON.stringify` → `toISOString`) dá **timestamp** com 24 chars onde 10 bastam, e um fuso indesejado |
+| **CSV** | `YYYY-MM-DD`, e **uma grafia só por coluna** | a RFC 4180 não tem default; e 25% em BR dentro de ISO derruba o ganho de −93,7% para −5,5% |
+| **.NET** | `ToString` com `CultureInfo.InvariantCulture` | a `CurrentCulture` muda a **ordem dos campos**, não só o separador |
 | **qualquer** | **ordene a coluna se a ordem não importar** | `espalhado-ord` com `delta-dias` fez **8,4×** contra o mesmo dado desordenado |
+
+> **Correção (levantamento 2026-08-08):** a recomendação original dizia *"use ISO"*. Não
+> basta — a ISO 8601 admite `20260131` **e** `2026-01-31`. O nome certo é **RFC 3339
+> `full-date`**, e a regra tem de ser escrita **em caracteres**, não por referência a tipo.
+> Guia: [`docs/how-to/normalizar-data-antes-do-tcf.md`](../../../../docs/how-to/normalizar-data-antes-do-tcf.md).
 
 Essas quatro linhas são a *matéria* que o owner pediu. Repare que **nenhuma exige código no
 TCF** — e a última (ordenar) tem o maior efeito isolado que medimos fora do alvo.
@@ -165,8 +171,20 @@ seguir o precedente, não há decisão a tomar — e isso é bom sinal.
 
 ---
 
-## O que ainda não sei
+## O levantamento externo — feito
 
-Como os outros formatos traçam essa mesma linha — se preservam a grafia ou só o valor, e
-quantas variantes de data cada um define. Está sendo levantado; **este plano será revisto com
-o resultado** antes de virar decisão.
+21 itens (bancos, linguagens, formatos), 10 correções na verificação. Incorporado acima e no
+[guia](../../../../docs/how-to/normalizar-data-antes-do-tcf.md).
+
+**Sim, existe um default de fato**: `YYYY-MM-DD` (RFC 3339 `full-date`) é o que emitem, sem
+tocar em nada, PostgreSQL · MySQL · MariaDB · SQL Server · SQLite · DuckDB · Python · Java ·
+Go · Rust/chrono · `Temporal.PlainDate` · TOML · `xs:date`.
+
+**As exceções não são periféricas** e exigem ação na ponta: **Oracle** (locale, ano de 2
+dígitos, e o cliente sobrescreve o servidor) e **.NET** (a cultura muda a ordem dos campos).
+E **JSON/CSV/YAML não têm default nenhum** — no JSON o de-facto do ecossistema é timestamp,
+não date.
+
+O que **não** dá pra recomendar, e o levantamento foi explícito: confiar no `format:"date"`
+do JSON Schema (a asserção fica desligada por padrão), no default do CSV (não existe), ou no
+default do JSON (é timestamp).
