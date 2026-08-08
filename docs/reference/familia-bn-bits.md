@@ -48,10 +48,17 @@ linhas, e `w` já está no header.
 | **`B`** — domínio primeiro | `#TCF.8B<w><n>↵<domínio>↵=<b64>` | **default.** O leitor já tem a tabela de tradução quando os bits começam a chegar — serve streaming |
 | **`C`** — domínio por último | `#TCF.8C<w><n>↵<b64>↵<domínio>` | lote. Decodável, não emitido pelo encoder de hoje |
 
-O `C` é **1 byte menor** que o `B` e mesmo assim não é emitido. A razão é medida: para
-emitir qualquer valor, o `B` precisa de **2,1–7,0%** do fio e o `C` precisa de **100%** — o
-domínio dele vem depois do payload
-([lab 2026-08-07-2055](../../experiments/lab/dirty/2026-08/2026-08-07/2026-08-07-2055-vetores-ortogonais-por-mecanismo/)).
+O `C` é **1 byte menor** que o `B` e mesmo assim o default é o `B`. Não é indecisão — são
+**duas trocas conhecidas**, e a escolha é do produtor sobre como o dado vai ser consumido:
+
+| | bytes | prefixo do fio até o 1º valor |
+|---|---:|---:|
+| `B` (default) | +1 | **2,1–7,0%** |
+| `C` (declarado) | −1 | **100%** |
+
+Medido no [lab 2026-08-07-2055](../../experiments/lab/dirty/2026-08/2026-08-07/2026-08-07-2055-vetores-ortogonais-por-mecanismo/).
+O `B` é o default porque transmissão é o caso comum; o `C` serve quem lê o arquivo inteiro
+em disco. O **opt-in de emissão** do `C` é o `T-BN-LOTE` (`.9`) — o decode já o aceita hoje.
 
 ### A forma TIPADA — `#TCF.8nB<w><n>`
 

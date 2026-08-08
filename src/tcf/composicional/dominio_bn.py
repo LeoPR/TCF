@@ -193,8 +193,14 @@ def _b64_len(n: int, w: int) -> int:
     return (((n * w + 7) // 8) * 8 + 5) // 6
 
 
-def decode_bn(tcf_text: str, disc: str, decode_col) -> "list[str | None]":
-    """Le um wire `#TCF.8B…`/`#TCF.8C…`. Fail-loud em cabecalho ou fronteira nao-canonicos."""
+def decode_bn(tcf_text: str, disc: str, decode_col,
+              rotulo: "str | None" = None) -> "list[str | None]":
+    """Le um wire `#TCF.8B…`/`#TCF.8C…`. Fail-loud em cabecalho ou fronteira nao-canonicos.
+
+    `rotulo` nomeia o wire NAS MENSAGENS DE ERRO. Default = `#TCF.8<disc>`. Quem delega pra
+    ca' com o cabecalho reescrito (a rota tipada `#TCF.8nB`) passa o rotulo original, senao
+    o erro sai assinado com a forma interna e aponta pro mecanismo errado.
+    """
     cab, sep, resto = tcf_text.partition("\n")
     if not sep:
         raise ValueError(f"wire bN sem corpo: {cab[:24]!r}")
@@ -244,7 +250,12 @@ def decode_bn(tcf_text: str, disc: str, decode_col) -> "list[str | None]":
         bloco = "\n".join(ln[1:] if ln.startswith(BS + MARCADOR) else ln
                           for ln in linhas[:alvo])
 
-    rotulo = f"{MAGIC}{disc}"
+    # O rotulo das mensagens de erro identifica o wire QUE O USUARIO MANDOU, nao a forma
+    # interna pra qual ele foi reescrito. A rota tipada (`#TCF.8nB`) chega aqui com o
+    # cabecalho ja' reescrito pra `#TCF.8B` — sem `rotulo` explicito, o erro sairia assinado
+    # como o irmao de STRING, que tem contrato de retorno diferente (auditoria 2026-08-07,
+    # achado [4]). Diagnostico que aponta pro mecanismo errado custa depuracao.
+    rotulo = rotulo or f"{MAGIC}{disc}"
     dom = [_le_grafia(s) for s in decode_col(bloco + "\n")]
     if not dom:
         raise ValueError("dominio bN vazio — corpo nao-canonico")

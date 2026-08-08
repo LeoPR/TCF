@@ -14,6 +14,13 @@ Aplicam-se a **multi-coluna** (`dict[str, list[str]]`); para single-col (`list[s
 ignorados, exceto `min_len` e `nature`. Output é sempre UTF-8, LF only. `decode(encode(x)) == x`
 (exceto `sort_by`, ver abaixo).
 
+> **Previstos, ainda não implementados** (`.9`): `bn_modo` (`"B"` stream — default de hoje —
+> vs `"C"` lote, `T-BN-LOTE`) e os **perfis macro** (`stream`/`lote`/`rapido`/`memoria`/
+> `compacto`/`auto`, `T-PERFIS-MACRO`). A ideia dos perfis é declarar a **intenção** em vez do
+> mecanismo, porque um knob por mecanismo não escala — `PipelineConfig` já é o precedente de
+> agrupador. Esboço:
+> [`2026-08-07-flags-modo-bn-e-perfis-macro`](../../experiments/lab/dirty/notas/2026-08/2026-08-07-flags-modo-bn-e-perfis-macro.md).
+
 ## Knobs de bytes / layout
 
 | knob | tipo | default | efeito | byte-impact |

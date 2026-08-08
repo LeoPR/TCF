@@ -335,9 +335,19 @@ def _cast_tipo(strs: "list[str | None]", tag: str) -> list:
             # bN, e o `test_grafia_nao_canonica_fail_loud` ja' travava o invariante para o
             # HEADER enquanto o VALOR ficava aberto. O invariante existia e nao era aplicado.
             #
-            # Mora aqui, no `_cast_tipo`, porque este e' o ponto unico por onde passam as
-            # DUAS rotas numericas (corpo core `#TCF.8n` e denso bN `#TCF.8nB`). Gate numa
-            # so' criaria exatamente a divergencia entre irmaos que ja' custou 4 bugs.
+            # Mora aqui, no `_cast_tipo`, porque este e' o ponto unico das DUAS rotas
+            # numericas do SINGLE-COL TIPADO (corpo core `#TCF.8n` e denso bN `#TCF.8nB`).
+            # Gate numa so' criaria a divergencia entre irmaos que ja' custou 4 bugs.
+            #
+            # ATENCAO — sao TRES rotas numericas no formato, nao duas (auditoria 2026-08-07;
+            # a redacao anterior deste comentario dizia "as duas" e induzia o leitor a achar
+            # que a familia estava fechada). A terceira e' o `#TCF.8H`, que tem cast proprio
+            # em `hierarchical.py::_dec_scalar` (ramo `n`, via `json.loads`) e NAO passa por
+            # aqui — e' por onde vai todo numero multi-coluna/aninhado. Ela aceita grafia
+            # nao-canonica (`1e3`, `1.50`, `0e0`, `-0`) em silencio.
+            # Nivel E5/E4 pela escala de verificacao (so' alcancavel por wire escrito a mao,
+            # nunca por `encode`->`decode`), portanto REGISTRADO e nao corrigido aqui:
+            # ver `notas/2026-08/2026-08-07-triagem-auditoria-nB-pela-escala.md` achado [1].
             if str(v) != s:
                 raise ValueError(
                     f"#TCF.8n: grafia numerica nao-canonica {s!r} (canonica: {str(v)!r}) "
@@ -377,7 +387,8 @@ def _decode_typed(tcf_text: str, tag: str, max_length: int | None = None) -> lis
 
         return _cast_tipo(
             decode_bn(_V8_MAGIC + tcf_text[7:], "B",
-                      lambda b: _decode_column(b, max_length=max_length)),
+                      lambda b: _decode_column(b, max_length=max_length),
+                      rotulo=f"{_V8_MAGIC}{tag}B"),
             tag,
         )
     # A VARIAVEL DE DECISAO: resto vazio -> modo CORE (implicito); senao -> modo DENSO bN.

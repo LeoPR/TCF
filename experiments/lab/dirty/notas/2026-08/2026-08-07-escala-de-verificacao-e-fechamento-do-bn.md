@@ -121,13 +121,19 @@ fazer e nunca sairemos pro `.9`"*.
 
 **Cobertura**: 1192 testes na suite · 252 na família · EXP-016 com 72 casos e 0 falhas.
 
-### Falta decidir (não é código)
+### Fechado depois da nota (registro)
 
-1. **modo `B` × `C`.** O `C` é 1 byte menor e não é emitido, porque não streama (100% do
-   fio antes do 1º valor, contra 2,1–7,0%). Hoje isso é **inércia**; devia ser decisão
-   registrada. Confirmar ou reverter — qualquer das duas fecha o item.
-2. **Triagem da auditoria em curso.** Achados de nível E5 entram como registro, não como
-   fila. Só E1/E2/E3 viram trabalho.
+1. ~~**modo `B` × `C`**~~ — **não era pendência.** Correção do owner (2026-08-07): os dois
+   modos existem, são duas trocas conhecidas, `B` é stream-friendly e é o default, `C` entra
+   só quando declarado. Estava decidido há tempo; eu é que tratei escolha feita como item
+   aberto. O que resta é o **opt-in de emissão** (`T-BN-LOTE`, `.9`) — esboço de flag em
+   [`flags-modo-bn-e-perfis-macro`](2026-08-07-flags-modo-bn-e-perfis-macro.md).
+2. ~~**Triagem da auditoria**~~ — **feita**: 9 achados → 6 distintos, **zero alcançável por
+   `encode→decode`**. Os 2 do meu weld (comentário errado, rótulo de erro) foram aplicados;
+   os 4 pré-existentes são E4/E5 e ficaram registrados.
+   Ver [triagem](2026-08-07-triagem-auditoria-nB-pela-escala.md).
+
+**Nada em aberto no bN.**
 
 ### Explicitamente `.9` (não abrir agora)
 
