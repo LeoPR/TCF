@@ -1,0 +1,884 @@
+[
+  {
+    "eixo": "formato",
+    "caso": "iso",
+    "n": 12,
+    "len_valor": 10,
+    "k": 12,
+    "bytes": 47,
+    "rota": "core+pol"
+  },
+  {
+    "eixo": "formato",
+    "caso": "br",
+    "n": 12,
+    "len_valor": 10,
+    "k": 12,
+    "bytes": 33,
+    "rota": "core+pol"
+  },
+  {
+    "eixo": "formato",
+    "caso": "us",
+    "n": 12,
+    "len_valor": 10,
+    "k": 12,
+    "bytes": 56,
+    "rota": "core"
+  },
+  {
+    "eixo": "formato",
+    "caso": "compacto",
+    "n": 12,
+    "len_valor": 8,
+    "k": 12,
+    "bytes": 45,
+    "rota": "core+pol"
+  },
+  {
+    "eixo": "formato",
+    "caso": "ponto",
+    "n": 12,
+    "len_valor": 10,
+    "k": 12,
+    "bytes": 33,
+    "rota": "core+pol"
+  },
+  {
+    "eixo": "formato",
+    "caso": "extenso",
+    "n": 12,
+    "len_valor": 11,
+    "k": 12,
+    "bytes": 34,
+    "rota": "core"
+  },
+  {
+    "eixo": "formato",
+    "caso": "ano-mes",
+    "n": 12,
+    "len_valor": 7,
+    "k": 1,
+    "bytes": 21,
+    "rota": "core"
+  },
+  {
+    "eixo": "formato",
+    "caso": "ano",
+    "n": 12,
+    "len_valor": 4,
+    "k": 1,
+    "bytes": 17,
+    "rota": "core"
+  },
+  {
+    "eixo": "formato",
+    "caso": "epoch-dia",
+    "n": 12,
+    "len_valor": 6,
+    "k": 12,
+    "bytes": 38,
+    "rota": "core+pol"
+  },
+  {
+    "eixo": "formato",
+    "caso": "iso-invertido",
+    "n": 12,
+    "len_valor": 10,
+    "k": 12,
+    "bytes": 33,
+    "rota": "core+pol"
+  },
+  {
+    "eixo": "formato",
+    "caso": "iso",
+    "n": 120,
+    "len_valor": 10,
+    "k": 120,
+    "bytes": 97,
+    "rota": "core+pol"
+  },
+  {
+    "eixo": "formato",
+    "caso": "br",
+    "n": 120,
+    "len_valor": 10,
+    "k": 120,
+    "bytes": 96,
+    "rota": "core+pol"
+  },
+  {
+    "eixo": "formato",
+    "caso": "us",
+    "n": 120,
+    "len_valor": 10,
+    "k": 120,
+    "bytes": 93,
+    "rota": "core+pol"
+  },
+  {
+    "eixo": "formato",
+    "caso": "compacto",
+    "n": 120,
+    "len_valor": 8,
+    "k": 120,
+    "bytes": 89,
+    "rota": "core+pol"
+  },
+  {
+    "eixo": "formato",
+    "caso": "ponto",
+    "n": 120,
+    "len_valor": 10,
+    "k": 120,
+    "bytes": 96,
+    "rota": "core+pol"
+  },
+  {
+    "eixo": "formato",
+    "caso": "extenso",
+    "n": 120,
+    "len_valor": 11,
+    "k": 120,
+    "bytes": 94,
+    "rota": "core+pol"
+  },
+  {
+    "eixo": "formato",
+    "caso": "ano-mes",
+    "n": 120,
+    "len_valor": 7,
+    "k": 4,
+    "bytes": 46,
+    "rota": "core+pol"
+  },
+  {
+    "eixo": "formato",
+    "caso": "ano",
+    "n": 120,
+    "len_valor": 4,
+    "k": 1,
+    "bytes": 18,
+    "rota": "core"
+  },
+  {
+    "eixo": "formato",
+    "caso": "epoch-dia",
+    "n": 120,
+    "len_valor": 6,
+    "k": 120,
+    "bytes": 22,
+    "rota": "core"
+  },
+  {
+    "eixo": "formato",
+    "caso": "iso-invertido",
+    "n": 120,
+    "len_valor": 10,
+    "k": 120,
+    "bytes": 96,
+    "rota": "core+pol"
+  },
+  {
+    "eixo": "formato",
+    "caso": "iso",
+    "n": 1200,
+    "len_valor": 10,
+    "k": 1200,
+    "bytes": 829,
+    "rota": "core+pol"
+  },
+  {
+    "eixo": "formato",
+    "caso": "br",
+    "n": 1200,
+    "len_valor": 10,
+    "k": 1200,
+    "bytes": 852,
+    "rota": "core+pol"
+  },
+  {
+    "eixo": "formato",
+    "caso": "us",
+    "n": 1200,
+    "len_valor": 10,
+    "k": 1200,
+    "bytes": 849,
+    "rota": "core+pol"
+  },
+  {
+    "eixo": "formato",
+    "caso": "compacto",
+    "n": 1200,
+    "len_valor": 8,
+    "k": 1200,
+    "bytes": 629,
+    "rota": "core+pol"
+  },
+  {
+    "eixo": "formato",
+    "caso": "ponto",
+    "n": 1200,
+    "len_valor": 10,
+    "k": 1200,
+    "bytes": 852,
+    "rota": "core+pol"
+  },
+  {
+    "eixo": "formato",
+    "caso": "extenso",
+    "n": 1200,
+    "len_valor": 11,
+    "k": 1200,
+    "bytes": 814,
+    "rota": "core+pol"
+  },
+  {
+    "eixo": "formato",
+    "caso": "ano-mes",
+    "n": 1200,
+    "len_valor": 7,
+    "k": 40,
+    "bytes": 426,
+    "rota": "core"
+  },
+  {
+    "eixo": "formato",
+    "caso": "ano",
+    "n": 1200,
+    "len_valor": 4,
+    "k": 4,
+    "bytes": 47,
+    "rota": "core"
+  },
+  {
+    "eixo": "formato",
+    "caso": "epoch-dia",
+    "n": 1200,
+    "len_valor": 6,
+    "k": 1200,
+    "bytes": 23,
+    "rota": "core"
+  },
+  {
+    "eixo": "formato",
+    "caso": "iso-invertido",
+    "n": 1200,
+    "len_valor": 10,
+    "k": 1200,
+    "bytes": 852,
+    "rota": "core+pol"
+  },
+  {
+    "eixo": "precisao",
+    "caso": "P1-ano",
+    "n": 12,
+    "len_valor": 4,
+    "k": 1,
+    "bytes": 17,
+    "rota": "core"
+  },
+  {
+    "eixo": "precisao",
+    "caso": "P2-ano-mes",
+    "n": 12,
+    "len_valor": 7,
+    "k": 1,
+    "bytes": 21,
+    "rota": "core"
+  },
+  {
+    "eixo": "precisao",
+    "caso": "P3-data",
+    "n": 12,
+    "len_valor": 10,
+    "k": 1,
+    "bytes": 24,
+    "rota": "core+pol"
+  },
+  {
+    "eixo": "precisao",
+    "caso": "P4-data-hora",
+    "n": 12,
+    "len_valor": 16,
+    "k": 12,
+    "bytes": 79,
+    "rota": "core+pol"
+  },
+  {
+    "eixo": "precisao",
+    "caso": "P5-data-hora-seg",
+    "n": 12,
+    "len_valor": 19,
+    "k": 12,
+    "bytes": 115,
+    "rota": "core+pol"
+  },
+  {
+    "eixo": "precisao",
+    "caso": "P6-milissegundo",
+    "n": 12,
+    "len_valor": 23,
+    "k": 12,
+    "bytes": 153,
+    "rota": "core+pol"
+  },
+  {
+    "eixo": "precisao",
+    "caso": "P7-tz-Z",
+    "n": 12,
+    "len_valor": 20,
+    "k": 12,
+    "bytes": 127,
+    "rota": "core+pol"
+  },
+  {
+    "eixo": "precisao",
+    "caso": "P8-tz-offset",
+    "n": 12,
+    "len_valor": 25,
+    "k": 12,
+    "bytes": 155,
+    "rota": "core+pol"
+  },
+  {
+    "eixo": "precisao",
+    "caso": "P1-ano",
+    "n": 120,
+    "len_valor": 4,
+    "k": 1,
+    "bytes": 18,
+    "rota": "core"
+  },
+  {
+    "eixo": "precisao",
+    "caso": "P2-ano-mes",
+    "n": 120,
+    "len_valor": 7,
+    "k": 1,
+    "bytes": 22,
+    "rota": "core"
+  },
+  {
+    "eixo": "precisao",
+    "caso": "P3-data",
+    "n": 120,
+    "len_valor": 10,
+    "k": 1,
+    "bytes": 25,
+    "rota": "core+pol"
+  },
+  {
+    "eixo": "precisao",
+    "caso": "P4-data-hora",
+    "n": 120,
+    "len_valor": 16,
+    "k": 120,
+    "bytes": 725,
+    "rota": "core+pol"
+  },
+  {
+    "eixo": "precisao",
+    "caso": "P5-data-hora-seg",
+    "n": 120,
+    "len_valor": 19,
+    "k": 120,
+    "bytes": 1322,
+    "rota": "core+pol"
+  },
+  {
+    "eixo": "precisao",
+    "caso": "P6-milissegundo",
+    "n": 120,
+    "len_valor": 23,
+    "k": 120,
+    "bytes": 1802,
+    "rota": "core+pol"
+  },
+  {
+    "eixo": "precisao",
+    "caso": "P7-tz-Z",
+    "n": 120,
+    "len_valor": 20,
+    "k": 120,
+    "bytes": 1442,
+    "rota": "core+pol"
+  },
+  {
+    "eixo": "precisao",
+    "caso": "P8-tz-offset",
+    "n": 120,
+    "len_valor": 25,
+    "k": 120,
+    "bytes": 1686,
+    "rota": "core+pol"
+  },
+  {
+    "eixo": "precisao",
+    "caso": "P1-ano",
+    "n": 1200,
+    "len_valor": 4,
+    "k": 1,
+    "bytes": 19,
+    "rota": "core"
+  },
+  {
+    "eixo": "precisao",
+    "caso": "P2-ano-mes",
+    "n": 1200,
+    "len_valor": 7,
+    "k": 1,
+    "bytes": 23,
+    "rota": "core"
+  },
+  {
+    "eixo": "precisao",
+    "caso": "P3-data",
+    "n": 1200,
+    "len_valor": 10,
+    "k": 2,
+    "bytes": 35,
+    "rota": "core+pol"
+  },
+  {
+    "eixo": "precisao",
+    "caso": "P4-data-hora",
+    "n": 1200,
+    "len_valor": 16,
+    "k": 1200,
+    "bytes": 8612,
+    "rota": "core+pol"
+  },
+  {
+    "eixo": "precisao",
+    "caso": "P5-data-hora-seg",
+    "n": 1200,
+    "len_valor": 19,
+    "k": 1200,
+    "bytes": 15579,
+    "rota": "core+pol"
+  },
+  {
+    "eixo": "precisao",
+    "caso": "P6-milissegundo",
+    "n": 1200,
+    "len_valor": 23,
+    "k": 1200,
+    "bytes": 17770,
+    "rota": "core+pol"
+  },
+  {
+    "eixo": "precisao",
+    "caso": "P7-tz-Z",
+    "n": 1200,
+    "len_valor": 20,
+    "k": 1200,
+    "bytes": 16779,
+    "rota": "core+pol"
+  },
+  {
+    "eixo": "precisao",
+    "caso": "P8-tz-offset",
+    "n": 1200,
+    "len_valor": 25,
+    "k": 1200,
+    "bytes": 19183,
+    "rota": "core+pol"
+  },
+  {
+    "eixo": "regime",
+    "caso": "R1-diario",
+    "n": 12,
+    "len_valor": 10,
+    "k": 12,
+    "bytes": 47,
+    "rota": "core+pol",
+    "h_split": 49,
+    "h_delta": 34,
+    "h_epoch": 38
+  },
+  {
+    "eixo": "regime",
+    "caso": "R2-semanal",
+    "n": 12,
+    "len_valor": 10,
+    "k": 12,
+    "bytes": 69,
+    "rota": "core+pol",
+    "h_split": 75,
+    "h_delta": 34,
+    "h_epoch": 28
+  },
+  {
+    "eixo": "regime",
+    "caso": "R3-mensal",
+    "n": 12,
+    "len_valor": 10,
+    "k": 12,
+    "bytes": 119,
+    "rota": "core+pol",
+    "h_split": 99,
+    "h_delta": 35,
+    "h_epoch": 42
+  },
+  {
+    "eixo": "regime",
+    "caso": "R4-repetido-k5",
+    "n": 12,
+    "len_valor": 10,
+    "k": 5,
+    "bytes": 69,
+    "rota": "bN",
+    "h_split": 84,
+    "h_delta": 44,
+    "h_epoch": 40
+  },
+  {
+    "eixo": "regime",
+    "caso": "R5-agrupado",
+    "n": 12,
+    "len_valor": 10,
+    "k": 2,
+    "bytes": 32,
+    "rota": "core+pol",
+    "h_split": 54,
+    "h_delta": 39,
+    "h_epoch": 28
+  },
+  {
+    "eixo": "regime",
+    "caso": "R6-espalhado",
+    "n": 12,
+    "len_valor": 10,
+    "k": 12,
+    "bytes": 149,
+    "rota": "core+pol",
+    "h_split": 147,
+    "h_delta": 81,
+    "h_epoch": 94
+  },
+  {
+    "eixo": "regime",
+    "caso": "R7-espalhado-ordenado",
+    "n": 12,
+    "len_valor": 10,
+    "k": 12,
+    "bytes": 153,
+    "rota": "core+pol",
+    "h_split": 144,
+    "h_delta": 70,
+    "h_epoch": 95
+  },
+  {
+    "eixo": "regime",
+    "caso": "R8-descendente",
+    "n": 12,
+    "len_valor": 10,
+    "k": 12,
+    "bytes": 47,
+    "rota": "core+pol",
+    "h_split": 49,
+    "h_delta": 35,
+    "h_epoch": 43
+  },
+  {
+    "eixo": "regime-ts",
+    "caso": "T1-log-mesmo-dia",
+    "n": 12,
+    "len_valor": 19,
+    "k": 12,
+    "bytes": 56,
+    "rota": "core+pol"
+  },
+  {
+    "eixo": "regime-ts",
+    "caso": "T2-log-esparso",
+    "n": 12,
+    "len_valor": 19,
+    "k": 12,
+    "bytes": 163,
+    "rota": "core+pol"
+  },
+  {
+    "eixo": "regime-ts",
+    "caso": "T3-varios-dias",
+    "n": 12,
+    "len_valor": 19,
+    "k": 12,
+    "bytes": 55,
+    "rota": "core+pol"
+  },
+  {
+    "eixo": "regime-ts",
+    "caso": "T4-hora-redonda",
+    "n": 12,
+    "len_valor": 19,
+    "k": 12,
+    "bytes": 55,
+    "rota": "core+pol"
+  },
+  {
+    "eixo": "regime",
+    "caso": "R1-diario",
+    "n": 120,
+    "len_valor": 10,
+    "k": 120,
+    "bytes": 97,
+    "rota": "core+pol",
+    "h_split": 177,
+    "h_delta": 35,
+    "h_epoch": 22
+  },
+  {
+    "eixo": "regime",
+    "caso": "R2-semanal",
+    "n": 120,
+    "len_valor": 10,
+    "k": 120,
+    "bytes": 544,
+    "rota": "core+pol",
+    "h_split": 312,
+    "h_delta": 35,
+    "h_epoch": 22
+  },
+  {
+    "eixo": "regime",
+    "caso": "R3-mensal",
+    "n": 120,
+    "len_valor": 10,
+    "k": 120,
+    "bytes": 1051,
+    "rota": "core+pol",
+    "h_split": 328,
+    "h_delta": 36,
+    "h_epoch": 23
+  },
+  {
+    "eixo": "regime",
+    "caso": "R4-repetido-k5",
+    "n": 120,
+    "len_valor": 10,
+    "k": 5,
+    "bytes": 123,
+    "rota": "bN",
+    "h_split": 176,
+    "h_delta": 62,
+    "h_epoch": 94
+  },
+  {
+    "eixo": "regime",
+    "caso": "R5-agrupado",
+    "n": 120,
+    "len_valor": 10,
+    "k": 12,
+    "bytes": 63,
+    "rota": "core+pol",
+    "h_split": 55,
+    "h_delta": 60,
+    "h_epoch": 73
+  },
+  {
+    "eixo": "regime",
+    "caso": "R6-espalhado",
+    "n": 120,
+    "len_valor": 10,
+    "k": 119,
+    "bytes": 1124,
+    "rota": "core+pol",
+    "h_split": 519,
+    "h_delta": 610,
+    "h_epoch": 869
+  },
+  {
+    "eixo": "regime",
+    "caso": "R7-espalhado-ordenado",
+    "n": 120,
+    "len_valor": 10,
+    "k": 119,
+    "bytes": 1199,
+    "rota": "core+pol",
+    "h_split": 462,
+    "h_delta": 405,
+    "h_epoch": 774
+  },
+  {
+    "eixo": "regime",
+    "caso": "R8-descendente",
+    "n": 120,
+    "len_valor": 10,
+    "k": 120,
+    "bytes": 405,
+    "rota": "core+pol",
+    "h_split": 194,
+    "h_delta": 36,
+    "h_epoch": 22
+  },
+  {
+    "eixo": "regime-ts",
+    "caso": "T1-log-mesmo-dia",
+    "n": 120,
+    "len_valor": 19,
+    "k": 120,
+    "bytes": 76,
+    "rota": "core+pol"
+  },
+  {
+    "eixo": "regime-ts",
+    "caso": "T2-log-esparso",
+    "n": 120,
+    "len_valor": 19,
+    "k": 120,
+    "bytes": 1452,
+    "rota": "core+pol"
+  },
+  {
+    "eixo": "regime-ts",
+    "caso": "T3-varios-dias",
+    "n": 120,
+    "len_valor": 19,
+    "k": 120,
+    "bytes": 148,
+    "rota": "core+pol"
+  },
+  {
+    "eixo": "regime-ts",
+    "caso": "T4-hora-redonda",
+    "n": 120,
+    "len_valor": 19,
+    "k": 120,
+    "bytes": 148,
+    "rota": "core+pol"
+  },
+  {
+    "eixo": "regime",
+    "caso": "R1-diario",
+    "n": 1200,
+    "len_valor": 10,
+    "k": 1200,
+    "bytes": 829,
+    "rota": "core+pol",
+    "h_split": 1365,
+    "h_delta": 36,
+    "h_epoch": 23
+  },
+  {
+    "eixo": "regime",
+    "caso": "R2-semanal",
+    "n": 1200,
+    "len_valor": 10,
+    "k": 1200,
+    "bytes": 5504,
+    "rota": "core+pol",
+    "h_split": 2040,
+    "h_delta": 36,
+    "h_epoch": 23
+  },
+  {
+    "eixo": "regime",
+    "caso": "R3-mensal",
+    "n": 1200,
+    "len_valor": 10,
+    "k": 1200,
+    "bytes": 14871,
+    "rota": "core+pol",
+    "h_split": 2455,
+    "h_delta": 37,
+    "h_epoch": 24
+  },
+  {
+    "eixo": "regime",
+    "caso": "R4-repetido-k5",
+    "n": 1200,
+    "len_valor": 10,
+    "k": 5,
+    "bytes": 664,
+    "rota": "bN",
+    "h_split": 1079,
+    "h_delta": 243,
+    "h_epoch": 635
+  },
+  {
+    "eixo": "regime",
+    "caso": "R5-agrupado",
+    "n": 1200,
+    "len_valor": 10,
+    "k": 120,
+    "bytes": 980,
+    "rota": "core",
+    "h_split": 766,
+    "h_delta": 241,
+    "h_epoch": 529
+  },
+  {
+    "eixo": "regime",
+    "caso": "R6-espalhado",
+    "n": 1200,
+    "len_valor": 10,
+    "k": 1026,
+    "bytes": 11052,
+    "rota": "core+pol",
+    "h_split": 2866,
+    "h_delta": 5975,
+    "h_epoch": 8232
+  },
+  {
+    "eixo": "regime",
+    "caso": "R7-espalhado-ordenado",
+    "n": 1200,
+    "len_valor": 10,
+    "k": 1026,
+    "bytes": 10221,
+    "rota": "core+pol",
+    "h_split": 2060,
+    "h_delta": 1117,
+    "h_epoch": 6494
+  },
+  {
+    "eixo": "regime",
+    "caso": "R8-descendente",
+    "n": 1200,
+    "len_valor": 10,
+    "k": 1200,
+    "bytes": 892,
+    "rota": "core+pol",
+    "h_split": 1376,
+    "h_delta": 37,
+    "h_epoch": 23
+  },
+  {
+    "eixo": "regime-ts",
+    "caso": "T1-log-mesmo-dia",
+    "n": 1200,
+    "len_valor": 19,
+    "k": 1200,
+    "bytes": 372,
+    "rota": "core+pol"
+  },
+  {
+    "eixo": "regime-ts",
+    "caso": "T2-log-esparso",
+    "n": 1200,
+    "len_valor": 19,
+    "k": 1191,
+    "bytes": 14010,
+    "rota": "core+pol"
+  },
+  {
+    "eixo": "regime-ts",
+    "caso": "T3-varios-dias",
+    "n": 1200,
+    "len_valor": 19,
+    "k": 1200,
+    "bytes": 1151,
+    "rota": "core+pol"
+  },
+  {
+    "eixo": "regime-ts",
+    "caso": "T4-hora-redonda",
+    "n": 1200,
+    "len_valor": 19,
+    "k": 1200,
+    "bytes": 1151,
+    "rota": "core+pol"
+  }
+]
