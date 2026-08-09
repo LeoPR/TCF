@@ -598,8 +598,13 @@ nova hipotese identificada.
   (O(1)); ids nao-data 1959→33 (59x, nivel CORE sem nature); controles byte-identicos.
   Quebra a cada perturbacao (ruido/feriado → D1 ganha). ACHADO: forma degenerada de
   1 ciclo = LISTA de deltas — perde do D1 em tudo que importa, exigir >=2 ciclos; a
-  rota do candidato digit-heavy e' o raw `#TCF.8!!` (espelho raw necessario). Ticket
-  `T-SEQRLE-PERIODICO`.
+  a colocacao certa e' DENTRO do `expand_seq_marker` (preserva o teto de memoria).
+  **Status: `welded` 2026-08-09 (ADR-0040, suite 1238, 39 testes novos)** — D1-D9 e
+  real-world byte-identicos. Duas cacadas adversariais acharam SETE defeitos, dois deles
+  criados pelos proprios consertos (o gate de canonicidade virou amplificador 16.881x; o
+  FLOOR por fragmento faltava). Ticket `T-SEQRLE-PERIODICO` fechado; gerou o
+  `T-FLOOR-POS-POLARIDADE` (o `min()` do HCC mede o corpo canonico, mas o que embarca e'
+  `polariza(corpo)` — vale pro core de hoje).
 - **H-DATA-SIBLING-01** (colunas irmas `created/updated/shipped`, delta ENTRE colunas):
   **refutada** — multi-col independente 2959 B vs delta-entre-colunas naive 2870 B =
   lacuna 3%; colunas ordenadas-ish ja' comprimem quase tao bem sozinhas. Nao paga o

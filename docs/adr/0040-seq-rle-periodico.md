@@ -131,7 +131,7 @@ sonda `design_probe.py` (subclasse + monkeypatch de `tcf.encoder/decoder.HCCSeqR
 |---|---:|---:|
 | D1-D9 sintéticos | 1545 | **1545** ✔ |
 | real-world (retail ×2 + lineitem) | 89430 | **89430** ✔ |
-| **suíte inteira** | 1199 passed | **1199 passed** ✔ |
+| **suíte inteira** | 1199 passed | **1238 passed** ✔ (39 testes novos) |
 
 **E3**: o decoder de hoje diante do wire novo **falha alto**
 (`contador RLE invalido: '600~1,3,1,1,1'`) — nunca devolve dado errado calado.
