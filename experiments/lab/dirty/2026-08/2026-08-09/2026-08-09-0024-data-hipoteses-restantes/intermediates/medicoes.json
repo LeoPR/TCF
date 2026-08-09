@@ -1,0 +1,144 @@
+{
+  "H1-spec-bn": [
+    {
+      "caso": "k5",
+      "sem_spec": 364,
+      "com_spec": 364,
+      "spec_usou": false,
+      "ordinal_com_bn_estimado": 345,
+      "lacuna_B": 19,
+      "rota_do_ordinal": "#TCF.8B3258"
+    },
+    {
+      "caso": "k12",
+      "sem_spec": 529,
+      "com_spec": 529,
+      "spec_usou": false,
+      "ordinal_com_bn_estimado": 459,
+      "lacuna_B": 70,
+      "rota_do_ordinal": "#TCF.8B4258"
+    },
+    {
+      "caso": "k60",
+      "sem_spec": 976,
+      "com_spec": 976,
+      "spec_usou": false,
+      "ordinal_com_bn_estimado": 678,
+      "lacuna_B": 298,
+      "rota_do_ordinal": "#TCF.8B6258"
+    }
+  ],
+  "H2-dias-uteis": [
+    {
+      "caso": "diario-controle",
+      "sem_spec": 414,
+      "com_spec": 32,
+      "spec_usou": true,
+      "h_delta_naive": 27
+    },
+    {
+      "caso": "uteis",
+      "sem_spec": 2471,
+      "com_spec": 1590,
+      "spec_usou": true,
+      "h_delta_naive": 233
+    },
+    {
+      "caso": "uteis-feriados",
+      "sem_spec": 2878,
+      "com_spec": 1889,
+      "spec_usou": true,
+      "h_delta_naive": 339
+    }
+  ],
+  "H3-sentinelas": [
+    {
+      "caso": "limpa",
+      "n_sentinelas": 0,
+      "sem_spec": 414,
+      "com_spec": 32,
+      "spec_usou": true
+    },
+    {
+      "caso": "1-sentinela",
+      "n_sentinelas": 1,
+      "sem_spec": 445,
+      "com_spec": 56,
+      "spec_usou": true
+    },
+    {
+      "caso": "3-sentinelas",
+      "n_sentinelas": 3,
+      "sem_spec": 501,
+      "com_spec": 108,
+      "spec_usou": true
+    },
+    {
+      "caso": "zero-date-mysql",
+      "n_sentinelas": 1,
+      "sem_spec": 445,
+      "com_spec": 62,
+      "spec_usou": true
+    },
+    {
+      "caso": "5pct-sentinela",
+      "n_sentinelas": 30,
+      "sem_spec": 2323,
+      "com_spec": 533,
+      "spec_usou": true
+    }
+  ],
+  "H4-quase-null": [
+    {
+      "caso": "95pct-null",
+      "sem_spec": 483,
+      "com_spec": 401,
+      "spec_usou": true
+    },
+    {
+      "caso": "99pct-null",
+      "sem_spec": 105,
+      "com_spec": 97,
+      "spec_usou": true
+    },
+    {
+      "caso": "um-so-valor",
+      "sem_spec": 27,
+      "com_spec": 27,
+      "spec_usou": false
+    }
+  ],
+  "H5-resolucao-mista": [
+    {
+      "caso": "mes-e-dia",
+      "sem_spec": 3764,
+      "com_spec": 3637,
+      "spec_usou": true
+    },
+    {
+      "caso": "so-ano-mes",
+      "sem_spec": 1037,
+      "com_spec": 1037,
+      "spec_usou": false
+    }
+  ],
+  "H6-delta-coluna": [
+    {
+      "caso": "espalhado-ordenado",
+      "sem_spec": 5529,
+      "com_spec": 3759,
+      "spec_usou": true,
+      "h_delta_naive": 643,
+      "teto_da_lacuna_B": 3116
+    }
+  ],
+  "H7-colunas-irmas": [
+    {
+      "caso": "created-updated-shipped",
+      "multi_col_independente": 2959,
+      "h_delta_entre_colunas_naive": 2870,
+      "lacuna_B": 89,
+      "nota": "naive soma 3 wires separados; o real pagaria o envelope multi-col"
+    }
+  ]
+}
