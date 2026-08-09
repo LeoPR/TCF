@@ -188,6 +188,59 @@ campos), **JS `Date`** (o fuso muda o valor), e **JSON/CSV/YAML**, que não têm
 
 Detalhe operacional em [`docs/how-to/normalizar-data-antes-do-tcf.md`](../how-to/normalizar-data-antes-do-tcf.md).
 
+### E o formato compacto `YYYYMMDD`? — avaliação independente do TCF
+
+Pergunta recorrente, e legítima: *"um SQL fazendo leitura massiva, pedindo `YYYYMMDD`, não
+economizaria transmissão sem perder nada pra traduzir?"*. Avaliado abaixo **sem compromisso
+com o TCF** — vale como prática de transporte.
+
+**É padrão?** Sim. É o **formato básico** da ISO 8601 (o `YYYY-MM-DD` é o *estendido*). E é
+usado em produção: o **AWS Signature V4** monta o credential scope como
+`access_key/YYYYMMDD/region/service/aws4_request`, e o timestamp da assinatura é
+`YYYYMMDD'T'HHMMSS'Z'`
+([AWS API Reference](https://docs.aws.amazon.com/kms/latest/APIReference/CommonParameters.html)).
+Note o uso: **assinatura e escopo**, não transporte de dado.
+
+Aviso importante: a **RFC 3339 não admite a forma básica** — só a estendida. Então
+`YYYYMMDD` é ISO 8601 válido e RFC 3339 inválido, e boa parte do ecossistema (JSON Schema
+`format: date`, TOML, `xs:date`) segue a RFC.
+
+**O que ele poupa, medido** — coluna de 200 000 datas num CSV/JSON:
+
+| | ordenada (com `ORDER BY`) | espalhada |
+|---|---:|---:|
+| **cru** | **−18,2%** | **−18,2%** |
+| gzip −6 | −1,9% | −7,1% |
+| gzip −9 | −2,0% | −4,3% |
+| brotli | **+0,9%** (fica *maior*) | −3,2% |
+
+**O ganho de 18% vira 2–7% assim que o canal comprime — e pode virar negativo.** A razão é
+direta: os separadores são altamente redundantes, e o compressor os come quase de graça.
+Tirá-los remove bytes **compressíveis**, não os caros.
+
+E as duas práticas compõem mal: no cenário ordenado — que é a recomendação de maior impacto —
+a economia do compacto é a **menor** (1,9% sob gzip, negativa sob brotli).
+
+**Custo de traduzir**: no consumidor, zero — `date.fromisoformat` aceita as duas formas e
+custa o mesmo (162 ns × 161 ns por valor, medido). No produtor, formatar explicitamente
+(`TO_CHAR`, `strftime`) tira o caminho default otimizado — **não medido aqui**, e é o lado
+que decide se a troca vale.
+
+**Onde o compacto é de fato a escolha certa:**
+
+- **assinatura e escopo** (o caso do AWS SigV4) — onde o valor é chave, não dado;
+- **nome de arquivo e rotação de log** — `2026-01-31.log` × `20260131.log`: o compacto ordena
+  igual e não colide com separadores de caminho;
+- **transporte de texto NÃO comprimido**, se existir — aí os 18% são reais;
+- **campo de largura fixa** (COBOL, NACHA, arquivos posicionais) — onde o separador não cabe.
+
+**Onde não vale:**
+
+- transporte comprimido (a maioria) — 2–7%, e o `ORDER BY` dá muito mais;
+- transporte binário (Parquet, Arrow, protocolo nativo) — a data já é `int32`, nenhuma
+  grafia se aplica;
+- qualquer lugar que valide por RFC 3339 — o compacto é rejeitado.
+
 ---
 
 ## O que isto sugere para os próximos tipos
