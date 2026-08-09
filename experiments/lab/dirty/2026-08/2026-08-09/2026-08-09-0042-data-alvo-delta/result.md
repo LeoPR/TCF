@@ -101,6 +101,34 @@ diário 32→34) e FLOOR comparando com o corpo cru em vez do compactado (piorav
 os dois com guarda de uma linha cada. Detalhe e custo comparado dos dois designs na
 [nota de design](../../notas/2026-08/2026-08-09-designs-do-alvo-delta-custo-e-recomendacao.md).
 
+## O custo de CPU — o número que mais mudou (`custo_cpu.py`, `detector_v2/v3/v4.py`)
+
+O ADR marcava "custo a medir". Medido, a resposta inicial foi **ruim**: o detector ingênuo
+é **O(n²)** e custava **13,8 s** em `n=2400` contra 47 ms do encode. Três consertos:
+
+| detector | n=600 | n=1200 | n=2400 |
+|---|---:|---:|---:|
+| v1 ingênuo (`O(n²)`) | 756 ms | 3 269 ms | **13 838 ms** |
+| v2 fronteira de cadeia 1× | 27 | 60 | 127 |
+| v3 + saída curta | 25 | 52 | 101 |
+| **v4 + salto de padrão uniforme** | **18** | **35** | **71** |
+| encode sem a camada | 10,5 | 25,5 | 52 |
+| | +71% | +38% | **+35%** |
+
+Todas as versões dão **bytes idênticos** e mantêm os dois gates — o que muda é só o
+desperdício. As duas primeiras armadilhas eram algorítmicas (refatiar a cadeia por
+índice); a terceira só apareceu **instrumentando por dentro da camada**: minha medição
+isolada dizia 1,6 ms, a real dizia 19,5 ms, porque eu reconstruía o corpo sem o hint de
+cadência e o corpo real tem **uma cadeia única de 1199 deltas**. O guard de padrão
+uniforme rodava por (posição × período): ~27 600 fatias para concluir "pule".
+
+**Lição de método (a segunda hoje, mesma família):** medir o mecanismo fora do lugar onde
+ele roda dá número errado — primeiro foi o `!!` (li o wire emitido, não o ponto de
+decisão), agora foi o custo (reconstruí o corpo, não usei o real).
+
+Do que sobra, a maior fatia é o array de deltas que o `detect_seq_runs` já computa (6,8 ms
+contra 1,6 ms da lógica de período) — **compartilhá-lo é parte do weld**.
+
 ## Próximo passo
 
 1. **Decisão do owner**: a nota de design recomenda **começar pelo periódico** — um

@@ -132,8 +132,29 @@ sonda `design_probe.py` (subclasse + monkeypatch de `tcf.encoder/decoder.HCCSeqR
 
 - É **format change** (`#TCF.8`): wire novo não é legível por decoder anterior — mas
   falha alto, não corrompe.
-- O detector varre períodos `p ∈ [2, MAXP]` por cadeia; custo de encode a medir sob o
-  `T-GATES-ANTES` (o FLOOR já é o gargalo conhecido, 58% do encode).
+- **CPU: +35% no caso em que o mecanismo NÃO ganha.** Medido, e é o número que mais
+  mudou durante o estudo — a forma ingênua do detector é **O(n²)**:
+
+  | detector | n=600 | n=1200 | n=2400 |
+  |---|---:|---:|---:|
+  | ingênuo (`O(n²)`) | 756 ms | 3 269 ms | **13 838 ms** |
+  | + fronteira de cadeia calculada 1× | 27 | 60 | 127 |
+  | + saída curta quando não há run | 25 | 52 | 101 |
+  | **+ salto de padrão uniforme** (o do weld) | **18** | **35** | **71** |
+  | encode sem a camada | 10,5 | 25,5 | 52 |
+  | | +71% | +38% | **+35%** |
+
+  Das três armadilhas, a terceira só apareceu **instrumentando por dentro da camada** — a
+  medição isolada mentia porque reconstruía o corpo sem o hint de cadência, e o corpo real
+  tem uma cadeia única de 1199 deltas. O guard de padrão uniforme rodava por
+  (posição × período): ~27 600 fatias e `set()` para concluir "pule". O pré-cálculo
+  `mudanca[]` mata isso em `O(n)`.
+
+  Do que sobra, a maior fatia é o **array de deltas**, que `detect_seq_runs` já computa —
+  6,8 ms contra 1,6 ms da lógica de período (corpo de 1200 linhas). **Compartilhar o
+  array é parte do weld**, não otimização posterior. Vizinho do `T-GATES-ANTES` e do
+  `T-SEQRLE-INCREMENTAL`.
+
 - `MAXP = 24` é limite arbitrário (cobre mensal=12 e quinzenal-ano=24). Sem caso medido
   acima disso.
 

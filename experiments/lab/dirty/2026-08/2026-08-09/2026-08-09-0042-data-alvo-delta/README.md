@@ -7,11 +7,18 @@ H-DATA-DELTA-01 + H-SEQRLE-PERIOD-01 (registry). Conclusões: [`result.md`](resu
 ## Como rodar
 
 ```
-python run.py
+python run.py            # os 12 casos da comparação D1 (delta-coluna) x D2 (periódico)
+python design_probe.py   # o periódico posto DENTRO do compact_body (monkeypatch)
+python custo_cpu.py      # custo de CPU, rodadas intercaladas
+python detector_v4.py    # a versão do detector que vai no weld (v1->v4) + gates
 ```
 
-Roda os 12 casos, confere RT em todos (asserts; D2 em DOIS níveis: coluna via decoder
-real + valor via `decode_value` real) e regrava `outputs/`.
+`run.py` confere RT em todos os casos (asserts; D2 em DOIS níveis: coluna via decoder real
++ valor via `decode_value` real) e regrava `outputs/`.
+
+**Ordem de leitura**: `result.md` (placar + custo) → `design_probe.py` (a sonda que
+fundamenta o ADR) → `detector_v4.py` (a escada do custo, v1 O(n²) até v4) →
+`weld_proposto.py` (o código do weld, **não soldado**) → [ADR-0040](../../../../../docs/adr/0040-seq-rle-periodico.md).
 
 ## Guia de nomes
 

@@ -28,53 +28,82 @@ from __future__ import annotations
 MAX_PERIODO = 24   # cobre mensal (12) e quinzenal-ano (24). Sem caso medido acima disso.
 
 
-def detect_periodic_runs(body_lines, _compare, _marcador_len):
-    """Runs `(start, count, padrao)` onde o delta entre linhas CICLA com período p >= 2.
+def deltas_da_coluna(body_lines, _compare):
+    """O array que os DOIS detectores consomem.
 
-    `_compare` = `compare_for_seq` (injetado só pra manter esta função testável).
-    Escopo do 1º weld: pares de UM run de escape-digit (o multi-run é do ADR-0016).
+    <<< WELD: hoje `detect_seq_runs` chama `compare_for_seq` por conta própria. O weld
+    deve computar este array UMA vez e passar aos dois — medido: recomputá-lo custa
+    6,8 ms num corpo de 1200 linhas, ~27% do encode inteiro, jogado fora.
     """
-    deltas = []
+    out = []
     for a, b in zip(body_lines, body_lines[1:]):
         v = _compare(a, b)
-        deltas.append(v[0] if v is not None and len(v) == 1 else None)
+        out.append(v[0] if v is not None and len(v) == 1 else None)
+    return out
 
-    runs, i, n = [], 0, len(body_lines)
+
+def detect_periodic_runs(body_lines, deltas, _marcador_len):
+    """Runs `(start, count, padrao)` onde o delta entre linhas CICLA com período p >= 2.
+
+    O(n · MAX_PERIODO). Escopo do 1º weld: pares de UM run de escape-digit (multi-run é
+    do ADR-0016).
+
+    A forma INGÊNUA desta função é O(n²) e foi medida: n=2400 levava **13,8 s** contra
+    47 ms do encode. Duas armadilhas, ambas por índice em vez de por cadeia:
+      1. reachar o fim da cadeia a cada `i`;
+      2. fatiar `deltas[i:j]` a cada `i`.
+    E uma terceira, achada só instrumentando POR DENTRO da camada (a medição isolada
+    mentia porque reconstruía o corpo sem o hint de cadência):
+      3. o guard de padrão uniforme rodava por (posição × período) — 1199 posições × 23
+         períodos = ~27 600 fatias e `set()` para concluir "é uniforme, pule".
+    O pré-cálculo `mudanca[]` abaixo mata a (3) em O(n).
+    """
+    n, m = len(body_lines), len(deltas)
+
+    # mudanca[k] = distancia de k ate' o proximo delta DIFERENTE. Qualquer periodo
+    # p <= mudanca[k] tem padrao uniforme por construcao -> nem precisa ser testado.
+    mudanca = [0] * m
+    for k in range(m - 1, -1, -1):
+        mudanca[k] = 1 if (k == m - 1 or deltas[k] != deltas[k + 1]) else mudanca[k + 1] + 1
+
+    runs, i = [], 0
     while i < n - 1:
         if deltas[i] is None:
             i += 1
             continue
-        j = i
-        while j < n - 1 and deltas[j] is not None:
-            j += 1
-        cadeia = deltas[i:j]
-
-        melhor = None                                   # (economia, count, padrao)
-        for p in range(2, min(MAX_PERIODO, len(cadeia)) + 1):
-            pad = cadeia[:p]
-            # GUARDA 1 — padrao uniforme ([1,1]) e' `*N+d|` disfarcado, e mais caro.
-            # Sem isto o diario regredia 32 -> 34 B (medido).
-            if len(set(pad)) == 1:
-                continue
-            L = p
-            while L < len(cadeia) and cadeia[L] == pad[L % p]:
-                L += 1
-            # Exige DOIS ciclos completos: com um so', o marcador vira LISTA literal de
-            # deltas — que e' o transform de coluna em gramatica, e perde dele (1825 B
-            # contra 644 B no espalhado). Ver ADR-0040 §alternativa rejeitada.
-            if L < 2 * p:
-                continue
-            count = L + 1
-            custo = _marcador_len(count, pad, body_lines[i]) + 1
-            economia = sum(len(body_lines[i + k]) + 1 for k in range(count)) - custo
-            if economia > 0 and (melhor is None or economia > melhor[0]):
-                melhor = (economia, count, pad)
-
-        if melhor is None:
-            i += 1
-            continue
-        runs.append((i, melhor[1], melhor[2]))
-        i += melhor[1]
+        fim = i                                   # fronteira da cadeia: UMA vez
+        while fim < n - 1 and deltas[fim] is not None:
+            fim += 1
+        pos = i
+        while pos < fim:
+            melhor = None                         # (economia, count, padrao)
+            for p in range(max(2, mudanca[pos] + 1), min(MAX_PERIODO, fim - pos) + 1):
+                pad = deltas[pos:pos + p]         # fatia LIMITADA por MAX_PERIODO
+                # GUARDA 1 — padrao uniforme ([1,1]) e' `*N+d|` disfarcado, e mais caro.
+                # Sem isto o diario regredia 32 -> 34 B (medido). Com o `mudanca[]`
+                # acima, esta linha quase nunca dispara — mas fica, porque e' o
+                # invariante, nao a otimizacao.
+                if len(set(pad)) == 1:
+                    continue
+                L = p
+                while pos + L < fim and deltas[pos + L] == pad[L % p]:
+                    L += 1
+                # DOIS ciclos completos: com um so', o marcador vira LISTA literal de
+                # deltas — que e' o transform de coluna em gramatica, e perde dele
+                # (1825 B contra 644 B no espalhado). ADR-0040 §alternativa rejeitada.
+                if L < 2 * p:
+                    continue
+                count = L + 1
+                custo = _marcador_len(count, pad, body_lines[pos]) + 1
+                economia = sum(len(body_lines[pos + k]) + 1 for k in range(count)) - custo
+                if economia > 0 and (melhor is None or economia > melhor[0]):
+                    melhor = (economia, count, pad)
+            if melhor is None:
+                pos += 1
+            else:
+                runs.append((pos, melhor[1], melhor[2]))
+                pos += melhor[1]
+        i = max(fim, i + 1)
     return runs
 
 
@@ -92,9 +121,12 @@ def marcador_periodico(count, padrao, template):
 # roda o periódico ANTES (é o mais específico) e delega os trechos não cobertos ao
 # `compact_body` de hoje, sem duplicar o caminho do uniforme.
 
-def compact_body_com_periodico(body_lines, _compact_body_hoje):
-    runs = detect_periodic_runs(body_lines, _COMPARE, _len_marcador)
+def compact_body_com_periodico(body_lines, deltas, _compact_body_hoje):
+    runs = detect_periodic_runs(body_lines, deltas, _len_marcador)
     if not runs:
+        # SAIDA CURTA: sem run periodico a decisao e' EXATAMENTE a de hoje. Nao
+        # recompactar e nao adicionar candidato ao min() — o caminho comum tem de
+        # custar o minimo possivel.
         return _compact_body_hoje(body_lines)          # caminho de hoje, byte a byte
 
     saida, pendente, i, ri = [], [], 0, 0
@@ -137,6 +169,22 @@ def compact_body_com_periodico(body_lines, _compact_body_hoje):
 # Comparando com o cru ele "vencia" e piorava 4 de 8 casos (ruído alta-card 203 -> 253 B),
 # porque ganhava do cru e perdia do uniforme. Mesma classe do fix de baseline do FLOOR da
 # nature (2026-08-08) e do `T-BN-TIPADO` — a TERCEIRA vez.
+#
+# CUSTO DE CPU (medido, rodadas intercaladas, mediana de 7 — o caso que importa é o
+# diário uniforme, onde o periódico NUNCA ganha e tudo que gasta é overhead):
+#
+#     versão do detector            n=600    n=1200   n=2400
+#     ingênua (O(n²))                756 ms   3 269 ms  13 838 ms
+#     + fronteira de cadeia 1x        27        60        127
+#     + saída curta                   25        52        101
+#     + salto de padrão uniforme      18        35         71      <- o que vai no weld
+#     encode SEM a camada             10,5      25,5       52
+#                                   +71%      +38%       +35%
+#
+# Desses ~35%, a maior parte é o array de deltas — que o `deltas_da_coluna` acima manda
+# COMPARTILHAR com o detector uniforme. Isolado: 6,8 ms de deltas contra 1,6 ms de lógica
+# de período num corpo de 1200 linhas. Compartilhar é parte do weld, não otimização
+# posterior. Vizinho direto do `T-GATES-ANTES` e do `T-SEQRLE-INCREMENTAL`.
 
 
 # ────────── 5. <<< WELD em `expand_seq_marker`: o espelho, no lugar que preserva o teto ──────────
@@ -186,5 +234,5 @@ def expand_periodic_marker(linha, _shift):
 #   - bomba de memória com `max_length` (o caso que decidiu a colocação)
 #   - os dois gates byte-canonical + suíte inteira
 
-_COMPARE = None      # injetados no arquivo real: compare_for_seq / len(marcador)
-_len_marcador = None
+def _len_marcador(count, padrao, template):
+    return len(marcador_periodico(count, padrao, template))

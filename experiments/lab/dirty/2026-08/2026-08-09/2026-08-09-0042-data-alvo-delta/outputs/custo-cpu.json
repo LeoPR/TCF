@@ -1,0 +1,47 @@
+[
+ {
+  "caso": "uteis-600",
+  "n": 600,
+  "off_ms": 13.529,
+  "on_ms": 17.641,
+  "delta_pct": 30.4,
+  "cv_off_pct": 5.7,
+  "cv_on_pct": 4.1
+ },
+ {
+  "caso": "uteis-6000",
+  "n": 6000,
+  "off_ms": 143.138,
+  "on_ms": 193.386,
+  "delta_pct": 35.1,
+  "cv_off_pct": 1.5,
+  "cv_on_pct": 4.3
+ },
+ {
+  "caso": "diario-600",
+  "n": 600,
+  "off_ms": 13.001,
+  "on_ms": 815.962,
+  "delta_pct": 6176.2,
+  "cv_off_pct": 4.3,
+  "cv_on_pct": 3.9
+ },
+ {
+  "caso": "texto-600",
+  "n": 600,
+  "off_ms": 8.758,
+  "on_ms": 12.893,
+  "delta_pct": 47.2,
+  "cv_off_pct": 8.6,
+  "cv_on_pct": 9.0
+ },
+ {
+  "caso": "ruido-600",
+  "n": 600,
+  "off_ms": 13.79,
+  "on_ms": 116.341,
+  "delta_pct": 743.7,
+  "cv_off_pct": 4.4,
+  "cv_on_pct": 4.8
+ }
+]
