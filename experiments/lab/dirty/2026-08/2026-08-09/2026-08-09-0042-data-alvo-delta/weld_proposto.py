@@ -224,43 +224,72 @@ def expand_periodic_marker(linha, _shift):
 # o `9` nunca é lido. Infinitas grafias válidas pro mesmo dado — o oposto do byte-canonical
 # que o projeto usa como gate. Medido pelos caçadores em 6 formas distintas.
 
-def _periodo_minimo(seq):
-    """Menor `q` com `seq[k] == seq[k % q]` para todo k — o pad canônico de `seq`."""
-    n = len(seq)
-    for q in range(1, n + 1):
-        if all(seq[k] == seq[k % q] for k in range(n)):
-            return q
-    return n
-
-
-def _pad_canonico(pad, count):
-    """INJETIVIDADE: `count` linhas consomem `count-1` deltas, e o decode lê
-    `seq = [pad[k % len(pad)] …]`. A grafia canônica é a de PERÍODO MÍNIMO de `seq`.
-
-        *5~1,4,9|    seq=[1,4,1,4] -> mín 2, pad 3  cauda MORTA        recusa
-        *5~1,4,1,4|  idem          -> mín 2, pad 4  repetição          recusa
-        *5~1,4,1|    idem          -> mín 2, pad 3  extensão parcial   recusa
-        *600~1,1|    seq=[1,1,…]   -> mín 1         uniforme (`*N+d|`) recusa
-        *5~1,4|      seq=[1,4,1,4] -> mín 2 == len  CANÔNICA           aceita
-
-    `mínimo == 1` cobre a guarda 1 (pad uniforme) de graça.
-    """
-    if not pad or count < 2 or len(pad) > count - 1:
-        return False
-    seq = [pad[k % len(pad)] for k in range(count - 1)]
-    q = _periodo_minimo(seq)
-    return q == len(pad) and q >= 2
+def _pad_minimo(pad):
+    """Menor `d` que gera `pad` por repetição. Calculado do PAD (p <= 24), nunca de uma
+    sequência de `count-1` elementos — ver a ordem das condições abaixo."""
+    p = len(pad)
+    for d in range(1, p + 1):
+        if p % d == 0 and all(pad[k] == pad[k % d] for k in range(p)):
+            return d
+    return p
 
 
 def _grafia_emissivel(pad, count):
-    """RE-EMISSÃO: canônica **e** produzível pelo encoder. O detector exige 2 ciclos
-    completos (`L >= 2p` ⇒ `count-1 >= 2p`); sem esta linha, `*4~1,3|` — que nenhum
-    encoder TCF produz — decodificaria calado.
+    """A grafia é aceita? Canônica (injetiva) **e** produzível pelo encoder.
 
-    Precedente direto: o `DataIsoSpec` recusa `20191204` porque `fromisoformat` aceita
-    mais do que `isoformat` emite (`d.isoformat() != v`). Mesma assimetria, mesma cura.
+    A ORDEM DAS CONDIÇÕES É DEFESA, não estilo. Tudo aqui é O(1) ou O(p²) com p <= 24, e
+    **nada** é proporcional ao `count` que o WIRE declara. A 2ª caçada mostrou o que
+    acontece sem isso: a versão que materializava `count-1` elementos e rodava O(n²)
+    sobre um pad sem teto virava amplificador — 48,8 KB de wire hostil custavam
+    **126,87 s** (16.881× a camada desligada, que devolve o MESMO erro em 7,5 ms), e
+    22 B custavam 17,25 s e **85 MB**. Depois: 3,75 ms e 0 MB.
+
+      1. `len(pad) <= MAX_PERIODO` — espelha o teto do DETECTOR. Sem isto, o pad vindo do
+         wire não tem teto nenhum.
+      2. `count - 1 >= 2·len(pad)` — RE-EMISSÃO, e é O(1), então vem ANTES do resto. O
+         detector só emite com dois ciclos completos, logo `*4~1,3|` não é produzível por
+         encoder TCF. Mesmo guard do `DataIsoSpec` (`d.isoformat() != v`).
+      3. `_pad_minimo(pad) == len(pad) >= 2` — INJETIVIDADE:
+
+             *5~1,4,9|    cauda morta (o 9 nunca é lido)   recusa
+             *9~1,3,1,3|  repetição de [1,3]               recusa
+             *5~1,4,1|    extensão parcial de [1,4]        recusa
+             *600~1,1|    mínimo 1 = `*N+d|` disfarçado    recusa
+             *5~1,4|      mínimo 2 == len(pad)             ACEITA
+
+         Válido calcular do `pad` porque (2) já garantiu >= 2 ciclos (Fine–Wilf).
     """
-    return _pad_canonico(pad, count) and count - 1 >= 2 * len(pad)
+    if not pad or count < 2:
+        return False
+    if len(pad) > MAX_PERIODO:            # (1) teto
+        return False
+    if count - 1 < 2 * len(pad):          # (2) re-emissão, O(1), primeiro
+        return False
+    d = _pad_minimo(pad)                  # (3) injetividade, O(p²) com p <= 24
+    return d == len(pad) and d >= 2
+
+
+# ────────── 8. <<< WELD — FLOOR por fragmento no `_drena` (achado #7 da 2ª caçada) ──────────
+#
+# `compact_body_com_periodico` reaplica `compact_body` em cada fragmento não-periódico.
+# SEM PISO isso ressuscita os `*N+d|` que o core tinha recusado (o `*2+498217|\168116`
+# de 17 B contra 16 B do cru, do próprio comentário do FLOOR). Bastava UM run periódico
+# legítimo pra o candidato vencer o `min()` carregando esses de carona.
+#
+# E a conta não fecha no corpo: cada `*2+d|` come uma corrida de escape, que valia mais
+# 1 B de ganho de POLARIDADE. Medido: corpo 9 B MENOR embarcando wire 19 B MAIOR; 963
+# regressões em 28 985 casos paramétricos. Com o piso: 0 regressões e 4905 B a MENOS.
+#
+#     def _drena():
+#         linhas_p, info_p = compact_body(pend)
+#         if sum(len(x) + 1 for x in linhas_p) > sum(len(x) + 1 for x in pend):
+#             saida.extend(pend)            # o mesmo piso do core, por fragmento
+#             return
+#         ...
+#
+# NOTA DE PROJETO (`T-FLOOR-POS-POLARIDADE`): o `min()` do HCC mede o CORPO CANÔNICO, mas
+# o que embarca é `polariza(corpo)`. Isso vale pro core de HOJE — o periódico só tornou
+# visível. Não é resolvido aqui.
 
 
 # ────────── 7. <<< WELD — telemetria por candidato VENCEDOR (achado #4) ──────────

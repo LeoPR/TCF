@@ -158,6 +158,31 @@ O #4 é o mais instrutivo: não era lacuna do mecanismo novo, era **regressão**
 público (`encoder.py:726` → `schema.py:192` → `sideouts_quality.py`) que os próprios labs
 consomem. Nenhum teste pegava — `test_side_outputs.py:58` só afirma `isinstance(..., list)`.
 
+### Segunda caçada — contra a v5 — e os dois defeitos que os CONSERTOS criaram
+
+A v5 foi atacada de novo (5 lentes, 10 achados brutos, **3 confirmados / 2 refutados**,
+e **44 hipóteses que não quebraram** — determinismo, empate de economia, assimetria
+emite/expande, RT em ~15 000 colunas, polaridade, multi-col, `.8H`, natures, colisão de
+gramática). Os dois defeitos distintos que sobreviveram **foram introduzidos pelos
+próprios consertos anteriores**:
+
+| # | defeito | medido | fechado na v6 |
+|---|---|---|---|
+| 6 | o guard de canonicidade (#5) virou **amplificador de recursos**: `_periodo_minimo` era `O(p²)` sobre um pad **sem teto**, e `seq` materializava `count-1` elementos **antes** de validar | 48,8 KB de wire hostil → **126,87 s** (16.881× a camada desligada, que dá o mesmo erro em 7,5 ms); 22 B → 17,25 s e **85 MB** | teto `len(pad) <= MAX_PERIODO`, re-emissão `O(1)` **antes** do resto, período mínimo calculado do **pad** (Fine–Wilf) → **3,75 ms** e **0 MB** |
+| 7 | `compact_body(pend)` reaplicado por fragmento **sem piso** ressuscitava marcadores `*N+d\|` que o core tinha recusado — e a **polaridade** cobrava a conta | corpo 9 B menor embarcando wire 19 B **maior**; 963 regressões em 28 985 casos paramétricos | FLOOR por fragmento (o mesmo do core, na granularidade certa) → **0 regressões** e 4905 B a menos |
+
+**A lição do #6 não é sobre este mecanismo**: um gate de validação que trabalha
+proporcional ao que o wire *declara*, antes de validar o que o wire declara, é um
+amplificador. A ordem das condições é defesa, não estilo.
+
+**A lição do #7 é sobre o projeto**: o `min()` do HCC mede o **corpo canônico**, mas o que
+embarca é `polariza(corpo)` (`encoder.py:456`). O FLOOR está sendo medido numa grandeza
+que não é a final. Isso vale para o core **hoje**, não só para este mecanismo — o
+periódico só tornou visível. Registrado como `T-FLOOR-POS-POLARIDADE`.
+
+> Isolamento que salva o design: o marcador periódico **sozinho** já era nunca-pior
+> (0 regressões em 28 985 casos). O defeito era inteiro do `_drena`.
+
 ## Consequências
 
 **A favor**

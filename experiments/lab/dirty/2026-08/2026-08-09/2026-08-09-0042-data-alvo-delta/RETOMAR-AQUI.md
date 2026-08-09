@@ -21,7 +21,21 @@ código do weld está pronto pra revisão em [`weld_proposto.py`](weld_proposto.
 | colocação (teto de memória) | dentro do `expand_seq_marker`: 0,0000 s vs 2,473 s |
 | custo de CPU | v1 O(n²) 13,8 s → **v4 +35%** ([`detector_v4.py`](detector_v4.py)) |
 
-## O que ficou PENDENTE
+## 2ª CAÇADA — concluída (2026-08-09)
+
+Rodou contra a **v5**: 5 lentes, 10 achados brutos, **3 confirmados / 2 refutados**, e
+**44 hipóteses que NÃO quebraram**. Os 2 defeitos distintos foram introduzidos pelos
+próprios consertos anteriores, e estão fechados na v6 (`detector_v5.py`):
+
+| # | defeito | fechado |
+|---|---|---|
+| 6 | o guard de canonicidade virou amplificador (48,8 KB → **126,87 s**; 22 B → 85 MB) | 3,75 ms · 0 MB |
+| 7 | `_drena` sem piso ressuscitava marcador recusado; polaridade cobrava (corpo −9 B, wire +19 B) | 0 regressões em 1202 casos |
+
+`v5_verificacao.py` = **10/10**. Suíte **1199 passed** com a camada ligada. Gates intactos.
+Ticket novo registrado: `T-FLOOR-POS-POLARIDADE` (vale pro core de hoje, não só pro periódico).
+
+## O que ficou PENDENTE (histórico da 1ª caçada — tudo fechado)
 
 **A caçada adversarial foi interrompida.** 3 das 5 lentes terminaram; a fase de
 verificação (refutação independente) **não rodou**. Os 12 achados brutos estão salvos em

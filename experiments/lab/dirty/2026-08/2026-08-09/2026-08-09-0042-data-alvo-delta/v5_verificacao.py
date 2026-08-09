@@ -198,6 +198,102 @@ def achado_5():
            else f"{len(recusar)} grafias recusadas: 6 não-injetivas + 3 não-emissíveis"))
 
 
+# ───────── #6 — o gate de canonicidade não pode ser amplificador (2ª caçada) ─────────
+def achado_6():
+    """A v5 rodava O(p²) sobre pad SEM TETO e materializava `count-1` elementos ANTES de
+    validar. 48,8 KB de wire hostil custavam 126,87 s (16.881× a camada desligada, que dá
+    o MESMO erro); 22 B custavam 17,25 s e 85 MB."""
+    import tracemalloc
+    V5.liga()
+    try:
+        linhas = []
+        pior = 0.0
+        # (A) CPU: pad gigante que faz cada período sobreviver até o último elemento
+        for p in (1000, 2000, 4000, 8000):
+            pad = ",".join(["1"] * (p - 1) + ["2"])
+            wire = f"#TCF.8\n*{p + 1}~{pad}|x\n"
+            t = time.perf_counter()
+            try:
+                decode(wire)
+            except ValueError:
+                pass
+            on = time.perf_counter() - t
+            V5.desliga()
+            t = time.perf_counter()
+            try:
+                decode(wire)
+            except ValueError:
+                pass
+            off = time.perf_counter() - t
+            V5.liga()
+            pior = max(pior, on)
+            linhas.append(f"pad p={p:>5} ({len(wire) / 1024:>5.1f} KB): "
+                          f"ligado {on * 1e3:>7.2f} ms · desligado {off * 1e3:.2f} ms")
+        # (B) memória: contador enorme com grafia inválida
+        tracemalloc.start()
+        t = time.perf_counter()
+        try:
+            decode("#TCF.8\n*9999999~1,1|x\n")
+        except ValueError:
+            pass
+        tb = time.perf_counter() - t
+        pico = tracemalloc.get_traced_memory()[1]
+        tracemalloc.stop()
+        linhas.append(f"contador 9.999.999 em 22 B: {tb * 1e3:.2f} ms · pico {pico / 1e6:.1f} MB")
+    finally:
+        V5.desliga()
+    passou = pior < 0.05 and tb < 0.05 and pico < 5e6
+    _ok(6, "gate de canonicidade é O(1) no `count` e tem teto no `pad` (sem amplificação)",
+        passou, "\n".join(linhas) + "\n(v5: 126.870 ms e 17.250 ms / 85 MB)")
+
+
+# ───────── #7 — nunca-pior: `_drena` não ressuscita marcador recusado (2ª caçada) ─────────
+def achado_7():
+    """A v5 reaplicava `compact_body` por fragmento SEM piso: um run periódico legítimo
+    fazia o candidato vencer carregando marcadores que o core tinha recusado — e a
+    POLARIDADE cobrava a conta (corpo 9 B menor embarcando 19 B maior)."""
+    casos = []
+    # o caso mais limpo achado pelos caçadores
+    casos.append(("quase-periodico-51", ["0", "1", "2", "6", "7", "10", "13", "18", "21", "23",
+                                         "27", "31", "32", "37", "38", "43", "47", "49", "52",
+                                         "56", "57", "59", "62", "65", "70", "73", "74", "75",
+                                         "79", "80", "83", "86", "91", "94", "96", "100", "104",
+                                         "105", "110", "111", "116", "120", "122", "125", "129",
+                                         "130", "132", "135", "138", "143", "146"]))
+    casos.append(("minimo-n9", ["0", "2", "6", "8", "12", "14", "18", "20", "24"]))
+    # varredura paramétrica: ciclos + ruído, que é onde as 963 regressões viviam
+    import random
+    rnd = random.Random(20260809)
+    for idx in range(1200):
+        p = rnd.randint(2, 8)
+        ciclo = [rnd.randint(1, 9) for _ in range(p)]
+        n = rnd.randint(6, 90)
+        v, vals = rnd.randint(0, 5000), []
+        for k in range(n):
+            vals.append(str(v))
+            v += ciclo[k % p] if rnd.random() > 0.18 else rnd.randint(1, 4000)
+        casos.append((f"fuzz{idx}", vals))
+
+    regressoes, saldo = [], 0
+    for rot, vals in casos:
+        off = len(encode(vals).encode())
+        V5.liga()
+        try:
+            w = encode(vals)
+            rt = decode(w) == vals
+        finally:
+            V5.desliga()
+        on = len(w.encode())
+        saldo += on - off
+        if on > off or not rt:
+            regressoes.append(f"{rot}: {off} -> {on} B (RT={rt})")
+    _ok(7, "NUNCA-PIOR no wire final (com polaridade), não só no corpo canônico",
+        not regressoes,
+        f"{len(casos)} casos (2 dos caçadores + 1200 fuzz de ciclo+ruído)\n"
+        f"saldo total {saldo:+} B · regressões: {len(regressoes)}"
+        + ("\n  " + "\n  ".join(regressoes[:6]) if regressoes else ""))
+
+
 # ───────────────────────── invariantes que não podem quebrar ─────────────────────────
 def invariantes():
     print("\n--- invariantes (o que já estava provado e não pode regredir)")
@@ -283,6 +379,9 @@ def main() -> int:
     achado_3()
     achado_4()
     achado_5()
+    print("--- 2ª caçada (contra a v5; achados que EU introduzi ao consertar os 5 primeiros)")
+    achado_6()
+    achado_7()
     invariantes()
     (RAIZ / "outputs" / "v5-verificacao.json").write_text(
         json.dumps(RES, ensure_ascii=False, indent=1), encoding="utf-8", newline="")

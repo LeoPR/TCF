@@ -64,52 +64,63 @@ def marcador(count, padrao, template):
     return f"*{count}~{','.join(str(d) for d in padrao)}|{template}"
 
 
-def _periodo_minimo(seq):
-    """Menor `q` tal que `seq[k] == seq[k % q]` para todo k. É o pad canônico de `seq`."""
-    n = len(seq)
-    for q in range(1, n + 1):
-        if all(seq[k] == seq[k % q] for k in range(n)):
-            return q
-    return n
+def _pad_minimo(pad):
+    """Menor `d` que gera `pad` por repetição: `pad[k] == pad[k % d]` para todo k.
 
-
-def _pad_canonico(pad, count):
-    """#5 — a grafia tem de ser a ÚNICA que produz este dado.
-
-    `count` linhas consomem exatamente `count-1` deltas, e o que o decode LÊ é
-    `seq = [pad[k % len(pad)] for k in range(count-1)]`. Duas grafias com o mesmo `seq`
-    produzem o mesmo dado — então a canônica é a de **período mínimo** de `seq`:
-
-        *3~1,4,9|    seq=[1,4]   -> mínimo 2, pad tem 3  -> cauda MORTA, recusa
-        *4~1,3,1,3|  seq=[1,3,1] -> mínimo 2, pad tem 4  -> repetição, recusa
-        *4~1,3,1|    seq=[1,3,1] -> mínimo 2, pad tem 3  -> EXTENSÃO, recusa
-        *600~1,1|    seq=[1,1,…] -> mínimo 1             -> uniforme (`*N+d|`), recusa
-        *4~1,3|      seq=[1,3,1] -> mínimo 2 == len(pad) -> CANÔNICA
-
-    A forma "repetição exata" (`[1,3,1,3]`) é caso particular da extensão — por isso a
-    checagem é uma só. `mínimo == 1` cobre a guarda 1 (pad uniforme) de graça.
+    v6 — calculado **do `pad`**, não de uma sequência de `count-1` elementos
+    materializada. Com `count-1 >= 2·len(pad)` garantido antes (Fine–Wilf), o período
+    mínimo da sequência expandida é exatamente este. Custo: O(p²) <= 24² = 576, zero
+    alocação proporcional ao `count`.
     """
-    if not pad or count < 2:
-        return False
-    if len(pad) > count - 1:
-        return False                      # mais deltas do que o decode consome
-    seq = [pad[k % len(pad)] for k in range(count - 1)]
-    q = _periodo_minimo(seq)
-    return q == len(pad) and q >= 2
+    p = len(pad)
+    for d in range(1, p + 1):
+        if p % d == 0 and all(pad[k] == pad[k % d] for k in range(p)):
+            return d
+    return p
 
 
 def _grafia_emissivel(pad, count):
-    """Canônica **e** produzível pelo encoder — o guard de RE-EMISSÃO.
+    """A grafia é aceita? Canônica (injetiva) **e** produzível pelo encoder.
 
-    `_pad_canonico` garante injetividade (uma grafia por dado). Isto garante o outro
-    lado: o decode não aceita mais do que o encode emite. O detector só emite com DOIS
-    ciclos completos (`L >= 2p`, logo `count-1 >= 2p`); sem esta linha, `*4~1,3|` —
-    que nenhum encoder TCF produz — decodificaria calado.
+    ORDEM É DEFESA (v6, achado da 2ª caçada). Tudo aqui é O(1) ou O(p²) com p <= 24, e
+    **nada** é proporcional ao `count` declarado pelo wire. A v5 fazia o contrário —
+    materializava `count-1` elementos e rodava um laço O(n²) sobre um pad sem teto —
+    e virava amplificador: 48,8 KB de wire hostil custavam **126,87 s** (16.881× o
+    tempo da camada desligada, que dá o MESMO erro em 7,5 ms); 22 B custavam 17,25 s e
+    85 MB. O gate que eu criei pra fechar a canonicidade abriu um vetor de recursos.
 
-    Precedente direto: o `DataIsoSpec` recusa `20191204` porque `fromisoformat` aceita
-    mais do que `isoformat` emite (`d.isoformat() != v`). Mesma assimetria, mesma cura.
+    As três condições, na ordem em que se defendem:
+
+      1. `len(pad) <= MAX_PERIODO` — espelha o teto do DETECTOR. O encoder nunca emite
+         período maior que 24; sem esta linha o pad do wire não tinha teto nenhum.
+      2. `count - 1 >= 2·len(pad)` — RE-EMISSÃO, e é O(1). O detector só emite com dois
+         ciclos completos (`L >= 2p`), então `*4~1,3|` não é produzível por encoder TCF.
+         Mesmo guard do `DataIsoSpec` (`d.isoformat() != v`, que recusa `20191204`
+         porque `fromisoformat` aceita mais do que `isoformat` emite).
+      3. `_pad_minimo(pad) == len(pad) >= 2` — INJETIVIDADE. Duas grafias com a mesma
+         sequência produzem o mesmo dado; a canônica é a de período mínimo:
+
+             *5~1,4,9|    cauda morta (o 9 nunca é lido)      recusa
+             *9~1,3,1,3|  repetição de [1,3]                  recusa
+             *5~1,4,1|    extensão parcial de [1,4]           recusa
+             *600~1,1|    mínimo 1 = `*N+d|` disfarçado       recusa
+             *5~1,4|      mínimo 2 == len(pad)                ACEITA
+
+         `mínimo == 1` cobre a guarda de pad uniforme (ADR-0040) de graça.
     """
-    return _pad_canonico(pad, count) and count - 1 >= 2 * len(pad)
+    if not pad or count < 2:
+        return False
+    if len(pad) > MAX_PERIODO:            # (1) teto: espelha o detector
+        return False
+    if count - 1 < 2 * len(pad):          # (2) re-emissão, O(1), ANTES do resto
+        return False
+    d = _pad_minimo(pad)                  # (3) injetividade, O(p²) com p <= 24
+    return d == len(pad) and d >= 2
+
+
+def _pad_canonico(pad, count):
+    """Compat do lab: a canonicidade agora vive dentro de `_grafia_emissivel`."""
+    return _grafia_emissivel(pad, count)
 
 
 # ───────────────────────────── detecção (v4 + guarda #5) ─────────────────────────────
@@ -209,10 +220,33 @@ def compacta_com_periodico(body_lines, runs):
     saida, info, pend, pend_ini, i, ri = [], [], [], 0, 0, 0
 
     def _drena():
+        """FLOOR POR FRAGMENTO (v6, achado da 2ª caçada).
+
+        A v5 reaplicava `compact_body` em cada fragmento **sem piso**. O core aplica no
+        corpo inteiro e só aceita se encolher (`hcc_seqrle.py:329`) — é assim que ele
+        recusa o `*2+d|` espúrio que o próprio comentário do FLOOR descreve. Sem o piso,
+        bastava UM run periódico legítimo pra o candidato vencer o `min()` **carregando
+        de carona** dezenas de marcadores que o core tinha recusado.
+
+        E a conta não fecha no corpo: cada `*2+d|` desses come uma corrida de escape, que
+        valia mais 1 B de ganho de POLARIDADE — camada de borda aplicada depois. Medido
+        pelos caçadores: um corpo 9 B menor embarcando 19 B maior; 963 regressões em
+        28 985 casos paramétricos, pior +29 B. Com o piso: **0 regressões e 4905 B a
+        MENOS** no total — melhor e nunca-pior.
+
+        Isolamento importante: o marcador periódico sozinho já era nunca-pior (0/28 985).
+        O defeito era inteiro deste `_drena`.
+        """
         nonlocal pend, pend_ini
         if not pend:
             return
         linhas_p, info_p = compact_body(pend)
+        cru = sum(len(x) + 1 for x in pend)
+        compacto = sum(len(x) + 1 for x in linhas_p)
+        if compacto > cru:                   # o mesmo piso do core, por fragmento
+            saida.extend(pend)
+            pend = []
+            return
         saida.extend(linhas_p)
         for reg in info_p:
             r = dict(reg)
