@@ -129,13 +129,46 @@ decisão), agora foi o custo (reconstruí o corpo, não usei o real).
 Do que sobra, a maior fatia é o array de deltas que o `detect_seq_runs` já computa (6,8 ms
 contra 1,6 ms da lógica de período) — **compartilhá-lo é parte do weld**.
 
+## A caçada adversarial — o que ela mudou no design
+
+Cinco lentes independentes atacaram o protótipo (12 achados brutos em
+[`outputs/cacada-achados-brutos.json`](outputs/cacada-achados-brutos.json), **5 distintos**
+após dedup). A [`detector_v5.py`](detector_v5.py) fecha todos; a
+[`v5_verificacao.py`](v5_verificacao.py) testa cada um — **8/8**.
+
+| # | defeito | como fechou |
+|---|---|---|
+| 1 | teto de memória não cobria `*N~…\|`: bomba de 16 B virava 21 s | expand **dentro** do core → 0,03 ms |
+| 2 | detector `O(n²)`: n=2400 levava **13,8 s** | fronteira de cadeia 1× + `mudanca[]` → **+30–32%** |
+| 3 | FLOOR invertia o desempate — reescrevia wire de dado **sem** periodicidade | ordem `min(hoje, cru, cand)` |
+| 4 | telemetria `seq_rle_runs` **zerava calada**: 1 → 0 em wire byte-idêntico ao do core | info do candidato **vencedor**, `start_line` reancorado |
+| 5 | pad com cauda morta: `*3~1,4,9\|` == `*3~1,4\|` (não-injetivo) | período mínimo + guard de re-emissão |
+
+**O #4 é o mais instrutivo**: não era lacuna do mecanismo novo, era **regressão** de um
+canal público que os próprios labs consomem (`encoder.py:726` → `schema.py:192` →
+`sideouts_quality.py`). Nenhum teste pegava — `test_side_outputs.py:58` só afirma
+`isinstance(..., list)`. Um mecanismo novo pode quebrar telemetria antiga sem quebrar
+nenhum byte.
+
+**O #5 rendeu uma regra além do caso.** Consertar a injetividade expôs a pergunta melhor:
+o decode aceitava grafias que o encode **nunca emitiria** (menos de 2 ciclos). É a mesma
+assimetria do `DataIsoSpec` — `fromisoformat` aceita `20191204`, `isoformat` nunca emite,
+e por isso o spec tem o guard `d.isoformat() != v`. Aqui: `count-1 >= 2·len(pad)`. Mesma
+cura, e agora com dois casos ela vira regra.
+
+### Uma correção minha no caminho
+
+Rotulei `*7~1,3,1,3,1|` como grafia ambígua — **não é**: seu período mínimo é 5, então ela
+*é* a forma canônica daquele dado. O caso de teste estava errado, não o código. O que a
+investigação achou de verdade foi o problema de re-emissão acima, que é melhor.
+
 ## Próximo passo
 
-1. **Decisão do owner**: a nota de design recomenda **começar pelo periódico** — um
-   arquivo, sem dependência de outro weld, vale pra qualquer coluna numérica, e os dois
-   gates não se mexeram. O delta-coluna (protocolo) fica para depois, e continua
-   complementar.
-2. Se o delta-coluna for adiante, o `T-NATURE-CANDIDATO-BN` (weld pequeno, aguarda
-   aprovação) é pré-requisito de fato.
-3. Depois: **lab clean em massa** da família data (molde EXP-016), consolidando spec +
-   alvo(s) delta.
+1. **O periódico está pronto para weld** — [ADR-0040](../../../../../docs/adr/0040-seq-rle-periodico.md)
+   proposto, código em [`weld_proposto.py`](weld_proposto.py), referência rodando em
+   [`detector_v5.py`](detector_v5.py). Falta só o **"pode soldar"**: `src/tcf` exige
+   aprovação explícita.
+2. O delta-coluna (protocolo) fica para depois e continua **complementar** — ganha onde o
+   ciclo não é exato. Se for adiante, o `T-NATURE-CANDIDATO-BN` é pré-requisito de fato.
+3. Depois dos dois: **lab clean em massa** da família data (molde EXP-016), consolidando
+   spec + alvo(s) delta.
