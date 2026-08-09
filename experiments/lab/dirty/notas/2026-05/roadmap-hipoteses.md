@@ -615,6 +615,16 @@ nova hipotese identificada.
   inteira (spec irmao futuro, fila `T-SPEC-PARSE-X-ALVO`); spec→bN no CANDIDATO da
   nature = `T-NATURE-CANDIDATO-BN` (aguarda aprovacao).
 
+- **H-DATA-MES-01** (alvo MENSAL, direcao do owner 2026-08-09 — "olhar pelo mes, o
+  incremento fica melhor"): `confirmada-empirica` (sintetico, lab
+  `2026-08-09-1853-data-alvo-mensal`, RT 2 niveis em todos os alvos x regimes). Alvos
+  per-valor com valvula (protocolo existente): A4 `mes*31+dia` (geral, sem convencao) =
+  mensal-dia1/15/misto 33-36 B; A2 mes-epoca-d01 = 31; A2f fim-de-mes = 31 (unica
+  convencao que paga); A3 YYYYMM REFUTADO (virada +89 quebra runs); YM = spec irmao da
+  grafia `YYYY-MM` (31 vs 826). Faltas: 2799 (spec recusa hoje) -> 41 B. Consequencias:
+  T-SPEC-PARSE-X-ALVO atingiu o criterio (2 grafias x 3 alvos); caso mensal SAI do
+  T-DATA-ALVO-DELTA (31-33 vs 349). Ticket `T-DATA-ALVO-MENSAL`, aguarda decisao.
+
 **Atualizacao anterior**: 2026-07-22 — **H-LAZY-INPUT-01** (owner, direcao — "apenas pensar"):
 o `encode` hoje exige o dataset TODO materializado (`dict[str, list[str]]`) — pico de memoria =
 O(dataset), e um "dicionario gigante com elementos enormes" pode ser desnecessario. Tres niveis de

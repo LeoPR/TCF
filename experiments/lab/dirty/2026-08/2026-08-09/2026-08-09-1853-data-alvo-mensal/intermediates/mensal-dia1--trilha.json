@@ -1,0 +1,30 @@
+{
+ "caso": "mensal-dia1",
+ "n": 600,
+ "C0_sem_spec": 1085,
+ "A1_ordinal_dia": 679,
+ "A2-mes-epoca-d01": 31,
+ "A2f-mes-epoca-FIM": 3746,
+ "A3-YYYYMM-d01": 55,
+ "A4-mes31-dia": 33,
+ "floor": 31,
+ "vencedor": "A2-mes-epoca-d01",
+ "detalhe": {
+  "A2-mes-epoca-d01": {
+   "rota": "#TCF.8",
+   "validos": 600
+  },
+  "A2f-mes-epoca-FIM": {
+   "rota": "#TCF.8!",
+   "validos": 0
+  },
+  "A3-YYYYMM-d01": {
+   "rota": "#TCF.8",
+   "validos": 600
+  },
+  "A4-mes31-dia": {
+   "rota": "#TCF.8",
+   "validos": 600
+  }
+ }
+}

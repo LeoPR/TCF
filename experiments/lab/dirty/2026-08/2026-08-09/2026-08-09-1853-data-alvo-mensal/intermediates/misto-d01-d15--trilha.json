@@ -1,0 +1,30 @@
+{
+ "caso": "misto-d01-d15",
+ "n": 600,
+ "C0_sem_spec": 7628,
+ "A1_ordinal_dia": 629,
+ "A2-mes-epoca-d01": 5461,
+ "A2f-mes-epoca-FIM": 7336,
+ "A3-YYYYMM-d01": 5761,
+ "A4-mes31-dia": 36,
+ "floor": 36,
+ "vencedor": "A4-mes31-dia",
+ "detalhe": {
+  "A2-mes-epoca-d01": {
+   "rota": "#TCF.8!!",
+   "validos": 300
+  },
+  "A2f-mes-epoca-FIM": {
+   "rota": "#TCF.8!",
+   "validos": 0
+  },
+  "A3-YYYYMM-d01": {
+   "rota": "#TCF.8!!",
+   "validos": 300
+  },
+  "A4-mes31-dia": {
+   "rota": "#TCF.8",
+   "validos": 600
+  }
+ }
+}

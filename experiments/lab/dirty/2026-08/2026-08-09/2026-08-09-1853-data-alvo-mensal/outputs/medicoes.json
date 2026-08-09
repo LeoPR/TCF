@@ -1,0 +1,227 @@
+[
+ {
+  "caso": "mensal-dia1",
+  "n": 600,
+  "C0_sem_spec": 1085,
+  "A1_ordinal_dia": 679,
+  "A2-mes-epoca-d01": 31,
+  "A2f-mes-epoca-FIM": 3746,
+  "A3-YYYYMM-d01": 55,
+  "A4-mes31-dia": 33,
+  "floor": 31,
+  "vencedor": "A2-mes-epoca-d01",
+  "detalhe": {
+   "A2-mes-epoca-d01": {
+    "rota": "#TCF.8",
+    "validos": 600
+   },
+   "A2f-mes-epoca-FIM": {
+    "rota": "#TCF.8!",
+    "validos": 0
+   },
+   "A3-YYYYMM-d01": {
+    "rota": "#TCF.8",
+    "validos": 600
+   },
+   "A4-mes31-dia": {
+    "rota": "#TCF.8",
+    "validos": 600
+   }
+  }
+ },
+ {
+  "caso": "mensal-dia15",
+  "n": 600,
+  "C0_sem_spec": 1085,
+  "A1_ordinal_dia": 679,
+  "A2-mes-epoca-d01": 3746,
+  "A2f-mes-epoca-FIM": 3746,
+  "A3-YYYYMM-d01": 3746,
+  "A4-mes31-dia": 33,
+  "floor": 33,
+  "vencedor": "A4-mes31-dia",
+  "detalhe": {
+   "A2-mes-epoca-d01": {
+    "rota": "#TCF.8!",
+    "validos": 0
+   },
+   "A2f-mes-epoca-FIM": {
+    "rota": "#TCF.8!",
+    "validos": 0
+   },
+   "A3-YYYYMM-d01": {
+    "rota": "#TCF.8!",
+    "validos": 0
+   },
+   "A4-mes31-dia": {
+    "rota": "#TCF.8",
+    "validos": 600
+   }
+  }
+ },
+ {
+  "caso": "mensal-fim-do-mes",
+  "n": 600,
+  "C0_sem_spec": 6455,
+  "A1_ordinal_dia": 655,
+  "A2-mes-epoca-d01": 5821,
+  "A2f-mes-epoca-FIM": 31,
+  "A3-YYYYMM-d01": 5821,
+  "A4-mes31-dia": 745,
+  "floor": 31,
+  "vencedor": "A2f-mes-epoca-FIM",
+  "detalhe": {
+   "A2-mes-epoca-d01": {
+    "rota": "#TCF.8!",
+    "validos": 0
+   },
+   "A2f-mes-epoca-FIM": {
+    "rota": "#TCF.8",
+    "validos": 600
+   },
+   "A3-YYYYMM-d01": {
+    "rota": "#TCF.8!",
+    "validos": 0
+   },
+   "A4-mes31-dia": {
+    "rota": "#TCF.8!!",
+    "validos": 600
+   }
+  }
+ },
+ {
+  "caso": "trimestral-dia1",
+  "n": 600,
+  "C0_sem_spec": 6377,
+  "A1_ordinal_dia": 139,
+  "A2-mes-epoca-d01": 31,
+  "A2f-mes-epoca-FIM": 7414,
+  "A3-YYYYMM-d01": 39,
+  "A4-mes31-dia": 33,
+  "floor": 31,
+  "vencedor": "A2-mes-epoca-d01",
+  "detalhe": {
+   "A2-mes-epoca-d01": {
+    "rota": "#TCF.8",
+    "validos": 600
+   },
+   "A2f-mes-epoca-FIM": {
+    "rota": "#TCF.8!!",
+    "validos": 0
+   },
+   "A3-YYYYMM-d01": {
+    "rota": "#TCF.8",
+    "validos": 600
+   },
+   "A4-mes31-dia": {
+    "rota": "#TCF.8",
+    "validos": 600
+   }
+  }
+ },
+ {
+  "caso": "mensal-com-faltas",
+  "n": 600,
+  "C0_sem_spec": 2799,
+  "A1_ordinal_dia": 2799,
+  "A2-mes-epoca-d01": 41,
+  "A2f-mes-epoca-FIM": 4862,
+  "A3-YYYYMM-d01": 1731,
+  "A4-mes31-dia": 48,
+  "floor": 41,
+  "vencedor": "A2-mes-epoca-d01",
+  "detalhe": {
+   "A2-mes-epoca-d01": {
+    "rota": "#TCF.8",
+    "validos": 600
+   },
+   "A2f-mes-epoca-FIM": {
+    "rota": "#TCF.8!",
+    "validos": 0
+   },
+   "A3-YYYYMM-d01": {
+    "rota": "#TCF.8!!",
+    "validos": 600
+   },
+   "A4-mes31-dia": {
+    "rota": "#TCF.8",
+    "validos": 600
+   }
+  }
+ },
+ {
+  "caso": "yyyy-mm-puro",
+  "n": 600,
+  "C0_sem_spec": 826,
+  "A1_ordinal_dia": 826,
+  "YM-grafia-propria": 31,
+  "floor": 31,
+  "vencedor": "YM-grafia-propria",
+  "detalhe": {
+   "YM-grafia-propria": {
+    "rota": "#TCF.8",
+    "validos": 600
+   }
+  }
+ },
+ {
+  "caso": "diario-CONTROLE",
+  "n": 600,
+  "C0_sem_spec": 414,
+  "A1_ordinal_dia": 32,
+  "A2-mes-epoca-d01": 2214,
+  "A2f-mes-epoca-FIM": 589,
+  "A3-YYYYMM-d01": 2234,
+  "A4-mes31-dia": 136,
+  "floor": 32,
+  "vencedor": "A1_ordinal_dia",
+  "detalhe": {
+   "A2-mes-epoca-d01": {
+    "rota": "#TCF.8!",
+    "validos": 20
+   },
+   "A2f-mes-epoca-FIM": {
+    "rota": "#TCF.8!!",
+    "validos": 19
+   },
+   "A3-YYYYMM-d01": {
+    "rota": "#TCF.8!",
+    "validos": 20
+   },
+   "A4-mes31-dia": {
+    "rota": "#TCF.8!!",
+    "validos": 600
+   }
+  }
+ },
+ {
+  "caso": "misto-d01-d15",
+  "n": 600,
+  "C0_sem_spec": 7628,
+  "A1_ordinal_dia": 629,
+  "A2-mes-epoca-d01": 5461,
+  "A2f-mes-epoca-FIM": 7336,
+  "A3-YYYYMM-d01": 5761,
+  "A4-mes31-dia": 36,
+  "floor": 36,
+  "vencedor": "A4-mes31-dia",
+  "detalhe": {
+   "A2-mes-epoca-d01": {
+    "rota": "#TCF.8!!",
+    "validos": 300
+   },
+   "A2f-mes-epoca-FIM": {
+    "rota": "#TCF.8!",
+    "validos": 0
+   },
+   "A3-YYYYMM-d01": {
+    "rota": "#TCF.8!!",
+    "validos": 300
+   },
+   "A4-mes31-dia": {
+    "rota": "#TCF.8",
+    "validos": 600
+   }
+  }
+ }
+]
