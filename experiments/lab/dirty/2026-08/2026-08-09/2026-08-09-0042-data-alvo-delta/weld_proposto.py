@@ -194,7 +194,7 @@ def compact_body_com_periodico(body_lines, deltas, _compact_body_hoje):
 # 0,0000 s contra 2,473 s se a expansão virasse passe separado).
 
 def expand_periodic_marker(linha, _shift):
-    """`*N~d1,…,dp|template` -> N linhas. `None` se a linha não é marcador periódico."""
+    """`*N~d1,…,dp|template` -> N linhas. `None` se não é marcador periódico CANÔNICO."""
     if not linha.startswith("*"):
         return None
     bar = linha.find("|")
@@ -208,9 +208,9 @@ def expand_periodic_marker(linha, _shift):
         padrao = [int(x) for x in head[til + 1:].split(",")]
     except ValueError:
         return None                    # cai no ramo de hoje -> erro canônico do core
-    if not padrao:
-        return None
     count, template = int(head[:til]), linha[bar + 1:]
+    if not _grafia_emissivel(padrao, count):
+        return None                    # <<< GUARDA #5 — ver abaixo
     out, curr = [template], template
     for k in range(1, count):
         curr = _shift(curr, padrao[(k - 1) % len(padrao)])
@@ -218,21 +218,91 @@ def expand_periodic_marker(linha, _shift):
     return out
 
 
+# ────────── 6. <<< WELD — canonicidade da grafia (achado #5 da caçada) ──────────
+#
+# Sem isto o marcador é NÃO-INJETIVO: `*3~1,4,9|` decodifica idêntico a `*3~1,4|` porque
+# o `9` nunca é lido. Infinitas grafias válidas pro mesmo dado — o oposto do byte-canonical
+# que o projeto usa como gate. Medido pelos caçadores em 6 formas distintas.
+
+def _periodo_minimo(seq):
+    """Menor `q` com `seq[k] == seq[k % q]` para todo k — o pad canônico de `seq`."""
+    n = len(seq)
+    for q in range(1, n + 1):
+        if all(seq[k] == seq[k % q] for k in range(n)):
+            return q
+    return n
+
+
+def _pad_canonico(pad, count):
+    """INJETIVIDADE: `count` linhas consomem `count-1` deltas, e o decode lê
+    `seq = [pad[k % len(pad)] …]`. A grafia canônica é a de PERÍODO MÍNIMO de `seq`.
+
+        *5~1,4,9|    seq=[1,4,1,4] -> mín 2, pad 3  cauda MORTA        recusa
+        *5~1,4,1,4|  idem          -> mín 2, pad 4  repetição          recusa
+        *5~1,4,1|    idem          -> mín 2, pad 3  extensão parcial   recusa
+        *600~1,1|    seq=[1,1,…]   -> mín 1         uniforme (`*N+d|`) recusa
+        *5~1,4|      seq=[1,4,1,4] -> mín 2 == len  CANÔNICA           aceita
+
+    `mínimo == 1` cobre a guarda 1 (pad uniforme) de graça.
+    """
+    if not pad or count < 2 or len(pad) > count - 1:
+        return False
+    seq = [pad[k % len(pad)] for k in range(count - 1)]
+    q = _periodo_minimo(seq)
+    return q == len(pad) and q >= 2
+
+
+def _grafia_emissivel(pad, count):
+    """RE-EMISSÃO: canônica **e** produzível pelo encoder. O detector exige 2 ciclos
+    completos (`L >= 2p` ⇒ `count-1 >= 2p`); sem esta linha, `*4~1,3|` — que nenhum
+    encoder TCF produz — decodificaria calado.
+
+    Precedente direto: o `DataIsoSpec` recusa `20191204` porque `fromisoformat` aceita
+    mais do que `isoformat` emite (`d.isoformat() != v`). Mesma assimetria, mesma cura.
+    """
+    return _pad_canonico(pad, count) and count - 1 >= 2 * len(pad)
+
+
+# ────────── 7. <<< WELD — telemetria por candidato VENCEDOR (achado #4) ──────────
+#
+# O protótipo zerava `_seq_info` e nunca reatribuía: `seq_rle_runs` caía de 1 -> 0 mesmo
+# com o corpo emitido BYTE-IDÊNTICO ao do core e cheio de `*N+d|`. Não é lacuna do
+# mecanismo novo — é REGRESSÃO de um canal público com consumidores reais
+# (`encoder.py:726` -> `schema.py:192` -> `scripts/schema_gadget/sideouts_quality.py`, e
+# os próprios labs). Nenhum teste pegava: `test_side_outputs.py:58` só afirma `isinstance`.
+#
+# Duas armadilhas no conserto, as DUAS obrigatórias:
+#   (a) o info tem de ser o do candidato VENCEDOR — vazio quando o cru vence;
+#   (b) `compact_body(pendente)` devolve `start_line`/`end_line` relativos ao PEDAÇO;
+#       sem reancorar no corpo inteiro, troca-se um silêncio por uma MENTIRA.
+#
+#     def _info_periodico(pos, count, pad, economia, template):
+#         return {"start_line": pos + 1, "end_line": pos + count, "count": count,
+#                 "deltas": list(pad), "uniform_delta": None, "periodo": len(pad),
+#                 "template": template, "savings": economia}
+#
+#     # no encode, depois do min():
+#     corpo, self._seq_info = min(candidatos, key=lambda t: len(t[0].encode("utf-8")))
+#
+# `uniform_delta=None` + `periodo` distinguem o run periódico do uniforme sem quebrar
+# quem já lê o dicionário de hoje.
+
+
 # ────────────────────────────────── notas do weld ──────────────────────────────────
 #
 # `_contador_declarado`: NÃO MUDA. Já lê `*2000000~1,2|` como 2000000 (para no primeiro
 #   não-dígito). Verificado.
 #
-# `seq_info` (SideOutputs.seq_rle_runs): o esboço devolve `[]` para os trechos periódicos.
-#   O weld deve emitir o mesmo dicionário que o uniforme emite (`start_line`, `end_line`,
-#   `count`, `deltas`, `template`, `savings`) com um campo a mais (`periodo`), senão a
-#   telemetria fica cega justo no mecanismo novo — e telemetria é requisito do owner.
+# Implementação de referência COMPLETA e rodando: `detector_v5.py` (mesmo diretório).
+# Verificação dos 5 achados + gates: `v5_verificacao.py` — **8/8**.
 #
 # Testes que acompanham o weld:
 #   - os 8 controles do `design_probe.py` (3 que usam + 4 byte-idênticos + 1 não-data)
-#   - adversariais de grafia: valores que imitam o marcador
+#   - as 9 grafias não-canônicas de `v5_verificacao.py` (6 não-injetivas + 3 não-emissíveis)
+#   - adversariais: valores que imitam o marcador
 #   - bomba de memória com `max_length` (o caso que decidiu a colocação)
-#   - os dois gates byte-canonical + suíte inteira
+#   - telemetria: marcador no corpo ⇒ `seq_rle_runs` não-vazio; wire idêntico ⇒ runs iguais
+#   - os dois gates byte-canonical + suíte inteira (1199)
 
 def _len_marcador(count, padrao, template):
     return len(marcador_periodico(count, padrao, template))

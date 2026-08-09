@@ -7,11 +7,15 @@ H-DATA-DELTA-01 + H-SEQRLE-PERIOD-01 (registry). Conclusões: [`result.md`](resu
 ## Como rodar
 
 ```
-python run.py            # os 12 casos da comparação D1 (delta-coluna) x D2 (periódico)
-python design_probe.py   # o periódico posto DENTRO do compact_body (monkeypatch)
-python custo_cpu.py      # custo de CPU, rodadas intercaladas
-python detector_v4.py    # a versão do detector que vai no weld (v1->v4) + gates
+python run.py             # os 12 casos da comparação D1 (delta-coluna) x D2 (periódico)
+python design_probe.py    # o periódico posto DENTRO do compact_body (monkeypatch)
+python custo_cpu.py       # custo de CPU, rodadas intercaladas
+python detector_v4.py     # a escada do custo (v1 O(n²) -> v4) + gates
+python v5_verificacao.py  # os 5 achados da caçada contra a v5 -- 8/8
 ```
+
+**A v5 (`detector_v5.py`) é o candidato de weld.** As versões anteriores ficam porque a
+escada é a evidência: v1 tinha 5 defeitos que só apareceram sob ataque adversarial.
 
 `run.py` confere RT em todos os casos (asserts; D2 em DOIS níveis: coluna via decoder real
 + valor via `decode_value` real) e regrava `outputs/`.
@@ -31,6 +35,8 @@ fundamenta o ADR) → `detector_v4.py` (a escada do custo, v1 O(n²) até v4) �
 | `outputs/<caso>--seqrle-periodico.wire.txt` | wire do PROTÓTIPO D2 — **não** é TCF válido (marcador `~` provisório), por isso `.wire.txt` e não `.tcf` |
 | `outputs/<caso>.roundtrip.json` | os dois níveis de RT + amostra do input pra inspeção |
 | `outputs/medicoes.md` / `.json` | tabela completa + detalhe por caso |
+| `outputs/cacada-achados-brutos.json` | os 12 achados brutos da caçada adversarial (5 lentes), com repro de cada um — **não verificados**, é a matéria-prima |
+| `outputs/v5-verificacao.json` | o veredito: os 5 achados distintos testados contra a v5 |
 
 ## Os candidatos (bytes já incluem o header hipotético: D1 +12 B, D2 +10 B)
 
