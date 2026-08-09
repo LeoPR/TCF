@@ -55,9 +55,16 @@ nunca-pior — os controles uniformes ficaram byte-idênticos ao wire de hoje.
 2. **Greedy mistura mal as duas formas.** Com a forma-lista permitida, o greedy prefere
    listas grandes que DESTROEM runs periódicos melhores (feriado-mensal: 904 na forma
    livre vs 649 na estrita). Mais um motivo pra só soldar o estrito.
-3. **A rota do candidato digit-heavy é o raw `#TCF.8!!`** — linhas de dígito cruas, sem
-   escape. O `compare_for_seq` do core só fala o modo escapado; o periódico soldado
-   precisa do espelho raw (o protótipo daqui já é ele).
+3. ~~**A rota do candidato digit-heavy é o raw `#TCF.8!!`** — o periódico soldado precisa
+   de um espelho raw.~~ **ERRADO, corrigido em `design_probe.py` (mesmo dia).** O `!!`
+   não é rota raw: é o **sufixo de POLARIDADE** (weld 2026-07-26), camada de borda
+   aplicada depois de tudo (`encoder.py:459`). O corpo que o `compact_body` enxerga ainda
+   tem os escapes (`*3+1|7\3` pré-polaridade vira `*3+1|7!3` pós) — logo `compare_for_seq`
+   e `shift_escape_digits` **servem como estão**, sem espelho novo. Eu media o wire
+   emitido em vez do ponto de decisão; de fora, o mundo parece raw. Mesma classe da
+   "âncora de pin" do EXP-016 e do baseline do FLOOR da nature. **Isso barateia o design
+   do periódico** — ver [`design_probe.py`](design_probe.py) e a
+   [nota de design](../../notas/2026-08/2026-08-09-designs-do-alvo-delta-custo-e-recomendacao.md).
 4. **Sintaxe em aberto**: a vírgula já é do multi-delta per-run (ADR-0016) e `~` real é
    operador composicional — o `*N~...|` daqui é PROVISÓRIO. Multi-run × periódico
    (produto cruzado com ADR-0016) fica registrado como não-explorado.
@@ -77,12 +84,30 @@ nunca-pior — os controles uniformes ficaram byte-idênticos ao wire de hoje.
 - O protótipo D2 re-compacta uniforme por conta própria e ficou ~0,2% menor que o corpo
   do core em um caso (artefato de `<=` no custo do par); irrelevante pro placar.
 
+## Sonda de design (`design_probe.py`, mesmo dia)
+
+Depois da correção do §3 acima, o periódico foi posto **onde ele moraria** — dentro do
+`compact_body`, via subclasse + monkeypatch de `tcf.encoder/decoder.HCCSeqRLE` (`src/tcf`
+intocado no disco, `encode`/`decode` REAIS). Resultado:
+
+- ganho sobrevive ao pipeline inteiro: úteis **1590 → 40 B**, n=6000 → **41 B** (381×),
+  ids não-data **1959 → 32 B** (61×);
+- **D1-D9 = 1545 B e real-world = 89430 B, byte-idênticos** aos congelados;
+- decoder de HOJE diante do wire novo: **fail-loud** (E3), nunca calado;
+- valores adversariais que imitam o marcador fazem RT (E1).
+
+E pegou **dois defeitos de design**: padrão uniforme disfarçado (`*600~1,1|`, piorava o
+diário 32→34) e FLOOR comparando com o corpo cru em vez do compactado (piorava 4 de 8) —
+os dois com guarda de uma linha cada. Detalhe e custo comparado dos dois designs na
+[nota de design](../../notas/2026-08/2026-08-09-designs-do-alvo-delta-custo-e-recomendacao.md).
+
 ## Próximo passo
 
-1. **Decisão do owner**: qual(is) design(s) seguem — D2 estrito (gramática, vale pra
-   qualquer coluna numérica), D1 (protocolo da nature, robusto a ruído), ou os dois.
-   Este lab diz: são complementares; a forma-lista morre.
-2. Se D1 for adiante, o `T-NATURE-CANDIDATO-BN` (weld pequeno, aguarda aprovação) é
-   pré-requisito de fato.
+1. **Decisão do owner**: a nota de design recomenda **começar pelo periódico** — um
+   arquivo, sem dependência de outro weld, vale pra qualquer coluna numérica, e os dois
+   gates não se mexeram. O delta-coluna (protocolo) fica para depois, e continua
+   complementar.
+2. Se o delta-coluna for adiante, o `T-NATURE-CANDIDATO-BN` (weld pequeno, aguarda
+   aprovação) é pré-requisito de fato.
 3. Depois: **lab clean em massa** da família data (molde EXP-016), consolidando spec +
    alvo(s) delta.
