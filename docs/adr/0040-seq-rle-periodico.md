@@ -54,6 +54,27 @@ Pares com **mais de um** run (o território do ADR-0016) ficam de fora. Periódi
 multi-run é produto cruzado das duas gramáticas e não tem caso medido que o justifique.
 Registrado, não feito.
 
+### Canonicidade da grafia — duas condições, medidas
+
+Uma caçada adversarial (5 lentes, 12 achados brutos em
+[`cacada-achados-brutos.json`](../../experiments/lab/dirty/2026-08/2026-08-09/2026-08-09-0042-data-alvo-delta/outputs/cacada-achados-brutos.json))
+mostrou que o marcador ingênuo é **não-injetivo**: `*3~1,4,9|` decodifica idêntico a
+`*3~1,4|` — o `9` nunca é lido. Infinitas grafias válidas para o mesmo dado, o oposto do
+byte-canonical que o projeto usa como gate.
+
+O decode só aceita a grafia que é **canônica** *e* **emissível**:
+
+| condição | rejeita | por quê |
+|---|---|---|
+| `len(pad) == período_mínimo(seq)` | `*5~1,4,9\|` (cauda morta) · `*5~1,4,1,4\|` (repetição) · `*5~1,4,1\|` (extensão parcial) · `*600~1,1\|` (uniforme) | **injetividade**: uma grafia por dado |
+| `count - 1 >= 2 · len(pad)` | `*4~1,3\|` · `*7~1,3,1,3,1\|` | **re-emissão**: o detector exige 2 ciclos completos, logo o decode não pode aceitar o que o encode nunca produz |
+
+A segunda é o **mesmo guard do `DataIsoSpec`** (`d.isoformat() != v`, que recusa
+`20191204` porque `fromisoformat` aceita mais do que `isoformat` emite). Mesma
+assimetria, mesma cura — e por isso a regra, não o caso.
+
+> `período_mínimo` cobre a "guarda 1" (pad uniforme) de graça: mínimo `1` ⇒ é `*N+d|`.
+
 ## As duas guardas — sem elas o mecanismo REGRIDE
 
 Medidas no `design_probe.py`; sem cada uma, o placar piora:
@@ -116,6 +137,26 @@ sonda `design_probe.py` (subclasse + monkeypatch de `tcf.encoder/decoder.HCCSeqR
 (`contador RLE invalido: '600~1,3,1,1,1'`) — nunca devolve dado errado calado.
 **E1 adversarial**: valores que *imitam* o marcador (`"*600~1,3,1,1,1|739617"`,
 `"*3~1,2|z"`, `"a|b"`) fazem round-trip — a heurística de separador do ADR-0007 protege.
+
+### A caçada adversarial, e o que ela custou ao design
+
+Cinco lentes independentes atacaram o protótipo; **cinco defeitos distintos**
+sobreviveram à deduplicação. Todos foram fechados na v5
+([`detector_v5.py`](../../experiments/lab/dirty/2026-08/2026-08-09/2026-08-09-0042-data-alvo-delta/detector_v5.py)),
+e cada um tem teste em
+[`v5_verificacao.py`](../../experiments/lab/dirty/2026-08/2026-08-09/2026-08-09-0042-data-alvo-delta/v5_verificacao.py) (**8/8**):
+
+| # | defeito | escala | como fechou |
+|---|---|---|---|
+| 1 | teto de memória não cobria o marcador novo (bomba: 16 B → 21 s) | E3 | expand **dentro** do core → 0,03 ms |
+| 2 | detector `O(n²)` (n=2400: 13,8 s) | E3 | fronteira de cadeia 1× + `mudanca[]` → +30–32% |
+| 3 | FLOOR invertia o desempate → reescrevia wire de dado **sem** periodicidade | E4 | ordem `min(hoje, cru, cand)` |
+| 4 | telemetria `seq_rle_runs` zerava **calada** — 1 → 0 em wire byte-idêntico ao do core | E3 | info do candidato **vencedor**, com `start_line` reancorado |
+| 5 | pad com cauda morta / extensão → não-injetividade | E4 | período mínimo + guard de re-emissão |
+
+O #4 é o mais instrutivo: não era lacuna do mecanismo novo, era **regressão** de um canal
+público (`encoder.py:726` → `schema.py:192` → `sideouts_quality.py`) que os próprios labs
+consomem. Nenhum teste pegava — `test_side_outputs.py:58` só afirma `isinstance(..., list)`.
 
 ## Consequências
 
