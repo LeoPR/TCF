@@ -1,0 +1,130 @@
+{
+ "S1_indice_trigrama": [
+  {
+   "coluna": "mensal ISO",
+   "k": 600,
+   "buckets": 5,
+   "maior_bucket": 120,
+   "pct_no_maior": 20
+  },
+  {
+   "coluna": "diario ISO",
+   "k": 600,
+   "buckets": 1,
+   "maior_bucket": 600,
+   "pct_no_maior": 100
+  },
+  {
+   "coluna": "uteis ISO",
+   "k": 600,
+   "buckets": 1,
+   "maior_bucket": 600,
+   "pct_no_maior": 100
+  },
+  {
+   "coluna": "ordinal-dia",
+   "k": 600,
+   "buckets": 19,
+   "maior_bucket": 33,
+   "pct_no_maior": 6
+  },
+  {
+   "coluna": "mes-epoca",
+   "k": 600,
+   "buckets": 6,
+   "maior_bucket": 100,
+   "pct_no_maior": 17
+  }
+ ],
+ "S2_split_por_rota": [
+  {
+   "coluna": "mensal",
+   "split_B": 700,
+   "single_col_flat_B": 1085,
+   "multi_col_B": 711,
+   "multi_escolheu_split": true
+  },
+  {
+   "coluna": "diario",
+   "split_B": 820,
+   "single_col_flat_B": 414,
+   "multi_col_B": 450,
+   "multi_escolheu_split": false
+  },
+  {
+   "coluna": "uteis",
+   "split_B": 903,
+   "single_col_flat_B": 2454,
+   "multi_col_B": 914,
+   "multi_escolheu_split": true
+  }
+ ],
+ "S3_pecas": [
+  {
+   "coluna": "mensal",
+   "flat_B": 1085,
+   "soma_pecas_B": 487,
+   "ano": 48,
+   "mes": 423,
+   "dia": 16
+  },
+  {
+   "coluna": "diario",
+   "flat_B": 414,
+   "soma_pecas_B": 701,
+   "ano": 29,
+   "mes": 149,
+   "dia": 523
+  },
+  {
+   "coluna": "uteis",
+   "flat_B": 2454,
+   "soma_pecas_B": 787,
+   "ano": 37,
+   "mes": 208,
+   "dia": 542
+  }
+ ],
+ "S4_dedup_esconde_aritmetica": [
+  {
+   "caso": "mes 01..12 x50 (k=12, CICLA)",
+   "k": 12,
+   "bytes": 423,
+   "rota": "#TCF.8B4258",
+   "linhas_corpo": 600,
+   "primeira_linha_de_REFERENCIA": 12,
+   "deltas_legiveis": 11,
+   "runs_periodicos": 0
+  },
+  {
+   "caso": "mesma aritmetica sem repetir (k=600)",
+   "k": 600,
+   "bytes": 20,
+   "rota": "#TCF.8",
+   "linhas_corpo": 600,
+   "primeira_linha_de_REFERENCIA": null,
+   "deltas_legiveis": 599,
+   "runs_periodicos": 0
+  },
+  {
+   "caso": "ciclo 1,3,1,1,1 (k=600, uteis)",
+   "k": 600,
+   "bytes": 30,
+   "rota": "#TCF.8",
+   "linhas_corpo": 600,
+   "primeira_linha_de_REFERENCIA": null,
+   "deltas_legiveis": 599,
+   "runs_periodicos": 1
+  },
+  {
+   "caso": "dia do mes 01..28 (k=28, CICLA)",
+   "k": 28,
+   "bytes": 523,
+   "rota": "#TCF.8B5258",
+   "linhas_corpo": 600,
+   "primeira_linha_de_REFERENCIA": 28,
+   "deltas_legiveis": 27,
+   "runs_periodicos": 0
+  }
+ ]
+}
