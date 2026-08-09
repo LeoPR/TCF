@@ -21,6 +21,12 @@ Sintaxe: `*N+delta|<template>` (compativel com `*N|` RLE puro
 existente em M8A — distincao pelo `+`). Convencao de output (sem brackets,
 LF unico) conforme `docs/algorithms/output-convention.md`.
 
+PERIODICO (ADR-0040, weld 2026-08-09): `*N~d1,...,dp|<template>` — o delta CICLA entre
+linhas. Cobre cadencias que o uniforme nao alcanca (dias uteis `1,3,1,1,1`, ids por turno
+`10,10,10,50`, quinzenal/mensal). O ciclo paga UMA vez: 600 dias uteis viram
+`*600~1,3,1,1,1|\739617`, e com n=6000 o wire cresce UM byte. Terceiro candidato do
+MESMO `min()` — nunca-pior por construcao.
+
 `src/tcf/composicional/syntax.py` intocado — importa e estende.
 
 GATE byte-canonical: qualquer mudanca aqui (seq-RLE / detector) DEVE passar
@@ -156,28 +162,174 @@ def shift_escape_digits(template: str, delta) -> str:
     return "".join(out)
 
 
-def detect_seq_runs(body_lines: list[str]) -> list[tuple[int, int, list[int]]]:
+def deltas_pares(body_lines: list[str]) -> list[list[int] | None]:
+    """`compare_for_seq` de cada par adjacente, computado UMA vez (ADR-0040).
+
+    Os DOIS detectores (uniforme e periodico) consomem este array. Sem compartilhar,
+    ele e' recomputado inteiro: medido em 6,8 ms num corpo de 1200 linhas, contra 1,6 ms
+    de toda a logica de periodo. Vizinho do `T-SEQRLE-INCREMENTAL`.
+    """
+    return [compare_for_seq(a, b) for a, b in zip(body_lines, body_lines[1:])]
+
+
+def detect_seq_runs(
+    body_lines: list[str], pares: list[list[int] | None] | None = None
+) -> list[tuple[int, int, list[int]]]:
     """Retorna runs (start, end_exclusive, deltas) consecutivos near-identical.
 
     ADR-0016: deltas eh list[int] (per-run). Compat M10: quando todos
     deltas iguais e nao-zero, marker emit usa formato `*N+delta|` (single).
+
+    `pares` (ADR-0040): o array de `deltas_pares` ja' computado. `None` = computa aqui,
+    preservando a assinatura antiga. Comportamento identico nos dois casos.
     """
+    if pares is None:
+        pares = deltas_pares(body_lines)
     runs = []
     n = len(body_lines)
     i = 0
     while i < n - 1:
-        deltas = compare_for_seq(body_lines[i], body_lines[i + 1])
+        deltas = pares[i]
         if deltas is None:
             i += 1
             continue
         run_end = i + 2
         while run_end < n:
-            next_deltas = compare_for_seq(body_lines[run_end - 1], body_lines[run_end])
+            next_deltas = pares[run_end - 1]
             if next_deltas != deltas:
                 break
             run_end += 1
         runs.append((i, run_end, deltas))
         i = run_end
+    return runs
+
+
+# ─────────────────────── seq-RLE PERIODICO (ADR-0040) ───────────────────────
+#
+# `*N~d1,...,dp|template`: o delta CICLA entre linhas — linha k+1 = linha k deslocada
+# por pad[(k-1) % p]. Cobre cadencias que o `*N+d|` (uniforme) nao alcanca: dias uteis
+# (`1,3,1,1,1`), ids por turno (`10,10,10,50`), quinzenal/mensal. O ciclo paga UMA vez:
+# 600 dias uteis = `*600~1,3,1,1,1|\739617`, e com n=6000 o wire cresce UM byte.
+#
+# Distinto do multi-delta do ADR-0016 (`*N+d1,d2|`), que e' per-RUN dentro da MESMA
+# linha, nao per-linha.
+
+MAX_PERIODO = 24
+"""Teto do periodo. Cobre mensal (12) e quinzenal-ano (24). Sem caso medido acima."""
+
+
+def _pad_minimo(pad: list[int]) -> int:
+    """Menor `d` que gera `pad` por repeticao: `pad[k] == pad[k % d]` para todo k.
+
+    Calculado do PAD (p <= MAX_PERIODO), nunca de uma sequencia de `count-1` elementos
+    materializada — ver a ordem das condicoes em `grafia_emissivel`.
+    """
+    p = len(pad)
+    for d in range(1, p + 1):
+        if p % d == 0 and all(pad[k] == pad[k % d] for k in range(p)):
+            return d
+    return p
+
+
+def grafia_emissivel(pad: list[int], count: int) -> bool:
+    """A grafia e' aceita? Canonica (injetiva) E produzivel pelo encoder.
+
+    A ORDEM DAS CONDICOES E' DEFESA, nao estilo. Tudo aqui e' O(1) ou O(p^2) com
+    p <= MAX_PERIODO, e NADA e' proporcional ao `count` que o WIRE declara. Uma versao
+    anterior materializava `count-1` elementos e rodava O(n^2) sobre um pad sem teto:
+    48,8 KB de wire hostil custavam 126,87 s (16.881x o tempo de recusar sem o
+    mecanismo, que devolve o MESMO erro), e 22 B custavam 17,25 s e 85 MB. Depois desta
+    ordem: 3,75 ms e 0 MB.
+
+      1. `len(pad) <= MAX_PERIODO` — espelha o teto do DETECTOR. Sem isto o pad vindo do
+         wire nao tem teto nenhum.
+      2. `count - 1 >= 2*len(pad)` — RE-EMISSAO, e e' O(1), entao vem ANTES do resto. O
+         detector so' emite com dois ciclos completos (`L >= 2p`), logo `*4~1,3|` nao e'
+         produzivel por encoder TCF. Mesmo guard do `DataIsoSpec` (`d.isoformat() != v`,
+         que recusa `20191204` porque `fromisoformat` aceita mais do que `isoformat`
+         emite).
+      3. `_pad_minimo(pad) == len(pad) >= 2` — INJETIVIDADE. Duas grafias com a mesma
+         sequencia produzem o mesmo dado; a canonica e' a de periodo minimo:
+
+             *5~1,4,9|    cauda morta (o 9 nunca e' lido)   recusa
+             *9~1,3,1,3|  repeticao de [1,3]                recusa
+             *5~1,4,1|    extensao parcial de [1,4]         recusa
+             *600~1,1|    minimo 1 = `*N+d|` disfarcado     recusa
+             *5~1,4|      minimo 2 == len(pad)              ACEITA
+
+         Vale calcular do `pad` porque (2) ja' garantiu >= 2 ciclos (Fine-Wilf).
+    """
+    if not pad or count < 2:
+        return False
+    if len(pad) > MAX_PERIODO:
+        return False
+    if count - 1 < 2 * len(pad):
+        return False
+    d = _pad_minimo(pad)
+    return d == len(pad) and d >= 2
+
+
+def marcador_periodico(count: int, padrao: list[int], template: str) -> str:
+    """`*N~d1,...,dp|template`. O caractere `~` e' reversivel pre-1.0 (ADR-0040):
+    marcador e' abstrato por dentro, o char e' so' a saida."""
+    return f"*{count}~{','.join(str(d) for d in padrao)}|{template}"
+
+
+def detect_periodic_runs(
+    body_lines: list[str], pares: list[list[int] | None]
+) -> list[tuple[int, int, list[int], int]]:
+    """Runs `(start, count, pad, economia)` onde o delta entre linhas CICLA (p >= 2).
+
+    O(n * MAX_PERIODO). Escopo do 1o weld: pares de UM run de escape-digit — o multi-run
+    e' territorio do ADR-0016, e periodico x multi-run e' produto cruzado sem caso medido.
+
+    A forma ingenua desta funcao e' O(n^2) e foi medida: n=2400 levava 13,8 s contra
+    47 ms do encode inteiro. Tres armadilhas, todas por indice em vez de por cadeia:
+    rechar o fim da cadeia a cada `i`; fatiar os deltas a cada `i`; e o guard de padrao
+    uniforme rodando por (posicao x periodo) — ~27.600 fatias so' pra concluir "pule".
+    O pre-calculo `mudanca[]` mata a terceira em O(n).
+    """
+    d = [p[0] if p is not None and len(p) == 1 else None for p in pares]
+    n, m = len(body_lines), len(d)
+
+    # mudanca[k] = distancia de k ate' o proximo delta DIFERENTE. Qualquer periodo
+    # p <= mudanca[k] tem padrao uniforme por construcao -> nem precisa ser testado.
+    mudanca = [0] * m
+    for k in range(m - 1, -1, -1):
+        mudanca[k] = 1 if (k == m - 1 or d[k] != d[k + 1]) else mudanca[k + 1] + 1
+
+    runs: list[tuple[int, int, list[int], int]] = []
+    i = 0
+    while i < n - 1:
+        if d[i] is None:
+            i += 1
+            continue
+        fim = i                                     # fronteira da cadeia: UMA vez
+        while fim < n - 1 and d[fim] is not None:
+            fim += 1
+        pos = i
+        while pos < fim:
+            melhor = None                           # (economia, count, pad)
+            for p in range(max(2, mudanca[pos] + 1), min(MAX_PERIODO, fim - pos) + 1):
+                pad = d[pos:pos + p]
+                L = p
+                while pos + L < fim and d[pos + L] == pad[L % p]:
+                    L += 1
+                if L < 2 * p:                       # dois ciclos completos
+                    continue
+                count = L + 1
+                if not grafia_emissivel(pad, count):
+                    continue                        # nunca EMITIR grafia ambigua
+                custo = len(marcador_periodico(count, pad, body_lines[pos])) + 1
+                economia = sum(len(body_lines[pos + k]) + 1 for k in range(count)) - custo
+                if economia > 0 and (melhor is None or economia > melhor[0]):
+                    melhor = (economia, count, pad)
+            if melhor is None:
+                pos += 1
+            else:
+                runs.append((pos, melhor[1], melhor[2], melhor[0]))
+                pos += melhor[1]
+        i = max(fim, i + 1)
     return runs
 
 
@@ -191,8 +343,10 @@ def _is_uniform_delta(deltas: list[int]) -> int | None:
     return None
 
 
-def compact_body(body_lines: list[str]) -> tuple[list[str], list[dict]]:
-    runs = detect_seq_runs(body_lines)
+def compact_body(
+    body_lines: list[str], pares: list[list[int] | None] | None = None
+) -> tuple[list[str], list[dict]]:
+    runs = detect_seq_runs(body_lines, pares)
     if not runs:
         return body_lines, []
     out = []
@@ -237,11 +391,127 @@ def compact_body(body_lines: list[str]) -> tuple[list[str], list[dict]]:
     return out, info
 
 
-def expand_seq_marker(linha: str) -> list[str] | None:
-    """Expande `*N+delta|template` (M10 compat) ou `*N+d1,d2,...|template` (ADR-0016).
+def _info_periodico(pos, count, pad, economia, template) -> dict:
+    """Mesmo dicionario do uniforme + `periodo`. `uniform_delta=None` distingue os dois
+    sem quebrar quem ja' le' o formato de hoje (ADR-0040)."""
+    return {
+        "start_line": pos + 1,
+        "end_line": pos + count,
+        "count": count,
+        "deltas": list(pad),
+        "uniform_delta": None,
+        "periodo": len(pad),
+        "template": template,
+        "savings": economia,
+    }
 
-    Distingue formato pela presenca de `,` no portion de delta.
+
+def compact_body_periodico(
+    body_lines: list[str], runs, pares: list[list[int] | None]
+) -> tuple[list[str], list[dict]]:
+    """Monta o corpo com os runs periodicos; o resto vai pro `compact_body` de hoje.
+
+    FLOOR POR FRAGMENTO: o core aplica `compact_body` no corpo INTEIRO e so' aceita se
+    encolher (o `min` no fim do `encode`) — e' assim que ele recusa o `*2+d|` espurio de
+    17 B que substitui 16 B de linhas cruas. Reaplicar `compact_body` por fragmento SEM
+    piso ressuscitava exatamente esses: bastava UM run periodico legitimo pra o candidato
+    vencer o `min()` carregando dezenas deles de carona. E a conta nao fecha no corpo —
+    cada `*2+d|` come uma corrida de escape, que valia mais 1 B de ganho de POLARIDADE
+    (ADR-0035, camada de borda aplicada depois): medido, corpo 9 B MENOR embarcando wire
+    19 B MAIOR, 963 regressoes em 28.985 casos parametricos. Com o piso: 0 regressoes.
+
+    Vide `T-FLOOR-POS-POLARIDADE`: o `min()` mede o corpo CANONICO, mas o que embarca e'
+    `polariza(corpo)`. Vale pro core de hoje; o periodico so' tornou visivel.
     """
+    saida: list[str] = []
+    info: list[dict] = []
+    pend: list[str] = []
+    pend_ini = 0
+    i = 0
+    ri = 0
+
+    def _drena() -> None:
+        nonlocal pend, pend_ini
+        if not pend:
+            return
+        # `pares` do fragmento e' a fatia exata do array global (mesmos pares adjacentes)
+        linhas_p, info_p = compact_body(pend, pares[pend_ini:pend_ini + len(pend) - 1])
+        if sum(len(x) + 1 for x in linhas_p) > sum(len(x) + 1 for x in pend):
+            saida.extend(pend)                      # piso: nao piorar o fragmento
+            pend = []
+            return
+        saida.extend(linhas_p)
+        for reg in info_p:
+            r = dict(reg)
+            r["start_line"] += pend_ini             # reancora no corpo INTEIRO: sem isto
+            r["end_line"] += pend_ini               # a telemetria aponta linha errada
+            info.append(r)
+        pend = []
+
+    while i < len(body_lines):
+        if ri < len(runs) and runs[ri][0] == i:
+            _drena()
+            pos, count, pad, eco = runs[ri]
+            saida.append(marcador_periodico(count, pad, body_lines[pos]))
+            info.append(_info_periodico(pos, count, pad, eco, body_lines[pos]))
+            i += count
+            ri += 1
+        else:
+            if not pend:
+                pend_ini = i
+            pend.append(body_lines[i])
+            i += 1
+    _drena()
+    info.sort(key=lambda r: r["start_line"])
+    return saida, info
+
+
+def expand_periodic_marker(linha: str) -> list[str] | None:
+    """Expande `*N~d1,...,dp|template` (ADR-0040). `None` se nao e' marcador periodico
+    CANONICO — a linha volta pro caminho de hoje e termina no erro canonico do core.
+
+    `return None` em vez de `raise`: preserva o contrato de `expand_seq_marker` (None =
+    nao e' marcador) e nao poe em risco valores legitimos que imitem a grafia, que fazem
+    round-trip pela heuristica de separador do ADR-0007.
+    """
+    if not linha.startswith("*"):
+        return None
+    bar = linha.find("|")
+    if bar == -1:
+        return None
+    head = linha[1:bar]
+    til = head.find("~")
+    if til <= 0 or not head[:til].isdigit():
+        return None
+    try:
+        pad = [int(x) for x in head[til + 1:].split(",")]
+    except ValueError:
+        return None
+    count = int(head[:til])
+    if not grafia_emissivel(pad, count):
+        return None
+    template = linha[bar + 1:]
+    out = [template]
+    curr = template
+    for k in range(1, count):
+        curr = shift_escape_digits(curr, pad[(k - 1) % len(pad)])
+        out.append(curr)
+    return out
+
+
+def expand_seq_marker(linha: str) -> list[str] | None:
+    """Expande `*N+delta|template` (M10 compat), `*N+d1,d2,...|template` (ADR-0016) ou
+    `*N~d1,...,dp|template` (periodico, ADR-0040).
+
+    O ramo periodico vem PRIMEIRO: um head como `5~1,-4` seria mal-parseado pela varredura
+    de `+`/`-` abaixo. Estar aqui dentro (e nao num passe separado antes do decode) e' o
+    que mantem a pre-checagem do teto valendo pro marcador novo — `_contador_declarado`
+    ja' le' `*2000000~1,2|` corretamente. Medido: rejeitar a bomba custa 0,03 ms aqui,
+    contra 2,473 s se a expansao acontecesse antes do laco que checa o teto.
+    """
+    periodico = expand_periodic_marker(linha)
+    if periodico is not None:
+        return periodico
     if not linha.startswith("*"):
         return None
     bar = linha.find("|")
@@ -308,9 +578,13 @@ class HCCSeqRLE(M8AVirtualRefsSyntax):
         # vazios finais, [:-1] == rstrip (byte-canonical preservado).
         # Bug T-CODE-EMPTY-FRAG-INDEX-RT (2o modo: valor vazio no fim).
         body_lines = body_text[:-1].split("\n")
-        compacted, info = compact_body(body_lines)
-        self._seq_info = info
+        # UM array de deltas para os DOIS detectores (ADR-0040): recomputa-lo custa 6,8 ms
+        # num corpo de 1200 linhas, contra 1,6 ms de toda a logica de periodo.
+        pares = deltas_pares(body_lines)
+
+        compacted, info = compact_body(body_lines, pares)
         compactado = "\n".join(compacted) + "\n"
+
         # FLOOR (owner 2026-07-25): o marcador `*N+delta|` tem CUSTO, e ate' agora ele nao
         # entrava na decisao — `compact_body` era aplicado incondicionalmente. Em dado sem
         # cadencia o detector acha pares espurios e o marcador fica MAIOR que as linhas que
@@ -326,7 +600,26 @@ class HCCSeqRLE(M8AVirtualRefsSyntax):
         #
         # Mesmo padrao do `min()` que ja' governa o multi-col (`min(tcf, raw, dict, split)`)
         # e a escolha de modo do single-col tipado.
-        return compactado if len(compactado.encode("utf-8")) <= len(body_text.encode("utf-8")) else body_text
+        #
+        # ADR-0040: o periodico entra como TERCEIRO candidato do MESMO `min()`. A ORDEM e'
+        # load-bearing — `min()` devolve o PRIMEIRO minimo, entao `compactado` vem antes de
+        # `body_text` para preservar a preferencia de hoje no EMPATE (o criterio antigo era
+        # `<=`, nao `<`), e o periodico vem por ultimo para so' vencer com margem estrita.
+        # Sem essa ordem, o wire de dado SEM nenhuma periodicidade era reescrito.
+        candidatos: list[tuple[str, list[dict]]] = [(compactado, info), (body_text, [])]
+        runs_p = detect_periodic_runs(body_lines, pares)
+        if runs_p:
+            linhas_p, info_p = compact_body_periodico(body_lines, runs_p, pares)
+            candidatos.append(("\n".join(linhas_p) + "\n", info_p))
+
+        # `_seq_info` e' do candidato VENCEDOR — vazio so' quando o corpo cru vence.
+        # Antes o info era fixado antes da decisao, e o `seq_rle_runs` reportava runs que
+        # o wire nao tinha (ou zerava com o wire cheio de marcador). O canal e' publico:
+        # `encoder.py` -> `SideOutputs.seq_rle_runs` -> `schema.seq_rle_runs_count`.
+        corpo, self._seq_info = min(
+            candidatos, key=lambda t: len(t[0].encode("utf-8"))
+        )
+        return corpo
 
     def decode(self, tcf_text, max_length=None):
         expanded_lines = []

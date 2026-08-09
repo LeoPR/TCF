@@ -1,6 +1,6 @@
 # ADR-0040 — seq-RLE periódico: o delta que CICLA entre linhas
 
-- **Status**: proposto (2026-08-09) — **aguarda aprovação de weld do owner**
+- **Status**: **aceito** (weld 2026-08-09, suíte 1238 passed)
 - **Escopo**: corpo de coluna (`compact_body` / `expand_seq_marker` em
   `src/tcf/composicional/hcc_seqrle.py`). Vale para **qualquer coluna numérica**, em
   todas as rotas que passam pelo corpo (flat, `.8M`, spec).
