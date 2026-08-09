@@ -6,6 +6,9 @@ Cobre categoria "Templated + Checked + Unique-Discrete":
 - SPEC_CPF (NNN.NNN.NNN-DD, mod-11)
 - SPEC_CNPJ (NN.NNN.NNN/NNNN-DD, mod-11 dupla)
 
+Cobre categoria "TCU-Delta" (weld 2026-08-08):
+- SPEC_DATA_ISO (YYYY-MM-DD -> ordinal decimal; alvo = o `*N+M|` do seq-RLE)
+
 Outras categorias (TCU-NoCheckVarLength, TCU-Delta, Lossy, Composite)
 nao welded — registradas em
 `experiments/lab/dirty/notas/naturezas-templated-2026-05-24.md`.
@@ -53,10 +56,13 @@ from tcf.natures.templated_padded import (
 # Vocabulario FECHADO dos 3 ids core, ancorado no `name` dos specs frozen
 # welded (ADR-0015). A STRING do nome viaja no header (:id no meta-line); o
 # decode resolve por este dict FIXO — ZERO eval, zero codigo vindo do header.
+from tcf.natures.data_iso import DataIsoSpec, SPEC_DATA_ISO  # noqa: E402
+
 SPEC_REGISTRY = {
     SPEC_CPF.name: SPEC_CPF,
     SPEC_CNPJ.name: SPEC_CNPJ,
     SPEC_IP.name: SPEC_IP,
+    SPEC_DATA_ISO.name: SPEC_DATA_ISO,
 }
 
 
@@ -76,6 +82,9 @@ __all__ = [
     # Templated + Padded (IP)
     "TemplatedPaddedSpec",
     "SPEC_IP",
+    # Data ISO (T-DATA-LAZY-ISO)
+    "DataIsoSpec",
+    "SPEC_DATA_ISO",
     # Compartilhados
     "BASE94",
     "MARKER_LITERAL",

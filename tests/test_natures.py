@@ -286,7 +286,10 @@ class TestNatureMarkHeader:
         assert _resolve_nature_id("cnpj") is SPEC_CNPJ
         assert _resolve_nature_id("ip") is SPEC_IP
         assert _resolve_nature_id("nao-existe") is None  # tolerante, não raise
-        assert set(SPEC_REGISTRY) == {"cpf", "cnpj", "ip"}
+        # RE-PIN 2026-08-08 (weld T-DATA-LAZY-ISO): o registry ganhou `data-iso`.
+        # O vocabulario continua FECHADO — o teste existe pra que crescer seja decisao,
+        # nao acidente.
+        assert set(SPEC_REGISTRY) == {"cpf", "cnpj", "ip", "data-iso"}
 
 
 # ===========================================================================
@@ -548,3 +551,143 @@ class TestPolymorphism:
         """TemplatedCheckedSpec deve ser immutable."""
         with pytest.raises(Exception):  # FrozenInstanceError
             SPEC_CPF.name = "modified"
+
+
+class TestDataIsoSpec:
+    """`SPEC_DATA_ISO` — data `YYYY-MM-DD` -> ordinal decimal (weld T-DATA-LAZY-ISO).
+
+    O alvo e' DECIMAL, nao denso como o CPF: o que paga em data e' deixar a aritmetica
+    visivel pro `*N+M|` do seq-RLE, nao densidade. Medido no lab 2026-08-07-2311.
+    """
+
+    def test_classify_e_rt_por_valor(self):
+        from tcf.natures import SPEC_DATA_ISO as S
+
+        casos = [
+            ("2026-01-31", "compressible"),
+            ("20260131", "length_wrong"),        # forma BASICA da ISO 8601
+            ("2026-1-1", "length_wrong"),
+            ("2026-01-31Z", "length_wrong"),     # sufixo de fuso
+            ("2026-01-31+02:00", "length_wrong"),
+            ("+10000-12-31", "length_wrong"),    # fora de 0000-9999 (chrono emite)
+            ("31-JAN-26", "length_wrong"),       # o default do Oracle
+            ("5/1/2021", "length_wrong"),
+            ("", "empty_value"),
+            ("nao-e-data", "format_mismatch"),
+            ("2026-02-30", "format_mismatch"),   # data que nao existe
+        ]
+        for v, esperado in casos:
+            assert S.classify_value(v) == esperado, v
+            payload, st = S.encode_value(v)
+            assert st == esperado
+            assert S.decode_value(payload) == v, f"RT quebrou em {v!r}"
+
+    def test_guard_de_reemissao_e_load_bearing(self):
+        """`fromisoformat` aceita mais do que emite desde a 3.11 — o guard e' o que
+        impede duas grafias de colapsarem no mesmo ordinal."""
+        import datetime as dt
+
+        from tcf.natures import SPEC_DATA_ISO as S
+
+        # o parser aceita, mas a grafia nao e' a canonica -> tem de virar literal
+        assert dt.date.fromisoformat("20191204") == dt.date(2019, 12, 4)
+        assert S.classify_value("20191204") != "compressible"
+        payload, _ = S.encode_value("20191204")
+        assert S.decode_value(payload) == "20191204"
+
+    def test_no_encode_ganha_onde_o_obat_e_fraco(self):
+        """O spec so' vence onde o core nao alcanca — e RECUSA onde o core ja' resolve."""
+        import datetime as dt
+
+        from tcf import decode, encode
+        from tcf.natures import SPEC_DATA_ISO as S
+
+        base = dt.date(2026, 1, 1)
+        # passo mensal: o OBAT rende ~4% sozinho; o ordinal colapsa no seq-RLE
+        mensal = [(base + dt.timedelta(days=30 * i)).isoformat() for i in range(200)]
+        w = encode(mensal, nature=S)
+        assert w.startswith("#TCF.8 :data-iso"), w[:24]
+        assert len(w.encode()) < len(encode(mensal).encode()) // 10
+        assert decode(w) == mensal
+
+        # agrupado: o RLE do core ja' resolve; o spec o DESTRUIRIA -> o FLOOR recusa
+        agrup = [(base + dt.timedelta(days=i // 20)).isoformat() for i in range(200)]
+        w2 = encode(agrup, nature=S)
+        assert not w2.startswith("#TCF.8 :data-iso")
+        assert len(w2.encode()) <= len(encode(agrup).encode())
+        assert decode(w2) == agrup
+
+    def test_nunca_pior_com_coluna_suja(self):
+        import datetime as dt
+
+        from tcf import decode, encode
+        from tcf.natures import SPEC_DATA_ISO as S
+
+        base = dt.date(2026, 1, 1)
+        for pct in (10, 50, 100):
+            vals = [(base + dt.timedelta(days=i)).isoformat() for i in range(200)]
+            for j in range(200 * pct // 100):
+                vals[(j * 97) % 200] = f"lixo {j}"
+            w = encode(vals, nature=S)
+            assert decode(w) == vals, f"RT quebrou com {pct}% de lixo"
+            assert len(w.encode()) <= len(encode(vals).encode()), f"regrediu com {pct}%"
+
+
+class TestNatureSlotNulo:
+    """`None` e' do CORE, nao do spec (fix 2026-08-08).
+
+    ANTES deste fix as QUATRO natures estouravam `TypeError: can only concatenate str
+    (not "NoneType") to str` numa coluna com null — e a mesma coluna SEM `nature=`
+    encodava sem reclamar. Alcancavel por `encode->decode` com dado normal.
+    """
+
+    def test_as_quatro_natures_aceitam_null(self):
+        from tcf import decode, encode
+        from tcf.natures import SPEC_CNPJ, SPEC_CPF, SPEC_DATA_ISO, SPEC_IP
+
+        amostras = [
+            (SPEC_CPF, "000.000.000-00"),
+            (SPEC_CNPJ, "00.000.000/0000-00"),
+            (SPEC_IP, "192.168.0.1"),
+            (SPEC_DATA_ISO, "2026-01-31"),
+        ]
+        for spec, v in amostras:
+            col = [v, None, v, None, v] * 8
+            w = encode(col, nature=spec)
+            volta = decode(w)
+            assert volta == col, f"{spec.name}: RT quebrou"
+            assert volta[1] is None, f"{spec.name}: o null virou {volta[1]!r}"
+
+    def test_null_nao_ganha_marcador(self):
+        """O slot nulo e' materializado pelo core; marcar seria inventar uma segunda
+        grafia pro mesmo nada, e a inversa teria de desfazer exatamente isso."""
+        from tcf.natures import SPEC_CPF, encode_value
+
+        payload, status = encode_value(SPEC_CPF, None)
+        assert payload is None
+        assert status == "null_slot"
+
+
+class TestNatureFloorVeOBaselineReal:
+    """O FLOOR da nature compara contra o que o encoder EMITIRIA, nao so' contra o core.
+
+    Antes deste fix o baseline era so' o corpo do core; o bN de dominio (ADR-0036) tambem
+    e' candidato na rota flat e costuma vencer justo nas colunas de baixa cardinalidade que
+    atraem nature. Medido antes: coluna de 2 CPFs repetidos saia com 61 B sem `nature=` e
+    198 B com — a nature "vencia" um baseline que o encoder nao emitiria.
+    """
+
+    def test_nature_nao_regride_contra_bn(self):
+        from tcf import decode, encode
+        from tcf.natures import SPEC_CPF, SPEC_IP
+
+        for spec, v1, v2 in [(SPEC_CPF, "000.000.000-00", "111.111.111-11"),
+                             (SPEC_IP, "192.168.0.1", "10.0.0.1")]:
+            col = [v1, v2] * 30                       # k=2 -> o bN e' o baseline real
+            sem = encode(col)
+            com = encode(col, nature=spec)
+            assert len(com.encode()) <= len(sem.encode()), (
+                f"{spec.name}: nature regrediu {len(com.encode()) - len(sem.encode())} B "
+                f"contra o baseline real"
+            )
+            assert decode(com) == col

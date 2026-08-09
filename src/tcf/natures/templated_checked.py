@@ -111,18 +111,50 @@ class TemplatedCheckedSpec:
 
 # === Standalone functions (backward compat wrappers — delegam pra methods) ===
 
-def classify_value(spec, v: str) -> str:
-    """Compat wrapper — delega a spec.classify_value(v)."""
+#: O SLOT NULO E' DO CORE, NAO DO SPEC (fix 2026-08-08, weld T-DATA-LAZY-ISO).
+#:
+#: `None` e' valor legitimo de coluna single-col flat (`_lista_flat` aceita `str` OU `None`) e
+#: o core ja' o materializa no slot 0. Mas as quatro natures classificavam `None` como
+#: `empty_value` e caiam em `MARKER_LITERAL + v` — concatenar str com None. Resultado medido
+#: ANTES deste fix, nas QUATRO (cpf, cnpj, ip, data-iso):
+#:
+#:     encode(['000.000.000-00', None, ...], nature=SPEC_CPF)
+#:     TypeError: can only concatenate str (not "NoneType") to str
+#:
+#: `TypeError` cru vazando pela API publica, com dado perfeitamente normal — e o MESMO dado
+#: sem `nature=` encoda sem reclamar. E' alcancavel por `encode->decode`, entao e' da classe
+#: que a escala de verificacao chama de E1/E2, a que corrompe de verdade.
+#:
+#: O conserto mora AQUI, no wrapper de modulo, por dois motivos: e' o ponto unico por onde o
+#: encoder aplica qualquer nature (`encoder.py`: `pairs = [encode_value(nature, v) ...]`), e
+#: e' tambem a API publica (`from tcf.natures import encode_value`). Consertar nos 4 specs
+#: seria a divergencia-entre-irmaos que ja' custou caro no bN.
+_STATUS_NULO = "null_slot"
+
+
+def classify_value(spec, v):
+    """Compat wrapper — delega a spec.classify_value(v). `None` = slot do core."""
+    if v is None:
+        return _STATUS_NULO
     return spec.classify_value(v)
 
 
-def encode_value(spec, v: str) -> tuple[str, str]:
-    """Compat wrapper — delega a spec.encode_value(v)."""
+def encode_value(spec, v):
+    """Compat wrapper — delega a spec.encode_value(v).
+
+    `None` PASSA DIRETO, sem marcador: quem o materializa e' o core, no slot 0. Marcar seria
+    inventar uma segunda grafia pro mesmo nada — e a inversa teria de desfazer exatamente
+    isso, que e' a assimetria de escape que este projeto ja' viu cinco vezes.
+    """
+    if v is None:
+        return None, _STATUS_NULO
     return spec.encode_value(v)
 
 
-def decode_value(spec, payload: str) -> str:
-    """Compat wrapper — delega a spec.decode_value(payload)."""
+def decode_value(spec, payload):
+    """Compat wrapper — delega a spec.decode_value(payload). `None` volta `None`."""
+    if payload is None:
+        return None
     return spec.decode_value(payload)
 
 

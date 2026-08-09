@@ -400,6 +400,25 @@ def encode(
 
                 _suf_b, _body_b = polariza(body_orig)
                 baseline = f"{magic}{_suf_b}\n{_body_b}"
+                # O BASELINE TEM DE SER O QUE O ENCODER EMITIRIA DE FATO (weld
+                # T-DATA-LAZY-ISO, 2026-08-08). Ate' aqui o FLOOR da nature comparava so'
+                # contra o corpo do CORE — mas o bN de dominio (ADR-0036) tambem e'
+                # candidato na rota flat, e ele costuma vencer justo nas colunas de baixa
+                # cardinalidade que atraem nature. Medido antes desta linha: coluna de 2
+                # CPFs repetidos saia com 61 B sem `nature=` (rota bN) e 198 B com — a
+                # nature "vencia" um baseline que o encoder nao emitiria.
+                #
+                # E' a MESMA classe do que era o `T-BN-TIPADO`: o candidato existe e a rota
+                # nao o consultava. Comparar contra o baseline errado nao e' so' perder
+                # bytes — e' o FLOOR deixando de ser nunca-pior, que e' a invariante que
+                # sustenta todo mecanismo novo do projeto.
+                from tcf.composicional.dominio_bn import candidatos as _bn_cands
+
+                for _c in _bn_cands(
+                    data, lambda vs: _encode_column(vs, header="val", cfg=cfg), None
+                )[:1]:                                   # so' o modo `B`, como na rota flat
+                    if len(_c.encode("utf-8")) < len(baseline.encode("utf-8")):
+                        baseline = _c
             candidate = header_nat + body_nat
             win = len(candidate.encode("utf-8")) < len(baseline.encode("utf-8"))
             if side_outputs is not None:

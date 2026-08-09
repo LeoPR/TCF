@@ -200,7 +200,11 @@ def decode(
                 spec = _resolve_header_spec(
                     nat_id, supplied, where=f"multi-col coluna {name!r}"
                 )
-                result[name] = [spec.decode_value(v) for v in result[name]]
+                # Wrapper de modulo, nao o metodo: e' ele que trata o slot nulo do core
+                # (`None` volta `None`). Ver `natures/templated_checked.py::decode_value`.
+                from tcf.natures import decode_value as _nat_de
+
+                result[name] = [_nat_de(spec, v) for v in result[name]]
                 header_resolved.add(name)
         # Colunas sem :id continuam definitivamente originais; o parâmetro
         # out-of-band não pode inferir uma nature perdida pelo FLOOR.
@@ -213,7 +217,10 @@ def decode(
         _name, _, nat_id = meta.partition(":")  # nome opcional, descartado
         values = _decode_column(body, max_length=max_length)
         spec = _resolve_header_spec(nat_id, nature, where="single-col")
-        return [spec.decode_value(v) for v in values]  # header vence
+        # Wrapper de modulo (trata `None` = slot nulo do core), nao o metodo cru.
+        from tcf.natures import decode_value as _nat_de
+
+        return [_nat_de(spec, v) for v in values]  # header vence
 
     # SINGLE version-stamp: line1 == '#TCF.8' (disc vazio). Carimbo de versao
     # (magic-number p/ file/libmagic, ADR-0029) — body single-col puro segue.
