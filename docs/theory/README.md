@@ -28,6 +28,7 @@
   shared; slot detection online) avaliadas contra a perspectiva
   triplice (compressao + memoria + latencia)
 - [data-natures-taxonomy.md](data-natures-taxonomy.md) — **2026-05-15**:
+- [tipos-o-caminho-do-dado-ate-o-tcf.md](tipos-o-caminho-do-dado-ate-o-tcf.md) — o eixo do CAMINHO (as 9 fronteiras entre a fonte e o TCF), complementar ao eixo COMPORTAMENTAL da taxonomia de naturezas
   taxonomia das 8 naturezas comportamentais dos dados (incremental,
   templated, enumerated, checked, composite, hierarchical,
   lossy-recoverable, high-entropy) — operacionaliza Estrategia 1.A
