@@ -1,0 +1,103 @@
+{
+ "rota": "#TCF.8 :data-iso",
+ "seq_rle_runs": [
+  {
+   "start_line": 1,
+   "end_line": 2,
+   "count": 2,
+   "deltas": [
+    1
+   ],
+   "uniform_delta": 1,
+   "template": "\\739617",
+   "savings": 3
+  },
+  {
+   "start_line": 3,
+   "end_line": 7,
+   "count": 5,
+   "deltas": [
+    1
+   ],
+   "uniform_delta": 1,
+   "template": "\\739621",
+   "savings": 27
+  },
+  {
+   "start_line": 8,
+   "end_line": 10,
+   "count": 3,
+   "deltas": [
+    1
+   ],
+   "uniform_delta": 1,
+   "template": "\\739628",
+   "savings": 11
+  },
+  {
+   "start_line": 12,
+   "end_line": 200,
+   "count": 189,
+   "deltas": [
+    3,
+    1,
+    1,
+    1,
+    1
+   ],
+   "uniform_delta": null,
+   "periodo": 5,
+   "template": "\\739632",
+   "savings": 1489
+  },
+  {
+   "start_line": 202,
+   "end_line": 590,
+   "count": 389,
+   "deltas": [
+    3,
+    1,
+    1,
+    1,
+    1
+   ],
+   "uniform_delta": null,
+   "periodo": 5,
+   "template": "\\739898",
+   "savings": 3089
+  },
+  {
+   "start_line": 592,
+   "end_line": 593,
+   "count": 2,
+   "deltas": [
+    3
+   ],
+   "uniform_delta": 3,
+   "template": "\\740444",
+   "savings": 3
+  },
+  {
+   "start_line": 594,
+   "end_line": 597,
+   "count": 4,
+   "deltas": [
+    1
+   ],
+   "uniform_delta": 1,
+   "template": "\\740448",
+   "savings": 19
+  },
+  {
+   "start_line": 598,
+   "end_line": 600,
+   "count": 3,
+   "deltas": [
+    1
+   ],
+   "uniform_delta": 1,
+   "template": "\\740454",
+   "savings": 11
+  }
+ ]
+}

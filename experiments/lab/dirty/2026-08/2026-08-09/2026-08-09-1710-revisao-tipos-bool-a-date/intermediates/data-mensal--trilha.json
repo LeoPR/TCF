@@ -1,0 +1,343 @@
+{
+ "rota": "#TCF.8 :data-iso",
+ "seq_rle_runs": [
+  {
+   "start_line": 1,
+   "end_line": 2,
+   "count": 2,
+   "deltas": [
+    31
+   ],
+   "uniform_delta": 31,
+   "template": "\\730120",
+   "savings": 2
+  },
+  {
+   "start_line": 3,
+   "end_line": 50,
+   "count": 48,
+   "deltas": [
+    31,
+    30,
+    31,
+    30,
+    31,
+    31,
+    30,
+    31,
+    30,
+    31,
+    31,
+    28
+   ],
+   "uniform_delta": null,
+   "periodo": 12,
+   "template": "\\730180",
+   "savings": 336
+  },
+  {
+   "start_line": 51,
+   "end_line": 98,
+   "count": 48,
+   "deltas": [
+    31,
+    30,
+    31,
+    30,
+    31,
+    31,
+    30,
+    31,
+    30,
+    31,
+    31,
+    28
+   ],
+   "uniform_delta": null,
+   "periodo": 12,
+   "template": "\\731641",
+   "savings": 336
+  },
+  {
+   "start_line": 99,
+   "end_line": 146,
+   "count": 48,
+   "deltas": [
+    31,
+    30,
+    31,
+    30,
+    31,
+    31,
+    30,
+    31,
+    30,
+    31,
+    31,
+    28
+   ],
+   "uniform_delta": null,
+   "periodo": 12,
+   "template": "\\733102",
+   "savings": 336
+  },
+  {
+   "start_line": 147,
+   "end_line": 194,
+   "count": 48,
+   "deltas": [
+    31,
+    30,
+    31,
+    30,
+    31,
+    31,
+    30,
+    31,
+    30,
+    31,
+    31,
+    28
+   ],
+   "uniform_delta": null,
+   "periodo": 12,
+   "template": "\\734563",
+   "savings": 336
+  },
+  {
+   "start_line": 195,
+   "end_line": 242,
+   "count": 48,
+   "deltas": [
+    31,
+    30,
+    31,
+    30,
+    31,
+    31,
+    30,
+    31,
+    30,
+    31,
+    31,
+    28
+   ],
+   "uniform_delta": null,
+   "periodo": 12,
+   "template": "\\736024",
+   "savings": 336
+  },
+  {
+   "start_line": 243,
+   "end_line": 290,
+   "count": 48,
+   "deltas": [
+    31,
+    30,
+    31,
+    30,
+    31,
+    31,
+    30,
+    31,
+    30,
+    31,
+    31,
+    28
+   ],
+   "uniform_delta": null,
+   "periodo": 12,
+   "template": "\\737485",
+   "savings": 336
+  },
+  {
+   "start_line": 291,
+   "end_line": 338,
+   "count": 48,
+   "deltas": [
+    31,
+    30,
+    31,
+    30,
+    31,
+    31,
+    30,
+    31,
+    30,
+    31,
+    31,
+    28
+   ],
+   "uniform_delta": null,
+   "periodo": 12,
+   "template": "\\738946",
+   "savings": 336
+  },
+  {
+   "start_line": 339,
+   "end_line": 386,
+   "count": 48,
+   "deltas": [
+    31,
+    30,
+    31,
+    30,
+    31,
+    31,
+    30,
+    31,
+    30,
+    31,
+    31,
+    28
+   ],
+   "uniform_delta": null,
+   "periodo": 12,
+   "template": "\\740407",
+   "savings": 336
+  },
+  {
+   "start_line": 387,
+   "end_line": 434,
+   "count": 48,
+   "deltas": [
+    31,
+    30,
+    31,
+    30,
+    31,
+    31,
+    30,
+    31,
+    30,
+    31,
+    31,
+    28
+   ],
+   "uniform_delta": null,
+   "periodo": 12,
+   "template": "\\741868",
+   "savings": 336
+  },
+  {
+   "start_line": 435,
+   "end_line": 482,
+   "count": 48,
+   "deltas": [
+    31,
+    30,
+    31,
+    30,
+    31,
+    31,
+    30,
+    31,
+    30,
+    31,
+    31,
+    28
+   ],
+   "uniform_delta": null,
+   "periodo": 12,
+   "template": "\\743329",
+   "savings": 336
+  },
+  {
+   "start_line": 483,
+   "end_line": 530,
+   "count": 48,
+   "deltas": [
+    31,
+    30,
+    31,
+    30,
+    31,
+    31,
+    30,
+    31,
+    30,
+    31,
+    31,
+    28
+   ],
+   "uniform_delta": null,
+   "periodo": 12,
+   "template": "\\744790",
+   "savings": 336
+  },
+  {
+   "start_line": 531,
+   "end_line": 578,
+   "count": 48,
+   "deltas": [
+    31,
+    30,
+    31,
+    30,
+    31,
+    31,
+    30,
+    31,
+    30,
+    31,
+    31,
+    28
+   ],
+   "uniform_delta": null,
+   "periodo": 12,
+   "template": "\\746251",
+   "savings": 336
+  },
+  {
+   "start_line": 579,
+   "end_line": 590,
+   "count": 12,
+   "deltas": [
+    31,
+    30,
+    31,
+    30,
+    31
+   ],
+   "uniform_delta": null,
+   "periodo": 5,
+   "template": "\\747712",
+   "savings": 69
+  },
+  {
+   "start_line": 591,
+   "end_line": 596,
+   "count": 6,
+   "deltas": [
+    31,
+    30
+   ],
+   "uniform_delta": null,
+   "periodo": 2,
+   "template": "\\748077",
+   "savings": 31
+  },
+  {
+   "start_line": 597,
+   "end_line": 598,
+   "count": 2,
+   "deltas": [
+    30
+   ],
+   "uniform_delta": 30,
+   "template": "\\748261",
+   "savings": 2
+  },
+  {
+   "start_line": 599,
+   "end_line": 600,
+   "count": 2,
+   "deltas": [
+    30
+   ],
+   "uniform_delta": 30,
+   "template": "\\748322",
+   "savings": 2
+  }
+ ]
+}

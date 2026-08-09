@@ -1,0 +1,16 @@
+{
+ "rota": "#TCF.8 :data-iso",
+ "seq_rle_runs": [
+  {
+   "start_line": 1,
+   "end_line": 600,
+   "count": 600,
+   "deltas": [
+    1
+   ],
+   "uniform_delta": 1,
+   "template": "\\739617",
+   "savings": 4785
+  }
+ ]
+}

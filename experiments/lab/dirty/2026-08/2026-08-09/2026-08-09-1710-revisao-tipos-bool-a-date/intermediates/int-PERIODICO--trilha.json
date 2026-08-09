@@ -1,0 +1,20 @@
+{
+ "rota": "#TCF.8n",
+ "seq_rle_runs": [
+  {
+   "start_line": 1,
+   "end_line": 200,
+   "count": 200,
+   "deltas": [
+    10,
+    10,
+    10,
+    50
+   ],
+   "uniform_delta": null,
+   "periodo": 4,
+   "template": "\\700000",
+   "savings": 1575
+  }
+ ]
+}
