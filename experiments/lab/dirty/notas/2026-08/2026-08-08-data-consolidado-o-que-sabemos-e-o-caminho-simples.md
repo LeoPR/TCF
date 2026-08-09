@@ -147,6 +147,59 @@ decode_value    →  fromordinal(int).isoformat()  ou  v[1:]
 Nada de adivinhador no cabeçalho — o owner foi explícito, e §2 mostra que não precisa: o
 formato mais comum é o mais barato de reconhecer, e reconhecer não é adivinhar.
 
+## 7-bis. A proposta "wire compacto" — medida, e o veredito
+
+Proposta do owner: *"entra `YYYY-MM-DD` → o arquivo gera oportunamente `YYYYMMDD` pra raspar
+bytes → a saída volta `YYYY-MM-DD`"*.
+
+**A premissa não se sustenta**: quando o spec vence, o fio **não contém grafia de data
+nenhuma** — contém ordinal.
+
+```
+#TCF.8 :data-iso↵*600+1|;9617↵
+```
+
+Não há `2026-01-31` nem `20260131` ali. O TCF **já faz** o que a proposta pede (escolhe a
+forma interna que raspa bytes); só que a forma que ele escolheu é melhor: **32 B contra
+329 B** do compacto, no regime diário.
+
+**Mas a proposta sugere um terceiro candidato legítimo**: reescrever a grafia (`YYYY-MM-DD` →
+`YYYYMMDD`), deixar o **core** cuidar, e reexpandir no decode. Medido, `n=600`, RT conferido:
+
+| regime | identidade | ordinal (spec) | **compacto** | vence |
+|---|---:|---:|---:|---|
+| diário | 414 | **32** | 329 | ordinal |
+| semanal | 2744 | **32** | 1956 | ordinal |
+| mensal | 6351 | **33** | 4674 | ordinal |
+| **agrupado** | 64 | 64 | **62** | **compacto** |
+| **k12** | 529 | 529 | **500** | **compacto** |
+| espalhado | 5509 | **4535** | 5130 | ordinal |
+| espalhado-ord | 5676 | **3828** | 4159 | ordinal |
+
+**Funciona, e vence em 2 de 7** — exatamente os dois regimes onde o ordinal **recusa** (os
+que o OBAT já resolve sozinho). O ganho: **3,1%** e **5,5%**.
+
+### Veredito: não fazer agora
+
+| | |
+|---|---|
+| **ganho** | 3,1%–5,5%, em 2 de 7 regimes |
+| **custo** | +1 candidato materializado no `min()` — e o FLOOR **já é 58% do encode** |
+| **alternativa melhor** | o `ordinal-denso` (base-80) vence no **espalhado**, que é onde há mais bytes absolutos em jogo |
+
+Adicionar candidato piora exatamente o que o `T-GATES-ANTES` quer consertar. E o mesmo
+esforço, aplicado ao alvo denso, renderia mais. **Fica registrado como medido e recusado por
+margem**, não por princípio — se o `T-SPEC-PARSE-X-ALVO` separar parse de alvo, o compacto
+entra de graça como mais um alvo, e aí o `min()` decide.
+
+### Sobre "outras bases / base64"
+
+Já medido no lab `2026-08-08-0235`: **`ordinal-b64` nunca vence.** Base64 é base-**64**; o
+alfabeto denso que a nature do CPF já usa é base-**80**. Mesma largura de 4 chars, alfabeto
+menor. A ideia de "mudar de base" está certa — mas a base certa já está no repo, e não é a 64.
+
+---
+
 ## 8. O que fica registrado como NÃO fazer
 
 - **Não** criar detector multi-formato genérico. §1 mostra que o retorno é irregular e §2
@@ -158,6 +211,8 @@ formato mais comum é o mais barato de reconhecer, e reconhecer não é adivinha
 - **Não** usar base64 como alvo (base-64 contra o base-80 que já temos).
 - **Não** criar flag de RT semântico agora (§5).
 - **Não** aplicar spec como default (§1: o `agrupado` regride 123%).
+- **Não** adicionar o candidato de grafia compacta agora (§7-bis: 3–5% em 2 de 7,
+  contra +1 candidato num FLOOR que já custa 58% do encode).
 
 ---
 
