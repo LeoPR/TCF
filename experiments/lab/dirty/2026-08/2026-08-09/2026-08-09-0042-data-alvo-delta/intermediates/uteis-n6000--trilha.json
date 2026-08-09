@@ -1,0 +1,43 @@
+{
+ "caso": "uteis-n6000",
+ "delta_prefixo_20": [
+  1,
+  3,
+  1,
+  1,
+  1,
+  1,
+  3,
+  1,
+  1,
+  1,
+  1,
+  3,
+  1,
+  1,
+  1,
+  1,
+  3,
+  1,
+  1,
+  1
+ ],
+ "d2_estrito": {
+  "bytes": 42,
+  "ganhou_no_corpo": true,
+  "runs": 1,
+  "periodos": [
+   5
+  ]
+ },
+ "d2_lista": {
+  "bytes": 42,
+  "ganhou_no_corpo": true,
+  "runs": 1,
+  "periodos": [
+   5
+  ]
+ },
+ "rota_candidato_d2": "#TCF.8!!",
+ "nota_d2": null
+}

@@ -1,0 +1,43 @@
+{
+ "caso": "quinzenal",
+ "delta_prefixo_20": [
+  14,
+  17,
+  14,
+  14,
+  14,
+  17,
+  14,
+  16,
+  14,
+  17,
+  14,
+  16,
+  14,
+  17,
+  14,
+  17,
+  14,
+  16,
+  14,
+  17
+ ],
+ "d2_estrito": {
+  "bytes": 600,
+  "ganhou_no_corpo": true,
+  "runs": 7,
+  "periodos": [
+   24
+  ]
+ },
+ "d2_lista": {
+  "bytes": 600,
+  "ganhou_no_corpo": true,
+  "runs": 7,
+  "periodos": [
+   24
+  ]
+ },
+ "rota_candidato_d2": "#TCF.8!!",
+ "nota_d2": null
+}

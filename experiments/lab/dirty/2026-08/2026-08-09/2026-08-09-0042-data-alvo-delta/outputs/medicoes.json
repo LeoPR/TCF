@@ -1,0 +1,379 @@
+[
+ {
+  "caso": "diario-controle",
+  "n": 600,
+  "C0_sem_spec": 414,
+  "C1_com_spec": 32,
+  "D1_delta_coluna": 35,
+  "D1_rota": "#TCF.8",
+  "D2_periodo_estrito": 32,
+  "D2L_forma_lista": 32,
+  "D2_detalhe": {
+   "rota": "#TCF.8",
+   "ajuste": 10,
+   "estrito": {
+    "bytes": 32,
+    "ganhou_no_corpo": false,
+    "runs": 0,
+    "periodos": []
+   },
+   "lista": {
+    "bytes": 32,
+    "ganhou_no_corpo": false,
+    "runs": 0,
+    "periodos": []
+   }
+  },
+  "floor": 32,
+  "vencedor": "C1"
+ },
+ {
+  "caso": "semanal-controle",
+  "n": 600,
+  "C0_sem_spec": 2744,
+  "C1_com_spec": 32,
+  "D1_delta_coluna": 35,
+  "D1_rota": "#TCF.8",
+  "D2_periodo_estrito": 32,
+  "D2L_forma_lista": 32,
+  "D2_detalhe": {
+   "rota": "#TCF.8",
+   "ajuste": 10,
+   "estrito": {
+    "bytes": 32,
+    "ganhou_no_corpo": false,
+    "runs": 0,
+    "periodos": []
+   },
+   "lista": {
+    "bytes": 32,
+    "ganhou_no_corpo": false,
+    "runs": 0,
+    "periodos": []
+   }
+  },
+  "floor": 32,
+  "vencedor": "C1"
+ },
+ {
+  "caso": "uteis",
+  "n": 600,
+  "C0_sem_spec": 2471,
+  "C1_com_spec": 1590,
+  "D1_delta_coluna": 239,
+  "D1_rota": "#TCF.8B2258",
+  "D2_periodo_estrito": 41,
+  "D2L_forma_lista": 41,
+  "D2_detalhe": {
+   "rota": "#TCF.8!!",
+   "ajuste": 10,
+   "estrito": {
+    "bytes": 41,
+    "ganhou_no_corpo": true,
+    "runs": 1,
+    "periodos": [
+     5
+    ]
+   },
+   "lista": {
+    "bytes": 41,
+    "ganhou_no_corpo": true,
+    "runs": 1,
+    "periodos": [
+     5
+    ]
+   }
+  },
+  "floor": 41,
+  "vencedor": "D2"
+ },
+ {
+  "caso": "uteis-feriado-mensal",
+  "n": 600,
+  "C0_sem_spec": 2878,
+  "C1_com_spec": 1889,
+  "D1_delta_coluna": 345,
+  "D1_rota": "#TCF.8B3258",
+  "D2_periodo_estrito": 649,
+  "D2L_forma_lista": 904,
+  "D2_detalhe": {
+   "rota": "#TCF.8!!",
+   "ajuste": 10,
+   "estrito": {
+    "bytes": 649,
+    "ganhou_no_corpo": true,
+    "runs": 30,
+    "periodos": [
+     5
+    ]
+   },
+   "lista": {
+    "bytes": 904,
+    "ganhou_no_corpo": true,
+    "runs": 15,
+    "periodos": [
+     24
+    ]
+   }
+  },
+  "floor": 345,
+  "vencedor": "D1"
+ },
+ {
+  "caso": "mensal-dia1",
+  "n": 600,
+  "C0_sem_spec": 1085,
+  "C1_com_spec": 1085,
+  "D1_delta_coluna": 349,
+  "D1_rota": "#TCF.8B3258",
+  "D2_periodo_estrito": 664,
+  "D2L_forma_lista": 1098,
+  "D2_detalhe": {
+   "rota": "#TCF.8!!",
+   "ajuste": 10,
+   "estrito": {
+    "bytes": 664,
+    "ganhou_no_corpo": true,
+    "runs": 14,
+    "periodos": [
+     2,
+     5,
+     12
+    ]
+   },
+   "lista": {
+    "bytes": 1098,
+    "ganhou_no_corpo": true,
+    "runs": 13,
+    "periodos": [
+     24
+    ]
+   }
+  },
+  "floor": 349,
+  "vencedor": "D1"
+ },
+ {
+  "caso": "quinzenal",
+  "n": 600,
+  "C0_sem_spec": 7628,
+  "C1_com_spec": 3951,
+  "D1_delta_coluna": 349,
+  "D1_rota": "#TCF.8B3258",
+  "D2_periodo_estrito": 600,
+  "D2L_forma_lista": 600,
+  "D2_detalhe": {
+   "rota": "#TCF.8!!",
+   "ajuste": 10,
+   "estrito": {
+    "bytes": 600,
+    "ganhou_no_corpo": true,
+    "runs": 7,
+    "periodos": [
+     24
+    ]
+   },
+   "lista": {
+    "bytes": 600,
+    "ganhou_no_corpo": true,
+    "runs": 7,
+    "periodos": [
+     24
+    ]
+   }
+  },
+  "floor": 349,
+  "vencedor": "D1"
+ },
+ {
+  "caso": "espalhado-ordenado",
+  "n": 600,
+  "C0_sem_spec": 6398,
+  "C1_com_spec": 4059,
+  "D1_delta_coluna": 644,
+  "D1_rota": "#TCF.8B5258",
+  "D2_periodo_estrito": 3766,
+  "D2L_forma_lista": 1825,
+  "D2_detalhe": {
+   "rota": "#TCF.8!!",
+   "ajuste": 10,
+   "estrito": {
+    "bytes": 3766,
+    "ganhou_no_corpo": false,
+    "runs": 0,
+    "periodos": []
+   },
+   "lista": {
+    "bytes": 1825,
+    "ganhou_no_corpo": true,
+    "runs": 24,
+    "periodos": [
+     20,
+     24
+    ]
+   }
+  },
+  "floor": 644,
+  "vencedor": "D1"
+ },
+ {
+  "caso": "espalhado-desordenado",
+  "n": 600,
+  "C0_sem_spec": 6104,
+  "C1_com_spec": 4737,
+  "D1_delta_coluna": 3167,
+  "D1_rota": "#TCF.8!!",
+  "D2_periodo_estrito": 4212,
+  "D2L_forma_lista": 3301,
+  "D2_detalhe": {
+   "rota": "#TCF.8!!",
+   "ajuste": 10,
+   "estrito": {
+    "bytes": 4212,
+    "ganhou_no_corpo": true,
+    "runs": 0,
+    "periodos": []
+   },
+   "lista": {
+    "bytes": 3301,
+    "ganhou_no_corpo": true,
+    "runs": 24,
+    "periodos": [
+     24
+    ]
+   }
+  },
+  "floor": 3167,
+  "vencedor": "D1"
+ },
+ {
+  "caso": "uteis-ruido-1pct",
+  "n": 600,
+  "C0_sem_spec": 2710,
+  "C1_com_spec": 1644,
+  "D1_delta_coluna": 350,
+  "D1_rota": "#TCF.8B3258",
+  "D2_periodo_estrito": 209,
+  "D2L_forma_lista": 184,
+  "D2_detalhe": {
+   "rota": "#TCF.8!!",
+   "ajuste": 10,
+   "estrito": {
+    "bytes": 209,
+    "ganhou_no_corpo": true,
+    "runs": 4,
+    "periodos": [
+     5
+    ]
+   },
+   "lista": {
+    "bytes": 184,
+    "ganhou_no_corpo": true,
+    "runs": 6,
+    "periodos": [
+     5
+    ]
+   }
+  },
+  "floor": 184,
+  "vencedor": "D2L"
+ },
+ {
+  "caso": "uteis-ruido-5pct",
+  "n": 600,
+  "C0_sem_spec": 3016,
+  "C1_com_spec": 3016,
+  "D1_delta_coluna": 353,
+  "D1_rota": "#TCF.8B3258",
+  "D2_periodo_estrito": 764,
+  "D2L_forma_lista": 699,
+  "D2_detalhe": {
+   "rota": "#TCF.8!! (construido)",
+   "ajuste": 10,
+   "estrito": {
+    "bytes": 764,
+    "ganhou_no_corpo": true,
+    "runs": 15,
+    "periodos": [
+     5
+    ]
+   },
+   "lista": {
+    "bytes": 699,
+    "ganhou_no_corpo": true,
+    "runs": 24,
+    "periodos": [
+     2,
+     3,
+     4,
+     5
+    ]
+   }
+  },
+  "floor": 353,
+  "vencedor": "D1"
+ },
+ {
+  "caso": "ids-turno-nao-data",
+  "n": 600,
+  "C0_sem_spec": 1959,
+  "D1_delta_coluna": 241,
+  "D1_rota": "#TCF.8B2258",
+  "D2_periodo_estrito": 33,
+  "D2L_forma_lista": 33,
+  "D2_detalhe": {
+   "rota": "#TCF.8!!",
+   "ajuste": 0,
+   "estrito": {
+    "bytes": 33,
+    "ganhou_no_corpo": true,
+    "runs": 1,
+    "periodos": [
+     4
+    ]
+   },
+   "lista": {
+    "bytes": 33,
+    "ganhou_no_corpo": true,
+    "runs": 1,
+    "periodos": [
+     4
+    ]
+   }
+  },
+  "floor": 33,
+  "vencedor": "D2"
+ },
+ {
+  "caso": "uteis-n6000",
+  "n": 6000,
+  "C0_sem_spec": 26595,
+  "C1_com_spec": 15630,
+  "D1_delta_coluna": 2040,
+  "D1_rota": "#TCF.8B21770",
+  "D2_periodo_estrito": 42,
+  "D2L_forma_lista": 42,
+  "D2_detalhe": {
+   "rota": "#TCF.8!!",
+   "ajuste": 10,
+   "estrito": {
+    "bytes": 42,
+    "ganhou_no_corpo": true,
+    "runs": 1,
+    "periodos": [
+     5
+    ]
+   },
+   "lista": {
+    "bytes": 42,
+    "ganhou_no_corpo": true,
+    "runs": 1,
+    "periodos": [
+     5
+    ]
+   }
+  },
+  "floor": 42,
+  "vencedor": "D2"
+ }
+]

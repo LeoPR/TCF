@@ -1,0 +1,43 @@
+{
+ "caso": "uteis-ruido-1pct",
+ "delta_prefixo_20": [
+  1,
+  3,
+  1,
+  1,
+  1,
+  1,
+  3,
+  1,
+  1,
+  1,
+  1,
+  3,
+  1,
+  1,
+  1,
+  1,
+  3,
+  1,
+  1,
+  1
+ ],
+ "d2_estrito": {
+  "bytes": 209,
+  "ganhou_no_corpo": true,
+  "runs": 4,
+  "periodos": [
+   5
+  ]
+ },
+ "d2_lista": {
+  "bytes": 184,
+  "ganhou_no_corpo": true,
+  "runs": 6,
+  "periodos": [
+   5
+  ]
+ },
+ "rota_candidato_d2": "#TCF.8!!",
+ "nota_d2": null
+}

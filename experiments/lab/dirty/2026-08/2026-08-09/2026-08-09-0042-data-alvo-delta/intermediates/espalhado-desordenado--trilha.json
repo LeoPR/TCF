@@ -1,0 +1,41 @@
+{
+ "caso": "espalhado-desordenado",
+ "delta_prefixo_20": [
+  -286,
+  -1463,
+  2251,
+  -1807,
+  -2255,
+  -3133,
+  2729,
+  -2650,
+  3542,
+  588,
+  2576,
+  -5959,
+  6320,
+  -6356,
+  1680,
+  2180,
+  2148,
+  -7831,
+  4868,
+  82
+ ],
+ "d2_estrito": {
+  "bytes": 4212,
+  "ganhou_no_corpo": true,
+  "runs": 0,
+  "periodos": []
+ },
+ "d2_lista": {
+  "bytes": 3301,
+  "ganhou_no_corpo": true,
+  "runs": 24,
+  "periodos": [
+   24
+  ]
+ },
+ "rota_candidato_d2": "#TCF.8!!",
+ "nota_d2": null
+}

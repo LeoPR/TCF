@@ -1,0 +1,18 @@
+{
+ "input_n": 600,
+ "rt_wire_real_sem_spec": true,
+ "rt_wire_real_com_spec": true,
+ "rt_delta_coluna_undelta": true,
+ "rt_seqrle_periodico_2_niveis": true,
+ "primeiros_5": [
+  "2000-01-01",
+  "2000-02-01",
+  "2000-03-01",
+  "2000-04-01",
+  "2000-05-01"
+ ],
+ "ultimos_2": [
+  "2049-11-01",
+  "2049-12-01"
+ ]
+}

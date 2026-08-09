@@ -1,0 +1,39 @@
+{
+ "caso": "diario-controle",
+ "delta_prefixo_20": [
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1
+ ],
+ "d2_estrito": {
+  "bytes": 32,
+  "ganhou_no_corpo": false,
+  "runs": 0,
+  "periodos": []
+ },
+ "d2_lista": {
+  "bytes": 32,
+  "ganhou_no_corpo": false,
+  "runs": 0,
+  "periodos": []
+ },
+ "rota_candidato_d2": "#TCF.8",
+ "nota_d2": null
+}

@@ -575,7 +575,42 @@ prototipo clean (`experiments/lab/clean/EXP-XXX-*`) e' pra testar
 Atualizar quando: hipotese confirmada/refutada/movida-de-status, OU
 nova hipotese identificada.
 
-**Ultima atualizacao**: 2026-07-22 — **H-LAZY-INPUT-01** (owner, direcao — "apenas pensar"):
+**Ultima atualizacao**: 2026-08-09 — familia DATA (triagem de 7 hipoteses, lab
+`2026-08/2026-08-09/2026-08-09-0024-data-hipoteses-restantes/`, n=600, RT 100%):
+
+- **H-DATA-DELTA-01** (alvo DELTA de coluna): o spec ordinal soldado (`SPEC_DATA_ISO`)
+  depende do `*N+M|` (delta uniforme); regimes realistas com delta PERIODICO ou irregular
+  ficam na mesa — `dias-uteis` 1590 B vs delta naive 233 B (6,8x); `espalhado-ordenado`
+  3759 vs 643 (5,8x). Atrito de protocolo: nature e' per-valor, delta precisa do vizinho
+  (transform de COLUNA). Status: `confirmada-empirica` (sintetico, lab
+  `2026-08-09-0042-data-alvo-delta`): D1 delta-coluna ganha alfabeto-pequeno/irregular
+  (345-649 B onde hoje 1085-4737; compoe com bN); PRESSUPOE `T-NATURE-CANDIDATO-BN`.
+  Complementar ao H-SEQRLE-PERIOD-01 — juntos sob FLOOR cobrem todos os regimes
+  testados. Ticket `T-DATA-ALVO-DELTA` no STATUS.
+- **H-SEQRLE-PERIOD-01** (seq-RLE periodico, ideia do OWNER anterior a esta rodada —
+  "tinha pensado nisso antes mas nao tive oportunidade de testar completamente"): estender
+  o seq-RLE pra delta que CICLA entre linhas (`[1,1,1,1,3]` repetindo). Hoje existe
+  uniforme-entre-linhas (`*N+d|`) e per-run-dentro-da-linha (`*N+d1,d2,...|`, ADR-0016);
+  o ciclico nao existe — `detect_seq_runs` quebra o run a cada mudanca de delta. Vale pra
+  QUALQUER coluna numerica, nao so' data. Design: virgula ja' ocupada pelo per-run →
+  sintaxe distinta; format change #TCF.8. Status: `confirmada-empirica` (sintetico,
+  mesmo lab `0042`): ciclo EXATO paga UMA vez — uteis 1590→**41 B** (39x), n=6000→42
+  (O(1)); ids nao-data 1959→33 (59x, nivel CORE sem nature); controles byte-identicos.
+  Quebra a cada perturbacao (ruido/feriado → D1 ganha). ACHADO: forma degenerada de
+  1 ciclo = LISTA de deltas — perde do D1 em tudo que importa, exigir >=2 ciclos; a
+  rota do candidato digit-heavy e' o raw `#TCF.8!!` (espelho raw necessario). Ticket
+  `T-SEQRLE-PERIODICO`.
+- **H-DATA-SIBLING-01** (colunas irmas `created/updated/shipped`, delta ENTRE colunas):
+  **refutada** — multi-col independente 2959 B vs delta-entre-colunas naive 2870 B =
+  lacuna 3%; colunas ordenadas-ish ja' comprimem quase tao bem sozinhas. Nao paga o
+  design de um mecanismo cross-column pra data. (Distinto do H-GDICT, que compartilha
+  DICT, nao delta.)
+- Miudos registrados no lab: sentinela e' data VALIDA (`9999-12-31` parseia → +24 B;
+  `0000-00-00` nao parseia → valvula); quase-null ok ate' 99%; `YYYY-MM` recusa coluna
+  inteira (spec irmao futuro, fila `T-SPEC-PARSE-X-ALVO`); spec→bN no CANDIDATO da
+  nature = `T-NATURE-CANDIDATO-BN` (aguarda aprovacao).
+
+**Atualizacao anterior**: 2026-07-22 — **H-LAZY-INPUT-01** (owner, direcao — "apenas pensar"):
 o `encode` hoje exige o dataset TODO materializado (`dict[str, list[str]]`) — pico de memoria =
 O(dataset), e um "dicionario gigante com elementos enormes" pode ser desnecessario. Tres niveis de
 laziness na ENTRADA (do mais tratavel ao 2.0): (1) **streaming por coluna** — processa 1 coluna,
