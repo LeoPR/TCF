@@ -22,6 +22,14 @@
 
 ### Sintese atual
 
+- [duas-similaridades-igualdade-e-proximidade.md](duas-similaridades-igualdade-e-proximidade.md)
+  — **ATUAL (2026-08-09)**: o nucleo captura DUAS similaridades (igualdade =
+  dedup `^N`/bN/dict; proximidade = seq-RLE/periodico/delta) e elas **nao
+  competem no mesmo `min()`** — a aritmetica morre na linha `k` (1a repeticao
+  aciona o dedup): coluna ciclica `01..12` custa 423 B contra 20 B da mesma
+  aritmetica sem repetir. Reenquadra o papel dos SPECS (escolhem um DOMINIO
+  onde a aritmetica sobrevive, nao "adicionam semantica"). **Doc de decisao**:
+  3 encaixes com custo/risco + 4 perguntas em aberto pro owner. Tudo `.9`
 - [perspectiva-triplice-e-pre-tx.md](perspectiva-triplice-e-pre-tx.md)
   — **ATUAL (2026-05-17)**: analise critica das 3 estrategias de
   evolucao (pre-filtro multi-col + tipos; manager com memoria

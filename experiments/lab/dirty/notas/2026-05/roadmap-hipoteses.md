@@ -625,6 +625,27 @@ nova hipotese identificada.
   T-SPEC-PARSE-X-ALVO atingiu o criterio (2 grafias x 3 alvos); caso mensal SAI do
   T-DATA-ALVO-DELTA (31-33 vs 349). Ticket `T-DATA-ALVO-MENSAL`, aguarda decisao.
 
+- **H-SIM-DUPLA-01** (as DUAS similaridades do nucleo, achado estrutural 2026-08-09, lab
+  `2026-08-09-1943-fluxo-igualdade-x-proximidade`): o nucleo captura IGUALDADE (dedup
+  `^N`/bN/dict) e PROXIMIDADE (seq-RLE uniforme/periodico/multi-delta), mas elas **nao
+  competem no mesmo `min()`** — a igualdade roda DENTRO do OBAT/HCC e a proximidade le' o
+  corpo que sobrou. MEDIDO: a leitura aritmetica morre na linha **k** (1a repeticao aciona
+  o dedup) — coluna ciclica `01..12` tem 1a referencia `^N` na linha 12, 11 deltas
+  legiveis, 0 runs periodicos, 423 B; a MESMA aritmetica sem repeticao (k=600) faz 20 B
+  (~20x). O candidato aritmetico nunca e' CONSTRUIDO, entao o FLOOR nao pode escolhe-lo.
+  Status: `aberta` (.9). Tickets `T-CANDIDATO-SEM-DEDUP` (materializar o corpo sem refs
+  como candidato) e `T-SPLIT-SINGLE-COL` (o split do ADR-0026 ja' corta ano|mes|dia e NAO
+  e' candidato na rota flat: mensal 1085->700, uteis 2454->903). Doc de decisao:
+  `docs/theory/duas-similaridades-igualdade-e-proximidade.md`.
+- **COROLARIO sobre os SPECS** (mesma nota): o spec nao adiciona informacao — ele escolhe
+  um DOMINIO onde a aritmetica sobrevive ao dedup (ordinal/mes-epoca dao k=600 distintos,
+  nada dedupa). Parte do ganho dos specs e' o nucleo compensando escolha propria. Spec e
+  encaixe estrutural sao ORTOGONAIS: spec escolhe o dominio, encaixe escolhe a segmentacao.
+- **H-PERF-04 / H-TH-02 (Patricia) — evidencia NOVA** (mesmo lab, sonda S1): o indice do
+  OBAT e' hash de TRIGRAMA (ADR-0009), e em coluna de data ISO degenera a **1 bucket com
+  100% dos unicos** (`diario` e `uteis`; todo `2026-...` cai em `202`). A H-PERF-04 foi
+  adiada dizendo "precisaria Patricia trie"; a medicao e' evidencia a favor de reabrir.
+
 **Atualizacao anterior**: 2026-07-22 — **H-LAZY-INPUT-01** (owner, direcao — "apenas pensar"):
 o `encode` hoje exige o dataset TODO materializado (`dict[str, list[str]]`) — pico de memoria =
 O(dataset), e um "dicionario gigante com elementos enormes" pode ser desnecessario. Tres niveis de
