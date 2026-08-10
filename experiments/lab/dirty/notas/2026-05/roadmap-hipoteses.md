@@ -26,6 +26,12 @@ fechamento de pacote, decide-se ordem de exploracao isolada/combinada.
 - `refutada-parcial` — funciona em alguns cenarios, falha em outros
 - `refutada-real-world` — funciona em sintetico mas NAO generaliza
   pra real-world (introduzido 2026-05-21 apos Pacote 2)
+- `refutada-real-world-por-ausencia-de-corpus` — funciona em sintetico e o
+  mecanismo esta' CERTO, mas o REGIME que ele ataca nao existe nos dados reais
+  disponiveis (introduzido 2026-08-09, EXP-017: nenhuma coluna de data do corpus
+  tem cadencia mensal). **Distinto de `refutada-real-world`**: la' o mecanismo nao
+  generaliza; aqui nao ha' o que medir. Acao: buscar/registrar o corpus faltante,
+  nao descartar a hipotese
 - `adiada` — fora de escopo do momento, retomar depois
 - `absorvida` — incorporada em hipotese maior
 - `subsumida` — coberta por outra hipotese mais geral
@@ -616,34 +622,16 @@ nova hipotese identificada.
   nature = `T-NATURE-CANDIDATO-BN` (aguarda aprovacao).
 
 - **H-DATA-MES-01** (alvo MENSAL, direcao do owner 2026-08-09 — "olhar pelo mes, o
-  incremento fica melhor"): `confirmada-empirica` (sintetico, lab
-  `2026-08-09-1853-data-alvo-mensal`, RT 2 niveis em todos os alvos x regimes). Alvos
-  per-valor com valvula (protocolo existente): A4 `mes*31+dia` (geral, sem convencao) =
-  mensal-dia1/15/misto 33-36 B; A2 mes-epoca-d01 = 31; A2f fim-de-mes = 31 (unica
-  convencao que paga); A3 YYYYMM REFUTADO (virada +89 quebra runs); YM = spec irmao da
-  grafia `YYYY-MM` (31 vs 826). Faltas: 2799 (spec recusa hoje) -> 41 B. Consequencias:
-  T-SPEC-PARSE-X-ALVO atingiu o criterio (2 grafias x 3 alvos); caso mensal SAI do
-  T-DATA-ALVO-DELTA (31-33 vs 349). Ticket `T-DATA-ALVO-MENSAL`, aguarda decisao.
-
-- **H-SIM-DUPLA-01** (as DUAS similaridades do nucleo, achado estrutural 2026-08-09, lab
-  `2026-08-09-1943-fluxo-igualdade-x-proximidade`): o nucleo captura IGUALDADE (dedup
-  `^N`/bN/dict) e PROXIMIDADE (seq-RLE uniforme/periodico/multi-delta), mas elas **nao
-  competem no mesmo `min()`** — a igualdade roda DENTRO do OBAT/HCC e a proximidade le' o
-  corpo que sobrou. MEDIDO: a leitura aritmetica morre na linha **k** (1a repeticao aciona
-  o dedup) — coluna ciclica `01..12` tem 1a referencia `^N` na linha 12, 11 deltas
-  legiveis, 0 runs periodicos, 423 B; a MESMA aritmetica sem repeticao (k=600) faz 20 B
-  (~20x). O candidato aritmetico nunca e' CONSTRUIDO, entao o FLOOR nao pode escolhe-lo.
-  Status: `aberta` (.9). Tickets `T-CANDIDATO-SEM-DEDUP` (materializar o corpo sem refs
-  como candidato) e `T-SPLIT-SINGLE-COL` (o split do ADR-0026 ja' corta ano|mes|dia e NAO
-  e' candidato na rota flat: mensal 1085->700, uteis 2454->903). Doc de decisao:
-  `docs/theory/duas-similaridades-igualdade-e-proximidade.md`.
-- **H-OBAT-PROX-01** (nos de PROXIMIDADE no OBAT — a raiz, owner 2026-08-09): o OBAT so'
-  cria nos por IGUALDADE de afixo; similaridade-por-delta nao vira no', entao o HCC nunca
-  tem a chance de desenvolver composicao aritmetica. E' a causa-raiz do H-SIM-DUPLA-01.
-  Owner: "deixe registrado a vontade de fazer LOGO, apesar disso parecer mesmo melhor pro
-  2.0". Status: `aberta` (**2.0**; ticket `T-OBAT-NOS-PROXIMIDADE`). Antecedentes:
-  `docs/theory/2026-05-11-comparacoes-nao-literais.md` (a intuicao original), H-TH-02
-  (Patricia), H-PT-01 (pre-tx delta multi-pass, refutada-parcial por violar o vertice).
+  incremento fica melhor"): `confirmada-empirica-SINTETICO` / **`refutada-real-world-por-
+  ausencia-de-corpus`** (EXP-017 clean, 2026-08-09). Alvos per-valor com valvula: A4
+  `mes*31+dia` (geral, sem convencao), A2f fim-de-mes, YM grafia `YYYY-MM`; A3 YYYYMM
+  REFUTADO. SINTETICO: ganho mediano **95%** (33-48 B contra 655-2799), 7/7 casos.
+  **REAL: 0,0% em 14 colunas** (TPC-H x5, br-identidades x3, football x2, receita, retail)
+  — e o motivo NAO e' o mecanismo: **nenhuma coluna real disponivel tem cadencia mensal**;
+  o corpus e' todo diario/transacional. O regime-alvo nao esta representado. Weld fica
+  CONDICIONADO a corpus com cadencia mensal (competencia/vencimento/faturamento). Este e'
+  um caso novo da classe `refutada-real-world`, mas por AUSENCIA de regime, nao por
+  nao-generalizacao — vale distinguir no registry. Ticket `T-DATA-ALVO-MENSAL`.
 - **COROLARIO sobre os SPECS** (mesma nota): o spec nao adiciona informacao — ele escolhe
   um DOMINIO onde a aritmetica sobrevive ao dedup (ordinal/mes-epoca dao k=600 distintos,
   nada dedupa). Parte do ganho dos specs e' o nucleo compensando escolha propria. Spec e

@@ -1,0 +1,82 @@
+[
+ {
+  "rotulo": "tpch-orderdate",
+  "n": 3000,
+  "k": 1738,
+  "exemplo": "1996-01-02",
+  "fonte": "db:tpch-sf001.db",
+  "ja_ordenado_na_origem": false
+ },
+ {
+  "rotulo": "tpch-shipdate",
+  "n": 3000,
+  "k": 1762,
+  "exemplo": "1996-03-13",
+  "fonte": "db:tpch-sf001.db",
+  "ja_ordenado_na_origem": false
+ },
+ {
+  "rotulo": "tpch-commitdate",
+  "n": 3000,
+  "k": 1668,
+  "exemplo": "1996-02-12",
+  "fonte": "db:tpch-sf001.db",
+  "ja_ordenado_na_origem": false
+ },
+ {
+  "rotulo": "tpch-receiptdate",
+  "n": 3000,
+  "k": 1725,
+  "exemplo": "1996-03-22",
+  "fonte": "db:tpch-sf001.db",
+  "ja_ordenado_na_origem": false
+ },
+ {
+  "rotulo": "tpch-sf01-orderdate",
+  "n": 3000,
+  "k": 1738,
+  "exemplo": "1996-01-02",
+  "fonte": "db:tpch-sf01.db",
+  "ja_ordenado_na_origem": false
+ },
+ {
+  "rotulo": "br-data-cadastro",
+  "n": 3000,
+  "k": 2184,
+  "exemplo": "2023-01-06",
+  "fonte": "db:br-identidades.db",
+  "ja_ordenado_na_origem": false
+ },
+ {
+  "rotulo": "br-data-abertura",
+  "n": 3000,
+  "k": 2366,
+  "exemplo": "2015-04-02",
+  "fonte": "db:br-identidades.db",
+  "ja_ordenado_na_origem": false
+ },
+ {
+  "rotulo": "receita-data-inicio",
+  "n": 3000,
+  "k": 97,
+  "exemplo": "20260505",
+  "fonte": "db:receita-cnpj.db",
+  "ja_ordenado_na_origem": false
+ },
+ {
+  "rotulo": "retail-invoicedate",
+  "n": 3000,
+  "k": 117,
+  "exemplo": "2010-12-01 08:26:00",
+  "fonte": "db:online-retail.db",
+  "ja_ordenado_na_origem": true
+ },
+ {
+  "rotulo": "football-date",
+  "n": 3000,
+  "k": 2297,
+  "exemplo": "1872-11-30",
+  "fonte": "csv:football-results/results.csv",
+  "ja_ordenado_na_origem": true
+ }
+]
