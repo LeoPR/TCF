@@ -59,12 +59,17 @@ experiments/lab/dirty/2026-05-27-baseline-consolidado/outputs/
 # nomeado, um por linha, para nao arrastar os clean/EXP-* pre-convencao.
 !experiments/lab/clean/EXP-016-bn-familia-bits/outputs/
 !experiments/lab/clean/EXP-016-bn-familia-bits/outputs/**
+!experiments/lab/clean/EXP-017-data-alvos-mensais/outputs/
+!experiments/lab/clean/EXP-017-data-alvos-mensais/outputs/**
+!experiments/lab/clean/EXP-017-data-alvos-mensais/intermediates/
+!experiments/lab/clean/EXP-017-data-alvos-mensais/intermediates/**
 restored*/
 *.tcf
 # EXCECAO (2026-07-13, convencao de labs): wire TCF de lab dirty (inputs/outputs) com extensao real
 !experiments/lab/dirty/**/inputs/**/*.tcf
 !experiments/lab/dirty/**/outputs/**/*.tcf
 !experiments/lab/clean/EXP-016-bn-familia-bits/outputs/**/*.tcf
+!experiments/lab/clean/EXP-017-data-alvos-mensais/outputs/**/*.tcf
 
 # Archive (legacy materials kept locally for history, not for public repo)
 archive/legacy_results/

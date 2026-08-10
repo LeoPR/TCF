@@ -1,0 +1,27 @@
+{
+ "_o_que_e": "procedência de ctrl-uteis.tcf — o wire vencedor deste caso",
+ "ideia_do_caso": "cadência de dias úteis: território do periódico no eixo do DIA",
+ "entrada": {
+  "arquivo": "../inputs/ctrl-uteis.entrada.json",
+  "sha256_12": "7753933814cc",
+  "n": 600,
+  "k": 600
+ },
+ "parametros": {
+  "rota": "single-col flat",
+  "candidato_vencedor": "ordinal-soldado",
+  "como_foi_gerado": "encode(vals, nature=SPEC_DATA_ISO)",
+  "header_do_wire": "#TCF.8 :data-iso"
+ },
+ "bytes": {
+  "medido_no_relatorio": 40,
+  "tamanho_do_arquivo_tcf": 40,
+  "_por_que_podem_diferir": "os ALVOS-protótipo pagam um ajuste de header pela tag hipotética (':data-mes' etc.), que ainda não existe na gramática — o número do relatório inclui esse ajuste, o arquivo é o wire sem ele. Para `core` e `ordinal-soldado` os dois coincidem."
+ },
+ "contra_prova": {
+  "arquivo": "ctrl-uteis.roundtrip.json",
+  "como_conferir": "diff inputs/ctrl-uteis.entrada.json outputs/ctrl-uteis.roundtrip.json  # vazio = ok",
+  "passou": true
+ },
+ "decisao_completa": "../intermediates/ctrl-uteis.candidatos.json"
+}

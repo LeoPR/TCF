@@ -1,0 +1,20 @@
+{
+ "_o_que_e": "procedência da entrada do caso real-tpch-shipdate-ord",
+ "caso": "real-tpch-shipdate-ord",
+ "familia": "real-tpch",
+ "ideia": "idem ordenada",
+ "pin_espera": "ordinal",
+ "gerador": "_carrega",
+ "n": 3000,
+ "k": 1762,
+ "sha256_12": "d54ebfd8fa14",
+ "amostra_6": [
+  "1992-01-16",
+  "1992-01-26",
+  "1992-02-01",
+  "1992-02-04",
+  "1992-02-09",
+  "1992-02-11"
+ ],
+ "entrada": "real-tpch-shipdate-ord.entrada.json"
+}

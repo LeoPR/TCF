@@ -1,0 +1,20 @@
+{
+ "_o_que_e": "procedência da entrada do caso real-receita-yyyymmdd",
+ "caso": "real-receita-yyyymmdd",
+ "familia": "real-grafia",
+ "ideia": "YYYYMMDD COMPACTO: o spec ISO recusa por design (guard de re-emissão)",
+ "pin_espera": "nenhum",
+ "gerador": "_carrega",
+ "n": 3000,
+ "k": 97,
+ "sha256_12": "500eeb4cda54",
+ "amostra_6": [
+  "20260505",
+  "20260505",
+  "20260120",
+  "20260505",
+  "20260429",
+  "20260505"
+ ],
+ "entrada": "real-receita-yyyymmdd.entrada.json"
+}

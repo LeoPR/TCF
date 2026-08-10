@@ -1,0 +1,49 @@
+{
+ "caso": "sint-ano-mes",
+ "ideia": "grafia YYYY-MM pura: o spec ISO recusa (não é data completa)",
+ "entrada": "../inputs/sint-ano-mes.entrada.json",
+ "entrada_hash": "7ac2b20836fc",
+ "n": 600,
+ "k": 600,
+ "CONSTANTE_na_comparacao": "mesmo input, mesma rota flat single-col, mesmo ajuste de header por tag; varia SÓ o payload de cada candidato",
+ "candidatos": {
+  "core": {
+   "bytes": 826,
+   "como": "encode(vals)",
+   "header": "#TCF.8!!"
+  },
+  "ordinal-soldado": {
+   "bytes": 826,
+   "como": "encode(vals, nature=SPEC_DATA_ISO)",
+   "header": "#TCF.8!!"
+  },
+  "ordinal-rota-plena": {
+   "bytes": 886,
+   "como": "encode(encode_value(SPEC_DATA_ISO, v)) + tag",
+   "header": "#TCF.8!!"
+  },
+  "mes31dia": {
+   "bytes": 886,
+   "como": "encode(mes31dia.encode_col(v)) + tag ':data-mes'",
+   "header": "#TCF.8!!"
+  },
+  "fimdemes": {
+   "bytes": 890,
+   "como": "encode(fimdemes.encode_col(v)) + tag ':data-mes-fim'",
+   "header": "#TCF.8!!"
+  },
+  "anomes": {
+   "bytes": 30,
+   "como": "encode(anomes.encode_col(v)) + tag ':data-ym'",
+   "header": "#TCF.8"
+  }
+ },
+ "vencedor": "anomes",
+ "classe": "mensal",
+ "melhor_hoje": 826,
+ "melhor_justo": 826,
+ "nature_venceu_floor": false,
+ "lacuna_rota_da_nature_B": null,
+ "wire": "../outputs/sint-ano-mes.tcf",
+ "roundtrip": "../outputs/sint-ano-mes.roundtrip.json"
+}

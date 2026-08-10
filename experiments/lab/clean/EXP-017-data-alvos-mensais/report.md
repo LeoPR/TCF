@@ -2,45 +2,44 @@
 
 **Gerado por `run.py`.** 27 casos · **0 falhas**.
 `src/tcf` não é tocado; os alvos são protótipos de [`specs.py`](specs.py).
+Índice de inspeção artefato-a-artefato: [`outputs/INDEX.md`](outputs/INDEX.md).
 **Este relatório incorpora as correções de uma caçada adversarial de 4 lentes**
-(613 colunas varridas, 15 variantes realistas construídas) — as ressalvas abaixo
-são dela.
+(613 colunas varridas, 15 variantes realistas construídas) — as ressalvas abaixo são dela.
 
 ## A resposta, com as ressalvas que ela precisa
 
-**Nos dados de fato crus do corpus, os alvos mensais não pagam** — nenhuma das 9
-colunas lógicas de data tem cadência mensal (varredura exaustiva: todas têm os 31
-dias-do-mês quase uniformes). Ganho mediano real: **0.0%** (neste n).
+**Nos dados de fato crus do corpus, os alvos mensais não pagam** — nenhuma das 9 colunas
+lógicas de data tem cadência mensal (varredura exaustiva: todas têm os 31 dias-do-mês
+quase uniformes). Ganho mediano real: **0.0%** (neste n).
 
 As TRÊS ressalvas que impedem a manchete simples:
 
-1. **O "0%" é propriedade do n amostrado, não do dado**: a mesma coluna TPC-H dá
-   0,3% em n=3000 e **18,7% em n=4000** (o candidato ordinal cai num penhasco entre
-   n=3850-3900). Instabilidades de pré-passe criam penhascos — ver `T-PENHASCO-INICIO`.
+1. **O "0%" é propriedade do n amostrado, não do dado**: a mesma coluna TPC-H dá 0,3% em
+   n=3000 e **18,7% em n=4000** (o candidato ordinal cai num penhasco entre n=3850-3900).
+   Instabilidades de pré-passe criam penhascos — ver `T-PENHASCO-INICIO`.
 2. **O regime mensal é ALCANÇÁVEL a partir do corpus**: colunas de agregado mensal
-   derivadas do mesmo dado real (um registro por mês presente — a forma de qualquer
-   tabela de agregado) ganham **1,8× a 9,8×**. O que não tem regime mensal são as
-   colunas de FATO cruas.
-3. **O "95% sintético" (95.0% aqui) é O(n) e frágil**: em n=12 o alvo PERDE;
-   com o escorregamento real de fim de semana (~29%) sobra 1,5×; com jitter ±2 dias,
-   1,1×. E folha de pagamento (último/5º dia útil) fica NEGATIVA nos 3 alvos — mas um
-   4º eixo (dia ÚTIL) recupera 99,0%. **Nenhum conjunto fixo de alvos cobre; é o
-   argumento medido para "spec orienta eixos, não manda alvo"** (direção do owner).
+   derivadas do mesmo dado real (um registro por mês presente) ganham **1,8× a 9,8×**. O
+   que não tem regime mensal são as colunas de FATO cruas.
+3. **O "95.0% sintético" é O(n) e frágil**: em n=12 o alvo PERDE; com o
+   escorregamento real de fim de semana (~29%) sobra 1,5×; com jitter ±2 dias, 1,1×. E
+   folha de pagamento (último/5º dia útil) fica NEGATIVA nos 3 alvos — mas um 4º eixo
+   (dia ÚTIL) recupera 99,0%. **Nenhum conjunto fixo de alvos cobre; é o argumento medido
+   para "spec orienta eixos, não manda alvo"**
+   ([triagem](../../../../docs/theory/spec-orienta-nao-manda-triagem.md)).
 
 ## 1. Placar
 
 | onde vence | reais |
 |---|---:|
 | **ordinal-dia** (o spec de hoje) | 9 |
-| alvo **mensal** | 2 — ambos por acidente estrutural de 0,1-0,3%, não regime |
+| alvo **mensal** | 2 — por acidente estrutural de 0,1-0,3%, não regime |
 | **nenhum** (core sozinho) | 2 |
 
 ## 2. O achado transversal: a nature soldada não usa a rota plena
 
 O candidato interno da nature sai de `_encode_column` — só o corpo do core, **sem
-polaridade e sem bN** — enquanto a rota flat normal aplica os dois (provado byte-exato:
-`encode(vals, nature=SPEC) == header + _encode_column(transformed)` em 20/20 colunas
-reais onde a nature vence).
+polaridade e sem bN** — enquanto a rota flat normal aplica os dois (provado byte-exato em
+20/20 colunas reais onde a nature vence).
 
 | coluna real | spec soldado | mesmo payload, rota plena | desperdiçado |
 |---|---:|---:|---|
@@ -56,19 +55,17 @@ reais onde a nature vence).
 | `real-tpch-shipdate-ord` | 13442 | 12583 | **859 B** (6.4%) |
 | `real-tpch-commitdate-ord` | 13218 | 12371 | **847 B** (6.4%) |
 
-Recalibrado pela caçada: **mediana ~5,7% no corpus amplo** (não os 6,7% deste
-subconjunto), máx **11,9%** (CPF `socio_cpf` — a lacuna vale para QUALQUER nature),
-**variando com n** (a mesma coluna vai de 6,4% em n=200 a 0,24% em n=15000). Os
-"negativos" de versões anteriores eram artefato de métrica (a lacuna só é interpretável
-quando a nature vence o FLOOR — casos agora marcados `n/i`). E a rota plena **é
-nunca-pior por construção** (o FLOOR da polaridade devolve sufixo vazio quando não paga;
-stress de 8000 colunas, 0 violações) — o conserto do `T-NATURE-CANDIDATO-BN` é trocar o
-corpo do candidato pela rota plena, mantendo o FLOOR nature-vs-baseline que já existe.
+Recalibrado pela caçada: **mediana ~5,7% no corpus amplo** (não os 6.4% deste
+subconjunto de 11 colunas, 11317 B), máx **11,9%** (CPF `socio_cpf` — vale
+para QUALQUER nature), **variando com n** (6,4% em n=200 → 0,24% em n=15000). E a rota
+plena é **nunca-pior por construção** (stress de 8000 colunas, 0 violações) — o conserto
+do `T-NATURE-CANDIDATO-BN` é trocar o corpo do candidato pela rota plena, mantendo o
+FLOOR nature-vs-baseline que já existe.
 
 ## 3. Todos os casos
 
-| caso | família | n | core | ordinal | mes31dia | fimdemes | anomes | vence | ganho | pin |
-|---|---|---:|---:|---:|---:|---:|---:|---|---:|---|
+| caso | n | core | ord-soldado | ord-rota-plena | mes31dia | fimdemes | anomes | vence | ganho justo | lacuna rota | pin |
+|---|---:|---:|---:|---:|---:|---:|---:|---|---:|---:|---|
 | sint-mensal-dia1 | 600 | 1085 | 679 | 664 | 33 | 3750 | 3745 | **mes31dia** | 95.0% | 15 | ✓ |
 | sint-mensal-dia15 | 600 | 1085 | 679 | 664 | 33 | 3750 | 3745 | **mes31dia** | 95.0% | 15 | ✓ |
 | sint-mensal-fim | 600 | 6455 | 655 | 642 | 745 | 35 | 5820 | **fimdemes** | 94.5% | 13 | ✓ |
@@ -99,9 +96,9 @@ corpo do candidato pela rota plena, mantendo o FLOOR nature-vs-baseline que já 
 
 ## 4. As provas — e o que cada uma vale
 
-**RT estrito** e **RT do espelho** são as provas falsificáveis (o guard de re-emissão do
-YM veio delas: dígitos Unicode colapsavam payloads — 4ª ocorrência da classe).
-**Determinismo** e **artefato-é-o-wire** idem. **"Nunca-pior"** neste harness é
-tautologia (min sobre superconjunto) — fica como documentação da invariante; a prova
-real é pós-weld. Os **PINs** estão fixados no comportamento medido; os dois casos
-`mensal` reais estão anotados como ruído de 0,1-0,3%, não regime.
+**RT estrito**, **RT do espelho** e **RT em arquivo** (`diff` entrada × roundtrip) são as
+falsificáveis — o guard de re-emissão do YM veio delas (dígitos Unicode colapsavam
+payloads, 4ª ocorrência da classe). **Determinismo** e **artefato-é-o-wire** idem.
+**"Nunca-pior"** neste harness é tautologia (min sobre superconjunto) — fica como
+documentação da invariante; a prova real é pós-weld. Os **PINs** estão fixados no
+comportamento medido.

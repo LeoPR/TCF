@@ -120,9 +120,11 @@ Mapa de estratégias: [`docs/theory/strategies/INDEX.md`](docs/theory/strategies
 
 ## 6. Convenções
 
-### Estrutura de lab dirty — OBRIGATÓRIA (violar = refazer)
+### Estrutura de lab — OBRIGATÓRIA (violar = refazer) · vale p/ **dirty E clean**
 
-Fonte canônica: `experiments/lab/dirty/notas/2026-07/dirty-lab-convencoes.md`. Inegociável:
+Fonte canônica: `experiments/lab/dirty/notas/2026-07/dirty-lab-convencoes.md`, **estendida aos
+labs clean em 2026-08-10** (`.../2026-08/2026-08-10-labs-rastreabilidade-convencao.md` — auditoria
+achou que 17 dos 20 EXP-* eram invisíveis ao git e só 2 gravavam contra-prova). Inegociável:
 
 - Pastas por estágio, numeração DENTRO: **`inputs/` + `intermediates/` + `outputs/`**
   (+ `README.md`, `result.md`, `run.py`, `datasets-provenance.md`).
@@ -130,7 +132,17 @@ Fonte canônica: `experiments/lab/dirty/notas/2026-07/dirty-lab-convencoes.md`. 
   `.txt` só pra prosa/debug/contraprova.
 - **Roundtrip é ARQUIVO diffável**, byte-idêntico ao canônico de `intermediates/`
   (assert no `run.py`). Nunca só prosa/print.
-- Gabarito: `experiments/lab/dirty/2026-07/2026-07-13/2026-07-13-2019-especiais-formatos-lado-a-lado/`.
+- **Todo caso tem input em disco** (inclusive sintético) e **toda contra-prova é ARQUIVO**:
+  `inputs/<caso>.entrada.json` e `outputs/<caso>.roundtrip.json` na MESMA formatação — `diff`
+  vazio é a prova, e o runner roda esse mesmo diff.
+- **O runner LIMPA `outputs/`/`intermediates/`** antes de gerar (órfão é indistinguível de
+  resultado) e **o lab entra no `.gitignore` com exceção nominal no mesmo commit** — sem isso
+  os artefatos não existem para quem revisa (`output*` na linha 49 engole tudo).
+- **Nome curto e ESTÁVEL + `outputs/INDEX.md` GERADO** (nome → ideia → input → veredito → prova);
+  o significado mora no índice, não no nome. Todo número publicado tem arquivo; número que veio
+  de fora do runner leva a fonte atribuída no texto.
+- Gabarito dirty: `experiments/lab/dirty/2026-07/2026-07-13/2026-07-13-2019-especiais-formatos-lado-a-lado/`.
+  Gabarito clean: `experiments/lab/clean/EXP-017-data-alvos-mensais/`.
 
 ### Naming e organização de pastas
 

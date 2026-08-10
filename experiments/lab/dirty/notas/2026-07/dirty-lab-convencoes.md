@@ -6,6 +6,13 @@
 [[feedback-dirty-lab-outputs-e-progressao-dados]], [[feedback-dirty-lab-filosofia]], [[feedback-sempre-cross-reference]].
 **Antes de fechar qualquer sub-exp, rodar este checklist.**
 
+> **ESTENDIDO AOS LABS CLEAN em 2026-08-10** — ver
+> [`2026-08/2026-08-10-labs-rastreabilidade-convencao.md`](../2026-08/2026-08-10-labs-rastreabilidade-convencao.md).
+> A auditoria (20 clean + 112 dirty) achou que 17 dos 20 EXP-* eram **invisíveis ao git**
+> e só 2 gravavam contra-prova. Novos itens duros: input em disco para TODO caso (inclusive
+> sintético) · runner limpa `outputs/` · exceção nominal no `.gitignore` no mesmo commit ·
+> `outputs/INDEX.md` gerado · declarar o que ficou CONSTANTE em cada comparação.
+
 ## 1. Nomeação, ordenação e ESTRUTURA (refinado 2026-07-13; aninhamento por data 2026-07-22)
 
 - **Nome do lab**: `YYYY-MM-DD-HHMM-descricao/` — **só o dia NÃO basta** (labs do mesmo dia

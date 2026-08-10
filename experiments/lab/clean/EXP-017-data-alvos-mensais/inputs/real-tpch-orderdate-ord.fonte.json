@@ -1,0 +1,20 @@
+{
+ "_o_que_e": "procedência da entrada do caso real-tpch-orderdate-ord",
+ "caso": "real-tpch-orderdate-ord",
+ "familia": "real-tpch",
+ "ideia": "a MESMA coluna ordenada: isola o efeito da ordem",
+ "pin_espera": "mensal",
+ "gerador": "_carrega",
+ "n": 3000,
+ "k": 1738,
+ "sha256_12": "8d56832ffcaf",
+ "amostra_6": [
+  "1992-01-01",
+  "1992-01-01",
+  "1992-01-02",
+  "1992-01-02",
+  "1992-01-02",
+  "1992-01-03"
+ ],
+ "entrada": "real-tpch-orderdate-ord.entrada.json"
+}

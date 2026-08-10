@@ -1,0 +1,49 @@
+{
+ "caso": "valv-ym-unicode",
+ "ideia": "dígitos Unicode (fullwidth/árabe): `isdigit()`/`int()` os ACEITAM — sem o guard de re-emissão o payload colapsava grafias distintas (caçada adversarial, 4ª ocorrência da classe). Com o guard: viram literal e o RT fecha",
+ "entrada": "../inputs/valv-ym-unicode.entrada.json",
+ "entrada_hash": "1cd6da1b133d",
+ "n": 600,
+ "k": 599,
+ "CONSTANTE_na_comparacao": "mesmo input, mesma rota flat single-col, mesmo ajuste de header por tag; varia SÓ o payload de cada candidato",
+ "candidatos": {
+  "core": {
+   "bytes": 862,
+   "como": "encode(vals)",
+   "header": "#TCF.8!!"
+  },
+  "ordinal-soldado": {
+   "bytes": 862,
+   "como": "encode(vals, nature=SPEC_DATA_ISO)",
+   "header": "#TCF.8!!"
+  },
+  "ordinal-rota-plena": {
+   "bytes": 924,
+   "como": "encode(encode_value(SPEC_DATA_ISO, v)) + tag",
+   "header": "#TCF.8!!"
+  },
+  "mes31dia": {
+   "bytes": 924,
+   "como": "encode(mes31dia.encode_col(v)) + tag ':data-mes'",
+   "header": "#TCF.8!!"
+  },
+  "fimdemes": {
+   "bytes": 928,
+   "como": "encode(fimdemes.encode_col(v)) + tag ':data-mes-fim'",
+   "header": "#TCF.8!!"
+  },
+  "anomes": {
+   "bytes": 70,
+   "como": "encode(anomes.encode_col(v)) + tag ':data-ym'",
+   "header": "#TCF.8!!"
+  }
+ },
+ "vencedor": "anomes",
+ "classe": "mensal",
+ "melhor_hoje": 862,
+ "melhor_justo": 862,
+ "nature_venceu_floor": false,
+ "lacuna_rota_da_nature_B": null,
+ "wire": "../outputs/valv-ym-unicode.tcf",
+ "roundtrip": "../outputs/valv-ym-unicode.roundtrip.json"
+}

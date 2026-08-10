@@ -1,0 +1,49 @@
+{
+ "caso": "real-tpch-orderdate-ord",
+ "ideia": "a MESMA coluna ordenada: isola o efeito da ordem",
+ "entrada": "../inputs/real-tpch-orderdate-ord.entrada.json",
+ "entrada_hash": "8d56832ffcaf",
+ "n": 3000,
+ "k": 1738,
+ "CONSTANTE_na_comparacao": "mesmo input, mesma rota flat single-col, mesmo ajuste de header por tag; varia SÓ o payload de cada candidato",
+ "candidatos": {
+  "core": {
+   "bytes": 18641,
+   "como": "encode(vals)",
+   "header": "#TCF.8!!"
+  },
+  "ordinal-soldado": {
+   "bytes": 13521,
+   "como": "encode(vals, nature=SPEC_DATA_ISO)",
+   "header": "#TCF.8 :data-iso"
+  },
+  "ordinal-rota-plena": {
+   "bytes": 12612,
+   "como": "encode(encode_value(SPEC_DATA_ISO, v)) + tag",
+   "header": "#TCF.8!!"
+  },
+  "mes31dia": {
+   "bytes": 12579,
+   "como": "encode(mes31dia.encode_col(v)) + tag ':data-mes'",
+   "header": "#TCF.8!!"
+  },
+  "fimdemes": {
+   "bytes": 19988,
+   "como": "encode(fimdemes.encode_col(v)) + tag ':data-mes-fim'",
+   "header": "#TCF.8!!"
+  },
+  "anomes": {
+   "bytes": 16568,
+   "como": "encode(anomes.encode_col(v)) + tag ':data-ym'",
+   "header": "#TCF.8!"
+  }
+ },
+ "vencedor": "mes31dia",
+ "classe": "mensal",
+ "melhor_hoje": 13521,
+ "melhor_justo": 12612,
+ "nature_venceu_floor": true,
+ "lacuna_rota_da_nature_B": 909,
+ "wire": "../outputs/real-tpch-orderdate-ord.tcf",
+ "roundtrip": "../outputs/real-tpch-orderdate-ord.roundtrip.json"
+}

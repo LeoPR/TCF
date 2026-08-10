@@ -1,0 +1,20 @@
+{
+ "_o_que_e": "procedência da entrada do caso valv-ym-unicode",
+ "caso": "valv-ym-unicode",
+ "familia": "valvula",
+ "ideia": "dígitos Unicode (fullwidth/árabe): `isdigit()`/`int()` os ACEITAM — sem o guard de re-emissão o payload colapsava grafias distintas (caçada adversarial, 4ª ocorrência da classe). Com o guard: viram literal e o RT fecha",
+ "pin_espera": "mensal",
+ "gerador": "<lambda>",
+ "n": 600,
+ "k": 599,
+ "sha256_12": "1cd6da1b133d",
+ "amostra_6": [
+  "2000-01",
+  "2000-02",
+  "2000-03",
+  "2000-04",
+  "2000-05",
+  "2000-06"
+ ],
+ "entrada": "valv-ym-unicode.entrada.json"
+}

@@ -1,0 +1,49 @@
+{
+ "caso": "ctrl-uteis",
+ "ideia": "cadência de dias úteis: território do periódico no eixo do DIA",
+ "entrada": "../inputs/ctrl-uteis.entrada.json",
+ "entrada_hash": "7753933814cc",
+ "n": 600,
+ "k": 600,
+ "CONSTANTE_na_comparacao": "mesmo input, mesma rota flat single-col, mesmo ajuste de header por tag; varia SÓ o payload de cada candidato",
+ "candidatos": {
+  "core": {
+   "bytes": 2454,
+   "como": "encode(vals)",
+   "header": "#TCF.8!!"
+  },
+  "ordinal-soldado": {
+   "bytes": 40,
+   "como": "encode(vals, nature=SPEC_DATA_ISO)",
+   "header": "#TCF.8 :data-iso"
+  },
+  "ordinal-rota-plena": {
+   "bytes": 40,
+   "como": "encode(encode_value(SPEC_DATA_ISO, v)) + tag",
+   "header": "#TCF.8"
+  },
+  "mes31dia": {
+   "bytes": 271,
+   "como": "encode(mes31dia.encode_col(v)) + tag ':data-mes'",
+   "header": "#TCF.8!!"
+  },
+  "fimdemes": {
+   "bytes": 2762,
+   "como": "encode(fimdemes.encode_col(v)) + tag ':data-mes-fim'",
+   "header": "#TCF.8!!"
+  },
+  "anomes": {
+   "bytes": 2168,
+   "como": "encode(anomes.encode_col(v)) + tag ':data-ym'",
+   "header": "#TCF.8!"
+  }
+ },
+ "vencedor": "ordinal-soldado",
+ "classe": "ordinal",
+ "melhor_hoje": 40,
+ "melhor_justo": 40,
+ "nature_venceu_floor": true,
+ "lacuna_rota_da_nature_B": 0,
+ "wire": "../outputs/ctrl-uteis.tcf",
+ "roundtrip": "../outputs/ctrl-uteis.roundtrip.json"
+}

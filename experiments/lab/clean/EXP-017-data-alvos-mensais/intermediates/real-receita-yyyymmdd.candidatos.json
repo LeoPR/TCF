@@ -1,0 +1,49 @@
+{
+ "caso": "real-receita-yyyymmdd",
+ "ideia": "YYYYMMDD COMPACTO: o spec ISO recusa por design (guard de re-emissão)",
+ "entrada": "../inputs/real-receita-yyyymmdd.entrada.json",
+ "entrada_hash": "500eeb4cda54",
+ "n": 3000,
+ "k": 97,
+ "CONSTANTE_na_comparacao": "mesmo input, mesma rota flat single-col, mesmo ajuste de header por tag; varia SÓ o payload de cada candidato",
+ "candidatos": {
+  "core": {
+   "bytes": 4145,
+   "como": "encode(vals)",
+   "header": "#TCF.8!"
+  },
+  "ordinal-soldado": {
+   "bytes": 4145,
+   "como": "encode(vals, nature=SPEC_DATA_ISO)",
+   "header": "#TCF.8!"
+  },
+  "ordinal-rota-plena": {
+   "bytes": 4157,
+   "como": "encode(encode_value(SPEC_DATA_ISO, v)) + tag",
+   "header": "#TCF.8!"
+  },
+  "mes31dia": {
+   "bytes": 4157,
+   "como": "encode(mes31dia.encode_col(v)) + tag ':data-mes'",
+   "header": "#TCF.8!"
+  },
+  "fimdemes": {
+   "bytes": 4161,
+   "como": "encode(fimdemes.encode_col(v)) + tag ':data-mes-fim'",
+   "header": "#TCF.8!"
+  },
+  "anomes": {
+   "bytes": 4156,
+   "como": "encode(anomes.encode_col(v)) + tag ':data-ym'",
+   "header": "#TCF.8!"
+  }
+ },
+ "vencedor": "core",
+ "classe": "nenhum",
+ "melhor_hoje": 4145,
+ "melhor_justo": 4145,
+ "nature_venceu_floor": false,
+ "lacuna_rota_da_nature_B": null,
+ "wire": "../outputs/real-receita-yyyymmdd.tcf",
+ "roundtrip": "../outputs/real-receita-yyyymmdd.roundtrip.json"
+}

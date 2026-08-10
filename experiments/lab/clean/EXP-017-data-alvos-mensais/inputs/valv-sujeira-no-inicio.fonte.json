@@ -1,0 +1,20 @@
+{
+ "_o_que_e": "procedência da entrada do caso valv-sujeira-no-inicio",
+ "caso": "valv-sujeira-no-inicio",
+ "familia": "valvula",
+ "ideia": "UMA sujeira no índice 3 (<20): o penhasco do pre-pass (analyze_column sample_size=20 + Regra 2 do auto_cadence) — 95x decidido pela POSIÇÃO da primeira exceção; atinge o ordinal soldado igual",
+ "pin_espera": "qualquer",
+ "gerador": "<lambda>",
+ "n": 600,
+ "k": 600,
+ "sha256_12": "f9d92b913dfc",
+ "amostra_6": [
+  "2000-01-01",
+  "2000-02-01",
+  "2000-03-01",
+  "s/d",
+  "2000-05-01",
+  "2000-06-01"
+ ],
+ "entrada": "valv-sujeira-no-inicio.entrada.json"
+}

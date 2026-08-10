@@ -1,0 +1,49 @@
+{
+ "caso": "real-football",
+ "ideia": "1872..hoje: o maior span do corpus; ja' ordenado na origem (a variante .ordenado e' byte-identica — cacada adversarial, md5)",
+ "entrada": "../inputs/real-football.entrada.json",
+ "entrada_hash": "a4399676f012",
+ "n": 3000,
+ "k": 2297,
+ "CONSTANTE_na_comparacao": "mesmo input, mesma rota flat single-col, mesmo ajuste de header por tag; varia SÓ o payload de cada candidato",
+ "candidatos": {
+  "core": {
+   "bytes": 33380,
+   "como": "encode(vals)",
+   "header": "#TCF.8!"
+  },
+  "ordinal-soldado": {
+   "bytes": 16241,
+   "como": "encode(vals, nature=SPEC_DATA_ISO)",
+   "header": "#TCF.8 :data-iso"
+  },
+  "ordinal-rota-plena": {
+   "bytes": 15021,
+   "como": "encode(encode_value(SPEC_DATA_ISO, v)) + tag",
+   "header": "#TCF.8!!"
+  },
+  "mes31dia": {
+   "bytes": 15160,
+   "como": "encode(mes31dia.encode_col(v)) + tag ':data-mes'",
+   "header": "#TCF.8!!"
+  },
+  "fimdemes": {
+   "bytes": 31940,
+   "como": "encode(fimdemes.encode_col(v)) + tag ':data-mes-fim'",
+   "header": "#TCF.8!"
+  },
+  "anomes": {
+   "bytes": 32226,
+   "como": "encode(anomes.encode_col(v)) + tag ':data-ym'",
+   "header": "#TCF.8!"
+  }
+ },
+ "vencedor": "ordinal-rota-plena",
+ "classe": "ordinal",
+ "melhor_hoje": 16241,
+ "melhor_justo": 15021,
+ "nature_venceu_floor": true,
+ "lacuna_rota_da_nature_B": 1220,
+ "wire": "../outputs/real-football.tcf",
+ "roundtrip": "../outputs/real-football.roundtrip.json"
+}

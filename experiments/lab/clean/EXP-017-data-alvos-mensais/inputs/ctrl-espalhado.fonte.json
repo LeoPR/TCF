@@ -1,0 +1,20 @@
+{
+ "_o_que_e": "procedência da entrada do caso ctrl-espalhado",
+ "caso": "ctrl-espalhado",
+ "familia": "controle",
+ "ideia": "passo irregular de 1-40 dias: nenhum eixo uniformiza",
+ "pin_espera": "ordinal",
+ "gerador": "espalhado",
+ "n": 600,
+ "k": 600,
+ "sha256_12": "a2c48b1b3cf0",
+ "amostra_6": [
+  "2026-01-06",
+  "2026-02-08",
+  "2026-02-24",
+  "2026-03-25",
+  "2026-04-17",
+  "2026-04-26"
+ ],
+ "entrada": "ctrl-espalhado.entrada.json"
+}

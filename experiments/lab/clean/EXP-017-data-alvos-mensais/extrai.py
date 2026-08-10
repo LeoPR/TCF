@@ -25,8 +25,8 @@ import sqlite3
 import sys
 
 RAIZ = pathlib.Path(__file__).parent
-INPUTS = RAIZ / "inputs"
-INPUTS.mkdir(exist_ok=True)
+INPUTS = RAIZ / "inputs" / "fontes"   # corpus BRUTO; a entrada POR CASO e do run.py
+INPUTS.mkdir(parents=True, exist_ok=True)
 HUB = pathlib.Path("Z:/tcf-data")
 N_MAX = 3000
 

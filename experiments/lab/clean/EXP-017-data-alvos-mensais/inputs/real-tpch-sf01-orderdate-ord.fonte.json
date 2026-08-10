@@ -1,0 +1,20 @@
+{
+ "_o_que_e": "procedência da entrada do caso real-tpch-sf01-orderdate-ord",
+ "caso": "real-tpch-sf01-orderdate-ord",
+ "familia": "real-tpch",
+ "ideia": "amostra DISTINTA da mesma fonte (OFFSET 90000 — a cacada pegou que LIMIT puro duplicava o sf001 byte a byte: dbgen deterministico). O A4 vence por 14 B em 12.612 (0,1%): acidente estrutural do payload, NAO regime mensal — a coluna tem 31 dias-do-mes uniformes",
+ "pin_espera": "mensal",
+ "gerador": "_carrega",
+ "n": 3000,
+ "k": 1724,
+ "sha256_12": "98a4a4d3de1c",
+ "amostra_6": [
+  "1992-01-01",
+  "1992-01-01",
+  "1992-01-02",
+  "1992-01-02",
+  "1992-01-02",
+  "1992-01-02"
+ ],
+ "entrada": "real-tpch-sf01-orderdate-ord.entrada.json"
+}

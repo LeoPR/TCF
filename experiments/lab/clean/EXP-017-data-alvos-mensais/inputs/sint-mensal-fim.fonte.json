@@ -1,0 +1,20 @@
+{
+ "_o_que_e": "procedência da entrada do caso sint-mensal-fim",
+ "caso": "sint-mensal-fim",
+ "familia": "sintetico-mensal",
+ "ideia": "fecho contábil: o dia VARIA e é dedutível — o único caso do A2f",
+ "pin_espera": "mensal",
+ "gerador": "<lambda>",
+ "n": 600,
+ "k": 600,
+ "sha256_12": "779bcd775e71",
+ "amostra_6": [
+  "2000-01-31",
+  "2000-02-29",
+  "2000-03-31",
+  "2000-04-30",
+  "2000-05-31",
+  "2000-06-30"
+ ],
+ "entrada": "sint-mensal-fim.entrada.json"
+}

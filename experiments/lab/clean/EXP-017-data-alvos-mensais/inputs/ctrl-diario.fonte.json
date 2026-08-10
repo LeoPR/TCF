@@ -1,0 +1,20 @@
+{
+ "_o_que_e": "procedência da entrada do caso ctrl-diario",
+ "caso": "ctrl-diario",
+ "familia": "controle",
+ "ideia": "o ordinal-dia é ótimo aqui; se o mensal ganhar, algo está errado",
+ "pin_espera": "ordinal",
+ "gerador": "diario",
+ "n": 600,
+ "k": 600,
+ "sha256_12": "d985b9b09dc2",
+ "amostra_6": [
+  "2026-01-01",
+  "2026-01-02",
+  "2026-01-03",
+  "2026-01-04",
+  "2026-01-05",
+  "2026-01-06"
+ ],
+ "entrada": "ctrl-diario.entrada.json"
+}

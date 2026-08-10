@@ -1,0 +1,27 @@
+{
+ "_o_que_e": "procedência de real-tpch-commitdate-ord.tcf — o wire vencedor deste caso",
+ "ideia_do_caso": "coluna irmã (H7 da triagem morreu, mas a coluna sozinha vale medir)",
+ "entrada": {
+  "arquivo": "../inputs/real-tpch-commitdate-ord.entrada.json",
+  "sha256_12": "c1cfe6dbd110",
+  "n": 3000,
+  "k": 1668
+ },
+ "parametros": {
+  "rota": "single-col flat",
+  "candidato_vencedor": "ordinal-rota-plena",
+  "como_foi_gerado": "encode(encode_value(SPEC_DATA_ISO, v)) + tag",
+  "header_do_wire": "#TCF.8!!"
+ },
+ "bytes": {
+  "medido_no_relatorio": 12371,
+  "tamanho_do_arquivo_tcf": 12361,
+  "_por_que_podem_diferir": "os ALVOS-protótipo pagam um ajuste de header pela tag hipotética (':data-mes' etc.), que ainda não existe na gramática — o número do relatório inclui esse ajuste, o arquivo é o wire sem ele. Para `core` e `ordinal-soldado` os dois coincidem."
+ },
+ "contra_prova": {
+  "arquivo": "real-tpch-commitdate-ord.roundtrip.json",
+  "como_conferir": "diff inputs/real-tpch-commitdate-ord.entrada.json outputs/real-tpch-commitdate-ord.roundtrip.json  # vazio = ok",
+  "passou": true
+ },
+ "decisao_completa": "../intermediates/real-tpch-commitdate-ord.candidatos.json"
+}

@@ -1,0 +1,27 @@
+{
+ "_o_que_e": "procedência de ctrl-diario.tcf — o wire vencedor deste caso",
+ "ideia_do_caso": "o ordinal-dia é ótimo aqui; se o mensal ganhar, algo está errado",
+ "entrada": {
+  "arquivo": "../inputs/ctrl-diario.entrada.json",
+  "sha256_12": "d985b9b09dc2",
+  "n": 600,
+  "k": 600
+ },
+ "parametros": {
+  "rota": "single-col flat",
+  "candidato_vencedor": "ordinal-soldado",
+  "como_foi_gerado": "encode(vals, nature=SPEC_DATA_ISO)",
+  "header_do_wire": "#TCF.8 :data-iso"
+ },
+ "bytes": {
+  "medido_no_relatorio": 32,
+  "tamanho_do_arquivo_tcf": 32,
+  "_por_que_podem_diferir": "os ALVOS-protótipo pagam um ajuste de header pela tag hipotética (':data-mes' etc.), que ainda não existe na gramática — o número do relatório inclui esse ajuste, o arquivo é o wire sem ele. Para `core` e `ordinal-soldado` os dois coincidem."
+ },
+ "contra_prova": {
+  "arquivo": "ctrl-diario.roundtrip.json",
+  "como_conferir": "diff inputs/ctrl-diario.entrada.json outputs/ctrl-diario.roundtrip.json  # vazio = ok",
+  "passou": true
+ },
+ "decisao_completa": "../intermediates/ctrl-diario.candidatos.json"
+}

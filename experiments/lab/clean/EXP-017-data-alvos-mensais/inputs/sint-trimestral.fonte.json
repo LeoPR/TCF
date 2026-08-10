@@ -1,0 +1,20 @@
+{
+ "_o_que_e": "procedência da entrada do caso sint-trimestral",
+ "caso": "sint-trimestral",
+ "familia": "sintetico-mensal",
+ "ideia": "passo de 3 meses: delta uniforme no eixo do mês",
+ "pin_espera": "mensal",
+ "gerador": "trimestral",
+ "n": 400,
+ "k": 400,
+ "sha256_12": "a174ec416d6f",
+ "amostra_6": [
+  "2000-01-01",
+  "2000-04-01",
+  "2000-07-01",
+  "2000-10-01",
+  "2001-01-01",
+  "2001-04-01"
+ ],
+ "entrada": "sint-trimestral.entrada.json"
+}

@@ -1,0 +1,20 @@
+{
+ "_o_que_e": "procedência da entrada do caso real-football",
+ "caso": "real-football",
+ "familia": "real-span",
+ "ideia": "1872..hoje: o maior span do corpus; ja' ordenado na origem (a variante .ordenado e' byte-identica — cacada adversarial, md5)",
+ "pin_espera": "ordinal",
+ "gerador": "_carrega",
+ "n": 3000,
+ "k": 2297,
+ "sha256_12": "a4399676f012",
+ "amostra_6": [
+  "1872-11-30",
+  "1873-03-08",
+  "1874-03-07",
+  "1875-03-06",
+  "1876-03-04",
+  "1876-03-25"
+ ],
+ "entrada": "real-football.entrada.json"
+}

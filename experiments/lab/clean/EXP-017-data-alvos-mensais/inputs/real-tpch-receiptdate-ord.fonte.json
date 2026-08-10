@@ -1,0 +1,20 @@
+{
+ "_o_que_e": "procedência da entrada do caso real-tpch-receiptdate-ord",
+ "caso": "real-tpch-receiptdate-ord",
+ "familia": "real-tpch",
+ "ideia": "terceira irmã",
+ "pin_espera": "ordinal",
+ "gerador": "_carrega",
+ "n": 3000,
+ "k": 1725,
+ "sha256_12": "8378b26d3460",
+ "amostra_6": [
+  "1992-02-06",
+  "1992-02-08",
+  "1992-02-11",
+  "1992-02-13",
+  "1992-02-14",
+  "1992-02-24"
+ ],
+ "entrada": "real-tpch-receiptdate-ord.entrada.json"
+}

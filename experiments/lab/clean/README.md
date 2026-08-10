@@ -53,3 +53,7 @@ Dai em diante o ciclo segue ativo.
 - Para entender ciclo v0.5: ler READMEs de EXP-001..EXP-006.
 - Para entender ciclo v0.6: ler
   [`../dirty/notas/2026-05/historia-dirty-lab.md`](../dirty/notas/2026-05/historia-dirty-lab.md).
+- **EXP-017-data-alvos-mensais** — alvos MENSAIS de data (mês×31+dia · fim-de-mês · `YYYY-MM`)
+  contra o `SPEC_DATA_ISO` soldado, em corpus REAL (10 colunas de `Z:`) + sintético.
+  27 casos, 0 falhas. **Gabarito clean da convenção de rastreabilidade** (2026-08-10):
+  input por caso + contra-prova diffável + `intermediates/` + `outputs/INDEX.md`.

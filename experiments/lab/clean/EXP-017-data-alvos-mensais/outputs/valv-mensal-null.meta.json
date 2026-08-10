@@ -1,0 +1,27 @@
+{
+ "_o_que_e": "procedência de valv-mensal-null.tcf — o wire vencedor deste caso",
+ "ideia_do_caso": "None no meio: passa pelo slot 0, fora do alvo",
+ "entrada": {
+  "arquivo": "../inputs/valv-mensal-null.entrada.json",
+  "sha256_12": "ce3a374b8ffa",
+  "n": 600,
+  "k": 596
+ },
+ "parametros": {
+  "rota": "single-col flat",
+  "candidato_vencedor": "mes31dia",
+  "como_foi_gerado": "encode(mes31dia.encode_col(v)) + tag ':data-mes'",
+  "header_do_wire": "#TCF.8"
+ },
+ "bytes": {
+  "medido_no_relatorio": 86,
+  "tamanho_do_arquivo_tcf": 76,
+  "_por_que_podem_diferir": "os ALVOS-protótipo pagam um ajuste de header pela tag hipotética (':data-mes' etc.), que ainda não existe na gramática — o número do relatório inclui esse ajuste, o arquivo é o wire sem ele. Para `core` e `ordinal-soldado` os dois coincidem."
+ },
+ "contra_prova": {
+  "arquivo": "valv-mensal-null.roundtrip.json",
+  "como_conferir": "diff inputs/valv-mensal-null.entrada.json outputs/valv-mensal-null.roundtrip.json  # vazio = ok",
+  "passou": true
+ },
+ "decisao_completa": "../intermediates/valv-mensal-null.candidatos.json"
+}

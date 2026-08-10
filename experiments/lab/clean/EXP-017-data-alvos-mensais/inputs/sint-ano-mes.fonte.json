@@ -1,0 +1,20 @@
+{
+ "_o_que_e": "procedência da entrada do caso sint-ano-mes",
+ "caso": "sint-ano-mes",
+ "familia": "sintetico-mensal",
+ "ideia": "grafia YYYY-MM pura: o spec ISO recusa (não é data completa)",
+ "pin_espera": "mensal",
+ "gerador": "ano_mes",
+ "n": 600,
+ "k": 600,
+ "sha256_12": "7ac2b20836fc",
+ "amostra_6": [
+  "2000-01",
+  "2000-02",
+  "2000-03",
+  "2000-04",
+  "2000-05",
+  "2000-06"
+ ],
+ "entrada": "sint-ano-mes.entrada.json"
+}

@@ -1,0 +1,20 @@
+{
+ "_o_que_e": "procedência da entrada do caso sint-mensal-dia15",
+ "caso": "sint-mensal-dia15",
+ "familia": "sintetico-mensal",
+ "ideia": "dia constante != 1: só o A4 (sem convenção) cobre",
+ "pin_espera": "mensal",
+ "gerador": "<lambda>",
+ "n": 600,
+ "k": 600,
+ "sha256_12": "5f876697425b",
+ "amostra_6": [
+  "2000-01-15",
+  "2000-02-15",
+  "2000-03-15",
+  "2000-04-15",
+  "2000-05-15",
+  "2000-06-15"
+ ],
+ "entrada": "sint-mensal-dia15.entrada.json"
+}

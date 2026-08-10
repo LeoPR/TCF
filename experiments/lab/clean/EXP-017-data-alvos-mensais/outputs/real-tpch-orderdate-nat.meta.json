@@ -1,0 +1,27 @@
+{
+ "_o_que_e": "procedência de real-tpch-orderdate-nat.tcf — o wire vencedor deste caso",
+ "ideia_do_caso": "TPC-H orders na ordem de armazenamento: data comercial, k alto",
+ "entrada": {
+  "arquivo": "../inputs/real-tpch-orderdate-nat.entrada.json",
+  "sha256_12": "b713a60f5842",
+  "n": 3000,
+  "k": 1738
+ },
+ "parametros": {
+  "rota": "single-col flat",
+  "candidato_vencedor": "ordinal-rota-plena",
+  "como_foi_gerado": "encode(encode_value(SPEC_DATA_ISO, v)) + tag",
+  "header_do_wire": "#TCF.8!!"
+ },
+ "bytes": {
+  "medido_no_relatorio": 18817,
+  "tamanho_do_arquivo_tcf": 18807,
+  "_por_que_podem_diferir": "os ALVOS-protótipo pagam um ajuste de header pela tag hipotética (':data-mes' etc.), que ainda não existe na gramática — o número do relatório inclui esse ajuste, o arquivo é o wire sem ele. Para `core` e `ordinal-soldado` os dois coincidem."
+ },
+ "contra_prova": {
+  "arquivo": "real-tpch-orderdate-nat.roundtrip.json",
+  "como_conferir": "diff inputs/real-tpch-orderdate-nat.entrada.json outputs/real-tpch-orderdate-nat.roundtrip.json  # vazio = ok",
+  "passou": true
+ },
+ "decisao_completa": "../intermediates/real-tpch-orderdate-nat.candidatos.json"
+}

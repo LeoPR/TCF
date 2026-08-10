@@ -1,0 +1,49 @@
+{
+ "caso": "real-tpch-orderdate-nat",
+ "ideia": "TPC-H orders na ordem de armazenamento: data comercial, k alto",
+ "entrada": "../inputs/real-tpch-orderdate-nat.entrada.json",
+ "entrada_hash": "b713a60f5842",
+ "n": 3000,
+ "k": 1738,
+ "CONSTANTE_na_comparacao": "mesmo input, mesma rota flat single-col, mesmo ajuste de header por tag; varia SÓ o payload de cada candidato",
+ "candidatos": {
+  "core": {
+   "bytes": 22961,
+   "como": "encode(vals)",
+   "header": "#TCF.8!"
+  },
+  "ordinal-soldado": {
+   "bytes": 19877,
+   "como": "encode(vals, nature=SPEC_DATA_ISO)",
+   "header": "#TCF.8 :data-iso"
+  },
+  "ordinal-rota-plena": {
+   "bytes": 18817,
+   "como": "encode(encode_value(SPEC_DATA_ISO, v)) + tag",
+   "header": "#TCF.8!!"
+  },
+  "mes31dia": {
+   "bytes": 18825,
+   "como": "encode(mes31dia.encode_col(v)) + tag ':data-mes'",
+   "header": "#TCF.8!!"
+  },
+  "fimdemes": {
+   "bytes": 23115,
+   "como": "encode(fimdemes.encode_col(v)) + tag ':data-mes-fim'",
+   "header": "#TCF.8!"
+  },
+  "anomes": {
+   "bytes": 23279,
+   "como": "encode(anomes.encode_col(v)) + tag ':data-ym'",
+   "header": "#TCF.8!"
+  }
+ },
+ "vencedor": "ordinal-rota-plena",
+ "classe": "ordinal",
+ "melhor_hoje": 19877,
+ "melhor_justo": 18817,
+ "nature_venceu_floor": true,
+ "lacuna_rota_da_nature_B": 1060,
+ "wire": "../outputs/real-tpch-orderdate-nat.tcf",
+ "roundtrip": "../outputs/real-tpch-orderdate-nat.roundtrip.json"
+}

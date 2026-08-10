@@ -1,0 +1,49 @@
+{
+ "caso": "sint-mensal-faltas",
+ "ideia": "competência sem fato: mês pulado. No eixo do dia o spec recusa a coluna",
+ "entrada": "../inputs/sint-mensal-faltas.entrada.json",
+ "entrada_hash": "9c9766d10e00",
+ "n": 600,
+ "k": 600,
+ "CONSTANTE_na_comparacao": "mesmo input, mesma rota flat single-col, mesmo ajuste de header por tag; varia SÓ o payload de cada candidato",
+ "candidatos": {
+  "core": {
+   "bytes": 2799,
+   "como": "encode(vals)",
+   "header": "#TCF.8!!"
+  },
+  "ordinal-soldado": {
+   "bytes": 2799,
+   "como": "encode(vals, nature=SPEC_DATA_ISO)",
+   "header": "#TCF.8!!"
+  },
+  "ordinal-rota-plena": {
+   "bytes": 2875,
+   "como": "encode(encode_value(SPEC_DATA_ISO, v)) + tag",
+   "header": "#TCF.8!!"
+  },
+  "mes31dia": {
+   "bytes": 48,
+   "como": "encode(mes31dia.encode_col(v)) + tag ':data-mes'",
+   "header": "#TCF.8"
+  },
+  "fimdemes": {
+   "bytes": 4866,
+   "como": "encode(fimdemes.encode_col(v)) + tag ':data-mes-fim'",
+   "header": "#TCF.8!"
+  },
+  "anomes": {
+   "bytes": 4861,
+   "como": "encode(anomes.encode_col(v)) + tag ':data-ym'",
+   "header": "#TCF.8!"
+  }
+ },
+ "vencedor": "mes31dia",
+ "classe": "mensal",
+ "melhor_hoje": 2799,
+ "melhor_justo": 2799,
+ "nature_venceu_floor": false,
+ "lacuna_rota_da_nature_B": null,
+ "wire": "../outputs/sint-mensal-faltas.tcf",
+ "roundtrip": "../outputs/sint-mensal-faltas.roundtrip.json"
+}

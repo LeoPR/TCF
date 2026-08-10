@@ -1,0 +1,49 @@
+{
+ "caso": "real-br-cadastro-ord",
+ "ideia": "idem ordenada",
+ "entrada": "../inputs/real-br-cadastro-ord.entrada.json",
+ "entrada_hash": "abba2e772efb",
+ "n": 3000,
+ "k": 2184,
+ "CONSTANTE_na_comparacao": "mesmo input, mesma rota flat single-col, mesmo ajuste de header por tag; varia SÓ o payload de cada candidato",
+ "candidatos": {
+  "core": {
+   "bytes": 25718,
+   "como": "encode(vals)",
+   "header": "#TCF.8!"
+  },
+  "ordinal-soldado": {
+   "bytes": 15460,
+   "como": "encode(vals, nature=SPEC_DATA_ISO)",
+   "header": "#TCF.8 :data-iso"
+  },
+  "ordinal-rota-plena": {
+   "bytes": 14375,
+   "como": "encode(encode_value(SPEC_DATA_ISO, v)) + tag",
+   "header": "#TCF.8!!"
+  },
+  "mes31dia": {
+   "bytes": 14400,
+   "como": "encode(mes31dia.encode_col(v)) + tag ':data-mes'",
+   "header": "#TCF.8!!"
+  },
+  "fimdemes": {
+   "bytes": 26082,
+   "como": "encode(fimdemes.encode_col(v)) + tag ':data-mes-fim'",
+   "header": "#TCF.8!"
+  },
+  "anomes": {
+   "bytes": 26331,
+   "como": "encode(anomes.encode_col(v)) + tag ':data-ym'",
+   "header": "#TCF.8!"
+  }
+ },
+ "vencedor": "ordinal-rota-plena",
+ "classe": "ordinal",
+ "melhor_hoje": 15460,
+ "melhor_justo": 14375,
+ "nature_venceu_floor": true,
+ "lacuna_rota_da_nature_B": 1085,
+ "wire": "../outputs/real-br-cadastro-ord.tcf",
+ "roundtrip": "../outputs/real-br-cadastro-ord.roundtrip.json"
+}

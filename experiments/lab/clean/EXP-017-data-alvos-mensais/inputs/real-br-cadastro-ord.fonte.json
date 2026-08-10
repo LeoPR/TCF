@@ -1,0 +1,20 @@
+{
+ "_o_que_e": "procedência da entrada do caso real-br-cadastro-ord",
+ "caso": "real-br-cadastro-ord",
+ "familia": "real-br",
+ "ideia": "idem ordenada",
+ "pin_espera": "ordinal",
+ "gerador": "_carrega",
+ "n": 3000,
+ "k": 2184,
+ "sha256_12": "abba2e772efb",
+ "amostra_6": [
+  "2010-01-09",
+  "2010-01-19",
+  "2010-01-21",
+  "2010-02-09",
+  "2010-03-04",
+  "2010-03-08"
+ ],
+ "entrada": "real-br-cadastro-ord.entrada.json"
+}

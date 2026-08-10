@@ -1,0 +1,20 @@
+{
+ "_o_que_e": "procedência da entrada do caso ctrl-uteis",
+ "caso": "ctrl-uteis",
+ "familia": "controle",
+ "ideia": "cadência de dias úteis: território do periódico no eixo do DIA",
+ "pin_espera": "ordinal",
+ "gerador": "uteis",
+ "n": 600,
+ "k": 600,
+ "sha256_12": "7753933814cc",
+ "amostra_6": [
+  "2026-01-01",
+  "2026-01-02",
+  "2026-01-05",
+  "2026-01-06",
+  "2026-01-07",
+  "2026-01-08"
+ ],
+ "entrada": "ctrl-uteis.entrada.json"
+}

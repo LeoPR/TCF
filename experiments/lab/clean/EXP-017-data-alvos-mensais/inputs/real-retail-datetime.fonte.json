@@ -1,0 +1,20 @@
+{
+ "_o_que_e": "procedência da entrada do caso real-retail-datetime",
+ "caso": "real-retail-datetime",
+ "familia": "real-grafia",
+ "ideia": "DATETIME com hora: não é date puro — a válvula tem de segurar tudo",
+ "pin_espera": "nenhum",
+ "gerador": "_carrega",
+ "n": 3000,
+ "k": 117,
+ "sha256_12": "6bcdd9da0845",
+ "amostra_6": [
+  "2010-12-01 08:26:00",
+  "2010-12-01 08:26:00",
+  "2010-12-01 08:26:00",
+  "2010-12-01 08:26:00",
+  "2010-12-01 08:26:00",
+  "2010-12-01 08:26:00"
+ ],
+ "entrada": "real-retail-datetime.entrada.json"
+}

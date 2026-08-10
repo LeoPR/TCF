@@ -1,0 +1,49 @@
+{
+ "caso": "valv-mensal-sujo-5pct",
+ "ideia": "5% de 's/d': a válvula segura. ATENÇÃO (caçada adversarial): o resultado é BIMODAL por semente — em 12 sementes o core vence 8; esta semente é do lado favorável. O pin fixa ESTA semente; a bimodalidade é o T-PENHASCO-INICIO",
+ "entrada": "../inputs/valv-mensal-sujo-5pct.entrada.json",
+ "entrada_hash": "52e3a6cc1730",
+ "n": 600,
+ "k": 572,
+ "CONSTANTE_na_comparacao": "mesmo input, mesma rota flat single-col, mesmo ajuste de header por tag; varia SÓ o payload de cada candidato",
+ "candidatos": {
+  "core": {
+   "bytes": 1596,
+   "como": "encode(vals)",
+   "header": "#TCF.8!!"
+  },
+  "ordinal-soldado": {
+   "bytes": 1579,
+   "como": "encode(vals, nature=SPEC_DATA_ISO)",
+   "header": "#TCF.8 :data-iso"
+  },
+  "ordinal-rota-plena": {
+   "bytes": 1502,
+   "como": "encode(encode_value(SPEC_DATA_ISO, v)) + tag",
+   "header": "#TCF.8!!"
+  },
+  "mes31dia": {
+   "bytes": 511,
+   "como": "encode(mes31dia.encode_col(v)) + tag ':data-mes'",
+   "header": "#TCF.8!!"
+  },
+  "fimdemes": {
+   "bytes": 1846,
+   "como": "encode(fimdemes.encode_col(v)) + tag ':data-mes-fim'",
+   "header": "#TCF.8!!"
+  },
+  "anomes": {
+   "bytes": 1841,
+   "como": "encode(anomes.encode_col(v)) + tag ':data-ym'",
+   "header": "#TCF.8!!"
+  }
+ },
+ "vencedor": "mes31dia",
+ "classe": "mensal",
+ "melhor_hoje": 1579,
+ "melhor_justo": 1502,
+ "nature_venceu_floor": true,
+ "lacuna_rota_da_nature_B": 77,
+ "wire": "../outputs/valv-mensal-sujo-5pct.tcf",
+ "roundtrip": "../outputs/valv-mensal-sujo-5pct.roundtrip.json"
+}

@@ -1,0 +1,27 @@
+{
+ "_o_que_e": "procedência de real-tpch-shipdate-ord.tcf — o wire vencedor deste caso",
+ "ideia_do_caso": "idem ordenada",
+ "entrada": {
+  "arquivo": "../inputs/real-tpch-shipdate-ord.entrada.json",
+  "sha256_12": "d54ebfd8fa14",
+  "n": 3000,
+  "k": 1762
+ },
+ "parametros": {
+  "rota": "single-col flat",
+  "candidato_vencedor": "ordinal-rota-plena",
+  "como_foi_gerado": "encode(encode_value(SPEC_DATA_ISO, v)) + tag",
+  "header_do_wire": "#TCF.8!!"
+ },
+ "bytes": {
+  "medido_no_relatorio": 12583,
+  "tamanho_do_arquivo_tcf": 12573,
+  "_por_que_podem_diferir": "os ALVOS-protótipo pagam um ajuste de header pela tag hipotética (':data-mes' etc.), que ainda não existe na gramática — o número do relatório inclui esse ajuste, o arquivo é o wire sem ele. Para `core` e `ordinal-soldado` os dois coincidem."
+ },
+ "contra_prova": {
+  "arquivo": "real-tpch-shipdate-ord.roundtrip.json",
+  "como_conferir": "diff inputs/real-tpch-shipdate-ord.entrada.json outputs/real-tpch-shipdate-ord.roundtrip.json  # vazio = ok",
+  "passou": true
+ },
+ "decisao_completa": "../intermediates/real-tpch-shipdate-ord.candidatos.json"
+}

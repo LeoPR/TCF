@@ -1,63 +1,113 @@
 # EXP-017 — alvos mensais de data: bateria probatória [clean]
 
-**Lab clean** que testa os **alvos mensais** de data (`mês×31+dia`, fim-de-mês, `YYYY-MM`)
-contra o `SPEC_DATA_ISO` soldado, em **corpus real + sintético**. Consolida o estudo dirty
-de 2026-08-09 (labs `1853` e `2228`) numa bateria declarativa e auto-verificável, no molde
-do [EXP-016](../EXP-016-bn-familia-bits/README.md).
+Testa **alvos mensais** de data (`mês×31+dia`, fim-de-mês, `YYYY-MM`) contra o
+`SPEC_DATA_ISO` soldado, em **corpus real + sintético**. Consolida os labs dirty
+`1853`/`2228` e incorpora duas caçadas adversariais.
 
 ```
-python extrai.py    # (uma vez) congela as colunas reais de Z:/tcf-data em inputs/
-python run.py       # regenera outputs/ e report.md; exit 0 só se tudo fechar
+python extrai.py    # (requer Z:) congela o corpus real em inputs/fontes/
+python run.py       # (não requer Z:) regenera inputs/, intermediates/, outputs/, report.md
 ```
 
-Estado atual: **26 casos, 0 falhas.** `src/tcf` **não é tocado** — os alvos são protótipos
-em [`specs.py`](specs.py), e o núcleo entra pelos `encode()`/`decode()` reais.
+**27 casos, 0 falhas.** `src/tcf` **não é tocado** — os alvos são protótipos em
+[`specs.py`](specs.py); o núcleo entra pelos `encode()`/`decode()` reais.
+
+Conclusões: [`report.md`](report.md) · Inspeção artefato-a-artefato:
+[`outputs/INDEX.md`](outputs/INDEX.md) · Proveniência dos dados:
+[`datasets-provenance.md`](datasets-provenance.md)
+
+---
+
+## Como achar o que você quer, só pelo nome
+
+```
+EXP-017-data-alvos-mensais/
+├── casos.py ............ O CATÁLOGO: 27 casos, cada um declara a IDEIA e o PIN
+├── specs.py ............ os alvos-protótipo (A4 mês×31+dia · A2f fim-de-mês · YM ano-mês)
+├── extrai.py ........... lê Z:/tcf-data e congela o corpus real (roda separado)
+├── run.py .............. roda, aplica as 6 provas, gera todos os artefatos
+├── datasets-provenance.md .. de onde vem cada coluna real + VIÉS declarado
+├── report.md ........... GERADO: as conclusões
+│
+├── inputs/
+│   ├── <caso>.entrada.json ... o que entrou — array PURO (diffável)
+│   ├── <caso>.fonte.json ..... procedência: gerador, ideia, pin, n/k, hash, amostra
+│   └── fontes/ ............... o corpus BRUTO extraído de Z: (10 colunas × 2 ordens)
+│
+├── intermediates/
+│   ├── <caso>.candidatos.json .. TODOS os candidatos: bytes, como cada um foi gerado,
+│   │                             o que ficou CONSTANTE na comparação, e quem venceu
+│   └── <caso>.payloads.json .... a coluna transformada por cada alvo (amostra + hash)
+│
+└── outputs/
+    ├── INDEX.md .............. o índice de inspeção (nome → ideia → input → veredito)
+    ├── <caso>.tcf ............ o wire VENCEDOR
+    ├── <caso>.roundtrip.json . a CONTRA-PROVA (diff contra a entrada = vazio)
+    ├── <caso>.meta.json ...... procedência do wire: input, params, bytes, quem venceu
+    └── medicoes.json ......... tudo em máquina
+```
+
+### Guia de nomes
+
+| token | significa |
+|---|---|
+| `sint-*` | sintético construído para exercer um regime |
+| `ctrl-*` | **controle** — onde o alvo mensal **não pode** ganhar |
+| `valv-*` | **válvula** — dado que não casa (sujo, null, Unicode) |
+| `real-*` | coluna real do corpus (`Z:/tcf-data`) |
+| `*-nat` / `*-ord` | ordem **natural** (de armazenamento) / **ordenada** |
+| `.entrada.json` | o input, array puro — é o lado esquerdo do `diff` |
+| `.fonte.json` | os metadados do input (não entra no `diff`) |
+| `.roundtrip.json` | o decode do wire — o lado direito do `diff` |
+| `.meta.json` | procedência do wire |
+| `.candidatos.json` | a decisão do `min()`, aberta |
+
+## Conferir um caso — sem ler código
+
+```bash
+cd experiments/lab/clean/EXP-017-data-alvos-mensais
+
+cat inputs/valv-ym-unicode.fonte.json          # o que é este caso, e o que se esperava
+cat intermediates/valv-ym-unicode.candidatos.json   # todos os candidatos e quem venceu
+cat outputs/valv-ym-unicode.meta.json          # a procedência do wire
+diff inputs/valv-ym-unicode.entrada.json \
+     outputs/valv-ym-unicode.roundtrip.json    # <- VAZIO = round-trip provado
+```
+
+O `run.py` faz esse `diff` como assert (prova 3) e **falha** se divergir.
+
+## As seis provas
+
+| prova | o que garante | vale o quê |
+|---|---|---|
+| **RT estrito** | `decode(encode(v)) == v` contra os dados originais | falsificável |
+| **RT do espelho** | `decode_col(encode_col(v)) == v` — o alvo isolado | falsificável (achou o bug do YM Unicode) |
+| **RT em arquivo** | `roundtrip.json` byte-idêntico à `entrada.json` | falsificável, e **inspecionável à mão** |
+| **determinismo** | `encode` 2× byte-idêntico | falsificável |
+| **artefato é o wire** | o `.tcf` lido em **binário** == o wire medido | falsificável (pega CRLF do Windows) |
+| **nunca-pior** | o FLOOR com alvos nunca excede o melhor de hoje | **tautologia neste harness** (min sobre superconjunto) — documenta a invariante; a prova real é pós-weld |
+
+Mais o **PIN**: `espera` em [`casos.py`](casos.py) fixa quem deve vencer o FLOOR. Mover a
+fronteira de propósito **quebra o lab**, que é o ponto.
 
 ## O que este lab respondeu
 
-**A pergunta era "vai fechar?" — e a resposta é não, pelo motivo que interessa.** Os alvos
-mensais ganham **95%** nos sintéticos e **0%** nos reais, porque **nenhuma das 14 colunas
-reais tem cadência mensal**: o corpus disponível é todo diário/transacional. O mecanismo
-está certo; o regime-alvo não está representado.
+**Nas colunas de fato cruas do corpus, os alvos mensais não pagam** — nenhuma das 9
+colunas lógicas de data tem cadência mensal. Mas o resultado vem com três ressalvas
+medidas (o "0%" depende do `n`; o regime é alcançável por derivação; o ganho sintético é
+`O(n)` e frágil), e **folha de pagamento fica negativa nos 3 alvos enquanto um 4º eixo —
+dia útil — recupera 99%**. Esse é o argumento empírico de que **spec deve orientar eixos,
+não mandar alvo** ([triagem](../../../../docs/theory/spec-orienta-nao-manda-triagem.md)).
 
-**E o lab achou algo maior no caminho**: corrigir o método de comparação expôs que o
-candidato interno da nature soldada não passa pela rota plena (sem polaridade, sem bN) —
-**mediana 6,7% desperdiçado** em dado real, e vale para **qualquer** nature, não só data.
-Detalhe em [`report.md`](report.md) §2.
+E o método corrigido expôs um achado transversal: o candidato interno da nature **não
+passa pela rota plena** (sem polaridade, sem bN) — mediana ~5,7% desperdiçado em dado
+real, válido para **qualquer** nature (`T-NATURE-CANDIDATO-BN`).
 
-## O corpus real (congelado em `inputs/`)
+## Nota de processo
 
-10 colunas × 2 ordens (natural e ordenada — a ordem é a maior alavanca conhecida do
-projeto), 3000 valores cada, extraídas de `Z:/tcf-data/`:
-
-| fonte | colunas | o que exercita |
-|---|---|---|
-| TPC-H sf001/sf01 | `o_orderdate`, `l_shipdate`, `l_commitdate`, `l_receiptdate` | data comercial, k alto, colunas irmãs |
-| br-identidades | `data_cadastro`, `data_abertura` | cadastro BR, span curto e longo |
-| receita-cnpj | `data_inicio` | **`YYYYMMDD` compacto** — o spec recusa por design |
-| online-retail | `InvoiceDate` | **datetime com hora** — não é date puro |
-| football-results | `date` | **1872..hoje**, o maior span do corpus |
-
-## Os arquivos
-
-| arquivo | o quê |
-|---|---|
-| [`extrai.py`](extrai.py) | lê os hubs em `Z:` e congela fatias em `inputs/` (roda uma vez) |
-| [`specs.py`](specs.py) | os alvos-protótipo, no mesmo protocolo per-valor-com-válvula das natures soldadas |
-| [`casos.py`](casos.py) | catálogo declarativo: cada caso declara **quem deve vencer** o FLOOR |
-| [`run.py`](run.py) | roda, aplica as 5 provas, gera `outputs/` e `report.md` |
-| `outputs/<caso>.tcf` | o wire vencedor de cada caso |
-| `outputs/medicoes.json` | tudo em máquina (bytes por candidato, lacuna de rota, CPU, memória) |
-
-## As cinco provas
-
-| prova | o que garante |
-|---|---|
-| **RT estrito** | `decode(encode(v)) == v` contra os dados **originais** |
-| **RT do espelho** | `decode_col(encode_col(v)) == v` — o alvo isolado, sem o núcleo |
-| **determinismo** | `encode` 2× byte-idêntico — o FLOOR não pode depender de ordem |
-| **nunca-pior** | o FLOOR com alvos **nunca** excede o melhor de hoje |
-| **o artefato é o wire** | o `.tcf` lido em **binário** == o wire medido (pega CRLF do Windows) |
-
-Mais o **PIN**: `espera` em `casos.py` está fixado no comportamento medido — mover a
-fronteira do FLOOR de propósito quebra o lab, que é o ponto.
+A primeira versão deste lab **falhava a inspeção**: sem `intermediates/`, sem
+`datasets-provenance.md`, zero `roundtrip.json`, inputs nomeados por fonte e não por caso,
+`outputs/` acumulando órfãos — e, o mais grave, **`outputs/` inteira era invisível ao git**
+(`.gitignore:49 output*` engolia tudo; só o EXP-016 tinha exceção nominal). Refeito em
+2026-08-10 a pedido do owner. O diagnóstico e a convenção que saiu dele:
+[`labs-rastreabilidade-convencao.md`](../../dirty/notas/2026-08/2026-08-10-labs-rastreabilidade-convencao.md).

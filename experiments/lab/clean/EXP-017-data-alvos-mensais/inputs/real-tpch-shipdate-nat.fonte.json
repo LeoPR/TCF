@@ -1,0 +1,20 @@
+{
+ "_o_que_e": "procedência da entrada do caso real-tpch-shipdate-nat",
+ "caso": "real-tpch-shipdate-nat",
+ "familia": "real-tpch",
+ "ideia": "lineitem embarque: a coluna de data mais medida do projeto",
+ "pin_espera": "ordinal",
+ "gerador": "_carrega",
+ "n": 3000,
+ "k": 1762,
+ "sha256_12": "c67c19d0196a",
+ "amostra_6": [
+  "1996-03-13",
+  "1996-04-12",
+  "1996-01-29",
+  "1996-04-21",
+  "1996-03-30",
+  "1996-01-30"
+ ],
+ "entrada": "real-tpch-shipdate-nat.entrada.json"
+}

@@ -1,0 +1,20 @@
+{
+ "_o_que_e": "procedência da entrada do caso real-tpch-commitdate-ord",
+ "caso": "real-tpch-commitdate-ord",
+ "familia": "real-tpch",
+ "ideia": "coluna irmã (H7 da triagem morreu, mas a coluna sozinha vale medir)",
+ "pin_espera": "ordinal",
+ "gerador": "_carrega",
+ "n": 3000,
+ "k": 1668,
+ "sha256_12": "c1cfe6dbd110",
+ "amostra_6": [
+  "1992-02-05",
+  "1992-02-18",
+  "1992-03-01",
+  "1992-03-06",
+  "1992-03-10",
+  "1992-03-15"
+ ],
+ "entrada": "real-tpch-commitdate-ord.entrada.json"
+}

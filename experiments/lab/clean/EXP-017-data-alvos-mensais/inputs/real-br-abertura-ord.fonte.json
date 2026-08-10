@@ -1,0 +1,20 @@
+{
+ "_o_que_e": "procedência da entrada do caso real-br-abertura-ord",
+ "caso": "real-br-abertura-ord",
+ "familia": "real-br",
+ "ideia": "abertura de empresas: span longo",
+ "pin_espera": "ordinal",
+ "gerador": "_carrega",
+ "n": 3000,
+ "k": 2366,
+ "sha256_12": "96e2acc35afe",
+ "amostra_6": [
+  "2005-01-25",
+  "2005-01-28",
+  "2005-02-05",
+  "2005-02-11",
+  "2005-02-13",
+  "2005-02-23"
+ ],
+ "entrada": "real-br-abertura-ord.entrada.json"
+}

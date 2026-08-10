@@ -1,0 +1,20 @@
+{
+ "_o_que_e": "procedência da entrada do caso real-tpch-orderdate-nat",
+ "caso": "real-tpch-orderdate-nat",
+ "familia": "real-tpch",
+ "ideia": "TPC-H orders na ordem de armazenamento: data comercial, k alto",
+ "pin_espera": "ordinal",
+ "gerador": "_carrega",
+ "n": 3000,
+ "k": 1738,
+ "sha256_12": "b713a60f5842",
+ "amostra_6": [
+  "1996-01-02",
+  "1996-12-01",
+  "1993-10-14",
+  "1995-10-11",
+  "1994-07-30",
+  "1992-02-21"
+ ],
+ "entrada": "real-tpch-orderdate-nat.entrada.json"
+}

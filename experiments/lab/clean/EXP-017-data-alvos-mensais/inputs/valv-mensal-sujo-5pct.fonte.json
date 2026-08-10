@@ -1,0 +1,20 @@
+{
+ "_o_que_e": "procedência da entrada do caso valv-mensal-sujo-5pct",
+ "caso": "valv-mensal-sujo-5pct",
+ "familia": "valvula",
+ "ideia": "5% de 's/d': a válvula segura. ATENÇÃO (caçada adversarial): o resultado é BIMODAL por semente — em 12 sementes o core vence 8; esta semente é do lado favorável. O pin fixa ESTA semente; a bimodalidade é o T-PENHASCO-INICIO",
+ "pin_espera": "mensal",
+ "gerador": "mensal_sujo",
+ "n": 600,
+ "k": 572,
+ "sha256_12": "52e3a6cc1730",
+ "amostra_6": [
+  "2000-01-01",
+  "2000-02-01",
+  "2000-03-01",
+  "2000-04-01",
+  "2000-05-01",
+  "2000-06-01"
+ ],
+ "entrada": "valv-mensal-sujo-5pct.entrada.json"
+}

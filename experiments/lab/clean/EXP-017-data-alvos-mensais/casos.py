@@ -132,7 +132,7 @@ def espalhado(n=600):
 
 def _real(arq):
     def _carrega():
-        p = INPUTS / arq
+        p = INPUTS / "fontes" / arq
         if not p.exists():
             return None
         return json.loads(p.read_text(encoding="utf-8"))

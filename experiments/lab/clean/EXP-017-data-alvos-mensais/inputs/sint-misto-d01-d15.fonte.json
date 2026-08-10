@@ -1,0 +1,20 @@
+{
+ "_o_que_e": "procedência da entrada do caso sint-misto-d01-d15",
+ "caso": "sint-misto-d01-d15",
+ "familia": "sintetico-mensal",
+ "ideia": "dois dias alternando: vira período 2 no eixo do mês",
+ "pin_espera": "mensal",
+ "gerador": "misto_d01_d15",
+ "n": 600,
+ "k": 600,
+ "sha256_12": "e80f1a3c0a7b",
+ "amostra_6": [
+  "2000-01-01",
+  "2000-01-15",
+  "2000-02-01",
+  "2000-02-15",
+  "2000-03-01",
+  "2000-03-15"
+ ],
+ "entrada": "sint-misto-d01-d15.entrada.json"
+}

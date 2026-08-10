@@ -1,0 +1,49 @@
+{
+ "caso": "real-br-abertura-ord",
+ "ideia": "abertura de empresas: span longo",
+ "entrada": "../inputs/real-br-abertura-ord.entrada.json",
+ "entrada_hash": "96e2acc35afe",
+ "n": 3000,
+ "k": 2366,
+ "CONSTANTE_na_comparacao": "mesmo input, mesma rota flat single-col, mesmo ajuste de header por tag; varia SÓ o payload de cada candidato",
+ "candidatos": {
+  "core": {
+   "bytes": 28840,
+   "como": "encode(vals)",
+   "header": "#TCF.8!"
+  },
+  "ordinal-soldado": {
+   "bytes": 16234,
+   "como": "encode(vals, nature=SPEC_DATA_ISO)",
+   "header": "#TCF.8 :data-iso"
+  },
+  "ordinal-rota-plena": {
+   "bytes": 15026,
+   "como": "encode(encode_value(SPEC_DATA_ISO, v)) + tag",
+   "header": "#TCF.8!!"
+  },
+  "mes31dia": {
+   "bytes": 15027,
+   "como": "encode(mes31dia.encode_col(v)) + tag ':data-mes'",
+   "header": "#TCF.8!!"
+  },
+  "fimdemes": {
+   "bytes": 28672,
+   "como": "encode(fimdemes.encode_col(v)) + tag ':data-mes-fim'",
+   "header": "#TCF.8!"
+  },
+  "anomes": {
+   "bytes": 29066,
+   "como": "encode(anomes.encode_col(v)) + tag ':data-ym'",
+   "header": "#TCF.8!"
+  }
+ },
+ "vencedor": "ordinal-rota-plena",
+ "classe": "ordinal",
+ "melhor_hoje": 16234,
+ "melhor_justo": 15026,
+ "nature_venceu_floor": true,
+ "lacuna_rota_da_nature_B": 1208,
+ "wire": "../outputs/real-br-abertura-ord.tcf",
+ "roundtrip": "../outputs/real-br-abertura-ord.roundtrip.json"
+}
