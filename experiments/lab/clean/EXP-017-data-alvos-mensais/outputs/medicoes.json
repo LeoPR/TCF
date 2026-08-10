@@ -31,7 +31,7 @@
   "entrada": "inputs/sint-mensal-dia1.entrada.json",
   "wire": "outputs/sint-mensal-dia1.tcf",
   "roundtrip": "outputs/sint-mensal-dia1.roundtrip.json",
-  "cpu_core_ms": 26.1,
+  "cpu_core_ms": 22.2,
   "mem_core_KiB": 517
  },
  {
@@ -66,7 +66,7 @@
   "entrada": "inputs/sint-mensal-dia15.entrada.json",
   "wire": "outputs/sint-mensal-dia15.tcf",
   "roundtrip": "outputs/sint-mensal-dia15.roundtrip.json",
-  "cpu_core_ms": 23.5,
+  "cpu_core_ms": 23.6,
   "mem_core_KiB": 517
  },
  {
@@ -101,7 +101,7 @@
   "entrada": "inputs/sint-mensal-fim.entrada.json",
   "wire": "outputs/sint-mensal-fim.tcf",
   "roundtrip": "outputs/sint-mensal-fim.roundtrip.json",
-  "cpu_core_ms": 227.6,
+  "cpu_core_ms": 260.9,
   "mem_core_KiB": 1628
  },
  {
@@ -136,7 +136,7 @@
   "entrada": "inputs/sint-mensal-faltas.entrada.json",
   "wire": "outputs/sint-mensal-faltas.tcf",
   "roundtrip": "outputs/sint-mensal-faltas.roundtrip.json",
-  "cpu_core_ms": 26.4,
+  "cpu_core_ms": 23.0,
   "mem_core_KiB": 517
  },
  {
@@ -171,7 +171,7 @@
   "entrada": "inputs/sint-trimestral.entrada.json",
   "wire": "outputs/sint-trimestral.tcf",
   "roundtrip": "outputs/sint-trimestral.roundtrip.json",
-  "cpu_core_ms": 145.1,
+  "cpu_core_ms": 162.3,
   "mem_core_KiB": 623
  },
  {
@@ -206,7 +206,7 @@
   "entrada": "inputs/sint-ano-mes.entrada.json",
   "wire": "outputs/sint-ano-mes.tcf",
   "roundtrip": "outputs/sint-ano-mes.roundtrip.json",
-  "cpu_core_ms": 18.3,
+  "cpu_core_ms": 20.5,
   "mem_core_KiB": 517
  },
  {
@@ -241,7 +241,7 @@
   "entrada": "inputs/sint-misto-d01-d15.entrada.json",
   "wire": "outputs/sint-misto-d01-d15.tcf",
   "roundtrip": "outputs/sint-misto-d01-d15.roundtrip.json",
-  "cpu_core_ms": 345.9,
+  "cpu_core_ms": 326.2,
   "mem_core_KiB": 1588
  },
  {
@@ -276,7 +276,7 @@
   "entrada": "inputs/ctrl-diario.entrada.json",
   "wire": "outputs/ctrl-diario.tcf",
   "roundtrip": "outputs/ctrl-diario.roundtrip.json",
-  "cpu_core_ms": 26.6,
+  "cpu_core_ms": 26.7,
   "mem_core_KiB": 585
  },
  {
@@ -311,7 +311,7 @@
   "entrada": "inputs/ctrl-uteis.entrada.json",
   "wire": "outputs/ctrl-uteis.tcf",
   "roundtrip": "outputs/ctrl-uteis.roundtrip.json",
-  "cpu_core_ms": 21.9,
+  "cpu_core_ms": 28.5,
   "mem_core_KiB": 565
  },
  {
@@ -346,7 +346,7 @@
   "entrada": "inputs/ctrl-espalhado.entrada.json",
   "wire": "outputs/ctrl-espalhado.tcf",
   "roundtrip": "outputs/ctrl-espalhado.roundtrip.json",
-  "cpu_core_ms": 193.8,
+  "cpu_core_ms": 200.8,
   "mem_core_KiB": 1411
  },
  {
@@ -381,7 +381,7 @@
   "entrada": "inputs/valv-mensal-sujo-5pct.entrada.json",
   "wire": "outputs/valv-mensal-sujo-5pct.tcf",
   "roundtrip": "outputs/valv-mensal-sujo-5pct.roundtrip.json",
-  "cpu_core_ms": 24.3,
+  "cpu_core_ms": 21.8,
   "mem_core_KiB": 497
  },
  {
@@ -416,7 +416,7 @@
   "entrada": "inputs/valv-sujeira-no-inicio.entrada.json",
   "wire": "outputs/valv-sujeira-no-inicio.tcf",
   "roundtrip": "outputs/valv-sujeira-no-inicio.roundtrip.json",
-  "cpu_core_ms": 358.5,
+  "cpu_core_ms": 373.0,
   "mem_core_KiB": 1623
  },
  {
@@ -451,7 +451,7 @@
   "entrada": "inputs/valv-ym-unicode.entrada.json",
   "wire": "outputs/valv-ym-unicode.tcf",
   "roundtrip": "outputs/valv-ym-unicode.roundtrip.json",
-  "cpu_core_ms": 21.4,
+  "cpu_core_ms": 21.2,
   "mem_core_KiB": 517
  },
  {
@@ -486,7 +486,7 @@
   "entrada": "inputs/valv-mensal-null.entrada.json",
   "wire": "outputs/valv-mensal-null.tcf",
   "roundtrip": "outputs/valv-mensal-null.roundtrip.json",
-  "cpu_core_ms": 25.2,
+  "cpu_core_ms": 24.3,
   "mem_core_KiB": 519
  },
  {
@@ -521,7 +521,7 @@
   "entrada": "inputs/real-tpch-orderdate-nat.entrada.json",
   "wire": "outputs/real-tpch-orderdate-nat.tcf",
   "roundtrip": "outputs/real-tpch-orderdate-nat.roundtrip.json",
-  "cpu_core_ms": 1848.0,
+  "cpu_core_ms": 1871.2,
   "mem_core_KiB": 5093
  },
  {
@@ -556,7 +556,7 @@
   "entrada": "inputs/real-tpch-orderdate-ord.entrada.json",
   "wire": "outputs/real-tpch-orderdate-ord.tcf",
   "roundtrip": "outputs/real-tpch-orderdate-ord.roundtrip.json",
-  "cpu_core_ms": 69.8,
+  "cpu_core_ms": 74.0,
   "mem_core_KiB": 1924
  },
  {
@@ -591,7 +591,7 @@
   "entrada": "inputs/real-tpch-shipdate-nat.entrada.json",
   "wire": "outputs/real-tpch-shipdate-nat.tcf",
   "roundtrip": "outputs/real-tpch-shipdate-nat.roundtrip.json",
-  "cpu_core_ms": 1861.6,
+  "cpu_core_ms": 1881.7,
   "mem_core_KiB": 4227
  },
  {
@@ -626,7 +626,7 @@
   "entrada": "inputs/real-tpch-shipdate-ord.entrada.json",
   "wire": "outputs/real-tpch-shipdate-ord.tcf",
   "roundtrip": "outputs/real-tpch-shipdate-ord.roundtrip.json",
-  "cpu_core_ms": 1698.6,
+  "cpu_core_ms": 1828.6,
   "mem_core_KiB": 3146
  },
  {
@@ -661,7 +661,7 @@
   "entrada": "inputs/real-tpch-commitdate-ord.entrada.json",
   "wire": "outputs/real-tpch-commitdate-ord.tcf",
   "roundtrip": "outputs/real-tpch-commitdate-ord.roundtrip.json",
-  "cpu_core_ms": 1654.9,
+  "cpu_core_ms": 1529.7,
   "mem_core_KiB": 2999
  },
  {
@@ -696,7 +696,7 @@
   "entrada": "inputs/real-tpch-receiptdate-ord.entrada.json",
   "wire": "outputs/real-tpch-receiptdate-ord.tcf",
   "roundtrip": "outputs/real-tpch-receiptdate-ord.roundtrip.json",
-  "cpu_core_ms": 74.1,
+  "cpu_core_ms": 75.2,
   "mem_core_KiB": 1899
  },
  {
@@ -731,7 +731,7 @@
   "entrada": "inputs/real-tpch-sf01-orderdate-ord.entrada.json",
   "wire": "outputs/real-tpch-sf01-orderdate-ord.tcf",
   "roundtrip": "outputs/real-tpch-sf01-orderdate-ord.roundtrip.json",
-  "cpu_core_ms": 69.7,
+  "cpu_core_ms": 76.8,
   "mem_core_KiB": 1913
  },
  {
@@ -766,7 +766,7 @@
   "entrada": "inputs/real-br-cadastro-nat.entrada.json",
   "wire": "outputs/real-br-cadastro-nat.tcf",
   "roundtrip": "outputs/real-br-cadastro-nat.roundtrip.json",
-  "cpu_core_ms": 1768.8,
+  "cpu_core_ms": 1764.2,
   "mem_core_KiB": 4641
  },
  {
@@ -801,7 +801,7 @@
   "entrada": "inputs/real-br-cadastro-ord.entrada.json",
   "wire": "outputs/real-br-cadastro-ord.tcf",
   "roundtrip": "outputs/real-br-cadastro-ord.roundtrip.json",
-  "cpu_core_ms": 1700.5,
+  "cpu_core_ms": 1689.5,
   "mem_core_KiB": 3921
  },
  {
@@ -836,7 +836,7 @@
   "entrada": "inputs/real-br-abertura-ord.entrada.json",
   "wire": "outputs/real-br-abertura-ord.tcf",
   "roundtrip": "outputs/real-br-abertura-ord.roundtrip.json",
-  "cpu_core_ms": 1867.4,
+  "cpu_core_ms": 1859.8,
   "mem_core_KiB": 4295
  },
  {
@@ -871,7 +871,7 @@
   "entrada": "inputs/real-receita-yyyymmdd.entrada.json",
   "wire": "outputs/real-receita-yyyymmdd.tcf",
   "roundtrip": "outputs/real-receita-yyyymmdd.roundtrip.json",
-  "cpu_core_ms": 34.8,
+  "cpu_core_ms": 35.7,
   "mem_core_KiB": 324
  },
  {
@@ -906,7 +906,7 @@
   "entrada": "inputs/real-retail-datetime.entrada.json",
   "wire": "outputs/real-retail-datetime.tcf",
   "roundtrip": "outputs/real-retail-datetime.roundtrip.json",
-  "cpu_core_ms": 24.4,
+  "cpu_core_ms": 22.9,
   "mem_core_KiB": 263
  },
  {
@@ -941,7 +941,7 @@
   "entrada": "inputs/real-football.entrada.json",
   "wire": "outputs/real-football.tcf",
   "roundtrip": "outputs/real-football.roundtrip.json",
-  "cpu_core_ms": 1447.1,
+  "cpu_core_ms": 1448.2,
   "mem_core_KiB": 4268
  }
 ]

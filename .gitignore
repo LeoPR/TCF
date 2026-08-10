@@ -68,6 +68,9 @@ restored*/
 # EXCECAO (2026-07-13, convencao de labs): wire TCF de lab dirty (inputs/outputs) com extensao real
 !experiments/lab/dirty/**/inputs/**/*.tcf
 !experiments/lab/dirty/**/outputs/**/*.tcf
+# LACUNA FECHADA (2026-08-10): a convencao manda TRES estagios (inputs/intermediates/
+# outputs), mas a excecao cobria so' dois — 6 wires de `intermediates/` estavam invisiveis.
+!experiments/lab/dirty/**/intermediates/**/*.tcf
 !experiments/lab/clean/EXP-016-bn-familia-bits/outputs/**/*.tcf
 !experiments/lab/clean/EXP-017-data-alvos-mensais/outputs/**/*.tcf
 

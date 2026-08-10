@@ -120,6 +120,20 @@ Mapa de estratégias: [`docs/theory/strategies/INDEX.md`](docs/theory/strategies
 
 ## 6. Convenções
 
+### Dirty × clean — camadas com PROPÓSITOS distintos (owner, 2026-08-10)
+
+| | dirty | clean |
+|---|---|---|
+| compromisso | **nenhum** — destrói e refaz à vontade | é quase o protótipo que vai soldar |
+| conteúdo | hipótese sem solução, N testes p/ a MESMA coisa, ferramenta descartável | o **melhor concluído** do dirty, ou o **soldado** adaptado às conclusões do dirty |
+| conclusões | **orientativas** (ainda que concluam, pelo volume de teste) | **verificação com rigor + dados**: nada óbvio e grande quebrou? ainda melhora? |
+| linguagem do relatório | "aponta para", "o teto é", "vale investigar" | "não quebrou", "ainda melhora em X", "o pin segurou" |
+
+O ciclo **dirty ↔ clean vai e volta**; o último estágio é **soldar de fato** e testar com
+mais dados se for o caso. No foco atual (ajustar o `.8`), o clean é um misto de *soldar* e
+*testar que nada regrediu*. Um clean que só repete o dirty com mais casos não cumpriu o
+papel — ele carrega o candidato de weld **e** o gate de regressão.
+
 ### Estrutura de lab — OBRIGATÓRIA (violar = refazer) · vale p/ **dirty E clean**
 
 Fonte canônica: `experiments/lab/dirty/notas/2026-07/dirty-lab-convencoes.md`, **estendida aos
