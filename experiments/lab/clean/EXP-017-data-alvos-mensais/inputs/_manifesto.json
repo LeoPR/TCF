@@ -34,8 +34,8 @@
  {
   "rotulo": "tpch-sf01-orderdate",
   "n": 3000,
-  "k": 1738,
-  "exemplo": "1996-01-02",
+  "k": 1724,
+  "exemplo": "1992-03-30",
   "fonte": "db:tpch-sf01.db",
   "ja_ordenado_na_origem": false
  },

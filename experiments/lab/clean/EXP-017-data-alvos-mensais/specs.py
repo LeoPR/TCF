@@ -134,7 +134,14 @@ class AlvoAnoMes(AlvoBase):
                 and v[:4].isdigit() and v[5:].isdigit():
             m = int(v[5:])
             if 1 <= m <= 12:
-                return str(int(v[:4]) * 12 + m - 1)
+                p = str(int(v[:4]) * 12 + m - 1)
+                # GUARD DE RE-EMISSÃO — 4ª ocorrência da classe no projeto (DataIsoSpec,
+                # ADR-0040 ×2, e agora aqui). A caçada adversarial pegou: `str.isdigit()`
+                # e `int()` aceitam dígitos Unicode (fullwidth `２００６-０１`, etc.) —
+                # 5 grafias distintas colapsavam no MESMO payload e o decode devolvia a
+                # ASCII: não-injetivo. A regra: só é payload o que RE-EMITE byte a byte.
+                if self.decode_value(p) == v:
+                    return p
         return MARCADOR + str(v)
 
     def decode_value(self, p):

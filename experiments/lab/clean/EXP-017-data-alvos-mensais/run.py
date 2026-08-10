@@ -7,7 +7,9 @@ As cinco provas por caso (molde do EXP-016, adaptadas ao que este lab testa):
     1. RT estrito       decode(encode(v)) == v, contra os dados ORIGINAIS
     2. RT do alvo       decode_col(encode_col(v)) == v — o espelho do spec, isolado
     3. determinismo     encode duas vezes -> byte-idêntico
-    4. nunca-pior       o FLOOR com os alvos nunca é maior que o melhor de hoje
+    4. nunca-pior       POR CONSTRUÇÃO neste harness (min sobre superconjunto — a
+                        caçada adversarial apontou: como teste, é tautologia; fica como
+                        documentação da invariante; a prova falsificável é pós-weld)
     5. o artefato é o wire   o .tcf lido em BINÁRIO é byte-idêntico ao wire medido
 
 E o PIN: cada caso declara em `casos.py` quem deve vencer o FLOOR (`espera`).
@@ -131,6 +133,12 @@ def main() -> int:
         # a comparacao JUSTA (todos pela rota plena) — e o que o weld de fato mudaria
         justo = min(cands["core"][0], cands["ordinal-rota-plena"][0])
         lacuna_rota = cands["ordinal-soldado"][0] - cands["ordinal-rota-plena"][0]
+        # A LACUNA SO' E' INTERPRETAVEL QUANDO A NATURE VENCE o FLOOR (cacada adversarial:
+        # quando ela perde, 'ordinal-soldado' e' o baseline emitido — grafia ORIGINAL — e
+        # a subtracao compara payloads diferentes; 4 "negativos" do lab eram esse artefato).
+        nature_venceu = cands["ordinal-soldado"][1].startswith("#TCF.8 :")
+        if not nature_venceu:
+            lacuna_rota = None
         nunca_pior = b_vencedor <= hoje
         # PROVA 5 — o artefato é o wire
         p_tcf = OUT / f"{nome}.tcf"
@@ -155,8 +163,10 @@ def main() -> int:
             "bytes": {k: v[0] for k, v in cands.items()},
             "melhor_hoje": hoje, "ganho_pct": round((1 - b_vencedor / hoje) * 100, 1),
             "melhor_justo": justo, "ganho_justo_pct": round((1 - b_vencedor / justo) * 100, 1),
+            "nature_venceu_floor": nature_venceu,
             "lacuna_rota_da_nature_B": lacuna_rota,
-            "lacuna_rota_pct": round(lacuna_rota / cands["ordinal-soldado"][0] * 100, 1),
+            "lacuna_rota_pct": (round(lacuna_rota / cands["ordinal-soldado"][0] * 100, 1)
+                                if lacuna_rota is not None else None),
             "determinismo": det, "nunca_pior": nunca_pior, "artefato_ok": artefato_ok,
             "pin_ok": pin_ok, "cpu_core_ms": round(cpu_core, 1),
             "cpu_vencedor_ms": round(cpu_venc, 1),
@@ -165,7 +175,7 @@ def main() -> int:
                       f"| {cands['ordinal-soldado'][0]} | {cands['ordinal-rota-plena'][0]} "
                       f"| {cands['mes31dia'][0]} | {cands['fimdemes'][0]} | {cands['anomes'][0]} "
                       f"| **{vencedor}** | {round((1 - b_vencedor / justo) * 100, 1)}% "
-                      f"| {lacuna_rota} | {'✓' if pin_ok else 'X'} |")
+                      f"| {lacuna_rota if lacuna_rota is not None else 'n/i'} | {'✓' if pin_ok else 'X'} |")
         print(f"  {nome:<30} {vencedor:<10} {b_vencedor:>6} B  "
               f"(hoje {hoje:>6})  {'✓' if pin_ok else 'PIN X'}")
 
@@ -185,7 +195,7 @@ def _report(regs, tabela, falhas, pulados):
     from collections import Counter
     reais = [r for r in regs if r["familia"].startswith("real")]
     sint = [r for r in regs if r["familia"] == "sintetico-mensal"]
-    lac = [r for r in reais if r["lacuna_rota_da_nature_B"] > 0]
+    lac = [r for r in reais if (r["lacuna_rota_da_nature_B"] or 0) > 0]
     med_lac = statistics.median([r["lacuna_rota_pct"] for r in lac]) if lac else 0
     tot_lac = sum(r["lacuna_rota_da_nature_B"] for r in lac)
     classes_reais = Counter(r["classe"] for r in reais)
@@ -201,58 +211,71 @@ def _report(regs, tabela, falhas, pulados):
 **Gerado por `run.py`.** {len(regs)} casos · **{len(falhas)} falhas**{
     f" · {len(pulados)} pulados (rode `extrai.py`)" if pulados else ""}.
 `src/tcf` não é tocado; os alvos são protótipos de [`specs.py`](specs.py).
+**Este relatório incorpora as correções de uma caçada adversarial de 4 lentes**
+(613 colunas varridas, 15 variantes realistas construídas) — as ressalvas abaixo
+são dela.
 
-## A resposta curta
+## A resposta, com as ressalvas que ela precisa
 
-**Os alvos mensais NÃO fecham em dado real** — e o motivo não é o mecanismo, é o corpus:
-**nenhuma das {len(reais)} colunas reais tem cadência mensal**. Todas são diárias ou
-transacionais (TPC-H pedidos/embarques, cadastros BR, futebol desde 1872). Ganho mediano
-nos reais: **{ganho_reais}%**. Nos sintéticos mensais, onde o regime existe: **{ganho_sint}%**.
+**Nos dados de fato crus do corpus, os alvos mensais não pagam** — nenhuma das 9
+colunas lógicas de data tem cadência mensal (varredura exaustiva: todas têm os 31
+dias-do-mês quase uniformes). Ganho mediano real: **{ganho_reais}%** (neste n).
 
-Mas o lab achou algo maior no caminho — ver §2.
+As TRÊS ressalvas que impedem a manchete simples:
+
+1. **O "0%" é propriedade do n amostrado, não do dado**: a mesma coluna TPC-H dá
+   0,3% em n=3000 e **18,7% em n=4000** (o candidato ordinal cai num penhasco entre
+   n=3850-3900). Instabilidades de pré-passe criam penhascos — ver `T-PENHASCO-INICIO`.
+2. **O regime mensal é ALCANÇÁVEL a partir do corpus**: colunas de agregado mensal
+   derivadas do mesmo dado real (um registro por mês presente — a forma de qualquer
+   tabela de agregado) ganham **1,8× a 9,8×**. O que não tem regime mensal são as
+   colunas de FATO cruas.
+3. **O "95% sintético" ({ganho_sint}% aqui) é O(n) e frágil**: em n=12 o alvo PERDE;
+   com o escorregamento real de fim de semana (~29%) sobra 1,5×; com jitter ±2 dias,
+   1,1×. E folha de pagamento (último/5º dia útil) fica NEGATIVA nos 3 alvos — mas um
+   4º eixo (dia ÚTIL) recupera 99,0%. **Nenhum conjunto fixo de alvos cobre; é o
+   argumento medido para "spec orienta eixos, não manda alvo"** (direção do owner).
 
 ## 1. Placar
 
 | onde vence | reais |
 |---|---:|
 | **ordinal-dia** (o spec de hoje) | {classes_reais.get('ordinal', 0)} |
-| alvo **mensal** | {classes_reais.get('mensal', 0)} |
+| alvo **mensal** | {classes_reais.get('mensal', 0)} — ambos por acidente estrutural de 0,1-0,3%, não regime |
 | **nenhum** (core sozinho) | {classes_reais.get('nenhum', 0)} |
 
-Nos {len(sint)} sintéticos mensais o alvo vence em **todos**, com 33-48 B contra 655-2799.
-O mecanismo funciona; o regime é que não aparece no corpus disponível.
+## 2. O achado transversal: a nature soldada não usa a rota plena
 
-## 2. O achado: a nature soldada não usa a rota plena
-
-Comparar o alvo mensal (medido por `encode(coluna_transformada)`, que passa pela rota flat
-**inteira** — polaridade ADR-0035 + bN ADR-0036) contra o spec soldado (cujo candidato sai
-de `_encode_column`, **só o corpo do core**) é comparar rotas diferentes. Corrigido o
-método, o "ganho" do alvo mensal em dado real virou **0%** — e a diferença apareceu no
-lugar certo:
+O candidato interno da nature sai de `_encode_column` — só o corpo do core, **sem
+polaridade e sem bN** — enquanto a rota flat normal aplica os dois (provado byte-exato:
+`encode(vals, nature=SPEC) == header + _encode_column(transformed)` em 20/20 colunas
+reais onde a nature vence).
 
 | coluna real | spec soldado | mesmo payload, rota plena | desperdiçado |
 |---|---:|---:|---|
 {linhas_lac}
 
-**Mediana {med_lac}% · {tot_lac} B em {len(lac)} colunas.** É o `T-NATURE-CANDIDATO-BN`
-medido em dado real pela primeira vez — e ele **não é de data**: vale para qualquer nature
-(CPF real: 1372 B = 7,0%).
-
-O conserto é **adicionar candidato ao `min()`**, não trocar a rota: há caso em que a rota
-plena PERDE (coluna constante: −7 B), porque paga overhead de bN/polaridade onde não ajuda.
+Recalibrado pela caçada: **mediana ~5,7% no corpus amplo** (não os 6,7% deste
+subconjunto), máx **11,9%** (CPF `socio_cpf` — a lacuna vale para QUALQUER nature),
+**variando com n** (a mesma coluna vai de 6,4% em n=200 a 0,24% em n=15000). Os
+"negativos" de versões anteriores eram artefato de métrica (a lacuna só é interpretável
+quando a nature vence o FLOOR — casos agora marcados `n/i`). E a rota plena **é
+nunca-pior por construção** (o FLOOR da polaridade devolve sufixo vazio quando não paga;
+stress de 8000 colunas, 0 violações) — o conserto do `T-NATURE-CANDIDATO-BN` é trocar o
+corpo do candidato pela rota plena, mantendo o FLOOR nature-vs-baseline que já existe.
 
 ## 3. Todos os casos
 
 {tabela}
 
-## 4. As provas
+## 4. As provas — e o que cada uma vale
 
-Cada caso passou por: **RT estrito** (contra os dados originais), **RT do espelho** do alvo
-isolado, **determinismo** (encode 2× byte-idêntico), **nunca-pior** (o FLOOR com alvos nunca
-excede o melhor de hoje) e **"o artefato é o wire"** (`.tcf` lido em binário == wire medido).
-
-O `espera` de [`casos.py`](casos.py) é um **PIN** fixado no comportamento medido: mover a
-fronteira do FLOOR de propósito quebra o lab.
+**RT estrito** e **RT do espelho** são as provas falsificáveis (o guard de re-emissão do
+YM veio delas: dígitos Unicode colapsavam payloads — 4ª ocorrência da classe).
+**Determinismo** e **artefato-é-o-wire** idem. **"Nunca-pior"** neste harness é
+tautologia (min sobre superconjunto) — fica como documentação da invariante; a prova
+real é pós-weld. Os **PINs** estão fixados no comportamento medido; os dois casos
+`mensal` reais estão anotados como ruído de 0,1-0,3%, não regime.
 """
 
 

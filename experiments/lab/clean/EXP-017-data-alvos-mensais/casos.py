@@ -103,6 +103,13 @@ def mensal_sujo(n=600, pct=5):
     return vals
 
 
+def mensal_sujo_inicio(n=600):
+    """UMA sujeira no indice 3 — dentro da janela de 20 do pre-pass (T-PENHASCO-INICIO)."""
+    vals = mensal(n)
+    vals[3] = "s/d"
+    return vals
+
+
 def mensal_com_null(n=600):
     vals = mensal(n)
     for i in (7, 100, 355, 599):
@@ -160,7 +167,17 @@ CASOS = [
      "passo irregular de 1-40 dias: nenhum eixo uniformiza", "ordinal"),
     # ── VÁLVULA: dado que não casa ──
     ("valv-mensal-sujo-5pct", "valvula", mensal_sujo,
-     "5% de 's/d' no meio: a válvula segura e o resto comprime", "mensal"),
+     "5% de 's/d': a válvula segura. ATENÇÃO (caçada adversarial): o resultado é "
+     "BIMODAL por semente — em 12 sementes o core vence 8; esta semente é do lado "
+     "favorável. O pin fixa ESTA semente; a bimodalidade é o T-PENHASCO-INICIO", "mensal"),
+    ("valv-sujeira-no-inicio", "valvula", lambda: mensal_sujo_inicio(),
+     "UMA sujeira no índice 3 (<20): o penhasco do pre-pass (analyze_column "
+     "sample_size=20 + Regra 2 do auto_cadence) — 95x decidido pela POSIÇÃO da "
+     "primeira exceção; atinge o ordinal soldado igual", "qualquer"),
+    ("valv-ym-unicode", "valvula", lambda: ano_mes(597) + ["２０００-０１", "٢٠٠٠-٠١", "2000-01"],
+     "dígitos Unicode (fullwidth/árabe): `isdigit()`/`int()` os ACEITAM — sem o guard de "
+     "re-emissão o payload colapsava grafias distintas (caçada adversarial, 4ª ocorrência "
+     "da classe). Com o guard: viram literal e o RT fecha", "mensal"),
     ("valv-mensal-null", "valvula", mensal_com_null,
      "None no meio: passa pelo slot 0, fora do alvo", "mensal"),
     # ── REAIS: o que o lab dirty NÃO tinha ──
@@ -177,7 +194,10 @@ CASOS = [
     ("real-tpch-receiptdate-ord", "real-tpch", _real("tpch-receiptdate.ordenado.json"),
      "terceira irmã", "ordinal"),
     ("real-tpch-sf01-orderdate-ord", "real-tpch", _real("tpch-sf01-orderdate.ordenado.json"),
-     "escala maior da mesma fonte", "mensal"),
+     "amostra DISTINTA da mesma fonte (OFFSET 90000 — a cacada pegou que LIMIT puro "
+     "duplicava o sf001 byte a byte: dbgen deterministico). O A4 vence por 14 B em "
+     "12.612 (0,1%): acidente estrutural do payload, NAO regime mensal — a coluna tem "
+     "31 dias-do-mes uniformes", "mensal"),
     ("real-br-cadastro-nat", "real-br", _real("br-data-cadastro.natural.json"),
      "cadastro BR na ordem natural: k alto, span curto", "ordinal"),
     ("real-br-cadastro-ord", "real-br", _real("br-data-cadastro.ordenado.json"),
@@ -188,8 +208,7 @@ CASOS = [
      "YYYYMMDD COMPACTO: o spec ISO recusa por design (guard de re-emissão)", "nenhum"),
     ("real-retail-datetime", "real-grafia", _real("retail-invoicedate.natural.json"),
      "DATETIME com hora: não é date puro — a válvula tem de segurar tudo", "nenhum"),
-    ("real-football-nat", "real-span", _real("football-date.natural.json"),
-     "1872..hoje: o maior span do corpus, densidade irregular", "ordinal"),
-    ("real-football-ord", "real-span", _real("football-date.ordenado.json"),
-     "idem ordenada — span gigante ordenado", "ordinal"),
+    ("real-football", "real-span", _real("football-date.natural.json"),
+     "1872..hoje: o maior span do corpus; ja' ordenado na origem (a variante .ordenado "
+     "e' byte-identica — cacada adversarial, md5)", "ordinal"),
 ]

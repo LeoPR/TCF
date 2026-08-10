@@ -37,7 +37,9 @@ FONTES = [
     ("tpch-shipdate", "db", ("tpch-sf001.db", "lineitem", "l_shipdate")),
     ("tpch-commitdate", "db", ("tpch-sf001.db", "lineitem", "l_commitdate")),
     ("tpch-receiptdate", "db", ("tpch-sf001.db", "lineitem", "l_receiptdate")),
-    ("tpch-sf01-orderdate", "db", ("tpch-sf01.db", "orders", "o_orderdate")),
+    # sf01 com OFFSET: a cacada adversarial pegou que LIMIT 3000 puro devolve as MESMAS
+    # linhas do sf001 (dbgen deterministico) — md5 identico, "escala" que nao escalava.
+    ("tpch-sf01-orderdate", "db", ("tpch-sf01.db", "orders", "o_orderdate", 90000)),
     # BR: cadastro de pessoas/empresas (ISO, volume alto)
     ("br-data-cadastro", "db", ("br-identidades.db", "pessoas", "data_cadastro")),
     ("br-data-abertura", "db", ("br-identidades.db", "empresas", "data_abertura")),
@@ -50,12 +52,13 @@ FONTES = [
 ]
 
 
-def _de_db(arq: str, tabela: str, coluna: str) -> list[str]:
+def _de_db(arq: str, tabela: str, coluna: str, offset: int = 0) -> list[str]:
     p = HUB / "interim" / arq
     con = sqlite3.connect(f"file:{p}?mode=ro", uri=True)
     con.text_factory = str
     try:
-        cur = con.execute(f'SELECT "{coluna}" FROM "{tabela}" LIMIT {N_MAX}')
+        cur = con.execute(
+            f'SELECT "{coluna}" FROM "{tabela}" LIMIT {N_MAX} OFFSET {offset}')
         return [str(r[0]) for r in cur if r[0] is not None]
     finally:
         con.close()
