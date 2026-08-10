@@ -637,6 +637,13 @@ nova hipotese identificada.
   como candidato) e `T-SPLIT-SINGLE-COL` (o split do ADR-0026 ja' corta ano|mes|dia e NAO
   e' candidato na rota flat: mensal 1085->700, uteis 2454->903). Doc de decisao:
   `docs/theory/duas-similaridades-igualdade-e-proximidade.md`.
+- **H-OBAT-PROX-01** (nos de PROXIMIDADE no OBAT — a raiz, owner 2026-08-09): o OBAT so'
+  cria nos por IGUALDADE de afixo; similaridade-por-delta nao vira no', entao o HCC nunca
+  tem a chance de desenvolver composicao aritmetica. E' a causa-raiz do H-SIM-DUPLA-01.
+  Owner: "deixe registrado a vontade de fazer LOGO, apesar disso parecer mesmo melhor pro
+  2.0". Status: `aberta` (**2.0**; ticket `T-OBAT-NOS-PROXIMIDADE`). Antecedentes:
+  `docs/theory/2026-05-11-comparacoes-nao-literais.md` (a intuicao original), H-TH-02
+  (Patricia), H-PT-01 (pre-tx delta multi-pass, refutada-parcial por violar o vertice).
 - **COROLARIO sobre os SPECS** (mesma nota): o spec nao adiciona informacao — ele escolhe
   um DOMINIO onde a aritmetica sobrevive ao dedup (ordinal/mes-epoca dao k=600 distintos,
   nada dedupa). Parte do ganho dos specs e' o nucleo compensando escolha propria. Spec e
