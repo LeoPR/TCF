@@ -581,7 +581,33 @@ prototipo clean (`experiments/lab/clean/EXP-XXX-*`) e' pra testar
 Atualizar quando: hipotese confirmada/refutada/movida-de-status, OU
 nova hipotese identificada.
 
-**Ultima atualizacao**: 2026-08-09 — familia DATA (triagem de 7 hipoteses, lab
+**Ultima atualizacao**: 2026-08-10 — tres frentes revisadas e MEDIDAS (nota
+`2026-08/2026-08-10-nomes-lazy-e-pulsos-revisao.md`):
+
+- **H-NOME-SPEC-01** (grafia do nome de spec): nao ha' formalizacao — `name: str` sem
+  limite/validacao; o ADR-0027 fixou ONDE a tag mora, nunca COMO se escreve. `:data-iso`
+  custa **28% do artefato** (9 B de 32); `dtiso` deixaria 9,4% menor. 3 dos 4 specs ja'
+  cabem em 8 chars. Contraponto: nome curto compete com AUTO-DESCRICAO (ADR-0027/0034) —
+  ha' piso de legibilidade. E' grafia no wire = **format change, barato so' ate' o 1.0**.
+  Status: `aberta` (unico item com PRAZO). Ticket `T-NOME-SPEC-CURTO`.
+- **H-LAZY-ARITM-01** (bypass aritmetico no lazy): o `view` filtra data mas MATERIALIZA
+  100%. O L3 (2026-06-16) concluiu que agregar runs no modo-tcf nao era separavel — e que
+  havia **0 colunas clean-numeric** no corpus. **O spec de data CRIOU a condicao**: a
+  coluna vira corpo de UMA linha (`*900+1|;9617`; uteis `*900~1,3,1,1,1|`). Payload
+  ordinal e' MONOTONICO -> filtro de data = intervalo aritmetico -> O(1) no tamanho do
+  run. Generaliza p/ qualquer spec de alvo inteiro monotonico (contrapartida de leitura
+  do "spec orienta"). Pre-requisito: filtro DECLARATIVO (hoje o predicado e' lambda
+  opaca). Status: `aberta` (.9). Ticket `T-LAZY-BYPASS-ARITMETICO`.
+- **H-PULSO-FASE-01** (encode em pulsos): **o wire JA' ACEITA** — RT verificado em
+  1/2/4/6/12/60 pulsos; curva `32 + 15*(p-1)` bytes (cada pulso ~15 B). O bloqueio do
+  V2-J (ADR-0018) e' **multi-col** (`size=` no header); o single-col flat com spec nao
+  tem sizes -> o caso do owner **nao esta' bloqueado pelo formato**. Restricoes NOVAS do
+  periodico: pad do 2o pulso **rotaciona por `corte mod p`**, e pulso periodico tem
+  **minimo `2p+1`** valores (guard de 2 ciclos, ADR-0040) — baixa latencia **nao pode
+  cortar em qualquer lugar**. Status: `aberta` (.9/2.0); irma de H-ENCODE-DEADLINE-01.
+  Ticket `T-PULSO-SINGLE-COL`.
+
+**Atualizacao anterior**: 2026-08-09 — familia DATA (triagem de 7 hipoteses, lab
 `2026-08/2026-08-09/2026-08-09-0024-data-hipoteses-restantes/`, n=600, RT 100%):
 
 - **H-DATA-DELTA-01** (alvo DELTA de coluna): o spec ordinal soldado (`SPEC_DATA_ISO`)
