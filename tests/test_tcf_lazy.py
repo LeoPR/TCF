@@ -17,6 +17,7 @@ sys.path.insert(0, str(ROOT / "src"))
 sys.path.insert(0, str(ROOT / "scripts"))
 
 from tcf import encode, decode, view, SPEC_CNPJ   # noqa: E402  (caminho canônico A4)
+from tcf.natures import SPEC_DATA_ISO   # noqa: E402
 
 
 # ---- #TCF.8 self-describing: natures (revertidas lazy) + colunas anonimas ----
@@ -30,6 +31,42 @@ def test_lazy_tcf8_nature_reverte():
     # coluna com nature volta REVERTIDA (decode_value lazy no _col)
     assert v.select(["doc"])[0]["doc"] == "11.222.333/0001-81"
     assert v.where("doc", "11.222.333/0001-81").count() == 2
+
+
+def test_lazy_tcf8_nature_em_modo_dict_reverte_no_where_e_group():
+    """REGRESSAO (2026-08-12): a reversao da nature existia SO' no `_col`; o caminho L4
+    (`_dict_parts` -> where/group_count) comparava contra o PAYLOAD cru.
+
+    Medido no bug: nesta coluna `where('dt','2025-01-01')` devolvia 0 (verdade: 8) e
+    `group_count` devolvia chaves ordinais ('739252') — errado e SEM erro. O `_col` e o
+    `decode()` estavam certos, o que escondia a divergencia. Fonte unica agora:
+    `LazyTCF._reverte_nature`, usada pelos DOIS caminhos.
+
+    O regime importa: a nature so' vence o FLOOR em modo dict com k moderado — k=50/n=400
+    emite `#TCF.8M@...=dt:data-iso,@v`. Com k pequeno o dict sem nature ganha e a coluna
+    nem carrega `:id`, que era por que o bug passava despercebido.
+    """
+    import datetime as _dt
+    base = _dt.date(2025, 1, 1)
+    datas = [(base + _dt.timedelta(days=i % 50)).isoformat() for i in range(400)]
+    outra = [str(i % 7) for i in range(400)]
+    blob = encode({"dt": datas, "v": outra}, nature_per_col={"dt": SPEC_DATA_ISO})
+    cabecalho = blob.splitlines()[0]
+    assert ":data-iso" in cabecalho, "o regime mudou: a nature nao venceu em dict"
+    assert "@" in cabecalho, "o regime mudou: a coluna nao esta' em modo dict"
+
+    v = view(blob)
+    # where L4 (varre o stream de indices, compara nos K unicos) tem de ver o VALOR
+    assert v.where("dt", "2025-01-01").count() == datas.count("2025-01-01")
+    # group_count (L3, estrutural) tem de agrupar por VALOR, nao por payload
+    chaves = list(view(blob).group_count("dt"))
+    assert all(c.startswith("2025-") for c in chaves), f"chaves nao revertidas: {chaves[:3]}"
+    # predicado e cruzamento de coluna seguem coerentes
+    fev = view(blob).where("dt", pred=lambda d: d[5:7] == "02")
+    assert fev.count() == sum(1 for d in datas if d[5:7] == "02")
+    # e o caminho materializado continua certo (nao regrediu)
+    assert view(blob)._col("dt")[:2] == datas[:2]
+    assert decode(blob)["dt"][:2] == datas[:2]
 
 
 def test_lazy_tcf8_anonima_posicional():

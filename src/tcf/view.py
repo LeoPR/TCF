@@ -124,6 +124,37 @@ class LazyTCF:
         """Bytes do blob já descomprimidos (soma dos corpos tocados)."""
         return sum(len(self._body[n]) for n in self.touched)
 
+    # ---- reversao de nature: FONTE UNICA dos dois caminhos ----
+    def _reverte_nature(self, name: str, vals: list) -> list:
+        """Reverte a nature de `vals` se a coluna declara `:id` no header.
+
+        FONTE UNICA de proposito. O bug que motivou esta funcao (2026-08-12): a
+        reversao existia SO' em `_col`, e o caminho L4 (`_dict_parts` -> where /
+        group_count) comparava contra o PAYLOAD cru. Medido: numa coluna
+        `#TCF.8M@1c7=dt:data-iso,@v`, `where('dt','2025-01-01')` devolvia **0** onde a
+        verdade era **8**, e `group_count` devolvia chaves ordinais ('739252') — errado
+        e SEM erro, a pior classe pela regra do projeto. Dois caminhos, um so' revertia;
+        juntar num ponto e' o que impede a divergencia de voltar.
+
+        Usa o WRAPPER DE MODULO, nao o metodo do spec: e' ele que trata o slot nulo do
+        core (`None` volta `None`). Mesma escolha do `decoder.py` — o `_col` usava o
+        metodo cru e quebraria em coluna com null.
+        """
+        nat_id = self._nature.get(name)
+        if nat_id is None:
+            return vals
+        from tcf.natures import _resolve_nature_id
+        from tcf.natures import decode_value as _nat_de
+        spec = _resolve_nature_id(nat_id)
+        if spec is None:
+            # BUG-13b (lote 4, paridade com decode): id desconhecido =
+            # ERRO na materializacao (dado cru calado corrompe).
+            raise ValueError(
+                f"nature-id desconhecido no header: {nat_id!r} (coluna "
+                f"{name!r}) — registry core fechado; ADR-0024"
+            )
+        return [_nat_de(spec, v) for v in vals]
+
     # ---- decode de UMA coluna, sob demanda (cache + tracking) ----
     def _col(self, name: str) -> list[str]:
         if name not in self._mode:
@@ -140,20 +171,9 @@ class LazyTCF:
             else:
                 vals = _decode_column(body.decode("utf-8"))
             # Nature self-describing (#TCF.8, ADR-0027): reverte LAZY — so' ao
-            # materializar a coluna consultada (decode_value), preservando a
-            # laziness (colunas nao tocadas nem decodam o body).
-            nat_id = self._nature.get(name)
-            if nat_id is not None:
-                from tcf.natures import _resolve_nature_id
-                spec = _resolve_nature_id(nat_id)
-                if spec is None:
-                    # BUG-13b (lote 4, paridade com decode): id desconhecido =
-                    # ERRO na materializacao (dado cru calado corrompe).
-                    raise ValueError(
-                        f"nature-id desconhecido no header: {nat_id!r} (coluna "
-                        f"{name!r}) — registry fechado (cpf/cnpj/ip); ADR-0024"
-                    )
-                vals = [spec.decode_value(v) for v in vals]
+            # materializar a coluna consultada, preservando a laziness (colunas nao
+            # tocadas nem decodam o body). Fonte unica com o caminho L4: `_reverte_nature`.
+            vals = self._reverte_nature(name, vals)
             # BUG-13d (lote 4): cross-check de n_rows INCREMENTAL — compara com
             # qualquer coluna JA' materializada (ints, custo zero, laziness
             # intacta). Fecha o buraco da view em blob EOF-truncado sem exigir
@@ -183,6 +203,10 @@ class LazyTCF:
         nl = body.find(b"\n")
         ntable = int(body[:nl]); start = nl + 1
         unicas = _decode_column(body[start:start + ntable].decode("utf-8"))
+        # A tabelinha guarda o PAYLOAD; quem consulta (where L4, group_count) compara
+        # contra o VALOR. Reverter aqui — nos K unicos, nao nas N linhas — mantem a
+        # laziness intacta e fecha a divergencia com `_col` (fonte unica).
+        unicas = self._reverte_nature(name, unicas)
         if name not in self.touched:
             self.touched.append(name)
         stream = body[start + ntable:]
