@@ -1,0 +1,15 @@
+{
+ "caso": "bool-aleatorio",
+ "ideia": "idem, sem estrutura de bloco",
+ "n": 600,
+ "k_unicos": 2,
+ "spec": null,
+ "primeiros": [
+  "true",
+  "false",
+  "false",
+  "true"
+ ],
+ "hash": "d0eb1c75f36a",
+ "CONSTANTE_na_comparacao": "n=600; o wire e' encodado UMA vez e entregue em prefixos de LINHAS INTEGRAS — zero re-encode, zero custo de bytes. So' o TIPO/regime varia."
+}

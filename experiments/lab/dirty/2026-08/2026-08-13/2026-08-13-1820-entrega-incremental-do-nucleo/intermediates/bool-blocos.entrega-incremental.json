@@ -1,0 +1,30 @@
+{
+ "ideia": "RLE: cada marcador e' uma linha AUTOCONTIDA",
+ "bytes_totais": 36,
+ "linhas_de_corpo": 3,
+ "curva": [
+  200,
+  400,
+  600
+ ],
+ "detalhe": [
+  {
+   "linhas_recebidas": 1,
+   "bytes_recebidos": 17,
+   "valores_entregues": 200,
+   "linha": "*200|true"
+  },
+  {
+   "linhas_recebidas": 2,
+   "bytes_recebidos": 28,
+   "valores_entregues": 400,
+   "linha": "*200|false"
+  },
+  {
+   "linhas_recebidas": 3,
+   "bytes_recebidos": 36,
+   "valores_entregues": 600,
+   "linha": "*200|^1"
+  }
+ ]
+}

@@ -1,0 +1,15 @@
+{
+ "caso": "bool-tudo-true",
+ "ideia": "RLE total: UMA linha entrega tudo",
+ "n": 600,
+ "k_unicos": 1,
+ "spec": null,
+ "primeiros": [
+  "true",
+  "true",
+  "true",
+  "true"
+ ],
+ "hash": "61a58f18af5f",
+ "CONSTANTE_na_comparacao": "n=600; o wire e' encodado UMA vez e entregue em prefixos de LINHAS INTEGRAS — zero re-encode, zero custo de bytes. So' o TIPO/regime varia."
+}

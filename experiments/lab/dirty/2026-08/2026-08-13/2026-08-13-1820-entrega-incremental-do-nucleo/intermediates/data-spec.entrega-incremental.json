@@ -1,0 +1,16 @@
+{
+ "ideia": "seq-RLE: UMA linha — compressao maxima, granularidade minima",
+ "bytes_totais": 26,
+ "linhas_de_corpo": 1,
+ "curva": [
+  600
+ ],
+ "detalhe": [
+  {
+   "linhas_recebidas": 1,
+   "bytes_recebidos": 26,
+   "valores_entregues": 600,
+   "linha": "*600+1|\\739617"
+  }
+ ]
+}

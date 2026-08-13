@@ -1,0 +1,15 @@
+{
+ "caso": "email",
+ "ideia": "idem, afixo mais longo",
+ "n": 600,
+ "k_unicos": 600,
+ "spec": null,
+ "primeiros": [
+  "usuario0@empresa.com.br",
+  "usuario1@empresa.com.br",
+  "usuario2@empresa.com.br",
+  "usuario3@empresa.com.br"
+ ],
+ "hash": "d799103df403",
+ "CONSTANTE_na_comparacao": "n=600; o wire e' encodado UMA vez e entregue em prefixos de LINHAS INTEGRAS — zero re-encode, zero custo de bytes. So' o TIPO/regime varia."
+}

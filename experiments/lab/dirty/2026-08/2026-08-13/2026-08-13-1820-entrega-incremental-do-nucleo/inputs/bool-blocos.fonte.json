@@ -1,0 +1,15 @@
+{
+ "caso": "bool-blocos",
+ "ideia": "RLE: cada marcador e' uma linha AUTOCONTIDA",
+ "n": 600,
+ "k_unicos": 2,
+ "spec": null,
+ "primeiros": [
+  "true",
+  "true",
+  "true",
+  "true"
+ ],
+ "hash": "3f8bf354b0bc",
+ "CONSTANTE_na_comparacao": "n=600; o wire e' encodado UMA vez e entregue em prefixos de LINHAS INTEGRAS — zero re-encode, zero custo de bytes. So' o TIPO/regime varia."
+}

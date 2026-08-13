@@ -1,0 +1,15 @@
+{
+ "caso": "categoria-k5",
+ "ideia": "bN com 5 valores de dominio",
+ "n": 600,
+ "k_unicos": 5,
+ "spec": null,
+ "primeiros": [
+  "suspenso",
+  "ativo",
+  "pendente",
+  "novo"
+ ],
+ "hash": "29ab7ed67442",
+ "CONSTANTE_na_comparacao": "n=600; o wire e' encodado UMA vez e entregue em prefixos de LINHAS INTEGRAS — zero re-encode, zero custo de bytes. So' o TIPO/regime varia."
+}
