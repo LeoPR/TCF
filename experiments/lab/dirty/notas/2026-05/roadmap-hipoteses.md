@@ -581,7 +581,28 @@ prototipo clean (`experiments/lab/clean/EXP-XXX-*`) e' pra testar
 Atualizar quando: hipotese confirmada/refutada/movida-de-status, OU
 nova hipotese identificada.
 
-**Ultima atualizacao**: 2026-08-10 — tres frentes revisadas e MEDIDAS (nota
+**Ultima atualizacao**: 2026-08-12 — ADR-0041 (spec em 3 planos) + a direcao que
+explica 4 tickets de uma vez:
+
+- **H-UM-CAMINHO-01** (single-col e' multi-col de UMA, owner 2026-08-12): "o single-col e'
+  so' uma convencao humana; no codigo ele tem que ser algo perto de um multi-column que
+  tem apenas uma coluna — o codigo e' o mesmo pra um ou mais". EVIDENCIA (esta rodada): as
+  4 divergencias achadas tem a MESMA forma — bN no min() (single tem, `.8M` nao: 13,8%),
+  split `%` (`.8M` tem, single nao: -35/-63%), `view` lazy (abre `.8M`, recusa as 11
+  formas nao-M), rota plena no candidato da nature (~5,7%). UMA causa: dois caminhos de
+  codigo -> cada mecanismo novo precisa de solda DUPLA e leva uma so'. Explica a
+  reincidencia (5x) da classe "o candidato existe e a rota nao consulta". NAO e' unificar
+  API nem formato (single-col congela no 1.0, ADR-0030) — e' o caminho INTERNO. Status:
+  `aberta` (**estudo depois dos TIPOS**, por sequenciamento do owner; junto com
+  hierarquia, que e' um terceiro caminho). Ticket `T-UM-CAMINHO-SO`.
+- **ADR-0041** (spec em TRES PLANOS): `name` legivel = codigo (nunca viaja) · `wire_id`
+  curto `^[a-z][a-z0-9]{0,7}$` = dado · o CARIMBO = contrato. Medido: ` :data-iso` = 31%
+  do artefato, e **o comprimento do id FLIPA o FLOOR** (em N>=11 o nome longo suprime a
+  propria nature). A resolucao passa a comparar `wire_id` (senao o rename quebra o
+  out-of-band). Modo SEM-CARIMBO (32 -> 15 B) = parametro NOVO, hoje quebrado nas duas
+  pontas. Mapa de ids = escolha revisavel ate' o 1.0; a ESTRUTURA e' o que congela.
+
+**Atualizacao anterior**: 2026-08-10 — tres frentes revisadas e MEDIDAS (nota
 `2026-08/2026-08-10-nomes-lazy-e-pulsos-revisao.md`):
 
 - **H-NOME-SPEC-01** (grafia do nome de spec): nao ha' formalizacao — `name: str` sem
