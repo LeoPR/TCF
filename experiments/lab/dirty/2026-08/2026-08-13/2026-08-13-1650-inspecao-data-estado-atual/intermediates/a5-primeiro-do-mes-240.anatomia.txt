@@ -1,0 +1,27 @@
+a5-primeiro-do-mes-240 — dia 1 de cada mes: passo IRREGULAR (31,28,31,30…) — o LIMITE dos dois marcadores
+=========================================================================================================
+WIRE COMPLETO (323 bytes):
+'#TCF.8 :dt\n*26~31,28,31,30,31,30,31,31,30,31,30,31|\\739617\n*48~31,30,31,30,31,31,30,31,30,31,31,28|\\740407\n*48~31,30,31,30,31,31,30,31,30,31,31,28|\\741868\n*48~31,30,31,30,31,31,30,31,30,31,31,28|\\743329\n*48~31,30,31,30,31,31,30,31,30,31,31,28|\\744790\n*12~31,30,31,30,31|\\746251\n*6~31,30|\\746616\n*2+30|\\746800\n*2+30|\\746861\n'
+
+HEADER
+  '#TCF.8'                       magic single-col
+  ':dt'                          spec `dt` — data ISO -> ordinal decimal (ADR-0041: id curto `dt`)
+
+CORPO (10 linha(s))
+  [0] '*26~31,28,31,30,31,30,31,31,30,31,30,31|\\739617'
+      -> seq-RLE PERIODICO (ADR-0040): 26 linhas cujo delta CICLA em [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31] (periodo 12), ancoradas em '\\739617'. O ciclo paga UMA vez — custo O(1) no numero de linhas
+  [1] '*48~31,30,31,30,31,31,30,31,30,31,31,28|\\740407'
+      -> seq-RLE PERIODICO (ADR-0040): 48 linhas cujo delta CICLA em [31, 30, 31, 30, 31, 31, 30, 31, 30, 31, 31, 28] (periodo 12), ancoradas em '\\740407'. O ciclo paga UMA vez — custo O(1) no numero de linhas
+  [2] '*48~31,30,31,30,31,31,30,31,30,31,31,28|\\741868'
+      -> seq-RLE PERIODICO (ADR-0040): 48 linhas cujo delta CICLA em [31, 30, 31, 30, 31, 31, 30, 31, 30, 31, 31, 28] (periodo 12), ancoradas em '\\741868'. O ciclo paga UMA vez — custo O(1) no numero de linhas
+  [3] '*48~31,30,31,30,31,31,30,31,30,31,31,28|\\743329'
+      -> seq-RLE PERIODICO (ADR-0040): 48 linhas cujo delta CICLA em [31, 30, 31, 30, 31, 31, 30, 31, 30, 31, 31, 28] (periodo 12), ancoradas em '\\743329'. O ciclo paga UMA vez — custo O(1) no numero de linhas
+  [4] '*48~31,30,31,30,31,31,30,31,30,31,31,28|\\744790'
+      -> seq-RLE PERIODICO (ADR-0040): 48 linhas cujo delta CICLA em [31, 30, 31, 30, 31, 31, 30, 31, 30, 31, 31, 28] (periodo 12), ancoradas em '\\744790'. O ciclo paga UMA vez — custo O(1) no numero de linhas
+  [5] '*12~31,30,31,30,31|\\746251'
+      -> seq-RLE PERIODICO (ADR-0040): 12 linhas cujo delta CICLA em [31, 30, 31, 30, 31] (periodo 5), ancoradas em '\\746251'. O ciclo paga UMA vez — custo O(1) no numero de linhas
+  … (+4 linhas)
+  nota: o `\` antes dos digitos e' o escape do nucleo (OBAT) para run de digitos — grafia interna, nao faz parte do ordinal
+
+ENTRADA (5 primeiros): ['2026-01-01', '2026-02-01', '2026-03-01', '2026-04-01', '2026-05-01']
+BASELINE do FLOOR (encode sem nature): 455 B — a nature VENCEU

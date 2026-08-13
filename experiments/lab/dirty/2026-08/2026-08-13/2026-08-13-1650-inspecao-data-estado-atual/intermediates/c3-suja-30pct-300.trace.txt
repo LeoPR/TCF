@@ -1,0 +1,96 @@
+n=300  k=225
+nature spec='data-iso'  (o NAME legivel — ADR-0041: o wire leva `dt`)
+  apply-rate: 220/300 = 73.3%
+  por status: {'format_mismatch': 39, 'compressible': 220, 'empty_value': 11, 'length_wrong': 30}
+  venceu o FLOOR: True
+cadence: {'n_strings_total': 225, 'n_sample': 5, 'threshold': 0.7, 'numeric_card_threshold': 0.5, 'rule_hit': None, 'lengths': [11, 6, 6, 6, 6], 'cardinality': 0.75, 'is_numeric': False, 'reason': 'nenhuma regra acionou'}
+seq_rle_runs (37): [{'start_line': 5, 'end_line': 6, 'count': 2, 'deltas': [1], 'uniform_delta': 1, 'template': '2,6\\1', 'savings': 1}, {'start_line': 8, 'end_line': 13, 'count': 6, 'deltas': [1], 'uniform_delta': 1, 'template': '2,6\\4', 'savings': 25}, {'start_line': 16, 'end_line': 23, 'count': 8, 'deltas': [1], 'uniform_delta': 1, 'template': '19\\2', 'savings': 30}]
+body_bytes (candidato tcf da coluna): 1298
+
+-- hcc_trace --
+# Optimization trace — syntax=M8-A-seq-rle
+
+=== DETECTOR ITERATIONS (unified — atoms + virtuals) ===
+
+--- Iter 1 ---
+Sub-tuplas K>=2 com R>=2: 29  net>0: 13
+  163,216                  | R=8 Lr=7 len(N)~3 net=(7)*(7-3)=28 <- PICK
+  75,117                   | R=9 Lr=6 len(N)~3 net=(8)*(6-3)=24
+  75,144                   | R=9 Lr=6 len(N)~3 net=(8)*(6-3)=24
+  75,101                   | R=7 Lr=6 len(N)~3 net=(6)*(6-3)=18
+  75,83                    | R=7 Lr=5 len(N)~3 net=(6)*(5-3)=12
+  75,92                    | R=7 Lr=5 len(N)~3 net=(6)*(5-3)=12
+  2,17                     | R=9 Lr=4 len(N)~3 net=(8)*(4-3)=8
+  75,76                    | R=5 Lr=5 len(N)~3 net=(4)*(5-3)=8
+  2,43                     | R=6 Lr=4 len(N)~3 net=(5)*(4-3)=5
+  2,51                     | R=6 Lr=4 len(N)~3 net=(5)*(4-3)=5
+Substituido em 8 ocorrencias (linhas [240, 241, 243, 244, 245, 246, 247, 248])
+
+--- Iter 2 ---
+Sub-tuplas K>=2 com R>=2: 28  net>0: 12
+  75,117                   | R=9 Lr=6 len(N)~3 net=(8)*(6-3)=24 <- PICK
+  75,144                   | R=9 Lr=6 len(N)~3 net=(8)*(6-3)=24
+  75,101                   | R=7 Lr=6 len(N)~3 net=(6)*(6-3)=18
+  75,83                    | R=7 Lr=5 len(N)~3 net=(6)*(5-3)=12
+  75,92                    | R=7 Lr=5 len(N)~3 net=(6)*(5-3)=12
+  2,17                     | R=9 Lr=4 len(N)~3 net=(8)*(4-3)=8
+  75,76                    | R=5 Lr=5 len(N)~3 net=(4)*(5-3)=8
+  2,43                     | R=6 Lr=4 len(N)~3 net=(5)*(4-3)=5
+  2,51                     | R=6 Lr=4 len(N)~3 
+
+-- obat_log --
+min_len = 4
+
+--- string 1: '_31/12/2025' (len=11) ---
+  primeira string -> literal puro
+
+--- string 2: '739618' (len=6) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 6
+  tokens: [L('739618')]
+
+--- string 3: '739619' (len=6) ---
+  pref: len=5 de string 2
+  suf:  len=0 de string 0
+  cobertura: 5 de 6
+  tokens: [P(2,5) + L('9')]
+
+--- string 4: '739620' (len=6) ---
+  pref: len=4 de string 2
+  suf:  len=0 de string 0
+  cobertura: 4 de 6
+  tokens: [P(2,4) + L('20')]
+
+--- string 5: '739621' (len=6) ---
+  pref: len=5 de string 4
+  suf:  len=0 de string 0
+  cobertura: 5 de 6
+  tokens: [P(4,5) + L('1')]
+
+--- string 6: '739622' (len=6) ---
+  pref: len=5 de string 4
+  suf:  len=0 de string 0
+  cobertura: 5 de 6
+  tokens: [P(4,5) + L('2')]
+
+--- string 7: '_' (len=1) ---
+  pref: len=0 de string 0
+  suf:  len=0 de string 0
+  cobertura: 0 de 1
+  tokens: [L('_')]
+
+--- string 8: '739624' (len=6) ---
+  pref: len=5 de string 4
+  suf:  len=0 de string 0
+  cobertura: 5 de 6
+  tokens: [P(4,5) + L('4')]
+
+--- string 9: '739625' (len=6) ---
+  pref: len=5 de string 4
+  suf:  len=0 de string 0
+  cobertura: 5 de 6
+  tokens: [P(4,5) + L('5')]
+
+--- string 10: '739626' (len=6) ---
+  pr

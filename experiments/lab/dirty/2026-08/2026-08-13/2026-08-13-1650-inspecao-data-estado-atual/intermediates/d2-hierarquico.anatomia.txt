@@ -1,0 +1,21 @@
+d2 — data em dataset .8H
+========================
+WIRE COMPLETO (76 bytes):
+'#TCF.8Hquando:23:dt,n\n*300~1,3,1,1,1|\\739617\n*10+1|\\0\n*90+1|\\10\n*200+1|\\100\n'
+
+HEADER
+  '#TCF.8H'                      magic HIERARQUICO (.8H); meta = `campo:size:spec` por folha
+  'quando:23:dt,n'               meta das folhas
+  ':dt'                          spec de data ISO na folha (ADR-0041)
+
+CORPO (5 linha(s))
+  [0] '*300~1,3,1,1,1|\\739617'
+      -> seq-RLE PERIODICO (ADR-0040): 300 linhas cujo delta CICLA em [1, 3, 1, 1, 1] (periodo 5), ancoradas em '\\739617'. O ciclo paga UMA vez — custo O(1) no numero de linhas
+  [1] '*10+1|\\0'
+      -> seq-RLE aritmetico: 10 linhas com passo constante +1, ancoradas em '\\0'
+  [2] '*90+1|\\10'
+      -> seq-RLE aritmetico: 90 linhas com passo constante +1, ancoradas em '\\10'
+  [3] '*200+1|\\100'
+      -> seq-RLE aritmetico: 200 linhas com passo constante +1, ancoradas em '\\100'
+  [4] ''
+  nota: o `\` antes dos digitos e' o escape do nucleo (OBAT) para run de digitos — grafia interna, nao faz parte do ordinal

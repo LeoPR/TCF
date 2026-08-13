@@ -1,0 +1,17 @@
+{
+ "caso": "f8-br-abertura",
+ "familia": "real",
+ "ideia": "br-identidades: data de abertura",
+ "n": 3000,
+ "k_unicos": 2366,
+ "primeiros": [
+  "2015-04-02",
+  "2008-12-04",
+  "2018-02-19",
+  "2022-12-10",
+  "2016-03-29"
+ ],
+ "hash_entrada": "fd1c6dc928fc",
+ "gerador": "casos.py",
+ "corpus_real": true
+}

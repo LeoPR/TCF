@@ -1,0 +1,17 @@
+{
+ "caso": "a1-diaria-600",
+ "familia": "mecanismo",
+ "ideia": "passo constante +1: o ordinal colapsa no seq-RLE aritmetico `*N+1|ancora`",
+ "n": 600,
+ "k_unicos": 600,
+ "primeiros": [
+  "2026-01-01",
+  "2026-01-02",
+  "2026-01-03",
+  "2026-01-04",
+  "2026-01-05"
+ ],
+ "hash_entrada": "d985b9b09dc2",
+ "gerador": "casos.py",
+ "corpus_real": false
+}

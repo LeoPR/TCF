@@ -1,0 +1,20 @@
+f9-receita-inicio — Receita: data de inicio de atividade (CNPJ real)
+====================================================================
+WIRE COMPLETO (4145 bytes):
+'#TCF.8!\n*2|!202*6*0*50*5\n1..3!1*2*0\n^1\n7!4*2*9\n^1\n1..3~11!1*0\n*27|^1\n7~4!4\n*8|^1\n^5\n16!30\n7!2*1*1\n*2|^1\n1!5*0*8*1*4\n*4|^1\n^5\n*3|^1\n1~25~26!6*24\n^5\n^1\n16~17!1\n*4|^1\n7!3*2*4\n*18|^1\n^5\n*13|^1\n1..3~36!1*7\n*4|^1\n^6\n*6|^1\n41~37!5\n*4|^1\n^5\n*3|^1\n16~12!7\n*16|^1\n46!0\n^5\n*2|^1\n7~22!06\n*4|^1\n46!4\n*11|^1\n^5\n*14|^1\n^3\n^1\n^5\n*2|^1\n46!1\n*51|^1\n^12\n*14|^1\n^3\n*7|^1\n^5\n*5|^1\n^6\n*10|^1\n34!6\n*11|^1\n16!0*6\n*21|^1\n31!9'  …(+3745 chars)
+
+HEADER
+  '#TCF.8!'                      header com sufixo de rota `!` (ex.: `!`=polaridade ADR-0035, `B..`=bN de dominio ADR-0036)
+
+CORPO (768 linha(s))
+  [0] '*2|!202*6*0*50*5'
+      -> RLE de linha: 2 linhas IDENTICAS a '!202*6*0*50*5'
+  [1] '1..3!1*2*0'
+  [2] '^1'
+  [3] '7!4*2*9'
+  [4] '^1'
+  [5] '1..3~11!1*0'
+  … (+762 linhas)
+
+ENTRADA (5 primeiros): ['20260505', '20260505', '20260120', '20260505', '20260429']
+BASELINE do FLOOR (encode sem nature): 4145 B — o CORE venceu (nature recusada)

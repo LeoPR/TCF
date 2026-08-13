@@ -1,0 +1,24 @@
+c3-suja-30pct-300 — 30% de grafias nao-canonicas: cada uma vira LITERAL (`_`), RT byte-exato
+============================================================================================
+WIRE COMPLETO (1309 bytes):
+'#TCF.8 :dt\n_\\31/\\12/\\2025\n\\7396*\\1*\\8\n2,3\\9\n2\\2*\\0\n*2+1|2,6\\1\n_\n*6+1|2,6\\4\n2\\3*\\0\n2~17\\1\n*8+1|19\\2\n2\\4*\\0\n_\\2026*-\\13-\\45\n2~29\\2\n_sem data\n31\\0101\n33\\5\n^28\n*2|^25\n^28\n2\\5*\\0\n^7\n2~38\\2\n40\\3\n^28\n40\\5\n^1\n40\\7\n^25\n40\\9\n2\\6*\\0\n^1\n2~46\\2\n48\\3\n^1\n48\\5\n^27\n*3+1|48\\7\n2\\7*\\0\n2~55\\1\n57\\2\n^7\n*2+1|57\\4\n*2|^28\n*2+1|57\\8\n^28\n^27\n2\\8*\\2\n2~64\\3\n*3+1|66\\4\n^27\n*2+1|66\\8\n^25\n^1\n2\\9*\\2\n2~73\\3\n^28\n*5+1|75\\5\n\\7397*\\0*\\0'  …(+909 chars)
+
+HEADER
+  '#TCF.8'                       magic single-col
+  ':dt'                          spec `dt` — data ISO -> ordinal decimal (ADR-0041: id curto `dt`)
+
+CORPO (184 linha(s))
+  [0] '_\\31/\\12/\\2025'
+      -> valor LITERAL (a nature recusou este valor; fallback byte-exato)
+  [1] '\\7396*\\1*\\8'
+  [2] '2,3\\9'
+  [3] '2\\2*\\0'
+  [4] '*2+1|2,6\\1'
+      -> seq-RLE aritmetico: 2 linhas com passo constante +1, ancoradas em '2,6\\1'
+  [5] '_'
+      -> valor LITERAL (a nature recusou este valor; fallback byte-exato)
+  … (+178 linhas)
+  nota: o `\` antes dos digitos e' o escape do nucleo (OBAT) para run de digitos — grafia interna, nao faz parte do ordinal
+
+ENTRADA (5 primeiros): ['31/12/2025', '2026-01-02', '2026-01-03', '2026-01-04', '2026-01-05']
+BASELINE do FLOOR (encode sem nature): 1486 B — a nature VENCEU

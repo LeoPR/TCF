@@ -1,0 +1,25 @@
+f5-tpch-receiptdate — TPC-H receiptdate
+=======================================
+WIRE COMPLETO (19117 bytes):
+'#TCF.8 :dt\n\\7287*\\40\n1\\69\n*2+106|\\728689\n*2-58|\\728750\n*2-1075|\\729057\n*2+60|\\727891\n*2|\\727929\n*2+805|\\727871\n*2-32|\\728252\n*2-846|\\728166\n*2-105|\\728813\n^6\n^2\n*2-27|\\728707\n*2-110|\\728702\n*2-4|\\728532\n*2+11|\\728539\n*2-624|\\728499\n*2-5|\\727925\n*2+1821|\\727878\n*2+24|\\729674\n*2-51|\\728736\n*2-39|\\728687\n*2+94|\\728623\n*2-1287|\\728712\n*2+5|\\727407\n*2+73|\\728932\n*2-25|\\728983\n\\728946\n^49\n*2-798|\\729025'  …(+18717 chars)
+
+HEADER
+  '#TCF.8'                       magic single-col
+  ':dt'                          spec `dt` — data ISO -> ordinal decimal (ADR-0041: id curto `dt`)
+
+CORPO (2328 linha(s))
+  [0] '\\7287*\\40'
+  [1] '1\\69'
+  [2] '*2+106|\\728689'
+      -> seq-RLE aritmetico: 2 linhas com passo constante +106, ancoradas em '\\728689'
+  [3] '*2-58|\\728750'
+      -> seq-RLE aritmetico: 2 linhas com passo constante -58, ancoradas em '\\728750'
+  [4] '*2-1075|\\729057'
+      -> seq-RLE aritmetico: 2 linhas com passo constante -1075, ancoradas em '\\729057'
+  [5] '*2+60|\\727891'
+      -> seq-RLE aritmetico: 2 linhas com passo constante +60, ancoradas em '\\727891'
+  … (+2322 linhas)
+  nota: o `\` antes dos digitos e' o escape do nucleo (OBAT) para run de digitos — grafia interna, nao faz parte do ordinal
+
+ENTRADA (5 primeiros): ['1996-03-22', '1996-04-20', '1996-01-31', '1996-05-16', '1996-04-01']
+BASELINE do FLOOR (encode sem nature): 22876 B — a nature VENCEU

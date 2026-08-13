@@ -1,0 +1,27 @@
+c2-aleatoria-300 — sem estrutura temporal: nao ha' progressao p/ o seq-RLE morder
+=================================================================================
+WIRE COMPLETO (2292 bytes):
+'#TCF.8 :dt\n*2+378|\\740377\n*2+1467|\\741805\n*2-967|\\742438\n*2+333|\\739839\n*2-376|\\740439\n*2+676|\\742300\n*2-655|\\742034\n*2+1653|\\741853\n*2+1822|\\740384\n*2-1311|\\742203\n*2+1765|\\740098\n*2+2419|\\740433\n*2+1075|\\740057\n*2-532|\\742971\n*2-632|\\741254\n*2+3427|\\739820\n*2+1104|\\739784\n*2-2828|\\743380\n*2-893|\\742331\n*2+2286|\\740250\n*2-2282|\\743596\n*2+583|\\740884\n*2+2362|\\741079\n*2+1617|\\741163\n*2+938|\\740183\n'  …(+1892 chars)
+
+HEADER
+  '#TCF.8'                       magic single-col
+  ':dt'                          spec `dt` — data ISO -> ordinal decimal (ADR-0041: id curto `dt`)
+
+CORPO (161 linha(s))
+  [0] '*2+378|\\740377'
+      -> seq-RLE aritmetico: 2 linhas com passo constante +378, ancoradas em '\\740377'
+  [1] '*2+1467|\\741805'
+      -> seq-RLE aritmetico: 2 linhas com passo constante +1467, ancoradas em '\\741805'
+  [2] '*2-967|\\742438'
+      -> seq-RLE aritmetico: 2 linhas com passo constante -967, ancoradas em '\\742438'
+  [3] '*2+333|\\739839'
+      -> seq-RLE aritmetico: 2 linhas com passo constante +333, ancoradas em '\\739839'
+  [4] '*2-376|\\740439'
+      -> seq-RLE aritmetico: 2 linhas com passo constante -376, ancoradas em '\\740439'
+  [5] '*2+676|\\742300'
+      -> seq-RLE aritmetico: 2 linhas com passo constante +676, ancoradas em '\\742300'
+  … (+155 linhas)
+  nota: o `\` antes dos digitos e' o escape do nucleo (OBAT) para run de digitos — grafia interna, nao faz parte do ordinal
+
+ENTRADA (5 primeiros): ['2028-01-31', '2029-02-12', '2031-12-29', '2036-01-04', '2033-09-22']
+BASELINE do FLOOR (encode sem nature): 2767 B — a nature VENCEU

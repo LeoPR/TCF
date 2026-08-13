@@ -1,0 +1,17 @@
+{
+ "caso": "f12-receita-inicio-ord",
+ "familia": "real",
+ "ideia": "Receita ordenada: onde a progressao aparece",
+ "n": 3000,
+ "k_unicos": 97,
+ "primeiros": [
+  "19880906",
+  "20250101",
+  "20250609",
+  "20250624",
+  "20250807"
+ ],
+ "hash_entrada": "51d5d3739abd",
+ "gerador": "casos.py",
+ "corpus_real": true
+}

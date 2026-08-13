@@ -1,0 +1,13 @@
+{
+ "caso": "c5-n1",
+ "familia": "borda",
+ "ideia": "N=1: nao ha' delta nenhum p/ observar",
+ "n": 1,
+ "k_unicos": 1,
+ "primeiros": [
+  "2026-01-01"
+ ],
+ "hash_entrada": "f8f105cf0d5a",
+ "gerador": "casos.py",
+ "corpus_real": false
+}

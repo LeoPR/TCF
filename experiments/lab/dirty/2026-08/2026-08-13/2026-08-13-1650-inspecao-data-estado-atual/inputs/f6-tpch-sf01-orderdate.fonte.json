@@ -1,0 +1,17 @@
+{
+ "caso": "f6-tpch-sf01-orderdate",
+ "familia": "real",
+ "ideia": "TPC-H sf01 (escala maior)",
+ "n": 3000,
+ "k_unicos": 1724,
+ "primeiros": [
+  "1992-03-30",
+  "1995-04-02",
+  "1995-12-28",
+  "1996-08-20",
+  "1993-12-04"
+ ],
+ "hash_entrada": "a9982e6cc660",
+ "gerador": "casos.py",
+ "corpus_real": true
+}

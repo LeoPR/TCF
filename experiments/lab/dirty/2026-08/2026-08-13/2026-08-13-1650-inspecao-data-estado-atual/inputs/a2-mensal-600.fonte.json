@@ -1,0 +1,17 @@
+{
+ "caso": "a2-mensal-600",
+ "familia": "mecanismo",
+ "ideia": "passo constante +30: pro seq-RLE da' o MESMO trabalho que +1 (o passo nao importa)",
+ "n": 600,
+ "k_unicos": 600,
+ "primeiros": [
+  "2026-01-01",
+  "2026-01-31",
+  "2026-03-02",
+  "2026-04-01",
+  "2026-05-01"
+ ],
+ "hash_entrada": "1b2a97e96dd9",
+ "gerador": "casos.py",
+ "corpus_real": false
+}

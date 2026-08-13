@@ -1,0 +1,17 @@
+a2-mensal-600 — passo constante +30: pro seq-RLE da' o MESMO trabalho que +1 (o passo nao importa)
+==================================================================================================
+WIRE COMPLETO (27 bytes):
+'#TCF.8 :dt\n*600+30|\\739617\n'
+
+HEADER
+  '#TCF.8'                       magic single-col
+  ':dt'                          spec `dt` — data ISO -> ordinal decimal (ADR-0041: id curto `dt`)
+
+CORPO (2 linha(s))
+  [0] '*600+30|\\739617'
+      -> seq-RLE aritmetico: 600 linhas com passo constante +30, ancoradas em '\\739617'
+  [1] ''
+  nota: o `\` antes dos digitos e' o escape do nucleo (OBAT) para run de digitos — grafia interna, nao faz parte do ordinal
+
+ENTRADA (5 primeiros): ['2026-01-01', '2026-01-31', '2026-03-02', '2026-04-01', '2026-05-01']
+BASELINE do FLOOR (encode sem nature): 6338 B — a nature VENCEU

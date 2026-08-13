@@ -1,0 +1,26 @@
+n=400  k=400
+nature spec='data-iso'  (o NAME legivel — ADR-0041: o wire leva `dt`)
+  apply-rate: 400/400 = 100.0%
+  por status: {'compressible': 400}
+  venceu o FLOOR: True
+cadence: {'n_strings_total': 400, 'n_sample': 5, 'threshold': 0.7, 'numeric_card_threshold': 0.5, 'rule_hit': '2-numeric-high-cardinality', 'lengths': [6, 6, 6, 6, 6], 'lcp_lcs_ratios': [{'pair': 1, 'lcp': 4, 'lcs': 0, 'ratio': 0.667}, {'pair': 2, 'lcp': 4, 'lcs': 0, 'ratio': 0.667}, {'pair': 3, 'lcp': 4, 'lcs': 0, 'ratio': 0.667}, {'pair': 4, 'lcp': 4, 'lcs': 0, 'ratio': 0.667}], 'cardinality': 1.0, 'is_numeric': True, 'reason': 'numeric, cardinality=1.000 > 0.5'}
+seq_rle_runs (1): [{'start_line': 1, 'end_line': 400, 'count': 400, 'deltas': [15], 'uniform_delta': 15, 'template': '\\739617', 'savings': 3184}]
+body_bytes (candidato tcf da coluna): 16
+
+-- hcc_trace --
+# Optimization trace — syntax=M8-A-seq-rle
+
+=== DETECTOR ITERATIONS (unified — atoms + virtuals) ===
+
+--- Iter 1 ---
+Sub-tuplas K>=2 com R>=2: 0  net>0: 0
+Nenhum candidato com net > 0. STOP.
+
+=== MISSED OPPORTUNITIES (post-hoc) ===
+  (nenhum)
+
+Total estimated missed: 0
+
+-- obat_log --
+min_len=6
+prefer_shape_consistency=True

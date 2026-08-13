@@ -1,0 +1,17 @@
+{
+ "caso": "f1-tpch-orderdate",
+ "familia": "real",
+ "ideia": "TPC-H orderdate como vem do banco (nao ordenado): o caso comum de coluna de data",
+ "n": 3000,
+ "k_unicos": 1738,
+ "primeiros": [
+  "1996-01-02",
+  "1996-12-01",
+  "1993-10-14",
+  "1995-10-11",
+  "1994-07-30"
+ ],
+ "hash_entrada": "b713a60f5842",
+ "gerador": "casos.py",
+ "corpus_real": true
+}

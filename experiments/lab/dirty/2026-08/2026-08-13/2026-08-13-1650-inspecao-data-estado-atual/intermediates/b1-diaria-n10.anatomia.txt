@@ -1,0 +1,18 @@
+b1-diaria-n10 — N=10: a nature PERDE o FLOOR -> o encoder emite o CORE (sem `:dt`)
+==================================================================================
+WIRE COMPLETO (42 bytes):
+'#TCF.8!\n!2026-01-*0*1\n1~2!2\n*7+1|4!3\n1!10\n'
+
+HEADER
+  '#TCF.8!'                      header com sufixo de rota `!` (ex.: `!`=polaridade ADR-0035, `B..`=bN de dominio ADR-0036)
+
+CORPO (5 linha(s))
+  [0] '!2026-01-*0*1'
+  [1] '1~2!2'
+  [2] '*7+1|4!3'
+      -> seq-RLE aritmetico: 7 linhas com passo constante +1, ancoradas em '4!3'
+  [3] '1!10'
+  [4] ''
+
+ENTRADA (5 primeiros): ['2026-01-01', '2026-01-02', '2026-01-03', '2026-01-04', '2026-01-05']
+BASELINE do FLOOR (encode sem nature): 42 B — o CORE venceu (nature recusada)

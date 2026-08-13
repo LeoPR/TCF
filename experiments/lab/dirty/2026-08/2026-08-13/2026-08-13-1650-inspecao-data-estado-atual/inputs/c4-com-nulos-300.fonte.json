@@ -1,0 +1,17 @@
+{
+ "caso": "c4-com-nulos-300",
+ "familia": "borda",
+ "ideia": "slots NULOS no meio da progressao (o None do core, nao string vazia)",
+ "n": 300,
+ "k_unicos": 271,
+ "primeiros": [
+  null,
+  "2026-01-02",
+  "2026-01-03",
+  "2026-01-04",
+  "2026-01-05"
+ ],
+ "hash_entrada": "1de358bdd9eb",
+ "gerador": "casos.py",
+ "corpus_real": false
+}

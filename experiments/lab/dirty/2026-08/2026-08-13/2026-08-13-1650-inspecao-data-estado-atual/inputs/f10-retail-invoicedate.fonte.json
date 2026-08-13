@@ -1,0 +1,17 @@
+{
+ "caso": "f10-retail-invoicedate",
+ "familia": "real",
+ "ideia": "retail: data de fatura (muitas repeticoes por dia)",
+ "n": 3000,
+ "k_unicos": 117,
+ "primeiros": [
+  "2010-12-01 08:26:00",
+  "2010-12-01 08:26:00",
+  "2010-12-01 08:26:00",
+  "2010-12-01 08:26:00",
+  "2010-12-01 08:26:00"
+ ],
+ "hash_entrada": "6bcdd9da0845",
+ "gerador": "casos.py",
+ "corpus_real": true
+}
