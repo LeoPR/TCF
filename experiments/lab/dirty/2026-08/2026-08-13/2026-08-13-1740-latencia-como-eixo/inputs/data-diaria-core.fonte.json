@@ -1,0 +1,14 @@
+{
+ "rotulo": "data-diaria-core",
+ "ideia": "a MESMA data sem spec: isola o efeito do spec do efeito do tipo",
+ "n": 600,
+ "k_unicos": 600,
+ "spec": null,
+ "primeiros": [
+  "2026-01-01",
+  "2026-01-02",
+  "2026-01-03"
+ ],
+ "hash": "d985b9b09dc2",
+ "CONSTANTE_na_comparacao": "n=600, mesmos cortes, cada fatia e' um wire INDEPENDENTE (decodificavel sozinha) — so' o TIPO varia"
+}

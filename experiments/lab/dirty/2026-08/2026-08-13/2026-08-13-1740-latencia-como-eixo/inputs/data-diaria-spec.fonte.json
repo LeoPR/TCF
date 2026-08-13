@@ -1,0 +1,14 @@
+{
+ "rotulo": "data-diaria-spec",
+ "ideia": "progressao perfeita + spec: o MAIOR ganho do projeto (26 B p/ 600 valores)",
+ "n": 600,
+ "k_unicos": 600,
+ "spec": "data-iso",
+ "primeiros": [
+  "2026-01-01",
+  "2026-01-02",
+  "2026-01-03"
+ ],
+ "hash": "d985b9b09dc2",
+ "CONSTANTE_na_comparacao": "n=600, mesmos cortes, cada fatia e' um wire INDEPENDENTE (decodificavel sozinha) — so' o TIPO varia"
+}

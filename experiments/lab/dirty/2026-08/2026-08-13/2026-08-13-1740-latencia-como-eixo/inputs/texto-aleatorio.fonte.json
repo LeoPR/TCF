@@ -1,0 +1,14 @@
+{
+ "rotulo": "texto-aleatorio",
+ "ideia": "quase incompressivel: o controle de baixo",
+ "n": 600,
+ "k_unicos": 600,
+ "spec": null,
+ "primeiros": [
+  "mmcpmlmjknil",
+  "meknlkcgfpmn",
+  "hgilhfocfoeb"
+ ],
+ "hash": "8361e235a74e",
+ "CONSTANTE_na_comparacao": "n=600, mesmos cortes, cada fatia e' um wire INDEPENDENTE (decodificavel sozinha) — so' o TIPO varia"
+}

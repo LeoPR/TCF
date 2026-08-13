@@ -1,0 +1,14 @@
+{
+ "rotulo": "categoria-k5",
+ "ideia": "ganho por DICIONARIO (baixa cardinalidade)",
+ "n": 600,
+ "k_unicos": 5,
+ "spec": null,
+ "primeiros": [
+  "inativo",
+  "pendente",
+  "novo"
+ ],
+ "hash": "f2f4c6368d60",
+ "CONSTANTE_na_comparacao": "n=600, mesmos cortes, cada fatia e' um wire INDEPENDENTE (decodificavel sozinha) — so' o TIPO varia"
+}

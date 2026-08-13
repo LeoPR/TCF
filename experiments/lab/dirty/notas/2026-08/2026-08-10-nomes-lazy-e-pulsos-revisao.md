@@ -175,8 +175,28 @@ Duas regras saem daí:
    pad; fora de fase exige rotacionar — e a rotação tem de continuar canônica sob o guard
    do ADR-0040.
 2. **Pulso periódico tem tamanho mínimo: `2p+1` valores** (o guard exige 2 ciclos
-   completos). Com p=5, um pulso de 7 é ilegal — teria de cair no marcador uniforme ou em
-   literais. **Um modo de baixa latência não pode cortar em qualquer lugar.**
+   completos). Com p=5, um pulso de 7 não pode usar **esse marcador** — cai no uniforme ou
+   em literais.
+
+> ### ⚠ CORREÇÃO (2026-08-13) — a conclusão que estava aqui era falsa
+>
+> A frase original fechava com *"**um modo de baixa latência não pode cortar em qualquer
+> lugar**"*. **Está refutada.** Medido em
+> [`2026-08-13-1740-latencia-como-eixo`](../../2026-08/2026-08-13/2026-08-13-1740-latencia-como-eixo/):
+> dias úteis (período 5) cortados em **todos** os tamanhos de fatia de 1 a 40 — **40 de 40
+> legais**, round-trip em todos, inclusive 1, 2, 3, 7, 11, 13, 17, 23, 37 (todos fora de
+> fase).
+>
+> As duas regras acima continuam verdadeiras — mas são restrições **de uma grafia**, não do
+> modo de latência. Quando o corte não cabe no marcador periódico, o FLOOR escolhe outra
+> grafia; a fatia sai do mesmo jeito, só custa diferente.
+>
+> O erro foi de direção de dependência, e o owner o nomeou: *"a questão do período é
+> acessório… a fatia tem que derivar da latência"*. Aqui eu tinha feito a latência derivar
+> do período. Consequência direta: o item 4 da tabela de pesquisa abaixo dizia
+> *"modo `deadline_ms` no single-col **com corte alinhado ao período**"* — o alinhamento sai;
+> o corte vem do deadline (teto de tempo) e do penhasco (piso de bytes), ambos medidos no lab
+> novo, nenhum deles de calendário.
 
 ### Onde isso já estava registrado
 
@@ -195,7 +215,7 @@ Duas regras saem daí:
 | 1 | **Regra de nome de spec** (`[a-z0-9]{2,8}`, sem hífen) + renomear `data-iso`→`dtiso` | baixo — grafia + re-pin | 9,4% do artefato em payload pequeno, e é **format change: barato só até o 1.0** |
 | 2 | **Bypass aritmético no lazy** para run de spec monotônico | médio — read-only, não toca o formato | a condição ("run limpo") **passou a existir**; o L3 de 2026-06 concluiu contra um corpus que não a tinha |
 | 3 | **Filtro declarativo** (`ano=`, `entre=`) no `view` | médio | pré-requisito do #2 — sem ele o predicado é lambda opaca |
-| 4 | **Modo `deadline_ms` no single-col** com corte alinhado ao período | médio | o wire já aceita; a curva de custo é linear e conhecida; o bloqueio do V2-J é de outra rota |
+| 4 | **Modo `deadline_ms` no single-col** — corte derivado do deadline, ~~alinhado ao período~~ (ver CORREÇÃO acima) | médio | o wire já aceita; a régua `[piso, teto]` está medida em `2026-08-13-1740-latencia-como-eixo`; o bloqueio do V2-J é de outra rota |
 | 5 | Pulso em multi-col | alto | aí sim esbarra no `size=` do header (V2-J, 2.0) |
 
 Nenhum é `.8`. **#1 é o único com prazo** — depois do 1.0 o nome congela.
