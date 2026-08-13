@@ -198,8 +198,12 @@ periódico só tornou visível. Registrado como `T-FLOOR-POS-POLARIDADE`.
 
 - É **format change** (`#TCF.8`): wire novo não é legível por decoder anterior — mas
   falha alto, não corrompe.
-- **CPU: +35% no caso em que o mecanismo NÃO ganha.** Medido, e é o número que mais
-  mudou durante o estudo — a forma ingênua do detector é **O(n²)**:
+- **CPU.** O número abaixo (**+35%**) é o **PIOR CASO**, não o custo: ele foi medido numa
+  série uniforme longa (n=2400) — o formato construído para maltratar o detector, que
+  varre tudo e nunca acha nada. **Medido depois em corpus real** (2026-08-13, 138 colunas
+  de samples+synthetic+hub, 266 chamadas): o detector custa **1,37% do encode** e ativa em
+  **4 de 138** colunas. Publicar só o +35% descrevia o mecanismo errado; os dois números
+  ficam, com os regimes explícitos. A forma ingênua do detector era **O(n²)**:
 
   | detector | n=600 | n=1200 | n=2400 |
   |---|---:|---:|---:|
