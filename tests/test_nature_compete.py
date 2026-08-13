@@ -200,10 +200,13 @@ class TestFloorMultiHeaderCost:
         assert decode(candidate) == table
 
     def test_custom_spec_roundtrip_requires_matching_out_of_band(self):
-        custom = replace(SPEC_CPF, name="custom-cpf")
+        # RE-PIN 2026-08-13 (weld A ADR-0041): spec de terceiro leva wire_id PROPRIO
+        # — `replace(name=...)` sozinho herdaria `wire_id="cpf"` e a porta de emissao
+        # recusa a mascarada (pin em test_natures.py::TestMascaradaDeWireIdCore).
+        custom = replace(SPEC_CPF, name="custom-cpf", wire_id="xcpf")
         table = {"c": _random_cpfs(100)}
         blob = encode(table, nature_per_col={"c": custom})
-        assert ":custom-cpf" in blob.split("\n", 1)[0]
+        assert ":xcpf" in blob.split("\n", 1)[0]
         with pytest.raises(ValueError, match="desconhecido"):
             decode(blob)
         assert decode(blob, nature_per_col={"c": custom}) == table

@@ -43,8 +43,9 @@ def test_lazy_tcf8_nature_em_modo_dict_reverte_no_where_e_group():
     `LazyTCF._reverte_nature`, usada pelos DOIS caminhos.
 
     O regime importa: a nature so' vence o FLOOR em modo dict com k moderado — k=50/n=400
-    emite `#TCF.8M@...=dt:data-iso,@v`. Com k pequeno o dict sem nature ganha e a coluna
-    nem carrega `:id`, que era por que o bug passava despercebido.
+    emite `#TCF.8M@...=dt:dt,@v` (re-pin 2026-08-13, weld A ADR-0041: o `:id` e' o
+    wire_id `dt`; a coluna por acaso tambem se chama `dt`). Com k pequeno o dict sem
+    nature ganha e a coluna nem carrega `:id`, que era por que o bug passava despercebido.
     """
     import datetime as _dt
     base = _dt.date(2025, 1, 1)
@@ -52,7 +53,7 @@ def test_lazy_tcf8_nature_em_modo_dict_reverte_no_where_e_group():
     outra = [str(i % 7) for i in range(400)]
     blob = encode({"dt": datas, "v": outra}, nature_per_col={"dt": SPEC_DATA_ISO})
     cabecalho = blob.splitlines()[0]
-    assert ":data-iso" in cabecalho, "o regime mudou: a nature nao venceu em dict"
+    assert "dt:dt" in cabecalho, "o regime mudou: a nature nao venceu em dict"
     assert "@" in cabecalho, "o regime mudou: a coluna nao esta' em modo dict"
 
     v = view(blob)

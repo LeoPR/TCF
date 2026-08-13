@@ -50,6 +50,12 @@ class TemplatedCheckedSpec:
         check_fn: dado lista[int] body, retorna lista[int] checks
         formatter: dado lista[int] (body+check), retorna string formatada
         encoded_length: chars pra encodar 10^body_length em BASE94
+        wire_id: id CURTO que viaja no header (`:id`). Plano do DADO — o `name`
+            e' o plano do CODIGO (API/telemetria/erros) e NUNCA viaja (ADR-0041).
+            Vazio -> assume o `name`. A grafia (`^[a-z][a-z0-9]{0,7}$`) NAO e'
+            validada aqui de proposito: a valvula de leitura de wire historico
+            (`dataclasses.replace(SPEC, wire_id=<id antigo>)`) precisa construir
+            specs fora da regra. Fail-loud fica no REGISTRO e na EMISSAO.
     """
     name: str
     regex: re.Pattern
@@ -58,6 +64,11 @@ class TemplatedCheckedSpec:
     check_fn: Callable[[list[int]], list[int]]
     formatter: Callable[[list[int]], str]
     encoded_length: int
+    wire_id: str = ""
+
+    def __post_init__(self):
+        if not self.wire_id:
+            object.__setattr__(self, "wire_id", self.name)
 
     # === Protocol NatureSpec methods ===
 

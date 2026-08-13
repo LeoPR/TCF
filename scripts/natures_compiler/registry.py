@@ -16,7 +16,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from tcf.natures import SPEC_CPF, SPEC_CNPJ, SPEC_IP
+from tcf.natures import SPEC_CPF, SPEC_CNPJ, SPEC_IP, SPEC_DATA_ISO
 
 from .compiler import compile_file
 
@@ -49,7 +49,9 @@ def load_dir(path) -> list[str]:
     return loaded
 
 
-# semeia com os specs canonicos welded do core (fonte da verdade pra cpf/cnpj/ip)
+# semeia com os specs canonicos welded do core (fonte da verdade). O lookup aqui
+# e' por NAME (plano do CODIGO, ADR-0041) — o wire_id curto e' assunto do header.
 register("cpf", SPEC_CPF)
 register("cnpj", SPEC_CNPJ)
 register("ip", SPEC_IP)
+register("data-iso", SPEC_DATA_ISO)

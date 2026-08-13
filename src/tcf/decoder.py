@@ -62,22 +62,29 @@ _V8_MAGIC = "#TCF.8"  # base do #TCF.8; o disc (char no indice 6) decide
 
 
 def _resolve_header_spec(nature_id: str, supplied, *, where: str):
-    """Resolve um ID do header pelo registry core ou por spec declarado fora dele."""
+    """Resolve um ID do header pelo registry core ou por spec declarado fora dele.
+
+    A comparacao e' contra o WIRE_ID (plano do DADO, ADR-0041), ESTRITA: id
+    historico (`:data-iso` dos wires pre-rename) nao resolve — le-se out-of-band
+    com `dataclasses.replace(SPEC, wire_id=<id do header>)` (ADR-0024: o passado
+    se le pelo git, nao por bagagem no codigo)."""
     from tcf.natures import _resolve_nature_id
 
     spec = _resolve_nature_id(nature_id)
     if spec is not None:
         return spec
-    if supplied is not None and getattr(supplied, "name", None) == nature_id:
+    if supplied is not None and getattr(supplied, "wire_id", None) == nature_id:
         return supplied
     if supplied is not None:
         raise ValueError(
-            f"nature-id {nature_id!r} no header {where} nao coincide com o spec "
-            f"out-of-band {getattr(supplied, 'name', None)!r}"
+            f"nature-id {nature_id!r} no header {where} nao coincide com o wire_id "
+            f"do spec out-of-band ({getattr(supplied, 'wire_id', None)!r}, "
+            f"name={getattr(supplied, 'name', None)!r})"
         )
     raise ValueError(
         f"nature-id desconhecido no header {where}: {nature_id!r} — registry core "
-        "fechado; forneca o spec correspondente out-of-band para decodificar"
+        "fechado; forneca o spec out-of-band para decodificar (wire historico: "
+        "dataclasses.replace(SPEC, wire_id=<id do header>))"
     )
 
 
@@ -192,7 +199,7 @@ def decode(
         # NAO deve tocar colunas nao-marcadas — fazia isso e CORROMPIA silenciosamente
         # valores que casassem a forma base-94 (achado da verificacao adversarial do
         # FLOOR, 2026-07-12). Para IDs fora do registry core, o spec out-of-band so'
-        # entra se o nome coincidir exatamente com o ID do header.
+        # entra se o WIRE_ID coincidir exatamente com o ID do header (ADR-0041).
         header_resolved: set[str] = set()
         if header_ids:
             for name, nat_id in header_ids.items():

@@ -277,8 +277,10 @@ def encode(
             - Para list (single-col): parametro ignorado (1 coluna)
         nature: pre-tx por natureza (ADR-0015; list apenas — pra dict use
             nature_per_col, erro cruzado BUG-10g). Emite header self-describing
-            `#TCF.8 [nome]:id` — o decode resolve SOZINHO pelo registry
-            (cpf/cnpj/ip); spec out-of-band so' pra ids fora do registry.
+            `#TCF.8 [nome]:id` onde `id` e' o WIRE_ID curto do spec (ADR-0041;
+            `dt` p/ data-iso) — o decode resolve SOZINHO pelo registry; spec
+            out-of-band so' pra ids fora dele. Grafia do wire_id validada
+            fail-loud aqui na porta (`^[a-z][a-z0-9]{0,7}$`).
         nature_per_col: dict col_name -> spec (dict input apenas). Sufixo `:id`
             por coluna no meta (ADR-0027, self-describing).
         name: rotulo opcional do header single-col + nature (`#TCF.8 nome:id`).
@@ -356,6 +358,20 @@ def encode(
             "name= so' tem efeito em single-col COM nature= (rotulo do header "
             "'#TCF.8 nome:spec'); sem isso seria ignorado calado (T-QA-8 BUG-10e)"
         )
+    if nature is not None or nature_per_col:
+        # EMISSAO fail-loud do wire_id (ADR-0041): grafia + anti-mascarada,
+        # validadas NA PORTA, antes de qualquer dispatch — a rota .8H envolve a
+        # emissao interna num try/except que cai pro piso, e validar la' dentro
+        # ENGOLIRIA o spec hostil em vez de recusar alto. Aqui cobre
+        # single/multi/.8H de uma vez.
+        from tcf.natures import _valida_emissao
+
+        if nature is not None:
+            _valida_emissao(nature, where="nature=")
+        for _col, _sp in (nature_per_col or {}).items():
+            if _sp is None:
+                continue  # slot None = coluna sem nature (contrato pre-existente)
+            _valida_emissao(_sp, where=f"nature_per_col[{_col!r}]")
     cfg = layers if layers is not None else DEFAULT_PIPELINE
     if min_len is not None and min_len < 1:
         raise ValueError(f"min_len deve ser >= 1 (ou None pra auto); got {min_len}")
@@ -388,7 +404,10 @@ def encode(
             body_nat = _encode_column(
                 transformed, header="val", cfg=cfg, min_len=min_len
             )
-            header_nat = f"{magic} {name or ''}:{nature.name}\n"
+            # `:id` = wire_id CURTO (plano do DADO, ADR-0041) — nunca o `name`.
+            # O comprimento decide o FLOOR: com `:data-iso` (10 B) a nature
+            # perdia em N>=11 diarias; com `:dt` vence (12 flips medidos).
+            header_nat = f"{magic} {name or ''}:{nature.wire_id}\n"
             # FLOOR: compara os blobs completos; empate fica no baseline.
             # o baseline compete na MESMA grafia que sera' emitida (com header por default)
             # — inclusive POLARIZADA (weld 2026-07-26). Comparar contra a grafia antiga daria

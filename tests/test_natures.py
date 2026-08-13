@@ -24,6 +24,7 @@ from tcf.natures import (
     BASE94,
     MARKER_LITERAL,
     SPEC_IP,
+    SPEC_DATA_ISO,
     SPEC_REGISTRY,
     _resolve_nature_id,
 )
@@ -286,10 +287,17 @@ class TestNatureMarkHeader:
         assert _resolve_nature_id("cnpj") is SPEC_CNPJ
         assert _resolve_nature_id("ip") is SPEC_IP
         assert _resolve_nature_id("nao-existe") is None  # tolerante, não raise
-        # RE-PIN 2026-08-08 (weld T-DATA-LAZY-ISO): o registry ganhou `data-iso`.
-        # O vocabulario continua FECHADO — o teste existe pra que crescer seja decisao,
-        # nao acidente.
+        # RE-PIN 2026-08-13 (weld A ADR-0041): a resolucao passou a ser por WIRE_ID
+        # (plano do DADO) e ESTRITA — `dt` resolve, `data-iso` NAO (wire historico
+        # le-se out-of-band; ADR-0024).
+        assert _resolve_nature_id("dt") is SPEC_DATA_ISO
+        assert _resolve_nature_id("data-iso") is None
+        # O vocabulario continua FECHADO nos DOIS planos — o teste existe pra que
+        # crescer seja decisao, nao acidente. (name-plane pinado desde 2026-08-08.)
+        from tcf.natures import _WIRE_REGISTRY
+
         assert set(SPEC_REGISTRY) == {"cpf", "cnpj", "ip", "data-iso"}
+        assert set(_WIRE_REGISTRY) == {"cpf", "cnpj", "ip", "dt"}
 
 
 # ===========================================================================
@@ -448,14 +456,17 @@ class TestNatureMarkSingleCol:
         assert decode(text, nature=SPEC_CPF) == cpfs
 
     def test_custom_spec_roundtrip_requires_matching_out_of_band(self):
-        custom = replace(SPEC_CPF, name="custom-cpf")
+        # RE-PIN 2026-08-13 (weld A ADR-0041): spec de terceiro precisa de wire_id
+        # PROPRIO — `replace(name=...)` sozinho herdaria o wire_id core `cpf` e a
+        # emissao recusa a mascarada (pin em TestWireIdDoisPlanos). Convencao `x*`.
+        custom = replace(SPEC_CPF, name="custom-cpf", wire_id="xcpf")
         cpfs = ["529.982.247-25", "111.444.777-35"]
         text = encode(cpfs, nature=custom)
-        assert text.split("\n", 1)[0] == "#TCF.8 :custom-cpf"
+        assert text.split("\n", 1)[0] == "#TCF.8 :xcpf"
         with pytest.raises(ValueError, match="desconhecido"):
             decode(text)
         assert decode(text, nature=custom) == cpfs
-        wrong = replace(SPEC_CPF, name="other-cpf")
+        wrong = replace(SPEC_CPF, name="other-cpf", wire_id="xother")
         with pytest.raises(ValueError, match="nao coincide"):
             decode(text, nature=wrong)
 
@@ -606,14 +617,15 @@ class TestDataIsoSpec:
         # passo mensal: o OBAT rende ~4% sozinho; o ordinal colapsa no seq-RLE
         mensal = [(base + dt.timedelta(days=30 * i)).isoformat() for i in range(200)]
         w = encode(mensal, nature=S)
-        assert w.startswith("#TCF.8 :data-iso"), w[:24]
+        # RE-PIN 2026-08-13 (weld A ADR-0041): o header carrega o wire_id `dt`.
+        assert w.startswith("#TCF.8 :dt"), w[:24]
         assert len(w.encode()) < len(encode(mensal).encode()) // 10
         assert decode(w) == mensal
 
         # agrupado: o RLE do core ja' resolve; o spec o DESTRUIRIA -> o FLOOR recusa
         agrup = [(base + dt.timedelta(days=i // 20)).isoformat() for i in range(200)]
         w2 = encode(agrup, nature=S)
-        assert not w2.startswith("#TCF.8 :data-iso")
+        assert not w2.startswith("#TCF.8 :dt")
         assert len(w2.encode()) <= len(encode(agrup).encode())
         assert decode(w2) == agrup
 
@@ -691,3 +703,236 @@ class TestNatureFloorVeOBaselineReal:
                 f"contra o baseline real"
             )
             assert decode(com) == col
+
+
+# ===========================================================================
+# Weld A ADR-0041 — spec em dois campos: name (CODIGO) x wire_id (DADO)
+# ===========================================================================
+
+
+class TestWireIdDoisPlanos:
+    """ADR-0041 (owner, 2026-08-13): `name` legivel NUNCA viaja; `wire_id` curto e' o
+    `:id` do header. Regra `^[a-z][a-z0-9]{0,7}$` fail-loud no registro e na emissao;
+    resolucao ESTRITA (id historico nao resolve — valvula out-of-band)."""
+
+    def test_campos_separados_e_fallback(self):
+        from tcf.natures import SPEC_CPF, SPEC_CNPJ, SPEC_IP, SPEC_DATA_ISO
+
+        # data-iso e' o unico com wire_id != name (o rename que motivou o ADR)
+        assert SPEC_DATA_ISO.name == "data-iso" and SPEC_DATA_ISO.wire_id == "dt"
+        for s in (SPEC_CPF, SPEC_CNPJ, SPEC_IP):
+            assert s.wire_id == s.name  # fallback: vazio -> name
+
+    def test_flip_do_floor_em_n11(self):
+        """O PIN que o rename compra: em N=11 datas diarias a nature passa a VENCER o
+        FLOOR (com `:data-iso`, 10 B de tag, ela perdia e o encoder emitia o core).
+        E' a medicao do ADR-0041 §Contexto-1 virando contrato: o id curto nao e'
+        cosmetica, ele decide a competicao no regime de payload minusculo."""
+        import datetime as dt
+
+        from tcf import decode, encode
+        from tcf.natures import SPEC_DATA_ISO as S
+
+        base = dt.date(2026, 1, 1)
+        for n, vence in [(10, False), (11, True), (12, True)]:
+            vals = [(base + dt.timedelta(days=i)).isoformat() for i in range(n)]
+            w = encode(vals, nature=S)
+            assert w.startswith("#TCF.8 :dt") == vence, (n, w.splitlines()[0])
+            assert decode(w) == vals
+
+    def test_emissao_recusa_grafia_hostil_nas_tres_rotas(self):
+        """A validacao mora na PORTA do encode — a rota .8H envolve a emissao num
+        try/except que cai pro piso, e validar la' dentro ENGOLIRIA o spec hostil."""
+        import dataclasses
+        import datetime as dt
+
+        import pytest
+
+        from tcf import encode
+        from tcf.natures import SPEC_DATA_ISO as S
+
+        base = dt.date(2026, 1, 1)
+        datas = [(base + dt.timedelta(days=30 * i)).isoformat() for i in range(60)]
+        v = [str(i % 3) for i in range(60)]
+        recs = [{"quando": d} for d in datas]
+        for ruim in ("DT", "Dt", "8d", "ab_c", "x-y", "", "a" * 9, "a,b", "a:b",
+                     "dt fim", "data-iso"):
+            spec = dataclasses.replace(S, wire_id=ruim) if ruim else _sem_wire(S)
+            with pytest.raises(ValueError, match="wire_id"):
+                encode(datas, nature=spec)
+            with pytest.raises(ValueError, match="wire_id"):
+                encode({"d": datas, "v": v}, nature_per_col={"d": spec})
+            with pytest.raises(ValueError, match="wire_id"):
+                encode(recs, nature_per_col={"quando": spec})
+
+    def test_registro_recusa_grafia_e_colisao(self):
+        import dataclasses
+
+        import pytest
+
+        from tcf.natures import SPEC_DATA_ISO, _WIRE_REGISTRY, SPEC_REGISTRY, _register
+
+        antes = (dict(SPEC_REGISTRY), dict(_WIRE_REGISTRY))
+        # grafia invalida: recusada ANTES de inserir em qualquer plano
+        with pytest.raises(ValueError, match="wire_id"):
+            _register(dataclasses.replace(SPEC_DATA_ISO, name="outra", wire_id="X!"))
+        # colisao de wire_id (name novo, wire ja' tomado): idem
+        with pytest.raises(ValueError, match="colisao"):
+            _register(dataclasses.replace(SPEC_DATA_ISO, name="outra", wire_id="dt"))
+        # colisao de name: idem
+        with pytest.raises(ValueError, match="registrado"):
+            _register(dataclasses.replace(SPEC_DATA_ISO, wire_id="dt2"))
+        assert (dict(SPEC_REGISTRY), dict(_WIRE_REGISTRY)) == antes, (
+            "falha de registro deixou estado parcial"
+        )
+
+    def test_wire_historico_falha_alto_e_valvula_le(self):
+        """Resolucao ESTRITA (decisao 3): `:data-iso` pre-rename nao resolve — falha
+        com mensagem acionavel; le-se com a valvula out-of-band (ADR-0024: o passado
+        se le pelo git, nao por bagagem no codigo)."""
+        import dataclasses
+        import datetime as dt
+
+        import pytest
+
+        from tcf import decode, encode
+        from tcf.natures import SPEC_DATA_ISO as S
+
+        base = dt.date(2026, 1, 1)
+        vals = [(base + dt.timedelta(days=30 * i)).isoformat() for i in range(60)]
+        w = encode(vals, nature=S)
+        assert w.startswith("#TCF.8 :dt\n")
+        velho = w.replace("#TCF.8 :dt\n", "#TCF.8 :data-iso\n", 1)  # wire pre-rename
+        with pytest.raises(ValueError, match="data-iso.*out-of-band"):
+            decode(velho)
+        # spec out-of-band DIVERGENTE do id tambem falha alto (nunca escolhe calado)
+        with pytest.raises(ValueError, match="nao coincide"):
+            decode(velho, nature=S)
+        valvula = dataclasses.replace(S, wire_id="data-iso")
+        assert decode(velho, nature=valvula) == vals
+
+    def test_telemetria_fica_no_plano_do_codigo(self):
+        """`nature_apply['spec']` reporta o NAME legivel — a telemetria e' pro dev,
+        nao pro fio. O wire_id aparece so' no header."""
+        import datetime as dt
+
+        from tcf import encode
+        from tcf.natures import SPEC_DATA_ISO as S
+        from tcf.side_outputs import SideOutputs
+
+        base = dt.date(2026, 1, 1)
+        vals = [(base + dt.timedelta(days=30 * i)).isoformat() for i in range(60)]
+        so = SideOutputs()
+        w = encode(vals, nature=S, side_outputs=so)
+        assert so.nature_apply["val"]["spec"] == "data-iso"
+        assert ":dt\n" in w and "data-iso" not in w
+
+
+def _sem_wire(spec):
+    """Spec com wire_id='' SEM passar pelo __post_init__ (que faria fallback pro name):
+    simula objeto hostil que nem dataclass e'."""
+    class _Falso:
+        name = spec.name
+        wire_id = ""
+    return _Falso()
+
+
+class TestMascaradaDeWireIdCore:
+    """Buraco NOVO dos dois planos, fechado na porta de emissao: `replace(SPEC_CPF,
+    name=...)` herda `wire_id='cpf'` — emitiria `:cpf` e o decode resolveria o spec
+    CORE; transformacao derivada divergente corromperia CALADO (pre-ADR-0041 o id
+    era o name, o buraco nao existia)."""
+
+    def test_emissao_recusa_spec_derivado_com_wire_id_core(self):
+        from dataclasses import replace
+
+        import pytest
+
+        from tcf import encode
+        from tcf.natures import SPEC_CPF
+
+        derivado = replace(SPEC_CPF, name="custom-cpf")  # herda wire_id="cpf"
+        assert derivado.wire_id == "cpf"
+        with pytest.raises(ValueError, match="mascarada|pertence ao spec core"):
+            encode(["529.982.247-25", "111.444.777-35"], nature=derivado)
+
+    def test_noop_replace_e_o_proprio_core_continuam_passando(self):
+        from dataclasses import replace
+
+        from tcf import decode, encode
+        from tcf.natures import SPEC_CPF
+
+        cpfs = ["529.982.247-25", "111.444.777-35"]
+        # o proprio spec core e o clone campo-a-campo igual NAO sao mascarada
+        for spec in (SPEC_CPF, replace(SPEC_CPF)):
+            assert decode(encode(cpfs, nature=spec)) == cpfs
+
+
+class TestLacunaImpostorDuckType:
+    """LACUNA CONHECIDA (`T-SPEC-IMPOSTOR`), **pre-existente ao ADR-0041** — medida na
+    cacada do weld A (2026-08-13) e reproduzida IDENTICA no commit anterior.
+
+    Um duck-type que se declara com a identidade do core (`name` E `wire_id` iguais)
+    mas transforma DIFERENTE vence o FLOOR, emite `:dt`, e o decode resolve pelo
+    registry -> aplica o spec CORE -> 200 valores deslocados 1000 dias, SEM excecao.
+    E' a classe "corrupcao calada".
+
+    Por que nao foi fechado NESTE weld: a fronteira de confianca da emissao e' o
+    `name` (registry-first no decode) e ela e' PRE-weld — apertar exigiria decidir
+    entre quebrar o clone funcional compilado de `.dsl` (que legitimamente se chama
+    `cpf`) ou verificar equivalencia por amostragem contra o spec do registry. E'
+    decisao de escopo proprio, nao carona de rename.
+
+    O que o weld A FEZ aqui: estreitou o buraco de "coincidir o name" para "coincidir
+    name E wire_id" — `replace(SPEC_CPF, name='custom')`, que herda o wire_id, agora
+    e' recusado (TestMascaradaDeWireIdCore).
+
+    Este teste PINA a lacuna: quando `T-SPEC-IMPOSTOR` fechar, ele falha — e quem
+    fechar atualiza aqui. Nao e' contrato desejado; e' fronteira medida.
+    """
+
+    def test_impostor_ainda_passa_hoje(self):
+        import datetime as dt
+
+        from tcf import decode, encode
+
+        class _Impostor:
+            name = "data-iso"
+            wire_id = "dt"
+
+            def classify_value(self, v):
+                return "compressible"
+
+            def encode_value(self, v):
+                return (str(dt.date.fromisoformat(v).toordinal() + 1000), "compressible")
+
+            def decode_value(self, p):
+                return dt.date.fromordinal(int(p) - 1000).isoformat()
+
+        base = dt.date(2026, 1, 1)
+        datas = [(base + dt.timedelta(days=30 * i)).isoformat() for i in range(200)]
+        w = encode(datas, nature=_Impostor())
+        assert w.startswith("#TCF.8 :dt")     # venceu o FLOOR e carimbou id do core
+        assert decode(w) != datas             # LACUNA: corrompe calado (T-SPEC-IMPOSTOR)
+
+    def test_spec_sem_wire_id_recusa_ensinando(self):
+        """Consequencia NOVA do weld: spec duck-typed escrito antes do ADR-0041 nao
+        emite mais. A recusa tem de ENSINAR o campo que falta, nao so' citar a regra."""
+        import pytest
+
+        from tcf import encode
+
+        class _Antigo:
+            name = "meu-spec"
+
+            def classify_value(self, v):
+                return "compressible"
+
+            def encode_value(self, v):
+                return (v.replace("-", ""), "compressible")
+
+            def decode_value(self, p):
+                return f"{p[:4]}-{p[4:6]}-{p[6:]}"
+
+        with pytest.raises(ValueError, match="sem o campo `wire_id`"):
+            encode(["2026-01-01", "2026-02-01"], nature=_Antigo())

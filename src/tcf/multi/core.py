@@ -454,7 +454,8 @@ def _encode_multi(
                 transformed, header=name, cfg=cfg, min_len=min_len
             ).encode("utf-8")
             nat_body, nat_mode = _best_of(transformed, nat_tcf)
-            nature_candidates[name] = (nat_body, nat_mode, spec.name)
+            # o `:id` do meta e' o wire_id (plano do DADO, ADR-0041), nao o name
+            nature_candidates[name] = (nat_body, nat_mode, spec.wire_id)
 
         final_bodies.append((name, best_body, best_mode))
 

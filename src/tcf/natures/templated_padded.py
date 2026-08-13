@@ -48,11 +48,19 @@ class TemplatedPaddedSpec:
     digit-only -> HCC seq-RLE digit-centric ativa.
 
     Decodificacao: split por slot_widths, reformat com separador.
+
+    `wire_id`: id curto do header (plano do DADO, ADR-0041); vazio -> `name`.
+    Grafia validada no registro/emissao, nao aqui (valvula de wire historico).
     """
     name: str
     regex: re.Pattern
     slot_widths: tuple[int, ...]
     separator: str
+    wire_id: str = ""
+
+    def __post_init__(self):
+        if not self.wire_id:
+            object.__setattr__(self, "wire_id", self.name)
 
     @property
     def total_padded_length(self) -> int:

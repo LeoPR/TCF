@@ -463,7 +463,7 @@ def _encode_dataset(records: list, side_outputs=None, nature_per_col=None) -> st
     _emit_array(records, schema, (), cols)
 
     # nature (2026-07-19, OTIMIZAÇÃO): mapa path→spec, só p/ folha scalar-STRING. Valida cedo.
-    nat_id = {}                                       # (path,'scalar') -> spec.name (id no meta)
+    nat_id = {}                                       # (path,'scalar') -> spec.wire_id (id no meta, ADR-0041)
     nat_spec = {}                                     # (path,'scalar') -> spec
     if nature_per_col:
         stype_of = {p: st for (kind, p, st) in _scalar_leaf_specs(schema)}  # path -> stype

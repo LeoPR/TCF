@@ -61,9 +61,18 @@ _LARGURA_ISO = 10
 
 @dataclass(frozen=True)
 class DataIsoSpec:
-    """Data em `YYYY-MM-DD` -> ordinal proleptico gregoriano, em decimal."""
+    """Data em `YYYY-MM-DD` -> ordinal proleptico gregoriano, em decimal.
+
+    `name` e' o plano do CODIGO (API/telemetria/erros); `wire_id` e' o que viaja
+    no header (ADR-0041). O id curto NAO e' cosmetica: o comprimento decide o
+    FLOOR — em N>=11 datas diarias a nature PERDIA a competicao com `:data-iso`
+    (10 B de tag) e vence com `:dt` (medido: 12 flips no corpus da decisao).
+    Wire historico com `:data-iso` le-se out-of-band:
+    `decode(w, nature=dataclasses.replace(SPEC_DATA_ISO, wire_id="data-iso"))`.
+    """
 
     name: str = "data-iso"
+    wire_id: str = "dt"
 
     # ── classificacao ────────────────────────────────────────────────────────
     def classify_value(self, v: str) -> str:
@@ -100,8 +109,8 @@ class DataIsoSpec:
             # Fail-loud: o encoder canonico so' emite ordinal valido ou literal marcado.
             # Payload fora disso e' wire que este spec nunca produziu.
             raise ValueError(
-                f"#TCF.8 :{self.name}: payload {payload[:16]!r} nao e' ordinal de data "
-                f"valido nem literal marcado — corpo nao-canonico"
+                f"nature {self.name} (header :{self.wire_id}): payload {payload[:16]!r} "
+                f"nao e' ordinal de data valido nem literal marcado — corpo nao-canonico"
             ) from e
 
 

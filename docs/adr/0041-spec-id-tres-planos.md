@@ -1,8 +1,9 @@
 # ADR-0041 — Spec em TRÊS planos: nome de código, id de wire, e o carimbo
 
-- **Status**: **decidido** (owner, 2026-08-13 — as 4 decisões abaixo foram tomadas uma a
-  uma). **Weld A (decisões 1-3) aguarda o "pode soldar"**; a decisão 4 saiu do escopo
-  deste ADR e virou `T-SPEC-SEM-CARIMBO`.
+- **Status**: **aceito — weld A SOLDADO** (2026-08-13, aprovação "pode soldar"; as 4
+  decisões foram tomadas uma a uma no mesmo dia). Suíte 1239 → **1247**; gates
+  byte-canonical intactos. A decisão 4 é capacidade nova fora deste weld
+  (`T-SPEC-SEM-CARIMBO`).
 - **Escopo**: identificação de spec/nature em todas as rotas que a emitem
   (`#TCF.8 [col]:id` single-col · `#TCF.8M…=col:id` multi-col · `#TCF.8H` `:size:id`),
   o registry (`natures/`) e a resolução no decode.
@@ -168,7 +169,7 @@ já registrada na direção de contrato externalizado.
 
 | `wire_id` | `name` (código) | estado |
 |---|---|---|
-| `dt` | `data-iso` | **weld A** (rename) — medido: 12 flips do FLOOR contra 6 do `dtiso` |
+| `dt` | `data-iso` | **soldado 2026-08-13** — medido: 12 flips do FLOOR contra 6 do `dtiso` |
 | `cpf` | `cpf` | vigente, já cumpre a regra |
 | `cnpj` | `cnpj` | vigente, já cumpre |
 | `ip` | `ip` | vigente, já cumpre |
@@ -188,6 +189,74 @@ N ≥ 11, e leva 600 datas de 32 → **26 B** (−18,8%, contra −9,4% do `dtis
 **Por que não `d`**: 1 char são 26 slots no universo inteiro, e gastá-lo justo no tipo
 com mais irmãos previstos deixaria a família sem prefixo.
 
+## O weld A, executado (2026-08-13)
+
+**Pontos tocados** (todos pequenos, como previsto na migração): campo `wire_id` nos 3
+dataclasses de spec (fallback `""` → `name` nos Templated; `data_iso` explícito `"dt"`);
+`_register` fail-loud montando os DOIS planos (`SPEC_REGISTRY` por name — intacto — e
+`_WIRE_REGISTRY` por wire_id), validação e colisão checadas ANTES de inserir (falha não
+deixa estado parcial); `_valida_emissao` na **porta do `tcf.encode`** — na porta de
+propósito: a rota `.8H` envolve a emissão interna num try/except que cai pro piso, e
+validar lá dentro ENGOLIRIA o spec hostil (pin: as 3 rotas recusam); emissores usando
+`wire_id` (single `header_nat`, multi `nature_candidates`, `.8H` herda da single);
+`_resolve_header_spec` comparando `wire_id`, estrito; gadget `natures_compiler/registry`
+semeado com `data-iso` (gap fechado). Slot `None` em `nature_per_col` segue tolerado
+(contrato pré-existente).
+
+**Achado DO weld — a MASCARADA** (buraco novo dos dois planos, fechado na porta):
+`replace(SPEC_CPF, name="custom-cpf")` **herda** `wire_id="cpf"` — emitiria `:cpf`, o
+decode resolveria o spec CORE, e uma transformação derivada divergente corromperia
+**calado** (pré-weld o id era o name, o buraco não existia; o teste antigo de spec
+custom flagrou). Fechamento: wire_id do registry exige `name` IGUAL ao do dono. O check
+é por **name** de propósito — clone funcional compilado de `.dsl` pelo gadget se chama
+`cpf` e passa (essa é a fronteira de confiança PRÉ-weld, registry-first no decode;
+igualdade de dataclass não serve porque regex/callables comparam por identidade). O weld
+fecha só o buraco novo, sem estreitar nem alargar a fronteira antiga. Specs de terceiro
+derivados levam wire_id próprio (`xcpf` nos testes re-pinados).
+
+**Pins criados** (8 testes novos + 5 re-pins): flip do FLOOR N=10/11/12; grafias
+recusadas nas 3 rotas (11 grafias × 3); registro atômico (grafia + 2 colisões, estado
+não muda); wire histórico `:data-iso` falha alto + válvula `replace(wire_id=)` lê +
+divergência "nao coincide"; mascarada recusada / no-op `replace(SPEC)` e core passam;
+telemetria `nature_apply["spec"]` fica no plano do CÓDIGO (`data-iso`), wire só `:dt`.
+
+## A caçada adversarial do weld (2026-08-13)
+
+5 lentes executadas (gramáticas · resolução · mascarada · FLOOR/bytes · regressão),
+cada suspeita **re-medida contra o commit anterior** para separar defeito-do-weld de
+pré-existente. **Zero defeitos introduzidos.** O que ficou medido:
+
+- **Regressão zero**: 295 wires (todos os `.csv` de `datasets/`, em multi-col,
+  single-col e 3 variantes de flag) **byte-idênticos** ao pré-weld no caminho sem
+  `nature=`. Gates byte-canonical (D1–D9 = 1545 B, real-world = 89430 B) intactos.
+- **FLOOR nunca-pior**: 1416 combinações (8 padrões × N=2..60 × 3 níveis de sujeira),
+  mais multi-col, `.8H`, `sort_by` e o seq-RLE periódico do ADR-0040 — nenhuma
+  regressão de byte, RT em todas. Em N ≤ 10 o wire é **byte-idêntico ao core**; o
+  flip é exatamente em **N = 11**.
+- **Wires históricos**: os 14 são **todos single-col** — nenhum `.8H`, logo todos
+  alcançáveis pela válvula out-of-band. (Achado de carona: a rota `.8H` **nunca**
+  aceitou spec out-of-band — `decode_hierarchical(texto)` não recebe spec —, então
+  spec de terceiro sempre foi ilegível por lá. Pré-existente, idêntico no commit
+  anterior; não afeta nenhum dos 14.)
+- **Três suspeitas descartadas** por serem idênticas no pré-weld: coluna de nome
+  vazio vira anônima posicional (documentado, com warning); a válvula não chega ao
+  `.8H` (acima); e spec divergente passado ao decode quando o id **está** no registry
+  é ignorado — é o "header vence" do ADR-0027, não uma brecha nova.
+
+**Consequência nova, aceita**: spec **duck-typed** escrito antes deste ADR (sem campo
+`wire_id`) não emite mais. É fail-loud com mensagem que ensina o campo a declarar.
+Quebra de API pré-1.0, coerente com ADR-0024.
+
+**Lacuna medida, NÃO fechada aqui** (`T-SPEC-IMPOSTOR`): um duck-type que se declara
+com a identidade do core (`name` **e** `wire_id`) e transforma diferente vence o FLOOR,
+carimba `:dt`, e o decode aplica o spec core — corrupção **calada** (200 valores
+deslocados 1000 dias, sem exceção). Reproduzida idêntica no commit anterior: a
+fronteira de confiança da emissão é o `name`, e ela é pré-weld. Apertar exige decidir
+entre quebrar o clone funcional compilado de `.dsl` (que legitimamente se chama `cpf`)
+ou verificar equivalência por amostragem contra o spec do registry — escopo próprio,
+não carona de rename. O weld **estreitou** o buraco: de "coincidir o name" para
+"coincidir name e wire_id". Pinada em `TestLacunaImpostorDuckType`.
+
 ## Consequências
 
 **A favor**
@@ -202,7 +271,7 @@ com mais irmãos previstos deixaria a família sem prefixo.
   único item da rodada com prazo real.
 - O flip do FLOOR significa que encurtar o id **muda resultados de competição**: wires
   re-encodados mudam de bytes, e alguns passam a emitir header de spec onde antes
-  emitiam core. Nenhum teste atual pina esses casos — o weld deve criar os pins.
+  emitiam core. Pins criados no weld (`TestWireIdDoisPlanos`): N=10 core, N=11/12 `:dt`.
 - Wires históricos com `:data-iso` (14 `.tcf` commitados em labs) ficam como história;
   decodam pela válvula out-of-band já existente (`decode(w, nature=…)`), **exceto pelo
   `view`**, que não tem essa válvula — documentar, não consertar.
