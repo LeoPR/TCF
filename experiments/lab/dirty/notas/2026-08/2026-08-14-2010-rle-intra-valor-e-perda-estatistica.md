@@ -14,6 +14,21 @@
 
 **Tipo**: [probatório] estudo + análise crítica. Nenhum weld, `src/tcf` intocado.
 
+> ## ⚠️ Esta nota foi CORRIGIDA pelos labs
+>
+> A primeira versão citava números medidos em **scratchpad** — o que o owner pegou:
+> *"vc testou testou mas não achei o dirtylab dessa parte específica"*. Os labs foram
+> construídos depois ([`2026-08-14-2010-rle-intra-valor-medida`](../../2026-08/2026-08-14/2026-08-14-2010-rle-intra-valor-medida/)
+> e [`2026-08-14-2010-perda-propagacao-de-erro`](../../2026-08/2026-08-14/2026-08-14-2010-perda-propagacao-de-erro/)) e **três
+> números não reproduziram**. Valem os dos labs; as correções estão marcadas abaixo.
+>
+> | número da 1ª versão | medido no lab | causa |
+> |---|---|---|
+> | `o_clerk` colapsado **custa 1.744 B (−2,31%)** | **ganha 1.281 B (−1,70%)** | a contra-prova do levantamento não reproduziu; a real é o `c_name` (**+6,90%**) |
+> | `wine.alcohol` teto **−2,47%** | **−1,89%** | eu colapsava com `¤`, que são **2 bytes** em UTF-8 |
+> | erro/valor 28,57% · margem 506% · 162-de-500 | **66,67% · 825,9% · 203-de-500** | amostragem diferente (passo espalhado na tabela inteira) |
+
+
 ---
 
 # PARTE 1 — RLE intra-valor
@@ -78,22 +93,32 @@ partem em **duas famílias com destinos opostos**:
 | **padding de ID** (99% dos casos) | `Clerk#000000004` | o run é **prefixo compartilhado** — OBAT+HCC já comem inteiro |
 | **cauda de float** (1 coluna) | `wine.alcohol` = `10.0333333333333` | run no meio/fim, sem afixo comum — sobrevive verbatim |
 
-**A contra-prova, medida**: colapsar os runs de `tpch-sf001/orders.o_clerk` antes do encode dá
-**77.266 B contra 75.522 B — 1.744 B PIOR (−2,31%)**. Os zeros ali são *load-bearing*:
-sustentam o prefixo compartilhado `Clerk#!00000*0*` e a progressão do seq-RLE. **Um RLE
-intra-valor aplicado cegamente custa bytes nessa família**, que é 99% dos casos do corpus.
+**A contra-prova, medida no lab** (e ela mudou de coluna): o `o_clerk` **não** custa — ganha
+1,70%. Quem custa é o **`c_name`**: 1500 valores (`Customer#000000001`…) formam uma
+**progressão aritmética perfeita** que o seq-RLE esmaga para **87 bytes**, e colapsar os runs
+**destrói a progressão** — o wire vai para 93 B, **+6,90%**. O run ali não é redundância
+sobrando: é o que **sustenta outro mecanismo**. É a família padding-de-ID, 99% das colunas
+com run no corpus.
 
 O teto onde ele pagaria, medido por mim na coluna inteira:
 
 | escopo | hoje | teto (run vira 3-5 chars) | delta |
 |---|---|---|---|
-| `wine.alcohol` completa (6497) | 8676 B | 8462 B | **−2,47%** |
-| só os 40 valores sujos | 483 B | 265 B | **−45,1%** |
-| cauda sintética de 100 chars | 318 B | 24 B | −92,5% |
+| `wine.alcohol` completa (6497) | 8676 B | 8512 B | **−1,89%** |
+| `tpch.o_clerk` (15000) | 75.522 B | 74.241 B | −1,70% |
+| `tpch.c_name` (1500) | **87 B** | 93 B | **+6,90% — CUSTA** |
+
+(teto = run vira 5 chars de **1 byte**, escolhido por complemento da coluna — a ideia da
+`H-REF-03`. É limite **superior**: nenhum mecanismo real é de graça.)
 
 **A forma é sempre a mesma**: forte onde se aplica, e quase nada se aplica. Só **0,62%** dos
-valores da única coluna candidata têm run, e só **476 de 23.917 chars** estão dentro de runs.
-No corpus inteiro a sobra é **0,0031%**.
+valores da única coluna candidata têm run (medido no lab).
+
+> **Número não medido pelo lab, fonte atribuída**: a sobra no corpus **inteiro** (**0,0031%**,
+> 11 de 186 colunas com run ≥6) vem da varredura do levantamento `wf_7824248d-02d`, não do
+> `run.py` deste estudo — o lab mede 3 colunas escolhidas, não as 186. Como a contra-prova do
+> `o_clerk` desse mesmo levantamento **não reproduziu**, este número deve ser tratado como
+> indicativo até ter lab próprio.
 
 ## 1.4 As duas grafias propostas — análise crítica
 
@@ -191,11 +216,12 @@ Arredondando `UnitPrice` a **1 casa**:
 
 | lente | ingênuo | maior-resto |
 |---|---|---|
-| erro máximo **por valor** | **28,57%** | 28,57% |
-| erro na **SOMA** | 0,083% | **0,00008%** |
-| erro na **MÉDIA** | 0,083% | 0,00008% |
-| erro na **RECEITA** (Σ preço×qtd) | 0,54% | 0,05% |
-| erro máx na receita **por linha** | **28,57%** | 28,57% |
+| erro máximo **por valor** | **66,67%** | 66,67% |
+| erro na **SOMA** | 0,18536% | **0,00029%** |
+| erro na **MÉDIA** | 0,18536% | 0,00029% |
+| erro na **RECEITA** (Σ preço×qtd) | 0,25024% | 0,16606% |
+| erro máx na receita **por linha** | **66,67%** | 66,67% |
+| **bytes** | 4090 | **4156** — preservar a soma CUSTA |
 
 Duas leituras não-óbvias:
 
@@ -204,10 +230,11 @@ Duas leituras não-óbvias:
 2. **A soma dilui em três ordens de grandeza** — os erros têm sinal e se cancelam. E o
    maior-resto leva a soma a exato, mil vezes melhor que o ingênuo.
 
-**E o achado que contraria a intuição**: a `d=0`, o maior-resto fica **pior na receita** que o
-ingênuo (0,66% contra 0,036%). Preservar a soma **não** preserva o produto — o método
-redistribui o resíduo sem saber o multiplicador, e pode empilhá-lo onde a quantidade é grande.
-**Preservar um agregado pode degradar outro.**
+**E o achado que contraria a intuição**: o maior resto é ~640× melhor na **soma** e só ~1,5×
+melhor na **receita** — ele redistribui o resíduo **sem saber o multiplicador**. **Preservar um
+agregado não preserva os outros**, e nenhum vocabulário da literatura cobre esse conflito.
+Além disso, a `d=1` o maior resto **gasta mais bytes** (4156 contra 4090): a soma exata não é
+de graça.
 
 ## 2.2 A lente que quebra: diferença de próximos
 
@@ -215,10 +242,11 @@ redistribui o resíduo sem saber o multiplicador, e pode empilhá-lo onde a quan
 
 | d | erro máx nos **operandos** | erro máx na **margem** | margens que trocaram de **SINAL** |
 |---|---|---|---|
-| 2 | 0,000% | 100,0% | 1 / 500 |
-| 1 | 16,7% | **506,1%** | **162 / 500** |
+| 3 | 0,000% | 7,4% | 0 / 500 |
+| 2 | 0,000% | 85,2% | 0 / 500 |
+| 1 | 11,111% | **825,9%** | **203 / 500** |
 
-**Um terço das margens trocou de sinal** — lucro virou prejuízo. E a literatura explica por quê
+**Quarenta por cento das margens trocaram de sinal** — lucro virou prejuízo. E a literatura explica por quê
 de um jeito que importa para o formato: pelo **lema de Sterbenz**, a subtração em si é
 **exata**; o erro veio inteiro dos *inputs já arredondados*. O fator de amplificação é
 `|x| / |x−y|`, ilimitado.
@@ -284,6 +312,12 @@ mínimo — que estava certo na direção e curto em dois eixos (`rel` e `mode`)
 3. **O loss ganha um eixo novo**: a perda deixa de ser "quantas casas" e passa a ser
    *o que se promete, e sob qual operação*. E a medição mostrou que **preservar um agregado
    pode degradar outro** — o que nenhum dos vocabulários da literatura cobre.
+
+## Os labs (a evidência)
+
+- [`2026-08-14-2010-rle-intra-valor-medida`](../../2026-08/2026-08-14/2026-08-14-2010-rle-intra-valor-medida/) — 4 blocos, 0 falhas. Inclui os wires do `*0|` **escritos à mão** em `inputs/`
+  (fluxo invertido: o wire é a entrada, o JSON é a saída).
+- [`2026-08-14-2010-perda-propagacao-de-erro`](../../2026-08/2026-08-14/2026-08-14-2010-perda-propagacao-de-erro/) — 5 lentes × 5 precisões × 2 métodos, 0 falhas.
 
 ## Conexões
 

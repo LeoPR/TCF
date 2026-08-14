@@ -1,0 +1,16 @@
+{
+ "input": "inputs/r2-tpch-o-clerk.entrada.json",
+ "ideia": "padding de ID: o run e' PREFIXO compartilhado — a CONTRA-PROVA",
+ "fonte": {
+  "gerador": "run.py::BLOCO4",
+  "db": "tpch-sf001",
+  "sql": "SELECT o_clerk FROM orders",
+  "ideia": "padding de ID: o run e' PREFIXO compartilhado — a CONTRA-PROVA",
+  "pin": "corpus local Z:/tcf-data/interim — nao versionado"
+ },
+ "n": 15000,
+ "chars_entrada": 225000,
+ "bytes_wire": 75522,
+ "header": "#TCF.8!",
+ "roundtrip_ok": true
+}

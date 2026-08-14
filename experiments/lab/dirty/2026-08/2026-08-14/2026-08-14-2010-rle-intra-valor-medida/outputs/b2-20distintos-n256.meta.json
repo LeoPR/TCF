@@ -1,0 +1,18 @@
+{
+ "input": "inputs/b2-20distintos-n256.entrada.json",
+ "ideia": "20 valores distintos, run de 256",
+ "fonte": {
+  "gerador": "run.py::BLOCO2",
+  "params": {
+   "n": 256,
+   "linhas": 20
+  },
+  "ideia": "o run se amortiza entre valores?",
+  "pin": "sintetico"
+ },
+ "n": 20,
+ "chars_entrada": 5160,
+ "bytes_wire": 5189,
+ "header": "#TCF.8!!",
+ "roundtrip_ok": true
+}

@@ -1,0 +1,10 @@
+{
+ "gerador": "ESCRITO A MAO — o encoder canonico nunca emite isto",
+ "wire": "#TCF.8\n*0|abc\ndef\n^1\n",
+ "ideia": "declara `abc` sem emitir, e depois referencia por ^1",
+ "esperado_se_aceito": [
+  "def",
+  "abc"
+ ],
+ "pin": "fluxo INVERTIDO: o wire e' a entrada, o JSON e' a saida"
+}

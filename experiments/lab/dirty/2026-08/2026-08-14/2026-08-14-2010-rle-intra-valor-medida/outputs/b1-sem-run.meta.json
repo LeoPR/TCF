@@ -1,0 +1,17 @@
+{
+ "input": "inputs/b1-sem-run.entrada.json",
+ "ideia": "MESMO comprimento, digitos sem repeticao",
+ "fonte": {
+  "gerador": "run.py::BLOCO1",
+  "params": {
+   "len": 19
+  },
+  "ideia": "MESMO comprimento, digitos sem repeticao",
+  "pin": "par de contra-prova; o CONSTANTE e' o comprimento"
+ },
+ "n": 1,
+ "chars_entrada": 19,
+ "bytes_wire": 29,
+ "header": "#TCF.8",
+ "roundtrip_ok": true
+}

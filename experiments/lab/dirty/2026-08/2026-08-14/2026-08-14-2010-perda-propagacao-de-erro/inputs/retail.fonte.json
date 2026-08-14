@@ -1,0 +1,13 @@
+{
+ "gerador": "run.py",
+ "db": "online-retail",
+ "tabela": "online_retail",
+ "colunas": [
+  "UnitPrice",
+  "Quantity"
+ ],
+ "sql": "SELECT UnitPrice, Quantity ... WHERE UnitPrice > 0 AND Quantity > 0",
+ "amostragem": "passo espalhado 1-em-176, alvo 3000 (nunca LIMIT puro)",
+ "ideia": "precisa das DUAS colunas para haver um produto derivado REAL (receita)",
+ "pin": "corpus local Z:/tcf-data/interim — nao versionado"
+}

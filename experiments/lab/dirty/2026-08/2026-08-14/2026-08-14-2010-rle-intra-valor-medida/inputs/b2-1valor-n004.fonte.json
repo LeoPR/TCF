@@ -1,0 +1,9 @@
+{
+ "gerador": "run.py::BLOCO2",
+ "params": {
+  "n": 4,
+  "linhas": 1
+ },
+ "ideia": "curva de 1 valor",
+ "pin": "sintetico"
+}

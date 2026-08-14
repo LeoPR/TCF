@@ -1,0 +1,8 @@
+{
+ "gerador": "run.py::BLOCO1",
+ "params": {
+  "len": 19
+ },
+ "ideia": "14 zeros no meio — o caso do owner",
+ "pin": "par de contra-prova; o CONSTANTE e' o comprimento"
+}

@@ -1,0 +1,18 @@
+{
+ "input": "inputs/b2-1valor-n004.entrada.json",
+ "ideia": "1 valor, run de 4",
+ "fonte": {
+  "gerador": "run.py::BLOCO2",
+  "params": {
+   "n": 4,
+   "linhas": 1
+  },
+  "ideia": "curva de 1 valor",
+  "pin": "sintetico"
+ },
+ "n": 1,
+ "chars_entrada": 6,
+ "bytes_wire": 15,
+ "header": "#TCF.8",
+ "roundtrip_ok": true
+}

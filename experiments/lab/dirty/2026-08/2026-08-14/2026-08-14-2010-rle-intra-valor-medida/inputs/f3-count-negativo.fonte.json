@@ -1,0 +1,9 @@
+{
+ "gerador": "ESCRITO A MAO — o encoder canonico nunca emite isto",
+ "wire": "#TCF.8\n*-1|abc\ndef\n",
+ "ideia": "count NEGATIVO",
+ "esperado_se_aceito": [
+  "def"
+ ],
+ "pin": "fluxo INVERTIDO: o wire e' a entrada, o JSON e' a saida"
+}

@@ -1,0 +1,7 @@
+{
+ "gerador": "run.py::BLOCO4",
+ "db": "tpch-sf001",
+ "sql": "SELECT o_clerk FROM orders",
+ "ideia": "padding de ID: o run e' PREFIXO compartilhado — a CONTRA-PROVA",
+ "pin": "corpus local Z:/tcf-data/interim — nao versionado"
+}
