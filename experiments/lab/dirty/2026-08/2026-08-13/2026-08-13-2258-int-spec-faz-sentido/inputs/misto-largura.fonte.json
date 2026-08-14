@@ -1,0 +1,16 @@
+{
+ "caso": "misto-largura",
+ "ideia": "larguras misturadas SEM progressao: o pad so' paga se houver run. PIN CORRIGIDO",
+ "espera": "core",
+ "n": 600,
+ "k_unicos": 5,
+ "primeiros": [
+  "5",
+  "5000",
+  "5000",
+  "5",
+  "5000"
+ ],
+ "hash": "e7c30b5bc54a",
+ "CONSTANTE_na_comparacao": "n=600; TODOS os candidatos passam pelo MESMO `encode()` publico (o FLOOR real decide); so' o alvo varia. Alvos dimensionados pela coluna."
+}

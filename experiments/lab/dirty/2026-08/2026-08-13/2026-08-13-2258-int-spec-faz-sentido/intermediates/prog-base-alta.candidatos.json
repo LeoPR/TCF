@@ -1,0 +1,27 @@
+{
+ "ideia": "1e9+i: 10 digitos onde so' os 3 ultimos variam",
+ "espera": "spec",
+ "vencedor": "int-offpad",
+ "candidatos": {
+  "core": {
+   "bytes": 65,
+   "como": "encode(vals)",
+   "header": "#TCF.8!"
+  },
+  "int-pad": {
+   "bytes": 65,
+   "como": "encode(vals, nature=IntPad(largura=10, name='int-pad', wire_id='xipad'))",
+   "header": "#TCF.8!"
+  },
+  "int-b94": {
+   "bytes": 65,
+   "como": "encode(vals, nature=IntB94(digitos=10, name='int-b94', wire_id='xib94'))",
+   "header": "#TCF.8!"
+  },
+  "int-offpad": {
+   "bytes": 26,
+   "como": "encode(vals, nature=IntOffPad(base=1000000000, largura=3, name='int-offpad', wire_id='xioff'))",
+   "header": "#TCF.8 :xioff"
+  }
+ }
+}

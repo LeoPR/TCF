@@ -1,0 +1,16 @@
+{
+ "caso": "prog-base-alta",
+ "ideia": "1e9+i: 10 digitos onde so' os 3 ultimos variam",
+ "espera": "spec",
+ "n": 600,
+ "k_unicos": 600,
+ "primeiros": [
+  "1000000000",
+  "1000000001",
+  "1000000002",
+  "1000000003",
+  "1000000004"
+ ],
+ "hash": "412a6151bf2b",
+ "CONSTANTE_na_comparacao": "n=600; TODOS os candidatos passam pelo MESMO `encode()` publico (o FLOOR real decide); so' o alvo varia. Alvos dimensionados pela coluna."
+}

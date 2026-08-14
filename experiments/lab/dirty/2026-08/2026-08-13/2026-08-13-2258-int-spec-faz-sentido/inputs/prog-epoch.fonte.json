@@ -1,0 +1,16 @@
+{
+ "caso": "prog-epoch",
+ "ideia": "timestamp de 10 digitos, passo 60: o OBAT fragmenta antes do seq-RLE ver",
+ "espera": "spec",
+ "n": 600,
+ "k_unicos": 600,
+ "primeiros": [
+  "1750000000",
+  "1750000060",
+  "1750000120",
+  "1750000180",
+  "1750000240"
+ ],
+ "hash": "1549e6967b5f",
+ "CONSTANTE_na_comparacao": "n=600; TODOS os candidatos passam pelo MESMO `encode()` publico (o FLOOR real decide); so' o alvo varia. Alvos dimensionados pela coluna."
+}

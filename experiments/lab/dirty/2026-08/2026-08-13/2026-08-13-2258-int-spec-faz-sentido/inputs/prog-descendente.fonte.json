@@ -1,0 +1,16 @@
+{
+ "caso": "prog-descendente",
+ "ideia": "descendente: o core JA' resolve em 25 B — PIN CORRIGIDO 2026-08-13 (eu esperava spec)",
+ "espera": "core",
+ "n": 600,
+ "k_unicos": 600,
+ "primeiros": [
+  "1000",
+  "999",
+  "998",
+  "997",
+  "996"
+ ],
+ "hash": "68fcd615c1b9",
+ "CONSTANTE_na_comparacao": "n=600; TODOS os candidatos passam pelo MESMO `encode()` publico (o FLOOR real decide); so' o alvo varia. Alvos dimensionados pela coluna."
+}

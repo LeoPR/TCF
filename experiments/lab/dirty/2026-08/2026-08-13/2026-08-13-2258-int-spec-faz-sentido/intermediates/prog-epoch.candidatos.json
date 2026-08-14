@@ -1,0 +1,27 @@
+{
+ "ideia": "timestamp de 10 digitos, passo 60: o OBAT fragmenta antes do seq-RLE ver",
+ "espera": "spec",
+ "vencedor": "int-offpad",
+ "candidatos": {
+  "core": {
+   "bytes": 81,
+   "como": "encode(vals)",
+   "header": "#TCF.8!"
+  },
+  "int-pad": {
+   "bytes": 81,
+   "como": "encode(vals, nature=IntPad(largura=10, name='int-pad', wire_id='xipad'))",
+   "header": "#TCF.8!"
+  },
+  "int-b94": {
+   "bytes": 81,
+   "como": "encode(vals, nature=IntB94(digitos=10, name='int-b94', wire_id='xib94'))",
+   "header": "#TCF.8!"
+  },
+  "int-offpad": {
+   "bytes": 29,
+   "como": "encode(vals, nature=IntOffPad(base=1750000000, largura=5, name='int-offpad', wire_id='xioff'))",
+   "header": "#TCF.8 :xioff"
+  }
+ }
+}

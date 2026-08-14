@@ -1,0 +1,16 @@
+{
+ "caso": "com-nulos",
+ "ideia": "slots nulos no meio da progressao",
+ "espera": "spec",
+ "n": 600,
+ "k_unicos": 585,
+ "primeiros": [
+  "1",
+  "2",
+  "3",
+  "4",
+  "5"
+ ],
+ "hash": "e51a0e57d8ee",
+ "CONSTANTE_na_comparacao": "n=600; TODOS os candidatos passam pelo MESMO `encode()` publico (o FLOOR real decide); so' o alvo varia. Alvos dimensionados pela coluna."
+}

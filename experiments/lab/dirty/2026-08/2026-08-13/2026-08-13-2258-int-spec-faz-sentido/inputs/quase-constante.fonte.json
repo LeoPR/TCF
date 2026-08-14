@@ -1,0 +1,16 @@
+{
+ "caso": "quase-constante",
+ "ideia": "k=4 desbalanceado: RLE do nucleo",
+ "espera": "core",
+ "n": 600,
+ "k_unicos": 4,
+ "primeiros": [
+  "42",
+  "42",
+  "42",
+  "42",
+  "42"
+ ],
+ "hash": "8e73c10e844c",
+ "CONSTANTE_na_comparacao": "n=600; TODOS os candidatos passam pelo MESMO `encode()` publico (o FLOOR real decide); so' o alvo varia. Alvos dimensionados pela coluna."
+}

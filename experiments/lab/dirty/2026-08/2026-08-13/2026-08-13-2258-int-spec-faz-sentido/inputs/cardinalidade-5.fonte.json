@@ -1,0 +1,16 @@
+{
+ "caso": "cardinalidade-5",
+ "ideia": "k=5: territorio do bN de dominio",
+ "espera": "core",
+ "n": 600,
+ "k_unicos": 5,
+ "primeiros": [
+  "40",
+  "50",
+  "30",
+  "40",
+  "50"
+ ],
+ "hash": "839d6f1aa765",
+ "CONSTANTE_na_comparacao": "n=600; TODOS os candidatos passam pelo MESMO `encode()` publico (o FLOOR real decide); so' o alvo varia. Alvos dimensionados pela coluna."
+}

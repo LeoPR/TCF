@@ -1,0 +1,16 @@
+{
+ "caso": "prog-passo1-largura-varia",
+ "ideia": "1..600: o run QUEBRA em 9->10 e 99->100 (3 marcadores)",
+ "espera": "spec",
+ "n": 600,
+ "k_unicos": 600,
+ "primeiros": [
+  "1",
+  "2",
+  "3",
+  "4",
+  "5"
+ ],
+ "hash": "619d0e933f58",
+ "CONSTANTE_na_comparacao": "n=600; TODOS os candidatos passam pelo MESMO `encode()` publico (o FLOOR real decide); so' o alvo varia. Alvos dimensionados pela coluna."
+}

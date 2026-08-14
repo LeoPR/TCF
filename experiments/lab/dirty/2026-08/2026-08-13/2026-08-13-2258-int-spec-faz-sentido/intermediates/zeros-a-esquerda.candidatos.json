@@ -1,0 +1,27 @@
+{
+ "ideia": "ARMADILHA: '000001' NAO e' o inteiro 1 — o RT exige recusar",
+ "espera": "core",
+ "vencedor": "core",
+ "candidatos": {
+  "core": {
+   "bytes": 22,
+   "como": "encode(vals)",
+   "header": "#TCF.8"
+  },
+  "int-pad": {
+   "bytes": 22,
+   "como": "encode(vals, nature=IntPad(largura=3, name='int-pad', wire_id='xipad'))",
+   "header": "#TCF.8"
+  },
+  "int-b94": {
+   "bytes": 22,
+   "como": "encode(vals, nature=IntB94(digitos=3, name='int-b94', wire_id='xib94'))",
+   "header": "#TCF.8"
+  },
+  "int-offpad": {
+   "bytes": 22,
+   "como": "encode(vals, nature=IntOffPad(base=1, largura=3, name='int-offpad', wire_id='xioff'))",
+   "header": "#TCF.8"
+  }
+ }
+}

@@ -1,0 +1,16 @@
+{
+ "caso": "id-largura-fixa-6",
+ "ideia": "ids aleatorios de 6 digitos: hoje o TCF nao ganha nada",
+ "espera": "spec",
+ "n": 600,
+ "k_unicos": 600,
+ "primeiros": [
+  "294727",
+  "391497",
+  "660168",
+  "822337",
+  "574779"
+ ],
+ "hash": "50676dbcdd74",
+ "CONSTANTE_na_comparacao": "n=600; TODOS os candidatos passam pelo MESMO `encode()` publico (o FLOOR real decide); so' o alvo varia. Alvos dimensionados pela coluna."
+}
