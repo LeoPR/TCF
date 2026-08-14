@@ -730,6 +730,10 @@ def _encode_column(
         syn = HCCSeqRLE()
     else:
         syn = M8AVirtualRefsSyntax()
+    # Telemetria OPT-IN (2026-08-13): sem `side_outputs=` o trace/rede nem e'
+    # construido. Antes rodava sempre e era descartado logo abaixo — 4-17% do
+    # encode (17,1% numa cadeia true/false). Zero efeito no wire.
+    syn.coletar_trace = side is not None
     body = syn.encode(values, unicas, tokens, header)
 
     if side is not None:

@@ -1,0 +1,149 @@
+[
+ {
+  "caso": "bool 3-ciclo n=600",
+  "bytes": 112,
+  "header": "#TCF.8b1258",
+  "curva": [
+   {
+    "frac": 0.1,
+    "bytes": 11,
+    "decode_publico": "recusa",
+    "prototipo_valores": 0,
+    "corretos": "todos"
+   },
+   {
+    "frac": 0.25,
+    "bytes": 28,
+    "decode_publico": "recusa",
+    "prototipo_valores": 96,
+    "corretos": "todos"
+   },
+   {
+    "frac": 0.5,
+    "bytes": 56,
+    "decode_publico": "recusa",
+    "prototipo_valores": 264,
+    "corretos": "todos"
+   },
+   {
+    "frac": 0.75,
+    "bytes": 84,
+    "decode_publico": "recusa",
+    "prototipo_valores": 432,
+    "corretos": "todos"
+   },
+   {
+    "frac": 0.9,
+    "bytes": 100,
+    "decode_publico": "recusa",
+    "prototipo_valores": 528,
+    "corretos": "todos"
+   },
+   {
+    "frac": 1.0,
+    "bytes": 112,
+    "decode_publico": "entregou",
+    "prototipo_valores": 600,
+    "corretos": "todos"
+   }
+  ]
+ },
+ {
+  "caso": "bool aleatorio n=600",
+  "bytes": 112,
+  "header": "#TCF.8b1258",
+  "curva": [
+   {
+    "frac": 0.1,
+    "bytes": 11,
+    "decode_publico": "recusa",
+    "prototipo_valores": 0,
+    "corretos": "todos"
+   },
+   {
+    "frac": 0.25,
+    "bytes": 28,
+    "decode_publico": "recusa",
+    "prototipo_valores": 96,
+    "corretos": "todos"
+   },
+   {
+    "frac": 0.5,
+    "bytes": 56,
+    "decode_publico": "recusa",
+    "prototipo_valores": 264,
+    "corretos": "todos"
+   },
+   {
+    "frac": 0.75,
+    "bytes": 84,
+    "decode_publico": "recusa",
+    "prototipo_valores": 432,
+    "corretos": "todos"
+   },
+   {
+    "frac": 0.9,
+    "bytes": 100,
+    "decode_publico": "recusa",
+    "prototipo_valores": 528,
+    "corretos": "todos"
+   },
+   {
+    "frac": 1.0,
+    "bytes": 112,
+    "decode_publico": "entregou",
+    "prototipo_valores": 600,
+    "corretos": "todos"
+   }
+  ]
+ },
+ {
+  "caso": "categoria k=3 n=600",
+  "bytes": 232,
+  "header": "#TCF.8B2258",
+  "curva": [
+   {
+    "frac": 0.1,
+    "bytes": 23,
+    "decode_publico": "recusa",
+    "prototipo_valores": 0,
+    "corretos": "todos"
+   },
+   {
+    "frac": 0.25,
+    "bytes": 58,
+    "decode_publico": "recusa",
+    "prototipo_valores": 72,
+    "corretos": "todos"
+   },
+   {
+    "frac": 0.5,
+    "bytes": 116,
+    "decode_publico": "recusa",
+    "prototipo_valores": 252,
+    "corretos": "todos"
+   },
+   {
+    "frac": 0.75,
+    "bytes": 174,
+    "decode_publico": "recusa",
+    "prototipo_valores": 420,
+    "corretos": "todos"
+   },
+   {
+    "frac": 0.9,
+    "bytes": 208,
+    "decode_publico": "recusa",
+    "prototipo_valores": 528,
+    "corretos": "todos"
+   },
+   {
+    "frac": 1.0,
+    "bytes": 232,
+    "decode_publico": "entregou",
+    "prototipo_valores": 600,
+    "corretos": "todos"
+   }
+  ]
+ }
+]

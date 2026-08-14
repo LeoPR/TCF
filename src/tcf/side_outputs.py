@@ -7,8 +7,13 @@ coletada pra inspecao, debug, ou consumo por modulos futuros (e.g.,
 schema_builder, encoder manager).
 
 Filosofia (ADR-0014):
-- Sem `side_outputs=`: overhead zero (logs continuam sendo gerados
-  internamente, so' descartados — comportamento pre-existente).
+- Sem `side_outputs=`: overhead zero. **Ate' 2026-08-13 esta linha se
+  contradizia** — dizia "overhead zero" e no mesmo parenteses admitia que os
+  logs "continuam sendo gerados internamente, so' descartados". Eram as duas
+  coisas ao mesmo tempo, e a segunda custava 4-17% do encode (17,1% numa cadeia
+  true/false) construindo texto pra jogar fora. Agora o trace/rede do HCC e'
+  OPT-IN de verdade (`Syntax.coletar_trace`, ligado pelo encoder so' quando ha'
+  `side_outputs=`). Byte-neutro nos dois casos: nada disso entrou no wire.
 - Com `side_outputs=`: campos populados; consumidor le' os que precisa.
 
 Multi-col: `per_col[name]` aninha um SideOutputs por coluna. Campos

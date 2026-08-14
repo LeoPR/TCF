@@ -138,3 +138,49 @@ class TestSideOutputsOverhead:
         text_with = encode(cols, side_outputs=side)
         assert text_without == text_with  # byte-identical
         assert len(text_without.encode("utf-8")) == 300  # 0.7 (V2-B: era 307; ADR-0024/0025)
+
+
+class TestTraceOptIn:
+    """Weld 2026-08-13: o trace/rede do HCC so' e' CONSTRUIDO com `side_outputs=`.
+
+    Antes rodava incondicionalmente e era descartado logo em seguida — a propria
+    docstring do modulo se contradizia ("overhead zero" + "logs continuam sendo
+    gerados internamente, so' descartados"). Medido contra o commit anterior:
+    3,9% a 31,1% do encode devolvidos, com o wire BYTE-IDENTICO.
+    """
+
+    def test_sem_side_outputs_nao_constroi_trace(self):
+        """O fix propriamente dito: `build_trace`/`build_rede` nao sao chamados."""
+        import tcf.composicional.syntax as syn_mod
+
+        chamadas = []
+        orig_t, orig_r = syn_mod.build_trace, syn_mod.build_rede
+        syn_mod.build_trace = lambda *a, **k: chamadas.append("trace") or orig_t(*a, **k)
+        syn_mod.build_rede = lambda *a, **k: chamadas.append("rede") or orig_r(*a, **k)
+        try:
+            encode([f"registro-{i}" for i in range(200)])
+            assert chamadas == [], f"telemetria construida sem side_outputs: {chamadas}"
+            encode([f"registro-{i}" for i in range(200)], side_outputs=SideOutputs())
+            assert "trace" in chamadas and "rede" in chamadas, (
+                f"telemetria NAO construida COM side_outputs: {chamadas}"
+            )
+        finally:
+            syn_mod.build_trace, syn_mod.build_rede = orig_t, orig_r
+
+    def test_com_side_outputs_o_trace_continua_vindo(self):
+        """A metade que nao pode regredir: quem pede telemetria continua recebendo."""
+        vals = [f"pedido {i} do lote {i % 7} com item {i % 3}" for i in range(300)]
+        side = SideOutputs()
+        encode(vals, side_outputs=side)
+        assert side.hcc_trace, "hcc_trace vazio"
+        assert side.hcc_rede, "hcc_rede vazio"
+
+    def test_byte_identico_com_e_sem(self):
+        """A telemetria nunca entrou no wire — e continua nao entrando."""
+        for vals in (
+            [f"SKU-{i:05d}" for i in range(300)],
+            ["true", "false"] * 150,
+            [f"usuario{i}@empresa.com.br" for i in range(300)],
+        ):
+            side = SideOutputs()
+            assert encode(vals) == encode(vals, side_outputs=side)

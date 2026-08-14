@@ -150,6 +150,12 @@ class M8AVirtualRefsSyntax(Syntax):
     def __init__(self):
         self._trace = []
         self._rede = []
+        #: Telemetria e' OPT-IN (2026-08-13). `build_trace`/`build_rede` rodavam
+        #: INCONDICIONALMENTE no encode, mesmo sem `side_outputs` — 4-17% do tempo
+        #: gasto pra construir texto que era descartado em seguida (17,1% numa
+        #: cadeia true/false). O `encoder` liga isto quando ha' `side_outputs=`.
+        #: Byte-neutro: o trace nunca entrou no wire.
+        self.coletar_trace = False
 
     def get_trace(self):
         return "\n".join(self._trace) if self._trace else ""
@@ -759,22 +765,23 @@ class M8AVirtualRefsSyntax(Syntax):
         body, prov_to_final, alias_to_final, ref_seqs = self._emit_body(
             pieces_per_line, line_meta, alias_to_sub
         )
-        self._trace = build_trace(
-            self.name,
-            iter_traces,
-            prov_to_final,
-            dict(alias_to_final),
-            ref_seqs,
-            lambda r: self._emit_runs(r, ","),
-        )
-        self._rede = build_rede(
-            self.name,
-            pieces_per_line,
-            prov_to_final,
-            dict(alias_to_final),
-            alias_to_sub,
-            ref_seqs,
-        )
+        if self.coletar_trace:      # opt-in: sem `side_outputs=` nao se paga por isto
+            self._trace = build_trace(
+                self.name,
+                iter_traces,
+                prov_to_final,
+                dict(alias_to_final),
+                ref_seqs,
+                lambda r: self._emit_runs(r, ","),
+            )
+            self._rede = build_rede(
+                self.name,
+                pieces_per_line,
+                prov_to_final,
+                dict(alias_to_final),
+                alias_to_sub,
+                ref_seqs,
+            )
         # No brackets, single LF
         return "\n".join(body) + "\n"
 
