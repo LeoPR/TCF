@@ -1,0 +1,18 @@
+{
+ "input": "inputs/borda-subnormal.entrada.json",
+ "hash_entrada": "0cdcf12f2211",
+ "fonte": {
+  "gerador": "casos.py::BORDAS",
+  "params": {},
+  "seed": null,
+  "ideia": "limit_denominator(5e-324) devolve 0 — M1 deve recusar ANTES disso",
+  "pin": "herdadas do fechamento do float 2026-08-14-1616"
+ },
+ "n": 2,
+ "baseline_bytes": 24,
+ "vencedor": "nucleo-hoje",
+ "bytes_vencedor": 24,
+ "wires": [
+  "borda-subnormal.baseline.tcf"
+ ]
+}

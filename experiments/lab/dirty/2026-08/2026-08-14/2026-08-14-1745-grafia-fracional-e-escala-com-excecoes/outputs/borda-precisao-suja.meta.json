@@ -1,0 +1,19 @@
+{
+ "input": "inputs/borda-precisao-suja.entrada.json",
+ "hash_entrada": "e78438da07e1",
+ "fonte": {
+  "gerador": "casos.py::BORDAS",
+  "params": {},
+  "seed": null,
+  "ideia": "0.30000000000000004 NAO e' dizima: M1 deve recusar, M3 deve tratar como excecao",
+  "pin": "herdadas do fechamento do float 2026-08-14-1616"
+ },
+ "n": 3,
+ "baseline_bytes": 69,
+ "vencedor": "M1",
+ "bytes_vencedor": 48,
+ "wires": [
+  "borda-precisao-suja.M1-fracao.tcf",
+  "borda-precisao-suja.baseline.tcf"
+ ]
+}

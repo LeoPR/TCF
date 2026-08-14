@@ -1,0 +1,18 @@
+{
+ "input": "inputs/borda-cientifica.entrada.json",
+ "hash_entrada": "8375df139f2c",
+ "fonte": {
+  "gerador": "casos.py::BORDAS",
+  "params": {},
+  "seed": null,
+  "ideia": "grafia sem 'casas' — M1 deve recusar",
+  "pin": "herdadas do fechamento do float 2026-08-14-1616"
+ },
+ "n": 3,
+ "baseline_bytes": 27,
+ "vencedor": "nucleo-hoje",
+ "bytes_vencedor": 27,
+ "wires": [
+  "borda-cientifica.baseline.tcf"
+ ]
+}

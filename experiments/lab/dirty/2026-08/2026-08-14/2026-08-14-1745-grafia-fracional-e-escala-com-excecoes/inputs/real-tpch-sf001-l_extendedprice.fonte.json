@@ -1,0 +1,10 @@
+{
+ "gerador": "casos.py::carrega_real",
+ "db": "tpch-sf001",
+ "tabela": "lineitem",
+ "coluna": "l_extendedprice",
+ "sql": "SELECT l_extendedprice FROM lineitem",
+ "amostra_max": 2000,
+ "ideia": "Money-like de maior magnitude.",
+ "pin": "corpus local Z:/tcf-data/interim — nao versionado"
+}

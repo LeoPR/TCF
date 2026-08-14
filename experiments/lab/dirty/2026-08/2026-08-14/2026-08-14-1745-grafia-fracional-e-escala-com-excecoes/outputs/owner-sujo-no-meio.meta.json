@@ -1,0 +1,24 @@
+{
+ "input": "inputs/owner-sujo-no-meio.entrada.json",
+ "hash_entrada": "e504afb0dfd0",
+ "fonte": {
+  "gerador": "casos.py::SINTETICOS",
+  "params": {
+   "nota": "par: owner-sem-o-sujo"
+  },
+  "seed": null,
+  "ideia": "O CASO DO OWNER, literal: coluna de 1 casa com um sujo de 9 casas no meio.",
+  "pin": "sintetico viesado por construcao"
+ },
+ "n": 10,
+ "baseline_bytes": 53,
+ "vencedor": "M3",
+ "bytes_vencedor": 51,
+ "wires": [
+  "owner-sujo-no-meio.M1-fracao.tcf",
+  "owner-sujo-no-meio.M2-escala-pura.tcf",
+  "owner-sujo-no-meio.M3-escala-excecoes.tcf",
+  "owner-sujo-no-meio.M3b-marcador.tcf",
+  "owner-sujo-no-meio.baseline.tcf"
+ ]
+}

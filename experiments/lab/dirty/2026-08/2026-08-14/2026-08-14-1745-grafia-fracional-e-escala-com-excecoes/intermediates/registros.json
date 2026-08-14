@@ -1,0 +1,1193 @@
+[
+ {
+  "caso": "owner-sujo-no-meio",
+  "ideia": "O CASO DO OWNER, literal: coluna de 1 casa com um sujo de 9 casas no meio.",
+  "n": 10,
+  "CONSTANTE_na_comparacao": "os MESMOS valores, o MESMO encode(), o MESMO RT estrito; so' muda a GRAFIA que entra no corpo",
+  "hash_entrada": "e504afb0dfd0",
+  "baseline": {
+   "bytes": 53,
+   "header": "#TCF.8n!!",
+   "rt": true
+  },
+  "M1_fracao": {
+   "convertidos": "1/10",
+   "bytes": 52,
+   "delta_vs_base": -1,
+   "rt": true,
+   "corpo_exemplo": [
+    "0.2",
+    "0.4",
+    "0.6",
+    "1/3~9"
+   ]
+  },
+  "M2_escala_pura": {
+   "k": 9,
+   "bytes": 79,
+   "delta_vs_base": 26,
+   "rt": true
+  },
+  "M3_escala_excecoes": {
+   "k": 1,
+   "excecoes": "1/10",
+   "bytes": 51,
+   "delta_vs_base": -2,
+   "rt": true,
+   "custo_de_busca_encodes": 12,
+   "corpo_exemplo": [
+    "2",
+    "4",
+    "6",
+    "0.333333333",
+    "8",
+    "10"
+   ]
+  },
+  "M3b_marcador_do_core": {
+   "k": 1,
+   "excecoes": "1/10",
+   "bytes": 52,
+   "delta_vs_base": -1,
+   "rt": true,
+   "aceita_tipo_misto": true,
+   "corpo_exemplo": [
+    "2",
+    "4",
+    "6",
+    "_0.333333333",
+    "8",
+    "10"
+   ]
+  },
+  "FLOOR": {
+   "vencedor": "M3",
+   "bytes": 51,
+   "vs_hoje": -2,
+   "concorrentes": {
+    "nucleo-hoje": 53,
+    "M1": 52,
+    "M2": 79,
+    "M3": 51,
+    "M3b": 52
+   }
+  }
+ },
+ {
+  "caso": "owner-sem-o-sujo",
+  "ideia": "CONTRA-PROVA do anterior: a MESMA coluna com o sujo trocado por um limpo. Isola quanto UM valor sujo custa hoje.",
+  "n": 10,
+  "CONSTANTE_na_comparacao": "os MESMOS valores, o MESMO encode(), o MESMO RT estrito; so' muda a GRAFIA que entra no corpo",
+  "hash_entrada": "83b23a5ab54c",
+  "baseline": {
+   "bytes": 37,
+   "header": "#TCF.8nB3a",
+   "rt": true
+  },
+  "M1_fracao": {
+   "convertidos": "0/10",
+   "recusa": "nenhum valor e' dizima"
+  },
+  "M2_escala_pura": {
+   "k": 1,
+   "bytes": 35,
+   "delta_vs_base": -2,
+   "rt": true
+  },
+  "M3_escala_excecoes": {
+   "k": 1,
+   "excecoes": "0/10",
+   "bytes": 35,
+   "delta_vs_base": -2,
+   "rt": true,
+   "custo_de_busca_encodes": 12,
+   "corpo_exemplo": [
+    "2",
+    "4",
+    "6",
+    "6",
+    "8",
+    "10"
+   ]
+  },
+  "M3b_marcador_do_core": {
+   "k": 1,
+   "excecoes": "0/10",
+   "bytes": 35,
+   "delta_vs_base": -2,
+   "rt": true,
+   "aceita_tipo_misto": true,
+   "corpo_exemplo": [
+    "2",
+    "4",
+    "6",
+    "6",
+    "8",
+    "10"
+   ]
+  },
+  "FLOOR": {
+   "vencedor": "M2",
+   "bytes": 35,
+   "vs_hoje": -2,
+   "concorrentes": {
+    "nucleo-hoje": 37,
+    "M2": 35,
+    "M3": 35,
+    "M3b": 35
+   }
+  }
+ },
+ {
+  "caso": "dizima-uniforme",
+  "ideia": "10x a MESMA dizima. O RLE de linha identica ja' resolve — aqui o mecanismo deve ganhar POUCO. E' a contra-prova contra a leitura ingenua de 'grafia menor sempre da' wire menor'.",
+  "n": 10,
+  "CONSTANTE_na_comparacao": "os MESMOS valores, o MESMO encode(), o MESMO RT estrito; so' muda a GRAFIA que entra no corpo",
+  "hash_entrada": "ee201b95e3e1",
+  "baseline": {
+   "bytes": 29,
+   "header": "#TCF.8n",
+   "rt": true
+  },
+  "M1_fracao": {
+   "convertidos": "10/10",
+   "bytes": 26,
+   "delta_vs_base": -3,
+   "rt": true,
+   "corpo_exemplo": [
+    "1/3~12",
+    "1/3~12",
+    "1/3~12",
+    "1/3~12"
+   ]
+  },
+  "M2_escala_pura": {
+   "k": 12,
+   "bytes": 32,
+   "delta_vs_base": 3,
+   "rt": true
+  },
+  "M3_escala_excecoes": {
+   "k": 12,
+   "excecoes": "0/10",
+   "bytes": 32,
+   "delta_vs_base": 3,
+   "rt": true,
+   "custo_de_busca_encodes": 1,
+   "corpo_exemplo": [
+    "333333333333",
+    "333333333333",
+    "333333333333",
+    "333333333333",
+    "333333333333",
+    "333333333333"
+   ]
+  },
+  "M3b_marcador_do_core": {
+   "k": 12,
+   "excecoes": "0/10",
+   "bytes": 32,
+   "delta_vs_base": 3,
+   "rt": true,
+   "aceita_tipo_misto": true,
+   "corpo_exemplo": [
+    "333333333333",
+    "333333333333",
+    "333333333333",
+    "333333333333",
+    "333333333333",
+    "333333333333"
+   ]
+  },
+  "FLOOR": {
+   "vencedor": "M1",
+   "bytes": 26,
+   "vs_hoje": -3,
+   "concorrentes": {
+    "nucleo-hoje": 29,
+    "M1": 26,
+    "M2": 32,
+    "M3": 32,
+    "M3b": 32
+   }
+  }
+ },
+ {
+  "caso": "dizima-variada",
+  "ideia": "10 dizimas DIFERENTES. O nucleo nao tem repeticao de linha para comer; e' onde a grafia fracional teria folga.",
+  "n": 10,
+  "CONSTANTE_na_comparacao": "os MESMOS valores, o MESMO encode(), o MESMO RT estrito; so' muda a GRAFIA que entra no corpo",
+  "hash_entrada": "bf8c89e1f0cd",
+  "baseline": {
+   "bytes": 160,
+   "header": "#TCF.8n!!",
+   "rt": true
+  },
+  "M1_fracao": {
+   "convertidos": "10/10",
+   "bytes": 94,
+   "delta_vs_base": -66,
+   "rt": true,
+   "corpo_exemplo": [
+    "1/3~12",
+    "2/3~12",
+    "1/7~12",
+    "1/6~12"
+   ]
+  },
+  "M2_escala_pura": {
+   "k": 12,
+   "bytes": 145,
+   "delta_vs_base": -15,
+   "rt": true
+  },
+  "M3_escala_excecoes": {
+   "k": 12,
+   "excecoes": "0/10",
+   "bytes": 145,
+   "delta_vs_base": -15,
+   "rt": true,
+   "custo_de_busca_encodes": 1,
+   "corpo_exemplo": [
+    "333333333333",
+    "666666666667",
+    "142857142857",
+    "166666666667",
+    "833333333333",
+    "285714285714"
+   ]
+  },
+  "M3b_marcador_do_core": {
+   "k": 12,
+   "excecoes": "0/10",
+   "bytes": 145,
+   "delta_vs_base": -15,
+   "rt": true,
+   "aceita_tipo_misto": true,
+   "corpo_exemplo": [
+    "333333333333",
+    "666666666667",
+    "142857142857",
+    "166666666667",
+    "833333333333",
+    "285714285714"
+   ]
+  },
+  "FLOOR": {
+   "vencedor": "M1",
+   "bytes": 94,
+   "vs_hoje": -66,
+   "concorrentes": {
+    "nucleo-hoje": 160,
+    "M1": 94,
+    "M2": 145,
+    "M3": 145,
+    "M3b": 145
+   }
+  }
+ },
+ {
+  "caso": "rateio-terco",
+  "ideia": "O PARCELAMENTO do owner: 100 dividido em 3. Liga M1 (grafia) com M4 (soma preservada) no mesmo dado.",
+  "n": 6,
+  "CONSTANTE_na_comparacao": "os MESMOS valores, o MESMO encode(), o MESMO RT estrito; so' muda a GRAFIA que entra no corpo",
+  "hash_entrada": "cc6c0a026f8c",
+  "baseline": {
+   "bytes": 48,
+   "header": "#TCF.8n!!",
+   "rt": true
+  },
+  "M1_fracao": {
+   "convertidos": "6/6",
+   "bytes": 36,
+   "delta_vs_base": -12,
+   "rt": true,
+   "corpo_exemplo": [
+    "100/3~12",
+    "100/3~12",
+    "100/3~12",
+    "200/3~12"
+   ]
+  },
+  "M2_escala_pura": {
+   "k": 12,
+   "bytes": 51,
+   "delta_vs_base": 3,
+   "rt": true
+  },
+  "M3_escala_excecoes": {
+   "k": 12,
+   "excecoes": "0/6",
+   "bytes": 51,
+   "delta_vs_base": 3,
+   "rt": true,
+   "custo_de_busca_encodes": 1,
+   "corpo_exemplo": [
+    "33333333333333",
+    "33333333333333",
+    "33333333333333",
+    "66666666666667",
+    "66666666666667",
+    "66666666666667"
+   ]
+  },
+  "M3b_marcador_do_core": {
+   "k": 12,
+   "excecoes": "0/6",
+   "bytes": 51,
+   "delta_vs_base": 3,
+   "rt": true,
+   "aceita_tipo_misto": true,
+   "corpo_exemplo": [
+    "33333333333333",
+    "33333333333333",
+    "33333333333333",
+    "66666666666667",
+    "66666666666667",
+    "66666666666667"
+   ]
+  },
+  "FLOOR": {
+   "vencedor": "M1",
+   "bytes": 36,
+   "vs_hoje": -12,
+   "concorrentes": {
+    "nucleo-hoje": 48,
+    "M1": 36,
+    "M2": 51,
+    "M3": 51,
+    "M3b": 51
+   }
+  }
+ },
+ {
+  "caso": "money-2casas",
+  "ideia": "Dinheiro limpo, 2 casas, valores NAO em progressao (de proposito: uma progressao viraria seq-RLE e mediria o nucleo, nao a escala).",
+  "n": 20,
+  "CONSTANTE_na_comparacao": "os MESMOS valores, o MESMO encode(), o MESMO RT estrito; so' muda a GRAFIA que entra no corpo",
+  "hash_entrada": "9a37298508dd",
+  "baseline": {
+   "bytes": 114,
+   "header": "#TCF.8n!!",
+   "rt": true
+  },
+  "M1_fracao": {
+   "convertidos": "0/20",
+   "recusa": "nenhum valor e' dizima"
+  },
+  "M2_escala_pura": {
+   "k": 2,
+   "bytes": 111,
+   "delta_vs_base": -3,
+   "rt": true
+  },
+  "M3_escala_excecoes": {
+   "k": 1,
+   "excecoes": "8/20",
+   "bytes": 107,
+   "delta_vs_base": -7,
+   "rt": true,
+   "custo_de_busca_encodes": 12,
+   "corpo_exemplo": [
+    "129",
+    "35",
+    "47.25",
+    "80",
+    "129.99",
+    "45"
+   ]
+  },
+  "M3b_marcador_do_core": {
+   "k": 2,
+   "excecoes": "0/20",
+   "bytes": 111,
+   "delta_vs_base": -3,
+   "rt": true,
+   "aceita_tipo_misto": true,
+   "corpo_exemplo": [
+    "1290",
+    "350",
+    "4725",
+    "800",
+    "12999",
+    "450"
+   ]
+  },
+  "FLOOR": {
+   "vencedor": "M3",
+   "bytes": 107,
+   "vs_hoje": -7,
+   "concorrentes": {
+    "nucleo-hoje": 114,
+    "M2": 111,
+    "M3": 107,
+    "M3b": 111
+   }
+  }
+ },
+ {
+  "caso": "money-com-terco",
+  "ideia": "CONTRA-PROVA de money-2casas: a mesma coluna com UMA dizima no fim. E' o caso do owner em escala de dinheiro — mede o que 1 valor em 20 faz com a escala pura.",
+  "n": 20,
+  "CONSTANTE_na_comparacao": "os MESMOS valores, o MESMO encode(), o MESMO RT estrito; so' muda a GRAFIA que entra no corpo",
+  "hash_entrada": "ff724280195e",
+  "baseline": {
+   "bytes": 124,
+   "header": "#TCF.8n!!",
+   "rt": true
+  },
+  "M1_fracao": {
+   "convertidos": "1/20",
+   "bytes": 124,
+   "delta_vs_base": 0,
+   "rt": true,
+   "corpo_exemplo": [
+    "12.9",
+    "3.5",
+    "47.25",
+    "8.0"
+   ]
+  },
+  "M2_escala_pura": {
+   "k": 12,
+   "bytes": 188,
+   "delta_vs_base": 64,
+   "rt": true
+  },
+  "M3_escala_excecoes": {
+   "k": 1,
+   "excecoes": "9/20",
+   "bytes": 118,
+   "delta_vs_base": -6,
+   "rt": true,
+   "custo_de_busca_encodes": 12,
+   "corpo_exemplo": [
+    "129",
+    "35",
+    "47.25",
+    "80",
+    "129.99",
+    "45"
+   ]
+  },
+  "M3b_marcador_do_core": {
+   "k": 1,
+   "excecoes": "9/20",
+   "bytes": 127,
+   "delta_vs_base": 3,
+   "rt": true,
+   "aceita_tipo_misto": true,
+   "corpo_exemplo": [
+    "129",
+    "35",
+    "_47.25",
+    "80",
+    "_129.99",
+    "45"
+   ]
+  },
+  "FLOOR": {
+   "vencedor": "M3",
+   "bytes": 118,
+   "vs_hoje": -6,
+   "concorrentes": {
+    "nucleo-hoje": 124,
+    "M1": 124,
+    "M2": 188,
+    "M3": 118,
+    "M3b": 127
+   }
+  }
+ },
+ {
+  "caso": "borda-cientifica",
+  "ideia": "grafia sem 'casas' — M1 deve recusar",
+  "n": 3,
+  "CONSTANTE_na_comparacao": "os MESMOS valores, o MESMO encode(), o MESMO RT estrito; so' muda a GRAFIA que entra no corpo",
+  "hash_entrada": "8375df139f2c",
+  "baseline": {
+   "bytes": 27,
+   "header": "#TCF.8n",
+   "rt": true
+  },
+  "M1_fracao": {
+   "convertidos": "0/3",
+   "recusa": "nenhum valor e' dizima"
+  },
+  "M2_escala_pura": {
+   "recusa": "nenhum k <= 12 serve a TODOS os valores"
+  },
+  "M3_escala_excecoes": {
+   "recusa": "nenhum k serve nem a maioria"
+  },
+  "M3b_marcador_do_core": {
+   "recusa": "nenhum k serve nem a maioria"
+  },
+  "FLOOR": {
+   "vencedor": "nucleo-hoje",
+   "bytes": 27,
+   "vs_hoje": 0,
+   "concorrentes": {
+    "nucleo-hoje": 27
+   }
+  }
+ },
+ {
+  "caso": "borda-subnormal",
+  "ideia": "limit_denominator(5e-324) devolve 0 — M1 deve recusar ANTES disso",
+  "n": 2,
+  "CONSTANTE_na_comparacao": "os MESMOS valores, o MESMO encode(), o MESMO RT estrito; so' muda a GRAFIA que entra no corpo",
+  "hash_entrada": "0cdcf12f2211",
+  "baseline": {
+   "bytes": 24,
+   "header": "#TCF.8n!!",
+   "rt": true
+  },
+  "M1_fracao": {
+   "convertidos": "0/2",
+   "recusa": "nenhum valor e' dizima"
+  },
+  "M2_escala_pura": {
+   "recusa": "nenhum k <= 12 serve a TODOS os valores"
+  },
+  "M3_escala_excecoes": {
+   "recusa": "nenhum k serve nem a maioria"
+  },
+  "M3b_marcador_do_core": {
+   "recusa": "nenhum k serve nem a maioria"
+  },
+  "FLOOR": {
+   "vencedor": "nucleo-hoje",
+   "bytes": 24,
+   "vs_hoje": 0,
+   "concorrentes": {
+    "nucleo-hoje": 24
+   }
+  }
+ },
+ {
+  "caso": "borda-zero-negativo",
+  "ideia": "`==` nao distingue; M1 nao pode mexer",
+  "n": 3,
+  "CONSTANTE_na_comparacao": "os MESMOS valores, o MESMO encode(), o MESMO RT estrito; so' muda a GRAFIA que entra no corpo",
+  "hash_entrada": "667dc7f3eb28",
+  "baseline": {
+   "bytes": 23,
+   "header": "#TCF.8n!",
+   "rt": true
+  },
+  "M1_fracao": {
+   "convertidos": "0/3",
+   "recusa": "nenhum valor e' dizima"
+  },
+  "M2_escala_pura": {
+   "recusa": "nenhum k <= 12 serve a TODOS os valores"
+  },
+  "M3_escala_excecoes": {
+   "k": 0,
+   "excecoes": "1/3",
+   "bytes": 24,
+   "delta_vs_base": 1,
+   "rt": true,
+   "custo_de_busca_encodes": 13,
+   "corpo_exemplo": [
+    "-0.0",
+    "0",
+    "1"
+   ]
+  },
+  "M3b_marcador_do_core": {
+   "k": 0,
+   "excecoes": "1/3",
+   "bytes": 25,
+   "delta_vs_base": 2,
+   "rt": true,
+   "aceita_tipo_misto": true,
+   "corpo_exemplo": [
+    "_-0.0",
+    "0",
+    "1"
+   ]
+  },
+  "FLOOR": {
+   "vencedor": "nucleo-hoje",
+   "bytes": 23,
+   "vs_hoje": 0,
+   "concorrentes": {
+    "nucleo-hoje": 23,
+    "M3": 24,
+    "M3b": 25
+   }
+  }
+ },
+ {
+  "caso": "borda-max-float",
+  "ideia": "escala estoura 2^53",
+  "n": 2,
+  "CONSTANTE_na_comparacao": "os MESMOS valores, o MESMO encode(), o MESMO RT estrito; so' muda a GRAFIA que entra no corpo",
+  "hash_entrada": "619dc4b8469d",
+  "baseline": {
+   "bytes": 40,
+   "header": "#TCF.8n!!",
+   "rt": true
+  },
+  "M1_fracao": {
+   "convertidos": "0/2",
+   "recusa": "nenhum valor e' dizima"
+  },
+  "M2_escala_pura": {
+   "recusa": "nenhum k <= 12 serve a TODOS os valores"
+  },
+  "M3_escala_excecoes": {
+   "recusa": "nenhum k serve nem a maioria"
+  },
+  "M3b_marcador_do_core": {
+   "recusa": "nenhum k serve nem a maioria"
+  },
+  "FLOOR": {
+   "vencedor": "nucleo-hoje",
+   "bytes": 40,
+   "vs_hoje": 0,
+   "concorrentes": {
+    "nucleo-hoje": 40
+   }
+  }
+ },
+ {
+  "caso": "borda-precisao-suja",
+  "ideia": "0.30000000000000004 NAO e' dizima: M1 deve recusar, M3 deve tratar como excecao",
+  "n": 3,
+  "CONSTANTE_na_comparacao": "os MESMOS valores, o MESMO encode(), o MESMO RT estrito; so' muda a GRAFIA que entra no corpo",
+  "hash_entrada": "e78438da07e1",
+  "baseline": {
+   "bytes": 69,
+   "header": "#TCF.8n!",
+   "rt": true
+  },
+  "M1_fracao": {
+   "convertidos": "2/3",
+   "bytes": 48,
+   "delta_vs_base": -21,
+   "rt": true,
+   "corpo_exemplo": [
+    "0.30000000000000004",
+    "1/3~16",
+    "2/3~16"
+   ]
+  },
+  "M2_escala_pura": {
+   "recusa": "nenhum k <= 12 serve a TODOS os valores"
+  },
+  "M3_escala_excecoes": {
+   "recusa": "nenhum k serve nem a maioria"
+  },
+  "M3b_marcador_do_core": {
+   "recusa": "nenhum k serve nem a maioria"
+  },
+  "FLOOR": {
+   "vencedor": "M1",
+   "bytes": 48,
+   "vs_hoje": -21,
+   "concorrentes": {
+    "nucleo-hoje": 69,
+    "M1": 48
+   }
+  }
+ },
+ {
+  "caso": "borda-com-nulo",
+  "ideia": "o slot nulo atravessa",
+  "n": 3,
+  "CONSTANTE_na_comparacao": "os MESMOS valores, o MESMO encode(), o MESMO RT estrito; so' muda a GRAFIA que entra no corpo",
+  "hash_entrada": "253bbcecf7bd",
+  "baseline": {
+   "bytes": 43,
+   "header": "#TCF.8n!",
+   "rt": true
+  },
+  "M1_fracao": {
+   "convertidos": "2/3",
+   "bytes": 31,
+   "delta_vs_base": -12,
+   "rt": true,
+   "corpo_exemplo": [
+    "1/3~12",
+    "2/3~12"
+   ]
+  },
+  "M2_escala_pura": {
+   "k": 12,
+   "bytes": 44,
+   "delta_vs_base": 1,
+   "rt": true
+  },
+  "M3_escala_excecoes": {
+   "k": 12,
+   "excecoes": "0/3",
+   "bytes": 44,
+   "delta_vs_base": 1,
+   "rt": true,
+   "custo_de_busca_encodes": 1,
+   "corpo_exemplo": [
+    "333333333333",
+    null,
+    "666666666667"
+   ]
+  },
+  "M3b_marcador_do_core": {
+   "k": 12,
+   "excecoes": "0/3",
+   "bytes": 44,
+   "delta_vs_base": 1,
+   "rt": true,
+   "aceita_tipo_misto": true,
+   "corpo_exemplo": [
+    "333333333333",
+    null,
+    "666666666667"
+   ]
+  },
+  "FLOOR": {
+   "vencedor": "M1",
+   "bytes": 31,
+   "vs_hoje": -12,
+   "concorrentes": {
+    "nucleo-hoje": 43,
+    "M1": 31,
+    "M2": 44,
+    "M3": 44,
+    "M3b": 44
+   }
+  }
+ },
+ {
+  "caso": "borda-inteiro-em-float",
+  "ideia": "sem casas uteis — M1 recusa, M2 vence",
+  "n": 3,
+  "CONSTANTE_na_comparacao": "os MESMOS valores, o MESMO encode(), o MESMO RT estrito; so' muda a GRAFIA que entra no corpo",
+  "hash_entrada": "65c320899f30",
+  "baseline": {
+   "bytes": 21,
+   "header": "#TCF.8n",
+   "rt": true
+  },
+  "M1_fracao": {
+   "convertidos": "0/3",
+   "recusa": "nenhum valor e' dizima"
+  },
+  "M2_escala_pura": {
+   "k": 0,
+   "bytes": 21,
+   "delta_vs_base": 0,
+   "rt": true
+  },
+  "M3_escala_excecoes": {
+   "k": 0,
+   "excecoes": "0/3",
+   "bytes": 21,
+   "delta_vs_base": 0,
+   "rt": true,
+   "custo_de_busca_encodes": 13,
+   "corpo_exemplo": [
+    "3",
+    "4",
+    "5"
+   ]
+  },
+  "M3b_marcador_do_core": {
+   "k": 0,
+   "excecoes": "0/3",
+   "bytes": 21,
+   "delta_vs_base": 0,
+   "rt": true,
+   "aceita_tipo_misto": true,
+   "corpo_exemplo": [
+    "3",
+    "4",
+    "5"
+   ]
+  },
+  "FLOOR": {
+   "vencedor": "nucleo-hoje",
+   "bytes": 21,
+   "vs_hoje": 0,
+   "concorrentes": {
+    "nucleo-hoje": 21,
+    "M2": 21,
+    "M3": 21,
+    "M3b": 21
+   }
+  }
+ },
+ {
+  "caso": "borda-uniao-int-float",
+  "ideia": "a tag-UNIAO `n`: M1 so' pode tocar no elemento float",
+  "n": 3,
+  "CONSTANTE_na_comparacao": "os MESMOS valores, o MESMO encode(), o MESMO RT estrito; so' muda a GRAFIA que entra no corpo",
+  "hash_entrada": "43701801f1a8",
+  "baseline": {
+   "bytes": 29,
+   "header": "#TCF.8n!!",
+   "rt": true
+  },
+  "M1_fracao": {
+   "convertidos": "1/3",
+   "bytes": 26,
+   "delta_vs_base": -3,
+   "rt": true,
+   "corpo_exemplo": [
+    "1",
+    "1/3~12",
+    "3"
+   ]
+  },
+  "M2_escala_pura": {
+   "recusa": "nenhum k <= 12 serve a TODOS os valores"
+  },
+  "M3_escala_excecoes": {
+   "recusa": "nenhum k serve nem a maioria"
+  },
+  "M3b_marcador_do_core": {
+   "recusa": "nenhum k serve nem a maioria"
+  },
+  "FLOOR": {
+   "vencedor": "M1",
+   "bytes": 26,
+   "vs_hoje": -3,
+   "concorrentes": {
+    "nucleo-hoje": 29,
+    "M1": 26
+   }
+  }
+ },
+ {
+  "caso": "real-wine-quality-alcohol",
+  "ideia": "O CASO QUE QUEBROU A ESCALA no fechamento do float: 6 valores de 13-14 casas (medias sujas do dataset) derrubam a coluna inteira. E' o R1 do owner em dado real.",
+  "n": 2000,
+  "CONSTANTE_na_comparacao": "os MESMOS valores, o MESMO encode(), o MESMO RT estrito; so' muda a GRAFIA que entra no corpo",
+  "hash_entrada": "4c80fbd1c541",
+  "baseline": {
+   "bytes": 2881,
+   "header": "#TCF.8nB77d0",
+   "rt": true
+  },
+  "M1_fracao": {
+   "convertidos": "9/2000",
+   "bytes": 2853,
+   "delta_vs_base": -28,
+   "rt": true,
+   "corpo_exemplo": [
+    "9.4",
+    "9.8",
+    "9.4",
+    "10.5"
+   ]
+  },
+  "M2_escala_pura": {
+   "recusa": "nenhum k <= 12 serve a TODOS os valores"
+  },
+  "M3_escala_excecoes": {
+   "k": 1,
+   "excecoes": "14/2000",
+   "bytes": 2772,
+   "delta_vs_base": -109,
+   "rt": true,
+   "custo_de_busca_encodes": 12,
+   "corpo_exemplo": [
+    "94",
+    "98",
+    "94",
+    "105",
+    "99",
+    "92"
+   ]
+  },
+  "M3b_marcador_do_core": {
+   "k": 1,
+   "excecoes": "14/2000",
+   "bytes": 2783,
+   "delta_vs_base": -98,
+   "rt": true,
+   "aceita_tipo_misto": true,
+   "corpo_exemplo": [
+    "94",
+    "98",
+    "94",
+    "105",
+    "99",
+    "92"
+   ]
+  },
+  "FLOOR": {
+   "vencedor": "M3",
+   "bytes": 2772,
+   "vs_hoje": -109,
+   "concorrentes": {
+    "nucleo-hoje": 2881,
+    "M1": 2853,
+    "M3": 2772,
+    "M3b": 2783
+   }
+  }
+ },
+ {
+  "caso": "real-wine-quality-density",
+  "ideia": "3-5 casas, entre 0.99 e 1.04. A coluna do PoC de junho (M4).",
+  "n": 2000,
+  "CONSTANTE_na_comparacao": "os MESMOS valores, o MESMO encode(), o MESMO RT estrito; so' muda a GRAFIA que entra no corpo",
+  "hash_entrada": "06303b412892",
+  "baseline": {
+   "bytes": 10137,
+   "header": "#TCF.8n!",
+   "rt": true
+  },
+  "M1_fracao": {
+   "convertidos": "0/2000",
+   "recusa": "nenhum valor e' dizima"
+  },
+  "M2_escala_pura": {
+   "k": 5,
+   "bytes": 9757,
+   "delta_vs_base": -380,
+   "rt": true
+  },
+  "M3_escala_excecoes": {
+   "k": 5,
+   "excecoes": "0/2000",
+   "bytes": 9757,
+   "delta_vs_base": -380,
+   "rt": true,
+   "custo_de_busca_encodes": 9,
+   "corpo_exemplo": [
+    "99780",
+    "99800",
+    "99640",
+    "99780",
+    "99430",
+    "99860"
+   ]
+  },
+  "M3b_marcador_do_core": {
+   "k": 5,
+   "excecoes": "0/2000",
+   "bytes": 9757,
+   "delta_vs_base": -380,
+   "rt": true,
+   "aceita_tipo_misto": true,
+   "corpo_exemplo": [
+    "99780",
+    "99800",
+    "99640",
+    "99780",
+    "99430",
+    "99860"
+   ]
+  },
+  "FLOOR": {
+   "vencedor": "M2",
+   "bytes": 9757,
+   "vs_hoje": -380,
+   "concorrentes": {
+    "nucleo-hoje": 10137,
+    "M2": 9757,
+    "M3": 9757,
+    "M3b": 9757
+   }
+  }
+ },
+ {
+  "caso": "real-online-retail-UnitPrice",
+  "ideia": "Money-like real: preco unitario. Onde uma SOMA tem sentido semantico (M4).",
+  "n": 2000,
+  "CONSTANTE_na_comparacao": "os MESMOS valores, o MESMO encode(), o MESMO RT estrito; so' muda a GRAFIA que entra no corpo",
+  "hash_entrada": "1398608b3e3b",
+  "baseline": {
+   "bytes": 3662,
+   "header": "#TCF.8nB87d0",
+   "rt": true
+  },
+  "M1_fracao": {
+   "convertidos": "0/2000",
+   "recusa": "nenhum valor e' dizima"
+  },
+  "M2_escala_pura": {
+   "k": 2,
+   "bytes": 3378,
+   "delta_vs_base": -284,
+   "rt": true
+  },
+  "M3_escala_excecoes": {
+   "k": 2,
+   "excecoes": "0/2000",
+   "bytes": 3378,
+   "delta_vs_base": -284,
+   "rt": true,
+   "custo_de_busca_encodes": 11,
+   "corpo_exemplo": [
+    "255",
+    "210",
+    "495",
+    "125",
+    "85",
+    "795"
+   ]
+  },
+  "M3b_marcador_do_core": {
+   "k": 2,
+   "excecoes": "0/2000",
+   "bytes": 3378,
+   "delta_vs_base": -284,
+   "rt": true,
+   "aceita_tipo_misto": true,
+   "corpo_exemplo": [
+    "255",
+    "210",
+    "495",
+    "125",
+    "85",
+    "795"
+   ]
+  },
+  "FLOOR": {
+   "vencedor": "M2",
+   "bytes": 3378,
+   "vs_hoje": -284,
+   "concorrentes": {
+    "nucleo-hoje": 3662,
+    "M2": 3378,
+    "M3": 3378,
+    "M3b": 3378
+   }
+  }
+ },
+ {
+  "caso": "real-tpch-sf001-l_discount",
+  "ideia": "2 casas, entre 0.00 e 0.10 — escala pura facil.",
+  "n": 2000,
+  "CONSTANTE_na_comparacao": "os MESMOS valores, o MESMO encode(), o MESMO RT estrito; so' muda a GRAFIA que entra no corpo",
+  "hash_entrada": "b8d26bad633e",
+  "baseline": {
+   "bytes": 1406,
+   "header": "#TCF.8nB47d0",
+   "rt": true
+  },
+  "M1_fracao": {
+   "convertidos": "0/2000",
+   "recusa": "nenhum valor e' dizima"
+  },
+  "M2_escala_pura": {
+   "k": 2,
+   "bytes": 1389,
+   "delta_vs_base": -17,
+   "rt": true
+  },
+  "M3_escala_excecoes": {
+   "k": 2,
+   "excecoes": "0/2000",
+   "bytes": 1389,
+   "delta_vs_base": -17,
+   "rt": true,
+   "custo_de_busca_encodes": 11,
+   "corpo_exemplo": [
+    "4",
+    "4",
+    "4",
+    "8",
+    "1",
+    "0"
+   ]
+  },
+  "M3b_marcador_do_core": {
+   "k": 2,
+   "excecoes": "0/2000",
+   "bytes": 1389,
+   "delta_vs_base": -17,
+   "rt": true,
+   "aceita_tipo_misto": true,
+   "corpo_exemplo": [
+    "4",
+    "4",
+    "4",
+    "8",
+    "1",
+    "0"
+   ]
+  },
+  "FLOOR": {
+   "vencedor": "M2",
+   "bytes": 1389,
+   "vs_hoje": -17,
+   "concorrentes": {
+    "nucleo-hoje": 1406,
+    "M2": 1389,
+    "M3": 1389,
+    "M3b": 1389
+   }
+  }
+ },
+ {
+  "caso": "real-tpch-sf001-l_extendedprice",
+  "ideia": "Money-like de maior magnitude.",
+  "n": 2000,
+  "CONSTANTE_na_comparacao": "os MESMOS valores, o MESMO encode(), o MESMO RT estrito; so' muda a GRAFIA que entra no corpo",
+  "hash_entrada": "10880581aadd",
+  "baseline": {
+   "bytes": 17018,
+   "header": "#TCF.8n!!",
+   "rt": true
+  },
+  "M1_fracao": {
+   "convertidos": "0/2000",
+   "recusa": "nenhum valor e' dizima"
+  },
+  "M2_escala_pura": {
+   "k": 2,
+   "bytes": 15591,
+   "delta_vs_base": -1427,
+   "rt": true
+  },
+  "M3_escala_excecoes": {
+   "k": 2,
+   "excecoes": "0/2000",
+   "bytes": 15591,
+   "delta_vs_base": -1427,
+   "rt": true,
+   "custo_de_busca_encodes": 10,
+   "corpo_exemplo": [
+    "2471035",
+    "610266",
+    "6710593",
+    "3642717",
+    "3812128",
+    "1479996"
+   ]
+  },
+  "M3b_marcador_do_core": {
+   "k": 2,
+   "excecoes": "0/2000",
+   "bytes": 15591,
+   "delta_vs_base": -1427,
+   "rt": true,
+   "aceita_tipo_misto": true,
+   "corpo_exemplo": [
+    "2471035",
+    "610266",
+    "6710593",
+    "3642717",
+    "3812128",
+    "1479996"
+   ]
+  },
+  "FLOOR": {
+   "vencedor": "M2",
+   "bytes": 15591,
+   "vs_hoje": -1427,
+   "concorrentes": {
+    "nucleo-hoje": 17018,
+    "M2": 15591,
+    "M3": 15591,
+    "M3b": 15591
+   }
+  }
+ }
+]

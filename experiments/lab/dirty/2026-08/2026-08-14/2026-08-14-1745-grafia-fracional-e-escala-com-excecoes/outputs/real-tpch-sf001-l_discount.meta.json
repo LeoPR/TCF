@@ -1,0 +1,24 @@
+{
+ "input": "inputs/real-tpch-sf001-l_discount.entrada.json",
+ "hash_entrada": "b8d26bad633e",
+ "fonte": {
+  "gerador": "casos.py::carrega_real",
+  "db": "tpch-sf001",
+  "tabela": "lineitem",
+  "coluna": "l_discount",
+  "sql": "SELECT l_discount FROM lineitem",
+  "amostra_max": 2000,
+  "ideia": "2 casas, entre 0.00 e 0.10 — escala pura facil.",
+  "pin": "corpus local Z:/tcf-data/interim — nao versionado"
+ },
+ "n": 2000,
+ "baseline_bytes": 1406,
+ "vencedor": "M2",
+ "bytes_vencedor": 1389,
+ "wires": [
+  "real-tpch-sf001-l_discount.M2-escala-pura.tcf",
+  "real-tpch-sf001-l_discount.M3-escala-excecoes.tcf",
+  "real-tpch-sf001-l_discount.M3b-marcador.tcf",
+  "real-tpch-sf001-l_discount.baseline.tcf"
+ ]
+}

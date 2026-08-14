@@ -1,0 +1,19 @@
+{
+ "input": "inputs/borda-uniao-int-float.entrada.json",
+ "hash_entrada": "43701801f1a8",
+ "fonte": {
+  "gerador": "casos.py::BORDAS",
+  "params": {},
+  "seed": null,
+  "ideia": "a tag-UNIAO `n`: M1 so' pode tocar no elemento float",
+  "pin": "herdadas do fechamento do float 2026-08-14-1616"
+ },
+ "n": 3,
+ "baseline_bytes": 29,
+ "vencedor": "M1",
+ "bytes_vencedor": 26,
+ "wires": [
+  "borda-uniao-int-float.M1-fracao.tcf",
+  "borda-uniao-int-float.baseline.tcf"
+ ]
+}

@@ -1,0 +1,62 @@
+[
+ {
+  "k": 1,
+  "excecoes": 8,
+  "bytes": 107
+ },
+ {
+  "k": 2,
+  "excecoes": 0,
+  "bytes": 111
+ },
+ {
+  "k": 3,
+  "excecoes": 0,
+  "bytes": 131
+ },
+ {
+  "k": 4,
+  "excecoes": 0,
+  "bytes": 152
+ },
+ {
+  "k": 5,
+  "excecoes": 0,
+  "bytes": 174
+ },
+ {
+  "k": 6,
+  "excecoes": 0,
+  "bytes": 175
+ },
+ {
+  "k": 7,
+  "excecoes": 0,
+  "bytes": 176
+ },
+ {
+  "k": 8,
+  "excecoes": 0,
+  "bytes": 177
+ },
+ {
+  "k": 9,
+  "excecoes": 0,
+  "bytes": 178
+ },
+ {
+  "k": 10,
+  "excecoes": 0,
+  "bytes": 180
+ },
+ {
+  "k": 11,
+  "excecoes": 0,
+  "bytes": 181
+ },
+ {
+  "k": 12,
+  "excecoes": 0,
+  "bytes": 182
+ }
+]

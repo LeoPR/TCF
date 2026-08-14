@@ -1,0 +1,9 @@
+{
+ "gerador": "casos.py::SINTETICOS",
+ "params": {
+  "nota": "par: owner-sem-o-sujo"
+ },
+ "seed": null,
+ "ideia": "O CASO DO OWNER, literal: coluna de 1 casa com um sujo de 9 casas no meio.",
+ "pin": "sintetico viesado por construcao"
+}

@@ -1,0 +1,9 @@
+{
+ "gerador": "casos.py::SINTETICOS",
+ "params": {
+  "nota": "par: dizima-variada"
+ },
+ "seed": null,
+ "ideia": "10x a MESMA dizima. O RLE de linha identica ja' resolve — aqui o mecanismo deve ganhar POUCO. E' a contra-prova contra a leitura ingenua de 'grafia menor sempre da' wire menor'.",
+ "pin": "sintetico viesado por construcao"
+}

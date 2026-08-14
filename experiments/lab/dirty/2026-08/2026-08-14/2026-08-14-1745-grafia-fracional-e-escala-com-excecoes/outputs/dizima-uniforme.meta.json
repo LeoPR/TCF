@@ -1,0 +1,24 @@
+{
+ "input": "inputs/dizima-uniforme.entrada.json",
+ "hash_entrada": "ee201b95e3e1",
+ "fonte": {
+  "gerador": "casos.py::SINTETICOS",
+  "params": {
+   "nota": "par: dizima-variada"
+  },
+  "seed": null,
+  "ideia": "10x a MESMA dizima. O RLE de linha identica ja' resolve — aqui o mecanismo deve ganhar POUCO. E' a contra-prova contra a leitura ingenua de 'grafia menor sempre da' wire menor'.",
+  "pin": "sintetico viesado por construcao"
+ },
+ "n": 10,
+ "baseline_bytes": 29,
+ "vencedor": "M1",
+ "bytes_vencedor": 26,
+ "wires": [
+  "dizima-uniforme.M1-fracao.tcf",
+  "dizima-uniforme.M2-escala-pura.tcf",
+  "dizima-uniforme.M3-escala-excecoes.tcf",
+  "dizima-uniforme.M3b-marcador.tcf",
+  "dizima-uniforme.baseline.tcf"
+ ]
+}

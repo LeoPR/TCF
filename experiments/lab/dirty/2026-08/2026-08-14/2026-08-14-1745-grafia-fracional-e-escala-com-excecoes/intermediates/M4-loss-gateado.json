@@ -1,0 +1,62 @@
+{
+ "rateio-terco": {
+  "casas": 2,
+  "bytes_hoje": 48,
+  "bytes_apos_round": 28,
+  "reducao_pct": 41.7,
+  "drift_ingenuo_em_passos": 0,
+  "drift_maior_resto_em_passos": 0,
+  "soma_exata_preservada": true,
+  "erro_max_por_linha_maior_resto": 0.003333333333003452,
+  "erro_max_por_linha_ingenuo": 0.003333333333003452,
+  "PRECO_DA_SOMA_EXATA": "o maior-resto erra ate' 1 PASSO por linha; o ingenuo erra ate' 0,5. Preservar a soma custa erro por-linha.",
+  "um_passo": 0.01,
+  "rt_dos_valores_arredondados": true,
+  "CONTRATO": "exato-no-agregado — NAO e' RT contra a origem; o valor por linha MUDA"
+ },
+ "money-2casas": {
+  "casas": 1,
+  "bytes_hoje": 114,
+  "bytes_apos_round": 107,
+  "reducao_pct": 6.1,
+  "drift_ingenuo_em_passos": 0,
+  "drift_maior_resto_em_passos": 0,
+  "soma_exata_preservada": true,
+  "erro_max_por_linha_maior_resto": 0.05000000000000071,
+  "erro_max_por_linha_ingenuo": 0.05000000000000071,
+  "PRECO_DA_SOMA_EXATA": "o maior-resto erra ate' 1 PASSO por linha; o ingenuo erra ate' 0,5. Preservar a soma custa erro por-linha.",
+  "um_passo": 0.1,
+  "rt_dos_valores_arredondados": true,
+  "CONTRATO": "exato-no-agregado — NAO e' RT contra a origem; o valor por linha MUDA"
+ },
+ "real-wine-quality-density": {
+  "casas": 2,
+  "bytes_hoje": 10137,
+  "bytes_apos_round": 708,
+  "reducao_pct": 93.0,
+  "drift_ingenuo_em_passos": 48,
+  "drift_maior_resto_em_passos": 0,
+  "soma_exata_preservada": true,
+  "erro_max_por_linha_maior_resto": 0.005199999999999982,
+  "erro_max_por_linha_ingenuo": 0.0050000000000000044,
+  "PRECO_DA_SOMA_EXATA": "o maior-resto erra ate' 1 PASSO por linha; o ingenuo erra ate' 0,5. Preservar a soma custa erro por-linha.",
+  "um_passo": 0.01,
+  "rt_dos_valores_arredondados": true,
+  "CONTRATO": "exato-no-agregado — NAO e' RT contra a origem; o valor por linha MUDA"
+ },
+ "real-online-retail-UnitPrice": {
+  "casas": 1,
+  "bytes_hoje": 3662,
+  "bytes_apos_round": 2979,
+  "reducao_pct": 18.7,
+  "drift_ingenuo_em_passos": -12,
+  "drift_maior_resto_em_passos": 0,
+  "soma_exata_preservada": true,
+  "erro_max_por_linha_maior_resto": 0.05000000000000426,
+  "erro_max_por_linha_ingenuo": 0.05000000000000071,
+  "PRECO_DA_SOMA_EXATA": "o maior-resto erra ate' 1 PASSO por linha; o ingenuo erra ate' 0,5. Preservar a soma custa erro por-linha.",
+  "um_passo": 0.1,
+  "rt_dos_valores_arredondados": true,
+  "CONTRATO": "exato-no-agregado — NAO e' RT contra a origem; o valor por linha MUDA"
+ }
+}

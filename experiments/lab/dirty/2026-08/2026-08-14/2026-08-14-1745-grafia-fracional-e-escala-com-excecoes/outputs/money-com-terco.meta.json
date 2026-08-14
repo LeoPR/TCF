@@ -1,0 +1,24 @@
+{
+ "input": "inputs/money-com-terco.entrada.json",
+ "hash_entrada": "ff724280195e",
+ "fonte": {
+  "gerador": "casos.py::SINTETICOS",
+  "params": {
+   "nota": "par: money-2casas"
+  },
+  "seed": null,
+  "ideia": "CONTRA-PROVA de money-2casas: a mesma coluna com UMA dizima no fim. E' o caso do owner em escala de dinheiro — mede o que 1 valor em 20 faz com a escala pura.",
+  "pin": "sintetico viesado por construcao"
+ },
+ "n": 20,
+ "baseline_bytes": 124,
+ "vencedor": "M3",
+ "bytes_vencedor": 118,
+ "wires": [
+  "money-com-terco.M1-fracao.tcf",
+  "money-com-terco.M2-escala-pura.tcf",
+  "money-com-terco.M3-escala-excecoes.tcf",
+  "money-com-terco.M3b-marcador.tcf",
+  "money-com-terco.baseline.tcf"
+ ]
+}

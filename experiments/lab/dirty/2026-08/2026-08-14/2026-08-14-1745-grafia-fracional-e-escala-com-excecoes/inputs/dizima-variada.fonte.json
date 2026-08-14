@@ -1,0 +1,9 @@
+{
+ "gerador": "casos.py::SINTETICOS",
+ "params": {
+  "nota": "par: dizima-uniforme"
+ },
+ "seed": null,
+ "ideia": "10 dizimas DIFERENTES. O nucleo nao tem repeticao de linha para comer; e' onde a grafia fracional teria folga.",
+ "pin": "sintetico viesado por construcao"
+}

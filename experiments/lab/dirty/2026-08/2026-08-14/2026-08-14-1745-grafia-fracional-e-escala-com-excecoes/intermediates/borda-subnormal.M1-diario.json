@@ -1,0 +1,14 @@
+[
+ {
+  "valor": 5e-324,
+  "estagio_A_identify": "recusa: nao e' decimal finito (nulo/NaN/Inf/cientifica/-0.0)",
+  "estagio_B_normalize": null,
+  "estagio_C_verify": null
+ },
+ {
+  "valor": 1e-323,
+  "estagio_A_identify": "recusa: nao e' decimal finito (nulo/NaN/Inf/cientifica/-0.0)",
+  "estagio_B_normalize": null,
+  "estagio_C_verify": null
+ }
+]

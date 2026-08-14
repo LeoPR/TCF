@@ -1,0 +1,10 @@
+{
+ "gerador": "casos.py::carrega_real",
+ "db": "wine-quality",
+ "tabela": "wine",
+ "coluna": "density",
+ "sql": "SELECT density FROM wine WHERE density IS NOT NULL",
+ "amostra_max": 2000,
+ "ideia": "3-5 casas, entre 0.99 e 1.04. A coluna do PoC de junho (M4).",
+ "pin": "corpus local Z:/tcf-data/interim — nao versionado"
+}

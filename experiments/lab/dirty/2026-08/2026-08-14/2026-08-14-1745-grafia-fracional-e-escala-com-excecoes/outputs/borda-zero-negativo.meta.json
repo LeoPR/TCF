@@ -1,0 +1,20 @@
+{
+ "input": "inputs/borda-zero-negativo.entrada.json",
+ "hash_entrada": "667dc7f3eb28",
+ "fonte": {
+  "gerador": "casos.py::BORDAS",
+  "params": {},
+  "seed": null,
+  "ideia": "`==` nao distingue; M1 nao pode mexer",
+  "pin": "herdadas do fechamento do float 2026-08-14-1616"
+ },
+ "n": 3,
+ "baseline_bytes": 23,
+ "vencedor": "nucleo-hoje",
+ "bytes_vencedor": 23,
+ "wires": [
+  "borda-zero-negativo.M3-escala-excecoes.tcf",
+  "borda-zero-negativo.M3b-marcador.tcf",
+  "borda-zero-negativo.baseline.tcf"
+ ]
+}

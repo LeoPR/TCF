@@ -1,0 +1,24 @@
+{
+ "input": "inputs/dizima-variada.entrada.json",
+ "hash_entrada": "bf8c89e1f0cd",
+ "fonte": {
+  "gerador": "casos.py::SINTETICOS",
+  "params": {
+   "nota": "par: dizima-uniforme"
+  },
+  "seed": null,
+  "ideia": "10 dizimas DIFERENTES. O nucleo nao tem repeticao de linha para comer; e' onde a grafia fracional teria folga.",
+  "pin": "sintetico viesado por construcao"
+ },
+ "n": 10,
+ "baseline_bytes": 160,
+ "vencedor": "M1",
+ "bytes_vencedor": 94,
+ "wires": [
+  "dizima-variada.M1-fracao.tcf",
+  "dizima-variada.M2-escala-pura.tcf",
+  "dizima-variada.M3-escala-excecoes.tcf",
+  "dizima-variada.M3b-marcador.tcf",
+  "dizima-variada.baseline.tcf"
+ ]
+}

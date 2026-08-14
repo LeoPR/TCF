@@ -1,0 +1,10 @@
+{
+ "gerador": "casos.py::carrega_real",
+ "db": "online-retail",
+ "tabela": "online_retail",
+ "coluna": "UnitPrice",
+ "sql": "SELECT UnitPrice FROM online_retail WHERE UnitPrice IS NOT NULL",
+ "amostra_max": 2000,
+ "ideia": "Money-like real: preco unitario. Onde uma SOMA tem sentido semantico (M4).",
+ "pin": "corpus local Z:/tcf-data/interim — nao versionado"
+}

@@ -1,0 +1,24 @@
+{
+ "input": "inputs/rateio-terco.entrada.json",
+ "hash_entrada": "cc6c0a026f8c",
+ "fonte": {
+  "gerador": "casos.py::SINTETICOS",
+  "params": {
+   "nota": "usado tambem em M4"
+  },
+  "seed": null,
+  "ideia": "O PARCELAMENTO do owner: 100 dividido em 3. Liga M1 (grafia) com M4 (soma preservada) no mesmo dado.",
+  "pin": "sintetico viesado por construcao"
+ },
+ "n": 6,
+ "baseline_bytes": 48,
+ "vencedor": "M1",
+ "bytes_vencedor": 36,
+ "wires": [
+  "rateio-terco.M1-fracao.tcf",
+  "rateio-terco.M2-escala-pura.tcf",
+  "rateio-terco.M3-escala-excecoes.tcf",
+  "rateio-terco.M3b-marcador.tcf",
+  "rateio-terco.baseline.tcf"
+ ]
+}

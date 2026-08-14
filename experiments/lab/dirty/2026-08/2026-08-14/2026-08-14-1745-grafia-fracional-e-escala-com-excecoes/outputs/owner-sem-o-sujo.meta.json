@@ -1,0 +1,23 @@
+{
+ "input": "inputs/owner-sem-o-sujo.entrada.json",
+ "hash_entrada": "83b23a5ab54c",
+ "fonte": {
+  "gerador": "casos.py::SINTETICOS",
+  "params": {
+   "nota": "par: owner-sujo-no-meio"
+  },
+  "seed": null,
+  "ideia": "CONTRA-PROVA do anterior: a MESMA coluna com o sujo trocado por um limpo. Isola quanto UM valor sujo custa hoje.",
+  "pin": "sintetico viesado por construcao"
+ },
+ "n": 10,
+ "baseline_bytes": 37,
+ "vencedor": "M2",
+ "bytes_vencedor": 35,
+ "wires": [
+  "owner-sem-o-sujo.M2-escala-pura.tcf",
+  "owner-sem-o-sujo.M3-escala-excecoes.tcf",
+  "owner-sem-o-sujo.M3b-marcador.tcf",
+  "owner-sem-o-sujo.baseline.tcf"
+ ]
+}
