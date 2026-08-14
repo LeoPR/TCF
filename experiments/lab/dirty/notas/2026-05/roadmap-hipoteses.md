@@ -342,6 +342,8 @@ os unicos ganhos relevantes foram colunas DATETIME: InvoiceDate 15%, data_cadast
 | H-ORDER-FREE-01 | **Liberdade de ordem declarada pelo dev** (owner 2026-07-23, ADIADO `.9`): duas coisas distintas — (1) ordenar POR uma coluna reordena todas as linhas juntas, mas achar a melhor chave exige re-encodar muitas vezes = custo combinatorio proibitivo (precisa heuristica/preditor, nao forca bruta); (2) declaracao `order_free` do dev = barato (so' obedece permissao). Liberdade de ordem e' propriedade do SIGNIFICADO, nao do TIPO -> nao inferivel, tem que ser declarada. Default: preservar ordem. | **prêmio MEDIDO 2026-07-23** (lab 1832): ordenar leva education 6668->102 B (**65×**), occupation ->97, workclass ->50 — maior alavanca achada (vs 1.86x do bN). ADIADO: faltam custo CPU/memoria do sort, o problema "premonitorio" (saber se vale ANTES de olhar o dado) e o contrato de RT (multiconjunto, permutacao canonica). | nota [`2026-07-23-2324`](../2026-07/2026-07-23-2324-order-free-e-ordenacao-adiado-09.md) + lab `2026-07-23-1832` |
 | H-DENSE-MODE-02 | **Segmentacao por regime decidida por telemetria** (owner 2026-07-23): a decisao RLE-vs-denso por segmento e' determinstica (tamanho por formula) e de passe unico; a composicao vencedora e' ADAPTATIVA (fronteira na virada de regime, do run-list), NAO lote de S fixo. Reusa o modelo `savings` do `hcc_seqrle`; compete no FLOOR (nunca-pior). | **MEDIDO + VERIFICADO 2026-07-23** (wf_876541f7 pegou artefato de alinhamento na v1): batch de S fixo e' fragil (perde ate +72 no desalinhado); adaptativo ganha -22..-49 indep. de alinhamento, +6 (~neutro) no homogeneo -> nunca-pior sob FLOOR. Custo honesto: so' o run-list e' de-qualquer-forma; base64+segmentacao sao passo NOVO; `.8H` single-col nao tem ponto de selecao. Bool w=1 so'. | labs [`1533`](../2026-07/2026-07-23/2026-07-23-1533-decisao-rle-vs-denso-passe-unico/) + [`1548`](../2026-07/2026-07-23/2026-07-23-1548-telemetria-decide-lote-rle-vs-b64/) |
 
+| H-FLOAT-GRAFIA-01 | **Grafia fracional p/ dizimas** (owner 2026-08-14): `0.333333333333` -> `1/3…12` (fracao + nº de casas) — **LOSSLESS por grafia**, so' muda o corpo, RT byte-a-byte; candidato do `min()` como a escala, SEM gate do Pacote 10. Achavel por fracao continua (`Fraction.limit_denominator`) + verificacao de re-emissao. Dizima genuina nasce de DIVISAO (rateio/parcelamento — o proprio exemplo do owner). Testar JUNTO com escala-com-excecoes (desenho ALP): provavel nicho, a escala deve dominar na frequencia. | aberta (registrada, sem lab) | nota [`2026-08-14-1739`](../2026-08/2026-08-14-1739-loss-e-lossless-alterado-pesquisa.md) |
+
 ---
 
 ## Pacote 10 — LOSS (lossy), registrado 2026-06-14
@@ -350,6 +352,10 @@ os unicos ganhos relevantes foram colunas DATETIME: InvoiceDate 15%, data_cadast
 FAZER SIM". Revisao exaustiva (workflow 9 vertentes + critico) em
 **`loss-taxonomia.md`** (eixo principal = CONTRATO de recuperacao). PoC do
 maior-resto valida a ideia-chave (soma exata, loss-no-agregado).
+**Refs externas (pesquisa 2026-08-14, nota `2026-08-14-1739`)**: dentro-de-tolerancia
+= error-bounded lossy da computacao cientifica (SZ3/ZFP; survey ACM 2025 com 47
+compressores); soma-preservada = controlled rounding da estatistica oficial (Sande,
+FCSM 2005; maior-resto e' o metodo canonico — confirma o PoC).
 
 **DECISAO DE ESCOPO (owner, 2026-06-15)**: o ciclo **0.7 permanece lossless-puro**.
 Lossy NAO entra no 0.7 — vira **roadmap v2.0**. V2-C round-puro (nicho ~1.5%, so'
