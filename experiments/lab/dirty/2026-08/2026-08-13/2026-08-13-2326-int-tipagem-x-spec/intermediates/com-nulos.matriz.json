@@ -8,6 +8,8 @@
   },
   "str+spec": {
    "bytes": 232,
+   "auto_contido": 232,
+   "param_bytes": 0,
    "header": "#TCF.8 :xipad",
    "rt": true,
    "alvo": "int-pad"
@@ -19,6 +21,8 @@
   },
   "int+spec(SIMULADO)": {
    "bytes": 247,
+   "auto_contido": 247,
+   "param_bytes": 0,
    "alvo": "int-pad",
    "rt": true,
    "simulado": true,

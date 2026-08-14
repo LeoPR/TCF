@@ -8,6 +8,8 @@
   },
   "str+spec": {
    "bytes": 26,
+   "auto_contido": 37,
+   "param_bytes": 11,
    "header": "#TCF.8 :xioff",
    "rt": true,
    "alvo": "int-offpad"
@@ -19,6 +21,8 @@
   },
   "int+spec(SIMULADO)": {
    "bytes": 27,
+   "auto_contido": 38,
+   "param_bytes": 11,
    "alvo": "int-offpad",
    "rt": true,
    "simulado": true,

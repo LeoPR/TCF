@@ -4,26 +4,67 @@
 (`type(x) is type(y)`), não só valor — em Python `True == 1` e `1 == 1.0`, e a comparação
 ingênua mascararia exatamente o defeito que interessa aqui.
 
+> ### ⚠ Correção de medição (o owner estranhou um wire e tinha razão)
+>
+> Ao abrir `outputs/gigante-64bit.str-spec.tcf`, o owner: *"parece que quebrou… o número é
+> gigante mas o conteúdo não parece fazer sentido. será que o teste de RT deu errado?"*
+>
+> O RT **não** deu errado — a **medição** é que estava. O wire era:
+>
+> ```
+> #TCF.8 :xioff
+> *600+1|\000
+> ```
+>
+> 26 bytes para 600 números de 19 dígitos, porque o `OFFPAD` subtraiu a base e o corpo virou
+> `000..599`. **A base de 19 dígitos não está no wire** — ela vivia no objeto do spec que eu
+> passava no `decode`. Prova do defeito: o **mesmo wire** devolve `['9223372036854775808']`
+> com `base=2**63` e `['0']` com `base=0`, **sem erro nenhum**.
+>
+> Os números abaixo já estão corrigidos: a coluna `auto-contido` soma o custo do parâmetro
+> quando ele **não** é dedutível do corpo.
+
 ## A matriz
 
-| regime | str+core | str+spec | int+core | int+spec\* | |
-|---|---:|---:|---:|---:|---|
-| `prog-passo1` (1..600) | 36 | **26** | 37 | **27** | |
-| `prog-passo7` | 48 | **27** | 49 | **28** | |
-| `prog-epoch` | 81 | **29** | 82 | **30** | |
-| `prog-base-alta` (1e9+i) | 65 | **26** | 66 | **27** | |
-| `gigante-64bit` (2⁶³+i) | 82 | **26** | 83 | **27** | |
-| `id-aleatorio-6` | 4209 | 3217 | 4210 | **3017** | int ganha mais |
-| `id-aleatorio-11` | 7209 | 4730 | 7210 | **4217** | int ganha mais |
-| `faixa-0-100` | 1110 | 1110 | 1111 | **1044** | só o eixo int |
-| `prog-largura-fixa` | 22 | 22 | 23 | 27 | FLOOR recusa |
-| `cardinalidade-5` | 333 | 333 | 334 | 337 | FLOOR recusa |
-| `quase-constante` | 25 | 25 | 26 | 31 | FLOOR recusa |
-| `negativos` | 2627 | 2627 | 2628 | 2688 | FLOOR recusa |
-| `com-nulos` | 240 | 232 | 241 | 247 | FLOOR recusa |
-| `misto-int-float` | 2899 | 2899 | 2900 | 3107 | FLOOR recusa |
+| regime | str+core | str+spec | *auto-contido* | int+core | int+spec\* | *auto-contido* |
+|---|---:|---:|---:|---:|---:|---:|
+| `prog-passo1` (1..600) | 36 | **26** | **26** | 37 | **27** | **27** |
+| `prog-passo7` | 48 | **27** | **27** | 49 | **28** | **28** |
+| `prog-epoch` | 81 | 29 | **40** | 82 | 30 | **41** |
+| `prog-base-alta` (1e9+i) | 65 | 26 | **37** | 66 | 27 | **38** |
+| `gigante-64bit` (2⁶³+i) | 82 | 26 | **46** | 83 | 27 | **47** |
+| `id-aleatorio-6` | 4209 | 3217 | **3217** | 4210 | 3017 | **3017** |
+| `id-aleatorio-11` | 7209 | 4730 | **4730** | 7210 | 4217 | **4217** |
+| `faixa-0-100` | 1110 | 1110 | 1110 | 1111 | 1044 | **1044** |
+| `prog-largura-fixa` | 22 | 22 | 22 | 23 | 30 | 30 → FLOOR recusa |
+| `cardinalidade-5` | 333 | 333 | 333 | 334 | 337 | FLOOR recusa |
+| `quase-constante` | 25 | 25 | 25 | 26 | 32 | FLOOR recusa |
+| `negativos` | 2627 | 2627 | 2627 | 2628 | 2688 | FLOOR recusa |
+| `com-nulos` | 240 | 232 | 232 | 241 | 247 | FLOOR recusa |
+| `misto-int-float` | 2899 | 2899 | 2899 | 2900 | 3107 | FLOOR recusa |
 
 \* `int+spec` é **simulado** — ver "a célula que não existe", abaixo.
+
+## Achado 0: spec auto-contido × spec parametrizado
+
+A correção acima revelou uma distinção de **design**, não de medição:
+
+| classe | quem | o wire basta? |
+|---|---|---|
+| **auto-contido** | `PAD` (largura é visível no corpo expandido) · `B94` (`int(b94)` dá o número; zeros à esquerda já são recusados como não-canônicos) | **sim** — o id no header basta |
+| **parametrizado** | `OFFPAD` (a base é informação **perdida**, não dedutível de nada) | **não** — o id não basta |
+
+É a mesma linha que separa os specs já soldados: `data-iso`, `cpf`, `cnpj`, `ip` são todos
+auto-contidos — o ordinal de data é **absoluto**, não relativo a nada, e por isso
+`#TCF.8 :dt\n*600+1|\739617` tem os mesmos 26 bytes **sem nada out-of-band**.
+
+Um spec parametrizado **quebra o self-describing do ADR-0027** (o decode não resolve sozinho
+pelo registry). Isso não o inviabiliza, mas muda o que ele é: ou o parâmetro viaja no header
+(e aí é extensão de formato), ou o contrato vive nas pontas (e aí é o modo sem-carimbo,
+`T-SPEC-SEM-CARIMBO`).
+
+E o preço, agora medido: o OFFPAD continua ganhando, mas menos — **2,03×** no epoch (era
+2,79×), **1,78×** no gigante (era 3,15×), **1,76×** na base alta (era 2,50×).
 
 ## Achado 1: a tipagem custa 1 byte e não entrega nada
 

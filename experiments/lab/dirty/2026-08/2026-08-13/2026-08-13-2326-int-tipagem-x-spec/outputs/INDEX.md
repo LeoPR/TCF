@@ -4,14 +4,14 @@
 |---|---:|---:|---:|---:|---|---|
 | `prog-passo1` | 36 | 26 | 37 | 27 | int-pad | int-pad |
 | `prog-passo7` | 48 | 27 | 49 | 28 | int-pad | int-pad |
-| `prog-largura-fixa` | 22 | 22 | 23 | 27 | int-pad | int-offpad |
+| `prog-largura-fixa` | 22 | 22 | 23 | 30 | int-pad | int-pad |
 | `prog-epoch` | 81 | 29 | 82 | 30 | int-offpad | int-offpad |
 | `prog-base-alta` | 65 | 26 | 66 | 27 | int-offpad | int-offpad |
 | `id-aleatorio-6` | 4209 | 3217 | 4210 | 3017 | int-b94 | int-b94 |
 | `id-aleatorio-11` | 7209 | 4730 | 7210 | 4217 | int-b94 | int-b94 |
 | `faixa-0-100` | 1110 | 1110 | 1111 | 1044 | int-pad | int-b94 |
 | `cardinalidade-5` | 333 | 333 | 334 | 337 | int-pad | int-b94 |
-| `quase-constante` | 25 | 25 | 26 | 31 | int-pad | int-offpad |
+| `quase-constante` | 25 | 25 | 26 | 32 | int-pad | int-b94 |
 | `negativos` | 2627 | 2627 | 2628 | 2688 | int-pad | int-b94 |
 | `com-nulos` | 240 | 232 | 241 | 247 | int-pad | int-pad |
 | `gigante-64bit` | 82 | 26 | 83 | 27 | int-offpad | int-offpad |

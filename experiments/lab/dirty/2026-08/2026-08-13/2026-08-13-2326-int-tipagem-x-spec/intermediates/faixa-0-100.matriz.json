@@ -8,6 +8,8 @@
   },
   "str+spec": {
    "bytes": 1110,
+   "auto_contido": 1110,
+   "param_bytes": 0,
    "header": "#TCF.8B7258",
    "rt": true,
    "alvo": "int-pad"
@@ -19,6 +21,8 @@
   },
   "int+spec(SIMULADO)": {
    "bytes": 1044,
+   "auto_contido": 1044,
+   "param_bytes": 0,
    "alvo": "int-b94",
    "rt": true,
    "simulado": true,

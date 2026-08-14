@@ -77,6 +77,36 @@ def _limpa():
         d.mkdir(parents=True)
 
 
+def custo_parametro(alvo) -> int:
+    """Bytes que o alvo precisaria ACRESCENTAR ao wire para ser AUTO-CONTIDO.
+
+    ACHADO 2026-08-13 (o owner estranhou `gigante-64bit.str-spec.tcf`: *"o numero e'
+    gigante mas o conteudo nao parece fazer sentido"*): o wire de 26 B era
+    `#TCF.8 :xioff / *600+1|\\000` — o corpo e' 000..599 porque o OFFPAD subtraiu a base,
+    e **a base de 19 digitos NAO esta' no wire**. O RT so' fechava porque eu passava o
+    objeto do spec no decode. Prova do defeito: o MESMO wire devolve
+    `['9223372036854775808']` com `base=2**63` e `['0']` com `base=0`, sem erro nenhum.
+
+    Isto separa os alvos em duas classes, e a distincao e' de DESIGN, nao de medicao:
+
+      AUTO-CONTIDO  o id no header basta; o decode deduz o resto do corpo.
+                    - PAD: a largura e' visivel no corpo expandido (todas as linhas
+                      tem o mesmo tamanho).
+                    - B94: `int(b94)` da' o numero e a grafia canonica e' `str(n)`
+                      (o spec ja' recusa zeros a' esquerda como nao-canonicos).
+                    - E' a classe do `data-iso`/`cpf`/`cnpj`/`ip`: o ordinal e'
+                      ABSOLUTO, nao relativo a nada.
+
+      PARAMETRIZADO o id NAO basta — a base e' informacao PERDIDA, nao deduzivel.
+                    - OFFPAD precisa da base. Isso **quebra o self-describing do
+                      ADR-0027** (o decode nao resolve sozinho pelo registry).
+
+    Retorna o custo de carregar o parametro no header, para a comparacao ser honesta.
+    """
+    base = getattr(alvo, "base", None)
+    return 0 if base is None else len(str(base)) + 1   # o parametro + 1 separador
+
+
 def igual_com_tipo(a, b) -> bool:
     """RT de verdade: `True == 1` e `1 == 1.0` em Python — comparar só valor MASCARA
     justamente o defeito de tipagem que este lab investiga."""
@@ -151,12 +181,16 @@ def main() -> int:
                 if not igual_com_tipo(volta, strs):
                     falhas.append(f"{nome}/str+{alvo.name}: RT nao preservou (tipo ou valor)")
                     continue
-                if melhor is None or B(ws) < melhor["bytes"]:
-                    melhor = {"bytes": B(ws), "header": ws.split("\n")[0][:26], "rt": True,
+                autoc = B(ws) + custo_parametro(alvo)   # honesto: wire AUTO-CONTIDO
+                if melhor is None or autoc < melhor["auto_contido"]:
+                    melhor = {"bytes": B(ws), "auto_contido": autoc,
+                              "param_bytes": custo_parametro(alvo),
+                              "header": ws.split("\n")[0][:26], "rt": True,
                               "alvo": alvo.name, "wire": ws}
             except Exception as e:
                 falhas.append(f"{nome}/str+{alvo.name}: {type(e).__name__}: {str(e)[:50]}")
-        cel["str+spec"] = melhor or dict(cel["str+core"], alvo="nenhum aplicavel")
+        cel["str+spec"] = melhor or dict(cel["str+core"], alvo="nenhum aplicavel",
+                                         auto_contido=cel["str+core"]["bytes"], param_bytes=0)
 
         # (3) fonte INT + core  -> a rota tipada
         wi = encode(ints)
@@ -192,6 +226,7 @@ def main() -> int:
             transformado = [p for p, _ in pares]
             corpo = encode([("" if p is None else p) for p in transformado])
             custo = B(corpo) + 1 + len(f" :{alvo.wire_id}")   # +1 = o disc 'n' do tipado
+            autoc = custo + custo_parametro(alvo)             # honesto: AUTO-CONTIDO
             # RT a mao, restaurando o TIPO DE ORIGEM: um spec de INT recusa float (vira
             # literal) e o valor volta como estava — por isso `type(orig)`, nao `int`.
             volta = [None if p is None else type(o)(alvo.decode_value(p))
@@ -199,9 +234,12 @@ def main() -> int:
             ok = igual_com_tipo(volta, ints)
             if not ok:
                 falhas.append(f"{nome}/int+{alvo.name} (simulado): RT nao fecha")
-            if sim is None or custo < sim["bytes"]:
-                sim = {"bytes": custo, "alvo": alvo.name, "rt": ok, "simulado": True}
-        cel["int+spec(SIMULADO)"] = sim or {"bytes": None, "alvo": "nenhum", "rt": None}
+            if sim is None or autoc < sim["auto_contido"]:
+                sim = {"bytes": custo, "auto_contido": autoc,
+                       "param_bytes": custo_parametro(alvo),
+                       "alvo": alvo.name, "rt": ok, "simulado": True}
+        cel["int+spec(SIMULADO)"] = sim or {"bytes": None, "auto_contido": None,
+                                           "param_bytes": 0, "alvo": "nenhum", "rt": None}
         cel["int+spec(SIMULADO)"]["recusas_reais"] = recusas
 
         _esc(OUT / f"{nome}.str-core.tcf", cel["str+core"]["wire"])
@@ -219,17 +257,25 @@ def main() -> int:
         # A simulacao NAO passa pelo FLOOR — ela reporta o custo CRU do spec, inclusive
         # quando ele e' pior. O FLOOR real ficaria com o menor, e e' esse o numero que o
         # usuario veria. Reporto os DOIS pra nao induzir a erro.
-        b["int+spec(com FLOOR)"] = min(b["int+spec(SIMULADO)"], b["int+core"])
+        ac_s = cel["str+spec"].get("auto_contido") or b["str+spec"]
+        ac_i = cel["int+spec(SIMULADO)"].get("auto_contido") or b["int+spec(SIMULADO)"]
+        pb = cel["str+spec"].get("param_bytes", 0)
+        b["str+spec(auto-contido)"] = ac_s
+        b["int+spec(auto-contido)"] = ac_i
+        b["param_bytes"] = pb
+        # o FLOOR compara contra o que seria EMITIDO — logo contra o auto-contido
+        b["int+spec(com FLOOR)"] = min(ac_i, b["int+core"])
         cel["int+spec(SIMULADO)"]["com_floor"] = b["int+spec(com FLOOR)"]
-        cel["int+spec(SIMULADO)"]["floor_recusaria"] = b["int+spec(SIMULADO)"] >= b["int+core"]
+        cel["int+spec(SIMULADO)"]["floor_recusaria"] = ac_i >= b["int+core"]
         tabela.append({"regime": nome, "ideia": ideia, **b,
                        "alvo_str": cel["str+spec"].get("alvo"),
                        "alvo_int": cel["int+spec(SIMULADO)"].get("alvo"),
                        "rt_int_core": cel["int+core"]["rt"]})
-        recusa = "(FLOOR recusa)" if cel["int+spec(SIMULADO)"]["floor_recusaria"] else ""
-        print(f"  {nome:18s} str/core {b['str+core']:6d}  str/spec {b['str+spec']:6d}  "
-              f"int/core {b['int+core']:6d}  int/spec* {b['int+spec(SIMULADO)']:6d} "
-              f"{recusa:14s} RT-tipo {'ok' if cel['int+core']['rt'] else 'FALHOU'}")
+        marca = f"+param {pb}B" if pb else ""
+        recusa = " (FLOOR recusa)" if cel["int+spec(SIMULADO)"]["floor_recusaria"] else ""
+        print(f"  {nome:18s} str/core {b['str+core']:6d}  str/spec {b['str+spec']:6d}"
+              f"->{ac_s:6d} {marca:11s} int/core {b['int+core']:6d}  "
+              f"int/spec* {b['int+spec(SIMULADO)']:6d}->{ac_i:6d}{recusa}")
 
     _js(RAIZ / "resultado.json", {"tabela": tabela, "falhas": falhas})
     idx = ["# INDEX — a matriz tipagem × spec", "",
