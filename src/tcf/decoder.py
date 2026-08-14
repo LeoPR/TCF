@@ -173,7 +173,9 @@ def decode(
     # e delega o CORPO ao core (_decode_column), castando pro tipo. A variavel `modo` (o conceito
     # do '~') e' DEDUZIDA DA POSICAO (indice 7); NAO ha '~' no wire. #4a = modo CORE; denso bN = #4b.
     if disc8 in _TAGS_TIPO:
-        return _decode_typed(tcf_text, disc8, max_length=max_length)
+        # `nature` chega ate' a rota tipada (weld EXP-018): antes ela nem recebia o
+        # parametro, entao um spec out-of-band era ignorado CALADO aqui.
+        return _decode_typed(tcf_text, disc8, max_length=max_length, nature=nature)
     # bN DE DOMINIO: #TCF.8B<w><n> (dominio primeiro) / #TCF.8C<w><n> (dominio por ultimo).
     # Densidade por CARDINALIDADE — ver composicional/dominio_bn.py e ADR-0036.
     if disc8 in _DISCS_BN:
@@ -372,7 +374,8 @@ def _cast_tipo(strs: "list[str | None]", tag: str) -> list:
     return list(strs)                              # 's' = string (identidade)
 
 
-def _decode_typed(tcf_text: str, tag: str, max_length: int | None = None) -> list:
+def _decode_typed(tcf_text: str, tag: str, max_length: int | None = None,
+                  nature=None) -> list:
     """Decode do single-col tipado. A variavel `modo` (o '~' conceitual) e' deduzida da POSICAO.
 
     Contratos de retorno: modo core/denso -> lista do TIPO da tag (`b` -> bool/None);
@@ -405,6 +408,17 @@ def _decode_typed(tcf_text: str, tag: str, max_length: int | None = None) -> lis
                       rotulo=f"{_V8_MAGIC}{tag}B"),
             tag,
         )
+    # SPEC NA ROTA TIPADA (weld EXP-018): `#TCF.8<tag> [nome]:id`. O disc do indice 7 e'
+    # ESPACO, como no single-col de string — a tag e' que ocupa o 6. O spec e' revertido
+    # ANTES do `_cast_tipo`: ele opera sobre a GRAFIA (o que o `render` produziu), e o cast
+    # so' entao devolve o tipo. Inverter a ordem daria `int('_lixo')`.
+    if resto[:1] == " ":
+        _nome, _, nat_id = resto[1:].partition(":")
+        strs = _decode_column(body, max_length=max_length) if body else []
+        spec = _resolve_header_spec(nat_id, nature, where=f"single-col tipado {tag!r}")
+        from tcf.natures import decode_value as _nat_de
+
+        return _cast_tipo([_nat_de(spec, s) for s in strs], tag)
     # A VARIAVEL DE DECISAO: resto vazio -> modo CORE (implicito); senao -> modo DENSO bN.
     if resto == "":
         strs = _decode_column(body, max_length=max_length) if body else []

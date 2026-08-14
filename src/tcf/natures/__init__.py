@@ -63,6 +63,13 @@ from tcf.natures.templated_padded import (
 # DADO (o `:id` do header). O decode resolve pelo dict FIXO keyed por wire_id —
 # ZERO eval, zero codigo vindo do header.
 from tcf.natures.data_iso import DataIsoSpec, SPEC_DATA_ISO  # noqa: E402
+from tcf.natures.int_pad import IntPadSpec, int_pad_para  # noqa: E402
+
+#: Instancia do registry para `ipad` (weld EXP-018). A `largura` NAO participa do decode —
+#: `decode_value` faz `str(int(payload))` e a largura e' o comprimento das linhas do corpo,
+#: deduzivel. Ela so' governa o ENCODE, e quem encoda usa `int_pad_para(vals)`, que a
+#: dimensiona pela coluna. Esta instancia existe para o `:ipad` do header RESOLVER.
+SPEC_INT_PAD = IntPadSpec(largura=38)
 
 import re as _re  # noqa: E402
 
@@ -142,7 +149,7 @@ def _register(spec) -> None:
     _WIRE_REGISTRY[spec.wire_id] = spec
 
 
-for _spec in (SPEC_CPF, SPEC_CNPJ, SPEC_IP, SPEC_DATA_ISO):
+for _spec in (SPEC_CPF, SPEC_CNPJ, SPEC_IP, SPEC_DATA_ISO, SPEC_INT_PAD):
     _register(_spec)
 del _spec
 
@@ -169,6 +176,10 @@ __all__ = [
     # Data ISO (T-DATA-LAZY-ISO)
     "DataIsoSpec",
     "SPEC_DATA_ISO",
+    # Inteiro zero-padded (EXP-018)
+    "IntPadSpec",
+    "SPEC_INT_PAD",
+    "int_pad_para",
     # Compartilhados
     "BASE94",
     "MARKER_LITERAL",

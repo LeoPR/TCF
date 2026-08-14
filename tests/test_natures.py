@@ -296,8 +296,9 @@ class TestNatureMarkHeader:
         # crescer seja decisao, nao acidente. (name-plane pinado desde 2026-08-08.)
         from tcf.natures import _WIRE_REGISTRY
 
-        assert set(SPEC_REGISTRY) == {"cpf", "cnpj", "ip", "data-iso"}
-        assert set(_WIRE_REGISTRY) == {"cpf", "cnpj", "ip", "dt"}
+        # RE-PIN 2026-08-14 (weld EXP-018): o registry ganhou `int-pad`/`ipad`.
+        assert set(SPEC_REGISTRY) == {"cpf", "cnpj", "ip", "data-iso", "int-pad"}
+        assert set(_WIRE_REGISTRY) == {"cpf", "cnpj", "ip", "dt", "ipad"}
 
 
 # ===========================================================================
@@ -936,3 +937,108 @@ class TestLacunaImpostorDuckType:
 
         with pytest.raises(ValueError, match="sem o campo `wire_id`"):
             encode(["2026-01-01", "2026-02-01"], nature=_Antigo())
+
+
+class TestIntPadSpecWeld:
+    """Weld EXP-018 (2026-08-14): `IntPadSpec` + a rota tipada aberta a spec.
+
+    Antes deste weld, `encode([1,2,3], nature=SPEC)` era ValueError: a rota tipada nao
+    aceitava spec NEM `min_len`, e "entra int, spec int, devolve int" nao era expressavel.
+    O spec agora e' mais um candidato do MESMO `min()` — como o bool ja' faz com o denso.
+    """
+
+    def test_ganha_onde_a_largura_varia(self):
+        """O gatilho: progressao cuja largura muda quebra o marcador em 3; o pad faz 1."""
+        from tcf import decode, encode
+        from tcf.natures import int_pad_para
+
+        vals = list(range(1, 601))
+        spec = int_pad_para(vals)
+        assert spec is not None and spec.largura == 3
+        base, w = encode(vals), encode(vals, nature=spec)
+        assert w.startswith("#TCF.8n :ipad"), w[:24]
+        assert len(w.encode()) < len(base.encode())
+        assert decode(w) == vals
+        assert all(type(x) is int for x in decode(w))     # o TIPO volta, nao a grafia
+
+    def test_decode_resolve_sozinho_pelo_registry(self):
+        """`:ipad` esta' no registry: o wire e' auto-contido, sem out-of-band."""
+        from tcf import decode, encode
+        from tcf.natures import int_pad_para
+
+        vals = [i * 7 for i in range(600)]
+        w = encode(vals, nature=int_pad_para(vals))
+        assert decode(w) == vals          # sem passar nature=
+
+    def test_nunca_pior_e_recusa_onde_nao_paga(self):
+        """A metade que sustenta tudo: onde o pad nao ativa nada, o FLOOR fica no core."""
+        import random
+
+        from tcf import decode, encode
+        from tcf.natures import int_pad_para
+
+        rnd = random.Random(20260814)
+        casos = {
+            "largura ja fixa": [100000 + i for i in range(300)],
+            "baixa cardinalidade": [rnd.choice([10, 20, 30, 40, 50]) for _ in range(300)],
+            "negativos": [rnd.randrange(-500, 501) for _ in range(300)],
+            "aleatorio sem progressao": [rnd.randrange(1, 99999) for _ in range(300)],
+            "quase constante": [42] * 297 + [43, 44, 45],
+        }
+        for nome, vals in casos.items():
+            spec = int_pad_para(vals)
+            base = encode(vals)
+            w = encode(vals, nature=spec) if spec else base
+            assert len(w.encode()) <= len(base.encode()), f"NUNCA-PIOR violado em {nome}"
+            assert decode(w) == vals, nome
+
+    def test_slot_nulo_atravessa(self):
+        """O null e' do TIPO, nao da grafia: atravessa o spec sem quebrar a progressao."""
+        from tcf import decode, encode
+        from tcf.natures import int_pad_para
+
+        vals = [None if i % 37 == 0 else i for i in range(1, 601)]
+        assert vals.count(None) == 16 and vals[0] == 1     # ancora o regime do teste
+        w = encode(vals, nature=int_pad_para(vals))
+        got = decode(w)
+        assert got == vals
+        assert got[36] is None and type(got[0]) is int     # o nulo volta nulo, o int volta int
+
+    def test_guard_de_canonicidade_recusa_zero_a_esquerda(self):
+        """`'007'` NAO e' o inteiro 7 — mesma tecnica de re-emissao do `data_iso`."""
+        from tcf.natures import IntPadSpec
+
+        s = IntPadSpec(largura=6)
+        assert s.classify_value("7") == "compressible"
+        assert s.classify_value("007") == "format_noncanonical"
+        assert s.classify_value("-7") == "format_mismatch"
+        assert s.classify_value("7.5") == "format_mismatch"
+        assert s.classify_value("1234567") == "length_wrong"
+        # o RT do fallback literal e' byte-exato
+        for v in ("007", "-7", "7.5", "1234567"):
+            p, _st = s.encode_value(v)
+            assert s.decode_value(p) == v
+
+    def test_dimensiona_recusa_quando_nao_ha_o_que_padear(self):
+        from tcf.natures import int_pad_para
+
+        assert int_pad_para([100, 200, 300]) is None      # largura ja' uniforme
+        assert int_pad_para([]) is None
+        assert int_pad_para([None, None]) is None
+        assert int_pad_para([1, 22, 333]).largura == 3
+
+    def test_min_len_tambem_passa_na_rota_tipada(self):
+        """O outro mecanismo que a porta recusava. Byte-neutro quando nao muda nada."""
+        from tcf import decode, encode
+
+        vals = [1750000000 + i * 60 for i in range(600)]
+        w = encode(vals, min_len=12)
+        assert decode(w) == vals
+        assert len(w.encode()) < len(encode(vals).encode())
+
+    def test_registry_ganhou_ipad_nos_dois_planos(self):
+        from tcf.natures import SPEC_REGISTRY, _WIRE_REGISTRY, _resolve_nature_id
+
+        assert set(SPEC_REGISTRY) == {"cpf", "cnpj", "ip", "data-iso", "int-pad"}
+        assert set(_WIRE_REGISTRY) == {"cpf", "cnpj", "ip", "dt", "ipad"}
+        assert _resolve_nature_id("ipad").name == "int-pad"

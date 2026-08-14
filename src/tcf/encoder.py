@@ -528,11 +528,25 @@ def encode(
         from tcf.multi.core import MAGIC_SINGLE_V3
 
         tag, render = _tipado
+        # PORTA TIPADA ABERTA A SPEC E A `min_len` (weld EXP-018, 2026-08-14).
+        #
+        # Antes, `nature=` e `min_len=` eram recusados aqui — a rota tipada nao aceitava
+        # NENHUM dos dois mecanismos que o inteiro precisa, e `"entra int, spec int, devolve
+        # int"` nao era expressavel em rota alguma. Medido no lab de conformidade: o int ja'
+        # percorre o MESMO caminho que bool/float/str em todos os regimes (muda a tag, nao o
+        # mecanismo) — faltava so' a porta.
+        #
+        # O spec entra DEPOIS do `render` (a grafia decimal e' o que ele transforma) e
+        # compete no MESMO `min()` — como o bool ja' faz com o denso. Nao e' rota nova.
         _rejeita_kwargs_flat_no_8h(
-            parallel=parallel, nature=nature, layers=layers, fallback=fallback,
-            min_header=min_header, min_len=min_len, sort_by=sort_by, name=name,
+            parallel=parallel, layers=layers, fallback=fallback,
+            min_header=min_header, sort_by=sort_by, name=name,
             stamp=stamp, drop_names=drop_names,
         )
+        if nature is not None:
+            from tcf.natures import _valida_emissao
+
+            _valida_emissao(nature, where="nature=")
         magic = MAGIC_SINGLE_V3.decode("utf-8")
         tem_nulo = any(x is None for x in data)
         corpo_core = _encode_column(
@@ -596,8 +610,31 @@ def encode(
                 # com o namespace do <modo>.
                 candidatos.append(f"{magic}b1{len(data):x}\n{b64}")
 
+        # SPEC NA ROTA TIPADA (weld EXP-018): mais um candidato do MESMO min(), aplicado
+        # sobre a grafia que o `render` produz. O header leva a tag E o `:id`
+        # (`#TCF.8n [nome]:ipad`) — o slot do indice 7 comporta os dois, verificado.
+        # Vem por ULTIMO na lista para so' vencer com margem estrita (mesma ordem
+        # load-bearing do periodico no ADR-0040).
+        if nature is not None:
+            from tcf.natures.templated_checked import encode_value as _nat_enc
+
+            _grafado = [None if x is None else render(x) for x in data]
+            _pares = [(None, "empty_value") if g is None else _nat_enc(nature, g)
+                      for g in _grafado]
+            _corpo_nat = _encode_column(
+                [p for p, _ in _pares], header="val", cfg=cfg, min_len=min_len,
+            )
+            candidatos.append(f"{magic}{tag} {name or ''}:{nature.wire_id}\n{_corpo_nat}")
+            if side_outputs is not None:
+                _st = _nature_apply_stats(nature, [s for _, s in _pares])
+                _st["used"] = None            # preenchido apos o min(), abaixo
+                side_outputs.nature_apply = {"val": _st}
+
         # FLOOR: a variavel `modo` = argmin. Empate fica no 1o (core, mais inspecionavel).
-        return min(candidatos, key=lambda w: len(w.encode("utf-8")))
+        _venc = min(candidatos, key=lambda w: len(w.encode("utf-8")))
+        if nature is not None and side_outputs is not None:
+            side_outputs.nature_apply["val"]["used"] = _venc is candidatos[-1]
+        return _venc
     if _tabela_flat(data):
         from tcf.multi import _encode_multi
 
