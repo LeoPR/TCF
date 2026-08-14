@@ -1,0 +1,16 @@
+{
+ "derivado_de": "inputs/sint-money.entrada.json",
+ "tolerancia": {
+  "quantum": 0.1,
+  "abs": null,
+  "rel": null,
+  "agg": null,
+  "mode": "half-even"
+ },
+ "casas": 1,
+ "bytes": 105,
+ "checks": {
+  "quantum": true
+ },
+ "AVISO": "valores AJUSTADOS de propósito — não são os originais"
+}

@@ -1,0 +1,8 @@
+{
+ "gerador": "run.py::main",
+ "db": "wine-quality",
+ "sql": "SELECT density FROM wine WHERE density IS NOT NULL",
+ "amostragem": "passo espalhado 1-em-3, alvo 2000",
+ "ideia": "medida física: 3-6 casas, faixa estreita 0,987-1,039",
+ "pin": "corpus local Z:/tcf-data/interim — não versionado"
+}

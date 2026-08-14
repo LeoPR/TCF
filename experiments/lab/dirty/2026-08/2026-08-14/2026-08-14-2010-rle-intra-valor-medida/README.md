@@ -59,5 +59,5 @@ Roda **sem `Z:`** (o Bloco 4 é pulado). Não toca `src/tcf/`.
 
 `H-INTRA-01/02/03` · `O-FMT-17` · `H-REF-03` · **`T-RLE-COUNT-ZERO`** (aberto por este lab) ·
 [`rle-familia-estudo.md`](../../../notas/2026-06/rle-familia-estudo.md) ·
-nota [`…-2010`](../../../notas/2026-08/2026-08-14-2010-rle-intra-valor-e-perda-estatistica.md) ·
+nota [`…-2010`](../../../notas/2026-08/2026-08-14-2010-rle-intra-valor.md) ·
 irmão: [`…-2010-perda-propagacao-de-erro`](../2026-08-14-2010-perda-propagacao-de-erro/)

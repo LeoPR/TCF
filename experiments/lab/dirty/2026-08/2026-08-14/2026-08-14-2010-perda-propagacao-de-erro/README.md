@@ -68,5 +68,5 @@ Precisa de `Z:` (o lab é sobre dado real com duas colunas). Não toca `src/tcf/
 `H-LOSS-00` (vocabulário) · `H-LOSS-01` (maior resto) · `H-LOSS-03` (round, o PoC de junho) ·
 `H-LOSS-02` (DERIVED-DROP — a consequência da subtração) ·
 [`loss-taxonomia.md`](../../../notas/2026-06/loss-taxonomia.md) ·
-nota [`…-2010`](../../../notas/2026-08/2026-08-14-2010-rle-intra-valor-e-perda-estatistica.md) ·
+nota [`…-2010`](../../../notas/2026-08/2026-08-14-2010-perda-propagacao-de-erro.md) ·
 irmão: [`…-2010-rle-intra-valor-medida`](../2026-08-14-2010-rle-intra-valor-medida/)

@@ -1,0 +1,8 @@
+{
+ "gerador": "run.py::main",
+ "db": "online-retail",
+ "sql": "SELECT UnitPrice FROM online_retail WHERE UnitPrice > 0",
+ "amostragem": "passo espalhado 1-em-269, alvo 2000",
+ "ideia": "money real: 2 casas, cauda inferior em 0,001",
+ "pin": "corpus local Z:/tcf-data/interim — não versionado"
+}

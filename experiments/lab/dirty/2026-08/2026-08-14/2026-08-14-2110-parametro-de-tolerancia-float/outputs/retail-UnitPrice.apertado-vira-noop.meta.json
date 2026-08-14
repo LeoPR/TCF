@@ -1,0 +1,16 @@
+{
+ "derivado_de": "inputs/retail-UnitPrice.entrada.json",
+ "tolerancia": {
+  "quantum": null,
+  "abs": null,
+  "rel": 1e-09,
+  "agg": null,
+  "mode": "half-even"
+ },
+ "casas": 11,
+ "bytes": 3685,
+ "checks": {
+  "rel": true
+ },
+ "AVISO": "valores AJUSTADOS de propósito — não são os originais"
+}

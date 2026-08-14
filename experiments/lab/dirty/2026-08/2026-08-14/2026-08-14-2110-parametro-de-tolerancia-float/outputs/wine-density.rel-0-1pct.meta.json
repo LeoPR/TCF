@@ -1,0 +1,16 @@
+{
+ "derivado_de": "inputs/wine-density.entrada.json",
+ "tolerancia": {
+  "quantum": null,
+  "abs": null,
+  "rel": 0.001,
+  "agg": null,
+  "mode": "half-even"
+ },
+ "casas": 3,
+ "bytes": 1811,
+ "checks": {
+  "rel": true
+ },
+ "AVISO": "valores AJUSTADOS de propósito — não são os originais"
+}

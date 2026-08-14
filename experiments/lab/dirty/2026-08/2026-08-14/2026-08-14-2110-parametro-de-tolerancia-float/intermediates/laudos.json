@@ -1,0 +1,1613 @@
+[
+ {
+  "tolerancia": {
+   "quantum": null,
+   "abs": null,
+   "rel": 0.01,
+   "agg": null,
+   "mode": "half-even"
+  },
+  "estagio_A_derivar": {
+   "passo_de_erro_do_modo": {
+    "mode": "half-even",
+    "passos": 0.5,
+    "nota": "`down` erra 1 passo inteiro; os demais, meio"
+   },
+   "rel": {
+    "pedido": 0.01,
+    "menor_valor_nao_nulo": 0.07,
+    "casas_exigidas": 3,
+    "nota": "amarrado pelo MENOR valor — a cauda inferior manda"
+   },
+   "derivado": {
+    "casas": 3,
+    "eixo_dominante": "rel"
+   }
+  },
+  "estagio_B_aplicar": {
+   "casas": 3,
+   "metodo": "round half-even"
+  },
+  "estagio_C_verificar": {
+   "casas_aplicadas": 3,
+   "erro_abs_max": 0.0,
+   "erro_rel_max": 0.0,
+   "erro_soma_rel": 0.0,
+   "soma_exata_na_escala": true,
+   "viés_medio_por_valor": 0.0,
+   "checks": {
+    "rel": true
+   },
+   "cumpre_tudo": true
+  },
+  "veredito": "CUMPRE",
+  "coluna": "sint-money",
+  "ideia_do_pedido": "1% por valor — a forma que o H-smart-rounding propunha (max_error_pct)",
+  "CONSTANTE_na_comparacao": "a MESMA coluna e o MESMO encode; só muda a TOLERÂNCIA pedida",
+  "bytes": 113,
+  "reducao_pct": 0.0,
+  "formato_lossless_sobre_ajustados": true
+ },
+ {
+  "tolerancia": {
+   "quantum": null,
+   "abs": null,
+   "rel": 0.001,
+   "agg": null,
+   "mode": "half-even"
+  },
+  "estagio_A_derivar": {
+   "passo_de_erro_do_modo": {
+    "mode": "half-even",
+    "passos": 0.5,
+    "nota": "`down` erra 1 passo inteiro; os demais, meio"
+   },
+   "rel": {
+    "pedido": 0.001,
+    "menor_valor_nao_nulo": 0.07,
+    "casas_exigidas": 4,
+    "nota": "amarrado pelo MENOR valor — a cauda inferior manda"
+   },
+   "derivado": {
+    "casas": 4,
+    "eixo_dominante": "rel"
+   }
+  },
+  "estagio_B_aplicar": {
+   "casas": 4,
+   "metodo": "round half-even"
+  },
+  "estagio_C_verificar": {
+   "casas_aplicadas": 4,
+   "erro_abs_max": 0.0,
+   "erro_rel_max": 0.0,
+   "erro_soma_rel": 0.0,
+   "soma_exata_na_escala": true,
+   "viés_medio_por_valor": 0.0,
+   "checks": {
+    "rel": true
+   },
+   "cumpre_tudo": true
+  },
+  "veredito": "CUMPRE",
+  "coluna": "sint-money",
+  "ideia_do_pedido": "10× mais apertado",
+  "CONSTANTE_na_comparacao": "a MESMA coluna e o MESMO encode; só muda a TOLERÂNCIA pedida",
+  "bytes": 113,
+  "reducao_pct": 0.0,
+  "formato_lossless_sobre_ajustados": true
+ },
+ {
+  "tolerancia": {
+   "quantum": null,
+   "abs": 0.005,
+   "rel": null,
+   "agg": null,
+   "mode": "half-even"
+  },
+  "estagio_A_derivar": {
+   "passo_de_erro_do_modo": {
+    "mode": "half-even",
+    "passos": 0.5,
+    "nota": "`down` erra 1 passo inteiro; os demais, meio"
+   },
+   "abs": {
+    "pedido": 0.005,
+    "casas_exigidas": 2
+   },
+   "derivado": {
+    "casas": 2,
+    "eixo_dominante": "abs"
+   }
+  },
+  "estagio_B_aplicar": {
+   "casas": 2,
+   "metodo": "round half-even"
+  },
+  "estagio_C_verificar": {
+   "casas_aplicadas": 2,
+   "erro_abs_max": 0.0,
+   "erro_rel_max": 0.0,
+   "erro_soma_rel": 0.0,
+   "soma_exata_na_escala": true,
+   "viés_medio_por_valor": 0.0,
+   "checks": {
+    "abs": true
+   },
+   "cumpre_tudo": true
+  },
+  "veredito": "CUMPRE",
+  "coluna": "sint-money",
+  "ideia_do_pedido": "bound absoluto — compõe sob SOMA",
+  "CONSTANTE_na_comparacao": "a MESMA coluna e o MESMO encode; só muda a TOLERÂNCIA pedida",
+  "bytes": 113,
+  "reducao_pct": 0.0,
+  "formato_lossless_sobre_ajustados": true
+ },
+ {
+  "tolerancia": {
+   "quantum": 0.01,
+   "abs": null,
+   "rel": null,
+   "agg": null,
+   "mode": "half-even"
+  },
+  "estagio_A_derivar": {
+   "passo_de_erro_do_modo": {
+    "mode": "half-even",
+    "passos": 0.5,
+    "nota": "`down` erra 1 passo inteiro; os demais, meio"
+   },
+   "quantum": {
+    "pedido": 0.01,
+    "casas_exigidas": 2,
+    "nota": "grade é mais forte que bound: o valor tem de ser EXPRESSÁVEL nela, não apenas perto"
+   },
+   "derivado": {
+    "casas": 2,
+    "eixo_dominante": "quantum"
+   }
+  },
+  "estagio_B_aplicar": {
+   "casas": 2,
+   "metodo": "round half-even"
+  },
+  "estagio_C_verificar": {
+   "casas_aplicadas": 2,
+   "erro_abs_max": 0.0,
+   "erro_rel_max": 0.0,
+   "erro_soma_rel": 0.0,
+   "soma_exata_na_escala": true,
+   "viés_medio_por_valor": 0.0,
+   "checks": {
+    "quantum": true
+   },
+   "cumpre_tudo": true
+  },
+  "veredito": "CUMPRE",
+  "coluna": "sint-money",
+  "ideia_do_pedido": "grade de centavos — a forma FINANCEIRA (ISO 4217 minor unit)",
+  "CONSTANTE_na_comparacao": "a MESMA coluna e o MESMO encode; só muda a TOLERÂNCIA pedida",
+  "bytes": 113,
+  "reducao_pct": 0.0,
+  "formato_lossless_sobre_ajustados": true
+ },
+ {
+  "tolerancia": {
+   "quantum": 0.1,
+   "abs": null,
+   "rel": null,
+   "agg": null,
+   "mode": "half-even"
+  },
+  "estagio_A_derivar": {
+   "passo_de_erro_do_modo": {
+    "mode": "half-even",
+    "passos": 0.5,
+    "nota": "`down` erra 1 passo inteiro; os demais, meio"
+   },
+   "quantum": {
+    "pedido": 0.1,
+    "casas_exigidas": 1,
+    "nota": "grade é mais forte que bound: o valor tem de ser EXPRESSÁVEL nela, não apenas perto"
+   },
+   "derivado": {
+    "casas": 1,
+    "eixo_dominante": "quantum"
+   }
+  },
+  "estagio_B_aplicar": {
+   "casas": 1,
+   "metodo": "round half-even"
+  },
+  "estagio_C_verificar": {
+   "casas_aplicadas": 1,
+   "erro_abs_max": 0.05000000000000071,
+   "erro_rel_max": 0.4285714285714285,
+   "erro_soma_rel": 3.5664610007592286e-05,
+   "soma_exata_na_escala": true,
+   "viés_medio_por_valor": 0.0014999999999996002,
+   "checks": {
+    "quantum": true
+   },
+   "cumpre_tudo": true
+  },
+  "veredito": "CUMPRE",
+  "coluna": "sint-money",
+  "ideia_do_pedido": "grade de 10 centavos",
+  "CONSTANTE_na_comparacao": "a MESMA coluna e o MESMO encode; só muda a TOLERÂNCIA pedida",
+  "bytes": 105,
+  "reducao_pct": 7.08,
+  "formato_lossless_sobre_ajustados": true
+ },
+ {
+  "tolerancia": {
+   "quantum": null,
+   "abs": null,
+   "rel": null,
+   "agg": "soma",
+   "mode": "half-even"
+  },
+  "estagio_A_derivar": {
+   "passo_de_erro_do_modo": {
+    "mode": "half-even",
+    "passos": 0.5,
+    "nota": "`down` erra 1 passo inteiro; os demais, meio"
+   },
+   "derivado": {
+    "casas": 2,
+    "nota": "só `agg` pedido: mantém a precisão da origem e só realoca o resíduo"
+   }
+  },
+  "estagio_B_aplicar": {
+   "casas": 2,
+   "metodo": "maior-resto (Hamilton)",
+   "nota": "o `mode` não se aplica: a alocação decide o desempate, não a direção de arredondamento"
+  },
+  "estagio_C_verificar": {
+   "casas_aplicadas": 2,
+   "erro_abs_max": 0.0,
+   "erro_rel_max": 0.0,
+   "erro_soma_rel": 0.0,
+   "soma_exata_na_escala": true,
+   "viés_medio_por_valor": 0.0,
+   "checks": {
+    "agg": true
+   },
+   "cumpre_tudo": true
+  },
+  "veredito": "CUMPRE",
+  "coluna": "sint-money",
+  "ideia_do_pedido": "só preservar a soma, sem cortar precisão — realoca o resíduo",
+  "CONSTANTE_na_comparacao": "a MESMA coluna e o MESMO encode; só muda a TOLERÂNCIA pedida",
+  "bytes": 113,
+  "reducao_pct": 0.0,
+  "formato_lossless_sobre_ajustados": true
+ },
+ {
+  "tolerancia": {
+   "quantum": 0.1,
+   "abs": null,
+   "rel": null,
+   "agg": "soma",
+   "mode": "half-even"
+  },
+  "estagio_A_derivar": {
+   "passo_de_erro_do_modo": {
+    "mode": "half-even",
+    "passos": 0.5,
+    "nota": "`down` erra 1 passo inteiro; os demais, meio"
+   },
+   "quantum": {
+    "pedido": 0.1,
+    "casas_exigidas": 1,
+    "nota": "grade é mais forte que bound: o valor tem de ser EXPRESSÁVEL nela, não apenas perto"
+   },
+   "derivado": {
+    "casas": 1,
+    "eixo_dominante": "quantum"
+   }
+  },
+  "estagio_B_aplicar": {
+   "casas": 1,
+   "metodo": "maior-resto (Hamilton)",
+   "nota": "o `mode` não se aplica: a alocação decide o desempate, não a direção de arredondamento"
+  },
+  "estagio_C_verificar": {
+   "casas_aplicadas": 1,
+   "erro_abs_max": 0.05000000000000071,
+   "erro_rel_max": 0.4285714285714285,
+   "erro_soma_rel": 3.5664610007457134e-05,
+   "soma_exata_na_escala": true,
+   "viés_medio_por_valor": 0.001499999999999334,
+   "checks": {
+    "quantum": true,
+    "agg": true
+   },
+   "cumpre_tudo": true
+  },
+  "veredito": "CUMPRE",
+  "coluna": "sint-money",
+  "ideia_do_pedido": "COMPOSIÇÃO: grade de 0,10 E soma exata — a fatura que fecha",
+  "CONSTANTE_na_comparacao": "a MESMA coluna e o MESMO encode; só muda a TOLERÂNCIA pedida",
+  "bytes": 105,
+  "reducao_pct": 7.08,
+  "formato_lossless_sobre_ajustados": true
+ },
+ {
+  "tolerancia": {
+   "quantum": null,
+   "abs": null,
+   "rel": 0.01,
+   "agg": null,
+   "mode": "half-up"
+  },
+  "estagio_A_derivar": {
+   "passo_de_erro_do_modo": {
+    "mode": "half-up",
+    "passos": 0.5,
+    "nota": "`down` erra 1 passo inteiro; os demais, meio"
+   },
+   "rel": {
+    "pedido": 0.01,
+    "menor_valor_nao_nulo": 0.07,
+    "casas_exigidas": 3,
+    "nota": "amarrado pelo MENOR valor — a cauda inferior manda"
+   },
+   "derivado": {
+    "casas": 3,
+    "eixo_dominante": "rel"
+   }
+  },
+  "estagio_B_aplicar": {
+   "casas": 3,
+   "metodo": "round half-up"
+  },
+  "estagio_C_verificar": {
+   "casas_aplicadas": 3,
+   "erro_abs_max": 0.0,
+   "erro_rel_max": 0.0,
+   "erro_soma_rel": 0.0,
+   "soma_exata_na_escala": true,
+   "viés_medio_por_valor": 0.0,
+   "checks": {
+    "rel": true
+   },
+   "cumpre_tudo": true
+  },
+  "veredito": "CUMPRE",
+  "coluna": "sint-money",
+  "ideia_do_pedido": "mesmo bound, modo com VIÉS — a distinção do HMRC",
+  "CONSTANTE_na_comparacao": "a MESMA coluna e o MESMO encode; só muda a TOLERÂNCIA pedida",
+  "bytes": 113,
+  "reducao_pct": 0.0,
+  "formato_lossless_sobre_ajustados": true
+ },
+ {
+  "tolerancia": {
+   "quantum": null,
+   "abs": null,
+   "rel": 0.01,
+   "agg": null,
+   "mode": "down"
+  },
+  "estagio_A_derivar": {
+   "passo_de_erro_do_modo": {
+    "mode": "down",
+    "passos": 1.0,
+    "nota": "`down` erra 1 passo inteiro; os demais, meio"
+   },
+   "rel": {
+    "pedido": 0.01,
+    "menor_valor_nao_nulo": 0.07,
+    "casas_exigidas": 4,
+    "nota": "amarrado pelo MENOR valor — a cauda inferior manda"
+   },
+   "derivado": {
+    "casas": 4,
+    "eixo_dominante": "rel"
+   }
+  },
+  "estagio_B_aplicar": {
+   "casas": 4,
+   "metodo": "round down"
+  },
+  "estagio_C_verificar": {
+   "casas_aplicadas": 4,
+   "erro_abs_max": 0.0,
+   "erro_rel_max": 0.0,
+   "erro_soma_rel": 0.0,
+   "soma_exata_na_escala": true,
+   "viés_medio_por_valor": 0.0,
+   "checks": {
+    "rel": true
+   },
+   "cumpre_tudo": true
+  },
+  "veredito": "CUMPRE",
+  "coluna": "sint-money",
+  "ideia_do_pedido": "truncar: o modo que o HMRC nega a retalhistas",
+  "CONSTANTE_na_comparacao": "a MESMA coluna e o MESMO encode; só muda a TOLERÂNCIA pedida",
+  "bytes": 113,
+  "reducao_pct": 0.0,
+  "formato_lossless_sobre_ajustados": true
+ },
+ {
+  "tolerancia": {
+   "quantum": null,
+   "abs": null,
+   "rel": 1e-09,
+   "agg": null,
+   "mode": "half-even"
+  },
+  "estagio_A_derivar": {
+   "passo_de_erro_do_modo": {
+    "mode": "half-even",
+    "passos": 0.5,
+    "nota": "`down` erra 1 passo inteiro; os demais, meio"
+   },
+   "rel": {
+    "pedido": 1e-09,
+    "menor_valor_nao_nulo": 0.07,
+    "casas_exigidas": 10,
+    "nota": "amarrado pelo MENOR valor — a cauda inferior manda"
+   },
+   "derivado": {
+    "casas": 10,
+    "eixo_dominante": "rel"
+   }
+  },
+  "estagio_B_aplicar": {
+   "casas": 10,
+   "metodo": "round half-even"
+  },
+  "estagio_C_verificar": {
+   "casas_aplicadas": 10,
+   "erro_abs_max": 0.0,
+   "erro_rel_max": 0.0,
+   "erro_soma_rel": 0.0,
+   "soma_exata_na_escala": true,
+   "viés_medio_por_valor": 0.0,
+   "checks": {
+    "rel": true
+   },
+   "cumpre_tudo": true
+  },
+  "veredito": "CUMPRE",
+  "coluna": "sint-money",
+  "ideia_do_pedido": "MUITO apertado, mas realizável: deriva ~10 casas e vira NO-OP (lossless)",
+  "CONSTANTE_na_comparacao": "a MESMA coluna e o MESMO encode; só muda a TOLERÂNCIA pedida",
+  "bytes": 113,
+  "reducao_pct": 0.0,
+  "formato_lossless_sobre_ajustados": true
+ },
+ {
+  "tolerancia": {
+   "quantum": null,
+   "abs": null,
+   "rel": 1e-15,
+   "agg": null,
+   "mode": "half-even"
+  },
+  "estagio_A_derivar": {
+   "passo_de_erro_do_modo": {
+    "mode": "half-even",
+    "passos": 0.5,
+    "nota": "`down` erra 1 passo inteiro; os demais, meio"
+   },
+   "rel": {
+    "pedido": 1e-15,
+    "menor_valor_nao_nulo": 0.07,
+    "casas_exigidas": 16,
+    "nota": "amarrado pelo MENOR valor — a cauda inferior manda"
+   },
+   "derivado": {
+    "recusa": "exige 16 casas, acima do teto 12"
+   }
+  },
+  "veredito": "RECUSA — tolerância não realizável",
+  "coluna": "sint-money",
+  "ideia_do_pedido": "deve RECUSAR: exigiria mais casas que o teto (12)",
+  "CONSTANTE_na_comparacao": "a MESMA coluna e o MESMO encode; só muda a TOLERÂNCIA pedida",
+  "bytes": null
+ },
+ {
+  "tolerancia": {
+   "quantum": 0.03,
+   "abs": null,
+   "rel": null,
+   "agg": null,
+   "mode": "half-even"
+  },
+  "estagio_A_derivar": {
+   "passo_de_erro_do_modo": {
+    "mode": "half-even",
+    "passos": 0.5,
+    "nota": "`down` erra 1 passo inteiro; os demais, meio"
+   },
+   "quantum": {
+    "pedido": 0.03,
+    "recusa": "grade não-decimal (não é potência de 10); este protótipo só faz grade decimal"
+   }
+  },
+  "veredito": "RECUSA — tolerância não realizável",
+  "coluna": "sint-money",
+  "ideia_do_pedido": "deve RECUSAR: grade não-decimal (não é potência de 10)",
+  "CONSTANTE_na_comparacao": "a MESMA coluna e o MESMO encode; só muda a TOLERÂNCIA pedida",
+  "bytes": null
+ },
+ {
+  "tolerancia": {
+   "quantum": null,
+   "abs": null,
+   "rel": 0.01,
+   "agg": null,
+   "mode": "half-even"
+  },
+  "estagio_A_derivar": {
+   "passo_de_erro_do_modo": {
+    "mode": "half-even",
+    "passos": 0.5,
+    "nota": "`down` erra 1 passo inteiro; os demais, meio"
+   },
+   "rel": {
+    "pedido": 0.01,
+    "menor_valor_nao_nulo": 0.04,
+    "casas_exigidas": 4,
+    "nota": "amarrado pelo MENOR valor — a cauda inferior manda"
+   },
+   "derivado": {
+    "casas": 4,
+    "eixo_dominante": "rel"
+   }
+  },
+  "estagio_B_aplicar": {
+   "casas": 4,
+   "metodo": "round half-even"
+  },
+  "estagio_C_verificar": {
+   "casas_aplicadas": 4,
+   "erro_abs_max": 0.0,
+   "erro_rel_max": 0.0,
+   "erro_soma_rel": 0.0,
+   "soma_exata_na_escala": true,
+   "viés_medio_por_valor": 0.0,
+   "checks": {
+    "rel": true
+   },
+   "cumpre_tudo": true
+  },
+  "veredito": "CUMPRE",
+  "coluna": "retail-UnitPrice",
+  "ideia_do_pedido": "1% por valor — a forma que o H-smart-rounding propunha (max_error_pct)",
+  "CONSTANTE_na_comparacao": "a MESMA coluna e o MESMO encode; só muda a TOLERÂNCIA pedida",
+  "bytes": 3685,
+  "reducao_pct": 0.0,
+  "formato_lossless_sobre_ajustados": true
+ },
+ {
+  "tolerancia": {
+   "quantum": null,
+   "abs": null,
+   "rel": 0.001,
+   "agg": null,
+   "mode": "half-even"
+  },
+  "estagio_A_derivar": {
+   "passo_de_erro_do_modo": {
+    "mode": "half-even",
+    "passos": 0.5,
+    "nota": "`down` erra 1 passo inteiro; os demais, meio"
+   },
+   "rel": {
+    "pedido": 0.001,
+    "menor_valor_nao_nulo": 0.04,
+    "casas_exigidas": 5,
+    "nota": "amarrado pelo MENOR valor — a cauda inferior manda"
+   },
+   "derivado": {
+    "casas": 5,
+    "eixo_dominante": "rel"
+   }
+  },
+  "estagio_B_aplicar": {
+   "casas": 5,
+   "metodo": "round half-even"
+  },
+  "estagio_C_verificar": {
+   "casas_aplicadas": 5,
+   "erro_abs_max": 0.0,
+   "erro_rel_max": 0.0,
+   "erro_soma_rel": 0.0,
+   "soma_exata_na_escala": true,
+   "viés_medio_por_valor": 0.0,
+   "checks": {
+    "rel": true
+   },
+   "cumpre_tudo": true
+  },
+  "veredito": "CUMPRE",
+  "coluna": "retail-UnitPrice",
+  "ideia_do_pedido": "10× mais apertado",
+  "CONSTANTE_na_comparacao": "a MESMA coluna e o MESMO encode; só muda a TOLERÂNCIA pedida",
+  "bytes": 3685,
+  "reducao_pct": 0.0,
+  "formato_lossless_sobre_ajustados": true
+ },
+ {
+  "tolerancia": {
+   "quantum": null,
+   "abs": 0.005,
+   "rel": null,
+   "agg": null,
+   "mode": "half-even"
+  },
+  "estagio_A_derivar": {
+   "passo_de_erro_do_modo": {
+    "mode": "half-even",
+    "passos": 0.5,
+    "nota": "`down` erra 1 passo inteiro; os demais, meio"
+   },
+   "abs": {
+    "pedido": 0.005,
+    "casas_exigidas": 2
+   },
+   "derivado": {
+    "casas": 2,
+    "eixo_dominante": "abs"
+   }
+  },
+  "estagio_B_aplicar": {
+   "casas": 2,
+   "metodo": "round half-even"
+  },
+  "estagio_C_verificar": {
+   "casas_aplicadas": 2,
+   "erro_abs_max": 0.0,
+   "erro_rel_max": 0.0,
+   "erro_soma_rel": 0.0,
+   "soma_exata_na_escala": true,
+   "viés_medio_por_valor": 0.0,
+   "checks": {
+    "abs": true
+   },
+   "cumpre_tudo": true
+  },
+  "veredito": "CUMPRE",
+  "coluna": "retail-UnitPrice",
+  "ideia_do_pedido": "bound absoluto — compõe sob SOMA",
+  "CONSTANTE_na_comparacao": "a MESMA coluna e o MESMO encode; só muda a TOLERÂNCIA pedida",
+  "bytes": 3685,
+  "reducao_pct": 0.0,
+  "formato_lossless_sobre_ajustados": true
+ },
+ {
+  "tolerancia": {
+   "quantum": 0.01,
+   "abs": null,
+   "rel": null,
+   "agg": null,
+   "mode": "half-even"
+  },
+  "estagio_A_derivar": {
+   "passo_de_erro_do_modo": {
+    "mode": "half-even",
+    "passos": 0.5,
+    "nota": "`down` erra 1 passo inteiro; os demais, meio"
+   },
+   "quantum": {
+    "pedido": 0.01,
+    "casas_exigidas": 2,
+    "nota": "grade é mais forte que bound: o valor tem de ser EXPRESSÁVEL nela, não apenas perto"
+   },
+   "derivado": {
+    "casas": 2,
+    "eixo_dominante": "quantum"
+   }
+  },
+  "estagio_B_aplicar": {
+   "casas": 2,
+   "metodo": "round half-even"
+  },
+  "estagio_C_verificar": {
+   "casas_aplicadas": 2,
+   "erro_abs_max": 0.0,
+   "erro_rel_max": 0.0,
+   "erro_soma_rel": 0.0,
+   "soma_exata_na_escala": true,
+   "viés_medio_por_valor": 0.0,
+   "checks": {
+    "quantum": true
+   },
+   "cumpre_tudo": true
+  },
+  "veredito": "CUMPRE",
+  "coluna": "retail-UnitPrice",
+  "ideia_do_pedido": "grade de centavos — a forma FINANCEIRA (ISO 4217 minor unit)",
+  "CONSTANTE_na_comparacao": "a MESMA coluna e o MESMO encode; só muda a TOLERÂNCIA pedida",
+  "bytes": 3685,
+  "reducao_pct": 0.0,
+  "formato_lossless_sobre_ajustados": true
+ },
+ {
+  "tolerancia": {
+   "quantum": 0.1,
+   "abs": null,
+   "rel": null,
+   "agg": null,
+   "mode": "half-even"
+  },
+  "estagio_A_derivar": {
+   "passo_de_erro_do_modo": {
+    "mode": "half-even",
+    "passos": 0.5,
+    "nota": "`down` erra 1 passo inteiro; os demais, meio"
+   },
+   "quantum": {
+    "pedido": 0.1,
+    "casas_exigidas": 1,
+    "nota": "grade é mais forte que bound: o valor tem de ser EXPRESSÁVEL nela, não apenas perto"
+   },
+   "derivado": {
+    "casas": 1,
+    "eixo_dominante": "quantum"
+   }
+  },
+  "estagio_B_aplicar": {
+   "casas": 1,
+   "metodo": "round half-even"
+  },
+  "estagio_C_verificar": {
+   "casas_aplicadas": 1,
+   "erro_abs_max": 0.05000000000000071,
+   "erro_rel_max": 1.0,
+   "erro_soma_rel": 0.00013887130808170906,
+   "soma_exata_na_escala": false,
+   "viés_medio_por_valor": -0.0005649999999999797,
+   "checks": {
+    "quantum": true
+   },
+   "cumpre_tudo": true
+  },
+  "veredito": "CUMPRE",
+  "coluna": "retail-UnitPrice",
+  "ideia_do_pedido": "grade de 10 centavos",
+  "CONSTANTE_na_comparacao": "a MESMA coluna e o MESMO encode; só muda a TOLERÂNCIA pedida",
+  "bytes": 2910,
+  "reducao_pct": 21.03,
+  "formato_lossless_sobre_ajustados": true
+ },
+ {
+  "tolerancia": {
+   "quantum": null,
+   "abs": null,
+   "rel": null,
+   "agg": "soma",
+   "mode": "half-even"
+  },
+  "estagio_A_derivar": {
+   "passo_de_erro_do_modo": {
+    "mode": "half-even",
+    "passos": 0.5,
+    "nota": "`down` erra 1 passo inteiro; os demais, meio"
+   },
+   "derivado": {
+    "casas": 2,
+    "nota": "só `agg` pedido: mantém a precisão da origem e só realoca o resíduo"
+   }
+  },
+  "estagio_B_aplicar": {
+   "casas": 2,
+   "metodo": "maior-resto (Hamilton)",
+   "nota": "o `mode` não se aplica: a alocação decide o desempate, não a direção de arredondamento"
+  },
+  "estagio_C_verificar": {
+   "casas_aplicadas": 2,
+   "erro_abs_max": 0.0,
+   "erro_rel_max": 0.0,
+   "erro_soma_rel": 0.0,
+   "soma_exata_na_escala": true,
+   "viés_medio_por_valor": 0.0,
+   "checks": {
+    "agg": true
+   },
+   "cumpre_tudo": true
+  },
+  "veredito": "CUMPRE",
+  "coluna": "retail-UnitPrice",
+  "ideia_do_pedido": "só preservar a soma, sem cortar precisão — realoca o resíduo",
+  "CONSTANTE_na_comparacao": "a MESMA coluna e o MESMO encode; só muda a TOLERÂNCIA pedida",
+  "bytes": 3685,
+  "reducao_pct": 0.0,
+  "formato_lossless_sobre_ajustados": true
+ },
+ {
+  "tolerancia": {
+   "quantum": 0.1,
+   "abs": null,
+   "rel": null,
+   "agg": "soma",
+   "mode": "half-even"
+  },
+  "estagio_A_derivar": {
+   "passo_de_erro_do_modo": {
+    "mode": "half-even",
+    "passos": 0.5,
+    "nota": "`down` erra 1 passo inteiro; os demais, meio"
+   },
+   "quantum": {
+    "pedido": 0.1,
+    "casas_exigidas": 1,
+    "nota": "grade é mais forte que bound: o valor tem de ser EXPRESSÁVEL nela, não apenas perto"
+   },
+   "derivado": {
+    "casas": 1,
+    "eixo_dominante": "quantum"
+   }
+  },
+  "estagio_B_aplicar": {
+   "casas": 1,
+   "metodo": "maior-resto (Hamilton)",
+   "nota": "o `mode` não se aplica: a alocação decide o desempate, não a direção de arredondamento"
+  },
+  "estagio_C_verificar": {
+   "casas_aplicadas": 1,
+   "erro_abs_max": 0.05000000000000426,
+   "erro_rel_max": 1.0,
+   "erro_soma_rel": 3.686848887093367e-06,
+   "soma_exata_na_escala": true,
+   "viés_medio_por_valor": -1.4999999999977347e-05,
+   "checks": {
+    "quantum": true,
+    "agg": true
+   },
+   "cumpre_tudo": true
+  },
+  "veredito": "CUMPRE",
+  "coluna": "retail-UnitPrice",
+  "ideia_do_pedido": "COMPOSIÇÃO: grade de 0,10 E soma exata — a fatura que fecha",
+  "CONSTANTE_na_comparacao": "a MESMA coluna e o MESMO encode; só muda a TOLERÂNCIA pedida",
+  "bytes": 3028,
+  "reducao_pct": 17.83,
+  "formato_lossless_sobre_ajustados": true
+ },
+ {
+  "tolerancia": {
+   "quantum": null,
+   "abs": null,
+   "rel": 0.01,
+   "agg": null,
+   "mode": "half-up"
+  },
+  "estagio_A_derivar": {
+   "passo_de_erro_do_modo": {
+    "mode": "half-up",
+    "passos": 0.5,
+    "nota": "`down` erra 1 passo inteiro; os demais, meio"
+   },
+   "rel": {
+    "pedido": 0.01,
+    "menor_valor_nao_nulo": 0.04,
+    "casas_exigidas": 4,
+    "nota": "amarrado pelo MENOR valor — a cauda inferior manda"
+   },
+   "derivado": {
+    "casas": 4,
+    "eixo_dominante": "rel"
+   }
+  },
+  "estagio_B_aplicar": {
+   "casas": 4,
+   "metodo": "round half-up"
+  },
+  "estagio_C_verificar": {
+   "casas_aplicadas": 4,
+   "erro_abs_max": 0.0,
+   "erro_rel_max": 0.0,
+   "erro_soma_rel": 0.0,
+   "soma_exata_na_escala": true,
+   "viés_medio_por_valor": 0.0,
+   "checks": {
+    "rel": true
+   },
+   "cumpre_tudo": true
+  },
+  "veredito": "CUMPRE",
+  "coluna": "retail-UnitPrice",
+  "ideia_do_pedido": "mesmo bound, modo com VIÉS — a distinção do HMRC",
+  "CONSTANTE_na_comparacao": "a MESMA coluna e o MESMO encode; só muda a TOLERÂNCIA pedida",
+  "bytes": 3685,
+  "reducao_pct": 0.0,
+  "formato_lossless_sobre_ajustados": true
+ },
+ {
+  "tolerancia": {
+   "quantum": null,
+   "abs": null,
+   "rel": 0.01,
+   "agg": null,
+   "mode": "down"
+  },
+  "estagio_A_derivar": {
+   "passo_de_erro_do_modo": {
+    "mode": "down",
+    "passos": 1.0,
+    "nota": "`down` erra 1 passo inteiro; os demais, meio"
+   },
+   "rel": {
+    "pedido": 0.01,
+    "menor_valor_nao_nulo": 0.04,
+    "casas_exigidas": 4,
+    "nota": "amarrado pelo MENOR valor — a cauda inferior manda"
+   },
+   "derivado": {
+    "casas": 4,
+    "eixo_dominante": "rel"
+   }
+  },
+  "estagio_B_aplicar": {
+   "casas": 4,
+   "metodo": "round down"
+  },
+  "estagio_C_verificar": {
+   "casas_aplicadas": 4,
+   "erro_abs_max": 9.999999999998899e-05,
+   "erro_rel_max": 6.134969325152698e-05,
+   "erro_soma_rel": 1.0691861771933662e-06,
+   "soma_exata_na_escala": false,
+   "viés_medio_por_valor": -4.349999999994636e-06,
+   "checks": {
+    "rel": true
+   },
+   "cumpre_tudo": true
+  },
+  "veredito": "CUMPRE",
+  "coluna": "retail-UnitPrice",
+  "ideia_do_pedido": "truncar: o modo que o HMRC nega a retalhistas",
+  "CONSTANTE_na_comparacao": "a MESMA coluna e o MESMO encode; só muda a TOLERÂNCIA pedida",
+  "bytes": 3701,
+  "reducao_pct": -0.43,
+  "formato_lossless_sobre_ajustados": true
+ },
+ {
+  "tolerancia": {
+   "quantum": null,
+   "abs": null,
+   "rel": 1e-09,
+   "agg": null,
+   "mode": "half-even"
+  },
+  "estagio_A_derivar": {
+   "passo_de_erro_do_modo": {
+    "mode": "half-even",
+    "passos": 0.5,
+    "nota": "`down` erra 1 passo inteiro; os demais, meio"
+   },
+   "rel": {
+    "pedido": 1e-09,
+    "menor_valor_nao_nulo": 0.04,
+    "casas_exigidas": 11,
+    "nota": "amarrado pelo MENOR valor — a cauda inferior manda"
+   },
+   "derivado": {
+    "casas": 11,
+    "eixo_dominante": "rel"
+   }
+  },
+  "estagio_B_aplicar": {
+   "casas": 11,
+   "metodo": "round half-even"
+  },
+  "estagio_C_verificar": {
+   "casas_aplicadas": 11,
+   "erro_abs_max": 0.0,
+   "erro_rel_max": 0.0,
+   "erro_soma_rel": 0.0,
+   "soma_exata_na_escala": true,
+   "viés_medio_por_valor": 0.0,
+   "checks": {
+    "rel": true
+   },
+   "cumpre_tudo": true
+  },
+  "veredito": "CUMPRE",
+  "coluna": "retail-UnitPrice",
+  "ideia_do_pedido": "MUITO apertado, mas realizável: deriva ~10 casas e vira NO-OP (lossless)",
+  "CONSTANTE_na_comparacao": "a MESMA coluna e o MESMO encode; só muda a TOLERÂNCIA pedida",
+  "bytes": 3685,
+  "reducao_pct": 0.0,
+  "formato_lossless_sobre_ajustados": true
+ },
+ {
+  "tolerancia": {
+   "quantum": null,
+   "abs": null,
+   "rel": 1e-15,
+   "agg": null,
+   "mode": "half-even"
+  },
+  "estagio_A_derivar": {
+   "passo_de_erro_do_modo": {
+    "mode": "half-even",
+    "passos": 0.5,
+    "nota": "`down` erra 1 passo inteiro; os demais, meio"
+   },
+   "rel": {
+    "pedido": 1e-15,
+    "menor_valor_nao_nulo": 0.04,
+    "casas_exigidas": 17,
+    "nota": "amarrado pelo MENOR valor — a cauda inferior manda"
+   },
+   "derivado": {
+    "recusa": "exige 17 casas, acima do teto 12"
+   }
+  },
+  "veredito": "RECUSA — tolerância não realizável",
+  "coluna": "retail-UnitPrice",
+  "ideia_do_pedido": "deve RECUSAR: exigiria mais casas que o teto (12)",
+  "CONSTANTE_na_comparacao": "a MESMA coluna e o MESMO encode; só muda a TOLERÂNCIA pedida",
+  "bytes": null
+ },
+ {
+  "tolerancia": {
+   "quantum": 0.03,
+   "abs": null,
+   "rel": null,
+   "agg": null,
+   "mode": "half-even"
+  },
+  "estagio_A_derivar": {
+   "passo_de_erro_do_modo": {
+    "mode": "half-even",
+    "passos": 0.5,
+    "nota": "`down` erra 1 passo inteiro; os demais, meio"
+   },
+   "quantum": {
+    "pedido": 0.03,
+    "recusa": "grade não-decimal (não é potência de 10); este protótipo só faz grade decimal"
+   }
+  },
+  "veredito": "RECUSA — tolerância não realizável",
+  "coluna": "retail-UnitPrice",
+  "ideia_do_pedido": "deve RECUSAR: grade não-decimal (não é potência de 10)",
+  "CONSTANTE_na_comparacao": "a MESMA coluna e o MESMO encode; só muda a TOLERÂNCIA pedida",
+  "bytes": null
+ },
+ {
+  "tolerancia": {
+   "quantum": null,
+   "abs": null,
+   "rel": 0.01,
+   "agg": null,
+   "mode": "half-even"
+  },
+  "estagio_A_derivar": {
+   "passo_de_erro_do_modo": {
+    "mode": "half-even",
+    "passos": 0.5,
+    "nota": "`down` erra 1 passo inteiro; os demais, meio"
+   },
+   "rel": {
+    "pedido": 0.01,
+    "menor_valor_nao_nulo": 0.98711,
+    "casas_exigidas": 2,
+    "nota": "amarrado pelo MENOR valor — a cauda inferior manda"
+   },
+   "derivado": {
+    "casas": 2,
+    "eixo_dominante": "rel"
+   }
+  },
+  "estagio_B_aplicar": {
+   "casas": 2,
+   "metodo": "round half-even"
+  },
+  "estagio_C_verificar": {
+   "casas_aplicadas": 2,
+   "erro_abs_max": 0.0050000000000000044,
+   "erro_rel_max": 0.005025125628140708,
+   "erro_soma_rel": 0.0002434696717425864,
+   "soma_exata_na_escala": false,
+   "viés_medio_por_valor": 0.0002422249999999968,
+   "checks": {
+    "rel": true
+   },
+   "cumpre_tudo": true
+  },
+  "veredito": "CUMPRE",
+  "coluna": "wine-density",
+  "ideia_do_pedido": "1% por valor — a forma que o H-smart-rounding propunha (max_error_pct)",
+  "CONSTANTE_na_comparacao": "a MESMA coluna e o MESMO encode; só muda a TOLERÂNCIA pedida",
+  "bytes": 708,
+  "reducao_pct": 93.02,
+  "formato_lossless_sobre_ajustados": true
+ },
+ {
+  "tolerancia": {
+   "quantum": null,
+   "abs": null,
+   "rel": 0.001,
+   "agg": null,
+   "mode": "half-even"
+  },
+  "estagio_A_derivar": {
+   "passo_de_erro_do_modo": {
+    "mode": "half-even",
+    "passos": 0.5,
+    "nota": "`down` erra 1 passo inteiro; os demais, meio"
+   },
+   "rel": {
+    "pedido": 0.001,
+    "menor_valor_nao_nulo": 0.98711,
+    "casas_exigidas": 3,
+    "nota": "amarrado pelo MENOR valor — a cauda inferior manda"
+   },
+   "derivado": {
+    "casas": 3,
+    "eixo_dominante": "rel"
+   }
+  },
+  "estagio_B_aplicar": {
+   "casas": 3,
+   "metodo": "round half-even"
+  },
+  "estagio_C_verificar": {
+   "casas_aplicadas": 3,
+   "erro_abs_max": 0.000500000000000056,
+   "erro_rel_max": 0.0005042864346948511,
+   "erro_soma_rel": 2.7390023964675276e-06,
+   "soma_exata_na_escala": false,
+   "viés_medio_por_valor": 2.7249999999955367e-06,
+   "checks": {
+    "rel": true
+   },
+   "cumpre_tudo": true
+  },
+  "veredito": "CUMPRE",
+  "coluna": "wine-density",
+  "ideia_do_pedido": "10× mais apertado",
+  "CONSTANTE_na_comparacao": "a MESMA coluna e o MESMO encode; só muda a TOLERÂNCIA pedida",
+  "bytes": 1811,
+  "reducao_pct": 82.13,
+  "formato_lossless_sobre_ajustados": true
+ },
+ {
+  "tolerancia": {
+   "quantum": null,
+   "abs": 0.005,
+   "rel": null,
+   "agg": null,
+   "mode": "half-even"
+  },
+  "estagio_A_derivar": {
+   "passo_de_erro_do_modo": {
+    "mode": "half-even",
+    "passos": 0.5,
+    "nota": "`down` erra 1 passo inteiro; os demais, meio"
+   },
+   "abs": {
+    "pedido": 0.005,
+    "casas_exigidas": 2
+   },
+   "derivado": {
+    "casas": 2,
+    "eixo_dominante": "abs"
+   }
+  },
+  "estagio_B_aplicar": {
+   "casas": 2,
+   "metodo": "round half-even"
+  },
+  "estagio_C_verificar": {
+   "casas_aplicadas": 2,
+   "erro_abs_max": 0.0050000000000000044,
+   "erro_rel_max": 0.005025125628140708,
+   "erro_soma_rel": 0.0002434696717425864,
+   "soma_exata_na_escala": false,
+   "viés_medio_por_valor": 0.0002422249999999968,
+   "checks": {
+    "abs": true
+   },
+   "cumpre_tudo": true
+  },
+  "veredito": "CUMPRE",
+  "coluna": "wine-density",
+  "ideia_do_pedido": "bound absoluto — compõe sob SOMA",
+  "CONSTANTE_na_comparacao": "a MESMA coluna e o MESMO encode; só muda a TOLERÂNCIA pedida",
+  "bytes": 708,
+  "reducao_pct": 93.02,
+  "formato_lossless_sobre_ajustados": true
+ },
+ {
+  "tolerancia": {
+   "quantum": 0.01,
+   "abs": null,
+   "rel": null,
+   "agg": null,
+   "mode": "half-even"
+  },
+  "estagio_A_derivar": {
+   "passo_de_erro_do_modo": {
+    "mode": "half-even",
+    "passos": 0.5,
+    "nota": "`down` erra 1 passo inteiro; os demais, meio"
+   },
+   "quantum": {
+    "pedido": 0.01,
+    "casas_exigidas": 2,
+    "nota": "grade é mais forte que bound: o valor tem de ser EXPRESSÁVEL nela, não apenas perto"
+   },
+   "derivado": {
+    "casas": 2,
+    "eixo_dominante": "quantum"
+   }
+  },
+  "estagio_B_aplicar": {
+   "casas": 2,
+   "metodo": "round half-even"
+  },
+  "estagio_C_verificar": {
+   "casas_aplicadas": 2,
+   "erro_abs_max": 0.0050000000000000044,
+   "erro_rel_max": 0.005025125628140708,
+   "erro_soma_rel": 0.0002434696717425864,
+   "soma_exata_na_escala": false,
+   "viés_medio_por_valor": 0.0002422249999999968,
+   "checks": {
+    "quantum": true
+   },
+   "cumpre_tudo": true
+  },
+  "veredito": "CUMPRE",
+  "coluna": "wine-density",
+  "ideia_do_pedido": "grade de centavos — a forma FINANCEIRA (ISO 4217 minor unit)",
+  "CONSTANTE_na_comparacao": "a MESMA coluna e o MESMO encode; só muda a TOLERÂNCIA pedida",
+  "bytes": 708,
+  "reducao_pct": 93.02,
+  "formato_lossless_sobre_ajustados": true
+ },
+ {
+  "tolerancia": {
+   "quantum": 0.1,
+   "abs": null,
+   "rel": null,
+   "agg": null,
+   "mode": "half-even"
+  },
+  "estagio_A_derivar": {
+   "passo_de_erro_do_modo": {
+    "mode": "half-even",
+    "passos": 0.5,
+    "nota": "`down` erra 1 passo inteiro; os demais, meio"
+   },
+   "quantum": {
+    "pedido": 0.1,
+    "casas_exigidas": 1,
+    "nota": "grade é mais forte que bound: o valor tem de ser EXPRESSÁVEL nela, não apenas perto"
+   },
+   "derivado": {
+    "casas": 1,
+    "eixo_dominante": "quantum"
+   }
+  },
+  "estagio_B_aplicar": {
+   "casas": 1,
+   "metodo": "round half-even"
+  },
+  "estagio_C_verificar": {
+   "casas_aplicadas": 1,
+   "erro_abs_max": 0.038980000000000015,
+   "erro_rel_max": 0.03751756530443321,
+   "erro_soma_rel": 0.005138494138195604,
+   "soma_exata_na_escala": false,
+   "viés_medio_por_valor": 0.0051122250000000015,
+   "checks": {
+    "quantum": true
+   },
+   "cumpre_tudo": true
+  },
+  "veredito": "CUMPRE",
+  "coluna": "wine-density",
+  "ideia_do_pedido": "grade de 10 centavos",
+  "CONSTANTE_na_comparacao": "a MESMA coluna e o MESMO encode; só muda a TOLERÂNCIA pedida",
+  "bytes": 20,
+  "reducao_pct": 99.8,
+  "formato_lossless_sobre_ajustados": true
+ },
+ {
+  "tolerancia": {
+   "quantum": null,
+   "abs": null,
+   "rel": null,
+   "agg": "soma",
+   "mode": "half-even"
+  },
+  "estagio_A_derivar": {
+   "passo_de_erro_do_modo": {
+    "mode": "half-even",
+    "passos": 0.5,
+    "nota": "`down` erra 1 passo inteiro; os demais, meio"
+   },
+   "derivado": {
+    "casas": 5,
+    "nota": "só `agg` pedido: mantém a precisão da origem e só realoca o resíduo"
+   }
+  },
+  "estagio_B_aplicar": {
+   "casas": 5,
+   "metodo": "maior-resto (Hamilton)",
+   "nota": "o `mode` não se aplica: a alocação decide o desempate, não a direção de arredondamento"
+  },
+  "estagio_C_verificar": {
+   "casas_aplicadas": 5,
+   "erro_abs_max": 0.0,
+   "erro_rel_max": 0.0,
+   "erro_soma_rel": 0.0,
+   "soma_exata_na_escala": true,
+   "viés_medio_por_valor": 0.0,
+   "checks": {
+    "agg": true
+   },
+   "cumpre_tudo": true
+  },
+  "veredito": "CUMPRE",
+  "coluna": "wine-density",
+  "ideia_do_pedido": "só preservar a soma, sem cortar precisão — realoca o resíduo",
+  "CONSTANTE_na_comparacao": "a MESMA coluna e o MESMO encode; só muda a TOLERÂNCIA pedida",
+  "bytes": 10137,
+  "reducao_pct": 0.0,
+  "formato_lossless_sobre_ajustados": true
+ },
+ {
+  "tolerancia": {
+   "quantum": 0.1,
+   "abs": null,
+   "rel": null,
+   "agg": "soma",
+   "mode": "half-even"
+  },
+  "estagio_A_derivar": {
+   "passo_de_erro_do_modo": {
+    "mode": "half-even",
+    "passos": 0.5,
+    "nota": "`down` erra 1 passo inteiro; os demais, meio"
+   },
+   "quantum": {
+    "pedido": 0.1,
+    "casas_exigidas": 1,
+    "nota": "grade é mais forte que bound: o valor tem de ser EXPRESSÁVEL nela, não apenas perto"
+   },
+   "derivado": {
+    "casas": 1,
+    "eixo_dominante": "quantum"
+   }
+  },
+  "estagio_B_aplicar": {
+   "casas": 1,
+   "metodo": "maior-resto (Hamilton)",
+   "nota": "o `mode` não se aplica: a alocação decide o desempate, não a direção de arredondamento"
+  },
+  "estagio_C_verificar": {
+   "casas_aplicadas": 1,
+   "erro_abs_max": 0.09019999999999995,
+   "erro_rel_max": 0.09109270854372849,
+   "erro_soma_rel": 1.2287818090783128e-05,
+   "soma_exata_na_escala": true,
+   "viés_medio_por_valor": 1.2225000000002262e-05,
+   "checks": {
+    "quantum": true,
+    "agg": true
+   },
+   "cumpre_tudo": true
+  },
+  "veredito": "CUMPRE",
+  "coluna": "wine-density",
+  "ideia_do_pedido": "COMPOSIÇÃO: grade de 0,10 E soma exata — a fatura que fecha",
+  "CONSTANTE_na_comparacao": "a MESMA coluna e o MESMO encode; só muda a TOLERÂNCIA pedida",
+  "bytes": 360,
+  "reducao_pct": 96.45,
+  "formato_lossless_sobre_ajustados": true
+ },
+ {
+  "tolerancia": {
+   "quantum": null,
+   "abs": null,
+   "rel": 0.01,
+   "agg": null,
+   "mode": "half-up"
+  },
+  "estagio_A_derivar": {
+   "passo_de_erro_do_modo": {
+    "mode": "half-up",
+    "passos": 0.5,
+    "nota": "`down` erra 1 passo inteiro; os demais, meio"
+   },
+   "rel": {
+    "pedido": 0.01,
+    "menor_valor_nao_nulo": 0.98711,
+    "casas_exigidas": 2,
+    "nota": "amarrado pelo MENOR valor — a cauda inferior manda"
+   },
+   "derivado": {
+    "casas": 2,
+    "eixo_dominante": "rel"
+   }
+  },
+  "estagio_B_aplicar": {
+   "casas": 2,
+   "metodo": "round half-up"
+  },
+  "estagio_C_verificar": {
+   "casas_aplicadas": 2,
+   "erro_abs_max": 0.0050000000000000044,
+   "erro_rel_max": 0.005025125628140708,
+   "erro_soma_rel": 0.0002434696717425864,
+   "soma_exata_na_escala": false,
+   "viés_medio_por_valor": 0.0002422249999999968,
+   "checks": {
+    "rel": true
+   },
+   "cumpre_tudo": true
+  },
+  "veredito": "CUMPRE",
+  "coluna": "wine-density",
+  "ideia_do_pedido": "mesmo bound, modo com VIÉS — a distinção do HMRC",
+  "CONSTANTE_na_comparacao": "a MESMA coluna e o MESMO encode; só muda a TOLERÂNCIA pedida",
+  "bytes": 708,
+  "reducao_pct": 93.02,
+  "formato_lossless_sobre_ajustados": true
+ },
+ {
+  "tolerancia": {
+   "quantum": null,
+   "abs": null,
+   "rel": 0.01,
+   "agg": null,
+   "mode": "down"
+  },
+  "estagio_A_derivar": {
+   "passo_de_erro_do_modo": {
+    "mode": "down",
+    "passos": 1.0,
+    "nota": "`down` erra 1 passo inteiro; os demais, meio"
+   },
+   "rel": {
+    "pedido": 0.01,
+    "menor_valor_nao_nulo": 0.98711,
+    "casas_exigidas": 3,
+    "nota": "amarrado pelo MENOR valor — a cauda inferior manda"
+   },
+   "derivado": {
+    "casas": 3,
+    "eixo_dominante": "rel"
+   }
+  },
+  "estagio_B_aplicar": {
+   "casas": 3,
+   "metodo": "round down"
+  },
+  "estagio_C_verificar": {
+   "casas_aplicadas": 3,
+   "erro_abs_max": 0.0009999999999998899,
+   "erro_rel_max": 0.000999000999000889,
+   "erro_soma_rel": 0.00047821976704859873,
+   "soma_exata_na_escala": false,
+   "viés_medio_por_valor": -0.0004757750000000043,
+   "checks": {
+    "rel": true
+   },
+   "cumpre_tudo": true
+  },
+  "veredito": "CUMPRE",
+  "coluna": "wine-density",
+  "ideia_do_pedido": "truncar: o modo que o HMRC nega a retalhistas",
+  "CONSTANTE_na_comparacao": "a MESMA coluna e o MESMO encode; só muda a TOLERÂNCIA pedida",
+  "bytes": 1789,
+  "reducao_pct": 82.35,
+  "formato_lossless_sobre_ajustados": true
+ },
+ {
+  "tolerancia": {
+   "quantum": null,
+   "abs": null,
+   "rel": 1e-09,
+   "agg": null,
+   "mode": "half-even"
+  },
+  "estagio_A_derivar": {
+   "passo_de_erro_do_modo": {
+    "mode": "half-even",
+    "passos": 0.5,
+    "nota": "`down` erra 1 passo inteiro; os demais, meio"
+   },
+   "rel": {
+    "pedido": 1e-09,
+    "menor_valor_nao_nulo": 0.98711,
+    "casas_exigidas": 9,
+    "nota": "amarrado pelo MENOR valor — a cauda inferior manda"
+   },
+   "derivado": {
+    "casas": 9,
+    "eixo_dominante": "rel"
+   }
+  },
+  "estagio_B_aplicar": {
+   "casas": 9,
+   "metodo": "round half-even"
+  },
+  "estagio_C_verificar": {
+   "casas_aplicadas": 9,
+   "erro_abs_max": 0.0,
+   "erro_rel_max": 0.0,
+   "erro_soma_rel": 0.0,
+   "soma_exata_na_escala": true,
+   "viés_medio_por_valor": 0.0,
+   "checks": {
+    "rel": true
+   },
+   "cumpre_tudo": true
+  },
+  "veredito": "CUMPRE",
+  "coluna": "wine-density",
+  "ideia_do_pedido": "MUITO apertado, mas realizável: deriva ~10 casas e vira NO-OP (lossless)",
+  "CONSTANTE_na_comparacao": "a MESMA coluna e o MESMO encode; só muda a TOLERÂNCIA pedida",
+  "bytes": 10137,
+  "reducao_pct": 0.0,
+  "formato_lossless_sobre_ajustados": true
+ },
+ {
+  "tolerancia": {
+   "quantum": null,
+   "abs": null,
+   "rel": 1e-15,
+   "agg": null,
+   "mode": "half-even"
+  },
+  "estagio_A_derivar": {
+   "passo_de_erro_do_modo": {
+    "mode": "half-even",
+    "passos": 0.5,
+    "nota": "`down` erra 1 passo inteiro; os demais, meio"
+   },
+   "rel": {
+    "pedido": 1e-15,
+    "menor_valor_nao_nulo": 0.98711,
+    "casas_exigidas": 15,
+    "nota": "amarrado pelo MENOR valor — a cauda inferior manda"
+   },
+   "derivado": {
+    "recusa": "exige 15 casas, acima do teto 12"
+   }
+  },
+  "veredito": "RECUSA — tolerância não realizável",
+  "coluna": "wine-density",
+  "ideia_do_pedido": "deve RECUSAR: exigiria mais casas que o teto (12)",
+  "CONSTANTE_na_comparacao": "a MESMA coluna e o MESMO encode; só muda a TOLERÂNCIA pedida",
+  "bytes": null
+ },
+ {
+  "tolerancia": {
+   "quantum": 0.03,
+   "abs": null,
+   "rel": null,
+   "agg": null,
+   "mode": "half-even"
+  },
+  "estagio_A_derivar": {
+   "passo_de_erro_do_modo": {
+    "mode": "half-even",
+    "passos": 0.5,
+    "nota": "`down` erra 1 passo inteiro; os demais, meio"
+   },
+   "quantum": {
+    "pedido": 0.03,
+    "recusa": "grade não-decimal (não é potência de 10); este protótipo só faz grade decimal"
+   }
+  },
+  "veredito": "RECUSA — tolerância não realizável",
+  "coluna": "wine-density",
+  "ideia_do_pedido": "deve RECUSAR: grade não-decimal (não é potência de 10)",
+  "CONSTANTE_na_comparacao": "a MESMA coluna e o MESMO encode; só muda a TOLERÂNCIA pedida",
+  "bytes": null
+ }
+]
