@@ -1,0 +1,21 @@
+{
+ "caso": "sint-progressao-largura-varia",
+ "familia": "sintetico",
+ "ideia": "1..600: a largura varia (1->2->3 digitos) e quebra o marcador em 3",
+ "espera": "spec",
+ "n": 600,
+ "k_unicos": 600,
+ "primeiros": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "hash_entrada": "c40b932f7051",
+ "spec_dimensionado": {
+  "largura": 3,
+  "wire_id": "ipad"
+ },
+ "CONSTANTE_na_comparacao": "os MESMOS valores no baseline e no candidato; so' varia a presenca do spec. A largura e' DIMENSIONADA pela coluna (o que um auto-detector faria), nunca escolhida a mao."
+}

@@ -1,0 +1,21 @@
+{
+ "caso": "real-tpch-custkey",
+ "familia": "real",
+ "ideia": "chave de cliente 1..1500 (1,69x)",
+ "espera": "spec",
+ "n": 1500,
+ "k_unicos": 1500,
+ "primeiros": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "hash_entrada": "947ae243f2f9",
+ "spec_dimensionado": {
+  "largura": 4,
+  "wire_id": "ipad"
+ },
+ "CONSTANTE_na_comparacao": "os MESMOS valores no baseline e no candidato; so' varia a presenca do spec. A largura e' DIMENSIONADA pela coluna (o que um auto-detector faria), nunca escolhida a mao."
+}

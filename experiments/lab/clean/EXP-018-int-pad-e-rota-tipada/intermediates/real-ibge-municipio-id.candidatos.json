@@ -1,0 +1,11 @@
+{
+ "ideia": "id de municipio: 7 digitos uniformes, sem progressao",
+ "espera": "core",
+ "venceu": "core",
+ "baseline_bytes": 14543,
+ "wire_bytes": 14543,
+ "ganho": 1.0,
+ "header_baseline": "#TCF.8n!!",
+ "header_wire": "#TCF.8n!!",
+ "spec": null
+}

@@ -1,0 +1,18 @@
+{
+ "caso": "sint-cardinalidade-5",
+ "familia": "sintetico",
+ "ideia": "k=5: territorio do bN, o pad nao tem o que ativar",
+ "espera": "core",
+ "n": 600,
+ "k_unicos": 5,
+ "primeiros": [
+  30,
+  50,
+  50,
+  10,
+  30
+ ],
+ "hash_entrada": "4e44ce4b54fa",
+ "spec_dimensionado": null,
+ "CONSTANTE_na_comparacao": "os MESMOS valores no baseline e no candidato; so' varia a presenca do spec. A largura e' DIMENSIONADA pela coluna (o que um auto-detector faria), nunca escolhida a mao."
+}

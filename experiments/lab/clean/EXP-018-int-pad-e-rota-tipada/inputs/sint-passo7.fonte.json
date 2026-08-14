@@ -1,0 +1,21 @@
+{
+ "caso": "sint-passo7",
+ "familia": "sintetico",
+ "ideia": "passo 7: largura de 1 a 4 digitos",
+ "espera": "spec",
+ "n": 600,
+ "k_unicos": 600,
+ "primeiros": [
+  0,
+  7,
+  14,
+  21,
+  28
+ ],
+ "hash_entrada": "e23dd75f247b",
+ "spec_dimensionado": {
+  "largura": 4,
+  "wire_id": "ipad"
+ },
+ "CONSTANTE_na_comparacao": "os MESMOS valores no baseline e no candidato; so' varia a presenca do spec. A largura e' DIMENSIONADA pela coluna (o que um auto-detector faria), nunca escolhida a mao."
+}

@@ -1,0 +1,21 @@
+{
+ "caso": "sint-aleatorio-largura-varia",
+ "familia": "sintetico",
+ "ideia": "largura varia mas NAO ha' progressao: o pad paga e nao ativa nada",
+ "espera": "core",
+ "n": 600,
+ "k_unicos": 596,
+ "primeiros": [
+  56112,
+  89386,
+  99243,
+  84019,
+  47860
+ ],
+ "hash_entrada": "675e60269ca0",
+ "spec_dimensionado": {
+  "largura": 5,
+  "wire_id": "ipad"
+ },
+ "CONSTANTE_na_comparacao": "os MESMOS valores no baseline e no candidato; so' varia a presenca do spec. A largura e' DIMENSIONADA pela coluna (o que um auto-detector faria), nunca escolhida a mao."
+}

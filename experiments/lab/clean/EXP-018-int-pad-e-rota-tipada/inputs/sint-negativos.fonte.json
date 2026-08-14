@@ -1,0 +1,21 @@
+{
+ "caso": "sint-negativos",
+ "familia": "sintetico",
+ "ideia": "com sinal: o spec RECUSA (format_mismatch) e o FLOOR fica no core",
+ "espera": "core",
+ "n": 600,
+ "k_unicos": 437,
+ "primeiros": [
+  -351,
+  -308,
+  107,
+  -391,
+  -213
+ ],
+ "hash_entrada": "aea4c261c541",
+ "spec_dimensionado": {
+  "largura": 3,
+  "wire_id": "ipad"
+ },
+ "CONSTANTE_na_comparacao": "os MESMOS valores no baseline e no candidato; so' varia a presenca do spec. A largura e' DIMENSIONADA pela coluna (o que um auto-detector faria), nunca escolhida a mao."
+}

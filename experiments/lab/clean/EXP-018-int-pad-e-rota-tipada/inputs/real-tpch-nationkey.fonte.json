@@ -1,0 +1,21 @@
+{
+ "caso": "real-tpch-nationkey",
+ "familia": "real",
+ "ideia": "k=25, largura 1-2: baixa cardinalidade",
+ "espera": "core",
+ "n": 1500,
+ "k_unicos": 25,
+ "primeiros": [
+  15,
+  13,
+  1,
+  4,
+  3
+ ],
+ "hash_entrada": "bbf6bf71b250",
+ "spec_dimensionado": {
+  "largura": 2,
+  "wire_id": "ipad"
+ },
+ "CONSTANTE_na_comparacao": "os MESMOS valores no baseline e no candidato; so' varia a presenca do spec. A largura e' DIMENSIONADA pela coluna (o que um auto-detector faria), nunca escolhida a mao."
+}

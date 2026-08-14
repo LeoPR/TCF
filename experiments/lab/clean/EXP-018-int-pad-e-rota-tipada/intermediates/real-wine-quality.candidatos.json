@@ -1,0 +1,11 @@
+{
+ "ideia": "nota 3..9: k=7, largura 1",
+ "espera": "core",
+ "venceu": "core",
+ "baseline_bytes": 1535,
+ "wire_bytes": 1535,
+ "ganho": 1.0,
+ "header_baseline": "#TCF.8nB3bb8",
+ "header_wire": "#TCF.8nB3bb8",
+ "spec": null
+}

@@ -1,0 +1,18 @@
+{
+ "caso": "sint-quase-constante",
+ "familia": "sintetico",
+ "ideia": "k=4 desbalanceado: o RLE do nucleo resolve",
+ "espera": "core",
+ "n": 600,
+ "k_unicos": 4,
+ "primeiros": [
+  42,
+  42,
+  42,
+  42,
+  42
+ ],
+ "hash_entrada": "cd10365d68bf",
+ "spec_dimensionado": null,
+ "CONSTANTE_na_comparacao": "os MESMOS valores no baseline e no candidato; so' varia a presenca do spec. A largura e' DIMENSIONADA pela coluna (o que um auto-detector faria), nunca escolhida a mao."
+}

@@ -1,0 +1,13 @@
+{
+ "ideia": "com sinal: o spec RECUSA (format_mismatch) e o FLOOR fica no core",
+ "espera": "core",
+ "venceu": "core",
+ "baseline_bytes": 2625,
+ "wire_bytes": 2625,
+ "ganho": 1.0,
+ "header_baseline": "#TCF.8n!!",
+ "header_wire": "#TCF.8n!!",
+ "spec": {
+  "largura": 3
+ }
+}

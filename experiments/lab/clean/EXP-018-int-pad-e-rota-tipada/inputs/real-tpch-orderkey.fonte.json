@@ -1,0 +1,21 @@
+{
+ "caso": "real-tpch-orderkey",
+ "familia": "real",
+ "ideia": "chave de pedido 1..12000: o maior ganho medido (2,73x)",
+ "espera": "spec",
+ "n": 3000,
+ "k_unicos": 3000,
+ "primeiros": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "hash_entrada": "a0a19dd4be1d",
+ "spec_dimensionado": {
+  "largura": 5,
+  "wire_id": "ipad"
+ },
+ "CONSTANTE_na_comparacao": "os MESMOS valores no baseline e no candidato; so' varia a presenca do spec. A largura e' DIMENSIONADA pela coluna (o que um auto-detector faria), nunca escolhida a mao."
+}

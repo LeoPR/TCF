@@ -1,0 +1,18 @@
+{
+ "caso": "real-ibge-municipio-id",
+ "familia": "real",
+ "ideia": "id de municipio: 7 digitos uniformes, sem progressao",
+ "espera": "core",
+ "n": 3000,
+ "k_unicos": 3000,
+ "primeiros": [
+  1100015,
+  1100023,
+  1100031,
+  1100049,
+  1100056
+ ],
+ "hash_entrada": "afb8d4c5504f",
+ "spec_dimensionado": null,
+ "CONSTANTE_na_comparacao": "os MESMOS valores no baseline e no candidato; so' varia a presenca do spec. A largura e' DIMENSIONADA pela coluna (o que um auto-detector faria), nunca escolhida a mao."
+}

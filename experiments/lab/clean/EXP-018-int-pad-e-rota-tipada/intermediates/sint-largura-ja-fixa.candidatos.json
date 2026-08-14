@@ -1,0 +1,11 @@
+{
+ "ideia": "largura JA' uniforme: o pad e' no-op, o `dimensiona` nem oferece",
+ "espera": "core",
+ "venceu": "core",
+ "baseline_bytes": 23,
+ "wire_bytes": 23,
+ "ganho": 1.0,
+ "header_baseline": "#TCF.8n",
+ "header_wire": "#TCF.8n",
+ "spec": null
+}

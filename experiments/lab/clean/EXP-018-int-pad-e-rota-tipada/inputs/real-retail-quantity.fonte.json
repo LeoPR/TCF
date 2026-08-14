@@ -1,0 +1,21 @@
+{
+ "caso": "real-retail-quantity",
+ "familia": "real",
+ "ideia": "quantidade com NEGATIVOS (-24..600): o spec recusa os negativos",
+ "espera": "core",
+ "n": 3000,
+ "k_unicos": 66,
+ "primeiros": [
+  6,
+  6,
+  8,
+  6,
+  6
+ ],
+ "hash_entrada": "45cb54553f41",
+ "spec_dimensionado": {
+  "largura": 3,
+  "wire_id": "ipad"
+ },
+ "CONSTANTE_na_comparacao": "os MESMOS valores no baseline e no candidato; so' varia a presenca do spec. A largura e' DIMENSIONADA pela coluna (o que um auto-detector faria), nunca escolhida a mao."
+}

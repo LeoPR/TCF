@@ -1,0 +1,13 @@
+{
+ "ideia": "chave REPETIDA (k=744 em 3000, 3 passos distintos): a repeticao quebra a progressao e o FLOOR recusa o pad",
+ "espera": "core",
+ "venceu": "core",
+ "baseline_bytes": 5234,
+ "wire_bytes": 5234,
+ "ganho": 1.0,
+ "header_baseline": "#TCF.8n!!",
+ "header_wire": "#TCF.8n!!",
+ "spec": {
+  "largura": 4
+ }
+}

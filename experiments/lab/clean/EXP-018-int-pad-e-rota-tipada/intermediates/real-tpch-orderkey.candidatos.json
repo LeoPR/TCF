@@ -1,0 +1,13 @@
+{
+ "ideia": "chave de pedido 1..12000: o maior ganho medido (2,73x)",
+ "espera": "spec",
+ "venceu": "spec",
+ "baseline_bytes": 123,
+ "wire_bytes": 44,
+ "ganho": 2.795,
+ "header_baseline": "#TCF.8n!!",
+ "header_wire": "#TCF.8n :ipad",
+ "spec": {
+  "largura": 5
+ }
+}

@@ -1,0 +1,204 @@
+{
+ "casos": [
+  {
+   "caso": "sint-progressao-largura-varia",
+   "familia": "sintetico",
+   "ideia": "1..600: a largura varia (1->2->3 digitos) e quebra o marcador em 3",
+   "espera": "spec",
+   "venceu": "spec",
+   "base": 37,
+   "wire": 26,
+   "ganho": 1.423,
+   "header": "#TCF.8n :ipad"
+  },
+  {
+   "caso": "sint-passo7",
+   "familia": "sintetico",
+   "ideia": "passo 7: largura de 1 a 4 digitos",
+   "espera": "spec",
+   "venceu": "spec",
+   "base": 49,
+   "wire": 27,
+   "ganho": 1.815,
+   "header": "#TCF.8n :ipad"
+  },
+  {
+   "caso": "sint-largura-ja-fixa",
+   "familia": "sintetico",
+   "ideia": "largura JA' uniforme: o pad e' no-op, o `dimensiona` nem oferece",
+   "espera": "core",
+   "venceu": "core",
+   "base": 23,
+   "wire": 23,
+   "ganho": 1.0,
+   "header": "#TCF.8n"
+  },
+  {
+   "caso": "sint-cardinalidade-5",
+   "familia": "sintetico",
+   "ideia": "k=5: territorio do bN, o pad nao tem o que ativar",
+   "espera": "core",
+   "venceu": "core",
+   "base": 334,
+   "wire": 334,
+   "ganho": 1.0,
+   "header": "#TCF.8nB3258"
+  },
+  {
+   "caso": "sint-aleatorio-largura-varia",
+   "familia": "sintetico",
+   "ideia": "largura varia mas NAO ha' progressao: o pad paga e nao ativa nada",
+   "espera": "core",
+   "venceu": "core",
+   "base": 3541,
+   "wire": 3541,
+   "ganho": 1.0,
+   "header": "#TCF.8n!!"
+  },
+  {
+   "caso": "sint-com-nulos",
+   "familia": "sintetico",
+   "ideia": "slots NULOS no meio da progressao — o null e' do tipo, nao da grafia",
+   "espera": "spec",
+   "venceu": "spec",
+   "base": 241,
+   "wire": 232,
+   "ganho": 1.039,
+   "header": "#TCF.8n :ipad"
+  },
+  {
+   "caso": "sint-negativos",
+   "familia": "sintetico",
+   "ideia": "com sinal: o spec RECUSA (format_mismatch) e o FLOOR fica no core",
+   "espera": "core",
+   "venceu": "core",
+   "base": 2625,
+   "wire": 2625,
+   "ganho": 1.0,
+   "header": "#TCF.8n!!"
+  },
+  {
+   "caso": "sint-quase-constante",
+   "familia": "sintetico",
+   "ideia": "k=4 desbalanceado: o RLE do nucleo resolve",
+   "espera": "core",
+   "venceu": "core",
+   "base": 26,
+   "wire": 26,
+   "ganho": 1.0,
+   "header": "#TCF.8n"
+  },
+  {
+   "caso": "real-tpch-orderkey",
+   "familia": "real",
+   "ideia": "chave de pedido 1..12000: o maior ganho medido (2,73x)",
+   "espera": "spec",
+   "venceu": "spec",
+   "base": 123,
+   "wire": 44,
+   "ganho": 2.795,
+   "header": "#TCF.8n :ipad"
+  },
+  {
+   "caso": "real-tpch-partkey",
+   "familia": "real",
+   "ideia": "chave de peca 1..2000 (1,72x)",
+   "espera": "spec",
+   "venceu": "spec",
+   "base": 50,
+   "wire": 28,
+   "ganho": 1.786,
+   "header": "#TCF.8n :ipad"
+  },
+  {
+   "caso": "real-tpch-custkey",
+   "familia": "real",
+   "ideia": "chave de cliente 1..1500 (1,69x)",
+   "espera": "spec",
+   "venceu": "spec",
+   "base": 49,
+   "wire": 28,
+   "ganho": 1.75,
+   "header": "#TCF.8n :ipad"
+  },
+  {
+   "caso": "real-tpch-lineitem-orderkey",
+   "familia": "real",
+   "ideia": "chave REPETIDA (k=744 em 3000, 3 passos distintos): a repeticao quebra a progressao e o FLOOR recusa o pad",
+   "espera": "core",
+   "venceu": "core",
+   "base": 5234,
+   "wire": 5234,
+   "ganho": 1.0,
+   "header": "#TCF.8n!!"
+  },
+  {
+   "caso": "real-tpch-linenumber",
+   "familia": "real",
+   "ideia": "k=7, largura 1: nada a padear, o bN domina",
+   "espera": "core",
+   "venceu": "core",
+   "base": 1522,
+   "wire": 1522,
+   "ganho": 1.0,
+   "header": "#TCF.8nB3bb8"
+  },
+  {
+   "caso": "real-wine-quality",
+   "familia": "real",
+   "ideia": "nota 3..9: k=7, largura 1",
+   "espera": "core",
+   "venceu": "core",
+   "base": 1535,
+   "wire": 1535,
+   "ganho": 1.0,
+   "header": "#TCF.8nB3bb8"
+  },
+  {
+   "caso": "real-retail-quantity",
+   "familia": "real",
+   "ideia": "quantidade com NEGATIVOS (-24..600): o spec recusa os negativos",
+   "espera": "core",
+   "venceu": "core",
+   "base": 3785,
+   "wire": 3785,
+   "ganho": 1.0,
+   "header": "#TCF.8nB7bb8"
+  },
+  {
+   "caso": "real-ibge-municipio-id",
+   "familia": "real",
+   "ideia": "id de municipio: 7 digitos uniformes, sem progressao",
+   "espera": "core",
+   "venceu": "core",
+   "base": 14543,
+   "wire": 14543,
+   "ganho": 1.0,
+   "header": "#TCF.8n!!"
+  },
+  {
+   "caso": "real-tpch-availqty",
+   "familia": "real",
+   "ideia": "quantidade 4..9998: largura varia, sem progressao",
+   "espera": "core",
+   "venceu": "core",
+   "base": 14879,
+   "wire": 14879,
+   "ganho": 1.0,
+   "header": "#TCF.8n!!"
+  },
+  {
+   "caso": "real-tpch-nationkey",
+   "familia": "real",
+   "ideia": "k=25, largura 1-2: baixa cardinalidade",
+   "espera": "core",
+   "venceu": "core",
+   "base": 1357,
+   "wire": 1357,
+   "ganho": 1.0,
+   "header": "#TCF.8nB55dc"
+  }
+ ],
+ "falhas": [],
+ "pulados": []
+}

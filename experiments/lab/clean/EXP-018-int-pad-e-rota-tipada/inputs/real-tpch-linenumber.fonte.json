@@ -1,0 +1,18 @@
+{
+ "caso": "real-tpch-linenumber",
+ "familia": "real",
+ "ideia": "k=7, largura 1: nada a padear, o bN domina",
+ "espera": "core",
+ "n": 3000,
+ "k_unicos": 7,
+ "primeiros": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "hash_entrada": "1d60fb2c6de5",
+ "spec_dimensionado": null,
+ "CONSTANTE_na_comparacao": "os MESMOS valores no baseline e no candidato; so' varia a presenca do spec. A largura e' DIMENSIONADA pela coluna (o que um auto-detector faria), nunca escolhida a mao."
+}

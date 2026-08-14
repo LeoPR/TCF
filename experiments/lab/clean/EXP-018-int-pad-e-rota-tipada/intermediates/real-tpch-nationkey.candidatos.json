@@ -1,0 +1,13 @@
+{
+ "ideia": "k=25, largura 1-2: baixa cardinalidade",
+ "espera": "core",
+ "venceu": "core",
+ "baseline_bytes": 1357,
+ "wire_bytes": 1357,
+ "ganho": 1.0,
+ "header_baseline": "#TCF.8nB55dc",
+ "header_wire": "#TCF.8nB55dc",
+ "spec": {
+  "largura": 2
+ }
+}

@@ -59,6 +59,10 @@ experiments/lab/dirty/2026-05-27-baseline-consolidado/outputs/
 # nomeado, um por linha, para nao arrastar os clean/EXP-* pre-convencao.
 !experiments/lab/clean/EXP-016-bn-familia-bits/outputs/
 !experiments/lab/clean/EXP-016-bn-familia-bits/outputs/**
+!experiments/lab/clean/EXP-018-int-pad-e-rota-tipada/outputs/
+!experiments/lab/clean/EXP-018-int-pad-e-rota-tipada/outputs/**
+!experiments/lab/clean/EXP-018-int-pad-e-rota-tipada/intermediates/
+!experiments/lab/clean/EXP-018-int-pad-e-rota-tipada/intermediates/**
 !experiments/lab/clean/EXP-017-data-alvos-mensais/outputs/
 !experiments/lab/clean/EXP-017-data-alvos-mensais/outputs/**
 !experiments/lab/clean/EXP-017-data-alvos-mensais/intermediates/
@@ -73,6 +77,7 @@ restored*/
 !experiments/lab/dirty/**/intermediates/**/*.tcf
 !experiments/lab/clean/EXP-016-bn-familia-bits/outputs/**/*.tcf
 !experiments/lab/clean/EXP-017-data-alvos-mensais/outputs/**/*.tcf
+!experiments/lab/clean/EXP-018-int-pad-e-rota-tipada/outputs/**/*.tcf
 
 # Archive (legacy materials kept locally for history, not for public repo)
 archive/legacy_results/

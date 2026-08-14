@@ -1,0 +1,18 @@
+{
+ "caso": "sint-largura-ja-fixa",
+ "familia": "sintetico",
+ "ideia": "largura JA' uniforme: o pad e' no-op, o `dimensiona` nem oferece",
+ "espera": "core",
+ "n": 600,
+ "k_unicos": 600,
+ "primeiros": [
+  100000,
+  100001,
+  100002,
+  100003,
+  100004
+ ],
+ "hash_entrada": "37670fc3f10b",
+ "spec_dimensionado": null,
+ "CONSTANTE_na_comparacao": "os MESMOS valores no baseline e no candidato; so' varia a presenca do spec. A largura e' DIMENSIONADA pela coluna (o que um auto-detector faria), nunca escolhida a mao."
+}

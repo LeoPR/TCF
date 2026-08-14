@@ -1,0 +1,21 @@
+{
+ "caso": "sint-com-nulos",
+ "familia": "sintetico",
+ "ideia": "slots NULOS no meio da progressao — o null e' do tipo, nao da grafia",
+ "espera": "spec",
+ "n": 600,
+ "k_unicos": 585,
+ "primeiros": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "hash_entrada": "3195548f7072",
+ "spec_dimensionado": {
+  "largura": 3,
+  "wire_id": "ipad"
+ },
+ "CONSTANTE_na_comparacao": "os MESMOS valores no baseline e no candidato; so' varia a presenca do spec. A largura e' DIMENSIONADA pela coluna (o que um auto-detector faria), nunca escolhida a mao."
+}

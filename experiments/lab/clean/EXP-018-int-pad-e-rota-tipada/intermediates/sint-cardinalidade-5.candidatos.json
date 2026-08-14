@@ -1,0 +1,11 @@
+{
+ "ideia": "k=5: territorio do bN, o pad nao tem o que ativar",
+ "espera": "core",
+ "venceu": "core",
+ "baseline_bytes": 334,
+ "wire_bytes": 334,
+ "ganho": 1.0,
+ "header_baseline": "#TCF.8nB3258",
+ "header_wire": "#TCF.8nB3258",
+ "spec": null
+}
