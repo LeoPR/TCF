@@ -1,0 +1,133 @@
+{
+ "bordas": [
+  {
+   "borda": "float-exato",
+   "ideia": "int em roupa de float — o `1.` do owner",
+   "resultado": "RT ok",
+   "wire": "#TCF.8n",
+   "bytes": 21
+  },
+  {
+   "borda": "zero-negativo",
+   "ideia": "`-0.0` != `0.0` no sinal; `==` NAO detecta",
+   "resultado": "RT ok",
+   "wire": "#TCF.8n!",
+   "bytes": 23
+  },
+  {
+   "borda": "cientifica-pequena",
+   "ideia": "grafia `1e-05` vem do proprio Python",
+   "resultado": "RT ok",
+   "wire": "#TCF.8n",
+   "bytes": 27
+  },
+  {
+   "borda": "cientifica-grande",
+   "ideia": "grafia `1e+20`",
+   "resultado": "RT ok",
+   "wire": "#TCF.8n",
+   "bytes": 27
+  },
+  {
+   "borda": "max-float",
+   "ideia": "o maior float representavel",
+   "resultado": "RT ok",
+   "wire": "#TCF.8n!!",
+   "bytes": 40
+  },
+  {
+   "borda": "subnormal",
+   "ideia": "o menor subnormal — borda inferior do IEEE-754",
+   "resultado": "RT ok",
+   "wire": "#TCF.8n!!",
+   "bytes": 24
+  },
+  {
+   "borda": "precisao-suja",
+   "ideia": "0.30000000000000004 — 17 digitos",
+   "resultado": "RT ok",
+   "wire": "#TCF.8n!",
+   "bytes": 69
+  },
+  {
+   "borda": "misto-int-float",
+   "ideia": "a UNIAO `int|float` na mesma tag `n`",
+   "resultado": "RT ok",
+   "wire": "#TCF.8n!!",
+   "bytes": 18
+  },
+  {
+   "borda": "com-nulo",
+   "ideia": "o slot 0 atravessa qualquer tag",
+   "resultado": "RT ok",
+   "wire": "#TCF.8n!",
+   "bytes": 21
+  },
+  {
+   "borda": "nan",
+   "ideia": "fora do JSON (RFC 8259) -> FAIL-LOUD",
+   "resultado": "RECUSA HierarchicalError",
+   "mensagem": "NaN/Infinity fora do JSON (RFC 8259) — não é P2"
+  },
+  {
+   "borda": "infinito",
+   "ideia": "idem",
+   "resultado": "RECUSA HierarchicalError",
+   "mensagem": "NaN/Infinity fora do JSON (RFC 8259) — não é P2"
+  },
+  {
+   "borda": "menos-infinito",
+   "ideia": "idem",
+   "resultado": "RECUSA HierarchicalError",
+   "mensagem": "NaN/Infinity fora do JSON (RFC 8259) — não é P2"
+  }
+ ],
+ "eixos": {
+  "wine.density": {
+   "wire_header": "#TCF.8n!",
+   "disc": "n!",
+   "bytes": 9045,
+   "api_nature": "processado, FLOOR recusou",
+   "api_min_len": "aceito",
+   "int_pad_serve": false,
+   "rt_tipo_sinal": true
+  },
+  "wine.alcohol": {
+   "wire_header": "#TCF.8nB77d0",
+   "disc": "nB77d0",
+   "bytes": 2864,
+   "api_nature": "processado, FLOOR recusou",
+   "api_min_len": "aceito",
+   "int_pad_serve": false,
+   "rt_tipo_sinal": true
+  },
+  "tpch.l_discount": {
+   "wire_header": "#TCF.8nB47d0",
+   "disc": "nB47d0",
+   "bytes": 1422,
+   "api_nature": "processado, FLOOR recusou",
+   "api_min_len": "aceito",
+   "int_pad_serve": false,
+   "rt_tipo_sinal": true
+  },
+  "tpch.l_quantity": {
+   "wire_header": "#TCF.8nB67d0",
+   "disc": "nB67d0",
+   "bytes": 2355,
+   "api_nature": "processado, FLOOR recusou",
+   "api_min_len": "aceito",
+   "int_pad_serve": false,
+   "rt_tipo_sinal": true
+  },
+  "retail.UnitPrice": {
+   "wire_header": "#TCF.8nB77d0",
+   "disc": "nB77d0",
+   "bytes": 3075,
+   "api_nature": "processado, FLOOR recusou",
+   "api_min_len": "aceito",
+   "int_pad_serve": false,
+   "rt_tipo_sinal": true
+  }
+ },
+ "falhas": []
+}
