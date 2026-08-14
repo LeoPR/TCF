@@ -173,12 +173,31 @@ já registrada na direção de contrato externalizado.
 | `cpf` | `cpf` | vigente, já cumpre a regra |
 | `cnpj` | `cnpj` | vigente, já cumpre |
 | `ip` | `ip` | vigente, já cumpre |
+| `ipad` | `int-pad` | **soldado 2026-08-14** (EXP-018) — ⚠ ver a ressalva de família abaixo |
 | `dtm` | datetime | reservado (H-CP-DATETIME) |
 | `dtbr` | data-br | reservado (H-TM-DATA-BR) |
 | `dtym` | data-ano-mes | reservado (medido, EXP-017) |
 | `dtmes` | data-mes | reservado (medido, EXP-017) |
 | `dtfim` | data-fim-de-mes | reservado (medido, EXP-017) |
 | `x…` | — | **prefixo reservado a terceiros**; o core nunca usa |
+
+> ### ⚠ Ressalva de família aberta pelo `ipad` (2026-08-14)
+>
+> O `ipad` **cumpre a regra** (`^[a-z][a-z0-9]{0,7}$`, 4 chars). O problema é outro, e é de
+> **convenção**: este mapa usa prefixo de família de propósito — `dt`, `dtm`, `dtbr`, `dtym`,
+> `dtmes`, `dtfim` são todos data, e a §2 lista "família por prefixo" como uma das três coisas
+> que a regra restritiva compra. Mas **`ip` já é IPv4**, e `ipad` é *inteiro com padding*.
+> Lado a lado no mapa, `ip` e `ipad` parecem irmãos e não são.
+>
+> **Proposta para revisão** (o owner: *"'ipad' é interessante, mas podemos revisar até o
+> 1.0"*): usar `n…` como família numérica — **`npad`** em vez de `ipad`, e `nb94` se o
+> base-94 vier depois. A coerência é forte: `n` já é a **tag da rota tipada** (`#TCF.8n`), o
+> `number` do JSON. O wire ficaria `#TCF.8n :npad` — a tag diz *é número*, o id diz *qual
+> transformação numérica*. E o prefixo `i` fica livre da ambiguidade com `ip`.
+>
+> Custo da troca hoje: uma string em `natures/int_pad.py`, um re-pin em `test_natures.py`, e
+> esta linha. Depois do 1.0, é format change. **Não trocado sem decisão** — registrado aqui
+> porque é exatamente o tipo de coisa que este mapa existe para pegar antes de congelar.
 
 **Amplitude** sob a regra: 26 ids de 1 char, **936** de 2, ~2·10¹² até 8. O universo
 planejado no registry é ~25 specs — 2 chars já cobrem 37×. `dt` vira **prefixo natural
