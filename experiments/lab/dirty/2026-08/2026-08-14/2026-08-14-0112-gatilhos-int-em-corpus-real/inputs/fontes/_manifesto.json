@@ -1,0 +1,665 @@
+[
+ {
+  "rotulo": "adult-census-adult-age",
+  "db": "adult-census.db",
+  "tabela": "adult",
+  "coluna": "age",
+  "decl": "INTEGER",
+  "n": 3000,
+  "k": 69,
+  "min": 17,
+  "max": 90,
+  "nulos": 0,
+  "exemplo": [
+   25,
+   38,
+   28
+  ]
+ },
+ {
+  "rotulo": "adult-census-adult-fnlwgt",
+  "db": "adult-census.db",
+  "tabela": "adult",
+  "coluna": "fnlwgt",
+  "decl": "INTEGER",
+  "n": 3000,
+  "k": 2844,
+  "min": 13769,
+  "max": 914061,
+  "nulos": 0,
+  "exemplo": [
+   226802,
+   89814,
+   336951
+  ]
+ },
+ {
+  "rotulo": "adult-census-adult-education-num",
+  "db": "adult-census.db",
+  "tabela": "adult",
+  "coluna": "education-num",
+  "decl": "INTEGER",
+  "n": 3000,
+  "k": 16,
+  "min": 1,
+  "max": 16,
+  "nulos": 0,
+  "exemplo": [
+   7,
+   9,
+   12
+  ]
+ },
+ {
+  "rotulo": "adult-census-adult-capital-gain",
+  "db": "adult-census.db",
+  "tabela": "adult",
+  "coluna": "capital-gain",
+  "decl": "INTEGER",
+  "n": 3000,
+  "k": 73,
+  "min": 0,
+  "max": 99999,
+  "nulos": 0,
+  "exemplo": [
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "rotulo": "adult-census-adult-capital-loss",
+  "db": "adult-census.db",
+  "tabela": "adult",
+  "coluna": "capital-loss",
+  "decl": "INTEGER",
+  "n": 3000,
+  "k": 45,
+  "min": 0,
+  "max": 3004,
+  "nulos": 0,
+  "exemplo": [
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "rotulo": "adult-census-adult-hours-per-week",
+  "db": "adult-census.db",
+  "tabela": "adult",
+  "coluna": "hours-per-week",
+  "decl": "INTEGER",
+  "n": 3000,
+  "k": 72,
+  "min": 1,
+  "max": 99,
+  "nulos": 0,
+  "exemplo": [
+   40,
+   50,
+   40
+  ]
+ },
+ {
+  "rotulo": "br-identidades-pessoas-municipio-id",
+  "db": "br-identidades.db",
+  "tabela": "pessoas",
+  "coluna": "municipio_id",
+  "decl": "INTEGER",
+  "n": 3000,
+  "k": 2318,
+  "min": 1100015,
+  "max": 5300108,
+  "nulos": 0,
+  "exemplo": [
+   2112506,
+   3518602,
+   2400604
+  ]
+ },
+ {
+  "rotulo": "br-identidades-empresas-municipio-id",
+  "db": "br-identidades.db",
+  "tabela": "empresas",
+  "coluna": "municipio_id",
+  "decl": "INTEGER",
+  "n": 3000,
+  "k": 2299,
+  "min": 1100015,
+  "max": 5222302,
+  "nulos": 0,
+  "exemplo": [
+   5207600,
+   4302659,
+   4321709
+  ]
+ },
+ {
+  "rotulo": "ibge-municipios-municipios-id",
+  "db": "ibge-municipios.db",
+  "tabela": "municipios",
+  "coluna": "id",
+  "decl": "INTEGER",
+  "n": 3000,
+  "k": 3000,
+  "min": 1100015,
+  "max": 3164431,
+  "nulos": 0,
+  "exemplo": [
+   1100015,
+   1100023,
+   1100031
+  ]
+ },
+ {
+  "rotulo": "online-retail-online-retail-quantity",
+  "db": "online-retail.db",
+  "tabela": "online_retail",
+  "coluna": "Quantity",
+  "decl": "INTEGER",
+  "n": 3000,
+  "k": 66,
+  "min": -24,
+  "max": 600,
+  "nulos": 0,
+  "exemplo": [
+   6,
+   6,
+   8
+  ]
+ },
+ {
+  "rotulo": "tpch-sf001-customer-c-custkey",
+  "db": "tpch-sf001.db",
+  "tabela": "customer",
+  "coluna": "c_custkey",
+  "decl": "INTEGER",
+  "n": 1500,
+  "k": 1500,
+  "min": 1,
+  "max": 1500,
+  "nulos": 0,
+  "exemplo": [
+   1,
+   2,
+   3
+  ]
+ },
+ {
+  "rotulo": "tpch-sf001-customer-c-nationkey",
+  "db": "tpch-sf001.db",
+  "tabela": "customer",
+  "coluna": "c_nationkey",
+  "decl": "INTEGER",
+  "n": 1500,
+  "k": 25,
+  "min": 0,
+  "max": 24,
+  "nulos": 0,
+  "exemplo": [
+   15,
+   13,
+   1
+  ]
+ },
+ {
+  "rotulo": "tpch-sf001-part-p-partkey",
+  "db": "tpch-sf001.db",
+  "tabela": "part",
+  "coluna": "p_partkey",
+  "decl": "INTEGER",
+  "n": 2000,
+  "k": 2000,
+  "min": 1,
+  "max": 2000,
+  "nulos": 0,
+  "exemplo": [
+   1,
+   2,
+   3
+  ]
+ },
+ {
+  "rotulo": "tpch-sf001-part-p-size",
+  "db": "tpch-sf001.db",
+  "tabela": "part",
+  "coluna": "p_size",
+  "decl": "INTEGER",
+  "n": 2000,
+  "k": 50,
+  "min": 1,
+  "max": 50,
+  "nulos": 0,
+  "exemplo": [
+   7,
+   1,
+   21
+  ]
+ },
+ {
+  "rotulo": "tpch-sf001-partsupp-ps-partkey",
+  "db": "tpch-sf001.db",
+  "tabela": "partsupp",
+  "coluna": "ps_partkey",
+  "decl": "INTEGER",
+  "n": 3000,
+  "k": 750,
+  "min": 1,
+  "max": 750,
+  "nulos": 0,
+  "exemplo": [
+   1,
+   1,
+   1
+  ]
+ },
+ {
+  "rotulo": "tpch-sf001-partsupp-ps-suppkey",
+  "db": "tpch-sf001.db",
+  "tabela": "partsupp",
+  "coluna": "ps_suppkey",
+  "decl": "INTEGER",
+  "n": 3000,
+  "k": 100,
+  "min": 1,
+  "max": 100,
+  "nulos": 0,
+  "exemplo": [
+   2,
+   27,
+   52
+  ]
+ },
+ {
+  "rotulo": "tpch-sf001-partsupp-ps-availqty",
+  "db": "tpch-sf001.db",
+  "tabela": "partsupp",
+  "coluna": "ps_availqty",
+  "decl": "INTEGER",
+  "n": 3000,
+  "k": 2593,
+  "min": 4,
+  "max": 9998,
+  "nulos": 0,
+  "exemplo": [
+   3325,
+   8076,
+   3956
+  ]
+ },
+ {
+  "rotulo": "tpch-sf001-orders-o-orderkey",
+  "db": "tpch-sf001.db",
+  "tabela": "orders",
+  "coluna": "o_orderkey",
+  "decl": "INTEGER",
+  "n": 3000,
+  "k": 3000,
+  "min": 1,
+  "max": 12000,
+  "nulos": 0,
+  "exemplo": [
+   1,
+   2,
+   3
+  ]
+ },
+ {
+  "rotulo": "tpch-sf001-orders-o-custkey",
+  "db": "tpch-sf001.db",
+  "tabela": "orders",
+  "coluna": "o_custkey",
+  "decl": "INTEGER",
+  "n": 3000,
+  "k": 923,
+  "min": 1,
+  "max": 1499,
+  "nulos": 0,
+  "exemplo": [
+   370,
+   781,
+   1234
+  ]
+ },
+ {
+  "rotulo": "tpch-sf001-lineitem-l-orderkey",
+  "db": "tpch-sf001.db",
+  "tabela": "lineitem",
+  "coluna": "l_orderkey",
+  "decl": "INTEGER",
+  "n": 3000,
+  "k": 744,
+  "min": 1,
+  "max": 2976,
+  "nulos": 0,
+  "exemplo": [
+   1,
+   1,
+   1
+  ]
+ },
+ {
+  "rotulo": "tpch-sf001-lineitem-l-partkey",
+  "db": "tpch-sf001.db",
+  "tabela": "lineitem",
+  "coluna": "l_partkey",
+  "decl": "INTEGER",
+  "n": 3000,
+  "k": 1560,
+  "min": 1,
+  "max": 2000,
+  "nulos": 0,
+  "exemplo": [
+   1552,
+   674,
+   637
+  ]
+ },
+ {
+  "rotulo": "tpch-sf001-lineitem-l-suppkey",
+  "db": "tpch-sf001.db",
+  "tabela": "lineitem",
+  "coluna": "l_suppkey",
+  "decl": "INTEGER",
+  "n": 3000,
+  "k": 100,
+  "min": 1,
+  "max": 100,
+  "nulos": 0,
+  "exemplo": [
+   93,
+   75,
+   38
+  ]
+ },
+ {
+  "rotulo": "tpch-sf001-lineitem-l-linenumber",
+  "db": "tpch-sf001.db",
+  "tabela": "lineitem",
+  "coluna": "l_linenumber",
+  "decl": "INTEGER",
+  "n": 3000,
+  "k": 7,
+  "min": 1,
+  "max": 7,
+  "nulos": 0,
+  "exemplo": [
+   1,
+   2,
+   3
+  ]
+ },
+ {
+  "rotulo": "tpch-sf01-supplier-s-suppkey",
+  "db": "tpch-sf01.db",
+  "tabela": "supplier",
+  "coluna": "s_suppkey",
+  "decl": "INTEGER",
+  "n": 1000,
+  "k": 1000,
+  "min": 1,
+  "max": 1000,
+  "nulos": 0,
+  "exemplo": [
+   1,
+   2,
+   3
+  ]
+ },
+ {
+  "rotulo": "tpch-sf01-supplier-s-nationkey",
+  "db": "tpch-sf01.db",
+  "tabela": "supplier",
+  "coluna": "s_nationkey",
+  "decl": "INTEGER",
+  "n": 1000,
+  "k": 25,
+  "min": 0,
+  "max": 24,
+  "nulos": 0,
+  "exemplo": [
+   17,
+   5,
+   1
+  ]
+ },
+ {
+  "rotulo": "tpch-sf01-customer-c-custkey",
+  "db": "tpch-sf01.db",
+  "tabela": "customer",
+  "coluna": "c_custkey",
+  "decl": "INTEGER",
+  "n": 3000,
+  "k": 3000,
+  "min": 1,
+  "max": 3000,
+  "nulos": 0,
+  "exemplo": [
+   1,
+   2,
+   3
+  ]
+ },
+ {
+  "rotulo": "tpch-sf01-customer-c-nationkey",
+  "db": "tpch-sf01.db",
+  "tabela": "customer",
+  "coluna": "c_nationkey",
+  "decl": "INTEGER",
+  "n": 3000,
+  "k": 25,
+  "min": 0,
+  "max": 24,
+  "nulos": 0,
+  "exemplo": [
+   15,
+   13,
+   1
+  ]
+ },
+ {
+  "rotulo": "tpch-sf01-part-p-partkey",
+  "db": "tpch-sf01.db",
+  "tabela": "part",
+  "coluna": "p_partkey",
+  "decl": "INTEGER",
+  "n": 3000,
+  "k": 3000,
+  "min": 1,
+  "max": 3000,
+  "nulos": 0,
+  "exemplo": [
+   1,
+   2,
+   3
+  ]
+ },
+ {
+  "rotulo": "tpch-sf01-part-p-size",
+  "db": "tpch-sf01.db",
+  "tabela": "part",
+  "coluna": "p_size",
+  "decl": "INTEGER",
+  "n": 3000,
+  "k": 50,
+  "min": 1,
+  "max": 50,
+  "nulos": 0,
+  "exemplo": [
+   7,
+   1,
+   21
+  ]
+ },
+ {
+  "rotulo": "tpch-sf01-partsupp-ps-partkey",
+  "db": "tpch-sf01.db",
+  "tabela": "partsupp",
+  "coluna": "ps_partkey",
+  "decl": "INTEGER",
+  "n": 3000,
+  "k": 750,
+  "min": 1,
+  "max": 750,
+  "nulos": 0,
+  "exemplo": [
+   1,
+   1,
+   1
+  ]
+ },
+ {
+  "rotulo": "tpch-sf01-partsupp-ps-suppkey",
+  "db": "tpch-sf01.db",
+  "tabela": "partsupp",
+  "coluna": "ps_suppkey",
+  "decl": "INTEGER",
+  "n": 3000,
+  "k": 1000,
+  "min": 1,
+  "max": 1000,
+  "nulos": 0,
+  "exemplo": [
+   2,
+   252,
+   502
+  ]
+ },
+ {
+  "rotulo": "tpch-sf01-partsupp-ps-availqty",
+  "db": "tpch-sf01.db",
+  "tabela": "partsupp",
+  "coluna": "ps_availqty",
+  "decl": "INTEGER",
+  "n": 3000,
+  "k": 2593,
+  "min": 4,
+  "max": 9998,
+  "nulos": 0,
+  "exemplo": [
+   3325,
+   8076,
+   3956
+  ]
+ },
+ {
+  "rotulo": "tpch-sf01-orders-o-orderkey",
+  "db": "tpch-sf01.db",
+  "tabela": "orders",
+  "coluna": "o_orderkey",
+  "decl": "INTEGER",
+  "n": 3000,
+  "k": 3000,
+  "min": 1,
+  "max": 12000,
+  "nulos": 0,
+  "exemplo": [
+   1,
+   2,
+   3
+  ]
+ },
+ {
+  "rotulo": "tpch-sf01-orders-o-custkey",
+  "db": "tpch-sf01.db",
+  "tabela": "orders",
+  "coluna": "o_custkey",
+  "decl": "INTEGER",
+  "n": 3000,
+  "k": 2555,
+  "min": 2,
+  "max": 14990,
+  "nulos": 0,
+  "exemplo": [
+   3691,
+   7801,
+   12332
+  ]
+ },
+ {
+  "rotulo": "tpch-sf01-lineitem-l-orderkey",
+  "db": "tpch-sf01.db",
+  "tabela": "lineitem",
+  "coluna": "l_orderkey",
+  "decl": "INTEGER",
+  "n": 3000,
+  "k": 744,
+  "min": 1,
+  "max": 2976,
+  "nulos": 0,
+  "exemplo": [
+   1,
+   1,
+   1
+  ]
+ },
+ {
+  "rotulo": "tpch-sf01-lineitem-l-partkey",
+  "db": "tpch-sf01.db",
+  "tabela": "lineitem",
+  "coluna": "l_partkey",
+  "decl": "INTEGER",
+  "n": 3000,
+  "k": 2802,
+  "min": 10,
+  "max": 19995,
+  "nulos": 0,
+  "exemplo": [
+   15519,
+   6731,
+   6370
+  ]
+ },
+ {
+  "rotulo": "tpch-sf01-lineitem-l-suppkey",
+  "db": "tpch-sf01.db",
+  "tabela": "lineitem",
+  "coluna": "l_suppkey",
+  "decl": "INTEGER",
+  "n": 3000,
+  "k": 958,
+  "min": 1,
+  "max": 1000,
+  "nulos": 0,
+  "exemplo": [
+   785,
+   732,
+   371
+  ]
+ },
+ {
+  "rotulo": "tpch-sf01-lineitem-l-linenumber",
+  "db": "tpch-sf01.db",
+  "tabela": "lineitem",
+  "coluna": "l_linenumber",
+  "decl": "INTEGER",
+  "n": 3000,
+  "k": 7,
+  "min": 1,
+  "max": 7,
+  "nulos": 0,
+  "exemplo": [
+   1,
+   2,
+   3
+  ]
+ },
+ {
+  "rotulo": "wine-quality-wine-quality",
+  "db": "wine-quality.db",
+  "tabela": "wine",
+  "coluna": "quality",
+  "decl": "INTEGER",
+  "n": 3000,
+  "k": 7,
+  "min": 3,
+  "max": 9,
+  "nulos": 0,
+  "exemplo": [
+   5,
+   5,
+   5
+  ]
+ }
+]
