@@ -66,15 +66,33 @@ pelo registry). Isso não o inviabiliza, mas muda o que ele é: ou o parâmetro 
 E o preço, agora medido: o OFFPAD continua ganhando, mas menos — **2,03×** no epoch (era
 2,79×), **1,78×** no gigante (era 3,15×), **1,76×** na base alta (era 2,50×).
 
-## Achado 1: a tipagem custa 1 byte e não entrega nada
+## Achado 1: a tipagem custa 1 byte — e o byte paga a tipagem, não a compressão
 
 **Em todos os 14 regimes, `int+core` custa exatamente +1 byte que `str+core`.** Sempre um,
 nunca zero, nunca dois. É o discriminador `n` do header (`#TCF.8n` contra `#TCF.8`).
 
-A rota tipada **preserva o tipo** — `[1,2,3]` volta `[1,2,3]`, `[1,2,None]` volta com o
-`None`, `2⁶³+i` sobrevive, e a comparação por tipo confirma em todos os casos. Isso funciona.
-O que ela **não** faz é usar o fato de saber que é inteiro: nenhuma otimização própria. Ela
-converte para string, entrega ao mesmo núcleo, e marca o header para converter de volta.
+> **Correção (2026-08-13)**: a primeira versão desta seção dizia que a tipagem *"não entrega
+> nada"*. **Errado** — o byte entrega exatamente o que promete. A tag seleciona a **família
+> de cast**, e o mesmo corpo devolve coisas diferentes conforme ela:
+>
+> | wire | volta | tipo |
+> |---|---|---|
+> | `#TCF.8n\n\1` | `[1]` | `int` |
+> | `#TCF.8b\n\1` | `[False]` | `bool` |
+> | `#TCF.8s\n\1` / `#TCF.8\n\1` | `['1']` | `str` |
+>
+> Sem esse byte, `[1,2,3]` voltaria `["1","2","3"]`. Ele **é** o produto.
+
+O enunciado correto é mais estreito: a rota tipada entrega o **cast** e não entrega
+**otimização de compressão**. Ela converte para string (via `render`, que para `n` é
+literalmente a builtin `str`), entrega ao mesmo núcleo, e usa a tag para converter de volta.
+Saber que é inteiro não muda um byte do corpo.
+
+Detalhe que refina isso: dentro da família `n` — que é uma **união** `int|float`, como o
+`number` do JSON — o tipo concreto é re-derivado da **grafia**, por elemento. Medido:
+`encode([1, 2.0])` volta `[1, 2.0]` com tipos `['int','float']`. Já na família `b` é o
+inverso: a grafia é índice de slot congelado (`1`=false, `2`=true) e a **tag é o único
+portador do tipo**.
 
 ## Achado 2: a célula que não existe
 
