@@ -1,0 +1,32 @@
+{
+ "ideia": "int e float na MESMA coluna",
+ "celulas": {
+  "str+core": {
+   "bytes": 2899,
+   "header": "#TCF.8!!",
+   "rt": true
+  },
+  "str+spec": {
+   "bytes": 2899,
+   "header": "#TCF.8!!",
+   "rt": true,
+   "alvo": "int-pad"
+  },
+  "int+core": {
+   "bytes": 2900,
+   "header": "#TCF.8n!!",
+   "rt": true
+  },
+  "int+spec(SIMULADO)": {
+   "bytes": 3107,
+   "alvo": "int-b94",
+   "rt": true,
+   "simulado": true,
+   "recusas_reais": {
+    "single": "ValueError: kwargs ['nature'] so' valem no flat de STRING (single/multi-col); nao ",
+    "multi": "HierarchicalError: nature_per_col: 'c' não é folha ESCALAR do dataset — nature só aplica ",
+    ".8H": "HierarchicalError: nature_per_col: 'c' é coluna TIPADA (number/bool), não string — nature"
+   }
+  }
+ }
+}

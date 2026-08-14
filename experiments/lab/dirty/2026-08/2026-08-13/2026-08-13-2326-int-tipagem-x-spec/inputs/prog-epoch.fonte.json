@@ -1,0 +1,22 @@
+{
+ "regime": "prog-epoch",
+ "ideia": "timestamp: 10 digitos, passo 60",
+ "n": 600,
+ "k_unicos": 600,
+ "primeiros_int": [
+  1750000000,
+  1750000060,
+  1750000120,
+  1750000180,
+  1750000240
+ ],
+ "primeiros_str": [
+  "1750000000",
+  "1750000060",
+  "1750000120",
+  "1750000180",
+  "1750000240"
+ ],
+ "hash_int": "ef2d4fd70e3c",
+ "CONSTANTE_na_comparacao": "os MESMOS valores nas 4 celulas; so' variam a FONTE (int x string) e o TRATAMENTO (core x spec). RT comparado com TIPO (type(x) is type(y)), nao so' valor."
+}

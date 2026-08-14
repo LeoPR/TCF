@@ -1,0 +1,22 @@
+{
+ "regime": "com-nulos",
+ "ideia": "slots NULOS no meio da progressao — o null e' do TIPO, nao da grafia",
+ "n": 600,
+ "k_unicos": 585,
+ "primeiros_int": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "primeiros_str": [
+  "1",
+  "2",
+  "3",
+  "4",
+  "5"
+ ],
+ "hash_int": "3195548f7072",
+ "CONSTANTE_na_comparacao": "os MESMOS valores nas 4 celulas; so' variam a FONTE (int x string) e o TRATAMENTO (core x spec). RT comparado com TIPO (type(x) is type(y)), nao so' valor."
+}

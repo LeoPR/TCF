@@ -1,0 +1,173 @@
+{
+ "tabela": [
+  {
+   "regime": "prog-passo1",
+   "ideia": "1..600: a largura varia (1->2->3 digitos) e quebra o marcador",
+   "str+core": 36,
+   "str+spec": 26,
+   "int+core": 37,
+   "int+spec(SIMULADO)": 27,
+   "int+spec(com FLOOR)": 27,
+   "alvo_str": "int-pad",
+   "alvo_int": "int-pad",
+   "rt_int_core": true
+  },
+  {
+   "regime": "prog-passo7",
+   "ideia": "passo 7, largura de 1 a 4 digitos",
+   "str+core": 48,
+   "str+spec": 27,
+   "int+core": 49,
+   "int+spec(SIMULADO)": 28,
+   "int+spec(com FLOOR)": 28,
+   "alvo_str": "int-pad",
+   "alvo_int": "int-pad",
+   "rt_int_core": true
+  },
+  {
+   "regime": "prog-largura-fixa",
+   "ideia": "largura JA' constante — o nucleo resolve sozinho",
+   "str+core": 22,
+   "str+spec": 22,
+   "int+core": 23,
+   "int+spec(SIMULADO)": 27,
+   "int+spec(com FLOOR)": 23,
+   "alvo_str": "int-pad",
+   "alvo_int": "int-offpad",
+   "rt_int_core": true
+  },
+  {
+   "regime": "prog-epoch",
+   "ideia": "timestamp: 10 digitos, passo 60",
+   "str+core": 81,
+   "str+spec": 29,
+   "int+core": 82,
+   "int+spec(SIMULADO)": 30,
+   "int+spec(com FLOOR)": 30,
+   "alvo_str": "int-offpad",
+   "alvo_int": "int-offpad",
+   "rt_int_core": true
+  },
+  {
+   "regime": "prog-base-alta",
+   "ideia": "1e9+i: so' os 3 ultimos digitos variam",
+   "str+core": 65,
+   "str+spec": 26,
+   "int+core": 66,
+   "int+spec(SIMULADO)": 27,
+   "int+spec(com FLOOR)": 27,
+   "alvo_str": "int-offpad",
+   "alvo_int": "int-offpad",
+   "rt_int_core": true
+  },
+  {
+   "regime": "id-aleatorio-6",
+   "ideia": "ids de 6 digitos, sem progressao",
+   "str+core": 4209,
+   "str+spec": 3217,
+   "int+core": 4210,
+   "int+spec(SIMULADO)": 3017,
+   "int+spec(com FLOOR)": 3017,
+   "alvo_str": "int-b94",
+   "alvo_int": "int-b94",
+   "rt_int_core": true
+  },
+  {
+   "regime": "id-aleatorio-11",
+   "ideia": "ids de 11 digitos (regime do CPF sem mascara)",
+   "str+core": 7209,
+   "str+spec": 4730,
+   "int+core": 7210,
+   "int+spec(SIMULADO)": 4217,
+   "int+spec(com FLOOR)": 4217,
+   "alvo_str": "int-b94",
+   "alvo_int": "int-b94",
+   "rt_int_core": true
+  },
+  {
+   "regime": "faixa-0-100",
+   "ideia": "0..100: cardinalidade baixa, territorio do bN",
+   "str+core": 1110,
+   "str+spec": 1110,
+   "int+core": 1111,
+   "int+spec(SIMULADO)": 1044,
+   "int+spec(com FLOOR)": 1044,
+   "alvo_str": "int-pad",
+   "alvo_int": "int-b94",
+   "rt_int_core": true
+  },
+  {
+   "regime": "cardinalidade-5",
+   "ideia": "k=5: o bN de dominio ja' cobre",
+   "str+core": 333,
+   "str+spec": 333,
+   "int+core": 334,
+   "int+spec(SIMULADO)": 337,
+   "int+spec(com FLOOR)": 334,
+   "alvo_str": "int-pad",
+   "alvo_int": "int-b94",
+   "rt_int_core": true
+  },
+  {
+   "regime": "quase-constante",
+   "ideia": "k=4 desbalanceado: RLE",
+   "str+core": 25,
+   "str+spec": 25,
+   "int+core": 26,
+   "int+spec(SIMULADO)": 31,
+   "int+spec(com FLOOR)": 26,
+   "alvo_str": "int-pad",
+   "alvo_int": "int-offpad",
+   "rt_int_core": true
+  },
+  {
+   "regime": "negativos",
+   "ideia": "com sinal",
+   "str+core": 2627,
+   "str+spec": 2627,
+   "int+core": 2628,
+   "int+spec(SIMULADO)": 2688,
+   "int+spec(com FLOOR)": 2628,
+   "alvo_str": "int-pad",
+   "alvo_int": "int-b94",
+   "rt_int_core": true
+  },
+  {
+   "regime": "com-nulos",
+   "ideia": "slots NULOS no meio da progressao — o null e' do TIPO, nao da grafia",
+   "str+core": 240,
+   "str+spec": 232,
+   "int+core": 241,
+   "int+spec(SIMULADO)": 247,
+   "int+spec(com FLOOR)": 241,
+   "alvo_str": "int-pad",
+   "alvo_int": "int-pad",
+   "rt_int_core": true
+  },
+  {
+   "regime": "gigante-64bit",
+   "ideia": "acima de 2^63: fora do int64, so' Python/JSON aguentam",
+   "str+core": 82,
+   "str+spec": 26,
+   "int+core": 83,
+   "int+spec(SIMULADO)": 27,
+   "int+spec(com FLOOR)": 27,
+   "alvo_str": "int-offpad",
+   "alvo_int": "int-offpad",
+   "rt_int_core": true
+  },
+  {
+   "regime": "misto-int-float",
+   "ideia": "int e float na MESMA coluna",
+   "str+core": 2899,
+   "str+spec": 2899,
+   "int+core": 2900,
+   "int+spec(SIMULADO)": 3107,
+   "int+spec(com FLOOR)": 2900,
+   "alvo_str": "int-pad",
+   "alvo_int": "int-b94",
+   "rt_int_core": true
+  }
+ ],
+ "falhas": []
+}

@@ -1,0 +1,22 @@
+{
+ "regime": "id-aleatorio-11",
+ "ideia": "ids de 11 digitos (regime do CPF sem mascara)",
+ "n": 600,
+ "k_unicos": 600,
+ "primeiros_int": [
+  73812419662,
+  71264770289,
+  92341168036,
+  96051916303,
+  16870287454
+ ],
+ "primeiros_str": [
+  "73812419662",
+  "71264770289",
+  "92341168036",
+  "96051916303",
+  "16870287454"
+ ],
+ "hash_int": "94aae920e55f",
+ "CONSTANTE_na_comparacao": "os MESMOS valores nas 4 celulas; so' variam a FONTE (int x string) e o TRATAMENTO (core x spec). RT comparado com TIPO (type(x) is type(y)), nao so' valor."
+}

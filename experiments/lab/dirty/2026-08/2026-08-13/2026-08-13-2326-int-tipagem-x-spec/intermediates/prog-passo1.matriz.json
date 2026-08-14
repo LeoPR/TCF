@@ -1,0 +1,32 @@
+{
+ "ideia": "1..600: a largura varia (1->2->3 digitos) e quebra o marcador",
+ "celulas": {
+  "str+core": {
+   "bytes": 36,
+   "header": "#TCF.8!!",
+   "rt": true
+  },
+  "str+spec": {
+   "bytes": 26,
+   "header": "#TCF.8 :xipad",
+   "rt": true,
+   "alvo": "int-pad"
+  },
+  "int+core": {
+   "bytes": 37,
+   "header": "#TCF.8n!!",
+   "rt": true
+  },
+  "int+spec(SIMULADO)": {
+   "bytes": 27,
+   "alvo": "int-pad",
+   "rt": true,
+   "simulado": true,
+   "recusas_reais": {
+    "single": "ValueError: kwargs ['nature'] so' valem no flat de STRING (single/multi-col); nao ",
+    "multi": "HierarchicalError: nature_per_col: 'c' não é folha ESCALAR do dataset — nature só aplica ",
+    ".8H": "HierarchicalError: nature_per_col: 'c' é coluna TIPADA (number/bool), não string — nature"
+   }
+  }
+ }
+}

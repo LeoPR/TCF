@@ -1,0 +1,22 @@
+{
+ "regime": "faixa-0-100",
+ "ideia": "0..100: cardinalidade baixa, territorio do bN",
+ "n": 600,
+ "k_unicos": 101,
+ "primeiros_int": [
+  60,
+  48,
+  91,
+  74,
+  45
+ ],
+ "primeiros_str": [
+  "60",
+  "48",
+  "91",
+  "74",
+  "45"
+ ],
+ "hash_int": "07430026daf5",
+ "CONSTANTE_na_comparacao": "os MESMOS valores nas 4 celulas; so' variam a FONTE (int x string) e o TRATAMENTO (core x spec). RT comparado com TIPO (type(x) is type(y)), nao so' valor."
+}

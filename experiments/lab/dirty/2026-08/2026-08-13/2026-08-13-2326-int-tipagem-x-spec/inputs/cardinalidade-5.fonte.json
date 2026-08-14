@@ -1,0 +1,22 @@
+{
+ "regime": "cardinalidade-5",
+ "ideia": "k=5: o bN de dominio ja' cobre",
+ "n": 600,
+ "k_unicos": 5,
+ "primeiros_int": [
+  40,
+  50,
+  30,
+  40,
+  50
+ ],
+ "primeiros_str": [
+  "40",
+  "50",
+  "30",
+  "40",
+  "50"
+ ],
+ "hash_int": "075a5d0207c6",
+ "CONSTANTE_na_comparacao": "os MESMOS valores nas 4 celulas; so' variam a FONTE (int x string) e o TRATAMENTO (core x spec). RT comparado com TIPO (type(x) is type(y)), nao so' valor."
+}

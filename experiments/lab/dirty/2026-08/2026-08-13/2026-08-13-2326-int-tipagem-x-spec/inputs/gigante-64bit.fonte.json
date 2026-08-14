@@ -1,0 +1,22 @@
+{
+ "regime": "gigante-64bit",
+ "ideia": "acima de 2^63: fora do int64, so' Python/JSON aguentam",
+ "n": 600,
+ "k_unicos": 600,
+ "primeiros_int": [
+  9223372036854775808,
+  9223372036854775809,
+  9223372036854775810,
+  9223372036854775811,
+  9223372036854775812
+ ],
+ "primeiros_str": [
+  "9223372036854775808",
+  "9223372036854775809",
+  "9223372036854775810",
+  "9223372036854775811",
+  "9223372036854775812"
+ ],
+ "hash_int": "590b7f6c737f",
+ "CONSTANTE_na_comparacao": "os MESMOS valores nas 4 celulas; so' variam a FONTE (int x string) e o TRATAMENTO (core x spec). RT comparado com TIPO (type(x) is type(y)), nao so' valor."
+}

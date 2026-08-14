@@ -1,0 +1,22 @@
+{
+ "regime": "negativos",
+ "ideia": "com sinal",
+ "n": 600,
+ "k_unicos": 443,
+ "primeiros_int": [
+  -162,
+  348,
+  47,
+  -155,
+  200
+ ],
+ "primeiros_str": [
+  "-162",
+  "348",
+  "47",
+  "-155",
+  "200"
+ ],
+ "hash_int": "1a8e4c3ef242",
+ "CONSTANTE_na_comparacao": "os MESMOS valores nas 4 celulas; so' variam a FONTE (int x string) e o TRATAMENTO (core x spec). RT comparado com TIPO (type(x) is type(y)), nao so' valor."
+}
