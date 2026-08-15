@@ -1,0 +1,10 @@
+{
+ "gerador": "casos.py::REGIMES x g_sql_espaco",
+ "regime": "r4-batimento-1s",
+ "grafia": "g01-sql-espaco (FIXA)",
+ "n": 2000,
+ "par": "",
+ "seed": "LCG determinístico, sem random",
+ "ideia": "telemetria de alta taxa: 1/s",
+ "pin": "sintético viesado por construção"
+}

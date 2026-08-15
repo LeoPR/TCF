@@ -1,0 +1,9 @@
+{
+ "gerador": "casos.py::GRAFIAS x r_comercial",
+ "grafia": "g06-sqlserver-milli",
+ "regime": "r1-comercial (FIXO)",
+ "n": 2000,
+ "seed": "LCG determinístico, sem random",
+ "ideia": "`.fff` — SQL Server datetime2(3) / Java",
+ "pin": "sintético; grafia uniforme por coluna (origem canônica de banco)"
+}

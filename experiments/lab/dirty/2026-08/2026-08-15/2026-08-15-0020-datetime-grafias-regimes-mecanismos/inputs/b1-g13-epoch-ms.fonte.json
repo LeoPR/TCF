@@ -1,0 +1,9 @@
+{
+ "gerador": "casos.py::GRAFIAS x r_comercial",
+ "grafia": "g13-epoch-ms",
+ "regime": "r1-comercial (FIXO)",
+ "n": 2000,
+ "seed": "LCG determinístico, sem random",
+ "ideia": "epoch em milissegundos — Java/JS",
+ "pin": "sintético; grafia uniforme por coluna (origem canônica de banco)"
+}

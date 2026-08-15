@@ -1,0 +1,10 @@
+{
+ "gerador": "casos.py::REGIMES x g_sql_espaco",
+ "regime": "r1-comercial",
+ "grafia": "g01-sql-espaco (FIXA)",
+ "n": 2000,
+ "par": "par: r8-comercial-embaralhado",
+ "seed": "LCG determinístico, sem random",
+ "ideia": "transacional: 08–18h, sem sábado, segundo `00`, muita repetição adjacente — **o regime do corpus**",
+ "pin": "sintético viesado por construção"
+}

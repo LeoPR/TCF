@@ -1,0 +1,9 @@
+{
+ "gerador": "casos.py::GRAFIAS x r_comercial",
+ "grafia": "g09-iso-basica",
+ "regime": "r1-comercial (FIXO)",
+ "n": 2000,
+ "seed": "LCG determinístico, sem random",
+ "ideia": "`YYYYMMDDTHHMMSS` — ISO forma básica",
+ "pin": "sintético; grafia uniforme por coluna (origem canônica de banco)"
+}
