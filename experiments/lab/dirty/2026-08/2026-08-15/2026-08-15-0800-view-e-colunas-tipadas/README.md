@@ -4,8 +4,22 @@
 > das tipagens e se todas estão organizadas e com fluxo consistente, ou seja, nada de conexões
 > por fora demais."*
 
+> ⚠️ **CORREÇÃO DE SEQUÊNCIA — owner, logo depois deste lab**: *"acho que a gente atravessou,
+> pois o view só pode ser revisado com single column, a gente ainda tem que arrumar o M e o H.
+> o lazy é por último."*
+>
+> **Este lab foi rodado fora de ordem.** A ordem é: tipos (fechados) → **arrumar o `.8M` e o
+> `.8H`** → lazy/`view` por último. O que salva o lab é que **a medição já apontava para lá**:
+> o §3 mostra que o custo é do **envelope `.8H`**, não do `view` nem da tipagem. Ou seja, ele
+> não é um lab de `view` — **é um lab de `.8H` com título errado**, e o número que ele produz
+> (+101,7% de envelope em tabela retangular) é insumo do trabalho de M/H, não do de `view`.
+>
+> **Não use o §7 como plano.** As duas saídas que ele lista são decisão de M/H, e a escolha
+> pertence àquele trabalho, não a este.
+
 O `view` estava adiado explicitamente até "fechar todos os tipos". Os tipos fecharam (date,
-hora, float, datetime, int, bool). Este lab responde a pergunta que ficou.
+hora, float, datetime, int, bool). Este lab responde a pergunta que ficou — e descobre, no
+caminho, que ela não era uma pergunta sobre o `view`.
 
 ## O gap que este lab fecha
 

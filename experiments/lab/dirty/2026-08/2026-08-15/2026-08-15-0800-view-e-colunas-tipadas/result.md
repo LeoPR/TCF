@@ -136,7 +136,12 @@ o usuário cai.
 
 ## 7. O que isto orienta
 
-1. **A pergunta do owner (*"view para colunas tipadas"*) tem resposta estrutural**: não é
+> ⚠️ **Lido depois da correção de sequência do owner** (*"o view só pode ser revisado com
+> single column, a gente ainda tem que arrumar o M e o H, o lazy é por último"*): as saídas
+> abaixo são **decisão do trabalho de M/H**, não deste lab. Este lab entrega o **número**
+> (+101,7% de envelope), não a escolha. Não use esta seção como plano.
+
+1. **A pergunta *"view para colunas tipadas"* tem resposta estrutural**: não é
    trabalho no `view`, é decidir se tabela retangular tipada deve continuar indo para o `.8H`.
    As duas saídas possíveis:
    - **(a)** dar gramática de tipo ao `.8M` e rotear tabela retangular tipada para lá — o
