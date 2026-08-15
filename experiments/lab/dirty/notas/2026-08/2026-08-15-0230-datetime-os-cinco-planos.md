@@ -14,6 +14,20 @@
 
 **Tipo**: [probatório] avaliação. Nenhum lab novo, nenhum weld, `src/tcf` intocado.
 
+> ## ⚠️ 2º ciclo — a dinâmica RECUPERADA corrige este documento
+>
+> O owner, depois da 1ª versão:
+>
+> > *"já foi discutida muitas vezes no bool, no bN e inclusive no date, então já está decidido,
+> > bem entendido e inclusive **feito**. O datetime basta seguir a mesma lógica. Não precisa
+> > reentender nada, só precisa **pesquisar e recuperar a dinâmica** disso. Lembre: o `date` já
+> > está fazendo exatamente isso e **já está welded**."*
+>
+> **Ele está certo, e o meu erro foi de método**: tratei como pergunta aberta o que já está
+> soldado, e a 1ª versão desta nota terminava em *"pendente de decisão do owner"* quando a
+> dinâmica **já responde**. O que muda está na **§6**, escrita depois. As medições das §§2–5
+> continuam válidas — elas medem o custo, não a decisão.
+
 ---
 
 ## 1. O que eu estava colapsando
@@ -170,17 +184,90 @@ cita. Um irmão para datetime teria de resolver o que o levantamento achou e eu 
 
 ---
 
-## O que isto orienta (e o que eu recomendaria decidir antes do lab)
+---
 
-1. **A pergunta de topo não é "espaço ou T"** — é **qual caminho o `.8` quer**. Se A, a grafia
-   é contrato e a decisão de separador importa. Se C, ela **desaparece**.
-2. **O caminho A cabe no `.8` sem decisão de formato**; o C é tipo novo e está bloqueado em você.
-3. **A troca medida na receita** (regex no lugar da re-emissão) vale para o A e é barata.
-4. O caminho B merece **uma linha no manual**, não código.
+# 6. A DINÂMICA recuperada — e ela dissolve a pergunta que eu deixei aberta
 
-**A pergunta que eu levaria para o lab seguinte**: o `.8` fecha o datetime pelo caminho A
-(string canônica, receita do date, decisão de separador) — ou o caminho C entra na conversa
-agora, sabendo que ele abre tipo novo?
+## 6.1 A regra, e ela não é "a lib re-emite"
+
+O guard do `data_iso` **é literalmente a função de emissão do `decode_value` do próprio spec**:
+
+```python
+data_iso.py:92    if d.isoformat() != v:                        # o guard
+data_iso.py:107   return _FROM_ORD(int(payload)).isoformat()    # o decode
+```
+
+**A mesma chamada.** A regra não é *"aceite o que a lib re-emite"* — é **"aceite exatamente o
+que o SEU decode consegue devolver"**. O guard existe para garantir que `classify_value` aceite
+**o mesmo conjunto** que `decode_value` produz. É o que a ADR-0036 diz em outro vocabulário:
+*"`_le_grafia` desfaz exatamente `_grafa`, nem mais"* e *"recusar o que o encoder canônico
+nunca produz"*.
+
+Status normativo: **"guard de re-emissão é lei; todo eixo novo nasce com ele"** — 5 aplicações
+soldadas, 4 bugs históricos.
+
+## 6.2 Isso DISSOLVE a pergunta do separador
+
+Eu tinha deixado *"espaço ou T?"* como decisão pendente. Pela dinâmica, **não é decisão de
+norma — é consequência de qual decode se escreve**:
+
+- decode que emite `isoformat(sep=" ")` ⇒ o guard aceita exatamente o espaço;
+- decode que emite `isoformat(sep="T")` ⇒ o guard aceita exatamente o `T`.
+
+**São dois decodes, logo dois specs.** E o precedente para isso já está escrito no próprio
+`data_iso`: *"outras grafias, se vierem, são specs nomeados irmãos — **precedente CPF/CNPJ, um
+objeto por grafia**"*. CPF e CNPJ não competem por "qual é o canônico": são irmãos, cada um com
+seu id.
+
+O lab `…-0130` já mediu que isso custa **1 byte de id**, porque errar o spec dá wire
+**byte-idêntico** ao sem-spec. **Não havia decisão sob risco — havia dois irmãos.**
+
+## 6.3 E "o TCF recusa datetime" não é obstáculo — o date está na MESMA situação
+
+Meu erro mais direto na 1ª versão. O TCF recusa `datetime`… **e recusa `date` também**
+(medido: os dois dão `HierarchicalError`). E o `data-iso` está **welded e funcionando**.
+
+**Porque o date entra como string.** O caminho A não é uma limitação a contornar — é **a
+dinâmica escolhida, exercida e soldada**. O datetime não tem pergunta a fazer aqui: segue.
+
+O caminho C (objeto nativo) continua sendo tipo novo e continua bloqueado no
+`T-TIPOS-CONFORTO-MAP` — mas ele **nunca foi a rota do date**, então nunca foi a pergunta.
+
+## 6.4 O que "aceitar os formatos que tiver" significa DENTRO da dinâmica
+
+Não é *"aceite tudo"*. É: **a lib nativa é barata o bastante para ser o leitor** — e a medição
+confirma (`fromisoformat` 1,48× o do date; `strptime` **90×**). O conjunto aceito continua
+sendo o que o guard deixa passar, que é o que o decode devolve.
+
+O how-to do date já diz o que acontece com o resto, e vale igual: *"**nada quebra**. O TCF
+trata data como string e faz round-trip byte-exato de qualquer grafia… você só comprime
+menos"*, e o spec *"entrará como **candidato**: quando o palpite dele não ajudar, o wire cai de
+volta no que seria hoje. Medido: **nunca pior que hoje**"*.
+
+## 6.5 A minha sugestão de trocar o guard por regex VIOLA a dinâmica
+
+Eu propus regex (871 ns) no lugar da re-emissão (2056 ns). Pela §6.1, **o guard tem de ser o
+emissor do decode** — trocar por regex quebra a identidade que é a lei.
+
+Só é legítimo se a regex for **provadamente equivalente** ao emissor, e isso não está provado.
+**Retirado como recomendação**; fica registrado como hipótese, com o ônus da prova declarado. O
+custo de 2056 ns/valor é o que a lei cobra, e o `data_iso` já paga o análogo.
+
+## 6.6 O que sobra, então
+
+| item | estado |
+|---|---|
+| grafia canônica | **não é escolha** — é o decode. Dois decodes ⇒ dois specs irmãos (`dtm` e um irmão), precedente CPF/CNPJ |
+| caminho | **A**, como o date. O C nunca foi a rota do date |
+| leitor | `datetime.fromisoformat` — confirmado barato (1,48×) |
+| transformação | inteiro, e **o menor possível** (`T-OBAT-COME-O-SEQRLE`) |
+| guard | re-emissão, **como no date**. A regex sai da recomendação |
+| manual | um irmão do `normalizar-data-antes-do-tcf.md` |
+
+**Não há pergunta pendente para o owner.** Havia uma pergunta minha, que a dinâmica já
+respondia.
+
+## Conexões
 
 ## Conexões
 
