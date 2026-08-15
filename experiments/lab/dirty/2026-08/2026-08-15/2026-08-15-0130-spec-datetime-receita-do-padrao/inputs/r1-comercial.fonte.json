@@ -1,0 +1,10 @@
+{
+ "gerador": "casos.py (lab …-0020) :: REGIMES x g_sql_espaco",
+ "regime": "r1-comercial",
+ "grafia": "YYYY-MM-DD HH:MM:SS (canônica candidata)",
+ "n": 2000,
+ "par": "par: r8-comercial-embaralhado",
+ "ideia": "transacional: 08–18h, sem sábado, segundo `00`, muita repetição adjacente — **o regime do corpus**",
+ "seed": "LCG determinístico, sem random",
+ "pin": "sintético; coluna PRÉ-FORMATADA, como um banco emite"
+}

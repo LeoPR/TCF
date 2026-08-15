@@ -1,0 +1,147 @@
+[
+ {
+  "borda": "b-canonica",
+  "ideia": "a grafia canônica — deve comprimir",
+  "bytes": 33,
+  "apply_rate": 1.0,
+  "by_status": {
+   "compressible": 2
+  },
+  "rt": true,
+  "header": "#TCF.8 :dtm"
+ },
+ {
+  "borda": "b-com-T",
+  "ideia": "a irmã com `T` — 19 chars, passa a largura e morre na RE-EMISSÃO",
+  "bytes": 38,
+  "apply_rate": 0.0,
+  "by_status": {
+   "format_noncanonical": 2
+  },
+  "rt": true,
+  "header": "#TCF.8!"
+ },
+ {
+  "borda": "b-sem-segundo",
+  "ideia": "16 chars — morre no gate de largura",
+  "bytes": 31,
+  "apply_rate": 0.0,
+  "by_status": {
+   "length_wrong": 2
+  },
+  "rt": true,
+  "header": "#TCF.8!"
+ },
+ {
+  "borda": "b-com-fracao",
+  "ideia": "26 chars — largura",
+  "bytes": 36,
+  "apply_rate": 0.0,
+  "by_status": {
+   "length_wrong": 1
+  },
+  "rt": true,
+  "header": "#TCF.8!"
+ },
+ {
+  "borda": "b-com-timezone",
+  "ideia": "25 chars — largura",
+  "bytes": 35,
+  "apply_rate": 0.0,
+  "by_status": {
+   "length_wrong": 1
+  },
+  "rt": true,
+  "header": "#TCF.8!"
+ },
+ {
+  "borda": "b-compacta",
+  "ideia": "14 chars — largura",
+  "bytes": 23,
+  "apply_rate": 0.0,
+  "by_status": {
+   "length_wrong": 1
+  },
+  "rt": true,
+  "header": "#TCF.8"
+ },
+ {
+  "borda": "b-epoch",
+  "ideia": "10 chars — largura",
+  "bytes": 19,
+  "apply_rate": 0.0,
+  "by_status": {
+   "length_wrong": 1
+  },
+  "rt": true,
+  "header": "#TCF.8"
+ },
+ {
+  "borda": "b-br",
+  "ideia": "**19 chars** — passa a largura, morre no PARSE",
+  "bytes": 29,
+  "apply_rate": 0.0,
+  "by_status": {
+   "format_mismatch": 1
+  },
+  "rt": true,
+  "header": "#TCF.8!"
+ },
+ {
+  "borda": "b-mes-invalido",
+  "ideia": "19 chars — parse inválido",
+  "bytes": 29,
+  "apply_rate": 0.0,
+  "by_status": {
+   "format_mismatch": 1
+  },
+  "rt": true,
+  "header": "#TCF.8!"
+ },
+ {
+  "borda": "b-24h",
+  "ideia": "ISO permite, Python recusa",
+  "bytes": 29,
+  "apply_rate": 0.0,
+  "by_status": {
+   "format_mismatch": 1
+  },
+  "rt": true,
+  "header": "#TCF.8!"
+ },
+ {
+  "borda": "b-nao-canonica",
+  "ideia": "espaço à direita — 20 chars",
+  "bytes": 30,
+  "apply_rate": 0.0,
+  "by_status": {
+   "length_wrong": 1
+  },
+  "rt": true,
+  "header": "#TCF.8!"
+ },
+ {
+  "borda": "b-com-nulo",
+  "ideia": "o slot nulo atravessa",
+  "bytes": 35,
+  "apply_rate": 0.6666666666666666,
+  "by_status": {
+   "compressible": 2,
+   "null_slot": 1
+  },
+  "rt": true,
+  "header": "#TCF.8 :dtm"
+ },
+ {
+  "borda": "b-mista",
+  "ideia": "**corrupção de transmissão** (o owner: seria raro) — metade cai em literal",
+  "bytes": 50,
+  "apply_rate": 0.5,
+  "by_status": {
+   "compressible": 1,
+   "format_mismatch": 1
+  },
+  "rt": true,
+  "header": "#TCF.8!!"
+ }
+]

@@ -1,0 +1,30 @@
+[
+ {
+  "grafia_emitida": "espaço (SQL)",
+  "nucleo": 1229,
+  "spec_espaco": 994,
+  "apply_espaco": 1.0,
+  "status_espaco": {
+   "compressible": 2000
+  },
+  "spec_T": 1229,
+  "apply_T": 0.0,
+  "status_T": {
+   "format_noncanonical": 2000
+  }
+ },
+ {
+  "grafia_emitida": "T (ISO/JSON)",
+  "nucleo": 1229,
+  "spec_espaco": 1229,
+  "apply_espaco": 0.0,
+  "status_espaco": {
+   "format_noncanonical": 2000
+  },
+  "spec_T": 994,
+  "apply_T": 1.0,
+  "status_T": {
+   "compressible": 2000
+  }
+ }
+]

@@ -1,0 +1,7 @@
+{
+ "gerador": "casos.py :: r_comercial",
+ "grafia_emitida": "T (ISO/JSON)",
+ "n": 2000,
+ "ideia": "medir o custo de o spec ser configurado no separador ERRADO",
+ "pin": "sintético"
+}

@@ -1,0 +1,10 @@
+{
+ "gerador": "casos.py (lab …-0020) :: REGIMES x g_sql_espaco",
+ "regime": "r2-log-alta-card",
+ "grafia": "YYYY-MM-DD HH:MM:SS (canônica candidata)",
+ "n": 2000,
+ "par": "",
+ "ideia": "log: todo instante distinto, com microssegundo — a pior cardinalidade",
+ "seed": "LCG determinístico, sem random",
+ "pin": "sintético; coluna PRÉ-FORMATADA, como um banco emite"
+}

@@ -1,0 +1,10 @@
+{
+ "gerador": "casos.py (lab …-0020) :: REGIMES x g_sql_espaco",
+ "regime": "r6-um-dia-so",
+ "grafia": "YYYY-MM-DD HH:MM:SS (canônica candidata)",
+ "n": 2000,
+ "par": "",
+ "ideia": "a data é CONSTANTE, só a hora varia",
+ "seed": "LCG determinístico, sem random",
+ "pin": "sintético; coluna PRÉ-FORMATADA, como um banco emite"
+}
