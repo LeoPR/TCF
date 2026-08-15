@@ -1,0 +1,57 @@
+[
+ {
+  "caso": "diaria-200",
+  "ideia": "200 diárias — o caso pequeno",
+  "n": 200,
+  "wire_bytes": 29,
+  "header": "#TCF.8 :dtobj",
+  "rt_string": true,
+  "tipos_na_saida_objeto": [
+   "date"
+  ],
+  "volta_objeto_ok": true,
+  "ns_por_valor_rota_hoje": 6690.5,
+  "ns_por_valor_rota_direta": 7084.0,
+  "ns_por_valor_decode_puro": 8104.0,
+  "economia_pct": -5.9,
+  "AVISO": "dev-run, maquina nao quiescente — razoes, nao absolutos",
+  "CONSTANTE_na_comparacao": "o MESMO wire e a MESMA saida final (objetos date); so' muda ONDE a conversao acontece"
+ },
+ {
+  "caso": "diaria-2000",
+  "ideia": "2000 diárias — o caso do gabarito",
+  "n": 2000,
+  "wire_bytes": 30,
+  "header": "#TCF.8 :dtobj",
+  "rt_string": true,
+  "tipos_na_saida_objeto": [
+   "date"
+  ],
+  "volta_objeto_ok": true,
+  "ns_por_valor_rota_hoje": 9029.6,
+  "ns_por_valor_rota_direta": 7445.0,
+  "ns_por_valor_decode_puro": 8661.6,
+  "economia_pct": 17.5,
+  "AVISO": "dev-run, maquina nao quiescente — razoes, nao absolutos",
+  "CONSTANTE_na_comparacao": "o MESMO wire e a MESMA saida final (objetos date); so' muda ONDE a conversao acontece"
+ },
+ {
+  "caso": "diaria-com-literal",
+  "ideia": "1 não-canônica no meio → a saída vira UNIÃO date|str (contrato ADR-0039)",
+  "n": 500,
+  "wire_bytes": 57,
+  "header": "#TCF.8 :dtobj",
+  "rt_string": true,
+  "tipos_na_saida_objeto": [
+   "date",
+   "str"
+  ],
+  "volta_objeto_ok": true,
+  "ns_por_valor_rota_hoje": 7782.0,
+  "ns_por_valor_rota_direta": 6278.0,
+  "ns_por_valor_decode_puro": 7129.0,
+  "economia_pct": 19.3,
+  "AVISO": "dev-run, maquina nao quiescente — razoes, nao absolutos",
+  "CONSTANTE_na_comparacao": "o MESMO wire e a MESMA saida final (objetos date); so' muda ONDE a conversao acontece"
+ }
+]

@@ -1,0 +1,18 @@
+{
+ "caso": "diaria-200",
+ "ideia": "200 diárias — o caso pequeno",
+ "n": 200,
+ "wire_bytes": 29,
+ "header": "#TCF.8 :dtobj",
+ "rt_string": true,
+ "tipos_na_saida_objeto": [
+  "date"
+ ],
+ "volta_objeto_ok": true,
+ "ns_por_valor_rota_hoje": 6690.5,
+ "ns_por_valor_rota_direta": 7084.0,
+ "ns_por_valor_decode_puro": 8104.0,
+ "economia_pct": -5.9,
+ "AVISO": "dev-run, maquina nao quiescente — razoes, nao absolutos",
+ "CONSTANTE_na_comparacao": "o MESMO wire e a MESMA saida final (objetos date); so' muda ONDE a conversao acontece"
+}
