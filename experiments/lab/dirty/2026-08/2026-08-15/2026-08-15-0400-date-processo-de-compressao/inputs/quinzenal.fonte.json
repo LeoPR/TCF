@@ -1,0 +1,10 @@
+{
+ "gerador": "run.py::REGIMES",
+ "regime": "quinzenal",
+ "ideia": "passo +15",
+ "n": 600,
+ "distintos": 600,
+ "grafia": "YYYY-MM-DD (FIXA)",
+ "seed": "LCG determinístico, sem random",
+ "pin": "sintético viesado por construção"
+}

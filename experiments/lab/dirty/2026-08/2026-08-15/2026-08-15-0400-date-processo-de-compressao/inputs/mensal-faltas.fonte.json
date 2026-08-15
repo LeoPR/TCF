@@ -1,0 +1,10 @@
+{
+ "gerador": "run.py::REGIMES",
+ "regime": "mensal-faltas",
+ "ideia": "mensal com 10% de meses ausentes",
+ "n": 600,
+ "distintos": 600,
+ "grafia": "YYYY-MM-DD (FIXA)",
+ "seed": "LCG determinístico, sem random",
+ "pin": "sintético viesado por construção"
+}
