@@ -1,0 +1,20 @@
+{
+ "input": "inputs/k096-n096-batimento15min-1dia.entrada.json",
+ "caso": "k096-n096-batimento15min-1dia",
+ "ideia": "96 distintos em 96 linhas — sem repetição nenhuma",
+ "n": 96,
+ "k": 96,
+ "CONSTANTE_na_comparacao": "as MESMAS horas; só muda COMO se binariza",
+ "texto": 751,
+ "texto_rt": true,
+ "ordinal-decimal": 42,
+ "ordinal-decimal_rt": true,
+ "tipo-ordinal-17b": 286,
+ "tipo-ordinal-17b_rt": true,
+ "tipo-campos-5+6+6": 285,
+ "tipo-campos-5+6+6_rt": true,
+ "tipo-campos-separados": 290,
+ "tipo-campos-separados_rt": true,
+ "vencedor": "ordinal-decimal",
+ "ganho_vs_texto_pct": 94.4
+}

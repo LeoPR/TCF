@@ -1,0 +1,7 @@
+{
+ "gerador": "run.py::CASOS",
+ "ideia": "1440 distintos em 1440 linhas — resolução de minuto, 1 dia inteiro",
+ "n": 1440,
+ "distintos": 1440,
+ "pin": "sintético viesado por construção"
+}

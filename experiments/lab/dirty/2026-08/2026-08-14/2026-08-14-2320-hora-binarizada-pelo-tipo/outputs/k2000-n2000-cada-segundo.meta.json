@@ -1,0 +1,20 @@
+{
+ "input": "inputs/k2000-n2000-cada-segundo.entrada.json",
+ "caso": "k2000-n2000-cada-segundo",
+ "ideia": "2000 distintos, todos diferentes — o pior caso para o bN",
+ "n": 2000,
+ "k": 2000,
+ "CONSTANTE_na_comparacao": "as MESMAS horas; só muda COMO se binariza",
+ "texto": 671,
+ "texto_rt": true,
+ "ordinal-decimal": 50,
+ "ordinal-decimal_rt": true,
+ "tipo-ordinal-17b": 5683,
+ "tipo-ordinal-17b_rt": true,
+ "tipo-campos-5+6+6": 5682,
+ "tipo-campos-5+6+6_rt": true,
+ "tipo-campos-separados": 5687,
+ "tipo-campos-separados_rt": true,
+ "vencedor": "ordinal-decimal",
+ "ganho_vs_texto_pct": 92.5
+}

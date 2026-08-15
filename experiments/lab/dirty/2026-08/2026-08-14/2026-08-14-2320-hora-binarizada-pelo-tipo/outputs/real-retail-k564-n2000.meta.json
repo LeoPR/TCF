@@ -1,0 +1,20 @@
+{
+ "input": "inputs/real-retail-k564-n2000.entrada.json",
+ "caso": "real-retail-k564-n2000",
+ "ideia": "a única hora do corpus (segundo constante `00`)",
+ "n": 2000,
+ "k": 564,
+ "CONSTANTE_na_comparacao": "as MESMAS horas; só muda COMO se binariza",
+ "texto": 10619,
+ "texto_rt": true,
+ "ordinal-decimal": 10120,
+ "ordinal-decimal_rt": true,
+ "tipo-ordinal-17b": 5683,
+ "tipo-ordinal-17b_rt": true,
+ "tipo-campos-5+6+6": 5682,
+ "tipo-campos-5+6+6_rt": true,
+ "tipo-campos-separados": 5687,
+ "tipo-campos-separados_rt": true,
+ "vencedor": "tipo-campos-5+6+6",
+ "ganho_vs_texto_pct": 46.5
+}

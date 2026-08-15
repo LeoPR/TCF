@@ -1,0 +1,7 @@
+{
+ "gerador": "run.py::CASOS",
+ "ideia": "2000 distintos, todos diferentes — o pior caso para o bN",
+ "n": 2000,
+ "distintos": 2000,
+ "pin": "sintético viesado por construção"
+}
