@@ -1,0 +1,14 @@
+{
+ "input": "inputs/borda-12h.entrada.json",
+ "ideia": "12h com sufixo — grafia comum em relatório, não é ISO",
+ "fonte": {
+  "gerador": "casos.py::BORDAS",
+  "ideia": "12h com sufixo — grafia comum em relatório, não é ISO",
+  "pin": "grafias de norma (ISO 8601 / RFC 3339)"
+ },
+ "n": 2,
+ "chars_entrada": 13,
+ "bytes": 24,
+ "header": "#TCF.8!!",
+ "rt": true
+}

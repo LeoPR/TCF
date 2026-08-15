@@ -1,0 +1,14 @@
+{
+ "input": "inputs/borda-fracao.entrada.json",
+ "ideia": "frações: `.5` e `.500000` são o MESMO instante com grafias distintas — armadilha de canonicidade",
+ "fonte": {
+  "gerador": "casos.py::BORDAS",
+  "ideia": "frações: `.5` e `.500000` são o MESMO instante com grafias distintas — armadilha de canonicidade",
+  "pin": "grafias de norma (ISO 8601 / RFC 3339)"
+ },
+ "n": 3,
+ "chars_entrada": 40,
+ "bytes": 40,
+ "header": "#TCF.8!",
+ "rt": true
+}

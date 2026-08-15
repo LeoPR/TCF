@@ -1,0 +1,5 @@
+{
+ "gerador": "casos.py::BORDAS",
+ "ideia": "`HHMMSS` sem separador (forma básica da ISO) — indistinguível de um inteiro",
+ "pin": "grafias de norma (ISO 8601 / RFC 3339)"
+}

@@ -1,0 +1,18 @@
+{
+ "input": "inputs/regime-so-hora-e-minuto.entrada.json",
+ "ideia": "a MESMA sequência em `HH:MM` — a grafia mais curta. Contra-prova de grafia.",
+ "fonte": {
+  "gerador": "casos.py::SINTETICOS",
+  "params": {
+   "par": "par: regime-batimento-15min"
+  },
+  "seed": "LCG determinístico (sem random)",
+  "ideia": "a MESMA sequência em `HH:MM` — a grafia mais curta. Contra-prova de grafia.",
+  "pin": "sintético viesado por construção"
+ },
+ "n": 96,
+ "chars_entrada": 480,
+ "bytes": 831,
+ "header": "#TCF.8",
+ "rt": true
+}

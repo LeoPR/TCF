@@ -1,0 +1,18 @@
+{
+ "input": "inputs/regime-constante.entrada.json",
+ "ideia": "tudo meia-noite. É o regime do `InvoiceDate` quando a hora não é usada — e o caso onde o RLE de linha resolve sozinho.",
+ "fonte": {
+  "gerador": "casos.py::SINTETICOS",
+  "params": {
+   "par": ""
+  },
+  "seed": "LCG determinístico (sem random)",
+  "ideia": "tudo meia-noite. É o regime do `InvoiceDate` quando a hora não é usada — e o caso onde o RLE de linha resolve sozinho.",
+  "pin": "sintético viesado por construção"
+ },
+ "n": 200,
+ "chars_entrada": 1600,
+ "bytes": 23,
+ "header": "#TCF.8!",
+ "rt": true
+}

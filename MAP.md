@@ -88,6 +88,7 @@ TCF/
 | Entender OBAT (tokenizer) | `docs/algorithms/OBAT.md` |
 | Entender HCC (composicional) | `docs/algorithms/HCC.md` |
 | **Portar o CORE pra C/Rust** (estruturas + fronteira CORE↔HOST) | `docs/algorithms/core-data-model.md` |
+| **Fechamento do tipo HORA** (7 regimes + 9 bordas + ciclicidade, 2026-08-14) | `experiments/lab/dirty/2026-08/2026-08-14/2026-08-14-2230-fechamento-hora/` — **0 falhas**, conforme nos 5 eixos, 7 peculiaridades. **A peculiaridade registrada estava INVERTIDA**: a ciclicidade **ajuda** (7 dias **−73,0%** do cíclico contra o absoluto), porque ciclar é repetir e o dedup pega o que o seq-RLE perde. O ordinal é **complementar** (94,4% sem wrap, 6,9% com). E achou a **4ª situação** do `T-NATURE-IGNORADA-CALADA`: um spec que aplica em **0%** vence o FLOOR e **carimba `:cpf` numa coluna de horas** |
 | **Float e suas variantes — CONSOLIDADO** (o que fecha, grafia × valor, o parâmetro de tolerância, o aviso, e a fila) | `docs/theory/float-e-variantes-consolidado.md` (**fonte única do ciclo de 2026-08-14**) |
 | **Capacidade dos SPECS/natures** (mapa único + EnumSpec no-go + self-describing) | `experiments/lab/dirty/notas/2026-06/specs-capacity-map.md` |
 | **Estrutura + plano do #TCF.8** (família self-describing, features, sequência, cross-dict, tcfx) | `experiments/lab/dirty/notas/2026-06/tcf8-estrutura-plano.md` (**fonte única**; a `tcf8-vista-o-que-falta.md` da sessão 07-08 é subordinada) |

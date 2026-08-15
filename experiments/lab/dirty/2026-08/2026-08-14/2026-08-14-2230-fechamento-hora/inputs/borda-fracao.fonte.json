@@ -1,0 +1,5 @@
+{
+ "gerador": "casos.py::BORDAS",
+ "ideia": "frações: `.5` e `.500000` são o MESMO instante com grafias distintas — armadilha de canonicidade",
+ "pin": "grafias de norma (ISO 8601 / RFC 3339)"
+}

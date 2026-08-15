@@ -1,0 +1,9 @@
+{
+ "gerador": "casos.py::SINTETICOS",
+ "params": {
+  "par": "par: regime-batimento-15min-2dias"
+ },
+ "seed": "LCG determinístico (sem random)",
+ "ideia": "telemetria: 1 dia inteiro a cada 15 min (96 pontos). O regime onde a hora é regular.",
+ "pin": "sintético viesado por construção"
+}

@@ -1,0 +1,347 @@
+[
+ {
+  "caso": "regime-batimento-15min",
+  "ideia": "telemetria: 1 dia inteiro a cada 15 min (96 pontos). O regime onde a hora é regular.",
+  "n": 96,
+  "bytes": 751,
+  "wire_header": "#TCF.8",
+  "eixo1_dispatch": "string (sem tag) — a hora não é tipo nativo do Python no wire",
+  "eixo4_wire_disc": "(vazio — string default)",
+  "eixo3_nature_cpf": "processado, FLOOR recusou",
+  "eixo3_nature_cpf_status": {
+   "format_mismatch": 96
+  },
+  "eixo3_nature_data_iso": "processado, FLOOR recusou",
+  "eixo3_nature_data_iso_status": {
+   "length_wrong": 96
+  },
+  "eixo3_min_len": "aceito",
+  "eixo2_candidato_vencedor": "core/OBAT literal",
+  "eixo5_rt": true
+ },
+ {
+  "caso": "regime-batimento-15min-2dias",
+  "ideia": "CONTRA-PROVA: o MESMO batimento por 2 dias — passa pela meia-noite. Aqui a CICLICIDADE morde: a sequência volta a zero e o seq-RLE vê um salto negativo.",
+  "n": 192,
+  "bytes": 980,
+  "wire_header": "#TCF.8B7c0",
+  "eixo1_dispatch": "disc='B7c0'",
+  "eixo4_wire_disc": "B7c0",
+  "eixo3_nature_cpf": "processado, FLOOR recusou",
+  "eixo3_nature_cpf_status": {
+   "format_mismatch": 192
+  },
+  "eixo3_nature_data_iso": "processado, FLOOR recusou",
+  "eixo3_nature_data_iso_status": {
+   "length_wrong": 192
+  },
+  "eixo3_min_len": "aceito",
+  "eixo2_candidato_vencedor": "outro: 'B7c0'",
+  "eixo5_rt": true
+ },
+ {
+  "caso": "regime-batimento-1min",
+  "ideia": "batimento de 1 min, 600 pontos (10 h) — não passa da meia-noite.",
+  "n": 600,
+  "bytes": 199,
+  "wire_header": "#TCF.8!!",
+  "eixo1_dispatch": "disc='!!'",
+  "eixo4_wire_disc": "!!",
+  "eixo3_nature_cpf": "processado, FLOOR recusou",
+  "eixo3_nature_cpf_status": {
+   "format_mismatch": 600
+  },
+  "eixo3_nature_data_iso": "processado, FLOOR recusou",
+  "eixo3_nature_data_iso_status": {
+   "length_wrong": 600
+  },
+  "eixo3_min_len": "aceito",
+  "eixo2_candidato_vencedor": "polaridade dupla",
+  "eixo5_rt": true
+ },
+ {
+  "caso": "regime-batimento-1s",
+  "ideia": "batimento de 1 s — o caso mais regular possível.",
+  "n": 600,
+  "bytes": 215,
+  "wire_header": "#TCF.8!!",
+  "eixo1_dispatch": "disc='!!'",
+  "eixo4_wire_disc": "!!",
+  "eixo3_nature_cpf": "processado, FLOOR recusou",
+  "eixo3_nature_cpf_status": {
+   "format_mismatch": 600
+  },
+  "eixo3_nature_data_iso": "processado, FLOOR recusou",
+  "eixo3_nature_data_iso_status": {
+   "length_wrong": 600
+  },
+  "eixo3_min_len": "aceito",
+  "eixo2_candidato_vencedor": "polaridade dupla",
+  "eixo5_rt": true
+ },
+ {
+  "caso": "regime-expediente",
+  "ideia": "200 horários espalhados em 08:00–18:00 — irregular mas com faixa estreita.",
+  "n": 200,
+  "bytes": 1807,
+  "wire_header": "#TCF.8!!",
+  "eixo1_dispatch": "disc='!!'",
+  "eixo4_wire_disc": "!!",
+  "eixo3_nature_cpf": "processado, FLOOR recusou",
+  "eixo3_nature_cpf_status": {
+   "format_mismatch": 200
+  },
+  "eixo3_nature_data_iso": "processado, FLOOR recusou",
+  "eixo3_nature_data_iso_status": {
+   "length_wrong": 200
+  },
+  "eixo3_min_len": "aceito",
+  "eixo2_candidato_vencedor": "polaridade dupla",
+  "eixo5_rt": true
+ },
+ {
+  "caso": "regime-constante",
+  "ideia": "tudo meia-noite. É o regime do `InvoiceDate` quando a hora não é usada — e o caso onde o RLE de linha resolve sozinho.",
+  "n": 200,
+  "bytes": 23,
+  "wire_header": "#TCF.8!",
+  "eixo1_dispatch": "disc='!'",
+  "eixo4_wire_disc": "!",
+  "eixo3_nature_cpf": "processado, FLOOR recusou",
+  "eixo3_nature_cpf_status": {
+   "format_mismatch": 200
+  },
+  "eixo3_nature_data_iso": "processado, FLOOR recusou",
+  "eixo3_nature_data_iso_status": {
+   "length_wrong": 200
+  },
+  "eixo3_min_len": "aceito",
+  "eixo2_candidato_vencedor": "polaridade",
+  "eixo5_rt": true
+ },
+ {
+  "caso": "regime-so-hora-e-minuto",
+  "ideia": "a MESMA sequência em `HH:MM` — a grafia mais curta. Contra-prova de grafia.",
+  "n": 96,
+  "bytes": 831,
+  "wire_header": "#TCF.8",
+  "eixo1_dispatch": "string (sem tag) — a hora não é tipo nativo do Python no wire",
+  "eixo4_wire_disc": "(vazio — string default)",
+  "eixo3_nature_cpf": "ACEITO e aplicado",
+  "eixo3_nature_cpf_status": {
+   "length_wrong": 96
+  },
+  "eixo3_nature_data_iso": "ACEITO e aplicado",
+  "eixo3_nature_data_iso_status": {
+   "length_wrong": 96
+  },
+  "eixo3_min_len": "aceito",
+  "eixo2_candidato_vencedor": "core/OBAT literal",
+  "eixo5_rt": true
+ },
+ {
+  "caso": "borda-meia-noite",
+  "ideia": "os extremos do dia",
+  "n": 3,
+  "bytes": 33,
+  "wire_header": "#TCF.8!",
+  "eixo1_dispatch": "disc='!'",
+  "eixo4_wire_disc": "!",
+  "eixo3_nature_cpf": "processado, FLOOR recusou",
+  "eixo3_nature_cpf_status": {
+   "format_mismatch": 3
+  },
+  "eixo3_nature_data_iso": "processado, FLOOR recusou",
+  "eixo3_nature_data_iso_status": {
+   "length_wrong": 3
+  },
+  "eixo3_min_len": "aceito",
+  "eixo2_candidato_vencedor": "polaridade",
+  "eixo5_rt": true
+ },
+ {
+  "caso": "borda-24h",
+  "ideia": "`24:00:00` é VÁLIDO em ISO 8601 (fim do dia) e o Python RECUSA — grafia legal que não sobrevive ao `time.fromisoformat`",
+  "n": 2,
+  "bytes": 27,
+  "wire_header": "#TCF.8!!",
+  "eixo1_dispatch": "disc='!!'",
+  "eixo4_wire_disc": "!!",
+  "eixo3_nature_cpf": "processado, FLOOR recusou",
+  "eixo3_nature_cpf_status": {
+   "format_mismatch": 2
+  },
+  "eixo3_nature_data_iso": "processado, FLOOR recusou",
+  "eixo3_nature_data_iso_status": {
+   "length_wrong": 2
+  },
+  "eixo3_min_len": "aceito",
+  "eixo2_candidato_vencedor": "polaridade dupla",
+  "eixo5_rt": true
+ },
+ {
+  "caso": "borda-leap-second",
+  "ideia": "segundo bissexto: existe em UTC, não existe em `datetime.time`",
+  "n": 2,
+  "bytes": 24,
+  "wire_header": "#TCF.8!",
+  "eixo1_dispatch": "disc='!'",
+  "eixo4_wire_disc": "!",
+  "eixo3_nature_cpf": "processado, FLOOR recusou",
+  "eixo3_nature_cpf_status": {
+   "format_mismatch": 2
+  },
+  "eixo3_nature_data_iso": "processado, FLOOR recusou",
+  "eixo3_nature_data_iso_status": {
+   "length_wrong": 2
+  },
+  "eixo3_min_len": "aceito",
+  "eixo2_candidato_vencedor": "polaridade",
+  "eixo5_rt": true
+ },
+ {
+  "caso": "borda-fracao",
+  "ideia": "frações: `.5` e `.500000` são o MESMO instante com grafias distintas — armadilha de canonicidade",
+  "n": 3,
+  "bytes": 40,
+  "wire_header": "#TCF.8!",
+  "eixo1_dispatch": "disc='!'",
+  "eixo4_wire_disc": "!",
+  "eixo3_nature_cpf": "processado, FLOOR recusou",
+  "eixo3_nature_cpf_status": {
+   "format_mismatch": 3
+  },
+  "eixo3_nature_data_iso": "processado, FLOOR recusou",
+  "eixo3_nature_data_iso_status": {
+   "format_mismatch": 1,
+   "length_wrong": 2
+  },
+  "eixo3_min_len": "aceito",
+  "eixo2_candidato_vencedor": "polaridade",
+  "eixo5_rt": true
+ },
+ {
+  "caso": "borda-hhmm-x-hhmmss",
+  "ideia": "duas grafias do mesmo instante — se um spec normalizasse, o RT quebraria",
+  "n": 2,
+  "bytes": 22,
+  "wire_header": "#TCF.8",
+  "eixo1_dispatch": "string (sem tag) — a hora não é tipo nativo do Python no wire",
+  "eixo4_wire_disc": "(vazio — string default)",
+  "eixo3_nature_cpf": "processado, FLOOR recusou",
+  "eixo3_nature_cpf_status": {
+   "length_wrong": 1,
+   "format_mismatch": 1
+  },
+  "eixo3_nature_data_iso": "processado, FLOOR recusou",
+  "eixo3_nature_data_iso_status": {
+   "length_wrong": 2
+  },
+  "eixo3_min_len": "aceito",
+  "eixo2_candidato_vencedor": "core/OBAT literal",
+  "eixo5_rt": true
+ },
+ {
+  "caso": "borda-12h",
+  "ideia": "12h com sufixo — grafia comum em relatório, não é ISO",
+  "n": 2,
+  "bytes": 24,
+  "wire_header": "#TCF.8!!",
+  "eixo1_dispatch": "disc='!!'",
+  "eixo4_wire_disc": "!!",
+  "eixo3_nature_cpf": "processado, FLOOR recusou",
+  "eixo3_nature_cpf_status": {
+   "format_mismatch": 1,
+   "length_wrong": 1
+  },
+  "eixo3_nature_data_iso": "processado, FLOOR recusou",
+  "eixo3_nature_data_iso_status": {
+   "length_wrong": 2
+  },
+  "eixo3_min_len": "aceito",
+  "eixo2_candidato_vencedor": "polaridade dupla",
+  "eixo5_rt": true
+ },
+ {
+  "caso": "borda-compacta",
+  "ideia": "`HHMMSS` sem separador (forma básica da ISO) — indistinguível de um inteiro",
+  "n": 2,
+  "bytes": 23,
+  "wire_header": "#TCF.8",
+  "eixo1_dispatch": "string (sem tag) — a hora não é tipo nativo do Python no wire",
+  "eixo4_wire_disc": "(vazio — string default)",
+  "eixo3_nature_cpf": "processado, FLOOR recusou",
+  "eixo3_nature_cpf_status": {
+   "format_mismatch": 2
+  },
+  "eixo3_nature_data_iso": "processado, FLOOR recusou",
+  "eixo3_nature_data_iso_status": {
+   "length_wrong": 2
+  },
+  "eixo3_min_len": "aceito",
+  "eixo2_candidato_vencedor": "core/OBAT literal",
+  "eixo5_rt": true
+ },
+ {
+  "caso": "borda-com-nulo",
+  "ideia": "o slot nulo atravessa",
+  "n": 3,
+  "bytes": 28,
+  "wire_header": "#TCF.8",
+  "eixo1_dispatch": "string (sem tag) — a hora não é tipo nativo do Python no wire",
+  "eixo4_wire_disc": "(vazio — string default)",
+  "eixo3_nature_cpf": "processado, FLOOR recusou",
+  "eixo3_nature_cpf_status": {
+   "format_mismatch": 2,
+   "null_slot": 1
+  },
+  "eixo3_nature_data_iso": "processado, FLOOR recusou",
+  "eixo3_nature_data_iso_status": {
+   "length_wrong": 2,
+   "null_slot": 1
+  },
+  "eixo3_min_len": "aceito",
+  "eixo2_candidato_vencedor": "core/OBAT literal",
+  "eixo5_rt": true
+ },
+ {
+  "caso": "borda-timezone",
+  "ideia": "com offset — e o `-00:00` tem semântica própria na RFC 3339",
+  "n": 3,
+  "bytes": 39,
+  "wire_header": "#TCF.8!",
+  "eixo1_dispatch": "disc='!'",
+  "eixo4_wire_disc": "!",
+  "eixo3_nature_cpf": "processado, FLOOR recusou",
+  "eixo3_nature_cpf_status": {
+   "format_mismatch": 3
+  },
+  "eixo3_nature_data_iso": "processado, FLOOR recusou",
+  "eixo3_nature_data_iso_status": {
+   "length_wrong": 3
+  },
+  "eixo3_min_len": "aceito",
+  "eixo2_candidato_vencedor": "polaridade",
+  "eixo5_rt": true
+ },
+ {
+  "caso": "real-retail-hora",
+  "ideia": "a parte de hora do `online-retail.InvoiceDate`",
+  "n": 2000,
+  "bytes": 10619,
+  "wire_header": "#TCF.8",
+  "eixo1_dispatch": "string (sem tag) — a hora não é tipo nativo do Python no wire",
+  "eixo4_wire_disc": "(vazio — string default)",
+  "eixo3_nature_cpf": "ACEITO e aplicado",
+  "eixo3_nature_cpf_status": {
+   "format_mismatch": 2000
+  },
+  "eixo3_nature_data_iso": "ACEITO e aplicado",
+  "eixo3_nature_data_iso_status": {
+   "length_wrong": 2000
+  },
+  "eixo3_min_len": "aceito",
+  "eixo2_candidato_vencedor": "core/OBAT literal",
+  "eixo5_rt": true
+ }
+]

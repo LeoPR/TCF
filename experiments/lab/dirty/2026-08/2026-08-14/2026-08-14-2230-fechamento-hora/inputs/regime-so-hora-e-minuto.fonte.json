@@ -1,0 +1,9 @@
+{
+ "gerador": "casos.py::SINTETICOS",
+ "params": {
+  "par": "par: regime-batimento-15min"
+ },
+ "seed": "LCG determinístico (sem random)",
+ "ideia": "a MESMA sequência em `HH:MM` — a grafia mais curta. Contra-prova de grafia.",
+ "pin": "sintético viesado por construção"
+}

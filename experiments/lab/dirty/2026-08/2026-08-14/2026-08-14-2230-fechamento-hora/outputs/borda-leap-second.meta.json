@@ -1,0 +1,14 @@
+{
+ "input": "inputs/borda-leap-second.entrada.json",
+ "ideia": "segundo bissexto: existe em UTC, não existe em `datetime.time`",
+ "fonte": {
+  "gerador": "casos.py::BORDAS",
+  "ideia": "segundo bissexto: existe em UTC, não existe em `datetime.time`",
+  "pin": "grafias de norma (ISO 8601 / RFC 3339)"
+ },
+ "n": 2,
+ "chars_entrada": 16,
+ "bytes": 24,
+ "header": "#TCF.8!",
+ "rt": true
+}

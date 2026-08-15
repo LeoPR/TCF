@@ -1,0 +1,5 @@
+{
+ "gerador": "casos.py::BORDAS",
+ "ideia": "duas grafias do mesmo instante — se um spec normalizasse, o RT quebraria",
+ "pin": "grafias de norma (ISO 8601 / RFC 3339)"
+}

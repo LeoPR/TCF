@@ -1,0 +1,5 @@
+{
+ "gerador": "casos.py::BORDAS",
+ "ideia": "com offset — e o `-00:00` tem semântica própria na RFC 3339",
+ "pin": "grafias de norma (ISO 8601 / RFC 3339)"
+}

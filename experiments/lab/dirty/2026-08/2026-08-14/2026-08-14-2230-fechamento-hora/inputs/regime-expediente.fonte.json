@@ -1,0 +1,9 @@
+{
+ "gerador": "casos.py::SINTETICOS",
+ "params": {
+  "par": ""
+ },
+ "seed": "LCG determinístico (sem random)",
+ "ideia": "200 horários espalhados em 08:00–18:00 — irregular mas com faixa estreita.",
+ "pin": "sintético viesado por construção"
+}

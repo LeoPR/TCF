@@ -1,0 +1,14 @@
+{
+ "input": "inputs/borda-compacta.entrada.json",
+ "ideia": "`HHMMSS` sem separador (forma básica da ISO) — indistinguível de um inteiro",
+ "fonte": {
+  "gerador": "casos.py::BORDAS",
+  "ideia": "`HHMMSS` sem separador (forma básica da ISO) — indistinguível de um inteiro",
+  "pin": "grafias de norma (ISO 8601 / RFC 3339)"
+ },
+ "n": 2,
+ "chars_entrada": 12,
+ "bytes": 23,
+ "header": "#TCF.8",
+ "rt": true
+}

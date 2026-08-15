@@ -1,0 +1,74 @@
+{
+ "texto": [
+  {
+   "dias": 1,
+   "n": 96,
+   "bytes_ciclico": 751,
+   "bytes_absoluto": 751,
+   "custo_da_ciclicidade_B": 0,
+   "custo_pct": 0.0,
+   "disc_ciclico": "(vazio)",
+   "disc_absoluto": "(vazio)",
+   "CONSTANTE_na_comparacao": "o MESMO passo (900 s) e o MESMO n; só muda se a sequência VOLTA à meia-noite"
+  },
+  {
+   "dias": 2,
+   "n": 192,
+   "bytes_ciclico": 980,
+   "bytes_absoluto": 1386,
+   "custo_da_ciclicidade_B": -406,
+   "custo_pct": -29.3,
+   "disc_ciclico": "B7c0",
+   "disc_absoluto": "!!",
+   "CONSTANTE_na_comparacao": "o MESMO passo (900 s) e o MESMO n; só muda se a sequência VOLTA à meia-noite"
+  },
+  {
+   "dias": 3,
+   "n": 288,
+   "bytes_ciclico": 1093,
+   "bytes_absoluto": 2041,
+   "custo_da_ciclicidade_B": -948,
+   "custo_pct": -46.4,
+   "disc_ciclico": "B7120",
+   "disc_absoluto": "!!",
+   "CONSTANTE_na_comparacao": "o MESMO passo (900 s) e o MESMO n; só muda se a sequência VOLTA à meia-noite"
+  },
+  {
+   "dias": 7,
+   "n": 672,
+   "bytes_ciclico": 1541,
+   "bytes_absoluto": 5707,
+   "custo_da_ciclicidade_B": -4166,
+   "custo_pct": -73.0,
+   "disc_ciclico": "B72a0",
+   "disc_absoluto": "!!",
+   "CONSTANTE_na_comparacao": "o MESMO passo (900 s) e o MESMO n; só muda se a sequência VOLTA à meia-noite"
+  }
+ ],
+ "ordinal": [
+  {
+   "dias": 1,
+   "n": 96,
+   "bytes_texto": 751,
+   "bytes_ordinal": 42,
+   "ganho_pct": 94.4,
+   "disc_ordinal": "!!"
+  },
+  {
+   "dias": 2,
+   "n": 192,
+   "bytes_texto": 980,
+   "bytes_ordinal": 561,
+   "ganho_pct": 42.8,
+   "disc_ordinal": "!!"
+  },
+  {
+   "dias": 7,
+   "n": 672,
+   "bytes_texto": 1541,
+   "bytes_ordinal": 1434,
+   "ganho_pct": 6.9,
+   "disc_ordinal": "B72a0"
+  }
+ ]
+}

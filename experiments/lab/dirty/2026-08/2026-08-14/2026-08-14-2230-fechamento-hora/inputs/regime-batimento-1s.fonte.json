@@ -1,0 +1,9 @@
+{
+ "gerador": "casos.py::SINTETICOS",
+ "params": {
+  "par": ""
+ },
+ "seed": "LCG determinístico (sem random)",
+ "ideia": "batimento de 1 s — o caso mais regular possível.",
+ "pin": "sintético viesado por construção"
+}

@@ -1,0 +1,16 @@
+{
+ "input": "inputs/real-retail-hora.entrada.json",
+ "ideia": "a parte de hora do `online-retail.InvoiceDate`",
+ "fonte": {
+  "gerador": "casos.py::carrega_hora_real",
+  "db": "online-retail",
+  "coluna": "InvoiceDate (parte de hora)",
+  "ideia": "a única hora do corpus",
+  "pin": "Z: não versionado"
+ },
+ "n": 2000,
+ "chars_entrada": 16000,
+ "bytes": 10619,
+ "header": "#TCF.8",
+ "rt": true
+}
