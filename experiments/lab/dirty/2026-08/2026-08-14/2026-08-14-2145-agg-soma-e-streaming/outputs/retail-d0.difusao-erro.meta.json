@@ -1,0 +1,16 @@
+{
+ "derivado_de": "inputs/retail-d0.entrada.json",
+ "forma": "difusao-erro",
+ "ideia": "1 passe, 1 float de estado",
+ "casas": 0,
+ "bytes": 2240,
+ "soma_exata": true,
+ "streaming": {
+  "passes_sobre_a_fonte": 1,
+  "ordenacao_global": false,
+  "lidos_antes_do_1o_emitido": 1,
+  "estado": "1 float (o carry)",
+  "residuo_final": 0.030000000000001137
+ },
+ "AVISO": "valores AJUSTADOS de propósito — não são os originais"
+}

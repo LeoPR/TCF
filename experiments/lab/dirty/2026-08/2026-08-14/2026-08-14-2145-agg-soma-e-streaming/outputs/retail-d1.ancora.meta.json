@@ -1,0 +1,16 @@
+{
+ "derivado_de": "inputs/retail-d1.entrada.json",
+ "forma": "ancora",
+ "ideia": "soma exata FORA das linhas",
+ "casas": 1,
+ "bytes": 2955,
+ "soma_exata": false,
+ "streaming": {
+  "passes_sobre_a_fonte": 1,
+  "ordenacao_global": false,
+  "lidos_antes_do_1o_emitido": 1,
+  "ancora": 8137.03,
+  "nota": "streamável SE a âncora for TRAILER; se for cabeçalho, exige N"
+ },
+ "AVISO": "valores AJUSTADOS de propósito — não são os originais"
+}

@@ -1,0 +1,179 @@
+{
+ "formas": [
+  {
+   "caso": "rateio",
+   "forma": "maior-resto",
+   "ideia": "exata, mas exige a coluna inteira",
+   "casas": 2,
+   "bytes": 35,
+   "soma_exata_na_escala": true,
+   "erro_max_por_linha": 0.007143000000013444,
+   "erro_soma_rel": 0.0,
+   "prefixo_decoder_bytes": 19,
+   "leituras_da_fonte": 10,
+   "streaming": {
+    "passes_sobre_a_fonte": 1,
+    "ordenacao_global": true,
+    "lidos_antes_do_1o_emitido": 10
+   },
+   "CONSTANTE_na_comparacao": "os MESMOS valores, o MESMO d, o MESMO encode; só muda COMO a soma é preservada"
+  },
+  {
+   "caso": "rateio",
+   "forma": "difusao-erro",
+   "ideia": "1 passe, 1 float de estado",
+   "casas": 2,
+   "bytes": 47,
+   "soma_exata_na_escala": true,
+   "erro_max_por_linha": 0.007143000000013444,
+   "erro_soma_rel": 0.0,
+   "prefixo_decoder_bytes": 21,
+   "leituras_da_fonte": 10,
+   "streaming": {
+    "passes_sobre_a_fonte": 1,
+    "ordenacao_global": false,
+    "lidos_antes_do_1o_emitido": 1,
+    "estado": "1 float (o carry)",
+    "residuo_final": 0.0
+   },
+   "CONSTANTE_na_comparacao": "os MESMOS valores, o MESMO d, o MESMO encode; só muda COMO a soma é preservada"
+  },
+  {
+   "caso": "rateio",
+   "forma": "ancora",
+   "ideia": "soma exata FORA das linhas",
+   "casas": 2,
+   "bytes": 29,
+   "soma_exata_na_escala": false,
+   "erro_max_por_linha": 0.0033330000000049154,
+   "erro_soma_rel": 9.090909090900822e-06,
+   "prefixo_decoder_bytes": 19,
+   "leituras_da_fonte": 10,
+   "streaming": {
+    "passes_sobre_a_fonte": 1,
+    "ordenacao_global": false,
+    "lidos_antes_do_1o_emitido": 1,
+    "ancora": 1100.0,
+    "nota": "streamável SE a âncora for TRAILER; se for cabeçalho, exige N"
+   },
+   "CONSTANTE_na_comparacao": "os MESMOS valores, o MESMO d, o MESMO encode; só muda COMO a soma é preservada"
+  },
+  {
+   "caso": "retail-d1",
+   "forma": "maior-resto",
+   "ideia": "exata, mas exige a coluna inteira",
+   "casas": 1,
+   "bytes": 3028,
+   "soma_exata_na_escala": true,
+   "erro_max_por_linha": 0.05000000000000426,
+   "erro_soma_rel": 3.686848887093367e-06,
+   "prefixo_decoder_bytes": 19,
+   "leituras_da_fonte": 2000,
+   "streaming": {
+    "passes_sobre_a_fonte": 1,
+    "ordenacao_global": true,
+    "lidos_antes_do_1o_emitido": 2000
+   },
+   "CONSTANTE_na_comparacao": "os MESMOS valores, o MESMO d, o MESMO encode; só muda COMO a soma é preservada"
+  },
+  {
+   "caso": "retail-d1",
+   "forma": "difusao-erro",
+   "ideia": "1 passe, 1 float de estado",
+   "casas": 1,
+   "bytes": 3090,
+   "soma_exata_na_escala": true,
+   "erro_max_por_linha": 0.0900000000000003,
+   "erro_soma_rel": 3.686848887093367e-06,
+   "prefixo_decoder_bytes": 19,
+   "leituras_da_fonte": 2000,
+   "streaming": {
+    "passes_sobre_a_fonte": 1,
+    "ordenacao_global": false,
+    "lidos_antes_do_1o_emitido": 1,
+    "estado": "1 float (o carry)",
+    "residuo_final": 0.02999999999990588
+   },
+   "CONSTANTE_na_comparacao": "os MESMOS valores, o MESMO d, o MESMO encode; só muda COMO a soma é preservada"
+  },
+  {
+   "caso": "retail-d1",
+   "forma": "ancora",
+   "ideia": "soma exata FORA das linhas",
+   "casas": 1,
+   "bytes": 2955,
+   "soma_exata_na_escala": false,
+   "erro_max_por_linha": 0.05000000000000071,
+   "erro_soma_rel": 0.0013186629519615343,
+   "prefixo_decoder_bytes": 19,
+   "leituras_da_fonte": 2000,
+   "streaming": {
+    "passes_sobre_a_fonte": 1,
+    "ordenacao_global": false,
+    "lidos_antes_do_1o_emitido": 1,
+    "ancora": 8137.03,
+    "nota": "streamável SE a âncora for TRAILER; se for cabeçalho, exige N"
+   },
+   "CONSTANTE_na_comparacao": "os MESMOS valores, o MESMO d, o MESMO encode; só muda COMO a soma é preservada"
+  },
+  {
+   "caso": "retail-d0",
+   "forma": "maior-resto",
+   "ideia": "exata, mas exige a coluna inteira",
+   "casas": 0,
+   "bytes": 1900,
+   "soma_exata_na_escala": true,
+   "erro_max_por_linha": 0.51,
+   "erro_soma_rel": 3.686848887093367e-06,
+   "prefixo_decoder_bytes": 19,
+   "leituras_da_fonte": 2000,
+   "streaming": {
+    "passes_sobre_a_fonte": 1,
+    "ordenacao_global": true,
+    "lidos_antes_do_1o_emitido": 2000
+   },
+   "CONSTANTE_na_comparacao": "os MESMOS valores, o MESMO d, o MESMO encode; só muda COMO a soma é preservada"
+  },
+  {
+   "caso": "retail-d0",
+   "forma": "difusao-erro",
+   "ideia": "1 passe, 1 float de estado",
+   "casas": 0,
+   "bytes": 2240,
+   "soma_exata_na_escala": true,
+   "erro_max_por_linha": 0.9500000000000002,
+   "erro_soma_rel": 3.686848887093367e-06,
+   "prefixo_decoder_bytes": 19,
+   "leituras_da_fonte": 2000,
+   "streaming": {
+    "passes_sobre_a_fonte": 1,
+    "ordenacao_global": false,
+    "lidos_antes_do_1o_emitido": 1,
+    "estado": "1 float (o carry)",
+    "residuo_final": 0.030000000000001137
+   },
+   "CONSTANTE_na_comparacao": "os MESMOS valores, o MESMO d, o MESMO encode; só muda COMO a soma é preservada"
+  },
+  {
+   "caso": "retail-d0",
+   "forma": "ancora",
+   "ideia": "soma exata FORA das linhas",
+   "casas": 0,
+   "bytes": 1900,
+   "soma_exata_na_escala": false,
+   "erro_max_por_linha": 0.5,
+   "erro_soma_rel": 0.0033218508472992905,
+   "prefixo_decoder_bytes": 19,
+   "leituras_da_fonte": 2000,
+   "streaming": {
+    "passes_sobre_a_fonte": 1,
+    "ordenacao_global": false,
+    "lidos_antes_do_1o_emitido": 1,
+    "ancora": 8137.03,
+    "nota": "streamável SE a âncora for TRAILER; se for cabeçalho, exige N"
+   },
+   "CONSTANTE_na_comparacao": "os MESMOS valores, o MESMO d, o MESMO encode; só muda COMO a soma é preservada"
+  }
+ ],
+ "falhas": []
+}

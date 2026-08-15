@@ -1,0 +1,14 @@
+{
+ "derivado_de": "inputs/retail-d1.entrada.json",
+ "forma": "maior-resto",
+ "ideia": "exata, mas exige a coluna inteira",
+ "casas": 1,
+ "bytes": 3028,
+ "soma_exata": true,
+ "streaming": {
+  "passes_sobre_a_fonte": 1,
+  "ordenacao_global": true,
+  "lidos_antes_do_1o_emitido": 2000
+ },
+ "AVISO": "valores AJUSTADOS de propósito — não são os originais"
+}

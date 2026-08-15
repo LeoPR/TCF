@@ -1,0 +1,8 @@
+{
+ "gerador": "run.py",
+ "params": {
+  "partes": "3x100/3 + 7x1000/7"
+ },
+ "ideia": "o parcelamento — a soma é o que o consumidor lê",
+ "pin": "sintético viesado por construção"
+}
