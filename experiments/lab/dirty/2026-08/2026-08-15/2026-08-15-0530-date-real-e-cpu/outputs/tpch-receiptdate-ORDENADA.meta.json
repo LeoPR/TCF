@@ -1,0 +1,54 @@
+{
+ "coluna": "tpch-receiptdate-ORDENADA",
+ "origem": "tpch-receiptdate",
+ "canonica_iso": true,
+ "n": 2000,
+ "distintos": 1377,
+ "pct_nao_decrescente": 100.0,
+ "pct_repete_anterior": 31.2,
+ "deltas_distintos": 13,
+ "delta_dominante_pct": 38.1,
+ "top5_deltas": [
+  [
+   1,
+   762
+  ],
+  [
+   0,
+   623
+  ],
+  [
+   2,
+   340
+  ],
+  [
+   3,
+   158
+  ],
+  [
+   4,
+   55
+  ]
+ ],
+ "delta_abs_mediano": 1,
+ "pct_delta_ate_31d": 100.0,
+ "predicao": "delta2",
+ "motivo": "saltos irregulares e crescentes",
+ "nucleo": 14021,
+ "nucleo_rt": true,
+ "ordinal": 9186,
+ "ordinal_rt": true,
+ "ordinal-rel": 7151,
+ "ordinal-rel_rt": true,
+ "delta": 1399,
+ "delta_rt": true,
+ "delta2": 1764,
+ "delta2_rt": true,
+ "componentes": 6128,
+ "componentes_rt": true,
+ "vencedor_medido": "delta",
+ "min_todos": 1399,
+ "acerto_predicao": false,
+ "ganho_vs_ordinal_pct": 84.8,
+ "CONSTANTE_na_comparacao": "os MESMOS valores da coluna real; só a ORDEM muda"
+}

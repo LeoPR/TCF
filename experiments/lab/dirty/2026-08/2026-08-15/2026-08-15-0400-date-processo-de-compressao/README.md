@@ -31,6 +31,11 @@ Este lab põe 6 candidatos para competirem sobre 14 regimes.
 - **Será**: a decisão de design que destrava — **protocolo de transformação de COLUNA** (hoje
   a nature é per-valor, e por isso só o ordinal cabe).
 
+> **FECHADO** por [`…-0530-date-real-e-cpu`](../2026-08-15-0530-date-real-e-cpu/), que mediu as
+> duas ressalvas em 8 colunas do corpus. Em dado real quem vence é `componentes` (7 de 8,
+> 51,9–55,1%) e `delta` (a única coluna ordenada, 71,0%); **o `delta2` deste lab não venceu
+> nenhuma vez**. Ver [`result.md` §7](result.md).
+
 ## A correção que o `result.md` faz
 
 A tabela do `run.py` diz "14 de 14 regimes ganham". **Está inflado** — em 7 deles o vencedor é

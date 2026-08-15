@@ -1,0 +1,54 @@
+{
+ "coluna": "tpch-commitdate-ORDENADA",
+ "origem": "tpch-commitdate",
+ "canonica_iso": true,
+ "n": 2000,
+ "distintos": 1359,
+ "pct_nao_decrescente": 100.0,
+ "pct_repete_anterior": 32.1,
+ "deltas_distintos": 10,
+ "delta_dominante_pct": 37.4,
+ "top5_deltas": [
+  [
+   1,
+   747
+  ],
+  [
+   0,
+   641
+  ],
+  [
+   2,
+   339
+  ],
+  [
+   3,
+   150
+  ],
+  [
+   4,
+   74
+  ]
+ ],
+ "delta_abs_mediano": 1,
+ "pct_delta_ate_31d": 100.0,
+ "predicao": "delta",
+ "motivo": "poucos deltas distintos — alfabeto pequeno",
+ "nucleo": 14014,
+ "nucleo_rt": true,
+ "ordinal": 9093,
+ "ordinal_rt": true,
+ "ordinal-rel": 7055,
+ "ordinal-rel_rt": true,
+ "delta": 1388,
+ "delta_rt": true,
+ "delta2": 1751,
+ "delta2_rt": true,
+ "componentes": 6129,
+ "componentes_rt": true,
+ "vencedor_medido": "delta",
+ "min_todos": 1388,
+ "acerto_predicao": true,
+ "ganho_vs_ordinal_pct": 84.7,
+ "CONSTANTE_na_comparacao": "os MESMOS valores da coluna real; só a ORDEM muda"
+}

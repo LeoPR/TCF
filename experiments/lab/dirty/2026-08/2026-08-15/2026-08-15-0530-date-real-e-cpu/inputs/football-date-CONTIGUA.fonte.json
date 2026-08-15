@@ -1,0 +1,43 @@
+{
+ "gerador": "run.py::carrega(modo='contigua')",
+ "db": "csv:football-results/results.csv",
+ "sql": "date",
+ "amostragem": "janela contígua do MEIO, 2000 linhas",
+ "ideia": "PAR DE CONTRA-PROVA DA AMOSTRAGEM: a mesma coluna, só o modo de amostrar muda — isola quanto o passo espalhado destrói a adjacência",
+ "classificacao": {
+  "canonica_iso": true,
+  "n": 2000,
+  "distintos": 491,
+  "pct_nao_decrescente": 100.0,
+  "pct_repete_anterior": 75.5,
+  "deltas_distintos": 10,
+  "delta_dominante_pct": 75.5,
+  "top5_deltas": [
+   [
+    0,
+    1509
+   ],
+   [
+    1,
+    364
+   ],
+   [
+    2,
+    82
+   ],
+   [
+    3,
+    23
+   ],
+   [
+    4,
+    11
+   ]
+  ],
+  "delta_abs_mediano": 0,
+  "pct_delta_ate_31d": 100.0,
+  "predicao": "componentes",
+  "motivo": "repetição adjacente alta — a ordem não informa"
+ },
+ "pin": "corpus Z:/tcf-data/interim — não versionado"
+}

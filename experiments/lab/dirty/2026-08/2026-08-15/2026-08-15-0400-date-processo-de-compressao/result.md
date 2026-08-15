@@ -114,3 +114,21 @@ seis regimes.
 3. **O ordinal continua o default certo.** Nada aqui o desafia: ele ganha ou empata em 8 de 14.
 4. **Antes de qualquer weld**: medir CPU do `min()` ampliado, e buscar os regimes ganhadores em
    dado real (os esparsos e cíclicos têm chance; o mensal está bloqueado por corpus).
+
+---
+
+## 7. FECHADO pelo lab seguinte — e o achado principal daqui não sobreviveu
+
+As duas ressalvas do §5 foram medidas em
+[`…-0530-date-real-e-cpu`](../2026-08-15-0530-date-real-e-cpu/), em 8 colunas do corpus:
+
+- **CPU**: o `min()` de 6 candidatos custa **+47,7% a +86,1%** de encode — dentro da faixa que o
+  projeto já pagou por **um** candidato (`T-CANDIDATO-SEM-DEDUP`, +84–93%). Não é proibitivo.
+- **Dado real**: `componentes` vence em 7 de 8 colunas (**51,9–55,1%** sobre o ordinal welded) e
+  `delta` vence na única coluna real já ordenada (**71,0%**).
+- **O `delta2` — o achado do §2 deste lab — não venceu uma única vez em 24 medições reais.** O
+  precedente do `T-DATA-ALVO-MENSAL` (95% sintético → 0,0% real) **se repetiu**, agora com o
+  delta-of-delta. Ele continua registrado como candidato conhecido; deixa de ser motivo.
+- **Ressalva de método que atinge este lab**: entropia de ordem zero prevê `delta` onde o byte
+  medido dá `componentes` por 1,6×. O núcleo do TCF é texto com dicionário, não codificador de
+  entropia — a evidência é o byte pelo encoder real.

@@ -1,0 +1,56 @@
+{
+ "coluna": "tpch-receiptdate-CONTIGUA",
+ "origem": "tpch-receiptdate",
+ "canonica_iso": true,
+ "n": 2000,
+ "distintos": 1367,
+ "pct_nao_decrescente": 50.7,
+ "pct_repete_anterior": 0.6,
+ "deltas_distintos": 652,
+ "delta_dominante_pct": 1.0,
+ "top5_deltas": [
+  [
+   9,
+   19
+  ],
+  [
+   17,
+   18
+  ],
+  [
+   -14,
+   17
+  ],
+  [
+   -18,
+   16
+  ],
+  [
+   35,
+   16
+  ]
+ ],
+ "delta_abs_mediano": 50,
+ "pct_delta_ate_31d": 34.3,
+ "predicao": "componentes",
+ "motivo": "desordenada — só a igualdade sobrevive",
+ "nucleo": 16121,
+ "nucleo_rt": true,
+ "ordinal": 12225,
+ "ordinal_rt": true,
+ "ordinal-rel": 9512,
+ "ordinal-rel_rt": true,
+ "delta": 9888,
+ "delta_rt": true,
+ "delta2": 9329,
+ "delta2_rt": true,
+ "componentes": 6170,
+ "componentes_rt": true,
+ "vencedor_medido": "componentes",
+ "min_todos": 6170,
+ "acerto_predicao": true,
+ "venceu_no_espalhado": "componentes",
+ "delta_abs_mediano_espalhado": 696,
+ "ganho_vs_ordinal_pct": 49.5,
+ "CONSTANTE_na_comparacao": "a MESMA coluna e o MESMO n; só o MODO DE AMOSTRAR muda"
+}

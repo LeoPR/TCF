@@ -1,0 +1,74 @@
+[
+ {
+  "coluna": "tpch-orderdate",
+  "ms_rota_hoje": 1772.28,
+  "ms_rota_ampliada": 3114.98,
+  "custo_pct": 75.8,
+  "pico_KB": 4145.9,
+  "AVISO": "dev-run, máquina não quiescente — razões, não absolutos",
+  "REGUA": "o T-CANDIDATO-SEM-DEDUP mediu +84-93% p/ UM candidato análogo"
+ },
+ {
+  "coluna": "tpch-shipdate",
+  "ms_rota_hoje": 2044.47,
+  "ms_rota_ampliada": 3069.02,
+  "custo_pct": 50.1,
+  "pico_KB": 4045.8,
+  "AVISO": "dev-run, máquina não quiescente — razões, não absolutos",
+  "REGUA": "o T-CANDIDATO-SEM-DEDUP mediu +84-93% p/ UM candidato análogo"
+ },
+ {
+  "coluna": "tpch-commitdate",
+  "ms_rota_hoje": 1897.01,
+  "ms_rota_ampliada": 3044.78,
+  "custo_pct": 60.5,
+  "pico_KB": 3996.2,
+  "AVISO": "dev-run, máquina não quiescente — razões, não absolutos",
+  "REGUA": "o T-CANDIDATO-SEM-DEDUP mediu +84-93% p/ UM candidato análogo"
+ },
+ {
+  "coluna": "tpch-receiptdate",
+  "ms_rota_hoje": 1774.38,
+  "ms_rota_ampliada": 3302.63,
+  "custo_pct": 86.1,
+  "pico_KB": 4227.3,
+  "AVISO": "dev-run, máquina não quiescente — razões, não absolutos",
+  "REGUA": "o T-CANDIDATO-SEM-DEDUP mediu +84-93% p/ UM candidato análogo"
+ },
+ {
+  "coluna": "tpch01-orderdate",
+  "ms_rota_hoje": 1909.45,
+  "ms_rota_ampliada": 3016.04,
+  "custo_pct": 58.0,
+  "pico_KB": 3637.0,
+  "AVISO": "dev-run, máquina não quiescente — razões, não absolutos",
+  "REGUA": "o T-CANDIDATO-SEM-DEDUP mediu +84-93% p/ UM candidato análogo"
+ },
+ {
+  "coluna": "br-cadastro",
+  "ms_rota_hoje": 1921.74,
+  "ms_rota_ampliada": 2838.23,
+  "custo_pct": 47.7,
+  "pico_KB": 3697.3,
+  "AVISO": "dev-run, máquina não quiescente — razões, não absolutos",
+  "REGUA": "o T-CANDIDATO-SEM-DEDUP mediu +84-93% p/ UM candidato análogo"
+ },
+ {
+  "coluna": "br-abertura",
+  "ms_rota_hoje": 1839.96,
+  "ms_rota_ampliada": 2927.06,
+  "custo_pct": 59.1,
+  "pico_KB": 3911.9,
+  "AVISO": "dev-run, máquina não quiescente — razões, não absolutos",
+  "REGUA": "o T-CANDIDATO-SEM-DEDUP mediu +84-93% p/ UM candidato análogo"
+ },
+ {
+  "coluna": "football-date",
+  "ms_rota_hoje": 1561.81,
+  "ms_rota_ampliada": 2588.44,
+  "custo_pct": 65.7,
+  "pico_KB": 3989.2,
+  "AVISO": "dev-run, máquina não quiescente — razões, não absolutos",
+  "REGUA": "o T-CANDIDATO-SEM-DEDUP mediu +84-93% p/ UM candidato análogo"
+ }
+]

@@ -1,0 +1,450 @@
+[
+ {
+  "coluna": "tpch-orderdate",
+  "db": "tpch-sf001",
+  "canonica_iso": true,
+  "n": 2000,
+  "distintos": 1370,
+  "pct_nao_decrescente": 49.4,
+  "pct_repete_anterior": 0.1,
+  "deltas_distintos": 1567,
+  "delta_dominante_pct": 0.3,
+  "top5_deltas": [
+   [
+    1145,
+    5
+   ],
+   [
+    185,
+    5
+   ],
+   [
+    84,
+    4
+   ],
+   [
+    -161,
+    4
+   ],
+   [
+    135,
+    4
+   ]
+  ],
+  "delta_abs_mediano": 738,
+  "pct_delta_ate_31d": 2.1,
+  "predicao": "componentes",
+  "motivo": "desordenada — só a igualdade sobrevive",
+  "nucleo": 15975,
+  "nucleo_rt": true,
+  "ordinal": 12886,
+  "ordinal_rt": true,
+  "ordinal-rel": 9587,
+  "ordinal-rel_rt": true,
+  "delta": 9713,
+  "delta_rt": true,
+  "delta2": 10183,
+  "delta2_rt": true,
+  "componentes": 6170,
+  "componentes_rt": true,
+  "spec_hoje": 13701,
+  "vencedor_medido": "componentes",
+  "min_todos": 6170,
+  "acerto_predicao": true,
+  "ganho_vs_spec_pct": 55.0,
+  "ganho_vs_ordinal_pct": 52.1,
+  "CONSTANTE_na_comparacao": "a MESMA coluna e o MESMO encode; só a transformação muda"
+ },
+ {
+  "coluna": "tpch-shipdate",
+  "db": "tpch-sf001",
+  "canonica_iso": true,
+  "n": 2000,
+  "distintos": 1365,
+  "pct_nao_decrescente": 49.3,
+  "pct_repete_anterior": 0.0,
+  "deltas_distintos": 1544,
+  "delta_dominante_pct": 0.3,
+  "top5_deltas": [
+   [
+    301,
+    6
+   ],
+   [
+    -505,
+    5
+   ],
+   [
+    1438,
+    4
+   ],
+   [
+    546,
+    4
+   ],
+   [
+    106,
+    4
+   ]
+  ],
+  "delta_abs_mediano": 700,
+  "pct_delta_ate_31d": 2.2,
+  "predicao": "componentes",
+  "motivo": "desordenada — só a igualdade sobrevive",
+  "nucleo": 15869,
+  "nucleo_rt": true,
+  "ordinal": 12835,
+  "ordinal_rt": true,
+  "ordinal-rel": 9559,
+  "ordinal-rel_rt": true,
+  "delta": 9669,
+  "delta_rt": true,
+  "delta2": 10104,
+  "delta2_rt": true,
+  "componentes": 6170,
+  "componentes_rt": true,
+  "spec_hoje": 13635,
+  "vencedor_medido": "componentes",
+  "min_todos": 6170,
+  "acerto_predicao": true,
+  "ganho_vs_spec_pct": 54.7,
+  "ganho_vs_ordinal_pct": 51.9,
+  "CONSTANTE_na_comparacao": "a MESMA coluna e o MESMO encode; só a transformação muda"
+ },
+ {
+  "coluna": "tpch-commitdate",
+  "db": "tpch-sf001",
+  "canonica_iso": true,
+  "n": 2000,
+  "distintos": 1359,
+  "pct_nao_decrescente": 49.6,
+  "pct_repete_anterior": 0.2,
+  "deltas_distintos": 1558,
+  "delta_dominante_pct": 0.3,
+  "top5_deltas": [
+   [
+    -264,
+    5
+   ],
+   [
+    1147,
+    5
+   ],
+   [
+    -201,
+    4
+   ],
+   [
+    37,
+    4
+   ],
+   [
+    -628,
+    4
+   ]
+  ],
+  "delta_abs_mediano": 700,
+  "pct_delta_ate_31d": 2.3,
+  "predicao": "componentes",
+  "motivo": "desordenada — só a igualdade sobrevive",
+  "nucleo": 15983,
+  "nucleo_rt": true,
+  "ordinal": 12827,
+  "ordinal_rt": true,
+  "ordinal-rel": 9557,
+  "ordinal-rel_rt": true,
+  "delta": 9696,
+  "delta_rt": true,
+  "delta2": 10152,
+  "delta2_rt": true,
+  "componentes": 6170,
+  "componentes_rt": true,
+  "spec_hoje": 13625,
+  "vencedor_medido": "componentes",
+  "min_todos": 6170,
+  "acerto_predicao": true,
+  "ganho_vs_spec_pct": 54.7,
+  "ganho_vs_ordinal_pct": 51.9,
+  "CONSTANTE_na_comparacao": "a MESMA coluna e o MESMO encode; só a transformação muda"
+ },
+ {
+  "coluna": "tpch-receiptdate",
+  "db": "tpch-sf001",
+  "canonica_iso": true,
+  "n": 2000,
+  "distintos": 1377,
+  "pct_nao_decrescente": 49.5,
+  "pct_repete_anterior": 0.1,
+  "deltas_distintos": 1518,
+  "delta_dominante_pct": 0.2,
+  "top5_deltas": [
+   [
+    218,
+    4
+   ],
+   [
+    -161,
+    4
+   ],
+   [
+    -615,
+    4
+   ],
+   [
+    837,
+    4
+   ],
+   [
+    -747,
+    4
+   ]
+  ],
+  "delta_abs_mediano": 696,
+  "pct_delta_ate_31d": 2.3,
+  "predicao": "componentes",
+  "motivo": "desordenada — só a igualdade sobrevive",
+  "nucleo": 16085,
+  "nucleo_rt": true,
+  "ordinal": 12866,
+  "ordinal_rt": true,
+  "ordinal-rel": 9550,
+  "ordinal-rel_rt": true,
+  "delta": 9667,
+  "delta_rt": true,
+  "delta2": 10143,
+  "delta2_rt": true,
+  "componentes": 6170,
+  "componentes_rt": true,
+  "spec_hoje": 13673,
+  "vencedor_medido": "componentes",
+  "min_todos": 6170,
+  "acerto_predicao": true,
+  "ganho_vs_spec_pct": 54.9,
+  "ganho_vs_ordinal_pct": 52.0,
+  "CONSTANTE_na_comparacao": "a MESMA coluna e o MESMO encode; só a transformação muda"
+ },
+ {
+  "coluna": "tpch01-orderdate",
+  "db": "tpch-sf01",
+  "canonica_iso": true,
+  "n": 2000,
+  "distintos": 1350,
+  "pct_nao_decrescente": 49.7,
+  "pct_repete_anterior": 0.1,
+  "deltas_distintos": 1551,
+  "delta_dominante_pct": 0.3,
+  "top5_deltas": [
+   [
+    310,
+    5
+   ],
+   [
+    -148,
+    5
+   ],
+   [
+    431,
+    5
+   ],
+   [
+    264,
+    5
+   ],
+   [
+    -275,
+    5
+   ]
+  ],
+  "delta_abs_mediano": 709,
+  "pct_delta_ate_31d": 2.8,
+  "predicao": "componentes",
+  "motivo": "desordenada — só a igualdade sobrevive",
+  "nucleo": 15898,
+  "nucleo_rt": true,
+  "ordinal": 12815,
+  "ordinal_rt": true,
+  "ordinal-rel": 9596,
+  "ordinal-rel_rt": true,
+  "delta": 9687,
+  "delta_rt": true,
+  "delta2": 10180,
+  "delta2_rt": true,
+  "componentes": 6170,
+  "componentes_rt": true,
+  "spec_hoje": 13612,
+  "vencedor_medido": "componentes",
+  "min_todos": 6170,
+  "acerto_predicao": true,
+  "ganho_vs_spec_pct": 54.7,
+  "ganho_vs_ordinal_pct": 51.9,
+  "CONSTANTE_na_comparacao": "a MESMA coluna e o MESMO encode; só a transformação muda"
+ },
+ {
+  "coluna": "br-cadastro",
+  "db": "br-identidades",
+  "canonica_iso": true,
+  "n": 2000,
+  "distintos": 1607,
+  "pct_nao_decrescente": 50.0,
+  "pct_repete_anterior": 0.0,
+  "deltas_distintos": 1739,
+  "delta_dominante_pct": 0.3,
+  "top5_deltas": [
+   [
+    -1611,
+    5
+   ],
+   [
+    2362,
+    4
+   ],
+   [
+    1033,
+    4
+   ],
+   [
+    -4,
+    3
+   ],
+   [
+    1177,
+    3
+   ]
+  ],
+  "delta_abs_mediano": 1296,
+  "pct_delta_ate_31d": 1.3,
+  "predicao": "componentes",
+  "motivo": "desordenada — só a igualdade sobrevive",
+  "nucleo": 19400,
+  "nucleo_rt": true,
+  "ordinal": 13645,
+  "ordinal_rt": true,
+  "ordinal-rel": 10223,
+  "ordinal-rel_rt": true,
+  "delta": 10141,
+  "delta_rt": true,
+  "delta2": 10563,
+  "delta2_rt": true,
+  "componentes": 6234,
+  "componentes_rt": true,
+  "spec_hoje": 14523,
+  "vencedor_medido": "componentes",
+  "min_todos": 6234,
+  "acerto_predicao": true,
+  "ganho_vs_spec_pct": 57.1,
+  "ganho_vs_ordinal_pct": 54.3,
+  "CONSTANTE_na_comparacao": "a MESMA coluna e o MESMO encode; só a transformação muda"
+ },
+ {
+  "coluna": "br-abertura",
+  "db": "br-identidades",
+  "canonica_iso": true,
+  "n": 2000,
+  "distintos": 1694,
+  "pct_nao_decrescente": 51.0,
+  "pct_repete_anterior": 0.0,
+  "deltas_distintos": 1804,
+  "delta_dominante_pct": 0.2,
+  "top5_deltas": [
+   [
+    -333,
+    4
+   ],
+   [
+    -1851,
+    3
+   ],
+   [
+    1465,
+    3
+   ],
+   [
+    76,
+    3
+   ],
+   [
+    2359,
+    3
+   ]
+  ],
+  "delta_abs_mediano": 1704,
+  "pct_delta_ate_31d": 0.9,
+  "predicao": "componentes",
+  "motivo": "desordenada — só a igualdade sobrevive",
+  "nucleo": 20701,
+  "nucleo_rt": true,
+  "ordinal": 13939,
+  "ordinal_rt": true,
+  "ordinal-rel": 9980,
+  "ordinal-rel_rt": true,
+  "delta": 10300,
+  "delta_rt": true,
+  "delta2": 10672,
+  "delta2_rt": true,
+  "componentes": 6264,
+  "componentes_rt": true,
+  "spec_hoje": 14849,
+  "vencedor_medido": "componentes",
+  "min_todos": 6264,
+  "acerto_predicao": true,
+  "ganho_vs_spec_pct": 57.8,
+  "ganho_vs_ordinal_pct": 55.1,
+  "CONSTANTE_na_comparacao": "a MESMA coluna e o MESMO encode; só a transformação muda"
+ },
+ {
+  "coluna": "football-date",
+  "db": "csv:football-results/results.csv",
+  "canonica_iso": true,
+  "n": 2000,
+  "distintos": 1880,
+  "pct_nao_decrescente": 100.0,
+  "pct_repete_anterior": 6.0,
+  "deltas_distintos": 155,
+  "delta_dominante_pct": 9.6,
+  "top5_deltas": [
+   [
+    1,
+    192
+   ],
+   [
+    0,
+    120
+   ],
+   [
+    2,
+    112
+   ],
+   [
+    4,
+    81
+   ],
+   [
+    7,
+    76
+   ]
+  ],
+  "delta_abs_mediano": 11,
+  "pct_delta_ate_31d": 83.6,
+  "predicao": "delta2",
+  "motivo": "saltos irregulares e crescentes",
+  "nucleo": 25690,
+  "nucleo_rt": true,
+  "ordinal": 11625,
+  "ordinal_rt": true,
+  "ordinal-rel": 10670,
+  "ordinal-rel_rt": true,
+  "delta": 3368,
+  "delta_rt": true,
+  "delta2": 3475,
+  "delta2_rt": true,
+  "componentes": 8200,
+  "componentes_rt": true,
+  "spec_hoje": 12548,
+  "vencedor_medido": "delta",
+  "min_todos": 3368,
+  "acerto_predicao": false,
+  "ganho_vs_spec_pct": 73.2,
+  "ganho_vs_ordinal_pct": 71.0,
+  "CONSTANTE_na_comparacao": "a MESMA coluna e o MESMO encode; só a transformação muda"
+ }
+]

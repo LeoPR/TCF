@@ -1,0 +1,41 @@
+{
+ "gerador": "sorted() da coluna real",
+ "origem": "br-abertura",
+ "ideia": "PAR DE CONTRA-PROVA: mesmos valores, mesma cardinalidade, só a ORDEM muda",
+ "classificacao": {
+  "canonica_iso": true,
+  "n": 2000,
+  "distintos": 1694,
+  "pct_nao_decrescente": 100.0,
+  "pct_repete_anterior": 15.3,
+  "deltas_distintos": 39,
+  "delta_dominante_pct": 24.0,
+  "top5_deltas": [
+   [
+    1,
+    480
+   ],
+   [
+    2,
+    328
+   ],
+   [
+    0,
+    306
+   ],
+   [
+    3,
+    256
+   ],
+   [
+    4,
+    143
+   ]
+  ],
+  "delta_abs_mediano": 2,
+  "pct_delta_ate_31d": 99.3,
+  "predicao": "delta2",
+  "motivo": "saltos irregulares e crescentes"
+ },
+ "pin": "derivado do corpus"
+}

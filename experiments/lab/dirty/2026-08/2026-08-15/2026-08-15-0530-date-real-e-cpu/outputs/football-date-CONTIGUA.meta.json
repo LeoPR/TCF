@@ -1,0 +1,56 @@
+{
+ "coluna": "football-date-CONTIGUA",
+ "origem": "football-date",
+ "canonica_iso": true,
+ "n": 2000,
+ "distintos": 491,
+ "pct_nao_decrescente": 100.0,
+ "pct_repete_anterior": 75.5,
+ "deltas_distintos": 10,
+ "delta_dominante_pct": 75.5,
+ "top5_deltas": [
+  [
+   0,
+   1509
+  ],
+  [
+   1,
+   364
+  ],
+  [
+   2,
+   82
+  ],
+  [
+   3,
+   23
+  ],
+  [
+   4,
+   11
+  ]
+ ],
+ "delta_abs_mediano": 0,
+ "pct_delta_ate_31d": 100.0,
+ "predicao": "componentes",
+ "motivo": "repetição adjacente alta — a ordem não informa",
+ "nucleo": 6075,
+ "nucleo_rt": true,
+ "ordinal": 4292,
+ "ordinal_rt": true,
+ "ordinal-rel": 3026,
+ "ordinal-rel_rt": true,
+ "delta": 1388,
+ "delta_rt": true,
+ "delta2": 1749,
+ "delta2_rt": true,
+ "componentes": 3211,
+ "componentes_rt": true,
+ "vencedor_medido": "delta",
+ "min_todos": 1388,
+ "acerto_predicao": false,
+ "venceu_no_espalhado": "delta",
+ "delta_abs_mediano_espalhado": 11,
+ "ganho_vs_ordinal_pct": 67.7,
+ "CONSTANTE_na_comparacao": "a MESMA coluna e o MESMO n; só o MODO DE AMOSTRAR muda"
+}

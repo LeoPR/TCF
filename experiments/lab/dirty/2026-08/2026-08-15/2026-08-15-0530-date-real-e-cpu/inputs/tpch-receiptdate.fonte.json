@@ -1,0 +1,42 @@
+{
+ "gerador": "run.py::COLUNAS",
+ "db": "tpch-sf001",
+ "sql": "SELECT l_receiptdate FROM lineitem",
+ "amostragem": "passo espalhado, alvo 2000 (nunca LIMIT puro)",
+ "classificacao": {
+  "canonica_iso": true,
+  "n": 2000,
+  "distintos": 1377,
+  "pct_nao_decrescente": 49.5,
+  "pct_repete_anterior": 0.1,
+  "deltas_distintos": 1518,
+  "delta_dominante_pct": 0.2,
+  "top5_deltas": [
+   [
+    218,
+    4
+   ],
+   [
+    -161,
+    4
+   ],
+   [
+    -615,
+    4
+   ],
+   [
+    837,
+    4
+   ],
+   [
+    -747,
+    4
+   ]
+  ],
+  "delta_abs_mediano": 696,
+  "pct_delta_ate_31d": 2.3,
+  "predicao": "componentes",
+  "motivo": "desordenada — só a igualdade sobrevive"
+ },
+ "pin": "corpus Z:/tcf-data/interim — não versionado"
+}
