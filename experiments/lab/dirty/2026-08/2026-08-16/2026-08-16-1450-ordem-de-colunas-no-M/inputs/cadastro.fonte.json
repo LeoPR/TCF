@@ -1,0 +1,5 @@
+{
+ "gerador": "IMPORTADO de ../2026-08-16-1400-cadastro-popular-header-do-M/run.py::cadastro()",
+ "ideia": "os MESMOS 500 registros do lab do header — só a ORDEM das colunas muda aqui",
+ "pin": "seed 20260815; precedente de import entre labs: 0530 <- 0400"
+}
