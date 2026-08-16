@@ -1,0 +1,130 @@
+{
+ "bloco1_piso": {
+  "duas_anonimas_B": 18,
+  "linha1_B": 11,
+  "linha1": "#TCF.8M!3,!",
+  "curva": [
+   {
+    "n": 1,
+    "wire_B": 46,
+    "header_B": 12,
+    "pct": 26.1
+   },
+   {
+    "n": 5,
+    "wire_B": 149,
+    "header_B": 11,
+    "pct": 7.4
+   },
+   {
+    "n": 20,
+    "wire_B": 551,
+    "header_B": 11,
+    "pct": 2.0
+   },
+   {
+    "n": 100,
+    "wire_B": 2438,
+    "header_B": 13,
+    "pct": 0.5
+   },
+   {
+    "n": 500,
+    "wire_B": 9843,
+    "header_B": 12,
+    "pct": 0.1
+   }
+  ]
+ },
+ "bloco1_welds_novos": {
+  "linha1_sem_spec": 79,
+  "linha1_com_spec": 82,
+  "linha1_drop_names": 39,
+  "corpo_devolvido_B": 4450
+ },
+ "bloco2_invariantes": {
+  "I1": true,
+  "I2": true,
+  "I3": true,
+  "I4": true,
+  "I5": true,
+  "I6": true,
+  "plano": [
+   {
+    "i": 0,
+    "nome": "id",
+    "modo": "tcf",
+    "nat": null,
+    "ini": 0,
+    "fim": 15
+   },
+   {
+    "i": 1,
+    "nome": "nome",
+    "modo": "tcf",
+    "nat": null,
+    "ini": 15,
+    "fim": 2661
+   },
+   {
+    "i": 2,
+    "nome": "cpf",
+    "modo": "raw",
+    "nat": "cpf",
+    "ini": 2661,
+    "fim": 5660
+   },
+   {
+    "i": 3,
+    "nome": "email",
+    "modo": "tcf",
+    "nat": null,
+    "ini": 5660,
+    "fim": 12845
+   },
+   {
+    "i": 4,
+    "nome": "telefone",
+    "modo": "split",
+    "nat": null,
+    "ini": 12845,
+    "fim": 18407
+   },
+   {
+    "i": 5,
+    "nome": "nascimento",
+    "modo": "split",
+    "nat": null,
+    "ini": 18407,
+    "fim": 20450
+   },
+   {
+    "i": 6,
+    "nome": "ativo",
+    "modo": "dict",
+    "nat": null,
+    "ini": 20450,
+    "fim": null
+   }
+  ],
+  "custo_min_header_False_B": 4,
+  "CONSTANTE_na_comparacao": "o MESMO wire; muda só QUEM decoda e EM QUE ORDEM"
+ },
+ "bloco3_anatomia": {
+  "campos": {
+   "magic `#TCF.8M`": 7,
+   "sizes (hex)": 18,
+   "nomes": 37,
+   "modos `!@%`": 4,
+   "nature `:id`": 4,
+   "separadores `,` `=`": 12
+  },
+  "linha1_B": 82
+ },
+ "bloco4_view": {
+  "sizes_batem": true,
+  "materialized_ao_abrir": 0,
+  "touched": []
+ },
+ "falhas": []
+}
