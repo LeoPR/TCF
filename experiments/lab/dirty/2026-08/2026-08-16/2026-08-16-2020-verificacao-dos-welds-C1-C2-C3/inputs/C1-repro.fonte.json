@@ -1,0 +1,8 @@
+{
+ "ticket": "T-POLARIDADE-COME-NOME",
+ "commit_do_weld": "2464f561",
+ "arquivo": "src/tcf/decoder.py",
+ "marcador_pos_weld": "not in (\"M\", \"H\")",
+ "como": "git archive 2464f561^ src -> tmp; o MESMO repro roda em subprocesso contra o src antigo e contra o atual",
+ "repro": "import string\nfrom tcf import decode, encode\nVALS = [f\"v{i}\" for i in range(26)]\nout = {}\nd = {\"obs.\": list(VALS)}\nw = encode(d)\nout[\"caso_concreto\"] = {\"header\": w.split(\"\\n\", 1)[0]}\ntry:\n    volta = decode(w)\n    out[\"caso_concreto\"][\"chave_de_volta\"] = list(volta)[0]\n    out[\"caso_concreto\"][\"rt_ok\"] = volta == d\nexcept Exception as e:\n    out[\"caso_concreto\"][\"fail_loud\"] = f\"{type(e).__name__}: {e}\"\n# o sweep completo: quantos dos 64 nomes quebram, em cada rota\nfM = fH = 0\nfor p in string.punctuation:\n    for nome in (f\"ab{p}\", f\"ab{p}{p}\"):\n        dd = {nome: list(VALS)}\n        try:\n            fM += decode(encode(dd)) != dd\n        except Exception:\n            pass\n        rr = [{nome: v} for v in VALS]\n        try:\n            fH += decode(encode(rr)) != rr\n        except Exception:\n            pass\nout[\"sweep\"] = {\"de\": 64, \"M_rt_falso\": fM, \"H_rt_falso\": fH}\n# CONTRA-PROVA: o single-col que USA polaridade nao pode mudar\nctrl = [f\"{i:02d}.{i:02d}-{i:03d}\" for i in range(30)]\nwc = encode(ctrl)\nout[\"contraprova_single_col\"] = {\"header\": wc.split(\"\\n\", 1)[0],\n                                 \"bytes\": len(wc.encode()),\n                                 \"rt_ok\": decode(wc) == ctrl}"
+}

@@ -1,0 +1,17 @@
+{
+ "caso_concreto": {
+  "header": "#TCF.8Mobs.",
+  "chave_de_volta": "obs.",
+  "rt_ok": true
+ },
+ "sweep": {
+  "de": 64,
+  "M_rt_falso": 0,
+  "H_rt_falso": 0
+ },
+ "contraprova_single_col": {
+  "header": "#TCF.8!",
+  "bytes": 25,
+  "rt_ok": true
+ }
+}

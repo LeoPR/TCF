@@ -1,0 +1,7 @@
+{
+ "wire_bytes": 25466,
+ "linha1": "#TCF.8Mf=0,a56=1,%1d1c=2,%15ba=4,%7fb=5,@202=6,3",
+ "roundtrip_identico_a_entrada": true,
+ "entrada": "../inputs/nomes-numericos-explicitos.entrada.json",
+ "papel": "Bloco 3 — indices canonicos como nome"
+}

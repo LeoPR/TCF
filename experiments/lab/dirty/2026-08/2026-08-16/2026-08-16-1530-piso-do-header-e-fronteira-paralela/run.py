@@ -76,6 +76,26 @@ def _js(p, o):
 def B(t):
     return len(t.encode("utf-8"))
 
+def grava_caso(nome, dados, wire, extra=None):
+    """Grava o caso COMPLETO — entrada, wire, roundtrip e meta.
+
+    O roundtrip vai na MESMA formatação da entrada, e o `diff` vazio É a prova: o próprio
+    runner o roda como assert. Sem isto o lab tem SAÍDA SEM PROVA — foi o defeito que o
+    owner apontou (2026-08-16) e que este lab também tinha.
+    """
+    volta = decode(wire)
+    _js(INP / f"{nome}.entrada.json", dados)
+    _esc(OUT / f"{nome}.tcf", wire)
+    _js(OUT / f"{nome}.roundtrip.json", volta)
+    igual = ((INP / f"{nome}.entrada.json").read_text(encoding="utf-8")
+             == (OUT / f"{nome}.roundtrip.json").read_text(encoding="utf-8"))
+    _js(OUT / f"{nome}.meta.json", {
+        "wire_bytes": B(wire), "linha1": wire.split(chr(10), 1)[0],
+        "roundtrip_identico_a_entrada": igual,
+        "entrada": f"../inputs/{nome}.entrada.json", **(extra or {})})
+    return igual
+
+
 
 # ── o PLANO DE FATIAMENTO: só a linha 1, nada de corpo ─────────────────────
 def plano_de_fatiamento(wire: str):
@@ -181,7 +201,9 @@ def main() -> int:
     # ── BLOCO 2 — as 6 invariantes de fronteira ─────────────────────────────
     print("\nBLOCO 2 — as invariantes que habilitam decode paralelo (TESTADAS)")
     w = encode(T, nature_per_col=SPECS)
-    _esc(OUT / "cadastro.tcf", w)
+    if not grava_caso("cadastro", T, w,
+                      extra={"papel": "o wire dos Blocos 2 e 4", "specs": ["cpf", "dt"]}):
+        falhas.append("cadastro: diff entrada x roundtrip")
     corpo = w.partition("\n")[2].encode("utf-8")
     l1, plano = plano_de_fatiamento(w)
     verdade = decode(w)
@@ -252,7 +274,9 @@ def main() -> int:
     wF = encode(T, nature_per_col=SPECS, min_header=False)
     if decode(wF) != T:
         falhas.append("I5: RT do min_header=False")
-    _esc(OUT / "cadastro-todos-com-size.tcf", wF)
+    if not grava_caso("cadastro-todos-com-size", T, wF,
+                      extra={"papel": "min_header=False — o perfil stream-ready"}):
+        falhas.append("todos-com-size: diff entrada x roundtrip")
     _, planoF = plano_de_fatiamento(wF)
     sem_eof = all(it["fim"] is not None for it in planoF)
     i5 = (plano[-1]["fim"] is None) and sem_eof and len(planoF) == len(T)

@@ -1,0 +1,16 @@
+{
+ "wire_bytes": 25497,
+ "linha1": "#TCF.8Mf=id,a56=nome,%1d1c=cpf,1c11=email,%15ba=telefone,%7fb=nascimento,@ativo",
+ "roundtrip_identico_a_entrada": true,
+ "entrada": "../inputs/perm-0-id-primeiro.entrada.json",
+ "papel": "permutacao do Bloco 1",
+ "ordem": [
+  "id",
+  "nome",
+  "cpf",
+  "email",
+  "telefone",
+  "nascimento",
+  "ativo"
+ ]
+}

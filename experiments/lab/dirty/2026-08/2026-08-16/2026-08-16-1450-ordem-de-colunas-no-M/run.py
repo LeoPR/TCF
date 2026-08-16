@@ -70,6 +70,26 @@ def _js(p, o):
 def B(t):
     return len(t.encode("utf-8"))
 
+def grava_caso(nome, dados, wire, extra=None):
+    """Grava o caso COMPLETO — entrada, wire, roundtrip e meta.
+
+    O roundtrip vai na MESMA formatação da entrada, e o `diff` vazio É a prova: o próprio
+    runner o roda como assert. Sem isto o lab tem SAÍDA SEM PROVA — foi o defeito que o
+    owner apontou (2026-08-16) e que este lab também tinha.
+    """
+    volta = decode(wire)
+    _js(INP / f"{nome}.entrada.json", dados)
+    _esc(OUT / f"{nome}.tcf", wire)
+    _js(OUT / f"{nome}.roundtrip.json", volta)
+    igual = ((INP / f"{nome}.entrada.json").read_text(encoding="utf-8")
+             == (OUT / f"{nome}.roundtrip.json").read_text(encoding="utf-8"))
+    _js(OUT / f"{nome}.meta.json", {
+        "wire_bytes": B(wire), "linha1": wire.split(chr(10), 1)[0],
+        "roundtrip_identico_a_entrada": igual,
+        "entrada": f"../inputs/{nome}.entrada.json", **(extra or {})})
+    return igual
+
+
 
 def anatomia(wire):
     """As fatias [ini:fim) de cada coluna, com o parser REAL (`_parse_meta`)."""
@@ -125,7 +145,9 @@ def main() -> int:
         rot = "→".join(x[:3] for x in ordem)
         b1.append({"ordem": ordem, "total_B": B(w), "linha1_B": B(l1),
                    "rt": rt, "corpos_invariantes": iguais})
-        _esc(OUT / f"perm-{i}-{ordem[0]}-primeiro.tcf", w)
+        if not grava_caso(f"perm-{i}-{ordem[0]}-primeiro", Tp, w,
+                          extra={"papel": "permutacao do Bloco 1", "ordem": ordem}):
+            falhas.append(f"perm {i}: diff entrada x roundtrip")
         print(f"  {rot:<28} {B(w):>7} {B(l1):>7} {'ok' if rt else 'FALHA':>4}  {iguais}")
     tot = {x["total_B"] for x in b1}
     print(f"\n  totais distintos entre permutações: {sorted(tot)} — a variação é SÓ header")
@@ -151,8 +173,11 @@ def main() -> int:
     ordem2 = NOMES[1:] + NOMES[:1]                    # roda 1 posição
     wB = encode({c: T[c] for c in ordem2}, drop_names=True)
     dA, dB = decode(wA), decode(wB)
-    _esc(OUT / "sem-nomes-ordem-canonica.tcf", wA)
-    _esc(OUT / "sem-nomes-ordem-rodada.tcf", wB)
+    for _rot, _d, _w in (("sem-nomes-ordem-canonica", T, wA),
+                         ("sem-nomes-ordem-rodada", {c: T[c] for c in ordem2}, wB)):
+        grava_caso(_rot, _d, _w, extra={"papel": "Bloco 2 — drop_names; o RT muda as CHAVES"
+                                        " por design (ADR-0029), entao o diff aqui DIFERE"
+                                        " de proposito e a prova e por VALORES"})
     troca = dA["0"][:1] != dB["0"][:1]
     print(f"  ordem canônica : decode()['0'][:1] = {dA['0'][:1]}   (era a coluna {NOMES[0]!r})")
     print(f"  ordem rodada   : decode()['0'][:1] = {dB['0'][:1]}   (agora é {ordem2[0]!r})")
@@ -178,7 +203,9 @@ def main() -> int:
     rt3 = dn == Tn
     if not rt3:
         falhas.append("P3: RT dos nomes numéricos")
-    _esc(OUT / "nomes-numericos-explicitos.tcf", wn)
+    if not grava_caso("nomes-numericos-explicitos", Tn, wn,
+                      extra={"papel": "Bloco 3 — indices canonicos como nome"}):
+        falhas.append("nomes numericos: diff entrada x roundtrip")
     print(f"  nomes numéricos explícitos (todas): {B(wn)} B  linha1={wn.split(chr(10),1)[0]!r}")
     print(f"  decode devolve as chaves {list(dn)} — a coluna movida ('3') é acháve1 POR NOME,")
     print(f"  em qualquer posição: dn['3'][:1] == email? {dn['3'][:1] == T['email'][:1]}")

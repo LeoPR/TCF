@@ -1,0 +1,12 @@
+{
+ "tipada": {
+  "fail_loud": "ValueError: nature_per_col= aplica a multi-col (dict) ou dataset (list[dict], .8H); esta entrada e' uma lista de escalares (len=3) — pra single-col use nature= (T-QA-8 BUG-10g / T-NATURE-IGNORADA-CALADA)"
+ },
+ "inexistente": {
+  "fail_loud": "ValueError: nature_per_col: coluna(s) ['ZZZ'] nao existe(m) na tabela (colunas: ['d', 's']) — o spec seria descartado calado (T-NATURE-IGNORADA-CALADA)"
+ },
+ "contraprova_list_of_dict": {
+  "bytes": 58,
+  "ok": true
+ }
+}

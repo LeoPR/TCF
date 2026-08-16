@@ -1,0 +1,7 @@
+{
+ "wire_bytes": 25454,
+ "linha1": "#TCF.8Mf,a56,%1d1c,1c11,%15ba,%7fb,@",
+ "roundtrip_identico_a_entrada": false,
+ "entrada": "../inputs/sem-nomes-ordem-canonica.entrada.json",
+ "papel": "Bloco 2 — drop_names; o RT muda as CHAVES por design (ADR-0029), entao o diff aqui DIFERE de proposito e a prova e por VALORES"
+}

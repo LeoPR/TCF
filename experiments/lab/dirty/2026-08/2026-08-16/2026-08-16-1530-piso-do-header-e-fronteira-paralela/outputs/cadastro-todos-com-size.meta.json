@@ -1,0 +1,7 @@
+{
+ "wire_bytes": 21051,
+ "linha1": "#TCF.8Mf=id,a56=nome,!bb7=cpf:cpf,1c11=email,%15ba=telefone,%7fb=nascimento,@202=ativo",
+ "roundtrip_identico_a_entrada": true,
+ "entrada": "../inputs/cadastro-todos-com-size.entrada.json",
+ "papel": "min_header=False — o perfil stream-ready"
+}

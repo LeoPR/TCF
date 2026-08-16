@@ -1,0 +1,14 @@
+{
+ "tipada": {
+  "byte_identico": true,
+  "descartado_calado": true
+ },
+ "inexistente": {
+  "byte_identico": true,
+  "descartado_calado": true
+ },
+ "contraprova_list_of_dict": {
+  "bytes": 58,
+  "ok": true
+ }
+}
