@@ -346,12 +346,23 @@ def encode(
             "nature= aplica a single-col (list); pra dict use "
             "nature_per_col={col: spec} (T-QA-8 BUG-10g)"
         )
-    if _lista_flat(data) and nature_per_col:
-        # so' a list FLAT single-col (all-str) rejeita nature_per_col (usa nature=). list[dict]
-        # (dataset .8H) ACEITA nature_per_col={path: spec} — e' a rota de nature hierarquica.
+    if (
+        isinstance(data, list)
+        and nature_per_col
+        and not any(isinstance(x, (dict, list)) for x in data)
+    ):
+        # `nature_per_col` precisa de colunas COM NOME, e uma lista de ESCALARES nao tem
+        # nenhuma — vale pra flat all-str (BUG-10g), pra TIPADA (`[1,2,3]`) e pra vazia.
+        # `list[dict]` (dataset .8H) ACEITA `{path: spec}`: e' a rota de nature
+        # hierarquica e ela aplica de verdade (medido 799 -> 52 B). `list[list]` cai no
+        # .8H, que ja' explica melhor ("nao e' folha ESCALAR do dataset") — por isso o
+        # `any(dict|list)` deixa os dois passarem.
+        # ANTES o cheque era `_lista_flat(data)`, FALSO pra lista tipada -> o spec era
+        # aceito e DESCARTADO CALADO (T-NATURE-IGNORADA-CALADA §1, fechada 2026-08-16).
         raise ValueError(
-            "nature_per_col= aplica a multi-col (dict) ou dataset (.8H); pra single-col (list[str]) "
-            "use nature= (T-QA-8 BUG-10g)"
+            "nature_per_col= aplica a multi-col (dict) ou dataset (list[dict], .8H); "
+            f"esta entrada e' uma lista de escalares (len={len(data)}) — pra single-col "
+            "use nature= (T-QA-8 BUG-10g / T-NATURE-IGNORADA-CALADA)"
         )
     if name is not None and (isinstance(data, dict) or nature is None):
         raise ValueError(
@@ -659,12 +670,21 @@ def encode(
         # COMPETIR no min() por coluna (encoda original vs nature-transformada, fica
         # a menor). So' as colunas onde a nature vence ganham ':id'. Safe-by-
         # construction: nunca pior que o baseline (resolve a regressao F4).
+        if nature_per_col:
+            # Coluna que NAO existe na tabela era filtrada CALADA aqui (`if name in data`)
+            # — o usuario pedia spec e nao recebia, sem aviso. O `.8H` JA' falhava alto em
+            # path inexistente ("nao e' folha ESCALAR do dataset"); isto alinha o `.8M`.
+            # (T-NATURE-IGNORADA-CALADA §2, fechada 2026-08-16.)
+            _desconhecidas = [c for c in nature_per_col if c not in data]
+            if _desconhecidas:
+                raise ValueError(
+                    f"nature_per_col: coluna(s) {_desconhecidas} nao existe(m) na tabela "
+                    f"(colunas: {list(data)}) — o spec seria descartado calado "
+                    f"(T-NATURE-IGNORADA-CALADA)"
+                )
+        # `{col: None}` = coluna SEM nature continua valido (contrato pre-existente).
         nature_specs = (
-            {
-                name: spec
-                for name, spec in nature_per_col.items()
-                if name in data and spec is not None
-            }
+            {name: spec for name, spec in nature_per_col.items() if spec is not None}
             if nature_per_col
             else None
         )

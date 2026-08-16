@@ -470,6 +470,67 @@ class TestLote3ApiBoundaries:
             encode(["111.444.777-35"], nature_per_col={"a": SPEC_CPF})
 
 
+class TestNatureIgnoradaCalada:
+    """T-NATURE-IGNORADA-CALADA situações (1) e (2) — o usuário pede spec e recebe
+    outra coisa SEM AVISO (fechadas 2026-08-16, item C3 da fila do M).
+
+    (1) `nature_per_col` numa lista TIPADA (ou vazia) era aceito e DESCARTADO: o
+        rejeitador de BUG-10g estava condicionado a `_lista_flat`, FALSO para
+        `[1,2,3]`. `list[dict]` (dataset .8H) continua ACEITANDO — é a rota de
+        nature hierárquica, e ela aplica de verdade (medido: 799 -> 52 B).
+    (2) coluna INEXISTENTE no `nature_per_col` do multi-col era filtrada calada
+        (`if name in data`). O `.8H` JÁ falhava alto em path inexistente — o
+        `.8M` é que estava fora do padrão.
+    """
+
+    def test_1_lista_tipada_rejeita(self):
+        from tcf.natures import SPEC_DATA_ISO
+
+        for tipada in ([738886, 738887], [1.5, 2.5], [True, False]):
+            with pytest.raises(ValueError, match="nature="):
+                encode(tipada, nature_per_col={"d": SPEC_DATA_ISO})
+
+    def test_1_lista_vazia_rejeita(self):
+        from tcf.natures import SPEC_DATA_ISO
+
+        with pytest.raises(ValueError, match="nature="):
+            encode([], nature_per_col={"d": SPEC_DATA_ISO})
+
+    def test_1_list_of_dict_continua_aceitando(self):
+        # contra-prova: a rota de nature HIERÁRQUICA não pode ser afetada
+        from tcf.natures import SPEC_DATA_ISO
+
+        recs = [{"d": f"2015-{m:02d}-01"} for m in range(1, 13)]
+        blob = encode(recs, nature_per_col={"d": SPEC_DATA_ISO})
+        assert decode(blob) == recs
+
+    def test_2_coluna_inexistente_rejeita(self):
+        from tcf.natures import SPEC_DATA_ISO
+
+        tabela = {"d": ["2024-01-01", "2024-01-02"], "s": ["a", "b"]}
+        with pytest.raises(ValueError, match="ZZZ"):
+            encode(tabela, nature_per_col={"ZZZ": SPEC_DATA_ISO})
+        # e também quando vem MISTURADA com uma coluna válida
+        with pytest.raises(ValueError, match="ZZZ"):
+            encode(tabela, nature_per_col={"d": SPEC_DATA_ISO, "ZZZ": SPEC_DATA_ISO})
+
+    def test_2_slot_none_continua_valido(self):
+        # contra-prova: `{col: None}` = coluna sem nature é contrato PRÉ-EXISTENTE
+        tabela = {"d": ["2024-01-01", "2024-01-02"]}
+        assert decode(encode(tabela, nature_per_col={"d": None})) == tabela
+
+    def test_2_coluna_existente_continua_aplicando(self):
+        from tcf.natures import SPEC_DATA_ISO
+        from tcf.side_outputs import SideOutputs
+
+        datas = [f"2015-{m:02d}-01" for m in range(1, 13)]
+        side = SideOutputs()
+        tabela = {"d": datas, "s": ["x"] * 12}
+        blob = encode(tabela, nature_per_col={"d": SPEC_DATA_ISO}, side_outputs=side)
+        assert decode(blob) == tabela
+        assert side.nature_apply["d"]["apply_rate"] == 1.0
+
+
 class TestLote3FreezeAssimetrias:
     """PASSADA DE CONGELAMENTO 2026-07-17 (T-API-BOUNDARY-CONTRACTS, gate .8).
 
