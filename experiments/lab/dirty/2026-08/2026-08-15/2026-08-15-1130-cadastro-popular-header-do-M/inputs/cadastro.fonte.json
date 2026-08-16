@@ -1,0 +1,16 @@
+{
+ "gerador": "run.py::cadastro()",
+ "seed": 20260815,
+ "n": 500,
+ "colunas": [
+  "id",
+  "nome",
+  "cpf",
+  "email",
+  "telefone",
+  "nascimento",
+  "ativo"
+ ],
+ "cpf": "gerador da suite soldada (tests/test_nature_compete.py:21-29): base aleatoria com seed + DV mod-11 calculado — CPF-contador sintetico, nao amostrado de distribuicao real",
+ "pin": "100% sintetico e deterministico; sem Z:"
+}

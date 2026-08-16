@@ -1,0 +1,183 @@
+{
+ "bloco1_specs": {
+  "int_pad_para_id": "None",
+  "cpf": {
+   "spec": "cpf",
+   "by_status": {
+    "compressible": 500
+   }
+  },
+  "nascimento": {
+   "spec": "data-iso",
+   "by_status": {
+    "compressible": 500
+   }
+  }
+ },
+ "bloco2_nature_apply": {
+  "cpf": {
+   "apply_rate": 1.0,
+   "by_status": {
+    "compressible": 500
+   },
+   "used": true
+  },
+  "nascimento": {
+   "apply_rate": 1.0,
+   "by_status": {
+    "compressible": 500
+   },
+   "used": false
+  }
+ },
+ "bloco2_bytes": {
+  "sem_spec": 25497,
+  "com_spec": 21047
+ },
+ "bloco2_anatomia_com_spec": [
+  {
+   "nome": "id",
+   "modo": "tcf",
+   "nat": null,
+   "size_hex": "f",
+   "ini": 0,
+   "fim": 15,
+   "bytes": 15
+  },
+  {
+   "nome": "nome",
+   "modo": "tcf",
+   "nat": null,
+   "size_hex": "a56",
+   "ini": 15,
+   "fim": 2661,
+   "bytes": 2646
+  },
+  {
+   "nome": "cpf",
+   "modo": "raw",
+   "nat": "cpf",
+   "size_hex": "bb7",
+   "ini": 2661,
+   "fim": 5660,
+   "bytes": 2999
+  },
+  {
+   "nome": "email",
+   "modo": "tcf",
+   "nat": null,
+   "size_hex": "1c11",
+   "ini": 5660,
+   "fim": 12845,
+   "bytes": 7185
+  },
+  {
+   "nome": "telefone",
+   "modo": "split",
+   "nat": null,
+   "size_hex": "15ba",
+   "ini": 12845,
+   "fim": 18407,
+   "bytes": 5562
+  },
+  {
+   "nome": "nascimento",
+   "modo": "split",
+   "nat": null,
+   "size_hex": "7fb",
+   "ini": 18407,
+   "fim": 20450,
+   "bytes": 2043
+  },
+  {
+   "nome": "ativo",
+   "modo": "dict",
+   "nat": null,
+   "size_hex": null,
+   "ini": 20450,
+   "fim": 20964,
+   "bytes": 514
+  }
+ ],
+ "bloco3_grafias": {
+  "default (min_header)": {
+   "linha1_B": 82,
+   "total_B": 21047,
+   "linha1": "#TCF.8Mf=id,a56=nome,!bb7=cpf:cpf,1c11=email,%15ba=telefone,%7fb=nascimento,@ativo"
+  },
+  "min_header=False": {
+   "linha1_B": 86,
+   "total_B": 21051,
+   "linha1": "#TCF.8Mf=id,a56=nome,!bb7=cpf:cpf,1c11=email,%15ba=telefone,%7fb=nascimento,@202=ativo"
+  },
+  "drop_names=True": {
+   "linha1_B": 39,
+   "total_B": 21004,
+   "linha1": "#TCF.8Mf,a56,!bb7:cpf,1c11,%15ba,%7fb,@"
+  }
+ },
+ "bloco4_fronteira": {
+  "m_com_spec": 21047,
+  "h_flag_bool": 33996
+ },
+ "bloco5_flat_vs_m": [
+  {
+   "coluna": "id",
+   "flat_B": 22,
+   "flat_header": "#TCF.8",
+   "m_B": 25,
+   "m_modo": "tcf",
+   "vence": "flat"
+  },
+  {
+   "coluna": "nome",
+   "flat_B": 2386,
+   "flat_header": "#TCF.8B81f4",
+   "m_B": 2658,
+   "m_modo": "tcf",
+   "vence": "flat"
+  },
+  {
+   "coluna": "cpf",
+   "flat_B": 3419,
+   "flat_header": "#TCF.8 :cpf",
+   "m_B": 3015,
+   "m_modo": "raw:cpf",
+   "vence": ".8M"
+  },
+  {
+   "coluna": "email",
+   "flat_B": 7192,
+   "flat_header": "#TCF.8",
+   "m_B": 7198,
+   "m_modo": "tcf",
+   "vence": "flat"
+  },
+  {
+   "coluna": "telefone",
+   "flat_B": 6732,
+   "flat_header": "#TCF.8!",
+   "m_B": 5579,
+   "m_modo": "split",
+   "vence": ".8M"
+  },
+  {
+   "coluna": "nascimento",
+   "flat_B": 3996,
+   "flat_header": "#TCF.8 :dt",
+   "m_B": 2062,
+   "m_modo": "split",
+   "vence": ".8M"
+  },
+  {
+   "coluna": "ativo",
+   "flat_B": 108,
+   "flat_header": "#TCF.8B11f4",
+   "m_B": 528,
+   "m_modo": "dict",
+   "vence": "flat"
+  }
+ ],
+ "falhas": [],
+ "CONSTANTE_na_comparacao": "o MESMO cadastro (mesma seed) em todos os blocos; muda so' o kwarg/tipo/forma de chamada"
+}
