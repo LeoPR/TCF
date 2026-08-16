@@ -20,6 +20,7 @@ Resultado: **3/3 confirmados**.
 | [`1530-piso-do-header-e-fronteira-paralela`](2026-08-16-1530-piso-do-header-e-fronteira-paralela/) | dá pra tirar mais explicitude do header? e o paralelismo? | header **já está no piso**; **6 invariantes** provam o decode paralelo (7 threads == serial) |
 | [`1610-agrupar-tipos-comuns-no-M`](2026-08-16-1610-agrupar-tipos-comuns-no-M/) | agrupar tipos comuns compartilha o header? | rende **0,13%**; o que decide é o **tamanho do domínio** (k=2 → 0,5%; k=500 → 21,2%) |
 | [`2020-verificacao-dos-welds-C1-C2-C3`](2026-08-16-2020-verificacao-dos-welds-C1-C2-C3/) | os três welds fazem o que eu disse? | **3/3 confirmados** contra o código real do git |
+| [`2110-comportamento-normal-e-verificacao-logica`](2026-08-16-2110-comportamento-normal-e-verificacao-logica/) | o código normal resiste? e a lógica fecha? | 7 operações normais + determinismo (5 seeds → 1 hash) + **enumeração exaustiva** dos 3 espaços de decisão |
 
 ## As notas do dia
 

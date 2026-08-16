@@ -1,0 +1,9 @@
+{
+ "wire_bytes": 13834,
+ "linha1": "#TCF.8Hid:15,nome:1314,cpf:5698,email:2548,nascimento:3494,ativo",
+ "prova": "diff textual entrada x roundtrip",
+ "roundtrip_identico_a_entrada": true,
+ "entrada": "../inputs/06-registros.entrada.json",
+ "operacao": "registros (.8H)",
+ "kwargs": {}
+}

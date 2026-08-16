@@ -1,0 +1,11 @@
+{
+ "wire_bytes": 6826,
+ "linha1": "#TCF.8Mf=id,@29e=nome,!707=cpf:cpf,9f4=email,%585=nascimento,@ativo",
+ "prova": "diff textual entrada x roundtrip",
+ "roundtrip_identico_a_entrada": true,
+ "entrada": "../inputs/02-tabela-com-spec.entrada.json",
+ "operacao": "a mesma, com specs",
+ "kwargs": {
+  "nature_per_col": "{'cpf': TemplatedCheckedSpec(name='cpf', regex=re.compile('^(\\\\d{3})\\\\.(\\\\d{3})\\\\.(\\\\d{3})-(\\\\d{2})$'), body_length=9, check_length=2, check_fn=<function _cpf_check_fn at 0x000001725D7627A0>, formatter=<function _cpf_formatter at 0x000001725D762840>, encoded_length=5, wire_id='cpf'), 'nascimento': DataIsoSpec(name='data-iso', wire_id='dt')}"
+ }
+}

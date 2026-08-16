@@ -1,0 +1,9 @@
+{
+ "wire_bytes": 683,
+ "linha1": "#TCF.8M@nome",
+ "prova": "diff textual entrada x roundtrip",
+ "roundtrip_identico_a_entrada": true,
+ "entrada": "../inputs/05-uma-coluna.entrada.json",
+ "operacao": "uma coluna só",
+ "kwargs": {}
+}

@@ -1,0 +1,9 @@
+{
+ "wire_bytes": 9336,
+ "linha1": "#TCF.8Mf=id,@29e=nome,%10d8=cpf,9f4=email,%585=nascimento,@ativo",
+ "prova": "diff textual entrada x roundtrip",
+ "roundtrip_identico_a_entrada": true,
+ "entrada": "../inputs/01-tabela.entrada.json",
+ "operacao": "tabela .8M, 6 colunas",
+ "kwargs": {}
+}
