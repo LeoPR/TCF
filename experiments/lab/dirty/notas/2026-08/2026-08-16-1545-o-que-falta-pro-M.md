@@ -105,6 +105,28 @@ os caminhos *"AUMENTARIA a solda dupla"*.
 
 **Nenhum depende de nada.** São os três que dá pra fechar sem decidir mais nada.
 
+### Grupo A2 — agrupar/compartilhar entre colunas (MEDIDO 2026-08-16, escopo `.9`)
+
+Proposta do owner: *"grupos de tipos comuns, como true/false, podem compartilhar
+solidariamente o header de spec"*. Lab `1610-agrupar-tipos-comuns-no-M`, 4 predições, todas
+confirmadas:
+
+| | teto |
+|---|---:|
+| compartilhar a **declaração** de 5 flags | 20 B = **0,13%** |
+| compartilhar o **domínio**, bool (k=2) | **0,5%** |
+| compartilhar o **domínio**, k=500 | **21,2%** |
+| domínios **disjuntos** | **0** |
+| **ter o candidato certo** (Grupo A) nas mesmas flags | **5,7×** |
+
+**O tipo não é a variável — o tamanho do domínio sobreposto é**; `true`/`false` é o pior caso
+da proposta. As duas metades somadas valem **1/206** do Grupo A. Reproduz o `cross-dict` /
+`H-GDICT` (−19,2% em same-domain-refs), **já escopado pelo owner para `0.9`** em 2026-06-24 —
+a medição confirma o escopo. Correção de gatilho para quando vier: agrupar por **domínio
+sobreposto**, não por tipo (detectável no pré-passe, que já calcula cardinalidade). Custo em
+paralelismo: **barreira, não perda** (1 tarefa + N independentes; o `view` já faz isso dentro
+de uma coluna).
+
 ### Grupo D — não é do M (fica registrado pra não voltar à fila)
 
 `T-SPLIT-SINGLE-COL` (é do single-col; e a ressalva de ordem já derrubou parte do 7,13×) ·

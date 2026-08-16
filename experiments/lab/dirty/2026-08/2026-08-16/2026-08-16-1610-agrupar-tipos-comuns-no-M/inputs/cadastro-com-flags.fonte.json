@@ -1,0 +1,7 @@
+{
+ "gerador": "run.py::cadastro_com_flags()",
+ "seed": 20260816,
+ "n": 2000,
+ "ideia": "5 flags S/N (o exemplo do owner: 'true/false') + 3 colunas do MESMO dominio de UF (o regime same-domain-refs do cross-dict)",
+ "pin": "sintetico deterministico, sem Z:"
+}
