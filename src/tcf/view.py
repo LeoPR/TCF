@@ -31,6 +31,7 @@ from tcf.multi import (
     _decode_v2b, _decode_struct_split, _v2b_width, _V2B_BASE,
     _decode_raw_body, _parse_meta,
 )
+from tcf.multi.core import _nomes_resolvidos
 from tcf.decoder import _decode_column
 
 
@@ -81,9 +82,14 @@ class LazyTCF:
         # Parse delegado a `_parse_meta` (tcf.multi.core) — FONTE UNICA core+view:
         # paridade view/decode por CONSTRUCAO (BUG-02, T-QA-8 F0 2026-07-10).
         # Aqui so' resolve anonimas -> nome posicional e fatia os bodies.
-        for i, (size, name, mode, nat_id) in enumerate(_parse_meta(meta)):
-            if name is None:
-                name = str(i)                        # anonima -> posicional (ADR-0029)
+        # Anonima -> posicional (ADR-0029) + guard de colisao: FONTE UNICA com o decode
+        # (`_nomes_resolvidos`), mesma razao do `_parse_meta`. Sem ele a view era PIOR
+        # que o decode aqui — reportava as N colunas do header e servia os MESMOS bytes
+        # nas chaves colididas (T-META-COLISAO-NOME-POSICIONAL).
+        _pares = _parse_meta(meta)
+        _nomes = _nomes_resolvidos(_pares)
+        for i, (size, name, mode, nat_id) in enumerate(_pares):
+            name = _nomes[i]
             body = raw[cursor:] if size is None else raw[cursor:cursor + size]
             # BUG-05 (paridade estrutural com o decode): size do header vs bytes
             # disponiveis. O cross-check de n_rows do decode NAO roda aqui —

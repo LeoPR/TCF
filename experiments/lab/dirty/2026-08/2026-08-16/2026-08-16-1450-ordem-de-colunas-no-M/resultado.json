@@ -94,9 +94,7 @@
   "custo_por_coluna": 1.9
  },
  "bloco3b_colisao": {
-  "colunas_no_header": 3,
-  "colunas_no_decode": 2,
-  "perda_silenciosa": true
+  "excecao": "ValueError: meta corrompido: nome de coluna repetido ['0'] — colisao entre nome EXPLICITO e nome POSICIONAL de coluna anonima; o header declara 3 colunas mas so' 2 chaves distintas, e o excedente seria perdido calado (T-META-COLISAO-NOME-POSICIONAL)"
  },
  "falhas": [],
  "CONSTANTE_na_comparacao": "os MESMOS 500 registros do lab 1400 em tudo; muda só ORDEM/nomeação das colunas"

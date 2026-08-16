@@ -52,6 +52,14 @@ O que NÃO existe hoje é a forma **mista** (só a coluna movida com nome, as de
 
 ## 4. P4 — o risco reproduzido: colisão de nome posicional PERDE COLUNA CALADA
 
+> ✅ **CONSERTADO em 2026-08-16** (aprovação do owner, item C2). O `run.py` deste lab agora
+> imprime *"decode LEVANTOU: … (fail-loud — P4 refutada, MELHOR)"* — o bloco 3b passou a
+> documentar a **correção**, não mais o defeito. O que o conserto revelou e que esta seção
+> não sabia: **a `view` falhava PIOR** — reportava as 3 colunas e servia os mesmos bytes nas
+> duas chaves colididas, então nem a contagem denunciava. Por isso o guard virou fonte única
+> (`_nomes_resolvidos`) consumida pelo decode **e** pela view, e não uma linha só no decode.
+> O texto abaixo fica como estava, para registrar o estado em que o defeito foi achado.
+
 Wire à mão: coluna ANÔNIMA na posição 0 + coluna NOMEADA `"0"`:
 
 ```

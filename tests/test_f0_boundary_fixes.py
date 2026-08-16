@@ -70,6 +70,49 @@ class TestBug01EmptyColName:
             decode(corrupt)
 
 
+class TestMetaColisaoNomePosicional:
+    """T-META-COLISAO-NOME-POSICIONAL (2026-08-16) — decode de wire ESTRANGEIRO.
+
+    Nome explícito que casa com o nome POSICIONAL de uma coluna anônima: as duas
+    resolvem para a mesma chave. O `decode` devolvia MENOS colunas do que o header
+    declara (a 2ª sobrescreve a 1ª no dict) e a `view` servia os MESMOS bytes em duas
+    chaves — nos dois casos CALADO. Os cheques do BUG-05 não pegam: bytes e n_rows
+    fecham.
+
+    O ENCODE nunca emite esta forma (chaves de dict são únicas; `''` tem guard próprio
+    em `multi/core.py:316-326`; `drop_names` torna TODAS posicionais e distintas) —
+    por isso o repro é wire escrito à mão.
+    """
+
+    # anônima na posição 0 (decoda '0') + coluna NOMEADA '0'; 3 valores por coluna
+    _C0, _C1, _C2 = "x\ny\nz", "a\nb\nc", "f\ni\nm"
+    WIRE = (
+        f"#TCF.8M!{len(_C0.encode()):x},!{len(_C1.encode()):x}=0,!fim\n{_C0}{_C1}{_C2}"
+    )
+
+    def test_decode_colisao_posicional_fail_loud(self):
+        with pytest.raises(ValueError, match="repetid|colis|posicional"):
+            decode(self.WIRE)
+
+    def test_view_colisao_posicional_fail_loud(self):
+        # a view falhava PIOR que o decode: reportava as 3 colunas e servia os
+        # bytes da 2ª nas duas chaves '0' (contagem não denunciava)
+        with pytest.raises(ValueError, match="repetid|colis|posicional"):
+            view(self.WIRE)
+
+    def test_encode_legitimo_nao_dispara_o_guard(self):
+        # contra-prova: o guard NÃO pode incomodar wire que o encoder emite
+        vals = [f"v{i}" for i in range(4)]
+        for blob in (
+            encode({"a": vals, "b": vals, "c": vals}),
+            encode({"a": vals, "b": vals}, drop_names=True),
+            encode({"a": vals, "b": vals}, min_header=False),
+            encode({"0": vals, "1": vals}),          # nomes numéricos EXPLÍCITOS, sem anônima
+        ):
+            decode(blob)
+            view(blob)
+
+
 class TestAnonLastColGrammar:
     """Achado da verificação adversarial F0 (2026-07-10): '<size>' bare no ÚLTIMO
     token é ambíguo com NOME (0xc parsearia como coluna 'c') -> última anônima

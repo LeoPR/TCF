@@ -232,6 +232,42 @@ def _parse_meta(meta_str: str) -> list[tuple[int | None, str | None, str, str | 
     return pairs
 
 
+def _nomes_resolvidos(pairs) -> list[str]:
+    """Nomes de coluna JA' resolvidos: anonima -> nome POSICIONAL `str(i)` (ADR-0029).
+
+    FONTE UNICA core+view, pela MESMA razao do `_parse_meta` (BUG-02, T-QA-8 F0): os dois
+    consumidores resolviam o posicional por conta propria e indexavam um dict por nome —
+    logo a resolucao podia colidir nos dois, e o cheque teria de existir em duplicata.
+    Resolvendo aqui, a paridade e' por CONSTRUCAO e o guard e' herdado.
+
+    Fail-loud em colisao (T-META-COLISAO-NOME-POSICIONAL, 2026-08-16): um nome EXPLICITO
+    que casa com o posicional de uma anonima (ex.: `#TCF.8M!5,!5=0,!fim`) fazia o
+    `decode` devolver MENOS colunas do que o header declara — a 2a sobrescrevia a 1a no
+    dict — e a `view` servir os MESMOS bytes em duas chaves, reportando as 3 colunas
+    (pior: a contagem nao denunciava). Nos dois casos CALADO, e os cheques do BUG-05 nao
+    pegam: bytes e n_rows fecham.
+
+    O ENCODE nunca emite esta forma — chave de dict e' unica, `''` tem guard proprio
+    (`_encode_multi`, BUG-01) e `drop_names` torna TODAS posicionais e distintas. Logo o
+    guard so' alcanca wire ESTRANGEIRO/corrompido, e e' deduzido de graca como os outros.
+    """
+    nomes = [n if n is not None else str(i) for i, (_s, n, _m, _x) in enumerate(pairs)]
+    if len(set(nomes)) != len(nomes):
+        vistos: set[str] = set()
+        repetidos: list[str] = []
+        for n in nomes:
+            if n in vistos and n not in repetidos:
+                repetidos.append(n)
+            vistos.add(n)
+        raise ValueError(
+            f"meta corrompido: nome de coluna repetido {repetidos} — colisao entre nome "
+            f"EXPLICITO e nome POSICIONAL de coluna anonima; o header declara "
+            f"{len(nomes)} colunas mas so' {len(set(nomes))} chaves distintas, e o "
+            f"excedente seria perdido calado (T-META-COLISAO-NOME-POSICIONAL)"
+        )
+    return nomes
+
+
 def _encode_multi(
     table: dict[str, list[str]],
     side_outputs: SideOutputs | None = None,
@@ -592,9 +628,11 @@ def _decode_multi_impl(
     # completude na chegada) registrado no ticket.
     result: dict[str, list[str]] = {}
     nature_ids: dict[str, str] = {}
+    # Anonima -> nome POSICIONAL (ADR-0029) + guard de colisao, em FONTE UNICA com a
+    # view (`_nomes_resolvidos`) — 4o cheque deduzido de graca do BUG-05.
+    nomes = _nomes_resolvidos(pairs)
     for i, (size, name, mode, nat_id) in enumerate(pairs):
-        # Coluna anonima (name is None) -> nome POSICIONAL = ordem (ADR-0029).
-        col = name if name is not None else str(i)
+        col = nomes[i]
         if size is None:
             body_bytes = raw[cursor:]  # ate' EOF (ultima coluna)
         else:
