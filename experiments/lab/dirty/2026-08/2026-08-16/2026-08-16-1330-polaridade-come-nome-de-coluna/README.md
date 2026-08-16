@@ -1,6 +1,6 @@
 # A polaridade come o fim do nome da coluna — RT quebrado calado no `.8M` e no `.8H`
 
-> Achado do mapeamento de M/H (2026-08-15). **É defeito de correção, não medição de bytes.**
+> Achado do mapeamento de M/H (2026-08-16). **É defeito de correção, não medição de bytes.**
 
 ```python
 >>> from tcf import encode, decode

@@ -1,6 +1,6 @@
 # Cadastro popular — a construção do header do `.8M` com specs, pra inspeção
 
-> **Owner (2026-08-15)**: *"um cadastro simples e popular de transmissão, com o básico de
+> **Owner (2026-08-16)**: *"um cadastro simples e popular de transmissão, com o básico de
 > nome, cpf, email, telefone, data de nascimento e um flag de ativo/inativo... a intenção
 > agora é ver a construção do header com alguns specs variados... revisar a parte de término
 > de coluna, quando uma acaba e outra começa... pode fazer o dirtylab como sempre, aí eu
