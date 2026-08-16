@@ -1,0 +1,14 @@
+{
+ "wire_bytes": 13957,
+ "linha1": "#TCF.8M@1b31=origem,@destino",
+ "roundtrip_identico_a_entrada": true,
+ "entrada": "../inputs/same-domain-k500.entrada.json",
+ "k": 500,
+ "n": 2000,
+ "papel": "a curva do Bloco 2 — k e a UNICA variavel",
+ "tabela_por_col_B": [
+  2956,
+  2962
+ ],
+ "teto_compartilhar_B": 2956
+}

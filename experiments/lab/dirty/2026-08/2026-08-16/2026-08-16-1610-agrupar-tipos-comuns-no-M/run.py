@@ -80,6 +80,29 @@ def B(t):
     return len(t.encode("utf-8"))
 
 
+def grava_caso(nome, dados, wire, extra=None):
+    """Grava o caso COMPLETO — entrada, fonte, wire, roundtrip e meta.
+
+    O roundtrip é gravado na MESMA formatação da entrada, e o `diff` vazio É a prova:
+    o próprio runner roda o diff como assert (checklist de rastreabilidade, §3/§3-bis
+    do Strata). Sem isto o lab tem saída sem prova — foi o defeito que o owner apontou
+    nesta rodada.
+    """
+    volta = decode(wire)
+    _js(INP / f"{nome}.entrada.json", dados)
+    _esc(OUT / f"{nome}.tcf", wire)
+    _js(OUT / f"{nome}.roundtrip.json", volta)
+    ent = (INP / f"{nome}.entrada.json").read_text(encoding="utf-8")
+    rt = (OUT / f"{nome}.roundtrip.json").read_text(encoding="utf-8")
+    igual = ent == rt                      # o diff textual, o mesmo que o owner rodaria
+    _js(OUT / f"{nome}.meta.json", {
+        "wire_bytes": B(wire), "linha1": wire.split("\n", 1)[0],
+        "roundtrip_identico_a_entrada": igual,
+        "entrada": f"../inputs/{nome}.entrada.json",
+        **(extra or {})})
+    return igual
+
+
 def anatomia(wire):
     """Por coluna: modo, bytes, e — no modo `@dict` — quanto é TABELA (compartilhável)
     e quanto é STREAM de índices (NÃO compartilhável, é por linha)."""
@@ -128,15 +151,14 @@ def main() -> int:
     T = cadastro_com_flags()
     FLAGS = ["ativo", "vip", "bloq", "news", "mfa"]
     w = encode(T)
-    if decode(w) != T:
-        falhas.append("RT do cadastro")
-    _js(INP / "cadastro-com-flags.entrada.json", T)
     _js(INP / "cadastro-com-flags.fonte.json", {
         "gerador": "run.py::cadastro_com_flags()", "seed": SEED, "n": N,
         "ideia": "5 flags S/N (o exemplo do owner: 'true/false') + 3 colunas do MESMO "
                  "dominio de UF (o regime same-domain-refs do cross-dict)",
         "pin": "sintetico deterministico, sem Z:"})
-    _esc(OUT / "cadastro-com-flags.tcf", w)
+    if not grava_caso("cadastro-com-flags", T, w,
+                      extra={"papel": "a tabela do Bloco 1 e do Bloco 3"}):
+        falhas.append("RT do cadastro (diff entrada x roundtrip)")
 
     # ── BLOCO 1 — METADE 1: compartilhar a DECLARAÇÃO ───────────────────────
     print("BLOCO 1 — metade 1: compartilhar a DECLARAÇÃO (o 'header de spec')\n")
@@ -164,16 +186,19 @@ def main() -> int:
         D = {"origem": [rng2.choice(dom) for _ in range(N)],
              "destino": [rng2.choice(dom) for _ in range(N)]}
         wk = encode(D)
-        if decode(wk) != D:
-            falhas.append(f"RT k={k}")
         cols = anatomia(wk)
+        tabs_ = [c["tabela"] for c in cols if c["tabela"] is not None]
+        if not grava_caso(f"same-domain-k{k}", D, wk, extra={
+                "k": k, "n": N, "papel": "a curva do Bloco 2 — k e a UNICA variavel",
+                "tabela_por_col_B": tabs_,
+                "teto_compartilhar_B": (min(tabs_) if len(tabs_) == 2 else 0)}):
+            falhas.append(f"RT k={k} (diff entrada x roundtrip)")
         tabs = [c["tabela"] for c in cols if c["tabela"] is not None]
         teto = min(tabs) if len(tabs) == 2 else 0
         strm = [c["stream"] for c in cols if c["stream"] is not None]
         curva.append({"k": k, "wire_B": B(wk), "tabela_B": tabs[0] if tabs else None,
                       "stream_B": strm[0] if strm else None,
                       "teto_B": teto, "pct": round(100 * teto / B(wk), 1)})
-        _esc(OUT / f"same-domain-k{k}.tcf", wk)
         print(f"  {k:>6} {B(wk):>8} {str(tabs[0] if tabs else '—'):>11} "
               f"{str(strm[0] if strm else '—'):>11} {teto:>13} B {100 * teto / B(wk):>9.1f}%")
     bool_pct = next(x["pct"] for x in curva if x["k"] == 2)
@@ -220,9 +245,11 @@ def main() -> int:
         d2 = [f"produto-{i:05d}" for i in range(k)]
         Msame = {"a": [rng3.choice(d1) for _ in range(N)], "b": [rng3.choice(d1) for _ in range(N)]}
         Mdisj = {"a": [rng3.choice(d1) for _ in range(N)], "b": [rng3.choice(d2) for _ in range(N)]}
-        for M in (Msame, Mdisj):
-            if decode(encode(M)) != M:
-                falhas.append(f"RT disjunto k={k}")
+        for rot_, M in (("same", Msame), ("disjunto", Mdisj)):
+            if not grava_caso(f"b4-{rot_}-k{k}", M, encode(M), extra={
+                    "k": k, "papel": "contra-prova do Bloco 4: sobreposicao de dominio",
+                    "dominios": rot_}):
+                falhas.append(f"RT b4 {rot_} k={k}")
         cs, cd = anatomia(encode(Msame)), anatomia(encode(Mdisj))
         ts = [c["tabela"] for c in cs if c["tabela"] is not None]
         td = [c["tabela"] for c in cd if c["tabela"] is not None]
@@ -249,6 +276,21 @@ def main() -> int:
         "hoje": "N tarefas independentes (I2 do lab 1530)",
         "com_dominio_compartilhado": "1 tarefa (tabela) + N independentes — barreira, não perda",
         "precedente": "o view ja' le a tabela do @ antes do stream, dentro de uma coluna"}
+
+    # ── INDEX gerado: nome -> ideia -> input -> veredito (checklist §5) ─────
+    linhas = ["# INDEX — agrupar tipos comuns no `.8M`", "",
+              f"n={N}, seed={SEED}. **Todo caso tem entrada, wire, roundtrip e meta**; o "
+              f"`diff` entrada×roundtrip é rodado como assert pelo `run.py`.", "",
+              "| caso | ideia | wire | RT | entrada |", "|---|---|---:|:--:|---|"]
+    for mp in sorted(OUT.glob("*.meta.json")):
+        m = json.loads(mp.read_text(encoding="utf-8"))
+        nome = mp.name[:-len(".meta.json")]
+        linhas.append(
+            f"| [`{nome}.tcf`](./{nome}.tcf) | {m.get('papel', '—')} | {m['wire_bytes']} | "
+            f"{'✓' if m['roundtrip_identico_a_entrada'] else '✗'} | "
+            f"[entrada](../inputs/{nome}.entrada.json) · "
+            f"[roundtrip](./{nome}.roundtrip.json) |")
+    _esc(OUT / "INDEX.md", "\n".join(linhas) + "\n")
 
     _js(RAIZ / "resultado.json", {**reg, "falhas": falhas})
     print(f"\n{len(falhas)} falha(s)")

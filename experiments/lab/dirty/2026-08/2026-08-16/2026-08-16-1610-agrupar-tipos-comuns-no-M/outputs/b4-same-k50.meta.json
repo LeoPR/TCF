@@ -1,0 +1,9 @@
+{
+ "wire_bytes": 4547,
+ "linha1": "#TCF.8M@8d9=a,@b",
+ "roundtrip_identico_a_entrada": true,
+ "entrada": "../inputs/b4-same-k50.entrada.json",
+ "k": 50,
+ "papel": "contra-prova do Bloco 4: sobreposicao de dominio",
+ "dominios": "same"
+}
