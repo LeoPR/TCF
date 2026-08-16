@@ -1,5 +1,5 @@
 {
- "gerador": "run.py — string.punctuation x {1,2} repeticoes, nome 'ab'+p",
+ "gerador": "run.py — string.punctuation x {1,2} + variacoes do bloco 4",
  "valores": "26 sinteticos v0..v25 (o dado nao importa; o NOME e' a variavel)",
- "pin": "sem Z:, inteiramente sintetico e deterministico"
+ "pin": "sem Z:, deterministico"
 }

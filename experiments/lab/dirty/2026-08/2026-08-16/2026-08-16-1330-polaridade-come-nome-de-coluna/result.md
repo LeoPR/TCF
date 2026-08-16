@@ -53,3 +53,49 @@ Nomes plausíveis em dado real que caem: `obs.`, `qtd.`, `valor_r$`, `%`, `medid
 - **Não varreu Unicode** — só `string.punctuation` ASCII.
 - **Não mediu multi-coluna com a ÚLTIMA coluna terminando em pontuação sob `drop_names`**, que
   é a outra forma em que o nome pode encostar no fim da linha 1.
+
+---
+
+## 6. CONSERTADO — 2026-08-16, opção B (aprovada pelo owner)
+
+**O fix**: escopo de discriminador em `decoder.py` — o pré-passe de polaridade só age quando o
+disc **não** é `M`/`H`.
+
+**A premissa, medida antes de mexer**: o encode nunca polariza essas rotas. Está declarado em
+`encoder.py:489` (*"`.8M`/`.8H`/spec ficam de fora deste weld"*), os três sítios de
+`polariza()` são single-col, e o Bloco 6 mediu **2.000 wires `.8M` + 2.000 `.8H`, zero com
+sufixo separável**. Rodar o pré-passe ali só podia errar.
+
+### O antes/depois, do mesmo `run.py`
+
+| métrica | antes | depois |
+|---|---:|---:|
+| `.8M` RT falso (de 64) | **48** | **0** |
+| `.8H` RT falso (de 64) | **38** | **0** |
+| variações novas quebradas (de 19) | 3 | **0** |
+| contra-prova 2 colunas ok (de 64) | 64 | 64 |
+| warnings | 0 | 0 |
+
+**O wire não mudou**: os headers das 19 variações e dos 5 controles single-col são
+**byte-idênticos** entre as duas rodadas (0 diferenças), e os gates byte-canonical seguem
+verdes. Custo em bytes do conserto: **zero**.
+
+### O que as variações novas acrescentaram (Bloco 4)
+
+- **Unicode é SEGURO** — `obs°`, `valor€`, `medida±`, `temp℃`, `ção…` sempre fecharam, porque
+  a `FAIXA` da polaridade é ASCII 0x21–0x7E. **Resolve o viés que a versão anterior deste lab
+  declarava** (*"só ASCII"*).
+- **Três casos novos do MESMO defeito** que o sweep `ab`+pontuação não alcançava: nome `.`,
+  nome `..` e nome `a.` (o sweep começava com dois chars alfanuméricos).
+- **`min_header=False`, 3 colunas, spec `:dt`, `.8H` aninhado e os modos `!`/`@`/`%` já eram
+  seguros** — em todos o meta ganha `=`/`,`/`:`/prefixo, e o `tag.isalnum()` do separador
+  falha, que é a conservadoria que já existia.
+- **`drop_names` era erro do meu teste, não defeito**: com ele os nomes viram posicionais por
+  design (ADR-0029), então a prova é por VALORES. Corrigido no `run.py`.
+
+### O pino na suíte
+
+`TestPolaridadeComeNome` em `tests/test_f0_boundary_fixes.py` — 16 casos. Verificado por
+`git stash` do fix: **13 dos 16 falham sem ele**, os 16 passam com ele. Os 3 que passam nos
+dois são as contra-provas (single-col polarizado não regride; o encode nunca polariza `M`/`H`).
+Suíte **1269 → 1285 passed**.

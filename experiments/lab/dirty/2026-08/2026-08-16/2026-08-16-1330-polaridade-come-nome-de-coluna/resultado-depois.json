@@ -1,0 +1,315 @@
+{
+ "estado_do_src": "depois",
+ "bloco1_dependencia_de_n": [
+  {
+   "nome": "obs.",
+   "n": 3,
+   "header": "#TCF.8M!obs.",
+   "rt": true,
+   "chave_volta": "obs."
+  },
+  {
+   "nome": "obs.",
+   "n": 5,
+   "header": "#TCF.8Mobs.",
+   "rt": true,
+   "chave_volta": "obs."
+  },
+  {
+   "nome": "obs.",
+   "n": 10,
+   "header": "#TCF.8Mobs.",
+   "rt": true,
+   "chave_volta": "obs."
+  },
+  {
+   "nome": "obs.",
+   "n": 26,
+   "header": "#TCF.8Mobs.",
+   "rt": true,
+   "chave_volta": "obs."
+  },
+  {
+   "nome": "obs.",
+   "n": 100,
+   "header": "#TCF.8Mobs.",
+   "rt": true,
+   "chave_volta": "obs."
+  },
+  {
+   "nome": "qtd.",
+   "n": 3,
+   "header": "#TCF.8M!qtd.",
+   "rt": true,
+   "chave_volta": "qtd."
+  },
+  {
+   "nome": "qtd.",
+   "n": 5,
+   "header": "#TCF.8Mqtd.",
+   "rt": true,
+   "chave_volta": "qtd."
+  },
+  {
+   "nome": "qtd.",
+   "n": 10,
+   "header": "#TCF.8Mqtd.",
+   "rt": true,
+   "chave_volta": "qtd."
+  },
+  {
+   "nome": "qtd.",
+   "n": 26,
+   "header": "#TCF.8Mqtd.",
+   "rt": true,
+   "chave_volta": "qtd."
+  },
+  {
+   "nome": "qtd.",
+   "n": 100,
+   "header": "#TCF.8Mqtd.",
+   "rt": true,
+   "chave_volta": "qtd."
+  },
+  {
+   "nome": "ab.",
+   "n": 3,
+   "header": "#TCF.8M!ab.",
+   "rt": true,
+   "chave_volta": "ab."
+  },
+  {
+   "nome": "ab.",
+   "n": 5,
+   "header": "#TCF.8Mab.",
+   "rt": true,
+   "chave_volta": "ab."
+  },
+  {
+   "nome": "ab.",
+   "n": 10,
+   "header": "#TCF.8Mab.",
+   "rt": true,
+   "chave_volta": "ab."
+  },
+  {
+   "nome": "ab.",
+   "n": 26,
+   "header": "#TCF.8Mab.",
+   "rt": true,
+   "chave_volta": "ab."
+  },
+  {
+   "nome": "ab.",
+   "n": 100,
+   "header": "#TCF.8Mab.",
+   "rt": true,
+   "chave_volta": "ab."
+  }
+ ],
+ "bloco2_sweep_ascii": {
+  "n_casos": 64,
+  "M_falso": 0,
+  "M_so_chave": [],
+  "M_chave_e_valores": [],
+  "M_ok": 64,
+  "H_falso": 0,
+  "warnings": 0
+ },
+ "bloco3_contraprova_2col": {
+  "ok": 64,
+  "de": 64
+ },
+ "bloco4_variacoes_novas": [
+  {
+   "variacao": "unicode 'obs°'",
+   "header": "#TCF.8Mobs°",
+   "rt": true,
+   "nota": "não-ASCII no fim",
+   "kw": {}
+  },
+  {
+   "variacao": "unicode 'valor€'",
+   "header": "#TCF.8Mvalor€",
+   "rt": true,
+   "nota": "não-ASCII no fim",
+   "kw": {}
+  },
+  {
+   "variacao": "unicode 'medida±'",
+   "header": "#TCF.8Mmedida±",
+   "rt": true,
+   "nota": "não-ASCII no fim",
+   "kw": {}
+  },
+  {
+   "variacao": "unicode 'temp℃'",
+   "header": "#TCF.8Mtemp℃",
+   "rt": true,
+   "nota": "não-ASCII no fim",
+   "kw": {}
+  },
+  {
+   "variacao": "unicode 'ção…'",
+   "header": "#TCF.8Mção…",
+   "rt": true,
+   "nota": "não-ASCII no fim",
+   "kw": {}
+  },
+  {
+   "variacao": "nome de 1 char '.'",
+   "header": "#TCF.8M.",
+   "rt": true,
+   "nota": "nome inteiro é pontuação",
+   "kw": {}
+  },
+  {
+   "variacao": "nome de 2 chars '..'",
+   "header": "#TCF.8M..",
+   "rt": true,
+   "nota": "",
+   "kw": {}
+  },
+  {
+   "variacao": "nome 'a.'",
+   "header": "#TCF.8Ma.",
+   "rt": true,
+   "nota": "tag alnum mínima",
+   "kw": {}
+  },
+  {
+   "variacao": "pontuação no MEIO 'a.b'",
+   "header": "#TCF.8Ma.b",
+   "rt": true,
+   "nota": "controle — não é sufixo",
+   "kw": {}
+  },
+  {
+   "variacao": "3 colunas, última com '.'",
+   "header": "#TCF.8M15=a,15=b,c.",
+   "rt": true,
+   "nota": "",
+   "kw": {}
+  },
+  {
+   "variacao": "3 colunas, PRIMEIRA com '.'",
+   "header": "#TCF.8M15=a.,15=b,c",
+   "rt": true,
+   "nota": "",
+   "kw": {}
+  },
+  {
+   "variacao": "1 col, min_header=False",
+   "header": "#TCF.8M15=obs.",
+   "rt": true,
+   "nota": "size explícito",
+   "kw": {
+    "min_header": "False"
+   }
+  },
+  {
+   "variacao": "1 col, drop_names=True",
+   "header": "#TCF.8M",
+   "rt": true,
+   "nota": "nome SAI do header; RT por VALORES (nomes posicionais)",
+   "kw": {
+    "drop_names": "True"
+   }
+  },
+  {
+   "variacao": "2 col, drop_names=True",
+   "header": "#TCF.8M15,",
+   "rt": true,
+   "nota": "RT por VALORES (nomes posicionais)",
+   "kw": {
+    "drop_names": "True"
+   }
+  },
+  {
+   "variacao": "1 col + spec :dt",
+   "header": "#TCF.8M@dt.",
+   "rt": true,
+   "nota": "meta tem ':'",
+   "kw": {
+    "nature_per_col": "{'dt.': DataIsoSpec(name='data-iso', wire_id='dt')}"
+   }
+  },
+  {
+   "variacao": ".8H aninhado, folha com '.'",
+   "header": "#TCF.8Ho{obs.",
+   "rt": true,
+   "nota": "objeto dentro de objeto",
+   "kw": {}
+  },
+  {
+   "variacao": "1 col modo raw '!'",
+   "header": "#TCF.8M!obs.",
+   "rt": true,
+   "nota": "n=3 → raw",
+   "kw": {}
+  },
+  {
+   "variacao": "1 col modo dict '@'",
+   "header": "#TCF.8M@obs.",
+   "rt": true,
+   "nota": "K=2 → dict",
+   "kw": {}
+  },
+  {
+   "variacao": "1 col modo split '%'",
+   "header": "#TCF.8M%obs.",
+   "rt": true,
+   "nota": "template → split",
+   "kw": {}
+  }
+ ],
+ "bloco5_single_col_controle": [
+  {
+   "caso": "flat com literais",
+   "header": "#TCF.8!",
+   "sufixo": "!",
+   "rt": true,
+   "polarizado": true
+  },
+  {
+   "caso": "tipado int",
+   "header": "#TCF.8n",
+   "sufixo": "",
+   "rt": true,
+   "polarizado": false
+  },
+  {
+   "caso": "tipado float",
+   "header": "#TCF.8n!!",
+   "sufixo": "!!",
+   "rt": true,
+   "polarizado": true
+  },
+  {
+   "caso": "flat texto",
+   "header": "#TCF.8",
+   "sufixo": "",
+   "rt": true,
+   "polarizado": false
+  },
+  {
+   "caso": "flat + spec",
+   "header": "#TCF.8",
+   "sufixo": "",
+   "rt": true,
+   "polarizado": false
+  }
+ ],
+ "bloco6_premissa": {
+  "total": {
+   "M": 2000,
+   "H": 2000
+  },
+  "com_sufixo": {
+   "M": 0,
+   "H": 0
+  }
+ },
+ "falhas": [],
+ "regressoes": []
+}

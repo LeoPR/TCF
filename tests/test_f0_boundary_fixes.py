@@ -113,6 +113,75 @@ class TestMetaColisaoNomePosicional:
             view(blob)
 
 
+class TestPolaridadeComeNome:
+    """T-POLARIDADE-COME-NOME (fechado 2026-08-16, item C1) — RT quebrado CALADO.
+
+    A polaridade é camada de BORDA, a primeira coisa do decode: rodava
+    `_separa_sufixo_polaridade(line1[6:])` em TODO wire `#TCF.8`. No `.8M` esse
+    `line1[6:]` é `M<meta>`, e o fim do meta é o NOME DA ÚLTIMA COLUNA (forma
+    `min_header`) — então `#TCF.8Mobs.` separava `('Mobs', '.')` e a coluna decodava
+    como `obs`. Com pontuação dobrada, os VALORES também corrompiam. 48/64 nomes no
+    `.8M`, 38/64 no `.8H`, **zero warnings**.
+
+    FIX (opção B, aprovada pelo owner): escopo de discriminador — o pré-passe não age
+    em `M`/`H`. O encode NUNCA polariza essas rotas (`encoder.py:489` declara, e os 3
+    sítios de `polariza()` são single-col), logo o pré-passe ali só podia errar.
+    **Custo em bytes: zero** — nada muda no que o encode emite.
+    """
+
+    VALS = [f"v{i}" for i in range(26)]
+
+    @pytest.mark.parametrize(
+        "nome", ["obs.", "obs..", "ab!", "ab!!", "qtd.", ".", "..", "a.", "valor_r$", "id#"]
+    )
+    def test_nome_terminado_em_pontuacao_faz_rt(self, nome):
+        d = {nome: list(self.VALS)}
+        assert decode(encode(d)) == d, "a chave e/ou os valores voltaram diferentes"
+
+    @pytest.mark.parametrize("nome", ["obs.", "ab!!", "."])
+    def test_mesma_coisa_no_8h(self, nome):
+        recs = [{nome: v} for v in self.VALS]
+        assert decode(encode(recs)) == recs
+
+    def test_sweep_pontuacao_ascii_completo(self):
+        # o sweep que media 48/64 e 38/64 quebrados: agora tem de ser 0
+        import string
+
+        for p in string.punctuation:
+            for nome in (f"ab{p}", f"ab{p}{p}"):
+                d = {nome: list(self.VALS)}
+                assert decode(encode(d)) == d, f".8M quebrou em {nome!r}"
+                recs = [{nome: v} for v in self.VALS]
+                assert decode(encode(recs)) == recs, f".8H quebrou em {nome!r}"
+
+    def test_single_col_polarizado_nao_regride(self):
+        # CONTRA-PROVA: as rotas que USAM a polaridade de verdade não podem mudar
+        from tcf.decoder import _separa_sufixo_polaridade as _sep
+
+        casos = [
+            [f"{i:02d}.{i:02d}-{i:03d}" for i in range(30)],   # flat -> '#TCF.8!'
+            [i + 0.5 for i in range(30)],                       # tipado -> '#TCF.8n!!'
+        ]
+        for vals in casos:
+            blob = encode(vals)
+            _tag, suf = _sep(blob.split("\n", 1)[0][6:])
+            assert suf, "pré-condição: este caso DEVE ser polarizado"
+            assert decode(blob) == vals
+
+    def test_encode_nunca_polariza_m_ou_h(self):
+        # a PREMISSA do fix: se o encode polarizasse M/H, ignorar o sufixo perderia dado
+        from tcf.decoder import _separa_sufixo_polaridade as _sep
+
+        cols = {
+            "a": [f"{i:02d}.{i:02d}-{i:03d}" for i in range(8)],   # atrai polaridade
+            "b": [str(i) for i in range(8)],
+        }
+        for dado in (cols, [dict(zip(cols, t)) for t in zip(*cols.values())]):
+            line1 = encode(dado).split("\n", 1)[0]
+            assert line1[6:7] in ("M", "H"), "pré-condição: rota M/H"
+            assert _sep(line1[6:]) == ("", ""), "encode NÃO deve polarizar M/H"
+
+
 class TestAnonLastColGrammar:
     """Achado da verificação adversarial F0 (2026-07-10): '<size>' bare no ÚLTIMO
     token é ambíguo com NOME (0xc parsearia como coluna 'c') -> última anônima

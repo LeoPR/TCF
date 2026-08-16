@@ -151,7 +151,16 @@ def decode(
     # delimitador e devolve o corpo CANONICO — dai' pra baixo todo o dispatch e o parser sao
     # os de sempre, e o seq-RLE (que localiza o digito incrementavel PELO ESCAPE) continua
     # vendo so' corpo canonico. Ver `composicional/polaridade.py`.
-    if _ver == "8":
+    # ESCOPO DE DISCRIMINADOR (T-POLARIDADE-COME-NOME, 2026-08-16): o pre-passe SO' age
+    # onde o encode de fato polariza. O `encoder.py:489` declara: "so' aqui e no tipado:
+    # orfao (`stamp=False`) nao tem cabecalho onde declarar, e `.8M`/`.8H`/spec ficam de
+    # fora deste weld" — os TRES sitios de `polariza()` sao single-col. Medido: 2000 wires
+    # `.8M` + 2000 `.8H`, ZERO com sufixo separavel. Logo rodar o pre-passe sobre um header
+    # `M`/`H` so' PODE errar, e errava: no `.8M` o fim do meta e' o NOME DA ULTIMA COLUNA
+    # (forma `min_header`), entao `#TCF.8Mobs.` separava ('Mobs', '.') e a coluna decodava
+    # como `obs` — RT quebrado CALADO em 48/64 nomes (.8M) e 38/64 (.8H), 0 warnings.
+    # Custo em bytes: ZERO (nada muda no que o encode emite).
+    if _ver == "8" and line1[6:7] not in ("M", "H"):
         _tag, _sufixo = _separa_sufixo_polaridade(line1[6:])
         if _sufixo:
             from tcf.composicional.polaridade import despolariza

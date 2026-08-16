@@ -1,6 +1,12 @@
 # A polaridade come o fim do nome da coluna — RT quebrado calado no `.8M` e no `.8H`
 
 > Achado do mapeamento de M/H (2026-08-16). **É defeito de correção, não medição de bytes.**
+>
+> ✅ **CONSERTADO 2026-08-16** (opção B aprovada pelo owner): escopo de discriminador — o
+> pré-passe de polaridade não age em `M`/`H`. **.8M 48/64 → 0/64 · .8H 38/64 → 0/64 ·
+> variações novas 3/19 → 0/19 · regressões 0 · wire byte-idêntico.** O `run.py` se
+> AUTODETECTA e grava `resultado-antes.json` / `resultado-depois.json` — as duas rodadas
+> coexistem e são diffáveis.
 
 ```python
 >>> from tcf import encode, decode
