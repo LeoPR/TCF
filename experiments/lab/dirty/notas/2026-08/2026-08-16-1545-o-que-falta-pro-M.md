@@ -1,5 +1,35 @@
 # O que falta pro `.8M` — o inventário, o gargalo, e a ordem
 
+> ## ⚠️ ATUALIZAÇÃO 2026-08-16 fim do dia — o que fechou e o que foi RE-DIMENSIONADO
+>
+> **O Grupo C fechou inteiro**: C2 (`0dec1a06`), C3 (`ec08634c`), C1 (`2464f561`). Três
+> defeitos silenciosos soldados, wire byte-idêntico nos três, suíte 1260 → 1285, e a prova
+> vermelho→verde reproduzível contra o código do git (lab `2020`).
+>
+> **O `.8M` foi auditado no corpus real** (lab `2130`, 23 tabelas / 186 colunas, 0 falhas):
+> RT 23/23 · paridade `view`×`decode` 23/23 · as 6 invariantes 23/23 **incluindo decode
+> paralelo == serial** · os 3 guards com **zero disparo espúrio** (mesmo com 151 das 186
+> colunas tendo nome não-alfanumérico) · os 4 candidatos **todos com domínio real**
+> (dict 70 · tcf 59 · split 37 · raw 20).
+>
+> **E o Grupo A foi RE-DIMENSIONADO — para menos.** Eu havia extrapolado do adult-census que
+> a soma dos wires flat batia o `.8M` em +27,2%. **No corpus inteiro o `.8M` VENCE por 5,1%**,
+> e o adult-census é justamente onde ele mais perde (62% de toda a perda). Medido coluna a
+> coluna, o **teto da união é 2,3%** do corpus — 77 de 186 colunas teriam candidato melhor
+> no flat.
+>
+> **Reconciliação com o `T-BAIXA-CARD-EM-TABELA`** (que registrava 5×–12,8×): não há
+> contradição. A razão **por coluna** chega a **5,82×** (`adult-census:sex`, 2.014 B contra
+> 346 B), mas **só 10 de 186 colunas passam de 2×** e elas são pequenas em bytes absolutos.
+> Todas as piores são **`bN` no flat contra `dict`/`tcf` no `.8M`** — o candidato ausente.
+>
+> **Consequência para a ordem**: o Grupo A continua certo como **unificação de manutenção**
+> (cada mecanismo soldado uma vez em vez de duas — o argumento original do
+> `T-UM-CAMINHO-SO`), mas **o argumento de BYTES ficou fraco** e não deve sustentar sozinho a
+> decisão de abrir a gramática do meta (B1). O item de maior retorno em bytes passa a ser o
+> **`T-8H-UM-CANDIDATO-SO`** (99,986% do overhead do `.8H`), que esta auditoria **não tocou**
+> — ela foi só do `.8M`.
+
 > **Owner (2026-08-16)**: *"veja o que mais falta pro M, vamos ir fechando."*
 
 Inventário levantado do `STATUS.md` (15 tickets citam multi-col), das notas e do código, com
