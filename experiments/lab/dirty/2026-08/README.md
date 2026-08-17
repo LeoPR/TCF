@@ -45,7 +45,15 @@ comprime cada coluna com `stamp=False`, e `encoder.py:461` retorna **antes** do 
 candidatos. Ele não escolhe mal — **nunca chega ao `min()`**. Medido: `.8M` 41.925 B contra
 `.8H` 76.949 B, com os **corpos byte-idênticos** ao `.8M(fallback=False)`.
 
-**Nunca passou por auditoria de corpus.** É o maior item aberto em bytes.
+**AUDITADO EM CORPUS 2026-08-16** (lab [`2230`](2026-08-16/2026-08-16-2230-avaliacao-do-H/)):
+o candidato único explica **99,99%** do overhead nas 23 tabelas (residual de **69 B** em
+520.044). Overhead agregado **+23,0%**, amplitude de 0% (`region`) a **+113%** (`wine-quality`).
+O **header dele é 0,11% do wire** — não é o problema. **É o maior item aberto em bytes.**
+
+> **Ressalva que dimensiona**: o `.8H` foi medido em dado RETANGULAR, que é onde ele é mais
+> desfavorecido. Os +23% são o custo de usá-lo **onde o `.8M` daria conta** — não o custo dele
+> no domínio próprio (aninhamento, ragged, tipo, null). Corpus com aninhamento real **não
+> existe** em `Z:`; é lacuna declarada.
 
 ---
 

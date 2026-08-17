@@ -26,6 +26,7 @@ Resultado: **3/3 confirmados**.
 | [`2020-verificacao-dos-welds-C1-C2-C3`](2026-08-16-2020-verificacao-dos-welds-C1-C2-C3/) | os três welds fazem o que eu disse? | **3/3 confirmados** contra o código real do git |
 | [`2110-comportamento-normal-e-verificacao-logica`](2026-08-16-2110-comportamento-normal-e-verificacao-logica/) | o código normal resiste? e a lógica fecha? | 7 operações normais + determinismo (5 seeds → 1 hash) + **enumeração exaustiva** dos 3 espaços de decisão |
 | [`2130-auditoria-do-M-no-corpus`](2026-08-16-2130-auditoria-do-M-no-corpus/) | o  está OK em dado REAL? | **23 tabelas / 186 colunas, 0 falhas**. Invariantes 23/23, guards 0 disparos, os 4 candidatos com domínio real. **CORRIGE** minha extrapolação: o  VENCE por 5,1% no corpus, e o teto da união é **2,3%**, não 27% |
+| [`2230-avaliacao-do-H`](2026-08-16-2230-avaliacao-do-H/) | o `.8H`: header, estágios e capacidades | header é **0,11%** do wire; o candidato único explica **99,99%** do overhead (+23% no corpus); 3 funções duplicadas mas a divergência é **correta** |
 
 ## As notas do dia
 
