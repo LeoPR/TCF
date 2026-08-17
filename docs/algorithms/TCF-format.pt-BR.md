@@ -68,7 +68,7 @@ consumida pelo pre-passe de polaridade ([ADR-0035](../adr/0035-delimitador-de-po
 
 | apos `#TCF.8` | tipo | header |
 |---|---|---|
-| *(nada, body direto)* | single-col orfao | — |
+| *(nada, body direto)* | single-col orfao — **ESCAPE explicito** (`stamp=False`): transmissao/container tipo parquet, onde a versao ja' viaja fora. **NAO e' o default** desde a ADR-0034 | — |
 | `\n` | single version-stamp | `#TCF.8` (**DEFAULT desde a ADR-0034**; magic number p/ `file`/libmagic) |
 | `M` | multi-col plano | `#TCF.8M<meta>` (meta INLINE na linha de assinatura) |
 | `H` | multi-col hierarquico (especializacao de `M`) — **WELDED** (ADR-0033, 2026-07-14) | `#TCF.8H<tree-meta>` |

@@ -66,7 +66,7 @@ consumed by the polarity pre-pass ([ADR-0035](../adr/0035-delimitador-de-polarid
 
 | after `#TCF.8` | type | header |
 |---|---|---|
-| *(nothing, body directly)* | orphan single-col | — |
+| *(nothing, body directly)* | orphan single-col — **explicit ESCAPE** (`stamp=False`): transmission / parquet-style container, where the version already travels outside. **NOT the default** since ADR-0034 | — |
 | `\n` | single version-stamp | `#TCF.8` (**DEFAULT since ADR-0034**; magic number for `file`/libmagic) |
 | `M` | flat multi-col | `#TCF.8M<meta>` (meta INLINE on the signature line) |
 | `H` | hierarchical multi-col (specialization of `M`) — **WELDED** (ADR-0033, 2026-07-14) | `#TCF.8H<tree-meta>` |

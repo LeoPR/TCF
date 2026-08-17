@@ -7,7 +7,7 @@ Gerado por `run.py`. Re-rode com `python run.py` pra reconferir.
 | # | doc | afirmacao | veredito | observado |
 |---|---|---|---|---|
 | 1 | `TCF-format.*` | None e' preservado, nao vira '' | OK | `decode=['x', None, 'y'] wire='#TCF.8\nx\n0\ny\n'` |
-| 2 | `README.*` | `from tcf import view` existe | OK | `tcf.view = <function view at 0x00000195C856C4A0>` |
+| 2 | `README.*` | `from tcf import view` existe | OK | `tcf.view = <function view at 0x0000025E6F4AC4A0>` |
 | 3 | `how-to/encode-csv-file` | `,` e `=` em nome de coluna sao ESCAPADOS, nao proibidos | OK | `header='#TCF.8M!3=id\\,bad,!email\\=principal' rt=True` |
 | 4 | `how-to/encode-csv-file` | so' `\n` e' proibido em nome de coluna | OK | `ValueError: col name nao pode conter '\n' (separador de linha do meta): 'a\nb'` |
 | 5 | `tutorials/getting-started` | Passo 1: wire tem o header `#TCF.8` | OK | `wire='#TCF.8\nabc\n1d\n1,2e\n'` |
