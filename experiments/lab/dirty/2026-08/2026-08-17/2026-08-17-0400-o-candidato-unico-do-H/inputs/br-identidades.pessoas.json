@@ -1,0 +1,44 @@
+{
+ "cpf": [
+  "098.004.817-61",
+  "437.570.673-20",
+  "252.690.826-40",
+  "070.300.325-94",
+  "428.863.919-05"
+ ],
+ "nome": [
+  "Fernanda Mendes",
+  "Luiz Carvalho Costa",
+  "Rafael Vieira Fernandes",
+  "Luiz Dias",
+  "Bruno Moraes"
+ ],
+ "municipio_id": [
+  "5200134",
+  "3554656",
+  "5106778",
+  "4311304",
+  "2409407"
+ ],
+ "uf_sigla": [
+  "GO",
+  "SP",
+  "MT",
+  "RS",
+  "RN"
+ ],
+ "data_cadastro": [
+  "2016-05-05",
+  "2012-04-27",
+  "2019-01-31",
+  "2014-01-29",
+  "2022-06-28"
+ ],
+ "email": [
+  "",
+  "luiz.carvalho.costa@yahoo.com.br",
+  "rafael.vieira.fernandes@gmail.com",
+  "luiz.dias@uol.com.br",
+  "bruno.moraes@outlook.com"
+ ]
+}

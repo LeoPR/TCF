@@ -1,0 +1,58 @@
+{
+ "c_custkey": [
+  "6501",
+  "6502",
+  "6503",
+  "6504",
+  "6505"
+ ],
+ "c_name": [
+  "Customer#000006501",
+  "Customer#000006502",
+  "Customer#000006503",
+  "Customer#000006504",
+  "Customer#000006505"
+ ],
+ "c_address": [
+  "SwSKqH5prgPaCp9hPaY uGBzWMgA23",
+  "FP92WIV xN5",
+  "XBX4W4jp8gQzvGcCgXHMKnK4",
+  "13ChhmybACVjGTkviWQKmLR V",
+  "1XVy8s,Dza1"
+ ],
+ "c_nationkey": [
+  "24",
+  "11",
+  "11",
+  "8",
+  "10"
+ ],
+ "c_phone": [
+  "34-433-352-7689",
+  "21-562-896-1594",
+  "21-476-545-9987",
+  "18-223-523-7723",
+  "20-116-997-7935"
+ ],
+ "c_acctbal": [
+  "184.55",
+  "8710.5",
+  "7492.32",
+  "4395.75",
+  "1320.29"
+ ],
+ "c_mktsegment": [
+  "FURNITURE",
+  "BUILDING",
+  "FURNITURE",
+  "HOUSEHOLD",
+  "MACHINERY"
+ ],
+ "c_comment": [
+  "regular instructions. carefully express deposits will are alongside of the blithely quick requests. p",
+  "e always across the unusual, unus",
+  "leep fluffily. dependencies solve after the express, special ",
+  " excuses. finally ironic deposits maint",
+  "ly about the special theodolites. carefully special dependencies"
+ ]
+}

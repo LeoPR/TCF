@@ -1,0 +1,107 @@
+{
+ "age": [
+  "47",
+  "29",
+  "48",
+  "42",
+  "29"
+ ],
+ "workclass": [
+  "Private",
+  "Private",
+  "Private",
+  "Self-emp-inc",
+  "Private"
+ ],
+ "fnlwgt": [
+  "118972",
+  "165360",
+  "38950",
+  "277256",
+  "247151"
+ ],
+ "education": [
+  "HS-grad",
+  "Assoc-voc",
+  "HS-grad",
+  "Doctorate",
+  "11th"
+ ],
+ "education-num": [
+  "9",
+  "11",
+  "9",
+  "16",
+  "7"
+ ],
+ "marital-status": [
+  "Married-civ-spouse",
+  "Never-married",
+  "Married-civ-spouse",
+  "Married-civ-spouse",
+  "Divorced"
+ ],
+ "occupation": [
+  "Transport-moving",
+  "Adm-clerical",
+  "Tech-support",
+  "Prof-specialty",
+  "Machine-op-inspct"
+ ],
+ "relationship": [
+  "Husband",
+  "Not-in-family",
+  "Husband",
+  "Husband",
+  "Unmarried"
+ ],
+ "race": [
+  "White",
+  "White",
+  "White",
+  "White",
+  "White"
+ ],
+ "sex": [
+  "Male",
+  "Female",
+  "Male",
+  "Male",
+  "Female"
+ ],
+ "capital-gain": [
+  "0",
+  "0",
+  "0",
+  "0",
+  "0"
+ ],
+ "capital-loss": [
+  "0",
+  "0",
+  "0",
+  "1977",
+  "0"
+ ],
+ "hours-per-week": [
+  "50",
+  "40",
+  "89",
+  "60",
+  "40"
+ ],
+ "native-country": [
+  "United-States",
+  "United-States",
+  "United-States",
+  "United-States",
+  "United-States"
+ ],
+ "class": [
+  ">50K",
+  "<=50K",
+  "<=50K",
+  ">50K",
+  "<=50K"
+ ]
+}

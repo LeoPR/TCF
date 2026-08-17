@@ -1,0 +1,58 @@
+{
+ "c_custkey": [
+  "1",
+  "2",
+  "3",
+  "4",
+  "5"
+ ],
+ "c_name": [
+  "Customer#000000001",
+  "Customer#000000002",
+  "Customer#000000003",
+  "Customer#000000004",
+  "Customer#000000005"
+ ],
+ "c_address": [
+  "j5JsirBM9PsCy0O1m",
+  "487LW1dovn6Q4dMVymKwwLE9OKf3QG",
+  "fkRGN8nY4pkE",
+  "4u58h fqkyE",
+  "hwBtxkoBF qSW4KrIk5U 2B1AU7H"
+ ],
+ "c_nationkey": [
+  "15",
+  "13",
+  "1",
+  "4",
+  "3"
+ ],
+ "c_phone": [
+  "25-989-741-2988",
+  "23-768-687-3665",
+  "11-719-748-3364",
+  "14-128-190-5944",
+  "13-750-942-6364"
+ ],
+ "c_acctbal": [
+  "711.56",
+  "121.65",
+  "7498.12",
+  "2866.83",
+  "794.47"
+ ],
+ "c_mktsegment": [
+  "BUILDING",
+  "AUTOMOBILE",
+  "AUTOMOBILE",
+  "MACHINERY",
+  "HOUSEHOLD"
+ ],
+ "c_comment": [
+  "y final requests wake slyly quickly special accounts. blithely",
+  "y carefully regular foxes. slyly regular requests about the bli",
+  "fully. carefully silent instructions sleep alongside of the slyly regular asymptotes. quickly regular ",
+  " sublate. fluffily even instructions are about th",
+  "equests haggle furiously against the pending packa"
+ ]
+}

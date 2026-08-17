@@ -1,0 +1,65 @@
+{
+ "o_orderkey": [
+  "25989",
+  "25990",
+  "25991",
+  "26016",
+  "26017"
+ ],
+ "o_custkey": [
+  "311",
+  "1357",
+  "619",
+  "214",
+  "215"
+ ],
+ "o_orderstatus": [
+  "O",
+  "F",
+  "O",
+  "F",
+  "O"
+ ],
+ "o_totalprice": [
+  "319209.66",
+  "263432.53",
+  "241392.91",
+  "179880.05",
+  "149895.69"
+ ],
+ "o_orderdate": [
+  "1998-05-18",
+  "1994-03-08",
+  "1998-04-16",
+  "1994-10-08",
+  "1998-06-05"
+ ],
+ "o_orderpriority": [
+  "1-URGENT",
+  "4-NOT SPECIFIED",
+  "1-URGENT",
+  "2-HIGH",
+  "2-HIGH"
+ ],
+ "o_clerk": [
+  "Clerk#000000093",
+  "Clerk#000000340",
+  "Clerk#000000461",
+  "Clerk#000000342",
+  "Clerk#000000303"
+ ],
+ "o_shippriority": [
+  "0",
+  "0",
+  "0",
+  "0",
+  "0"
+ ],
+ "o_comment": [
+  "nent accounts along the busily ",
+  " quickly express sheaves integrate furiously bold, express packages. depende",
+  "uriously. final, ironic deposits about the slyly ironic packages affix b",
+  " quickly regular deposits. carefully ironic ideas cajole slyl",
+  "wake. even requests nag blithely carefully ironic accounts. final, ex"
+ ]
+}

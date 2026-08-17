@@ -1,0 +1,58 @@
+{
+ "id": [
+  "2803609",
+  "2803708",
+  "2803807",
+  "2803906",
+  "2804003"
+ ],
+ "municipio": [
+  "Laranjeiras",
+  "Macambira",
+  "Malhada dos Bois",
+  "Malhador",
+  "Maruim"
+ ],
+ "microrregiao": [
+  "Baixo Cotinguiba",
+  "Agreste de Itabaiana",
+  "Nossa Senhora das Dores",
+  "Agreste de Itabaiana",
+  "Baixo Cotinguiba"
+ ],
+ "mesorregiao": [
+  "Leste Sergipano",
+  "Agreste Sergipano",
+  "Agreste Sergipano",
+  "Agreste Sergipano",
+  "Leste Sergipano"
+ ],
+ "uf_sigla": [
+  "SE",
+  "SE",
+  "SE",
+  "SE",
+  "SE"
+ ],
+ "uf_nome": [
+  "Sergipe",
+  "Sergipe",
+  "Sergipe",
+  "Sergipe",
+  "Sergipe"
+ ],
+ "regiao_sigla": [
+  "NE",
+  "NE",
+  "NE",
+  "NE",
+  "NE"
+ ],
+ "regiao_nome": [
+  "Nordeste",
+  "Nordeste",
+  "Nordeste",
+  "Nordeste",
+  "Nordeste"
+ ]
+}

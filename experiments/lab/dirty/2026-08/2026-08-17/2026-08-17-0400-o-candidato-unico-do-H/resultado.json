@@ -1,0 +1,1616 @@
+{
+ "origem": "Z:/tcf-data/interim/*.db (somente leitura; NADA baixado)",
+ "regua": "janela CONTIGUA do meio, N_ALVO=2000 (lab 0530)",
+ "total": {
+  "tabelas": 23,
+  "bytes_M": 2257869,
+  "bytes_H": 2777913,
+  "gap": 520044,
+  "orcamento": 520052,
+  "pct_explicado": 100.00153833137195,
+  "header_H": 2920
+ },
+ "por_tabela": [
+  {
+   "tabela": "adult-census.adult",
+   "n_linhas": 2000,
+   "n_cols": 15,
+   "bytes_M": 41789,
+   "bytes_H": 77059,
+   "gap": 35270,
+   "orcamento_candidato_unico": 35269,
+   "pct_explicado": 99.99716472923164,
+   "header_H": 231,
+   "detalhe": [
+    {
+     "col": "age",
+     "single": 7529,
+     "min": 2284,
+     "modo_min": "dict",
+     "delta": 5245
+    },
+    {
+     "col": "workclass",
+     "single": 3947,
+     "min": 2065,
+     "modo_min": "dict",
+     "delta": 1882
+    },
+    {
+     "col": "fnlwgt",
+     "single": 15458,
+     "min": 13667,
+     "modo_min": "raw",
+     "delta": 1791
+    },
+    {
+     "col": "education",
+     "single": 6151,
+     "min": 2142,
+     "modo_min": "dict",
+     "delta": 4009
+    },
+    {
+     "col": "education-num",
+     "single": 6068,
+     "min": 2058,
+     "modo_min": "dict",
+     "delta": 4010
+    },
+    {
+     "col": "marital-status",
+     "single": 5312,
+     "min": 2085,
+     "modo_min": "dict",
+     "delta": 3227
+    },
+    {
+     "col": "occupation",
+     "single": 6559,
+     "min": 2191,
+     "modo_min": "dict",
+     "delta": 4368
+    },
+    {
+     "col": "relationship",
+     "single": 5553,
+     "min": 2065,
+     "modo_min": "dict",
+     "delta": 3488
+    },
+    {
+     "col": "race",
+     "single": 2264,
+     "min": 2059,
+     "modo_min": "dict",
+     "delta": 205
+    },
+    {
+     "col": "sex",
+     "single": 4084,
+     "min": 2014,
+     "modo_min": "dict",
+     "delta": 2070
+    },
+    {
+     "col": "capital-gain",
+     "single": 1682,
+     "min": 1682,
+     "modo_min": "tcf",
+     "delta": 0
+    },
+    {
+     "col": "capital-loss",
+     "single": 999,
+     "min": 999,
+     "modo_min": "tcf",
+     "delta": 0
+    },
+    {
+     "col": "hours-per-week",
+     "single": 5959,
+     "min": 2257,
+     "modo_min": "dict",
+     "delta": 3702
+    },
+    {
+     "col": "native-country",
+     "single": 1976,
+     "min": 1976,
+     "modo_min": "tcf",
+     "delta": 0
+    },
+    {
+     "col": "class",
+     "single": 3286,
+     "min": 2014,
+     "modo_min": "dict",
+     "delta": 1272
+    }
+   ]
+  },
+  {
+   "tabela": "br-identidades.pessoas",
+   "n_linhas": 2000,
+   "n_cols": 6,
+   "bytes_M": 118558,
+   "bytes_H": 147585,
+   "gap": 29027,
+   "orcamento_candidato_unico": 29026,
+   "pct_explicado": 99.99655493161539,
+   "header_H": 86,
+   "detalhe": [
+    {
+     "col": "cpf",
+     "single": 37878,
+     "min": 28455,
+     "modo_min": "split",
+     "delta": 9423
+    },
+    {
+     "col": "nome",
+     "single": 26324,
+     "min": 26324,
+     "modo_min": "tcf",
+     "delta": 0
+    },
+    {
+     "col": "municipio_id",
+     "single": 16676,
+     "min": 15999,
+     "modo_min": "raw",
+     "delta": 677
+    },
+    {
+     "col": "uf_sigla",
+     "single": 6977,
+     "min": 2081,
+     "modo_min": "dict",
+     "delta": 4896
+    },
+    {
+     "col": "data_cadastro",
+     "single": 20334,
+     "min": 6304,
+     "modo_min": "split",
+     "delta": 14030
+    },
+    {
+     "col": "email",
+     "single": 39309,
+     "min": 39309,
+     "modo_min": "tcf",
+     "delta": 0
+    }
+   ]
+  },
+  {
+   "tabela": "br-identidades.empresas",
+   "n_linhas": 2000,
+   "n_cols": 6,
+   "bytes_M": 83412,
+   "bytes_H": 122442,
+   "gap": 39030,
+   "orcamento_candidato_unico": 39031,
+   "pct_explicado": 100.00256213169357,
+   "header_H": 99,
+   "detalhe": [
+    {
+     "col": "cnpj",
+     "single": 41044,
+     "min": 26627,
+     "modo_min": "split",
+     "delta": 14417
+    },
+    {
+     "col": "razao_social",
+     "single": 21965,
+     "min": 21319,
+     "modo_min": "dict",
+     "delta": 646
+    },
+    {
+     "col": "municipio_id",
+     "single": 16756,
+     "min": 15999,
+     "modo_min": "raw",
+     "delta": 757
+    },
+    {
+     "col": "uf_sigla",
+     "single": 6891,
+     "min": 2081,
+     "modo_min": "dict",
+     "delta": 4810
+    },
+    {
+     "col": "data_abertura",
+     "single": 21470,
+     "min": 6340,
+     "modo_min": "split",
+     "delta": 15130
+    },
+    {
+     "col": "socio_cpf",
+     "single": 14216,
+     "min": 10945,
+     "modo_min": "raw",
+     "delta": 3271
+    }
+   ]
+  },
+  {
+   "tabela": "ibge-municipios.municipios",
+   "n_linhas": 2000,
+   "n_cols": 8,
+   "bytes_M": 41749,
+   "bytes_H": 50645,
+   "gap": 8896,
+   "orcamento_candidato_unico": 8895,
+   "pct_explicado": 99.98875899280576,
+   "header_H": 117,
+   "detalhe": [
+    {
+     "col": "id",
+     "single": 9483,
+     "min": 9483,
+     "modo_min": "tcf",
+     "delta": 0
+    },
+    {
+     "col": "municipio",
+     "single": 22893,
+     "min": 22893,
+     "modo_min": "tcf",
+     "delta": 0
+    },
+    {
+     "col": "microrregiao",
+     "single": 10254,
+     "min": 6375,
+     "modo_min": "dict",
+     "delta": 3879
+    },
+    {
+     "col": "mesorregiao",
+     "single": 7714,
+     "min": 2698,
+     "modo_min": "dict",
+     "delta": 5016
+    },
+    {
+     "col": "uf_sigla",
+     "single": 45,
+     "min": 45,
+     "modo_min": "tcf",
+     "delta": 0
+    },
+    {
+     "col": "uf_nome",
+     "single": 96,
+     "min": 96,
+     "modo_min": "tcf",
+     "delta": 0
+    },
+    {
+     "col": "regiao_sigla",
+     "single": 17,
+     "min": 17,
+     "modo_min": "tcf",
+     "delta": 0
+    },
+    {
+     "col": "regiao_nome",
+     "single": 25,
+     "min": 25,
+     "modo_min": "tcf",
+     "delta": 0
+    }
+   ]
+  },
+  {
+   "tabela": "online-retail.online_retail",
+   "n_linhas": 2000,
+   "n_cols": 8,
+   "bytes_M": 45111,
+   "bytes_H": 53200,
+   "gap": 8089,
+   "orcamento_candidato_unico": 8088,
+   "pct_explicado": 99.98763753245147,
+   "header_H": 125,
+   "detalhe": [
+    {
+     "col": "InvoiceNo",
+     "single": 1274,
+     "min": 1274,
+     "modo_min": "tcf",
+     "delta": 0
+    },
+    {
+     "col": "StockCode",
+     "single": 11192,
+     "min": 10227,
+     "modo_min": "dict",
+     "delta": 965
+    },
+    {
+     "col": "Description",
+     "single": 25432,
+     "min": 24467,
+     "modo_min": "dict",
+     "delta": 965
+    },
+    {
+     "col": "Quantity",
+     "single": 5327,
+     "min": 2305,
+     "modo_min": "dict",
+     "delta": 3022
+    },
+    {
+     "col": "InvoiceDate",
+     "single": 1680,
+     "min": 940,
+     "modo_min": "split",
+     "delta": 740
+    },
+    {
+     "col": "UnitPrice",
+     "single": 6699,
+     "min": 4303,
+     "modo_min": "split",
+     "delta": 2396
+    },
+    {
+     "col": "CustomerID",
+     "single": 1258,
+     "min": 1258,
+     "modo_min": "tcf",
+     "delta": 0
+    },
+    {
+     "col": "Country",
+     "single": 212,
+     "min": 212,
+     "modo_min": "tcf",
+     "delta": 0
+    }
+   ]
+  },
+  {
+   "tabela": "receita-cnpj.estabelecimentos",
+   "n_linhas": 2000,
+   "n_cols": 8,
+   "bytes_M": 64947,
+   "bytes_H": 94735,
+   "gap": 29788,
+   "orcamento_candidato_unico": 29787,
+   "pct_explicado": 99.99664294346718,
+   "header_H": 130,
+   "detalhe": [
+    {
+     "col": "cnpj",
+     "single": 34984,
+     "min": 19489,
+     "modo_min": "split",
+     "delta": 15495
+    },
+    {
+     "col": "matriz_filial",
+     "single": 243,
+     "min": 243,
+     "modo_min": "tcf",
+     "delta": 0
+    },
+    {
+     "col": "nome_fantasia",
+     "single": 17978,
+     "min": 17978,
+     "modo_min": "tcf",
+     "delta": 0
+    },
+    {
+     "col": "situacao",
+     "single": 3802,
+     "min": 2023,
+     "modo_min": "dict",
+     "delta": 1779
+    },
+    {
+     "col": "data_inicio",
+     "single": 11062,
+     "min": 7694,
+     "modo_min": "dict",
+     "delta": 3368
+    },
+    {
+     "col": "cnae_principal",
+     "single": 10424,
+     "min": 6912,
+     "modo_min": "dict",
+     "delta": 3512
+    },
+    {
+     "col": "uf",
+     "single": 6292,
+     "min": 2087,
+     "modo_min": "dict",
+     "delta": 4205
+    },
+    {
+     "col": "municipio_cod",
+     "single": 9819,
+     "min": 8391,
+     "modo_min": "dict",
+     "delta": 1428
+    }
+   ]
+  },
+  {
+   "tabela": "tpch-sf001.region",
+   "n_linhas": 5,
+   "n_cols": 3,
+   "bytes_M": 421,
+   "bytes_H": 421,
+   "gap": 0,
+   "orcamento_candidato_unico": 1,
+   "pct_explicado": NaN,
+   "header_H": 40,
+   "detalhe": [
+    {
+     "col": "r_regionkey",
+     "single": 8,
+     "min": 8,
+     "modo_min": "tcf",
+     "delta": 0
+    },
+    {
+     "col": "r_name",
+     "single": 37,
+     "min": 37,
+     "modo_min": "tcf",
+     "delta": 0
+    },
+    {
+     "col": "r_comment",
+     "single": 335,
+     "min": 334,
+     "modo_min": "raw",
+     "delta": 1
+    }
+   ]
+  },
+  {
+   "tabela": "tpch-sf001.nation",
+   "n_linhas": 25,
+   "n_cols": 4,
+   "bytes_M": 2179,
+   "bytes_H": 2204,
+   "gap": 25,
+   "orcamento_candidato_unico": 25,
+   "pct_explicado": 100.0,
+   "header_H": 57,
+   "detalhe": [
+    {
+     "col": "n_nationkey",
+     "single": 19,
+     "min": 19,
+     "modo_min": "tcf",
+     "delta": 0
+    },
+    {
+     "col": "n_name",
+     "single": 197,
+     "min": 197,
+     "modo_min": "tcf",
+     "delta": 0
+    },
+    {
+     "col": "n_regionkey",
+     "single": 68,
+     "min": 43,
+     "modo_min": "dict",
+     "delta": 25
+    },
+    {
+     "col": "n_comment",
+     "single": 1862,
+     "min": 1862,
+     "modo_min": "tcf",
+     "delta": 0
+    }
+   ]
+  },
+  {
+   "tabela": "tpch-sf001.supplier",
+   "n_linhas": 100,
+   "n_cols": 7,
+   "bytes_M": 11459,
+   "bytes_H": 12612,
+   "gap": 1153,
+   "orcamento_candidato_unico": 1154,
+   "pct_explicado": 100.08673026886383,
+   "header_H": 97,
+   "detalhe": [
+    {
+     "col": "s_suppkey",
+     "single": 23,
+     "min": 23,
+     "modo_min": "tcf",
+     "delta": 0
+    },
+    {
+     "col": "s_name",
+     "single": 61,
+     "min": 61,
+     "modo_min": "tcf",
+     "delta": 0
+    },
+    {
+     "col": "s_address",
+     "single": 2976,
+     "min": 2636,
+     "modo_min": "raw",
+     "delta": 340
+    },
+    {
+     "col": "s_nationkey",
+     "single": 363,
+     "min": 193,
+     "modo_min": "dict",
+     "delta": 170
+    },
+    {
+     "col": "s_phone",
+     "single": 1994,
+     "min": 1551,
+     "modo_min": "split",
+     "delta": 443
+    },
+    {
+     "col": "s_acctbal",
+     "single": 976,
+     "min": 775,
+     "modo_min": "raw",
+     "delta": 201
+    },
+    {
+     "col": "s_comment",
+     "single": 6121,
+     "min": 6121,
+     "modo_min": "tcf",
+     "delta": 0
+    }
+   ]
+  },
+  {
+   "tabela": "tpch-sf001.customer",
+   "n_linhas": 1500,
+   "n_cols": 8,
+   "bytes_M": 179974,
+   "bytes_H": 202941,
+   "gap": 22967,
+   "orcamento_candidato_unico": 22967,
+   "pct_explicado": 100.0,
+   "header_H": 120,
+   "detalhe": [
+    {
+     "col": "c_custkey",
+     "single": 43,
+     "min": 43,
+     "modo_min": "tcf",
+     "delta": 0
+    },
+    {
+     "col": "c_name",
+     "single": 83,
+     "min": 83,
+     "modo_min": "tcf",
+     "delta": 0
+    },
+    {
+     "col": "c_address",
+     "single": 43408,
+     "min": 38589,
+     "modo_min": "raw",
+     "delta": 4819
+    },
+    {
+     "col": "c_nationkey",
+     "single": 5394,
+     "min": 1593,
+     "modo_min": "dict",
+     "delta": 3801
+    },
+    {
+     "col": "c_phone",
+     "single": 29687,
+     "min": 21154,
+     "modo_min": "split",
+     "delta": 8533
+    },
+    {
+     "col": "c_acctbal",
+     "single": 14687,
+     "min": 11687,
+     "modo_min": "raw",
+     "delta": 3000
+    },
+    {
+     "col": "c_mktsegment",
+     "single": 4367,
+     "min": 1553,
+     "modo_min": "dict",
+     "delta": 2814
+    },
+    {
+     "col": "c_comment",
+     "single": 105151,
+     "min": 105151,
+     "modo_min": "tcf",
+     "delta": 0
+    }
+   ]
+  },
+  {
+   "tabela": "tpch-sf001.part",
+   "n_linhas": 2000,
+   "n_cols": 9,
+   "bytes_M": 104969,
+   "bytes_H": 130252,
+   "gap": 25283,
+   "orcamento_candidato_unico": 25284,
+   "pct_explicado": 100.00395522683225,
+   "header_H": 127,
+   "detalhe": [
+    {
+     "col": "p_partkey",
+     "single": 44,
+     "min": 44,
+     "modo_min": "tcf",
+     "delta": 0
+    },
+    {
+     "col": "p_name",
+     "single": 57703,
+     "min": 57703,
+     "modo_min": "tcf",
+     "delta": 0
+    },
+    {
+     "col": "p_mfgr",
+     "single": 5712,
+     "min": 2033,
+     "modo_min": "dict",
+     "delta": 3679
+    },
+    {
+     "col": "p_brand",
+     "single": 7230,
+     "min": 2135,
+     "modo_min": "dict",
+     "delta": 5095
+    },
+    {
+     "col": "p_type",
+     "single": 9213,
+     "min": 5569,
+     "modo_min": "dict",
+     "delta": 3644
+    },
+    {
+     "col": "p_size",
+     "single": 7620,
+     "min": 2195,
+     "modo_min": "dict",
+     "delta": 5425
+    },
+    {
+     "col": "p_container",
+     "single": 7623,
+     "min": 2298,
+     "modo_min": "dict",
+     "delta": 5325
+    },
+    {
+     "col": "p_retailprice",
+     "single": 7164,
+     "min": 5048,
+     "modo_min": "split",
+     "delta": 2116
+    },
+    {
+     "col": "p_comment",
+     "single": 27815,
+     "min": 27815,
+     "modo_min": "tcf",
+     "delta": 0
+    }
+   ]
+  },
+  {
+   "tabela": "tpch-sf001.partsupp",
+   "n_linhas": 2000,
+   "n_cols": 5,
+   "bytes_M": 267446,
+   "bytes_H": 278208,
+   "gap": 10762,
+   "orcamento_candidato_unico": 10763,
+   "pct_explicado": 100.00929195316857,
+   "header_H": 85,
+   "detalhe": [
+    {
+     "col": "ps_partkey",
+     "single": 31,
+     "min": 31,
+     "modo_min": "tcf",
+     "delta": 0
+    },
+    {
+     "col": "ps_suppkey",
+     "single": 7775,
+     "min": 4164,
+     "modo_min": "dict",
+     "delta": 3611
+    },
+    {
+     "col": "ps_availqty",
+     "single": 11616,
+     "min": 9784,
+     "modo_min": "raw",
+     "delta": 1832
+    },
+    {
+     "col": "ps_supplycost",
+     "single": 17505,
+     "min": 12185,
+     "modo_min": "split",
+     "delta": 5320
+    },
+    {
+     "col": "ps_comment",
+     "single": 241195,
+     "min": 241195,
+     "modo_min": "tcf",
+     "delta": 0
+    }
+   ]
+  },
+  {
+   "tabela": "tpch-sf001.orders",
+   "n_linhas": 2000,
+   "n_cols": 9,
+   "bytes_M": 137946,
+   "bytes_H": 162931,
+   "gap": 24985,
+   "orcamento_candidato_unico": 24985,
+   "pct_explicado": 100.0,
+   "header_H": 154,
+   "detalhe": [
+    {
+     "col": "o_orderkey",
+     "single": 30,
+     "min": 30,
+     "modo_min": "tcf",
+     "delta": 0
+    },
+    {
+     "col": "o_custkey",
+     "single": 10033,
+     "min": 8418,
+     "modo_min": "dict",
+     "delta": 1615
+    },
+    {
+     "col": "o_orderstatus",
+     "single": 4771,
+     "min": 2008,
+     "modo_min": "dict",
+     "delta": 2763
+    },
+    {
+     "col": "o_totalprice",
+     "single": 23040,
+     "min": 17672,
+     "modo_min": "split",
+     "delta": 5368
+    },
+    {
+     "col": "o_orderdate",
+     "single": 16300,
+     "min": 6254,
+     "modo_min": "split",
+     "delta": 10046
+    },
+    {
+     "col": "o_orderpriority",
+     "single": 5809,
+     "min": 2055,
+     "modo_min": "dict",
+     "delta": 3754
+    },
+    {
+     "col": "o_clerk",
+     "single": 10665,
+     "min": 9226,
+     "modo_min": "dict",
+     "delta": 1439
+    },
+    {
+     "col": "o_shippriority",
+     "single": 9,
+     "min": 9,
+     "modo_min": "tcf",
+     "delta": 0
+    },
+    {
+     "col": "o_comment",
+     "single": 92119,
+     "min": 92119,
+     "modo_min": "tcf",
+     "delta": 0
+    }
+   ]
+  },
+  {
+   "tabela": "tpch-sf001.lineitem",
+   "n_linhas": 2000,
+   "n_cols": 16,
+   "bytes_M": 119441,
+   "bytes_H": 186171,
+   "gap": 66730,
+   "orcamento_candidato_unico": 66730,
+   "pct_explicado": 100.0,
+   "header_H": 274,
+   "detalhe": [
+    {
+     "col": "l_orderkey",
+     "single": 4290,
+     "min": 4032,
+     "modo_min": "dict",
+     "delta": 258
+    },
+    {
+     "col": "l_partkey",
+     "single": 10498,
+     "min": 8893,
+     "modo_min": "raw",
+     "delta": 1605
+    },
+    {
+     "col": "l_suppkey",
+     "single": 7787,
+     "min": 4396,
+     "modo_min": "dict",
+     "delta": 3391
+    },
+    {
+     "col": "l_linenumber",
+     "single": 5964,
+     "min": 2022,
+     "modo_min": "dict",
+     "delta": 3942
+    },
+    {
+     "col": "l_quantity",
+     "single": 7696,
+     "min": 2231,
+     "modo_min": "split",
+     "delta": 5465
+    },
+    {
+     "col": "l_extendedprice",
+     "single": 20989,
+     "min": 16129,
+     "modo_min": "split",
+     "delta": 4860
+    },
+    {
+     "col": "l_discount",
+     "single": 6280,
+     "min": 2072,
+     "modo_min": "dict",
+     "delta": 4208
+    },
+    {
+     "col": "l_tax",
+     "single": 5922,
+     "min": 2042,
+     "modo_min": "dict",
+     "delta": 3880
+    },
+    {
+     "col": "l_returnflag",
+     "single": 3234,
+     "min": 2008,
+     "modo_min": "dict",
+     "delta": 1226
+    },
+    {
+     "col": "l_linestatus",
+     "single": 1607,
+     "min": 1607,
+     "modo_min": "tcf",
+     "delta": 0
+    },
+    {
+     "col": "l_shipdate",
+     "single": 16462,
+     "min": 6252,
+     "modo_min": "split",
+     "delta": 10210
+    },
+    {
+     "col": "l_commitdate",
+     "single": 16259,
+     "min": 6254,
+     "modo_min": "split",
+     "delta": 10005
+    },
+    {
+     "col": "l_receiptdate",
+     "single": 16466,
+     "min": 6243,
+     "modo_min": "split",
+     "delta": 10223
+    },
+    {
+     "col": "l_shipinstruct",
+     "single": 5650,
+     "min": 2055,
+     "modo_min": "dict",
+     "delta": 3595
+    },
+    {
+     "col": "l_shipmode",
+     "single": 5900,
+     "min": 2038,
+     "modo_min": "dict",
+     "delta": 3862
+    },
+    {
+     "col": "l_comment",
+     "single": 50892,
+     "min": 50892,
+     "modo_min": "tcf",
+     "delta": 0
+    }
+   ]
+  },
+  {
+   "tabela": "tpch-sf01.region",
+   "n_linhas": 5,
+   "n_cols": 3,
+   "bytes_M": 421,
+   "bytes_H": 421,
+   "gap": 0,
+   "orcamento_candidato_unico": 1,
+   "pct_explicado": NaN,
+   "header_H": 40,
+   "detalhe": [
+    {
+     "col": "r_regionkey",
+     "single": 8,
+     "min": 8,
+     "modo_min": "tcf",
+     "delta": 0
+    },
+    {
+     "col": "r_name",
+     "single": 37,
+     "min": 37,
+     "modo_min": "tcf",
+     "delta": 0
+    },
+    {
+     "col": "r_comment",
+     "single": 335,
+     "min": 334,
+     "modo_min": "raw",
+     "delta": 1
+    }
+   ]
+  },
+  {
+   "tabela": "tpch-sf01.nation",
+   "n_linhas": 25,
+   "n_cols": 4,
+   "bytes_M": 2179,
+   "bytes_H": 2204,
+   "gap": 25,
+   "orcamento_candidato_unico": 25,
+   "pct_explicado": 100.0,
+   "header_H": 57,
+   "detalhe": [
+    {
+     "col": "n_nationkey",
+     "single": 19,
+     "min": 19,
+     "modo_min": "tcf",
+     "delta": 0
+    },
+    {
+     "col": "n_name",
+     "single": 197,
+     "min": 197,
+     "modo_min": "tcf",
+     "delta": 0
+    },
+    {
+     "col": "n_regionkey",
+     "single": 68,
+     "min": 43,
+     "modo_min": "dict",
+     "delta": 25
+    },
+    {
+     "col": "n_comment",
+     "single": 1862,
+     "min": 1862,
+     "modo_min": "tcf",
+     "delta": 0
+    }
+   ]
+  },
+  {
+   "tabela": "tpch-sf01.supplier",
+   "n_linhas": 1000,
+   "n_cols": 7,
+   "bytes_M": 109195,
+   "bytes_H": 122808,
+   "gap": 13613,
+   "orcamento_candidato_unico": 13614,
+   "pct_explicado": 100.00734591934179,
+   "header_H": 101,
+   "detalhe": [
+    {
+     "col": "s_suppkey",
+     "single": 36,
+     "min": 36,
+     "modo_min": "tcf",
+     "delta": 0
+    },
+    {
+     "col": "s_name",
+     "single": 76,
+     "min": 76,
+     "modo_min": "tcf",
+     "delta": 0
+    },
+    {
+     "col": "s_address",
+     "single": 29562,
+     "min": 26206,
+     "modo_min": "raw",
+     "delta": 3356
+    },
+    {
+     "col": "s_nationkey",
+     "single": 3626,
+     "min": 1093,
+     "modo_min": "dict",
+     "delta": 2533
+    },
+    {
+     "col": "s_phone",
+     "single": 19881,
+     "min": 14152,
+     "modo_min": "split",
+     "delta": 5729
+    },
+    {
+     "col": "s_acctbal",
+     "single": 9783,
+     "min": 7787,
+     "modo_min": "raw",
+     "delta": 1996
+    },
+    {
+     "col": "s_comment",
+     "single": 59742,
+     "min": 59742,
+     "modo_min": "tcf",
+     "delta": 0
+    }
+   ]
+  },
+  {
+   "tabela": "tpch-sf01.customer",
+   "n_linhas": 2000,
+   "n_cols": 8,
+   "bytes_M": 238767,
+   "bytes_H": 269555,
+   "gap": 30788,
+   "orcamento_candidato_unico": 30787,
+   "pct_explicado": 99.99675198129141,
+   "header_H": 120,
+   "detalhe": [
+    {
+     "col": "c_custkey",
+     "single": 14,
+     "min": 14,
+     "modo_min": "tcf",
+     "delta": 0
+    },
+    {
+     "col": "c_name",
+     "single": 84,
+     "min": 84,
+     "modo_min": "tcf",
+     "delta": 0
+    },
+    {
+     "col": "c_address",
+     "single": 59140,
+     "min": 52513,
+     "modo_min": "raw",
+     "delta": 6627
+    },
+    {
+     "col": "c_nationkey",
+     "single": 7197,
+     "min": 2093,
+     "modo_min": "dict",
+     "delta": 5104
+    },
+    {
+     "col": "c_phone",
+     "single": 39561,
+     "min": 28154,
+     "modo_min": "split",
+     "delta": 11407
+    },
+    {
+     "col": "c_acctbal",
+     "single": 19589,
+     "min": 15601,
+     "modo_min": "raw",
+     "delta": 3988
+    },
+    {
+     "col": "c_mktsegment",
+     "single": 5714,
+     "min": 2053,
+     "modo_min": "dict",
+     "delta": 3661
+    },
+    {
+     "col": "c_comment",
+     "single": 138135,
+     "min": 138135,
+     "modo_min": "tcf",
+     "delta": 0
+    }
+   ]
+  },
+  {
+   "tabela": "tpch-sf01.part",
+   "n_linhas": 2000,
+   "n_cols": 9,
+   "bytes_M": 105527,
+   "bytes_H": 130844,
+   "gap": 25317,
+   "orcamento_candidato_unico": 25318,
+   "pct_explicado": 100.00394991507682,
+   "header_H": 127,
+   "detalhe": [
+    {
+     "col": "p_partkey",
+     "single": 28,
+     "min": 28,
+     "modo_min": "tcf",
+     "delta": 0
+    },
+    {
+     "col": "p_name",
+     "single": 58048,
+     "min": 58048,
+     "modo_min": "tcf",
+     "delta": 0
+    },
+    {
+     "col": "p_mfgr",
+     "single": 5781,
+     "min": 2036,
+     "modo_min": "dict",
+     "delta": 3745
+    },
+    {
+     "col": "p_brand",
+     "single": 7274,
+     "min": 2135,
+     "modo_min": "dict",
+     "delta": 5139
+    },
+    {
+     "col": "p_type",
+     "single": 9227,
+     "min": 5631,
+     "modo_min": "dict",
+     "delta": 3596
+    },
+    {
+     "col": "p_size",
+     "single": 7567,
+     "min": 2195,
+     "modo_min": "dict",
+     "delta": 5372
+    },
+    {
+     "col": "p_container",
+     "single": 7636,
+     "min": 2295,
+     "modo_min": "dict",
+     "delta": 5341
+    },
+    {
+     "col": "p_retailprice",
+     "single": 7173,
+     "min": 5048,
+     "modo_min": "split",
+     "delta": 2125
+    },
+    {
+     "col": "p_comment",
+     "single": 27982,
+     "min": 27982,
+     "modo_min": "tcf",
+     "delta": 0
+    }
+   ]
+  },
+  {
+   "tabela": "tpch-sf01.partsupp",
+   "n_linhas": 2000,
+   "n_cols": 5,
+   "bytes_M": 274517,
+   "bytes_H": 282882,
+   "gap": 8365,
+   "orcamento_candidato_unico": 8366,
+   "pct_explicado": 100.01195457262402,
+   "header_H": 85,
+   "detalhe": [
+    {
+     "col": "ps_partkey",
+     "single": 33,
+     "min": 33,
+     "modo_min": "tcf",
+     "delta": 0
+    },
+    {
+     "col": "ps_suppkey",
+     "single": 7061,
+     "min": 5867,
+     "modo_min": "dict",
+     "delta": 1194
+    },
+    {
+     "col": "ps_availqty",
+     "single": 11645,
+     "min": 9795,
+     "modo_min": "raw",
+     "delta": 1850
+    },
+    {
+     "col": "ps_supplycost",
+     "single": 17550,
+     "min": 12228,
+     "modo_min": "split",
+     "delta": 5322
+    },
+    {
+     "col": "ps_comment",
+     "single": 246507,
+     "min": 246507,
+     "modo_min": "tcf",
+     "delta": 0
+    }
+   ]
+  },
+  {
+   "tabela": "tpch-sf01.orders",
+   "n_linhas": 2000,
+   "n_cols": 9,
+   "bytes_M": 140604,
+   "bytes_H": 165843,
+   "gap": 25239,
+   "orcamento_candidato_unico": 25239,
+   "pct_explicado": 100.0,
+   "header_H": 154,
+   "detalhe": [
+    {
+     "col": "o_orderkey",
+     "single": 31,
+     "min": 31,
+     "modo_min": "tcf",
+     "delta": 0
+    },
+    {
+     "col": "o_custkey",
+     "single": 12296,
+     "min": 10550,
+     "modo_min": "raw",
+     "delta": 1746
+    },
+    {
+     "col": "o_orderstatus",
+     "single": 4822,
+     "min": 2008,
+     "modo_min": "dict",
+     "delta": 2814
+    },
+    {
+     "col": "o_totalprice",
+     "single": 23025,
+     "min": 17641,
+     "modo_min": "split",
+     "delta": 5384
+    },
+    {
+     "col": "o_orderdate",
+     "single": 16284,
+     "min": 6244,
+     "modo_min": "split",
+     "delta": 10040
+    },
+    {
+     "col": "o_orderpriority",
+     "single": 5845,
+     "min": 2055,
+     "modo_min": "dict",
+     "delta": 3790
+    },
+    {
+     "col": "o_clerk",
+     "single": 11537,
+     "min": 10072,
+     "modo_min": "dict",
+     "delta": 1465
+    },
+    {
+     "col": "o_shippriority",
+     "single": 9,
+     "min": 9,
+     "modo_min": "tcf",
+     "delta": 0
+    },
+    {
+     "col": "o_comment",
+     "single": 91839,
+     "min": 91839,
+     "modo_min": "tcf",
+     "delta": 0
+    }
+   ]
+  },
+  {
+   "tabela": "tpch-sf01.lineitem",
+   "n_linhas": 2000,
+   "n_cols": 16,
+   "bytes_M": 124402,
+   "bytes_H": 190516,
+   "gap": 66114,
+   "orcamento_candidato_unico": 66114,
+   "pct_explicado": 100.0,
+   "header_H": 274,
+   "detalhe": [
+    {
+     "col": "l_orderkey",
+     "single": 4906,
+     "min": 4033,
+     "modo_min": "dict",
+     "delta": 873
+    },
+    {
+     "col": "l_partkey",
+     "single": 12764,
+     "min": 10879,
+     "modo_min": "raw",
+     "delta": 1885
+    },
+    {
+     "col": "l_suppkey",
+     "single": 9701,
+     "min": 7810,
+     "modo_min": "raw",
+     "delta": 1891
+    },
+    {
+     "col": "l_linenumber",
+     "single": 5970,
+     "min": 2024,
+     "modo_min": "dict",
+     "delta": 3946
+    },
+    {
+     "col": "l_quantity",
+     "single": 7686,
+     "min": 2231,
+     "modo_min": "split",
+     "delta": 5455
+    },
+    {
+     "col": "l_extendedprice",
+     "single": 21123,
+     "min": 16122,
+     "modo_min": "split",
+     "delta": 5001
+    },
+    {
+     "col": "l_discount",
+     "single": 6281,
+     "min": 2078,
+     "modo_min": "dict",
+     "delta": 4203
+    },
+    {
+     "col": "l_tax",
+     "single": 5934,
+     "min": 2042,
+     "modo_min": "dict",
+     "delta": 3892
+    },
+    {
+     "col": "l_returnflag",
+     "single": 3342,
+     "min": 2008,
+     "modo_min": "dict",
+     "delta": 1334
+    },
+    {
+     "col": "l_linestatus",
+     "single": 1838,
+     "min": 1838,
+     "modo_min": "tcf",
+     "delta": 0
+    },
+    {
+     "col": "l_shipdate",
+     "single": 16416,
+     "min": 6254,
+     "modo_min": "split",
+     "delta": 10162
+    },
+    {
+     "col": "l_commitdate",
+     "single": 16054,
+     "min": 6251,
+     "modo_min": "split",
+     "delta": 9803
+    },
+    {
+     "col": "l_receiptdate",
+     "single": 16418,
+     "min": 6254,
+     "modo_min": "split",
+     "delta": 10164
+    },
+    {
+     "col": "l_shipinstruct",
+     "single": 5695,
+     "min": 2055,
+     "modo_min": "dict",
+     "delta": 3640
+    },
+    {
+     "col": "l_shipmode",
+     "single": 5902,
+     "min": 2037,
+     "modo_min": "dict",
+     "delta": 3865
+    },
+    {
+     "col": "l_comment",
+     "single": 50211,
+     "min": 50211,
+     "modo_min": "tcf",
+     "delta": 0
+    }
+   ]
+  },
+  {
+   "tabela": "wine-quality.wine",
+   "n_linhas": 2000,
+   "n_cols": 13,
+   "bytes_M": 42856,
+   "bytes_H": 91434,
+   "gap": 48578,
+   "orcamento_candidato_unico": 48583,
+   "pct_explicado": 100.01029272510189,
+   "header_H": 220,
+   "detalhe": [
+    {
+     "col": "fixed_acidity",
+     "single": 7285,
+     "min": 2371,
+     "modo_min": "dict",
+     "delta": 4914
+    },
+    {
+     "col": "volatile_acidity",
+     "single": 7281,
+     "min": 4466,
+     "modo_min": "split",
+     "delta": 2815
+    },
+    {
+     "col": "citric_acid",
+     "single": 6969,
+     "min": 2384,
+     "modo_min": "split",
+     "delta": 4585
+    },
+    {
+     "col": "residual_sugar",
+     "single": 8646,
+     "min": 4186,
+     "modo_min": "split",
+     "delta": 4460
+    },
+    {
+     "col": "chlorides",
+     "single": 7598,
+     "min": 4614,
+     "modo_min": "split",
+     "delta": 2984
+    },
+    {
+     "col": "free_sulfur_dioxide",
+     "single": 7829,
+     "min": 2635,
+     "modo_min": "split",
+     "delta": 5194
+    },
+    {
+     "col": "total_sulfur_dioxide",
+     "single": 9365,
+     "min": 5183,
+     "modo_min": "split",
+     "delta": 4182
+    },
+    {
+     "col": "density",
+     "single": 9279,
+     "min": 7421,
+     "modo_min": "split",
+     "delta": 1858
+    },
+    {
+     "col": "pH",
+     "single": 7527,
+     "min": 2651,
+     "modo_min": "dict",
+     "delta": 4876
+    },
+    {
+     "col": "sulphates",
+     "single": 7245,
+     "min": 2319,
+     "modo_min": "split",
+     "delta": 4926
+    },
+    {
+     "col": "alcohol",
+     "single": 7200,
+     "min": 2366,
+     "modo_min": "dict",
+     "delta": 4834
+    },
+    {
+     "col": "quality",
+     "single": 4977,
+     "min": 2022,
+     "modo_min": "dict",
+     "delta": 2955
+    },
+    {
+     "col": "variant",
+     "single": 12,
+     "min": 12,
+     "modo_min": "tcf",
+     "delta": 0
+    }
+   ]
+  }
+ ]
+}

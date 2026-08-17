@@ -1,0 +1,51 @@
+{
+ "s_suppkey": [
+  "1",
+  "2",
+  "3",
+  "4",
+  "5"
+ ],
+ "s_name": [
+  "Supplier#000000001",
+  "Supplier#000000002",
+  "Supplier#000000003",
+  "Supplier#000000004",
+  "Supplier#000000005"
+ ],
+ "s_address": [
+  "sdrGnXCDRcfriBvY0KL,ipCanOTyK t NN1",
+  "TRMhVHz3XiFuhapxucPo1",
+  "BZ0kXcHUcHjx62L7CjZSql7gbWQ6RPn5X",
+  "qGTQJXogS83a7MBnEweGHKevK",
+  "lONEYAh9sFWAF75tO"
+ ],
+ "s_nationkey": [
+  "17",
+  "5",
+  "1",
+  "15",
+  "11"
+ ],
+ "s_phone": [
+  "27-918-335-1736",
+  "15-679-861-2259",
+  "11-383-516-1199",
+  "25-843-787-7479",
+  "21-151-690-3663"
+ ],
+ "s_acctbal": [
+  "5755.94",
+  "4032.68",
+  "4192.4",
+  "4641.08",
+  "-283.84"
+ ],
+ "s_comment": [
+  " instructions. slyly unusual",
+  " the pending packages. furiously expres",
+  "ong the fluffily idle packages: bold foxes mold silent package",
+  "al braids affix through the regular",
+  "accounts. instructions ha"
+ ]
+}

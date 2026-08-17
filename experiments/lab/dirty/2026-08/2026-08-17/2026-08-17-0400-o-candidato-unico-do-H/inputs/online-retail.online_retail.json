@@ -1,0 +1,58 @@
+{
+ "InvoiceNo": [
+  "560534",
+  "560535",
+  "560535",
+  "560535",
+  "560535"
+ ],
+ "StockCode": [
+  "C2",
+  "17003",
+  "22759",
+  "23298",
+  "22985"
+ ],
+ "Description": [
+  "CARRIAGE",
+  "BROCADE RING PURSE ",
+  "SET OF 3 NOTEBOOKS IN PARCEL",
+  "SPOTTY BUNTING",
+  "WRAP BILLBOARD FONTS DESIGN"
+ ],
+ "Quantity": [
+  "1",
+  "144",
+  "12",
+  "5",
+  "50"
+ ],
+ "InvoiceDate": [
+  "2011-07-19 12:10:00",
+  "2011-07-19 12:13:00",
+  "2011-07-19 12:13:00",
+  "2011-07-19 12:13:00",
+  "2011-07-19 12:13:00"
+ ],
+ "UnitPrice": [
+  "50.0",
+  "0.29",
+  "1.65",
+  "4.95",
+  "0.42"
+ ],
+ "CustomerID": [
+  "14911.0",
+  "13167.0",
+  "13167.0",
+  "13167.0",
+  "13167.0"
+ ],
+ "Country": [
+  "EIRE",
+  "United Kingdom",
+  "United Kingdom",
+  "United Kingdom",
+  "United Kingdom"
+ ]
+}

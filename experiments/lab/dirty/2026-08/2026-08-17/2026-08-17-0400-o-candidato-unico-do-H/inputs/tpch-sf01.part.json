@@ -1,0 +1,65 @@
+{
+ "p_partkey": [
+  "9001",
+  "9002",
+  "9003",
+  "9004",
+  "9005"
+ ],
+ "p_name": [
+  "bisque cream navajo papaya lavender",
+  "rosy brown cornsilk slate cornflower",
+  "burlywood light pale white drab",
+  "white lemon snow red pale",
+  "drab khaki lime midnight black"
+ ],
+ "p_mfgr": [
+  "Manufacturer#5",
+  "Manufacturer#3",
+  "Manufacturer#5",
+  "Manufacturer#2",
+  "Manufacturer#2"
+ ],
+ "p_brand": [
+  "Brand#51",
+  "Brand#35",
+  "Brand#52",
+  "Brand#23",
+  "Brand#24"
+ ],
+ "p_type": [
+  "PROMO BRUSHED COPPER",
+  "STANDARD BRUSHED STEEL",
+  "MEDIUM BRUSHED NICKEL",
+  "ECONOMY BRUSHED TIN",
+  "LARGE BRUSHED COPPER"
+ ],
+ "p_size": [
+  "45",
+  "38",
+  "22",
+  "39",
+  "34"
+ ],
+ "p_container": [
+  "SM PKG",
+  "WRAP CASE",
+  "SM JAR",
+  "MED CAN",
+  "WRAP PKG"
+ ],
+ "p_retailprice": [
+  "910.0",
+  "911.0",
+  "912.0",
+  "913.0",
+  "914.0"
+ ],
+ "p_comment": [
+  "dolites.",
+  "r accounts",
+  "eodolites around the",
+  "uriously about ",
+  " instru"
+ ]
+}

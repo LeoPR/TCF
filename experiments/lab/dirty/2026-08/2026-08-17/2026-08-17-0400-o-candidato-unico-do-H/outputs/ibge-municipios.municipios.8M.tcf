@@ -1,0 +1,2898 @@
+#TCF.8M250b=id,596d=municipio,@18e7=microrregiao,@a8a=mesorregiao,2d=uf_sigla,60=uf_nome,11=regiao_sigla,regiao_nome
+*4+99|\2803609
+*4+99|\2804003
+*2+49|\2804409
+*5+99|\2804508
+*2+109|\2805000
+*8+99|\2805208
+*9+99|\2806008
+*2+97|\2806909
+*6+99|\2807105
+*3+99|\2900108
+*2+50|\2900355
+*5+99|\2900504
+*8~99,49,50|\2901007
+*2+99|\2901601
+*2+99|\2901809
+\2901957
+*7~49,50,99|\2902005
+*2+109|\2902500
+*2+50|\2902658
+*2+99|\2902807
+*3+99|\2903003
+*2+41|\2903235
+*2+109|\2903300
+*5+99|\2903508
+*2+48|\2903953
+*2+50|\2904050
+*5+99|\2904209
+*5~49,50|\2904704
+*2+99|\2905008
+*2+50|\2905156
+*6+99|\2905305
+*2+97|\2905909
+*6+99|\2906105
+*2+99|\2906709
+*2+33|\2906824
+*2+26|\2906873
+*2+97|\2906907
+*4+99|\2907103
+*2+49|\2907509
+*4+99|\2907608
+*3+99|\2908002
+*7+99|\2908309
+*2+109|\2909000
+*8+99|\2909208
+*2+49|\2910008
+*7+99|\2910107
+*2+23|\2910727
+*2+24|\2910776
+*2+50|\2910859
+*3+99|\2911006
+*2+50|\2911253
+*3+99|\2911402
+*2+50|\2911659
+*2+49|\2911808
+*2+97|\2911907
+*4+99|\2912103
+*5+99|\2912509
+*3+99|\2913002
+*2+99|\2913309
+*2+50|\2913457
+*4+99|\2913606
+*2+109|\2914000
+*5+99|\2914208
+*2+50|\2914653
+*2+99|\2914802
+*4+99|\2915007
+*2+50|\2915353
+*3+99|\2915502
+*2+99|\2915809
+*6+99|\2916005
+*3+99|\2916609
+*2+50|\2916856
+*4+99|\2917003
+*2+25|\2917334
+*6+99|\2917409
+*2+99|\2918001
+\2918209
+*7~49,50|\2918308
+*2+49|\2918704
+*2+99|\2918803
+*5~49,50|\2919009
+*3+99|\2919306
+*2+50|\2919553
+*3+99|\2919702
+*2+33|\2919926
+*5+99|\2920007
+*2+50|\2920452
+*2+99|\2920601
+*2+99|\2920809
+*2+49|\2921005
+*4+99|\2921104
+*2+50|\2921450
+*4+99|\2921609
+*2+49|\2922003
+*2+99|\2922102
+*2+50|\2922250
+*3+99|\2922409
+*2+50|\2922656
+*2+25|\2922730
+*2+49|\2922805
+*2+97|\2922904
+*2+15|\2923035
+*2+109|\2923100
+*2+49|\2923308
+*6+99|\2923407
+*2+49|\2924009
+*6+99|\2924108
+*2+26|\2924652
+*3+99|\2924702
+*3+99|\2925006
+*2+50|\2925253
+*3+99|\2925402
+*2+49|\2925709
+*2+99|\2925808
+*2+25|\2925931
+*5+99|\2926004
+*2+99|\2926509
+*2+50|\2926657
+*2+99|\2926806
+*3+99|\2927002
+*7+99|\2927309
+*2+59|\2928000
+*9+99|\2928109
+*2+58|\2928950
+*2+50|\2929057
+*2+49|\2929206
+*2+49|\2929305
+*2+34|\2929370
+*3+99|\2929503
+*2+50|\2929750
+*2+97|\2929909
+*2+49|\2930105
+*5+99|\2930204
+*2+49|\2930709
+*2+8|\2930766
+*2+99|\2930808
+*2+49|\2931004
+*3+99|\2931103
+*2+50|\2931350
+*5+99|\2931509
+*3+99|\2932002
+*2+99|\2932309
+*2+50|\2932457
+*4+99|\2932606
+*2+59|\2933000
+*2+49|\2933109
+\2933174
+*7~49,50,99|\2933208
+*5+99|\3100104
+*4+99|\3100609
+*4+99|\3101003
+*3+99|\3101409
+*2+75|\3101631
+*2+99|\3101805
+*2+49|\3102001
+*2+109|\3102100
+*6+99|\3102308
+*2+50|\3102852
+*8+99|\3103009
+*2+50|\3103751
+*2+107|\3103900
+*4+99|\3104106
+*2+50|\3104452
+*2+99|\3104601
+*2+99|\3104809
+*5+99|\3105004
+*3+99|\3105509
+*2+97|\3105905
+*2+99|\3106101
+*4+99|\3106309
+*2+50|\3106655
+*2+99|\3106804
+*2+109|\3107000
+*8+99|\3107208
+*11~99,99,49,50|\3108008
+*2+97|\3108909
+*8~99,49,50|\3109105
+*3+99|\3109709
+*5+99|\3110004
+*5+99|\3110509
+*2+99|\3111002
+*2+50|\3111150
+*7+99|\3111309
+*2+59|\3112000
+*6+99|\3112109
+*2+50|\3112653
+*2+99|\3112802
+*9+99|\3113008
+*2+97|\3113909
+*5+99|\3114105
+*2+50|\3114550
+*3+99|\3114709
+*4+99|\3115003
+*2+50|\3115359
+*2+16|\3115458
+*5+99|\3115508
+*2+99|\3116001
+*2+50|\3116159
+*7+99|\3116308
+*9+99|\3117009
+*2+40|\3117836
+*2+107|\3117900
+*7+99|\3118106
+*2+99|\3118809
+*6+99|\3119005
+*4+99|\3119609
+*2+48|\3119955
+*2+49|\3120102
+*2+99|\3120201
+*5+99|\3120409
+*2+31|\3120839
+*2+97|\3120904
+*2+109|\3121100
+*2+50|\3121258
+*6+99|\3121407
+*4+99|\3122009
+*2+50|\3122355
+*2+16|\3122454
+*5+99|\3122504
+*6+99|\3123007
+*2+73|\3123528
+*2+109|\3123700
+*2+50|\3123858
+*6+99|\3124005
+*4+99|\3124609
+*3+99|\3125002
+*7+99|\3125309
+*2+48|\3125952
+*7+99|\3126109
+*2+50|\3126752
+*2+49|\3126901
+*2+49|\3127008
+*2+34|\3127073
+*2+99|\3127206
+*2+15|\3127339
+*2+18|\3127370
+*5+99|\3127404
+*2+97|\3127909
+*2+99|\3128105
+*2+50|\3128253
+*3+99|\3128402
+*3+99|\3128709
+*5+99|\3129004
+*2+99|\3129509
+*2+50|\3129657
+*2+99|\3129806
+*2+49|\3130002
+*2+99|\3130101
+*2+99|\3130309
+*5~49,50|\3130507
+*2+99|\3130804
+*2+109|\3131000
+*2+50|\3131158
+*7+99|\3131307
+*9+99|\3132008
+*2+97|\3132909
+*6+99|\3133105
+*2+49|\3133709
+*2+99|\3133808
+*5+99|\3134004
+*5+99|\3134509
+*2+49|\3135001
+*2+24|\3135076
+\3135209
+*5~49,50|\3135308
+*4+99|\3135605
+*6+99|\3136009
+*2+33|\3136520
+*2+24|\3136579
+*2+50|\3136652
+*2+99|\3136801
+*2+48|\3136959
+*5+99|\3137106
+*2+65|\3137536
+*2+109|\3137700
+*2+97|\3137908
+*3+99|\3138104
+*2+50|\3138351
+*2+109|\3138500
+*2+33|\3138625
+*2+8|\3138674
+*3+99|\3138708
+*3+99|\3139003
+*2+50|\3139250
+*6+99|\3139409
+*2+99|\3140001
+*2+50|\3140159
+*3+99|\3140308
+*2+25|\3140530
+*3+99|\3140605
+*2+50|\3140852
+*10+99|\3141009
+*3+99|\3142007
+*2+50|\3142254
+*4+99|\3142403
+*2+99|\3142809
+*2+99|\3143005
+*2+50|\3143153
+*2+99|\3143302
+*2+50|\3143450
+*4+99|\3143609
+*4+99|\3144003
+*2+16|\3144359
+*3+99|\3144409
+*2+16|\3144656
+*3+99|\3144706
+*2+59|\3145000
+*3+99|\3145109
+*2+16|\3145356
+*2+49|\3145406
+*4+99|\3145505
+*2+26|\3145851
+\3145901
+*10~99,99,49,50|\3146008
+*2+159|\3146750
+*7+99|\3147006
+*3+99|\3147709
+*2+48|\3147956
+*4+99|\3148103
+*3+99|\3148509
+*2+50|\3148756
+*2+97|\3148905
+*2+49|\3149101
+*2+109|\3149200
+*6+99|\3149408
+*2+48|\3149952
+*2+49|\3150109
+*4+99|\3150208
+*2+31|\3150539
+*4+99|\3150604
+*9+99|\3151008
+*2+97|\3151909
+*2+26|\3152105
+*2+34|\3152170
+*4+99|\3152303
+*3+99|\3152709
+*5+99|\3153004
+*5+99|\3153509
+*2+99|\3154002
+*2+50|\3154150
+*2+99|\3154309
+*2+50|\3154457
+*4+99|\3154606
+*10+99|\3155009
+*5+99|\3156007
+*2+50|\3156452
+*2+99|\3156601
+*2+99|\3156809
+*3+99|\3157005
+*2+26|\3157252
+*2+34|\3157302
+*2+24|\3157377
+*2+109|\3157500
+*2+50|\3157658
+*2+99|\3157807
+*4+99|\3158003
+*6+99|\3158409
+*2+48|\3158953
+*2+109|\3159100
+*2+49|\3159308
+*6+99|\3159407
+*5+99|\3160009
+*2+50|\3160454
+*4+99|\3160603
+*2+48|\3160959
+*2+50|\3161056
+*5+99|\3161205
+*2+50|\3161650
+*2+99|\3161809
+\3162005
+*7~99,49,50|\3162104
+*2+16|\3162559
+*2+49|\3162609
+*3+99|\3162708
+*2+26|\3162922
+*2+48|\3162955
+*3+99|\3163102
+*6+99|\3163409
+*2+99|\3164001
+*3+99|\3164209
+*2+41|\3164431
+*5+99|\3164506
+*6+99|\3165008
+*2+15|\3165537
+*2+18|\3165560
+*3+99|\3165602
+*2+97|\3165909
+*6+99|\3166105
+*3+99|\3166709
+*2+48|\3166956
+*4+99|\3167103
+*5+99|\3167509
+*2+49|\3168002
+*2+99|\3168101
+*7+99|\3168309
+*2+59|\3169000
+*3+99|\3169109
+*2+50|\3169356
+*5+99|\3169505
+*2+49|\3170008
+*4+99|\3170107
+*2+41|\3170438
+*2+26|\3170503
+\3170578
+*5~49,50|\3170602
+*2+97|\3170909
+*2+41|\3171030
+*2+49|\3171105
+*5+99|\3171204
+*3+99|\3171709
+*3+99|\3172004
+*2+34|\3200102
+*2+32|\3200169
+*2+59|\3200300
+*6+99|\3200409
+*2+99|\3201001
+*2+50|\3201159
+*7+99|\3201308
+\3202009
+*7~99,49,50|\3202108
+*2+50|\3202553
+*2+50|\3202652
+*2+99|\3202801
+*2+49|\3203007
+*2+24|\3203106
+*2+42|\3203163
+*2+16|\3203304
+*2+7|\3203346
+*4+99|\3203403
+*2+99|\3203809
+*2+49|\3204005
+\3204104
+*5~49,50|\3204203
+*2+59|\3204500
+*2+49|\3204609
+*3+99|\3204708
+*2+47|\3204955
+*2+26|\3205010
+*2+32|\3205069
+*2+26|\3205150
+*2+109|\3205200
+*2+59|\3300100
+*2+16|\3300209
+*2+25|\3300233
+*2+99|\3300308
+*2+50|\3300456
+*4+99|\3300605
+*2+15|\3300936
+*2+99|\3301009
+*2+50|\3301157
+*6+99|\3301306
+*2+26|\3301850
+*2+107|\3301900
+*2+50|\3302056
+*2+49|\3302205
+*2+34|\3302270
+*2+49|\3302403
+*3+99|\3302502
+*2+49|\3302809
+*2+97|\3302908
+*5+99|\3303104
+*3+99|\3303609
+*2+50|\3303856
+*2+48|\3303955
+*2+8|\3304102
+*2+16|\3304128
+*2+50|\3304151
+*2+109|\3304300
+*2+16|\3304508
+*2+50|\3304557
+*2+49|\3304706
+*2+99|\3304805
+*2+109|\3305000
+*2+25|\3305133
+*2+99|\3305208
+*8~99,49,50|\3305406
+*2+99|\3306008
+*2+50|\3306156
+*2+193800|\3306305
+*4+99|\3500204
+*2+50|\3500550
+*2+49|\3500709
+*2+99|\3500808
+*2+99|\3501004
+*2+50|\3501152
+*2+99|\3501301
+*5+99|\3501509
+*3+99|\3502002
+*5+99|\3502309
+*2+50|\3502754
+*2+97|\3502903
+*7~49,50,99|\3503109
+*4+99|\3503604
+*2+58|\3503950
+*8+99|\3504107
+*2+96|\3504909
+*3+99|\3505104
+*2+50|\3505351
+*2+109|\3505500
+*3+99|\3505708
+*4+99|\3506003
+*2+50|\3506359
+*5+99|\3506508
+*2+99|\3507001
+*11~50,99,99,49|\3507159
+*10+99|\3508009
+\3509007
+*8~99,49,50|\3509106
+*2+109|\3509700
+*2+49|\3509908
+*2+99|\3510005
+*2+50|\3510153
+*3+99|\3510302
+*4+99|\3510609
+*4+99|\3511003
+*4+99|\3511409
+*2+97|\3511904
+*2+109|\3512100
+*7+99|\3512308
+*9+99|\3513009
+*2+50|\3513850
+*8+99|\3514007
+*2+99|\3514809
+*2+33|\3514924
+*2+99|\3515004
+*2+23|\3515129
+*3+8|\3515186
+*2+49|\3515301
+*2+109|\3515400
+*2+49|\3515608
+*3+99|\3515707
+*3+99|\3516002
+*6+99|\3516309
+*2+50|\3516853
+*2+109|\3517000
+*8+99|\3517208
+*9+99|\3518008
+*2+50|\3518859
+*2+49|\3519006
+*2+34|\3519071
+*2+49|\3519204
+*4+99|\3519303
+*3+99|\3519709
+*5+99|\3520004
+*2+16|\3520426
+*5+99|\3520509
+*2+99|\3521002
+*2+50|\3521150
+*7+99|\3521309
+*2+109|\3522000
+*2+50|\3522158
+*4+99|\3522307
+*2+50|\3522653
+*2+99|\3522802
+*9+99|\3523008
+*2+97|\3523909
+*6+99|\3524105
+*3+99|\3524709
+*4+99|\3525003
+*5+99|\3525409
+*2+50|\3525854
+*2+99|\3526001
+*8+99|\3526209
+*3+99|\3527009
+*2+50|\3527256
+*6+99|\3527405
+*8+99|\3528007
+*2+49|\3528809
+*2+97|\3528908
+*5+99|\3529104
+*2+49|\3529609
+*3+99|\3529708
+*4+99|\3530003
+*6+99|\3530409
+*2+99|\3531001
+*8+99|\3531209
+*5~49,50|\3532009
+*6+99|\3532306
+*2+16|\3532827
+*2+32|\3532868
+*3+99|\3533007
+*2+50|\3533254
+*4+99|\3533403
+*2+99|\3533809
+*6+99|\3534005
+*2+99|\3534609
+*2+50|\3534757
+*2+96|\3534906
+*2+99|\3535101
+*7+99|\3535309
+*2+109|\3536000
+*2+49|\3536208
+*3+99|\3536307
+*2+34|\3536570
+*3+99|\3536703
+*2+99|\3537008
+*2+50|\3537156
+*6+99|\3537305
+*2+97|\3537909
+*3+99|\3538105
+*2+99|\3538501
+*3+99|\3538709
+*5+99|\3539004
+*5+99|\3539509
+*3+99|\3540002
+*2+50|\3540259
+*3+99|\3540408
+*5~49,50|\3540705
+*2+59|\3541000
+*6+99|\3541109
+*2+50|\3541653
+*2+99|\3541802
+*9+99|\3542008
+*2+97|\3542909
+*2+99|\3543105
+*2+15|\3543238
+*4+99|\3543303
+*3+99|\3543709
+*3+99|\3544004
+*2+50|\3544251
+*2+109|\3544400
+*4+99|\3544608
+*2+99|\3545001
+*2+50|\3545159
+*6+99|\3545308
+*3+99|\3546009
+\3546256
+Laranj*eiras
+M*acambira
+Malhad*a* d*os Bois
+5or
+Maruim
+Moita *B*onita
+Monte *A*legr*e* de Sergipe
+Muribeca
+Ne*ópolis
+Nossa Senhora* *Aparecida
+22,23d*a* *Glória
+22~23~25,26s Dores
+30e *Lourdes
+30o Socorro
+P*acatuba
+Pedra* *Mole
+Ped*rin*has
+Pinhão
+Pirambu
+Poço Redondo
+Poç*o* *Verde
+Porto *da Folha
+Propriá
+Riachão d*o *Dantas
+Riachuelo
+Rib*ei*r21
+Rosário d*o Catete
+Salgado
+S*anta *L*uzia* do Itanhy
+Santan*a* d*o* *São Francisco
+63~64R*os*a* d*e Lima
+Santo *A*maro* das Brotas
+São Cristóvão
+São Domingo*s
+73
+São Miguel* d*o Aleixo
+Simã*o *Dias
+Siriri
+Telha
+Tobias* Barreto
+Tomar do Geru
+U*mbaúba
+Abaíra
+Abaré
+Acajutiba
+Adustina
+Água Fria
+Éric*o *Car*doso
+A*iquara
+Alagoinhas
+Alcobaça
+Almadina
+Amargosa
+Amélia *Rodrigues
+Améric*a *Dourada
+Anagé
+Andaraí
+Andorinha
+Angical
+Anguera
+Antas
+Antôni106..108
+126~106Gonçalves
+Aporá
+Ap*uarema
+A*rac*a*tu
+Araçás
+Araci
+Aramari
+Arataca
+Aratuípe
+Aurelino Leal
+Ba*i*a*n21
+Baix*a* *Grande
+Banzaê
+Barra
+Barra *d*a *Estiva
+154,155o* *Ch*oça
+154~155~158~159Mendes
+164Rocha
+Barreiras
+Bar*r*o *Alto
+Barrocas
+168..170Preto
+Belmonte
+Belo* Campo
+B*i*r*iti*nga
+Bo*a Nova
+Boa Vista do Tupim
+Bom Jesu*s* d*a* *Lapa
+187,188,189..191Serra
+Boninal
+Bonito
+Boquira
+Botuporã
+Brejões
+Brej*o*lândia
+Brotas* de *Macaúbas
+Brumad*o
+Bue*rarema
+Bur*i*ti*rama
+Caatiba
+Cabaceiras do *Paraguaçu
+Cachoei*r*a
+Caculé
+Caém
+Caetan*os
+Caetité
+Cafarnaum
+Cairu
+Caldeirã*o150~151
+Camacan
+Camaçari
+Camamu
+Campo *A*legre23,25,32,33
+234F*ormoso
+Ca*n*ápolis
+Canarana
+Canav*ieiras
+Candeal
+Candeias
+C*andiba
+Cândido* *Sales
+Cansanção
+Canudos
+Capela *do *Alt*o* *Al*egre
+Capim* *Grosso
+Caraíbas
+Caravelas
+Cardeal da Silva
+Carinhanha
+Cas185
+Castr*o* Alves
+Ca*t202~203
+Catu
+Ca*turama
+Centra*l
+Chorrochó
+Cícer54,55
+Cipó
+Coaraci
+Cocos
+Conceiç*ã*o* d*a* *Feira
+285..288o* *Almeida
+292,287~288~295~296C*oité
+292,300Jacu*ípe
+Conde
+Condeúba
+Contendas do Sincorá
+Coraçã*o de Maria
+Cordeir*o*s
+Coribe
+Coronel *João Sá
+Corr*entina
+Cotegipe
+Cra*v274
+Cr*i*s21
+Cris*t21
+Cruz das Almas
+Curaçá
+Dário Meira
+Dias d'Ávila
+Dom Basílio
+Dom Macedo* Costa
+Elísio Medrado
+Encruzilhada
+Entre *Ri*os
+Esplanada
+Euclides da Cunha
+Eu240,241
+F*átima
+Feir*a* d*a Mata
+343..345e Santana
+Filadélfia
+Firmin270,271
+Floresta* Azul
+Formosa* do* *Ri170~175
+Gandu
+Gavião
+Gentio do Ouro
+28
+Gongogi
+Governador *Mang*abeira
+Guajeru
+Guanambi
+Gu*ar*at*ing*a
+Hel*i21
+Iaçu
+Ibiassucê
+Ibicaraí
+Ibicoara
+Ibicuí
+Ibipeba
+Ibi*p*itanga
+Ibiquera
+Ibir*a382,383
+385,386,382uã
+Ibirataia
+Ibitiara
+Ibititá
+Ibo213,214
+Ichu
+Igaporã
+Igrapiúna
+Iguaí
+Ilhéus
+Inhambupe
+Ipecaetá
+Ipiaú
+Ipirá
+Ip*upiara
+I*raju*ba
+Iramaia
+I*r*aqua*ra
+Irará
+Irecê
+Itabela
+Ita*ber*aba
+Itabuna
+Itacar*é
+Itaeté
+Itagi
+Itagibá
+Itag*imirim
+Itagua*çu* da Bahia
+Itaju do Colônia
+Itajuípe
+Itam*ar*a*ju
+430~431i
+Itambé
+Itanagra
+Itanhém
+Itaparica
+Itapé
+Itapebi
+It*ap*e*tin*ga
+Itapicuru
+It386,382,383
+It409~410
+Itarantim
+Itatim
+Itiruçu
+Itiúba
+Itororó
+Ituaçu
+Ituberá
+Iuiu
+Jaborandi
+Jacaraci
+Jacobina
+Jagu450
+Jaguar*a*ri
+463i*pe
+Jandaíra
+Jequié
+Jeremoabo
+Jiquiriçá
+Jitaúna
+Joã*o *Dourado
+Juazeiro
+Jucuruçu
+Jussar*a
+478i
+Jussiape
+Lafaiete Coutinho
+Lagoa *Real
+Laje
+Lajedão
+Lajedinho
+Lajedo do Tabocal
+Lamarão
+Lapão
+Lauro* de Freitas
+Lençóis
+Licínio de296,297
+Livramento de Nossa Senhora
+Luís Eduardo Magalhães
+Macajuba
+Macarani
+206
+Macururé
+Madre de Deus
+Ma444..446
+Maiquinique
+Mairi
+5,6
+5..7e* *Pedras
+Manoel Vitorino
+Mansidão
+Maracás
+Maragogipe
+Maraú
+Marcionílio Souza
+Mascote
+Mata de São João
+Matina
+Medeiros* Neto
+Miguel* *Calmon
+Milagres
+Mi*r*angaba
+Mirante
+14S*anto
+Morpará
+Morro *d*o *Chapéu
+Mortugaba
+Mucugê
+Mucuri
+Mulungu do Morro
+Mund*o *Novo
+Muniz* F*e*rreira
+Muquém70..73
+Mu*ritiba
+Mutuípe
+Nazaré
+Nilo *Peçanha
+Nord*estina
+Nova* Ca*naã
+Nova 341,342
+Nova *I*biá
+564~565tarana
+Nova Re*denção
+Nova S*oure
+Nova *V*içosa
+Nov*o H*orizonte
+Novo Triunfo
+Olindina
+Oliveira* *dos Brejinhos
+Ouriçangas
+Ou*r274
+Palmas de* *Monte Alto
+Palmeira*s
+Paramirim
+P369,370..372
+Pari*p*irang*a
+Pau Brasil
+Paulo *Afonso
+Pé de191,195
+Pedrão
+Pedro *Alexandre
+Piatã
+Pilão Arcado
+Pindaí
+Pindobaçu
+Pintadas
+Piraí* *do Norte
+Piripá
+Pi553
+Planalt*ino
+617o
+Poções
+Pojuca
+Pont542~543
+50Seguro
+Potiraguá
+Prado
+Presidente* *Dutra
+627~628J*ânio Quadros
+630Tancredo* Neves
+Queimad*as
+Quijingue
+Quix365
+Rafael *Jambeiro
+Remanso
+Reti586,274
+53as634
+53,54,303,304
+Riacho345,349
+57..59a* d*o* *A*mparo
+646,647..650Pombal
+646ã*o *d*o* Largo
+Rio de *Contas
+Rio d*o* *Antônio
+664..666Pires
+Rio Real
+Rodelas
+Ruy* *Barbosa
+Salinas* da Mar*garida
+Salvador
+74B*árb*ara
+74,680r*ígida
+74C*ruz* *Ca*brália
+74,685..687d*a *V*itória
+74Inês
+Santaluz
+74,65,66
+74Mar*ia687~692..694,695
+68,69
+68,21
+74,75i*ta* d*e *Cássia
+74Tere*zinha
+80..82
+80,81ntôni*o d*e* *Jesus
+80Estêvão
+São Desidério
+^34
+São Félix
+719 d*o 313
+São Felipe
+73 d*o *Conde
+São Gabriel
+São Go*nçal*o* do*s* *Campos
+São Jo*sé702,695
+734~735~687~692~295~296,303,304
+87,88as Matas
+São Sebasti*ão* d*o *Passé
+Sapeaçu
+Sátir91,92
+Saubara
+Saúde
+Seabra
+Sebastião* 1,2
+Senhor* do *Bonfim
+Serra *d*o* *Ramalho
+Sento Sé
+757,119
+757Preta
+Se*rrinha
+Ser586,274
+Simões Filho
+Sítio do *Mato
+768Quinto
+Sobradinho
+Souto* Soares
+Tabocas do Brejo Velho
+Tanhaçu
+Tanque Novo
+Tanquinho
+Taperoá
+Tapira*mutá
+Teixeira492
+Teodoro Sampaio
+Teof*i203
+Te274
+Terr185
+Tremedal
+Tucano
+Uauá
+Ubaíra
+Ubaitaba
+Ubatã
+Uibaí
+Umbu*ra*nas
+Una
+Urandi
+Uruçuca
+Utinga
+Valença
+Valente
+Várzea *d*a *Roça
+803,804o Poço
+803Nova
+V*arzedo
+Ver*a Cruz
+Vereda
+Vitória* da *Conquista
+Wagner
+Wanderley
+Wenceslau *Guimarães
+Xique-Xique
+Abadia dos Dourados
+Abaeté
+Abre178
+Acaiaca
+Açucena
+Água Boa
+Águ*a Comprida
+Aguanil
+Águas *Formosas
+831Vermelhas
+Aimorés
+Aiuruoca
+Alagoa
+A*lbertina
+Além P*araíba
+Alfenas
+Alfredo* *Vasconcelos
+Almenara
+Alpercata
+Al*p*i147,21
+Alterosa
+Alto *Caparaó
+Alto *Rio *Doce
+Alvarenga
+Al*v849~147~21
+Alvorad*a* d*e *Minas
+Amparo* do191,195
+Andrad*as
+218..220 *d*e Pajeú
+Andr*e203
+Ang876~203
+129,107los
+126,91,92
+129Pra*d*o863..865
+Araçaí
+Aracitaba
+Araçuaí
+Araguari
+Ar*antina
+Araponga
+Araporã
+Arapuá
+Araújos
+Araxá
+Arceburgo
+Arcos
+Areado
+Argirita
+Aric*anduva
+Arinos
+Astolfo628,629
+Ataléia
+Augusto78,79
+Baependi
+Baldim
+Bambuí
+Bandeir*a
+909,910 do Sul
+Barão d*e *Cocais
+912o588,589
+Barbacena
+154Longa
+Barroso
+Bela Vis*t862~884
+Belmiro Braga
+Bel577,578
+Belo *Oriente
+Belo Vale
+Berilo
+Ber325,21
+Berizal
+Betim
+Bias *Fortes
+Bicas
+Biquinhas
+Boa *Esperança
+Bocai*n921
+Bocaiúva
+Bom Despacho
+Bom* Jardim884
+187,188,194Penha
+187..189~649~650,651,652
+947Galho
+Bom Repouso
+Bom Sucesso
+756
+Bonfin*ópoli*s884
+197,884
+Bord344..346
+Botelhos
+Bo*t*umirim
+Brasi*lând*i921
+Brasíl963~921
+Brás666,670
+Braúna*s
+Braz21
+207inho
+Bueno Brandão
+Bu*e147,21
+Bugre
+211,212~213s
+211,975z*eiro
+Cabeceir149~230
+Cab47..49
+871~872,873a* Prata
+870,921
+984,119
+223,21
+Caeté
+Caiana
+Cajuri
+C*aldas
+Camacho
+Camanducaia
+Cambuí
+Cambuquira
+Camp*an*ário
+996,997ha
+Campestre
+Campi*n*a48,49
+234,235zul
+234Belo
+234do Meio
+234,237lorido
+Campo*s *Altos
+1008~1009Gerais
+Canaã
+^117
+Ca1002,1003~48~49
+^121
+Cantagalo
+852
+254Nova
+Capelinha
+C443,503
+261,262Branco
+Ca848,860
+Capitão *Andrade
+1023Enéas
+Capitólio
+Caputira
+Caraí
+C*ar*anaíba
+Carandaí
+Carangola
+C369,595
+Carbonita
+Careaçu
+Carlos Chagas
+Carmésia
+Carm*o d*a 871
+1039~1040,1041Mata
+1042,864,865
+1042o *Cajuru
+1042,1044P1030,1031
+1042,1044Rio Claro
+Carm952,953~884
+Carneirinho
+Carrancas
+Carvalh21
+1052os
+Cas980
+Cascalho Rico
+707
+294~289,290Bar219,921
+Cataguases
+Catas Altas
+1059 da Noruega
+Catuji
+Catuti
+Caxambu
+Cedro do 823
+278,279,884
+278,279ina
+Chácara
+Chalé
+Chapad*a613,614
+1068,1069,613Gaúcha
+Chiador
+Cipotânea
+Claraval
+Claro dos 620
+Cláudio
+Coimbra
+Coluna
+Comendador *Gomes
+Comercinho
+1056,290,24
+1056s509,510
+1056,1081,509Alagoas
+294e *I*p*anema
+292,300Mato* Dentro
+292,300Pará
+292,300Ri47..49
+294,295s Ouros
+Cônego Marinho
+Confins
+Congonha*l
+1096s
+1096,1098~613~614
+816
+Conselheiro *Lafaiete
+1101Pena
+Consolação
+Contagem
+Coqueiral
+308,713..716
+Cord*is*burgo
+1110,1111,203
+Corinto
+Coroaci
+Coromandel
+314Fabriciano
+314M*urta
+314Pacheco
+314Xavier *Chaves
+Córreg*o* *Danta
+1122,1123~1124do Bom715,716
+1122,1126Fundo
+1122,623
+Couto de Magalhã*e1049
+Crisólita
+Cristais
+Cristália
+Cristi*an*o Otoni
+1134na
+Cr*uc784~203
+Cruzeiro* da Fortaleza
+Cruzília
+Cuparaque
+Curral de1088
+Curvelo
+Datas
+Delfim* Moreira
+Delf860
+Delta
+Descoberto
+Desterro d*e 335..337
+1153o Melo
+Di*am890
+Diogo* de843,844
+Dionísio
+Divinésia
+Divino
+1164 d*as753,1,2
+1164,962,965
+Di858,860
+Divisa258..260
+1168,258Nova
+Div322,323,21
+Dom Bosco
+Dom Cavati
+Dom Joaquim
+Dom Silvério
+Dom Viçoso
+Dona Euzébia
+Dores* *d*e732,733
+1179,1180~1181,1182,732Guanhães
+1179,1183o *Indaiá
+1179~1183~1185Turvo
+Do*r*e323,21
+Dourado*quara
+Durandé
+Elói159,165
+Engenheiro* 990,991
+1197~1198Navarro
+335Folhas
+335..337,884
+Ervália
+Esmeraldas
+Espera Feliz
+Espinosa
+Espírito Santo* d474,475
+157
+Estrel*a *Dalva
+1210~1211~1181,1185,1186
+1210,910,911
+Eug973,147,21
+Ewbank da Câmara
+Extrema
+Fama
+Faria Lemos
+Felício dos Santos
+727..730~356,357~170~175
+Fel1111,1112
+Felix203
+Fern*an*d*es Tourinho
+Ferros
+Ferv*edouro
+352l
+Formiga
+237,238
+Fortalez921
+Fortu938~921
+Francisc*o* *Badaró
+1241..1243Dumont
+1246Sá
+1241,21
+Frei Gaspar
+Frei Inocêncio
+Frei Lagonegro
+Fronteira
+1252 dos Vales
+Fruta de Leite
+Frutal
+Fun1140
+Galiléia
+Gameleiras
+Gla1139,1140
+Goi365
+Goianá
+130
+Gonzaga
+Gouveia
+363Valadares
+Grão Mogol
+Gr402
+1184
+Guapé
+Guaraci*a*ba
+1268,1269ma
+Guar*an*ésia
+1272~1273i
+Guarar*á
+Guarda-Mor
+Guaxupé
+Guidoval
+Guimarânia
+Guiricema
+Gurinhatã
+Heliodora
+Iapu
+Ib*ertioga
+Ibiá
+Ibiaí
+Ib*i135..137
+1291,1292,135i
+Ibirité
+Ibitiú219,921
+Ibituruna
+Ica*raí884
+Igarap*é
+Ig369,595
+Iguatama
+Ijaci
+Ilicínea
+Imb*é884
+Inconfi*dentes
+Indaia*bira
+Ind145,146~147~21
+Ingaí
+Inhapim
+Inhaúma
+Inimutaba
+Ipaba
+1084,1085~1086
+Ip595
+Ipiaçu
+Ipuiúna
+I1300,884
+Itab*ir*a
+1326~1327i*nha
+1329,1330to
+It4
+418ambi
+425ra
+Itaipé
+Itajubá
+434,248
+434,432ti884
+Itambacuri
+436,288,295,296,1087,1088
+Itamogi
+Itamonte
+Itanha*ndu
+Itanhomi
+Itaobim
+Itapagipe
+Itapecerica
+Itapev*a
+Itatiai*uçu
+Itaú884
+Itaúna
+Ita*verava
+Itinga
+Itueta
+Ituiutaba
+I959,960
+I277
+It*utinga
+Jabotica*tubas
+Jacinto
+Jacuí
+Jac1362
+463,464çu
+Jaíba
+Jampruca
+Janaúba
+Januária
+Jap840
+Japonvar
+Jeceaba
+Jenipap882~884
+J*equeri
+Jequit*aí
+1380i*bá
+1380,1382nhonha
+Jesuânia
+Joaíma
+Jo1273,1274
+João Monlevade
+João Pinheiro
+Joaquim Felício
+Jordânia
+José Gonçalv1130,1049
+José* Raydan
+Jos973,147,21
+Nov*a *União
+Juatuba
+Juiz de Fora
+Ju*ramento
+Juruaia
+Juvenília
+Ladainha
+Lagamar
+483,873,985,986
+483,873os Patos
+483,119
+483Formosa
+483,151
+483Santa
+Lajinha
+L*ambari
+Lamim
+1a*l
+Lassance
+Lavras
+Leandro545..547
+Leme* do Prado
+L*eopoldina
+Liberdade
+Lima Duarte
+Limeira* do Oeste
+Lontra
+Lu1111,1112
+Lu1111,203
+Luminárias
+Luz
+Machacalis
+Machado
+500,884
+Malacacheta
+Mamonas
+Manga
+Man*huaçu
+Manh960
+Manten*a
+Maravilhas
+Mar de Espanha
+Maria da Fé
+Mariana
+Marilac
+Mári*o732,733
+Marip*á884
+Marliéria
+Marme*l21
+Martin*h1450,732,733
+1456s773
+Mat1016
+Mat*e*r203
+Mateus Leme
+Matias674,675
+1464,674,107,108
+Matipó
+Mat47..49
+Matozinhos
+Matutina
+520
+Medina
+Mendes* Pimentel
+Mercês
+Mesquita
+Minas Novas
+Minduri
+Mirabela
+Miradouro
+Miraí
+Miravânia
+Moeda
+Moema
+Monjolos
+Monsenhor Paulo
+Montalvânia
+14..16,17~884
+14,15zul
+14Belo
+14Ca*rmelo
+14,237,238
+14,530,531,884
+Montes Claros
+14,530ião
+Montezuma
+Morada Nov921
+533,534a Garça
+533..535Pilar
+Munhoz
+Muriaé
+Mutum
+Muzambinho
+Nacip1394
+Nanuque
+Naque
+Nat*a203
+Natércia
+Nazareno
+Nepomuceno
+Ninheira
+Nova Belém
+Nova E*ra
+Nova L*ima
+Nova Módica
+Nov*a *Po*nte
+1521..1523rte1327~1330~1331
+569sende
+571errana
+Novo Cruzeiro
+Novo Ori*ent1489
+Nov578
+Olaria
+Olhos*-d'Água
+Olímpi*o Noronha
+581
+581,582,932
+Onça de *Pitangu*i
+Oratórios
+Orizânia
+Our*o262,1021
+Ouro Fino
+Ou169,358
+Ouro Ver*d1489
+Padr*e *Carvalho
+1552,1553Paraíso
+Pai*neiras
+Pains
+Pai* Pedro
+Paiva
+Palma
+Pal*m21
+Papagaios
+Pa1294
+Par1452,884
+217
+Para322,323,21
+Paraopeba
+Passabém
+Passa *Quatro
+1571Tempo
+1571Vinte
+Passos
+Patis
+Pat337,884
+Patrocínio
+1578 *do 1503
+Paula Cândido
+Paulist*as
+Pavão
+557
+37,38Azul
+37,38,12,13
+37,38do *Anta
+37,38,1586,1186
+37,38,119
+Pedralva
+Pedras de Maria d812
+40,41,21
+605Leopoldo
+605Teixeira
+P1379
+Pequi
+Perdigão
+Perdizes
+Perdões
+Periquito
+Pescador
+Piau
+Piedade* d*e 1034,369,595
+1600~1601,1602Ponte Nova
+1603o* Ri229,230
+1603,1605,1009,1012
+Pimenta
+Pingo1538
+Pin325,21
+P*iracema
+Pi404,405
+P598,599
+1613~598u*çu
+1614,1615inho
+Pir443,503
+Pirapo*ra
+Piraúba
+1542,1543
+Piumhi
+Planura
+Poç1126,1128
+Poços* de1198~990~991
+Pocrane
+Pompéu
+1604
+622,542Chique
+622,542dos Volantes
+1523,1527,1529
+50F*irme
+Poté
+Pous257~1170
+1636,257,1169to
+Prados
+Prata
+Pra*t241
+Pratinha
+630Bernardes
+630,631uscelino
+630K*ubitschek
+630Olegário
+Alto 1380,1382,1383
+Prudente de Morais
+Quartel Geral
+Queluz*ito
+Raposos
+Raul773
+Recreio
+Reduto
+Resende332
+Resplendor
+Ressaquinha
+Riachinho
+644,345os Machados
+57..59~657~658,659,643,634
+1666Vermelho
+Rio Acima
+Rio Casca
+854,855
+Rio1422
+Rio Espera
+Rio Manso
+Ri623
+Ri1044~1046~1030,1031
+1674,1676,881,1377
+Rio *Piracicaba
+Rio Pomba
+1226
+Ri658,1667
+Ri1642,241
+Roche881,1377
+Rodeiro
+Romaria
+60a Limeira
+Rubelita
+Rubim
+Sabará
+Sab860
+Sac1402
+676
+Salto *d*a Divisa
+^379
+63~64~680..682 d*o *Leste
+1697~1698,1699Monte48,49
+1701,1699Tugúrio
+63~64~685..687~692,864,865
+1708,864,676
+1708o E*scalvado
+74Efigên965
+74F1308,884
+74Hele1240
+74Juliana
+^385
+74,698,678
+63~64~698~699~687~692e 1329,1328
+1719o* S*alto
+1719,1721,1722uaçuí
+68..70a Vargem
+1726e 1058
+1726,1728Pirapama
+1726~71~72Deserto
+1731Garambéu
+1731Jacaré
+1731,1439,1440
+1731,1555
+1731Riacho
+1726,71s Montes
+63~64~75~703~704,1626,1628
+1740~705,706,1367,1362
+74,75,703,920,921
+1741,706Ibitipoca
+1741o *Itueto
+1741,1743Sapucaí
+74,75..78,190~191~195
+74,694,695
+80~81~712~713~649~650,651,652
+1755,651ventureiro
+1755Grama
+1755,436
+1755,1365
+1755Monte
+1755R*etiro
+1755,1759io *Abaixo
+80Hipólito
+Santos1243,1247
+São Bento Abade
+São Brás687,692,1721,1722,1724
+85~86~23~25,26,31
+1769o986
+719,720,864,865
+^35
+73,723e* *Paula
+73~723~1771,250,251
+73,723,724,28
+São Geraldo
+1776 d*a Piedade
+1776,1777o Baixio
+1224,823
+727,728,300,1089
+1224,357,170,1762
+1224,1745
+727tardo
+734ã*o* *Batista723,724,28
+734~1781..1783d*a* Lagoa
+734,1781,1040,1041,1043
+734~1781..1783~1788,1522..1524
+1794,1789s Missões
+1794e*l Rei
+1794~71~72,1439,1440
+1801,1439teninha
+1801,925
+1801Pacuí
+1786,70..72~1555
+1787Evangelista
+1787,1513
+734aquim de Bicas
+734~735~687~692~693Barra
+734,735,194,192
+1812Safira
+1812,694arginha
+740,259,260
+740,1164
+740Goiabal
+740,303ri
+740Mantimento
+São Lourenço
+87,38~1586~1587
+São Pedro d1397,1398
+1822o*s 1233
+1822,1823,1722,1724
+São Ro*mão
+1825qu1489
+742..744a *Bela Vista
+1829,1830Vargem1170
+1828,1821
+1829,745Maranhão
+1828,1428
+742,1781,1782,1806
+1829,745,1226
+742,286,300,1090,47..49
+São Tiago
+São Tom*ás de Aquino
+1837é das Letras
+São Vic1534,1489
+Sapuca*í-Mirim
+Sardoá
+S810
+Setubinha
+Sem-Peixe
+Senador *Amaral
+1847Cortes
+1847Firmino
+1847José Bento
+1847Modestin106,130
+754a d*e* 581
+754,1853o* Porto
+754,1853,1856s Remédios
+Sericita
+Se181..183
+757Azu279,884
+757,758a Saudade
+757..759s 834
+757..760Salitre
+Serran*ia
+1872,952,1049
+1872os
+Serro
+Sete Lagoas
+Silveirânia
+Silv145,1315
+90,91Pereira
+Simonésia
+So689
+Soleda1551,1489
+Tabuleiro
+Taiobeiras
+Taparuba
+779
+779í
+Taquaraçu884
+Tar960
+781s
+Teófil1136
+Timóteo
+Tira1310
+Tiros
+Tocantins
+Tocos do Moji
+Toledo
+Tombos
+Três Corações
+Três Marias
+Três Pontas
+Tum180..183
+Tupaciguara
+Turmalina
+Tur320,274
+Ubá
+Ubaí
+Ub*a*poranga
+U415,416
+Ub1461,1462,203
+794,795tiba
+Unaí
+Uni*ã1377
+Urua1240
+Urucânia
+Urucuia
+1832,1170
+1832,258,12,13
+1832,258Grande do Rio Pardo
+694,1815
+Varj1918,1377
+803..805Palma
+Varz878
+Vazante
+Verd878
+Veredinha
+Veríssimo
+Vermelh623
+Vespasiano
+574,575
+V244
+Mathias* Lobato
+Virgem194,192
+Virgínia
+Vir*g860
+Virg274
+Visconde do Ri1547~262~1021
+Volt980
+819Braz
+Afonso 1075
+Águi*a Branca
+Água Doce613,614
+259,260
+842,843,1121
+853,854Novo
+Anchieta
+Apiacá
+Aracruz
+Atílio Vivácqua
+Baixo Guandu
+154,155e72,73
+^534
+187,1100
+Brejetuba
+870o de *Itapemirim
+Cariacica
+C*astelo
+Co*latina
+1056,290~1057~219~862
+292,300,301,1963
+1164,1165e 1819
+Domingos Martins
+1188,1226
+Eco1912
+Fundão
+363Lindenberg
+Guaçuí
+Guarapari
+Ibatiba
+Ibiraçu
+Ib975,214
+Iconha
+Irupi
+425,426
+1960
+565,568
+Iúna
+463é
+Jerônimo* Monteiro
+João Neiva
+1,1414 da Terra
+Linhares
+1442,21
+Marataízes
+Marechal Floriano
+Mar1140
+Mimos*o911
+Montanha
+539ci
+544,545reire
+Muqui
+573,574enécia
+Pancas
+605C997,998
+Pinheir*os
+Piúma
+622,542Belo
+630,1646ennedy
+Rio *Bananal
+1673,623,911
+74,65,1424
+1719,1720Jetibá
+74,708sa
+85,1100
+726 da Palha
+740Calçado
+São Mateus
+1825,1827,17,863o561,562
+Serra
+Sooretama
+1832,1169ta
+Venda Nova do Imigrante
+Viana
+Vila Pavão
+Vila V*alério
+2019elha
+814
+Angra dos Reis
+Aperibé
+Araruama
+Areal
+Armação dos Búzios
+Arraial do Cabo
+164Piraí
+154Mansa
+Belford Roxo
+941,942
+947Itabapoana
+Cabo Frio
+871s de Macacu
+Cambuci
+Carapebus
+1078Levy Gasparian
+1011do*s Goytacazes
+^587
+Cardoso1149
+Carmo
+Casimir*o de Abreu
+294,1083Macabu
+310,311
+Duas Barras
+Duque de Caxias
+1199Paulo de Frontin
+Guap424
+Iguab980
+Itaboraí
+425í
+Italva
+Itaoca*ra
+Itaperuna
+1350a
+Japeri
+Laje1579,1580,1503
+Macaé
+Macuco
+Magé
+Manga795,1915
+Maricá
+1472
+^938
+522,523,1879
+M1611
+Nativida*de
+Ni1455,21
+Niterói
+563,341riburgo
+567guaçu
+1566,1293mbi
+Paraíb910,911
+Paraty
+Paty do Alferes
+Pet59,21
+2000al
+Piraí
+Porciúncula
+50Real
+Quatis
+635os
+Quissamã
+1658
+Ri*o 197
+1047
+Rio das *Flores
+2084Ostras
+662Janeiro
+1718Madalena
+80,81,712..715Pádua
+1775,1772,2031
+São Fidélis
+727..729
+734,286..289,1968
+1794,1798 Meriti
+1811e Ubá
+740Vale355,356,1226
+1822,1397Aldeia
+1829,170,171
+1841ia
+Saq133
+Seropédica
+Silva942
+Sumidouro
+Tanguá
+Te1191,1192~323~21
+Trajano de Moraes
+Três Rios
+^446
+Varre-Sai
+Vassouras
+1945,149,150Redonda
+Ad1159,890
+Adolfo
+Aguaí
+831~873,985,986
+2120e *Lindóia
+2120,2121,1697
+2120,2121,63ão1560
+Agudos
+Al1412
+842,843Marcondes
+Altair
+Alt860
+256,1637
+Alumínio
+Álvares *Florence
+2130,1435
+Álvaro d1553,1554
+Alvin203
+Americana
+117o *Brasiliense
+117,2135~1181~1182~732~733
+866
+An1510,203
+868ina
+Angatuba
+Anhembi
+Anhumas
+24
+24 d*'Oeste
+Apiaí
+Araçariguama
+Araçatuba
+Araçoiab77,78,1750
+Aramina
+Arandu
+Arapeí
+Ara408,450
+Araras
+Arco-Íris
+Arealva
+Areias
+Are374,21
+Ariranha
+Artur Nogueira
+Arujá
+Aspásia
+Assis
+Atibaia
+Auriflama
+Avaí
+Avanhandava
+Avaré
+Bady Bassitt
+Balbinos
+Bálsamo
+2006
+912,913Antonina
+675
+Bariri
+154,12,13
+164,160apéu
+164Turvo
+Barretos
+Ba765
+Barueri
+Bastos
+Batatais
+Bauru
+Beb1235
+Bent2042
+Bernardin2140
+B1288
+Bilac
+Birigui
+179..182ba* Mirim
+935,936,911
+937,938,862
+Bofete
+Boituva
+946s 1596
+950 de *Itararé
+Borá
+Boracéia
+Borborema
+Borebi
+Botucatu
+Braganç*a* *Paulista
+967
+Brej1637
+Brodowski
+204
+Buri
+Buritama
+211,975,977al
+Cabrál*i2206,2207~2208
+Cabreúva
+Caçapava
+984,2208
+Caconde
+Caf878
+Caiabu
+Ca244
+Caiuá
+Cajamar
+Cajati
+Cajobi
+1045
+1001..1003,48do Monte1170
+1001..1003s
+234Limpo2216
+1011,2037 Jordão
+1011Novo*s2216
+Cananéia
+Canas
+249,250Mota
+249,250,116
+Canitar
+Capã2083,197
+254..257
+Capivari
+Caraguatatuba
+Carapicuíba
+2039
+Cas1949
+707 dos Coqueiros
+Ca*stilho
+Cat901
+Catiguá
+Cedral
+Cerqueira César
+Cerquilho
+Cesário Lange
+Charqueada
+Clem317
+Colina
+Colômbia
+Concha*l
+2262s
+310,21
+Coroados
+314,1117acedo
+Corumbataí
+Cos1564,21
+Cosmorama
+Cotia
+Cravinhos
+1132,2216
+Cruzália
+1141
+Cubatão
+Cunha
+De1710
+Diadema
+Dirce Reis
+1164,962,963,862
+Dobrada
+Dois Córregos
+Dolc860
+1193
+Dracena
+Duartina
+1247
+Echaporã
+Eldorado
+Elias Fausto
+Elisiário
+E99
+Embu das Artes
+Embu-Guaçu
+Emil145,1315
+1199,990oelho
+1208,1209,474Pinhal
+1208,1183,1185,1189
+1214,2147
+1210,1069,613,614
+339,2216
+Fartura
+1229,1230~1231,21
+1229,2294o Prestes
+Fernão
+Ferraz1161,843,844
+Flora Rica
+Floreal
+Flórid2206,2216
+Florínea
+Franca
+1246Morato
+Franco da159,166
+Gabriel1984
+Gália
+Garça
+Gastão Vidigal
+360 Peixoto
+General 62
+Getulina
+Glicério
+Guaiçara
+Guaimbê
+Guaíra
+Guapia*çu
+2316ra
+Guará
+Guaraçaí
+1268
+1275,1276,2146,2147
+1275tã
+1277apes
+1277ema
+368..371uetá
+Guareí
+Guariba
+Guarujá
+Guarulhos
+Guatapará
+Guz274
+Hercu203
+Holambra
+Hor273,274
+Iacanga
+Iacri
+Iaras
+Ibaté
+Ibirá
+Ibi210
+Ib182,183
+Ibiúna
+Icém
+Iepê
+Igaraçu* do Tietê
+1301ava
+1303,369,370á
+Iguape
+Ilhabela
+Ilh829
+Ilha Solteira
+1311tuba
+1313,145..147a
+Indiaporã
+Inúb2215,2206,2216
+Ipaussu
+Iperó
+Ipeúna
+Ipiguá
+I1912
+Ipuã
+Iracem241
+Irapuã
+Irapuru
+414,415á
+Itaí
+Itajobi
+Itaju
+1342ém
+2052
+1347,189~1750
+442,443,502inga
+^836
+1348i
+Itapira
+2378puã2216
+I1642,241
+I*t1911,1912
+Itapuí
+Itapura
+449,409quecetuba
+2199
+Itariri
+Itatiba
+It595
+Itirap*ina
+2389uã
+Itobi
+Itu
+Itupeva
+Itu1355
+^248
+1363bal
+Jacareí
+Jaci
+Jacu597..599
+463,466úna
+Jales
+640
+Jandira
+Jard860
+Jarinu
+Jaú
+Jer110
+Jo1315
+Joã759..761
+José Bonifácio
+Júlio 1475
+J960
+Jundiaí
+Junqu58,59,21
+Juquiá
+Juquitiba
+Lagoinha
+1,1414,1415,2216
+Lavínia
+Lav41,42
+Leme
+493,2216
+1427
+2122
+Lins
+Lorena
+33
+Louveira
+Lucélia
+Luc145,1315
+Luís666,667
+Luiziânia
+Lupércio
+Lutécia
+M36
+Macaubal
+Macedônia
+Magda
+Mairinque
+Mairiporã
+Manduri
+Marabá2216
+Maracaí
+Marapoama
+Mari241
+Marília
+Ma41,21
+1456,21
+Matão
+Mauá
+Mendonça
+Meridiano
+M2111
+522,21
+Mineiros2348
+M1292,1294
+Mira Estrela
+Mir2294,21
+529 do *Parana1321
+Mirass*ol
+2457,274
+Mococa
+Mogi das Cruzes
+Mogi Guaçu
+Mogi2194
+Mombuca
+Monções
+Mongaguá
+14..17,911
+589
+14,15prazível
+14,15,1490,2216
+14,1492stelo
+Monteiro1936
+14Mor
+533Agudo
+Morungaba
+Motuca
+Muruting910,911
+Nantes
+N431,248
+2064,2065,2375
+555,2216
+Nev*e2236,2216
+Nhandeara
+Nipoã
+Nova Aliança
+560,561mpina
+560..562,2216
+560,561,2251
+1516uropa
+Nova G*ranada
+2488ua2382,1911,1912
+567ndependência
+Novais
+1518uzitânia
+Nova Odessa
+^324
+Nu1912
+Ocauçu
+Óleo
+1539a
+Ond1016
+925
+Orindiúva
+O1462,203
+Osasco
+Oscar Bressane
+Osvaldo Cruz
+Ourinhos
+Ouroeste
+1550,1551,17
+Pacaembu
+Pal559
+Palmar2480,2236,2216
+590,2146,2147
+Palmital
+Panorama
+217,2216
+Paraibuna
+1555
+2456,1321
+2456,1085uã
+Parapuã
+Pardinho
+Pariquera-Açu
+Parisi
+1578,1579,2208
+Paulicéia
+Paulínia
+1582ânia
+601de Faria
+Peder1557
+37,38,12ela
+Pedr1315
+Pedregulho
+Pedreira
+40..42,2216
+605de 1896
+Pe240,241
+Pereira96
+2531s
+Peruíbe
+Piacatu
+1600
+Pilar911
+Pindamonh528
+Pindorama
+Pinhalzinho
+Piquerobi
+Piquete
+Piracaia
+1678
+1612,404
+1612,404í
+1614i
+1619,1620,1124,1127,715,716
+1619zinho
+Pirassununga
+Pira445,2376
+1542eiras
+^349
+P1965
+Poá
+Poloni
+Pompéia
+Pongaí
+Pontal
+2553inda
+Pontes Gestal
+Populina
+Po527,528
+50,1633e*liz
+50,1633,2558,547
+Potim
+Potirendaba
+Pracinha
+Pra1231,21
+Prai980
+Pratânia
+627,271
+^1076
+630Epitácio
+630Prudente
+630Venceslau
+Promissão
+Quadra
+Quatá
+Queiroz
+1652
+Quintana
+Rafard
+Rancharia
+Redenção2375
+Regente Feijó
+Re1940,860
+Registro
+Restinga
+646,647
+1666,197
+1665,1944
+1666Corrente
+1665,1992,911
+1666,659,660s Índios
+1666,151
+1665,665,666,670
+1665,358
+Riversul
+Rifaina
+Rincão
+R860
+^1446
+2084,510
+Rio Gran2065,2375
+Ri274
+Rosana
+Roseira
+Rubiácea
+Rubinéia
+Sabino
+Sagres
+Sales
+Sales1855,581
+Sal2111
+Salmourão
+Saltinho
+Salto
+1691,1692e 1619,1620
+1691,151
+Sandovalina
+74A*délia
+74,2603,838
+1701,2147
+74,680,683anca
+74,685l682,1698,2147
+1708,693Conceição
+1708,693,936
+2370
+Baixo *Cotinguiba
+Agreste de *Itabaiana
+Nossa Senhora das Dores
+Sergipana do Sertão do* São Francisco
+Propriá
+Carira
+Aracaju
+Japaratuba
+Boquim
+Tobias Barreto
+3Lagarto
+Estância
+2
+Seabra
+Paulo Afonso
+Alagoinhas
+Ribeir*a do Pombal
+Feira de Santana
+Livramento do *Brumado
+Jequié
+Porto Seguro
+Ilhéus-Itabuna
+Catu
+Irecê
+Vitória* da Conquista
+Senhor do Bonfim
+Cotegipe
+23
+Serrinha
+Santo Antônio de *Jesus
+Barreiras
+Ita*beraba
+Barra
+Bom Jesus da Lapa
+Boquira
+Guanambi
+Jacobina
+Valença
+Salvador
+Juazeiro
+Santa *Maria *da Vitória
+Euclides da Cunha
+Entre Rios
+Jeremoabo
+Itapetin*ga
+Patrocínio
+Três Marias
+Manhuaçu
+Ponte Nova
+Ip*atinga
+Peçanha
+U38
+Campo Belo
+Nanuque
+Salinas
+Aimorés
+Andre*lândia
+São Lourenço
+Poços de Caldas
+Cataguases
+Alfenas
+Barbacena
+Almenara
+Governador Valadares
+Passos
+Viçosa
+Itabira
+Conceição do Mato Dentro
+Pedra Azul
+Capelinha
+Muriaé
+Sete Lagoas
+Juiz de Fora
+Araçuaí
+Uber68
+Patos* de Minas
+Bom Despacho
+Araxá
+São Sebastião do Paraíso
+Formiga
+Unaí
+Ubá
+Teófilo Otoni
+Curvelo
+Piuí
+Bel*o Horizonte
+Itagua*ra
+Varginha
+Bocaiúva
+Car60
+Pouso *Alegre
+Oliveira
+Januária
+Grão Mogol
+Paracatu
+Montes Claros
+Guanhães
+Itajubá
+Pirapora
+47Rita do Sapucaí
+Ituiutaba
+Frutal
+Divin*ópolis
+Lavras
+Conselheiro Lafaiete
+São Jo*ão *Del Rei
+Janaúba
+Mantena
+Di*amantina
+Our*o Preto
+Pará88
+Afonso Cláudio
+Nova Venécia
+Barra d*e7
+106
+Guarapari
+Colatina
+Cachoeiro de *Itapemirim
+Linhares
+29
+São Mateus
+47Teresa
+139
+Montanha
+Baía da Ilha Grande
+34Pádua
+Lagos
+Três Rios
+134o Piraí
+Vale do Paraíba Fluminense
+Rio de Janeiro
+Nova Friburgo
+Itaperuna
+Macacu-Caceribu
+Macaé
+Campos do*s Goytacazes
+Cantagalo-Cordeiro
+Bacia de São João
+Vassouras
+100í
+Serrana
+47,48Madalena
+Ad128
+122sé do* Ri130
+Pirassununga
+122,123da Boa Vista
+Amparo
+Avaré
+Piracicaba
+Bauru
+53inga
+Presidente Prudente
+Batatais
+Birigui
+Sorocaba
+Votuporanga
+Marília
+Campinas
+Araraquara
+São Carlos
+Andradina
+Botucatu
+Guaratinguetá
+Jales
+Capão Bonito
+Araçatuba
+Ituverava
+Bananal
+Limeira
+Tupã
+Catanduva
+Mogi Mirim
+Guarulhos
+Assis
+Bragança Paulista
+Auriflama
+Itapeva
+Jaú
+Registro
+Barretos
+19ã130
+Osasco
+Jaboticabal
+Ourinhos
+Santos
+Mogi das Cruzes
+Tatuí
+Rio Claro
+122,164s Campos
+Lins
+Franco da Rocha
+Jundiaí
+155 Jordão
+Caraguatatuba
+Itapecerica da Serra
+Franca
+Paraibuna/Paraitinga
+São Paulo
+Dracena
+Fernand119
+122aquim da Barra
+Piedade
+Nov99
+Itanhaém
+Nhandeara
+!!!"!#!"!!!"!$!#!%!&!$!#!%!'!(!&!)!&!(!$!*!$!%!+!!!&!!!)!,!%!-!!!'!"!(!#!*!-!%!*!)!)!.!/!0!1!2!3!4!0!5!6!4!7!8!9!.!:!;!2!1!2!:!0!4!<!0!=!0!6!>!6!?!@!1!A!.!9!8!6!?!8!=!6!6!9!=!9!@!B!9!.!.!C!C!4!;!C!<!6!A!9!>!>!D!E!9!D!8!F!E!6!G!F!H!:!I!8!6!=!G!D!9!J!J!=!E!<!5!K!B!H!>!?!7!C!8!/!1!1!6!I!2!>!=!2!K!<!.!2!<!I!L!I!;!4!0!;!>!H!9!G!3!>!2!M!K!K!J!5!1!B!2!:!6!6!?!6!=!8!/!6!>!<!D!5!1!@!D!6!.!9!8!C!@!6!5!6!C!8!A!=!D!F!9!6!0!2!6!2!C!4!4!8!2!8!5!@!6!6!.!4!6!5!A!6!6!5!6!M!7!5!G!6!6!M!1!6!4!M!2!4!:!M!<!F!D!I!D!E!4!:!>!K!4!L!4!4!8!H!5!8!6!.!4!D!4!5!@!4!=!8!G!.!D!3!?!@!M!C!/!G!<!M!@!D!<!9!;!4!>!F!4!6!7!D!5!E!4!E!9!J!A!E!D!.!5!8!@!>!A!>!4!>!F!J!9!=!6!4!.!1!5!C!1!1!C!2!E!D!.!3!B!1!6!/!=!2!L!.!H!D!:!2!F!<!E!4!9!9!7!E!5!M!5!8!<!F!J!J!E!2!H!=!?!=!D!1!1!M!.!<!3!0!/!@!>!G!2!L!5!6!4!=!6!I!I!2!;!2!>!>!2!?!=!>!I!>!G!8!2!6!E!4!7!>!0!>!E!.!D!:!B!H!I!2!=!E!G!B!L!H!8!;!<!C!2!F!@!5!2!=!6!7!<!J!J!4!6!6!8!:!6!D!6!.!F!=!@!E!E!>!G!5!9!.!;!6!A!N!O!P!Q!R!S!T!U!V!W!X!Y!Z![!\!]!^!_!`!a!]!P!b!X!c!d!b![!e!Y!f!^!R!g!h!i!j!k!Y!b!k!l!m!n!o!p!]!\!f!q!r!s!t!Z!h!u!_![!c!g!^!Q!^!c!i!v!R!w!f!V!W!v!i!i!O!x!Y!y!m!Y!a!c!z!{!|!w!q!}!{![!~"!""!b"#"$!v!{!t!z!q"%!q!o!h"&"'!h!v!g!b![!p!{!{!Z!`!x!["(""!U!x!T!n!x!b!k!U!U!S!P!^!f!a!h"'!`""!a!P!j!^!^!g!z!f"&!V"#!x!|!Z")!l!]!|"("*!]!Y"+!k!a",!\!c"+!s"-!Z!O".!k!i!P!f!}!i!b!a""")!b"#"(!e!]"&!T!X!d")!Z"&!}!v!{"+!d!T"+!X"$!v!x""!h"&!t!`!N!R!j!i",!u!{!p!z"/!V!U!~"+"$!w!N!Y!X!W!t"/"$!a!T!i"+!^"/"0!c!r!g!`"#")!W!]!_!q!z!d!Q"$!\","#!m!r!u!N!P!x!`!y!z"+!b!v!g"-!{!{!\!m!N!g!i!{!]!g"/"/!_!t!`!c!g"1!p!q!a!h!f!y""!s!s!`!S"(!V!W"(!h!`"-""!X!i!{"#"/!`!~!N"#!x!Q!y!o!r!i"!!o!r!l!r"'"&!z!^!n"%""!a!v![!|!}!v")!u"*!x!z![!W!k"*!z!h!t!z!X!R"'!{!N!c"."0!~!}!w!s"$!f!\!`!d!o!Z!Z!`!e"(!p!{!w!a")"+!j!X"'"*"("*!h!_!o![!R"-!`"-!}!m""!w!f!Q"%!h!_!Z!_!R!c"!!t!_!f!S!~!c!v!i""!o!}!s"!!m"%",!l"!!v!P!Z!b!\"%"*!m!f!\!Y!i"(""!P"""*!m!V!]",!s"-!}!P!P".!h!i"$"0!`!v!i!R"$!m!P!_"#!v!i!}!P"-!h!l!u!e".!r!R!f!Y""!g!g!}!w!m!t!x!}!k"-!o!N!_!o""![!W!O!t!d!{!g!X!o!`!V!R!q"&","*!W".!c!v!`!n"-!o")!j!s!W!i!y!Z!|!i"1!Q!g"+!["0!s!~!j!O!p"-!i!\!_!h"!"1!]"$!h!d!Z!|!Y!a""!l!N!g!b"#!s!S!e!P!b!p!g"&!}!n!v!i!i!h")!n!U!R!`!i!z!Q",!w!p!z!}!|"(!b"$"$!\"%!r"1!u"(!]![!X!O!Q""!j"-!b!s!{!Z",!k!a!n!b!t"/"!!P!h!m"+!v!Q!\!P",!X!^"%"-!v"*!v!Q!Q!_!b!w!i!l!W!c!r!i!d",!i!r!N!g!W!_!v"#!n!W!_!c!z!i!^",!W!Q"#"%!V!n!v!P!c!_!S!x!\!h!i",!U!P!R!h"+![!i!z!i!X"&!l"'!|!\!Q!d!_")!W!d!t!i!x"+!z!c".!}!|"(!g!r!`!`"!")!c"&!l!a"""&""!}",!P".!z""!W"#!i!v!a!v!`"1"&!`!c!S!P!Z!b!o!Q!S"%!u"&!g!z!S")!o!d!Z",!o!x!Y!{"#!v!s!Q!{!i!r!{"/!b"#!^!Q!Y!d!m!V!N!]"-!Y!d!h!r"&!i!P!`!Z!r!W!X!n!u!c!z!b!s!R",!l!r!{!{!g!x!O!x!`!k!f"&!r""!z!T!k!V!q"(!q!Q!}!z!u!W!x"!"%"""!""!f!T!Q!v!b!g!`!j"$"#!`!r!\"$"2"3"4"5"6"7"6"8"9"8"7"4"3"8"2"8":"8"7";"2"5"2"5"4"9"7"5"6"5"9"5"6"5"<"="<"5";"8"9"2"9"4"="2"7"8">">"5"8"3"7";">"6">"="9"6"<"<"<"7"3"8";"<":"9"8"2":"3"3":":"?"@"A"B"A"A"C"D"E"F"G"A"H"@"I"B"J"K"J"K"L"I"K"F"E"M"E"A"E"N"G"@"G"D"E"G"I"K"E"N"E"M"E"M"@"G"E"E"F"E"M"B"?"M"O"D"D"G"D"D"E"I"D"H"D"C"L"E"P"@"J"J"E"J"E"@"O"A"P"B"A"N"L"F"E"O"P"B"C"G"M"D"Q"R"S"T"U"V"W"X"Y"Z"R"["\"]"^"Z"_"_"`"a"^"U"b"c"Y"d"Z"e"f"g"]"h"]"i"V"j"a"k"l"X"j"X"m"n"o"f"p"q"r"X"\"V"R"X"R"j"s"\"t"t"g"u"v"w"x"l"["X"y"h"z"{"\"\"|"a"t"d"}"q"s"p"t"a"X"d"q"\"\"w"~"s"\"i"X"]#!"e"T#""Z##"Z"x"u"m"["Y"`#$#%"p"u"e"p"y"z"g"]"W#&"x"^"T"["c"m"m"R"V"}"}"W"\"v"v"k"d"k"\"s"~"`"^#'"w#("p"e"{#)"b#*"f"T"a"t"f"b#+"X"w"_"u"`"m"m#'#'"Z"n"T"z#,"Z"Z"z#,"y"_"|"Q"r"Q"p#(####"\"_"_"r"a"r#""\#"#"#-"R"g"i"c"R#,"X"h"|"e"Y"y"{"o"w"r"l"`"`"X"l"V"b"R"p"a#."R"p"t"i#!"u#&"u"c"`"Z#,"Q"z"]"~"R"g#-"k#/"Q"s"V#/"t#0"g#'"Y"s"x"n"g"a"s"t"c"|"s#0"q"V"~#("T"]#$"i#-"y#!"R"u"`"f#)"x"w"q"t#("q"Z"R#""W#$#+"u#'#)"}"h"e"k"X"k"U#""e"\#$"Q"X"w"\"_"p"t#1#,"r"]##"z"Z"p#/"Q"_"f"Z"a#*"R#,"f#-"t"u#,"c"Z"R"R"T"|"n"n"W#1#0"U"y#1"y#+#%"`#-"q"a"c"p"Z#)"q#1#1#1"R"s"f"r"a"R#+"c"m"r"`#/#-"_"z"R"R"_"R#-"x"_"Q"z#,#+"Q"R"m"f"p#+"p#)"m"V"f"Q"d"u"^#(#+"`"X"R"t"U#,#("`"p#0"\"c"}#0"\#.#.#!"m"U"Z"e"q"W"z"X"y"x"Z"S"X"y"R"p"|#1"_"X"w"f"^"f"}"]"S"e"R"Q"w"{"d"X"Z"Z"Z"Z#""}"p"l"e"l"W"Z#)"Z"X"u#("g"b"g#("z"Z"g#*"w"s#("a"Q"~"W#*"^"Z"e"h"f#""Q#/#-"|"Q"W"]"]"z"Z"m"f"`#!"f"k"[694
+L*este* Sergip*ano
+Agr2,3~4
+Sertão6
+Centr*o *Sul* *Bai4
+Vale *São-Franciscano da Bahia
+Nor*d*es*te11~12~4
+8~9Nor18~20
+10,20
+Metropolitana d*e *S*alvador
+Extremo O17,23
+Triângulo Mineiro/Alto Paranaíba
+8al *Mineira
+Zona da Mata
+13do *Rio Doce
+O*es*te *de M*inas
+13~33Mucuri
+15~37,38~39
+10/Sud*o36,37,43
+Camp*o das Vertentes
+Jequitinhonha
+24~25Belo Horizo*nte
+15~45~36~37,43
+8,30Espírito-sant*ense
+54,55~56
+10~11,57
+Litoral *Nor37,57
+58Flumin56
+54,61~56
+Baixadas
+21,62
+24o Rio de Janeiro
+42,62
+Presidente Prude51
+São José do Ri*o Preto
+46,39
+Bauru
+Piracicaba
+Itapetininga
+Ribeirã67
+Ara*çatuba
+Macro Metropolitan*a* Paulista
+Marília
+72raquara
+40Paraíb75,76
+49,26ão Paulo
+Assis
+59Sul76
+!"""!"#"!##"!!!#!#!#"#!"!#!!!!!!!"!""!!"!!$%&&'$$&(($)'$$'*'&''&$$&&&()(*'&%$$'(*'&(($&$'%$$$$$$*$$(%$))$'$$'('()(%'*'(&)$$&&&'$(&%%)*)$'%&&(*')&'&$$'$*&**$&*)%$)$)'$&&&(&%''((*(&'%()$$(&'$($$'$'((($'%&$($(&'('$$$'''('(($$((%(((($)()(($&($$'$'$$($*$'$')&$&$$'%('($$$$('$&')$$$*'$$%)$$'$$$*$)($()$('$'$&%'$$('')%)$)(&$&($$&($&&$''$$$%&(%&'&$%$''($'$$$)'($('$(&&''%&*&$&&$$$$&%'))'&(($&(**'*'))'*&)*))''('$))&)'$$'%%*'&')%&%'*$$'('('&()$&&$((''($($(&'''))($$*(%+,--..+/01.222-234.22--.55-24243.-5-4+2-++,+2/2-46-0,25/425-3-35-5.54015--,221,225.2/56122161-.252,.616252+55--2/222.22+1/2++2-+//.-3425+.12-433-.420.2/2/+2/+3225+23-55012,.+--41--21/-.+422+.5/2215255+5.252152,.+.4-3/2/.40/1525+2.1,422+-53455--../1246.5-2-3.,-/+-2.1.5-5-122-,+--22-444,.5-5/62541100..+01+5.11.-2.4.1+.2-12--62-+-+2.3+11252/15//32.21+3.5,...+2+5.5115024-.5222.4+/252/54.+3+35422.1.11,154-15424.56,44.155-12106,13+65-2--13,4-2-+1-13,023011--.5-25.5-.2,-4.5-1-15+/4.-.421--15,,21+12+42121,,52-.2.0.62331.55.+12/401-12/-5--525014,/1--456522552/221++--.0.4--/-21+5--5/+/..-.-35/.1/+-22-1-5/+22.,-141-0223+2+-,46-5,55---3.311535--4-5-+15--53--+-145.+145.-331-.10+5-54.2-5-3/-.552-.-.2++/--54/15,-25.5.1/+--..6/52+212113-..11.-525.52.5.-2-2-.1/2-../25232222.50-2--24-.3-25,0+21255-2--.2-1.+/5.-0.3+-22-2,2.+42-1.++06+6-1./12611614+-5--.42..--278897879:9888979798:79798:8979:9797979:9:7:89789::9988::7:9:7777889:77:9778877;<=>==;;?><=?<@>@>@>=@>>???=??<<<;?<@>??????<<??>??>;??;;<;;?@;?;;=?><@@?@?<?=>>=?=>??>>;<?;ABCCCDEDFABGHIBAJJCKBCKHFDALBFIHIGDLKEJDLDBCMBNIBDHDBDBLFHDDFOGGMJGDGHNMHHMKDDFIFNDKDDIHHGEFHGDILLCDAMAMOBGFCILNOLNGNFIELMBCGHBBBDFFEHGGEDEHFECBMGGNLMLKMBCKDBKADGJOCBBMMACCNBAANBGJMABANGMMHJJBKBDHDDGBFGHBBDHMLFGMMGBJCCDJDKBNKIBNDGLOLOHCABANIEBFGEBAFDBDOFMFFMCFKFDHMFOIDEGCIIGGGLBOCBLMGIDGIABDEIAOMLFHLEDECDLHIADGHJNDBBBIMNANBAJBAKMBBBGDOBHABBCMCCEBOCGBGALCGIKHNALIBBBBFBBKBAHBBCBGJNBBJBGMJANBAABBBNANLBDBADOBGACDBDCBGCNOHHFOHIILBCALIENDGMACDGBNMBJDGBBBFICLBAGMDDAAAADFNJLJEALADOGFKFGNAFMGFGKAEEMBALHBDABGMAEIINABBCLBEG*42|SE
+*417|BA
+*853|MG
+*78|ES
+*92|RJ
+*518|SP
+*42|Sergipe
+*417|Bahia
+*853|Minas Gerais
+*78|Espírito Santo
+*92|Rio de Janeiro
+*518|São Paulo
+*459|NE
+*1541|SE
+*459|Nor*deste
+*1541|Su2
