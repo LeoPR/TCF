@@ -293,6 +293,112 @@ def caso_bracket_nao_e_skipado():
     return volta == orig, f"decode={volta!r}"
 
 
+# --- as 3 correcoes da RAIZ (2026-08-17, pos-verificacao adversarial) ---
+
+def caso_as_tres_nao_operacoes():
+    """output-convention: nao strip, nao skipar vazia, nao skipar bracket.
+
+    A revisao de 2026-08-16 tirou o skip de bracket e DEIXOU o `.strip()` no bloco —
+    reintroduzindo a 2a perda dentro da propria correcao. Este caso pina as TRES juntas.
+    """
+    casos = {
+        "nao_strip": ["a ", " b", "c"],
+        "nao_strip_so_espacos": ["  ", "x"],
+        "nao_skip_vazia": ["a", "", "b"],
+        "nao_skip_bracket": ["a", "]", "b", "["],
+    }
+    ok, obs = True, []
+    for nome, orig in casos.items():
+        w = encode(orig)
+        volta = grava_caso(f"tres_naos_{nome}", orig, w)
+        ok &= volta == orig
+        obs.append(f"{nome}={volta == orig}")
+    # e o loop-do-doc-antigo (com strip) DEVE divergir — se nao divergir, o caso e' vazio
+    w = encode(["a ", " b", "c"])
+    corpo = w.split("\n", 1)[1]
+    doc_antigo = [l.strip() for l in corpo.split("\n")][:-1]
+    divergiu = doc_antigo != ["a ", " b", "c"]
+    obs.append(f"loop-antigo-diverge={divergiu} ({doc_antigo!r})")
+    return ok and divergiu, " | ".join(obs)
+
+
+def caso_nove_discriminadores():
+    """AGENTS.md/MAP.md: 9 valores, com `s` e `C` decode-only."""
+    from tcf import SPEC_CPF
+    import random
+    emitidos = {}
+    for rot, d in (
+        ("\\n", ["abc", "abcd", "abcde"]),
+        ("M", {"id": ["1", "2"], "n": ["a", "b"]}),
+        ("H", [{"a": 1, "b": {"c": 2}}, {"a": 3, "b": {"c": 4}}]),
+        ("b", [True, False] * 12),
+        ("n", [1, 2, 3]),
+    ):
+        h = encode(d).splitlines()[0]
+        emitidos[h[6:7] or "\\n"] = rot
+    emitidos[encode(["111.444.777-35", "529.982.247-25", "111.444.777-35"],
+                    nature=SPEC_CPF).splitlines()[0][6:7]] = "spec"
+    random.seed(11)
+    col = [f"v{random.randrange(4)}" for _ in range(300)]
+    emitidos[encode(col).splitlines()[0][6:7]] = "bN"
+
+    # `s` decoda mas NAO e' emitida
+    s_decoda = decode("#TCF.8s\nabc\ndef\n") == ["abc", "def"]
+    s_emitida = any(encode(c).splitlines()[0][6:7] == "s"
+                    for c in (["a", "b"], ["abc", "abcd"], ["x"], ["a" * 300]))
+    # `C` esta' no dispatch do decoder mas NAO e' emitido (ADR-0036: so' `B` sai por default)
+    from tcf.decoder import _DISCS_BN
+    from tcf.composicional.dominio_bn import DISC_LOTE
+    c_no_dispatch = "C" in _DISCS_BN and DISC_LOTE == "C"
+    c_emitido = False
+    for n in (50, 200, 800, 3000):
+        for k in (2, 5, 16, 120):
+            cc = [f"v{random.randrange(k)}" for _ in range(n)]
+            if encode(cc).splitlines()[0][6:7] == "C":
+                c_emitido = True
+    universo = set(emitidos) | {"s", "C"}
+    ok = (len(universo) == 9 and s_decoda and not s_emitida
+          and c_no_dispatch and not c_emitido)
+    return ok, (f"emitidos={sorted(emitidos)} (7) + decode-only {{'s','C'}} = {len(universo)} | "
+                f"s_decoda={s_decoda} s_emitida={s_emitida} | "
+                f"C_no_dispatch={c_no_dispatch} C_emitido={c_emitido}")
+
+
+def caso_carimbo_e_default_orfao_e_escape():
+    """AGENTS.md dizia 'nada = orfao (default, 0 B)'. ADR-0034 inverteu isso."""
+    d = ["abc", "abcd"]
+    w_def = encode(d)
+    w_esc = encode(d, stamp=False)
+    grava_caso("carimbo_default", d, w_def)
+    ok = (w_def.startswith("#TCF.8") and not w_esc.startswith("#TCF.8")
+          and decode(w_def) == d and decode(w_esc) == d
+          and len(w_def.encode()) - len(w_esc.encode()) == 7)
+    return ok, (f"default={w_def!r} ({len(w_def.encode())} B) | "
+                f"stamp=False -> {w_esc!r} ({len(w_esc.encode())} B) | delta=7 B")
+
+
+def caso_contrato_pre_1_0_do_api():
+    """api.md:79-82 mandava 3 de 4 pro `.8H`. Todas ficam no single-col."""
+    esperado = {
+        "[]":              ("#TCF.8",     []),
+        "{}":              ("#TCF.8H#E",  {}),
+        "[1,2,3]":         ("#TCF.8n",    [1, 2, 3]),
+        "[1,None]":        ("#TCF.8n",    [1, None]),
+        "[True,None]":     ("#TCF.8b",    [True, None]),
+        "['x',None]":      ("#TCF.8",     ["x", None]),
+        "{'a':['x',None]}": ("#TCF.8H#O", {"a": ["x", None]}),
+    }
+    ok, obs = True, []
+    for rot, (pref, val) in esperado.items():
+        w = encode(val)
+        h = w.splitlines()[0] if w.splitlines() else ""
+        rt = decode(w)
+        bate = h.startswith(pref) and rt == val
+        ok &= bate
+        obs.append(f"{rot}->{h!r}{'' if bate else ' *** '}")
+    return ok, " | ".join(obs)
+
+
 def caso_gates_byte_canonical():
     """Os 3 numeros que os docs agora afirmam, lidos do PROPRIO teste (nao daqui)."""
     import re
@@ -334,6 +440,11 @@ CASOS = [
     ("src/tcf/decoder.py", "legado #TCF.7/#TCF.6 esta' CORTADO", caso_legado_67_cortado),
     ("algorithms/output-convention", "`[` e `]` sao VALORES, nao skipados", caso_bracket_nao_e_skipado),
     ("core-data-model + README + specs", "gates 1545/300/89430 batem com os testes", caso_gates_byte_canonical),
+    # --- as 3 da RAIZ (2026-08-17) ---
+    ("algorithms/output-convention", "as TRES nao-operacoes: nao strip, nao skip vazia, nao skip bracket", caso_as_tres_nao_operacoes),
+    ("AGENTS.md + MAP.md", "9 discriminadores, com `s` e `C` decode-only", caso_nove_discriminadores),
+    ("AGENTS.md", "o carimbo e' DEFAULT; o orfao e' escape (stamp=False)", caso_carimbo_e_default_orfao_e_escape),
+    ("reference/api", "o 'contrato pre-1.0': 3 de 4 ficam no single-col, nao no `.8H`", caso_contrato_pre_1_0_do_api),
 ]
 
 NAO_COBERTO = """\

@@ -2,12 +2,12 @@
 
 Gerado por `run.py`. Re-rode com `python run.py` pra reconferir.
 
-**23/23 afirmacoes conferem com o codigo vivo.**
+**27/27 afirmacoes conferem com o codigo vivo.**
 
 | # | doc | afirmacao | veredito | observado |
 |---|---|---|---|---|
 | 1 | `TCF-format.*` | None e' preservado, nao vira '' | OK | `decode=['x', None, 'y'] wire='#TCF.8\nx\n0\ny\n'` |
-| 2 | `README.*` | `from tcf import view` existe | OK | `tcf.view = <function view at 0x0000022373CA84A0>` |
+| 2 | `README.*` | `from tcf import view` existe | OK | `tcf.view = <function view at 0x00000195C856C4A0>` |
 | 3 | `how-to/encode-csv-file` | `,` e `=` em nome de coluna sao ESCAPADOS, nao proibidos | OK | `header='#TCF.8M!3=id\\,bad,!email\\=principal' rt=True` |
 | 4 | `how-to/encode-csv-file` | so' `\n` e' proibido em nome de coluna | OK | `ValueError: col name nao pode conter '\n' (separador de linha do meta): 'a\nb'` |
 | 5 | `tutorials/getting-started` | Passo 1: wire tem o header `#TCF.8` | OK | `wire='#TCF.8\nabc\n1d\n1,2e\n'` |
@@ -29,6 +29,10 @@ Gerado por `run.py`. Re-rode com `python run.py` pra reconferir.
 | 21 | `src/tcf/decoder.py` | legado #TCF.7/#TCF.6 esta' CORTADO | OK | `'#TCF.7 M' -> ValueError ok \| '#TCF.6 M' -> ValueError ok` |
 | 22 | `algorithms/output-convention` | `[` e `]` sao VALORES, nao skipados | OK | `decode=['a', ']', 'b', '[']` |
 | 23 | `core-data-model + README + specs` | gates 1545/300/89430 batem com os testes | OK | `D1-D9=1545 (doc afirma 1545) \| D17a=300 (doc afirma 300) \| real-world=89430 (doc afirma 89430)` |
+| 24 | `algorithms/output-convention` | as TRES nao-operacoes: nao strip, nao skip vazia, nao skip bracket | OK | `nao_strip=True \| nao_strip_so_espacos=True \| nao_skip_vazia=True \| nao_skip_bracket=True \| loop-antigo-diverge=True (['a', 'b', 'c'])` |
+| 25 | `AGENTS.md + MAP.md` | 9 discriminadores, com `s` e `C` decode-only | OK | `emitidos=[' ', 'B', 'H', 'M', '\\n', 'b', 'n'] (7) + decode-only {'s','C'} = 9 \| s_decoda=True s_emitida=False \| C_no_dispatch=True C_emitido=False` |
+| 26 | `AGENTS.md` | o carimbo e' DEFAULT; o orfao e' escape (stamp=False) | OK | `default='#TCF.8\nabc\n1d\n' (14 B) \| stamp=False -> 'abc\n1d\n' (7 B) \| delta=7 B` |
+| 27 | `reference/api` | o 'contrato pre-1.0': 3 de 4 ficam no single-col, nao no `.8H` | OK | `[]->'#TCF.8' \| {}->'#TCF.8H#E' \| [1,2,3]->'#TCF.8n' \| [1,None]->'#TCF.8n' \| [True,None]->'#TCF.8b' \| ['x',None]->'#TCF.8' \| {'a':['x',None]}->'#TCF.8H#Oa#:3?:5['` |
 
 ## NAO COBERTO (declarado, nao varrido)
 

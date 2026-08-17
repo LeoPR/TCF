@@ -77,9 +77,26 @@ passar pelo `min()`. As demais uniões escalares (`int+str`, `bool+int`, …) se
 **NaN/±Inf ficam fora** (RFC 8259) nas duas pontas: o encoder recusa e o decode também.
 
 **Contrato pré-1.0 (mudanças do Passo 2, declaradas)**: `encode([])`/`encode({})` deixaram de ser
-fail-loud e viram `.8H` (`#D0`/`#E`, representáveis); `encode([1,2,3])` vira array `.8H` tipado (era
-single-col `"1","2","3"`); coluna com `None`/int vira `.8H` (era stringificada no flat); tuple/bytes
-no lugar de lista viram fail-loud de tipo (eram convertidos calados).
+fail-loud (viraram **representáveis**); `encode([1,2,3])` deixou de virar single-col de strings
+`"1","2","3"` e passou a **preservar o tipo**; coluna com `None`/int deixou de ser stringificada;
+tuple/bytes no lugar de lista viram fail-loud de tipo (eram convertidos calados).
+
+> **CORRIGIDO 2026-08-17** (verificação adversarial do sync 2026-08-16). Este parágrafo dizia que
+> as três primeiras mudanças mandavam a entrada pro **`.8H`**. **Três de quatro metades eram
+> falsas** — elas ficaram no **single-col**, e a tabela de dispatch 45 linhas ACIMA já dizia o
+> certo. O parágrafo é de antes das rotas tipadas (`b`/`n`) existirem. Medido:
+
+| entrada | wire real | rota |
+|---|---|---|
+| `encode([])` | `'#TCF.8\n'` (7 B) | single-col flat — **não** `.8H`, **não** `#D0` |
+| `encode({})` | `'#TCF.8H#E\n'` (10 B) | `.8H` — **a única das três que estava certa** |
+| `encode([1,2,3])` | `'#TCF.8n…'` | single-col **tipada** (tag `n`) — não `.8H` |
+| `encode([1, None])` | `'#TCF.8n…'` | single-col tipada |
+| `encode([True, None])` | `'#TCF.8b…'` | single-col tipada |
+| `encode(["x", None])` | `'#TCF.8…'` | single-col flat (slot 0 = null) |
+| `{"a": ["x", None]}` | `'#TCF.8H#Oa#:3?:5['` | `.8H` — o null só puxa pro `.8H` **dentro de um dict** |
+
+O tipo é preservado nos sete casos (round-trip validado); o que muda é **por qual rota**.
 
 ## kwargs de `encode` por rota
 
@@ -129,9 +146,10 @@ string com null" permanece inexprimível na gramática.
 flat em vez de ser expulsa pro `.8H`. Medido no lab `2026-07-25-1630`: **−36% mediano** em
 colunas com null (pior caso −4%, melhor −58%), e **0%** — byte-idêntico — em colunas sem null.
 
-`decode` de single-col pode devolver `list[str | None]`. Rota por tipo **inalterada**:
-`[1, None]` e `[True, None]` seguem no `.8H` (tipo preservado), e `{"a": ["x", None]}`
-tambem — a rota aberta e' a do single-col.
+`decode` de single-col pode devolver `list[str | None]`. Rota por tipo **inalterada** — o tipo é
+preservado em todos os casos; o que muda é por onde: `[1, None]` sai `#TCF.8n` e `[True, None]`
+sai `#TCF.8b` (**single-col tipado**, não `.8H`); só `{"a": ["x", None]}` vai pro `.8H`
+(`#TCF.8H#Oa#:3?:5[`) — o null puxa pro hierárquico apenas **dentro de um dict**.
 
 ## kwargs de `decode`
 

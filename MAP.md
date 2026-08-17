@@ -186,7 +186,7 @@ TCF/
 | Continuar um sub-experimento | `experiments/lab/dirty/<YYYY-MM>/<YYYY-MM-DD>/<lab>/<sub-exp>/README.md` |
 | Comparar EXP-010 ao baseline | `experiments/lab/clean/EXP-010-*/report.md` |
 | Format do .tcf | `docs/algorithms/TCF-format.md` |
-| Convencao de header | `docs/algorithms/TCF-format.{pt-BR,en}.md` (#TCF.8 default, discriminador 5-valores c/ `H`, hex, escaping) + ADRs (0029/0031/0032) + **registry de chars** `experiments/lab/dirty/notas/2026-07/tcf8-header-char-registry.md` (`H` já no spec via ADR-0031; `#`/`&` research) |
+| Convencao de header | `docs/algorithms/TCF-format.{pt-BR,en}.md` (#TCF.8 default — carimbo em 100% do single-col, ADR-0034; discriminador de **9 valores**: `\n M H` espaço `b n s B C`, com `s`/`C` decode-only; hex, escaping) + ADRs (0029/0031/0032/0033/0034/0036) + **registry de chars** `experiments/lab/dirty/notas/2026-07/tcf8-header-char-registry.md` |
 | Welding pra src/tcf | `experiments/lab/dirty/notas/2026-05/welding-plan.md` |
 | Ideias futuras de formato | `experiments/lab/dirty/notas/2026-05/futuras-otimizacoes-formato.md` |
 | Adicionar novo lab | `experiments/lab/dirty/<YYYY-MM>/<YYYY-MM-DD>/<YYYY-MM-DD-HHMM-name>/` (conv. §Naming AGENTS.md) |

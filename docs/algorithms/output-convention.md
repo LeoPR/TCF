@@ -76,18 +76,32 @@ Bytes reportados ja' contam brackets (4 bytes/dataset) mas NAO CRLF
 > no decode. Seguir a versão antiga ao portar o formato **reintroduz perda silenciosa de
 > dado**, e por isso esta é a correção de maior severidade da auditoria.
 
-**O decoder NÃO skipa `[` nem `]`.** Elas são células válidas como qualquer outra. O encoder
-também não as emite como delimitador — o skip era back-compat de um formato *bracketed* (M7 e
-anteriores) que não existe mais.
+O decoder **não faz nada** com a linha: nem skip, nem strip.
 
 ```python
-for raw in tcf_text.splitlines():
-    linha = raw.strip()
-    ...            # sem skip: `[` e `]` sao VALORES, e linha vazia decoda como '' (ADR-0006)
+for raw in raw_lines:
+    linha = raw          # <- SEM .strip() e SEM skip
 ```
 
-Verificável: `decode(encode(["a", "]", "b", "["]))` devolve `['a', ']', 'b', '[']`.
-Implementação em `src/tcf/composicional/syntax.py:918-923`.
+São **três** não-operações, e cada uma existe porque a operação correspondente causou perda de
+dado silenciosa em produção:
+
+| não-operação | o que a operação perdia | quando caiu |
+|---|---|---|
+| **não `.strip()`** | whitespace de ponta em literais (achado nos comments de `region`/`nation` do TPC-H, com espaço no fim) | 2026-05-18, EXP-012/013 |
+| **não skipar linha vazia** | string vazia legítima — o encoder emite `body.append('')` quando o literal é `""` | 2026-05-18, ADR-0006 |
+| **não skipar `[` / `]`** | a célula inteira, quando o valor **é** `"["` ou `"]"` | 2026-07-17, `BUG-BRACKET-CELL-LOSS` |
+
+Verificável nos três: `decode(encode(["a ", " b", "c"]))` devolve `['a ', ' b', 'c']` ·
+`decode(encode(["a", "", "b"]))` devolve `['a', '', 'b']` ·
+`decode(encode(["a", "]", "b", "["]))` devolve `['a', ']', 'b', '[']`.
+Implementação em `src/tcf/composicional/syntax.py:910-925`.
+
+> **CORRIGIDO 2026-08-17.** A revisão de 2026-08-16 tirou o skip de `[`/`]` deste bloco e
+> **deixou o `linha = raw.strip()`** — reintroduzindo, na própria correção, a segunda das três
+> perdas. Um port seguindo aquele bloco devolvia `['a', 'b', 'c']` para o wire `'#TCF.8\na \n b\nc\n'`,
+> e transformava `"  "` (só espaços) em `""`. As três não-operações agora aparecem juntas
+> justamente porque separá-las foi o que permitiu perder uma.
 
 A decisão **principal** do [ADR-0006](../adr/0006-empty-string-decode-fix.md) — linha vazia
 decoda como string vazia — **continua vigente**; o que caiu foi só a cláusula do skip de
