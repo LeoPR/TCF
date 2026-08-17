@@ -1,5 +1,9 @@
 # 2026-08-16 — índice do dia
 
+> **Síntese acima deste índice**: [`../README.md`](../README.md) — o estado de cada TIPO
+> (date, bool, int, float, hora, datetime, nativos) e de cada ROTA (single, multi, hier),
+> os modos, o compartilhamento entre colunas, o header e o paralelismo.
+
 Onde conferir cada coisa afirmada neste dia. **Todo lab roda com `python run.py`** e sai `0`
 só se as suas próprias provas fecharem.
 
