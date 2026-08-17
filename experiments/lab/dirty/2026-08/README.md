@@ -7,6 +7,13 @@ Este README fica **acima dos labs** de propósito: os labs respondem perguntas, 
 diz **onde cada coisa parou**. Todo número aqui tem lab ou ticket atrás — se não tiver, está
 marcado como não-medido.
 
+> ⚠️ **AUDITORIA DE SINCRONIZAÇÃO 2026-08-16** — 233 documentos varridos contra o código,
+> **23 defasagens confirmadas** (18 delas *enganam quem lê*), nenhuma correspondendo a bug de
+> codec. O padrão dominante: **a documentação está atrás do código, não o código quebrado**.
+> Mapa completo, por severidade e com a correção sugerida de cada uma:
+> [`2026-08-16-2330-mapa-de-sincronizacao-docs`](../notas/2026-08/2026-08-16-2330-mapa-de-sincronizacao-docs.md).
+> **Nada foi consertado ainda.**
+
 Fonte viva: [`STATUS.md`](../../../../STATUS.md). Índice do dia mais recente:
 [`2026-08-16/INDEX.md`](2026-08-16/INDEX.md).
 
