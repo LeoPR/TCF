@@ -393,8 +393,8 @@
 >   ADMINISTRATIVO (go do owner), NAO "weldar cross-dict". O **cross-dict (H-GDICT)** foi a carga
 >   originalmente prevista pro #TCF.8, mas o **gate GERAL FALHOU** (2026-06-27: 1/5 >=15%, nicho estreito
 >   SNAP-like, B3/B4 suspensos; pivo robusto = **H-DICT-HIGHCARD**). Fila: `0.7.2` (lazy) antes.
-> - **Fonte do GATE byte-canonical** = os testes (`tests/test_regression_v1_baseline.py` D1-D9=1523B/D17a=303B;
->   `tests/test_real_world_snapshots.py` RW=89616B) — qualquer numero repetido em compendio (CLAUDE.md/STATUS)
+> - **Fonte do GATE byte-canonical** = os testes (`tests/test_regression_v1_baseline.py` D1-D9=**1545**B/D17a=**300**B;
+>   `tests/test_real_world_snapshots.py` RW=**89430**B; re-pinado 2026-08-16 na auditoria docs×codigo) — qualquer numero repetido em compendio (CLAUDE.md/STATUS)
 >   e' COPIA de conveniencia; o teste e' que mede (principio Strata: apontar, nao duplicar).
 > - **Plano CANONICO do .8** = [`tcf8-estrutura-plano.md`](experiments/lab/dirty/notas/2026-06/tcf8-estrutura-plano.md)
 >   (fonte unica da familia #TCF.8) + [`specs-capacity-map.md`](experiments/lab/dirty/notas/2026-06/specs-capacity-map.md)

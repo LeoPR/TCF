@@ -52,24 +52,32 @@ TCF distinguishes the **FORMAT version** (signature `#TCF.N`, axis A) from the *
 | `#TCF.5` | superseded | 2026-04 (v0.5) | tcf 0.5.x (legacy, do not maintain) |
 
 **`#TCF.8` is the DEFAULT format** ([ADR-0032](../adr/0032-tcf8-default-format.md), 2026-07-09): every
-multi-col emits `#TCF.8M`; flat single-col stays **orphan** (0-byte header, ADR-0029 layer 1 /
+multi-col emits `#TCF.8M`; flat single-col emits **`#TCF.8`** by DEFAULT (7 B,
+[ADR-0034](../adr/0034-header-default-100-porcento-single-col.md) — the orphan became an explicit
+escape, `stamp=False`; ADR-0029 layer 1 /
 [ADR-0030](../adr/0030-freeze-single-col-body-at-1.0.md) freeze). Legacy `#TCF.6`/`#TCF.7` was **cut**
 from `src/tcf` (decode fail-loud with a git hint). Self-describing: natures (ADR-0027) + hex + escaping
 travel in the header.
 
 **1-char discriminator** ([ADR-0029](../adr/0029-version-format-identification-semi-implicit.md) +
-[ADR-0031](../adr/0031-hierarchical-discriminator-H.md)): the character right after `#TCF.8` decides the
-structure. 5 values:
+[ADR-0031](../adr/0031-hierarchical-discriminator-H.md) + [ADR-0033](../adr/0033-hierarchical-codec-weld.md)):
+the character right after `#TCF.8` decides the structure. **9 values**, plus a punctuation range
+consumed by the polarity pre-pass ([ADR-0035](../adr/0035-delimitador-de-polaridade-single-col.md)):
 
 | after `#TCF.8` | type | header |
 |---|---|---|
-| *(nothing, body directly)* | orphan single-col (DEFAULT, 0 B) | — |
+| *(nothing, body directly)* | orphan single-col | — |
+| `\n` | single version-stamp | `#TCF.8` (**DEFAULT since ADR-0034**; magic number for `file`/libmagic) |
 | `M` | flat multi-col | `#TCF.8M<meta>` (meta INLINE on the signature line) |
-| `H` | hierarchical multi-col (specialization of `M`) — **reserved** (ADR-0031; codec in the lab, fail-loud) | `#TCF.8H<tree-meta>` |
+| `H` | hierarchical multi-col (specialization of `M`) — **WELDED** (ADR-0033, 2026-07-14) | `#TCF.8H<tree-meta>` |
 | ` ` (space) | single + spec | `#TCF.8 [name]:spec` (name optional, label only) |
-| `\n` | single version-stamp | `#TCF.8` (opt-in stamp; magic number for `file`/libmagic) |
+| `b` / `n` / `s` | typed single-col (bool / number / string) | `#TCF.8<tag>[<mode>]` |
+| `B` / `C` | domain bN (domain first / domain last) — ADR-0036 | `#TCF.8B<w><n>` |
 
-Unknown/reserved discriminator (incl. `H`) -> **fail-loud** on decode (never degrades to orphan).
+Discriminator outside the set above -> **fail-loud** on decode (never degrades to orphan). A
+punctuation suffix on the signature line is the **polarity delimiter** and is stripped by a
+pre-pass before dispatch — it does not act on `M`/`H`.
+
 
 **`#TCF.8M` meta** — INLINE after the signature (`#TCF.8M<meta>\n<bodies>`), no `# ` prefix. Each column
 = `[<pre>]<size>[=<name>][:<id>]`:
@@ -92,8 +100,12 @@ Examples (body on the following line(s)):
     #TCF.8 docs:cpf              <- single + spec cpf, name 'docs'
     #TCF.8                       <- single version-stamp (pure single-col body)
 
-- **single-col byte-neutral**: flat single-col = pure **orphan** body (no signature, D1-D9=1523B and
-  real-world=89616B intact — ADR-0032 does not touch single-col). Only MULTI-COL became `#TCF.8M`.
+- **single-col**: `#TCF.8\n` + body. Current gate **D1-D9=1545 B**, **real-world=89430 B**.
+  ADR-0032 did not touch single-col (it is about the multi-col default); what moved these numbers
+  afterwards was [ADR-0034](../adr/0034-header-default-100-porcento-single-col.md) (header became
+  the default: 1523 → 1586, 89616 → 89637) and then
+  [ADR-0035](../adr/0035-delimitador-de-polaridade-single-col.md) (polarity delimiter: 1586 →
+  **1545**, 89637 → **89430**). Only MULTI-COL became `#TCF.8M`.
 
 **Column candidates** (the per-column fallback, all inside `#TCF.8M`; `min(tcf,raw,dict,split)`):
 - **V2-A fallback identity** ([ADR-0022](../adr/0022-v2a-fallback-identity-weld.md), `fallback=True`):
@@ -144,7 +156,7 @@ Emit `DeprecationWarning` on every use since v1.0.
 ### Formal regression suite
 
 [`tests/test_regression_v1_baseline.py`](../../tests/test_regression_v1_baseline.py)
-captures byte-canonical for D1-D9 (1523B total) and D17a (322B INVARIANT).
+captures byte-canonical for D1-D9 (**1545B** total) and D17a (**300B** INVARIANT).
 A failure in CI = regression. The snapshot can only be updated via an
 explicit ADR + version bump.
 
@@ -307,7 +319,8 @@ Restrictions:
 - Column names with a separator (`,`/`=`/`:`/`\`/leading `!@%`) are **backslash-escaped**
   (T-FMT-NAME-ESCAPING); only `\n` is forbidden (meta line separator)
 - All columns must have the same number of values
-- `None` → `""` (TCF operates on strings)
+- `None` is **preserved**: it round-trips as `None` via the pre-allocated null slot (`0`),
+  NOT as `""`. Verifiable: `decode(encode(["x", None, "y"])) == ["x", None, "y"]`
 
 Implementation: [`src/tcf/multi/`](../../src/tcf/multi/). ADR: [0004](../adr/0004-multi-column-header-compacto.md), [0013](../adr/0013-multi-column-canonical-api.md), [0014](../adr/0014-unified-api-side-outputs.md).
 
@@ -503,7 +516,12 @@ supersedes the "frozen" of ADR-0017): additive, without rigid compat between dev
 ### Validation
 
 **Single-column (M10 baseline, ADR-0011)**:
-- D1-D9 synthetic: **1523 bytes** in 2865 raw = 53.2% ratio (RT 9/9)
+- D1-D9 synthetic: **1545 bytes** in 2981 raw = 51.8% ratio (RT 9/9; includes the default header)
+> **CORRECTED 2026-08-16** (docs×code sync audit). The figures above were the 2026-07-05
+> pins. Live gate: **D1-D9=1545 B · D17a=300 B · real-world=89430 B**. Eras, for reading old
+> commits: D1-D9 `1523 → 1586` (ADR-0034 header default) `→ 1545` (ADR-0035 polarity);
+> real-world `89616 → 89637 → 89430`; D17a `307 → 303 → 300`.
+
 - Byte-canonical chain of checkpoints: M9 → M10 → M11 → M12 → M13 → M14
   → M14+Pacote1+Multi+API+Natures+MultiDelta+v1
 - Adult Census + TPC-H 57 columns: **-11.73% weighted** vs pure M9
@@ -528,7 +546,7 @@ Details: [experiments/lab/dirty/2026-05/2026-05-24/2026-05-24-benchmark-formats-
 **Test suite** (snapshot 2026-05-27: 259 passed; current count in
 [STATUS.md](../../STATUS.md)). Byte-canonical guardian:
 [`test_regression_v1_baseline.py`](../../tests/test_regression_v1_baseline.py)
-(snapshot D1-D9=1523B single-col intact + D17a=300B #TCF.8M default, ADR-0032).
+(snapshot D1-D9=**1545**B single-col + D17a=300B `#TCF.8M` default).
 
 ## State v0.5 (accessory)
 

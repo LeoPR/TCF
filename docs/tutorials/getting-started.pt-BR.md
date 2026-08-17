@@ -63,12 +63,17 @@ Saída esperada:
 ```
 Dados originais: ['abc', 'abcd', 'abcde']
 Texto TCF:
+#TCF.8
 abc
 1d
 1,2e
 
-Repr: 'abc\n1d\n1,2e\n'
+Repr: '#TCF.8\nabc\n1d\n1,2e\n'
 ```
+
+A primeira linha, `#TCF.8`, é o **carimbo de versão**. Ele é emitido por padrão desde a
+[ADR-0034](../adr/0034-header-default-100-porcento-single-col.md) — é o que permite a um decoder saber qual
+formato está lendo em vez de adivinhar.
 
 O que aconteceu:
 
@@ -133,10 +138,16 @@ Saída esperada:
 
 ```
 Raw (newline-delimited): 15 bytes
-TCF encoded:              12 bytes
-Taxa de compressão:       80.0%
-Economia:                 3 bytes
+TCF encoded:              19 bytes
+Taxa de compressão:       126.7%
+Economia:                 -4 bytes
 ```
+
+**Aqui o TCF cresceu — e esse é o resultado honesto.** Em 15 bytes de entrada, o carimbo
+de versão de 7 bytes custa mais do que o core economiza. Compressão precisa de
+*repetição para explorar*, e três strings curtas não fornecem isso. Abaixo, com dados que
+de fato se repetem, o sinal se inverte. Um formato que só mostrasse o caso favorável
+estaria fazendo propaganda, não documentação.
 
 Agora vamos ampliar o exemplo com mais dados reais (lista de emails com padrões repetitivos):
 
@@ -168,9 +179,9 @@ Saída esperada:
 
 ```
 Raw (newline-delimited): 100 bytes
-TCF encoded:              64 bytes
-Taxa de compressão:       64.0%
-Economia:                 36 bytes (36.0%)
+TCF encoded:              71 bytes
+Taxa de compressão:       71.0%
+Economia:                 29 bytes (29.0%)
 ```
 
 Com dados que compartilham prefixos e sufixos comuns, TCF reduz o tamanho. As duas camadas (OBAT + HCC) detectam e exploram esses padrões automaticamente.
@@ -263,7 +274,7 @@ Você cobriu os fundamentos:
 
 TCF foi validado em múltiplos datasets:
 
-- **Sintético D1-D9**: 1523 bytes (53.2% ratio), round-trip 9/9.
+- **Sintético D1-D9**: 1545 bytes (51.8% ratio), round-trip 9/9.
 - **Real-world Adult+TPC-H**: 57 colunas, -33% weighted vs raw, -31% vs single-column naive.
 - **Benchmark vs csv/jsonl + gzip/brotli/zstd**: TCF vence 7/9 datasets.
 

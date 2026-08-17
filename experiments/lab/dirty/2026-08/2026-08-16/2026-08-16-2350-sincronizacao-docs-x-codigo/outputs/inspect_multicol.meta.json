@@ -1,0 +1,24 @@
+{
+  "multi_info": {
+    "n_rows": 4,
+    "n_cols": 2,
+    "total_bytes": 46,
+    "header_bytes": 18,
+    "body_bytes": 28,
+    "parallel_workers": 0,
+    "format": "v3",
+    "used_v2_features": true,
+    "fallback_cols": [
+      "id"
+    ],
+    "dict_cols": [],
+    "split_cols": [],
+    "col_modes": {
+      "id": "raw",
+      "name": "tcf"
+    },
+    "min_header": true,
+    "nature_cols": {},
+    "nature_lost": []
+  }
+}

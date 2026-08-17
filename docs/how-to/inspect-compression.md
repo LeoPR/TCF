@@ -130,9 +130,9 @@ for col_name, col_side in side.per_col.items():
 Saída esperada:
 
 ```
-total_bytes: 53
-header_bytes: 24
-body_bytes: 29
+total_bytes: 46
+header_bytes: 18
+body_bytes: 28
 
 id:
   body_bytes: 8
@@ -232,9 +232,9 @@ Saída esperada:
 ```
 n_rows: 4
 n_cols: 2
-total_bytes: 53
-header_bytes: 24
-body_bytes: 29
+total_bytes: 46
+header_bytes: 18
+body_bytes: 28
 
 id:
   n_unicas: 4

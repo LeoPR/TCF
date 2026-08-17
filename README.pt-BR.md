@@ -376,7 +376,7 @@ Nos 15 datasets sintéticos do [EXP-008](experiments/lab/clean/EXP-008-compressa
 
 ~36% menor que CSV e ~42% menor que JSON, continuando legível.
 
-Núcleo pinado em testes: D1-D9 = **1523 B** (51.1% do raw, single-col); D17a multi-col = **300 B** (`#TCF.8M`, meta hexadecimal inline).
+Núcleo pinado em testes: D1-D9 = **1545 B** (51.8% do raw, single-col); D17a multi-col = **300 B** (`#TCF.8M`, meta hexadecimal inline).
 Real-world multi-coluna (9 tabelas Adult + TPC-H, 136k linhas): **−33.02% weighted** vs CSV raw.
 
 **E contra gzip / brotli / zstd?**
@@ -451,7 +451,7 @@ um planejador geral.
 
 ```python
 from tcf import encode
-from tcf_lazy import view                        # scripts/ no sys.path
+from tcf import view                             # API publica desde a 0.8
 
 # um cadastro pequeno de vendas — carregado de um CSV, dump de banco, onde for
 table = {

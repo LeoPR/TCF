@@ -70,17 +70,28 @@ Bytes reportados ja' contam brackets (4 bytes/dataset) mas NAO CRLF
 
 ## Decoder
 
-Decoder deve continuar aceitando brackets isolados como linhas
-ignoradas (backwards compat com M7 e anteriores), MAS o encoder novo
-NAO emite brackets.
+> ⚠️ **CORRIGIDO 2026-08-16** (auditoria de sincronização docs×código). O texto abaixo
+> descrevia um skip que **foi REMOVIDO em 2026-07-17** (`BUG-BRACKET-CELL-LOSS`, aprovação do
+> owner): ele **engolia célula calado** — uma coluna com o valor `"["` ou `"]"` perdia o dado
+> no decode. Seguir a versão antiga ao portar o formato **reintroduz perda silenciosa de
+> dado**, e por isso esta é a correção de maior severidade da auditoria.
+
+**O decoder NÃO skipa `[` nem `]`.** Elas são células válidas como qualquer outra. O encoder
+também não as emite como delimitador — o skip era back-compat de um formato *bracketed* (M7 e
+anteriores) que não existe mais.
 
 ```python
 for raw in tcf_text.splitlines():
     linha = raw.strip()
-    if not linha or linha in ("[", "]"):
-        continue  # mantem skip de brackets para back-compat
-    ...
+    ...            # sem skip: `[` e `]` sao VALORES, e linha vazia decoda como '' (ADR-0006)
 ```
+
+Verificável: `decode(encode(["a", "]", "b", "["]))` devolve `['a', ']', 'b', '[']`.
+Implementação em `src/tcf/composicional/syntax.py:918-923`.
+
+A decisão **principal** do [ADR-0006](../adr/0006-empty-string-decode-fix.md) — linha vazia
+decoda como string vazia — **continua vigente**; o que caiu foi só a cláusula do skip de
+brackets (`0006:39-40,:50`), registrada no índice de ADRs.
 
 ## Adotado em M8 e posteriores
 

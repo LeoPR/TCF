@@ -97,8 +97,17 @@ Fora de D_json — **não é lacuna, é a fronteira** (a própria doc das libs d
 | **tuple** | fail-loud | a tabela oficial mapeia tuple→array→list: o tipo não volta |
 | **chave não-string** | fail-loud tipado | o `json.dumps` coage e **perde** (`loads(dumps(x)) != x`) |
 | **lone surrogate** | fail-loud | não é UTF-8 transmissível (RFC 8259 §8.1; I-JSON §2.1) |
-| **union / tipo-misto** no mesmo slot (`[1,"a"]`, campo int-depois-string) | fail-loud que ENSINA | **P5 RATIFICADO** fora do `.8` (union real ~0 em dado tabular; Parquet — ref. colunar — também recusa). Saída: separar por tipo OU stringificar (o TCF faz RT de qualquer string) |
+| **union / tipo-misto** no mesmo slot (`[1,"a"]`, campo int-depois-string) — **exceto** a união bool+str, ver nota | fail-loud que ENSINA | **P5 RATIFICADO** fora do `.8` (union real ~0 em dado tabular; Parquet — ref. colunar — também recusa). Saída: separar por tipo OU stringificar (o TCF faz RT de qualquer string) |
 | **objeto all-folhas-vazias** (`{"a":{}}`) | fail-loud que ENSINA | contagem-vazio (problema B); representação plena = registro-'0'/O-FMT-20 (armazenamento, pré-1.0) |
+
+**Nota — a união bool+str saiu do fail-loud (2026-08-01)**: uma coluna single-col
+`{bool, str, None}` com **≥1 bool E ≥1 str** tem rota própria desde a
+[ADR-0039](../adr/0039-lazytype-bool-cabeca-congelada-extras.md): o **lazytype `#TCF.8bB`**,
+com cabeça congelada `null=0/false=1/true=2` e extras str declarados a partir do slot 3.
+Ele **preserva o tipo** — `decode(encode([True, "abc", False])) == [True, "abc", False]`,
+e não `["true", "abc", "false"]`, que é o que o flat-string devolvia. É o caso concreto de
+"true/false/null com exceções string" (`"other"`, `"N/A"`, `" ?"`) em dado tabular real.
+Toda **outra** união escalar (`int+str`, `bool+int`, …) segue fail-loud como acima.
 
 **Nota de propriedade (não é perda)**: **ordem de chaves** — o `.8H` devolve chaves na ordem do
 **schema** (union por 1ª aparição), não na ordem por-registro do texto. É **canônico** (como

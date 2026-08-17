@@ -86,8 +86,8 @@ classify_value(SPEC_CPF, '111-444-777-35')   # 'format_mismatch' (separadores er
 
 ```
 Coluna original: ['111.444.777-35', '529.982.247-25', '111.444.777-35']
-Bytes: 41
-Texto TCF: '\\111.\\444.\\777-\\35\n\\529.\\982.\\247-\\25\n^1\n'
+Bytes: 42
+Texto TCF: '#TCF.8!!\n111.444.777-35\n529.982.247-25\n^1\n'
 ```
 
 **Com filtro**:
@@ -96,8 +96,14 @@ Texto TCF: '\\111.\\444.\\777-\\35\n\\529.\\982.\\247-\\25\n^1\n'
 Coluna original: ['111.444.777-35', '529.982.247-25', '111.444.777-35']
 Bytes: 29
 Texto TCF: '#TCF.8 :cpf\n%gc\\9g\n\\2y/h-\n^1\n'
-Ratio: 70,7% da codificação comum; o custo do cabeçalho já está incluído na comparação
+Ratio: 69,0% da codificação comum; o custo do cabeçalho já está incluído na comparação
 ```
+
+> **CORRIGIDO 2026-08-16** (auditoria de sincronização docs×código). O bloco "sem filtro" estava
+> na grafia **pré-polaridade**: mostrava 41 B e um wire órfão com `\` de escape em cada slot. Hoje
+> o carimbo `#TCF.8` é default ([ADR-0034](../adr/0034-header-default-100-porcento-single-col.md))
+> e o sufixo de polaridade `!!` (2026-07-26) dispensa aqueles escapes — daí 42 B. O bloco "com
+> filtro" não mudou; só a razão entre os dois (70,7% → 69,0%).
 
 ## Single-column: CNPJ
 

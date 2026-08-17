@@ -53,8 +53,10 @@ Ver `docs/algorithms/` para documentacao tecnica detalhada.
 > em pre-pass/OBAT/HCC). As % sao derivadas — ver o ADR citado em cada linha.
 
 Single-column (M10 canonical, ADR-0011):
-- D1-D9 sint: 1586B em 2981 raw = 53.2% ratio (RT 9/9; inclui header default ADR-0034)
-  [1586B pinado em test_core_rt.py + test_regression_v1_baseline.py]
+- D1-D9 sint: 1545B em 2981 raw = 51.8% ratio (RT 9/9; inclui header default ADR-0034)
+  [1545B pinado em test_core_rt.py + test_regression_v1_baseline.py; eras: 1523 ->
+   1586 (+63 = 9 x 7B de header, ADR-0034) -> 1545 (-41 em D5/D6, delimitador de
+   POLARIDADE 2026-07-26)]
 - Real-world Adult+TPC-H 57 cols: -11.73% weighted vs M9 puro
   [bytes em test_real_world_snapshots.py; % derivada, ADR-0011]
 

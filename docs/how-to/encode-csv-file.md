@@ -164,36 +164,49 @@ assert data == recovered  # '' preservado
 
 ### Restrições em nomes de coluna
 
-Nomes de coluna **não podem conter** os caracteres reservados:
-- `,` (vírgula) — separador de colunas
-- `=` (igual) — separador chave=valor
+> **CORRIGIDO 2026-08-16** (auditoria de sincronização docs×código). Esta seção afirmava que
+> `,` e `=` eram **proibidos** em nome de coluna. Eles não são: o meta os **escapa**. Quem
+> seguisse a versão antiga sanitizaria nomes legítimos sem necessidade, perdendo o cabeçalho
+> original do CSV.
 
-Válido:
-```python
-{
-    'id': [...],
-    'nome_completo': [...],
-    'email_principal': [...]
-}
-```
-
-Inválido:
-```python
-{
-    'id,bad': [...],      # Erro: contém vírgula
-    'email=principal': [...] # Erro: contém igual
-}
-```
-
-Tentar encode com nome inválido levanta `ValueError`:
+Há **um único caractere proibido**: `\n`, que é o separador de linha do próprio meta e por isso
+não tem como ser representado dentro dele.
 
 ```python
-try:
-    encode({'id,bad': ['1', '2']})
-except ValueError as e:
-    print(f"Erro: {e}")
-    # Erro: col name contem char reservado: 'id,bad'
+encode({'a\nb': ['1', '2']})
+# ValueError: col name nao pode conter '\n' (separador de linha do meta)
 ```
+
+Todo o resto passa. Os caracteres que têm significado estrutural no meta — `,` (separador de
+colunas), `=` (separador chave=valor), `\` (o próprio escape) e os marcadores de modo `!`, `@`,
+`%` quando iniciam o nome — são **escapados com `\`** no wire e desescapados no decode:
+
+```python
+from tcf import encode, decode
+
+tabela = {'id,bad': ['1', '2'], 'email=principal': ['3', '4']}
+wire = encode(tabela)
+
+print(wire.splitlines()[0])
+# #TCF.8M!3=id\,bad,!email\=principal
+
+assert decode(wire) == tabela   # o nome volta exatamente como entrou
+```
+
+Ou seja: o cabeçalho de um CSV do mundo real (`"Nome, Sobrenome"`, `"a=b"`, acentos, espaços)
+entra sem tratamento. Verificável para todos eles com `decode(encode(t)) == t`.
+
+**A ressalva que sobra** é o nome **vazio** (`''`). Ele é aceito com um `UserWarning` e tratado
+como coluna **anônima** — o decode devolve o nome **posicional** (`'0'`, `'1'`, …) conforme a
+[ADR-0029](../adr/0029-version-format-identification-semi-implicit.md), e portanto **não** faz
+round-trip idêntico:
+
+```python
+decode(encode({'': ['1', '2']}))   # -> {'0': ['1', '2']}, com warning
+```
+
+Se o CSV tem coluna sem cabeçalho, decida o nome antes de codificar em vez de deixar a
+convenção posicional escolher por você.
 
 ### Encodings de arquivo
 

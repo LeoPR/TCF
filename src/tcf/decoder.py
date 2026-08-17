@@ -2,10 +2,15 @@
 
 Wrapper de alto nivel: TCF text -> lista de strings OU dict de colunas.
 
-Dispatch automatico pelo shebang:
-- `#TCF.7 M\\n` (vivo) ou `#TCF.6 M\\n` (LEGADO, leitura ate' o 1.0) -> multi-column,
-  retorna `dict[str, list[str]]`
-- caso contrario -> single-column, retorna `list[str]`
+Dispatch automatico pela linha 1. O formato VIVO e' o `#TCF.8`; o char no indice 6
+discrimina a rota (detalhe em `_V8_MAGIC`, abaixo):
+- `#TCF.8M<meta>` -> multi-column, retorna `dict[str, list[str]]`
+- `#TCF.8H<schema>` -> hierarquico, retorna a estrutura aninhada (ADR-0033)
+- `#TCF.8`, `#TCF.8 <spec>`, `#TCF.8b/n/s...` -> single-column, retorna `list`
+- sem linha de versao -> single-column orfao (body-only), retorna `list[str]`
+
+`#TCF.7 M` e `#TCF.6 M` estao **CORTADOS** (ADR-0032, git-as-compat): fail-loud com
+mensagem que aponta a versao. NAO sao lidos.
 
 Uso minimo:
 
@@ -56,8 +61,9 @@ if TYPE_CHECKING:
 
 # #TCF.8 = formato VIVO/DEFAULT (ADR-0032). O char logo apos '#TCF.8' discrimina:
 # 'M'=multi (#TCF.8M, meta inline), ' '=single+spec (#TCF.8 [nome]:spec),
-# ''=single version-stamp (#TCF.8, magic-number p/ file), 'H'=hierarquico RESERVADO
-# (ADR-0031, codec no lab -> fail-loud). Legado #TCF.6/#TCF.7 CORTADO (git-as-compat).
+# ''=single version-stamp (#TCF.8, magic-number p/ file), 'H'=hierarquico VIVO
+# (codec soldado, ADR-0033 — NAO e' mais reservado/fail-loud), 'b'/'n'/'s'=single-col
+# TIPADO (bool/numero/string-explicita). Legado #TCF.6/#TCF.7 CORTADO (git-as-compat).
 _V8_MAGIC = "#TCF.8"  # base do #TCF.8; o disc (char no indice 6) decide
 
 
@@ -277,9 +283,13 @@ def _decode_column(tcf_text: str, max_length: int | None = None) -> "list[str | 
 
 # --- SINGLE-COL TIPADO (weld #4) — pre-avaliador: header tipado -> forma explicita -> core ---
 # Camada 2 (SIGNIFICADO): tag -> tipo, char de modo -> largura. O '~' NAO esta' aqui (nunca e' byte).
-# Whitelist do DECODE = so' o que o encoder EMITE (simetria; verif. wf_85fcea32). Hoje: bool.
-# 'n'/'s' ficam RESERVADOS no namespace (registry/notas) mas NAO decodaveis ainda -> caem no
-# fail-loud 'discriminador desconhecido' em vez de aceitar wire que o encoder nunca produz.
+# ATUALIZADO 2026-08-16 (auditoria docs x codigo): o comentario antigo dizia "Hoje: bool; 'n'/'s'
+# RESERVADOS, NAO decodaveis". Isso venceu — as TRES tags decodam:
+#   'b' -> bool, modos b1 (denso 1 bit) / b2 (ternario, ADR-0037) / bB (lazytype, ADR-0039)
+#   'n' -> numero (int/float)
+#   's' -> string EXPLICITA — decoda, mas o encoder NAO emite (usa a forma implicita sem tag);
+#          e' a assimetria deliberada da tabela de tags em docs/reference/api.md.
+# O que sobra fora dessas tres cai no fail-loud 'discriminador desconhecido'.
 def _separa_sufixo_polaridade(resto: str) -> "tuple[str, str]":
     """`'#TCF.8<resto>'` -> `(tag, sufixo_de_polaridade)`. `('', '')` quando nao ha' sufixo.
 

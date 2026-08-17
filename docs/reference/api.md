@@ -32,7 +32,8 @@ from tcf import SPEC_CPF, SPEC_CNPJ, SPEC_IP, TemplatedCheckedSpec, TemplatedPad
 | `list[bool \| None]` · `list[int \| float \| None]` | single-col **tipada** | `#TCF.8b` · `#TCF.8n` |
 | `dict[str, list[str]]` retangular, **≥1 linha** | multi-col flat | `#TCF.8M` |
 | `list[dict]` (dataset) · `dict` com valor escalar/aninhado · dict **ragged** ou **0-linha** · escalar solto · `[]` · `{}` · `list`/coluna **tipada** (item não-str) | hierárquico | `#TCF.8H` (`#D`/`#E`/`#O`/`#V`) |
-| tipo não-JSON (bytes, tuple, função, objeto custom) ou **array de tipos mistos** (union) | **fail-loud** | — (ensina a converter/separar) |
+| `list[bool \| str \| None]` com **≥1 bool E ≥1 str** | single-col **lazytype** | `#TCF.8bB` (ADR-0039) |
+| tipo não-JSON (bytes, tuple, função, objeto custom) ou **array de tipos mistos** (union) **fora** da união bool+str | **fail-loud** | — (ensina a converter/separar) |
 
 **Regra**: uma **coluna plana de um tipo só** fica no single-col — string (implícita, sem tag),
 bool (`b`) ou número (`n`); `None` convive com qualquer uma delas (slot 0). Aninhado, misto,
@@ -44,12 +45,34 @@ escalar solto ou `{}` vai pro `.8H`. `None` é preservado em **todas** as rotas 
 | tag | tipo | emitida? |
 |---|---|---|
 | *(nenhuma)* | string — o tipo **implícito por exclusão** | sim (default) |
-| `b` | bool; modo denso `b1` (bit-pack) compete no FLOOR | sim |
+| `b` | bool; três modos no índice 7 — `b1`, `b2`, `bB` (abaixo) | sim |
 | `n` | número (int/float, uma tag só como no JSON) | sim |
 | `s` | string **explícita** | **não** — decoda, mas o encoder usa a forma implícita |
 
-O modo denso é **bool sem null**, por construção: 1 bit são 2 estados e o trio
-`{null, false, true}` não cabe. Com null, a coluna usa o modo core.
+#### Os três modos da tag `b`
+
+> **CORRIGIDO 2026-08-16** (auditoria de sincronização docs×código). Esta seção dizia que o
+> denso era "bool **sem null** por construção" e que "com null a coluna usa o modo core".
+> Isso valeu até 2026-07-31: o **`b2` ternário** ([ADR-0037](../adr/0037-denso-b2-ternario-dominio-implicito.md))
+> passou a cobrir bool-com-null, e o **`bB` lazytype** ([ADR-0039](../adr/0039-lazytype-bool-cabeca-congelada-extras.md))
+> a união bool+str que antes era fail-loud.
+
+| modo | domínio | quando |
+|---|---|---|
+| `b1` | `{false, true}` — 1 bit/símbolo | bool **sem** null; compete no FLOOR |
+| `b2` | `{null, false, true}` — 2 bits/símbolo, cabeça **congelada e implícita** (nunca viaja) | bool **com** null |
+| `bB` | cabeça congelada `null=0/false=1/true=2` + **extras str declarados** a partir do slot 3 | união `{bool, str, None}` com ≥1 bool E ≥1 str |
+
+Verificável — o modo aparece no índice 7 do header:
+
+```python
+encode([True, False] * 12).splitlines()[0]          # '#TCF.8b118'
+encode([True, False, None, True] * 6).splitlines()[0]  # '#TCF.8b218'
+encode([True, "abc", False]).splitlines()[0]        # '#TCF.8bB23'
+```
+
+O `bB` é o **único** candidato que preserva o tipo na união, e por isso emite direto, sem
+passar pelo `min()`. As demais uniões escalares (`int+str`, `bool+int`, …) seguem fail-loud.
 
 **NaN/±Inf ficam fora** (RFC 8259) nas duas pontas: o encoder recusa e o decode também.
 

@@ -372,7 +372,7 @@ Across the 15 synthetic datasets in [EXP-008](experiments/lab/clean/EXP-008-comp
 
 ~36% smaller than CSV and ~42% smaller than JSON, while staying readable.
 
-Core pinned in tests: D1-D9 = **1523 B** (51.1% of raw, single-col); D17a multi-col = **300 B** (`#TCF.8M`, inline hexadecimal meta).
+Core pinned in tests: D1-D9 = **1545 B** (51.8% of raw, single-col); D17a multi-col = **300 B** (`#TCF.8M`, inline hexadecimal meta).
 Real-world multi-column (9 Adult + TPC-H tables, 136k rows): **−33.02% weighted** vs raw CSV.
 
 **And against gzip / brotli / zstd?**
@@ -446,7 +446,7 @@ NULL semantics, ordering/limit or a general query planner.
 
 ```python
 from tcf import encode
-from tcf_lazy import view                       # scripts/ on sys.path
+from tcf import view                            # public API since 0.8
 
 # a small sales table — loaded from a CSV, a DB dump, wherever
 table = {

@@ -43,7 +43,7 @@
 
 Prefixos no tamanho de coluna do meta INLINE (`#TCF.8M!8=id,@16=cat,nome` — sem `# `, sizes em **HEX**):
 
-- `!<size>=<name>` — modo **raw** (V2-A): body em TCF puro (OBAT+HCC); fallback quando TCF < raw
+- `!<size>=<name>` — modo **raw** (V2-A): body = `"\n".join(valores)`, texto LITERAL sem OBAT/HCC (decode = `split("\n")`); vence quando `len(raw) < len(tcf)` e nenhum valor tem `\n` embutido (`_fallback_safe`)
 - `@<size>=<name>` — modo **dict** (V2-B): body em stream de indices inteiros (coluna categorica)
 - `%<size>=<name>` — modo **split** (V2-C): body com separador estrutural inferido
 - `<size>=<name>` (sem prefixo) — modo **tcf** (OBAT+HCC direto, sem fallback vencer)

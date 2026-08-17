@@ -61,21 +61,25 @@ virou escape explicito `stamp=False`; ADR-0029 camada 1 /
 **cortado** de `src/tcf` (decode fail-loud com dica de git). Self-describing: natures (ADR-0027) + hex
 + escaping viajam no header.
 
-**Discriminador de 1 char** ([ADR-0029](../adr/0029-version-format-identification-semi-implicit.md) +
-[ADR-0031](../adr/0031-hierarchical-discriminator-H.md)): o caractere logo apos `#TCF.8` decide a
-estrutura. 5 valores:
+**1-char discriminator** ([ADR-0029](../adr/0029-version-format-identification-semi-implicit.md) +
+[ADR-0031](../adr/0031-hierarchical-discriminator-H.md) + [ADR-0033](../adr/0033-hierarchical-codec-weld.md)):
+o caractere logo apos `#TCF.8` decide a estrutura. **9 valores**, mais a faixa de pontuacao
+consumida pelo pre-passe de polaridade ([ADR-0035](../adr/0035-delimitador-de-polaridade-single-col.md)):
 
 | apos `#TCF.8` | tipo | header |
 |---|---|---|
-| `
-` | single-col version-stamp (**DEFAULT**, 7 B, ADR-0034) | `#TCF.8` |
-| *(nada, body direto)* | single-col orfao (ESCAPE explicito `stamp=False`: transmissao/parquet) | — |
-| `M` | multi-col plano | `#TCF.8M<meta>` (meta INLINE na linha da assinatura) |
-| `H` | multi-col hierarquico (especializacao de `M`) — **reservado** (ADR-0031; codec no lab, fail-loud) | `#TCF.8H<meta-arvore>` |
+| *(nada, body direto)* | single-col orfao | — |
+| `\n` | single version-stamp | `#TCF.8` (**DEFAULT desde a ADR-0034**; magic number p/ `file`/libmagic) |
+| `M` | multi-col plano | `#TCF.8M<meta>` (meta INLINE na linha de assinatura) |
+| `H` | multi-col hierarquico (especializacao de `M`) — **WELDED** (ADR-0033, 2026-07-14) | `#TCF.8H<tree-meta>` |
 | ` ` (espaco) | single + spec | `#TCF.8 [nome]:spec` (nome opcional, so' rotulo) |
-| `\n` | single version-stamp | `#TCF.8` (carimbo opt-in; magic-number p/ `file`/libmagic) |
+| `b` / `n` / `s` | single-col tipado (bool / numero / string) | `#TCF.8<tag>[<mode>]` |
+| `B` / `C` | bN de dominio (dominio primeiro / por ultimo) — ADR-0036 | `#TCF.8B<w><n>` |
 
-Discriminador desconhecido/reservado (incl. `H`) -> **fail-loud** no decode (nao degrada pra orfao).
+Discriminador fora do conjunto acima -> **fail-loud** no decode (nunca degrada pra orfao). Um
+sufixo de pontuacao na linha de assinatura e' o **delimitador de polaridade**, retirado por um
+pre-passe antes do dispatch — ele NAO age em `M`/`H`.
+
 
 **Meta do `#TCF.8M`** — INLINE apos a assinatura (`#TCF.8M<meta>\n<bodies>`), sem prefixo `# `. Cada
 coluna = `[<pre>]<size>[=<nome>][:<id>]`:
@@ -99,8 +103,12 @@ Exemplos (body na(s) linha(s) seguinte(s)):
     #TCF.8                       <- single version-stamp (body single-col puro)
 
 - **single-col**: `#TCF.8
-` + body (D1-D9=1586B pos-ADR-0034; era 1523B como orfao, e
-  real-world=89616B intactos — ADR-0032 nao mexe no single-col). So' o MULTI-COL virou `#TCF.8M`.
+` + body. Gate vigente **D1-D9=1545 B**, **real-world=89430 B**.
+  A ADR-0032 nao mexeu no single-col (ela e' sobre o default multi-col); quem moveu estes numeros
+  depois foi a [ADR-0034](../adr/0034-header-default-100-porcento-single-col.md) (header virou
+  default: 1523 → 1586, 89616 → 89637) e entao a
+  [ADR-0035](../adr/0035-delimitador-de-polaridade-single-col.md) (delimitador de polaridade:
+  1586 → **1545**, 89637 → **89430**). So' o MULTI-COL virou `#TCF.8M`.
 
 **Candidatos de coluna** (o fallback per-coluna, todos no `#TCF.8M`; `min(tcf,raw,dict,split)`):
 - **V2-A fallback identity** ([ADR-0022](../adr/0022-v2a-fallback-identity-weld.md), `fallback=True`):
@@ -151,7 +159,7 @@ Emitem `DeprecationWarning` em cada uso desde v1.0.
 ### Suite regressao formal
 
 [`tests/test_regression_v1_baseline.py`](../../tests/test_regression_v1_baseline.py)
-captura bytes-canonical de D1-D9 (1523B total) e D17a (300B INVARIANT, #TCF.8M default — ADR-0032).
+captura bytes-canonical de D1-D9 (**1545B** total) e D17a (300B INVARIANT, `#TCF.8M` default).
 Falha em CI = regressao. Snapshot so' pode ser atualizado via ADR
 explicito + version bump.
 
@@ -314,7 +322,8 @@ Restrições:
 - Nomes de coluna com separador (`,`/`=`/`:`/`\`/prefixo `!@%`) são **escapados com backslash**
   (T-FMT-NAME-ESCAPING); só `\n` é proibido (separador de linha do meta)
 - Todas as colunas devem ter o mesmo número de valores
-- `None` → `""` (TCF opera em strings)
+- `None` e' **preservado**: volta como `None` pelo slot nulo pre-alocado (`0`), NAO como `""`.
+  Verificavel: `decode(encode(["x", None, "y"])) == ["x", None, "y"]`
 
 Implementação: [`src/tcf/multi.py`](../../src/tcf/multi.py). ADR: [0004](../adr/0004-multi-column-header-compacto.md), [0013](../adr/0013-multi-column-canonical-api.md), [0014](../adr/0014-unified-api-side-outputs.md).
 
@@ -510,7 +519,12 @@ supersede o "frozen" do ADR-0017): aditiva, sem compat rígida entre minors de d
 ### Validação
 
 **Single-column (M10 baseline, ADR-0011)**:
-- D1-D9 sintéticos: **1523 bytes** em 2865 raw = 53.2% ratio (RT 9/9)
+- D1-D9 sintéticos: **1545 bytes** em 2981 raw = 51.8% ratio (RT 9/9; inclui o header default)
+> **CORRIGIDO 2026-08-16** (auditoria de sincronizacao docs×codigo). Os numeros acima eram os
+> pins de 2026-07-05. Gate vigente: **D1-D9=1545 B · D17a=300 B · real-world=89430 B**. As
+> eras, pra ler commits antigos: D1-D9 `1523 → 1586` (ADR-0034 header default) `→ 1545`
+> (ADR-0035 polaridade); real-world `89616 → 89637 → 89430`; D17a `307 → 303 → 300`.
+
 - Cadeia byte-canônica de checkpoints: M9 → M10 → M11 → M12 → M13 → M14
   → M14+Pacote1+Multi+API+Natures+MultiDelta+v1
 - Adult Census + TPC-H 57 colunas: **-11.73% weighted** vs M9 puro
@@ -535,7 +549,7 @@ Detalhes: [experiments/lab/dirty/2026-05/2026-05-24/2026-05-24-benchmark-formats
 **Suite de testes** (snapshot 2026-05-27: 259 passed; contagem atual em
 [STATUS.md](../../STATUS.md)). Guardião byte-canonical:
 [`test_regression_v1_baseline.py`](../../tests/test_regression_v1_baseline.py)
-(snapshot D1-D9=1523B single-col intacto + D17a=300B #TCF.8M default, ADR-0032).
+(snapshot D1-D9=**1545**B single-col + D17a=300B `#TCF.8M` default).
 
 ## Estado v0.5 (acessório)
 

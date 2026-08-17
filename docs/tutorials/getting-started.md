@@ -60,12 +60,17 @@ Expected output:
 ```
 Original data: ['abc', 'abcd', 'abcde']
 TCF text:
+#TCF.8
 abc
 1d
 1,2e
 
-Repr: 'abc\n1d\n1,2e\n'
+Repr: '#TCF.8\nabc\n1d\n1,2e\n'
 ```
+
+The first line, `#TCF.8`, is the **version stamp**. It has been emitted by default
+since [ADR-0034](../adr/0034-header-default-100-porcento-single-col.md) — it is what lets a decoder know
+which format it is reading instead of guessing.
 
 What happened:
 
@@ -130,10 +135,16 @@ Expected output:
 
 ```
 Raw (newline-delimited): 15 bytes
-TCF encoded:              12 bytes
-Compression ratio:        80.0%
-Savings:                  3 bytes
+TCF encoded:              19 bytes
+Compression ratio:        126.7%
+Savings:                  -4 bytes
 ```
+
+**TCF grew here — and that is the honest result.** On 15 bytes of input, the 7-byte
+version stamp costs more than the core saves. Compression needs *repetition to exploit*,
+and three short strings do not supply it. Below, with data that actually repeats, the
+sign flips. A format that only ever showed you its favorable case would be advertising,
+not documentation.
 
 Now let's scale the example with more realistic data (a list of emails with repetitive patterns):
 
@@ -165,9 +176,9 @@ Expected output:
 
 ```
 Raw (newline-delimited): 100 bytes
-TCF encoded:              64 bytes
-Compression ratio:        64.0%
-Savings:                  36 bytes (36.0%)
+TCF encoded:              71 bytes
+Compression ratio:        71.0%
+Savings:                  29 bytes (29.0%)
 ```
 
 With data that shares common prefixes and suffixes, TCF shrinks the size. The two layers (OBAT + HCC) detect and exploit these patterns automatically.
@@ -260,7 +271,7 @@ You covered the fundamentals:
 
 TCF has been validated on multiple datasets:
 
-- **Synthetic D1-D9**: 1523 bytes (53.2% ratio), round-trip 9/9.
+- **Synthetic D1-D9**: 1545 bytes (51.8% ratio), round-trip 9/9.
 - **Real-world Adult+TPC-H**: 57 columns, -33% weighted vs raw, -31% vs naive single-column.
 - **Benchmark vs csv/jsonl + gzip/brotli/zstd**: TCF wins 7/9 datasets.
 
