@@ -109,6 +109,15 @@ e não `["true", "abc", "false"]`, que é o que o flat-string devolvia. É o cas
 "true/false/null com exceções string" (`"other"`, `"N/A"`, `" ?"`) em dado tabular real.
 Toda **outra** união escalar (`int+str`, `bool+int`, …) segue fail-loud como acima.
 
+**Nota — limite de profundidade (documentado 2026-08-17)**: o `.8H` tem guarda tipada em
+**128 níveis estruturais** (objetos+arrays somados; `_MAX_DEPTH`, `hierarchical.py:305`),
+aplicada no encode, no parse de forma e no decode — a quebra é `HierarchicalError` com
+mensagem clara, nunca `RecursionError` cru. O texto JSON não tem teto (RFC 8259 §9 delega
+ao parser), e os defaults reais variam 100×: MongoDB/BSON **100** · serde_json **128** ·
+Jackson **1000** · protobuf-go **10 000**. O nosso coincide com o serde_json. **Largura**
+(chaves no mesmo objeto) não tem guarda própria — 16 384 chaves medidas com RT OK, header
+linear. Medição: lab `2026-08-17-0600-limites-de-profundidade-do-H`.
+
 **Nota de propriedade (não é perda)**: **ordem de chaves** — o `.8H` devolve chaves na ordem do
 **schema** (union por 1ª aparição), não na ordem por-registro do texto. É **canônico** (como
 Arrow/Parquet: colunar-shredded não preserva ordem por-registro); ECMA-404 diz que ordem de chave
