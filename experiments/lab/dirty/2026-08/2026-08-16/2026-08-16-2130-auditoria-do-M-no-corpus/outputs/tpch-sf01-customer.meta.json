@@ -1,0 +1,6 @@
+{
+ "wire_bytes": 238767,
+ "linha1": "#TCF.8Me=c_custkey,54=c_name,!cd21=c_address,@82d=c_nationkey,%6dfa=c_phone,!3cf1=c_acctbal,@805=c_mktsegment,c_comment",
+ "roundtrip_identico_a_entrada": true,
+ "origem": "tpch-sf01/customer"
+}

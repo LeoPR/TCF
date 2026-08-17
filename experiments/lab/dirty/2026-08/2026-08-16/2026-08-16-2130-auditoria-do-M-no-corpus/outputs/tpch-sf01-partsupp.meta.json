@@ -1,0 +1,6 @@
+{
+ "wire_bytes": 274517,
+ "linha1": "#TCF.8M21=ps_partkey,@16eb=ps_suppkey,!2643=ps_availqty,%2fc4=ps_supplycost,ps_comment",
+ "roundtrip_identico_a_entrada": true,
+ "origem": "tpch-sf01/partsupp"
+}
