@@ -140,3 +140,60 @@ Com a estrutura na mesa:
 - Levantamento que este lab corrige:
   [`notas/2026-08-17-0900`](../../../notas/2026-08/2026-08-17-0900-o-que-falta-pro-8-e-cep-telefone.md)
 - `ROADMAP.md:87` (FILTROS-POPULARES, alvo `.9`) · `STATUS.md:482` (o "CEP → nenhuma ação" de 2026-06-16)
+
+---
+
+## De onde saiu a ideia de ordenar uma coluna só
+
+Pergunta do owner, e é justa: *"não tem sentido ordenar só uma coluna sem ordenar tudo, na
+verdade igual a qualquer banco de dados, o sort de uma coluna afeta tudo."* Exato. A resposta
+não é que eu achasse que dava — é **a forma do harness**.
+
+O `mede()` original era assim:
+
+```python
+def mede(rot, colunas, original):
+    """Encoda cada coluna, soma, e VALIDA que o original e' reconstruivel."""
+    total, det = 0, []
+    for nome, vals in colunas.items():
+        b, modo = min_do_M(vals)
+        ...
+    return {...}
+```
+
+**O parâmetro `original` nunca é usado.** A docstring afirma que valida; o corpo não valida
+nada. Todas as cinco chamadas passam `ceps` como terceiro argumento — argumento morto.
+
+E aí o mecanismo do erro fica claro: **as cinco estratégias têm a mesma *forma* e algebras
+diferentes.**
+
+| | o que faz | a coluna sozinha remonta? |
+|---|---|:-:|
+| D0 opaco | tira o hífen | sim |
+| D1 mascarado | identidade | sim |
+| D2 prefixo+sufixo | 2 colunas alinhadas | sim |
+| D3 hierárquico | 6 colunas alinhadas | sim |
+| **D4 delta+sort** | **permuta LINHA** | **não** |
+
+D0–D3 são transformações de **valor**, posição a posição. D4 é reordenação de **linha**. No
+harness as duas entram como `dict[str, list[str]] → soma de bytes` — **nada no tipo as
+distingue**. E o único assert que as distinguiria estava declarado na docstring e nunca foi
+escrito.
+
+### O conserto
+
+O tipo não pode ser o guarda, então quem chama passou a ter de **declarar a álgebra**: ou
+entrega `remonta` (a função que reconstrói o original a partir das colunas), ou declara
+`reordena=True` — e aí o resultado sai marcado com `preserva_ordem: False`.
+
+Provado que a guarda pega, nos quatro casos:
+
+```
+1. D4 do jeito antigo (sem declarar)  -> PEGOU: "tem de entregar `remonta`..."
+2. remonta MENTIROSO (esquece o sufixo) -> PEGOU: "não devolve o original (divergente: 0)"
+3. D4 declarado (reordena=True)         -> passa, com preserva_ordem=False
+4. delta corrompido, mesmo declarado    -> PEGOU: "nem como CONJUNTO o original volta"
+```
+
+Os bytes da tabela acima **não mudaram** com a guarda ligada — as medições estavam certas;
+o que faltava era a prova de que eram da mesma coisa.

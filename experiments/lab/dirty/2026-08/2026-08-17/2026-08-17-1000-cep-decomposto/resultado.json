@@ -29,7 +29,8 @@
        "modo": "raw",
        "distintos": 4970
       }
-     ]
+     ],
+     "preserva_ordem": true
     },
     {
      "estrategia": "D1 mascarado (o que o split ve)",
@@ -41,7 +42,8 @@
        "modo": "split",
        "distintos": 4970
       }
-     ]
+     ],
+     "preserva_ordem": true
     },
     {
      "estrategia": "D2 prefixo+sufixo (2 colunas)",
@@ -59,7 +61,8 @@
        "modo": "dict",
        "distintos": 985
       }
-     ]
+     ],
+     "preserva_ordem": true
     },
     {
      "estrategia": "D3 hierarquico (6 colunas)",
@@ -101,7 +104,8 @@
        "modo": "dict",
        "distintos": 985
       }
-     ]
+     ],
+     "preserva_ordem": true
     },
     {
      "estrategia": "D4a delta+sort (ordem NAO semantica)",
@@ -113,7 +117,8 @@
        "modo": "dict",
        "distintos": 552
       }
-     ]
+     ],
+     "preserva_ordem": false
     },
     {
      "estrategia": "D4b idem + permutacao (ordem semantica)",
@@ -160,7 +165,8 @@
        "modo": "raw",
        "distintos": 4989
       }
-     ]
+     ],
+     "preserva_ordem": true
     },
     {
      "estrategia": "D1 mascarado (o que o split ve)",
@@ -172,7 +178,8 @@
        "modo": "split",
        "distintos": 4989
       }
-     ]
+     ],
+     "preserva_ordem": true
     },
     {
      "estrategia": "D2 prefixo+sufixo (2 colunas)",
@@ -190,7 +197,8 @@
        "modo": "dict",
        "distintos": 985
       }
-     ]
+     ],
+     "preserva_ordem": true
     },
     {
      "estrategia": "D3 hierarquico (6 colunas)",
@@ -232,7 +240,8 @@
        "modo": "dict",
        "distintos": 985
       }
-     ]
+     ],
+     "preserva_ordem": true
     },
     {
      "estrategia": "D4a delta+sort (ordem NAO semantica)",
@@ -244,7 +253,8 @@
        "modo": "dict",
        "distintos": 1189
       }
-     ]
+     ],
+     "preserva_ordem": false
     },
     {
      "estrategia": "D4b idem + permutacao (ordem semantica)",
@@ -291,7 +301,8 @@
        "modo": "raw",
        "distintos": 4996
       }
-     ]
+     ],
+     "preserva_ordem": true
     },
     {
      "estrategia": "D1 mascarado (o que o split ve)",
@@ -303,7 +314,8 @@
        "modo": "split",
        "distintos": 4996
       }
-     ]
+     ],
+     "preserva_ordem": true
     },
     {
      "estrategia": "D2 prefixo+sufixo (2 colunas)",
@@ -321,7 +333,8 @@
        "modo": "dict",
        "distintos": 985
       }
-     ]
+     ],
+     "preserva_ordem": true
     },
     {
      "estrategia": "D3 hierarquico (6 colunas)",
@@ -363,7 +376,8 @@
        "modo": "dict",
        "distintos": 985
       }
-     ]
+     ],
+     "preserva_ordem": true
     },
     {
      "estrategia": "D4a delta+sort (ordem NAO semantica)",
@@ -375,7 +389,8 @@
        "modo": "raw",
        "distintos": 2364
       }
-     ]
+     ],
+     "preserva_ordem": false
     },
     {
      "estrategia": "D4b idem + permutacao (ordem semantica)",

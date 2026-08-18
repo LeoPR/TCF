@@ -164,15 +164,60 @@ def entropia_por_digito(ceps: list[str]) -> list[float]:
 
 
 # ── as decomposicoes ───────────────────────────────────────────────────────
-def mede(rot: str, colunas: dict[str, list[str]], original: list[str]) -> dict:
-    """Encoda cada coluna, soma, e VALIDA que o original e' reconstruivel."""
+def mede(rot: str, colunas: dict[str, list[str]], original: list[str],
+         *, remonta=None, reordena: bool = False) -> dict:
+    """Encoda cada coluna, soma, e VALIDA que o original volta.
+
+    O ASSERT DESTA FUNCAO E' O PONTO DO LAB. A versao anterior recebia
+    `original` e NUNCA O USAVA — a docstring dizia "VALIDA" e o corpo nao
+    validava nada. Foi assim que o D4 (delta sobre coluna ORDENADA) entrou na
+    tabela: no harness ele tem a MESMA FORMA das outras estrategias
+    (`dict[str, list[str]]` -> soma de bytes), mas e' de outra ALGEBRA.
+
+      D0..D3  transformam VALOR, posicao a posicao -> a coluna sozinha remonta
+      D4      PERMUTA LINHA -> a coluna sozinha NAO remonta; so' a tabela inteira
+
+    Nada no TIPO distingue as duas coisas. Entao o tipo nao pode ser o guarda:
+    quem chama tem de entregar `remonta` (a funcao que reconstroi o original a
+    partir das colunas) ou declarar `reordena=True` — e ai' o resultado sai
+    marcado, e a tabela nao pode mais mistura-lo com os outros sem aviso.
+    """
     total, det = 0, []
     for nome, vals in colunas.items():
         b, modo = min_do_M(vals)
         total += b
         det.append({"col": nome, "bytes": b, "modo": modo,
                     "distintos": len(set(vals))})
-    return {"estrategia": rot, "bytes": total, "colunas": det}
+
+    if reordena:
+        # Declarado: NAO preserva a ordem das linhas. Nao ha' o que assertar
+        # contra `original` — o contrato e' de CONJUNTO, nao de sequencia.
+        assert remonta is None, "reordena=True e remonta= sao mutuamente exclusivos"
+        assert sorted(original) == sorted(_remonta_conjunto(colunas)), (
+            f"{rot}: nem como CONJUNTO o original volta")
+    else:
+        assert remonta is not None, (
+            f"{rot}: toda estrategia que preserva ordem tem de entregar `remonta`. "
+            f"Se ela reordena linha, declare reordena=True.")
+        volta = remonta(colunas)
+        assert volta == original, (
+            f"{rot}: a remontagem NAO devolve o original "
+            f"(primeiro divergente: "
+            f"{next((i for i, (a, b2) in enumerate(zip(volta, original)) if a != b2), '?')})")
+
+    return {"estrategia": rot, "bytes": total, "colunas": det,
+            "preserva_ordem": not reordena}
+
+
+def _remonta_conjunto(colunas: dict[str, list[str]]) -> list[str]:
+    """Do D4: desfaz o delta e devolve os CEPs (mascarados) do conjunto."""
+    d = colunas["delta"]
+    acum, saida = int(d[0]), []
+    saida.append(f"{acum:08d}")
+    for x in d[1:]:
+        acum += int(x)
+        saida.append(f"{acum:08d}")
+    return [f"{c[:5]}-{c[5:]}" for c in saida]
 
 
 def main() -> int:
@@ -208,13 +253,18 @@ def main() -> int:
         prefixo = [c[:5] for c in ceps]
         sufixo = [c[6:] for c in ceps]
         ests = [
-            mede("D0 opaco (8 digitos, sem hifen)", {"cep": [c.replace("-", "") for c in ceps]}, ceps),
-            mede("D1 mascarado (o que o split ve)", {"cep": ceps}, ceps),
-            mede("D2 prefixo+sufixo (2 colunas)", {"pre": prefixo, "suf": sufixo}, ceps),
+            mede("D0 opaco (8 digitos, sem hifen)", {"cep": [c.replace("-", "") for c in ceps]}, ceps,
+                 remonta=lambda k: [f"{v[:5]}-{v[5:]}" for v in k["cep"]]),
+            mede("D1 mascarado (o que o split ve)", {"cep": ceps}, ceps,
+                 remonta=lambda k: list(k["cep"])),
+            mede("D2 prefixo+sufixo (2 colunas)", {"pre": prefixo, "suf": sufixo}, ceps,
+                 remonta=lambda k: [a + "-" + b2 for a, b2 in zip(k["pre"], k["suf"])]),
             mede("D3 hierarquico (6 colunas)", {
                 "reg": [c[0] for c in ceps], "sub": [c[1] for c in ceps],
                 "set": [c[2] for c in ceps], "sse": [c[3] for c in ceps],
-                "div": [c[4] for c in ceps], "suf": sufixo}, ceps),
+                "div": [c[4] for c in ceps], "suf": sufixo}, ceps,
+                 remonta=lambda k: [a + b2 + c2 + d2 + e2 + "-" + f2 for a, b2, c2, d2, e2, f2
+                                    in zip(k["reg"], k["sub"], k["set"], k["sse"], k["div"], k["suf"])]),
         ]
         # D4: delta sobre a coluna ORDENADA.
         #
@@ -230,7 +280,8 @@ def main() -> int:
         ordenado = sorted(c.replace("-", "") for c in ceps)
         deltas = [ordenado[0]] + [str(int(ordenado[i]) - int(ordenado[i - 1]))
                                   for i in range(1, len(ordenado))]
-        d4 = mede("D4a delta+sort (ordem NAO semantica)", {"delta": deltas}, ceps)
+        d4 = mede("D4a delta+sort (ordem NAO semantica)", {"delta": deltas}, ceps,
+                  reordena=True)
         ests.append(d4)
         perm_B = math.lgamma(N + 1) / math.log(2) / 8
         ests.append({"estrategia": "D4b idem + permutacao (ordem semantica)",
