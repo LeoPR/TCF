@@ -1,0 +1,401 @@
+{
+ "fonte_estrutura": "Correios — Tudo sobre CEP (verificado 2026-08-17)",
+ "dado": "SINTETICO declarado — nao ha' coluna de CEP em Z:/tcf-data",
+ "seed": 20260817,
+ "n": 5000,
+ "cenarios": [
+  {
+   "cenario": "regional (1 regiao)",
+   "n": 5000,
+   "distintos": 4970,
+   "entropia_por_digito": [
+    -0.0,
+    2.284,
+    1.773,
+    3.319,
+    3.321,
+    3.306,
+    3.321,
+    3.321
+   ],
+   "estrategias": [
+    {
+     "estrategia": "D0 opaco (8 digitos, sem hifen)",
+     "bytes": 44999,
+     "colunas": [
+      {
+       "col": "cep",
+       "bytes": 44999,
+       "modo": "raw",
+       "distintos": 4970
+      }
+     ]
+    },
+    {
+     "estrategia": "D1 mascarado (o que o split ve)",
+     "bytes": 29164,
+     "colunas": [
+      {
+       "col": "cep",
+       "bytes": 29164,
+       "modo": "split",
+       "distintos": 4970
+      }
+     ]
+    },
+    {
+     "estrategia": "D2 prefixo+sufixo (2 colunas)",
+     "bytes": 29135,
+     "colunas": [
+      {
+       "col": "pre",
+       "bytes": 14205,
+       "modo": "dict",
+       "distintos": 600
+      },
+      {
+       "col": "suf",
+       "bytes": 14930,
+       "modo": "dict",
+       "distintos": 985
+      }
+     ]
+    },
+    {
+     "estrategia": "D3 hierarquico (6 colunas)",
+     "bytes": 35038,
+     "colunas": [
+      {
+       "col": "reg",
+       "bytes": 9,
+       "modo": "tcf",
+       "distintos": 1
+      },
+      {
+       "col": "sub",
+       "bytes": 5018,
+       "modo": "dict",
+       "distintos": 5
+      },
+      {
+       "col": "set",
+       "bytes": 5015,
+       "modo": "dict",
+       "distintos": 4
+      },
+      {
+       "col": "sse",
+       "bytes": 5033,
+       "modo": "dict",
+       "distintos": 10
+      },
+      {
+       "col": "div",
+       "bytes": 5033,
+       "modo": "dict",
+       "distintos": 10
+      },
+      {
+       "col": "suf",
+       "bytes": 14930,
+       "modo": "dict",
+       "distintos": 985
+      }
+     ]
+    },
+    {
+     "estrategia": "D4a delta+sort (ordem NAO semantica)",
+     "bytes": 12683,
+     "colunas": [
+      {
+       "col": "delta",
+       "bytes": 12683,
+       "modo": "dict",
+       "distintos": 552
+      }
+     ]
+    },
+    {
+     "estrategia": "D4b idem + permutacao (ordem semantica)",
+     "bytes": 19462,
+     "colunas": [
+      {
+       "col": "delta",
+       "bytes": 12683,
+       "modo": "dict",
+       "distintos": 552
+      },
+      {
+       "col": "<permutacao log2(n!) PISO>",
+       "bytes": 6779,
+       "modo": "—",
+       "distintos": 0
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "cenario": "estadual (3 regioes)",
+   "n": 5000,
+   "distintos": 4989,
+   "entropia_por_digito": [
+    1.39,
+    2.944,
+    2.829,
+    3.319,
+    3.321,
+    3.306,
+    3.321,
+    3.321
+   ],
+   "estrategias": [
+    {
+     "estrategia": "D0 opaco (8 digitos, sem hifen)",
+     "bytes": 44999,
+     "colunas": [
+      {
+       "col": "cep",
+       "bytes": 44999,
+       "modo": "raw",
+       "distintos": 4989
+      }
+     ]
+    },
+    {
+     "estrategia": "D1 mascarado (o que o split ve)",
+     "bytes": 35878,
+     "colunas": [
+      {
+       "col": "cep",
+       "bytes": 35878,
+       "modo": "split",
+       "distintos": 4989
+      }
+     ]
+    },
+    {
+     "estrategia": "D2 prefixo+sufixo (2 colunas)",
+     "bytes": 35849,
+     "colunas": [
+      {
+       "col": "pre",
+       "bytes": 20919,
+       "modo": "dict",
+       "distintos": 1559
+      },
+      {
+       "col": "suf",
+       "bytes": 14930,
+       "modo": "dict",
+       "distintos": 985
+      }
+     ]
+    },
+    {
+     "estrategia": "D3 hierarquico (6 colunas)",
+     "bytes": 40070,
+     "colunas": [
+      {
+       "col": "reg",
+       "bytes": 5011,
+       "modo": "dict",
+       "distintos": 3
+      },
+      {
+       "col": "sub",
+       "bytes": 5030,
+       "modo": "dict",
+       "distintos": 9
+      },
+      {
+       "col": "set",
+       "bytes": 5033,
+       "modo": "dict",
+       "distintos": 10
+      },
+      {
+       "col": "sse",
+       "bytes": 5033,
+       "modo": "dict",
+       "distintos": 10
+      },
+      {
+       "col": "div",
+       "bytes": 5033,
+       "modo": "dict",
+       "distintos": 10
+      },
+      {
+       "col": "suf",
+       "bytes": 14930,
+       "modo": "dict",
+       "distintos": 985
+      }
+     ]
+    },
+    {
+     "estrategia": "D4a delta+sort (ordem NAO semantica)",
+     "bytes": 16233,
+     "colunas": [
+      {
+       "col": "delta",
+       "bytes": 16233,
+       "modo": "dict",
+       "distintos": 1189
+      }
+     ]
+    },
+    {
+     "estrategia": "D4b idem + permutacao (ordem semantica)",
+     "bytes": 23012,
+     "colunas": [
+      {
+       "col": "delta",
+       "bytes": 16233,
+       "modo": "dict",
+       "distintos": 1189
+      },
+      {
+       "col": "<permutacao log2(n!) PISO>",
+       "bytes": 6779,
+       "modo": "—",
+       "distintos": 0
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "cenario": "nacional (10 regioes)",
+   "n": 5000,
+   "distintos": 4996,
+   "entropia_por_digito": [
+    3.309,
+    3.14,
+    3.209,
+    3.319,
+    3.321,
+    3.306,
+    3.321,
+    3.321
+   ],
+   "estrategias": [
+    {
+     "estrategia": "D0 opaco (8 digitos, sem hifen)",
+     "bytes": 44999,
+     "colunas": [
+      {
+       "col": "cep",
+       "bytes": 44999,
+       "modo": "raw",
+       "distintos": 4996
+      }
+     ]
+    },
+    {
+     "estrategia": "D1 mascarado (o que o split ve)",
+     "bytes": 44958,
+     "colunas": [
+      {
+       "col": "cep",
+       "bytes": 44958,
+       "modo": "split",
+       "distintos": 4996
+      }
+     ]
+    },
+    {
+     "estrategia": "D2 prefixo+sufixo (2 colunas)",
+     "bytes": 44929,
+     "colunas": [
+      {
+       "col": "pre",
+       "bytes": 29999,
+       "modo": "raw",
+       "distintos": 3271
+      },
+      {
+       "col": "suf",
+       "bytes": 14930,
+       "modo": "dict",
+       "distintos": 985
+      }
+     ]
+    },
+    {
+     "estrategia": "D3 hierarquico (6 colunas)",
+     "bytes": 40095,
+     "colunas": [
+      {
+       "col": "reg",
+       "bytes": 5033,
+       "modo": "dict",
+       "distintos": 10
+      },
+      {
+       "col": "sub",
+       "bytes": 5033,
+       "modo": "dict",
+       "distintos": 10
+      },
+      {
+       "col": "set",
+       "bytes": 5033,
+       "modo": "dict",
+       "distintos": 10
+      },
+      {
+       "col": "sse",
+       "bytes": 5033,
+       "modo": "dict",
+       "distintos": 10
+      },
+      {
+       "col": "div",
+       "bytes": 5033,
+       "modo": "dict",
+       "distintos": 10
+      },
+      {
+       "col": "suf",
+       "bytes": 14930,
+       "modo": "dict",
+       "distintos": 985
+      }
+     ]
+    },
+    {
+     "estrategia": "D4a delta+sort (ordem NAO semantica)",
+     "bytes": 21689,
+     "colunas": [
+      {
+       "col": "delta",
+       "bytes": 21689,
+       "modo": "raw",
+       "distintos": 2364
+      }
+     ]
+    },
+    {
+     "estrategia": "D4b idem + permutacao (ordem semantica)",
+     "bytes": 28468,
+     "colunas": [
+      {
+       "col": "delta",
+       "bytes": 21689,
+       "modo": "dict",
+       "distintos": 2364
+      },
+      {
+       "col": "<permutacao log2(n!) PISO>",
+       "bytes": 6779,
+       "modo": "—",
+       "distintos": 0
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}
