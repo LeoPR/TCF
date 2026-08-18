@@ -1,0 +1,536 @@
+{
+ "fonte": "tests/fixtures/control_synthetics_h.py (gerador unico, seed fixa)",
+ "vies_declarado": "casos construidos p/ OBSERVAR mecanismo, nao p/ ganhar byte",
+ "coleta": "sintetica — sem corpus. O clean com volume usara' o Shaper (src/shaper/).",
+ "total": {
+  "total": 18494,
+  "meta": 442,
+  "controle": 1467,
+  "folhas": 16585,
+  "json_compacto": 66780,
+  "ganho_candidato": 8173,
+  "ganho_tipado": 3306,
+  "ganho_count_singleton": 0,
+  "ganho_uniao": 8380
+ },
+ "prevalencia": {
+  "scalar": {
+   "colunas": 30,
+   "bytes": 11353
+  },
+  "count": {
+   "colunas": 8,
+   "bytes": 870
+  },
+  "arr_scalars": {
+   "colunas": 5,
+   "bytes": 5232
+  },
+  "mask": {
+   "colunas": 4,
+   "bytes": 287
+  },
+  "emask": {
+   "colunas": 2,
+   "bytes": 310
+  }
+ },
+ "por_caso": [
+  {
+   "caso": "c01-uniforme",
+   "descricao": "baseline flat-like: todo campo presente, sem arrays",
+   "mecanismo_alvo": "zero colunas de controle (mask so' quando opcional/null)",
+   "total": 798,
+   "meta": 30,
+   "controle": 0,
+   "folhas": 768,
+   "n_cols_controle": 0,
+   "json_compacto": 4893,
+   "rt": true,
+   "ganho_candidato": 363,
+   "ganho_tipado": 3,
+   "ganho_count_singleton": 0,
+   "ganho_uniao": 366,
+   "detalhe": [
+    {
+     "col": "id",
+     "kind": "scalar",
+     "achado": "tipado-num",
+     "atual": 23,
+     "seria": 20
+    },
+    {
+     "col": "nome",
+     "kind": "scalar",
+     "achado": "cand:dict",
+     "atual": 422,
+     "seria": 241
+    },
+    {
+     "col": "cidade",
+     "kind": "scalar",
+     "achado": "cand:dict",
+     "atual": 323,
+     "seria": 141
+    }
+   ]
+  },
+  {
+   "caso": "c02-telemetria-array",
+   "descricao": "fan-out FIXO 3 como array (fraqueza conhecida: folha periodica)",
+   "mecanismo_alvo": "counts colapsam; folhas periodicas NAO colapsam (seq-RLE e' adjacente)",
+   "total": 3132,
+   "meta": 26,
+   "controle": 8,
+   "folhas": 3098,
+   "n_cols_controle": 1,
+   "json_compacto": 8001,
+   "rt": true,
+   "ganho_candidato": 1643,
+   "ganho_tipado": 707,
+   "ganho_count_singleton": 0,
+   "ganho_uniao": 1646,
+   "detalhe": [
+    {
+     "col": "t",
+     "kind": "scalar",
+     "achado": "tipado-num",
+     "atual": 75,
+     "seria": 72
+    },
+    {
+     "col": "v",
+     "kind": "arr_scalars",
+     "achado": "cand:split",
+     "atual": 3023,
+     "seria": 1380
+    },
+    {
+     "col": "v",
+     "kind": "arr_scalars",
+     "achado": "tipado-num",
+     "atual": 3023,
+     "seria": 2319
+    }
+   ]
+  },
+  {
+   "caso": "c03-telemetria-split",
+   "descricao": "MESMOS dados do c02 como 3 campos irmaos (par de controle do fan-out-split)",
+   "mecanismo_alvo": "cada serie vira coluna propria -> L1 ve a deriva por coluna",
+   "total": 2830,
+   "meta": 43,
+   "controle": 0,
+   "folhas": 2787,
+   "n_cols_controle": 0,
+   "json_compacto": 10801,
+   "rt": true,
+   "ganho_candidato": 1337,
+   "ganho_tipado": 704,
+   "ganho_count_singleton": 0,
+   "ganho_uniao": 1340,
+   "detalhe": [
+    {
+     "col": "t",
+     "kind": "scalar",
+     "achado": "tipado-num",
+     "atual": 75,
+     "seria": 72
+    },
+    {
+     "col": "temp",
+     "kind": "scalar",
+     "achado": "cand:split",
+     "atual": 809,
+     "seria": 399
+    },
+    {
+     "col": "temp",
+     "kind": "scalar",
+     "achado": "tipado-num",
+     "atual": 809,
+     "seria": 453
+    },
+    {
+     "col": "hum",
+     "kind": "scalar",
+     "achado": "cand:split",
+     "atual": 1053,
+     "seria": 491
+    },
+    {
+     "col": "hum",
+     "kind": "scalar",
+     "achado": "tipado-num",
+     "atual": 1053,
+     "seria": 867
+    },
+    {
+     "col": "pres",
+     "kind": "scalar",
+     "achado": "cand:split",
+     "atual": 850,
+     "seria": 485
+    },
+    {
+     "col": "pres",
+     "kind": "scalar",
+     "achado": "tipado-num",
+     "atual": 850,
+     "seria": 691
+    }
+   ]
+  },
+  {
+   "caso": "c04-ragged",
+   "descricao": "campo opcional presente em ~10% (P1)",
+   "mecanismo_alvo": "mask 2-estados com runs longas de '-' -> RLE colapsa",
+   "total": 685,
+   "meta": 31,
+   "controle": 78,
+   "folhas": 576,
+   "n_cols_controle": 1,
+   "json_compacto": 3868,
+   "rt": true,
+   "ganho_candidato": 227,
+   "ganho_tipado": 3,
+   "ganho_count_singleton": 0,
+   "ganho_uniao": 230,
+   "detalhe": [
+    {
+     "col": "id",
+     "kind": "scalar",
+     "achado": "tipado-num",
+     "atual": 29,
+     "seria": 26
+    },
+    {
+     "col": "nome",
+     "kind": "scalar",
+     "achado": "cand:dict",
+     "atual": 488,
+     "seria": 261
+    }
+   ]
+  },
+  {
+   "caso": "c05-null-campo",
+   "descricao": "campo com ~8% null (P3a)",
+   "mecanismo_alvo": "mask 3-estados; '0' esparso quebra runs da mask",
+   "total": 842,
+   "meta": 33,
+   "controle": 90,
+   "folhas": 719,
+   "n_cols_controle": 1,
+   "json_compacto": 6662,
+   "rt": true,
+   "ganho_candidato": 227,
+   "ganho_tipado": 3,
+   "ganho_count_singleton": 0,
+   "ganho_uniao": 230,
+   "detalhe": [
+    {
+     "col": "id",
+     "kind": "scalar",
+     "achado": "tipado-num",
+     "atual": 29,
+     "seria": 26
+    },
+    {
+     "col": "nome",
+     "kind": "scalar",
+     "achado": "cand:dict",
+     "atual": 488,
+     "seria": 261
+    }
+   ]
+  },
+  {
+   "caso": "c06-null-elemento",
+   "descricao": "null esparso EM ELEMENTO (~15%, nao-adjacente) — sintoma da emask densa",
+   "mecanismo_alvo": "1 null liga emask O(total-elementos); padrao esparso nao colapsa",
+   "total": 1420,
+   "meta": 40,
+   "controle": 407,
+   "folhas": 973,
+   "n_cols_controle": 2,
+   "json_compacto": 2582,
+   "rt": true,
+   "ganho_candidato": 448,
+   "ganho_tipado": 406,
+   "ganho_count_singleton": 0,
+   "ganho_uniao": 448,
+   "detalhe": [
+    {
+     "col": "leituras",
+     "kind": "arr_scalars",
+     "achado": "cand:split",
+     "atual": 955,
+     "seria": 507
+    },
+    {
+     "col": "leituras",
+     "kind": "arr_scalars",
+     "achado": "tipado-num",
+     "atual": 955,
+     "seria": 549
+    }
+   ]
+  },
+  {
+   "caso": "c07-arrays-vazios",
+   "descricao": "60% arrays vazios (repeticao de vazio ESTRUTURAL)",
+   "mecanismo_alvo": "count \\0 em runs -> RLE colapsa; body de dados minimo",
+   "total": 465,
+   "meta": 25,
+   "controle": 199,
+   "folhas": 241,
+   "n_cols_controle": 1,
+   "json_compacto": 2608,
+   "rt": true,
+   "ganho_candidato": 112,
+   "ganho_tipado": 3,
+   "ganho_count_singleton": 0,
+   "ganho_uniao": 115,
+   "detalhe": [
+    {
+     "col": "id",
+     "kind": "scalar",
+     "achado": "tipado-num",
+     "atual": 23,
+     "seria": 20
+    },
+    {
+     "col": "tags",
+     "kind": "arr_scalars",
+     "achado": "cand:dict",
+     "atual": 218,
+     "seria": 106
+    }
+   ]
+  },
+  {
+   "caso": "c08-matriz",
+   "descricao": "matriz 2x2 regular por registro (P4a raso)",
+   "mecanismo_alvo": "counts de 2 niveis, ambos constantes -> colapsam",
+   "total": 646,
+   "meta": 27,
+   "controle": 14,
+   "folhas": 605,
+   "n_cols_controle": 2,
+   "json_compacto": 1087,
+   "rt": true,
+   "ganho_candidato": 423,
+   "ganho_tipado": 421,
+   "ganho_count_singleton": 0,
+   "ganho_uniao": 423,
+   "detalhe": [
+    {
+     "col": "grade",
+     "kind": "arr_scalars",
+     "achado": "cand:dict",
+     "atual": 605,
+     "seria": 182
+    },
+    {
+     "col": "grade",
+     "kind": "arr_scalars",
+     "achado": "tipado-num",
+     "atual": 605,
+     "seria": 184
+    }
+   ]
+  },
+  {
+   "caso": "c09-espinha",
+   "descricao": "1:N classico com fan-out VARIAVEL 0..4 (espinha TPC-H-like)",
+   "mecanismo_alvo": "counts variaveis (nao colapsam inteiros) + folhas de filho densas",
+   "total": 3218,
+   "meta": 57,
+   "controle": 237,
+   "folhas": 2924,
+   "n_cols_controle": 1,
+   "json_compacto": 8676,
+   "rt": true,
+   "ganho_candidato": 1072,
+   "ganho_tipado": 326,
+   "ganho_count_singleton": 0,
+   "ganho_uniao": 1072,
+   "detalhe": [
+    {
+     "col": "nome",
+     "kind": "scalar",
+     "achado": "cand:dict",
+     "atual": 356,
+     "seria": 221
+    },
+    {
+     "col": "pedidos/num",
+     "kind": "scalar",
+     "achado": "cand:split",
+     "atual": 1094,
+     "seria": 485
+    },
+    {
+     "col": "pedidos/valor",
+     "kind": "scalar",
+     "achado": "cand:raw",
+     "atual": 1456,
+     "seria": 1128
+    },
+    {
+     "col": "pedidos/valor",
+     "kind": "scalar",
+     "achado": "tipado-num",
+     "atual": 1456,
+     "seria": 1130
+    }
+   ]
+  },
+  {
+   "caso": "c10-tipos-cadenciados",
+   "descricao": "int sequencial + bool quase-constante + float cadenciado (P2 x seq-RLE)",
+   "mecanismo_alvo": "seq-RLE deve pegar as 3 colunas tipadas",
+   "total": 1317,
+   "meta": 34,
+   "controle": 0,
+   "folhas": 1283,
+   "n_cols_controle": 0,
+   "json_compacto": 5013,
+   "rt": true,
+   "ganho_candidato": 893,
+   "ganho_tipado": 328,
+   "ganho_count_singleton": 0,
+   "ganho_uniao": 1032,
+   "detalhe": [
+    {
+     "col": "seq",
+     "kind": "scalar",
+     "achado": "tipado-num",
+     "atual": 30,
+     "seria": 27
+    },
+    {
+     "col": "ok",
+     "kind": "scalar",
+     "achado": "cand:dict",
+     "atual": 203,
+     "seria": 164
+    },
+    {
+     "col": "ok",
+     "kind": "scalar",
+     "achado": "denso-bool",
+     "atual": 203,
+     "seria": 28
+    },
+    {
+     "col": "temp",
+     "kind": "scalar",
+     "achado": "cand:split",
+     "atual": 1050,
+     "seria": 196
+    },
+    {
+     "col": "temp",
+     "kind": "scalar",
+     "achado": "tipado-num",
+     "atual": 1050,
+     "seria": 900
+    }
+   ]
+  },
+  {
+   "caso": "c11-categorico",
+   "descricao": "2 colunas categoricas repetitivas (dict/refs do L1)",
+   "mecanismo_alvo": "refs/aliases dominam; folhas ~O(cardinalidade), nao O(N)",
+   "total": 1688,
+   "meta": 21,
+   "controle": 0,
+   "folhas": 1667,
+   "n_cols_controle": 0,
+   "json_compacto": 9180,
+   "rt": true,
+   "ganho_candidato": 1026,
+   "ganho_tipado": 0,
+   "ganho_count_singleton": 0,
+   "ganho_uniao": 1026,
+   "detalhe": [
+    {
+     "col": "status",
+     "kind": "scalar",
+     "achado": "cand:dict",
+     "atual": 800,
+     "seria": 323
+    },
+    {
+     "col": "uf",
+     "kind": "scalar",
+     "achado": "cand:dict",
+     "atual": 867,
+     "seria": 318
+    }
+   ]
+  },
+  {
+   "caso": "c12-compose-total",
+   "descricao": "P1+P2+P3a+P3b+P4a juntos, moderado",
+   "mecanismo_alvo": "todos os mecanismos ao mesmo tempo (integracao)",
+   "total": 1453,
+   "meta": 75,
+   "controle": 434,
+   "folhas": 944,
+   "n_cols_controle": 5,
+   "json_compacto": 3409,
+   "rt": true,
+   "ganho_candidato": 402,
+   "ganho_tipado": 402,
+   "ganho_count_singleton": 0,
+   "ganho_uniao": 452,
+   "detalhe": [
+    {
+     "col": "nome",
+     "kind": "scalar",
+     "achado": "cand:dict",
+     "atual": 227,
+     "seria": 181
+    },
+    {
+     "col": "m",
+     "kind": "arr_scalars",
+     "achado": "cand:dict",
+     "atual": 431,
+     "seria": 150
+    },
+    {
+     "col": "m",
+     "kind": "arr_scalars",
+     "achado": "tipado-num",
+     "atual": 431,
+     "seria": 146
+    },
+    {
+     "col": "ok",
+     "kind": "scalar",
+     "achado": "cand:dict",
+     "atual": 125,
+     "seria": 54
+    },
+    {
+     "col": "ok",
+     "kind": "scalar",
+     "achado": "denso-bool",
+     "atual": 125,
+     "seria": 8
+    },
+    {
+     "col": "obs",
+     "kind": "scalar",
+     "achado": "cand:dict",
+     "atual": 47,
+     "seria": 43
+    }
+   ]
+  }
+ ]
+}
