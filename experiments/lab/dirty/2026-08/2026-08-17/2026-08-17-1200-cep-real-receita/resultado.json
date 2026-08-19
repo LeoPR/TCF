@@ -87,7 +87,8 @@
      "col": "cep",
      "bytes": 179891,
      "modo": "raw",
-     "distintos": 17367
+     "distintos": 17367,
+     "evidencia": "outputs/D0_opaco__8_digitos__como_a_Receita_entrega_/cep.tcf"
     }
    ],
    "preserva_ordem": true
@@ -100,7 +101,8 @@
      "col": "cep",
      "bytes": 164493,
      "modo": "split",
-     "distintos": 17367
+     "distintos": 17367,
+     "evidencia": "outputs/D1_mascarado_NNNNN-NNN/cep.tcf"
     }
    ],
    "preserva_ordem": true
@@ -113,13 +115,15 @@
      "col": "pre",
      "bytes": 119927,
      "modo": "raw",
-     "distintos": 9950
+     "distintos": 9950,
+     "evidencia": "outputs/D2_prefixo_sufixo/pre.tcf"
     },
     {
      "col": "suf",
      "bytes": 44536,
      "modo": "dict",
-     "distintos": 911
+     "distintos": 911,
+     "evidencia": "outputs/D2_prefixo_sufixo/suf.tcf"
     }
    ],
    "preserva_ordem": true
@@ -132,37 +136,43 @@
      "col": "reg",
      "bytes": 14900,
      "modo": "tcf",
-     "distintos": 10
+     "distintos": 10,
+     "evidencia": "outputs/D3_hierarquico__6_colunas_/reg.tcf"
     },
     {
      "col": "sub",
      "bytes": 20021,
      "modo": "dict",
-     "distintos": 10
+     "distintos": 10,
+     "evidencia": "outputs/D3_hierarquico__6_colunas_/sub.tcf"
     },
     {
      "col": "set",
      "bytes": 20021,
      "modo": "dict",
-     "distintos": 10
+     "distintos": 10,
+     "evidencia": "outputs/D3_hierarquico__6_colunas_/set.tcf"
     },
     {
      "col": "sse",
      "bytes": 20021,
      "modo": "dict",
-     "distintos": 10
+     "distintos": 10,
+     "evidencia": "outputs/D3_hierarquico__6_colunas_/sse.tcf"
     },
     {
      "col": "div",
      "bytes": 20021,
      "modo": "dict",
-     "distintos": 10
+     "distintos": 10,
+     "evidencia": "outputs/D3_hierarquico__6_colunas_/div.tcf"
     },
     {
      "col": "suf",
      "bytes": 44536,
      "modo": "dict",
-     "distintos": 911
+     "distintos": 911,
+     "evidencia": "outputs/D3_hierarquico__6_colunas_/suf.tcf"
     }
    ],
    "preserva_ordem": true
@@ -175,7 +185,8 @@
      "col": "delta",
      "bytes": 69429,
      "modo": "dict",
-     "distintos": 4847
+     "distintos": 4847,
+     "evidencia": "outputs/D4a_delta_sort__ordem_NAO_semantica_/delta.tcf"
     }
    ],
    "preserva_ordem": false
@@ -207,13 +218,15 @@
      "col": "resto",
      "bytes": 159903,
      "modo": "raw",
-     "distintos": 16334
+     "distintos": 16334,
+     "evidencia": "outputs/D5_resto_7__CRU___excecao/resto.tcf"
     },
     {
      "col": "exc",
      "bytes": 13263,
      "modo": "tcf",
-     "distintos": 3
+     "distintos": 3,
+     "evidencia": "outputs/D5_resto_7__CRU___excecao/exc.tcf"
     }
    ],
    "preserva_ordem": true
@@ -226,13 +239,15 @@
      "col": "dig",
      "bytes": 14900,
      "modo": "tcf",
-     "distintos": 10
+     "distintos": 10,
+     "evidencia": "outputs/D6_digito_como_COLUNA___resto_mascarado__sem/dig.tcf"
     },
     {
      "col": "resto",
      "bytes": 116996,
      "modo": "split",
-     "distintos": 16334
+     "distintos": 16334,
+     "evidencia": "outputs/D6_digito_como_COLUNA___resto_mascarado__sem/resto.tcf"
     }
    ],
    "preserva_ordem": true
@@ -245,13 +260,15 @@
      "col": "resto",
      "bytes": 116996,
      "modo": "split",
-     "distintos": 16334
+     "distintos": 16334,
+     "evidencia": "outputs/D5__resto_MASCARADO_NNNN-NNN___excecao__UF_/resto.tcf"
     },
     {
      "col": "exc",
      "bytes": 13263,
      "modo": "tcf",
-     "distintos": 3
+     "distintos": 3,
+     "evidencia": "outputs/D5__resto_MASCARADO_NNNN-NNN___excecao__UF_/exc.tcf"
     }
    ],
    "preserva_ordem": true

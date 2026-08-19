@@ -1,0 +1,11 @@
+{
+ "cenario": "regional (1 regiao)",
+ "estrategia": "D2 prefixo+sufixo (2 colunas)",
+ "coluna": "pre",
+ "n": 5000,
+ "distintos": 600,
+ "bytes_reportados_na_tabela": 14205,
+ "bytes_do_corpo_no_wire": 14205,
+ "modo_vencedor": "dict",
+ "roundtrip": true
+}

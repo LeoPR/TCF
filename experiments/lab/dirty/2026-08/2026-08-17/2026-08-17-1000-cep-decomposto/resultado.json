@@ -27,7 +27,8 @@
        "col": "cep",
        "bytes": 44999,
        "modo": "raw",
-       "distintos": 4970
+       "distintos": 4970,
+       "evidencia": "outputs/regional__1_regiao_/D0_opaco__8_digitos__sem_hifen_/cep.tcf"
       }
      ],
      "preserva_ordem": true
@@ -40,7 +41,8 @@
        "col": "cep",
        "bytes": 29164,
        "modo": "split",
-       "distintos": 4970
+       "distintos": 4970,
+       "evidencia": "outputs/regional__1_regiao_/D1_mascarado__o_que_o_split_ve_/cep.tcf"
       }
      ],
      "preserva_ordem": true
@@ -53,13 +55,15 @@
        "col": "pre",
        "bytes": 14205,
        "modo": "dict",
-       "distintos": 600
+       "distintos": 600,
+       "evidencia": "outputs/regional__1_regiao_/D2_prefixo_sufixo__2_colunas_/pre.tcf"
       },
       {
        "col": "suf",
        "bytes": 14930,
        "modo": "dict",
-       "distintos": 985
+       "distintos": 985,
+       "evidencia": "outputs/regional__1_regiao_/D2_prefixo_sufixo__2_colunas_/suf.tcf"
       }
      ],
      "preserva_ordem": true
@@ -72,37 +76,43 @@
        "col": "reg",
        "bytes": 9,
        "modo": "tcf",
-       "distintos": 1
+       "distintos": 1,
+       "evidencia": "outputs/regional__1_regiao_/D3_hierarquico__6_colunas_/reg.tcf"
       },
       {
        "col": "sub",
        "bytes": 5018,
        "modo": "dict",
-       "distintos": 5
+       "distintos": 5,
+       "evidencia": "outputs/regional__1_regiao_/D3_hierarquico__6_colunas_/sub.tcf"
       },
       {
        "col": "set",
        "bytes": 5015,
        "modo": "dict",
-       "distintos": 4
+       "distintos": 4,
+       "evidencia": "outputs/regional__1_regiao_/D3_hierarquico__6_colunas_/set.tcf"
       },
       {
        "col": "sse",
        "bytes": 5033,
        "modo": "dict",
-       "distintos": 10
+       "distintos": 10,
+       "evidencia": "outputs/regional__1_regiao_/D3_hierarquico__6_colunas_/sse.tcf"
       },
       {
        "col": "div",
        "bytes": 5033,
        "modo": "dict",
-       "distintos": 10
+       "distintos": 10,
+       "evidencia": "outputs/regional__1_regiao_/D3_hierarquico__6_colunas_/div.tcf"
       },
       {
        "col": "suf",
        "bytes": 14930,
        "modo": "dict",
-       "distintos": 985
+       "distintos": 985,
+       "evidencia": "outputs/regional__1_regiao_/D3_hierarquico__6_colunas_/suf.tcf"
       }
      ],
      "preserva_ordem": true
@@ -115,7 +125,8 @@
        "col": "delta",
        "bytes": 12683,
        "modo": "dict",
-       "distintos": 552
+       "distintos": 552,
+       "evidencia": "outputs/regional__1_regiao_/D4a_delta_sort__ordem_NAO_semantica_/delta.tcf"
       }
      ],
      "preserva_ordem": false
@@ -163,7 +174,8 @@
        "col": "cep",
        "bytes": 44999,
        "modo": "raw",
-       "distintos": 4989
+       "distintos": 4989,
+       "evidencia": "outputs/estadual__3_regioes_/D0_opaco__8_digitos__sem_hifen_/cep.tcf"
       }
      ],
      "preserva_ordem": true
@@ -176,7 +188,8 @@
        "col": "cep",
        "bytes": 35878,
        "modo": "split",
-       "distintos": 4989
+       "distintos": 4989,
+       "evidencia": "outputs/estadual__3_regioes_/D1_mascarado__o_que_o_split_ve_/cep.tcf"
       }
      ],
      "preserva_ordem": true
@@ -189,13 +202,15 @@
        "col": "pre",
        "bytes": 20919,
        "modo": "dict",
-       "distintos": 1559
+       "distintos": 1559,
+       "evidencia": "outputs/estadual__3_regioes_/D2_prefixo_sufixo__2_colunas_/pre.tcf"
       },
       {
        "col": "suf",
        "bytes": 14930,
        "modo": "dict",
-       "distintos": 985
+       "distintos": 985,
+       "evidencia": "outputs/estadual__3_regioes_/D2_prefixo_sufixo__2_colunas_/suf.tcf"
       }
      ],
      "preserva_ordem": true
@@ -208,37 +223,43 @@
        "col": "reg",
        "bytes": 5011,
        "modo": "dict",
-       "distintos": 3
+       "distintos": 3,
+       "evidencia": "outputs/estadual__3_regioes_/D3_hierarquico__6_colunas_/reg.tcf"
       },
       {
        "col": "sub",
        "bytes": 5030,
        "modo": "dict",
-       "distintos": 9
+       "distintos": 9,
+       "evidencia": "outputs/estadual__3_regioes_/D3_hierarquico__6_colunas_/sub.tcf"
       },
       {
        "col": "set",
        "bytes": 5033,
        "modo": "dict",
-       "distintos": 10
+       "distintos": 10,
+       "evidencia": "outputs/estadual__3_regioes_/D3_hierarquico__6_colunas_/set.tcf"
       },
       {
        "col": "sse",
        "bytes": 5033,
        "modo": "dict",
-       "distintos": 10
+       "distintos": 10,
+       "evidencia": "outputs/estadual__3_regioes_/D3_hierarquico__6_colunas_/sse.tcf"
       },
       {
        "col": "div",
        "bytes": 5033,
        "modo": "dict",
-       "distintos": 10
+       "distintos": 10,
+       "evidencia": "outputs/estadual__3_regioes_/D3_hierarquico__6_colunas_/div.tcf"
       },
       {
        "col": "suf",
        "bytes": 14930,
        "modo": "dict",
-       "distintos": 985
+       "distintos": 985,
+       "evidencia": "outputs/estadual__3_regioes_/D3_hierarquico__6_colunas_/suf.tcf"
       }
      ],
      "preserva_ordem": true
@@ -251,7 +272,8 @@
        "col": "delta",
        "bytes": 16233,
        "modo": "dict",
-       "distintos": 1189
+       "distintos": 1189,
+       "evidencia": "outputs/estadual__3_regioes_/D4a_delta_sort__ordem_NAO_semantica_/delta.tcf"
       }
      ],
      "preserva_ordem": false
@@ -299,7 +321,8 @@
        "col": "cep",
        "bytes": 44999,
        "modo": "raw",
-       "distintos": 4996
+       "distintos": 4996,
+       "evidencia": "outputs/nacional__10_regioes_/D0_opaco__8_digitos__sem_hifen_/cep.tcf"
       }
      ],
      "preserva_ordem": true
@@ -312,7 +335,8 @@
        "col": "cep",
        "bytes": 44958,
        "modo": "split",
-       "distintos": 4996
+       "distintos": 4996,
+       "evidencia": "outputs/nacional__10_regioes_/D1_mascarado__o_que_o_split_ve_/cep.tcf"
       }
      ],
      "preserva_ordem": true
@@ -325,13 +349,15 @@
        "col": "pre",
        "bytes": 29999,
        "modo": "raw",
-       "distintos": 3271
+       "distintos": 3271,
+       "evidencia": "outputs/nacional__10_regioes_/D2_prefixo_sufixo__2_colunas_/pre.tcf"
       },
       {
        "col": "suf",
        "bytes": 14930,
        "modo": "dict",
-       "distintos": 985
+       "distintos": 985,
+       "evidencia": "outputs/nacional__10_regioes_/D2_prefixo_sufixo__2_colunas_/suf.tcf"
       }
      ],
      "preserva_ordem": true
@@ -344,37 +370,43 @@
        "col": "reg",
        "bytes": 5033,
        "modo": "dict",
-       "distintos": 10
+       "distintos": 10,
+       "evidencia": "outputs/nacional__10_regioes_/D3_hierarquico__6_colunas_/reg.tcf"
       },
       {
        "col": "sub",
        "bytes": 5033,
        "modo": "dict",
-       "distintos": 10
+       "distintos": 10,
+       "evidencia": "outputs/nacional__10_regioes_/D3_hierarquico__6_colunas_/sub.tcf"
       },
       {
        "col": "set",
        "bytes": 5033,
        "modo": "dict",
-       "distintos": 10
+       "distintos": 10,
+       "evidencia": "outputs/nacional__10_regioes_/D3_hierarquico__6_colunas_/set.tcf"
       },
       {
        "col": "sse",
        "bytes": 5033,
        "modo": "dict",
-       "distintos": 10
+       "distintos": 10,
+       "evidencia": "outputs/nacional__10_regioes_/D3_hierarquico__6_colunas_/sse.tcf"
       },
       {
        "col": "div",
        "bytes": 5033,
        "modo": "dict",
-       "distintos": 10
+       "distintos": 10,
+       "evidencia": "outputs/nacional__10_regioes_/D3_hierarquico__6_colunas_/div.tcf"
       },
       {
        "col": "suf",
        "bytes": 14930,
        "modo": "dict",
-       "distintos": 985
+       "distintos": 985,
+       "evidencia": "outputs/nacional__10_regioes_/D3_hierarquico__6_colunas_/suf.tcf"
       }
      ],
      "preserva_ordem": true
@@ -387,7 +419,8 @@
        "col": "delta",
        "bytes": 21689,
        "modo": "raw",
-       "distintos": 2364
+       "distintos": 2364,
+       "evidencia": "outputs/nacional__10_regioes_/D4a_delta_sort__ordem_NAO_semantica_/delta.tcf"
       }
      ],
      "preserva_ordem": false

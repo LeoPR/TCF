@@ -1,0 +1,12 @@
+{
+ "estrategia": "D5' resto MASCARADO NNNN-NNN + excecao (UF)",
+ "coluna": "exc",
+ "n": 19988,
+ "distintos": 3,
+ "bytes_reportados_na_tabela": 13263,
+ "modo_vencedor": "tcf",
+ "bytes_do_corpo_no_wire": 13263,
+ "bytes_do_wire_inteiro": 13274,
+ "roundtrip": true,
+ "nota": "o .tcf e' um #TCF.8M de 1 coluna, decodavel pela API publica; o corpo dele e' o candidato que o min() elegeu"
+}

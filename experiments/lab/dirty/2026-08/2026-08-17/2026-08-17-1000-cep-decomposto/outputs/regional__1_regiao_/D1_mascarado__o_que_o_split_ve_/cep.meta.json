@@ -1,0 +1,11 @@
+{
+ "cenario": "regional (1 regiao)",
+ "estrategia": "D1 mascarado (o que o split ve)",
+ "coluna": "cep",
+ "n": 5000,
+ "distintos": 4970,
+ "bytes_reportados_na_tabela": 29164,
+ "bytes_do_corpo_no_wire": 29164,
+ "modo_vencedor": "split",
+ "roundtrip": true
+}

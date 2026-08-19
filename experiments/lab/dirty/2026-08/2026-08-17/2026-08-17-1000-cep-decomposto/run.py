@@ -163,6 +163,44 @@ def entropia_por_digito(ceps: list[str]) -> list[float]:
     return saida
 
 
+def _slug(s):
+    return "".join(ch if ch.isalnum() or ch in "-_" else "_" for ch in s)[:44]
+
+
+def grava_evidencia(cenario, estrategia, nome_col, vals, bytes_reportados, modo):
+    """Materializa o wire REAL da coluna e prova que decoda.
+
+    POR QUE ISTO EXISTE (revisao 2026-08-17, apontada pelo owner): este lab
+    rodou com `outputs/` VAZIO. O `min_do_M` devolve so' um COMPRIMENTO — nada
+    era materializado, entao nao havia o que auditar. Byte reportado sem wire em
+    disco e' o mesmo que nao ter medido.
+    """
+    d = OUT / _slug(cenario) / _slug(estrategia)
+    d.mkdir(parents=True, exist_ok=True)
+    tab = {nome_col: vals}
+    wire = encode(tab)
+    volta = decode(wire)
+    assert volta == tab, f"{estrategia}/{nome_col}: o wire gravado NAO decoda"
+    corpo = len(wire.split(chr(10), 1)[1].encode("utf-8"))
+    p_tcf = d / f"{_slug(nome_col)}.tcf"
+    p_tcf.write_text(wire, encoding="utf-8", newline="")
+    (d / f"{_slug(nome_col)}.roundtrip.json").write_text(
+        json.dumps(volta[nome_col][:200], ensure_ascii=False),
+        encoding="utf-8", newline="")
+    (d / f"{_slug(nome_col)}.meta.json").write_text(json.dumps({
+        "cenario": cenario, "estrategia": estrategia, "coluna": nome_col,
+        "n": len(vals), "distintos": len(set(vals)),
+        "bytes_reportados_na_tabela": bytes_reportados,
+        "bytes_do_corpo_no_wire": corpo, "modo_vencedor": modo,
+        "roundtrip": True,
+    }, ensure_ascii=False, indent=1), encoding="utf-8", newline="")
+    assert p_tcf.stat().st_size > 0
+    return p_tcf
+
+
+_CENARIO_ATUAL = [""]
+
+
 # ── as decomposicoes ───────────────────────────────────────────────────────
 def mede(rot: str, colunas: dict[str, list[str]], original: list[str],
          *, remonta=None, reordena: bool = False) -> dict:
@@ -186,8 +224,11 @@ def mede(rot: str, colunas: dict[str, list[str]], original: list[str],
     for nome, vals in colunas.items():
         b, modo = min_do_M(vals)
         total += b
+        # EVIDENCIA OBRIGATORIA: nenhum byte entra na tabela sem wire em disco.
+        pth = grava_evidencia(_CENARIO_ATUAL[0], rot, nome, vals, b, modo)
         det.append({"col": nome, "bytes": b, "modo": modo,
-                    "distintos": len(set(vals))})
+                    "distintos": len(set(vals)),
+                    "evidencia": str(pth.relative_to(AQUI)).replace(chr(92), "/")})
 
     if reordena:
         # Declarado: NAO preserva a ordem das linhas. Nao ha' o que assertar
@@ -236,6 +277,7 @@ def main() -> int:
 
     resultados = []
     for nome_cen, regs in cenarios.items():
+        _CENARIO_ATUAL[0] = nome_cen
         ceps = gera_cep_realista(random.Random(SEED), N, regioes_ativas=regs)
         assert all(len(c) == 9 and c[5] == "-" for c in ceps)
 
@@ -310,6 +352,7 @@ def main() -> int:
     print("=" * 88)
     print("O ERRO ANTERIOR: CEP uniforme vs CEP que respeita a construcao")
     print("=" * 88)
+    _CENARIO_ATUAL[0] = "contraste"
     uni = gera_cep_uniforme(random.Random(SEED), N)
     real = gera_cep_realista(random.Random(SEED), N,
                              regioes_ativas=cenarios["estadual (3 regioes)"])

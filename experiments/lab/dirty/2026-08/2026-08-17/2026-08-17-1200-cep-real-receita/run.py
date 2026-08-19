@@ -80,6 +80,51 @@ def min_do_M(vals):
     return len(bb), bm
 
 
+def _slug(s):
+    return "".join(ch if ch.isalnum() or ch in "-_" else "_" for ch in s)[:44]
+
+
+def grava_evidencia(estrategia, nome_col, vals, bytes_reportados, modo):
+    """Materializa o wire REAL da coluna e prova que ele decoda. Devolve o caminho.
+
+    POR QUE ISTO EXISTE (revisao 2026-08-17, apontada pelo owner):
+    os labs 1000 e 1200 rodaram com `outputs/` VAZIO. O `min_do_M` devolve so'
+    um COMPRIMENTO — nada era materializado, entao nao havia o que auditar.
+    Reportar byte sem deixar o wire em disco e' o mesmo que nao ter medido:
+    ninguem consegue conferir.
+
+    O que se grava e' um `.8M` de UMA coluna com os MESMOS valores — wire de
+    verdade, que o `decode` publico abre. E confere-se que o CORPO dentro dele
+    bate com o numero reportado, senao o arquivo em disco estaria provando
+    outra coisa que nao o numero da tabela.
+    """
+    d = OUT / _slug(estrategia)
+    d.mkdir(parents=True, exist_ok=True)
+    tab = {nome_col: vals}
+    wire = encode(tab)
+    volta = decode(wire)
+    assert volta == tab, f"{estrategia}/{nome_col}: o wire gravado NAO decoda de volta"
+
+    corpo = wire.split("\n", 1)[1].encode("utf-8")
+    p_tcf = d / f"{_slug(nome_col)}.tcf"
+    p_tcf.write_text(wire, encoding="utf-8", newline="")
+    (d / f"{_slug(nome_col)}.roundtrip.json").write_text(
+        json.dumps(volta[nome_col][:200], ensure_ascii=False),
+        encoding="utf-8", newline="")
+    (d / f"{_slug(nome_col)}.meta.json").write_text(json.dumps({
+        "estrategia": estrategia, "coluna": nome_col, "n": len(vals),
+        "distintos": len(set(vals)),
+        "bytes_reportados_na_tabela": bytes_reportados, "modo_vencedor": modo,
+        "bytes_do_corpo_no_wire": len(corpo),
+        "bytes_do_wire_inteiro": B(wire),
+        "roundtrip": True,
+        "nota": "o .tcf e' um #TCF.8M de 1 coluna, decodavel pela API publica; "
+                "o corpo dele e' o candidato que o min() elegeu",
+    }, ensure_ascii=False, indent=1), encoding="utf-8", newline="")
+    assert p_tcf.exists() and p_tcf.stat().st_size > 0, "evidencia vazia"
+    return p_tcf
+
+
 def mede(rot, colunas, original, *, remonta=None, reordena=False,
          remonta_conjunto=None):
     """Soma os bytes E PROVA que o original volta. A guarda e' o ponto.
@@ -98,7 +143,11 @@ def mede(rot, colunas, original, *, remonta=None, reordena=False,
     for nome, vals in colunas.items():
         b, modo = min_do_M(vals)
         total += b
-        det.append({"col": nome, "bytes": b, "modo": modo, "distintos": len(set(vals))})
+        # EVIDENCIA OBRIGATORIA: nenhum byte entra na tabela sem o wire em disco.
+        p = grava_evidencia(rot, nome, vals, b, modo)
+        det.append({"col": nome, "bytes": b, "modo": modo,
+                    "distintos": len(set(vals)),
+                    "evidencia": str(p.relative_to(AQUI)).replace("\\", "/")})
     if reordena:
         assert remonta is None, f"{rot}: reordena=True e remonta= sao exclusivos"
         assert remonta_conjunto is not None, (
@@ -257,7 +306,19 @@ def main():
     (IN / "amostra.json").write_text(
         json.dumps([{"cep": c, "uf": u} for c, u in pares[:50]], ensure_ascii=False),
         encoding="utf-8", newline="")
+    (IN / "cep_uf_completo.json").write_text(
+        json.dumps([{"cep": c, "uf": u} for c, u in pares], ensure_ascii=False),
+        encoding="utf-8", newline="")
+
+    # ── PORTAO FINAL: o lab nao "passa" sem evidencia em disco ──
+    n_tcf = len(list(OUT.rglob("*.tcf")))
+    n_rt = len(list(OUT.rglob("*.roundtrip.json")))
+    n_cols = sum(len(e["colunas"]) for e in ests if "evidencia" in e["colunas"][0])
+    assert n_tcf >= n_cols and n_rt >= n_cols, (
+        f"EVIDENCIA INCOMPLETA: {n_tcf} .tcf e {n_rt} roundtrips para {n_cols} colunas")
     print(f"\n-> {AQUI / 'resultado.json'}")
+    print(f"-> evidencia: {n_tcf} wires .tcf + {n_rt} roundtrips em {OUT.name}/ "
+          f"({sum(f.stat().st_size for f in OUT.rglob('*'))/1024:.0f} KB)")
     return 0
 
 
