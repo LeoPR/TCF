@@ -1,0 +1,241 @@
+{
+ "fonte": "Receita Federal, dado aberto (perfil enderecos), 200k linhas",
+ "coleta": "Shaper: ShapeRequest(volume=20000, seed=42, stratify_by='uf')",
+ "mix_declarado": {
+  "SP": 5922,
+  "MG": 2091,
+  "RJ": 1580,
+  "PR": 1454,
+  "RS": 1209,
+  "SC": 1182,
+  "BA": 886,
+  "GO": 838,
+  "PE": 568,
+  "CE": 545,
+  "MT": 438,
+  "ES": 425,
+  "PA": 384,
+  "DF": 381,
+  "MS": 268,
+  "PB": 257,
+  "MA": 252,
+  "AM": 244,
+  "RN": 219,
+  "AL": 186,
+  "PI": 156,
+  "SE": 132,
+  "TO": 128,
+  "RO": 125,
+  "AC": 39,
+  "RR": 38,
+  "AP": 37,
+  "EX": 4
+ },
+ "n_valido": 19988,
+ "distintos": 17367,
+ "entropia_por_digito": [
+  3.236,
+  3.258,
+  3.268,
+  3.281,
+  2.895,
+  2.698,
+  3.028,
+  1.969
+ ],
+ "d5_ufs_deterministicas": [
+  "AC",
+  "AL",
+  "AM",
+  "AP",
+  "BA",
+  "CE",
+  "DF",
+  "ES",
+  "EX",
+  "GO",
+  "MA",
+  "MG",
+  "MS",
+  "MT",
+  "PA",
+  "PB",
+  "PE",
+  "PI",
+  "PR",
+  "RJ",
+  "RN",
+  "RO",
+  "RR",
+  "RS",
+  "SC",
+  "SE",
+  "TO"
+ ],
+ "d5_ufs_ambiguas": {
+  "SP": [
+   "0",
+   "1"
+  ]
+ },
+ "estrategias": [
+  {
+   "estrategia": "D0 opaco (8 digitos, como a Receita entrega)",
+   "bytes": 179891,
+   "colunas": [
+    {
+     "col": "cep",
+     "bytes": 179891,
+     "modo": "raw",
+     "distintos": 17367
+    }
+   ],
+   "preserva_ordem": true
+  },
+  {
+   "estrategia": "D1 mascarado NNNNN-NNN",
+   "bytes": 164493,
+   "colunas": [
+    {
+     "col": "cep",
+     "bytes": 164493,
+     "modo": "split",
+     "distintos": 17367
+    }
+   ],
+   "preserva_ordem": true
+  },
+  {
+   "estrategia": "D2 prefixo+sufixo",
+   "bytes": 164463,
+   "colunas": [
+    {
+     "col": "pre",
+     "bytes": 119927,
+     "modo": "raw",
+     "distintos": 9950
+    },
+    {
+     "col": "suf",
+     "bytes": 44536,
+     "modo": "dict",
+     "distintos": 911
+    }
+   ],
+   "preserva_ordem": true
+  },
+  {
+   "estrategia": "D3 hierarquico (6 colunas)",
+   "bytes": 139520,
+   "colunas": [
+    {
+     "col": "reg",
+     "bytes": 14900,
+     "modo": "tcf",
+     "distintos": 10
+    },
+    {
+     "col": "sub",
+     "bytes": 20021,
+     "modo": "dict",
+     "distintos": 10
+    },
+    {
+     "col": "set",
+     "bytes": 20021,
+     "modo": "dict",
+     "distintos": 10
+    },
+    {
+     "col": "sse",
+     "bytes": 20021,
+     "modo": "dict",
+     "distintos": 10
+    },
+    {
+     "col": "div",
+     "bytes": 20021,
+     "modo": "dict",
+     "distintos": 10
+    },
+    {
+     "col": "suf",
+     "bytes": 44536,
+     "modo": "dict",
+     "distintos": 911
+    }
+   ],
+   "preserva_ordem": true
+  },
+  {
+   "estrategia": "D4a delta+sort (ordem NAO semantica)",
+   "bytes": 69429,
+   "colunas": [
+    {
+     "col": "delta",
+     "bytes": 69429,
+     "modo": "dict",
+     "distintos": 4847
+    }
+   ],
+   "preserva_ordem": false
+  },
+  {
+   "estrategia": "D4b idem + permutacao (ordem semantica)",
+   "bytes": 101521,
+   "preserva_ordem": true,
+   "colunas": [
+    {
+     "col": "delta",
+     "bytes": 69429,
+     "modo": "dict",
+     "distintos": 4847
+    },
+    {
+     "col": "<permutacao log2(n!) PISO>",
+     "bytes": 32092,
+     "modo": "-",
+     "distintos": 0
+    }
+   ]
+  },
+  {
+   "estrategia": "D5 resto(7) CRU + excecao",
+   "bytes": 173166,
+   "colunas": [
+    {
+     "col": "resto",
+     "bytes": 159903,
+     "modo": "raw",
+     "distintos": 16334
+    },
+    {
+     "col": "exc",
+     "bytes": 13263,
+     "modo": "tcf",
+     "distintos": 3
+    }
+   ],
+   "preserva_ordem": true
+  },
+  {
+   "estrategia": "D5' resto MASCARADO NNNN-NNN + excecao",
+   "bytes": 130259,
+   "colunas": [
+    {
+     "col": "resto",
+     "bytes": 116996,
+     "modo": "split",
+     "distintos": 16334
+    },
+    {
+     "col": "exc",
+     "bytes": 13263,
+     "modo": "tcf",
+     "distintos": 3
+    }
+   ],
+   "preserva_ordem": true
+  }
+ ]
+}

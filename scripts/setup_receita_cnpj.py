@@ -79,26 +79,87 @@ RAW_COLUMNS = [
 ]
 _IDX = {name: i for i, name in enumerate(RAW_COLUMNS)}
 
-# Projected columns we keep (the dataset we actually publish).
-COLUMNS = {
-    "cnpj":             {"type": "string", "nullable": False,
-                         "note": "Masked NN.NNN.NNN/NNNN-DD assembled from basico+ordem+dv; nature='cnpj' target"},
-    "matriz_filial":    {"type": "string", "nullable": False,
-                         "note": "1=matriz, 2=filial"},
-    "nome_fantasia":    {"type": "string", "nullable": True,
-                         "note": "Trade name (real free text); empty for many rows"},
-    "situacao":         {"type": "string", "nullable": False,
-                         "note": "Situacao cadastral code (01..08), low-card"},
-    "data_inicio":      {"type": "string", "nullable": True,
-                         "note": "Activity start date, raw YYYYMMDD (0 means missing)"},
-    "cnae_principal":   {"type": "string", "nullable": True,
-                         "note": "Primary CNAE code (7 digits)"},
-    "uf":               {"type": "string", "nullable": True,
-                         "note": "State 2-letter code"},
-    "municipio_cod":    {"type": "string", "nullable": True,
-                         "note": "Receita municipality code (NOT the IBGE code)"},
+# ── PERFIS de projecao (2026-08-17) ───────────────────────────────────────
+# A fonte tem 30 colunas (RAW_COLUMNS). A projecao original guardava 8 e
+# DESCARTAVA cep/bairro/ddd/telefone — colunas de endereco e telefone REAIS
+# que so' existem aqui (nao ha' CEP em nenhum outro dataset local).
+#
+# O perfil `core` e' EXATAMENTE o que o script sempre produziu. NAO mudar:
+# tests/test_nature_compete.py e os scripts/bench_evidencia_f4* medem em cima
+# do dataset `receita-cnpj`, e mexer nele moveria dado sob os pes deles.
+#
+# O perfil `enderecos` acrescenta as colunas descartadas e escreve num dataset
+# SEPARADO (`receita-cnpj-enderecos`), por decisao do owner (2026-08-17):
+# substituir o canonico seria mudar baseline alheio sem necessidade.
+
+def _bruto(nome_raw):
+    """Le' uma coluna crua pelo nome do layout da Receita."""
+    return lambda r: r[_IDX[nome_raw]].strip()
+
+
+def _cnpj_montado(r):
+    """CNPJ mascarado, montado de basico+ordem+dv. Devolve None se malformado."""
+    return _format_cnpj(r[_IDX["cnpj_basico"]], r[_IDX["cnpj_ordem"]], r[_IDX["cnpj_dv"]])
+
+
+# (nome_de_saida, construtor, metadados) — a ORDEM define o header do CSV.
+_CAMPOS_CORE = [
+    ("cnpj", _cnpj_montado,
+     {"type": "string", "nullable": False,
+      "note": "Masked NN.NNN.NNN/NNNN-DD assembled from basico+ordem+dv; nature='cnpj' target"}),
+    ("matriz_filial", _bruto("identificador_matriz_filial"),
+     {"type": "string", "nullable": False, "note": "1=matriz, 2=filial"}),
+    ("nome_fantasia", _bruto("nome_fantasia"),
+     {"type": "string", "nullable": True,
+      "note": "Trade name (real free text); empty for many rows"}),
+    ("situacao", _bruto("situacao_cadastral"),
+     {"type": "string", "nullable": False,
+      "note": "Situacao cadastral code (01..08), low-card"}),
+    ("data_inicio", _bruto("data_inicio_atividade"),
+     {"type": "string", "nullable": True,
+      "note": "Activity start date, raw YYYYMMDD (0 means missing)"}),
+    ("cnae_principal", _bruto("cnae_fiscal"),
+     {"type": "string", "nullable": True, "note": "Primary CNAE code (7 digits)"}),
+    ("uf", _bruto("uf"),
+     {"type": "string", "nullable": True, "note": "State 2-letter code"}),
+    ("municipio_cod", _bruto("municipio"),
+     {"type": "string", "nullable": True,
+      "note": "Receita municipality code (NOT the IBGE code)"}),
+]
+
+_CAMPOS_ENDERECO = [
+    ("cep", _bruto("cep"),
+     {"type": "string", "nullable": True,
+      "note": "CEP CRU, 8 digitos SEM mascara (a fonte nao mascara). Estrutura: "
+              "digito 1=regiao postal, 2=sub-regiao, 3=setor, 4=subsetor, "
+              "5=divisor, 6-8=sufixo (000-899 logradouro, 900+ especiais)"}),
+    ("bairro", _bruto("bairro"),
+     {"type": "string", "nullable": True, "note": "Neighbourhood, free text"}),
+    ("ddd_1", _bruto("ddd_1"),
+     {"type": "string", "nullable": True, "note": "Area code, 2 digits, low-card"}),
+    ("telefone_1", _bruto("telefone_1"),
+     {"type": "string", "nullable": True,
+      "note": "Phone WITHOUT area code, 8-9 digits, no mask"}),
+]
+
+PERFIS = {
+    "core": ("receita-cnpj", _CAMPOS_CORE),
+    "enderecos": ("receita-cnpj-enderecos", _CAMPOS_CORE + _CAMPOS_ENDERECO),
 }
+
+_CAMPOS = _CAMPOS_CORE
+COLUMNS = {nome: meta for nome, _b, meta in _CAMPOS}
 SCHEMA = {TABLE: {"pk": ["cnpj"], "fk": {}, "columns": COLUMNS}}
+
+
+def set_perfil(nome: str) -> None:
+    """Ativa um perfil de projecao. `core` (default) preserva o comportamento historico."""
+    global DATASET, _CAMPOS, COLUMNS, SCHEMA
+    if nome not in PERFIS:
+        raise SystemExit(f"perfil desconhecido: {nome!r} (use {sorted(PERFIS)})")
+    DATASET, _CAMPOS = PERFIS[nome]
+    COLUMNS = {n: meta for n, _b, meta in _CAMPOS}
+    SCHEMA = {TABLE: {"pk": ["cnpj"], "fk": {}, "columns": COLUMNS}}
 
 
 def _format_cnpj(basico: str, ordem: str, dv: str) -> str | None:
@@ -219,24 +280,17 @@ def download_zip(part: int, period: str | None, verbose: bool = True) -> Path:
 
 
 def _project_row(raw_row: list[str]):
-    """Map one 30-col raw establishments row -> (out_row, is_compressible) or None."""
+    """Mapeia uma linha crua de 30 colunas -> (out_row, is_compressible) ou None.
+
+    Orientado pelo PERFIL ativo (`_CAMPOS`), nao mais por uma lista fixa — foi
+    assim que cep/ddd/telefone puderam entrar sem duplicar o script.
+    """
     if len(raw_row) < len(RAW_COLUMNS):
         return None
-    cnpj = _format_cnpj(raw_row[_IDX["cnpj_basico"]],
-                        raw_row[_IDX["cnpj_ordem"]],
-                        raw_row[_IDX["cnpj_dv"]])
+    cnpj = _cnpj_montado(raw_row)
     if cnpj is None:
         return None
-    out_row = [
-        cnpj,
-        raw_row[_IDX["identificador_matriz_filial"]].strip(),
-        raw_row[_IDX["nome_fantasia"]].strip(),
-        raw_row[_IDX["situacao_cadastral"]].strip(),
-        raw_row[_IDX["data_inicio_atividade"]].strip(),
-        raw_row[_IDX["cnae_fiscal"]].strip(),
-        raw_row[_IDX["uf"]].strip(),
-        raw_row[_IDX["municipio"]].strip(),
-    ]
+    out_row = [cnpj] + [construtor(raw_row) for _n, construtor, _m in _CAMPOS[1:]]
     return out_row, (SPEC_CNPJ.classify_value(cnpj) == "compressible")
 
 
@@ -430,7 +484,15 @@ def main():
                     help="download the whole ~2GB part to disk instead of streaming")
     ap.add_argument("--cap-mb", type=int, default=120,
                     help="streaming download cap in MB (default 120; raise if rows fall short)")
+    ap.add_argument("--profile", default="core", choices=sorted(PERFIS),
+                    help="projecao de colunas: core (8, historico) | "
+                         "enderecos (12, + cep/bairro/ddd/telefone, dataset separado)")
     args = ap.parse_args()
+
+    set_perfil(args.profile)
+    if args.profile != "core":
+        print(f"[receita] perfil={args.profile} -> dataset {DATASET} "
+              f"({len(COLUMNS)} colunas). O dataset core NAO e' tocado.")
 
     ensure_dirs()
     if args.list:
