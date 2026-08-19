@@ -80,12 +80,19 @@ def min_do_M(vals):
     return len(bb), bm
 
 
-def mede(rot, colunas, original, *, remonta=None, reordena=False):
+def mede(rot, colunas, original, *, remonta=None, reordena=False,
+         remonta_conjunto=None):
     """Soma os bytes E PROVA que o original volta. A guarda e' o ponto.
 
-    Herdada do lab 1000 apos o incidente do D4: quem chama tem de declarar a
-    algebra. `remonta` reconstroi posicao a posicao; `reordena=True` permuta
-    linha (contrato de CONJUNTO, nao de sequencia).
+    Herdada do lab 1000 apos o incidente do D4 — e CORRIGIDA na revisao
+    2026-08-17: a primeira copia deste harness DEGRADOU a guarda do ramo
+    `reordena=True` (o lab 1000 validava o CONJUNTO via `_remonta_conjunto`;
+    a copia trocou por um `assert remonta is None`, que nao valida NADA).
+    Guardas nao sobrevivem a copia — por isso o ramo agora EXIGE
+    `remonta_conjunto` e compara os multiconjuntos.
+
+    `remonta` reconstroi posicao a posicao; `reordena=True` permuta linha
+    (contrato de CONJUNTO, nao de sequencia).
     """
     total, det = 0, []
     for nome, vals in colunas.items():
@@ -93,7 +100,11 @@ def mede(rot, colunas, original, *, remonta=None, reordena=False):
         total += b
         det.append({"col": nome, "bytes": b, "modo": modo, "distintos": len(set(vals))})
     if reordena:
-        assert remonta is None
+        assert remonta is None, f"{rot}: reordena=True e remonta= sao exclusivos"
+        assert remonta_conjunto is not None, (
+            f"{rot}: reordena=True exige `remonta_conjunto` — sem ele o ramo nao valida nada")
+        assert sorted(remonta_conjunto(colunas)) == sorted(original), (
+            f"{rot}: nem como CONJUNTO o original volta")
     else:
         assert remonta is not None, f"{rot}: declare `remonta` ou `reordena=True`"
         volta = remonta(colunas)
@@ -158,8 +169,15 @@ def main():
     ordenado = sorted(ceps)
     deltas = [ordenado[0]] + [str(int(ordenado[i]) - int(ordenado[i - 1]))
                               for i in range(1, n)]
+    def _desfaz_delta(k):
+        acum, saida = int(k["delta"][0]), [k["delta"][0].zfill(8)]
+        for x in k["delta"][1:]:
+            acum += int(x)
+            saida.append(f"{acum:08d}")
+        return saida
+
     d4 = mede("D4a delta+sort (ordem NAO semantica)", {"delta": deltas}, ceps,
-              reordena=True)
+              reordena=True, remonta_conjunto=_desfaz_delta)
     ests.append(d4)
     perm = int(math.lgamma(n + 1) / math.log(2) / 8)
     ests.append({"estrategia": "D4b idem + permutacao (ordem semantica)",
@@ -191,15 +209,31 @@ def main():
                      remonta=lambda k: [(e if e else mapa[u]) + rr
                                         for rr, e, u in zip(k["resto"], k["exc"], ufs)]))
 
-    # D5' — a MESMA derivacao, PRESERVANDO A MASCARA.
-    # A diferenca entre os dois nao e' a derivacao: e' que o D5 ingenuo destroi a
-    # estrutura posicional que o `split` explorava (medido: o modo cai de `split`
-    # pra `raw`). Manter o hifen mantem o split vivo — e ai' a derivacao paga.
+    # D6 — CONTROLE DE ATRIBUICAO (revisao 2026-08-17). O D5' mistura DOIS
+    # mecanismos: (a) separar o 1o digito preservando a mascara do resto, e
+    # (b) derivar esse digito da UF. Sem este controle, o -20,8% seria
+    # atribuido inteiro a' "redundancia entre colunas" — a mesma classe de
+    # meia-atribuicao que derrubou a conclusao do lab 0800 (mix vs mecanismo).
+    # O D6 faz SO' o (a): o digito vira coluna propria, sem UF nenhuma.
+    # D5' - D6 = o que a derivacao pela UF REALMENTE vale.
     resto_m = [f"{c[1:5]}-{c[5:]}" for c in ceps]
-    ests.append(mede("D5' resto MASCARADO NNNN-NNN + excecao",
+    ests.append(mede("D6 digito como COLUNA + resto mascarado (sem UF)",
+                     {"dig": [c[0] for c in ceps], "resto": resto_m}, ceps,
+                     remonta=lambda k: [d + rr.replace("-", "")
+                                        for d, rr in zip(k["dig"], k["resto"])]))
+
+    # D5' — a MESMA derivacao, PRESERVANDO A MASCARA.
+    # A diferenca entre D5 e D5' nao e' a derivacao: e' que o D5 ingenuo destroi
+    # a estrutura posicional que o `split` explorava (medido: o modo cai de
+    # `split` pra `raw`). Manter o hifen mantem o split vivo.
+    # CUSTO NAO CONTADO NAS COLUNAS: o mapa UF->digito (27 pares) teria de
+    # viajar ou ser tabela fixa do formato; ~100 B, declarado abaixo.
+    ests.append(mede("D5' resto MASCARADO NNNN-NNN + excecao (UF)",
                      {"resto": resto_m, "exc": excecao}, ceps,
                      remonta=lambda k: [(e if e else mapa[u]) + rr.replace("-", "")
                                         for rr, e, u in zip(k["resto"], k["exc"], ufs)]))
+    custo_mapa = B("\n".join(f"{u}{d}" for u, d in sorted(mapa.items())))
+    print(f"\nATRIBUICAO do D5' (mapa UF->digito custaria ~{custo_mapa} B, nao contado):")
 
     base = next(e for e in ests if e["estrategia"].startswith("D1"))["bytes"]
     print(f"\n{'estrategia':44} {'bytes':>9} {'B/val':>7} {'vs D1':>8} {'ordem':>6}  modos")

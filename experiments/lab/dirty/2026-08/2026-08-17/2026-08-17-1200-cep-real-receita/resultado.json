@@ -219,7 +219,26 @@
    "preserva_ordem": true
   },
   {
-   "estrategia": "D5' resto MASCARADO NNNN-NNN + excecao",
+   "estrategia": "D6 digito como COLUNA + resto mascarado (sem UF)",
+   "bytes": 131896,
+   "colunas": [
+    {
+     "col": "dig",
+     "bytes": 14900,
+     "modo": "tcf",
+     "distintos": 10
+    },
+    {
+     "col": "resto",
+     "bytes": 116996,
+     "modo": "split",
+     "distintos": 16334
+    }
+   ],
+   "preserva_ordem": true
+  },
+  {
+   "estrategia": "D5' resto MASCARADO NNNN-NNN + excecao (UF)",
    "bytes": 130259,
    "colunas": [
     {

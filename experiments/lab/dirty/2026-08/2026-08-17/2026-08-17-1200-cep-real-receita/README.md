@@ -61,7 +61,8 @@ Baseline **D1** = a grafia mascarada, que é o que o `split` explora.
 | **D4a delta+sort** | **69 429** | **3,47** | **−57,8%** | **NÃO** | `dict` |
 | D4b idem + permutação | 101 521 | 5,08 | −38,3% | sim | `dict` |
 | D5 resto(7) **cru** + exceção | 173 166 | 8,66 | +5,3% | sim | `raw`,`tcf` |
-| **D5′ resto MASCARADO + exceção** | **130 259** | **6,52** | **−20,8%** | sim | `split`,`tcf` |
+| **D6 dígito como COLUNA + resto mascarado (sem UF)** | **131 896** | 6,60 | **−19,8%** | sim | `tcf`,`split` |
+| D5′ resto MASCARADO + exceção (UF) | 130 259 | 6,52 | −20,8% | sim | `split`,`tcf` |
 
 ### As duas inversões
 
@@ -81,6 +82,24 @@ D5' resto NNNN-NNN       116 996 B   modo=split   <- máscara preservada, split 
 Ao remover o 1º dígito eu entreguei sete dígitos crus e **matei o `split`**. Preservando o
 hífen, a mesma derivação vira **−20,8%, preservando a ordem**.
 
+### A atribuição — corrigida pelo controle D6 (revisão)
+
+O D5′ mistura **dois** mecanismos: (a) separar o 1º dígito preservando a máscara do resto, e
+(b) derivar esse dígito da UF. O controle D6 faz **só o (a)** — o dígito vira coluna própria,
+sem UF nenhuma:
+
+```
+D6  dígito como coluna + resto NNNN-NNN (sem UF)   131 896 B   −19,8%
+D5' exceção derivada da UF                         130 259 B   −20,8%
+                                     derivação UF =   1 637 B   −1,0 pp  (e pagaria ~107 B de mapa)
+```
+
+**A derivação pela UF vale 1,0 pp, não 20,8.** O ganho real é do (a): **reestruturação
+dentro da própria coluna** — separar o dígito de região faz os restos de 4 dígitos colidirem
+entre regiões (`0 1310…` e `3 1310…` compartilham o resto `1310`), multiplicando a repetição
+que o `split`+`dict` exploram. Sem o D6 eu teria repetido a classe de erro do lab 0800:
+atribuir ao mecanismo o que é do arranjo.
+
 ### O D5 medido, não suposto
 
 **27 de 28 UFs têm região única** — a única ambígua é **SP** (regiões `0` e `1`, capital e
@@ -90,9 +109,11 @@ interior), que é justamente 29,6% das linhas. A coluna de exceção custa 13 26
 
 1. **O empacotamento de raiz continua sendo a estratégia errada** para CEP: D0 = **+9,4%**
    contra o `split`. Confirmado agora em dado real.
-2. **D5′ é o achado acionável**: **−20,8%, preserva a ordem, e não é nature** — é
-   redundância entre colunas (`uf` → 1º dígito do CEP), mecanismo que o TCF **não explora
-   hoje**. Depende de a tabela ter a coluna UF ao lado, o que é comum em cadastro.
+2. **O achado acionável é o D6, não o D5′**: **−19,8%, preserva a ordem, e mora dentro da
+   própria coluna** — separar o dígito de região e manter a máscara no resto. Não precisa de
+   UF ao lado, não precisa de mapa, não cria dependência entre colunas. A redundância
+   `uf` → 1º dígito **existe e está medida** (27/28 UFs determinísticas), mas acrescenta só
+   **1,0 pp** por cima do D6 — cross-coluna fica registrado como direção, não como achado.
 3. **D4a segue o maior ganho** (−57,8%), mas exige `sort_by` e **não preserva a ordem das
    linhas** — decisão de quem usa, não do formato.
 4. **D3 passou a valer** em base nacional (−15,2%).
@@ -117,3 +138,22 @@ interior), que é justamente 29,6% das linhas. A coluna de exceção custa 13 26
 - Levantamento: [`notas/2026-08-17-0900`](../../../notas/2026-08/2026-08-17-0900-o-que-falta-pro-8-e-cep-telefone.md)
 - Estrutura: [Correios — Tudo sobre CEP](https://www.correios.com.br/enviar/precisa-de-ajuda/imagens/tudo-sobre-cep)
 - Coleta: `src/shaper/` · Fonte: `scripts/setup_receita_cnpj.py --profile enderecos`
+
+---
+
+## Revisão (2026-08-17, mesmo dia)
+
+Pedida pelo owner antes de seguir pro telefone. Dois defeitos reais, os dois consertados:
+
+1. **A guarda degradou na cópia.** O `mede()` do lab 1000 validava o ramo `reordena=True`
+   contra o **conjunto** (`_remonta_conjunto`); a cópia deste lab trocou isso por
+   `assert remonta is None` — que não valida nada. O D4a de 20k valores rodou sem prova.
+   Consertado: o ramo agora **exige** `remonta_conjunto` e compara os multiconjuntos; o
+   D4a passa com a reconstrução do delta. Lição: **guarda não sobrevive a cópia** — ela
+   tem de falhar quando falta, não quando lembrada.
+2. **O D5′ estava superatribuído.** Sem o controle D6, os −20,8% iam inteiros pra conta da
+   "redundância entre colunas". Medido o controle: **19,8 pp são da reestruturação
+   dentro da coluna; 1,0 pp é da UF**. A conclusão do lab foi reescrita (§atribuição).
+
+O que a revisão **não** mudou: os bytes de D0–D5 (idênticos após religar a guarda), a
+inversão da entropia (sufixo, não prefixo), a inversão do D3, e as lacunas declaradas.
