@@ -4,6 +4,23 @@
 
 ---
 
+## 0. O PROPÓSITO (corrigido pelo owner, 2026-08-17)
+
+> *"lembre também que não é pelos bytes, é pela redundância."*
+
+Esta nota nasceu com o enquadramento errado — mediu byte e concluiu "0,08%, não vale".
+**O critério do projeto não é byte, é redundância.** Corrigido abaixo (§2-bis).
+
+**O propósito do `split` não é comprimir. É EXPOR redundância que a concatenação escondia.**
+Em `123.45` o `.45` se repete entre linhas, mas está **colado** no `123` — nenhum mecanismo
+enxerga a repetição, e o valor *parece* único quando não é. O split **descola**, e aí a
+redundância fica alcançável pelo eliminador (o `dict`).
+
+O split **não elimina nada**: ele reorganiza para que o que já era redundante **possa** ser
+eliminado. Os 19,39% do ADR-0026 são consequência, não objetivo.
+
+---
+
 ## 1. Qual era a teoria do `split`?
 
 Fonte: [ADR-0026](../../../../docs/adr/0026-structural-split-weld.md) (accepted 2026-06-14),
@@ -82,21 +99,28 @@ Por coluna, exemplos:
 | `orders.o_orderdate` | 6 254 | 16 | 0,26% |
 | `cep mascarado` | 164 493 | 13 | 0,01% |
 
-### O veredito honesto
+### 2-bis. O veredito — pelo critério certo
 
-**Está certo que dá pra tirar, e está errado esperar ganho de byte.** São **0,08%** no agregado
-— e a razão é estrutural: o custo é **fixo por coluna** (7 B + ~3 B por campo), enquanto o slot
-cresce com `n`. Só aparece em coluna **curta**: 3,30% no `InvoiceDate` (940 B), 0,01% no CEP
-(164 KB).
+A tabela de bytes acima **não é o argumento**. Ela responde "quanto pesa", e a pergunta é
+**"é redundante?"**.
 
-Isso o põe exatamente na diretriz do
-[foco byte-a-byte em payload minúsculo](../../../../ROADMAP.md) — onde 3% de uma coluna de
-940 B importa — e **fora** de qualquer argumento de compressão em volume.
+**É redundância de 100%.** O `#TCF.8M` e os nomes `c0..c{nf-1}` são **função pura do contexto**:
+a fronteira já vem do `ntmpl`, o `nf` já vem do template. Não são *pouca* redundância — são
+redundância **total**, e o peso em bytes não muda a natureza disso.
 
-**O argumento mais forte não é byte, é coerência de formato**: um sub-table que se re-anuncia
-com a assinatura do formato inteiro contradiz a materialização minimal (*"grava só o
-estritamente necessário, o resto deduz"*). O mesmo raciocínio que fez o `#TCF.8M` perder o
-espaço antes do `M` (ADR-0029, ~2 B/multi).
+E há uma ironia estrutural: **é exatamente o que o `split` existe para combater**, dentro do
+próprio slot do `split`. O mecanismo que descola valores para expor repetição emite, a cada
+coluna, uma assinatura que se repete e é dedutível de graça.
+
+Os 0,08% servem para **dimensionar a prioridade**, não para decidir o mérito. Traduzido:
+- **mérito**: redundância pura → sai. Decidido pelo critério, não pela balança.
+- **prioridade**: como o custo é fixo por coluna e o slot cresce com `n`, o efeito concentra em
+  payload **curto** — 3,30% no `InvoiceDate` (940 B) contra 0,01% no CEP (164 KB). Isso o
+  coloca na diretriz de **payload minúsculo**, não em compressão de volume.
+
+Precedente do mesmo raciocínio: o `#TCF.8M` perdeu o espaço antes do `M`
+([ADR-0029](../../../../docs/adr/0029-version-format-identification-semi-implicit.md)) por
+~2 B/multi — ninguém defendeu aquilo em nome do byte.
 
 ### O que eu **não** medi
 
