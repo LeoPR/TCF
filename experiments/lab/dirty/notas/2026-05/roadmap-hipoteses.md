@@ -577,8 +577,16 @@ preocupacao com "um IF bem grande em vez de reaproveitar tudo que ja' esta' pron
 | H-13-03 | Encoder streaming pro split: nucleo encoda a coluna como esta' enquanto avaliador PARALELO acumula evidencia de template estavel e decide o momento de parar e forkar em N colunas (esboco do owner). Questoes abertas: o que fazer com o prefixo ja' emitido (re-emitir? fronteira de pulso? — conecta contrato-externalizado/encode em pulsos) | aberta | candidata a lab proprio |
 | H-13-04 | Spec/dica pre-declarada de template (spec orienta, nao manda) dispensa o gate global batch: coluna com dica valida por VALOR e nao bufferiza | aberta | candidata a lab proprio; conecta ADR-0041 (spec id) |
 
+| H-13-05 | O grupo e' um COMBINADOR da mesma familia do `.8H` (`{` aninha · `#:[` conta · `?:` mascara · `\|…\|` CONCATENA) — logo o `.8H` ganha o efeito do split ESTRUTURALMENTE, sem slot de modo na folha | **confirmada-empirica em MOCK** | lab `2026-08-17-1700`: decomposto e ORTOGONAL ao candidato — A (raw/dict) -3,0 a -14,0% · B (GRUPO isolado) **-11,7 a -25,4%**; B > A em 3 de 4 casos. Decoder reusa `_decode_raw_body`/`_decode_v2b`/`decode`; o combinador e' 1 linha |
+| H-13-06 | Composicao grupo x mascara (`?:`) e grupo x array (`#:[`) — um grupo dentro de array exige que os N campos compartilhem a contagem | aberta | NAO testada no mock 1700 (classe reduzida: objetos aninhados de folhas string). Primeira dificuldade esperada |
+
 Alvo: **.9** (reorganizacao logica/legibilidade pro port; muda wire de toda coluna split
 -> re-pina D17a/real-world com ADR). NAO abrir weld agora.
+
+**Nota de convergencia (2026-08-17)**: o H-13-05 amarra este pacote ao gap do `.8H` medido no
+lab `2026-08-17-0400` (+23,0%, 100% explicado pelo candidato unico). Sao DUAS rotas para o
+mesmo gap — slot de modo na folha (a que eu propus) vs combinador de grupo (a do owner) — e a
+medicao mostra que **nao competem**: uma abre candidatos, a outra muda a estrutura da folha.
 
 ## Estrategia de mistura
 
