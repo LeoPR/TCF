@@ -1,0 +1,96 @@
+[
+ {
+  "caso": "c1-decimal",
+  "n": 24,
+  "atual": 137,
+  "grupo": 121,
+  "delta": -16,
+  "modo_atual": "%",
+  "plano_fatias": [
+   [
+    "@",
+    0,
+    52
+   ],
+   [
+    "@",
+    52,
+    null
+   ]
+  ],
+  "rt_mock": true
+ },
+ {
+  "caso": "c2-data-iso",
+  "n": 24,
+  "atual": 130,
+  "grupo": 109,
+  "delta": -21,
+  "modo_atual": "%",
+  "plano_fatias": [
+   [
+    "",
+    0,
+    10
+   ],
+   [
+    "",
+    10,
+    40
+   ],
+   [
+    "@",
+    40,
+    null
+   ]
+  ],
+  "rt_mock": true
+ },
+ {
+  "caso": "c6-telefone",
+  "n": 24,
+  "atual": 334,
+  "grupo": 313,
+  "delta": -21,
+  "modo_atual": "%",
+  "plano_fatias": [
+   [
+    "",
+    0,
+    14
+   ],
+   [
+    "!",
+    14,
+    157
+   ],
+   [
+    "!",
+    157,
+    null
+   ]
+  ],
+  "rt_mock": true
+ },
+ {
+  "caso": "cep-real",
+  "n": 19988,
+  "atual": 164510,
+  "grupo": 164494,
+  "delta": -16,
+  "modo_atual": "%",
+  "plano_fatias": [
+   [
+    "!",
+    0,
+    119927
+   ],
+   [
+    "@",
+    119927,
+    null
+   ]
+  ],
+  "rt_mock": true
+ }
+]

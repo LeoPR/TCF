@@ -563,6 +563,23 @@ Detalhe + tabelas (DAG, cortes, custo de compressao, indices, in-file vs sidecar
 
 ---
 
+## Pacote 13 — Split como GRUPO no meta (registrado 2026-08-17, alvo .9)
+
+Origem: critica arquitetural do owner ao reestudar o split (2026-08-17): *"nao faz
+sentido criar um #TCF no meio... e' mais facil pensar que sao realmente duas colunas,
+so' que indicar algo no header pra dizer que as duas sao um grupo de uma coluna so'"*;
+preocupacao com "um IF bem grande em vez de reaproveitar tudo que ja' esta' pronto".
+
+| ID | Hipotese | Status | Evidencia |
+|---|---|---|---|
+| H-13-01 | Campos do split como colunas REAIS do meta com marca de grupo (`&<nf><template>=<nome>` + nf colunas anonimas) eliminam a recursao (#TCF.8M aninhado, sub-header, moldura ntmpl, nomes c0..cN) sem perder byte | **confirmada-empirica em MOCK** (dirty) | lab `2026-08-17-1600-split-como-grupo-no-meta`: RT nos 2 formatos, grupo MENOR em 4/4 casos (-16 a -21 B), decoder do mock reusa `_decode_raw_body`/`_decode_v2b`/`decode` sem primitiva nova |
+| H-13-02 | A forma-grupo destrava fatiamento por CAMPO na linha 1 (view/decode paralelo alcancam os campos; hoje o slot e' caixa-preta — view.py:232,:438 "exige decode"/"cai em fallback") | confirmada-conceitual (plano de fatias demonstrado no mock; view nao foi ligada nele) | mesmo lab |
+| H-13-03 | Encoder streaming pro split: nucleo encoda a coluna como esta' enquanto avaliador PARALELO acumula evidencia de template estavel e decide o momento de parar e forkar em N colunas (esboco do owner). Questoes abertas: o que fazer com o prefixo ja' emitido (re-emitir? fronteira de pulso? — conecta contrato-externalizado/encode em pulsos) | aberta | candidata a lab proprio |
+| H-13-04 | Spec/dica pre-declarada de template (spec orienta, nao manda) dispensa o gate global batch: coluna com dica valida por VALOR e nao bufferiza | aberta | candidata a lab proprio; conecta ADR-0041 (spec id) |
+
+Alvo: **.9** (reorganizacao logica/legibilidade pro port; muda wire de toda coluna split
+-> re-pina D17a/real-world com ADR). NAO abrir weld agora.
+
 ## Estrategia de mistura
 
 **Antes de misturar, esgotar isoladas dentro de cada pacote.**
