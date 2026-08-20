@@ -1,0 +1,156 @@
+[
+ {
+  "caso": "B1",
+  "desc": "2 niveis, 1 registro",
+  "niveis": 2,
+  "agrupou": true,
+  "motivo": null,
+  "H_real": 48,
+  "sem": 61,
+  "com": 79,
+  "rt_H": true,
+  "rt_sem": true,
+  "rt_com": true,
+  "F1": false,
+  "F2": false,
+  "F4": false,
+  "ultima_entrada": "item.c1:!",
+  "counts_sem": {
+   "count": 1,
+   "count1": 3
+  },
+  "counts_com": {
+   "count": 1,
+   "count1": 3
+  }
+ },
+ {
+  "caso": "B2",
+  "desc": "2 niveis, 2 registros",
+  "niveis": 2,
+  "agrupou": true,
+  "motivo": null,
+  "H_real": 69,
+  "sem": 76,
+  "com": 94,
+  "rt_H": true,
+  "rt_sem": true,
+  "rt_com": true,
+  "F1": false,
+  "F2": false,
+  "F4": false,
+  "ultima_entrada": "item.c1:!",
+  "counts_sem": {
+   "count": 3,
+   "count1": 5
+  },
+  "counts_com": {
+   "count": 3,
+   "count1": 5
+  }
+ },
+ {
+  "caso": "B3",
+  "desc": "2 niveis, sub-array VAZIO",
+  "niveis": 2,
+  "agrupou": true,
+  "motivo": null,
+  "H_real": 40,
+  "sem": 55,
+  "com": 73,
+  "rt_H": true,
+  "rt_sem": true,
+  "rt_com": true,
+  "F1": false,
+  "F2": false,
+  "F4": false,
+  "ultima_entrada": "item.c1:!",
+  "counts_sem": {
+   "count": 1,
+   "count1": 3
+  },
+  "counts_com": {
+   "count": 1,
+   "count1": 3
+  }
+ },
+ {
+  "caso": "B4",
+  "desc": "3 NIVEIS (count/count1/count2)",
+  "niveis": 3,
+  "agrupou": true,
+  "motivo": null,
+  "H_real": 58,
+  "sem": 76,
+  "com": 94,
+  "rt_H": true,
+  "rt_sem": true,
+  "rt_com": true,
+  "F1": false,
+  "F2": false,
+  "F4": false,
+  "ultima_entrada": "item.c1:!",
+  "counts_sem": {
+   "count": 1,
+   "count1": 3,
+   "count2": 3
+  },
+  "counts_com": {
+   "count": 1,
+   "count1": 3,
+   "count2": 3
+  }
+ },
+ {
+  "caso": "B5",
+  "desc": "3 niveis, 2 registros, data ISO (3 campos)",
+  "niveis": 3,
+  "agrupou": true,
+  "motivo": null,
+  "H_real": 90,
+  "sem": 114,
+  "com": 129,
+  "rt_H": true,
+  "rt_sem": true,
+  "rt_com": true,
+  "F1": false,
+  "F2": false,
+  "F4": false,
+  "ultima_entrada": "item.c2:!",
+  "counts_sem": {
+   "count": 3,
+   "count1": 5,
+   "count2": 5
+  },
+  "counts_com": {
+   "count": 3,
+   "count1": 5,
+   "count2": 5
+  }
+ },
+ {
+  "caso": "B6",
+  "desc": "2 niveis, template nao-uniforme (gate)",
+  "niveis": 2,
+  "agrupou": false,
+  "motivo": "template nao-uniforme em '1.234,56'",
+  "H_real": 46,
+  "sem": 60,
+  "com": 60,
+  "rt_H": true,
+  "rt_sem": true,
+  "rt_com": true,
+  "F1": false,
+  "F2": false,
+  "F4": false,
+  "ultima_entrada": "item:!",
+  "counts_sem": {
+   "count": 1,
+   "count1": 3
+  },
+  "counts_com": {
+   "count": 1,
+   "count1": 3
+  }
+ }
+]

@@ -581,7 +581,8 @@ preocupacao com "um IF bem grande em vez de reaproveitar tudo que ja' esta' pron
 | H-13-07 | O CORPO do grupo e' BYTE-IDENTICO ao de N colunas independentes num `.8M` comum; a unica diferenca do wire e' o MARCADOR no cabecalho (9-11 B, CONSTANTE em n) | **confirmada-empirica em MOCK, 4/4** | lab `2026-08-17-1800`: comparado contra o `encode` PUBLICO. Trabalho real que sobra = (1) tecnica do split [ja' existe], (2) o marcador [unico item novo], (3) a juncao no decode [1 linha] |
 | H-13-08 | As duas perspectivas do owner — (a) multi-col + indicador de juncao, (b) hierarquia de uma coluna com N dentro — produzem o MESMO corpo; a escolha e' de GRAMATICA do meta, nao de mecanismo (logo pode ser adiada sem custo de arquitetura) | **confirmada-empirica em MOCK, 4/4** | mesmo lab; RT nas duas com o MESMO decoder generico |
 | H-13-06 | **CONFIRMADA-EMPIRICA EM MOCK 2026-08-17**: a composicao grupo x array e' ORTOGONAL — `count`, `emask` e mascara de campo ficam BYTE-IDENTICOS; so' a coluna de ITENS vira N colunas | **confirmada-empirica (mock)** | lab `2026-08-17-2100`: 9 casos, F1=0 F2=0 F3=0, RT 9/9. As 3 recusas do gate (A4 todos-vazios, A8 nao-uniforme, A9 item-unico) sao LIMPAS. Premissa antiga ("os N campos compartilham a contagem") era ERRADA. NAO exercitado: F4 (ordem DFS/ultima-sem-size), A7 (array-em-array), e GANHO (o lab mede composicao, nao byte) |
-| H-13-11 | Array-EM-array com grupo na folha (A7 do plano) — counts encaixados por nivel, grupo no nivel mais fundo | aberta | unico caso do plano `2000` nao executado; o mock do `2100` cobre 1 nivel so' |
+| H-13-11 | **CONFIRMADA-EMPIRICA EM MOCK 2026-08-17**: array-EM-array com grupo na folha — as contagens de TODOS os niveis (`count`/`count1`/`count2`) ficam byte-identicas | **confirmada-empirica (mock)** | lab `2026-08-17-2200`: 6 casos ate' 3 niveis, F1=0 F2=0 F4=0, RT 6/6 |
+| H-13-12 | **F4 FECHA**: com N colunas de grupo, a ULTIMA das N omite o size e o decode fatia ate' EOF — a regra "ultima coluna omite size" nao precisou de excecao | **confirmada-empirica (mock)** | mesmo lab: ultima entrada `item.c1:!` (2 campos) / `item.c2:!` (3 campos) |
 
 | H-13-09 | PREVALENCIA: o split VENCE em 20,2% das colunas do corpus (40/198) e responde por 15,3% dos bytes — nao e' mecanismo de nicho | **confirmada-empirica** | lab `2026-08-17-1900` (Shaper, 24 tabelas/9 datasets, seed=42, vol=4000). Ordem: tcf 59 cols/59,4% · split 40/15,3% · dict 77/12,9% · raw 22/12,4% |
 | H-13-10 | O ganho de BYTE do grupo no `.8M` e' desprezivel (-0,024% do corpus; -18 a -53 B por coluna, CONSTANTE em n) — mas sem regressao em 100% das colunas medidas | **confirmada-empirica** | mesmo lab. Consequencia: o argumento do grupo NAO e' byte no `.8M`; e' (a) o `.8H` ganhar split estruturalmente (-11,7 a -25,4%, lab 1700), (b) view/paralelo alcancarem os campos, (c) sumir redundancia de 100% |
@@ -590,6 +591,13 @@ preocupacao com "um IF bem grande em vez de reaproveitar tudo que ja' esta' pron
 para de embrulhar; marcador no meta = unico item novo; juncao = 1 linha) sobre 7 mecanismos
 reusados sem tocar. O caro e' o RE-PIN: muda 40/198 colunas e 15,3% dos bytes -> D17a e
 real-world mudam, exige ADR (ADR-0024 git-as-compat).
+
+**ESTADO DO PACOTE (2026-08-17, fim do dia)**: o plano de `notas/2026-08-17-2000` esta'
+FECHADO — A1-A10 (lab 2100) e A7+F4 (lab 2200). Confirmadas em mock: H-13-01, 02, 05, 07,
+08, 09, 10, 06, 11, 12. NENHUMA falsificacao disparou em 15 casos. Seguem ABERTAS: H-13-03
+(encode streaming c/ avaliador paralelo), H-13-04 (dica/spec de template), F5 (o gate real
+e' global? o mock e' global por construcao), e o GANHO no contexto de array (os labs 2100/
+2200 medem COMPOSICAO, nao byte — datasets de 1-4 registros).
 
 **Recomendacao registrada**: `.9`, e pelo `.8H` PRIMEIRO. Como o corpo e' identico nas duas
 gramaticas (H-13-08), da' pra soldar o combinador no `.8H` e decidir depois se o `.8M` migra,
