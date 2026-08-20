@@ -310,12 +310,24 @@ def main():
         json.dumps([{"cep": c, "uf": u} for c, u in pares], ensure_ascii=False),
         encoding="utf-8", newline="")
 
-    # ── PORTAO FINAL: o lab nao "passa" sem evidencia em disco ──
-    n_tcf = len(list(OUT.rglob("*.tcf")))
-    n_rt = len(list(OUT.rglob("*.roundtrip.json")))
-    n_cols = sum(len(e["colunas"]) for e in ests if "evidencia" in e["colunas"][0])
-    assert n_tcf >= n_cols and n_rt >= n_cols, (
-        f"EVIDENCIA INCOMPLETA: {n_tcf} .tcf e {n_rt} roundtrips para {n_cols} colunas")
+    # ── PORTAO FINAL: evidencia COMPLETA e sem ORFAO ──
+    # A 1a versao so' checava `>=`, e por isso deixou passar uma pasta `teste-ok/`
+    # que um teste meu do proprio portao escreveu aqui dentro (achada pelo owner).
+    # Evidencia orfa e' pior que evidencia faltando: parece medicao e nao esta' em
+    # relatorio nenhum. Agora o portao exige correspondencia EXATA com o que a
+    # tabela reporta.
+    esperados = {e["colunas"][0].get("evidencia") and
+                 (AQUI / c["evidencia"]).resolve()
+                 for e in ests for c in e["colunas"] if "evidencia" in c}
+    esperados = {p for p in esperados if p}
+    achados = {p.resolve() for p in OUT.rglob("*.tcf")}
+    orfaos = achados - esperados
+    faltando = esperados - achados
+    assert not faltando, f"EVIDENCIA FALTANDO: {sorted(str(p.name) for p in faltando)}"
+    assert not orfaos, (
+        "EVIDENCIA ORFA (arquivo em outputs/ que nenhuma linha da tabela reporta): "
+        f"{sorted(str(p.relative_to(OUT)) for p in orfaos)}")
+    n_tcf, n_rt = len(achados), len(list(OUT.rglob("*.roundtrip.json")))
     print(f"\n-> {AQUI / 'resultado.json'}")
     print(f"-> evidencia: {n_tcf} wires .tcf + {n_rt} roundtrips em {OUT.name}/ "
           f"({sum(f.stat().st_size for f in OUT.rglob('*'))/1024:.0f} KB)")

@@ -157,3 +157,21 @@ Pedida pelo owner antes de seguir pro telefone. Dois defeitos reais, os dois con
 
 O que a revisão **não** mudou: os bytes de D0–D5 (idênticos após religar a guarda), a
 inversão da entropia (sufixo, não prefixo), a inversão do D3, e as lacunas declaradas.
+
+### Nota de leitura — por que alguns `.tcf` têm **dois** `#TCF.8` dentro
+
+Achado pelo owner ao abrir a evidência. **É design, não defeito.** O modo `split` (V2-C,
+[ADR-0026](../../../../../docs/adr/0026-structural-split-weld.md)) quebra a coluna pela máscara
+e recomprime os campos resultantes como um **multi-col aninhado** — `split.py:8` descreve o
+slot como *"template_blob + field_subtable (`#TCF.8M` — recursa em `_encode_multi`)"*.
+
+Medido nos wires deste lab:
+
+```
+#TCF.8M!cep     modo=raw     '#TCF.8' x1
+#TCF.8M%cep     modo=split   '#TCF.8' x2   <- o sub-table dos campos
+#TCF.8M@delta   modo=dict    '#TCF.8' x1
+```
+
+**Só o `split` aninha**, e o wire fecha o round-trip normalmente (19 988 valores, verificado).
+O `%` na posição do modo é o que sinaliza.
