@@ -1,0 +1,32 @@
+=== BASELINE .8 (nucleo) — 103 celulas medidas · ruido run-a-run ~±5% (piloto) ===
+
+1) ORDEM DE GRANDEZA (encode):
+       us:  2 celulas
+       ms: 53 celulas
+    100ms: 37 celulas
+       s+: 11 celulas
+
+2) PONTOS QUENTES (top 10 por tempo de encode):
+      34.62s  tcf-flat|synth|flat-mixed|cantoRC-both|call|serial+t1|-|none|cytho
+      14.83s  tcf-flat|synth|free-text|R1e5|call|serial+t1|-|none|pure
+      13.30s  tcf-flat|synth|free-text|R1e5|layer|serial+t1|-|none|cython
+       3.97s  tcf-flat|synth|flat-mixed|R1e5|call|serial+t1|-|none|pure
+       3.81s  tcf-flat|synth|flat-mixed|R1e5|layer|serial+t1|-|none|cython
+       3.69s  tcf-flat|synth|flat-mixed|R1e5|candidate|serial+t1|fallback=False|
+       3.68s  tcf-flat|synth|flat-mixed|R1e5|call|serial+t1|-|none|cython
+       2.78s  tcf-flat|synth|flat-mixed|C128|call|serial+t1|-|none|cython
+       1.72s  json-ref-str|synth|flat-mixed|cantoRC-both|call|serial+t1|-|none|c
+       1.72s  tcf-flat|synth|flat-mixed|L512|call|serial+t1|-|none|cython
+
+3) ESCALA encode vs R (linhas) — slope log-log (~1=linear, >1=super-linear=alvo .9):
+   json-ref-nested nested-array slope~1.06 [LINEAR]   1k:1.5ms 10k:17.6ms
+   json-ref-nested nested-object slope~1.03 [LINEAR]   1k:2.1ms 10k:23.1ms
+   json-ref-nested nested-optional slope~1.03 [LINEAR]   1k:1.7ms 10k:17.8ms
+   json-ref-str  flat-mixed  slope~1.47 [super-linear]   100:65.5us 100:175.3us 100:5.0ms 1k:1.9ms 2k:1.3ms 2k:7.2ms 2k:29.2ms 2k:115.9ms 10k:13.3ms 10k:18.4ms 10k:19.1ms 10k:19.1ms 10k:21.0ms 10k:42.4ms 10k:133.3ms 100k:72.4ms 100k:216.1ms 100k:1.72s
+   tcf-8h        nested-array slope~1.15 [LINEAR]   1k:24.0ms 10k:341.5ms
+   tcf-8h        nested-object slope~1.11 [LINEAR]   1k:30.0ms 10k:382.9ms
+   tcf-8h        nested-optional slope~1.03 [LINEAR]   1k:28.0ms 10k:302.6ms
+   tcf-flat      flat-mixed  slope~1.47 [super-linear]   100:1.4ms 100:4.4ms 100:150.3ms 1k:44.1ms 1k:45.7ms 2k:16.5ms 2k:135.4ms 2k:685.5ms 2k:2.78s 10k:182.7ms 10k:278.6ms 10k:384.1ms 10k:451.2ms 10k:460.5ms 10k:471.0ms 10k:474.1ms 10k:476.5ms 10k:480.2ms 10k:483.7ms 10k:484.3ms 10k:488.9ms 10k:504.2ms 10k:698.2ms 10k:1.25s 10k:1.72s 100k:904.2ms 100k:3.68s 100k:3.97s 100k:34.62s
+   tcf-flat      free-text   slope~1.23 [super-linear]   1k:51.2ms 10k:401.3ms 10k:525.4ms 100k:14.83s
+
+Nota: numeros aproximados (±~5% run-a-run). Extremos/cross-tech/precisao -> .9/1.0.

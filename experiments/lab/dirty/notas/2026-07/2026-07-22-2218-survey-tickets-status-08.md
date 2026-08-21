@@ -27,7 +27,7 @@ pré-requisitos de capacidade estão FECHADOS: TCF.8H welded + contratos de bord
 | F2 (2b) | 29 casos RT controle (`evidencia-0.8/f2/`) | ✅ FEITO |
 | F3 (2c) | sintéticos + curva de escala (amostral; população → janela pós-release) | ~ AMOSTRAL |
 | F4-mínimo (2d) | 9 casos nos hubs reais (RT 9/9); **achado**: nature CNPJ PIORA em receita real | ~ FEITO (mínimo) |
-| **perf-baseline** | grandeza + hot-spots + escala (linear O(n); penhasco cantoRC 75x) — 2026-07-22 | ✅ FEITO (novo; alimenta F6) |
+| **perf-baseline** | grandeza + hot-spots + escala (linear O(n); ~~penhasco cantoRC 75x~~ — **REFUTADO 2026-08-20**: o canto tem 80× as células da base; o eixo quente é cardinalidade, ver [lab `2330`](../../2026-08/2026-08-20/2026-08-20-2330-baseline-perf-08-probatoria/)) — 2026-07-22 | ✅ FEITO (novo; alimenta F6) |
 | **F5 (2e)** | otimização extra | ⏸ NO-ACTION (default; só se telemetria apontar blocker) |
 | **F6 (2f)** | **README EN/PT com números MEDIDOS** (embarca na wheel; hoje mostra 0.7.1/#TCF.7 stale) + re-build wheel + clean-room smoke | ⬜ PENDENTE |
 | **C3 (2g)** | bump 0.7.1→0.8.0 + CHANGELOG + tag v0.8.0 + Trusted Publishing | ⬜ PENDENTE (GO do owner) |

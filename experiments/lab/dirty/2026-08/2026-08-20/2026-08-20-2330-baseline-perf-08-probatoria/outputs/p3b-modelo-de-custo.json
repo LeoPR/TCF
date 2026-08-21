@@ -1,0 +1,18 @@
+{
+ "perf-nucleo-2026-07-22": {
+  "a_ns_por_celula": 7698,
+  "b_ns_por_byte": 97.49,
+  "c_ns_por_unico": 30717,
+  "R2": 0.99957,
+  "residuo_canto_pct": 0.29,
+  "n": 20
+ },
+ "perf-nucleo-2026-08-20": {
+  "a_ns_por_celula": 6322,
+  "b_ns_por_byte": 66.92,
+  "c_ns_por_unico": 23289,
+  "R2": 0.99956,
+  "residuo_canto_pct": 0.25,
+  "n": 20
+ }
+}

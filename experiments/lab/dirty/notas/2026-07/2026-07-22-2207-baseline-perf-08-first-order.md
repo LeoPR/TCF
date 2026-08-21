@@ -66,6 +66,33 @@ extremo**. `cantoRC-both` = 44.6s vs base(10k) 595ms = **~75×**. É o **penhasc
 OBAT**: degeneração do índice de trigramas quando há muitos prefixos parecidos
 (o mesmo O(n²/B) diagnosticado antes nos IPs).
 
+> ### ⚠ REFUTADO em 2026-08-20 — o canto R×C não é penhasco
+>
+> A rodada probatória repetiu a medida e a leitura acima **não se sustenta**. `base` tem
+> **40 000 células**; `cantoRC-both` tem **3 200 000** — **80×**. Comparar 44,6 s com 595 ms
+> é comparar tempo absoluto de casos com **volumes diferentes**.
+>
+> | | 22/07 | 20/08 |
+> |---|---:|---:|
+> | tempo canto ÷ base | 74,9× | 76,7× |
+> | células canto ÷ base | 80,0× | 80,0× |
+> | **ns/célula do canto ÷ mediana dos demais** | **1,02×** | **1,00×** |
+> | resíduo no modelo `t = a·células + b·bytes + c·únicos` (R²=0,9996) | **+0,3%** | **+0,2%** |
+>
+> 80× de trabalho em 75× de tempo é *sub*-linear, e o canto é o caso **mais bem previsto**
+> do conjunto. O **mecanismo** apontado aqui (índice do OBAT) continua de pé — o que estava
+> errado era o **gatilho**: o coeficiente por **valor ÚNICO** é ~3,7× o coeficiente por
+> célula, e domina quando a cardinalidade é alta. O eixo quente é **cardinalidade e
+> comprimento de valor** (`L512` ≈3,8× a mediana por célula, `K1` ≈2,9×, `K0001` ≈0,42×),
+> e a super-linearidade reproduzível em R está no **`free-text`** (slope 1,21–1,23 nas duas
+> rodadas), não no `flat-mixed`.
+>
+> Consequência para o item 2 da "Leitura pro `.9`" logo abaixo: o alvo não é o canto R×C —
+> é o **termo por valor único**. A escada de prefixo adaptativa (P1) continua sendo a
+> resposta plausível, mas o caso a bater é `K1`/`free-text`, não `cantoRC-both`.
+>
+> Lab: [`2026-08-20-2330`](../../2026-08/2026-08-20/2026-08-20-2330-baseline-perf-08-probatoria/).
+
 ## Leitura pro `.9`
 
 1. **Row-scaling já é O(n)** — o `.9` não precisa "consertar" crescimento por linhas.

@@ -43,11 +43,29 @@ python -m bench_perf.compare --self <run>.jsonl    # auto-teste: tudo IGUAL, fat
 
 ## Fluxo `.8` → `.9` (a razão do processo existir)
 
-1. `.8`: baseline versionado em [`evidencia-0.8/perf-baseline/perf-nucleo-2026-07-22.jsonl`](../../experiments/results/evidencia-0.8/perf-baseline/) (`accepted-first-order`).
+1. `.8`: baseline versionado em [`evidencia-0.8/perf-baseline/`](../../experiments/results/evidencia-0.8/perf-baseline/).
+   Use **`perf-nucleo-2026-08-20.jsonl`** (rodada PROBATÓRIA, `6f04f3ae`); a de 22/07 é histórica.
 2. `.9`: rodar `--plan nucleo` na mesma máquina/estado → `perf-nucleo-<.9>.jsonl`.
 3. `compare.py baseline candidato` → veredito por célula. **Mesmo `plano_sha` + `intencao`** obrigatório
-   (o comparador recusa cadências diferentes). O achado do `.8` a bater: o penhasco `cantoRC` (~75×)
-   deve cair (encode já é linear por linhas; o `.9` ataca o canto R×C).
+   (o comparador recusa cadências diferentes). O achado do `.8` a bater: **o coeficiente por valor
+   ÚNICO** (~23 µs/único vs ~6 µs/célula) e o `free-text` em R≥1e5.
+   ~~o penhasco `cantoRC` (~75×)~~ — **essa leitura foi REFUTADA em 2026-08-20**: o canto tem 80× as
+   células da base, custa 1,00–1,02× o custo unitário mediano e o modelo linear o prevê com resíduo
+   +0,2%. Não há penhasco ali. Ver [lab `2330`](../../experiments/lab/dirty/2026-08/2026-08-20/2026-08-20-2330-baseline-perf-08-probatoria/).
+
+### ⚠ Higiene pendente do comparador (2 itens, nenhum toca `src/tcf`)
+
+1. **`_adj` vs adjudicação** — `compare.py` interpreta só `runner_thermal_status`; consumir a
+   adjudicação vigente é pendência antiga (ver README do snapshot).
+2. **Os calibradores não representam o workload** (achado 2026-08-20). C1/C2/C3 são laços
+   apertados de aritmética/hash/alloc; o trabalho real é construção de string e dicionário — e
+   eles não escalam juntos. Medido entre 22/07 e 20/08: os calibradores dizem que a máquina fez
+   **0,830** do trabalho; os caminhos de **referência** (stdlib, código idêntico nas duas rodadas,
+   39 células) dizem **0,968**. O fator do calibrador **fabrica +16,6% de "regressão"** em cima de
+   todo caso — foi o que produziu um falso `37 PIOR × 8 MELHOR`.
+   **Conserto proposto**: normalizar pelos caminhos de referência, que **já estão no plano** —
+   ou, melhor ainda, reportar a razão `tcf ÷ referência` *dentro* de cada rodada, em que a máquina
+   cancela por construção e não há fator nenhum a estimar.
 
 ## Componentes
 
