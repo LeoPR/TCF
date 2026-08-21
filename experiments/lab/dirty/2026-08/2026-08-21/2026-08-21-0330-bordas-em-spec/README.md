@@ -1,5 +1,14 @@
 # 2026-08-21-0330 — bordas em valor de spec: a reavaliação em 4 eixos
 
+> ## ⚑ SOLDADO 2026-08-21 — [ADR-0045](../../../../../../docs/adr/0045-bordas-em-valor-de-spec.md)
+>
+> O owner aprovou as três peças. Foram para `src/tcf`: **(1)** o vazamento fechado (`$`→`\Z`
+> nas 3 regex, 0 divergência de byte em 9 012 valores); **(2)** o status `format_bordered`
+> (bytes idênticos, telemetria acionável) — nos **dois** tipos de spec, templated-checked e
+> templated-padded. **(3)** A postura *lazy* NÃO foi soldada: segue como estudo `.9`.
+>
+> Suíte 1304 → **1307**; gates byte-canônicos intactos.
+
 Reavaliação do **H-15-07** a pedido do owner, que reenquadrou o problema:
 
 > *"nesse caso é similar a se comportar como um trim de bordas, quando tem espaços por exemplo
@@ -9,7 +18,8 @@ Reavaliação do **H-15-07** a pedido do owner, que reenquadrou o problema:
 > construtor [...] o comum é o dado entrar OK [...] tratar apenas o comum, e o incomum a gente
 > tolera perda de performance e emissões de warning."*
 
-**Nada foi soldado.** É reavaliação para decisão.
+**Quando este lab foi escrito, nada estava soldado** — era reavaliação para decisão. As três
+peças foram aprovadas no mesmo dia; o banner acima diz o que virou código e o que não.
 
 ---
 
@@ -23,15 +33,18 @@ de borda apareceu algo que não é sobre o meu teste:
 | nada | `compressible` | ok |
 | espaço à esquerda / direita / nos dois | `format_mismatch` | ok |
 | tab à direita | `format_mismatch` | ok |
-| **LF à direita** | **`compressible`** | **PERDE** |
+| **LF à direita** ⟵ *o defeito* | **`compressible`** | **PERDE** |
 | CR à direita | `format_mismatch` | ok |
 | CRLF à direita | `format_mismatch` | ok |
 | LF duplo | `format_mismatch` | ok |
 | LF à esquerda | `format_mismatch` | ok |
 
+> A tabela acima é o estado **PRÉ-weld**. Depois do ADR-0045 a linha do LF virou
+> `format_bordered` com RT ok, como as outras nove.
+
 **O TCF não faz trim nenhum** — 9 das 10 bordas caem em literal com o roundtrip intacto. A
-única exceção é um **vazamento acidental** do `$` da regex, que em Python casa também antes de
-*um* LF final.
+única exceção era um **vazamento acidental** do `$` da regex, que em Python casa também antes
+de *um* LF final.
 
 Então a pergunta certa não é "devemos fazer trim?". É: **hoje existe um trim invisível, mudo,
 de exatamente um caractere, que ninguém escolheu.** Qualquer que seja a política adotada, essa
@@ -107,18 +120,21 @@ exatamente para nomear **variante reconhecível que não comprime**.
 
 ## Recomendação — três peças separáveis, em ordem de custo
 
+*(Foi o que eu propus; as três foram aprovadas. 1 e 2 viraram código, 3 continua estudo `.9` —
+ver o banner no topo.)*
+
 **1. Fechar o vazamento (`$` → `\Z`).** Não escolhe postura nenhuma; só torna o comportamento
 **uniforme**: toda borda → literal, RT sempre correto. Medido: resolve 6/6 dos casos que
 perdiam e custa **0 divergência de byte** em 9 012 valores sem borda. Toca 3 specs
-(`_CPF_RE`, `_CNPJ_RE`, `_IPV4_RE`) — **precisa da sua aprovação**.
+(`_CPF_RE`, `_CNPJ_RE`, `_IPV4_RE`). **✔ soldado.**
 
 **2. Rótulo de status próprio para borda** (ex.: `format_bordered`). Bytes idênticos — continua
 literal —, muda só a telemetria, que passa a ser acionável. Segue a taxonomia existente. É o
-"warning" que você descreveu, no canal que já existe.
+"warning" que você descreveu, no canal que já existe. **✔ soldado**, nos dois tipos de spec.
 
 **3. Postura lazy (comprimir + restaurar a borda).** Ganha ~10 B/valor sobre o literal e
 preserva o RT, mas é **gramática nova** → estudo `.9`. Só vale a pena se a prevalência real
-justificar; hoje ela é zero no armazenado.
+justificar; hoje ela é zero no armazenado. **✘ não soldado** — segue estudo.
 
 **O que eu não recomendaria**: adotar o trim preguiçoso como política. Ele é 13 B mais barato
 que o literal, mas o preço é o roundtrip byte-canônico — e o projeto já tratou essa classe

@@ -1318,6 +1318,51 @@ class TestCnpjAlfanumerico:
                       alfabeto_compacto=None, encoded_length_compacto=0)
         assert sem.alfabeto_compacto is None
 
+    # --- ADR-0045: bordas -------------------------------------------------
+    def test_lf_final_nao_e_mais_engolido(self):
+        """O `$` da regex casava ANTES de um LF final; o filtro de simbolos
+        descartava o LF e o valor voltava SEM ele — RT quebrado, silencioso.
+        Trocado por `\Z`. Atingia CPF, CNPJ e IP nao-padded; `data-iso` escapava
+        por checar o comprimento."""
+        from tcf.natures import SPEC_IP
+
+        for spec, base in ((SPEC_CPF, "529.982.247-25"),
+                           (SPEC_CNPJ, "11.222.333/0001-81"),
+                           (SPEC_CNPJ, "12.ABC.345/01DE-35"),
+                           (SPEC_IP, "192.168.0.1")):
+            v = base + chr(10)
+            payload, _ = encode_value(spec, v)
+            assert payload == MARKER_LITERAL + v, (spec.name, base)
+            assert decode_value(spec, payload) == v, (spec.name, base)
+
+    def test_format_bordered_e_um_rotulo_acionavel(self):
+        """Borda NAO comprime (trim mudaria o dado; o RT byte-canonical e'
+        constituicao) — mas ganha rotulo proprio, porque `format_mismatch` diz
+        'nao reconheco essa forma' e isto diz 'o dado esta' certo, o pipeline a
+        montante e' que esta' sujo'. Os BYTES sao os mesmos dos dois jeitos."""
+        from tcf.natures import SPEC_IP
+
+        LF, TAB = chr(10), chr(9)
+        bordados = ["  11.222.333/0001-81  ", "11.222.333/0001-81" + TAB,
+                    "11.222.333/0001-81" + LF, LF + "11.222.333/0001-81"]
+        for v in bordados:
+            assert classify_value(SPEC_CNPJ, v) == "format_bordered", v
+            payload, status = encode_value(SPEC_CNPJ, v)
+            assert status == "format_bordered"
+            assert payload == MARKER_LITERAL + v      # BYTE de literal, como antes
+            assert decode_value(SPEC_CNPJ, payload) == v
+        # o rotulo vale para os DOIS tipos de spec
+        assert classify_value(SPEC_IP, " 192.168.0.1 ") == "format_bordered"
+        assert classify_value(SPEC_CPF, " 529.982.247-25 ") == "format_bordered"
+
+    def test_format_bordered_e_ESTREITO(self):
+        """So' e' `format_bordered` o que vira COMPRESSIVEL depois do trim. Lixo
+        com borda continua `format_mismatch`; DV errado continua `check_invalid`."""
+        assert classify_value(SPEC_CNPJ, "  lixo  ") == "format_mismatch"
+        assert classify_value(SPEC_CNPJ, "  11.222.333/0001-99  ") == "format_mismatch"
+        assert classify_value(SPEC_CNPJ, "11.222.333/0001-99") == "check_invalid"
+        assert classify_value(SPEC_CNPJ, "11.222.333/0001-81") == "compressible"
+
     # --- o CONTRATO do alfabeto (fail-loud no __post_init__) ---------------
     def test_alfabeto_invalido_falha_alto(self):
 

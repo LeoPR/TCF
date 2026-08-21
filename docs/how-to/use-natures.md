@@ -67,7 +67,10 @@ assert cpfs_back == cpfs  # round-trip sem perdas
 - O encoder classifica cada valor:
   - `compressible`: CPF válido, codificado no alfabeto seguro atual (5 caracteres)
   - `check_invalid`: dígito verificador errado, guardado como literal
-  - `format_mismatch`: formato diferente (ex.: sem máscara), guardado como literal
+  - `format_unmasked`: os dígitos certos, sem a máscara — literal
+  - **`format_bordered`**: o valor é válido, só tem **espaço/tab/quebra de linha nas
+    pontas** — literal (ADR-0045)
+  - `format_mismatch`: formato diferente, guardado como literal
 
 Exemplos de classificação:
 
@@ -77,8 +80,20 @@ from tcf.natures import classify_value, SPEC_CPF
 classify_value(SPEC_CPF, '111.444.777-35')   # 'compressible'
 classify_value(SPEC_CPF, '111.444.777-99')   # 'check_invalid' (dígito errado)
 classify_value(SPEC_CPF, '11144477735')      # 'format_unmasked' (sem máscara)
+classify_value(SPEC_CPF, ' 111.444.777-35 ') # 'format_bordered' (só precisa de trim)
 classify_value(SPEC_CPF, '111-444-777-35')   # 'format_mismatch' (separadores errados)
 ```
+
+**Por que `format_bordered` existe** ([ADR-0045](../adr/0045-bordas-em-valor-de-spec.md)): um
+valor com borda **não é comprimido** — fazer trim mudaria o dado, e o round-trip byte a byte é
+constituição do formato. Mas ele merece rótulo próprio porque `format_mismatch` diz "não
+reconheço essa forma" e este diz outra coisa, **acionável**: *o dado está certo, o pipeline a
+montante é que está sujo*. Os bytes emitidos são os mesmos (literal) — muda só a telemetria,
+que você lê em `SideOutputs.nature_apply.by_status`.
+
+A fonte mais comum de borda é ler arquivo com `for line in f:` sem `.strip()` — o `
+` vem
+dentro do valor.
 
 ### Comparação com e sem *nature*
 

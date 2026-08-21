@@ -15,6 +15,24 @@
 > Detalhe + classificação das 17 checagens do bN:
 > [`escala-de-verificacao-e-fechamento-do-bn`](experiments/lab/dirty/notas/2026-08/2026-08-07-escala-de-verificacao-e-fechamento-do-bn.md).
 
+> **⚑ SOLDADO 2026-08-21 — [ADR-0045](docs/adr/0045-bordas-em-valor-de-spec.md): bordas em valor
+> de spec, 3 decisoes SEPARADAS.** **(1)** vazamento fechado: `$` -> `\Z` em `_CPF_RE`/`_CNPJ_RE`/
+> `_IPV4_RE` — o `$` do Python casa TAMBEM antes de um LF final e o RT **perdia o caractere**;
+> custo **0 divergencia de byte em 9.012 valores**. (`data-iso` nao precisava: ele ja' CHECA O
+> COMPRIMENTO — a defesa que os outros nao tinham.) **(2)** status **`format_bordered`**: bytes
+> IDENTICOS (segue literal), muda so' a telemetria — de *"nao reconheco essa forma"* para *"o dado
+> esta' certo, o pipeline a montante e' que esta' sujo"*. Estreito de proposito: so' o que vira
+> `compressible` depois do trim. Guarda custa **-4,2% = ruido** em 50.000 valores limpos, entao a
+> tensao comum-x-incomum **nao existe aqui**. **(3) NAO uniformizar o LF final entre rotas** —
+> parecia higiene, medido nao e': o decoder **REJEITA** o LF extra em multi-col e tipado-bool,
+> **MUDA A SEMANTICA** em multi-col n=1, e quebraria o **gate D17a (300->301)**; o ganho seria
+> estetico e **-1 B/wire**. Fica conhecida e PRECIFICADA (H-15-08). **REJEITADO**: trim preguicoso
+> como default — 13 B mais barato, mas quebra o RT byte-canonico (classe do
+> `BUG-CHAVE-VAZIA-POSICIONAL`); se um dia, flag explicita do chamador. Suite **1307**, gates
+> byte-canonicos intactos, snippets 71/0. Labs
+> [`0330`](experiments/lab/dirty/2026-08/2026-08-21/2026-08-21-0330-bordas-em-spec/) e
+> [`0400`](experiments/lab/dirty/2026-08/2026-08-21/2026-08-21-0400-lf-final-do-wire/).
+
 > **⚑ O LF FINAL DO WIRE E' TERMINADOR — e a doc ensinava o oposto (corrigido 2026-08-21).**
 > `docs/algorithms/output-convention.md` §3 dizia que o LF final e' *"opcional; decoder deve
 > aceitar com ou sem"*. **Falso, e portar o formato seguindo isso quebra o decode.** Prova de uma

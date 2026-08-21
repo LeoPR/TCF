@@ -178,6 +178,14 @@ class TemplatedCheckedSpec:
         """Classifica valor: 'compressible' ou razao Kim 2003 taxonomy."""
         if not v:
             return 'empty_value'
+        # BORDA (ADR-0045): valor que so' precisa de trim pra ser compressivel.
+        # Nao comprime — o RT byte-canonical e' constituicao, e trim mudaria o
+        # dado. Mas RECEBE ROTULO PROPRIO, porque `format_mismatch` ("nao
+        # reconheco essa forma") nao e' acionavel e isto e': o dado esta' certo,
+        # o pipeline a montante e' que esta' sujo. Recursao de 1 nivel apenas —
+        # o valor ja' sem borda nao entra aqui de novo.
+        if v != v.strip() and self.classify_value(v.strip()) == 'compressible':
+            return 'format_bordered'
         expected_total = self.body_length + self.check_length
         if len(v) == expected_total and all(c in self.alfabeto for c in v):
             return 'format_unmasked'
@@ -307,7 +315,10 @@ def decode_value(spec, payload):
 # SPEC_CPF (Brazilian individual taxpayer ID)
 # ===========================================================================
 
-_CPF_RE = re.compile(r'^(\d{3})\.(\d{3})\.(\d{3})-(\d{2})$')
+#: `\Z` e NAO `$`: em Python o `$` casa TAMBEM antes de um LF final, e o filtro
+#: de simbolos descartaria esse LF — o valor voltaria SEM ele (RT quebrado).
+#: Ver ADR-0045 e o lab `2026-08-21-0330-bordas-em-spec`.
+_CPF_RE = re.compile(r'^(\d{3})\.(\d{3})\.(\d{3})-(\d{2})\Z')
 
 
 def _cpf_check_fn(body: list[int]) -> list[int]:
@@ -354,7 +365,7 @@ _W2_CNPJ = [6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2]
 ALFABETO_CNPJ = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
 _CNPJ_RE = re.compile(
-    r'^([0-9A-Z]{2})\.([0-9A-Z]{3})\.([0-9A-Z]{3})/([0-9A-Z]{4})-(\d{2})$'
+    r'^([0-9A-Z]{2})\.([0-9A-Z]{3})\.([0-9A-Z]{3})/([0-9A-Z]{4})-(\d{2})\Z'  # `\Z`, nao `$` — ADR-0045
 )
 
 

@@ -72,6 +72,11 @@ class TemplatedPaddedSpec:
         """Kim 2003 taxonomy aplicado a templated-padded."""
         if not v:
             return 'empty_value'
+        # BORDA (ADR-0045): mesmo rotulo do TemplatedCheckedSpec, pela mesma razao
+        # — nao comprime (trim mudaria o dado), mas `format_mismatch` nao e'
+        # acionavel e isto e'. Recursao de 1 nivel: o valor sem borda nao reentra.
+        if v != v.strip() and self.classify_value(v.strip()) == 'compressible':
+            return 'format_bordered'
         m = self.regex.match(v)
         if not m:
             return 'format_mismatch'
@@ -123,7 +128,9 @@ class TemplatedPaddedSpec:
 
 # === SPEC_IP (IPv4 canonical) ===
 
-_IPV4_RE = re.compile(r'^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$')
+#: `\Z` e NAO `$` (ADR-0045): o `$` casa antes de um LF final e o valor
+#: voltaria sem ele. Atingia a forma NAO-padded (`192.168.0.1`).
+_IPV4_RE = re.compile(r'^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})\Z')
 
 SPEC_IP = TemplatedPaddedSpec(
     name="ip",

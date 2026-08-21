@@ -1,5 +1,15 @@
 # 2026-08-21-0400 — o `\n` final do wire: terminador, não convenção de arquivo
 
+> ## ⚑ DECISÃO 2026-08-21 — [ADR-0045](../../../../../../docs/adr/0045-bordas-em-valor-de-spec.md) §3: **não uniformizar**
+>
+> A assimetria que este lab achou (7 rotas emitem o LF final, 3 não) foi **precificada** antes
+> de qualquer mexida, e a decisão é **não fazer**: acrescentar o LF faz o decoder **rejeitar**
+> em multi-col e tipado-bool, **muda a semântica** em multi-col n=1 (ganha valor vazio), e
+> **quebra o gate D17a** (300 → 301 B). O ganho seria consistência estética e −1 B por wire.
+>
+> Fica registrada como assimetria **conhecida e precificada** (H-15-08) — não como pendência
+> vaga que alguém reabre depois como "higiene óbvia".
+
 Pergunta do owner:
 
 > *"lembrando que o tcf, em termos de arquivo, precisa do `\n` no final pois se não me engano é
@@ -52,14 +62,16 @@ Duas leituras:
 
 **Regra prática**: grave e transmita **exatamente os bytes que o `encode` devolveu**.
 
-## O que fica aberto (H-15-08)
+## A assimetria entre rotas (H-15-08) — medida aqui, precificada depois
 
 **Quais rotas emitem o LF final não é uniforme** — 7 emitem, 3 não. Isso é assimetria de
 implementação, não regra declarada em lugar nenhum. E o warning do single-col (*"corpo
 single-col sem o LF terminador canônico… a forma canônica termina em `\n`"*) sugere que
 existe uma noção de forma canônica que as outras rotas não seguem.
 
-Não mexi nisso: uniformizar mudaria bytes de wire em 3 rotas, o que é decisão de formato.
+Não mexi nisso, e a medição posterior confirmou que era a chamada certa: uniformizar faz o
+decoder **rejeitar** o LF extra em multi-col e tipado-bool, **muda a semântica** em multi-col
+n=1, e **quebra o gate D17a** (300 → 301 B). Decisão registrada em ADR-0045 §3 — ver o banner.
 
 ## O que foi corrigido
 
