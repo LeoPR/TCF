@@ -1,0 +1,10 @@
+{
+ "estrategia": "F1 mascarada (DD) FFFFFFFF",
+ "coluna": "tel",
+ "n": 19813,
+ "distintos": 19340,
+ "bytes_reportados": 198456,
+ "bytes_corpo": 198456,
+ "modo": "split",
+ "roundtrip": true
+}
