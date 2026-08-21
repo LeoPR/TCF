@@ -100,9 +100,16 @@ falharam), então os 3 finders rodaram e eu verifiquei os 25 achados **à mão**
 
 - **[alta] `$` nas regex casa antes de quebra de linha final** — um valor terminado em LF
   classifica como `compressible`, o LF é descartado pelo filtro de símbolos, e o RT **perde o
-  caractere**. É **pré-existente** (CPF, IP e data-iso têm o mesmo; não veio deste arco) e
-  **inalcançável pela API pública** (`tcf.encode` recusa valor com LF em fail-loud, antes da
-  nature), mas alcançável por `tcf.natures.encode_value`, que é público.
+  caractere**. **Pré-existente**, não veio deste arco. Raio medido: atinge **CPF** (todos),
+  **CNPJ** (todos) e **IP na forma não-padded**; **data-iso escapa** porque o classify dele
+  checa o comprimento — a defesa que os outros não têm. Inalcançável pela `tcf.encode` (recusa
+  LF antes da nature), alcançável por `tcf.natures.encode_value`, que é público. Conserto
+  medido (`$`→`\Z`): resolve 6/6 e custa **0 divergência** em 9 012 valores sem LF. **Toca 3
+  specs → precisa de aprovação.** Registrado como **H-15-07**.
+
+  > Registrei primeiro dizendo "atinge CPF, CNPJ, IP e data-iso" **sem ter medido** — o mesmo
+  > erro de escopo largo que eu tinha acabado de corrigir na afirmação de status. Só medindo
+  > apareceu que o data-iso escapa e que o IP escapa na forma padded.
   Conserto candidato: `$` → `\Z` nas 4 regex. **Toca 4 specs → precisa de aprovação.**
   Registrado como **H-15-07**.
 - **[baixa] Incompatibilidade para a frente**: decoder pré-weld lendo wire novo de 10 chars
