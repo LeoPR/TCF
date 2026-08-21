@@ -33,6 +33,25 @@
 > [`0330`](experiments/lab/dirty/2026-08/2026-08-21/2026-08-21-0330-bordas-em-spec/) e
 > [`0400`](experiments/lab/dirty/2026-08/2026-08-21/2026-08-21-0400-lf-final-do-wire/).
 
+> **⚑ SEPARACAO EM 4 CAMADAS (direcao owner 2026-08-21) — e eu vinha discutindo o BYTE ERRADO.**
+> *"nao quero misturar a entrada do dataset e o roundtrip pra construir, a saida em arquivo que
+> possa ser util, e o transporte. tudo e' coisa diferente [...] um flag e um default pra cada
+> situacao [...] so' nao pode atrapalhar o encode/decode."* **C1** entrada · **C2** roundtrip
+> (INTOCAVEL) · **C3** arquivo · **C4** transporte. MEDIDO (lab
+> [`0600`](experiments/lab/dirty/2026-08/2026-08-21/2026-08-21-0600-quatro-camadas/)): o
+> omissivel do transporte **nao e' o LF (1 B) — e' o CABECALHO (7-8 B)**, que vale **22% a 71%**
+> do wire em payload minusculo (multi 2x2: 21 -> 6 B; 3 curtos: 16 -> 8 B; hier: 44 -> 18 B).
+> **A familia JA' COMECOU**: `drop_names` (ADR-0029) e' exatamente uma omissao de transporte, e
+> `T-SPEC-SEM-CARIMBO` registra a mesma ideia pro `:id` — faltava o CONCEITO que os une.
+> **PROVA de viabilidade**: as duas transformacoes sao FUNCOES PURAS sobre o wire, com inversa
+> exata, 7/7 casos, **0 linha de encode/decode tocada**. **RESSALVA CRITICA (minha, sobre meu
+> proprio lab)**: a tabela e' o **TETO do omissivel, nao ganho liquido** — o contrato fora de
+> banda so' compensa AMORTIZADO (WebSocket/gRPC/MQTT/envelope), nunca em HTTP avulso.
+> **O LF DO ARQUIVO**: utilidade REAL mas estreita (`wc -l`, `head/tail/split`, `git diff`,
+> `while read`) — e **vem de graca em 7 das 10 rotas**. Para as 3 que nao emitem, acrescentar
+> exigiria leitor casado (decode de multi-col com LF extra = `ValueError`), entao o default de
+> arquivo deve ser **o wire como esta'**. Registrado como **H-15-09**; nada implementado.
+
 > **⚑ REFINADO 2026-08-21 — o LF final NAO e' load-bearing; e' REDUNDANCIA DE 100% travada pela
 > ASSIMETRIA.** O owner apontou o buraco no meu argumento anterior (*"creio que nao precisamos de
 > caracteres decorativos"*), e ele estava certo: eu tinha confundido **obrigatorio** com
