@@ -1,0 +1,101 @@
+{
+ "casos": [
+  {
+   "caso": "a-numerico-real",
+   "desc": "CNPJ numerico REAL (Shaper/receita-cnpj)",
+   "n": 2000,
+   "bytes": 23436,
+   "raw": 37999,
+   "vs_raw_pct": -38.32,
+   "mecanismo": "split",
+   "header": "#TCF.8M%cnpj",
+   "rt": true
+  },
+  {
+   "caso": "b-alfa-realista",
+   "desc": "alfanumerico c/ raiz + ordem 0001 dominante",
+   "n": 2000,
+   "bytes": 35064,
+   "raw": 37999,
+   "vs_raw_pct": -7.72,
+   "mecanismo": "core",
+   "header": "#TCF.8Mcnpj",
+   "rt": true
+  },
+  {
+   "caso": "c-alfa-caos",
+   "desc": "alfanumerico uniforme (PIOR CASO declarado)",
+   "n": 2000,
+   "bytes": 38012,
+   "raw": 37999,
+   "vs_raw_pct": 0.03,
+   "mecanismo": "raw",
+   "header": "#TCF.8M!cnpj",
+   "rt": true
+  }
+ ],
+ "conserto": [
+  {
+   "caso": "d-posicional-a-numerico-real",
+   "bytes": 20799,
+   "raw": 37999,
+   "vs_raw_pct": -45.26,
+   "vs_coluna_unica_pct": -11.25,
+   "rt": true
+  },
+  {
+   "caso": "d-posicional-b-alfa-realista",
+   "bytes": 23684,
+   "raw": 37999,
+   "vs_raw_pct": -37.67,
+   "vs_coluna_unica_pct": -32.45,
+   "rt": true
+  },
+  {
+   "caso": "d-posicional-c-alfa-caos",
+   "bytes": 29271,
+   "raw": 37999,
+   "vs_raw_pct": -22.97,
+   "vs_coluna_unica_pct": -23.0,
+   "rt": true
+  }
+ ],
+ "placas": [
+  {
+   "caso": "e-placa-antiga",
+   "bytes": 16013,
+   "raw": 15999,
+   "mecanismo": "raw",
+   "vs_raw_pct": 0.09,
+   "posicional_bytes": 14356,
+   "posicional_vs_raw_pct": -10.27,
+   "rt": true
+  },
+  {
+   "caso": "f-placa-mercosul",
+   "bytes": 16013,
+   "raw": 15999,
+   "mecanismo": "raw",
+   "vs_raw_pct": 0.09,
+   "posicional_bytes": 14378,
+   "posicional_vs_raw_pct": -10.13,
+   "rt": true
+  },
+  {
+   "caso": "g-placa-frota-mista",
+   "bytes": 16013,
+   "raw": 15999,
+   "mecanismo": "raw",
+   "vs_raw_pct": 0.09,
+   "posicional_bytes": 14408,
+   "posicional_vs_raw_pct": -9.94,
+   "rt": true
+  }
+ ],
+ "regra": {
+  "conversao": "ASCII - 48",
+  "exemplo": "12.ABC.345/01DE-35 -> DV 35",
+  "pesos_inalterados": true,
+  "retrocompat_verificada_em": 2000
+ }
+}
