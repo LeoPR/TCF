@@ -576,7 +576,8 @@ preocupacao com "um IF bem grande em vez de reaproveitar tudo que ja' esta' pron
 | H-13-02 | A forma-grupo destrava fatiamento por CAMPO na linha 1 (view/decode paralelo alcancam os campos; hoje o slot e' caixa-preta — view.py:232,:438 "exige decode"/"cai em fallback") | confirmada-conceitual (plano de fatias demonstrado no mock; view nao foi ligada nele) | mesmo lab |
 | H-13-03 | Encoder streaming pro split: nucleo encoda enquanto avaliador PARALELO decide o momento de forkar em N colunas | aberta, com DESENHO escrito | `notas/2026-08/2026-08-17-2400-h-13-03-encode-streaming.md`. 3 saidas pro prefixo ja' emitido (S1 re-emitir · S2 fronteira de pulso · S3 contrato declarado=H-13-04), 4 medicoes (M1 posicao decidivel · M2 custo de errar · M3 PICO DE MEMORIA do buffer — **pode matar a hipotese, vem primeiro** · M4 taxa de sujo real), e um RISCO DE DESENHO: o avaliador paralelo introduz nao-determinismo, e o projeto tem gates byte-canonicos -> o fork tem de ser deterministico POR CONSTRUCAO |
 | H-13-13 | **FECHADA 2026-08-20 -> ticket `T-FMT-CONTRACT-SIGNATURE`**. Medido: de TODOS os kwargs de `encode`, exatamente DOIS produzem wire cujo decode NAO devolve a entrada — `drop_names` (perde os nomes, devolve posicional) e `sort_by` (reordena as linhas) — e NENHUM declara isso no wire. O `sort_by` e' o pior: o header fica BYTE-IDENTICO ao normal, logo um wire ordenado e' indistinguivel de um integro. Os demais (`min_header`/`stamp`/`fallback`/`layers`/`min_len`/`parallel`) mudam a representacao mas o decode devolve o original. Assinatura de 4 chars (blake2s->base36, 36^4~1,68M) custaria 4 B/wire. | **fechada (virou ticket)** | `tickets/T-FMT-CONTRACT-SIGNATURE.md`; precedente que ja' faz certo: nature `:id` + `_resolve_header_spec` (decoder.py:62-79) |
-| H-13-04 | Spec/dica pre-declarada de template (spec orienta, nao manda) dispensa o gate global batch: coluna com dica valida por VALOR e nao bufferiza | aberta | candidata a lab proprio; conecta ADR-0041 (spec id) |
+| H-13-04 | **CONFIRMADA-EMPIRICA EM MOCK 2026-08-20**: o template DECLARADO decide o MESMO que o gate global (G1 6/6), decide SEM ver o resto (G2 7/7) e recusa dica errada NO 1o VALOR (G3 1/1) | **confirmada-empirica (mock)** | lab `2026-08-20-2300`. RESSALVA: a economia NAO e' varredura (G4 = -0,2% -- os dois olham todo valor); e' BUFFER/ponto de emissao. Eu medi a metrica errada, 3a vez na sessao. Falta medir LATENCIA AO 1o BYTE e BUFFER RETIDO |
+| H-13-14 | O gate do split olha SEPARADORES, nao LARGURA de digitos — `'(0) 0'` e `'(47) 99813942'` tem o MESMO template, entao dado sujo PASSA no gate | **confirmada-empirica** | mesmo lab; CORRIGE o lab `2145` (eu tinha dito que o gate recusaria a coluna por 1% de sujo). Quem sofre com largura e' a NATURE (b85 fixo), nao o gate — sao criterios DIFERENTES |
 
 | H-13-05 | O grupo e' um COMBINADOR da mesma familia do `.8H` (`{` aninha · `#:[` conta · `?:` mascara · `\|…\|` CONCATENA) — logo o `.8H` ganha o efeito do split ESTRUTURALMENTE, sem slot de modo na folha | **confirmada-empirica em MOCK** | lab `2026-08-17-1700`: decomposto e ORTOGONAL ao candidato — A (raw/dict) -3,0 a -14,0% · B (GRUPO isolado) **-11,7 a -25,4%**; B > A em 3 de 4 casos. Decoder reusa `_decode_raw_body`/`_decode_v2b`/`decode`; o combinador e' 1 linha |
 | H-13-07 | O CORPO do grupo e' BYTE-IDENTICO ao de N colunas independentes num `.8M` comum; a unica diferenca do wire e' o MARCADOR no cabecalho (9-11 B, CONSTANTE em n) | **confirmada-empirica em MOCK, 4/4** | lab `2026-08-17-1800`: comparado contra o `encode` PUBLICO. Trabalho real que sobra = (1) tecnica do split [ja' existe], (2) o marcador [unico item novo], (3) a juncao no decode [1 linha] |
@@ -611,6 +612,39 @@ Alvo: **.9** (reorganizacao logica/legibilidade pro port; muda wire de toda colu
 lab `2026-08-17-0400` (+23,0%, 100% explicado pelo candidato unico). Sao DUAS rotas para o
 mesmo gap — slot de modo na folha (a que eu propus) vs combinador de grupo (a do owner) — e a
 medicao mostra que **nao competem**: uma abre candidatos, a outra muda a estrutura da folha.
+
+## Pacote 14 — SORT: o maior ganho medido, e o que ele custa (registrado 2026-08-20)
+
+Origem: owner 2026-08-20, ao rever a assinatura de contrato do `sort_by`. O sort e' um caso
+com **tensao dura entre os vertices** (ADR-0002): ganho grande de byte, custo grande de
+latencia/stream.
+
+**O que ja' esta' MEDIDO** (lab `2026-08-17-1200`, CEP real da Receita, n=19.988):
+
+| forma | bytes | vs baseline | ordem |
+|---|---:|---:|---|
+| D1 mascarado (baseline) | 164.493 | 0,0% | preserva |
+| **D4a delta + sort** | **69.429** | **-57,8%** | **NAO preserva** |
+| D4b idem, pagando a permutacao log2(n!) | 101.521 | -38,3% | preserva |
+
+E' o **maior ganho de byte medido na sessao inteira**. Tambem medido (2026-08-20): o
+`sort_by` **nao declara nada no wire** — o header fica byte-identico ao de um wire normal
+(-> `T-FMT-CONTRACT-SIGNATURE`).
+
+| ID | Hipotese | Status | Onde testar |
+|---|---|---|---|
+| H-14-01 | O sort **mata o streaming por construcao**: exige ver TODOS os valores e reordenar antes de emitir. Incompativel com o vertice latencia (ADR-0002) | **confirmada-conceitual** (e' definicional; o custo em s/MB nao foi medido) | medir junto com o P1 do `T-STUDY-USE-PROFILES` |
+| H-14-02 | **Sort por BLOCO** (ordenar dentro de janelas, nao globalmente) recupera parte do ganho preservando streaming parcial | aberta | owner: *"ficaria estranho"* — medir antes de descartar; conecta com chunking/footer do `T-REL-08:113` |
+| H-14-03 | **Sort ESPECULATIVO combinatorio** (testar varias ordenacoes e escolher a menor) so' faz sentido em **compressao offline** ou num **modo MAX** | aberta | e' um PERFIL DE EMISSAO (`T-STUDY-USE-PROFILES` P4), nao um default |
+| H-14-04 | **Estatistica de coluna por AMOSTRA** (como os bancos fazem) permite *chutar* a distribuicao e decidir se ordenar compensa — sem varrer tudo | aberta | o `SideOutputs`/`build_schema` JA' produz features de coluna; conecta com o "prefetch orientado" do H-13-03 |
+| H-14-05 | O ganho do sort depende do VOLUME: em poucos dados pode compensar mesmo com o custo; em volume o custo domina | aberta | owner: *"se forem poucos dados poderia dar vantagem"*; medir a curva |
+
+**Nota de tensao**: o D4a nao preserva a ordem das linhas — e' lossless como CONJUNTO, nao
+como sequencia. Isso o coloca na classe CONTRATO (ver `T-FMT-CONTRACT-SIGNATURE`), e a
+decisao "a ordem e' semantica?" e' **do dado**, nao do formato. O D4b mede o preco de
+preservar: log2(n!) = 6.779 B p/ n=5.000, e ainda sobra -38,3%.
+
+**Triagem**: estudo, alvo `.9`/pre-1.0. Nada disto e' `.8`.
 
 ## Estrategia de mistura
 

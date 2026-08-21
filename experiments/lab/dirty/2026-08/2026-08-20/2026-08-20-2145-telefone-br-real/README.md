@@ -26,8 +26,21 @@ Comparações no **subconjunto limpo** (ddd 2 díg + fone 8 díg = **99,06%**); 
 ambos vazios (28), `ddd:4` (11), `fone:7` (5). **Não há fone de 9 dígitos na base** — a
 Receita registra fixo/8.
 
-É a taxa que o *throttling* do prefetch (H-13-03 §4) usaria: ~1% de valores que quebram
-template numa coluna real — o gate 100%-uniforme recusaria a coluna INTEIRA por causa de 1%.
+É a taxa que o *throttling* do prefetch (H-13-03 §4) usaria.
+
+> **CORRIGIDO 2026-08-20** (achado no lab `2300`, H-13-04). Eu tinha escrito que *"o gate
+> 100%-uniforme recusaria a coluna INTEIRA por causa de 1%"*. **Falso** — o gate do split
+> olha os **separadores**, não a **largura** dos dígitos:
+>
+> ```
+> '(47) 99813942'  template=('(', ') ', '')  campos=['47','99813942']
+> '(0) 0'          template=('(', ') ', '')  campos=['0','0']       ← MESMO template
+> ```
+>
+> O sujo **passa** no gate; `_struct_split_encode` aplica normalmente numa coluna que o
+> contém. Quem sofre com largura variável é a **nature** (b85 de largura fixa) — e é ela
+> que precisa do `ndig` explícito, como o próprio §Verificação já apontou. O gate e a
+> nature têm critérios **diferentes**, e eu tinha misturado os dois.
 
 ## As cinco formas (n=19 813; fone 97,1% distinto, ddd 73 distintos)
 
