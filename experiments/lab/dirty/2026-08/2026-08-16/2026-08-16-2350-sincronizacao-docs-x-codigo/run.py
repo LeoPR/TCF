@@ -416,6 +416,43 @@ def caso_gates_byte_canonical():
     return ok, " | ".join(obs)
 
 
+def caso_doc03_natures_e_failloud():
+    """F6/DOC-03: o registry tem 5 natures, e id desconhecido e' FAIL-LOUD.
+
+    A spec ensinava "nature (cpf/cnpj/ip)" e "id desconhecido -> cru + warning".
+    As duas eram falsas desde os welds de `dt` (2026-08-08) e `ipad` (2026-08-14).
+    """
+    import tcf.natures as N
+    from tcf.natures import _resolve_nature_id
+    ids = sorted({getattr(getattr(N, k), "wire_id", None) for k in dir(N)
+                  if k.startswith("SPEC_")} - {None})
+    resolviveis = sorted(i for i in ids if _resolve_nature_id(i) is not None)
+    esperado = ["cnpj", "cpf", "dt", "ip", "ipad"]
+
+    falhou_alto = False
+    try:
+        decode("#TCF.8 :xyz" + chr(10) + "abc" + chr(10))
+    except ValueError as e:
+        falhou_alto = "registry core fechado" in str(e)
+    ok = resolviveis == esperado and falhou_alto
+    return ok, (f"registry={resolviveis} (esperado {esperado}) | "
+                f"id desconhecido fail-loud={falhou_alto}")
+
+
+def caso_doc03_exemplo_do_meta():
+    """F6/DOC-03: o exemplo do meta era auto-contraditorio (size NA ULTIMA +
+    comentario 'ultima sem size'), e perdia o `@` da 2a coluna."""
+    t = {"uf": ["SP", "RJ", "MG", "SP"] * 4, "nome": ["Ana", "Bruno", "Carla", "Diego"] * 4}
+    w_def = encode(t)
+    w_sem = encode(t, min_header=False)
+    grava_caso("doc03_meta_exemplo", t, w_def,
+               extra={"min_header_False": w_sem.splitlines()[0]})
+    l1d, l1s = w_def.splitlines()[0], w_sem.splitlines()[0]
+    ok = (l1d == "#TCF.8M@1b=uf,@nome" and l1s == "#TCF.8M@1b=uf,@29=nome"
+          and decode(w_def) == t and decode(w_sem) == t)
+    return ok, f"default={l1d!r} | min_header=False={l1s!r}"
+
+
 CASOS = [
     ("TCF-format.*", "None e' preservado, nao vira ''", caso_none_preservado),
     ("README.*", "`from tcf import view` existe", caso_view_import),
@@ -444,7 +481,9 @@ CASOS = [
     ("algorithms/output-convention", "as TRES nao-operacoes: nao strip, nao skip vazia, nao skip bracket", caso_as_tres_nao_operacoes),
     ("AGENTS.md + MAP.md", "9 discriminadores, com `s` e `C` decode-only", caso_nove_discriminadores),
     ("AGENTS.md", "o carimbo e' DEFAULT; o orfao e' escape (stamp=False)", caso_carimbo_e_default_orfao_e_escape),
-    ("reference/api", "o 'contrato pre-1.0': 3 de 4 ficam no single-col, nao no `.8H`", caso_contrato_pre_1_0_do_api),
+    ("reference/api", "o 'contrato pre-1.0': 3 de 4 ficam no single-col, nao no `.8H`", caso_contrato_pre_1_0_do_api),    # --- F6/DOC-03 (2026-08-20) ---
+    ("algorithms/TCF-format.*", "registry tem 5 natures; id desconhecido e' FAIL-LOUD", caso_doc03_natures_e_failloud),
+    ("algorithms/TCF-format.*", "o exemplo do meta bate com o encode real", caso_doc03_exemplo_do_meta),
 ]
 
 NAO_COBERTO = """\

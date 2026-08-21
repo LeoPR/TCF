@@ -50,6 +50,19 @@ As **ADR-0025 e ADR-0026 não mencionam** a ADR-0002. Leitura provável: a restr
 constrangia o **core de coluna** (OBAT/HCC) e o ciclo 0.7 acrescentou uma camada de
 **orquestração multi-col** batch — sem que a fronteira fosse redocumentada.
 
+## Sinal do owner (2026-08-20)
+
+> *"o ADR-0002 me parece obsoleto também, mas vamos seguir pro DOC-03 e ver as condições
+> novamente dos ADRs depois."*
+
+Registrado: o owner **inclina-se a considerar a ADR-0002 obsoleta**, e pediu uma **revisão
+geral das condições dos ADRs** em momento próprio. Isso reforça o P3 abaixo (mapear a
+fronteira real) e sugere que a revisão não seja só da 0002 — vale varrer o índice inteiro
+atrás de ADRs cuja premissa o código já superou (o padrão que apareceu 3× nesta sessão:
+0029→0034 no default do header, 0031→0033 no `H`, e agora 0002 vs os candidatos V2).
+
+**Não** é decisão tomada — é sinal registrado para não se perder.
+
 ## O que estudar
 
 | # | pergunta | por quê |

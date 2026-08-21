@@ -85,18 +85,32 @@ pre-pass before dispatch — it does not act on `M`/`H`.
   `format(n,'x')` (lowercase, no `0x`, no leading zeros). Collision-free with the separators. Decimal
   only via an inspection command (not the stored format).
 - **mode prefix** `!`=raw (V2-A) · `@`=dict (V2-B) · `%`=split (V2-C), before the size.
-- **`:id` suffix** = nature (cpf/cnpj/ip, ADR-0027); resolved via a fixed core-only dict, unknown id ->
-  raw + warning, header-wins. The nature `:id` = LAST UN-escaped `:`.
+- **`:id` suffix** = nature (ADR-0027). The core registry has **5**: `cpf` · `cnpj` · `ip` ·
+  `dt` (ISO date) · `ipad` (int-pad). Resolved via a fixed core-only dict keyed by **`wire_id`**
+  (ADR-0041 — `name` is the CODE plane and never travels). **An unknown id is FAIL-LOUD**
+  (`ValueError`: *"registry core fechado; forneca o spec out-of-band"*), NOT raw+warning — a
+  third-party spec comes from outside and is accepted only if its `wire_id` **matches** the
+  header `:id`. The nature `:id` = LAST UN-escaped `:`.
 - **name with a separator** (`,`/`=`/`:`/`\`/leading `!@%`): **backslash-escaped**
   ([T-FMT-NAME-ESCAPING](../../tickets/T-FMT-NAME-ESCAPING.md)); tokenizer splits on the UN-escaped
   separator. Only `\n` is forbidden (meta line separator).
 - **last column without size** (`min_header`, body up to EOF, O-FMT-15/ADR-0023): pair without `=`.
 - **anonymous columns** (`drop_names`): omit `=name`; decode reconstructs by ORDER (`{'0':..,'1':..}`).
 
+> **CORRECTED 2026-08-20** (F6/DOC-03). This section taught **three** false things, all
+> measured: (1) the registry listed "cpf/cnpj/ip" when it has **5** since the `dt`
+> (2026-08-08) and `ipad` (2026-08-14) welds; (2) an unknown id was said to give "raw +
+> warning" when it is a **`ValueError`** — verifiable: `decode('#TCF.8 :xyz\n…')` raises
+> *"nature-id desconhecido … registry core fechado"*; (3) the example `@a=uf,1e=name` was
+> **self-contradictory** — it carried a size on the last column while the comment said "last
+> without size", and it also dropped the `@` on the second column. The real one is
+> `#TCF.8M@1b=uf,@name`.
+
 Examples (body on the following line(s)):
 
     #TCF.8M7=doc:cnpj,x          <- multi: 2 cols, doc (size 0x7) with nature cnpj, x (last, no size)
-    #TCF.8M@a=uf,1e=name         <- dict (@) on col uf; name size 0x1e=30; last without size
+    #TCF.8M@1b=uf,@name          <- dict (@) on both; uf size 0x1b=27; name is the LAST (no size)
+    #TCF.8M@1b=uf,@29=name       <- same with `min_header=False`: then the last DOES carry a size (0x29=41)
     #TCF.8 docs:cpf              <- single + spec cpf, name 'docs'
     #TCF.8                       <- single version-stamp (pure single-col body)
 

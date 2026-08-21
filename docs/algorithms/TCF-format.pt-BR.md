@@ -87,18 +87,31 @@ coluna = `[<pre>]<size>[=<nome>][:<id>]`:
   `format(n,'x')` (minusculo, sem `0x`, sem zero a esquerda). Colisao-livre com os separadores. Decimal
   so' via comando de inspecao (nao e' formato armazenado).
 - **prefixo de modo** `!`=raw (V2-A) · `@`=dict (V2-B) · `%`=split (V2-C), antes do size.
-- **sufixo `:id`** = nature (cpf/cnpj/ip, ADR-0027); resolve via dict fixo core-only, id desconhecido ->
-  cru + warning, precedencia header-vence. O `:id` da nature = ULTIMO `:` NAO-escapado.
+- **sufixo `:id`** = nature (ADR-0027). O registry core tem **5**: `cpf` · `cnpj` · `ip` ·
+  `dt` (data ISO) · `ipad` (int-pad). Resolve via dict fixo core-only pelo **`wire_id`**
+  (ADR-0041 — `name` e' plano do CODIGO e nunca viaja). **Id desconhecido e' FAIL-LOUD**
+  (`ValueError`: *"registry core fechado; forneca o spec out-of-band"*), NAO cru+warning —
+  o spec de terceiro entra por fora e so' e' aceito se o `wire_id` **coincidir** com o `:id`
+  do header. O `:id` da nature = ULTIMO `:` NAO-escapado.
 - **nome com separador** (`,`/`=`/`:`/`\`/prefixo `!@%` inicial): **escapado com backslash**
   ([T-FMT-NAME-ESCAPING](../../tickets/T-FMT-NAME-ESCAPING.md)); tokenizer splita em separador
   NAO-escapado. Unico proibido: `\n` (separador de linha do meta).
 - **ultima coluna sem size** (`min_header`, corpo ate' EOF, O-FMT-15/ADR-0023): par sem `=`.
 - **colunas anonimas** (`drop_names`): omite `=nome`; decode reconstroi pela ORDEM (`{'0':..,'1':..}`).
 
+> **CORRIGIDO 2026-08-20** (F6/DOC-03). Esta seção ensinava **três** coisas falsas, todas
+> medidas: (1) o registry tinha "cpf/cnpj/ip" quando tem **5** desde os welds de `dt`
+> (2026-08-08) e `ipad` (2026-08-14); (2) id desconhecido dava "cru + warning" quando é
+> **`ValueError`** — verificável: `decode('#TCF.8 :xyz\n…')` levanta *"nature-id desconhecido
+> … registry core fechado"*; (3) o exemplo `@a=uf,1e=nome` era **auto-contraditório** — trazia
+> size na última coluna e o comentário dizia "última sem size", e ainda perdia o `@` da
+> segunda coluna. O real é `#TCF.8M@1b=uf,@nome`.
+
 Exemplos (body na(s) linha(s) seguinte(s)):
 
     #TCF.8M7=doc:cnpj,x          <- multi: 2 cols, doc(size 0x7) com nature cnpj, x (ultima, sem size)
-    #TCF.8M@a=uf,1e=nome         <- dict (@) na col uf; nome size 0x1e=30; ultima sem size
+    #TCF.8M@1b=uf,@nome          <- dict (@) nas duas; uf size 0x1b=27; nome e' a ULTIMA (sem size)
+    #TCF.8M@1b=uf,@29=nome       <- o mesmo com `min_header=False`: ai' a ultima TEM size (0x29=41)
     #TCF.8 docs:cpf              <- single + spec cpf, nome 'docs'
     #TCF.8                       <- single version-stamp (body single-col puro)
 
