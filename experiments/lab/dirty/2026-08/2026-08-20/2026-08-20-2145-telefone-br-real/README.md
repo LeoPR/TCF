@@ -1,7 +1,10 @@
 # 2026-08-20-2145 — telefone BR real (Receita): a lacuna fechada
 
-> **Estado: em verificação adversarial** (workflow lançado após o commit). Números de uma
-> medição, uma seed.
+> **Estado: VERIFICADO** (workflow `wf_66f663cb`, 9 agentes, 5 alegações → 2 confirmadas —
+> e as duas são lacunas **fechadas**, não defeitos). Os 5 totais reproduzem **byte a byte**
+> em re-coleta independente; no escopo de **wire completo** (header cobrado) as conclusões
+> não mudam (F1−F0 cai para **+20 B / +0,010%**; F3 −29,95%; F4 −30,11%). Detalhe em
+> §Verificação.
 
 ## O que este lab fecha
 
@@ -84,3 +87,43 @@ completude no `main()`. `resultado.json` com mix, sujo e estratégias.
 - A regra do grupo: [`1500`](../../2026-08-17/2026-08-17-1500-split-didatico/) ·
   [`1800`](../../2026-08-17/2026-08-17-1800-o-que-de-fato-falta/)
 - M4/throttling: [`notas/2026-08-17-2400`](../../../notas/2026-08/2026-08-17-2400-h-13-03-encode-streaming.md)
+
+---
+
+## Verificação (workflow `wf_66f663cb`)
+
+**Os números se sustentam** — re-coleta independente, mesmos request/filtros: os 5 totais
+batem byte a byte; os 7 `meta.json` têm `bytes_corpo == bytes_reportados` com RT; e no
+escopo **wire completo** (a família de erro "custo estrutural de graça", caçada de
+propósito) as conclusões são as mesmas: F0=198 448, F1=198 468 (**+20 B**), F3 −29,95%,
+F4 −30,11%.
+
+**Q1 sobrevive com ressalva de redação**: o −24,1% do `0900` era nature sobre **split**; o
+−30,0% daqui é sobre F0 — mas como F1(split) ≈ F0 (0,016%), as bases são comparáveis e a
+transferência é legítima. A ressalva: *"fica mais forte" é fato DESTES datasets*, não
+propriedade da nature — a magnitude segue a estrutura do campo (c_phone de 15 chars com
+pontuação vs 8 dígitos puros). **Não generalizar o −30% como número da classe.**
+
+**Lacunas fechadas pela própria verificação:**
+- **(a) o fallback no sujo é benigno**: `_` por valor custa ~3,0 B/valor sujo →
+  **+0,50%** na coluna da nature com os 20 000 completos (119 472 vs 118 877 B).
+- **(b) os −30% são teto prático**: a alternativa barata (fone em duas colunas) dá no
+  máximo **−9,8%** (corte 2+6; o 4+4 dá −6,5%), sem padrão de prefixo pro `dict`
+  (4 465 prefixos distintos, top = 0,95%). E 5 chars é o **piso aritmético** do
+  printable-85: `log85(10^8) = 4,15`.
+
+### O achado novo — colisão de largura no b85 (defeito latente do mock)
+
+**`'12345678'` (8 díg) e `'012345678'` (9 díg) codificam para o MESMO `'!5)a8'`.** O meu
+assert de bijetividade passou **por sorte do dado** — a Receita é fixo/8, não há coluna
+mista. Numa coluna com 8 e 9 dígitos misturados (celular BR real!), o mock **perderia dado
+calado**. Um spec de verdade precisa de **`ndig` explícito por coluna ou recusa de coluna
+mista** — mesma família do guard de canonicidade do `ipad`.
+
+### O que falta pro spec real (consolidado)
+
+(i) `ndig` explícito ou recusa de mista (o achado acima) · (ii) alfabeto validado contra
+os marcadores do wire em **todos** os modos (aqui o raw saiu sem escape nenhum — provado
+para raw, **assumido** para dict/split/header) · (iii) `wire_id` (ADR-0041) + fallback `_`
+(já dimensionado: +0,50%) · (iv) mais seeds/volumes e a tabela inteira antes de qualquer
+número de release.
