@@ -1,0 +1,142 @@
+{
+ "E1_matriz": [
+  {
+   "borda": "nada",
+   "status": "compressible",
+   "payload_len": 7,
+   "rt": true
+  },
+  {
+   "borda": "espaco a esquerda",
+   "status": "format_mismatch",
+   "payload_len": 21,
+   "rt": true
+  },
+  {
+   "borda": "espaco a direita",
+   "status": "format_mismatch",
+   "payload_len": 21,
+   "rt": true
+  },
+  {
+   "borda": "espaco nos dois",
+   "status": "format_mismatch",
+   "payload_len": 23,
+   "rt": true
+  },
+  {
+   "borda": "tab a direita",
+   "status": "format_mismatch",
+   "payload_len": 20,
+   "rt": true
+  },
+  {
+   "borda": "LF a direita",
+   "status": "compressible",
+   "payload_len": 7,
+   "rt": false
+  },
+  {
+   "borda": "CR a direita",
+   "status": "format_mismatch",
+   "payload_len": 20,
+   "rt": true
+  },
+  {
+   "borda": "CRLF a direita",
+   "status": "format_mismatch",
+   "payload_len": 21,
+   "rt": true
+  },
+  {
+   "borda": "LF duplo",
+   "status": "format_mismatch",
+   "payload_len": 21,
+   "rt": true
+  },
+  {
+   "borda": "LF a esquerda",
+   "status": "format_mismatch",
+   "payload_len": 20,
+   "rt": true
+  }
+ ],
+ "E1_raio": {
+  "cpf": {
+   "testados": [
+    "529.982.247-25"
+   ],
+   "perdem": [
+    "529.982.247-25"
+   ]
+  },
+  "cnpj": {
+   "testados": [
+    "11.222.333/0001-81",
+    "12.ABC.345/01DE-35"
+   ],
+   "perdem": [
+    "11.222.333/0001-81",
+    "12.ABC.345/01DE-35"
+   ]
+  },
+  "ip": {
+   "testados": [
+    "192.168.0.1",
+    "192.168.001.001"
+   ],
+   "perdem": [
+    "192.168.0.1"
+   ]
+  },
+  "data-iso": {
+   "testados": [
+    "2026-08-21"
+   ],
+   "perdem": []
+  }
+ },
+ "E2_prevalencia": {
+  "linhas": 20000,
+  "campos": 11,
+  "campos_com_borda": {}
+ },
+ "E3_posturas": [
+  {
+   "caso": "LF a direita",
+   "rigido": 20,
+   "preguicoso": 7,
+   "lazy": 10,
+   "rt_preguicoso": false
+  },
+  {
+   "caso": "espaco nos dois",
+   "rigido": 23,
+   "preguicoso": 7,
+   "lazy": 13,
+   "rt_preguicoso": false
+  },
+  {
+   "caso": "tab a direita",
+   "rigido": 20,
+   "preguicoso": 7,
+   "lazy": 10,
+   "rt_preguicoso": false
+  }
+ ],
+ "E4_custo_guarda_pct": -4.19,
+ "telemetria": {
+  "val": {
+   "spec": "cnpj",
+   "total": 4,
+   "compressible": 1,
+   "apply_rate": 0.25,
+   "by_status": {
+    "compressible": 1,
+    "format_mismatch": 2,
+    "check_invalid": 1
+   },
+   "used": false
+  }
+ }
+}
