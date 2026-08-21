@@ -29,7 +29,7 @@ Registros numerados das decisoes arquiteturais do TCF. Inspirado em
 | # | Titulo | Status |
 |---|---|---|
 | [0001](0001-tcf-format-shebang.md) | TCF format shebang (`#TCF.<minor>`) | accepted |
-| [0002](0002-vertice-triplice-restricao.md) | Vertice triplice (compressao + memoria + latencia) como restricao dura | accepted |
+| [0002](0002-vertice-triplice-restricao.md) | Vertice triplice (compressao + memoria + latencia) como restricao dura. **TENSAO REGISTRADA 2026-08-20**: a ADR rejeitou a Opcao 3 ("trade-off por flag") e lista look-ahead/buffer>O(1) como REFUTADOS, mas os candidatos V2 (ADR-0025 dict, ADR-0026 split) sao BATCH por construcao — recebem a coluna inteira e varrem tudo antes de decidir; nenhum dos dois cita esta ADR. Leitura provavel: a restricao constrangia o CORE de coluna e a orquestracao multi-col do ciclo 0.7 moveu a fronteira sem redocumentar. Estudo em `tickets/T-STUDY-USE-PROFILES.md`; se a calibracao por perfil for adotada, exige ADR de SUPERSEDE (padrao da 0034 sobre a 0029). | **accepted** (tensao aberta) |
 | [0003](0003-tripartite-pre-obat-hcc.md) | Tripartite Pre/OBAT/HCC com pesos relativo vs absoluto | accepted |
 | [0004](0004-multi-column-header-compacto.md) | Multi-column header compacto (`#TCF.6 M` + `# size=name,...`) | accepted |
 | [0005](0005-discoverability-claude-md-root.md) | CLAUDE.md no root + MAP.md + hooks pra discoverability | **accepted** (parcial: `CLAUDE.md`+`MAP.md` valem; o **SessionStart hook** de :58-59,:86 NUNCA foi implementado — `.claude/settings.json` tem so' `$schema`; auditoria 2026-08-16) |
