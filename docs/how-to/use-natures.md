@@ -150,21 +150,26 @@ assert text.startswith('#TCF.8 :cnpja')
 assert decode(text) == cnpjs   # o header resolve sozinho, sem spec out-of-band
 ```
 
-**São dois specs, e eles coexistem** — `SPEC_CNPJ_ALFA` **não** substitui `SPEC_CNPJ`:
+**É UM CNPJ só** ([ADR-0043](../adr/0043-cnpj-um-so-compacto-por-valor.md)): o
+`SPEC_CNPJ_ALFA` cobre os dois domínios pagando o preço certo **em cada valor** — corpo
+100% numérico grava em **7 chars** (payload byte-idêntico ao do spec legado), corpo com
+letra grava em **10**; o decode distingue pelo comprimento. Não há heurística de coluna:
 
-| spec | `:id` no wire | corpo | chars por valor |
-|---|---|---|---:|
-| `SPEC_CNPJ` | `:cnpj` | base 10 | **7** |
-| `SPEC_CNPJ_ALFA` | `:cnpja` | base 36 | **10** |
+| valor na coluna | payload | observação |
+|---|---:|---|
+| numérico (`11.222.333/0001-81`) | **7 chars** | byte-idêntico ao `SPEC_CNPJ` legado |
+| alfanumérico (`12.ABC.345/01DE-35`) | **10 chars** | base 36 densa |
 
-Uma coluna 100% numérica sob o spec alfanumérico custa **+38,1%** — por isso o numérico
-continua existindo e ficou byte-intocado.
+O `SPEC_CNPJ` (`:cnpj`) permanece para **ler wire legado** e como emissão explícita
+byte-compat. Numa coluna 100% numérica ele economiza exatamente **1 byte** (o header);
+em qualquer coluna com um alfanumérico sequer, o unificado vence.
 
-### Qual dos dois usar: `cnpj_spec_para`
+### O helper `cnpj_spec_para`
 
-A regra intuitiva "tem letra → usa o alfanumérico" **está errada**, e isso foi medido: o spec
-numérico continua ganhando (pagando literal pelos poucos alfanuméricos) até cerca de **1/4**
-da coluna. Use o helper:
+Resolve só o empate: coluna 100% numérica → `SPEC_CNPJ` (1 B menor, byte-compat); qualquer
+valor alfanumérico compressível → `SPEC_CNPJ_ALFA`. Medido contra a verdade (3 sementes ×
+17 frações × 2 000 CNPJ reais): **51/51** — com o caso compacto por valor, a escolha que o
+desenho anterior podia errar deixou de existir.
 
 ```python
 from tcf import encode, decode
@@ -176,21 +181,14 @@ text = encode(coluna, nature=cnpj_spec_para(coluna))
 assert decode(text) == coluna
 ```
 
-Ele escolhe por soma de payload, em uma passada. É **first-order**: numa varredura de 3
-sementes × 17 frações × 2 000 CNPJ reais acertou 41/51, e os erros ficam todos na faixa de
-**22–25%** de alfanuméricos, custando no máximo **3,15%**. Se precisar de exatidão, pague
-dois encodes:
+### Maiúscula/minúscula
 
-```python
-from tcf import encode, decode, SPEC_CNPJ
-from tcf.natures import SPEC_CNPJ_ALFA
-
-coluna = ['12.ABC.345/01DE-35', '11.222.333/0001-81', '34.028.316/0001-00']
-
-cand = [encode(coluna, nature=s) for s in (SPEC_CNPJ, SPEC_CNPJ_ALFA)]
-text = min(cand, key=lambda w: len(w.encode()))
-assert decode(text) == coluna
-```
+O domínio oficial é **maiúscula-only** (NT Conjunta 2025.001: `[0-9A-Z]{12}[0-9]{2}`).
+Minúscula é variante de representação e hoje cai em **literal** — não ganha, nunca
+corrompe, e o roundtrip devolve exatamente o que entrou. Aceitar minúscula devolvendo
+maiúscula canonizaria a saída (perderia o roundtrip byte a byte), então é da classe
+CONTRATO e está registrado como pendência (H-15-06) — mediria −35,6% numa coluna
+minúscula.
 
 **O dígito verificador não mudou de regra**: é o mesmo módulo 11 com os mesmos pesos. O que
 mudou é a conversão de caractere para valor — `ASCII(c) - 48`, então `'A'`=17 … `'Z'`=42. Como

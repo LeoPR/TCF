@@ -1126,17 +1126,20 @@ class TestCnpjAlfanumerico:
         assert 43 ** 12 > len(BASE94) ** 10
 
     def test_extremos_do_dominio(self):
+        """RE-PIN ADR-0043: corpo 100% decimal agora COMPACTA em 7 chars (o caso
+        particular por valor); qualquer letra no corpo -> 10. RT nos dois."""
         from tcf.natures import SPEC_CNPJ_ALFA
 
-        for corpo in ("000000000000", "ZZZZZZZZZZZZ", "A00000000000",
-                      "99999999999Z", "0000000000ZZ"):
+        for corpo, esperado in (("000000000000", 7), ("999999999999", 7),
+                                ("ZZZZZZZZZZZZ", 10), ("A00000000000", 10),
+                                ("99999999999Z", 10), ("0000000000ZZ", 10)):
             dv = "".join(str(d) for d in SPEC_CNPJ_ALFA.check_fn(
                 [ord(c) - 48 for c in corpo]))
             s = corpo + dv
             v = f"{s[:2]}.{s[2:5]}.{s[5:8]}/{s[8:12]}-{s[12:]}"
             payload, status = SPEC_CNPJ_ALFA.encode_value(v)
             assert status == "compressible", v
-            assert len(payload) == 10
+            assert len(payload) == esperado, (v, payload)
             assert SPEC_CNPJ_ALFA.decode_value(payload) == v
 
     # --- o WIRE: self-describing, e o legado intocado ----------------------
@@ -1178,14 +1181,17 @@ class TestCnpjAlfanumerico:
         assert payload.startswith(MARKER_LITERAL)
 
     # --- o CHOOSER (H-15-02) -----------------------------------------------
-    def test_chooser_nao_e_tem_letra(self):
-        """A regra ingenua esta' ERRADA e o teste existe pra impedir que volte:
-        UM alfa numa coluna numerica nao justifica pagar 10 chars em todo o resto."""
-        from tcf.natures import cnpj_spec_para
+    def test_chooser_um_alfa_ja_vira_cnpja(self):
+        """RE-PIN ADR-0043. Na versao ADR-0042 (comprimentos fixos) este teste
+        afirmava o contrario — 1 alfa em 200 numericos ficava no `cnpj`, porque
+        o alfa de 10 chars taxava os 199 numericos. Com o compacto POR VALOR os
+        numericos custam os MESMOS 7 chars sob `cnpja`, entao um unico alfa
+        compressivel (10 < 1+18 do literal) ja' decide — sem heuristica."""
+        from tcf.natures import SPEC_CNPJ_ALFA, cnpj_spec_para
 
         col = [_cnpj_num(i) for i in range(200)]
         col[0] = "12.ABC.345/01DE-35"
-        assert cnpj_spec_para(col) is SPEC_CNPJ
+        assert cnpj_spec_para(col) is SPEC_CNPJ_ALFA
 
     def test_chooser_vira_pro_alfa_quando_domina(self):
         from tcf.natures import SPEC_CNPJ_ALFA, cnpj_spec_para
@@ -1224,6 +1230,98 @@ class TestCnpjAlfanumerico:
         payload, status = encode_value(SPEC_CPF, v)
         assert payload == MARKER_LITERAL + v         # BYTE identico ao pre-weld
         assert decode_value(SPEC_CPF, payload) == v
+
+    # --- ADR-0043: um CNPJ so', compacto POR VALOR ---------------------------
+    def test_payload_numerico_e_BYTE_IDENTICO_ao_legado(self):
+        """O caso compacto nao e' parecido — e' o MESMO payload do SPEC_CNPJ,
+        por construcao (indices do sub-alfabeto '0..9' SAO os digitos)."""
+        from tcf.natures import SPEC_CNPJ_ALFA
+
+        for i in range(0, 60, 7):
+            v = _cnpj_num(i)
+            p_legado, _ = SPEC_CNPJ.encode_value(v)
+            p_unific, _ = SPEC_CNPJ_ALFA.encode_value(v)
+            assert p_legado == p_unific
+            assert len(p_unific) == 7
+
+    def test_emissao_canonica_por_valor(self):
+        """Corpo decimal SEMPRE sai compacto (7); com letra SEMPRE pleno (10).
+        Deterministico — nenhum valor tem duas grafias emitidas."""
+        from tcf.natures import SPEC_CNPJ_ALFA
+
+        p1, _ = SPEC_CNPJ_ALFA.encode_value(_cnpj_num(3))
+        p2, _ = SPEC_CNPJ_ALFA.encode_value("12.ABC.345/01DE-35")
+        assert (len(p1), len(p2)) == (7, 10)
+
+    def test_decode_tolera_nao_canonico_de_10(self):
+        """Corpo numerico gravado em 10 chars (nunca emitido) DECODIFICA — decode
+        tolerante, emissao canonica, como o modo C: baseline nunca pinna isso."""
+        from tcf.natures import ALFABETO_CNPJ_ALFA, SPEC_CNPJ_ALFA
+
+        n = 0
+        for c in "061475630001":
+            n = n * 36 + ALFABETO_CNPJ_ALFA.index(c)
+        chars = []
+        for _ in range(10):
+            chars.append(BASE94[n % len(BASE94)])
+            n //= len(BASE94)
+        nao_canonico = "".join(reversed(chars))
+        assert SPEC_CNPJ_ALFA.decode_value(nao_canonico) == "06.147.563/0001-93"
+
+    def test_minuscula_nao_pertence_ao_dominio(self):
+        """NT 2025.001/XSD: `[0-9A-Z]{12}[0-9]{2}` — MAIUSCULA-only. Minuscula e'
+        variante de REPRESENTACAO: aceita-la canonizando a saida perderia o RT
+        byte-canonical, entao e' classe CONTRATO (H-15-06, aguarda a assinatura
+        do T-FMT-CONTRACT-SIGNATURE). Hoje: literal — nao ganha, nunca corrompe."""
+        from tcf.natures import SPEC_CNPJ_ALFA
+
+        v = "12.abc.345/01de-35"
+        assert SPEC_CNPJ_ALFA.classify_value(v) == "format_mismatch"
+        payload, _ = SPEC_CNPJ_ALFA.encode_value(v)
+        assert payload == MARKER_LITERAL + v
+        assert SPEC_CNPJ_ALFA.decode_value(payload) == v      # byte-RT intacto
+
+    def test_contrato_do_compacto_falha_alto(self):
+        """Inclui as 3 guardas achadas pela revisao adversarial PRE-commit, que
+        CONSTRUIU os specs malformados: base 1 (decode nao TERMINA em payload
+        adulterado), vazio+0 (IndexError onde o contrato e' pass-through), e
+        igualdade (ramo pleno vira codigo morto calado)."""
+        from tcf.natures import SPEC_CNPJ_ALFA
+
+        with pytest.raises(ValueError, match="PROPRIO"):
+            replace(SPEC_CNPJ_ALFA, name="y1", wire_id="y1", alfabeto_compacto="abc")
+        with pytest.raises(ValueError, match="MENOR"):
+            replace(SPEC_CNPJ_ALFA, name="y2", wire_id="y2",
+                    encoded_length_compacto=10)
+        with pytest.raises(ValueError, match="insuficiente"):
+            replace(SPEC_CNPJ_ALFA, name="y3", wire_id="y3",
+                    encoded_length_compacto=6)
+        # base 1: o laco de expansao do decode nao terminaria (n%1=0, n//1=n)
+        with pytest.raises(ValueError, match="PROPRIO"):
+            replace(SPEC_CNPJ_ALFA, name="y4", wire_id="y4",
+                    alfabeto_compacto="0", encoded_length_compacto=1)
+        # vazio + comprimento 0: colidiria com o pass-through do payload ''
+        with pytest.raises(ValueError, match="PROPRIO"):
+            replace(SPEC_CNPJ_ALFA, name="y5", wire_id="y5",
+                    alfabeto_compacto="", encoded_length_compacto=0)
+        with pytest.raises(ValueError, match=">=1"):
+            replace(SPEC_CNPJ_ALFA, name="y6", wire_id="y6",
+                    encoded_length_compacto=0)
+        # igualdade ao alfabeto pleno: o ramo de 10 chars nunca emitiria
+        with pytest.raises(ValueError, match="PROPRIO"):
+            replace(SPEC_CNPJ_ALFA, name="y7", wire_id="y7",
+                    alfabeto_compacto=SPEC_CNPJ_ALFA.alfabeto)
+
+    def test_header_e_o_unico_byte_de_diferenca_no_numerico(self):
+        """Pina o '+1 B' que os docs afirmam: coluna 100% numerica custa
+        exatamente 1 byte a mais no unificado — o char extra de ':cnpja'."""
+        from tcf.natures import SPEC_CNPJ_ALFA
+
+        col = [_cnpj_num(i) for i in range(50)]
+        w_legado = encode(col, nature=SPEC_CNPJ)
+        w_unific = encode(col, nature=SPEC_CNPJ_ALFA)
+        assert decode(w_legado) == col and decode(w_unific) == col
+        assert len(w_unific.encode()) - len(w_legado.encode()) == 1
 
     # --- o CONTRATO do alfabeto (fail-loud no __post_init__) ---------------
     def test_alfabeto_invalido_falha_alto(self):

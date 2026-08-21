@@ -663,11 +663,12 @@ src/tcf; o mapa do weld sao os 3 metodos com `\d` do `TemplatedCheckedSpec`.
 
 | ID | Hipotese | Status | Onde |
 |---|---|---|---|
-| H-15-01 | Weld do `SPEC_CNPJ_ALFA` (`cnpja`, encoded_length=10, denso 0-35; `cnpj` INTOCADO byte-compat) + generalizacao dos 3 metodos | **SOLDADO 2026-08-21** (ADR-0042; suite 1301). Byte-neutro PROVADO por diferencial: 8.036 encodes + 5.010 decodes (4.000 adulterados) = 0 divergencia de byte | ADR-0042 · lab 0030 |
+| H-15-01 | Weld do `SPEC_CNPJ_ALFA` + generalizacao dos 3 metodos | **SOLDADO 2026-08-21** (ADR-0042; byte-neutro provado por diferencial 0/13.046) e **REFINADO no mesmo dia pelo ADR-0043**: numerico virou caso COMPACTO POR VALOR (7 chars, payload byte-identico ao legado; decode discrimina pelo comprimento) — 51/51 na varredura, pior caso +1 B | ADR-0042 · ADR-0043 · labs 0030/0130 |
 | H-15-02 | Chooser `cnpj_spec_para` | **SOLDADO 2026-08-21, com desenho CORRIGIDO pela medicao**: a regra "tem letra -> alfa" que eu tinha proposto ERRA 8/12 (o numerico ganha ate' ~1/4 da coluna). O soldado escolhe por SOMA DE PAYLOAD; residuo declarado 41/51, erros so' em 22-25%, pior 3,15% | ADR-0042 §4 |
 | H-15-03 | **Volume futuro**: databases existentes + sintetico em volume p/ ver o regime com muitos alfanumericos (pedido do owner 2026-08-21: *"criar uma situacao em volume sintetico pra ver como seria com muitos numeros no futuro"*) | aberta — o lab 0030 e' o CONTROLE, nao o volume | Shaper + gerador estendido |
 | H-15-04 | Corpus REAL alfanumerico quando existir nos dados da Receita (emissao pode ser so-consoantes — Serpro; nao confirmado na IN) -> re-medir prevalencia e o subespaco ocupado | aberta (bloqueada por dado, 1a inscricao 31/07/2026) | gate real-world |
 | H-15-05 | O DV como coluna DEDUZIDA no desenho do GRUPO (split posicional + semantica de nature: raiz/ordem/DV como sub-colunas, DV a custo zero) | aberta — conecta o grupo (labs 1600-1800) com a nature | teoria do grupo |
+| H-15-06 | **Case-fold como classe CONTRATO**: minuscula nao pertence ao dominio oficial (NT 2025.001 = `[0-9A-Z]`, MAIUSCULA-only); aceitar canonizando a saida perde o byte-RT -> mesma classe do sort_by/drop_names. MEDIDO: compraria **-35,6%** em coluna 100% minuscula (lab 0130 G4) | aberta — aguarda a assinatura do `T-FMT-CONTRACT-SIGNATURE` (5 perguntas com o owner) | lab 0130 §G4 · ADR-0043 §5 |
 
 **Triagem**: H-15-01/02 sao candidatos `.8` (fato externo ja' vigente; decisao do owner);
 H-15-03/04/05 sao estudo/`.9`.

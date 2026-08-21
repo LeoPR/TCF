@@ -12,7 +12,7 @@ Mesma maquina parametrica serve CPF, CNPJ, e potencialmente IBAN/Luhn
 (nao welded — registrar SPEC novo quando dataset real existir).
 
 Filosofia opt-in per-value (sub-exp 05):
-- compressible -> base-94 encoded (5-7 chars)
+- compressible -> base-94 encoded (largura fixa por spec: 5 no CPF, 7 no CNPJ; no cnpj-alfa e' POR VALOR — 7 corpo decimal, 10 com letra, ADR-0043)
 - format_padded / check_invalid / format_mismatch / etc. -> literal fallback
 - Marker prefix `_` distingue literal vs compressed
 - RT byte-canonical preservado SEMPRE
@@ -75,6 +75,16 @@ class TemplatedCheckedSpec:
     encoded_length: int
     wire_id: str = ""
     alfabeto: str = "0123456789"
+    #: SUB-ALFABETO COMPACTO (weld ADR-0043, opcional). Corpo cujos simbolos caibam
+    #: todos aqui e' gravado em `encoded_length_compacto` chars (base menor) em vez
+    #: de `encoded_length`. O decode distingue os dois casos PELO COMPRIMENTO do
+    #: payload, entao os dois comprimentos tem de diferir. E' o "caso particular
+    #: conveniente" POR VALOR: nenhuma heuristica de coluna a sustentar — cada
+    #: valor decide sozinho, e a fracao numerico/alfa pode derivar no tempo a
+    #: vontade (a direcao do owner 2026-08-21: o numerico vira legado e se dilui;
+    #: um chooser por coluna nao se sustentaria).
+    alfabeto_compacto: str | None = None
+    encoded_length_compacto: int = 0
 
     def __post_init__(self):
         if not self.wire_id:
@@ -95,6 +105,43 @@ class TemplatedCheckedSpec:
                 f"{len(self.alfabeto)}^{self.body_length} nao cabe em "
                 f"{len(BASE94)}^{self.encoded_length}"
             )
+        # CONTRATO do compacto (ADR-0043): subconjunto PROPRIO com >=2 simbolos,
+        # capacidade propria, e comprimento DISTINTO >=1 — o comprimento e' o
+        # discriminador do decode. As tres guardas de tamanho vieram da revisao
+        # adversarial pre-commit, que CONSTRUIU os specs que elas barram:
+        #   - base 1 (ac='0'): o laco de expansao do decode nao TERMINA (n%1=0,
+        #     n//1=n) — payload adulterado travaria o processo;
+        #   - ac vazio + elc=0: o decode roteia payload '' pro ramo compacto por
+        #     vacuidade e crasha em abc[0], onde o contrato e' pass-through;
+        #   - igualdade (ac == alfabeto): o ramo pleno vira codigo morto calado.
+        if self.alfabeto_compacto is not None:
+            ac = self.alfabeto_compacto
+            if (len(ac) < 2 or len(set(ac)) != len(ac)
+                    or not set(ac) < set(self.alfabeto)):
+                raise ValueError(
+                    f"alfabeto_compacto de {self.name!r} tem de ser subconjunto "
+                    f"PROPRIO do alfabeto, sem repeticao e com >=2 simbolos "
+                    f"(base 1 nao termina; igual ao pleno mata o ramo pleno)"
+                )
+            if self.encoded_length_compacto < 1:
+                raise ValueError(
+                    f"encoded_length_compacto={self.encoded_length_compacto} de "
+                    f"{self.name!r} tem de ser >=1 — comprimento 0 colide com o "
+                    f"pass-through do payload vazio"
+                )
+            if self.encoded_length_compacto >= self.encoded_length:
+                raise ValueError(
+                    f"encoded_length_compacto={self.encoded_length_compacto} de "
+                    f"{self.name!r} tem de ser MENOR que encoded_length="
+                    f"{self.encoded_length} — comprimento igual seria ambiguo no "
+                    f"decode e maior perderia o proposito"
+                )
+            if len(ac) ** self.body_length > len(BASE94) ** self.encoded_length_compacto:
+                raise ValueError(
+                    f"encoded_length_compacto={self.encoded_length_compacto} "
+                    f"insuficiente em {self.name!r}: {len(ac)}^{self.body_length} "
+                    f"nao cabe em {len(BASE94)}^{self.encoded_length_compacto}"
+                )
 
     # === Mapeamentos: sao DOIS, e nao se confundem ===
 
@@ -139,14 +186,23 @@ class TemplatedCheckedSpec:
         if status != 'compressible':
             return MARKER_LITERAL + v, status
         simbolos = self._simbolos(v)
-        # o corpo em base-len(alfabeto). Com o alfabeto default isto E' `int(str)`
+        corpo = simbolos[:self.body_length]
+        # CANONICO (ADR-0043): corpo que cabe no sub-alfabeto compacto SEMPRE sai
+        # compacto. Nao e' escolha por coluna nem heuristica — e' por VALOR, e e'
+        # deterministico: o mesmo valor nunca tem duas grafias emitidas.
+        if (self.alfabeto_compacto is not None
+                and all(c in self.alfabeto_compacto for c in corpo)):
+            abc, k = self.alfabeto_compacto, self.encoded_length_compacto
+        else:
+            abc, k = self.alfabeto, self.encoded_length
+        # o corpo em base-len(abc). Com o alfabeto default isto E' `int(str)`
         # em base 10 — mesma conta, mesmo inteiro, mesmos bytes.
-        base = len(self.alfabeto)
+        base = len(abc)
         n = 0
-        for c in simbolos[:self.body_length]:
-            n = n * base + self.alfabeto.index(c)
+        for c in corpo:
+            n = n * base + abc.index(c)
         chars = []
-        for _ in range(self.encoded_length):
+        for _ in range(k):
             chars.append(BASE94[n % len(BASE94)])
             n //= len(BASE94)
         return ''.join(reversed(chars)), status
@@ -155,27 +211,34 @@ class TemplatedCheckedSpec:
         """Decode generico — reverte encode_value."""
         if payload.startswith(MARKER_LITERAL):
             return payload[1:]
+        # O COMPRIMENTO discrimina a grafia (ADR-0043): `encoded_length` = corpo no
+        # alfabeto pleno; `encoded_length_compacto` = corpo no sub-alfabeto. Os
+        # dois sao validados como distintos no __post_init__.
         if len(payload) == self.encoded_length and all(c in BASE94 for c in payload):
-            n = 0
-            for c in payload:
-                n = n * len(BASE94) + BASE94.index(c)
-            # Expansao SEM truncar + pad a esquerda: com o alfabeto default isto e'
-            # EXATAMENTE `str(n).zfill(body_length)`, inclusive quando o payload
-            # adulterado estoura a capacidade do corpo (n >= base^body_length) e a
-            # string sai mais longa. Trocar por `n % base**body` mudaria o
-            # comportamento nesse caso de borda — o que aqui nao se faz calado.
-            base = len(self.alfabeto)
-            idx = []
-            while n:
-                idx.append(n % base)
-                n //= base
-            body_str = ''.join(
-                self.alfabeto[i] for i in reversed(idx)
-            ).rjust(self.body_length, self.alfabeto[0])
-            valores = [self._valor(c) for c in body_str]
-            valores.extend(self.check_fn(valores))
-            return self.formatter(valores)
-        return payload
+            abc = self.alfabeto
+        elif (self.alfabeto_compacto is not None
+                and len(payload) == self.encoded_length_compacto
+                and all(c in BASE94 for c in payload)):
+            abc = self.alfabeto_compacto
+        else:
+            return payload
+        n = 0
+        for c in payload:
+            n = n * len(BASE94) + BASE94.index(c)
+        # Expansao SEM truncar + pad a esquerda: com o alfabeto default isto e'
+        # EXATAMENTE `str(n).zfill(body_length)`, inclusive quando o payload
+        # adulterado estoura a capacidade do corpo (n >= base^body_length) e a
+        # string sai mais longa. Trocar por `n % base**body` mudaria o
+        # comportamento nesse caso de borda — o que aqui nao se faz calado.
+        base = len(abc)
+        idx = []
+        while n:
+            idx.append(n % base)
+            n //= base
+        body_str = ''.join(abc[i] for i in reversed(idx)).rjust(self.body_length, abc[0])
+        valores = [self._valor(c) for c in body_str]
+        valores.extend(self.check_fn(valores))
+        return self.formatter(valores)
 
 
 # === Standalone functions (backward compat wrappers — delegam pra methods) ===
@@ -309,17 +372,34 @@ SPEC_CNPJ = TemplatedCheckedSpec(
 # valor, que a IN define como `ASCII(c) - 48` e que `_valor()` ja' implementa.
 # Verificado contra o exemplo publicado `12.ABC.345/01DE-35` (DV 35).
 #
-# POR QUE DOIS SPECS, e nao um so' alfanumerico (medido, lab 2026-08-21-0030):
-#   - `cnpj`  corpo em base 10 -> 7 chars
-#   - `cnpja` corpo em base 36 -> 10 chars   (36^12 = 4,74e18 <= 80^10 = 1,07e19)
-# Usar `cnpja` numa coluna 100% numerica custa +38,1%. Como os CNPJ numericos
-# CONTINUAM validos e sendo emitidos (a IN nao os altera), taxar o legado pra
-# acomodar o novo seria a troca errada. `SPEC_CNPJ` fica BYTE-INTOCADO.
+# UM CNPJ SO', com o numerico como CASO COMPACTO POR VALOR (ADR-0043, que refina
+# o desenho "dois specs + chooser" do ADR-0042 pela direcao do owner 2026-08-21):
+# o numerico e' legado — hoje e' 100% do cadastro, mas e' 10^12/36^12 ~ 2,1e-7 do
+# espaco novo e SO' DILUI daqui pra frente. Qualquer heuristica por coluna
+# ("maioria numerica -> spec numerico") teria prazo de validade. A solucao nao e'
+# heuristica: e' POR VALOR — corpo 100% decimal grava em base 10 com **7 chars**
+# (bytes IDENTICOS ao payload do SPEC_CNPJ legado, por construcao: os indices do
+# sub-alfabeto "0..9" SAO os digitos); corpo com letra grava em base 36 com
+# **10 chars**. O decode distingue pelo COMPRIMENTO. Nao ha' escolha a errar.
+#
+#   - corpo numerico  -> 7 chars   (10^12  <= 80^7  = 2,10e13)
+#   - corpo com letra -> 10 chars  (36^12 = 4,74e18 <= 80^10 = 1,07e19)
+#
+# `SPEC_CNPJ` (`:cnpj`) permanece pra LER wire legado e como emissao explicita
+# byte-compat; a emissao recomendada e' esta aqui (`:cnpja`), que cobre os dois
+# dominios pagando o preco certo em cada valor.
 #
 # POR QUE base 36 e nao 43 (ASCII-48 como base): o mapeamento legal tem um GAP
 # (10..16 = `:;<=>?@`, que nao sao simbolos validos). Usa-lo como base gastaria
 # 43^12 = 4,00e19 > 80^10 -> 11 chars em vez de 10. A LEI governa o DV; a
 # GRAVACAO usa o alfabeto denso. Sao dois mapeamentos, e ficam separados.
+#
+# MAIUSCULA-ONLY e' o DOMINIO OFICIAL (NT 2025.001/XSD: `[0-9A-Z]{12}[0-9]{2}`).
+# Minuscula NAO pertence ao universo — e' variante de REPRESENTACAO. Aceita-la
+# canonizando a saida perderia o RT byte-canonical, entao e' da classe CONTRATO
+# (mesma do sort_by/drop_names) e fica fora deste spec ate' a assinatura de
+# contrato existir (T-FMT-CONTRACT-SIGNATURE; registro H-15-06). Hoje minuscula
+# cai em literal: nao ganha, nunca corrompe.
 
 _CNPJ_ALFA_RE = re.compile(
     r'^([0-9A-Z]{2})\.([0-9A-Z]{3})\.([0-9A-Z]{3})/([0-9A-Z]{4})-(\d{2})$'
@@ -351,36 +431,29 @@ SPEC_CNPJ_ALFA = TemplatedCheckedSpec(
     encoded_length=10,                # 36^12 = 4.7*10^18 < 80^10 = 1.1*10^19 ✓
     wire_id="cnpja",                  # ADR-0041: id curto, plano do DADO
     alfabeto=ALFABETO_CNPJ_ALFA,
+    alfabeto_compacto="0123456789",   # ADR-0043: corpo 100% decimal -> 7 chars,
+    encoded_length_compacto=7,        # payload BYTE-IDENTICO ao do SPEC_CNPJ
 )
 
 
 def cnpj_spec_para(vals) -> TemplatedCheckedSpec:
-    """Escolhe entre `SPEC_CNPJ` e `SPEC_CNPJ_ALFA` para uma coluna (weld H-15-02).
+    """Escolhe entre `SPEC_CNPJ` (legado) e `SPEC_CNPJ_ALFA` para uma coluna.
 
-    NAO e' "tem letra -> alfa". Essa regra foi MEDIDA e esta' ERRADA: numa coluna
-    real de 2.000 CNPJ ela erra em 8 dos 12 pontos da varredura, porque o spec
-    numerico (7 chars) segue ganhando mesmo pagando literal pelos poucos
-    alfanumericos, ate' ~1/4 da coluna. A virada tem forma fechada — igualando
-    `(n-k)*E1 + k*(1+L)` a `n*E2` da' `k/n = (E2-E1)/(1+L-E1)` = 3/12 = 1/4 — e
-    foi confirmada em k=500 de n=2.000.
+    Depois do ADR-0043 a pergunta ficou quase trivial: no `SPEC_CNPJ_ALFA` um
+    corpo numerico ja' grava nos MESMOS 7 chars do legado (caso compacto por
+    valor), entao o payload do alfa e' <= o do legado em TODO valor — 7 = 7 no
+    numerico, 10 < 1+18 no alfanumerico (que no legado cai em literal). A
+    historia deste helper registra o porque: a versao ADR-0042 (specs de
+    comprimento fixo) precisava de um chooser de verdade, a regra "tem letra ->
+    alfa" foi MEDIDA e reprovada (erra 8/12; a virada tinha forma fechada
+    `k/n = (E2-E1)/(1+L-E1) = 1/4`), e a soma-de-payload carregava residuo
+    sistematico de ate' 3,15% na faixa 22-25%. O compacto por valor DISSOLVEU a
+    escolha — nao ha' mais heuristica pra sustentar no tempo.
 
-    Aqui a escolha e' por SOMA DE PAYLOAD: classifica cada valor sob os dois
-    specs e soma o que cada um emitiria (compressivel -> `encoded_length`; senao
-    literal -> `1 + len(v)`). UMA passada, sem encodar a coluna duas vezes.
-
-    Empate escolhe `SPEC_CNPJ`: ele e' o byte-compat com todo wire `:cnpj` ja'
-    emitido, e desempatar pro novo re-pinaria baseline sem ganho.
-
-    RESIDUO MEDIDO (nao e' exato, e o quanto nao e' esta' aqui). Contra a verdade
-    (encodar com os dois e comparar), em 3 sementes x 17 fracoes x n=2.000 de CNPJ
-    real: **41/51 corretos**. Os 10 erros sao SISTEMATICOS, nao ruido — todos na
-    faixa **22-25% de alfanumericos** e todos na mesma direcao (escolhe `cnpj`
-    quando `cnpja` ja' ganhou), porque a soma de payload nao ve' o que o core faz
-    a jusante com literais no meio de payloads densos. Custo do pior erro medido:
-    **3,15%**; fora da faixa, 0. Quem precisar de exatidao paga dois encodes:
-
-        cand = [encode(col, nature=s) for s in (SPEC_CNPJ, SPEC_CNPJ_ALFA)]
-        texto = min(cand, key=lambda t: len(t.encode()))
+    O que resta decidir e' so' o EMPATE (coluna 100% numerica, payloads
+    identicos): fica com `SPEC_CNPJ`, cujo header e' 1 B menor (`:cnpj` vs
+    `:cnpja`) e byte-compat com todo wire ja' emitido. Qualquer valor
+    alfanumerico compressivel -> `SPEC_CNPJ_ALFA`.
 
     O chamador continua no controle — `encode(col, nature=<spec>)` NUNCA e'
     sobrescrito calado. Uso normal:
@@ -388,14 +461,11 @@ def cnpj_spec_para(vals) -> TemplatedCheckedSpec:
         from tcf.natures import cnpj_spec_para
         texto = encode(coluna, nature=cnpj_spec_para(coluna))
     """
-    custo_num = custo_alfa = 0
     for v in vals:
         if v is None:                              # slot do core, nao do spec
             continue
         s = str(v)
-        literal = 1 + len(s)
-        custo_num += (SPEC_CNPJ.encoded_length
-                      if SPEC_CNPJ.classify_value(s) == 'compressible' else literal)
-        custo_alfa += (SPEC_CNPJ_ALFA.encoded_length
-                       if SPEC_CNPJ_ALFA.classify_value(s) == 'compressible' else literal)
-    return SPEC_CNPJ if custo_num <= custo_alfa else SPEC_CNPJ_ALFA
+        if (SPEC_CNPJ_ALFA.classify_value(s) == 'compressible'
+                and SPEC_CNPJ.classify_value(s) != 'compressible'):
+            return SPEC_CNPJ_ALFA                  # alfanumerico de verdade
+    return SPEC_CNPJ

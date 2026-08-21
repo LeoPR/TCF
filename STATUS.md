@@ -45,6 +45,24 @@
 > Placa não é regressão nova, é **lacuna preexistente** — e segue bloqueada por DADO (busca em
 > `Z:/tcf-data/`: nenhum dataset tem a coluna).
 >
+> **⚑ REFINADO NO MESMO DIA — [ADR-0043](docs/adr/0043-cnpj-um-so-compacto-por-valor.md): UM
+> CNPJ SÓ, o numérico vira caso COMPACTO POR VALOR (direção do owner: o numérico é legado que se
+> dilui — 10¹²/36¹² ≈ 2,1×10⁻⁷ do espaço novo — e chooser por coluna teria prazo de validade).**
+> No `:cnpja`, corpo 100% decimal grava em base 10 com **7 chars, payload BYTE-IDÊNTICO ao do
+> legado** (verificado 2 000/2 000); corpo com letra em base 36 com 10; **o decode discrimina
+> pelo COMPRIMENTO** (mecanismo genérico `alfabeto_compacto`/`encoded_length_compacto`,
+> contrato fail-loud). **O chooser vira quase-trivial e o resíduo do ADR-0042 DESAPARECE:
+> 51/51** na mesma varredura que dava 41/51 (pior 3,15%). Dominação medida: pior caso do
+> unificado = **+1 B** (header) em coluna 100% numérica; k=1 já vence; **−27,6%** vs o desenho
+> fixo em coluna numérica. **Universo CONFIRMADO na NT Conjunta 2025.001**: `[0-9A-Z]{12}[0-9]{2}`
+> — 36 símbolos, 26 letras MAIÚSCULAS, sem exclusão no formato (I,O,U,Q,F excluídas = fonte
+> secundária, emissão no máximo). **Minúscula NÃO pertence ao domínio** — é representação;
+> case-fold canonizaria a saída e perderia o byte-RT → **classe CONTRATO (H-15-06)**, mediria
+> −35,6% em coluna minúscula, aguarda `T-FMT-CONTRACT-SIGNATURE`. Hoje: literal (não ganha,
+> nunca corrompe). Suíte **1306**; diferencial de neutralidade re-executado (0 divergências);
+> §4 do ADR-0042 superado (vigência anotada no índice). Lab probatório:
+> [`0130`](experiments/lab/dirty/2026-08/2026-08-21/2026-08-21-0130-cnpj-um-so-compacto/).
+>
 > **⚑ SOLDADO 2026-08-21 — weld H-15-01/02, [ADR-0042](docs/adr/0042-cnpj-alfanumerico-dois-specs.md).**
 > `TemplatedCheckedSpec` ganhou `alfabeto` parametrizável + `_valor()` (ASCII−48, **universal**:
 > dígito devolve o próprio dígito, letra devolve a regra da IN); os 3 métodos que assumiam `\d`

@@ -1,0 +1,96 @@
+{
+ "G1_paridade": {
+  "n": 2000,
+  "identicos": 2000
+ },
+ "G2_dominacao": [
+  {
+   "k": 0,
+   "legado": 17585,
+   "unificado": 17586,
+   "fixo_adr0042": 24292,
+   "rt": true
+  },
+  {
+   "k": 1,
+   "legado": 17598,
+   "unificado": 17589,
+   "fixo_adr0042": 24292,
+   "rt": true
+  },
+  {
+   "k": 10,
+   "legado": 17743,
+   "unificado": 17622,
+   "fixo_adr0042": null,
+   "rt": true
+  },
+  {
+   "k": 100,
+   "legado": 19060,
+   "unificado": 17892,
+   "fixo_adr0042": null,
+   "rt": true
+  },
+  {
+   "k": 300,
+   "legado": 22007,
+   "unificado": 18549,
+   "fixo_adr0042": null,
+   "rt": true
+  },
+  {
+   "k": 450,
+   "legado": 24229,
+   "unificado": 19130,
+   "fixo_adr0042": null,
+   "rt": true
+  },
+  {
+   "k": 500,
+   "legado": 25007,
+   "unificado": 19277,
+   "fixo_adr0042": null,
+   "rt": true
+  },
+  {
+   "k": 600,
+   "legado": 26520,
+   "unificado": 19642,
+   "fixo_adr0042": null,
+   "rt": true
+  },
+  {
+   "k": 800,
+   "legado": 29415,
+   "unificado": 20322,
+   "fixo_adr0042": null,
+   "rt": true
+  },
+  {
+   "k": 1500,
+   "legado": 37269,
+   "unificado": 22753,
+   "fixo_adr0042": null,
+   "rt": true
+  },
+  {
+   "k": 2000,
+   "legado": 38009,
+   "unificado": 24489,
+   "fixo_adr0042": 24542,
+   "rt": true
+  }
+ ],
+ "G3_chooser": {
+  "corretos": 51,
+  "total": 51,
+  "adr0042_dava": "41/51, residuo 3,15%"
+ },
+ "G4_minuscula": {
+  "raw": 37999,
+  "hoje_literal": 38009,
+  "sob_fold": 24491,
+  "contrato_compraria_pct": 35.6
+ }
+}
