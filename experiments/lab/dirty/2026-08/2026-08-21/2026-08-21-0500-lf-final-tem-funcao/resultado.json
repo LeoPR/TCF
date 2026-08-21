@@ -1,0 +1,66 @@
+{
+ "T1": {
+  "com_lf": 55,
+  "drop_readd_ok": 55
+ },
+ "T2": {
+  "magics": {
+   "#TCF.8b": [
+    false,
+    true
+   ],
+   "#TCF.8n": [
+    true
+   ],
+   "#TCF.8\n": [
+    true
+   ],
+   "#TCF.8!": [
+    true
+   ],
+   "#TCF.8M": [
+    false,
+    true
+   ]
+  },
+  "ambiguos": [
+   "#TCF.8M",
+   "#TCF.8b"
+  ]
+ },
+ "T3": {
+  "original": [
+   "a",
+   ""
+  ],
+  "sem_lf_decodifica": [
+   "a"
+  ]
+ },
+ "T4": {
+  "cabecalho": "#TCF.8Ha:6n,b?:4#:3[]:6n",
+  "sem_lf": "HierarchicalError: size 6 excede o corpo em ('b',) (blob truncado?)"
+ },
+ "T5": [
+  {
+   "caso": "1 CPF",
+   "bytes": 24,
+   "pct": 4.17
+  },
+  {
+   "caso": "3 curtos",
+   "bytes": 16,
+   "pct": 6.25
+  },
+  {
+   "caso": "10 valores",
+   "bytes": 17,
+   "pct": 5.88
+  },
+  {
+   "caso": "100 valores",
+   "bytes": 36,
+   "pct": 2.78
+  }
+ ]
+}

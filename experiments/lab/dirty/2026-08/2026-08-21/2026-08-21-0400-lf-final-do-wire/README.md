@@ -1,5 +1,16 @@
 # 2026-08-21-0400 — o `\n` final do wire: terminador, não convenção de arquivo
 
+> ## ⚠ LEITURA REFINADA em [`0500`](../2026-08-21-0500-lf-final-tem-funcao/)
+>
+> Este lab concluiu que o LF final e' *load-bearing* e que trata-lo como opcional seria
+> "indecidivel". **Impreciso.** O owner apontou que isso so' vale se o LF for OPCIONAL;
+> sendo OBRIGATORIO, ele e' PREVISIVEL — e medido no `0500`, **e' 100% recuperavel**
+> (drop+readd devolve o original em 55/55). O que trava o drop e' a **assimetria entre
+> rotas** (o magic nao determina a convencao), nao o LF carregar informacao. A excecao
+> real e' o `.8H`, onde ele esta' **dentro do `size`**.
+>
+> A matriz das 10 rotas abaixo continua valendo — o que mudou foi a INTERPRETACAO.
+
 > ## ⚑ DECISÃO 2026-08-21 — [ADR-0045](../../../../../../docs/adr/0045-bordas-em-valor-de-spec.md) §3: **não uniformizar**
 >
 > A assimetria que este lab achou (7 rotas emitem o LF final, 3 não) foi **precificada** antes

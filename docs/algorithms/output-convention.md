@@ -57,7 +57,7 @@ path.write_bytes(content.encode("utf-8"))
 > seguir isso ao portar o formato quebra o decode.**
 
 O LF final **não é** enchimento de arquivo: é o **terminador do último valor**, num formato em
-que o LF **separa valores**. Ele é load-bearing, e a prova é de uma linha:
+que o LF **separa valores**. Prova de uma linha:
 
 ```
 ['a', 'b', '']   ->  '#TCF.8\na\nb\n\n'
@@ -65,8 +65,13 @@ que o LF **separa valores**. Ele é load-bearing, e a prova é de uma linha:
 ```
 
 O wire da coluna que **termina em valor vazio** é exatamente o wire da coluna sem o vazio,
-**mais um LF**. Tratar o LF final como opcional obrigaria o decoder a **adivinhar** se o
-último vazio é enchimento ou dado — **indecidível por construção**.
+**mais um LF**.
+
+Isso **não** quer dizer que ele carregue informação. Ele é **100% recuperável**: dropar o
+último byte e recolocá-lo na recepção devolve o objeto original (medido em 55/55 wires). O que
+torna o drop inseguro é outra coisa — **o receptor não sabe quando recolocar**, porque a
+convenção varia por rota e o magic não a determina. E dropar **sem** recolocar transforma
+`['a','']` em `['a']`, sem erro.
 
 **O que o código realmente faz** (medido nas 10 rotas; **nenhuma** aceita "com ou sem"):
 
@@ -78,19 +83,42 @@ O wire da coluna que **termina em valor vazio** é exatamente o wire da coluna s
 | tipado bool | **não** | ok | `ValueError` |
 | tipado int/misto | sim | tolera com warning | `ValueError` |
 
+> **REFINADO 2026-08-21** (lab [`0500`](../../experiments/lab/dirty/2026-08/2026-08-21/2026-08-21-0500-lf-final-tem-funcao/)):
+> dizer que o LF é "load-bearing" é impreciso. Ele **é 100% recuperável** — dropar o último byte
+> e recolocá-lo na recepção devolve o objeto original em 55/55 wires testados. O que impede
+> dropá-lo não é ele carregar informação; é que **o magic não determina a convenção** (`#TCF.8M`
+> e `#TCF.8b` emitem em uns casos e não em outros), então o receptor não sabe quando recolocar —
+> e dropar **sem** recolocar perde valor vazio final, em silêncio.
+>
+> Exceção real: no **`.8H`** o LF está **dentro do `size`** declarado do bloco. Ali ele não é
+> trailing decorativo, é byte contado.
+
 Duas consequências práticas:
 
-- **Não dispense o LF final na transmissão.** No hierárquico ele delimita o último bloco e o
-  decode falha sem ele; no single-col você perde a canonicidade (warning). O ganho seria de
-  **1 byte por wire**.
+- **Não dispense o LF final na transmissão** — hoje. No `.8H` ele está **dentro do `size`** e o
+  decode falha; no single-col você perde o valor vazio final (silencioso) e a canonicidade
+  (warning). O ganho seria de **1 byte por wire — 4 a 6% em payload minúsculo**, que é o alvo
+  declarado do `.8`; por isso o LF segue registrado como **candidato a modo de transporte**
+  (H-15-08), viável só se as duas pontas concordarem numa regra por rota.
 - **Não acrescente um LF "por educação"** ao gravar em arquivo. Em single-col e multi-col isso
   **acrescenta um valor vazio à coluna, em silêncio**.
 
 Ou seja: grave e transmita **exatamente os bytes que o `encode` devolveu**. Sobre gravar em
 disco sem o CRLF do Windows, ver §2.
 
-Quais rotas emitem e quais não **não é uniforme** — assimetria conhecida, não regra; registrada
-como pendência no lab acima.
+Quais rotas emitem e quais não **não é uniforme** — assimetria **conhecida e precificada**
+(ADR-0045 §3): uniformizar faria o decoder rejeitar em 2 rotas, mudaria semântica numa terceira,
+e quebraria o gate D17a (300 → 301 B).
+
+### Sobre `file` / mimetype
+
+Um mal-entendido comum: **o LF final não é necessário para identificação de tipo**. `file` e
+libmagic identificam por *sniffing de conteúdo* (bytes iniciais) — e o TCF tem magic próprio e
+forte (`#TCF.8…`), que é exatamente o que essas ferramentas usam.
+
+O que **depende** do LF final é a definição POSIX de *linha* (toda linha termina em newline).
+Isso afeta ferramentas orientadas a linha — `wc -l` subconta a última, `read` de shell perde a
+última, git marca `\ No newline at end of file`. **Não afeta detecção de tipo.**
 
 ## Implicacao no byte count
 

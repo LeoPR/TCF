@@ -33,6 +33,22 @@
 > [`0330`](experiments/lab/dirty/2026-08/2026-08-21/2026-08-21-0330-bordas-em-spec/) e
 > [`0400`](experiments/lab/dirty/2026-08/2026-08-21/2026-08-21-0400-lf-final-do-wire/).
 
+> **⚑ REFINADO 2026-08-21 — o LF final NAO e' load-bearing; e' REDUNDANCIA DE 100% travada pela
+> ASSIMETRIA.** O owner apontou o buraco no meu argumento anterior (*"creio que nao precisamos de
+> caracteres decorativos"*), e ele estava certo: eu tinha confundido **obrigatorio** com
+> **informativo**. Medido (lab [`0500`](experiments/lab/dirty/2026-08/2026-08-21/2026-08-21-0500-lf-final-tem-funcao/)):
+> dropar o ultimo byte e recoloca-lo na recepcao devolve o original em **55/55** wires — o LF
+> **e'** recuperavel. **O que trava o drop e' outra coisa**: o magic NAO determina a convencao
+> (`#TCF.8M` e `#TCF.8b` emitem em uns casos e nao em outros), entao o receptor nao sabe quando
+> recolocar — e dropar SEM recolocar **perde valor vazio final EM SILENCIO** (`['a','']` vira
+> `['a']`). **EXCECAO REAL**: no `.8H` o LF esta' **dentro do `size`** declarado — ali e' byte
+> contado, nao decoracao. **Valor**: 4-6% em payload minusculo (alvo do `.8`). **Custo escondido**:
+> o warning de *"wire possivelmente truncado"* e' um DETECTOR DE TRUNCAMENTO — dropar
+> sistematicamente o transforma em ruido. **Sobre `file`/mimetype**: a crenca nao procede pra
+> IDENTIFICACAO (libmagic faz sniffing de conteudo, e o TCF ja' tem magic proprio); o que depende
+> do LF final e' a definicao POSIX de LINHA (`wc -l` subconta), nao a deteccao de tipo. Segue
+> **aberto como candidato a modo de TRANSPORTE** (H-15-08), nao mudanca de formato.
+
 > **⚑ O LF FINAL DO WIRE E' TERMINADOR — e a doc ensinava o oposto (corrigido 2026-08-21).**
 > `docs/algorithms/output-convention.md` §3 dizia que o LF final e' *"opcional; decoder deve
 > aceitar com ou sem"*. **Falso, e portar o formato seguindo isso quebra o decode.** Prova de uma
