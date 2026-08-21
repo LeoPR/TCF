@@ -2,7 +2,7 @@
 title: How to — Como usar naturezas (CPF/CNPJ/IP)
 type: how-to
 status: active
-tags: [natures, pre-tx, compressão, cpf, cnpj, ip, adr-0015]
+tags: [natures, pre-tx, compressão, cpf, cnpj, cnpj-alfa, ip, adr-0015, adr-0042]
 created: 2026-05-27
 updated: 2026-05-27
 ---
@@ -129,6 +129,75 @@ assert cnpjs_back == cnpjs
 O ganho não é garantido: em dados pequenos ou ordenados, a versão com filtro pode perder para a
 codificação comum e não emitir `:cnpj`. Em uma tabela real ordenada, o teste mediu aumento de tamanho;
 por isso não há uma porcentagem geral prometida.
+
+## Single-column: CNPJ alfanumérico (`SPEC_CNPJ_ALFA`)
+
+Desde **julho de 2026** (IN RFB nº 2.229/2024), CNPJ novo tem as **12 primeiras posições
+alfanuméricas** (`0-9` e `A-Z`); os **2 dígitos verificadores continuam decimais**. Os CNPJ
+numéricos existentes **não mudam** e continuam válidos.
+
+```python
+from tcf import encode, decode
+from tcf.natures import SPEC_CNPJ_ALFA
+
+cnpjs = [
+    '12.ABC.345/01DE-35',      # alfanumérico
+    '11.222.333/0001-81',      # numérico — também casa no spec alfa
+]
+
+text = encode(cnpjs, nature=SPEC_CNPJ_ALFA)
+assert text.startswith('#TCF.8 :cnpja')
+assert decode(text) == cnpjs   # o header resolve sozinho, sem spec out-of-band
+```
+
+**São dois specs, e eles coexistem** — `SPEC_CNPJ_ALFA` **não** substitui `SPEC_CNPJ`:
+
+| spec | `:id` no wire | corpo | chars por valor |
+|---|---|---|---:|
+| `SPEC_CNPJ` | `:cnpj` | base 10 | **7** |
+| `SPEC_CNPJ_ALFA` | `:cnpja` | base 36 | **10** |
+
+Uma coluna 100% numérica sob o spec alfanumérico custa **+38,1%** — por isso o numérico
+continua existindo e ficou byte-intocado.
+
+### Qual dos dois usar: `cnpj_spec_para`
+
+A regra intuitiva "tem letra → usa o alfanumérico" **está errada**, e isso foi medido: o spec
+numérico continua ganhando (pagando literal pelos poucos alfanuméricos) até cerca de **1/4**
+da coluna. Use o helper:
+
+```python
+from tcf import encode, decode
+from tcf.natures import cnpj_spec_para
+
+coluna = ['12.ABC.345/01DE-35', '11.222.333/0001-81', '34.028.316/0001-00']
+
+text = encode(coluna, nature=cnpj_spec_para(coluna))
+assert decode(text) == coluna
+```
+
+Ele escolhe por soma de payload, em uma passada. É **first-order**: numa varredura de 3
+sementes × 17 frações × 2 000 CNPJ reais acertou 41/51, e os erros ficam todos na faixa de
+**22–25%** de alfanuméricos, custando no máximo **3,15%**. Se precisar de exatidão, pague
+dois encodes:
+
+```python
+from tcf import encode, decode, SPEC_CNPJ
+from tcf.natures import SPEC_CNPJ_ALFA
+
+coluna = ['12.ABC.345/01DE-35', '11.222.333/0001-81', '34.028.316/0001-00']
+
+cand = [encode(coluna, nature=s) for s in (SPEC_CNPJ, SPEC_CNPJ_ALFA)]
+text = min(cand, key=lambda w: len(w.encode()))
+assert decode(text) == coluna
+```
+
+**O dígito verificador não mudou de regra**: é o mesmo módulo 11 com os mesmos pesos. O que
+mudou é a conversão de caractere para valor — `ASCII(c) - 48`, então `'A'`=17 … `'Z'`=42. Como
+`'0'` é ASCII 48, dígito converte para ele mesmo, e é por isso que CNPJ numérico gera
+exatamente o mesmo DV nas duas regras. Detalhes e o que **não** foi resolvido (o `split`
+estrutural continua recusando coluna com letra) em
+[ADR-0042](../adr/0042-cnpj-alfanumerico-dois-specs.md).
 
 ## Single-column: IP (IPv4)
 

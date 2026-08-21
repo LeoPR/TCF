@@ -297,8 +297,11 @@ class TestNatureMarkHeader:
         from tcf.natures import _WIRE_REGISTRY
 
         # RE-PIN 2026-08-14 (weld EXP-018): o registry ganhou `int-pad`/`ipad`.
-        assert set(SPEC_REGISTRY) == {"cpf", "cnpj", "ip", "data-iso", "int-pad"}
-        assert set(_WIRE_REGISTRY) == {"cpf", "cnpj", "ip", "dt", "ipad"}
+        # RE-PIN 2026-08-21 (weld H-15-01): ganhou `cnpj-alfa`/`cnpja` — o CNPJ
+        # alfanumerico da IN RFB 2.229/2024. COEXISTE com `cnpj`, nao o substitui.
+        assert set(SPEC_REGISTRY) == {
+            "cpf", "cnpj", "cnpj-alfa", "ip", "data-iso", "int-pad"}
+        assert set(_WIRE_REGISTRY) == {"cpf", "cnpj", "cnpja", "ip", "dt", "ipad"}
 
 
 # ===========================================================================
@@ -1039,6 +1042,197 @@ class TestIntPadSpecWeld:
     def test_registry_ganhou_ipad_nos_dois_planos(self):
         from tcf.natures import SPEC_REGISTRY, _WIRE_REGISTRY, _resolve_nature_id
 
-        assert set(SPEC_REGISTRY) == {"cpf", "cnpj", "ip", "data-iso", "int-pad"}
-        assert set(_WIRE_REGISTRY) == {"cpf", "cnpj", "ip", "dt", "ipad"}
+        # RE-PIN 2026-08-21 (weld H-15-01): + `cnpj-alfa`/`cnpja`.
+        assert set(SPEC_REGISTRY) == {
+            "cpf", "cnpj", "cnpj-alfa", "ip", "data-iso", "int-pad"}
+        assert set(_WIRE_REGISTRY) == {"cpf", "cnpj", "cnpja", "ip", "dt", "ipad"}
         assert _resolve_nature_id("ipad").name == "int-pad"
+
+
+# ===========================================================================
+# CNPJ ALFANUMERICO — weld H-15-01/02 (IN RFB no 2.229/2024, vigente jul/2026)
+# ===========================================================================
+
+
+def _dv_num(i: int) -> str:
+    """DV do CNPJ numerico `00000{i:03d}0001`, pra montar fixtures validas."""
+    corpo = f"00000{i:03d}0001"
+    return "".join(str(d) for d in SPEC_CNPJ.check_fn([int(c) for c in corpo]))
+
+
+def _cnpj_num(i: int) -> str:
+    return f"00.000.{i:03d}/0001-{_dv_num(i)}"
+
+
+class TestCnpjAlfanumerico:
+    """As 12 primeiras posicoes aceitam `[0-9A-Z]`; os 2 DV seguem decimais.
+
+    O DV e' o MESMO mod-11 com OS MESMOS pesos — muda so' a conversao
+    char->valor (`ASCII - 48`). E' por isso que o numerico gera DV identico nas
+    duas regras, e por isso `SPEC_CNPJ` nao precisou mudar.
+    """
+
+    # --- a LEI: o exemplo publicado, e o DV que ele exige -------------------
+    def test_exemplo_publicado_da_receita(self):
+        from tcf.natures import SPEC_CNPJ_ALFA
+
+        v = "12.ABC.345/01DE-35"
+        assert SPEC_CNPJ_ALFA.classify_value(v) == "compressible"
+        payload, status = SPEC_CNPJ_ALFA.encode_value(v)
+        assert status == "compressible"
+        assert len(payload) == 10
+        assert SPEC_CNPJ_ALFA.decode_value(payload) == v
+
+    def test_dv_errado_e_recusado_e_vira_literal(self):
+        from tcf.natures import SPEC_CNPJ_ALFA
+
+        v = "12.ABC.345/01DE-34"          # mesmo corpo, DV trocado
+        assert SPEC_CNPJ_ALFA.classify_value(v) == "check_invalid"
+        payload, status = SPEC_CNPJ_ALFA.encode_value(v)
+        assert status == "check_invalid"
+        assert payload.startswith(MARKER_LITERAL)
+        assert SPEC_CNPJ_ALFA.decode_value(payload) == v      # nunca perde dado
+
+    def test_letra_e_numero_pelo_mapeamento_da_IN(self):
+        """`_valor` e' ASCII-48 — universal nos dois dominios."""
+        from tcf.natures import SPEC_CNPJ_ALFA
+
+        assert SPEC_CNPJ_ALFA._valor("0") == 0
+        assert SPEC_CNPJ_ALFA._valor("9") == 9
+        assert SPEC_CNPJ_ALFA._valor("A") == 17
+        assert SPEC_CNPJ_ALFA._valor("Z") == 42
+        # e no spec numerico da' exatamente o digito — por isso nada mudou la'
+        assert [SPEC_CNPJ._valor(c) for c in "0123456789"] == list(range(10))
+
+    def test_retrocompat_dv_identico_nas_duas_regras(self):
+        """CNPJ numerico gera o MESMO DV sob a regra nova — por CONSTRUCAO."""
+        from tcf.natures import SPEC_CNPJ_ALFA
+
+        assert SPEC_CNPJ.check_fn is SPEC_CNPJ_ALFA.check_fn
+        for i in range(0, 60, 7):
+            v = _cnpj_num(i)
+            assert SPEC_CNPJ.classify_value(v) == "compressible"
+            assert SPEC_CNPJ_ALFA.classify_value(v) == "compressible"
+
+    # --- a GRAVACAO: base 36, e por que nao 43 -----------------------------
+    def test_base_densa_e_a_capacidade(self):
+        from tcf.natures import ALFABETO_CNPJ_ALFA, SPEC_CNPJ_ALFA
+
+        assert len(ALFABETO_CNPJ_ALFA) == 36
+        assert SPEC_CNPJ.encoded_length == 7          # base 10  -> 7 chars
+        assert SPEC_CNPJ_ALFA.encoded_length == 10    # base 36  -> 10 chars
+        assert 36 ** 12 <= len(BASE94) ** 10
+        # o mapeamento LEGAL como base (43, por causa do gap 10-16) NAO caberia
+        assert 43 ** 12 > len(BASE94) ** 10
+
+    def test_extremos_do_dominio(self):
+        from tcf.natures import SPEC_CNPJ_ALFA
+
+        for corpo in ("000000000000", "ZZZZZZZZZZZZ", "A00000000000",
+                      "99999999999Z", "0000000000ZZ"):
+            dv = "".join(str(d) for d in SPEC_CNPJ_ALFA.check_fn(
+                [ord(c) - 48 for c in corpo]))
+            s = corpo + dv
+            v = f"{s[:2]}.{s[2:5]}.{s[5:8]}/{s[8:12]}-{s[12:]}"
+            payload, status = SPEC_CNPJ_ALFA.encode_value(v)
+            assert status == "compressible", v
+            assert len(payload) == 10
+            assert SPEC_CNPJ_ALFA.decode_value(payload) == v
+
+    # --- o WIRE: self-describing, e o legado intocado ----------------------
+    def test_wire_self_describing_sem_spec_no_decode(self):
+        from tcf.natures import SPEC_CNPJ_ALFA
+
+        col = ["12.ABC.345/01DE-35", "12.ABC.345/01DE-35", "AA.AAA.AAA/AAAA-38"]
+        col = [v for v in col if SPEC_CNPJ_ALFA.classify_value(v) == "compressible"]
+        texto = encode(col, nature=SPEC_CNPJ_ALFA)
+        assert texto.startswith("#TCF.8 :cnpja")
+        assert decode(texto) == col          # resolve pelo registry, sem out-of-band
+
+    def test_spec_cnpj_numerico_ficou_byte_intocado(self):
+        """O legado nao paga pelo novo: mesmo wire e mesmo tamanho de payload."""
+        col = [_cnpj_num(i) for i in range(5)]
+        texto = encode(col, nature=SPEC_CNPJ)
+        assert texto.startswith("#TCF.8 :cnpj\n")
+        assert decode(texto) == col
+        for v in col:
+            payload, status = SPEC_CNPJ.encode_value(v)
+            assert status == "compressible"
+            assert len(payload) == 7
+
+    def test_coluna_mista_numerico_e_alfa(self):
+        from tcf.natures import SPEC_CNPJ_ALFA
+
+        col = [_cnpj_num(3), "12.ABC.345/01DE-35", _cnpj_num(9)]
+        texto = encode(col, nature=SPEC_CNPJ_ALFA)
+        assert decode(texto) == col
+        # os TRES sao compressiveis sob o alfa (digito esta' no alfabeto)
+        assert all(SPEC_CNPJ_ALFA.classify_value(v) == "compressible" for v in col)
+
+    def test_alfa_sob_spec_numerico_vira_literal_sem_corromper(self):
+        col = [_cnpj_num(3), "12.ABC.345/01DE-35"]
+        texto = encode(col, nature=SPEC_CNPJ)
+        assert decode(texto) == col
+        payload, status = SPEC_CNPJ.encode_value("12.ABC.345/01DE-35")
+        assert status == "format_mismatch"
+        assert payload.startswith(MARKER_LITERAL)
+
+    # --- o CHOOSER (H-15-02) -----------------------------------------------
+    def test_chooser_nao_e_tem_letra(self):
+        """A regra ingenua esta' ERRADA e o teste existe pra impedir que volte:
+        UM alfa numa coluna numerica nao justifica pagar 10 chars em todo o resto."""
+        from tcf.natures import cnpj_spec_para
+
+        col = [_cnpj_num(i) for i in range(200)]
+        col[0] = "12.ABC.345/01DE-35"
+        assert cnpj_spec_para(col) is SPEC_CNPJ
+
+    def test_chooser_vira_pro_alfa_quando_domina(self):
+        from tcf.natures import SPEC_CNPJ_ALFA, cnpj_spec_para
+
+        assert cnpj_spec_para(["12.ABC.345/01DE-35"] * 100) is SPEC_CNPJ_ALFA
+
+    def test_chooser_empate_e_none_preferem_o_legado(self):
+        from tcf.natures import cnpj_spec_para
+
+        assert cnpj_spec_para([]) is SPEC_CNPJ            # empate 0 == 0
+        assert cnpj_spec_para([None, None]) is SPEC_CNPJ  # None e' slot do core
+
+    def test_chooser_roundtrip_em_qualquer_mistura(self):
+        from tcf.natures import cnpj_spec_para
+
+        base = [_cnpj_num(i) for i in range(60)]
+        for k in (0, 1, 15, 30, 45, 60):
+            col = ["12.ABC.345/01DE-35"] * k + base[k:]
+            texto = encode(col, nature=cnpj_spec_para(col))
+            assert decode(texto) == col, f"RT quebrou em k={k}"
+
+    def test_digito_unicode_mudou_de_ROTULO_e_nao_de_byte(self):
+        """A unica mudanca de comportamento do weld H-15-01, pinada de proposito.
+
+        `classify_value` trocou `v.isdigit()` por "todo char no alfabeto".
+        Digito unicode (arabico-indico) passava no `isdigit()` e era rotulado
+        `format_unmasked`; agora e' `format_mismatch`. Os BYTES sao os mesmos —
+        os dois status caem em literal —, muda so' a telemetria, e o rotulo novo
+        e' o mais fiel (o simbolo nao pertence ao alfabeto deste spec).
+        Diferencial pre/pos-weld: 8.036 encodes e 5.010 decodes, 0 divergencia
+        de byte; esta foi a UNICA divergencia de rotulo.
+        """
+        v = "٥٢٩٩٨٢٢٤٧٢٥"
+        assert len(v) == 11 and v.isdigit()          # o `isdigit()` antigo dizia sim
+        assert classify_value(SPEC_CPF, v) == "format_mismatch"
+        payload, status = encode_value(SPEC_CPF, v)
+        assert payload == MARKER_LITERAL + v         # BYTE identico ao pre-weld
+        assert decode_value(SPEC_CPF, payload) == v
+
+    # --- o CONTRATO do alfabeto (fail-loud no __post_init__) ---------------
+    def test_alfabeto_invalido_falha_alto(self):
+        from tcf.natures import SPEC_CNPJ_ALFA
+
+        with pytest.raises(ValueError, match="simbolo repetido"):
+            replace(SPEC_CNPJ_ALFA, name="x1", wire_id="x1", alfabeto="0012")
+        with pytest.raises(ValueError, match="digitos decimais"):
+            replace(SPEC_CNPJ_ALFA, name="x2", wire_id="x2",
+                    alfabeto="ABCDEFGHIJKL")
+        with pytest.raises(ValueError, match="insuficiente"):
+            replace(SPEC_CNPJ_ALFA, name="x3", wire_id="x3", encoded_length=7)

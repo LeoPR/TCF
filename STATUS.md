@@ -20,6 +20,65 @@
 > Tickets criados pelos welds de 2026-07-26/27. **Nenhum é bloqueante; todos são ganho
 > medido esperando encaixe.** Detalhe em ADR-0036 §aberto e no
 > [guia de encaixe pro `.9`](experiments/lab/dirty/notas/2026-07/2026-07-27-guia-de-encaixe-para-o-dot9.md).
+
+> **⚑ FATO EXTERNO COM PRAZO JÁ VENCIDO — CNPJ ALFANUMÉRICO (2026-08-20).** A
+> **IN RFB nº 2.229/2024** está **vigente desde julho/2026**: novas inscrições de CNPJ têm as
+> **12 primeiras posições alfanuméricas** (`0-9`+`A-Z`), só os 2 DV seguem numéricos; DV por
+> módulo 11 com **os mesmos pesos**, mudando só a conversão `valor = ASCII(c) − 48`.
+> **VERIFICADO** ([lab `2350`](experiments/lab/dirty/2026-08/2026-08-20/2026-08-20-2350-cnpj-alfanumerico/)):
+> o exemplo publicado `12.ABC.345/01DE-35` fecha com o `_cnpj_check_fn` que **já existe** em
+> `src/tcf` — o check_fn está certo; erradas são a **regex** (`^\d{2}\.…`) e o `body_length`
+> contando dígitos. Retrocompatibilidade é **por construção** (dígito converte para ele mesmo):
+> 2 000 CNPJs reais da Receita validam sob a regra nova, 0 divergências. **O que quebra não é a
+> nature** (ela já não dispara em real — o FLOOR prefere o `split`): **é o `split`**. Medido em
+> n=2000: numérico real **−38,32%** (`%` split) → alfanumérico realista **−7,72%** (core) →
+> alfanumérico uniforme **+0,03%** (raw, *maior que o texto cru*). Causa: o gate segmenta por
+> **dígito × não-dígito**, e a letra no corpo cai dentro do que ele trata como separador
+> (mesma raiz do achado do H-13-04). **Integridade preservada — RT 6/6, inclusive coluna mista:
+> não corrompe, só deixa de ganhar.** **CONSERTO MEDIDO**: decompor por **POSIÇÃO** (a máscara é
+> fixa) sobre as 18 posições do valor formatado recupera **−37,67%** no alfanumérico realista —
+> e **bate o split até no CNPJ numérico REAL de hoje: −45,26% contra −38,32%, ou −11,25%**. É
+> literalmente a direção do **grupo** que o owner desenhou em 17/08 (N colunas + marcador; custo
+> do marcador já medido em 9–11 B constante em n). **Mesma causa na placa Mercosul** (`LLLNLNN`,
+> letra no lugar do 2º dígito): o TCF **já não ganhava nada** em placa — antiga, Mercosul e frota
+> mista dão os mesmos 16 013 B, **+0,09% vs raw**, todas em `!` raw; o posicional leva a −10%.
+> Placa não é regressão nova, é **lacuna preexistente** — e segue bloqueada por DADO (busca em
+> `Z:/tcf-data/`: nenhum dataset tem a coluna).
+>
+> **⚑ SOLDADO 2026-08-21 — weld H-15-01/02, [ADR-0042](docs/adr/0042-cnpj-alfanumerico-dois-specs.md).**
+> `TemplatedCheckedSpec` ganhou `alfabeto` parametrizável + `_valor()` (ASCII−48, **universal**:
+> dígito devolve o próprio dígito, letra devolve a regra da IN); os 3 métodos que assumiam `\d`
+> foram generalizados; **`SPEC_CNPJ_ALFA`** (`:cnpja`, base 36, 10 chars) entrou no registry core
+> nos dois planos. **`SPEC_CNPJ` ficou BYTE-INTOCADO** (`:cnpj`, base 10, 7 chars) — e isso foi
+> **PROVADO POR DIFERENCIAL** contra a implementação pré-weld: **8 036 encodes + 5 010 decodes
+> (4 000 payloads adulterados, inclusive os que estouram a capacidade do corpo) = 0 divergência de
+> byte**. Única mudança de comportamento em toda a varredura: um **rótulo de telemetria** (dígito
+> unicode: `format_unmasked` → `format_mismatch`; bytes idênticos, os dois caem em literal),
+> **pinada em teste**. Chooser **`cnpj_spec_para`** por soma de payload — e a regra intuitiva "tem
+> letra → alfa" foi **medida e REPROVADA** (erra 8/12: o numérico ganha até ~1/4 da coluna, virada
+> em `k/n = (E₂−E₁)/(1+L−E₁) = 1/4`); resíduo do helper **declarado**: 41/51, erros só na faixa
+> 22–25%, pior custo 3,15%, exatidão disponível com dois encodes. Suíte 1285 → **1301**; D17a=300,
+> D1–D9 e real-world verdes; 73 snippets de doc executados, 0 falhas. **NÃO conserta o `split`** —
+> ele continua morrendo em k=1; a rota do grupo/posicional fica aberta (H-15-05).
+>
+> **CONTROLE RODADO 2026-08-21** ([lab `0030`](experiments/lab/dirty/2026-08/2026-08-21/2026-08-21-0030-cnpj-alfa-controle/),
+> a pedido do owner — *"dataset sintético de controle só pra ver os comportamentos"*): **(1) o
+> split morre em k=1** — UM CNPJ novo numa coluna real de 2000 e o gate recusa a coluna inteira
+> (23 436 B split → 38 012 B raw); o problema é no PRIMEIRO valor, não "no futuro" (classe
+> `T-PENHASCO-INICIO`). **(2)** a **nature alfanumérica é plana em k** (~−36% de k=0 a k=2000;
+> per-value) — único mecanismo imune à transição; posicional degrada suave (20,8→29,3 KB).
+> **(3)** letra É número **duas vezes**: no DV pelo mapeamento LEGAL (ASCII−48, gap 10–16) e na
+> gravação pelo DENSO (0–35) — e usar o legal como base custaria **11** chars em vez de **10**
+> (43¹²>80¹⁰). **(4) coexistência**: coluna numérica sob spec sempre-alfa paga **+38,1%** → DOIS
+> wire_ids (`cnpj` 7 intocado/byte-compat · `cnpja` 10) + chooser por coluna. **(5)** a máquina
+> real RODA o spec via subclasse + `nature=`/out-of-band (RT ✓, fail-loud sem spec ✓, gates
+> ADR-0041 ✓) — o weld é generalizar os **3 métodos com `\d`** do `TemplatedCheckedSpec` +
+> registrar `cnpja` no registry core. **Design pronto aguardando aprovação** (toca `src/tcf`);
+> registro: [Pacote 15](experiments/lab/dirty/notas/2026-05/roadmap-hipoteses.md) (H-15-01..05).
+> Pesquisa: CNPJ **não** é regionalizado (raiz = sequencial nacional; regionalizado é o CPF, 9º
+> dígito = região fiscal); estrutura explorável = ordem `0001` dominante + raiz com clustering
+> temporal + DV 100% redundante. Emissão real pode ser só-consoantes (estratégia Serpro; I,O,U,Q,F
+> excluídas segundo fontes secundárias, não confirmado na IN) — o spec valida o FORMATO `[0-9A-Z]`.
 >
 > | ticket | ganho medido | por que ainda não |
 > |---|---|---|
@@ -242,15 +301,31 @@
 > `0.8.0/#TCF.8`; o snapshot do survey 22/07 é foto datada, não estado vigente. Ordem de foco e gates:
 > [parecer 2340](experiments/lab/dirty/notas/2026-07/2026-07-22-2340-revisao-fechamento-08-ordem-foco.md).
 
-> **⚑ BASELINE DE PERFORMANCE DO `.8` REGISTRADO 2026-07-22.** Processo `bench_perf` (Fase 3
-> completa, `da4544a`) rodado como referência first-order pro `.9` — grandeza + pontos quentes,
-> **não** precisão (protótipo; extremos → `.9`/`1.0`). Reprodutibilidade validada (piloto B1×7
-> pinado: CV entre-runs 3%, Georges 2007). **Achado**: encode é **LINEAR O(n)** no nº de linhas
-> (tcf-flat/json-ref/tcf-8h, slope ~1.0); a super-linearidade está só no **canto R×C extremo** —
-> `cantoRC-both`=44.6s vs base 595ms = **~75×**, o penhasco do OBAT (índice de trigramas degenera
-> com prefixos parecidos). Alvo do `.9` = esse penhasco (escada de prefixo adaptativa P1). Snapshot
-> versionado: [`evidencia-0.8/perf-baseline/`](experiments/results/evidencia-0.8/perf-baseline/) ·
-> estudo: [`2026-07-22-2207-baseline-perf-08-first-order`](experiments/lab/dirty/notas/2026-07/2026-07-22-2207-baseline-perf-08-first-order.md).
+> **⚑ BASELINE DE PERFORMANCE DO `.8` — PROBATÓRIA RODADA 2026-08-20; A LEITURA DE 22/07 FOI
+> CORRIGIDA EM 3 PONTOS.** Processo `bench_perf` (Fase 3 completa, `da4544a`) como referência
+> first-order pro `.9` — grandeza + pontos quentes, **não** precisão. Reprodutibilidade validada
+> (piloto B1×7 pinado: CV entre-runs 3%, Georges 2007). A rodada que faltava foi feita em
+> `6f04f3ae` com `--probative` (árvore limpa, Cython): `status=completo`, 103/106 comparáveis,
+> **0 obrigatório-falhou**. **⚠ É BASELINE PINADO e TEM DE SER REPETIDA depois das otimizações do
+> `.9`** (condição do owner ao autorizá-la). **CONFIRMADO**: encode é **LINEAR O(n)** no nº de
+> linhas (slope 0,93–1,00 com `C/L/K` fixos, em C=1/4/32/128, nas duas rodadas). **CORRIGIDO —
+> ~~a super-linearidade está no canto R×C~~ está ERRADO**: `base` tem 40k células e
+> `cantoRC-both` tem 3,2M (**80×**), então 75× de tempo é *sub*-linear; o custo POR CÉLULA do
+> canto é **1,00–1,02×** a mediana dos demais e o modelo `t = a·células + b·bytes + c·únicos`
+> (R²=0,9996) o prevê com resíduo **+0,2%**. O **mecanismo** (índice do OBAT) continua de pé; o
+> **gatilho** é outro: o coeficiente por **valor ÚNICO** é ~3,7× o por célula (23 289 vs 6 322 ns)
+> e domina com `K` alto — o eixo quente é **cardinalidade e comprimento** (`L512` ≈3,8× a mediana,
+> `K1` ≈2,9×, `K0001` ≈0,42×), e a super-linearidade reproduzível está no **`free-text`**
+> (slope 1,21–1,23), não no `flat-mixed`. **Alvo do `.9`** = o termo por valor único, não o canto.
+> Dois defeitos de instrumento achados: (a) o `§3` do `baseline_report.py` mistura `C` no eixo `R`
+> e por isso chama de "super-linear" até o `json.dumps`; (b) os **calibradores super-corrigem
+> +16,6%** — a stdlib (código idêntico nas 2 rodadas) diz que a máquina fez 0,968 do trabalho,
+> os calibradores dizem 0,830. Medida que dispensa normalizador: `tcf-flat`÷`json-ref-str` na
+> MESMA rodada caiu em **25 de 26** workloads (mediana −17,5%); posição do `.8` = encode **10–59×**
+> o `json.dumps` emitindo **12% dos bytes** dele. Snapshot versionado:
+> [`evidencia-0.8/perf-baseline/`](experiments/results/evidencia-0.8/perf-baseline/) · estudos:
+> [`2026-07-22-2207`](experiments/lab/dirty/notas/2026-07/2026-07-22-2207-baseline-perf-08-first-order.md)
+> e [`2026-08-20-2330`](experiments/lab/dirty/2026-08/2026-08-20/2026-08-20-2330-baseline-perf-08-probatoria/).
 
 > **⚑ ESTRUTURA DO `.8` COMPLETA 2026-07-17.** P5/union RATIFICADO (fora do `.8`, fronteira
 > declarada; msg de fail-loud ENSINA o fallback-string) + 2 bordas de contrato DECIDIDAS:

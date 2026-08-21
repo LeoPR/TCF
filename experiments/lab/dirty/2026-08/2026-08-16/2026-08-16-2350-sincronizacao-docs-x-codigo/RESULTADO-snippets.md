@@ -2,8 +2,8 @@
 
 Gerado por `varre_snippets.py`. Re-rode com `python varre_snippets.py`.
 
-- blocos encontrados: **70**
-- executados e OK: **50**
+- blocos encontrados: **73**
+- executados e OK: **53**
 - **falharam: 0**
 - pulados (não auto-contidos): 20 — **declarados abaixo, não contam como aprovados**
 
@@ -25,8 +25,8 @@ Nenhuma.
 | `docs/how-to/encode-csv-file.md` | 205 | sem import — provavelmente continuacao de outro bloco |
 | `docs/how-to/encode-csv-file.md` | 216 | sem import — provavelmente continuacao de outro bloco |
 | `docs/how-to/log-run-metadata.md` | 30 | contem placeholder/reticencias — pseudo-codigo |
-| `docs/how-to/use-natures.md` | 195 | sem import — provavelmente continuacao de outro bloco |
-| `docs/how-to/use-natures.md` | 236 | sem import — provavelmente continuacao de outro bloco |
+| `docs/how-to/use-natures.md` | 264 | sem import — provavelmente continuacao de outro bloco |
+| `docs/how-to/use-natures.md` | 305 | sem import — provavelmente continuacao de outro bloco |
 | `docs/reference/api.md` | 69 | sem import — provavelmente continuacao de outro bloco |
 | `docs/reference/encode-knobs.md` | 8 | nao compila (Invalid star expression) — trecho ilustrativo |
 | `docs/reference/lazy-view.md` | 106 | sem import — provavelmente continuacao de outro bloco |

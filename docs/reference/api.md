@@ -18,7 +18,7 @@ from tcf import SPEC_CPF, SPEC_CNPJ, SPEC_IP, TemplatedCheckedSpec, TemplatedPad
 | **`SideOutputs`** | telemetria opt-in (`encode(x, side_outputs=so)`). |
 | **`PipelineConfig`** | toggles do pipeline flat (`encode(x, layers=cfg)`). |
 | **`build_schema` · `TableSchema` · `ColumnSchema`** | schema per-tabela. |
-| **specs** (`SPEC_CPF/CNPJ/IP`, `TemplatedCheckedSpec`, `TemplatedPaddedSpec`) | naturezas opt-in. |
+| **specs** (`SPEC_CPF/CNPJ/IP`, `TemplatedCheckedSpec`, `TemplatedPaddedSpec`) | naturezas opt-in. Os specs mais novos ficam em `tcf.natures`, não no topo: `SPEC_DATA_ISO`, `SPEC_INT_PAD` e `SPEC_CNPJ_ALFA` (CNPJ alfanumérico da IN RFB 2.229/2024 — **coexiste** com `SPEC_CNPJ`, escolha com `cnpj_spec_para`; [ADR-0042](../adr/0042-cnpj-alfanumerico-dois-specs.md)). |
 
 > **Não existe `encode_hierarchical` público** (Passo 2, 2026-07-23). O hierárquico `#TCF.8H` é
 > alcançado por `encode()` roteando entrada aninhada — simétrico ao `decode`. A capacidade/wire é a

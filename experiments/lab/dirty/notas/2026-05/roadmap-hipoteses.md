@@ -646,6 +646,32 @@ preservar: log2(n!) = 6.779 B p/ n=5.000, e ainda sobra -38,3%.
 
 **Triagem**: estudo, alvo `.9`/pre-1.0. Nada disto e' `.8`.
 
+## Pacote 15 — CNPJ alfanumerico (fato externo VIGENTE; registrado 2026-08-21)
+
+Origem: IN RFB no 2.229/2024, em vigor desde jul/2026 (1a inscricao 31/07/2026) — as 12
+primeiras posicoes viram `[0-9A-Z]`, os 2 DV seguem numericos; DV = mod-11 c/ os MESMOS
+pesos, conversao `valor = ASCII(c) - 48`. Labs: descoberta em
+`2026-08-20/2026-08-20-2350-cnpj-alfanumerico/` + controle em
+`2026-08-21/2026-08-21-0030-cnpj-alfa-controle/`.
+
+**O que ja' esta' MEDIDO (controle, n=2000 real + injecao)**: o split morre em **k=1** (UM
+valor novo: -38% -> raw, mesma classe do T-PENHASCO-INICIO); a nature alfanumerica e'
+**plana em k** (~-36%, per-value); o posicional degrada suave (20,8 -> 29,3 KB); coluna
+numerica sob spec sempre-alfa paga **+38,1%** -> coexistencia exige DOIS wire_ids. A
+subclasse de lab provou que a maquina real RODA o spec via `nature=`/out-of-band sem tocar
+src/tcf; o mapa do weld sao os 3 metodos com `\d` do `TemplatedCheckedSpec`.
+
+| ID | Hipotese | Status | Onde |
+|---|---|---|---|
+| H-15-01 | Weld do `SPEC_CNPJ_ALFA` (`cnpja`, encoded_length=10, denso 0-35; `cnpj` INTOCADO byte-compat) + generalizacao dos 3 metodos | **SOLDADO 2026-08-21** (ADR-0042; suite 1301). Byte-neutro PROVADO por diferencial: 8.036 encodes + 5.010 decodes (4.000 adulterados) = 0 divergencia de byte | ADR-0042 · lab 0030 |
+| H-15-02 | Chooser `cnpj_spec_para` | **SOLDADO 2026-08-21, com desenho CORRIGIDO pela medicao**: a regra "tem letra -> alfa" que eu tinha proposto ERRA 8/12 (o numerico ganha ate' ~1/4 da coluna). O soldado escolhe por SOMA DE PAYLOAD; residuo declarado 41/51, erros so' em 22-25%, pior 3,15% | ADR-0042 §4 |
+| H-15-03 | **Volume futuro**: databases existentes + sintetico em volume p/ ver o regime com muitos alfanumericos (pedido do owner 2026-08-21: *"criar uma situacao em volume sintetico pra ver como seria com muitos numeros no futuro"*) | aberta — o lab 0030 e' o CONTROLE, nao o volume | Shaper + gerador estendido |
+| H-15-04 | Corpus REAL alfanumerico quando existir nos dados da Receita (emissao pode ser so-consoantes — Serpro; nao confirmado na IN) -> re-medir prevalencia e o subespaco ocupado | aberta (bloqueada por dado, 1a inscricao 31/07/2026) | gate real-world |
+| H-15-05 | O DV como coluna DEDUZIDA no desenho do GRUPO (split posicional + semantica de nature: raiz/ordem/DV como sub-colunas, DV a custo zero) | aberta — conecta o grupo (labs 1600-1800) com a nature | teoria do grupo |
+
+**Triagem**: H-15-01/02 sao candidatos `.8` (fato externo ja' vigente; decisao do owner);
+H-15-03/04/05 sao estudo/`.9`.
+
 ## Estrategia de mistura
 
 **Antes de misturar, esgotar isoladas dentro de cada pacote.**
