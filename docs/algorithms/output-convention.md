@@ -49,10 +49,48 @@ path.write_text(content, encoding="utf-8", newline="")
 path.write_bytes(content.encode("utf-8"))
 ```
 
-### 3. Sem trailing newline desnecessario
+### 3. O LF final e' TERMINADOR, nao convencao POSIX
 
-O ultimo byte do arquivo PODE ser `\n` (separador da ultima linha,
-estilo POSIX), mas isso e' opcional. Decoder deve aceitar com ou sem.
+> ⚠️ **CORRIGIDO 2026-08-21** (lab [`0400-lf-final-do-wire`](../../experiments/lab/dirty/2026-08/2026-08-21/2026-08-21-0400-lf-final-do-wire/)).
+> Este parágrafo dizia: *"O último byte do arquivo PODE ser `\n` (separador da última linha,
+> estilo POSIX), mas isso é **opcional**. Decoder deve aceitar com ou sem."* **Está errado, e
+> seguir isso ao portar o formato quebra o decode.**
+
+O LF final **não é** enchimento de arquivo: é o **terminador do último valor**, num formato em
+que o LF **separa valores**. Ele é load-bearing, e a prova é de uma linha:
+
+```
+['a', 'b', '']   ->  '#TCF.8\na\nb\n\n'
+['a', 'b']       ->  '#TCF.8\na\nb\n'
+```
+
+O wire da coluna que **termina em valor vazio** é exatamente o wire da coluna sem o vazio,
+**mais um LF**. Tratar o LF final como opcional obrigaria o decoder a **adivinhar** se o
+último vazio é enchimento ou dado — **indecidível por construção**.
+
+**O que o código realmente faz** (medido nas 10 rotas; **nenhuma** aceita "com ou sem"):
+
+| rota | emite LF final? | decode sem ele | decode com um a mais |
+|---|---|---|---|
+| single-col (flat/spec/n=1) | sim | tolera **com warning** de grafia não-canônica | **ganha um valor vazio**, em silêncio |
+| multi-col | **não** | ok | `ValueError` |
+| hierárquico | sim | **`HierarchicalError`** (`size N excede o corpo`) | erro |
+| tipado bool | **não** | ok | `ValueError` |
+| tipado int/misto | sim | tolera com warning | `ValueError` |
+
+Duas consequências práticas:
+
+- **Não dispense o LF final na transmissão.** No hierárquico ele delimita o último bloco e o
+  decode falha sem ele; no single-col você perde a canonicidade (warning). O ganho seria de
+  **1 byte por wire**.
+- **Não acrescente um LF "por educação"** ao gravar em arquivo. Em single-col e multi-col isso
+  **acrescenta um valor vazio à coluna, em silêncio**.
+
+Ou seja: grave e transmita **exatamente os bytes que o `encode` devolveu**. Sobre gravar em
+disco sem o CRLF do Windows, ver §2.
+
+Quais rotas emitem e quais não **não é uniforme** — assimetria conhecida, não regra; registrada
+como pendência no lab acima.
 
 ## Implicacao no byte count
 

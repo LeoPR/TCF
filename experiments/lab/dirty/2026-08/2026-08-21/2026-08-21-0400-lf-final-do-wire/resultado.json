@@ -1,0 +1,89 @@
+{
+ "convencao_documentada": "opcional; decoder aceita com ou sem (output-convention.md §3)",
+ "rotas": [
+  {
+   "rota": "single-col flat",
+   "emite_lf": true,
+   "decode_sem": "ok+warning",
+   "decode_com_extra": "RT-diferente",
+   "bytes": 19
+  },
+  {
+   "rota": "single-col n=1",
+   "emite_lf": true,
+   "decode_sem": "ok+warning",
+   "decode_com_extra": "RT-diferente",
+   "bytes": 13
+  },
+  {
+   "rota": "single-col spec",
+   "emite_lf": true,
+   "decode_sem": "ok+warning",
+   "decode_com_extra": "RT-diferente",
+   "bytes": 29
+  },
+  {
+   "rota": "multi-col",
+   "emite_lf": false,
+   "decode_sem": "ok",
+   "decode_com_extra": "ValueError",
+   "bytes": 21
+  },
+  {
+   "rota": "multi-col n=1",
+   "emite_lf": false,
+   "decode_sem": "ok",
+   "decode_com_extra": "RT-diferente",
+   "bytes": 11
+  },
+  {
+   "rota": "hierarquico",
+   "emite_lf": true,
+   "decode_sem": "HierarchicalError",
+   "decode_com_extra": "HierarchicalError",
+   "bytes": 42
+  },
+  {
+   "rota": "hierarquico obj",
+   "emite_lf": true,
+   "decode_sem": "HierarchicalError",
+   "decode_com_extra": "HierarchicalError",
+   "bytes": 19
+  },
+  {
+   "rota": "tipado bool",
+   "emite_lf": false,
+   "decode_sem": "ok",
+   "decode_com_extra": "ValueError",
+   "bytes": 14
+  },
+  {
+   "rota": "tipado int",
+   "emite_lf": true,
+   "decode_sem": "ok+warning",
+   "decode_com_extra": "ValueError",
+   "bytes": 18
+  },
+  {
+   "rota": "tipado misto",
+   "emite_lf": true,
+   "decode_sem": "ok+warning",
+   "decode_com_extra": "ValueError",
+   "bytes": 16
+  }
+ ],
+ "rotas_que_violam": [
+  "single-col flat",
+  "single-col n=1",
+  "single-col spec",
+  "multi-col",
+  "multi-col n=1",
+  "hierarquico",
+  "hierarquico obj",
+  "tipado bool",
+  "tipado int",
+  "tipado misto"
+ ],
+ "economia_bytes": 7,
+ "total_bytes": 202
+}

@@ -15,6 +15,26 @@
 > Detalhe + classificação das 17 checagens do bN:
 > [`escala-de-verificacao-e-fechamento-do-bn`](experiments/lab/dirty/notas/2026-08/2026-08-07-escala-de-verificacao-e-fechamento-do-bn.md).
 
+> **⚑ O LF FINAL DO WIRE E' TERMINADOR — e a doc ensinava o oposto (corrigido 2026-08-21).**
+> `docs/algorithms/output-convention.md` §3 dizia que o LF final e' *"opcional; decoder deve
+> aceitar com ou sem"*. **Falso, e portar o formato seguindo isso quebra o decode.** Prova de uma
+> linha: `['a','b','']` produz `#TCF.8
+a
+b
+
+` e `['a','b']` produz `#TCF.8
+a
+b
+` — o wire
+> da coluna que TERMINA EM VAZIO e' o da outra **mais um LF**. Tratar como opcional exigiria
+> ADIVINHAR se o ultimo vazio e' enchimento ou dado: **indecidivel por construcao**. Medido nas
+> **10 rotas**: nenhuma aceita as duas formas — hierarquico ERRA sem o LF (`size N excede o
+> corpo`), multi-col e tipado-bool ERRAM com um a mais, e single-col **ganha um valor vazio EM
+> SILENCIO**. Consequencia pratica: **grave e transmita exatamente os bytes que o `encode`
+> devolveu**; dispensar o LF na transmissao economizaria **1 B por wire** e quebra o `.8H`.
+> ABERTO (H-15-08): quais rotas emitem o LF **nao e' uniforme** (7 sim, 3 nao). Lab
+> [`0400`](experiments/lab/dirty/2026-08/2026-08-21/2026-08-21-0400-lf-final-do-wire/).
+
 > ## 🔖 PENDENTES NOMEADOS — não deixar cair no esquecimento
 >
 > Tickets criados pelos welds de 2026-07-26/27. **Nenhum é bloqueante; todos são ganho

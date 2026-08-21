@@ -676,6 +676,8 @@ src/tcf; o mapa do weld sao os 3 metodos com `\d` do `TemplatedCheckedSpec`.
 ` e' descartado pelo filtro de simbolos, e o **RT PERDE o caractere** (`decode(encode(v)) != v`). Atinge CPF, CNPJ, IP e data-iso — NAO foi introduzido por este arco. | aberta — **NAO alcancavel pela API publica** (`tcf.encode` recusa `
 ` fail-loud ANTES da nature: *"valor com quebra de linha nao e' representavel"*), mas alcancavel por `tcf.natures.encode_value` direto, que e' publico. Conserto candidato: `$` -> `\Z` nas 4 regex. **Toca 4 specs = precisa de aprovacao** | verificado 2026-08-21; classe do `BUG-CHAVE-VAZIA-POSICIONAL` (o formato altera o dado) |
 
+| H-15-08 | **O LF final do wire e' TERMINADOR, nao convencao POSIX** — e a doc ensinava o contrario. `output-convention.md` §3 dizia *"o ultimo byte PODE ser `\n` [...] e' OPCIONAL. Decoder deve aceitar com ou sem"*. **PROVA de 1 linha** (lab `0400`): `['a','b','']` -> `#TCF.8\na\nb\n\n` e `['a','b']` -> `#TCF.8\na\nb\n` — o wire da coluna que TERMINA EM VAZIO e' o da coluna sem o vazio MAIS UM LF. Tratar como opcional obrigaria o decoder a ADIVINHAR se o ultimo vazio e' enchimento ou dado: **indecidivel por construcao**. Medido nas 10 rotas: **nenhuma** aceita "com ou sem" — hierarquico ERRA sem ele, multi-col/tipado-bool ERRAM com um a mais, single-col GANHA UM VALOR VAZIO em silencio. | **doc CORRIGIDA 2026-08-21** (o codigo estava certo). Fica ABERTO: quais rotas emitem o LF **nao e' uniforme** (7 emitem, 3 nao) — assimetria conhecida, nao regra; e o warning do single-col sugere que ha' uma forma canonica que as outras rotas nao seguem | lab `2026-08-21-0400-lf-final-do-wire` |
+
 **Triagem**: H-15-01/02 sao candidatos `.8` (fato externo ja' vigente; decisao do owner);
 H-15-03/04/05 sao estudo/`.9`.
 
