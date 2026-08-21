@@ -1,5 +1,21 @@
 # 2026-08-21-0030 — CNPJ alfanumérico: o sintético de controle que decide o desenho
 
+> ## ⚠ LAB HISTÓRICO — o desenho que ele mede foi SUPERADO no mesmo dia
+>
+> Este lab mediu **o comportamento de transição com DOIS specs (`cnpj` + `cnpja`) e um chooser**, desenho superado pelo
+> [ADR-0044](../../../../../../docs/adr/0044-cnpj-um-so-alfanumerico.md) horas depois
+> (owner: *"a ideia é ter só 'cnpj' mesmo, ou seja nada de ter dois"*). Hoje existe **um**
+> `SPEC_CNPJ`, alfanumérico, com o numérico como caso compacto.
+>
+> **Consequências para quem abrir este lab:**
+> - o `run.py` **não roda mais** (assert de `encoded_length` que mudou de 7 para 10) — é registro do que foi medido, não script vivo;
+> - os wires em `outputs/` com header `#TCF.8 :cnpja` **não decodificam** no core atual: o id
+>   saiu do vocabulário fechado e o decode **falha alto** (`ValueError: nature-id desconhecido`),
+>   sem corromper. Para lê-los, `git checkout a08abb2b`.
+>
+> **O que continua valendo deste lab** está no corpo abaixo — as medições são o registro do
+> caminho, e o ADR-0044 se apoia nelas.
+
 Pedido do owner: *"no momento precisamos de um dataset sintético de controle só pra ver os
 comportamentos pra poder tratar isso agora"*. Este lab responde as três perguntas feitas —
 até onde as letras atendem, como afeta os cálculos/base, e se letra vira número — e mede o

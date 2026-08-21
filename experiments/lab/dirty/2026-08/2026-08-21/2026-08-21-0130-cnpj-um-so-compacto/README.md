@@ -1,5 +1,21 @@
 # 2026-08-21-0130 — um CNPJ só: o numérico como caso compacto POR VALOR
 
+> ## ⚠ LAB HISTÓRICO — o desenho que ele mede foi SUPERADO no mesmo dia
+>
+> Este lab mediu **o compacto por valor ainda sob DOIS `wire_id` (`cnpj` legado + `cnpja` unificado)**, desenho superado pelo
+> [ADR-0044](../../../../../../docs/adr/0044-cnpj-um-so-alfanumerico.md) horas depois
+> (owner: *"a ideia é ter só 'cnpj' mesmo, ou seja nada de ter dois"*). Hoje existe **um**
+> `SPEC_CNPJ`, alfanumérico, com o numérico como caso compacto.
+>
+> **Consequências para quem abrir este lab:**
+> - o `run.py` **não roda mais** (importa `SPEC_CNPJ_ALFA`, que não existe mais) — é registro do que foi medido, não script vivo;
+> - os wires em `outputs/` com header `#TCF.8 :cnpja` **não decodificam** no core atual: o id
+>   saiu do vocabulário fechado e o decode **falha alto** (`ValueError: nature-id desconhecido`),
+>   sem corromper. Para lê-los, `git checkout 2e9ab5c9`.
+>
+> **O que continua valendo deste lab** está no corpo abaixo — as medições são o registro do
+> caminho, e o ADR-0044 se apoia nelas.
+
 Evidência do weld [ADR-0043](../../../../../../docs/adr/0043-cnpj-um-so-compacto-por-valor.md),
 que refina o ADR-0042 pela direção do owner:
 

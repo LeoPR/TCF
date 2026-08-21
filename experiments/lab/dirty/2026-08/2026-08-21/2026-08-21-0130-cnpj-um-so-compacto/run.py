@@ -26,6 +26,11 @@ OS GATES DESTE LAB
   G4  MINUSCULA: o dominio oficial e' MAIUSCULA-only (NT 2025.001); minuscula e'
       representacao -> hoje literal (byte-RT); medir o que o contrato case-fold
       compraria (classe CONTRATO, H-15-06 — NAO soldado)
+
+
+LAB HISTORICO — NAO RODA MAIS (2026-08-21). Mede o compacto por valor ainda sob DOIS `wire_id` (`cnpj` legado + `cnpja` unificado),
+superado pelo ADR-0044 no mesmo dia. Quebra porque importa `SPEC_CNPJ_ALFA`, que não existe mais.
+E' registro do caminho; para executar, `git checkout 2e9ab5c9`.
 """
 
 from __future__ import annotations

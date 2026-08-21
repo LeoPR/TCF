@@ -42,10 +42,22 @@ def test_cpf_compilado_equivale_ao_core():
     _equivalente(c, SPEC_CPF, CPF_SAMPLES)
 
 
-def test_cnpj_compilado_equivale_ao_core():
+def test_cnpj_compilado_equivale_ao_core_no_dominio_NUMERICO():
+    """RE-PIN 2026-08-21 (ADR-0044): o core virou UM spec alfanumerico
+    (`encoded_length=10`, compacto 7); o `cnpj.dsl` descreve o formato NUMERICO
+    antigo (`encoded_length=7`). Os dois deixaram de ser iguais em ATRIBUTO — mas
+    a equivalencia que interessa e' a de BYTE, e ela vale: no dominio numerico o
+    core cai no caso compacto e emite exatamente o que o spec numerico emitia.
+    E' a garantia central do ADR-0044, verificada por outro caminho.
+
+    LACUNA DECLARADA: a DSL nao expressa alfabeto (`scripts/natures_compiler/`
+    e' acessorio, nao core). Enquanto nao expressar, nao da' pra compilar o CNPJ
+    vigente por ela — so' o subconjunto numerico.
+    """
     c = compile_file(EX / "cnpj.dsl")
-    assert c.encoded_length == SPEC_CNPJ.encoded_length
-    _equivalente(c, SPEC_CNPJ, CNPJ_SAMPLES)
+    assert c.encoded_length == SPEC_CNPJ.encoded_length_compacto == 7
+    assert c.alfabeto == "0123456789" and len(SPEC_CNPJ.alfabeto) == 36
+    _equivalente(c, SPEC_CNPJ, CNPJ_SAMPLES)      # byte a byte, no numerico
 
 
 def test_ip_compilado_equivale_ao_core():

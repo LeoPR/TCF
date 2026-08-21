@@ -1,0 +1,103 @@
+{
+ "Q1_minimos": {
+  "numerico": 7,
+  "alfanum": 10
+ },
+ "Q2_varredura": [
+  {
+   "frac_num": 1.0,
+   "com": 17585,
+   "sem": 24292,
+   "ganho_pct": 27.61,
+   "larguras": [
+    7
+   ]
+  },
+  {
+   "frac_num": 0.99,
+   "com": 17656,
+   "sem": 24292,
+   "ganho_pct": 27.32,
+   "larguras": [
+    7,
+    10
+   ]
+  },
+  {
+   "frac_num": 0.9,
+   "com": 18266,
+   "sem": 24303,
+   "ganho_pct": 24.84,
+   "larguras": [
+    7,
+    10
+   ]
+  },
+  {
+   "frac_num": 0.75,
+   "com": 19314,
+   "sem": 24364,
+   "ganho_pct": 20.73,
+   "larguras": [
+    7,
+    10
+   ]
+  },
+  {
+   "frac_num": 0.5,
+   "com": 20958,
+   "sem": 24367,
+   "ganho_pct": 13.99,
+   "larguras": [
+    7,
+    10
+   ]
+  },
+  {
+   "frac_num": 0.25,
+   "com": 22768,
+   "sem": 24464,
+   "ganho_pct": 6.93,
+   "larguras": [
+    7,
+    10
+   ]
+  },
+  {
+   "frac_num": 0.1,
+   "com": 23860,
+   "sem": 24530,
+   "ganho_pct": 2.73,
+   "larguras": [
+    7,
+    10
+   ]
+  },
+  {
+   "frac_num": 0.01,
+   "com": 24465,
+   "sem": 24539,
+   "ganho_pct": 0.3,
+   "larguras": [
+    7,
+    10
+   ]
+  },
+  {
+   "frac_num": 0.0,
+   "com": 24454,
+   "sem": 24455,
+   "ganho_pct": 0.0,
+   "larguras": [
+    10
+   ]
+  }
+ ],
+ "Q3_load_bearing": {
+  "payload": "!)x+z:$",
+  "com_compacto": "01.941.860/0001-92",
+  "sem_compacto": "!)x+z:$",
+  "corrompe_silencioso": true
+ },
+ "Q4_diferencial": "ver diferencial.py — 4.011 encodes + 3.505 decodes, 0 divergencias"
+}

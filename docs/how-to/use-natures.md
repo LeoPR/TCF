@@ -130,72 +130,53 @@ O ganho não é garantido: em dados pequenos ou ordenados, a versão com filtro 
 codificação comum e não emitir `:cnpj`. Em uma tabela real ordenada, o teste mediu aumento de tamanho;
 por isso não há uma porcentagem geral prometida.
 
-## Single-column: CNPJ alfanumérico (`SPEC_CNPJ_ALFA`)
+## O CNPJ alfanumérico já está coberto — é o mesmo `SPEC_CNPJ`
 
 Desde **julho de 2026** (IN RFB nº 2.229/2024), CNPJ novo tem as **12 primeiras posições
-alfanuméricas** (`0-9` e `A-Z`); os **2 dígitos verificadores continuam decimais**. Os CNPJ
-numéricos existentes **não mudam** e continuam válidos.
+alfanuméricas** (`0-9` e `A-Z` maiúsculo); os **2 dígitos verificadores continuam decimais**.
+Os CNPJ numéricos existentes **não mudam**.
+
+**Não há spec separado** — o `SPEC_CNPJ` acima é alfanumérico e cobre os dois:
 
 ```python
-from tcf import encode, decode
-from tcf.natures import SPEC_CNPJ_ALFA
+from tcf import encode, decode, SPEC_CNPJ
 
 cnpjs = [
     '12.ABC.345/01DE-35',      # alfanumérico
-    '11.222.333/0001-81',      # numérico — também casa no spec alfa
+    '11.222.333/0001-81',      # numérico
 ]
 
-text = encode(cnpjs, nature=SPEC_CNPJ_ALFA)
-assert text.startswith('#TCF.8 :cnpja')
-assert decode(text) == cnpjs   # o header resolve sozinho, sem spec out-of-band
+text = encode(cnpjs, nature=SPEC_CNPJ)
+assert text.startswith('#TCF.8 :cnpj')
+assert decode(text) == cnpjs
 ```
 
-**É UM CNPJ só** ([ADR-0043](../adr/0043-cnpj-um-so-compacto-por-valor.md)): o
-`SPEC_CNPJ_ALFA` cobre os dois domínios pagando o preço certo **em cada valor** — corpo
-100% numérico grava em **7 chars** (payload byte-idêntico ao do spec legado), corpo com
-letra grava em **10**; o decode distingue pelo comprimento. Não há heurística de coluna:
+O preço é pago **por valor**, não por coluna:
 
-| valor na coluna | payload | observação |
+| valor | payload | por quê |
 |---|---:|---|
-| numérico (`11.222.333/0001-81`) | **7 chars** | byte-idêntico ao `SPEC_CNPJ` legado |
-| alfanumérico (`12.ABC.345/01DE-35`) | **10 chars** | base 36 densa |
+| numérico (`11.222.333/0001-81`) | **7 chars** | base 10 — e é o **mesmo byte** que o wire `:cnpj` sempre emitiu |
+| alfanumérico (`12.ABC.345/01DE-35`) | **10 chars** | base 36 |
 
-O `SPEC_CNPJ` (`:cnpj`) permanece para **ler wire legado** e como emissão explícita
-byte-compat. Numa coluna 100% numérica ele economiza exatamente **1 byte** (o header);
-em qualquer coluna com um alfanumérico sequer, o unificado vence.
+O decode distingue os dois **pelo comprimento**. Os dois são mínimos em base-80 (80⁶ e 80⁹
+não comportam os domínios), e o dígito verificador nunca é gravado — é recomputado.
 
-### O helper `cnpj_spec_para`
+Esse caso compacto não é só otimização: é **o que permite um único `:cnpj` continuar lendo
+todo wire de 7 chars já emitido**. Sem ele, o payload antigo voltaria como texto cru.
 
-Resolve só o empate: coluna 100% numérica → `SPEC_CNPJ` (1 B menor, byte-compat); qualquer
-valor alfanumérico compressível → `SPEC_CNPJ_ALFA`. Medido contra a verdade (3 sementes ×
-17 frações × 2 000 CNPJ reais): **51/51** — com o caso compacto por valor, a escolha que o
-desenho anterior podia errar deixou de existir.
-
-```python
-from tcf import encode, decode
-from tcf.natures import cnpj_spec_para
-
-coluna = ['12.ABC.345/01DE-35', '11.222.333/0001-81', '34.028.316/0001-00']
-
-text = encode(coluna, nature=cnpj_spec_para(coluna))
-assert decode(text) == coluna
-```
+**O dígito verificador não mudou de regra**: mesmo módulo 11, mesmos pesos. O que mudou é a
+conversão de caractere para valor — `ASCII(c) - 48`, então `'A'`=17 … `'Z'`=42. Como `'0'` é
+ASCII 48, dígito converte para ele mesmo, e por isso CNPJ numérico gera exatamente o mesmo DV
+nas duas regras.
 
 ### Maiúscula/minúscula
 
 O domínio oficial é **maiúscula-only** (NT Conjunta 2025.001: `[0-9A-Z]{12}[0-9]{2}`).
-Minúscula é variante de representação e hoje cai em **literal** — não ganha, nunca
-corrompe, e o roundtrip devolve exatamente o que entrou. Aceitar minúscula devolvendo
-maiúscula canonizaria a saída (perderia o roundtrip byte a byte), então é da classe
-CONTRATO e está registrado como pendência (H-15-06) — mediria −35,6% numa coluna
-minúscula.
-
-**O dígito verificador não mudou de regra**: é o mesmo módulo 11 com os mesmos pesos. O que
-mudou é a conversão de caractere para valor — `ASCII(c) - 48`, então `'A'`=17 … `'Z'`=42. Como
-`'0'` é ASCII 48, dígito converte para ele mesmo, e é por isso que CNPJ numérico gera
-exatamente o mesmo DV nas duas regras. Detalhes e o que **não** foi resolvido (o `split`
-estrutural continua recusando coluna com letra) em
-[ADR-0042](../adr/0042-cnpj-alfanumerico-dois-specs.md).
+Minúscula é variante de representação e cai em **literal** — não ganha, nunca corrompe, e o
+roundtrip devolve exatamente o que entrou. Aceitar minúscula devolvendo maiúscula canonizaria
+a saída (perderia o roundtrip byte a byte), então é da classe CONTRATO e está registrado como
+pendência (H-15-06); mediria −35,6% numa coluna minúscula. Detalhes em
+[ADR-0044](../adr/0044-cnpj-um-so-alfanumerico.md).
 
 ## Single-column: IP (IPv4)
 

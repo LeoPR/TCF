@@ -45,7 +45,29 @@
 > Placa não é regressão nova, é **lacuna preexistente** — e segue bloqueada por DADO (busca em
 > `Z:/tcf-data/`: nenhum dataset tem a coluna).
 >
-> **⚑ REFINADO NO MESMO DIA — [ADR-0043](docs/adr/0043-cnpj-um-so-compacto-por-valor.md): UM
+> **⚑ FECHADO — [ADR-0044](docs/adr/0044-cnpj-um-so-alfanumerico.md): UM `cnpj` SO'.** Direcao
+> do owner (*"nada de ter dois"*): `SPEC_CNPJ` **E'** o alfanumerico (`[0-9A-Z]`, `wire_id="cnpj"`,
+> pleno 10 / compacto 7); `SPEC_CNPJ_ALFA`, `cnpja` e `cnpj_spec_para` **deixam de existir**;
+> registry de volta a **5 specs**. **RELATORIO que o owner pediu sobre o compacto numerico**:
+> **(1)** 7 e 10 sao **MINIMOS** em base-80 (80⁶ e 80⁹ nao cabem) e o DV nunca foi gravado — nao
+> ha' versao numerica melhor a achar; **(2)** o ganho **E' transitorio**, como previsto: decai de
+> **+27,6%** (100% numerico) a **+0,00%** (100% alfa) — mas **nunca fica negativo** (0/9 fracoes),
+> a largura mista nao cobra pedagio a jusante, entao mante-lo custa **zero**; **(3) o motivo que
+> decide nao e' compressao**: sem o compacto, um `:cnpj` alfanumerico **nao le' o wire de 7 chars
+> ja' emitido** — devolve o payload cru como valor (**corrupcao SILENCIOSA**, medida). Ele e'
+> **LOAD-BEARING** pra unificacao; a compressao e' o bonus que decai. Byte-neutralidade provada
+> por diferencial contra os parametros **HISTORICOS**: 4.011 encodes + 3.505 decodes (3.000
+> adulterados) = **0 divergencias** — e o 1o diferencial que rodei estava **errado** (lia
+> `encoded_length` do spec vivo, ja' 10). **Status (telemetria) MUDA fora do dominio numerico**,
+> e foi censado em 10.008 valores: 3 classes, todas de `format_mismatch` (o catch-all antigo pra
+> qualquer letra) -> `compressible` (3.017, **e' a capacidade nova**, unica que muda byte),
+> `format_unmasked` (2.002) e `check_invalid` (1.984), essas duas byte-identicas (ambas literal).
+> Nenhum valor numerico diverge; RT 10.008/10.008. Suite **1304**; snippets 71/0 falhas.
+> **LACUNA declarada**: a DSL (`scripts/natures_compiler/`) nao expressa alfabeto — so' compila o
+> subconjunto numerico; teste re-pinado pra afirmar a equivalencia de BYTE no dominio numerico.
+> Lab: [`0230`](experiments/lab/dirty/2026-08/2026-08-21/2026-08-21-0230-cnpj-unificado/).
+>
+> **⚑ [SUPERADO por ADR-0044 na IDENTIDADE; a MECANICA do compacto vige] REFINADO NO MESMO DIA — [ADR-0043](docs/adr/0043-cnpj-um-so-compacto-por-valor.md): UM
 > CNPJ SÓ, o numérico vira caso COMPACTO POR VALOR (direção do owner: o numérico é legado que se
 > dilui — 10¹²/36¹² ≈ 2,1×10⁻⁷ do espaço novo — e chooser por coluna teria prazo de validade).**
 > No `:cnpja`, corpo 100% decimal grava em base 10 com **7 chars, payload BYTE-IDÊNTICO ao do
@@ -63,7 +85,7 @@
 > §4 do ADR-0042 superado (vigência anotada no índice). Lab probatório:
 > [`0130`](experiments/lab/dirty/2026-08/2026-08-21/2026-08-21-0130-cnpj-um-so-compacto/).
 >
-> **⚑ SOLDADO 2026-08-21 — weld H-15-01/02, [ADR-0042](docs/adr/0042-cnpj-alfanumerico-dois-specs.md).**
+> **⚑ [SUPERADO por ADR-0044 — registro do caminho] SOLDADO 2026-08-21 — weld H-15-01/02, [ADR-0042](docs/adr/0042-cnpj-alfanumerico-dois-specs.md).**
 > `TemplatedCheckedSpec` ganhou `alfabeto` parametrizável + `_valor()` (ASCII−48, **universal**:
 > dígito devolve o próprio dígito, letra devolve a regra da IN); os 3 métodos que assumiam `\d`
 > foram generalizados; **`SPEC_CNPJ_ALFA`** (`:cnpja`, base 36, 10 chars) entrou no registry core

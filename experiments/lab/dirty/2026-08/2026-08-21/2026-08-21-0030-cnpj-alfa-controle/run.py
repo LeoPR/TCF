@@ -19,6 +19,11 @@ AS PERGUNTAS (uma coisa de cada vez)
      de k. E' o comportamento que decide o tratamento, nao o volume.
 
 `src/tcf` INTOCADO. Evidencia obrigatoria + portao anti-orfao. RT em todo wire.
+
+
+LAB HISTORICO — NAO RODA MAIS (2026-08-21). Mede o comportamento de transição com DOIS specs (`cnpj` + `cnpja`) e um chooser,
+superado pelo ADR-0044 no mesmo dia. Quebra porque assert de `encoded_length` que mudou de 7 para 10.
+E' registro do caminho; para executar, `git checkout a08abb2b`.
 """
 
 from __future__ import annotations

@@ -12,7 +12,9 @@ Mesma maquina parametrica serve CPF, CNPJ, e potencialmente IBAN/Luhn
 (nao welded — registrar SPEC novo quando dataset real existir).
 
 Filosofia opt-in per-value (sub-exp 05):
-- compressible -> base-94 encoded (largura fixa por spec: 5 no CPF, 7 no CNPJ; no cnpj-alfa e' POR VALOR — 7 corpo decimal, 10 com letra, ADR-0043)
+- compressible -> base-94 encoded. Largura FIXA por spec (5 no CPF), ou POR VALOR
+  quando o spec declara sub-alfabeto compacto: o CNPJ grava 7 chars se o corpo for
+  100% decimal e 10 se tiver letra (ADR-0044)
 - format_padded / check_invalid / format_mismatch / etc. -> literal fallback
 - Marker prefix `_` distingue literal vs compressed
 - RT byte-canonical preservado SEMPRE
@@ -52,9 +54,9 @@ class TemplatedCheckedSpec:
         encoded_length: chars pra encodar len(alfabeto)^body_length em BASE94
         alfabeto: simbolos aceitos no CORPO, na ORDEM que define a base (o indice
             de cada simbolo E' o digito da conversao). Default `'0123456789'` =
-            base 10, o comportamento historico. `SPEC_CNPJ_ALFA` usa os 36
-            simbolos `0-9A-Z` (IN RFB 2.229/2024). DOIS mapeamentos convivem e
-            NAO se confundem (weld H-15-01):
+            base 10, o comportamento historico. `SPEC_CNPJ` usa os 36 simbolos
+            `0-9A-Z` (IN RFB 2.229/2024). DOIS mapeamentos convivem e NAO se
+            confundem:
               - alfabeto -> indice 0..N-1 = base da GRAVACAO;
               - `_valor()` (ASCII-48) = valor que o `check_fn` consome, a LEI.
             Os digitos precisam estar no alfabeto quando `check_length > 0` — os
@@ -114,7 +116,18 @@ class TemplatedCheckedSpec:
         #   - ac vazio + elc=0: o decode roteia payload '' pro ramo compacto por
         #     vacuidade e crasha em abc[0], onde o contrato e' pass-through;
         #   - igualdade (ac == alfabeto): o ramo pleno vira codigo morto calado.
-        if self.alfabeto_compacto is not None:
+        if self.alfabeto_compacto is None:
+            # o caso INVERSO, que a revisao de 2026-08-21 apontou: sem alfabeto
+            # compacto o comprimento nao significa nada, e deixa-lo preenchido e'
+            # estado inconsistente esperando alguem confiar nele.
+            if self.encoded_length_compacto:
+                raise ValueError(
+                    f"{self.name!r} tem encoded_length_compacto="
+                    f"{self.encoded_length_compacto} sem alfabeto_compacto — sem "
+                    f"sub-alfabeto o comprimento nao discrimina nada; zere um ou "
+                    f"declare o outro"
+                )
+        else:
             ac = self.alfabeto_compacto
             if (len(ac) < 2 or len(set(ac)) != len(ac)
                     or not set(ac) < set(self.alfabeto)):
@@ -330,14 +343,29 @@ SPEC_CPF = TemplatedCheckedSpec(
 # SPEC_CNPJ (Brazilian company taxpayer ID)
 # ===========================================================================
 
-_CNPJ_RE = re.compile(r'^(\d{2})\.(\d{3})\.(\d{3})/(\d{4})-(\d{2})$')
-
 _W1_CNPJ = [5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2]
 _W2_CNPJ = [6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2]
 
+#: O universo do CNPJ, confirmado na NT Conjunta 2025.001 / XSD da NF-e:
+#: `[0-9A-Z]{12}[0-9]{2}` — 36 simbolos no corpo (digitos + as 26 MAIUSCULAS,
+#: sem exclusao no formato), 2 DV sempre decimais. A ordem E' a base da gravacao;
+#: digitos primeiro, de modo que um corpo 100% numerico tenha os MESMOS indices
+#: que teria em base 10.
+ALFABETO_CNPJ = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+
+_CNPJ_RE = re.compile(
+    r'^([0-9A-Z]{2})\.([0-9A-Z]{3})\.([0-9A-Z]{3})/([0-9A-Z]{4})-(\d{2})$'
+)
+
 
 def _cnpj_check_fn(body: list[int]) -> list[int]:
-    """Mod-11 CNPJ: 2 check digits (pesos diferentes de CPF)."""
+    """Mod-11 CNPJ: 2 check digits (pesos diferentes de CPF).
+
+    Os pesos NAO mudaram com a IN 2.229/2024 — o que mudou foi a conversao
+    char->valor, que vive em `_valor()` (ASCII-48). Como digito converte pra ele
+    mesmo, o CNPJ numerico gera o MESMO DV nas duas regras: a retrocompatibilidade
+    e' estrutural.
+    """
     s1 = sum(d * w for d, w in zip(body, _W1_CNPJ))
     rem1 = s1 % 11
     d1 = 0 if rem1 < 2 else 11 - rem1
@@ -347,10 +375,48 @@ def _cnpj_check_fn(body: list[int]) -> list[int]:
     return [d1, d2]
 
 
-def _cnpj_formatter(digits: list[int]) -> str:
-    s = ''.join(str(d) for d in digits)
+def _cnpj_formatter(valores: list[int]) -> str:
+    """valores (ASCII-48 no corpo, decimais no check) -> string mascarada.
+
+    A inversa de `_valor` e' `chr(v + 48)`: 0->'0' ... 9->'9', 17->'A' ... 42->'Z'.
+    """
+    s = ''.join(chr(v + 48) for v in valores[:12]) +         ''.join(str(d) for d in valores[12:])
     return f"{s[:2]}.{s[2:5]}.{s[5:8]}/{s[8:12]}-{s[12:]}"
 
+
+# ===========================================================================
+# SPEC_CNPJ — UM SO', alfanumerico por padrao (ADR-0044)
+# ===========================================================================
+#
+# IN RFB no 2.229/2024, vigente desde jul/2026: as 12 primeiras posicoes aceitam
+# `[0-9A-Z]`; os 2 DV seguem DECIMAIS. Nao existe "spec numerico" separado — o
+# numerico e' um CASO do alfanumerico:
+#
+#   corpo 100% decimal  -> base 10, 7 chars   (10^12  <= 80^7  = 2,10e13)
+#   corpo com letra     -> base 36, 10 chars  (36^12 = 4,74e18 <= 80^10 = 1,07e19)
+#
+# O decode discrimina PELO COMPRIMENTO do payload. Ambos sao MINIMOS em base-80
+# (80^6 e 80^9 nao cabem), e o DV nunca e' gravado (recomputado no decode).
+#
+# POR QUE O CASO COMPACTO FICA, sendo o ganho transitorio (owner 2026-08-21:
+# *"o so' numerico pode ate' ser oportunidade, mas acho que ela sera' transitoria"*):
+# ele e' LOAD-BEARING, nao otimizacao. Sem ele, este spec NAO LE o wire `:cnpj`
+# de 7 chars ja' emitido — devolveria o payload cru como se fosse o valor
+# (corrupcao SILENCIOSA, medida). Com ele, um unico id le' tudo que existe. E o
+# ganho, medido na varredura da mistura, decai de +27,6% (100% numerico) a
+# +0,00% (100% alfa) sem NUNCA ficar negativo: a largura mista nao cobra pedagio.
+#
+# POR QUE base 36 e nao 43 (ASCII-48 como base): o mapeamento legal tem um GAP
+# (10..16 = `:;<=>?@`, que nao sao simbolos validos). Usa-lo como base gastaria
+# 43^12 = 4,00e19 > 80^10 -> 11 chars em vez de 10. A LEI governa o DV; a
+# GRAVACAO usa o alfabeto denso. Sao dois mapeamentos, e ficam separados.
+#
+# MAIUSCULA-ONLY e' o DOMINIO OFICIAL. Minuscula NAO pertence ao universo — e'
+# variante de REPRESENTACAO. Aceita-la canonizando a saida perderia o RT
+# byte-canonical, entao e' da classe CONTRATO (mesma do sort_by/drop_names) e
+# fica fora deste spec ate' a assinatura de contrato existir
+# (T-FMT-CONTRACT-SIGNATURE; registro H-15-06). Hoje minuscula cai em literal:
+# nao ganha, nunca corrompe.
 
 SPEC_CNPJ = TemplatedCheckedSpec(
     name="cnpj",
@@ -359,113 +425,8 @@ SPEC_CNPJ = TemplatedCheckedSpec(
     check_length=2,
     check_fn=_cnpj_check_fn,
     formatter=_cnpj_formatter,
-    encoded_length=7,  # 80^7 = 2.1*10^13 > 10^12 ✓
-)
-
-
-# ===========================================================================
-# SPEC_CNPJ_ALFA (CNPJ alfanumerico — IN RFB no 2.229/2024, vigente jul/2026)
-# ===========================================================================
-#
-# As 12 primeiras posicoes passam a aceitar `[0-9A-Z]`; os 2 DV seguem DECIMAIS.
-# O DV e' o MESMO mod-11, com OS MESMOS PESOS — muda so' a conversao de char pra
-# valor, que a IN define como `ASCII(c) - 48` e que `_valor()` ja' implementa.
-# Verificado contra o exemplo publicado `12.ABC.345/01DE-35` (DV 35).
-#
-# UM CNPJ SO', com o numerico como CASO COMPACTO POR VALOR (ADR-0043, que refina
-# o desenho "dois specs + chooser" do ADR-0042 pela direcao do owner 2026-08-21):
-# o numerico e' legado — hoje e' 100% do cadastro, mas e' 10^12/36^12 ~ 2,1e-7 do
-# espaco novo e SO' DILUI daqui pra frente. Qualquer heuristica por coluna
-# ("maioria numerica -> spec numerico") teria prazo de validade. A solucao nao e'
-# heuristica: e' POR VALOR — corpo 100% decimal grava em base 10 com **7 chars**
-# (bytes IDENTICOS ao payload do SPEC_CNPJ legado, por construcao: os indices do
-# sub-alfabeto "0..9" SAO os digitos); corpo com letra grava em base 36 com
-# **10 chars**. O decode distingue pelo COMPRIMENTO. Nao ha' escolha a errar.
-#
-#   - corpo numerico  -> 7 chars   (10^12  <= 80^7  = 2,10e13)
-#   - corpo com letra -> 10 chars  (36^12 = 4,74e18 <= 80^10 = 1,07e19)
-#
-# `SPEC_CNPJ` (`:cnpj`) permanece pra LER wire legado e como emissao explicita
-# byte-compat; a emissao recomendada e' esta aqui (`:cnpja`), que cobre os dois
-# dominios pagando o preco certo em cada valor.
-#
-# POR QUE base 36 e nao 43 (ASCII-48 como base): o mapeamento legal tem um GAP
-# (10..16 = `:;<=>?@`, que nao sao simbolos validos). Usa-lo como base gastaria
-# 43^12 = 4,00e19 > 80^10 -> 11 chars em vez de 10. A LEI governa o DV; a
-# GRAVACAO usa o alfabeto denso. Sao dois mapeamentos, e ficam separados.
-#
-# MAIUSCULA-ONLY e' o DOMINIO OFICIAL (NT 2025.001/XSD: `[0-9A-Z]{12}[0-9]{2}`).
-# Minuscula NAO pertence ao universo — e' variante de REPRESENTACAO. Aceita-la
-# canonizando a saida perderia o RT byte-canonical, entao e' da classe CONTRATO
-# (mesma do sort_by/drop_names) e fica fora deste spec ate' a assinatura de
-# contrato existir (T-FMT-CONTRACT-SIGNATURE; registro H-15-06). Hoje minuscula
-# cai em literal: nao ganha, nunca corrompe.
-
-_CNPJ_ALFA_RE = re.compile(
-    r'^([0-9A-Z]{2})\.([0-9A-Z]{3})\.([0-9A-Z]{3})/([0-9A-Z]{4})-(\d{2})$'
-)
-
-#: Ordem = a base. Digitos primeiro, de modo que um corpo 100% numerico tenha os
-#: MESMOS indices que teria em base 10 (o valor do inteiro muda, a leitura nao).
-ALFABETO_CNPJ_ALFA = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-
-
-def _cnpj_alfa_formatter(valores: list[int]) -> str:
-    """valores (ASCII-48 no corpo, decimais no check) -> string mascarada.
-
-    A inversa de `_valor` e' `chr(v + 48)`: 0->'0' ... 9->'9', 17->'A' ... 42->'Z'.
-    Os 2 ultimos sao digitos verificadores e saem como decimal.
-    """
-    s = ''.join(chr(v + 48) for v in valores[:12]) + \
-        ''.join(str(d) for d in valores[12:])
-    return f"{s[:2]}.{s[2:5]}.{s[5:8]}/{s[8:12]}-{s[12:]}"
-
-
-SPEC_CNPJ_ALFA = TemplatedCheckedSpec(
-    name="cnpj-alfa",
-    regex=_CNPJ_ALFA_RE,
-    body_length=12,
-    check_length=2,
-    check_fn=_cnpj_check_fn,          # OS MESMOS pesos do numerico. E' a mesma lei.
-    formatter=_cnpj_alfa_formatter,
     encoded_length=10,                # 36^12 = 4.7*10^18 < 80^10 = 1.1*10^19 ✓
-    wire_id="cnpja",                  # ADR-0041: id curto, plano do DADO
-    alfabeto=ALFABETO_CNPJ_ALFA,
-    alfabeto_compacto="0123456789",   # ADR-0043: corpo 100% decimal -> 7 chars,
-    encoded_length_compacto=7,        # payload BYTE-IDENTICO ao do SPEC_CNPJ
+    alfabeto=ALFABETO_CNPJ,
+    alfabeto_compacto="0123456789",   # corpo 100% decimal -> 7 chars, payload
+    encoded_length_compacto=7,        # BYTE-IDENTICO ao wire `:cnpj` historico
 )
-
-
-def cnpj_spec_para(vals) -> TemplatedCheckedSpec:
-    """Escolhe entre `SPEC_CNPJ` (legado) e `SPEC_CNPJ_ALFA` para uma coluna.
-
-    Depois do ADR-0043 a pergunta ficou quase trivial: no `SPEC_CNPJ_ALFA` um
-    corpo numerico ja' grava nos MESMOS 7 chars do legado (caso compacto por
-    valor), entao o payload do alfa e' <= o do legado em TODO valor — 7 = 7 no
-    numerico, 10 < 1+18 no alfanumerico (que no legado cai em literal). A
-    historia deste helper registra o porque: a versao ADR-0042 (specs de
-    comprimento fixo) precisava de um chooser de verdade, a regra "tem letra ->
-    alfa" foi MEDIDA e reprovada (erra 8/12; a virada tinha forma fechada
-    `k/n = (E2-E1)/(1+L-E1) = 1/4`), e a soma-de-payload carregava residuo
-    sistematico de ate' 3,15% na faixa 22-25%. O compacto por valor DISSOLVEU a
-    escolha — nao ha' mais heuristica pra sustentar no tempo.
-
-    O que resta decidir e' so' o EMPATE (coluna 100% numerica, payloads
-    identicos): fica com `SPEC_CNPJ`, cujo header e' 1 B menor (`:cnpj` vs
-    `:cnpja`) e byte-compat com todo wire ja' emitido. Qualquer valor
-    alfanumerico compressivel -> `SPEC_CNPJ_ALFA`.
-
-    O chamador continua no controle — `encode(col, nature=<spec>)` NUNCA e'
-    sobrescrito calado. Uso normal:
-
-        from tcf.natures import cnpj_spec_para
-        texto = encode(coluna, nature=cnpj_spec_para(coluna))
-    """
-    for v in vals:
-        if v is None:                              # slot do core, nao do spec
-            continue
-        s = str(v)
-        if (SPEC_CNPJ_ALFA.classify_value(s) == 'compressible'
-                and SPEC_CNPJ.classify_value(s) != 'compressible'):
-            return SPEC_CNPJ_ALFA                  # alfanumerico de verdade
-    return SPEC_CNPJ

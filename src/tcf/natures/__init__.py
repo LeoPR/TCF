@@ -4,14 +4,15 @@ Welded canonical 2026-05-24 via ADR-0015 (T-CODE-NATURES-WELD).
 
 Cobre categoria "Templated + Checked + Unique-Discrete":
 - SPEC_CPF (NNN.NNN.NNN-DD, mod-11)
-- SPEC_CNPJ (NN.NNN.NNN/NNNN-DD, mod-11 dupla)
-- SPEC_CNPJ_ALFA (AA.AAA.AAA/AAAA-DD, corpo `[0-9A-Z]`; weld H-15-01, 2026-08-21)
-  IN RFB no 2.229/2024, vigente desde jul/2026. COEXISTE com SPEC_CNPJ e NAO o
-  substitui: corpo em base 36 custa 10 chars contra 7 da base 10, e taxar em
-  +38,1% o legado numerico (que continua valido e sendo emitido) seria a troca
-  errada. O DV e' o MESMO mod-11 com os MESMOS pesos — muda so' a conversao
-  char->valor (`ASCII - 48`), e por isso o numerico gera DV identico nas duas
-  regras. Escolher entre os dois e' do CHAMADOR (ou do helper `cnpj_spec_para`).
+- SPEC_CNPJ — **UM SO'**, alfanumerico por padrao (AA.AAA.AAA/AAAA-DD, corpo
+  `[0-9A-Z]`, DV decimal; IN RFB no 2.229/2024, vigente desde jul/2026; ADR-0044).
+  Nao ha' spec numerico separado: o numerico e' um CASO do alfanumerico — corpo
+  100% decimal grava em 7 chars (payload BYTE-IDENTICO ao wire `:cnpj` historico),
+  corpo com letra em 10; o decode discrimina pelo COMPRIMENTO. O caso compacto e'
+  LOAD-BEARING, nao otimizacao: sem ele um `:cnpj` alfanumerico nao leria o wire
+  de 7 chars ja' emitido. O DV e' o MESMO mod-11 com os MESMOS pesos — muda so' a
+  conversao char->valor (`ASCII - 48`), e por isso o numerico gera DV identico nas
+  duas regras.
 
 Cobre categoria "TCU-Delta" (weld 2026-08-08):
 - SPEC_DATA_ISO (YYYY-MM-DD -> ordinal decimal; alvo = o `*N+M|` do seq-RLE)
@@ -53,9 +54,7 @@ from tcf.natures.templated_checked import (
     TemplatedCheckedSpec,
     SPEC_CPF,
     SPEC_CNPJ,
-    SPEC_CNPJ_ALFA,
-    ALFABETO_CNPJ_ALFA,
-    cnpj_spec_para,
+    ALFABETO_CNPJ,
     BASE94,
     MARKER_LITERAL,
     encode_value,
@@ -159,7 +158,7 @@ def _register(spec) -> None:
     _WIRE_REGISTRY[spec.wire_id] = spec
 
 
-for _spec in (SPEC_CPF, SPEC_CNPJ, SPEC_CNPJ_ALFA, SPEC_IP, SPEC_DATA_ISO, SPEC_INT_PAD):
+for _spec in (SPEC_CPF, SPEC_CNPJ, SPEC_IP, SPEC_DATA_ISO, SPEC_INT_PAD):
     _register(_spec)
 del _spec
 
@@ -180,10 +179,7 @@ __all__ = [
     "TemplatedCheckedSpec",
     "SPEC_CPF",
     "SPEC_CNPJ",
-    # CNPJ alfanumerico (IN RFB 2.229/2024) — COEXISTE com SPEC_CNPJ, nao o substitui
-    "SPEC_CNPJ_ALFA",
-    "ALFABETO_CNPJ_ALFA",
-    "cnpj_spec_para",
+    "ALFABETO_CNPJ",
     # Templated + Padded (IP)
     "TemplatedPaddedSpec",
     "SPEC_IP",
