@@ -1,6 +1,8 @@
-# datasets/synthetic — Controle sintético (D1-D15)
+# datasets/synthetic — Controle sintético (D1–D17)
 
-> **Status (2026-05-15)**: datasets de controle do algoritmo TCF-CORE.
+> Datasets de controle do algoritmo TCF-CORE.
+> **D1–D9** e **D17a** são gate byte-canônico (`tests/test_regression_v1_baseline.py`):
+> os números vivem lá, não aqui.
 > D1-D9 elevados do dirty lab; D10-D15 criados pra cobrir tipos
 > notaveis de ERP/CRM (datas, datetimes, CPF, UUID, base64).
 

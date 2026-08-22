@@ -1,4 +1,11 @@
-"""Compression benchmark — TCF L0-L3 vs CSV vs JSONL on canonical datasets.
+"""[ACESSORIO HISTORICO — v0.5, NAO MANTIDO] Compression benchmark.
+
+Mede TCF **L0-L3**, que e' o motor v0.5 (`old/tcf/`), nao o TCF-CORE de
+`src/tcf/`. Nao roda na suite e nao e' gate de nada. O benchmark vigente do
+`.8` vive em `scripts/bench_evidencia*.py` (evidencia) e `scripts/bench_perf/`
+(latencia/memoria).
+
+Original: TCF L0-L3 vs CSV vs JSONL on canonical datasets.
 
 Measures raw text size, gzip/brotli compressed size, and encode timing
 for each format at multiple data scales.

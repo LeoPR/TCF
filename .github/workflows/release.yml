@@ -29,16 +29,54 @@ jobs:
       - name: Set up Python
         run: uv python install 3.12
 
-      # Gate byte-canonical antes de publicar (mesma barra do CI).
-      - name: Regression gate (byte-canonical — ADR-0017 #8)
+      # A TAG E' O CAMINHO QUE PUBLICA — a barra aqui nao pode ser menor que a do
+      # push. O ci.yml roda em push/PR para main e NAO dispara em tag, entao tudo
+      # que ele garante precisa ser repetido: suite completa e o gate real-world.
+      # (Antes daqui so' saia `test_regression_v1_baseline.py`: o mini-suite
+      # D1-D9+D17a, que o AGENTS.md §4 declara insuficiente — "o candidato
+      # prune-k-03 passou nele e regrediu +0.59% em real-world".)
+      - name: Instalar deps
+        run: uv pip install --system -e ".[dev]"
+
+      # A tag e' o unico artefato que carrega a versao; se ela mentir, o PyPI
+      # recebe um numero que nao corresponde ao codigo — e versao no PyPI nao
+      # se reaproveita. Conferir ANTES de gastar build.
+      - name: Conferir que a tag bate com a versao declarada
+        run: |
+          TAG="${GITHUB_REF_NAME#v}"
+          PROJ=$(python -c "import tomllib,pathlib;print(tomllib.loads(pathlib.Path('pyproject.toml').read_text())['project']['version'])")
+          PKG=$(python -c "import tcf;print(tcf.__version__)")
+          echo "tag=$TAG  pyproject=$PROJ  tcf.__version__=$PKG"
+          test "$TAG" = "$PROJ" || { echo "::error::tag v$TAG != pyproject $PROJ"; exit 1; }
+          test "$TAG" = "$PKG"  || { echo "::error::tag v$TAG != tcf.__version__ $PKG"; exit 1; }
+
+      - name: Suite completa
+        env:
+          PYTHONHASHSEED: '0'
+        run: uv run pytest -q
+
+      - name: Gates byte-canonical (D1-D9 + D17a + REAL-WORLD)
         env:
           PYTHONHASHSEED: '0'
         run: |
-          uv pip install --system -e ".[dev]"
-          uv run pytest tests/test_regression_v1_baseline.py -v --tb=short
+          uv run pytest tests/test_regression_v1_baseline.py \
+                        tests/test_real_world_snapshots.py -v --tb=short
 
       - name: Build sdist + wheel
         run: uv build
+
+      # A wheel publicada tem de importar e fazer round-trip — nao basta compilar.
+      - name: Smoke da wheel construida
+        run: |
+          python -m venv /tmp/smoke
+          /tmp/smoke/bin/python -m pip install -q dist/*.whl
+          /tmp/smoke/bin/python -c "
+          import tcf
+          t = {'a': ['1','2','3'], 'b': ['x','y','z']}
+          assert tcf.decode(tcf.encode(t)) == t, 'round-trip da wheel falhou'
+          assert tcf.__version__ == '${GITHUB_REF_NAME#v}', 'versao da wheel diverge da tag'
+          print('smoke OK —', tcf.__version__)
+          "
 
       - name: Upload dist artifact
         uses: actions/upload-artifact@v4
