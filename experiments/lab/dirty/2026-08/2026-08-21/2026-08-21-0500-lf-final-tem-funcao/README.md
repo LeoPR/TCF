@@ -1,5 +1,19 @@
 # 2026-08-21-0500 — o último LF: o que tem função e o que é decoração
 
+> ## ⛔ CONCLUSÃO REVOGADA em [`0700`](../2026-08-21-0700-lf-a-resposta/)
+>
+> Este lab concluiu que o LF final é **redundante e 100% recuperável (55/55)**.
+> **Está errado.** O teste era `drop + readd` — operação que **já sabe** que o LF
+> existia, e que portanto mede *recuperabilidade*, não *necessidade*. E o corpus
+> omitia o único par em que a diferença aparece: **`[]` contra `['']`**.
+>
+> Uma coluna **vazia** e uma coluna com **um valor vazio** produzem wires que diferem em
+> exatamente um LF — o terminador é o que as separa. Ele carrega 1 bit, só no caso de borda,
+> e isso basta: **tem necessidade**.
+>
+> O que continua valendo deste lab: o `.8H` conta o LF dentro do `size`; o custo é de
+> 4–6% em payload minúsculo; e a nota sobre `file`/mimetype.
+
 > *"reavalie a necessidade técnica do último `\n` que não tem função e o que tem função. creio
 > que não precisamos de caracteres decorativos. até então achei que o último linefeed tinha
 > função prática para programas como mimetype e programa `file` para identificar precisavam do

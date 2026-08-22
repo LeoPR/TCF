@@ -1,0 +1,10 @@
+{
+ "ambiguidade_sem_terminador": true,
+ "necessidade": true,
+ "par_que_decide": {
+  "[]": "#TCF.8\n",
+  "['']": "#TCF.8\n\n",
+  "diferenca": "\n"
+ },
+ "lab_0500": "REVOGADO — corpus omitia []"
+}

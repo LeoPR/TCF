@@ -33,6 +33,17 @@
 > [`0330`](experiments/lab/dirty/2026-08/2026-08-21/2026-08-21-0330-bordas-em-spec/) e
 > [`0400`](experiments/lab/dirty/2026-08/2026-08-21/2026-08-21-0400-lf-final-do-wire/).
 
+> **⚑ FECHADO 2026-08-21 — o `
+` final TEM NECESSIDADE, e o par que decide e' `[]` x `['']`.**
+> Criterio do owner: *"bastando nao ter ambiguidade, e nao necessidade, focamos nisso"*. O LF
+> final **nao se qualifica**: `encode([])` e `encode([''])` diferem em exatamente um LF — o
+> terminador e' o que distingue **coluna vazia** de **coluna com UM valor vazio**. Como SEPARADOR
+> (n-1 LFs) as duas colapsariam no mesmo corpo vazio: **ambiguo**. Ele carrega **1 bit, so' no
+> caso de borda** — pouco, e suficiente. **REVOGA a conclusao do lab `0500`** ("redundante,
+> 55/55"): aquele teste media RECUPERABILIDADE (`drop + readd` ja' sabe que o LF existia), nao
+> NECESSIDADE, e o corpus omitia justamente `[]`. Lab
+> [`0700`](experiments/lab/dirty/2026-08/2026-08-21/2026-08-21-0700-lf-a-resposta/).
+
 > **⚑ SEPARACAO EM 4 CAMADAS (direcao owner 2026-08-21) — e eu vinha discutindo o BYTE ERRADO.**
 > *"nao quero misturar a entrada do dataset e o roundtrip pra construir, a saida em arquivo que
 > possa ser util, e o transporte. tudo e' coisa diferente [...] um flag e um default pra cada
