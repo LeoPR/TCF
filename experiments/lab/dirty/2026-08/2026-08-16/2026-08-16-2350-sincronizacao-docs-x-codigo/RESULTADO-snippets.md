@@ -16,7 +16,7 @@ Nenhuma.
 | arquivo | linha | motivo |
 |---|---|---|
 | `docs/algorithms/output-convention.md` | 43 | sem import — provavelmente continuacao de outro bloco |
-| `docs/algorithms/output-convention.md` | 148 | sem import — provavelmente continuacao de outro bloco |
+| `docs/algorithms/output-convention.md` | 161 | sem import — provavelmente continuacao de outro bloco |
 | `docs/divulgacao-tcf.md` | 53 | sem import — provavelmente continuacao de outro bloco |
 | `docs/how-to/encode-csv-file.md` | 39 | sem import — provavelmente continuacao de outro bloco |
 | `docs/how-to/encode-csv-file.md` | 99 | sem import — provavelmente continuacao de outro bloco |

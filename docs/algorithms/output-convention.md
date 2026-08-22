@@ -67,11 +67,24 @@ que o LF **separa valores**. Prova de uma linha:
 O wire da coluna que **termina em valor vazio** é exatamente o wire da coluna sem o vazio,
 **mais um LF**.
 
-Isso **não** quer dizer que ele carregue informação. Ele é **100% recuperável**: dropar o
-último byte e recolocá-lo na recepção devolve o objeto original (medido em 55/55 wires). O que
-torna o drop inseguro é outra coisa — **o receptor não sabe quando recolocar**, porque a
-convenção varia por rota e o magic não a determina. E dropar **sem** recolocar transforma
-`['a','']` em `['a']`, sem erro.
+**E o par que decide é mais simples ainda:**
+
+```
+[]     ->  '#TCF.8
+'
+['']   ->  '#TCF.8
+
+'
+```
+
+**Coluna vazia** contra **coluna com um valor vazio** — os dois datasets diferem em exatamente
+um LF. Se o LF fosse **separador** (n valores → n−1 LFs), ambas dariam corpo vazio e seriam
+**indistinguíveis**. O terminador carrega **1 bit, e só nesse caso de borda**: pouco, e
+suficiente para não ser removível.
+
+> Executável em `tests/test_core_rt.py::test_o_LF_terminador_e_o_que_distingue_vazia_de_um_vazio`
+> — é lá que este fato vive na altitude *exemplo* (Strata §5: como=código, exemplo=teste,
+> porque=prosa). Esta seção é o *porque*.
 
 **O que o código realmente faz** (medido nas 10 rotas; **nenhuma** aceita "com ou sem"):
 

@@ -43,6 +43,17 @@
 > 55/55"): aquele teste media RECUPERABILIDADE (`drop + readd` ja' sabe que o LF existia), nao
 > NECESSIDADE, e o corpus omitia justamente `[]`. Lab
 > [`0700`](experiments/lab/dirty/2026-08/2026-08-21/2026-08-21-0700-lf-a-resposta/).
+> **RASTREABILIDADE (revisao Strata L0, 2026-08-21)** — quem for documentar isto cita, por
+> altitude (§5): **porque** = `docs/algorithms/output-convention.md` §3 · **exemplo** =
+> `tests/test_core_rt.py::test_o_LF_terminador_e_o_que_distingue_vazia_de_um_vazio` (o par
+> `[]`/`[""]`, executavel) · **como** = `syntax.py` · **resultado** = lab `0700` · **traco** =
+> labs `0400` (argumento errado) e `0500` (**REVOGADO**). A revisao achou e consertou 3 gaps:
+> a relacao nao estava pinada em altitude nenhuma (§5), a cadeia `0400`->`0500`(revogado)
+> apontava pra leitura morta (§3), e o caminho da fonte Strata na memoria estava obsoleto (§3).
+> E decidiu **NAO** consolidar: achado de N=1 nao sobe (§7 regra de tres, §9). O gap que resta
+> e' o **§9** e e' meu: 4 labs e ~1.200 linhas pra um achado de 2 linhas de wire — 3 deles
+> existem porque eu nao procurei o caso de borda primeiro. Nota:
+> [`0800-strata-revisao-do-arco-lf`](experiments/lab/dirty/notas/2026-08/2026-08-21-0800-strata-revisao-do-arco-lf.md).
 
 > **⚑ SEPARACAO EM 4 CAMADAS (direcao owner 2026-08-21) — e eu vinha discutindo o BYTE ERRADO.**
 > *"nao quero misturar a entrada do dataset e o roundtrip pra construir, a saida em arquivo que

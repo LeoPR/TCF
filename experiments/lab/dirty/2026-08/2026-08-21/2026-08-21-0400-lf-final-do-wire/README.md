@@ -1,13 +1,17 @@
 # 2026-08-21-0400 — o `\n` final do wire: terminador, não convenção de arquivo
 
-> ## ⚠ LEITURA REFINADA em [`0500`](../2026-08-21-0500-lf-final-tem-funcao/)
+> ## ⚠ LEITURA CORRIGIDA — a vigente e' a de [`0700`](../2026-08-21-0700-lf-a-resposta/)
 >
-> Este lab concluiu que o LF final e' *load-bearing* e que trata-lo como opcional seria
-> "indecidivel". **Impreciso.** O owner apontou que isso so' vale se o LF for OPCIONAL;
-> sendo OBRIGATORIO, ele e' PREVISIVEL — e medido no `0500`, **e' 100% recuperavel**
-> (drop+readd devolve o original em 55/55). O que trava o drop e' a **assimetria entre
-> rotas** (o magic nao determina a convencao), nao o LF carregar informacao. A excecao
-> real e' o `.8H`, onde ele esta' **dentro do `size`**.
+> Este lab concluiu que o LF final e' *load-bearing* — **a conclusao esta' certa, o
+> argumento nao**. Eu justifiquei com `['a','b','']`, que na verdade e' recuperavel.
+>
+> **O motivo correto** (lab [`0700`](../2026-08-21-0700-lf-a-resposta/)): o par que decide
+> e' **`[]` contra `['']`** — coluna vazia contra coluna com um valor vazio. Como
+> separador (n-1 LFs) as duas colapsariam no mesmo corpo vazio. O terminador carrega
+> **1 bit, so' nesse caso de borda**.
+>
+> O lab intermediario `0500` concluiu "redundante" e foi **REVOGADO**: media
+> recuperabilidade, nao necessidade, e o corpus omitia `[]`.
 >
 > A matriz das 10 rotas abaixo continua valendo — o que mudou foi a INTERPRETACAO.
 

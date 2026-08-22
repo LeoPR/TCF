@@ -63,6 +63,31 @@ class TestRoundTripBasic:
         assert decode("#TCF.8\n\n") == [""]        # fronteira: 1 LF de corpo = 1 elemento vazio
         assert decode("#TCF.8H#D0\n") == []        # legado #D0 ainda tolerado
 
+    def test_o_LF_terminador_e_o_que_distingue_vazia_de_um_vazio(self):
+        """POR QUE o corpo termina em LF — o fato irredutivel, em um par.
+
+        `[]` (coluna VAZIA) e `[""]` (coluna com UM VALOR VAZIO) sao datasets
+        diferentes, e o unico byte que os separa no wire e' o LF terminador:
+
+            []    ->  '#TCF.8\\n'
+            ['']  ->  '#TCF.8\\n\\n'
+
+        Se o LF fosse SEPARADOR (n valores -> n-1 LFs) em vez de TERMINADOR, os
+        dois teriam corpo VAZIO e seriam indistinguiveis. E' por isso que o LF
+        final nao e' decoracao POSIX nem enchimento: ele carrega **1 bit**, e so'
+        neste caso de borda — pouco, e suficiente.
+
+        Este teste e' o portador do achado na altitude EXEMPLO (Strata §5:
+        como=codigo, exemplo=teste, porque=prosa). O `porque` em prosa vive em
+        `docs/algorithms/output-convention.md` §3; a exploracao que chegou nele
+        (e as duas voltas erradas) em `2026-08-21-0700-lf-a-resposta`.
+        """
+        assert encode([]) != encode([""])
+        assert encode([""]) == encode([]) + "\n"    # diferem em EXATAMENTE um LF
+        assert decode(encode([])) == [] and decode(encode([""])) == [""]
+        # e a prova de que separador seria ambiguo: os dois dao o mesmo join
+        assert "\n".join([]) == "\n".join([""]) == ""
+
     def test_single_string(self):
         values = ["hello"]
         text = encode(values)
