@@ -98,6 +98,11 @@ coluna = `[<pre>]<size>[=<nome>][:<id>]`:
   NAO-escapado. Unico proibido: `\n` (separador de linha do meta).
 - **ultima coluna sem size** (`min_header`, corpo ate' EOF, O-FMT-15/ADR-0023): par sem `=`.
 - **colunas anonimas** (`drop_names`): omite `=nome`; decode reconstroi pela ORDEM (`{'0':..,'1':..}`).
+- **nome vazio** (`''`): emitido como **`\z`** — o mesmo sentinela que o `.8H` usa (ADR-0033 → ADR-0046); o
+  decode devolve `''`. **Nao** e' o mesmo que anonima: anonima omite o nome e decoda posicional; `\z` e' um nome.
+  `\z` e' inemitivel por dado (o nome literal `\z` sai escapado `\\z`) e so' vale como token INTEIRO — `\z`
+  embutido segue erro de corrupcao. Antes da ADR-0046 o `''` era transformado em anonima (com warning) e
+  decodava `'0'` — o unico caso em que o TCF alterava o dado.
 
 > **CORRIGIDO 2026-08-20** (F6/DOC-03). Esta seção ensinava **três** coisas falsas, todas
 > medidas: (1) o registry tinha "cpf/cnpj/ip" quando tem **5** desde os welds de `dt`

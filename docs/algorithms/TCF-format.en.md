@@ -96,6 +96,11 @@ pre-pass before dispatch — it does not act on `M`/`H`.
   separator. Only `\n` is forbidden (meta line separator).
 - **last column without size** (`min_header`, body up to EOF, O-FMT-15/ADR-0023): pair without `=`.
 - **anonymous columns** (`drop_names`): omit `=name`; decode reconstructs by ORDER (`{'0':..,'1':..}`).
+- **empty name** (`''`): emitted as **`\z`** — the same sentinel the `.8H` uses (ADR-0033 → ADR-0046); decode
+  returns `''`. **Not** the same as anonymous: anonymous omits the name and decodes positional; `\z` is a name.
+  `\z` is unemittable by data (a literal `\z` name is escaped as `\\z`), and only valid as the WHOLE token —
+  embedded `\z` stays a corruption error. Before ADR-0046 `''` was transformed into anonymous (with a warning)
+  and decoded as `'0'` — the only case where TCF altered the data.
 
 > **CORRECTED 2026-08-20** (F6/DOC-03). This section taught **three** false things, all
 > measured: (1) the registry listed "cpf/cnpj/ip" when it has **5** since the `dt`

@@ -23,6 +23,12 @@ e' adotar a MESMA grafia.
   G3  o slot `\\z` esta' LIVRE no multi? algum nome real colide?
   G4  PROTOTIPO da correcao (no lab, `src/tcf` INTOCADO) + custo em bytes
   G5  MOTIVACAO: de onde vem uma coluna sem nome no mundo real
+
+
+LAB HISTORICO — NAO PASSA MAIS (2026-08-21). O G1 afirma o estado PRE-weld
+(`assert r != d`: o RT quebrava). O weld do ADR-0046 fechou o RT, entao este run
+para no G1 por construcao — e' registro da medicao, nao script vivo. Pra
+reexecutar como era: git checkout b4ae39a5.
 """
 
 from __future__ import annotations

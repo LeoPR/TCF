@@ -72,7 +72,7 @@ roadmap-hipoteses). Anotado, não resolvido.
 | **raiz = `{}`** | P4b | `#TCF.8H#E` (definição) | ✅ |
 | string (unicode, separadores, `\t`, `\x00`) | espinha+escape | — (RT-exato) | ✅ |
 | **`\n`/`\r`/`\\` em valor** (multilinha) | escape D_json | folha escapada (L1 intocado) | ✅ |
-| **chave `""` · chave com `\n`/`\r`** | escape D_json | `\z` / `\n` no meta | ✅ |
+| **chave `""` · chave com `\n`/`\r`** | escape D_json | `\z` / `\n` no meta (o `\z` vale tambem no `.8M` desde a ADR-0046) | ✅ |
 | chave NFC vs NFD (parecem iguais) | — | distintas, preservadas | ✅ |
 
 ## 3. O que o TCF faz A MAIS que o JSON de interoperabilidade

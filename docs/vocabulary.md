@@ -50,6 +50,7 @@ Prefixos no tamanho de coluna do meta INLINE (`#TCF.8M!8=id,@16=cat,nome` — se
 - Coluna sem size (ultima): `<name>` — modo `min_header` (ADR-0023); body ate' EOF
 - Nome com separador (`,`/`=`/`:`/`\`/prefixo `!@%`) — **escapado com backslash** (T-FMT-NAME-ESCAPING)
 - `<size>` (sem `=<name>`, nao-ultima) — coluna ANONIMA (`drop_names`); nome = posicao
+- `\z` (como nome INTEIRO) — nome VAZIO `''` (ADR-0046; mesma grafia do `.8H`, ADR-0033). Distinto de ANONIMA: e' um nome, e volta `''` no decode. Inemitivel por dado (literal `\z` sai `\\z`)
 - **byte-size em HEX** (T-FMT-HEADER-BASE-HEX, ADR-0032 §3). *(o modo legado `#TCF.6` com prefixo `# ` +
   sizes decimais foi CORTADO de src/tcf, ADR-0032 §4.)*
 

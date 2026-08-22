@@ -82,6 +82,7 @@ referencias a commits que o resolveram.
 
 | ID | Tema | Status |
 |---|---|---|
+| [BUG-CHAVE-VAZIA-POSICIONAL](BUG-CHAVE-VAZIA-POSICIONAL.md) | `{"": [...]}` voltava `{"0": [...]}` — o unico caso em que o TCF ALTERAVA o dado. Causa: colisao de grafia com `drop_names`; conserto = portar o `\z` do `.8H` (ADR-0033) ao `.8M`. Veredito: DEFINICAO SUPERADA (2026-07-10 -> 2026-07-17), nao bug | **CLOSED 2026-08-21 (ADR-0046)** |
 | [T-CODE-HCC-ATOM-DETECTION-REFINE](T-CODE-HCC-ATOM-DETECTION-REFINE.md) | Bug #1 sub-exp 14 (atom secundario nao criado) | **CLOSED-SUPERSEDED-BY-ADR-0016** (ult. commit 2026-06-21) |
 | [T-CODE-HCC-MULTI-DELTA-FIX](T-CODE-HCC-MULTI-DELTA-FIX.md) | Bug #2 sub-exp 14 (seq-RLE rejeita multi-run delta) | **CLOSED-WELDED-CANONICAL** (ult. commit 2026-06-21) |
 | [T-CODE-LAYERED-PIPELINE](T-CODE-LAYERED-PIPELINE.md) | Toggle infrastructure + online adaptive + fallback | **CLOSED** (ult. commit 2026-06-15) |

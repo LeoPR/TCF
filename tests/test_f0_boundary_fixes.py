@@ -4,6 +4,10 @@ Decisões do owner (2026-07-10):
 - BUG-01: coluna com nome '' = coluna SEM nome (anônima) — a entrada é TRANSFORMADA
   na fronteira (warning), o meta NUNCA emite escape-vazio; no decode, escape/declaração
   de nome vazio = ERRO (marcador de corrupção; futuro reparador em ticket próprio).
+  ⚠ SUPERADA em 2026-08-21 (ADR-0046): '' passou a ser nome VAZIO, emitido como `\z`
+  (a grafia que o .8H já usava desde ADR-0033) e preservado no decode — era o único
+  caso em que o TCF alterava o dado (BUG-CHAVE-VAZIA-POSICIONAL). O sentinela de
+  corrupção continua: '<size>=' com token CRU vazio é erro. Pins re-escritos abaixo.
 - BUG-02: paridade view vs decode por CONSTRUÇÃO (parser único do meta), não por
   verificação extra.
 - BUG-07: `body_bytes` MANTÉM a semântica de candidato TCF (custo de compute/memória —
@@ -12,6 +16,8 @@ Decisões do owner (2026-07-10):
 """
 
 from __future__ import annotations
+
+import warnings
 
 import pytest
 
@@ -30,30 +36,44 @@ VALS_TCF = ["constante-longa-repetida-x"] * 20  # RLE *20| -> tcf vence
 
 
 class TestBug01EmptyColName:
-    def test_empty_name_becomes_anonymous_with_warning(self):
+    # RE-PIN 2026-08-21 (ADR-0046): os quatro testes abaixo pinavam a decisão de
+    # 2026-07-10 ('' -> anônima + warning + guard de colisão). Ela foi SUPERADA: ''
+    # agora é nome VAZIO, emitido como `\z` e preservado. Cada teste diz o que ERA
+    # e o que passou a ser — o traço fica, a superfície muda (Strata §3).
+
+    def test_empty_name_is_preserved_no_warning(self):
+        # ERA: '' virava anônima com UserWarning e decodava '0'.
         table = {"": ["x", "y"], "b": ["p", "q"]}
-        with pytest.warns(UserWarning, match="anonima|anônima|posicional"):
+        with warnings.catch_warnings():
+            warnings.simplefilter("error")          # NENHUM warning agora
             blob = encode(table)
-        dec = decode(blob)
-        # coluna '' vira anônima -> decode dá o nome POSICIONAL ('0'); NADA se perde
-        assert dec == {"0": ["x", "y"], "b": ["p", "q"]}
+        assert decode(blob) == table                # RT exato: '' volta ''
+        _parity(blob)
 
     def test_empty_name_single_column_table(self):
-        with pytest.warns(UserWarning):
-            blob = encode({"": ["a", "b"]})
-        assert decode(blob) == {"0": ["a", "b"]}
+        # ERA: {'0': ['a', 'b']}.
+        blob = encode({"": ["a", "b"]})
+        assert blob.split("\n", 1)[0] == "#TCF.8M!\\z"
+        assert decode(blob) == {"": ["a", "b"]}
 
-    def test_empty_name_meta_has_no_escape(self):
-        # a transformação EVITA o escape: nenhum '\' no meta
-        with pytest.warns(UserWarning):
-            blob = encode({"": ["x", "y"], "b": ["p", "q"]})
+    def test_empty_name_meta_uses_z_sentinel(self):
+        # ERA: "nenhum '\' no meta" (a transformação EVITAVA o escape). AGORA o meta
+        # carrega exatamente `\z` — o sentinela do .8H (ADR-0033), inemitível por dado.
+        blob = encode({"": ["x", "y"], "b": ["p", "q"]})
         meta = blob.split("\n", 1)[0]
-        assert "\\" not in meta
+        assert "=\\z" in meta                       # '' não-última: '<size>=\z'
+        # e um nome LITERAL '\z' sai com a barra dobrada — não colide
+        blob2 = encode({"\\z": ["x", "y"], "b": ["p", "q"]})
+        assert "=\\\\z" in blob2.split("\n", 1)[0]
+        assert decode(blob2) == {"\\z": ["x", "y"], "b": ["p", "q"]}
 
-    def test_empty_name_positional_collision_fails_loud(self):
-        # '' na posição 0 viraria '0' no decode — colide com a coluna real '0'
-        with pytest.raises(ValueError, match="posicional|colid"):
-            encode({"": ["x"], "0": ["y"]})
+    def test_empty_name_and_column_zero_are_distinct_names(self):
+        # ERA: ValueError de colisão ('' viraria '0' e colidiria com a coluna real '0').
+        # AGORA '' e '0' são dois nomes distintos — nada a colidir.
+        table = {"": ["x"], "0": ["y"]}
+        blob = encode(table)
+        assert decode(blob) == table
+        _parity(blob)
 
     def test_decode_escaped_dangling_backslash_is_error(self):
         # nome terminando em backslash SOLTO (cauda ímpar = escape de nada): o
@@ -190,13 +210,12 @@ class TestAnonLastColGrammar:
     def test_min_header_false_empty_name_last_no_key_corruption(self):
         # repro do refutador: size hex da anônima colidia com o nome 'c' e a
         # tabela decodava com UMA coluna só (dados perdidos)
+        # RE-PIN 2026-08-21 (ADR-0046): '' não é mais anônima — é nome VAZIO e sai
+        # `<size>=\z` com min_header=False; o RT é exato. A ambiguidade original
+        # (size bare no último token) segue coberta pelo teste de drop_names abaixo.
         table = {"c": ["k1", "k2", "k3", "k4"], "": ["abc", "de", "fg", "hi"]}
-        with pytest.warns(UserWarning):
-            blob = encode(table, min_header=False)
-        assert decode(blob) == {
-            "c": ["k1", "k2", "k3", "k4"],
-            "1": ["abc", "de", "fg", "hi"],
-        }
+        blob = encode(table, min_header=False)
+        assert decode(blob) == table
         _parity(blob)
 
     def test_min_header_false_drop_names_all_positional(self):
@@ -207,9 +226,11 @@ class TestAnonLastColGrammar:
         _parity(blob)
 
     def test_empty_name_with_drop_names_has_no_false_collision(self):
-        # com drop_names TODAS decodam posicionais — '1' de entrada não colide
-        with pytest.warns(UserWarning):
-            blob = encode({"1": ["a", "b"], "": ["c", "d"]}, drop_names=True)
+        # com drop_names TODAS decodam posicionais — '1' de entrada não colide.
+        # RE-PIN 2026-08-21 (ADR-0046): sem warning — '' é dropado como qualquer
+        # outro nome quando o chamador pede drop_names (o posicional é o pedido,
+        # não uma mutação).
+        blob = encode({"1": ["a", "b"], "": ["c", "d"]}, drop_names=True)
         assert decode(blob) == {"0": ["a", "b"], "1": ["c", "d"]}
 
 
@@ -753,3 +774,67 @@ class TestLote4InternalInvariants:
 
         with pytest.raises(ValueError, match="split"):
             _decode_struct_split(b"999\nxx")  # ntmpl 999 > bytes disponiveis
+
+
+# ---------------------------------------------------------------------------
+# ADR-0046 — nome VAZIO '' é nome (sai `\z`), preservado; anônima SÓ via drop_names
+# ---------------------------------------------------------------------------
+
+
+class TestNomeVazioPreservadoADR0046:
+    """Fecha o BUG-CHAVE-VAZIA-POSICIONAL — o único caso em que o TCF ALTERAVA o dado.
+
+    A causa era uma COLISÃO de grafia: `encode({"": [...]})` produzia o MESMO wire que
+    `encode({"x": [...]}, drop_names=True)`. O `.8H` já resolvia com o sentinela `\z`
+    (ADR-0033, 2026-07-17); a convenção foi portada de volta ao `.8M` (ADR-0046).
+    """
+
+    def test_posicoes(self):
+        for table in ({"": ["1"], "b": ["2"]}, {"a": ["1"], "": ["2"], "c": ["3"]},
+                      {"a": ["1"], "": ["2"]}, {"": ["a", "b"]}):
+            blob = encode(table)
+            assert decode(blob) == table, table
+            _parity(blob)
+
+    def test_nature_per_col_na_coluna_vazia(self):
+        from tcf import SPEC_CPF
+
+        table = {"": ["529.982.247-25", "111.444.777-35"]}
+        blob = encode(table, nature_per_col={"": SPEC_CPF})
+        assert blob.split("\n", 1)[0] == "#TCF.8M!\\z:cpf"
+        assert decode(blob) == table
+
+    def test_nome_literal_backslash_z_e_vazio_juntos(self):
+        table = {"": ["1"], "\\z": ["2"]}
+        blob = encode(table)
+        assert decode(blob) == table          # `\z` vs `\\z`: injetivo
+
+    def test_wire_antigo_anonimo_continua_decodando_posicional(self):
+        # o wire que o encoder PRÉ-0046 emitia para {"": ...} é indistinguível de
+        # drop_names — e continua decodando como posicional (tolerante, nada quebra).
+        assert decode("#TCF.8M!\na\nb") == {"0": ["a", "b"]}
+
+    def test_corrupcao_continua_fail_loud(self):
+        with pytest.raises(ValueError, match="DECLARADO vazio|corromp"):
+            decode("#TCF.8M!1=\nx")                 # '<size>=' com token CRU vazio
+        with pytest.raises(ValueError, match="nao-estrutural|corromp"):
+            decode("#TCF.8M!a\\zb\nx")              # `\z` EMBUTIDO no nome
+
+    def test_csv_rfc4180_com_header_vazio_faz_roundtrip(self):
+        # o nome vazio nasce do próprio CSV: campo vazio é legal (RFC 4180)
+        import csv
+        import io
+
+        for texto in ("a,b,\n1,2,3\n", "a,,b\n1,2,3\n", ",a,b\n0,1,2\n"):
+            r = csv.reader(io.StringIO(texto))
+            h = next(r)
+            cols = {k: [] for k in h}
+            for row in r:
+                for k, v in zip(h, row):
+                    cols[k].append(v)
+            assert decode(encode(cols)) == cols, texto
+
+    def test_view_ve_a_coluna_vazia(self):
+        v = view(encode({"": ["1", "2"], "b": ["3", "4"]}))
+        assert v.columns == ["", "b"]
+        assert v.select([""]) == [{"": "1"}, {"": "2"}]

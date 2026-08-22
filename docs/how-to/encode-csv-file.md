@@ -196,17 +196,27 @@ assert decode(wire) == tabela   # o nome volta exatamente como entrou
 Ou seja: o cabeçalho de um CSV do mundo real (`"Nome, Sobrenome"`, `"a=b"`, acentos, espaços)
 entra sem tratamento. Verificável para todos eles com `decode(encode(t)) == t`.
 
-**A ressalva que sobra** é o nome **vazio** (`''`). Ele é aceito com um `UserWarning` e tratado
-como coluna **anônima** — o decode devolve o nome **posicional** (`'0'`, `'1'`, …) conforme a
-[ADR-0029](../adr/0029-version-format-identification-semi-implicit.md), e portanto **não** faz
-round-trip idêntico:
+**E o nome vazio (`''`)?** Também entra sem tratamento. Desde a
+[ADR-0046](../adr/0046-nome-vazio-8m-porta-o-z-do-8h.md) ele viaja no meta como `\z` — a mesma
+grafia que o `.8H` já usava — e volta `''` no decode:
 
 ```python
-decode(encode({'': ['1', '2']}))   # -> {'0': ['1', '2']}, com warning
+from tcf import encode, decode
+
+decode(encode({'': ['1', '2']}))   # -> {'': ['1', '2']}
 ```
 
-Se o CSV tem coluna sem cabeçalho, decida o nome antes de codificar em vez de deixar a
-convenção posicional escolher por você.
+Isso cobre os CSVs em que o nome vazio nasce do **próprio formato** (RFC 4180: campo vazio é
+campo legal): `a,b,` (vírgula sobrando), `a,,b` (coluna sem título no meio), `,a,b` (primeira sem
+título) — todos com `decode(encode(t)) == t`. Não precisa renomear nada antes.
+
+Coluna **anônima** (nome posicional `'0'`, `'1'`, …) existe só quando você pede, com
+`drop_names=True` — aí todos os nomes são dropados, o vazio inclusive.
+
+> Até 2026-08-21 o nome vazio era tratado como anônimo (com `UserWarning`) e o decode devolvia
+> `'0'` — o único caso em que o TCF alterava o dado
+> ([`BUG-CHAVE-VAZIA-POSICIONAL`](../../tickets/BUG-CHAVE-VAZIA-POSICIONAL.md)). A causa era
+> uma colisão de grafia com `drop_names`; a ADR-0046 portou o sentinela `\z` do `.8H`.
 
 ### Encodings de arquivo
 

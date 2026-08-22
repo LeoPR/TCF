@@ -33,8 +33,22 @@
 > [`0330`](experiments/lab/dirty/2026-08/2026-08-21/2026-08-21-0330-bordas-em-spec/) e
 > [`0400`](experiments/lab/dirty/2026-08/2026-08-21/2026-08-21-0400-lf-final-do-wire/).
 
-> **⚑ FECHADO 2026-08-21 — o `
-` final TEM NECESSIDADE, e o par que decide e' `[]` x `['']`.**
+> **⚑ SOLDADO 2026-08-21 — [ADR-0046](docs/adr/0046-nome-vazio-8m-porta-o-z-do-8h.md): nome vazio
+> no `.8M` preservado via `\z` — fecha o `BUG-CHAVE-VAZIA-POSICIONAL`, o UNICO caso em que o TCF
+> ALTERAVA o dado.** Resposta ao owner (*"bug atual ou faltou por definicao?"*): **DEFINICAO
+> SUPERADA, nao bug** — `''` = anonima foi decisao deliberada de 2026-07-10 (razao: um `\` SOLTO
+> fundia tokens); o `.8H` criou o sentinela `\z` em 2026-07-17 (ADR-0033) com L1/flat
+> deliberadamente intocado, e a convencao nunca foi portada de volta. Causa raiz medida:
+> `encode({"": [...]})` == `encode({"x": [...]}, drop_names=True)` — o formato nao distinguia nome
+> VAZIO de SEM-NOME. Slot livre (`z` fora de `_ESC_OK`; literal `\z` sai `\\z`). Weld = espelho do
+> `.8H`, 4 pontos em `multi/core.py`. RT exato em qualquer posicao, `nature_per_col`, `view()`;
+> `{"": , "0": }` vira legal; CSV RFC 4180 3/3; **nenhum wire sem `''` muda**; wire antigo segue
+> decodando posicional. +2 B por coluna vazia. 6 testes RE-PINADOS (cada um diz o que ERA) + classe
+> nova. **O `\z` nao foi re-derivado — adotado do ADR-0033** (ja' bastante discutido la', no
+> json-equivalence e no hierarchical.py). Lab
+> [`0900`](experiments/lab/dirty/2026-08/2026-08-21/2026-08-21-0900-chave-vazia-posicional/).
+
+> **⚑ FECHADO 2026-08-21 — o `\n` final TEM NECESSIDADE, e o par que decide e' `[]` x `['']`.**
 > Criterio do owner: *"bastando nao ter ambiguidade, e nao necessidade, focamos nisso"*. O LF
 > final **nao se qualifica**: `encode([])` e `encode([''])` diferem em exatamente um LF — o
 > terminador e' o que distingue **coluna vazia** de **coluna com UM valor vazio**. Como SEPARADOR

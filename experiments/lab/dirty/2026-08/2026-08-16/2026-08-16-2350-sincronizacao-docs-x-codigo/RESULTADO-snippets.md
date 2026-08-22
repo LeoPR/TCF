@@ -3,9 +3,9 @@
 Gerado por `varre_snippets.py`. Re-rode com `python varre_snippets.py`.
 
 - blocos encontrados: **71**
-- executados e OK: **51**
+- executados e OK: **52**
 - **falharam: 0**
-- pulados (não auto-contidos): 20 — **declarados abaixo, não contam como aprovados**
+- pulados (não auto-contidos): 19 — **declarados abaixo, não contam como aprovados**
 
 ## Falhas
 
@@ -22,8 +22,7 @@ Nenhuma.
 | `docs/how-to/encode-csv-file.md` | 99 | sem import — provavelmente continuacao de outro bloco |
 | `docs/how-to/encode-csv-file.md` | 148 | sem import — provavelmente continuacao de outro bloco |
 | `docs/how-to/encode-csv-file.md` | 176 | sem import — provavelmente continuacao de outro bloco |
-| `docs/how-to/encode-csv-file.md` | 205 | sem import — provavelmente continuacao de outro bloco |
-| `docs/how-to/encode-csv-file.md` | 216 | sem import — provavelmente continuacao de outro bloco |
+| `docs/how-to/encode-csv-file.md` | 226 | sem import — provavelmente continuacao de outro bloco |
 | `docs/how-to/log-run-metadata.md` | 30 | contem placeholder/reticencias — pseudo-codigo |
 | `docs/how-to/use-natures.md` | 258 | sem import — provavelmente continuacao de outro bloco |
 | `docs/how-to/use-natures.md` | 299 | sem import — provavelmente continuacao de outro bloco |

@@ -1,10 +1,10 @@
 ---
 title: BUG-CHAVE-VAZIA-POSICIONAL — dict {"": [...]} volta {"0": [...]} — único caso onde o TCF ALTERA
-status: open
+status: closed
 priority: P2
 severity: R1 (avisa, não é silencioso — mas o RT quebra)
 created: 2026-08-01
-updated: 2026-08-01
+updated: 2026-08-21
 gate: byte-canonical (toca rota flat/multi — precisa aprovação + test_real_world_snapshots)
 blocked-by: []
 related:
@@ -40,6 +40,20 @@ ou preserva ou fail-loud; este caso foge do contrato.
 1. **fail-loud** na rota flat/multi para chave `""` (alinhado ao contrato "não altera"); ou
 2. **preservar** `""` via o mesmo escape do `.8H` (custo: grafia nova na rota flat — verificar
    se há slot livre no name-guard).
+
+## FECHADO 2026-08-21 — ADR-0046 (opção 2, `\z`)
+
+**Veredito sobre a natureza do problema** (pergunta do owner: *"bug atual ou algo que faltou por
+definição?"*): **definição superada, não bug.** A decisão de 2026-07-10 (`''` = anônima) foi
+deliberada e tinha razão à época (um `\` solto fundia tokens); em 2026-07-17 o `.8H` criou o `\z`
+(ADR-0033) com L1/flat *deliberadamente* intocado, e a convenção nunca foi portada de volta. O
+título "BUG" deste ticket é impreciso: é divergência de definição entre rotas.
+
+**Soldado**: `.8M` espelha o `.8H` — `_esc_name('')` → `\z`; unescape só como token inteiro;
+sentinela de corrupção (`'<size>='`) checado no token cru; some a transformação/warning/guard.
+RT exato em qualquer posição, `nature_per_col`, `view()`; CSV RFC 4180 3/3; nenhum wire sem `''`
+muda; 6 testes re-pinados + classe nova. Detalhes e cronologia:
+[ADR-0046](../docs/adr/0046-nome-vazio-8m-porta-o-z-do-8h.md).
 
 ## MEDIDO 2026-08-21 — a decisão entre as duas opções, com número
 

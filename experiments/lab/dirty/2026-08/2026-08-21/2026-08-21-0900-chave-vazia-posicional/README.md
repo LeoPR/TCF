@@ -1,5 +1,19 @@
 # 2026-08-21-0900 — `BUG-CHAVE-VAZIA-POSICIONAL`: o único caso em que o TCF altera o dado
 
+> ## ⚑ SOLDADO 2026-08-21 — [ADR-0046](../../../../../../docs/adr/0046-nome-vazio-8m-porta-o-z-do-8h.md)
+>
+> O owner aprovou a opção 2 (`\z`) e pediu duas coisas: revisar a documentação do `\z` (já muito
+> discutido) e dizer se era **bug atual ou definição que faltou**. Resposta: **definição superada**
+> — `''` = anônima foi decisão deliberada de 2026-07-10; o `.8H` criou o `\z` em 2026-07-17
+> (ADR-0033) e a convenção não foi portada de volta. O ADR-0046 **adota** o `\z` de 0033, não o
+> re-deriva. Os itens "não medido" abaixo (posição arbitrária, `drop_names`, `nature_per_col`,
+> `view()`) foram todos medidos no weld e estão pinados em `TestNomeVazioPreservadoADR0046`.
+>
+> **O `run.py` deste lab afirma o estado PRÉ-weld** (`assert r != d` no G1: "o RT quebra") e por
+> isso **não passa mais** — é registro da medição, não script vivo. Para reexecutá-lo como era,
+> `git checkout b4ae39a5`. Os `outputs/*-HOJE.*` são os wires de antes; o `*-CORRIGIDO.tcf` é o
+> que o encoder emite agora.
+
 Item do `.8` (fechando **comportamentos**). Ticket aberto desde 2026-08-01, com duas opções
 não decididas. Este lab mede para decidir. **`src/tcf` intocado** — o protótipo vive aqui.
 

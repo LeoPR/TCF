@@ -27,7 +27,8 @@ byte-sizes em HEX (T-FMT-HEADER-BASE-HEX):
 Contratos de fronteira (T-FMT-NAME-ESCAPING M2 + T-QA-8 F0):
 - Nomes de coluna com `,`/`=`/`:`/`\\` e prefixo `!@%` sao ESCAPADOS com
   backslash no meta (aceitos); so' `\\n` e' proibido (separador de linha).
-- Nome '' = coluna ANONIMA (decode da' nome posicional; warning).
+- Nome '' = nome VAZIO, emitido como `\\z` no meta (ADR-0046, espelho do `.8H`) e
+  preservado no decode. Coluna ANONIMA (posicional) so' via `drop_names`.
 - Todas colunas devem ter mesmo numero de valores (>= 1; 0 linhas = erro).
 - NULL/None convertido pra '' (empty string); coluna deve ser LISTA (str/bytes
   = erro que ensina).
@@ -36,7 +37,6 @@ Contratos de fronteira (T-FMT-NAME-ESCAPING M2 + T-QA-8 F0):
 from __future__ import annotations
 
 import os
-import warnings
 
 from tcf.multi.dict_v2b import _decode_v2b, _v2b_encode
 from tcf.multi.parallel import (
@@ -68,9 +68,17 @@ _NAME_SEP = ",=:\\"
 def _esc_name(name: str) -> str:
     """Escapa (backslash) os chars estruturais de um nome de coluna no meta.
 
-    Contrato: NUNCA recebe '' — nome vazio vira coluna ANONIMA na fronteira
-    (`_encode_multi`, BUG-01 T-QA-8 F0). O guard `s[:1] and` fecha o buraco
-    do idiom (`'' in "!@%"` e' True — substring vazia)."""
+    Nome VAZIO '' -> `\\z` (ADR-0046; espelho de `hierarchical._esc_name`, ADR-0033).
+    Por que um marcador e nao "emitir nada": "nome vazio no header" e' o SENTINELA
+    DE CORRUPCAO do parse, e emitir nada tornava `{"": v}` indistinguivel de coluna
+    ANONIMA (`drop_names`) — o decode devolvia o nome POSICIONAL, o UNICO caso em
+    que o TCF alterava o dado (BUG-CHAVE-VAZIA-POSICIONAL). `\\z` e' inemitivel por
+    dado: o `\\` de dado e' sempre dobrado, entao o nome literal `\\z` sai `\\\\z`.
+    A decisao anterior ('' = anonima, owner 2026-07-10, BUG-01 T-QA-8 F0) vinha de
+    um `\\` SOLTO que fundia tokens — `\\z` nao e' solto, e' escape completo.
+    O guard `s[:1] and` fecha o buraco do idiom (`'' in "!@%"` e' True)."""
+    if name == "":
+        return "\\z"
     out = []
     for ch in name:
         if ch in _NAME_SEP:
@@ -141,6 +149,8 @@ def _unesc_name_strict(s: str) -> str:
     - escape de char FORA da whitelist `_ESC_OK` ('\\b', '\\x'...): nao-emitivel;
       aceitar mudaria o nome CALADO (BUG-11b, lote 3 — whitelist por deducao do
       canone: escapes validos sao exatamente os que `_esc_name` produz)."""
+    if s == "\\z":                      # nome VAZIO (ADR-0046) — so' como token INTEIRO;
+        return ""                       # `\z` embutido cai na whitelist abaixo (z nao esta')
     out, i, n = [], 0, len(s)
     while i < n:
         c = s[i]
@@ -148,7 +158,7 @@ def _unesc_name_strict(s: str) -> str:
             if i + 1 >= n:
                 raise ValueError(
                     f"meta corrompido: escape dangling (backslash solto) no nome "
-                    f"{s!r} — o encoder nunca emite isso (nome '' vira coluna anonima)"
+                    f"{s!r} — o encoder nunca emite isso (nome '' sai como '\\z')"
                 )
             nxt = s[i + 1]
             if nxt not in _ESC_OK:
@@ -183,7 +193,8 @@ def _parse_meta(meta_str: str) -> list[tuple[int | None, str | None, str, str | 
     `name=None` = coluna ANONIMA (nome POSICIONAL str(i) fica no caller).
 
     Fail-loud (marcadores de corrupcao; futuro reparador: T-TOOL-TCF-FIX-CORRUPTION):
-    - nome DECLARADO vazio ('<size>='): o encoder nunca emite ('' vira anonima);
+    - nome DECLARADO vazio no TOKEN CRU ('<size>='): o encoder nunca emite ('' sai
+      como `\\z`, que des-escapa pra '' e e' LEGITIMO — ADR-0046);
     - backslash solto no fim de nome (escape de nada);
     - size hex invalido.
     """
@@ -213,19 +224,22 @@ def _parse_meta(meta_str: str) -> list[tuple[int | None, str | None, str, str | 
             # '<size>=<nome>' — nomeada. Nome des-escapado (nomes com ,/=/:/! etc).
             size_str, name = eq
             size = _hex_size(size_str)
-            name = _unesc_name_strict(name)
+            # O sentinela de corrupcao e' o TOKEN CRU vazio ('<size>='), checado
+            # ANTES do unescape — `\z` des-escapa pra '' e e' LEGITIMO (ADR-0046,
+            # mesmo desenho do `.8H`: "o parse passou a checar o TOKEN CRU").
             if name == "":
                 raise ValueError(
                     "meta corrompido: nome de coluna DECLARADO vazio ('<size>=') — "
-                    "o encoder nunca emite (nome '' vira coluna anonima, sem '=')"
+                    "o encoder nunca emite (nome '' sai como '<size>=\\z')"
                 )
+            name = _unesc_name_strict(name)
         elif i == n_cols - 1:
-            # ultima coluna SEM '=': min_header (corpo ate' EOF). p = nome (vazio
-            # = anonima posicional).
+            # ultima coluna SEM '=': min_header (corpo ate' EOF). p = nome; token
+            # cru '' = anonima posicional (drop_names); `\z` = nome VAZIO (ADR-0046).
             size = None
             name = _unesc_name_strict(p) if p else None
         else:
-            # nao-ultima SEM '=' -> coluna ANONIMA: p = '<size>' (so' drop_names/'')
+            # nao-ultima SEM '=' -> coluna ANONIMA: p = '<size>' (so' drop_names)
             size = _hex_size(p)
             name = None
         pairs.append((size, name, mode, nat_id))
@@ -247,8 +261,8 @@ def _nomes_resolvidos(pairs) -> list[str]:
     (pior: a contagem nao denunciava). Nos dois casos CALADO, e os cheques do BUG-05 nao
     pegam: bytes e n_rows fecham.
 
-    O ENCODE nunca emite esta forma — chave de dict e' unica, `''` tem guard proprio
-    (`_encode_multi`, BUG-01) e `drop_names` torna TODAS posicionais e distintas. Logo o
+    O ENCODE nunca emite esta forma — chave de dict e' unica, `''` e' um nome como
+    outro (sai `\\z`, ADR-0046) e `drop_names` torna TODAS posicionais e distintas. Logo o
     guard so' alcanca wire ESTRANGEIRO/corrompido, e e' deduzido de graca como os outros.
     """
     nomes = [n if n is not None else str(i) for i, (_s, n, _m, _x) in enumerate(pairs)]
@@ -344,28 +358,14 @@ def _encode_multi(
                 f"col name nao pode conter '\\n' (separador de linha do meta): {col_name!r}"
             )
 
-    # Nome VAZIO '' = coluna SEM nome (BUG-01, T-QA-8 F0 — decisao do owner 2026-07-10):
-    # a ENTRADA e' transformada na fronteira — a coluna vira ANONIMA no meta (sem
-    # '=nome', mesmo mecanismo do drop_names; decode da' o nome POSICIONAL). O meta
-    # NUNCA emite escape-vazio (evita o '\' solto que fundia tokens). Internamente
-    # nao faz diferenca: o tcf lida com nomes OU com a numeracao em ordem.
-    if "" in table:
-        pos = list(table.keys()).index("")
-        # Colisao SO' quando as demais colunas MANTEM nome (sem drop_names): com
-        # drop_names=True TODAS decodam posicionais — nao ha colisao possivel
-        # (falso-positivo achado na verificacao adversarial F0, 2026-07-10).
-        if str(pos) in table and not drop_names:
-            raise ValueError(
-                f"coluna com nome vazio '' vira anonima e decoda com o nome "
-                f"posicional {str(pos)!r}, que colidiria com a coluna existente "
-                f"{str(pos)!r} — renomeie uma das duas"
-            )
-        warnings.warn(
-            f"coluna com nome vazio '' tratada como ANONIMA — o decode retorna o "
-            f"nome posicional {str(pos)!r} (entrada sem nome, provavel engano)",
-            UserWarning,
-            stacklevel=3,
-        )
+    # Nome VAZIO '' e' um NOME como outro — sai no meta como `\z` (ADR-0046) e volta ''.
+    # HISTORICO: de 2026-07-10 (BUG-01, T-QA-8 F0, decisao do owner) ate' 2026-08-21 a
+    # ENTRADA era transformada AQUI: '' virava ANONIMA (+ warning + guard de colisao
+    # com o posicional), porque na epoca um escape-vazio deixava um '\' SOLTO que
+    # fundia tokens. O `.8H` resolveu em 2026-07-17 com o sentinela `\z` (ADR-0033) e
+    # a convencao nao tinha sido portada de volta; ate' la' este era o UNICO caso em
+    # que o TCF alterava o dado (BUG-CHAVE-VAZIA-POSICIONAL). Com `drop_names=True`
+    # '' e' dropado como qualquer outro nome (o chamador pediu) — coerente.
 
     # Stringify upfront (per-col paralelo recebe valores ja' string) + check
     # de \n/\r na MESMA passada — FONTE ÚNICA `_stringify_checked` (BUG-06
@@ -442,7 +442,7 @@ def _encode_multi(
         for i, (name, body, mode) in enumerate(bodies):
             pre = {"raw": "!", "dict": "@", "split": "%"}.get(mode, "")
             suf = f":{ids[name]}" if name in ids else ""
-            if drop_names or name == "":
+            if drop_names:
                 parts.append(
                     f"{pre}{suf}" if i == last_i else f"{pre}{_sz(len(body))}{suf}"
                 )

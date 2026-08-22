@@ -292,7 +292,9 @@ def encode(
             Ignorado pra dict — o `M` do multi JA' e' o stamp.
         drop_names: (multi-col) omite os nomes no meta (colunas ANONIMAS,
             ADR-0029); decode retorna nomes posicionais '0','1',... Nome de
-            coluna '' equivale a anonima so' naquela coluna (warning).
+            coluna '' NAO e' anonima: e' nome vazio, emitido como `\\z` e
+            preservado no decode (ADR-0046). Com drop_names=True ele e'
+            dropado como qualquer outro.
         fallback: (multi-col) por coluna escolhe min(tcf, raw, dict, split).
             **Default True**. False -> so' candidato tcf em toda coluna
             (comparacao/regressao; magic segue #TCF.8M — legado cortado,
