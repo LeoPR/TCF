@@ -1324,61 +1324,15 @@ nao guia de evolucao (cf. diretriz dados-realistas).
 
 ---
 
-## Tickets ativos
+## Tickets
 
-`tickets/`:
+**Fonte unica: [`tickets/README.md`](tickets/README.md)** — o indice e' reconciliado
+contra o `status:` de cada arquivo, que e' quem manda.
 
-| ID | Status | Foco |
-|---|---|---|
-| [META-NAMING](tickets/META-NAMING.md) | CLOSED | TCF/OBAT/HCC oficial |
-| [META-DOCS-V05-OBSOLETE](tickets/META-DOCS-V05-OBSOLETE.md) | CLOSED | archive v0.5 |
-| [META-THEORY-MOVE](tickets/META-THEORY-MOVE.md) | CLOSED | mover teoria pra docs/theory/ |
-| [META-EXP-FORMAT](tickets/META-EXP-FORMAT.md) | CLOSED | template validacao vs comparativo |
-| [META-TYPE-ENCODERS](tickets/META-TYPE-ENCODERS.md) | **OPEN** | plano-mestre T01-T07 + L01-L05 (adiados) |
-| [META-PERF-PHASE2](tickets/META-PERF-PHASE2.md) | CLOSED-PARCIAL | Pacote 4 perf phase 2 |
-| [META-ESCAPE-DEDUCTION](tickets/META-ESCAPE-DEDUCTION.md) | CLOSED-INSUFFICIENT-GAIN | Pacote 2 |
-| [T-REVAL-H-DA-01-06-10](tickets/T-REVAL-H-DA-01-06-10.md) | CLOSED-COMPLETED-WITH-SURPRISES | Revalidacao Categoria B (2026-05-21) |
-| [T-EXP-H-DA-11](tickets/T-EXP-H-DA-11.md) | **CLOSED-CANONICAL-WELDED** | Auto-detect min_len (ADR-0010, 9.87%) |
-| [T-CODE-H-DA-11c](tickets/T-CODE-H-DA-11c-features-unificadas.md) | **CLOSED-REFACTOR-COMPLETED** | ColumnFeatures unificado (zero-risk) |
-| [T-CODE-PACOTE1-WELD-CANONICAL](tickets/T-CODE-PACOTE1-WELD-CANONICAL.md) | **CLOSED 2026-05-22** | Pacote 1 canonical (ADR-0011, M9 → M10, 11.73% real-world) |
-| [T-REVAL-H-DA-07](tickets/T-REVAL-H-DA-07.md) | **CLOSED-CONFIRMED-REAL-WORLD** | Shape-preserve gating valida em real-world |
-| [T-EXP-H-PERF-05d](tickets/T-EXP-H-PERF-05d.md) | **CLOSED-VALIDATED-WITH-BYTE-DIVERGENCE** | Counter incremental HCC (welding adiado) |
-| [T-EXP-PACOTE5-T03-ENUMERATED](tickets/T-EXP-PACOTE5-T03-ENUMERATED.md) | **CLOSED-NO-GO-M10-SUFICIENTE** | Encoder enumerated explicit refutado (M10 ja' captura) |
-| [T-DOC-1-citation-cff](tickets/T-DOC-1-citation-cff.md) | **CLOSED 2026-05-23** | CITATION.cff (v0.6, DOI defer) |
-| [T-DOC-2-diataxis-naming](tickets/T-DOC-2-diataxis-naming.md) | **CLOSED 2026-05-23** | ADR-0012 Diataxis local |
-| [T-CLEAN-1-pre-commit-hooks](tickets/T-CLEAN-1-pre-commit-hooks.md) | **CLOSED 2026-05-23** | .pre-commit-config.yaml |
-| [T-EXP-NATUREZAS-RARAS-EXPLORACAO](tickets/T-EXP-NATUREZAS-RARAS-EXPLORACAO.md) | **CLOSED-NO-GO** | naturezas #5/#8 raras em datasets gerais |
-| [T-CI-1-github-actions](tickets/T-CI-1-github-actions.md) | **CLOSED 2026-05-23 (Fase 1+2)** | workflow CI completo (lint + test matrix) |
-| [T-CI-2-tests-refactor](tickets/T-CI-2-tests-refactor.md) | **CLOSED 2026-05-23** | 5 v0.5 archived; 31 tests novos CI-friendly |
-| [T-DATA-1-datasets-financeiros-cientificos](tickets/T-DATA-1-datasets-financeiros-cientificos.md) | **CLOSED 2026-06-02** | 3 datasets UCI/OpenML baixados + canonical setup (Z:/tcf-data/external/) |
-| [T-EXP-MULTI-COL-SCALING](tickets/T-EXP-MULTI-COL-SCALING.md) | **CLOSED-WELDED-CANONICAL 2026-05-23** | src/tcf/multi.py welded (ADR-0013); encode_table/decode_table publicos; 17/17 tests; -33.02% raw weighted real-world |
-| [ADR-0014 (welded direto)](docs/adr/0014-unified-api-side-outputs.md) | **CLOSED-WELDED-CANONICAL 2026-05-24** | API unificada encode(list\|dict) + SideOutputs; ADR-0013 superseded; 117 passed |
-| [T-CODE-ENCODER-MANAGER](tickets/T-CODE-ENCODER-MANAGER.md) | **OPEN-FASES-1+1B-WELDED 2026-05-24** | Fase 1+1b: paralelismo `encode(data, parallel=N)` via ProcessPool + work-stealing (sorted desc workload), 14 tests, byte-canonical OK. Speedup ~1.23-1.30x (teto IPC overhead Windows spawn). Fases 1c/2/3/4 pendentes. |
-| [T-CODE-OUTPUT-SINKS](tickets/T-CODE-OUTPUT-SINKS.md) | **OPEN P2 2026-05-24** | Contract Sink pluggable, refactor scripts/writers/ (bloqueado por encoder-manager) |
-| [T-CODE-PLAN-CONTRACT](tickets/T-CODE-PLAN-CONTRACT.md) | **OPEN P3 2026-05-24** | Plan dataclass (group_by/order/batch_size), habilita O-FMT-01..04 |
-| [T-CODE-SCHEMA-BUILDER](tickets/T-CODE-SCHEMA-BUILDER.md) | **OPEN-FASES-1+2-WELDED 2026-05-24** | Fase 1+2: `build_schema(data) -> TableSchema`; ColumnSchema + to_dict/to_json; 24/24 tests; reaproveita SideOutputs 100%. Fase 3 (naturezas) depende META-TYPE-ENCODERS reabrir. |
-| [T-CODE-HCC-MULTI-DELTA-FIX](tickets/T-CODE-HCC-MULTI-DELTA-FIX.md) | **CLOSED-WELDED-CANONICAL 2026-05-24** | Bug #2 sub-exp 14 fixed via ADR-0016. D-IP-subnet 1000 sem nature: 117.51% -> 4.18% (-96.4%). M10 invariant preservado, marker CSV format opcional. |
-| [T-CODE-HCC-ATOM-DETECTION-REFINE](tickets/T-CODE-HCC-ATOM-DETECTION-REFINE.md) | **CLOSED-SUPERSEDED-BY-ADR-0016 2026-05-24** | Bug #1 nao precisa fix isolado — cross-subnet ja' compactado via Bug #2 fix. |
-| [ADR-0016 (welded direto)](docs/adr/0016-hcc-multi-delta-seq-rle.md) | **CLOSED-WELDED-CANONICAL 2026-05-24** | HCC seq-RLE multi-delta. Marker novo `*N+d1,d2,...|template` opt-in (uniform mantem M10 format). Bug #2 sub-exp 14 fix. 19 tests, D-IP-subnet 1000: 117% -> 4.18%. |
-| [T-CODE-LAYERED-PIPELINE](tickets/T-CODE-LAYERED-PIPELINE.md) | **OPEN-FASE-1-WELDED 2026-05-24** | PipelineConfig dataclass + 3 toggles (pre_pass, obat_shape_preserve, hcc_seq_rle). encode(data, layers=cfg) opt-in. D17a 322B INVARIANT + D1-D9 byte-canonical preservados. 25 tests novos. Fase 2 (online adaptive) pendente. |
-| [ADR-0015 (welded direto)](docs/adr/0015-natures-templated-checked-weld.md) | **CLOSED-WELDED-CANONICAL 2026-05-24** | TemplatedCheckedSpec + SPEC_CPF + SPEC_CNPJ + TemplatedPaddedSpec + SPEC_IP em `src/tcf/natures/`. API publica `encode(values, nature=SPEC_*)` opt-in. CAMADA 0 do funil welded. 37/37 tests, default preserva M10 INVARIANT. IP subnet 1000=229B (1.71%). |
-| [T-REGRESSION-REAL-WORLD](tickets/T-REGRESSION-REAL-WORLD.md) | **CLOSED-DONE 2026-05-31** | Gate byte-canonical real-world (retail Description/StockCode + lineitem l_comment, n_tam_est>=3). Fixtures 2k em datasets/samples/. Mudancas HCC/prune DEVEM passar. |
-| [T-SHAPER-SCIENTIFIC-GATING](tickets/T-SHAPER-SCIENTIFIC-GATING.md) | **CLOSED-DONE 2026-05-31** | 10 testes estatisticos (P1-P5) validam claims do shaper. Aprovado <=100k linhas. |
-| [T-SHAPER-CODE-HARDENING](tickets/T-SHAPER-CODE-HARDENING.md) | **OPEN P2** | Hardening shaper p/ escala >100k (A1 filter-before-load, A3 lstrip bug, A4 dedup, A6 lazy-load). Nao bloqueia uso <=100k. |
-| [ADR-0019 (welded)](docs/adr/0019-hcc-detect-compositions-topk-prune.md) | **CLOSED-WELDED 2026-05-30** | H-PERF-06-v2 Fase A: prune top-K + early-term em HCC _detect_compositions. Byte-canonical preservado. |
-| [ADR-0020 (welded)](docs/adr/0020-cython-optional-accelerator.md) | **CLOSED-WELDED 2026-05-31** | H-PERF-06-v2 Fase B: acelerador Cython opcional de _detect_compositions, fallback pure-Python byte-identico. ~2.67x cumulativo. |
-| [T-DATA-2-RECEITA-CNPJ](tickets/T-DATA-2-RECEITA-CNPJ.md) | **CLOSED-DONE 2026-06-02** | Dataset CNPJ real (200k, non-PII). Nature CNPJ ganho 40.9% em dado real -> confirmada-empirica (confianca Media). |
-| [T-DATA-4-TPCH-PART-SAMPLES](tickets/T-DATA-4-TPCH-PART-SAMPLES.md) | **CLOSED-DONE 2026-06-01** | Samples part/partsupp TPC-H committed (categoria hierarquica observavel). |
-| [T-DATA-3-EDGE-QUALITY-FIXTURES](tickets/T-DATA-3-EDGE-QUALITY-FIXTURES.md) | **DEFERRED** | Plano de dados de borda p/ gadget de qualidade (bloqueado por T-RECOVER-SCHEMA-MULTI-TABLE; gadget nao existe). |
-| Reorg separacao de concerns (Fases 0-7) | **DONE 2026-06-02** | benchmark LLM -> llm-benchmark/; findings ficam em docs/; old/tcf revisto (LEVELS-REVIEW). src/tcf intocado. Ver memoria project-reorg-separation-of-concerns. |
-| [T-CODE-EMPTY-FRAG-INDEX-RT](tickets/T-CODE-EMPTY-FRAG-INDEX-RT.md) | **CLOSED 2026-06-13** | [probatório] Bug de RT no core M10 (achado na caracterizacao V2-A): string vazia desloca index de fragmento HCC. 2 modos (syntax._parse_decl frag-index + hcc_seqrle rstrip vazio-final). Fix decode-only/byte-safe; 12 reproducers pinados em test_core_rt; 332 passed; D1-D9=1523B + real-world preservados. |
-| [ADR-0022 (welded direto)](docs/adr/0022-v2a-fallback-identity-weld.md) | **CLOSED-WELDED 2026-06-13** | **V2-A fallback identity (abre v2.0)**: opt-in `encode(table, fallback=True)`; por coluna min(TCF, raw); emite `#TCF.7 M` + marcador `!<size>=<name>` sse alguma coluna cai pra raw. Default OFF preserva byte-canonical (D1-D9=1523B, D17a=322B). Caracterizado 9 fontes (7.85% weighted). 340 passed. V2-B/C/D seguem roadmap (ADR-0018). |
-| [ADR-0023 (welded direto)](docs/adr/0023-v2-minimal-header-weld.md) | **CLOSED-WELDED 2026-06-14** | **Header v2 minimo** (O-FMT-15+16): opt-in `encode(table, min_header=True)`. Revisao do header: TODO `#TCF.7` dispensa o prefixo `# ` do meta (o flag `M` ja' declara colunas); min_header tambem omite o size da ULTIMA coluna (corpo ate' EOF). #TCF.6 mantem `# ` (congelado). Compoe com fallback. Default OFF preserva byte-canonical. Cadastro README 182->177B (−5). 351 passed. Foco: payload minusculo (memoria project-byte-level-compression-focus). |
-| O-FMT-02 `sort_by` (welded direto) | **CLOSED-WELDED 2026-06-14** | **Ordenacao order-free** opt-in `encode(table, sort_by="col")`: reordena linhas pela chave -> agrupa similares -> +compressao (5-15% low-card). Decode retorna a ordem ORDENADA. Pre-encode transform (nao toca pipeline). Default None inalterado. 6 testes TestSortBy. Caracterizado em `2026-06-14-ordering-characterizacao`. |
-| [ADR-0025 (welded direto)](docs/adr/0025-v2b-dictionary-categorical-weld.md) | **CLOSED-WELDED 2026-06-14** | **V2-B dicionario/categorico**: 3o candidato do fallback `min(tcf, raw, v2b)`, marcador `@<size>=<name>`. Coluna low-card vira [tabela de unicos]+[stream de indices 1-char] em vez de 1 ref `^idx` por linha. Order-free; gated `2<=K<N, K<=1024`. Zero-regressao por construcao. Caracterizado 8 datasets reais (13.9% weighted, RT 42/42). D17a 307->303 (re-pin ADR-0024/0025). 385 passed. GATE real-world verde. |
-| [ADR-0026 (welded direto)](docs/adr/0026-structural-split-weld.md) | **CLOSED-WELDED 2026-06-14** | **Split estrutural** (H-STRUCT-01): 4o candidato do fallback `min(tcf, raw, dict, split)`, marcador `%<size>=<name>`. Valor estruturado (decimal/data/datetime/id) com template uniforme vira campos (template 1x) -> cada campo low-card esmagado pelo V2-B (sinergia = motor). Gate 100% uniforme + >=2 campos + variacao; sem mecanismo de excecao. Auto-detect gated, zero-regressao. **Maior lever do ciclo: 19.39% weighted** em 8 datasets reais (50.4% nas afetadas). Complementa natures CPF/CNPJ (min). Name-guard `!@%`. D17a=303/D1-D9=1523 INTOCADOS (nao dispara em tabela pequena). 398 passed. GATE verde. |
-
----
+> Ate' 2026-08-22 esta secao replicava a tabela de tickets aqui, e a copia parou de
+> ser atualizada em 2026-06-14: mostrava como OPEN itens fechados havia meses
+> (inclusive os dois pre-requisitos de feature-complete do `.8`). Duas superficies
+> para o mesmo fato, uma delas apodrecendo — Strata §5, fonte unica por altitude.
 
 ## Experimentos clean publicados
 
