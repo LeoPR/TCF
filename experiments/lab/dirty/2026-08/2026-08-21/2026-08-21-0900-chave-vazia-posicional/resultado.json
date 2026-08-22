@@ -1,0 +1,62 @@
+{
+ "G1": {
+  "entrada": {
+   "": [
+    "a",
+    "b"
+   ]
+  },
+  "wire": "#TCF.8M!\na\nb",
+  "decode": {
+   "0": [
+    "a",
+    "b"
+   ]
+  },
+  "colide_com_drop_names": true
+ },
+ "G2": {
+  "h_preserva": true,
+  "sentinela": "\\z"
+ },
+ "G3": {
+  "z_na_whitelist": false,
+  "colisoes": []
+ },
+ "G4": {
+  "wire_corrigido": "#TCF.8M!\\z\na\nb",
+  "rt": true,
+  "custo_bytes": 2,
+  "wires_inalterados": 7
+ },
+ "G5": {
+  "exemplos": [
+   "virgula sobrando no header",
+   "coluna sem titulo no meio",
+   "primeira coluna sem titulo"
+  ],
+  "quebram": 3,
+  "cols": {
+   "a": [
+    "1"
+   ],
+   "b": [
+    "2"
+   ],
+   "": [
+    "3"
+   ]
+  },
+  "decode": {
+   "a": [
+    "1"
+   ],
+   "b": [
+    "2"
+   ],
+   "2": [
+    "3"
+   ]
+  }
+ }
+}

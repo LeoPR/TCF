@@ -41,6 +41,44 @@ ou preserva ou fail-loud; este caso foge do contrato.
 2. **preservar** `""` via o mesmo escape do `.8H` (custo: grafia nova na rota flat — verificar
    se há slot livre no name-guard).
 
+## MEDIDO 2026-08-21 — a decisão entre as duas opções, com número
+
+Lab [`2026-08-21-0900-chave-vazia-posicional`](../experiments/lab/dirty/2026-08/2026-08-21/2026-08-21-0900-chave-vazia-posicional/).
+
+**Causa raiz**: `encode({"": [...]})` produz **o mesmo wire** que
+`encode({"x": [...]}, drop_names=True)` — o formato não distingue *nome vazio* de *sem nome*,
+e no decode "sem nome" vira posicional.
+
+**A solução já existe na rota vizinha**: o `.8H` usa o sentinela `\z` (`hierarchical.py:114`) e
+preserva `{"": ...}` com RT=True. O comentário no próprio código explica a escolha ("por que um
+marcador e não emitir nada"). A rota flat/multi não adotou.
+
+**Slot verificado livre**: `z` não está na whitelist de escape do multi (`,=:\!@%`), e nenhum
+de 7 nomes reais testados (`z`, `\z`, `az`, `z `, `\`, `\z`, `Z`) emite `\z` no header.
+
+**Protótipo medido** (no lab; `src/tcf` intocado):
+
+| | wire | decode | RT |
+|---|---|---|---|
+| hoje | `'#TCF.8M!
+a
+b'` | `{'0': [...]}` | False |
+| com `\z` | `'#TCF.8M!\z
+a
+b'` | `{'': [...]}` | **True** |
+
+Custo **2 bytes**, só na coluna afetada. **7/7 wires de nome não-vazio ficam idênticos.**
+
+**Por que NÃO a opção 1 (fail-loud)**: o nome vazio nasce do próprio CSV (RFC 4180 — campo vazio
+é campo legal). Três formas comuns quebram o RT hoje: `a,b,` · `a,,b` · `,a,b`. `fail-loud`
+recusaria CSV válido.
+
+> **RECOMENDAÇÃO: opção 2 (preservar via `\z`).** Aguarda aprovação do owner — toca `src/tcf`,
+> e o gate é byte-canonical + `test_real_world_snapshots`.
+
+**Não medido**: interação com `drop_names=True`; coluna vazia em posição arbitrária numa tabela
+de N colunas (o protótipo cobre coluna única); nome só-com-espaços.
+
 ## Evidência
 
 `outputs/matriz.csv` do lab (caso `chave-vazia`) + `result.md` §surpresas.
