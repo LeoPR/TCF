@@ -1,8 +1,0 @@
-CASE H4a — lista vazia [] — FLAT #TCF.8\n (weld #2 2026-07-24: canonicidade do vazio; era .8H #D0)
-FONTE: list · kwargs: {}
-INPUT: []
-WIRE (7 B): '#TCF.8\n'
-HEADER: single-col version-stamp (#TCF.8\n)
-ROUNDTRIP (identidade): OK
-DEBUG (SideOutputs):
-  (sem telemetria relevante p/ este caso)

@@ -1,6 +1,0 @@
-# blocos (TRADUÇÃO): cada objeto/array vira 1 bloco; campo 'nome>K' = aresta pai→filho
-
-b0 [root]  campos: nome:str, telefones→b1
-     tabela: nome   (1 linha(s))
-b1 [arr]  campos: tel:str
-     tabela: tel   (2 linha(s))

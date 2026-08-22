@@ -1,7 +1,0 @@
-{
-  "coluna": "adult-sex",
-  "arquivo": "adult-census/adult-sample.csv",
-  "campo": "sex",
-  "n": 100,
-  "k": 2
-}

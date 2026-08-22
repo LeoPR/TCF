@@ -1,2 +1,0 @@
-min_len=3
-prefer_shape_consistency=True

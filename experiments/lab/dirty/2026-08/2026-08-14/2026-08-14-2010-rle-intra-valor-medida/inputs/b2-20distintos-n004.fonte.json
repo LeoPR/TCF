@@ -1,9 +1,0 @@
-{
- "gerador": "run.py::BLOCO2",
- "params": {
-  "n": 4,
-  "linhas": 20
- },
- "ideia": "o run se amortiza entre valores?",
- "pin": "sintetico"
-}

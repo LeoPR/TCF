@@ -1,9 +1,0 @@
-{
- "gerador": "casos.py::SINTETICOS",
- "params": {
-  "nota": "par: money-2casas"
- },
- "seed": null,
- "ideia": "CONTRA-PROVA de money-2casas: a mesma coluna com UMA dizima no fim. E' o caso do owner em escala de dinheiro — mede o que 1 valor em 20 faz com a escala pura.",
- "pin": "sintetico viesado por construcao"
-}

@@ -1,8 +1,0 @@
-{
- "gerador": "run.py::BLOCO1",
- "params": {
-  "len": 19
- },
- "ideia": "MESMO comprimento, digitos sem repeticao",
- "pin": "par de contra-prova; o CONSTANTE e' o comprimento"
-}

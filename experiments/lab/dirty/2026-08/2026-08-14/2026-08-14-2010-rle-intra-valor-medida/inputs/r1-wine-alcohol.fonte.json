@@ -1,7 +1,0 @@
-{
- "gerador": "run.py::BLOCO4",
- "db": "wine-quality",
- "sql": "SELECT alcohol FROM wine WHERE alcohol IS NOT NULL",
- "ideia": "cauda de float: a UNICA coluna do corpus com run no MEIO do valor",
- "pin": "corpus local Z:/tcf-data/interim — nao versionado"
-}

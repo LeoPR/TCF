@@ -1,9 +1,0 @@
-{
- "gerador": "casos.py::SINTETICOS",
- "params": {
-  "nota": "onde a escala pura ja' deveria funcionar"
- },
- "seed": null,
- "ideia": "Dinheiro limpo, 2 casas, valores NAO em progressao (de proposito: uma progressao viraria seq-RLE e mediria o nucleo, nao a escala).",
- "pin": "sintetico viesado por construcao"
-}

@@ -1,9 +1,0 @@
-{
- "gerador": "casos.py::GRAFIAS x r_comercial",
- "grafia": "g01-sql-espaco",
- "regime": "r1-comercial (FIXO)",
- "n": 2000,
- "seed": "LCG determinístico, sem random",
- "ideia": "`YYYY-MM-DD HH:MM:SS` — SQLite/MySQL; **a do corpus**",
- "pin": "sintético; grafia uniforme por coluna (origem canônica de banco)"
-}

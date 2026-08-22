@@ -1,9 +1,0 @@
-{
- "gerador": "casos.py::SINTETICOS",
- "params": {
-  "nota": "usado tambem em M4"
- },
- "seed": null,
- "ideia": "O PARCELAMENTO do owner: 100 dividido em 3. Liga M1 (grafia) com M4 (soma preservada) no mesmo dado.",
- "pin": "sintetico viesado por construcao"
-}

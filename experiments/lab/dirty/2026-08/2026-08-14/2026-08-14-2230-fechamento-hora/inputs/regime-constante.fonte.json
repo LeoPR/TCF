@@ -1,9 +1,0 @@
-{
- "gerador": "casos.py::SINTETICOS",
- "params": {
-  "par": ""
- },
- "seed": "LCG determinístico (sem random)",
- "ideia": "tudo meia-noite. É o regime do `InvoiceDate` quando a hora não é usada — e o caso onde o RLE de linha resolve sozinho.",
- "pin": "sintético viesado por construção"
-}

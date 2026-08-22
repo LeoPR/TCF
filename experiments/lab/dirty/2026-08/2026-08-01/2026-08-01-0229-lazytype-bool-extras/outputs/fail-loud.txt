@@ -1,5 +1,0 @@
-# fail-loud — lazy bB (gerado por run.py)
-
-[OK] índice fora da tabela (7 numa tabela de 5) → ValueError: indice 7 fora da tabela lazy de 5 valores — corpo nao-canonico
-[OK] header não-canônico (zero à esquerda) → ValueError: contagem bN nao-canonica: '0c8' (canonico: c8)
-[OK] domínio mal-formado (vazio) → ValueError: dominio lazy vazio — a cabeça congelada não se declara

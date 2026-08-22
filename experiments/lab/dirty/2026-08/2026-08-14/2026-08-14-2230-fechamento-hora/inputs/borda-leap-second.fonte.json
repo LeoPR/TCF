@@ -1,5 +1,0 @@
-{
- "gerador": "casos.py::BORDAS",
- "ideia": "segundo bissexto: existe em UTC, não existe em `datetime.time`",
- "pin": "grafias de norma (ISO 8601 / RFC 3339)"
-}

@@ -1,9 +1,0 @@
-{
- "gerador": "casos.py::GRAFIAS x r_comercial",
- "grafia": "g04-rfc3339-offset",
- "regime": "r1-comercial (FIXO)",
- "n": 2000,
- "seed": "LCG determinístico, sem random",
- "ideia": "com `-03:00` — offset explícito",
- "pin": "sintético; grafia uniforme por coluna (origem canônica de banco)"
-}

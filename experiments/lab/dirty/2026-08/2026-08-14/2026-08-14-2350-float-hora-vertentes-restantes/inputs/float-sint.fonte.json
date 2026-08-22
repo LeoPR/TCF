@@ -1,5 +1,0 @@
-{
- "gerador": "run.py",
- "n": 2000,
- "pin": "sintético determinístico (LCG/módulo), sem random"
-}

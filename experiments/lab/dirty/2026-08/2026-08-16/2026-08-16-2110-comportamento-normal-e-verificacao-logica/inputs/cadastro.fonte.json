@@ -1,8 +1,0 @@
-{
- "gerador": "run.py::cadastro()",
- "seed": 20260816,
- "n": 300,
- "ideia": "uso NORMAL — o cadastro dos labs 1400/1450/1530, sem caso de borda",
- "cpf": "gerador da suite soldada (tests/test_nature_compete.py:21-29)",
- "pin": "sintetico deterministico, sem Z:"
-}

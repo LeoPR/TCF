@@ -1,9 +1,0 @@
-{
- "gerador": "casos.py::SINTETICOS",
- "params": {
-  "par": "par: regime-batimento-15min"
- },
- "seed": "LCG determinístico (sem random)",
- "ideia": "CONTRA-PROVA: o MESMO batimento por 2 dias — passa pela meia-noite. Aqui a CICLICIDADE morde: a sequência volta a zero e o seq-RLE vê um salto negativo.",
- "pin": "sintético viesado por construção"
-}

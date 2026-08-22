@@ -1,1 +1,0 @@
-nature-id desconhecido no header single-col: 'cnpja' — registry core fechado; forneca o spec out-of-band para decodificar (wire historico: dataclasses.replace(SPEC, wire_id=<id do header>))

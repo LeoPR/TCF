@@ -1,8 +1,0 @@
-CASE H4b — dict vazio {} — #TCF.8H #E (definição)
-FONTE: dict · kwargs: {}
-INPUT: {}
-WIRE (10 B): '#TCF.8H#E\n'
-HEADER: hierárquico #TCF.8H · objeto-vazio {} (#E) · meta '#E'
-ROUNDTRIP (identidade): OK
-DEBUG (SideOutputs):
-  hier_info: root_kind=E n_records=1 cols={'controle': 0, 'dado': 0} fields=[]

@@ -39,8 +39,27 @@ não conflitam. A prosa aponta; o teste mede.
 | `Z:/tcf-data/` | Dados grandes via `config/storage.json`; hubs SQLite em `interim/`. **Nunca baixar externo se já existe aqui.** |
 | `old/` | **Congelado-histórico**: `old/tcf` (motor v0.5) · `old/llm-benchmark` (Linha-A refutada). Não modificar, não importar. |
 | `docs/adr/` | Decisões numeradas. `docs/findings/` = catálogo v0.5 (**histórico**; findings novos vão em `docs/theory/` ou ADR). |
-| `experiments/lab/{dirty,clean}/` | Labs. `dirty/` aninha macros por `<YYYY-MM>/<YYYY-MM-DD>/` (§6); `dirty/notas/` = diário, checkpoints, registries (`roadmap-hipoteses.md`) + notas por mês. |
+| `experiments/lab/{dirty,clean}/` | Labs. `dirty/` aninha macros por `<YYYY-MM>/<YYYY-MM-DD>/` (§6); `dirty/notas/` = diário, checkpoints, registries (`roadmap-hipoteses.md`) + notas por mês. ⚠️ **`dirty/` e `archive/` NÃO são versionados** (desde 2026-08-22): existem no disco, fora do git. Ver a fronteira abaixo. |
 | `datasets/` | `synthetic/` = CSVs D1-D17 no repo. `canonical/` = só metadata+README (dado real em Z:). |
+
+### Fronteira do que é publicado (owner, 2026-08-22)
+
+O repositório é **público**. O que ele publica é a **lógica** e a **evidência que sustenta as
+afirmações**; o **caderno de trabalho** fica reservado.
+
+| publicado | reservado (existe no disco, fora do git) |
+|---|---|
+| `src/` · `tests/` · `docs/` (incl. ADRs) · `datasets/` · `scripts/` · `tickets/` | `experiments/lab/dirty/` — labs, **notas de direção**, **diários de sessão** |
+| `experiments/lab/clean/` — experimentos publicáveis | `experiments/lab/archive/` |
+| `experiments/results/evidencia-0.8/` — as medições do release | `.claude/` |
+| `experiments/lab/framework/` — harness dos clean | |
+
+Mecanismo: `git rm --cached` + `.gitignore`. **Some da versão atual, permanece no histórico** —
+nada foi reescrito (o traço é o git, Strata §3). Consequência prática: **a doc pública cita
+caminhos de `dirty/` como ponteiro de evidência** (368 ocorrências, 112 só nos ADRs, que são
+imutáveis). Esses ponteiros continuam válidos *localmente* e no histórico; para quem só vê o
+GitHub de hoje, apontam para fora da árvore. É trade-off aceito — a alternativa seria reescrever
+ADR imutável.
 
 ⚠️ Existem **4 `schema.py`** no repo (`src/tcf` core · `old/tcf` · `src/shaper/strategies` ·
 `docs/archive`). **Nunca editar "todos os schema.py" por basename.**

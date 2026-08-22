@@ -1,8 +1,0 @@
-{
-  "nota": "float + null", 
-  "dados": [
-    1.5, 
-    null, 
-    2.5
-  ]
-}

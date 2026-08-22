@@ -1,5 +1,0 @@
-{
- "gerador": "casos.py::BORDAS",
- "ideia": "`24:00:00` é VÁLIDO em ISO 8601 (fim do dia) e o Python RECUSA — grafia legal que não sobrevive ao `time.fromisoformat`",
- "pin": "grafias de norma (ISO 8601 / RFC 3339)"
-}

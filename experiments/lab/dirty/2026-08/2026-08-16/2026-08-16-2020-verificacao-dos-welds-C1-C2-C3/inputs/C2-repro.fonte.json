@@ -1,8 +1,0 @@
-{
- "ticket": "T-META-COLISAO-NOME-POSICIONAL",
- "commit_do_weld": "0dec1a06",
- "arquivo": "src/tcf/multi/core.py",
- "marcador_pos_weld": "_nomes_resolvidos",
- "como": "git archive 0dec1a06^ src -> tmp; o MESMO repro roda em subprocesso contra o src antigo e contra o atual",
- "repro": "from tcf import decode, view\nc0, c1, c2 = \"x\\ny\\nz\", \"a\\nb\\nc\", \"f\\ni\\nm\"\nwire = f\"#TCF.8M!{len(c0.encode()):x},!{len(c1.encode()):x}=0,!fim\\n{c0}{c1}{c2}\"\nout = {\"wire\": wire, \"colunas_no_header\": 3}\ntry:\n    d = decode(wire)\n    out[\"decode\"] = {\"n_colunas\": len(d), \"valores\": d, \"perdeu_calado\": len(d) < 3}\nexcept Exception as e:\n    out[\"decode\"] = {\"fail_loud\": f\"{type(e).__name__}: {e}\"}\ntry:\n    v = view(wire)\n    cols = v.columns() if callable(v.columns) else v.columns\n    out[\"view\"] = {\"columns\": list(cols),\n                   \"serve_duplicado\": len(set(map(str, [v._col(c) for c in cols]))) < len(cols)}\nexcept Exception as e:\n    out[\"view\"] = {\"fail_loud\": f\"{type(e).__name__}: {e}\"}"
-}

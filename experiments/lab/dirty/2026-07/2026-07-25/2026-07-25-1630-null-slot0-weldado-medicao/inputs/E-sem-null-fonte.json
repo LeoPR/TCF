@@ -1,9 +1,0 @@
-{
-  "nota": "CONTROLE: sem null — não pode mudar 1 byte",
-  "dados": [
-    "ativo",
-    "inativo",
-    "ativo",
-    "pendente"
-  ]
-}

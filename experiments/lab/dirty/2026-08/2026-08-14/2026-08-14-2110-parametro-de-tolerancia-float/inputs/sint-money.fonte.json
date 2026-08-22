@@ -1,9 +1,0 @@
-{
- "gerador": "run.py::main",
- "params": {
-  "n": 20,
-  "plantado": 0.07
- },
- "ideia": "o menor valor manda no `rel` — quero ver isso acontecer",
- "pin": "sintético viesado por construção"
-}

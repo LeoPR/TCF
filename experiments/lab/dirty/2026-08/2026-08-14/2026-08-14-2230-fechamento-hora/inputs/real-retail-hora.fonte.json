@@ -1,7 +1,0 @@
-{
- "gerador": "casos.py::carrega_hora_real",
- "db": "online-retail",
- "coluna": "InvoiceDate (parte de hora)",
- "ideia": "a única hora do corpus",
- "pin": "Z: não versionado"
-}

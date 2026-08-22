@@ -1,7 +1,0 @@
-{
-  "coluna": "adult-race",
-  "arquivo": "adult-census/adult-sample.csv",
-  "campo": "race",
-  "n": 100,
-  "k": 5
-}

@@ -1,4 +1,0 @@
-CASE C4 — array de tipos MISTOS (int+null+str) — FAIL-LOUD (union fora do .8H)
-FONTE: list · kwargs: {}
-INPUT: [1, None, 'x']
-RESULTADO: FAIL-LOUD (esperado): HierarchicalError: tipos escalares MISTOS {'s', 'n'} numa coluna — union/tipo-misto no mesmo slot está fora d

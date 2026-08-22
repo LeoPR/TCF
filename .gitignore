@@ -130,3 +130,22 @@ experiments/lab/dirty/notas/**/_wf_*.js
 
 # Copias locais do legado #TCF.6/.7 pra comparativo (ADR-0032; git-as-compat)
 legacy-snapshots/
+
+# ---------------------------------------------------------------------------
+# Material de trabalho INTERNO — fora da superficie publicada (2026-08-22)
+# ---------------------------------------------------------------------------
+# Decisao do owner: o repo publica a LOGICA (src, docs, ADRs, testes, spec do
+# formato) e a EVIDENCIA que sustenta as afirmacoes (experiments/results/ e os
+# experimentos clean). O caderno de trabalho — labs dirty, notas de direcao,
+# diarios de sessao — fica reservado.
+#
+# `git rm --cached` + ignore: some da versao ATUAL e para de subir; o que ja'
+# foi publicado PERMANECE no historico. Nada e' reescrito: o traco e' o git
+# (Strata §3). Os arquivos continuam no disco, so' nao sao mais rastreados.
+#
+# Estas regras vem por ULTIMO de proposito: as excecoes `!experiments/lab/dirty/...`
+# mais acima (outputs/inputs de lab) deixam de ter efeito — o diretorio inteiro
+# esta' fora agora. Ficam onde estao como registro de quando o dirty era publicado.
+experiments/lab/dirty/
+experiments/lab/archive/
+.claude/

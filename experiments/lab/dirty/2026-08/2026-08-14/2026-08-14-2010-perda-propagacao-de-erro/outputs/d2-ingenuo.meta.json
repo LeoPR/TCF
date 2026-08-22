@@ -1,9 +1,0 @@
-{
- "derivado_de": "inputs/retail-preco.entrada.json",
- "casas": 2,
- "metodo": "ingenuo",
- "bytes": 5053,
- "contrato": "por-valor",
- "soma_exata": true,
- "AVISO": "estes valores NAO sao os originais — a perda e' deliberada"
-}

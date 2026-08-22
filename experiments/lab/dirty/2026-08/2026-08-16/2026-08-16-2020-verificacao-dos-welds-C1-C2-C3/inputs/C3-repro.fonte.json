@@ -1,8 +1,0 @@
-{
- "ticket": "T-NATURE-IGNORADA-CALADA",
- "commit_do_weld": "ec08634c",
- "arquivo": "src/tcf/encoder.py",
- "marcador_pos_weld": "T-NATURE-IGNORADA-CALADA",
- "como": "git archive ec08634c^ src -> tmp; o MESMO repro roda em subprocesso contra o src antigo e contra o atual",
- "repro": "from tcf import encode\nfrom tcf.natures import SPEC_DATA_ISO as DT\nout = {}\n# (1) lista TIPADA: o spec e' aceito e descartado?\ntry:\n    a = encode([738886, 738887, 738888])\n    b = encode([738886, 738887, 738888], nature_per_col={\"x\": DT})\n    out[\"tipada\"] = {\"byte_identico\": a == b, \"descartado_calado\": a == b}\nexcept Exception as e:\n    out[\"tipada\"] = {\"fail_loud\": f\"{type(e).__name__}: {e}\"}\n# (2) coluna INEXISTENTE\nT = {\"d\": [\"2024-01-01\", \"2024-01-02\"], \"s\": [\"a\", \"b\"]}\ntry:\n    a = encode(T)\n    b = encode(T, nature_per_col={\"ZZZ\": DT})\n    out[\"inexistente\"] = {\"byte_identico\": a == b, \"descartado_calado\": a == b}\nexcept Exception as e:\n    out[\"inexistente\"] = {\"fail_loud\": f\"{type(e).__name__}: {e}\"}\n# CONTRA-PROVA: as formas legitimas tem de funcionar NOS DOIS lados\nD = [f\"2015-{m:02d}-01\" for m in range(1, 13)]\ntry:\n    w = encode([{\"d\": x} for x in D], nature_per_col={\"d\": DT})\n    out[\"contraprova_list_of_dict\"] = {\"bytes\": len(w.encode()), \"ok\": True}\nexcept Exception as e:\n    out[\"contraprova_list_of_dict\"] = {\"ok\": False, \"erro\": f\"{type(e).__name__}: {e}\"}"
-}

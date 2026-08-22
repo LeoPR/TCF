@@ -1,8 +1,0 @@
-{
- "gerador": "run.py::tabela()",
- "seed": 11,
- "n": 5000,
- "colunas": "data(ISO) cliente produto qtd preco — retangular, sem nulls",
- "ideia": "tabela de pedidos plausivel; as 3 variantes tem os MESMOS valores, so' muda o TIPO Python e a FORMA de chamada",
- "pin": "sinteticp determinístico (random.Random(SEED)), sem Z:"
-}

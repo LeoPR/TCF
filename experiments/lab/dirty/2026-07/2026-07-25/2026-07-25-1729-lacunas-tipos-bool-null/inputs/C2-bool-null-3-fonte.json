@@ -1,8 +1,0 @@
-{
-  "nota": "bool + null, n=3", 
-  "dados": [
-    true, 
-    null, 
-    false
-  ]
-}

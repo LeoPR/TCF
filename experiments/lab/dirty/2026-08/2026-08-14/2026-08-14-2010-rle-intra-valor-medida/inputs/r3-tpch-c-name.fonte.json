@@ -1,7 +1,0 @@
-{
- "gerador": "run.py::BLOCO4",
- "db": "tpch-sf001",
- "sql": "SELECT c_name FROM customer",
- "ideia": "idem: `Customer#000000001`",
- "pin": "corpus local Z:/tcf-data/interim — nao versionado"
-}

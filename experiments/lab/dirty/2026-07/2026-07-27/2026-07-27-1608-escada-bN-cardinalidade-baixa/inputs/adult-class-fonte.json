@@ -1,7 +1,0 @@
-{
-  "coluna": "adult-class",
-  "arquivo": "adult-census/adult-sample.csv",
-  "campo": "class",
-  "n": 100,
-  "k": 2
-}

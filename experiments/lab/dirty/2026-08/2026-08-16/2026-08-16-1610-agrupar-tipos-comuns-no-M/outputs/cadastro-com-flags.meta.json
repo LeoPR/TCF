@@ -1,7 +1,0 @@
-{
- "wire_bytes": 16200,
- "linha1": "#TCF.8M10=id,@7d6=ativo,@7d6=vip,@7d6=bloq,@7d6=news,@7d6=mfa,@7e5=uf,@7e5=origem,@destino",
- "roundtrip_identico_a_entrada": true,
- "entrada": "../inputs/cadastro-com-flags.entrada.json",
- "papel": "a tabela do Bloco 1 e do Bloco 3"
-}

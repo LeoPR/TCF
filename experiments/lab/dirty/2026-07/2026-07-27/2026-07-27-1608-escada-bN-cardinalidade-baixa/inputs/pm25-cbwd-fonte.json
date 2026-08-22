@@ -1,7 +1,0 @@
-{
-  "coluna": "pm25-cbwd",
-  "arquivo": "beijing-pm25/beijing-pm25-sample.csv",
-  "campo": "cbwd",
-  "n": 100,
-  "k": 4
-}

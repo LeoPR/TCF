@@ -1,9 +1,0 @@
-{
- "gerador": "run.py",
- "params": {
-  "custo": "venda x 0.97",
-  "n": 500
- },
- "ideia": "duas colunas PROXIMAS: a diferenca delas e' o caso catastrofico",
- "pin": "derivado do preco real; o 0.97 e' sintetico e declarado"
-}
