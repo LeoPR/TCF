@@ -287,11 +287,22 @@ def encode(
             - Para list (single-col): parametro ignorado (1 coluna)
         name: rotulo opcional do header single-col + spec (`#TCF.8 nome:id`).
             SO' com `schema` escalar (senao erro — seria ignorado calado; BUG-10e).
-        stamp: (list) controla o header `#TCF.8\\n` do single-col. `None` (default) e
-            `True` -> COM header, 100% dos casos (ADR-0034). `False` -> ESCAPE explicito
-            (orfao, sem header): so' pra transmissao ou container que ja' carrega o
-            contrato (parquet) — ai o contrato vive nas PONTAS, nao no arquivo.
+        stamp: (list) controla o header `#TCF.8\\n` do single-col. `None` (default)
+            e `True` -> COM header, 100% dos casos (ADR-0034). `False` -> emite o
+            CORPO CRU, sem header: pra transmissao ou container que ja' carrega o
+            contrato (parquet), onde ele vive nas PONTAS e nao no arquivo.
             Ignorado pra dict — o `M` do multi JA' e' o stamp.
+
+            DUAS RESSALVAS, porque `False` e' corpo-cru e nao "cabecalho minimo":
+            (a) os mecanismos que se DECLARAM no cabecalho (polaridade, bN de
+            dominio) ficam de fora da disputa, entao o wire pode sair MAIOR —
+            medido: coluna de baixa cardinalidade, 102 B com header contra 611 B
+            crua; (b) com `schema` vencedor o `:id` sai assim mesmo, porque e' o
+            unico lugar onde viaja QUAL spec inverter — sem ele o decode
+            devolveria o payload transformado.
+            Separar o ESTATICO (que as duas pontas ja' sabem) do DINAMICO (que
+            precisa ser declarado) e' o desenho do cabecalho minimo, e ele vive
+            no objeto Schema: `tickets/T-API-SCHEMA-PRESCRITIVO.md`.
         drop_names: (multi-col) omite os nomes no meta (colunas ANONIMAS,
             ADR-0029); decode retorna nomes posicionais '0','1',... Nome de
             coluna '' NAO e' anonima: e' nome vazio, emitido como `\\z` e

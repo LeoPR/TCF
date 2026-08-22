@@ -195,3 +195,37 @@ class TestDecodeSimetrico:
         vals = ["11.222.333/0001-81", "12.ABC.345/01DE-35"] * 10
         w = encode(vals, schema="cnpj")
         assert decode(w) == vals
+
+
+class TestStampCorpoCru:
+    """`stamp=False` emite o CORPO CRU — nao um "cabecalho minimo".
+
+    Pina as duas ressalvas que o docstring de `encode` declara, pra que a
+    descricao nao volte a divergir do que o core faz. O cabecalho minimo de
+    verdade (estatico fora, dinamico dentro) e' `T-API-SCHEMA-PRESCRITIVO`.
+    """
+
+    COL_BAIXA_CARD = [f"10.0.0.{i % 4}" for i in range(200)]
+
+    def test_sem_schema_o_corpo_cru_nao_tem_header(self):
+        w = encode(IPS, stamp=False)
+        assert not w.startswith("#TCF")
+        assert encode(IPS, stamp=True).startswith("#TCF.8")
+
+    def test_corpo_cru_perde_os_mecanismos_que_declaram_no_header(self):
+        # bN/polaridade se DECLARAM no cabecalho; sem ele saem da disputa
+        com = encode(self.COL_BAIXA_CARD)
+        cru = encode(self.COL_BAIXA_CARD, stamp=False)
+        assert "B" in com.split("\n", 1)[0]            # bN venceu
+        assert len(cru.encode()) > len(com.encode())   # o cru sai MAIOR
+
+    def test_com_spec_vencedor_o_id_sai_assim_mesmo(self):
+        # o `:id` e' o unico lugar onde viaja QUAL spec inverter
+        w = encode(IPS, schema="ip", stamp=False)
+        assert ":ip" in w.split("\n", 1)[0]
+        assert decode(w) == IPS
+
+    def test_o_corpo_transformado_sem_o_id_nao_volta_ao_original(self):
+        # a razao de (b): recortando o carimbo, o decode devolve o PAYLOAD
+        corpo = encode(IPS, schema="ip").split("\n", 1)[1]
+        assert decode(corpo) != IPS
