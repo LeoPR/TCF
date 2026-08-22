@@ -25,24 +25,79 @@ internos (sem PyPI). Date em parenteses = consolidacao do milestone.
 `0.7.2` (lazy+poda) foi **absorvido** neste release (sem release intermediário). PyPI publica no go
 explícito do owner (`T-DIST-RELEASE-0.8.0`); a última versão publicada segue `0.7.1` até lá.
 
-- **`#TCF.8M` é o default multi-col** (era opt-in-SSE-nature): todo `encode(dict)` sai `#TCF.8M`
-  (meta INLINE na assinatura, sem prefixo `# `). Single-col plano segue **órfão** intocado
-  (D1-D9=1523B, real-world=89616B — ADR-0032 não mexe no single-col; ADR-0030 freeze).
-- **Legado `#TCF.6`/`#TCF.7` cortado** de `src/tcf` (emit E decode): decode faz **fail-loud** com dica
-  de git. Git-as-compat (ADR-0024): a versão antiga é ponto de progresso/comparação (git checkout ou
-  `legacy-snapshots/`), não produção. Blobs multi-col `.6`/`.7` no mundo não decodam mais (aceitável pré-1.0).
-- **Byte-sizes do header em HEX** ([T-FMT-HEADER-BASE-HEX](tickets/T-FMT-HEADER-BASE-HEX.md)):
-  `format(n,'x')` canônico; decimal só via comando de inspeção. Colisão-livre com os separadores.
-- **Nomes de coluna com separador escapados com `\`** ([T-FMT-NAME-ESCAPING](tickets/T-FMT-NAME-ESCAPING.md)):
-  `,`/`=`/`:`/`\`/prefixo `!@%` viáveis (antes rejeitados); tokenizer splita em separador não-escapado.
-  Único proibido: `\n`.
-- **Discriminador `H` reservado** ([ADR-0031](docs/adr/0031-hierarchical-discriminator-H.md)): multi-col
-  hierárquico (especialização de `M`); **fail-loud** no decode (codec no lab, EXP-015). Fecha a corrupção
-  silenciosa de discriminador desconhecido após `#TCF.8`.
-- **Baseline**: D17a re-pinado **303 → 300B** (header `#TCF.8M` inline −2B). D1-D9/real-world intactos.
-  Suíte 530 verde. Baselines re-pináveis (pré-1.0, ADR-0024/0025).
+### Formato e rotas
 
-> Detalhe em milestones M1 (flip+corte) / M2 (escaping) / M4 (docs) — ver ADR-0032 + diário 2026-07-09.
+- **`#TCF.8M` é o default multi-col**: todo `encode(dict)` sai `#TCF.8M` — meta INLINE na
+  assinatura (sem prefixo `# `), byte-sizes em **HEX**, última coluna sem size (`min_header`).
+- **Single-col ganha header por default, 100% dos casos** (`#TCF.8\n`,
+  [ADR-0034](docs/adr/0034-header-default-100-porcento-single-col.md)): o arquivo se
+  auto-explica em vez de depender de quem o produziu (+7 B, inevitável e assumido).
+- **`#TCF.8H` hierárquico SOLDADO** ([ADR-0033](docs/adr/0033-hierarchical-codec-weld.md)): o
+  dataset aninhado que sua linguagem monta do JSON — objetos/arrays aninhados, `null`
+  (distinto de ausente e de `"null"`), registros ragged, qualquer raiz — faz round-trip
+  exato pela MESMA porta `encode`/`decode` (rota por tipo de entrada, simétrica ao decode
+  por magic). O objeto é fatiado em colunas: nomes de campo escritos UMA vez, não por
+  registro. Paridade com a classe D_json mapeada em
+  [`docs/reference/json-equivalence.md`](docs/reference/json-equivalence.md).
+- **Rota TIPADA single-col**: `list[bool]` / `list[int|float]` preservam o TIPO no wire
+  (`#TCF.8b`/`#TCF.8n`) — bool denso a 1–2 bits/elemento
+  ([ADR-0037](docs/adr/0037-denso-b2-ternario-dominio-implicito.md)), união bool+str lazy
+  `#TCF.8bB` ([ADR-0039](docs/adr/0039-lazytype-bool-cabeca-congelada-extras.md)), grafias
+  canônicas congeladas ([ADR-0038](docs/adr/0038-indice-interno-default-core-tipado-bool.md)).
+- **Candidatos novos no mesmo `min()` nunca-pior**: delimitador de POLARIDADE
+  ([ADR-0035](docs/adr/0035-delimitador-de-polaridade-single-col.md); 1 byte por transição em
+  vez de 1 por literal), **bN de domínio** para cardinalidade baixa
+  ([ADR-0036](docs/adr/0036-bn-de-dominio-cardinalidade-baixa.md); k distintos em
+  ceil(log2 k) bits/linha), **seq-RLE periódico** `*N~d1,..,dp|`
+  ([ADR-0040](docs/adr/0040-seq-rle-periodico.md); o delta CICLA — 600 dias úteis em 1 marcador).
+- **Todo nome de coluna é representável**: separadores escapados com `\`
+  (único proibido: `\n`); nome VAZIO `''` preservado via sentinela `\z`
+  ([ADR-0046](docs/adr/0046-nome-vazio-8m-porta-o-z-do-8h.md) — fecha o único caso em que o
+  TCF alterava o dado); coluna anônima/posicional SÓ via `drop_names`.
+- **Legado `#TCF.6`/`#TCF.7` cortado** de `src/tcf` (emit E decode): fail-loud com dica de
+  git. Git-as-compat ([ADR-0024](docs/adr/0024-pre-1.0-versioning-git-as-compat.md)): versão
+  antiga se reproduz por checkout, não por bagagem no código. Sem modos de compatibilidade
+  até o 1.0 (decisão reafirmada do owner).
+
+### Specs (natures)
+
+- **`schema=` é o parâmetro ÚNICO de spec** nas duas portas
+  ([ADR-0047](docs/adr/0047-schema-parametro-unico-de-spec.md)); `nature=`/`nature_per_col=`
+  CORTADOS (seco, sem alias — mesmo regime do legado). Formas: `"cpf"` (name do registry) ·
+  objeto spec · `{coluna: spec}` com chave str=NOME / int=POSIÇÃO. É **incremental**
+  (default = string semântico; o schema muda um ou mais) e tem **sobrecarga** (tabela/wire de
+  UMA coluna aceita a forma escalar). Exports novos: `SPEC_DATA_ISO`, `SPEC_INT_PAD`,
+  `SPEC_REGISTRY`.
+- **Registry com 5 specs** — cpf, cnpj, ip, **data-iso** (`:dt`, ISO→ordinal, casa com o
+  seq-RLE) e **int-pad** (`:ipad`). Identidade em DOIS planos
+  ([ADR-0041](docs/adr/0041-spec-id-tres-planos.md)): `name` legível na API, `wire_id` curto
+  no header; fail-loud de grafia, colisão e mascarada; header autoritativo no decode.
+- **CNPJ alfanumérico** (IN RFB nº 2.229/2024, vigente desde jul/2026): **UM spec só**
+  ([ADR-0044](docs/adr/0044-cnpj-um-so-alfanumerico.md)); corpo 100% decimal segue emitindo
+  os 7 chars **byte-idênticos** ao wire legado (compacto por valor,
+  [ADR-0043](docs/adr/0043-cnpj-um-so-compacto-por-valor.md)); o decode discrimina pelo
+  comprimento.
+- **Bordas em valor de spec** ([ADR-0045](docs/adr/0045-bordas-em-valor-de-spec.md)): regex
+  fechada com `\Z` (o `$` do Python também casa antes de um LF final — o RT perdia o
+  caractere); telemetria `format_bordered` distingue "dado certo, pipeline sujo" de "forma
+  desconhecida".
+- Telemetria (`SideOutputs`) virou **opt-in**: 3,9–31,1% do tempo de encode devolvidos ao
+  caminho comum; wire byte-idêntico.
+
+### API e congelamento do `.8`
+
+- **Porta única**: `encode()` roteia por tipo de entrada (list/dict/aninhado/tipado);
+  `decode()` pelo magic. `encode_hierarchical` e afins fora da superfície pública.
+- **Congelado por teste executável**: assinaturas de `encode`/`decode` (nome, ordem, kind e
+  default de cada parâmetro) e a superfície de exports (`EXPECTED_PUBLIC_API`) pinadas em
+  `tests/test_regression_v1_baseline.py`; header e corpo pinados pelos gates byte-canônicos.
+- **Baselines na data desta entrada**: D1-D9 = **1545 B** · D17a = **300 B** (`#TCF.8M` hex
+  inline) · real-world = **89 430 B** · suíte **1344 passed**. Números vivos SEMPRE nos
+  testes; re-pináveis com registro (ADR-0024).
+- `view()` lazy/consultável segue a API read-only do `.8M` (count/sum/where/select/group
+  sem materializar o que a pergunta não toca).
+
+> ADRs do ciclo: **0032–0047**. Narrativa por sessão: `experiments/lab/dirty/notas/diario/`.
 
 ## 0.7.x (pré-1.0, superado por 0.8.0) — `#TCF.7` default (histórico)
 
