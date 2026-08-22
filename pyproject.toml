@@ -49,12 +49,22 @@ all = [
 ]
 
 [tool.ruff]
-# Lint CONTINUO (ferramenta confiavel de manutencao). Alinha com
-# .pre-commit-config.yaml (ruff-pre-commit v0.7): regras default (E4/E7/E9 + F).
+# Lint CONTINUO (ferramenta confiavel de manutencao). Versao alinhada com
+# .pre-commit-config.yaml.
 # Codigo experimental/legado fica fora (so' warnings la', nao bloqueia).
 # Uso: `python -m ruff check src/tcf` (F = confiavel; E = estilo, avaliar depois).
 target-version = "py310"
-extend-exclude = ["experiments/lab/dirty", "old", "llm-benchmark", "docs/archive"]
+extend-exclude = [
+    "experiments/lab/dirty", "old", "llm-benchmark", "docs/archive",
+    "tests/_archive_v05",   # legado v0.5 congelado (o pytest ja' ignora: norecursedirs)
+]
+
+[tool.ruff.lint]
+# POLITICA EXPLICITA. Antes isto eram os DEFAULTS do ruff, que mudam entre
+# versoes: subir 0.7 -> 0.16 levou o mesmo codigo de 44 para 192 achados sem
+# uma linha ter mudado. `select` fixa a regua no que o projeto decidiu medir;
+# ampliar e' decisao deliberada, nao efeito colateral de `uv lock --upgrade`.
+select = ["E4", "E7", "E9", "F"]
 
 [tool.pytest.ini_options]
 cache_dir = "Z:\\caches\\pytest"

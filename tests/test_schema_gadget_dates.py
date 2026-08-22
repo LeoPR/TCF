@@ -12,7 +12,7 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "scripts"))
 sys.path.insert(0, str(ROOT / "scripts" / "schema_gadget"))
 
-from date_check import check_dates, _valid_ymd, _looks_like_date_column  # noqa: E402
+from date_check import check_dates, _valid_ymd  # noqa: E402
 
 
 def _kinds(res, table="t"):

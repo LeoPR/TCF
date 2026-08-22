@@ -10,7 +10,6 @@ Valida que passar `side_outputs=SideOutputs()` em `encode()` captura:
 
 from __future__ import annotations
 
-import pytest
 
 from tcf import encode, SideOutputs
 from tcf.column_features import ColumnFeatures

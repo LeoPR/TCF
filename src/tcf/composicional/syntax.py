@@ -23,6 +23,10 @@ import warnings
 from collections import Counter
 from dataclasses import dataclass
 
+from tcf.composicional._trace import build_rede, build_trace  # debug (fora do core)
+from tcf.core.online import TokLit, TokRefPref, TokRefSuf
+from tcf.core.syntax_base import Syntax
+
 # --------------------------------------------------------------------------------------
 # TETO DE DESCOMPRESSAO. Nome `max_length` ROUBADO do zlib/bz2/lzma —
 # nada a reinventar, e a convencao `0 == sem teto` vem do zlib tambem.
@@ -81,14 +85,6 @@ def estouro_max_length(pedido, limite):
         f"suspeite de corrupcao ou de wire hostil. Para forcar, passe "
         f"decode(..., max_length=<maior>) ou max_length=0 (sem teto)."
     )
-
-# Welding step 2: adaptado de
-# experiments/lab/dirty/old/2026-05-16-.../M8-A-detector-unificado/syntax.py.
-# Apenas estes 2 imports mudaram (path do dirty para src/tcf/core/);
-# logica de encode/decode permanece byte-exata. Validado em M12.
-from tcf.composicional._trace import build_rede, build_trace  # debug (P2: fora do core)
-from tcf.core.online import TokLit, TokRefPref, TokRefSuf
-from tcf.core.syntax_base import Syntax
 
 
 def split_lf_body(tcf_text: str) -> list[str]:

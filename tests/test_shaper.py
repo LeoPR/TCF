@@ -14,7 +14,7 @@ import pytest
 # shaper mora em src/ (gadget movido 2026-07-19); _paths/dataset_reader ficam em scripts/ (ver _needs_db)
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
 
-from shaper import ShapeRequest, ShapeResult, Shaper  # noqa: E402
+from shaper import ShapeRequest, Shaper  # noqa: E402
 
 
 # ---------------------------------------------------------------------------

@@ -49,15 +49,7 @@ Invariante `decode(encode(x)) == x` guardado por `tests/test_core_rt.py`
 
 from __future__ import annotations
 
-import base64
-import binascii as _binascii
-from typing import TYPE_CHECKING
-
 from tcf.composicional.hcc_seqrle import HCCSeqRLE
-
-if TYPE_CHECKING:
-    from tcf.natures.templated_checked import TemplatedCheckedSpec
-
 
 # #TCF.8 = formato VIVO/DEFAULT (ADR-0032). O char logo apos '#TCF.8' discrimina:
 # 'M'=multi (#TCF.8M, meta inline), ' '=single+spec (#TCF.8 [nome]:spec),

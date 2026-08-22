@@ -17,7 +17,6 @@ import csv
 import json
 import tempfile
 from pathlib import Path
-from typing import Any
 
 
 def _write_fixture(

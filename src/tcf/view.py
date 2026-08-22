@@ -207,7 +207,8 @@ class LazyTCF:
             return cached
         body = self._body[name]
         nl = body.find(b"\n")
-        ntable = int(body[:nl]); start = nl + 1
+        ntable = int(body[:nl])
+        start = nl + 1
         unicas = _decode_column(body[start:start + ntable].decode("utf-8"))
         # A tabelinha guarda o PAYLOAD; quem consulta (where L4, group_count) compara
         # contra o VALOR. Reverter aqui — nos K unicos, nao nas N linhas — mantem a
@@ -326,7 +327,8 @@ class LazyTCF:
         ranges: dict[str, tuple[int, int]] = {}
         i, n = 0, len(vals)
         while i < n:
-            v = vals[i]; j = i + 1
+            v = vals[i]
+            j = i + 1
             while j < n and vals[j] == v:
                 j += 1
             if v in ranges:
@@ -334,7 +336,8 @@ class LazyTCF:
                     f"coluna {key!r} não está agrupada (valor {v!r} reaparece); "
                     f"use encode(table, sort_by={key!r}) pro layout L5"
                 )
-            ranges[v] = (i, j); i = j
+            ranges[v] = (i, j)
+            i = j
         return ranges
 
     def agg_by(self, key: str, col: str | None = None, op: str = "count") -> dict:

@@ -11,7 +11,6 @@ from pathlib import Path
 import pytest
 
 from tcf import encode, decode, SPEC_IP
-from tcf.natures.templated_padded import TemplatedPaddedSpec
 
 
 ROOT = Path(__file__).resolve().parent.parent

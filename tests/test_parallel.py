@@ -20,7 +20,6 @@ from __future__ import annotations
 import csv
 from pathlib import Path
 
-import pytest
 
 from tcf import encode, decode, SideOutputs
 

@@ -9,7 +9,6 @@ vai em qual coluna.
 import pytest
 
 from tcf import (
-    SPEC_CNPJ,
     SPEC_CPF,
     SPEC_DATA_ISO,
     SPEC_INT_PAD,

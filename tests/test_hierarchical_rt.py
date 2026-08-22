@@ -185,11 +185,10 @@ def test_p3b_vazio_null_valor_distintos():
 def test_p3b_emask_invalida_fail_loud():
     from tcf.encoder import encode as _enc_col
     # element-mask com char inválido → fail-loud (corrupção, nunca silenciosa)
-    docs = [{"xs": ["a", None]}]                             # produz emask '.0'
-    blob = encode(docs)
     # corromper: substituir a coluna emask por um char inválido é frágil; garante via encode
     bad_em = _enc_col([".", "Z"])                            # emask inválida
-    cnt = _enc_col(["2"]); val = _enc_col(["a"])
+    cnt = _enc_col(["2"])
+    val = _enc_col(["a"])
     b = f"#TCF.8Hxs#:{len(cnt.encode())}?:{len(bad_em.encode())}[]\n{cnt}{bad_em}{val}"
     with pytest.raises(HierarchicalError, match="element-mask inválida|corrompida"):
         decode(b)

@@ -13,7 +13,7 @@ from pathlib import Path
 
 import pytest
 
-from tcf import build_schema, ColumnSchema, TableSchema
+from tcf import build_schema, TableSchema
 
 
 ROOT = Path(__file__).resolve().parent.parent

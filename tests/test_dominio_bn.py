@@ -244,7 +244,7 @@ class TestPayloadB64Canonico:
     def _muta(wire, fn):
         """Aplica `fn` ao payload b64, seja ele apos `=` (bN/lazy) ou na ultima linha."""
         ls = wire.rstrip("\n").split("\n")
-        i = next((j for j, l in enumerate(ls) if l.startswith("=")), len(ls) - 1)
+        i = next((j for j, ln in enumerate(ls) if ln.startswith("=")), len(ls) - 1)
         pre = "=" if ls[i].startswith("=") else ""
         ls[i] = pre + fn(ls[i][len(pre):])
         return "\n".join(ls) + "\n"
@@ -321,7 +321,7 @@ class TestTodoSlotEReferenciado:
     def _com_slot_extra(wire, modo):
         ls = wire.rstrip("\n").split("\n")
         if modo == 0:                                        # B: dominio ANTES do marcador
-            i = next(j for j, l in enumerate(ls) if j > 0 and l.startswith(MARCADOR))
+            i = next(j for j, ln in enumerate(ls) if j > 0 and ln.startswith(MARCADOR))
             return "\n".join(ls[:i] + ["LIXO"] + ls[i:])
         return "\n".join(ls + ["LIXO"])                      # C: dominio no FIM
 

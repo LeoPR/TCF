@@ -39,7 +39,6 @@ GATE de qualquer mudanca em pre-pass/OBAT/HCC). decode(encode(x))==x: ver decode
 from __future__ import annotations
 
 from collections import OrderedDict
-from typing import TYPE_CHECKING
 
 from tcf.auto_cadence import detect_cadence_from_features
 from tcf.auto_min_len import detect_min_len_from_features
@@ -50,10 +49,6 @@ from tcf.core.online import processar
 from tcf.obat_shape import processar_with_hint
 from tcf.pipeline import DEFAULT_PIPELINE, PipelineConfig
 from tcf.side_outputs import SideOutputs
-
-if TYPE_CHECKING:
-    from tcf.natures.templated_checked import TemplatedCheckedSpec
-
 
 def _nature_apply_stats(spec, statuses: list[str]) -> dict:
     """Telemetria (byte-neutra) do encode_value de uma nature: apply-rate por

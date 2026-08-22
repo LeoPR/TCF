@@ -77,7 +77,7 @@ def build_trace(name, iter_traces, prov_to_final, alias_to_final, ref_seqs,
         t.append("  (nenhum)")
     else:
         for net, pair, R, baseline in missed[:30]:
-            lines_str = ",".join(str(l) for l in pair_lines[pair])
+            lines_str = ",".join(str(n) for n in pair_lines[pair])
             t.append(f"  pair=({pair[0]},{pair[1]}) R={R} "
                      f"lines=[{lines_str}] "
                      f"baseline={baseline} est_savings={net}")

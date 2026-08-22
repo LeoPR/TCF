@@ -86,7 +86,10 @@ PARIDADE = {
     "escalares": [{"id": 1, "nome": "Ana", "ok": True, "v": 1.5, "n": None}],
     "aninhado": [{"a": {"b": [1, 2]}, "c": [{"d": "x"}]}],
     "unicode": [{"a": "café 中文 🎉"}],
-    "nfc-vs-nfd": [{"café": 1, "café": 2}],            # E-com-acento vs e+combining: 2 chaves
+    # NFC (U+00E9) vs NFD (e + U+0301) = 2 chaves distintas. O NFD vai por ESCAPE:
+    # escrito literal, editor/sync normaliza p/ NFC e as duas viram a MESMA chave —
+    # o dict colapsa pra 1 e o caso deixa de testar o que se propoe, calado.
+    "nfc-vs-nfd": [{"café": 1, "café": 2}],
     "tab-em-valor": [{"a": "x\ty"}],
     "nul-em-valor": [{"a": "x\x00y"}],
     "menos-zero": [{"a": -0.0}],
