@@ -15,6 +15,20 @@
 > Detalhe + classificação das 17 checagens do bN:
 > [`escala-de-verificacao-e-fechamento-do-bn`](experiments/lab/dirty/notas/2026-08/2026-08-07-escala-de-verificacao-e-fechamento-do-bn.md).
 
+> **⚑ SOLDADO 2026-08-22 — [ADR-0047](docs/adr/0047-schema-parametro-unico-de-spec.md): `schema=`
+> e' o parametro UNICO de spec da API; `nature=`/`nature_per_col=` CORTADOS (corte seco pre-1.0,
+> como o legado .6/.7).** Formas: `"cpf"` (name do registry) · objeto spec · `{col: spec}` com
+> str=NOME / int=POSICAO · futuro `Schema(...)` ([T-API-SCHEMA-PRESCRITIVO](tickets/T-API-SCHEMA-PRESCRITIVO.md),
+> registro pedido pelo owner — o Schema como portador do CONTRATO). Exports novos:
+> SPEC_DATA_ISO/SPEC_INT_PAD/SPEC_REGISTRY (2 dos 5 specs eram INALCANCAVEIS pela API).
+> Byte-neutro por construcao + gates (D17a=300, D1-D9, real-world byte-identicos). **O corte
+> revelou e fechou um bug**: o .8H chamava a API publica por dentro com `nature=` sob `except
+> Exception` — o spec sumia CALADO; migrado + except estreitado pra ValueError + clausula
+> anti-tautologia no teste de paridade (a igualdade dos dois lados nao prova aplicacao; o `:id`
+> no meta prova). POLITICA reafirmada pelo owner: pre-1.0 sem modos de compatibilidade; congela
+> no 1.0; git-as-compat. Suite 1315 -> **1336**; snippets 71/0. Docs vivas migradas (0 sobras);
+> ADRs/labs historicos intocados.
+
 > **⚑ SOLDADO 2026-08-21 — [ADR-0045](docs/adr/0045-bordas-em-valor-de-spec.md): bordas em valor
 > de spec, 3 decisoes SEPARADAS.** **(1)** vazamento fechado: `$` -> `\Z` em `_CPF_RE`/`_CNPJ_RE`/
 > `_IPV4_RE` — o `$` do Python casa TAMBEM antes de um LF final e o RT **perdia o caractere**;

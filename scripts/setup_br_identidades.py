@@ -14,8 +14,8 @@ identifiers (random mod-11-valid bodies, no regional 9th-digit encoding, not
 issued documents), names, dates, emails.
 
 Two related tables in one hub:
-  - pessoas  (CPF, nature='cpf')   — primary high-volume table
-  - empresas (CNPJ, nature='cnpj') — empresas.socio_cpf is a real cross-table
+  - pessoas  (CPF, schema='cpf')   — primary high-volume table
+  - empresas (CNPJ, schema='cnpj') — empresas.socio_cpf is a real cross-table
     FK into pessoas.cpf for ~30% of rows (exercises FK-candidate detection)
 
 Identifiers are stored as STRINGS (leading zeros significant), all VALID and
@@ -59,7 +59,7 @@ EMAIL_EMPTY_FRACTION = 0.08  # ~8% of pessoas have no email (realistic, healthy)
 # ---------------------------------------------------------------------------
 COLS_PESSOAS = {
     "cpf":           {"type": "string", "nullable": False,
-                      "note": "Masked NNN.NNN.NNN-DD, valid mod-11, nature='cpf' target"},
+                      "note": "Masked NNN.NNN.NNN-DD, valid mod-11, schema='cpf' target"},
     "nome":          {"type": "string", "nullable": False,
                       "note": "Synthetic BR full name (accented UTF-8)"},
     "municipio_id":  {"type": "int", "nullable": False,
@@ -74,7 +74,7 @@ COLS_PESSOAS = {
 
 COLS_EMPRESAS = {
     "cnpj":          {"type": "string", "nullable": False,
-                      "note": "Masked NN.NNN.NNN/NNNN-DD, valid mod-11, nature='cnpj' target"},
+                      "note": "Masked NN.NNN.NNN/NNNN-DD, valid mod-11, schema='cnpj' target"},
     "razao_social":  {"type": "string", "nullable": False,
                       "note": "Synthetic company name with shared suffixes (Ltda/ME/SA/EIRELI/EPP)"},
     "municipio_id":  {"type": "int", "nullable": False,

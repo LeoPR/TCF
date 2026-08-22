@@ -543,21 +543,21 @@ class TestLote3ApiBoundaries:
         with pytest.raises(TypeError, match="str"):
             decode(123)
 
-    def test_name_without_nature_raises(self):  # BUG-10e
-        with pytest.raises(ValueError, match="nature"):
+    def test_name_sem_schema_escalar_raises(self):  # BUG-10e (re-pin schema=, 2026-08-22)
+        with pytest.raises(ValueError, match="schema escalar"):
             encode(["a", "b"], name="col")
 
-    def test_nature_with_dict_raises(self):  # BUG-10g
+    def test_schema_escalar_com_dict_raises(self):  # BUG-10g (re-pin schema=)
         from tcf import SPEC_CPF
 
-        with pytest.raises(ValueError, match="nature_per_col"):
-            encode({"a": ["111.444.777-35"]}, nature=SPEC_CPF)
+        with pytest.raises(ValueError, match="tabela dict use schema"):
+            encode({"a": ["111.444.777-35"]}, schema=SPEC_CPF)
 
-    def test_nature_per_col_with_list_raises(self):  # BUG-10g
+    def test_schema_dict_com_lista_raises(self):  # BUG-10g (re-pin schema=)
         from tcf import SPEC_CPF
 
-        with pytest.raises(ValueError, match="nature="):
-            encode(["111.444.777-35"], nature_per_col={"a": SPEC_CPF})
+        with pytest.raises(ValueError, match="schema='id'"):
+            encode(["111.444.777-35"], schema={"a": SPEC_CPF})
 
 
 class TestNatureIgnoradaCalada:
@@ -577,21 +577,21 @@ class TestNatureIgnoradaCalada:
         from tcf.natures import SPEC_DATA_ISO
 
         for tipada in ([738886, 738887], [1.5, 2.5], [True, False]):
-            with pytest.raises(ValueError, match="nature="):
-                encode(tipada, nature_per_col={"d": SPEC_DATA_ISO})
+            with pytest.raises(ValueError, match="schema='id'"):
+                encode(tipada, schema={"d": SPEC_DATA_ISO})
 
     def test_1_lista_vazia_rejeita(self):
         from tcf.natures import SPEC_DATA_ISO
 
-        with pytest.raises(ValueError, match="nature="):
-            encode([], nature_per_col={"d": SPEC_DATA_ISO})
+        with pytest.raises(ValueError, match="schema='id'"):
+            encode([], schema={"d": SPEC_DATA_ISO})
 
     def test_1_list_of_dict_continua_aceitando(self):
         # contra-prova: a rota de nature HIERÁRQUICA não pode ser afetada
         from tcf.natures import SPEC_DATA_ISO
 
         recs = [{"d": f"2015-{m:02d}-01"} for m in range(1, 13)]
-        blob = encode(recs, nature_per_col={"d": SPEC_DATA_ISO})
+        blob = encode(recs, schema={"d": SPEC_DATA_ISO})
         assert decode(blob) == recs
 
     def test_2_coluna_inexistente_rejeita(self):
@@ -599,15 +599,15 @@ class TestNatureIgnoradaCalada:
 
         tabela = {"d": ["2024-01-01", "2024-01-02"], "s": ["a", "b"]}
         with pytest.raises(ValueError, match="ZZZ"):
-            encode(tabela, nature_per_col={"ZZZ": SPEC_DATA_ISO})
+            encode(tabela, schema={"ZZZ": SPEC_DATA_ISO})
         # e também quando vem MISTURADA com uma coluna válida
         with pytest.raises(ValueError, match="ZZZ"):
-            encode(tabela, nature_per_col={"d": SPEC_DATA_ISO, "ZZZ": SPEC_DATA_ISO})
+            encode(tabela, schema={"d": SPEC_DATA_ISO, "ZZZ": SPEC_DATA_ISO})
 
     def test_2_slot_none_continua_valido(self):
         # contra-prova: `{col: None}` = coluna sem nature é contrato PRÉ-EXISTENTE
         tabela = {"d": ["2024-01-01", "2024-01-02"]}
-        assert decode(encode(tabela, nature_per_col={"d": None})) == tabela
+        assert decode(encode(tabela, schema={"d": None})) == tabela
 
     def test_2_coluna_existente_continua_aplicando(self):
         from tcf.natures import SPEC_DATA_ISO
@@ -616,7 +616,7 @@ class TestNatureIgnoradaCalada:
         datas = [f"2015-{m:02d}-01" for m in range(1, 13)]
         side = SideOutputs()
         tabela = {"d": datas, "s": ["x"] * 12}
-        blob = encode(tabela, nature_per_col={"d": SPEC_DATA_ISO}, side_outputs=side)
+        blob = encode(tabela, schema={"d": SPEC_DATA_ISO}, side_outputs=side)
         assert decode(blob) == tabela
         assert side.nature_apply["d"]["apply_rate"] == 1.0
 
@@ -642,10 +642,10 @@ class TestLote3FreezeAssimetrias:
             encode(("a", "b"))
 
     def test_decode_nature_per_col_em_single_ignorado_sem_corromper(self):
-        # decode(single-col, nature_per_col=) IGNORA o kwarg (single usa nature=, não _per_col).
+        # decode(single-col, schema=) IGNORA o kwarg (single usa schema=, não _per_col).
         # NÃO corrompe (mesma saída); a re-tipagem/alinhamento é follow-up pré-1.0.
         w = encode(["a", "b"])
-        assert decode(w, nature_per_col={"z": None}) == decode(w) == ["a", "b"]
+        assert decode(w, schema={"z": None}) == decode(w) == ["a", "b"]
 
     def test_parallel_true_em_single_col_serial_silencioso(self):
         # single-col não tem pool: parallel=True é serial silencioso (byte-idêntico).
@@ -703,7 +703,7 @@ class TestLote4NatureIdStrict:
 
         text = encode(
             {"doc": ["11.222.333/0001-81"], "x": ["a"]},
-            nature_per_col={"doc": SPEC_CNPJ},
+            schema={"doc": SPEC_CNPJ},
         )
         return text.replace(":cnpj", ":zzz")
 
@@ -714,7 +714,7 @@ class TestLote4NatureIdStrict:
     def test_unknown_nature_id_single_raises(self):
         from tcf import SPEC_CPF
 
-        text = encode(["529.982.247-25", "111.444.777-35"], nature=SPEC_CPF)
+        text = encode(["529.982.247-25", "111.444.777-35"], schema=SPEC_CPF)
         with pytest.raises(ValueError, match="desconhecido"):
             decode(text.replace(":cpf", ":zzz", 1))
 
@@ -800,7 +800,7 @@ class TestNomeVazioPreservadoADR0046:
         from tcf import SPEC_CPF
 
         table = {"": ["529.982.247-25", "111.444.777-35"]}
-        blob = encode(table, nature_per_col={"": SPEC_CPF})
+        blob = encode(table, schema={"": SPEC_CPF})
         assert blob.split("\n", 1)[0] == "#TCF.8M!\\z:cpf"
         assert decode(blob) == table
 

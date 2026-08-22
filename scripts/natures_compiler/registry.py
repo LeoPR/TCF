@@ -7,7 +7,7 @@ resolve o nome e passa o OBJETO pra API atual:
     from natures_compiler import registry
     from tcf import encode, decode
     spec = registry.get("cpf")
-    decode(encode(cpfs, nature=spec), nature=spec)
+    decode(encode(cpfs, schema=spec), schema=spec)
 
 A API publica de `tcf` fica INALTERADA (continua recebendo o objeto spec). O lookup
 por nome e' conveniencia do gadget — nao toca src/tcf.

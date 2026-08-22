@@ -74,8 +74,8 @@ class TestEncodeIntegrationIP:
 
     def test_encode_with_nature_ip(self):
         ips = ["192.168.1.1", "192.168.1.2", "192.168.1.3"]
-        text = encode(ips, nature=SPEC_IP)
-        decoded = decode(text, nature=SPEC_IP)
+        text = encode(ips, schema=SPEC_IP)
+        decoded = decode(text, schema=SPEC_IP)
         assert decoded == ips
 
     @pytest.mark.skipif(
@@ -90,7 +90,7 @@ class TestEncodeIntegrationIP:
             ips = [row[0] for row in r if row]
         assert len(ips) == 1000
 
-        text = encode(ips, nature=SPEC_IP)
+        text = encode(ips, schema=SPEC_IP)
         n_bytes = len(text.encode("utf-8"))
 
         # Esperado: ~229B (sub-exp 08 variante C)
@@ -99,7 +99,7 @@ class TestEncodeIntegrationIP:
             f"D-IP-subnet 1000 com SPEC_IP: esperado ~229B, got {n_bytes}B"
         )
 
-        decoded = decode(text, nature=SPEC_IP)
+        decoded = decode(text, schema=SPEC_IP)
         assert decoded == ips, "RT FAIL no D-IP-subnet 1000"
 
     def test_default_unchanged_without_nature(self):
@@ -107,7 +107,7 @@ class TestEncodeIntegrationIP:
         com o núcleo -> nature perde -> with-nature == without (órfão). Contrato:
         with-nature NUNCA maior; RT preserva ambos."""
         ips = ["192.168.1.1", "10.0.0.1"]
-        text_with_nature = encode(ips, nature=SPEC_IP)
+        text_with_nature = encode(ips, schema=SPEC_IP)
         text_without = encode(ips)
         assert len(text_with_nature.encode()) <= len(text_without.encode())  # never-worse
         assert decode(text_with_nature) == ips     # header-driven (órfão ou :ip)
@@ -119,8 +119,8 @@ class TestEncodeIntegrationIP:
             "cpf": ["104.332.181-00", "960.013.389-14"],
             "ip": ["192.168.1.1", "10.0.0.1"],
         }
-        text = encode(table, nature_per_col={"cpf": SPEC_CPF, "ip": SPEC_IP})
-        decoded = decode(text, nature_per_col={"cpf": SPEC_CPF, "ip": SPEC_IP})
+        text = encode(table, schema={"cpf": SPEC_CPF, "ip": SPEC_IP})
+        decoded = decode(text, schema={"cpf": SPEC_CPF, "ip": SPEC_IP})
         assert decoded == table
 
 
@@ -149,7 +149,7 @@ class TestProtocolUniformity:
         cpfs = ["104.332.181-00"]
         ips = ["192.168.1.1"]
         # Mesma funcao encode, specs diferentes
-        text_cpf = encode(cpfs, nature=SPEC_CPF)
-        text_ip = encode(ips, nature=SPEC_IP)
-        assert decode(text_cpf, nature=SPEC_CPF) == cpfs
-        assert decode(text_ip, nature=SPEC_IP) == ips
+        text_cpf = encode(cpfs, schema=SPEC_CPF)
+        text_ip = encode(ips, schema=SPEC_IP)
+        assert decode(text_cpf, schema=SPEC_CPF) == cpfs
+        assert decode(text_ip, schema=SPEC_IP) == ips

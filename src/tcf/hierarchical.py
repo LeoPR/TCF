@@ -485,9 +485,12 @@ def _encode_dataset(records: list, side_outputs=None, nature_per_col=None) -> st
             spec = nat_spec[key]
             raw = [_unesc_leaf(x) for x in cols[key]]          # recupera valor original (des-escapa)
             try:
-                fw = _encode_col(raw, nature=spec, stamp=False)  # '#TCF.8 :id\n<body>' (reusa flat)
-            except Exception:                                  # nature não representa o valor (ex: LF
+                fw = _encode_col(raw, schema=spec, stamp=False)  # '#TCF.8 :id\n<body>' (reusa flat)
+            except ValueError:                                 # spec não representa o valor (ex: LF
                 nat_id.pop(key, None)                          # no raw, que o flat não carrega) → piso
+                # SÓ ValueError: o `except Exception` daqui engoliu o TypeError do corte
+                # do nature= (2026-08-22) e o spec sumia CALADO — a classe exata de bug
+                # que o fail-loud do projeto existe pra impedir.
                 return _encode_col(cols[key], stamp=False)     # body ESCAPADO (idêntico ao caminho normal)
             hdr, _sep, body = fw.partition("\n")
             marker = "#TCF.8 :"

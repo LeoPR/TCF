@@ -271,11 +271,11 @@ class TemplatedCheckedSpec:
 #: `empty_value` e caiam em `MARKER_LITERAL + v` — concatenar str com None. Resultado medido
 #: ANTES deste fix, nas QUATRO (cpf, cnpj, ip, data-iso):
 #:
-#:     encode(['000.000.000-00', None, ...], nature=SPEC_CPF)
+#:     encode(['000.000.000-00', None, ...], schema=SPEC_CPF)
 #:     TypeError: can only concatenate str (not "NoneType") to str
 #:
 #: `TypeError` cru vazando pela API publica, com dado perfeitamente normal — e o MESMO dado
-#: sem `nature=` encoda sem reclamar. E' alcancavel por `encode->decode`, entao e' da classe
+#: sem `schema=` encoda sem reclamar. E' alcancavel por `encode->decode`, entao e' da classe
 #: que a escala de verificacao chama de E1/E2, a que corrompe de verdade.
 #:
 #: O conserto mora AQUI, no wrapper de modulo, por dois motivos: e' o ponto unico por onde o

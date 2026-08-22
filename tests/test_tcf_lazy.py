@@ -24,7 +24,7 @@ from tcf.natures import SPEC_DATA_ISO   # noqa: E402
 
 def test_lazy_tcf8_nature_reverte():
     table = {"doc": ["11.222.333/0001-81", "11.222.333/0001-81"], "x": ["a", "b"]}
-    blob = encode(table, nature_per_col={"doc": SPEC_CNPJ})
+    blob = encode(table, schema={"doc": SPEC_CNPJ})
     assert blob.startswith("#TCF.8M")              # familia self-describing
     v = view(blob)
     assert v.columns == ["doc", "x"]
@@ -51,7 +51,7 @@ def test_lazy_tcf8_nature_em_modo_dict_reverte_no_where_e_group():
     base = _dt.date(2025, 1, 1)
     datas = [(base + _dt.timedelta(days=i % 50)).isoformat() for i in range(400)]
     outra = [str(i % 7) for i in range(400)]
-    blob = encode({"dt": datas, "v": outra}, nature_per_col={"dt": SPEC_DATA_ISO})
+    blob = encode({"dt": datas, "v": outra}, schema={"dt": SPEC_DATA_ISO})
     cabecalho = blob.splitlines()[0]
     assert "dt:dt" in cabecalho, "o regime mudou: a nature nao venceu em dict"
     assert "@" in cabecalho, "o regime mudou: a coluna nao esta' em modo dict"
@@ -80,7 +80,7 @@ def test_lazy_tcf8_anonima_posicional():
 def test_lazy_tcf8_laziness_preservada():
     table = {"doc": ["11.222.333/0001-81", "11.222.333/0001-81"],
              "x": ["a", "b"], "y": ["c", "d"]}
-    blob = encode(table, nature_per_col={"doc": SPEC_CNPJ})
+    blob = encode(table, schema={"doc": SPEC_CNPJ})
     v = view(blob)
     v.select(["x"])                                # so' toca x
     assert v.touched == ["x"]                      # doc/y nao materializados

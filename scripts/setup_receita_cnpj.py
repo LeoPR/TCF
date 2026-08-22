@@ -106,7 +106,7 @@ def _cnpj_montado(r):
 _CAMPOS_CORE = [
     ("cnpj", _cnpj_montado,
      {"type": "string", "nullable": False,
-      "note": "Masked NN.NNN.NNN/NNNN-DD assembled from basico+ordem+dv; nature='cnpj' target"}),
+      "note": "Masked NN.NNN.NNN/NNNN-DD assembled from basico+ordem+dv; schema='cnpj' target"}),
     ("matriz_filial", _bruto("identificador_matriz_filial"),
      {"type": "string", "nullable": False, "note": "1=matriz, 2=filial"}),
     ("nome_fantasia", _bruto("nome_fantasia"),

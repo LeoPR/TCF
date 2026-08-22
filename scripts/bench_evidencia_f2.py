@@ -115,13 +115,13 @@ def grupo_b() -> list[dict]:
     blobs = {
         "orfao": encode(list(EMAILS)),
         "stamp": encode(list(EMAILS), stamp=True),
-        "spec-cpf(efemero)": encode(cpfs_validos, nature=SPEC_CPF),
+        "spec-cpf(efemero)": encode(cpfs_validos, schema=SPEC_CPF),
         "M": encode(README_TABLE),
         "M+escaping": encode({"a:b,c=d": ["x", "y"], "no\\me": ["p", "q"]}),
         "M+drop_names": encode(README_TABLE, drop_names=True),
         "M+natures(invalidos)": encode(
             {"cpf": README_TABLE["cpf"], "x": ["a", "b", "c", "d"]},
-            nature_per_col={"cpf": SPEC_CPF}),
+            schema={"cpf": SPEC_CPF}),
         "M+sort_by": encode(README_TABLE, sort_by="cidade"),
     }
     matrix = []

@@ -53,7 +53,7 @@ cpfs = [
 ]
 
 # Encode com nature
-text = encode(cpfs, nature=SPEC_CPF)
+text = encode(cpfs, schema=SPEC_CPF)
 
 # Para os filtros oficiais, o cabeçalho #TCF.8 permite decodificar sem argumento
 cpfs_back = decode(text)
@@ -133,7 +133,7 @@ cnpjs = [
     '11.222.333/0001-81'
 ]
 
-text = encode(cnpjs, nature=SPEC_CNPJ)
+text = encode(cnpjs, schema=SPEC_CNPJ)
 cnpjs_back = decode(text)
 assert cnpjs_back == cnpjs
 ```
@@ -161,7 +161,7 @@ cnpjs = [
     '11.222.333/0001-81',      # numérico
 ]
 
-text = encode(cnpjs, nature=SPEC_CNPJ)
+text = encode(cnpjs, schema=SPEC_CNPJ)
 assert text.startswith('#TCF.8 :cnpj')
 assert decode(text) == cnpjs
 ```
@@ -206,7 +206,7 @@ ips = [
     '192.168.1.3'
 ]
 
-text = encode(ips, nature=SPEC_IP)
+text = encode(ips, schema=SPEC_IP)
 ips_back = decode(text)
 assert ips_back == ips
 ```
@@ -219,9 +219,10 @@ reconhecer a cadência quando os IPs estão na mesma subnet.
 codificação comum. Em amostras pequenas ou IPs aleatórios, o filtro não ajudou (102% do tamanho,
 ou seja, ficou ligeiramente maior).
 
-## Multi-column: `nature_per_col`
+## Multi-column: `schema={coluna: spec}`
 
-Use `nature_per_col` para aplicar filtros diferentes por coluna.
+Use `schema={coluna: spec}` para aplicar filtros diferentes por coluna — a chave e' o
+NOME (str) ou a POSICAO (int); o valor e' o name do registry (`"cpf"`) ou o objeto spec.
 
 ```python
 from tcf import encode, decode, SPEC_CPF, SPEC_IP
@@ -233,7 +234,7 @@ table = {
 }
 
 # Encode: aplica SPEC_CPF à coluna 'cpf', SPEC_IP à 'ip'
-text = encode(table, nature_per_col={
+text = encode(table, schema={
     'cpf': SPEC_CPF,
     'ip': SPEC_IP
 })
@@ -246,7 +247,7 @@ assert result == table
 
 **Detalhes**:
 
-- Colunas sem entrada em `nature_per_col` usam a codificação comum (sem filtro)
+- Colunas sem entrada no `schema` usam a codificação comum (sem filtro)
 - Cada coluna codifica e decodifica independentemente
 - O round-trip sem perdas é preservado mesmo com fallback em alguns valores
 
@@ -259,7 +260,7 @@ table = {
     'cpf': ['111.444.777-35', 'invalid-cpf']
 }
 
-text = encode(table, nature_per_col={'cpf': SPEC_CPF})
+text = encode(table, schema={'cpf': SPEC_CPF})
 result = decode(text)
 
 assert result == table  # 'invalid-cpf' preservado via fallback
@@ -292,7 +293,7 @@ com 95% de CPFs válidos e 5% inválidos ainda pode ganhar mais de 50%).
 
 ## Nota: escolha da menor representação
 
-Sem `nature=` ou `nature_per_col=`, o encoder usa a representação padrão. Com uma *nature*, ele
+Sem `schema=`, o encoder usa a representação padrão. Com uma *nature*, ele
 compara a versão filtrada com a codificação comum e mantém a menor:
 
 ```python
@@ -301,7 +302,7 @@ text1 = encode(cpfs)
 
 # Com nature — filtro + pipeline padrão
 # O filtro só permanece se o blob completo diminuir
-text2 = encode(cpfs, nature=SPEC_CPF)
+text2 = encode(cpfs, schema=SPEC_CPF)
 
 # text1 pode ser diferente de text2, mas ambos preservam o round-trip
 assert decode(text1) == cpfs

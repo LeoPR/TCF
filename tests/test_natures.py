@@ -155,8 +155,8 @@ class TestEncodeIntegration:
 
     def test_single_col_with_nature(self):
         cpfs = ["529.982.247-25", "111.444.777-35"]
-        text = encode(cpfs, nature=SPEC_CPF)
-        decoded = decode(text, nature=SPEC_CPF)
+        text = encode(cpfs, schema=SPEC_CPF)
+        decoded = decode(text, schema=SPEC_CPF)
         assert decoded == cpfs
 
     def test_single_col_with_nature_mixed_valid_invalid(self):
@@ -166,8 +166,8 @@ class TestEncodeIntegration:
             "abc.def.ghi-jk",  # format mismatch
             "111.444.777-35",  # valid
         ]
-        text = encode(cpfs, nature=SPEC_CPF)
-        decoded = decode(text, nature=SPEC_CPF)
+        text = encode(cpfs, schema=SPEC_CPF)
+        decoded = decode(text, schema=SPEC_CPF)
         assert decoded == cpfs  # RT 100% mesmo com fallbacks
 
     def test_multi_col_with_nature_per_col(self):
@@ -178,14 +178,14 @@ class TestEncodeIntegration:
         }
         text = encode(
             table,
-            nature_per_col={
+            schema={
                 "cpf": SPEC_CPF,
                 "cnpj": SPEC_CNPJ,
             },
         )
         decoded = decode(
             text,
-            nature_per_col={
+            schema={
                 "cpf": SPEC_CPF,
                 "cnpj": SPEC_CNPJ,
             },
@@ -198,8 +198,8 @@ class TestEncodeIntegration:
             "cpf": ["529.982.247-25"],
             "plain": ["whatever"],
         }
-        text = encode(table, nature_per_col={"cpf": SPEC_CPF})
-        decoded = decode(text, nature_per_col={"cpf": SPEC_CPF})
+        text = encode(table, schema={"cpf": SPEC_CPF})
+        decoded = decode(text, schema={"cpf": SPEC_CPF})
         assert decoded == table
 
     def test_default_behavior_unchanged_without_nature(self):
@@ -213,7 +213,7 @@ class TestEncodeIntegration:
         """Nature deve comprimir CPFs validos vs M10 puro."""
         cpfs = ["529.982.247-25"] * 5 + ["111.444.777-35"] * 5
         bytes_default = len(encode(cpfs).encode("utf-8"))
-        bytes_nature = len(encode(cpfs, nature=SPEC_CPF).encode("utf-8"))
+        bytes_nature = len(encode(cpfs, schema=SPEC_CPF).encode("utf-8"))
         # Nature deve ser menor pra CPFs validos
         assert bytes_nature < bytes_default
 
@@ -231,12 +231,12 @@ class TestNatureMarkHeader:
             "doc": ["11.222.333/0001-81", "11.222.333/0001-81"],
             "plain": ["foo", "bar"],
         }
-        text = encode(table, nature_per_col={"cpf": SPEC_CPF, "doc": SPEC_CNPJ})
+        text = encode(table, schema={"cpf": SPEC_CPF, "doc": SPEC_CNPJ})
         assert decode(text) == table  # SEM nature_per_col no decode
 
     def test_magic_is_tcf8m_inline(self):
         table = {"doc": ["11.222.333/0001-81"], "plain": ["x"]}
-        text = encode(table, nature_per_col={"doc": SPEC_CNPJ})
+        text = encode(table, schema={"doc": SPEC_CNPJ})
         line0 = text.split("\n")[0]
         assert line0.startswith("#TCF.8M")  # disc M, SEM espaco (ADR-0029)
         assert not line0.startswith("#TCF.8 ")  # nao colide com single+spec
@@ -255,12 +255,12 @@ class TestNatureMarkHeader:
         """Precedência: encode+decode ambos com nature_per_col -> RT (header vence)."""
         table = {"cpf": ["529.982.247-25"], "doc": ["11.222.333/0001-81"]}
         npc = {"cpf": SPEC_CPF, "doc": SPEC_CNPJ}
-        text = encode(table, nature_per_col=npc)
-        assert decode(text, nature_per_col=npc) == table  # não dupla-aplica
+        text = encode(table, schema=npc)
+        assert decode(text, schema=npc) == table  # não dupla-aplica
 
     def test_ip_self_describing(self):
         table = {"ip": ["192.168.1.1", "10.0.0.1"], "x": ["a", "b"]}
-        text = encode(table, nature_per_col={"ip": SPEC_IP})
+        text = encode(table, schema={"ip": SPEC_IP})
         assert text.startswith("#TCF.8M")  # inline meta (ADR-0029)
         assert decode(text) == table
 
@@ -269,7 +269,7 @@ class TestNatureMarkHeader:
         forward-compat de 2026-06-24 — warning + dado cru base-94 calado era
         corrupção silenciosa; pre-1.0 sem compat (ADR-0024)."""
         table = {"doc": ["11.222.333/0001-81"], "x": ["a"]}
-        text = encode(table, nature_per_col={"doc": SPEC_CNPJ})
+        text = encode(table, schema={"doc": SPEC_CNPJ})
         tampered = text.replace(":cnpj", ":FUTURE9")
         with pytest.raises(ValueError, match="desconhecido"):
             decode(tampered)
@@ -278,8 +278,8 @@ class TestNatureMarkHeader:
         """T-FMT-NAME-ESCAPING (M2): ':' no nome escapado '\\:'; a nature `:id` e' o
         ULTIMO ':' NAO-escapado -> RT preserva nome-com-':' + nature."""
         table = {"ns:col": ["529.982.247-25"], "x": ["a"]}
-        text = encode(table, nature_per_col={"ns:col": SPEC_CPF})
-        assert decode(text, nature_per_col={"ns:col": SPEC_CPF}) == table
+        text = encode(table, schema={"ns:col": SPEC_CPF})
+        assert decode(text, schema={"ns:col": SPEC_CPF}) == table
 
     def test_colon_in_colname_without_nature_rt(self):
         """':' no nome (sem nature) escapado -> RT (M2)."""
@@ -337,7 +337,7 @@ class TestDropNames:
 
     def test_com_nature(self):
         table = {"doc": ["11.222.333/0001-81"], "x": ["a"]}
-        text = encode(table, nature_per_col={"doc": SPEC_CNPJ}, drop_names=True)
+        text = encode(table, schema={"doc": SPEC_CNPJ}, drop_names=True)
         assert decode(text) == {"0": ["11.222.333/0001-81"], "1": ["a"]}
 
     def test_named_default_inalterado(self):
@@ -354,13 +354,13 @@ class TestDiscriminatorV8:
     def test_disc_multi_M(self):
         t = encode(
             {"doc": ["11.222.333/0001-81"], "x": ["a"]},
-            nature_per_col={"doc": SPEC_CNPJ},
+            schema={"doc": SPEC_CNPJ},
         )
         assert t[:7] == "#TCF.8M"  # M logo apos #TCF.8 (sem espaco)
         assert decode(t) == {"doc": ["11.222.333/0001-81"], "x": ["a"]}
 
     def test_disc_single_space(self):
-        t = encode(["529.982.247-25", "111.444.777-35"], nature=SPEC_CPF)
+        t = encode(["529.982.247-25", "111.444.777-35"], schema=SPEC_CPF)
         assert t[:7] == "#TCF.8 "  # espaco apos #TCF.8
 
     def test_version_stamp_emit_and_interpret(self):
@@ -385,7 +385,7 @@ class TestDiscriminatorV8:
 
     def test_stamp_ignorado_com_nature(self):
         """Com nature, o header de spec ja' versiona -> stamp e' no-op."""
-        t = encode(["529.982.247-25"], nature=SPEC_CPF, stamp=True)
+        t = encode(["529.982.247-25"], schema=SPEC_CPF, stamp=True)
         assert t.startswith("#TCF.8 ")  # forma de spec, nao '#TCF.8\\n'
         assert decode(t) == ["529.982.247-25"]
 
@@ -411,30 +411,30 @@ class TestNatureMarkSingleCol:
     def test_spec_self_describing(self):
         """Feature: encode single-col com nature -> decode SEM nature recupera."""
         cpfs = ["529.982.247-25", "111.444.777-35", "abc.def.ghi-jk"]
-        text = encode(cpfs, nature=SPEC_CPF)
+        text = encode(cpfs, schema=SPEC_CPF)
         assert decode(text) == cpfs  # SEM nature no decode
 
     def test_magic_sem_m_uma_linha(self):
         cpfs = ["529.982.247-25", "111.444.777-35"]
-        text = encode(cpfs, nature=SPEC_CPF)
+        text = encode(cpfs, schema=SPEC_CPF)
         # header numa LINHA SO': '#TCF.8 :cpf' (sem ' M' -> single; nome vazio)
         assert text.split("\n")[0] == "#TCF.8 :cpf"
         assert not text.startswith("#TCF.8 M")  # nao colide com multi
 
     def test_retorna_list_nao_dict(self):
-        text = encode(["529.982.247-25"], nature=SPEC_CPF)
+        text = encode(["529.982.247-25"], schema=SPEC_CPF)
         assert isinstance(decode(text), list)  # single-col -> list
 
     def test_nome_opcional(self):
         cpfs = ["529.982.247-25", "111.444.777-35"]
-        text = encode(cpfs, nature=SPEC_CPF, name="docs")
+        text = encode(cpfs, schema=SPEC_CPF, name="docs")
         assert text.split("\n")[0] == "#TCF.8 docs:cpf"  # nome no header
         assert decode(text) == cpfs  # nome nao afeta os valores
 
     def test_nome_comecando_com_m_nao_colide(self):
         """Regressao: nome 'Meu' -> '#TCF.8 Meu:cpf' NAO pode virar multi."""
         cpfs = ["529.982.247-25", "111.444.777-35"]
-        text = encode(cpfs, nature=SPEC_CPF, name="Meu")
+        text = encode(cpfs, schema=SPEC_CPF, name="Meu")
         assert text.split("\n")[0] == "#TCF.8 Meu:cpf"
         assert decode(text) == cpfs  # decodifica como single, nao multi
 
@@ -444,7 +444,7 @@ class TestNatureMarkSingleCol:
         # então o IP nature raramente vence (só onde há estrutura de subnet que a
         # nature explora melhor — ADR-0016). RT sempre; header condicional ao win.
         ips = ["192.168.1.1", "10.0.0.1", "172.16.0.1"]
-        text = encode(ips, nature=SPEC_IP)
+        text = encode(ips, schema=SPEC_IP)
         assert decode(text) == ips  # RT independe do win
         line0 = text.split("\n")[0]
         # win (spec) OU piso (version-stamp, com ou sem sufixo de polaridade)
@@ -452,7 +452,7 @@ class TestNatureMarkSingleCol:
 
     def test_unknown_id_raises(self):
         # ERRO estrito (BUG-13b, owner 2026-07-10 — antes: warning + cru calado)
-        text = encode(["529.982.247-25", "111.444.777-35"], nature=SPEC_CPF)
+        text = encode(["529.982.247-25", "111.444.777-35"], schema=SPEC_CPF)
         tampered = text.replace(":cpf", ":FUTURE9", 1)
         with pytest.raises(ValueError, match="desconhecido"):
             decode(tampered)
@@ -460,8 +460,8 @@ class TestNatureMarkSingleCol:
     def test_no_double_apply(self):
         """Precedencia header-vence: encode+decode ambos com nature -> RT."""
         cpfs = ["529.982.247-25", "111.444.777-35"]
-        text = encode(cpfs, nature=SPEC_CPF)
-        assert decode(text, nature=SPEC_CPF) == cpfs
+        text = encode(cpfs, schema=SPEC_CPF)
+        assert decode(text, schema=SPEC_CPF) == cpfs
 
     def test_custom_spec_roundtrip_requires_matching_out_of_band(self):
         # RE-PIN 2026-08-13 (weld A ADR-0041): spec de terceiro precisa de wire_id
@@ -469,18 +469,18 @@ class TestNatureMarkSingleCol:
         # emissao recusa a mascarada (pin em TestWireIdDoisPlanos). Convencao `x*`.
         custom = replace(SPEC_CPF, name="custom-cpf", wire_id="xcpf")
         cpfs = ["529.982.247-25", "111.444.777-35"]
-        text = encode(cpfs, nature=custom)
+        text = encode(cpfs, schema=custom)
         assert text.split("\n", 1)[0] == "#TCF.8 :xcpf"
         with pytest.raises(ValueError, match="desconhecido"):
             decode(text)
-        assert decode(text, nature=custom) == cpfs
+        assert decode(text, schema=custom) == cpfs
         wrong = replace(SPEC_CPF, name="other-cpf", wire_id="xother")
         with pytest.raises(ValueError, match="nao coincide"):
-            decode(text, nature=wrong)
+            decode(text, schema=wrong)
 
     def test_name_com_colon_rejeitado(self):
         with pytest.raises(ValueError, match="':'|reservado"):
-            encode(["529.982.247-25"], nature=SPEC_CPF, name="ns:bad")
+            encode(["529.982.247-25"], schema=SPEC_CPF, name="ns:bad")
 
 
 # ===========================================================================
@@ -492,8 +492,8 @@ class TestNatureApplyTelemetry:
     def test_byte_neutral_with_side_outputs(self):
         """Coletar telemetria NAO muda os bytes do .tcf."""
         cpfs = ["529.982.247-25", "abc.def.ghi-jk", "111.444.777-35", ""]
-        out_no = encode(cpfs, nature=SPEC_CPF)
-        out_yes = encode(cpfs, nature=SPEC_CPF, side_outputs=SideOutputs())
+        out_no = encode(cpfs, schema=SPEC_CPF)
+        out_yes = encode(cpfs, schema=SPEC_CPF, side_outputs=SideOutputs())
         assert out_no == out_yes
 
     def test_single_col_apply_rate(self):
@@ -505,7 +505,7 @@ class TestNatureApplyTelemetry:
             "",  # empty_value
         ]
         so = SideOutputs()
-        encode(cpfs, nature=SPEC_CPF, side_outputs=so)
+        encode(cpfs, schema=SPEC_CPF, side_outputs=so)
         stats = so.nature_apply["val"]
         assert stats["spec"] == "cpf"
         assert stats["total"] == 5
@@ -529,10 +529,10 @@ class TestNatureApplyTelemetry:
         }
         so = SideOutputs()
         out = encode(
-            table, nature_per_col={"cpf": SPEC_CPF, "cnpj": SPEC_CNPJ}, side_outputs=so
+            table, schema={"cpf": SPEC_CPF, "cnpj": SPEC_CNPJ}, side_outputs=so
         )
         # byte-neutro vs sem telemetria
-        assert out == encode(table, nature_per_col={"cpf": SPEC_CPF, "cnpj": SPEC_CNPJ})
+        assert out == encode(table, schema={"cpf": SPEC_CPF, "cnpj": SPEC_CNPJ})
         assert set(so.nature_apply) == {"cpf", "cnpj"}  # so' colunas com nature
         assert so.nature_apply["cpf"]["total"] == 2
         assert so.nature_apply["cpf"]["compressible"] == 1
@@ -624,7 +624,7 @@ class TestDataIsoSpec:
         base = dt.date(2026, 1, 1)
         # passo mensal: o OBAT rende ~4% sozinho; o ordinal colapsa no seq-RLE
         mensal = [(base + dt.timedelta(days=30 * i)).isoformat() for i in range(200)]
-        w = encode(mensal, nature=S)
+        w = encode(mensal, schema=S)
         # RE-PIN 2026-08-13 (weld A ADR-0041): o header carrega o wire_id `dt`.
         assert w.startswith("#TCF.8 :dt"), w[:24]
         assert len(w.encode()) < len(encode(mensal).encode()) // 10
@@ -632,7 +632,7 @@ class TestDataIsoSpec:
 
         # agrupado: o RLE do core ja' resolve; o spec o DESTRUIRIA -> o FLOOR recusa
         agrup = [(base + dt.timedelta(days=i // 20)).isoformat() for i in range(200)]
-        w2 = encode(agrup, nature=S)
+        w2 = encode(agrup, schema=S)
         assert not w2.startswith("#TCF.8 :dt")
         assert len(w2.encode()) <= len(encode(agrup).encode())
         assert decode(w2) == agrup
@@ -648,7 +648,7 @@ class TestDataIsoSpec:
             vals = [(base + dt.timedelta(days=i)).isoformat() for i in range(200)]
             for j in range(200 * pct // 100):
                 vals[(j * 97) % 200] = f"lixo {j}"
-            w = encode(vals, nature=S)
+            w = encode(vals, schema=S)
             assert decode(w) == vals, f"RT quebrou com {pct}% de lixo"
             assert len(w.encode()) <= len(encode(vals).encode()), f"regrediu com {pct}%"
 
@@ -657,7 +657,7 @@ class TestNatureSlotNulo:
     """`None` e' do CORE, nao do spec (fix 2026-08-08).
 
     ANTES deste fix as QUATRO natures estouravam `TypeError: can only concatenate str
-    (not "NoneType") to str` numa coluna com null — e a mesma coluna SEM `nature=`
+    (not "NoneType") to str` numa coluna com null — e a mesma coluna SEM `schema=`
     encodava sem reclamar. Alcancavel por `encode->decode` com dado normal.
     """
 
@@ -673,7 +673,7 @@ class TestNatureSlotNulo:
         ]
         for spec, v in amostras:
             col = [v, None, v, None, v] * 8
-            w = encode(col, nature=spec)
+            w = encode(col, schema=spec)
             volta = decode(w)
             assert volta == col, f"{spec.name}: RT quebrou"
             assert volta[1] is None, f"{spec.name}: o null virou {volta[1]!r}"
@@ -693,7 +693,7 @@ class TestNatureFloorVeOBaselineReal:
 
     Antes deste fix o baseline era so' o corpo do core; o bN de dominio (ADR-0036) tambem
     e' candidato na rota flat e costuma vencer justo nas colunas de baixa cardinalidade que
-    atraem nature. Medido antes: coluna de 2 CPFs repetidos saia com 61 B sem `nature=` e
+    atraem nature. Medido antes: coluna de 2 CPFs repetidos saia com 61 B sem `schema=` e
     198 B com — a nature "vencia" um baseline que o encoder nao emitiria.
     """
 
@@ -705,7 +705,7 @@ class TestNatureFloorVeOBaselineReal:
                              (SPEC_IP, "192.168.0.1", "10.0.0.1")]:
             col = [v1, v2] * 30                       # k=2 -> o bN e' o baseline real
             sem = encode(col)
-            com = encode(col, nature=spec)
+            com = encode(col, schema=spec)
             assert len(com.encode()) <= len(sem.encode()), (
                 f"{spec.name}: nature regrediu {len(com.encode()) - len(sem.encode())} B "
                 f"contra o baseline real"
@@ -744,7 +744,7 @@ class TestWireIdDoisPlanos:
         base = dt.date(2026, 1, 1)
         for n, vence in [(10, False), (11, True), (12, True)]:
             vals = [(base + dt.timedelta(days=i)).isoformat() for i in range(n)]
-            w = encode(vals, nature=S)
+            w = encode(vals, schema=S)
             assert w.startswith("#TCF.8 :dt") == vence, (n, w.splitlines()[0])
             assert decode(w) == vals
 
@@ -767,11 +767,11 @@ class TestWireIdDoisPlanos:
                      "dt fim", "data-iso"):
             spec = dataclasses.replace(S, wire_id=ruim) if ruim else _sem_wire(S)
             with pytest.raises(ValueError, match="wire_id"):
-                encode(datas, nature=spec)
+                encode(datas, schema=spec)
             with pytest.raises(ValueError, match="wire_id"):
-                encode({"d": datas, "v": v}, nature_per_col={"d": spec})
+                encode({"d": datas, "v": v}, schema={"d": spec})
             with pytest.raises(ValueError, match="wire_id"):
-                encode(recs, nature_per_col={"quando": spec})
+                encode(recs, schema={"quando": spec})
 
     def test_registro_recusa_grafia_e_colisao(self):
         import dataclasses
@@ -808,16 +808,16 @@ class TestWireIdDoisPlanos:
 
         base = dt.date(2026, 1, 1)
         vals = [(base + dt.timedelta(days=30 * i)).isoformat() for i in range(60)]
-        w = encode(vals, nature=S)
+        w = encode(vals, schema=S)
         assert w.startswith("#TCF.8 :dt\n")
         velho = w.replace("#TCF.8 :dt\n", "#TCF.8 :data-iso\n", 1)  # wire pre-rename
         with pytest.raises(ValueError, match="data-iso.*out-of-band"):
             decode(velho)
         # spec out-of-band DIVERGENTE do id tambem falha alto (nunca escolhe calado)
         with pytest.raises(ValueError, match="nao coincide"):
-            decode(velho, nature=S)
+            decode(velho, schema=S)
         valvula = dataclasses.replace(S, wire_id="data-iso")
-        assert decode(velho, nature=valvula) == vals
+        assert decode(velho, schema=valvula) == vals
 
     def test_telemetria_fica_no_plano_do_codigo(self):
         """`nature_apply['spec']` reporta o NAME legivel — a telemetria e' pro dev,
@@ -831,7 +831,7 @@ class TestWireIdDoisPlanos:
         base = dt.date(2026, 1, 1)
         vals = [(base + dt.timedelta(days=30 * i)).isoformat() for i in range(60)]
         so = SideOutputs()
-        w = encode(vals, nature=S, side_outputs=so)
+        w = encode(vals, schema=S, side_outputs=so)
         assert so.nature_apply["val"]["spec"] == "data-iso"
         assert ":dt\n" in w and "data-iso" not in w
 
@@ -862,7 +862,7 @@ class TestMascaradaDeWireIdCore:
         derivado = replace(SPEC_CPF, name="custom-cpf")  # herda wire_id="cpf"
         assert derivado.wire_id == "cpf"
         with pytest.raises(ValueError, match="mascarada|pertence ao spec core"):
-            encode(["529.982.247-25", "111.444.777-35"], nature=derivado)
+            encode(["529.982.247-25", "111.444.777-35"], schema=derivado)
 
     def test_noop_replace_e_o_proprio_core_continuam_passando(self):
         from dataclasses import replace
@@ -873,7 +873,7 @@ class TestMascaradaDeWireIdCore:
         cpfs = ["529.982.247-25", "111.444.777-35"]
         # o proprio spec core e o clone campo-a-campo igual NAO sao mascarada
         for spec in (SPEC_CPF, replace(SPEC_CPF)):
-            assert decode(encode(cpfs, nature=spec)) == cpfs
+            assert decode(encode(cpfs, schema=spec)) == cpfs
 
 
 class TestLacunaImpostorDuckType:
@@ -919,7 +919,7 @@ class TestLacunaImpostorDuckType:
 
         base = dt.date(2026, 1, 1)
         datas = [(base + dt.timedelta(days=30 * i)).isoformat() for i in range(200)]
-        w = encode(datas, nature=_Impostor())
+        w = encode(datas, schema=_Impostor())
         assert w.startswith("#TCF.8 :dt")     # venceu o FLOOR e carimbou id do core
         assert decode(w) != datas             # LACUNA: corrompe calado (T-SPEC-IMPOSTOR)
 
@@ -943,13 +943,13 @@ class TestLacunaImpostorDuckType:
                 return f"{p[:4]}-{p[4:6]}-{p[6:]}"
 
         with pytest.raises(ValueError, match="sem o campo `wire_id`"):
-            encode(["2026-01-01", "2026-02-01"], nature=_Antigo())
+            encode(["2026-01-01", "2026-02-01"], schema=_Antigo())
 
 
 class TestIntPadSpecWeld:
     """Weld EXP-018 (2026-08-14): `IntPadSpec` + a rota tipada aberta a spec.
 
-    Antes deste weld, `encode([1,2,3], nature=SPEC)` era ValueError: a rota tipada nao
+    Antes deste weld, `encode([1,2,3], schema=SPEC)` era ValueError: a rota tipada nao
     aceitava spec NEM `min_len`, e "entra int, spec int, devolve int" nao era expressavel.
     O spec agora e' mais um candidato do MESMO `min()` — como o bool ja' faz com o denso.
     """
@@ -962,7 +962,7 @@ class TestIntPadSpecWeld:
         vals = list(range(1, 601))
         spec = int_pad_para(vals)
         assert spec is not None and spec.largura == 3
-        base, w = encode(vals), encode(vals, nature=spec)
+        base, w = encode(vals), encode(vals, schema=spec)
         assert w.startswith("#TCF.8n :ipad"), w[:24]
         assert len(w.encode()) < len(base.encode())
         assert decode(w) == vals
@@ -974,8 +974,8 @@ class TestIntPadSpecWeld:
         from tcf.natures import int_pad_para
 
         vals = [i * 7 for i in range(600)]
-        w = encode(vals, nature=int_pad_para(vals))
-        assert decode(w) == vals          # sem passar nature=
+        w = encode(vals, schema=int_pad_para(vals))
+        assert decode(w) == vals          # sem passar schema=
 
     def test_nunca_pior_e_recusa_onde_nao_paga(self):
         """A metade que sustenta tudo: onde o pad nao ativa nada, o FLOOR fica no core."""
@@ -995,7 +995,7 @@ class TestIntPadSpecWeld:
         for nome, vals in casos.items():
             spec = int_pad_para(vals)
             base = encode(vals)
-            w = encode(vals, nature=spec) if spec else base
+            w = encode(vals, schema=spec) if spec else base
             assert len(w.encode()) <= len(base.encode()), f"NUNCA-PIOR violado em {nome}"
             assert decode(w) == vals, nome
 
@@ -1006,7 +1006,7 @@ class TestIntPadSpecWeld:
 
         vals = [None if i % 37 == 0 else i for i in range(1, 601)]
         assert vals.count(None) == 16 and vals[0] == 1     # ancora o regime do teste
-        w = encode(vals, nature=int_pad_para(vals))
+        w = encode(vals, schema=int_pad_para(vals))
         got = decode(w)
         assert got == vals
         assert got[36] is None and type(got[0]) is int     # o nulo volta nulo, o int volta int
@@ -1155,14 +1155,14 @@ class TestCnpjAlfanumerico:
 
         col = ["12.ABC.345/01DE-35", "12.ABC.345/01DE-35", "AA.AAA.AAA/AAAA-38"]
         col = [v for v in col if SPEC_CNPJ.classify_value(v) == "compressible"]
-        texto = encode(col, nature=SPEC_CNPJ)
+        texto = encode(col, schema=SPEC_CNPJ)
         assert texto.startswith("#TCF.8 :cnpj")
         assert decode(texto) == col          # resolve pelo registry, sem out-of-band
 
     def test_spec_cnpj_numerico_ficou_byte_intocado(self):
         """O legado nao paga pelo novo: mesmo wire e mesmo tamanho de payload."""
         col = [_cnpj_num(i) for i in range(5)]
-        texto = encode(col, nature=SPEC_CNPJ)
+        texto = encode(col, schema=SPEC_CNPJ)
         assert texto.startswith("#TCF.8 :cnpj\n")
         assert decode(texto) == col
         for v in col:
@@ -1173,7 +1173,7 @@ class TestCnpjAlfanumerico:
     def test_coluna_mista_numerico_e_alfa(self):
 
         col = [_cnpj_num(3), "12.ABC.345/01DE-35", _cnpj_num(9)]
-        texto = encode(col, nature=SPEC_CNPJ)
+        texto = encode(col, schema=SPEC_CNPJ)
         assert decode(texto) == col
         # os TRES sao compressiveis sob o alfa (digito esta' no alfabeto)
         assert all(SPEC_CNPJ.classify_value(v) == "compressible" for v in col)
@@ -1209,7 +1209,7 @@ class TestCnpjAlfanumerico:
     def test_coluna_numerica_emite_wire_byte_identico_ao_historico(self):
         """Unificar nao pode custar byte nenhum a quem so' tem CNPJ numerico."""
         col = [_cnpj_num(i) for i in range(50)]
-        texto = encode(col, nature=SPEC_CNPJ)
+        texto = encode(col, schema=SPEC_CNPJ)
         assert texto.splitlines()[0] == "#TCF.8 :cnpj"
         assert decode(texto) == col
         assert all(len(SPEC_CNPJ.encode_value(v)[0]) == 7 for v in col)

@@ -45,6 +45,11 @@ EXPECTED_PUBLIC_API = {
     "SPEC_CPF",
     "SPEC_CNPJ",
     "SPEC_IP",
+    # RE-PIN 2026-08-22 (weld schema=, aprovado): os 2 specs soldados que nao eram
+    # alcancaveis pela API + o registry name->spec — a fonte do `schema=` por string.
+    "SPEC_DATA_ISO",
+    "SPEC_INT_PAD",
+    "SPEC_REGISTRY",
     "PipelineConfig",
     "view",       # camada read-only lazy/consultavel (A4, plano 0.8)
     "LazyTCF",    # A4

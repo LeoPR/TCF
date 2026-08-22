@@ -68,7 +68,7 @@ class DataIsoSpec:
     FLOOR — em N>=11 datas diarias a nature PERDIA a competicao com `:data-iso`
     (10 B de tag) e vence com `:dt` (medido: 12 flips no corpus da decisao).
     Wire historico com `:data-iso` le-se out-of-band:
-    `decode(w, nature=dataclasses.replace(SPEC_DATA_ISO, wire_id="data-iso"))`.
+    `decode(w, schema=dataclasses.replace(SPEC_DATA_ISO, wire_id="data-iso"))`.
     """
 
     name: str = "data-iso"

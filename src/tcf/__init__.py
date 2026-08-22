@@ -79,7 +79,8 @@ Para historia: `experiments/lab/dirty/notas/historia-dirty-lab.md`.
 from tcf.decoder import decode
 from tcf.encoder import encode
 from tcf.natures import (
-    SPEC_CPF, SPEC_CNPJ, SPEC_IP,
+    SPEC_CPF, SPEC_CNPJ, SPEC_IP, SPEC_DATA_ISO, SPEC_INT_PAD,
+    SPEC_REGISTRY,
     TemplatedCheckedSpec, TemplatedPaddedSpec,
 )
 from tcf.pipeline import PipelineConfig
@@ -106,6 +107,9 @@ __all__ = [
     "SPEC_CPF",
     "SPEC_CNPJ",
     "SPEC_IP",
+    "SPEC_DATA_ISO",     # soldados no core mas ate' 2026-08-22 NAO exportados —
+    "SPEC_INT_PAD",      # so' alcancaveis por tcf.natures (buraco achado na revisao do .8)
+    "SPEC_REGISTRY",     # name -> spec (plano da API, ADR-0041); fonte do schema= por string
     # Pipeline toggles (T-CODE-LAYERED-PIPELINE Fase 1):
     "PipelineConfig",
     # View lazy/consultavel read-only (A4, plano 0.8):

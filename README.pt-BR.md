@@ -103,7 +103,7 @@ e os recompõe no `decode`. Se o resultado for menor, o cabeçalho registra `:cp
   `^1` é *"igual à linha 1"* (substituição).
 - Na coluna de **e-mail** o TCF vai mais fundo (prefixo único + domínio comum referenciado).
   É onde mais economiza, e onde o texto fica mais denso.
-- A *nature* **`cpf`** é opt-in via `nature_per_col={"cpf": SPEC_CPF}` (ver os dois blocos acima).
+- A *nature* **`cpf`** é opt-in via `schema={"cpf": SPEC_CPF}` (ver os dois blocos acima).
   (São placeholders de dígitos repetidos: passam no cálculo do CPF, mas a Receita nunca os emite —
   fakes seguros. Ver "Filtros por natureza" abaixo.)
 
@@ -238,7 +238,7 @@ from tcf import SPEC_CPF
 # mas a Receita nunca os emite — não mapeiam pessoa real (fakes seguros p/ exemplo).
 cpfs = ["111.111.111-11", "222.222.222-22", "333.333.333-33", "444.444.444-44"]
 
-blob = encode(cpfs, nature=SPEC_CPF)   # a nature VENCE aqui (4 CPFs distintos)
+blob = encode(cpfs, schema=SPEC_CPF)   # a nature VENCE aqui (4 CPFs distintos)
 print(blob)
 # #TCF.8 :cpf     <- header single-col auto-descritivo: o spec ESTÁ aplicado
 # %g$.u           <- "111.111.111-11" (14 B) -> 5 chars: corpo de 9 díg em base-80,
@@ -248,7 +248,7 @@ print(blob)
 assert decode(blob) == cpfs            # decode lê `:cpf` do header, sem passar spec
 
 # Os mesmos 4 CPFs: 76 B raw single-col -> 39 B com a nature (-49%). Em tabela,
-# passe por coluna: encode(tabela, nature_per_col={"cpf": SPEC_CPF}); a meta inline
+# passe por coluna: encode(tabela, schema={"cpf": SPEC_CPF}); a meta inline
 # da coluna cpf então carrega `:cpf` (ex.: `#TCF.8M!15=nome,!cpf:cpf`).
 ```
 
@@ -287,7 +287,7 @@ assert decode(text) == table  # round-trip lossless
 # decode não precisa recebê-lo.
 from tcf import SPEC_CPF
 cpfs = ["111.111.111-11", "222.222.222-22", "333.333.333-33"]  # dígitos repetidos: mod-11-válidos, nunca emitidos (fakes seguros)
-text = encode(cpfs, nature=SPEC_CPF)
+text = encode(cpfs, schema=SPEC_CPF)
 assert decode(text) == cpfs
 ```
 
@@ -562,7 +562,7 @@ blob = encode(tabela)
 assert decode(blob) == tabela        # round-trip lossless
 ```
 
-Para CPF/CNPJ/IP há *natures* opt-in (ADR-0015, `encode(coluna, nature=SPEC_CPF)`)
+Para CPF/CNPJ/IP há *natures* opt-in (ADR-0015, `encode(coluna, schema=SPEC_CPF)`)
 que regeneram o dígito verificador no decode.
 
 Pré-1.0 (ADR-0024): o pacote está em `0.8.0` — o *minor* acompanha o formato

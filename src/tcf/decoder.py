@@ -89,16 +89,15 @@ def _resolve_header_spec(nature_id: str, supplied, *, where: str):
         )
     raise ValueError(
         f"nature-id desconhecido no header {where}: {nature_id!r} — registry core "
-        "fechado; forneca o spec out-of-band para decodificar (wire historico: "
-        "dataclasses.replace(SPEC, wire_id=<id do header>))"
+        "fechado; forneca o spec out-of-band via schema= (wire historico: "
+        "schema=dataclasses.replace(SPEC, wire_id=<id do header>))"
     )
 
 
 def decode(
     tcf_text: str,
     *,
-    nature: "TemplatedCheckedSpec | None" = None,
-    nature_per_col: "dict[str, TemplatedCheckedSpec] | None" = None,
+    schema=None,
     max_length: int | None = None,
 ) -> list[str] | dict[str, list[str]]:
     """Decode texto TCF. Roteia pela assinatura de formato (magic).
@@ -111,9 +110,13 @@ def decode(
             - Orfao: body puro (sem magic) -> `list[str]`
             Legado `#TCF.6/.7` e versoes desconhecidas `#TCF.<N>` -> ValueError
             (git-as-compat, ADR-0024).
-        nature: spec usado no encode pra pre-tx (ADR-0015). Se fornecido,
-            aplica decode_value reverse apos M10 decode.
-        nature_per_col: dict pra reverse multi-col pre-tx.
+        schema: os specs OUT-OF-BAND, simetrico ao `schema=` do encode (mesmas
+            formas: str do registry / objeto spec / dict por nome-ou-posicao).
+            O header e' AUTORITATIVO: `:id` do core resolve sozinho; o schema
+            so' entra pra spec de TERCEIRO cujo wire_id coincida com o header, e
+            coluna SEM `:id` e' DEFINITIVAMENTE original (pos-FLOOR) — o schema
+            nunca a toca. Substitui `nature=`/`nature_per_col=` (cortados
+            2026-08-22, mesmo regime do legado .6/.7: git-as-compat).
 
     Returns:
         list[str] OU dict[str, list[str]] dependendo do formato.
@@ -126,6 +129,19 @@ def decode(
         raise TypeError(
             f"decode espera str (conteudo TCF em texto); got {type(tcf_text).__name__}"
         )
+    # `schema=` — simetrico ao encode (owner 2026-08-22; substituiu os canais
+    # publicos nature/nature_per_col, agora locais). Chave int (posicao) resolve
+    # no ponto de aplicacao multi-col, onde a ordem das colunas do wire existe.
+    nature = None
+    nature_per_col = None
+    if schema is not None:
+        from tcf.natures import resolve_schema
+
+        _kind, _resolved = resolve_schema(schema, where="decode(schema=)")
+        if _kind == "single":
+            nature = _resolved
+        else:
+            nature_per_col = _resolved
     line1 = tcf_text.split("\n", 1)[0]
     # BUG-04 (T-QA-8 F0 lote 2): a VERSAO e' deduzivel do proprio magic —
     # '#TCF.' + run de digitos DECLARA a versao. Le o run COMPLETO (senao
@@ -219,8 +235,17 @@ def decode(
         # entra se o WIRE_ID coincidir exatamente com o ID do header (ADR-0041).
         header_resolved: set[str] = set()
         if header_ids:
+            # nome -> posicao, pro schema= com chave int (a ordem das colunas do
+            # wire e' a ordem de `result`; so' materializa se houver chave int).
+            _pos_of = (
+                {n: i for i, n in enumerate(result)}
+                if nature_per_col and any(isinstance(k, int) for k in nature_per_col)
+                else {}
+            )
             for name, nat_id in header_ids.items():
                 supplied = nature_per_col.get(name) if nature_per_col else None
+                if supplied is None and _pos_of:
+                    supplied = nature_per_col.get(_pos_of[name])
                 spec = _resolve_header_spec(
                     nat_id, supplied, where=f"multi-col coluna {name!r}"
                 )
@@ -251,8 +276,8 @@ def decode(
     # Out-of-band `nature=` NAO aplicado: pos-FLOOR (T-SPEC-DEEPDIVE §5.1) uma nature
     # que VENCE emite '#TCF.8 :id' (self-describing); stamp/orfao = valores ORIGINAIS
     # (a nature perdeu OU nao foi passada). Aplicar o spec aqui corromperia originais
-    # que casassem a forma base-94 (mesma classe do achado multi-col; o param fica na
-    # assinatura por compat, mas #TCF.8 e' self-describing e manda).
+    # que casassem a forma base-94 (mesma classe do achado multi-col; o schema= escalar
+    # existe pro cross-check do ':id'; #TCF.8 e' self-describing e manda).
     if disc8 == "":
         body = tcf_text[len(line1) + 1 :]  # apos "#TCF.8\n"
         if body == "":

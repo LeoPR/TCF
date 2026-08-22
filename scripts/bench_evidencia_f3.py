@@ -447,7 +447,7 @@ def f3_4_br_identidades() -> list[dict]:
                 {"nature_per_col": {nature_name: spec}},
                 n=1,
                 warmup=0,
-                note=f"br-identidades 600k nature={nature_name} codepath={label}",
+                note=f"br-identidades 600k schema={nature_name} codepath={label}",
                 source="synthetic-seed-20260601",
                 ephemeral=True,
             )

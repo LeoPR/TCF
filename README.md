@@ -100,7 +100,7 @@ value goes from 14 characters to 5 (`%g$.u` = `111.111.111-11`).
   `^1` means *"same as line 1"* (a substitution).
 - In the **email** column TCF goes deeper (unique prefix + a referenced common domain).
   That is where it saves the most, and where the text gets densest.
-- The **`cpf`** nature is opted in via `nature_per_col={"cpf": SPEC_CPF}` (see the two blocks above).
+- The **`cpf`** nature is opted in via `schema={"cpf": SPEC_CPF}` (see the two blocks above).
   *(These are repeated-digit placeholders: mod-11-valid but never issued by the tax office — safe
   fakes. See "Nature filters" below.)*
 
@@ -233,7 +233,7 @@ from tcf import SPEC_CPF
 # to a real person — safe for public examples.
 cpfs = ["111.111.111-11", "222.222.222-22", "333.333.333-33", "444.444.444-44"]
 
-blob = encode(cpfs, nature=SPEC_CPF)   # the nature WINS here (4 distinct CPFs)
+blob = encode(cpfs, schema=SPEC_CPF)   # the nature WINS here (4 distinct CPFs)
 print(blob)
 # #TCF.8 :cpf     <- self-describing single-col header: the spec IS applied
 # %g$.u           <- "111.111.111-11" (14 B) -> 5 chars: 9-digit body in base-80,
@@ -243,7 +243,7 @@ print(blob)
 assert decode(blob) == cpfs            # decode reads `:cpf` from the header, no spec needed
 
 # Same 4 CPFs: 76 B raw single-col -> 39 B with the nature (-49%). In a table,
-# pass it per column: encode(table, nature_per_col={"cpf": SPEC_CPF}); the cpf
+# pass it per column: encode(table, schema={"cpf": SPEC_CPF}); the cpf
 # column's inline meta then carries `:cpf` (e.g. `#TCF.8M!15=nome,!cpf:cpf`).
 ```
 
@@ -253,7 +253,7 @@ Two honest details:
   `#TCF.8 name:id`; multi-column output carries `:id` in the inline meta. `decode(blob)` recognizes
   the official `cpf`, `cnpj` and `ip` filters automatically.
 - A custom spec can also be used, but its decoder declaration must match the header ID exactly:
-  `decode(blob, nature=custom_spec)` or `decode(blob, nature_per_col={"col": custom_spec})`.
+  `decode(blob, schema=custom_spec)` or `decode(blob, schema={"col": custom_spec})`.
 - A value that does not match (invalid check digit, masked format) falls back to **literal** (`_`) without
   ever breaking the round-trip — the filter **never corrupts** the data.
 
@@ -283,7 +283,7 @@ assert decode(text) == table  # lossless round-trip
 # does not need to receive it.
 from tcf import SPEC_CPF
 cpfs = ["111.111.111-11", "222.222.222-22", "333.333.333-33"]  # repeated digits: mod-11-valid, never issued (safe fakes)
-text = encode(cpfs, nature=SPEC_CPF)
+text = encode(cpfs, schema=SPEC_CPF)
 assert decode(text) == cpfs
 ```
 
@@ -557,7 +557,7 @@ blob = encode(tabela)
 assert decode(blob) == tabela        # lossless round-trip
 ```
 
-For CPF/CNPJ/IP there are opt-in *natures* (ADR-0015, `encode(column, nature=SPEC_CPF)`)
+For CPF/CNPJ/IP there are opt-in *natures* (ADR-0015, `encode(column, schema=SPEC_CPF)`)
 that regenerate the check digit on decode.
 
 Pre-1.0 (ADR-0024): the package is at `0.8.0` — the *minor* tracks the format

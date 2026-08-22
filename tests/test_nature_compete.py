@@ -31,7 +31,7 @@ def _cpf(b9):
 
 def _col(vals, spec=None):
     side = SideOutputs()
-    kw = {"nature_per_col": {"c": spec}} if spec else {}
+    kw = {"schema": {"c": spec}} if spec else {}
     encode({"c": vals}, side_outputs=side, **kw)
     pc = side.per_col["c"]
     return pc.emitted_bytes, pc.emitted_mode
@@ -66,7 +66,7 @@ class TestNatureCompeteFloor:
     def test_id_dropped_when_nature_loses(self):
         # nature perde -> :id NÃO é emitido; decode sem spec devolve o original
         col = _clustered_cpfs()
-        blob = encode({"c": col}, nature_per_col={"c": SPEC_CPF})
+        blob = encode({"c": col}, schema={"c": SPEC_CPF})
         meta = blob.split("\n", 1)[0]
         if _col(col, SPEC_CPF)[0] == _col(col)[0]:
             assert ":cpf" not in meta  # perdeu/empatou -> sem :id
@@ -74,28 +74,28 @@ class TestNatureCompeteFloor:
 
     def test_id_kept_when_nature_wins(self):
         col = _random_cpfs()
-        blob = encode({"c": col}, nature_per_col={"c": SPEC_CPF})
+        blob = encode({"c": col}, schema={"c": SPEC_CPF})
         assert ":cpf" in blob.split("\n", 1)[0]  # venceu -> :id presente
         assert decode(blob)["c"] == col
 
     def test_rt_both_regimes_and_specs(self):
         for col, spec in [(_clustered_cpfs(), SPEC_CPF), (_random_cpfs(), SPEC_CPF)]:
-            blob = encode({"c": col}, nature_per_col={"c": spec})
+            blob = encode({"c": col}, schema={"c": spec})
             assert decode(blob)["c"] == col
 
     def test_multi_col_mixed(self):
         # tabela com uma coluna onde nature ajuda e outra onde piora
         table = {"help": _random_cpfs(50), "hurt": _clustered_cpfs(50)}
         base = encode(table)
-        got = encode(table, nature_per_col={"help": SPEC_CPF, "hurt": SPEC_CPF})
+        got = encode(table, schema={"help": SPEC_CPF, "hurt": SPEC_CPF})
         assert len(got.encode()) <= len(base.encode())  # nunca pior no total
-        assert decode(got, nature_per_col={"help": SPEC_CPF, "hurt": SPEC_CPF}) == table
+        assert decode(got, schema={"help": SPEC_CPF, "hurt": SPEC_CPF}) == table
 
     def test_apply_rate_reported_even_when_nature_loses(self):
         # a telemetria da transformação (apply_rate) segue reportada
         side = SideOutputs()
         encode(
-            {"c": _clustered_cpfs()}, side_outputs=side, nature_per_col={"c": SPEC_CPF}
+            {"c": _clustered_cpfs()}, side_outputs=side, schema={"c": SPEC_CPF}
         )
         na = side.nature_apply
         assert na and "c" in na and na["c"]["apply_rate"] == 1.0
@@ -130,40 +130,40 @@ class TestFloorDecodeSafety:
         # A nature perde (curto/sem estrutura) -> :cpf ausente -> decode out-of-band
         # NÃO pode aplicar o spec aos originais (era corrupção silenciosa).
         col = ["xyzzy", "abc"]
-        blob = encode({"c": col}, nature_per_col={"c": SPEC_CPF})
+        blob = encode({"c": col}, schema={"c": SPEC_CPF})
         assert ":cpf" not in blob.split("\n", 1)[0]  # nature perdeu
         assert decode(blob)["c"] == col  # header-driven
         assert (
-            decode(blob, nature_per_col={"c": SPEC_CPF})["c"] == col
+            decode(blob, schema={"c": SPEC_CPF})["c"] == col
         )  # out-of-band SAFE
 
     def test_header_authoritative_even_with_wrong_out_of_band(self):
         # nature venceu: header manda; out-of-band não duplica nem conflita
         col = _random_cpfs(100)
-        blob = encode({"c": col}, nature_per_col={"c": SPEC_CPF})
+        blob = encode({"c": col}, schema={"c": SPEC_CPF})
         assert decode(blob)["c"] == col
-        assert decode(blob, nature_per_col={"c": SPEC_CPF})["c"] == col
-        assert decode(blob, nature_per_col={"c": SPEC_CNPJ})["c"] == col  # ignorado
+        assert decode(blob, schema={"c": SPEC_CPF})["c"] == col
+        assert decode(blob, schema={"c": SPEC_CNPJ})["c"] == col  # ignorado
 
     def test_none_spec_not_in_nature_lost(self):
         side = SideOutputs()
-        encode({"c": ["a", "b"]}, nature_per_col={"c": None}, side_outputs=side)
+        encode({"c": ["a", "b"]}, schema={"c": None}, side_outputs=side)
         assert side.multi_info["nature_lost"] == []  # None não é candidato
         assert side.multi_info["nature_cols"] == {}
 
 
 class TestFloorSingleCol:
-    """FLOOR estendido pro single-col (owner 2026-07-12): nature= em list compete."""
+    """FLOOR estendido pro single-col (owner 2026-07-12): schema= em list compete."""
 
     def test_single_col_nature_wins_random(self):
         col = _random_cpfs(200)
-        blob = encode(col, nature=SPEC_CPF)
+        blob = encode(col, schema=SPEC_CPF)
         assert blob.split("\n", 1)[0] == "#TCF.8 :cpf"  # venceu -> self-describing
         assert decode(blob) == col
 
     def test_single_col_nature_loses_clustered(self):
         col = _clustered_cpfs(400)
-        blob = encode(col, nature=SPEC_CPF)
+        blob = encode(col, schema=SPEC_CPF)
         base = encode(col)
         assert len(blob.encode()) <= len(base.encode())  # never-worse
         assert decode(blob) == col  # RT (órfão se perdeu)
@@ -176,14 +176,14 @@ class TestFloorSingleCol:
             _clustered_cpfs(500),
         ):
             base = len(encode(col).encode())
-            nat = len(encode(col, nature=SPEC_CPF).encode())
+            nat = len(encode(col, schema=SPEC_CPF).encode())
             assert nat <= base, f"single-col nature piorou: {nat} > {base}"
-            assert decode(encode(col, nature=SPEC_CPF)) == col
+            assert decode(encode(col, schema=SPEC_CPF)) == col
 
     def test_single_col_header_cost_is_in_floor(self):
         col = ["192.168.0.0"]
         baseline = encode(col)
-        candidate = encode(col, nature=SPEC_IP)
+        candidate = encode(col, schema=SPEC_IP)
         assert len(candidate.encode()) <= len(baseline.encode())
         assert ":ip" not in candidate.split("\n", 1)[0]
         assert decode(candidate) == col
@@ -194,7 +194,7 @@ class TestFloorMultiHeaderCost:
         col = ["192.168.0.0", "192.168.0.1"]
         table = {"c": col}
         baseline = encode(table)
-        candidate = encode(table, nature_per_col={"c": SPEC_IP})
+        candidate = encode(table, schema={"c": SPEC_IP})
         assert len(candidate.encode()) <= len(baseline.encode())
         assert ":ip" not in candidate.split("\n", 1)[0]
         assert decode(candidate) == table
@@ -205,8 +205,8 @@ class TestFloorMultiHeaderCost:
         # recusa a mascarada (pin em test_natures.py::TestMascaradaDeWireIdCore).
         custom = replace(SPEC_CPF, name="custom-cpf", wire_id="xcpf")
         table = {"c": _random_cpfs(100)}
-        blob = encode(table, nature_per_col={"c": custom})
+        blob = encode(table, schema={"c": custom})
         assert ":xcpf" in blob.split("\n", 1)[0]
         with pytest.raises(ValueError, match="desconhecido"):
             decode(blob)
-        assert decode(blob, nature_per_col={"c": custom}) == table
+        assert decode(blob, schema={"c": custom}) == table

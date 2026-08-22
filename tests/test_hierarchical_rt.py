@@ -824,7 +824,7 @@ def test_coluna_de_dado_corrompida_fail_loud_tipado():
 
 # ============================================================ nature no .8H (2026-07-19)
 # A mesma nature do flat (ADR-0015/0027) aplica a folhas scalar-string do .8H via
-# nature_per_col={path: spec}. O decode é SELF-DESCRIBING: o id viaja no meta (`:id`
+# schema={path: spec}. O decode é SELF-DESCRIBING: o id viaja no meta (`:id`
 # após o size), o registry (SPEC_REGISTRY) resolve — decode NÃO recebe a spec.
 def test_hier_nature_cpf_rt_e_comprime():
     from tcf.natures import SPEC_CPF
@@ -835,7 +835,7 @@ def test_hier_nature_cpf_rt_e_comprime():
          "fones": ["21 99888-7766"]},
     ]
     sem = encode(dados)
-    com = encode(dados, nature_per_col={"cpf": SPEC_CPF})
+    com = encode(dados, schema={"cpf": SPEC_CPF})
     assert decode(sem) == dados                                  # baseline RT
     assert decode(com) == dados                                  # nature RT (self-describing)
     assert len(com.encode()) < len(sem.encode())                # nature comprimiu
@@ -848,7 +848,7 @@ def test_hier_nature_folha_aninhada_e_ultima_coluna():
     from tcf.natures import SPEC_CPF
     dados = [{"id": "A", "doc": {"cpf": "111.111.111-11"}},
              {"id": "B", "doc": {"cpf": "222.222.222-22"}}]
-    com = encode(dados, nature_per_col={"doc/cpf": SPEC_CPF})
+    com = encode(dados, schema={"doc/cpf": SPEC_CPF})
     assert decode(com) == dados
 
 
@@ -856,7 +856,7 @@ def test_hier_nature_piso_cai_pra_coluna_normal():
     # valores NÃO-conformes ⇒ nature não vence ⇒ piso: coluna normal (sem `:id`), RT intacto.
     from tcf.natures import SPEC_CPF
     dados = [{"cpf": "nao-e-cpf-nenhum"}, {"cpf": "outro texto qualquer aqui"}]
-    com = encode(dados, nature_per_col={"cpf": SPEC_CPF})
+    com = encode(dados, schema={"cpf": SPEC_CPF})
     assert decode(com) == dados
     assert ":cpf" not in com.split("\n", 1)[0]                   # piso: sem id no meta
 
@@ -865,7 +865,7 @@ def test_hier_nature_preserva_escape_no_piso():
     # piso deve cair na coluna ESCAPADA (não no raw des-escapado): valor com '\' sobrevive.
     from tcf.natures import SPEC_CPF
     dados = [{"cpf": "a\\b"}, {"cpf": "x\\y\\z"}]
-    com = encode(dados, nature_per_col={"cpf": SPEC_CPF})
+    com = encode(dados, schema={"cpf": SPEC_CPF})
     assert decode(com) == dados
 
 
@@ -874,7 +874,7 @@ def test_hier_nature_valor_com_LF_degrada_pra_plain():
     # (que carrega LF via escape). RT intacto, sem :id no meta.
     from tcf.natures import SPEC_CPF
     dados = [{"cpf": "a\nb"}, {"cpf": "c\nd"}]
-    com = encode(dados, nature_per_col={"cpf": SPEC_CPF})
+    com = encode(dados, schema={"cpf": SPEC_CPF})
     assert decode(com) == dados
     assert ":cpf" not in com.split("\n", 1)[0]
 
@@ -888,4 +888,4 @@ def test_hier_nature_path_invalido_fail_loud(path, motivo):
     from tcf.natures import SPEC_CPF
     dados = [{"ativo": True, "doc": {"x": "1"}, "nome": "Ana"}]
     with pytest.raises(HierarchicalError, match=motivo):
-        encode(dados, nature_per_col={path: SPEC_CPF})
+        encode(dados, schema={path: SPEC_CPF})

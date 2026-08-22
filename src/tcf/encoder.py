@@ -158,10 +158,12 @@ _KWARGS_FLAT_DEFAULT = {
 def _rejeita_kwargs_flat_no_8h(**kw) -> None:
     ruins = [k for k, v in kw.items() if v != _KWARGS_FLAT_DEFAULT[k]]
     if ruins:
+        # `nature` e' o canal INTERNO do schema escalar — pro usuario, a grafia e' schema=
+        ruins = ["schema (forma escalar)" if k == "nature" else k for k in ruins]
         raise ValueError(
             f"kwargs {ruins} so' valem no flat de STRING (single/multi-col); nao se aplicam a "
-            f"esta entrada (hierarquica .8H, tipada #TCF.8<tag> ou vazia). Use nature_per_col= "
-            f"p/ specs no .8H, ou reformate a entrada."
+            f"esta entrada (hierarquica .8H, tipada #TCF.8<tag> ou vazia). Use "
+            f"schema={{path: spec}} p/ specs no .8H, ou reformate a entrada."
         )
 
 
@@ -225,10 +227,9 @@ def _encode_lazy_bool(data, side: SideOutputs | None = None) -> "str | None":
 def encode(
     data,
     *,
+    schema=None,
     side_outputs: SideOutputs | None = None,
     parallel: bool | int = False,
-    nature: "TemplatedCheckedSpec | None" = None,
-    nature_per_col: "dict[str, TemplatedCheckedSpec] | None" = None,
     layers: PipelineConfig | None = None,
     fallback: bool = True,
     min_header: bool = True,
@@ -264,6 +265,20 @@ def encode(
     Args:
         data: dataset — `list[str]` (single flat) · `dict[str, list[str]]` (multi flat) ·
             ou raiz aninhada/tipada/vazia (rota `.8H`). Ver a tabela de dispatch acima.
+        schema: os SPECS da entrada, num parametro so' (decisao owner 2026-08-22;
+            substitui `nature=`/`nature_per_col=`). Formas:
+            - `"cpf"` (str) — UM spec pelo NAME do registry (single-col); registry
+              core: cpf, cnpj, ip, data-iso, int-pad (`tcf.SPEC_REGISTRY`).
+            - objeto spec — idem, direto (specs de terceiros).
+            - `{"col": "cpf", 3: "ip", "outra": SPEC_X}` — por coluna: chave str =
+              NOME (inclusive `''` e `'0'`, ADR-0046), chave int = POSICAO na ordem
+              das colunas; valor = str do registry, objeto spec ou None (sem spec).
+              Posicao so' vale pra tabela `dict`; dataset `.8H` enderessa por PATH
+              (str) e single-col usa a forma escalar.
+            Fail-loud: name desconhecido, posicao fora do range, colisao
+            posicao/nome e chave de tipo errado = erro na porta. O spec continua
+            COMPETINDO no FLOOR (so' vence se encolher; colunas vencedoras ganham
+            `:id` no header — self-describing, o decode nao precisa do schema).
         side_outputs: opcional. Se fornecido, captura logs/info interna
             (column_features, cadence_info, OBAT log, HCC trace/rede,
             seq_rle_runs, multi_info, per_col). Sem ele: descartado
@@ -275,16 +290,8 @@ def encode(
             - `1`: SERIAL deduzido (1 worker ≡ serial byte-identico; sem spawn)
             - negativo/nao-int: erro na fronteira (T-QA-8 BUG-10c)
             - Para list (single-col): parametro ignorado (1 coluna)
-        nature: pre-tx por natureza (ADR-0015; list apenas — pra dict use
-            nature_per_col, erro cruzado BUG-10g). Emite header self-describing
-            `#TCF.8 [nome]:id` onde `id` e' o WIRE_ID curto do spec (ADR-0041;
-            `dt` p/ data-iso) — o decode resolve SOZINHO pelo registry; spec
-            out-of-band so' pra ids fora dele. Grafia do wire_id validada
-            fail-loud aqui na porta (`^[a-z][a-z0-9]{0,7}$`).
-        nature_per_col: dict col_name -> spec (dict input apenas). Sufixo `:id`
-            por coluna no meta (ADR-0027, self-describing).
-        name: rotulo opcional do header single-col + nature (`#TCF.8 nome:id`).
-            SO' com nature (senao erro — seria ignorado calado; BUG-10e).
+        name: rotulo opcional do header single-col + spec (`#TCF.8 nome:id`).
+            SO' com `schema` escalar (senao erro — seria ignorado calado; BUG-10e).
         stamp: (list) controla o header `#TCF.8\\n` do single-col. `None` (default) e
             `True` -> COM header, 100% dos casos (ADR-0034). `False` -> ESCAPE explicito
             (orfao, sem header): so' pra transmissao ou container que ja' carrega o
@@ -343,10 +350,52 @@ def encode(
             f"parallel deve ser >= 0 (0/False=serial; 1=serial deduzido; "
             f"N>=2 = N workers); got {parallel}"
         )
+    # `schema=` — o parametro UNICO de spec (owner 2026-08-22; substituiu
+    # `nature=`/`nature_per_col=`, corte seco pre-1.0 como o do legado .6/.7).
+    # Normaliza AQUI, na porta, para os canais internos (`nature`/
+    # `nature_per_col`) — o miolo das 4 rotas nao muda. Chave int = POSICAO,
+    # resolvida contra a ordem das colunas; str = NOME (a coluna literalmente
+    # chamada "0" e' a chave str "0" — sem ambiguidade; `''` e' nome, ADR-0046).
+    # Byte-neutro por construcao: so' escolhe QUAL spec vai em QUAL coluna,
+    # exatamente o que os canais internos ja' faziam.
+    nature = None
+    nature_per_col = None
+    if schema is not None:
+        from tcf.natures import resolve_schema
+
+        _kind, _resolved = resolve_schema(schema, where="encode(schema=)")
+        if _kind == "single":
+            nature = _resolved
+        elif isinstance(data, dict):
+            _cols = list(data)
+            _out: dict = {}
+            for _k, _spec in _resolved.items():
+                if isinstance(_k, int):
+                    if not 0 <= _k < len(_cols):
+                        raise ValueError(
+                            f"encode(schema=): posicao {_k} fora do range — a "
+                            f"tabela tem {len(_cols)} coluna(s) ({_cols})"
+                        )
+                    _k = _cols[_k]
+                if _k in _out:
+                    raise ValueError(
+                        f"encode(schema=): coluna {_k!r} recebeu spec DUAS vezes "
+                        f"(posicao e nome apontando pra mesma coluna?)"
+                    )
+                _out[_k] = _spec
+            nature_per_col = _out
+        else:
+            if any(isinstance(_k, int) for _k in _resolved):
+                raise ValueError(
+                    "encode(schema=): chave int (posicao) so' vale pra tabela "
+                    "dict — dataset .8H enderessa por PATH (str); single-col "
+                    "usa schema='id' (escalar)"
+                )
+            nature_per_col = _resolved
     if isinstance(data, dict) and nature is not None:
         raise ValueError(
-            "nature= aplica a single-col (list); pra dict use "
-            "nature_per_col={col: spec} (T-QA-8 BUG-10g)"
+            "schema escalar ('id'/objeto) aplica a single-col (list); pra "
+            "tabela dict use schema={coluna: spec} (T-QA-8 BUG-10g)"
         )
     if (
         isinstance(data, list)
@@ -362,13 +411,13 @@ def encode(
         # ANTES o cheque era `_lista_flat(data)`, FALSO pra lista tipada -> o spec era
         # aceito e DESCARTADO CALADO (T-NATURE-IGNORADA-CALADA §1, fechada 2026-08-16).
         raise ValueError(
-            "nature_per_col= aplica a multi-col (dict) ou dataset (list[dict], .8H); "
+            "schema={coluna: spec} aplica a multi-col (dict) ou dataset (list[dict], .8H); "
             f"esta entrada e' uma lista de escalares (len={len(data)}) — pra single-col "
-            "use nature= (T-QA-8 BUG-10g / T-NATURE-IGNORADA-CALADA)"
+            "use schema='id' escalar (T-QA-8 BUG-10g / T-NATURE-IGNORADA-CALADA)"
         )
     if name is not None and (isinstance(data, dict) or nature is None):
         raise ValueError(
-            "name= so' tem efeito em single-col COM nature= (rotulo do header "
+            "name= so' tem efeito em single-col COM schema escalar (rotulo do header "
             "'#TCF.8 nome:spec'); sem isso seria ignorado calado (T-QA-8 BUG-10e)"
         )
     if nature is not None or nature_per_col:
@@ -380,7 +429,7 @@ def encode(
         from tcf.natures import _valida_emissao
 
         if nature is not None:
-            _valida_emissao(nature, where="nature=")
+            _valida_emissao(nature, where="schema=")
         for _col, _sp in (nature_per_col or {}).items():
             if _sp is None:
                 continue  # slot None = coluna sem nature (contrato pre-existente)
@@ -559,7 +608,7 @@ def encode(
         if nature is not None:
             from tcf.natures import _valida_emissao
 
-            _valida_emissao(nature, where="nature=")
+            _valida_emissao(nature, where="schema=")
         magic = MAGIC_SINGLE_V3.decode("utf-8")
         tem_nulo = any(x is None for x in data)
         corpo_core = _encode_column(
@@ -680,7 +729,7 @@ def encode(
             _desconhecidas = [c for c in nature_per_col if c not in data]
             if _desconhecidas:
                 raise ValueError(
-                    f"nature_per_col: coluna(s) {_desconhecidas} nao existe(m) na tabela "
+                    f"schema: coluna(s) {_desconhecidas} nao existe(m) na tabela "
                     f"(colunas: {list(data)}) — o spec seria descartado calado "
                     f"(T-NATURE-IGNORADA-CALADA)"
                 )

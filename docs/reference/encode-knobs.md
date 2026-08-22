@@ -6,7 +6,7 @@ produz o formato **0.8 / `#TCF.8M`** sem perdas; os parâmetros abaixo só mudam
 
 ```python
 from tcf import encode
-encode(data, *, side_outputs=None, parallel=False, nature=None, nature_per_col=None,
+encode(data, *, schema=None, side_outputs=None, parallel=False,
        layers=None, fallback=True, min_header=True, min_len=None, sort_by=None)
 ```
 
@@ -62,7 +62,7 @@ Reordena as linhas pela coluna-chave antes de encodar, agrupando valores similar
 
 | knob | efeito |
 |---|---|
-| `nature` / `nature_per_col` | filtro opcional para CPF/CNPJ/IP; o encoder compara o blob completo e mantém a menor representação. Filtros oficiais decodificam sem argumento; customizados exigem o mesmo nome no cabeçalho. Ver [how-to/use-natures](../how-to/use-natures.md). |
+| `schema` | specs por coluna — `"cpf"` (name do registry), objeto spec, ou dict nome/posicao→spec; filtro opcional para CPF/CNPJ/IP; o encoder compara o blob completo e mantém a menor representação. Filtros oficiais decodificam sem argumento; customizados exigem o mesmo nome no cabeçalho. Ver [how-to/use-natures](../how-to/use-natures.md). |
 | `parallel` | `True`/`int` paraleliza o encode das colunas (multi-col); **output byte-idêntico** ao serial. |
 | `side_outputs` | captura logs/stats internos (`column_features`, `hcc_trace`, `seq_rle_runs`, `multi_info`, ...) sem custo quando ausente. |
 | `layers` | `PipelineConfig` alternativo (avançado). |

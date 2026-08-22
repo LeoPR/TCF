@@ -100,7 +100,7 @@ O tipo é preservado nos sete casos (round-trip validado); o que muda é **por q
 
 ## kwargs de `encode` por rota
 
-- **`side_outputs`**, **`nature_per_col`** ({path→spec}): valem em **todas** as rotas (flat multi e `.8H`).
+- **`side_outputs`**, **`schema`** ({path→spec}): valem em **todas** as rotas (flat multi e `.8H`).
 - **`nature`** (spec único): só **single-col flat** (`list[str]`).
 - **`parallel`, `layers`, `fallback`, `min_header`, `min_len`, `sort_by`, `name`, `stamp`, `drop_names`**:
   só **flat**. Passados com entrada `.8H` → **fail-loud** (nunca ignorados calados).
@@ -153,7 +153,7 @@ sai `#TCF.8b` (**single-col tipado**, não `.8H`); só `{"a": ["x", None]}` vai 
 
 ## kwargs de `decode`
 
-- **`nature`** / **`nature_per_col`**: reverse da pré-tx (ADR-0015).
+- **`schema`**: reverse da pré-tx out-of-band (ADR-0015) — mesmas formas do encode; o header é autoritativo.
 - **`max_length`** — **teto de descompressão**. Nome e a convenção `0 == sem teto` vêm do
   `zlib`/`bz2`/`lzma`. Unidade = **elementos** decodificados (não bytes: é o que a expansão
   aloca), **por coluna**. `None` → default `10_000_000`.

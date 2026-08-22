@@ -143,7 +143,7 @@ def dimensionar(unicos: int, linhas: int) -> None:
     for nature, (val, inval) in dados.items():
         for codepath, col in colunas(val, inval).items():
             t0 = time.perf_counter()
-            encode({nature: col}, nature_per_col={nature: SPECS[nature]})
+            encode({nature: col}, schema={nature: SPECS[nature]})
             dt = time.perf_counter() - t0
             total += dt
             print(f"  {nature:<5} {codepath:<9} {dt:7.2f}s", flush=True)

@@ -69,7 +69,7 @@ def test_ip_compilado_equivale_ao_core():
 def test_end_to_end_via_encode_decode():
     c = compile_file(EX / "cpf.dsl")
     cpfs = ["111.111.111-11", "222.222.222-22"]
-    assert decode(encode(cpfs, nature=c), nature=c) == cpfs
+    assert decode(encode(cpfs, schema=c), schema=c) == cpfs
 
 
 def test_valida_template_vs_digitos():
@@ -135,4 +135,4 @@ def test_registry_end_to_end():
     from natures_compiler import registry
     spec = registry.get("cpf")
     cpfs = ["111.111.111-11", "222.222.222-22"]
-    assert decode(encode(cpfs, nature=spec), nature=spec) == cpfs
+    assert decode(encode(cpfs, schema=spec), schema=spec) == cpfs

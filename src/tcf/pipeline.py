@@ -52,8 +52,8 @@ class PipelineConfig:
     nao versoes publicas (ADR-0028, eixo B). M10 = M8A + seq-RLE; M9 = M8A sem
     seq-RLE (subset, mesmo decoder). hcc_seq_rle=False = ablacao p/ M9.
 
-    Camada 0 (nature filter) tem param proprio `nature=`/`nature_per_col=`
-    em encode(); nao precisa de PipelineConfig.
+    Camada 0 (nature filter) tem param proprio `schema=` em encode()
+    (unico canal de spec desde 2026-08-22); nao precisa de PipelineConfig.
     """
     pre_pass: bool = True
     obat_shape_preserve: bool = True

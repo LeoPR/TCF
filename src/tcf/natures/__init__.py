@@ -41,7 +41,7 @@ API publica:
     # (#TCF.8 :cpf, ADR-0027): o decode resolve sozinho pelo registry — passar
     # nature= no decode e' redundante (header vence; sem dupla aplicacao).
     from tcf import encode, decode
-    text = encode(cpfs_list, nature=SPEC_CPF)
+    text = encode(cpfs_list, schema=SPEC_CPF)
     cpfs_back = decode(text)
 
 Identificacao em DOIS planos (ADR-0041): `spec.name` legivel e' o plano do
@@ -174,6 +174,73 @@ def _resolve_nature_id(nature_id: str):
     return _WIRE_REGISTRY.get(nature_id)
 
 
+# ---------------------------------------------------------------------------
+# `schema=` — o parametro UNICO de spec da API publica (decisao owner 2026-08-22)
+# ---------------------------------------------------------------------------
+
+def _resolve_schema_valor(v, *, where: str):
+    """Um VALOR do schema -> spec. String resolve por NAME no SPEC_REGISTRY (o
+    plano da API, ADR-0041 — nunca o wire_id: dois nomes pra mesma coisa e'
+    convite a deriva). Objeto spec (duck: tem `wire_id`) passa direto — e' a
+    porta dos specs de terceiros. `None` = coluna sem spec (contrato
+    pre-existente do `{col: None}`)."""
+    if v is None:
+        return None
+    if isinstance(v, str):
+        spec = SPEC_REGISTRY.get(v)
+        if spec is None:
+            raise ValueError(
+                f"{where}: spec {v!r} desconhecido — registry core: "
+                f"{sorted(SPEC_REGISTRY)}. Spec de terceiro entra como OBJETO, "
+                f"nao como string."
+            )
+        return spec
+    if hasattr(v, "wire_id"):
+        return v
+    if hasattr(v, "encode_value") or hasattr(v, "name"):
+        # PARECE spec mas nao tem `wire_id` (escrito antes do ADR-0041?) — a
+        # recusa ensinante e' a de sempre, fonte unica:
+        _valida_wire_id(v, where=where)
+    raise TypeError(
+        f"{where}: valor de spec deve ser str (name do registry), objeto spec "
+        f"ou None; got {type(v).__name__}"
+    )
+
+
+def resolve_schema(schema, *, where: str):
+    """Normaliza o `schema=` publico -> ('single', spec) | ('per_col', dict).
+
+    Formas aceitas (fail-loud em tudo que nao for uma delas):
+      - str            -> UM spec pelo name do registry (single-col)
+      - objeto spec    -> UM spec direto (single-col; terceiros)
+      - dict           -> {coluna: spec}; chave str = NOME (inclusive '' e '0',
+                          ADR-0046), chave int = POSICAO (resolvida na porta,
+                          onde a ordem das colunas existe); valor = str/spec/None
+    A resolucao POSICAO->NOME nao acontece aqui: ela precisa do dado (encode)
+    ou do meta (decode), entao vive em cada porta."""
+    if isinstance(schema, str) or hasattr(schema, "wire_id") or (
+        hasattr(schema, "encode_value") or hasattr(schema, "name")
+    ):
+        # a 3a clausula: objeto que PARECE spec sem `wire_id` — deixa o
+        # _resolve_schema_valor recusar ENSINANDO (ADR-0041), nao com o
+        # TypeError generico de forma.
+        return "single", _resolve_schema_valor(schema, where=where)
+    if isinstance(schema, dict):
+        out = {}
+        for k, v in schema.items():
+            if isinstance(k, bool) or not isinstance(k, (int, str)):
+                raise TypeError(
+                    f"{where}: chave de coluna deve ser str (nome) ou int "
+                    f"(posicao); got {type(k).__name__} ({k!r})"
+                )
+            out[k] = _resolve_schema_valor(v, where=where)
+        return "per_col", out
+    raise TypeError(
+        f"{where}: schema deve ser str (name do registry), objeto spec ou "
+        f"dict {{coluna: spec}}; got {type(schema).__name__}"
+    )
+
+
 __all__ = [
     # Templated + Checked (CPF, CNPJ)
     "TemplatedCheckedSpec",
@@ -196,4 +263,7 @@ __all__ = [
     "encode_value",
     "decode_value",
     "classify_value",
+    # `schema=` (parametro unico de spec da API)
+    "SPEC_REGISTRY",
+    "resolve_schema",
 ]
