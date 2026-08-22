@@ -27,9 +27,27 @@ class CustomBuildHook(BuildHookInterface):
         # so' faz sentido no target wheel
         if self.target_name != "wheel":
             return
-        require = os.environ.get("TCF_REQUIRE_ACCEL", "").strip().lower() in (
-            "1", "true", "yes", "on",
-        )
+        def _flag(nome):
+            return os.environ.get(nome, "").strip().lower() in ("1", "true", "yes", "on")
+
+        # TCF_SKIP_ACCEL: nao compila NADA -> wheel `py3-none-any` (universal).
+        # E' o modo do RELEASE: compilar aqui produziria uma wheel presa a um
+        # (SO, minor do Python), e todo o resto da matriz cairia no sdist.
+        # Publicar universal + sdist mantem a instalacao previsivel em 3.10-3.13;
+        # o acelerador segue best-effort na instalacao via sdist, e o fallback
+        # pure-Python e' byte-equivalente (ADR-0020).
+        # Precede o REQUIRE de proposito: se os dois vierem setados, o pedido
+        # explicito de NAO compilar vence — mas avisa, porque e' contraditorio.
+        if _flag("TCF_SKIP_ACCEL"):
+            if _flag("TCF_REQUIRE_ACCEL"):
+                self.app.display_warning(
+                    "[tcf] TCF_SKIP_ACCEL e TCF_REQUIRE_ACCEL setados juntos; "
+                    "SKIP vence — wheel universal, sem extensao."
+                )
+            self.app.display_info("[tcf] TCF_SKIP_ACCEL: wheel universal (py3-none-any)")
+            return
+
+        require = _flag("TCF_REQUIRE_ACCEL")
         try:
             self._try_build(build_data)
         except Exception as exc:  # noqa: BLE001 - best-effort: nunca falhar (salvo opt-in)

@@ -62,21 +62,50 @@ jobs:
           uv run pytest tests/test_regression_v1_baseline.py \
                         tests/test_real_world_snapshots.py -v --tb=short
 
-      - name: Build sdist + wheel
+      # WHEEL UNIVERSAL, DE PROPOSITO (decisao de release, nao de codigo).
+      # O hook de build compila o acelerador Cython quando ha' compilador — o que
+      # produziria aqui uma wheel `cp3XX-manylinux`, servivel SO' pra Linux naquele
+      # Python exato. Todo o resto (Windows, macOS, outros minors) cairia no sdist.
+      # Publicar UMA wheel universal + o sdist e' o que o 0.7.1 ja' fazia
+      # (`py3-none-any`) e mantem a instalacao previsivel em toda a matriz
+      # suportada (3.10-3.13). O acelerador continua best-effort na instalacao
+      # via sdist, e o fallback pure-Python e' byte-equivalente (ADR-0020,
+      # guardado por tests/test_pyx_byte_equivalence.py no ci.yml).
+      # Matriz de wheels compiladas (cibuildwheel) e' item do .9 —
+      # T-DIST-RELEASE-0.8.0, criterio "estrategia Cython reconciliada".
+      - name: Build sdist + wheel (universal, sem extensao compilada)
+        env:
+          TCF_SKIP_ACCEL: '1'
         run: uv build
 
+      - name: Conferir que a wheel saiu UNIVERSAL
+        run: |
+          ls -la dist/
+          test -n "$(ls dist/*-py3-none-any.whl 2>/dev/null)" || {
+            echo "::error::a wheel saiu especifica de plataforma; esperado py3-none-any"
+            exit 1
+          }
+
       # A wheel publicada tem de importar e fazer round-trip — nao basta compilar.
+      # Em venv LIMPO: se a wheel depender de algo que so' existe na arvore do
+      # repo, aqui quebra. `cd /tmp` garante que o import vem da wheel instalada
+      # e nao do ./src. A versao esperada vai por ENV (nao por interpolacao dentro
+      # de aspas simples do Python, que nao expande).
       - name: Smoke da wheel construida
+        env:
+          ESPERADA: ${{ github.ref_name }}
         run: |
           python -m venv /tmp/smoke
-          /tmp/smoke/bin/python -m pip install -q dist/*.whl
-          /tmp/smoke/bin/python -c "
-          import tcf
-          t = {'a': ['1','2','3'], 'b': ['x','y','z']}
-          assert tcf.decode(tcf.encode(t)) == t, 'round-trip da wheel falhou'
-          assert tcf.__version__ == '${GITHUB_REF_NAME#v}', 'versao da wheel diverge da tag'
-          print('smoke OK —', tcf.__version__)
-          "
+          /tmp/smoke/bin/python -m pip install --quiet dist/*.whl
+          cd /tmp
+          /tmp/smoke/bin/python - <<'PY'
+          import os, tcf
+          esperada = os.environ["ESPERADA"].lstrip("v")
+          t = {"a": ["1", "2", "3"], "b": ["x", "y", "z"]}
+          assert tcf.decode(tcf.encode(t)) == t, "round-trip da wheel falhou"
+          assert tcf.__version__ == esperada, f"wheel {tcf.__version__} != tag {esperada}"
+          print("smoke OK —", tcf.__version__)
+          PY
 
       - name: Upload dist artifact
         uses: actions/upload-artifact@v4
