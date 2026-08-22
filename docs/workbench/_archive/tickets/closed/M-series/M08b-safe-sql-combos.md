@@ -25,4 +25,4 @@ Testar combinacoes dos style hints — somam ou interferem?
 
 
 
-Manifest: 
+Manifest:

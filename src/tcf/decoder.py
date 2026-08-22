@@ -121,7 +121,7 @@ def decode(
         raise TypeError(
             f"decode espera str (conteudo TCF em texto); got {type(tcf_text).__name__}"
         )
-    # `schema=` — simetrico ao encode (owner 2026-08-22; substituiu os canais
+    # `schema=` — simetrico ao encode (owner; substituiu os canais
     # publicos nature/nature_per_col, agora locais). Chave int (posicao) resolve
     # no ponto de aplicacao multi-col, onde a ordem das colunas do wire existe.
     nature = None
@@ -138,7 +138,7 @@ def decode(
     # BUG-04 (T-QA-8 F0 lote 2): a VERSAO e' deduzivel do proprio magic —
     # '#TCF.' + run de digitos DECLARA a versao. Le o run COMPLETO (senao
     # '#TCF.85M' viraria .8 + disc '5'). Subversoes pre-1.0 sao controle de
-    # dev (ADR-0024); compat real so' no 1.0 (visao owner 2026-07-10: um
+    # dev (ADR-0024); compat real so' no 1.0 (visao owner: um
     # '#TCF1M' final fecha tudo — sem 'if .7'/'if .6').
     _ver = ""
     if line1.startswith("#TCF."):
@@ -288,7 +288,7 @@ def decode(
     if disc8 == "":
         body = tcf_text[len(line1) + 1 :]  # apos "#TCF.8\n"
         if body == "":
-            # '#TCF.8\n' (corpo vazio) = [] — canonicidade do vazio (owner 2026-07-24,
+            # '#TCF.8\n' (corpo vazio) = [] — canonicidade do vazio (owner,
             # simetrico ao encode). Distinto de '#TCF.8\n\n' (corpo '\n' -> ['']) e do
             # orfao. O version-stamp SEMPRE tem corpo nao-vazio, entao nao colide.
             return []
@@ -406,7 +406,7 @@ def _cast_tipo(strs: "list[str | None]", tag: str) -> list:
             # numericas do SINGLE-COL TIPADO (corpo core `#TCF.8n` e denso bN `#TCF.8nB`).
             # Gate numa so' criaria a divergencia entre irmaos que ja' custou 4 bugs.
             #
-            # ATENCAO — sao TRES rotas numericas no formato, nao duas (auditoria 2026-08-07;
+            # ATENCAO — sao TRES rotas numericas no formato, nao duas (auditoria;
             # a redacao anterior deste comentario dizia "as duas" e induzia o leitor a achar
             # que a familia estava fechada). A terceira e' o `#TCF.8H`, que tem cast proprio
             # em `hierarchical.py::_dec_scalar` (ramo `n`, via `json.loads`) e NAO passa por

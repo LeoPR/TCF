@@ -624,7 +624,7 @@ def test_p2_disambiguacao_string_vs_tipo():
 
 def test_p2_byte_compat_all_string():
     # dado all-string → NENHUM tag no header (byte-idêntico ao pré-P2)
-    # RE-PIN 2026-07-25 (ADR-0024): o size da coluna `t` caiu de 8 p/ 6 — o seq-RLE ganhou
+    # ADR-0024: o size da coluna `t` caiu de 8 p/ 6 — o seq-RLE ganhou
     # FLOOR e deixou de emitir um marcador que era MAIOR que as linhas cruas. O que este
     # teste guarda (ausência de tag de tipo no header all-string) segue intacto.
     uni = [{"n": "Ana", "t": ["a", "b"]}, {"n": "Bob", "t": []}]
@@ -704,7 +704,7 @@ def test_p2_number_nan_inf_no_decode_fail_loud():
 
 
 def test_p2_tag_desconhecida_fail_loud():
-    # revisão owner 2026-07-16: 'x:<size>x' reinterpretava o 'x' como campo -> [] CALADO
+    # revisão owner: 'x:<size>x' reinterpretava o 'x' como campo -> [] CALADO
     from tcf.encoder import encode as _enc_col
     b = _enc_col(["abc"])
     for meta in [f"x:{len(b.encode())}x", f"a:{len(b.encode())}z", f"n:{len(b.encode())}q"]:

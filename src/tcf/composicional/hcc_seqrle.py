@@ -1,8 +1,8 @@
 """HCC com seq-RLE de linhas near-identical (canonical).
 
-Welded canonical 2026-05-22 (T-CODE-PACOTE1-WELD-CANONICAL).
+
 Origem: `experiments/lab/clean/EXP-010-tcf-delta-aware-prototype/hcc_seqrle.py`
-(welded 2026-05-17 do dirty lab `02-hcc-sozinho-rle-near-identical/hcc_fork.py`
+(do dirty lab `02-hcc-sozinho-rle-near-identical/hcc_fork.py`
 post bug-fix do detector descoberto em sub-exp 04).
 
 Subclass de M8AVirtualRefsSyntax. Post-process body canonical pra

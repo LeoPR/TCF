@@ -44,85 +44,85 @@ subsystem: dispatch-formato
 
 ### Detalhamento
 
-**`Dispatch Strategy (encode)`** (decision-point, [src/tcf/encoder.py:53-114](../../../src/tcf/encoder.py))  
+**`Dispatch Strategy (encode)`** (decision-point, [src/tcf/encoder.py:53-114](../../../src/tcf/encoder.py))
 Top-level dispatch via isinstance(data, dict). If list[str], calls _encode_column with default header='val'; if dict, delegates to _encode_multi (which routes to multi-col pipeline). Raises TypeError for other types. Nature pre-transform (CAMADA 0, opt-in) applied BEFORE pipeline if nature= or nature_per_col= provided.
 
-**`Dispatch Strategy (decode)`** (decision-point, [src/tcf/decoder.py:52-91](../../../src/tcf/decoder.py))  
+**`Dispatch Strategy (decode)`** (decision-point, [src/tcf/decoder.py:52-91](../../../src/tcf/decoder.py))
 Routing via shebang prefix check. If tcf_text.startswith('#TCF.6 M'), calls _decode_multi (dict result); else calls _decode_column (list result). Nature reverse-transforms applied post-decode if nature/nature_per_col provided.
 
-**`Single-Column Encode Pipeline (M10 Canonical)`** (estrategia, [src/tcf/encoder.py:117-178](../../../src/tcf/encoder.py))  
+**`Single-Column Encode Pipeline (M10 Canonical)`** (estrategia, [src/tcf/encoder.py:117-178](../../../src/tcf/encoder.py))
 Core unit _encode_column orchestrates CAMADA 1-3: (1) Pre-pass: analyze_column + detect_cadence (rules 1-2 ADR-0008) + detect_min_len (heur v3 ADR-0010) IF cfg.pre_pass=True, else cadence=False, min_len=3 default; (2) OBAT tokenization: processar_with_hint(prefer_shape_consistency=True) if cadence detected AND cfg.obat_shape_preserve=True, else canonical processar; (3) HCC: HCCSeqRLE (M10) if cfg.hcc_seq_rle=True else M8AVirtualRefsSyntax (M9). Side outputs captured per-column into provided SideOutputs container.
 
-**`Multi-Column Encode Router`** (estrategia, [src/tcf/multi.py:40-111](../../../src/tcf/multi.py))  
+**`Multi-Column Encode Router`** (estrategia, [src/tcf/multi.py:40-111](../../../src/tcf/multi.py))
 Orchestrates dict->TCF serialization: validates (non-empty, uniform row counts, no ',' or '=' in col names), stringifies all values (NULL->'' per ADR-0013), chooses serial vs parallel dispatch based on parallel flag + column count (>= 2), encodes each column to body bytes, builds meta line '# size1=name1,size2=name2,...', outputs magic + meta + byte-precise concat.
 
-**`Parallel Encoding Strategy (Work-Stealing)`** (estrategia, [src/tcf/multi.py:131-182](../../../src/tcf/multi.py))  
+**`Parallel Encoding Strategy (Work-Stealing)`** (estrategia, [src/tcf/multi.py:131-182](../../../src/tcf/multi.py))
 Fase 1b (2026-05-24): Orders columns by workload descending (sum bytes per col as proxy), submits to ProcessPoolExecutor via as_completed (dynamic work-stealing), reorders results by original dict order for byte-identical output. Enabled only if parallel=True/int AND len(table) >= 2 (overhead rule). Serial fallback for 1-col or parallel=False.
 
-**`Multi-Column Decode Router`** (estrategia, [src/tcf/multi.py:195-234](../../../src/tcf/multi.py))  
+**`Multi-Column Decode Router`** (estrategia, [src/tcf/multi.py:195-234](../../../src/tcf/multi.py))
 Parses shebang + meta line (finds 2 newlines, validates MAGIC_MULTI + META_PREFIX), splits meta into (size, name) pairs, byte-precise slices body, decodes each via _decode_column, assembles dict result. No reordering needed (serial decode preserves order).
 
-**`Nature Pre-Transform Filter (CAMADA 0, opt-in)`** (filtro, [src/tcf/encoder.py:97-99 (list), 103-109 (dict)](../../../src/tcf/encoder.py))  
+**`Nature Pre-Transform Filter (CAMADA 0, opt-in)`** (filtro, [src/tcf/encoder.py:97-99 (list), 103-109 (dict)](../../../src/tcf/encoder.py))
 ADR-0015 pre-pass filter: if nature= or nature_per_col= provided, applies encode_value() per value BEFORE pipeline M10. Caller must provide spec out-of-band to decoder. Templated+Checked+Unique (CPF/CNPJ) compresses valid IDs to base-94, literals prefixed '_'. Marker: _ prefix distinguishes encoded vs literal fallback. Opt-in per-column (dict) or global (list).
 
-**`Pre-Pass Cadence Detection (Regra 1 + 2)`** (heuristica, [src/tcf/auto_cadence.py:28-96](../../../src/tcf/auto_cadence.py))  
+**`Pre-Pass Cadence Detection (Regra 1 + 2)`** (heuristica, [src/tcf/auto_cadence.py:28-96](../../../src/tcf/auto_cadence.py))
 Two-rule heuristic (ADR-0008): Regra 1 (wrapper+counter) — uniform lengths in first n_sample strings + LCP+LCS / length >= threshold (default 0.7) in consecutive pairs; Regra 2 (numeric high-card) — is_numeric=True AND cardinality > 0.5. Returns (bool, info_dict with rule_hit, reason, details). Drives obat_shape_preserve hint decision.
 
-**`Min-Len Auto-Detection (Heuristic v3)`** (heuristica, [src/tcf/auto_min_len.py:25-68](../../../src/tcf/auto_min_len.py))  
+**`Min-Len Auto-Detection (Heuristic v3)`** (heuristica, [src/tcf/auto_min_len.py:25-68](../../../src/tcf/auto_min_len.py))
 Decision tree (ADR-0010 H-DA-11): if n_rows < 100 return 3 (gating, preserves M9 baseline exactly); else: card < 0.2 -> 3; avg_len >= 25 -> 6; avg_len >= 8 && card >= 0.4 -> 6; avg_len >= 5 && is_numeric && card >= 0.8 -> 6; avg_len >= 12 && card >= 0.7 -> 5; avg_len >= 3 && card >= 0.2 -> 4; else 3. Achieves 99.5% oracle match on Adult+TPC-H.
 
-**`OBAT Shape-Preserve Hint`** (heuristica, [src/tcf/obat_shape.py:32-120](../../../src/tcf/obat_shape.py))  
+**`OBAT Shape-Preserve Hint`** (heuristica, [src/tcf/obat_shape.py:32-120](../../../src/tcf/obat_shape.py))
 Conditional optimization (ADR-0009): if prefer_shape_consistency=True AND last_shape exists, tries to replicate (p_src, p_len, has_L, s_src, s_len) shape on next string via _try_preserve_shape. Exact match: LCP >= p_len && LCS >= s_len; Wider fallback: reduce lens to available; Greedy fallback (canonical _escolher_par) if both fail. Preserves byte-canonical (shape replication deterministic given LCP/LCS contract).
 
-**`HCC Detector (M8A Unified Atom+Virtual)`** (estrategia, [src/tcf/composicional/syntax.py:225-362](../../../src/tcf/composicional/syntax.py))  
+**`HCC Detector (M8A Unified Atom+Virtual)`** (estrategia, [src/tcf/composicional/syntax.py:225-362](../../../src/tcf/composicional/syntax.py))
 Iterative composition detector (unlimited iterations, stops when no net > 0 candidate). Counter sub-tuplas K>=2 with R>=2, applies virtual-relaxed filter (<=1 virtual; if virtual at pos>0, alias must be resolved before sub's first emission), scores baseline_chars - estimated_id_chars, picks highest net=(R-1)*(baseline-n_tam). Per iteration: allocates alias_temp, substitutes in pieces, continues. Outputs alias_to_sub dict, iter_traces for debugging.
 
-**`HCC Seq-RLE Near-Identical Compaction`** (estrategia, [src/tcf/composicional/hcc_seqrle.py:150-227](../../../src/tcf/composicional/hcc_seqrle.py))  
+**`HCC Seq-RLE Near-Identical Compaction`** (estrategia, [src/tcf/composicional/hcc_seqrle.py:150-227](../../../src/tcf/composicional/hcc_seqrle.py))
 Post-process body lines via detect_seq_runs (consecutive pairs pass compare_for_seq): same length + same escape-digit run positions + all diffs within runs + consistent delta list. For uniform delta (all equal, non-zero), emits M10-compat '*N+delta|template'; for mixed deltas (per-run), ADR-0016 '*N+d1,d2,...|template'. Expands on decode via expand_seq_marker. Detects runs greedily (consume maximal consecutive matches). Savings: sum(len(line_k)+1 for k in run) - (len(marker)+1).
 
-**`Escape Literal Encoding`** (helper, [src/tcf/composicional/syntax.py:53-73](../../../src/tcf/composicional/syntax.py))  
+**`Escape Literal Encoding`** (helper, [src/tcf/composicional/syntax.py:53-73](../../../src/tcf/composicional/syntax.py))
 Escapes reserved chars in literals: digits -> \d (run of digits escaped together), special chars *, \, ~ -> \ prefix. Returns (escaped_text, term_seq_flag) where term_seq=True if line terminates with escaped digit run (prevents confusion with ref-mode digit parsing in decoder).
 
-**`Ref-Run Composition Emission`** (helper, [src/tcf/composicional/syntax.py:470-542](../../../src/tcf/composicional/syntax.py))  
+**`Ref-Run Composition Emission`** (helper, [src/tcf/composicional/syntax.py:470-542](../../../src/tcf/composicional/syntax.py))
 Emits mixed atom/virtual ref runs: atomic segments -> M1.E ranges (a..b if 3+ consecutive), joined by ','; virtuals -> _emit_alias (def or use). Alias first-emission: inline-expands sub (linear chain), pairwise binarization allocates K-1 IDs, unresolved inner aliases gain final IDs at completion positions. Recursive expansion + body-order validation ensures correct final ID assignment.
 
-**`PipelineConfig Toggle pre_pass`** (threshold, [src/tcf/pipeline.py:35-60](../../../src/tcf/pipeline.py))  
+**`PipelineConfig Toggle pre_pass`** (threshold, [src/tcf/pipeline.py:35-60](../../../src/tcf/pipeline.py))
 Boolean toggle (default True). When True, runs analyze_column + detect_cadence_from_features + detect_min_len_from_features in CAMADA 1 pre-pass. When False, skips all heuristics: cadence_detected=False, min_len=3 (M9 default). Allows M9 baseline restoration for ablation studies.
 
-**`PipelineConfig Toggle obat_shape_preserve`** (threshold, [src/tcf/pipeline.py:35-60](../../../src/tcf/pipeline.py))  
+**`PipelineConfig Toggle obat_shape_preserve`** (threshold, [src/tcf/pipeline.py:35-60](../../../src/tcf/pipeline.py))
 Boolean toggle (default True). When True AND cadence_detected, uses processar_with_hint(prefer_shape_consistency=True) instead of canonical processar. Shapes on consecutive strings to reduce HCC detection burden. False forces canonical OBAT regardless of cadence.
 
-**`PipelineConfig Toggle hcc_seq_rle`** (threshold, [src/tcf/pipeline.py:35-60](../../../src/tcf/pipeline.py))  
+**`PipelineConfig Toggle hcc_seq_rle`** (threshold, [src/tcf/pipeline.py:35-60](../../../src/tcf/pipeline.py))
 Boolean toggle (default True). When True, uses HCCSeqRLE (M10 with seq-RLE post-process). When False, uses M8AVirtualRefsSyntax (M9 pure, no seq-RLE). Controls whether near-identical run compaction via '*N+delta|' markers is applied.
 
-**`Side Outputs Capture Container`** (marcador, [src/tcf/side_outputs.py:27-51](../../../src/tcf/side_outputs.py))  
+**`Side Outputs Capture Container`** (marcador, [src/tcf/side_outputs.py:27-51](../../../src/tcf/side_outputs.py))
 Optional reciprocal container (dataclass, all fields Optional). Per-column: column_features, cadence_detected, cadence_info, min_len, obat_log, obat_used_hint, hcc_trace, hcc_rede, seq_rle_runs, body_bytes. Multi-col: multi_info (n_rows, n_cols, total_bytes, header_bytes, body_bytes, parallel_workers), per_col dict. Populated only if side_outputs= provided (overhead=0 if None, logs discarded). Enables consumption by schema_builder, EncodeManager, debug tools.
 
-**`Format Marker: Shebang`** (marcador, [src/tcf/multi.py:36, src/tcf/decoder.py:49](../../../src/tcf/multi.py))  
+**`Format Marker: Shebang`** (marcador, [src/tcf/multi.py:36, src/tcf/decoder.py:49](../../../src/tcf/multi.py))
 Multi-column magic: '#TCF.6 M' (8 bytes) followed by newline. Dispatches decoder to multi-col path. Single-column has NO shebang (body puro). Exact string comparison startswith() in decode dispatcher.
 
-**`Format Marker: Meta Line`** (marcador, [src/tcf/multi.py:36-37, 95-96](../../../src/tcf/multi.py))  
+**`Format Marker: Meta Line`** (marcador, [src/tcf/multi.py:36-37, 95-96](../../../src/tcf/multi.py))
 Second line: '# size1=name1,size2=name2,...' (space after '#', CSV-like col descriptor). Parsed by splitting on ',', then each pair on '=' (size is byte count as int, name is col name). Names cannot contain ',' or '='. Enables byte-precise body slicing on decode.
 
-**`Format Marker: RLE Count Prefix`** (marcador, [src/tcf/composicional/syntax.py:462-465, 747-751](../../../src/tcf/composicional/syntax.py))  
+**`Format Marker: RLE Count Prefix`** (marcador, [src/tcf/composicional/syntax.py:462-465, 747-751](../../../src/tcf/composicional/syntax.py))
 Repeat-length encoding (M8A + M10): '*N|value' emitted when consecutive identical values appear (count N >= 2, single values emit bare). Parser regex: line.startswith('*') && '|' in line, extracts count via int(line[1:bar]). Byte-preserving: N counted as decimal string. Decode re-emits [value] * N.
 
-**`Format Marker: Seq-RLE Near-Identical (M10)`** (marcador, [src/tcf/composicional/hcc_seqrle.py:202-210](../../../src/tcf/composicional/hcc_seqrle.py))  
+**`Format Marker: Seq-RLE Near-Identical (M10)`** (marcador, [src/tcf/composicional/hcc_seqrle.py:202-210](../../../src/tcf/composicional/hcc_seqrle.py))
 Extension of RLE for near-identical runs. M10-compat format: '*N+delta|template' (uniform delta) or ADR-0016 '*N+d1,d2,...|template' (per-run deltas). Delta sign explicit: +/- prefix ('+' omitted if >=0, implicit for <0). Decoder distinguishes via ',' in delta portion.
 
-**`Format Marker: Atomic Reference Ranges (M1.E)`** (token-type, [src/tcf/composicional/syntax.py:91-101](../../../src/tcf/composicional/syntax.py))  
+**`Format Marker: Atomic Reference Ranges (M1.E)`** (token-type, [src/tcf/composicional/syntax.py:91-101](../../../src/tcf/composicional/syntax.py))
 Range compression for atomic refs: 3+ consecutive IDs -> 'a..b' (single/pair -> bare IDs '1,2'). Ranges separated by ','. Used in composition chains and ref-run emission. Decoder expands 'a..b' via range(a, b+1).
 
-**`Format Marker: Composition Chain (M1.E)`** (token-type, [src/tcf/composicional/syntax.py:104-114](../../../src/tcf/composicional/syntax.py))  
+**`Format Marker: Composition Chain (M1.E)`** (token-type, [src/tcf/composicional/syntax.py:104-114](../../../src/tcf/composicional/syntax.py))
 Chain of atomic IDs (pairwise composition via binarization): '1~2' (pair), '1~2~3' expands to intermediate '4=(1~2), 5=(4~3)'. Ranges apply: '1..3~4' = '1~2~3~4'. Separator '~'. Decoder reconstructs pairwise: frags[a+b], then frags[result+c], etc.
 
-**`Format Marker: Ref-Body Separator`** (token-type, [src/tcf/composicional/syntax.py:434-453](../../../src/tcf/composicional/syntax.py))  
+**`Format Marker: Ref-Body Separator`** (token-type, [src/tcf/composicional/syntax.py:434-453](../../../src/tcf/composicional/syntax.py))
 Transition separators in body: lit->lit: '*'; lit->ref: optional (if ref starts with ',' or '~'); ref->lit: '*' if lit terminates digit (prevents ref-mode parser consuming digit as continuation); ref->ref: ',' (inline). Detects term_seq flag from _escape_lit. Decoder: ',' continues ref expression, '*' terminates.
 
-**`Format Marker: Virtual Alias Reference`** (token-type, [src/tcf/composicional/syntax.py:413-418, 755](../../../src/tcf/composicional/syntax.py))  
+**`Format Marker: Virtual Alias Reference`** (token-type, [src/tcf/composicional/syntax.py:413-418, 755](../../../src/tcf/composicional/syntax.py))
 Caret prefix for repeated unique values: '^N' (single emit, bare ID), '*N|^N' (repeated emit N times). Used to reference earlier-emitted unique string without re-tokenization. Decoder: finds nos_decl[N-1].
 
-**`Reserved Characters (All Layers)`** (categoria, [src/tcf/natures/templated_checked.py:34, src/tcf/composicional/syntax.py:65](../../../src/tcf/natures/templated_checked.py))  
+**`Reserved Characters (All Layers)`** (categoria, [src/tcf/natures/templated_checked.py:34, src/tcf/composicional/syntax.py:65](../../../src/tcf/natures/templated_checked.py))
 Complete reserved set (format vocabulary, no user literals allowed): { *, \, ~, ,, #, =, [, ], <, >, ", ', `, _, \n, \r, \t, space }. Nature encoder uses BASE94 (94 chars from ASCII 33-126 minus reserved). M8A escape routine handles *, \, ~ via \ prefix; digits via \d (run).
 
 ### Notas

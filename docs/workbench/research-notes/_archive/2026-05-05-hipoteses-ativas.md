@@ -80,7 +80,7 @@ TCF compact (RLE+sort apenas) deixa redundancia que gzip economiza.
 - Em datasets variados (pessoas, categoricos, mix, banco)
 
 **Resultado possivel**: smart + gzip ≈ compact + gzip em bytes
-finais, mas smart custou mais CPU para encode. Conclusao: 
+finais, mas smart custou mais CPU para encode. Conclusao:
 **nao vale comprimir TCF demais** se gzip esta no transporte.
 
 **Implicacao**:
@@ -108,10 +108,10 @@ experiments/lab/
     encoders.py                    # adicionar TCFEncoder com mode= novo
     compressors.py                 # gzip, brotli, zstd, none
     metrics.py                     # bytes, tempo
-  
+
   dirty/                           # bancada de exploracao
     (vazia para os nossos labs; tem outros do user)
-  
+
   clean/
     EXP-003-tcf-vs-transport/     # NOVO — testa HP-T1, HP-T2, HP-T3
       README.md                    # hipoteses formais
@@ -121,7 +121,7 @@ experiments/lab/
     EXP-004-stratified-stats/     # NOVO — testa HP-A1
     EXP-005-types-roundtrip/      # NOVO — testa HP-B1
     EXP-006-auto-sortedness/      # NOVO — testa HP-F1
-  
+
   archive/
     2026-05-design-v04-fase1/      # ja arquivamos
 ```

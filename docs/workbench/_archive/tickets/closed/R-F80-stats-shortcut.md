@@ -33,11 +33,11 @@ Quando o modelo recebe "Qual e a soma de total?":
 
 ## Implicacoes
 
-1. **Etapa 2 pode estar inflada** — 88% de gemma3 em TCF L0 pode ser 
+1. **Etapa 2 pode estar inflada** — 88% de gemma3 em TCF L0 pode ser
    maioritariamente leitura de STATS, nao compreensao do formato
 2. **STATS sao uma FEATURE, nao um bug** — se o modelo nao sabe calcular,
    dar hints meta-cognitivos e uma estrategia valida
-3. **Experimento critico:** STATS ablation (include_stats=False) para 
+3. **Experimento critico:** STATS ablation (include_stats=False) para
    separar accuracy real de accuracy por hints
-4. **Para o paper:** mudar narrativa de "modelos entendem TCF" para 
+4. **Para o paper:** mudar narrativa de "modelos entendem TCF" para
    "TCF com hints meta-cognitivos compensa limitacoes aritmeticas dos LLMs"

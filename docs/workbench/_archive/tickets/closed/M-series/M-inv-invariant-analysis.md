@@ -25,4 +25,4 @@ Classificar falhas em Type A (detectavel) vs Type B (silencioso).
 
 
 
-Manifest: 
+Manifest:

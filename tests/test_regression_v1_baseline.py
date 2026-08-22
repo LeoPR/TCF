@@ -124,7 +124,7 @@ class TestPublicAPISurface:
         )
 
 
-# RE-PIN 2026-07-24 (ADR-0034, git-as-compat ADR-0024): o header `#TCF.8` + LF passou a
+# ADR-0034, git-as-compat ADR-0024: o header `#TCF.8` + LF passou a
 # ser DEFAULT no single-col -> +7 B EXATOS por dataset. NAO e' regressao de compressao:
 # o core nao mudou 1 byte, so' o header entrou. Valores anteriores vivem no git.
 D1_D9_BYTES_FROZEN = {

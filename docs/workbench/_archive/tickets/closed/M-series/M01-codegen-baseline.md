@@ -26,4 +26,4 @@ Confirmou H-TCF2: schema-only > full-data para code generation.
 
 
 
-Manifest: 
+Manifest:

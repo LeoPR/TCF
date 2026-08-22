@@ -200,7 +200,7 @@ class TestFloorMultiHeaderCost:
         assert decode(candidate) == table
 
     def test_custom_spec_roundtrip_requires_matching_out_of_band(self):
-        # RE-PIN 2026-08-13 (weld A ADR-0041): spec de terceiro leva wire_id PROPRIO
+        # weld A ADR-0041: spec de terceiro leva wire_id PROPRIO
         # — `replace(name=...)` sozinho herdaria `wire_id="cpf"` e a porta de emissao
         # recusa a mascarada (pin em test_natures.py::TestMascaradaDeWireIdCore).
         custom = replace(SPEC_CPF, name="custom-cpf", wire_id="xcpf")

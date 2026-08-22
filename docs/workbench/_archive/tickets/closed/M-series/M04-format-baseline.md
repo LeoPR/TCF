@@ -25,4 +25,4 @@ TCF (96.8%) ≈ JSON (96.3%) > CSV (93.7%). Diferenca pequena mas robusta.
 
 
 
-Manifest: 
+Manifest:

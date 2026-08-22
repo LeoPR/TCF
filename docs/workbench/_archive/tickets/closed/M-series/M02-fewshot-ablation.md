@@ -25,4 +25,4 @@ Sem fewshot ~0%; com 1 exemplo 96%+. Scale-invariant confirmado.
 
 
 
-Manifest: 
+Manifest:

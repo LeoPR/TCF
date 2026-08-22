@@ -20,7 +20,7 @@ API:
 - `detect_min_len(values, n_threshold=100)` — wrapper backward compat
   que chama `analyze_column(values)` internamente
 
-Welded canonical 2026-05-22 (T-EXP-H-DA-11). Refatorado pra usar
+Refatorado pra usar
 ColumnFeatures unificado em 2026-05-22 (T-CODE-H-DA-11c).
 """
 

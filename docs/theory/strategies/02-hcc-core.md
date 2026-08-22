@@ -85,76 +85,76 @@ subsystem: hcc-core
 
 ### Detalhamento
 
-**`Atomic refs`** (marcador, [src/tcf/composicional/syntax.py:3-5, 26-28](../../../src/tcf/composicional/syntax.py))  
+**`Atomic refs`** (marcador, [src/tcf/composicional/syntax.py:3-5, 26-28](../../../src/tcf/composicional/syntax.py))
 IDs positivos (1,2,3,...) que representam strings atômicas (literais ou tokens OBAT). Allocados sequencialmente durante tokenização da Fase A. Cada átomo recebe um prov_id (provisional) durante _tokenize_pieces, depois remapeado para final_id durante _emit_body. Coexistem no mesmo espaço de refs com referências virtuais.
 
-**`Virtual refs (aliases)`** (marcador, [src/tcf/composicional/syntax.py:3-5, 223-362](../../../src/tcf/composicional/syntax.py))  
+**`Virtual refs (aliases)`** (marcador, [src/tcf/composicional/syntax.py:3-5, 223-362](../../../src/tcf/composicional/syntax.py))
 IDs negativos (-1,-2,...) que representam composições detectadas. Um -alias_temp refere alias_to_sub[alias_temp], lista de elems (positivos atoms ou negativos inner aliases). Emitidos como cadeias composicionais no body. Estratégia unificada: detector vê atoms + virtuals na mesma fila, permitindo pares como (atom_X, composição_anterior).
 
-**`Detector greedy (Fase B)`** (filtro, [src/tcf/composicional/syntax.py:225-362](../../../src/tcf/composicional/syntax.py))  
+**`Detector greedy (Fase B)`** (filtro, [src/tcf/composicional/syntax.py:225-362](../../../src/tcf/composicional/syntax.py))
 Itera até convergência (max 99 iterations linha 359). A cada iteração: (1) conta sub-tuplas K>=2 em ref sequences; (2) computa net = (R-1)*(baseline_chars - num_len) onde baseline=emit length sem composição, num_len=len(str(N)) p/ ID novo; (3) filtra candidatos net>0 + constraints (virtuais em pos 0 OU alias_first_line < sub_first_line); (4) pick argmax(net); (5) substitui todas ocorrências de best.sub por alias novo. Interrompe quando best=None.
 
-**`Net gain criterion`** (threshold, [src/tcf/composicional/syntax.py:288-302](../../../src/tcf/composicional/syntax.py))  
+**`Net gain criterion`** (threshold, [src/tcf/composicional/syntax.py:288-302](../../../src/tcf/composicional/syntax.py))
 Heurística central do detector: net = (R-1) * (baseline - n_tam), onde R=ocorrências, baseline=chars se emitido `,`-separado inline, n_tam=len(str(próx_id)). Positivo = lucro em bytes se criar novo ref. Negativo/zero = descarta. Tie-break: Counter order (primeiro encontrado ganha). Estimativa de baseline em _estimate_baseline_chars monta ranges L>=3 e estima ~2 digits por virtual.
 
-**`Body-order constraint (inline expansion correctness)`** (filtro, [src/tcf/composicional/syntax.py:267-287, 495-541](../../../src/tcf/composicional/syntax.py))  
+**`Body-order constraint (inline expansion correctness)`** (filtro, [src/tcf/composicional/syntax.py:267-287, 495-541](../../../src/tcf/composicional/syntax.py))
 Quando um sub contém virtual -Y em posição >0, filtra se alias_first_line[Y] >= sub_first_line[sub]. Sem isso, inline expansion falharia: ao emitir def de sub, Y ainda não resolvido. Com constraint garantido, pairwise left-assoc de Y já tem final_id. Decisão acontece em _detect_compositions; emissão em _emit_alias com expand() recursivo.
 
-**`Escape mechanism (_escape_lit)`** (helper, [src/tcf/composicional/syntax.py:52-73](../../../src/tcf/composicional/syntax.py))  
+**`Escape mechanism (_escape_lit)`** (helper, [src/tcf/composicional/syntax.py:52-73](../../../src/tcf/composicional/syntax.py))
 Prefixo `\` (backslash) escapa chars reservados: `*` (RLE marker), `\` (escape self), `~` (compositor), dígitos (ref start). Lógica: iterator por char; se digit, coleta run contígua e prefixo com `\`; se `*`/`\`/`~`, single char escape. Retorna (text_escaped, prev_lit_term_digit) onde bool indica se último char é digit (usado pra decidir `*` separator próxima piece).
 
-**`Range compression (M1.E syntax)`** (heuristica, [src/tcf/composicional/syntax.py:91-101, 104-114](../../../src/tcf/composicional/syntax.py))  
+**`Range compression (M1.E syntax)`** (heuristica, [src/tcf/composicional/syntax.py:91-101, 104-114](../../../src/tcf/composicional/syntax.py))
 Runs de refs consecutivos length>=3 emitidos como `A..B` range em vez de `A~A+1~...~B`. Em _emit_refs_range: groups by _runs_pos, cada run L>=3 vira `start..end`, else individual. Joined por `,` (concat efêmero). Em _emit_composition: analoga mas joined por `~` (compositor). Decoder inverte ranges via range(int(a), int(b)+1).
 
-**`RLE marker: *N|linha`** (marcador, [src/tcf/composicional/syntax.py:416, 462-463, 748-759](../../../src/tcf/composicional/syntax.py))  
+**`RLE marker: *N|linha`** (marcador, [src/tcf/composicional/syntax.py:416, 462-463, 748-759](../../../src/tcf/composicional/syntax.py))
 Formato `*N|resto` onde N=count inteiro, resto=body linha. Representa N repetições idênticas de mesma string única. Encode: agrupado em _rle_adjacente (linhas consecutivas idênticas), eid emitido; se eid já visto, emite `*count|^eid`. Decode: split `*` e `|`, parse count, emite resto N vezes. Compatível com seq-RLE (ADR-0016).
 
-**`RLE reference: ^eid`** (marcador, [src/tcf/composicional/syntax.py:416-418, 754-755](../../../src/tcf/composicional/syntax.py))  
+**`RLE reference: ^eid`** (marcador, [src/tcf/composicional/syntax.py:416-418, 754-755](../../../src/tcf/composicional/syntax.py))
 Sintaxe `^N` onde N=eid (elemento id 1-based da lista decodificada anterior). Emitido quando linha repeats de string única ja decodificada previamente em diferente grupo RLE não-consecutivo. Decode: busca nos_decl[eid-1], append N vezes. Bug fix 2026-05-15: `^eid` + count agora emite `*count|^eid` pra preservar repetições em grupos separados (linha 415-418).
 
-**`Seq-RLE marker: *N+delta|template (ADR-0016)`** (marcador, [src/tcf/composicional/hcc_seqrle.py:150-228, 230-274](../../../src/tcf/composicional/hcc_seqrle.py))  
+**`Seq-RLE marker: *N+delta|template (ADR-0016)`** (marcador, [src/tcf/composicional/hcc_seqrle.py:150-228, 230-274](../../../src/tcf/composicional/hcc_seqrle.py))
 Format `*N+delta|template` ou `*N+d1,d2,...|template`. Post-process em compact_body: detecta runs near-identical (mesmo length, escape-digit runs em mesmas posições, diffs apenas dentro runs). Single delta uniform: emite `*N+delta|` (M10 compat). Multi-delta (ADR-0016 Fase 1): `*N+d1,d2,d3,...|template` (CSV per-run se 1 único non-zero + zeros). Decoder expand_seq_marker: difere pelo `+` vs puro RLE `*N|`, shifta escape-digits por delta(s).
 
-**`Comma separator (ref concat ephemeral)`** (marcador, [src/tcf/composicional/syntax.py:92-102, 451, 673-681, 685](../../../src/tcf/composicional/syntax.py))  
+**`Comma separator (ref concat ephemeral)`** (marcador, [src/tcf/composicional/syntax.py:92-102, 451, 673-681, 685](../../../src/tcf/composicional/syntax.py))
 Delimitador `,` une refs/ranges em single line sem criar novo ref. Sintaxe: `1,2,3` (refs atom), `1..5,10,15` (ranges+atoms), `1~2,3~4` (compositions). Emit em _emit_ref_run linha 493. Decode em _parse_decl: split por `,` antes de processar cada unit (que pode ter `~` ou `..'). Múltiplas refs=múltiplas pieces emitem `,` between (linha 451). BUG FIX ADR-0007: lit começando com `,` após refs requer `*` separator pra não ser consumido como ref continuation.
 
-**`Tilde compositor (ref concat compositional)`** (marcador, [src/tcf/composicional/syntax.py:104-114, 113, 435, 678, 685](../../../src/tcf/composicional/syntax.py))  
+**`Tilde compositor (ref concat compositional)`** (marcador, [src/tcf/composicional/syntax.py:104-114, 113, 435, 678, 685](../../../src/tcf/composicional/syntax.py))
 Delimitador `~` une refs E cria novo ref nomeado via pairwise left-assoc. Sintaxe: `1~2~3` emite seq de intermediários. Em decoder: refs [1,2,3] -> pairwise concat ID-1=(1+2), ID-2=(ID-1+3), exporta ID-2. Emit em _emit_composition (composition def) vs _emit_refs_range (atoms). BUG FIX ADR-0007: lit começando com `~` após refs requer `*` separator.
 
-**`Dot-dot range (syntactic sugar)`** (token-type, [src/tcf/composicional/syntax.py:91-101, 104-114, 674-676, 686-688](../../../src/tcf/composicional/syntax.py))  
+**`Dot-dot range (syntactic sugar)`** (token-type, [src/tcf/composicional/syntax.py:91-101, 104-114, 674-676, 686-688](../../../src/tcf/composicional/syntax.py))
 Syntax `A..B` shorthand para range [A, A+1, ..., B] de refs consecutivos. Encoder usa quando L>=3 consecutivos (linha 97, 110). Decoder recognizes `..` pattern (linha 675-676) e expanda via range(int(a), int(b)+1) (linha 688). Case particular de _emit_composition/refs_range.
 
-**`Literal separator `*` (lit-lit ou boundary)`** (marcador, [src/tcf/composicional/syntax.py:433-442, 450-453, 667-668, 720](../../../src/tcf/composicional/syntax.py))  
+**`Literal separator `*` (lit-lit ou boundary)`** (marcador, [src/tcf/composicional/syntax.py:433-442, 450-453, 667-668, 720](../../../src/tcf/composicional/syntax.py))
 Single `*` sem count/pipe emitido: (1) entre duas 'lit' pieces sucessivas (linha 434), (2) após refs->lit se lit começa com `,` ou `~` (ADR-0007 bug fix linha 435-442), (3) após lit com digit final->refs (linha 453). Decoder: skip quando em ref mode (linha 667-668, 720-breaking conditions). Função: desambiguação limites lit/ref pra parser single-pass.
 
-**`Pairwise left-associativity (emit strategy)`** (decision-point, [src/tcf/composicional/syntax.py:495-541, 529-538](../../../src/tcf/composicional/syntax.py))  
+**`Pairwise left-associativity (emit strategy)`** (decision-point, [src/tcf/composicional/syntax.py:495-541, 529-538](../../../src/tcf/composicional/syntax.py))
 Quando emitir alias definition (chain de K elementos), aloca K-1 IDs por pairwise expansion: ID_1 = elem0 + elem1, ID_2 = ID_1 + elem2, ..., ID_{K-1} = ID_{K-2} + elemK. Em _emit_alias, build linear chain via expand() recursivo, depois aloca IDs by pairwise position: alias_to_final[ali] = base + idx (idx=índice no chain linear, idx>=1). Garante correctness de inline expansion com virtual refs (constraint body-order).
 
-**`Inline expansion (virtual resolution)`** (decision-point, [src/tcf/composicional/syntax.py:495-541](../../../src/tcf/composicional/syntax.py))  
+**`Inline expansion (virtual resolution)`** (decision-point, [src/tcf/composicional/syntax.py:495-541](../../../src/tcf/composicional/syntax.py))
 Quando emitir virtual ref, resolve recursivamente: se já emitido (final_id em state), emit bare ID; senão, flatten sub recursivamente (expand inner aliases em order), aloca K-1 IDs pairwise, atribui finals. Completions tracking (list de (linear_idx, alias)) registra onde cada alias resolva no chain. Permite composition of compositions.
 
-**`Body-order ID assignment (interleaved atoms+compositions)`** (decision-point, [src/tcf/composicional/syntax.py:391-468](../../../src/tcf/composicional/syntax.py))  
+**`Body-order ID assignment (interleaved atoms+compositions)`** (decision-point, [src/tcf/composicional/syntax.py:391-468](../../../src/tcf/composicional/syntax.py))
 Single-pass emit: current_id increments sequencialmente enquanto percorre pieces (lit/refs). Atoms = +1 per piece (linha 443). Compositions = +K-1 (K=chain length, linha 532). Permite decoder single-pass sem preâmbulo: IDs assignados na ordem parse body.
 
-**`Prev_lit_term_digit tracking`** (decision-point, [src/tcf/composicional/syntax.py:425, 445, 452-453, 458](../../../src/tcf/composicional/syntax.py))  
+**`Prev_lit_term_digit tracking`** (decision-point, [src/tcf/composicional/syntax.py:425, 445, 452-453, 458](../../../src/tcf/composicional/syntax.py))
 Booleano mantém se última literal emitida termina em digit (via _escape_lit retorno). Usado pra decidir: se prev_lit_term_digit AND próx é 'refs' -> emit `*` separator (linha 452-453) pra evitar parser confundir `abcd1,2` como `abcd` + `1,2` com count. ADR-0007 mitigation.
 
-**`Fragment tracking (_tokenize_pieces)`** (helper, [src/tcf/composicional/syntax.py:151-221](../../../src/tcf/composicional/syntax.py))  
+**`Fragment tracking (_tokenize_pieces)`** (helper, [src/tcf/composicional/syntax.py:151-221](../../../src/tcf/composicional/syntax.py))
 Fase A: quebra strings em fragments (pedaços de literal/ref). frags_por_no[eid] = lista (a,b,idx) onde [a:b] é substring e idx é fragment_id. quebras[eid] = set de boundary positions (onde refs terminam). Base em OBAT tokens: TokLit -> literal fragment; TokRefPref/TokRefSuf -> herança de fragments anteriores (com ajuste de posição). Permite reuse de fragments atomizados.
 
-**`RLE adjacency grouping (_rle_adjacente)`** (helper, [src/tcf/composicional/syntax.py:42-50](../../../src/tcf/composicional/syntax.py))  
+**`RLE adjacency grouping (_rle_adjacente)`** (helper, [src/tcf/composicional/syntax.py:42-50](../../../src/tcf/composicional/syntax.py))
 Pré-processa linhas: agrupa strings iguais consecutivas em (string, count). Input: [a,a,b,b,b,a] -> output: [(a,2), (b,3), (a,1)]. Usado em _tokenize_pieces pra detectar runs e decidir is_rep (já emitido antes).
 
-**`Piece structure (lit vs refs)`** (categoria, [src/tcf/composicional/syntax.py:152, 204-217](../../../src/tcf/composicional/syntax.py))  
+**`Piece structure (lit vs refs)`** (categoria, [src/tcf/composicional/syntax.py:152, 204-217](../../../src/tcf/composicional/syntax.py))
 Fase A output: pieces_per_line[li] = list de ('lit', text, idx) ou ('refs', [ids]). 'lit': literal text + fragment_id. 'refs': sequence de refs (atoms/virtuals positivo/negativo). Consecutivos 'ref' pieces merged em um 'refs' tuple com lista unificada. Ordem preservada per line.
 
-**`RLE hit detection (is_rep)`** (decision-point, [src/tcf/composicional/syntax.py:163-166, 407-420](../../../src/tcf/composicional/syntax.py))  
+**`RLE hit detection (is_rep)`** (decision-point, [src/tcf/composicional/syntax.py:163-166, 407-420](../../../src/tcf/composicional/syntax.py))
 Se string única já decodificada em grupo RLE anterior (eid_emitido set), marca is_rep=True. Emit usa ^eid reference em vez de recompilar. Preserva bytes quando repetição em grupos não-consecutivos (bug fix 2026-05-15).
 
-**`Estimator de baseline (_estimate_baseline_chars)`** (heuristica, [src/tcf/composicional/syntax.py:364-387](../../../src/tcf/composicional/syntax.py))  
+**`Estimator de baseline (_estimate_baseline_chars)`** (heuristica, [src/tcf/composicional/syntax.py:364-387](../../../src/tcf/composicional/syntax.py))
 Estima chars de emit `,`-separado de sub (misto atom/virtual) SEM criar nova composition. Para atoms: emit ranges se L>=3. Para virtuals: assume ~2 digits (estimador pessimista). Retorna len(','.join(parts)). Usado no net computation (baseline parameter).
 
-**`Sub-first-line e alias-first-line tracking`** (marcador, [src/tcf/composicional/syntax.py:239-264, 284-287](../../../src/tcf/composicional/syntax.py))  
+**`Sub-first-line e alias-first-line tracking`** (marcador, [src/tcf/composicional/syntax.py:239-264, 284-287](../../../src/tcf/composicional/syntax.py))
 sub_first_line[sub] = first line index onde sub aparece como candidato. alias_first_line[alias] = first line onde alias (negativo id) aparece em body. Usado em body-order constraint: se sub tem virtual em pos>0, require alias_first_line[virt] < sub_first_line[sub].
 
 ### Notas

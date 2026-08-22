@@ -25,4 +25,4 @@ Testar H1 (mean) e H2 (variance) com 5 seeds × 2 modos × Adult.
 
 
 
-Manifest: 
+Manifest:

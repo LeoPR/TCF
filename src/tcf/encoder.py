@@ -260,7 +260,7 @@ def encode(
     Args:
         data: dataset — `list[str]` (single flat) · `dict[str, list[str]]` (multi flat) ·
             ou raiz aninhada/tipada/vazia (rota `.8H`). Ver a tabela de dispatch acima.
-        schema: os SPECS da entrada, num parametro so' (decisao owner 2026-08-22;
+        schema: os SPECS da entrada, num parametro so' (decisao owner;
             substitui `nature=`/`nature_per_col=`). Formas:
             - `"cpf"` (str) — UM spec pelo NAME do registry (single-col); registry
               core: cpf, cnpj, ip, data-iso, int-pad (`tcf.SPEC_REGISTRY`).
@@ -332,7 +332,7 @@ def encode(
     """
     # --- Fronteiras da API (T-QA-8 F0 lote 3, BUG-10): fail-loud ANTES do
     # pipeline — erro claro na porta, nao AttributeError/TypeError fundo. O
-    # tratamento da' ISOLAMENTO (decisao owner 2026-07-10): o codigo identifica
+    # tratamento da' ISOLAMENTO (decisao owner): o codigo identifica
     # os casos e o comportamento pode mudar depois (T-API-BOUNDARY-CONTRACTS).
     if layers is not None and not isinstance(layers, PipelineConfig):
         raise TypeError(
@@ -345,7 +345,7 @@ def encode(
             f"parallel deve ser >= 0 (0/False=serial; 1=serial deduzido; "
             f"N>=2 = N workers); got {parallel}"
         )
-    # `schema=` — o parametro UNICO de spec (owner 2026-08-22; substituiu
+    # `schema=` — o parametro UNICO de spec (owner; substituiu
     # `nature=`/`nature_per_col=`, corte seco pre-1.0 como o do legado .6/.7).
     # Normaliza AQUI, na porta, para os canais internos (`nature`/
     # `nature_per_col`) — o miolo das 4 rotas nao muda. Chave int = POSICAO,

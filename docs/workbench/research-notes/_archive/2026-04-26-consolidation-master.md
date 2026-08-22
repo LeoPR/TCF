@@ -321,24 +321,24 @@ formal ↔ achado científico.
 
 1. **Ordem dentro da Parte A**: começar por reorganização bibliográfica
    (Parte D, ~3-4h) ou pelo framework de naturalidade (Parte B, ~3-4h)?
-   
+
    **Sugestão:** D primeiro — sem ele, rastreabilidade fica solta para o
    paper. Mas é mecânico/aborrecido.
 
 2. **Escopo do M-natural inicial**: começar com Adult (single-table mais
    simples) ou já com Adult + TPC-H?
-   
+
    **Sugestão:** Adult primeiro — valida framework, depois expande.
 
 3. **Aposentar F-Q12 explicitamente**: marcar como "DEPRECATED — ver F-Q28"
    ou fundir os dois textos?
-   
+
    **Sugestão:** Marcar como deprecated com seção "Histórico (synthetic)"
    em F-Q12 e link para F-Q28 como versão atual.
 
 4. **Comerciais com perguntas atuais (M-Acomm pendente)**: rodar antes da
    refatoração de naturalidade ou depois?
-   
+
    **Sugestão:** Depois. M-Acomm com N0 schema-aware seria gasto pequeno
    para um achado fraco. Com N0..N3 fica ~3x mais informativo pelo mesmo
    custo.

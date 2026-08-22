@@ -571,7 +571,7 @@ class M8AVirtualRefsSyntax(Syntax):
 
         for li, (count, eid, is_rep) in enumerate(line_meta):
             if is_rep:
-                # Bug fix 2026-05-15: ramo `is_rep` (eid ja emitido) ignorava
+                # Bug fix: ramo `is_rep` (eid ja emitido) ignorava
                 # `count` da RLE-group atual, perdendo linhas no decode quando
                 # um mesmo valor aparece em multiplos grupos nao-consecutivos
                 # com count>=2 no grupo posterior. Caso nao exercitado em D1-D9
@@ -620,7 +620,7 @@ class M8AVirtualRefsSyntax(Syntax):
                     elif prev_type == "refs" and p[1] and (
                         p[1][0] in (",", "~") or p[1].startswith("..")
                     ):
-                        # Bug fix 2026-05-19 (ADR-0007): separator `*` quando
+                        # Bug fix (ADR-0007): separator `*` quando
                         # ref->lit transition e lit comeca com `,` ou `~`.
                         # Sem o separator, parser do decoder entra ref mode
                         # em "1,..." e consome o `,` como continuacao do ref
@@ -901,11 +901,11 @@ class M8AVirtualRefsSyntax(Syntax):
         limite = resolve_max_length(max_length)
         # Contrato LF-only: FONTE ÚNICA em split_lf_body (BUG-14 + dedup C0 do
         # T-CODE-CORE-CONSOLIDATE — o fix vivia DUPLICADO aqui e no wrapper
-        # seq-RLE; risco de dessincronização apontado pelo owner 2026-07-12).
+        # seq-RLE; risco de dessincronização apontado pelo owner).
         raw_lines = split_lf_body(tcf_text)
 
         for raw in raw_lines:
-            # Bug fixes 2026-05-18 (EXP-012 + EXP-013):
+            # Bug fix (EXP-012 + EXP-013):
             # 1. NAO strip — strip removia leading/trailing whitespace
             #    de literais (descoberto em TPC-H region/nation comments
             #    com trailing space).

@@ -25,4 +25,4 @@ Testar queries L3 (CTE + AVG, nested subquery, COUNT DISTINCT GROUP BY).
 
 
 
-Manifest: 
+Manifest:

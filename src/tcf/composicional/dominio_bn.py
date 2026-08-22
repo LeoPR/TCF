@@ -77,7 +77,7 @@ def _largura(k: int) -> int:
 def _grafa(v: "str | None") -> str:
     """`0` cru = slot nulo; `\\0` = o literal `"0"`. INJETIVA.
 
-    **Bug corrigido 2026-07-28 (auditoria adversarial), corrupcao SILENCIOSA no weld
+    **corrupcao SILENCIOSA no weld
     ADR-0036.** A primeira versao escapava so' o valor `"0"` e devolvia o resto intacto:
 
         _grafa("0")   -> "\\0"
@@ -127,7 +127,7 @@ def candidatos(valores, encode_col, decode_col):
         return []
     idx = {v: i for i, v in enumerate(dom)}
     b64 = base64.b64encode(pack_w([idx[v] for v in valores], w)).decode("ascii").rstrip("=")
-    # `[:-1]` e NAO `rstrip("\n")` (bug corrigido 2026-07-28, auditoria adversarial): o corpo
+    # `[:-1]` e NAO `rstrip("\n")`: o corpo
     # canonico termina em EXATAMENTE um `\n`, mas `rstrip` come TODOS — e um dominio cujo
     # ULTIMO valor e' a string vazia acaba em `\n\n`. `['a','b','']` perdia o 3o valor, e o
     # `decode` estourava com "indice 2 fora do dominio de 2 valores": RT quebrado pela API
@@ -205,7 +205,7 @@ def decode_bn(tcf_text: str, disc: str, decode_col,
     if not sep:
         raise ValueError(f"wire bN sem corpo: {cab[:24]!r}")
     campos = cab[len(MAGIC) + 1:]
-    # CANONICIDADE DO CABECALHO — bug corrigido 2026-07-28 (auditoria adversarial).
+    # CANONICIDADE DO CABECALHO —.
     # A 1a versao usava `campos[0].isdigit()` e `int(campos[1:], 16)` CRUS. `str.isdigit()`
     # aceita digito Unicode (`٢`), e `int(x, 16)` aceita zero a esquerda, maiuscula,
     # underscore (PEP 515), prefixo `0x` e sinal — uma familia INFINITA de grafias para o
@@ -238,7 +238,7 @@ def decode_bn(tcf_text: str, disc: str, decode_col,
                 f"wire bN sem o marcador {MARCADOR!r} que separa dominio e bits "
                 f"— corpo nao-canonico (truncado ou editado a mao)"
             )
-        # Nada pode vir DEPOIS do bloco de bits (bug corrigido 2026-07-28): linha extra era
+        # Nada pode vir DEPOIS do bloco de bits: linha extra era
         # ignorada CALADA, enquanto o irmao no mesmo indice 7 (modo denso) falha alto na
         # mesma sonda. Silencio aqui esconde wire truncado, concatenado ou editado a mao.
         if any(ln for ln in linhas[alvo + 1:]):
@@ -253,7 +253,7 @@ def decode_bn(tcf_text: str, disc: str, decode_col,
     # O rotulo das mensagens de erro identifica o wire QUE O USUARIO MANDOU, nao a forma
     # interna pra qual ele foi reescrito. A rota tipada (`#TCF.8nB`) chega aqui com o
     # cabecalho ja' reescrito pra `#TCF.8B` — sem `rotulo` explicito, o erro sairia assinado
-    # como o irmao de STRING, que tem contrato de retorno diferente (auditoria 2026-08-07,
+    # como o irmao de STRING, que tem contrato de retorno diferente (auditoria,
     # achado [4]). Diagnostico que aponta pro mecanismo errado custa depuracao.
     rotulo = rotulo or f"{MAGIC}{disc}"
     dom = [_le_grafia(s) for s in decode_col(bloco + "\n")]
@@ -281,7 +281,7 @@ def decode_bn(tcf_text: str, disc: str, decode_col,
     # adulterado.
     #
     # Sem isto os DOIS modos aceitavam calados uma entrada extra no dominio (achado da
-    # varredura 2026-08-07). No `B` ela entra antes do marcador; no `C`, no fim — e o
+    # varredura). No `B` ela entra antes do marcador; no `C`, no fim — e o
     # guard `len(dom) > 2^w` so' pegava por acaso, quando a largura nao tinha folga.
     # E' a MESMA classe do "conteudo apos o bloco de bits": aceitar em silencio o que o
     # encoder canonico nunca produz.

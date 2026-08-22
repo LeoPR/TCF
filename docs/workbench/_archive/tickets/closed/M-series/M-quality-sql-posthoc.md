@@ -25,4 +25,4 @@ Quality score INVERSO: SQLs erradas tem mean 0.839 vs corretas 0.753.
 
 
 
-Manifest: 
+Manifest:

@@ -112,7 +112,7 @@ T1: 1000 pessoas, 50 nomes distintos, ids unicos
 
 T2: 1000 pessoas com 100 nomes, todas distinguidas por (nome, idade)
    - PK eliminavel apenas se TCF NAO deduplicar (nome, idade)
-   
+
 T3: pior caso — 100 pessoas, 5 nomes, 3 idades, multiplas combinacoes
    exatas duplicadas
    - Cuidado: aqui ate o ID natural (nome+idade) nao distingue

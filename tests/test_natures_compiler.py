@@ -43,7 +43,7 @@ def test_cpf_compilado_equivale_ao_core():
 
 
 def test_cnpj_compilado_equivale_ao_core_no_dominio_NUMERICO():
-    """RE-PIN 2026-08-21 (ADR-0044): o core virou UM spec alfanumerico
+    """ADR-0044: o core virou UM spec alfanumerico
     (`encoded_length=10`, compacto 7); o `cnpj.dsl` descreve o formato NUMERICO
     antigo (`encoded_length=7`). Os dois deixaram de ser iguais em ATRIBUTO — mas
     a equivalencia que interessa e' a de BYTE, e ela vale: no dominio numerico o

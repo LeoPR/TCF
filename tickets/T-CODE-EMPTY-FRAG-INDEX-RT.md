@@ -136,7 +136,7 @@ terminador. Trocado por `body_text[:-1]` (tira so' o `\n` unico que
   empty-meio regressao, multi-col).
 - Suite completa: **332 passed, 1 xfailed**.
 - Byte-canonical PRESERVADO: D1-D9=1523B, D17a=322B, real-world snapshots
-  verdes; bytes M10 da caracterizacao identicos (decode-only). 
+  verdes; bytes M10 da caracterizacao identicos (decode-only).
 - receita-estab (gatilho original): RT FAIL -> **OK**. V2-A 9/9 RT, 7.85% weighted.
 
 Lacuna de cobertura do gate: confirmada (receita nao estava nas fixtures +

@@ -942,7 +942,7 @@ novos registrados**: 14 sub-exps executados. Achados sumarizados:
   ganho marginal em hex (-94B subnet). H1 partially refutada.
 - Sub-exp 14 cross-subnet investigation: **2 bugs reais identificados**:
   (1) M8A nao cria atom secundario; (2) compare_for_seq rejeita multi-run delta
-- 3 tickets P2/P3 registrados: T-CODE-HCC-MULTI-DELTA-FIX, 
+- 3 tickets P2/P3 registrados: T-CODE-HCC-MULTI-DELTA-FIX,
   T-CODE-HCC-ATOM-DETECTION-REFINE, T-CODE-LAYERED-PIPELINE
 - Nota arquitetural funil de camadas + toggles + online adaptive + literatura
   (Frame of Reference, PFOR-DELTA, Gorilla, Dictionary encoding))

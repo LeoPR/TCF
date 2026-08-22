@@ -1,4 +1,4 @@
-"""`schema=` — o parametro UNICO de spec da API publica (decisao owner 2026-08-22).
+"""`schema=` — o parametro UNICO de spec da API publica (decisao owner).
 
 Pina o CONTRATO da porta: formas aceitas, resolucao por name do registry, chave int =
 POSICAO / str = NOME (ADR-0046: `''` e `'0'` sao nomes legitimos), fail-loud em tudo

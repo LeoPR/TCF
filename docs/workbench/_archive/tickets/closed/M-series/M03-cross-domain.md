@@ -25,4 +25,4 @@ Testar se protocolo M2 generaliza para 3 dominios syntheticos diferentes.
 
 
 
-Manifest: 
+Manifest:

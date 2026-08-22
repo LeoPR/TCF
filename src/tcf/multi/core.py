@@ -315,7 +315,7 @@ def _encode_multi(
         min_len: override do min_len do OBAT (mesmo p/ todas as colunas). None
             (default) -> auto por coluna (inalterado). Threaded a _encode_column.
         nature_specs: dict[col_name -> spec] (ADR-0027 + FLOOR, T-SPEC-DEEPDIVE-08
-            §5.1, owner 2026-07-12). A nature COMPETE no min() por coluna: encoda-se
+            §5.1, owner). A nature COMPETE no min() por coluna: encoda-se
             a coluna ORIGINAL e a NATURE-transformada, fica a MENOR pelo blob
             serializado completo (incluindo meta, sizes e o custo do ':id'). Se a
             nature vence -> ':id' no meta + corpo

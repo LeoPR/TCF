@@ -25,4 +25,4 @@ SQL >> Pandas >> Polars; CoT-SQL nao adiciona accuracy mas custa 2.4x mais.
 
 
 
-Manifest: 
+Manifest:

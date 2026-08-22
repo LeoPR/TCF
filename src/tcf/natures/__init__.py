@@ -175,7 +175,7 @@ def _resolve_nature_id(nature_id: str):
 
 
 # ---------------------------------------------------------------------------
-# `schema=` — o parametro UNICO de spec da API publica (decisao owner 2026-08-22)
+# `schema=` — o parametro UNICO de spec da API publica (decisao owner)
 # ---------------------------------------------------------------------------
 
 def _resolve_schema_valor(v, *, where: str):

@@ -291,7 +291,7 @@ class TestNatureMarkHeader:
         assert _resolve_nature_id("cnpj") is SPEC_CNPJ
         assert _resolve_nature_id("ip") is SPEC_IP
         assert _resolve_nature_id("nao-existe") is None  # tolerante, não raise
-        # RE-PIN 2026-08-13 (weld A ADR-0041): a resolucao passou a ser por WIRE_ID
+        # weld A ADR-0041: a resolucao passou a ser por WIRE_ID
         # (plano do DADO) e ESTRITA — `dt` resolve, `data-iso` NAO (wire historico
         # le-se out-of-band; ADR-0024).
         assert _resolve_nature_id("dt") is SPEC_DATA_ISO
@@ -300,8 +300,8 @@ class TestNatureMarkHeader:
         # crescer seja decisao, nao acidente. (name-plane pinado desde 2026-08-08.)
         from tcf.natures import _WIRE_REGISTRY
 
-        # RE-PIN 2026-08-14 (weld EXP-018): o registry ganhou `int-pad`/`ipad`.
-        # RE-PIN 2026-08-21 (ADR-0044): o CNPJ alfanumerico entrou como UM SO'
+        # weld EXP-018: o registry ganhou `int-pad`/`ipad`.
+        # ADR-0044: o CNPJ alfanumerico entrou como UM SO'
         # spec `cnpj` — o `cnpj-alfa`/`cnpja` do ADR-0042 nao chegou a existir
         # fora desta sessao. O vocabulario voltou a 5.
         assert set(SPEC_REGISTRY) == {"cpf", "cnpj", "ip", "data-iso", "int-pad"}
@@ -451,7 +451,7 @@ class TestNatureMarkSingleCol:
         assert line0 == "#TCF.8 :ip" or (line0.startswith("#TCF.8") and ":" not in line0)
 
     def test_unknown_id_raises(self):
-        # ERRO estrito (BUG-13b, owner 2026-07-10 — antes: warning + cru calado)
+        # ERRO estrito (BUG-13b, owner — antes: warning + cru calado)
         text = encode(["529.982.247-25", "111.444.777-35"], schema=SPEC_CPF)
         tampered = text.replace(":cpf", ":FUTURE9", 1)
         with pytest.raises(ValueError, match="desconhecido"):
@@ -464,7 +464,7 @@ class TestNatureMarkSingleCol:
         assert decode(text, schema=SPEC_CPF) == cpfs
 
     def test_custom_spec_roundtrip_requires_matching_out_of_band(self):
-        # RE-PIN 2026-08-13 (weld A ADR-0041): spec de terceiro precisa de wire_id
+        # weld A ADR-0041: spec de terceiro precisa de wire_id
         # PROPRIO — `replace(name=...)` sozinho herdaria o wire_id core `cpf` e a
         # emissao recusa a mascarada (pin em TestWireIdDoisPlanos). Convencao `x*`.
         custom = replace(SPEC_CPF, name="custom-cpf", wire_id="xcpf")
@@ -625,7 +625,7 @@ class TestDataIsoSpec:
         # passo mensal: o OBAT rende ~4% sozinho; o ordinal colapsa no seq-RLE
         mensal = [(base + dt.timedelta(days=30 * i)).isoformat() for i in range(200)]
         w = encode(mensal, schema=S)
-        # RE-PIN 2026-08-13 (weld A ADR-0041): o header carrega o wire_id `dt`.
+        # weld A ADR-0041: o header carrega o wire_id `dt`.
         assert w.startswith("#TCF.8 :dt"), w[:24]
         assert len(w.encode()) < len(encode(mensal).encode()) // 10
         assert decode(w) == mensal
@@ -1046,7 +1046,7 @@ class TestIntPadSpecWeld:
     def test_registry_ganhou_ipad_nos_dois_planos(self):
         from tcf.natures import SPEC_REGISTRY, _WIRE_REGISTRY, _resolve_nature_id
 
-        # RE-PIN 2026-08-21 (ADR-0044): CNPJ unificado, vocabulario de volta a 5.
+        # ADR-0044: CNPJ unificado, vocabulario de volta a 5.
         assert set(SPEC_REGISTRY) == {"cpf", "cnpj", "ip", "data-iso", "int-pad"}
         assert set(_WIRE_REGISTRY) == {"cpf", "cnpj", "ip", "dt", "ipad"}
         assert _resolve_nature_id("ipad").name == "int-pad"
@@ -1135,7 +1135,7 @@ class TestCnpjAlfanumerico:
         assert 43 ** 12 > len(BASE94) ** 10
 
     def test_extremos_do_dominio(self):
-        """RE-PIN ADR-0043: corpo 100% decimal agora COMPACTA em 7 chars (o caso
+        """ADR-0043: corpo 100% decimal agora COMPACTA em 7 chars (o caso
         particular por valor); qualquer letra no corpo -> 10. RT nos dois."""
 
         for corpo, esperado in (("000000000000", 7), ("999999999999", 7),

@@ -83,7 +83,7 @@ class TemplatedCheckedSpec:
     #: payload, entao os dois comprimentos tem de diferir. E' o "caso particular
     #: conveniente" POR VALOR: nenhuma heuristica de coluna a sustentar — cada
     #: valor decide sozinho, e a fracao numerico/alfa pode derivar no tempo a
-    #: vontade (a direcao do owner 2026-08-21: o numerico vira legado e se dilui;
+    #: vontade (a direcao do owner: o numerico vira legado e se dilui;
     #: um chooser por coluna nao se sustentaria).
     alfabeto_compacto: str | None = None
     encoded_length_compacto: int = 0
@@ -409,7 +409,7 @@ def _cnpj_formatter(valores: list[int]) -> str:
 # O decode discrimina PELO COMPRIMENTO do payload. Ambos sao MINIMOS em base-80
 # (80^6 e 80^9 nao cabem), e o DV nunca e' gravado (recomputado no decode).
 #
-# POR QUE O CASO COMPACTO FICA, sendo o ganho transitorio (owner 2026-08-21:
+# POR QUE O CASO COMPACTO FICA, sendo o ganho transitorio (owner:
 # *"o so' numerico pode ate' ser oportunidade, mas acho que ela sera' transitoria"*):
 # ele e' LOAD-BEARING, nao otimizacao. Sem ele, este spec NAO LE o wire `:cnpj`
 # de 7 chars ja' emitido — devolveria o payload cru como se fosse o valor

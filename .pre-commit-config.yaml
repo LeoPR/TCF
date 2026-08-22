@@ -5,6 +5,11 @@
 # Hooks rapidos (basicos + secrets + ruff lint). Pesados (full test
 # suite) ficam fora — rodados manualmente ou em CI futuro.
 
+# EXCLUDE GLOBAL: registro probatorio e imutavel fica FORA de qualquer hook.
+# Fixture byte-canonica, lab, ADR e archive NAO sao 'higienizaveis' — mudar
+# 1 byte neles muda o que os gates medem ou corrompe o traco (Strata §3).
+exclude: '^(datasets/|experiments/|docs/adr/|docs/archive/|docs/findings/|old/|legacy-snapshots/|llm-benchmark/)'
+
 repos:
   # Hooks basicos (pre-commit oficial)
   - repo: https://github.com/pre-commit/pre-commit-hooks
@@ -37,10 +42,10 @@ repos:
     hooks:
       - id: ruff
         args: ['--fix']
-        # Aceita codigo experimental em dirty (apenas warnings, sem fail)
-        exclude: '^(experiments/lab/dirty/.*|old/.*)$'
+        # experiments/ inteiro fora: labs sao REGISTRO (probatorio), nao codigo mantido
+        exclude: '^(experiments/.*|old/.*)$'
       - id: ruff-format
-        exclude: '^(experiments/lab/dirty/.*|old/.*)$'
+        exclude: '^(experiments/.*|old/.*)$'
 
   # Custom: bloquear cache dirs acidentalmente staged
   # (defesa em profundidade junto com .gitignore)
@@ -48,7 +53,10 @@ repos:
     hooks:
       - id: no-cache-dirs
         name: Bloquear cache dirs staged
-        entry: bash -c 'if git diff --cached --name-only | grep -E "(__pycache__|\.pytest_cache|\.mypy_cache|\.ruff_cache)" >/dev/null; then echo "ERRO: cache dirs no staging"; exit 1; fi'
+        entry: >-
+          bash -c 'if git diff --cached --name-only | grep -E
+          "(__pycache__|\.pytest_cache|\.mypy_cache|\.ruff_cache)" >/dev/null;
+          then echo "ERRO: cache dirs no staging"; exit 1; fi'
         language: system
         always_run: true
         pass_filenames: false

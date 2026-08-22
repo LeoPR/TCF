@@ -25,4 +25,4 @@ safe_having +70pp em q_having; safe_explicit_fk -11pp em q_top_e1_best_e2.
 
 
 
-Manifest: 
+Manifest:

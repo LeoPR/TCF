@@ -51,7 +51,7 @@ qwen3 errou COUNT mesmo com thinking.
 - L0 math: 0% (nao soma numeros crus)
 - L1 decode: 0% (nao lista valores do TCF)
 - L2 compute: 75% (acerta sum e count — mas como?)
-- Resposta: os STATS lines (`# STATS total: n=509 sum=147445.47`) 
+- Resposta: os STATS lines (`# STATS total: n=509 sum=147445.47`)
   dao a resposta pronta. O modelo le os hints, nao processa os dados.
 
 ### F82: qwen3:8b genuinamente processa dados
@@ -82,14 +82,14 @@ Isso significa:
 
 ### Experimento necessario: STATS ablation
 Rodar os mesmos modelos com TCF L0/L2 **sem** STATS lines.
-Se accuracy cai de 88% para ~0%, confirma que os modelos nao 
+Se accuracy cai de 88% para ~0%, confirma que os modelos nao
 processam os dados — so leem hints.
 
 Se cai mas nao para zero, os modelos fazem ALGO alem de ler hints.
 
 ### Para o paper
-Este finding e **central**. Muda a narrativa de "TCF comprime e 
-modelos entendem" para "TCF com hints meta-cognitivos (STATS) 
+Este finding e **central**. Muda a narrativa de "TCF comprime e
+modelos entendem" para "TCF com hints meta-cognitivos (STATS)
 permite que modelos que NAO sabem calcular ainda acertem."
 
 O valor do TCF nao e so compressao — e prover hints que compensam

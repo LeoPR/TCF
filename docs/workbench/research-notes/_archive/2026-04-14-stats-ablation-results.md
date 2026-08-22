@@ -1,7 +1,7 @@
 # Stats Ablation — Resultados e Interpretação
 
-**Data:** 2026-04-14  
-**Experimento:** benchmark_stats_ablation.py  
+**Data:** 2026-04-14
+**Experimento:** benchmark_stats_ablation.py
 **Dataset:** adult-census (5 questões × 3 formatos × 3 escalas × 3 modelos = 135 combos)
 
 ---
@@ -69,7 +69,7 @@ Gap = 0% mesmo sendo q1 (média global) diretamente legível no bloco STATS:
 
 ### 2. STATS ajudou r2 (filter+avg, +13%)
 
-r2 pergunta a média de idade de pessoas com education='Bachelors'. 
+r2 pergunta a média de idade de pessoas com education='Bachelors'.
 STATS por coluna não responde diretamente (não há STATS por subgrupo),
 mas fornece _âncoras_ (min/max/mean global da coluna `age`) que o modelo
 usa para verificar se sua resposta filtrada é plausível.
@@ -78,7 +78,7 @@ Efeito: STATS serve como referência de sanidade para cálculos filtrados.
 
 ### 3. STATS prejudicou r5 (comparação Males vs Females, -11%)
 
-r5 compara médias de grupos: "Males work more hours than females?". 
+r5 compara médias de grupos: "Males work more hours than females?".
 TCF com STATS é mais longo (mais tokens) e inclui estatísticas globais
 que podem obscurecer a necessidade de calcular _por grupo_.
 

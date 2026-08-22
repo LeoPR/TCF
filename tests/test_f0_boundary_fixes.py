@@ -679,7 +679,7 @@ class TestLote3MetaStrict:
 
 class TestLote4NatureIdStrict:
     """BUG-13b: nature-id desconhecido no header = ERRO (revoga o contrato
-    forward-compat de 2026-06-24 — decisão owner 2026-07-10: pre-1.0 não tem
+    forward-compat de 2026-06-24 — decisão owner: pre-1.0 não tem
     forward-compat a proteger, ADR-0024; seguir com dado cru base-94 calado é
     corrupção silenciosa)."""
 

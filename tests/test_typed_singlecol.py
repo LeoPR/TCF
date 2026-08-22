@@ -460,7 +460,7 @@ class TestLazyBool:
     def test_s_com_B_fail_loud(self):
         """`sB` continua fail-loud: a string tipada nunca foi soldada.
 
-        RE-PIN 2026-08-07 (weld T-BN-TIPADO): este teste pinava `nB`/`sB` juntos, porque os
+        weld T-BN-TIPADO: este teste pinava `nB`/`sB` juntos, porque os
         dois eram inexistentes. O `nB` PASSOU A EXISTIR (denso bN numerico) — a cobertura
         dele mora em `TestBNTipadoNumerico`. O `sB` segue sem rota.
         """

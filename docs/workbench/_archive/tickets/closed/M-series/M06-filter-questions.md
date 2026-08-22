@@ -25,4 +25,4 @@ HAVING falha universalmente (7%) — scope confusion (one-level vs two-level agg
 
 
 
-Manifest: 
+Manifest:

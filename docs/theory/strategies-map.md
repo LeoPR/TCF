@@ -100,46 +100,46 @@ CONFIG TOGGLES (pipeline.py):
 
 ### Detalhamento
 
-**`analyze_column`** (estrategia, [src/tcf/column_features.py:51-84](../../src/tcf/column_features.py))  
+**`analyze_column`** (estrategia, [src/tcf/column_features.py:51-84](../../src/tcf/column_features.py))
 Computa features basicas de uma coluna em 1 passada O(N) sobre values. Extrai: n_rows (total), n_unicas (distinct count), avg_len (media de comprimentos), cardinality (n_unicas/n_rows como razao), is_numeric (check amostragem), sample (tuple de primeiras N strings para analises posteriores). is_numeric eh True somente se TODAS strings do sample parsam float(). Edges: coluna vazia retorna features zerados com is_numeric=False. Sample padrao=20.
 
-**`detect_cadence_from_features`** (estrategia, [src/tcf/auto_cadence.py:28-96](../../src/tcf/auto_cadence.py))  
+**`detect_cadence_from_features`** (estrategia, [src/tcf/auto_cadence.py:28-96](../../src/tcf/auto_cadence.py))
 2-regra heuristica pra detectar se coluna tem cadencia estrutural (justifica usar processar_with_hint com prefer_shape_consistency=True). Regra 1 (wrapper+counter): lengths uniformes em primeiras n_sample strings E (LCP+LCS)/L >= threshold em TODOS pares consecutivos → rule_hit='1-uniform-length-high-lcp-lcs'. Regra 2 (numeric high-card, ADR-0008): is_numeric=True AND cardinality > numeric_card_threshold → rule_hit='2-numeric-high-cardinality'. Retorna (bool, dict info) onde info contem rule_hit, reasoning, lcp_lcs_ratios se aplicavel, cardinality, is_numeric. Requer len(strings_unicas) >= 2; senao retorna False+reason='muito poucas strings'.
 
-**`detect_min_len_from_features`** (estrategia, [src/tcf/auto_min_len.py:25-68](../../src/tcf/auto_min_len.py))  
+**`detect_min_len_from_features`** (estrategia, [src/tcf/auto_min_len.py:25-68](../../src/tcf/auto_min_len.py))
 Heuristica v3 (shallow decision tree) auto-detecta min_len otimo baseado em avg_len, cardinality, is_numeric. Decision tree com gating (n < n_threshold→3) + 6 regras sequenciais (primeira match wins): card<0.2→3 (baixa-card seguro), avg_len>=25→6 (long-form), avg_len>=8 AND card>=0.4→6 (dates/mid-len high-card), avg_len>=5 AND is_numeric AND card>=0.8→6 (numeric high-card), avg_len>=12 AND card>=0.7→5 (phone-like), avg_len>=3 AND card>=0.2→4 (IDs sequenciais), else→3. Captura 99.5% do oracle (melhor min_len possivel) em 58 colunas real-world (Adult+TPC-H). Gating n<100 preserva M9 baseline EXATO (1615B D1-D9).
 
-**`_is_numeric_string`** (helper, [src/tcf/column_features.py:26-34](../../src/tcf/column_features.py))  
+**`_is_numeric_string`** (helper, [src/tcf/column_features.py:26-34](../../src/tcf/column_features.py))
 Helper que determina se uma string individual eh numerica (aceita int, float, negativos, exponencial '1e5'). Implementacao: try float(v) return True, except ValueError/TypeError return False. Empty string retorna False. Usado em analyze_column para compor is_numeric field (sample-based check).
 
-**`processar_with_hint`** (estrategia, [src/tcf/obat_shape.py:64-120](../../src/tcf/obat_shape.py))  
+**`processar_with_hint`** (estrategia, [src/tcf/obat_shape.py:64-120](../../src/tcf/obat_shape.py))
 Variante de OBAT tokenizer com dica opcional prefer_shape_consistency. Quando False, comporta-se identico ao processar() canonical. Quando True: apos cada string emitida, memoriza shape=(p_src, p_len, has_L, s_src, s_len); pra proxima string, tenta replicar exatamente via _try_preserve_shape. Fallbacks: (1) exato: lcp_avail>=p_len_old AND lcs_avail>=s_len_old, (2) wider: reduz p_len/s_len a max possivel se exato falhar (lcp_avail, lcs_avail), (3) greedy: cai pra OBAT canonical se nem wider funciona. Input: strings_unicas (deduplicated), min_len (from pre-pass), prefer_shape_consistency (from cadence detection). Output: (tokens_por_string, log_string).
 
-**`_try_preserve_shape`** (helper, [src/tcf/obat_shape.py:32-61](../../src/tcf/obat_shape.py))  
+**`_try_preserve_shape`** (helper, [src/tcf/obat_shape.py:32-61](../../src/tcf/obat_shape.py))
 Tenta replicar last_shape em string s. Valida: last_shape deve ter has_L=True (literal existe entre prefix e suffix), p_src/s_src devem estar em range (idx_limit). Calcula lcp_avail/lcs_avail contra s e prev strings. Tenta exato (lcp_avail>=p_len_old AND lcs_avail>=s_len_old); se falhar, tenta wider reduzindo ambos a minimo disponivel, validando new_len > 0 e ambos >= min_len. Retorna (p_src, p_len, s_src, s_len) tupla ou None.
 
-**`PipelineConfig`** (marcador, [src/tcf/pipeline.py:35-60](../../src/tcf/pipeline.py))  
+**`PipelineConfig`** (marcador, [src/tcf/pipeline.py:35-60](../../src/tcf/pipeline.py))
 Dataclass frozen com 3 boolean toggles controlando CAMADA 0-3 comportamento. pre_pass (default=True): ativa analyze_column+detect_cadence+detect_min_len. obat_shape_preserve (default=True): usa processar_with_hint com hint=True se cadence detected. hcc_seq_rle (default=True): aplica HCCSeqRLE vs M8AVirtualRefsSyntax. Default singleton DEFAULT_PIPELINE = PipelineConfig() equivale a M10 canonical. Motivacao: ablation + debug sem hardcode.
 
-**`lcp_len (Longest Common Prefix)`** (helper, [src/tcf/core/online.py:59-64](../../src/tcf/core/online.py))  
+**`lcp_len (Longest Common Prefix)`** (helper, [src/tcf/core/online.py:59-64](../../src/tcf/core/online.py))
 Computa LCP length entre duas strings a,b via scan caractere-por-caractere ate' mismatch ou fim da menor string. Usa min(len(a), len(b)) como limite. O(min(|a|,|b|)) simples. Usado em detect_cadence para computar ratio (lcp+lcs)/L em pares consecutivos (regra 1), e em obat_shape para validar se pode replicar shape anterior.
 
-**`lcs_len (Longest Common Suffix)`** (helper, [src/tcf/core/online.py:67-72](../../src/tcf/core/online.py))  
+**`lcs_len (Longest Common Suffix)`** (helper, [src/tcf/core/online.py:67-72](../../src/tcf/core/online.py))
 Computa LCS length entre duas strings a,b via scan de tras pra frente (indices negativos) ate' mismatch. O(min(|a|,|b|)). Dual de lcp_len. Mesmos usos em detect_cadence + obat_shape.
 
-**`Cardinality Threshold (0.5, 0.2, etc)`** (threshold, [src/tcf/auto_cadence.py:33, src/tcf/auto_min_len.py:56-66](../../src/tcf/auto_cadence.py))  
+**`Cardinality Threshold (0.5, 0.2, etc)`** (threshold, [src/tcf/auto_cadence.py:33, src/tcf/auto_min_len.py:56-66](../../src/tcf/auto_cadence.py))
 Multiplos thresholds de cardinalidade (razao n_unicas/n_rows) usados em decisoes: (1) numeric_card_threshold=0.5 em detect_cadence Regra 2 (valores numericos com >50% distinct → cadence estrutural, ADR-0008). (2) Implicit thresholds em detect_min_len: card<0.2→ml=3, card>=0.2→ml=4, card>=0.4→ml=6 (com avg_len), card>=0.7→ml=5. (3) card>=0.8 com is_numeric+avg_len>=5→ml=6. Empirico em 58 colunas reais; pode nao generalizar a datasets novos.
 
-**`Average Length Buckets`** (threshold, [src/tcf/auto_min_len.py:58-66](../../src/tcf/auto_min_len.py))  
+**`Average Length Buckets`** (threshold, [src/tcf/auto_min_len.py:58-66](../../src/tcf/auto_min_len.py))
 Decision tree em auto_min_len usa buckets de avg_len (media tamanho string na coluna) como gating: avg_len<3→ml=3 (default), avg_len>=3 AND card>=0.2→ml=4, avg_len>=5 (+ is_num+card>=0.8)→ml=6, avg_len>=8 (+ card>=0.4)→ml=6, avg_len>=12 (+ card>=0.7)→ml=5, avg_len>=25→ml=6. Empirico em real-world. Representa padrao: strings muito longas=higher min_len safe.
 
-**`LCP+LCS Ratio Threshold (0.7)`** (threshold, [src/tcf/auto_cadence.py:32, linha 76](../../src/tcf/auto_cadence.py))  
+**`LCP+LCS Ratio Threshold (0.7)`** (threshold, [src/tcf/auto_cadence.py:32, linha 76](../../src/tcf/auto_cadence.py))
 Regra 1 de detect_cadence requer que em TODOS os pares consecutivos do sample, (lcp+lcs)/L >= 0.7 (default). L = tamanho uniforme string. Threshold 0.7 significa >=70% dos caracteres em pair sao LCP ou LCS (comuns). Escolhido empiricamente para detectar wrapper+counter patterns (ex: wrapper='[' L=']', numeric counter no meio). Valor atual reflete ADR-0008 real-world validation (0.7 bom balance para HELP vs HURT).
 
-**`n_rows Gating (n >= 100)`** (decision-point, [src/tcf/auto_min_len.py:49-50](../../src/tcf/auto_min_len.py))  
+**`n_rows Gating (n >= 100)`** (decision-point, [src/tcf/auto_min_len.py:49-50](../../src/tcf/auto_min_len.py))
 Gating em detect_min_len_from_features: IF n_rows < n_threshold (100 default), return 3 (fallback seguro). Justificativa: datasets pequenos (D1-D9 sinteticos, n=12-20) com heuristica complexa pode quebrar M9 baseline invariant. Empirico: n<100 recebem default ml=3, preserva 1615B exato em D1-D9. Datasets reais (Adult/TPC-H n=1000-5000) passam gating, recebem heuristica completa.
 
-**`Sample Size (n_sample=5)`** (threshold, [src/tcf/auto_cadence.py:31, linha 59](../../src/tcf/auto_cadence.py))  
+**`Sample Size (n_sample=5)`** (threshold, [src/tcf/auto_cadence.py:31, linha 59](../../src/tcf/auto_cadence.py))
 Tamanho da amostra de strings unicas para regra 1 (wrapper+counter) em detect_cadence. Default=5 significa primeiras 5 strings unicas sao analisadas pra uniformidade de length e ratios LCP+LCS. Escolha empirica: suficiente pra detectar pattern, sem overhead grande. Tunable via parametro detect_cadence_from_features(n_sample=...).
 
 ### Notas
@@ -152,7 +152,7 @@ COMPONENTES:
 
 1. **ColumnFeatures (dataclass frozen)**: 6 fields (n_rows, n_unicas, avg_len, cardinality, is_numeric, sample). Computado por analyze_column(values, sample_size=20) em O(N) single pass. is_numeric via sample-based check: ALL strings[:20] parse float(). Usado como input chave em detect_cadence + detect_min_len + (future detectors).
 
-2. **detect_cadence_from_features (2-rule)**: 
+2. **detect_cadence_from_features (2-rule)**:
    - Regra 1: len(strings_unicas) > 1 AND lengths uniformes (set(lens)==1) AND for ALL pares (s[i-1],s[i]) in sample: (lcp+lcs)/L >= 0.7 → rule_hit='1-uniform-length-high-lcp-lcs'. Padroes: wrapper+counter ('[...VALUE...]').
    - Regra 2 (ADR-0008): is_numeric=True AND cardinality > 0.5 → rule_hit='2-numeric-high-cardinality'. Padroes: numeric IDs, timestamps, decimais.
    - Empirico: 12 HELP (cadence util) + 22 HURT (cadence prejudicial) + 42 NO-OP em 76 colunas reais. Regra 2 captura todos 12 HELP; 7 NO-OPs adicionais (custo zero).
@@ -294,64 +294,64 @@ For each string in OBAT processar():
 
 ### Detalhamento
 
-**`Token type: TokLit (literal)`** (token-type, [src/tcf/core/online.py:30-35](../../src/tcf/core/online.py))  
+**`Token type: TokLit (literal)`** (token-type, [src/tcf/core/online.py:30-35](../../src/tcf/core/online.py))
 Dataclass representing a literal substring that cannot be compressed via reference to previous strings. Fields: text (str). Emitted when no LCP/LCS match >= min_len exists for a span, or when span falls between prefix and suffix references. Does NOT contribute to 'coverage' in greedy algorithm.
 
-**`Token type: TokRefPref (prefix reference)`** (token-type, [src/tcf/core/online.py:38-44](../../src/tcf/core/online.py))  
+**`Token type: TokRefPref (prefix reference)`** (token-type, [src/tcf/core/online.py:38-44](../../src/tcf/core/online.py))
 Dataclass representing a reference to the first N chars of a previous string. Fields: string_id (1-indexed), length (bytes). Decoder resolves via strings_unicas[string_id-1][:length]. Enables affix-based compression of leading patterns (e.g., email prefixes, URL paths). Byte-canonical: always uses 1-indexed IDs matching insertion order.
 
-**`Token type: TokRefSuf (suffix reference)`** (token-type, [src/tcf/core/online.py:47-53](../../src/tcf/core/online.py))  
+**`Token type: TokRefSuf (suffix reference)`** (token-type, [src/tcf/core/online.py:47-53](../../src/tcf/core/online.py))
 Dataclass representing a reference to the last N chars of a previous string. Fields: string_id (1-indexed), length (bytes). Decoder resolves via strings_unicas[string_id-1][-length:]. Complements TokRefPref for stable trailing patterns (e.g., domain suffixes, file extensions, unit suffixes). Byte-canonical: preserves insertion order.
 
-**`LCP (Longest Common Prefix) calculation`** (heuristica, [src/tcf/core/online.py:59-64 (public); 75-82 (_lcp_len_capped)](../../src/tcf/core/online.py))  
+**`LCP (Longest Common Prefix) calculation`** (heuristica, [src/tcf/core/online.py:59-64 (public); 75-82 (_lcp_len_capped)](../../src/tcf/core/online.py))
 Computes max k such that a[0:k] == b[0:k]. Linear scan O(min(len(a), len(b))). _lcp_len_capped() variant accepts cap parameter to limit search (used in _melhor_pref with max_len=ls to avoid overflow). No memoization; called O(N*B) times per column (N=strings, B=avg bucket size). Critical performance path optimized via trigram index (ADR-0009).
 
-**`LCS (Longest Common Suffix) calculation`** (heuristica, [src/tcf/core/online.py:67-72 (public); 85-94 (_lcs_len_capped)](../../src/tcf/core/online.py))  
+**`LCS (Longest Common Suffix) calculation`** (heuristica, [src/tcf/core/online.py:67-72 (public); 85-94 (_lcs_len_capped)](../../src/tcf/core/online.py))
 Computes max k such that a[-k:] == b[-k:]. Linear scan from both string ends O(min(len(a), len(b))). _lcs_len_capped() variant accepts cap. Called O(N*B) times (same as LCP). Implements backward indexing a[len(a)-1-i] and b[len(b)-1-i].
 
-**`Hash prefix index (trigram bucketing)`** (marcador, [src/tcf/core/online.py:184, 196-197, 222-223; processar() initializes and maintains](../../src/tcf/core/online.py))  
+**`Hash prefix index (trigram bucketing)`** (marcador, [src/tcf/core/online.py:184, 196-197, 222-223; processar() initializes and maintains](../../src/tcf/core/online.py))
 dict[str, list[int]] mapping first 3 chars (s[:3]) to zero-indexed IDs of strings with that prefix. Bucket order = insertion order = ascending ID order (preserves tie-break). Example: {'abc': [0, 3, 7], 'def': [1, 2]} for strings indexed 0-3. Size: typically 10-100 buckets per 100-5000 strings; memory O(N) where N=total string count. Trigram k=3 chosen because min_len=3 implies any valid LCP match requires s[:3]==prev[:3].
 
-**`Hash suffix index (trigram bucketing)`** (marcador, [src/tcf/core/online.py:185, 197-198, 223; processar() manages](../../src/tcf/core/online.py))  
+**`Hash suffix index (trigram bucketing)`** (marcador, [src/tcf/core/online.py:185, 197-198, 223; processar() manages](../../src/tcf/core/online.py))
 dict[str, list[int]] mapping last 3 chars (s[-3:]) to candidate IDs. Enables O(B) lookup in _melhor_suf instead of O(N) linear scan. Bucket insertion order preserved. For date-like strings (prefixes 199/200/202), buckets can grow large (2x slowdown vs partkey), but overall 5.4x speedup (ADR-0009).
 
-**`_melhor_pref — find best prefix match`** (filtro, [src/tcf/core/online.py:97-112](../../src/tcf/core/online.py))  
+**`_melhor_pref — find best prefix match`** (filtro, [src/tcf/core/online.py:97-112](../../src/tcf/core/online.py))
 For string s, find best prefix LCP match against all strings in prefix bucket. Returns (best_id, best_len) where best_id is 1-indexed. Algorithm: iterate bucket (ascending ID order, preserves insertion order), compute _lcp_len_capped(s, prev, max_len=ls) for each, keep max by length (strict > comparison). Tie-break: first occurrence wins (due to > not >=). Filters by L >= min_len. Returns (0, 0) if bucket empty or no match >= min_len. O(B) where B=bucket size (vs O(N) naive). Empirically B=2-10 for most columns, up to 100+ for date prefixes.
 
-**`_melhor_suf — find best suffix match`** (filtro, [src/tcf/core/online.py:115-126](../../src/tcf/core/online.py))  
+**`_melhor_suf — find best suffix match`** (filtro, [src/tcf/core/online.py:115-126](../../src/tcf/core/online.py))
 Mirror of _melhor_pref for suffix. Finds best LCS match in suffix bucket. Same logic: iterate bucket ascending, _lcs_len_capped(..., max_len=ls), keep max by length, filter >= min_len, tie-break first-wins. Returns (0, 0) if empty/no match. O(B) complexity.
 
-**`_escolher_par — greedy cover with overlap detection`** (estrategia, [src/tcf/core/online.py:129-162](../../src/tcf/core/online.py))  
+**`_escolher_par — greedy cover with overlap detection`** (estrategia, [src/tcf/core/online.py:129-162](../../src/tcf/core/online.py))
 Greedy algorithm choosing (pref_id, pref_len, suf_id, suf_len) to maximize coverage of string s without overlap. Fast path: if bp_len + bs_len <= ls (no overlap), return immediately. Otherwise: generate 2 candidates: (A) best_pref + suf_constrained_by(ls-bp_len), (B) best_suf + pref_constrained_by(ls-bs_len). Tie-break: max total coverage > max prefix length. Ensures middle section s[bp_len:ls-bs_len] is literal (non-empty). Preserves byte-canonical order from v0.
 
-**`min_len threshold`** (threshold, [src/tcf/core/online.py:102-103, 110, 116, 124 (filtering); default 3 set in processar()](../../src/tcf/core/online.py))  
+**`min_len threshold`** (threshold, [src/tcf/core/online.py:102-103, 110, 116, 124 (filtering); default 3 set in processar()](../../src/tcf/core/online.py))
 Minimum length (in bytes) for any LCP/LCS match to be considered valid. Default value 3 reflects: (a) trigram index k=3, (b) cost-benefit (2-char match overhead not worth it), (c) M9 baseline default. Filtering occurs in _melhor_pref/suf: 'if L >= min_len'. Auto-detection via H-DA-11 (ADR-0010) chooses {3,4,5,6} per column based on avg_len + cardinality + is_numeric heuristics, captures 99.5% oracle gain.
 
-**`Auto-detect min_len (H-DA-11, ADR-0010)`** (estrategia, [src/tcf/auto_min_len.py:25-68](../../src/tcf/auto_min_len.py))  
+**`Auto-detect min_len (H-DA-11, ADR-0010)`** (estrategia, [src/tcf/auto_min_len.py:25-68](../../src/tcf/auto_min_len.py))
 Decision tree heuristic choosing optimal min_len per column. Computes from ColumnFeatures (n_rows, avg_len, cardinality, is_numeric). Gating: n < 100 -> default 3 (preserves M9 baseline in small datasets). Decision tree: card < 0.2 -> 3; avg_len >= 25 -> 6; avg >= 8 and card >= 0.4 -> 6; avg >= 5 and is_numeric and card >= 0.8 -> 6; avg >= 12 and card >= 0.7 -> 5; avg >= 3 and card >= 0.2 -> 4; else 3. Validated on 58 real-world columns (Adult Census, TPC-H): 9.87% weighted compression gain, 99.5% oracle capture. Called in encoder.py _encode_column() before OBAT.
 
-**`Cadence detection (H-DA-08, ADR-0008)`** (estrategia, [src/tcf/auto_cadence.py:28-96](../../src/tcf/auto_cadence.py))  
+**`Cadence detection (H-DA-08, ADR-0008)`** (estrategia, [src/tcf/auto_cadence.py:28-96](../../src/tcf/auto_cadence.py))
 2-rule heuristic determining if column has structural 'cadence' (repeating patterns in shape/LCP-LCS). Rule 1 (wrapper+counter): uniform lengths in first N strings + LCP+LCS ratio >= threshold per consecutive pair -> dispara prefer_shape_consistency hint. Rule 2 (numeric high-card): all sampled strings numeric + card > 0.5 -> dispara hint. When detected, encoder switches from processar() to processar_with_hint(..., prefer_shape_consistency=True). Sub-exp validation: Real TPC-H detected ~25% of columns; marginal gain in multi-layer pipeline (hinted by presence of seq-RLE baseline).
 
-**`processar() — canonical OBAT`** (estrategia, [src/tcf/core/online.py:179-225](../../src/tcf/core/online.py))  
+**`processar() — canonical OBAT`** (estrategia, [src/tcf/core/online.py:179-225](../../src/tcf/core/online.py))
 Main entry point. Tokenizes list of unique strings via LCP+LCS greedy cover. For each string idx=0: emit [TokLit(s)]. For idx>=1: call _escolher_par, emit tokens (TokRefPref + TokLit(middle) + TokRefSuf), maintain prefix/suffix indexes. Returns (tokens_por_string: list[list[Token]], log: str). Log contains per-string coverage %, matched IDs, etc. Byte-canonical: iterates bucket ascending ID order; tie-breaks via > strict. Complexity: O(N*B) where N=strings, B=avg bucket size; trigram index reduces from O(N^2) to O(N*B).
 
-**`processar_with_hint() — cadence-aware OBAT`** (estrategia, [src/tcf/obat_shape.py:64-120](../../src/tcf/obat_shape.py))  
+**`processar_with_hint() — cadence-aware OBAT`** (estrategia, [src/tcf/obat_shape.py:64-120](../../src/tcf/obat_shape.py))
 Variant of processar() with optional shape-consistency hint. When prefer_shape_consistency=True and cadence detected, tries to replicate token structure (p_src, p_len, s_src, s_len) from previous string. Tries 3 fallbacks: (1) exact shape match (LCP/LCS exactly match), (2) wider match (reduce lengths to max available), (3) greedy fallback (use canonical _escolher_par). Returns same token structure as processar(). Motivation: columnar data often has repeating formats (fixed-width prefix, varying middle, fixed suffix like domain); hint speeds convergence. When prefer_shape_consistency=False, behaves identically to processar().
 
-**`reconstroi() — roundtrip validation`** (helper, [src/tcf/core/online.py:165-176](../../src/tcf/core/online.py))  
+**`reconstroi() — roundtrip validation`** (helper, [src/tcf/core/online.py:165-176](../../src/tcf/core/online.py))
 Reconstructs original string from token list. For TokLit: append text. For TokRefPref/Suf: resolve from strings_unicas and extract slice. Used internally for testing only; not part of encode/decode pipeline (HCC layer handles serialization). Termination guaranteed: DAG of references (j < i always).
 
-**`ColumnFeatures pre-pass`** (decision-point, [src/tcf/column_features.py:51-84](../../src/tcf/column_features.py))  
+**`ColumnFeatures pre-pass`** (decision-point, [src/tcf/column_features.py:51-84](../../src/tcf/column_features.py))
 Unified feature extraction O(N). Computes n_rows, n_unicas, avg_len, cardinality, is_numeric (sample-based check), sample (first 20 strings). Immutable dataclass (frozen=True). Used by detect_min_len_from_features, detect_cadence_from_features. Introduced ADR-0010 / H-DA-11c (May 22) to avoid recomputing basic stats in multiple heuristics. Called unconditionally in _encode_column() even if pre_pass disabled (barato, utile for side_outputs).
 
-**`Greedy cover selection criterion (maximize total coverage)`** (decision-point, [src/tcf/core/online.py:155-161](../../src/tcf/core/online.py))  
+**`Greedy cover selection criterion (maximize total coverage)`** (decision-point, [src/tcf/core/online.py:155-161](../../src/tcf/core/online.py))
 In _escolher_par: when prefix+suffix overlap, choose candidate (pref, suf pair) maximizing pref_len + suf_len (total coverage). Tie-break: prefer candidate with max pref_len (preserves v0 behavior). Ensures middle literal always non-empty (prevents TokLit + TokRef collapse).
 
-**`Tie-break rule: first occurrence wins`** (decision-point, [src/tcf/core/online.py:108-111 (_melhor_pref), 122-125 (_melhor_suf)](../../src/tcf/core/online.py))  
+**`Tie-break rule: first occurrence wins`** (decision-point, [src/tcf/core/online.py:108-111 (_melhor_pref), 122-125 (_melhor_suf)](../../src/tcf/core/online.py))
 When two strings have identical LCP/LCS length to current string, prefer the one with earlier insertion order (lower ID). Implemented via 'if L > best_len' (strict >, not >=). Preserves byte-canonical determinism: order of strings_unicas -> consistent token selection -> identical bytes across runs.
 
-**`Trigram index optimization (ADR-0009)`** (estrategia, [src/tcf/core/online.py:97-112 (_melhor_pref uses prefix_index.get), 115-126 (_melhor_suf uses suffix_index.get), 184-185, 196-197, 222-223 (index maintenance)](../../src/tcf/core/online.py))  
+**`Trigram index optimization (ADR-0009)`** (estrategia, [src/tcf/core/online.py:97-112 (_melhor_pref uses prefix_index.get), 115-126 (_melhor_suf uses suffix_index.get), 184-185, 196-197, 222-223 (index maintenance)](../../src/tcf/core/online.py))
 Hash-indexed prefix/suffix bucketing reduces search from O(N) to O(B) where B=bucket size. k=3 (trigram) matches min_len=3: any valid LCP/LCS match implies matching first/last 3 chars. Bucket order = insertion order (ascending ID) preserves tie-break. Empiric speedup: 5.4x on lineitem 5k (ADR-0009 sub-exp), 1.77x in full pipeline. Byte-canonical preserved: bucket iteration ascending, comparison > strict. Memory: ~2-4MB for lineitem 5k.
 
 ### Notas
@@ -476,76 +476,76 @@ REFERENCES:
 
 ### Detalhamento
 
-**`Atomic refs`** (marcador, [src/tcf/composicional/syntax.py:3-5, 26-28](../../src/tcf/composicional/syntax.py))  
+**`Atomic refs`** (marcador, [src/tcf/composicional/syntax.py:3-5, 26-28](../../src/tcf/composicional/syntax.py))
 IDs positivos (1,2,3,...) que representam strings atômicas (literais ou tokens OBAT). Allocados sequencialmente durante tokenização da Fase A. Cada átomo recebe um prov_id (provisional) durante _tokenize_pieces, depois remapeado para final_id durante _emit_body. Coexistem no mesmo espaço de refs com referências virtuais.
 
-**`Virtual refs (aliases)`** (marcador, [src/tcf/composicional/syntax.py:3-5, 223-362](../../src/tcf/composicional/syntax.py))  
+**`Virtual refs (aliases)`** (marcador, [src/tcf/composicional/syntax.py:3-5, 223-362](../../src/tcf/composicional/syntax.py))
 IDs negativos (-1,-2,...) que representam composições detectadas. Um -alias_temp refere alias_to_sub[alias_temp], lista de elems (positivos atoms ou negativos inner aliases). Emitidos como cadeias composicionais no body. Estratégia unificada: detector vê atoms + virtuals na mesma fila, permitindo pares como (atom_X, composição_anterior).
 
-**`Detector greedy (Fase B)`** (filtro, [src/tcf/composicional/syntax.py:225-362](../../src/tcf/composicional/syntax.py))  
+**`Detector greedy (Fase B)`** (filtro, [src/tcf/composicional/syntax.py:225-362](../../src/tcf/composicional/syntax.py))
 Itera até convergência (max 99 iterations linha 359). A cada iteração: (1) conta sub-tuplas K>=2 em ref sequences; (2) computa net = (R-1)*(baseline_chars - num_len) onde baseline=emit length sem composição, num_len=len(str(N)) p/ ID novo; (3) filtra candidatos net>0 + constraints (virtuais em pos 0 OU alias_first_line < sub_first_line); (4) pick argmax(net); (5) substitui todas ocorrências de best.sub por alias novo. Interrompe quando best=None.
 
-**`Net gain criterion`** (threshold, [src/tcf/composicional/syntax.py:288-302](../../src/tcf/composicional/syntax.py))  
+**`Net gain criterion`** (threshold, [src/tcf/composicional/syntax.py:288-302](../../src/tcf/composicional/syntax.py))
 Heurística central do detector: net = (R-1) * (baseline - n_tam), onde R=ocorrências, baseline=chars se emitido `,`-separado inline, n_tam=len(str(próx_id)). Positivo = lucro em bytes se criar novo ref. Negativo/zero = descarta. Tie-break: Counter order (primeiro encontrado ganha). Estimativa de baseline em _estimate_baseline_chars monta ranges L>=3 e estima ~2 digits por virtual.
 
-**`Body-order constraint (inline expansion correctness)`** (filtro, [src/tcf/composicional/syntax.py:267-287, 495-541](../../src/tcf/composicional/syntax.py))  
+**`Body-order constraint (inline expansion correctness)`** (filtro, [src/tcf/composicional/syntax.py:267-287, 495-541](../../src/tcf/composicional/syntax.py))
 Quando um sub contém virtual -Y em posição >0, filtra se alias_first_line[Y] >= sub_first_line[sub]. Sem isso, inline expansion falharia: ao emitir def de sub, Y ainda não resolvido. Com constraint garantido, pairwise left-assoc de Y já tem final_id. Decisão acontece em _detect_compositions; emissão em _emit_alias com expand() recursivo.
 
-**`Escape mechanism (_escape_lit)`** (helper, [src/tcf/composicional/syntax.py:52-73](../../src/tcf/composicional/syntax.py))  
+**`Escape mechanism (_escape_lit)`** (helper, [src/tcf/composicional/syntax.py:52-73](../../src/tcf/composicional/syntax.py))
 Prefixo `\` (backslash) escapa chars reservados: `*` (RLE marker), `\` (escape self), `~` (compositor), dígitos (ref start). Lógica: iterator por char; se digit, coleta run contígua e prefixo com `\`; se `*`/`\`/`~`, single char escape. Retorna (text_escaped, prev_lit_term_digit) onde bool indica se último char é digit (usado pra decidir `*` separator próxima piece).
 
-**`Range compression (M1.E syntax)`** (heuristica, [src/tcf/composicional/syntax.py:91-101, 104-114](../../src/tcf/composicional/syntax.py))  
+**`Range compression (M1.E syntax)`** (heuristica, [src/tcf/composicional/syntax.py:91-101, 104-114](../../src/tcf/composicional/syntax.py))
 Runs de refs consecutivos length>=3 emitidos como `A..B` range em vez de `A~A+1~...~B`. Em _emit_refs_range: groups by _runs_pos, cada run L>=3 vira `start..end`, else individual. Joined por `,` (concat efêmero). Em _emit_composition: analoga mas joined por `~` (compositor). Decoder inverte ranges via range(int(a), int(b)+1).
 
-**`RLE marker: *N|linha`** (marcador, [src/tcf/composicional/syntax.py:416, 462-463, 748-759](../../src/tcf/composicional/syntax.py))  
+**`RLE marker: *N|linha`** (marcador, [src/tcf/composicional/syntax.py:416, 462-463, 748-759](../../src/tcf/composicional/syntax.py))
 Formato `*N|resto` onde N=count inteiro, resto=body linha. Representa N repetições idênticas de mesma string única. Encode: agrupado em _rle_adjacente (linhas consecutivas idênticas), eid emitido; se eid já visto, emite `*count|^eid`. Decode: split `*` e `|`, parse count, emite resto N vezes. Compatível com seq-RLE (ADR-0016).
 
-**`RLE reference: ^eid`** (marcador, [src/tcf/composicional/syntax.py:416-418, 754-755](../../src/tcf/composicional/syntax.py))  
+**`RLE reference: ^eid`** (marcador, [src/tcf/composicional/syntax.py:416-418, 754-755](../../src/tcf/composicional/syntax.py))
 Sintaxe `^N` onde N=eid (elemento id 1-based da lista decodificada anterior). Emitido quando linha repeats de string única ja decodificada previamente em diferente grupo RLE não-consecutivo. Decode: busca nos_decl[eid-1], append N vezes. Bug fix 2026-05-15: `^eid` + count agora emite `*count|^eid` pra preservar repetições em grupos separados (linha 415-418).
 
-**`Seq-RLE marker: *N+delta|template (ADR-0016)`** (marcador, [src/tcf/composicional/hcc_seqrle.py:150-228, 230-274](../../src/tcf/composicional/hcc_seqrle.py))  
+**`Seq-RLE marker: *N+delta|template (ADR-0016)`** (marcador, [src/tcf/composicional/hcc_seqrle.py:150-228, 230-274](../../src/tcf/composicional/hcc_seqrle.py))
 Format `*N+delta|template` ou `*N+d1,d2,...|template`. Post-process em compact_body: detecta runs near-identical (mesmo length, escape-digit runs em mesmas posições, diffs apenas dentro runs). Single delta uniform: emite `*N+delta|` (M10 compat). Multi-delta (ADR-0016 Fase 1): `*N+d1,d2,d3,...|template` (CSV per-run se 1 único non-zero + zeros). Decoder expand_seq_marker: difere pelo `+` vs puro RLE `*N|`, shifta escape-digits por delta(s).
 
-**`Comma separator (ref concat ephemeral)`** (marcador, [src/tcf/composicional/syntax.py:92-102, 451, 673-681, 685](../../src/tcf/composicional/syntax.py))  
+**`Comma separator (ref concat ephemeral)`** (marcador, [src/tcf/composicional/syntax.py:92-102, 451, 673-681, 685](../../src/tcf/composicional/syntax.py))
 Delimitador `,` une refs/ranges em single line sem criar novo ref. Sintaxe: `1,2,3` (refs atom), `1..5,10,15` (ranges+atoms), `1~2,3~4` (compositions). Emit em _emit_ref_run linha 493. Decode em _parse_decl: split por `,` antes de processar cada unit (que pode ter `~` ou `..'). Múltiplas refs=múltiplas pieces emitem `,` between (linha 451). BUG FIX ADR-0007: lit começando com `,` após refs requer `*` separator pra não ser consumido como ref continuation.
 
-**`Tilde compositor (ref concat compositional)`** (marcador, [src/tcf/composicional/syntax.py:104-114, 113, 435, 678, 685](../../src/tcf/composicional/syntax.py))  
+**`Tilde compositor (ref concat compositional)`** (marcador, [src/tcf/composicional/syntax.py:104-114, 113, 435, 678, 685](../../src/tcf/composicional/syntax.py))
 Delimitador `~` une refs E cria novo ref nomeado via pairwise left-assoc. Sintaxe: `1~2~3` emite seq de intermediários. Em decoder: refs [1,2,3] -> pairwise concat ID-1=(1+2), ID-2=(ID-1+3), exporta ID-2. Emit em _emit_composition (composition def) vs _emit_refs_range (atoms). BUG FIX ADR-0007: lit começando com `~` após refs requer `*` separator.
 
-**`Dot-dot range (syntactic sugar)`** (token-type, [src/tcf/composicional/syntax.py:91-101, 104-114, 674-676, 686-688](../../src/tcf/composicional/syntax.py))  
+**`Dot-dot range (syntactic sugar)`** (token-type, [src/tcf/composicional/syntax.py:91-101, 104-114, 674-676, 686-688](../../src/tcf/composicional/syntax.py))
 Syntax `A..B` shorthand para range [A, A+1, ..., B] de refs consecutivos. Encoder usa quando L>=3 consecutivos (linha 97, 110). Decoder recognizes `..` pattern (linha 675-676) e expanda via range(int(a), int(b)+1) (linha 688). Case particular de _emit_composition/refs_range.
 
-**`Literal separator `*` (lit-lit ou boundary)`** (marcador, [src/tcf/composicional/syntax.py:433-442, 450-453, 667-668, 720](../../src/tcf/composicional/syntax.py))  
+**`Literal separator `*` (lit-lit ou boundary)`** (marcador, [src/tcf/composicional/syntax.py:433-442, 450-453, 667-668, 720](../../src/tcf/composicional/syntax.py))
 Single `*` sem count/pipe emitido: (1) entre duas 'lit' pieces sucessivas (linha 434), (2) após refs->lit se lit começa com `,` ou `~` (ADR-0007 bug fix linha 435-442), (3) após lit com digit final->refs (linha 453). Decoder: skip quando em ref mode (linha 667-668, 720-breaking conditions). Função: desambiguação limites lit/ref pra parser single-pass.
 
-**`Pairwise left-associativity (emit strategy)`** (decision-point, [src/tcf/composicional/syntax.py:495-541, 529-538](../../src/tcf/composicional/syntax.py))  
+**`Pairwise left-associativity (emit strategy)`** (decision-point, [src/tcf/composicional/syntax.py:495-541, 529-538](../../src/tcf/composicional/syntax.py))
 Quando emitir alias definition (chain de K elementos), aloca K-1 IDs por pairwise expansion: ID_1 = elem0 + elem1, ID_2 = ID_1 + elem2, ..., ID_{K-1} = ID_{K-2} + elemK. Em _emit_alias, build linear chain via expand() recursivo, depois aloca IDs by pairwise position: alias_to_final[ali] = base + idx (idx=índice no chain linear, idx>=1). Garante correctness de inline expansion com virtual refs (constraint body-order).
 
-**`Inline expansion (virtual resolution)`** (decision-point, [src/tcf/composicional/syntax.py:495-541](../../src/tcf/composicional/syntax.py))  
+**`Inline expansion (virtual resolution)`** (decision-point, [src/tcf/composicional/syntax.py:495-541](../../src/tcf/composicional/syntax.py))
 Quando emitir virtual ref, resolve recursivamente: se já emitido (final_id em state), emit bare ID; senão, flatten sub recursivamente (expand inner aliases em order), aloca K-1 IDs pairwise, atribui finals. Completions tracking (list de (linear_idx, alias)) registra onde cada alias resolva no chain. Permite composition of compositions.
 
-**`Body-order ID assignment (interleaved atoms+compositions)`** (decision-point, [src/tcf/composicional/syntax.py:391-468](../../src/tcf/composicional/syntax.py))  
+**`Body-order ID assignment (interleaved atoms+compositions)`** (decision-point, [src/tcf/composicional/syntax.py:391-468](../../src/tcf/composicional/syntax.py))
 Single-pass emit: current_id increments sequencialmente enquanto percorre pieces (lit/refs). Atoms = +1 per piece (linha 443). Compositions = +K-1 (K=chain length, linha 532). Permite decoder single-pass sem preâmbulo: IDs assignados na ordem parse body.
 
-**`Prev_lit_term_digit tracking`** (decision-point, [src/tcf/composicional/syntax.py:425, 445, 452-453, 458](../../src/tcf/composicional/syntax.py))  
+**`Prev_lit_term_digit tracking`** (decision-point, [src/tcf/composicional/syntax.py:425, 445, 452-453, 458](../../src/tcf/composicional/syntax.py))
 Booleano mantém se última literal emitida termina em digit (via _escape_lit retorno). Usado pra decidir: se prev_lit_term_digit AND próx é 'refs' -> emit `*` separator (linha 452-453) pra evitar parser confundir `abcd1,2` como `abcd` + `1,2` com count. ADR-0007 mitigation.
 
-**`Fragment tracking (_tokenize_pieces)`** (helper, [src/tcf/composicional/syntax.py:151-221](../../src/tcf/composicional/syntax.py))  
+**`Fragment tracking (_tokenize_pieces)`** (helper, [src/tcf/composicional/syntax.py:151-221](../../src/tcf/composicional/syntax.py))
 Fase A: quebra strings em fragments (pedaços de literal/ref). frags_por_no[eid] = lista (a,b,idx) onde [a:b] é substring e idx é fragment_id. quebras[eid] = set de boundary positions (onde refs terminam). Base em OBAT tokens: TokLit -> literal fragment; TokRefPref/TokRefSuf -> herança de fragments anteriores (com ajuste de posição). Permite reuse de fragments atomizados.
 
-**`RLE adjacency grouping (_rle_adjacente)`** (helper, [src/tcf/composicional/syntax.py:42-50](../../src/tcf/composicional/syntax.py))  
+**`RLE adjacency grouping (_rle_adjacente)`** (helper, [src/tcf/composicional/syntax.py:42-50](../../src/tcf/composicional/syntax.py))
 Pré-processa linhas: agrupa strings iguais consecutivas em (string, count). Input: [a,a,b,b,b,a] -> output: [(a,2), (b,3), (a,1)]. Usado em _tokenize_pieces pra detectar runs e decidir is_rep (já emitido antes).
 
-**`Piece structure (lit vs refs)`** (categoria, [src/tcf/composicional/syntax.py:152, 204-217](../../src/tcf/composicional/syntax.py))  
+**`Piece structure (lit vs refs)`** (categoria, [src/tcf/composicional/syntax.py:152, 204-217](../../src/tcf/composicional/syntax.py))
 Fase A output: pieces_per_line[li] = list de ('lit', text, idx) ou ('refs', [ids]). 'lit': literal text + fragment_id. 'refs': sequence de refs (atoms/virtuals positivo/negativo). Consecutivos 'ref' pieces merged em um 'refs' tuple com lista unificada. Ordem preservada per line.
 
-**`RLE hit detection (is_rep)`** (decision-point, [src/tcf/composicional/syntax.py:163-166, 407-420](../../src/tcf/composicional/syntax.py))  
+**`RLE hit detection (is_rep)`** (decision-point, [src/tcf/composicional/syntax.py:163-166, 407-420](../../src/tcf/composicional/syntax.py))
 Se string única já decodificada em grupo RLE anterior (eid_emitido set), marca is_rep=True. Emit usa ^eid reference em vez de recompilar. Preserva bytes quando repetição em grupos não-consecutivos (bug fix 2026-05-15).
 
-**`Estimator de baseline (_estimate_baseline_chars)`** (heuristica, [src/tcf/composicional/syntax.py:364-387](../../src/tcf/composicional/syntax.py))  
+**`Estimator de baseline (_estimate_baseline_chars)`** (heuristica, [src/tcf/composicional/syntax.py:364-387](../../src/tcf/composicional/syntax.py))
 Estima chars de emit `,`-separado de sub (misto atom/virtual) SEM criar nova composition. Para atoms: emit ranges se L>=3. Para virtuals: assume ~2 digits (estimador pessimista). Retorna len(','.join(parts)). Usado no net computation (baseline parameter).
 
-**`Sub-first-line e alias-first-line tracking`** (marcador, [src/tcf/composicional/syntax.py:239-264, 284-287](../../src/tcf/composicional/syntax.py))  
+**`Sub-first-line e alias-first-line tracking`** (marcador, [src/tcf/composicional/syntax.py:239-264, 284-287](../../src/tcf/composicional/syntax.py))
 sub_first_line[sub] = first line index onde sub aparece como candidato. alias_first_line[alias] = first line onde alias (negativo id) aparece em body. Usado em body-order constraint: se sub tem virtual em pos>0, require alias_first_line[virt] < sub_first_line[sub].
 
 ### Notas
@@ -626,46 +626,46 @@ Em decode, marker parser disambiguates automaticamente: ',' na delta_str → CSV
 
 ### Detalhamento
 
-**`find_escape_digit_positions`** (helper, [src/tcf/composicional/hcc_seqrle.py:31-44](../../src/tcf/composicional/hcc_seqrle.py))  
+**`find_escape_digit_positions`** (helper, [src/tcf/composicional/hcc_seqrle.py:31-44](../../src/tcf/composicional/hcc_seqrle.py))
 Utility que mapeia posições (0-based) de cada char digit que vem após backslash (escape sequence). Itera string left-to-right, detecta '\' seguido de isdigit(), coleta indice de cada digit. Retorna lista vazia se nenhuma sequence escape-digit encontrada. Usado por find_escape_digit_runs e compare_for_seq pra localizar quais portions do template são 'numéricos' (candidatos a delta shift).
 
-**`find_escape_digit_runs`** (estrategia, [src/tcf/composicional/hcc_seqrle.py:47-62](../../src/tcf/composicional/hcc_seqrle.py))  
+**`find_escape_digit_runs`** (estrategia, [src/tcf/composicional/hcc_seqrle.py:47-62](../../src/tcf/composicional/hcc_seqrle.py))
 Detecta RUNS (intervalos consecutivos) de digits após escape. Retorna list[tuple[int, int]] (start, end_exclusive) de cada run. Ex: '\\125.\\114' → [(1,4), (6,9)]. Crítico pra distinguir multi-run (prefix invariante + suffix cadenced) de single-run. Usado como pivô em compare_for_seq pra rejeitar pares com estruturas runs diferentes.
 
-**`compare_for_seq`** (decision-point, [src/tcf/composicional/hcc_seqrle.py:65-112](../../src/tcf/composicional/hcc_seqrle.py))  
+**`compare_for_seq`** (decision-point, [src/tcf/composicional/hcc_seqrle.py:65-112](../../src/tcf/composicional/hcc_seqrle.py))
 CRITERIO CENTRAL pra near-identical detection. Compara line_a e line_b; retorna list[int] de deltas (1 per run) se par é compactavel, None senão. Aceita: (1) single run com delta non-zero, (2) multi-run com EXATAMENTE 1 valor non-zero + resto zeros (ex: [0,0,0,1]). Rejeita: (1) len diferente, (2) diffs fora de escape-digit runs, (3) runs_a ≠ runs_b (estrutura diferente), (4) multiple non-zero diferentes (Fase 2 reject, linha 111), (5) all-zero (linhas identicas). ADR-0016: mudança chave vs M10 — agora aceita multi-delta [0,0,0,1] que antes rejeitava (Bug #2).
 
-**`_is_uniform_delta`** (heuristica, [src/tcf/composicional/hcc_seqrle.py:176-183](../../src/tcf/composicional/hcc_seqrle.py))  
+**`_is_uniform_delta`** (heuristica, [src/tcf/composicional/hcc_seqrle.py:176-183](../../src/tcf/composicional/hcc_seqrle.py))
 Verifica se lista de deltas é UNIFORME (todos iguais e non-zero). Se sim, retorna aquele int único; senão None. Usado em compact_body (linha 199) pra decidir marker format: M10 compat `*N+delta|` (uniform) vs ADR-0016 CSV `*N+d1,d2,d3,d4|` (mixed). Threshold: all(d == deltas[0] and d != 0). Importante pra backward compatibility.
 
-**`shift_escape_digits`** (estrategia, [src/tcf/composicional/hcc_seqrle.py:115-147](../../src/tcf/composicional/hcc_seqrle.py))  
+**`shift_escape_digits`** (estrategia, [src/tcf/composicional/hcc_seqrle.py:115-147](../../src/tcf/composicional/hcc_seqrle.py))
 Aplica delta(s) a template pra gerar linha i+1, i+2, ... em run. Aceita delta como int (M10: mesmo delta em TODOS runs) ou list[int] (ADR-0016: per-run). Algorithm: (1) parse runs do template, (2) normalize delta pra list, (3) iterate runs + deltas em sync, (4) apply int(run_old) + d → new_val, (5) format com zfill(width) pra preservar leading zeros. Edge case: se len(deltas) ≠ len(runs), retorna template inalterado (safe fallback). Linha 142: zfill preserva 3-digit de IPs ex: '\\001' ∈ run → +1 → '\\002'.
 
-**`detect_seq_runs`** (estrategia, [src/tcf/composicional/hcc_seqrle.py:150-173](../../src/tcf/composicional/hcc_seqrle.py))  
+**`detect_seq_runs`** (estrategia, [src/tcf/composicional/hcc_seqrle.py:150-173](../../src/tcf/composicional/hcc_seqrle.py))
 DETECTOR SEQUENCIAL de runs near-identical. Itera body_lines, chama compare_for_seq em cada par consecutivo. Quando par aceitável, estende run enquanto proxima line mantém MESMO deltas. Retorna list[tuple[int, int, list[int]]] = (start_line, end_exclusive, deltas). Invariante: runs não se sobrepõem, sequential. Usado em compact_body. ADR-0016: deltas sempre list[int] (retorno de compare_for_seq mudou de int → list). Threshold pra extend run (linha 168): next_deltas == deltas (exato, não aproximado).
 
-**`compact_body`** (estrategia, [src/tcf/composicional/hcc_seqrle.py:186-227](../../src/tcf/composicional/hcc_seqrle.py))  
+**`compact_body`** (estrategia, [src/tcf/composicional/hcc_seqrle.py:186-227](../../src/tcf/composicional/hcc_seqrle.py))
 POST-PROCESS pós-encode. Detecta runs near-identical, substitui por markers. Decide marker format (M10 vs CSV): linha 199-210. Se uniform delta → M10 format `*count+delta|template` (compat). Senão → CSV `*count+d1,d2,...|template` (ADR-0016). Sign handling (linha 201, 209): prepend '+' apenas se delta[0] >= 0; negativo já inclui '-' via str(). Retorna (compacted_lines, info_dicts). Info dict inclui savings estimate (linha 219-220) = (sum(len original lines) + count-1) - len(marker). Invariante: cada marker ≥ 2 linhas (count >= 2).
 
-**`expand_seq_marker`** (estrategia, [src/tcf/composicional/hcc_seqrle.py:230-274](../../src/tcf/composicional/hcc_seqrle.py))  
+**`expand_seq_marker`** (estrategia, [src/tcf/composicional/hcc_seqrle.py:230-274](../../src/tcf/composicional/hcc_seqrle.py))
 DECODER REVERSO de markers. Parse `*N+delta|template` ou `*N+d1,d2,...|template`. Disambiguação (linha 255): if ',' in delta_str → CSV (ADR-0016) senão int (M10). Extracts count, deltas, template. Itera count vezes, aplicando shift_escape_digits incrementalmente. Linha 264: int(delta_str) parse single delta (compat M10). Linha 257: split(',') → list[int]. Returns list[str] de count linhas (template + shifted variantes), ou None se formato inválido.
 
-**`HCCSeqRLE class + control flow`** (estrategia, [src/tcf/composicional/hcc_seqrle.py:277-314](../../src/tcf/composicional/hcc_seqrle.py))  
+**`HCCSeqRLE class + control flow`** (estrategia, [src/tcf/composicional/hcc_seqrle.py:277-314](../../src/tcf/composicional/hcc_seqrle.py))
 Subclass de M8AVirtualRefsSyntax. Override encode/decode pra adicionar seq-RLE layer. ENCODE (linha 293-298): (1) chama super().encode → body_text (M9 canonical), (2) split em lines, (3) compact_body, (4) armazena seq_rle_info em _seq_info, (5) retorna compacted text. DECODE (linha 300-313): (1) itera tcf_text.splitlines(), (2) pra cada linha, tenta expand_seq_marker, (3) se marker → adiciona expanded lines, senão passes-through, (4) re-assembles texto expandido, (5) chama super().decode. Post-condition: bytes-exato round-trip (encode → decode == original).
 
-**`M10 backward compatibility threshold`** (threshold, [src/tcf/composicional/hcc_seqrle.py:199-202](../../src/tcf/composicional/hcc_seqrle.py))  
+**`M10 backward compatibility threshold`** (threshold, [src/tcf/composicional/hcc_seqrle.py:199-202](../../src/tcf/composicional/hcc_seqrle.py))
 Mecanismo de preservação backward compat: se _is_uniform_delta retorna non-None (todos deltas iguais), emite marker M10 format `*N+delta|` (sem virgula). Datasets como D1-D9 (nenhum multi-run com mixed deltas) emit markers idênticos a versão M9, preservando byte-canonical invariant. Validado em test suite (19 novos tests em test_hcc_multi_delta.py, 211 total passam).
 
-**`Fase 1 single non-zero restriction`** (threshold, [src/tcf/composicional/hcc_seqrle.py:107-111](../../src/tcf/composicional/hcc_seqrle.py))  
+**`Fase 1 single non-zero restriction`** (threshold, [src/tcf/composicional/hcc_seqrle.py:107-111](../../src/tcf/composicional/hcc_seqrle.py))
 ADR-0016 Fase 1 limitação: multi-delta só aceita 1 valor non-zero (resto zeros). Linha 110: if len(set(non_zero)) > 1 → return None (reject). Casos [1,2] ou [3,5] rejeitados — defer para Fase 2 (futuro). Justificativa: casos [0,0,0,1] são comuns (prefix invariante + suffix cadenced, ex: IPs), mas [1,2] raro em real-world datasets. Benchmark D-IP-subnet validou suficiência.
 
-**`Run equality invariant`** (marcador, [src/tcf/composicional/hcc_seqrle.py:88-91](../../src/tcf/composicional/hcc_seqrle.py))  
+**`Run equality invariant`** (marcador, [src/tcf/composicional/hcc_seqrle.py:88-91](../../src/tcf/composicional/hcc_seqrle.py))
 Estrutural: pares são aceitáveis APENAS se runs_a == runs_b (posições de escape-digit runs exatamente iguais). Se differs → None (reject). Impede false positives tipo '\\1' vs '\\1.\\2' (número de runs diferente, diferença não-linear). Crítico pra corretude shift_escape_digits.
 
-**`Escape-digit length check`** (threshold, [src/tcf/composicional/hcc_seqrle.py:138-144](../../src/tcf/composicional/hcc_seqrle.py))  
+**`Escape-digit length check`** (threshold, [src/tcf/composicional/hcc_seqrle.py:138-144](../../src/tcf/composicional/hcc_seqrle.py))
 shift_escape_digits linha 141-144: quando aplicar delta a run, resultado new_val pode ter length diferente de original (ex: 99 + 1 = 100). zfill(width) preserva width (leading zeros); se new_str > width, não trunca (overflow preservado). Exemplo: \\99 + 1 → \\100 (width muda de 2 → 3). Necessario pra IPs com 3 dígits fixos.
 
-**`Tokenizer OBAT integration point`** (decision-point, [src/tcf/composicional/hcc_seqrle.py:1-24 (docstring)](../../src/tcf/composicional/hcc_seqrle.py))  
+**`Tokenizer OBAT integration point`** (decision-point, [src/tcf/composicional/hcc_seqrle.py:1-24 (docstring)](../../src/tcf/composicional/hcc_seqrle.py))
 HCCSeqRLE é post-process em cima de OBAT tokenization (CAMADA 1) + M8A atom/composition detection (CAMADA 2a). Entrada é body_text já escape-lido (escape-digit runs via OBAT _escape_lit). Saída é compactação seq-RLE. Pipeline: OBAT tokeniza → M8A emits refs → body_text → HCCSeqRLE compacts → output TCF. Camadas são sequencial, não intercalado.
 
 ### Notas
@@ -712,18 +712,18 @@ ROUND-TRIP GUARANTEES:
    - Dispatcher (encoder.py:96-114): detecta tipo, aplica encode_value(spec, v) em cada valor → lista pré-transformada
    - Result: valores comprimidos ('5 chars base94' ou '12 dígitos padded') ou fallback ('_' + original)
    - Flow: pre-tx CAMADA 0 → analyze_column → detect_cadence → detect_min_len → OBAT → HCC
-   
+
 2. **Decoder pipeline com nature** (decode com nature param):
    - Caller: decode(text, nature=SPEC_X) [single] ou decode(text, nature_per_col={name: SPEC_X}) [multi]
    - Dispatcher (decoder.py:52-91): detecta shebang, decodifica HCC → list[str], aplica decode_value(spec, v) em cada
    - Flow: HCC decode → reverse pre-tx CAMADA 0 (strip marker ou regenerar formato original)
-   
+
 3. **classify_value flow** (diagnostic path):
    - Caller: classify_value(spec, v) [explicit] ou chamado internamente por encode_value
    - Decision points: TemplatedCheckedSpec (lines 66-81) ou TemplatedPaddedSpec (lines 63-84)
    - Result: enum string ('compressible', 'check_invalid', 'format_mismatch', 'format_unmasked', 'empty_value', 'length_wrong', 'range_invalid', 'format_padded_zeros')
    - Usado: (a) no encode_value para determinar path (compressible vs fallback), (b) explicitamente pra diagnostico via API publica
-   
+
 4. **Pre-pass heuristics flow** (sem nature — análise estrutural):
    - Entrada: values list[str]
    - analyze_column(values) → ColumnFeatures (O(N), barato)
@@ -731,7 +731,7 @@ ROUND-TRIP GUARANTEES:
    - detect_min_len_from_features(features) → int {3,4,5,6} — determina granularidade tokenização
    - Output: usados em OBAT layer (CAMADA 1), HCC layer (CAMADA 2)
    - Nota: **pre-pass é orthogonal a nature** — roda depois pre-tx CAMADA 0 (em _encode_column)
-   
+
 5. **Round-trip guarantee**:
    - Com nature: encode(values, nature=SPEC_X) → text; decode(text, nature=SPEC_X) == values ✓
    - Sem nature: encode(values) → text; decode(text) == values ✓
@@ -763,61 +763,61 @@ ROUND-TRIP GUARANTEES:
 
 ### Detalhamento
 
-**`TemplatedCheckedSpec (classificação + encode/decode parametrico)`** (estrategia, [src/tcf/natures/templated_checked.py:42-109](../../src/tcf/natures/templated_checked.py))  
+**`TemplatedCheckedSpec (classificação + encode/decode parametrico)`** (estrategia, [src/tcf/natures/templated_checked.py:42-109](../../src/tcf/natures/templated_checked.py))
 Classificador + encoder/decoder polimórfico genérico para identificadores com layout fixo (regex template), dígito verificador derivável (check_fn), e espaço único-discreto (sem ordem). Filosofia opt-in per-value: cada valor decide se comprime (base-94 encoded, 5-7 chars) ou cai em fallback literal (marcador '_' prefixado). Parametrizado por: name, regex, body_length, check_length, check_fn, formatter, encoded_length. **Protocolo**: encode_value(v)->tuple(payload,status), decode_value(payload)->str, classify_value(v)->str (taxonomy Kim 2003). Zero isinstance check — polimorfismo via spec param (Strategy pattern).
 
-**`classify_value — Taxonomia Kim 2003 (5 categorias + 1 fallback genérico)`** (decision-point, [src/tcf/natures/templated_checked.py:64-81](../../src/tcf/natures/templated_checked.py))  
+**`classify_value — Taxonomia Kim 2003 (5 categorias + 1 fallback genérico)`** (decision-point, [src/tcf/natures/templated_checked.py:64-81](../../src/tcf/natures/templated_checked.py))
 Decision tree com 6 outcomes: (1) empty_value (v==''), (2) format_unmasked (exato body_length+check_length dígitos, isdigit()=true, mas sem máscara regex), (3) format_mismatch (regex.match falha, len<5 -> length_wrong, len>=5 -> format_mismatch), (4) length_wrong (extraído digits_str != body+check), (5) check_invalid (check digit mismatch), (6) compressible (tudo passou). Lógica exata: lines 66-81. Precedência: empty > format > length > check > compressible.
 
-**`BASE94 alfabeto (80 chars, safe TCF)`** (token-type, [src/tcf/natures/templated_checked.py:32-36](../../src/tcf/natures/templated_checked.py))  
+**`BASE94 alfabeto (80 chars, safe TCF)`** (token-type, [src/tcf/natures/templated_checked.py:32-36](../../src/tcf/natures/templated_checked.py))
 Alfabeto construído dinamicamente: todos chr(33-127) EXCETO reserved set ('\n\r\t ,~*\\#=[]<>"''\'`_'). Total = 94-14(reserved)-1(marker '_') = 79 chars efetivos (verificado assert>=50, real=80). Usado em base-94 encoding compressible: n % 80, n // 80, ... Alfabeto preserva RT — charset é deterministico e cyclic (0->BASE94[0], 1->BASE94[1], etc).
 
-**`MARKER_LITERAL '_' — Fallback literal prefix`** (marcador, [src/tcf/natures/templated_checked.py:38](../../src/tcf/natures/templated_checked.py))  
+**`MARKER_LITERAL '_' — Fallback literal prefix`** (marcador, [src/tcf/natures/templated_checked.py:38](../../src/tcf/natures/templated_checked.py))
 Prefixo '_' distingue valor comprimido (base-94 encoded, 5-7 chars) de literal fallback. Ao decodificar: se payload.startswith('_'), remove marker e retorna original (line 100). Ao codificar: fallback retorna '_' + v (line 87). Semantica: '_' é um escape — tudo após é literal UTF-8 do original, preservando RT mesmo em valores não-compressible. Char escolhido porque já é reservado TCF (não em BASE94, não em regex templates típicos).
 
-**`encode_value — Base-94 encoding compressible`** (estrategia, [src/tcf/natures/templated_checked.py:83-95](../../src/tcf/natures/templated_checked.py))  
+**`encode_value — Base-94 encoding compressible`** (estrategia, [src/tcf/natures/templated_checked.py:83-95](../../src/tcf/natures/templated_checked.py))
 Two-path: (1) compressible: extrai body_int (primeiros body_length dígitos), converte pra base-94 em encoded_length chars via n%80, n//80 loop (lines 90-94), reversa ordem (chars built em little-endian, reversed ao final). (2) fallback: retorna '_' + v + status. Exemplo CPF: '529.982.247-25' -> body=529982247 -> 5 chars base94. Garante RT: se decoding recebe encoded, pode reverter sem ambiguidade.
 
-**`decode_value — Base-94 decoding + reformatting`** (estrategia, [src/tcf/natures/templated_checked.py:97-109](../../src/tcf/natures/templated_checked.py))  
+**`decode_value — Base-94 decoding + reformatting`** (estrategia, [src/tcf/natures/templated_checked.py:97-109](../../src/tcf/natures/templated_checked.py))
 Two-path: (1) payload começa '_': strip marker, return original (line 100). (2) payload == encoded_length chars, all chars in BASE94: convert back via base-94 positional (lines 102-108). Rebuild body_str via zfill(body_length), aplica check_fn pra recalcular checks, aplica formatter pra restaurar máscara. Exemplo: '\29g/h-' -> n=0; for c in '29g/h-': n = n*80 + BASE94.index(c); body_str = str(n).zfill(9); checks = check_fn([int(d) for d in body_str]); formatter(body + checks) -> '529.982.247-25'.
 
-**`SPEC_CPF — (NNN.NNN.NNN-DD, mod-11 dupla)`** (categoria, [src/tcf/natures/templated_checked.py:130-162](../../src/tcf/natures/templated_checked.py))  
+**`SPEC_CPF — (NNN.NNN.NNN-DD, mod-11 dupla)`** (categoria, [src/tcf/natures/templated_checked.py:130-162](../../src/tcf/natures/templated_checked.py))
 Spec concreto pra CPF brasileiro. Regex=r'^(\d{3})\.(\d{3})\.(\d{3})-(\d{2})$', body_length=9, check_length=2, encoded_length=5 (80^5 > 10^9). Check digits via _cpf_check_fn: Mod-11 dupla — d1=(S1*10)%11 (se==10 então 0), S1=sum(d*w for d,w in zip(body, range(10,1,-1))); similar d2 com body+d1 e range(11,1,-1). Formatter recombina com máscara. RT 100% em datasets validados; comprime CPF uniform/clustered 55-64% vs M10 puro (sub-exp 05-07).
 
-**`SPEC_CNPJ — (NN.NNN.NNN/NNNN-DD, mod-11 dupla pesos diferentes)`** (categoria, [src/tcf/natures/templated_checked.py:165-199](../../src/tcf/natures/templated_checked.py))  
+**`SPEC_CNPJ — (NN.NNN.NNN/NNNN-DD, mod-11 dupla pesos diferentes)`** (categoria, [src/tcf/natures/templated_checked.py:165-199](../../src/tcf/natures/templated_checked.py))
 Spec concreto pra CNPJ brasileiro. Regex=r'^(\d{2})\.(\d{3})\.(\d{3})/(\d{4})-(\d{2})$', body_length=12, check_length=2, encoded_length=7 (80^7 > 10^12). Check digits via _cnpj_check_fn: mod-11 com pesos _W1_CNPJ=[5,4,3,2,9,8,7,6,5,4,3,2] e _W2_CNPJ=[6,5,4,3,2,9,8,7,6,5,4,3,2], diferente de CPF. Lógica: d1=0 se rem1<2 else 11-rem1. Formatter restaura máscara. RT 100%; comprime 54-61% vs M10 puro em datasets validados.
 
-**`TemplatedPaddedSpec (TCU-NoCheckVarLength — slots padronizados sem check)`** (estrategia, [src/tcf/natures/templated_padded.py:37-113](../../src/tcf/natures/templated_padded.py))  
+**`TemplatedPaddedSpec (TCU-NoCheckVarLength — slots padronizados sem check)`** (estrategia, [src/tcf/natures/templated_padded.py:37-113](../../src/tcf/natures/templated_padded.py))
 Variante de TemplatedCheckedSpec para dados SEM dígito verificador (ex: IPv4). Slots de width variável são padronizados via padding zero-leading. Diferenças: (1) sem check_fn, (2) sem base-94 (preserva dígitos pra HCC seq-RLE detectar cadência), (3) slot_widths tuple fixo. Exemplo: '192.168.1.1' -> slots=['192','168','1','1'] + slot_widths=(3,3,3,3) -> padded='192168001001' (12 dígitos). classify_value retorna 'format_padded_zeros' se slot str(int(slot))!=slot (detecta padding não-canonical, ex: '192.168.01.1'). RT 100%; D-IP-subnet comprime 1.71% ratio vs M10 puro (speedup 68x, sub-exp 08).
 
-**`SPEC_IP — IPv4 (slot_widths=(3,3,3,3), separator='.')`** (categoria, [src/tcf/natures/templated_padded.py:116-125](../../src/tcf/natures/templated_padded.py))  
+**`SPEC_IP — IPv4 (slot_widths=(3,3,3,3), separator='.')`** (categoria, [src/tcf/natures/templated_padded.py:116-125](../../src/tcf/natures/templated_padded.py))
 Spec concreto pra IPv4 canonical (sem zeros líderes em octetos, ex: '192.168.1.1'). Regex=r'^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$'. encode_value: zfill cada slot a 3 dígitos, concatena -> '192168001001'. decode_value: split em 4 chunks de 3 dígitos, remove leading zeros via str(int(slot)), rejoin com '.'. Ganho em D-IP-subnet (1000 IPs /24) = 229B (1.71% ratio) vs M10 puro 13349B — HCC seq-RLE detecta cadência quando IPs em subnet; em D-IP-uniform (aleatório) = 102% (pior sem estrutura, esperado).
 
-**`classify_value TemplatedPaddedSpec — Taxonomy (6 categorias)`** (decision-point, [src/tcf/natures/templated_padded.py:63-84](../../src/tcf/natures/templated_padded.py))  
+**`classify_value TemplatedPaddedSpec — Taxonomy (6 categorias)`** (decision-point, [src/tcf/natures/templated_padded.py:63-84](../../src/tcf/natures/templated_padded.py))
 Decision tree: (1) empty_value (v==''), (2) format_mismatch (regex.match falha), (3) range_invalid (slot int >= 10^width, overflow), (4) format_padded_zeros (str(int(slot))!=slot original — ex: '192.168.01.001' tem padding não-canonical), (5) compressible (todas slots parseáveis como int, no overflow, sem padding). Precedência idêntica a TemplatedCheckedSpec. Linha 82-83: detecta padding não-canonical via `str(val) != slot_str`.
 
-**`encode_value TemplatedPaddedSpec — Padding + preservação dígitos`** (estrategia, [src/tcf/natures/templated_padded.py:86-97](../../src/tcf/natures/templated_padded.py))  
+**`encode_value TemplatedPaddedSpec — Padding + preservação dígitos`** (estrategia, [src/tcf/natures/templated_padded.py:86-97](../../src/tcf/natures/templated_padded.py))
 Dois paths: (1) compressible: extrai slots via regex.groups(), zfill cada slot a width, concatena em padded string digit-only (ex: '192.168.1.1' -> '192168001001'). (2) fallback: return '_' + v. Diferença vs TemplatedCheckedSpec: sem base-94 — preserve dígitos visíveis pra HCC seq-RLE digit-centric detectar cadência. Fallback marker idêntico ('_' prefix).
 
-**`decode_value TemplatedPaddedSpec — Unpadding + reformatting`** (estrategia, [src/tcf/natures/templated_padded.py:99-113](../../src/tcf/natures/templated_padded.py))  
+**`decode_value TemplatedPaddedSpec — Unpadding + reformatting`** (estrategia, [src/tcf/natures/templated_padded.py:99-113](../../src/tcf/natures/templated_padded.py))
 Dois paths: (1) payload começa '_': strip, return original. (2) payload == total_padded_length, all chars digit: split em slot_widths chunks, convert cada via str(int(slot)) pra remover leading zeros, rejoin com separator. Exemplo: '192168001001' -> chunks=['192','168','001','001'] -> [str(int(...))] = ['192','168','1','1'] -> '.'.join() = '192.168.1.1'. RT 100%.
 
-**`Integration: encode() pipeline com nature param`** (estrategia, [src/tcf/encoder.py:53-114](../../src/tcf/encoder.py))  
+**`Integration: encode() pipeline com nature param`** (estrategia, [src/tcf/encoder.py:53-114](../../src/tcf/encoder.py))
 Dispatcher: (1) list[str] + nature param: applica encode_value(nature, v) em CADA valor antes do M10 pipeline (lines 97-99), resultando em list[str] com valores já pré-transformados (comprimidos ou fallback). (2) dict + nature_per_col param: para cada coluna name, if name in nature_per_col, aplica encode_value(nature_per_col[name], v) em todos valores da coluna (lines 104-109). Filosofia: nature é **CAMADA 0 do funil** — anterior a analyze_column/detect_cadence/OBAT/HCC. Sem nature param: comportamento M10 inalterado (byte-canonical preservado, D17a 322B INVARIANT).
 
-**`Integration: decode() pipeline com nature param`** (estrategia, [src/tcf/decoder.py:52-91](../../src/tcf/decoder.py))  
+**`Integration: decode() pipeline com nature param`** (estrategia, [src/tcf/decoder.py:52-91](../../src/tcf/decoder.py))
 Dispatcher: (1) single-col: decode_column retorna list[str] (HCC decoded), aplica decode_value(nature, v) em cada v (lines 88-90). (2) multi-col: _decode_multi retorna dict (HCC decoded), aplica decode_value(nature_per_col[name], v) em cada coluna (lines 79-85). Filosofia: decoder é **espelho de encoder** — mesma nature spec obrigatória out-of-band (decoder não auto-detecta; futuro v2 carry spec em header). Sem nature param: skip reverse (valores já em formato original via '_' marker fallback ou HCC canonical).
 
-**`analyze_column — ColumnFeatures pre-pass (O(N))`** (heuristica, [src/tcf/column_features.py:51-84](../../src/tcf/column_features.py))  
+**`analyze_column — ColumnFeatures pre-pass (O(N))`** (heuristica, [src/tcf/column_features.py:51-84](../../src/tcf/column_features.py))
 Pre-pass unificado: calcula features básicas em 1 passada O(N) — n_rows, n_unicas (via set(values)), avg_len, cardinality=n_unicas/n_rows, is_numeric (sample check float parse), sample (primeiros 20 strings). Recebido por downstream heuristicas (detect_cadence, detect_min_len, futuras detect_X naturezas). Reduz duplicação + permite reuso. Welded T-CODE-H-DA-11c (2026-05-22). Nota: **sem natureza** — apenas features, não aplica pré-tx.
 
-**`detect_cadence_from_features — Regra 1 + Regra 2`** (heuristica, [src/tcf/auto_cadence.py:28-96](../../src/tcf/auto_cadence.py))  
+**`detect_cadence_from_features — Regra 1 + Regra 2`** (heuristica, [src/tcf/auto_cadence.py:28-96](../../src/tcf/auto_cadence.py))
 Detecta estrutura cadencial (wrapper+counter ou numeric high-card) pra ativar OBAT shape-preserve hint. **Regra 1** (uniform-length + high-LCP-LCS): primeiras N strings length uniforme, calcula LCP+LCS entre pares consecutivos, ratio=(LCP+LCS)/length; se TODOS ratios >= threshold (default 0.7), aciona. **Regra 2** (numeric high-cardinality, ADR-0008): features.is_numeric=true E cardinality > 0.5, aciona. Retorna (detectou:bool, info:dict com detalhes). Se detecta: encoder chama processar_with_hint(prefer_shape_consistency=True) em vez de processar() canonical (obat_shape.py).
 
-**`detect_min_len_from_features — Decision tree shallow (heurística v3)`** (heuristica, [src/tcf/auto_min_len.py:25-68](../../src/tcf/auto_min_len.py))  
+**`detect_min_len_from_features — Decision tree shallow (heurística v3)`** (heuristica, [src/tcf/auto_min_len.py:25-68](../../src/tcf/auto_min_len.py))
 Decision tree pra min_len ótimo (enum {3,4,5,6}), captura 99.5% oracle real-world. Gating: n_rows < 100 -> 3 (preserva M9 baseline 1615B exato). Senão: card<0.2 -> 3; avg>=25 -> 6; avg>=8 && card>=0.4 -> 6; avg>=5 && is_numeric && card>=0.8 -> 6; avg>=12 && card>=0.7 -> 5; avg>=3 && card>=0.2 -> 4; else -> 3. Exemplos: D-CPF (baixa card) -> 3; D-datas-mundiais (avg=10, card=0.8) -> 6; D-ID-seq (avg=5, is_num=true, card=0.95) -> 6.
 
-**`Protocol NatureSpec — Polimorfismo sem isinstance`** (helper, [src/tcf/natures/ (init define protocol implícito)](../../src/tcf/natures/ (init define protocol implícito)))  
+**`Protocol NatureSpec — Polimorfismo sem isinstance`** (helper, [src/tcf/natures/ (init define protocol implícito)](../../src/tcf/natures/ (init define protocol implícito)))
 Estratégia de design: toda spec (TemplatedCheckedSpec, TemplatedPaddedSpec, futuras) implementa o mesmo Protocol: name:str, encode_value(v)->tuple(str,str), decode_value(payload)->str, classify_value(v)->str. Encoder/decoder são polimorfo (genéricos) — **zero isinstance(spec, TemplatedCheckedSpec)** em qualquer lugar (confirmado linha 20 encoder.py comentário). Permite adicionar specs novas (Luhn, IBAN, MAC, CEP) sem mudar API publica nem core pipeline. Refactoring 2026-05-24: converteu encode_value/decode_value/classify_value de standalone functions (backward compat mantido) para **methods no spec** (@dataclass frozen, immutable).
 
 ### Notas
@@ -929,85 +929,85 @@ Estratégia de design: toda spec (TemplatedCheckedSpec, TemplatedPaddedSpec, fut
 
 ### Detalhamento
 
-**`Dispatch Strategy (encode)`** (decision-point, [src/tcf/encoder.py:53-114](../../src/tcf/encoder.py))  
+**`Dispatch Strategy (encode)`** (decision-point, [src/tcf/encoder.py:53-114](../../src/tcf/encoder.py))
 Top-level dispatch via isinstance(data, dict). If list[str], calls _encode_column with default header='val'; if dict, delegates to _encode_multi (which routes to multi-col pipeline). Raises TypeError for other types. Nature pre-transform (CAMADA 0, opt-in) applied BEFORE pipeline if nature= or nature_per_col= provided.
 
-**`Dispatch Strategy (decode)`** (decision-point, [src/tcf/decoder.py:52-91](../../src/tcf/decoder.py))  
+**`Dispatch Strategy (decode)`** (decision-point, [src/tcf/decoder.py:52-91](../../src/tcf/decoder.py))
 Routing via shebang prefix check. If tcf_text.startswith('#TCF.6 M'), calls _decode_multi (dict result); else calls _decode_column (list result). Nature reverse-transforms applied post-decode if nature/nature_per_col provided.
 
-**`Single-Column Encode Pipeline (M10 Canonical)`** (estrategia, [src/tcf/encoder.py:117-178](../../src/tcf/encoder.py))  
+**`Single-Column Encode Pipeline (M10 Canonical)`** (estrategia, [src/tcf/encoder.py:117-178](../../src/tcf/encoder.py))
 Core unit _encode_column orchestrates CAMADA 1-3: (1) Pre-pass: analyze_column + detect_cadence (rules 1-2 ADR-0008) + detect_min_len (heur v3 ADR-0010) IF cfg.pre_pass=True, else cadence=False, min_len=3 default; (2) OBAT tokenization: processar_with_hint(prefer_shape_consistency=True) if cadence detected AND cfg.obat_shape_preserve=True, else canonical processar; (3) HCC: HCCSeqRLE (M10) if cfg.hcc_seq_rle=True else M8AVirtualRefsSyntax (M9). Side outputs captured per-column into provided SideOutputs container.
 
-**`Multi-Column Encode Router`** (estrategia, [src/tcf/multi.py:40-111](../../src/tcf/multi.py))  
+**`Multi-Column Encode Router`** (estrategia, [src/tcf/multi.py:40-111](../../src/tcf/multi.py))
 Orchestrates dict->TCF serialization: validates (non-empty, uniform row counts, no ',' or '=' in col names), stringifies all values (NULL->'' per ADR-0013), chooses serial vs parallel dispatch based on parallel flag + column count (>= 2), encodes each column to body bytes, builds meta line '# size1=name1,size2=name2,...', outputs magic + meta + byte-precise concat.
 
-**`Parallel Encoding Strategy (Work-Stealing)`** (estrategia, [src/tcf/multi.py:131-182](../../src/tcf/multi.py))  
+**`Parallel Encoding Strategy (Work-Stealing)`** (estrategia, [src/tcf/multi.py:131-182](../../src/tcf/multi.py))
 Fase 1b (2026-05-24): Orders columns by workload descending (sum bytes per col as proxy), submits to ProcessPoolExecutor via as_completed (dynamic work-stealing), reorders results by original dict order for byte-identical output. Enabled only if parallel=True/int AND len(table) >= 2 (overhead rule). Serial fallback for 1-col or parallel=False.
 
-**`Multi-Column Decode Router`** (estrategia, [src/tcf/multi.py:195-234](../../src/tcf/multi.py))  
+**`Multi-Column Decode Router`** (estrategia, [src/tcf/multi.py:195-234](../../src/tcf/multi.py))
 Parses shebang + meta line (finds 2 newlines, validates MAGIC_MULTI + META_PREFIX), splits meta into (size, name) pairs, byte-precise slices body, decodes each via _decode_column, assembles dict result. No reordering needed (serial decode preserves order).
 
-**`Nature Pre-Transform Filter (CAMADA 0, opt-in)`** (filtro, [src/tcf/encoder.py:97-99 (list), 103-109 (dict)](../../src/tcf/encoder.py))  
+**`Nature Pre-Transform Filter (CAMADA 0, opt-in)`** (filtro, [src/tcf/encoder.py:97-99 (list), 103-109 (dict)](../../src/tcf/encoder.py))
 ADR-0015 pre-pass filter: if nature= or nature_per_col= provided, applies encode_value() per value BEFORE pipeline M10. Caller must provide spec out-of-band to decoder. Templated+Checked+Unique (CPF/CNPJ) compresses valid IDs to base-94, literals prefixed '_'. Marker: _ prefix distinguishes encoded vs literal fallback. Opt-in per-column (dict) or global (list).
 
-**`Pre-Pass Cadence Detection (Regra 1 + 2)`** (heuristica, [src/tcf/auto_cadence.py:28-96](../../src/tcf/auto_cadence.py))  
+**`Pre-Pass Cadence Detection (Regra 1 + 2)`** (heuristica, [src/tcf/auto_cadence.py:28-96](../../src/tcf/auto_cadence.py))
 Two-rule heuristic (ADR-0008): Regra 1 (wrapper+counter) — uniform lengths in first n_sample strings + LCP+LCS / length >= threshold (default 0.7) in consecutive pairs; Regra 2 (numeric high-card) — is_numeric=True AND cardinality > 0.5. Returns (bool, info_dict with rule_hit, reason, details). Drives obat_shape_preserve hint decision.
 
-**`Min-Len Auto-Detection (Heuristic v3)`** (heuristica, [src/tcf/auto_min_len.py:25-68](../../src/tcf/auto_min_len.py))  
+**`Min-Len Auto-Detection (Heuristic v3)`** (heuristica, [src/tcf/auto_min_len.py:25-68](../../src/tcf/auto_min_len.py))
 Decision tree (ADR-0010 H-DA-11): if n_rows < 100 return 3 (gating, preserves M9 baseline exactly); else: card < 0.2 -> 3; avg_len >= 25 -> 6; avg_len >= 8 && card >= 0.4 -> 6; avg_len >= 5 && is_numeric && card >= 0.8 -> 6; avg_len >= 12 && card >= 0.7 -> 5; avg_len >= 3 && card >= 0.2 -> 4; else 3. Achieves 99.5% oracle match on Adult+TPC-H.
 
-**`OBAT Shape-Preserve Hint`** (heuristica, [src/tcf/obat_shape.py:32-120](../../src/tcf/obat_shape.py))  
+**`OBAT Shape-Preserve Hint`** (heuristica, [src/tcf/obat_shape.py:32-120](../../src/tcf/obat_shape.py))
 Conditional optimization (ADR-0009): if prefer_shape_consistency=True AND last_shape exists, tries to replicate (p_src, p_len, has_L, s_src, s_len) shape on next string via _try_preserve_shape. Exact match: LCP >= p_len && LCS >= s_len; Wider fallback: reduce lens to available; Greedy fallback (canonical _escolher_par) if both fail. Preserves byte-canonical (shape replication deterministic given LCP/LCS contract).
 
-**`HCC Detector (M8A Unified Atom+Virtual)`** (estrategia, [src/tcf/composicional/syntax.py:225-362](../../src/tcf/composicional/syntax.py))  
+**`HCC Detector (M8A Unified Atom+Virtual)`** (estrategia, [src/tcf/composicional/syntax.py:225-362](../../src/tcf/composicional/syntax.py))
 Iterative composition detector (unlimited iterations, stops when no net > 0 candidate). Counter sub-tuplas K>=2 with R>=2, applies virtual-relaxed filter (<=1 virtual; if virtual at pos>0, alias must be resolved before sub's first emission), scores baseline_chars - estimated_id_chars, picks highest net=(R-1)*(baseline-n_tam). Per iteration: allocates alias_temp, substitutes in pieces, continues. Outputs alias_to_sub dict, iter_traces for debugging.
 
-**`HCC Seq-RLE Near-Identical Compaction`** (estrategia, [src/tcf/composicional/hcc_seqrle.py:150-227](../../src/tcf/composicional/hcc_seqrle.py))  
+**`HCC Seq-RLE Near-Identical Compaction`** (estrategia, [src/tcf/composicional/hcc_seqrle.py:150-227](../../src/tcf/composicional/hcc_seqrle.py))
 Post-process body lines via detect_seq_runs (consecutive pairs pass compare_for_seq): same length + same escape-digit run positions + all diffs within runs + consistent delta list. For uniform delta (all equal, non-zero), emits M10-compat '*N+delta|template'; for mixed deltas (per-run), ADR-0016 '*N+d1,d2,...|template'. Expands on decode via expand_seq_marker. Detects runs greedily (consume maximal consecutive matches). Savings: sum(len(line_k)+1 for k in run) - (len(marker)+1).
 
-**`Escape Literal Encoding`** (helper, [src/tcf/composicional/syntax.py:53-73](../../src/tcf/composicional/syntax.py))  
+**`Escape Literal Encoding`** (helper, [src/tcf/composicional/syntax.py:53-73](../../src/tcf/composicional/syntax.py))
 Escapes reserved chars in literals: digits -> \d (run of digits escaped together), special chars *, \, ~ -> \ prefix. Returns (escaped_text, term_seq_flag) where term_seq=True if line terminates with escaped digit run (prevents confusion with ref-mode digit parsing in decoder).
 
-**`Ref-Run Composition Emission`** (helper, [src/tcf/composicional/syntax.py:470-542](../../src/tcf/composicional/syntax.py))  
+**`Ref-Run Composition Emission`** (helper, [src/tcf/composicional/syntax.py:470-542](../../src/tcf/composicional/syntax.py))
 Emits mixed atom/virtual ref runs: atomic segments -> M1.E ranges (a..b if 3+ consecutive), joined by ','; virtuals -> _emit_alias (def or use). Alias first-emission: inline-expands sub (linear chain), pairwise binarization allocates K-1 IDs, unresolved inner aliases gain final IDs at completion positions. Recursive expansion + body-order validation ensures correct final ID assignment.
 
-**`PipelineConfig Toggle pre_pass`** (threshold, [src/tcf/pipeline.py:35-60](../../src/tcf/pipeline.py))  
+**`PipelineConfig Toggle pre_pass`** (threshold, [src/tcf/pipeline.py:35-60](../../src/tcf/pipeline.py))
 Boolean toggle (default True). When True, runs analyze_column + detect_cadence_from_features + detect_min_len_from_features in CAMADA 1 pre-pass. When False, skips all heuristics: cadence_detected=False, min_len=3 (M9 default). Allows M9 baseline restoration for ablation studies.
 
-**`PipelineConfig Toggle obat_shape_preserve`** (threshold, [src/tcf/pipeline.py:35-60](../../src/tcf/pipeline.py))  
+**`PipelineConfig Toggle obat_shape_preserve`** (threshold, [src/tcf/pipeline.py:35-60](../../src/tcf/pipeline.py))
 Boolean toggle (default True). When True AND cadence_detected, uses processar_with_hint(prefer_shape_consistency=True) instead of canonical processar. Shapes on consecutive strings to reduce HCC detection burden. False forces canonical OBAT regardless of cadence.
 
-**`PipelineConfig Toggle hcc_seq_rle`** (threshold, [src/tcf/pipeline.py:35-60](../../src/tcf/pipeline.py))  
+**`PipelineConfig Toggle hcc_seq_rle`** (threshold, [src/tcf/pipeline.py:35-60](../../src/tcf/pipeline.py))
 Boolean toggle (default True). When True, uses HCCSeqRLE (M10 with seq-RLE post-process). When False, uses M8AVirtualRefsSyntax (M9 pure, no seq-RLE). Controls whether near-identical run compaction via '*N+delta|' markers is applied.
 
-**`Side Outputs Capture Container`** (marcador, [src/tcf/side_outputs.py:27-51](../../src/tcf/side_outputs.py))  
+**`Side Outputs Capture Container`** (marcador, [src/tcf/side_outputs.py:27-51](../../src/tcf/side_outputs.py))
 Optional reciprocal container (dataclass, all fields Optional). Per-column: column_features, cadence_detected, cadence_info, min_len, obat_log, obat_used_hint, hcc_trace, hcc_rede, seq_rle_runs, body_bytes. Multi-col: multi_info (n_rows, n_cols, total_bytes, header_bytes, body_bytes, parallel_workers), per_col dict. Populated only if side_outputs= provided (overhead=0 if None, logs discarded). Enables consumption by schema_builder, EncodeManager, debug tools.
 
-**`Format Marker: Shebang`** (marcador, [src/tcf/multi.py:36, src/tcf/decoder.py:49](../../src/tcf/multi.py))  
+**`Format Marker: Shebang`** (marcador, [src/tcf/multi.py:36, src/tcf/decoder.py:49](../../src/tcf/multi.py))
 Multi-column magic: '#TCF.6 M' (8 bytes) followed by newline. Dispatches decoder to multi-col path. Single-column has NO shebang (body puro). Exact string comparison startswith() in decode dispatcher.
 
-**`Format Marker: Meta Line`** (marcador, [src/tcf/multi.py:36-37, 95-96](../../src/tcf/multi.py))  
+**`Format Marker: Meta Line`** (marcador, [src/tcf/multi.py:36-37, 95-96](../../src/tcf/multi.py))
 Second line: '# size1=name1,size2=name2,...' (space after '#', CSV-like col descriptor). Parsed by splitting on ',', then each pair on '=' (size is byte count as int, name is col name). Names cannot contain ',' or '='. Enables byte-precise body slicing on decode.
 
-**`Format Marker: RLE Count Prefix`** (marcador, [src/tcf/composicional/syntax.py:462-465, 747-751](../../src/tcf/composicional/syntax.py))  
+**`Format Marker: RLE Count Prefix`** (marcador, [src/tcf/composicional/syntax.py:462-465, 747-751](../../src/tcf/composicional/syntax.py))
 Repeat-length encoding (M8A + M10): '*N|value' emitted when consecutive identical values appear (count N >= 2, single values emit bare). Parser regex: line.startswith('*') && '|' in line, extracts count via int(line[1:bar]). Byte-preserving: N counted as decimal string. Decode re-emits [value] * N.
 
-**`Format Marker: Seq-RLE Near-Identical (M10)`** (marcador, [src/tcf/composicional/hcc_seqrle.py:202-210](../../src/tcf/composicional/hcc_seqrle.py))  
+**`Format Marker: Seq-RLE Near-Identical (M10)`** (marcador, [src/tcf/composicional/hcc_seqrle.py:202-210](../../src/tcf/composicional/hcc_seqrle.py))
 Extension of RLE for near-identical runs. M10-compat format: '*N+delta|template' (uniform delta) or ADR-0016 '*N+d1,d2,...|template' (per-run deltas). Delta sign explicit: +/- prefix ('+' omitted if >=0, implicit for <0). Decoder distinguishes via ',' in delta portion.
 
-**`Format Marker: Atomic Reference Ranges (M1.E)`** (token-type, [src/tcf/composicional/syntax.py:91-101](../../src/tcf/composicional/syntax.py))  
+**`Format Marker: Atomic Reference Ranges (M1.E)`** (token-type, [src/tcf/composicional/syntax.py:91-101](../../src/tcf/composicional/syntax.py))
 Range compression for atomic refs: 3+ consecutive IDs -> 'a..b' (single/pair -> bare IDs '1,2'). Ranges separated by ','. Used in composition chains and ref-run emission. Decoder expands 'a..b' via range(a, b+1).
 
-**`Format Marker: Composition Chain (M1.E)`** (token-type, [src/tcf/composicional/syntax.py:104-114](../../src/tcf/composicional/syntax.py))  
+**`Format Marker: Composition Chain (M1.E)`** (token-type, [src/tcf/composicional/syntax.py:104-114](../../src/tcf/composicional/syntax.py))
 Chain of atomic IDs (pairwise composition via binarization): '1~2' (pair), '1~2~3' expands to intermediate '4=(1~2), 5=(4~3)'. Ranges apply: '1..3~4' = '1~2~3~4'. Separator '~'. Decoder reconstructs pairwise: frags[a+b], then frags[result+c], etc.
 
-**`Format Marker: Ref-Body Separator`** (token-type, [src/tcf/composicional/syntax.py:434-453](../../src/tcf/composicional/syntax.py))  
+**`Format Marker: Ref-Body Separator`** (token-type, [src/tcf/composicional/syntax.py:434-453](../../src/tcf/composicional/syntax.py))
 Transition separators in body: lit->lit: '*'; lit->ref: optional (if ref starts with ',' or '~'); ref->lit: '*' if lit terminates digit (prevents ref-mode parser consuming digit as continuation); ref->ref: ',' (inline). Detects term_seq flag from _escape_lit. Decoder: ',' continues ref expression, '*' terminates.
 
-**`Format Marker: Virtual Alias Reference`** (token-type, [src/tcf/composicional/syntax.py:413-418, 755](../../src/tcf/composicional/syntax.py))  
+**`Format Marker: Virtual Alias Reference`** (token-type, [src/tcf/composicional/syntax.py:413-418, 755](../../src/tcf/composicional/syntax.py))
 Caret prefix for repeated unique values: '^N' (single emit, bare ID), '*N|^N' (repeated emit N times). Used to reference earlier-emitted unique string without re-tokenization. Decoder: finds nos_decl[N-1].
 
-**`Reserved Characters (All Layers)`** (categoria, [src/tcf/natures/templated_checked.py:34, src/tcf/composicional/syntax.py:65](../../src/tcf/natures/templated_checked.py))  
+**`Reserved Characters (All Layers)`** (categoria, [src/tcf/natures/templated_checked.py:34, src/tcf/composicional/syntax.py:65](../../src/tcf/natures/templated_checked.py))
 Complete reserved set (format vocabulary, no user literals allowed): { *, \, ~, ,, #, =, [, ], <, >, ", ', `, _, \n, \r, \t, space }. Nature encoder uses BASE94 (94 chars from ASCII 33-126 minus reserved). M8A escape routine handles *, \, ~ via \ prefix; digits via \d (run).
 
 ### Notas

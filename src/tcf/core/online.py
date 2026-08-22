@@ -3,7 +3,7 @@
 Camada 1 do TCF. Tokeniza strings via LCP + LCS contra anteriores
 preservando byte-canonical.
 
-Otimizacao 2026-05-19 (ADR-0009): hash de trigramas para reduzir
+ADR-0009: hash de trigramas para reduzir
 busca em `_melhor_pref` / `_melhor_suf` de O(N) anteriores para
 O(B) bucket size.
 - `prefix_index[s[:3]] → list[zero-indexed ids]`

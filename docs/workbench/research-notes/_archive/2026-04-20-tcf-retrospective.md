@@ -133,7 +133,7 @@ L3) é variável tão importante quanto o modelo**.
 
 ### Médio prazo
 
-5. **Phase 2 (data sweep)** com pilot correto (provavelmente phi4 ou 
+5. **Phase 2 (data sweep)** com pilot correto (provavelmente phi4 ou
    gpt-oss) — testar n-boundary real.
 6. **Phase 3 (notation sweep)** incluindo `N:val` e variantes.
 7. **Phase 4 (task sweep)** full questions.

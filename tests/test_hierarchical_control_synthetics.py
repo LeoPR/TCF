@@ -30,7 +30,7 @@ from fixtures.control_synthetics_h import (
 )
 
 # (total, meta, controle, folhas, n_cols_controle) — medidos 2026-07-17 no weld P4a (suite 754).
-# RE-PIN 2026-07-25 (ADR-0024): o seq-RLE ganhou FLOOR (so' compacta se ENCOLHER). 6 casos
+# ADR-0024: o seq-RLE ganhou FLOOR (so' compacta se ENCOLHER). 6 casos
 # DIMINUIRAM (c02/c03/c06/c07/c09/c12) porque em trechos sem cadencia o marcador `*N+d|`
 # custava mais que as linhas cruas. Melhora pura -- nenhum pino subiu.
 PINS = {

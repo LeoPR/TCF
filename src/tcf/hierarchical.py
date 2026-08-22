@@ -706,7 +706,7 @@ def _parse_meta(meta: str):
 
     def stag():                                           # P2: tag de tipo após size de DADO
         # n/b = tag; delimitador estrutural OU fim = string (sem tag); QUALQUER outro char = corrupção
-        # (revisão owner 2026-07-16: 'x:<size>x' reinterpretava o 'x' como campo e decodava [] calado).
+        # (revisão owner: 'x:<size>x' reinterpretava o 'x' como campo e decodava [] calado).
         nonlocal i
         if i >= n:
             return "s"

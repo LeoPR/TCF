@@ -51,7 +51,7 @@ que as demais do mesmo combo. Sem separar `load_duration`, isso parece
 "essa query foi mais lenta" quando na verdade foi "modelo tinha sido descarregado".
 
 ### 3. Ruído de OS scheduling (single-machine, sem isolamento)
-O experimento roda no mesmo OS que outros processos. Uma única medição de 
+O experimento roda no mesmo OS que outros processos. Uma única medição de
 timing pode ser inflacionada por:
 - Antivírus/indexação rodando em background
 - GC do Python

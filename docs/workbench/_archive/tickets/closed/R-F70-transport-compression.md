@@ -32,5 +32,5 @@ JSONL e sempre o pior (chaves JSON repetidas resistem parcialmente ao gzip).
 TCF nao e apenas mais interpretavel para LLMs — e tambem mais eficiente
 no transporte (APIs, HTTP responses). Argumento triplo:
 1. Menos tokens no prompt
-2. Menos bytes no transporte  
+2. Menos bytes no transporte
 3. Hints meta-cognitivos (STATS)

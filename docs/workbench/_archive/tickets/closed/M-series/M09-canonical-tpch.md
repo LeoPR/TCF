@@ -25,4 +25,4 @@ Replicar protocolo M3 em TPC-H canonical (3-table star).
 
 
 
-Manifest: 
+Manifest:

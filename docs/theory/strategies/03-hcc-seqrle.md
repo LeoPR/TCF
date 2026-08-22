@@ -42,46 +42,46 @@ Em decode, marker parser disambiguates automaticamente: ',' na delta_str → CSV
 
 ### Detalhamento
 
-**`find_escape_digit_positions`** (helper, [src/tcf/composicional/hcc_seqrle.py:31-44](../../../src/tcf/composicional/hcc_seqrle.py))  
+**`find_escape_digit_positions`** (helper, [src/tcf/composicional/hcc_seqrle.py:31-44](../../../src/tcf/composicional/hcc_seqrle.py))
 Utility que mapeia posições (0-based) de cada char digit que vem após backslash (escape sequence). Itera string left-to-right, detecta '\' seguido de isdigit(), coleta indice de cada digit. Retorna lista vazia se nenhuma sequence escape-digit encontrada. Usado por find_escape_digit_runs e compare_for_seq pra localizar quais portions do template são 'numéricos' (candidatos a delta shift).
 
-**`find_escape_digit_runs`** (estrategia, [src/tcf/composicional/hcc_seqrle.py:47-62](../../../src/tcf/composicional/hcc_seqrle.py))  
+**`find_escape_digit_runs`** (estrategia, [src/tcf/composicional/hcc_seqrle.py:47-62](../../../src/tcf/composicional/hcc_seqrle.py))
 Detecta RUNS (intervalos consecutivos) de digits após escape. Retorna list[tuple[int, int]] (start, end_exclusive) de cada run. Ex: '\\125.\\114' → [(1,4), (6,9)]. Crítico pra distinguir multi-run (prefix invariante + suffix cadenced) de single-run. Usado como pivô em compare_for_seq pra rejeitar pares com estruturas runs diferentes.
 
-**`compare_for_seq`** (decision-point, [src/tcf/composicional/hcc_seqrle.py:65-112](../../../src/tcf/composicional/hcc_seqrle.py))  
+**`compare_for_seq`** (decision-point, [src/tcf/composicional/hcc_seqrle.py:65-112](../../../src/tcf/composicional/hcc_seqrle.py))
 CRITERIO CENTRAL pra near-identical detection. Compara line_a e line_b; retorna list[int] de deltas (1 per run) se par é compactavel, None senão. Aceita: (1) single run com delta non-zero, (2) multi-run com EXATAMENTE 1 valor non-zero + resto zeros (ex: [0,0,0,1]). Rejeita: (1) len diferente, (2) diffs fora de escape-digit runs, (3) runs_a ≠ runs_b (estrutura diferente), (4) multiple non-zero diferentes (Fase 2 reject, linha 111), (5) all-zero (linhas identicas). ADR-0016: mudança chave vs M10 — agora aceita multi-delta [0,0,0,1] que antes rejeitava (Bug #2).
 
-**`_is_uniform_delta`** (heuristica, [src/tcf/composicional/hcc_seqrle.py:176-183](../../../src/tcf/composicional/hcc_seqrle.py))  
+**`_is_uniform_delta`** (heuristica, [src/tcf/composicional/hcc_seqrle.py:176-183](../../../src/tcf/composicional/hcc_seqrle.py))
 Verifica se lista de deltas é UNIFORME (todos iguais e non-zero). Se sim, retorna aquele int único; senão None. Usado em compact_body (linha 199) pra decidir marker format: M10 compat `*N+delta|` (uniform) vs ADR-0016 CSV `*N+d1,d2,d3,d4|` (mixed). Threshold: all(d == deltas[0] and d != 0). Importante pra backward compatibility.
 
-**`shift_escape_digits`** (estrategia, [src/tcf/composicional/hcc_seqrle.py:115-147](../../../src/tcf/composicional/hcc_seqrle.py))  
+**`shift_escape_digits`** (estrategia, [src/tcf/composicional/hcc_seqrle.py:115-147](../../../src/tcf/composicional/hcc_seqrle.py))
 Aplica delta(s) a template pra gerar linha i+1, i+2, ... em run. Aceita delta como int (M10: mesmo delta em TODOS runs) ou list[int] (ADR-0016: per-run). Algorithm: (1) parse runs do template, (2) normalize delta pra list, (3) iterate runs + deltas em sync, (4) apply int(run_old) + d → new_val, (5) format com zfill(width) pra preservar leading zeros. Edge case: se len(deltas) ≠ len(runs), retorna template inalterado (safe fallback). Linha 142: zfill preserva 3-digit de IPs ex: '\\001' ∈ run → +1 → '\\002'.
 
-**`detect_seq_runs`** (estrategia, [src/tcf/composicional/hcc_seqrle.py:150-173](../../../src/tcf/composicional/hcc_seqrle.py))  
+**`detect_seq_runs`** (estrategia, [src/tcf/composicional/hcc_seqrle.py:150-173](../../../src/tcf/composicional/hcc_seqrle.py))
 DETECTOR SEQUENCIAL de runs near-identical. Itera body_lines, chama compare_for_seq em cada par consecutivo. Quando par aceitável, estende run enquanto proxima line mantém MESMO deltas. Retorna list[tuple[int, int, list[int]]] = (start_line, end_exclusive, deltas). Invariante: runs não se sobrepõem, sequential. Usado em compact_body. ADR-0016: deltas sempre list[int] (retorno de compare_for_seq mudou de int → list). Threshold pra extend run (linha 168): next_deltas == deltas (exato, não aproximado).
 
-**`compact_body`** (estrategia, [src/tcf/composicional/hcc_seqrle.py:186-227](../../../src/tcf/composicional/hcc_seqrle.py))  
+**`compact_body`** (estrategia, [src/tcf/composicional/hcc_seqrle.py:186-227](../../../src/tcf/composicional/hcc_seqrle.py))
 POST-PROCESS pós-encode. Detecta runs near-identical, substitui por markers. Decide marker format (M10 vs CSV): linha 199-210. Se uniform delta → M10 format `*count+delta|template` (compat). Senão → CSV `*count+d1,d2,...|template` (ADR-0016). Sign handling (linha 201, 209): prepend '+' apenas se delta[0] >= 0; negativo já inclui '-' via str(). Retorna (compacted_lines, info_dicts). Info dict inclui savings estimate (linha 219-220) = (sum(len original lines) + count-1) - len(marker). Invariante: cada marker ≥ 2 linhas (count >= 2).
 
-**`expand_seq_marker`** (estrategia, [src/tcf/composicional/hcc_seqrle.py:230-274](../../../src/tcf/composicional/hcc_seqrle.py))  
+**`expand_seq_marker`** (estrategia, [src/tcf/composicional/hcc_seqrle.py:230-274](../../../src/tcf/composicional/hcc_seqrle.py))
 DECODER REVERSO de markers. Parse `*N+delta|template` ou `*N+d1,d2,...|template`. Disambiguação (linha 255): if ',' in delta_str → CSV (ADR-0016) senão int (M10). Extracts count, deltas, template. Itera count vezes, aplicando shift_escape_digits incrementalmente. Linha 264: int(delta_str) parse single delta (compat M10). Linha 257: split(',') → list[int]. Returns list[str] de count linhas (template + shifted variantes), ou None se formato inválido.
 
-**`HCCSeqRLE class + control flow`** (estrategia, [src/tcf/composicional/hcc_seqrle.py:277-314](../../../src/tcf/composicional/hcc_seqrle.py))  
+**`HCCSeqRLE class + control flow`** (estrategia, [src/tcf/composicional/hcc_seqrle.py:277-314](../../../src/tcf/composicional/hcc_seqrle.py))
 Subclass de M8AVirtualRefsSyntax. Override encode/decode pra adicionar seq-RLE layer. ENCODE (linha 293-298): (1) chama super().encode → body_text (M9 canonical), (2) split em lines, (3) compact_body, (4) armazena seq_rle_info em _seq_info, (5) retorna compacted text. DECODE (linha 300-313): (1) itera tcf_text.splitlines(), (2) pra cada linha, tenta expand_seq_marker, (3) se marker → adiciona expanded lines, senão passes-through, (4) re-assembles texto expandido, (5) chama super().decode. Post-condition: bytes-exato round-trip (encode → decode == original).
 
-**`M10 backward compatibility threshold`** (threshold, [src/tcf/composicional/hcc_seqrle.py:199-202](../../../src/tcf/composicional/hcc_seqrle.py))  
+**`M10 backward compatibility threshold`** (threshold, [src/tcf/composicional/hcc_seqrle.py:199-202](../../../src/tcf/composicional/hcc_seqrle.py))
 Mecanismo de preservação backward compat: se _is_uniform_delta retorna non-None (todos deltas iguais), emite marker M10 format `*N+delta|` (sem virgula). Datasets como D1-D9 (nenhum multi-run com mixed deltas) emit markers idênticos a versão M9, preservando byte-canonical invariant. Validado em test suite (19 novos tests em test_hcc_multi_delta.py, 211 total passam).
 
-**`Fase 1 single non-zero restriction`** (threshold, [src/tcf/composicional/hcc_seqrle.py:107-111](../../../src/tcf/composicional/hcc_seqrle.py))  
+**`Fase 1 single non-zero restriction`** (threshold, [src/tcf/composicional/hcc_seqrle.py:107-111](../../../src/tcf/composicional/hcc_seqrle.py))
 ADR-0016 Fase 1 limitação: multi-delta só aceita 1 valor non-zero (resto zeros). Linha 110: if len(set(non_zero)) > 1 → return None (reject). Casos [1,2] ou [3,5] rejeitados — defer para Fase 2 (futuro). Justificativa: casos [0,0,0,1] são comuns (prefix invariante + suffix cadenced, ex: IPs), mas [1,2] raro em real-world datasets. Benchmark D-IP-subnet validou suficiência.
 
-**`Run equality invariant`** (marcador, [src/tcf/composicional/hcc_seqrle.py:88-91](../../../src/tcf/composicional/hcc_seqrle.py))  
+**`Run equality invariant`** (marcador, [src/tcf/composicional/hcc_seqrle.py:88-91](../../../src/tcf/composicional/hcc_seqrle.py))
 Estrutural: pares são aceitáveis APENAS se runs_a == runs_b (posições de escape-digit runs exatamente iguais). Se differs → None (reject). Impede false positives tipo '\\1' vs '\\1.\\2' (número de runs diferente, diferença não-linear). Crítico pra corretude shift_escape_digits.
 
-**`Escape-digit length check`** (threshold, [src/tcf/composicional/hcc_seqrle.py:138-144](../../../src/tcf/composicional/hcc_seqrle.py))  
+**`Escape-digit length check`** (threshold, [src/tcf/composicional/hcc_seqrle.py:138-144](../../../src/tcf/composicional/hcc_seqrle.py))
 shift_escape_digits linha 141-144: quando aplicar delta a run, resultado new_val pode ter length diferente de original (ex: 99 + 1 = 100). zfill(width) preserva width (leading zeros); se new_str > width, não trunca (overflow preservado). Exemplo: \\99 + 1 → \\100 (width muda de 2 → 3). Necessario pra IPs com 3 dígits fixos.
 
-**`Tokenizer OBAT integration point`** (decision-point, [src/tcf/composicional/hcc_seqrle.py:1-24 (docstring)](../../../src/tcf/composicional/hcc_seqrle.py))  
+**`Tokenizer OBAT integration point`** (decision-point, [src/tcf/composicional/hcc_seqrle.py:1-24 (docstring)](../../../src/tcf/composicional/hcc_seqrle.py))
 HCCSeqRLE é post-process em cima de OBAT tokenization (CAMADA 1) + M8A atom/composition detection (CAMADA 2a). Entrada é body_text já escape-lido (escape-digit runs via OBAT _escape_lit). Saída é compactação seq-RLE. Pipeline: OBAT tokeniza → M8A emits refs → body_text → HCCSeqRLE compacts → output TCF. Camadas são sequencial, não intercalado.
 
 ### Notas

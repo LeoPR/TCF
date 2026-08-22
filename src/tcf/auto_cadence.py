@@ -3,7 +3,7 @@
 CAMADA-0 pre-pass (ordem do pipeline: pre-pass -> OBAT em core/ -> HCC em
 composicional/). Irmaos pre-pass: column_features, auto_min_len, obat_shape.
 
-Welded canonical 2026-05-22 (T-CODE-PACOTE1-WELD-CANONICAL).
+
 Origem: `experiments/lab/clean/EXP-010-tcf-delta-aware-prototype/auto_pre.py`
 (ADR-0008).
 
