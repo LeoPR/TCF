@@ -153,7 +153,9 @@ sai `#TCF.8b` (**single-col tipado**, não `.8H`); só `{"a": ["x", None]}` vai 
 
 ## kwargs de `decode`
 
-- **`schema`**: reverse da pré-tx out-of-band (ADR-0015) — mesmas formas do encode; o header é autoritativo.
+- **`schema`**: reverse da pré-tx out-of-band (ADR-0015) — mesmas formas do encode (incluindo a
+  sobrecarga escalar em wire de UMA coluna; em 2+ o escalar é recusado ensinando); o header é
+  autoritativo. O schema é **incremental**: só toca o que nomeia.
 - **`max_length`** — **teto de descompressão**. Nome e a convenção `0 == sem teto` vêm do
   `zlib`/`bz2`/`lzma`. Unidade = **elementos** decodificados (não bytes: é o que a expansão
   aloca), **por coluna**. `None` → default `10_000_000`.

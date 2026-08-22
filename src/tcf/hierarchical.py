@@ -471,12 +471,12 @@ def _encode_dataset(records: list, side_outputs=None, nature_per_col=None) -> st
             path = tuple(path_str.split("/"))
             if (path, "scalar") not in cols:
                 raise HierarchicalError(
-                    f"nature_per_col: {path_str!r} não é folha ESCALAR do dataset — "
-                    f"nature só aplica a coluna scalar-string (não objeto/array/inexistente)")
+                    f"schema: {path_str!r} não é folha ESCALAR do dataset — "
+                    f"spec só aplica a coluna scalar-string (não objeto/array/inexistente)")
             if stype_of.get(path) != "s":
                 raise HierarchicalError(
-                    f"nature_per_col: {path_str!r} é coluna TIPADA (number/bool), não string — "
-                    f"nature aplica só a strings")
+                    f"schema: {path_str!r} é coluna TIPADA (number/bool), não string — "
+                    f"spec aplica só a strings")
             nat_spec[(path, "scalar")] = spec
 
     def _body(key):

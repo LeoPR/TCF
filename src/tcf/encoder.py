@@ -365,7 +365,14 @@ def encode(
 
         _kind, _resolved = resolve_schema(schema, where="encode(schema=)")
         if _kind == "single":
-            nature = _resolved
+            if isinstance(data, dict) and len(data) == 1:
+                # SOBRECARGA (owner 2026-08-22): alvo INEQUIVOCO — tabela de UMA
+                # coluna aceita a forma escalar, sem cerimonia de dict. Com 2+
+                # colunas o escalar segue erro ensinante (qual coluna? informacao
+                # genuinamente necessaria).
+                nature_per_col = {next(iter(data)): _resolved}
+            else:
+                nature = _resolved
         elif isinstance(data, dict):
             _cols = list(data)
             _out: dict = {}
@@ -394,8 +401,9 @@ def encode(
             nature_per_col = _resolved
     if isinstance(data, dict) and nature is not None:
         raise ValueError(
-            "schema escalar ('id'/objeto) aplica a single-col (list); pra "
-            "tabela dict use schema={coluna: spec} (T-QA-8 BUG-10g)"
+            "schema escalar ('id'/objeto) aplica a single-col (list) ou tabela "
+            "de UMA coluna; com 2+ colunas use schema={coluna: spec} — qual "
+            "coluna e' informacao necessaria (T-QA-8 BUG-10g)"
         )
     if (
         isinstance(data, list)

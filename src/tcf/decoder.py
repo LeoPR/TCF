@@ -225,6 +225,21 @@ def decode(
         from tcf.multi import _decode_multi_impl
 
         result, header_ids = _decode_multi_impl(tcf_text)
+        # SOBRECARGA escalar (owner 2026-08-22), simetrica ao encode: wire multi
+        # de UMA coluna aceita schema="id"/objeto. Em 2+ colunas o escalar era
+        # aceito e SILENCIOSAMENTE nao usado (a classe calada que este projeto
+        # cacha) — agora fail-loud ensinante.
+        if nature is not None:
+            if len(result) == 1:
+                nature_per_col = {next(iter(result)): nature}
+                nature = None
+            else:
+                raise ValueError(
+                    f"decode(schema=): forma escalar num wire multi de "
+                    f"{len(result)} colunas ({list(result)}) — use "
+                    f"schema={{coluna: spec}}; o escalar vale quando o wire tem "
+                    f"UMA coluna"
+                )
         # Natures auto-descritas no header (#TCF.8M e' SELF-DESCRIBING): o header e'
         # AUTORITATIVO — resolve+aplica os :id. Pos-FLOOR (T-SPEC-DEEPDIVE §5.1), uma
         # coluna SEM :id significa DEFINITIVAMENTE valores ORIGINAIS (a nature perdeu

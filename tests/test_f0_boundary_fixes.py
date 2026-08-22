@@ -550,8 +550,10 @@ class TestLote3ApiBoundaries:
     def test_schema_escalar_com_dict_raises(self):  # BUG-10g (re-pin schema=)
         from tcf import SPEC_CPF
 
-        with pytest.raises(ValueError, match="tabela dict use schema"):
-            encode({"a": ["111.444.777-35"]}, schema=SPEC_CPF)
+        # RE-PIN 2026-08-22 (sobrecarga escalar): tabela de UMA coluna passou a
+        # ACEITAR o escalar (alvo inequivoco); o erro ensinante fica pras 2+.
+        with pytest.raises(ValueError, match="UMA coluna"):
+            encode({"a": ["111.444.777-35"], "b": ["x"]}, schema=SPEC_CPF)
 
     def test_schema_dict_com_lista_raises(self):  # BUG-10g (re-pin schema=)
         from tcf import SPEC_CPF

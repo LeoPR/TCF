@@ -53,6 +53,16 @@ de wire, sem ADR de formato. No momento em que um campo dele precisar **viajar n
 declarar tipo no meta), vira mudança de formato → ADR próprio + gates, e provavelmente conversa
 com `T-FMT-OMIT-OR-DECLARE` (deduzir/convencionar/declarar).
 
+## Extensões registradas (não feitas)
+
+- **Sobrecarga escalar no `.8H` de 1 folha string** (2026-08-22): a tabela dict e o wire multi
+  de UMA coluna já aceitam a forma escalar; o dataset `.8H` não — as folhas são derivadas
+  fundo demais para a porta decidir "inequívoco" barato. Se um dia valer, a régua é a mesma:
+  exatamente UMA folha scalar-string elegível.
+- **`fast=true` / perfis de agrupamento** (direção owner 2026-08-22, alvo `.9`): um parâmetro
+  que liga conjuntos de flags já trabalhados — já registrado como `T-PERFIS-MACRO`
+  (PENDENTES NOMEADOS na STATUS); o Schema é candidato natural a carregá-lo.
+
 ## Não fazer agora
 
 Nada. O `.8` fecha com as formas curtas; este ticket é o registro do destino para o desenho

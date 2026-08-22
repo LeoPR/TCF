@@ -247,7 +247,12 @@ assert result == table
 
 **Detalhes**:
 
-- Colunas sem entrada no `schema` usam a codificação comum (sem filtro)
+- **O schema é INCREMENTAL**: por default toda coluna é string semântico; o schema muda
+  **um ou mais** — colunas sem entrada usam a codificação comum (sem filtro), e
+  `schema={}` / `{col: None}` são byte-idênticos a não passar nada
+- **Sobrecarga**: quando o alvo é inequívoco — `list`, ou tabela de **UMA** coluna — a forma
+  escalar basta (`schema="cpf"`), sem cerimônia de dict; com 2+ colunas o dict é exigido
+  (qual coluna é informação necessária)
 - Cada coluna codifica e decodifica independentemente
 - O round-trip sem perdas é preservado mesmo com fallback em alguns valores
 

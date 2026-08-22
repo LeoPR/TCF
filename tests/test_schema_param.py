@@ -132,10 +132,11 @@ class TestFailLoud:
         with pytest.raises(ValueError, match="posicao.*so'.*dict|so' vale pra tabela"):
             encode(IPS, schema={0: "ip"})
 
-    def test_str_escalar_em_tabela_dict(self):
-        # a forma escalar e' single-col; em dict o erro da porta ensina o caminho
-        with pytest.raises(ValueError):
-            encode({"a": IPS}, schema="ip")
+    def test_str_escalar_em_tabela_de_2_colunas(self):
+        # escalar em tabela de 2+ colunas: qual coluna? informacao necessaria —
+        # o erro ensina o caminho (a tabela de UMA coluna aceita: sobrecarga)
+        with pytest.raises(ValueError, match="UMA coluna"):
+            encode({"a": IPS, "b": ["x"] * len(IPS)}, schema="ip")
 
     def test_chave_bool_e_tipo_errado(self):
         with pytest.raises(TypeError, match="bool"):
@@ -144,6 +145,46 @@ class TestFailLoud:
             encode({"a": IPS}, schema={"a": 42})
         with pytest.raises(TypeError, match="schema deve ser"):
             encode(IPS, schema=42)
+
+
+class TestIncrementalESobrecargas:
+    """Formalizacao 2026-08-22 (owner): o schema e' INCREMENTAL — default = string
+    semantico, o schema muda um ou mais — e tem SOBRECARGA quando o alvo e'
+    inequivoco (tabela/wire de UMA coluna aceita a forma escalar)."""
+
+    def test_schema_vazio_none_e_col_none_sao_neutros(self):
+        tab = {"ip": IPS, "obs": ["x"] * len(IPS)}
+        w = encode(tab)
+        assert encode(tab, schema={}) == w
+        assert encode(tab, schema=None) == w
+        assert encode(tab, schema={"ip": None}) == w
+
+    def test_coluna_nao_nomeada_nunca_e_marcada(self):
+        tab = {"ip": IPS, "obs": ["x"] * len(IPS)}
+        meta = encode(tab, schema={"ip": "ip"}).split("\n", 1)[0]
+        assert meta.count(":") == 1 and ":ip" in meta   # SO' a nomeada
+
+    def test_escalar_em_tabela_de_uma_coluna(self):
+        # a sobrecarga: sem cerimonia de dict quando o alvo e' inequivoco
+        w = encode({"ip": IPS}, schema="ip")
+        assert w == encode({"ip": IPS}, schema={"ip": "ip"})
+        assert ":ip" in w.split("\n", 1)[0]             # testemunha de APLICACAO
+        assert decode(w) == {"ip": IPS}
+
+    def test_escalar_em_dict_aninhado_falha_alto(self):
+        # 1 chave mas folha NAO-escalar -> o .8H recusa ensinando (nao ha' silencio)
+        with pytest.raises(Exception, match="folha ESCALAR|ESCALAR"):
+            encode({"x": {"y": 1}}, schema="cpf")
+
+    def test_decode_escalar_em_wire_de_uma_coluna(self):
+        w = encode({"ip": IPS}, schema="ip")
+        assert decode(w, schema="ip") == {"ip": IPS}
+
+    def test_decode_escalar_em_wire_multi_ensina(self):
+        # ANTES o escalar em wire multi era aceito e SILENCIOSAMENTE nao usado
+        w = encode({"ip": IPS, "obs": ["x"] * len(IPS)})
+        with pytest.raises(ValueError, match="UMA coluna"):
+            decode(w, schema="ip")
 
 
 class TestDecodeSimetrico:

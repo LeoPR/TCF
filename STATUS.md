@@ -27,7 +27,12 @@
 > anti-tautologia no teste de paridade (a igualdade dos dois lados nao prova aplicacao; o `:id`
 > no meta prova). POLITICA reafirmada pelo owner: pre-1.0 sem modos de compatibilidade; congela
 > no 1.0; git-as-compat. Suite 1315 -> **1336**; snippets 71/0. Docs vivas migradas (0 sobras);
-> ADRs/labs historicos intocados.
+> ADRs/labs historicos intocados. **FORMALIZADO +2026-08-22 (aprovacao owner)**: o schema e'
+> **INCREMENTAL** (default = string semantico; o schema muda um ou mais; `{}`/`{col: None}`
+> byte-neutros PINADOS) e tem **SOBRECARGA** — tabela/wire de UMA coluna aceita a forma escalar
+> nas DUAS portas; e o escalar em wire multi 2+, que o decode aceitava e IGNORAVA calado, virou
+> fail-loud ensinante. Extensoes registradas no ticket (`.8H` 1-folha; `fast=true`/perfis ->
+> `.9`, ja' em T-PERFIS-MACRO). Suite **1342**.
 
 > **⚑ SOLDADO 2026-08-21 — [ADR-0045](docs/adr/0045-bordas-em-valor-de-spec.md): bordas em valor
 > de spec, 3 decisoes SEPARADAS.** **(1)** vazamento fechado: `$` -> `\Z` em `_CPF_RE`/`_CNPJ_RE`/
