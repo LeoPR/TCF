@@ -15,6 +15,19 @@
 > Detalhe + classificação das 17 checagens do bN:
 > [`escala-de-verificacao-e-fechamento-do-bn`](experiments/lab/dirty/notas/2026-08/2026-08-07-escala-de-verificacao-e-fechamento-do-bn.md).
 
+> **⛑ FECHADO 2026-08-22 — o `stamp=False` e' CORPO CRU, e a descricao dele passou a
+> dizer isso.** O comportamento nao estava errado; a documentacao EMBARCADA na wheel e' que
+> prometia *"escape explicito (orfao, sem header)"* sem condicao. Medido: (a) sem cabecalho os
+> mecanismos que se DECLARAM nele (polaridade, bN) saem da disputa — coluna de baixa
+> cardinalidade **102 B -> 611 B**; (b) com `schema` vencedor o `:id` sai assim mesmo, porque e'
+> o unico lugar onde viaja QUAL spec inverter (recortando o carimbo, o decode devolve o payload
+> transformado). Docstring corrigido + 4 testes que pinam as ressalvas (`TestStampCorpoCru`).
+> **O cabecalho minimo de verdade** — estatico fora, dinamico dentro, o desenho do owner — exige
+> gramatica nova pro dinamico (e' mudanca de FORMATO) e vive em
+> [`T-API-SCHEMA-PRESCRITIVO`](tickets/T-API-SCHEMA-PRESCRITIVO.md): com o Schema nas duas
+> pontas, o estatico sai do fio. Suite **1348**.
+
+
 > **⚑ AUDITADO 2026-08-22 — os READMEs de capa (git + PyPI): 4 defasagens reais, corrigidas.**
 > Pedido do owner ao fechar o `.8`. **(1)** exemplo `.8H`: **146 -> 144 B**, header `fones#:8[` ->
 > `:6[`, corpo `*2-1|` -> coluna propria — e a PROSA explicava o `*2-1|` em detalhe; **(2)** natures:
