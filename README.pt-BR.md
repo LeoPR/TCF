@@ -118,22 +118,24 @@ round-trip do **dataset que sua linguagem constrói a partir do JSON**: objetos/
   {"nome":"Bruno Lima","cpf":"999.999.999-99","ativo":false,"fones":["21 99888-7766"]} ]
 ```
 
-**TCF + nature CPF** *(146 B, saída real do `encode` — entrada aninhada roteia pro `#TCF.8H`)*: o objeto é *fatiado em colunas*
+**TCF + nature CPF** *(144 B, saída real do `encode` — entrada aninhada roteia pro `#TCF.8H`)*: o objeto é *fatiado em colunas*
 (uma por campo), então os nomes de campo são escritos **uma vez** no header — não por registro; a mesma
 nature `cpf` opt-in da tabela plana também vale aqui:
 
 ```
-#TCF.8Hnome:21,cpf:12:cpf,ativo:11b,fones#:8[
+#TCF.8Hnome:21,cpf:12:cpf,ativo:11b,fones#:6[
 Ana Souza
 Bruno Lima
 %g$.u
 AJ/}}
 true
 false
-*2-1|\2
+\2
+\1
 \11 *\98765-\4321
 1\3555-\0100
 \21 \99888-\7766
+
 ```
 
 - `cpf:12:cpf` é a mesma nature **`cpf`** opt-in da tabela plana acima — remove a pontuação e o dígito
@@ -141,7 +143,7 @@ false
   reconstruir sem receber o filtro.
 - `ativo:…b` é um **bool tipado** — `true`/`false`, distinto da string `"true"`; um campo numérico
   também levaria uma tag de tipo.
-- `fones#:…[` é uma coluna **array**; `*2-1|\2` lê os tamanhos dos arrays como repetição — *2 fones,
+- `fones#:…[` é uma coluna **array**; os tamanhos são coluna própria (`\2`, `\1` — *2 fones,
   depois 1* — então você conta a estrutura **sem expandi-la**. Dígitos ganham um escape `\` pra nunca
   colidir com a sintaxe de referência (`\11 ` = `11 `); o `decode` reverte exatamente.
 
@@ -247,7 +249,7 @@ print(blob)
 # \0r(LU
 assert decode(blob) == cpfs            # decode lê `:cpf` do header, sem passar spec
 
-# Os mesmos 4 CPFs: 76 B raw single-col -> 39 B com a nature (-49%). Em tabela,
+# Os mesmos 4 CPFs: 69 B single-col sem a nature -> 39 B com ela (-43%). Em tabela,
 # passe por coluna: encode(tabela, schema={"cpf": SPEC_CPF}); a meta inline
 # da coluna cpf então carrega `:cpf` (ex.: `#TCF.8M!15=nome,!cpf:cpf`).
 ```
@@ -354,7 +356,7 @@ O dicionário low-card (V2-B) e o split estrutural já estão no default; a comp
 - Default **0.8 / `#TCF.8M`**: fallback, dicionário, split estrutural, meta hexadecimal inline,
   escaping e identificadores de filtros autorizados pelo cabeçalho; veja a seção acima. Os legados `.6/.7`
   são recuperados via git.
-- Suíte: **861 passed, 3 skipped** na execução local completa atual; rode `pytest` para o número do seu ambiente.
+- Suíte: **1344 passed, 3 skipped** na execução local completa atual; rode `pytest` para o número do seu ambiente.
   Baselines de byte = guardas de regressão, re-pináveis em mudança intencional ([ADR-0024](docs/adr/0024-pre-1.0-versioning-git-as-compat.md)).
 - Mudanças: [`CHANGELOG.md`](CHANGELOG.md).
   História M0-M14: [`experiments/lab/dirty/notas/2026-05/historia-dirty-lab.md`](experiments/lab/dirty/notas/2026-05/historia-dirty-lab.md).
@@ -652,7 +654,7 @@ TCF/
 
 O encoder e' a ferramenta principal; auxiliares de suporte (NAO TCF-core):
 
-- **Shaper** (`scripts/shaper/`): stratified, FK-preserving sampling framework.
+- **Shaper** (`src/shaper/`): stratified, FK-preserving sampling framework.
   Standalone-able as a separate library; see
   [shaper-as-standalone-tool note](docs/workbench/research-notes/_archive/2026-04-25-shaper-as-standalone-tool.md)
 - **DatasetReader** (`scripts/dataset_reader.py`): uniform interface

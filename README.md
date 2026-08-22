@@ -115,22 +115,24 @@ the **dataset your language builds from JSON**: nested objects/arrays, `null`, a
   {"nome":"Bruno Lima","cpf":"999.999.999-99","ativo":false,"fones":["21 99888-7766"]} ]
 ```
 
-**TCF + CPF nature** *(146 B, real `encode` output — nested input routes to `#TCF.8H`)*: the object is *shredded into columns*
+**TCF + CPF nature** *(144 B, real `encode` output — nested input routes to `#TCF.8H`)*: the object is *shredded into columns*
 (one per field), so field names are written **once** in the header — not per record; the same opt-in
 `cpf` nature from the flat table applies here too:
 
 ```
-#TCF.8Hnome:21,cpf:12:cpf,ativo:11b,fones#:8[
+#TCF.8Hnome:21,cpf:12:cpf,ativo:11b,fones#:6[
 Ana Souza
 Bruno Lima
 %g$.u
 AJ/}}
 true
 false
-*2-1|\2
+\2
+\1
 \11 *\98765-\4321
 1\3555-\0100
 \21 \99888-\7766
+
 ```
 
 - `cpf:12:cpf` is the same opt-in **`cpf` nature** as the flat table above — it strips the punctuation
@@ -138,7 +140,7 @@ false
   rebuild them without being told the filter.
 - `ativo:…b` is a **typed bool** — `true`/`false`, distinct from the string `"true"`; a number field
   would carry a type tag too.
-- `fones#:…[` is an **array** column; `*2-1|\2` reads the array lengths as a run — *2 phones, then 1*
+- `fones#:…[` is an **array** column; the lengths are their own column (`\2`, `\1` — *2 phones, then 1*)
   — so you count the structure **without expanding it**. Digits get a `\` escape so they never collide
   with the reference syntax (`\11 ` = `11 `); `decode` reverses it exactly.
 
@@ -242,7 +244,7 @@ print(blob)
 # \0r(LU
 assert decode(blob) == cpfs            # decode reads `:cpf` from the header, no spec needed
 
-# Same 4 CPFs: 76 B raw single-col -> 39 B with the nature (-49%). In a table,
+# Same 4 CPFs: 69 B single-col without the nature -> 39 B with it (-43%). In a table,
 # pass it per column: encode(table, schema={"cpf": SPEC_CPF}); the cpf
 # column's inline meta then carries `:cpf` (e.g. `#TCF.8M!15=nome,!cpf:cpf`).
 ```
@@ -350,7 +352,7 @@ The low-card dictionary (V2-B) and the structural split are already in the defau
   Round-trip is always lossless (`decode(encode(x)) == x`).
 - Default **0.8 / `#TCF.8M`**: fallback, dictionary, structural split, hexadecimal inline meta,
   escaping and header-authoritative filter IDs, see the section above. Legacy `.6/.7` are recovered through git.
-- Test suite: **861 passed, 3 skipped** in the current local full run; run `pytest` for the number in your environment.
+- Test suite: **1344 passed, 3 skipped** in the current local full run; run `pytest` for the number in your environment.
   Byte baselines = regression guards, re-pinnable on an intentional change ([ADR-0024](docs/adr/0024-pre-1.0-versioning-git-as-compat.md)).
 - Changes: [`CHANGELOG.md`](CHANGELOG.md).
   M0-M14 history: [`experiments/lab/dirty/notas/2026-05/historia-dirty-lab.md`](experiments/lab/dirty/notas/2026-05/historia-dirty-lab.md).
@@ -647,7 +649,7 @@ TCF/
 
 The encoder is the main tool; support helpers (NOT TCF-core):
 
-- **Shaper** (`scripts/shaper/`): stratified, FK-preserving sampling framework.
+- **Shaper** (`src/shaper/`): stratified, FK-preserving sampling framework.
   Standalone-able as a separate library; see
   [shaper-as-standalone-tool note](docs/workbench/research-notes/_archive/2026-04-25-shaper-as-standalone-tool.md)
 - **DatasetReader** (`scripts/dataset_reader.py`): uniform interface

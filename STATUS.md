@@ -15,6 +15,20 @@
 > Detalhe + classificação das 17 checagens do bN:
 > [`escala-de-verificacao-e-fechamento-do-bn`](experiments/lab/dirty/notas/2026-08/2026-08-07-escala-de-verificacao-e-fechamento-do-bn.md).
 
+> **⚑ AUDITADO 2026-08-22 — os READMEs de capa (git + PyPI): 4 defasagens reais, corrigidas.**
+> Pedido do owner ao fechar o `.8`. **(1)** exemplo `.8H`: **146 -> 144 B**, header `fones#:8[` ->
+> `:6[`, corpo `*2-1|` -> coluna propria — e a PROSA explicava o `*2-1|` em detalhe; **(2)** natures:
+> "76 B raw -> 39 B (-49%)" era numero MORTO (real: 69 -> 39, **-43%**); **(3)** "861 passed" -> **1344**;
+> **(4)** `scripts/shaper/` -> `src/shaper/` (movido na reorg de 06-02). Nos DOIS idiomas.
+> **Por que o varre_snippets nao pegava**: ele executa bloco PYTHON e declara nao verificar prosa
+> nem numero solto — e a capa e' feita de blocos de WIRE (nao executam) com o byte afirmado na
+> prosa ao lado; os 71 snippets passavam 71/0 com os numeros errados. **Regua nova, reutilizavel**
+> (lab [`1200`](experiments/lab/dirty/2026-08/2026-08-22/2026-08-22-1200-auditoria-readmes/)): NAO
+> hardcoda o esperado — le' o numero afirmado no proprio README, reconstroi o exemplo dos dados que
+> o proprio README mostra, roda o encode e compara BYTES e WIRE. 19/19 verdes. **2 dos 7 "achados"
+> da 1a passada eram ARTEFATO da regua** (o fence sempre acrescenta LF; o wire multi NAO termina em
+> LF) e um "erro" suspeito nao era erro (single-col escapa, coluna raw de multi nao) — declarado.
+
 > **⚑ SOLDADO 2026-08-22 — [ADR-0047](docs/adr/0047-schema-parametro-unico-de-spec.md): `schema=`
 > e' o parametro UNICO de spec da API; `nature=`/`nature_per_col=` CORTADOS (corte seco pre-1.0,
 > como o legado .6/.7).** Formas: `"cpf"` (name do registry) · objeto spec · `{col: spec}` com
