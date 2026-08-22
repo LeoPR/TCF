@@ -26,6 +26,8 @@ G3  bloco da secao de natures (single-col) — bytes e reducao %
 G4  exemplo do view() — todos os valores dos comentarios
 G5  numeros soltos da prosa (suite) e caminhos citados
 G6  paridade EN x pt-BR dos numeros de capa
+G7  README.pypi.md (long-description): ZERO link relativo, links do repo que
+    existem, e os exemplos rodando — a pagina do PyPI nao tem arvore de repo
 """
 
 from __future__ import annotations
@@ -187,6 +189,22 @@ def main() -> int:
     for arq, t in (("README.md", READ), ("README.pt-BR.md", PT)):
         md = re.search(r"\*\*(\d+ passed, \d+ skipped)\*\*", t)
         check(f"{arq}: suite afirmada", md.group(1) if md else None, suite)
+    # README.pypi.md e' a long-description do PyPI: pagina UNICA, sem arvore
+    # de repo — link relativo e imagem local nao resolvem la'. Isto guarda isso.
+    PYPI = (RAIZ / "README.pypi.md").read_text(encoding="utf-8")
+    _links = re.findall(r"\]\(([^)]+)\)", PYPI)
+    _rel = [x for x in _links if not x.startswith(("http", "#", "mailto"))]
+    check("PyPI: links relativos (quebram la')", 0, len(_rel))
+    _faltam = [x for _u, x in re.findall(
+        r"\]\((https://github\.com/LeoPR/TCF/blob/main/([^)]+))\)", PYPI)
+        if not (RAIZ / x).exists()]
+    check("PyPI: links pro repo inexistentes", [], _faltam)
+    _n = 0
+    for _n, _b in enumerate(re.findall(r"```python\n(.*?)```", PYPI, re.S), 1):
+        exec(compile(_b, f"<README.pypi bloco {_n}>", "exec"), {})
+    print(f"   [info] {_n} bloco(s) python do README.pypi executado(s) com seus asserts")
+    res["PyPI"] = {"links": len(_links), "relativos": len(_rel), "blocos": _n}
+
     caminhos = sorted(set(re.findall(r"\(`([a-z][\w./-]+/)`\)", READ)))
     for c in caminhos:
         if not (RAIZ / c).exists():

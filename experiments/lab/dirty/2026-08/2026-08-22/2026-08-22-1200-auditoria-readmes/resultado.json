@@ -16,8 +16,13 @@
   "G4": {
    "blob_B": 183
   },
+  "PyPI": {
+   "links": 16,
+   "relativos": 0,
+   "blocos": 4
+  },
   "G5": {
-   "suite": "1344 passed, 3 skipped",
+   "suite": "1348 passed, 3 skipped",
    "caminhos": 2
   },
   "G6": "ok"

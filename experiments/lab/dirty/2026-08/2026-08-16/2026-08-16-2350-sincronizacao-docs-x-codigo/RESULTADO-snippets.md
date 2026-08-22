@@ -32,8 +32,8 @@ Nenhuma.
 | `docs/reference/lazy-view.md` | 120 | sem import — provavelmente continuacao de outro bloco |
 | `docs/tutorials/getting-started.md` | 111 | sem import — provavelmente continuacao de outro bloco |
 | `docs/tutorials/getting-started.pt-BR.md` | 114 | sem import — provavelmente continuacao de outro bloco |
-| `README.md` | 324 | sem import — provavelmente continuacao de outro bloco |
-| `README.pt-BR.md` | 327 | sem import — provavelmente continuacao de outro bloco |
+| `README.md` | 341 | sem import — provavelmente continuacao de outro bloco |
+| `README.pt-BR.md` | 344 | sem import — provavelmente continuacao de outro bloco |
 
 ## O que este gate NÃO pega
 

@@ -15,6 +15,21 @@
 > Detalhe + classificação das 17 checagens do bN:
 > [`escala-de-verificacao-e-fechamento-do-bn`](experiments/lab/dirty/notas/2026-08/2026-08-07-escala-de-verificacao-e-fechamento-do-bn.md).
 
+> **⛑ 2026-08-22 — README dedicado pro PyPI + a distincao TIPO FORTE x SPEC.** O
+> `pyproject` mandava o README do repo (692 linhas) como long-description: **58 links
+> RELATIVOS e 1 imagem local**, que no PyPI (pagina UNICA, sem arvore de repo) quebram
+> todos. Agora `readme = "README.pypi.md"` — 182 linhas, foco em instalar/usar, **16 links,
+> zero relativo**, tudo apontando pro GitHub. `twine check` PASSED nos dois artefatos.
+> **Conteudo novo nos tres READMEs** (a pedido do owner): o que separa um **tipo forte** de
+> um **spec semantico** — o tipo AFIRMA identidade e devolve objeto nativo; o spec afirma
+> FORMA e devolve **a string original byte a byte**, caindo pra literal sem falhar quando o
+> valor nao casa. O spec e' uma HIPOTESE DE COMPRESSAO sobre a forma (mascara fixa + DV
+> derivavel = redundancia que nao precisa viajar), opt-in por valor, nunca-pior e
+> auto-descritiva. **A regua da capa ganhou G7** e ja' provou: pegou a suite defasada
+> (1344 -> 1348) e agora guarda link relativo, link morto e exemplo quebrado no README do
+> PyPI. Lab [`1200`](experiments/lab/dirty/2026-08/2026-08-22/2026-08-22-1200-auditoria-readmes/).
+
+
 > **⛑ FECHADO 2026-08-22 — o `stamp=False` e' CORPO CRU, e a descricao dele passou a
 > dizer isso.** O comportamento nao estava errado; a documentacao EMBARCADA na wheel e' que
 > prometia *"escape explicito (orfao, sem header)"* sem condicao. Medido: (a) sem cabecalho os

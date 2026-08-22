@@ -201,6 +201,23 @@ Rápido e previsível.
 
 ## Filtros por natureza (opt-in)
 
+**Um spec não é um tipo forte — e a diferença é o ponto.** O TCF é um formato de *texto*:
+o que entra volta igual, byte a byte. O spec não muda isso; ele só explora a **redundância que
+a forma garante**.
+
+| | tipo forte (`int`, `date`, …) | spec semântico do TCF |
+|---|---|---|
+| o que afirma | *"este valor **é** um inteiro"* | *"este valor **tem a forma** de um CPF"* |
+| o que devolve | o objeto nativo | **a string original, byte a byte** |
+| se o valor não casa | erro de tipo / coerção | cai para literal — **sem falhar e sem perder** |
+| o que ganha | semântica no seu programa | bytes no fio |
+
+Ou seja: o spec é uma **hipótese de compressão sobre a forma**, não uma afirmação sobre a
+identidade do dado. É opt-in por valor e **nunca-pior**: compete com o pipeline comum e só vence
+se encolher; valor que não casa a forma vira literal na mesma coluna. E é **auto-descritivo** —
+quando vence, o header carrega o id (`:cpf`) e o `decode` reverte sozinho, sem receber nada.
+O TCF nunca valida semântica: ele não checa se um CPF *existe*.
+
 Alguns valores têm uma estrutura fixa que o compressor genérico não aproveita. Para esses casos, o TCF
 oferece um filtro opt-in chamado *nature*: ele guarda apenas a parte necessária e reconstrói o valor
 original no `decode`.
@@ -356,7 +373,7 @@ O dicionário low-card (V2-B) e o split estrutural já estão no default; a comp
 - Default **0.8 / `#TCF.8M`**: fallback, dicionário, split estrutural, meta hexadecimal inline,
   escaping e identificadores de filtros autorizados pelo cabeçalho; veja a seção acima. Os legados `.6/.7`
   são recuperados via git.
-- Suíte: **1344 passed, 3 skipped** na execução local completa atual; rode `pytest` para o número do seu ambiente.
+- Suíte: **1348 passed, 3 skipped** na execução local completa atual; rode `pytest` para o número do seu ambiente.
   Baselines de byte = guardas de regressão, re-pináveis em mudança intencional ([ADR-0024](docs/adr/0024-pre-1.0-versioning-git-as-compat.md)).
 - Mudanças: [`CHANGELOG.md`](CHANGELOG.md).
   História M0-M14: [`experiments/lab/dirty/notas/2026-05/historia-dirty-lab.md`](experiments/lab/dirty/notas/2026-05/historia-dirty-lab.md).

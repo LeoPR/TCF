@@ -16,7 +16,9 @@ build-backend = "hatchling.build"
 name = "tcf-format"
 version = "0.8.0"
 description = "TCF (Tabular Compact Format) — string compression via OBAT (Online Bidirectional Affix Tokenizer) + HCC (Hierarchical Compositional Coding)"
-readme = "README.md"
+# README dedicado: o do repo tem 58 links RELATIVOS + 1 imagem local, que no PyPI
+# (pagina unica, sem arvore) quebram todos. Ver docs/how-to ou o repo pro completo.
+readme = "README.pypi.md"
 requires-python = ">=3.10"
 license = { text = "MIT" }
 keywords = ["tabular", "compression", "encoding", "affix-tokenizer", "compositional-coding", "string-compression"]

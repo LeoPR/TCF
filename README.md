@@ -198,6 +198,23 @@ Fast and predictable.
 
 ## Nature filters (opt-in)
 
+**A spec is not a strong type — and the difference is the point.** TCF is a *text* format:
+whatever goes in comes back out, byte for byte. A spec never changes that; it only exploits
+**redundancy that the shape guarantees**.
+
+| | strong type (`int`, `date`, …) | TCF semantic spec |
+|---|---|---|
+| what it asserts | *"this value **is** an integer"* | *"this value **has the shape** of a CPF"* |
+| what it returns | the native object | **the original string, byte for byte** |
+| when a value does not match | type error / coercion | falls back to literal — **no failure, no loss** |
+| what you gain | semantics inside your program | bytes on the wire |
+
+So a spec is a **compression hypothesis about the form**, not a claim about the data's identity.
+It is opt-in per value and **never-worse**: it competes with the ordinary pipeline and only wins
+if it shrinks; a value that does not match the shape becomes a literal in the same column. And it
+is **self-describing** — when it wins, the header carries the id (`:cpf`) and `decode` reverses it
+without being told. TCF never validates semantics: it does not check whether a CPF *exists*.
+
 Some values have **known structure** that a generic compressor does not exploit.
 A CPF `123.456.789-09` is really just **9 useful digits**: the punctuation is fixed and the final 2 digits
 (the check digits) are **derivable** from the other 9. A *nature filter* (opt-in) uses that:
@@ -352,7 +369,7 @@ The low-card dictionary (V2-B) and the structural split are already in the defau
   Round-trip is always lossless (`decode(encode(x)) == x`).
 - Default **0.8 / `#TCF.8M`**: fallback, dictionary, structural split, hexadecimal inline meta,
   escaping and header-authoritative filter IDs, see the section above. Legacy `.6/.7` are recovered through git.
-- Test suite: **1344 passed, 3 skipped** in the current local full run; run `pytest` for the number in your environment.
+- Test suite: **1348 passed, 3 skipped** in the current local full run; run `pytest` for the number in your environment.
   Byte baselines = regression guards, re-pinnable on an intentional change ([ADR-0024](docs/adr/0024-pre-1.0-versioning-git-as-compat.md)).
 - Changes: [`CHANGELOG.md`](CHANGELOG.md).
   M0-M14 history: [`experiments/lab/dirty/notas/2026-05/historia-dirty-lab.md`](experiments/lab/dirty/notas/2026-05/historia-dirty-lab.md).
