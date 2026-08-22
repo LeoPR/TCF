@@ -24,7 +24,7 @@ from collections import Counter
 from dataclasses import dataclass
 
 # --------------------------------------------------------------------------------------
-# TETO DE DESCOMPRESSAO (owner 2026-07-24). Nome `max_length` ROUBADO do zlib/bz2/lzma —
+# TETO DE DESCOMPRESSAO. Nome `max_length` ROUBADO do zlib/bz2/lzma —
 # nada a reinventar, e a convencao `0 == sem teto` vem do zlib tambem.
 #
 # UNIDADE = ELEMENTOS decodificados (linhas), nao bytes: o que a bomba aloca e' a lista
@@ -32,14 +32,14 @@ from dataclasses import dataclass
 # rotas (single, multi, view, hierarquico) passam pelo mesmo `_decode_column`.
 #
 # Wire produzido pelo `encode` NUNCA encosta nisto: o maior caso ja' medido no projeto e' de
-# ~50k elementos (lab 2026-07-24-1832) e o gate real-world tem 89 KB. 10M da' ~200x de folga
+# ~50k elementos e o gate real-world tem 89 KB. 10M da' ~200x de folga
 # sobre qualquer coisa que o projeto processa, e ainda assim barra o `*999999999|` de 15 B.
 # So' entrada HOSTIL (wire escrito a mao) chega aqui.
 # --------------------------------------------------------------------------------------
 MAX_LENGTH_PADRAO = 10_000_000
 
 # --------------------------------------------------------------------------------------
-# PRE-ALOCACAO DE INDICES DE REFERENCIA (owner 2026-07-24) — slot 0 = null.
+# PRE-ALOCACAO DE INDICES DE REFERENCIA — slot 0 = null.
 #
 # A tabela de referencias tem DUAS metades: os slots altos vem do DADO (literais
 # descobertos no encode) e os slots baixos vem do FORMATO (dicionario da versao, que NAO
@@ -82,7 +82,7 @@ def estouro_max_length(pedido, limite):
         f"decode(..., max_length=<maior>) ou max_length=0 (sem teto)."
     )
 
-# Welding step 2 (2026-05-17): adaptado de
+# Welding step 2: adaptado de
 # experiments/lab/dirty/old/2026-05-16-.../M8-A-detector-unificado/syntax.py.
 # Apenas estes 2 imports mudaram (path do dirty para src/tcf/core/);
 # logica de encode/decode permanece byte-exata. Validado em M12.
@@ -94,7 +94,7 @@ from tcf.core.syntax_base import Syntax
 def split_lf_body(tcf_text: str) -> list[str]:
     """Separa o BODY em linhas — FONTE ÚNICA do contrato LF-only do decode.
 
-    BUG-14 (T-QA-8, 2026-07-12): o formato é LF-only; `splitlines()` trataria
+    BUG-14: o formato é LF-only; `splitlines()` trataria
     \\v/\\f/NEL/U+2028/U+2029 como quebra e corromperia dado VÁLIDO — separa-se
     APENAS por '\\n', preservando os demais chars como dados. Remove exatamente
     o LF terminal estrutural (o body canônico emite 1).
@@ -107,7 +107,7 @@ def split_lf_body(tcf_text: str) -> list[str]:
     if tcf_text.endswith("\n"):
         return tcf_text[:-1].split("\n")
     # NAO-CANONICO: body sem o LF terminador estrutural. Tolerante-COM-WARNING
-    # (owner 2026-07-24, modelo camada-explicita-vs-implicita): aceita e decoda,
+    #(modelo camada-explicita-vs-implicita): aceita e decoda,
     # mas AVISA — a grafia canonica termina em '\n' (o encode SEMPRE emite). Este
     # ramo so' e' alcancado por wire truncado/editado a mao. Nao muda o retorno
     # (aditivo): a camada explicita permanece a mesma, so' passa a sinalizar desvio.
@@ -150,7 +150,7 @@ class M8AVirtualRefsSyntax(Syntax):
     def __init__(self):
         self._trace = []
         self._rede = []
-        #: Telemetria e' OPT-IN (2026-08-13). `build_trace`/`build_rede` rodavam
+        #: Telemetria e' OPT-IN. `build_trace`/`build_rede` rodavam
         #: INCONDICIONALMENTE no encode, mesmo sem `side_outputs` — 4-17% do tempo
         #: gasto pra construir texto que era descartado em seguida (17,1% numa
         #: cadeia true/false). O `encoder` liga isto quando ha' `side_outputs=`.
@@ -631,7 +631,7 @@ class M8AVirtualRefsSyntax(Syntax):
                         # expression, perdendo o `,` literal. Descoberto em
                         # EXP-013 TPC-H (p_comment 'pending, bold' -> 'pending bold').
                         #
-                        # BUG-SEQRLE-RANGE-EMPTY-B (2026-07-17, mesma familia): lit
+                        # BUG-SEQRLE-RANGE-EMPTY-B (mesma familia): lit
                         # comecando com `..` (elipse real: 'ETC & TAL...') era ABSORVIDO
                         # pelo scanner de refs como operador de range A..B -> int('')
                         # crashava no decode. `.` ISOLADO e' seguro (o scanner so' consome
@@ -658,7 +658,7 @@ class M8AVirtualRefsSyntax(Syntax):
                     prev_type = "refs"
 
             linha_resto = "".join(parts)
-            # BUG-15 (2026-07-12): '^'-LÍDER de linha colide com o marcador de
+            # BUG-15: '^'-LÍDER de linha colide com o marcador de
             # repetição '^eid' do decode (linha 796). O '*'-líder já é escapado
             # por _escape_lit; o '^' não era -> literal '^abc' era lido como ref
             # (crash em não-dígito, corrupção SILENCIOSA em '^12'). Ref-runs
@@ -831,7 +831,7 @@ class M8AVirtualRefsSyntax(Syntax):
                             refs.extend(range(int(a), int(b) + 1))
                         else:
                             refs.append(int(grp))
-                    # FAIL-LOUD por referencia PENDENTE (weld 2026-07-24). Wire valido
+                    # FAIL-LOUD por referencia PENDENTE. Wire valido
                     # nunca cai aqui: o encoder so' emite indice de fragmento ja'
                     # materializado. Corpo adulterado/truncado dava `KeyError: 9` cru
                     # (achado do lab 1832, PRE-EXISTENTE ao ramo tipado — reproduz no
@@ -915,7 +915,7 @@ class M8AVirtualRefsSyntax(Syntax):
             #    com trailing space).
             # 2. NAO skipar empty linha — representa string vazia
             #    legitima (encoder emite body.append('') quando lit e' "").
-            # BUG-BRACKET-CELL-LOSS (fix 2026-07-17, aprovacao do owner): o skip de
+            # BUG-BRACKET-CELL-LOSS (aprovacao do owner): o skip de
             # `[`/`]` era back-compat de formato ANTIGO (bracketed) e engolia CALADO
             # celula cujo conteudo e' exatamente '[' ou ']' (perda posicional:
             # ['a',']','b'] -> ['a','b']). Pela politica pre-1.0 (ADR-0024,
@@ -944,7 +944,7 @@ class M8AVirtualRefsSyntax(Syntax):
             if resto == GRAFIA_NULO:
                 resto = "^0"
             if resto.startswith("^"):
-                # FAIL-LOUD por referencia de LINHA fora de faixa (weld 2026-07-24).
+                # FAIL-LOUD por referencia de LINHA fora de faixa.
                 # Antes do pre-alocamento, `nos_decl[N-1]` cru aceitava CALADO `^0` -> indice
                 # -1 do Python -> devolvia o ULTIMO no' declarado (corrupcao SILENCIOSA). Hoje
                 # `^0` e' o slot RESERVADO e a faixa comeca em 0; fora dela segue fail-loud.

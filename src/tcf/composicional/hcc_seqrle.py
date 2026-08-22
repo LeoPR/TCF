@@ -21,7 +21,7 @@ Sintaxe: `*N+delta|<template>` (compativel com `*N|` RLE puro
 existente em M8A — distincao pelo `+`). Convencao de output (sem brackets,
 LF unico) conforme `docs/algorithms/output-convention.md`.
 
-PERIODICO (ADR-0040, weld 2026-08-09): `*N~d1,...,dp|<template>` — o delta CICLA entre
+PERIODICO (ADR-0040): `*N~d1,...,dp|<template>` — o delta CICLA entre
 linhas. Cobre cadencias que o uniforme nao alcanca (dias uteis `1,3,1,1,1`, ids por turno
 `10,10,10,50`, quinzenal/mensal). O ciclo paga UMA vez: 600 dias uteis viram
 `*600~1,3,1,1,1|\739617`, e com n=6000 o wire cresce UM byte. Terceiro candidato do
@@ -585,12 +585,12 @@ class HCCSeqRLE(M8AVirtualRefsSyntax):
         compacted, info = compact_body(body_lines, pares)
         compactado = "\n".join(compacted) + "\n"
 
-        # FLOOR (owner 2026-07-25): o marcador `*N+delta|` tem CUSTO, e ate' agora ele nao
+        # FLOOR: o marcador `*N+delta|` tem CUSTO, e ate' agora ele nao
         # entrava na decisao — `compact_body` era aplicado incondicionalmente. Em dado sem
         # cadencia o detector acha pares espurios e o marcador fica MAIOR que as linhas que
         # substitui:
         #     *2+498217|\168116   17 B     vs     \168116 + \666333 + 2 LF   16 B
-        # Medido (lab 2026-07-25-2107, 16 casos): piorava em 7; ~8-9% do corpo em ruido de
+        # Medido (16 casos): piorava em 7; ~8-9% do corpo em ruido de
         # alta cardinalidade (ruido 1e6 n=1000: 8573 -> 7854). Onde ganha segue ganhando
         # (seq n=1000: 4890 -> 31) porque isto e' `min`, nunca-pior por construcao.
         #

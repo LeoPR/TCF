@@ -26,7 +26,7 @@ qualquer coisa sobre o formato.
 
 from abc import ABC, abstractmethod
 
-# Welding step 2 adaptation (2026-05-17): import path adaptado de
+# Welding step 2 adaptation: import path adaptado de
 # `from online import Token` (dirty lab sibling) para package import.
 # Logica permanece byte-exata.
 from tcf.core.online import Token

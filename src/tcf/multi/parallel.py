@@ -5,7 +5,7 @@ HOSPEDEIRO (multiprocessing do Python), NAO do core portavel — um port C/Rust
 re-implementa o paralelismo no seu proprio runtime. Output byte-identico ao
 serial (paralelismo so' reordena computacao, nao bytes).
 
-Concern isolado de `multi.core` (P1 modularizacao, 2026-06-24).
+Concern isolado de `multi.core`.
 """
 from __future__ import annotations
 

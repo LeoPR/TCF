@@ -16,7 +16,7 @@ owner, T-TIPOS-CONFORTO-MAP) troque a FONTE sem tocar nos consumidores.
             masculino/feminino) — INATIVO, aguardando o design do mapa
             (T-TIPOS-CONFORTO-MAP)
 
-## Wire-sketch do owner (2026-08-01, verbatim — REGISTRO de direção, NÃO implementado)
+## Wire-sketch do owner (verbatim — REGISTRO de direção, NÃO implementado)
 
     com true/false/null e afins
     #TCF.8b264

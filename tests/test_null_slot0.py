@@ -1,4 +1,4 @@
-"""Pre-alocacao de indices de referencia — slot 0 = null (owner 2026-07-24).
+"""Pre-alocacao de indices de referencia — slot 0 = null.
 
 A tabela de referencias tem DUAS metades: slots altos vem do DADO (literais descobertos),
 slots baixos vem do FORMATO (dicionario da versao, que NAO viaja no arquivo). A segunda
@@ -11,7 +11,7 @@ como valor comum. Nada viaja no wire: a consistencia encode/decode vem da versao
 
 ESCOPO DESTE WELD: so' o DECODE (resolucao de referencia). O encode ainda nao emite `^0`/`0`
 — a rota flat exige `list[str]` (`_lista_flat`) e desvia coluna com `None` pro `.8H`. Abrir
-essa rota e' o proximo weld, e e' onde mora o ganho de bytes (lab 2026-07-24-2210).
+essa rota e' o proximo weld, e e' onde mora o ganho de bytes.
 """
 import pytest
 
@@ -77,7 +77,7 @@ class TestNaoRoubaEnderecoDeDado:
 
 
 class TestEncodeEmiteNull:
-    """Rota flat aberta p/ `str | None` (2026-07-25) — antes, 1 null expulsava a coluna
+    """Rota flat aberta p/ `str | None` — antes, 1 null expulsava a coluna
     inteira pro envelope `.8H`."""
 
     @pytest.mark.parametrize("col,wire", [
@@ -112,9 +112,9 @@ class TestEncodeEmiteNull:
         """2026-07-25: a rota tipada foi generalizada e null passou a conviver com as tags.
         null nao pertence a um TIPO — e' a ausencia do valor, no slot 0."""
         assert encode([1, None, 3]).startswith("#TCF.8n\n")    # numero + null -> tipado
-        # bool + null -> tipado. Weld b2 (2026-07-31, ADR-0037): o FLOOR escolhe o modo —
+        # bool + null -> tipado. Weld b2 (ADR-0037): o FLOOR escolhe o modo —
         # CORE ('#TCF.8b\n') ou DENSO TERNARIO ('#TCF.8b2<n>'). Com a grafia slot default
-        # (2026-08-01, ADR-0038) o core de n=2 EMPATA com o b2 (12 = 12) e o FLOOR fica no
+        #(ADR-0038) o core de n=2 EMPATA com o b2 (12 = 12) e o FLOOR fica no
         # 1o candidato (core, mais inspecionavel). Nomes seguem decodaveis.
         assert encode([True, None]) == "#TCF.8b\n\\2\n0\n"     # bool + null -> core em slots
         assert decode(encode([1, None, 3])) == [1, None, 3]

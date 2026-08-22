@@ -155,7 +155,7 @@ def decode(
                 _ver += _ch
             else:
                 break
-    # Legado #TCF.6/#TCF.7 CORTADO (ADR-0032, 2026-07-09): nao decodavel no 0.8.
+    # Legado #TCF.6/#TCF.7 CORTADO (ADR-0032): nao decodavel no 0.8.
     # git-as-compat (ADR-0024) — recupere a era pra ler/comparar.
     if _ver in ("6", "7"):
         raise ValueError(
@@ -169,11 +169,11 @@ def decode(
             f"#TCF.8, ADR-0032). Versoes de dev vivem no git (ADR-0024); "
             f"compatibilidade real so' a partir do 1.0."
         )
-    # POLARIDADE (weld 2026-07-26): camada de BORDA, a PRIMEIRA coisa do decode. Desfaz o
+    # POLARIDADE: camada de BORDA, a PRIMEIRA coisa do decode. Desfaz o
     # delimitador e devolve o corpo CANONICO — dai' pra baixo todo o dispatch e o parser sao
     # os de sempre, e o seq-RLE (que localiza o digito incrementavel PELO ESCAPE) continua
     # vendo so' corpo canonico. Ver `composicional/polaridade.py`.
-    # ESCOPO DE DISCRIMINADOR (T-POLARIDADE-COME-NOME, 2026-08-16): o pre-passe SO' age
+    # ESCOPO DE DISCRIMINADOR: o pre-passe SO' age
     # onde o encode de fato polariza. O `encoder.py:489` declara: "so' aqui e no tipado:
     # orfao (`stamp=False`) nao tem cabecalho onde declarar, e `.8M`/`.8H`/spec ficam de
     # fora deste weld" — os TRES sitios de `polariza()` sao single-col. Medido: 2000 wires
@@ -200,7 +200,7 @@ def decode(
 
         return decode_hierarchical(tcf_text)
     # TIPADO: #TCF.8<tag> (tag in {b,n,s}) — single-col TIPADO (weld #4). Pre-avaliador de
-    # apelidos (camada implicita, owner 2026-07-24): expande o header tipado -> forma explicita
+    # apelidos (camada implicita): expande o header tipado -> forma explicita
     # e delega o CORPO ao core (_decode_column), castando pro tipo. A variavel `modo` (o conceito
     # do '~') e' DEDUZIDA DA POSICAO (indice 7); NAO ha '~' no wire. #4a = modo CORE; denso bN = #4b.
     if disc8 in _TAGS_TIPO:
@@ -225,7 +225,7 @@ def decode(
         from tcf.multi import _decode_multi_impl
 
         result, header_ids = _decode_multi_impl(tcf_text)
-        # SOBRECARGA escalar (owner 2026-08-22), simetrica ao encode: wire multi
+        # SOBRECARGA escalar, simetrica ao encode: wire multi
         # de UMA coluna aceita schema="id"/objeto. Em 2+ colunas o escalar era
         # aceito e SILENCIOSAMENTE nao usado (a classe calada que este projeto
         # cacha) — agora fail-loud ensinante.
@@ -400,7 +400,7 @@ def _cast_tipo(strs: "list[str | None]", tag: str) -> list:
                     # NaN/±Inf ficam FORA do JSON (RFC 8259) e o encoder nunca os emite —
                     # aceitar aqui seria assimetria (decode entendendo o que encode recusa).
                     raise ValueError(f"#TCF.8n: NaN/Infinity nao e' JSON (RFC 8259): {s!r}")
-            # CANONICIDADE POR RE-EMISSAO (weld T-BN-TIPADO, 2026-08-07). O encoder grafa
+            # CANONICIDADE POR RE-EMISSAO. O encoder grafa
             # com `str` (o `render` do `_tipo_single_col`); entao a grafia canonica de `v` e'
             # `str(v)`, e qualquer outra e' um wire que o encoder nunca produziria.
             #
@@ -447,7 +447,7 @@ def _decode_typed(tcf_text: str, tag: str, max_length: int | None = None,
     # n/s com 'B' caem no fail-loud de header denso abaixo (lazy numerico = outro ticket).
     if resto[:1] == "B" and tag == "b":
         return _decode_lazy_bool(tcf_text, max_length=max_length)
-    # DENSO bN TIPADO `#TCF.8nB<w><n>` (weld T-BN-TIPADO, 2026-08-07). A coluna numerica de
+    # DENSO bN TIPADO `#TCF.8nB<w><n>`. A coluna numerica de
     # baixa cardinalidade nao tinha NENHUMA faceta de bits: `int 0/1` x200 gastava 608 B onde
     # 55 bastam. O bloqueio registrado na ADR-0036 era "exige tag DENTRO do cabecalho, que e'
     # grafia nova" — nao e': o `#TCF.8bB` (lazy bool, ADR-0039) ja' usa esta forma exata
@@ -518,7 +518,7 @@ def _decode_denso(b64: str, tag: str, w: int, n: int) -> list:
         raise ValueError(f"#TCF.8{tag}: modo denso so' implementado p/ bool; n/s exigem dominio embutido")
     if w not in (1, 2):                            # b1 = bool puro; b2 = ternario. Outra largura = invalido
         raise ValueError(f"#TCF.8b: largura denso invalida w={w} p/ bool (esperado 1 ou 2)")
-    # FONTE UNICA (consolidacao 2026-08-07): este ramo fazia as checagens INLINE e serviu de
+    # FONTE UNICA: este ramo fazia as checagens INLINE e serviu de
     # modelo pro `valida_payload_b64`. Deixar duplicado e' o que causou o problema original —
     # o denso evoluiu, o bN e o lazy nao, e a divergencia so' apareceu por auditoria. Agora as
     # tres rotas chamam a mesma funcao; quem melhorar a regra melhora as tres.
@@ -592,7 +592,7 @@ def _decode_lazy_bool(tcf_text: str, max_length: int | None = None) -> list:
     tabela = list(TABELA_B2) + extras
     if len(tabela) > (1 << w):
         raise ValueError(f"#TCF.8bB: tabela lazy com {len(tabela)} valores nao cabe em {w} bits")
-    # FONTE UNICA de validacao de payload (T-BN-B64-VALIDATE, lab 2026-08-06-2104): o
+    # FONTE UNICA de validacao de payload: o
     # `validate=True` sozinho NAO pega extensao com bytes ZERO — `payload + "AAAA"` era
     # aceito CALADO aqui. Faltavam a re-codificacao (grafia canonica) e o tamanho exato,
     # que o `_decode_denso` ja' fazia. As tres sao independentes.

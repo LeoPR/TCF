@@ -20,14 +20,14 @@ def _cpf_mascara(n):
 
 class TestFaixa:
     def test_faixa_nao_tem_digito(self):
-        """Digito eleito FUNDE com a corrida que deveria delimitar (auditoria 2026-07-26).
+        """Digito eleito FUNDE com a corrida que deveria delimitar.
 
         Com `0` eleito, `1\\22.\\33` vira `1022.33` e a volta deixa de ser exata.
         """
         assert not any(c.isdigit() for c in FAIXA)
 
     def test_faixa_nao_tem_letra(self):
-        """Letra eleita colide com o slot do DISCRIMINADOR (auditoria 2026-07-26).
+        """Letra eleita colide com o slot do DISCRIMINADOR.
 
         O sufixo pousa no indice 6 — onde vivem `b`, `n`, `s`, `H`, `M`. Uma coluna de
         STRING elegia `b` e emitia `#TCF.8b`, byte-identico ao cabecalho de uma coluna bool.

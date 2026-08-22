@@ -5,7 +5,7 @@ composicional/). Irmaos pre-pass: column_features, auto_min_len, obat_shape.
 
 Welded canonical 2026-05-22 (T-CODE-PACOTE1-WELD-CANONICAL).
 Origem: `experiments/lab/clean/EXP-010-tcf-delta-aware-prototype/auto_pre.py`
-(welded 2026-05-17, refino real-world 2026-05-19 ADR-0008).
+(ADR-0008).
 
 Heuristica 2-regras:
 - Regra 1 (wrapper+counter): lengths uniformes nas primeiras N strings

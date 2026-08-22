@@ -231,7 +231,7 @@ class TestDefault08:
 
 
 # ---------------------------------------------------------------------------
-# Controles explicitos: fallback/min_header opt-out (Segment 1, 2026-06-14)
+# Controles explicitos: fallback/min_header opt-out (Segment 1)
 # ---------------------------------------------------------------------------
 
 class TestExplicitControls:

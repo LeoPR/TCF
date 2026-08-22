@@ -1,13 +1,13 @@
 """DataIsoSpec — data `YYYY-MM-DD` -> ordinal decimal. Categoria TCU-Delta.
 
-Weld T-DATA-LAZY-ISO (2026-08-08). Implementa o mesmo Protocol das outras natures
+Weld T-DATA-LAZY-ISO. Implementa o mesmo Protocol das outras natures
 (`classify_value` / `encode_value` / `decode_value`), entao o encoder segue polimorfico.
 
 ## Por que ordinal DECIMAL, e nao denso como o CPF
 
 O CPF transforma pra BASE94 denso porque CPF nao vem em sequencia — o que paga la' e'
 densidade. Data e' o oposto: a forma que rende e' a que deixa a **aritmetica visivel**, pra o
-`*N+M|` do seq-RLE (ADR-0016) enxergar a progressao. Medido (lab 2026-08-07-2311):
+`*N+M|` do seq-RLE (ADR-0016) enxergar a progressao. Medido:
 
     600 datas diarias, ISO       ->  414 B
     600 datas diarias, ordinal   ->   22 B    `#TCF.8\\n*600+1|\\739617`

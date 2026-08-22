@@ -93,7 +93,7 @@ def _lcs_len_capped(a, b, la, lb, cap):
     return i
 
 
-# P2 (2026-07-21) — tres podas no laco de scan, BYTE-NEUTRAS por construcao.
+# P2 — tres podas no laco de scan, BYTE-NEUTRAS por construcao.
 # Motivo: com trigrama degenerado (todo IP '10.x.x.x' cai no mesmo bucket '10.'),
 # o laco varre TODO o bucket. Medido: `_lcp_len_capped` recebeu 3.882.189 chamadas
 # num encode de IP contra 21.636 no de CPF (179x). As podas nao mudam o vencedor —

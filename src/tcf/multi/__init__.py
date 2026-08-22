@@ -1,6 +1,6 @@
 """tcf.multi — implementacao interna multi-column (pacote).
 
-P1 modularizacao (2026-06-24): o antigo `multi.py` virou pacote, separando
+P1 modularizacao: o antigo `multi.py` virou pacote, separando
 concerns (clareza pra port C/Rust — separa CORE portavel do HOST so'-Python):
 - [`core`](core.py): `_encode_multi`/`_decode_multi` + MAGIC (orquestra candidatos).
 - [`dict_v2b`](dict_v2b.py): V2-B dicionario categorico (ADR-0025, `@`).

@@ -1,11 +1,9 @@
 """`schema=` — o parametro UNICO de spec da API publica (decisao owner 2026-08-22).
 
-Substitui os antigos canais nature/nature_per_col (corte seco, sem alias — o
-precedente e' o corte do legado .6/.7, ADR-0024/0032). Estes testes
-pinam o CONTRATO da porta: formas aceitas, resolucao por name do registry, chave int =
+Pina o CONTRATO da porta: formas aceitas, resolucao por name do registry, chave int =
 POSICAO / str = NOME (ADR-0046: `''` e `'0'` sao nomes legitimos), fail-loud em tudo
-que nao for uma das formas, e a equivalencia BYTE-A-BYTE com os canais antigos
-(o schema= so' escolhe qual spec vai em qual coluna — zero byte novo).
+que nao for uma das formas, e byte-neutralidade — o `schema=` so' escolhe qual spec
+vai em qual coluna.
 """
 
 import pytest
@@ -28,15 +26,13 @@ IPS = [f"{10 + i % 5}.{i % 251}.{(i * 7) % 251}.{(i * 13) % 251}" for i in range
 
 class TestExports:
     def test_os_5_specs_e_o_registry_sao_publicos(self):
-        # ate' 2026-08-22 SPEC_DATA_ISO/SPEC_INT_PAD/SPEC_REGISTRY nao eram
-        # importaveis de `tcf` (buraco achado na revisao do .8)
         assert sorted(SPEC_REGISTRY) == ["cnpj", "cpf", "data-iso", "int-pad", "ip"]
         assert SPEC_REGISTRY["data-iso"] is SPEC_DATA_ISO
         assert SPEC_REGISTRY["int-pad"] is SPEC_INT_PAD
 
 
 class TestFormasEquivalencia:
-    """Cada forma do schema= produz wire BYTE-IDENTICO ao canal antigo."""
+    """Formas equivalentes produzem wire BYTE-IDENTICO entre si."""
 
     def test_str_resolve_pelo_name_do_registry(self):
         assert encode(IPS, schema="ip") == encode(IPS, schema=SPEC_IP)
@@ -74,10 +70,8 @@ class TestFormasEquivalencia:
         ds = [{"doc": c, "n": str(i)} for i, c in enumerate(CPFS)]
         w = encode(ds, schema={"doc": "cpf"})
         assert w == encode(ds, schema={"doc": SPEC_CPF})
-        # ANTI-TAUTOLOGIA: os dois lados poderiam estar DROPANDO o spec e a
-        # igualdade passaria (aconteceu no corte do nature=, 2026-08-22 — o .8H
-        # engolia TypeError e caia pro piso calado). O `:cpf` no meta prova que
-        # o spec APLICOU.
+        # ANTI-TAUTOLOGIA: os dois lados poderiam estar DROPANDO o spec, e a
+        # igualdade passaria assim mesmo. O `:cpf` no meta prova que ele APLICOU.
         assert ":cpf" in w.split("\n", 1)[0]
         assert decode(w) == ds
 
@@ -118,9 +112,8 @@ class TestFailLoud:
             encode({"a": IPS}, schema={0: "ip", "a": "cpf"})
 
     def test_canais_antigos_cortados(self):
-        # corte seco (sem alias): nature=/nature_per_col= deixaram de existir na
-        # assinatura publica — TypeError natural do Python, como qualquer kwarg
-        # desconhecido. git-as-compat (ADR-0024): o passado se le pelo git.
+        # `nature=`/`nature_per_col=` nao existem na assinatura publica: TypeError
+        # natural do Python, como qualquer kwarg desconhecido (ADR-0047).
         with pytest.raises(TypeError, match="nature"):
             encode(IPS, nature=SPEC_IP)
         with pytest.raises(TypeError, match="nature_per_col"):
@@ -148,9 +141,9 @@ class TestFailLoud:
 
 
 class TestIncrementalESobrecargas:
-    """Formalizacao 2026-08-22 (owner): o schema e' INCREMENTAL — default = string
-    semantico, o schema muda um ou mais — e tem SOBRECARGA quando o alvo e'
-    inequivoco (tabela/wire de UMA coluna aceita a forma escalar)."""
+    """O schema e' INCREMENTAL — default = string semantico, o schema muda um ou
+    mais — e tem SOBRECARGA quando o alvo e' inequivoco: tabela/wire de UMA coluna
+    aceita a forma escalar."""
 
     def test_schema_vazio_none_e_col_none_sao_neutros(self):
         tab = {"ip": IPS, "obs": ["x"] * len(IPS)}
@@ -181,7 +174,6 @@ class TestIncrementalESobrecargas:
         assert decode(w, schema="ip") == {"ip": IPS}
 
     def test_decode_escalar_em_wire_multi_ensina(self):
-        # ANTES o escalar em wire multi era aceito e SILENCIOSAMENTE nao usado
         w = encode({"ip": IPS, "obs": ["x"] * len(IPS)})
         with pytest.raises(ValueError, match="UMA coluna"):
             decode(w, schema="ip")

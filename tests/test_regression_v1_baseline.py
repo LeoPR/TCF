@@ -12,7 +12,7 @@ Estrategia (Beizer 1995 — characteristic outputs):
 Regressao byte-canonical REAL-WORLD (colunas free-text, regime
 n_tam_est>=3) vive em test_real_world_snapshots.py — fixtures committadas
 em datasets/samples/ (frozen, portaveis, NAO dependem de Z:). Gate
-obrigatorio pra mudancas em HCC/prune (T-REGRESSION-REAL-WORLD, 2026-05-31).
+obrigatorio pra mudancas em HCC/prune.
 """
 
 from __future__ import annotations
@@ -46,8 +46,7 @@ EXPECTED_PUBLIC_API = {
     "SPEC_CPF",
     "SPEC_CNPJ",
     "SPEC_IP",
-    # RE-PIN 2026-08-22 (weld schema=, aprovado): os 2 specs soldados que nao eram
-    # alcancaveis pela API + o registry name->spec — a fonte do `schema=` por string.
+    # o registry name->spec e' a fonte do `schema=` por string (ADR-0047).
     "SPEC_DATA_ISO",
     "SPEC_INT_PAD",
     "SPEC_REGISTRY",
@@ -83,7 +82,7 @@ class TestPublicAPISurface:
         # #TCF.8 default (ADR-0032) -> minor 0.8.0 (ADR-0028 regra 1). PyPI publica no go do owner.
         assert tcf.__version__ == "0.8.0"
 
-    # CONGELAMENTO DO .8 (owner 2026-08-22: "terminar o .8 com as formalidades e
+    # CONGELAMENTO DO .8 ("terminar o .8 com as formalidades e
     # congelar parametros, header e corpo"). Este pin e' o "congelar PARAMETROS"
     # como artefato executavel — nome, ordem, kind e default de cada parametro
     # das duas portas. Header e corpo ja' estao pinados pelos gates
@@ -119,8 +118,8 @@ class TestPublicAPISurface:
             for p in inspect.signature(getattr(tcf, fn_name)).parameters.values()
         ]
         assert atual == frozen, (
-            f"assinatura de tcf.{fn_name} divergiu do congelamento do .8 "
-            f"(owner 2026-08-22). Mudanca de parametro exige re-pin deliberado + "
+            f"assinatura de tcf.{fn_name} divergiu do congelamento do .8. "
+            f"Mudanca de parametro exige re-pin deliberado + "
             f"registro.\n  congelada: {frozen}\n  atual:     {atual}"
         )
 
@@ -189,7 +188,7 @@ class TestD1D9ByteCanonical:
         assert decode(text) == values, f"RT broken em {name}"
 
     def test_d1_d9_total_invariant(self):
-        """Total D1-D9 = 1545B (M10 + header default ADR-0034 + polaridade 2026-07-26)."""
+        """Total D1-D9 = 1545B (ADR-0034)."""
         total = 0
         for name in D1_D9_BYTES_FROZEN:
             values = _load_single_col(name)

@@ -54,7 +54,7 @@ def _ler_csv(name: str) -> list[str]:
 
 class TestRoundTripBasic:
     def test_empty(self):
-        # CONTRATO ATUALIZADO (weld #2, canonicidade do vazio, owner 2026-07-24): `[]` passou
+        # CONTRATO ATUALIZADO (weld #2, canonicidade do vazio): `[]` passou
         # a ser expressa na forma FLAT como `#TCF.8\n` (7 B), em vez de fugir pro `.8H` `#D0`
         # (11 B). Distinto de `#TCF.8\n\n` -> `['']` (fronteira do vazio canonica). O `#D0`
         # legado ainda decoda `[]` (tolerante). Wire re-pinavel (ADR-0024).
@@ -118,7 +118,7 @@ class TestRoundTripBasic:
 
 
 # ---------------------------------------------------------------------------
-# Bug T-CODE-EMPTY-FRAG-INDEX-RT (2026-06-13): valor vazio + back-ref HCC
+# Bug T-CODE-EMPTY-FRAG-INDEX-RT: valor vazio + back-ref HCC
 # ---------------------------------------------------------------------------
 
 
@@ -175,7 +175,7 @@ class TestEmptyValueFragIndex:
 
 
 # ---------------------------------------------------------------------------
-# min_len override (Segment 2, 2026-06-14)
+# min_len override (Segment 2)
 # ---------------------------------------------------------------------------
 
 

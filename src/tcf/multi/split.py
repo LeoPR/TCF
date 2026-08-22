@@ -8,7 +8,7 @@ e o template e' guardado 1x. Cada campo tende a low-card -> esmagado pelo V2-B
 Slot = <ntmpl>\\n + template_blob + field_subtable(#TCF.8M — recursa em _encode_multi).
   template_blob = (<bytelen>:<bytes>) por parte nao-digito (nf+1 partes).
 
-Concern isolado de `multi.core` (P1 modularizacao, 2026-06-24). Byte-identico.
+Concern isolado de `multi.core`. Byte-identico.
 O split reusa o pipeline multi-col (`_encode_multi`/`_decode_multi` de `multi.core`)
 nos campos -> import LAZY (dentro das funcoes) pra quebrar o ciclo core<->split.
 """

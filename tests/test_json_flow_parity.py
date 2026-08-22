@@ -1,4 +1,4 @@
-"""DOIS CONTRATOS — o TCF lê DATASET, não JSON (enquadramento do owner, 2026-07-17).
+"""DOIS CONTRATOS — o TCF lê DATASET, não JSON (enquadramento do owner).
 
 CONTRATO A (da lib json; NÃO é responsabilidade do TCF — é nossa responsabilidade CONHECER):
     texto JSON --loads--> dataset --dumps--> texto JSON
@@ -124,7 +124,7 @@ PARIDADE = {
     "raiz-array-em-array": [[1, 2], [3]],
 }
 
-# Vazio: as lacunas de DATASET (escape, 2026-07-17) e as de RAIZ (P4b/J1, 2026-07-17) fecharam.
+# Vazio: as lacunas de DATASET (escape) e as de RAIZ (P4b/J1) fecharam.
 # D_json COMPLETO. Se uma lacuna nova aparecer, entra aqui como xfail(strict) — nunca some calada.
 LACUNAS: dict[str, list] = {}
 

@@ -12,7 +12,7 @@ compacto via:
 `experiments/lab/dirty/old/2026-05-16-M8-virtual-refs-clean-output/M8-A-detector-unificado/syntax.py`
 (codnome de origem: `M8.A`).
 
-Adaptacoes vs original (welding step 2, 2026-05-17):
+Adaptacoes vs original:
 - `from online import ...` → `from tcf.core.online import ...`
 - `from syntax_base import ...` → `from tcf.core.syntax_base import ...`
 - removido `sys.path.insert(...)` (Python package resolve naturalmente)

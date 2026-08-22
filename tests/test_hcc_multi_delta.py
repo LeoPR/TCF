@@ -132,7 +132,7 @@ class TestCompactBodyMarkerEmit:
     def test_multi_delta_first_negative_no_double_sign(self):
         """Regressao: encoder NAO deve emitir '+-1,0' (parser falha).
 
-        Bug encontrado em wine-quality real-world (2026-05-27): primeiro
+        Bug encontrado em wine-quality real-world: primeiro
         delta negativo gerava marker `*N+-1,0|...` que decoder rejeitava
         com `ValueError: invalid literal for int() with base 10: '+-1'`.
 

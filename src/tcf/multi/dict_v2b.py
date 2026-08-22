@@ -7,7 +7,7 @@ e tcf normal; ADR-0032).
 Slot = b"<ntable>\\n" + table_bytes + stream  (ntable = bytes da tabela ->
 fronteira inequivoca; width derivado de K apos decodar a tabela).
 
-Concern isolado de `multi.core` (P1 modularizacao, 2026-06-24). Byte-identico.
+Concern isolado de `multi.core`. Byte-identico.
 """
 from __future__ import annotations
 

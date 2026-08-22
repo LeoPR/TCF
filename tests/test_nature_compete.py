@@ -1,6 +1,6 @@
 """FLOOR — a nature COMPETE no min(tcf,raw,dict,split) (T-SPEC-DEEPDIVE-08 §5.1).
 
-Decisão do owner (2026-07-12): a nature deixa de ser pré-transformação FORÇADA
+Decisão do owner: a nature deixa de ser pré-transformação FORÇADA
 de camada-0 e passa a ser CANDIDATO por-coluna. Contrato safe-by-construction:
 com nature_per_col, a coluna NUNCA fica maior que sem — se a nature não ajuda,
 o encode mantém o original e NÃO emite o `:id`. Resolve a regressão F4 (nature
@@ -122,7 +122,7 @@ class TestNatureCompeteFloor:
 
 
 class TestFloorDecodeSafety:
-    """Achados da verificação adversarial do FLOOR (2026-07-12): o decode
+    """Achados da verificação adversarial do FLOOR: o decode
     out-of-band não pode corromper colunas onde a nature PERDEU (agora originais)."""
 
     def test_out_of_band_decode_no_corruption_when_nature_lost(self):
@@ -153,7 +153,7 @@ class TestFloorDecodeSafety:
 
 
 class TestFloorSingleCol:
-    """FLOOR estendido pro single-col (owner 2026-07-12): schema= em list compete."""
+    """FLOOR estendido pro single-col: schema= em list compete."""
 
     def test_single_col_nature_wins_random(self):
         col = _random_cpfs(200)

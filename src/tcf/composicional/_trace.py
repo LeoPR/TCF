@@ -3,7 +3,7 @@
 Strings de diagnostico (iteracoes do detector + rede de atomos/composicoes),
 populadas por `encode()` em `SideOutputs.hcc_trace` / `.hcc_rede`. **NAO afetam
 os bytes** do output — sao puramente observabilidade (debug). Isoladas aqui
-(P2 foco-2, 2026-06-24) pra deixar o CORE portavel (tokenize/detect/emit/decode)
+ pra deixar o CORE portavel (tokenize/detect/emit/decode)
 limpo: um port C/Rust NAO porta este modulo.
 
 Funcoes puras: recebem `name` + os dados do encode (+ o callable `emit_refs_range`

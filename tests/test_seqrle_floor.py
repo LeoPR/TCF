@@ -1,4 +1,4 @@
-"""FLOOR do seq-RLE (owner 2026-07-25) — o marcador `*N+delta|` só entra se ENCOLHER.
+"""FLOOR do seq-RLE — o marcador `*N+delta|` só entra se ENCOLHER.
 
 Achado do owner olhando um wire de inteiros aleatórios: o encoder emitia marcadores de delta
 em dado sem cadência, e o marcador custava mais do que economizava —

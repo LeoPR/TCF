@@ -265,7 +265,7 @@ class TestNatureMarkHeader:
         assert decode(text) == table
 
     def test_unknown_nature_id_raises(self):
-        """Id desconhecido -> ERRO (T-QA-8 BUG-13b, owner 2026-07-10): revoga o
+        """Id desconhecido -> ERRO (T-QA-8 BUG-13b): revoga o
         forward-compat de 2026-06-24 — warning + dado cru base-94 calado era
         corrupção silenciosa; pre-1.0 sem compat (ADR-0024)."""
         table = {"doc": ["11.222.333/0001-81"], "x": ["a"]}
@@ -439,7 +439,7 @@ class TestNatureMarkSingleCol:
         assert decode(text) == cpfs  # decodifica como single, nao multi
 
     def test_ip_single_col_self_describing(self):
-        # FLOOR total-byte (owner 2026-07-12): o IP nature COMPETE. Achado: em
+        # FLOOR total-byte: o IP nature COMPETE. Achado: em
         # single-col o padding do IP EMPATA com o pipeline (o núcleo já normaliza),
         # então o IP nature raramente vence (só onde há estrutura de subnet que a
         # nature explora melhor — ADR-0016). RT sempre; header condicional ao win.
@@ -654,7 +654,7 @@ class TestDataIsoSpec:
 
 
 class TestNatureSlotNulo:
-    """`None` e' do CORE, nao do spec (fix 2026-08-08).
+    """`None` e' do CORE, nao do spec.
 
     ANTES deste fix as QUATRO natures estouravam `TypeError: can only concatenate str
     (not "NoneType") to str` numa coluna com null — e a mesma coluna SEM `schema=`
@@ -719,7 +719,7 @@ class TestNatureFloorVeOBaselineReal:
 
 
 class TestWireIdDoisPlanos:
-    """ADR-0041 (owner, 2026-08-13): `name` legivel NUNCA viaja; `wire_id` curto e' o
+    """ADR-0041: `name` legivel NUNCA viaja; `wire_id` curto e' o
     `:id` do header. Regra `^[a-z][a-z0-9]{0,7}$` fail-loud no registro e na emissao;
     resolucao ESTRITA (id historico nao resolve — valvula out-of-band)."""
 
@@ -878,7 +878,7 @@ class TestMascaradaDeWireIdCore:
 
 class TestLacunaImpostorDuckType:
     """LACUNA CONHECIDA (`T-SPEC-IMPOSTOR`), **pre-existente ao ADR-0041** — medida na
-    cacada do weld A (2026-08-13) e reproduzida IDENTICA no commit anterior.
+    cacada do weld A e reproduzida IDENTICA no commit anterior.
 
     Um duck-type que se declara com a identidade do core (`name` E `wire_id` iguais)
     mas transforma DIFERENTE vence o FLOOR, emite `:dt`, e o decode resolve pelo
@@ -947,7 +947,7 @@ class TestLacunaImpostorDuckType:
 
 
 class TestIntPadSpecWeld:
-    """Weld EXP-018 (2026-08-14): `IntPadSpec` + a rota tipada aberta a spec.
+    """Weld EXP-018: `IntPadSpec` + a rota tipada aberta a spec.
 
     Antes deste weld, `encode([1,2,3], schema=SPEC)` era ValueError: a rota tipada nao
     aceitava spec NEM `min_len`, e "entra int, spec int, devolve int" nao era expressavel.
@@ -1309,7 +1309,7 @@ class TestCnpjAlfanumerico:
         with pytest.raises(ValueError, match="PROPRIO"):
             replace(SPEC_CNPJ, name="y7", wire_id="y7",
                     alfabeto_compacto=SPEC_CNPJ.alfabeto)
-        # o caso INVERSO (revisao 2026-08-21): comprimento sem sub-alfabeto e'
+        # o caso INVERSO: comprimento sem sub-alfabeto e'
         # estado inconsistente esperando alguem confiar nele
         with pytest.raises(ValueError, match="sem alfabeto_compacto"):
             replace(SPEC_CNPJ, name="y8", wire_id="y8", alfabeto_compacto=None)

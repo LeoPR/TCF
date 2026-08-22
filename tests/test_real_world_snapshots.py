@@ -1,7 +1,7 @@
 """Suite de regressao byte-canonical REAL-WORLD (gate de prune algoritmico).
 
 Complementa test_regression_v1_baseline.py (D1-D9 + D17a sinteticos). Motivo
-(T-REGRESSION-REAL-WORLD, 2026-05-31): o mini-suite sintetico NAO cobre o
+: o mini-suite sintetico NAO cobre o
 regime `n_tam_est >= 3` que aparece em colunas free-text reais com atom_count
 alto. Candidato H-PERF-06-v2 #03 (prune-k-03) passou D1-D9 + D17a mas
 regrediu bytes em online-retail real (+0.59%) — exatamente este blind spot.
@@ -34,7 +34,7 @@ ROOT = Path(__file__).resolve().parent.parent
 SAMPLES = ROOT / "datasets" / "samples"
 
 
-# Bytes baseline congelados (src/tcf canonical, medido 2026-05-31).
+# Bytes baseline congelados (src/tcf canonical).
 # Cada fixture provou DIVERGIR no candidato #03 (regime n_tam_est>=3) e
 # MANTER no #15 — ver lab 2026-05-31-regression-real-world/REPORT.md.
 REAL_WORLD_BYTES_FROZEN = {

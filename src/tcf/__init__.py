@@ -71,7 +71,7 @@ Multi-column (M10 + ADR-0013/0025/0032, T-EXP-MULTI-COL-SCALING):
 ## Backward compat
 
 Pré-1.0 (ADR-0024, git-as-compat): os aliases v0.6 `encode_table`/`decode_table`
-foram APOSENTADOS (2026-06-24). Use `encode(dict)` / `decode(text)`.
+foram APOSENTADOS. Use `encode(dict)` / `decode(text)`.
 
 Para historia: `experiments/lab/dirty/notas/historia-dirty-lab.md`.
 """
@@ -107,9 +107,9 @@ __all__ = [
     "SPEC_CPF",
     "SPEC_CNPJ",
     "SPEC_IP",
-    "SPEC_DATA_ISO",     # soldados no core mas ate' 2026-08-22 NAO exportados —
-    "SPEC_INT_PAD",      # so' alcancaveis por tcf.natures (buraco achado na revisao do .8)
-    "SPEC_REGISTRY",     # name -> spec (plano da API, ADR-0041); fonte do schema= por string
+    "SPEC_DATA_ISO",
+    "SPEC_INT_PAD",
+    "SPEC_REGISTRY",     # name -> spec (plano da API, ADR-0041); fonte do `schema=` por string
     # Pipeline toggles (T-CODE-LAYERED-PIPELINE Fase 1):
     "PipelineConfig",
     # View lazy/consultavel read-only (A4, plano 0.8):

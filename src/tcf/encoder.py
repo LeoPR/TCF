@@ -86,7 +86,7 @@ def _nature_apply_stats(spec, statuses: list[str]) -> dict:
 def _lista_flat(data) -> bool:
     """list single-col FLAT: nao-vazia e todos `str` OU `None`. Lista vazia/tipada/de-dict -> .8H.
 
-    `None` entra no flat desde a pre-alocacao do slot 0 (2026-07-25): null e' mais um valor da
+    `None` entra no flat desde a pre-alocacao do slot 0: null e' mais um valor da
     coluna, referenciado como `0`. Antes, uma unica ocorrencia expulsava a coluna inteira pro
     envelope `.8H` — que compra generalidade (aninhamento, tipos mistos) que uma coluna de
     string com nulls nao usa. Ganho medido no lab 2026-07-24-2210.
@@ -98,7 +98,7 @@ def _lista_flat(data) -> bool:
 def _tipo_single_col(data):
     """`(tag, render)` se `data` e' uma coluna single-col TIPADA; senao `None`.
 
-    FONTE UNICA da deteccao de tipo do single-col (2026-07-25). Antes so' o bool tinha ramo;
+    FONTE UNICA da deteccao de tipo do single-col. Antes so' o bool tinha ramo;
     generalizado p/ que cada tipo novo seja uma LINHA aqui, nao um bloco novo no `encode`.
 
     - `None` NAO define o tipo: ele mora no slot 0 pre-alocado e convive com qualquer tag.
@@ -115,7 +115,7 @@ def _tipo_single_col(data):
     if not vals:
         return None
     if all(type(x) is bool for x in vals):
-        # RENDER EM SLOTS CONGELADOS (weld 2026-08-01, ADR-0038): o core grafava `true`/`false`
+        # RENDER EM SLOTS CONGELADOS (ADR-0038): o core grafava `true`/`false`
         # como NOMES; agora grafa o INDICE — FONTE UNICA da tabela: `tcf/tipos_internos.py`
         # (RENDER_B; mesma tabela do denso b2, ADR-0037). Nomes seguem DECODAVEIS
         # (decodavel-nao-emitido; precedente: modo `C` da ADR-0036).
@@ -366,7 +366,7 @@ def encode(
         _kind, _resolved = resolve_schema(schema, where="encode(schema=)")
         if _kind == "single":
             if isinstance(data, dict) and len(data) == 1:
-                # SOBRECARGA (owner 2026-08-22): alvo INEQUIVOCO — tabela de UMA
+                # SOBRECARGA: alvo INEQUIVOCO — tabela de UMA
                 # coluna aceita a forma escalar, sem cerimonia de dict. Com 2+
                 # colunas o escalar segue erro ensinante (qual coluna? informacao
                 # genuinamente necessaria).
@@ -417,7 +417,7 @@ def encode(
         # .8H, que ja' explica melhor ("nao e' folha ESCALAR do dataset") — por isso o
         # `any(dict|list)` deixa os dois passarem.
         # ANTES o cheque era `_lista_flat(data)`, FALSO pra lista tipada -> o spec era
-        # aceito e DESCARTADO CALADO (T-NATURE-IGNORADA-CALADA §1, fechada 2026-08-16).
+        # aceito e DESCARTADO CALADO.
         raise ValueError(
             "schema={coluna: spec} aplica a multi-col (dict) ou dataset (list[dict], .8H); "
             f"esta entrada e' uma lista de escalares (len={len(data)}) — pra single-col "
@@ -455,7 +455,7 @@ def encode(
         data = _stringify_checked(data)
         magic = MAGIC_SINGLE_V3.decode("utf-8")  # "#TCF.8"
         if nature is not None:
-            # FLOOR single-col (T-SPEC-DEEPDIVE §5.1, owner 2026-07-12): a nature
+            # FLOOR single-col: a nature
             # COMPETE — encoda o original (órfão) e a nature-transformada
             # (`#TCF.8 [nome]:id` header), fica a MENOR (incluindo o custo do
             # header self-describing). So' vence se cobrir esse custo. Se perde ->
@@ -480,7 +480,7 @@ def encode(
             header_nat = f"{magic} {name or ''}:{nature.wire_id}\n"
             # FLOOR: compara os blobs completos; empate fica no baseline.
             # o baseline compete na MESMA grafia que sera' emitida (com header por default)
-            # — inclusive POLARIZADA (weld 2026-07-26). Comparar contra a grafia antiga daria
+            # — inclusive POLARIZADA. Comparar contra a grafia antiga daria
             # vitoria a' nature em disputa que ela perde de fato.
             if stamp is False:
                 baseline = body_orig
@@ -529,16 +529,16 @@ def encode(
                 data, header="val", side=side_outputs, cfg=cfg, min_len=min_len
             )
         if stamp is False:
-            # ESCAPE EXPLICITO (owner 2026-07-24): single-col orfao, sem `#TCF.8`. So' por
+            # ESCAPE EXPLICITO: single-col orfao, sem `#TCF.8`. So' por
             # pedido — casos de transmissao e de embutir em container que ja' carrega o
             # contrato (parquet), onde o header nao paga. O contrato passa a viver nas
             # pontas: quem produz e quem consome combinam fora do arquivo.
             return body
-        # DEFAULT = COM cabecalho, 100% dos casos (owner 2026-07-24). O `#TCF.8\n` infla o
+        # DEFAULT = COM cabecalho, 100% dos casos. O `#TCF.8\n` infla o
         # single-col em 7 B, e isso e' INEVITAVEL — o arquivo se auto-explica em vez de
         # depender de quem o produziu. Supersede o default do ADR-0029 (ver ADR-0034).
         #
-        # POLARIDADE (weld 2026-07-26): camada de BORDA, a ultima coisa do encode. Troca
+        # POLARIDADE: camada de BORDA, a ultima coisa do encode. Troca
         # `1 escape por LITERAL` por `1 byte por TRANSICAO`, com FLOOR nunca-pior que ja'
         # inclui o custo do proprio sufixo. Sufixo vazio = a grafia de hoje, byte a byte.
         # So' aqui e no tipado: orfao (`stamp=False`) nao tem cabecalho onde declarar, e
@@ -546,7 +546,7 @@ def encode(
         from tcf.composicional.polaridade import polariza
 
         sufixo, body = polariza(body)
-        # bN DE DOMINIO (weld 2026-07-27, ADR-0036): mais candidatos do MESMO min(). Coluna
+        # bN DE DOMINIO (ADR-0036): mais candidatos do MESMO min(). Coluna
         # de cardinalidade baixa gasta ~3 B/linha em `^N`; com `k` distintos bastam
         # ceil(log2(k)) BITS. Nunca-pior: o FLOOR so' troca se encolher.
         from tcf.composicional.dominio_bn import candidatos as _bn_cands
@@ -561,7 +561,7 @@ def encode(
         _cands = [magic + sufixo + "\n" + body] + _bn[:1]
         return min(_cands, key=lambda w: len(w.encode("utf-8")))
     if isinstance(data, list) and not data:
-        # [] FLAT (owner 2026-07-24, canonicidade do vazio): a forma flat passa a
+        # [] FLAT (canonicidade do vazio): a forma flat passa a
         # expressar a lista vazia como '#TCF.8\n' (7 B), em vez de fugir pro .8H '#D0'
         # (11 B). Simetrico ao decode (disc '' + corpo vazio -> []). Colunas vazias
         # ANINHADAS nao passam aqui (o .8H usa `if cols[key] else ''`, hierarchical.py:499),
@@ -598,7 +598,7 @@ def encode(
         from tcf.multi.core import MAGIC_SINGLE_V3
 
         tag, render = _tipado
-        # PORTA TIPADA ABERTA A SPEC E A `min_len` (weld EXP-018, 2026-08-14).
+        # PORTA TIPADA ABERTA A SPEC E A `min_len`.
         #
         # Antes, `nature=` e `min_len=` eram recusados aqui — a rota tipada nao aceitava
         # NENHUM dos dois mecanismos que o inteiro precisa, e `"entra int, spec int, devolve
@@ -623,7 +623,7 @@ def encode(
             [None if x is None else render(x) for x in data],
             header="val", side=side_outputs, cfg=cfg, min_len=min_len,
         )
-        # POLARIDADE (weld 2026-07-26): mais um candidato do MESMO min(), nao um caminho
+        # POLARIDADE: mais um candidato do MESMO min(), nao um caminho
         # a parte. O sufixo e' pontuacao e a tag e' letra/digito, entao `#TCF.8n!` se le
         # sem ambiguidade — e nenhum discriminador de hoje (`M`/`H`/`b`/`n`/`s`/espaco) e'
         # pontuacao. Sufixo vazio -> este candidato E' o core, e o min() nao muda nada.
@@ -634,7 +634,7 @@ def encode(
         if _suf:
             candidatos.append(f"{magic}{tag}{_suf}\n{_corpo_pol}")
 
-        # bN DE DOMINIO TIPADO (weld T-BN-TIPADO, 2026-08-07) — so' p/ NUMERO.
+        # bN DE DOMINIO TIPADO — so' p/ NUMERO.
         #
         # A objecao antiga ("o wire `#TCF.8B…` devolve STRING e a rota tipada tem de
         # preservar o tipo") continua valendo, e e' exatamente por isso que a tag vai DENTRO
@@ -666,9 +666,9 @@ def encode(
             from tcf.bitpack import pack_w
 
             if tem_nulo:
-                # DENSO b2 TERNARIO (weld 2026-07-31, ADR-0037): dominio implicito CONGELADO
+                # DENSO b2 TERNARIO (ADR-0037): dominio implicito CONGELADO
                 # null=0, false=1, true=2 (3 = reservado, fail-loud no decode). Medido:
-                # 546 B (core) -> 79 B p/ n=200, vence ate' n=3 (lab 2026-07-31-2350).
+                # 546 B (core) -> 79 B p/ n=200, vence ate' n=3.
                 idx = [0 if x is None else (2 if x else 1) for x in data]
                 b64 = base64.b64encode(pack_w(idx, 2)).decode("ascii")
                 candidatos.append(f"{magic}b2{len(data):x}\n{b64}")
@@ -724,7 +724,7 @@ def encode(
             key_col = data[sort_by]
             order = sorted(range(len(key_col)), key=lambda i: str(key_col[i]))
             data = {c: [v[i] for i in order] for c, v in data.items()}
-        # FLOOR (T-SPEC-DEEPDIVE §5.1, owner 2026-07-12): a nature NAO e' mais
+        # FLOOR: a nature NAO e' mais
         # pre-transformacao FORCADA — os SPECS descem pro _encode_multi, que a faz
         # COMPETIR no min() por coluna (encoda original vs nature-transformada, fica
         # a menor). So' as colunas onde a nature vence ganham ':id'. Safe-by-
@@ -733,7 +733,7 @@ def encode(
             # Coluna que NAO existe na tabela era filtrada CALADA aqui (`if name in data`)
             # — o usuario pedia spec e nao recebia, sem aviso. O `.8H` JA' falhava alto em
             # path inexistente ("nao e' folha ESCALAR do dataset"); isto alinha o `.8M`.
-            # (T-NATURE-IGNORADA-CALADA §2, fechada 2026-08-16.)
+            #
             _desconhecidas = [c for c in nature_per_col if c not in data]
             if _desconhecidas:
                 raise ValueError(
@@ -846,7 +846,7 @@ def _encode_column(
         syn = HCCSeqRLE()
     else:
         syn = M8AVirtualRefsSyntax()
-    # Telemetria OPT-IN (2026-08-13): sem `side_outputs=` o trace/rede nem e'
+    # Telemetria OPT-IN: sem `side_outputs=` o trace/rede nem e'
     # construido. Antes rodava sempre e era descartado logo abaixo — 4-17% do
     # encode (17,1% numa cadeia true/false). Zero efeito no wire.
     syn.coletar_trace = side is not None

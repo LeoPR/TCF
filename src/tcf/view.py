@@ -134,7 +134,7 @@ class LazyTCF:
     def _reverte_nature(self, name: str, vals: list) -> list:
         """Reverte a nature de `vals` se a coluna declara `:id` no header.
 
-        FONTE UNICA de proposito. O bug que motivou esta funcao (2026-08-12): a
+        FONTE UNICA de proposito. O bug que motivou esta funcao: a
         reversao existia SO' em `_col`, e o caminho L4 (`_dict_parts` -> where /
         group_count) comparava contra o PAYLOAD cru. Medido: numa coluna
         `#TCF.8M@1c7=dt:data-iso,@v`, `where('dt','2025-01-01')` devolvia **0** onde a
@@ -431,7 +431,7 @@ def view(blob: str) -> LazyTCF:
 # NOTAS — otimizações:
 #   L3 (FEITO, via dict/raw) — `nrows`/`group_count` contam/agrupam SEM expandir as
 #       N linhas: dicionário (`@`) = tamanho do stream + tally; raw = nº de '\n'.
-#       ACHADO (verificado, 2026-06-16): agregar os runs `*N|` direto no modo-tcf
+#       ACHADO (verificado): agregar os runs `*N|` direto no modo-tcf
 #       NÃO é barato/separável — OBAT+HCC entrelaçam o valor com refs de outras
 #       linhas (invariante de contagem falhou em colunas tipo-ID; 0 colunas tcf
 #       "clean-numeric"). O ganho estrutural limpo vive no dict/raw. Por isso L3

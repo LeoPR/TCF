@@ -264,7 +264,7 @@ class TemplatedCheckedSpec:
 
 # === Standalone functions (backward compat wrappers — delegam pra methods) ===
 
-#: O SLOT NULO E' DO CORE, NAO DO SPEC (fix 2026-08-08, weld T-DATA-LAZY-ISO).
+#: O SLOT NULO E' DO CORE, NAO DO SPEC.
 #:
 #: `None` e' valor legitimo de coluna single-col flat (`_lista_flat` aceita `str` OU `None`) e
 #: o core ja' o materializa no slot 0. Mas as quatro natures classificavam `None` como

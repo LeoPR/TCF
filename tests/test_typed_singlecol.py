@@ -3,9 +3,9 @@
 #4a (este arquivo, decode): o decode passa a aceitar `#TCF.8<tag>\n<corpo-core>` (modo CORE), expande
 pro corpo core (reusa `_decode_column`) e casta pro tipo. A variavel `modo` (o conceito do `~`) e'
 deduzida da POSICAO (indice 7) — NAO ha `~` no wire. Modo denso bN soldado p/ bool: b1 (1 bit,
-sem null, #4b) e b2 (2 bits, ternario com null, weld 2026-07-31, ADR-0037).
+sem null, #4b) e b2 (ADR-0037).
 
-Nota de design (owner 2026-07-24): a funcao e' acionada pela VARIAVEL, nao pelo caractere; o `~` e'
+Nota de design: a funcao e' acionada pela VARIAVEL, nao pelo caractere; o `~` e'
 categoria 4 (nunca byte de wire, so' nome interno). Ver notas 2026-07-24-0100/0322.
 """
 import pytest
@@ -97,7 +97,7 @@ class TestBoolEncodeTyped:
     def test_numero_vira_tag_n(self):
         """2026-07-25: int/float sairam do `.8H` e ganharam a tag `n` (mesma generalizacao)."""
         assert encode([1, 2, 3]).startswith("#TCF.8n\n")
-        # o sufixo de POLARIDADE (weld 2026-07-26) e' opcional e entra DEPOIS da tag:
+        # o sufixo de POLARIDADE e' opcional e entra DEPOIS da tag:
         # `#TCF.8n`, `#TCF.8n!` ou `#TCF.8n!!`. A tag continua sendo o indice 6.
         assert encode([1.5, 2.0]).split("\n")[0].startswith("#TCF.8n")
         assert decode(encode([1, 2, 3])) == [1, 2, 3]
@@ -165,7 +165,7 @@ class TestBoolDensoFloor:
 
 
 class TestTiposInternosFonteUnica:
-    """`src/tcf/tipos_internos.py` e' a FONTE UNICA das tabelas congeladas bool (2026-08-01).
+    """`src/tcf/tipos_internos.py` e' a FONTE UNICA das tabelas congeladas bool.
     As tabelas sao CONTRATO DE FORMATO — se mudarem aqui, o wire muda; o teste pincha."""
 
     def test_tabelas_congeladas(self):
@@ -188,7 +188,7 @@ class TestTiposInternosFonteUnica:
 
 
 class TestTipadoBoolIndiceDefault:
-    """Render em SLOTS default da tag `b` (weld 2026-08-01, ADR-0038): o core grafava
+    """Render em SLOTS default da tag `b`(ADR-0038): o core grafava
     `true`/`false` como NOMES; agora grafa os slots da MESMA tabela do denso b2
     (null=0/false=1/true=2). Nomes seguem DECODAVEIS-nao-emitidos (contrato do modo `C`,
     ADR-0036). Medicao: lab 2026-08-01-0037-tipado-bool-indice-default."""
@@ -244,7 +244,7 @@ class TestTipadoBoolIndiceDefault:
 
 
 class TestBoolDensoB2Ternario:
-    """Denso b2 (weld 2026-07-31, ADR-0037): bool COM null a 2 bits/elem, dominio implicito
+    """Denso b2 (ADR-0037): bool COM null a 2 bits/elem, dominio implicito
     CONGELADO null=0/false=1/true=2 (3 = reservado). Medido no lab 2026-07-31-2350:
     546 B (core) -> 79 B p/ n=200, vence ate' n=3."""
 
@@ -324,7 +324,7 @@ class TestBoolDensoB2Ternario:
 
 
 class TestDensoHexN:
-    """`n` do modo denso em HEX (owner 2026-07-24): len(hex(n))<=len(dec(n)) p/ todo n>=0 -> nunca
+    """`n` do modo denso em HEX: len (hex (n))<=len (dec (n)) p/ todo n>=0 -> nunca
     pior, O(1), sem custo de ambiguidade (parse posicional: modo sempre 1o char)."""
 
     def test_n_e_hex_no_wire(self):
@@ -348,7 +348,7 @@ class TestDensoHexN:
 
 
 class TestLazyBool:
-    """Lazy bool `#TCF.8bB<w><n>` (ADR-0039; labs 2026-08-01-0229 / -0322-fiacao-rota-real).
+    """Lazy bool `#TCF.8bB<w><n>`(ADR-0039).
 
     Uniao bool+str(+null) — hoje fail-loud no `.8H` — passa a ter rota propria: cabeca
     CONGELADA implicita null=0/false=1/true=2 (TABELA_B2) + extras str declarados a partir
@@ -480,7 +480,7 @@ class TestLazyBool:
 
 
 class TestBNTipadoNumerico:
-    """`#TCF.8nB<w><n>` — denso bN na rota NUMERICA (weld T-BN-TIPADO, 2026-08-07).
+    """`#TCF.8nB<w><n>` — denso bN na rota NUMERICA.
 
     Era o unico buraco de EXISTENCIA da familia de bits: coluna numerica de baixa
     cardinalidade nao tinha faceta densa nenhuma, e gastava ~608 B onde 55 bastam.

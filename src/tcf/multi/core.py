@@ -9,7 +9,7 @@ Candidatos por coluna (fallback V2-A): tcf (sempre) / raw (`!`) / dict (`@`,
 [`dict_v2b`](dict_v2b.py)) / split (`%`, [`split`](split.py)). Paralelismo em
 [`parallel`](parallel.py) (host). Re-export publico em [`__init__`](__init__.py).
 
-Header format. **#TCF.8M e' o DEFAULT** (ADR-0032, 2026-07-09). Legado #TCF.6/#TCF.7
+Header format. **#TCF.8M e' o DEFAULT** (ADR-0032). Legado #TCF.6/#TCF.7
 CORTADO de src/tcf (git-as-compat pra comparacao historica; decode fail-loud).
 
 #TCF.8M — meta INLINE na linha do shebang (discriminador 1-char `M`, ADR-0029);
@@ -56,7 +56,7 @@ MAGIC_SINGLE_V3 = b"#TCF.8"  # single-col self-describing (SEM flag M -> single,
 # Opt-in. ADR-0027/0029.
 
 
-# --- Escape de NOMES no meta (T-FMT-NAME-ESCAPING, M2 2026-07-09) ---
+# --- Escape de NOMES no meta ---
 # Interim: SO' backslash (estilo CSV-quoting simplificado; estudo de quoting/outros
 # casos adiado — ver ticket). Escapa os separadores do meta (,/=/:) + o proprio '\'
 # + prefixo de modo (!@%) INICIAL (colidiria com a ultima-coluna-bare). O tokenizer
@@ -74,7 +74,7 @@ def _esc_name(name: str) -> str:
     ANONIMA (`drop_names`) — o decode devolvia o nome POSICIONAL, o UNICO caso em
     que o TCF alterava o dado (BUG-CHAVE-VAZIA-POSICIONAL). `\\z` e' inemitivel por
     dado: o `\\` de dado e' sempre dobrado, entao o nome literal `\\z` sai `\\\\z`.
-    A decisao anterior ('' = anonima, owner 2026-07-10, BUG-01 T-QA-8 F0) vinha de
+    A decisao anterior ('' = anonima, BUG-01 T-QA-8 F0) vinha de
     um `\\` SOLTO que fundia tokens — `\\z` nao e' solto, e' escape completo.
     O guard `s[:1] and` fecha o buraco do idiom (`'' in "!@%"` e' True)."""
     if name == "":
@@ -254,7 +254,7 @@ def _nomes_resolvidos(pairs) -> list[str]:
     logo a resolucao podia colidir nos dois, e o cheque teria de existir em duplicata.
     Resolvendo aqui, a paridade e' por CONSTRUCAO e o guard e' herdado.
 
-    Fail-loud em colisao (T-META-COLISAO-NOME-POSICIONAL, 2026-08-16): um nome EXPLICITO
+    Fail-loud em colisao: um nome EXPLICITO
     que casa com o posicional de uma anonima (ex.: `#TCF.8M!5,!5=0,!fim`) fazia o
     `decode` devolver MENOS colunas do que o header declara — a 2a sobrescrevia a 1a no
     dict — e a `view` servir os MESMOS bytes em duas chaves, reportando as 3 colunas
@@ -359,13 +359,7 @@ def _encode_multi(
             )
 
     # Nome VAZIO '' e' um NOME como outro — sai no meta como `\z` (ADR-0046) e volta ''.
-    # HISTORICO: de 2026-07-10 (BUG-01, T-QA-8 F0, decisao do owner) ate' 2026-08-21 a
-    # ENTRADA era transformada AQUI: '' virava ANONIMA (+ warning + guard de colisao
-    # com o posicional), porque na epoca um escape-vazio deixava um '\' SOLTO que
-    # fundia tokens. O `.8H` resolveu em 2026-07-17 com o sentinela `\z` (ADR-0033) e
-    # a convencao nao tinha sido portada de volta; ate' la' este era o UNICO caso em
-    # que o TCF alterava o dado (BUG-CHAVE-VAZIA-POSICIONAL). Com `drop_names=True`
-    # '' e' dropado como qualquer outro nome (o chamador pediu) — coerente.
+    # Com `drop_names=True` e' dropado como qualquer outro nome: o posicional e' o pedido.
 
     # Stringify upfront (per-col paralelo recebe valores ja' string) + check
     # de \n/\r na MESMA passada — FONTE ÚNICA `_stringify_checked` (BUG-06
@@ -532,7 +526,7 @@ def _encode_multi(
 
     used_fallback = bool(fallback_cols)
     used_v2 = used_fallback or bool(dict_cols) or bool(split_cols) or min_header
-    # #TCF.8M e' o formato DEFAULT do multi-col (ADR-0032, 2026-07-09). O legado
+    # #TCF.8M e' o formato DEFAULT do multi-col (ADR-0032). O legado
     # #TCF.6/#TCF.7 foi CORTADO de src/tcf (git-as-compat pra comparacao historica).
     # Single-col NAO muda (orfao default, 0029/0030). used_v2 mantido so' p/ o campo
     # de side_outputs (nao decide mais o magic).
@@ -593,7 +587,7 @@ def _decode_multi_impl(
     if nl1 == -1:
         raise ValueError("formato invalido: sem linha 1 (shebang)")
     line1 = raw[:nl1]
-    # #TCF.8M e' o UNICO multi-col vivo (ADR-0032, 2026-07-09). Legado #TCF.6/#TCF.7
+    # #TCF.8M e' o UNICO multi-col vivo (ADR-0032). Legado #TCF.6/#TCF.7
     # CORTADO de src/tcf — fail-loud com dica de git (o decode() publico ja' rejeita
     # antes com msg de legado; aqui e' defesa em profundidade).
     if not line1.startswith(MAGIC_MULTI_V3):
@@ -702,7 +696,7 @@ def _stringify_checked(values, col_name: str | None = None) -> list[str]:
     loc = f"coluna {col_name!r}, " if col_name is not None else ""
     for i, v in enumerate(values):
         if v is None:
-            # `None` ATRAVESSA (2026-07-25): null tem slot PRE-ALOCADO na tabela de
+            # `None` ATRAVESSA: null tem slot PRE-ALOCADO na tabela de
             # referencias (syntax._SLOTS_RESERVADOS), nao e' string a stringificar. O
             # `_to_str` antigo o achatava em `''` — perda SILENCIOSA da distincao
             # `null` != `""` (as duas viravam a mesma linha vazia). Quem nao aceita null

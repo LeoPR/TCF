@@ -103,7 +103,7 @@ class TestEncodeIntegrationIP:
         assert decoded == ips, "RT FAIL no D-IP-subnet 1000"
 
     def test_default_unchanged_without_nature(self):
-        """FLOOR (owner 2026-07-12): o IP nature COMPETE. Em 2 IPs o padding empata
+        """FLOOR: o IP nature COMPETE. Em 2 IPs o padding empata
         com o núcleo -> nature perde -> with-nature == without (órfão). Contrato:
         with-nature NUNCA maior; RT preserva ambos."""
         ips = ["192.168.1.1", "10.0.0.1"]

@@ -113,7 +113,7 @@ class TestModoLote:
 
 
 class TestGrafiaInjetiva:
-    """Bug de CORRUPCAO SILENCIOSA achado pela auditoria adversarial (2026-07-28).
+    """Bug de CORRUPCAO SILENCIOSA achado pela auditoria adversarial.
 
     `_grafa` escapava `"0"` -> `"\\0"` mas devolvia o resto intacto, entao o valor de dado
     que JA' era `"\\0"` saia igual — duas entradas, uma grafia. `encode(['\\0','x']*30)`
@@ -180,7 +180,7 @@ class TestCanonicidadeDoCabecalho:
 
 
 class TestStringVaziaNoDominio:
-    """Bug achado pela auditoria adversarial (2026-07-28), achado [5].
+    """Bug achado pela auditoria adversarial, achado [5].
 
     `bloco.rstrip("\\n")` comia TODOS os `\\n` finais, mas o corpo canonico termina em
     EXATAMENTE um. Dominio cujo ULTIMO valor e' a string vazia perdia esse valor, e o
@@ -201,7 +201,7 @@ class TestStringVaziaNoDominio:
 
 
 class TestNadaDepoisDosBits:
-    """Bug achado pela auditoria adversarial (2026-07-28), achado [10].
+    """Bug achado pela auditoria adversarial, achado [10].
 
     Linha extra apos o bloco de bits era IGNORADA calada, enquanto o irmao no mesmo indice 7
     (modo denso) falha alto na mesma sonda. Silencio esconde wire concatenado ou truncado.
@@ -306,7 +306,7 @@ class TestPayloadB64Canonico:
 
 
 class TestTodoSlotEReferenciado:
-    """Invariante achado na varredura de fechamento (2026-08-07).
+    """Invariante achado na varredura de fechamento.
 
     `dominio()` monta a lista pela PRIMEIRA APARICAO de cada valor distinto — entao todo
     indice `0..k-1` aparece no corpo. **Slot sobrando = wire adulterado.** Medido: vale em

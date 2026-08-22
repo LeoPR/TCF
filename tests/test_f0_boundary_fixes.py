@@ -1,13 +1,8 @@
-"""T-QA-8 F0 lote 1 — repros pinados dos BUG-01/02/07 (red->green, 2026-07-10).
+"""T-QA-8 F0 lote 1 — repros pinados dos BUG-01/02/07 (red->green).
 
-Decisões do owner (2026-07-10):
-- BUG-01: coluna com nome '' = coluna SEM nome (anônima) — a entrada é TRANSFORMADA
-  na fronteira (warning), o meta NUNCA emite escape-vazio; no decode, escape/declaração
-  de nome vazio = ERRO (marcador de corrupção; futuro reparador em ticket próprio).
-  ⚠ SUPERADA em 2026-08-21 (ADR-0046): '' passou a ser nome VAZIO, emitido como `\z`
-  (a grafia que o .8H já usava desde ADR-0033) e preservado no decode — era o único
-  caso em que o TCF alterava o dado (BUG-CHAVE-VAZIA-POSICIONAL). O sentinela de
-  corrupção continua: '<size>=' com token CRU vazio é erro. Pins re-escritos abaixo.
+Decisões do owner:
+- BUG-01: nome de coluna '' é um NOME VAZIO — sai no meta como `\z` (ADR-0046) e volta
+  '' no decode. Sentinela de corrupção: '<size>=' com token CRU vazio é erro.
 - BUG-02: paridade view vs decode por CONSTRUÇÃO (parser único do meta), não por
   verificação extra.
 - BUG-07: `body_bytes` MANTÉM a semântica de candidato TCF (custo de compute/memória —
@@ -36,13 +31,7 @@ VALS_TCF = ["constante-longa-repetida-x"] * 20  # RLE *20| -> tcf vence
 
 
 class TestBug01EmptyColName:
-    # RE-PIN 2026-08-21 (ADR-0046): os quatro testes abaixo pinavam a decisão de
-    # 2026-07-10 ('' -> anônima + warning + guard de colisão). Ela foi SUPERADA: ''
-    # agora é nome VAZIO, emitido como `\z` e preservado. Cada teste diz o que ERA
-    # e o que passou a ser — o traço fica, a superfície muda (Strata §3).
-
     def test_empty_name_is_preserved_no_warning(self):
-        # ERA: '' virava anônima com UserWarning e decodava '0'.
         table = {"": ["x", "y"], "b": ["p", "q"]}
         with warnings.catch_warnings():
             warnings.simplefilter("error")          # NENHUM warning agora
@@ -51,14 +40,12 @@ class TestBug01EmptyColName:
         _parity(blob)
 
     def test_empty_name_single_column_table(self):
-        # ERA: {'0': ['a', 'b']}.
         blob = encode({"": ["a", "b"]})
         assert blob.split("\n", 1)[0] == "#TCF.8M!\\z"
         assert decode(blob) == {"": ["a", "b"]}
 
     def test_empty_name_meta_uses_z_sentinel(self):
-        # ERA: "nenhum '\' no meta" (a transformação EVITAVA o escape). AGORA o meta
-        # carrega exatamente `\z` — o sentinela do .8H (ADR-0033), inemitível por dado.
+        # o meta carrega exatamente `\z` — o sentinela do .8H (ADR-0033), inemitível por dado.
         blob = encode({"": ["x", "y"], "b": ["p", "q"]})
         meta = blob.split("\n", 1)[0]
         assert "=\\z" in meta                       # '' não-última: '<size>=\z'
@@ -68,8 +55,7 @@ class TestBug01EmptyColName:
         assert decode(blob2) == {"\\z": ["x", "y"], "b": ["p", "q"]}
 
     def test_empty_name_and_column_zero_are_distinct_names(self):
-        # ERA: ValueError de colisão ('' viraria '0' e colidiria com a coluna real '0').
-        # AGORA '' e '0' são dois nomes distintos — nada a colidir.
+        # '' e '0' são dois nomes distintos — nada a colidir.
         table = {"": ["x"], "0": ["y"]}
         blob = encode(table)
         assert decode(blob) == table
@@ -91,7 +77,7 @@ class TestBug01EmptyColName:
 
 
 class TestMetaColisaoNomePosicional:
-    """T-META-COLISAO-NOME-POSICIONAL (2026-08-16) — decode de wire ESTRANGEIRO.
+    """T-META-COLISAO-NOME-POSICIONAL — decode de wire ESTRANGEIRO.
 
     Nome explícito que casa com o nome POSICIONAL de uma coluna anônima: as duas
     resolvem para a mesma chave. O `decode` devolvia MENOS colunas do que o header
@@ -134,7 +120,7 @@ class TestMetaColisaoNomePosicional:
 
 
 class TestPolaridadeComeNome:
-    """T-POLARIDADE-COME-NOME (fechado 2026-08-16, item C1) — RT quebrado CALADO.
+    """T-POLARIDADE-COME-NOME (item C1) — RT quebrado CALADO.
 
     A polaridade é camada de BORDA, a primeira coisa do decode: rodava
     `_separa_sufixo_polaridade(line1[6:])` em TODO wire `#TCF.8`. No `.8M` esse
@@ -203,16 +189,15 @@ class TestPolaridadeComeNome:
 
 
 class TestAnonLastColGrammar:
-    """Achado da verificação adversarial F0 (2026-07-10): '<size>' bare no ÚLTIMO
+    """Achado da verificação adversarial F0: '<size>' bare no ÚLTIMO
     token é ambíguo com NOME (0xc parsearia como coluna 'c') -> última anônima
     emite SEMPRE sem size, inclusive com min_header=False."""
 
     def test_min_header_false_empty_name_last_no_key_corruption(self):
         # repro do refutador: size hex da anônima colidia com o nome 'c' e a
         # tabela decodava com UMA coluna só (dados perdidos)
-        # RE-PIN 2026-08-21 (ADR-0046): '' não é mais anônima — é nome VAZIO e sai
-        # `<size>=\z` com min_header=False; o RT é exato. A ambiguidade original
-        # (size bare no último token) segue coberta pelo teste de drop_names abaixo.
+        # '' é nome VAZIO e sai `<size>=\z` com min_header=False; o RT é exato. A
+        # ambiguidade do size bare no último token é coberta pelo teste de drop_names abaixo.
         table = {"c": ["k1", "k2", "k3", "k4"], "": ["abc", "de", "fg", "hi"]}
         blob = encode(table, min_header=False)
         assert decode(blob) == table
@@ -227,9 +212,8 @@ class TestAnonLastColGrammar:
 
     def test_empty_name_with_drop_names_has_no_false_collision(self):
         # com drop_names TODAS decodam posicionais — '1' de entrada não colide.
-        # RE-PIN 2026-08-21 (ADR-0046): sem warning — '' é dropado como qualquer
-        # outro nome quando o chamador pede drop_names (o posicional é o pedido,
-        # não uma mutação).
+        # '' é dropado como qualquer outro nome quando o chamador pede drop_names:
+        # o posicional é o pedido, não uma mutação.
         blob = encode({"1": ["a", "b"], "": ["c", "d"]}, drop_names=True)
         assert decode(blob) == {"0": ["a", "b"], "1": ["c", "d"]}
 
@@ -349,7 +333,7 @@ class TestBug07EmittedBytes:
 
 
 # ===========================================================================
-# LOTE 2 (2026-07-10, decisões do owner): BUG-03/04/05/06
+# LOTE 2 (decisões do owner): BUG-03/04/05/06
 # ===========================================================================
 
 
@@ -359,7 +343,7 @@ class TestBug03ZeroRows:
     pro trilho de armazenamento append/parquet/tcfx (registrado, ver ticket)."""
 
     def test_encode_empty_list_vira_flat(self):
-        # CONTRATO ATUALIZADO (weld #2, canonicidade do vazio, owner 2026-07-24): `[]` vira a
+        # CONTRATO ATUALIZADO (weld #2, canonicidade do vazio): `[]` vira a
         # forma FLAT `#TCF.8\n` (era `.8H` `#D0` no Passo 2). Nao fail-loud, representavel.
         # (Tabela 0-linha `{"a":[],"b":[]}` segue flat fail-loud — ver teste abaixo.)
         assert encode([]) == "#TCF.8\n"
@@ -481,7 +465,7 @@ class TestBug06StringifyCheck:
 
 
 # ===========================================================================
-# LOTE 3 (2026-07-10, decisões do owner): BUG-08 fold + BUG-09 + BUG-10 + BUG-11b
+# LOTE 3 (decisões do owner): BUG-08 fold + BUG-09 + BUG-10 + BUG-11b
 # Fronteiras = ISOLAMENTO ("o código tendo tratamento pode identificar eles e a
 # gente pode mudar comportamento") — revisão profunda pré-1.0 em ticket próprio.
 # ===========================================================================
@@ -543,19 +527,18 @@ class TestLote3ApiBoundaries:
         with pytest.raises(TypeError, match="str"):
             decode(123)
 
-    def test_name_sem_schema_escalar_raises(self):  # BUG-10e (re-pin schema=, 2026-08-22)
+    def test_name_sem_schema_escalar_raises(self):  # BUG-10e
         with pytest.raises(ValueError, match="schema escalar"):
             encode(["a", "b"], name="col")
 
-    def test_schema_escalar_com_dict_raises(self):  # BUG-10g (re-pin schema=)
+    def test_schema_escalar_com_dict_raises(self):  # BUG-10g
         from tcf import SPEC_CPF
 
-        # RE-PIN 2026-08-22 (sobrecarga escalar): tabela de UMA coluna passou a
-        # ACEITAR o escalar (alvo inequivoco); o erro ensinante fica pras 2+.
+        # tabela de UMA coluna ACEITA o escalar (alvo inequivoco); o erro e' pras 2+.
         with pytest.raises(ValueError, match="UMA coluna"):
             encode({"a": ["111.444.777-35"], "b": ["x"]}, schema=SPEC_CPF)
 
-    def test_schema_dict_com_lista_raises(self):  # BUG-10g (re-pin schema=)
+    def test_schema_dict_com_lista_raises(self):  # BUG-10g
         from tcf import SPEC_CPF
 
         with pytest.raises(ValueError, match="schema='id'"):
@@ -564,7 +547,7 @@ class TestLote3ApiBoundaries:
 
 class TestNatureIgnoradaCalada:
     """T-NATURE-IGNORADA-CALADA situações (1) e (2) — o usuário pede spec e recebe
-    outra coisa SEM AVISO (fechadas 2026-08-16, item C3 da fila do M).
+    outra coisa SEM AVISO (item C3 da fila do M).
 
     (1) `nature_per_col` numa lista TIPADA (ou vazia) era aceito e DESCARTADO: o
         rejeitador de BUG-10g estava condicionado a `_lista_flat`, FALSO para
@@ -690,7 +673,7 @@ class TestLote3MetaStrict:
 
 
 # ===========================================================================
-# LOTE 4 (2026-07-10, "vamos fechar os A"): BUG-13 b/d/e — decode estrito fino
+# LOTE 4 ("vamos fechar os A"): BUG-13 b/d/e — decode estrito fino
 # ===========================================================================
 
 
@@ -788,7 +771,7 @@ class TestNomeVazioPreservadoADR0046:
 
     A causa era uma COLISÃO de grafia: `encode({"": [...]})` produzia o MESMO wire que
     `encode({"x": [...]}, drop_names=True)`. O `.8H` já resolvia com o sentinela `\z`
-    (ADR-0033, 2026-07-17); a convenção foi portada de volta ao `.8M` (ADR-0046).
+    (ADR-0033); a convenção foi portada de volta ao `.8M` (ADR-0046).
     """
 
     def test_posicoes(self):

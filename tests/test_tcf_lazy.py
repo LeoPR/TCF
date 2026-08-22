@@ -34,7 +34,7 @@ def test_lazy_tcf8_nature_reverte():
 
 
 def test_lazy_tcf8_nature_em_modo_dict_reverte_no_where_e_group():
-    """REGRESSAO (2026-08-12): a reversao da nature existia SO' no `_col`; o caminho L4
+    """REGRESSAO: a reversao da nature existia SO' no `_col`; o caminho L4
     (`_dict_parts` -> where/group_count) comparava contra o PAYLOAD cru.
 
     Medido no bug: nesta coluna `where('dt','2025-01-01')` devolvia 0 (verdade: 8) e

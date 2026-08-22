@@ -14,7 +14,7 @@ Cobre categoria "Templated + Checked + Unique-Discrete":
   conversao char->valor (`ASCII - 48`), e por isso o numerico gera DV identico nas
   duas regras.
 
-Cobre categoria "TCU-Delta" (weld 2026-08-08):
+Cobre categoria "TCU-Delta":
 - SPEC_DATA_ISO (YYYY-MM-DD -> ordinal decimal; alvo = o `*N+M|` do seq-RLE)
 
 Outras categorias (TCU-NoCheckVarLength, TCU-Delta, Lossy, Composite)
@@ -82,7 +82,7 @@ SPEC_INT_PAD = IntPadSpec(largura=38)
 
 import re as _re  # noqa: E402
 
-#: ADR-0041 decisao 2 (owner 2026-08-13): minuscula inicial, alfanumerico, 1-8.
+#: ADR-0041 decisao 2: minuscula inicial, alfanumerico, 1-8.
 #: O requisito DURO e' so' excluir `,`/`:`/controle (corrompem o meta); o resto
 #: e' convencao — previsibilidade, familia por prefixo (`dt*`, `x*` terceiros),
 #: imunidade a separador futuro. O ganho de bytes vem do LIMITE, nao do charset.

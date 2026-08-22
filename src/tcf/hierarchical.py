@@ -2,7 +2,7 @@
 
 Camada L2 (RELACIONAMENTO entre colunas) + L3 (OTIMIZAÇÃO) sobre L1 (o compressor
 de colunas do core, REUSADO sem mudança). Arquitetura em 3 camadas do owner
-(2026-07-14, `experiments/lab/dirty/notas/tcf-camadas-arquitetura.md`):
+(`experiments/lab/dirty/notas/tcf-camadas-arquitetura.md`):
 
   L1  compressor de colunas  -> `encode(list)`/`decode(body)` do core (INTOCADO).
   L2  relacionamento          -> a topologia da árvore vive no HEADER; só o header
@@ -124,7 +124,7 @@ def _unesc_name(s: str) -> str:
             nxt = s[i + 1]
             if nxt == "n":                  # `\n` = LF (o `\` de dado vem dobrado -> injetivo)
                 out.append("\n")
-            elif nxt == "r":                # `\r` = CR (auditoria 2026-07-17)
+            elif nxt == "r":                # `\r` = CR
                 out.append("\r")
             elif nxt in _H_ESC_OK:
                 out.append(nxt)
@@ -146,7 +146,7 @@ def _unesc_name(s: str) -> str:
 #   masked=True -> campo tem MÁSCARA def-level 3-estados: '.'=presente · '-'=ausente (P1) ·
 #                  '0'=null (P3a). masked = (pode faltar) OU (pode ser null).
 # NOTA (H-PROFILE-01): null usa a MÁSCARA (slot '0' reservado no P1). O índice-de-substituição
-# (lab 2026-07-15-2101) é a alternativa a MEDIR sob perfil de uso — trocável aqui depois, sem
+# é a alternativa a MEDIR sob perfil de uso — trocável aqui depois, sem
 # mudar a API. O null-repr fica localizado em _emit_row/_read_object (a "costura" pra o swap).
 def _kind_of(v):
     if v is None:
@@ -206,7 +206,7 @@ def _unesc_leaf(s: str) -> str:
             nxt = s[i + 1]
             if nxt == "n":
                 out.append("\n")
-            elif nxt == "r":               # CR (auditoria 2026-07-17: CR é D_json; o L1 o rejeita)
+            elif nxt == "r":               # CR (é D_json; o L1 o rejeita)
                 out.append("\r")
             elif nxt == "\\":
                 out.append("\\")
@@ -256,7 +256,7 @@ def _derive_schema(records: list, depth: int = 0) -> list:
     """Schema robusto: união de chaves (ordem de 1ª aparição), presença por campo, e
     validação de TIPO HONESTA — campo com tipos ESTRUTURAIS mistos (scalar/object/array)
     ou `null` é fail-loud (fora da classe; P2 tipos / P3 null), NUNCA str()-engolido.
-    (auditoria 2026-07-15: tipos mistos e null-em-elemento corrompiam calado.)"""
+    (tipos mistos e null-em-elemento corrompiam calado.)"""
     if not isinstance(records, list) or not records:
         raise HierarchicalError("hierárquico espera uma lista NÃO-VAZIA de objetos (registros)")
     if not all(isinstance(r, dict) for r in records):
@@ -448,7 +448,7 @@ def _encode_dataset(records: list, side_outputs=None, nature_per_col=None) -> st
     schema = _derive_schema(records)
     order = _leaves(schema)
     if not order:                                # nenhuma coluna -> nº de registros irrepresentável
-        # BORDA CONTAGEM-VAZIO (problema B, ratificado 2026-07-17): os registros TÊM campos, mas
+        # BORDA CONTAGEM-VAZIO (problema B): os registros TÊM campos, mas
         # TODAS as folhas são objetos-vazios (`{"a":{}}`, `{"a":{"b":{}}}`) — nenhuma coluna com N
         # entradas, logo o nº de registros é irrepresentável. `[]`/`[{}]` (raiz) já viram `#D`;
         # campo array-vazio (`{"a":[]}`) funciona (o count `\0` É coluna). A representação plena
@@ -462,7 +462,7 @@ def _encode_dataset(records: list, side_outputs=None, nature_per_col=None) -> st
     cols = {key: [] for key in order}
     _emit_array(records, schema, (), cols)
 
-    # nature (2026-07-19, OTIMIZAÇÃO): mapa path→spec, só p/ folha scalar-STRING. Valida cedo.
+    # nature (OTIMIZAÇÃO): mapa path→spec, só p/ folha scalar-STRING. Valida cedo.
     nat_id = {}                                       # (path,'scalar') -> spec.wire_id (id no meta, ADR-0041)
     nat_spec = {}                                     # (path,'scalar') -> spec
     if nature_per_col:
@@ -489,7 +489,7 @@ def _encode_dataset(records: list, side_outputs=None, nature_per_col=None) -> st
             except ValueError:                                 # spec não representa o valor (ex: LF
                 nat_id.pop(key, None)                          # no raw, que o flat não carrega) → piso
                 # SÓ ValueError: o `except Exception` daqui engoliu o TypeError do corte
-                # do nature= (2026-08-22) e o spec sumia CALADO — a classe exata de bug
+                # do nature= e o spec sumia CALADO — a classe exata de bug
                 # que o fail-loud do projeto existe pra impedir.
                 return _encode_col(cols[key], stamp=False)     # body ESCAPADO (idêntico ao caminho normal)
             hdr, _sep, body = fw.partition("\n")
@@ -641,7 +641,7 @@ def _rstrip_closes(s: str) -> str:
     """Omit-closes: dropa do fim APENAS closers ESTRUTURAIS (não-escapados).
 
     Um `\\]`/`\\}` no fim é conteúdo de NOME escapado — dropá-lo deixaria escape
-    dangling (interação omit-closes × escaping, auditoria 2026-07-15)."""
+    dangling (interação omit-closes × escaping)."""
     end = len(s)
     while end > 0 and s[end - 1] in "]}":
         k, nb = end - 1, 0
@@ -656,7 +656,7 @@ def _rstrip_closes(s: str) -> str:
 
 def _parse_meta(meta: str):
     order, i, n = [], 0, len(meta)
-    nat_cols = {}                                          # (path,'scalar') -> nature id (2026-07-19)
+    nat_cols = {}                                          # (path,'scalar') -> nature id
 
     def nm(stop):
         # escape-aware: um char precedido de '\' NUNCA termina o token (nome escapado);
@@ -911,7 +911,7 @@ def _decode_dataset(tcf_text: str) -> list:
         except UnicodeDecodeError as e:                     # size fatia char multibyte (auditoria)
             raise HierarchicalError(f"size fatia char UTF-8 em {path} (blob corrompido?): {e}")
         try:
-            if (path, kind) in nat_cols:                    # nature (2026-07-19): decode via wire flat
+            if (path, kind) in nat_cols:                    # nature: decode via wire flat
                 if body:
                     wire = "#TCF.8 :" + nat_cols[(path, kind)] + "\n" + body
                     raw_vals = _decode_col(wire)            # flat auto-resolve o spec pelo registry

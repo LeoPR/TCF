@@ -1,4 +1,4 @@
-"""seq-RLE PERIODICO `*N~d1,...,dp|template` — ADR-0040 (weld 2026-08-09).
+"""seq-RLE PERIODICO `*N~d1,...,dp|template` — ADR-0040.
 
 O delta CICLA entre linhas. Cobre cadencias que o `*N+d|` uniforme nao alcanca: dias
 uteis (`1,3,1,1,1`), ids por turno (`10,10,10,50`), quinzenal/mensal.

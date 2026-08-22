@@ -63,7 +63,7 @@ def test_flat_intacto():
 
 
 def test_ragged_agora_rt():
-    # P1 (2026-07-15): chave OPCIONAL agora faz RT (era fail-loud). Mudança de CONTRATO.
+    # P1: chave OPCIONAL agora faz RT (era fail-loud). Mudança de CONTRATO.
     docs = [{"a": "1", "b": "2"}, {"a": "3"}]
     blob = encode(docs)
     assert "?" in blob.split("\n", 1)[0]                  # 'b' é opcional no header
@@ -195,7 +195,7 @@ def test_p3b_emask_invalida_fail_loud():
         decode(b)
 
 
-# --- fail-loud declarado (auditoria 2026-07-15): NUNCA str()-engolir fora da classe ---
+# --- fail-loud declarado: NUNCA str()-engolir fora da classe ---
 def test_p3b_tipo_misto_em_elemento_fail_loud():
     with pytest.raises(HierarchicalError, match="mistos"):
         encode([{"xs": ["a", {"b": "1"}]}])    # escalar + objeto no mesmo array
@@ -241,9 +241,8 @@ def test_p1_array_de_objetos_vazios_fail_loud():
 
 
 def test_p1_registros_sem_campos_agora_fazem_rt():
-    """PROMOVIDO 2026-07-17 (P4b): [{}]×N vira `#D<N>` (contagem explícita — funil J1).
-    ATUALIZADO (weld #2, 2026-07-24): `[]` saiu do `#D0` e virou FLAT `#TCF.8\n`
-    (canonicidade do vazio); `[{}]×N` (N≥1) segue `#D<N>`. RT preservado nos dois."""
+    """`[{}]×N` vira `#D<N>` (contagem explícita); `[]` é FLAT `#TCF.8\n`
+    (canonicidade do vazio). RT preservado nos dois."""
     for docs in ([{}], [], [{}, {}], [{}] * 7):
         back = decode(encode(docs))
         assert back == docs and type(back) is type(docs)
@@ -293,7 +292,7 @@ def test_raiz_lista_de_valores_agora_faz_rt():
         encode([1, {"a": 2}])                 # misto continua P5 fail-loud
 
 
-# --- P4b (2026-07-17): raiz generalizada — adversarial e canonicidade -------------------
+# --- P4b: raiz generalizada — adversarial e canonicidade -------------------
 
 def test_p4b_adversarial_fail_loud():
     for blob, motivo in [("#TCF.8H#D\n", "contagem ausente"), ("#TCF.8H#Dxx\n", "contagem lixo"),
@@ -322,7 +321,7 @@ def test_p4b_dataset_com_campo_vazio_nao_vira_envelope():
     assert decode(w) == ds
 
 
-# --- E3 (2026-07-17): canal SideOutputs no .8H — aditivo, bytes idênticos ----------------
+# --- E3: canal SideOutputs no.8H — aditivo, bytes idênticos ----------------
 
 def test_e3_side_outputs_bytes_identicos_e_populado():
     from tcf.side_outputs import SideOutputs
@@ -339,7 +338,7 @@ def test_e3_side_outputs_bytes_identicos_e_populado():
 
 def test_e3_root_kind_por_forma():
     from tcf.side_outputs import SideOutputs
-    # `[]` SAIU desta lista (weld #2, 2026-07-24) e `[1, 2]` saiu em 2026-07-25 (rota tipada
+    # `[]` SAIU desta lista (weld #2) e `[1, 2]` saiu em 2026-07-25 (rota tipada
     # `#TCF.8n`): os dois viraram FLAT, logo NAO tem root_kind hierarquico (hier_info=None).
     # `[{}]×N` (N≥1) segue `#D`. Escalar SOLTO (42, "", None) continua `#V` — o `.8H` segue
     # sendo a rota de tudo que nao e' coluna plana.
@@ -360,7 +359,7 @@ def test_malformed_blob_fail_loud():
         decode("#TCF.8Hnome#:X[]\nbody")   # count size invalido
 
 
-# --- nomes ADVERSARIAIS (auditoria 2026-07-15): chars da gramática do meta em NOMES ---
+# --- nomes ADVERSARIAIS: chars da gramática do meta em NOMES ---
 # Antes do escaping (portado do .8M): ','/'{' corrompiam CALADO, '['/']'/'}' TRAVAVAM o
 # parse, ':'/'#' falhavam tarde, espaço inicial era comido. Agora: RT byte-exato.
 ADVERSARIAL_NAMES = [
@@ -394,7 +393,7 @@ def test_nome_escapado_no_fim_nao_quebra_omit_closes():
     assert decode(encode(docs2)) == docs2
 
 
-# --- escape D_json (weld 2026-07-17): 3 lacunas viraram CAPACIDADE ---------------------
+# --- escape D_json: 3 lacunas viraram CAPACIDADE ---------------------
 # Antes: `test_nome_vazio_fail_loud` / `test_nome_com_newline_fail_loud` pinavam a RECUSA.
 # `{"": v}` e `{"a\nb": v}` são JSON válido (D_json) e o caminho json faz RT -> o TCF tinha de
 # fazer (critério J-RT-TX => T-RT). Agora fazem. Os pinos abaixo cobrem o que SUBSTITUIU a recusa.
@@ -471,7 +470,7 @@ def test_chave_nao_str_erro_TIPADO_que_ensina():
             encode([{k: "v"}])
 
 
-# --- auditoria do escape (2026-07-17): CR é D_json + cap de profundidade TOTAL ----------
+# --- auditoria do escape: CR é D_json + cap de profundidade TOTAL ----------
 
 def test_cr_em_valor_e_nome_faz_rt():
     """CR (`\\r`) é D_json (json.loads('"x\\ru"') é válido). A auditoria pegou: o alfabeto
@@ -553,7 +552,7 @@ def _gen_scalar(rng):
 def _gen_schema(rng, depth):
     schema = {}
     for i in range(rng.randint(1, 4)):
-        # ~25% dos nomes carregam chars adversariais do meta (auditoria 2026-07-15)
+        # ~25% dos nomes carregam chars adversariais do meta
         nome = f"f{i}"
         if rng.random() < 0.25:
             nome += rng.choice([",a", ":b", "#c", "[d", "]e", "{f", "}g", " h", "\\i"])
@@ -649,7 +648,7 @@ def test_p2_tipo_misto_str_num_fail_loud():
 
 
 def test_p5_union_fronteira_ratificada_mensagem_ensina():
-    """P5/union RATIFICADO fora do `.8` (2026-07-17). A mensagem de fail-loud ENSINA as duas
+    """P5/union RATIFICADO fora do `.8`. A mensagem de fail-loud ENSINA as duas
     saídas: separar por tipo OU converter a coluna toda p/ string (o fallback que o owner apontou).
     Cobre os 3 lugares: escalar-em-array, escalar-entre-registros, estrutural."""
     casos = [
@@ -822,7 +821,7 @@ def test_coluna_de_dado_corrompida_fail_loud_tipado():
         decode(blob)
 
 
-# ============================================================ nature no .8H (2026-07-19)
+# ============================================================ nature no.8H
 # A mesma nature do flat (ADR-0015/0027) aplica a folhas scalar-string do .8H via
 # schema={path: spec}. O decode é SELF-DESCRIBING: o id viaja no meta (`:id`
 # após o size), o registry (SPEC_REGISTRY) resolve — decode NÃO recebe a spec.
