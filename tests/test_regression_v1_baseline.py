@@ -18,6 +18,7 @@ obrigatorio pra mudancas em HCC/prune (T-REGRESSION-REAL-WORLD, 2026-05-31).
 from __future__ import annotations
 
 import csv
+import inspect
 from pathlib import Path
 
 import pytest
@@ -81,6 +82,47 @@ class TestPublicAPISurface:
         # Pré-1.0 (ADR-0024): pacote em 0.x, minor acompanha o formato.
         # #TCF.8 default (ADR-0032) -> minor 0.8.0 (ADR-0028 regra 1). PyPI publica no go do owner.
         assert tcf.__version__ == "0.8.0"
+
+    # CONGELAMENTO DO .8 (owner 2026-08-22: "terminar o .8 com as formalidades e
+    # congelar parametros, header e corpo"). Este pin e' o "congelar PARAMETROS"
+    # como artefato executavel — nome, ordem, kind e default de cada parametro
+    # das duas portas. Header e corpo ja' estao pinados pelos gates
+    # byte-canonicos (D1-D9/D17a/real-world) + spec docs/algorithms/TCF-format.
+    # Mudar assinatura = re-pin DELIBERADO aqui + registro (ADR/vigencia).
+    ENCODE_SIGNATURE_FROZEN = [
+        ("data", "POSITIONAL_OR_KEYWORD", inspect.Parameter.empty),
+        ("schema", "KEYWORD_ONLY", None),          # ADR-0047 (parametro unico de spec)
+        ("side_outputs", "KEYWORD_ONLY", None),
+        ("parallel", "KEYWORD_ONLY", False),
+        ("layers", "KEYWORD_ONLY", None),
+        ("fallback", "KEYWORD_ONLY", True),
+        ("min_header", "KEYWORD_ONLY", True),
+        ("min_len", "KEYWORD_ONLY", None),
+        ("sort_by", "KEYWORD_ONLY", None),
+        ("name", "KEYWORD_ONLY", None),
+        ("stamp", "KEYWORD_ONLY", None),
+        ("drop_names", "KEYWORD_ONLY", False),
+    ]
+    DECODE_SIGNATURE_FROZEN = [
+        ("tcf_text", "POSITIONAL_OR_KEYWORD", inspect.Parameter.empty),
+        ("schema", "KEYWORD_ONLY", None),          # ADR-0047, simetrico ao encode
+        ("max_length", "KEYWORD_ONLY", None),
+    ]
+
+    @pytest.mark.parametrize("fn_name,frozen", [
+        ("encode", ENCODE_SIGNATURE_FROZEN),
+        ("decode", DECODE_SIGNATURE_FROZEN),
+    ])
+    def test_assinatura_publica_congelada(self, fn_name, frozen):
+        atual = [
+            (p.name, p.kind.name, p.default)
+            for p in inspect.signature(getattr(tcf, fn_name)).parameters.values()
+        ]
+        assert atual == frozen, (
+            f"assinatura de tcf.{fn_name} divergiu do congelamento do .8 "
+            f"(owner 2026-08-22). Mudanca de parametro exige re-pin deliberado + "
+            f"registro.\n  congelada: {frozen}\n  atual:     {atual}"
+        )
 
 
 # RE-PIN 2026-07-24 (ADR-0034, git-as-compat ADR-0024): o header `#TCF.8` + LF passou a
