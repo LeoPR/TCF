@@ -63,6 +63,24 @@ com `T-FMT-OMIT-OR-DECLARE` (deduzir/convencionar/declarar).
   que liga conjuntos de flags já trabalhados — já registrado como `T-PERFIS-MACRO`
   (PENDENTES NOMEADOS na STATUS); o Schema é candidato natural a carregá-lo.
 
+## O `stamp=False` e o cabecalho minimo (fechado 2026-08-22)
+
+O `stamp=False` de hoje emite o **corpo cru**, nao um "cabecalho minimo" — e a
+descricao dele agora diz isso (docstring de `encode`, pinado em
+`tests/test_schema_param.py::TestStampCorpoCru`). Duas consequencias medidas: os
+mecanismos que se DECLARAM no cabecalho (polaridade, bN) saem da disputa e o wire
+pode sair maior (**102 B -> 611 B** numa coluna de baixa cardinalidade), e com
+`schema` vencedor o `:id` sai assim mesmo, porque e' o unico lugar onde viaja
+qual spec inverter.
+
+**O desenho do owner** — *"passar o minimo de informacoes do cabecalho [...] se o
+encode e o decode tiverem as instrucoes do que se tratam as colunas, essas partes
+sao dispensadas; o cabecalho precisa das estruturas DINAMICAS, estou falando das
+ESTATICAS"* — **e' este ticket**. Separar estatico de dinamico exige gramatica
+nova para a parte dinamica (hoje `#TCF.8B2c8` e' magic+modo+largura+contagem
+grudados), logo e' mudanca de formato, nao ajuste de flag. O Schema e' o portador
+natural: com ele nas duas pontas, o estatico sai do fio.
+
 ## Não fazer agora
 
 Nada. O `.8` fecha com as formas curtas; este ticket é o registro do destino para o desenho
