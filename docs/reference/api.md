@@ -71,10 +71,9 @@ passar pelo `min()`. As demais uniões escalares (`int+str`, `bool+int`, …) se
 
 **NaN/±Inf ficam fora** (RFC 8259) nas duas pontas: o encoder recusa e o decode também.
 
-**Contrato pré-1.0 (mudanças do Passo 2, declaradas)**: `encode([])`/`encode({})` deixaram de ser
-fail-loud (viraram **representáveis**); `encode([1,2,3])` deixou de virar single-col de strings
-`"1","2","3"` e passou a **preservar o tipo**; coluna com `None`/int deixou de ser stringificada;
-tuple/bytes no lugar de lista viram fail-loud de tipo (eram convertidos calados).
+**Contrato pré-1.0**: `encode([])`/`encode({})` são **representáveis**; `encode([1,2,3])`
+**preserva o tipo** (volta `int`, não `"1","2","3"`); coluna com `None`/int não é
+stringificada; `tuple`/`bytes` no lugar de lista dão **fail-loud** de tipo.
 
 | entrada | wire real | rota |
 |---|---|---|

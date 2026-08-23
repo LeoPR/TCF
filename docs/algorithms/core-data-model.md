@@ -155,8 +155,9 @@ O `~` é **operador composicional**, não par open/close; ver
 ## Multi-coluna e modos V2 (camada acima do single-col)
 
 `multi/core.py` orquestra N colunas. Header textual:
-`#TCF.7` + `M` (multi flag) + linha meta `# <size1>=<name1>,...`. Cada coluna
-escolhe um **modo** (decisão por-coluna, byte-driven):
+`#TCF.8M` + meta INLINE na mesma linha, `<size>=<nome>` por coluna, **size em HEX**
+e a última coluna sem size (ex.: `#TCF.8M!3=id,!nome`). Cada coluna escolhe um **modo**
+(decisão por-coluna, byte-driven):
 
 - (sem prefixo): pipeline HCC normal acima.
 - `!` raw (V2-A, ADR-0022): coluna crua quando HCC não compensa.

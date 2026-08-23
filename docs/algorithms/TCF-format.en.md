@@ -10,7 +10,9 @@ TCF is a textual format for representing **tabular data** in a
 
 - **Text output** (no binary): visual inspection and
   processing by LLMs/line-oriented pipelines
-- **Lossless roundtrip**: `decode(encode(values)) == values` always
+- **Lossless roundtrip** of VALUES: `decode(encode(values)) == values`. Row
+  ORDER comes back unchanged too, except under `sort_by`
+  (see [encode-knobs.md](../reference/encode-knobs.md))
 - **Structural compression**: exploits patterns in columns (shared
   affixes, recurring sub-patterns, detectable cadences,
   near-identical runs)
@@ -23,108 +25,194 @@ Format designed for:
 - Multi-column tables where each column benefits from its own
   pipeline (independent per-column encoder)
 
-## Versioning (ADR-0024 + ADR-0028, pre-1.0; supersedes ADR-0017)
+## Versioning (pre-1.0)
 
-> **3-AXIS MODEL (ADR-0028, 2026-06-24; refines ADR-0024)**. Distinguish:
+> **Three axes** ([ADR-0024](../adr/0024-pre-1.0-versioning-git-as-compat.md),
+> [ADR-0028](../adr/0028-pre-1.0-versioning-minor-format-coupling-release-cadence.md)), distinguish:
 > - **(A) FORMAT version**: the **format signature / magic number** `#TCF.N` (canonical term;
 >   **not** "shebang", which is `#!`, analogous to `%PDF-1.7`; see [vocabulary.md](../vocabulary.md)).
 >   On-disk contract; only changes with a format change. Today `#TCF.8` (default, ADR-0032); `#TCF.6/.7`
 >   cut from `src/tcf` (git-as-compat: recover the era to read/compare).
-> - **(B) Encoder generation**: internal milestone (M8A→M9→M10); NOT a public version (historical note).
+> - **(B) Encoder generation**: internal development milestone (the `M10` that shows up in the pipeline
+>   and in [ADR-0011](../adr/0011-pacote1-weld-canonical.md)). NOT a public version, never travels on the wire.
 > - **(C) Package version** (PyPI), pre-1.0 = `0.<format>.<release>`: minor = format number
->   (`0.N` ↔ `#TCF.N`); release/patch = delivery WITHIN the format.
+>   (`0.N` ↔ `#TCF.N`); release/patch = a delivery WITHIN the format.
 >
-> **Bump rule**: a FORMAT change moves the minor (`0.(N+1).0`); a delivery without a format change moves the
-> release (`0.N.x+1`). E.g.: `#TCF.8` default (ADR-0032) = `0.8.0` (the lazy+prune cycle was absorbed).
-> `1.0` only when the final format freezes → then strict semver. The phrases "frozen v1.0"/"v2.0"/
-> "stable since v1.0" below are from the old model (ADR-0017); read them in that key.
-> Terms: [`../vocabulary.md`](../vocabulary.md) §Versioning.
+> **Bump rule**: a FORMAT change moves the minor (`0.(N+1).0`); a delivery that leaves the format alone
+> moves the release (`0.N.x+1`). E.g.: `#TCF.8` default ([ADR-0032](../adr/0032-tcf8-default-format.md)) =
+> package `0.8.x`. `1.0` only once the final format freezes, and strict semver starts there.
+> Terms: [`../vocabulary.md`](../vocabulary.md) §Versionamento.
 
 TCF distinguishes the **FORMAT version** (signature `#TCF.N`, axis A) from the **PACKAGE version**
 (semver `0.N.x`, axis C); do not confuse the two (ADR-0028).
 
 ### Format version (signature)
 
-| Signature | Status | Introduced | Compatible with |
-|---|---|---|---|
-| `#TCF.8` | **DEFAULT** (multi-col + single-col self-describing) | 2026-07 (default: [ADR-0032](../adr/0032-tcf8-default-format.md)) | encode default; decode reads |
-| `#TCF.7` / `#TCF.6` | **legacy CUT** from `src/tcf` | 2026-05/06 | git-as-compat (ADR-0024): `git checkout` the era to read/compare |
-| `#TCF.5` | superseded | 2026-04 (v0.5) | tcf 0.5.x (legacy, do not maintain) |
+| Signature | What decode does |
+|---|---|
+| `#TCF.8` | **current format** (multi-col + single-col self-describing): encode emits it, decode reads it |
+| `#TCF.7` / `#TCF.6` | **named legacy error**, carrying the `git checkout` hint for reading/comparing that era (git-as-compat, [ADR-0024](../adr/0024-pre-1.0-versioning-git-as-compat.md)) |
+| any other `#TCF.<N>` | unknown-version error |
 
-**`#TCF.8` is the DEFAULT format** ([ADR-0032](../adr/0032-tcf8-default-format.md), 2026-07-09): every
-multi-col emits `#TCF.8M`; flat single-col emits **`#TCF.8`** by DEFAULT (7 B,
-[ADR-0034](../adr/0034-header-default-100-porcento-single-col.md): the orphan became an explicit
-escape, `stamp=False`; ADR-0029 layer 1 /
-[ADR-0030](../adr/0030-freeze-single-col-body-at-1.0.md) freeze). Legacy `#TCF.6`/`#TCF.7` was **cut**
-from `src/tcf` (decode fail-loud with a git hint). Self-describing: natures (ADR-0027) + hex + escaping
-travel in the header.
+Verifiable (the messages come from the code, in Portuguese): `decode('#TCF.6M ...')` raises
+*"formato legado ... nao suportado no 0.8"*; `decode('#TCF.5M ...')` raises
+*"blob #TCF.5: versao desconhecida deste decoder"*.
+
+**`#TCF.8` is the DEFAULT format** ([ADR-0032](../adr/0032-tcf8-default-format.md)): every multi-col
+emits `#TCF.8M`; flat single-col emits **`#TCF.8`** by DEFAULT (7 B). The orphan (body with no
+signature) is the explicit ESCAPE `stamp=False`
+([ADR-0034](../adr/0034-header-default-100-porcento-single-col.md); ADR-0029 layer 1 /
+[ADR-0030](../adr/0030-freeze-single-col-body-at-1.0.md) freeze). Legacy `#TCF.6`/`#TCF.7` is
+fail-loud on decode, with a git hint. Self-describing: natures (ADR-0027) + hex + escaping travel in
+the header.
 
 **1-char discriminator** ([ADR-0029](../adr/0029-version-format-identification-semi-implicit.md) +
 [ADR-0031](../adr/0031-hierarchical-discriminator-H.md) + [ADR-0033](../adr/0033-hierarchical-codec-weld.md)):
-the character right after `#TCF.8` decides the structure. **9 values**, plus a punctuation range
+the character right after `#TCF.8` decides the structure. **9 values**, plus the punctuation range
 consumed by the polarity pre-pass ([ADR-0035](../adr/0035-delimitador-de-polaridade-single-col.md)):
 
 | after `#TCF.8` | type | header |
 |---|---|---|
-| *(nothing, body directly)* | orphan single-col, **explicit ESCAPE** (`stamp=False`): transmission / parquet-style container, where the version already travels outside. **NOT the default** since ADR-0034 | - |
-| `\n` | single version-stamp | `#TCF.8` (**DEFAULT since ADR-0034**; magic number for `file`/libmagic) |
+| *(nothing, body directly)* | orphan single-col, **explicit ESCAPE** (`stamp=False`): transmission or parquet-style container, where the version already travels outside. **NOT the default** ([ADR-0034](../adr/0034-header-default-100-porcento-single-col.md)) | - |
+| `\n` | single version-stamp, **the default** | `#TCF.8` (magic number for `file`/libmagic) |
 | `M` | flat multi-col | `#TCF.8M<meta>` (meta INLINE on the signature line) |
-| `H` | hierarchical multi-col (specialization of `M`), **WELDED** (ADR-0033, 2026-07-14) | `#TCF.8H<tree-meta>` |
+| `H` | hierarchical multi-col (specialization of `M`), [ADR-0033](../adr/0033-hierarchical-codec-weld.md) | `#TCF.8H<tree-meta>` |
 | ` ` (space) | single + spec | `#TCF.8 [name]:spec` (name optional, label only) |
-| `b` / `n` / `s` | typed single-col (bool / number / string) | `#TCF.8<tag>[<mode>]` |
+| `b` / `n` / `s` | typed single-col (bool / number / string) | `#TCF.8<tag>[<mode><n-hex>]`; the `n` tag emits the short form `#TCF.8n`. The three modes of the `b` tag: [`api.md`](../reference/api.md) |
 | `B` / `C` | domain bN (domain first / domain last), ADR-0036 | `#TCF.8B<w><n>` |
 
-Discriminator outside the set above -> **fail-loud** on decode (never degrades to orphan). A
-punctuation suffix on the signature line is the **polarity delimiter** and is stripped by a
-pre-pass before dispatch; it does not act on `M`/`H`.
+A discriminator outside the set above is **fail-loud** on decode (it never degrades to orphan). A
+punctuation suffix on the signature line is the **polarity delimiter**
+([ADR-0035](../adr/0035-delimitador-de-polaridade-single-col.md)), stripped by a pre-pass before
+dispatch. It does not act on `M`/`H`. The same elected char marks, in the BODY, the literal ↔
+reference switch: it costs 1 byte per TRANSITION, not per occurrence, and comes from the complement
+of the column alphabet (punctuation range only).
 
-
-**`#TCF.8M` meta**: INLINE after the signature (`#TCF.8M<meta>\n<bodies>`), no `# ` prefix. Each column
+**`#TCF.8M` meta**: INLINE, on the signature line itself (`#TCF.8M<meta>\n<bodies>`). Each column
 = `[<pre>]<size>[=<name>][:<id>]`:
 - **byte-size in HEX** ([T-FMT-HEADER-BASE-HEX](../../tickets/T-FMT-HEADER-BASE-HEX.md), ADR-0032 §3):
   `format(n,'x')` (lowercase, no `0x`, no leading zeros). Collision-free with the separators. Decimal
-  only via an inspection command (not the stored format).
+  only via an inspection command (it is not the stored format).
 - **mode prefix** `!`=raw (V2-A) · `@`=dict (V2-B) · `%`=split (V2-C), before the size.
 - **`:id` suffix** = nature (ADR-0027). The core registry has **5**: `cpf` · `cnpj` · `ip` ·
-  `dt` (ISO date) · `ipad` (int-pad). Resolved via a fixed core-only dict keyed by **`wire_id`**
+  `dt` (ISO date) · `ipad` (int-pad). Resolved through a fixed core-only dict keyed by **`wire_id`**
   (ADR-0041; `name` is the CODE plane and never travels). **An unknown id is FAIL-LOUD**
-  (`ValueError`: *"registry core fechado; forneca o spec out-of-band"*), NOT raw+warning; a
-  third-party spec comes from outside and is accepted only if its `wire_id` **matches** the
+  (`ValueError`: *"registry core fechado; forneca o spec out-of-band"*), NOT raw+warning: a
+  third-party spec comes in from outside and is accepted only if its `wire_id` **matches** the
   header `:id`. The nature `:id` = LAST UN-escaped `:`.
 - **name with a separator** (`,`/`=`/`:`/`\`/leading `!@%`): **backslash-escaped**
-  ([T-FMT-NAME-ESCAPING](../../tickets/T-FMT-NAME-ESCAPING.md)); tokenizer splits on the UN-escaped
-  separator. Only `\n` is forbidden (meta line separator).
+  ([T-FMT-NAME-ESCAPING](../../tickets/T-FMT-NAME-ESCAPING.md)); the tokenizer splits on the
+  UN-escaped separator. The only forbidden one is `\n` (the meta line separator).
 - **last column without size** (`min_header`, body up to EOF, O-FMT-15/ADR-0023): pair without `=`.
-- **anonymous columns** (`drop_names`): omit `=name`; decode reconstructs by ORDER (`{'0':..,'1':..}`).
-- **empty name** (`''`): emitted as **`\z`**, the same sentinel the `.8H` uses (ADR-0033 → ADR-0046); decode
-  returns `''`. **Not** the same as anonymous: anonymous omits the name and decodes positional; `\z` is a name.
-  `\z` is unemittable by data (a literal `\z` name is escaped as `\\z`), and only valid as the WHOLE token;
-  embedded `\z` stays a corruption error. Before ADR-0046 `''` was transformed into anonymous (with a warning)
-  and decoded as `'0'`, the only case where TCF altered the data.
+- **anonymous columns** (`drop_names`): omits `=name`; decode reconstructs by ORDER (`{'0':..,'1':..}`).
+- **empty name** (`''`): emitted as **`\z`**, the same sentinel the `.8H` uses (ADR-0033 → ADR-0046);
+  decode returns `''`. **Not** the same as anonymous: anonymous omits the name and decodes positional;
+  `\z` is a name. `\z` is unemittable by data (a literal `\z` name is escaped as `\\z`) and is only
+  valid as the WHOLE token: an embedded `\z` stays a corruption error.
 
-> **CORRECTED 2026-08-20** (F6/DOC-03). This section taught **three** false things, all
-> measured: (1) the registry listed "cpf/cnpj/ip" when it has **5** since the `dt`
-> (2026-08-08) and `ipad` (2026-08-14) welds; (2) an unknown id was said to give "raw +
-> warning" when it is a **`ValueError`**, verifiable: `decode('#TCF.8 :xyz\n…')` raises
-> *"nature-id desconhecido … registry core fechado"*; (3) the example `@a=uf,1e=name` was
-> **self-contradictory**: it carried a size on the last column while the comment said "last
-> without size", and it also dropped the `@` on the second column. The real one is
-> `#TCF.8M@1b=uf,@name`.
+**Single-col signature**: `#TCF.8\n` + body. The `M` marks multi-col; single-col does not use it.
+Current gate: **D1-D9 = 1545 B** and **real-world = 89430 B**, pinned in
+[`test_regression_v1_baseline.py`](../../tests/test_regression_v1_baseline.py) and
+[`test_real_world_snapshots.py`](../../tests/test_real_world_snapshots.py).
 
-Examples (body on the following line(s)):
+**Body canonicity**: a body does NOT contain a line starting with `#TCF.<digit>` (concatenating two
+finished wires corrupts the references: decode each one and re-encode the set), and the counter of
+`*N|` is only canonical with `N >= 2` in ASCII digits. Both cases raise `ValueError` on decode.
+Declared limit: a raw column (`!`) is verbatim, so a join INSIDE one stays undetectable.
 
-    #TCF.8M7=doc:cnpj,x          <- multi: 2 cols, doc (size 0x7) with nature cnpj, x (last, no size)
-    #TCF.8M@1b=uf,@name          <- dict (@) on both; uf size 0x1b=27; name is the LAST (no size)
-    #TCF.8M@1b=uf,@29=name       <- same with `min_header=False`: then the last DOES carry a size (0x29=41)
-    #TCF.8 docs:cpf              <- single + spec cpf, name 'docs'
-    #TCF.8                       <- single version-stamp (pure single-col body)
+**Examples.** Each case carries the `encode()` call that produced the wire, the REAL wire right below
+it, and what the signature says. Roundtrip checked on all of them.
 
-- **single-col**: `#TCF.8\n` + body. Current gate **D1-D9=1545 B**, **real-world=89430 B**.
-  ADR-0032 did not touch single-col (it is about the multi-col default); what moved these numbers
-  afterwards was [ADR-0034](../adr/0034-header-default-100-porcento-single-col.md) (header became
-  the default: 1523 → 1586, 89616 → 89637) and then
-  [ADR-0035](../adr/0035-delimitador-de-polaridade-single-col.md) (polarity delimiter: 1586 →
-  **1545**, 89637 → **89430**). Only MULTI-COL became `#TCF.8M`.
+**1. Multi-col with a nature**: `encode({"doc": [3 CNPJs], "obs": ["nota-1","nota-2","nota-3"]}, schema={"doc": "cnpj"})`
+
+```text
+#TCF.8M16=doc:cnpj,obs
+!K\9p\5B$
+!Kx\0n)$
+^1
+nota-*\1
+1\2
+1\3
+```
+
+`M` = flat multi-col. In `16=doc:cnpj`, the `doc` column takes `0x16` = 22 bytes of body and won with
+the `cnpj` spec (the `:id` suffix). `obs` is the LAST column: it goes without a size, body up to EOF.
+
+**2. Multi-col in dictionary mode**: `encode({"uf": ["SP","RJ"]*3, "cid": ["Santos","Niteroi"]*3})`
+
+```text
+#TCF.8M@e=uf,@cid
+6
+SP
+RJ
+!"!"!"15
+Santos
+Niteroi
+!"!"!"
+```
+
+`@` on both: each column became a symbol table plus an index stream. `uf` takes `0xe` = 14 bytes,
+`cid` is the last one (no size). The cut between columns is by BYTE, not by line: the line `!"!"!"15`
+carries the end of the `uf` stream and already the start of the `cid` body.
+
+**3. The same with `min_header=False`**: the body comes out byte-identical to case 2, only the
+signature changes.
+
+```text
+#TCF.8M@e=uf,@18=cid
+```
+
+Now the last column declares its size (`0x18` = 24 bytes). Useful for inspection: the wire goes from
+56 to 59 bytes in this example.
+
+**4. Single-col with a spec**: `encode([3 CPFs], schema="cpf", name="docs")`
+
+```text
+#TCF.8 docs:cpf
+\2y/h-
+%gc\9g
+^1
+```
+
+The SPACE after `#TCF.8` is the "single + spec" discriminator. `docs` is only a label and is optional
+(without `name=` the signature comes out as `#TCF.8 :cpf`); `:cpf` is the spec that decode inverts.
+
+**5. Single-col version-stamp**: `encode(["log-01","log-02","log-03"])`
+
+```text
+#TCF.8
+log-\0*\1
+1\2
+1\3
+```
+
+The discriminator is the `\n` itself: signature alone on the first line, pure single-col body after
+it. This is the single-col default and the magic number for `file`/libmagic.
+
+**6. Typed single-col (bool)**: `encode([True, False, True])`
+
+```text
+#TCF.8b13
+oA==
+```
+
+`b` = bool domain; `1` = width in bits per element (1 bit = bool without null; `2` is the ternary
+with null, `encode([True, None, False])` comes out as `#TCF.8b23`); `3` = element count, in hex. The
+body is the bit-pack in base64.
+
+**7. Hierarchical**: `encode([{"id":"a","end":{"uf":"SP"}}, {"id":"b","end":{"uf":"RJ"}}])`
+
+```text
+#TCF.8Hid:4,end{uf
+a
+b
+SP
+RJ
+```
+
+`H` = tree, and the meta describes the topology. `id:4` = leaf `id` with 4 bytes of body (`a\nb\n`);
+`end{uf` = object `end` holding the leaf `uf`, which goes without a size because it is the LAST one.
+Each leaf is compressed like an ordinary column.
 
 **Column candidates** (the per-column fallback, all inside `#TCF.8M`; `min(tcf,raw,dict,split)`):
 - **V2-A fallback identity** ([ADR-0022](../adr/0022-v2a-fallback-identity-weld.md), `fallback=True`):
@@ -133,151 +221,131 @@ Examples (body on the following line(s)):
   size of the LAST column (body up to EOF). Aimed at small payloads.
 - **V2-B dictionary** ([ADR-0025](../adr/0025-v2b-dictionary-categorical-weld.md), `@`) and **structural
   split** ([ADR-0026](../adr/0026-structural-split-weld.md), `%`): more per-column candidates.
-- **V2-RLE-STREAM** (follow-up to V2-B, **NOT welded**): RLE on the `@dict` index stream. Characterized
-  2026-06-19: CLOSED-general / pure-text niche open. `src/tcf` untouched.
 
-> **Historical note**: `#TCF.7`/`#TCF.6` were the previous default formats (opt-in `#TCF.8` was only when
-> a nature existed). As of [ADR-0032](../adr/0032-tcf8-default-format.md), `#TCF.8` is the default and the
-> legacy left the live code (git-as-compat, pre-1.0 ADR-0024; the old version is a progress/comparison
-> point, not production). At 1.0 the past dies in git.
+### Public surface
 
-### Library version (semver)
-
-- **1.0.x**: bug fixes (without changing bytes in D1-D9, D17a, real-world snapshots)
-- **1.x.0**: additive features: new `nature` specs, keyword-only
-  parameters with defaults that preserve behavior (e.g.: `encode(data, *, new_param=def)`)
-- **2.0.0**: breaking: format change, API removal, new marker in the body
-
-### Public API frozen in v1.0
-
-Stable imports until v2.0:
+Pre-1.0 is ADDITIVE ([ADR-0024](../adr/0024-pre-1.0-versioning-git-as-compat.md)): new names come in,
+existing ones do not change signature without a deliberate re-pin. The export list is **frozen by
+test** in [`test_regression_v1_baseline.py`](../../tests/test_regression_v1_baseline.py)
+(`EXPECTED_PUBLIC_API`): that test is the source, not this prose.
 
 ```python
 from tcf import (
-    encode, decode,                   # core
-    SideOutputs,                       # debug/stats opt-in
-    PipelineConfig,                    # toggle layers
-    build_schema, TableSchema, ColumnSchema,  # schema introspection
-    TemplatedCheckedSpec, TemplatedPaddedSpec,  # nature definitions
-    SPEC_CPF, SPEC_CNPJ, SPEC_IP,    # canonical nature specs
+    encode, decode,                            # core
+    SideOutputs,                               # debug/stats opt-in
+    PipelineConfig,                            # toggle layers
+    build_schema, TableSchema, ColumnSchema,   # schema introspection
+    TemplatedCheckedSpec, TemplatedPaddedSpec, # nature definitions
+    SPEC_CPF, SPEC_CNPJ, SPEC_IP, SPEC_DATA_ISO, SPEC_INT_PAD, SPEC_REGISTRY,
+    view, LazyTCF, Filtered,                   # read-only layer
 )
 ```
 
-Immutable signatures. New optional parameters with defaults allowed.
-
-### Deprecated in v1.x (removed in v2.0)
-
-- `encode_table(table)` → use `encode(dict)`
-- `decode_table(text)` → use `decode(text)`
-
-Emit `DeprecationWarning` on every use since v1.0.
+Detail on each name, with the kwargs of every entry point: [`api.md`](../reference/api.md),
+[`encode-knobs.md`](../reference/encode-knobs.md) and [`lazy-view.md`](../reference/lazy-view.md).
+Strict semver applies from `1.0` on, once the final format freezes.
 
 ### Formal regression suite
 
 [`tests/test_regression_v1_baseline.py`](../../tests/test_regression_v1_baseline.py)
-captures byte-canonical for D1-D9 (**1545B** total) and D17a (**300B** INVARIANT).
-A failure in CI = regression. The snapshot can only be updated via an
-explicit ADR + version bump.
-
-Details: see [ADR-0017](../adr/0017-format-spec-v1-frozen.md).
+captures byte-canonical for D1-D9 (**1545 B** total) and D17a (**300 B**, `#TCF.8M` default).
+A failure in CI = regression. The snapshot only moves through a deliberate re-pin, recorded in an ADR
+and in [`CHANGELOG.md`](../../CHANGELOG.md)
+([ADR-0024](../adr/0024-pre-1.0-versioning-git-as-compat.md),
+[ADR-0028](../adr/0028-pre-1.0-versioning-minor-format-coupling-release-cadence.md)).
 
 ## Full pipeline
 
+```mermaid
+flowchart TB
+    IN1["encode(list) : single-column semantics"]
+    IN2["encode(dict) : multi-column semantics"]
+
+    subgraph PERCOL["per column (in multi-col, 1 pass per column)"]
+        direction TB
+        PRE["PRE-PASS, 1 pass O(N)<br/>analyze_column produces ColumnFeatures (H-DA-11c)<br/>n_rows, n_uniques, avg_len, cardinality, is_numeric, sample<br/>detect_cadence_from_features (ADR-0008)<br/>rule 1: wrapper+counter, uniform LCP/LCS<br/>rule 2: is_numeric AND cardinality above 0.5<br/>detect_min_len_from_features (ADR-0010)<br/>heur v3 (avg_len + cardinality + is_numeric), gating from n=100 on"]
+        CAD{"cadence detected?"}
+        OHINT["OBAT with a hint: processar_with_hint (ADR-0011)<br/>shape-preserve per-length"]
+        OCAN["OBAT canonical: processar"]
+        OTOK["alg16 root tokens: bidirectional LCP+LCS, greedy cover, min_len<br/>TokLit(text) · TokRefPref(string_id, length) · TokRefSuf(string_id, length)<br/>trigram hash O(N^1.42) (ADR-0009)"]
+        HCC["HCC, layer 2<br/>M8.A: unified virtual refs, greedy detector on positive net<br/>seq-RLE: near-identical and periodic runs (ADR-0011, ADR-0040)<br/>output: body per column"]
+
+        PRE --> CAD
+        CAD -->|yes| OHINT
+        CAD -->|no| OCAN
+        OHINT --> OTOK
+        OCAN --> OTOK
+        OTOK --> HCC
+    end
+
+    OUT8M["#TCF.8M, the default (ADR-0032)<br/>meta INLINE in hex on the signature line<br/>bodies concatenated byte-precise, no delimiter"]
+    SCOL["#TCF.8 + body, the single-col default (ADR-0034)<br/>orphan with no signature = escape stamp=False"]
+
+    IN1 --> PRE
+    IN2 -->|1 per column| PRE
+    HCC -->|multi-col: concat| OUT8M
+    HCC -->|single-col| SCOL
 ```
-┌─────────────────────────────────────────────────────────────────────┐
-│  ENCODE: dispatch by type (ADR-0014)                                │
-│  ┌──────────────────────────┐    ┌──────────────────────────┐       │
-│  │  encode(list[str])        │    │  encode(dict[str,list])   │       │
-│  │  single-column semantic   │    │  multi-column semantic    │       │
-│  └────────────┬─────────────┘    └────────────┬─────────────┘       │
-│               │                                │                    │
-│               │                          ┌─────┴──── 1 per col ───┐ │
-│               ▼                          ▼                         │ │
-│         ┌───────────────────────────────────────────────┐         │ │
-│         │   PRE-PASS (1 pass, O(N))                     │         │ │
-│         │   ─────────────────────────                    │         │ │
-│         │   analyze_column → ColumnFeatures              │ H-DA-11c│ │
-│         │   ├─ n_rows, n_uniques, avg_len, cardinality  │         │ │
-│         │   ├─ is_numeric, sample                       │         │ │
-│         │   detect_cadence_from_features                 │ ADR-0008│ │
-│         │   ├─ rule 1: wrapper+counter (unified LCP/LCS)│         │ │
-│         │   └─ rule 2: numeric AND cardinality > 0.5    │         │ │
-│         │   detect_min_len_from_features                 │ ADR-0010│ │
-│         │   └─ heur v3 (avg_len + card + is_numeric)    │         │ │
-│         │      + gating n>=100 (preserves baseline)     │         │ │
-│         └─────────────────────┬─────────────────────────┘         │ │
-│                               │                                   │ │
-│              cadence?         │                                   │ │
-│              ┌──── yes ──────►│                                   │ │
-│              │                ▼                                   │ │
-│              │     ┌───────────────────────────────────┐         │ │
-│              │     │   OBAT (layer 1)                   │         │ │
-│              │     │   ─────────────                    │         │ │
-│              │     │   alg16: LCP+LCS bidirectional     │         │ │
-│              │     │   greedy cover, min_len threshold  │         │ │
-│              │     │   root tokens:                     │         │ │
-│              │     │   • TokLit(text)                   │         │ │
-│              │     │   • TokRefPref(string_id, length)  │         │ │
-│              │     │   • TokRefSuf(string_id, length)   │         │ │
-│              │     │   ─────                            │         │ │
-│              │     │   processar_with_hint              │ ADR-0011│ │
-│              │     │   (shape-preserve per-length)      │         │ │
-│              │     │   OR                                │         │ │
-│              │     │   processar canonical              │         │ │
-│              │     │   ─────                            │         │ │
-│              │     │   Trigram hash O(N^1.42)           │ ADR-0009│ │
-│              │     └────────────────┬──────────────────┘         │ │
-│              │                      │                            │ │
-│              │       ┌──────────────┴──────────────────┐         │ │
-│              │       │   HCC (layer 2)                  │        │ │
-│              │       │   ─────────────                  │        │ │
-│              │       │   M8.A: virtual refs unified    │        │ │
-│              │       │   greedy detector (net > 0)     │        │ │
-│              │       │   emit text:                    │        │ │
-│              │       │   • `~` creates auto-named ref  │        │ │
-│              │       │   • `,` ephemeral concat        │        │ │
-│              │       │   • `1..5` range (sugar)        │        │ │
-│              │       │   • `*N|line` RLE               │        │ │
-│              │       │   • `\X` escape                 │        │ │
-│              │       │   • `*` separator (ADR-0007)    │        │ │
-│              │       │   ─────                          │        │ │
-│              │       │   HCCSeqRLE (M10, ADR-0011):    │        │ │
-│              │       │   `*N+delta|template` runs       │        │ │
-│              │       │   near-identical                 │        │ │
-│              │       └────────────────┬─────────────────┘        │ │
-│              │                        │                           │ │
-│              │                        │  body per column          │ │
-│              │                        ▼                           │ │
-│              └────────────────────────┘                           │ │
-│                                       │                           │ │
-│                multi-col              │                           │ │
-│            ┌── concat ────────────────┘                           │ │
-│            ▼                                                      │ │
-│   ┌──────────────────────────────────────────────┐               │ │
-│   │  #TCF.8M   (DEFAULT: ADR-0032)                │ ADR-0004/0032 │  │
-│   │  meta V2:  !<s1>=<n1>,...,<nN>   (no `# `)     │ +0022/23/24/25│ │
-│   │  <body1><body2><body3>...                      │               │ │
-│   │  (byte-precise concat, no delimiter)           │               │ │
-│   └──────────────────────────────────────────────┘               │ │
-│   legacy #TCF.6/#TCF.7: CUT (git-as-compat, ADR-0032).             │ │
-│                                                                  │ │
-│   single-col: pure body, no signature                            │ │
-└─────────────────────────────────────────────────────────────────────┘
-```
+
+Multi-col wire: `#TCF.8M` + inline meta (columns `[<pre>]<size>[=<name>][:<id>]` separated by `,`) +
+`\n` + `<body1><body2><body3>...` concatenated. The encoder has no route to `#TCF.6`/`#TCF.7`.
+
+**Body markers** (what HCC emits; a port needs all of them):
+
+- `~` creates an auto-named ref · `,` ephemeral concat · `1..5` range (sugar) · `*` separator ([ADR-0007](../adr/0007-comma-in-literals-bug.md))
+- `*N|<line>`: RLE over adjacent identical lines (`N >= 2`)
+- `*N+delta|<template>`: seq-RLE, a near-identical run with a constant delta ([ADR-0011](../adr/0011-pacote1-weld-canonical.md))
+- `*N~d1,...,dp|<template>`: PERIODIC seq-RLE, the delta CYCLES across the lines and the cycle is paid once ([ADR-0040](../adr/0040-seq-rle-periodico.md))
+- `\X`: escape
+- polarity char: marks the literal ↔ reference switch, 1 byte per TRANSITION ([ADR-0035](../adr/0035-delimitador-de-polaridade-single-col.md))
+
+**Encode dispatch by input type** (the signature it emits; the per-route kwargs table lives in
+[`api.md`](../reference/api.md)):
+
+| input | signature | measured example |
+|---|---|---|
+| flat `list[str]` | `#TCF.8` | `encode(["abc","abcd","abcde"])` |
+| `dict[str, list]` | `#TCF.8M<meta>` | `encode({"id": [...], "nome": [...]})` |
+| `list[int]` | `#TCF.8n` | `encode([1,2,3])` |
+| `list[bool]` | `#TCF.8b<mode><n>` | `encode([True,False]*12)` gives `#TCF.8b118` |
+| bool + str in the same list | `#TCF.8bB<n>`, lazytype ([ADR-0039](../adr/0039-lazytype-bool-cabeca-congelada-extras.md)) | `encode([True,"abc",False])` gives `#TCF.8bB23` |
+| low-cardinality list | `#TCF.8B<w><n>`, domain bN ([ADR-0036](../adr/0036-bn-de-dominio-cardinalidade-baixa.md)) | `encode(["0","1"]*100)` gives `#TCF.8B1c8` |
+| nested, empty or ragged | `#TCF.8H<tree-meta>` ([ADR-0033](../adr/0033-hierarchical-codec-weld.md)) | `encode([{"a":1}])` gives `#TCF.8Ha:3n`; `encode({})` gives `#TCF.8H#E` |
 
 ### Decode (mirror)
 
-```
-decode(text) → list[str] | dict[str, list[str]]
-         │
-         ├─ disc after "#TCF.8" == "M" ──► _decode_multi → dict  (H/unknown → fail-loud; .6/.7 → legacy error)
-         │
-         └─ otherwise                             ──► _decode_column → list
+```mermaid
+flowchart TB
+    DEC["decode(text)"]
+    VER{"version read after #TCF."}
+    LEG["ValueError: legacy format, with a git checkout hint"]
+    UNK["ValueError: version unknown to this decoder"]
+    DISC{"discriminator: 1 char after #TCF.8<br/>ADR-0029, ADR-0031, ADR-0033"}
+    HIER["decode_hierarchical: nested structure"]
+    TIP["typed single-col: cast bool / number / string"]
+    BNN["domain bN: unpacks the domain (ADR-0036)"]
+    MULTI["_decode_multi: dict"]
+    COL["_decode_column: list"]
+    FAIL["ValueError: unknown discriminator"]
+
+    DEC --> VER
+    VER -->|6 or 7| LEG
+    VER -->|any other than 8| UNK
+    VER -->|8| DISC
+    DISC -->|H| HIER
+    DISC -->|b, n, s| TIP
+    DISC -->|B, C| BNN
+    DISC -->|M| MULTI
+    DISC -->|empty or space| COL
+    DISC -->|outside the set| FAIL
+    TIP --> COL
+    BNN --> COL
 ```
 
-Self-describing: the signature (`#TCF.8M` multi; orphan/space/`\n` single) identifies
-the format. The decoder dispatches automatically on both; the caller does not need
-to know whether the output is single or multi.
+The order is the real dispatch order: version, polarity pre-pass (which does not act on `M`/`H`),
+then the discriminator. Self-describing: the signature identifies the format and the decoder
+dispatches on its own, so the caller does not need to know whether the output comes back as a `list`
+or a `dict`.
 
 ## Detailed layers
 
@@ -315,38 +383,41 @@ For `dict[str, list[str]]` input, each column goes through layers
 0-2 independently. The bodies are concatenated byte-precise with a
 `#TCF.8M` header (DEFAULT, ADR-0032) + INLINE meta.
 
-> **Default #TCF.8M (ADR-0032)**: `encode(dict)` emits **`#TCF.8M`** with
-> `fallback` + V2-B dictionary + `min_header` **automatic**: meta without the
-> `# ` prefix, per-column mode markers (`!` raw, `@` dict, `%` split) and the
-> last column without a size. Legacy `#TCF.6/#TCF.7` was cut (git-as-compat; not producible
-> via `_encode_multi(fallback=False, min_header=False)`). Real ex.:
-> `#TCF.8M!5=id,!f=name,!plan\n...` (`f` = 15 in hex; meta INLINE).
+> **`#TCF.8M`** ([ADR-0032](../adr/0032-tcf8-default-format.md)): `encode(dict)` emits `#TCF.8M`
+> with `fallback` + V2-B dictionary + split + `min_header` **automatic**, meta INLINE on the
+> signature line, byte-sizes in **HEX**, per-column mode markers (`!` raw, `@` dict, `%` split),
+> names with a separator **escaped**, and the last column without a size. Measured example (hex sizes):
+> `encode({"id": ["1","2","3"], "nome": ["ana","bruno","carla"], "plano": ["free","pro","free"]})`
+> gives `#TCF.8M!5=id,!f=nome,plano\n...` (`f` = 15 in hex; `plano`, being the last one, goes without a size).
 
-**V2-A fallback identity (ADR-0022, `fallback`)**: per column chooses min(TCF, raw);
-a raw column becomes `!<size>=<name>`. **On by default** in 0.7.
+**V2-A fallback identity (ADR-0022, `fallback`)**: per column it picks min(TCF, raw);
+a raw column becomes `!<size>=<name>`. **On by default**.
 
-**Minimal header (ADR-0023, `min_header`)**: the meta is INLINE (no `# ` prefix); `min_header` omits the
-size of the last column (body up to EOF): meta `<s1>=<n1>,...,<nN>`. **On by default**.
-Focus: small payload (fixed header dominates). `fallback`/`min_header` are opt-out knobs; they no longer
-change the format (always `#TCF.8M`, ADR-0032).
+**Minimal header ([ADR-0023](../adr/0023-v2-minimal-header-weld.md), `min_header`)**: the meta is
+INLINE, on the signature line itself; `min_header` omits the size of the last column (body up to
+EOF): meta `<s1>=<n1>,...,<nN>`. **On by default**. Focus: small payloads (the fixed header
+dominates). `fallback`/`min_header` are opt-out knobs: they change the per-column choice, not the
+format (always `#TCF.8M`).
 
 **V2-B dictionary (ADR-0025, `@`) + structural split (ADR-0026, `%`)**: extra
 per-column fallback candidates (categorical dictionary; structural field split).
-They enter the default when they reduce the column.
+They enter the default when they shrink the column.
 
 Restrictions:
 - Column names with a separator (`,`/`=`/`:`/`\`/leading `!@%`) are **backslash-escaped**
   (T-FMT-NAME-ESCAPING); only `\n` is forbidden (meta line separator)
 - All columns must have the same number of values
-- `None` is **preserved**: it round-trips as `None` via the pre-allocated null slot (`0`),
-  NOT as `""`. Verifiable: `decode(encode(["x", None, "y"])) == ["x", None, "y"]`
+- `None` is **preserved**, it does NOT become `""`. In flat single-col it occupies the pre-allocated
+  null slot (`0`): `encode(["x", None, "y"])` gives `#TCF.8\nx\n0\ny\n` and the roundtrip returns
+  `["x", None, "y"]`. Inside a `dict` the route is a different one: a column carrying `None` pulls the
+  table into `.8H`. Detail: [`api.md`](../reference/api.md) §Índices de referência PRÉ-ALOCADOS.
 
 Implementation: [`src/tcf/multi/`](../../src/tcf/multi/). ADR: [0004](../adr/0004-multi-column-header-compacto.md), [0013](../adr/0013-multi-column-canonical-api.md), [0014](../adr/0014-unified-api-side-outputs.md).
 
 ## Minimal API
 
 ```python
-from tcf import encode, decode, SideOutputs
+from tcf import encode, decode, view, SideOutputs
 
 # Single-column
 text = encode(["joao@gmail.com", "maria@gmail.com", "pedro@gmail.com"])
@@ -363,10 +434,24 @@ result = decode(text)  # dict[str, list[str]]
 # Optional side outputs (debug, stats, future schema)
 side = SideOutputs()
 text = encode(table, side_outputs=side)
-print(side.hcc_trace)                        # detector iterations
+print(side.hcc_trace)                       # detector iterations
 print(side.per_col["email"].column_features) # pre-pass features
-print(side.multi_info)                        # header_bytes, body_bytes
+print(side.multi_info)                       # header_bytes, body_bytes
+
+# Column spec: `schema=` is the ONE spec parameter (ADR-0047)
+text = encode(["529.982.247-25", "111.444.777-35"], schema="cpf")
+text = encode(table, schema={"timestamp": "data-iso"})  # per column, in multi-col
+
+# Read-only layer: query without materializing the table
+lz = view(encode(table))
+lz.columns                                  # ['timestamp', 'email']
 ```
+
+Full surface (every `encode` kwarg, the `max_length` of `decode`, the `view` layer):
+[`api.md`](../reference/api.md), [`encode-knobs.md`](../reference/encode-knobs.md) and
+[`lazy-view.md`](../reference/lazy-view.md). One knob deserves a mention right here because it
+touches the roundtrip: `sort_by` reorders the rows, so under it the original ORDER does not come back
+(the VALUES do).
 
 ### SideOutputs (ADR-0014)
 
@@ -391,54 +476,20 @@ discarded as before). Doc: [SideOutputs](../../src/tcf/side_outputs.py).
 
 ## Future layers (registered, not implemented)
 
+```mermaid
+flowchart TB
+    PRESENT["PRESENT (welded canonical)<br/>encode(list or dict) returns str · decode(str) returns list or dict<br/>encode(..., parallel=True): _encode_column in a ProcessPoolExecutor<br/>build_schema(data) returns TableSchema<br/>SideOutputs (optional) · view(blob): read-only layer"]
+    LA["FUTURE layer A: Encoder Manager (D13 v0.4, T-CODE-*)<br/>encode(data, output=Sink, plan=Plan(...))<br/>pluggable sinks: FileSink, MultiFileSink, HTTPSink, TCPSink, MemorySink<br/>Plan dataclass: group_by / order / batch_size / batch_unit"]
+    LB["FUTURE layer B: distributed transport (O-FMT-08/13)<br/>per-channel headers, re-assembly without central coordination<br/>chunked streaming: self-contained chunks, decode chunk by chunk<br/>memory O(chunk_size), constant TTFB"]
+    LC["FUTURE layer C: schema detectors (T-CODE-SCHEMA-BUILDER)<br/>META-TYPE-ENCODERS T02-T07: detect_templated (date, email, uuid, CPF, IP, phone),<br/>detect_enumerated, detect_checked, detect_composite, detect_hierarchical<br/>TableSchema outputs: JSON (compat metadata.json), Markdown, drift diff"]
+
+    PRESENT -.->|next directions| LA
+    LA -.-> LB
+    LB -.-> LC
 ```
-┌──────────────────────────────────────────────────────────────────┐
-│  PRESENT (welded canonical)                                      │
-│  ────────                                                        │
-│  encode(list|dict) → str                                         │
-│  decode(str) → list|dict                                         │
-│  SideOutputs (optional)                                          │
-└──────────────────────────────────────────────────────────────────┘
-                              │
-                              ▼ (next directions)
-┌──────────────────────────────────────────────────────────────────┐
-│  FUTURE Layer A: Encoder Manager (D13 v0.4, T-CODE-*)            │
-│  ────────                                                        │
-│  encode(data, parallel=True, output=Sink, plan=Plan(...))        │
-│                                                                  │
-│  • `_encode_column` in parallel workers (ProcessPoolExecutor)    │
-│  • Pluggable output sinks: FileSink, MultiFileSink, HTTPSink,    │
-│    TCPSink, MemorySink                                           │
-│  • Plan dataclass: group_by/order/batch_size/batch_unit          │
-└──────────────────────────────────────────────────────────────────┘
-                              │
-                              ▼
-┌──────────────────────────────────────────────────────────────────┐
-│  FUTURE Layer B: Distributed transport (O-FMT-08/13)            │
-│  ────────                                                        │
-│  Per-channel headers (re-assembly without central coordination): │
-│    #TCF.8...C name=timestamp chunk=1/3 of=table_X (future; .8)   │
-│  Chunked streaming: self-contained chunks, decode chunk-by-chunk,│
-│    memory O(chunk_size), constant TTFB                           │
-└──────────────────────────────────────────────────────────────────┘
-                              │
-                              ▼
-┌──────────────────────────────────────────────────────────────────┐
-│  FUTURE Layer C: Schema builder (T-CODE-SCHEMA-BUILDER)          │
-│  ────────                                                        │
-│  build_schema(data) → TableSchema (consumes SideOutputs)         │
-│                                                                  │
-│  Integrated detectors (META-TYPE-ENCODERS T02-T07):              │
-│  • detect_templated (date, email, uuid, CPF, IP, phone)          │
-│  • detect_enumerated (low-card categorical)                      │
-│  • detect_checked (check digit)                                  │
-│  • detect_composite (datetime split, money split)                │
-│  • detect_hierarchical (paths, URLs)                             │
-│                                                                  │
-│  Outputs: TableSchema → JSON (compat metadata.json), Markdown,   │
-│    diff (drift detection)                                        │
-└──────────────────────────────────────────────────────────────────┘
-```
+
+The per-channel header of layer B has the shape `#TCF.8...C name=<column> chunk=1/3 of=<table>`
+(the `.8` family, still with no encode route).
 
 Plan tickets:
 - [T-CODE-ENCODER-MANAGER](../../tickets/T-CODE-ENCODER-MANAGER.md) (P2): Revives D13 v0.4
@@ -481,11 +532,10 @@ Brisaboa et al. 2011, etc.)
 for LLMs to read tables (Sui 2024 review).
 
 **Comparison**:
-- Phase 1 (v0.5 cycle) cataloged Q01-Q38 about LLM-readability of the
-  old TCF (columnar/RLE). That work is **accessory** to the focus
-  of the core (compression algorithm, 0.7).
-- LLM-readability becomes relevant again when Phase 2 is revived
-  OR becomes a separate project.
+- TCF compresses **column structure**, not LLM readability: the two do cross
+  paths, but the design criterion here is bytes and roundtrip.
+- The LLM-reading study the project ran lives in
+  [`docs/findings/`](../findings/) (Q01-Q38) and is **accessory** to the core.
 
 ## Aggregated differentiators
 
@@ -520,59 +570,33 @@ for LLMs to read tables (Sui 2024 review).
 - **Re-Pair/Sequitur/HTFC**: huge dictionaries, binary output OK,
   random search matters
 
-## State 0.7 (snapshot 2026-05-27; live state in [STATUS.md](../../STATUS.md))
+## Validation
 
-> The numbers below are a **dated snapshot** (§5: the test measures, the prose points).
-> For the current state (package version, test count, welded ADRs),
-> see [STATUS.md](../../STATUS.md) and the guardians in `tests/`.
+> The live numbers are in the TESTS, not in this prose:
+> [`test_regression_v1_baseline.py`](../../tests/test_regression_v1_baseline.py) (D1-D9 single-col +
+> D17a `#TCF.8M`) and [`test_real_world_snapshots.py`](../../tests/test_real_world_snapshots.py) are
+> the two byte-canonical guardians, a required gate in CI. Run `pytest -q`. Package state:
+> [STATUS.md](../../STATUS.md).
 
-### Canonical implementation
+**Single-column**: the D1-D9 synthetics (RT 9/9, with the default header) and the three real-world
+slices (online-retail description/stockcode, TPC-H lineitem comment) are the snapshots pinned in the
+two tests above.
 
-`src/tcf/`: **pre-1.0** public API ([ADR-0024](../adr/0024-pre-1.0-versioning-git-as-compat.md)
-supersedes the "frozen" of ADR-0017): additive, without rigid compat between dev minors
-(git reproduces old versions). See the "Versioning" section above.
-
-### Validation
-
-**Single-column (M10 baseline, ADR-0011)**:
-- D1-D9 synthetic: **1545 bytes** in 2981 raw = 51.8% ratio (RT 9/9; includes the default header)
-> **CORRECTED 2026-08-16** (docs×code sync audit). The figures above were the 2026-07-05
-> pins. Live gate: **D1-D9=1545 B · D17a=300 B · real-world=89430 B**. Eras, for reading old
-> commits: D1-D9 `1523 → 1586` (ADR-0034 header default) `→ 1545` (ADR-0035 polarity);
-> real-world `89616 → 89637 → 89430`; D17a `307 → 303 → 300`.
-
-- Byte-canonical chain of checkpoints: M9 → M10 → M11 → M12 → M13 → M14
-  → M14+Pacote1+Multi+API+Natures+MultiDelta+v1
-- Adult Census + TPC-H 57 columns: **-11.73% weighted** vs pure M9
-
-**Multi-column (ADR-0013/0014 + V2 ADR-0022/0023/0025/0026)**:
-- D17a synthetic (13×4): **300 bytes** (#TCF.8M default, V2-B hex, ADR-0032; re-pinnable ADR-0024/0025)
-- 9 real-world tables (Adult Census + TPC-H tier 1+2, 136k rows,
-  15.8 MB raw):
-  - **-33.02% weighted vs raw**, **-31.46%** vs single-col concat
-  - RT 9/9 OK; Lineitem 60k×16: -17.11% vs raw
+**Multi-column** ([ADR-0014](../adr/0014-unified-api-side-outputs.md) + V2
+[ADR-0022](../adr/0022-v2a-fallback-identity-weld.md)/[0023](../adr/0023-v2-minimal-header-weld.md)/[0025](../adr/0025-v2b-dictionary-categorical-weld.md)/[0026](../adr/0026-structural-split-weld.md)):
+D17a synthetic (13x4) pinned in the baseline test. Over 9 real-world tables (Adult Census + TPC-H
+tier 1+2, 136k rows, 15.8 MB raw): **-33.02% weighted vs raw** and **-31.46%** vs single-col
+concatenated, RT 9/9; lineitem 60k x 16: **-17.11%** vs raw.
 
 **Extended real-world (UCI/OpenML, T-DATA-1)**:
-- wine-quality 6.5k × 13: 90.9% ratio (chemical decimals, low repetition)
-- beijing-pm25 43.8k × 13: 71.7% (sensors + timestamps)
-- online-retail 541k × 8: **23.7%** (StockCode/Country/InvoiceDate repeated)
+- wine-quality 6.5k x 13: 90.9% ratio (chemical decimals, low repetition)
+- beijing-pm25 43.8k x 13: 71.7% (sensors + timestamps)
+- online-retail 541k x 8: **23.7%** (StockCode/Country/InvoiceDate repeated)
 
-**Benchmark vs csv/jsonl + gzip/brotli/zstd** (9 datasets total):
-**TCF won in 7/9** datasets. Lost in D17a tiny (header overhead
-dominates) and wine-quality (nearly unique decimals = no structure).
-Details: [experiments/lab/dirty/2026-05/2026-05-24/2026-05-24-benchmark-formats-compression/](../../experiments/lab/dirty/2026-05/2026-05-24/2026-05-24-benchmark-formats-compression/).
-
-**Test suite** (snapshot 2026-05-27: 259 passed; current count in
-[STATUS.md](../../STATUS.md)). Byte-canonical guardian:
-[`test_regression_v1_baseline.py`](../../tests/test_regression_v1_baseline.py)
-(snapshot D1-D9=**1545**B single-col + D17a=300B `#TCF.8M` default).
-
-## State v0.5 (accessory)
-
-There is v0.5 code in `old/tcf/` (columnar format with RLE/dict/stats
-for the LLM benchmark). **Not canonical in v1.0**. Kept for
-historical reference and while the Phase 1 LLM findings (in
-`docs/findings/`) retain research relevance.
+**Benchmark vs csv/jsonl + gzip/brotli/zstd** (9 datasets): TCF won in **7/9**. It lost in D17a tiny
+(the fixed header dominates the payload) and in wine-quality (nearly unique decimals, no structure to
+exploit). The lab folder with the run is a local reference, outside git:
+`experiments/lab/dirty/2026-05/2026-05-24/2026-05-24-benchmark-formats-compression/`.
 
 ## Connections
 
@@ -580,18 +604,9 @@ historical reference and while the Phase 1 LLM findings (in
 - [OBAT](OBAT.md): layer 1 (tokenization)
 - [HCC](HCC.md): layer 2 (compositional compaction)
 
-### Welded ADRs
-- [ADR-0004: Multi-column compact header](../adr/0004-multi-column-header-compacto.md)
-- [ADR-0007: Comma in literals bug fix](../adr/0007-comma-in-literals-bug.md)
-- [ADR-0008: detect_cadence rule 2 (numeric+high-card)](../adr/0008-detect-cadence-numeric-rule.md)
-- [ADR-0009: OBAT trigram index O(N^1.42)](../adr/0009-obat-trigram-index-optimization.md)
-- [ADR-0010: auto-detect min_len per column](../adr/0010-auto-detect-min-len.md)
-- [ADR-0011: Package 1 weld canonical (M9 → M10)](../adr/0011-pacote1-weld-canonical.md)
-- [ADR-0013: Multi-column canonical API (welded, superseded by 0014)](../adr/0013-multi-column-canonical-api.md)
-- [ADR-0014: Unified API + SideOutputs](../adr/0014-unified-api-side-outputs.md)
-- [ADR-0015: Templated/checked natures (CPF/CNPJ/IP)](../adr/0015-natures-templated-checked-weld.md)
-- [ADR-0016: HCC seq-RLE multi-delta](../adr/0016-hcc-multi-delta-seq-rle.md)
-- [ADR-0017: Format spec v1.0 frozen + versioning policy](../adr/0017-format-spec-v1-frozen.md)
+### ADRs
+The full index, with status and supersedes, is [`docs/adr/README.md`](../adr/README.md). The ADRs that
+define each rule in this document are linked next to the rule itself, in the body of the text.
 
 ### Future plan tickets
 - [T-CODE-ENCODER-MANAGER](../../tickets/T-CODE-ENCODER-MANAGER.md): P2, parallelism + sinks
@@ -603,8 +618,6 @@ historical reference and while the Phase 1 LLM findings (in
 ### Narrative
 - [`historia-dirty-lab.md`](../../experiments/lab/dirty/notas/2026-05/historia-dirty-lab.md): M0-M14 development
 - [`roadmap-hipoteses.md`](../../experiments/lab/dirty/notas/2026-05/roadmap-hipoteses.md): active/closed hypotheses
-- [`naturezas-numericas-2026-05-23.md`](../../experiments/lab/dirty/notas/2026-05/naturezas-numericas-2026-05-23.md): cataloging 12 natures
+- `naturezas-numericas-2026-05-23.md`: cataloging of 12 natures (local reference in
+  `experiments/lab/dirty/notas/2026-05/`, outside git)
 - [`futuras-otimizacoes-formato.md`](../../experiments/lab/dirty/notas/2026-05/futuras-otimizacoes-formato.md): O-FMT-* registry
-
-### v0.4 design plan (architectural reference)
-- [`2026-05-05-v04-design-recap.md`](../workbench/research-notes/_archive/2026-05-05-v04-design-recap.md): D1-D18, EncodeManager (D13), Plan, 3 layers

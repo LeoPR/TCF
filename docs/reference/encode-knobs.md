@@ -70,7 +70,7 @@ Reordena as linhas pela coluna-chave antes de encodar, agrupando valores similar
 ## Notas de versão
 
 O uso sem argumentos produz **0.8** (ADR-0032: projeto é pré-1.0; `#TCF.N` são marcadores de dev, não
-contratos rígidos). Os invariantes byte-canonical (D1-D9 = 1523 B, D17a = 300 B) são pinados em
+contratos rígidos). Os invariantes byte-canonical (D1-D9 = 1545 B, D17a = 300 B) são pinados em
 [`tests/test_regression_v1_baseline.py`](../../tests/test_regression_v1_baseline.py) e
 re-pináveis só com ADR (ADR-0024/0025).
 

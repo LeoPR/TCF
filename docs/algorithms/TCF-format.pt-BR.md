@@ -1,4 +1,4 @@
-<!-- l10n: doc_id=tcf-format · lang=pt-BR · source_lang=en · translation_of=TCF-format.en.md · synced=2026-07-01 -->
+<!-- l10n: doc_id=tcf-format · lang=pt-BR · source_lang=en · translation_of=TCF-format.en.md · synced=2026-08-23 -->
 [English](TCF-format.en.md) · **Português**
 
 > Tradução de [`TCF-format.en.md`](TCF-format.en.md). Se houver divergência, o original em inglês prevalece.
@@ -13,7 +13,9 @@ forma **compacta**, mantendo:
 
 - **Output em texto** (sem binário): inspeção visual e
   processamento por LLMs/pipelines line-oriented
-- **Roundtrip lossless**: `decode(encode(values)) == values` sempre
+- **Roundtrip lossless** de VALORES: `decode(encode(values)) == values`. A
+  ORDEM das linhas também volta igual, exceto sob `sort_by`
+  (ver [encode-knobs.md](../reference/encode-knobs.md))
 - **Compressão estrutural**: explora padrões em colunas (afixos
   compartilhados, sub-padrões recorrentes, cadências detectáveis,
   runs near-identical)
@@ -26,21 +28,22 @@ Formato projetado para:
 - Tabelas multi-coluna onde cada coluna se beneficia de pipeline
   próprio (encoder per-column independente)
 
-## Versionamento (ADR-0024 + ADR-0028, pré-1.0; supersede ADR-0017)
+## Versionamento (pré-1.0)
 
-> **MODELO DE 3 EIXOS (ADR-0028, 2026-06-24; refina ADR-0024)**, distinga:
+> **Três eixos** ([ADR-0024](../adr/0024-pre-1.0-versioning-git-as-compat.md),
+> [ADR-0028](../adr/0028-pre-1.0-versioning-minor-format-coupling-release-cadence.md)), distinga:
 > - **(A) Versão de FORMATO**: a **assinatura de formato / magic number** `#TCF.N` (termo canônico;
 >   **não** "shebang", que é `#!`, análogo a `%PDF-1.7`; ver [vocabulary.md](../vocabulary.md)).
 >   Contrato on-disk; só muda com mudança de formato. Hoje `#TCF.8` (default, ADR-0032); `#TCF.6/.7`
 >   cortados de `src/tcf` (git-as-compat: recupere a era pra ler/comparar).
-> - **(B) Geração do encoder**: marco interno (M8A→M9→M10); NÃO é versão pública (nota histórica).
+> - **(B) Geração do encoder**: marco interno do desenvolvimento (o `M10` que aparece no pipeline
+>   e na [ADR-0011](../adr/0011-pacote1-weld-canonical.md)). NÃO é versão pública, não viaja no wire.
 > - **(C) Versão do pacote** (PyPI), pré-1.0 = `0.<formato>.<release>`: minor = nº do formato
 >   (`0.N` ↔ `#TCF.N`); release/patch = entrega DENTRO do formato.
 >
 > **Regra de bump**: mudança de FORMATO move o minor (`0.(N+1).0`); entrega sem mudar formato move o
-> release (`0.N.x+1`). Ex.: `#TCF.8` default (ADR-0032) = `0.8.0` (o ciclo lazy+poda foi absorvido).
-> `1.0` só quando o formato final congelar → aí semver estrito. As frases "frozen v1.0"/"v2.0"/
-> "estável desde v1.0" abaixo são do modelo antigo (ADR-0017), ler nessa chave.
+> release (`0.N.x+1`). Ex.: `#TCF.8` default ([ADR-0032](../adr/0032-tcf8-default-format.md)) =
+> pacote `0.8.x`. `1.0` só quando o formato final congelar → aí semver estrito.
 > Termos: [`../vocabulary.md`](../vocabulary.md) §Versionamento.
 
 TCF distingue **versão de FORMATO** (assinatura `#TCF.N`, eixo A) de **versão de PACOTE**
@@ -48,18 +51,22 @@ TCF distingue **versão de FORMATO** (assinatura `#TCF.N`, eixo A) de **versão 
 
 ### Format version (assinatura)
 
-| Assinatura | Status | Introduzido | Compativel com |
-|---|---|---|---|
-| `#TCF.8` | **DEFAULT** (multi-col + single-col self-describing) | 2026-07 (default: [ADR-0032](../adr/0032-tcf8-default-format.md)) | encode default; decode le |
-| `#TCF.7` / `#TCF.6` | **legado CORTADO** de `src/tcf` | 2026-05/06 | git-as-compat (ADR-0024): `git checkout` da era pra ler/comparar |
-| `#TCF.5` | superseded | 2026-04 (v0.5) | tcf 0.5.x (legacy, nao manter) |
+| Assinatura | O que o decode faz |
+|---|---|
+| `#TCF.8` | **formato vigente** (multi-col + single-col self-describing): encode emite, decode le |
+| `#TCF.7` / `#TCF.6` | **erro nomeado** de legado, com dica de `git checkout` da era pra ler/comparar (git-as-compat, [ADR-0024](../adr/0024-pre-1.0-versioning-git-as-compat.md)) |
+| qualquer outro `#TCF.<N>` | erro de versao desconhecida |
 
-**`#TCF.8` e' o formato DEFAULT** ([ADR-0032](../adr/0032-tcf8-default-format.md), 2026-07-09): todo
-multi-col emite `#TCF.8M`; single-col plano emite **`#TCF.8`** por DEFAULT (7 B, ADR-0034: o orfao
-virou escape explicito `stamp=False`; ADR-0029 camada 1 /
-[ADR-0030](../adr/0030-freeze-single-col-body-at-1.0.md) freeze). O legado `#TCF.6`/`#TCF.7` foi
-**cortado** de `src/tcf` (decode fail-loud com dica de git). Self-describing: natures (ADR-0027) + hex
-+ escaping viajam no header.
+Verificavel: `decode('#TCF.6M ...')` levanta *"formato legado ... nao suportado no 0.8"*;
+`decode('#TCF.5M ...')` levanta *"blob #TCF.5: versao desconhecida deste decoder"*.
+
+**`#TCF.8` e' o formato DEFAULT** ([ADR-0032](../adr/0032-tcf8-default-format.md)): todo multi-col
+emite `#TCF.8M`; single-col plano emite **`#TCF.8`** por DEFAULT (7 B). O orfao (body sem
+assinatura) e' o ESCAPE explicito `stamp=False`
+([ADR-0034](../adr/0034-header-default-100-porcento-single-col.md); ADR-0029 camada 1 /
+[ADR-0030](../adr/0030-freeze-single-col-body-at-1.0.md) freeze). O legado `#TCF.6`/`#TCF.7` da'
+fail-loud no decode, com dica de git. Self-describing: natures (ADR-0027) + hex + escaping viajam
+no header.
 
 **1-char discriminator** ([ADR-0029](../adr/0029-version-format-identification-semi-implicit.md) +
 [ADR-0031](../adr/0031-hierarchical-discriminator-H.md) + [ADR-0033](../adr/0033-hierarchical-codec-weld.md)):
@@ -68,20 +75,22 @@ consumida pelo pre-passe de polaridade ([ADR-0035](../adr/0035-delimitador-de-po
 
 | apos `#TCF.8` | tipo | header |
 |---|---|---|
-| *(nada, body direto)* | single-col orfao, **ESCAPE explicito** (`stamp=False`): transmissao/container tipo parquet, onde a versao ja' viaja fora. **NAO e' o default** desde a ADR-0034 | - |
-| `\n` | single version-stamp | `#TCF.8` (**DEFAULT desde a ADR-0034**; magic number p/ `file`/libmagic) |
+| *(nada, body direto)* | single-col orfao, **ESCAPE explicito** (`stamp=False`): transmissao/container tipo parquet, onde a versao ja' viaja fora. **NAO e' o default** ([ADR-0034](../adr/0034-header-default-100-porcento-single-col.md)) | - |
+| `\n` | single version-stamp, **o default** | `#TCF.8` (magic number p/ `file`/libmagic) |
 | `M` | multi-col plano | `#TCF.8M<meta>` (meta INLINE na linha de assinatura) |
-| `H` | multi-col hierarquico (especializacao de `M`), **WELDED** (ADR-0033, 2026-07-14) | `#TCF.8H<tree-meta>` |
+| `H` | multi-col hierarquico (especializacao de `M`), [ADR-0033](../adr/0033-hierarchical-codec-weld.md) | `#TCF.8H<tree-meta>` |
 | ` ` (espaco) | single + spec | `#TCF.8 [nome]:spec` (nome opcional, so' rotulo) |
-| `b` / `n` / `s` | single-col tipado (bool / numero / string) | `#TCF.8<tag>[<mode>]` |
+| `b` / `n` / `s` | single-col tipado (bool / numero / string) | `#TCF.8<tag>[<modo><n-hex>]`; a tag `n` emite a forma curta `#TCF.8n`. Os tres modos da tag `b`: [`api.md`](../reference/api.md) |
 | `B` / `C` | bN de dominio (dominio primeiro / por ultimo), ADR-0036 | `#TCF.8B<w><n>` |
 
 Discriminador fora do conjunto acima -> **fail-loud** no decode (nunca degrada pra orfao). Um
-sufixo de pontuacao na linha de assinatura e' o **delimitador de polaridade**, retirado por um
-pre-passe antes do dispatch. Ele NAO age em `M`/`H`.
+sufixo de pontuacao na linha de assinatura e' o **delimitador de polaridade**
+([ADR-0035](../adr/0035-delimitador-de-polaridade-single-col.md)), retirado por um pre-passe antes
+do dispatch. Ele NAO age em `M`/`H`. O mesmo char eleito marca no CORPO a troca literal ↔
+referencia: custa 1 byte por TRANSICAO, nao por ocorrencia, e sai do complemento do alfabeto da
+coluna (faixa so' de pontuacao).
 
-
-**Meta do `#TCF.8M`**: INLINE apos a assinatura (`#TCF.8M<meta>\n<bodies>`), sem prefixo `# `. Cada
+**Meta do `#TCF.8M`**: INLINE, na propria linha da assinatura (`#TCF.8M<meta>\n<bodies>`). Cada
 coluna = `[<pre>]<size>[=<nome>][:<id>]`:
 - **byte-size em HEX** ([T-FMT-HEADER-BASE-HEX](../../tickets/T-FMT-HEADER-BASE-HEX.md), ADR-0032 §3):
   `format(n,'x')` (minusculo, sem `0x`, sem zero a esquerda). Colisao-livre com os separadores. Decimal
@@ -101,24 +110,110 @@ coluna = `[<pre>]<size>[=<nome>][:<id>]`:
 - **nome vazio** (`''`): emitido como **`\z`**, o mesmo sentinela que o `.8H` usa (ADR-0033 → ADR-0046); o
   decode devolve `''`. **Nao** e' o mesmo que anonima: anonima omite o nome e decoda posicional; `\z` e' um nome.
   `\z` e' inemitivel por dado (o nome literal `\z` sai escapado `\\z`) e so' vale como token INTEIRO: `\z`
-  embutido segue erro de corrupcao. Antes da ADR-0046 o `''` era transformado em anonima (com warning) e
-  decodava `'0'`, o unico caso em que o TCF alterava o dado.
+  embutido segue erro de corrupcao.
 
-Exemplos (body na(s) linha(s) seguinte(s)):
+**Assinatura do single-col**: `#TCF.8\n` + body. O `M` marca o multi-col; o single-col nao o usa.
+Gate vigente: **D1-D9 = 1545 B** e **real-world = 89430 B**, pinados em
+[`test_regression_v1_baseline.py`](../../tests/test_regression_v1_baseline.py) e
+[`test_real_world_snapshots.py`](../../tests/test_real_world_snapshots.py).
 
-    #TCF.8M7=doc:cnpj,x          <- multi: 2 cols, doc(size 0x7) com nature cnpj, x (ultima, sem size)
-    #TCF.8M@1b=uf,@nome          <- dict (@) nas duas; uf size 0x1b=27; nome e' a ULTIMA (sem size)
-    #TCF.8M@1b=uf,@29=nome       <- o mesmo com `min_header=False`: ai' a ultima TEM size (0x29=41)
-    #TCF.8 docs:cpf              <- single + spec cpf, nome 'docs'
-    #TCF.8                       <- single version-stamp (body single-col puro)
+**Canonicidade do corpo**: o corpo NAO contem linha que comece com `#TCF.<digito>` (concatenar dois
+wires prontos corrompe as referencias: decode cada um e re-encode o conjunto) e o contador de `*N|`
+so' e' canonico com `N >= 2` em digitos ASCII. Os dois casos levantam `ValueError` no decode. Limite
+declarado: coluna raw (`!`) e' verbatim, entao uma juncao DENTRO dela segue indetectavel.
 
-- **single-col**: `#TCF.8
-` + body. Gate vigente **D1-D9=1545 B**, **real-world=89430 B**.
-  A ADR-0032 nao mexeu no single-col (ela e' sobre o default multi-col); quem moveu estes numeros
-  depois foi a [ADR-0034](../adr/0034-header-default-100-porcento-single-col.md) (header virou
-  default: 1523 → 1586, 89616 → 89637) e entao a
-  [ADR-0035](../adr/0035-delimitador-de-polaridade-single-col.md) (delimitador de polaridade:
-  1586 → **1545**, 89637 → **89430**). So' o MULTI-COL virou `#TCF.8M`.
+**Exemplos.** Cada caso traz a chamada `encode()` que gerou o wire, o wire REAL logo abaixo e o que a
+assinatura diz. Roundtrip conferido em todos.
+
+**1. Multi-col com nature**: `encode({"doc": [3 CNPJs], "obs": ["nota-1","nota-2","nota-3"]}, schema={"doc": "cnpj"})`
+
+```text
+#TCF.8M16=doc:cnpj,obs
+!K\9p\5B$
+!Kx\0n)$
+^1
+nota-*\1
+1\2
+1\3
+```
+
+`M` = multi-col plano. Em `16=doc:cnpj`, a coluna `doc` ocupa `0x16` = 22 bytes de corpo e venceu com
+o spec `cnpj` (sufixo `:id`). `obs` e' a ULTIMA coluna: vai sem size, corpo ate' EOF.
+
+**2. Multi-col em modo dicionario**: `encode({"uf": ["SP","RJ"]*3, "cid": ["Santos","Niteroi"]*3})`
+
+```text
+#TCF.8M@e=uf,@cid
+6
+SP
+RJ
+!"!"!"15
+Santos
+Niteroi
+!"!"!"
+```
+
+`@` nas duas: cada coluna virou tabela de simbolos + stream de indices. `uf` ocupa `0xe` = 14 bytes,
+`cid` e' a ultima (sem size). O corte entre colunas e' por BYTE, nao por linha: a linha `!"!"!"15`
+carrega o fim do stream de `uf` e ja' o comeco do corpo de `cid`.
+
+**3. O mesmo com `min_header=False`**: o corpo sai byte-identico ao do caso 2, so' a assinatura muda.
+
+```text
+#TCF.8M@e=uf,@18=cid
+```
+
+Agora a ultima coluna declara o size (`0x18` = 24 bytes). Serve pra inspecao: o wire vai de 56 pra 59
+bytes neste exemplo.
+
+**4. Single-col com spec**: `encode([3 CPFs], schema="cpf", name="docs")`
+
+```text
+#TCF.8 docs:cpf
+\2y/h-
+%gc\9g
+^1
+```
+
+O ESPACO depois de `#TCF.8` e' o discriminador de "single + spec". `docs` e' so' rotulo, opcional
+(sem `name=` a assinatura sai `#TCF.8 :cpf`); `:cpf` e' o spec que o decode inverte.
+
+**5. Single-col version-stamp**: `encode(["log-01","log-02","log-03"])`
+
+```text
+#TCF.8
+log-\0*\1
+1\2
+1\3
+```
+
+O discriminador e' o proprio `\n`: assinatura sozinha na primeira linha, body single-col puro
+depois. E' o default do single-col e o magic number pro `file`/libmagic.
+
+**6. Single-col tipado (bool)**: `encode([True, False, True])`
+
+```text
+#TCF.8b13
+oA==
+```
+
+`b` = dominio bool; `1` = largura em bits por elemento (1 bit = bool sem null; `2` e' o ternario com
+null, `encode([True, None, False])` sai `#TCF.8b23`); `3` = contagem de elementos, em hex. O corpo e'
+o bit-pack em base64.
+
+**7. Hierarquico**: `encode([{"id":"a","end":{"uf":"SP"}}, {"id":"b","end":{"uf":"RJ"}}])`
+
+```text
+#TCF.8Hid:4,end{uf
+a
+b
+SP
+RJ
+```
+
+`H` = arvore, e o meta descreve a topologia. `id:4` = folha `id` com 4 bytes de corpo (`a\nb\n`);
+`end{uf` = objeto `end` contendo a folha `uf`, que por ser a ULTIMA vai sem size. Cada folha e'
+comprimida como uma coluna comum.
 
 **Candidatos de coluna** (o fallback per-coluna, todos no `#TCF.8M`; `min(tcf,raw,dict,split)`):
 - **V2-A fallback identity** ([ADR-0022](../adr/0022-v2a-fallback-identity-weld.md), `fallback=True`):
@@ -127,151 +222,131 @@ Exemplos (body na(s) linha(s) seguinte(s)):
   da ULTIMA coluna (corpo ate' EOF). Voltado a payload pequeno.
 - **V2-B dicionario** ([ADR-0025](../adr/0025-v2b-dictionary-categorical-weld.md), `@`) e **split
   estrutural** ([ADR-0026](../adr/0026-structural-split-weld.md), `%`): mais candidatos per-coluna.
-- **V2-RLE-STREAM** (follow-up de V2-B, **NAO weldado**): RLE no stream de indices `@dict`. Caracterizado
-  2026-06-19: CLOSED-geral / nicho textual-puro aberto. `src/tcf` intocado.
 
-> **Nota historica**: `#TCF.7`/`#TCF.6` foram os formatos default anteriores (opt-in `#TCF.8` era SSE
-> nature). A partir de [ADR-0032](../adr/0032-tcf8-default-format.md) o `#TCF.8` e' o default e o legado
-> saiu do codigo vivo (git-as-compat, pre-1.0 ADR-0024: a versao antiga e' ponto de progresso/comparacao,
-> nao producao). No 1.0 o passado morre no git.
+### Superficie publica
 
-### Library version (semver)
-
-- **1.0.x**: bug fixes (sem mudar bytes em D1-D9, D17a, real-world snapshots)
-- **1.x.0**: features additive: novos `nature` specs, parametros
-  keyword-only com default que preserva comportamento (ex: `encode(data, *, novo_param=def)`)
-- **2.0.0**: breaking: format change, API removal, marker novo no body
-
-### API publica congelada em v1.0
-
-Imports estaveis ate' v2.0:
+Pre-1.0 e ADITIVA ([ADR-0024](../adr/0024-pre-1.0-versioning-git-as-compat.md)): nomes novos entram,
+os que ja' existem nao mudam de assinatura sem re-pin deliberado. A lista de exports esta'
+**congelada por teste** em
+[`test_regression_v1_baseline.py`](../../tests/test_regression_v1_baseline.py)
+(`EXPECTED_PUBLIC_API`): esse teste e' a fonte, nao esta prosa.
 
 ```python
 from tcf import (
-    encode, decode,                   # core
-    SideOutputs,                       # debug/stats opt-in
-    PipelineConfig,                    # toggle layers
-    build_schema, TableSchema, ColumnSchema,  # schema introspection
-    TemplatedCheckedSpec, TemplatedPaddedSpec,  # nature definitions
-    SPEC_CPF, SPEC_CNPJ, SPEC_IP,    # nature specs canonicos
+    encode, decode,                            # core
+    SideOutputs,                               # debug/stats opt-in
+    PipelineConfig,                            # toggle layers
+    build_schema, TableSchema, ColumnSchema,   # schema introspection
+    TemplatedCheckedSpec, TemplatedPaddedSpec, # nature definitions
+    SPEC_CPF, SPEC_CNPJ, SPEC_IP, SPEC_DATA_ISO, SPEC_INT_PAD, SPEC_REGISTRY,
+    view, LazyTCF, Filtered,                   # camada read-only
 )
 ```
 
-Assinaturas imutaveis. Novos parametros opcionais com default permitidos.
-
-### Deprecated em v1.x (removidos em v2.0)
-
-- `encode_table(table)` → use `encode(dict)`
-- `decode_table(text)` → use `decode(text)`
-
-Emitem `DeprecationWarning` em cada uso desde v1.0.
+Detalhe de cada nome, com os kwargs de cada porta: [`api.md`](../reference/api.md),
+[`encode-knobs.md`](../reference/encode-knobs.md) e [`lazy-view.md`](../reference/lazy-view.md).
+Semver estrito vale a partir do `1.0`, quando o formato final congelar.
 
 ### Suite regressao formal
 
 [`tests/test_regression_v1_baseline.py`](../../tests/test_regression_v1_baseline.py)
-captura bytes-canonical de D1-D9 (**1545B** total) e D17a (300B INVARIANT, `#TCF.8M` default).
-Falha em CI = regressao. Snapshot so' pode ser atualizado via ADR
-explicito + version bump.
-
-Detalhes: ver [ADR-0017](../adr/0017-format-spec-v1-frozen.md).
+captura bytes-canonical de D1-D9 (**1545 B** total) e D17a (**300 B**, `#TCF.8M` default).
+Falha em CI = regressao. O snapshot so' se move por re-pin deliberado, registrado em ADR e no
+[`CHANGELOG.md`](../../CHANGELOG.md)
+([ADR-0024](../adr/0024-pre-1.0-versioning-git-as-compat.md),
+[ADR-0028](../adr/0028-pre-1.0-versioning-minor-format-coupling-release-cadence.md)).
 
 ## Pipeline completo
 
+```mermaid
+flowchart TB
+    IN1["encode(list) : semantica single-column"]
+    IN2["encode(dict) : semantica multi-column"]
+
+    subgraph PERCOL["por coluna (no multi-col, 1 passada por coluna)"]
+        direction TB
+        PRE["PRE-PASS, 1 passada O(N)<br/>analyze_column produz ColumnFeatures (H-DA-11c)<br/>n_rows, n_unicas, avg_len, cardinality, is_numeric, sample<br/>detect_cadence_from_features (ADR-0008)<br/>regra 1: wrapper+counter, LCP/LCS uniforme<br/>regra 2: is_numeric E cardinality acima de 0.5<br/>detect_min_len_from_features (ADR-0010)<br/>heur v3 (avg_len + cardinality + is_numeric), gating a partir de n=100"]
+        CAD{"cadencia detectada?"}
+        OHINT["OBAT com dica: processar_with_hint (ADR-0011)<br/>shape-preserve per-length"]
+        OCAN["OBAT canonical: processar"]
+        OTOK["tokens raiz do alg16: LCP+LCS bidirecional, greedy cover, min_len<br/>TokLit(text) · TokRefPref(string_id, length) · TokRefSuf(string_id, length)<br/>hash trigrama O(N^1.42) (ADR-0009)"]
+        HCC["HCC, camada 2<br/>M8.A: virtual refs unificados, detector greedy de net positivo<br/>seq-RLE: runs near-identical e periodicos (ADR-0011, ADR-0040)<br/>saida: body por coluna"]
+
+        PRE --> CAD
+        CAD -->|sim| OHINT
+        CAD -->|nao| OCAN
+        OHINT --> OTOK
+        OCAN --> OTOK
+        OTOK --> HCC
+    end
+
+    OUT8M["#TCF.8M, o default (ADR-0032)<br/>meta INLINE em hex na linha da assinatura<br/>bodies concatenados byte-precise, sem delimitador"]
+    SCOL["#TCF.8 + body, o default do single-col (ADR-0034)<br/>orfao sem assinatura = escape stamp=False"]
+
+    IN1 --> PRE
+    IN2 -->|1 por coluna| PRE
+    HCC -->|multi-col: concat| OUT8M
+    HCC -->|single-col| SCOL
 ```
-┌─────────────────────────────────────────────────────────────────────┐
-│  ENCODE: dispatch por tipo (ADR-0014)                               │
-│  ┌──────────────────────────┐    ┌──────────────────────────┐       │
-│  │  encode(list[str])        │    │  encode(dict[str,list])   │       │
-│  │  single-column semantic   │    │  multi-column semantic    │       │
-│  └────────────┬─────────────┘    └────────────┬─────────────┘       │
-│               │                                │                    │
-│               │                          ┌─────┴───── 1 por col ──┐ │
-│               ▼                          ▼                         │ │
-│         ┌───────────────────────────────────────────────┐         │ │
-│         │   PRE-PASS (1 passada O(N))                    │         │ │
-│         │   ─────────────────────────                    │         │ │
-│         │   analyze_column → ColumnFeatures              │ H-DA-11c│ │
-│         │   ├─ n_rows, n_unicas, avg_len, cardinality   │         │ │
-│         │   ├─ is_numeric, sample                       │         │ │
-│         │   detect_cadence_from_features                 │ ADR-0008│ │
-│         │   ├─ regra 1: wrapper+counter (LCP/LCS unif.) │         │ │
-│         │   └─ regra 2: numeric AND cardinality > 0.5   │         │ │
-│         │   detect_min_len_from_features                 │ ADR-0010│ │
-│         │   └─ heur v3 (avg_len + card + is_numeric)    │         │ │
-│         │      + gating n>=100 (preserva baseline)      │         │ │
-│         └─────────────────────┬─────────────────────────┘         │ │
-│                               │                                   │ │
-│              cadence?         │                                   │ │
-│              ┌──── sim ──────►│                                   │ │
-│              │                ▼                                   │ │
-│              │     ┌───────────────────────────────────┐         │ │
-│              │     │   OBAT (camada 1)                  │         │ │
-│              │     │   ─────────────                    │         │ │
-│              │     │   alg16: LCP+LCS bidirectional     │         │ │
-│              │     │   greedy cover, min_len threshold  │         │ │
-│              │     │   tokens raiz:                     │         │ │
-│              │     │   • TokLit(text)                   │         │ │
-│              │     │   • TokRefPref(string_id, length)  │         │ │
-│              │     │   • TokRefSuf(string_id, length)   │         │ │
-│              │     │   ─────                            │         │ │
-│              │     │   processar_with_hint              │ ADR-0011│ │
-│              │     │   (shape-preserve per-length)      │         │ │
-│              │     │   OU                                │         │ │
-│              │     │   processar canonical              │         │ │
-│              │     │   ─────                            │         │ │
-│              │     │   Hash trigrama O(N^1.42)          │ ADR-0009│ │
-│              │     └────────────────┬──────────────────┘         │ │
-│              │                      │                            │ │
-│              │       ┌──────────────┴──────────────────┐         │ │
-│              │       │   HCC (camada 2)                 │        │ │
-│              │       │   ─────────────                  │        │ │
-│              │       │   M8.A: virtual refs unified    │        │ │
-│              │       │   detector greedy (net > 0)     │        │ │
-│              │       │   emit text:                    │        │ │
-│              │       │   • `~` cria ref auto-nomeado   │        │ │
-│              │       │   • `,` concat efêmero          │        │ │
-│              │       │   • `1..5` range (açúcar)       │        │ │
-│              │       │   • `*N|linha` RLE              │        │ │
-│              │       │   • `\X` escape                 │        │ │
-│              │       │   • `*` separator (ADR-0007)    │        │ │
-│              │       │   ─────                          │        │ │
-│              │       │   HCCSeqRLE (M10, ADR-0011):    │        │ │
-│              │       │   `*N+delta|template` runs       │        │ │
-│              │       │   near-identical                 │        │ │
-│              │       └────────────────┬─────────────────┘        │ │
-│              │                        │                           │ │
-│              │                        │  body por coluna          │ │
-│              │                        ▼                           │ │
-│              └────────────────────────┘                           │ │
-│                                       │                           │ │
-│                multi-col              │                           │ │
-│            ┌── concat ────────────────┘                           │ │
-│            ▼                                                      │ │
-│   ┌──────────────────────────────────────────────┐               │ │
-│   │  #TCF.8M   (DEFAULT: ADR-0032)                │ ADR-0004/0032 │  │
-│   │  meta INLINE hex:  !<s1>=<n1>,...,<nN>          │ +0022/25/26/29│ │
-│   │  <body1><body2><body3>...                      │               │ │
-│   │  (concat byte-precise, sem delimitador)        │               │ │
-│   └──────────────────────────────────────────────┘               │ │
-│   legado #TCF.6/#TCF.7: CORTADO (git-as-compat, ADR-0032).         │ │
-│                                                                  │ │
-│   single-col: body puro, sem assinatura                             │ │
-└─────────────────────────────────────────────────────────────────────┘
-```
+
+Wire do multi-col: `#TCF.8M` + meta inline (colunas `[<pre>]<size>[=<nome>][:<id>]` separadas por
+`,`) + `\n` + `<body1><body2><body3>...` concatenados. O encoder nao tem rota para `#TCF.6`/`#TCF.7`.
+
+**Marcadores do corpo** (o que o HCC emite; um port precisa de todos):
+
+- `~` cria ref auto-nomeado · `,` concat efemero · `1..5` range (acucar) · `*` separator ([ADR-0007](../adr/0007-comma-in-literals-bug.md))
+- `*N|<linha>`: RLE de linhas identicas adjacentes (`N >= 2`)
+- `*N+delta|<template>`: seq-RLE, run near-identical com delta constante ([ADR-0011](../adr/0011-pacote1-weld-canonical.md))
+- `*N~d1,...,dp|<template>`: seq-RLE PERIODICO, o delta CICLA entre as linhas e o ciclo paga uma vez ([ADR-0040](../adr/0040-seq-rle-periodico.md))
+- `\X`: escape
+- char de polaridade: marca a troca literal ↔ referencia, 1 byte por TRANSICAO ([ADR-0035](../adr/0035-delimitador-de-polaridade-single-col.md))
+
+**Dispatch do encode por tipo de entrada** (assinatura emitida; a tabela de kwargs por rota esta' em
+[`api.md`](../reference/api.md)):
+
+| entrada | assinatura | exemplo medido |
+|---|---|---|
+| `list[str]` plana | `#TCF.8` | `encode(["abc","abcd","abcde"])` |
+| `dict[str, list]` | `#TCF.8M<meta>` | `encode({"id": [...], "nome": [...]})` |
+| `list[int]` | `#TCF.8n` | `encode([1,2,3])` |
+| `list[bool]` | `#TCF.8b<modo><n>` | `encode([True,False]*12)` sai `#TCF.8b118` |
+| bool + str na mesma lista | `#TCF.8bB<n>`, lazytype ([ADR-0039](../adr/0039-lazytype-bool-cabeca-congelada-extras.md)) | `encode([True,"abc",False])` sai `#TCF.8bB23` |
+| lista de cardinalidade baixa | `#TCF.8B<w><n>`, bN de dominio ([ADR-0036](../adr/0036-bn-de-dominio-cardinalidade-baixa.md)) | `encode(["0","1"]*100)` sai `#TCF.8B1c8` |
+| aninhado, vazio ou ragged | `#TCF.8H<tree-meta>` ([ADR-0033](../adr/0033-hierarchical-codec-weld.md)) | `encode([{"a":1}])` sai `#TCF.8Ha:3n`; `encode({})` sai `#TCF.8H#E` |
 
 ### Decode (espelho)
 
-```
-decode(text) → list[str] | dict[str, list[str]]
-         │
-         ├─ disc após "#TCF.8" == "M" ──► _decode_multi → dict
-         │  (H/desconhecido → fail-loud; #TCF.6/.7 → erro de legado)
-         └─ caso contrário            ──► _decode_column → list
+```mermaid
+flowchart TB
+    DEC["decode(text)"]
+    VER{"versao lida apos #TCF."}
+    LEG["ValueError: formato legado, com dica de git checkout"]
+    UNK["ValueError: versao desconhecida deste decoder"]
+    DISC{"discriminador: 1 char apos #TCF.8<br/>ADR-0029, ADR-0031, ADR-0033"}
+    HIER["decode_hierarchical: estrutura aninhada"]
+    TIP["single-col tipado: cast bool / numero / string"]
+    BNN["bN de dominio: desempacota o dominio (ADR-0036)"]
+    MULTI["_decode_multi: dict"]
+    COL["_decode_column: list"]
+    FAIL["ValueError: discriminador desconhecido"]
+
+    DEC --> VER
+    VER -->|6 ou 7| LEG
+    VER -->|outra, diferente de 8| UNK
+    VER -->|8| DISC
+    DISC -->|H| HIER
+    DISC -->|b, n, s| TIP
+    DISC -->|B, C| BNN
+    DISC -->|M| MULTI
+    DISC -->|vazio ou espaco| COL
+    DISC -->|fora do conjunto| FAIL
+    TIP --> COL
+    BNN --> COL
 ```
 
-Self-describing: a assinatura (`#TCF.8M` multi; órfão/espaço/`\n` single) identifica
-o formato. O decoder dispatcha automaticamente; legado `#TCF.6/#TCF.7` → fail-loud
-(ADR-0032, git-as-compat).
+A ordem e' a do dispatch real: versao, pre-passe de polaridade (que nao age em `M`/`H`), depois o
+discriminador. Self-describing: a assinatura identifica o formato e o decoder dispatcha sozinho, o
+chamador nao precisa saber se a saida vem como `list` ou `dict`.
 
 ## Camadas detalhadas
 
@@ -309,20 +384,21 @@ Para input `dict[str, list[str]]`, cada coluna passa pelas camadas
 0-2 independentemente. Os bodies são concatenados byte-precise com
 header `#TCF.8M` (DEFAULT, ADR-0032) + meta INLINE.
 
-> **Default #TCF.8M (ADR-0032)**: `encode(dict)` emite **`#TCF.8M`** com
-> `fallback` + dicionário V2-B + split + `min_header` **automáticos**, meta INLINE
-> na linha da assinatura, byte-sizes em **HEX**, markers de modo por coluna (`!` raw,
-> `@` dict, `%` split), nomes com separador **escapados** e a última coluna sem size.
-> O legado `#TCF.6/#TCF.7` foi cortado (git-as-compat). Ex. real (sizes hex):
-> `#TCF.8M!5=id,!f=nome,!plano\n...` (`f` = 15 em hex).
+> **`#TCF.8M`** ([ADR-0032](../adr/0032-tcf8-default-format.md)): `encode(dict)` emite `#TCF.8M`
+> com `fallback` + dicionário V2-B + split + `min_header` **automáticos**, meta INLINE na linha da
+> assinatura, byte-sizes em **HEX**, markers de modo por coluna (`!` raw, `@` dict, `%` split),
+> nomes com separador **escapados** e a última coluna sem size. Ex. medido (sizes hex):
+> `encode({"id": ["1","2","3"], "nome": ["ana","bruno","carla"], "plano": ["free","pro","free"]})`
+> sai `#TCF.8M!5=id,!f=nome,plano\n...` (`f` = 15 em hex; `plano`, por ser a última, vai sem size).
 
 **V2-A fallback identity (ADR-0022, `fallback`)**: por coluna escolhe min(TCF, raw);
 coluna raw vira `!<size>=<name>`. **Ligado por default**.
 
-**Header mínimo (ADR-0023, `min_header`)**: o meta é INLINE (sem prefixo `# `); `min_header`
-omite o size da última coluna (corpo até EOF): meta `<s1>=<n1>,...,<nN>`. **Ligado por default**.
-Foco: payload pequeno (header fixo domina). `fallback`/`min_header` são knobs opt-out (não mudam
-mais o formato, sempre `#TCF.8M`).
+**Header mínimo ([ADR-0023](../adr/0023-v2-minimal-header-weld.md), `min_header`)**: o meta é
+INLINE, na própria linha da assinatura; `min_header` omite o size da última coluna (corpo até EOF):
+meta `<s1>=<n1>,...,<nN>`. **Ligado por default**. Foco: payload pequeno (header fixo domina).
+`fallback`/`min_header` são knobs opt-out: mudam a escolha por coluna, não o formato (sempre
+`#TCF.8M`).
 
 **V2-B dicionário (ADR-0025, `@`) + split estrutural (ADR-0026, `%`)**: candidatos
 extras do fallback por coluna (dicionário categórico; quebra de campo estrutural).
@@ -332,15 +408,17 @@ Restrições:
 - Nomes de coluna com separador (`,`/`=`/`:`/`\`/prefixo `!@%`) são **escapados com backslash**
   (T-FMT-NAME-ESCAPING); só `\n` é proibido (separador de linha do meta)
 - Todas as colunas devem ter o mesmo número de valores
-- `None` e' **preservado**: volta como `None` pelo slot nulo pre-alocado (`0`), NAO como `""`.
-  Verificavel: `decode(encode(["x", None, "y"])) == ["x", None, "y"]`
+- `None` e' **preservado**, NAO vira `""`. Em single-col plano ele ocupa o slot nulo pre-alocado
+  (`0`): `encode(["x", None, "y"])` sai `#TCF.8\nx\n0\ny\n` e o roundtrip devolve
+  `["x", None, "y"]`. Dentro de um `dict` a rota e' outra: a coluna com `None` puxa a tabela pro
+  `.8H`. Detalhe: [`api.md`](../reference/api.md) §Indices de referencia PRE-ALOCADOS.
 
 Implementação: [`src/tcf/multi/`](../../src/tcf/multi/). ADR: [0004](../adr/0004-multi-column-header-compacto.md), [0013](../adr/0013-multi-column-canonical-api.md), [0014](../adr/0014-unified-api-side-outputs.md).
 
 ## API mínima
 
 ```python
-from tcf import encode, decode, SideOutputs
+from tcf import encode, decode, view, SideOutputs
 
 # Single-column
 text = encode(["joao@gmail.com", "maria@gmail.com", "pedro@gmail.com"])
@@ -360,7 +438,20 @@ text = encode(table, side_outputs=side)
 print(side.hcc_trace)                       # detector iterations
 print(side.per_col["email"].column_features) # pre-pass features
 print(side.multi_info)                       # header_bytes, body_bytes
+
+# Spec de coluna: `schema=` e' o parametro UNICO de spec (ADR-0047)
+text = encode(["529.982.247-25", "111.444.777-35"], schema="cpf")
+text = encode(table, schema={"timestamp": "data-iso"})  # por coluna, no multi-col
+
+# Camada read-only: consulta sem materializar a tabela
+lz = view(encode(table))
+lz.columns                                  # ['timestamp', 'email']
 ```
+
+Superficie completa (todos os kwargs de `encode`, o `max_length` do `decode`, a camada `view`):
+[`api.md`](../reference/api.md), [`encode-knobs.md`](../reference/encode-knobs.md) e
+[`lazy-view.md`](../reference/lazy-view.md). Um knob merece destaque aqui porque toca o roundtrip:
+`sort_by` reordena as linhas, entao sob ele a ORDEM original nao volta (os VALORES, sim).
 
 ### SideOutputs (ADR-0014)
 
@@ -385,54 +476,20 @@ descartados como antes). Doc: [SideOutputs](../../src/tcf/side_outputs.py).
 
 ## Camadas futuras (registradas, não implementadas)
 
+```mermaid
+flowchart TB
+    PRESENT["PRESENTE (welded canonical)<br/>encode(list ou dict) devolve str · decode(str) devolve list ou dict<br/>encode(..., parallel=True): _encode_column em ProcessPoolExecutor<br/>build_schema(data) devolve TableSchema<br/>SideOutputs (opcional) · view(blob): camada read-only"]
+    LA["FUTURO camada A: Encoder Manager (D13 v0.4, T-CODE-*)<br/>encode(data, output=Sink, plan=Plan(...))<br/>sinks pluggaveis: FileSink, MultiFileSink, HTTPSink, TCPSink, MemorySink<br/>Plan dataclass: group_by / order / batch_size / batch_unit"]
+    LB["FUTURO camada B: transporte distribuido (O-FMT-08/13)<br/>headers por canal, re-assembly sem coordenacao central<br/>streaming chunked: chunks autocontidos, decode chunk-a-chunk<br/>memoria O(chunk_size), TTFB constante"]
+    LC["FUTURO camada C: detectores de schema (T-CODE-SCHEMA-BUILDER)<br/>META-TYPE-ENCODERS T02-T07: detect_templated (data, email, uuid, CPF, IP, telefone),<br/>detect_enumerated, detect_checked, detect_composite, detect_hierarchical<br/>saidas do TableSchema: JSON (compat metadata.json), Markdown, diff de drift"]
+
+    PRESENT -.->|próximas direções| LA
+    LA -.-> LB
+    LB -.-> LC
 ```
-┌──────────────────────────────────────────────────────────────────┐
-│  PRESENT (welded canonical)                                      │
-│  ────────                                                        │
-│  encode(list|dict) → str                                         │
-│  decode(str) → list|dict                                         │
-│  SideOutputs (opcional)                                          │
-└──────────────────────────────────────────────────────────────────┘
-                              │
-                              ▼ (próximas direções)
-┌──────────────────────────────────────────────────────────────────┐
-│  FUTURE Layer A: Encoder Manager (D13 v0.4, T-CODE-*)            │
-│  ────────                                                        │
-│  encode(data, parallel=True, output=Sink, plan=Plan(...))        │
-│                                                                  │
-│  • `_encode_column` em workers paralelos (ProcessPoolExecutor)   │
-│  • Output sinks pluggable: FileSink, MultiFileSink, HTTPSink,    │
-│    TCPSink, MemorySink                                           │
-│  • Plan dataclass: group_by/order/batch_size/batch_unit          │
-└──────────────────────────────────────────────────────────────────┘
-                              │
-                              ▼
-┌──────────────────────────────────────────────────────────────────┐
-│  FUTURE Layer B: Distributed transport (O-FMT-08/13)             │
-│  ────────                                                        │
-│  Per-channel headers (re-assembly sem coordenação central):      │
-│    #TCF.8...C name=timestamp chunk=1/3 of=table_X   (camada futura; família .8)                  │
-│  Streaming chunked: chunks autocontidos, decode chunk-a-chunk,   │
-│    memória O(chunk_size), TTFB constante                         │
-└──────────────────────────────────────────────────────────────────┘
-                              │
-                              ▼
-┌──────────────────────────────────────────────────────────────────┐
-│  FUTURE Layer C: Schema builder (T-CODE-SCHEMA-BUILDER)          │
-│  ────────                                                        │
-│  build_schema(data) → TableSchema (consume SideOutputs)          │
-│                                                                  │
-│  Detectores integrados (META-TYPE-ENCODERS T02-T07):             │
-│  • detect_templated (date, email, uuid, CPF, IP, telefone)       │
-│  • detect_enumerated (low-card categorical)                      │
-│  • detect_checked (dígito verificador)                           │
-│  • detect_composite (datetime split, money split)                │
-│  • detect_hierarchical (paths, URLs)                             │
-│                                                                  │
-│  Outputs: TableSchema → JSON (compat metadata.json), Markdown,   │
-│    diff (drift detection)                                        │
-└──────────────────────────────────────────────────────────────────┘
-```
+
+O header por canal da camada B tem a forma `#TCF.8...C name=<coluna> chunk=1/3 of=<tabela>`
+(família `.8`, ainda sem rota de encode).
 
 Tickets de plano:
 - [T-CODE-ENCODER-MANAGER](../../tickets/T-CODE-ENCODER-MANAGER.md) (P2): Revive D13 v0.4
@@ -475,11 +532,10 @@ Brisaboa et al. 2011, etc.)
 para LLMs lerem tabelas (Sui 2024 review).
 
 **Comparação**:
-- Phase 1 (ciclo v0.5) catalogou Q01-Q38 sobre LLM-readability do
-  TCF antigo (columnar/RLE). Esse trabalho é **acessório** ao foco
-  do core (algoritmo de compressão, 0.7).
-- LLM-readability volta a ser relevante quando Phase 2 for revivida
-  OU virar projeto a parte.
+- O TCF comprime **estrutura de coluna**, não legibilidade por LLM: as duas
+  coisas se cruzam, mas o critério de projeto aqui é byte e roundtrip.
+- O estudo de leitura por LLM que o projeto conduziu está em
+  [`docs/findings/`](../findings/) (Q01-Q38) e é **acessório** ao core.
 
 ## Diferenciais agregados
 
@@ -514,54 +570,33 @@ para LLMs lerem tabelas (Sui 2024 review).
 - **Re-Pair/Sequitur/HTFC**: dicionários gigantes, output binário OK,
   busca aleatória importante
 
-## Estado 0.7 (snapshot 2026-05-27; estado vivo em [STATUS.md](../../STATUS.md))
+## Validação
 
-> Números abaixo são um **snapshot datado** (§5: o teste mede, a prosa aponta).
-> Para o estado corrente (versão do pacote, contagem de testes, ADRs welded),
-> ver [STATUS.md](../../STATUS.md) e os guardiões em `tests/`.
+> Os números vivos estão nos TESTES, não nesta prosa:
+> [`test_regression_v1_baseline.py`](../../tests/test_regression_v1_baseline.py) (D1-D9 single-col +
+> D17a `#TCF.8M`) e [`test_real_world_snapshots.py`](../../tests/test_real_world_snapshots.py) são os
+> dois guardiões byte-canonical, gate obrigatório em CI. Rode `pytest -q`. Estado do pacote:
+> [STATUS.md](../../STATUS.md).
 
-### Implementação canônica
+**Single-column**: D1-D9 sintéticos (RT 9/9, com o header default) e os três recortes real-world
+(online-retail description/stockcode, TPC-H lineitem comment) são os snapshots pinados nos dois
+testes acima.
 
-`src/tcf/`: API pública **pré-1.0** ([ADR-0024](../adr/0024-pre-1.0-versioning-git-as-compat.md)
-supersede o "frozen" do ADR-0017): aditiva, sem compat rígida entre minors de dev
-(git reproduz versões antigas). Ver secção "Versionamento" acima.
+**Multi-column** ([ADR-0014](../adr/0014-unified-api-side-outputs.md) + V2
+[ADR-0022](../adr/0022-v2a-fallback-identity-weld.md)/[0023](../adr/0023-v2-minimal-header-weld.md)/[0025](../adr/0025-v2b-dictionary-categorical-weld.md)/[0026](../adr/0026-structural-split-weld.md)):
+D17a sintético (13x4) pinado no teste de baseline. Sobre 9 tabelas real-world (Adult Census + TPC-H
+tier 1+2, 136k linhas, 15.8 MB raw): **-33.02% weighted vs raw** e **-31.46%** vs single-col
+concatenado, RT 9/9; lineitem 60k x 16: **-17.11%** vs raw.
 
-### Validação
+**Real-world estendido (UCI/OpenML, T-DATA-1)**:
+- wine-quality 6.5k x 13: 90.9% ratio (decimais químicos, baixa repetição)
+- beijing-pm25 43.8k x 13: 71.7% (sensores + timestamps)
+- online-retail 541k x 8: **23.7%** (StockCode/Country/InvoiceDate repetidos)
 
-**Single-column (M10 baseline, ADR-0011)**:
-- D1-D9 sintéticos: **1545 bytes** em 2981 raw = 51.8% ratio (RT 9/9; inclui o header default)
-- Cadeia byte-canônica de checkpoints: M9 → M10 → M11 → M12 → M13 → M14
-  → M14+Pacote1+Multi+API+Natures+MultiDelta+v1
-- Adult Census + TPC-H 57 colunas: **-11.73% weighted** vs M9 puro
-
-**Multi-column (ADR-0013/0014 + V2 ADR-0022/0023/0025/0026)**:
-- D17a sintético (13×4): **300 bytes** (#TCF.8M default, V2-B hex, ADR-0032; re-pinável ADR-0024/0025)
-- 9 tabelas real-world (Adult Census + TPC-H tier 1+2, 136k linhas,
-  15.8 MB raw):
-  - **-33.02% weighted vs raw**, **-31.46%** vs single-col concat
-  - RT 9/9 OK; Lineitem 60k×16: -17.11% vs raw
-
-**Real-world extendido (UCI/OpenML, T-DATA-1)**:
-- wine-quality 6.5k × 13: 90.9% ratio (decimais quimicos, baixa repeticao)
-- beijing-pm25 43.8k × 13: 71.7% (sensores + timestamps)
-- online-retail 541k × 8: **23.7%** (StockCode/Country/InvoiceDate repetidos)
-
-**Benchmark vs csv/jsonl + gzip/brotli/zstd** (9 datasets totais):
-**TCF venceu em 7/9** datasets. Perdeu em D17a tiny (header overhead
-domina) e wine-quality (decimais quase unicos = sem estrutura).
-Detalhes: [experiments/lab/dirty/2026-05/2026-05-24/2026-05-24-benchmark-formats-compression/](../../experiments/lab/dirty/2026-05/2026-05-24/2026-05-24-benchmark-formats-compression/).
-
-**Suite de testes** (snapshot 2026-05-27: 259 passed; contagem atual em
-[STATUS.md](../../STATUS.md)). Guardião byte-canonical:
-[`test_regression_v1_baseline.py`](../../tests/test_regression_v1_baseline.py)
-(snapshot D1-D9=**1545**B single-col + D17a=300B `#TCF.8M` default).
-
-## Estado v0.5 (acessório)
-
-Há código v0.5 em `old/tcf/` (formato columnar com RLE/dict/stats
-para LLM benchmark). **Não é canônico no v1.0**. Mantido para
-referência histórica e enquanto Phase 1 LLM findings (em
-`docs/findings/`) tiverem relevância de pesquisa.
+**Benchmark vs csv/jsonl + gzip/brotli/zstd** (9 datasets): TCF venceu em **7/9**. Perdeu em D17a
+tiny (o header fixo domina o payload) e em wine-quality (decimais quase únicos, sem estrutura pra
+explorar). A pasta do lab com a corrida é referência local, fora do git:
+`experiments/lab/dirty/2026-05/2026-05-24/2026-05-24-benchmark-formats-compression/`.
 
 ## Conexões
 
@@ -569,18 +604,9 @@ referência histórica e enquanto Phase 1 LLM findings (em
 - [OBAT](OBAT.md): camada 1 (tokenização)
 - [HCC](HCC.md): camada 2 (compactação composicional)
 
-### ADRs welded
-- [ADR-0004: Multi-column header compacto](../adr/0004-multi-column-header-compacto.md)
-- [ADR-0007: Comma in literals bug fix](../adr/0007-comma-in-literals-bug.md)
-- [ADR-0008: detect_cadence regra 2 (numeric+high-card)](../adr/0008-detect-cadence-numeric-rule.md)
-- [ADR-0009: OBAT trigram index O(N^1.42)](../adr/0009-obat-trigram-index-optimization.md)
-- [ADR-0010: auto-detect min_len por coluna](../adr/0010-auto-detect-min-len.md)
-- [ADR-0011: Pacote 1 weld canonical (M9 → M10)](../adr/0011-pacote1-weld-canonical.md)
-- [ADR-0013: Multi-column canonical API (welded, superseded por 0014)](../adr/0013-multi-column-canonical-api.md)
-- [ADR-0014: API unificada + SideOutputs](../adr/0014-unified-api-side-outputs.md)
-- [ADR-0015: Naturezas templated/checked (CPF/CNPJ/IP)](../adr/0015-natures-templated-checked-weld.md)
-- [ADR-0016: HCC seq-RLE multi-delta](../adr/0016-hcc-multi-delta-seq-rle.md)
-- [ADR-0017: Format spec v1.0 frozen + versioning policy](../adr/0017-format-spec-v1-frozen.md)
+### ADRs
+O índice completo, com status e supersedes, é [`docs/adr/README.md`](../adr/README.md). Os ADRs que
+definem cada regra deste documento estão linkados ao lado dela, no corpo do texto.
 
 ### Tickets de plano futuro
 - [T-CODE-ENCODER-MANAGER](../../tickets/T-CODE-ENCODER-MANAGER.md): P2, paralelismo + sinks
@@ -592,8 +618,6 @@ referência histórica e enquanto Phase 1 LLM findings (em
 ### Narrativa
 - [`historia-dirty-lab.md`](../../experiments/lab/dirty/notas/2026-05/historia-dirty-lab.md): M0-M14 desenvolvimento
 - [`roadmap-hipoteses.md`](../../experiments/lab/dirty/notas/2026-05/roadmap-hipoteses.md): hipóteses ativas/fechadas
-- [`naturezas-numericas-2026-05-23.md`](../../experiments/lab/dirty/notas/2026-05/naturezas-numericas-2026-05-23.md): catalogação 12 naturezas
+- `naturezas-numericas-2026-05-23.md`: catalogação de 12 naturezas (referência local em
+  `experiments/lab/dirty/notas/2026-05/`, fora do git)
 - [`futuras-otimizacoes-formato.md`](../../experiments/lab/dirty/notas/2026-05/futuras-otimizacoes-formato.md): O-FMT-* registry
-
-### Plano de design v0.4 (referência arquitetural)
-- [`2026-05-05-v04-design-recap.md`](../workbench/research-notes/_archive/2026-05-05-v04-design-recap.md): D1-D18, EncodeManager (D13), Plan, 3 camadas
