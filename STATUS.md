@@ -28,8 +28,13 @@ de exports em `tests/test_regression_v1_baseline.py`. Mudar exige re-pin deliber
 - **desempenho e bordas** — [`T-PERF-BORDAS-E-MODOS-09`](tickets/T-PERF-BORDAS-E-MODOS-09.md):
   o eixo quente é **cardinalidade**, não volume; o alvo é o **encode** (o decode já é rápido);
   os modos rápido/normal/máximo nunca foram testados.
-- **armazenamento e ecossistema** — [`T-STORAGE-ECOSSISTEMA-09`](tickets/T-STORAGE-ECOSSISTEMA-09.md):
-  rodar sobre HDFS/Parquet e afins, compor com a compressão do container, leitura com índice.
+- **armazenamento e ecossistema** — HDFS/Parquet, composição de compressão, leitura com
+  índice. **O trilho já existe e não é novo**: `O-FMT-20` (registro-'0'/schema-declare para
+  append e conversão a parquet, com **index sidecar `.tcfx`**) em
+  [`futuras-otimizacoes-formato.md`](experiments/lab/dirty/notas/2026-05/futuras-otimizacoes-formato.md),
+  e **H-QUERY-04** (design de índices, 2026-06-17) — princípio já decidido: *derivável >
+  {in-file inerte / sidecar `.tcfx`} > formato*, e a escolha é **por perfil de uso**
+  (transmissão sem índice; at-rest index-on-arrival).
 
 Fila completa: [`tickets/README.md`](tickets/README.md) · [`ROADMAP.md`](ROADMAP.md).
 

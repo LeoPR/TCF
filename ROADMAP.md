@@ -92,7 +92,7 @@ O `.9` tem **dois eixos** (direção do owner, 2026-08-23) — o segundo não é
 | eixo | ticket |
 |---|---|
 | desempenho, bordas e modos de compressão | [T-PERF-BORDAS-E-MODOS-09](tickets/T-PERF-BORDAS-E-MODOS-09.md) |
-| **armazenamento e ecossistema** — HDFS/Parquet, composição de compressão, leitura com índice | [T-STORAGE-ECOSSISTEMA-09](tickets/T-STORAGE-ECOSSISTEMA-09.md) |
+| **armazenamento e ecossistema** — HDFS/Parquet, composição de compressão, leitura com índice | o trilho **já existe**: `O-FMT-20` (registro-'0'/schema-declare para **append** e conversão a parquet, com **index sidecar `.tcfx`**) e **H-QUERY-04** (design de índices feito em 2026-06-17). Ver [`futuras-otimizacoes-formato.md`](experiments/lab/dirty/notas/2026-05/futuras-otimizacoes-formato.md) e a linha H-QUERY-04 no Tier 1 |
 
 Um formato que não roda onde o dado vive é formato de laboratório. E há achado prévio que
 corta nos dois sentidos: em **coluna densa de texto livre** o codec binário sozinho vence e o
