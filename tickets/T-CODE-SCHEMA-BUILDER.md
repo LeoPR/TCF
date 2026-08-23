@@ -1,5 +1,5 @@
 ---
-title: T-CODE-SCHEMA-BUILDER — Orquestrador que consume SideOutputs
+title: T-CODE-SCHEMA-BUILDER, Orquestrador que consume SideOutputs
 status: closed
 priority: P3
 created: 2026-05-24
@@ -11,7 +11,7 @@ related:
   - experiments/lab/dirty/notas/2026-05/naturezas-numericas-2026-05-23.md
 ---
 
-# T-CODE-SCHEMA-BUILDER — Helper orquestrador
+# T-CODE-SCHEMA-BUILDER: Helper orquestrador
 
 > **Fechamento 0.7 (2026-06-15)**: Fases 1+2 WELDED (`build_schema(data) ->
 > TableSchema`; `ColumnSchema`/`TableSchema` + `to_dict`/`to_json`; reaproveita
@@ -24,7 +24,7 @@ related:
 
 ADR-0014 introduziu `SideOutputs` recipiente. Captura ColumnFeatures,
 cadence_info, min_len, OBAT log, HCC trace/rede, seq_rle_runs, bytes
-per coluna — tudo info ja' produzida pelo pipeline canonical.
+per coluna, tudo info ja' produzida pelo pipeline canonical.
 
 Lacuna: nao ha' **orquestrador formal** que consuma SideOutputs e
 produza um "schema" rico do dataset (tipos inferidos, naturezas
@@ -38,15 +38,15 @@ detect cada natureza, agrega num schema unificado.
 ## Hipotese
 
 H1: orquestrador pode produzir schema rico O(N) consumindo SideOutputs
-ja' computado (1 passada extra zero — info ja' disponivel).
+ja' computado (1 passada extra zero, info ja' disponivel).
 H2: schema gerado pode alimentar:
-- Encoder default (sem usuario configurar — schema auto)
+- Encoder default (sem usuario configurar: schema auto)
 - Documentacao auto (Markdown/JSON com naturezas detectadas)
 - Validacao (data nova vs schema previo: drift detection)
 
 ## Plano
 
-### Fase 1 — Orquestrador basico
+### Fase 1: Orquestrador basico
 
 ```python
 from tcf import build_schema, encode, SideOutputs
@@ -60,7 +60,7 @@ text = encode(data, side_outputs=side)
 schema = build_schema_from_side(side, data)
 ```
 
-### Fase 2 — Schema dataclass
+### Fase 2: Schema dataclass
 
 ```python
 @dataclass
@@ -84,7 +84,7 @@ class TableSchema:
     total_bytes: int
 ```
 
-### Fase 3 — Detectores adicionais (META-TYPE-ENCODERS)
+### Fase 3: Detectores adicionais (META-TYPE-ENCODERS)
 
 Conforme T02-T07 forem validados em real-world, integrar:
 - `detect_templated` (date, email, uuid, CPF, IP, telefone)
@@ -95,7 +95,7 @@ Conforme T02-T07 forem validados em real-world, integrar:
 
 Cada detector consome ColumnFeatures + amostra; produz hint/natureza.
 
-### Fase 4 — Outputs derivados
+### Fase 4: Outputs derivados
 
 - `schema.to_json()` -> compativel com `datasets/canonical/*/metadata.json`
 - `schema.to_markdown()` -> doc auto
@@ -122,21 +122,21 @@ Cada detector consome ColumnFeatures + amostra; produz hint/natureza.
 
 ## Conexao
 
-- [ADR-0014](../docs/adr/0014-unified-api-side-outputs.md) — SideOutputs
-- [META-TYPE-ENCODERS](META-TYPE-ENCODERS.md) — T02-T07 naturezas
+- [ADR-0014](../docs/adr/0014-unified-api-side-outputs.md): SideOutputs
+- [META-TYPE-ENCODERS](META-TYPE-ENCODERS.md): T02-T07 naturezas
 - [naturezas-numericas-2026-05-23](../experiments/lab/dirty/notas/2026-05/naturezas-numericas-2026-05-23.md)
-- [scripts/dataset_reader.py](../scripts/dataset_reader.py) — column_stats
-- [datasets/canonical/*/metadata.json](../datasets/canonical/) — formato existente
+- [scripts/dataset_reader.py](../scripts/dataset_reader.py): column_stats
+- [datasets/canonical/*/metadata.json](../datasets/canonical/): formato existente
 
 ## Updates datados
 
-### 2026-05-24 — abertura
+### 2026-05-24: abertura
 
 Ticket aberto pos-ADR-0014. Schema builder eh consumidor natural de
 SideOutputs. Plano em 4 fases. Fase 1+2 viaveis ja'; Fase 3+ depende de
 META-TYPE-ENCODERS reabrir.
 
-### 2026-05-24 — Fase 1+2 WELDED (orquestrador + dataclasses)
+### 2026-05-24: Fase 1+2 WELDED (orquestrador + dataclasses)
 
 Owner aprovou Fase 1. Implementado num so' commit (Fase 1 + 2 juntas
 porque sao trivialmente acopladas):
@@ -181,7 +181,7 @@ schema). JSON serializavel pra storage/diff/doc auto.
 ### Proximos passos
 
 - **Fase 3** (P3, depende META-TYPE-ENCODERS reabrir): integrar
-  detectores de naturezas (templated/checked/enumerated/etc) — populariam
+  detectores de naturezas (templated/checked/enumerated/etc), populariam
   `column.natures: list[str]` que hoje eh placeholder vazio
 - **Fase 4** (P3 opcional): outputs derivados
   - `schema.to_markdown()` -> doc auto formatado

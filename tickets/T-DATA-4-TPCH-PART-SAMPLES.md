@@ -1,5 +1,5 @@
 ---
-title: T-DATA-4-TPCH-PART-SAMPLES — Emitir samples committed de part/partsupp do TPC-H (categoria hierarquica observavel)
+title: T-DATA-4-TPCH-PART-SAMPLES, Emitir samples committed de part/partsupp do TPC-H (categoria hierarquica observavel)
 status: closed-done
 priority: P3
 created: 2026-06-01
@@ -13,14 +13,14 @@ related:
   - scripts/setup_tpch.py
 ---
 
-# T-DATA-4-TPCH-PART-SAMPLES — Samples de part/partsupp
+# T-DATA-4-TPCH-PART-SAMPLES: Samples de part/partsupp
 
 ## Contexto
 
 Achado do design workflow 2026-06-01: os samples committed de TPC-H cobrem
 region/nation/supplier/customer/orders/lineitem mas **NAO part nem partsupp**.
-Logo `p_type` (hierarquia slash/space), `p_brand`, `p_container`, `p_mfgr` —
-a unica outra fonte de **categoria hierarquica/composta** alem do ibge —
+Logo `p_type` (hierarquia slash/space), `p_brand`, `p_container`, `p_mfgr`,
+a unica outra fonte de **categoria hierarquica/composta** alem do ibge:
 existem so' em `metadata.json`, invisiveis pra quem trabalha dos samples
 git-tracked (testes, snapshots, leitura read-only).
 
@@ -33,7 +33,7 @@ git-tracked (testes, snapshots, leitura read-only).
    `datasets/samples/tpch-sf001/` (e opcionalmente sf01).
 3. Header na ordem do metadata. Commitar so' os samples leves.
 
-**Custo**: trivial (S). Sem download, sem tocar dado de producao — pura
+**Custo**: trivial (S). Sem download, sem tocar dado de producao, pura
 emissao de sample do que ja' esta' no disco em Z:.
 
 ## Criterio de aceite
@@ -47,7 +47,7 @@ emissao de sample do que ja' esta' no disco em Z:.
 
 4 samples emitidos (part + partsupp para sf001 e sf01), 100 rows cada,
 como fatia direta das primeiras 101 linhas do CSV externo em Z: (mesmo
-metodo dos samples tpch existentes — nao re-serializado via SQLite, pra
+metodo dos samples tpch existentes, nao re-serializado via SQLite, pra
 manter consistencia byte). Header de cada um confere com a ordem de
 colunas do metadata.json (verificado). p_type (hierarquia space-separated,
 ex "PROMO BURNISHED COPPER"), p_brand, p_mfgr, p_container agora observaveis

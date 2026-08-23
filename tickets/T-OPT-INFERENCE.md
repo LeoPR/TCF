@@ -1,5 +1,5 @@
 ---
-title: T-OPT-INFERENCE — Otimizações por INFERÊNCIA (valor deduzido, não escrito) — 1º item: base HEX dos sizes
+title: T-OPT-INFERENCE, Otimizações por INFERÊNCIA (valor deduzido, não escrito), 1º item: base HEX dos sizes
 status: open
 priority: P2
 created: 2026-07-05
@@ -13,19 +13,19 @@ related:
   - experiments/lab/dirty/notas/2026-07/tcf8h-proximas-ideias.md
 ---
 
-# T-OPT-INFERENCE — otimizações por inferência/dedução
+# T-OPT-INFERENCE: otimizações por inferência/dedução
 
 **[dispositivo]** Classe de otimizações **separada** das decisões estruturais do cabeçalho
 ([T-FMT-TCF8H-HEADER](T-FMT-TCF8H-HEADER.md)): itens onde o valor **não é escrito**, e sim **deduzido**
 (por convenção, por dedução do próprio dado, ou por comando externo). Trade central: **bytes × auto-descrição**.
 O ticket do header só prevê a EXISTÊNCIA (ex.: que os sizes têm uma base); a decisão/inferência mora aqui.
 
-## Framework unificado — specs induzidas (owner 2026-07-06)
+## Framework unificado: specs induzidas (owner 2026-07-06)
 
-Reframe do owner: **tipo, base numérica (hex) e natures são a MESMA coisa — specs no mesmo espectro**, do
+Reframe do owner: **tipo, base numérica (hex) e natures são a MESMA coisa, specs no mesmo espectro**, do
 mínimo (`string`/`int`/`bool`) ao rico (CPF/datetime). Cada spec:
 - justifica-se por **COMPRESSÃO ou ACELERAÇÃO** (senão fica `string`, não spec);
-- **induz-se com segurança ⟺ round-trip** (o valor reverte pela spec) — regra universal que resolve o
+- **induz-se com segurança ⟺ round-trip** (o valor reverte pela spec): regra universal que resolve o
   self-description de TODAS (hex/tipo/nature) de uma vez;
 - é **proposta pelo gabarito** (1ª amostra, `analyze_column.sample`) e **confirmada pelo round-trip** em todas.
 
@@ -35,12 +35,12 @@ nota [tipos-como-specs](../experiments/lab/dirty/notas/2026-07/tipos-como-specs.
 Achado a lembrar: em TCF **textual** a compressão de tipo é modesta (bool ~6B flat/dict); o forte é
 **aceleração** + o espaço **binário** (bool-bitmap V2-L). Não superestimar compressão de tipo em texto.
 
-## Item 1 — base HEX dos byte-sizes (a discussão do owner)
+## Item 1: base HEX dos byte-sizes (a discussão do owner)
 
-**Fato (medido, EXP-015 `05-header-condicoes.txt`)**: `len(hex(s)) ≤ len(str(s))` SEMPRE — hex nunca perde
+**Fato (medido, EXP-015 `05-header-condicoes.txt`)**: `len(hex(s)) ≤ len(str(s))` SEMPRE, hex nunca perde
 bytes; ganha em `s∈[10,15]∪[100,255]∪[256,4095]…` (fronteiras 16ᵏ vs 10ᵏ).
 
-**O problema de auto-descrição** (owner): sem marcador, "10" é 10 (dec) OU 16 (hex) — o arquivo não se
+**O problema de auto-descrição** (owner): sem marcador, "10" é 10 (dec) OU 16 (hex), o arquivo não se
 explica. **Resolução proposta (owner)**: **HEX é o DEFAULT** (convenção fixa) → "10" é sempre 16, o arquivo
 se auto-explica **por convenção**, sem marcador. O **decimal** é opt-in só por **comando externo**
 (out-of-band) → nesse modo o arquivo NÃO é auto-descritivo (byte-mínimo, contrato pré-acordado).
@@ -58,7 +58,7 @@ se auto-explica **por convenção**, sem marcador. O **decimal** é opt-in só p
 - A dedução por letra é O(1) e robusta; a base é propriedade **do arquivo** (não mistura dec/hex no mesmo).
 
 **Crítica (cautelas)**:
-- Modo decimal-por-comando **quebra a auto-descrição** — só usar sob contrato (ex.: O-FMT-14 derivável).
+- Modo decimal-por-comando **quebra a auto-descrição**: só usar sob contrato (ex.: O-FMT-14 derivável).
 - A dedução "quebra-na-expansão" custa uma tentativa dec→hex no decode; **com hex-default não precisa**
   (assume hex direto). Só relevante se algum modo legado escrever decimal sem marcar.
 - Consistência: **um arquivo, uma base** (não misturar).
@@ -66,7 +66,7 @@ se auto-explica **por convenção**, sem marcador. O **decimal** é opt-in só p
 **Decisão (a fechar)**: HEX-default; decimal só por comando externo; dedução como fallback. → gate de formato.
 
 > **DESMEMBRADO (2026-07-09)**: o Item 1 virou ticket **super-específico**
-> [T-FMT-HEADER-BASE-HEX](T-FMT-HEADER-BASE-HEX.md) (`decided-weld-gated`) — decisão do owner cravada:
+> [T-FMT-HEADER-BASE-HEX](T-FMT-HEADER-BASE-HEX.md) (`decided-weld-gated`), decisão do owner cravada:
 > **hex-default implícito armazenado**; decimal NÃO é formato alternativo, é só **comando** de apresentação
 > (inspeção/legibilidade/declarar-em-IO/debug). O survey de bases confirmou: hex é o ganho no HEADER e
 > **colide/quebra no corpo** (refs `^N`/seq-RLE usam digit-escape) → mapa em
@@ -74,29 +74,29 @@ se auto-explica **por convenção**, sem marcador. O **decimal** é opt-in só p
 > induzidas por round-trip" e as outras inferências deste ticket seguem aqui.
 
 > Hex-default = **convenção-default** no contrato de omissão ([T-FMT-OMIT-OR-DECLARE](T-FMT-OMIT-OR-DECLARE.md),
-> categoria 3): **auto-descritivo, sem param** — só o **desvio** (decimal) declara. Distinto de suprimir um
+> categoria 3): **auto-descritivo, sem param**, só o **desvio** (decimal) declara. Distinto de suprimir um
 > marcador sem convenção (ex.: o magic), que aí SIM exige declaração obrigatória. Avaliar junto, pré-1.0.
 
 > **RECONCILIAÇÃO (2026-07-07)**: este item é o MESMO alvo do **O-FMT-18** (byte-size em base-94, registrado
 > 2026-06-19 em `futuras-otimizacoes-formato.md`, nascido do mesmo "podia ficar em hexa" do owner). Conclusão
 > já medida lá: **base-94 encurta ~2× e VENCE o hex** (mesmo alfabeto do TCF, mantém byte-size O(1)). Magnitude
 > **já medida**: header = **0,05-0,13% do blob** em tabela real; **~3%** só no nicho payload-minúsculo → só
-> relevante em transmissão-minúscula. *(nota: sob ADR-0032 o `#TCF.8` é o DEFAULT — o hex já foi weldado no
+> relevante em transmissão-minúscula. *(nota: sob ADR-0032 o `#TCF.8` é o DEFAULT, o hex já foi weldado no
 > header, T-FMT-HEADER-BASE-HEX; a frase "opt-in default-off" era do estado anterior.)* O hex-default **subsume em O-FMT-18**;
 > a contribuição desta discussão é o enquadramento **convenção-default/omit-contract** (vale pra base-94
 > igual: a base é auto-descritiva por convenção, o desvio declara). Não re-medir; a decisão hex-vs-base-94 é
 > de formato (owner, pré-1.0).
 
-## Item 2 — enum/bool por largura de bits (família `bN`) — CORRIGIDO 2026-07-07
+## Item 2: enum/bool por largura de bits (família `bN`), CORRIGIDO 2026-07-07
 
 **Fato (medido, corrigido)**: k valores distintos → w bits/valor (`b`≤2/`b2`≤4/`b4`≤16/`b8`≤256), domínio
-embutido = referência. Contra o baseline CORRETO (V2-B, `fallback=True`, ADR-0025, já weldado — não "raw
+embutido = referência. Contra o baseline CORRETO (V2-B, `fallback=True`, ADR-0025, já weldado, não "raw
 HCC"), razão teórica limpa `8/w` pré-brotli (12 colunas reais adult/tpch/receita).
 
 **Achado que muda o escopo**: sob brotli q11, o ganho colapsa pra 1.01×-1.33× (praticamente zero em alguns
-casos) — o brotli já acha a entropia que V2-B deixou; o bit-pack não adiciona muito além disso. Confirma
+casos), o brotli já acha a entropia que V2-B deixou; o bit-pack não adiciona muito além disso. Confirma
 empiricamente o caveat de H-REF-05 (2026-06-19, qualitativo até então). **Escopo honesto**: só vale como
-TCF representação **terminal** (sem re-compressão a jusante) — mesmo nicho que V2-L já declara (não
+TCF representação **terminal** (sem re-compressão a jusante), mesmo nicho que V2-L já declara (não
 compete com gzip/brotli/zstd). NÃO é welding candidate nesta forma. Ver
 [H-TYPE-02](../experiments/lab/dirty/notas/2026-05/roadmap-hipoteses.md) (status vivo),
 [tipos-como-specs.md](../experiments/lab/dirty/notas/2026-07/tipos-como-specs.md) (seção "CONSOLIDAÇÃO E CORREÇÃO
@@ -104,26 +104,26 @@ compete com gzip/brotli/zstd). NÃO é welding candidate nesta forma. Ver
 [2026-07-06-2354-spec-bin-motor](../experiments/lab/dirty/2026-07/2026-07-06/2026-07-06-2354-spec-bin-motor/result.md),
 [2026-07-07-0028-spec-bitwidth-bN](../experiments/lab/dirty/2026-07/2026-07-07/2026-07-07-0028-spec-bitwidth-bN/result.md).
 
-> **UPDATE pós-gate D3 (2026-07-08, mesmo dia, após a edição acima)**: a justificativa "N<5" caducou — o
+> **UPDATE pós-gate D3 (2026-07-08, mesmo dia, após a edição acima)**: a justificativa "N<5" caducou, o
 > [gate D3](../experiments/lab/dirty/2026-07/2026-07-08/2026-07-08-1938-bn-gate-realworld-5fontes/result.md) rodou **N=8**
 > fontes: terminal **8.8%** weighted (PASSA ≥5%) / pós-brotli **1.7%** (reprova). A conclusão anti-weld
 > SOBREVIVE por outros motivos: colapso pós-brotli + H-TYPE-03 (decisão de produto: terminal é
 > representativo?) + F3 (sub-byte honesto w≤4 = 5.9%; pós-brotli pode ir NET-negativo, receita −0.2%).
 > Status vivo: H-TYPE-02/07 no roadmap (bifurcada). Nomenclatura resolvida (owner): b1/b2/b4 física; b3
-> trio; b5-7 reservados; B interno — [char-registry](../experiments/lab/dirty/notas/2026-07/tcf8-header-char-registry.md).
+> trio; b5-7 reservados; B interno, [char-registry](../experiments/lab/dirty/notas/2026-07/tcf8-header-char-registry.md).
 
 ## Itens futuros (outras inferências)
 
-- Cardinalidade/kind/rows deduzidos (já no header via colchete — P5/P7).
+- Cardinalidade/kind/rows deduzidos (já no header via colchete: P5/P7).
 - Tipos deduzidos (str default; `:tipo` só quando diverge).
 - Nomes deduzidos/omitidos (drop_names) quando anônimo.
-- (a telemetria sugestiva de ORDEM vive em T-FLOW-ENCODE-STRATEGIES-TELEMETRY — é inferência de forma, não de valor.)
+- (a telemetria sugestiva de ORDEM vive em T-FLOW-ENCODE-STRATEGIES-TELEMETRY: é inferência de forma, não de valor.)
 
 ## Critério de aceite (item 1)
 
 - [ ] Convenção **HEX-default** para sizes no TCF.8H documentada; decimal só via comando externo.
 - [ ] Dedução (letra→hex; expansão-break→hex; ambíguo→default-hex) especificada.
-- [x] Medir a economia real — **FEITO por partes**: hex≤dec medido em EXP-015 (`05-header-condicoes`);
-  base-94≤hex **por construção** (94>16, win-or-tie — inferência, não medição); proporção do header
+- [x] Medir a economia real: **FEITO por partes**: hex≤dec medido em EXP-015 (`05-header-condicoes`);
+  base-94≤hex **por construção** (94>16, win-or-tie, inferência, não medição); proporção do header
   (0,05-0,13% real, ~3% tiny) medida em O-FMT-18.
 - [ ] (se weldar) gate real-world + baselines.

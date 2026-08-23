@@ -1,5 +1,5 @@
 ---
-title: T-CLEAN-3 — defrag de organização (docs/tickets/diário) pós-#TCF.8-default, pré-review 0.8
+title: T-CLEAN-3, defrag de organização (docs/tickets/diário) pós-#TCF.8-default, pré-review 0.8
 status: closed-done (follow-up deferido: consolidacao STATUS pos-publicacao-0.8)
 priority: P2
 created: 2026-07-09
@@ -14,19 +14,19 @@ related:
   - experiments/lab/dirty/notas/diario/README.md
 ---
 
-# T-CLEAN-3 — defrag de organização (sucessor do T-CLEAN-2)
+# T-CLEAN-3: defrag de organização (sucessor do T-CLEAN-2)
 
 **[dispositivo→execução]** Rodada de higiene de superfície pedida pelo owner (2026-07-09) DEPOIS de
 fechar o `#TCF.8`-default (M1-M5, ADR-0032). **Objetivo**: arrumar redundâncias e furos de organização
-pra **facilitar o review do que falta pro 0.8** — não é um fim em si. Sucessor do
+pra **facilitar o review do que falta pro 0.8**, não é um fim em si. Sucessor do
 [T-CLEAN-2](T-CLEAN-2-strata-defrag.md) (round anterior, QW+DB feitos 2026-07-01), sob
 [META-STRATA-GOVERNANCE](META-STRATA-GOVERNANCE.md).
 
-## ⚠️ REGRAS DE SEGURANÇA (colisão temporal — diretriz do owner 2026-07-09)
+## ⚠️ REGRAS DE SEGURANÇA (colisão temporal: diretriz do owner 2026-07-09)
 
 A ordem de autoridade é o **histórico de commits, do agora pra trás**. Ao arrumar:
 1. **git = juiz.** Quando um arquivo for ambíguo (obsoleto? vivo?), `git log`/`git blame` do arquivo
-   decide o que ele significava na ERA dele — não o entendimento de hoje.
+   decide o que ele significava na ERA dele, não o entendimento de hoje.
 2. **3 categorias a distinguir** (o motivo da arrumação):
    - **(a) antigo mas desenvolvido AGORA** → VIVO (manter; no máximo re-indexar/re-datar).
    - **(b) antigo obsoleto que RECUPERAMOS e arrumamos** → VIVO (atualizado; NÃO arquivar).
@@ -40,12 +40,12 @@ A ordem de autoridade é o **histórico de commits, do agora pra trás**. Ao arr
 
 - **Índice de tickets furado**: `tickets/README.md` lista 43 rows; existem **62** arquivos → **19 fora do
   índice**. Breakdown (git, último commit): 13 `closed*` (histórico), 3 `deferred`, **2 `open`**
-  (T-STUDY-HIERARCHICAL-TCF, T-FLOW-ENCODE-STRATEGIES-TELEMETRY — trabalho VIVO não-descobrível), 1
+  (T-STUDY-HIERARCHICAL-TCF, T-FLOW-ENCODE-STRATEGIES-TELEMETRY, trabalho VIVO não-descobrível), 1
   matrix-done. Nenhum é colisão-risco (os do `.8` já estão no índice).
-- **Diário furado (PROBLEMA, owner)**: ~25 dias úteis com commit mas SEM entrada de diário —
+- **Diário furado (PROBLEMA, owner)**: ~25 dias úteis com commit mas SEM entrada de diário:
   **2026-05-22→06-11** (14 dias) e **2026-06-16→06-30** (11 dias). A info EXISTE (git + blocos SESSÃO no
   STATUS + notas datadas), mas o canal cronológico está furado. Reconstrução = era-authority (git).
-- **STATUS.md — pilha de bridges fora de ordem de autoridade**: ~217 linhas de topo (25% do arquivo) são
+- **STATUS.md: pilha de bridges fora de ordem de autoridade**: ~217 linhas de topo (25% do arquivo) são
   blocos RECONCILIAÇÃO/RETIFICAÇÃO empilhados por ordem de ESCRITA; o leitor vê o mais VELHO (2026-06-24)
   primeiro. **Decisão de design pendente do owner** (consolidar num bloco atual+histórico / reordenar /
   deixar).
@@ -57,38 +57,38 @@ A ordem de autoridade é o **histórico de commits, do agora pra trás**. Ao arr
 - Não-verificado (2º nível, se pagar): `docs/archive/` (182 arq) + `docs/workbench/` (186 arq);
   `INDEX.md` auto-gerado com `Updated: ?` (rodar `scripts/index.py`?).
 
-## Caminho-feliz (tiers — do óbvio/sem-colisão ao ambíguo/git-comparação)
+## Caminho-feliz (tiers: do óbvio/sem-colisão ao ambíguo/git-comparação)
 
-### T1 — óbvio, zero-colisão ✅ FEITO 2026-07-09
+### T1: óbvio, zero-colisão ✅ FEITO 2026-07-09
 - [x] **T1-a** Índice de tickets: 19 rows adicionadas em `tickets/README.md` como seção "Indexados
-  retroativamente (backfill)" — geradas MECANICAMENTE do frontmatter (title+status) + data do último
+  retroativamente (backfill)", geradas MECANICAMENTE do frontmatter (title+status) + data do último
   commit; tabela existente NÃO reordenada (só aditivo). Índice agora cobre 62/62.
-- [x] **T1-b** `docs/article/`: confirmado MORTO — conteúdo real foi arquivado em `docs/archive/` no
+- [x] **T1-b** `docs/article/`: confirmado MORTO, conteúdo real foi arquivado em `docs/archive/` no
   commit `8f33744` (T-DOC-1..6, reorg v0.5); links restantes só DENTRO de `_archive/` (históricos,
   intocados); a pasta era dir vazio NÃO-rastreado pelo git (resíduo local do move) → removida
   localmente, zero impacto no git.
 - [x] **T1-c** `INDEX.md` regenerado via `scripts/index.py` (verificado com `--check` + diff inspecionado
-  antes): remove entradas com paths QUEBRADOS (labs já movidos pra `old/welded/` — o script pula `old/`
+  antes): remove entradas com paths QUEBRADOS (labs já movidos pra `old/welded/`, o script pula `old/`
   por design) + lista os labs novos da semana como candidatos a frontmatter. Artefato DERIVADO
   alcançando a realidade; versão antiga recuperável no git.
 
-### T2 — julgamento leve / decisão pendente
-- [x] **T2-a** `STATUS.md` bridges — **DECIDIDO pelo owner (2026-07-09): Opção 1** (chave-vigente no topo,
+### T2: julgamento leve / decisão pendente
+- [x] **T2-a** `STATUS.md` bridges: **DECIDIDO pelo owner (2026-07-09): Opção 1** (chave-vigente no topo,
   zero-move/zero-rewrite). Executado: bloco "⚑ ESTADO VIGENTE + REGRA DE LEITURA" antes de tudo (estado =
   ADR-0032/0.8.0/suíte; regra = pilha é histórica antigo→novo, em conflito vence o mais novo/dispositivo).
   Nenhum bloco movido/reescrito; ponteiros internos intactos. **SEQUENCIAMENTO acordado**: a consolidação
-  estrutural (Opção 3 — bloco-estado único + mover bridges/SESSÕES pra histórico) fica **DEFERIDA para
-  DEPOIS de (1) publicar o 0.8 e (2) executar o T3-a** — os blocos SESSÃO do STATUS são a FONTE do diário
+  estrutural (Opção 3, bloco-estado único + mover bridges/SESSÕES pra histórico) fica **DEFERIDA para
+  DEPOIS de (1) publicar o 0.8 e (2) executar o T3-a**, os blocos SESSÃO do STATUS são a FONTE do diário
   retroativo; drenados pro diário, a Opção 3 vira remoção-com-ponteiro, muito mais segura.
-- [x] **T2-b** `v08-plano-etapas.md` — classificado **(c) HISTÓRICO com ciclo de vida COMPLETO** (A=feito/
+- [x] **T2-b** `v08-plano-etapas.md`: classificado **(c) HISTÓRICO com ciclo de vida COMPLETO** (A=feito/
   shipado; B=gate falhou 2026-06-27; C=absorvido no 0.8.0 por ADR-0032). Executado: bridge de ENCERRAMENTO
-  no topo (destino de cada workstream + fontes vivas). **Decisão: NÃO renomear** — 18 links de entrada
+  no topo (destino de cada workstream + fontes vivas). **Decisão: NÃO renomear**, 18 links de entrada
   (maioria em artefatos históricos que a regra 3 protege); o "nome certo" já mudou 2× (v08→0.7.2→absorvido)
   e renomear gravaria uma 3ª geração; o nome stale é evidência da era. Refs VIVAS corrigidas: ROADMAP:42
   (legenda "é o ciclo 0.7.2"→"HISTÓRICO/encerrado") + MAP:167 ("plano 0.8"→"HISTÓRICO/encerrado").
 
-### T3 — ambíguo, exige comparação com git (CUIDADO — por último)
-- [x] **T3-a** Diário retroativo — **FEITO 2026-07-09**. Inventário completo revelou **3 gaps** (não 2):
+### T3: ambíguo, exige comparação com git (CUIDADO, por último)
+- [x] **T3-a** Diário retroativo: **FEITO 2026-07-09**. Inventário completo revelou **3 gaps** (não 2):
   05-22→06-08 (14 dias), 06-16→06-30 (12 dias) e **07-02/06/07** (3 dias, não flagados antes) = **29 dias,
   ~217 commits**. Reconstrução por workflow (10 agentes, 1 por cluster coerente de dias), cada entrada da
   **autoridade da era** (git log do dia + blocos SESSÃO do STATUS + checkpoints/notas datadas), regra dura:
@@ -96,12 +96,12 @@ A ordem de autoridade é o **histórico de commits, do agora pra trás**. Ao arr
   anti-overwrite (0 conflitos), hashes citados conferidos contra `git log` (1 único flag = falso positivo:
   a entrada 05-27 cita transparentemente um commit posterior PARA documentar discrepância de datação).
   Índice `diario/README.md` reconstruído em ordem cronológica completa (43 entradas; o índice também estava
-  stale — faltavam 07-01/04/05/08/09 que EXISTIAM); retroativas marcadas `*(retroativa)*` + nota de método.
+  stale, faltavam 07-01/04/05/08/09 que EXISTIAM); retroativas marcadas `*(retroativa)*` + nota de método.
   **Consequência**: os blocos SESSÃO do STATUS agora têm espelho no diário → a Opção 3 (consolidação do
   STATUS) fica destravada pós-publicação 0.8, como sequenciado em T2-a.
-- [x] **T3-b** Classificação das notas antigas — **FEITO 2026-07-09**. 30 notas (mtime ≤ 07-01) classificadas
+- [x] **T3-b** Classificação das notas antigas: **FEITO 2026-07-09**. 30 notas (mtime ≤ 07-01) classificadas
   por workflow (5 agentes; cada veredicto = git-history + refs de entrada vivas-vs-históricas + supersedência):
-  **17 (a)-vivas** (registries/referências ativas — ex. naturezas-numericas/templated apontadas por spec+código,
+  **17 (a)-vivas** (registries/referências ativas, ex. naturezas-numericas/templated apontadas por spec+código,
   loss-taxonomia, hquery01-design, cep-outer-dict), **8 (b)-recuperadas-vivas** (bridges corretos já existiam
   na maioria), **5 (c)-históricas-encerradas**. Ações executadas (anotar-não-sobrescrever, zero moves/deletes):
   **4 tombstones-in-place** (revisao-implicito-vs-explicito → ciclo 0.7 fechado; f2-nature-mark-design →
@@ -113,7 +113,7 @@ A ordem de autoridade é o **histórico de commits, do agora pra trás**. Ao arr
 
 ## Avaliação honesta (owner: "veja se a decisão de arrumar é boa")
 
-- **T1 vale claramente** (barato, alto valor pro review 0.8 — legibilidade do estado ativo). Fazer.
+- **T1 vale claramente** (barato, alto valor pro review 0.8: legibilidade do estado ativo). Fazer.
 - **T2-a** é a única que toca o princípio Strata a fundo → decisão do owner antes.
 - **T3 vale, mas é prioridade MENOR pro 0.8** (a info existe no git; é completude/higiene, não bloqueio).
   Fazer incremental, com a maior cautela de colisão.
@@ -122,7 +122,7 @@ A ordem de autoridade é o **histórico de commits, do agora pra trás**. Ao arr
 ## Critérios de aceite
 
 Ticket de higiene (fecha por tier, não de uma vez):
-- [ ] T1 (a/b/c) feito — passada mecânica, sem colisão.
+- [ ] T1 (a/b/c) feito: passada mecânica, sem colisão.
 - [ ] T2 destravado por decisão do owner (a) e executado (b) com git-comparação.
 - [ ] T3 incremental, cada item cross-ref ao commit/era que o justifica; arquivar-não-deletar.
 - [ ] Nada de conteúdo com decisão-de-época perdido (regra 3). Diário retroativo aponta os commits-fonte.

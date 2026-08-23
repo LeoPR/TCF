@@ -1,11 +1,11 @@
 ---
-title: BUG-BRACKET-CELL-LOSS — célula string que é exatamente '[' ou ']' é PERDIDA silenciosamente
+title: BUG-BRACKET-CELL-LOSS, célula string que é exatamente '[' ou ']' é PERDIDA silenciosamente
 status: closed
 priority: P1
 severity: R0
 created: 2026-07-16
 updated: 2026-07-16
-gate: byte-canonical (toca HCC core — precisa aprovação + test_real_world_snapshots)
+gate: byte-canonical (toca HCC core, precisa aprovação + test_real_world_snapshots)
 blocked-by: []
 related:
   - src/tcf/composicional/syntax.py
@@ -21,9 +21,9 @@ related:
 > fantasia 52%) RT byte-exato no .8H. Pinos promovidos em test_core_rt.py (+ matriz de
 > caracterizacao + wire pinado) e test_hierarchical_rt.py (bloqueador de J0 -> RT).
 
-# BUG-BRACKET-CELL-LOSS — '['/']' isolado some no round-trip
+# BUG-BRACKET-CELL-LOSS: '['/']' isolado some no round-trip
 
-**[probatório, R0]** `decode(encode(x)) != x` — uma célula cujo valor é **exatamente** `[` ou `]`
+**[probatório, R0]** `decode(encode(x)) != x`, uma célula cujo valor é **exatamente** `[` ou `]`
 (um único char) é **descartada silenciosamente** (corrupção SILENCIOSA, não crash). Satisfaz o
 critério 1 do T-REL-08 (preempta). Pré-existente no CORE (codec PLANO single/multi-col, não só
 hierarquia); descoberto pela auditoria adversarial do P2 (`wf_10194874-083`, furo #5, atribuição
@@ -57,23 +57,23 @@ do corpo HCC (composições/refs); uma célula que é só isso é confundida com
   codec PLANO (`encode(list[str])`), portanto TODAS as colunas string do `.8H` (que reusa o L1).
 - Os gates byte-canônicos atuais passam porque `[`/`]`-isolado não ocorre em D1-D9/retail/lineitem.
   Free-text real PODE ter uma célula `[` ou `]` isolada (raro, mas possível).
-- **Fix toca o HCC core** (`syntax.py` — o parse que trata `[`/`]` como estrutura) → aprovação
+- **Fix toca o HCC core** (`syntax.py`: o parse que trata `[`/`]` como estrutura) → aprovação
   explícita + gate `test_real_world_snapshots.py` + re-pin (ADR-0024). NÃO consertar sem isso.
 
 ## Direção de fix (a validar)
 
 Escapar/quotar a célula `[`/`]`-isolada na EMISSÃO (como o `*`/`^`-líder já são escapados no L1), ou
 o parser distinguir `[`/`]` estrutural de conteúdo. Escolher por byte-custo + simplicidade. Mesma
-família do `BUG-SEQRLE-RANGE-EMPTY-B` (conteúdo colide com sintaxe do corpo) — pensar juntos.
+família do `BUG-SEQRLE-RANGE-EMPTY-B` (conteúdo colide com sintaxe do corpo), pensar juntos.
 
 ## AMPLIAÇÃO 2026-07-17 (auditoria do escape D_json, verificador confirmou a causa-raiz)
 
 O furo é MAIOR que o repro original (célula única): a linha `[`/`]` é skipada em QUALQUER posição
 da coluna (`syntax.py:796`, skip de back-compat sem escape correspondente na emissão):
-- flat: `decode(encode(['a', ']', 'b']))` → `['a', 'b']` — **perda SILENCIOSA no meio da coluna**;
+- flat: `decode(encode(['a', ']', 'b']))` → `['a', 'b']`, **perda SILENCIOSA no meio da coluna**;
 - flat: `decode(encode([']']))` → `[]`;
 - `.8H` single-col: wire com registro `]` perde o registro do meio CALADO;
-- `.8H` multi-col: `HierarchicalError "coluna exaurida"` (o frame do H detecta — fail-loud por
+- `.8H` multi-col: `HierarchicalError "coluna exaurida"` (o frame do H detecta, fail-loud por
   acidente de contagem, não por desenho).
 Severidade sobe: não é só "célula exata vira []", é **corrupção silenciosa posicional** no flat.
 

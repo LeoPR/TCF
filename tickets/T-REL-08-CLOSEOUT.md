@@ -1,5 +1,5 @@
 ---
-title: T-REL-08-CLOSEOUT — ordem por ROI para fechar o núcleo 0.8
+title: T-REL-08-CLOSEOUT, ordem por ROI para fechar o núcleo 0.8
 status: open
 priority: P1
 created: 2026-07-10
@@ -13,35 +13,35 @@ related:
   - STATUS.md
 ---
 
-# T-REL-08-CLOSEOUT — fechamento do 0.8, na ordem
+# T-REL-08-CLOSEOUT: fechamento do 0.8, na ordem
 
-> **⚑ ERRATA/SUPERSESSÃO 2026-07-22** — os checkboxes deste ticket são de 2026-07-12 (antes do
+> **⚑ ERRATA/SUPERSESSÃO 2026-07-22**: os checkboxes deste ticket são de 2026-07-12 (antes do
 > feature-complete de 07-17, suíte 861 passed). A **ordem de foco vigente** e os gates estão no
 > [parecer 2340](../experiments/lab/dirty/notas/2026-07/2026-07-22-2340-revisao-fechamento-08-ordem-foco.md).
-> Ajustes que controlam a leitura abaixo: **(a)** 4 trabalhos pré-`.9` ANTES do F6 — API única
+> Ajustes que controlam a leitura abaixo: **(a)** 4 trabalhos pré-`.9` ANTES do F6, API única
 > (remover `encode_hierarchical`), lab estrutural de natures (CNPJ), fechar bordas+baseline de `view`,
 > reconciliar docs; **(b)** o caveat "CNPJ piora em real" (F4, `+7339 B`) é forma absoluta pré-FLOOR
-> e está **sob revisão** — não fechar o README afirmando-o como propriedade; **(c)** baseline de perf
+> e está **sob revisão**, não fechar o README afirmando-o como propriedade; **(c)** baseline de perf
 > aceito *first-order* (adjudicação entre-runs, não o gate térmico). Passo 3 (fronteira `.9`/depois)
 > segue válido.
 
 **[dispositivo→execução]** Materializa o levantamento de 2026-07-10 (pedido do owner: listar os
-tickets abertos e a ordem de ataque com critérios — "fácil e sem risco primeiro, os de alto valor,
+tickets abertos e a ordem de ataque com critérios, "fácil e sem risco primeiro, os de alto valor,
 e os que ainda tem coisa pra implementar antes de ir pro .9"; e "mesmo a ordem de execução do que
-verificamos gera tickets — rastreabilidade e memória, não pode ficar tudo só na conversa").
+verificamos gera tickets, rastreabilidade e memória, não pode ficar tudo só na conversa").
 Este ticket é o GUIA da ordem; cada passo aponta o ticket/fase que o executa.
 
-## REESCOPO 2026-07-13 — `.8` = feature-complete "1.0" (decisão do owner, supersede parcial)
+## REESCOPO 2026-07-13: `.8` = feature-complete "1.0" (decisão do owner, supersede parcial)
 
 **[dispositivo]** O owner redefiniu a estratégia: o `.8` **não** é mais "release mínimo agora, features
 → `.9`". Agora **`.8` é o 1.0 com tudo que funciona**; `.9` fica **só** limpeza/perf/paralelismo/
 memória/simplificação/bug-fix-de-borda, DEPOIS de o `.8` estar funcionalmente completo.
 
 Auditoria dos 26 tickets abertos (workflow 2026-07-13): a **superfície tabular-plana já está
-feature-complete** — nenhuma feature pronta-e-que-paga-o-gate sobrou pra puxar. Duas expansões de
+feature-complete**, nenhuma feature pronta-e-que-paga-o-gate sobrou pra puxar. Duas expansões de
 CAPACIDADE entram no `.8` por decisão do owner e **saem do "Passo 3 → depois"**:
 
-1. **Hierarquia TCF.8H** — de "`.9` via T-STUDY-HIERARCHICAL-TCF" para **`.8` (weld do codec)**. Gate é de
+1. **Hierarquia TCF.8H**: de "`.9` via T-STUDY-HIERARCHICAL-TCF" para **`.8` (weld do codec)**. Gate é de
    **CAPACIDADE** (RT-exato em JSON aninhado real + non-regressão em `test_real_world_snapshots.py` +
    aprovação explícita de `src/tcf`), **não** ≥15% de compressão (isso é gate de otimização; hierarquia
    representa dado que a tabela plana não representa). Novo ticket: [T-CODE-TCF8H-WELD](T-CODE-TCF8H-WELD.md).
@@ -49,21 +49,21 @@ CAPACIDADE entram no `.8` por decisão do owner e **saem do "Passo 3 → depois"
    LF/CR) + **P4b raiz generalizada** (`#D`/`#E`/`#O`/`#V`) → **D_json COMPLETO** (`LACUNAS = {}` em
    `test_json_flow_parity`); par R0 do L1 fechado (byte-neutro, PW3 população inteira); E3 SideOutputs.
    Gate de capacidade cumprido (RT-exato + non-regressão byte-canônica + aprovação). ADR-0033 §escape+§P4b.
-2. **Contratos de borda JSON** (null vs vazio, tipos escalares, ragged, `\n`-em-valor) — de "pré-1.0" para
+2. **Contratos de borda JSON** (null vs vazio, tipos escalares, ragged, `\n`-em-valor), de "pré-1.0" para
    **congelar agora no `.8`**. [T-API-BOUNDARY-CONTRACTS](T-API-BOUNDARY-CONTRACTS.md) regatado pré-1.0 → `.8`.
-   **✅ FEITO 2026-07-17 (CLOSED)**: passada de congelamento — todas as bordas resolvidas nos welds do dia
+   **✅ FEITO 2026-07-17 (CLOSED)**: passada de congelamento, todas as bordas resolvidas nos welds do dia
    ou decididas MANTER com teste de contrato (63 passed em `test_f0_boundary_fixes.py`); 3 assimetrias
    ergonômicas pinadas + follow-ups pré-1.0 registrados (não bloqueiam `.8`).
 
 **➡ Os DOIS pré-requisitos de "feature-complete" estão FECHADOS.** O caminho de release fica com
-F3/F4/F6/C3 (material comprobatório + closeout) — nenhuma CAPACIDADE pendente. **Decisão de timing de
-release é do owner** (publicar 0.8.0 feature-complete agora vs 0.8.x incremental — ver fim do ticket).
+F3/F4/F6/C3 (material comprobatório + closeout), nenhuma CAPACIDADE pendente. **Decisão de timing de
+release é do owner** (publicar 0.8.0 feature-complete agora vs 0.8.x incremental; ver fim do ticket).
 
-**Inalterado**: `parked-no-pay` continua parado (number-nature, bN, V2-RLE, specs BR sem dado real — puxar
+**Inalterado**: `parked-no-pay` continua parado (number-nature, bN, V2-RLE, specs BR sem dado real, puxar
 violaria o gate ≥15%/2-reais, que é dispositivo do owner); perf/refactor (C1/C2, parallel-budget,
 quoting-study) seguem `.9`; streaming/sinks/lossy seguem 2.0. A **regra de ROI abaixo continua válida**
 para o caminho de release (F3/F4/F6/C3); os dois itens acima passam a ser pré-requisitos de "feature-complete"
-antes do C3 (ou o owner decide publicar 0.8.x incremental — ver "timing de release" no fim).
+antes do C3 (ou o owner decide publicar 0.8.x incremental; ver "timing de release" no fim).
 
 ## Regra vigente de ROI (decisão do owner, 2026-07-12)
 
@@ -85,11 +85,11 @@ telemetria de F3/F4 demonstrar blocker ou ganho de fechamento claro; ideias de g
 
 | ROI | atividade | saída que fecha | próximo estado |
 |---|---|---|---|
-| **R0 — integridade do núcleo válido** | BUG-14 fechado (red→green; decoder LF-only + testes parametrizados + gates canônicos) | domínio público aceito voltou a ser lossless | F3 |
-| **R1 — evidência de fechamento** | F3 amostral + **F4-mínimo (FEITO 2026-07-12, 9/9 RT)** | prova reproduzível nos hubs prontos; população total = janela dedicada pós-release | R1.5 |
-| **R1.5 — investigação de specs (REDIRECT owner 2026-07-12)** | investigar o que comprime alem do basico; revisar specs cadastrais, base segura e compilador | laboratorio versionado + matriz `.8`/`.9`; `DateSpec` ISO fica candidato condicional, demais familias aguardam dado real | R2 |
-| **R2 — superfície publicável** | F5 somente se gated; F6 reconcilia README EN/PT, referência, metadata, wheel e smoke clean-room (+ **caveat nature-CNPJ-piora-em-real**) | pacote/documentação descrevem o mesmo `#TCF.8` | C3 |
-| **R3 — ato de release** | C3: tag `v0.8.0` + Trusted Publishing, somente com go explícito do owner | `0.8.0` publicado e closeout fechado | abrir ciclo seguinte |
+| **R0, integridade do núcleo válido** | BUG-14 fechado (red→green; decoder LF-only + testes parametrizados + gates canônicos) | domínio público aceito voltou a ser lossless | F3 |
+| **R1, evidência de fechamento** | F3 amostral + **F4-mínimo (FEITO 2026-07-12, 9/9 RT)** | prova reproduzível nos hubs prontos; população total = janela dedicada pós-release | R1.5 |
+| **R1.5, investigação de specs (REDIRECT owner 2026-07-12)** | investigar o que comprime alem do basico; revisar specs cadastrais, base segura e compilador | laboratorio versionado + matriz `.8`/`.9`; `DateSpec` ISO fica candidato condicional, demais familias aguardam dado real | R2 |
+| **R2, superfície publicável** | F5 somente se gated; F6 reconcilia README EN/PT, referência, metadata, wheel e smoke clean-room (+ **caveat nature-CNPJ-piora-em-real**) | pacote/documentação descrevem o mesmo `#TCF.8` | C3 |
+| **R3, ato de release** | C3: tag `v0.8.0` + Trusted Publishing, somente com go explícito do owner | `0.8.0` publicado e closeout fechado | abrir ciclo seguinte |
 
 **Próxima ação concreta em nova sessão**: reler este bloco → **R2/F6** (README EN/PT, manual,
 referência, metadata, wheel e smoke clean-room). R1.5 ficou registrado no laboratório cadastral e
@@ -97,7 +97,7 @@ na matriz `.8`/`.9`; `DateSpec` ISO é apenas candidato condicional. Specs do `.
 CPF/CNPJ/IP ([T-SPEC-STATUS-08](T-SPEC-STATUS-08.md)). Checkpoint temporal:
 [`2026-07-12-revisao-roi-fechamento-08.md`](../experiments/lab/dirty/notas/checkpoints/2026-07-12-revisao-roi-fechamento-08.md).
 
-## Auditoria ROI 2026-07-12 — specs, execucao e integracoes
+## Auditoria ROI 2026-07-12: specs, execucao e integracoes
 
 **[probatório -> ordem]** Revisao feita antes do F6, cruzando tickets ativos, codigo, testes e
 artefatos F3/F4. O resultado separa o que pode fechar o `.8` do que e' pesquisa ou integracao
@@ -182,7 +182,7 @@ CORE) + residuais-de-checksum (trilho tcfx). Release pré-verificado (wheel + cl
 T-DIST). F0-3 fechado stdlib-only. Flag de paralelismo registrado (T-CODE-PARALLEL-BUDGET,
 design pós-F3).
 
-## PASSO 1 — fácil e sem risco (higiene de status; só rotulação rastreável)
+## PASSO 1: fácil e sem risco (higiene de status; só rotulação rastreável)
 
 - [x] **1a** `T-FMT-HEADER-BASE-HEX` → `closed-welded` (weld `a381cdb` + ADR-0032 §3 `da0ea35` +
   claim `6bbc86c`). FEITO 2026-07-10.
@@ -191,16 +191,16 @@ design pós-F3).
 - [x] **1c** `T-DATA-TRANSMISSION-GROUPING` → `closed-done` (entrega = coverage-matrix.md,
   `033bba3`). FEITO 2026-07-10.
 - [x] **1d** `T-FMT-NAME-ESCAPING` → `closed-parcial` (interim `58f7dee` + endurecimento F0;
-  estudo → ticket-FILHO [T-FMT-QUOTING-STUDY](T-FMT-QUOTING-STUDY.md), .9 — preferência do owner:
+  estudo → ticket-FILHO [T-FMT-QUOTING-STUDY](T-FMT-QUOTING-STUDY.md), .9, preferência do owner:
   filho em vez de linha solta; linha QUOTING-STUDY no ROADMAP aponta pro ticket). FEITO 2026-07-10.
 - [x] **1e** `T-FMT-TCF8H-HEADER` → `closed-decided` (slot `H` `a001fd3`/ADR-0031; codec → .9 via
   T-STUDY-HIERARCHICAL-TCF, que segue ABERTO). FEITO 2026-07-10.
 - Regra cumprida: bloco de encerramento datado no topo de cada um citando commit/ADR; conteúdo
   histórico intocado; zero moves/renames.
 
-## PASSO 2 — alto valor (o caminho crítico do .8)
+## PASSO 2: alto valor (o caminho crítico do .8)
 
-- [x] **2a** T-QA-8 **F1** — runner de telemetria FEITO (2026-07-12): `bench_evidencia.py` +
+- [x] **2a** T-QA-8 **F1**: runner de telemetria FEITO (2026-07-12): `bench_evidencia.py` +
   `bench_evidencia_probes.py` (conceitos portáveis F0-3), 10 testes-guarda, pinos exatos
   (1523/300/89616), verificação adversarial com ressalvas fechadas (RT de transformação =
   conteúdo+idempotência). Suíte 600 passed. NOTA: o ponteiro no T-FLOW-ENCODE-STRATEGIES-TELEMETRY
@@ -209,26 +209,26 @@ design pós-F3).
   (`bench_evidencia_f2.py`), material versionado em `evidencia-0.8/f2/` (RESULT.md gerado).
   Números-chave: header 0/+7/+13B; README **242B**; cap V2-B deixa **13.5%** na mesa em K>8192;
   ACHADO placeholders-README mod-11-válidos (nota pro F6). Suíte 600 passed.
-- [x] **2b-gate (R0)** T-QA-8 **BUG-14** — fechado 2026-07-12 (lote A): red→green + fix LF-only
+- [x] **2b-gate (R0)** T-QA-8 **BUG-14**: fechado 2026-07-12 (lote A): red→green + fix LF-only
   no decoder dos dois níveis + regressão/baseline/real-world verdes.
-- [~] **2c** T-QA-8 **F3 (amostra)** — sintéticos + curva de escala completos; paralelismo parcial
+- [~] **2c** T-QA-8 **F3 (amostra)**: sintéticos + curva de escala completos; paralelismo parcial
   consolidado em `experiments/results/evidencia-0.8/f3/RESULT.md` (F3-1 31/31, F3-2 10/10,
   F3-3 parcial, F3-4 não executado). Decisão explícita 2026-07-12: **não rodar população total**
   durante o closeout do `.8`; completar massa fica para janela dedicada.
 - [~] **2d** T-QA-8 **F4-mínimo** FEITO (2026-07-12): 9 casos nos hubs prontos, RT 9/9,
   `evidencia-0.8/f4-minimo/`. Δ vs CSV 50-81%. **ACHADO**: nature CNPJ PIORA em receita REAL
-  (+7339B, split→raw) mas ajuda no sintético — gap sintético-vs-real com repro; reforça Opção A do
+  (+7339B, split→raw) mas ajuda no sintético, gap sintético-vs-real com repro; reforça Opção A do
   T-SPEC-STATUS-08 + caveat pro F6. População total (tpch-sf01 600k) + 3 hubs a criar = janela
   dedicada pós-release (não bloqueia o closeout).
-- [ ] **2e** T-QA-8 **F5** — janela condicional, default **NO-ACTION**. Só o que a telemetria
+- [ ] **2e** T-QA-8 **F5**: janela condicional, default **NO-ACTION**. Só o que a telemetria
   apontar como blocker ou ganho direto de fechamento vira sub-exp próprio com gate real-world;
   otimização de produto sem blocker vai para `.9`.
-- [ ] **2f** T-QA-8 **F6** — DOC-01 (README com números MEDIDOS; embarca na wheel) + DOC-03/04/05
+- [ ] **2f** T-QA-8 **F6**: DOC-01 (README com números MEDIDOS; embarca na wheel) + DOC-03/04/05
   + errata T-DOC-3 de carona + re-build wheel + clean-room smoke.
-- [ ] **2g** `T-DIST-RELEASE-0.8.0` **C3** — tag v0.8.0 → Trusted Publishing. **GO explícito
+- [ ] **2g** `T-DIST-RELEASE-0.8.0` **C3**: tag v0.8.0 → Trusted Publishing. **GO explícito
   do owner.**
 
-## PASSO 3 — decididos pra DEPOIS do .8 (fronteira registrada; nada a fazer agora)
+## PASSO 3: decididos pra DEPOIS do .8 (fronteira registrada; nada a fazer agora)
 
 | destino | itens | razão |
 |---|---|---|

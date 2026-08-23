@@ -1,7 +1,7 @@
 # Retail Sales Synthetic (poor reference)
 
 Dataset minimalista gerado por `tests/fixtures/synthetic_v2.py`. Usa
-nomes como "Ana", "Bruno", "Caneta" — o tipo de dado "pobre" que muitos
+nomes como "Ana", "Bruno", "Caneta", o tipo de dado "pobre" que muitos
 papers de LLM+table usam.
 
 ## Por que esta na pasta `poor-reference/`
@@ -14,7 +14,7 @@ dados similares, nao como baseline cientifico.
 ## Onde viver o codigo
 
 O gerador ainda esta em `tests/fixtures/synthetic_v2.py` (nao foi
-movido fisicamente — continua sendo usado por alguns testes legacy).
+movido fisicamente, continua sendo usado por alguns testes legacy).
 
 **Nao use este dataset para novos experimentos.** Use `tpch-sf001` ou
 `adult-census` em `datasets/canonical/`.

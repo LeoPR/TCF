@@ -1,26 +1,26 @@
-# br-identidades (canonical dataset) — SYNTHETIC / declared bias
+# br-identidades (canonical dataset): SYNTHETIC / declared bias
 
 > **SYNTHETIC, built-to-test.** Metadata + 100-row samples tracked in git.
 > Full data (600k rows) + SQLite hub live in `Z:/tcf-data/` (gitignored,
 > regenerable). Contains **no PII**.
 
-## What this is — and what it is NOT
+## What this is: and what it is NOT
 
 Synthetic Brazilian CPF/CNPJ identity dataset, generated to exercise the
 **ADR-0015 opt-in natures** (`SPEC_CPF` / `SPEC_CNPJ`) and the
-`n_compressible >= ~50%` activation gate — the single largest gap in the
+`n_compressible >= ~50%` activation gate, the single largest gap in the
 canonical corpus (the natures are welded into `src/tcf/natures/` but had **zero
 backing dataset**).
 
 - **REAL**: geography (`municipio_id`/`uf_sigla`) reuses canonical
   `ibge-municipios` codes, so município/UF distribution is grounded.
-- **SYNTHETIC**: identifiers (random mod-11-valid bodies — no regional 9th-digit
+- **SYNTHETIC**: identifiers (random mod-11-valid bodies, no regional 9th-digit
   encoding, not issued documents), names, dates, emails.
 
 **Declared bias (Brunswik 1956 / AGENTS.md gate de evidencia Q4):** this
 dataset validates **lossless round-trip** and the **activation gate**, but by the
 project methodology it **cannot alone justify a `confirmada-empirica` claim**.
-Only a real source can close the generalization gate — see
+Only a real source can close the generalization gate, see
 [T-DATA-2-RECEITA-CNPJ](../../../tickets/T-DATA-2-RECEITA-CNPJ.md) (Receita
 Federal CNPJ open data; company CNPJs are non-PII).
 
@@ -28,7 +28,7 @@ Federal CNPJ open data; company CNPJs are non-PII).
 
 Two related tables in one hub:
 
-### pessoas — 500,000 rows (CPF, `nature='cpf'`)
+### pessoas: 500,000 rows (CPF, `nature='cpf'`)
 | Column | Type | Notes |
 |--------|------|-------|
 | cpf | string (pk) | Masked `NNN.NNN.NNN-DD`, valid mod-11 |
@@ -38,7 +38,7 @@ Two related tables in one hub:
 | data_cadastro | date | ISO `YYYY-MM-DD`, 2010–2025, recency-weighted |
 | email | string (nullable) | Derived from nome; empty for ~8% |
 
-### empresas — 100,000 rows (CNPJ, `nature='cnpj'`)
+### empresas: 100,000 rows (CNPJ, `nature='cnpj'`)
 | Column | Type | Notes |
 |--------|------|-------|
 | cnpj | string (pk) | Masked `AA.AAA.AAA/AAAA-DD`, valid mod-11; branch `/0001` (matriz) ~90% |

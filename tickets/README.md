@@ -1,8 +1,8 @@
-# Tickets — TCF (formato #TCF.8 default, ADR-0032)
+# Tickets: TCF (formato #TCF.8 default, ADR-0032)
 
 > ## Antes de abrir ticket de DIREÇÃO, consulte os dois registries
 >
-> Eles guardam o que já foi pensado e **não** são tickets — por isso somem da leitura e a
+> Eles guardam o que já foi pensado e **não** são tickets, por isso somem da leitura e a
 > ideia acaba re-registrada como se fosse nova (aconteceu em 2026-08-23 com armazenamento:
 > `O-FMT-20` e `H-QUERY-04` já cobriam, com o princípio decidido).
 >
@@ -12,7 +12,7 @@
 > | [`futuras-otimizacoes-formato.md`](../experiments/lab/dirty/notas/2026-05/futuras-otimizacoes-formato.md) | **otimizações `O-FMT-*`** de formato: registradas com o enquadramento do owner |
 >
 > Regra: ideia de direção → procure nos dois **primeiro**. Se já existe, **estenda** o
-> registro; não abra ticket paralelo (Strata §5 — autoridade única).
+> registro; não abra ticket paralelo (Strata §5, autoridade única).
 
 
 Tickets de planejamento + acompanhamento do projeto. Cada ticket tem
@@ -21,12 +21,12 @@ referencias a commits que o resolveram.
 
 ## Convencao de IDs
 
-- `META-X` — meta-tickets que agrupam decisoes/sub-tarefas
-- `T-NAME-N` — naming (terminologia + identidade)
-- `T-DOC-N` — documentacao
-- `T-EXP-N` — experimentos (clean lab)
-- `T-CODE-N` — codigo (src/)
-- `T-CLEAN-N` — limpeza/reorganizacao
+- `META-X`: meta-tickets que agrupam decisoes/sub-tarefas
+- `T-NAME-N`: naming (terminologia + identidade)
+- `T-DOC-N`: documentacao
+- `T-EXP-N`: experimentos (clean lab)
+- `T-CODE-N`: codigo (src/)
+- `T-CLEAN-N`: limpeza/reorganizacao
 
 ## Tickets
 
@@ -59,11 +59,11 @@ referencias a commits que o resolveram.
 | (ADR-0014 welded direto) | API unificada `encode(list\|dict)` + `decode(text)` por dispatch + `SideOutputs` recipiente. ADR-0013 superseded (mas valido historicamente). encode_table/decode_table viram deprecated aliases. D17a 322B preservado. 117 passed + 1 xfailed. | **CLOSED-WELDED-CANONICAL 2026-05-24** |
 | [T-CODE-ENCODER-MANAGER](T-CODE-ENCODER-MANAGER.md) | **Fase 1+1b WELDED**: `encode(data, parallel=False\|True\|N)` via ProcessPoolExecutor + work-stealing (sorted desc por workload, submit+as_completed). 14 tests, D17a 322B INVARIANT byte-canonical em parallel. Benchmark: customer 0.83x, orders 1.23x (4w)/1.30x (8w). Conclusao: gargalo eh IPC overhead Windows spawn (nao load imbalance). Speedup teto ~1.3x sem dependencia externa. Fases 1c/2-4 pendentes. | **CLOSED** (fases 1+1b welded; 1c/2-4 nao serao feitas) |
 | [T-CODE-OUTPUT-SINKS](T-CODE-OUTPUT-SINKS.md) | Contract `Sink` pluggable (Protocol), built-in sinks (File/MultiFile/Memory), streaming sinks (HTTP/TCP). Refactor scripts/writers/. Bloqueado por T-CODE-ENCODER-MANAGER. | **DEFERRED** (park v2.0) |
-| [T-CODE-PLAN-CONTRACT](T-CODE-PLAN-CONTRACT.md) | `Plan` dataclass (group_by/order/batch_size/batch_unit) — contrato D11/D13. Habilita ordenacao reversivel O-FMT-01..04 e SQL->Plan (D8). | **DEFERRED** (park v2.0) |
+| [T-CODE-PLAN-CONTRACT](T-CODE-PLAN-CONTRACT.md) | `Plan` dataclass (group_by/order/batch_size/batch_unit), contrato D11/D13. Habilita ordenacao reversivel O-FMT-01..04 e SQL->Plan (D8). | **DEFERRED** (park v2.0) |
 | [T-CODE-SCHEMA-BUILDER](T-CODE-SCHEMA-BUILDER.md) | **Fase 1+2 WELDED**: `src/tcf/schema.py` novo com `build_schema(data)` orquestrador + `ColumnSchema`/`TableSchema` dataclasses + `to_dict`/`to_json`. 24/24 tests passing (D17a 322B INVARIANT preservado, ColumnFeatures/cadence/min_len/seq_rle_runs reaproveitados via SideOutputs). `natures` placeholder vazio pra Fase 3 (META-TYPE-ENCODERS T02-T07). | **CLOSED** (fases 1+2 welded) |
 | [T-CODE-EMPTY-FRAG-INDEX-RT](T-CODE-EMPTY-FRAG-INDEX-RT.md) | **[probatório] Bug de RT no core M10** (achado na caracterizacao V2-A): string vazia desloca o index de fragmento HCC → back-ref posterior corrompe/crasha. 2 modos (frag-index off-by-one em syntax._parse_decl + rstrip comendo vazio final em hcc_seqrle). Fix decode-only/byte-safe, 12 reproducers pinados, 332 passed, D1-D9=1523B preservado. | **CLOSED 2026-06-13** |
 | [T-DIST-PYPI-NAME](T-DIST-PYPI-NAME.md) | Capturar nome de distribuicao no PyPI. `tcf` TOMADO (Tencent SCF); `tcf-format` e `tabular-compact-format` LIVRES (checado 2026-06-14). Recomendado `tcf-format` mantendo `import tcf`. Owner reserva (placeholder 0.0.1 ou release 0.7.0). | **CLOSED-DONE** (`tcf-format` publicado) |
-| [T-CLEAN-2-strata-defrag](T-CLEAN-2-strata-defrag.md) | **[probatório]** Defragmentacao da biblioteca (auditoria Strata 2026-06-18): higiene de superficie (§3/§5 — rotulos/numeros stale: CLAUDE v0.6, README "425 passed", MEMORY #TCF.6, links quebrados) + backlog (docs/theory dup §5, Pacote 1 maturacao §7, tombstones §3, MAP/tickets-location §2). Quick wins + backlog deferido; `src/tcf` intocado. | **IN-PROGRESS P2 2026-06-18** (QW-1..5 feitos; backlog DB-* aberto) |
+| [T-CLEAN-2-strata-defrag](T-CLEAN-2-strata-defrag.md) | **[probatório]** Defragmentacao da biblioteca (auditoria Strata 2026-06-18): higiene de superficie (§3/§5, rotulos/numeros stale: CLAUDE v0.6, README "425 passed", MEMORY #TCF.6, links quebrados) + backlog (docs/theory dup §5, Pacote 1 maturacao §7, tombstones §3, MAP/tickets-location §2). Quick wins + backlog deferido; `src/tcf` intocado. | **IN-PROGRESS P2 2026-06-18** (QW-1..5 feitos; backlog DB-* aberto) |
 | [META-STRATA-GOVERNANCE](META-STRATA-GOVERNANCE.md) | **[dispositivo]** Atividades recorrentes/cadencia do metodo Strata (nao-defrag): G-1 maturacao §7 (-> T-CLEAN-2), G-2 pass de rotulo §3-bis, G-3 re-verify L2 (2026-09-01), G-4 revisao periodica completa (~60-90d). + gatilho L0-check antes de mudanca grande. Lembrete vivo, proporcional (§9). | **OPEN P3 2026-06-18** |
 | [T-CLEAN-3-org-defrag-pre-0.8](T-CLEAN-3-org-defrag-pre-0.8.md) | **[dispositivo→exec]** Defrag de organizacao pos-#TCF.8-default (sucessor do T-CLEAN-2): indice de tickets furado (19 fora, 2 open), diario furado (~25 dias sem entrada), STATUS bridges fora de ordem de autoridade, docs/article morto, notas superadas a classificar. Caminho-feliz em tiers + regras anti-colisao temporal (git=juiz, arquivar-nao-deletar). T1+T2+T3 EXECUTADOS (indice 62/62, INDEX regen, ESTADO-VIGENTE no STATUS, v08 encerrado, diario 43 entradas c/ 29 retroativas, 30 notas classificadas 17a/8b/5c + 7 anotacoes). Follow-up deferido: consolidacao STATUS pos-0.8. | **CLOSED-DONE 2026-07-09** |
 | [T-CODE-LAZY-VIEW-PROMOTE](T-CODE-LAZY-VIEW-PROMOTE.md) | **A4 do plano 0.8**: promove a view lazy do gadget `scripts/tcf_lazy/` -> `src/tcf/view.py` (camada read-only; `from tcf import view`), shim de compat mantido. Aditivo, zero regressao byte-canonical (D1-D9=1523B/D17a=303B/RW=89616B), 380 passed. Versao segue 0.7.1 (bump em C). | **CLOSED 2026-06-21** |
@@ -75,17 +75,17 @@ referencias a commits que o resolveram.
 | [T-FMT-TCF8H-HEADER](T-FMT-TCF8H-HEADER.md) | Header do protótipo hierárquico `#TCF.8H` (EXP-015): consagráveis (M-implícito, omit-closes, última-sem-size) vs condicionais (reorder S2/S3). `H` REGISTRADO no discriminador (ADR-0031, 2026-07-09; especialização de `M`, sem-espaço); codec segue gated. | **CLOSED-DECIDED 2026-07-10** (T-REL-08 P1e; slot H no .8 `a001fd3`; codec → .9 via T-STUDY-HIERARCHICAL-TCF) |
 | [T-OPT-INFERENCE](T-OPT-INFERENCE.md) | Otimizações por inferência (valor deduzido, não escrito): hex-default dos sizes (subsume em O-FMT-18; base-94 vence), bN (→ H-TYPE-02/07, gate D3 N=8). Framework: specs induzidas por round-trip. | **OPEN P2 2026-07-08** |
 | [T-FMT-OMIT-OR-DECLARE](T-FMT-OMIT-OR-DECLARE.md) | Contrato de omissão: campo omitido e não-deduzível → declaração OBRIGATÓRIA (4 categorias; fail-loud; proveniência). Generaliza ADR-0029. Avaliar pré-1.0. | **OPEN pre-1.0 2026-07-08** |
-| [T-FMT-HEADER-BASE-HEX](T-FMT-HEADER-BASE-HEX.md) | Base HEX implícita dos byte-sizes do header (decimal só comando de inspeção/IO/debug). Super-específico, desmembrado de T-OPT-INFERENCE Item 1. **WELDED**: core.py+view.py hex nos #TCF.7/.8; #TCF.6 decimal; D17a 303→302; 528 passed. (Owner 07-09: hex vira exclusivo do .8 — ajuste no flip.) | **CLOSED-WELDED 2026-07-10** (T-REL-08 P1a; shipado no .8, weld `a381cdb`) |
-| [T-FMT-NAME-ESCAPING](T-FMT-NAME-ESCAPING.md) | Escape/quoting de nomes de coluna (`:`/`,`/`=`/`#`-inicial + `{}[]` da hierarquia) no meta — resolve o blocker do `:` sob .8-default via escaping (CSV-style), não rejeição. Interim backslash **WELDED** (M2, `58f7dee`); resta o estudo CSV-quoting/smart (deferido). | **CLOSED-PARCIAL 2026-07-10** (T-REL-08 P1d; interim = .8 `58f7dee`; estudo → T-FMT-QUOTING-STUDY .9) |
+| [T-FMT-HEADER-BASE-HEX](T-FMT-HEADER-BASE-HEX.md) | Base HEX implícita dos byte-sizes do header (decimal só comando de inspeção/IO/debug). Super-específico, desmembrado de T-OPT-INFERENCE Item 1. **WELDED**: core.py+view.py hex nos #TCF.7/.8; #TCF.6 decimal; D17a 303→302; 528 passed. (Owner 07-09: hex vira exclusivo do .8, ajuste no flip.) | **CLOSED-WELDED 2026-07-10** (T-REL-08 P1a; shipado no .8, weld `a381cdb`) |
+| [T-FMT-NAME-ESCAPING](T-FMT-NAME-ESCAPING.md) | Escape/quoting de nomes de coluna (`:`/`,`/`=`/`#`-inicial + `{}[]` da hierarquia) no meta, resolve o blocker do `:` sob .8-default via escaping (CSV-style), não rejeição. Interim backslash **WELDED** (M2, `58f7dee`); resta o estudo CSV-quoting/smart (deferido). | **CLOSED-PARCIAL 2026-07-10** (T-REL-08 P1d; interim = .8 `58f7dee`; estudo → T-FMT-QUOTING-STUDY .9) |
 | [T-QA-8](T-QA-8-material-comprobatorio.md) | **[dispositivo→exec]** Material comprobatório do #TCF.8/0.8.0. F0 (12/13 achados originais), F1 runner e F2 controle concluídos; 600 passed. BUG-14 (RT Unicode no domínio aceito) é gate R0; depois F3→F4→F5 condicional→F6. | **OPEN P1 · F2 DONE 2026-07-12** |
 | [T-TOOL-TCF-FIX-CORRUPTION](T-TOOL-TCF-FIX-CORRUPTION.md) | Ideia do owner (2026-07-10): reparador de `.tcf` com algum grau de corrupção (gadget FORA de src/tcf; reparo = sugestão auditável). Decode pós-F0 já MARCA os pontos (fail-loud "meta corrompido": nome declarado vazio, dangling, hex inválido); BUG-04/05/11 = mais ganchos futuros. Pensar depois do T-QA-8 + publicação 0.8. | **OPEN P3 2026-07-10** |
-| [T-API-BOUNDARY-CONTRACTS](T-API-BOUNDARY-CONTRACTS.md) | **CONGELAR fronteiras da API no `.8`** (regate pré-1.0 → `.8`, owner 2026-07-13, reescopo feature-complete): decidir agora null-vs-vazio, tipos-como-string, ragged fail-loud, `\n`-em-valor (pendente owner) + tabela do lote 3 (ISOLAMENTO já welded). | **CLOSED** — pre-req de feature-complete do `.8` |
+| [T-API-BOUNDARY-CONTRACTS](T-API-BOUNDARY-CONTRACTS.md) | **CONGELAR fronteiras da API no `.8`** (regate pré-1.0 → `.8`, owner 2026-07-13, reescopo feature-complete): decidir agora null-vs-vazio, tipos-como-string, ragged fail-loud, `\n`-em-valor (pendente owner) + tabela do lote 3 (ISOLAMENTO já welded). | **CLOSED**, pre-req de feature-complete do `.8` |
 | [T-CODE-TCF8H-WELD](T-CODE-TCF8H-WELD.md) | **[dispositivo→exec]** Weld do codec hierárquico `#TCF.8H` no `src/tcf` (feature do `.8`, owner 2026-07-13). Protótipo EXP-015 validado (RT-exato); header decidido (ADR-0031). Gate de **CAPACIDADE** (RT em JSON aninhado real + non-regressão flat + aprovação `src/tcf`), não ≥15%. Fases W0-W5. | **OPEN P1 2026-07-13** |
 | [T-FMT-META-STRICT](T-FMT-META-STRICT.md) | Integridade defensiva pós-.8: fusões geométricas→checksum/tcfx; BUG-12→0.8.1; orçamento de expansão vira ticket próprio pré-1.0. Não preempta o closeout salvo reclassificação explícita. | **OPEN P3 2026-07-12** |
 | [T-CODE-PARALLEL-BUDGET](T-CODE-PARALLEL-BUDGET.md) | Flag de controle de paralelismo/uso de CPU (pedido owner 2026-07-10): env `TCF_MAX_WORKERS` como teto do HOST > kwarg; `parallel=True` mais educado que cpu_count cheio; budget único (workers + futuro V2-J intra-coluna); telemetria pedido-vs-concedido. Design decidido PÓS-F3 (medição de speedup/porção-serial do T-QA-8). | **OPEN P2 2026-07-10 (design pós-F3)** |
 | [T-REL-08-CLOSEOUT](T-REL-08-CLOSEOUT.md) | **[dispositivo→exec]** Fila única por ROI: R0/R1 concluídos em modo amostral; R1.5 specs cadastrais + FLOOR + query-like classificados; próximo F6 doc/build/smoke → R3 C3. Massa fica em janela pós-closeout; corrupção/hardening e pesquisa continuam separados. | **OPEN P1 · PRÓXIMO F6 2026-07-12** |
-| [T-FMT-QUOTING-STUDY](T-FMT-QUOTING-STUDY.md) | Filho de T-FMT-NAME-ESCAPING (preferência owner: ticket, não linha solta): estudo CSV-quote/smart além do backslash interim — "apenas o barra resolve tudo?" (fuzz do .8 diz sim pro FLAT; pressão real = hierarquia `{}[]`). Medir nomes "sujos" em headers reais antes de avançar. | **OPEN P3 alvo-.9 2026-07-10** |
-| [T-CODE-CORE-CONSOLIDATE](T-CODE-CORE-CONSOLIDATE.md) | **[dispositivo→registro]** Simplificar o core (diretriz owner 2026-07-12: código espalhado, lógica duplicada = risco de dessincronização — ex. fix BUG-14 aplicado 2× em hcc_seqrle+syntax; muitas funções; M8A é nome de PROTÓTIPO → renomear pra HCC). Inventário medido: 4 duplicações D1-D4, ~131 defs, M8A em 8 arquivos+pyx. Fases C0 (dedup cirúrgico, tail do .8) → C1 (rename, pós-release) → C2 (achatar decode 2-passadas) → C3 (re-medição). | **OPEN P1 2026-07-12** |
+| [T-FMT-QUOTING-STUDY](T-FMT-QUOTING-STUDY.md) | Filho de T-FMT-NAME-ESCAPING (preferência owner: ticket, não linha solta): estudo CSV-quote/smart além do backslash interim, "apenas o barra resolve tudo?" (fuzz do .8 diz sim pro FLAT; pressão real = hierarquia `{}[]`). Medir nomes "sujos" em headers reais antes de avançar. | **OPEN P3 alvo-.9 2026-07-10** |
+| [T-CODE-CORE-CONSOLIDATE](T-CODE-CORE-CONSOLIDATE.md) | **[dispositivo→registro]** Simplificar o core (diretriz owner 2026-07-12: código espalhado, lógica duplicada = risco de dessincronização, ex. fix BUG-14 aplicado 2× em hcc_seqrle+syntax; muitas funções; M8A é nome de PROTÓTIPO → renomear pra HCC). Inventário medido: 4 duplicações D1-D4, ~131 defs, M8A em 8 arquivos+pyx. Fases C0 (dedup cirúrgico, tail do .8) → C1 (rename, pós-release) → C2 (achatar decode 2-passadas) → C3 (re-medição). | **OPEN P1 2026-07-12** |
 | [T-SPEC-STATUS-08](T-SPEC-STATUS-08.md) | **[dispositivo→registro]** Survey + laboratório cadastral: data/datetime, CEP, RG, telefone e códigos fixos medidos fora do core; base64/base80/base96 comparados. CPF/CNPJ/IP permanecem `.8`; `DateSpec` ISO é candidato condicional; demais famílias ficam `.9` sem dados reais. | **IN-PROGRESS P1 · revisão cadastral 2026-07-12** |
 | [T-SPEC-DEEPDIVE-08](T-SPEC-DEEPDIVE-08.md) | **[dispositivo→registro]** Investigação de fundo dos specs: Ceiling delta-aware continua `.9`; FLOOR total-byte está welded; a revisão cadastral v1 adicionou data/CEP/RG/telefone/códigos fixos e confirmou que o gargalo é dado real, não base de encoding. | **OPEN P1 · pesquisa `.9`/revisões** |
 
@@ -93,16 +93,16 @@ referencias a commits que o resolveram.
 
 > 19 tickets que existiam sem row no índice (gap de discoverability achado no levantamento T-CLEAN-3).
 > Rows geradas MECANICAMENTE do frontmatter (title+status de cada ticket, sem reinterpretação) + data do
-> último commit. Tabela acima NÃO foi reordenada — este bloco é só aditivo.
+> último commit. Tabela acima NÃO foi reordenada, este bloco é só aditivo.
 
 | ID | Tema | Status |
 |---|---|---|
 | [T-DOC-MANUAL-FORMAL](T-DOC-MANUAL-FORMAL.md) | Manual didatico no padrao polars/pandas: indice, quickstart, entrada por TIPO de dado, sequencia coletar->consultar. A doc de hoje e' boa mas organizada por ORIGEM, nao pela pergunta do leitor | **OPEN P2** |
 | [T-LAB-DIDATICO-PONTA-A-PONTA](T-LAB-DIDATICO-PONTA-A-PONTA.md) | Micro-lab do fluxo real: coletar -> dataset -> schema -> encode -> envio -> cliente/servidor -> disponibilizar. Fecha buraco: NAO existe exemplo cliente/servidor no repo, e o TCF e' sobre transmissao | **OPEN P2** |
-| [T-HTTP-QUERY-E-VIEW](T-HTTP-QUERY-E-VIEW.md) | O metodo HTTP **QUERY** (RFC 10008, jun/2026 — nao e' mais draft) como envelope do `view()`: corpo na requisicao + safe/idempotente + **resposta cacheavel com o corpo na chave**. Hipotese central: view() no SERVIDOR vs no cliente | **OPEN P2 (pesquisa)** |
+| [T-HTTP-QUERY-E-VIEW](T-HTTP-QUERY-E-VIEW.md) | O metodo HTTP **QUERY** (RFC 10008, jun/2026, nao e' mais draft) como envelope do `view()`: corpo na requisicao + safe/idempotente + **resposta cacheavel com o corpo na chave**. Hipotese central: view() no SERVIDOR vs no cliente | **OPEN P2 (pesquisa)** |
 | [T-PERF-BORDAS-E-MODOS-09](T-PERF-BORDAS-E-MODOS-09.md) | **Ticket-mestre do `.9`**: bordas do TCF por eixo (cardinalidade e' o quente) + modos de compressao rapido/normal/maximo (nunca testados) + bench na topologia REAL 1 encode : N decodes. Base medida 2026-08-23: penhasco de encode 143x, break-even 1,2-36 Mbps, borda em 500k | **OPEN P1 (.9)** |
 | [T-API-SCHEMA-PRESCRITIVO](T-API-SCHEMA-PRESCRITIVO.md) | Objeto `Schema` (forma longa do `schema=` do ADR-0047) como portador do CONTRATO: specs+tipos+assinatura de knobs+nomes/ordem+contrato-fora-do-fio; aditivo enquanto for so' ENTRADA (campo que viajar no wire = ADR de formato) | **OPEN P2 (pre-1.0; registro de destino)** |
-| [BUG-CHAVE-VAZIA-POSICIONAL](BUG-CHAVE-VAZIA-POSICIONAL.md) | `{"": [...]}` voltava `{"0": [...]}` — o unico caso em que o TCF ALTERAVA o dado. Causa: colisao de grafia com `drop_names`; conserto = portar o `\z` do `.8H` (ADR-0033) ao `.8M`. Veredito: DEFINICAO SUPERADA (2026-07-10 -> 2026-07-17), nao bug | **CLOSED 2026-08-21 (ADR-0046)** |
+| [BUG-CHAVE-VAZIA-POSICIONAL](BUG-CHAVE-VAZIA-POSICIONAL.md) | `{"": [...]}` voltava `{"0": [...]}`, o unico caso em que o TCF ALTERAVA o dado. Causa: colisao de grafia com `drop_names`; conserto = portar o `\z` do `.8H` (ADR-0033) ao `.8M`. Veredito: DEFINICAO SUPERADA (2026-07-10 -> 2026-07-17), nao bug | **CLOSED 2026-08-21 (ADR-0046)** |
 | [T-CODE-HCC-ATOM-DETECTION-REFINE](T-CODE-HCC-ATOM-DETECTION-REFINE.md) | Bug #1 sub-exp 14 (atom secundario nao criado) | **CLOSED-SUPERSEDED-BY-ADR-0016** (ult. commit 2026-06-21) |
 | [T-CODE-HCC-MULTI-DELTA-FIX](T-CODE-HCC-MULTI-DELTA-FIX.md) | Bug #2 sub-exp 14 (seq-RLE rejeita multi-run delta) | **CLOSED-WELDED-CANONICAL** (ult. commit 2026-06-21) |
 | [T-CODE-LAYERED-PIPELINE](T-CODE-LAYERED-PIPELINE.md) | Toggle infrastructure + online adaptive + fallback | **CLOSED** (ult. commit 2026-06-15) |
@@ -136,7 +136,7 @@ referencias a commits que o resolveram.
 
 Tickets futuros devem usar YAML frontmatter pra serem indexaveis
 por `scripts/index.py` e parseaveis por IA. Existentes (fechados)
-ficam como estao — imutabilidade.
+ficam como estao, imutabilidade.
 
 ```yaml
 ---

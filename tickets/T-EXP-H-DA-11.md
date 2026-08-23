@@ -1,5 +1,5 @@
 ---
-title: T-EXP-H-DA-11 — Auto-detect min_len otimo por coluna
+title: T-EXP-H-DA-11, Auto-detect min_len otimo por coluna
 status: closed
 resolution: canonical-welded
 priority: P2
@@ -16,7 +16,7 @@ related:
   - docs/adr/0008-detect-cadence-numeric-high-cardinality.md
 ---
 
-# T-EXP-H-DA-11 — Auto-detect min_len por coluna
+# T-EXP-H-DA-11: Auto-detect min_len por coluna
 
 ## Contexto / motivacao
 
@@ -41,7 +41,7 @@ recupera? Existe trade-off entre simplicidade da heuristica e captura?
 
 ## Plano
 
-### Sub-exp 01 — analise de features
+### Sub-exp 01: analise de features
 
 Lab dirty: `experiments/lab/dirty/2026-05-21-h-da-11-auto-min-len/`
 
@@ -50,7 +50,7 @@ A partir dos dados de `03-h-da-10-min-len-realworld/`:
 - Plot/tabular: features vs best_ml
 - Identificar regras de classificacao simples
 
-### Sub-exp 02 — heuristica v1 e validacao
+### Sub-exp 02: heuristica v1 e validacao
 
 Implementar heuristica baseada em regras (decision tree shallow):
 - Tipo 1: thresholds em avg_len (>= 30 ml=6, >= 15 ml=5, >= 8 ml=4, else ml=3)
@@ -59,13 +59,13 @@ Implementar heuristica baseada em regras (decision tree shallow):
 Para cada coluna em Adult+TPC-H, aplicar heuristica e medir bytes.
 
 Comparar contra:
-- **Oracle**: best per column (9.92% — upper bound)
-- **Default**: ml=3 em todas (0% — baseline)
+- **Oracle**: best per column (9.92%, upper bound)
+- **Default**: ml=3 em todas (0%, baseline)
 - **Heuristica v1**: % capturado
 
 Meta: capturar >= 70% do ganho oracle (i.e., >= 6.94% weighted).
 
-### Sub-exp 03 — generalizacao (opcional)
+### Sub-exp 03: generalizacao (opcional)
 
 Validar heuristica em datasets nao usados na calibracao (D1-D9
 sinteticos, ou volumes Adult 100/500).
@@ -94,40 +94,40 @@ sinteticos, ou volumes Adult 100/500).
 
 ## Conexoes
 
-- [Sub-exp H-DA-10 revalidacao](../experiments/lab/dirty/2026-05-21-revalidacao-categoria-B/03-h-da-10-min-len-realworld/result.md)
-  — origem dos dados (9.92% oracle)
-- [ADR-0008 detect_cadence](../docs/adr/0008-detect-cadence-numeric-high-cardinality.md)
-  — modelo de pre-pass heuristico similar (H-DA-09b-v2)
+- [Sub-exp H-DA-10 revalidacao](../experiments/lab/dirty/2026-05-21-revalidacao-categoria-B/03-h-da-10-min-len-realworld/result.md):
+  origem dos dados (9.92% oracle)
+- [ADR-0008 detect_cadence](../docs/adr/0008-detect-cadence-numeric-high-cardinality.md):
+  modelo de pre-pass heuristico similar (H-DA-09b-v2)
 - [Roadmap H-DA-11](../experiments/lab/dirty/notas/2026-05/roadmap-hipoteses.md)
 
 ## Updates datados
 
-### 2026-05-21 — abertura
+### 2026-05-21: abertura
 
 Ticket criado seguindo convencao YAML frontmatter. Hipotese decorrente
 de T-REVAL-H-DA-01-06-10 (fechado mesmo dia com surpresa: H-DA-10
 confirmada-empirica real-world 9.92% inesperado).
 
-Priority P2 — alto valor potencial (~5-10% weighted real-world) mas
+Priority P2, alto valor potencial (~5-10% weighted real-world) mas
 nao bloqueia outros pacotes. blocked-by: vazio.
 
-### 2026-05-22 — execucao + fechamento
+### 2026-05-22: execucao + fechamento
 
 Lab dirty `2026-05-21-h-da-11-auto-min-len/` executado integralmente.
 2 sub-exps com result.md.
 
-**Sub-exp 01** — analise de features por coluna:
+**Sub-exp 01**: analise de features por coluna:
 - 58 colunas (D9 + Adult 1k/5k + TPC-H region/customer/lineitem 5k)
 - Features extraidas: avg_len, cardinality, is_numeric, n_rows
 - Oracle weighted: 9.92% (best per column)
 - Padrao identificado: card<0.2 → ml=3 seguro; card alto + avg_len → ml>3
 
-**Sub-exp 02** — heuristica v1/v2/v3:
+**Sub-exp 02**: heuristica v1/v2/v3:
 
 | Estrategia | gain weighted | captura oracle | regressoes |
 |---|---:|---:|---:|
-| default (ml=3) | 0.00% | — | — |
-| oracle (best/col) | 9.92% | 100% | — |
+| default (ml=3) | 0.00% | n/a | n/a |
+| oracle (best/col) | 9.92% | 100% | n/a |
 | heur v1 (so avg_len) | 3.41% | 34.3% | 8 |
 | heur v2 (+ card + num) | 7.39% | 74.5% | 5 |
 | **heur v3 (refinada)** | **9.87%** | **99.5%** | **1** |
@@ -152,7 +152,7 @@ def detect_min_len(values):
 - [x] Sub-exp 02 com comparacao 3-way (oracle/heuristica/default)
 - [x] Heuristica captura >= 5% weighted (v3: **9.87%**, muito acima)
 - [x] >= 7% weighted = candidato welding (v3: 9.87% **>> 7%**)
-- [ ] ADR-0010 (pendente — sera escrito antes do welding em src/tcf)
+- [ ] ADR-0010 (pendente: sera escrito antes do welding em src/tcf)
 
 **Proximos passos sugeridos**:
 1. Escrever ADR-0010 (auto-detect min_len por coluna)
@@ -165,13 +165,13 @@ def detect_min_len(values):
 tree shallow, 0 features novas) recupera 99.5% do ganho oracle real-world
 em Adult+TPC-H. Custo pre-pass: 1 passada O(N) para avg_len + cardinality.
 
-### 2026-05-22 — welding prototype EXP-010 + ADR-0010
+### 2026-05-22: welding prototype EXP-010 + ADR-0010
 
 ADR-0010 escrito. Welding implementado em EXP-010 prototype:
 - `experiments/lab/clean/EXP-010-tcf-delta-aware-prototype/auto_min_len.py` (novo)
 - `delta_aware.encode_column` agora default `min_len=None` -> auto-detect
 
-Welding canonical em src/tcf REVERTIDO — classifier bloqueou ("1." nao
+Welding canonical em src/tcf REVERTIDO, classifier bloqueou ("1." nao
 constitui aprovacao explicita per CLAUDE.md regra NUNCA). Aguarda
 aprovacao explicita do owner.
 
@@ -188,7 +188,7 @@ deve atingir proximo de 9.87%.
 **Status**: closed-prototype-confirmed. Welding canonical pendente
 aprovacao explicita do owner.
 
-### 2026-05-22 — CANONICAL WELDED
+### 2026-05-22: CANONICAL WELDED
 
 Owner aprovou welding canonical explicitamente. Implementado:
 - `src/tcf/auto_min_len.py` (novo modulo canonical)

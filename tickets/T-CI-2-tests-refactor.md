@@ -1,5 +1,5 @@
 ---
-title: T-CI-2 — Refactor tests CI-friendly (archive v0.5 + marker requires_data + new core_rt)
+title: T-CI-2, Refactor tests CI-friendly (archive v0.5 + marker requires_data + new core_rt)
 status: closed
 resolution: refactor-completed
 priority: P3
@@ -13,14 +13,14 @@ related:
   - tests/test_core_rt.py
 ---
 
-# T-CI-2 — Refactor tests CI-friendly
+# T-CI-2: Refactor tests CI-friendly
 
 ## Contexto / motivacao
 
 T-CI-1 Fase 1 (workflow CI lint apenas) identificou que `tests/`
 nao podia rodar em CI:
 - 4 arquivos com imports v0.5 broken (encode_columns, EncodeConfig,
-  tcf.timing — removidos em v0.6)
+  tcf.timing, removidos em v0.6)
 - 2 arquivos dependentes de SQLite Z:/tcf-data
 - 1 arquivo com fixtures missing
 
@@ -108,7 +108,7 @@ Tests deselected sao do `test_shaper.py` (precisa SQLite Z:/).
 
 ## Updates datados
 
-### 2026-05-23 — execucao + fechamento
+### 2026-05-23: execucao + fechamento
 
 Refactor completo em uma rodada. CI agora roda lint + test em 3 versoes
 Python. Tests dataset-dependentes (Z:/SQLite) ficam disponiveis pra
@@ -122,7 +122,7 @@ DBs in-memory). 30 RT tests cobrem APIs principais.
 
 ## Conexoes
 
-- T-CI-1 (Fase 1 lint) — pre-requisito
+- T-CI-1 (Fase 1 lint): pre-requisito
 - ADR-0011 (M10 baseline 1523B testado em test_m10_baseline_invariant)
 - ADR-0010 (auto_min_len testado)
 - ADR-0007 (comma fix testado em test_pacote3_comma_in_literal)

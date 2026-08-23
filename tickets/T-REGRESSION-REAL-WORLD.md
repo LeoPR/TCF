@@ -1,5 +1,5 @@
 ---
-title: T-REGRESSION-REAL-WORLD — Estender regression suite para amostras real-world (gate prune algoritmico)
+title: T-REGRESSION-REAL-WORLD, Estender regression suite para amostras real-world (gate prune algoritmico)
 status: closed-done
 priority: P1
 created: 2026-05-30
@@ -11,7 +11,7 @@ related:
   - docs/theory/h-perf-06-exploration.md  (alvo: validar prune antes de weldar)
 ---
 
-# T-REGRESSION-REAL-WORLD — Real-world regression gate
+# T-REGRESSION-REAL-WORLD: Real-world regression gate
 
 ## Contexto
 
@@ -43,7 +43,7 @@ de que sintetico/mini-suite NAO basta.
 
 ## Plano
 
-### Fase 1 — Escolher amostras canonicas
+### Fase 1: Escolher amostras canonicas
 
 Critica: amostras tem que ser **fixadas** (mesmo seed/criterio) pra
 byte-canonical ser estavel. Candidatos por dataset:
@@ -59,7 +59,7 @@ byte-canonical ser estavel. Candidatos por dataset:
 Cada um devera resultar em byte-count INVARIANT (e.g., adult-5k = 12.345B,
 tpch-5k = 8.765B, retail-5k = 23.456B). Numeros placeholder; medir.
 
-### Fase 2 — Tests
+### Fase 2: Tests
 
 Adicionar em `tests/test_regression_v1_baseline.py`:
 
@@ -70,7 +70,7 @@ Adicionar em `tests/test_regression_v1_baseline.py`:
 - Marcar como `@pytest.mark.real_world` pra opt-in (skip em CI rapido,
   obrigatorio em pre-welding de prune algoritmico)
 
-### Fase 3 — Doc + gate
+### Fase 3: Doc + gate
 
 - ADR-0019 ou atualizar ADR-0017: regression real-world e' GATE
   bloqueante pra welding de qualquer mudanca em `_detect_compositions`
@@ -78,7 +78,7 @@ Adicionar em `tests/test_regression_v1_baseline.py`:
 - Atualizar `CLAUDE.md` no "Antes de declarar confirmada-empirica" pra
   incluir "se mudanca toca HCC, RT real-world obrigatorio".
 
-### Fase 4 — Re-validar candidato #15 (gated)
+### Fase 4: Re-validar candidato #15 (gated)
 
 - Rodar `experiments/lab/dirty/old/welded/2026-05-27-h-perf-06-v2-fase-a/15-tier-scoring-02-topK-heap-with-safe-skip/`
   contra Adult + TPC-H samples (Fase 1)
@@ -91,18 +91,18 @@ Adicionar em `tests/test_regression_v1_baseline.py`:
 Implementado em `experiments/lab/dirty/2026-05-31-regression-real-world/`.
 Desvio do plano original (melhor): em vez de amostras fixed-seed via shaper
 + `@pytest.mark.real_world` (skip se Z: ausente), usei **fixtures committadas
-deterministicas** (primeiros 2000 valores de colunas free-text) — portaveis,
+deterministicas** (primeiros 2000 valores de colunas free-text), portaveis,
 sem dependencia de Z:, sem shaper (que ainda nao tem aprovacao estatistica,
 ver T-SHAPER-SCIENTIFIC-GATING). Regression fixture precisa ser ESTAVEL, nao
 estatisticamente representativa.
 
 Achado: amostras de 100 linhas (as committadas pre-existentes) NAO discriminam
-#03 — mesmo blind spot do mini-suite. Colunas categoricas low-card (adult)
+#03, mesmo blind spot do mini-suite. Colunas categoricas low-card (adult)
 tambem nao. So' free-text >=1000 linhas atinge o regime. Fixtures escolhidas
 (2000 linhas, provadas discriminantes):
 - retail Description (27581B), retail StockCode (11437B), lineitem l_comment (50598B)
 
-#15 (topK-heap) confirmado byte-safe nas 3 — Fase 4 concluida, welding
+#15 (topK-heap) confirmado byte-safe nas 3. Fase 4 concluida, welding
 desbloqueado (abrir H-PERF-06-v2-T01).
 
 ## Criterio de aceite

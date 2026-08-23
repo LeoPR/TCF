@@ -1,5 +1,5 @@
 ---
-title: T-EXP-DATASETH-S0-S3 — corpus, oráculo, IR e álgebra de vínculos
+title: T-EXP-DATASETH-S0-S3, corpus, oráculo, IR e álgebra de vínculos
 status: closed
 priority: P1
 created: 2026-07-16
@@ -11,7 +11,7 @@ related:
   - experiments/lab/dirty/2026-07/2026-07-16/2026-07-16-1708-dataseth-s0-s3-semantica-vinculos/
 ---
 
-# T-EXP-DATASETH-S0-S3 — executar S0–S3
+# T-EXP-DATASETH-S0-S3: executar S0–S3
 
 **[dispositivo→exec]** Construir evidência regenerável para capacidade semântica e equivalência de
 vínculos antes de simplificar a representação do `#TCF.8H`.
@@ -34,7 +34,7 @@ Fonte: [outputs/24-resultado.txt](../experiments/lab/dirty/2026-07/2026-07-16/20
 - álgebra de vínculo: **20/20**;
 - fail-loud: **8/8**;
 - wires reais: **20**, 801 B totais apenas como observação; magic `#PROTO.DATASETH.S1`
-  (wire de PESQUISA do oráculo S1, não `#TCF.8H` canônico — declarado no README do lab);
+  (wire de PESQUISA do oráculo S1, não `#TCF.8H` canônico, declarado no README do lab);
 - round-trip do corpus: **byte-idêntico** ao canônico;
 - `src/tcf`: intocado.
 

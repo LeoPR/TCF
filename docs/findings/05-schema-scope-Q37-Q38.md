@@ -7,7 +7,7 @@ parent: docs/findings/README.md
 
 # Eixo horizontal de schema (F-Q37..F-Q38)
 
-## F-Q37 `{B}` — Escopo de schema NÃO degrada Linha B em N0; modelos inferem nomes via padrão lexical
+## F-Q37 `{B}`: Escopo de schema NÃO degrada Linha B em N0; modelos inferem nomes via padrão lexical
 
 **Conclusão:** Variar schema visível ao modelo de **1 tabela (minimal) a
 8 tabelas (full)** em TPC-H Linha B com wordings N0 (schema-aware) **não
@@ -24,7 +24,7 @@ via padrão lexical** (`Supplier#NNNNNNNNN`) mesmo quando a tabela `supplier`
 **Evidência (M-schema-scope, 2026-04-27):** 3 modelos × 3 seeds × 4 schema
 levels × 7 questões × N0 = **252 records** sobre TPC-H sf001.
 
-**Schema levels (visível no payload — DB SQLite sempre tem 3 chain tables
+**Schema levels (visível no payload, DB SQLite sempre tem 3 chain tables
 para GT correto):**
 
 | Level | Tabelas visíveis | n |
@@ -34,7 +34,7 @@ para GT correto):**
 | chain | partsupp + part + supplier (= M9 baseline) | 3 |
 | full | 8 tabelas TPC-H | 8 |
 
-**Tabela central — modelo × schema_level:**
+**Tabela central, modelo × schema_level:**
 
 | Modelo | minimal | core | chain | full | Δ (max−min) |
 |--------|---------|------|-------|------|-------------|
@@ -50,7 +50,7 @@ para GT correto):**
 | q_top_product | 67% | 67% | 67% | 67% | Tie issue (GT, não escopo) |
 | **q_lookup** | **78%** | 100% | 100% | 100% | -22pp em minimal |
 
-**Mecanismo — inferência lexical de nomes:**
+**Mecanismo, inferência lexical de nomes:**
 
 q_lookup pede o NOME do supplier com max(ps_supplycost). Em minimal, o
 payload tem só `partsupp` (com `ps_suppkey` mas sem nomes). Mesmo assim,
@@ -67,7 +67,7 @@ SELECT ps_suppkey FROM partsupp ORDER BY ps_supplycost DESC LIMIT 1
 
 **O LLM aprendeu o padrão lexical TPC-H** (`Supplier#NNNNNNNNN`) e o
 aplica mesmo sem ter a tabela `supplier` disponível. Isso é
-**memorização de schema canônico** — funciona para benchmarks
+**memorização de schema canônico**: funciona para benchmarks
 conhecidos (TPC-H), mas é evidência de que o modelo NÃO está apenas
 respondendo ao schema apresentado.
 
@@ -84,13 +84,13 @@ respondendo ao schema apresentado.
    confundir-se em F-Q33/F-Q34). Mas custo: 1008 calls locais. Pode ser
    feito quando houver tempo.
 
-3. **Risco metodológico — leakage de TPC-H em training:** o padrão
+3. **Risco metodológico, leakage de TPC-H em training:** o padrão
    `Supplier#NNNNNNNNN` é canônico TPC-H e amplamente memorizado por
    LLMs pré-2026. **Achados em TPC-H podem ser inflados por
    memorização**. Vale considerar dataset privado para validação
    independente em paper futuro.
 
-4. **Adult Census não tem esse problema** — colunas hifenadas
+4. **Adult Census não tem esse problema**: colunas hifenadas
    (hours-per-week) e categóricos (`workclass`, `education`) não têm
    padrão lexical previsível. Por isso F-Q30 é mais limpa que F-Q37.
 
@@ -109,20 +109,20 @@ H_scope-3 (efeito × naturalidade). 1008 calls locais, ~40min, $0.
 
 ---
 
-## F-Q38 `{B}` — Interação escopo × naturalidade: schema reduzido AJUDA em wordings naturais (-33pp full vs minimal em N3)
+## F-Q38 `{B}`: Interação escopo × naturalidade: schema reduzido AJUDA em wordings naturais (-33pp full vs minimal em N3)
 
 **Conclusão:** **H_scope-3 do ticket M-schema-scope CONFIRMADA**. Em
 wordings naturais (N2/N3), schema reduzido (`minimal`, 1 tabela) atinge
 accuracy **15-33pp maior** que schema completo (`full`, 8 tabelas) em
 TPC-H. Em wordings schema-aware (N0), o efeito desaparece (todos ~95%).
-**Schema pruning** — recomendação universal da literatura industrial
-(Cortex Analyst, DAIL-SQL, CHESS) — fica empiricamente justificada.
+**Schema pruning**: recomendação universal da literatura industrial
+(Cortex Analyst, DAIL-SQL, CHESS), fica empiricamente justificada.
 
 **Evidência (M-schema-scope, 2026-04-27):** 3 modelos × 3 seeds × 4
 levels × 4 níveis × 7q = **1008 records** sobre TPC-H. Estende F-Q37
 (que cobria só N0).
 
-**Tabela central — schema_level × naturalidade (todos modelos agregados):**
+**Tabela central, schema_level × naturalidade (todos modelos agregados):**
 
 | Level | N0 | N1 | N2 | N3 | Δ N0→N3 |
 |-------|----|----|----|----|----|
@@ -135,7 +135,7 @@ levels × 4 níveis × 7q = **1008 records** sobre TPC-H. Estende F-Q37
 - N0: -3pp (schema-aware imune)
 - N1: -1pp (system-aware, leve)
 - N2: **+15pp** (minimal > full)
-- N3: **+33pp** (minimal > full) — **EFEITO DRAMÁTICO**
+- N3: **+33pp** (minimal > full), **EFEITO DRAMÁTICO**
 
 **Per modelo × schema_level (agregado nl):**
 
@@ -148,7 +148,7 @@ levels × 4 níveis × 7q = **1008 records** sobre TPC-H. Estende F-Q37
 **phi4 é mais sensível ao excesso de schema** (-16pp); qwen2.5-coder é
 mais estável (-3pp). qwen3:14b mantém-se forte mas perde 13pp em full.
 
-**Mecanismo — N3 em full é o pior caso:**
+**Mecanismo, N3 em full é o pior caso:**
 
 Wording N3 *"Qual o ticket médio de custo unitário na nossa operação?"*
 em full (8 tabelas TPC-H) tem 4-5 colunas $ candidatas:
@@ -163,7 +163,7 @@ O modelo escolhe entre elas com taxa de erro alta. Em minimal
 modelo é forçado à interpretação correta.
 
 Mesmo em chain (3 tabelas, sem orders/lineitem), só ps_supplycost e
-p_retailprice competem — daí 73% N3 (vs 48% full).
+p_retailprice competem, daí 73% N3 (vs 48% full).
 
 **Implicações fortes:**
 
@@ -171,7 +171,7 @@ p_retailprice competem — daí 73% N3 (vs 48% full).
    O verdadeiro estado é: ambiguidade × escopo. Em chain, gpt-5.4 caía
    -43pp em N2; em full seria pior ainda.
 
-2. **Schema pruning não é otimização opcional — é parte da pipeline.**
+2. **Schema pruning não é otimização opcional, é parte da pipeline.**
    Sistemas NL2SQL em produção devem extrair subset relevante antes de
    passar ao LLM, especialmente para wordings business.
 
@@ -184,21 +184,21 @@ p_retailprice competem — daí 73% N3 (vs 48% full).
 
 5. **Recomendação prática para o paper:** combinar TCF (compressão) +
    schema_qualifier (pruning) é o caminho. Já há roadmap em
-   `research-notes/2026-04-24-schema-qualifier.md` — F-Q38 dá motivação
+   `research-notes/2026-04-24-schema-qualifier.md`. F-Q38 dá motivação
    empírica para implementar.
 
 **Sub-finding sobre N3 minimal (81%) > N1 minimal (86% mas próximo):**
 
 N3 em minimal recupera a 81%, mais alto que core/chain/full em N3
 (48-73%). O contexto business em N3 ("nossa operação") **melhora**
-quando o modelo só tem 1 tabela para considerar — o "nosso" mapeia
+quando o modelo só tem 1 tabela para considerar, o "nosso" mapeia
 naturalmente para `partsupp`.
 
 **Custo:** $0 (Ollama local).
 
 **Pendências relacionadas:**
 - Schema pruning como serviço pre-TCF (schema_qualifier roadmap)
-- Replicar F-Q38 em comerciais (gpt-5.x, Anthropic) — esperado
+- Replicar F-Q38 em comerciais (gpt-5.x, Anthropic): esperado
   mesma direção, gap maior que locais por capacidade
 
 **Referência:** `experiments/results/m_schema_scope/manifest.jsonl`

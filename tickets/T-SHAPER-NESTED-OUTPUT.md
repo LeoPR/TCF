@@ -1,5 +1,5 @@
 ---
-title: T-SHAPER-NESTED-OUTPUT — saída HIERÁRQUICA nativa no Shaper (aninhar via FK, inverso do flat)
+title: T-SHAPER-NESTED-OUTPUT, saída HIERÁRQUICA nativa no Shaper (aninhar via FK, inverso do flat)
 status: open
 priority: P3
 created: 2026-07-15
@@ -15,13 +15,13 @@ related:
   - experiments/lab/dirty/2026-07/2026-07-14/2026-07-14-2336-hierarquia-amostra-populacao-honesta/
 ---
 
-# T-SHAPER-NESTED-OUTPUT — o Shaper aninhando (hierarquia como saída de 1ª classe)
+# T-SHAPER-NESTED-OUTPUT: o Shaper aninhando (hierarquia como saída de 1ª classe)
 
 **[dispositivo→registro]** Owner (2026-07-15): o Shaper foi feito pra modelar experimentos de forma
-**elástica e estatisticamente controlada** sem nos preocuparmos — mas ele **não produz hierarquias
+**elástica e estatisticamente controlada** sem nos preocuparmos, mas ele **não produz hierarquias
 nativamente** (confirmado: `JOIN_LEVELS = ("normalized", "flat")`; o `join.py` só ACHATA via FK).
 Nos testes em massa da hierarquia (`#TCF.8H`), os labs tiveram que aninhar **à mão**
-(`nest_customers` no lab 2231/2336) — duplicação que este ticket elimina: *"ter a ferramenta
+(`nest_customers` no lab 2231/2336), duplicação que este ticket elimina: *"ter a ferramenta
 adequada pra situação economiza nossos scripts de teste, que não precisam ter essa capacidade
 neles; basta pedir pro Shaper e ele daria bem feito."*
 
@@ -36,15 +36,15 @@ O inverso do `flat`: um modo de saída que usa a MESMA metadata de FK (`tables[n
 - **API**: `join_level="nested"` (3º valor de `JOIN_LEVELS`) OU parâmetro próprio
   (`nest_root="customer"`); reusar `fact_table`→ raiz. Explícito e direto no request, como o owner pediu.
 - **Semântica**: raiz = tabela escolhida; cada FK **entrante** (filho→raiz) vira array aninhado
-  (`customer → [orders] → [lineitem]`), recursivo em cadeia — a mesma projeção que os labs fizeram
+  (`customer → [orders] → [lineitem]`), recursivo em cadeia, a mesma projeção que os labs fizeram
   à mão. FK **saínte** da raiz (dim lookup, ex. `c_nationkey`) fica como escalar (ou opt-in de embed).
 - **Compõe com o que já existe**: `fk_preserving` (amostra honesta estratificada + integridade) roda
   ANTES; o nest é um passo de APRESENTAÇÃO, como o `join_resolver`. Estratificação/volume/seed
   continuam valendo → amostras hierárquicas honestas de graça.
-- **Fronteira honesta**: multi-pai/N:N (partsupp) não é árvore — o nest escolhe UMA raiz (projeção
+- **Fronteira honesta**: multi-pai/N:N (partsupp) não é árvore, o nest escolhe UMA raiz (projeção
   1:N da N:N); documentar que isso é projeção, não a junção completa (essa é a super-hierarquia,
   H-HIER-MULTITABELA-01, fora do Shaper).
-- **Saída**: `list[dict]` (records) — exatamente o contrato do `encode_hierarchical` (DatasetH
+- **Saída**: `list[dict]` (records), exatamente o contrato do `encode_hierarchical` (DatasetH
   source-agnostic). Tipos: manter os valores como vêm do SQLite; a coerção all-string é do
   consumidor/teste (classe coberta), não do Shaper.
 - **Gate**: como toda mudança de shaper, precisa de validação estatística assertada

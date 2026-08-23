@@ -1,4 +1,4 @@
-# META-DOCS-V05-OBSOLETE — Fase 2: limpar v0.5 dos docs
+# META-DOCS-V05-OBSOLETE: Fase 2: limpar v0.5 dos docs
 
 **Status**: CLOSED (2026-05-17)
 **Criado**: 2026-05-17
@@ -36,7 +36,7 @@ Acceptance criteria atendidos:
 
 ### T-DOC-1: `docs/manual/` → archive (v0.5 API)
 
-API atual descreve `encode_rows(level=2, include_stats=True)` — v0.5
+API atual descreve `encode_rows(level=2, include_stats=True)`, v0.5
 columnar/RLE. Nao se aplica a v0.6 (`from tcf import encode, decode`).
 
 Acao: `git mv docs/manual docs/archive/manual_v05`
@@ -47,7 +47,7 @@ Paper drafts orientados a LLM benchmark v0.5. v0.6 paper sera
 escrito depois.
 
 Acao: `git mv docs/article docs/archive/article_v05` (conflito com
-`docs/archive/article_v01/` — usar nome diferente).
+`docs/archive/article_v01/`, usar nome diferente).
 
 ### T-DOC-3: `docs/theory/components/` → archive
 
@@ -78,7 +78,7 @@ Acao: `git mv docs/theory/research-lines docs/archive/theory_research_lines_v05`
 
 `F-findings.md`, `experimental-design.md`, `model-ranking.md`,
 `tests.md` sao v0.5. `llm-research-rigor.md` tem padroes gerais
-de rigor cientifico — mas em contexto LLM. Arquivar tudo;
+de rigor cientifico, mas em contexto LLM. Arquivar tudo;
 re-derivar metodologia v0.6 se necessario.
 
 Acao: `git mv docs/theory/methodology docs/archive/theory_methodology_v05`
@@ -89,14 +89,14 @@ Apos T-DOC-3 a T-DOC-6, `docs/theory/` ficara vazio. Decidir:
 - (a) Deletar `docs/theory/` (vazia)
 - (b) Criar `docs/theory/README.md` minimo apontando pra docs/algorithms/
 
-Sugiro (b) — placeholder pra v0.6 theory crescer (multi-coluna,
+Sugiro (b), placeholder pra v0.6 theory crescer (multi-coluna,
 pre-tx, etc.).
 
 ### T-DOC-8: `docs/findings/` + `docs/FINDINGS_SUMMARY.md` → notice
 
 Phase 1 LLM findings (Q01-Q38) sao **historicos validos**. Manter
 no lugar, adicionar notice no topo de cada arquivo dizendo:
-"Phase 1 LLM benchmark — ciclo v0.5; acessorio a TCF v0.6".
+"Phase 1 LLM benchmark, ciclo v0.5; acessorio a TCF v0.6".
 
 Acao: Edit cabecalho de cada arquivo + FINDINGS_SUMMARY.md
 
@@ -108,7 +108,7 @@ archive).
 
 Acao: Edit docs/README.md
 
-### T-DOC-10: README raiz — pointers
+### T-DOC-10: README raiz, pointers
 
 Verificar links que apontam para manual/, article/, theory/. Atualizar
 ou remover.
@@ -125,5 +125,5 @@ Acao: Edit README.md raiz se necessario
 
 ## Conexoes
 
-- META-NAMING (closed) — pre-requisito para nomes oficiais nos novos docs
-- `docs/algorithms/` — destino conceitual da reorientacao
+- META-NAMING (closed): pre-requisito para nomes oficiais nos novos docs
+- `docs/algorithms/`: destino conceitual da reorientacao

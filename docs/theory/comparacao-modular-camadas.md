@@ -1,4 +1,4 @@
-# Comparacao modular — camadas e expansoes
+# Comparacao modular: camadas e expansoes
 
 **Data**: 2026-05-13
 **Tipo**: nota teorica transversal (estrutural, vale para todos os macros)
@@ -12,7 +12,7 @@ consolidado").
 (estruturais), [`quebra-de-linha-como-marcador.md`](quebra-de-linha-como-marcador.md)
 (marcadores como dimensao opcional).
 **Status**: registrada como direcao arquitetural. **Nao acionavel
-imediatamente** — fica como guia pra protótipo e macros futuros.
+imediatamente**, fica como guia pra protótipo e macros futuros.
 
 ## Nome formal para o alg16
 
@@ -34,7 +34,7 @@ componente do TCF.
 Recomendacao: **TCF-CORE** para citacao em artigos/notas; **OAS**
 para descricao tecnica do algoritmo dentro do prototipo.
 
-## Tese central — comparacao como parametro modular
+## Tese central: comparacao como parametro modular
 
 Atualmente toda comparacao no TCF-CORE e' **literal byte-a-byte**:
 
@@ -58,14 +58,14 @@ sem mexer no nucleo.
 
 Comparacao aparece em PELO MENOS 2 camadas distintas no TCF:
 
-### Camada A — Algoritmo (TCF-CORE / OAS)
+### Camada A: Algoritmo (TCF-CORE / OAS)
 
 Decide pref/suf comum entre strings:
 ```
 a vs b  →  LCP(a, b), LCS(a, b)
 ```
 
-### Camada B — Descritores / sintaxes (M1.E, M2.A, M4.C1', etc)
+### Camada B: Descritores / sintaxes (M1.E, M2.A, M4.C1', etc)
 
 Detectores de padroes nas refs serializadas:
 ```
@@ -73,7 +73,7 @@ run_atual vs runs_anteriores  →  contagem global
 sub_atual vs sub_anteriores   →  contagem global
 ```
 
-## Comparacao modular — taxonomia possivel
+## Comparacao modular: taxonomia possivel
 
 | Modo | Lossless? | Onde encaixa | Exemplo |
 |---|---|---|---|
@@ -86,7 +86,7 @@ Notas:
 - **Literal** e' default e cobre 90% dos casos.
 - **Delta** ja' explorado em Mobsolete (`2026-05-09-delta-datas/`).
   Lossless se delta e' exato. Cabe como pre-transformacao por coluna.
-- **Aproximado** e' lossy — fora do contrato atual do TCF (lossless).
+- **Aproximado** e' lossy: fora do contrato atual do TCF (lossless).
   Encaixa em Shaper ou modo opt-in declarado.
 - **Estrutural** mapeia tipos conhecidos (CPF, UUID) com mascara
   fixa. Reduz info armazenada. Pre-transformacao por coluna.
@@ -136,19 +136,19 @@ ser feito em `data_extra/` se valer.
 
 ## Conexoes
 
-- [[2026-05-11-comparacoes-nao-literais.md]] — registra delta como
+- [[2026-05-11-comparacoes-nao-literais.md]]: registra delta como
   pre-tx (origem da ideia)
-- [[2026-05-11-tipos-com-estrutura.md]] — registra estrutural como
+- [[2026-05-11-tipos-com-estrutura.md]]: registra estrutural como
   pre-tx (origem da ideia)
-- [[quebra-de-linha-como-marcador.md]] — marcadores tambem
+- [[quebra-de-linha-como-marcador.md]]: marcadores tambem
   modulares
-- [[../2026-05-13-M4-desfragmentacao-arvore/notas/buffer-e-refragmentacao.md]] —
+- [[../2026-05-13-M4-desfragmentacao-arvore/notas/buffer-e-refragmentacao.md]]:
   conversa que motivou a sintese
-- [[../2026-05-13-M4-desfragmentacao-arvore/notas/arvore-da-arvore-vs-regex.md]] —
+- [[../2026-05-13-M4-desfragmentacao-arvore/notas/arvore-da-arvore-vs-regex.md]]:
   busca de padroes vs regex
 
 ## Resumido em 1 linha
 
 "TCF-CORE (alg16) e' lossless byte-a-byte. Comparacao modular
-(literal/delta/estrutural/aprox) cabe como pre-tx ortogonal — nao
+(literal/delta/estrutural/aprox) cabe como pre-tx ortogonal, nao
 muda o nucleo, abre extensoes no protótipo."

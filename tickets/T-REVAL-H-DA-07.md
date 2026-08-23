@@ -1,5 +1,5 @@
 ---
-title: T-REVAL-H-DA-07 — Revalidacao H-DA-07 (OBAT shape-preserve) em real-world
+title: T-REVAL-H-DA-07, Revalidacao H-DA-07 (OBAT shape-preserve) em real-world
 status: closed
 resolution: confirmed-real-world
 priority: P2
@@ -15,7 +15,7 @@ related:
   - experiments/lab/dirty/notas/2026-05/2026-05-21-0138-revisao-conceitual.md
 ---
 
-# T-REVAL-H-DA-07 — Revalidacao OBAT shape-preserve
+# T-REVAL-H-DA-07: Revalidacao OBAT shape-preserve
 
 ## Contexto / motivacao
 
@@ -38,13 +38,13 @@ significativos vs encoder sem shape-preserve?
 
 ## Hipoteses sob revalidacao
 
-### H-DA-07a — shape-preserve nao regride em real-world
+### H-DA-07a: shape-preserve nao regride em real-world
 
 Em real-world, detect_cadence dispara so' onde shape-preserve ajuda
 (ou pelo menos nao prejudica). Welding canonical Pacote 1 e' seguro
 em real-world.
 
-### H-DA-07b — Identificar colunas problematicas (se houver)
+### H-DA-07b: Identificar colunas problematicas (se houver)
 
 Se alguma coluna real-world regredir, classificar:
 - Tipo de regressao (lengths nao-uniformes? shape mudando?)
@@ -55,7 +55,7 @@ Se alguma coluna real-world regredir, classificar:
 
 Lab dirty: `experiments/lab/dirty/2026-05-22-h-da-07-shape-preserve-revalidacao/`
 
-### Sub-exp 01 — medicao on/off
+### Sub-exp 01: medicao on/off
 
 Comparar 2 variantes em D1-D9 + Adult Census + TPC-H:
 - **V1 (off)**: pipeline manual sem shape-preserve (`processar` canonical sempre)
@@ -74,21 +74,21 @@ Per total: weighted gain/loss.
 
 ## Conexoes
 
-- [T-REVAL Categoria B](T-REVAL-H-DA-01-06-10.md) — onde H-DA-07 ficou pendente
-- [T-CODE-PACOTE1-WELD-CANONICAL](T-CODE-PACOTE1-WELD-CANONICAL.md) — welding canonical
+- [T-REVAL Categoria B](T-REVAL-H-DA-01-06-10.md): onde H-DA-07 ficou pendente
+- [T-CODE-PACOTE1-WELD-CANONICAL](T-CODE-PACOTE1-WELD-CANONICAL.md): welding canonical
 - [Revisao conceitual](../experiments/lab/dirty/notas/2026-05/2026-05-21-0138-revisao-conceitual.md)
 - [Roadmap H-DA-07](../experiments/lab/dirty/notas/2026-05/roadmap-hipoteses.md)
 
 ## Updates datados
 
-### 2026-05-22 — abertura
+### 2026-05-22: abertura
 
 Ticket criado seguindo convencao YAML frontmatter. Categoria B residual
 de T-REVAL nao revalidada em real-world. Welding Pacote 1 canonical
-ja' inclui pipeline shape-preserve com gating — esta revalidacao
+ja' inclui pipeline shape-preserve com gating, esta revalidacao
 mede se gating funciona corretamente em real-world.
 
-### 2026-05-22 — execucao + fechamento
+### 2026-05-22: execucao + fechamento
 
 Sub-exp 01 medindo shape-preserve on/off em D1-D9 + Adult+TPC-H.
 
@@ -99,7 +99,7 @@ Sub-exp 01 medindo shape-preserve on/off em D1-D9 + Adult+TPC-H.
 | Sintetico D1-D9 | 1,584 | 1,523 | -61 | -3.85% |
 | Real-world (Adult+TPC-H) | 893,864 | 889,714 | -4,150 | **-0.46%** |
 
-**Distribuicao** (62/66 colunas sem mudanca — gating funciona):
+**Distribuicao** (62/66 colunas sem mudanca, gating funciona):
 - 2 wins (shape-preserve ajuda):
   - `tpch.customer-5k/c_name`: -4,514B (**-98.19%**) DRAMATICO
   - `sintetico/D9-frequencia-alta/val`: -61B (-48.03%)
@@ -114,7 +114,7 @@ Sub-exp 01 medindo shape-preserve on/off em D1-D9 + Adult+TPC-H.
 - Losses pequenas em numericos onde shape-preserve nao ajuda mas erra pouco
 
 **Resolution**: confirmed-real-world. Gating `detect_cadence` opera
-corretamente — dispara em colunas onde shape-preserve ajuda
+corretamente, dispara em colunas onde shape-preserve ajuda
 significativamente; nao dispara (62/66) na maioria.
 
 Status roadmap atualizado: `confirmada-empirica real-world (gating

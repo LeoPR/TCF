@@ -1,5 +1,5 @@
 ---
-title: T-FMT-ESCAPE-COMBINATORIAL-STUDY — reestudar o escape (combinatório + estratégias de outros mecanismos)
+title: T-FMT-ESCAPE-COMBINATORIAL-STUDY, reestudar o escape (combinatório + estratégias de outros mecanismos)
 status: open
 priority: P3
 created: 2026-07-15
@@ -14,14 +14,14 @@ related:
   - src/tcf/hierarchical.py
 ---
 
-# T-FMT-ESCAPE-COMBINATORIAL-STUDY — o escape merece um estudo próprio
+# T-FMT-ESCAPE-COMBINATORIAL-STUDY: o escape merece um estudo próprio
 
 **[dispositivo→registro; SÓ REGISTRAR, não estudar agora]** Owner (2026-07-15): *"o escape me
 incomoda; olhando, tenho sempre a sensação de que dá pra fazer melhor. Sei que a estratégia já está
 bem boa (escape + regras têm representação bem pequena), mas não fizemos um estudo combinatório, nem
 comparamos com a estratégia usada em outros mecanismos de armazenamento."*
 
-Contexto: o escape atual é **backslash interim** — `.8M` escapa `,=:\`+`!@%` inicial
+Contexto: o escape atual é **backslash interim**, `.8M` escapa `,=:\`+`!@%` inicial
 ([T-FMT-NAME-ESCAPING](T-FMT-NAME-ESCAPING.md), welded); o `.8H` acabou de portar a mesma convenção
 p/ nomes com `,[]{}:#\`+espaço-inicial (commit `40a7e10`). Funciona e é barato, mas nunca foi
 **estudado combinatoriamente** nem comparado com o estado-da-arte.
@@ -37,17 +37,17 @@ outros mecanismos de armazenamento**.
    valor, size) → matriz completa; onde o backslash-simples QUEBRA vs onde basta; custo (bytes) por
    célula. Hoje isso é coberto por fuzz pontual, não por enumeração.
 2. **Estado-da-arte** (comparar estratégias de outros mecanismos):
-   - **CSV/RFC 4180**: quoting com aspas + doubling (`""`) — quando ganha do backslash?
+   - **CSV/RFC 4180**: quoting com aspas + doubling (`""`), quando ganha do backslash?
    - **JSON**: `\uXXXX` + escapes nomeados; custo vs legibilidade.
-   - **Parquet/Arrow**: length-prefixed (sem escape — o delimitador não existe no wire binário).
+   - **Parquet/Arrow**: length-prefixed (sem escape, o delimitador não existe no wire binário).
    - **Protobuf/Avro/MessagePack/CBOR**: length-prefixed / tag-length-value (idem, escape=0).
    - **Postgres COPY**, **TSV**, **Bencode** (length-prefix textual `N:str`).
-   - Eixo-chave: **escape (delimitador in-band)** vs **length-prefix (delimitador eliminado)** — o
+   - Eixo-chave: **escape (delimitador in-band)** vs **length-prefix (delimitador eliminado)**, o
      TCF já usa size (hex) em várias posições; quando o size TORNA o escape desnecessário?
 3. **Trade do TCF**: o pilar é TEXTO+explicabilidade (§FILOSOFIA). Length-prefix mata o escape mas
    custa legibilidade (o nome deixa de ser lido direto). Qual o ponto ótimo por posição? (nome do
    header quer legibilidade; valor de corpo talvez não.)
-4. **Custo real**: bytes de escape em dado real (nomes/valores com separador são raros — medir a
+4. **Custo real**: bytes de escape em dado real (nomes/valores com separador são raros, medir a
    frequência real antes de otimizar; anti-incidente 2026-05-21).
 
 ## Escopo / não-escopo

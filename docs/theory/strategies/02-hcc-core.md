@@ -1,16 +1,16 @@
 ---
-title: HCC (Hierarchical Compositional Coding) M8.A — Camada 2 (Compactação Composicional)
+title: HCC (Hierarchical Compositional Coding) M8.A, Camada 2 (Compactação Composicional)
 type: reference
 parent: strategies-map
 subsystem: hcc-core
 ---
 
-# HCC (Hierarchical Compositional Coding) M8.A — Camada 2 (Compactação Composicional)
+# HCC (Hierarchical Compositional Coding) M8.A: Camada 2 (Compactação Composicional)
 
 **Como decide caminhos**:
 **Fluxo de Decisão HCC M8.A (3 Fases Sequenciais)**:
 
-**FASE A — Tokenize (_tokenize_pieces linhas 151-221)**:
+**FASE A, Tokenize (_tokenize_pieces linhas 151-221)**:
 1. Input: linhas (strings com RLE), unicas (unique strings), tokens_por_string (OBAT)
 2. _rle_adjacente(linhas) -> (string, count) groups
 3. For each group: eid = unica_to_eid[string]
@@ -19,7 +19,7 @@ subsystem: hcc-core
 6. Merge 'ref' pieces consecutivos, output pieces_per_line[li] = [('lit'|'refs', ...), ...]
 7. Output: pieces_per_line, line_meta, atom_count
 
-**FASE B — Detect (_detect_compositions linhas 225-362)**:
+**FASE B, Detect (_detect_compositions linhas 225-362)**:
 1. WHILE TRUE (max 99 iterações):
    a. Count all K>=2 sub-tuplas em ref sequences, track sub_first_line[sub]
    b. Track alias_first_line[alias] para virtuals já em corpo
@@ -30,7 +30,7 @@ subsystem: hcc-core
    g. ELSE -> alias_temp++, alias_to_sub[alias_temp] = list(sub), substitute all sub in pieces_per_line com -alias_temp
 2. Output: alias_to_sub, iter_traces
 
-**FASE C — Emit (_emit_body linhas 391-468)**:
+**FASE C, Emit (_emit_body linhas 391-468)**:
 1. For each line_meta (count, eid, is_rep):
    a. IF is_rep -> emit `*count|^eid` (or `^eid` if count=1)
    b. ELSE:
@@ -159,7 +159,7 @@ sub_first_line[sub] = first line index onde sub aparece como candidato. alias_fi
 
 ### Notas
 
-**CATALOGAÇÃO EXAUSTIVA — HCC M8.A CAMADA 2**
+**CATALOGAÇÃO EXAUSTIVA, HCC M8.A CAMADA 2**
 
 **Status Canonical & Welding**:
 - Código base intocado desde 2026-05-16 em dirty lab

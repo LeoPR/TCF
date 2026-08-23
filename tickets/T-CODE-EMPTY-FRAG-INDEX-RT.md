@@ -1,5 +1,5 @@
 ---
-title: T-CODE-EMPTY-FRAG-INDEX-RT — Bug de RT no core M10 (string vazia desloca index de fragmento HCC)
+title: T-CODE-EMPTY-FRAG-INDEX-RT, Bug de RT no core M10 (string vazia desloca index de fragmento HCC)
 status: closed
 priority: P1
 created: 2026-06-13
@@ -13,7 +13,7 @@ related:
   - tests/test_core_rt.py
 ---
 
-# T-CODE-EMPTY-FRAG-INDEX-RT — Bug de RT no core M10
+# T-CODE-EMPTY-FRAG-INDEX-RT: Bug de RT no core M10
 
 **[probatório]** Registra um defeito de correcao verificado. Severidade ALTA:
 viola o contrato fundamental `decode(encode(x)) == x` em dado trivial-real,
@@ -59,7 +59,7 @@ back-reference). Sintomas escalam: corrupcao silenciosa → valor perdido → cr
 Dois espacos de index distintos:
 - `nos_decl` (refs de linha inteira `^N`): linha vazia **conta** (`nos_decl.append('')`).
 - `frags`/`prox_idx` (refs de fragmento `~ , digito` em `_parse_decl`): linha vazia
-  **nao conta** — `_parse_decl('')` retorna `''` sem `prox_idx[0] += 1` (o while
+  **nao conta**: `_parse_decl('')` retorna `''` sem `prox_idx[0] += 1` (o while
   loop sobre `resto` vazio nunca roda o branch que registra fragmento).
 
 O encoder conta o valor vazio no espaco de fragmentos; o decoder nao reserva o
@@ -87,14 +87,14 @@ ADR-0006 (empty string decode), caso distinto e nao coberto.
 - [ ] Idealmente: fix decode-only (encode output inalterado) → byte-canonical-safe
       por construcao. Se exigir tocar encode, re-pinar baselines com justificativa.
 - [ ] Considerar adicionar fixture free-text com empty+prefixo ao gate real-world
-      (receita nome_fantasia ou sintetico) — fecha a lacuna de cobertura.
+      (receita nome_fantasia ou sintetico), fecha a lacuna de cobertura.
 
 ## Riscos
 
 1. **Byte-canonical**: o index de fragmento faz parte do formato. Se o fix mexer
    na NUMERACAO de encode, muda bytes → quebra D1-D9. Mitigacao: preferir fix
    decode-side (reservar index pra linha vazia) que nao toca encode output.
-2. **Regressao em outros caminhos**: empty no meio hoje passa (OK) — o fix nao
+2. **Regressao em outros caminhos**: empty no meio hoje passa (OK), o fix nao
    pode quebrar esse. Cobrir ambos.
 3. Toca `src/tcf` (canonical) → exige **aprovacao explicita do owner** (CLAUDE.md
    NUNCA). Gate dos DOIS suites (D1-D9 + real-world) antes de qualquer weld.
@@ -102,30 +102,30 @@ ADR-0006 (empty string decode), caso distinto e nao coberto.
 ## Conexoes
 
 - Lab: `experiments/lab/dirty/old/welded/2026-06-13-v2a-fallback-expandido/` (repro + ddmin)
-- ADR-0006 (empty string decode fix — fix anterior, escopo distinto)
-- ADR-0007 (comma in literals — familia de bugs de parsing de body)
+- ADR-0006 (empty string decode fix: fix anterior, escopo distinto)
+- ADR-0007 (comma in literals: familia de bugs de parsing de body)
 - V2-A (ADR-0018): o fallback contorna este bug (nome_fantasia cai pra raw),
   mas o weld de V2-A pressupoe o all-TCF correto → este bug e' pre-requisito.
 
-## Resolucao — CLOSED 2026-06-13
+## Resolucao: CLOSED 2026-06-13
 
 Aprovado pelo owner (toca src/tcf). Eram DOIS modos, ambos da familia "valor
 vazio", fix byte-canonical-safe (decode-only / `[:-1]`):
 
 **Root cause refinado** (probe_obat.py): o OBAT (`processar`) e' inconsistente
-por design frozen — `''` como PRIMEIRA unica -> `[L('')]` (1 fragmento);
+por design frozen, `''` como PRIMEIRA unica -> `[L('')]` (1 fragmento);
 `''` apos outra unica -> `[]` (0 fragmentos). O `_emit_body` espelha isso no
 `current_id`. O decode (`_parse_decl`) nao reservava index pra linha vazia em
 NENHUM caso -> off-by-one quando o empty era a primeira unica e havia back-ref
 posterior.
 
-**Modo 1 (frag index)** — `src/tcf/composicional/syntax.py` `_parse_decl`:
+**Modo 1 (frag index)**: `src/tcf/composicional/syntax.py` `_parse_decl`:
 reservar o index do fragmento vazio SO' quando `prox_idx[0] == 0` (primeira
 declaracao = empty e' a primeira unica). Espelha o OBAT exatamente. A 1a
 tentativa (reservar incondicional) regrediu retail-description (empty
-nao-primeiro + ref posterior) — corrigida pela condicao `prox_idx == 0`.
+nao-primeiro + ref posterior), corrigida pela condicao `prox_idx == 0`.
 
-**Modo 2 (empty no fim)** — `src/tcf/composicional/hcc_seqrle.py` `encode`:
+**Modo 2 (empty no fim)**: `src/tcf/composicional/hcc_seqrle.py` `encode`:
 `body_text.rstrip('\n')` comia os `\n` de valores vazios FINAIS junto com o
 terminador. Trocado por `body_text[:-1]` (tira so' o `\n` unico que
 `super().encode` adiciona). Identico a rstrip pra body sem vazios finais.

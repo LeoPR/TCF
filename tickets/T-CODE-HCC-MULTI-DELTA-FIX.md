@@ -1,5 +1,5 @@
 ---
-title: T-CODE-HCC-MULTI-DELTA-FIX — Bug #2 sub-exp 14 (seq-RLE rejeita multi-run delta)
+title: T-CODE-HCC-MULTI-DELTA-FIX, Bug #2 sub-exp 14 (seq-RLE rejeita multi-run delta)
 status: closed-welded-canonical
 priority: P2
 created: 2026-05-24
@@ -12,7 +12,7 @@ related:
   - docs/adr/0016-hcc-multi-delta-seq-rle.md
 ---
 
-# T-CODE-HCC-MULTI-DELTA-FIX — Bug #2: seq-RLE rejeita multi-run delta
+# T-CODE-HCC-MULTI-DELTA-FIX: Bug #2: seq-RLE rejeita multi-run delta
 
 ## Contexto
 
@@ -47,7 +47,7 @@ muda) mas algoritmo rejeita.
 ## Impacto medido (sub-exp 14)
 
 D-IP-subnet (1000 IPs, 10 subnets):
-- M10 atual: 15747B (117.51% ratio — PIOR que raw)
+- M10 atual: 15747B (117.51% ratio, PIOR que raw)
 - Estimativa pos-fix: ~300-500B (~3-4% ratio)
 - Speedup compressao: ~40x
 
@@ -58,18 +58,18 @@ sem atom HCC compartilhado.
 
 **Fix proposto** (per-run delta encoding):
 
-Opcao A — Marker format vetor de deltas:
+Opcao A, Marker format vetor de deltas:
 ```
 Atual: *N+delta|template      (delta uniforme)
 Novo:  *N+0,0,0,1|template    (delta per run, CSV)
 ```
 
-Opcao B — Marker indica run_idx do delta nao-zero:
+Opcao B, Marker indica run_idx do delta nao-zero:
 ```
 *N+delta@runIdx|template      (delta = 1, runIdx = 3 → so' o ultimo run shifta)
 ```
 
-Opcao C — Detector identifica unico delta nao-zero:
+Opcao C, Detector identifica unico delta nao-zero:
 ```python
 non_zero = [d for d in deltas if d != 0]
 if len(set(non_zero)) > 1: return None  # rejeicao se >1 delta non-zero diferentes
@@ -92,29 +92,29 @@ decoder inteligente.
 
 ## Riscos
 
-1. **Quebra M10 byte-canonical** — qualquer mudanca em compare_for_seq
+1. **Quebra M10 byte-canonical**: qualquer mudanca em compare_for_seq
    pode produzir diferentes seq_runs em D1-D9. Validar primeiro.
-2. **Marker format change** — opcao A/B mudam syntax; quebram decoders
+2. **Marker format change**: opcao A/B mudam syntax; quebram decoders
    antigos.
-3. **Decoder ambiguity** (opcao C) — heuristica de "qual run shiftou"
+3. **Decoder ambiguity** (opcao C), heuristica de "qual run shiftou"
    pode falhar em edge cases.
 
 ## Conexao
 
 - Sub-exp 14 diagnostico: [report.md](../experiments/lab/dirty/old/welded/2026-05-24-cpf-templated-checked/14-cross-subnet-investigation/report.md)
-- ADR-0011 (Pacote 1 welded canonical) — invariant M10
-- T-CODE-HCC-ATOM-DETECTION-REFINE (Bug #1, complementar) — pode mitigar
+- ADR-0011 (Pacote 1 welded canonical): invariant M10
+- T-CODE-HCC-ATOM-DETECTION-REFINE (Bug #1, complementar): pode mitigar
   parcialmente sem precisar deste fix
 
 ## Updates datados
 
-### 2026-05-24 — abertura
+### 2026-05-24: abertura
 
 Ticket criado pos-sub-exp 14. NAO implementar agora (risco alto canonical).
 Owner pode priorizar quando aparecer use case real significativo
 (cross-subnet em real-world).
 
-### 2026-05-24 — WELDED via ADR-0016 (Opcao A com backward compat)
+### 2026-05-24: WELDED via ADR-0016 (Opcao A com backward compat)
 
 Owner aprovou fix mesmo dia. Welded com Opcao A modificada
 (M10 markers preserved pra casos uniform delta; novo CSV format pra

@@ -1,5 +1,5 @@
 ---
-title: T-H-PERF-06-V2-T01 — Weld do candidato #15 (topK prune) em src/tcf
+title: T-H-PERF-06-V2-T01, Weld do candidato #15 (topK prune) em src/tcf
 status: closed-done
 priority: P1
 created: 2026-05-31
@@ -7,12 +7,12 @@ closed: 2026-05-31
 blocked-by: []
 related:
   - docs/adr/0019-hcc-detect-compositions-topk-prune.md
-  - tickets/T-REGRESSION-REAL-WORLD.md  (gate, pre-requisito — closed-done)
+  - tickets/T-REGRESSION-REAL-WORLD.md  (gate, pre-requisito: closed-done)
   - experiments/lab/dirty/old/welded/2026-05-27-h-perf-06-v2-fase-a/  (geracao do #15)
   - experiments/lab/dirty/2026-05-31-regression-real-world/  (gate + bench)
 ---
 
-# T-H-PERF-06-V2-T01 — Weld #15
+# T-H-PERF-06-V2-T01: Weld #15
 
 ## Resumo
 

@@ -1,5 +1,5 @@
 ---
-title: T-STUDY-DATASETH-COMPLETE-SEMANTICS — fechar semântica hierárquica antes do wire
+title: T-STUDY-DATASETH-COMPLETE-SEMANTICS, fechar semântica hierárquica antes do wire
 status: in-progress
 priority: P1
 created: 2026-07-16
@@ -14,15 +14,15 @@ related:
   - experiments/lab/dirty/notas/2026-07/dataseth-hierarquia-completa-plano.md (mesmo território, 2026-07-13)
 ---
 
-# T-STUDY-DATASETH-COMPLETE-SEMANTICS — fechar semântica antes do wire
+# T-STUDY-DATASETH-COMPLETE-SEMANTICS: fechar semântica antes do wire
 
 **[dispositivo→pesquisa]** Este ticket separa capacidade semântica de simplificação física. JSON é o
 primeiro domínio de prova; DatasetH permanece independente da fonte e o core não ganha `encode_json`.
 
 ## Hipótese
 
-**H-DATASETH-COMPLETE-01**: um modelo recursivo fechado — objeto ordenado com nomes únicos, array
-ordenado e escalares `string|integer|number|boolean|null` — mais presença explícita é suficiente para
+**H-DATASETH-COMPLETE-01**: um modelo recursivo fechado, objeto ordenado com nomes únicos, array
+ordenado e escalares `string|integer|number|boolean|null`, mais presença explícita é suficiente para
 representar qualquer valor JSON padrão sem decidir header, counts, rep-level ou organização de colunas.
 
 Políticas do estudo:
@@ -38,8 +38,8 @@ Políticas do estudo:
 
 ## Plano
 
-- [x] **S0** — corpus de falsificação e contrato executável.
-- [x] **S1** — codec-oráculo preorder explícito, completo e não otimizado.
+- [x] **S0**: corpus de falsificação e contrato executável.
+- [x] **S1**: codec-oráculo preorder explícito, completo e não otimizado.
 - [ ] Expandir corpus com documentos realistas de transmissão, sem baixar dados antes de consultar a infra.
 - [ ] Firmar a política pública de precisão/identidade numérica antes do weld.
 - [ ] Usar o oráculo como comparador comum de S4–S7.

@@ -1,4 +1,4 @@
-# Quality Report — tpch-sf001
+# Quality Report: tpch-sf001
 
 _Generated: 2026-04-11 07:04 UTC_
 
@@ -33,20 +33,20 @@ _Generated: 2026-04-11 07:04 UTC_
 | Column | Type | Nulls | Distinct/Min | Max | Mean | StdDev |
 |--------|------|-------|--------------|-----|------|--------|
 | `r_regionkey` | int | 0 | 0 | 4 | 2.0000 | 1.5811 |
-| `r_name` | string | 0 | 5 | — | — | — |
-| `r_comment` | string | 0 | 5 | — | — | — |
+| `r_name` | string | 0 | 5 | n/a | n/a | n/a |
+| `r_comment` | string | 0 | 5 | n/a | n/a | n/a |
 
 ### Top values (categorical columns)
 
 
-**`r_name`** — distinct: 5, entropy: 2.3219 bits
+**`r_name`**: distinct: 5, entropy: 2.3219 bits
 - `MIDDLE EAST`: 1 (20.0%)
 - `EUROPE`: 1 (20.0%)
 - `ASIA`: 1 (20.0%)
 - `AMERICA`: 1 (20.0%)
 - `AFRICA`: 1 (20.0%)
 
-**`r_comment`** — distinct: 5, entropy: 2.3219 bits
+**`r_comment`**: distinct: 5, entropy: 2.3219 bits
 - `s are. furiously even pinto bea`: 1 (20.0%)
 - `e dolphins are furiously about the care…`: 1 (20.0%)
 - `c, special dependencies around `: 1 (20.0%)
@@ -74,21 +74,21 @@ _Generated: 2026-04-11 07:04 UTC_
 | Column | Type | Nulls | Distinct/Min | Max | Mean | StdDev |
 |--------|------|-------|--------------|-----|------|--------|
 | `n_nationkey` | int | 0 | 0 | 24 | 12.0000 | 7.3598 |
-| `n_name` | string | 0 | 25 | — | — | — |
+| `n_name` | string | 0 | 25 | n/a | n/a | n/a |
 | `n_regionkey` | int | 0 | 0 | 4 | 2.0000 | 1.4434 |
-| `n_comment` | string | 0 | 25 | — | — | — |
+| `n_comment` | string | 0 | 25 | n/a | n/a | n/a |
 
 ### Top values (categorical columns)
 
 
-**`n_name`** — distinct: 25, entropy: 4.6439 bits
+**`n_name`**: distinct: 25, entropy: 4.6439 bits
 - `VIETNAM`: 1 (4.0%)
 - `UNITED STATES`: 1 (4.0%)
 - `UNITED KINGDOM`: 1 (4.0%)
 - `SAUDI ARABIA`: 1 (4.0%)
 - `RUSSIA`: 1 (4.0%)
 
-**`n_comment`** — distinct: 25, entropy: 4.6439 bits
+**`n_comment`**: distinct: 25, entropy: 4.6439 bits
 - `usly ironic, pending foxes. even, speci…`: 1 (4.0%)
 - `uriously unusual deposits about the sly…`: 1 (4.0%)
 - `uctions. furiously unusual instructions…`: 1 (4.0%)
@@ -116,38 +116,38 @@ _Generated: 2026-04-11 07:04 UTC_
 | Column | Type | Nulls | Distinct/Min | Max | Mean | StdDev |
 |--------|------|-------|--------------|-----|------|--------|
 | `s_suppkey` | int | 0 | 1 | 100 | 50.5000 | 29.0115 |
-| `s_name` | string | 0 | 100 | — | — | — |
-| `s_address` | string | 0 | 100 | — | — | — |
+| `s_name` | string | 0 | 100 | n/a | n/a | n/a |
+| `s_address` | string | 0 | 100 | n/a | n/a | n/a |
 | `s_nationkey` | int | 0 | 0 | 24 | 13.2200 | 7.2955 |
-| `s_phone` | string | 0 | 100 | — | — | — |
+| `s_phone` | string | 0 | 100 | n/a | n/a | n/a |
 | `s_acctbal` | float | 0 | -966.2000 | 9,915.2400 | 4,009.3000 | 3,082.8416 |
-| `s_comment` | string | 0 | 100 | — | — | — |
+| `s_comment` | string | 0 | 100 | n/a | n/a | n/a |
 
 ### Top values (categorical columns)
 
 
-**`s_name`** — distinct: 100, entropy: 6.6439 bits
+**`s_name`**: distinct: 100, entropy: 6.6439 bits
 - `Supplier#000000100`: 1 (1.0%)
 - `Supplier#000000099`: 1 (1.0%)
 - `Supplier#000000098`: 1 (1.0%)
 - `Supplier#000000097`: 1 (1.0%)
 - `Supplier#000000096`: 1 (1.0%)
 
-**`s_address`** — distinct: 100, entropy: 6.6439 bits
+**`s_address`**: distinct: 100, entropy: 6.6439 bits
 - `zaux5FTzToEg`: 1 (1.0%)
 - `yeXt5WdcOUQVvdNCulURp4rSaxnuAwhxP9hzq`: 1 (1.0%)
 - `wS,hHEibrFlCfN6I9xyPxSZKkGAAB4XbapMdy826`: 1 (1.0%)
 - `wNZNHIg370XspE`: 1 (1.0%)
 - `w5yO 0yjXou 8I4ffzADq,R8tD06x1vbeMpLJF2`: 1 (1.0%)
 
-**`s_phone`** — distinct: 100, entropy: 6.6439 bits
+**`s_phone`**: distinct: 100, entropy: 6.6439 bits
 - `34-876-912-6007`: 1 (1.0%)
 - `34-869-118-7803`: 1 (1.0%)
 - `34-860-229-1674`: 1 (1.0%)
 - `34-852-489-8585`: 1 (1.0%)
 - `34-748-308-3215`: 1 (1.0%)
 
-_(showing 3 of 4 categorical columns — see metadata.json for full list)_
+_(showing 3 of 4 categorical columns, see metadata.json for full list)_
 
 ### Sample rows (first 3)
 
@@ -170,39 +170,39 @@ _ (showing 6 of 7 columns)_
 | Column | Type | Nulls | Distinct/Min | Max | Mean | StdDev |
 |--------|------|-------|--------------|-----|------|--------|
 | `c_custkey` | int | 0 | 1 | 1,500 | 750.5000 | 433.1570 |
-| `c_name` | string | 0 | 1,500 | — | — | — |
-| `c_address` | string | 0 | 1,500 | — | — | — |
+| `c_name` | string | 0 | 1,500 | n/a | n/a | n/a |
+| `c_address` | string | 0 | 1,500 | n/a | n/a | n/a |
 | `c_nationkey` | int | 0 | 0 | 24 | 11.8560 | 7.1676 |
-| `c_phone` | string | 0 | 1,500 | — | — | — |
+| `c_phone` | string | 0 | 1,500 | n/a | n/a | n/a |
 | `c_acctbal` | float | 0 | -994.7900 | 9,987.7100 | 4,454.5771 | 3,159.2992 |
-| `c_mktsegment` | string | 0 | 5 | — | — | — |
-| `c_comment` | string | 0 | 1,500 | — | — | — |
+| `c_mktsegment` | string | 0 | 5 | n/a | n/a | n/a |
+| `c_comment` | string | 0 | 1,500 | n/a | n/a | n/a |
 
 ### Top values (categorical columns)
 
 
-**`c_name`** — distinct: 1,500, entropy: 10.5507 bits
+**`c_name`**: distinct: 1,500, entropy: 10.5507 bits
 - `Customer#000001500`: 1 (0.1%)
 - `Customer#000001499`: 1 (0.1%)
 - `Customer#000001498`: 1 (0.1%)
 - `Customer#000001497`: 1 (0.1%)
 - `Customer#000001496`: 1 (0.1%)
 
-**`c_address`** — distinct: 1,500, entropy: 10.5507 bits
+**`c_address`**: distinct: 1,500, entropy: 10.5507 bits
 - `zwrDoaY2gxCkdTXFaxNc`: 1 (0.1%)
 - `zox9qZ4RtVJIk O8TQW7tg`: 1 (0.1%)
 - `zn9Q7pT6KlQp3T5mUO533aq,`: 1 (0.1%)
 - `zn1MYmFiukI LRu1DUdZzx,nP5t6G89x`: 1 (0.1%)
 - `zm,F5hgXysWqkYrkQFY3kvmWSWKVe3U`: 1 (0.1%)
 
-**`c_phone`** — distinct: 1,500, entropy: 10.5507 bits
+**`c_phone`**: distinct: 1,500, entropy: 10.5507 bits
 - `34-992-529-2023`: 1 (0.1%)
 - `34-985-422-6009`: 1 (0.1%)
 - `34-973-735-5374`: 1 (0.1%)
 - `34-969-612-1458`: 1 (0.1%)
 - `34-956-232-6103`: 1 (0.1%)
 
-_(showing 3 of 5 categorical columns — see metadata.json for full list)_
+_(showing 3 of 5 categorical columns, see metadata.json for full list)_
 
 ### Sample rows (first 3)
 
@@ -224,40 +224,40 @@ _ (showing 6 of 8 columns)_
 | Column | Type | Nulls | Distinct/Min | Max | Mean | StdDev |
 |--------|------|-------|--------------|-----|------|--------|
 | `p_partkey` | int | 0 | 1 | 2,000 | 1,000.5000 | 577.4946 |
-| `p_name` | string | 0 | 2,000 | — | — | — |
-| `p_mfgr` | string | 0 | 5 | — | — | — |
-| `p_brand` | string | 0 | 25 | — | — | — |
-| `p_type` | string | 0 | 150 | — | — | — |
+| `p_name` | string | 0 | 2,000 | n/a | n/a | n/a |
+| `p_mfgr` | string | 0 | 5 | n/a | n/a | n/a |
+| `p_brand` | string | 0 | 25 | n/a | n/a | n/a |
+| `p_type` | string | 0 | 150 | n/a | n/a | n/a |
 | `p_size` | int | 0 | 1 | 50 | 25.2555 | 14.4173 |
-| `p_container` | string | 0 | 40 | — | — | — |
+| `p_container` | string | 0 | 40 | n/a | n/a | n/a |
 | `p_retailprice` | float | 0 | 901.0000 | 1,900.9900 | 1,400.4960 | 289.0346 |
-| `p_comment` | string | 0 | 1,962 | — | — | — |
+| `p_comment` | string | 0 | 1,962 | n/a | n/a | n/a |
 
 ### Top values (categorical columns)
 
 
-**`p_name`** — distinct: 2,000, entropy: 10.9658 bits
+**`p_name`**: distinct: 2,000, entropy: 10.9658 bits
 - `yellow white puff orange rosy`: 1 (0.1%)
 - `yellow white ghost lavender salmon`: 1 (0.1%)
 - `yellow turquoise peru purple cornflower`: 1 (0.1%)
 - `yellow tomato lawn rosy lemon`: 1 (0.1%)
 - `yellow powder navajo maroon chartreuse`: 1 (0.1%)
 
-**`p_mfgr`** — distinct: 5, entropy: 2.3211 bits
+**`p_mfgr`**: distinct: 5, entropy: 2.3211 bits
 - `Manufacturer#3`: 426 (21.3%)
 - `Manufacturer#4`: 400 (20.0%)
 - `Manufacturer#2`: 396 (19.8%)
 - `Manufacturer#5`: 392 (19.6%)
 - `Manufacturer#1`: 386 (19.3%)
 
-**`p_brand`** — distinct: 25, entropy: 4.6409 bits
+**`p_brand`**: distinct: 25, entropy: 4.6409 bits
 - `Brand#35`: 93 (4.7%)
 - `Brand#32`: 88 (4.4%)
 - `Brand#43`: 87 (4.3%)
 - `Brand#33`: 87 (4.3%)
 - `Brand#52`: 85 (4.2%)
 
-_(showing 3 of 6 categorical columns — see metadata.json for full list)_
+_(showing 3 of 6 categorical columns, see metadata.json for full list)_
 
 ### Sample rows (first 3)
 
@@ -283,12 +283,12 @@ _ (showing 6 of 9 columns)_
 | `ps_suppkey` | int | 0 | 1 | 100 | 50.5000 | 28.8679 |
 | `ps_availqty` | int | 0 | 3 | 9,998 | 5,009.9274 | 2,890.1503 |
 | `ps_supplycost` | float | 0 | 1.0500 | 999.9900 | 494.6797 | 288.5436 |
-| `ps_comment` | string | 0 | 7,998 | — | — | — |
+| `ps_comment` | string | 0 | 7,998 | n/a | n/a | n/a |
 
 ### Top values (categorical columns)
 
 
-**`ps_comment`** — distinct: 7,998, entropy: 12.9653 bits
+**`ps_comment`**: distinct: 7,998, entropy: 12.9653 bits
 - `s. furiously regular platelets integrat…`: 2 (0.0%)
 - ` instructions sleep slyly. silent depos…`: 2 (0.0%)
 - `ze requests. furiously ironic accounts …`: 1 (0.0%)
@@ -317,37 +317,37 @@ _ (showing 6 of 9 columns)_
 |--------|------|-------|--------------|-----|------|--------|
 | `o_orderkey` | int | 0 | 1 | 60,000 | 29,991.5000 | 11,547.5829 |
 | `o_custkey` | int | 0 | 1 | 1,499 | 755.4497 | 435.6682 |
-| `o_orderstatus` | string | 0 | 3 | — | — | — |
+| `o_orderstatus` | string | 0 | 3 | n/a | n/a | n/a |
 | `o_totalprice` | float | 0 | 874.8900 | 466,001.2800 | 141,826.4553 | 82,761.1684 |
-| `o_orderdate` | date | 0 | 2,401 | — | — | — |
-| `o_orderpriority` | string | 0 | 5 | — | — | — |
-| `o_clerk` | string | 0 | 1,000 | — | — | — |
+| `o_orderdate` | date | 0 | 2,401 | n/a | n/a | n/a |
+| `o_orderpriority` | string | 0 | 5 | n/a | n/a | n/a |
+| `o_clerk` | string | 0 | 1,000 | n/a | n/a | n/a |
 | `o_shippriority` | int | 0 | 0 | 0 | 0.0000e+00 | 0.0000e+00 |
-| `o_comment` | string | 0 | 14,984 | — | — | — |
+| `o_comment` | string | 0 | 14,984 | n/a | n/a | n/a |
 
 ### Top values (categorical columns)
 
 
-**`o_orderstatus`** — distinct: 3, entropy: 1.1402 bits
+**`o_orderstatus`**: distinct: 3, entropy: 1.1402 bits
 - `O`: 7,333 (48.9%)
 - `F`: 7,304 (48.7%)
 - `P`: 363 (2.4%)
 
-**`o_orderdate`** — distinct: 2,401, entropy: 11.1205 bits
+**`o_orderdate`**: distinct: 2,401, entropy: 11.1205 bits
 - `1995-12-19`: 16 (0.1%)
 - `1995-09-16`: 16 (0.1%)
 - `1998-03-16`: 15 (0.1%)
 - `1995-12-11`: 15 (0.1%)
 - `1995-02-07`: 15 (0.1%)
 
-**`o_orderpriority`** — distinct: 5, entropy: 2.3217 bits
+**`o_orderpriority`**: distinct: 5, entropy: 2.3217 bits
 - `2-HIGH`: 3,065 (20.4%)
 - `4-NOT SPECIFIED`: 3,024 (20.2%)
 - `1-URGENT`: 3,020 (20.1%)
 - `5-LOW`: 2,950 (19.7%)
 - `3-MEDIUM`: 2,941 (19.6%)
 
-_(showing 3 of 5 categorical columns — see metadata.json for full list)_
+_(showing 3 of 5 categorical columns, see metadata.json for full list)_
 
 ### Sample rows (first 3)
 
@@ -377,35 +377,35 @@ _ (showing 6 of 9 columns)_
 | `l_extendedprice` | float | 0 | 904.0000 | 94,949.5000 | 35,765.5133 | 22,057.4193 |
 | `l_discount` | float | 0 | 0.0000e+00 | 0.1000 | 0.0499 | 0.0314 |
 | `l_tax` | float | 0 | 0.0000e+00 | 0.0800 | 0.0402 | 0.0256 |
-| `l_returnflag` | string | 0 | 3 | — | — | — |
-| `l_linestatus` | string | 0 | 2 | — | — | — |
-| `l_shipdate` | date | 0 | 2,518 | — | — | — |
-| `l_commitdate` | date | 0 | 2,460 | — | — | — |
-| `l_receiptdate` | date | 0 | 2,529 | — | — | — |
-| `l_shipinstruct` | string | 0 | 4 | — | — | — |
-| `l_shipmode` | string | 0 | 7 | — | — | — |
-| `l_comment` | string | 0 | 58,516 | — | — | — |
+| `l_returnflag` | string | 0 | 3 | n/a | n/a | n/a |
+| `l_linestatus` | string | 0 | 2 | n/a | n/a | n/a |
+| `l_shipdate` | date | 0 | 2,518 | n/a | n/a | n/a |
+| `l_commitdate` | date | 0 | 2,460 | n/a | n/a | n/a |
+| `l_receiptdate` | date | 0 | 2,529 | n/a | n/a | n/a |
+| `l_shipinstruct` | string | 0 | 4 | n/a | n/a | n/a |
+| `l_shipmode` | string | 0 | 7 | n/a | n/a | n/a |
+| `l_comment` | string | 0 | 58,516 | n/a | n/a | n/a |
 
 ### Top values (categorical columns)
 
 
-**`l_returnflag`** — distinct: 3, entropy: 1.4948 bits
+**`l_returnflag`**: distinct: 3, entropy: 1.4948 bits
 - `N`: 30,397 (50.5%)
 - `R`: 14,902 (24.8%)
 - `A`: 14,876 (24.7%)
 
-**`l_linestatus`** — distinct: 2, entropy: 1.0 bits
+**`l_linestatus`**: distinct: 2, entropy: 1.0 bits
 - `F`: 30,126 (50.1%)
 - `O`: 30,049 (49.9%)
 
-**`l_shipdate`** — distinct: 2,518, entropy: 11.2398 bits
+**`l_shipdate`**: distinct: 2,518, entropy: 11.2398 bits
 - `1994-03-15`: 42 (0.1%)
 - `1996-04-18`: 41 (0.1%)
 - `1994-03-29`: 41 (0.1%)
 - `1994-03-17`: 41 (0.1%)
 - `1994-03-08`: 40 (0.1%)
 
-_(showing 3 of 8 categorical columns — see metadata.json for full list)_
+_(showing 3 of 8 categorical columns, see metadata.json for full list)_
 
 ### Sample rows (first 3)
 

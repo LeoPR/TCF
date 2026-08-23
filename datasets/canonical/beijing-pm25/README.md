@@ -1,4 +1,4 @@
-# Beijing PM2.5 — UCI ML Repository
+# Beijing PM2.5: UCI ML Repository
 
 Dataset cientifico canonical (sensor air quality) pra testar
 **natureza #5 (range narrow)** + decimais cientificos.
@@ -25,10 +25,10 @@ Dataset cientifico canonical (sensor air quality) pra testar
 | day | INT | 1-31 |
 | hour | INT | 0-23 |
 | pm2.5 | FLOAT | PM2.5 concentration ug/m^3 (~5% NA) |
-| DEWP | FLOAT | **Dew Point (range -40..28)** — #5 range narrow |
-| TEMP | FLOAT | **Temperature C (range -19..42)** — #5 range narrow |
-| PRES | FLOAT | **Pressure hPa (range 991..1046)** — #5 range MUITO narrow |
-| cbwd | TEXT | Wind direction (NW/NE/SE/cv) — 4 categorias |
+| DEWP | FLOAT | **Dew Point (range -40..28)**: #5 range narrow |
+| TEMP | FLOAT | **Temperature C (range -19..42)**: #5 range narrow |
+| PRES | FLOAT | **Pressure hPa (range 991..1046)**: #5 range MUITO narrow |
+| cbwd | TEXT | Wind direction (NW/NE/SE/cv), 4 categorias |
 | Iws | FLOAT | Cumulated wind speed (m/s) |
 | Is | INT | Cumulated hours of snow |
 | Ir | INT | Cumulated hours of rain |

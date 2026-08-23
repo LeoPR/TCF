@@ -10,16 +10,16 @@
 Qualquer algoritmo de compressao tem 3 vetores ortogonais que
 precisam ser avaliados em conjunto, nao isoladamente:
 
-1. **Compressao** — quantidade de bytes economizados
-2. **Memória** — pico de uso durante encode/decode
-3. **Latência** — tempo entre input e output (especialmente
+1. **Compressao**: quantidade de bytes economizados
+2. **Memória**: pico de uso durante encode/decode
+3. **Latência**: tempo entre input e output (especialmente
    importante em modos streaming/batch híbrido)
 
 ### Estado v0.6 atual
 
 | Vetor | Status | Gap |
 |---|---|---|
-| Compressao | bem caracterizado (54.2% ratio D1-D9) | — |
+| Compressao | bem caracterizado (54.2% ratio D1-D9) | n/a |
 | Memoria | apenas algebrico (O(N) Counter, listas) | `tracemalloc` nao rodado em escala |
 | Latencia | apenas estrutural (HCC batch, OBAT online em principio) | sem detector online; freeze-and-emit ausente |
 
@@ -27,24 +27,24 @@ precisam ser avaliados em conjunto, nao isoladamente:
 Memoria e latencia sao especulativas. Quando v0.6 evoluir para
 multi-coluna + escala, esses vetores tornam-se críticos.
 
-## Estratégia 1 — Pré-filtro: schema + tipos notáveis
+## Estratégia 1: Pré-filtro: schema + tipos notáveis
 
 ### 1.A) Encoder/decoder de tipos estruturados
 
 Tipos com **estrutura conhecida e fixa** podem ser detectados e
 codificados de forma especializada antes do OBAT:
 
-- **CPF**: `XXX.XXX.XXX-XX` — 11 digitos + 3 separadores. Bytes
+- **CPF**: `XXX.XXX.XXX-XX`, 11 digitos + 3 separadores. Bytes
   bruto: 14. Representacao compacta: 11 digitos = 44 bits = 6 bytes.
-- **UUID**: `xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx` — 32 hex + 4 hifens
+- **UUID**: `xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx`, 32 hex + 4 hifens
   = 36 bytes. Bytes bruto compacto: 16 bytes (binario) ou 32 base32.
-- **IP v4**: `X.X.X.X` — variavel mas 4 numeros. Compacto: 4 bytes
+- **IP v4**: `X.X.X.X`, variavel mas 4 numeros. Compacto: 4 bytes
   binario.
-- **Datas ISO**: `YYYY-MM-DD` — 10 bytes textual. Compacto: 4 bytes
+- **Datas ISO**: `YYYY-MM-DD`, 10 bytes textual. Compacto: 4 bytes
   ou delta vs base.
 
-Cada tipo vira par `encoder/decoder` (note o **r** final em ambos
-— sao funcoes bidirecionais que preservam roundtrip).
+Cada tipo vira par `encoder/decoder` (note o **r** final em ambos:
+sao funcoes bidirecionais que preservam roundtrip).
 
 ### 1.B) Schema-based segmentation
 
@@ -65,7 +65,7 @@ usar tipos da estrategia 1.A por coluna.
 Estrategia 1 e' **ortogonal** ao OBAT/HCC. OBAT recebe strings ja'
 pre-filtradas. HCC ja' funciona naturalmente.
 
-## Estratégia 2 — Manager com memória shared + sincronização
+## Estratégia 2: Manager com memória shared + sincronização
 
 ### Problema
 
@@ -91,17 +91,17 @@ coluna "data_atualizacao" tem strings similares "2026-...").
 
 ### Análogos na literatura
 
-- **Apache Arrow** — shared memory cross-language para data exchange
-- **Kafka streams + watermarks** — sync de delivery em stream
+- **Apache Arrow**: shared memory cross-language para data exchange
+- **Kafka streams + watermarks**: sync de delivery em stream
   processing
-- **DB shared scans** — multiplas queries reaproveitam mesmo scan
-- **Spark RDD caching** — memoria compartilhada entre transformacoes
+- **DB shared scans**: multiplas queries reaproveitam mesmo scan
+- **Spark RDD caching**: memoria compartilhada entre transformacoes
 
 ### Concerns
 
 1. **Concorrencia**: locks vs lock-free. Single-thread serializado
    pode bastar pra v0.6 inicial.
-2. **Watermark semantics**: gatilhos de freeze — tempo? bytes?
+2. **Watermark semantics**: gatilhos de freeze, tempo? bytes?
    linhas? Hibrido?
 3. **Cross-column node sharing**: precisa indexar nos por conteudo
    (hash de subseq?). Custo de lookup vs ganho de share.
@@ -117,7 +117,7 @@ Estrategia 2 e' **camada acima** do OBAT/HCC. Cada instancia continua
 single-column. Manager coordena. Nao requer modificar OBAT/HCC
 no nucleo.
 
-## Estratégia 3 — Detecção de slot pattern online
+## Estratégia 3: Detecção de slot pattern online
 
 ### Problema
 
@@ -132,7 +132,7 @@ X varia. HCC atual emite linha completa cada vez:
 
 Custo: 7 linhas × ~6 chars = ~42 bytes para esse bloco.
 
-### Proposta — duas posicoes
+### Proposta: duas posicoes
 
 #### 3.A) OBAT-level: anti-unificacao
 
@@ -146,7 +146,7 @@ onde SLOT e' o trecho variavel.
 **Conexao com literatura**: este e' o problema de
 **anti-unificacao** em programacao logica (Plotkin 1970, Reynolds
 1970). Encontrar termo mais especifico que generaliza dois termos
-dados (lggu — least general generalization).
+dados (lggu, least general generalization).
 
 **Custo**: re-arquitetar OBAT. Hoje OBAT compara so' LCP+LCS de
 extremidades; anti-unificacao exige busca por **diferenca interna**.
@@ -165,7 +165,7 @@ detectar template-com-slot e' algoritmico mas tratavel.
 A nota
 [`no-funcional-marca-e-troca.md`](no-funcional-marca-e-troca.md)
 ja' discute sintaxe (`no19=17,?=9,5` etc.) e custo algebrico para
-slot pattern. Esta nota agora SUBSUMES aquela em escopo — slot
+slot pattern. Esta nota agora SUBSUMES aquela em escopo, slot
 detection deveria ser **online** (durante encode), nao apenas
 sintatico.
 
@@ -192,7 +192,7 @@ sintatico.
 [Texto TCF final]
 ```
 
-Cada estrategia e' **ortogonal** as outras — podem ser implementadas
+Cada estrategia e' **ortogonal** as outras, podem ser implementadas
 isoladamente. Mas o ganho combinado e' multiplicativo:
 - Estrategia 1 reduz **bytes** em colunas estruturadas (CPF/UUID)
 - Estrategia 2 reduz **memoria** em multi-coluna e melhora **latencia**
@@ -204,7 +204,7 @@ isoladamente. Mas o ganho combinado e' multiplicativo:
 Em ordem de impacto vs custo:
 
 1. ✓ DONE: OBAT + HCC welded em src/tcf
-2. ✅ **CURTO**: Estrategia 1.A (type encoders simples — CPF, UUID,
+2. ✅ **CURTO**: Estrategia 1.A (type encoders simples, CPF, UUID,
    data ISO). Engenharia direta. Pode mostrar -30%+ em datasets
    com IDs estruturados.
 3. ✅ **CURTO**: Estrategia 1.B (multi-coluna ingenuo: instancias
@@ -228,17 +228,17 @@ Em ordem de impacto vs custo:
 
 **Conclusao critica**: as 3 estrategias **complementam** os 3 vetores
 da perspectiva triplice de formas diferentes. Estrategia 2 sozinha
-nao reduz bytes — mas e' essencial pra memoria/latencia escalavel.
+nao reduz bytes, mas e' essencial pra memoria/latencia escalavel.
 Estrategias 1 e 3 reduzem bytes mas sem cuidado com memoria
 podem inflacionar.
 
 ## Conexoes
 
-- [`roadmap-hipoteses.md`](roadmap-hipoteses.md) — lista geral de hipoteses
-- [`comparacao-modular-camadas.md`](comparacao-modular-camadas.md) — pre-tx layers (extends Estrategia 1)
-- [`no-funcional-marca-e-troca.md`](no-funcional-marca-e-troca.md) — slot pattern (subsumido por Estrategia 3)
-- [`2026-05-11-tipos-com-estrutura.md`](2026-05-11-tipos-com-estrutura.md) — tipos estruturados (precursor Estrategia 1.A)
-- [`vetores-de-comparacao-alem-de-bytes.md`](vetores-de-comparacao-alem-de-bytes.md) — vetores alem de bytes (precursor perspectiva triplice)
-- `../algorithms/OBAT.md` — camada 1 atual
-- `../algorithms/HCC.md` — camada 2 atual
-- `../algorithms/TCF-format.md` — formato + posicionamento
+- [`roadmap-hipoteses.md`](roadmap-hipoteses.md): lista geral de hipoteses
+- [`comparacao-modular-camadas.md`](comparacao-modular-camadas.md): pre-tx layers (extends Estrategia 1)
+- [`no-funcional-marca-e-troca.md`](no-funcional-marca-e-troca.md): slot pattern (subsumido por Estrategia 3)
+- [`2026-05-11-tipos-com-estrutura.md`](2026-05-11-tipos-com-estrutura.md): tipos estruturados (precursor Estrategia 1.A)
+- [`vetores-de-comparacao-alem-de-bytes.md`](vetores-de-comparacao-alem-de-bytes.md): vetores alem de bytes (precursor perspectiva triplice)
+- `../algorithms/OBAT.md`: camada 1 atual
+- `../algorithms/HCC.md`: camada 2 atual
+- `../algorithms/TCF-format.md`: formato + posicionamento

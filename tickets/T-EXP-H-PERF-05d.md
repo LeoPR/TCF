@@ -1,5 +1,5 @@
 ---
-title: T-EXP-H-PERF-05d — Counter incremental em HCC _detect_compositions
+title: T-EXP-H-PERF-05d, Counter incremental em HCC _detect_compositions
 status: closed
 resolution: validated-with-byte-divergence-welding-adiado
 priority: P2
@@ -14,7 +14,7 @@ related:
   - experiments/lab/dirty/notas/2026-05/roadmap-hipoteses.md
 ---
 
-# T-EXP-H-PERF-05d — Counter incremental HCC
+# T-EXP-H-PERF-05d: Counter incremental HCC
 
 ## Contexto / motivacao
 
@@ -59,7 +59,7 @@ Lab adiado, META-PERF-PHASE2 CLOSED-PARCIAL.
 
 Lab dirty: `experiments/lab/dirty/2026-05-22-h-perf-05d-counter-incremental/`
 
-### Fase 1 — profile granular (sub-exp 01)
+### Fase 1: profile granular (sub-exp 01)
 
 Profile `_detect_compositions` em lineitem 5k, breakdown:
 - % tempo em rebuild Counter
@@ -71,7 +71,7 @@ Profile `_detect_compositions` em lineitem 5k, breakdown:
 prosseguir pra prototype. Senao, encerrar lab (counter incremental
 nao vale).
 
-### Fase 2 — prototype incremental (sub-exp 02)
+### Fase 2: prototype incremental (sub-exp 02)
 
 Fork em dirty (NAO mexer src/tcf):
 - Monkey-patch `_detect_compositions` com versao incremental
@@ -83,13 +83,13 @@ Fork em dirty (NAO mexer src/tcf):
 - Bytes IDENTICOS ao canonical em lineitem 1k/5k (zero-risk byte loss)
 - RT 100%
 
-### Fase 3 — medir speedup real
+### Fase 3: medir speedup real
 
 Comparar canonical vs incremental:
 - lineitem 1k, 5k, possivelmente 10k
 - D1-D9 (controle, deve ser identico em bytes e proximo em tempo)
 
-### Fase 4 (condicional) — welding canonical
+### Fase 4 (condicional): welding canonical
 
 Se speedup >= 30% E zero byte loss E RT 100%:
 - Aprovacao explicita owner pra mexer src/tcf
@@ -120,34 +120,34 @@ Se speedup >= 30% E zero byte loss E RT 100%:
 ## Conexoes
 
 - [Lab HCC perf (sub-exp anteriores)](../experiments/lab/dirty/2026-05-20-hcc-perf-optimization/)
-- [META-PERF-PHASE2](META-PERF-PHASE2.md) — closed-parcial
+- [META-PERF-PHASE2](META-PERF-PHASE2.md): closed-parcial
 - [src/tcf/composicional/syntax.py _detect_compositions](../src/tcf/composicional/syntax.py)
 - [Roadmap H-PERF-05d](../experiments/lab/dirty/notas/2026-05/roadmap-hipoteses.md)
 
 ## Updates datados
 
-### 2026-05-22 — abertura
+### 2026-05-22: abertura
 
 Ticket criado seguindo convencao YAML frontmatter. H-PERF-05d era
 "candidata futura" desde 2026-05-20 (META-PERF-PHASE2 closed-parcial).
 Agora reaberta como prioridade alta apos categoria B residual (H-DA-07)
 fechar.
 
-Fase 1 (profile) e' decisor — se Counter rebuild nao for dominante,
+Fase 1 (profile) e' decisor, se Counter rebuild nao for dominante,
 encerrar lab.
 
-### 2026-05-22 — Fase 1 profile: GO confirmado
+### 2026-05-22: Fase 1 profile: GO confirmado
 
 Sub-exp 01 profile l_comment lineitem 5k:
 - encode_total: 7.9s
 - _detect_compositions: 91.8% do encode
-- rebuild_counter: 46.5% do _dc (3.4s) — TARGET PRINCIPAL
+- rebuild_counter: 46.5% do _dc (3.4s), TARGET PRINCIPAL
 - 99 iters (cap maximo)
-- lines_affected/iter: 16/4987 (**0.3%** — oportunidade dramatica)
+- lines_affected/iter: 16/4987 (**0.3%**, oportunidade dramatica)
 
 Veredito: GO pra Fase 2 (prototype incremental).
 
-### 2026-05-23 — Fase 2: validated-with-byte-divergence
+### 2026-05-23: Fase 2: validated-with-byte-divergence
 
 Sub-exp 02 implementou `IncrementalSyntax` (Counter incremental,
 sub_first_line + alias_first_line rebuilt). Bytes IDENTICOS em 37/41
@@ -164,7 +164,7 @@ Net divergencia: +62 bytes em ~80kB (0.08%).
 **Causa identificada**: ordem de iteracao do Counter difere entre
 canonical (rebuild from scratch a cada iter, ordem por linha) e
 incremental (novas subs entram no fim). Quando 2+ candidatos tem mesmo
-`net`, tie-break (`>` com primeiro inserido) escolhe sub diferente —
+`net`, tie-break (`>` com primeiro inserido) escolhe sub diferente:
 divergencia acumula em colunas com muitos iters + muitos empates.
 
 **Tentativas de fix nao resolveram**:
@@ -175,11 +175,11 @@ divergencia acumula em colunas com muitos iters + muitos empates.
 `validated-with-byte-divergence-welding-adiado`.
 
 Welding canonical requereria:
-- (a) FIX byte-canonical: ordering custom (reinsert posicional)
-  — complexidade alta
-- (b) Aceitar como M11 baseline (divergencia 0.08%) — quebra invariant M10
+- (a) FIX byte-canonical: ordering custom (reinsert posicional):
+  complexidade alta
+- (b) Aceitar como M11 baseline (divergencia 0.08%): quebra invariant M10
 
-Ambos sao decisoes maiores. Fase 3 (medir speedup) nao executada —
+Ambos sao decisoes maiores. Fase 3 (medir speedup) nao executada,
 sem byte-canonical, comparacao perde valor pra welding.
 
 **Recomendacao**: adiar T-EXP-H-PERF-05d pra phase 3 dedicada. Pacote 4
@@ -189,7 +189,7 @@ Alternativas: Cython/Rust port (H-PERF-06), otimizacao build_candidates
 
 **Resolution**: validated-with-byte-divergence-welding-adiado.
 
-### 2026-06-24 — re-caracterização (código atual) + FECHAMENTO
+### 2026-06-24: re-caracterização (código atual) + FECHAMENTO
 
 Owner reabriu pra otimizar código (alvo H-PERF-05d), lab read-only novo
 [`2026-06-24-h-perf-05d-recaracterizacao/`](../experiments/lab/dirty/2026-06/2026-06-24/2026-06-24-h-perf-05d-recaracterizacao/)
@@ -198,11 +198,11 @@ candidatos (`_estimate_baseline_chars` ~3% do `_dc`); sobrou o rebuild do Counte
 
 Incremental v2 (Counter delta + alias_first_line incremental + sub_first_line lazy), **MEDIDO** vs
 canonical atual (5k): l_comment **1,72×**/+0B; l_shipdate 1,21×/+19B (+0,05%); l_commitdate 1,31×/+12B
-(+0,03%); RT 100%. **Speedup real ~1,2–1,7×, NÃO os 4–5× estimados** (o ceiling foi corrigido — o
+(+0,03%); RT 100%. **Speedup real ~1,2–1,7×, NÃO os 4–5× estimados** (o ceiling foi corrigido, o
 rebuild é ~46% do encode, não 92%). A "outra metade" (loop de candidatos) é ~99% cheap-skip, cortável
 só com reescrita incremental substancial; ganho **só pure-Python** (Cython já cobre, ~2,67×).
 
-**Decisão do owner (2026-06-24): FECHAR a direção de perf — retornos decrescentes.** Não vale tocar/
+**Decisão do owner (2026-06-24): FECHAR a direção de perf, retornos decrescentes.** Não vale tocar/
 complicar `_detect_compositions` por ~1,5× pure-Python que o Cython já endereça. Se velocidade
 pure-Python virar prioridade, a frente é **port Cython** do detector, não reescrita do algoritmo.
 **Resolution: measured-not-worth-weld.**

@@ -1,5 +1,5 @@
 ---
-title: META-ESCAPE-DEDUCTION — Pacote 2 (H-ED-01..04, suppressao implicita de escapes)
+title: META-ESCAPE-DEDUCTION, Pacote 2 (H-ED-01..04, suppressao implicita de escapes)
 status: closed
 resolution: insufficient-gain
 priority: P2
@@ -14,7 +14,7 @@ related:
   - tickets/META-PERF-PHASE2.md
 ---
 
-# META-ESCAPE-DEDUCTION — Pacote 2
+# META-ESCAPE-DEDUCTION: Pacote 2
 
 ## Contexto / motivacao
 
@@ -29,7 +29,7 @@ tentativa M2 (D11a-h tem 7-10 backslashes/linha cada). Antecedente em
 ticket v0.5 frozen (`docs/workbench/_archive/tickets/open/S-supressao-implicita-marcadores.md`).
 
 Prova de conceito antiga: **sub-exp 11 do T01** (15.7% ganho nos 8
-datasets D11a-h), MAS **assume 1 lit piece por linha** — invalido em
+datasets D11a-h), MAS **assume 1 lit piece por linha**: invalido em
 compositions complexas. Pacote 2 precisa **generalizar**.
 
 ## Hipoteses (H-ED-01..04)
@@ -53,7 +53,7 @@ em 319 bytes = ~16% do output. Real-world deve ter perfil DIFERENTE
 
 ## Plano
 
-### Fase 1 — caracterizacao (sub-exp 01)
+### Fase 1: caracterizacao (sub-exp 01)
 
 Medir quantos escapes do encode atual SAO deduziveis em:
 - D1-D9 (controle)
@@ -64,7 +64,7 @@ Medir quantos escapes do encode atual SAO deduziveis em:
 Per dataset: total escapes, total deduziveis-H-ED-01 (linha 1 trivial),
 total deduziveis-H-ED-02 (apos `*`), etc. Tabela percentual.
 
-### Fase 2 — prototipos isolados (sub-exps 02-04)
+### Fase 2: prototipos isolados (sub-exps 02-04)
 
 Implementar smart_encode + smart_decode em FORK (sem mexer src/tcf).
 Variantes:
@@ -78,7 +78,7 @@ Cada variante:
 - Re-encode com smart → decode com canonical: deve **falhar** explicitamente
   (compat broken, esperado)
 
-### Fase 3 — decisao welding (sub-exp 05)
+### Fase 3: decisao welding (sub-exp 05)
 
 Se ganho real-world >= 5%, considerar welding. Mas:
 - **Quebra backward compat** (decoder canonical interpretaria digits bare como refs)
@@ -116,13 +116,13 @@ Welding opcoes:
 - [Roadmap H-ED-01..04](../experiments/lab/dirty/notas/2026-05/roadmap-hipoteses.md)
 - [Sub-exp 11 T01 (prova de conceito antiga)](../experiments/lab/dirty/old/welded/2026-05-15-naturezas-e-camada/pre-tx/T01-incremental-base-delta/11-escape-dedutivel/)
 - [HCC spec](../docs/algorithms/HCC.md)
-- [TCF format spec](../docs/algorithms/TCF-format.md) — versionamento
-- [ADR-0001 shebang](../docs/adr/0001-tcf-format-shebang.md) — convencao versao
-- [META-TYPE-ENCODERS L06](META-TYPE-ENCODERS.md) — Track 2 onde foi originalmente registrado
+- [TCF format spec](../docs/algorithms/TCF-format.md): versionamento
+- [ADR-0001 shebang](../docs/adr/0001-tcf-format-shebang.md): convencao versao
+- [META-TYPE-ENCODERS L06](META-TYPE-ENCODERS.md): Track 2 onde foi originalmente registrado
 
 ## Updates datados
 
-### 2026-05-21 — abertura
+### 2026-05-21: abertura
 
 Ticket criado seguindo nova convencao YAML frontmatter (recomendacao
 2026-05-21 em tickets/README.md). Pacote 2 era registrado desde
@@ -130,7 +130,7 @@ Ticket criado seguindo nova convencao YAML frontmatter (recomendacao
 Pacote 4 fechado-parcial. Sub-exp 01 (caracterizacao) e' proximo
 passo imediato.
 
-### 2026-05-21 — sub-exp 01 caracterizacao executada
+### 2026-05-21: sub-exp 01 caracterizacao executada
 
 Lab dirty: `experiments/lab/dirty/2026-05-21-escape-deduction/01-caracterizacao-escapes/`
 
@@ -144,7 +144,7 @@ escapes.
 | H-ED-02 (apos `*`) | 0.12% |
 | H-ED-original lower bound | **1.13%** |
 
-### 2026-05-21 — FECHAMENTO (insufficient-gain)
+### 2026-05-21: FECHAMENTO (insufficient-gain)
 
 Pacote 2 **NAO ATINGE criterio de aceite** (>=5% real-world).
 Mesmo upper bound estimado (~2-3%) provavelmente insuficiente.
@@ -160,5 +160,5 @@ H-ED-01..04 todas fechadas como `refutada-real-world` no roadmap.
 Lab dirty marcado como `closed-insufficient-gain`.
 
 **Aprendizado meta**: este e' o primeiro ticket no formato YAML
-frontmatter — funcionou bem pra organizar updates inline + status
+frontmatter, funcionou bem pra organizar updates inline + status
 estruturado. Validou a convencao 2026-05-21.

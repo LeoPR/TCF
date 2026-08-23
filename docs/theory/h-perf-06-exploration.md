@@ -1,4 +1,4 @@
-# H-PERF-06 — Estudo do nucleo compilado (Cython/Rust/etc)
+# H-PERF-06: Estudo do nucleo compilado (Cython/Rust/etc)
 
 > **Doc de estudo** (gerado 2026-05-27 via workflow 5 dimensoes: profile real,
 > opcoes de compilacao, API surface, build/packaging, prototype empirico).
@@ -11,12 +11,12 @@
 
 | Pergunta | Resposta empirica |
 |---|---|
-| Cython funciona localmente? | **SIM** — 6.23x speedup em lcp_len isolado (microbench) |
+| Cython funciona localmente? | **SIM**: 6.23x speedup em lcp_len isolado (microbench) |
 | Tool right pra TCF? | **Cython** (Tier 1) vs Rust+maturin (Tier 2) |
-| Devo compilar lcp/lcs como H-PERF-06 propos? | **NAO** — Amdahl blocked (lcp/lcs = 1.8% do tempo real) |
+| Devo compilar lcp/lcs como H-PERF-06 propos? | **NAO**: Amdahl blocked (lcp/lcs = 1.8% do tempo real) |
 | Qual o real bottleneck? | HCC `_detect_compositions` em syntax.py:246-251 (88% / 17s de 19s em 20k retail) |
 | Qual o alvo certo? | (a) algoritmico: prune O(L^2) tuple enum + early termination. (b) Cython em `_detect_compositions` inner loop |
-| Cabe em v1.x (sem reabrir freeze)? | **SIM** — interno, nao muda formato. Pure-Python fallback obrigatorio |
+| Cabe em v1.x (sem reabrir freeze)? | **SIM**: interno, nao muda formato. Pure-Python fallback obrigatorio |
 
 ## Por que a hipotese original estava errada
 
@@ -30,8 +30,8 @@ Profile NOVO (workflow agente, 2026-05-27) em online-retail 20k rows / 8 cols:
 |---|---|---|---|
 | `_detect_compositions` (HCC) | **17.06s** | **88%** | iterativo |
 | `_estimate_baseline_chars` (HCC helper) | 1.86s | 9.6% | 291.183 |
-| `len()` (builtin) | 1.91s | 9.9% | — |
-| `list.append()` (builtin) | 1.18s | 6.1% | — |
+| `len()` (builtin) | 1.91s | 9.9% | n/a |
+| `list.append()` (builtin) | 1.18s | 6.1% | n/a |
 | `lcp_len_capped` | **0.097s** | **0.4%** | 111.516 @ 0.87us |
 | `lcs_len_capped` | **0.058s** | **0.3%** | 51.935 @ 1.14us |
 
@@ -42,7 +42,7 @@ A inflacao "29M calls" provavelmente veio de:
 - ADR-0009 (trigrama hash, welded 2026-05-19) ja reduziu chamadas redundantes
 - ADR-0010/11 (auto-min_len + delta-aware) reduziram trabalho de OBAT em muitos casos
 
-## O real bottleneck — HCC `_detect_compositions`
+## O real bottleneck: HCC `_detect_compositions`
 
 Lines 246-251 de [composicional/syntax.py](../../src/tcf/composicional/syntax.py):
 gera **todas** as sub-tuplas O(L^2) candidatas por iteracao, em loop com
@@ -77,7 +77,7 @@ for col:
    - Detecta on-the-fly com janela
    - Naturalmente resolve HCC bottleneck, mas e' v2.0 (format change)
 
-## Tools de compilacao — comparacao
+## Tools de compilacao: comparacao
 
 Workflow avaliou 10 opcoes, ranking pra TCF:
 
@@ -89,15 +89,15 @@ Workflow avaliou 10 opcoes, ranking pra TCF:
 | mypyc | nao instalado | 2-5x (preserva .py source) | Medio | elegante mas imaturo |
 | cffi + C | nao instalado | 20-40x | Manual | overkill pra TCF |
 | Pythran | nao instalado | 5-10x | Medio (INRIA) | menor adocao |
-| torch.jit | overkill | n/a (tensors) | — | rejeitado |
-| Mojo | nao no pip | — | — | rejeitado (imaturo) |
-| PyPy | alt interpreter | 3-5x sem mudar codigo | — | nao e' "extension" |
+| torch.jit | overkill | n/a (tensors) | n/a | rejeitado |
+| Mojo | nao no pip | n/a | n/a | rejeitado (imaturo) |
+| PyPy | alt interpreter | 3-5x sem mudar codigo | n/a | nao e' "extension" |
 | C extension manual | toolchain | 30-50x | Muito alto | rejeitado |
 
 **Cython vence** pra TCF: mature, low friction, integra com hatchling
 (via hatch-cython), pure-Python fallback simples, multi-platform via cibuildwheel.
 
-## Prototipo empirico — lcp_len em Cython
+## Prototipo empirico: lcp_len em Cython
 
 Codigo (proto_lcp_cython.pyx):
 ```cython
@@ -120,7 +120,7 @@ Benchmark (1000 pares 5-25 chars, 50% overlap, 10000 iter cada):
 Mas **na pipeline real isso e' 1.018x** por Amdahl. **Microbench valida o tool;
 nao valida o alvo**.
 
-## API surface — o que compilar
+## API surface: o que compilar
 
 Workflow avaliou 3 niveis:
 
@@ -133,7 +133,7 @@ Workflow avaliou 3 niveis:
 
 O alvo "novo" (_detect_compositions) e' o que faz sentido apos o profile.
 
-## Build/packaging — design recomendado
+## Build/packaging: design recomendado
 
 **pyproject.toml** com hatch-cython:
 ```toml
@@ -194,7 +194,7 @@ x Python 3.10-3.13 = 16 wheels por release.
    format change.
 
 **lcp/lcs Cython como spike investment**: feito o prototipo (6.23x), valida
-ferramenta. Pode ficar em backlog "low-priority polish" — apos compilar
+ferramenta. Pode ficar em backlog "low-priority polish", apos compilar
 HCC, lcp/lcs ja' otimizadas seriam bonus +0.5%.
 
 ## Status e proximos passos
@@ -223,8 +223,8 @@ HCC, lcp/lcs ja' otimizadas seriam bonus +0.5%.
 ## Conexoes
 
 - [ADR-0018](../adr/0018-v2-format-roadmap.md) V2-J streaming naturalmente
-  bypassa HCC bottleneck — alternativa estrutural a otimizar batch atual.
-- [docs/theory/strategies-map.md](strategies-map.md) — mapa completo das
+  bypassa HCC bottleneck, alternativa estrutural a otimizar batch atual.
+- [docs/theory/strategies-map.md](strategies-map.md): mapa completo das
   estrategias (HCC detector e' subsistema 3).
-- [docs/theory/patricia-trie-exploration.md](patricia-trie-exploration.md) —
+- [docs/theory/patricia-trie-exploration.md](patricia-trie-exploration.md):
   outro estudo, ortogonal (indice OBAT, nao HCC).

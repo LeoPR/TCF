@@ -9,7 +9,7 @@ Reads from the SQLite hub via `dataset_reader.DatasetReader` and writes
 - Sample rows (head, mid, tail)
 
 **Architecture note:** this script is a CLIENT of `dataset_reader.py`.
-Both live in `scripts/` and are purely for our project tooling — they are
+Both live in `scripts/` and are purely for our project tooling: they are
 not part of the TCF core (`src/tcf/`).
 
 Usage:
@@ -38,7 +38,7 @@ REPORTS_DIR = PROJECT_ROOT / "datasets" / "quality-reports"
 
 def _fmt_num(v) -> str:
     if v is None:
-        return "—"
+        return "n/a"
     if isinstance(v, int):
         return f"{v:,}"
     if isinstance(v, float):
@@ -50,7 +50,7 @@ def _fmt_num(v) -> str:
 
 def _fmt_text_short(v, max_len: int = 40) -> str:
     if v is None:
-        return "—"
+        return "n/a"
     s = str(v)
     if len(s) > max_len:
         return s[:max_len - 1] + "…"
@@ -71,7 +71,7 @@ def build_report(reader: DatasetReader) -> str:
     now = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
 
     # Header
-    lines.append(f"# Quality Report — {reader.name}\n")
+    lines.append(f"# Quality Report: {reader.name}\n")
     lines.append(f"_Generated: {now}_\n")
     if "source" in meta:
         lines.append(f"- **Source:** {meta['source']}")
@@ -91,9 +91,9 @@ def build_report(reader: DatasetReader) -> str:
     for table in reader.tables:
         n_rows = reader.row_count(table)
         n_cols = len(reader.column_names(table))
-        pk = ", ".join(reader.pk(table)) or "—"
+        pk = ", ".join(reader.pk(table)) or "n/a"
         fk_list = list(reader.fk(table).keys())
-        fk_str = ", ".join(fk_list) if fk_list else "—"
+        fk_str = ", ".join(fk_list) if fk_list else "n/a"
         lines.append(f"| `{table}` | {n_rows:,} | {n_cols} | `{pk}` | `{fk_str}` |")
         total_rows += n_rows
         total_cols += n_cols
@@ -131,9 +131,9 @@ def build_report(reader: DatasetReader) -> str:
                     f"| `{col_name}` | {typ} | {nulls_str} | {mn} | {mx} | {mean} | {stdev} |"
                 )
             else:
-                distinct = stats.get("distinct", "—")
+                distinct = stats.get("distinct", "n/a")
                 lines.append(
-                    f"| `{col_name}` | {typ} | {nulls_str} | {distinct:,} | — | — | — |"
+                    f"| `{col_name}` | {typ} | {nulls_str} | {distinct:,} | n/a | n/a | n/a |"
                 )
 
         # Top values for text columns (up to 3 columns max, to keep reports short)
@@ -144,7 +144,7 @@ def build_report(reader: DatasetReader) -> str:
                 stats = reader.column_stats(table, col)
                 distinct = stats.get("distinct", 0)
                 entropy = stats.get("entropy_bits", 0)
-                lines.append(f"\n**`{col}`** — distinct: {distinct:,}, entropy: {entropy} bits")
+                lines.append(f"\n**`{col}`**: distinct: {distinct:,}, entropy: {entropy} bits")
                 tops = stats.get("top_values", [])
                 if tops:
                     for val, count in tops:
@@ -152,7 +152,7 @@ def build_report(reader: DatasetReader) -> str:
                         lines.append(f"- `{_fmt_text_short(val)}`: {count:,} ({pct:.1f}%)")
             if len(text_cols) > 3:
                 lines.append(
-                    f"\n_(showing 3 of {len(text_cols)} categorical columns — see metadata.json for full list)_"
+                    f"\n_(showing 3 of {len(text_cols)} categorical columns; see metadata.json for full list)_"
                 )
 
         # Sample rows

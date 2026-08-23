@@ -1,10 +1,10 @@
 ---
-title: T-PERF-BORDAS-E-MODOS-09 — as bordas do TCF e os modos de compressão (rápido × maior); o alvo do .9
+title: T-PERF-BORDAS-E-MODOS-09, as bordas do TCF e os modos de compressão (rápido × maior); o alvo do .9
 status: open
 priority: P1
 created: 2026-08-23
 updated: 2026-08-23
-target: ".9 (otimização) — este é o ticket-mestre do ciclo"
+target: ".9 (otimização), este é o ticket-mestre do ciclo"
 blocked-by: []
 related:
   - experiments/lab/dirty/2026-08/2026-08-23/2026-08-23-0300-tempo-ate-o-dado-chegar/
@@ -22,25 +22,25 @@ related:
 Abre o ciclo `.9` com **base medida** em vez de intuição. Direção do owner (2026-08-23), ao ver
 os primeiros números de tempo-até-o-dado-chegar.
 
-## O enquadramento do owner — as quatro delimitações
+## O enquadramento do owner: as quatro delimitações
 
 Ditas ao ver o primeiro resultado, e elas **mudam o que os números significam**:
 
 1. **"o TCF tende a substituir volumes pequenos, mas quero estabelecer bordas para saber até
-   onde vai"** — o alvo declarado é payload pequeno. Medir 500 mil linhas não é achar o regime
+   onde vai"**, o alvo declarado é payload pequeno. Medir 500 mil linhas não é achar o regime
    de uso: é achar a **borda superior**. O objetivo do bench é o *até onde*, não o *quão bom*.
-2. **"não otimizamos ainda no .9"** — todo número atual é de código deliberadamente
+2. **"não otimizamos ainda no .9"**: todo número atual é de código deliberadamente
    não-otimizado. Serve de **ponto de partida**, não de conclusão sobre o formato.
 3. **"o TCF é para multiclient, onde o servidor centralizado fará as descompressões com mais
-   frequência — mas também pensar que o servidor dará respostas TCF"** — a topologia real é
+   frequência, mas também pensar que o servidor dará respostas TCF"**, a topologia real é
    **1 encode : N decodes**, com o servidor nos dois papéis. Bench 1:1 **não representa** isso.
 4. **"o TCF ainda nem foi testado com modos de compressão rápida, onde utiliza praticamente a
-   busca e repetição"** — hoje só existe **um** modo, o mais caro. O eixo que mais mexe no
+   busca e repetição"**, hoje só existe **um** modo, o mais caro. O eixo que mais mexe no
    break-even nunca foi exercitado.
 
 ## A base medida (2026-08-23, pré-otimização)
 
-**O penhasco de encode não é volume — é característica do dado.** População completa, RT
+**O penhasco de encode não é volume, é característica do dado.** População completa, RT
 validado em 6/6:
 
 | caso | linhas | encode | decode | razão | ratio vs CSV |
@@ -52,17 +52,17 @@ validado em 6/6:
 | ibge | 5.571 | 5,8 s | 0,05 s | 116× | 30,9% |
 | customer | 1.500 | 0,78 s | 0,06 s | 13× | 74,6% |
 
-`lineitem` (60k) leva **143× mais** que `adult` (49k) — mesma ordem de linhas. Consistente com a
+`lineitem` (60k) leva **143× mais** que `adult` (49k), mesma ordem de linhas. Consistente com a
 probatória de 2026-08-20: **o eixo quente é CARDINALIDADE**, não linhas×colunas.
 
 **Borda superior achada**: `br-identidades/pessoas` (500 mil linhas) consumiu **53 min de CPU e
-1,2 GB** sem terminar — interrompido. Fica registrado como **limite prático do encode atual**.
+1,2 GB** sem terminar, interrompido. Fica registrado como **limite prático do encode atual**.
 
-**Bytes: o argumento se sustenta.** `tcf+brotli` é o menor no fio em todos os casos —
+**Bytes: o argumento se sustenta.** `tcf+brotli` é o menor no fio em todos os casos:
 `adult` **2,3%** do JSON contra 4,5% do `json+brotli` (metade); ibge 4,6% vs 6,6%;
 customer 18,0% vs 22,9%.
 
-**Relógio: hoje não colhe.** Break-even do TCF contra JSON cru: **1,2 a 36 Mbps** — abaixo de
+**Relógio: hoje não colhe.** Break-even do TCF contra JSON cru: **1,2 a 36 Mbps**, abaixo de
 rede comum. O break-even é **linear no custo de CPU**: encode 10× mais rápido → ~360 Mbps
 (vence em 4G e banda larga).
 
@@ -71,15 +71,15 @@ rede comum. O break-even é **linear no custo de CPU**: encode 10× mais rápido
 ### 1. Modos de compressão (o eixo nunca testado)
 
 O owner: *"vamos testar versões de compressão rápida e maior"*. Hoje há **um** modo. Propostas
-a caracterizar — cada uma com byte E tempo, sobre os mesmos casos:
+a caracterizar, cada uma com byte E tempo, sobre os mesmos casos:
 
 | modo | ideia | hipótese |
 |---|---|---|
-| **rápido** | "praticamente só busca e repetição" — sem a busca composicional cara do HCC | o grosso do ganho a uma fração do custo |
+| **rápido** | "praticamente só busca e repetição", sem a busca composicional cara do HCC | o grosso do ganho a uma fração do custo |
 | **normal** | o de hoje | referência |
 | **máximo** | busca exaustiva, sem os cortes atuais (`budget` de 99, top-K) | teto do formato |
 
-O `T-BUDGET-DE-BUSCA` já registra que o único freio é um contador **fixo de 99, já saturado** —
+O `T-BUDGET-DE-BUSCA` já registra que o único freio é um contador **fixo de 99, já saturado**:
 é o parâmetro natural do modo rápido. O `T-PERFIS-MACRO` (`fast=true`) é a superfície de API, e o
 `T-API-SCHEMA-PRESCRITIVO` é onde ela deve morar.
 
@@ -92,12 +92,12 @@ O bench atual é 1:1 e **subestima** o TCF na topologia do owner. Refazer com N 
 ### 3. As bordas, explicitamente
 
 Onde o encode deixa de ser viável, por eixo: **cardinalidade** (o quente), linhas, colunas,
-largura de valor. Entregar uma tabela de *"até aqui vai"* — que é o pedido literal.
+largura de valor. Entregar uma tabela de *"até aqui vai"*, que é o pedido literal.
 
 ### 4. Fechar o que a janela de massa não cobriu
 
 Interrompida em `pessoas`: faltam **paralelismo byte-idêntico** fora do D17a e os combos
-(`parallel × sort_by × drop_names`) — buraco F3-3 declarado no T-QA-8 —, **specs em volume**,
+(`parallel × sort_by × drop_names`), buraco F3-3 declarado no T-QA-8, , **specs em volume**,
 **curva de dimensionamento** e **`.8H`/tipado em massa**. Rodar com teto de linhas (~100k) pra
 caber em tempo praticável.
 

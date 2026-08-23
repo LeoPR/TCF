@@ -5,17 +5,17 @@
 
 ## Source
 
-- **Origin**: IBGE Localidades API — `https://servicodados.ibge.gov.br/api/v1/localidades/municipios`
+- **Origin**: IBGE Localidades API, `https://servicodados.ibge.gov.br/api/v1/localidades/municipios`
 - **License**: Open data (IBGE)
 - **Download**: `python scripts/setup_ibge_municipios.py`
 - **Build hub**: `python scripts/csv_to_sqlite.py ibge-municipios`
 
 ## Schema
 
-`municipios` table — 5571 rows × 8 columns (one row per Brazilian
+`municipios` table, 5571 rows × 8 columns (one row per Brazilian
 municipality). Flattened from the IBGE administrative hierarchy
 (municipio → microrregiao → mesorregiao → UF → regiao). High categorical
-repetition: 27 UFs, 5 regioes — real-world accented UTF-8 text.
+repetition: 27 UFs, 5 regioes, real-world accented UTF-8 text.
 
 | Column | Type | Notes |
 |--------|------|-------|

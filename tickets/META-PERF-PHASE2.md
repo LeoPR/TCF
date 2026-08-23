@@ -1,4 +1,4 @@
-# META-PERF-PHASE2 — Performance OBAT/HCC fase 2
+# META-PERF-PHASE2: Performance OBAT/HCC fase 2
 
 **Status**: CLOSED-PARCIAL (2026-05-20)
 **Criado**: 2026-05-19
@@ -24,13 +24,13 @@ speedup vs 100-264x em outras colunas. Causa: trigrama inicial
 
 Pacote 4 sub-pacotes pendentes:
 
-### Sub-pacote 2 — H-PERF-04 (trigrama de meio) — PRIORIDADE ALTA
+### Sub-pacote 2: H-PERF-04 (trigrama de meio), PRIORIDADE ALTA
 
 **Hipotese**: trigrama de meio `s[len(s)//2-1:len(s)//2+2]` dispersa
 melhor que trigrama inicial em colunas datetime.
 
 **Pergunta**: pra `2026-05-19`, `2026-05-20`, `2026-05-21` o trigrama
-inicial `202` cai no mesmo bucket — mas trigrama de meio (`-05`, `-06`,
+inicial `202` cai no mesmo bucket, mas trigrama de meio (`-05`, `-06`,
 `-19`, etc) varia mais. Reduzir bucket size 10x+?
 
 **Plano** (~1-2 sub-exps):
@@ -43,7 +43,7 @@ inicial `202` cai no mesmo bucket — mas trigrama de meio (`-05`, `-06`,
 
 **Aceite**: speedup datetime cols 5x+ adicional, RT 100%, bytes IDENTICOS.
 
-### Sub-pacote 3 — H-PERF-05 (HCC opt) — PRIORIDADE ALTA
+### Sub-pacote 3: H-PERF-05 (HCC opt), PRIORIDADE ALTA
 
 **Hipotese**: HCC `_detect_compositions` em
 `src/tcf/composicional/syntax.py` (~linha 225) tem O(N²) hidden em
@@ -62,11 +62,11 @@ busca de candidatos virtual refs.
 
 **Aceite**: encode lineitem 5k <20s (vs 40s atual), RT 100%, bytes IDENTICOS.
 
-**Cuidado**: HCC mexe em `src/tcf/composicional/syntax.py` —
+**Cuidado**: HCC mexe em `src/tcf/composicional/syntax.py`:
 arquivo ja' modificado em ADR-0006 + ADR-0007. Re-validacao
 multi-camada obrigatoria.
 
-### Sub-pacote 4 — H-PERF-06 (Cython/Rust port) — PRIORIDADE BAIXA
+### Sub-pacote 4: H-PERF-06 (Cython/Rust port), PRIORIDADE BAIXA
 
 **Hipotese**: port de `lcp_len`/`lcs_len` (29M chamadas em lineitem 5k,
 ~1.7us/chamada) pra Cython ou Rust corta 50%+ Python overhead.
@@ -77,7 +77,7 @@ multi-camada obrigatoria.
 sobrar speedup interessante, abrir. Se Pacote 4 ja' atinge target
 (<5min pra lineitem full), nao priorizar.
 
-### Sub-pacote 5 — EXP-014b lineitem full 60175 — OPERACIONAL
+### Sub-pacote 5: EXP-014b lineitem full 60175, OPERACIONAL
 
 **Pergunta operacional**: extrapolacao 18.5min confirma na pratica?
 
@@ -93,10 +93,10 @@ ratio ~83-85%.
 
 ## Ordem de execucao
 
-1. **EXP-014b** (sub-pacote 5) — sem dependencia, rapido, confirma baseline
-2. **H-PERF-04** (sub-pacote 2) — quick win esperado em datas
-3. **H-PERF-05** (sub-pacote 3) — maior ganho potencial, mais complexo
-4. **H-PERF-06** (sub-pacote 4) — apenas se 1-3 nao bastarem
+1. **EXP-014b** (sub-pacote 5), sem dependencia, rapido, confirma baseline
+2. **H-PERF-04** (sub-pacote 2), quick win esperado em datas
+3. **H-PERF-05** (sub-pacote 3), maior ganho potencial, mais complexo
+4. **H-PERF-06** (sub-pacote 4), apenas se 1-3 nao bastarem
 
 Pode rodar 1 antes de 2/3, ou em paralelo (1 e' so' execucao).
 
@@ -126,28 +126,28 @@ Re-validar todos pos cada welding.
 
 ## Criterio de aceite (deste meta-ticket)
 
-1. [x] **Sub-pacote 5 (lineitem full 60175) executado** — 21.3min real
+1. [x] **Sub-pacote 5 (lineitem full 60175) executado**: 21.3min real
    vs 18.5min estimado (+15%), RT OK, ratio 89%. H-RW-05 mitigada
    confirmada na pratica (2026-05-20).
-2. [x] **Sub-pacote 2 (H-PERF-04 trigrama meio) — ADIADO**: hash
+2. [x] **Sub-pacote 2 (H-PERF-04 trigrama meio). ADIADO**: hash
    tradicional nao preserva byte-canonical em datas com prefix
    popular. Lab `2026-05-20-obat-perf-phase2-trigram-middle/` fechado.
    Patricia trie como fallback futuro (out of scope).
-3. [x] **Sub-pacote 3 (H-PERF-05 HCC opt) — investigado, ADIADO**:
+3. [x] **Sub-pacote 3 (H-PERF-05 HCC opt), investigado, ADIADO**:
    6 variantes testadas em `2026-05-20-hcc-perf-optimization/`.
    Zero-risk so' deu 1.04x (insuficiente). Caps trazem byte loss
    (3-6%) violando regra invariante M9. H-PERF-05d (counter
    incremental) permanece aberta como caminho zero-risk futuro.
-4. [x] **Sub-pacote 4 (Cython port) — ADIADO**: dependia de Pacote 3
+4. [x] **Sub-pacote 4 (Cython port), ADIADO**: dependia de Pacote 3
    esgotar. Reaberto so' se Python opt esgotar em phase 3.
-5. [x] Re-run EXP-014 com OBAT-opt (sub-pacote 1) — alpha 1.42,
+5. [x] Re-run EXP-014 com OBAT-opt (sub-pacote 1), alpha 1.42,
    18.5min estimado / 21.3min real em 60k.
 6. [ ] Atualizar STATUS.md "Foco atual" para proximo pacote
 
 ## Status final do meta-ticket
 
 **Fechado parcialmente 2026-05-20**. Ganho principal: Sub-pacote 1
-(OBAT hash trigrama, ADR-0009) — 2.70x em lineitem 20k, alpha 1.75 →
+(OBAT hash trigrama, ADR-0009), 2.70x em lineitem 20k, alpha 1.75 →
 1.42, lineitem full 60175 71min → 21.3min. Sub-pacotes 2/3/4 adiados
 com justificativa documentada.
 

@@ -1,11 +1,11 @@
 ---
-title: CAMADA 2b — HCC seq-RLE + multi-delta (ADR-0016, welded canonical)
+title: CAMADA 2b, HCC seq-RLE + multi-delta (ADR-0016, welded canonical)
 type: reference
 parent: strategies-map
 subsystem: hcc-seqrle
 ---
 
-# CAMADA 2b — HCC seq-RLE + multi-delta (ADR-0016, welded canonical)
+# CAMADA 2b: HCC seq-RLE + multi-delta (ADR-0016, welded canonical)
 
 **Como decide caminhos**:
 ENCODE: values → analyze_column (pre-pass, opcional) → detect_cadence → detect_min_len → OBAT tokenizes (processar ou processar_with_hint) → M8AVirtualRefsSyntax.encode() genera body_text (M9 puro, com refs/compositions) → HCCSeqRLE.encode() aplica compact_body (post-process seq-RLE) → output TCF.
@@ -49,7 +49,7 @@ Utility que mapeia posições (0-based) de cada char digit que vem após backsla
 Detecta RUNS (intervalos consecutivos) de digits após escape. Retorna list[tuple[int, int]] (start, end_exclusive) de cada run. Ex: '\\125.\\114' → [(1,4), (6,9)]. Crítico pra distinguir multi-run (prefix invariante + suffix cadenced) de single-run. Usado como pivô em compare_for_seq pra rejeitar pares com estruturas runs diferentes.
 
 **`compare_for_seq`** (decision-point, [src/tcf/composicional/hcc_seqrle.py:65-112](../../../src/tcf/composicional/hcc_seqrle.py))
-CRITERIO CENTRAL pra near-identical detection. Compara line_a e line_b; retorna list[int] de deltas (1 per run) se par é compactavel, None senão. Aceita: (1) single run com delta non-zero, (2) multi-run com EXATAMENTE 1 valor non-zero + resto zeros (ex: [0,0,0,1]). Rejeita: (1) len diferente, (2) diffs fora de escape-digit runs, (3) runs_a ≠ runs_b (estrutura diferente), (4) multiple non-zero diferentes (Fase 2 reject, linha 111), (5) all-zero (linhas identicas). ADR-0016: mudança chave vs M10 — agora aceita multi-delta [0,0,0,1] que antes rejeitava (Bug #2).
+CRITERIO CENTRAL pra near-identical detection. Compara line_a e line_b; retorna list[int] de deltas (1 per run) se par é compactavel, None senão. Aceita: (1) single run com delta non-zero, (2) multi-run com EXATAMENTE 1 valor non-zero + resto zeros (ex: [0,0,0,1]). Rejeita: (1) len diferente, (2) diffs fora de escape-digit runs, (3) runs_a ≠ runs_b (estrutura diferente), (4) multiple non-zero diferentes (Fase 2 reject, linha 111), (5) all-zero (linhas identicas). ADR-0016: mudança chave vs M10, agora aceita multi-delta [0,0,0,1] que antes rejeitava (Bug #2).
 
 **`_is_uniform_delta`** (heuristica, [src/tcf/composicional/hcc_seqrle.py:176-183](../../../src/tcf/composicional/hcc_seqrle.py))
 Verifica se lista de deltas é UNIFORME (todos iguais e non-zero). Se sim, retorna aquele int único; senão None. Usado em compact_body (linha 199) pra decidir marker format: M10 compat `*N+delta|` (uniform) vs ADR-0016 CSV `*N+d1,d2,d3,d4|` (mixed). Threshold: all(d == deltas[0] and d != 0). Importante pra backward compatibility.
@@ -73,7 +73,7 @@ Subclass de M8AVirtualRefsSyntax. Override encode/decode pra adicionar seq-RLE l
 Mecanismo de preservação backward compat: se _is_uniform_delta retorna non-None (todos deltas iguais), emite marker M10 format `*N+delta|` (sem virgula). Datasets como D1-D9 (nenhum multi-run com mixed deltas) emit markers idênticos a versão M9, preservando byte-canonical invariant. Validado em test suite (19 novos tests em test_hcc_multi_delta.py, 211 total passam).
 
 **`Fase 1 single non-zero restriction`** (threshold, [src/tcf/composicional/hcc_seqrle.py:107-111](../../../src/tcf/composicional/hcc_seqrle.py))
-ADR-0016 Fase 1 limitação: multi-delta só aceita 1 valor non-zero (resto zeros). Linha 110: if len(set(non_zero)) > 1 → return None (reject). Casos [1,2] ou [3,5] rejeitados — defer para Fase 2 (futuro). Justificativa: casos [0,0,0,1] são comuns (prefix invariante + suffix cadenced, ex: IPs), mas [1,2] raro em real-world datasets. Benchmark D-IP-subnet validou suficiência.
+ADR-0016 Fase 1 limitação: multi-delta só aceita 1 valor non-zero (resto zeros). Linha 110: if len(set(non_zero)) > 1 → return None (reject). Casos [1,2] ou [3,5] rejeitados, defer para Fase 2 (futuro). Justificativa: casos [0,0,0,1] são comuns (prefix invariante + suffix cadenced, ex: IPs), mas [1,2] raro em real-world datasets. Benchmark D-IP-subnet validou suficiência.
 
 **`Run equality invariant`** (marcador, [src/tcf/composicional/hcc_seqrle.py:88-91](../../../src/tcf/composicional/hcc_seqrle.py))
 Estrutural: pares são aceitáveis APENAS se runs_a == runs_b (posições de escape-digit runs exatamente iguais). Se differs → None (reject). Impede false positives tipo '\\1' vs '\\1.\\2' (número de runs diferente, diferença não-linear). Crítico pra corretude shift_escape_digits.
@@ -99,17 +99,17 @@ FASE 2 PLANNING (deferred):
 - Streaming variant pra big datasets.
 
 BUG FIXES WELDED:
-- Bug #1 (T-CODE-HCC-ATOM-DETECTION-REFINE): deferred — seq-RLE multi-delta coverage já suficiente.
+- Bug #1 (T-CODE-HCC-ATOM-DETECTION-REFINE): deferred, seq-RLE multi-delta coverage já suficiente.
 - Bug #2 (T-CODE-HCC-MULTI-DELTA-FIX): accepted + welded (este ADR-0016). compare_for_seq linha 88-91 now accepts [0,0,0,1].
 
 MEASUREMENTS (real-world):
 - D-IP-subnet 1000 sem nature: 15747B (117%) → 560B (4.18%), -96.4% reduction.
-- vs SPEC_IP nature (ADR-0015): 229B (1.71%) — SPEC_IP still wins -59% vs seq-RLE, mas ambos disponiveis (user choice).
+- vs SPEC_IP nature (ADR-0015): 229B (1.71%), SPEC_IP still wins -59% vs seq-RLE, mas ambos disponiveis (user choice).
 - D1-D9 baseline: 1523B invariant preserved (M10 compat).
 
 KNOWN LIMITATIONS (not limitations, by design for v1.0):
 - Fase 1: only 1 non-zero delta (multi-delta [1,2] rejected). Sufficient pra cadenced data (prefix invariante + suffix incrementing, comum em IPs/timestamps).
-- No overflow truncation (zfill preserves). If \99 + 1 → \100 (width changes), not truncated — correct pra IPs mas pode surprise users expecting fixed width.
+- No overflow truncation (zfill preserves). If \99 + 1 → \100 (width changes), not truncated: correct pra IPs mas pode surprise users expecting fixed width.
 - Escape-digit detector hardcoded (\\ + isdigit). Not extensible in v1.0, but well-documented.
 
 ROUND-TRIP GUARANTEES:

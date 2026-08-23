@@ -1,5 +1,5 @@
 ---
-title: T-CODE-RT-EDGES — 2 violações de RT em bordas (seq-RLE trailing-space + \n embutido)
+title: T-CODE-RT-EDGES, 2 violações de RT em bordas (seq-RLE trailing-space + \n embutido)
 status: closed-fixed
 priority: P1
 created: 2026-07-04
@@ -11,13 +11,13 @@ related:
   - tickets/T-CODE-EMPTY-FRAG-INDEX-RT.md
 ---
 
-# T-CODE-RT-EDGES — violações do contrato lossless em bordas
+# T-CODE-RT-EDGES: violações do contrato lossless em bordas
 
 **[probatório]** Achados da revisão crítica geral (2026-07-04, 6 lentes), **ambos confirmados por
 repro própria** antes de registrar. O contrato nº1 do projeto (`decode(encode(x)) == x`) tem duas
 violações de borda.
 
-## Bug 1 — [P1] seq-RLE come whitespace final do template
+## Bug 1: [P1] seq-RLE come whitespace final do template
 
 ```python
 decode(encode(['a1 ', 'a2 ', 'a3 ']))   # => ['a1', 'a2', 'a3']  (espaços finais PERDIDOS)
@@ -27,13 +27,13 @@ decode(encode(['a1 ', 'a2 ', 'a3 ']))   # => ['a1', 'a2', 'a3']  (espaços finai
 - **Causa**: `HCCSeqRLE.decode` faz `raw.strip()` antes de expandir o marker seq-RLE
   ([hcc_seqrle.py:297](../src/tcf/composicional/hcc_seqrle.py)).
 - **Histórico**: MESMA classe do bug corrigido em 2026-05-18 no decode do `syntax.py`
-  ("NÃO strip", TPC-H trailing space) — o wrapper seq-RLE **reintroduziu** o strip.
+  ("NÃO strip", TPC-H trailing space), o wrapper seq-RLE **reintroduziu** o strip.
 - **Cobertura**: nenhum teste combina trailing-space + seq-RLE.
 - **Fix proposto**: decode-only (detectar o marker sem strip, ou strip só pro teste de vazio e
-  expandir sobre `raw`). **Byte-canonical-safe** (encode intocado) — mesmo padrão do fix
+  expandir sobre `raw`). **Byte-canonical-safe** (encode intocado), mesmo padrão do fix
   T-CODE-EMPTY-FRAG-INDEX-RT. + pinar reproducer em `test_core_rt.py`.
 
-## Bug 2 — [P1] `\n` embutido corrompe RT em silêncio
+## Bug 2: [P1] `\n` embutido corrompe RT em silêncio
 
 ```python
 decode(encode(['a\nb', 'c']))   # => ['a', 'b', 'c']  (sem erro; RT corrompido)
@@ -42,9 +42,9 @@ decode(encode(['a\nb', 'c']))   # => ['a', 'b', 'c']  (sem erro; RT corrompido)
 - **Causa**: a premissa "sem `\n` embutido" existe só em docstring (`_fallback_safe`,
   multi/core.py); o encoder público não valida.
 - **Fix proposto**: validação barata na fronteira pública (`raise ValueError` por valor com `\n`,
-  single e multi). A filosofia "dados felizes" (CLAUDE.md) diz *comprimir o que receber* — mas
+  single e multi). A filosofia "dados felizes" (CLAUDE.md) diz *comprimir o que receber*, mas
   corromper silenciosamente não é comprimir; erro explícito preserva o contrato.
-- **Alternativa** (se o owner preferir não-levantar): escapar/normalizar `\n` de forma reversível —
+- **Alternativa** (se o owner preferir não-levantar): escapar/normalizar `\n` de forma reversível:
   mais caro, muda formato; a validação é o mínimo seguro.
 
 ## Critério de aceite
@@ -59,13 +59,13 @@ decode(encode(['a\nb', 'c']))   # => ['a', 'b', 'c']  (sem erro; RT corrompido)
 
 - **2026-07-04**: aberto (revisão crítica geral, lente núcleo/algoritmo; repros confirmadas).
 - **2026-07-05 (FIXED, owner aprovou)**: ambos corrigidos.
-  - **Bug 1** (decode-only): `HCCSeqRLE.decode` não strippa mais o `raw` — passa direto pro
+  - **Bug 1** (decode-only): `HCCSeqRLE.decode` não strippa mais o `raw`, passa direto pro
     `expand_seq_marker` (que já preserva `template = linha[bar+1:]`); markers começam com `*` na
     pos 0, então não-markers/vazios/whitespace-only voltam `raw` intactos. `src/tcf/composicional/hcc_seqrle.py`.
   - **Bug 2** (validação de fronteira): novo `_reject_linebreaks(data)` chamado no topo de `encode`
     → `ValueError` em valor com `\n` **ou** `\r` (single e multi), antes de qualquer processamento.
     `src/tcf/encoder.py` + docstring Raises atualizada.
   - **Gate VERDE**: byte-canônico intacto (31 passed; **D1-D9=1523B, D17a=303B, RW=89616B
-    inalterados** — fix é decode-only + validação, encode não muda bytes); suíte **468 passed**
+    inalterados**, fix é decode-only + validação, encode não muda bytes); suíte **468 passed**
     (era 456; +12 pins novos em `TestRTEdges`: 7 variantes whitespace+seq-RLE + rejeição \n/\r single/multi + dado-limpo-passa).
   - Nota: `\r` rejeitado além de `\n` (`splitlines()` do decode quebra ambos → LF-only convention).

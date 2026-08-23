@@ -1,5 +1,5 @@
 ---
-title: T-CODE-DESCAPAR-V2B — Descapar o V2-B (dict como candidato do min() p/ high-card)
+title: T-CODE-DESCAPAR-V2B, Descapar o V2-B (dict como candidato do min() p/ high-card)
 status: closed-parcial (forma A welded no .8; formas B/C -> .9, ver ROADMAP Tier 1)
 priority: P2
 created: 2026-07-01
@@ -12,9 +12,9 @@ related:
   - src/tcf/multi/core.py
 ---
 
-# T-CODE-DESCAPAR-V2B — Descapar o V2-B
+# T-CODE-DESCAPAR-V2B: Descapar o V2-B
 
-> **ENCERRADO PARCIAL (2026-07-10, T-REL-08-CLOSEOUT Passo 1b)**: **forma A welded** no `.8` —
+> **ENCERRADO PARCIAL (2026-07-10, T-REL-08-CLOSEOUT Passo 1b)**: **forma A welded** no `.8`:
 > `a201c1e` (cap de compute 1024→8192, byte-safe, gate verde sem re-pin; aprovação owner
 > 2026-07-02). O boundary do cap ganhou cobertura planejada no material comprobatório
 > ([T-QA-8 F2-7](T-QA-8-material-comprobatorio.md)) e o slot ganhou invariantes de decode no F0
@@ -39,7 +39,7 @@ Descapar (deixar o dict entrar no `min()` p/ high-card) vale o custo de compute?
 - **BYTE-SAFE**: delta ≤ 0 em TODAS as tabelas (o `min` nunca regride, core.py:178-191). RT=True.
 - **Ganho**: −4.88% br-empresas, −5.32% receita (colunas high-card espalhadas); 0% onde é estruturado
   ou low-card. Concentrado, não weighted-amplo.
-- **PINS INALTERADOS**: D1-D9/real-world (single-col) + D17a (low-card) idênticos capped vs uncapped —
+- **PINS INALTERADOS**: D1-D9/real-world (single-col) + D17a (low-card) idênticos capped vs uncapped,
   o V2-B nem é candidato neles. **Weld sem re-pin.**
 - **Custo**: encode ~1.1–2.2× mais lento (o dict-encode extra por coluna K>1024). Skip barato
   (`N·w(K)≥tcf`) fraco (8%). Mitigação = skip **cadence-aware** (reusa `detect_cadence` do pré-pass).
@@ -69,12 +69,12 @@ Descapar (deixar o dict entrar no `min()` p/ high-card) vale o custo de compute?
 - **2026-07-02 (WELD forma A, owner aprovou)**: `_V2B_MAX_CARD` **1024 → 8192** em
   `src/tcf/multi/dict_v2b.py` (< 94²=8836 → índice largura ≤2; cobre os wins medidos municipio/cpf/
   razão/nó-de-grafo). **Gate verde**: `test_regression_v1_baseline` + `test_real_world_snapshots`
-  (31 passed; D1-D9=1523B, D17a=303B, RW=89616B **inalterados** — são single-col/low-card) + suíte
+  (31 passed; D1-D9=1523B, D17a=303B, RW=89616B **inalterados**: são single-col/low-card) + suíte
   completa **456 passed, 2 skipped, 1 xfailed** (config CI), **nenhum re-pin necessário**. Byte-safe
   (o `min(tcf,raw,v2b,split)` nunca regride). Nota em ADR-0025. Ganho real (−5% br-empresas/receita)
   nos hubs Z: (requires_data, medido no prototype).
 
-## B/C — DEFERIDOS (investigar depois com calma; owner 2026-07-02)
+## B/C: DEFERIDOS (investigar depois com calma; owner 2026-07-02)
 
 Registrados aqui pra retomar:
 - **(B) descapar total + skip cadence-aware**: remover o cap e adicionar heurística de skip do

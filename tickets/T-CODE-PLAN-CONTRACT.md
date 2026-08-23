@@ -1,5 +1,5 @@
 ---
-title: T-CODE-PLAN-CONTRACT — Plan dataclass (group_by/order/batch_size)
+title: T-CODE-PLAN-CONTRACT, Plan dataclass (group_by/order/batch_size)
 status: deferred
 priority: P3
 created: 2026-05-24
@@ -11,9 +11,9 @@ related:
   - tickets/T-CODE-ENCODER-MANAGER.md
 ---
 
-# T-CODE-PLAN-CONTRACT — Plan dataclass
+# T-CODE-PLAN-CONTRACT: Plan dataclass
 
-> **Fechamento 0.7 (2026-06-15) — PARK v2.0**: contrato foundacional pra ordering
+> **Fechamento 0.7 (2026-06-15), PARK v2.0**: contrato foundacional pra ordering
 > reversivel (O-FMT-01..04), nao critico pro 0.7 (compressao de bytes ja' completa:
 > V2-A/B/split + sort_by welded). O-FMT-02 `sort_by` (order-free) ja' cobre o caso
 > simples de reordenacao. Retomar quando v2.0 abrir.
@@ -34,7 +34,7 @@ class Plan:
 Plan eh **contrato estavel** entre otimizadores (heuristica, futuro SQL)
 e encoder. Otimizadores produzem Plans; encoder consome.
 
-Hoje encoder nao aceita Plan — defaults hard-coded. Habilitar Plan
+Hoje encoder nao aceita Plan, defaults hard-coded. Habilitar Plan
 desbloqueia O-FMT-01..04 (ordenacao reversivel) e prepara SQL->Plan (D8).
 
 ## Plano
@@ -88,15 +88,15 @@ no body. Vale se `body_savings > header_cost`.
 
 ## Conexao
 
-- [T-CODE-ENCODER-MANAGER](T-CODE-ENCODER-MANAGER.md) — manager consome Plan
-- [T-CODE-SCHEMA-BUILDER](T-CODE-SCHEMA-BUILDER.md) — pode produzir Plan auto
-- [O-FMT-01..04](../experiments/lab/dirty/notas/2026-05/futuras-otimizacoes-formato.md)
-  — ordering reversivel
+- [T-CODE-ENCODER-MANAGER](T-CODE-ENCODER-MANAGER.md): manager consome Plan
+- [T-CODE-SCHEMA-BUILDER](T-CODE-SCHEMA-BUILDER.md): pode produzir Plan auto
+- [O-FMT-01..04](../experiments/lab/dirty/notas/2026-05/futuras-otimizacoes-formato.md):
+  ordering reversivel
 - [v04-design-recap D8/D11/D13](../docs/workbench/research-notes/_archive/2026-05-05-v04-design-recap.md)
 
 ## Updates datados
 
-### 2026-05-24 — abertura
+### 2026-05-24: abertura
 
 Ticket aberto pos-ADR-0014. Plan eh decisao adiada do v0.4; reativado
 agora que fachada `encode()` esta unificada. Implementacao pendente.

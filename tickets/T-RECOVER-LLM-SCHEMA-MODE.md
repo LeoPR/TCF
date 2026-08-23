@@ -1,5 +1,5 @@
 ---
-title: T-RECOVER-LLM-SCHEMA-MODE — Gadget LLM (schema + SQL gen, formato LLM-binary)
+title: T-RECOVER-LLM-SCHEMA-MODE, Gadget LLM (schema + SQL gen, formato LLM-binary)
 status: deferred
 priority: P3
 created: 2026-05-27
@@ -8,12 +8,12 @@ blocked-by: []
 related:
   - tickets/T-RECOVER-SCHEMA-MULTI-TABLE.md  (gadget irmao, coleta schema/stats)
   - src/tcf/side_outputs.py  (framework efeito colateral consumido em paralelo)
-  - docs/findings/  (Phase 1 LLM Q01-Q38 historic v0.5 — infra reutilizavel)
+  - docs/findings/  (Phase 1 LLM Q01-Q38 historic v0.5: infra reutilizavel)
 ---
 
-# T-RECOVER-LLM-SCHEMA-MODE — Gadget LLM auxiliar
+# T-RECOVER-LLM-SCHEMA-MODE: Gadget LLM auxiliar
 
-> **Fechamento 0.7 (2026-06-15) — PARK (spin-off) pos-0.7**: gadget EXTERNO de foco
+> **Fechamento 0.7 (2026-06-15), PARK (spin-off) pos-0.7**: gadget EXTERNO de foco
 > filosofico oposto ao TCF (machine-readable LLM-binary vs human-readable); zero
 > impacto em bytes/formato; NAO toca `src/tcf`. Fase 0 recomenda Opcao A (pacote
 > separado `tcf-llm-tools`). Retomar como spin-off quando o owner priorizar.
@@ -27,14 +27,14 @@ Owner reforcou (2026-05-27):
 > "A outra ferramenta de LLM tambem e' paralela e nao e' do projeto em
 > si. Tambem e' um tool que permita uma coleta do schema dos dados,
 > estrutura e statisticas, alem de permitir que seja possivel formatar
-> pra melhor performance possivel pra que as LLMs entendam — ou seja,
+> pra melhor performance possivel pra que as LLMs entendam, ou seja,
 > fica num formato mais 'binario de LLM', sem ter compromisso de agradar
 > humanos. E assim ela pode gerar consultas SQL que, funcionando bem,
 > permitem que uma consulta baseada em uma pergunta de negocio seja
 > feita na fonte de dados, a query responda e essa resposta ai sim
 > pode ir pro TCF de fato."
 
-## Proposta — gadget pequeno, foco em "LLM-binary format"
+## Proposta: gadget pequeno, foco em "LLM-binary format"
 
 Tres responsabilidades:
 1. **Coleta de schema + estrutura + estatisticas** de dados (pode reusar
@@ -69,7 +69,7 @@ fonte de dados  ────► schema/stats (gadget irmao OU coleta propria)
                         encode(data)  ← TCF entra aqui (agnostic)
 ```
 
-## "Formato LLM-binary" — explicacao
+## "Formato LLM-binary": explicacao
 
 NAO e' binario no sentido tradicional (bytes opacos). E' um formato textual
 otimizado pra **economia de tokens LLM** + **alta densidade semantica pro
@@ -101,46 +101,46 @@ pra extrair stats sem custo adicional. Especialmente uteis pro prompt LLM:
 
 ## Plano (futuro)
 
-### Fase 0 — Decisao arquitetural
+### Fase 0: Decisao arquitetural
 - **Onde vive este gadget?**:
   - Opcao A (RECOMENDADA): pacote totalmente separado `tcf-llm-tools`
     ou nome neutro como `schema-llm-bridge`
   - Opcao B: extra `pip install tcf[llm]` (mas em src/, isolado)
   - Opcao C: scripts/ standalone
 
-### Fase 1 — Coletor + formatador LLM-binary
+### Fase 1: Coletor + formatador LLM-binary
 - Le schema (do gadget irmao ou diretamente)
 - Le SideOutputs (se disponivel)
 - Formata em "LLM-binary": tuple compacta, vocabulario controlado, sem
   redundancia legivel
 
-### Fase 2 — Prompt + LLM call
+### Fase 2: Prompt + LLM call
 - Template: "{schema_llm_binary}\n\nIntent: {business_question}\n\nSQL:"
 - Reuso de qualified models do Phase 1 se estaveis (sem requalification)
 
-### Fase 3 — Validador SQL → schema
+### Fase 3: Validador SQL → schema
 - Parse SQL gerado, valida que projecoes/joins fazem sentido pro schema
 - Feedback loop se invalido
 
-### Fase 4 — Execucao + handoff
+### Fase 4: Execucao + handoff
 - Roda SQL em SQLite/DuckDB
 - Output: dict[str, list[str]] pronto pra `encode()`
-- **NAO chama TCF** — usuario decide o que fazer com o output
+- **NAO chama TCF**: usuario decide o que fazer com o output
 
 ## Conexao
 
 - **NAO toca** src/tcf/
-- **Paralelo** ao schema gadget (T-RECOVER-SCHEMA-MULTI-TABLE) — pode
+- **Paralelo** ao schema gadget (T-RECOVER-SCHEMA-MULTI-TABLE): pode
   consumir output dele OU fazer propria coleta
 - Reuso de infra v0.5 (old/tcf + docs/findings) respeitando: NUNCA
   importar de old/tcf em src/tcf
-- TCF e' agnostico de origem — recebe qualquer dict[str, list[str]]
+- TCF e' agnostico de origem: recebe qualquer dict[str, list[str]]
 
 ## Filosofia
 
 - **Gadget pequeno e focado** (nao platform play)
 - **So' gera e executa, NAO arruma**: SQL errado e' alerta, nao auto-fix
-- **Formato LLM-binary**: oposto explicito da filosofia TCF — TCF e'
+- **Formato LLM-binary**: oposto explicito da filosofia TCF, TCF e'
   human-friendly; este gadget e' LLM-friendly
 - **Zero custo via SideOutputs**: aproveita stats que TCF compute
 
@@ -149,7 +149,7 @@ pra extrair stats sem custo adicional. Especialmente uteis pro prompt LLM:
 - Mission creep: TCF e' lib de compressao, nao plataforma de query
 - Mitigation: **spin-off como pacote separado** (Opcao A)
 - Ollama dependency adiciona setup-friction → opt-in resolve
-- "LLM-binary" pode virar dialeto proprietario — manter especificacao
+- "LLM-binary" pode virar dialeto proprietario: manter especificacao
   curta + documentada
 
 ## Status

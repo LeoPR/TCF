@@ -1,5 +1,5 @@
 ---
-title: T-REVAL-H-DA-01-06-10 — Revalidacao categoria B (Pacote 1 hipoteses confirmada-empirica nao testadas em real-world)
+title: T-REVAL-H-DA-01-06-10, Revalidacao categoria B (Pacote 1 hipoteses confirmada-empirica nao testadas em real-world)
 status: closed
 resolution: completed-with-surprises
 priority: P1
@@ -15,7 +15,7 @@ related:
   - docs/adr/0008-detect-cadence-numeric-high-cardinality.md
 ---
 
-# T-REVAL-H-DA-01-06-10 — Revalidacao Categoria B (Pacote 1)
+# T-REVAL-H-DA-01-06-10: Revalidacao Categoria B (Pacote 1)
 
 ## Contexto / motivacao
 
@@ -26,7 +26,7 @@ em 3 categorias:
 - **B**: nao testada em real-world (risco generalizacao)
 - **C**: refutada real-world (Pacote 2 H-ED-01..04)
 
-Esta revalidacao foca **categoria B** — 3 hipoteses do Pacote 1
+Esta revalidacao foca **categoria B**: 3 hipoteses do Pacote 1
 (delta-aware) que foram validadas APENAS em datasets sinteticos
 (D11a-h ou D16a-c) que foram construidos pra testar a hipotese
 (vies de selecao).
@@ -37,19 +37,19 @@ Mesmo padrao pode estar latente em H-DA-01/06/10.
 
 ## Hipoteses sob revalidacao
 
-### H-DA-06 — IDs numericos delta (-61% em D16a-c sinteticos)
+### H-DA-06: IDs numericos delta (-61% em D16a-c sinteticos)
 
 **Suspeita**: Pode ja' estar **subsumida** em H-DA-09b-v2 (numeric
 high-cardinality welded ADR-0008). Se o hint auto-detect ja' captura
 colunas tipo D16 em real-world (Adult `fnlwgt`, TPC-H `*key`), H-DA-06
 e' redundante.
 
-**Acao**: inspecao isolada — rodar Adult Census + TPC-H pelo pipeline
+**Acao**: inspecao isolada, rodar Adult Census + TPC-H pelo pipeline
 EXP-010 e verificar quais colunas disparam hint via regra 2 (numeric
 high-cardinality). Se cobertura suficiente → marcar H-DA-06 como
 `subsumida` em H-DA-09b-v2.
 
-### H-DA-01 — HCC seq-RLE near-identical (-22.2% em D11a-h sinteticos)
+### H-DA-01: HCC seq-RLE near-identical (-22.2% em D11a-h sinteticos)
 
 **Suspeita**: Datasets D11a-h sao **construidos** com cadencia
 explicita (datetime regular). Real-world tem timestamps irregulares,
@@ -59,7 +59,7 @@ IDs nao-sequenciais, etc. Ganho pode cair drasticamente.
 fork seq-RLE explicito em Adult Census + TPC-H. Quantificar ganho
 adicional REAL-WORLD weighted.
 
-### H-DA-10 — min_len trade-off (-33B em D9 sintetico, N=3)
+### H-DA-10: min_len trade-off (-33B em D9 sintetico, N=3)
 
 **Suspeita**: Amostra muito pequena (3 datasets, 4 valores de min_len).
 Sem teoria. Provavel ruido.
@@ -72,9 +72,9 @@ se min_len otimo difere de default (3) com ganho >=2%.
 Lab dirty: `experiments/lab/dirty/2026-05-21-revalidacao-categoria-B/`
 
 3 sub-exps:
-1. `01-h-da-06-subsumida-em-09b-v2/` — inspecao isolada (rapido)
-2. `02-h-da-01-hcc-seqrle-realworld/` — medicao isolamento real-world
-3. `03-h-da-10-min-len-realworld/` — varredura min_len real-world
+1. `01-h-da-06-subsumida-em-09b-v2/`, inspecao isolada (rapido)
+2. `02-h-da-01-hcc-seqrle-realworld/`, medicao isolamento real-world
+3. `03-h-da-10-min-len-realworld/`, varredura min_len real-world
 
 Cada sub-exp segue template do Pacote 2 (caracterizacao quantitativa
 em D1-D9 + Adult-1k/5k + TPC-H region/customer/lineitem-5k).
@@ -86,7 +86,7 @@ em D1-D9 + Adult-1k/5k + TPC-H region/customer/lineitem-5k).
 | H | Acao no roadmap se |
 |---|---|
 | **H-DA-06** | Subsumida em H-DA-09b-v2: cobertura real-world >= 80% das colunas-alvo  |
-| **H-DA-06** | A-revalidar: cobertura < 80%, ortogonal — manter como hipotese separada |
+| **H-DA-06** | A-revalidar: cobertura < 80%, ortogonal, manter como hipotese separada |
 | **H-DA-01** | Confirmada real-world: ganho weighted >= 5% bytes |
 | **H-DA-01** | Refutada-real-world: ganho < 1% (mesmo padrao Pacote 2) |
 | **H-DA-01** | A-revalidar com ressalva: 1-5% (marginal) |
@@ -107,32 +107,32 @@ em D1-D9 + Adult-1k/5k + TPC-H region/customer/lineitem-5k).
 1. **H-DA-06 nao subsumida**: se Adult `fnlwgt` ou TPC-H keys nao
    disparam regra 2 (cardinalidade baixa, ou prefix nao-numerico),
    H-DA-06 ainda e' real. Manter aberta.
-2. **H-DA-01 ganho real-world baixo**: confirma padrao Pacote 2 —
+2. **H-DA-01 ganho real-world baixo**: confirma padrao Pacote 2:
    sinteticos D11a-h enviesados. Fechar como refutada-real-world.
 3. **H-DA-10 sem ganho**: confirma intuicao "amostra muito pequena
    pra confiar"; min_len=3 e' default razoavel.
 
 ## Conexoes
 
-- [Revisao conceitual 2026-05-21](../experiments/lab/dirty/notas/2026-05/2026-05-21-0138-revisao-conceitual.md)
-  — origem da categorizacao A/B/C
-- [Pacote 1 lab](../experiments/lab/dirty/2026-05-17-OBAT-delta-aware/)
-  — sub-exps 02, 05, 08 originais
-- [ADR-0008](../docs/adr/0008-detect-cadence-numeric-high-cardinality.md)
-  — H-DA-09b-v2 welded (possivelmente subsume H-DA-06)
-- [META-ESCAPE-DEDUCTION](META-ESCAPE-DEDUCTION.md) — incidente
+- [Revisao conceitual 2026-05-21](../experiments/lab/dirty/notas/2026-05/2026-05-21-0138-revisao-conceitual.md):
+  origem da categorizacao A/B/C
+- [Pacote 1 lab](../experiments/lab/dirty/2026-05-17-OBAT-delta-aware/):
+  sub-exps 02, 05, 08 originais
+- [ADR-0008](../docs/adr/0008-detect-cadence-numeric-high-cardinality.md).
+  H-DA-09b-v2 welded (possivelmente subsume H-DA-06)
+- [META-ESCAPE-DEDUCTION](META-ESCAPE-DEDUCTION.md): incidente
   Pacote 2 que motivou esta revalidacao
 
 ## Updates datados
 
-### 2026-05-21 — abertura
+### 2026-05-21: abertura
 
 Ticket criado seguindo convencao YAML frontmatter (validada em
-META-ESCAPE-DEDUCTION). Priority P1 — desbloqueia confianca em
+META-ESCAPE-DEDUCTION). Priority P1, desbloqueia confianca em
 hipoteses Categoria B antes de novos pacotes. blocked-by: vazio
 (nao depende de outro ticket; e' anterior a qualquer novo pacote).
 
-### 2026-05-21 — execucao + fechamento
+### 2026-05-21: execucao + fechamento
 
 Lab dirty `2026-05-21-revalidacao-categoria-B/` executado integralmente
 no mesmo dia. 3 sub-exps com result.md.
@@ -150,7 +150,7 @@ datasets, N=4 valores, sem teoria) e foi a unica que cresceu em
 real-world. Padrao reverso de Pacote 2 (que era hipotese mais "obvia"
 e refutou).
 
-**Licao meta**: amostra pequena erra em AMBAS as direcoes — nao
+**Licao meta**: amostra pequena erra em AMBAS as direcoes, nao
 podemos predizer direcao do erro sem teste empirico. Anti-incidente
 checklist do CLAUDE.md aplica tanto pra ganhos "muito altos" (suspeita
 overfitting) quanto pra "marginais" (suspeita subutilizacao).

@@ -1,5 +1,5 @@
 ---
-title: T-FMT-NAME-ESCAPING — Escape/quoting de nomes de coluna (e chaves de hierarquia) no meta do header
+title: T-FMT-NAME-ESCAPING, Escape/quoting de nomes de coluna (e chaves de hierarquia) no meta do header
 status: closed-parcial (interim backslash = entrega do .8; estudo quoting -> filho T-FMT-QUOTING-STUDY, .9)
 priority: P1
 created: 2026-07-09
@@ -14,10 +14,10 @@ related:
   - experiments/lab/dirty/notas/2026-07/tcf8-header-char-registry.md
 ---
 
-# T-FMT-NAME-ESCAPING — escape/quoting de nomes no meta
+# T-FMT-NAME-ESCAPING: escape/quoting de nomes no meta
 
 > **ENCERRADO PARCIAL (2026-07-10, T-REL-08-CLOSEOUT Passo 1d)**: o **interim backslash é a
-> entrega do `.8`** — welded em M2 (`58f7dee`), endurecido no F0 (whitelist estrita `_ESC_OK` +
+> entrega do `.8`**, welded em M2 (`58f7dee`), endurecido no F0 (whitelist estrita `_ESC_OK` +
 > gramática última-anônima, `a2e84b0`/`a0f30ae`) e validado por fuzz adversarial (~310 checks,
 > zero falso-positivo; byte-neutro). O ESTUDO que este ticket deixou pra depois (CSV-quoting /
 > quoting implícito/smart, "até pra ver se apenas o barra já resolve tudo") virou ticket-filho:
@@ -25,7 +25,7 @@ related:
 > `{}[]` ao meta). Corpo abaixo = o design da era, intocado.
 
 **[dispositivo→código]** Direção do owner (2026-07-09): resolver as colisões de caractere em **nome de
-coluna** (e futuras chaves de hierarquia) com **escaping/quoting** — as técnicas já consagradas de CSV —
+coluna** (e futuras chaves de hierarquia) com **escaping/quoting**, as técnicas já consagradas de CSV:
 em vez de **rejeitar** o nome (o que o encoder faz hoje). Estudar uma forma inteligente (quoting implícito
 de aspas + escape pra `:` e similares, pra viajarem junto com o nome); **por enquanto**, resolver com
 **escapes** dos caracteres que dão conflito.
@@ -41,37 +41,37 @@ O parser do meta separa por `,` (colunas) → `=` (size/nome) → `:` (nome/natu
 - **`#` no início do nome (bug pré-existente)**: o parse tolerante do meta v7 come um `# `/`#` inicial →
   `encode({'# foo': …})` decoda como `{'foo': …}` sem erro (`core.py:319-322`, `view.py:78-83`).
 
-Nomes com `:` são hoje **VÁLIDOS** (pinados em `test_natures.py:255-259`) — rejeitar sempre seria breaking
+Nomes com `:` são hoje **VÁLIDOS** (pinados em `test_natures.py:255-259`), rejeitar sempre seria breaking
 de superfície de input. Escapar preserva a superfície E fecha o RT.
 
 ## Direção (interim + smart)
 
-**Interim (desbloqueia o .8-default)** — usar a convenção `\` que o formato **já tem** no corpo
+**Interim (desbloqueia o .8-default)**: usar a convenção `\` que o formato **já tem** no corpo
 (`_escape_lit` em `syntax.py:83` escapa digit-runs + `* \ ~`). Escapar no NOME, no emit, os chars
 estruturais; des-escapar no parse. Chars a escapar: `,` `=` `:` `\` + `#`/`!`/`@`/`%` no **início**
 (e `{` `}` `[` `]` quando entrar hierarquia). O tokenizer do meta passa a splitar em separador
 **NÃO-escapado** (`,`/`=`/`:` precedidos de nº par de `\`). Round-trip exato; substitui o name-guard
 (rejeita → escapa). **Lockstep**: `multi/core.py` (emit + parse) + `view.py` (re-parse lazy).
 
-**Smart (o alvo deste ticket)** — desenhar a forma inteligente: **quoting implícito** (envolver o nome em
-aspas SSE contém separador — como CSV) vs **escape por char** (`\:`); decidir qual é mais limpo/inspecionável;
+**Smart (o alvo deste ticket)**: desenhar a forma inteligente: **quoting implícito** (envolver o nome em
+aspas SSE contém separador, como CSV) vs **escape por char** (`\:`); decidir qual é mais limpo/inspecionável;
 cobrir TODOS os separadores + os chars de hierarquia; provar round-trip; medir o custo em byte (escape só
-paga quando o nome tem o char — caso raro). Reusar o vocabulário do [char-registry Eixo 3](../experiments/lab/dirty/notas/2026-07/tcf8-header-char-registry.md).
+paga quando o nome tem o char, caso raro). Reusar o vocabulário do [char-registry Eixo 3](../experiments/lab/dirty/notas/2026-07/tcf8-header-char-registry.md).
 
 ## Escopo / relação
 - **Desbloqueia** o `.8-default` (decisão owner 2026-07-09): sem isso o `:` quebra RT no default. Deve
   entrar **com ou antes** do flip.
 - Ortogonal ao hex (nomes vêm depois do size; sem interação).
-- Interage com a **gramática da hierarquia** (`{}[]` no meta-árvore) — o escape tem que cobri-los quando o
+- Interage com a **gramática da hierarquia** (`{}[]` no meta-árvore): o escape tem que cobri-los quando o
   codec TCF.8H for adiante.
 
-## Estado (M2, 2026-07-09) — INTERIM backslash WELDED
+## Estado (M2, 2026-07-09): INTERIM backslash WELDED
 
 Implementado o escape **só backslash** (owner: "conceito básico estilo CSV-quoting, por enquanto só barra;
-estudo de outros casos depois — ver se tem quebras ou se a barra já resolve tudo"). Helpers em
+estudo de outros casos depois; ver se tem quebras ou se a barra já resolve tudo"). Helpers em
 `multi/core.py`: `_esc_name` (escapa `,`/`=`/`:`/`\` + prefixo `!@%` inicial), `_unesc_name`, `_split_unesc`,
 `_rsplit1_unesc` (split em separador NÃO-escapado). Emit + parse (`core.py`) + re-parse lazy (`view.py`) em
-lockstep. Único char proibido: `\n` (separador de linha do meta). **530 passed**; D17a inalterado (300B —
+lockstep. Único char proibido: `\n` (separador de linha do meta). **530 passed**; D17a inalterado (300B:
 escaping byte-neutro p/ nomes sem separador). RT provado: `a,b`, `x=y`, `created:at`, `!raw`/`@d`/`%s`,
 `:`/`=`, `a:b,c=d`, backslash literal, nome-com-`:`+nature.
 

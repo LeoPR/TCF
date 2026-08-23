@@ -1,5 +1,5 @@
 ---
-title: T-CODE-LAYERED-PIPELINE — Toggle infrastructure + online adaptive + fallback
+title: T-CODE-LAYERED-PIPELINE, Toggle infrastructure + online adaptive + fallback
 status: closed
 priority: P3
 created: 2026-05-24
@@ -11,13 +11,13 @@ related:
   - src/tcf/pipeline.py
 ---
 
-# T-CODE-LAYERED-PIPELINE — Toggle + online adaptive
+# T-CODE-LAYERED-PIPELINE: Toggle + online adaptive
 
 > **Fechamento 0.7 (2026-06-15)**: Fase 1 WELDED (`PipelineConfig` + 3 toggles
 > pre_pass / obat_shape_preserve / hcc_seq_rle; `encode(data, layers=cfg)` opt-in;
 > D1-D9 + D17a preservados; 25 testes). Escopo 0.7 fechado. Fase 2+ (online
 > adaptive detector, mid-stream markers, integracao com encoder-manager) PARKED
-> v2.0 — exige ADR de formato de marcador. Ver ADR-0018.
+> v2.0, exige ADR de formato de marcador. Ver ADR-0018.
 
 ## Contexto
 
@@ -25,7 +25,7 @@ Owner pediu (2026-05-24) arquitetura de camadas toggleaveis com
 fallback online. Cada etapa do funil (filtro / pre-pass / OBAT /
 HCC) deve poder ser:
 - **Habilitada/desabilitada** explicitamente (debug, ablation)
-- **Detectada online** durante streaming — se nao esta ajudando,
+- **Detectada online** durante streaming: se nao esta ajudando,
   fallback pra identity sem comprimir restante
 
 Sintese arquitetural em
@@ -44,7 +44,7 @@ significativa.
 
 ## Plano
 
-### Fase 1 — Toggle infrastructure
+### Fase 1: Toggle infrastructure
 
 ```python
 @dataclass
@@ -70,9 +70,9 @@ Camadas registraveis:
 - `pre_pass` (camada 1)
 - `obat` (camada 2)
 - `hcc` (camada 3a)
-- `hcc_seq_rle` (camada 3b — sub-component)
+- `hcc_seq_rle` (camada 3b: sub-component)
 
-### Fase 2 — Online adaptive
+### Fase 2: Online adaptive
 
 ```python
 class AdaptiveLayer:
@@ -97,7 +97,7 @@ class AdaptiveLayer:
         return result
 ```
 
-### Fase 3 — Marker pra transicao on→off
+### Fase 3: Marker pra transicao on→off
 
 Output indica transicao no body:
 ```
@@ -106,9 +106,9 @@ Output indica transicao no body:
 <dados-sem-camada-X>
 ```
 
-Decoder espelha — re-aplica/desaplica conforme marker.
+Decoder espelha, re-aplica/desaplica conforme marker.
 
-### Fase 4 — Composicao com Encoder Manager (T-CODE-ENCODER-MANAGER)
+### Fase 4: Composicao com Encoder Manager (T-CODE-ENCODER-MANAGER)
 
 Quando encoder manager paraleliza per-coluna, cada coluna pode ter
 configuracao de camadas propria (schema_builder Fase 3 decide).
@@ -125,7 +125,7 @@ configuracao de camadas propria (schema_builder Fase 3 decide).
 
 ## Riscos
 
-1. **Format change**: marker `*FALLBACK_X` muda body syntax — quebra
+1. **Format change**: marker `*FALLBACK_X` muda body syntax, quebra
    M10 backward compat. Version bump TCF v0.7?
 2. **Performance overhead**: per-value tracking (bytes_in/out) custa
    tempo. Pode ser desligado em production.
@@ -137,18 +137,18 @@ configuracao de camadas propria (schema_builder Fase 3 decide).
 ## Conexao
 
 - [Arquitetura funil de camadas](../experiments/lab/dirty/notas/2026-05/arquitetura-funil-camadas-2026-05-24.md)
-- [T-CODE-ENCODER-MANAGER](T-CODE-ENCODER-MANAGER.md) — pre-requisito P2
-- [T-CODE-SCHEMA-BUILDER](T-CODE-SCHEMA-BUILDER.md) — alimenta config camada 0
+- [T-CODE-ENCODER-MANAGER](T-CODE-ENCODER-MANAGER.md): pre-requisito P2
+- [T-CODE-SCHEMA-BUILDER](T-CODE-SCHEMA-BUILDER.md): alimenta config camada 0
 
 ## Updates datados
 
-### 2026-05-24 — abertura
+### 2026-05-24: abertura
 
 Ticket aberto pos discussao arquitetural. Pre-requisitos
 T-CODE-ENCODER-MANAGER (P2 Fases 2+) e T-CODE-SCHEMA-BUILDER (Fase 3)
 ainda nao implementados. Implementacao adiada ate' base estiver pronta.
 
-### 2026-05-24 — Fase 1 WELDED (minimal viable toggle)
+### 2026-05-24: Fase 1 WELDED (minimal viable toggle)
 
 Owner aprovou Fase 1 minimal apos pausa formal. Implementado:
 
@@ -182,12 +182,12 @@ text = encode(values, layers=PipelineConfig(obat_shape_preserve=False))
 ```
 
 **Mudancas canonicas**:
-- `src/tcf/pipeline.py` (novo) — PipelineConfig + DEFAULT_PIPELINE
-- `src/tcf/encoder.py` — encode() aceita `layers=` param; _encode_column
+- `src/tcf/pipeline.py` (novo): PipelineConfig + DEFAULT_PIPELINE
+- `src/tcf/encoder.py`: encode() aceita `layers=` param; _encode_column
   consulta cfg pra decidir pre_pass/obat/hcc
-- `src/tcf/multi.py` — _encode_multi/_encode_columns_serial/parallel
+- `src/tcf/multi.py`: _encode_multi/_encode_columns_serial/parallel
   propagam cfg pra workers
-- `src/tcf/__init__.py` — exporta PipelineConfig
+- `src/tcf/__init__.py`: exporta PipelineConfig
 
 **Validacao byte-canonical CRITICAL**:
 - D17a 322B INVARIANT preservado com default
@@ -198,8 +198,8 @@ text = encode(values, layers=PipelineConfig(obat_shape_preserve=False))
 - Suite completa: 236 passed (+25 novos) + 1 xfailed + 1 pre-existing fail
 
 **Comportamento ablacao**:
-- D17a sem seq-RLE: 403B (vs 322B M10) — 25% maior, M9 comportamento
-- D-IP-subnet 1000 sem seq-RLE: 16213B (vs 560B M10) — confirma valor
+- D17a sem seq-RLE: 403B (vs 322B M10), 25% maior, M9 comportamento
+- D-IP-subnet 1000 sem seq-RLE: 16213B (vs 560B M10), confirma valor
   enorme do seq-RLE + multi-delta fix
 - Pre-pass off + shape-preserve off + seq-RLE off: pior caso mas RT OK
 

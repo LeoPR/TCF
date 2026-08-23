@@ -1,5 +1,5 @@
 ---
-title: T-H-PERF-06-V2-T02 — Acelerador Cython opcional de _detect_compositions (Fase B)
+title: T-H-PERF-06-V2-T02, Acelerador Cython opcional de _detect_compositions (Fase B)
 status: closed-done
 priority: P1
 created: 2026-05-31
@@ -7,11 +7,11 @@ closed: 2026-05-31
 blocked-by: []
 related:
   - docs/adr/0020-cython-optional-accelerator.md
-  - tickets/T-H-PERF-06-V2-T01-WELD-15.md  (Fase A #15, pre-req — closed-done)
+  - tickets/T-H-PERF-06-V2-T01-WELD-15.md  (Fase A #15, pre-req: closed-done)
   - experiments/lab/dirty/old/welded/2026-05-31-h-perf-06-v2-fase-b/
 ---
 
-# T-H-PERF-06-V2-T02 — Fase B (Cython)
+# T-H-PERF-06-V2-T02: Fase B (Cython)
 
 ## Resumo
 
@@ -21,13 +21,13 @@ Acelerador Cython OPCIONAL de `_detect_compositions` (hotspot pos-weld =
 
 ## Entregue
 
-- `src/tcf/_core/detect.pyx` — porte Cython (typed locals; estruturas Python
+- `src/tcf/_core/detect.pyx`: porte Cython (typed locals; estruturas Python
   mantidas -> byte-safe por construcao)
 - `src/tcf/_core/__init__.py`
-- `composicional/syntax.py` — runtime try-import + fallback pure-Python
+- `composicional/syntax.py`: runtime try-import + fallback pure-Python
   silencioso (`_detect_compositions_accelerated` flag)
-- `hatch_build.py` — hook best-effort (compila no pip install; nunca falha)
-- `pyproject.toml` — cython em build-system.requires + hook registrado +
+- `hatch_build.py`: hook best-effort (compila no pip install; nunca falha)
+- `pyproject.toml`: cython em build-system.requires + hook registrado +
   sdist enxuto (exclui experiments/old/docs/datasets; 18MB->54KB)
 - ADR-0020
 

@@ -1,5 +1,5 @@
 ---
-title: T-CODE-PACOTE1-WELD-CANONICAL — Welding canonical Pacote 1 (delta-aware) em src/tcf
+title: T-CODE-PACOTE1-WELD-CANONICAL, Welding canonical Pacote 1 (delta-aware) em src/tcf
 status: closed
 resolution: welded-canonical-m10
 priority: P1
@@ -17,7 +17,7 @@ related:
   - docs/adr/0011-pacote1-weld-canonical.md
 ---
 
-# T-CODE-PACOTE1-WELD-CANONICAL — Welding Pacote 1 canonical
+# T-CODE-PACOTE1-WELD-CANONICAL: Welding Pacote 1 canonical
 
 ## Contexto / motivacao
 
@@ -48,20 +48,20 @@ esperado (~10-14% sobre baseline M9 atual de 1615B).
 
 ## Consequencias
 
-**Mudanca arquitetural** — output bytes-canonical MUDA:
+**Mudanca arquitetural**: output bytes-canonical MUDA:
 - D1-D9 baseline: 1615B (M9 canonical M8A puro) → ~1300B (HCCSeqRLE)
   estimado, requer medicao
 - API `tcf.encode(values)` retorna output diferente do M9 antigo
 - Decoder atualizado obrigatorio (HCCSeqRLE expande `*N+delta|`)
 - Backward-compat: decoder canonical NAO consegue ler M9 antigo nem
   pipeline antigo lê novo (versionamento via formato?)
-- M9 baseline INVARIANT vira historico — novo invariant M10 estabelece-se
+- M9 baseline INVARIANT vira historico: novo invariant M10 estabelece-se
 
 ## Plano
 
 Lab dirty: `experiments/lab/dirty/2026-05-22-pacote1-weld-canonical/`
 
-### Fase 1 — implementacao
+### Fase 1: implementacao
 
 1. Criar `src/tcf/auto_cadence.py` (de `auto_pre.py`, usar ColumnFeatures)
 2. Criar `src/tcf/obat_shape.py` (de `obat_shape.py`)
@@ -75,7 +75,7 @@ Lab dirty: `experiments/lab/dirty/2026-05-22-pacote1-weld-canonical/`
    - body = HCCSeqRLE().encode(values, unicas, tokens, header)
 5. Modificar `src/tcf/decoder.py`: usar `HCCSeqRLE().decode`
 
-### Fase 2 — validacao
+### Fase 2: validacao
 
 Sub-exp `01-validacao-multi-camada/`:
 - D1-D9 single-col: medir novo baseline M10 (esperado ~1300B)
@@ -84,7 +84,7 @@ Sub-exp `01-validacao-multi-camada/`:
   ganho esperado ~10-14% sobre M9 1,008,003B
 - RT 100% obrigatorio em todas as camadas
 
-### Fase 3 — documentacao
+### Fase 3: documentacao
 
 - ADR-0011 (welding Pacote 1 canonical M9 → M10)
 - Atualizar M9 baseline refs:
@@ -118,20 +118,20 @@ Sub-exp `01-validacao-multi-camada/`:
 3. **Performance**: pipeline canonical M10 adiciona detect_cadence
    pre-pass + HCCSeqRLE post-process. Custo extra O(N) ja' coberto
    por analise H-DA-11c.
-4. **Welding em src/tcf canonical** — owner aprovou explicitamente
+4. **Welding em src/tcf canonical**: owner aprovou explicitamente
    esta etapa (opcao b do menu apos H-DA-11c).
 
 ## Conexoes
 
 - [EXP-010 prototype](../experiments/lab/clean/EXP-010-tcf-delta-aware-prototype/)
-- [ADR-0008](../docs/adr/0008-detect-cadence-numeric-rule.md) — detect_cadence regra 2
-- [ADR-0010](../docs/adr/0010-auto-detect-min-len.md) — auto-detect min_len
-- [T-EXP-H-DA-11](T-EXP-H-DA-11.md) — H-DA-11 (anterior, welded)
-- [T-CODE-H-DA-11c](T-CODE-H-DA-11c-features-unificadas.md) — ColumnFeatures (anterior, welded)
+- [ADR-0008](../docs/adr/0008-detect-cadence-numeric-rule.md): detect_cadence regra 2
+- [ADR-0010](../docs/adr/0010-auto-detect-min-len.md): auto-detect min_len
+- [T-EXP-H-DA-11](T-EXP-H-DA-11.md): H-DA-11 (anterior, welded)
+- [T-CODE-H-DA-11c](T-CODE-H-DA-11c-features-unificadas.md): ColumnFeatures (anterior, welded)
 
 ## Updates datados
 
-### 2026-05-22 — abertura
+### 2026-05-22: abertura
 
 Ticket criado. Aprovacao do owner explicita pra welding canonical
 Pacote 1 inteiro (opcao b no menu apos clarificacao).
@@ -140,7 +140,7 @@ Pre-requisito atendido: H-DA-11c ColumnFeatures (commit 8622de1)
 prepara terreno pra reuso da analyze_column entre detect_cadence,
 detect_min_len, futuras heuristicas.
 
-### 2026-05-22 — execucao + fechamento (welded-canonical-m10)
+### 2026-05-22: execucao + fechamento (welded-canonical-m10)
 
 ADR-0011 escrito + implementacao + validacao completa.
 

@@ -1,5 +1,5 @@
 ---
-title: T-STUDY-USE-PROFILES — perfis de uso (transmissão × armazenamento) e a calibração dos vértices
+title: T-STUDY-USE-PROFILES, perfis de uso (transmissão × armazenamento) e a calibração dos vértices
 status: open
 priority: P3
 created: 2026-08-20
@@ -14,7 +14,7 @@ related:
   - experiments/lab/dirty/notas/2026-07/contrato-externalizado-e-aceleradores.md
 ---
 
-# T-STUDY-USE-PROFILES — perfis de uso e a calibração dos vértices
+# T-STUDY-USE-PROFILES: perfis de uso e a calibração dos vértices
 
 **[dispositivo → registro. SÓ ESTUDAR, não mexer em `src/tcf`.]**
 
@@ -23,32 +23,32 @@ related:
 Direção do owner (2026-08-20, diário): o TCF tem **perfis de uso** com economia diferente, e
 os vértices ortogonais poderiam ser *calibrados por situação*:
 
-1. **Transmissão assimétrica** — muitos clients gastam tempo comprimindo; um servidor
+1. **Transmissão assimétrica**: muitos clients gastam tempo comprimindo; um servidor
    central precisa de descompressão rápida. *"O TCF joga as cargas nos lugares corretos."*
-2. **Armazenamento** — gasta tempo compactando/guardando uma vez, com a vantagem de decode
+2. **Armazenamento**: gasta tempo compactando/guardando uma vez, com a vantagem de decode
    rápido, `view()` lazy nas consultas, e possivelmente índice sidecar (à la Parquet/HDFS).
 
 ## A tensão que este ticket EXISTE para resolver
 
 **A [ADR-0002](../docs/adr/0002-vertice-triplice-restricao.md) rejeitou explicitamente a
-Opção 3 — "trade-off por flag"** (*"múltiplos formatos pra suportar = manutenção alta"*), e
+Opção 3, "trade-off por flag"** (*"múltiplos formatos pra suportar = manutenção alta"*), e
 decidiu o vértice tríplice como **restrição dura**: *"técnicas multi-pass / memória > O(1) /
 look-ahead são descartadas mesmo com ganho"*.
 
 **"Calibrar por situação" é aquela Opção 3.** Este estudo não pode contorná-la por fora: ou
 conclui que a restrição dura se mantém, ou **produz o material para uma ADR que a supersede**
-— o padrão que a ADR-0034 usou com a ADR-0029.
+o padrão que a ADR-0034 usou com a ADR-0029.
 
 ### E o código já se moveu, sem registro (medido 2026-08-20)
 
 Os candidatos V2 são **batch por construção**: `_v2b_encode` e `_struct_split_encode`
 recebem a coluna inteira e varrem tudo (2× e 7×) antes de decidir; o gate do split é
-`for v in values[1:]` — look-ahead total, que a ADR-0002 lista como **refutado**
-(*"Sliding window pattern detect — Buffer > O(1)"*).
+`for v in values[1:]`, look-ahead total, que a ADR-0002 lista como **refutado**
+(*"Sliding window pattern detect, Buffer > O(1)"*).
 
 As **ADR-0025 e ADR-0026 não mencionam** a ADR-0002. Leitura provável: a restrição
 constrangia o **core de coluna** (OBAT/HCC) e o ciclo 0.7 acrescentou uma camada de
-**orquestração multi-col** batch — sem que a fronteira fosse redocumentada.
+**orquestração multi-col** batch, sem que a fronteira fosse redocumentada.
 
 ## Sinal do owner (2026-08-20)
 
@@ -57,11 +57,11 @@ constrangia o **core de coluna** (OBAT/HCC) e o ciclo 0.7 acrescentou uma camada
 
 Registrado: o owner **inclina-se a considerar a ADR-0002 obsoleta**, e pediu uma **revisão
 geral das condições dos ADRs** em momento próprio. Isso reforça o P3 abaixo (mapear a
-fronteira real) e sugere que a revisão não seja só da 0002 — vale varrer o índice inteiro
+fronteira real) e sugere que a revisão não seja só da 0002, vale varrer o índice inteiro
 atrás de ADRs cuja premissa o código já superou (o padrão que apareceu 3× nesta sessão:
 0029→0034 no default do header, 0031→0033 no `H`, e agora 0002 vs os candidatos V2).
 
-**Não** é decisão tomada — é sinal registrado para não se perder.
+**Não** é decisão tomada, é sinal registrado para não se perder.
 
 ## O que estudar
 
@@ -76,7 +76,7 @@ atrás de ADRs cuja premissa o código já superou (o padrão que apareceu 3× n
 ## O que este ticket NÃO é
 
 - **Não é** proposta de flags `L0..L9`. Se o estudo levar lá, exige ADR de supersede.
-- **Não** duplica `T-REL-08:113` (adapter/sidecar/chunking/index-on-arrival, já triados) —
+- **Não** duplica `T-REL-08:113` (adapter/sidecar/chunking/index-on-arrival, já triados):
   este cobre o eixo **transmissão assimétrica**, que aquele não cobre.
 - **Não** toca `src/tcf`.
 
@@ -84,7 +84,7 @@ atrás de ADRs cuja premissa o código já superou (o padrão que apareceu 3× n
 
 O owner sugeriu: *"depois de otimizar bem os algoritmos, conseguimos medir melhor as
 situações"*. **Registro a discordância**: o perfil de uso decide **quais** otimizações valem,
-não o contrário — e o `bn-dict-perspectivas` já estabeleceu o padrão ao mandar *"medir a
+não o contrário, e o `bn-dict-perspectivas` já estabeleceu o padrão ao mandar *"medir a
 latência ANTES de cravar formato"*.
 
 Proposta: **P1 e P3 primeiro** (baratos, e P1 usa o bench que já existe). São eles que dizem

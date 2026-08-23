@@ -1,4 +1,4 @@
-# TPC-H sf001 — Industry-standard relational benchmark
+# TPC-H sf001: Industry-standard relational benchmark
 
 Multi-table canonical dataset used in TCF M-series experiments
 (F-Q24, F-Q33..F-Q38).
@@ -67,11 +67,11 @@ tables, meta = load_dataset(
 ```
 
 `schema` can be:
-- `["partsupp"]` — minimal (1 table)
-- `["partsupp", "part"]` — core (2 tables)
-- `["partsupp", "part", "supplier"]` — chain (3 tables, M9 baseline)
+- `["partsupp"]`: minimal (1 table)
+- `["partsupp", "part"]`: core (2 tables)
+- `["partsupp", "part", "supplier"]`: chain (3 tables, M9 baseline)
 - `["region", "nation", "supplier", "customer", "part", "partsupp",
-   "orders", "lineitem"]` — full (8 tables)
+   "orders", "lineitem"]`, full (8 tables)
 
 These 4 levels are the M-schema-scope axis (F-Q37, F-Q38).
 
@@ -79,13 +79,13 @@ These 4 levels are the M-schema-scope axis (F-Q37, F-Q38).
 
 TPC-H has multiple `$` columns that LLM may confuse for natural-language
 wordings (F-Q33-F-Q38):
-- `ps_supplycost` (partsupp) — what suppliers charge us
-- `p_retailprice` (part) — list price
-- `l_extendedprice` (lineitem) — line-item value
-- `o_totalprice` (orders) — order total
+- `ps_supplycost` (partsupp): what suppliers charge us
+- `p_retailprice` (part): list price
+- `l_extendedprice` (lineitem): line-item value
+- `o_totalprice` (orders): order total
 
 For wordings like *"the most expensive item"*, **N0 (schema-aware,
-mentioning `ps_supplycost`) is mandatory** — N2/N3 wordings drop to
+mentioning `ps_supplycost`) is mandatory**. N2/N3 wordings drop to
 0% accuracy across all commercial top models. See
 [../../../docs/findings/05-schema-scope-Q37-Q38.md](../../../docs/findings/05-schema-scope-Q37-Q38.md).
 

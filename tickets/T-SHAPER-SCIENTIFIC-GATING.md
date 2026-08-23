@@ -1,25 +1,25 @@
 ---
-title: T-SHAPER-SCIENTIFIC-GATING — Gate cientifico de uso do shaper (tests estatisticos assertados)
+title: T-SHAPER-SCIENTIFIC-GATING, Gate cientifico de uso do shaper (tests estatisticos assertados)
 status: closed-done
 priority: P1
 created: 2026-05-30
 closed: 2026-05-31
 blocked-by: []
 related:
-  - scripts/shaper/_stratify_metrics.py  (TVD/JSD/chi^2/Wilson — infra existe, nao gated)
+  - scripts/shaper/_stratify_metrics.py  (TVD/JSD/chi^2/Wilson: infra existe, nao gated)
   - scripts/shaper/strategies/  (6 strategies: volume, schema, join, order, stratify, fk_preserving)
   - tests/test_shaper.py  (50 tests; nenhum assert estatistico real)
   - feedback_tools_need_statistical_validation (memoria, principio 2026-05-30)
 ---
 
-# T-SHAPER-SCIENTIFIC-GATING — Aprovacao cientifica do shaper
+# T-SHAPER-SCIENTIFIC-GATING: Aprovacao cientifica do shaper
 
 ## Contexto
 
 Auditoria 2026-05-30 (workflow paralelo de validacao do shaper) revelou
 gap critico: o shaper tem 49 tests passando + 1 xfail, mas **nenhum
 test asserta invariante estatistico**. Os tests existentes validam:
-cardinalidade (`len() == N`), presenca de coluna, determinismo —
+cardinalidade (`len() == N`), presenca de coluna, determinismo:
 **mas nao** que as propriedades cientificas que o shaper claima sao
 de fato preservadas.
 
@@ -34,7 +34,7 @@ Filosofia do owner (registrada [2026-05-30](C:/Users/leona/.claude/projects/.../
 
 > "Tools cientificos auxiliares (shaper, samplers, gadgets) precisam de
 > aprovacao cientifica/estatistica formal antes de uso em experimentos
-> TCF. Nao basta 'cortar dados' — precisa confirmacao mensuravel."
+> TCF. Nao basta 'cortar dados', precisa confirmacao mensuravel."
 
 **Sem este ticket fechado, shaper NAO esta aprovado** para uso em
 experimentos que produzem evidencia empirica sobre TCF.
@@ -51,9 +51,9 @@ experimentos que produzem evidencia empirica sobre TCF.
 | **`fk_preserving`** | **MISSING** | **Zero tests** (strategy mais complexa, cascata recursiva) |
 | `compressibility` | PARTIAL | Correlacao score x bytes-TCF nao validada |
 
-## Plano — 5 tests prioritarios
+## Plano: 5 tests prioritarios
 
-### P1 — `test_fk_preserving_no_orphans` (CRITICO)
+### P1: `test_fk_preserving_no_orphans` (CRITICO)
 
 Strategy mais complexa, **zero cobertura hoje**. Bloqueia qualquer
 experimento multi-tabela (EXP-011, EXP-013, futuros).
@@ -77,7 +77,7 @@ def test_fk_preserving_no_orphans():
 Tambem: cascade fix-point (estabiliza em <= max_depth=10) +
 no-amplification (`|filtered_dim| <= |original_dim|`).
 
-### P2 — `test_stratify_chi2_passes` (wire-up de infra existente)
+### P2: `test_stratify_chi2_passes` (wire-up de infra existente)
 
 Aproveita `_stratify_metrics.py` ja' implementado, apenas asserta no
 pytest em vez de descartar o log.
@@ -95,7 +95,7 @@ def test_stratify_preserves_distribution():
         f"TVD acima do threshold: {m['tvd']}"
 ```
 
-### P3 — `test_join_row_count_invariant`
+### P3: `test_join_row_count_invariant`
 
 LEFT JOIN preserva contagem do fact (zero perda silenciosa de linhas):
 
@@ -110,7 +110,7 @@ def test_flat_preserves_fact_count():
     assert r_flat.total_rows == len(r_norm.tables["orders"])
 ```
 
-### P4 — `test_volume_marginal_distribution`
+### P4: `test_volume_marginal_distribution`
 
 Sample sem stratify deve preservar marginal de colunas categoricas:
 
@@ -128,7 +128,7 @@ def test_volume_random_marginal_unbiased():
         assert m["chi2_pvalue"] > 0.01, f"{col}: amostra viesada"
 ```
 
-### P5 — `test_schema_levels_match_fk_topology`
+### P5: `test_schema_levels_match_fk_topology`
 
 `SCHEMA_LEVELS` e' hardcoded em codigo; muda em `metadata.fk` nao
 invalida levels. Audit garante coerencia:
@@ -174,7 +174,7 @@ Tambem resolveu T-FIX-SHAPER-STRATIFY-TEST (xfail 50/50 -> teste correto ~67/33)
 - [x] Documentado em `scripts/shaper/README.md` (secao "Validacao cientifica")
 - [x] Principio em memoria `feedback_tools_need_statistical_validation`
       (CLAUDE.md gadget-filosofia e' sobre gadgets externos alert-only,
-      nao sobre o shaper tooling — gate documentado no README do shaper)
+      nao sobre o shaper tooling, gate documentado no README do shaper)
 
 ## Riscos / cuidados
 
@@ -195,7 +195,7 @@ Tambem resolveu T-FIX-SHAPER-STRATIFY-TEST (xfail 50/50 -> teste correto ~67/33)
   shaper pra amostrar Adult/TPC-H/retail
 - **Filosoficamente alinhado a**: filosofia "TCF supoe dados felizes"
   + "gadgets so' alertam" (CLAUDE.md). Aqui o gadget alerta atraves
-  de tests verdes — mas tests verdes precisam significar algo.
+  de tests verdes, mas tests verdes precisam significar algo.
 - **Origem**: workflow paralelo de auditoria 2026-05-30
 - **Custo estimado**: 1-2 sessoes (P1 e P2 sao os mais trabalhosos;
   P3-P5 sao curtos)

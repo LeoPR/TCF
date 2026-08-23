@@ -1,6 +1,6 @@
 ---
 type: summary
-status: HISTORIC (Phase 1 LLM benchmark — ciclo v0.5)
+status: HISTORIC (Phase 1 LLM benchmark, ciclo v0.5)
 last_updated: 2026-04-27
 ---
 
@@ -13,12 +13,12 @@ last_updated: 2026-04-27
 > scripts) foi consolidado em [`llm-benchmark/`](../../llm-benchmark/). Este
 > CATALOGO de achados (F-Q01..Q38) **fica em `docs/`** por decisao
 > deliberada: e' research compendium acoplado as research-notes vizinhas
-> (`../workbench/research-notes/`) — mover quebraria 13 cross-links e
+> (`../workbench/research-notes/`), mover quebraria 13 cross-links e
 > desacoplaria a evidencia. Findings v0.6 NAO vao aqui (este slot e'
 > historico v0.5); usar `docs/theory/` ou ADR. Phase 2 LLM (se ressuscitada)
 > re-validara contra v0.6 ou virara projeto a parte.
 
-# TCF — Achados principais (Phase 1 — resumo paper-ready)
+# TCF: Achados principais (Phase 1, resumo paper-ready)
 
 Este documento concentra os **achados de alto impacto** que serao o nucleo
 do paper. Catalogo completo dividido por tema em arquivos vizinhos:
@@ -35,8 +35,8 @@ Para evolucao operacional ver [../workbench/DEVELOPMENT.md](../workbench/DEVELOP
 para evolucao logica ver [../workbench/SCIENCE.md](../workbench/SCIENCE.md).
 
 **Duas linhas de pesquisa**:
-- **Linha A** — LLM le TCF e calcula direto
-- **Linha B** — TCF como schema carrier, LLM gera SQL, SQLite executa
+- **Linha A**: LLM le TCF e calcula direto
+- **Linha B**: TCF como schema carrier, LLM gera SQL, SQLite executa
 
 ---
 
@@ -54,11 +54,11 @@ para evolucao logica ver [../workbench/SCIENCE.md](../workbench/SCIENCE.md).
 
 ### 1. Linha A vs Linha B nao sao paradigmas equivalentes
 
-**F-Q28** (locais Adult): Linha A bimodal — 100% em full-table agg via
+**F-Q28** (locais Adult): Linha A bimodal, 100% em full-table agg via
 STATS hint; **0-11% em filter+agg**. F-Q12 antigo refinado.
 
 **F-Q31** (comerciais Adult): comerciais com reasoning **quebram** o
-ceiling Linha A — gpt-5.4 = 95%, gpt-5.4-nano = 87%. **Eixo limitante e
+ceiling Linha A, gpt-5.4 = 95%, gpt-5.4-nano = 87%. **Eixo limitante e
 REASONING**, nao tamanho. gpt-4o-mini (non-reasoning) cai para 52%, range
 dos locais.
 
@@ -77,7 +77,7 @@ dos locais.
 ### 2. Schema ambiguity e UNIVERSAL e PARADIGM-INDEPENDENT
 
 **F-Q33** (locais TPC-H Linha B): N2 cai **30-45pp** em todos os 3 modelos.
-qwen3:14b — imune em Adult — tambem cai 33pp.
+qwen3:14b, imune em Adult, tambem cai 33pp.
 
 **F-Q34** (comerciais TPC-H Linha B): mesmo padrao, gpt-5.4 e gpt-5.4-mini
 caem **-43pp em N2**. F-Q32 (imunidade comercial) era specific Adult.
@@ -136,7 +136,7 @@ N2/N3 ativam interpretacoes alternativas plausiveis. Em minimal com so
 `partsupp`, modelo e forcado a interpretacao correta.
 
 Confirma literatura industrial (Cortex Analyst, DAIL-SQL, CHESS).
-**Schema pruning não é otimização opcional — é parte da pipeline.**
+**Schema pruning não é otimização opcional, é parte da pipeline.**
 
 ### 7. Anthropic vs OpenAI: paridade em B, gap em A
 
@@ -146,7 +146,7 @@ Confirma literatura industrial (Cortex Analyst, DAIL-SQL, CHESS).
 - **Linha A TPC-H**: paridade (sonnet/opus/gpt-5.4 todos ~74-75%)
 - **claude-sonnet-4-6 vence TPC-H Linha B** (88.1% > gpt-5.4 85.7%)
 
-**Thinking parameter obrigatorio** Anthropic — sem ativar, haiku/sonnet
+**Thinking parameter obrigatorio** Anthropic, sem ativar, haiku/sonnet
 caem para 57-58% (range non-reasoning).
 
 ---
@@ -167,13 +167,13 @@ caem para 57-58% (range non-reasoning).
 
 ## Achados de protocolo (metodo)
 
-- **F-Q26**: random ≈ stratified em Adult — paradigma robusto
+- **F-Q26**: random ≈ stratified em Adult, paradigma robusto
 - **F-Q27**: SQL quality structural metric correlaciona INVERSAMENTE com
-  accuracy — descartado
+  accuracy, descartado
 - Stratified sampling com metricas inline TVD/JSD/Hellinger/Wilson e o
   default em todos os runners
 - Dedup last-wins, scorer parametrico (ScoringConfig), prompt caching
-  agressivo, structured outputs Pydantic — convencoes consolidadas
+  agressivo, structured outputs Pydantic, convencoes consolidadas
 
 ---
 
@@ -199,12 +199,12 @@ Validacoes incrementais:
 
 ## Recomendacoes praticas (paper)
 
-1. **Linha B e a recomendacao default** para datasets reais —
+1. **Linha B e a recomendacao default** para datasets reais:
    80-100% em ambas familias, custo 5-10x menor que Linha A
 2. **gpt-5.4-nano e o ponto Pareto** custo x accuracy
 3. **claude-sonnet-4-6 e o melhor** para SQL gen multi-tabela
 4. **Schema ambiguity exige design de wording** (N0 obrigatorio para
-   schemas com >=2 colunas semanticamente proximas) — nao se resolve
+   schemas com >=2 colunas semanticamente proximas), nao se resolve
    por escolha de modelo
 5. **Linha A faz sentido apenas para single-table** com cols inequivocas
    E modelo com reasoning de qualidade comercial

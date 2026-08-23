@@ -7,7 +7,7 @@ parent: docs/findings/README.md
 
 # Protocolo + canonical baseline (F-Q25..F-Q28)
 
-## F-Q25 `{B}` — H-TCF2 generaliza para single-table com colunas hifenadas e categóricos ricos
+## F-Q25 `{B}`: H-TCF2 generaliza para single-table com colunas hifenadas e categóricos ricos
 
 **Conclusão:** Aplicar o protocolo M9 (sql_stats_fs, 3 modelos locais) sobre
 **Adult Census** (single-table, 14 colunas, mistura de numerics/categoricals,
@@ -18,7 +18,7 @@ diferentes do retail synthetic.
 
 **Evidência (M9-Adult, 2026-04-25):** 1 dataset Adult × 3 modelos × 7 questions
 × 3 seeds = 63 combos. Stratify_by='class' garantiu representatividade
-(TVD=0.0007, chi2_p=0.99 — distribuição idêntica à população).
+(TVD=0.0007, chi2_p=0.99, distribuição idêntica à população).
 
 | Question | qwen3:14b | phi4 | qwen2.5-coder | Acc |
 |----------|----------|------|---------------|-----|
@@ -42,7 +42,7 @@ SELECT AVG("hours-per-week") FROM adult WHERE "sex" = 'Male'                    
 
 LLMs aplicam aspas duplas corretamente em `"hours-per-week"` e `"sex"`,
 respeitam `IS NOT NULL` em distinct counts, geram WHERE clauses com
-strings literais — comportamentos não-triviais.
+strings literais, comportamentos não-triviais.
 
 **Comparação consolidada do paradigma H-TCF2:**
 
@@ -54,11 +54,11 @@ strings literais — comportamentos não-triviais.
 
 **Implicação:** o paradigma "TCF schema carrier + LLM gera SQL + SQLite executa"
 generaliza independentemente de:
-1. **Topologia** — star 3-table OU single-table
-2. **Origem** — synthetic (gerado) OU canonical (real industrial)
-3. **Naming convention** — PT (cliente, vendas) OU EN (supplier, partsupp) OU
+1. **Topologia**: star 3-table OU single-table
+2. **Origem**: synthetic (gerado) OU canonical (real industrial)
+3. **Naming convention**: PT (cliente, vendas) OU EN (supplier, partsupp) OU
    hyphenated (hours-per-week)
-4. **Schema complexity** — 3 colunas simples OU 14 colunas mistas
+4. **Schema complexity**: 3 colunas simples OU 14 colunas mistas
 
 **Bônus de stratification:** TVD=0.0007 entre amostra (n=100) e população
 (n=48 842) confirma que volume modesto é representativo quando estratificado.
@@ -77,12 +77,12 @@ Comparar com `experiments/results/m9_canonical/` (TPC-H) e
 
 ---
 
-## F-Q26 `{B}` — Random ≈ Stratified em Adult Census; "floor effect" do paradigma robusto
+## F-Q26 `{B}`: Random ≈ Stratified em Adult Census; "floor effect" do paradigma robusto
 
 **Conclusão:** Em Adult Census com volume=100 e 5 seeds, **random sampling
 e stratified sampling produzem accuracy idêntica (100%/100%, std=0)**. A
 hipótese de que stratification reduz variância (H2) **não pôde ser
-testada** — não há variância para reduzir. O paradigma TCF schema-carrier
+testada**, não há variância para reduzir. O paradigma TCF schema-carrier
 é tão robusto neste cenário que mesmo amostras aleatórias produzem 100%.
 
 **Evidência (M-strat, 2026-04-25):** 1 dataset Adult × 3 modelos × 7 questions
@@ -94,22 +94,22 @@ testada** — não há variância para reduzir. O paradigma TCF schema-carrier
 | Hipótese | Resultado | Interpretação |
 |---------|-----------|---------------|
 | H1: mean(stratify) ≈ mean(random) | **CONFIRM** | Diferença = 0pp (threshold 2pp) |
-| H2: std(stratify) < std(random) | **REJECT** (floor effect) | Ambos com std=0 — não há variância |
+| H2: std(stratify) < std(random) | **REJECT** (floor effect) | Ambos com std=0, não há variância |
 | H3: q_count_high_class diferenciado | **NÃO** | Todas 7 questions = 100% em ambos modos |
 
 **Stratification metrics (todos os 5 seeds idênticos):** TVD=0.0007,
-JSD=0.0, chi2_p=0.99 — distribuição preservada quase perfeitamente.
+JSD=0.0, chi2_p=0.99, distribuição preservada quase perfeitamente.
 
 **Implicação prática:**
 - **Em Adult vol=100:** random é suficiente; stratification não muda accuracy
 - **Onde stratification ainda agrega:** 
   1. Auditabilidade científica (TVD/chi2_p registrados)
-  2. Casos com sample muito pequeno (vol<20) — ver pre-runs anteriores onde
+  2. Casos com sample muito pequeno (vol<20); ver pre-runs anteriores onde
      std random=9.7 vs std stratify=0
   3. Datasets com queries L3 (subquery, CTE) onde accuracy é menor
-  4. Reportabilidade — "amostra estratificada com TVD=X" é linguagem de paper
+  4. Reportabilidade, "amostra estratificada com TVD=X" é linguagem de paper
 
-**Importante:** este finding **não invalida F-Q25** — pelo contrário, reforça.
+**Importante:** este finding **não invalida F-Q25**, pelo contrário, reforça.
 A robustez do paradigma é tão alta em Adult que stratification não muda nada.
 F-Q25 (M9-Adult 100% com stratify) e F-Q26 (M-strat 100% com random + stratify)
 juntos = paradigma é independente de modo de sampling em Adult vol=100.
@@ -119,9 +119,9 @@ mas accuracy é o veredito principal. Em datasets harder (queries L3, vol<20),
 stratification provavelmente diferencia. Próximos experimentos (V-series)
 devem testar isso.
 
-**Caveat metodológico — bug no print_summary corrigido:** durante crash de
+**Caveat metodológico, bug no print_summary corrigido:** durante crash de
 Ollama, 77 records de modo random ficaram como exception. Re-run completou,
-mas print_summary tinha bug de "first occurrence wins" — leu os exception
+mas print_summary tinha bug de "first occurrence wins", leu os exception
 antigos. **Corrigido em todos os 10 runners** para "last occurrence wins"
 (handles re-runs corretamente). Padrão para futuros experimentos.
 
@@ -130,12 +130,12 @@ antigos. **Corrigido em todos os 10 runners** para "last occurrence wins"
 
 ---
 
-## F-Q27 `{B}` — Quality score estrutural correlaciona INVERSAMENTE com accuracy
+## F-Q27 `{B}`: Quality score estrutural correlaciona INVERSAMENTE com accuracy
 
 **Conclusão:** Análise post-hoc de **1551 SQLs** (todos os manifests Linha B
 M3-M_strat) usando `sql_quality.py` revela que **SQLs erradas têm quality
 score médio MAIS ALTO** (0.839) que **SQLs corretas** (0.753), diferença
-de -0.087 — o oposto do esperado intuitivamente.
+de -0.087, o oposto do esperado intuitivamente.
 
 **Mecanismo identificado:** quality_score atual mede *complexidade
 estrutural* (JOIN explícito, ON correto, no SELECT *, single col, etc.),
@@ -148,7 +148,7 @@ JOIN), modelos geram SQL simples (~0.25 quality) que acerta sempre.
 
 **Resultado: complexidade SQL é proxy de DIFICULDADE da query, não de
 qualidade.** Quanto mais difícil a question, mais elaborada a SQL, e
-mais provável de errar — anti-correlação acidental.
+mais provável de errar, anti-correlação acidental.
 
 **Evidência (M-quality, 2026-04-25):** 1551 SQLs analisadas em 9 fases
 (M3, M6, M6b, M7, M8, M8b, M9, M9-Adult, M-strat). Accuracy global 77.3%
@@ -167,9 +167,9 @@ mais provável de errar — anti-correlação acidental.
 | has_cte | 3.1% | CTEs são raras |
 
 **Discrepâncias notáveis:**
-- 241 SQLs com quality ≥ 0.85 mas falharam (16% do total) — mostram que
+- 241 SQLs com quality ≥ 0.85 mas falharam (16% do total): mostram que
   estrutura não garante correção
-- 17 SQLs com quality < 0.5 mas acertaram — geralmente queries triviais
+- 17 SQLs com quality < 0.5 mas acertaram: geralmente queries triviais
   sem JOIN
 
 **Por modelo (sem diferenciação significativa):**
@@ -180,10 +180,10 @@ mais provável de errar — anti-correlação acidental.
 **Implicações metodológicas:**
 
 1. **Quality score atual NÃO é métrica de qualidade SQL no sentido prático**
-   — é métrica de *complexidade estrutural*. Útil como **descritor**, não
+   é métrica de *complexidade estrutural*. Útil como **descritor**, não
    como **avaliador**.
 
-2. **Métrica alternativa proposta — `quality_when_ok`:** computar
+2. **Métrica alternativa proposta, `quality_when_ok`:** computar
    quality_mean APENAS sobre SQLs corretas. Proxy de "elegância": entre
    SQLs que funcionam, quanto bem-estruturadas são. Métrica útil para
    diferenciar modelos que acertam com SQL elaborado vs com SQL
@@ -194,7 +194,7 @@ mais provável de errar — anti-correlação acidental.
    com SQLs estruturalmente complexas (CTEs, subqueries), isso indica
    capacidade de construções avançadas além de funcionalidade.
 
-4. **Não publicar como "TCF gera SQL de alta qualidade"** — publicar como
+4. **Não publicar como "TCF gera SQL de alta qualidade"**: publicar como
    **descoberta metodológica**: structural quality metrics underestimate
    semantic correctness in LLM-generated SQL. Achado independente de TCF.
 
@@ -204,7 +204,7 @@ mais provável de errar — anti-correlação acidental.
 
 ---
 
-## F-Q28 `{B}` — Linha A local em canonical: 52% — STATS resolvem agregação simples, FALHAM em filter+agg
+## F-Q28 `{B}`: Linha A local em canonical: 52%, STATS resolvem agregação simples, FALHAM em filter+agg
 
 **Conclusão:** Reproduzindo F-Q12 em **Adult Census canonical** com método
 moderno (stratify, dedup correto, scoring atualizado): modelos locais 7-14B
@@ -227,12 +227,12 @@ Decomposição por tipo de question é **dramática**:
 - phi4:latest: 11/21 = 52.4%, CI [32.4%, 71.7%]
 - qwen3:14b: 10/21 = 47.6%, CI [28.3%, 67.6%]
 
-Sem diferenciação significativa entre modelos — **arquitetura/capacity não
+Sem diferenciação significativa entre modelos, **arquitetura/capacity não
 ajuda em questões filter+agg para 7-14B**. Wilson CIs sobrepõem.
 
 **Atualização vs F-Q12 antigo:**
 - F-Q12 sintético antigo: **~60-70% ceiling** (synthetic retail)
-- F-Q28 canonical novo: **52.4%** — **pior** que F-Q12 antigo
+- F-Q28 canonical novo: **52.4%**, **pior** que F-Q12 antigo
 
 Adult Census é mais difícil porque tem mais questões com filter (vs synthetic
 retail dominado por full-table aggregations). Logo F-Q12 era subestimado se

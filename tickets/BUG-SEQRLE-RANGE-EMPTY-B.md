@@ -1,11 +1,11 @@
 ---
-title: BUG-SEQRLE-RANGE-EMPTY-B — decode(encode(x)) crasha quando um afixo tem sufixo `..`/`...`
+title: BUG-SEQRLE-RANGE-EMPTY-B, decode(encode(x)) crasha quando um afixo tem sufixo `..`/`...`
 status: closed
 priority: P1
 severity: R0
 created: 2026-07-15
 updated: 2026-07-15
-gate: byte-canonical (toca HCC core — precisa aprovação + test_real_world_snapshots)
+gate: byte-canonical (toca HCC core, precisa aprovação + test_real_world_snapshots)
 blocked-by: []
 related:
   - src/tcf/composicional/syntax.py
@@ -22,7 +22,7 @@ related:
 > fantasia 52%) RT byte-exato no .8H. Pinos promovidos em test_core_rt.py (+ matriz de
 > caracterizacao + wire pinado) e test_hierarchical_rt.py (bloqueador de J0 -> RT).
 
-# BUG-SEQRLE-RANGE-EMPTY-B — colisão do range `A..B` do seq-RLE com `..` literal em afixo
+# BUG-SEQRLE-RANGE-EMPTY-B: colisão do range `A..B` do seq-RLE com `..` literal em afixo
 
 **[probatório, R0]** `decode(encode(x)) != x` (crasha) para uma entrada que o encoder público aceita
 → satisfaz o **critério 1 da regra de ROI do T-REL-08** (preempta). Pré-existente no core (afeta o
@@ -40,7 +40,7 @@ decode(encode(["ETC & TAL", "ETC & TAL..."]))
 
 ## Caracterização (medido)
 
-Crasha quando um valor **estende outro por um SUFIXO contendo `..`** (dois+ pontos) — o afixo é
+Crasha quando um valor **estende outro por um SUFIXO contendo `..`** (dois+ pontos), o afixo é
 comprimido como referência (`1...` = "fragmento 1 + `...`") e o `_parse_decl` interpreta o `..` do
 sufixo como o **operador de range `A..B`**, com B vazio → `int('')`.
 
@@ -77,16 +77,16 @@ contém `..`/`...` produz um token de decl (`1..`) ambíguo com o range. Real: t
 - **É R0** (corrompe/crasha no domínio aceito), mas **pré-existente e independente do P1** (o codec
   plano tem o mesmo bug; o P1 só o EXPÔS via dado real). Os gates byte-canônicos atuais (D1-D9,
   retail Description, lineitem l_comment) passam porque **aquele** padrão (afixo-extensão com sufixo
-  `..`) não ocorre neles — receita `nome_fantasia` ocorre.
+  `..`) não ocorre neles, receita `nome_fantasia` ocorre.
 - **Fix toca o HCC core** (`syntax.py`/`hcc_seqrle.py`) → precisa aprovação explícita do owner +
   gate `test_real_world_snapshots.py` + re-pin de baselines (ADR-0024). NÃO consertar sem isso.
 
 ## Direção de fix (a validar)
 
 Desambiguar o `..`-range do `..`-literal na EMISSÃO (o encoder deve escapar/marcar afixo cujo
-delta contém `..`, ou usar um token de range que não colida) — o decode segue o que o encode
+delta contém `..`, ou usar um token de range que não colida), o decode segue o que o encode
 marcar. Alternativa: o encoder NÃO comprime como afixo quando o delta contém `..` (fallback raw
-para esses casos raros — mais simples, custo mínimo). Escolher por byte-custo + simplicidade.
+para esses casos raros, mais simples, custo mínimo). Escolher por byte-custo + simplicidade.
 
 ## Critério de aceite
 

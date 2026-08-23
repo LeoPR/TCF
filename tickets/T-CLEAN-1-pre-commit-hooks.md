@@ -1,5 +1,5 @@
 ---
-title: T-CLEAN-1 — Adicionar pre-commit (detect-secrets, ruff, basicos)
+title: T-CLEAN-1, Adicionar pre-commit (detect-secrets, ruff, basicos)
 status: closed
 resolution: config-created-install-pending
 priority: P3
@@ -13,7 +13,7 @@ related:
   - .pre-commit-config.yaml
 ---
 
-# T-CLEAN-1 — Adicionar pre-commit (detect-secrets, ruff, basicos)
+# T-CLEAN-1: Adicionar pre-commit (detect-secrets, ruff, basicos)
 
 ## Contexto / motivacao
 
@@ -21,14 +21,14 @@ Auditoria 2026-05-22 apontou ausencia de `pre-commit` como gap de
 higiene de repositorio (metodologia §"Versionamento e higiene").
 
 Projeto e' solo sem CI, mas `pre-commit` protege localmente contra:
-- Secrets acidentais (`detect-secrets`) — risco real (config files,
+- Secrets acidentais (`detect-secrets`): risco real (config files,
   scripts experimentais)
 - Codigo sujo (`ruff` ja' instalado em pyproject, mas nao automatizado)
 - Arquivos cache acidentalmente staged (`__pycache__`, `.pytest_cache`)
 - Arquivos > 100MB (Git LFS recommendation)
 
 Custo de instalar e' baixo; valor cresce a cada commit. Especialmente
-util com IA — agente pode propor `git add -A` que pega artefato indesejado.
+util com IA, agente pode propor `git add -A` que pega artefato indesejado.
 
 ## Plano
 
@@ -58,11 +58,11 @@ util com IA — agente pode propor `git add -A` que pega artefato indesejado.
 
 ## Riscos
 
-- **Slow commits** se hook for pesado — mitigacao: hooks rapidos por
+- **Slow commits** se hook for pesado: mitigacao: hooks rapidos por
   default; lint pesado so' opt-in
-- **False positives em detect-secrets** — usar `.secrets.baseline`
+- **False positives em detect-secrets**: usar `.secrets.baseline`
   pra capturar e ignorar legacy
-- **Bloquear flow exploratorio** em dirty lab — solucao: hooks
+- **Bloquear flow exploratorio** em dirty lab: solucao: hooks
   permissivos por path (ex: skipar `experiments/lab/dirty/` pra
   alguns hooks)
 
@@ -73,7 +73,7 @@ util com IA — agente pode propor `git add -A` que pega artefato indesejado.
 
 ## Updates datados
 
-### 2026-05-23 — execucao + fechamento
+### 2026-05-23: execucao + fechamento
 
 `.pre-commit-config.yaml` criado na raiz com:
 - pre-commit-hooks v5.0.0 oficiais: trailing-whitespace, end-of-file-fixer,
@@ -91,7 +91,7 @@ README.md atualizado com seção "First-time setup (dev)" documentando:
 - pre-commit install
 - pre-commit run --all-files (baseline)
 
-**`pre-commit install` PENDENTE de execucao** — owner deve rodar
+**`pre-commit install` PENDENTE de execucao**: owner deve rodar
 manualmente apos clone/refresh:
 ```bash
 pre-commit install
@@ -99,7 +99,7 @@ pre-commit install
 (NAO executado nesta sessao porque requer venv ativo + git hooks no
 ambiente local do owner)
 
-Hooks pesados (full test suite) NAO incluidos — rodados manualmente
+Hooks pesados (full test suite) NAO incluidos, rodados manualmente
 ou em CI futuro.
 
 Resolution: config-created-install-pending. Quando owner rodar

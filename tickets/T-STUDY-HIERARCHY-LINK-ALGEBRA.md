@@ -1,5 +1,5 @@
 ---
-title: T-STUDY-HIERARCHY-LINK-ALGEBRA — equivalência dos portadores de vínculo
+title: T-STUDY-HIERARCHY-LINK-ALGEBRA, equivalência dos portadores de vínculo
 status: in-progress
 priority: P1
 created: 2026-07-16
@@ -14,7 +14,7 @@ related:
   - experiments/lab/dirty/notas/2026-05/roadmap-hipoteses.md
 ---
 
-# T-STUDY-HIERARCHY-LINK-ALGEBRA — equivalência dos portadores de vínculo
+# T-STUDY-HIERARCHY-LINK-ALGEBRA: equivalência dos portadores de vínculo
 
 **[dispositivo→pesquisa]** Este ticket trata o header, a busca no corpo e a estruturação dos dados
 como planos físicos sobre um IR único, sem escolher cedo uma gramática canônica.
@@ -33,12 +33,12 @@ pais vazios intermediários tornam duas topologias distintas indistinguíveis.
 
 ## Plano
 
-- [x] **S2** — IR de nós, arestas ordenadas e lanes de valores.
-- [x] **S3** — conversores e asserts das quatro representações.
-- [ ] **S4** — wires físicos lado a lado: counts, offsets, parent-id, rep/def-level, tabelão/RLE e eventos.
-- [ ] **S5** — DAG de decode, busca, lazy, sincronização, paralelismo e memória.
-- [ ] **S6** — comparar árvore inline, registry de shapes e diretório de blocos no header.
-- [ ] **S7** — recomendar default/fallback por perfil e só então propor weld.
+- [x] **S2**: IR de nós, arestas ordenadas e lanes de valores.
+- [x] **S3**: conversores e asserts das quatro representações.
+- [ ] **S4**: wires físicos lado a lado: counts, offsets, parent-id, rep/def-level, tabelão/RLE e eventos.
+- [ ] **S5**: DAG de decode, busca, lazy, sincronização, paralelismo e memória.
+- [ ] **S6**: comparar árvore inline, registry de shapes e diretório de blocos no header.
+- [ ] **S7**: recomendar default/fallback por perfil e só então propor weld.
 
 ## Falsificadores
 

@@ -1,4 +1,4 @@
-# META-THEORY-MOVE — mover hipoteses/teoria dirty → docs/theory/
+# META-THEORY-MOVE: mover hipoteses/teoria dirty → docs/theory/
 
 **Status**: CLOSED (2026-05-17)
 **Criado**: 2026-05-17
@@ -14,7 +14,7 @@
 - 1 → `docs/algorithms/output-convention.md` (spec)
 
 Nova nota criada:
-- `docs/theory/perspectiva-triplice-e-pre-tx.md` — sintese atual
+- `docs/theory/perspectiva-triplice-e-pre-tx.md`: sintese atual
   das 3 estrategias (multi-col+tipos; manager shared; slot online)
   avaliadas contra perspectiva triplice (compressao+memoria+latencia)
 
@@ -26,30 +26,30 @@ contendo so' execucao agora.
 
 ### Move (theory/hypothesis → docs/theory/)
 
-- `roadmap-hipoteses.md` — direcoes futuras
-- `comparacao-modular-camadas.md` — pre-tx layers theory
-- `marcadores-multiplo-proposito.md` — composicional operators theory
-- `vetores-de-comparacao-alem-de-bytes.md` — memory/latency vectors
-- `quebra-de-linha-como-marcador.md` — line break marker theory
-- `no-funcional-marca-e-troca.md` — slot pattern theory
-- `2026-05-11-comparacoes-nao-literais.md` — non-literal compare
-- `2026-05-11-custo-de-marcadores.md` — marker cost analysis
-- `2026-05-11-marcadores-compactos.md` — compact markers
-- `2026-05-11-tipos-com-estrutura.md` — typed structured patterns
+- `roadmap-hipoteses.md`: direcoes futuras
+- `comparacao-modular-camadas.md`: pre-tx layers theory
+- `marcadores-multiplo-proposito.md`: composicional operators theory
+- `vetores-de-comparacao-alem-de-bytes.md`: memory/latency vectors
+- `quebra-de-linha-como-marcador.md`: line break marker theory
+- `no-funcional-marca-e-troca.md`: slot pattern theory
+- `2026-05-11-comparacoes-nao-literais.md`: non-literal compare
+- `2026-05-11-custo-de-marcadores.md`: marker cost analysis
+- `2026-05-11-marcadores-compactos.md`: compact markers
+- `2026-05-11-tipos-com-estrutura.md`: typed structured patterns
 
 ### Move (spec → docs/algorithms/)
 
-- `convencao-output-tcf.md` — output spec (sem brackets, LF only)
+- `convencao-output-tcf.md`: output spec (sem brackets, LF only)
 
 ### Stay in dirty/notas/ (execution/history)
 
-- `historia-dirty-lab.md` — narrativa M0-M14
-- `welding-plan.md` — execucao welding (closed)
-- `naming-compactacao-composicional.md` — registro decisao (closed)
+- `historia-dirty-lab.md`: narrativa M0-M14
+- `welding-plan.md`: execucao welding (closed)
+- `naming-compactacao-composicional.md`: registro decisao (closed)
 
 ## Create new (docs/theory/)
 
-- `perspectiva-triplice-e-pre-tx.md` — analise critica:
+- `perspectiva-triplice-e-pre-tx.md`: analise critica:
   - Triple perspective (compressao/memoria/latencia)
   - Strategy 1: multi-col + tipos (pre-tx)
   - Strategy 2: shared memory + sync (novo)
@@ -57,6 +57,6 @@ contendo so' execucao agora.
 
 ## Update
 
-- `docs/theory/README.md` — index das hipoteses movidas + nova nota
-- `experiments/lab/dirty/README.md` — se mencionar notas movidas
+- `docs/theory/README.md`: index das hipoteses movidas + nova nota
+- `experiments/lab/dirty/README.md`: se mencionar notas movidas
 - Cross-references entre notas (`[[name]]` → relative paths)

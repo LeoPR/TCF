@@ -1,4 +1,4 @@
-# Wine Quality — UCI ML Repository
+# Wine Quality: UCI ML Repository
 
 Dataset cientifico canonical pra testar **natureza #5 (range narrow)**
 e **decimais com precisao fixa** (features quimicas).
@@ -26,8 +26,8 @@ e **decimais com precisao fixa** (features quimicas).
 | chlorides | FLOAT | Decimais pequenos (~0.009-0.6) |
 | free_sulfur_dioxide | FLOAT | Range narrow inteiros (~1-300) |
 | total_sulfur_dioxide | FLOAT | Range narrow inteiros (~6-440) |
-| density | FLOAT | Range MUITO narrow (~0.987-1.04) — **#5 range** |
-| pH | FLOAT | Range narrow (~2.7-4.0) — **#5 range** |
+| density | FLOAT | Range MUITO narrow (~0.987-1.04), **#5 range** |
+| pH | FLOAT | Range narrow (~2.7-4.0), **#5 range** |
 | sulphates | FLOAT | Range narrow (~0.2-2.0) |
 | alcohol | FLOAT | Range narrow (~8-15) |
 | **quality** | INT | Target: 3-9 (0-10 scale, mas observado 3-9) |

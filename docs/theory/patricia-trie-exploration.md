@@ -1,4 +1,4 @@
-# Patricia trie em OBAT — estudo de viabilidade (H-TH-02)
+# Patricia trie em OBAT: estudo de viabilidade (H-TH-02)
 
 > **Doc de estudo** (gerado 2026-05-27 via workflow 4 dimensoes). Categoria
 > Diataxis: **Explanation** + **Reference**. Decisao: prototipar e' viavel
@@ -7,15 +7,15 @@
 
 ## Contexto
 
-H-TH-02 ("indice incremental de padroes — Patricia tree generalizada") foi
+H-TH-02 ("indice incremental de padroes, Patricia tree generalizada") foi
 registrada em 2026-05-13 como direcao teorica e **nunca foi testada**. Conecta
 com:
-- **ADR-0009** — hash trigrama atual (5.4x speedup, O(N^1.42), welded 2026-05-19)
-- **H-PERF-04** — trigrama de meio, refutada-parcial 2026-05-20 (em TPC-H dates,
+- **ADR-0009**: hash trigrama atual (5.4x speedup, O(N^1.42), welded 2026-05-19)
+- **H-PERF-04**: trigrama de meio, refutada-parcial 2026-05-20 (em TPC-H dates,
   prefixo `199` populacao alta). Lab citou Patricia como "out-of-scope" fallback.
-- **H-PERF-06** — port Cython/Rust de lcp/lcs (29M chamadas), adiada pra core
+- **H-PERF-06**: port Cython/Rust de lcp/lcs (29M chamadas), adiada pra core
   compilado futuro. Interno, NAO afeta formato.
-- **V2-C em ADR-0018** — Patricia como candidato v2.0 prioridade media.
+- **V2-C em ADR-0018**: Patricia como candidato v2.0 prioridade media.
 
 ## Sumario do workflow
 
@@ -31,7 +31,7 @@ e nao repetir o vies de dataset de H-PERF-04.
 ### Findings
 
 **Patricia trie fundamentals (Morrison 1968)**
-Binary tree variant where single-child runs are compressed into edge labels. Build O(N*L), lookup O(L), space O(N*L). Each node has 0, 1 (compressed), or 2 children. Preserves ordered iteration (alphabetic). Variant: radix tree (k-ary, not binary). Key property: every string is either a node label or an edge label prefix — deterministic traversal.
+Binary tree variant where single-child runs are compressed into edge labels. Build O(N*L), lookup O(L), space O(N*L). Each node has 0, 1 (compressed), or 2 children. Preserves ordered iteration (alphabetic). Variant: radix tree (k-ary, not binary). Key property: every string is either a node label or an edge label prefix, deterministic traversal.
 *source*: general knowledge + theoretical computer science (Knuth TAOCP Vol. 3)
 
 **Suffix tree (Weiner 1973, McCreight 1976, Ukkonen 1995)**
@@ -39,7 +39,7 @@ Patricia tree built on all suffixes of a string (or multiple strings via general
 *source*: general knowledge + standard algorithms textbooks
 
 **Generalized Suffix Tree (GST, multiple strings)**
-Single Patricia tree built on concatenation S1$S2$...$Sn with distinct terminators. Ukkonen can be adapted O(sum(Li)) incremental. Enables: LCP across N strings in O(Li) per string without rebuilding. Substring matching: any query substring found in O(m) traversal. Path to leaf reveals which strings contain that substring. LCA (lowest common ancestor) queries on GST give LCS between strings — useful for TCF's bidirectional (LCP + LCS) problem.
+Single Patricia tree built on concatenation S1$S2$...$Sn with distinct terminators. Ukkonen can be adapted O(sum(Li)) incremental. Enables: LCP across N strings in O(Li) per string without rebuilding. Substring matching: any query substring found in O(m) traversal. Path to leaf reveals which strings contain that substring. LCA (lowest common ancestor) queries on GST give LCS between strings, useful for TCF's bidirectional (LCP + LCS) problem.
 *source*: general knowledge + suffix tree literature (Gusfield, Crochemore)
 
 **Suffix Array + LCP array (Manber & Myers 1990, Kasai et al. 2001)**
@@ -51,7 +51,7 @@ Indexes: prefix_index[s[:3]] → list[ids], suffix_index[s[-3:]] → list[ids]. 
 *source*: file:c:\Users\leona\OneDrive\Documents\Projects\Acadêmicos\TCF\docs\adr\0009-obat-trigram-index-optimization.md + file:src\tcf\core\online.py lines 97-226
 
 **Query types Patricia/GST resolves that trigram hash does not**
-(1) Longest Common Substring across N strings: traversal to deepest internal node = O(N) total comparisons (tree does the work upfront in build). Hash requires O(B) bucket scan per query. (2) All prefixes of arbitrary length: tree traversal explores all paths, hash only checks k=3 fixed. (3) Longest Common Extension (LCE) queries: given position p1 in S1, p2 in S2, return max overlap — GST+LCA answers in O(log N) after O(sum Li) build. (4) Range queries (substrings in positions [a,b]): suffix array + RMQ handles efficiently. Hash trigram cannot.
+(1) Longest Common Substring across N strings: traversal to deepest internal node = O(N) total comparisons (tree does the work upfront in build). Hash requires O(B) bucket scan per query. (2) All prefixes of arbitrary length: tree traversal explores all paths, hash only checks k=3 fixed. (3) Longest Common Extension (LCE) queries: given position p1 in S1, p2 in S2, return max overlap, GST+LCA answers in O(log N) after O(sum Li) build. (4) Range queries (substrings in positions [a,b]): suffix array + RMQ handles efficiently. Hash trigram cannot.
 *source*: general knowledge + suffix tree applications (Gusfield Ch. 5-8)
 
 **Complexity comparison: GST vs hash trigram**
@@ -63,15 +63,15 @@ Ukkonen's algorithm allows O(L_i) append of string Si without rebuilding entire 
 *source*: general knowledge + Ukkonen 1995 paper, Crochemore & Lecroq 1997
 
 **Cache locality trade-offs: trie pointers vs. hash buckets**
-Patricia tree: pointers scatter across heap; cache misses frequent on traversal (follow parent/child links in worst case O(L) memory accesses per query). Hash buckets: keys contiguous in array/dict, ids in linked list also scattered but fewer hops. Empirical: hash has better CPU cache behavior on modern CPUs (64-byte lines). Mitigations for GST: (1) array-based tree (no pointers, implicit children via array index) — harder to code, still non-contiguous. (2) disk-resident suffix array with block-level I/O — overkill for TCF (data fits in RAM). Verdict: hash trigram likely faster in practice despite worse worst-case complexity, due to cache effects.
+Patricia tree: pointers scatter across heap; cache misses frequent on traversal (follow parent/child links in worst case O(L) memory accesses per query). Hash buckets: keys contiguous in array/dict, ids in linked list also scattered but fewer hops. Empirical: hash has better CPU cache behavior on modern CPUs (64-byte lines). Mitigations for GST: (1) array-based tree (no pointers, implicit children via array index), harder to code, still non-contiguous. (2) disk-resident suffix array with block-level I/O, overkill for TCF (data fits in RAM). Verdict: hash trigram likely faster in practice despite worse worst-case complexity, due to cache effects.
 *source*: general knowledge + cache-conscious data structures literature (Brodal, Fagerberg)
 
 **Patricia trie + LCE queries for OBAT bidirectional (LCP+LCS)**
-OBAT requirement: per new string, find all previous strings with LCP >= min_len AND LCS >= min_len, choose pair maximizing coverage. (1) Naive: O(N*L_max) per string (try all N-1 previous). (2) Hash trigram (ADR-0009): O(B1 + B2) per string (bucket intersection). (3) Patricia approach: build GST on all seen strings. Query new string S: (a) LCP matches: traverse GST prefix S, collect all suffixes of S that match — O(L_max). (b) LCS matches: reverse S, traverse GST on reversed strings, collect — O(L_max). (c) Pair selection: greedy coverage choice. Total: O(L_max) query per string, O(sum Li) one-time build. Advantage: no bucket size variance (like dates 2x), stable performance.
+OBAT requirement: per new string, find all previous strings with LCP >= min_len AND LCS >= min_len, choose pair maximizing coverage. (1) Naive: O(N*L_max) per string (try all N-1 previous). (2) Hash trigram (ADR-0009): O(B1 + B2) per string (bucket intersection). (3) Patricia approach: build GST on all seen strings. Query new string S: (a) LCP matches: traverse GST prefix S, collect all suffixes of S that match, O(L_max). (b) LCS matches: reverse S, traverse GST on reversed strings, collect, O(L_max). (c) Pair selection: greedy coverage choice. Total: O(L_max) query per string, O(sum Li) one-time build. Advantage: no bucket size variance (like dates 2x), stable performance.
 *source*: general knowledge + suffix tree algorithms + OBAT algorithm spec (file:docs\algorithms\OBAT.md)
 
 **H-TH-02 (hypothesis): Patricia tree generalized, modular comparison parameter**
-Registered 2026-05-13, never tested. Concept: GST as infrastructure for OBAT; comparison function (LCP vs. LCS vs. LCE) as pluggable parameter. Goal: abstraction layer for future variants (e.g., approximate matching, weighted similarity). Status: conceptual. Blocking: (1) unclear if abstraction pays for TCF (single use case = OBAT). (2) implementation complexity high. (3) hash trigram (ADR-0009) already solves immediate perf problem. (4) appears in roadmap as 'adiada' — deferred pending evidence.
+Registered 2026-05-13, never tested. Concept: GST as infrastructure for OBAT; comparison function (LCP vs. LCS vs. LCE) as pluggable parameter. Goal: abstraction layer for future variants (e.g., approximate matching, weighted similarity). Status: conceptual. Blocking: (1) unclear if abstraction pays for TCF (single use case = OBAT). (2) implementation complexity high. (3) hash trigram (ADR-0009) already solves immediate perf problem. (4) appears in roadmap as 'adiada', deferred pending evidence.
 *source*: file:experiments\lab\dirty\notas\roadmap-hipoteses.md line 185-186, file:STATUS.md line 321
 
 **H-PERF-04 refuted-partial (2026-05-20): middle trigram + byte-canonical divergence**
@@ -132,7 +132,7 @@ TCF column domains: (1) Categorical (adult c_name, c_mktsegment): short, high-ca
 - No production reference in Python: unlike hash trigram (used in many Python projects), Patricia GST in Python is niche. Bugs found via peer review unlikely; most bugs discovered post-deployment.
 - Microbenchmark vs. macrobenchmark gap: theoretical O(N^1.42) vs. O(N^1.42) may hide constant factors. Hash trigram 5.4x observed speedup empirical; Patricia theoretical speedup on dates requires actual implementation to validate (sub-exp 01 profile suggested potential, but no code written).
 - v2.0 coupling: if Patricia chosen, v2.0 (ADR-0018) locked into Patricia approach. Alternative indexing schemes (e.g., different hash function, approximate matching) ruled out without migration path. Format lock (ADR-0017) plus code lock = friction.
-- Test coverage fragility: D1-D9 synthetic datasets may not exercise Patricia edge cases (highly similar strings, long common affixes). Real-world datasets (Adult, TPC-H) avoided these patterns — if v2.0 datasets (financial, scientific) trigger pathological cases, byte-canonical divergence surfaces late.
+- Test coverage fragility: D1-D9 synthetic datasets may not exercise Patricia edge cases (highly similar strings, long common affixes). Real-world datasets (Adult, TPC-H) avoided these patterns, if v2.0 datasets (financial, scientific) trigger pathological cases, byte-canonical divergence surfaces late.
 
 ### Recommendation
 
@@ -162,7 +162,7 @@ TCF column domains: (1) Categorical (adult c_name, c_mktsegment): short, high-ca
 
 ---
 
-## 2. Trigram index contract in OBAT (CAMADA 1) — current API vs Patricia trie substitution requirements
+## 2. Trigram index contract in OBAT (CAMADA 1): current API vs Patricia trie substitution requirements
 
 ### Findings
 
@@ -227,7 +227,7 @@ TPC-H lineitem dates (l_shipdate, l_commitdate, l_receiptdate) share prefixes '1
 *source*: ADR-0009:86-87, 2026-05-20-obat-perf-phase2-trigram-middle/README.md:17-20
 
 **Missing information: LCE (Longest Common Extension)**
-Current index provides bucket candidates; LCP/LCS computed byte-by-byte afterward. Patricia trie naturally exposes LCE (common prefix + suffix in one tree traversal). Not currently exposed in API — computed redundantly. Patricia could cache this (cost: O(log N) tree traversal vs O(min(|a|,|b|)) linear scan), but only if min_len/max_len bounds are pre-computed.
+Current index provides bucket candidates; LCP/LCS computed byte-by-byte afterward. Patricia trie naturally exposes LCE (common prefix + suffix in one tree traversal). Not currently exposed in API, computed redundantly. Patricia could cache this (cost: O(log N) tree traversal vs O(min(|a|,|b|)) linear scan), but only if min_len/max_len bounds are pre-computed.
 *source*: General knowledge: Patricia trie properties
 
 **All-prefix-matches capability gap**
@@ -279,7 +279,7 @@ For Patricia to substitute the current trigram hash index, it must expose:
 **Key Constraints**:
 - Must not break byte-canonical: bucket order = ID ascending is mandatory
 - Tie-break semantics: first occurrence with equal LCP wins (preserved via iteration order)
-- No LCP/LCS computation in Patricia — OBAT layer still does _lcp_len_capped
+- No LCP/LCS computation in Patricia: OBAT layer still does _lcp_len_capped
 - Patricia builds LCP-trie internally but doesn't expose it to OBAT (hidden from algorithm)
 
 **Implementation notes**:
@@ -296,7 +296,7 @@ For Patricia to substitute the current trigram hash index, it must expose:
 - Suffix index is less efficient in Patricia (reverse-key insertion): if implemented naively, suffix-key insertion requires building a separate reverse-trie or dual-trie. Current hash is symmetric (forward and backward equally efficient). Patricia may need special handling for suffix (reverse tree traversal or reverse-key pre-processing).
 - API contract coupling: _melhor_pref/_melhor_suf, _escolher_par, and processar/processar_with_hint all assume dict[str, list[int]] structure. Changing to Patricia requires no signature change but risks hidden assumptions (e.g., if code accidentally calls .keys(), .values() methods). Must audit all callsites.
 - Memory under sparse keys: if many unique 3-char prefixes exist (high-cardinality columns), Patricia internal nodes proliferate. Empirically, dict[str, list[int]] may be more compact for sparse data. Trade-off: Patricia wins on high-repetition (many ID lists per key), dict wins on sparse keys.
-- Missing LCE optimization opportunity: Patricia can compute LCE in one tree traversal, but current _lcp_len_capped + _lcs_len_capped are separate, redundant byte-scans. To exploit Patricia advantage, would need to refactor _melhor_pref/_melhor_suf to accept (lcp, lcs) computed in parallel — breaking change to algorithm.
+- Missing LCE optimization opportunity: Patricia can compute LCE in one tree traversal, but current _lcp_len_capped + _lcs_len_capped are separate, redundant byte-scans. To exploit Patricia advantage, would need to refactor _melhor_pref/_melhor_suf to accept (lcp, lcs) computed in parallel, breaking change to algorithm.
 - Backward compatibility test coverage: ADR-0009 sub-exp 03 validates byte-canonical on D1-D9 + lineitem 1k/5k + EXP-007/010/011/012/013/014. Patricia drop-in must pass ALL these tests byte-identically. Any regression in even one dataset flags implementation bug.
 - No existing production Patricia library in Python optimized for this use case (append-only, preserve order, variable-key-length). Off-the-shelf libraries (pygtrie, patricia-trie) may not guarantee insertion-order preservation or have overhead for this specific pattern. Custom implementation required.
 - HCC layer coupling: HCC (_detect_compositions) and seq-RLE operate on OBAT tokens, not indexes. Patricia substitution should not affect HCC input (token stream). But if OBAT behavior changes (different tie-breaks, bucket order), HCC output changes → bytes diverge. Must validate post-substitution against all HCC tests.
@@ -313,7 +313,7 @@ For Patricia to substitute the current trigram hash index, it must expose:
 **Should NOT prototype IF:**
 1. Goal is only drop-in replacement (bucket search O(N)→O(B)). Current hash index ALREADY achieves 5.4x speedup globally, 1.77x in full pipeline. Patricia gains would be marginal (maybe 5-10% reduction in O(B) via tree structure, but B is already small). Cost/benefit unfavorable.
 2. Resources are limited. Custom Patricia implementation (append-only, insertion-order preservation) is 200-400 LOC, plus 100 LOC audit of OBAT callers, plus 50+ regression tests. Estimated effort: 6-12 hours if no library available; 3-6 hours if library exists and needs wrapping.
-3. Date performance is acceptable. ADR-0009 already shows 2x on dates; if pipeline is not bottlenecked there (HCC is 24%, growing as OBAT improves), Patricia is not priority. H-PERF-04 (2026-05-20, refuted) already explored trigram alternatives; conclusion was "Patricia as fallback if HCC optimization insufficient" — wait for HCC gains first.
+3. Date performance is acceptable. ADR-0009 already shows 2x on dates; if pipeline is not bottlenecked there (HCC is 24%, growing as OBAT improves), Patricia is not priority. H-PERF-04 (2026-05-20, refuted) already explored trigram alternatives; conclusion was "Patricia as fallback if HCC optimization insufficient", wait for HCC gains first.
 
 **Estimated effort if prototyping:**
 - Research + feasibility study (this): 1-2 hours (DONE)
@@ -345,7 +345,7 @@ Registrada como abstracao em experiments/lab/dirty/old/2026-05-13-M4-desfragment
 *source*: experiments/lab/dirty/notas/2026-05/roadmap-hipoteses.md (linhas 185-186), experiments/lab/dirty/old/2026-05-13-M4-desfragmentacao-arvore/notas/indice-incremental-de-padroes.md
 
 **Roadmap v2.0 (ADR-0018, 2026-05-27)**
-Patricia registrada como candidato futuro (nao v1.0) para resolver datetime baixa-dispersao. V2-A (fallback identity) priorizado primeiro pq prototipo pronto; V2-B (dicionario) para baixa-cardinalidade (beijing hour 24 unicos inflou 228.8%). Patricia subsumida em discussao mas nao reaberta como v2.0 proprio candidato — fica como fallback conceitual de H-PERF-04 se H-PERF-05 (HCC opt) insuficiente.
+Patricia registrada como candidato futuro (nao v1.0) para resolver datetime baixa-dispersao. V2-A (fallback identity) priorizado primeiro pq prototipo pronto; V2-B (dicionario) para baixa-cardinalidade (beijing hour 24 unicos inflou 228.8%). Patricia subsumida em discussao mas nao reaberta como v2.0 proprio candidato, fica como fallback conceitual de H-PERF-04 se H-PERF-05 (HCC opt) insuficiente.
 *source*: docs/adr/0018-v2-format-roadmap.md, experiments/lab/dirty/notas/2026-05/roadmap-hipoteses.md (linhas 102-104)
 
 **Escala de datasets TCF**
@@ -357,7 +357,7 @@ Qualquer mudanca de ORDEM de tie-break em comparacoes LCP/LCS quebra bytes. M9 b
 *source*: src/tcf/core/online.py (linhas 99-112, 155-162), docs/adr/0009-obat-trigram-index-optimization.md (secao Garantia byte-canonical)
 
 **Variantes Patricia + análise teórica**
-(1) Patricia radix tree k-ario: k=256 (full char) reduz profundidade mas expande memória; k=2 (binary) economiza memória mas lookup O(L log N). (2) Compressed trie: agrupa edge labels (strings nao chars) — reduz nos, ideal pra TCF. (3) Generalized Suffix Tree (Ukkonen O(N)): mais complexo, melhor pra sufixos; trie direcional. (4) Suffix array + LCP array: offline (build caro) mas tempo de query consistente. **Recomendação**: Compressed trie (aka Patricia radix) com edge labels é melhor tradeoff pra TCF (strings curtas 5-25 chars, incremental 1 por vez).
+(1) Patricia radix tree k-ario: k=256 (full char) reduz profundidade mas expande memória; k=2 (binary) economiza memória mas lookup O(L log N). (2) Compressed trie: agrupa edge labels (strings nao chars), reduz nos, ideal pra TCF. (3) Generalized Suffix Tree (Ukkonen O(N)): mais complexo, melhor pra sufixos; trie direcional. (4) Suffix array + LCP array: offline (build caro) mas tempo de query consistente. **Recomendação**: Compressed trie (aka Patricia radix) com edge labels é melhor tradeoff pra TCF (strings curtas 5-25 chars, incremental 1 por vez).
 *source*: General knowledge (algorithms)
 
 **Prototipo anterior (M0-fase-exploratoria, 2026-05-10)**
@@ -369,7 +369,7 @@ Classe TrigramIndex (atual em processar) expoe: dict prefix_index[trigram] -> li
 *source*: src/tcf/core/online.py (linhas 184-186, 195-197)
 
 **LCP/LCS com Patricia**
-Query atual: _melhor_pref itera bucket prefix_index[s[:3]] computando lcp_len(s, strings[idx]). Com Patricia, query_prefix(s, max_len=ls) retorna folha do trie com longest common prefix até profundidade ls. NO ENTANTO: Patricia retorna nó/folha, nao direto o lcp_len — precisa comparar s com todas as strings do subtree (mesmo O(B) assintotico). Vantagem: Patricia reduz B (bucket) pra casos com prefixos populares (datas 2160→30). Desvantagem: overhead dict-of-dicts em Python pode nao compensar.
+Query atual: _melhor_pref itera bucket prefix_index[s[:3]] computando lcp_len(s, strings[idx]). Com Patricia, query_prefix(s, max_len=ls) retorna folha do trie com longest common prefix até profundidade ls. NO ENTANTO: Patricia retorna nó/folha, nao direto o lcp_len, precisa comparar s com todas as strings do subtree (mesmo O(B) assintotico). Vantagem: Patricia reduz B (bucket) pra casos com prefixos populares (datas 2160→30). Desvantagem: overhead dict-of-dicts em Python pode nao compensar.
 *source*: src/tcf/core/online.py (linhas 97-112)
 
 **Representacao Python de Patricia node**
@@ -389,7 +389,7 @@ Hash dict em Python 3.7+ preserva insertion order. Patricia tree traversal segue
 *source*: src/tcf/core/online.py (linhas 100-112, tie-break logica)
 
 **Libraries considerar vs pure stdlib**
-(1) pytrie (PyPI): compressed trie + Ukkonen GST, bem mantida, typing completo. RISCO: dependencia nova, packaging. (2) pyahocorasick (PyPI): automata multi-pattern, Cython backend — overkill pra TCF, mais pra string matching, nao query-by-prefix. (3) Pure stdlib dict: viavel, manual patricia em ~200-300 LOC. (4) sortedcontainers.SortedDict: nao necessario (preservar insertion order é suficiente). **Recomendacao**: pure stdlib + manual Patricia (LOW RISK, ZERO DEPS), ou pytrie se performance provado insuficiente (MEDIUM RISK, 1 dep).
+(1) pytrie (PyPI): compressed trie + Ukkonen GST, bem mantida, typing completo. RISCO: dependencia nova, packaging. (2) pyahocorasick (PyPI): automata multi-pattern, Cython backend, overkill pra TCF, mais pra string matching, nao query-by-prefix. (3) Pure stdlib dict: viavel, manual patricia em ~200-300 LOC. (4) sortedcontainers.SortedDict: nao necessario (preservar insertion order é suficiente). **Recomendacao**: pure stdlib + manual Patricia (LOW RISK, ZERO DEPS), ou pytrie se performance provado insuficiente (MEDIUM RISK, 1 dep).
 *source*: General knowledge (Python libs)
 
 **Estimativa LOC prototipo**
@@ -533,7 +533,7 @@ class PatriciaIndex:
 
 **Sub-exp 01**: Implementacao basica
 - PatriciaIndex.insert, query_prefix, roundtrip validation
-- Teste em D17a (13 strings) — equivalente M0 nomes
+- Teste em D17a (13 strings): equivalente M0 nomes
 
 **Sub-exp 02**: Isolado vs TrigramIndex
 - processar(D1-D9) vs processar_patricia(D1-D9)
@@ -625,7 +625,7 @@ SUCESSOR DIRETO mas eixo diferente. H-PERF-04 tentou mitigar BIAS de hash (distr
 *source*: 2026-05-20-obat-perf-phase2-trigram-middle/02-prototipo-combined-full/README.md e comparação com ADR-0009
 
 **Lições de H-PERF-04 que Patricia deve incorporar**
-1. Dataset bias: H-PERF-04 vencida por prefixos populares (datas '199...'). Patricia trie NÃO sofre desse viés — trata prefixos populares naturalmente via depth maior. 2. Preservação byte-canonical: CRÍTICO. Patricia mantém ordem insercao em cada nó (list[id]) → preserva tie-break. 3. Buckets grandes: H-PERF-04 chegou a 2160 em datas. Patricia em datas esperaria ~N/k nós folha distribuído por profundidade.
+1. Dataset bias: H-PERF-04 vencida por prefixos populares (datas '199...'). Patricia trie NÃO sofre desse viés, trata prefixos populares naturalmente via depth maior. 2. Preservação byte-canonical: CRÍTICO. Patricia mantém ordem insercao em cada nó (list[id]) → preserva tie-break. 3. Buckets grandes: H-PERF-04 chegou a 2160 em datas. Patricia em datas esperaria ~N/k nós folha distribuído por profundidade.
 *source*: 2026-05-20-obat-perf-phase2-trigram-middle/01-profile-bucket-sizes/result.md (análise datas) e 02-prototipo-combined-full/README.md (conclusão)
 
 **Hipótese teórica H-TH-02: status e registro**
@@ -633,7 +633,7 @@ H-TH-02 'Indice incremental de padroes (Patricia generalizada)' registrada 2026-
 *source*: experiments/lab/dirty/notas/2026-05/roadmap-hipoteses.md linha 185, e docs/adr/0018-v2-format-roadmap.md
 
 **Risco de refutação prematura em dataset enviesado**
-H-PERF-04 foi decisiva em datas TPC-H (dataset com estrutura artificial: 1992-1998 prefixo constante). Mas nenhuma validação em: 1) datas reais variadas (diferente período), 2) não-datetime com prefixos populares (URLs de mesmo domínio, IDs com prefixo comum). H-PERF-04 foi refutada como 'hash tradicional falha' — correto — mas a CAUSA foi dataset enviesado, não inviabilidade do problema em geral.
+H-PERF-04 foi decisiva em datas TPC-H (dataset com estrutura artificial: 1992-1998 prefixo constante). Mas nenhuma validação em: 1) datas reais variadas (diferente período), 2) não-datetime com prefixos populares (URLs de mesmo domínio, IDs com prefixo comum). H-PERF-04 foi refutada como 'hash tradicional falha', correto, mas a CAUSA foi dataset enviesado, não inviabilidade do problema em geral.
 *source*: 2026-05-20-obat-perf-phase2-trigram-middle/01-profile-bucket-sizes/result.md, seção 'Por que prefix sozinho gera 2160'
 
 **API atual OBAT e compatibilidade Patricia**
@@ -688,7 +688,7 @@ H-PERF-04 profile mostrou: l_shipdate 2x apenas (sufixo hash já 27.7x). Patrici
 - Refutação indevida em real-world variado: Se não testar em datasets COM prefixos populares naturais (não artificial), Patricia pode parecer 'pouco melhor que hash' e ser descartada. H-PERF-04 sofreu disso.
 - Byte-canonical subtle bug: ordem insercao em trie precisa ser exatamente FIFO global. Bug comum: rehash em dict Python altera ordem (Python 3.7+ preserva, mas cuidado). Teste com verificação byte-per-byte obrigatório.
 - Incompatibilidade com obat_shape.py: processar_with_hint usa _melhor_pref/_melhor_suf com assinatura específica. Mudança em online.py exige re-validar shape-preserve em ADR-0007 + EXP-010.
-- Fallback hash se trie falhar: se Patricia falhar byte-canonical em algum edge case, código não tem fallback — quebra pipeline. ADR-0009 hash é solid; Patricia é experimento. Precisa fallback gracioso ou validação absoluta antes welding.
+- Fallback hash se trie falhar: se Patricia falhar byte-canonical em algum edge case, código não tem fallback, quebra pipeline. ADR-0009 hash é solid; Patricia é experimento. Precisa fallback gracioso ou validação absoluta antes welding.
 
 ### Recommendation
 
@@ -733,7 +733,7 @@ H-PERF-04 profile mostrou: l_shipdate 2x apenas (sufixo hash já 27.7x). Patrici
    real-world). Patricia nao e' urgencia.
 2. **Patricia ganha em prefixos populares** (datas, ranges, padroes
    repetitivos). Em colunas categoricas dispersas o overhead anula o ganho.
-3. **Risco principal: byte-canonical** — tie-break por ordem de insercao
+3. **Risco principal: byte-canonical**, tie-break por ordem de insercao
    precisa ser preservado pixel-a-pixel. Bug subtil aqui quebra o freeze v1.0.
 4. **Protocolo obrigatorio**: fork em dirty lab, validar D1-D9 1615B exato e
    RT em multi-camada antes de qualquer welding.
@@ -746,12 +746,12 @@ H-PERF-04 profile mostrou: l_shipdate 2x apenas (sufixo hash já 27.7x). Patrici
 
 | Dimensao | Recomendacao |
 |---|---|
-| Teoria | **NAO prototipar agora** — defer a v2.0 (custo 220h, ganho narrow) |
-| Contrato atual | **Worth IF date perf is pain point** — efort 7-13h |
-| Design fit | **SIM com protocolo rigoroso** — 10-14h |
-| H-PERF-04 relation | **SIM com cuidado de vies de dataset** — 20-30h com validacao multi-camada |
+| Teoria | **NAO prototipar agora**: defer a v2.0 (custo 220h, ganho narrow) |
+| Contrato atual | **Worth IF date perf is pain point**: efort 7-13h |
+| Design fit | **SIM com protocolo rigoroso**: 10-14h |
+| H-PERF-04 relation | **SIM com cuidado de vies de dataset**: 20-30h com validacao multi-camada |
 
-A divergencia e' principalmente sobre **esforço estimado** (7h a 220h) — o
+A divergencia e' principalmente sobre **esforço estimado** (7h a 220h), o
 range reflete o que se conta como "feito" (drop-in vs production-grade).
 
 ### Tabela de decisao recomendada

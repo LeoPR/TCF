@@ -1,4 +1,4 @@
-# Datasets — TCF
+# Datasets: TCF
 
 Esta pasta contem **metadados, amostras pequenas e documentacao** dos
 datasets canonicos usados no projeto TCF.
@@ -93,18 +93,18 @@ python scripts/setup_adult.py # ~5MB para Z:\tcf-data\external\adult-census\
 
 ### Canonicos (Fase 1)
 
-- **`canonical/tpch-sf001/`** — TPC-H Scale Factor 0.01
+- **`canonical/tpch-sf001/`**: TPC-H Scale Factor 0.01
   Padrao da industria desde 1999. 8 tabelas relacional normalizado,
   dominio wholesale retail. ~60K rows na maior tabela.
   Ver `datasets/canonical/tpch-sf001/README.md` para detalhes.
 
-- **`canonical/adult-census/`** — UCI Adult (Census Income) 1994
+- **`canonical/adult-census/`**: UCI Adult (Census Income) 1994
   Dados demograficos reais dos EUA. 48K rows, 14 colunas, mixed types.
   Ver `datasets/canonical/adult-census/README.md` para detalhes.
 
 ### Poor reference (legacy)
 
-- **`poor-reference/retail-sales-synthetic/`** — nosso sintetico antigo
+- **`poor-reference/retail-sales-synthetic/`**: nosso sintetico antigo
   com nomes minimalistas (Ana, Bruno, Caneta). Mantido para comparacao
   com papers que usam dados similares.
 

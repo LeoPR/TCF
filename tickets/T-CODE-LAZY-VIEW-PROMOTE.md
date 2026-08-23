@@ -1,5 +1,5 @@
 ---
-title: T-CODE-LAZY-VIEW-PROMOTE — Promover lazy view do gadget pro core (tcf.view)
+title: T-CODE-LAZY-VIEW-PROMOTE, Promover lazy view do gadget pro core (tcf.view)
 status: closed
 priority: P1
 created: 2026-06-21
@@ -20,7 +20,7 @@ A view lazy/consultável (descomprime só o suficiente pra responder `count/sum/
 max/avg` + `where` + group-by) viveu como **gadget** em `scripts/tcf_lazy/` durante
 A1-A3 (banco de testes, fechamento de bug de dupla-contagem, otimização do caminho do
 algoritmo). `scripts/` **não vai no wheel** (`pyproject` `packages=["src/tcf"]`, sdist
-exclui `/scripts`) — então o lazy não shipava no pacote. Shipar o lazy é o **escopo
+exclui `/scripts`), então o lazy não shipava no pacote. Shipar o lazy é o **escopo
 central do 0.8** (`v08-plano-etapas.md` §A).
 
 ## Plano (executado)
@@ -47,7 +47,7 @@ Owner aprovou o toque em `src/tcf/` (aditivo, read-only, risco baixo) em 2026-06
 - Aditivo: não toca encode/decode/formato; único acoplamento é reuso de internos
   já usados (`tcf.multi._decode_v2b/_decode_struct_split`, `tcf.decoder._decode_column`).
 - **Versão NÃO bumpada** aqui (segue 0.7.1). O bump 0.7.1→0.8.0 + nota de release saem
-  juntos no workstream C ([T-DIST-RELEASE-0.8.0](T-DIST-RELEASE-0.8.0.md)) — o teste
+  juntos no workstream C ([T-DIST-RELEASE-0.8.0](T-DIST-RELEASE-0.8.0.md)), o teste
   `test_version_pre_1_0` segue pinando 0.7.1 até lá.
 - A5 (reference Diátaxis da API) é o próximo de A: [T-DOC-LAZY-REFERENCE](T-DOC-LAZY-REFERENCE.md).
 

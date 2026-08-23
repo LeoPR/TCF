@@ -1,5 +1,5 @@
 ---
-title: T-DOC-2 — Explicitar mapeamento docs/algorithms,theory → Diataxis (reference,explanation)
+title: T-DOC-2, Explicitar mapeamento docs/algorithms,theory → Diataxis (reference,explanation)
 status: closed
 resolution: adr-0012-created
 priority: P3
@@ -13,7 +13,7 @@ related:
   - docs/adr/0012-diataxis-naming-local.md
 ---
 
-# T-DOC-2 — Explicitar mapeamento docs/algorithms,theory → Diataxis
+# T-DOC-2: Explicitar mapeamento docs/algorithms,theory → Diataxis
 
 ## Contexto / motivacao
 
@@ -23,13 +23,13 @@ mas o nome local diverge do padrao nomeado no doc-mae.
 
 Metodologia autoriza explicitamente convencoes locais (logica FORTE/LOCAL,
 §"Aprofundando Pilar 4"). Renomear seria custo alto (links, ADRs,
-imports, git history). Mas a divergencia precisa estar **declarada** —
+imports, git history). Mas a divergencia precisa estar **declarada**:
 caso contrario novo contribuidor (humano ou IA) podera tentar criar
 `docs/reference/` paralelo, gerando dual source.
 
 ## Plano
 
-Opcao A — ADR explicito (recomendado): criar `docs/adr/0011-diataxis-naming-local.md`
+Opcao A, ADR explicito (recomendado): criar `docs/adr/0011-diataxis-naming-local.md`
 documentando o mapeamento:
 
 | Pasta neste projeto | Equivalente Diataxis |
@@ -42,7 +42,7 @@ documentando o mapeamento:
 Justificar a preservacao do nome local (consolidacao + custo de
 renomear + leitura ergonomica).
 
-Opcao B — adicionar nota em `MAP.md` + `CLAUDE.md` apontando o mapeamento,
+Opcao B, adicionar nota em `MAP.md` + `CLAUDE.md` apontando o mapeamento,
 sem ADR formal. Mais barato, menos auditavel.
 
 ## Criterio de aceite
@@ -62,9 +62,9 @@ sem ADR formal. Mais barato, menos auditavel.
 
 ## Updates datados
 
-### 2026-05-23 — execucao + fechamento
+### 2026-05-23: execucao + fechamento
 
-Opcao A escolhida — ADR explicito criado em `docs/adr/0012-diataxis-naming-local.md`.
+Opcao A escolhida, ADR explicito criado em `docs/adr/0012-diataxis-naming-local.md`.
 
 Tabela de mapeamento documentada:
 | Pasta | Equivalente Diataxis |

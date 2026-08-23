@@ -10,7 +10,7 @@ experiments that need scale.
 
 ## Source
 
-- **Origin**: TPC-H Benchmark — https://www.tpc.org/tpch/
+- **Origin**: TPC-H Benchmark, https://www.tpc.org/tpch/
 - **Generator**: DuckDB `tpch` extension (`CALL dbgen(sf=0.1)`), local, no network
 - **License**: TPC Fair Use Agreement (academic use permitted)
 - **Download**: `python scripts/setup_tpch.py --sf 0.1`
@@ -48,5 +48,5 @@ region <- nation <- supplier <- partsupp -> part
 - **Shaper**: the shaper is validated only for ≤100k-row inputs
   (T-SHAPER-CODE-HARDENING A1, filter-before-load). For this dataset use
   direct `encode()` on table columns, or the schema/volume strategies on
-  the smaller dimension tables — not full-`lineitem` sampling via shaper.
+  the smaller dimension tables, not full-`lineitem` sampling via shaper.
 - Same 8-table schema as `tpch-sf001`; only the scale factor differs.

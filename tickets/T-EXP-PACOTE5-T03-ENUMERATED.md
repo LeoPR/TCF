@@ -1,5 +1,5 @@
 ---
-title: T-EXP-PACOTE5-T03-ENUMERATED — Pacote 5: enumerated nature canonical
+title: T-EXP-PACOTE5-T03-ENUMERATED, Pacote 5: enumerated nature canonical
 status: closed
 resolution: no-go-m10-suficiente
 priority: P2
@@ -15,7 +15,7 @@ related:
   - docs/adr/0011-pacote1-weld-canonical.md
 ---
 
-# T-EXP-PACOTE5-T03-ENUMERATED — Enumerated canonical (Pacote 5)
+# T-EXP-PACOTE5-T03-ENUMERATED: Enumerated canonical (Pacote 5)
 
 ## Contexto / motivacao
 
@@ -58,7 +58,7 @@ Sub-questoes:
 
 Lab dirty: `experiments/lab/dirty/2026-05-23-pacote5-t03-enumerated/`
 
-### Sub-exp 01 — caracterizacao + estimativa ganho
+### Sub-exp 01: caracterizacao + estimativa ganho
 
 Pra cada coluna low-card (card < 0.05) em Adult+TPC-H:
 1. Bytes atual TCF M10 (`tcf.encode`)
@@ -72,14 +72,14 @@ Pra cada coluna low-card (card < 0.05) em Adult+TPC-H:
 
 **Criterio go**: ganho weighted real-world >= 5% sobre colunas low-card.
 
-### Sub-exp 02 (condicional) — prototype encoder enumerated
+### Sub-exp 02 (condicional): prototype encoder enumerated
 
 Se go: fork dirty implementando encoder enumerated:
 - Detect heuristica (card < threshold + dedup retornaria poucos atoms)
 - Sintaxe especial no body para enumerated col
 - Decoder espelho
 
-### Sub-exp 03 (condicional) — welding canonical
+### Sub-exp 03 (condicional): welding canonical
 
 Se ganho confirmado e RT 100%:
 - ADR-0012 (novo encoder + nova natureza canonical)
@@ -99,7 +99,7 @@ Se ganho confirmado e RT 100%:
 2. **Real-world mistura**: l_returnflag em TPC-H esta intercalado
    (A, N, R repetidos mas nao em runs longos). RLE captura parcial.
 3. **Welding complexo**: adicionar nova natureza no encoder canonical
-   muda sintaxe HCC — decisao arquitetural.
+   muda sintaxe HCC, decisao arquitetural.
 
 ## Conexoes
 
@@ -110,7 +110,7 @@ Se ganho confirmado e RT 100%:
 
 ## Updates datados
 
-### 2026-05-23 — abertura
+### 2026-05-23: abertura
 
 Ticket criado seguindo convencao YAML frontmatter. Reabre escopo de
 META-TYPE-ENCODERS (T03) com criterio atingido (Pacote 1 + ADR-0008 +
@@ -119,9 +119,9 @@ ADR-0010 + ADR-0011 cobrem numericos high-card mas nao low-card explicito).
 Pre-requisito atendido: ColumnFeatures (H-DA-11c) ja' tem
 `cardinality` e `n_unicas` pra usar como features de detect_enumerated.
 
-Fase 1 (caracterizacao) e' decisor — se ganho < 5%, encerrar lab.
+Fase 1 (caracterizacao) e' decisor, se ganho < 5%, encerrar lab.
 
-### 2026-05-23 — Fase 1 caracterizacao: NO-GO (M10 ja' captura bem)
+### 2026-05-23: Fase 1 caracterizacao: NO-GO (M10 ja' captura bem)
 
 Sub-exp 01 mediu 37 colunas low-card (card < 0.05) em D1-D9 + Adult +
 TPC-H, comparando bytes M10 atual vs lower bound enumerated explicit.
@@ -148,7 +148,7 @@ mas perda global em colunas com poucos valores curtos + runs.
 
 Mesmo padrao do Pacote 2 (escape deduction): hipotese promissora
 conceitualmente refutada em medicao empirica. Anti-incidente checklist
-do CLAUDE.md (5 perguntas) aplicado corretamente — sub-exp 01
+do CLAUDE.md (5 perguntas) aplicado corretamente, sub-exp 01
 caracterizacao impediu welding de encoder com ganho marginal/negativo.
 
 **Resolution**: no-go-m10-suficiente. Lab fechado, META-TYPE-ENCODERS

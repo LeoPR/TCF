@@ -1,5 +1,5 @@
 ---
-title: T-DATA-1 — Datasets financeiros/cientificos canonicos (Online Retail, Beijing PM2.5, Wine Quality)
+title: T-DATA-1, Datasets financeiros/cientificos canonicos (Online Retail, Beijing PM2.5, Wine Quality)
 status: closed
 priority: P3
 created: 2026-05-23
@@ -13,7 +13,7 @@ related:
   - scripts/setup_tpch.py
 ---
 
-# T-DATA-1 — Datasets financeiros/cientificos canonicos
+# T-DATA-1: Datasets financeiros/cientificos canonicos
 
 ## Contexto / motivacao
 
@@ -36,20 +36,20 @@ canonicos:
 
 Padrao similar a `setup_adult.py` / `setup_tpch.py`:
 
-1. **Scripts setup**: `scripts/setup_{name}.py` — baixa dataset, escreve
+1. **Scripts setup**: `scripts/setup_{name}.py`, baixa dataset, escreve
    CSV em `Z:/tcf-data/external/{name}/`, gera SQLite hub em
    `Z:/tcf-data/interim/{name}.db` via `csv_to_sqlite.py`
 2. **Metadata + READMEs**: `datasets/canonical/{name}/`:
    - `metadata.json` (schema, source, license, row counts)
    - `README.md` (descricao, columns, casos de uso)
-3. **Test integration**: futuro — `test_shaper.py` ja' generico,
+3. **Test integration**: futuro, `test_shaper.py` ja' generico,
    funciona com qualquer SQLite hub
 4. **Re-test naturezas raras**: T-EXP-NATUREZAS-RARAS-V2 com novos
-   datasets — esperar achar padroes #5/#8 que Adult+TPC-H nao tinha
+   datasets, esperar achar padroes #5/#8 que Adult+TPC-H nao tinha
 
 ## Implementacao desta sessao
 
-- Scripts setup criados (NAO rodados — owner roda quando quiser)
+- Scripts setup criados (NAO rodados: owner roda quando quiser)
 - READMEs criados em datasets/canonical/{name}/
 - Documentacao em STATUS.md
 
@@ -102,7 +102,7 @@ internet + Z:/tcf-data/ writable).
 - [x] `scripts/setup_wine_quality.py` criado
 - [x] `datasets/canonical/{name}/README.md` + `metadata.json` (3)
 - [x] Owner roda scripts localmente (post-sessao) e valida SQLite hubs
-- [ ] Futuro: T-EXP-NATUREZAS-RARAS-V2 re-testa #5/#8 com novos datasets (segue aberto — ver roadmap)
+- [ ] Futuro: T-EXP-NATUREZAS-RARAS-V2 re-testa #5/#8 com novos datasets (segue aberto; ver roadmap)
 
 ## Riscos
 
@@ -117,15 +117,15 @@ internet + Z:/tcf-data/ writable).
 
 ## Conexoes
 
-- T-EXP-NATUREZAS-RARAS (refutada em datasets gerais — esperar achar
+- T-EXP-NATUREZAS-RARAS (refutada em datasets gerais: esperar achar
   padroes nos financeiros/cientificos)
 - T-EXP-PACOTE5-T03-ENUMERATED (idem)
 - Reflexao naturezas numericas
-- scripts/setup_adult.py / setup_tpch.py — padroes existentes
+- scripts/setup_adult.py / setup_tpch.py: padroes existentes
 
 ## Updates datados
 
-### 2026-05-23 — abertura + scripts criados
+### 2026-05-23: abertura + scripts criados
 
 Ticket criado. Scripts setup criados nesta sessao (sem rodar download).
 Owner pode rodar localmente:
@@ -140,7 +140,7 @@ python scripts/csv_to_sqlite.py          # gera SQLite hubs
 Apos SQLite hubs criados, T-EXP-NATUREZAS-RARAS-V2 pode re-testar
 hipoteses #5/#8 com dados reais financeiros/cientificos.
 
-### 2026-06-13 — CLOSED (datasets baixados 2026-06-01..02)
+### 2026-06-13: CLOSED (datasets baixados 2026-06-01..02)
 
 Os 3 datasets foram baixados e o setup canonical rodado (commits
 2026-06-01..02): `datasets/canonical/{online-retail,beijing-pm25,wine-quality}/`
@@ -150,5 +150,5 @@ a auditoria de naturezas (lab `2026-05-27-naturezas-reais-uci`, base do
 sao a evidencia do ponto cego de baixa-cardinalidade + lossy).
 
 **Aquisicao concluida.** O follow-up T-EXP-NATUREZAS-RARAS-V2 (re-teste #5/#8)
-permanece como item separado de roadmap — nao bloqueia o fechamento da
+permanece como item separado de roadmap, nao bloqueia o fechamento da
 aquisicao de dados, que era o escopo deste ticket.

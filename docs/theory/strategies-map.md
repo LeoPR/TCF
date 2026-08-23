@@ -1,6 +1,6 @@
-# Mapa de estrategias — TCF v1.0
+# Mapa de estrategias: TCF v1.0
 
-> **SNAPSHOT (2026-05-27, pré-0.7)** — gerado via auditoria workflow (6 subsistemas,
+> **SNAPSHOT (2026-05-27, pré-0.7)**: gerado via auditoria workflow (6 subsistemas,
 > 118 estrategias catalogadas a partir do codigo real). Baselines: D17a=322B (M9, pre-min_header).
 > O pipeline descrito e' o de M10 (canonical 0.7.1); verifique `STATUS.md` para o estado vivo.
 > Categoria Diataxis: **Explanation** (entender como funciona, alem da reference).
@@ -38,14 +38,14 @@ Cada CAMADA pode ser toggleavel via `PipelineConfig(pre_pass, obat_shape_preserv
 
 ---
 
-## 1. CAMADA 0 — Pre-pass: Column Feature Analysis, Cadence Detection, Min-Len Auto-detection
+## 1. CAMADA 0: Pre-pass: Column Feature Analysis, Cadence Detection, Min-Len Auto-detection
 
 **Como decide caminhos**:
 PIPELINE CANONICO M10 em encoder.py _encode_column(encoder.py:117-178):
 
 1. **Dedup** (encoder.py:133-136): Ordena values em dict para obter unicas, preserva ordem insercao.
 
-2. **CAMADA 0 — Pre-pass** (encoder.py:138-146):
+2. **CAMADA 0, Pre-pass** (encoder.py:138-146):
    a. `analyze_column(values)` [SEMPRE executada, barato O(N)] → ColumnFeatures
    b. IF cfg.pre_pass=True [default=True]:
       - `detect_cadence_from_features(features, unicas)` → (cadence_detected, cadence_info)
@@ -53,13 +53,13 @@ PIPELINE CANONICO M10 em encoder.py _encode_column(encoder.py:117-178):
    c. ELSE:
       - cadence_detected = False, min_len = 3 (defaults), cadence_info["rule_hit"] = None
 
-3. **CAMADA 1 — OBAT tokenizer** (encoder.py:148-156):
+3. **CAMADA 1, OBAT tokenizer** (encoder.py:148-156):
    a. IF cadence_detected AND cfg.obat_shape_preserve:
       - `processar_with_hint(unicas, min_len=min_len, prefer_shape_consistency=True)`
    b. ELSE:
       - `processar(unicas, min_len=min_len)` [canonical sem hint]
 
-4. **CAMADA 2 — HCC compactacao** (encoder.py:158-163):
+4. **CAMADA 2, HCC compactacao** (encoder.py:158-163):
    a. IF cfg.hcc_seq_rle=True [default]:
       - `HCCSeqRLE.encode(values, unicas, tokens, header)`
    b. ELSE:
@@ -144,7 +144,7 @@ Tamanho da amostra de strings unicas para regra 1 (wrapper+counter) em detect_ca
 
 ### Notas
 
-SUBSISTEMA CAMADA 0 EXAUSTIVO — PRE-PASS UNIFICADO:
+SUBSISTEMA CAMADA 0 EXAUSTIVO, PRE-PASS UNIFICADO:
 
 OBJETIVO ADR-0014/11: Single-pass O(N) pre-analysis extrai features coluna, informando decisoes CAMADA 1-3 (OBAT tokenizer + HCC compactacao). Zero duplicacao feature computation; reuso via ColumnFeatures imutavel.
 
@@ -229,7 +229,7 @@ VALIDACAO MULTI-CAMADA (ADR-0011, canonical src/tcf):
 
 ---
 
-## 2. CAMADA 1 — OBAT (Online Bidirectional Affix Tokenizer)
+## 2. CAMADA 1: OBAT (Online Bidirectional Affix Tokenizer)
 
 **Como decide caminhos**:
 
@@ -278,15 +278,15 @@ For each string in OBAT processar():
 | **LCS (Longest Common Suffix) calculation** | heuristica | [src/tcf/core/online.py:67-72 (public); 85-94 (_lcs_len_capped)](../../src/tcf/core/online.py) | a, b: str; cap (optional): int = upper bound | always during _melhor_suf search; once per candidate pair within suffix bucket |
 | **Hash prefix index (trigram bucketing)** | marcador | [src/tcf/core/online.py:184, 196-197, 222-223; processar() initializes and maintains](../../src/tcf/core/online.py) | trigram key length: k=3 (hardcoded, matches min_len default); bucket: list[int] (zero-indexed) | initialized empty at start of processar(); appended to every string where ls >=  |
 | **Hash suffix index (trigram bucketing)** | marcador | [src/tcf/core/online.py:185, 197-198, 223; processar() manages](../../src/tcf/core/online.py) | trigram key: s[-3:]; bucket: list[int] zero-indexed | initialized; appended for ls >= min_len; read in _melhor_suf |
-| **_melhor_pref — find best prefix match** | filtro | [src/tcf/core/online.py:97-112](../../src/tcf/core/online.py) | s (str), ls (len), strings (list), lens (list), prefix_index (dict), max_len (int=ls), min_len (int= | called once per new string in _escolher_par; bucket filtered by s[:3] trigram |
-| **_melhor_suf — find best suffix match** | filtro | [src/tcf/core/online.py:115-126](../../src/tcf/core/online.py) | s, ls, strings, lens, suffix_index, max_len (int=ls), min_len | called once per new string in _escolher_par; bucket filtered by s[-3:] |
-| **_escolher_par — greedy cover with overlap detection** | estrategia | [src/tcf/core/online.py:129-162](../../src/tcf/core/online.py) | s, ls, strings, lens, prefix_index, suffix_index, min_len (int) | once per new string (idx >= 1) in processar; core decision point for tokenizatio |
+| **_melhor_pref, find best prefix match** | filtro | [src/tcf/core/online.py:97-112](../../src/tcf/core/online.py) | s (str), ls (len), strings (list), lens (list), prefix_index (dict), max_len (int=ls), min_len (int= | called once per new string in _escolher_par; bucket filtered by s[:3] trigram |
+| **_melhor_suf, find best suffix match** | filtro | [src/tcf/core/online.py:115-126](../../src/tcf/core/online.py) | s, ls, strings, lens, suffix_index, max_len (int=ls), min_len | called once per new string in _escolher_par; bucket filtered by s[-3:] |
+| **_escolher_par, greedy cover with overlap detection** | estrategia | [src/tcf/core/online.py:129-162](../../src/tcf/core/online.py) | s, ls, strings, lens, prefix_index, suffix_index, min_len (int) | once per new string (idx >= 1) in processar; core decision point for tokenizatio |
 | **min_len threshold** | threshold | [src/tcf/core/online.py:102-103, 110, 116, 124 (filtering); default 3 set in processar()](../../src/tcf/core/online.py) | int in range [2, 6]; empirically {3,4,5,6}; default=3 | passed as parameter to processar(); gates every valid match in _melhor_pref/_mel |
 | **Auto-detect min_len (H-DA-11, ADR-0010)** | estrategia | [src/tcf/auto_min_len.py:25-68](../../src/tcf/auto_min_len.py) | features (ColumnFeatures); n_threshold (int=100); returns int in {3,4,5,6} | pre-pass phase (CAMADA 0) in canonical M10 pipeline if cfg.pre_pass=True; always |
 | **Cadence detection (H-DA-08, ADR-0008)** | estrategia | [src/tcf/auto_cadence.py:28-96](../../src/tcf/auto_cadence.py) | features (ColumnFeatures), strings_unicas (list[str]), n_sample (int=5), threshold (float=0.7), nume | pre-pass phase (CAMADA 0) in canonical M10 if cfg.pre_pass=True; called before O |
-| **processar() — canonical OBAT** | estrategia | [src/tcf/core/online.py:179-225](../../src/tcf/core/online.py) | strings_unicas (list[str]); min_len (int=3); returns (list[list[Token]], str) | core CAMADA 1 processing; called from encoder.py unless cadence_detected and cfg |
-| **processar_with_hint() — cadence-aware OBAT** | estrategia | [src/tcf/obat_shape.py:64-120](../../src/tcf/obat_shape.py) | strings_unicas, min_len (int=3), prefer_shape_consistency (bool); returns (list[list[Token]], str) | CAMADA 1 processing when cadence detected (H-DA-08) and cfg.obat_shape_preserve= |
-| **reconstroi() — roundtrip validation** | helper | [src/tcf/core/online.py:165-176](../../src/tcf/core/online.py) | tokens (list[Token]), strings_unicas (list[str]); returns str | never called in canonical pipeline; available for unit tests + diagnostics |
+| **processar(), canonical OBAT** | estrategia | [src/tcf/core/online.py:179-225](../../src/tcf/core/online.py) | strings_unicas (list[str]); min_len (int=3); returns (list[list[Token]], str) | core CAMADA 1 processing; called from encoder.py unless cadence_detected and cfg |
+| **processar_with_hint(), cadence-aware OBAT** | estrategia | [src/tcf/obat_shape.py:64-120](../../src/tcf/obat_shape.py) | strings_unicas, min_len (int=3), prefer_shape_consistency (bool); returns (list[list[Token]], str) | CAMADA 1 processing when cadence detected (H-DA-08) and cfg.obat_shape_preserve= |
+| **reconstroi(), roundtrip validation** | helper | [src/tcf/core/online.py:165-176](../../src/tcf/core/online.py) | tokens (list[Token]), strings_unicas (list[str]); returns str | never called in canonical pipeline; available for unit tests + diagnostics |
 | **ColumnFeatures pre-pass** | decision-point | [src/tcf/column_features.py:51-84](../../src/tcf/column_features.py) | values (list[str]), sample_size (int=20); returns ColumnFeatures | always at start of _encode_column(); result fed to detect_cadence and detect_min |
 | **Greedy cover selection criterion (maximize total coverage)** | decision-point | [src/tcf/core/online.py:155-161](../../src/tcf/core/online.py) | cand_a, cand_b: (int, int, int, int) tuples (p_id, p_len, s_id, s_len) | when bp_len + bs_len > ls in _escolher_par; triggers 2-candidate generation and  |
 | **Tie-break rule: first occurrence wins** | decision-point | [src/tcf/core/online.py:108-111 (_melhor_pref), 122-125 (_melhor_suf)](../../src/tcf/core/online.py) | comparison operator > (not >=) | in _melhor_pref and _melhor_suf whenever length comparison ties |
@@ -387,21 +387,21 @@ TESTING NOTES:
 - Side outputs (SideOutputs class) capture column_features, cadence_detected, min_len, obat_log for debugging
 
 REFERENCES:
-- docs/algorithms/OBAT.md — formal spec
-- docs/adr/0009-obat-trigram-index-optimization.md — trigram index decision + empirics
-- docs/adr/0010-auto-detect-min-len.md — H-DA-11 heuristic + oracle comparison
-- docs/adr/0008-detect-cadence-numeric-rule.md — cadence rules 1 & 2
-- src/tcf/core/online.py:1-25 — design narrative in docstring
+- docs/algorithms/OBAT.md: formal spec
+- docs/adr/0009-obat-trigram-index-optimization.md: trigram index decision + empirics
+- docs/adr/0010-auto-detect-min-len.md: H-DA-11 heuristic + oracle comparison
+- docs/adr/0008-detect-cadence-numeric-rule.md: cadence rules 1 & 2
+- src/tcf/core/online.py:1-25, design narrative in docstring
 
 
 ---
 
-## 3. HCC (Hierarchical Compositional Coding) M8.A — Camada 2 (Compactação Composicional)
+## 3. HCC (Hierarchical Compositional Coding) M8.A: Camada 2 (Compactação Composicional)
 
 **Como decide caminhos**:
 **Fluxo de Decisão HCC M8.A (3 Fases Sequenciais)**:
 
-**FASE A — Tokenize (_tokenize_pieces linhas 151-221)**:
+**FASE A, Tokenize (_tokenize_pieces linhas 151-221)**:
 1. Input: linhas (strings com RLE), unicas (unique strings), tokens_por_string (OBAT)
 2. _rle_adjacente(linhas) -> (string, count) groups
 3. For each group: eid = unica_to_eid[string]
@@ -410,7 +410,7 @@ REFERENCES:
 6. Merge 'ref' pieces consecutivos, output pieces_per_line[li] = [('lit'|'refs', ...), ...]
 7. Output: pieces_per_line, line_meta, atom_count
 
-**FASE B — Detect (_detect_compositions linhas 225-362)**:
+**FASE B, Detect (_detect_compositions linhas 225-362)**:
 1. WHILE TRUE (max 99 iterações):
    a. Count all K>=2 sub-tuplas em ref sequences, track sub_first_line[sub]
    b. Track alias_first_line[alias] para virtuals já em corpo
@@ -421,7 +421,7 @@ REFERENCES:
    g. ELSE -> alias_temp++, alias_to_sub[alias_temp] = list(sub), substitute all sub in pieces_per_line com -alias_temp
 2. Output: alias_to_sub, iter_traces
 
-**FASE C — Emit (_emit_body linhas 391-468)**:
+**FASE C, Emit (_emit_body linhas 391-468)**:
 1. For each line_meta (count, eid, is_rep):
    a. IF is_rep -> emit `*count|^eid` (or `^eid` if count=1)
    b. ELSE:
@@ -550,7 +550,7 @@ sub_first_line[sub] = first line index onde sub aparece como candidato. alias_fi
 
 ### Notas
 
-**CATALOGAÇÃO EXAUSTIVA — HCC M8.A CAMADA 2**
+**CATALOGAÇÃO EXAUSTIVA, HCC M8.A CAMADA 2**
 
 **Status Canonical & Welding**:
 - Código base intocado desde 2026-05-16 em dirty lab
@@ -589,7 +589,7 @@ Owner context: estudar EXAUSTIVAMENTE TODAS estratégias ANTES explorar v2.0 (di
 
 ---
 
-## 4. CAMADA 2b — HCC seq-RLE + multi-delta (ADR-0016, welded canonical)
+## 4. CAMADA 2b: HCC seq-RLE + multi-delta (ADR-0016, welded canonical)
 
 **Como decide caminhos**:
 ENCODE: values → analyze_column (pre-pass, opcional) → detect_cadence → detect_min_len → OBAT tokenizes (processar ou processar_with_hint) → M8AVirtualRefsSyntax.encode() genera body_text (M9 puro, com refs/compositions) → HCCSeqRLE.encode() aplica compact_body (post-process seq-RLE) → output TCF.
@@ -633,7 +633,7 @@ Utility que mapeia posições (0-based) de cada char digit que vem após backsla
 Detecta RUNS (intervalos consecutivos) de digits após escape. Retorna list[tuple[int, int]] (start, end_exclusive) de cada run. Ex: '\\125.\\114' → [(1,4), (6,9)]. Crítico pra distinguir multi-run (prefix invariante + suffix cadenced) de single-run. Usado como pivô em compare_for_seq pra rejeitar pares com estruturas runs diferentes.
 
 **`compare_for_seq`** (decision-point, [src/tcf/composicional/hcc_seqrle.py:65-112](../../src/tcf/composicional/hcc_seqrle.py))
-CRITERIO CENTRAL pra near-identical detection. Compara line_a e line_b; retorna list[int] de deltas (1 per run) se par é compactavel, None senão. Aceita: (1) single run com delta non-zero, (2) multi-run com EXATAMENTE 1 valor non-zero + resto zeros (ex: [0,0,0,1]). Rejeita: (1) len diferente, (2) diffs fora de escape-digit runs, (3) runs_a ≠ runs_b (estrutura diferente), (4) multiple non-zero diferentes (Fase 2 reject, linha 111), (5) all-zero (linhas identicas). ADR-0016: mudança chave vs M10 — agora aceita multi-delta [0,0,0,1] que antes rejeitava (Bug #2).
+CRITERIO CENTRAL pra near-identical detection. Compara line_a e line_b; retorna list[int] de deltas (1 per run) se par é compactavel, None senão. Aceita: (1) single run com delta non-zero, (2) multi-run com EXATAMENTE 1 valor non-zero + resto zeros (ex: [0,0,0,1]). Rejeita: (1) len diferente, (2) diffs fora de escape-digit runs, (3) runs_a ≠ runs_b (estrutura diferente), (4) multiple non-zero diferentes (Fase 2 reject, linha 111), (5) all-zero (linhas identicas). ADR-0016: mudança chave vs M10, agora aceita multi-delta [0,0,0,1] que antes rejeitava (Bug #2).
 
 **`_is_uniform_delta`** (heuristica, [src/tcf/composicional/hcc_seqrle.py:176-183](../../src/tcf/composicional/hcc_seqrle.py))
 Verifica se lista de deltas é UNIFORME (todos iguais e non-zero). Se sim, retorna aquele int único; senão None. Usado em compact_body (linha 199) pra decidir marker format: M10 compat `*N+delta|` (uniform) vs ADR-0016 CSV `*N+d1,d2,d3,d4|` (mixed). Threshold: all(d == deltas[0] and d != 0). Importante pra backward compatibility.
@@ -657,7 +657,7 @@ Subclass de M8AVirtualRefsSyntax. Override encode/decode pra adicionar seq-RLE l
 Mecanismo de preservação backward compat: se _is_uniform_delta retorna non-None (todos deltas iguais), emite marker M10 format `*N+delta|` (sem virgula). Datasets como D1-D9 (nenhum multi-run com mixed deltas) emit markers idênticos a versão M9, preservando byte-canonical invariant. Validado em test suite (19 novos tests em test_hcc_multi_delta.py, 211 total passam).
 
 **`Fase 1 single non-zero restriction`** (threshold, [src/tcf/composicional/hcc_seqrle.py:107-111](../../src/tcf/composicional/hcc_seqrle.py))
-ADR-0016 Fase 1 limitação: multi-delta só aceita 1 valor non-zero (resto zeros). Linha 110: if len(set(non_zero)) > 1 → return None (reject). Casos [1,2] ou [3,5] rejeitados — defer para Fase 2 (futuro). Justificativa: casos [0,0,0,1] são comuns (prefix invariante + suffix cadenced, ex: IPs), mas [1,2] raro em real-world datasets. Benchmark D-IP-subnet validou suficiência.
+ADR-0016 Fase 1 limitação: multi-delta só aceita 1 valor non-zero (resto zeros). Linha 110: if len(set(non_zero)) > 1 → return None (reject). Casos [1,2] ou [3,5] rejeitados, defer para Fase 2 (futuro). Justificativa: casos [0,0,0,1] são comuns (prefix invariante + suffix cadenced, ex: IPs), mas [1,2] raro em real-world datasets. Benchmark D-IP-subnet validou suficiência.
 
 **`Run equality invariant`** (marcador, [src/tcf/composicional/hcc_seqrle.py:88-91](../../src/tcf/composicional/hcc_seqrle.py))
 Estrutural: pares são aceitáveis APENAS se runs_a == runs_b (posições de escape-digit runs exatamente iguais). Se differs → None (reject). Impede false positives tipo '\\1' vs '\\1.\\2' (número de runs diferente, diferença não-linear). Crítico pra corretude shift_escape_digits.
@@ -683,17 +683,17 @@ FASE 2 PLANNING (deferred):
 - Streaming variant pra big datasets.
 
 BUG FIXES WELDED:
-- Bug #1 (T-CODE-HCC-ATOM-DETECTION-REFINE): deferred — seq-RLE multi-delta coverage já suficiente.
+- Bug #1 (T-CODE-HCC-ATOM-DETECTION-REFINE): deferred, seq-RLE multi-delta coverage já suficiente.
 - Bug #2 (T-CODE-HCC-MULTI-DELTA-FIX): accepted + welded (este ADR-0016). compare_for_seq linha 88-91 now accepts [0,0,0,1].
 
 MEASUREMENTS (real-world):
 - D-IP-subnet 1000 sem nature: 15747B (117%) → 560B (4.18%), -96.4% reduction.
-- vs SPEC_IP nature (ADR-0015): 229B (1.71%) — SPEC_IP still wins -59% vs seq-RLE, mas ambos disponiveis (user choice).
+- vs SPEC_IP nature (ADR-0015): 229B (1.71%), SPEC_IP still wins -59% vs seq-RLE, mas ambos disponiveis (user choice).
 - D1-D9 baseline: 1523B invariant preserved (M10 compat).
 
 KNOWN LIMITATIONS (not limitations, by design for v1.0):
 - Fase 1: only 1 non-zero delta (multi-delta [1,2] rejected). Sufficient pra cadenced data (prefix invariante + suffix incrementing, comum em IPs/timestamps).
-- No overflow truncation (zfill preserves). If \99 + 1 → \100 (width changes), not truncated — correct pra IPs mas pode surprise users expecting fixed width.
+- No overflow truncation (zfill preserves). If \99 + 1 → \100 (width changes), not truncated: correct pra IPs mas pode surprise users expecting fixed width.
 - Escape-digit detector hardcoded (\\ + isdigit). Not extensible in v1.0, but well-documented.
 
 ROUND-TRIP GUARANTEES:
@@ -703,7 +703,7 @@ ROUND-TRIP GUARANTEES:
 
 ---
 
-## 5. CAMADA 0-pre (Naturezas — Pre-transform opt-in per VALOR)
+## 5. CAMADA 0-pre (Naturezas: Pre-transform opt-in per VALOR)
 
 **Como decide caminhos**:
 
@@ -724,13 +724,13 @@ ROUND-TRIP GUARANTEES:
    - Result: enum string ('compressible', 'check_invalid', 'format_mismatch', 'format_unmasked', 'empty_value', 'length_wrong', 'range_invalid', 'format_padded_zeros')
    - Usado: (a) no encode_value para determinar path (compressible vs fallback), (b) explicitamente pra diagnostico via API publica
 
-4. **Pre-pass heuristics flow** (sem nature — análise estrutural):
+4. **Pre-pass heuristics flow** (sem nature, análise estrutural):
    - Entrada: values list[str]
    - analyze_column(values) → ColumnFeatures (O(N), barato)
-   - detect_cadence_from_features(features, unicas) → (bool, dict info) — determina se usa OBAT shape-preserve
-   - detect_min_len_from_features(features) → int {3,4,5,6} — determina granularidade tokenização
+   - detect_cadence_from_features(features, unicas) → (bool, dict info): determina se usa OBAT shape-preserve
+   - detect_min_len_from_features(features) → int {3,4,5,6}: determina granularidade tokenização
    - Output: usados em OBAT layer (CAMADA 1), HCC layer (CAMADA 2)
-   - Nota: **pre-pass é orthogonal a nature** — roda depois pre-tx CAMADA 0 (em _encode_column)
+   - Nota: **pre-pass é orthogonal a nature**, roda depois pre-tx CAMADA 0 (em _encode_column)
 
 5. **Round-trip guarantee**:
    - Com nature: encode(values, nature=SPEC_X) → text; decode(text, nature=SPEC_X) == values ✓
@@ -741,39 +741,39 @@ ROUND-TRIP GUARANTEES:
 
 | Nome | Kind | Local | Parametros | Triggers |
 |---|---|---|---|---|
-| **TemplatedCheckedSpec (classificação + encode/decode parametrico)** | estrategia | [src/tcf/natures/templated_checked.py:42-109](../../src/tcf/natures/templated_checked.py) | TemplatedCheckedSpec @dataclass fields: name (str), regex (re.Pattern), body_length (int), check_len | sempre — integrado no pipeline TCF quando nature param fornecido em encode(data, |
-| **classify_value — Taxonomia Kim 2003 (5 categorias + 1 fallback genérico)** | decision-point | [src/tcf/natures/templated_checked.py:64-81](../../src/tcf/natures/templated_checked.py) | v: str (valor); expected_total = body_length + check_length; extrai digits via ''.join(c for c in v  | sempre — em cada encode_value() ou quando chamado explicitamente via classify_va |
-| **BASE94 alfabeto (80 chars, safe TCF)** | token-type | [src/tcf/natures/templated_checked.py:32-36](../../src/tcf/natures/templated_checked.py) | nenhum — constante builtin ao modulo | em encode_value() quando classify_value retorna 'compressible' (lines 90-95) |
-| **MARKER_LITERAL '_' — Fallback literal prefix** | marcador | [src/tcf/natures/templated_checked.py:38](../../src/tcf/natures/templated_checked.py) | nenhum — constante '_' | em encode_value() quando classify_value != 'compressible' (line 87); em decode_v |
-| **encode_value — Base-94 encoding compressible** | estrategia | [src/tcf/natures/templated_checked.py:83-95](../../src/tcf/natures/templated_checked.py) | v: str; status = classify_value(v) determina path; body_int = int(digits[:body_length]); n = body_in | sempre em encode() pipeline quando nature param passado (encoder.py line 98-99) |
-| **decode_value — Base-94 decoding + reformatting** | estrategia | [src/tcf/natures/templated_checked.py:97-109](../../src/tcf/natures/templated_checked.py) | payload: str; expected encoded_length e all(c in BASE94); uses check_fn(body) + formatter(body+check | em decode() pipeline quando nature param passado (decoder.py line 89-90) |
-| **SPEC_CPF — (NNN.NNN.NNN-DD, mod-11 dupla)** | categoria | [src/tcf/natures/templated_checked.py:130-162](../../src/tcf/natures/templated_checked.py) | name='cpf', regex=_CPF_RE, body_length=9, check_length=2, check_fn=_cpf_check_fn, formatter=_cpf_for | ao chamar encode(values, nature=SPEC_CPF) ou decode(text, nature=SPEC_CPF); ou e |
-| **SPEC_CNPJ — (AA.AAA.AAA/AAAA-DD, corpo [0-9A-Z], mod-11 dupla pesos diferentes)** | categoria | [src/tcf/natures/templated_checked.py:165-199](../../src/tcf/natures/templated_checked.py) | name='cnpj', regex=_CNPJ_RE, body_length=12, check_length=2, check_fn=_cnpj_check_fn, formatter=_cnp | ao chamar encode(values, nature=SPEC_CNPJ) ou decode(text, nature=SPEC_CNPJ) |
-| **TemplatedPaddedSpec (TCU-NoCheckVarLength — slots padronizados sem check)** | estrategia | [src/tcf/natures/templated_padded.py:37-113](../../src/tcf/natures/templated_padded.py) | name (str), regex (re.Pattern com grupos=slots), slot_widths (tuple int), separator (str). total_pad | sempre — Protocolo NatureSpec idêntico a TemplatedCheckedSpec (sem isinstance ch |
-| **SPEC_IP — IPv4 (slot_widths=(3,3,3,3), separator='.')** | categoria | [src/tcf/natures/templated_padded.py:116-125](../../src/tcf/natures/templated_padded.py) | name='ip', regex=_IPV4_RE, slot_widths=(3,3,3,3), separator='.' | ao chamar encode(values, nature=SPEC_IP) ou decode(text, nature=SPEC_IP) |
-| **classify_value TemplatedPaddedSpec — Taxonomy (6 categorias)** | decision-point | [src/tcf/natures/templated_padded.py:63-84](../../src/tcf/natures/templated_padded.py) | v: str; extrai slots via regex.groups(); para cada slot: int(slot_str) >= 10^width -> range_invalid; | sempre em encode_value() quando nature=SPEC_IP fornecido |
-| **encode_value TemplatedPaddedSpec — Padding + preservação dígitos** | estrategia | [src/tcf/natures/templated_padded.py:86-97](../../src/tcf/natures/templated_padded.py) | v: str; status = classify_value(v); if compressible: return ''.join(slot_str.zfill(width) for slot_s | em encode() pipeline quando nature=SPEC_IP passado |
-| **decode_value TemplatedPaddedSpec — Unpadding + reformatting** | estrategia | [src/tcf/natures/templated_padded.py:99-113](../../src/tcf/natures/templated_padded.py) | payload: str; len(payload)==total_padded_length e payload.isdigit(); cursor tracking per slot_widths | em decode() pipeline quando nature=SPEC_IP passado |
+| **TemplatedCheckedSpec (classificação + encode/decode parametrico)** | estrategia | [src/tcf/natures/templated_checked.py:42-109](../../src/tcf/natures/templated_checked.py) | TemplatedCheckedSpec @dataclass fields: name (str), regex (re.Pattern), body_length (int), check_len | sempre, integrado no pipeline TCF quando nature param fornecido em encode(data, |
+| **classify_value, Taxonomia Kim 2003 (5 categorias + 1 fallback genérico)** | decision-point | [src/tcf/natures/templated_checked.py:64-81](../../src/tcf/natures/templated_checked.py) | v: str (valor); expected_total = body_length + check_length; extrai digits via ''.join(c for c in v  | sempre, em cada encode_value() ou quando chamado explicitamente via classify_va |
+| **BASE94 alfabeto (80 chars, safe TCF)** | token-type | [src/tcf/natures/templated_checked.py:32-36](../../src/tcf/natures/templated_checked.py) | nenhum, constante builtin ao modulo | em encode_value() quando classify_value retorna 'compressible' (lines 90-95) |
+| **MARKER_LITERAL '_', Fallback literal prefix** | marcador | [src/tcf/natures/templated_checked.py:38](../../src/tcf/natures/templated_checked.py) | nenhum, constante '_' | em encode_value() quando classify_value != 'compressible' (line 87); em decode_v |
+| **encode_value, Base-94 encoding compressible** | estrategia | [src/tcf/natures/templated_checked.py:83-95](../../src/tcf/natures/templated_checked.py) | v: str; status = classify_value(v) determina path; body_int = int(digits[:body_length]); n = body_in | sempre em encode() pipeline quando nature param passado (encoder.py line 98-99) |
+| **decode_value, Base-94 decoding + reformatting** | estrategia | [src/tcf/natures/templated_checked.py:97-109](../../src/tcf/natures/templated_checked.py) | payload: str; expected encoded_length e all(c in BASE94); uses check_fn(body) + formatter(body+check | em decode() pipeline quando nature param passado (decoder.py line 89-90) |
+| **SPEC_CPF, (NNN.NNN.NNN-DD, mod-11 dupla)** | categoria | [src/tcf/natures/templated_checked.py:130-162](../../src/tcf/natures/templated_checked.py) | name='cpf', regex=_CPF_RE, body_length=9, check_length=2, check_fn=_cpf_check_fn, formatter=_cpf_for | ao chamar encode(values, nature=SPEC_CPF) ou decode(text, nature=SPEC_CPF); ou e |
+| **SPEC_CNPJ, (AA.AAA.AAA/AAAA-DD, corpo [0-9A-Z], mod-11 dupla pesos diferentes)** | categoria | [src/tcf/natures/templated_checked.py:165-199](../../src/tcf/natures/templated_checked.py) | name='cnpj', regex=_CNPJ_RE, body_length=12, check_length=2, check_fn=_cnpj_check_fn, formatter=_cnp | ao chamar encode(values, nature=SPEC_CNPJ) ou decode(text, nature=SPEC_CNPJ) |
+| **TemplatedPaddedSpec (TCU-NoCheckVarLength, slots padronizados sem check)** | estrategia | [src/tcf/natures/templated_padded.py:37-113](../../src/tcf/natures/templated_padded.py) | name (str), regex (re.Pattern com grupos=slots), slot_widths (tuple int), separator (str). total_pad | sempre, Protocolo NatureSpec idêntico a TemplatedCheckedSpec (sem isinstance ch |
+| **SPEC_IP, IPv4 (slot_widths=(3,3,3,3), separator='.')** | categoria | [src/tcf/natures/templated_padded.py:116-125](../../src/tcf/natures/templated_padded.py) | name='ip', regex=_IPV4_RE, slot_widths=(3,3,3,3), separator='.' | ao chamar encode(values, nature=SPEC_IP) ou decode(text, nature=SPEC_IP) |
+| **classify_value TemplatedPaddedSpec, Taxonomy (6 categorias)** | decision-point | [src/tcf/natures/templated_padded.py:63-84](../../src/tcf/natures/templated_padded.py) | v: str; extrai slots via regex.groups(); para cada slot: int(slot_str) >= 10^width -> range_invalid; | sempre em encode_value() quando nature=SPEC_IP fornecido |
+| **encode_value TemplatedPaddedSpec, Padding + preservação dígitos** | estrategia | [src/tcf/natures/templated_padded.py:86-97](../../src/tcf/natures/templated_padded.py) | v: str; status = classify_value(v); if compressible: return ''.join(slot_str.zfill(width) for slot_s | em encode() pipeline quando nature=SPEC_IP passado |
+| **decode_value TemplatedPaddedSpec, Unpadding + reformatting** | estrategia | [src/tcf/natures/templated_padded.py:99-113](../../src/tcf/natures/templated_padded.py) | payload: str; len(payload)==total_padded_length e payload.isdigit(); cursor tracking per slot_widths | em decode() pipeline quando nature=SPEC_IP passado |
 | **Integration: encode() pipeline com nature param** | estrategia | [src/tcf/encoder.py:53-114](../../src/tcf/encoder.py) | nature: TemplatedCheckedSpec \| None, nature_per_col: dict[str, TemplatedCheckedSpec] \| None | sempre em encode() quando nature ou nature_per_col param passado; sem param = sk |
 | **Integration: decode() pipeline com nature param** | estrategia | [src/tcf/decoder.py:52-91](../../src/tcf/decoder.py) | nature: TemplatedCheckedSpec \| None, nature_per_col: dict[str, TemplatedCheckedSpec] \| None | sempre em decode() quando nature ou nature_per_col param passado; sem param = sk |
-| **analyze_column — ColumnFeatures pre-pass (O(N))** | heuristica | [src/tcf/column_features.py:51-84](../../src/tcf/column_features.py) | values: list[str], sample_size=20 (default). n_rows = len(values); n_unicas = len(set(values)); avg_ | sempre em _encode_column() (encoder.py:139), antes de detect_cadence/detect_min_ |
-| **detect_cadence_from_features — Regra 1 + Regra 2** | heuristica | [src/tcf/auto_cadence.py:28-96](../../src/tcf/auto_cadence.py) | features: ColumnFeatures, strings_unicas: list[str], n_sample=5 (primeiras N pra análise), threshold | em _encode_column() linha 141 (encoder.py), após analyze_column() |
-| **detect_min_len_from_features — Decision tree shallow (heurística v3)** | heuristica | [src/tcf/auto_min_len.py:25-68](../../src/tcf/auto_min_len.py) | features: ColumnFeatures, n_threshold=100 (gating). avg_len = features.avg_len; card = features.card | em _encode_column() linha 142 (encoder.py), após detect_cadence() output recebid |
-| **Protocol NatureSpec — Polimorfismo sem isinstance** | helper | [src/tcf/natures/ (init define protocol implícito)](../../src/tcf/natures/ (init define protocol implícito)) | nenhum — define contrato de interface, não implementação concreta | sempre — em toda integração com nature param |
+| **analyze_column, ColumnFeatures pre-pass (O(N))** | heuristica | [src/tcf/column_features.py:51-84](../../src/tcf/column_features.py) | values: list[str], sample_size=20 (default). n_rows = len(values); n_unicas = len(set(values)); avg_ | sempre em _encode_column() (encoder.py:139), antes de detect_cadence/detect_min_ |
+| **detect_cadence_from_features, Regra 1 + Regra 2** | heuristica | [src/tcf/auto_cadence.py:28-96](../../src/tcf/auto_cadence.py) | features: ColumnFeatures, strings_unicas: list[str], n_sample=5 (primeiras N pra análise), threshold | em _encode_column() linha 141 (encoder.py), após analyze_column() |
+| **detect_min_len_from_features, Decision tree shallow (heurística v3)** | heuristica | [src/tcf/auto_min_len.py:25-68](../../src/tcf/auto_min_len.py) | features: ColumnFeatures, n_threshold=100 (gating). avg_len = features.avg_len; card = features.card | em _encode_column() linha 142 (encoder.py), após detect_cadence() output recebid |
+| **Protocol NatureSpec, Polimorfismo sem isinstance** | helper | [src/tcf/natures/ (init define protocol implícito)](../../src/tcf/natures/ (init define protocol implícito)) | nenhum, define contrato de interface, não implementação concreta | sempre, em toda integração com nature param |
 
 ### Detalhamento
 
 **`TemplatedCheckedSpec (classificação + encode/decode parametrico)`** (estrategia, [src/tcf/natures/templated_checked.py:42-109](../../src/tcf/natures/templated_checked.py))
-Classificador + encoder/decoder polimórfico genérico para identificadores com layout fixo (regex template), dígito verificador derivável (check_fn), e espaço único-discreto (sem ordem). Filosofia opt-in per-value: cada valor decide se comprime (base-94 encoded, 5-7 chars) ou cai em fallback literal (marcador '_' prefixado). Parametrizado por: name, regex, body_length, check_length, check_fn, formatter, encoded_length. **Protocolo**: encode_value(v)->tuple(payload,status), decode_value(payload)->str, classify_value(v)->str (taxonomy Kim 2003). Zero isinstance check — polimorfismo via spec param (Strategy pattern).
+Classificador + encoder/decoder polimórfico genérico para identificadores com layout fixo (regex template), dígito verificador derivável (check_fn), e espaço único-discreto (sem ordem). Filosofia opt-in per-value: cada valor decide se comprime (base-94 encoded, 5-7 chars) ou cai em fallback literal (marcador '_' prefixado). Parametrizado por: name, regex, body_length, check_length, check_fn, formatter, encoded_length. **Protocolo**: encode_value(v)->tuple(payload,status), decode_value(payload)->str, classify_value(v)->str (taxonomy Kim 2003). Zero isinstance check, polimorfismo via spec param (Strategy pattern).
 
 **`classify_value — Taxonomia Kim 2003 (5 categorias + 1 fallback genérico)`** (decision-point, [src/tcf/natures/templated_checked.py:64-81](../../src/tcf/natures/templated_checked.py))
 Decision tree com 6 outcomes: (1) empty_value (v==''), (2) format_unmasked (exato body_length+check_length dígitos, isdigit()=true, mas sem máscara regex), (3) format_mismatch (regex.match falha, len<5 -> length_wrong, len>=5 -> format_mismatch), (4) length_wrong (extraído digits_str != body+check), (5) check_invalid (check digit mismatch), (6) compressible (tudo passou). Lógica exata: lines 66-81. Precedência: empty > format > length > check > compressible.
 
 **`BASE94 alfabeto (80 chars, safe TCF)`** (token-type, [src/tcf/natures/templated_checked.py:32-36](../../src/tcf/natures/templated_checked.py))
-Alfabeto construído dinamicamente: todos chr(33-127) EXCETO reserved set ('\n\r\t ,~*\\#=[]<>"''\'`_'). Total = 94-14(reserved)-1(marker '_') = 79 chars efetivos (verificado assert>=50, real=80). Usado em base-94 encoding compressible: n % 80, n // 80, ... Alfabeto preserva RT — charset é deterministico e cyclic (0->BASE94[0], 1->BASE94[1], etc).
+Alfabeto construído dinamicamente: todos chr(33-127) EXCETO reserved set ('\n\r\t ,~*\\#=[]<>"''\'`_'). Total = 94-14(reserved)-1(marker '_') = 79 chars efetivos (verificado assert>=50, real=80). Usado em base-94 encoding compressible: n % 80, n // 80, ... Alfabeto preserva RT, charset é deterministico e cyclic (0->BASE94[0], 1->BASE94[1], etc).
 
 **`MARKER_LITERAL '_' — Fallback literal prefix`** (marcador, [src/tcf/natures/templated_checked.py:38](../../src/tcf/natures/templated_checked.py))
-Prefixo '_' distingue valor comprimido (base-94 encoded, 5-7 chars) de literal fallback. Ao decodificar: se payload.startswith('_'), remove marker e retorna original (line 100). Ao codificar: fallback retorna '_' + v (line 87). Semantica: '_' é um escape — tudo após é literal UTF-8 do original, preservando RT mesmo em valores não-compressible. Char escolhido porque já é reservado TCF (não em BASE94, não em regex templates típicos).
+Prefixo '_' distingue valor comprimido (base-94 encoded, 5-7 chars) de literal fallback. Ao decodificar: se payload.startswith('_'), remove marker e retorna original (line 100). Ao codificar: fallback retorna '_' + v (line 87). Semantica: '_' é um escape, tudo após é literal UTF-8 do original, preservando RT mesmo em valores não-compressible. Char escolhido porque já é reservado TCF (não em BASE94, não em regex templates típicos).
 
 **`encode_value — Base-94 encoding compressible`** (estrategia, [src/tcf/natures/templated_checked.py:83-95](../../src/tcf/natures/templated_checked.py))
 Two-path: (1) compressible: extrai body_int (primeiros body_length dígitos), converte pra base-94 em encoded_length chars via n%80, n//80 loop (lines 90-94), reversa ordem (chars built em little-endian, reversed ao final). (2) fallback: retorna '_' + v + status. Exemplo CPF: '529.982.247-25' -> body=529982247 -> 5 chars base94. Garante RT: se decoding recebe encoded, pode reverter sem ambiguidade.
@@ -782,7 +782,7 @@ Two-path: (1) compressible: extrai body_int (primeiros body_length dígitos), co
 Two-path: (1) payload começa '_': strip marker, return original (line 100). (2) payload == encoded_length chars, all chars in BASE94: convert back via base-94 positional (lines 102-108). Rebuild body_str via zfill(body_length), aplica check_fn pra recalcular checks, aplica formatter pra restaurar máscara. Exemplo: '\29g/h-' -> n=0; for c in '29g/h-': n = n*80 + BASE94.index(c); body_str = str(n).zfill(9); checks = check_fn([int(d) for d in body_str]); formatter(body + checks) -> '529.982.247-25'.
 
 **`SPEC_CPF — (NNN.NNN.NNN-DD, mod-11 dupla)`** (categoria, [src/tcf/natures/templated_checked.py:130-162](../../src/tcf/natures/templated_checked.py))
-Spec concreto pra CPF brasileiro. Regex=r'^(\d{3})\.(\d{3})\.(\d{3})-(\d{2})$', body_length=9, check_length=2, encoded_length=5 (80^5 > 10^9). Check digits via _cpf_check_fn: Mod-11 dupla — d1=(S1*10)%11 (se==10 então 0), S1=sum(d*w for d,w in zip(body, range(10,1,-1))); similar d2 com body+d1 e range(11,1,-1). Formatter recombina com máscara. RT 100% em datasets validados; comprime CPF uniform/clustered 55-64% vs M10 puro (sub-exp 05-07).
+Spec concreto pra CPF brasileiro. Regex=r'^(\d{3})\.(\d{3})\.(\d{3})-(\d{2})$', body_length=9, check_length=2, encoded_length=5 (80^5 > 10^9). Check digits via _cpf_check_fn: Mod-11 dupla, d1=(S1*10)%11 (se==10 então 0), S1=sum(d*w for d,w in zip(body, range(10,1,-1))); similar d2 com body+d1 e range(11,1,-1). Formatter recombina com máscara. RT 100% em datasets validados; comprime CPF uniform/clustered 55-64% vs M10 puro (sub-exp 05-07).
 
 **`SPEC_CNPJ — (AA.AAA.AAA/AAAA-DD, corpo [0-9A-Z], mod-11 dupla pesos diferentes)`** (categoria, [src/tcf/natures/templated_checked.py:165-199](../../src/tcf/natures/templated_checked.py))
 Spec concreto pra CNPJ brasileiro. Regex=r'^(\d{2})\.(\d{3})\.(\d{3})/(\d{4})-(\d{2})$', body_length=12, check_length=2, encoded_length=7 (80^7 > 10^12). Check digits via _cnpj_check_fn: mod-11 com pesos _W1_CNPJ=[5,4,3,2,9,8,7,6,5,4,3,2] e _W2_CNPJ=[6,5,4,3,2,9,8,7,6,5,4,3,2], diferente de CPF. Lógica: d1=0 se rem1<2 else 11-rem1. Formatter restaura máscara. RT 100%; comprime 54-61% vs M10 puro em datasets validados.
@@ -791,25 +791,25 @@ Spec concreto pra CNPJ brasileiro. Regex=r'^(\d{2})\.(\d{3})\.(\d{3})/(\d{4})-(\
 Variante de TemplatedCheckedSpec para dados SEM dígito verificador (ex: IPv4). Slots de width variável são padronizados via padding zero-leading. Diferenças: (1) sem check_fn, (2) sem base-94 (preserva dígitos pra HCC seq-RLE detectar cadência), (3) slot_widths tuple fixo. Exemplo: '192.168.1.1' -> slots=['192','168','1','1'] + slot_widths=(3,3,3,3) -> padded='192168001001' (12 dígitos). classify_value retorna 'format_padded_zeros' se slot str(int(slot))!=slot (detecta padding não-canonical, ex: '192.168.01.1'). RT 100%; D-IP-subnet comprime 1.71% ratio vs M10 puro (speedup 68x, sub-exp 08).
 
 **`SPEC_IP — IPv4 (slot_widths=(3,3,3,3), separator='.')`** (categoria, [src/tcf/natures/templated_padded.py:116-125](../../src/tcf/natures/templated_padded.py))
-Spec concreto pra IPv4 canonical (sem zeros líderes em octetos, ex: '192.168.1.1'). Regex=r'^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$'. encode_value: zfill cada slot a 3 dígitos, concatena -> '192168001001'. decode_value: split em 4 chunks de 3 dígitos, remove leading zeros via str(int(slot)), rejoin com '.'. Ganho em D-IP-subnet (1000 IPs /24) = 229B (1.71% ratio) vs M10 puro 13349B — HCC seq-RLE detecta cadência quando IPs em subnet; em D-IP-uniform (aleatório) = 102% (pior sem estrutura, esperado).
+Spec concreto pra IPv4 canonical (sem zeros líderes em octetos, ex: '192.168.1.1'). Regex=r'^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$'. encode_value: zfill cada slot a 3 dígitos, concatena -> '192168001001'. decode_value: split em 4 chunks de 3 dígitos, remove leading zeros via str(int(slot)), rejoin com '.'. Ganho em D-IP-subnet (1000 IPs /24) = 229B (1.71% ratio) vs M10 puro 13349B, HCC seq-RLE detecta cadência quando IPs em subnet; em D-IP-uniform (aleatório) = 102% (pior sem estrutura, esperado).
 
 **`classify_value TemplatedPaddedSpec — Taxonomy (6 categorias)`** (decision-point, [src/tcf/natures/templated_padded.py:63-84](../../src/tcf/natures/templated_padded.py))
-Decision tree: (1) empty_value (v==''), (2) format_mismatch (regex.match falha), (3) range_invalid (slot int >= 10^width, overflow), (4) format_padded_zeros (str(int(slot))!=slot original — ex: '192.168.01.001' tem padding não-canonical), (5) compressible (todas slots parseáveis como int, no overflow, sem padding). Precedência idêntica a TemplatedCheckedSpec. Linha 82-83: detecta padding não-canonical via `str(val) != slot_str`.
+Decision tree: (1) empty_value (v==''), (2) format_mismatch (regex.match falha), (3) range_invalid (slot int >= 10^width, overflow), (4) format_padded_zeros (str(int(slot))!=slot original, ex: '192.168.01.001' tem padding não-canonical), (5) compressible (todas slots parseáveis como int, no overflow, sem padding). Precedência idêntica a TemplatedCheckedSpec. Linha 82-83: detecta padding não-canonical via `str(val) != slot_str`.
 
 **`encode_value TemplatedPaddedSpec — Padding + preservação dígitos`** (estrategia, [src/tcf/natures/templated_padded.py:86-97](../../src/tcf/natures/templated_padded.py))
-Dois paths: (1) compressible: extrai slots via regex.groups(), zfill cada slot a width, concatena em padded string digit-only (ex: '192.168.1.1' -> '192168001001'). (2) fallback: return '_' + v. Diferença vs TemplatedCheckedSpec: sem base-94 — preserve dígitos visíveis pra HCC seq-RLE digit-centric detectar cadência. Fallback marker idêntico ('_' prefix).
+Dois paths: (1) compressible: extrai slots via regex.groups(), zfill cada slot a width, concatena em padded string digit-only (ex: '192.168.1.1' -> '192168001001'). (2) fallback: return '_' + v. Diferença vs TemplatedCheckedSpec: sem base-94, preserve dígitos visíveis pra HCC seq-RLE digit-centric detectar cadência. Fallback marker idêntico ('_' prefix).
 
 **`decode_value TemplatedPaddedSpec — Unpadding + reformatting`** (estrategia, [src/tcf/natures/templated_padded.py:99-113](../../src/tcf/natures/templated_padded.py))
 Dois paths: (1) payload começa '_': strip, return original. (2) payload == total_padded_length, all chars digit: split em slot_widths chunks, convert cada via str(int(slot)) pra remover leading zeros, rejoin com separator. Exemplo: '192168001001' -> chunks=['192','168','001','001'] -> [str(int(...))] = ['192','168','1','1'] -> '.'.join() = '192.168.1.1'. RT 100%.
 
 **`Integration: encode() pipeline com nature param`** (estrategia, [src/tcf/encoder.py:53-114](../../src/tcf/encoder.py))
-Dispatcher: (1) list[str] + nature param: applica encode_value(nature, v) em CADA valor antes do M10 pipeline (lines 97-99), resultando em list[str] com valores já pré-transformados (comprimidos ou fallback). (2) dict + nature_per_col param: para cada coluna name, if name in nature_per_col, aplica encode_value(nature_per_col[name], v) em todos valores da coluna (lines 104-109). Filosofia: nature é **CAMADA 0 do funil** — anterior a analyze_column/detect_cadence/OBAT/HCC. Sem nature param: comportamento M10 inalterado (byte-canonical preservado, D17a 322B INVARIANT).
+Dispatcher: (1) list[str] + nature param: applica encode_value(nature, v) em CADA valor antes do M10 pipeline (lines 97-99), resultando em list[str] com valores já pré-transformados (comprimidos ou fallback). (2) dict + nature_per_col param: para cada coluna name, if name in nature_per_col, aplica encode_value(nature_per_col[name], v) em todos valores da coluna (lines 104-109). Filosofia: nature é **CAMADA 0 do funil**, anterior a analyze_column/detect_cadence/OBAT/HCC. Sem nature param: comportamento M10 inalterado (byte-canonical preservado, D17a 322B INVARIANT).
 
 **`Integration: decode() pipeline com nature param`** (estrategia, [src/tcf/decoder.py:52-91](../../src/tcf/decoder.py))
-Dispatcher: (1) single-col: decode_column retorna list[str] (HCC decoded), aplica decode_value(nature, v) em cada v (lines 88-90). (2) multi-col: _decode_multi retorna dict (HCC decoded), aplica decode_value(nature_per_col[name], v) em cada coluna (lines 79-85). Filosofia: decoder é **espelho de encoder** — mesma nature spec obrigatória out-of-band (decoder não auto-detecta; futuro v2 carry spec em header). Sem nature param: skip reverse (valores já em formato original via '_' marker fallback ou HCC canonical).
+Dispatcher: (1) single-col: decode_column retorna list[str] (HCC decoded), aplica decode_value(nature, v) em cada v (lines 88-90). (2) multi-col: _decode_multi retorna dict (HCC decoded), aplica decode_value(nature_per_col[name], v) em cada coluna (lines 79-85). Filosofia: decoder é **espelho de encoder**, mesma nature spec obrigatória out-of-band (decoder não auto-detecta; futuro v2 carry spec em header). Sem nature param: skip reverse (valores já em formato original via '_' marker fallback ou HCC canonical).
 
 **`analyze_column — ColumnFeatures pre-pass (O(N))`** (heuristica, [src/tcf/column_features.py:51-84](../../src/tcf/column_features.py))
-Pre-pass unificado: calcula features básicas em 1 passada O(N) — n_rows, n_unicas (via set(values)), avg_len, cardinality=n_unicas/n_rows, is_numeric (sample check float parse), sample (primeiros 20 strings). Recebido por downstream heuristicas (detect_cadence, detect_min_len, futuras detect_X naturezas). Reduz duplicação + permite reuso. Welded T-CODE-H-DA-11c (2026-05-22). Nota: **sem natureza** — apenas features, não aplica pré-tx.
+Pre-pass unificado: calcula features básicas em 1 passada O(N), n_rows, n_unicas (via set(values)), avg_len, cardinality=n_unicas/n_rows, is_numeric (sample check float parse), sample (primeiros 20 strings). Recebido por downstream heuristicas (detect_cadence, detect_min_len, futuras detect_X naturezas). Reduz duplicação + permite reuso. Welded T-CODE-H-DA-11c (2026-05-22). Nota: **sem natureza**, apenas features, não aplica pré-tx.
 
 **`detect_cadence_from_features — Regra 1 + Regra 2`** (heuristica, [src/tcf/auto_cadence.py:28-96](../../src/tcf/auto_cadence.py))
 Detecta estrutura cadencial (wrapper+counter ou numeric high-card) pra ativar OBAT shape-preserve hint. **Regra 1** (uniform-length + high-LCP-LCS): primeiras N strings length uniforme, calcula LCP+LCS entre pares consecutivos, ratio=(LCP+LCS)/length; se TODOS ratios >= threshold (default 0.7), aciona. **Regra 2** (numeric high-cardinality, ADR-0008): features.is_numeric=true E cardinality > 0.5, aciona. Retorna (detectou:bool, info:dict com detalhes). Se detecta: encoder chama processar_with_hint(prefer_shape_consistency=True) em vez de processar() canonical (obat_shape.py).
@@ -818,20 +818,20 @@ Detecta estrutura cadencial (wrapper+counter ou numeric high-card) pra ativar OB
 Decision tree pra min_len ótimo (enum {3,4,5,6}), captura 99.5% oracle real-world. Gating: n_rows < 100 -> 3 (preserva M9 baseline 1615B exato). Senão: card<0.2 -> 3; avg>=25 -> 6; avg>=8 && card>=0.4 -> 6; avg>=5 && is_numeric && card>=0.8 -> 6; avg>=12 && card>=0.7 -> 5; avg>=3 && card>=0.2 -> 4; else -> 3. Exemplos: D-CPF (baixa card) -> 3; D-datas-mundiais (avg=10, card=0.8) -> 6; D-ID-seq (avg=5, is_num=true, card=0.95) -> 6.
 
 **`Protocol NatureSpec — Polimorfismo sem isinstance`** (helper, [src/tcf/natures/ (init define protocol implícito)](../../src/tcf/natures/ (init define protocol implícito)))
-Estratégia de design: toda spec (TemplatedCheckedSpec, TemplatedPaddedSpec, futuras) implementa o mesmo Protocol: name:str, encode_value(v)->tuple(str,str), decode_value(payload)->str, classify_value(v)->str. Encoder/decoder são polimorfo (genéricos) — **zero isinstance(spec, TemplatedCheckedSpec)** em qualquer lugar (confirmado linha 20 encoder.py comentário). Permite adicionar specs novas (Luhn, IBAN, MAC, CEP) sem mudar API publica nem core pipeline. Refactoring 2026-05-24: converteu encode_value/decode_value/classify_value de standalone functions (backward compat mantido) para **methods no spec** (@dataclass frozen, immutable).
+Estratégia de design: toda spec (TemplatedCheckedSpec, TemplatedPaddedSpec, futuras) implementa o mesmo Protocol: name:str, encode_value(v)->tuple(str,str), decode_value(payload)->str, classify_value(v)->str. Encoder/decoder são polimorfo (genéricos), **zero isinstance(spec, TemplatedCheckedSpec)** em qualquer lugar (confirmado linha 20 encoder.py comentário). Permite adicionar specs novas (Luhn, IBAN, MAC, CEP) sem mudar API publica nem core pipeline. Refactoring 2026-05-24: converteu encode_value/decode_value/classify_value de standalone functions (backward compat mantido) para **methods no spec** (@dataclass frozen, immutable).
 
 ### Notas
 
 
-**CAMADA 0-pre Natures subsystem — Resumo técnico exhaustivo:**
+**CAMADA 0-pre Natures subsystem, Resumo técnico exhaustivo:**
 
-1. **Filosofia opt-in per-value**: cada valor **decide individualmente** se comprime. Sem "all-or-nothing" — fallback literal ('_' marker) preserva RT sempre. Compressão ocorre quando valor passa validate (regex + check digit). Não-compressible caem em fallback automaticamente.
+1. **Filosofia opt-in per-value**: cada valor **decide individualmente** se comprime. Sem "all-or-nothing", fallback literal ('_' marker) preserva RT sempre. Compressão ocorre quando valor passa validate (regex + check digit). Não-compressible caem em fallback automaticamente.
 
 2. **Dois tipos de specs atuais**:
    - **TemplatedCheckedSpec** (CPF, CNPJ): layout fixo + dígito verificador derivável → base-94 encoded (5-7 chars)
    - **TemplatedPaddedSpec** (IP): layout fixo, slots padronizados via padding, **sem check** → digit-only padded (preserva visibilidade HCC seq-RLE)
 
-3. **Polimorfismo Protocol-based**: encoder/decoder são **genéricos** — não há isinstance() check. Permite adicionar specs futuras (Luhn, IBAN, MAC, CEP) sem mudar pipeline core. Strategy pattern puro.
+3. **Polimorfismo Protocol-based**: encoder/decoder são **genéricos**, não há isinstance() check. Permite adicionar specs futuras (Luhn, IBAN, MAC, CEP) sem mudar pipeline core. Strategy pattern puro.
 
 4. **Integração CAMADA 0-do funil**:
    - Pre-tx CAMADA 0 (nature): `encode_value(spec, v)` per-valor, **antes** de analyze_column
@@ -839,38 +839,38 @@ Estratégia de design: toda spec (TemplatedCheckedSpec, TemplatedPaddedSpec, fut
    - CAMADA 2 (OBAT): tokenization com hints
    - CAMADA 3 (HCC): composicional + seq-RLE
 
-5. **Byte-canonical INVARIANT preservado**: sem nature param = sem mudança. D17a 322B INVARIANT validado. Default M10 comportamento é seguro — backwards compatible 100%.
+5. **Byte-canonical INVARIANT preservado**: sem nature param = sem mudança. D17a 322B INVARIANT validado. Default M10 comportamento é seguro, backwards compatible 100%.
 
 6. **Fallback marker '_'**: escape character. Todos valores inválidos, empty, ou não-matching regex caem aqui. Decoder reconhece '_' prefix → strip → retorna original. Garante round-trip lossless **sempre**.
 
 7. **Check digit semântica**:
    - **CPF**: Mod-11 dupla com pesos range(10,1,-1) e range(11,1,-1); se resto==10 então check=0
    - **CNPJ**: Mod-11 com pesos específicos _W1, _W2; se rem<2 então 0, else 11-rem
-   - **IP**: sem check — apenas padding
+   - **IP**: sem check, apenas padding
 
 8. **Validação real-world (sub-exps 05-08)**:
    - CPF 50 vals: 942B (M10) → 337B (nature) = **-64%**
    - CNPJ 50 vals: similar **-54 a -61%**
-   - D-IP-subnet 1000: **1.71% ratio** (vs M10 13349B) — **speedup 68x**
-   - D-IP-uniform 200: 102% (pior, sem cadência — esperado)
+   - D-IP-subnet 1000: **1.71% ratio** (vs M10 13349B), **speedup 68x**
+   - D-IP-uniform 200: 102% (pior, sem cadência, esperado)
    - RT 100% todos datasets; tests 192 passed
 
 9. **Decode reversibility**: decoder requer **same spec out-of-band**. Futuro v2 carry spec em header. Atualmente: caller responsável prov spec.
 
 10. **Threshold/Heuristic landscape**:
-    - `MARKER_LITERAL = '_'` — fixo, não tunável (parte do formato TCF)
-    - `BASE94 = 80 chars` — fixo (segurança charset TCF)
-    - `encoded_length` por spec — fixo (derivado body_length via capacity math)
-    - `detect_cadence threshold = 0.7` — tunável futuro (T-CODE-LAYERED-PIPELINE Fase 2)
-    - `detect_cadence numeric_card_threshold = 0.5` — tunável futuro
-    - `detect_min_len n_threshold = 100` — tunável futuro (gating)
+    - `MARKER_LITERAL = '_'`: fixo, não tunável (parte do formato TCF)
+    - `BASE94 = 80 chars`: fixo (segurança charset TCF)
+    - `encoded_length` por spec: fixo (derivado body_length via capacity math)
+    - `detect_cadence threshold = 0.7`: tunável futuro (T-CODE-LAYERED-PIPELINE Fase 2)
+    - `detect_cadence numeric_card_threshold = 0.5`: tunável futuro
+    - `detect_min_len n_threshold = 100`: tunável futuro (gating)
 
 11. **Gaps/TODO v2.0 (ADR-0018 roadmap)**:
     - Auto-detect natures via apply_rate threshold (Schema_builder Fase 3)
     - Header carry spec id (decoder auto-detecta)
-    - Lossy-recoverable (H-LR-*) — quando dataset real disponível
-    - Strip-sufixo (V2-D) — composite Templated+Enumerated
-    - IBAN, Luhn, MAC, CEP specs — quando datasets reais validarem necessidade
+    - Lossy-recoverable (H-LR-*): quando dataset real disponível
+    - Strip-sufixo (V2-D): composite Templated+Enumerated
+    - IBAN, Luhn, MAC, CEP specs: quando datasets reais validarem necessidade
     - Fallback adaptativo (partial compress, hybrid)
 
 12. **Code reachability**:
@@ -951,7 +951,7 @@ Parses shebang + meta line (finds 2 newlines, validates MAGIC_MULTI + META_PREFI
 ADR-0015 pre-pass filter: if nature= or nature_per_col= provided, applies encode_value() per value BEFORE pipeline M10. Caller must provide spec out-of-band to decoder. Templated+Checked+Unique (CPF/CNPJ) compresses valid IDs to base-94, literals prefixed '_'. Marker: _ prefix distinguishes encoded vs literal fallback. Opt-in per-column (dict) or global (list).
 
 **`Pre-Pass Cadence Detection (Regra 1 + 2)`** (heuristica, [src/tcf/auto_cadence.py:28-96](../../src/tcf/auto_cadence.py))
-Two-rule heuristic (ADR-0008): Regra 1 (wrapper+counter) — uniform lengths in first n_sample strings + LCP+LCS / length >= threshold (default 0.7) in consecutive pairs; Regra 2 (numeric high-card) — is_numeric=True AND cardinality > 0.5. Returns (bool, info_dict with rule_hit, reason, details). Drives obat_shape_preserve hint decision.
+Two-rule heuristic (ADR-0008): Regra 1 (wrapper+counter), uniform lengths in first n_sample strings + LCP+LCS / length >= threshold (default 0.7) in consecutive pairs; Regra 2 (numeric high-card), is_numeric=True AND cardinality > 0.5. Returns (bool, info_dict with rule_hit, reason, details). Drives obat_shape_preserve hint decision.
 
 **`Min-Len Auto-Detection (Heuristic v3)`** (heuristica, [src/tcf/auto_min_len.py:25-68](../../src/tcf/auto_min_len.py))
 Decision tree (ADR-0010 H-DA-11): if n_rows < 100 return 3 (gating, preserves M9 baseline exactly); else: card < 0.2 -> 3; avg_len >= 25 -> 6; avg_len >= 8 && card >= 0.4 -> 6; avg_len >= 5 && is_numeric && card >= 0.8 -> 6; avg_len >= 12 && card >= 0.7 -> 5; avg_len >= 3 && card >= 0.2 -> 4; else 3. Achieves 99.5% oracle match on Adult+TPC-H.
@@ -1096,54 +1096,54 @@ PINCH POINTS FOR V2: Nature (new categories inherit protocol), OBAT (shape prese
 | HCC (Hierarchical Compositiona | utf8_encoding = true |
 | HCC (Hierarchical Compositiona | lf_only_canonical = true |
 | CAMADA 2b | Fase 1 single non-zero restriction: compare_for_seq linha 110 hard-rejects multiple different non-zero. Futuro: Fase 2 removeria essa linha, permitindo [1,2,3] etc. |
-| CAMADA 2b | Overflow width handling: shift_escape_digits linha 142 zfill(width) — se new_val > width, não trunca. Config futuro: truncate_overflow flag (atualmente sempre preserve). |
+| CAMADA 2b | Overflow width handling: shift_escape_digits linha 142 zfill(width), se new_val > width, não trunca. Config futuro: truncate_overflow flag (atualmente sempre preserve). |
 | CAMADA 2b | Run equality check (structural): compare_for_seq linha 90 requer runs_a == runs_b exatamente. Futuro: relaxar pra 'estruturalmente compatível' (ex: runs adicionales com zero offset). |
 | CAMADA 2b | M10 marker format decision: _is_uniform_delta linha 181 threshold 'all(d == deltas[0] and d != 0)'. Knob: se mudar pra all(d == deltas[0]) (aceitar uniform-zero), quebraria backward compat. |
 | CAMADA 2b | Escape sequence detector: find_escape_digit_runs detecta '\ seguido de isdigit(). Hardcoded: não detecta hex (\\xFF) ou octal (\\123). Futuro: extensivel pra outros bases. |
 | CAMADA 2b | Marker savings estimate: compact_body linha 219 = sum(original line lengths) - len(marker). Não inclui header/footer overhead de markers. Config: tunable multiplier pra prefer/avoid compaction (atualmente 1x). |
-| CAMADA 0-pre (Naturezas | MARKER_LITERAL = '_' (prefixo escape fallback) — linha 38 templated_checked.py |
-| CAMADA 0-pre (Naturezas | BASE94 alfabeto size = 80 chars (94-14-1, assert>=50) — linhas 32-36 templated_checked.py |
-| CAMADA 0-pre (Naturezas | SPEC_CPF.body_length = 9 (CPF body dígitos) — linha 157 |
-| CAMADA 0-pre (Naturezas | SPEC_CPF.check_length = 2 (CPF check digits) — linha 158 |
-| CAMADA 0-pre (Naturezas | SPEC_CPF.encoded_length = 5 (80^5 > 10^9, capacity check) — linha 161 |
-| CAMADA 0-pre (Naturezas | SPEC_CNPJ.body_length = 12 (CNPJ body dígitos) — linha 194 |
-| CAMADA 0-pre (Naturezas | SPEC_CNPJ.check_length = 2 — linha 195 |
-| CAMADA 0-pre (Naturezas | SPEC_CNPJ.encoded_length = 7 (80^7 > 10^12) — linha 198 |
-| CAMADA 0-pre (Naturezas | SPEC_IP.slot_widths = (3,3,3,3) (IPv4 octetos zero-padded a 3) — linha 123 |
-| CAMADA 0-pre (Naturezas | _W1_CNPJ pesos mod-11 = [5,4,3,2,9,8,7,6,5,4,3,2] — linha 171 |
-| CAMADA 0-pre (Naturezas | _W2_CNPJ pesos mod-11 = [6,5,4,3,2,9,8,7,6,5,4,3,2] — linha 172 |
-| CAMADA 0-pre (Naturezas | CPF check_fn mod-11 threshold = 10 (se resto==10 então 0) — linhas 139, 143 |
-| CAMADA 0-pre (Naturezas | CNPJ check_fn mod-11 threshold = 2 (se rem<2 então 0, else 11-rem) — linhas 179, 182 |
-| CAMADA 0-pre (Naturezas | detect_cadence n_sample = 5 (primeiras N strings pra Regra 1) — linha 31 auto_cadence.py |
-| CAMADA 0-pre (Naturezas | detect_cadence threshold = 0.7 (LCP+LCS / length ratio mínimo) — linha 32 |
-| CAMADA 0-pre (Naturezas | detect_cadence numeric_card_threshold = 0.5 (Regra 2 cardinality) — linha 33 |
-| CAMADA 0-pre (Naturezas | detect_min_len n_threshold = 100 (rows mínimo pra aplicar heurística) — linha 49 auto_min_len.py |
-| CAMADA 0-pre (Naturezas | detect_min_len gating decision: n < 100 -> return 3 (preserva M9 baseline) — linha 50 |
-| CAMADA 0-pre (Naturezas | analyze_column sample_size = 20 (amostra pra is_numeric check) — linha 51 column_features.py |
-| CAMADA 0-pre (Naturezas | CPF regex pattern = r'^(\d{3})\.(\d{3})\.(\d{3})-(\d{2})$' — linha 133 |
-| CAMADA 0-pre (Naturezas | CNPJ regex pattern = r'^(\d{2})\.(\d{3})\.(\d{3})/(\d{4})-(\d{2})$' — linha 169 |
-| CAMADA 0-pre (Naturezas | IPv4 regex pattern = r'^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$' — linha 118 |
-| Dispatch, Multi-Column, Pipeli | cfg.pre_pass (bool, default True) — enable pre-pass heuristics or use defaults (cadence=False, min_len=3) |
-| Dispatch, Multi-Column, Pipeli | cfg.obat_shape_preserve (bool, default True) — enable shape-consistency hint in OBAT if cadence detected |
-| Dispatch, Multi-Column, Pipeli | cfg.hcc_seq_rle (bool, default True) — enable seq-RLE near-identical compaction (M10) or use M9 pure |
-| Dispatch, Multi-Column, Pipeli | parallel (bool|int, default False) — False=serial, True=os.cpu_count(), int N=N workers; ignored if len(table)<2 |
-| Dispatch, Multi-Column, Pipeli | nature (TemplatedCheckedSpec | None, default None) — apply pre-tx filter per value (list input only) |
-| Dispatch, Multi-Column, Pipeli | nature_per_col (dict[str, TemplatedCheckedSpec] | None, default None) — apply pre-tx filter per column (dict input only) |
-| Dispatch, Multi-Column, Pipeli | detect_cadence: n_sample=5 (tunable in detect_cadence_from_features) — size of prefix sample for rule 1 |
-| Dispatch, Multi-Column, Pipeli | detect_cadence: threshold=0.7 (tunable) — min (LCP+LCS)/length ratio for rule 1 |
-| Dispatch, Multi-Column, Pipeli | detect_cadence: numeric_card_threshold=0.5 (tunable) — cardinality threshold for rule 2 |
-| Dispatch, Multi-Column, Pipeli | detect_min_len: n_threshold=100 (tunable) — gating: n_rows < 100 always 3 (M9 baseline preservation) |
-| Dispatch, Multi-Column, Pipeli | obat_shape_preserve: min_len parameter (from pre-pass) — minimum lengths for pref/suf in shape preservation |
-| Dispatch, Multi-Column, Pipeli | seq_rle: delta format (int vs list[int]) — M10-compat single delta or ADR-0016 per-run deltas |
-| Dispatch, Multi-Column, Pipeli | multi-col: col name validation — no ',' or '=' allowed in column names (hard constraint) |
-| Dispatch, Multi-Column, Pipeli | multi-col: workload heuristic — sum(len(v) for v in col) used to order columns for parallel dispatch |
+| CAMADA 0-pre (Naturezas | MARKER_LITERAL = '_' (prefixo escape fallback), linha 38 templated_checked.py |
+| CAMADA 0-pre (Naturezas | BASE94 alfabeto size = 80 chars (94-14-1, assert>=50), linhas 32-36 templated_checked.py |
+| CAMADA 0-pre (Naturezas | SPEC_CPF.body_length = 9 (CPF body dígitos), linha 157 |
+| CAMADA 0-pre (Naturezas | SPEC_CPF.check_length = 2 (CPF check digits), linha 158 |
+| CAMADA 0-pre (Naturezas | SPEC_CPF.encoded_length = 5 (80^5 > 10^9, capacity check), linha 161 |
+| CAMADA 0-pre (Naturezas | SPEC_CNPJ.body_length = 12 (CNPJ body dígitos), linha 194 |
+| CAMADA 0-pre (Naturezas | SPEC_CNPJ.check_length = 2, linha 195 |
+| CAMADA 0-pre (Naturezas | SPEC_CNPJ.encoded_length = 7 (80^7 > 10^12), linha 198 |
+| CAMADA 0-pre (Naturezas | SPEC_IP.slot_widths = (3,3,3,3) (IPv4 octetos zero-padded a 3), linha 123 |
+| CAMADA 0-pre (Naturezas | _W1_CNPJ pesos mod-11 = [5,4,3,2,9,8,7,6,5,4,3,2], linha 171 |
+| CAMADA 0-pre (Naturezas | _W2_CNPJ pesos mod-11 = [6,5,4,3,2,9,8,7,6,5,4,3,2], linha 172 |
+| CAMADA 0-pre (Naturezas | CPF check_fn mod-11 threshold = 10 (se resto==10 então 0), linhas 139, 143 |
+| CAMADA 0-pre (Naturezas | CNPJ check_fn mod-11 threshold = 2 (se rem<2 então 0, else 11-rem), linhas 179, 182 |
+| CAMADA 0-pre (Naturezas | detect_cadence n_sample = 5 (primeiras N strings pra Regra 1), linha 31 auto_cadence.py |
+| CAMADA 0-pre (Naturezas | detect_cadence threshold = 0.7 (LCP+LCS / length ratio mínimo), linha 32 |
+| CAMADA 0-pre (Naturezas | detect_cadence numeric_card_threshold = 0.5 (Regra 2 cardinality), linha 33 |
+| CAMADA 0-pre (Naturezas | detect_min_len n_threshold = 100 (rows mínimo pra aplicar heurística), linha 49 auto_min_len.py |
+| CAMADA 0-pre (Naturezas | detect_min_len gating decision: n < 100 -> return 3 (preserva M9 baseline), linha 50 |
+| CAMADA 0-pre (Naturezas | analyze_column sample_size = 20 (amostra pra is_numeric check), linha 51 column_features.py |
+| CAMADA 0-pre (Naturezas | CPF regex pattern = r'^(\d{3})\.(\d{3})\.(\d{3})-(\d{2})$', linha 133 |
+| CAMADA 0-pre (Naturezas | CNPJ regex pattern = r'^(\d{2})\.(\d{3})\.(\d{3})/(\d{4})-(\d{2})$', linha 169 |
+| CAMADA 0-pre (Naturezas | IPv4 regex pattern = r'^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$', linha 118 |
+| Dispatch, Multi-Column, Pipeli | cfg.pre_pass (bool, default True), enable pre-pass heuristics or use defaults (cadence=False, min_len=3) |
+| Dispatch, Multi-Column, Pipeli | cfg.obat_shape_preserve (bool, default True), enable shape-consistency hint in OBAT if cadence detected |
+| Dispatch, Multi-Column, Pipeli | cfg.hcc_seq_rle (bool, default True), enable seq-RLE near-identical compaction (M10) or use M9 pure |
+| Dispatch, Multi-Column, Pipeli | parallel (bool|int, default False). False=serial, True=os.cpu_count(), int N=N workers; ignored if len(table)<2 |
+| Dispatch, Multi-Column, Pipeli | nature (TemplatedCheckedSpec | None, default None), apply pre-tx filter per value (list input only) |
+| Dispatch, Multi-Column, Pipeli | nature_per_col (dict[str, TemplatedCheckedSpec] | None, default None), apply pre-tx filter per column (dict input only) |
+| Dispatch, Multi-Column, Pipeli | detect_cadence: n_sample=5 (tunable in detect_cadence_from_features), size of prefix sample for rule 1 |
+| Dispatch, Multi-Column, Pipeli | detect_cadence: threshold=0.7 (tunable), min (LCP+LCS)/length ratio for rule 1 |
+| Dispatch, Multi-Column, Pipeli | detect_cadence: numeric_card_threshold=0.5 (tunable), cardinality threshold for rule 2 |
+| Dispatch, Multi-Column, Pipeli | detect_min_len: n_threshold=100 (tunable), gating: n_rows < 100 always 3 (M9 baseline preservation) |
+| Dispatch, Multi-Column, Pipeli | obat_shape_preserve: min_len parameter (from pre-pass), minimum lengths for pref/suf in shape preservation |
+| Dispatch, Multi-Column, Pipeli | seq_rle: delta format (int vs list[int]), M10-compat single delta or ADR-0016 per-run deltas |
+| Dispatch, Multi-Column, Pipeli | multi-col: col name validation, no ',' or '=' allowed in column names (hard constraint) |
+| Dispatch, Multi-Column, Pipeli | multi-col: workload heuristic, sum(len(v) for v in col) used to order columns for parallel dispatch |
 
 ### Todos os extension points (hooks pra v2.0/futuro)
 
 | Subsistema | Hook |
 |---|---|
 | CAMADA 0 | New detector heuristica (ex: detector_entropy_per_col, detector_low_cardinality_dict_candidate): plugar em _encode_column:141-145, chamar com ColumnFeatures pre-computada, retornar (bool_signal, info_dict). Adicionar ao cadence_info se necessario. |
-| CAMADA 0 | Decision tree refinement para detect_min_len_from_features: novo modulo auto_min_len_v4 com machine learning classifier em lugar de thresholds hard-coded. Input ColumnFeatures, output min_len—mantém interface identica. Requer validacao em 58+ colunas reais. |
+| CAMADA 0 | Decision tree refinement para detect_min_len_from_features: novo modulo auto_min_len_v4 com machine learning classifier em lugar de thresholds hard-coded. Input ColumnFeatures, output min_len, mantém interface identica. Requer validacao em 58+ colunas reais. |
 | CAMADA 0 | Lossy pre-filter (CAMADA 0 alternativa, ADR-0015 menciona): natureza-based pre-transform (TemplatedCheckedSpec, TemplatedPaddedSpec) aplica encode_value() ANTES de analyze_column. Novo entry point: IF nature param, pipeline: values → encode_value(nature, v) → transformed_values → analyze_column(transformed_values) → rest de CAMADA 0. Ja' tem infra em src/tcf/natures/; extensivel. |
 | CAMADA 0 | Feature cache/memoization: analyze_column O(N) eh barato mas repetido em multi-col. Pooled executor (Fase 2) pode pre-compute features em paralelo antes encoder loop. |
 | CAMADA 0 | Cadence regra 3 (futura, H-DA-09c/09d): detector de patterns estruturais adicionais (ex: regex-based, run-length encoding patterns). Adicionar regra ao detect_cadence_from_features com novo threshold set. Nao requer mudanca interface. |
@@ -1176,16 +1176,16 @@ PINCH POINTS FOR V2: Nature (new categories inherit protocol), OBAT (shape prese
 | CAMADA 2b | Per-run compaction cost threshold: atualmente todos runs compactados se detectados. Futura: threshold 'min_savings' em compact_body pra rejeitar runs que economizam < K bytes. Usado em 'near-identical mas não suficientemente repetido'. |
 | CAMADA 2b | Multi-delta variant strategies: ADR-0016 Fase 1 usa CSV `d1,d2,d3` simples. Futuro Fase 2: (a) bitmask format `*N+*00*1|` (markers pra runs que variam), (b) delta-of-delta `*N+0,+1,-1,+2|` (compacta patterns tipo alternating), (c) base+perturb `*N+base=1,deltas=[0,0,1,2]|` (separado offset global). |
 | CAMADA 2b | Marker syntax evolution: atualmente `*N+deltas|template`. Futuro: optional repeat-hint `*N:3+deltas|` (já know run repeats 3x, hint pra decoder), ou compressed template se muito grande. |
-| CAMADA 2b | Integration com pré-processamento: HCCSeqRLE atualmente post-process puro (sem info de OBAT tokens). Futuro: token-aware seq-RLE — se sabemos que 2 tokens diferem apenas em 1 run, priorize essa compactação. |
-| CAMADA 2b | Partial run detection: atualmente rejeita runs diferentes. Futuro: 'suffix-only' mode — compacta se last N runs matching, ignore prefix differences (ex: timestamp prefix + counter suffix). |
-| CAMADA 2b | Streaming variant: HCCSeqRLE atualmente batcher (full body_lines in memory). Futuro: stream mode pra large datasets — detecta runs incrementally, emits markers on-the-fly. |
-| CAMADA 0-pre (Naturezas | **Adicionar nova spec Checked (ex: Luhn para cartão crédito)**: criar novo TemplatedCheckedSpec com regex próprio, body_length, check_fn(body)->list[int], formatter, encoded_length; nenhuma mudança em core — polimorfismo via spec param garante compatibilidade. |
-| CAMADA 0-pre (Naturezas | **Adicionar nova spec Padded (ex: MAC address, CEP brasileiro)**: implementar TemplatedPaddedSpec com regex, slot_widths tuple, separator; mesma filosofia sans check — HCC seq-RLE pode explorar estrutura se houver cadência. |
-| CAMADA 0-pre (Naturezas | **v2.0 lossy-recoverable (H-LR-*)**: criar `TemplatedLossySpec(name, regex, body_length, rounding_fn, error_fn, encoded_length)` — encode retorna (rounded, error_term) packed; decode soma. Não afeta rt mas reduz bytes em floats/coords com tolerância. Plugar via pipeline nature param idêntico. |
-| CAMADA 0-pre (Naturezas | **v2.0 strip-sufixo (V2-D)**: criar `TemplatedSuffixSpec(name, regex, suffix_dict, body_spec)` — detecta sufixo enumerated (ex: '.com' em email), enumera, encode retorna (body_encoded, suffix_idx). Composição com Templated+Enumerated. |
-| CAMADA 0-pre (Naturezas | **v2.0 auto-detect naturezas (Schema_builder Fase 3)**: em build_schema, para cada coluna adicionar `detect_nature_via_apply_rate(column_name, values, threshold=0.8)` — retorna SPEC_CPF se 80%+ valores são 'compressible' CPF. Popula `ColumnSchema.natures` list. Requer header carry spec id pra decoder auto-detectar (ADR-0015 futuro sec 159-161). |
+| CAMADA 2b | Integration com pré-processamento: HCCSeqRLE atualmente post-process puro (sem info de OBAT tokens). Futuro: token-aware seq-RLE, se sabemos que 2 tokens diferem apenas em 1 run, priorize essa compactação. |
+| CAMADA 2b | Partial run detection: atualmente rejeita runs diferentes. Futuro: 'suffix-only' mode, compacta se last N runs matching, ignore prefix differences (ex: timestamp prefix + counter suffix). |
+| CAMADA 2b | Streaming variant: HCCSeqRLE atualmente batcher (full body_lines in memory). Futuro: stream mode pra large datasets, detecta runs incrementally, emits markers on-the-fly. |
+| CAMADA 0-pre (Naturezas | **Adicionar nova spec Checked (ex: Luhn para cartão crédito)**: criar novo TemplatedCheckedSpec com regex próprio, body_length, check_fn(body)->list[int], formatter, encoded_length; nenhuma mudança em core, polimorfismo via spec param garante compatibilidade. |
+| CAMADA 0-pre (Naturezas | **Adicionar nova spec Padded (ex: MAC address, CEP brasileiro)**: implementar TemplatedPaddedSpec com regex, slot_widths tuple, separator; mesma filosofia sans check, HCC seq-RLE pode explorar estrutura se houver cadência. |
+| CAMADA 0-pre (Naturezas | **v2.0 lossy-recoverable (H-LR-*)**: criar `TemplatedLossySpec(name, regex, body_length, rounding_fn, error_fn, encoded_length)`, encode retorna (rounded, error_term) packed; decode soma. Não afeta rt mas reduz bytes em floats/coords com tolerância. Plugar via pipeline nature param idêntico. |
+| CAMADA 0-pre (Naturezas | **v2.0 strip-sufixo (V2-D)**: criar `TemplatedSuffixSpec(name, regex, suffix_dict, body_spec)`, detecta sufixo enumerated (ex: '.com' em email), enumera, encode retorna (body_encoded, suffix_idx). Composição com Templated+Enumerated. |
+| CAMADA 0-pre (Naturezas | **v2.0 auto-detect naturezas (Schema_builder Fase 3)**: em build_schema, para cada coluna adicionar `detect_nature_via_apply_rate(column_name, values, threshold=0.8)`, retorna SPEC_CPF se 80%+ valores são 'compressible' CPF. Popula `ColumnSchema.natures` list. Requer header carry spec id pra decoder auto-detectar (ADR-0015 futuro sec 159-161). |
 | CAMADA 0-pre (Naturezas | **v2.0 header carry spec id**: modificar TCF format #TCF.6 M multi-col meta line pra incluir nature spec identifier per coluna (ex: `col1=cpf col2=ip`). Decoder lê header, auto-detecta spec sem out-of-band. Single-col: adicionar marker no body inicial. |
-| CAMADA 0-pre (Naturezas | **Threshold tunning pra CAMADA 0**: `encode(..., layers=PipelineConfig(nature_apply_threshold=0.8))` — aplica nature só se apply_rate >= threshold. Futuro T-CODE-LAYERED-PIPELINE Fase 2. |
+| CAMADA 0-pre (Naturezas | **Threshold tunning pra CAMADA 0**: `encode(..., layers=PipelineConfig(nature_apply_threshold=0.8))`, aplica nature só se apply_rate >= threshold. Futuro T-CODE-LAYERED-PIPELINE Fase 2. |
 | CAMADA 0-pre (Naturezas | **Fallback adaptativo**: atualmente '_' marker é binário (usa ou não). v2 pode ter graduated fallback: 'partial_compress' (encode parte) vs 'literal' vs 'hybrid' (mix chars base94 + literal). Requer extend Protocol NatureSpec com encode_partial method. |
 | Dispatch, Multi-Column, Pipeli | V2-A (Fallback Identity Per-Column): Inject at _encode_column return, emit marker if HCC ratio below threshold, decoder skips HCC on fallback. Meta: '=name' vs 'size=name'. Touch: multi.py header/decode, encoder dispatch. |
 | Dispatch, Multi-Column, Pipeli | V2-B (Dictionary Layer): Pre-HCC dict for high-repetition. CAMADA 2.5 dispatch: if n_unicas < threshold*n_rows, build value->id dict, emit dict meta (size/dict_id=name). Touch: multi.py meta builder, decoder dict marker. |

@@ -1,5 +1,5 @@
 ---
-title: T-EXP-NATUREZAS-RARAS-EXPLORACAO — Naturezas #5 (range) e #8 (arredondamento)
+title: T-EXP-NATUREZAS-RARAS-EXPLORACAO, Naturezas #5 (range) e #8 (arredondamento)
 status: closed
 resolution: no-go-padroes-raros-em-datasets-gerais
 priority: P3
@@ -14,7 +14,7 @@ related:
   - docs/theory/data-natures-taxonomy.md
 ---
 
-# T-EXP-NATUREZAS-RARAS-EXPLORACAO — Naturezas #5/#8
+# T-EXP-NATUREZAS-RARAS-EXPLORACAO: Naturezas #5/#8
 
 ## Contexto / motivacao
 
@@ -45,7 +45,7 @@ Sub-questoes:
 
 Lab dirty: `experiments/lab/dirty/2026-05-23-naturezas-raras-exploracao/`
 
-### Sub-exp 01 — caracterizacao observacional
+### Sub-exp 01: caracterizacao observacional
 
 Pra cada coluna numerica em Adult+TPC-H + D1-D9 controle:
 - Detectar suffix comum (e.g., todas terminam com ".99")
@@ -64,32 +64,32 @@ afetadas: GO sub-exp 02 (prototype). Caso contrario: NO-GO documentado.
    purpose", padroes financeiros/cientificos raros provavelmente
    nao aparecem
 2. **M10 ja' captura via OBAT prefix**: prefix comum LONGO ja' deveria
-   reduzir bytes via OBAT — sem ganho adicional possivel
+   reduzir bytes via OBAT, sem ganho adicional possivel
 3. **Anti-incidente**: Pacote 2 e Pacote 5 ja' refutados; provavel
    que esta exploracao tambem refute
 
 ## Conexoes
 
 - [Reflexao naturezas numericas](../experiments/lab/dirty/notas/2026-05/naturezas-numericas-2026-05-23.md)
-- [T-EXP-PACOTE5-T03-ENUMERATED](T-EXP-PACOTE5-T03-ENUMERATED.md) — precedente NO-GO
+- [T-EXP-PACOTE5-T03-ENUMERATED](T-EXP-PACOTE5-T03-ENUMERATED.md): precedente NO-GO
 - [Taxonomia natureza](../docs/theory/data-natures-taxonomy.md)
 
 ## Updates datados
 
-### 2026-05-23 — abertura
+### 2026-05-23: abertura
 
 Ticket criado seguindo convencao YAML frontmatter. Exploracao
 observacional pra confirmar se padroes #5/#8 existem em datasets
 disponiveis antes de prototypar encoders dedicados.
 
-### 2026-05-23 — Sub-exp 01 caracterizacao: NO-GO
+### 2026-05-23: Sub-exp 01 caracterizacao: NO-GO
 
 Sub-exp 01 detectou padroes em 66 colunas (9 D1-D9 + 57 real):
 
 **#8 Suffix comum (>= 80% das strings)**: 12 cols detectadas.
 - `tpch.lineitem-5k/l_quantity` suffix '.0' (100%): +26.44% isolado
 - 11 outras cols categoricas (sex, class, race): encoder estimado PIOR
-  porque sufixo "le", "0K" representa fim de string curta — M10 ja'
+  porque sufixo "le", "0K" representa fim de string curta. M10 ja'
   captura via dedup MELHOR
 - **Agregado real-world: -4.45% weighted (REGRESSAO)**
 
@@ -107,7 +107,7 @@ em peso insuficiente. M10 + dedup + seq-RLE ja' captura suficientemente
 em datasets gerais (Adult + TPC-H).
 
 Encoder dedicado pra padroes especificos (e.g., suffix '.0' ou range
-0..99) seria YAGNI — ganho seletivo nao justifica complexidade
+0..99) seria YAGNI, ganho seletivo nao justifica complexidade
 arquitetural + manutencao + heuristica deteccao.
 
 **Padroes financeiros REAIS** (precos .99, taxas %.5) precisariam

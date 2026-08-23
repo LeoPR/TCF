@@ -1,5 +1,5 @@
 ---
-title: T-DATA-3-EDGE-QUALITY-FIXTURES — Plano de dados de borda/defeituosos para os gadgets de qualidade/schema (planejamento, NAO implementar agora)
+title: T-DATA-3-EDGE-QUALITY-FIXTURES, Plano de dados de borda/defeituosos para os gadgets de qualidade/schema (planejamento, NAO implementar agora)
 status: deferred
 priority: P3
 created: 2026-06-01
@@ -9,11 +9,11 @@ related:
   - tickets/T-RECOVER-SCHEMA-MULTI-TABLE.md   (gadget alvo: so' alerta, NUNCA arruma)
   - tickets/T-RECOVER-LLM-SCHEMA-MODE.md
   - src/tcf/side_outputs.py                    (canal zero-cost; campos anomaly_flags planejados)
-  - src/tcf/column_features.py                 (analyze_column — onde sinais zero-cost nascem)
+  - src/tcf/column_features.py                 (analyze_column: onde sinais zero-cost nascem)
   - experiments/lab/dirty/old/welded/2026-05-24-cpf-templated-checked/  (gerador de corrupcao existente)
 ---
 
-# T-DATA-3-EDGE-QUALITY-FIXTURES — Dados de borda (PLANO)
+# T-DATA-3-EDGE-QUALITY-FIXTURES: Dados de borda (PLANO)
 
 ## Escopo e disclaimer
 
@@ -23,13 +23,13 @@ borda com algum problema, faltando ou com defeito seriam interessantes...
 defeituosos pra testar os **gadgets auxiliares de qualidade/schema**
 (T-RECOVER-SCHEMA-MULTI-TABLE), que **so' ALERTAM, NUNCA arrumam**. NAO e'
 pra testar o TCF-core (TCF supoe "dados felizes"). Os gadgets ainda nao
-existem — este plano so' executa quando eles entrarem.
+existem, este plano so' executa quando eles entrarem.
 
 ## Principio metodologico (obrigatorio)
 
 - **Detect-never-fix**: cada fixture testa um DETECTOR/alerta; nenhum
   transforma dado. O lab CPF (sub-exp 03) ja' provou que elide+regen de
-  digito errado causa corrupcao silenciosa — corrupto vai pra fallback
+  digito errado causa corrupcao silenciosa, corrupto vai pra fallback
   literal `_`, NUNCA e' "consertado".
 - **Ecological vs stress**: todo fixture e' STRESS/artificial, gerado por
   **corrupcao controlada de um baseline canonico SADIO** (ibge/TPC-H/adult/
@@ -37,7 +37,7 @@ existem — este plano so' executa quando eles entrarem.
   baseline pra diff, (b) manifesto de corrupcao (row, valor original, valor
   injetado, classe de defeito), (c) gerador citando framework academico
   (Myers / DeMillo mutation / Beizer BVA / Rahm&Do / Miller fuzzing) + stats
-  ISO/IEC 25012. **Vies declarado** no README — NUNCA usar pra
+  ISO/IEC 25012. **Vies declarado** no README. NUNCA usar pra
   `confirmada-empirica`.
 - **Armazenamento**: corrompido grande -> `Z:/tcf-data/processed/` ou
   `datasets/synthetic/edge/` (gitignored onde grande); so' referencia leve +
@@ -61,7 +61,7 @@ existem — este plano so' executa quando eles entrarem.
 
 ## Faseamento (quando os gadgets existirem)
 
-1. **PRIMEIRO — sinais genuinamente zero-cost (hoje em ColumnFeatures)**:
+1. **PRIMEIRO, sinais genuinamente zero-cost (hoje em ColumnFeatures)**:
    duplicate_primary_key (cardinality<1.0 em PK esperada) + type_drift
    (is_numeric mismatch). So' **expor** campos ja' computados.
    > **Cuidado (achado do critico)**: adicionar acumuladores NOVOS
@@ -69,15 +69,15 @@ existem — este plano so' executa quando eles entrarem.
    > guardado pelo gate T-REGRESSION-REAL-WORLD. NAO e' "de graca"; tratar
    > como mudanca gated (passa os DOIS suites) + opt-in (preservar invariante
    > ADR-0014 "zero overhead sem side_outputs=").
-2. **SEGUNDO — FK detector** (Fase 1 gadget) + fixture fk_orphan (corromper
+2. **SEGUNDO, FK detector** (Fase 1 gadget) + fixture fk_orphan (corromper
    TPC-H). Rodar contra TPC-H LIMPO primeiro (deve dar 0 orfas) -> baseline.
-3. **TERCEIRO — date/format checker** (Fase 2) + impossible_date +
+3. **TERCEIRO, date/format checker** (Fase 2) + impossible_date +
    format_inconsistency (precisam conhecimento de dominio).
-4. **QUARTO — out_of_range + encoding** (mais baixo: dominio per-coluna /
+4. **QUARTO, out_of_range + encoding** (mais baixo: dominio per-coluna /
    fora do escopo TCF). Calibracao de thresholds de severidade.
 - **Cross-cutting**: bad-check-digit reusa gerador CPF do lab + mod-11 ja'
   implementado; zero-cost SO' com nature opt-in ativa. NAO bloquear roadmap
-  do gadget em dataset CPF real (nao existe) — manter declared-stress.
+  do gadget em dataset CPF real (nao existe), manter declared-stress.
 
 ## Criterio de aceite (quando ativado)
 
@@ -101,7 +101,7 @@ existem — este plano so' executa quando eles entrarem.
    que variancia de length = alerta?). Fixtures devem varrer N% (0/1/5/20/
    100%) pra calibrar; cut-points finais = decisao do owner.
 3. **Baselines ja' com markers reais**: adult ('?') e beijing ('NA') ja' tem
-   missing markers — pra completude usar ibge (8 cols non-null, baseline 1.0).
+   missing markers, pra completude usar ibge (8 cols non-null, baseline 1.0).
 4. **Onde versionar**: fixtures minusculos (n<=10, estilo D-series) talvez
    git-tracked; copias corrompidas grandes de TPC-H = regeneravel-only em Z:.
    Decisao do owner.

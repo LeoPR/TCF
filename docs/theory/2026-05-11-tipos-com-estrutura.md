@@ -1,4 +1,4 @@
-# Tipos com estrutura conhecida — nota conceitual para resgate
+# Tipos com estrutura conhecida: nota conceitual para resgate
 
 Data: 2026-05-11
 Contexto: pedido do user após exp 17 mostrar que CPFs e UUIDs
@@ -10,16 +10,16 @@ Status: **direção futura**, não foco do ciclo atual.
 ## Observação que motivou a nota
 
 O exp 17 mostrou cobertura 0% em CPFs e 0.7% em UUIDs. Não por
-defeito do algoritmo — por limite estrutural: o método do exp 16
+defeito do algoritmo, por limite estrutural: o método do exp 16
 detecta "regiões de chars consecutivos iguais", e nestes tipos
 os chars entre os separadores são pseudo-random.
 
-Mas **a estrutura está lá** — só não é detectável por LCP/LCS
+Mas **a estrutura está lá**: só não é detectável por LCP/LCS
 literal. Por exemplo:
 
 - Um CPF tem **separadores fixos** (`.`, `.`, `-`) em posições
   conhecidas
-- O 11º dígito (último) é **checksum** dos 10 anteriores —
+- O 11º dígito (último) é **checksum** dos 10 anteriores:
   redundante
 - Um UUID tem **separadores fixos** (`-` em posições 8, 13, 18, 23)
 - Todo char de um UUID está no alfabeto hex (16 símbolos), não 256
@@ -117,11 +117,11 @@ Reduções adicionais:
 Cada tipo tem 3-4 elementos comuns que abrem espaço para
 compressão estrutural:
 
-1. **Separadores em posições fixas** — dedutíveis, não precisam
+1. **Separadores em posições fixas**: dedutíveis, não precisam
    ser armazenados
-2. **Alfabeto restrito** — permite recodificação em base maior
-3. **Redundância interna** (checksum, formato) — dedutível
-4. **Ranges conhecidos** de cada componente — permite encoding
+2. **Alfabeto restrito**: permite recodificação em base maior
+3. **Redundância interna** (checksum, formato), dedutível
+4. **Ranges conhecidos** de cada componente, permite encoding
    binário compacto
 
 ## Trade-off
@@ -157,7 +157,7 @@ Coluna codificada em TCF
 TCF final
 ```
 
-O encoder do exp 16 não precisa saber que é CPF — ele recebe uma
+O encoder do exp 16 não precisa saber que é CPF, ele recebe uma
 coluna de strings transformadas. O decoder TCF reconstrói as
 strings transformadas; uma camada acima reaplica
 `separadores + checksum` para devolver o CPF original.
@@ -178,7 +178,7 @@ Pré-condições para abrir experimento de tipos especiais:
 Tipos especiais entram **depois** porque:
 
 - São casos particulares; cada um é um experimento
-- A camada de pré-transformação é ortogonal — pode ser adicionada
+- A camada de pré-transformação é ortogonal: pode ser adicionada
   sem mudar o encoder principal
 - O ganho real depende do tipo: testar 1 ou 2 primeiro (CPF e UUID
   são bons candidatos por serem extremos no exp 17)
@@ -187,24 +187,24 @@ Tipos especiais entram **depois** porque:
 
 Cada tipo seria um experimento dedicado:
 
-- `XX-cpf-estrutural/` — detecta CPF, drop separadores+checksum,
+- `XX-cpf-estrutural/`: detecta CPF, drop separadores+checksum,
   passa para encoder
-- `XX-uuid-estrutural/` — detecta UUID, recodifica em base maior
-- `XX-ip-estrutural/` — IPs em 4 octetos
-- `XX-iso-estrutural/` — timestamps com componentes separados
+- `XX-uuid-estrutural/`: detecta UUID, recodifica em base maior
+- `XX-ip-estrutural/`: IPs em 4 octetos
+- `XX-iso-estrutural/`: timestamps com componentes separados
 
 Roundtrip lossless **obrigatório** em todos.
 
 ## Arquivos relacionados
 
-- [`comparacoes-nao-literais.md`](2026-05-11-comparacoes-nao-literais.md)
-  — delta encoding como pré-transformação (mesma camada)
-- [`marcadores-compactos.md`](2026-05-11-marcadores-compactos.md)
-  — sintaxe compacta (camada de serialização, ortogonal a tipos)
-- [`../old/2026-05-09-delta-datas/`](../old/2026-05-09-delta-datas/)
-  — lab arquivado sobre delta em datas (re-verificar antes de
+- [`comparacoes-nao-literais.md`](2026-05-11-comparacoes-nao-literais.md):
+  delta encoding como pré-transformação (mesma camada)
+- [`marcadores-compactos.md`](2026-05-11-marcadores-compactos.md):
+  sintaxe compacta (camada de serialização, ortogonal a tipos)
+- [`../old/2026-05-09-delta-datas/`](../old/2026-05-09-delta-datas/):
+  lab arquivado sobre delta em datas (re-verificar antes de
   citar)
-- [`../../../docs/workbench/_archive/tickets/open/23-P-numeric-precision.md`](../../../docs/workbench/_archive/tickets/open/23-P-numeric-precision.md)
-  — ticket arquivado sobre tratamento numérico
-- [exp 17](../2026-05-11-17-familias-variadas/conclusoes.md) —
+- [`../../../docs/workbench/_archive/tickets/open/23-P-numeric-precision.md`](../../../docs/workbench/_archive/tickets/open/23-P-numeric-precision.md):
+  ticket arquivado sobre tratamento numérico
+- [exp 17](../2026-05-11-17-familias-variadas/conclusoes.md):
   onde ficou claro que CPF e UUID precisam de outra abordagem

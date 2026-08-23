@@ -1,5 +1,5 @@
 ---
-title: T-EXP-MULTI-COL-SCALING — Port multi-column pra canonical M10 + real-world
+title: T-EXP-MULTI-COL-SCALING, Port multi-column pra canonical M10 + real-world
 status: closed-welded-canonical
 priority: P1
 created: 2026-05-23
@@ -12,7 +12,7 @@ related:
   - docs/adr/0011-pacote1-weld-canonical.md
 ---
 
-# T-EXP-MULTI-COL-SCALING — Port multi-column canonical M10 + real-world
+# T-EXP-MULTI-COL-SCALING: Port multi-column canonical M10 + real-world
 
 ## Contexto / motivacao
 
@@ -78,7 +78,7 @@ Destaque:
 - tpch-sf001/orders (15k x 9): -23.11% vs raw, -28.14% vs single
 - tpch-sf001/part (2k x 9): -41.32% vs raw, -43.53% vs single
 - tpch-sf001/lineitem (60k x 16): -17.11% vs raw, -30.73% vs single (16.6min)
-- region (5 x 3): +3.87% vs raw (outlier — tiny dataset, header dominante)
+- region (5 x 3): +3.87% vs raw (outlier, tiny dataset, header dominante)
 
 Tempo: lineitem 16.6 min, orders 53s, partsupp 10.5s. HCC O(N^1.42)
 e' gargalo dominante (especialmente em datetime cols largas).
@@ -96,7 +96,7 @@ e' gargalo dominante (especialmente em datetime cols largas).
 ## Decisao final / welding
 
 **Criterios todos atingidos**. Pendente decisao final de welding
-em src/tcf — requer aprovacao explicita user (regra: src/tcf intocado
+em src/tcf, requer aprovacao explicita user (regra: src/tcf intocado
 sem aprovacao).
 
 **Status sub-exp dirty**: closed-validated (H1/H2/H3 confirmadas em
@@ -122,7 +122,7 @@ sem aprovacao).
 
 ## Conexoes
 
-- [EXP-011](../experiments/lab/clean/EXP-011-multi-column-basic/) — base
+- [EXP-011](../experiments/lab/clean/EXP-011-multi-column-basic/): base
 - [sub-exp dirty](../experiments/lab/dirty/2026-05-23-multi-column-scaling/)
 - [ADR-0004](../docs/adr/0004-multi-column-header-compacto.md)
 - [ADR-0011](../docs/adr/0011-pacote1-weld-canonical.md)
@@ -130,7 +130,7 @@ sem aprovacao).
 
 ## Updates datados
 
-### 2026-05-23 — abertura + 8 tabelas validadas
+### 2026-05-23: abertura + 8 tabelas validadas
 
 Ticket aberto pra documentar port canonical de EXP-011 + real-world
 validation. Sub-exp dirty criado, port feito, D17a + 8 tabelas
@@ -142,7 +142,7 @@ pendente pos-lineitem.
 
 Status mudado de `open` pra `closed-validated-welding-pending-lineitem`.
 
-### 2026-05-23 — Fase 4 lineitem + todos criterios atingidos
+### 2026-05-23: Fase 4 lineitem + todos criterios atingidos
 
 Lineitem 60k x 16 rodado (16.6 min real, HCC dominante). Resultado:
 - multi: 6,043,481B vs raw 7,291,252B = **-17.11%**
@@ -160,16 +160,16 @@ aprovacao explicita user (regra: src/tcf intocado).
 
 Status: `closed-validated-welding-pending-approval`.
 
-### 2026-05-23 — WELDED canonical em src/tcf (ADR-0013)
+### 2026-05-23: WELDED canonical em src/tcf (ADR-0013)
 
 Owner aprovou Opcao A (encode_table separada). Welding executado:
 
-- **Novo `src/tcf/multi.py`** — encode_table + decode_table + MAGIC_MULTI
-- **`src/tcf/__init__.py` atualizado** — exports: encode, decode,
+- **Novo `src/tcf/multi.py`**: encode_table + decode_table + MAGIC_MULTI
+- **`src/tcf/__init__.py` atualizado**: exports: encode, decode,
   encode_table, decode_table
-- **ADR-0013 criado** — accepted + welded, documenta decisao API + header
+- **ADR-0013 criado**: accepted + welded, documenta decisao API + header
   format + NULL handling
-- **`tests/test_multi_col_rt.py` criado** — 17 tests (RT basico, D17a
+- **`tests/test_multi_col_rt.py` criado**: 17 tests (RT basico, D17a
   322B INVARIANT, info dict, edge cases). Todos passam (17/17).
 - **Validacao byte-canonical**: D17a 322B preservado EXATO; suite
   completa 96 passed + 1 xfailed + 1 pre-existing fail (test_shaper,

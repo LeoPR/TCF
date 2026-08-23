@@ -1,5 +1,5 @@
 ---
-title: T-DATA-TRANSMISSION-GROUPING — Agrupar datasets por cenário de transmissão (matriz 3-eixos)
+title: T-DATA-TRANSMISSION-GROUPING, Agrupar datasets por cenário de transmissão (matriz 3-eixos)
 status: closed-done
 priority: P2
 created: 2026-07-05
@@ -16,12 +16,12 @@ related:
   - C:/Users/leona/.claude/projects/c--Users-leona-OneDrive-Documents-Projects-Acad-micos-TCF/memory/project_dataset_coverage_map.md
 ---
 
-> **ENCERRADO (2026-07-10, T-REL-08-CLOSEOUT Passo 1c)**: a entrega É a matriz — completada em
+> **ENCERRADO (2026-07-10, T-REL-08-CLOSEOUT Passo 1c)**: a entrega É a matriz, completada em
 > `033bba3` (3 eixos, 7 formas-tx via nested-tcf-study) e materializada em
 > [datasets/coverage-matrix.md](../datasets/coverage-matrix.md) (artefato VIVO; atualizações
 > futuras acontecem lá, não aqui). O consumo prático segue no T-QA-8 F2-F4 (degraus de volume).
 
-> **MATRIZ COMPLETADA (2026-07-05)** — corpo (esquema 3-eixos + posicionamento + células vazias +
+> **MATRIZ COMPLETADA (2026-07-05)**: corpo (esquema 3-eixos + posicionamento + células vazias +
 > "experimento de sempre" com trace OBAT/HCC por forma-tx) em
 > **[datasets/coverage-matrix.md](../datasets/coverage-matrix.md)**, lastreado por medição real.
 > O eixo forma-tx foi **refinado de 4 → 7 formas** pelo
@@ -31,11 +31,11 @@ related:
 > em XL / cadenced-real / µ / nested-real); **Q2 = PARCIAL 2/4** (shaper dimensiona quantidade, não
 > natureza). Decorrentes de aquisição (G2/G3) seguem abertos.
 
-# T-DATA-TRANSMISSION-GROUPING — matriz de agrupamento por cenário de transmissão
+# T-DATA-TRANSMISSION-GROUPING: matriz de agrupamento por cenário de transmissão
 
 **[dispositivo]** Decorre do assessment 2026-07-05 (VEREDITO 1 = PARCIAL). Os datasets hoje são
 agrupados só por **tipo de dado** (`data_shape`), não por **como transitam** nem por **volume-tier**
-— e o T1 (2026-07-05) tornou a forma-de-transmissão o eixo que decide o veredito (upload<1KB → TCF
+e o T1 (2026-07-05) tornou a forma-de-transmissão o eixo que decide o veredito (upload<1KB → TCF
 não ajuda; download-bulk → vence NDJSON; download-cadenced → vence o steelman JSON-colunar). Sem esse
 rótulo não dá pra afirmar que "os datasets representam os cenários de transmissão reais".
 
@@ -51,7 +51,7 @@ de quebra, mostrar onde o shaper NÃO dimensiona.
 | **volume-tier** | `µ` (<1KB / 20-100 itens) · `S` (~1k) · `M` (3-10k) · `L` (10-100k) · `XL` (>1M) | novo |
 | **forma-de-transmissão** | `upload-small` · `download-bulk` · `download-cadenced` · `lazy-query` | novo (T1 + nota transmissão) |
 
-## Rascunho da matriz (para aprovação — dados já existentes, forma-tx inferida)
+## Rascunho da matriz (para aprovação: dados já existentes, forma-tx inferida)
 
 Forma-de-transmissão de cada canônico (best-fit; um dataset pode servir >1 forma):
 
@@ -67,10 +67,10 @@ Forma-de-transmissão de cada canônico (best-fit; um dataset pode servir >1 for
 | **beijing-pm25** | **série temporal sensor** | S-M (~44k) | **download-cadenced** (MAS ts split em int → G3) | **não** |
 | wine-quality | float científico (12c) | S (~6.5k) | download-bulk | não |
 | D1-D17 (sintéticos) | por tipo, single-col, 12-20 linhas | µ | probes de tipo (não payload) | parcial |
-| **— vazio —** | — | **XL (>1M)** | qualquer | **G2** |
-| **— vazio —** | timestamp ISO cadenciado real | qualquer | **download-cadenced real** | **G3** |
-| **— vazio —** | qualquer | **µ real (<1KB)** | **upload-small / página 20-100** | **G2** |
-| **— vazio —** | aninhado | — | **nested-response** (flatten-from-nested) | ausente |
+| **, vazio, ** | n/a | **XL (>1M)** | qualquer | **G2** |
+| **, vazio, ** | timestamp ISO cadenciado real | qualquer | **download-cadenced real** | **G3** |
+| **, vazio, ** | qualquer | **µ real (<1KB)** | **upload-small / página 20-100** | **G2** |
+| **, vazio, ** | aninhado | n/a | **nested-response** (flatten-from-nested) | ausente |
 
 **Leitura do rascunho**: cobertura densa em `download-bulk` (o caso já provado); **vazios** exatamente
 onde o T1 aponta valor (cadenced real, bordas µ e XL, nested). Confirma VEREDITO 1 = PARCIAL.
@@ -83,20 +83,20 @@ fk). → o shaper dimensiona quantidade (linhas+arquitetura), não natureza. Gap
 
 ## Critério de aceite
 
-- [ ] Esquema 3-eixos **aprovado pelo owner** (valores dos tiers/formas) — PENDENTE (revisão do owner).
+- [ ] Esquema 3-eixos **aprovado pelo owner** (valores dos tiers/formas): PENDENTE (revisão do owner).
 - [x] Matriz completa (canônicos + D1-D17 + sintéticos nested) com forma-tx e tier por célula → `datasets/coverage-matrix.md`.
 - [x] Índice `datasets/coverage-matrix.md` central escolhido (não tocar os `metadata.json` por ora).
 - [x] Células vazias listadas como gaps (XL / cadenced-real / µ / nested-real / high-card não-BR) → decorrentes G2/G3 + novos registrados.
 - [x] Memória `project_dataset_coverage_map` atualizada com o eixo forma-tx (7 formas).
 - [x] "Experimento de sempre" (amostra entrada→saída + trace OBAT/HCC) por forma-tx → seção na matriz + `trace_output.txt`.
 
-## Decorrentes (criar SE o owner aprovar priorizar — hoje só registrados)
+## Decorrentes (criar SE o owner aprovar priorizar: hoje só registrados)
 
 - **T-DATA-CADENCED-TIMESERIES-REAL** (fecha G3): enquadrar beijing-pm25 como download-cadenced real
   **compondo** uma coluna ISO `ds` de year/month/day/hour (hoje split em int → não exercita a cadência
   ISO que sustenta o T1 Achado 3), OU curar dataset novo com timestamp ISO. Tira a claim mais forte do
   TCF de cima de dado sintético (`forecast_bench.py`).
-- **T-DATA-EDGE-TRANSMISSION-PAYLOADS** (fecha G2): fixtures de borda idealista — `µ` (<1KB, página
+- **T-DATA-EDGE-TRANSMISSION-PAYLOADS** (fecha G2): fixtures de borda idealista, `µ` (<1KB, página
   20-100), `bulk` (>10k), `XL` (>1M, exige A1 do T-SHAPER-CODE-HARDENING). Cobre o Eixo-1 (bordas) do
   owner + cenários T2/T6 da nota de transmissão.
 

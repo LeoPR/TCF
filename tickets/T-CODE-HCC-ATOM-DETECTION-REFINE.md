@@ -1,5 +1,5 @@
 ---
-title: T-CODE-HCC-ATOM-DETECTION-REFINE — Bug #1 sub-exp 14 (atom secundario nao criado)
+title: T-CODE-HCC-ATOM-DETECTION-REFINE, Bug #1 sub-exp 14 (atom secundario nao criado)
 status: closed-superseded-by-adr-0016
 priority: P2
 created: 2026-05-24
@@ -13,7 +13,7 @@ related:
   - docs/adr/0016-hcc-multi-delta-seq-rle.md
 ---
 
-# T-CODE-HCC-ATOM-DETECTION-REFINE — Bug #1: atom secundario nao criado
+# T-CODE-HCC-ATOM-DETECTION-REFINE: Bug #1: atom secundario nao criado
 
 ## Contexto
 
@@ -59,14 +59,14 @@ perfil de subnet 1. Esperado: ~37B (similar a subnet 1 single em n=100).
 
 ## Hipotese / Plano
 
-### Fase 1 — Investigacao
+### Fase 1: Investigacao
 
 Inspecionar hcc-trace.txt do sub-exp 14 n=200/500/1000:
 - Quantas iteracoes detector rodou?
 - Atom 2 foi considerado e rejeitado, ou nao considerado?
 - Net calculado pra atom 2 era negativo?
 
-### Fase 2 — Fix proposals
+### Fase 2: Fix proposals
 
 Dependendo da causa:
 - **H-A (net rejeitado)**: revisar formula de net. Pra prefix curto +
@@ -75,7 +75,7 @@ Dependendo da causa:
 - **H-B (budget)**: aumentar iteracoes maximas do detector.
 - **H-C (greedy miss)**: adicionar segunda passada ou backtrack.
 
-### Fase 3 — Validacao
+### Fase 3: Validacao
 
 - Real-world Adult+TPC-H: zero regressao
 - D-IP-subnet: ratio melhora <10% (esperado)
@@ -83,11 +83,11 @@ Dependendo da causa:
 
 ## Riscos
 
-1. **Quebra M10 invariant** — qualquer mudanca em composition detector
+1. **Quebra M10 invariant**: qualquer mudanca em composition detector
    pode produzir diferentes atoms em D1-D9. Validar primeiro.
-2. **Performance impact** — segunda passada ou backtrack pode aumentar
+2. **Performance impact**: segunda passada ou backtrack pode aumentar
    tempo de encode (alpha vai pra mais que 1.42 atual).
-3. **Cumulative com T-CODE-HCC-MULTI-DELTA-FIX** — se ambos fixed,
+3. **Cumulative com T-CODE-HCC-MULTI-DELTA-FIX**: se ambos fixed,
    ganho composto. Mas combinados aumentam risco.
 
 ## Relacao com T-CODE-HCC-MULTI-DELTA-FIX
@@ -122,12 +122,12 @@ Comparacao:
 
 ## Updates datados
 
-### 2026-05-24 — abertura
+### 2026-05-24: abertura
 
 Ticket criado pos-sub-exp 14. Recomendacao: deferir vs
 T-CODE-HCC-MULTI-DELTA-FIX que tem mesmo impacto com risco menor.
 
-### 2026-05-24 — CLOSED superseded
+### 2026-05-24: CLOSED superseded
 
 T-CODE-HCC-MULTI-DELTA-FIX foi welded (ADR-0016). Cross-subnet
 agora compactado via seq-RLE multi-delta sem precisar atom

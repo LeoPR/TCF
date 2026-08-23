@@ -1,5 +1,5 @@
 ---
-title: T-CODE-OUTPUT-SINKS — Interface Sink pluggable
+title: T-CODE-OUTPUT-SINKS, Interface Sink pluggable
 status: deferred
 priority: P2
 created: 2026-05-24
@@ -12,9 +12,9 @@ related:
   - docs/workbench/_archive/tickets/frozen/E-http-protocol.md
 ---
 
-# T-CODE-OUTPUT-SINKS — Sinks pluggable
+# T-CODE-OUTPUT-SINKS: Sinks pluggable
 
-> **Fechamento 0.7 (2026-06-15) — PARK v2.0**: infraestrutura pos-1.0
+> **Fechamento 0.7 (2026-06-15), PARK v2.0**: infraestrutura pos-1.0
 > (streaming/chunked O-FMT-08, per-channel O-FMT-13), nao foco de bytes do 0.7.
 > Bloqueado pela Fase 2 do T-CODE-ENCODER-MANAGER (sinks). Retomar quando v2.0 abrir.
 
@@ -45,7 +45,7 @@ sem quebrar uso atual
 
 ## Plano
 
-### Fase 1 — Contract Sink
+### Fase 1: Contract Sink
 
 ```python
 # src/tcf/sinks/base.py
@@ -59,7 +59,7 @@ class Sink(Protocol):
     def __exit__(self, *args): self.close()
 ```
 
-### Fase 2 — Built-in sinks
+### Fase 2: Built-in sinks
 
 ```python
 # src/tcf/sinks/file.py
@@ -75,7 +75,7 @@ class MemorySink:
     def get_text(self) -> str: ...
 ```
 
-### Fase 3 — Streaming sinks
+### Fase 3: Streaming sinks
 
 ```python
 # src/tcf/sinks/network.py
@@ -88,7 +88,7 @@ class TCPSink:
 
 Per-channel headers (O-FMT-13) habilitam channels=N.
 
-### Fase 4 — Side-output sinks
+### Fase 4: Side-output sinks
 
 ```python
 # Capturar side_outputs em arquivos paralelos
@@ -96,7 +96,7 @@ side_sink = SideOutputsSink("trace_{col}.txt")  # 1 por coluna
 encode(data, output=FileSink("dados.tcf"), side_outputs_sink=side_sink)
 ```
 
-### Fase 5 — Refactor writers/
+### Fase 5: Refactor writers/
 
 `scripts/writers/` viram sinks formais. Mantem compat: funcoes
 top-level continuam, mas internamente chamam sinks.
@@ -122,16 +122,16 @@ top-level continuam, mas internamente chamam sinks.
 
 ## Conexao
 
-- [T-CODE-ENCODER-MANAGER](T-CODE-ENCODER-MANAGER.md) — dependencia
-- [ADR-0014](../docs/adr/0014-unified-api-side-outputs.md) — SideOutputs
+- [T-CODE-ENCODER-MANAGER](T-CODE-ENCODER-MANAGER.md): dependencia
+- [ADR-0014](../docs/adr/0014-unified-api-side-outputs.md): SideOutputs
 - [O-FMT-08 streaming](../experiments/lab/dirty/notas/2026-05/futuras-otimizacoes-formato.md)
 - [O-FMT-13 per-channel](../experiments/lab/dirty/notas/2026-05/futuras-otimizacoes-formato.md)
 - [E-http-protocol frozen](../docs/workbench/_archive/tickets/frozen/E-http-protocol.md)
-- [scripts/writers/](../scripts/writers/) — refatorar
+- [scripts/writers/](../scripts/writers/): refatorar
 
 ## Updates datados
 
-### 2026-05-24 — abertura
+### 2026-05-24: abertura
 
 Ticket aberto pos-ADR-0014. Bloqueado por T-CODE-ENCODER-MANAGER (que
 introduz manager onde sinks se encaixam). Plano em 5 fases.

@@ -1,13 +1,13 @@
 ---
-title: Linha B sintetica — refinamento (F-Q13..F-Q24)
+title: Linha B sintetica, refinamento (F-Q13..F-Q24)
 type: findings-block
 range: F-Q13..F-Q24
 parent: docs/findings/README.md
 ---
 
-# Linha B sintetica — refinamento (F-Q13..F-Q24)
+# Linha B sintetica: refinamento (F-Q13..F-Q24)
 
-## F-Q13 `{B}` — Schema-only prompt supera data-full prompt para code generation
+## F-Q13 `{B}`: Schema-only prompt supera data-full prompt para code generation
 
 **Conclusão:** Ao pedir que o LLM gere SQL (ou código) para responder
 pergunta sobre tabela, fornecer **apenas o schema** (620 chars) produz
@@ -23,7 +23,7 @@ generation quando o executor externo (SQLite) tem acesso aos dados reais.
 | sql_schema (só colunas+tipos+FK) | **620** | **86%** |
 | sql_stats (schema + estatísticas) | 1303 | 86% |
 
-qwen3:14b + sql_schema atinge **100% (7/7)** — incluindo q_sum e q_avg
+qwen3:14b + sql_schema atinge **100% (7/7)**, incluindo q_sum e q_avg
 onde todos os 12 modelos testados em Phase 6 (direct read) obtiveram 0%.
 
 **Mecanismo hipotético:** Dados brutos no prompt ativam circuitos de
@@ -33,7 +33,7 @@ sintática correta contra o schema declarado.
 
 **Implicação metodológica:**
 - Para tarefas de agregação/analytics, **separar schema (input) de dados
-  (executor)** não é otimização — é pré-requisito para correctness.
+  (executor)** não é otimização, é pré-requisito para correctness.
 - Stats ricas (cardinality, ranges) NÃO adicionam valor mensurável em
   schemas simples (3 tabelas, 10 colunas). Provavelmente importam em
   schemas ambíguos ou com decisões de filtro dependentes de distribuição.
@@ -43,7 +43,7 @@ sintática correta contra o schema declarado.
 **Implicação para TCF (teoria):** TCF L3 foi desenhado para o caso
 "LLM lê dados direto". M1 mostra que esse caso é **pior** que "LLM lê
 schema, gera SQL, executor calcula". TCF como **schema carrier** é o
-valor único — não como "formato para LLM ler dados brutos".
+valor único, não como "formato para LLM ler dados brutos".
 
 **Status atualizado 2026-04-22 (pós-M2):**
 - 315 combos: 3 modelos × 5 variantes × 7 questões × 3 seeds
@@ -55,7 +55,7 @@ valor único — não como "formato para LLM ler dados brutos".
 
 ---
 
-## F-Q14 `{B}` — SQL gerado por LLM é scale-invariant por construção
+## F-Q14 `{B}`: SQL gerado por LLM é scale-invariant por construção
 
 **Conclusão:** Uma vez que o LLM produz SQL sintaticamente correto a partir
 do schema, o mesmo SQL retorna resultado correto em qualquer escala de dados
@@ -88,11 +88,11 @@ output (2026-04-22)
 
 ---
 
-## F-Q15 `{B}` — Few-shot elimina modo de falha de alucinação de schema
+## F-Q15 `{B}`: Few-shot elimina modo de falha de alucinação de schema
 
 **Conclusão:** Um único exemplo (1-shot) de SQL com JOIN explícito e nota
 negativa ("tabela X NÃO tem coluna Y") elimina a alucinação de colunas
-inexistentes — modo de falha dominante em q_top_product e q_lookup.
+inexistentes, modo de falha dominante em q_top_product e q_lookup.
 
 **Evidência (M2, 2026-04-22):**
 
@@ -111,12 +111,12 @@ o modelo ao schema **real**, reduzindo recall alucinado.
 **Implicação metodológica:**
 - Para text-to-SQL/code, **sempre incluir ≥1 exemplo** quando acurácia
   > 95% é requisito
-- O exemplo não precisa estar relacionado à pergunta alvo — basta cobrir
+- O exemplo não precisa estar relacionado à pergunta alvo: basta cobrir
   o padrão "tabelas JOIN por FK explícito"
 - Nota negativa ("X NÃO tem coluna Y") é mais efetiva que exemplo positivo
   isoladamente
 
-**Anti-padrão:** sql_full (com dados completos) NÃO resolve com few-shot —
+**Anti-padrão:** sql_full (com dados completos) NÃO resolve com few-shot,
 os dados brutos continuam competindo com a instrução sintática. Few-shot
 só ajuda quando o prompt já é schema-only.
 
@@ -124,7 +124,7 @@ só ajuda quando o prompt já é schema-only.
 
 ---
 
-## F-Q16 `{B}` — SQL generation generaliza across unrelated domains
+## F-Q16 `{B}`: SQL generation generaliza across unrelated domains
 
 **Conclusão:** O mesmo pipeline (schema+stats+few-shot) que alcança 100% em
 retail sales também alcança ≥86% em domínios desconexos (medical consultations,
@@ -150,7 +150,7 @@ e financial (conta→transacao→categoria) têm mesma topologia de FK que retai
 (cliente→venda→produto), então o mesmo padrão sintático funciona.
 
 **Implicação metodológica:**
-- H-TCF2 é **domain-generic** — não e um artefato de retail sales
+- H-TCF2 é **domain-generic**, não e um artefato de retail sales
 - Qualquer schema com 2 dimensions + 1 fact table (star pattern) vai ter
   ≥90% accuracy com sql_stats_fs, independente de domínio
 - q_distinct em financial merece investigation separada (possível edge case
@@ -164,7 +164,7 @@ TCF é **domain-agnostic schema representation**.
 
 ---
 
-## F-Q17 `{B}` — Vantagem de formato TCF sobre CSV/JSON é pequena; FK explícito é o diferencial
+## F-Q17 `{B}`: Vantagem de formato TCF sobre CSV/JSON é pequena; FK explícito é o diferencial
 
 **Conclusão:** Em 567 combos (3 domínios × 3 modelos × 3 formatos × 7 q × 3 seeds),
 TCF (96.8%) e JSON (96.3%) são praticamente empatados; ambos superam CSV (93.7%)
@@ -187,12 +187,12 @@ CSV 20/27). Para modelos mais fracos o ganho é maior: qwen2.5-coder:7b ganha
 | phi4:latest | 94% | 100% | 95% |
 | qwen2.5-coder:7b | 87% | 90% | **95%** |
 
-**Achado colateral — naming collision (TCF q_distinct/financial):** Os 6 erros
+**Achado colateral, naming collision (TCF q_distinct/financial):** Os 6 erros
 TCF em q_distinct são todos no domínio financial: modelo gera `t.titular`
 buscando coluna `titular` diretamente em `transacoes`, mas ela existe só em
 `contas`. Em CSV o dado bruto mostra explicitamente onde `titular` aparece;
 em TCF schema-only o modelo infere erroneamente por nome de entidade no texto
-da pergunta. Não é defeito de formato — é colisão entre label de entidade e
+da pergunta. Não é defeito de formato, é colisão entre label de entidade e
 nome de coluna em tabela diferente da fact table.
 
 **Implicação metodológica:**
@@ -200,10 +200,10 @@ nome de coluna em tabela diferente da fact table.
 - Diferença cai a zero para modelos 14B (qwen3:14b = 100% nos três formatos)
 - Para deployment com modelos menores, TCF é a escolha mais robusta
 - Question templates não devem usar como label o nome de coluna de uma
-  dimensão diferente da fact — gera confusão semântica format-agnostic
+  dimensão diferente da fact, gera confusão semântica format-agnostic
 
 **Implicação para TCF (teoria):** O valor diferencial de TCF não é
-"compressão" ou "legibilidade" — é **declaração explícita de FK topology**.
+"compressão" ou "legibilidade", é **declaração explícita de FK topology**.
 CSV/JSON descrevem colunas; TCF declara relações. Para SQL generation, o
 que importa é relação, não coluna.
 
@@ -224,14 +224,14 @@ que importa é relação, não coluna.
 | 2026-04-22 | F-Q16 (cross-domain generalization) |
 | 2026-04-22 | F-Q17 (CSV vs JSON vs TCF; FK topology é o diferencial) |
 
-## F-Q18 `{B}` — SQL supera Pandas e Polars; CoT-SQL não adiciona acurácia sobre SQL direto
+## F-Q18 `{B}`: SQL supera Pandas e Polars; CoT-SQL não adiciona acurácia sobre SQL direto
 
 **Conclusão:** Para SQL generation a partir de schema TCF, o pipeline
 `LLM → SQL → SQLite` domina. Pandas e Polars como execução intermediária
 produzem acurácias muito menores. Chain-of-thought (CoT) antes do SQL
 não melhora acurácia em modelos locais.
 
-**Evidência (M5, 2026-04-22):** 1260 combos — 3 domínios × 3 modelos ×
+**Evidência (M5, 2026-04-22):** 1260 combos, 3 domínios × 3 modelos ×
 4 variantes × 7 questões × 5 seeds:
 
 | Variante | Acc | 95% CI | Latência (med) | c/resposta-certa |
@@ -241,16 +241,16 @@ não melhora acurácia em modelos locais.
 | pandas_fs | 68.6% | [63.2%, 73.4%] | 2113ms | 2749 |
 | polars_fs | 47.6% | [42.2%, 53.1%] | 2127ms | 3983 |
 
-**SQL vs CoT-SQL:** diferença de 0.3pp está dentro do CI — são equivalentes
+**SQL vs CoT-SQL:** diferença de 0.3pp está dentro do CI, são equivalentes
 em acurácia. CoT custa 2.4× mais latência sem ganho mensurável. Conclusão:
 modelos locais 7-14B já sintetizam o "plano de joins" implicitamente quando
 o schema é claro; verbalizar os passos não ajuda.
 
 **SQL vs Pandas (-28pp):** hipótese "Pandas usa named params → menos alucinação
-de FK" falsificada. O problema não é de representação do join — é de geração
+de FK" falsificada. O problema não é de representação do join, é de geração
 de código multiline. Modelos falham em fechar parênteses, indentação e lógica
 encadeada de `.merge().groupby().agg()`. SQL é uma linguagem de expressão
-*declarativa de linha única* — mais fácil de gerar corretamente do que
+*declarativa de linha única*, mais fácil de gerar corretamente do que
 código imperativo encadeado.
 
 **SQL vs Polars (-49pp):** Polars é inviável com os modelos testados. A API
@@ -264,7 +264,7 @@ em training data dos modelos 7-14B locais.
 | phi4:latest | 96% | 98% | 76% | 43% |
 | qwen2.5-coder:7b | 94% | 91% | 68% | 52% |
 
-phi4 e CoT: phi4 é o único onde CoT > SQL (+2pp) — consistente com o fato
+phi4 e CoT: phi4 é o único onde CoT > SQL (+2pp), consistente com o fato
 de phi4 ser um modelo reasoning com training specific para structured output.
 
 **Implicação metodológica:**
@@ -281,7 +281,7 @@ de phi4 ser um modelo reasoning com training specific para structured output.
 | 2026-04-22 | F-Q19 (HAVING falha universal: confusão de escopo de agregação aninhada) |
 | 2026-04-22 | M6: WHERE+filter+GROUP-SUM=100%; HAVING=7% |
 
-## F-Q19 `{B}` — HAVING com agregação aninhada falha universalmente em modelos locais
+## F-Q19 `{B}`: HAVING com agregação aninhada falha universalmente em modelos locais
 
 **Conclusão:** Queries do tipo "quantos grupos satisfazem COUNT(*) > N" têm
 acurácia de 7% (2/27) em 3 modelos × 3 domínios × 3 seeds. O modelo gera
@@ -317,18 +317,18 @@ SELECT COUNT(DISTINCT id_cliente) FROM (
 **escopo de agregação**. "Contar entidades que aparecem mais de N vezes"
 requer dois níveis: (1) agrupar e filtrar com HAVING, (2) contar os grupos
 resultantes via subquery. O modelo colapsa os dois em uma única cláusula
-SELECT com semântica errada mas sintaxe válida — por isso executa sem erro
+SELECT com semântica errada mas sintaxe válida, por isso executa sem erro
 e retorna resultado plausível (um número, nunca uma exception).
 
 **Comparação com F-Q12:** F-Q12 (aritmética sobre 255 linhas) falha por
-*capacity* — o modelo não consegue somar mentalmente. F-Q19 falha por
-*escopo de raciocínio* — o modelo não entende que precisa de duas passagens
+*capacity*, o modelo não consegue somar mentalmente. F-Q19 falha por
+*escopo de raciocínio*, o modelo não entende que precisa de duas passagens
 sobre os dados. Ambos são failure modes distintos de "resposta errada que
 executa sem erro".
 
 **Implicação metodológica:**
 - Queries HAVING-counting são um caso especial que requer subquery; não são
-  detectáveis por syntax checking — executam mas retornam errado
+  detectáveis por syntax checking, executam mas retornam errado
 - Para cobrir esse caso em production: adicionar ao few-shot um exemplo de
   subquery com HAVING (similar ao efeito de F-Q15 sobre q_top_entity)
 - M6b (hipótese): adicionar exemplo HAVING ao FEWSHOT_BLOCK e re-testar
@@ -337,16 +337,16 @@ executa sem erro".
 
 **Atualização M6b (2026-04-23):** Adicionar exemplo de subquery ao fewshot
 corrigiu q_having de 7% → **88.9%** (24/27). As 3 falhas restantes são
-erro de FK no domínio financial (phi4: `t.titular` não existe) — não
+erro de FK no domínio financial (phi4: `t.titular` não existe), não
 relacionado ao padrão HAVING. Subquery fewshot é o fix mínimo efetivo.
 
 ---
 
-## F-Q20 `{B}` — Queries L3 (CTE/subquery aninhada) alcançam 86% com fewshot adequado
+## F-Q20 `{B}`: Queries L3 (CTE/subquery aninhada) alcançam 86% com fewshot adequado
 
-**Conclusão:** Queries de nível 3 de complexidade SQL — CTE com filtro em
+**Conclusão:** Queries de nível 3 de complexidade SQL, CTE com filtro em
 agregação (`q_above_avg`), subquery aninhada em WHERE (`q_top_e1_best_e2`),
-COUNT DISTINCT em GROUP BY (`q_e2_most_e1`) — alcançam **86.4% global**
+COUNT DISTINCT em GROUP BY (`q_e2_most_e1`), alcançam **86.4% global**
 (70/81) com fewshot que inclui exemplos dos padrões. O padrão CTE é o mais
 confiável (100% em q_above_avg); falhas concentradas em dois tipos:
 
@@ -356,7 +356,7 @@ confiável (100% em q_above_avg); falhas concentradas em dois tipos:
    com dois JOINs.
 
 2. **ID vs nome na saída** (`q_e2_most_e1`, 81%): modelo retorna FK/ID em vez
-   do nome da entidade — JOIN à tabela de dimensão ausente ou usa CTE que
+   do nome da entidade, JOIN à tabela de dimensão ausente ou usa CTE que
    seleciona `id_categoria` em vez de `d2.nome`.
 
 **Por que CTE > subquery aninhada:** CTEs tornam cada passo nomeado e
@@ -366,14 +366,14 @@ rastreável. Modelos treinados em código Python têm viés para nomes explícit
 
 | Question | Acurácia | Padrão SQL | Tipo de falha |
 |---------|---------|-----------|--------------|
-| q_above_avg | 27/27 (100%) | CTE + WHERE avg | — |
+| q_above_avg | 27/27 (100%) | CTE + WHERE avg | n/a |
 | q_e2_most_e1 | 22/27 (81%) | COUNT DISTINCT GROUP BY | ID vs nome (5x) |
 | q_top_e1_best_e2 | 21/27 (78%) | subquery aninhada WHERE | coluna errada (6x) |
 
 **Implicação metodológica:**
 - CTEs com nomes explícitos são mais robustos que subqueries aninhadas
 - Falhas de "coluna errada" e "ID vs nome" são distintas das falhas de HAVING
-  (scope confusion) — são erros de *mapeamento de schema*, não de lógica
+  (scope confusion), são erros de *mapeamento de schema*, não de lógica
 - Fewshot com exemplos específicos de cada padrão é mais efetivo que hint geral
 - Hipótese `--safe-sql`: diretiva de estilo "prefira CTEs" pode generalizar
   os ganhos do fewshot sem precisar de exemplo para cada tipo de query
@@ -383,11 +383,11 @@ Ver research-note: [2026-04-23-conservative-sql-flag.md](../research-notes/2026-
 
 ---
 
-## F-Q21 `{B}` — Falhas de SQL se dividem em dois tipos: detectáveis por invariante e silenciosas
+## F-Q21 `{B}`: Falhas de SQL se dividem em dois tipos: detectáveis por invariante e silenciosas
 
 **Conclusão:** De 39 falhas analisadas em M6/M6b/M7, **21% são Type A** (invariante
-matemático violado — detectáveis sem GT) e **79% são Type B** (resultado plausível
-mas errado — "falhas silenciosas"). Os dois tipos têm causas distintas e exigem
+matemático violado, detectáveis sem GT) e **79% são Type B** (resultado plausível
+mas errado, "falhas silenciosas"). Os dois tipos têm causas distintas e exigem
 estratégias de recuperação diferentes.
 
 | Tipo | Definição | % do total | Exemplo |
@@ -399,11 +399,11 @@ estratégias de recuperação diferentes.
 
 | Question | Type A | Type B | Detectabilidade |
 |---------|--------|--------|----------------|
-| q_having | 0% | 100% | 0% — falha completamente silenciosa |
-| q_top_e1_best_e2 | 100% | 0% | 100% — SQL error ou nome inválido |
-| q_e2_most_e1 | 40% | 60% | 40% — ID numérico é detectável |
+| q_having | 0% | 100% | 0%, falha completamente silenciosa |
+| q_top_e1_best_e2 | 100% | 0% | 100%, SQL error ou nome inválido |
+| q_e2_most_e1 | 40% | 60% | 40%, ID numérico é detectável |
 
-**Por que q_having é 0% detectável:** O modelo retorna `1` — matematicamente
+**Por que q_having é 0% detectável:** O modelo retorna `1`, matematicamente
 plausível (1 ≤ total_distinct_fk1), mas errado porque representa o COUNT por
 grupo e não o COUNT de grupos. O invariante `result ≤ COUNT(DISTINCT fk1)` é
 satisfeito e não sinaliza nada. É o tipo de falha que só GT ou análise estrutural
@@ -411,11 +411,11 @@ de SQL detecta.
 
 **Por que q_top_e1_best_e2 é 100% detectável:** Modelo usa coluna errada na
 subquery interna → SQL lança `OperationalError`. O `executed_result` é uma
-mensagem de erro, não um nome de entidade — trivialmente detectável pelo
+mensagem de erro, não um nome de entidade, trivialmente detectável pelo
 invariante "resultado deve ser nome válido de dim2".
 
 **Implicação metodológica:**
-- Embedded invariants só ajudam em falhas de Type A — que em M6/M7 são minoria
+- Embedded invariants só ajudam em falhas de Type A: que em M6/M7 são minoria
 - Para o tipo mais frequente (q_having Type B), a única solução robusta é
   fewshot ou diretiva de estilo (`--safe-sql`)
 - Na prática, invariant checking é útil como camada de sanidade adicional,
@@ -424,10 +424,10 @@ invariante "resultado deve ser nome válido de dim2".
 **Referência:** `experiments/eval/run_minv_invariant_check.py` (2026-04-23);
 análise sobre manifests m6_filter, m6b_having_fix, m7_complex.
 
-**Update 2026-04-25 — M_inv-canonical:** estendido para M9, M9-Adult, M-strat.
+**Update 2026-04-25, M_inv-canonical:** estendido para M9, M9-Adult, M-strat.
 Resultado degenerado (e cientificamente significativo): **zero falhas para
 invariant analysis** em canonical:
-- M9 TPC-H: 3 falhas total — todas ties válidos em q_top_product (não erros
+- M9 TPC-H: 3 falhas total, todas ties válidos em q_top_product (não erros
   semânticos; ver F-Q24)
 - M9-Adult: 0 falhas
 - M-strat: 0 falhas (após re-run)
@@ -439,7 +439,7 @@ silenciosas **não ocorrem**. Reforça F-Q25 (universalidade do paradigma).
 
 ---
 
-## F-Q22 `{B}` — Style hints recuperam falhas SQL sem exemplos; flags têm interferência off-target
+## F-Q22 `{B}`: Style hints recuperam falhas SQL sem exemplos; flags têm interferência off-target
 
 **Conclusão:** Diretivas de estilo SQL no prompt (sem exemplos concretos) recuperam
 padrões de falha com magnitude comparável a fewshot com exemplo. O flag específico
@@ -447,7 +447,7 @@ padrões de falha com magnitude comparável a fewshot com exemplo. O flag espec�
 diretiva "decomponha HAVING em subquery", sem precisar de exemplo de código.
 
 **Mas flags têm interferência cruzada (off-target):** combinar todos os style hints
-não soma os ganhos — alguns hints DEGRADAM outras questions.
+não soma os ganhos, alguns hints DEGRADAM outras questions.
 
 **Evidência (M8, 2026-04-23):** 3 modelos × 3 domínios × 3 questions × 5 variantes
 × 3 seeds = 405 combos.
@@ -461,12 +461,12 @@ não soma os ganhos — alguns hints DEGRADAM outras questions.
 | safe_explicit_fk | 14.8% (=) | **40.7% (-11.1)** | 88.9% (+14.8) |
 
 **Interferências importantes:**
-1. `safe_name_join` **degrada q_having** (-3.7pp) — diretiva "sempre JOIN ao dim"
+1. `safe_name_join` **degrada q_having** (-3.7pp), diretiva "sempre JOIN ao dim"
    confunde query que não precisa de dim
-2. `safe_explicit_fk` **degrada q_top_e1_best_e2** (-11.1pp) — sem nota sobre
+2. `safe_explicit_fk` **degrada q_top_e1_best_e2** (-11.1pp), sem nota sobre
    nomes completos de FK, modelo escreve `SELECT id FROM vendas` em vez de
    `SELECT id_cliente FROM vendas`
-3. `safe_subquery_col` tem spillover positivo em q_having (+29.6pp) — ambos
+3. `safe_subquery_col` tem spillover positivo em q_having (+29.6pp), ambos
    dependem de scope correto de colunas em subquery
 
 **Sensibilidade por modelo (q_having):**
@@ -481,16 +481,16 @@ não soma os ganhos — alguns hints DEGRADAM outras questions.
 
 qwen3:14b responde limpo aos style hints; qwen2.5-coder:7b **regride para 0%** em
 hints não-alvo. Modelos menores são significativamente mais sensíveis a ruído
-de prompt — flags mal aplicados PIORAM resultado.
+de prompt, flags mal aplicados PIORAM resultado.
 
 **Implicação metodológica:**
 - Style hints são mecanismo válido de recuperação zero-shot (não precisam de
   exemplo concreto)
 - Flags devem ser aplicados granularmente, não "tudo ligado por padrão"
 - Agrupamentos recomendados pelos dados:
-  - `--safe-sql-low` = `{safe_having}` — ganho grande, sem efeito colateral medido
-  - `--safe-sql-medium` = `{safe_having, safe_subquery_col}` — ambos positivos
-  - `--safe-sql-full` = NÃO recomendado — `safe_explicit_fk` regride nested subquery
+  - `--safe-sql-low` = `{safe_having}`: ganho grande, sem efeito colateral medido
+  - `--safe-sql-medium` = `{safe_having, safe_subquery_col}`: ambos positivos
+  - `--safe-sql-full` = NÃO recomendado: `safe_explicit_fk` regride nested subquery
 - Modelos menores (7B) requerem seleção mais conservadora de flags
 
 **Hipótese aberta:** M8b testaria combinações (ex: `safe_having+subquery_col`) para
@@ -502,13 +502,13 @@ para a hipótese original.
 
 ---
 
-## F-Q23 `{B}` — Style hints SQL não são composicionais; flags isolados > combinações
+## F-Q23 `{B}`: Style hints SQL não são composicionais; flags isolados > combinações
 
 **Conclusão:** Style hints SQL combinados raramente somam seus ganhos individuais;
 **11 de 12 combinações testadas (92%) ficam abaixo do modelo aditivo** (interferência).
 A exceção é 1 sinergia específica (`having + name_join` em q_top_e1_best_e2:
-+14.8pp acima do previsto). Isso refuta a intuição de "quanto mais hints, melhor"
-— cada hint adiciona pressão interpretativa, e pressões conflitantes degradam SQL.
++14.8pp acima do previsto). Isso refuta a intuição de "quanto mais hints, melhor",
+cada hint adiciona pressão interpretativa, e pressões conflitantes degradam SQL.
 
 **Evidência (M8b, 2026-04-23):** 3 modelos × 3 domínios × 3 questions × 5 variantes
 de combinação × 3 seeds = 405 combos. Comparação com modelo aditivo usando M8
@@ -540,13 +540,13 @@ SELECT COUNT(DISTINCT c.id) FROM vendas v JOIN clientes c ON v.id_cliente=c.id G
 default. "Muito ruído = hint principal é diluído."
 
 *Sinergia `having_plus_name` em q_top_e1_best_e2:* as duas pressões **alinham**
-— a query precisa tanto de subquery (pressure de having) quanto de JOIN-to-name
+a query precisa tanto de subquery (pressure de having) quanto de JOIN-to-name
 (pressure de name_join). Resultado: 96.3%, sinérgico.
 
-**Taxas de SQL válido (executável) por combinação — q_having, qwen3:14b:**
+**Taxas de SQL válido (executável) por combinação, q_having, qwen3:14b:**
 - safe_having sozinho (M8): 100% válido e correto
 - having_plus_subq: 100% (mas às vezes semanticamente errado)
-- having_plus_name: 56% (sql_error frequente — `v.id` inexistente)
+- having_plus_name: 56% (sql_error frequente, `v.id` inexistente)
 - all_flags: 22% (volta ao padrão errado)
 
 **Implicação metodológica:**
@@ -567,11 +567,11 @@ Ver também F-Q22 (flags isolados) como pré-requisito.
 
 ---
 
-## F-Q24 `{B}` — Canonical TPC-H e synthetic retail produzem accuracy equivalente sob mesmo protocolo
+## F-Q24 `{B}`: Canonical TPC-H e synthetic retail produzem accuracy equivalente sob mesmo protocolo
 
 **Conclusão:** O protocolo M3 (sql_stats_fs, 7 question types, 3 modelos locais)
 aplicado sobre **dados reais TPC-H via Pipeline B** (DatasetReader + FK-preserving
-sampling) produz **100% de accuracy** (63/63 com tie-handling correto) —
+sampling) produz **100% de accuracy** (63/63 com tie-handling correto):
 equivalente aos 96% de M3 sobre synthetic retail (189 combos, 7 falhas
 concentradas em F-Q17 titular bug). Dados sintéticos não estavam inflando
 accuracy; o paradigma H-TCF2 generaliza para schemas reais com naming
@@ -580,7 +580,7 @@ convention industrial (ps_supplycost, s_suppkey, etc.).
 **Evidência (M9, 2026-04-24):** 3 modelos × 1 dataset TPC-H × 7 questions ×
 3 seeds = 63 combos. Topology: partsupp (fact) + part (dim2) + supplier (dim1),
 analog direto de vendas/produtos/clientes em M3. Same FEWSHOT_BLOCK em PT-synthetic
-aplicado a nomes EN-canonical — zero degradação por language mismatch (reforça F-Q3).
+aplicado a nomes EN-canonical, zero degradação por language mismatch (reforça F-Q3).
 
 **Comparação M3 vs M9 por question type:**
 
@@ -599,16 +599,16 @@ genuínos), 100% com tie-aware scoring. Ver "Descoberta metodológica" abaixo.
 
 **O que isso significa:**
 - **Pipeline B está validado** para integração com M-series
-- **Synthetic não superestima accuracy** — os resultados M1-M8 são honestos
-- **TPC-H naming industrial não degrada performance** — `ps_supplycost` e
+- **Synthetic não superestima accuracy**: os resultados M1-M8 são honestos
+- **TPC-H naming industrial não degrada performance**: `ps_supplycost` e
   `Supplier#000000003` são interpretados tão bem quanto `total` e `Ana`
-- **O viés detectado era específico ao synthetic** — F-Q17 (titular collision)
+- **O viés detectado era específico ao synthetic**: F-Q17 (titular collision)
   é artefato do nosso label PT sobrepor nome de coluna; TPC-H não tem esse risco
 - **Paradigma unificado possível:** M-series pode migrar para canonical sem perda;
   synthetic mantém-se como ablação controlada (varia N_entities, FK topology,
-  null_rate — dimensões que canonical não permite controlar)
+  null_rate, dimensões que canonical não permite controlar)
 
-**Descoberta metodológica secundária — Tie-handling no scoring:**
+**Descoberta metodológica secundária, Tie-handling no scoring:**
 Na seed=7 de TPC-H, 3 parts empatam em max_count=2. Scoring atual escolhe
 deterministicamente via `Counter.most_common(1)` do Python, mas SQLite tie-breaking
 segue ordem de inserção diferente. Modelos geram SQL semanticamente correto

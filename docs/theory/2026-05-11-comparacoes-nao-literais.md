@@ -1,4 +1,4 @@
-# Comparações não-literais — nota conceitual para resgate futuro
+# Comparações não-literais: nota conceitual para resgate futuro
 
 Data: 2026-05-11
 Contexto: registro de ideia trazida pelo user durante a fase de exp 16/17.
@@ -8,13 +8,13 @@ Status: **fora do foco do ciclo atual**; nota arquivada para retomada futura.
 
 ## Arquivos a revisar quando o tema voltar
 
-1. [`experiments/lab/dirty/old/2026-05-09-delta-datas/`](../old/2026-05-09-delta-datas/)
-   — laboratório completo sobre delta encoding em datas (5 documentos:
+1. [`experiments/lab/dirty/old/2026-05-09-delta-datas/`](../old/2026-05-09-delta-datas/):
+   laboratório completo sobre delta encoding em datas (5 documentos:
    `00-conceito.md`, `01-dataset.md`, `02-formas-delta.md`,
    `03-aplicado.md`, `04-conclusoes.md`)
 
-2. [`docs/workbench/_archive/tickets/open/23-P-numeric-precision.md`](../../../docs/workbench/_archive/tickets/open/23-P-numeric-precision.md)
-   — ticket sobre tratamento numérico com perda controlada (2 camadas:
+2. [`docs/workbench/_archive/tickets/open/23-P-numeric-precision.md`](../../../docs/workbench/_archive/tickets/open/23-P-numeric-precision.md):
+   ticket sobre tratamento numérico com perda controlada (2 camadas:
    Shaper pré-encoding + TCF core)
 
 Ambos são **blueprint** (ciclo anterior). Quando retomar, re-verificar
@@ -50,7 +50,7 @@ Algoritmos típicos: Levenshtein/edit distance, Jaro-Winkler,
 metaphone/soundex, similaridade por n-grams.
 
 **Onde encaixa**: busca, deduplicação fuzzy, junção aproximada
-entre tabelas. **Não encaixa em compressão lossless** — usar
+entre tabelas. **Não encaixa em compressão lossless**: usar
 "Anna" como ref de "Ana" perderia 1 char na reconstrução.
 
 Encaixa potencialmente em:
@@ -69,9 +69,9 @@ Algoritmos: tolerância absoluta (`|a − b| < ε`), tolerância
 relativa (`|a − b| / max(|a|, |b|) < ε`), comparação por casas
 decimais, arredondamento controlado, ULP comparison.
 
-**Onde encaixa**: similar ao item 1 — **fora de compressão
+**Onde encaixa**: similar ao item 1, **fora de compressão
 lossless**. Encaixa em:
-- **Shaper** (pré-encoding) com perda controlada — ticket
+- **Shaper** (pré-encoding) com perda controlada: ticket
   arquivado [`23-P-numeric-precision`](../../../docs/workbench/_archive/tickets/open/23-P-numeric-precision.md)
   já discutia isto em ciclos anteriores
 - Modo **lossy opt-in** declarado no header (qualquer dado lossy
@@ -99,7 +99,7 @@ As conclusões daquela mesa registraram:
   padrões repetitivos induzidos (deltas iguais)
 - Falha em ordens não-cronológicas e em colunas não-numéricas
 
-Essas conclusões são **ideias** para o v0.6 — precisam ser
+Essas conclusões são **ideias** para o v0.6, precisam ser
 re-verificadas dentro do dirty lab atual antes de virarem
 evidência viva.
 
@@ -149,7 +149,7 @@ firme, como camada superior ou como pré-transformações opt-in.
    `dirty/old/2026-05-09-delta-datas/` que precisa ser
    re-verificado antes de virar evidência v0.6.
 
-2. **Aproximada texto e numérica são lossy** — não cabem dentro
+2. **Aproximada texto e numérica são lossy**, não cabem dentro
    do algoritmo de compressão lossless atual. Encaixam em
    camadas superiores (query, dedup, Shaper) ou em modos opt-in
    declarados.
@@ -176,4 +176,4 @@ Esta nota se torna acionável quando algum dos critérios bater:
 - Surgir requisito explícito de dataset numérico onde precisão
   controlada é aceitável
 
-Até lá, a nota fica como registro de direção — não como tarefa.
+Até lá, a nota fica como registro de direção, não como tarefa.

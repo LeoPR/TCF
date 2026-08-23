@@ -1,11 +1,11 @@
 ---
-title: CAMADA 1 — OBAT (Online Bidirectional Affix Tokenizer)
+title: CAMADA 1, OBAT (Online Bidirectional Affix Tokenizer)
 type: reference
 parent: strategies-map
 subsystem: obat
 ---
 
-# CAMADA 1 — OBAT (Online Bidirectional Affix Tokenizer)
+# CAMADA 1: OBAT (Online Bidirectional Affix Tokenizer)
 
 **Como decide caminhos**:
 
@@ -54,15 +54,15 @@ For each string in OBAT processar():
 | **LCS (Longest Common Suffix) calculation** | heuristica | [src/tcf/core/online.py:67-72 (public); 85-94 (_lcs_len_capped)](../../../src/tcf/core/online.py) | a, b: str; cap (optional): int = upper bound | always during _melhor_suf search; once per candidate pair within suffix bucket |
 | **Hash prefix index (trigram bucketing)** | marcador | [src/tcf/core/online.py:184, 196-197, 222-223; processar() initializes and maintains](../../../src/tcf/core/online.py) | trigram key length: k=3 (hardcoded, matches min_len default); bucket: list[int] (zero-indexed) | initialized empty at start of processar(); appended to every string where ls >=  |
 | **Hash suffix index (trigram bucketing)** | marcador | [src/tcf/core/online.py:185, 197-198, 223; processar() manages](../../../src/tcf/core/online.py) | trigram key: s[-3:]; bucket: list[int] zero-indexed | initialized; appended for ls >= min_len; read in _melhor_suf |
-| **_melhor_pref — find best prefix match** | filtro | [src/tcf/core/online.py:97-112](../../../src/tcf/core/online.py) | s (str), ls (len), strings (list), lens (list), prefix_index (dict), max_len (int=ls), min_len (int= | called once per new string in _escolher_par; bucket filtered by s[:3] trigram |
-| **_melhor_suf — find best suffix match** | filtro | [src/tcf/core/online.py:115-126](../../../src/tcf/core/online.py) | s, ls, strings, lens, suffix_index, max_len (int=ls), min_len | called once per new string in _escolher_par; bucket filtered by s[-3:] |
-| **_escolher_par — greedy cover with overlap detection** | estrategia | [src/tcf/core/online.py:129-162](../../../src/tcf/core/online.py) | s, ls, strings, lens, prefix_index, suffix_index, min_len (int) | once per new string (idx >= 1) in processar; core decision point for tokenizatio |
+| **_melhor_pref, find best prefix match** | filtro | [src/tcf/core/online.py:97-112](../../../src/tcf/core/online.py) | s (str), ls (len), strings (list), lens (list), prefix_index (dict), max_len (int=ls), min_len (int= | called once per new string in _escolher_par; bucket filtered by s[:3] trigram |
+| **_melhor_suf, find best suffix match** | filtro | [src/tcf/core/online.py:115-126](../../../src/tcf/core/online.py) | s, ls, strings, lens, suffix_index, max_len (int=ls), min_len | called once per new string in _escolher_par; bucket filtered by s[-3:] |
+| **_escolher_par, greedy cover with overlap detection** | estrategia | [src/tcf/core/online.py:129-162](../../../src/tcf/core/online.py) | s, ls, strings, lens, prefix_index, suffix_index, min_len (int) | once per new string (idx >= 1) in processar; core decision point for tokenizatio |
 | **min_len threshold** | threshold | [src/tcf/core/online.py:102-103, 110, 116, 124 (filtering); default 3 set in processar()](../../../src/tcf/core/online.py) | int in range [2, 6]; empirically {3,4,5,6}; default=3 | passed as parameter to processar(); gates every valid match in _melhor_pref/_mel |
 | **Auto-detect min_len (H-DA-11, ADR-0010)** | estrategia | [src/tcf/auto_min_len.py:25-68](../../../src/tcf/auto_min_len.py) | features (ColumnFeatures); n_threshold (int=100); returns int in {3,4,5,6} | pre-pass phase (CAMADA 0) in canonical M10 pipeline if cfg.pre_pass=True; always |
 | **Cadence detection (H-DA-08, ADR-0008)** | estrategia | [src/tcf/auto_cadence.py:28-96](../../../src/tcf/auto_cadence.py) | features (ColumnFeatures), strings_unicas (list[str]), n_sample (int=5), threshold (float=0.7), nume | pre-pass phase (CAMADA 0) in canonical M10 if cfg.pre_pass=True; called before O |
-| **processar() — canonical OBAT** | estrategia | [src/tcf/core/online.py:179-225](../../../src/tcf/core/online.py) | strings_unicas (list[str]); min_len (int=3); returns (list[list[Token]], str) | core CAMADA 1 processing; called from encoder.py unless cadence_detected and cfg |
-| **processar_with_hint() — cadence-aware OBAT** | estrategia | [src/tcf/obat_shape.py:64-120](../../../src/tcf/obat_shape.py) | strings_unicas, min_len (int=3), prefer_shape_consistency (bool); returns (list[list[Token]], str) | CAMADA 1 processing when cadence detected (H-DA-08) and cfg.obat_shape_preserve= |
-| **reconstroi() — roundtrip validation** | helper | [src/tcf/core/online.py:165-176](../../../src/tcf/core/online.py) | tokens (list[Token]), strings_unicas (list[str]); returns str | never called in canonical pipeline; available for unit tests + diagnostics |
+| **processar(), canonical OBAT** | estrategia | [src/tcf/core/online.py:179-225](../../../src/tcf/core/online.py) | strings_unicas (list[str]); min_len (int=3); returns (list[list[Token]], str) | core CAMADA 1 processing; called from encoder.py unless cadence_detected and cfg |
+| **processar_with_hint(), cadence-aware OBAT** | estrategia | [src/tcf/obat_shape.py:64-120](../../../src/tcf/obat_shape.py) | strings_unicas, min_len (int=3), prefer_shape_consistency (bool); returns (list[list[Token]], str) | CAMADA 1 processing when cadence detected (H-DA-08) and cfg.obat_shape_preserve= |
+| **reconstroi(), roundtrip validation** | helper | [src/tcf/core/online.py:165-176](../../../src/tcf/core/online.py) | tokens (list[Token]), strings_unicas (list[str]); returns str | never called in canonical pipeline; available for unit tests + diagnostics |
 | **ColumnFeatures pre-pass** | decision-point | [src/tcf/column_features.py:51-84](../../../src/tcf/column_features.py) | values (list[str]), sample_size (int=20); returns ColumnFeatures | always at start of _encode_column(); result fed to detect_cadence and detect_min |
 | **Greedy cover selection criterion (maximize total coverage)** | decision-point | [src/tcf/core/online.py:155-161](../../../src/tcf/core/online.py) | cand_a, cand_b: (int, int, int, int) tuples (p_id, p_len, s_id, s_len) | when bp_len + bs_len > ls in _escolher_par; triggers 2-candidate generation and  |
 | **Tie-break rule: first occurrence wins** | decision-point | [src/tcf/core/online.py:108-111 (_melhor_pref), 122-125 (_melhor_suf)](../../../src/tcf/core/online.py) | comparison operator > (not >=) | in _melhor_pref and _melhor_suf whenever length comparison ties |
@@ -163,11 +163,11 @@ TESTING NOTES:
 - Side outputs (SideOutputs class) capture column_features, cadence_detected, min_len, obat_log for debugging
 
 REFERENCES:
-- docs/algorithms/OBAT.md — formal spec
-- docs/adr/0009-obat-trigram-index-optimization.md — trigram index decision + empirics
-- docs/adr/0010-auto-detect-min-len.md — H-DA-11 heuristic + oracle comparison
-- docs/adr/0008-detect-cadence-numeric-rule.md — cadence rules 1 & 2
-- src/tcf/core/online.py:1-25 — design narrative in docstring
+- docs/algorithms/OBAT.md: formal spec
+- docs/adr/0009-obat-trigram-index-optimization.md: trigram index decision + empirics
+- docs/adr/0010-auto-detect-min-len.md: H-DA-11 heuristic + oracle comparison
+- docs/adr/0008-detect-cadence-numeric-rule.md: cadence rules 1 & 2
+- src/tcf/core/online.py:1-25, design narrative in docstring
 
 
 ---

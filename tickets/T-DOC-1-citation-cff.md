@@ -1,5 +1,5 @@
 ---
-title: T-DOC-1 — Adicionar CITATION.cff e preparar DOI (Zenodo)
+title: T-DOC-1, Adicionar CITATION.cff e preparar DOI (Zenodo)
 status: closed
 resolution: citation-cff-created-doi-deferred
 priority: P3
@@ -13,7 +13,7 @@ related:
   - CITATION.cff
 ---
 
-# T-DOC-1 — Adicionar CITATION.cff e preparar DOI (Zenodo)
+# T-DOC-1: Adicionar CITATION.cff e preparar DOI (Zenodo)
 
 ## Contexto / motivacao
 
@@ -43,7 +43,7 @@ Zenodo da identidade permanente que persiste se o repo migrar.
 
 ## Riscos
 
-- Versionar autor/afiliacao pode ficar obsoleto — politica: atualizar
+- Versionar autor/afiliacao pode ficar obsoleto: politica: atualizar
   na release, nao por commit individual
 - DOI permanente: uma vez publicado, errar metadata e' caro de
   corrigir. Preferir defer Zenodo ate' ter conviccao de release
@@ -55,11 +55,11 @@ Zenodo da identidade permanente que persiste se o repo migrar.
 
 ## Updates datados
 
-### 2026-05-23 — execucao + fechamento
+### 2026-05-23: execucao + fechamento
 
 CITATION.cff criado na raiz com campos minimos:
 - authors: Leonardo Marques Souza
-- title: TCF — Tabular Compact Format
+- title: TCF, Tabular Compact Format
 - version: 0.6
 - date-released: 2026-05-22
 - repository-code: github.com/LeoPR/TCF

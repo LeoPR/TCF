@@ -1,4 +1,4 @@
-# Marcadores compactos e inferidos — nota conceitual para resgate
+# Marcadores compactos e inferidos: nota conceitual para resgate
 
 Data: 2026-05-11
 Contexto: pedido do user durante a fase exp 17/18.
@@ -34,14 +34,14 @@ Marcadores explícitos:
 | `<body>` / `</body>` | marcadores macro | 14 chars total |
 
 A nota [`custo-de-marcadores`](2026-05-11-custo-de-marcadores.md)
-discute que esse custo é **elástico** — na fase prototype pode
+discute que esse custo é **elástico**: na fase prototype pode
 cair para 1-2 bytes por marcador.
 
 ## O que o user quer registrar
 
 Duas direções complementares:
 
-### Direção 1 — marcadores ultra-compactos e previsíveis
+### Direção 1: marcadores ultra-compactos e previsíveis
 
 Reduzir cada marcador para o mínimo de bytes mantendo
 **previsibilidade** (uma sintaxe regular, sem ambiguidade,
@@ -68,7 +68,7 @@ Exemplo hipotético da mesma linha do exp 15:
 
 Trade-off: ganho real em bytes, perda de leitura visual.
 
-### Direção 2 — marcadores inferidos pela ordem/gramática
+### Direção 2: marcadores inferidos pela ordem/gramática
 
 Em vez de explicitar marcadores, **deduzi-los pela posição** dentro
 de uma gramática regular sem ambiguidade.
@@ -76,10 +76,10 @@ de uma gramática regular sem ambiguidade.
 Exemplos a explorar:
 
 - **id implícito por linha**: a 1ª linha é `no1`, a 2ª é `no2`. O
-  decoder conta linhas — não precisa do `noN:` no head.
+  decoder conta linhas, não precisa do `noN:` no head.
 - **prefix/sufix por ordem na sequência**: o 1º token é sempre
   prefix-ou-literal; o último é sufix-ou-literal; o meio é
-  literal. Sem precisar de `[0:K]` / `[-K:]` — só `K` (com sinal
+  literal. Sem precisar de `[0:K]` / `[-K:]`, só `K` (com sinal
   para indicar lado se ambíguo).
 - **continuação implícita**: se uma linha começa com chars que
   são números, é ref; se começa com aspas, é literal.
@@ -123,7 +123,7 @@ inspecionabilidade.
 
 Quando o algoritmo lossless tiver:
 
-- Estabilidade em famílias variadas (em curso — exp 17)
+- Estabilidade em famílias variadas (em curso: exp 17)
 - Comportamento medido em escala (exp 18 próximo)
 - Variantes algorítmicas exploradas (exps 19, 20, 21)
 
@@ -133,8 +133,8 @@ Cabe num exp dedicado quando o algoritmo estiver fechado.
 
 ## Arquivos relacionados
 
-- [`custo-de-marcadores.md`](2026-05-11-custo-de-marcadores.md) —
+- [`custo-de-marcadores.md`](2026-05-11-custo-de-marcadores.md):
   teoria por trás da métrica de unidades
-- [`comparacoes-nao-literais.md`](2026-05-11-comparacoes-nao-literais.md)
-  — outras camadas (delta, lossy) que podem entrar antes ou
+- [`comparacoes-nao-literais.md`](2026-05-11-comparacoes-nao-literais.md):
+  outras camadas (delta, lossy) que podem entrar antes ou
   depois do encoder

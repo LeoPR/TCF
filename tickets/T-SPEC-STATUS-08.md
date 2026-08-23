@@ -1,5 +1,5 @@
 ---
-title: T-SPEC-STATUS-08 — status dos specs (2 abordagens) antes do teste em massa; decisão do que fecha no .8
+title: T-SPEC-STATUS-08, status dos specs (2 abordagens) antes do teste em massa; decisão do que fecha no .8
 status: in-progress (revisao cadastral 2026-07-12; conjunto canonico atual preservado)
 priority: P1
 created: 2026-07-12
@@ -14,27 +14,27 @@ related:
   - experiments/lab/dirty/notas/2026-06/specs-capacity-map.md
 ---
 
-# T-SPEC-STATUS-08 — onde os specs estão, pra decidir o que fechar antes do teste em massa
+# T-SPEC-STATUS-08: onde os specs estão, pra decidir o que fechar antes do teste em massa
 
 > **⚑ ERRATA 2026-07-22** ([parecer 2340](../experiments/lab/dirty/notas/2026-07/2026-07-22-2340-revisao-fechamento-08-ordem-foco.md)
 > §3): o caveat "a nature CNPJ piora a tabela em real" (base da Opção A) está **SOB REVISÃO
 > ESTRUTURAL**. O owner suspeita que o spec/forma está mal-conduzido (RT+compressão ok, forma não) e
-> que **há ganho real** — o `+7339 B` é a forma absoluta pré-FLOOR, não teto do spec. Trabalho pré-`.9`:
+> que **há ganho real**: o `+7339 B` é a forma absoluta pré-FLOOR, não teto do spec. Trabalho pré-`.9`:
 > **lab estrutural de natures** (CNPJ real da Receita; CPF/IP controle) tratando código como composição
 > de subcódigos/transformação de coluna, e desenhar uma **IR/DSL de spec** (natures como linguagem).
 > A Opção A (não expandir catálogo no `.8`) permanece; o que muda é que o **caveat não é conclusão
 > fechada**. Ver [direções §3](../experiments/lab/dirty/notas/2026-07/2026-07-22-2225-direcoes-pos-baseline-discutir-depois.md).
 
-> **DECIDIDO (owner 2026-07-12): OPÇÃO A.** Só CPF/CNPJ (já welded) no `.8` — o material reporta
+> **DECIDIDO (owner 2026-07-12): OPÇÃO A.** Só CPF/CNPJ (já welded) no `.8`, o material reporta
 > CNPJ (receita REAL) e CPF (sintético-teto), COM o caveat medido no F4 (a nature CNPJ piora a
 > tabela em dado real). NENHUM spec novo no `.8` (zero core novo, zero risco no tail). Os clássicos
 > que cabem por construtor (CEP/PIS/renavam/título/CNH) e os que precisam máquina nova
 > (telefone/RG/placa) ficam registrados aqui + na linha FILTROS-POPULARES do ROADMAP → **`.9`**,
 > abertos só quando houver dataset real com a coluna (senão repete o gap sintético-vs-real). O F6
 > DEVE carregar o caveat "nenhum clássico, nem CNPJ, é ganho de tabela garantido em real".
-> Pré-requisitos p/ qualquer spec novo (.9): anonimizador §2.3 + gerador estendido — não existem.
+> Pré-requisitos p/ qualquer spec novo (.9): anonimizador §2.3 + gerador estendido, não existem.
 
-> **REABERTURA DE EXPLORACAO (owner 2026-07-12)** — antes do fechamento documental, o owner pediu
+> **REABERTURA DE EXPLORACAO (owner 2026-07-12)**: antes do fechamento documental, o owner pediu
 > revisar os campos cadastrais mais comuns (CEP, RG, identificacao de motorista, datas de aniversario,
 > telefone e codigos sem inferencia natural) e avaliar base64/base96. A decisao inicial A continua
 > valendo como baseline: nenhum novo spec foi welded nesta revisao. A evidencia nova esta em
@@ -43,13 +43,13 @@ related:
 **[dispositivo→registro]** Pedido do owner (2026-07-12): "quero ver o status dos specs, pra poder
 lançar com os datasets. Os specs tinham duas abordagens: (1) revisão da LINGUAGEM pra ficar
 generalista e fácil de adaptar a qualquer acoplamento; (2) usar algo mais 'encaixotado' como o CPF
-já tem — clássicos: CNPJ, CEP, telefone, RG, CPF e outros códigos brasileiros. Quero fechar essas
+já tem, clássicos: CNPJ, CEP, telefone, RG, CPF e outros códigos brasileiros. Quero fechar essas
 coisas antes de partir pro teste em massa."
 
 Fonte: survey de 3 agentes (2026-07-12, read-only, file:line verificado; 1 re-rodado por resposta
-degenerada — o re-survey CORRIGIU um erro material do primeiro sobre o `check_fn`).
+degenerada, o re-survey CORRIGIU um erro material do primeiro sobre o `check_fn`).
 
-## Abordagem 1 — LINGUAGEM generalista (specs induzidas)
+## Abordagem 1: LINGUAGEM generalista (specs induzidas)
 
 **Estado: mapeada, confirmada-CONCEITUAL, gated `.9`.** Não é código a rodar no teste em massa.
 
@@ -61,14 +61,14 @@ degenerada — o re-survey CORRIGIU um erro material do primeiro sobre o `check_
   ACELERAÇÃO + espaço binário V2-L. Gate `H-TYPE-03` aberto (decisão de produto do owner:
   "terminal é representativo?"). Medições fechadas (D3 N=8: 8.8% terminal / 1.7% pós-brotli).
 - **Trilho literal de DSL de spec** (a "linguagem generalista" no sentido estrito) = W4 "TCFL"
-  (`2026-06-27-0310-resegmentacao-workstreams.md`) + `filtros-dsl-plano.md` — registrado, deferido 2.0.
+  (`2026-06-27-0310-resegmentacao-workstreams.md`) + `filtros-dsl-plano.md`, registrado, deferido 2.0.
 - **Pro teste em massa AGORA**: só o que está welded (natures ADR-0015 + self-describing `:id`
   ADR-0027 + SPEC_REGISTRY). Todo o resto = `.9`, gated. Nada a fazer aqui pro `.8`.
 
-## Abordagem 2 — clássicos BR encaixotados
+## Abordagem 2: clássicos BR encaixotados
 
 **Achado central (verificado): o gargalo NÃO é a máquina, é DADO.** As máquinas welded já cobrem
-5 dos 7 clássicos por CONSTRUTOR, sem tocar o core — mas nenhum hub tem coluna de clássico BR além
+5 dos 7 clássicos por CONSTRUTOR, sem tocar o core, mas nenhum hub tem coluna de clássico BR além
 de CPF/CNPJ, e o gerador só produz cpf/cnpj. Logo o gate de weld (≥15% em 2+ reais, sobrevive a
 brotli) só é atingível HOJE por CNPJ.
 
@@ -77,21 +77,21 @@ brotli) só é atingível HOJE por CNPJ.
 - **`check_fn` é PARÂMETRO LIVRE do construtor** (`templated_checked.py:58`), NÃO um dict fechado.
   Plugar um DV novo (PIS pesos próprios, algoritmo custom da CNH, título sobre sub-fatias) =
   **só passar `check_fn=` no construtor**. Zero core, zero subclasse. (O dict fechado
-  `CHECK_FNS = {mod11-cpf, mod11-cnpj, none}` existe SÓ no gadget DSL `scripts/natures_compiler/`
-  — o primeiro agente errou ao chamar a máquina de "biblioteca fechada".)
+  `CHECK_FNS = {mod11-cpf, mod11-cnpj, none}` existe SÓ no gadget DSL `scripts/natures_compiler/`,
+  o primeiro agente errou ao chamar a máquina de "biblioteca fechada".)
 - Restrição real: algoritmo tem de ser `list[int] -> list[int]` (dígito-int); Luhn/alfanumérico
   não cabe. `zfill(body_length)` no decode (`:104`) preserva zeros à esquerda (habilita CEP).
 - **Único toque de core**: registrar o `:id` no `SPEC_REGISTRY` (`natures/__init__.py:56-60`, 1
-  linha, SEM collision-check) — e SÓ se quiser o header self-describing público. Uso via
+  linha, SEM collision-check), e SÓ se quiser o header self-describing público. Uso via
   `spec.encode_value/decode_value` direto = zero core. **Cuidado (meu BUG-13b, lote 4)**: id
-  desconhecido no header AGORA É ERRO — um spec novo precisa estar no registry pra o
+  desconhecido no header AGORA É ERRO, um spec novo precisa estar no registry pra o
   `encode/decode` público round-tripar.
 
 ### Veredito por clássico (mecânico + dado)
 
 | clássico | DV | cabe na máquina? | dado real? | PII? | veredito |
 |---|---|---|---|---|---|
-| **CNPJ** | 2× mod-11 | ✅ welded | ✅ receita-cnpj 200k | não | **(a) fecha o gate** — único confirmada-empirica |
+| **CNPJ** | 2× mod-11 | ✅ welded | ✅ receita-cnpj 200k | não | **(a) fecha o gate**: único confirmada-empirica |
 | **CPF** | 2× mod-11 | ✅ welded | só sintético | sim | **(a) medível, synthetic-teto** (ressalva sempre) |
 | **CEP** | nenhum | ✅ Checked `check_length=0` (zfill salva o zero) | ❌ nenhum hub | não | (b) precisa-gerador; ganho duvidoso |
 | **PIS** | 1× mod-11 | ✅ `check_fn=` | ❌ | sim | (b) encaixe limpo, sem dado |
@@ -102,19 +102,19 @@ brotli) só é atingível HOJE por CNPJ.
 | **RG** | varia por estado | ❌ formato/DV per-estado | ❌ | sim | (c) precisa decisão de política; não-.8 |
 | **Placa Mercosul** | nenhum | ❌ alfanumérico | ❌ | não | (c) precisa máquina alfanumérica nova |
 
-## Evidência nova do F4-mínimo (2026-07-12) — reforça a Opção A
+## Evidência nova do F4-mínimo (2026-07-12): reforça a Opção A
 
 Medição do F4 (`evidencia-0.8/f4-minimo/`, RT 9/9) trouxe um dado que MUDA a leitura de "CNPJ fecha
 o gate": a nature CNPJ **piora em dado REAL a nível de TABELA**. Em receita-cnpj (200k→5k, REAL):
-sem nature 100121B, com `:cnpj` **107460B (+7339B)** — a coluna cnpj cai de `split` (32665B) pra
+sem nature 100121B, com `:cnpj` **107460B (+7339B)**: a coluna cnpj cai de `split` (32665B) pra
 `raw` (39999B), porque o corpo base-94 da nature DESTRÓI a estrutura (matriz/filial, prefixos de
 mesma empresa) que o split/dict do próprio TCF já explorava. No sintético (br-empresas) a MESMA
 nature AJUDA (55.3% vs CSV). O ganho per-coluna de 40.9% do T-DATA-2 (antigo) era isolado; a nível
-de tabela em dado real ele REVERTE — mesmo padrão do FILTRO-NUMERO (per-col dilui/reverte). Não
-invalida a máquina (RT ok), mas: **nenhum clássico — nem o CNPJ — é ganho de tabela garantido em
+de tabela em dado real ele REVERTE, mesmo padrão do FILTRO-NUMERO (per-col dilui/reverte). Não
+invalida a máquina (RT ok), mas: **nenhum clássico, nem o CNPJ, é ganho de tabela garantido em
 dado real**. Isto empurra fortemente pra **Opção A** e é caveat obrigatório do F6.
 
-## Revisao cadastral 2026-07-12 — o que cabe no `.8`
+## Revisao cadastral 2026-07-12: o que cabe no `.8`
 
 O laboratorio mediu o **blob completo** com prototipos fora de `src/tcf`, sempre com RT. Os hubs
 usados nao fornecem RG, CEP ou CNH reais; `br-identidades` e' sintetico e TPC-H e' benchmark
@@ -151,30 +151,30 @@ medir o custo do escape e manter o FLOOR contra dados ordenados.
 
 ## Decisão pendente do owner (o que "fechar" significa pro .8)
 
-Como CPF/CNPJ já estão welded, "fechar os specs pro teste em massa" NÃO é abrir spec novo — é
+Como CPF/CNPJ já estão welded, "fechar os specs pro teste em massa" NÃO é abrir spec novo, é
 escolher entre:
 
-- **Opção A — conservador (recomendado pro fechamento do .8)**: o material comprobatório reporta
+- **Opção A: conservador (recomendado pro fechamento do .8)**: o material comprobatório reporta
   só CPF/CNPJ (F4 já faz: receita-cnpj REAL fecha o gate; br-identidades sintético = teto). Os
   demais clássicos ficam REGISTRADOS aqui como "cabem por construtor, faltam dado+gerador" → `.9`.
   Zero core novo, zero risco no tail do .8.
-- **Opção B — demonstração de capacidade**: adicionar ao F4 1-2 specs sintéticos (CEP/PIS/renavam
-  via construtor, RT-provado) como DEMO da máquina — explicitamente rotulado "capability, NÃO
+- **Opção B: demonstração de capacidade**: adicionar ao F4 1-2 specs sintéticos (CEP/PIS/renavam
+  via construtor, RT-provado) como DEMO da máquina, explicitamente rotulado "capability, NÃO
   passa o gate ≥15%/2-reais" (herda o critério do FILTRO-NUMERO). Custa: gerador sintético
   (fora de src/tcf) + 1 linha no SPEC_REGISTRY por spec + anonimizador §2.3 pros que têm DV. Mais
   superfície pra migrar no C1/C2 (rename/consolidação).
-- **Opção C — abrir um clássico "de verdade"**: só faz sentido pós-`.8`, quando houver dataset
-  real com a coluna (nenhum existe hoje) — senão repete o padrão "sintético não generaliza"
+- **Opção C: abrir um clássico "de verdade"**: só faz sentido pós-`.8`, quando houver dataset
+  real com a coluna (nenhum existe hoje), senão repete o padrão "sintético não generaliza"
   (anti-incidente 2026-05-21).
 
 ## Pré-requisitos que QUALQUER spec novo com DV precisa (registrados)
 
-- **Anonimizador** (§2.3): re-invalidar DV `(dv+1)%10` pra publicar exemplo — NÃO existe, criar em
+- **Anonimizador** (§2.3): re-invalidar DV `(dv+1)%10` pra publicar exemplo, NÃO existe, criar em
   `scripts/`. Vale pra CPF/PIS/título/CNH/renavam/CNS.
-- **Gerador sintético** estendido: `setup_br_identidades.py` só faz cpf/cnpj — sem `_gen_cep/
+- **Gerador sintético** estendido: `setup_br_identidades.py` só faz cpf/cnpj, sem `_gen_cep/
   _gen_telefone/_gen_rg`.
 - **1 linha no SPEC_REGISTRY** por id novo (core) + collision-check inexistente (dict sobrescreve
-  calado — anotar como risco se crescer).
+  calado, anotar como risco se crescer).
 
 ## Critério de aceite
 

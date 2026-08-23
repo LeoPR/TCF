@@ -1,5 +1,5 @@
 ---
-title: T-CODE-TCF8H-WELD — weld do codec hierárquico #TCF.8H no src/tcf (feature do .8)
+title: T-CODE-TCF8H-WELD, weld do codec hierárquico #TCF.8H no src/tcf (feature do .8)
 status: open
 priority: P1
 created: 2026-07-13
@@ -17,11 +17,11 @@ related:
   - src/tcf/decoder.py
 ---
 
-# T-CODE-TCF8H-WELD — promover o codec hierárquico para o core
+# T-CODE-TCF8H-WELD: promover o codec hierárquico para o core
 
 **[dispositivo→exec]** Decisão do owner (2026-07-13, reescopo `.8` = feature-complete "1.0"): a
 **hierarquia / DatasetH (`#TCF.8H`)** entra no `.8` como a expansão de capacidade do 1.0.
-Este ticket é o **weld** do codec — promover o protótipo validado para `src/tcf`, sob aprovação
+Este ticket é o **weld** do codec, promover o protótipo validado para `src/tcf`, sob aprovação
 explícita e o gate de CAPACIDADE (não o gate de compressão).
 
 JSON é a primeira fonte do caminho de pesquisa, não a API do core. O codec deve receber o DatasetH
@@ -40,27 +40,27 @@ definido no estudo e não deve criar `encode_json` nem importar parser JSON em `
   de pesquisa é T-STUDY-HIERARCHICAL-TCF (P1–P9, `confirmada-conceitual`).
 - **Produção hoje**: `src/tcf/decoder.py` só **reserva + fail-loud** o `H` (não decoda). Zero codec no core.
 
-## Update 2026-07-14 — arquitetura em 3 CAMADAS (reframe do owner) + codec base
+## Update 2026-07-14: arquitetura em 3 CAMADAS (reframe do owner) + codec base
 
 Owner: o weld deve respeitar 3 camadas desacopladas
 ([tcf-camadas-arquitetura.md](../experiments/lab/dirty/notas/2026-07/tcf-camadas-arquitetura.md)):
-- **L1 compressor de COLUNAS** — o mesmo p/ single/multi/hierarquia/multi-tabela; **REUSAR o
+- **L1 compressor de COLUNAS**: o mesmo p/ single/multi/hierarquia/multi-tabela; **REUSAR o
   `encode`/`decode` de coluna do core SEM tocá-lo**. O hierárquico é 100% CLIENTE dele.
-- **L2 RELACIONAMENTO entre colunas** — a natureza do vínculo (multi-col, hierarquia, ragged, N:N).
+- **L2 RELACIONAMENTO entre colunas**: a natureza do vínculo (multi-col, hierarquia, ragged, N:N).
   Vive no HEADER; **só a descrição no header já reconstrói o dataset**, independente da compressão.
   Módulo NOVO (`src/tcf/hierarchical.py`), aditivo.
-- **L3 OTIMIZAÇÃO pelo relacionamento** — deduções (count, omit-closes, projeção tabelão×nível-aware).
+- **L3 OTIMIZAÇÃO pelo relacionamento**: deduções (count, omit-closes, projeção tabelão×nível-aware).
   Passe opt-in; tirar L3 e ainda reconstrói (só maior).
 
 Por isso o weld é **aditivo e de baixo risco**: flat byte-idêntico; hierárquico = cliente do
 compressor + dispatch por `H`. **Codec base** (extrair a ideia, não copiar): `shred.py` do lab
-[2026-07-14-0111-hierarquico-fechar-fluxo](../experiments/lab/dirty/2026-07/2026-07-14/2026-07-14-0111-hierarquico-fechar-fluxo/)
-— blocos + `#count`, RT-exato nos clássicos de transmissão (cadastro c/ 2 listas irmãs, pedido
+[2026-07-14-0111-hierarquico-fechar-fluxo](../experiments/lab/dirty/2026-07/2026-07-14/2026-07-14-0111-hierarquico-fechar-fluxo/):
+blocos + `#count`, RT-exato nos clássicos de transmissão (cadastro c/ 2 listas irmãs, pedido
 aninhado, telemetria; arrays vazios; ambiguidade resolvida). Supera o EXP-015 (múltiplas listas irmãs).
 
 ## Gate de CAPACIDADE (não é ≥15% de compressão)
 
-Hierarquia **não** é otimização de bytes — é **representar dado que a tabela plana não representa**
+Hierarquia **não** é otimização de bytes, é **representar dado que a tabela plana não representa**
 (1:N, objeto-em-objeto, arrays). Logo o gate ≥15%/2-reais (que rege weld de nature/otimização) **não se
 aplica**. O gate de aceite deste weld é:
 
@@ -74,13 +74,13 @@ aplica**. O gate de aceite deste weld é:
    **1 byte**. Hierarquia é aditiva (dispatch por `H`).
 3. **Aprovação explícita de `src/tcf`** (invariante do projeto) para cada arquivo tocado.
 
-## WELD 2026-07-14 — 1º INCREMENTO (classe coberta) FEITO, gate verde
+## WELD 2026-07-14: 1º INCREMENTO (classe coberta) FEITO, gate verde
 
 **[dispositivo→feito]** Owner deu o go ("vamos fazer o weld"). Weld ADITIVO em 3 camadas:
 - **`src/tcf/hierarchical.py`** (NOVO, L2/L3): shredding em blocos + `#count`; header sem-espaço
   `#TCF.8H<meta>` (ADR-0031); `{}` 1:1 · `[]` 1:N · counts · última-sem-size · omit-closes.
 - **`src/tcf/decoder.py`**: o branch `H` (era fail-loud reservado) agora **roteia** p/
-  `decode_hierarchical` — dispatch O(1). `M`/single/órfão INTACTOS.
+  `decode_hierarchical`, dispatch O(1). `M`/single/órfão INTACTOS.
 - **`src/tcf/__init__.py`**: exporta `encode_hierarchical`; `decode()` auto-roteia pelo magic.
 - **L1 REUSADO sem tocar**: o hierárquico é cliente de `encode(coluna)`/`decode(body)`.
 
@@ -97,7 +97,7 @@ H-HIER-MULTITABELA-01). ADR de weld + reconciliação final = W5 (pendente).
 Fases W abaixo: **W2/W3 FEITOS** (classe coberta); **W4 gate verde** p/ a classe; W0/W1 cobertos pelos
 labs (records = DatasetH source-agnostic, list[dict]); **W5 (ADR + ragged/tipos)** pendente.
 
-## FIXAR O ÓBVIO 2026-07-14 — fuzz EM MASSA da classe coberta (óbvio fechado)
+## FIXAR O ÓBVIO 2026-07-14: fuzz EM MASSA da classe coberta (óbvio fechado)
 
 **[probatório]** Owner: *"fixar o óbvio primeiro. fechar, testar em massa e ir fechando os outros."*
 Lab [`2026-07-14-2120-hierarquia-massa-classe-coberta`](../experiments/lab/dirty/2026-07/2026-07-14/2026-07-14-2120-hierarquia-massa-classe-coberta/):
@@ -106,25 +106,25 @@ RT byte-exato `decode(encode_hierarchical(recs))==recs`: **8000/8000, 0 falhas**
 arrays vazios · 2379 ≥2 arrays irmãos · 1609 aninhados. → A **classe coberta está FIXADA** (fuzz +
 clássicos pinados em `tests/test_hierarchical_rt.py`). Candidato a promover a property-test seedado
 em `tests/` (guarda permanente). Estudo L3 (multiplicidade) de-firmado como HIPÓTESE (bloco de
-otimizações, deixado pro fim) — lab `2026-07-14-2043`. Próximos INCREMENTOS de funcionalidade abaixo;
+otimizações, deixado pro fim), lab `2026-07-14-2043`. Próximos INCREMENTOS de funcionalidade abaixo;
 **`null`/tipos ficam pro FIM** (decisão do owner 2026-07-14).
 
 ## Plano (fases)
 
-- [x] **W0 — contrato do DatasetH**: `records = list[dict]` source-agnostic (JSON é adapter, não contrato).
+- [x] **W0: contrato do DatasetH**: `records = list[dict]` source-agnostic (JSON é adapter, não contrato).
   Folhas string; `{}` 1:1; `[]` 1:N; classe coberta = schema uniforme. `null`/tipos/ragged/N-raízes/N:N =
   fail-loud (fronteira registrada no ADR-0033). FEITO (labs + ADR-0033).
-- [x] **W1 — pesquisa de adaptadores**: DatasetH sem JSON provado (records nativos); labs cobriram o
+- [x] **W1: pesquisa de adaptadores**: DatasetH sem JSON provado (records nativos); labs cobriram o
   caminho. FEITO.
-- [x] **W2 — codec externo**: shredding em blocos + `#count` (labs `2026-07-14-0111`); ideia extraída, não
+- [x] **W2: codec externo**: shredding em blocos + `#count` (labs `2026-07-14-0111`); ideia extraída, não
   copiada. FEITO.
-- [x] **W3 — dispatch no core**: `decoder.py` roteia `H` → `decode_hierarchical` (O(1)); `M`/single/órfão
+- [x] **W3: dispatch no core**: `decoder.py` roteia `H` → `decode_hierarchical` (O(1)); `M`/single/órfão
   intactos. FEITO (commit a20ddf7).
-- [x] **W4 — gate de capacidade**: RT dos clássicos + bordas + fuzz seedado (1200) em
+- [x] **W4: gate de capacidade**: RT dos clássicos + bordas + fuzz seedado (1200) em
   `tests/test_hierarchical_rt.py`; lab `2026-07-14-2120` roda 8000/8000; flat byte-idêntico; suíte 647
   passed. FEITO.
-- [x] **W5 — docs e weld**: **ADR-0033 FEITO** (weld welded 2026-07-14, indexado). **`src/tcf` APROVADO
-  arquivo-a-arquivo pelo owner (2026-07-15)** — aprovação condicionada à ESTABILIDADE, demonstrada pelo teste
+- [x] **W5: docs e weld**: **ADR-0033 FEITO** (weld welded 2026-07-14, indexado). **`src/tcf` APROVADO
+  arquivo-a-arquivo pelo owner (2026-07-15)**, aprovação condicionada à ESTABILIDADE, demonstrada pelo teste
   em massa com dado real (TPC-H aninhado, RT byte-exato estável em volume, lab `2026-07-14-2231`). 3 arquivos:
   `hierarchical.py` novo + 2 linhas em `__init__.py` + ramo `H` em `decoder.py`. README/referência de formato
   do `H` = pendente (entra no F6/docs do release). Otimização/decouple de L3 = `.9` (não soldar demais).
@@ -139,11 +139,11 @@ otimizações, deixado pro fim) — lab `2026-07-14-2043`. Próximos INCREMENTOS
 - **Tipos**: o H não herda a coerção do flat. A representação tipada, `null` e presença devem ser
   definidos no DatasetH antes de escolher tags ou deduções no header.
 
-## AUDITORIA ADVERSARIAL 2026-07-15 — BUGS R0-class no header do `H` (repro pinado)
+## AUDITORIA ADVERSARIAL 2026-07-15: BUGS R0-class no header do `H` (repro pinado)
 
 **[probatório→preempção]** Workflow de auditoria (4 lentes + síntese) sobre o estudo de amostragem
-honesta encontrou — e os probes verificaram
-([lab 2336/probes_auditoria.py](../experiments/lab/dirty/2026-07/2026-07-14/2026-07-14-2336-hierarquia-amostra-populacao-honesta/probes_auditoria.py)) —
+honesta encontrou, e os probes verificaram
+([lab 2336/probes_auditoria.py](../experiments/lab/dirty/2026-07/2026-07-14/2026-07-14-2336-hierarquia-amostra-populacao-honesta/probes_auditoria.py)):
 **nomes de chave com chars da gramática do meta quebram RT** (entrada que o encoder aceita →
 critério 1 da regra de ROI do T-REL-08, preempta):
 
@@ -153,11 +153,11 @@ critério 1 da regra de ROI do T-REL-08, preempta):
 | nome com `{` | **corrupção SILENCIOSA** (objeto fantasma `{'i':{'j':...}}`) | pior |
 | nome com `[` | **HANG** no parse do meta (classe BUG-12) | pior |
 | nome com `:` / `#` | fail-loud TARDIO (no decode, erro confuso) | médio |
-| espaço / `\` em nome; `\t`/`\x00` em valor; vazios | RT-OK (robustos) | — |
+| espaço / `\` em nome; `\t`/`\x00` em valor; vazios | RT-OK (robustos) | n/a |
 | `\n` em valor | fail-loud CLARO do core (contrato pendente, boundary) | ok |
 
 **Causa**: `_build_meta` emitia nomes CRUS; `_parse_meta` cortava nome em `,[]{}:#`. O header plano
-`.8M` já **escapa nomes com `\`** (T-FMT-NAME-ESCAPING) — o `.8H` nasceu sem portar o escaping.
+`.8M` já **escapa nomes com `\`** (T-FMT-NAME-ESCAPING), o `.8H` nasceu sem portar o escaping.
 **FIX WELDED (aprovado pelo owner, commit `40a7e10`)**: escaping portado (`_esc_name`/`_unesc_name`
 estrito + `nm()` escape-aware + `_rstrip_closes` que preserva closers ESCAPADOS no omit-closes).
 Red→green: 14 nomes adversariais parametrizados + interações árvore/omit-closes + fail-loud claro
@@ -170,7 +170,7 @@ Correções de rotulagem do estudo (ESTRUTURAL→robusto-a-valores; br-identidad
 Probes de dado real pendentes registrados: receita-cnpj matriz→filiais (hub pronto) e
 online-retail InvoiceNo→itens (precisa build).
 
-## PRÓXIMOS INCREMENTOS — roadmap de paridade JSON (2026-07-15)
+## PRÓXIMOS INCREMENTOS: roadmap de paridade JSON (2026-07-15)
 
 O que falta pra fechar "hierarquia" (amplo) foi consolidado em
 [T-CODE-TCF8H-JSON-PARITY](T-CODE-TCF8H-JSON-PARITY.md): critério = RT lossless de qualquer JSON
@@ -180,18 +180,18 @@ contratos de borda; depois a capacidade EXCLUSIVA (shared-ref/grafo, além do JS
 ticket próprio ([T-FMT-ESCAPE-COMBINATORIAL-STUDY](T-FMT-ESCAPE-COMBINATORIAL-STUDY.md)).
 
 **Achado colateral do P1 (2026-07-15)**: o probe real-world do P1 (receita-cnpj) EXPÔS um bug R0
-pré-existente do L1 seq-RLE — [BUG-SEQRLE-RANGE-EMPTY-B](BUG-SEQRLE-RANGE-EMPTY-B.md) (sufixo `..`
+pré-existente do L1 seq-RLE, [BUG-SEQRLE-RANGE-EMPTY-B](BUG-SEQRLE-RANGE-EMPTY-B.md) (sufixo `..`
 colide com o range `A..B`; `decode(encode(["ETC & TAL","ETC & TAL..."]))` crasha). Codec PLANO,
 separado do P1; `xfail` em `test_core_rt.py`; fix toca HCC core (aprovação + gate byte-canônico).
 
-## PRÓXIMO — teste em massa via shaper (owner 2026-07-14, "depois de fechar os tickets")
+## PRÓXIMO: teste em massa via shaper (owner 2026-07-14, "depois de fechar os tickets")
 
 **[probatório, planejado]** Owner: *"depois precisamos de um teste em massa disso, nem que o esquema
 hierárquico venha do shaper montando pra gente nosso dataset de teste."* O fuzz sintético (2120) já cobre
 a forma; falta **dado REAL em massa**. Plano ancorado:
 - **Fonte**: hub `Z:/tcf-data/interim/tpch-sf001.db` (e `tpch-sf01.db` p/ escala). FK real dá cadeia
   pai→filho: `customer` (c_custkey) ← `orders` (o_custkey) ← `lineitem` (l_orderkey). Cadeia 1:N em 2 níveis.
-- **Bridge**: o shaper ACHATA (join.py); aqui é o INVERSO — usar modo `normalized` + metadata de FK pra pegar
+- **Bridge**: o shaper ACHATA (join.py); aqui é o INVERSO, usar modo `normalized` + metadata de FK pra pegar
   as tabelas separadas e **aninhar** (group filhos sob o pai pela FK) → documentos hierárquicos reais.
 - **Coerção**: classe coberta = all-string; `str()` em todas as folhas ANTES (input == decode output). Sem
   ragged (schema uniforme por tabela). Nulls → decidir (parte da família `null`, deixada pro fim) ou
@@ -210,4 +210,4 @@ a forma; falta **dado REAL em massa**. Plano ancorado:
 - [~] `src/tcf` **revisão apresentada** arquivo-a-arquivo; flat byte-idêntico ✅. Aprovação final = owner (cauteloso em mexer agora).
 - [~] Fronteira de tipos/bordas: classe coberta decidida + fail-loud registrado (ADR-0033). `null`/tipos/ragged = próximos incrementos (cruzam T-API-BOUNDARY-CONTRACTS), deixados pro FIM.
 - [x] ADR de weld: **ADR-0033** (a gramática do meta-árvore consolidada; consome T-FMT-TCF8H-HEADER).
-- [ ] **Teste em massa via shaper** (dado real TPC-H aninhado) — planejado acima, próximo passo.
+- [ ] **Teste em massa via shaper** (dado real TPC-H aninhado): planejado acima, próximo passo.

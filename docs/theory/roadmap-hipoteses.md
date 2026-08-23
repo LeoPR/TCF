@@ -1,4 +1,4 @@
-# Roadmap — hipoteses faltantes
+# Roadmap: hipoteses faltantes
 
 **Data**: 2026-05-17
 **Tipo**: nota transversal (direcoes futuras)
@@ -183,8 +183,8 @@ estavel. Avaliar se a nova syntax e' compreendida.
 
 ## Conexoes
 
-- [[historia-dirty-lab.md]] — o que foi feito ate' agora
-- [[../../2026-05-16-M8-virtual-refs-clean-output/notas/conclusoes_M8.md]] — atual
-- [[../../2026-05-17-M9-stress-adversarial/notas/conclusoes_M9.md]] — limites identificados
-- [[comparacao-modular-camadas.md]] — pre-tx layers
-- [[marcadores-multiplo-proposito.md]] — composicional + nos pos-construcao
+- [[historia-dirty-lab.md]]: o que foi feito ate' agora
+- [[../../2026-05-16-M8-virtual-refs-clean-output/notas/conclusoes_M8.md]]: atual
+- [[../../2026-05-17-M9-stress-adversarial/notas/conclusoes_M9.md]]: limites identificados
+- [[comparacao-modular-camadas.md]]: pre-tx layers
+- [[marcadores-multiplo-proposito.md]]: composicional + nos pos-construcao

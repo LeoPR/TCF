@@ -1,5 +1,5 @@
 ---
-title: T-CODE-H-DA-11c — Consolidar pre-pass features (ColumnFeatures unificado)
+title: T-CODE-H-DA-11c, Consolidar pre-pass features (ColumnFeatures unificado)
 status: closed
 resolution: refactor-completed-zero-risk
 priority: P2
@@ -14,7 +14,7 @@ related:
   - docs/adr/0010-auto-detect-min-len.md
 ---
 
-# T-CODE-H-DA-11c — ColumnFeatures unificado
+# T-CODE-H-DA-11c: ColumnFeatures unificado
 
 ## Contexto / motivacao
 
@@ -50,7 +50,7 @@ M9=1615B INVARIANT, Adult+TPC-H 9.87% preservado, RT 100%).
 
 Lab dirty: `experiments/lab/dirty/2026-05-22-h-da-11c-features-unificadas/`
 
-### Sub-exp 01 — design + implementacao
+### Sub-exp 01: design + implementacao
 
 1. Criar `src/tcf/column_features.py`:
    ```python
@@ -76,7 +76,7 @@ Lab dirty: `experiments/lab/dirty/2026-05-22-h-da-11c-features-unificadas/`
    - Chamar `analyze_column(values)` uma vez
    - Passar features pra `detect_min_len_from_features(features)`
 
-### Sub-exp 02 — validacao zero-risk
+### Sub-exp 02: validacao zero-risk
 
 Comparar output bytes pre-refactor vs pos-refactor:
 - D1-D9 single-col: deve ser EXATAMENTE igual (1615B)
@@ -100,21 +100,21 @@ Comparar output bytes pre-refactor vs pos-refactor:
   via wrapper `detect_min_len(values)`.
 - **Performance**: 1 passada O(N) era duplicada antes (encoder so'
   chamava detect_min_len 1x). Mesmo cost.
-- **Welding em src/tcf**: pequena mudanca em estrutura — owner ja'
+- **Welding em src/tcf**: pequena mudanca em estrutura, owner ja'
   aprovou H-DA-11 welding canonical. Refactor sem nova feature
   funcional deveria estar coberto pela aprovacao anterior.
 
 ## Conexoes
 
-- [ADR-0010](../docs/adr/0010-auto-detect-min-len.md) — H-DA-11 welded
-- [ADR-0008](../docs/adr/0008-detect-cadence-numeric-rule.md) — detect_cadence
+- [ADR-0010](../docs/adr/0010-auto-detect-min-len.md): H-DA-11 welded
+- [ADR-0008](../docs/adr/0008-detect-cadence-numeric-rule.md): detect_cadence
   (em EXP-010 prototype; weld canonical futuro pode reaproveitar
   ColumnFeatures)
 - [Roadmap H-DA-11c](../experiments/lab/dirty/notas/2026-05/roadmap-hipoteses.md)
 
 ## Updates datados
 
-### 2026-05-22 — abertura
+### 2026-05-22: abertura
 
 Ticket criado seguindo convencao YAML frontmatter. Hipotese decorrente
 de T-EXP-H-DA-11 (closed canonical-welded). Priority P2.
@@ -123,15 +123,15 @@ Aprovacao do owner pra mexer em src/tcf coberta pela aprovacao
 anterior de welding H-DA-11 (refactor zero-risk sem nova feature
 funcional).
 
-### 2026-05-22 — execucao + fechamento
+### 2026-05-22: execucao + fechamento
 
 Refactor implementado e validado zero-risk.
 
 **Mudancas**:
 - Novo `src/tcf/column_features.py` (ColumnFeatures + analyze_column)
 - Refatorado `src/tcf/auto_min_len.py` com 2 APIs:
-  - `detect_min_len_from_features(features, n_threshold=100)` — pure heuristic
-  - `detect_min_len(values, n_threshold=100)` — backward compat wrapper
+  - `detect_min_len_from_features(features, n_threshold=100)`: pure heuristic
+  - `detect_min_len(values, n_threshold=100)`: backward compat wrapper
 - `src/tcf/encoder.py` agora chama `analyze_column(values)` 1x e passa
   `ColumnFeatures` pra `detect_min_len_from_features`
 

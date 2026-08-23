@@ -9,7 +9,7 @@
        composicionais: `,` sem criar ref, `~` criando novo ref
        auto-nomeado. Hierarquia natural emerge.
 
-## Critica 1 — M2.A preambulo desnecessario
+## Critica 1: M2.A preambulo desnecessario
 
 ### Erro
 
@@ -34,7 +34,7 @@ M4.C1' D1: 138 bytes.
 de M4.C1' atual em alguns datasets. A "dominacao algebrica" do M5
 estava enviesada pela forma com preambulo.
 
-## Critica 2 — M4.C1' marker open-close redundante
+## Critica 2: M4.C1' marker open-close redundante
 
 ### Erro
 
@@ -54,7 +54,7 @@ M4C1p_open_only        = M4C1p_atual + 1 byte/alias
 
 D1-D4 atuais usam 7 aliases. Economia projetada: 7 bytes (636 → 629).
 
-## Critica 3 — sintaxe composicional (mais geral)
+## Critica 3: sintaxe composicional (mais geral)
 
 ### Insight do user
 
@@ -82,7 +82,7 @@ AB*CD*EF      # cria atoms: ref 1=AB, 2=CD, 3=EF (segmentação)
 - Decodifica como CD+EF = CDEF
 - Cria ref 4 = CDEF para reuso
 
-Line 4 `1,4` (3 chars) substitui `1,2,3` (5 chars) — save 2 chars.
+Line 4 `1,4` (3 chars) substitui `1,2,3` (5 chars), save 2 chars.
 
 ### Algebra
 
@@ -121,7 +121,7 @@ Comecar com:
 
 Caso particular flat-chain ou range-sem-ref ficam fora do M6 inicial.
 
-### Extensao futura — nos pos-construcao (literal+ref composition)
+### Extensao futura: nos pos-construcao (literal+ref composition)
 
 User 2026-05-14: "posso criar o grupo BCD quando ele aparecer pra ser
 agrupado, sem precisar ser antes". Composicao pode envolver
@@ -145,7 +145,7 @@ DE                 # novo literal DE (sem composicao)
 ```
 
 Vantagem: nao precisa super-segmentar line 1 pra expor 'B' como
-atomo — cria atomo + grupo na hora que aparece.
+atomo, cria atomo + grupo na hora que aparece.
 
 Custo: parsing mais complexo (literal + ref + literal + ref...).
 Detector mais dificil ("navegar nos nos pra achar padrao no padrao").
@@ -160,7 +160,7 @@ prototipo se a sintaxe simples mostrar gap relevante.
 | M4.C1' atual dominante por 2+2*len(N) bytes/alias | Composicional domina M4.C1' por R bytes/alias |
 | M2.A fora do prototipo | M2.A inline reentra como baseline; pode perder so' len(N) bytes vs M4.C1* mas e' ainda inferior a composicional |
 | M4.C1' canonico para prototipo | **Composicional** e' o candidato real |
-| Hierarquia: nao considerada | Vetor central — alg16 ja' tem hierarquia, sintaxe deve expor |
+| Hierarquia: nao considerada | Vetor central, alg16 ja' tem hierarquia, sintaxe deve expor |
 
 ## Proximos passos
 
@@ -175,14 +175,14 @@ prototipo se a sintaxe simples mostrar gap relevante.
 M6.C subsume M6.B; M6.B subsume forma `~tupla~`. M6.A subsume M2.A
 com preambulo. Os tres podem coexistir como camadas comparaveis.
 
-Detector M6.C precisa decidir `~` vs `,` por composicao — mesmo
+Detector M6.C precisa decidir `~` vs `,` por composicao, mesmo
 problema do detector de M4.C1' mas com sintaxe mais limpa.
 
 ## Conexoes
 
-- [[vetores-de-comparacao-alem-de-bytes.md]] — vetores nao-byte
+- [[vetores-de-comparacao-alem-de-bytes.md]]: vetores nao-byte
   (velocidade, memoria, streaming) ainda a avaliar
-- [[../../2026-05-14-M5-pilha-M2A-M4C1p/]] — M5 sob revisao
-- [[comparacao-modular-camadas.md]] — pre-tx do prototipo
-- [[quebra-de-linha-como-marcador.md]] — quebra como marker (analogia)
-- [[2026-05-11-marcadores-compactos.md]] — possivel conexao (ver)
+- [[../../2026-05-14-M5-pilha-M2A-M4C1p/]]: M5 sob revisao
+- [[comparacao-modular-camadas.md]]: pre-tx do prototipo
+- [[quebra-de-linha-como-marcador.md]]: quebra como marker (analogia)
+- [[2026-05-11-marcadores-compactos.md]]: possivel conexao (ver)

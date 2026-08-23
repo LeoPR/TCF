@@ -1,5 +1,5 @@
 ---
-title: LEVELS-REVIEW — revisão dos níveis L0–L3 do motor antigo (v0.2/v0.5)
+title: LEVELS-REVIEW, revisão dos níveis L0–L3 do motor antigo (v0.2/v0.5)
 type: reference
 status: archived-reviewed
 created: 2026-06-02
@@ -12,7 +12,7 @@ applies-to: old/tcf/ (motor columnar pré-v0.6, NÃO confundir com src/tcf/ cano
 
 > **Chesterton's fence**: este doc registra *por que* os níveis L1/L2/L3
 > existiam e *o que* significavam, ANTES de qualquer decisão de absorver/
-> apagar. O motor `old/tcf/` está **congelado-histórico** — `src/tcf/`
+> apagar. O motor `old/tcf/` está **congelado-histórico**: `src/tcf/`
 > (canonical v0.6) tem **acoplamento zero** com ele (verificado:
 > `git grep old.tcf -- src/` → nada). Nenhuma modificação foi feita ao
 > motor; isto é entendimento read-only.
@@ -23,17 +23,17 @@ applies-to: old/tcf/ (motor columnar pré-v0.6, NÃO confundir com src/tcf/ cano
 emitido: `# TCF v0.2`; `__version__ = "0.2.0"`). Ele foi **substituído**
 pelo pipeline canonical v0.6 em `src/tcf/` (OBAT + HCC, formato `#TCF.6`
 congelado por ADR-0017). Os "níveis" (`EncodeConfig.level`) são o conceito
-de compressão progressiva desse motor antigo — **não existem no v0.6**
+de compressão progressiva desse motor antigo, **não existem no v0.6**
 (que usa pipeline delta-aware em camadas, sem `level=N`).
 
-## (1) Semântica AUTORITATIVA dos níveis — derivada do código
+## (1) Semântica AUTORITATIVA dos níveis: derivada do código
 
 Fonte: [`old/tcf/encoder.py`](encoder.py) (`encode_columns`, linhas 169–221)
 + [`old/tcf/__init__.py`](__init__.py) docstring + `EncodeConfig` (linha 50).
 
 | Nível | O que faz (código) | Reversível? | Referência no código |
 |-------|--------------------|-------------|----------------------|
-| **L0** | Expanded — um valor por linha, sem compressão | ✅ exato | `level >= 1` falso → `lines.extend(vals)` (enc:219-220) |
+| **L0** | Expanded, um valor por linha, sem compressão | ✅ exato | `level >= 1` falso → `lines.extend(vals)` (enc:219-220) |
 | **L1** | RLE nas colunas (`N*val` = val repetido N vezes) | ✅ exato | `rle_encode(vals)` (enc:216-218); header `# N*val` (enc:189) |
 | **L2** | Sort pela coluna de menor cardinalidade + RLE (**default**) | ✅ exato | `sort_columns(cols)` (enc:171-172); `EncodeConfig.level=2` default (enc:50) |
 | **L3** | Dicionário (texto→índices) **+ sort + RLE** | ✅ exato | `dict_build` por coluna de texto (enc:176-181); emite `# dict col: ...` (enc:200) |
@@ -50,13 +50,13 @@ A documentação antiga **diverge do código** na ordem dos níveis:
 
 | Fonte | L1 | L2 | L3 | Confere com código? |
 |-------|----|----|----|---------------------|
-| **`old/tcf/encoder.py`** (CÓDIGO, autoritativo) | RLE | sort+RLE | dict+sort+RLE | — (é a fonte) |
+| **`old/tcf/encoder.py`** (CÓDIGO, autoritativo) | RLE | sort+RLE | dict+sort+RLE | (é a fonte) |
 | `docs/archive/manual_v05/03-compression-levels.md` | +DICT | +RLE | schema-only | ❌ ordem trocada + L3 errado |
 | `docs/archive/article_v05/03-tcf-format.md` | RLE | sort+RLE | dict+sort+RLE | ✅ consistente com código |
 
 → **O código é autoritativo.** O `manual_v05/03-compression-levels.md`
 está **errado** na ordem (diz L1=DICT/L2=RLE; código é L1=RLE/L2=sort+RLE)
-**e** na definição de L3. O `article_v05/03-tcf-format.md` está correto —
+**e** na definição de L3. O `article_v05/03-tcf-format.md` está correto:
 citar este como a prosa consistente.
 
 ## (3) "L3 = schema-only" é ficção neste motor
@@ -66,7 +66,7 @@ um **L3 "schema-only"** (descarta todas as linhas, emite só schema+STATS,
 ~0.05–0.10× CSV, **não** round-trip). **Isso NÃO está implementado em
 `old/tcf/encoder.py`**: L3 ali ainda emite todas as linhas como índices de
 dicionário (round-trip exato). "schema-only" era um **conceito da Linha B**
-(LLM gera SQL a partir do schema) — um artefato de doc/benchmark, não um
+(LLM gera SQL a partir do schema), um artefato de doc/benchmark, não um
 modo do encoder.
 
 **Pendência para o reviewer** (não bloqueante): confirmar se "schema-only"
@@ -84,11 +84,11 @@ quickstart `encode_rows`/`EncodeConfig(level=2)` + `python -m tcf encode
 apontando para este review + `docs/archive/manual_v05/`, mantendo o
 quickstart v0.6 (`from tcf import encode, decode`) como o corrente.
 
-## Extra — dois motores dentro de `old/tcf/`
+## Extra: dois motores dentro de `old/tcf/`
 
 `old/tcf/` contém DOIS motores:
-1. O motor de **níveis** (`EncodeConfig.level` inteiro) — descrito acima.
-2. [`old/tcf/v05/`](v05/) — um motor **posterior** (SRDM via Flags, não a
+1. O motor de **níveis** (`EncodeConfig.level` inteiro), descrito acima.
+2. [`old/tcf/v05/`](v05/), um motor **posterior** (SRDM via Flags, não a
    API de `level` inteiro).
 
 **Pendência para o reviewer**: registrar se `v05/` **substitui** ou

@@ -1,4 +1,4 @@
-# No funcional — marca e troca (estudo)
+# No funcional: marca e troca (estudo)
 
 **Data**: 2026-05-17
 **Tipo**: nota teorica (direcao futura registrada)
@@ -25,10 +25,10 @@ variavel no meio**:
 
 Pattern: `17,X,5` onde X percorre {9, 10, 11, 12, 13, 14, 15}.
 
-M8.A atual emite cada linha completa — ~7 chars × 7 = ~49 chars
+M8.A atual emite cada linha completa, ~7 chars × 7 = ~49 chars
 para o conjunto.
 
-## Ideia — no funcional (template node)
+## Ideia: no funcional (template node)
 
 Em vez de emitir cada linha por completo, **declarar a estrutura
 uma vez** e emitir apenas o que varia.
@@ -108,7 +108,7 @@ Mas:
 
 ## Conexao com sequencias
 
-Caso particular D9: slot vai 9, 10, 11, ..., 15 — sequencia
+Caso particular D9: slot vai 9, 10, 11, ..., 15, sequencia
 consecutiva. Compactavel adicionalmente como **range** (`9..15`).
 
 Sintaxe imaginada:
@@ -132,14 +132,14 @@ Mais flexivel (lista nao precisa ser sequencia).
    adjacentes para diff em UMA position central, mantendo bordas
    iguais. Diferente do detector atual (que olha sub-tuplas em uma
    refs piece).
-2. **Multi-slot**: linhas com MAIS de uma position variavel —
+2. **Multi-slot**: linhas com MAIS de uma position variavel:
    `17,X,5,Y,8` onde X e Y variam independentemente.
 3. **Slot tipado**: range vs lista vs livre. Diferentes overheads.
 4. **Sintaxe sem ambiguidade**: marker explicito para slot value vs
    bare ref.
 5. **Interacao com composicional**: slot em template pode conter
    composicao? E.g., `no19=17,?,5` onde slot e' `a~b`?
-6. **Pre-tx delta + template**: combinar — slot percorre delta+base
+6. **Pre-tx delta + template**: combinar, slot percorre delta+base
    em vez de literal.
 
 ## Relacao com roadmap
@@ -164,8 +164,8 @@ similar. Nao priorizar agora (welding pro src/ vem antes).
 
 ## Conexoes
 
-- [[roadmap-hipoteses.md]] — item 6 (slot variavel em wrapper)
-- [[../2026-05-17-M9-stress-adversarial/notas/conclusoes_M9.md]] —
+- [[roadmap-hipoteses.md]]: item 6 (slot variavel em wrapper)
+- [[../2026-05-17-M9-stress-adversarial/notas/conclusoes_M9.md]]:
   observacao original do limite D9
-- [[../2026-05-17-M10-datasets-elevation/]] — onde a observacao
+- [[../2026-05-17-M10-datasets-elevation/]]: onde a observacao
   surgiu (D9 output)

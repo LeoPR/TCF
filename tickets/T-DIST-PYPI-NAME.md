@@ -1,5 +1,5 @@
 ---
-title: T-DIST-PYPI-NAME — Capturar nome de distribuicao no PyPI
+title: T-DIST-PYPI-NAME, Capturar nome de distribuicao no PyPI
 status: closed-done
 priority: P2
 created: 2026-06-14
@@ -11,7 +11,7 @@ related:
   - docs/adr/0024-pre-1.0-versioning-git-as-compat.md
 ---
 
-# T-DIST-PYPI-NAME — Capturar nome no PyPI
+# T-DIST-PYPI-NAME: Capturar nome no PyPI
 
 > **Decisao do owner (2026-06-15)**: nome escolhido = **`tcf-format`** (mantendo
 > `import tcf`). `pyproject.toml` ja' preparado: `name = "tcf-format"`,
@@ -34,7 +34,7 @@ PyPI pro TCF, mesmo pré-1.0 (evitar squatting; garantir o nome quando publicar)
 
 | nome | status |
 |---|---|
-| `tcf` | **TOMADO** — Tencent Cloud Serverless Cloud Function (v0.3.0) |
+| `tcf` | **TOMADO**: Tencent Cloud Serverless Cloud Function (v0.3.0) |
 | `pytcf` | TOMADO (reservado por Xilinx) |
 | **`tabular-compact-format`** | **LIVRE** ✅ |
 | **`tcf-format`** | **LIVRE** ✅ |
@@ -71,7 +71,7 @@ Da' pra distribuir como **`tcf-format`** (ou `tabular-compact-format`) e manter
 
 ## Riscos
 
-1. Nome curto some rapido — reservar logo (motivacao do ticket).
-2. Confundir distribution vs import — documentar o `import tcf`.
-3. Publicar pré-1.0 cria expectativa de estabilidade — deixar claro no README
+1. Nome curto some rapido, reservar logo (motivacao do ticket).
+2. Confundir distribution vs import, documentar o `import tcf`.
+3. Publicar pré-1.0 cria expectativa de estabilidade, deixar claro no README
    que e' pré-1.0 sem compat rigida (ADR-0024).

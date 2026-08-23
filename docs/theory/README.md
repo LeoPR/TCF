@@ -1,4 +1,4 @@
-# docs/theory — Teoria + hipóteses do TCF v0.6
+# docs/theory: Teoria + hipóteses do TCF v0.6
 
 > **Reset 2026-05-17**: o conteudo anterior de `docs/theory/`
 > (architecture, components, methodology, research-lines) descrevia
@@ -9,79 +9,79 @@
 ## Onde esta a teoria canonica v0.6
 
 **Algoritmos** (camadas do TCF):
-- [`../algorithms/OBAT.md`](../algorithms/OBAT.md) — Online Bidirectional Affix Tokenizer (camada 1)
-- [`../algorithms/HCC.md`](../algorithms/HCC.md) — Hierarchical Compositional Coding (camada 2)
-- [`../algorithms/TCF-format.md`](../algorithms/TCF-format.md) — Formato + posicionamento
-- [`../algorithms/output-convention.md`](../algorithms/output-convention.md) — Convencao de output
+- [`../algorithms/OBAT.md`](../algorithms/OBAT.md): Online Bidirectional Affix Tokenizer (camada 1)
+- [`../algorithms/HCC.md`](../algorithms/HCC.md): Hierarchical Compositional Coding (camada 2)
+- [`../algorithms/TCF-format.md`](../algorithms/TCF-format.md): Formato + posicionamento
+- [`../algorithms/output-convention.md`](../algorithms/output-convention.md): Convencao de output
 
 **Narrativa do desenvolvimento**:
-- [`../../experiments/lab/dirty/notas/2026-05/historia-dirty-lab.md`](../../experiments/lab/dirty/notas/2026-05/historia-dirty-lab.md)
-  — historia M0-M14 do dirty lab
+- [`../../experiments/lab/dirty/notas/2026-05/historia-dirty-lab.md`](../../experiments/lab/dirty/notas/2026-05/historia-dirty-lab.md):
+  historia M0-M14 do dirty lab
 
 ## Notas teoricas + hipoteses (em ordem de relevancia)
 
 ### Sintese atual
 
-- [duas-similaridades-igualdade-e-proximidade.md](duas-similaridades-igualdade-e-proximidade.md)
-  — **ATUAL (2026-08-09)**: o nucleo captura DUAS similaridades (igualdade =
+- [duas-similaridades-igualdade-e-proximidade.md](duas-similaridades-igualdade-e-proximidade.md):
+  **ATUAL (2026-08-09)**: o nucleo captura DUAS similaridades (igualdade =
   dedup `^N`/bN/dict; proximidade = seq-RLE/periodico/delta) e elas **nao
-  competem no mesmo `min()`** — a aritmetica morre na linha `k` (1a repeticao
+  competem no mesmo `min()`**, a aritmetica morre na linha `k` (1a repeticao
   aciona o dedup): coluna ciclica `01..12` custa 423 B contra 20 B da mesma
   aritmetica sem repetir. Reenquadra o papel dos SPECS (escolhem um DOMINIO
   onde a aritmetica sobrevive, nao "adicionam semantica"). **Doc de decisao**:
   3 encaixes com custo/risco + 4 perguntas em aberto pro owner. Tudo `.9`
-- [perspectiva-triplice-e-pre-tx.md](perspectiva-triplice-e-pre-tx.md)
-  — **ATUAL (2026-05-17)**: analise critica das 3 estrategias de
+- [perspectiva-triplice-e-pre-tx.md](perspectiva-triplice-e-pre-tx.md):
+  **ATUAL (2026-05-17)**: analise critica das 3 estrategias de
   evolucao (pre-filtro multi-col + tipos; manager com memoria
   shared; slot detection online) avaliadas contra a perspectiva
   triplice (compressao + memoria + latencia)
-- [data-natures-taxonomy.md](data-natures-taxonomy.md) — **2026-05-15**:
-- [tipos-o-caminho-do-dado-ate-o-tcf.md](tipos-o-caminho-do-dado-ate-o-tcf.md) — o eixo do CAMINHO (as 9 fronteiras entre a fonte e o TCF), complementar ao eixo COMPORTAMENTAL da taxonomia de naturezas
+- [data-natures-taxonomy.md](data-natures-taxonomy.md): **2026-05-15**:
+- [tipos-o-caminho-do-dado-ate-o-tcf.md](tipos-o-caminho-do-dado-ate-o-tcf.md): o eixo do CAMINHO (as 9 fronteiras entre a fonte e o TCF), complementar ao eixo COMPORTAMENTAL da taxonomia de naturezas
   taxonomia das 8 naturezas comportamentais dos dados (incremental,
   templated, enumerated, checked, composite, hierarchical,
-  lossy-recoverable, high-entropy) — operacionaliza Estrategia 1.A
-- [roadmap-hipoteses.md](roadmap-hipoteses.md) — 12 hipoteses futuras
+  lossy-recoverable, high-entropy), operacionaliza Estrategia 1.A
+- [roadmap-hipoteses.md](roadmap-hipoteses.md): 12 hipoteses futuras
   ordenadas por proximidade
 
 ### Vetores de avaliacao (alem de compressao)
 
-- [vetores-de-comparacao-alem-de-bytes.md](vetores-de-comparacao-alem-de-bytes.md)
-  — velocidade, memoria, streaming, latency vectors
+- [vetores-de-comparacao-alem-de-bytes.md](vetores-de-comparacao-alem-de-bytes.md):
+  velocidade, memoria, streaming, latency vectors
 
 ### Pre-tx layers
 
-- [comparacao-modular-camadas.md](comparacao-modular-camadas.md) —
+- [comparacao-modular-camadas.md](comparacao-modular-camadas.md):
   comparacao modular (delta / estrutural / aproximado) ortogonal ao TCF-CORE
-- [2026-05-11-comparacoes-nao-literais.md](2026-05-11-comparacoes-nao-literais.md)
-  — comparacoes nao-literais (precursor da Estrategia 1)
-- [2026-05-11-tipos-com-estrutura.md](2026-05-11-tipos-com-estrutura.md)
-  — tipos estruturados (CPF/UUID/IP) — precursor de Estrategia 1.A
+- [2026-05-11-comparacoes-nao-literais.md](2026-05-11-comparacoes-nao-literais.md):
+  comparacoes nao-literais (precursor da Estrategia 1)
+- [2026-05-11-tipos-com-estrutura.md](2026-05-11-tipos-com-estrutura.md):
+  tipos estruturados (CPF/UUID/IP): precursor de Estrategia 1.A
 
 ### Marcadores e sintaxe
 
-- [marcadores-multiplo-proposito.md](marcadores-multiplo-proposito.md)
-  — composicional `~`/`,` (foundation do HCC)
-- [2026-05-11-marcadores-compactos.md](2026-05-11-marcadores-compactos.md)
-  — marcadores compactos e inferidos
-- [2026-05-11-custo-de-marcadores.md](2026-05-11-custo-de-marcadores.md)
-  — custo algebrico de marcadores e refs
+- [marcadores-multiplo-proposito.md](marcadores-multiplo-proposito.md):
+  composicional `~`/`,` (foundation do HCC)
+- [2026-05-11-marcadores-compactos.md](2026-05-11-marcadores-compactos.md):
+  marcadores compactos e inferidos
+- [2026-05-11-custo-de-marcadores.md](2026-05-11-custo-de-marcadores.md):
+  custo algebrico de marcadores e refs
 
 ### Slot patterns + estruturas avancadas
 
-- [no-funcional-marca-e-troca.md](no-funcional-marca-e-troca.md)
-  — template node com slot (caso D9; Estrategia 3 em formato batch)
-- [quebra-de-linha-como-marcador.md](quebra-de-linha-como-marcador.md)
-  — quebras como marcadores deduziveis
+- [no-funcional-marca-e-troca.md](no-funcional-marca-e-troca.md):
+  template node com slot (caso D9; Estrategia 3 em formato batch)
+- [quebra-de-linha-como-marcador.md](quebra-de-linha-como-marcador.md):
+  quebras como marcadores deduziveis
 
 ## Conceitos pendentes para reconectar
 
 Identificados pelo user em 2026-05-17 (todos cobertos em
 [perspectiva-triplice-e-pre-tx.md](perspectiva-triplice-e-pre-tx.md)):
 
-1. **Multi-coluna** — ~~TCF v0.6 atual e' single-column~~ → **welded em 0.7** (ADR-0011/0004; `#TCF.7 M`).
-2. **Tipos de dados pre-filtro** — CPF, IP, datas calculaveis (ADR-0015, welded 0.7).
-3. **Perspectiva triplice** — compressao + memoria + latencia.
-4. **Slot pattern online** — resolve `17,??,5` em D9.
+1. **Multi-coluna**: ~~TCF v0.6 atual e' single-column~~ → **welded em 0.7** (ADR-0011/0004; `#TCF.7 M`).
+2. **Tipos de dados pre-filtro**: CPF, IP, datas calculaveis (ADR-0015, welded 0.7).
+3. **Perspectiva triplice**: compressao + memoria + latencia.
+4. **Slot pattern online**: resolve `17,??,5` em D9.
 
 ## Material historico v0.5
 

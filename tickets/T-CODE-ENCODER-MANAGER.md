@@ -1,5 +1,5 @@
 ---
-title: T-CODE-ENCODER-MANAGER — Reviver D13 (paralelismo + sinks)
+title: T-CODE-ENCODER-MANAGER, Reviver D13 (paralelismo + sinks)
 status: closed
 priority: P2
 created: 2026-05-24
@@ -12,7 +12,7 @@ related:
   - experiments/lab/dirty/notas/2026-05/futuras-otimizacoes-formato.md
 ---
 
-# T-CODE-ENCODER-MANAGER — Revive D13 (paralelismo + sinks)
+# T-CODE-ENCODER-MANAGER: Revive D13 (paralelismo + sinks)
 
 > **Fechamento 0.7 (2026-06-15)**: Fases 1+1b WELDED e validadas (`encode(data,
 > parallel=N)` via ProcessPool + work-stealing; 14/14 testes; byte-canonical OK;
@@ -26,7 +26,7 @@ related:
 Plano v0.4 (2026-04-27 → 2026-05-05) decidiu **D13 EncodeManager
 coordena 1+ saidas** mas adiou implementacao pra v0.5+. Hoje (pos
 ADR-0014), a fachada `encode()` ja' tem dispatcher + `_encode_column`
-isolado como "encode unit" — esqueleto pronto pra workers paralelos.
+isolado como "encode unit", esqueleto pronto pra workers paralelos.
 
 ## Hipotese / Pergunta
 
@@ -39,7 +39,7 @@ sem coordenacao central.
 
 ## Plano
 
-### Fase 1 — Manager basico (worker pool)
+### Fase 1: Manager basico (worker pool)
 
 ```python
 from tcf import encode
@@ -55,7 +55,7 @@ text = encode(table, parallel=N)           # N workers
 Internamente: `_encode_column` em N workers; manager agrega bodies
 em ordem de definicao do dict.
 
-### Fase 2 — Output sinks
+### Fase 2: Output sinks
 
 ```python
 # Sink contract
@@ -77,7 +77,7 @@ encode(table, output=MultiFileSink("col_{name}.tcf"))
 encode(table, output=HTTPSink(url, channels=4))
 ```
 
-### Fase 3 — Per-channel headers (O-FMT-13)
+### Fase 3: Per-channel headers (O-FMT-13)
 
 Cada canal carrega seu proprio header:
 
@@ -89,7 +89,7 @@ Cada canal carrega seu proprio header:
 Permite re-assembly via metadata distribuida. Pre-requisito: ADR
 formal documentando header per-canal (atualizar ADR-0004 ou novo).
 
-### Fase 4 — Streaming chunked (O-FMT-08)
+### Fase 4: Streaming chunked (O-FMT-08)
 
 Dividir tabelas grandes em chunks de N rows; cada chunk auto-suficiente.
 Decoder reconstrói chunk-a-chunk. Memoria O(chunk_size).
@@ -113,28 +113,28 @@ Pre-requisito: chunks autocontidos (cada chunk = TCF mini-arquivo).
    ser estavel; quebrar quebra todos consumidores.
 3. **Per-channel headers mudam formato**: requer ADR + back-compat.
 4. **Streaming requer chunks autocontidos**: cada chunk precisa de
-   `analyze_column` proprio — perde info global.
+   `analyze_column` proprio, perde info global.
 
 ## Conexao
 
-- [ADR-0014](../docs/adr/0014-unified-api-side-outputs.md) — fachada
+- [ADR-0014](../docs/adr/0014-unified-api-side-outputs.md): fachada
   preparada pra dispatch paralelo
 - [v04-design-recap D13](../docs/workbench/research-notes/_archive/2026-05-05-v04-design-recap.md)
 - [O-FMT-08 streaming](../experiments/lab/dirty/notas/2026-05/futuras-otimizacoes-formato.md)
 - [O-FMT-13 per-channel](../experiments/lab/dirty/notas/2026-05/futuras-otimizacoes-formato.md)
 - [H-streaming-encoder.md frozen](../docs/workbench/_archive/tickets/frozen/H-streaming-encoder.md)
-- [T-CODE-OUTPUT-SINKS](T-CODE-OUTPUT-SINKS.md) — sub-pacote sinks
-- [T-CODE-PLAN-CONTRACT](T-CODE-PLAN-CONTRACT.md) — dataclass Plan
+- [T-CODE-OUTPUT-SINKS](T-CODE-OUTPUT-SINKS.md): sub-pacote sinks
+- [T-CODE-PLAN-CONTRACT](T-CODE-PLAN-CONTRACT.md): dataclass Plan
 
 ## Updates datados
 
-### 2026-05-24 — abertura
+### 2026-05-24: abertura
 
 Ticket aberto pos-ADR-0014 (API unificada). Fachada `encode()` agora
 tem dispatcher + `_encode_column` isolado, pronto pra paralelizar.
 Plano em 4 fases. Decisao de iniciar Fase 1 pendente do owner.
 
-### 2026-05-24 — Fase 1 WELDED (paralelismo basico)
+### 2026-05-24: Fase 1 WELDED (paralelismo basico)
 
 Owner aprovou Fase 1. Implementado:
 
@@ -176,7 +176,7 @@ Owner aprovou Fase 1. Implementado:
 **Status**: Fase 1 funcional (byte-canonical OK, RT OK, tests passam).
 Speedup modesto aceito como baseline; otimizacao pra sub-fase 1b.
 
-### 2026-05-24 — Fase 1b WELDED (work-stealing) — speedup limitado por IPC
+### 2026-05-24: Fase 1b WELDED (work-stealing), speedup limitado por IPC
 
 Owner aprovou Fase 1b. Implementado:
 
@@ -204,7 +204,7 @@ O gargalo principal **NAO E load imbalance**, mas:
 3. **Serial parts do encode**: `_encode_column` ja' tem fases que nao
    paralelizam (analyze_column + HCC iterativo)
 
-8 workers vs 4: 1.30x vs 1.23x — diferenca marginal confirma que
+8 workers vs 4: 1.30x vs 1.23x, diferenca marginal confirma que
 n_workers nao eh o bottleneck.
 
 **Tradeoff aceito**: speedup 1.2-1.3x e' o teto realista com
@@ -224,5 +224,5 @@ requereriam:
   spawn mais eficiente (avaliar custo/beneficio)
 - **Fase 2**: Output sinks (T-CODE-OUTPUT-SINKS, ticket separado)
 - **Fase 3**: Per-channel headers (O-FMT-13)
-- **Fase 4**: Streaming chunked (O-FMT-08) — pode reduzir IPC
+- **Fase 4**: Streaming chunked (O-FMT-08), pode reduzir IPC
   overhead via chunks menores serializaveis em paralelo

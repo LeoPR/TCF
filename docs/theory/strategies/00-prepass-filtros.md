@@ -1,18 +1,18 @@
 ---
-title: CAMADA 0 — Pre-pass: Column Feature Analysis, Cadence Detection, Min-Len Auto-detection
+title: CAMADA 0, Pre-pass: Column Feature Analysis, Cadence Detection, Min-Len Auto-detection
 type: reference
 parent: strategies-map
 subsystem: prepass-filtros
 ---
 
-# CAMADA 0 — Pre-pass: Column Feature Analysis, Cadence Detection, Min-Len Auto-detection
+# CAMADA 0: Pre-pass: Column Feature Analysis, Cadence Detection, Min-Len Auto-detection
 
 **Como decide caminhos**:
 PIPELINE CANONICO M10 em encoder.py _encode_column(encoder.py:117-178):
 
 1. **Dedup** (encoder.py:133-136): Ordena values em dict para obter unicas, preserva ordem insercao.
 
-2. **CAMADA 0 — Pre-pass** (encoder.py:138-146):
+2. **CAMADA 0, Pre-pass** (encoder.py:138-146):
    a. `analyze_column(values)` [SEMPRE executada, barato O(N)] → ColumnFeatures
    b. IF cfg.pre_pass=True [default=True]:
       - `detect_cadence_from_features(features, unicas)` → (cadence_detected, cadence_info)
@@ -20,13 +20,13 @@ PIPELINE CANONICO M10 em encoder.py _encode_column(encoder.py:117-178):
    c. ELSE:
       - cadence_detected = False, min_len = 3 (defaults), cadence_info["rule_hit"] = None
 
-3. **CAMADA 1 — OBAT tokenizer** (encoder.py:148-156):
+3. **CAMADA 1, OBAT tokenizer** (encoder.py:148-156):
    a. IF cadence_detected AND cfg.obat_shape_preserve:
       - `processar_with_hint(unicas, min_len=min_len, prefer_shape_consistency=True)`
    b. ELSE:
       - `processar(unicas, min_len=min_len)` [canonical sem hint]
 
-4. **CAMADA 2 — HCC compactacao** (encoder.py:158-163):
+4. **CAMADA 2, HCC compactacao** (encoder.py:158-163):
    a. IF cfg.hcc_seq_rle=True [default]:
       - `HCCSeqRLE.encode(values, unicas, tokens, header)`
    b. ELSE:
@@ -111,7 +111,7 @@ Tamanho da amostra de strings unicas para regra 1 (wrapper+counter) em detect_ca
 
 ### Notas
 
-SUBSISTEMA CAMADA 0 EXAUSTIVO — PRE-PASS UNIFICADO:
+SUBSISTEMA CAMADA 0 EXAUSTIVO, PRE-PASS UNIFICADO:
 
 OBJETIVO ADR-0014/11: Single-pass O(N) pre-analysis extrai features coluna, informando decisoes CAMADA 1-3 (OBAT tokenizer + HCC compactacao). Zero duplicacao feature computation; reuso via ColumnFeatures imutavel.
 

@@ -1,5 +1,5 @@
 ---
-title: T-STUDY-HIERARCHICAL-TCF — TCF para estrutura hierárquica completa
+title: T-STUDY-HIERARCHICAL-TCF, TCF para estrutura hierárquica completa
 status: open
 priority: P2
 created: 2026-07-05
@@ -38,11 +38,11 @@ related:
   - experiments/lab/dirty/2026-07/2026-07-16/2026-07-16-1708-dataseth-s0-s3-semantica-vinculos/
 ---
 
-# T-STUDY-HIERARCHICAL-TCF — TCF para estrutura hierárquica completa
+# T-STUDY-HIERARCHICAL-TCF: TCF para estrutura hierárquica completa
 
 **[probatório]** Estuda como representar uma estrutura de dados **hierárquica** em TCF. JSON é a primeira
 fonte de pesquisa, não o contrato de origem. Decorre do pedido do owner (2026-07-05) por um "TCF aninhado
-similar ao JSON". **Não é 1 lab — é um GRUPO de peças
+similar ao JSON". **Não é 1 lab, é um GRUPO de peças
 que se juntam.** Mapa do grupo + como as peças formam o todo:
 [estudo-tcf-hierarquico-mapa.md](../experiments/lab/dirty/notas/2026-07/estudo-tcf-hierarquico-mapa.md).
 
@@ -59,10 +59,10 @@ O plano atual de pesquisa, incluindo a hipótese de `null`, `NaN` e infinitos, e
 > **PROMOVIDO A WELD DO `.8` (owner 2026-07-13)**: o reescopo `.8`=feature-complete decidiu que a
 > hierarquia entra no `.8`. Este guarda-chuva (feasibility, `confirmada-conceitual`) permanece a base
 > **probatória**; o **weld** para `src/tcf` vive em **[T-CODE-TCF8H-WELD](T-CODE-TCF8H-WELD.md)**
-> (dispositivo→exec, gate de CAPACIDADE — RT-exato do DatasetH + adaptador JSON de prova + non-regressão
+> (dispositivo→exec, gate de CAPACIDADE, RT-exato do DatasetH + adaptador JSON de prova + non-regressão
 > + aprovação `src/tcf`). O codec de referência é o EXP-015 (`experiments/lab/clean/EXP-015-tcf-hierarquico-csv-json/`).
 
-## REFOCO 2026-07-13 — pesquisa antes do acoplamento
+## REFOCO 2026-07-13: pesquisa antes do acoplamento
 
 **[dispositivo→pesquisa]** O requisito é que o TCF entenda **estrutura hierárquica**, qualquer que seja a
 fonte. JSON é apenas a primeira fonte conveniente para estudar o problema. O core não deve conhecer JSON,
@@ -121,43 +121,43 @@ sem dependências externas; as comparações vivem em experimento ou gadget.
 
 ### Etapas de pesquisa
 
-- [x] **R0a — plano de escopo**: registrar o estudo de DatasetH/hierarquia completa e a hipótese
+- [x] **R0a: plano de escopo**: registrar o estudo de DatasetH/hierarquia completa e a hipótese
   H-HIER-SCALAR-01 em [dataseth-hierarquia-completa-plano.md](../experiments/lab/dirty/notas/2026-07/dataseth-hierarquia-completa-plano.md).
-- [ ] **R0b — vocabulário e contrato**: definir DatasetH, topologia, tipos, presença, repetição, ordem,
+- [ ] **R0b: vocabulário e contrato**: definir DatasetH, topologia, tipos, presença, repetição, ordem,
   raízes escalares e limites; separar equivalência semântica de preservação lexical do JSON. Inclui a
   matriz de `null`, `NaN`, `+Infinity`, `-Infinity`, strings colidentes e ausência; `bN` é candidato de
   representação, não a definição desses valores.
-- [ ] **R1 — adaptador JSON**: `json.loads`/`object_pairs_hook` para a primeira implementação; testar
+- [ ] **R1: adaptador JSON**: `json.loads`/`object_pairs_hook` para a primeira implementação; testar
   `null`, objetos ragged, arrays mistos/nested, vazios, Unicode, LF e números sem stringificação.
-- [ ] **R2 — comparação de representações**: comparar árvore Python, `json_normalize`, Arrow nested e
+- [ ] **R2: comparação de representações**: comparar árvore Python, `json_normalize`, Arrow nested e
   eventos `ijson`; medir o que cada forma preserva e o que precisa de side-channel.
-- [ ] **R3 — DatasetH independente da fonte**: construir um fixture equivalente sem passar por JSON e
+- [ ] **R3: DatasetH independente da fonte**: construir um fixture equivalente sem passar por JSON e
   provar que o mesmo DatasetH pode ser alimentado por outra origem.
-- [ ] **R4 — codec externo TCF.H**: testar `DatasetH -> TCF.H -> DatasetH` sem tocar `src/tcf`.
-- [ ] **R5 — decisão de acoplamento**: somente após R0-R4 definir a superfície de `encode`/`decode` e
+- [ ] **R4: codec externo TCF.H**: testar `DatasetH -> TCF.H -> DatasetH` sem tocar `src/tcf`.
+- [ ] **R5: decisão de acoplamento**: somente após R0-R4 definir a superfície de `encode`/`decode` e
   abrir o weld do core; nenhum import de JSON deve entrar em `src/tcf`.
 
-## Peças (labs) — estado
+## Peças (labs): estado
 
-- **P1** `1509-...tabelao-vs-2tabelas` — desnormalizar vs normalizar; RLE↔referência. (medido, RT OK)
-- **P2** `1543-...tcf8-estrutura-aninhada` — 2 TCF.8 empilhados + envelope self-describing. (RT OK)
-- **P3** `1608-...linking-pai-filho-cabecalho` — **abordagem A**: blocos empilhados + header de ligação
+- **P1** `1509-...tabelao-vs-2tabelas`: desnormalizar vs normalizar; RLE↔referência. (medido, RT OK)
+- **P2** `1543-...tcf8-estrutura-aninhada`: 2 TCF.8 empilhados + envelope self-describing. (RT OK)
+- **P3** `1608-...linking-pai-filho-cabecalho`: **abordagem A**: blocos empilhados + header de ligação
   pai/filho (hint `#TCF.8 N`, adjacência). Modular/buscável. (RT OK, S4+S6)
-- **P4** `1650-...multicol-n-hierarquia` — **abordagem B**: 1 multi-col + flag `N` + linha `#H`. (RT OK)
-- **P5** `1830-...bracket-meta-hierarquia` — **abordagem C** (mais enxuta): hierarquia em **colchetes no
+- **P4** `1650-...multicol-n-hierarquia`: **abordagem B**: 1 multi-col + flag `N` + linha `#H`. (RT OK)
+- **P5** `1830-...bracket-meta-hierarquia`: **abordagem C** (mais enxuta): hierarquia em **colchetes no
   meta**; `M`/`N` + array-vs-objeto **deduzidos**; hierarquia opt-in. (RT OK, S4+S6)
-- **P6** `1840-...estudo-notacoes-agrupamento` — **estudo** da notação (start/end vs contagem vs
+- **P6** `1840-...estudo-notacoes-agrupamento`: **estudo** da notação (start/end vs contagem vs
   profundidade): bytes ~empatam, precisa de 1 portador de forma; escolha é parse/stream. (RT topologia OK)
-- **P7** `1906-...cardinalidades-inferencia` — **cardinalidade** 1×1/1×N/N×1/N×N deduzida dos dados (FD)
+- **P7** `1906-...cardinalidades-inferencia`: **cardinalidade** 1×1/1×N/N×1/N×N deduzida dos dados (FD)
   → mecânica TCF. **Amarra o grupo**: 1:N↔hierarquia (dual RLE), N:1↔@dict (já existe), N:N↔ponte. (4 casos OK)
-- **P8** `2017-...teoria-cardinalidade-forca` + [teoria-cardinalidade.md](../experiments/lab/dirty/notas/2026-07/teoria-cardinalidade.md)
-  — **TEORIA**: força (forte/fraca/quase/induzida) + rápido(RLE)-vs-pleno(OBAT/HCC) + **ortogonalidade**
+- **P8** `2017-...teoria-cardinalidade-forca` + [teoria-cardinalidade.md](../experiments/lab/dirty/notas/2026-07/teoria-cardinalidade.md):
+  **TEORIA**: força (forte/fraca/quase/induzida) + rápido(RLE)-vs-pleno(OBAT/HCC) + **ortogonalidade**
   (cardinalidade ⊥ compressibilidade) + **cascade** (Parquet). Hipóteses **H-CARD-01..07** no roadmap. (medido)
-- **P9** `2328-...tcf8-schema-cardinalidade-explicito-implicito` — **PONTE com o header-minimal**: a
+- **P9** `2328-...tcf8-schema-cardinalidade-explicito-implicito`: **PONTE com o header-minimal**: a
   linguagem semântica TCF.8 (cardinalidade/hierarquia) **explícita → dedução → mínima**. A forma mínima
   **converge pra P5**; irredutível = magic + arestas de hierarquia + markers + sizes; **custo transmitido
   ZERO** (o resto é deduzido). Fecha o círculo header-minimal (O-FMT-14) × hierárquico. (medido, RT OK)
-- **P10-P11 (futuro, exige aprovação — toca src/formato)**: protótipo TCF.8 (arestas explícitas + resto
+- **P10-P11 (futuro, exige aprovação: toca src/formato)**: protótipo TCF.8 (arestas explícitas + resto
   deduzido) + O-FMT-14 derivável · link posicional / N:N (repetition level) p/ array-in-array e N raízes.
 
 > **NOTA (2026-07-05)**: este grupo é um **detour de teoria/estrutura** a partir do estudo **header-minimal**
@@ -173,20 +173,20 @@ Duas representações do mesmo documento aninhado:
 
 Qual custa menos, e sob qual condição (payload plano vs reconstrução exata da estrutura de origem)?
 
-## Estado (2026-07-05) — feasibility MEDIDA (lab)
+## Estado (2026-07-05): feasibility MEDIDA (lab)
 
-Lab [2026-07-05-1509-tcf-hierarquico-tabelao-vs-2tabelas](../experiments/lab/dirty/2026-07/2026-07-05/2026-07-05-1509-tcf-hierarquico-tabelao-vs-2tabelas/)
-— artefatos reproduzíveis (`run.py`), decode reconstrói o JSON (OK). Achado (`artifacts/05-bytes-medida.txt`, brotli q11):
-- **Reconstrução** (precisa do JSON): **B vence** M=1 (297<314) e M=3 (354<370) — robusto.
+Lab [2026-07-05-1509-tcf-hierarquico-tabelao-vs-2tabelas](../experiments/lab/dirty/2026-07/2026-07-05/2026-07-05-1509-tcf-hierarquico-tabelao-vs-2tabelas/):
+artefatos reproduzíveis (`run.py`), decode reconstrói o JSON (OK). Achado (`artifacts/05-bytes-medida.txt`, brotli q11):
+- **Reconstrução** (precisa do JSON): **B vence** M=1 (297<314) e M=3 (354<370), robusto.
 - **Plano** (só a tabela): empate dentro do ruído (<1KB, overhead-dominado).
 - **Princípio**: a multiplicidade ×N é conservada; **RLE ↔ referência são duais** (mesma info, ~mesmo
-  tamanho). O schema não compra compressão, compra **reconstrução** — e B herda a partição pai/filho de
+  tamanho). O schema não compra compressão, compra **reconstrução**, e B herda a partição pai/filho de
   graça (colocação física), enquanto A precisa enumerá-la. Prior art: **factorized DBs** (Olteanu &
   Zavodny), **Dremel/Parquet** rep/def levels (Melnik 2010), **Heath** (integridade sse chave).
 
 ## Próximos passos (progressão dirty)
 
-- [ ] **Realista**: >1k linhas, contexto pesado (muitas colunas de equipment longas) — onde B deve abrir.
+- [ ] **Realista**: >1k linhas, contexto pesado (muitas colunas de equipment longas), onde B deve abrir.
 - [ ] **Bordas**: M=1 série de 1 ponto; colunas 100% constantes vs 100% distintas; dedução vs schema.
 - [ ] **Extrapolação**: M grande (muitos equipamentos), achar o **crossover** exato fora do ruído.
 - [ ] **Gate real-world** (Adult/TPC-H ou telemetria real) antes de qualquer `confirmada-empirica`.

@@ -1,13 +1,13 @@
 ---
-title: Origens — capacidades fundamentais (F-Q1..F-Q12)
+title: Origens, capacidades fundamentais (F-Q1..F-Q12)
 type: findings-block
 range: F-Q1..F-Q12
 parent: docs/findings/README.md
 ---
 
-# Origens — capacidades fundamentais (F-Q1..F-Q12)
+# Origens: capacidades fundamentais (F-Q1..F-Q12)
 
-## F-Q1 `{shared}` — Intrinsic thinking é característica arquitetural, não hiperparâmetro
+## F-Q1 `{shared}`: Intrinsic thinking é característica arquitetural, não hiperparâmetro
 
 **Conclusão:** Modelos `deepseek-r1:*` (e outros da classe *intrinsic-thinking*)
 colapsam para prompt-echo ou geração degenerada quando `think=False`. O
@@ -24,11 +24,11 @@ pipeline de inferência assume tokens de thinking presentes.
 
 ---
 
-## F-Q2 `{shared}` — Arquitetura multimodal degrada text-only em alguns modelos
+## F-Q2 `{shared}`: Arquitetura multimodal degrada text-only em alguns modelos
 
 **Conclusão:** `qwen3-vl:8b` apresenta timeouts patológicos (45s+) em prompts
 text-only triviais, enquanto `qwen3:8b` (mesmo tamanho, sem vision) responde
-em ~1.3s. `llama3.2-vision:11b` NÃO apresenta essa degradação — não é
+em ~1.3s. `llama3.2-vision:11b` NÃO apresenta essa degradação, não é
 universal entre modelos vision-augmented.
 
 **Implicação metodológica:** Modelos multimodais devem ser validados
@@ -38,7 +38,7 @@ individualmente para uso text-only antes de entrarem em painéis de qualificaç�
 
 ---
 
-## F-Q3 `{shared}` — Ausência de viés PT vs EN em accuracy canônica
+## F-Q3 `{shared}`: Ausência de viés PT vs EN em accuracy canônica
 
 **Conclusão:** 5 top-performers × 7 perguntas × 2 idiomas (PT/EN) mostram
 accuracy 100% idêntica. Latência PT inicial é artefato de cold-start, não
@@ -51,7 +51,7 @@ equivalentes a EN para fins de accuracy; a escolha de idioma é operacional.
 
 ---
 
-## F-Q4 `{shared}` — Ambiguidade linguística em contagem lexical vs conteúdo
+## F-Q4 `{shared}`: Ambiguidade linguística em contagem lexical vs conteúdo
 
 **Conclusão:** "Conte as palavras em 'A raposa marrom pula'" recebe 4
 (lexical) de alguns modelos e 3 (conteúdo, exclui artigo) de outros. Ambas
@@ -66,9 +66,9 @@ lógicas de dados".
 
 ---
 
-## F-Q5 `{shared}` — Capacity floor existe abaixo de 1B parâmetros
+## F-Q5 `{shared}`: Capacity floor existe abaixo de 1B parâmetros
 
-**Conclusão:** `qwen3:0.6b` responde "Brasil" para "capital do Brasil" —
+**Conclusão:** `qwen3:0.6b` responde "Brasil" para "capital do Brasil":
 confunde entidade país/cidade. É limite de capacity, não de configuração.
 
 **Implicação metodológica:** Modelos < 1B não devem entrar em painel
@@ -79,7 +79,7 @@ edge deployment.
 
 ---
 
-## F-Q6 `{shared}` — Cold-start na primeira chamada PT
+## F-Q6 `{shared}`: Cold-start na primeira chamada PT
 
 **Conclusão:** A primeira chamada em PT após troca de modelo/sessão custa
 20-60s; chamadas subsequentes ficam em 2-8s.
@@ -91,7 +91,7 @@ chamada OU usar warmup prompt em PT antes da medição.
 
 ---
 
-## F-Q7 `{shared}` — Catálogo de modelos modernos vs obsoletos
+## F-Q7 `{shared}`: Catálogo de modelos modernos vs obsoletos
 
 **Conclusão:** Famílias têm gerações sucessivas que tornam anteriores
 redundantes (phi3 → phi4; qwen2.5 → qwen3; llama3.1 → llama3.2). Manter
@@ -104,7 +104,7 @@ obsoletas; manter apenas em `obsolete_models.json` para ablação histórica.
 
 ---
 
-## F-Q8 `{shared}` — Thinking consome budget de `num_predict`
+## F-Q8 `{shared}`: Thinking consome budget de `num_predict`
 
 **Conclusão:** Em modelos reasoning, `num_predict` limita **thinking +
 response**, não apenas response. Budget insuficiente trunca a resposta
@@ -112,7 +112,7 @@ após thinking (aparentemente o modelo "falhou" mas na verdade o servidor
 cortou na metade).
 
 **Evidência:** `phi4:latest` em TCF L3 n=100 q_count: response TRUNCATED
-(done_reason="length") com thinking_length=0 — thinking não aconteceu, mas
+(done_reason="length") com thinking_length=0, thinking não aconteceu, mas
 a resposta estava longa demais para o default num_predict.
 
 **Implicação metodológica:**
@@ -120,7 +120,7 @@ a resposta estava longa demais para o default num_predict.
    todo record de experimento.
 2. Budget explícito `num_predict=4096+` para modelos reasoning;
    `num_predict=8192+` se thinking_length observado passar de ~3500c.
-3. Record truncado ≠ model failure — é **instrumentation failure** da parte
+3. Record truncado ≠ model failure, é **instrumentation failure** da parte
    do experimento.
 
 **Referência:** implementado em `llm_eval/ollama_client.py::GenerateResult`
@@ -128,11 +128,11 @@ e `run_frontier_search.py::LLM_OPTIONS` (2026-04-21).
 
 ---
 
-## F-Q9 `{shared}` — `keep_alive` em `options` é silenciosamente ignorado
+## F-Q9 `{shared}`: `keep_alive` em `options` é silenciosamente ignorado
 
 **Conclusão:** Ollama trata `keep_alive` como campo top-level da payload.
 Colocá-lo dentro de `options` gera warning no servidor e o valor é
-descartado — modelos descarregam após default (5min).
+descartado, modelos descarregam após default (5min).
 
 **Implicação metodológica:** `keep_alive` viaja em `client.generate(...,
 keep_alive="30m")`, nunca em `options={"keep_alive": ...}`.
@@ -141,7 +141,7 @@ keep_alive="30m")`, nunca em `options={"keep_alive": ...}`.
 
 ---
 
-## F-Q10 `{shared}` — Non-convergent thinking em modelos 7B-reasoning (escopo narrow)
+## F-Q10 `{shared}`: Non-convergent thinking em modelos 7B-reasoning (escopo narrow)
 
 **Conclusão (escopo narrow):** `deepseek-r1:7b` em TCF L3 com perguntas de
 contagem implícita apresenta thinking não-convergente (budget scaling
@@ -153,7 +153,7 @@ combinação *modelo × tarefa × formato*; não generalizar.
 incluir essas limitações explicitamente.
 
 **Implicação metodológica:** Reasoning models têm modo de falha
-"thinking degenerado" distinto de "capacity floor" — ambos terminam em
+"thinking degenerado" distinto de "capacity floor", ambos terminam em
 resposta errada, mas representam problemas diferentes. Instrumentação
 F-Q8 permite distinguir.
 
@@ -161,7 +161,7 @@ F-Q8 permite distinguir.
 
 ---
 
-## F-Q11 `{shared}` — Determinismo CPU↔GPU não-verificado formalmente
+## F-Q11 `{shared}`: Determinismo CPU↔GPU não-verificado formalmente
 
 **Conclusão:** Com `temperature=0, seed=42`, Ollama é empiricamente
 determinístico dentro do mesmo backend. CPU↔GPU pode divergir em 1-2
@@ -177,7 +177,7 @@ deepseek-r1:14b; 5 records cached de CPU mantidos após mudança).
 
 ---
 
-## F-Q12 `{A}` — Aritmética sobre colunas com muitas linhas falha universalmente
+## F-Q12 `{A}`: Aritmética sobre colunas com muitas linhas falha universalmente
 
 **Conclusão:** 12 modelos locais (phi4 a gemma3:1b) têm 0% acurácia em
 `sum()` e `avg()` sobre coluna numérica de 255 linhas em TCF L3.
@@ -188,7 +188,7 @@ RLE mentalmente, (b) manter state de soma ao longo de 255 passos, (c)
 formatar a resposta. Capacidade representacional combinada estoura em 7B-14B.
 
 **Implicação metodológica:**
-- Aggregation não é "failure point de modelo" — é **failure point de
+- Aggregation não é "failure point de modelo": é **failure point de
   arquitetura cognitiva** de LLMs dessa classe.
 - Resposta deve ser tool-calling ou program-of-thoughts (emitir código
   Python, executar externamente).

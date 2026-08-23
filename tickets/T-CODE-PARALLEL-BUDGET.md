@@ -1,5 +1,5 @@
 ---
-title: T-CODE-PARALLEL-BUDGET — flag de controle de paralelismo e uso de CPU (budget do host)
+title: T-CODE-PARALLEL-BUDGET, flag de controle de paralelismo e uso de CPU (budget do host)
 status: open
 priority: P2
 created: 2026-07-10
@@ -11,7 +11,7 @@ related:
   - docs/adr/0018-v2-format-roadmap.md
 ---
 
-# T-CODE-PARALLEL-BUDGET — flag pra controlar paralelismo e uso de CPU
+# T-CODE-PARALLEL-BUDGET: flag pra controlar paralelismo e uso de CPU
 
 **[dispositivo→registro]** Pedido do owner (2026-07-10): "já registre um flag pra controlar
 paralelismo e uso de cpu por exemplo". Registrado aqui; implementação decidida junto com o F3
@@ -27,20 +27,20 @@ do material comprobatório (que vai MEDIR o comportamento paralelo antes de expo
 
 ## Esboço do flag (pra discussão na implementação)
 
-1. **Env var de teto**: `TCF_MAX_WORKERS` — clampa qualquer `parallel=` (inclusive `True`);
+1. **Env var de teto**: `TCF_MAX_WORKERS`, clampa qualquer `parallel=` (inclusive `True`);
    `TCF_MAX_WORKERS=1` = desliga paralelismo globalmente (CI, containers com cota, benchmarks
    de baseline). Precedência: env (teto do HOST) > kwarg (pedido do caller).
-2. **`parallel=True` mais educado**: default `cpu_count()` toma a máquina inteira — considerar
+2. **`parallel=True` mais educado**: default `cpu_count()` toma a máquina inteira, considerar
    `max(1, cpu_count - 1)` ou fração; MEDIR no F3 antes (o speedup satura ~1.3x no Windows
-   spawn — teto alto não paga).
+   spawn, teto alto não paga).
 3. **Uso de CPU além de workers** (registrar, avaliar depois): prioridade/nice do pool,
-   `max_tasks_per_child`, e futuro paralelismo intra-coluna (V2-J, ADR-0018) — o budget deve
+   `max_tasks_per_child`, e futuro paralelismo intra-coluna (V2-J, ADR-0018), o budget deve
    ser UM conceito só pro host inteiro, não um knob por camada.
 4. Telemetria: `multi_info['parallel_workers']` já expõe o efetivo; o flag deve aparecer lá
-   também (workers pedidos vs concedidos) — zero-cost, filosofia SideOutputs.
+   também (workers pedidos vs concedidos), zero-cost, filosofia SideOutputs.
 
 ## Critérios de aceite
 
 - [ ] Decisão de design pós-F3 (com números de speedup/porção-serial medidos).
 - [ ] Env var respeitada em encode paralelo (teto), com teste.
-- [ ] Documentado no reference (F6/pós-.8) — knob de HOST, não de formato (bytes idênticos sempre).
+- [ ] Documentado no reference (F6/pós-.8): knob de HOST, não de formato (bytes idênticos sempre).

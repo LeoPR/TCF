@@ -1,5 +1,5 @@
 ---
-title: T-CI-1 — GitHub Actions CI (pre-commit lint; tests refactor follow-up)
+title: T-CI-1, GitHub Actions CI (pre-commit lint; tests refactor follow-up)
 status: closed
 resolution: fase-1-completa-com-fase-2-em-t-ci-2
 priority: P3
@@ -15,7 +15,7 @@ related:
   - tests/
 ---
 
-# T-CI-1 — GitHub Actions CI
+# T-CI-1: GitHub Actions CI
 
 ## Contexto / motivacao
 
@@ -44,7 +44,7 @@ problemas que impedem CI direto:
 
 ## Plano
 
-### Fase 1 (este ticket) — CI MINIMAL
+### Fase 1 (este ticket): CI MINIMAL
 
 Workflow `.github/workflows/ci.yml` que roda:
 - Job `lint`: pre-commit run --all-files em Python 3.12 ubuntu
@@ -52,7 +52,7 @@ Workflow `.github/workflows/ci.yml` que roda:
 
 Documenta limitacao em README.
 
-### Fase 2 (ticket separado T-CI-2) — fix tests CI-friendly
+### Fase 2 (ticket separado T-CI-2): fix tests CI-friendly
 
 - Limpar tests broken (v0.5 imports): deletar ou refactor pra v0.6 canonical
 - Tests SQLite-dependent: usar fixture com SQLite mock OR rodar so' local
@@ -69,25 +69,25 @@ Apos Fase 2, ativar job `test` no CI.
 
 ## Riscos
 
-1. **Pre-commit lint pode falhar em codigo legado**: mitigacao —
+1. **Pre-commit lint pode falhar em codigo legado**: mitigacao:
    workflow tem `continue-on-error` no run inicial; baseline opcional
 2. **Performance**: actions tem quota gratis generosa; jobs leves nao
    impactam
 
 ## Conexoes
 
-- T-CLEAN-1 (pre-commit config) — pre-requisito
-- Metodologia §"Versionamento e higiene" — CI complementa pre-commit
+- T-CLEAN-1 (pre-commit config): pre-requisito
+- Metodologia §"Versionamento e higiene": CI complementa pre-commit
 
 ## Updates datados
 
-### 2026-05-23 — abertura
+### 2026-05-23: abertura
 
 Ticket criado seguindo convencao YAML frontmatter. Fase 1 (lint only)
 e' minimal viable CI; Fase 2 (tests) requer refactor de tests legados
 (separado em T-CI-2 futuro).
 
-### 2026-05-23 — Fase 1 completa + T-CI-2 imediato
+### 2026-05-23: Fase 1 completa + T-CI-2 imediato
 
 Fase 1 implementada (workflow .github/workflows/ci.yml com job lint).
 T-CI-2 (refactor tests) executado IMEDIATAMENTE no mesmo dia:

@@ -1,7 +1,7 @@
-# Online Retail — UCI ML Repository
+# Online Retail: UCI ML Repository
 
 Dataset financeiro canonical (transactional sales) pra testar
-**natureza #8 (arredondamento implicito)** — UnitPrice tem padroes
+**natureza #8 (arredondamento implicito)**: UnitPrice tem padroes
 .99/.95/.50 caracteristicos de pricing varejo.
 
 ## Source
@@ -24,7 +24,7 @@ Dataset financeiro canonical (transactional sales) pra testar
 | Description | TEXT | Product description (~0.27% NaN) |
 | Quantity | INT | Pode ser negativo (returns) |
 | InvoiceDate | DATETIME | M/D/YYYY HH:MM (UK format) |
-| **UnitPrice** | FLOAT | **GBP — padroes .99/.95/.50 caracteristicos** |
+| **UnitPrice** | FLOAT | **GBP, padroes .99/.95/.50 caracteristicos** |
 | CustomerID | FLOAT | Customer code (~25% NaN) |
 | Country | TEXT | Country name (~37 paises) |
 
@@ -34,7 +34,7 @@ Dataset financeiro canonical (transactional sales) pra testar
 - **#8 Arredondamento implicito**: UnitPrice tem padroes .99/.95/.50
   caracteristicos de pricing varejo psicologico. Encoder "prefix + sufixo
   fixo" pode comprimir significativamente.
-- **#7 Enumerated** Country (~37 unicos em 542k rows = card 0.0001 — alta
+- **#7 Enumerated** Country (~37 unicos em 542k rows = card 0.0001: alta
   compressao via dedup esperada). Mas pacote 5 ja' refutou enumerated
   explicit; reuso confirmacao M10.
 

@@ -1,5 +1,5 @@
 ---
-title: T-EXP-H-DA-09c-d-e — Refinos detect_cadence (threshold/multivariada/adaptativo)
+title: T-EXP-H-DA-09c-d-e, Refinos detect_cadence (threshold/multivariada/adaptativo)
 status: closed
 resolution: no-go-threshold-07-otimo
 priority: P3
@@ -14,7 +14,7 @@ related:
   - experiments/lab/dirty/notas/2026-05/roadmap-hipoteses.md
 ---
 
-# T-EXP-H-DA-09c-d-e — Refinos detect_cadence
+# T-EXP-H-DA-09c-d-e: Refinos detect_cadence
 
 ## Contexto / motivacao
 
@@ -35,7 +35,7 @@ constantes.
 
 Lab dirty: `experiments/lab/dirty/2026-05-23-h-da-09c-d-e-refinos-cadence/`
 
-### Sub-exp 01 — H-DA-09c varrer threshold
+### Sub-exp 01: H-DA-09c varrer threshold
 
 Pra cada coluna real-world (Adult+TPC-H 57 cols) + D1-D9 controle:
 - Encode com threshold {0.5, 0.6, 0.7, 0.8}
@@ -45,12 +45,12 @@ Pra cada coluna real-world (Adult+TPC-H 57 cols) + D1-D9 controle:
 **Criterio go**: se algum threshold da ganho weighted >= 2% sem
 regressao significativa em D1-D9 baseline.
 
-### Sub-exp 02 (condicional) — H-DA-09d multivariada
+### Sub-exp 02 (condicional): H-DA-09d multivariada
 
 Se Sub-exp 01 mostrar que NO threshold unico funciona (alguns datasets
 preferem 0.5, outros 0.8): heuristica multivariada faria sentido.
 
-### Sub-exp 03 (condicional) — H-DA-09e adaptativo
+### Sub-exp 03 (condicional): H-DA-09e adaptativo
 
 Se H-DA-09d nao bastar: adaptativo (re-avaliar threshold por
 sub-segmentos da coluna).
@@ -67,7 +67,7 @@ sub-segmentos da coluna).
 2. **Per-col differ**: melhor threshold pode variar por col,
    requerendo H-DA-09d/e (mais complexos).
 3. **Welding sem ADR novo**: se so' muda constante 0.7→X, talvez
-   nao precise ADR formal — apenas commit + roadmap update.
+   nao precise ADR formal, apenas commit + roadmap update.
 
 ## Conexoes
 
@@ -77,13 +77,13 @@ sub-segmentos da coluna).
 
 ## Updates datados
 
-### 2026-05-23 — abertura
+### 2026-05-23: abertura
 
 Ticket criado seguindo convencao YAML frontmatter. Refinos decorrentes
-do sub-exp 09 do Pacote 1 (welded). Priority P3 — incremental sobre
+do sub-exp 09 do Pacote 1 (welded). Priority P3, incremental sobre
 ADR-0008/0011.
 
-### 2026-05-23 — Sub-exp 01 H-DA-09c: NO-GO
+### 2026-05-23: Sub-exp 01 H-DA-09c: NO-GO
 
 Varreu threshold {0.5, 0.6, 0.7, 0.8} em 66 colunas (9 D1-D9 + 57 real).
 
@@ -94,9 +94,9 @@ Varreu threshold {0.5, 0.6, 0.7, 0.8} em 66 colunas (9 D1-D9 + 57 real).
 | Sintetico (9) | 1,523 | 1,523 | **1,523** | 1,523 |
 
 Distribuicao "melhor threshold" per col:
-- thr=0.5: 63/66 cols (mas TOTAL maior — IGUAL ao 0.7 em quase todas)
+- thr=0.5: 63/66 cols (mas TOTAL maior, IGUAL ao 0.7 em quase todas)
 - thr=0.6: 0/66
-- thr=0.7: 3/66 (estritamente melhor — cadence dispara em 0.5 mas
+- thr=0.7: 3/66 (estritamente melhor, cadence dispara em 0.5 mas
   shape-preserve nao ajuda em alguns casos especificos)
 - thr=0.8: 0/66
 

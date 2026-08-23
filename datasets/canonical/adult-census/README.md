@@ -1,4 +1,4 @@
-# Adult Census Income — UCI ML Repository
+# Adult Census Income: UCI ML Repository
 
 Single-table canonical dataset used in TCF M-series experiments
 (F-Q25..F-Q32 in [docs/findings/](../../../docs/findings/)).
@@ -31,9 +31,9 @@ Single-table canonical dataset used in TCF M-series experiments
 | sex | TEXT | Male / Female |
 | capital-gain | INTEGER | mostly 0; max 99,999 |
 | capital-loss | INTEGER | mostly 0 |
-| **hours-per-week** | INTEGER | hyphenated — requires `"hours-per-week"` quoting in SQLite |
+| **hours-per-week** | INTEGER | hyphenated, requires `"hours-per-week"` quoting in SQLite |
 | native-country | TEXT | 42 countries incl. "?" |
-| **class** | TEXT | `<=50K` (76%) / `>50K` (24%) — target |
+| **class** | TEXT | `<=50K` (76%) / `>50K` (24%), target |
 
 ## How to download
 
@@ -77,10 +77,10 @@ tables, meta = load_dataset(
 
 ## Caveats
 
-- **`?` values** are textual nulls — code that uses `distinct_workclass`
+- **`?` values** are textual nulls: code that uses `distinct_workclass`
   must explicitly exclude them (`WHERE workclass != '?'`)
 - **`hours-per-week`, `marital-status`, etc.** require double-quoting
   in SQLite. Some local models (qwen2.5-coder:7b) consistently fail
-  this — see manual [07-troubleshooting](../../../docs/archive/manual_v05/07-troubleshooting.md).
+  this, see manual [07-troubleshooting](../../../docs/archive/manual_v05/07-troubleshooting.md).
 - **Train + test merged**: we treat the full 48,842 as our population.
   Use `stratify_by="class"` for fair sampling.
