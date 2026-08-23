@@ -198,16 +198,27 @@ Fast and predictable.
 
 ## Nature filters (opt-in)
 
-**A spec is not a strong type, and the difference is the point.** TCF is a *text* format:
-whatever goes in comes back out, byte for byte. A spec never changes that; it only exploits
-**redundancy that the shape guarantees**.
+**A spec is not a type, and the difference is the point.** These are two separate claims: the
+*wire* is always text, and the **data comes back in the type it went in as**. Strings return
+byte for byte; `True` and `3.14` return a **bool** and a **float**, not the spelling `"True"`.
+TCF reads the type on the way in, marks it in the header (`#TCF.8b`, `#TCF.8n`) and reconstructs
+the **value**, not the text that represented it:
 
-| | strong type (`int`, `date`, …) | TCF semantic spec |
+```python
+from tcf import encode, decode
+
+assert decode(encode([True, False])) == [True, False]    # bool, not "True"
+assert decode(encode(["True", "False"])) == ["True", "False"]   # here, strings
+```
+
+A spec is a different layer: a hypothesis about the **shape** of a text.
+
+| | input type (`bool`, `int`, `float`) | semantic spec (`cpf`, `cnpj`, `ip`) |
 |---|---|---|
-| what it asserts | *"this value **is** an integer"* | *"this value **has the shape** of a CPF"* |
-| what it returns | the native object | **the original string, byte for byte** |
-| when a value does not match | type error / coercion | falls back to literal: **no failure, no loss** |
-| what you gain | semantics inside your program | bytes on the wire |
+| who asserts it | **your language**: the value already is a bool | **TCF**, as a hypothesis: *"has the shape of a CPF"* |
+| what comes back | the same value, same type (`True`, not `"True"`) | the **original string**, byte for byte |
+| when it does not match | not applicable, the type is a fact | falls back to literal: **no failure, no loss** |
+| what you gain | the type preserved, plus bits (1–2 per bool) | bytes on the wire |
 
 So a spec is a **compression hypothesis about the form**, not a claim about the data's identity.
 It is opt-in per value and **never-worse**: it competes with the ordinary pipeline and only wins
@@ -515,12 +526,14 @@ stays text, the producer can `encode` once and send it as a normal HTTP body; th
 a `count()` or a filtered aggregate.
 
 ```mermaid
-flowchart LR
+flowchart TB
     subgraph Producer
+        direction TB
         A[table<br/>CSV / DB dump] -->|encode| B["blob<br/>183 B, #TCF.8M text"]
     end
     B -->|"HTTP body<br/>(gzip/brotli optional, on top)"| C
     subgraph Consumer
+        direction TB
         C["view(blob)<br/>connects, decompresses nothing"] -->|"count()"| D["cheapest column<br/>(rows only)"]
         C -->|"where(cidade=SP).sum(valor)"| E["materializes only<br/>cidade + valor"]
         C -->|"decode(blob)"| F[full table<br/>all columns]

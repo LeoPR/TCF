@@ -201,16 +201,26 @@ Rápido e previsível.
 
 ## Filtros por natureza (opt-in)
 
-**Um spec não é um tipo forte, e a diferença é o ponto.** O TCF é um formato de *texto*:
-o que entra volta igual, byte a byte. O spec não muda isso; ele só explora a **redundância que
-a forma garante**.
+**Um spec não é um tipo, e a diferença é o ponto.** São duas afirmações separadas: o *wire*
+é sempre texto, e o **dado volta no tipo em que entrou**. String volta byte a byte; `True` e
+`3.14` voltam **bool** e **float**, não a grafia `"True"`. O TCF lê o tipo na entrada, marca
+no header (`#TCF.8b`, `#TCF.8n`) e reconstrói o **valor**, não o texto que o representava:
 
-| | tipo forte (`int`, `date`, …) | spec semântico do TCF |
+```python
+from tcf import encode, decode
+
+assert decode(encode([True, False])) == [True, False]    # bool, não "True"
+assert decode(encode(["True", "False"])) == ["True", "False"]   # aqui sim, string
+```
+
+O spec é outra camada: uma hipótese sobre a **forma** de um texto.
+
+| | tipo de entrada (`bool`, `int`, `float`) | spec semântico (`cpf`, `cnpj`, `ip`) |
 |---|---|---|
-| o que afirma | *"este valor **é** um inteiro"* | *"este valor **tem a forma** de um CPF"* |
-| o que devolve | o objeto nativo | **a string original, byte a byte** |
-| se o valor não casa | erro de tipo / coerção | cai para literal, **sem falhar e sem perder** |
-| o que ganha | semântica no seu programa | bytes no fio |
+| quem afirma | a **sua linguagem**: o valor já é um bool | o **TCF**, como hipótese: *"tem a forma de um CPF"* |
+| o que volta | o mesmo valor, no mesmo tipo (`True`, não `"True"`) | a **string original**, byte a byte |
+| se não casa | não se aplica, o tipo é fato | cai para literal, **sem falhar e sem perder** |
+| o que ganha | o tipo preservado, e bits (1–2 por bool) | bytes no fio |
 
 Ou seja: o spec é uma **hipótese de compressão sobre a forma**, não uma afirmação sobre a
 identidade do dado. É opt-in por valor e **nunca-pior**: compete com o pipeline comum e só vence
@@ -520,12 +530,14 @@ continua texto, o produtor faz `encode` uma vez e envia como corpo HTTP normal; 
 `count()` ou um agregado filtrado.
 
 ```mermaid
-flowchart LR
+flowchart TB
     subgraph Produtor
+        direction TB
         A[tabela<br/>CSV / dump de banco] -->|encode| B["blob<br/>183 B, texto #TCF.8M"]
     end
     B -->|"corpo HTTP<br/>(gzip/brotli opcional, por cima)"| C
     subgraph Consumidor
+        direction TB
         C["view(blob)<br/>conecta, não descomprime nada"] -->|"count()"| D["coluna mais barata<br/>(só as linhas)"]
         C -->|"where(cidade=SP).sum(valor)"| E["materializa só<br/>cidade + valor"]
         C -->|"decode(blob)"| F[tabela inteira<br/>todas as colunas]

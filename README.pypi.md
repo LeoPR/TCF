@@ -104,9 +104,18 @@ opaque compressor cannot do this.
 
 ## Specs: semantic type, string result
 
-TCF is a **text** format: everything comes back exactly as it went in. But *knowing the
-nature* of a column unlocks compression far beyond what structure alone gives. That is
-what **specs** are for:
+Two separate claims: the **wire** is always text, and the **data comes back in the type it
+went in as**. Strings return byte for byte; `True` and `3.14` return a **bool** and a
+**float**, not the spelling `"True"` (TCF marks the type in the header: `#TCF.8b`, `#TCF.8n`).
+
+```python
+from tcf import encode, decode
+
+assert decode(encode([True, False])) == [True, False]    # bool, not "True"
+```
+
+On top of that, *knowing the nature* of a text column unlocks compression far beyond what
+structure alone gives. That is what **specs** are for:
 
 ```python
 from tcf import encode, decode
@@ -116,14 +125,14 @@ blob = encode(cpfs, schema="cpf")     # 69 B -> 39 B
 assert decode(blob) == cpfs           # the header says which spec to invert
 ```
 
-A spec is **not a strong type**. The difference matters:
+A spec is **not a type**. The difference matters:
 
-| | strong type (int, date…) | TCF semantic spec |
+| | input type (`bool`, `int`, `float`) | semantic spec (`cpf`, `cnpj`, `ip`) |
 |---|---|---|
-| what it asserts | *"this value **is** an integer"* | *"this value **has the shape** of a CPF"* |
-| what it returns | the native object | **the original string, byte for byte** |
-| when a value does not match | type error / coercion | falls back to literal, **no failure, no loss** |
-| what you gain | semantics in your program | bytes on the wire |
+| who asserts it | **your language**: the value already is a bool | **TCF**, as a hypothesis: *"has the shape of a CPF"* |
+| what comes back | the same value, same type (`True`, not `"True"`) | the **original string**, byte for byte |
+| when it does not match | not applicable, the type is a fact | falls back to literal, **no failure, no loss** |
+| what you gain | the type preserved, plus bits (1–2 per bool) | bytes on the wire |
 
 A spec exploits **redundancy that the shape guarantees**: a CPF has 11 digits, a fixed
 mask and two check digits that are *derivable*, so the mask does not travel, the check
