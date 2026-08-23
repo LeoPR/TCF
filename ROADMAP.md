@@ -87,7 +87,17 @@ otimização — e agora tem **de onde partir**, não intuição:
   `json+brotli`). O que falta é tempo pra colhê-los: break-even em 1,2–36 Mbps hoje.
 - **Modo de compressão rápida nunca foi testado** — hoje só existe o mais caro.
 
-Ticket-mestre: [T-PERF-BORDAS-E-MODOS-09](tickets/T-PERF-BORDAS-E-MODOS-09.md).
+O `.9` tem **dois eixos** (direção do owner, 2026-08-23) — o segundo não é performance:
+
+| eixo | ticket |
+|---|---|
+| desempenho, bordas e modos de compressão | [T-PERF-BORDAS-E-MODOS-09](tickets/T-PERF-BORDAS-E-MODOS-09.md) |
+| **armazenamento e ecossistema** — HDFS/Parquet, composição de compressão, leitura com índice | [T-STORAGE-ECOSSISTEMA-09](tickets/T-STORAGE-ECOSSISTEMA-09.md) |
+
+Um formato que não roda onde o dado vive é formato de laboratório. E há achado prévio que
+corta nos dois sentidos: em **coluna densa de texto livre** o codec binário sozinho vence e o
+TCF por baixo **piora** (até −41%); em **tabela estruturada** o TCF vence sozinho (−72% vs CSV)
+e ainda compõe. **Quem decide é a estrutura, não o container.**
 
 ## Tier 1 — PRÉ-1.0 (organizável agora)
 
