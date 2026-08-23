@@ -1,4 +1,4 @@
-# clean/ — experimentos finalizados
+# clean/: experimentos finalizados
 
 Experimentos com ID `EXP-NNN-tema-curto`. Cada um tem README,
 run.py, config, manifest, report, figures.
@@ -8,7 +8,7 @@ run.py, config, manifest, report, figures.
 
 ## Evolucao por ciclo
 
-### Ciclo v0.5 (2026-04 → 2026-05-09) — LLM benchmark
+### Ciclo v0.5 (2026-04 → 2026-05-09): LLM benchmark
 
 Experimentos comparando formatos textuais (CSV, JSON, TCF v0.5,
 TOON) em compressao + accuracy LLM em tarefas tabulares.
@@ -28,10 +28,10 @@ TOON) em compressao + accuracy LLM em tarefas tabulares.
 Esses experimentos sao do **ciclo anterior** (formato columnar para
 LLM). Validos como historico; **NAO sao canonicos do v0.6**.
 
-### Ciclo v0.6 (2026-05-10 → em curso) — algoritmo TCF-CORE
+### Ciclo v0.6 (2026-05-10 → em curso): algoritmo TCF-CORE
 
 EXP-007 foi o primeiro experimento clean do v0.6, apos o welding do
-algoritmo (alg16 + M8.A composicional) do dirty para `src/` — ver
+algoritmo (alg16 + M8.A composicional) do dirty para `src/`; ver
 [`../dirty/notas/2026-05/welding-plan.md`](../dirty/notas/2026-05/welding-plan.md).
 Dai em diante o ciclo segue ativo.
 
@@ -39,7 +39,7 @@ Dai em diante o ciclo segue ativo.
 |---|---|---|
 | **EXP-007** | Prototipo TCF-CORE (`from tcf import encode, decode`) validado vs M14 baseline | **foi** (fechado 2026-05-17; RT 9/9 OK, byte-identico a M14) |
 | EXP-008 | TCF vs gzip/brotli/zstd/lzma/bz2 (4 formatos x 15 datasets) | foi |
-| EXP-009 | Pre-tx por natureza — meta-pasta (sub-experimentos nascem ao fechar macros dirty) | stub |
+| EXP-009 | Pre-tx por natureza, meta-pasta (sub-experimentos nascem ao fechar macros dirty) | stub |
 | EXP-010 | Prototipo delta-aware do Pacote 1 (single-column, 20/20 RT) | ativo |
 | EXP-011 | Multi-column basic (per-coluna independente, RT OK em D17a) | ativo |
 | EXP-012 | Real-world Adult Census via shaper (RT 4/4 OK) | foi |
@@ -53,7 +53,7 @@ Dai em diante o ciclo segue ativo.
 - Para entender ciclo v0.5: ler READMEs de EXP-001..EXP-006.
 - Para entender ciclo v0.6: ler
   [`../dirty/notas/2026-05/historia-dirty-lab.md`](../dirty/notas/2026-05/historia-dirty-lab.md).
-- **EXP-017-data-alvos-mensais** — alvos MENSAIS de data (mês×31+dia · fim-de-mês · `YYYY-MM`)
+- **EXP-017-data-alvos-mensais**: alvos MENSAIS de data (mês×31+dia · fim-de-mês · `YYYY-MM`)
   contra o `SPEC_DATA_ISO` soldado, em corpus REAL (10 colunas de `Z:`) + sintético.
   27 casos, 0 falhas. **Gabarito clean da convenção de rastreabilidade** (2026-08-10):
   input por caso + contra-prova diffável + `intermediates/` + `outputs/INDEX.md`.

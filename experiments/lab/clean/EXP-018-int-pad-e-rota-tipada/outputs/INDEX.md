@@ -7,7 +7,7 @@
 | [`sint-largura-ja-fixa`](./sint-largura-ja-fixa.tcf) | largura JA' uniforme: o pad e' no-op, o `dimensiona` nem oferece | core | **core** | 23 | 23 | 1.0x |
 | [`sint-cardinalidade-5`](./sint-cardinalidade-5.tcf) | k=5: territorio do bN, o pad nao tem o que ativar | core | **core** | 334 | 334 | 1.0x |
 | [`sint-aleatorio-largura-varia`](./sint-aleatorio-largura-varia.tcf) | largura varia mas NAO ha' progressao: o pad paga e nao ativa nada | core | **core** | 3541 | 3541 | 1.0x |
-| [`sint-com-nulos`](./sint-com-nulos.tcf) | slots NULOS no meio da progressao — o null e' do tipo, nao da grafia | spec | **spec** | 241 | 232 | 1.039x |
+| [`sint-com-nulos`](./sint-com-nulos.tcf) | slots NULOS no meio da progressao, o null e' do tipo, nao da grafia | spec | **spec** | 241 | 232 | 1.039x |
 | [`sint-negativos`](./sint-negativos.tcf) | com sinal: o spec RECUSA (format_mismatch) e o FLOOR fica no core | core | **core** | 2625 | 2625 | 1.0x |
 | [`sint-quase-constante`](./sint-quase-constante.tcf) | k=4 desbalanceado: o RLE do nucleo resolve | core | **core** | 26 | 26 | 1.0x |
 | [`real-tpch-orderkey`](./real-tpch-orderkey.tcf) | chave de pedido 1..12000: o maior ganho medido (2,73x) | spec | **spec** | 123 | 44 | 2.795x |

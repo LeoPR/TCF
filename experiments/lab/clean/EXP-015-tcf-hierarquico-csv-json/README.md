@@ -1,8 +1,8 @@
-# EXP-015 — TCF hierárquico: lê CSV e JSON, reverte pros dois (protótipo v0) [probatório]
+# EXP-015: TCF hierárquico: lê CSV e JSON, reverte pros dois (protótipo v0) [probatório]
 
 **Lab clean / protótipo** que consolida as IDEIAS do estudo dirty (grupo hierárquico, peças 1-9 +
 [mapa](../../dirty/notas/2026-07/estudo-tcf-hierarquico-mapa.md) + [teoria-cardinalidade](../../dirty/notas/2026-07/teoria-cardinalidade.md)),
-**reconstruído do zero** (não copia a engenhoca dirty — extrai a ideia, per a filosofia). `python run.py`
+**reconstruído do zero** (não copia a engenhoca dirty, extrai a ideia, per a filosofia). `python run.py`
 regenera `outputs/`.
 
 ## O que faz (v0)
@@ -29,7 +29,7 @@ Um **codec** (`codec.py`) com um formato-protótipo **TCF.8H** (opt-in, fora de 
 
 - **JSON** (S4 67B, S6 154B): a **árvore É o RT-alvo** → hierarquia **EXPLÍCITA** (preservada). RT exato.
 - **CSV** (C1 107B): o **RT-alvo é a tabela plana** → hierarquia **DISPENSÁVEL**. Deduzir a 1:N multi-pai
-  (i) precisa de **link posicional** (array-em-array / N raízes — peça 10, v0 não faz) e (ii) **não compensa
+  (i) precisa de **link posicional** (array-em-array / N raízes, peça 10, v0 não faz) e (ii) **não compensa
   bytes** (o pai sozinho já vira RLE 23B; RLE↔fk duais, peças 1/8). → **confirma a hipótese do owner**:
   "no JSON precisa preservar mais; no CSV não precisa tanto".
 - **Consistência OK** em amostras minúsculas → o próximo passo é **escalar** com os datasets sintéticos.
@@ -37,29 +37,29 @@ Um **codec** (`codec.py`) com um formato-protótipo **TCF.8H** (opt-in, fora de 
 ## Dados / ponteiro
 
 Fixtures minúsculas em `inputs/`: **S4/S6** (JSON aninhado, do owner) + **C1** (CSV plano 1:N). Valores
-sintéticos/fictícios. **Ponteiro para escalar**: `datasets/synthetic/` (D1-D17) — CSVs canônicos do repo.
+sintéticos/fictícios. **Ponteiro para escalar**: `datasets/synthetic/` (D1-D17), CSVs canônicos do repo.
 
 ## Arquivos
 
-- [`codec.py`](codec.py) — o codec (árvore↔colunas, bracket meta, JSON/CSV, dedução). Protótipo limpo.
-- [`run.py`](run.py) — o fluxo inspecionável. [`report.md`](report.md) — achados.
+- [`codec.py`](codec.py): o codec (árvore↔colunas, bracket meta, JSON/CSV, dedução). Protótipo limpo.
+- [`run.py`](run.py): o fluxo inspecionável. [`report.md`](report.md), achados.
 
 ## Estado / próximo
 
-- **É**: protótipo v0 — JSON hierárquico + CSV plano, RT exato; o limite (link posicional) mapeado.
+- **É**: protótipo v0, JSON hierárquico + CSV plano, RT exato; o limite (link posicional) mapeado.
 - **Será**: escalar (datasets sintéticos) · tipos (num/bool/null) · o **link posicional** (peça 10) p/
   hierarquizar CSV multi-pai e arrays aninhados · cross-convert JSON↔CSV. Welding em `src/tcf` = decisão futura.
-- **Ideias registradas** (owner, a explorar com calma): [tcf8h-proximas-ideias](../../dirty/notas/2026-07/tcf8h-proximas-ideias.md)
-  — consumo DIRETO da estrutura (sem reconstruir JSON; muda o RT-alvo → reorder order-free vira normal) ·
+- **Ideias registradas** (owner, a explorar com calma): [tcf8h-proximas-ideias](../../dirty/notas/2026-07/tcf8h-proximas-ideias.md):
+  consumo DIRETO da estrutura (sem reconstruir JSON; muda o RT-alvo → reorder order-free vira normal) ·
   enriquecimento por **spec com gabarito** (CPF/CEP/telefone; 1º-valor = molde implícito).
 
-## Micro-opt do cabeçalho — CONDIÇÕES (não "quem vence")
+## Micro-opt do cabeçalho: CONDIÇÕES (não "quem vence")
 
 As 2 otimizações de fim-de-linha atuam na **última folha**: `SAVING(L) = digits(size(L)) + depth(L)`
-(última-sem-size dá os digits, omit-closes dá a depth). — `outputs/05-header-condicoes.txt`.
+(última-sem-size dá os digits, omit-closes dá a depth). `outputs/05-header-condicoes.txt`.
 - **omit-closes**: SEMPRE bom (−1B+, RT-exato). Adotar.
 - **reorder** (order-free): vale **SSE** `argmax(digits+depth) ≠ natural-última`. Em **S6 empata** (a
-  natural já é o argmax — situação particular); num caso profundo+grande enterrado, ganha +4B. **Não é só
-  profundidade** — é digits+depth.
+  natural já é o argmax, situação particular); num caso profundo+grande enterrado, ganha +4B. **Não é só
+  profundidade**, é digits+depth.
 - **hex nos sizes** (ideia do owner): `len(hex(s)) < len(str(s))` para `s∈[10,15]∪[100,255]∪…` → economiza
   por-size e pode mudar o argmax. É **config-dependente**: o ganho é uma conta.

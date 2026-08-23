@@ -1,9 +1,9 @@
-# EXP-014 FULL — lineitem 60175 (report)
+# EXP-014 FULL: lineitem 60175 (report)
 
 ## Resumo executivo
 
 - **Encode**: 1277s (21.3 min)
-- **Estimativa pos-ADR-0009**: 1110s (18.5 min) — diff +15%
+- **Estimativa pos-ADR-0009**: 1110s (18.5 min), diff +15%
 - **Bytes**: 6,497,250 / 7,302,534 (89.0%)
 - **Decode**: 2.77s
 - **RT**: OK

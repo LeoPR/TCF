@@ -1,4 +1,4 @@
-# Historia do dirty lab — TCF v0.6
+# Historia do dirty lab: TCF v0.6
 
 **Data desta sintese**: 2026-05-17
 
@@ -9,7 +9,7 @@
 
 
 **Ciclo**: dirty v0.6 (reset 2026-05-10)
-**Narrativa escrita ate'**: M9 (2026-05-17) — M10-M14 welded mas nao narrados aqui; ver ADR-0008/0010/0011 + checkpoints/ para o rastro completo.
+**Narrativa escrita ate'**: M9 (2026-05-17), M10-M14 welded mas nao narrados aqui; ver ADR-0008/0010/0011 + checkpoints/ para o rastro completo.
 
 > Esta nota e' a **narrativa canonica** do que foi construido no
 > dirty lab. Para detalhes tecnicos, ver READMEs dos macros e
@@ -27,20 +27,20 @@ de strings** com sintaxe composicional para producao textual.
 > Columnar Format" no ciclo v0.5 (foco em LLMs lerem tabelas).
 > No ciclo v0.6 (dirty lab atual), o foco eh o **algoritmo de
 > compressao** (TCF-CORE / alg16 + Compactacao composicional). O
-> uso por LLMs e' aplicacao **acessoria** — Phase 1 catalogou
+> uso por LLMs e' aplicacao **acessoria**: Phase 1 catalogou
 > resultados; Phase 2 vira depois do algoritmo estabilizar.
 
 O DIRTY LAB e' o espaco onde algoritmos e sintaxes sao iterados
-sem compromisso com estabilidade — apenas validacao de
+sem compromisso com estabilidade, apenas validacao de
 comportamento. Cada macro (M0..M9) explora uma faceta do design.
 Esta historia consolida o que cada um estabeleceu.
 
 ### Componentes (atual)
 
-- **OBAT** (Online Bidirectional Affix Tokenizer) — codnome `alg16`:
+- **OBAT** (Online Bidirectional Affix Tokenizer): codnome `alg16`:
   camada 1 (tokenizacao). Tokeniza strings via LCP + LCS contra
   anteriores. Ver `../docs/algorithms/OBAT.md`.
-- **HCC** (Hierarchical Compositional Coding) — codnome `M8.A`:
+- **HCC** (Hierarchical Compositional Coding): codnome `M8.A`:
   camada 2 (compactacao). Detector unificado + emit composicional
   (`~` cria ref, `,` concat efemero). Ver `../docs/algorithms/HCC.md`.
 - **TCF** (Tabular Compact Format): formato final (texto, sem
@@ -54,7 +54,7 @@ Esta historia consolida o que cada um estabeleceu.
 
 ## Linha do tempo
 
-### M0 — Algoritmo raiz (OBAT — codnome `alg16`)
+### M0: Algoritmo raiz (OBAT, codnome `alg16`)
 
 **16 experimentos preliminares**. Estabelece o algoritmo
 `online.py` (exp 16): tokenizacao incremental via LCP/LCS de
@@ -65,7 +65,7 @@ Saida do algoritmo: lista de tokens por string:
 - `TokRefPref(string_id, length)`: prefixo de string ja' vista
 - `TokRefSuf(string_id, length)`: sufixo
 
-**Nome oficial (decidido 2026-05-17)**: **OBAT** — Online Bidirectional
+**Nome oficial (decidido 2026-05-17)**: **OBAT**, Online Bidirectional
 Affix Tokenizer. Codnome de origem: `alg16`. Permanece intocado.
 Localizacao canonica:
 `../experiments/lab/dirty/old/M0-fase-exploratoria-inicial/2026-05-11-16-online-cleanup/online.py`.
@@ -73,13 +73,13 @@ Localizacao canonica:
 Ver `../docs/algorithms/OBAT.md` para documentacao tecnica (estrutura,
 sub-linguagem matematica, diferencial vs literatura).
 
-### M0.5 — Vocabulario pre-M1
+### M0.5: Vocabulario pre-M1
 
 12 experimentos de variantes de sintaxe. Estabelece interface
 `Syntax` (encode + decode) e vocabulario de tokens da saida
 textual (chars `*`, `,`, `\`, `~`, etc.).
 
-### M1 — Marcacao de ambiguidade local
+### M1: Marcacao de ambiguidade local
 
 6 micros (A, A', B, C, D, E) + F2. Investiga como serializar
 refs+lits sem ambiguidade no texto resultante.
@@ -88,11 +88,11 @@ refs+lits sem ambiguidade no texto resultante.
 dominadas por bytes ou nicho.
 
 Sintaxe M1.E:
-- Refs como `a..b` (range) ou `a,b,c` (lista) — refs separadas por `,`.
+- Refs como `a..b` (range) ou `a,b,c` (lista): refs separadas por `,`.
 - Lits com escape escopo: `\X` para chars reservados (`*`, `\`, digits).
 - Separator `*` entre lit-lit ou lit-ref boundary.
 
-### M2 — Redundancia entre linhas (preambulo)
+### M2: Redundancia entre linhas (preambulo)
 
 **M2.A**: alias de tupla via preambulo `$N=tupla` no topo do body.
 
@@ -100,13 +100,13 @@ Posteriormente em M6: vista como **regressao** (preambulo paga
 custo desnecessario). M2.A inline economiza 2+len(N) bytes/alias.
 M2.A original mantido em disco mas demovido.
 
-### M3 — Encadeamento de declaracoes
+### M3: Encadeamento de declaracoes
 
 M3.A, M3.B: agrupar nos inteiros compartilhados entre eids.
 **Dominado por M1.E** estruturalmente. Net 0. Mantido em disco como
 referencia.
 
-### M4 — Desfragmentacao da arvore → embriao do HCC
+### M4: Desfragmentacao da arvore → embriao do HCC
 
 3 micros:
 - **M4.A** instrumentacao (mede oportunidades teoricas)
@@ -126,7 +126,7 @@ M4.C1' → M8.A → **HCC**. Ver
 [`naming-compactacao-composicional.md`](naming-compactacao-composicional.md)
 e `../docs/algorithms/HCC.md`.
 
-### M5 — Pilha M2.A + M4.C1'
+### M5: Pilha M2.A + M4.C1'
 
 Teste de ortogonalidade. Concluiu (incorretamente em primeira
 analise) que M4.C1' subsume M2.A.
@@ -134,7 +134,7 @@ analise) que M4.C1' subsume M2.A.
 **Em M6 revisado**: M2.A com preambulo era regressao. M2.A inline
 ainda perde por len(N) byte/alias mas e' mais proxima.
 
-### M6 — Sintaxe composicional
+### M6: Sintaxe composicional
 
 Insight do user: markers entre refs sao **OPERADORES**:
 - `,` entre refs: concat efemero (sem criar ref)
@@ -145,7 +145,7 @@ Insight do user: markers entre refs sao **OPERADORES**:
 **M6.C** = 619 bytes D1-D4 (-8.4% vs M1.E). Captura a hierarquia
 natural do TCF-CORE.
 
-### M7 — Refactor + nova estrutura debug
+### M7: Refactor + nova estrutura debug
 
 Reorganizacao do codigo em 3 fases limpas:
 1. **Tokenize**: alg16 tokens → pieces (lit + refs com prov atom IDs)
@@ -158,7 +158,7 @@ Novo layout debug:
 - `resultados/tokens/<dataset>.txt` (alg16 raw compartilhado)
 - `<micro>/output|decoded|debug|detector_trace|redes/`
 
-### M8 — Detector unificado + convencao output
+### M8: Detector unificado + convencao output
 
 Insight do user: alias_markers e refs atomicos vivem no MESMO
 ESPACO. `'refs'` pieces contem refs mixtos (positivos = atom prov,
@@ -179,7 +179,7 @@ inline expansion.
 **M8.A** = **574 bytes D1-D4** (-15.1% vs M1.E baseline 676 com
 brackets). Core canonico do protótipo.
 
-### M9 — Stress adversarial
+### M9: Stress adversarial
 
 5 datasets novos (D5-D9) testam limites:
 - D5 padroes multiplos coexistentes
@@ -199,7 +199,7 @@ RT 9/9 OK. Total **1615 bytes em 2973 raw = 54.3% ratio medio**.
 
 ## Conceitos canonicos (nomes oficiais 2026-05-17)
 
-### OBAT — Online Bidirectional Affix Tokenizer
+### OBAT: Online Bidirectional Affix Tokenizer
 
 Codnome: `alg16`. Camada 1 do TCF (tokenizacao). Online, processa
 strings em ordem, matching bidirecional (LCP + LCS). Tokens raiz:
@@ -207,7 +207,7 @@ TokLit / TokRefPref / TokRefSuf. **Intocado desde M0 (exp 16).**
 
 Documentacao: `../docs/algorithms/OBAT.md`.
 
-### HCC — Hierarchical Compositional Coding
+### HCC: Hierarchical Compositional Coding
 
 Codnome: `M8.A`. Camada 2 do TCF (compactacao composicional). Recebe
 tokens raiz de OBAT e produz body textual com:
@@ -220,7 +220,7 @@ Implementacao canonica em `../src/tcf/composicional/syntax.py` (welded
 de M8.A, byte-identico em logica). Documentacao:
 `../docs/algorithms/HCC.md`.
 
-### TCF — Tabular Compact Format
+### TCF: Tabular Compact Format
 
 Formato final. Texto, sem brackets, LF only. Pipeline:
 `values → OBAT → HCC → TCF text`. Documentacao:
@@ -244,8 +244,8 @@ Ver [`convencao-output-tcf.md`](../convencao-output-tcf.md).
 | Sintaxe ambiguidade local | M1.E (interna ao HCC) | M1.E | embutido em HCC |
 | Compactacao composicional | **HCC** | `M8.A` | `../src/tcf/composicional/syntax.py` (origem: M8.A) |
 | Formato | **TCF** | (projeto) | `src/tcf/` (API: encode/decode) |
-| Convencao output | sem brackets + LF | — | `notas/convencao-output-tcf.md` |
-| Stress validation | D1-D9 | — | `datasets/synthetic/` (oficializado em M10) |
+| Convencao output | sem brackets + LF | n/a | `notas/convencao-output-tcf.md` |
+| Stress validation | D1-D9 | n/a | `datasets/synthetic/` (oficializado em M10) |
 
 ## Compressao medida (atual)
 

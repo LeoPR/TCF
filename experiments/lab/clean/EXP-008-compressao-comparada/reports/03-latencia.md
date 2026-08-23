@@ -1,4 +1,4 @@
-# 03 — Latencia (microssegundos)
+# 03: Latencia (microssegundos)
 
 Compressao nos niveis maximos. Medianas de 20 reps (serialize/parse) e 30 reps (compress/decompress). Resolucao do clock ≈ 100ns em Windows; operacoes <10us tem ruido relevante.
 

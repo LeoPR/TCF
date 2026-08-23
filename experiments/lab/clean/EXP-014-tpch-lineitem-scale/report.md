@@ -1,4 +1,4 @@
-# EXP-014 — lineitem scale (report)
+# EXP-014: lineitem scale (report)
 
 ## Tabela
 

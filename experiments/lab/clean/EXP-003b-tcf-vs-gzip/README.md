@@ -1,4 +1,4 @@
-# EXP-003b — TCF vs gzip (HP-T1, decisor principal)
+# EXP-003b: TCF vs gzip (HP-T1, decisor principal)
 
 ## Hipotese
 
@@ -11,26 +11,26 @@ reduzindo a necessidade de implementar Propostas E/H/I.
 |-----------|---------|
 | smart+gzip >> compact+gzip (>15% adicional) | A: vale implementar E/H/I no Sprint 1+2 |
 | smart+gzip ≈ compact+gzip (±5%) | B: compact basta; E/H/I viram opt-in v0.4.x |
-| smart+gzip < compact+gzip | bug — pausar e revisar |
+| smart+gzip < compact+gzip | bug, pausar e revisar |
 
 ## Metodo
 
 5 datasets variados (mesma seed do EXP-003a) × 4 estrategias:
 
-- **csv** — baseline puro
-- **tcf raw** — colunar puro, sem sort, sem RLE, sem DICT
-- **tcf compact** — RLE + sort_by automatico (heuristica)
-- **tcf smart** — auto-tudo: cross-DICT (E) + DICT inline (D16) +
+- **csv**: baseline puro
+- **tcf raw**: colunar puro, sem sort, sem RLE, sem DICT
+- **tcf compact**: RLE + sort_by automatico (heuristica)
+- **tcf smart**: auto-tudo: cross-DICT (E) + DICT inline (D16) +
   affix (H) + key elimination (I) + auto-bypass
 
-Cada um passa por `gzip -9` (level 9, standalone — equivalente a
+Cada um passa por `gzip -9` (level 9, standalone, equivalente a
 HTTP body completo, ver `EXP-003a/verify-stream.py`).
 
 ---
 
 # Resultados
 
-## Mesa de testes — bytes brutos
+## Mesa de testes: bytes brutos
 
 | Dataset | rows | cols | csv | csv+gz | raw | raw+gz | compact | comp+gz | smart | smt+gz |
 |---------|-----:|-----:|----:|-------:|----:|-------:|--------:|--------:|------:|-------:|
@@ -40,7 +40,7 @@ HTTP body completo, ver `EXP-003a/verify-stream.py`).
 | time-series | 500 | 5 | 16829 | 5684 | 16873 | 5347 | 15567 | 5011 | 15565 | **5008** |
 | mixed-relational | 800 | 8 | 37597 | 9913 | 37649 | 9336 | 28700 | 8363 | 15870 | **6229** |
 
-## Mesa de testes — ganhos relativos (apos gzip)
+## Mesa de testes: ganhos relativos (apos gzip)
 
 | Dataset | smart+gz vs compact+gz | smart+gz vs csv+gz | classe |
 |---------|------------------------:|-------------------:|--------|
@@ -49,9 +49,9 @@ HTTP body completo, ver `EXP-003a/verify-stream.py`).
 | categorical-heavy | **-28.9%** | **-36.2%** | smart **vence muito** |
 | time-series | -0.1% | -11.9% | compact basta |
 | mixed-relational | **-25.5%** | **-37.2%** | smart **vence muito** |
-| **media** | **-14.06%** | **-23.02%** | — |
+| **media** | **-14.06%** | **-23.02%** | n/a |
 
-## Decisao em cascata — resultado
+## Decisao em cascata: resultado
 
 ```
 INTERMEDIARIO: smart+gz vence compact+gz por -14.1% em media.
@@ -76,7 +76,7 @@ fazer smart cair para compact em datasets do segundo cluster.
 
 ---
 
-# Mesa de testes — exemplos visuais por dataset
+# Mesa de testes: exemplos visuais por dataset
 
 ## Exemplo 1: categorical-heavy (smart vence -28.9%)
 
@@ -131,7 +131,7 @@ Diff smart vs compact apos gzip: -0.1% (basicamente iguais).
 **Decisoes automaticas**:
 - Sem PK eliminavel (`data` eh string ISO, nao auto-increment)
 - Sort_by: `temperatura` (escolhido por cardinality moderada)
-- Nenhuma coluna teve DICT ativo (todas com cardinality alta — valores numericos floats)
+- Nenhuma coluna teve DICT ativo (todas com cardinality alta: valores numericos floats)
 - Sem affix (datas ISO 2026/2027 dao prefixo curto)
 - Sem cross-DICT
 
@@ -147,7 +147,7 @@ data:
 ...
 ```
 
-Sem `pk_eliminated`, sem `dict=`, sem `affix=` — basicamente igual a
+Sem `pk_eliminated`, sem `dict=`, sem `affix=`, basicamente igual a
 compact (so o sort por temperatura ajuda RLE em outras cols numericas).
 
 **Tamanhos**:
@@ -200,7 +200,7 @@ agrupa pedidos similares, DICTs em colunas categoricas.
 - gzip(CSV): 9913 B
 - gzip(TCF smart): **6229 B** (-37% vs gzip(CSV))
 
-Aqui gzip nao conseguiu sozinho extrair todo o ganho — o schema
+Aqui gzip nao conseguiu sozinho extrair todo o ganho, o schema
 relacional tem padroes que gzip nao "ve" (PK eliminada como conceito
 estrutural).
 
@@ -252,20 +252,20 @@ Nula (-0.1%):        time-series, dados continuos numericos
 
 # Decisao final
 
-**Caminho hibrido** — recomendado:
+**Caminho hibrido**: recomendado:
 
 1. `mode=smart` como **default**, com **auto-bypass agressivo**:
    - Em time-series e dados numericos contiguos: smart cai para compact
      (sem ativar Propostas que nao agregam)
    - Em strings unicas curtas: smart cai para compact (sem ativar DICT)
    - Em schemas relacionais: smart ativa Propostas (E/H/I)
-2. Auto-bypass NAO eh otimizacao — eh a forma correta. Tem que detectar
+2. Auto-bypass NAO eh otimizacao, eh a forma correta. Tem que detectar
    quando Propostas pioram ou empatam apos gzip e desativar.
 3. Implementar Propostas E + I no Sprint 1+2 (maior ganho mensurado).
    Proposta H entra com auto-bypass (so ganha com afixos longos).
 
 **Pendencia de auto-bypass apos gzip**: o auto-bypass atual mede
-bytes ANTES do gzip. Caminho ideal seria medir apos gzip — mas custo
+bytes ANTES do gzip. Caminho ideal seria medir apos gzip, mas custo
 computacional alto (rodar gzip antes de decidir). Aproximacao:
 threshold mais conservador para ativar Propostas.
 

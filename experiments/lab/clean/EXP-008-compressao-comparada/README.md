@@ -1,4 +1,4 @@
-# EXP-008 — Compressao comparada (raw vs TCF) com 5 compressores
+# EXP-008: Compressao comparada (raw vs TCF) com 5 compressores
 
 **Data**: 2026-05-15
 **Tipo**: experimento clean **comparativo** (multi-axis)
@@ -12,9 +12,9 @@ compressores de fluxo geral (gzip, brotli, zstd, lzma, bz2), em
 3 cenarios:
 
 1. **Stand-alone**: bytes de `tcf(D)` vs `C(D)` (cada compressor `C` aplicado direto ao raw).
-2. **Como pre-tx**: bytes de `C(tcf(D))` vs `C(D)` — TCF complementa o compressor?
+2. **Como pre-tx**: bytes de `C(tcf(D))` vs `C(D)`, TCF complementa o compressor?
 3. **Contra-prova de formato**: TCF vs **CSV, JSON e JSONL** (mesmo dado em
-   formatos textuais diferentes) — pra distinguir reducao de redundancia
+   formatos textuais diferentes), pra distinguir reducao de redundancia
    de mera escolha de delimitador. Ver [`notes/contra-prova-formatos.md`](notes/contra-prova-formatos.md).
 
 ## Como ler este experimento
@@ -32,9 +32,9 @@ compressores de fluxo geral (gzip, brotli, zstd, lzma, bz2), em
 
 **Notas conceituais** (decisoes nao-obvias):
 
-- [`notes/classificacao-compressores.md`](notes/classificacao-compressores.md) — porque cada compressor esta em quais classes
-- [`notes/contra-prova-formatos.md`](notes/contra-prova-formatos.md) — porque csv/json/jsonl como baseline e qual mudou narrativa
-- [`notes/limites-de-escala.md`](notes/limites-de-escala.md) — escala dos datasets afeta interpretacao
+- [`notes/classificacao-compressores.md`](notes/classificacao-compressores.md), porque cada compressor esta em quais classes
+- [`notes/contra-prova-formatos.md`](notes/contra-prova-formatos.md), porque csv/json/jsonl como baseline e qual mudou narrativa
+- [`notes/limites-de-escala.md`](notes/limites-de-escala.md): escala dos datasets afeta interpretacao
 
 ## Estrutura do diretorio
 
@@ -62,8 +62,8 @@ EXP-008-compressao-comparada/
 
 15 datasets de controle (single-column CSV em `datasets/synthetic/`):
 
-- **D1-D9** — TCF-CORE controles (padroes estruturais)
-- **D10-D15** — tipos ERP/CRM (datas, datetime, CPF, UUID, base64)
+- **D1-D9**: TCF-CORE controles (padroes estruturais)
+- **D10-D15**: tipos ERP/CRM (datas, datetime, CPF, UUID, base64)
 
 ## Compressores (com classificacao)
 
@@ -93,10 +93,10 @@ python experiments/lab/clean/EXP-008-compressao-comparada/run.py
 ```
 
 Saidas regeneradas:
-- `results/manifest.jsonl` — append nova linha
-- `results/per-dataset/*.json` — sobrescritos
-- `reports/*.md` — sobrescritos
-- `outputs/` — sobrescrito
+- `results/manifest.jsonl`: append nova linha
+- `results/per-dataset/*.json`: sobrescritos
+- `reports/*.md`: sobrescritos
+- `outputs/`: sobrescrito
 
 Pre-requisitos:
 - `src/tcf/` welded (EXP-007 valida);
@@ -121,14 +121,14 @@ compressores com dicionario estatico (brotli) sobre TCF. Ver
 EXP-008 caracteriza TCF no espaco de compressores gerais em
 **regime de controle**. Resultados:
 
-1. **TCF reduz redundancia em formato textual** (4872 → 3131 bytes, -36%) — comprovado;
-2. **TCF como pre-tx** raramente complementa brotli/zstd nessa escala — mostra sobreposicao de mecanismos;
+1. **TCF reduz redundancia em formato textual** (4872 → 3131 bytes, -36%), comprovado;
+2. **TCF como pre-tx** raramente complementa brotli/zstd nessa escala, mostra sobreposicao de mecanismos;
 3. **D10-D15** identificam dados onde TCF v0.6 atual nao tem ferramenta (type encoders, Estrategia 1.A em [EXP-009 pendente]).
 
 ## Conexoes
 
-- [META-EXP-FORMAT](../../../../tickets/META-EXP-FORMAT.md) — template aplicado aqui
-- [EXP-007](../EXP-007-prototipo-tcf-core/) — validacao byte-canonical precedente
-- [datasets/synthetic/](../../../../datasets/synthetic/) — D1-D15
-- [docs/theory/perspectiva-triplice-e-pre-tx.md](../../../../docs/theory/perspectiva-triplice-e-pre-tx.md) — analise de 3 estrategias (1.A, 1.B, 3.B)
-- [docs/algorithms/](../../../../docs/algorithms/) — especificacao OBAT/HCC/TCF
+- [META-EXP-FORMAT](../../../../tickets/META-EXP-FORMAT.md): template aplicado aqui
+- [EXP-007](../EXP-007-prototipo-tcf-core/): validacao byte-canonical precedente
+- [datasets/synthetic/](../../../../datasets/synthetic/): D1-D15
+- [docs/theory/perspectiva-triplice-e-pre-tx.md](../../../../docs/theory/perspectiva-triplice-e-pre-tx.md): analise de 3 estrategias (1.A, 1.B, 3.B)
+- [docs/algorithms/](../../../../docs/algorithms/): especificacao OBAT/HCC/TCF

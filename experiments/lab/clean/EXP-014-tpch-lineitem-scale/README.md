@@ -1,5 +1,5 @@
 ---
-title: EXP-014 — TPC-H lineitem performance scale test
+title: EXP-014, TPC-H lineitem performance scale test
 type: clean-experiment
 status: active
 tags: [tcf, real-world, performance, scale, tpch, lineitem, profiling]
@@ -11,7 +11,7 @@ related:
   - docs/adr/0008-detect-cadence-numeric-rule.md
 ---
 
-# EXP-014 — TPC-H lineitem performance scale test
+# EXP-014: TPC-H lineitem performance scale test
 
 **Predecessor**: EXP-013 (cap 5000 rows, encode ~103s)
 **Goal**: caracterizar escala do encode pipeline em lineitem
@@ -49,13 +49,13 @@ Para cada volume:
 
 ## Hipoteses derivadas
 
-- **H-RW-05** (re-aberta): encode time cresce como O(N²) — confirmar
+- **H-RW-05** (re-aberta): encode time cresce como O(N²), confirmar
   ou refutar via curve fit
 - **H-RW-07** (nova): ratio degrade levemente com escala
   (mais entropy variability)
 
 ## See also
 
-- [EXP-013 TPC-H](../EXP-013-real-world-tpch/) — predecessor
-- [EXP-012 Adult](../EXP-012-real-world-adult-census/) — Adult tambem mostrou O(N²)
-- [ADR-0008](../../../docs/adr/0008-detect-cadence-numeric-rule.md) — heuristica v2 ativa
+- [EXP-013 TPC-H](../EXP-013-real-world-tpch/): predecessor
+- [EXP-012 Adult](../EXP-012-real-world-adult-census/): Adult tambem mostrou O(N²)
+- [ADR-0008](../../../docs/adr/0008-detect-cadence-numeric-rule.md): heuristica v2 ativa

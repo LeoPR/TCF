@@ -1,5 +1,5 @@
 ---
-title: EXP-010 — Prototype TCF delta-aware (single-column)
+title: EXP-010, Prototype TCF delta-aware (single-column)
 type: clean-experiment
 status: active
 tags: [tcf, delta-aware, single-column, prototype, v0.6-candidate]
@@ -13,7 +13,7 @@ related:
   - experiments/lab/dirty/notas/2026-05/roadmap-hipoteses.md
 ---
 
-# EXP-010 — Prototype TCF delta-aware (single-column)
+# EXP-010: Prototype TCF delta-aware (single-column)
 
 **Data**: 2026-05-17
 **Tipo**: experimento clean
@@ -41,7 +41,7 @@ HCC fork (seq-RLE)` em 20 datasets:
 - Total bytes ~= 2272 (sub-exp 09 auto-detect)
 - RT 20/20 OK
 - Sem regressao vs canonical em D1-D9 EXCETO casos onde auto-detect
-  decide habilitar hint (D8, D9 — ja' validados)
+  decide habilitar hint (D8, D9, ja' validados)
 
 **H0** (rejeitada): se bytes != sub-exp 09 ou RT != 20/20, prototype
 diverge do dirty lab e indica bug no welding clean.
@@ -49,12 +49,12 @@ diverge do dirty lab e indica bug no welding clean.
 ## Metodo
 
 1. Implementar `delta_aware.py`:
-   - `encode_column(rows: list[str]) -> str` — pipeline completo
-   - `decode_column(tcf_text: str) -> list[str]` — pipeline reverso
+   - `encode_column(rows: list[str]) -> str`: pipeline completo
+   - `decode_column(tcf_text: str) -> list[str]`: pipeline reverso
 2. Modulos auxiliares (welded do dirty lab, codigo clean):
-   - `auto_pre.py` — `detect_cadence(strings, threshold=0.7)`
-   - `obat_shape.py` — `processar_with_hint(strings, prefer_shape_consistency)`
-   - `hcc_seqrle.py` — `HCCForkSeqRLE` (subclass M8AVirtualRefsSyntax)
+   - `auto_pre.py`: `detect_cadence(strings, threshold=0.7)`
+   - `obat_shape.py`: `processar_with_hint(strings, prefer_shape_consistency)`
+   - `hcc_seqrle.py`: `HCCForkSeqRLE` (subclass M8AVirtualRefsSyntax)
 3. `run.py` valida em 20 datasets (D1-D9 + D11a-h + D16a-c)
 4. Compara byte-a-byte com bodies do sub-exp 09 (`outputs/<ds>/body-auto.tcf`)
 5. Verifica RT 20/20
@@ -63,8 +63,8 @@ diverge do dirty lab e indica bug no welding clean.
 
 - **Single-column**: aceita 1 coluna por vez. Multi-column = futuro.
 - `src/tcf/core/online.py` e `src/tcf/composicional/syntax.py`
-  **intocados** — fonte da verdade. Prototype IMPORTA e ESTENDE.
-- Codigo welded do dirty lab — sem modificacoes algoritmicas, so'
+  **intocados**: fonte da verdade. Prototype IMPORTA e ESTENDE.
+- Codigo welded do dirty lab, sem modificacoes algoritmicas, so'
   cleanup (remove logs verbosos, comentarios de debug).
 - API publica: `from delta_aware import encode_column, decode_column`.
 
@@ -109,8 +109,8 @@ EXP-010-tcf-delta-aware-prototype/
 
 ## See also
 
-- **Predecessor canonical**: [EXP-007 prototipo TCF-CORE](../EXP-007-prototipo-tcf-core/) — baseline single-column
-- **Dirty lab origem**: [`obat-delta-aware`](../../dirty/2026-05-17-OBAT-delta-aware/) — 9 sub-exps que welded aqui
+- **Predecessor canonical**: [EXP-007 prototipo TCF-CORE](../EXP-007-prototipo-tcf-core/), baseline single-column
+- **Dirty lab origem**: [`obat-delta-aware`](../../dirty/2026-05-17-OBAT-delta-aware/), 9 sub-exps que welded aqui
 - **Multi-column extension**: [EXP-011 multi-column basic](../EXP-011-multi-column-basic/)
 - **Decisao arquitetural**: [ADR-0003 tripartite Pre/OBAT/HCC](../../../../docs/adr/0003-tripartite-pre-obat-hcc.md)
 - **Restricoes**: [ADR-0002 vertice triplice](../../../../docs/adr/0002-vertice-triplice-restricao.md)

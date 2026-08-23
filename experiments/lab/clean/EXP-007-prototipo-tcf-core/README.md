@@ -1,4 +1,4 @@
-# EXP-007 — Prototipo TCF-CORE (OBAT + HCC em src/tcf)
+# EXP-007: Prototipo TCF-CORE (OBAT + HCC em src/tcf)
 
 **Data**: 2026-05-17
 **Tipo**: experimento clean
@@ -98,14 +98,14 @@ das 3 estrategias (pre-filtro multi-col + tipos; manager com
 memoria shared; slot detection online).
 
 Direcao mais imediata para proximo EXP clean:
-- **EXP-008**: type encoders (CPF/UUID/data) — Estrategia 1.A
+- **EXP-008**: type encoders (CPF/UUID/data), Estrategia 1.A
 - OU
-- **EXP-008**: multi-coluna ingenuo (instancias TCF por coluna) —
+- **EXP-008**: multi-coluna ingenuo (instancias TCF por coluna):
   Estrategia 1.B
 
 ## Conexoes
 
-- [`../../../src/tcf/`](../../../src/tcf/) — codigo canonico testado
-- [`../../../datasets/synthetic/`](../../../datasets/synthetic/) — datasets
-- [`../../dirty/old/2026-05-17-M14-clean-validation-srctcf/`](../../dirty/old/2026-05-17-M14-clean-validation-srctcf/) — baseline byte-canonico
-- [`../../../docs/algorithms/`](../../../docs/algorithms/) — documentacao OBAT + HCC + TCF
+- [`../../../src/tcf/`](../../../src/tcf/): codigo canonico testado
+- [`../../../datasets/synthetic/`](../../../datasets/synthetic/): datasets
+- [`../../dirty/old/2026-05-17-M14-clean-validation-srctcf/`](../../dirty/old/2026-05-17-M14-clean-validation-srctcf/): baseline byte-canonico
+- [`../../../docs/algorithms/`](../../../docs/algorithms/): documentacao OBAT + HCC + TCF

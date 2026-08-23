@@ -1,4 +1,4 @@
-# EXP-001 — CSV Baseline
+# EXP-001: CSV Baseline
 
 **Status**: aberto
 **Pergunta**: como CSV se comporta como baseline (sem TCF) em datasets
@@ -27,10 +27,10 @@ Para cada dataset (`micro`, `small`, `categorical_heavy`,
 
 ## Datasets
 
-- `micro` — 5 rows × 4 cols (com repeticoes leves)
-- `small` — 20 rows × 5 cols
-- `categorical_heavy` — 100 rows × 6 cols (mix tipo Adult Census)
-- `wide_random` — 100 rows × 11 cols (adverso para compressao)
+- `micro`: 5 rows × 4 cols (com repeticoes leves)
+- `small`: 20 rows × 5 cols
+- `categorical_heavy`: 100 rows × 6 cols (mix tipo Adult Census)
+- `wide_random`: 100 rows × 11 cols (adverso para compressao)
 
 ## Reproduzir
 

@@ -1,9 +1,9 @@
-# F4-mínimo — públicos nos hubs prontos (gerado por scripts/bench_evidencia_f4.py)
+# F4-mínimo: públicos nos hubs prontos (gerado por scripts/bench_evidencia_f4.py)
 
 Amostras determinísticas (primeiros N; SAMPLE=5000); população total = janela
 dedicada pós-release (decisão F3/ROI). RT validado em TODOS os casos antes de
 qualquer número. Natures: só contagens nos registros (§2.3); nenhum blob salvo.
-Sinal de compressão externa: zlib9 (stdlib) (brotli indisponível no venv) — qualitativo, nunca gate.
+Sinal de compressão externa: zlib9 (stdlib) (brotli indisponível no venv), qualitativo, nunca gate.
 
 ## Casos
 

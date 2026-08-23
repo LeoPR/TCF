@@ -1,5 +1,5 @@
 ---
-title: EXP-012 — Real-world test em Adult Census via shaper
+title: EXP-012, Real-world test em Adult Census via shaper
 type: clean-experiment
 status: active
 tags: [tcf, real-world, multi-column, adult-census, scale]
@@ -12,7 +12,7 @@ related:
   - experiments/lab/dirty/notas/checkpoints/2026-05-18-pausa-para-organizar-documentacao.md
 ---
 
-# EXP-012 — Real-world test em Adult Census
+# EXP-012: Real-world test em Adult Census
 
 **Data**: 2026-05-18
 **Tipo**: experimento clean
@@ -32,12 +32,12 @@ Especificamente:
 - Algum tipo de coluna QUEBRA o pipeline?
 - Comportamento de escala: bytes/row converge ou degrade?
 
-## Infra utilizada (NAO recriar — ja' existe)
+## Infra utilizada (NAO recriar, ja' existe)
 
-- **`scripts/dataset_reader.py`** — `DatasetReader("adult-census")`
-- **`scripts/shaper/`** — `Shaper().apply(ShapeRequest(...))`
-- **`Z:/tcf-data/interim/adult-census.db`** — SQLite hub
-- **`scripts/_paths.py`** — resolve via `config/storage.json`
+- **`scripts/dataset_reader.py`**: `DatasetReader("adult-census")`
+- **`scripts/shaper/`**: `Shaper().apply(ShapeRequest(...))`
+- **`Z:/tcf-data/interim/adult-census.db`**: SQLite hub
+- **`scripts/_paths.py`**: resolve via `config/storage.json`
 
 Sub-amostragem controlada via shaper:
 ```python

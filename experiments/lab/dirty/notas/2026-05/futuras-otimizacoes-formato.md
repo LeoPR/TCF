@@ -1,4 +1,4 @@
-# Futuras otimizacoes de formato — registro central
+# Futuras otimizacoes de formato: registro central
 
 **Criado**: 2026-05-17
 **Origem**: discussao apos EXP-010 (single-column prototype welded);
@@ -10,7 +10,7 @@ registradas pra retomada futura.
 ao compressor core**. Cada uma e' candidata a sub-experimento, lab
 proprio, ou ticket formal quando o trabalho core estiver concluido.
 
-## Categoria 1 — Ordenacao de colunas / linhas
+## Categoria 1: Ordenacao de colunas / linhas
 
 > **CARACTERIZADO 2026-06-14** (`2026-06-14-ordering-characterizacao/result.md`,
 > 6 datasets): **O-FMT-02 (natural, 1 chave, ordem livre)** = unico lever real,
@@ -28,7 +28,7 @@ proprio, ou ticket formal quando o trabalho core estiver concluido.
 > captura a redundancia low-card ORDER-FREE como 3o candidato do fallback
 > (13.9% weighted em 8 datasets reais). O-FMT-01 (reversivel) fica skip.
 
-### O-FMT-01 — Ordenacao reversivel pra compressao
+### O-FMT-01: Ordenacao reversivel pra compressao
 
 **Ideia**: se formato de entrada e' fixo, aplicar ordenacao de
 colunas/linhas que **aumenta a chance de compressao** antes do
@@ -41,12 +41,12 @@ economizados no body. Vale se body savings > header cost.
 **Status**: aberta, nao testada. Registrada aqui.
 
 **Antecedentes**:
-- [`../docs/workbench/_archive/tickets/closed/17-T-shaper-ordering.md`](../../../../../docs/workbench/_archive/tickets/closed/17-T-shaper-ordering.md)
-  — ticket de shaper distinguia "ordem de apresentacao" (consumer)
+- [`../docs/workbench/_archive/tickets/closed/17-T-shaper-ordering.md`](../../../../../docs/workbench/_archive/tickets/closed/17-T-shaper-ordering.md):
+  ticket de shaper distinguia "ordem de apresentacao" (consumer)
   de "ordem interna de compressao" (TCF). A interna nao foi tratada
   no shaper; fica pra ca'.
 
-### O-FMT-02 — Ordenacao natural (sem mapeamento reverso)
+### O-FMT-02: Ordenacao natural (sem mapeamento reverso)
 
 **Ideia**: quando user nao se importa com ordem, ordenar linhas pra
 maximizar compressao. **Bytes nao ficam identicos byte-a-byte** ao
@@ -58,7 +58,7 @@ Caso comum: relatorios analiticos onde ordem nao tem semantica
 **Status**: aberta. Decisao tem que ser explicita do user (qual
 ordem aceitar).
 
-### O-FMT-03 — Multi-order
+### O-FMT-03: Multi-order
 
 **Ideia**: tentar varias ordens (natural, sort col A, sort col B,
 etc.), escolher menor body. **Multi-pass** pelo dataset.
@@ -68,7 +68,7 @@ Pode-se limitar a N orders pre-determinadas.
 
 **Status**: aberta. Custo alto (multi-pass).
 
-### O-FMT-04 — Coluna agnostica vs coluna-aware
+### O-FMT-04: Coluna agnostica vs coluna-aware
 
 **Ideia**: ordenar baseado em UMA coluna pode ajudar OUTRAS colunas
 (se ha' correlacao). Ex: ordenar por "estado" pode beneficiar
@@ -76,20 +76,20 @@ Pode-se limitar a N orders pre-determinadas.
 
 **Status**: aberta. Depende de detectar correlacoes (custo).
 
-## Categoria 2 — Multi-column variantes
+## Categoria 2: Multi-column variantes
 
-### O-FMT-05 — encode_columns() API (legacy)
+### O-FMT-05: encode_columns() API (legacy)
 
 **Ideia**: API antiga sugeria `encode_columns(dict[str, list[str]])`.
 
 **Antecedentes**:
-- [`../docs/workbench/_archive/tickets/closed/25-T-encode-columns.md`](../../../../../docs/workbench/_archive/tickets/closed/25-T-encode-columns.md)
-  — proposta pra v0.5; pendente em v0.6.
+- [`../docs/workbench/_archive/tickets/closed/25-T-encode-columns.md`](../../../../../docs/workbench/_archive/tickets/closed/25-T-encode-columns.md):
+  proposta pra v0.5; pendente em v0.6.
 
 **Status**: parcialmente capturada em EXP-011 (basico, sem
 header rico nem niveis de compressao).
 
-### O-FMT-06 — Compactacao cross-column
+### O-FMT-06: Compactacao cross-column
 
 **Ideia**: se colunas A e B tem padroes parecidos, compartilhar
 fragmentos (cross-column dictionary).
@@ -99,7 +99,7 @@ datasets com schemas redundantes.
 
 **Status**: aberta. Pouco explorada na literatura tabular.
 
-### O-FMT-07 — Type-aware multi-column
+### O-FMT-07: Type-aware multi-column
 
 **Ideia**: por coluna, escolher pipeline diferente (delta-aware
 para timestamps, dict-encoding para categoricos, etc.).
@@ -107,16 +107,16 @@ para timestamps, dict-encoding para categoricos, etc.).
 **Status**: aberta. Pacote 1 ja' fez pipeline-decision por coluna
 (auto-detect cadencia). Extensao natural pra mais tipos.
 
-## Categoria 3 — Streaming / batch / online
+## Categoria 3: Streaming / batch / online
 
-### O-FMT-08 — Streaming encoder/decoder
+### O-FMT-08: Streaming encoder/decoder
 
 **Ideia**: dividir input em chunks de N rows, comprimir cada chunk
 independente, transmitir online. Decoder reconstrói chunk a chunk.
 
 **Antecedentes**:
-- [`../docs/workbench/_archive/tickets/frozen/H-streaming-encoder.md`](../../../../../docs/workbench/_archive/tickets/frozen/H-streaming-encoder.md)
-  — ticket frozen com design detalhado (HTTP chunked, memoria
+- [`../docs/workbench/_archive/tickets/frozen/H-streaming-encoder.md`](../../../../../docs/workbench/_archive/tickets/frozen/H-streaming-encoder.md):
+  ticket frozen com design detalhado (HTTP chunked, memoria
   O(chunk_size), TTFB constante).
 
 **User insight novo**: "a ordem permite que a transmissao dos
@@ -125,16 +125,16 @@ descomprimidos tambem". Ordering + streaming combinam.
 
 **Status**: aberta. Reativar quando core estiver maduro.
 
-### O-FMT-09 — Chunk-level type detection
+### O-FMT-09: Chunk-level type detection
 
 **Ideia**: em streaming, cada chunk pode ter tipo detectado
 independente. Permite adaptacao a mudancas no stream.
 
 **Status**: aberta. Decorrente de O-FMT-08.
 
-## Categoria 4 — Format-level optimizations
+## Categoria 4: Format-level optimizations
 
-### O-FMT-10 — Escape supressao implicita (Pacote 2)
+### O-FMT-10: Escape supressao implicita (Pacote 2)
 
 **Ideia**: ver [`roadmap-hipoteses.md`](roadmap-hipoteses.md) Pacote 2
 (H-ED-01..04). Reducao de overhead de backslash quando contexto
@@ -142,20 +142,20 @@ permite deducao.
 
 **Status**: registrada, lab dedicado nao iniciado.
 
-### O-FMT-11 — Cabecalho compacto
+### O-FMT-11: Cabecalho compacto
 
-> **CARACTERIZADO / FECHADO (2026-07-05)** — lab
+> **CARACTERIZADO / FECHADO (2026-07-05)**: lab
 > [`2026-07-01-header-minimal`](../../2026-07/2026-07-01/2026-07-01-header-minimal/result.md). O header self-describing ja'
-> esta' **near-optimal**: 2 colunas anonimas caem a **13B** (`#TCF.8M!14,!\n` — magic+flag+sizes fundidos,
+> esta' **near-optimal**: 2 colunas anonimas caem a **13B** (`#TCF.8M!14,!\n`, magic+flag+sizes fundidos,
 > sem nomes via `drop_names`, ultima-sem-size). Nenhum corte de byte self-describing barato resta (cada
 > campo e' load-bearing). Deducao `implicito-M` (P5/P6) so' -1B (marginal). **Break-even**: o header so'
 > pesa em payload MINUSCULO (N=1 ~39% -> N=100 ~1.3%). O frontier real e' **O-FMT-14 (header derivavel)**,
-> uma feature de contrato, nao um tweak de byte — e ela REUSA a linguagem de cardinalidade/agrupamento das
+> uma feature de contrato, nao um tweak de byte, e ela REUSA a linguagem de cardinalidade/agrupamento das
 > pecas 5-8 do estudo hierarquico (a declaracao de schema E' o contrato). Levers `drop_names` (corta header)
 > e `nature` (corta body) sao ORTOGONAIS (menor combo real 31B).
 
 **Ideia**: header deve seguir convencao shebang TCF v0.5
-(`#TCF.5 SRDM`) — magic + flags, sem texto livre, byte-precise.
+(`#TCF.5 SRDM`), magic + flags, sem texto livre, byte-precise.
 
 **Status (revisada 2026-05-17 pos critica do user)**: PARCIAL
 aplicada em EXP-011 multi-column:
@@ -174,12 +174,12 @@ aplicada em EXP-011 multi-column:
    convenção separada?
 
 **Antecedentes**:
-- [`../docs/workbench/research-notes/_archive/2026-05-09-formato-header-shebang.md`](../../../../../docs/workbench/research-notes/_archive/2026-05-09-formato-header-shebang.md)
-  — decisao original v0.5 (EXP-004c)
-- [`../docs/workbench/_archive/tickets/open/S-header-inline-vs-explicito.md`](../../../../../docs/workbench/_archive/tickets/open/S-header-inline-vs-explicito.md)
-  — decisao inline vs explicito em decls de fragmento
+- [`../docs/workbench/research-notes/_archive/2026-05-09-formato-header-shebang.md`](../../../../../docs/workbench/research-notes/_archive/2026-05-09-formato-header-shebang.md):
+  decisao original v0.5 (EXP-004c)
+- [`../docs/workbench/_archive/tickets/open/S-header-inline-vs-explicito.md`](../../../../../docs/workbench/_archive/tickets/open/S-header-inline-vs-explicito.md):
+  decisao inline vs explicito em decls de fragmento
 
-### O-FMT-11b — Header uniformizado (RESOLVIDA)
+### O-FMT-11b: Header uniformizado (RESOLVIDA)
 
 **Decisao (2026-05-17 apos critica user)**: TODO arquivo TCF v0.6
 emite shebang por default.
@@ -198,7 +198,7 @@ emite shebang por default.
 re-rodado: 2272 → 2412 bytes em 20 datasets, RT 20/20 OK).
 Aceito como custo de identificacao do formato.
 
-### O-FMT-13 — Mobile / per-channel header para transmissao paralela
+### O-FMT-13: Mobile / per-channel header para transmissao paralela
 
 **Ideia (user, 2026-05-17)**: pra transmissao paralela, pode ser
 necessario que CADA CANAL leve seu proprio cabecalho indicando "que
@@ -230,12 +230,12 @@ identificador da tabela. Permite re-assembly.
 quando casos de uso real aparecerem.
 
 **Antecedentes relacionados**:
-- [`../docs/workbench/_archive/tickets/frozen/H-streaming-encoder.md`](../../../../../docs/workbench/_archive/tickets/frozen/H-streaming-encoder.md)
-  — streaming chunked v0.4 (compativel)
-- [`../docs/workbench/_archive/tickets/frozen/E-http-protocol.md`](../../../../../docs/workbench/_archive/tickets/frozen/E-http-protocol.md)
-  — HTTP chunked transfer
+- [`../docs/workbench/_archive/tickets/frozen/H-streaming-encoder.md`](../../../../../docs/workbench/_archive/tickets/frozen/H-streaming-encoder.md):
+  streaming chunked v0.4 (compativel)
+- [`../docs/workbench/_archive/tickets/frozen/E-http-protocol.md`](../../../../../docs/workbench/_archive/tickets/frozen/E-http-protocol.md):
+  HTTP chunked transfer
 
-### O-FMT-12 — Auto-detect schema do CSV
+### O-FMT-12: Auto-detect schema do CSV
 
 **Ideia**: detectar dialect (delimitador, quote, encoding) +
 schema (tipos por coluna) automaticamente. Permite encode_file()
@@ -245,12 +245,12 @@ mais conveniente.
 Achado central: o projeto mantem leitura-de-input FORA do core por design (docstring do
 `dataset_reader`). Recomendacao: fazer como GADGET (`scripts/tcf_io/`), escopo minimo
 (`encode_file` com auto-detect via csv.Sniffer + charset_normalizer, transpor, encode; SEM
-deteccao de tipo — isso e' do schema_gadget). NAO e' versao (input convenience, 0 bytes; ganho =
-DX/DRY). **DECISAO: PARK (owner 2026-06-16)** — nao fazer; `encode(dict)` + `csv.DictReader`
+deteccao de tipo, isso e' do schema_gadget). NAO e' versao (input convenience, 0 bytes; ganho =
+DX/DRY). **DECISAO: PARK (owner 2026-06-16)**, nao fazer; `encode(dict)` + `csv.DictReader`
 de 3 linhas ja' bastam, valor marginal (ergonomia, 0 bytes). Reabrir so' se houver demanda real
 de DX. Tangencial ao core.
 
-### O-FMT-14 — Header desacoplavel / opcional / derivavel (registrado 2026-05-24)
+### O-FMT-14: Header desacoplavel / opcional / derivavel (registrado 2026-05-24)
 
 **Observacao do owner pos-ADR-0014**: o header atual
 (`#TCF.6 M\n# size=name,...\n`) faz parte do fluxo welded mas
@@ -281,62 +281,62 @@ o desenho atual pra fazer funcionar.
 4. **Apenas mandatorio**: version signature inicial (`#TCF.<minor>`)
    pra identificar formato e versionamento. Tudo mais opcional.
 
-**Status**: registrada 2026-05-24. NAO implementar agora — fluxo
+**Status**: registrada 2026-05-24. NAO implementar agora, fluxo
 atual ja' funcional e validado em real-world. Welding eventual
 quando T-CODE-SCHEMA-BUILDER e T-CODE-ENCODER-MANAGER amadurecerem
 (sao pre-requisitos pra header "derivavel").
 
 **Conexoes**:
-- [ADR-0014](../../../../../docs/adr/0014-unified-api-side-outputs.md) — API atual
-- [T-CODE-SCHEMA-BUILDER](../../../../../tickets/T-CODE-SCHEMA-BUILDER.md) — produziria schema que substitui header
-- [T-CODE-ENCODER-MANAGER](../../../../../tickets/T-CODE-ENCODER-MANAGER.md) — sinks que podem distribuir header separado
-- O-FMT-13 (per-channel) — caso especial onde header desacopla por canal
+- [ADR-0014](../../../../../docs/adr/0014-unified-api-side-outputs.md): API atual
+- [T-CODE-SCHEMA-BUILDER](../../../../../tickets/T-CODE-SCHEMA-BUILDER.md): produziria schema que substitui header
+- [T-CODE-ENCODER-MANAGER](../../../../../tickets/T-CODE-ENCODER-MANAGER.md): sinks que podem distribuir header separado
+- O-FMT-13 (per-channel): caso especial onde header desacopla por canal
 
-### O-FMT-15 — Omitir o size da ultima coluna (boundary implicito por EOF) (registrado 2026-06-14)
+### O-FMT-15: Omitir o size da ultima coluna (boundary implicito por EOF) (registrado 2026-06-14)
 
 **Ideia (owner, 2026-06-14)**: no header `# <s1>=<n1>,<s2>=<n2>,...,<sN>=<nN>`,
-o size da ULTIMA coluna e' redundante — o corpo dela vai do seu inicio ate' o
+o size da ULTIMA coluna e' redundante, o corpo dela vai do seu inicio ate' o
 EOF. Logo `# <s1>=<n1>,...,<nN>` (ultima sem size) basta. Tres efeitos
 levantados pelo owner:
 1. **Economia**: o ultimo nao precisa de numero (o fim deduz pelo resto).
-2. **Habilita deducoes**: boundary implicito limita repeticao "sem fim" — o
+2. **Habilita deducoes**: boundary implicito limita repeticao "sem fim", o
    proprio EOF para a expansao, sem precisar contar de antemao.
 3. **Efeito colateral (integridade)**: sem o numero, nao da' pra saber se a
-   ultima coluna foi truncada/corrompida — mas, dependendo do meio, integridade
+   ultima coluna foi truncada/corrompida, mas, dependendo do meio, integridade
    e' responsabilidade da **camada de transporte**, nao do formato.
 
 **Analise critica:**
 
 - **Magnitude (ponto 1)**: economiza UM inteiro por TABELA (os digitos do size
-  da ultima coluna) — nao por linha nem por coluna. Em tabela grande (body MB)
+  da ultima coluna), nao por linha nem por coluna. Em tabela grande (body MB)
   e' ruido (<0.001%); em tabela pequena (README: 182B, size `20`) ~2B (~1%).
   So' o ultimo e' omissivel "de graca" (os demais precisam de size porque os
   bodies sao concatenados sem delimitador; so' o ultimo e' EOF-bounded).
   Daria pra omitir QUALQUER um (deduzir = filesize − soma dos outros − header),
   mas o ultimo e' o natural (EOF, sem aritmetica). **Ganho real, porem pequeno
-  e O(1) por tabela** — nao justifica isolado por bytes (§9).
+  e O(1) por tabela**, nao justifica isolado por bytes (§9).
 
-- **Coerencia com o formato (forte)**: o **single-col TCF ja' e' isto** — sem
+- **Coerencia com o formato (forte)**: o **single-col TCF ja' e' isto**, sem
   header, sem size, corpo ate' EOF. "Ultima coluna sem size" e' a generalizacao
   multi-col do que o single-col ja' faz. Nao e' excecao arbitraria; e' regra ja'
   existente estendida. (Precedente interno: [ADR-0001](../../../../../docs/adr/0001-tcf-format-shebang.md) single-col.)
 
-- **Ponto 2 (deferred sizing — o valor real)**: boundary implicito = nao precisa
+- **Ponto 2 (deferred sizing: o valor real)**: boundary implicito = nao precisa
   saber o tamanho ANTES de escrever. Hoje o header e' header-first (exige TODOS
   os sizes antes do body). A ultima coluna EOF-bounded permite "fluir" o ultimo
   body em streaming sem conhecer seu tamanho final → menos buffering. E' o degrau
   ZERO de deferred-sizing que [O-FMT-08](#o-fmt-08--streaming-encoderdecoder) e
   V2-J (ADR-0018) exploram via trailer / header-reescrito. Sobre repeticao "sem
-  fim": hoje RLE tem count explicito (`*N|`), entao e' teorico — mas abre espaco
+  fim": hoje RLE tem count explicito (`*N|`), entao e' teorico, mas abre espaco
   pra um marcador "repete ate' o fim" (sem count) so' valido na ultima posicao.
 
-- **Ponto 3 (integridade) — menor do que parece**: o decoder atual **ja' NAO
-  valida sizes** — `raw[cursor:cursor+size]` em Python nao erra em arquivo
+- **Ponto 3 (integridade): menor do que parece**: o decoder atual **ja' NAO
+  valida sizes**, `raw[cursor:cursor+size]` em Python nao erra em arquivo
   truncado (slice retorna menos bytes, leitura parcial silenciosa). Ou seja,
   omitir o ultimo size nao PERDE uma checagem que existe; perde uma checagem
   POTENCIAL (futura: `header + Σ sizes == filesize` seria um cross-check barato;
   omitir o ultimo tira um termo). Owner esta' certo: truncamento/checksum e'
-  trabalho do transporte (TLS, HTTP content-length, CRC) — o formato nao deve
+  trabalho do transporte (TLS, HTTP content-length, CRC), o formato nao deve
   duplicar. Registrar so' que os sizes explicitos SAO uma redundancia que
   PODERIA virar integrity-check opt-in; o ultimo-sem-size renuncia a parte disso.
 
@@ -349,7 +349,7 @@ levantados pelo owner:
   (`!=name` ou `!name`).
 
 **Prior art (checado 2026-06-14)**: NAO abordado. [ADR-0004](../../../../../docs/adr/0004-multi-column-header-compacto.md)
-(decisao do header) nao considerou — "Em aberto" lista escaping/flags/multi-tabela,
+(decisao do header) nao considerou, "Em aberto" lista escaping/flags/multi-tabela,
 nao isto. [O-FMT-14](#o-fmt-14--header-desacoplavel--opcional--derivavel-registrado-2026-05-24)
 e' diferente (deriva sizes de schema EXTERNO; este e' deducao INTERNA por EOF).
 Vizinho: O-FMT-08 / V2-J (streaming / deferred sizing).
@@ -357,14 +357,14 @@ Vizinho: O-FMT-08 / V2-J (streaming / deferred sizing).
 **Status**: **WELDED 2026-06-14** ([ADR-0023](../../../../../docs/adr/0023-v2-minimal-header-weld.md))
 como parte do bundle "header v2 minimo" (`encode(table, min_header=True)`,
 #TCF.7). A ultima coluna passa a omitir o size (corpo ate' EOF). O aspecto
-deferred-sizing / streaming (ponto 2) continua FUTURO — reavaliar com O-FMT-08 /
+deferred-sizing / streaming (ponto 2) continua FUTURO, reavaliar com O-FMT-08 /
 V2-J (a omissao welded e' so' a forma estatica; streaming exige header-reescrito
 ou trailer).
 
 **Conexoes**: O-FMT-08 (streaming), O-FMT-14 (header reduzido), ADR-0004 (header),
 ADR-0018 V2-J (pipeline streaming), ADR-0001 (single-col EOF-bounded = precedente).
 
-### O-FMT-16 — Espaco apos `#` no meta line e' dispensavel (registrado 2026-06-14)
+### O-FMT-16: Espaco apos `#` no meta line e' dispensavel (registrado 2026-06-14)
 
 **Ideia (owner, 2026-06-14)**: o meta line e' `# <s1>=<n1>,...`. O espaco apos
 o `#` nao e' necessario. Combinado com O-FMT-15 (ultima sem size):
@@ -374,10 +374,10 @@ o `#` nao e' necessario. Combinado com O-FMT-15 (ultima sem size):
 
 **Analise critica:**
 - **Magnitude**: 1 byte por TABELA (o espaco). Trivial. Decode: `META_PREFIX`
-  vira `b"#"` em vez de `b"# "`. Sem ambiguidade — o meta line e' a linha 2
+  vira `b"#"` em vez de `b"# "`. Sem ambiguidade, o meta line e' a linha 2
   (apos o shebang line 1); o `#` so' marca, a POSICAO ja' identifica.
 - **Adjacente (registrar)**: pela mesma logica, o proprio `#` do meta line e'
-  dispensavel — a linha 2 ja' e' o meta por posicao. Dropar `#`+espaco = **2
+  dispensavel, a linha 2 ja' e' o meta por posicao. Dropar `#`+espaco = **2
   bytes**. O `#` e' um marcador-sanidade barato; manter ou nao e' decisao de
   gosto vs. byte. (NAO confundir com o `#` do shebang line 1, esse fica.)
 - **Versao**: breaking (decoder v1 espera `# `) → **#TCF.7 / v2.0, opt-in**.
@@ -388,13 +388,13 @@ o `#` nao e' necessario. Combinado com O-FMT-15 (ultima sem size):
 **Status**: **WELDED 2026-06-14** ([ADR-0023](../../../../../docs/adr/0023-v2-minimal-header-weld.md)).
 Na revisao do header (owner, 2026-06-14) decidiu-se ir alem: como o flag `M` no
 shebang ja' declara o meta de colunas, **todo `#TCF.7` dispensa o prefixo `# `
-inteiro** (nao so' o espaco — o `#` tambem). Vale pra fallback e min_header.
+inteiro** (nao so' o espaco, o `#` tambem). Vale pra fallback e min_header.
 `#TCF.6` mantem o `# ` (congelado). Nada mais pendente aqui.
 
-### Bundle "header v2 minimo" (O-FMT-15 + O-FMT-16) — reframe 2026-06-14
+### Bundle "header v2 minimo" (O-FMT-15 + O-FMT-16): reframe 2026-06-14
 
 **Diretriz do owner (2026-06-14)**: foco em **detalhes de compressao byte-a-byte**
-— "cada byte importa, principalmente se o TCF for substituir transmissoes
+"cada byte importa, principalmente se o TCF for substituir transmissoes
 MINUSCULAS". Isso **muda o calculo de §9** pros micro-opts de header: num payload
 minusculo, o header de tamanho fixo DOMINA o total, entao economias O(1)-por-tabela
 (espaco, ultimo size, talvez o `#`) deixam de ser ruido e viram fracao relevante.
@@ -412,18 +412,18 @@ pacote "header v2 minimo" opt-in (#TCF.7), nao tres welds isolados.
 
 **WELDED 2026-06-14** ([ADR-0023](../../../../../docs/adr/0023-v2-minimal-header-weld.md)):
 `encode(table, min_header=True)` -> #TCF.7 com meta `<s>=<n>,...,<nN>`. Na revisao
-do header (owner, mesmo dia) o prefixo `# ` INTEIRO caiu (nao so' o espaco — o
+do header (owner, mesmo dia) o prefixo `# ` INTEIRO caiu (nao so' o espaco, o
 `#` tambem; o flag `M` ja' declara colunas) pra TODO #TCF.7. Compoe com
 `fallback`. Default off preserva byte-canonical. Medido: cadastro README
 **182->177 B** (−5). Suite 351 passed. PENDENTE (futuro): aspecto
 deferred-sizing/streaming (O-FMT-08/V2-J).
 
-### O-FMT-17 — Repeticao intra-linha (intra-valor) (registrado 2026-06-16, alvo 0.8)
+### O-FMT-17: Repeticao intra-linha (intra-valor) (registrado 2026-06-16, alvo 0.8)
 
 **Ideia (owner, 2026-06-16)**: capturar repeticao de substring DENTRO de um unico valor
 (ex: `111.111.111-11` tem `111.` x3), que o pipeline atual nao fatora. Hoje so' ha' RLE
 **interlinha** (`*N|` linha inteira repetida; `^N` valor inteiro repetido). Recurso NOVO
-no OBAT (tokenizar sub-runs intra-valor) OU no HCC (compor atoms intra-valor) — a decidir.
+no OBAT (tokenizar sub-runs intra-valor) OU no HCC (compor atoms intra-valor), a decidir.
 Distinto do **filtro/nature** (ADR-0015, semantico, conhece o tipo): este e' **generico**.
 
 **Agravante medido (2026-06-16)**: digito no corpo escapa (`\`) pra nao virar indice de
@@ -439,15 +439,15 @@ nature/split + interacao com escape ANTES de welder. GATE real-world obrigatorio
 **Conexoes**: ADR-0015 (natures = caminho semantico), ADR-0026 (split estrutural),
 Pacote 7 (templated) e Pacote 11 (este) no roadmap.
 
-> **Nota tecnica (2026-06-19) — overlap com V2-RLE-STREAM**: o follow-up
+> **Nota tecnica (2026-06-19), overlap com V2-RLE-STREAM**: o follow-up
 > [V2-RLE-STREAM](../../old/refuted/2026-06-19-v2rle-stream-caracterizacao/result.md) testou RLE no **stream de
 > indices do V2-B** (intra-STREAM, nao intra-valor). Ambos "atacam repeticao", mas por angulos
-> diferentes — e o achado-chave conecta os tres: a repeticao capturada depende do **LAYOUT**
+> diferentes, e o achado-chave conecta os tres: a repeticao capturada depende do **LAYOUT**
 > (runs longos -> `*N|` do tcf; runs curtos skewed -> dict-stream; intra-valor -> O-FMT-17/H-INTRA).
 > Clusterizado FLIPA pro tcf-`*N|`. **Ordem de estudo recomendada: caracterizar O-FMT-17/H-INTRA
 > ANTES de reabrir V2-RLE-STREAM (podem se subsumir).** Mapa: [`rle-familia-estudo.md`](../2026-06/rle-familia-estudo.md).
 
-### Nota geral — fluxo atual (2026-05-24)
+### Nota geral: fluxo atual (2026-05-24)
 
 Owner registra explicitamente que **o pipeline atual ainda tem muito
 a melhorar** mas que **se contentamos com ele por enquanto pra fazer
@@ -457,7 +457,7 @@ funcionar**. Itens pendentes alem das O-FMT-* listadas:
 - Sinks pluggable (T-CODE-OUTPUT-SINKS P2)
 - Plan contract (T-CODE-PLAN-CONTRACT P3)
 - Schema builder (T-CODE-SCHEMA-BUILDER P3)
-- Naturezas templated/checksummed (CPF/IP/telefone) — ver
+- Naturezas templated/checksummed (CPF/IP/telefone); ver
   [`naturezas-templated-2026-05-24.md`](naturezas-templated-2026-05-24.md)
 
 Filosofia: **viavel agora > otimo eventual**. Funciona, valida em
@@ -470,19 +470,19 @@ ficam pra depois quando preconditons forem atendidos.
 
 Quando voltar pra estas otimizacoes:
 
-1. **Pacote 2 (escape-deduction)** — H-ED-01..04. Mais maduro
+1. **Pacote 2 (escape-deduction)**: H-ED-01..04. Mais maduro
    conceitualmente, antecedente formal (S-supressao ticket).
-2. **O-FMT-07 (type-aware multi-column)** — extensao natural do
+2. **O-FMT-07 (type-aware multi-column)**: extensao natural do
    Pacote 1; cada nova natureza vira um sub-pacote.
-3. **O-FMT-02 (ordenacao natural)** — quando user permite,
+3. **O-FMT-02 (ordenacao natural)**: quando user permite,
    ganho potencial grande.
-4. **O-FMT-08 (streaming)** — quando dataset scale exigir.
-5. **O-FMT-01/03/04 (ordenacao reversivel/multi-order)** —
+4. **O-FMT-08 (streaming)**: quando dataset scale exigir.
+5. **O-FMT-01/03/04 (ordenacao reversivel/multi-order)**:
    complexidade alta; ROI depende de cenario.
-6. **O-FMT-06 (cross-column)** — explorar so' depois de O-FMT-07
+6. **O-FMT-06 (cross-column)**: explorar so' depois de O-FMT-07
    maduro.
 
-### O-FMT-18 — Byte-size do header em base-94 (em vez de decimal) (registrado 2026-06-19)
+### O-FMT-18: Byte-size do header em base-94 (em vez de decimal) (registrado 2026-06-19)
 
 **Ideia (do owner, "podia ficar em hexa")**: o byte-size de cada coluna no meta line e' decimal;
 em base-94 (alfabeto que o TCF ja' usa) o numero encurta ~2× (ex: `150000` 6 dig → 3 chars).
@@ -494,19 +494,19 @@ header pesa **22-25%** e os byte-sizes ~6% → base-94 salvaria **~3% do blob**.
 **nicho transmissao-minuscula**. **Status**: registrado; baixa prioridade. Format change #TCF.8
 opt-in, default off. **Domina o O-FMT-19.**
 
-> **DECISAO 2026-07-09 — hex e' o default do header, base-94 e' o "byte-maximo" reservado**: o owner cravou
+> **DECISAO 2026-07-09, hex e' o default do header, base-94 e' o "byte-maximo" reservado**: o owner cravou
 > **hex-default** implicito nos byte-sizes do header ([T-FMT-HEADER-BASE-HEX](../../../../../tickets/T-FMT-HEADER-BASE-HEX.md)).
 > Por que hex e nao base-94 aqui: o alfabeto base-94 (0x21-0x7E) **inclui os separadores do meta** (`, = :
 > { } [ ]`) → colidiria; precisaria de **base-87** (excluir os ~7 estruturais). Hex ([0-9a-f]) e' colisao-livre
-> e legivel. O base-94/87 fica como modo **byte-maximo-sob-contrato** (onde legibilidade nao importa) — este
+> e legivel. O base-94/87 fica como modo **byte-maximo-sob-contrato** (onde legibilidade nao importa), este
 > O-FMT-18 continua valido como esse alternativo. Mapa completo: [bases-radix-usos-tcf](../2026-07/bases-radix-usos-tcf.md).
 
 > **Guia de transmissao (onde o TCF realmente importa)**: pesquisa de praticas de API + big techs em
-> [`transmissao-api-onde-tcf-importa.md`](../2026-06/transmissao-api-onde-tcf-importa.md) — honesto: o nicho do
+> [`transmissao-api-onde-tcf-importa.md`](../2026-06/transmissao-api-onde-tcf-importa.md), honesto: o nicho do
 > TCF e' ~5-15% (batch/export tabular grande+repetitivo; lazy). **Teste decisivo pendente**:
 > TCF+brotli vs **NDJSON+brotli** (so' comparamos com CSV+brotli ate' agora).
 
-### O-FMT-19 — Header por LINHAS (row-count) em vez de bytes — REFUTADO
+### O-FMT-19: Header por LINHAS (row-count) em vez de bytes, REFUTADO
 
 **Ideia (do owner)**: trocar byte-size por nº de linhas (1 numero compartilhado, ja' que a tabela e'
 simetrica) pra economizar header em tabelas pequenas. **Modo "solid block"** (analogia do owner).
@@ -517,36 +517,36 @@ economia ≥1% do blob em so' 11/60 formas (tiny-wide; dezenas de bytes), ≥5% 
 e group por slice. + parser de header com 2 semanticas. **Nao vale**; se o alvo e' header menor, usar
 O-FMT-18 (base-94), que ganha o mesmo SEM perder nada.
 
-## Categoria 7 — Registros profundos do F0/T-QA-8 (owner, 2026-07-10)
+## Categoria 7: Registros profundos do F0/T-QA-8 (owner, 2026-07-10)
 
 > Origem: decisoes do owner ao aprovar os fixes de fronteira BUG-03/04/05/06
 > ([T-QA-8 §3](../../../../../tickets/T-QA-8-material-comprobatorio.md)). Cada fix
-> ganhou um "pra agora" (welded no lote 2) e um REGISTRO profundo — os itens
+> ganhou um "pra agora" (welded no lote 2) e um REGISTRO profundo, os itens
 > abaixo. Nenhum e' 0.8; sao trilhos pra depois do material comprobatorio.
 
-- **O-FMT-20 — registro-'0' / schema-declare (armazenamento append)**: hoje
+- **O-FMT-20: registro-'0' / schema-declare (armazenamento append)**: hoje
   0-linhas e' fail-loud (colide com 1-linha-vazia; nada de onde deduzir). Visao
-  do owner: no trilho de ARMAZENAMENTO, um registro "0" declara so' o SCHEMA —
+  do owner: no trilho de ARMAZENAMENTO, um registro "0" declara so' o SCHEMA:
   util pra armazenar em **append** quando transformar pra **parquet** (ou outro
   formato "solido") ou com **index sidecar (`tcfx`)**. "Isso e' pra ser visto
   mais no final, quando a gente ver melhor a parte de armazenar e transformar
   em parquet". Cross-ref: T-FMT-OMIT-OR-DECLARE (omissao nao-deduzivel ->
   declaracao obrigatoria).
-- **O-FMT-21 — auto-stamp em colisao de magic (inducao no ENCODE)**: o orfao e'
+- **O-FMT-21: auto-stamp em colisao de magic (inducao no ENCODE)**: o orfao e'
   ambiguo por construcao com dado cuja 1a linha casa `#TCF.<digitos>`. O decode
-  0.8 fail-louda versao desconhecida (BUG-04) — o que cria superficie de
+  0.8 fail-louda versao desconhecida (BUG-04), o que cria superficie de
   falso-positivo pra dado orfao patologico. Fix profundo: o ENCODE detecta a
   colisao e prefixa sozinho o version-stamp `#TCF.8\n` (discriminador que o
-  decode ja' le) — so' paga ~7B quem colide, e o falso-positivo desaparece.
-- **O-FMT-22 — versionamento rumo ao `#TCF1`**: visao do owner — as subversoes
+  decode ja' le), so' paga ~7B quem colide, e o falso-positivo desaparece.
+- **O-FMT-22: versionamento rumo ao `#TCF1`**: visao do owner, as subversoes
   `#TCF.6/.7/.8` sao CONTROLE de dev ("checks intermediarios pra nao confundir
   os arquivos desenvolvidos"); a rigor so' existira' um **`#TCF1`** depois
   (ex.: `#TCF1M`), que fecha tudo pra 1.0 concluida. Compatibilidade REAL so'
   a partir do 1.0 (reforca ADR-0024/0028: git-as-compat pre-1.0).
-- **O-FMT-23 — completude de transmissao / streaming (quanto esperar)**: o
+- **O-FMT-23: completude de transmissao / streaming (quanto esperar)**: o
   decode 0.8 DEDUZ integridade do que o header ja' declara (BUG-05: size,
   fecho, n_rows). O profundo (owner): em TRANSMISSAO stream (serial ou
-  paralela), o receptor precisa saber **quanto deveria estar esperando** — no
+  paralela), o receptor precisa saber **quanto deveria estar esperando**: no
   encode/preparo, saber se os dados que chegam estao completos; concluir que a
   transmissao acabou ANTES da outra ponta avisar; timeout -> avisar
   truncamento; ou "concluiu antes e faltou dado". Exige quantidade-esperada
@@ -561,10 +561,10 @@ O-FMT-18 (base-94), que ganha o mesmo SEM perder nada.
 Atualizar quando: nova ideia chegar, ou alguma O-FMT-* mudar de
 status (testada/iniciada/refutada).
 
-**Ultima atualizacao**: 2026-07-10 (Categoria 7: O-FMT-20..23 — registros profundos do
+**Ultima atualizacao**: 2026-07-10 (Categoria 7: O-FMT-20..23, registros profundos do
 F0/T-QA-8: schema-declare/parquet/tcfx, auto-stamp, #TCF1, completude streaming). Antes:
 2026-06-19 (O-FMT-18 byte-size base-94 candidato + O-FMT-19 header-por-linhas
-REFUTADO — teste de proporcao; lazy/paralelo > economia ininima). Antes: 2026-06-16 (O-FMT-17 repeticao intra-linha / intra-valor, alvo 0.8
-— cross-ref roadmap Pacote 11). Antes: 2026-06-14 (O-FMT-15 ultima-coluna-sem-size + O-FMT-16
+REFUTADO, teste de proporcao; lazy/paralelo > economia ininima). Antes: 2026-06-16 (O-FMT-17 repeticao intra-linha / intra-valor, alvo 0.8:
+cross-ref roadmap Pacote 11). Antes: 2026-06-14 (O-FMT-15 ultima-coluna-sem-size + O-FMT-16
 espaco-do-meta-dispensavel + bundle "header v2 minimo" / reframe transmissoes minusculas),
 2026-05-24 (O-FMT-14 header desacoplavel), 2026-05-17 (criacao + 12 entries).

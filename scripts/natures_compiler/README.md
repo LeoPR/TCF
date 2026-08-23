@@ -1,10 +1,10 @@
-# natures_compiler — DSL textual de filtro → nature executável (gadget)
+# natures_compiler: DSL textual de filtro → nature executável (gadget)
 
 **F1 do plano** [`filtros-dsl-plano.md`](../../experiments/lab/dirty/notas/2026-06/filtros-dsl-plano.md).
 Gadget auxiliar (`scripts/`, **não toca `src/tcf`**): compila uma **definição textual** de filtro
 num spec executável (`TemplatedCheckedSpec`/`TemplatedPaddedSpec` do core), validando
 **reversibilidade (round-trip lossless)** no compile-time. A única parte "código" (`check_fn`) vem
-de uma **biblioteca fechada nomeada** — zero código do usuário, zero `eval`.
+de uma **biblioteca fechada nomeada**: zero código do usuário, zero `eval`.
 
 ## DSL (flat `chave: valor`, sem dependência de YAML)
 ```
@@ -36,13 +36,13 @@ sintéticas; `encode→decode==original`; rejeita se falhar).
 
 ## Prova (F1)
 `tests/test_natures_compiler.py` (9 testes): o spec **compilado do DSL** se comporta **idêntico** ao
-spec canônico escrito à mão (`SPEC_CPF`/`SPEC_CNPJ`/`SPEC_IP`) — encode/decode batem em todas as
+spec canônico escrito à mão (`SPEC_CPF`/`SPEC_CNPJ`/`SPEC_IP`), encode/decode batem em todas as
 amostras; `encoded_length` computado bate (5/7). Não é versão de formato (output idêntico).
 
 ## Limitação conhecida (achado 2026-06-16)
 Cobre só o que os specs atuais suportam: **inteiros canônicos** (sem zero à esquerda) no padded e
 **dígitos + mod-11** no checked. **CEP** (zeros à esquerda significativos → vira literal, não comprime)
-e **MAC** (hex → não casa o decimal) **NÃO cabem** no `TemplatedPaddedSpec` — exigem um **spec novo**
+e **MAC** (hex → não casa o decimal) **NÃO cabem** no `TemplatedPaddedSpec`, exigem um **spec novo**
 (padded-fixo preserva-zeros / slots hex) em `src/tcf` → **fase futura** (precisa aprovação + GATE).
 A biblioteca de check-fns hoje reusa as do core (`mod11-cpf/cnpj`); novos algoritmos (Luhn etc.)
 entram por ticket, nunca inline.

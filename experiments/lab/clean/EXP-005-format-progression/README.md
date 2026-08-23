@@ -1,9 +1,9 @@
-# EXP-005 — Progressao de formatos em datasets escalonados
+# EXP-005: Progressao de formatos em datasets escalonados
 
 ## Objetivo
 
 Comparar 5 formatos em datasets de escala progressiva (de minusculo
-1col ate multi-tabela com FKs). NAO eh teste rigoroso — eh **intuicao
+1col ate multi-tabela com FKs). NAO eh teste rigoroso, eh **intuicao
 de evolucao** das diferencas conforme o tamanho/estrutura cresce.
 
 ## Formatos comparados
@@ -47,7 +47,7 @@ Cada um passa por:
 
 ### Detalhamento por dataset
 
-#### D1 — 1col tiny (50 nomes em ciclo de 15 unicos)
+#### D1: 1col tiny (50 nomes em ciclo de 15 unicos)
 
 | Formato | bytes | gz | vs csv | vs csv+gz |
 |---------|------:|---:|-------:|----------:|
@@ -61,7 +61,7 @@ Cada um passa por:
 ("Ana, Bruno, ..., Otavio, Ana, Bruno..."), gzip ja explora isso. Sortar
 quebra o ciclo em blocos contiguos nao-novos para o algoritmo gzip.
 
-#### D2 — 1col medium (1000 nomes random de 6 unicos)
+#### D2: 1col medium (1000 nomes random de 6 unicos)
 
 | Formato | bytes | gz | vs csv | vs csv+gz |
 |---------|------:|---:|-------:|----------:|
@@ -72,10 +72,10 @@ quebra o ciclo em blocos contiguos nao-novos para o algoritmo gzip.
 | **tcf-v05** | **88** | 102 | **-98.7%** | -86.8% |
 
 **Note**: aqui csv-sorted+gz quase iguala TCF (98B vs 102B). TCF vence
-em **texto puro** por margem absurda (-98.7%) — o body e basicamente
+em **texto puro** por margem absurda (-98.7%), o body e basicamente
 6 literais + RLE refs.
 
-#### D3 — multicol tiny (100 rows × 8 cols)
+#### D3: multicol tiny (100 rows × 8 cols)
 
 | Formato | bytes | gz | vs csv |
 |---------|------:|---:|-------:|
@@ -85,18 +85,18 @@ em **texto puro** por margem absurda (-98.7%) — o body e basicamente
 | ndjson | 11231 | 1354 | +205% |
 | **tcf-v05** | **1934** | **967** | **-47%** (gz -17%) |
 
-#### D4 — multicol medium (1000 × 8)
+#### D4: multicol medium (1000 × 8)
 
 TCF -28.5% em texto, -19.6% pos gzip. Ganho diminui em escala mas
 permanece positivo.
 
-#### D5 — 3-tables small (TPC-H, 59 rows totais)
+#### D5: 3-tables small (TPC-H, 59 rows totais)
 
 TCF apenas -4% texto. Por que? TPC-H supplier tem `s_name` unico
-("Supplier#000000NNN"), `s_address` unico, etc. — pouca repeticao.
+("Supplier#000000NNN"), `s_address` unico, etc. pouca repeticao.
 TCF se aproxima de CSV.
 
-#### D6 — 3-tables medium sintetico (1100 rows totais com FKs)
+#### D6: 3-tables medium sintetico (1100 rows totais com FKs)
 
 TCF volta a vencer (-35%) porque cidades, categorias, status repetem.
 Ainda assim, comparado a D2 (-99%) e D3 (-47%), o multi-tabela nao
@@ -105,12 +105,12 @@ Prod_NNN).
 
 ## Achados intuitivos
 
-### A1 — TCF v0.5 vence consistentemente vs CSV/JSON/NDJSON em texto puro
+### A1: TCF v0.5 vence consistentemente vs CSV/JSON/NDJSON em texto puro
 
 Nas 6 amostras, TCF vence -4% a -98% vs CSV. JSON e NDJSON sao **sempre
 piores que CSV** (overhead de chaves repetidas, +160% a +260%).
 
-### A2 — CSV-sorted + gzip pode chegar perto de TCF
+### A2: CSV-sorted + gzip pode chegar perto de TCF
 
 Em D2 (1000 rows com poucas categoricas), csv-sorted+gz = 98B, quase
 empatado com TCF+gz = 102B. Sort sozinho quase iguala TCF estrutural.
@@ -118,23 +118,23 @@ empatado com TCF+gz = 102B. Sort sozinho quase iguala TCF estrutural.
 **Caveat**: sort precisa escolher coluna **certa**. Aqui, sort em D1
 (coluna `nome` com padrao ciclico) PIORA o gzip. Heuristica eh fragil.
 
-### A3 — Roundtrip OK em TODOS os 30 testes (5 formatos × 6 datasets)
+### A3: Roundtrip OK em TODOS os 30 testes (5 formatos × 6 datasets)
 
 Nenhum format quebrou. TCF v0.5 SRDM reconstroe dados identicos a
 fonte em todos os casos testados, inclusive multi-tabela.
 
-### A4 — JSON/NDJSON sao caros mesmo apos gzip
+### A4: JSON/NDJSON sao caros mesmo apos gzip
 
 JSON+gz e NDJSON+gz ainda perdem para CSV+gz por 16-28% em todos os
 datasets. O overhead estrutural de chaves repetidas + colchetes nao
 eh totalmente absorvido por gzip.
 
-### A5 — Multi-tabela com strings unicas reduz vantagem do TCF
+### A5: Multi-tabela com strings unicas reduz vantagem do TCF
 
-D5 (TPC-H supplier+part+partsupp) — TCF ganha so -4% pq strings
+D5 (TPC-H supplier+part+partsupp), TCF ganha so -4% pq strings
 distintas dominam. Confirma: TCF brilha quando ha **repeticao**.
 
-### A6 — Em datasets pequenos com header, ganho do shebang ajuda
+### A6: Em datasets pequenos com header, ganho do shebang ajuda
 
 D1 (50 rows): TCF 155B vs CSV 339B. Header shebang (~18B com sort
 header) eh fracao maior, mas TCF ainda ganha forte.
@@ -175,8 +175,8 @@ manual.
 
 ### Observado para investigar
 
-- **Multi-tabela com strings unicas** (D5) — TCF brilha pouco. Investigar
-  com Affix-DICT (Proposta H — `Supplier#NNN` tem prefix) e/ou cross-DICT
+- **Multi-tabela com strings unicas** (D5): TCF brilha pouco. Investigar
+  com Affix-DICT (Proposta H, `Supplier#NNN` tem prefix) e/ou cross-DICT
   entre tabelas.
 - **Heuristica de sort** pode piorar em datasets com padroes ciclicos
   (D1). Vale flag opcional para "preserve_input_order" quando ja
@@ -185,8 +185,8 @@ manual.
 ### Registrado paralelo
 
 [B-homonyms-key-collision](../../../docs/workbench/tickets/open/B-homonyms-key-collision.md)
-+ [research-note](../../../docs/workbench/research-notes/2026-05-09-homonimos-key-collision.md)
-— cuidado com colapso de homonimos quando key elimination for
++ [research-note](../../../docs/workbench/research-notes/2026-05-09-homonimos-key-collision.md):
+cuidado com colapso de homonimos quando key elimination for
 implementada (Proposta I).
 
 ## Status

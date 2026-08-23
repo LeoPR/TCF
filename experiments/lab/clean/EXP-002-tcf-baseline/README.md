@@ -1,4 +1,4 @@
-# EXP-002 — TCF Baseline (vs CSV de EXP-001)
+# EXP-002: TCF Baseline (vs CSV de EXP-001)
 
 **Status**: aberto
 **Pergunta**: como TCF v0.2 atual se comporta nos mesmos datasets de

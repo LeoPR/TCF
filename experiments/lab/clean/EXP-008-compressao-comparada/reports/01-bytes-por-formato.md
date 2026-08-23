@@ -1,4 +1,4 @@
-# 01 — Bytes por dataset × formato (sem compressao)
+# 01: Bytes por dataset × formato (sem compressao)
 
 Quanto cada formato textual ocupa por dataset, antes de qualquer compressao externa. **Bold** = menor por linha. _Italico_ = segundo menor.
 
@@ -30,4 +30,4 @@ Quanto cada formato textual ocupa por dataset, antes de qualquer compressao exte
 - **JSON array / CSV total**: 5409 / 4872 = 111.0%.
 - **JSONL / CSV total**: 7001 / 4872 = 143.7%.
 
-TCF, JSON e JSONL sao avaliados como **contra-prova de formato**: se TCF reduzir vs CSV, e JSON tambem reduzir, entao o ganho do TCF nao e' apenas escape de delimitador — e' compactacao de redundancia.
+TCF, JSON e JSONL sao avaliados como **contra-prova de formato**: se TCF reduzir vs CSV, e JSON tambem reduzir, entao o ganho do TCF nao e' apenas escape de delimitador, e' compactacao de redundancia.

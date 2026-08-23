@@ -1,4 +1,4 @@
-# EXP-010 — Prototype TCF delta-aware (report)
+# EXP-010: Prototype TCF delta-aware (report)
 
 **Total bytes prototype**: 2412
 **Total bytes reference (sub-exp 09 dirty)**: 2272

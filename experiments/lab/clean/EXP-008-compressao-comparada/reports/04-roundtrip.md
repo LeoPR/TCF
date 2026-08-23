@@ -1,18 +1,18 @@
-# 04 — Roundtrip
+# 04: Roundtrip
 
 Verificacao de identidade nas N combinacoes formato × compressor × dataset.
 
 ## RT formato
 
-`parse(serialize(linhas)) == linhas` — **60/60** OK.
+`parse(serialize(linhas)) == linhas`, **60/60** OK.
 
 ## RT compressor (bytes)
 
-`decompress(compress(bytes)) == bytes` — **300/300** OK.
+`decompress(compress(bytes)) == bytes`, **300/300** OK.
 
 ## RT full (cadeia inteira)
 
-`parse(decompress(compress(serialize(linhas)))) == linhas` — **300/300** OK.
+`parse(decompress(compress(serialize(linhas)))) == linhas`, **300/300** OK.
 
 ## Matriz por dataset × formato (todos compressores)
 

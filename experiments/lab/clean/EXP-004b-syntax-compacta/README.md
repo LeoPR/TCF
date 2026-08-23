@@ -1,4 +1,4 @@
-# EXP-004b — Sintaxe compacta no header (variante B)
+# EXP-004b: Sintaxe compacta no header (variante B)
 
 ## Hipotese
 
@@ -20,7 +20,7 @@ Indices sao 1-based pela ordem de aparicao da coluna no body.
 ## Decoder
 
 Aceita ambas sintaxes (auto-detecta). Resolve indices em **late binding**
-— guarda como `int[]` no header, resolve para nomes quando body eh
+guarda como `int[]` no header, resolve para nomes quando body eh
 parseado e ordem das colunas eh conhecida.
 
 ## Roundtrip
@@ -42,11 +42,11 @@ OK em todos os 4 cenarios (decoder le tanto A quanto B).
 ### Achados
 
 **1. Em datasets pequenos, ganho substancial.** S1 economiza 17% no texto
-puro e 6% apos gzip — caiu para o mesmo tamanho do CSV (93B). Antes (A),
+puro e 6% apos gzip, caiu para o mesmo tamanho do CSV (93B). Antes (A),
 TCF v0.5 perdia em 20% para CSV em micro datasets; com B, empata.
 
 **2. Em datasets medios/grandes, ganho marginal (~1%).** O header eh
-fracao pequena do payload. Mas eh ganho **livre** — sem custo de
+fracao pequena do payload. Mas eh ganho **livre**, sem custo de
 implementacao alem da nomeacao.
 
 **3. gzip nao anula o ganho.** Apesar de gzip comprimir nomes repetidos
@@ -76,7 +76,7 @@ A:  # TCF v0.5 SRDM\n# sort: s_nationkey\n  → 35B
 B:  # TCF v0.5 SRDM\n# s:3\n                  → 21B  (-40% no header)
 ```
 
-Em **headers**, ganho consistente de **40-46%** — vai escalar quando
+Em **headers**, ganho consistente de **40-46%**: vai escalar quando
 chunks adicionarem mais metadata por bloco.
 
 ## Decisao consolidada
@@ -86,7 +86,7 @@ chunks adicionarem mais metadata por bloco.
 Razoes:
 - Ganho **mensuravel e gratuito** (sem custo de complexidade)
 - Crucial em **micro datasets** onde header dominava
-- Crucial em **chunks** (proximas fases) — cada chunk pode ter header
+- Crucial em **chunks** (proximas fases): cada chunk pode ter header
   curto, reduzindo overhead
 - Roundtrip preservado
 
@@ -94,7 +94,7 @@ A variante A continua suportada pelo decoder mas o encoder usa B por
 default. Apenas ablacao cientifica explicita (`header_style="verbose"`)
 emite A.
 
-## Reflexao adicional — por-coluna modifiers (variante C, futura)
+## Reflexao adicional: por-coluna modifiers (variante C, futura)
 
 Proposta do user durante a sessao:
 ```
@@ -141,4 +141,4 @@ diferenca apenas em `header_style="compact"` vs `"verbose"`.
 - [x] 4 cenarios rodados, roundtrip OK
 - [x] Ganho mensurado: -8.3% texto / -3.4% pos gzip (medias)
 - [x] Variante B = default a partir desta data
-- [ ] Variante C (per-column modifiers) — futuro com chunks
+- [ ] Variante C (per-column modifiers): futuro com chunks

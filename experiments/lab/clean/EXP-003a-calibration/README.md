@@ -1,4 +1,4 @@
-# EXP-003a — Calibracao CSV + compressor generico
+# EXP-003a: Calibracao CSV + compressor generico
 
 ## Hipotese
 
@@ -35,7 +35,7 @@ E arquivo `results.json` reproduzivel.
 
 | Resultado | Pivot |
 |-----------|-------|
-| gzip nao comprime CSV (<5% de ganho) | revisar datasets — talvez muito pequenos ou aleatorios |
+| gzip nao comprime CSV (<5% de ganho) | revisar datasets, talvez muito pequenos ou aleatorios |
 | gzip > 50% em todos | excelente baseline; HP-T1 fica decisiva |
 | ratio muito instavel entre datasets | normal; documentar variabilidade |
 

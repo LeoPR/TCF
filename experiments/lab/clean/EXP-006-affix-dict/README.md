@@ -1,4 +1,4 @@
-# EXP-006 — Flag P (Affix-DICT) em identificadores estruturados
+# EXP-006: Flag P (Affix-DICT) em identificadores estruturados
 
 ## Objetivo
 
@@ -45,24 +45,24 @@ Decoder le `affix=` no col header, prepende ao decodificar.
 
 ## Achados
 
-### A1 — Affix funciona muito bem em prefixos limpos
+### A1: Affix funciona muito bem em prefixos limpos
 
 Em C1, C2, C3, C5, ganho de **-45% a -72% no texto puro**. Prefixos
 de 10-35 chars sao removidos do body, body so traz sufixos.
 
-### A2 — Auto-bypass funciona em C4
+### A2: Auto-bypass funciona em C4
 
 C4 (emails com 2 dominios distintos) **NAO ativou** affix. Algoritmo
 detectou que LCP comum entre `user000@gmail.com` e `contact000@company.com`
 eh muito curto. Resultado: SRDM = SRDMP em bytes (diff 0%).
 
-### A3 — Apos gzip, ganho diminui mas nao zera
+### A3: Apos gzip, ganho diminui mas nao zera
 
 P vs no-P apos gzip: -7% a -10.5%. gzip absorve parte da repeticao
-do prefix mas nao tudo — bytes que nao sao emitidos nao podem ser
+do prefix mas nao tudo, bytes que nao sao emitidos nao podem ser
 comprimidos.
 
-### A4 — Roundtrip OK em TODOS os 10 cenarios (5 × 2 variantes)
+### A4: Roundtrip OK em TODOS os 10 cenarios (5 × 2 variantes)
 
 Bug encontrado e corrigido durante este experimento:
 
@@ -81,7 +81,7 @@ acidentalmente. Roundtrip 100% em SRDM e SRDMP.
 
 ## Headers reais (samples)
 
-### C1 — codigo PED-NNNN
+### C1: codigo PED-NNNN
 ```
 #TCF.5 SRDMP
 # s:3
@@ -95,7 +95,7 @@ codigo: affix="PED-2026-00"
 ```
 Prefix detectado: `PED-2026-00` (11 chars). Sufixos sao 2 digitos.
 
-### C2 — TPC-H supplier
+### C2: TPC-H supplier
 ```
 #TCF.5 SRDMP
 # s:2
@@ -109,7 +109,7 @@ s_name: affix="Supplier#000000"
 ```
 Prefix `Supplier#000000` (15 chars). Sufixos sao 3 digitos.
 
-### C3 — URLs
+### C3: URLs
 ```
 #TCF.5 SRDMP
 # s:3,2
@@ -121,7 +121,7 @@ endpoint: affix="https://api.example.com/v1/users/0"
 ```
 Prefix detectado eh longo (35 chars). Cada linha vira `NN/profile`.
 
-### C4 — Emails (sem prefix detectado, auto-bypass)
+### C4: Emails (sem prefix detectado, auto-bypass)
 ```
 #TCF.5 SRDMP
 # s:2
@@ -132,10 +132,10 @@ user040@gmail.com
 contact039@company.com
 contact014@company.com
 ```
-Sem `affix=` — algoritmo desativou flag em runtime. Output identico
+Sem `affix=`, algoritmo desativou flag em runtime. Output identico
 a SRDM.
 
-### C5 — Misturado (codigo + nomes + categorias)
+### C5: Misturado (codigo + nomes + categorias)
 ```
 #TCF.5 SRDMP
 # s:2,3
@@ -177,7 +177,7 @@ Durante o experimento, apareceu:
 - Bug do regex resolvido **(corrigido durante o experimento)**
 - Strings com `:`, `*`, `+`, `-` em conteudo precisarao de
   **escape** ou **quoting** quando aparecerem como literais. Ainda
-  nao implementado — registrar.
+  nao implementado, registrar.
 
 ## Arquivos produzidos
 

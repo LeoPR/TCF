@@ -1,4 +1,4 @@
-# framework/ — infra reutilizavel pelos experimentos clean
+# framework/: infra reutilizavel pelos experimentos clean
 
 Helpers compartilhados pelos experimentos `clean/EXP-NNN-...`:
 loaders de dataset, adapters de encoder, wrappers de compressor,
@@ -19,7 +19,7 @@ metricas, pipeline.
 ## Estado
 
 Funcional para EXPs do ciclo v0.5. Para ciclo v0.6, ainda nao
-integrado — o algoritmo do dirty (alg16 + M8.A) e' single-column
+integrado, o algoritmo do dirty (alg16 + M8.A) e' single-column
 e nao foi wrappado em encoder adapter. Quando o welding pro `src/`
 estiver completo, o adapter `encoders.tcf_v06` sera adicionado aqui.
 

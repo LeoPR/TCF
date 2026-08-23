@@ -1,4 +1,4 @@
-# EXP-002 — Achados preliminares
+# EXP-002: Achados preliminares
 
 ## Achado 1: Bug do decoder TCF v0.2 com colunas booleanas
 
@@ -50,7 +50,7 @@ e mais eficiente. TCF tem ROI a partir de ~50-100 linhas.
 | brotli | **639B** | 671B | CSV (-5%) |
 
 **Insight**: TCF L2 raw vence CSV raw, mas com compressao generica
-(gzip/brotli) o ganho some — o compressor "encontra" a redundancia que
+(gzip/brotli) o ganho some, o compressor "encontra" a redundancia que
 TCF ja explora. Sinergia esperada (TCF + compressao = best of both)
 NAO se confirma em v0.2.
 
@@ -66,12 +66,12 @@ CSV = 7336B. TCF tem +8% overhead sem ganho compressivo.
 **Implicacao**: cenario adverso confirmado. Dados aleatorios sem
 estrutura categorica nao sao publico-alvo do TCF.
 
-## Achado 6: TCF L3 (schema-only) — uso bem definido
+## Achado 6: TCF L3 (schema-only), uso bem definido
 
 Em `categorical_heavy`, TCF L3 = 1465B (vs 3350B CSV raw, 761B CSV+gzip).
 
 Mais comprimido que CSV raw, mas perde para CSV+gzip. **L3 nao e para
-roundtrip** — e para passar APENAS schema + STATS (caso de uso: LLM
+roundtrip**, e para passar APENAS schema + STATS (caso de uso: LLM
 generates SQL).
 
 ## Resumo para o paper
@@ -84,7 +84,7 @@ Dados deste EXP-002 sustentam:
 
 ## Proximos experimentos
 
-- **EXP-003**: TCF L2 com `sort_by` manual — ver se RLE explora mais
+- **EXP-003**: TCF L2 com `sort_by` manual; ver se RLE explora mais
   com colunas ordenadas (espero mudanca em `categorical_heavy`)
-- **EXP-004**: TCF v0.4 com DICT — testar Achado 4 hypothesis
+- **EXP-004**: TCF v0.4 com DICT, testar Achado 4 hypothesis
 - **EXP-005**: outros datasets (Adult Census real, TPC-H)

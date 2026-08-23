@@ -23,11 +23,11 @@ do input:
 | bz2 | ~6 bytes |
 
 Pra um dataset de 200 bytes raw, gzip puro consome ~18 bytes em
-header — **9% do input vira overhead obrigatorio**. Em datasets
+header, **9% do input vira overhead obrigatorio**. Em datasets
 de 5 KB, mesmo overhead e' 0.4%.
 
 Conclusao operacional: **resultados de bytes em D1-D15 sao um
-fragmento — nao representam o regime de uso real do TCF**.
+fragmento, nao representam o regime de uso real do TCF**.
 
 ## Implicacoes
 

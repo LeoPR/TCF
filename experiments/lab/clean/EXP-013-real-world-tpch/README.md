@@ -1,5 +1,5 @@
 ---
-title: EXP-013 — Real-world test em TPC-H (multi-table)
+title: EXP-013, Real-world test em TPC-H (multi-table)
 type: clean-experiment
 status: active
 tags: [tcf, real-world, multi-column, multi-table, tpch, scale]
@@ -12,7 +12,7 @@ related:
   - docs/adr/0006-empty-string-decode-fix.md
 ---
 
-# EXP-013 — Real-world test em TPC-H (8 tabelas)
+# EXP-013: Real-world test em TPC-H (8 tabelas)
 
 **Data**: 2026-05-18
 **Tipo**: experimento clean
@@ -30,8 +30,8 @@ variados? Especificamente:
 
 ## Infra utilizada
 
-- **`scripts/dataset_reader.py`** — `DatasetReader("tpch-sf001")`
-- **`Z:/tcf-data/interim/tpch-sf001.db`** — SQLite hub
+- **`scripts/dataset_reader.py`**: `DatasetReader("tpch-sf001")`
+- **`Z:/tcf-data/interim/tpch-sf001.db`**: SQLite hub
 - **EXP-011** `multi_col.encode_table` (welded EXP-010)
 - **ADR-0006 fix** aplicado (empty strings funcionam)
 
@@ -60,14 +60,14 @@ Por tabela:
 5. Mede: bytes raw CSV, bytes TCF, ratio, runtime
 
 Volume strategy: full rows pra tabelas <= 5000; cap em 5000 pras
-maiores (orders, lineitem). EXP-012 mostrou encode O(N²) — 5000
+maiores (orders, lineitem). EXP-012 mostrou encode O(N²), 5000
 rows leva ~30s; lineitem full seria proibitivo.
 
 ## Aceite
 
-- **RT 8/8 tabelas OK** (obrigatorio) — **NAO atingido**, 3/8 OK; revelou bugs canonical
-- **Ratio TCF/raw < 100%** em ao menos 6 tabelas (compressao real) — parcial
-- **Per-tabela stats documentadas** — sim
+- **RT 8/8 tabelas OK** (obrigatorio): **NAO atingido**, 3/8 OK; revelou bugs canonical
+- **Ratio TCF/raw < 100%** em ao menos 6 tabelas (compressao real): parcial
+- **Per-tabela stats documentadas**: sim
 
 ## Achados criticos durante EXP-013
 
@@ -102,6 +102,6 @@ como issue/ADR futuro.
 
 ## See also
 
-- [EXP-012 Adult Census](../EXP-012-real-world-adult-census/) — predecessor
+- [EXP-012 Adult Census](../EXP-012-real-world-adult-census/): predecessor
 - [shaper README](../../../../scripts/shaper/README.md)
 - [ADR-0006 empty-string fix](../../../../docs/adr/0006-empty-string-decode-fix.md)

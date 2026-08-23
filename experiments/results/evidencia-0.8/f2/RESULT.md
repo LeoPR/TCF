@@ -1,7 +1,7 @@
-# F2 — controle minúsculo (gerado por scripts/bench_evidencia_f2.py)
+# F2: controle minúsculo (gerado por scripts/bench_evidencia_f2.py)
 
 Registros completos nos `.jsonl` ao lado (schema evidencia-0.8/v1);
-blobs `.tcf` = exemplos inspecionáveis (nenhum contém CPF DV-válido — §2.3).
+blobs `.tcf` = exemplos inspecionáveis (nenhum contém CPF DV-válido, §2.3).
 Runner validado contra a régua ANTES da rodada (D1-D9/D17a/real-world).
 
 ## Casos medidos
@@ -56,7 +56,7 @@ Runner validado contra a régua ANTES da rodada (D1-D9/D17a/real-world).
 
 | blob | resultado |
 |---|---|
-| `#TCF.8X...` | fail-loud OK (#TCF.8: discriminador 'X' desconhecido — nao dec...) |
+| `#TCF.8X...` | fail-loud OK (#TCF.8: discriminador 'X' desconhecido, nao dec...) |
 | `#TCF.8H...` | fail-loud OK (#TCF.8: 'H' = multi-col hierarquico RESERVADO (A...) |
 | `#TCF.9M...` | fail-loud OK (blob #TCF.9: versao desconhecida deste decoder (...) |
 | `#TCF.6 M...` | fail-loud OK (formato legado '#TCF.6 M' nao suportado no 0.8 (...) |
@@ -64,4 +64,4 @@ Runner validado contra a régua ANTES da rodada (D1-D9/D17a/real-world).
 | `size>body` | fail-loud OK (body truncado: coluna 'a' declara 255B no header...) |
 
 Notas fixas: view() cobre SÓ `#TCF.8M` (órfão/stamp/spec = fail-loud
-por design — matriz acima); timing de F (boundary) é indicativo (n=1).
+por design, matriz acima); timing de F (boundary) é indicativo (n=1).

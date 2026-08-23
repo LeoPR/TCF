@@ -1,5 +1,5 @@
 ---
-title: EXP-011 — Multi-column basic (sem ordering)
+title: EXP-011, Multi-column basic (sem ordering)
 type: clean-experiment
 status: active
 tags: [tcf, multi-column, prototype, v0.6-candidate]
@@ -11,7 +11,7 @@ related:
   - experiments/lab/dirty/notas/2026-05/futuras-otimizacoes-formato.md
 ---
 
-# EXP-011 — Multi-column basic (sem ordering)
+# EXP-011: Multi-column basic (sem ordering)
 
 **Data**: 2026-05-17
 **Tipo**: experimento clean
@@ -39,7 +39,7 @@ Especificamente:
 - Header simples: `# COL=<name> bytes=<n>` antes de cada body
 - Validacao RT byte-canonical em dataset sintetico multi-coluna
 
-**Exclui (futuro — ver
+**Exclui (futuro; ver
 [`../../dirty/notas/2026-05/futuras-otimizacoes-formato.md`](../../dirty/notas/2026-05/futuras-otimizacoes-formato.md))**:
 - Ordering de colunas/linhas pra compressao (O-FMT-01..04)
 - Cross-column dictionary (O-FMT-06)
@@ -74,7 +74,7 @@ Comparativo:
 
 ## Formato do header (revisado 2026-05-17 pos critica do user)
 
-Seguindo convencao shebang TCF (v0.5 `#TCF.5 SRDM`) — formato
+Seguindo convencao shebang TCF (v0.5 `#TCF.5 SRDM`), formato
 compacto, sem descricoes livres, byte-precise:
 
 ```

@@ -1,7 +1,7 @@
-# Lab — laboratorio de experimentacao do TCF
+# Lab: laboratorio de experimentacao do TCF
 
 Local onde algoritmos e sintaxes do TCF sao iterados, validados e
-comparados. **Esta pasta nao faz parte do TCF instalavel** — e'
+comparados. **Esta pasta nao faz parte do TCF instalavel**, e'
 instrumento de pesquisa.
 
 > **Verdade canonica atual**: `dirty/notas/historia-dirty-lab.md`
@@ -32,9 +32,9 @@ experiments/lab/
 
 Cada sub-pasta tem seu proprio README com detalhes.
 
-## Padroes — dirty vs clean
+## Padroes: dirty vs clean
 
-### `dirty/` — workbench em curso
+### `dirty/`: workbench em curso
 
 Pasta livre. Sub-pastas por **macro experimento** (M0, M1, ..., M11)
 ou por data + tema. Codigo experimental, notas vivas, sem cerimonia.
@@ -47,7 +47,7 @@ Estado atual: ciclo v0.6 (algoritmo TCF-CORE + Compactacao
 composicional). Macros M0-M11 fechados; welding para `src/` em
 curso. Ver [`dirty/README.md`](dirty/README.md).
 
-### `clean/` — experimentos finalizados
+### `clean/`: experimentos finalizados
 
 Cada experimento tem ID `EXP-NNN-tema-curto`. Estrutura fixa:
 README + run.py + config + manifest + report + figures.
@@ -55,17 +55,17 @@ README + run.py + config + manifest + report + figures.
 **Regra**: experimento clean **nao muda** depois de fechado. Re-runs
 geram NOVO `EXP-NNN-v2-...`. Mantem rastreabilidade historica.
 
-Estado atual: EXP-001..EXP-006 sao de ciclo v0.5 (LLM benchmark —
+Estado atual: EXP-001..EXP-006 sao de ciclo v0.5 (LLM benchmark:
 acessorio). EXP-007 sera o primeiro do v0.6 (proto-tipo do
 algoritmo welded de `src/`). Ver [`clean/README.md`](clean/README.md).
 
-### `framework/` — infra reutilizavel
+### `framework/`: infra reutilizavel
 
 Helpers compartilhados (datasets loaders, encoders adapters,
 compressors wrappers, metrics). Usados pelos experimentos clean.
 Ver [`framework/README.md`](framework/README.md).
 
-### `archive/` — labs de ciclos antigos
+### `archive/`: labs de ciclos antigos
 
 Labs do ciclo v0.4 (e anteriores). Material historico. Ver
 [`archive/README.md`](archive/README.md).
@@ -81,7 +81,7 @@ Quando um experimento sujo gera resultado interessante:
 5. Fechar com tag git (opcional): `git tag exp-NNN`
 
 Atualmente: **welding do algoritmo do dirty (M0 + M8.A em M11) para
-`src/tcf/`** — primeira saida do dirty pro src/clean depois do ciclo
+`src/tcf/`**, primeira saida do dirty pro src/clean depois do ciclo
 v0.6 maduro. Pre-EXP-007. Ver
 [`dirty/notas/welding-plan.md`](dirty/notas/2026-05/welding-plan.md).
 
@@ -118,5 +118,5 @@ python experiments/lab/clean/EXP-001-csv-baseline/run.py
   [`dirty/notas/roadmap-hipoteses.md`](dirty/notas/2026-05/roadmap-hipoteses.md).
 - Para entender o "welding" (saida do dirty pro src/):
   [`dirty/notas/welding-plan.md`](dirty/notas/2026-05/welding-plan.md).
-- Phase 1 (LLM benchmark, ciclo v0.5) e' acessorio ao foco atual —
+- Phase 1 (LLM benchmark, ciclo v0.5) e' acessorio ao foco atual:
   pode virar projeto a parte.

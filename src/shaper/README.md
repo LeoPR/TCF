@@ -1,8 +1,8 @@
-# Shaper — dataset sampler (ferramenta auxiliar)
+# Shaper: dataset sampler (ferramenta auxiliar)
 
 > **Status (2026-05-31)**: ferramenta de suporte para experimentos
 > com TCF. **NAO faz parte do TCF-CORE.** Pode virar projeto a parte
-> no futuro. **Aprovado cientificamente para uso** — ver "Validacao
+> no futuro. **Aprovado cientificamente para uso**; ver "Validacao
 > cientifica" abaixo (T-SHAPER-SCIENTIFIC-GATING).
 
 ## O que faz
@@ -68,7 +68,7 @@ scripts/shaper/
 ## Validacao cientifica (aprovacao de uso)
 
 Principio do owner: um tool cientifico nao pode ser usado em experimentos
-TCF so' porque "corta dados" — precisa **confirmacao estatistica** de que
+TCF so' porque "corta dados", precisa **confirmacao estatistica** de que
 preserva o que claima. Gate em [`tests/test_shaper_scientific.py`](../../tests/test_shaper_scientific.py)
 (requer hubs SQLite em Z:; skip se ausente). Claims **validados** (10 testes):
 

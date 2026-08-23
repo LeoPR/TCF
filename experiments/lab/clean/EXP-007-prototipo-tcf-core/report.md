@@ -1,4 +1,4 @@
-# EXP-007 — Relatorio
+# EXP-007: Relatorio
 
 **Data execucao**: 2026-05-17
 **Estado**: foi (fechado, validou)
@@ -36,10 +36,10 @@ welding completou sem regressao.
 
 ### Faixas de compressao
 
-- **Melhor caso (D8 cabeca-cauda — 26.0%)**: padrao `common/prefix/X/common/suffix`
+- **Melhor caso (D8 cabeca-cauda: 26.0%)**: padrao `common/prefix/X/common/suffix`
   onde so' X varia. OBAT detecta prefix + suffix estaveis, HCC nao
-  precisa de composicoes adicionais — apenas 2 atom refs por linha.
-- **Pior caso (D4 caos-mix — 72.4%)**: alta variabilidade nas
+  precisa de composicoes adicionais, apenas 2 atom refs por linha.
+- **Pior caso (D4 caos-mix: 72.4%)**: alta variabilidade nas
   strings (`[X]*'YYY'@4Z` com X, Y, Z todos variaveis).
   Poucas oportunidades de reuso.
 
@@ -62,7 +62,7 @@ M9 → M10 → M11 → M12 → M13 → M14 → EXP-007
 
 ### Significado
 
-EXP-007 e' o primeiro experimento clean v0.6 — apos saida do dirty
+EXP-007 e' o primeiro experimento clean v0.6, apos saida do dirty
 lab. Confirma:
 
 1. **API publica funciona**: `from tcf import encode, decode`
@@ -87,7 +87,7 @@ Ver [`../../../../docs/theory/perspectiva-triplice-e-pre-tx.md`](../../../../doc
 para 3 estrategias avaliadas:
 
 - **Estrategia 1.A** (proximo passo natural): EXP-008 com type
-  encoders (CPF, UUID, data ISO) — Estrategia 1.A do roadmap
+  encoders (CPF, UUID, data ISO), Estrategia 1.A do roadmap
 - **Estrategia 1.B**: EXP-009 multi-coluna ingenuo (instancias por
   coluna)
 - **Estrategia 3.B**: HCC online com slot detection (resolveria
@@ -95,9 +95,9 @@ para 3 estrategias avaliadas:
 
 ## Conexoes
 
-- [`README.md`](README.md) — descricao do experimento
-- [`config.json`](config.json) — parametros
-- [`run.py`](run.py) — reproducao
-- [`manifest.jsonl`](manifest.jsonl) — registro de execucoes
-- [`outputs/`](outputs/) — TCFs gerados
-- [`../../dirty/old/2026-05-17-M14-clean-validation-srctcf/`](../../dirty/old/2026-05-17-M14-clean-validation-srctcf/) — baseline byte-canonico
+- [`README.md`](README.md): descricao do experimento
+- [`config.json`](config.json): parametros
+- [`run.py`](run.py): reproducao
+- [`manifest.jsonl`](manifest.jsonl): registro de execucoes
+- [`outputs/`](outputs/): TCFs gerados
+- [`../../dirty/old/2026-05-17-M14-clean-validation-srctcf/`](../../dirty/old/2026-05-17-M14-clean-validation-srctcf/): baseline byte-canonico

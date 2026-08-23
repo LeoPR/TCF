@@ -1,4 +1,4 @@
-# 02 — Bytes por classe de compressor
+# 02: Bytes por classe de compressor
 
 Compressores agrupados por **natureza de uso**. Ver [`../notes/classificacao-compressores.md`](../notes/classificacao-compressores.md).
 

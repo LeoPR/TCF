@@ -1,4 +1,4 @@
-# EXP-013 — Real-world TPC-H (report)
+# EXP-013: Real-world TPC-H (report)
 
 Cap: 5000 rows por tabela. Tabelas com mais rows sao truncadas.
 

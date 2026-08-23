@@ -1,4 +1,4 @@
-# 05 — Campeao por dataset
+# 05: Campeao por dataset
 
 Para cada dataset, qual (formato, compressor) produz **menor** bytes. Inclui tambem ranking dos 3 menores por dataset.
 
@@ -38,4 +38,4 @@ Quantas vezes cada combinacao `(formato, compressor)` foi a melhor.
 
 - **Raw CSV total**: 4872 bytes
 - **Soma do menor por dataset**: 1695 bytes (34.8% do raw CSV).
-- Limite inferior empirico **sobre o conjunto medido** — compressores adicionais (snappy, lz4, parquet com diferentes engines) podem mover esse limite.
+- Limite inferior empirico **sobre o conjunto medido**: compressores adicionais (snappy, lz4, parquet com diferentes engines) podem mover esse limite.

@@ -1,4 +1,4 @@
-# EXP-001 — CSV Baseline (Resultados)
+# EXP-001: CSV Baseline (Resultados)
 
 Total: 12 execucoes (4 datasets × 3 compressoes)
 

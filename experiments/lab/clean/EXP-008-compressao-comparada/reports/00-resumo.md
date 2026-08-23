@@ -1,4 +1,4 @@
-# EXP-008 — Resumo executivo
+# EXP-008: Resumo executivo
 
 **Data execucao**: 2026-06-16T19:46:28.547273+00:00
 
@@ -42,8 +42,8 @@ Cada celula = **bytes totais** da soma dos 15 datasets comprimidos com (formato,
 
 ## Indice de reports
 
-- [01-bytes-por-formato.md](01-bytes-por-formato.md) — bytes por dataset × formato
-- [02-bytes-por-classe.md](02-bytes-por-classe.md) — bytes agregados por classe de compressor
-- [03-latencia.md](03-latencia.md) — latencia serialize/parse/compress/decompress
-- [04-roundtrip.md](04-roundtrip.md) — verificacao de RT em todas as combinacoes
-- [05-campeao-por-dataset.md](05-campeao-por-dataset.md) — menor combinacao por dataset
+- [01-bytes-por-formato.md](01-bytes-por-formato.md): bytes por dataset × formato
+- [02-bytes-por-classe.md](02-bytes-por-classe.md): bytes agregados por classe de compressor
+- [03-latencia.md](03-latencia.md): latencia serialize/parse/compress/decompress
+- [04-roundtrip.md](04-roundtrip.md): verificacao de RT em todas as combinacoes
+- [05-campeao-por-dataset.md](05-campeao-por-dataset.md): menor combinacao por dataset

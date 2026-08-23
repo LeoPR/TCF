@@ -1,4 +1,4 @@
-# EXP-016 — família bN/bits: bateria sintética completa [probatório]
+# EXP-016: família bN/bits: bateria sintética completa [probatório]
 
 **Lab clean** que fecha o estudo da família **bN** (bits densos de domínio, ADR-0036) e da
 **camada de borda de polaridade** (ADR-0035). Consolida o estudo dirty de 2026-07/08 numa
@@ -16,7 +16,7 @@ Estado atual: **72 casos em 11 famílias, 0 falhas.** `src/tcf` **não é tocado
 O estudo dirty produziu a mecânica; o que faltava era a **contraprova em regime**. Um lab
 dirty responde *"funciona neste caso?"*; este responde *"funciona em toda a variedade que
 sabemos construir, e o que exatamente acontece quando não ativa?"*. É a diferença entre
-um número de terminal e um número gravado — a mesma cobrança que motivou o
+um número de terminal e um número gravado, a mesma cobrança que motivou o
 [incidente dos 4 bugs](../../dirty/notas/2026-07/2026-07-31-incidente-bn-4-bugs-e-a-analise-critica.md).
 
 ## As cinco provas, por caso
@@ -32,7 +32,7 @@ um número de terminal e um número gravado — a mesma cobrança que motivou o
 A quarta é a menos óbvia: ela impede que o bN vire dependência silenciosa. Se o core sozinho
 parar de fazer RT num caso, o lab acusa mesmo com o bN funcionando perfeitamente.
 
-A quinta nasceu de um defeito real deste lab. Os `.tcf` estavam saindo com `\r\n` — RT,
+A quinta nasceu de um defeito real deste lab. Os `.tcf` estavam saindo com `\r\n`. RT,
 determinismo e bytes todos corretos, e mesmo assim **o arquivo publicado não era o que foi
 medido**. Num lab probatório, o artefato mentir sobre a medição é o mesmo que não ter
 medido; então a checagem virou prova.
@@ -42,57 +42,57 @@ medido; então a checagem virou prova.
 | família | o que estressa |
 |---|---|
 | **F1** bool/binário | o regime-alvo: `k=2`, o que originou o bN |
-| **F2** null | o slot 0 pré-alocado — null convive com qualquer tag |
+| **F2** null | o slot 0 pré-alocado, null convive com qualquer tag |
 | **F3** bordas | `k=1`, `k=2`, `k=256`, `k=257` (o teto, `MAX_W=8`) |
-| **F4** espaços | vazio, só-espaço, espaço à borda — o que o `strip` comeria |
+| **F4** espaços | vazio, só-espaço, espaço à borda, o que o `strip` comeria |
 | **F5** número | valores que **parecem** número e o corpo canônico escapa (`\0`, `\1`) |
 | **F6** cabeçalho | canonicidade do header: zero à esquerda, hex maiúsculo, `0x`, sinal, `_` do PEP-515, dígito Unicode |
 | **F7** escape | o `\` no domínio, o marcador `=` no domínio, escape do escape |
-| **F8** tipos | int, float, `-0.0`, misto int/float, int grande — a rota **tipada** |
+| **F8** tipos | int, float, `-0.0`, misto int/float, int grande, a rota **tipada** |
 | **F9** unicode | acento, CJK, emoji, combining, RTL |
 | **F10** bN×RLE | o corpo perfeitamente RLE-ável, onde o bN **deve perder** |
-| **F11** fronteira | a vizinhança da virada do FLOOR (`n` e `len(valor)`) — que a decisão é estável, sem oscilação |
+| **F11** fronteira | a vizinhança da virada do FLOOR (`n` e `len(valor)`), que a decisão é estável, sem oscilação |
 
-O catálogo é [`casos.py`](casos.py) — declarativo. Cada caso traz `nome`, `familia`,
+O catálogo é [`casos.py`](casos.py), declarativo. Cada caso traz `nome`, `familia`,
 `valores`, `porque` (por que existe), `espera` (`ativa`/`recusa`) e `falha` (a exceção
 esperada, quando o caso é de fail-loud).
 
 **`espera` é um pin, não uma descrição.** Todo caso que produz wire declara `ativa` ou
-`recusa` — 58 e 11 (era 52/17; o weld `T-BN-TIPADO` moveu 6). Só os 3 casos de `falha` ficam em `qualquer`, e ali por construção:
+`recusa`, 58 e 11 (era 52/17; o weld `T-BN-TIPADO` moveu 6). Só os 3 casos de `falha` ficam em `qualquer`, e ali por construção:
 levantam antes de haver rota. Isso importa porque um caso que aceita qualquer rota não
-prova nada sobre o FLOOR — vira teste de RT com nome de teste de decisão. Com o pin,
+prova nada sobre o FLOOR, vira teste de RT com nome de teste de decisão. Com o pin,
 **mudar a decisão do FLOOR quebra o lab**, que é o ponto; quando um ticket mover a
-fronteira de propósito — o `T-BN-TIPADO` moveu exatamente os 6 previstos em 2026-08-07 —
-re-pinar é parte do weld — mesmo regime dos baselines de bytes (ADR-0024).
+fronteira de propósito, e o `T-BN-TIPADO` moveu exatamente os 6 previstos em 2026-08-07:
+re-pinar é parte do weld, mesmo regime dos baselines de bytes (ADR-0024).
 
 ## Resultado (medido, `report.md`)
 
 - **72 casos, 0 falhas.**
-- o bN **ativou em 58** (era 52 antes do weld `T-BN-TIPADO`); nos outros o FLOOR escolheu core, denso ou tipado — e **em nenhum**
+- o bN **ativou em 58** (era 52 antes do weld `T-BN-TIPADO`); nos outros o FLOOR escolheu core, denso ou tipado, e **em nenhum**
   o wire ficou maior;
 - `encode` determinístico em **100%**;
 - **em todos** os casos de rota flat o core sozinho também faz RT.
 
 Casos que valem olhar no [`report.md`](report.md):
 
-- `corpo-rle-vs-bn` — **recusa e recusa certo**: `*100|a`+`*100|b` fecha em 21 B, o bN não
+- `corpo-rle-vs-bn`: **recusa e recusa certo**: `*100|a`+`*100|b` fecha em 21 B, o bN não
   chega perto. É a prova de que o `min()` está de fato escolhendo;
-- `dom-seqrle-colapsa` — o seq-RLE colapsando o **próprio bloco de domínio**, mecanismo
+- `dom-seqrle-colapsa`: o seq-RLE colapsando o **próprio bloco de domínio**, mecanismo
   antigo pegando carona no novo;
-- `k-257` — passa do teto (`MAX_W=8`) e o bN se retira, com a **polaridade** ativando no
+- `k-257`: passa do teto (`MAX_W=8`) e o bN se retira, com a **polaridade** ativando no
   lugar (rota `core+pol`);
-- `fronteira-n08` — já ativa no menor `n` da largura 8 (17 B contra 29 B).
+- `fronteira-n08`, já ativa no menor `n` da largura 8 (17 B contra 29 B).
 
 ## Achado colateral: `T-ERRO-SET-ORDEM`
 
 Ao conferir que o lab é reproduzível byte-a-byte, apareceu uma coisa que não é sobre o bN:
 `HierarchicalError` interpola um `set` cru na mensagem (`tipos escalares MISTOS {'b', 'n'}`),
-e o repr de `set` varia com o `PYTHONHASHSEED`. O wire não muda, o comportamento não muda —
+e o repr de `set` varia com o `PYTHONHASHSEED`. O wire não muda, o comportamento não muda,
 mas a **mensagem** muda de rodada pra rodada, o que quebra diff de evidência.
 
 Registrado como `T-ERRO-SET-ORDEM` no [`STATUS.md`](../../../../STATUS.md); o fix é
 `sorted()` na interpolação, em `src/tcf`, que este lab não toca. Enquanto isso o `run.py`
-normaliza a mensagem do lado dele (`_normaliza_set`) — remendo declarado, não correção.
+normaliza a mensagem do lado dele (`_normaliza_set`), remendo declarado, não correção.
 
 Conferido: 4 `PYTHONHASHSEED` diferentes produzem `inputs/`, `outputs/` e `report.md`
 byte-idênticos.
@@ -103,20 +103,20 @@ Não mede **ganho em dado real** nem **frequência dos regimes**. As colunas que
 ficam em [`outputs/regimes-que-perdem.md`](outputs/regimes-que-perdem.md), separadas em duas
 coisas que são diferentes:
 
-- **§1 — o FLOOR recusou, e recusou certo.** Nada a corrigir; ficam listadas para o estudo
+- **§1: o FLOOR recusou, e recusou certo.** Nada a corrigir; ficam listadas para o estudo
   de volume (*são comuns no dado real?*), que é outro trabalho.
-- **§2 — a rota TIPADA** (`T-BN-TIPADO`): **FECHADO em 2026-08-07**. Media a lacuna dos 6
+- **§2: a rota TIPADA** (`T-BN-TIPADO`): **FECHADO em 2026-08-07**. Media a lacuna dos 6
   casos tipados; o weld os moveu de `recusa` para `ativa` (`#TCF.8nB<w><n>`). A seção agora
-  fica **vazia de propósito** — é assim que se vê que fechou, e se algum caso reaparecer a
+  fica **vazia de propósito**: é assim que se vê que fechou, e se algum caso reaparecer a
   rota regrediu.
 
 ## Arquivos
 
-- [`casos.py`](casos.py) — o catálogo declarativo (72 casos, 11 famílias).
-- [`run.py`](run.py) — as cinco provas + o relatório. Exit 1 em qualquer falha.
-- [`report.md`](report.md) — tabela por família, com rota, bytes, bytes-sem-bN e veredito.
-- [`inputs/`](inputs/) — um JSON por caso (amostra + o que se espera).
-- [`outputs/`](outputs/) — o `.tcf` e o roundtrip de cada caso, mais
+- [`casos.py`](casos.py): o catálogo declarativo (72 casos, 11 famílias).
+- [`run.py`](run.py): as cinco provas + o relatório. Exit 1 em qualquer falha.
+- [`report.md`](report.md): tabela por família, com rota, bytes, bytes-sem-bN e veredito.
+- [`inputs/`](inputs/): um JSON por caso (amostra + o que se espera).
+- [`outputs/`](outputs/): o `.tcf` e o roundtrip de cada caso, mais
   [`regimes-que-perdem.md`](outputs/regimes-que-perdem.md).
 
 ## Origem (dirty → clean)

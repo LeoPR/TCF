@@ -1,4 +1,4 @@
-# EXP-004c — Header shebang `#TCF.5 SRDM`
+# EXP-004c: Header shebang `#TCF.5 SRDM`
 
 ## Hipotese
 
@@ -54,17 +54,17 @@ S3 — A:  '# TCF v0.5 SRDM\n# sort: cidade, status, categoria\n'  → 48B
      C:  '#TCF.5 SRDM\n# s:4,2,3\n'                                → 20B (-58% vs A)
 ```
 
-Em headers isolados, ganho **-58%** consistente — vai escalar quando
+Em headers isolados, ganho **-58%** consistente, vai escalar quando
 chunks adicionarem mais metadata por bloco.
 
 ## Roundtrip
 
 OK em todos os 4 cenarios. Decoder so aceita sintaxe shebang nesta
-versao (sem retrocompat — encoder regera arquivos antigos se preciso).
+versao (sem retrocompat, encoder regera arquivos antigos se preciso).
 
 ## Achados
 
-**1. C vence B em todos os cenarios** — sem custo computacional, so
+**1. C vence B em todos os cenarios**, sem custo computacional, so
 mudanca de string. Variante C eh **estritamente melhor**.
 
 **2. Ganho medio -10% no texto / -5.7% apos gzip** sobre verbose
@@ -74,7 +74,7 @@ original (A).
 
 **4. Em datasets grandes eh marginal** (-0.8 a -1.1%) mas grátis.
 
-**5. Apos gzip o ganho nao zera** — bytes que nao foram emitidos
+**5. Apos gzip o ganho nao zera**: bytes que nao foram emitidos
 nao podem ser comprimidos.
 
 ## Decisao consolidada
@@ -122,7 +122,7 @@ Em producao, so existe C.
 ## Reflexao para proximas iteracoes
 
 Ainda em **lab experimental**. Cada bit que conseguimos espremer
-agora reduz o trabalho quando virar prototipo formal — depois disso
+agora reduz o trabalho quando virar prototipo formal, depois disso
 vamos mexer cada vez menos nesses detalhes.
 
 Documentar essas decisoes pequenas (como esta) garante que nao se

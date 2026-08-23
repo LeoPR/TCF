@@ -1,8 +1,8 @@
-# EXP-002 — TCF v0.2 Baseline (Resultados)
+# EXP-002: TCF v0.2 Baseline (Resultados)
 
 Total: 36 execucoes (4 datasets × 3 niveis TCF × 3 compressoes)
 
-## TCF — tabela mestra
+## TCF: tabela mestra
 
 | Dataset | Rows × Cols | TCF Level | Compressao | Bytes raw | Bytes comp | Ratio | Encode (ms) | Decode (ms) | Roundtrip |
 |---------|-------------|-----------|------------|-----------|------------|-------|-------------|-------------|-----------|
@@ -65,7 +65,7 @@ Bytes comprimidos (menor e melhor):
 
 ## Observacoes
 
-- **TCF L0** e raw columnar — base sem compressao algoritmica.
+- **TCF L0** e raw columnar: base sem compressao algoritmica.
 - **TCF L2** ativa RLE+STATS. Ganho real depende de repeticao.
 - **TCF L3** e schema-only (lossy). Roundtrip nao se aplica;
   bytes sao minimos (uso: enviar so o schema para LLM).

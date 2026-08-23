@@ -81,7 +81,7 @@ explorar.
 | json | 420 |
 | jsonl | 516 |
 
-Padrao `prefix/X/suffix` com X variando — OBAT captura prefix +
+Padrao `prefix/X/suffix` com X variando, OBAT captura prefix +
 suffix estaveis; HCC reduz cada linha a 2 atom refs. Reducao de
 **74%** (vs csv). Aqui TCF se torna **estado da arte** ate' depois
 de aplicar compressores externos: `tcf/brotli` (66 bytes) bate
