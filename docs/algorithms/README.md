@@ -1,4 +1,4 @@
-# Algoritmos do TCF — documentação técnica
+# Algoritmos do TCF: documentação técnica
 
 Documentação oficial dos algoritmos canônicos do TCF v0.7. Cada
 arquivo explica:
@@ -24,9 +24,9 @@ Lista de strings (uma coluna de dados tabulares)
 
 | Algoritmo | Camada | Codnome origem | Documento |
 |---|---|---|---|
-| **OBAT** — Online Bidirectional Affix Tokenizer | 1 (tokenização) | `alg16` | [OBAT.md](OBAT.md) |
-| **HCC** — Hierarchical Compositional Coding | 2 (compactação) | `M8.A` | [HCC.md](HCC.md) |
-| **TCF** — Tabular Compact Format | formato | (projeto) | [TCF-format.md](TCF-format.md) |
+| **OBAT**: Online Bidirectional Affix Tokenizer | 1 (tokenização) | `alg16` | [OBAT.md](OBAT.md) |
+| **HCC**: Hierarchical Compositional Coding | 2 (compactação) | `M8.A` | [HCC.md](HCC.md) |
+| **TCF**: Tabular Compact Format | formato | (projeto) | [TCF-format.md](TCF-format.md) |
 
 > **Bilíngue (2026-07-01)**: cada um destes 3 docs é um par EN/PT. O `X.md` é um **roteador**
 > (seletor de idioma) → `X.en.md` (inglês, canônico) · `X.pt-BR.md` (português). Os links a `X.md`
@@ -37,7 +37,7 @@ fluem entre as camadas):
 
 | Doc | Para quê |
 |---|---|
-| [core-data-model.md](core-data-model.md) | estruturas in-memory (tokens/pieces/aliases/IDs) + fronteira CORE↔HOST — **mapa pro port C/Rust** |
+| [core-data-model.md](core-data-model.md) | estruturas in-memory (tokens/pieces/aliases/IDs) + fronteira CORE↔HOST, **mapa pro port C/Rust** |
 
 ## Codnomes vs nomes oficiais
 
@@ -49,8 +49,8 @@ no código, docs públicas e referências externas.
 
 ## Veja também
 
-- `../../experiments/lab/dirty/notas/2026-05/historia-dirty-lab.md` —
+- `../../experiments/lab/dirty/notas/2026-05/historia-dirty-lab.md`:
   narrativa M0-M14 do desenvolvimento
-- `../../experiments/lab/dirty/notas/2026-05/roadmap-hipoteses.md` — direções
+- `../../experiments/lab/dirty/notas/2026-05/roadmap-hipoteses.md`: direções
   futuras
-- `../../src/tcf/` — implementação canônica
+- `../../src/tcf/`: implementação canônica

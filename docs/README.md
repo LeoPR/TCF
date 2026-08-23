@@ -1,61 +1,61 @@
-# TCF — Documentation Hub
+# TCF: Documentation Hub
 
 Hub central da documentacao do projeto **TCF (Tabular Compact Format)**.
 
 > **Estado 0.8 (`#TCF.8`, pré-1.0 ADR-0032)**: o core combina dois mecanismos
-> de compressão — **OBAT** (Online Bidirectional Affix Tokenizer) e **HCC**
-> (Hierarchical Compositional Coding) — com fallback, dicionário, split
+> de compressão, **OBAT** (Online Bidirectional Affix Tokenizer) e **HCC**
+> (Hierarchical Compositional Coding), com fallback, dicionário, split
 > estrutural, cabeçalho compacto e uma consulta somente leitura (`view`).
 > Código canônico em
 > [`../src/tcf/`](../src/tcf/). Estado vivo: [`../STATUS.md`](../STATUS.md).
 >
 > Ciclo v0.5 (formato columnar para LLM benchmark) foi arquivado em
-> [`archive/`](archive/) — **acessorio** ao core.
+> [`archive/`](archive/), **acessorio** ao core.
 
 ## Para entender o algoritmo (core canonico, 0.8)
 
-→ [`algorithms/OBAT.md`](algorithms/OBAT.md) — camada 1: tokenizacao
+→ [`algorithms/OBAT.md`](algorithms/OBAT.md), camada 1: tokenizacao
 bidirecional online via LCP + LCS.
 
-→ [`algorithms/HCC.md`](algorithms/HCC.md) — camada 2: compactacao
+→ [`algorithms/HCC.md`](algorithms/HCC.md), camada 2: compactacao
 composicional com operadores `~` (cria ref) e `,` (concat efemero).
 
-→ [`algorithms/TCF-format.md`](algorithms/TCF-format.md) — formato
+→ [`algorithms/TCF-format.md`](algorithms/TCF-format.md): formato
 final, posicionamento na literatura, quando usar TCF vs alternativas.
 
-→ [`algorithms/README.md`](algorithms/README.md) — index das camadas.
+→ [`algorithms/README.md`](algorithms/README.md): index das camadas.
 
 ## Para entender a evolucao do projeto
 
 → [`../experiments/lab/dirty/notas/2026-05/historia-dirty-lab.md`](../experiments/lab/dirty/notas/2026-05/historia-dirty-lab.md)
-— **narrativa canonica M0-M14** do desenvolvimento.
+**Narrativa canonica M0-M14** do desenvolvimento.
 
 → [`../experiments/lab/dirty/notas/2026-05/roadmap-hipoteses.md`](../experiments/lab/dirty/notas/2026-05/roadmap-hipoteses.md)
-— direcoes futuras (pre-tx delta, multi-coluna, escala, etc.).
+Direcoes futuras (pre-tx delta, multi-coluna, escala, etc.).
 
-→ [`../tickets/`](../tickets/) — tickets ativos e fechados.
+→ [`../tickets/`](../tickets/): tickets ativos e fechados.
 
-→ [`../CHANGELOG.md`](../CHANGELOG.md) — releases logicas.
+→ [`../CHANGELOG.md`](../CHANGELOG.md): releases logicas.
 
 ## Material historico v0.5 (acessorio)
 
-→ [`findings/`](findings/) — **Phase 1 LLM benchmark** (Q01-Q38) —
+→ [`findings/`](findings/): **Phase 1 LLM benchmark** (Q01-Q38),
 material historico valido. Pode informar Phase 2 se ressuscitada.
 
-→ [`FINDINGS_SUMMARY.md`](FINDINGS_SUMMARY.md) — resumo paper-ready
+→ [`FINDINGS_SUMMARY.md`](FINDINGS_SUMMARY.md): resumo paper-ready
 Phase 1.
 
-→ [`workbench/`](workbench/) — research-notes e contexto de
+→ [`workbench/`](workbench/): research-notes e contexto de
 desenvolvimento (parcialmente v0.6, parcialmente v0.5).
 
-→ [`archive/`](archive/) — material arquivado:
-- `manual_v05/` — manual de uso v0.5 (`encode_rows`, `level=2`, etc.)
-- `article_v05/` — drafts de paper v0.5
-- `theory_components_v05/` — componentes v0.4 (TCF Core, LLM Interface, DB Extractor)
-- `theory_architecture_v05/` — arquitetura v0.4 (boundaries, data-pipeline, storage)
-- `theory_research_lines_v05/` — Linha A vs B (LLM benchmark)
-- `theory_methodology_v05/` — F-findings, llm-research-rigor, model-ranking
-- `article_v01/`, `tickets_v01/`, `legacy_results/`, etc. — material legado
+→ [`archive/`](archive/), material arquivado:
+- `manual_v05/`: manual de uso v0.5 (`encode_rows`, `level=2`, etc.)
+- `article_v05/`: drafts de paper v0.5
+- `theory_components_v05/`: componentes v0.4 (TCF Core, LLM Interface, DB Extractor)
+- `theory_architecture_v05/`: arquitetura v0.4 (boundaries, data-pipeline, storage)
+- `theory_research_lines_v05/`: Linha A vs B (LLM benchmark)
+- `theory_methodology_v05/`: F-findings, llm-research-rigor, model-ranking
+- `article_v01/`, `tickets_v01/`, `legacy_results/`, etc.: material legado
 
 **Nenhum conteudo de `archive/` conta como evidencia viva para v0.6
 sem re-validacao.**
@@ -88,11 +88,11 @@ TCF usa nomes de pasta proprios em vez dos rotulos canonicos
 | [`algorithms/`](algorithms/) | **Reference** | Especificacao canonica (OBAT, HCC, TCF-format) |
 | [`theory/`](theory/) | **Explanation** | Fundamentos teoricos, perspectiva tripartite |
 | [`how-to/`](how-to/) | **How-to** | Receitas: [encodar CSV](how-to/encode-csv-file.md), [naturezas](how-to/use-natures.md), [inspecionar compressao](how-to/inspect-compression.md) + dev (audit, log) |
-| [`adr/`](adr/) | (extra) | Decisoes arquiteturais — complementa Diataxis |
+| [`adr/`](adr/) | (extra) | Decisoes arquiteturais (complementa Diataxis) |
 | [`findings/`](findings/) | (extra) | Achados consolidados de pesquisa (research compendium) |
 | [`vocabulary.md`](vocabulary.md) | (extra) | Vocabulario controlado |
 
-Esta convencao local sera preservada — renomear quebra muitos links
+Esta convencao local sera preservada: renomear quebra muitos links
 em ADRs, READMEs, memorias de IA. **Para entrar**: use a tabela acima
 pra mapear "preciso de spec → `algorithms/`", "preciso de fundamento
 teorico → `theory/`", "preciso de receita → `how-to/`".

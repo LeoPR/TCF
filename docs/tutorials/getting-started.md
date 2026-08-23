@@ -1,5 +1,5 @@
 ---
-title: Getting Started — TCF
+title: Getting Started: TCF
 type: tutorial
 status: active
 tags: [tutorial, beginner, compression]
@@ -9,7 +9,7 @@ updated: 2026-05-27
 <!-- l10n: doc_id=getting-started · lang=en · canonical -->
 **English** · [Português](getting-started.pt-BR.md)
 
-# Getting Started — TCF
+# Getting Started: TCF
 
 In this tutorial you will build a complete hands-on experience with TCF: encode a list of strings, see how the format compacts the data, decode it back, and confirm the transformation is lossless. By the end you will understand how TCF works both single-column and multi-column.
 
@@ -33,7 +33,7 @@ You can validate the installation quickly:
 python -c "from tcf import encode, decode; print('TCF OK')"
 ```
 
-## Step 1 — Encode a simple list
+## Step 1: Encode a simple list
 
 Let's start with three strings that share common prefixes. Open a Python terminal or create a file `hello_tcf.py`:
 
@@ -69,7 +69,7 @@ Repr: '#TCF.8\nabc\n1d\n1,2e\n'
 ```
 
 The first line, `#TCF.8`, is the **version stamp**. It has been emitted by default
-since [ADR-0034](../adr/0034-header-default-100-porcento-single-col.md) — it is what lets a decoder know
+since [ADR-0034](../adr/0034-header-default-100-porcento-single-col.md): it is what lets a decoder know
 which format it is reading instead of guessing.
 
 What happened:
@@ -80,7 +80,7 @@ What happened:
 
 TCF uses references to earlier strings, saving characters whenever there is similarity.
 
-## Step 2 — Decode and confirm the lossless round-trip
+## Step 2: Decode and confirm the lossless round-trip
 
 Now let's decode the TCF text back to the original data and confirm no information was lost:
 
@@ -105,13 +105,13 @@ Decoded:  ['abc', 'abcd', 'abcde']
 Equal?    True
 ```
 
-The **lossless round-trip** property is guaranteed by TCF: any encoded data can be recovered exactly (see [ADR-0024](../adr/0024-pre-1.0-versioning-git-as-compat.md) — pre-1.0 project).
+The **lossless round-trip** property is guaranteed by TCF: any encoded data can be recovered exactly (see [ADR-0024](../adr/0024-pre-1.0-versioning-git-as-compat.md), pre-1.0 project).
 
 ```python
 assert decode(encode(x)) == x  # always true
 ```
 
-## Step 3 — Measure the compression
+## Step 3: Measure the compression
 
 Let's quantify the gain. We compare the raw size (newline-delimited) with the TCF size:
 
@@ -140,7 +140,7 @@ Compression ratio:        126.7%
 Savings:                  -4 bytes
 ```
 
-**TCF grew here — and that is the honest result.** On 15 bytes of input, the 7-byte
+**TCF grew here, and that is the honest result.** On 15 bytes of input, the 7-byte
 version stamp costs more than the core saves. Compression needs *repetition to exploit*,
 and three short strings do not supply it. Below, with data that actually repeats, the
 sign flips. A format that only ever showed you its favorable case would be advertising,
@@ -183,7 +183,7 @@ Savings:                  29 bytes (29.0%)
 
 With data that shares common prefixes and suffixes, TCF shrinks the size. The two layers (OBAT + HCC) detect and exploit these patterns automatically.
 
-## Step 4 — Work with multi-column tables
+## Step 4: Work with multi-column tables
 
 So far we used single-column (a Python list). TCF also supports multi-column natively via dicts. Each column is compacted independently, but TCF preserves the table structure:
 
@@ -227,14 +227,14 @@ Round-trip OK? True
 
 Notice the structure of the multi-column TCF text:
 
-- **Line 1**: `#TCF.8M!5=id,!name` — the format signature and inline metadata. `M` means multi-column;
+- **Line 1**: `#TCF.8M!5=id,!name`, the format signature and inline metadata. `M` means multi-column;
     sizes are hexadecimal; `!` means raw mode (V2-A); the last column has no size and runs to EOF.
 - **Following bytes**: the column bodies are concatenated byte-by-byte; the decoder slices the first
     body by its declared size and assigns the remainder to the last body. Details: [TCF-format.md](../algorithms/TCF-format.md).
 
 TCF guarantees that the shape of the table (column names, order) is preserved exactly.
 
-## Step 5 — Query the table without fully materializing it
+## Step 5: Query the table without fully materializing it
 
 The read-only `view()` API provides SQL-like paths as Python methods. It is not a SQL parser, but it
 can filter, aggregate and project aligned rows while touching only the required columns when their
@@ -263,9 +263,9 @@ You covered the fundamentals:
 
 ### Explore more
 
-- **[How-to guides](../how-to/)** — practical recipes: [encode a CSV](../how-to/encode-csv-file.md), [use natures (CPF/CNPJ/IP)](../how-to/use-natures.md), [inspect the compression](../how-to/inspect-compression.md).
-- **[TCF format](../algorithms/TCF-format.md)** — format specification, pipeline and reference API.
-- **[Algorithms](../algorithms/)** — OBAT (Online Bidirectional Affix Tokenizer) and HCC (Hierarchical Compositional Coding).
+- **[How-to guides](../how-to/)**, practical recipes: [encode a CSV](../how-to/encode-csv-file.md), [use natures (CPF/CNPJ/IP)](../how-to/use-natures.md), [inspect the compression](../how-to/inspect-compression.md).
+- **[TCF format](../algorithms/TCF-format.md)**: format specification, pipeline and reference API.
+- **[Algorithms](../algorithms/)**: OBAT (Online Bidirectional Affix Tokenizer) and HCC (Hierarchical Compositional Coding).
 
 ### Benchmarks and validation
 

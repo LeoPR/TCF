@@ -1,4 +1,4 @@
-# Reference — knobs de `encode()`
+# Reference: knobs de `encode()`
 
 Referência dos parâmetros opt-in de [`tcf.encode`](../../src/tcf/encoder.py). O uso sem argumentos
 produz o formato **0.8 / `#TCF.8M`** sem perdas; os parâmetros abaixo só mudam bytes/layout
@@ -14,10 +14,10 @@ Aplicam-se a **multi-coluna** (`dict[str, list[str]]`); para single-col (`list[s
 ignorados, exceto `min_len` e `nature`. Output é sempre UTF-8, LF only. `decode(encode(x)) == x`
 (exceto `sort_by`, ver abaixo).
 
-> **Previstos, ainda não implementados** (`.9`): `bn_modo` (`"B"` stream — default de hoje —
+> **Previstos, ainda não implementados** (`.9`): `bn_modo` (`"B"` stream, default de hoje,
 > vs `"C"` lote, `T-BN-LOTE`) e os **perfis macro** (`stream`/`lote`/`rapido`/`memoria`/
 > `compacto`/`auto`, `T-PERFIS-MACRO`). A ideia dos perfis é declarar a **intenção** em vez do
-> mecanismo, porque um knob por mecanismo não escala — `PipelineConfig` já é o precedente de
+> mecanismo, porque um knob por mecanismo não escala. `PipelineConfig` já é o precedente de
 > agrupador. Esboço:
 > [`2026-08-07-flags-modo-bn-e-perfis-macro`](../../experiments/lab/dirty/notas/2026-08/2026-08-07-flags-modo-bn-e-perfis-macro.md).
 
@@ -43,17 +43,17 @@ Header compacto: meta inline após `#TCF.8M`, tamanhos em hexadecimal e **últim
 - `min_header=False` → todas as colunas não-anônimas recebem tamanho no meta.
 
 ### `min_len` (int ≥ 1, ou `None`)
-`None` (default) = auto por coluna (`detect_min_len`, ADR-0010) — comportamento inalterado.
+`None` (default) = auto por coluna (`detect_min_len`, ADR-0010): comportamento inalterado.
 Um `int` aplica o **mesmo** `min_len` a **todas** as colunas (tuning manual; muda os bytes).
 `min_len < 1` levanta `ValueError`.
 
-### `sort_by` (str, ou `None`) — O-FMT-02
+### `sort_by` (str, ou `None`): O-FMT-02
 Reordena as linhas pela coluna-chave antes de encodar, agrupando valores similares.
 - **Trade-off de compressão** (depende da correlação da chave com a estrutura): medido
   `adult sort_by="education"` **−10%**; `online-retail sort_by="CustomerID"` **+2,3%** (desarruma o
   RLE de outras colunas). Pode ganhar ou perder ~2–15%.
 - **Order-free**: o `decode` retorna a ordem **ordenada**, **não** a original (a ordem original
-  **não** é recuperável). Use só quando a ordem não importa — **nunca** numa transmissão que precise
+  **não** é recuperável). Use só quando a ordem não importa, **nunca** numa transmissão que precise
   preservar ordem.
 - Habilita o layout de baixa latência do gadget lazy (`group_ranges`/`agg_by` por slice).
 - `ValueError` se a coluna não existe ou se as colunas têm tamanhos diferentes.
@@ -62,7 +62,7 @@ Reordena as linhas pela coluna-chave antes de encodar, agrupando valores similar
 
 | knob | efeito |
 |---|---|
-| `schema` | specs por coluna — `"cpf"` (name do registry), objeto spec, ou dict nome/posicao→spec; filtro opcional para CPF/CNPJ/IP; o encoder compara o blob completo e mantém a menor representação. Filtros oficiais decodificam sem argumento; customizados exigem o mesmo nome no cabeçalho. Ver [how-to/use-natures](../how-to/use-natures.md). |
+| `schema` | specs por coluna: `"cpf"` (name do registry), objeto spec, ou dict nome/posicao→spec; filtro opcional para CPF/CNPJ/IP; o encoder compara o blob completo e mantém a menor representação. Filtros oficiais decodificam sem argumento; customizados exigem o mesmo nome no cabeçalho. Ver [how-to/use-natures](../how-to/use-natures.md). |
 | `parallel` | `True`/`int` paraleliza o encode das colunas (multi-col); **output byte-idêntico** ao serial. |
 | `side_outputs` | captura logs/stats internos (`column_features`, `hcc_trace`, `seq_rle_runs`, `multi_info`, ...) sem custo quando ausente. |
 | `layers` | `PipelineConfig` alternativo (avançado). |

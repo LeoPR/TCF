@@ -1,5 +1,5 @@
 ---
-title: Getting Started — TCF
+title: Getting Started: TCF
 type: tutorial
 status: active
 tags: [tutorial, beginner, compression]
@@ -12,7 +12,7 @@ updated: 2026-05-27
 > Tradução de [`getting-started.md`](getting-started.md). Se houver divergência, o original em inglês prevalece.
 > A régua de atualização é o histórico do git.
 
-# Getting Started — TCF
+# Getting Started: TCF
 
 Neste tutorial, você vai construir uma experiência completa com TCF: codificar uma lista de strings, ver como o formato compacta os dados, decodificar de volta e confirmar que a transformação é lossless. Ao final, você entenderá como TCF funciona tanto em single-column quanto em multi-column.
 
@@ -36,7 +36,7 @@ Você pode validar a instalação rapidamente:
 python -c "from tcf import encode, decode; print('TCF OK')"
 ```
 
-## Passo 1 — Codificar uma lista simples
+## Passo 1: Codificar uma lista simples
 
 Vamos começar com três strings que compartilham prefixos comuns. Abra um terminal Python ou crie um arquivo `hello_tcf.py`:
 
@@ -72,7 +72,7 @@ Repr: '#TCF.8\nabc\n1d\n1,2e\n'
 ```
 
 A primeira linha, `#TCF.8`, é o **carimbo de versão**. Ele é emitido por padrão desde a
-[ADR-0034](../adr/0034-header-default-100-porcento-single-col.md) — é o que permite a um decoder saber qual
+[ADR-0034](../adr/0034-header-default-100-porcento-single-col.md), é o que permite a um decoder saber qual
 formato está lendo em vez de adivinhar.
 
 O que aconteceu:
@@ -83,7 +83,7 @@ O que aconteceu:
 
 TCF usa referências para strings anteriores, economizando caracteres sempre que há similaridade.
 
-## Passo 2 — Decodificar e confirmar round-trip lossless
+## Passo 2: Decodificar e confirmar round-trip lossless
 
 Agora vamos decodificar o texto TCF de volta aos dados originais e confirmar que nenhuma informação foi perdida:
 
@@ -108,13 +108,13 @@ Decoded:  ['abc', 'abcd', 'abcde']
 Iguais?   True
 ```
 
-A propriedade de **round-trip lossless** é garantida por TCF: qualquer dado codificado pode ser recuperado exatamente (ver [ADR-0024](../adr/0024-pre-1.0-versioning-git-as-compat.md) — projeto pré-1.0).
+A propriedade de **round-trip lossless** é garantida por TCF: qualquer dado codificado pode ser recuperado exatamente (ver [ADR-0024](../adr/0024-pre-1.0-versioning-git-as-compat.md), projeto pré-1.0).
 
 ```python
 assert decode(encode(x)) == x  # sempre verdade
 ```
 
-## Passo 3 — Medir a compressão
+## Passo 3: Medir a compressão
 
 Vamos quantificar o ganho. Comparamos o tamanho bruto (newline-delimited) com o tamanho TCF:
 
@@ -143,7 +143,7 @@ Taxa de compressão:       126.7%
 Economia:                 -4 bytes
 ```
 
-**Aqui o TCF cresceu — e esse é o resultado honesto.** Em 15 bytes de entrada, o carimbo
+**Aqui o TCF cresceu, e esse é o resultado honesto.** Em 15 bytes de entrada, o carimbo
 de versão de 7 bytes custa mais do que o core economiza. Compressão precisa de
 *repetição para explorar*, e três strings curtas não fornecem isso. Abaixo, com dados que
 de fato se repetem, o sinal se inverte. Um formato que só mostrasse o caso favorável
@@ -186,7 +186,7 @@ Economia:                 29 bytes (29.0%)
 
 Com dados que compartilham prefixos e sufixos comuns, TCF reduz o tamanho. As duas camadas (OBAT + HCC) detectam e exploram esses padrões automaticamente.
 
-## Passo 4 — Trabalhar com tabelas multi-coluna
+## Passo 4: Trabalhar com tabelas multi-coluna
 
 Até aqui, usamos single-column (lista Python). TCF também suporta multi-column nativamente via dicts. Cada coluna é compactada independentemente, mas TCF preserva a estrutura da tabela:
 
@@ -230,14 +230,14 @@ Round-trip OK? True
 
 Observe a estrutura do texto TCF multi-coluna:
 
-- **Linha 1**: `#TCF.8M!5=id,!name` — a assinatura e o meta inline. `M` significa multi-coluna;
+- **Linha 1**: `#TCF.8M!5=id,!name`, a assinatura e o meta inline. `M` significa multi-coluna;
     tamanhos estão em hexadecimal; `!` significa raw; a última coluna não leva tamanho e vai até o EOF.
 - **Bytes seguintes**: os corpos são concatenados byte a byte; o decoder fatia o primeiro pelo tamanho
     declarado e atribui o restante à última coluna. Detalhe: [TCF-format.md](../algorithms/TCF-format.md).
 
 TCF garante que a forma da tabela (nomes de colunas, ordem) é preservada exatamente.
 
-## Passo 5 — Consultar a tabela sem materializar tudo
+## Passo 5: Consultar a tabela sem materializar tudo
 
 A API read-only `view()` oferece caminhos de consulta SQL-like como métodos Python. Ela não é um
 parser SQL, mas filtra, agrega e projeta linhas alinhadas tocando apenas as colunas necessárias
@@ -266,9 +266,9 @@ Você cobriu os fundamentos:
 
 ### Explorar mais
 
-- **[How-to guides](../how-to/)** — receitas práticas: [encodar um CSV](../how-to/encode-csv-file.md), [usar naturezas (CPF/CNPJ/IP)](../how-to/use-natures.md), [inspecionar a compressão](../how-to/inspect-compression.md).
-- **[Formato TCF](../algorithms/TCF-format.md)** — especificação do formato, pipeline e API de referência.
-- **[Algoritmos](../algorithms/)** — OBAT (Online Bidirectional Affix Tokenizer) e HCC (Hierarchical Compositional Coding).
+- **[How-to guides](../how-to/)**, receitas práticas: [encodar um CSV](../how-to/encode-csv-file.md), [usar naturezas (CPF/CNPJ/IP)](../how-to/use-natures.md), [inspecionar a compressão](../how-to/inspect-compression.md).
+- **[Formato TCF](../algorithms/TCF-format.md)**: especificação do formato, pipeline e API de referência.
+- **[Algoritmos](../algorithms/)**: OBAT (Online Bidirectional Affix Tokenizer) e HCC (Hierarchical Compositional Coding).
 
 ### Benchmarks e validação
 

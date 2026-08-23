@@ -4,7 +4,7 @@
 > Tradução de [`OBAT.en.md`](OBAT.en.md). Se houver divergência, o original em inglês prevalece.
 > A régua de atualização é o histórico do git.
 
-# OBAT — Online Bidirectional Affix Tokenizer
+# OBAT: Online Bidirectional Affix Tokenizer
 
 **Codnome de origem**: `alg16` (16º experimento da fase M0 do dirty
 lab v0.6).
@@ -162,6 +162,6 @@ experimental: `experiments/lab/dirty/old/M0-fase-exploratoria-inicial/2026-05-11
 
 ## Conexões
 
-- [HCC](HCC.md) — camada que consome os tokens de OBAT
-- [TCF-format](TCF-format.md) — posicionamento do formato
-- `experiments/lab/dirty/notas/2026-05/historia-dirty-lab.md` — narrativa do desenvolvimento
+- [HCC](HCC.md): camada que consome os tokens de OBAT
+- [TCF-format](TCF-format.md): posicionamento do formato
+- `experiments/lab/dirty/notas/2026-05/historia-dirty-lab.md`: narrativa do desenvolvimento

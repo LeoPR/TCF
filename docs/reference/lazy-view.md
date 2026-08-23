@@ -1,4 +1,4 @@
-# Referência — `tcf.view` (consulta sob demanda)
+# Referência: `tcf.view` (consulta sob demanda)
 
 Referência da camada de consulta somente leitura [`tcf.view`](../../src/tcf/view.py): conecta a um
 blob TCF multi-coluna e responde consultas (`count/sum/min/max/avg`, `where`, group-by),
@@ -11,12 +11,12 @@ não são aceitos no pacote `0.8` (compatibilidade histórica via git). A consul
 from tcf import encode, view
 
 blob = encode({"cidade": ["SP", "SP", "RJ"], "valor": ["120", "80", "200"]})
-v = view(blob)                       # conecta — NÃO descomprime nada
+v = view(blob)                       # conecta: NÃO descomprime nada
 v.where("cidade", "SP").sum("valor") # toca só cidade + valor
 ```
 
 > **Estabilidade**: a superfície L1–L4 (abaixo) é **estável**. `group_ranges`/`agg_by`
-> (L5) são **experimentais** — podem evoluir no H-QUERY-04 (0.9). Marcado por método.
+> (L5) são **experimentais**: podem evoluir no H-QUERY-04 (0.9). Marcado por método.
 
 ## Modelo
 
@@ -28,7 +28,7 @@ v.where("cidade", "SP").sum("valor") # toca só cidade + valor
   outra** coluna usam os mesmos índices. É assim que "a linha de uma coluna é a mesma
   linha na outra".
 - **Contrato numérico** (`sum/min/max/avg`): **ignora** valores vazios (`""`); valor
-  não-numérico levanta `ValueError` (intencional — não silencia dado sujo).
+  não-numérico levanta `ValueError` (intencional: não silencia dado sujo).
 - **Só leitura**: nenhuma operação muda o blob.
 
 ## Consulta SQL-like, sem SQL
@@ -36,14 +36,14 @@ v.where("cidade", "SP").sum("valor") # toca só cidade + valor
 `view()` oferece caminhos de consulta que lembram uma execução SQL, mas não
 interpreta uma string SQL nem tenta reproduzir todas as semânticas de um banco:
 
-Coluna, em toda a superfície da view: `str` = **nome**, `int` = **posição** — a mesma regra
+Coluna, em toda a superfície da view: `str` = **nome**, `int` = **posição**. A mesma regra
 do `schema=` ([ADR-0047](../adr/0047-schema-parametro-unico-de-spec.md): `0 <= pos < n`, sem
 negativo; coluna *chamada* `"2"` é achada pelo `str`, a posição pelo `int`).
 
 | capacidade | API | observação |
 |---|---|---|
 | projeção | `select(cols)` | materializa apenas as colunas pedidas; escalar (`str`/`int`) = 1 coluna; `[]` = nenhuma |
-| filtro | `where(col, value=...)` ou `where(col, pred=...)` | igualdade/predicado; encadeamento é AND; `value` é `str` (`None` casa nulo — outro tipo é `TypeError`: os valores decodados são sempre `str`) |
+| filtro | `where(col, value=...)` ou `where(col, pred=...)` | igualdade/predicado; encadeamento é AND; `value` é `str` (`None` casa nulo, outro tipo é `TypeError`: os valores decodados são sempre `str`) |
 | agregação | `count`, `sum`, `min`, `max`, `avg` | valores vazios são ignorados nos agregadores numéricos |
 | agrupamento | `group_count(col)` | caminho estrutural em `@dict`; fallback nos demais modos |
 | layout agrupado | `group_ranges`, `agg_by` | experimental; requer ordem contígua de `sort_by` |
@@ -61,7 +61,7 @@ posterior de query, não ao formato `.8`.
 Conecta a um blob TCF multi-coluna. `ValueError` se o blob não for multi-coluna
 (`#TCF.6 M` / `#TCF.7 M`).
 
-## `LazyTCF` — introspecção (barata, só header) · estável
+## `LazyTCF`: introspecção (barata, só header) · estável
 
 | membro | retorno | nota |
 |---|---|---|
@@ -70,9 +70,9 @@ Conecta a um blob TCF multi-coluna. `ValueError` se o blob não for multi-coluna
 | `column_bytes(name)` | `int` | tamanho do corpo **comprimido** da coluna (sem decodificar) |
 | `total_bytes` | `int` | soma dos corpos |
 | `materialized_bytes` | `int` | bytes já descomprimidos (corpos tocados) |
-| `report()` | `dict` | `{total_bytes, materialized_bytes, pct, touched, n_cols}` — seletividade |
+| `report()` | `dict` | `{total_bytes, materialized_bytes, pct, touched, n_cols}` (seletividade) |
 
-## `LazyTCF` — agregadores · estável
+## `LazyTCF`: agregadores · estável
 
 `idx` é interno (usado por `Filtered`); o uso normal é sem argumento ou via `where(...)`.
 
@@ -110,7 +110,7 @@ Resultado de `where()`. Opera só nas linhas que casaram (alinhadas).
 v.where("cidade", "SP").where("plano", "Premium").sum("valor")   # AND
 ```
 
-## L5 — layout para baixa latência · **experimental**
+## L5: layout para baixa latência · **experimental**
 
 Pensados pra um blob **já ordenado** por uma chave (`encode(table, sort_by=key)`), onde
 os grupos ficam contíguos. Podem evoluir no H-QUERY-04 (0.9).
@@ -143,17 +143,17 @@ v.where("cidade", "SP").sum("valor")       # 470.0
 v.report()                                 # {... 'pct': 55.6, 'touched': ['valor','cidade'], ...}
 ```
 
-`report()['pct']` mostra a fração do blob materializada — a "venda" do lazy: a query
+`report()['pct']` mostra a fração do blob materializada, a "venda" do lazy: a query
 acima tocou ~56% (2 de 3 colunas) em vez de 100% que um `decode()` faria.
 
 ## Notas / limites
 
 - **Coluna em modo `tcf`** (OBAT+HCC entrelaçados): `group_count`/agregação caem em
-  **fallback** (decode da coluna inteira) — o ganho estrutural limpo vive em `@dict`/raw.
+  **fallback** (decode da coluna inteira). O ganho estrutural limpo vive em `@dict`/raw.
   Ligar `fallback=True` no `encode` (default 0.8) põe colunas low-card em `@dict`
   automaticamente, habilitando as queries sem expandir. Ver
   [encode-knobs.md](encode-knobs.md).
-- `sort_by` (para L5) é **order-free** mas reordena as linhas — `decode` devolve a tabela
+- `sort_by` (para L5) é **order-free** mas reordena as linhas: `decode` devolve a tabela
   na ordem do blob. Trade-off de compressão documentado em [encode-knobs.md](encode-knobs.md).
 - Compat: `from tcf_lazy import view` (shim) ainda funciona, re-exportando daqui.
 

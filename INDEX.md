@@ -1,4 +1,4 @@
-# INDEX — auto-gerado por `scripts/index.py`
+# INDEX: auto-gerado por `scripts/index.py`
 
 Total READMEs com frontmatter: 9
 Total READMEs sem frontmatter: 75
@@ -9,35 +9,35 @@ Total READMEs sem frontmatter: 75
 
 | Path | Title | Status | Tags | Updated |
 |---|---|---|---|---|
-| [experiments\lab\clean\EXP-010-tcf-delta-aware-prototype](./experiments/lab/clean/EXP-010-tcf-delta-aware-prototype/README.md) | EXP-010 — Prototype TCF delta-aware (single-column) | active | tcf, delta-aware, single-column, prototype | 2026-05-18 |
-| [experiments\lab\clean\EXP-011-multi-column-basic](./experiments/lab/clean/EXP-011-multi-column-basic/README.md) | EXP-011 — Multi-column basic (sem ordering) | active | tcf, multi-column, prototype, v0.6-candidate | 2026-05-18 |
-| [experiments\lab\clean\EXP-012-real-world-adult-census](./experiments/lab/clean/EXP-012-real-world-adult-census/README.md) | EXP-012 — Real-world test em Adult Census via shaper | active | tcf, real-world, multi-column, adult-census | 2026-05-18 |
-| [experiments\lab\clean\EXP-013-real-world-tpch](./experiments/lab/clean/EXP-013-real-world-tpch/README.md) | EXP-013 — Real-world test em TPC-H (multi-table) | active | tcf, real-world, multi-column, multi-table | 2026-05-18 |
-| [experiments\lab\clean\EXP-014-tpch-lineitem-scale](./experiments/lab/clean/EXP-014-tpch-lineitem-scale/README.md) | EXP-014 — TPC-H lineitem performance scale test | active | tcf, real-world, performance, scale | 2026-05-19 |
+| [experiments\lab\clean\EXP-010-tcf-delta-aware-prototype](./experiments/lab/clean/EXP-010-tcf-delta-aware-prototype/README.md) | EXP-010: Prototype TCF delta-aware (single-column) | active | tcf, delta-aware, single-column, prototype | 2026-05-18 |
+| [experiments\lab\clean\EXP-011-multi-column-basic](./experiments/lab/clean/EXP-011-multi-column-basic/README.md) | EXP-011: Multi-column basic (sem ordering) | active | tcf, multi-column, prototype, v0.6-candidate | 2026-05-18 |
+| [experiments\lab\clean\EXP-012-real-world-adult-census](./experiments/lab/clean/EXP-012-real-world-adult-census/README.md) | EXP-012: Real-world test em Adult Census via shaper | active | tcf, real-world, multi-column, adult-census | 2026-05-18 |
+| [experiments\lab\clean\EXP-013-real-world-tpch](./experiments/lab/clean/EXP-013-real-world-tpch/README.md) | EXP-013: Real-world test em TPC-H (multi-table) | active | tcf, real-world, multi-column, multi-table | 2026-05-18 |
+| [experiments\lab\clean\EXP-014-tpch-lineitem-scale](./experiments/lab/clean/EXP-014-tpch-lineitem-scale/README.md) | EXP-014: TPC-H lineitem performance scale test | active | tcf, real-world, performance, scale | 2026-05-19 |
 
 ## Type: `dirty-lab`
 
 | Path | Title | Status | Tags | Updated |
 |---|---|---|---|---|
-| [experiments\lab\dirty\2026-05-27-baseline-consolidado](experiments/lab/dirty/2026-05/2026-05-27/2026-05-27-baseline-consolidado/README.md) | 2026-05-27 — Baseline consolidado pos-consolidacao | ATIVO (baseline-de-referencia) |  | ? |
+| [experiments\lab\dirty\2026-05-27-baseline-consolidado](experiments/lab/dirty/2026-05/2026-05-27/2026-05-27-baseline-consolidado/README.md) | 2026-05-27: Baseline consolidado pos-consolidacao | ATIVO (baseline-de-referencia) |  | ? |
 
 ## Type: `experiment`
 
 | Path | Title | Status | Tags | Updated |
 |---|---|---|---|---|
-| [experiments\lab\dirty\2026-07-12-specs-cadastrais-v1](experiments/lab/dirty/2026-07/2026-07-12/2026-07-12-specs-cadastrais-v1/README.md) | Specs cadastrais v1 — triagem para .8/.9 | open |  | ? |
+| [experiments\lab\dirty\2026-07-12-specs-cadastrais-v1](experiments/lab/dirty/2026-07/2026-07-12/2026-07-12-specs-cadastrais-v1/README.md) | Specs cadastrais v1: triagem para .8/.9 | open |  | ? |
 
 ## Type: `summary`
 
 | Path | Title | Status | Tags | Updated |
 |---|---|---|---|---|
-| [docs\findings](./docs/findings/README.md) | (sem title) | HISTORIC (Phase 1 LLM benchmark — ciclo v0.5) |  | ? |
+| [docs\findings](./docs/findings/README.md) | (sem title) | HISTORIC (Phase 1 LLM benchmark, ciclo v0.5) |  | ? |
 
 ## Type: `untyped`
 
 | Path | Title | Status | Tags | Updated |
 |---|---|---|---|---|
-| [src\llm_query](./src/llm_query/README.md) | llm_query — geração de query de consulta por LLM (gadget) | v0.6-broken | gadget, llm, sql, query-gen | 2026-07-19 |
+| [src\llm_query](./src/llm_query/README.md) | llm_query: geração de query de consulta por LLM (gadget) | v0.6-broken | gadget, llm, sql, query-gen | 2026-07-19 |
 
 ## READMEs sem frontmatter (candidatos a adicionar)
 

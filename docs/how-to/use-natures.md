@@ -1,5 +1,5 @@
 ---
-title: How to — Como usar naturezas (CPF/CNPJ/IP)
+title: How to: Como usar naturezas (CPF/CNPJ/IP)
 type: how-to
 status: active
 tags: [natures, pre-tx, compressão, cpf, cnpj, cnpj-alfa, ip, adr-0015, adr-0042]
@@ -20,7 +20,7 @@ permanece e o identificador não é emitido. Para `cpf`, `cnpj` e `ip`, o cabeç
 o filtro usado, e `decode(blob)` o reconhece sozinho. Um filtro customizado também pode ser usado,
 mas o `decode` precisa receber um filtro com o mesmo nome registrado no cabeçalho.
 
-Este guia mostra como comprimir colunas com estrutura conhecida — CPF, CNPJ e endereços IP —
+Este guia mostra como comprimir colunas com estrutura conhecida (CPF, CNPJ e endereços IP)
 aproveitando dígitos verificadores e formatos fixos.
 
 ## Quando usar
@@ -67,9 +67,9 @@ assert cpfs_back == cpfs  # round-trip sem perdas
 - O encoder classifica cada valor:
   - `compressible`: CPF válido, codificado no alfabeto seguro atual (5 caracteres)
   - `check_invalid`: dígito verificador errado, guardado como literal
-  - `format_unmasked`: os dígitos certos, sem a máscara — literal
+  - `format_unmasked`: os dígitos certos, sem a máscara, literal
   - **`format_bordered`**: o valor é válido, só tem **espaço/tab/quebra de linha nas
-    pontas** — literal (ADR-0045)
+    pontas**, literal (ADR-0045)
   - `format_mismatch`: formato diferente, guardado como literal
 
 Exemplos de classificação:
@@ -85,13 +85,13 @@ classify_value(SPEC_CPF, '111-444-777-35')   # 'format_mismatch' (separadores er
 ```
 
 **Por que `format_bordered` existe** ([ADR-0045](../adr/0045-bordas-em-valor-de-spec.md)): um
-valor com borda **não é comprimido** — fazer trim mudaria o dado, e o round-trip byte a byte é
+valor com borda **não é comprimido**: fazer trim mudaria o dado, e o round-trip byte a byte é
 constituição do formato. Mas ele merece rótulo próprio porque `format_mismatch` diz "não
 reconheço essa forma" e este diz outra coisa, **acionável**: *o dado está certo, o pipeline a
-montante é que está sujo*. Os bytes emitidos são os mesmos (literal) — muda só a telemetria,
+montante é que está sujo*. Os bytes emitidos são os mesmos (literal): muda só a telemetria,
 que você lê em `SideOutputs.nature_apply.by_status`.
 
-A fonte mais comum de borda é ler arquivo com `for line in f:` sem `.strip()` — o `
+A fonte mais comum de borda é ler arquivo com `for line in f:` sem `.strip()`: o `
 ` vem
 dentro do valor.
 
@@ -140,13 +140,13 @@ O ganho não é garantido: em dados pequenos ou ordenados, a versão com filtro 
 codificação comum e não emitir `:cnpj`. Em uma tabela real ordenada, o teste mediu aumento de tamanho;
 por isso não há uma porcentagem geral prometida.
 
-## O CNPJ alfanumérico já está coberto — é o mesmo `SPEC_CNPJ`
+## O CNPJ alfanumérico já está coberto: é o mesmo `SPEC_CNPJ`
 
 Desde **julho de 2026** (IN RFB nº 2.229/2024), CNPJ novo tem as **12 primeiras posições
 alfanuméricas** (`0-9` e `A-Z` maiúsculo); os **2 dígitos verificadores continuam decimais**.
 Os CNPJ numéricos existentes **não mudam**.
 
-**Não há spec separado** — o `SPEC_CNPJ` acima é alfanumérico e cobre os dois:
+**Não há spec separado**. O `SPEC_CNPJ` acima é alfanumérico e cobre os dois:
 
 ```python
 from tcf import encode, decode, SPEC_CNPJ
@@ -165,24 +165,24 @@ O preço é pago **por valor**, não por coluna:
 
 | valor | payload | por quê |
 |---|---:|---|
-| numérico (`11.222.333/0001-81`) | **7 chars** | base 10 — e é o **mesmo byte** que o wire `:cnpj` sempre emitiu |
+| numérico (`11.222.333/0001-81`) | **7 chars** | base 10, e é o **mesmo byte** que o wire `:cnpj` sempre emitiu |
 | alfanumérico (`12.ABC.345/01DE-35`) | **10 chars** | base 36 |
 
 O decode distingue os dois **pelo comprimento**. Os dois são mínimos em base-80 (80⁶ e 80⁹
-não comportam os domínios), e o dígito verificador nunca é gravado — é recomputado.
+não comportam os domínios), e o dígito verificador nunca é gravado: é recomputado.
 
 Esse caso compacto não é só otimização: é **o que permite um único `:cnpj` continuar lendo
 todo wire de 7 chars já emitido**. Sem ele, o payload antigo voltaria como texto cru.
 
 **O dígito verificador não mudou de regra**: mesmo módulo 11, mesmos pesos. O que mudou é a
-conversão de caractere para valor — `ASCII(c) - 48`, então `'A'`=17 … `'Z'`=42. Como `'0'` é
+conversão de caractere para valor: `ASCII(c) - 48`, então `'A'`=17 … `'Z'`=42. Como `'0'` é
 ASCII 48, dígito converte para ele mesmo, e por isso CNPJ numérico gera exatamente o mesmo DV
 nas duas regras.
 
 ### Maiúscula/minúscula
 
 O domínio oficial é **maiúscula-only** (NT Conjunta 2025.001: `[0-9A-Z]{12}[0-9]{2}`).
-Minúscula é variante de representação e cai em **literal** — não ganha, nunca corrompe, e o
+Minúscula é variante de representação e cai em **literal**: não ganha, nunca corrompe, e o
 roundtrip devolve exatamente o que entrou. Aceitar minúscula devolvendo maiúscula canonizaria
 a saída (perderia o roundtrip byte a byte), então é da classe CONTRATO e está registrado como
 pendência (H-15-06); mediria −35,6% numa coluna minúscula. Detalhes em
@@ -216,7 +216,7 @@ ou seja, ficou ligeiramente maior).
 
 ## Multi-column: `schema={coluna: spec}`
 
-Use `schema={coluna: spec}` para aplicar filtros diferentes por coluna — a chave e' o
+Use `schema={coluna: spec}` para aplicar filtros diferentes por coluna: a chave e' o
 NOME (str) ou a POSICAO (int); o valor e' o name do registry (`"cpf"`) ou o objeto spec.
 
 ```python
@@ -243,9 +243,9 @@ assert result == table
 **Detalhes**:
 
 - **O schema é INCREMENTAL**: por default toda coluna é string semântico; o schema muda
-  **um ou mais** — colunas sem entrada usam a codificação comum (sem filtro), e
+  **um ou mais**: colunas sem entrada usam a codificação comum (sem filtro), e
   `schema={}` / `{col: None}` são byte-idênticos a não passar nada
-- **Sobrecarga**: quando o alvo é inequívoco — `list`, ou tabela de **UMA** coluna — a forma
+- **Sobrecarga**: quando o alvo é inequívoco (`list`, ou tabela de **UMA** coluna), a forma
   escalar basta (`schema="cpf"`), sem cerimônia de dict; com 2+ colunas o dict é exigido
   (qual coluna é informação necessária)
 - Cada coluna codifica e decodifica independentemente
@@ -297,10 +297,10 @@ Sem `schema=`, o encoder usa a representação padrão. Com uma *nature*, ele
 compara a versão filtrada com a codificação comum e mantém a menor:
 
 ```python
-# Sem nature — comportamento padrão
+# Sem nature: comportamento padrão
 text1 = encode(cpfs)
 
-# Com nature — filtro + pipeline padrão
+# Com nature: filtro + pipeline padrão
 # O filtro só permanece se o blob completo diminuir
 text2 = encode(cpfs, schema=SPEC_CPF)
 
@@ -338,11 +338,11 @@ for value in values:
 
 **Categorias de classificação**:
 
-- `compressible` — passou na validação e será codificado
-- `check_invalid` — dígito verificador errado
-- `format_mismatch` — não corresponde ao formato (ex.: separadores errados)
-- `format_unmasked` — dígitos corretos, mas sem máscara (ex.: `11144477735`)
-- `empty_value` — string vazia
+- `compressible`: passou na validação e será codificado
+- `check_invalid`: dígito verificador errado
+- `format_mismatch`: não corresponde ao formato (ex.: separadores errados)
+- `format_unmasked`: dígitos corretos, mas sem máscara (ex.: `11144477735`)
+- `empty_value`: string vazia
 
 > Os nomes exatos das categorias são definidos por cada filtro. Rode
 > `classify_value(SPEC, valor)` para ver o status real de um valor.
@@ -370,11 +370,11 @@ para uma `DateSpec` com validação de calendário e dois testes em dados reais.
 
 ## Conexões
 
-- **ADR-0015**: [0015-natures-templated-checked-weld.md](../adr/0015-natures-templated-checked-weld.md) —
+- **ADR-0015**: [0015-natures-templated-checked-weld.md](../adr/0015-natures-templated-checked-weld.md),
   decisão de integração dos filtros e filosofia opt-in
-- **API pública**: [`tcf/__init__.py`](../../src/tcf/__init__.py) —
+- **API pública**: [`tcf/__init__.py`](../../src/tcf/__init__.py),
   exports `SPEC_CPF`, `SPEC_CNPJ`, `SPEC_IP`
-- **Implementação**: [`tcf/natures/`](../../src/tcf/natures/) —
+- **Implementação**: [`tcf/natures/`](../../src/tcf/natures/),
   `TemplatedCheckedSpec` e `TemplatedPaddedSpec`
-- **Testes**: [`tests/test_natures_*.py`](../../tests/) —
+- **Testes**: [`tests/test_natures_*.py`](../../tests/),
   validação de round-trip e fallback

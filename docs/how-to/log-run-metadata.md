@@ -1,5 +1,5 @@
 ---
-title: How to — Logar metadata de run em manifest.jsonl
+title: How to: Logar metadata de run em manifest.jsonl
 type: how-to
 status: active
 tags: [reprodutibilidade, manifest, git-sha, experiment]
@@ -10,18 +10,18 @@ updated: 2026-05-21
 # Logar metadata de run em manifest.jsonl
 
 Receita pra experimentos novos (`EXP-NNN-tema/run.py`) gravarem
-metadata suficiente pra reprodutibilidade — especialmente `git_sha`
+metadata suficiente pra reprodutibilidade, especialmente `git_sha`
 do codigo que rodou.
 
 Motivacao: sem `git_sha`, runs identicos com timestamps diferentes em
-`manifest.jsonl` sao ambiguos — mesmo codigo? mudou e ratio ficou
+`manifest.jsonl` sao ambiguos: mesmo codigo? mudou e ratio ficou
 identico por sorte? Helper criado em
 [`scripts/run_metadata.py`](../../scripts/run_metadata.py) resolve.
 
 ## Quando aplicar
 
 - **Sempre** em `EXP-NNN-tema/run.py` novo (clean lab)
-- **Opcional** retroativar manifests antigos (geralmente nao vale —
+- **Opcional** retroativar manifests antigos (geralmente nao vale:
   altera historia; documente que git_sha pre-2026-05-20 e' ausente)
 
 ## Uso minimo
@@ -69,18 +69,18 @@ Adicione voce no `entry`:
 |---|---|---|
 | `experiment_id` | string | `"EXP-NNN-tema"` |
 | `metrics` | dict | metricas factuais do run |
-| `outcome` | `"confirmed" \| "refuted" \| "partial" \| "inconclusive"` | FORTE — combate publication bias (so' positivos registrados) |
+| `outcome` | `"confirmed" \| "refuted" \| "partial" \| "inconclusive"` | FORTE: combate publication bias (so' positivos registrados) |
 | `config_hash` | string | hash do config.json se este variar entre runs |
 | `data_sha` | dict | SHA-256 dos datasets de entrada (quando dataset evolui) |
 
-## Outcome — disciplina
+## Outcome: disciplina
 
 Declare explicitamente o resultado da hipotese do experimento:
 
-- `confirmed` — hipotese sustentada pelo run
-- `refuted` — hipotese rejeitada (resultado contradiz expectativa)
-- `partial` — sustentada em algumas condicoes, falha em outras
-- `inconclusive` — dado insuficiente; revisitar
+- `confirmed`: hipotese sustentada pelo run
+- `refuted`: hipotese rejeitada (resultado contradiz expectativa)
+- `partial`: sustentada em algumas condicoes, falha em outras
+- `inconclusive`: dado insuficiente; revisitar
 
 **Por que importa**: o registry de hipoteses
 ([`experiments/lab/dirty/notas/2026-05/roadmap-hipoteses.md`](../../experiments/lab/dirty/notas/2026-05/roadmap-hipoteses.md))
@@ -89,10 +89,10 @@ post-hoc** (so' positivos registrados). Ver discussao em
 [`../algorithms/`](../algorithms/) e
 [`../adr/`](../adr/).
 
-## Git dirty == true — o que significa
+## Git dirty == true: o que significa
 
 Se `git_dirty: true`, o run foi com codigo nao-commitado.
-Reprodutibilidade fica comprometida — outra pessoa nao consegue
+Reprodutibilidade fica comprometida: outra pessoa nao consegue
 recriar exatamente o `git_sha + diff`.
 
 **Pratica**: antes de rodar EXP clean importante, commitar mudancas.

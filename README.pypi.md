@@ -5,7 +5,7 @@
 ![Python](https://img.shields.io/badge/python-3.10+-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
-**Send the same table in far fewer bytes — without turning it into a binary blob
+**Send the same table in far fewer bytes, without turning it into a binary blob
 nobody can open and read.**
 
 TCF compresses tabular and nested data into **inspectable ASCII text**: what repeats
@@ -41,7 +41,7 @@ assert decode(encode(orders)) == orders
 ```
 
 One door: `encode()` routes by the **type of the input**, `decode()` by the format
-signature. Round-trip is always lossless — it either preserves or fails loud.
+signature. Round-trip is always lossless: it either preserves or fails loud.
 
 ## What the wire looks like
 
@@ -68,7 +68,7 @@ Basic
 ```
 
 `*3|Sao Paulo` means *"Sao Paulo, 3×"*. `^1` means *"same as line 1"*. In the e-mail
-column the unique prefix stays and the shared domain becomes a reference — that is where
+column the unique prefix stays and the shared domain becomes a reference. That is where
 the biggest wins are, and where the text gets densest. **Readable does not mean obvious
 at first glance.**
 
@@ -78,7 +78,7 @@ Across the 15 synthetic datasets, **with no compressor at all**, TCF is the most
 text of the set: **3131 B** vs CSV 4872 · JSON 5409 · JSONL 7001 (~36% smaller than CSV).
 On real multi-column data (9 Adult + TPC-H tables, 136k rows): **−33% weighted** vs raw CSV.
 
-Against `gzip`/`brotli`/`zstd` the comparison is a different category — they are
+Against `gzip`/`brotli`/`zstd` the comparison is a different category. They are
 **opaque**: answering any question means inflating everything first. TCF composes with
 them, and with volume `tcf+brotli` beats `csv+brotli` (Adult 3k: **21.8 KB** vs 30.4 KB).
 
@@ -99,13 +99,13 @@ assert v.where("city", "Sao Paulo").sum("amount") == 470   # only city + amount
 ```
 
 On a real table (online-retail, 5000×8), answering *"how much did user X buy"* touches
-**7.9% of the blob**; `count()` touches 0.2% — against the 100% a `decode()` costs. An
+**7.9% of the blob**; `count()` touches 0.2%, against the 100% a `decode()` costs. An
 opaque compressor cannot do this.
 
 ## Specs: semantic type, string result
 
 TCF is a **text** format: everything comes back exactly as it went in. But *knowing the
-nature* of a column unlocks compression far beyond what structure alone gives — that is
+nature* of a column unlocks compression far beyond what structure alone gives. That is
 what **specs** are for:
 
 ```python
@@ -116,7 +116,7 @@ blob = encode(cpfs, schema="cpf")     # 69 B -> 39 B
 assert decode(blob) == cpfs           # the header says which spec to invert
 ```
 
-A spec is **not a strong type** — the difference matters:
+A spec is **not a strong type**. The difference matters:
 
 | | strong type (int, date…) | TCF semantic spec |
 |---|---|---|
@@ -126,17 +126,17 @@ A spec is **not a strong type** — the difference matters:
 | what you gain | semantics in your program | bytes on the wire |
 
 A spec exploits **redundancy that the shape guarantees**: a CPF has 11 digits, a fixed
-mask and two check digits that are *derivable* — so the mask does not travel, the check
+mask and two check digits that are *derivable*, so the mask does not travel, the check
 digits do not travel, and the body goes in a dense base. The result is still the string
 `"111.111.111-11"`.
 
 It is **opt-in per value and never-worse**: the spec competes with the regular pipeline
 and only wins if it shrinks; a value that does not match the shape becomes a literal in
-the same column. And it is **self-describing** — when it wins, the header carries the id
+the same column. And it is **self-describing**: when it wins, the header carries the id
 (`:cpf`) and `decode` inverts it on its own, receiving nothing.
 
 The registry ships `cpf`, `cnpj` (alphanumeric, IN RFB 2.229/2024), `ip`, `data-iso` and
-`int-pad`; `schema` is **incremental** — without it, every column is a semantic string
+`int-pad`; `schema` is **incremental**. Without it, every column is a semantic string
 and the pipeline decides by itself:
 
 ```python
@@ -149,7 +149,7 @@ clients = {
 }
 blob = encode(clients, schema={"cnpj": "cnpj", "created_at": "data-iso"})  # by name
 assert encode(clients, schema={0: "cnpj"}) == encode(clients, schema={"cnpj": "cnpj"})
-assert decode(blob) == clients             # `notes` was never mentioned — stays a string
+assert decode(blob) == clients             # `notes` was never mentioned: stays a string
 ```
 
 ## What it is not
@@ -161,14 +161,14 @@ round-trip is the contract; compression is the consequence.
 ## Status: pre-1.0
 
 Format `#TCF.8`. Pre-1.0 minors are **development iterations** towards a solid 1.0:
-**there is no rigid compatibility between them** — old versions are recoverable through
+**there is no rigid compatibility between them**; old versions are recoverable through
 git. The definitive freeze is an act of 1.0.
 
 ## Documentation
 
 Everything lives in the repository:
 
-- **[Repository and full README](https://github.com/LeoPR/TCF)** — examples with measured
+- **[Repository and full README](https://github.com/LeoPR/TCF)**: examples with measured
   bytes, comparisons and a line-by-line read of the wire
 - **[CHANGELOG](https://github.com/LeoPR/TCF/blob/main/CHANGELOG.md)**
 - **[API reference](https://github.com/LeoPR/TCF/blob/main/docs/reference/api.md)** ·
@@ -182,5 +182,5 @@ Everything lives in the repository:
 
 ## License
 
-MIT — [LICENSE](https://github.com/LeoPR/TCF/blob/main/LICENSE).
+MIT: [LICENSE](https://github.com/LeoPR/TCF/blob/main/LICENSE).
 To cite: [CITATION.cff](https://github.com/LeoPR/TCF/blob/main/CITATION.cff).

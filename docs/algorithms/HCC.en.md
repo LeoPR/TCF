@@ -1,7 +1,7 @@
 <!-- l10n: doc_id=hcc · lang=en · canonical -->
 **English** · [Português](HCC.pt-BR.md)
 
-# HCC — Hierarchical Compositional Coding
+# HCC: Hierarchical Compositional Coding
 
 **Original codename**: `M8.A` (variant A of the M8 macro from the dirty lab v0.6).
 
@@ -17,9 +17,9 @@ organized hierarchically.
 The central innovation of HCC is the semantic distinction between two
 concatenation operators in text:
 
-- `,` (comma) — **ephemeral** concat: joins two refs on emission, but
+- `,` (comma): **ephemeral** concat: joins two refs on emission, but
   does NOT create a new named ref.
-- `~` (tilde) — **compositional** concat: joins two refs AND creates a
+- `~` (tilde): **compositional** concat: joins two refs AND creates a
   new auto-named ref for future reuse.
 
 Range `a..b` is a particular case of composition by consecutive sequence.
@@ -46,9 +46,9 @@ The output of HCC is text. Each line represents an original string
 
 1. **Phase A (tokenize)**: alg16 tokens + provisional atoms → `pieces`
    per line (`lit` or `refs`)
-2. **Phase B (detect)**: iterative greedy — replaces reusable
+2. **Phase B (detect)**: iterative greedy, replaces reusable
    sub-tuples with `alias_marker`
-3. **Phase C (emit)**: single pass — assigns decoder-style IDs
+3. **Phase C (emit)**: single pass, assigns decoder-style IDs
    (interleaved atoms + compositions), emits text
 
 ## How it works (mathematical sub-language)
@@ -94,7 +94,7 @@ alias_first_line[Y] < sub_first_line[sub]
 
 That is, `Y` must have appeared alone on a line **prior** to the first
 appearance of `sub`. Guarantee: when emitting the def of `sub`,
-`Y` is already resolved — inline expansion via pairwise left-assoc
+`Y` is already resolved; inline expansion via pairwise left-assoc
 preserves the correct value of `Y`.
 
 ### Emit (pairwise left-assoc)
@@ -111,14 +111,14 @@ ID_{K-1} = ID_{K-2} + z
 ```
 
 Where `+` is string concatenation. The final ID (`ID_{K-1}`) is the
-"exported" value of the chain — it can be referenced by other lines.
+"exported" value of the chain; it can be referenced by other lines.
 
 Intermediate IDs are also allocated (and can be referenced if
 an alias is defined for that sub-composition at some point).
 
 ### Body-order of IDs
 
-IDs are assigned by order of appearance in the body — interleaved between
+IDs are assigned by order of appearance in the body, interleaved between
 atoms (`'lit'` pieces) and compositions (`'composition_def'`). This
 allows a single-pass decoder without a separate preamble.
 
@@ -140,7 +140,7 @@ context-free grammar.
 
 HCC shares the spirit of "replace what repeats" but:
 - Works on OBAT **tokens** (not bytes).
-- Distinguishes `,` (ephemeral) vs `~` (creates a ref) — **explicit
+- Distinguishes `,` (ephemeral) vs `~` (creates a ref): **explicit
   semantics** in the output. Re-Pair has no such distinction (every
   substitution creates a grammar rule).
 - **Implicit auto-naming** (sequential IDs by order). Re-Pair
@@ -164,13 +164,13 @@ a net heuristic, not progressively.
 
 ### vs Templates / Macros in programming
 
-The `~` operator resembles a macro/template — it defines a named group
+The `~` operator resembles a macro/template: it defines a named group
 for reuse. HCC formalizes it with an explicit cost algebra (net) and
 constraints to guarantee correctness (body-order).
 
 ## HCC's own innovations
 
-1. **Dual semantic marker** (`~` vs `,`): unique in the literature —
+1. **Dual semantic marker** (`~` vs `,`): unique in the literature;
    compressed text distinguishes "create a ref" from "concat just this
    once".
 2. **Implicit auto-naming**: IDs by order of appearance, without a
@@ -208,9 +208,9 @@ Experimental origin:
 
 ## Connections
 
-- [OBAT](OBAT.md) — the layer that produces the root tokens consumed by HCC
-- [TCF-format](TCF-format.md) — positioning of the format
-- `experiments/lab/dirty/notas/2026-05/historia-dirty-lab.md` — narrative of the
+- [OBAT](OBAT.md): the layer that produces the root tokens consumed by HCC
+- [TCF-format](TCF-format.md): positioning of the format
+- `experiments/lab/dirty/notas/2026-05/historia-dirty-lab.md`: narrative of the
   development (codename M8.A)
-- `experiments/lab/dirty/notas/no-funcional-marca-e-troca.md` —
+- `experiments/lab/dirty/notas/no-funcional-marca-e-troca.md`:
   future direction: extension of HCC with a variable slot

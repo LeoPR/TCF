@@ -1,7 +1,7 @@
 <!-- l10n: doc_id=obat · lang=en · canonical -->
 **English** · [Português](OBAT.pt-BR.md)
 
-# OBAT — Online Bidirectional Affix Tokenizer
+# OBAT: Online Bidirectional Affix Tokenizer
 
 **Original codename**: `alg16` (16th experiment of phase M0 of the dirty
 lab v0.6).
@@ -160,6 +160,6 @@ origin: `experiments/lab/dirty/old/M0-fase-exploratoria-inicial/2026-05-11-16-on
 
 ## Connections
 
-- [HCC](HCC.md) — the layer that consumes OBAT's tokens
-- [TCF-format](TCF-format.md) — positioning of the format
-- `experiments/lab/dirty/notas/2026-05/historia-dirty-lab.md` — development narrative
+- [HCC](HCC.md): the layer that consumes OBAT's tokens
+- [TCF-format](TCF-format.md): positioning of the format
+- `experiments/lab/dirty/notas/2026-05/historia-dirty-lab.md`: development narrative

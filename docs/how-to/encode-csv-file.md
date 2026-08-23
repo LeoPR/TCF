@@ -1,5 +1,5 @@
 ---
-title: How to — Encodar um arquivo CSV
+title: How to: Encodar um arquivo CSV
 type: how-to
 status: active
 tags: [csv, compression, io, encode, decode, round-trip]
@@ -16,7 +16,7 @@ Comprimir um arquivo CSV com TCF e recuperar os dados originais intactos. Fluxo:
 - TCF instalado: `pip install -e ".[dev]"` (Python ≥3.10)
 - Arquivo CSV com cabeçalho (primeira linha = nomes de coluna)
 
-## Passo 1 — Ler CSV em um dict
+## Passo 1: Ler CSV em um dict
 
 Usar `csv.DictReader` da stdlib para converter linhas CSV em dicionário `{coluna: [valor1, valor2, ...]}`:
 
@@ -43,7 +43,7 @@ data_dict = {
 }
 ```
 
-## Passo 2 — Encodar e salvar como .tcf
+## Passo 2: Encodar e salvar como .tcf
 
 Chamar `encode(dict)` e escrever resultado em arquivo `.tcf`:
 
@@ -63,7 +63,7 @@ O arquivo `.tcf` contém:
 - Mapa de colunas (modo + tamanho + nome)
 - Tokens comprimidos
 
-Exemplo de saída (aproximado — detalhe do header em [TCF-format.md](../algorithms/TCF-format.md)):
+Exemplo de saída (aproximado, detalhe do header em [TCF-format.md](../algorithms/TCF-format.md)):
 ```
 #TCF.8M!5=id,!11=nome,email
 1
@@ -76,7 +76,7 @@ bob3
 charli2,3
 ```
 
-## Passo 3 — Decodificar arquivo .tcf
+## Passo 3: Decodificar arquivo .tcf
 
 Ler arquivo `.tcf` e chamar `decode(text)` para recuperar dict original:
 
@@ -91,7 +91,7 @@ with open('dados.tcf', 'r', encoding='utf-8') as f:
 recovered_data = decode(tcf_text)
 ```
 
-## Passo 4 — Verificar round-trip
+## Passo 4: Verificar round-trip
 
 Validar que os dados decodificados são idênticos aos originais:
 
@@ -172,9 +172,9 @@ encode({'a\nb': ['1', '2']})
 # ValueError: col name nao pode conter '\n' (separador de linha do meta)
 ```
 
-Todo o resto passa. Os caracteres que têm significado estrutural no meta — `,` (separador de
+Todo o resto passa. Os caracteres que têm significado estrutural no meta, `,` (separador de
 colunas), `=` (separador chave=valor), `\` (o próprio escape) e os marcadores de modo `!`, `@`,
-`%` quando iniciam o nome — são **escapados com `\`** no wire e desescapados no decode:
+`%` quando iniciam o nome, são **escapados com `\`** no wire e desescapados no decode:
 
 ```python
 from tcf import encode, decode
@@ -192,8 +192,8 @@ Ou seja: o cabeçalho de um CSV do mundo real (`"Nome, Sobrenome"`, `"a=b"`, ace
 entra sem tratamento. Verificável para todos eles com `decode(encode(t)) == t`.
 
 **E o nome vazio (`''`)?** Também entra sem tratamento. Desde a
-[ADR-0046](../adr/0046-nome-vazio-8m-porta-o-z-do-8h.md) ele viaja no meta como `\z` — a mesma
-grafia que o `.8H` já usava — e volta `''` no decode:
+[ADR-0046](../adr/0046-nome-vazio-8m-porta-o-z-do-8h.md) ele viaja no meta como `\z` (a mesma
+grafia que o `.8H` já usava) e volta `''` no decode:
 
 ```python
 from tcf import encode, decode
@@ -203,13 +203,13 @@ decode(encode({'': ['1', '2']}))   # -> {'': ['1', '2']}
 
 Isso cobre os CSVs em que o nome vazio nasce do **próprio formato** (RFC 4180: campo vazio é
 campo legal): `a,b,` (vírgula sobrando), `a,,b` (coluna sem título no meio), `,a,b` (primeira sem
-título) — todos com `decode(encode(t)) == t`. Não precisa renomear nada antes.
+título), todos com `decode(encode(t)) == t`. Não precisa renomear nada antes.
 
 Coluna **anônima** (nome posicional `'0'`, `'1'`, …) existe só quando você pede, com
-`drop_names=True` — aí todos os nomes são dropados, o vazio inclusive.
+`drop_names=True`: aí todos os nomes são dropados, o vazio inclusive.
 
 > Até 2026-08-21 o nome vazio era tratado como anônimo (com `UserWarning`) e o decode devolvia
-> `'0'` — o único caso em que o TCF alterava o dado
+> `'0'`, o único caso em que o TCF alterava o dado
 > ([`BUG-CHAVE-VAZIA-POSICIONAL`](../../tickets/BUG-CHAVE-VAZIA-POSICIONAL.md)). A causa era
 > uma colisão de grafia com `drop_names`; a ADR-0046 portou o sentinela `\z` do `.8H`.
 
@@ -231,7 +231,7 @@ with open('dados.csv', 'r') as f:
 
 ## Ver também
 
-- [Documentação de encode/decode](../algorithms/TCF-format.md) — especificação técnica
-- [OBAT (Online Bidirectional Affix Tokenizer)](../algorithms/OBAT.md) — camada 1
-- [HCC (Hierarchical Compositional Coding)](../algorithms/HCC.md) — camada 2
+- [Documentação de encode/decode](../algorithms/TCF-format.md): especificação técnica
+- [OBAT (Online Bidirectional Affix Tokenizer)](../algorithms/OBAT.md): camada 1
+- [HCC (Hierarchical Compositional Coding)](../algorithms/HCC.md): camada 2
 - [Exemplo: round-trip byte-canonical](../algorithms/output-convention.md)

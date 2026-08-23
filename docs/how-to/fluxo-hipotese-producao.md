@@ -1,5 +1,5 @@
 ---
-title: How to — Fluxo de hipotese ate' producao (TCF)
+title: How to: Fluxo de hipotese ate' producao (TCF)
 type: how-to
 status: active
 tags: [methodology, workflow, lifecycle, dirty, clean, canonical, ADR]
@@ -35,7 +35,7 @@ gates de validacao, e onde fica registrado**.
 7. **PRODUCAO** (API publica from tcf import encode, decode)
 ```
 
-## Estagio 1 — Ideia/Observacao
+## Estagio 1: Ideia/Observacao
 
 **Trigger**: insight em conversa, achado empirico inesperado,
 critica de design, bug observado.
@@ -49,7 +49,7 @@ intuicao inicial. NAO precisa formalizar ainda.
 **Gate pra avancar**: a ideia se mostra **relevante** (apareceu mais
 de uma vez OU bloqueia alguma direcao).
 
-## Estagio 2 — Hipotese registrada
+## Estagio 2: Hipotese registrada
 
 **Trigger**: ideia merece teste sistematico.
 
@@ -65,7 +65,7 @@ com ID (`H-DA-NN`, `H-RW-NN`, `H-ED-NN`, `H-FIX-NN`).
 **Gate pra avancar**: planejamento existe pra sub-exp; tempo/escopo
 viavel.
 
-## Estagio 3 — Sub-experimento dirty
+## Estagio 3: Sub-experimento dirty
 
 **Trigger**: hipotese ativa.
 
@@ -93,7 +93,7 @@ viavel.
 **Gate pra avancar**: confirmada-empirica + valor mensuravel
 (ganho >= threshold OU bug fixavel).
 
-## Estagio 4 — Prototype clean
+## Estagio 4: Prototype clean
 
 **Trigger**: sub-exps dirty mostram solucao funcional + integravel.
 
@@ -121,7 +121,7 @@ viavel.
 **Gate pra avancar**: pelo menos 2 datasets reais OU 5+ sinteticos
 diversos validados.
 
-## Estagio 5 — ADR
+## Estagio 5: ADR
 
 **Trigger**: prototype clean estavel; integracao em canonical viavel.
 
@@ -141,7 +141,7 @@ diversos validados.
 
 **Gate pra avancar**: ADR aceito + nenhum risco residual bloqueante.
 
-## Estagio 6 — Integracao em src/tcf canonical
+## Estagio 6: Integracao em src/tcf canonical
 
 **Trigger**: ADR aceito + welding-plan pronto.
 
@@ -164,7 +164,7 @@ diversos validados.
 **Gate pra avancar**: validacao multi-camada OK OU re-baseline
 justificado e aprovado.
 
-## Estagio 7 — Producao
+## Estagio 7: Producao
 
 **Trigger**: src/tcf modificado + validado + commited.
 
@@ -185,13 +185,13 @@ justificado e aprovado.
 
 - **Pre/post wrapper**: aplica transformacao ANTES/DEPOIS do
   algoritmo principal. Ex: pre-process de strings, post-process
-  de bytes. **NAO conta como fix do algoritmo** — e' band-aid.
+  de bytes. **NAO conta como fix do algoritmo**: e' band-aid.
 - **Integracao algoritmica**: muda o algoritmo IN-PLACE pra
   resolver causa raiz. **E' o fix real**. Requer ADR + validacao
   multi-camada.
 
 Wrappers sao OK em prototype clean (validacao). NAO sao OK em
-src/tcf canonical — la' so' integracao.
+src/tcf canonical: la' so' integracao.
 
 ### Surface fix vs root cause fix
 
@@ -248,9 +248,9 @@ Em codigo (comentarios):
 
 ## See also
 
-- [AGENTS.md](../../AGENTS.md) — guia canonico
-- [MAP.md](../../MAP.md) — wayfinding
-- [vocabulary.md](../vocabulary.md) — termos
-- [audit-memorias-e-documentacao.md](audit-memorias-e-documentacao.md) — manutencao
-- [ADR-0005](../adr/0005-discoverability-claude-md-root.md) — discoverability
-- [welding-plan.md](../../experiments/lab/dirty/notas/2026-05/welding-plan.md) — exemplo de processo de welding
+- [AGENTS.md](../../AGENTS.md): guia canonico
+- [MAP.md](../../MAP.md): wayfinding
+- [vocabulary.md](../vocabulary.md): termos
+- [audit-memorias-e-documentacao.md](audit-memorias-e-documentacao.md): manutencao
+- [ADR-0005](../adr/0005-discoverability-claude-md-root.md): discoverability
+- [welding-plan.md](../../experiments/lab/dirty/notas/2026-05/welding-plan.md): exemplo de processo de welding

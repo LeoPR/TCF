@@ -1,5 +1,5 @@
 ---
-title: How to — Como inspecionar a compressão (SideOutputs + schema)
+title: How to: Como inspecionar a compressão (SideOutputs + schema)
 type: how-to
 status: active
 tags: [debug, inspecção, features, compressão, schema]
@@ -17,7 +17,7 @@ visualizar features detectadas, e explorar decisões do pipeline.
 Ao rodar `encode(data)`, TCF aplica heuristicas (cadence detection,
 min_len auto, OBAT shaping, HCC compression). Resultado: algumas colunas
 comprimem muito, outras pouco. Entender **por quê** requer acesso a
-informação normalmente descartada — logs internos, features extraidas,
+informação normalmente descartada: logs internos, features extraidas,
 bytes por etapa. `SideOutputs` e `build_schema` expõem essa informação
 pra debug e análise.
 
@@ -29,12 +29,12 @@ pra debug e análise.
 - Investigando se heuristicas dispararam (cadence, min_len, etc)
 - Explorando dados novos pra tuning de `nature` ou `layers`
 
-## SideOutputs — capturar info interna
+## SideOutputs: capturar info interna
 
 `SideOutputs` é um container que você passa a `encode()` pra coletar
 informação produzida internamente mas normalmente descartada.
 
-### Uso básico — single-col
+### Uso básico: single-col
 
 ```python
 from tcf import encode
@@ -66,7 +66,7 @@ body_bytes: 26
 cadence_detected: False
 ```
 
-### Campos de SideOutputs — referência
+### Campos de SideOutputs: referência
 
 **Pre-pass (por coluna):**
 
@@ -100,7 +100,7 @@ cadence_detected: False
 | `multi_info` | `dict \| None` | Info agregada multi-col: `n_rows`, `n_cols`, `total_bytes`, `header_bytes`, `body_bytes` |
 | `per_col` | `dict[str, SideOutputs] \| None` | Ninhada: `per_col[colname]` tem SideOutputs de cada coluna |
 
-### Uso — multi-col
+### Uso: multi-col
 
 ```python
 from tcf import encode
@@ -145,14 +145,14 @@ name:
   cadence: False
 ```
 
-## build_schema — inspecionar schema detectado
+## build_schema: inspecionar schema detectado
 
 `build_schema(data)` chama `encode()` internamente (com `SideOutputs`),
 extrai features por coluna + decisões de heuristicas, e retorna
 `TableSchema` estruturado. Mais conveniente que acessar SideOutputs
 diretamente se você só quer o schema.
 
-### Uso — single-col
+### Uso: single-col
 
 ```python
 from tcf import build_schema
@@ -200,7 +200,7 @@ Coluna 'val':
   sample: ['apple', 'apple', 'banana', 'cherry', 'cherry', 'cherry']
 ```
 
-### Uso — multi-col
+### Uso: multi-col
 
 ```python
 from tcf import build_schema
@@ -251,7 +251,7 @@ name:
   cadence_rule: None
 ```
 
-### Serializar schema — to_json()
+### Serializar schema: to_json()
 
 ```python
 from tcf import build_schema
@@ -387,7 +387,7 @@ print(f"cadence_detected: {col.cadence_detected}") # True
 print(f"cadence_rule: {col.cadence_rule}")       # "2-numeric-high-cardinality"
 ```
 
-## Debug avançado — acessar logs internos
+## Debug avançado: acessar logs internos
 
 Se você precisa investigar muito mais a fundo, acesse os logs do OBAT
 e HCC via SideOutputs:

@@ -18,29 +18,29 @@ internos (sem PyPI). Date em parenteses = consolidacao do milestone.
 
 ---
 
-## 0.8.1 (2026-08-23) — fail-loud: wire concatenado, contador RLE, view posicional
+## 0.8.1 (2026-08-23): fail-loud: wire concatenado, contador RLE, view posicional
 
-Três comportamentos silenciosos eliminados do decode/view — cada um re-provado em lab
+Três comportamentos silenciosos eliminados do decode/view, cada um re-provado em lab
 dedicado com verificação adversarial independente antes do fix. **Zero mudança de emissão**:
 o encode está intocado e o wire é byte-idêntico ao 0.8.0 (gates verdes sem re-pin).
 
 - **`decode` rejeita header no meio do corpo**: concatenar dois wires prontos corrompia
   **calado** (as refs do segundo resolviam na tabela acumulada do primeiro; na pior variante
-  até `n_rows` batia). Agora `ValueError` nomeando a causa — cortar um wire é seguro,
+  até `n_rows` batia). Agora `ValueError` nomeando a causa: cortar um wire é seguro,
   concatenar exige decode + re-encode. Falso-positivo zero em corpo tcf (literais escapam
   dígitos); **limite**: corpo raw é verbatim e a junção lá segue indetectável.
 - **Contador RLE exige `N >= 2` em dígitos ASCII**: `*0|`, `*1|`, negativo e grafias com
-  sinal eram aceitos — linha sumindo ou fantasma sem erro (no seq-RLE, `*0+1|` emitia o
+  sinal eram aceitos: linha sumindo ou fantasma sem erro (no seq-RLE, `*0+1|` emitia o
   template: 1 linha que o contador declara não existir). Todo o espaço rejeitado é
   inemissível pelo encoder.
-- **`view`: `int` = POSIÇÃO em toda a superfície** — a mesma regra e faixa do `schema=`
+- **`view`: `int` = POSIÇÃO em toda a superfície**, a mesma regra e faixa do `schema=`
   (ADR-0047: `str` = nome, `int` = posição, `0 <= pos < n`, bool excluído), na terceira
   porta pública que faltava. Junto: `select(0)` não é mais engolido por truthiness (escalar
   = sobrecarga de 1 coluna; `select([])` passa a significar *nenhuma* coluna) e `where` com
   `value` não-`str` levanta `TypeError` ensinante (respondia 0 linhas calado; valores
   decodados são `str`, `None` casa nulo).
 
-## 0.8.0 (2026-08-23) — `#TCF.8` default
+## 0.8.0 (2026-08-23): `#TCF.8` default
 
 **Mudança de formato**: `#TCF.8` vira o formato **DEFAULT** de emissão
 ([ADR-0032](docs/adr/0032-tcf8-default-format.md); minor acompanha o formato, ADR-0028). O ciclo
@@ -49,20 +49,20 @@ PyPI (`tcf-format`) em 2026-08-23 via Trusted Publishing, tag `v0.8.0`.
 
 ### Formato e rotas
 
-- **`#TCF.8M` é o default multi-col**: todo `encode(dict)` sai `#TCF.8M` — meta INLINE na
+- **`#TCF.8M` é o default multi-col**: todo `encode(dict)` sai `#TCF.8M`, meta INLINE na
   assinatura (sem prefixo `# `), byte-sizes em **HEX**, última coluna sem size (`min_header`).
 - **Single-col ganha header por default, 100% dos casos** (`#TCF.8\n`,
   [ADR-0034](docs/adr/0034-header-default-100-porcento-single-col.md)): o arquivo se
   auto-explica em vez de depender de quem o produziu (+7 B, inevitável e assumido).
 - **`#TCF.8H` hierárquico SOLDADO** ([ADR-0033](docs/adr/0033-hierarchical-codec-weld.md)): o
-  dataset aninhado que sua linguagem monta do JSON — objetos/arrays aninhados, `null`
-  (distinto de ausente e de `"null"`), registros ragged, qualquer raiz — faz round-trip
+  dataset aninhado que sua linguagem monta do JSON (objetos/arrays aninhados, `null`
+  (distinto de ausente e de `"null"`), registros ragged, qualquer raiz) faz round-trip
   exato pela MESMA porta `encode`/`decode` (rota por tipo de entrada, simétrica ao decode
   por magic). O objeto é fatiado em colunas: nomes de campo escritos UMA vez, não por
   registro. Paridade com a classe D_json mapeada em
   [`docs/reference/json-equivalence.md`](docs/reference/json-equivalence.md).
 - **Rota TIPADA single-col**: `list[bool]` / `list[int|float]` preservam o TIPO no wire
-  (`#TCF.8b`/`#TCF.8n`) — bool denso a 1–2 bits/elemento
+  (`#TCF.8b`/`#TCF.8n`): bool denso a 1–2 bits/elemento
   ([ADR-0037](docs/adr/0037-denso-b2-ternario-dominio-implicito.md)), união bool+str lazy
   `#TCF.8bB` ([ADR-0039](docs/adr/0039-lazytype-bool-cabeca-congelada-extras.md)), grafias
   canônicas congeladas ([ADR-0038](docs/adr/0038-indice-interno-default-core-tipado-bool.md)).
@@ -71,10 +71,10 @@ PyPI (`tcf-format`) em 2026-08-23 via Trusted Publishing, tag `v0.8.0`.
   vez de 1 por literal), **bN de domínio** para cardinalidade baixa
   ([ADR-0036](docs/adr/0036-bn-de-dominio-cardinalidade-baixa.md); k distintos em
   ceil(log2 k) bits/linha), **seq-RLE periódico** `*N~d1,..,dp|`
-  ([ADR-0040](docs/adr/0040-seq-rle-periodico.md); o delta CICLA — 600 dias úteis em 1 marcador).
+  ([ADR-0040](docs/adr/0040-seq-rle-periodico.md); o delta CICLA: 600 dias úteis em 1 marcador).
 - **Todo nome de coluna é representável**: separadores escapados com `\`
   (único proibido: `\n`); nome VAZIO `''` preservado via sentinela `\z`
-  ([ADR-0046](docs/adr/0046-nome-vazio-8m-porta-o-z-do-8h.md) — fecha o único caso em que o
+  ([ADR-0046](docs/adr/0046-nome-vazio-8m-porta-o-z-do-8h.md); fecha o único caso em que o
   TCF alterava o dado); coluna anônima/posicional SÓ via `drop_names`.
 - **Legado `#TCF.6`/`#TCF.7` cortado** de `src/tcf` (emit E decode): fail-loud com dica de
   git. Git-as-compat ([ADR-0024](docs/adr/0024-pre-1.0-versioning-git-as-compat.md)): versão
@@ -85,12 +85,12 @@ PyPI (`tcf-format`) em 2026-08-23 via Trusted Publishing, tag `v0.8.0`.
 
 - **`schema=` é o parâmetro ÚNICO de spec** nas duas portas
   ([ADR-0047](docs/adr/0047-schema-parametro-unico-de-spec.md)); `nature=`/`nature_per_col=`
-  CORTADOS (seco, sem alias — mesmo regime do legado). Formas: `"cpf"` (name do registry) ·
+  CORTADOS (seco, sem alias: mesmo regime do legado). Formas: `"cpf"` (name do registry) ·
   objeto spec · `{coluna: spec}` com chave str=NOME / int=POSIÇÃO. É **incremental**
   (default = string semântico; o schema muda um ou mais) e tem **sobrecarga** (tabela/wire de
   UMA coluna aceita a forma escalar). Exports novos: `SPEC_DATA_ISO`, `SPEC_INT_PAD`,
   `SPEC_REGISTRY`.
-- **Registry com 5 specs** — cpf, cnpj, ip, **data-iso** (`:dt`, ISO→ordinal, casa com o
+- **Registry com 5 specs**: cpf, cnpj, ip, **data-iso** (`:dt`, ISO→ordinal, casa com o
   seq-RLE) e **int-pad** (`:ipad`). Identidade em DOIS planos
   ([ADR-0041](docs/adr/0041-spec-id-tres-planos.md)): `name` legível na API, `wire_id` curto
   no header; fail-loud de grafia, colisão e mascarada; header autoritativo no decode.
@@ -100,7 +100,7 @@ PyPI (`tcf-format`) em 2026-08-23 via Trusted Publishing, tag `v0.8.0`.
   [ADR-0043](docs/adr/0043-cnpj-um-so-compacto-por-valor.md)); o decode discrimina pelo
   comprimento.
 - **Bordas em valor de spec** ([ADR-0045](docs/adr/0045-bordas-em-valor-de-spec.md)): regex
-  fechada com `\Z` (o `$` do Python também casa antes de um LF final — o RT perdia o
+  fechada com `\Z` (o `$` do Python também casa antes de um LF final; o RT perdia o
   caractere); telemetria `format_bordered` distingue "dado certo, pipeline sujo" de "forma
   desconhecida".
 - Telemetria (`SideOutputs`) virou **opt-in**: 3,9–31,1% do tempo de encode devolvidos ao
@@ -121,7 +121,7 @@ PyPI (`tcf-format`) em 2026-08-23 via Trusted Publishing, tag `v0.8.0`.
 
 > ADRs do ciclo: **0032–0047**. Narrativa por sessão: `experiments/lab/dirty/notas/diario/`.
 
-## 0.7.x (pré-1.0, superado por 0.8.0) — `#TCF.7` default (histórico)
+## 0.7.x (pré-1.0, superado por 0.8.0): `#TCF.7` default (histórico)
 
 Ciclo "perseguir bytes" (abertura do que era chamado v2.0; agora pré-1.0).
 `encode(dict)` multi-col sai em `#TCF.7` por default. Single-col inalterado.
@@ -143,26 +143,26 @@ Ciclo "perseguir bytes" (abertura do que era chamado v2.0; agora pré-1.0).
 - **0.7 default** ([ADR-0024](docs/adr/0024-pre-1.0-versioning-git-as-compat.md)):
   baseline D17a re-pinado 322->303B (#TCF.6 legado lido pelo decoder). D1-D9=1523B
   (single-col) inalterado. Suite 398 passed.
-- **Fechamento do ciclo (2026-06-15)**: decisao do owner — **0.7 permanece
+- **Fechamento do ciclo (2026-06-15)**: decisao do owner, **0.7 permanece
   lossless-puro**; V2-C round e Pacote 10 (loss amplo) viram roadmap v2.0. Nome de
   distribuicao = **`tcf-format`** (mantendo `import tcf`); `pyproject` `1.0.0` ->
   `0.7.0` (alinha ADR-0024). [ADR-0018](docs/adr/0018-v2-format-roadmap.md) ->
   `accepted` (V2-D refutado; V2-C/J/K/L defer). Higiene de tickets: 3 fases welded
   fechadas + 5 parks v2.0/pos-0.7.
-- **`0.7.1` — primeira release publicada no PyPI** (`tcf-format`): o **patch** e'
+- **`0.7.1`, primeira release publicada no PyPI** (`tcf-format`): o **patch** e'
   contador de release/correcao, desacoplado do minor do formato (`#TCF.7`) e do
   comportamento (nao muda logica nem byte-output). D1-D9=1523B / D17a=303B intactos.
 
 ---
 
-## 1.0.0 (2026-05-27) — **STABLE** — format #TCF.6 + API congelados
+## 1.0.0 (2026-05-27): **STABLE**, format #TCF.6 + API congelados
 
 Primeira versao estavel. Decisao formal de freeze em
 [ADR-0017](docs/adr/0017-format-spec-v1-frozen.md).
 
 ### Estabilidade garantida (semver)
 
-- **Format `#TCF.6` imutavel** ate' v2.0.0 — nenhum byte de arquivo TCF
+- **Format `#TCF.6` imutavel** ate' v2.0.0: nenhum byte de arquivo TCF
   v1 muda entre versoes 1.x.y
 - **API publica congelada**: `encode`, `decode`, `SideOutputs`,
   `PipelineConfig`, `build_schema`, `TableSchema`, `ColumnSchema`,
@@ -180,7 +180,7 @@ Primeira versao estavel. Decisao formal de freeze em
 - Suite: 262 passed + 2 xfailed (test_regression_v1_baseline.py: 24
   tests gate byte-canonical + API surface)
 
-### Bug fixes incluidos (categoria 1 — output era invalido)
+### Bug fixes incluidos (categoria 1, output era invalido)
 
 - HCC seq-RLE multi-delta: marker `*N+-1,0|...` (primeiro delta negativo
   double-signed) era emitido mas decoder rejeitava com `ValueError`.
@@ -202,7 +202,7 @@ Primeira versao estavel. Decisao formal de freeze em
 
 ---
 
-## v0.6 (2026-05-10 → 2026-05-27) — TCF (Tabular Compact Format) — superseded por 1.0.0
+## v0.6 (2026-05-10 → 2026-05-27): TCF (Tabular Compact Format), superseded por 1.0.0
 
 **Reset em 2026-05-10**: foco do projeto migrou de "formato textual
 columnar para LLMs" (v0.5) para **algoritmo de compressao de strings
@@ -254,13 +254,13 @@ ao foco. Codigo v0.5 (`old/tcf/`, antes `src/tcf/`) mantido para
 referencia historica.
 
 Ver:
-- [`experiments/lab/dirty/notas/2026-05/historia-dirty-lab.md`](experiments/lab/dirty/notas/2026-05/historia-dirty-lab.md) — narrativa M0-M14
-- [`experiments/lab/dirty/notas/2026-05/roadmap-hipoteses.md`](experiments/lab/dirty/notas/2026-05/roadmap-hipoteses.md) — 12 direcoes futuras
-- [`docs/algorithms/`](docs/algorithms/) — OBAT, HCC, TCF-format
+- [`experiments/lab/dirty/notas/2026-05/historia-dirty-lab.md`](experiments/lab/dirty/notas/2026-05/historia-dirty-lab.md): narrativa M0-M14
+- [`experiments/lab/dirty/notas/2026-05/roadmap-hipoteses.md`](experiments/lab/dirty/notas/2026-05/roadmap-hipoteses.md): 12 direcoes futuras
+- [`docs/algorithms/`](docs/algorithms/): OBAT, HCC, TCF-format
 
 ---
 
-## v0.3-research (2026-04-27) — research-grade (HISTORICA)
+## v0.3-research (2026-04-27): research-grade (HISTORICA)
 
 **Repository reorganization**: GitHub-style README, manual with 7 chapters
 (EN + 3 PT-BR), findings catalogue split by theme into `docs/findings/`,
@@ -271,11 +271,11 @@ workbench (tickets + research notes + dev/science timelines) under
 
 **M-schema-scope finished**: F-Q37 (schema scope doesn't degrade N0;
 sub-finding: models infer `Supplier#NNN` from lexical patterns even
-without `supplier` table visible — TPC-H memorization caveat) and F-Q38
+without `supplier` table visible; TPC-H memorization caveat) and F-Q38
 (schema reduced **helps** in natural wordings: -33pp in N3 between
-minimal and full schemas — empirically justifies schema pruning literature).
+minimal and full schemas; empirically justifies schema pruning literature).
 
-## v0.2.6-anthropic (2026-04-26) — Anthropic family added
+## v0.2.6-anthropic (2026-04-26): Anthropic family added
 
 `commercial_client.py` extended for Anthropic Messages API:
 - haiku 4.5 + sonnet 4.6 with `thinking={"type":"enabled","budget_tokens":2048}`
@@ -290,7 +290,7 @@ Findings:
   paridade in Linha A TPC-H. claude-sonnet-4-6 wins TPC-H Linha B
   (88.1% > gpt-5.4 85.7%).
 
-## v0.2.5-openai (2026-04-26) — OpenAI commercials
+## v0.2.5-openai (2026-04-26): OpenAI commercials
 
 Migrated `commercial_client.py` to **OpenAI Responses API** (recommended
 2026 path), added structured outputs via Pydantic, prompt caching with
@@ -306,13 +306,13 @@ Findings:
 - **F-Q32**: gpt-5.4 + mini = **100% in all naturalness levels** for
   Adult Linha B.
 - **F-Q33**: locals lose -30 to -45pp in TPC-H Linha B with N2
-  wording — schema ambiguity systematic in multi-table.
-- **F-Q34**: same applies to commercial top models — schema ambiguity
+  wording; schema ambiguity systematic in multi-table.
+- **F-Q34**: same applies to commercial top models; schema ambiguity
   is universal/paradigm-independent.
 - **F-Q35**: Linha A commercial in TPC-H caps at 60-76%; even
   gpt-5.4 falls 21pp from Adult to TPC-H.
 
-## v0.2.4-naturalness (2026-04-26) — naturalness axis (locals only)
+## v0.2.4-naturalness (2026-04-26): naturalness axis (locals only)
 
 Introduced **N0..N3 naturalness taxonomy** for question wordings:
 - N0: schema-aware (literal column names, technical hints)
@@ -335,7 +335,7 @@ Findings:
 ScoringConfig dataclass added with `string_match=lenient` default
 (strict still available for legacy comparability).
 
-## v0.2.3-canonical (2026-04-25) — canonical datasets baseline
+## v0.2.3-canonical (2026-04-25): canonical datasets baseline
 
 `scripts/setup_adult.py` and `setup_tpch.py` for reproducible canonical
 ingestion. `scripts/csv_to_sqlite.py` builds SQLite hubs in
@@ -344,17 +344,17 @@ Wilson CI).
 
 Findings:
 - **F-Q24**: canonical TPC-H ≈ synthetic retail in accuracy under same
-  protocol — synthetic was representative.
+  protocol; synthetic was representative.
 - **F-Q25**: H-TCF2 generalizes to single-table (Adult Census) with
   hyphenated columns. 100% Linha B local.
-- **F-Q26**: random ≈ stratified in Adult — paradigm robust to sampling
+- **F-Q26**: random ≈ stratified in Adult; paradigm robust to sampling
   choice ("floor effect" of 100% accuracy).
 - **F-Q27**: SQL quality structural metric correlates **inversely** with
   accuracy. Discarded.
 - **F-Q28**: Linha A in canonical Adult = 52% bimodal (100% on full-table
   agg, 0-11% on filter+agg). Refines F-Q12.
 
-## v0.2.2-shaper (2026-04-25) — unified data pipeline
+## v0.2.2-shaper (2026-04-25): unified data pipeline
 
 `scripts/shaper/` framework with 7 strategies (schema_filter, join,
 compressibility, stratify, fk_preserving, volume, ordering).
@@ -363,26 +363,26 @@ compressibility, stratify, fk_preserving, volume, ordering).
 
 All M-runners migrated to `load_dataset` (no more direct fixture imports).
 
-## v0.2.1-mseries (2026-04-15..04-23) — M1..M9 experiment runs
+## v0.2.1-mseries (2026-04-15..04-23): M1..M9 experiment runs
 
 13 M-series runners exploring Linha B (LLM → SQL) systematically across
 synthetic and canonical datasets. Findings F-Q13..F-Q23 (schema-only,
 fewshot, cross-domain, format, intermediate forms, filter questions,
 HAVING, complex queries, error types, style hints).
 
-## v0.2.0-encoder (2026-04-10..04-13) — encoder/decoder v0.2
+## v0.2.0-encoder (2026-04-10..04-13): encoder/decoder v0.2
 
 Rewrote encoder/decoder with separated `compression.py` module.
 Public API: `encode`, `encode_rows`, `decode`, `EncodeConfig`. CLI
 modernized.
 
-## v0.1-llm-comprehension (2026-04-04..04-10) — Phase 1 LLM testing
+## v0.1-llm-comprehension (2026-04-04..04-10): Phase 1 LLM testing
 
 Phase 1 ran 12 local models × 4 formats × 4 questions to test LLM
-comprehension of TCF. **TCF 43% < JSONL 63%** in raw accuracy — pivot
+comprehension of TCF. **TCF 43% < JSONL 63%** in raw accuracy: pivot
 to Linha B as the high-value path. F-Q1..F-Q12 catalogued.
 
-## v0.0-prototype (2026-04 first week) — initial sketch
+## v0.0-prototype (2026-04 first week): initial sketch
 
 First handcrafted draft of the columnar text format. Encoder/decoder
 v0.1 written in two weeks (`src/tcf/encoder.py`, `decoder.py`).
