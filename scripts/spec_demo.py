@@ -14,7 +14,6 @@ Este script MEDE e MOSTRA:
 """
 from __future__ import annotations
 
-import io
 import random
 import sys
 from collections import Counter

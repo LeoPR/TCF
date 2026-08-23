@@ -475,7 +475,7 @@ def print_summary(manifest_path: Path) -> None:
         print(f"  {m:<22} {v:<14} {d['ok']}/{d['total']:<6}  {d['chars']:<7}  {pct:>4.0f}%")
 
     # Per (variant, question) — shows which questions each variant unlocks
-    print(f"\n  Per-question breakdown (aggregated across models):")
+    print("\n  Per-question breakdown (aggregated across models):")
     by_vq = defaultdict(lambda: {"ok": 0, "total": 0})
     for r in records:
         k = (r["variant"], r["question"])
@@ -493,7 +493,7 @@ def print_summary(manifest_path: Path) -> None:
             if d["total"]:
                 row += f" {d['ok']}/{d['total']:<4}  "
             else:
-                row += f"   -     "
+                row += "   -     "
         print(row)
 
 

@@ -10,8 +10,7 @@ returns the full dataset unchanged.
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
-from typing import Any
+from dataclasses import dataclass
 
 
 # Valid named schema levels (per-dataset mapping lives in schema strategy)
@@ -137,7 +136,7 @@ class ShapeRequest:
         errors = self.validate()
         if errors:
             raise ValueError(
-                f"Invalid ShapeRequest:\n" + "\n".join(f"  - {e}" for e in errors)
+                "Invalid ShapeRequest:\n" + "\n".join(f"  - {e}" for e in errors)
             )
 
     def summary(self) -> str:
@@ -156,7 +155,7 @@ class ShapeRequest:
         if self.compressibility_range:
             parts.append(f"compress={self.compressibility_range}")
         if self.fk_preserving:
-            parts.append(f"fk_preserving=True")
+            parts.append("fk_preserving=True")
             if self.fact_table:
                 parts.append(f"fact={self.fact_table}")
         parts.append(f"seed={self.seed}")

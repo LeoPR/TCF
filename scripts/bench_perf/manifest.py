@@ -44,7 +44,6 @@ def _compressores() -> dict:
     """Registra presenca E versao de cada compressor. Ausente = registrado como
     ausente, nunca fallback calado."""
     out: dict = {}
-    import gzip
     import zlib
     out["gzip"] = {"presente": True, "zlib_version": zlib.ZLIB_VERSION}
     # chave = NOME CANONICO do codec (o mesmo de cases/plans/compress) p/ o cross-ref
@@ -133,7 +132,7 @@ def main(argv=None) -> int:
     print(f"  seed={m['seed']} cases_sha={str(m['cases_sha256'])[:12]} "
           f"tcf={m['tcf_version']} git={m['git']['head'][:8]}"
           f"{' DIRTY' if m['git']['dirty'] else ''}")
-    print(f"  compressores: " + ", ".join(
+    print("  compressores: " + ", ".join(
         f"{k}={'ok' if v.get('presente') else 'AUSENTE'}" for k, v in m["compressores"].items()))
     for p in problemas:
         print(f"  AVISO: {p}")

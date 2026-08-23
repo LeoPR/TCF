@@ -30,7 +30,7 @@ sys.path.insert(0, str(ROOT / "scripts"))
 
 from pydantic import BaseModel
 
-from llm_eval.commercial_client import CommercialClient, PRICING, estimate_cost
+from llm_eval.commercial_client import CommercialClient, PRICING
 from llm_eval.question_naturalness import (
     NaturalnessLevel, get_questions as get_natural_questions, iter_levels,
 )
@@ -38,7 +38,7 @@ from run_m9_adult import (
     compute_gt_adult, build_payload_adult, ADULT_CONFIG,
 )
 from run_m1_codegen import (
-    PROMPT_TEMPLATE, build_sqlite_from_tables, extract_sql, score_sql,
+    build_sqlite_from_tables, extract_sql, score_sql,
 )
 from data_sources import load_dataset
 
@@ -279,7 +279,7 @@ def print_summary(manifest_path: Path) -> None:
               f"CI [{lo*100:.1f}%, {hi*100:.1f}%]  (pricing: ${pricing[0]}/${pricing[1]} per 1M)")
 
     if multi_level:
-        print(f"\n  Per (model x naturalness):")
+        print("\n  Per (model x naturalness):")
         print(f"  {'Model':<22}" + "  ".join(f"{l:<14}" for l in levels))
         for m in sorted(by_m):
             row = f"  {m:<22}"
@@ -291,7 +291,7 @@ def print_summary(manifest_path: Path) -> None:
                     row += f"  {'-':<14}"
             print(row)
 
-        print(f"\n  Per (naturalness x question):")
+        print("\n  Per (naturalness x question):")
         print(f"  {'Question':<25}" + "  ".join(f"{l:<14}" for l in levels))
         for q in questions:
             row = f"  {q:<25}"

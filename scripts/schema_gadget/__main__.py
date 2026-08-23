@@ -89,7 +89,7 @@ def main(argv: list[str] | None = None) -> int:
             )
         except FileNotFoundError as e:
             print(f"erro: {e}", file=sys.stderr)
-            print(f"(use `python -m schema_gadget list` para ver datasets)", file=sys.stderr)
+            print("(use `python -m schema_gadget list` para ver datasets)", file=sys.stderr)
             return 2
 
         if args.json:

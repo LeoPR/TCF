@@ -30,7 +30,6 @@ from llm_eval.ollama_client import OllamaClient
 from run_m1_codegen import (
     LLM_OPTIONS, PROMPT_TEMPLATE,
     build_sqlite_from_tables,
-    build_payload_stats,
     extract_sql, score_sql,
 )
 from run_m2_codegen import build_payload_stats_fewshot
@@ -337,7 +336,7 @@ def run_m4(models: list[str], n_orders: int, domains: list[str],
                 transient = any(x in es for x in ("RemoteDisconnected", "ConnectionError",
                                                    "ConnectionAborted", "ReadTimeout"))
                 if transient and attempt == 1:
-                    print(f"TRANSIENT; sleeping 15s...", flush=True)
+                    print("TRANSIENT; sleeping 15s...", flush=True)
                     time.sleep(15)
                     continue
                 print(f"ERROR: {e}")
@@ -386,7 +385,7 @@ def print_summary(manifest_path: Path) -> None:
         print(f"  {m:<22} {f:<8} {d:<12} {acc:>4.0f}% ({sum(oks)}/{len(oks)})")
 
     # Per format aggregated
-    print(f"\n  Per-format accuracy (aggregated over models, domains, seeds):")
+    print("\n  Per-format accuracy (aggregated over models, domains, seeds):")
     by_format = defaultdict(list)
     for r in records:
         by_format[r["format"]].append(r["ok"])

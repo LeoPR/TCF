@@ -12,7 +12,6 @@ It is NOT the internal sort for compression (that's TCF's job).
 from __future__ import annotations
 
 import random
-from typing import Any
 
 from ..pipeline import register_strategy
 

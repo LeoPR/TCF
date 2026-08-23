@@ -81,7 +81,7 @@ def compute_for_dataset(dataset_name: str, preview: bool = False) -> None:
             q["ground_truth"] = gt
 
     if preview:
-        print(f"[gt] --preview: not saving changes")
+        print("[gt] --preview: not saving changes")
         return
 
     # Write back

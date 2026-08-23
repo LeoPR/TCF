@@ -14,8 +14,7 @@ import sys
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from llm_eval.stats import (
-    wilson_ci, bootstrap_ci, segment_report,
-    chi2_independence, adequacy_check,
+    wilson_ci, chi2_independence, adequacy_check,
     print_confidence_report,
 )
 
@@ -241,7 +240,7 @@ def main() -> None:
 
     # Quality
     if args.quality:
-        print(f"\n")
+        print("\n")
         quality_report(records, group_dim=args.primary)
 
     # Performance

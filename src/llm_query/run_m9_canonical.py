@@ -329,7 +329,7 @@ def run_m9(
                 transient = any(x in es for x in ("RemoteDisconnected", "ConnectionError",
                                                    "ConnectionAborted", "ReadTimeout"))
                 if transient and attempt == 1:
-                    print(f"TRANSIENT; retry 15s...", flush=True)
+                    print("TRANSIENT; retry 15s...", flush=True)
                     time.sleep(15)
                     continue
                 print(f"ERROR: {e}")
@@ -378,7 +378,7 @@ def print_summary(manifest_path: Path) -> None:
     ok = sum(r["ok"] for r in records)
     print(f"\n=== M9 Summary ({total} records) ===")
     print(f"  Overall canonical: {ok}/{total} = {ok/total*100:.1f}%")
-    print(f"  M3 synthetic baseline (reference): 90-95% (sql_stats_fs, 3 domains)\n")
+    print("  M3 synthetic baseline (reference): 90-95% (sql_stats_fs, 3 domains)\n")
 
     questions = ["q_count", "q_sum", "q_avg", "q_distinct",
                  "q_top_product", "q_lookup", "q_lookup_value"]
@@ -410,7 +410,7 @@ def print_summary(manifest_path: Path) -> None:
                 else:
                     row += f"  {'-':<14}"
             print(row)
-        print(f"\n  Per (naturalness x question):")
+        print("\n  Per (naturalness x question):")
         print(f"  {'Question':<25}" + "  ".join(f"{l:<14}" for l in levels))
         for q in questions:
             row = f"  {q:<25}"
@@ -423,7 +423,7 @@ def print_summary(manifest_path: Path) -> None:
             print(row)
         print()
 
-    print(f"  Per (model x question)" + (" [aggregate over levels]" if multi_level else "") + ":")
+    print("  Per (model x question)" + (" [aggregate over levels]" if multi_level else "") + ":")
     print(f"  {'Question':<18} " + " ".join(f"{m[:20]:>22}" for m in models) + "  Agg")
     print(f"  {'-'*18} " + " ".join(f"{'':->22}" for _ in models) + "  ---")
     for q in questions:
@@ -487,7 +487,7 @@ def main() -> None:
             print()
             payload = build_payload_canonical(tables, meta)
             print(f"Payload length: {len(payload)} chars")
-            print(f"--- Payload preview (first 800 chars) ---")
+            print("--- Payload preview (first 800 chars) ---")
             print(payload[:800])
         return
 

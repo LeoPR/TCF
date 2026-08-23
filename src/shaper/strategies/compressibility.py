@@ -14,7 +14,6 @@ import json
 import math
 from collections import Counter
 from pathlib import Path
-from typing import Any
 
 import sys
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent.parent / "scripts"))  # _paths/dataset_reader ficam em scripts/ (gadget movido p/ src/, 2026-07-19)

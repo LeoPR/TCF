@@ -275,7 +275,7 @@ def run_m7(models: list[str], n_orders: int, domains: list[str], seeds: list[int
                 transient = any(x in es for x in ("RemoteDisconnected", "ConnectionError",
                                                    "ConnectionAborted", "ReadTimeout"))
                 if transient and attempt == 1:
-                    print(f"TRANSIENT; retry 15s...", flush=True)
+                    print("TRANSIENT; retry 15s...", flush=True)
                     time.sleep(15)
                     continue
                 print(f"ERROR: {e}")

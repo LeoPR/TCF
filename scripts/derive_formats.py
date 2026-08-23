@@ -87,7 +87,7 @@ def main():
     parser = argparse.ArgumentParser(description="Derive baseline formats from SQLite")
     parser.add_argument("dataset", nargs="?", help="dataset name (default: all)")
     parser.add_argument("--formats", nargs="+", default=list(ALL_FORMATS),
-                        choices=ALL_FORMATS, help=f"formats to generate (default: all)")
+                        choices=ALL_FORMATS, help="formats to generate (default: all)")
     args = parser.parse_args()
 
     ensure_dirs()

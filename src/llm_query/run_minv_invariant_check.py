@@ -122,7 +122,7 @@ def compute_invariant(q_name: str, tables: dict, cfg: dict, executed_result: str
                 return {"type": "A", "bound": "must be valid entity2 name",
                         "result": result_val, "reason": "hallucinated_entity_name"}
             if rv and rv in all_names and rv not in valid_names:
-                return {"type": "A", "bound": f"must be entity2 of top entity1",
+                return {"type": "A", "bound": "must be entity2 of top entity1",
                         "result": result_val,
                         "reason": "wrong_entity1_scope"}
             return {"type": "B", "bound": "valid entity2 of top entity1",

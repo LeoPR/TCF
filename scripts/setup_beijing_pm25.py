@@ -173,8 +173,8 @@ def main():
 
     print(f"\n[beijing] Done. {rows:,} rows x {cols} columns.")
     print(f"[beijing] Raw data: {output}")
-    print(f"[beijing] Metadata + sample: datasets/canonical/beijing-pm25/")
-    print(f"[beijing] Next: python scripts/csv_to_sqlite.py")
+    print("[beijing] Metadata + sample: datasets/canonical/beijing-pm25/")
+    print("[beijing] Next: python scripts/csv_to_sqlite.py")
 
 
 if __name__ == "__main__":

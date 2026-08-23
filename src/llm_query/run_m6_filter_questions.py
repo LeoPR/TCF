@@ -304,7 +304,7 @@ def run_m6(
                 transient = any(x in es for x in ("RemoteDisconnected", "ConnectionError",
                                                    "ConnectionAborted", "ReadTimeout"))
                 if transient and attempt == 1:
-                    print(f"TRANSIENT; retry in 15s...", flush=True)
+                    print("TRANSIENT; retry in 15s...", flush=True)
                     time.sleep(15)
                     continue
                 print(f"ERROR: {e}")
@@ -375,13 +375,13 @@ def print_summary(manifest_path: Path) -> None:
         print(row)
 
     # Compare with M1-M5 baseline (full-table) accuracy
-    print(f"\n  M6 vs M3 baseline (sql_stats_fs, same domains+models+seeds):")
-    print(f"  M3 (full-table 7 questions):  90%+ across all domains")
+    print("\n  M6 vs M3 baseline (sql_stats_fs, same domains+models+seeds):")
+    print("  M3 (full-table 7 questions):  90%+ across all domains")
     agg_all = [r["ok"] for r in records]
     print(f"  M6 (filter/having 4 questions): {sum(agg_all)/len(agg_all)*100:.1f}% ({sum(agg_all)}/{len(agg_all)})")
 
     # Per (domain, question)
-    print(f"\n  Per domain:")
+    print("\n  Per domain:")
     domains = sorted(set(r["domain"] for r in records))
     print(f"  {'Question':<18} " + " ".join(f"{d:>12}" for d in domains))
     by_dq = defaultdict(list)
@@ -395,7 +395,7 @@ def print_summary(manifest_path: Path) -> None:
         print(row)
 
     # Failure mode breakdown
-    print(f"\n  Failure modes:")
+    print("\n  Failure modes:")
     by_reason = defaultdict(int)
     for r in records:
         if not r["ok"]:

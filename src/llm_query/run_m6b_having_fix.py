@@ -147,7 +147,7 @@ def run_m6b(models: list[str], n_orders: int, domains: list[str], seeds: list[in
                 transient = any(x in es for x in ("RemoteDisconnected", "ConnectionError",
                                                    "ConnectionAborted", "ReadTimeout"))
                 if transient and attempt == 1:
-                    print(f"TRANSIENT; retry 15s...", flush=True)
+                    print("TRANSIENT; retry 15s...", flush=True)
                     time.sleep(15)
                     continue
                 print(f"ERROR: {e}")
@@ -189,7 +189,7 @@ def print_summary(manifest_path: Path) -> None:
     ok_count = sum(r["ok"] for r in records)
     print(f"\n=== M6b Summary ({total} records) ===")
     print(f"  q_having with HAVING-subquery fewshot: {ok_count}/{total} = {ok_count/total*100:.1f}%")
-    print(f"  M6 baseline (no subquery example):     7%")
+    print("  M6 baseline (no subquery example):     7%")
     print()
 
     by_model = defaultdict(list)

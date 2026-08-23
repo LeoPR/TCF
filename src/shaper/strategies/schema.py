@@ -10,7 +10,6 @@ Named levels per dataset:
 
 from __future__ import annotations
 
-from typing import Any
 
 from ..pipeline import register_strategy
 

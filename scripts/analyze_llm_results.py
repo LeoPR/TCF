@@ -22,10 +22,9 @@ from __future__ import annotations
 
 import argparse
 import json
-import math
 import re
 import sys
-from collections import Counter, defaultdict
+from collections import Counter
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -336,7 +335,7 @@ def print_markdown_report(analysis: dict) -> str:
 
     # Truncation
     trunc = analysis["truncation"]
-    lines.append(f"\n## 4. Truncation")
+    lines.append("\n## 4. Truncation")
     lines.append(f"\nTotal truncated combos: **{trunc['total_truncated']}**")
     if trunc["by_format"]:
         lines.append("By format: " + ", ".join(f"{k}={v}" for k, v in trunc["by_format"].items()))

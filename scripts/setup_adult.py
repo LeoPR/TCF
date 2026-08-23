@@ -152,7 +152,7 @@ def main():
 
     print(f"\n[adult] Done. {rows:,} rows x {cols} columns.")
     print(f"[adult] Raw data: {output}")
-    print(f"[adult] Metadata + sample: in git under datasets/canonical/adult-census/")
+    print("[adult] Metadata + sample: in git under datasets/canonical/adult-census/")
 
 
 if __name__ == "__main__":

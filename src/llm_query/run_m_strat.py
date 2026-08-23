@@ -37,7 +37,7 @@ from run_m1_codegen import (
     extract_sql, score_sql,
 )
 from run_m9_adult import (
-    ADULT_CONFIG, compute_gt_adult, build_questions_adult, build_payload_adult,
+    compute_gt_adult, build_questions_adult, build_payload_adult,
 )
 from data_sources import load_dataset
 
@@ -118,7 +118,7 @@ def run_m_strat(
                 m = sm[0]
                 print(f"    stratification: TVD={m['tvd']}, chi2_p={m['chi2_pvalue']}")
             else:
-                print(f"    stratification: random (no metrics)")
+                print("    stratification: random (no metrics)")
 
     print()
     t_start = time.time()
@@ -159,7 +159,7 @@ def run_m_strat(
                 transient = any(x in es for x in ("RemoteDisconnected", "ConnectionError",
                                                    "ConnectionAborted", "ReadTimeout"))
                 if transient and attempt == 1:
-                    print(f"TRANSIENT; retry 15s...", flush=True)
+                    print("TRANSIENT; retry 15s...", flush=True)
                     time.sleep(15)
                     continue
                 print(f"ERROR: {e}")
@@ -234,12 +234,12 @@ def print_summary(manifest_path: Path) -> None:
         d_mean = mode_results["stratify"]["mean"] - mode_results["random"]["mean"]
         d_std = mode_results["stratify"]["std"] - mode_results["random"]["std"]
         print(f"\n  Diff (stratify - random): mean={d_mean:+.2f}pp, std={d_std:+.2f}")
-        print(f"  Interpretation:")
+        print("  Interpretation:")
         print(f"    H1 (mean random ~ stratify): {'CONFIRM' if abs(d_mean) < 2 else 'REJECT'} (|diff|={abs(d_mean):.2f}pp, threshold=2pp)")
         print(f"    H2 (stratify std < random std): {'CONFIRM' if d_std < 0 else 'REJECT'} (diff={d_std:+.2f})")
 
     # Per-question per-mode (H3: class-sensitive)
-    print(f"\n  H3: Per-question accuracy per mode")
+    print("\n  H3: Per-question accuracy per mode")
     questions = ["q_count", "q_avg_age", "q_max_age", "q_distinct_workclass",
                  "q_top_education", "q_count_high_class", "q_avg_hours_male"]
     by_qm: dict = defaultdict(lambda: defaultdict(list))
@@ -256,7 +256,7 @@ def print_summary(manifest_path: Path) -> None:
         print(f"  {q:<25} {sum(rand_oks)}/{len(rand_oks)} ({rand_acc:.0f}%)   {sum(strat_oks)}/{len(strat_oks)} ({strat_acc:.0f}%)")
 
     # Stratification metrics summary (per stratified seed)
-    print(f"\n  Stratification quality (per seed):")
+    print("\n  Stratification quality (per seed):")
     seeds_seen = sorted(set(r["seed"] for r in records if r["mode"] == "stratify"))
     for seed in seeds_seen:
         sm_records = [r for r in records if r["mode"]=="stratify" and r["seed"]==seed and r.get("stratification_metrics")]

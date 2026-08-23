@@ -31,7 +31,7 @@ sys.path.insert(0, str(ROOT / "src"))
 sys.path.insert(0, str(ROOT / "scripts"))
 
 from bench_evidencia import (  # noqa: E402
-    RESULTS_DIR, load_csv_multi, load_csv_single, run_case, validate_pins,
+    RESULTS_DIR, load_csv_single, run_case, validate_pins,
     write_jsonl,
 )
 from setup_br_identidades import _gen_cnpj, _gen_cpf  # noqa: E402

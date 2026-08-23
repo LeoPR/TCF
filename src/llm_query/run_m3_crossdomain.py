@@ -277,7 +277,7 @@ def run_m3(models: list[str], n_orders: int, domains: list[str],
                 transient = any(x in es for x in ("RemoteDisconnected", "ConnectionError",
                                                    "ConnectionAborted", "ReadTimeout"))
                 if transient and attempt == 1:
-                    print(f"TRANSIENT; sleeping 15s...", flush=True)
+                    print("TRANSIENT; sleeping 15s...", flush=True)
                     time.sleep(15)
                     continue
                 print(f"ERROR: {e}")
@@ -326,7 +326,7 @@ def print_summary(manifest_path: Path) -> None:
         print(f"  {m:<22} {d:<12} {acc:>4.0f}% ({sum(oks)}/{len(oks)})")
 
     # Per (domain, question)
-    print(f"\n  Per-question accuracy by domain (aggregated over models+seeds):")
+    print("\n  Per-question accuracy by domain (aggregated over models+seeds):")
     domains = sorted(set(r["domain"] for r in records))
     print(f"  {'Question':<18} " + " ".join(f"{d:>12}" for d in domains))
     questions = sorted(set(r["question"] for r in records))
@@ -337,7 +337,7 @@ def print_summary(manifest_path: Path) -> None:
             if oks:
                 row += f"  {sum(oks)}/{len(oks):<4}    "
             else:
-                row += f"     -        "
+                row += "     -        "
         print(row)
 
 

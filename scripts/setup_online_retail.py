@@ -182,8 +182,8 @@ def main():
 
     print(f"\n[retail] Done. {rows:,} rows x {cols} columns.")
     print(f"[retail] Raw data: {output}")
-    print(f"[retail] Metadata + sample: datasets/canonical/online-retail/")
-    print(f"[retail] Next: python scripts/csv_to_sqlite.py")
+    print("[retail] Metadata + sample: datasets/canonical/online-retail/")
+    print("[retail] Next: python scripts/csv_to_sqlite.py")
 
 
 if __name__ == "__main__":

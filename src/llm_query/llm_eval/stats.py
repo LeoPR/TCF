@@ -125,7 +125,6 @@ def chi2_independence(
     Returns: {stat, p_value, dof, significant (p<0.05), contingency_table}
     """
     # Build contingency table: rows=dim_a values, cols=(ok, fail)
-    from collections import Counter
     a_vals = sorted(set(r[dim_a] for r in records))
     counts: dict[Any, list[int]] = {a: [0, 0] for a in a_vals}
     for r in records:
@@ -340,7 +339,7 @@ def print_confidence_report(
     # Adequacy check
     n_per_cell = total_n // max(1, len(set(r[primary_dim] for r in records)))
     adq = adequacy_check(n_per_cell, total_ok / total_n if total_n else 0)
-    print(f"\n  Adequacy (detect 5pp delta, 80% power):")
+    print("\n  Adequacy (detect 5pp delta, 80% power):")
     print(f"    Required N/cell: {adq['required_n']}, current: {adq['current_n']}  "
           f"{'OK' if adq['adequate'] else 'INSUFFICIENT'}")
     print(f"    Detectable delta at current N: {adq['detectable_delta_pct']}pp")

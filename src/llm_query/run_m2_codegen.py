@@ -177,7 +177,7 @@ def run_m2(models: list[str], n_orders: int, variants: list[str],
                 transient = any(x in es for x in ("RemoteDisconnected", "ConnectionError",
                                                    "ConnectionAborted", "ReadTimeout"))
                 if transient and attempt == 1:
-                    print(f"TRANSIENT; sleeping 15s...", flush=True)
+                    print("TRANSIENT; sleeping 15s...", flush=True)
                     time.sleep(15)
                     continue
                 print(f"ERROR: {e}")
@@ -286,7 +286,7 @@ def print_summary(manifest_path: Path) -> None:
         print(f"  {m:<22} {v:<16} {acc:>4.0f}% ({sum(oks)}/{len(oks)})  {' '.join(seed_breakdown)}")
 
     # Per (variant, question) aggregated
-    print(f"\n  Per-question × variant (aggregated across models and seeds):")
+    print("\n  Per-question × variant (aggregated across models and seeds):")
     vqs = sorted(set((r["variant"], r["question"]) for r in records))
     variants_order = sorted(set(v for v, _ in vqs))
     print(f"  {'Question':<18} " + " ".join(f"{v:>12}" for v in variants_order))
@@ -297,7 +297,7 @@ def print_summary(manifest_path: Path) -> None:
             if oks:
                 row += f"  {sum(oks)}/{len(oks):<4}    "
             else:
-                row += f"     -        "
+                row += "     -        "
         print(row)
 
 

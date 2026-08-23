@@ -8,6 +8,65 @@
 > [`STATUS.md`](STATUS.md) = *estado vigente* · [`ROADMAP.md`](ROADMAP.md) = *o que vem*.
 > Não repita entre eles; linke.
 
+## 0. As invariantes — o que se repete até virar automático
+
+**Autoridade única desta lista.** Se uma regra aparece aqui, as outras seções **apontam**
+para cá em vez de re-narrar (Strata §5: autoridade única ≠ instância única; o antipadrão é
+a cópia que finge ser fonte). As que estão marcadas com ⟳ o owner **já precisou repetir
+várias vezes** — se você está prestes a fazer o contrário, pare.
+
+### I1 ⟳ A superfície carrega só o PRESENTE; o traço é o git
+
+Vale para **código, documentação e índices**, sem exceção:
+
+- **Comentário e docstring** dizem por que o código é como é — nunca `RE-PIN <data>`,
+  `ERA: X`, "antes era Y", "weld de <data>". Rationale e invariante ficam (Chesterton);
+  cronologia sai.
+- **Doc de leitura** (`docs/algorithms`, `how-to`, `reference`, `tutorials`, READMEs) diz
+  **o que vale**. Ponto. Nunca `CORRIGIDO <data>`, "esta seção dizia X", "os números aqui
+  eram os de <data>". *Esses documentos não são publicação formal — logo não são errata de
+  nada.*
+- **Onde a história vive**: mensagem de commit (o porquê da mudança) · `CHANGELOG.md` (o
+  que mudou entre versões) · ADR (a decisão e seu racional).
+- **Ponteiro ≠ narrativa**: citar `ADR-NNNN` como autoridade vigente fica; contar a
+  novela de como se chegou lá, não.
+
+**O que NÃO se apaga** — é traço, não superfície: `docs/adr/` (ADR aceito nunca é editado;
+vigência vai no Status do índice), `docs/archive/`, `docs/findings/`, labs em
+`experiments/`, `CHANGELOG.md`, e o histórico do git.
+
+> Strata §3: o traço é *append-only*; a **superfície decai ativamente**. Aplicar
+> *append-only* à superfície é o erro que faz a leitura apodrecer sob o peso do que já não
+> vale. Apagar da superfície com autorização **não** é edição furtiva — o commit é o
+> tombstone.
+
+### I2 ⟳ Lab sem evidência em disco é lab NÃO FEITO
+
+Todo lab grava `inputs/`, `intermediates/`, `outputs/` com **extensão real**
+(`.json`/`.csv`/`.tcf`), e o `run.py` **falha** se faltar (portão anti-órfão). Wire só
+existe se estiver gravado; medição sem arquivo não entrou. Detalhe da estrutura em §6.
+
+### I3 ⟳ Teste de massa usa o Shaper
+
+Volume/limpeza vêm de `src/shaper/` — amostra honesta é representatividade +
+dimensionamento + distribuição. SQL direto só em teste pequeno de ajuste.
+
+### I4 §RT — nunca reportar byte sem round-trip validado
+
+`decode(encode(x)) == x` antes de qualquer número. Sem RT, o número não entra em lugar
+nenhum: nem em prosa, nem em tabela, nem em commit.
+
+### I5 `src/tcf/` só muda com aprovação explícita
+
+E toda mudança passa nos gates byte-canônicos — os dois, D1-D9/D17a **e**
+`test_real_world_snapshots.py` (§4 explica por que o mini-suite não basta).
+
+### I6 Antes de mudança grande, reconferir o L0 do Strata
+
+Format change, weld em `src/tcf`, ADR novo aceito, release, reorg de docs: passada rápida
+de aderência aos 10 princípios L0 **antes** de prosseguir. Proporcional ao esforço (§9 do
+Strata) — mudança pequena não exige.
+
 ## 1. O projeto em 1 parágrafo
 
 **TCF** (Tabular Compact Format) — formato **`#TCF.8` default** (ADR-0032; pacote 0.8.0
@@ -42,30 +101,6 @@ não conflitam. A prosa aponta; o teste mede.
 | `experiments/lab/{dirty,clean}/` | Labs. `dirty/` aninha macros por `<YYYY-MM>/<YYYY-MM-DD>/` (§6); `dirty/notas/` = diário, checkpoints, registries (`roadmap-hipoteses.md`) + notas por mês. ⚠️ **`dirty/` e `archive/` NÃO são versionados** (desde 2026-08-22): existem no disco, fora do git. Ver a fronteira abaixo. |
 | `datasets/` | `synthetic/` = CSVs D1-D17 no repo. `canonical/` = só metadata+README (dado real em Z:). |
 
-### Doc de leitura NÃO é changelog (owner, 3ª repetição — 2026-08-23)
-
-> *"No documento de superfície apenas tem a correção e fim, não a explicação dele. Esses
-> documentos, a rigor, não existem como publicação formal, logo eles não são erratas de nada
-> anterior."*
-
-Um doc de **entrega** (`docs/algorithms`, `docs/how-to`, `docs/reference`, `docs/tutorials`,
-READMEs) diz **o que vale**. Ponto. Ele nunca carrega:
-
-- `CORRIGIDO <data>` / `ERRATA` / `ATUALIZADO <data>` — nem em bloco de citação
-- *"esta seção dizia X"*, *"antes era Y"*, *"os números aqui eram os de <data>"*
-- a narrativa de como se chegou na versão atual
-
-**Onde isso vive**: mensagem de commit (o porquê da mudança), `CHANGELOG.md` (o que mudou
-entre versões), ADR (a decisão e seu racional — e ADR **é** traço, fica). Se a correção
-mereceu explicação longa, ela é um ADR ou uma nota de lab, não um bloco no meio do manual.
-
-**O que FICA no doc de leitura**: o conteúdo vigente, e ponteiro de **autoridade** (`ADR-NNNN`)
-quando o leitor precisa do porquê. Ponteiro ≠ narrativa.
-
-Mesma regra que vale para comentário de código (§ acima): **o traço é o git; a superfície
-carrega só o presente**. Strata §3 — a superfície decai ativamente, e aplicar *append-only* a
-ela é o erro que faz a leitura apodrecer.
-
 ### Fronteira do que é publicado (owner, 2026-08-22)
 
 O repositório é **público**. O que ele publica é a **lógica** e a **evidência que sustenta as
@@ -78,8 +113,7 @@ afirmações**; o **caderno de trabalho** fica reservado.
 | `experiments/results/evidencia-0.8/` — as medições do release | `.claude/` |
 | `experiments/lab/framework/` — harness dos clean | |
 
-Mecanismo: `git rm --cached` + `.gitignore`. **Some da versão atual, permanece no histórico** —
-nada foi reescrito (o traço é o git, Strata §3). Consequência prática: **a doc pública cita
+Mecanismo: `git rm --cached` + `.gitignore` — some da versão atual, permanece no histórico (I1). Consequência prática: **a doc pública cita
 caminhos de `dirty/` como ponteiro de evidência** (368 ocorrências, 112 só nos ADRs, que são
 imutáveis). Esses ponteiros continuam válidos *localmente* e no histórico; para quem só vê o
 GitHub de hoje, apontam para fora da árvore. É trade-off aceito — a alternativa seria reescrever
@@ -122,7 +156,7 @@ Algum **NÃO** → marcar com ressalva ou `A-revalidar`. Sub-exp em real-world a
 `tests/test_real_world_snapshots.py`. O mini-suite D1-D9 + D17a **não basta** — o
 candidato prune-k-03 passou nele e regrediu +0.59% em real-world. Weld só com os dois verdes.
 
-**§RT** — nunca reportar bytes sem round-trip validado (`decode(encode(x)) == x`).
+**§RT** — ver **I4**. Nunca reportar bytes sem round-trip validado.
 
 ## 5. Filosofia de design
 
@@ -271,11 +305,15 @@ lê diretiva, hipótese e registro no mesmo plano e erra.
 
 ## 7. NUNCA
 
-- Modificar `src/tcf/` sem aprovação explícita
+- Modificar `src/tcf/` sem aprovação explícita (I5)
 - Baixar dados externos quando a infra `Z:/tcf-data/` já existe
 - Push pra GitHub / pra `main` sem solicitação explícita
 - Commit com `Co-Authored-By:`
 - Superlativos ("incrível", "muito melhor", "campeão", "vencedor", "descoberta", "surpreendente")
+- Deixar cronologia na superfície: `RE-PIN <data>`, `CORRIGIDO <data>`, "antes era X" (I1)
+- Fechar lab sem `inputs/`+`outputs/` gravados em disco (I2)
+- Teste de massa sem o Shaper (I3)
+- Reportar byte sem round-trip validado (I4)
 - `git rebase -i`, `git add -i` (interativo não suportado)
 - `git reset --hard`, `git push --force` sem aprovação
 - Skip hooks (`--no-verify`)

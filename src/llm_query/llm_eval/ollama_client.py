@@ -1,7 +1,6 @@
 """Ollama HTTP client — generate + model management (pull / ensure)."""
 
 from __future__ import annotations
-import sys
 import requests
 from typing import Any, TypedDict
 

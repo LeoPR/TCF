@@ -12,7 +12,6 @@ with order="random".
 from __future__ import annotations
 
 import random
-from typing import Any
 
 from ..pipeline import register_strategy
 

@@ -32,11 +32,10 @@ import gzip
 import io
 import json
 import sys
-import time
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from _paths import PROJECT_ROOT, data_root  # noqa: E402
+from _paths import PROJECT_ROOT  # noqa: E402
 from dataset_reader import DatasetReader  # noqa: E402
 from writers.toon_writer import encode_toon  # noqa: E402
 
@@ -189,10 +188,10 @@ def print_report(results: list[dict], dataset: str) -> str:
     """Generate markdown report from benchmark results."""
     lines = [
         f"# Compression Benchmark — {dataset}",
-        f"",
-        f"Formats: CSV, JSONL, TCF L0, L1, L2, L3",
-        f"Compression: gzip" + (", brotli" if any(r.get("brotli") for r in results) else ""),
-        f"",
+        "",
+        "Formats: CSV, JSONL, TCF L0, L1, L2, L3",
+        "Compression: gzip" + (", brotli" if any(r.get("brotli") for r in results) else ""),
+        "",
     ]
 
     # Group by table

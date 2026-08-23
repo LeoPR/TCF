@@ -39,7 +39,7 @@ from llm_eval.question_naturalness import (
 )
 from run_m1_codegen import (
     LLM_OPTIONS, PROMPT_TEMPLATE, build_sqlite_from_tables,
-    extract_sql, score_sql, _coerce_value, _detect_column_type,
+    extract_sql, score_sql,
 )
 from run_m9_canonical import (
     CANONICAL_CONFIGS, compute_gt_m9, build_payload_canonical,
@@ -278,7 +278,7 @@ def print_summary(manifest_path: Path) -> None:
                  "q_top_product", "q_lookup", "q_lookup_value"]
     models = sorted(set(r["model"] for r in records))
 
-    print(f"  Per (model x schema_level):")
+    print("  Per (model x schema_level):")
     print(f"  {'Model':<22}" + "  ".join(f"{l:<14}" for l in levels))
     for m in models:
         row = f"  {m:<22}"
@@ -290,7 +290,7 @@ def print_summary(manifest_path: Path) -> None:
                 row += f"  {'-':<14}"
         print(row)
 
-    print(f"\n  Per (schema_level x question):")
+    print("\n  Per (schema_level x question):")
     print(f"  {'Question':<22}" + "  ".join(f"{l:<14}" for l in levels))
     for q in questions:
         row = f"  {q:<22}"
@@ -303,7 +303,7 @@ def print_summary(manifest_path: Path) -> None:
         print(row)
 
     if multi_nl:
-        print(f"\n  Per (schema_level x naturalness):")
+        print("\n  Per (schema_level x naturalness):")
         print(f"  {'Level':<10}" + "  ".join(f"{nl:<14}" for nl in nls))
         for l in levels:
             row = f"  {l:<10}"

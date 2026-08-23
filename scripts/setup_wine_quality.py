@@ -141,8 +141,8 @@ def main():
 
     print(f"\n[wine] Done. {rows:,} rows x {cols} columns.")
     print(f"[wine] Raw data: {output}")
-    print(f"[wine] Metadata + sample: in git under datasets/canonical/wine-quality/")
-    print(f"[wine] Next: python scripts/csv_to_sqlite.py")
+    print("[wine] Metadata + sample: in git under datasets/canonical/wine-quality/")
+    print("[wine] Next: python scripts/csv_to_sqlite.py")
 
 
 if __name__ == "__main__":

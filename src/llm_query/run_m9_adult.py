@@ -296,7 +296,7 @@ def run_m9_adult(
                 transient = any(x in es for x in ("RemoteDisconnected", "ConnectionError",
                                                    "ConnectionAborted", "ReadTimeout"))
                 if transient and attempt == 1:
-                    print(f"TRANSIENT; retry 15s...", flush=True)
+                    print("TRANSIENT; retry 15s...", flush=True)
                     time.sleep(15)
                     continue
                 print(f"ERROR: {e}")
@@ -350,7 +350,7 @@ def print_summary(manifest_path: Path) -> None:
     ok = sum(r["ok"] for r in records)
     print(f"\n=== M9-Adult Summary ({total} records) ===")
     print(f"  Overall: {ok}/{total} = {ok/total*100:.1f}%")
-    print(f"  M9-TPCH baseline (reference): 95.2% strict / 100% tie-aware\n")
+    print("  M9-TPCH baseline (reference): 95.2% strict / 100% tie-aware\n")
 
     questions = ["q_count", "q_avg_age", "q_max_age", "q_distinct_workclass",
                  "q_top_education", "q_count_high_class", "q_avg_hours_male"]
@@ -371,7 +371,6 @@ def print_summary(manifest_path: Path) -> None:
         by_lq[(nl, r["question"])].append(r["ok"])
 
     if multi_level:
-        from llm_eval.stats import wilson_ci
         print("  Per (model x naturalness):")
         print(f"  {'Model':<25}" + "  ".join(f"{l:<14}" for l in levels))
         for m in models:
@@ -384,7 +383,7 @@ def print_summary(manifest_path: Path) -> None:
                     row += f"  {'-':<14}"
             print(row)
 
-        print(f"\n  Per (naturalness x question):")
+        print("\n  Per (naturalness x question):")
         print(f"  {'Question':<25}" + "  ".join(f"{l:<14}" for l in levels))
         for q in questions:
             row = f"  {q:<25}"
@@ -397,7 +396,7 @@ def print_summary(manifest_path: Path) -> None:
             print(row)
         print()
 
-    print(f"  Per (model x question)" + (" [aggregate over levels]" if multi_level else "") + ":")
+    print("  Per (model x question)" + (" [aggregate over levels]" if multi_level else "") + ":")
     print(f"  {'Question':<25} " + " ".join(f"{m[:18]:>20}" for m in models) + "  Agg")
     print(f"  {'-'*25} " + " ".join(f"{'':->20}" for _ in models) + "  ---")
     for q in questions:
@@ -475,7 +474,7 @@ def main() -> None:
                 print(f"  {q_name}: {q['text']}")
             payload = build_payload_adult(tables, meta)
             print(f"\nPayload length: {len(payload)} chars")
-            print(f"--- Payload preview (first 600 chars) ---")
+            print("--- Payload preview (first 600 chars) ---")
             print(payload[:600])
         return
 

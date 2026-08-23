@@ -21,7 +21,7 @@ from __future__ import annotations
 import copy
 import sys
 from pathlib import Path
-from typing import Any, Callable
+from typing import Callable
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent / "scripts"))  # dataset_reader fica em scripts/ (gadget movido p/ src/, 2026-07-19)
 from dataset_reader import DatasetReader  # noqa: E402

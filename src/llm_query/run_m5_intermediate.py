@@ -346,7 +346,7 @@ def run_m5(
                 transient = any(x in es for x in ("RemoteDisconnected", "ConnectionError",
                                                    "ConnectionAborted", "ReadTimeout"))
                 if transient and attempt == 1:
-                    print(f"TRANSIENT; retry in 15s...", flush=True)
+                    print("TRANSIENT; retry in 15s...", flush=True)
                     time.sleep(15)
                     continue
                 print(f"ERROR: {e}")
@@ -418,7 +418,7 @@ def print_summary(manifest_path: Path) -> None:
         print(row)
 
     # Per question type
-    print(f"\n  Per question type x variant (agg over models+domains+seeds):")
+    print("\n  Per question type x variant (agg over models+domains+seeds):")
     q_types = sorted(set(r["question"] for r in records))
     print(f"  {'Question':<18} " + " ".join(f"{v:>14}" for v in variants))
     by_qv = defaultdict(list)
@@ -435,7 +435,7 @@ def print_summary(manifest_path: Path) -> None:
     sql_records = [r for r in records if r["variant"] in ("sql_stats_fs", "cot_sql_fs")
                    and r.get("quality") and r["quality"].get("quality_score") is not None]
     if sql_records:
-        print(f"\n  SQL quality scores (structural, where available):")
+        print("\n  SQL quality scores (structural, where available):")
         by_v = defaultdict(list)
         for r in sql_records:
             by_v[r["variant"]].append(r["quality"]["quality_score"])
@@ -444,7 +444,7 @@ def print_summary(manifest_path: Path) -> None:
             print(f"  {v:<18} avg quality_score={avg_q:.3f} (n={len(scores)})")
 
     # Latency
-    print(f"\n  Median LLM latency (ms) per variant:")
+    print("\n  Median LLM latency (ms) per variant:")
     by_v_ms = defaultdict(list)
     for r in records:
         if r.get("total_ms"):
