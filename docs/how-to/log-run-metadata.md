@@ -102,5 +102,5 @@ nao referencia".
 ## Conexoes
 
 - Helper: [`scripts/run_metadata.py`](../../scripts/run_metadata.py)
-- Metodologia subjacente: [`../../../README.methodology.md`](../../../README.methodology.md) §"Aprofundando Pilar 4 → Manifest.jsonl"
+- Metodologia subjacente (fora deste repo): `README.methodology.md` §"Aprofundando Pilar 4 → Manifest.jsonl"
 - Roadmap hipoteses: [`../../experiments/lab/dirty/notas/2026-05/roadmap-hipoteses.md`](../../experiments/lab/dirty/notas/2026-05/roadmap-hipoteses.md)

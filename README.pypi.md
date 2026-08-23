@@ -5,50 +5,50 @@
 ![Python](https://img.shields.io/badge/python-3.10+-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
-**Transmita a mesma tabela com bem menos bytes, sem virar um blob binário que ninguém
-mais abre e lê.**
+**Send the same table in far fewer bytes — without turning it into a binary blob
+nobody can open and read.**
 
-TCF comprime dados tabulares e aninhados para **texto ASCII inspecionável**: o que se
-repete vira referência, o que é único fica cru (sem inflar). Sem dependências de runtime.
+TCF compresses tabular and nested data into **inspectable ASCII text**: what repeats
+becomes a reference, what is unique stays as-is (no inflation). Zero runtime dependencies.
 
 ```bash
-pip install tcf-format        # ou: uv pip install tcf-format
+pip install tcf-format        # or: uv pip install tcf-format
 ```
 
-> Distribuição: `tcf-format` · pacote importável: `tcf`
+> Distribution: `tcf-format` · importable package: `tcf`
 
-## Um minuto
+## One minute
 
 ```python
 from tcf import encode, decode
 
-# Single-column: lista de strings
+# Single-column: list of strings
 blob = encode(["ana@acme.com.br", "bruno@acme.com.br", "carla@acme.com.br"])
 assert decode(blob) == ["ana@acme.com.br", "bruno@acme.com.br", "carla@acme.com.br"]
 
-# Multi-column: dict de colunas
-tabela = {
-    "nome":   ["Ana Souza", "Bruno Lima", "Carla Nunes"],
-    "cidade": ["Sao Paulo", "Sao Paulo", "Rio de Janeiro"],
-    "plano":  ["Premium",   "Premium",   "Basic"],
+# Multi-column: dict of columns
+table = {
+    "name": ["Ana Souza", "Bruno Lima", "Carla Nunes"],
+    "city": ["Sao Paulo", "Sao Paulo", "Rio de Janeiro"],
+    "plan": ["Premium",   "Premium",   "Basic"],
 }
-blob = encode(tabela)
-assert decode(blob) == tabela        # round-trip sempre exato
+blob = encode(table)
+assert decode(blob) == table         # round-trip is always exact
 
-# Aninhado (o JSON que sua API manda): roteia para #TCF.8H pela mesma porta
-pedidos = [{"cliente": "Ana", "itens": [{"sku": "A1", "qtd": 2}], "ativo": True}]
-assert decode(encode(pedidos)) == pedidos
+# Nested (the JSON your API sends): routes to #TCF.8H through the same door
+orders = [{"customer": "Ana", "items": [{"sku": "A1", "qty": 2}], "active": True}]
+assert decode(encode(orders)) == orders
 ```
 
-Uma porta só: `encode()` roteia pelo **tipo da entrada**, `decode()` pela assinatura do
-formato. Round-trip é sempre lossless — ou preserva, ou falha alto.
+One door: `encode()` routes by the **type of the input**, `decode()` by the format
+signature. Round-trip is always lossless — it either preserves or fails loud.
 
-## Como o wire se parece
+## What the wire looks like
 
-Quatro registros de cadastro, saída real do `encode`:
+Four records, actual `encode` output:
 
 ```
-#TCF.8M!2c=nome,2a=email,1c=cidade,14=plano,!cpf
+#TCF.8M!2c=name,2a=email,1c=city,14=plan,!cpf
 Ana Souza
 Bruno Lima
 Carla Nunes
@@ -62,120 +62,125 @@ Rio de Janeiro
 Basic
 ^1
 111.111.111-11
-...
+111.111.111-11
+222.222.222-22
+333.333.333-33
 ```
 
-`*3|Sao Paulo` = *"Sao Paulo, 3×"*. `^1` = *"igual à linha 1"*. Na coluna de e-mail o
-prefixo único fica e o domínio comum vira referência — é onde mais se ganha, e onde o
-texto fica mais denso. **Legível não quer dizer óbvio à primeira vista.**
+`*3|Sao Paulo` means *"Sao Paulo, 3×"*. `^1` means *"same as line 1"*. In the e-mail
+column the unique prefix stays and the shared domain becomes a reference — that is where
+the biggest wins are, and where the text gets densest. **Readable does not mean obvious
+at first glance.**
 
-## Números
+## Numbers
 
-Nos 15 datasets sintéticos, **sem compressor nenhum**, TCF é o texto mais compacto do
-conjunto: **3131 B** contra CSV 4872 · JSON 5409 · JSONL 7001 (~36% menor que CSV).
-Em multi-column real (9 tabelas Adult + TPC-H, 136 mil linhas): **−33% ponderado** vs CSV cru.
+Across the 15 synthetic datasets, **with no compressor at all**, TCF is the most compact
+text of the set: **3131 B** vs CSV 4872 · JSON 5409 · JSONL 7001 (~36% smaller than CSV).
+On real multi-column data (9 Adult + TPC-H tables, 136k rows): **−33% weighted** vs raw CSV.
 
-Contra `gzip`/`brotli`/`zstd` a comparação é de outra categoria — eles são **opacos**: para
-responder qualquer pergunta é preciso inflar tudo primeiro. TCF compõe com eles e, com
-volume, `tcf+brotli` bate `csv+brotli` (Adult 3k: **21,8 KB** vs 30,4 KB).
+Against `gzip`/`brotli`/`zstd` the comparison is a different category — they are
+**opaque**: answering any question means inflating everything first. TCF composes with
+them, and with volume `tcf+brotli` beats `csv+brotli` (Adult 3k: **21.8 KB** vs 30.4 KB).
 
-## Consultar sem descomprimir
+## Query without decompressing
 
 ```python
 from tcf import encode, view
 
-vendas = {
-    "cliente": ["Ana", "Bruno", "Carla", "Diego", "Eva", "Ana"],
-    "cidade":  ["Sao Paulo", "Sao Paulo", "Sao Paulo", "Rio", "Sao Paulo", "Rio"],
-    "valor":   ["120", "100", "170", "200", "80", "80"],
+sales = {
+    "customer": ["Ana", "Bruno", "Carla", "Diego", "Eva", "Ana"],
+    "city":     ["Sao Paulo", "Sao Paulo", "Sao Paulo", "Rio", "Sao Paulo", "Rio"],
+    "amount":   ["120", "100", "170", "200", "80", "80"],
 }
-v = view(encode(vendas))                       # conecta, não descomprime nada
-assert v.count() == 6                          # toca a coluna mais barata
-assert v.sum("valor") == 750
-assert v.where("cidade", "Sao Paulo").sum("valor") == 470   # só cidade + valor
+v = view(encode(sales))                        # connects, decompresses nothing
+assert v.count() == 6                          # touches the cheapest column
+assert v.sum("amount") == 750
+assert v.where("city", "Sao Paulo").sum("amount") == 470   # only city + amount
 ```
 
-Numa tabela real (online-retail, 5000×8), responder *"quanto o usuário X comprou"* toca
-**7,9% do blob**; `count()` toca 0,2% — contra 100% de um `decode()`. Um compressor opaco
-não faz isso.
+On a real table (online-retail, 5000×8), answering *"how much did user X buy"* touches
+**7.9% of the blob**; `count()` touches 0.2% — against the 100% a `decode()` costs. An
+opaque compressor cannot do this.
 
-## Specs: tipo semântico, resultado string
+## Specs: semantic type, string result
 
-O TCF é um formato **de texto**: tudo volta como veio. Mas *saber a natureza* de uma
-coluna permite comprimir muito além do que a estrutura sozinha entrega — e é aí que
-entram os **specs**:
+TCF is a **text** format: everything comes back exactly as it went in. But *knowing the
+nature* of a column unlocks compression far beyond what structure alone gives — that is
+what **specs** are for:
 
 ```python
 from tcf import encode, decode
 
 cpfs = ["111.111.111-11", "222.222.222-22", "333.333.333-33", "444.444.444-44"]
 blob = encode(cpfs, schema="cpf")     # 69 B -> 39 B
-assert decode(blob) == cpfs           # o header diz qual spec inverter
+assert decode(blob) == cpfs           # the header says which spec to invert
 ```
 
-Um spec **não é um tipo forte** — a diferença importa:
+A spec is **not a strong type** — the difference matters:
 
-| | tipo forte (int, date…) | spec semântico do TCF |
+| | strong type (int, date…) | TCF semantic spec |
 |---|---|---|
-| o que afirma | *"este valor **é** um inteiro"* | *"este valor **tem a forma** de um CPF"* |
-| o que devolve | o objeto nativo | **a string original, byte a byte** |
-| se o valor não casa | erro de tipo / coerção | cai para literal, **sem falhar e sem perder** |
-| o que ganha | semântica no seu programa | bytes no fio |
+| what it asserts | *"this value **is** an integer"* | *"this value **has the shape** of a CPF"* |
+| what it returns | the native object | **the original string, byte for byte** |
+| when a value does not match | type error / coercion | falls back to literal, **no failure, no loss** |
+| what you gain | semantics in your program | bytes on the wire |
 
-O spec explora **redundância que a forma garante**: um CPF tem 11 dígitos, máscara fixa e
-dois dígitos verificadores *deriváveis* — então a máscara não viaja, o DV não viaja, e o
-corpo vai numa base densa. O resultado continua sendo a string `"111.111.111-11"`.
+A spec exploits **redundancy that the shape guarantees**: a CPF has 11 digits, a fixed
+mask and two check digits that are *derivable* — so the mask does not travel, the check
+digits do not travel, and the body goes in a dense base. The result is still the string
+`"111.111.111-11"`.
 
-É **opt-in por valor e nunca-pior**: o spec compete com o pipeline comum e só vence se
-encolher; valor que não casa a forma vira literal na mesma coluna. E é **auto-descritivo** —
-quando vence, o header carrega o id (`:cpf`) e o `decode` reverte sozinho, sem receber nada.
+It is **opt-in per value and never-worse**: the spec competes with the regular pipeline
+and only wins if it shrinks; a value that does not match the shape becomes a literal in
+the same column. And it is **self-describing** — when it wins, the header carries the id
+(`:cpf`) and `decode` inverts it on its own, receiving nothing.
 
-O registry traz `cpf`, `cnpj` (alfanumérico, IN RFB 2.229/2024), `ip`, `data-iso` e
-`int-pad`; `schema` é **incremental** — sem ele, toda coluna é string semântica e o
-pipeline decide sozinho:
+The registry ships `cpf`, `cnpj` (alphanumeric, IN RFB 2.229/2024), `ip`, `data-iso` and
+`int-pad`; `schema` is **incremental** — without it, every column is a semantic string
+and the pipeline decides by itself:
 
 ```python
 from tcf import encode, decode
 
-clientes = {
-    "cnpj":      ["11.222.333/0001-81", "12.ABC.345/01DE-35"],
-    "criado_em": ["2026-01-15", "2026-02-20"],
-    "obs":       ["-", "-"],
+clients = {
+    "cnpj":       ["11.222.333/0001-81", "12.ABC.345/01DE-35"],
+    "created_at": ["2026-01-15", "2026-02-20"],
+    "notes":      ["-", "-"],
 }
-blob = encode(clientes, schema={"cnpj": "cnpj", "criado_em": "data-iso"})  # por nome
-assert encode(clientes, schema={0: "cnpj"}) == encode(clientes, schema={"cnpj": "cnpj"})
-assert decode(blob) == clientes            # `obs` nem foi mencionada — segue string
+blob = encode(clients, schema={"cnpj": "cnpj", "created_at": "data-iso"})  # by name
+assert encode(clients, schema={0: "cnpj"}) == encode(clients, schema={"cnpj": "cnpj"})
+assert decode(blob) == clients             # `notes` was never mentioned — stays a string
 ```
 
-## O que ele não é
+## What it is not
 
-Não é banco, não é serialização de objetos, não é compressor binário de propósito geral.
-Não valida semântica (não checa se um CPF *existe*). Round-trip lossless é o contrato;
-compressão é a consequência.
+Not a database, not object serialization, not a general-purpose binary compressor. It
+does not validate semantics (it does not check whether a CPF *exists*). Lossless
+round-trip is the contract; compression is the consequence.
 
-## Estado: pré-1.0
+## Status: pre-1.0
 
-Formato `#TCF.8`. Os minors pré-1.0 são **iterações de desenvolvimento** rumo a um 1.0
-sólido: **não há compatibilidade rígida entre eles** — versões antigas se recuperam pelo
-git. O congelamento definitivo é ato do 1.0.
+Format `#TCF.8`. Pre-1.0 minors are **development iterations** towards a solid 1.0:
+**there is no rigid compatibility between them** — old versions are recoverable through
+git. The definitive freeze is an act of 1.0.
 
-## Documentação
+## Documentation
 
-Tudo vive no repositório:
+Everything lives in the repository:
 
-- **[Repositório e README completo](https://github.com/LeoPR/TCF)** — exemplos com bytes
-  medidos, comparativos e a leitura do wire linha a linha
+- **[Repository and full README](https://github.com/LeoPR/TCF)** — examples with measured
+  bytes, comparisons and a line-by-line read of the wire
 - **[CHANGELOG](https://github.com/LeoPR/TCF/blob/main/CHANGELOG.md)**
-- **[Referência da API](https://github.com/LeoPR/TCF/blob/main/docs/reference/api.md)** ·
-  [knobs do encode](https://github.com/LeoPR/TCF/blob/main/docs/reference/encode-knobs.md) ·
-  [view() lazy](https://github.com/LeoPR/TCF/blob/main/docs/reference/lazy-view.md)
-- **[Como usar specs](https://github.com/LeoPR/TCF/blob/main/docs/how-to/use-natures.md)** ·
-  [equivalência com JSON](https://github.com/LeoPR/TCF/blob/main/docs/reference/json-equivalence.md)
-- **[Especificação do formato](https://github.com/LeoPR/TCF/blob/main/docs/algorithms/TCF-format.en.md)** ·
-  [decisões de arquitetura (ADR)](https://github.com/LeoPR/TCF/blob/main/docs/adr/README.md)
-- **[Versão em português](https://github.com/LeoPR/TCF/blob/main/README.pt-BR.md)**
+- **[API reference](https://github.com/LeoPR/TCF/blob/main/docs/reference/api.md)** ·
+  [encode knobs](https://github.com/LeoPR/TCF/blob/main/docs/reference/encode-knobs.md) ·
+  [lazy view()](https://github.com/LeoPR/TCF/blob/main/docs/reference/lazy-view.md)
+- **[How to use specs](https://github.com/LeoPR/TCF/blob/main/docs/how-to/use-natures.md)** ·
+  [JSON equivalence](https://github.com/LeoPR/TCF/blob/main/docs/reference/json-equivalence.md)
+- **[Format specification](https://github.com/LeoPR/TCF/blob/main/docs/algorithms/TCF-format.en.md)** ·
+  [architecture decision records (ADR)](https://github.com/LeoPR/TCF/blob/main/docs/adr/README.md)
+- **[Portuguese version](https://github.com/LeoPR/TCF/blob/main/README.pt-BR.md)**
 
-## Licença
+## License
 
 MIT — [LICENSE](https://github.com/LeoPR/TCF/blob/main/LICENSE).
-Para citar: [CITATION.cff](https://github.com/LeoPR/TCF/blob/main/CITATION.cff).
+To cite: [CITATION.cff](https://github.com/LeoPR/TCF/blob/main/CITATION.cff).

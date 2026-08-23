@@ -33,11 +33,11 @@ dropped** in the setup script.
 
 `estabelecimentos` — 200,000 rows × 8 columns (CNPJ re-assembled from the
 3 split source columns `cnpj_basico`+`cnpj_ordem`+`cnpj_dv` into the masked
-form `NN.NNN.NNN/NNNN-DD`).
+form `AA.AAA.AAA/AAAA-DD`).
 
 | Column | Type | Notes |
 |--------|------|-------|
-| cnpj | string (pk) | Masked `NN.NNN.NNN/NNNN-DD`; nature='cnpj' target |
+| cnpj | string (pk) | Masked `AA.AAA.AAA/AAAA-DD`; nature='cnpj' target |
 | matriz_filial | string | 1=matriz, 2=filial |
 | nome_fantasia | string (nullable) | Trade name (real free text); empty for many rows |
 | situacao | string | Situação cadastral code (01..08), low-card |

@@ -631,7 +631,7 @@ Linha A "LLM le e computa" + Linha B "LLM gera SQL"): 7 modelos comerciais
 Usava o **motor de niveis** (`EncodeConfig(level=N)`) em [`old/tcf/`](old/tcf/).
 Ver [`old/tcf/LEVELS-REVIEW.md`](old/tcf/LEVELS-REVIEW.md) para a semantica L0–L3.
 
-- **Harness** (runners, llm_eval, scripts): [`llm-benchmark/`](llm-benchmark/)
+- **Harness** (runners, llm_eval, scripts): [`old/llm-benchmark/`](old/llm-benchmark/)
 - **Catalogo de achados** F-Q01..Q38: [`docs/findings/`](docs/findings/)
   + [`docs/FINDINGS_SUMMARY.md`](docs/FINDINGS_SUMMARY.md)
 - **Manual / paper v0.5**: [`docs/archive/manual_v05/`](docs/archive/manual_v05/)
@@ -650,7 +650,7 @@ TCF/
 ├── old/tcf/                 ← motor v0.5 (niveis L0–L3), congelado-historico (ver LEVELS-REVIEW.md)
 ├── scripts/                 ← Shaper (stratified sampling), CSV→SQLite, setup_* datasets
 ├── experiments/lab/         ← labs v0.8 (dirty + clean): compressao composicional
-├── llm-benchmark/           ← benchmark LLM v0.5 (harness: runners + llm_eval), acessorio
+├── old/llm-benchmark/       ← benchmark LLM v0.5 (harness: runners + llm_eval), acessorio
 ├── tests/                   ← pytest suite (v0.8)
 ├── datasets/                ← canonical metadata + samples (dados reais em Z:)
 ├── tickets/                 ← planejamento markdown (YAML frontmatter)
@@ -687,28 +687,28 @@ O encoder e' a ferramenta principal; auxiliares de suporte (NAO TCF-core):
 
 > Pré-1.0: **library-only** (sem CLI; ver `pyproject.toml`).
 > O benchmark LLM v0.5 (CommercialClient, M-series runners) vive em
-> [`llm-benchmark/`](llm-benchmark/), com instrucoes de reproducao no README de la'.
+> [`old/llm-benchmark/`](old/llm-benchmark/), com instrucoes de reproducao no README de la'.
 
 ---
 
-## Where to go next
+## Por onde seguir
 
 - **Quero usar TCF no pipeline** → API v0.8: `from tcf import encode, decode` ([src/tcf/](src/tcf/)); veja o [tutorial](docs/tutorials/getting-started.pt-BR.md) e os [guias](docs/how-to/).
-- **I want to read the findings** → [docs/findings/](docs/findings/) (v0.5 LLM, historico)
-- **I want to run the LLM benchmark** → [llm-benchmark/](llm-benchmark/) (acessorio v0.5)
-- **I want to understand the architecture** → [docs/theory/](docs/theory/)
-- **I want to see the roadmap** → [ROADMAP.md](ROADMAP.md) (tiers: pré-1.0 / 2.0 / pesquisa); detalhe granular em [roadmap-hipoteses.md](experiments/lab/dirty/notas/2026-05/roadmap-hipoteses.md)
+- **Quero ler os achados** → [docs/findings/](docs/findings/) (LLM v0.5, historico)
+- **Quero rodar o benchmark LLM** → [old/llm-benchmark/](old/llm-benchmark/) (acessorio v0.5)
+- **Quero entender a arquitetura** → [docs/theory/](docs/theory/)
+- **Quero ver o roadmap** → [ROADMAP.md](ROADMAP.md) (tiers: pré-1.0 / 2.0 / pesquisa); detalhe granular em [roadmap-hipoteses.md](experiments/lab/dirty/notas/2026-05/roadmap-hipoteses.md)
 - **Quero caminhos de consulta SQL-like sem materializar tudo** → [`tcf.view`](docs/reference/lazy-view.md) (`count`/`sum`/`where`/group-by, quando o modo da coluna permite)
-- **I want to share / pitch TCF** → [docs/divulgacao-tcf.md](docs/divulgacao-tcf.md) (material de divulgação, estilo post)
-- **I want to read the paper** → drafts v0.5: [docs/archive/article_v05/](docs/archive/article_v05/) (paper v0.7 pendente)
-- **I want to see how it evolved** → [CHANGELOG.md](CHANGELOG.md) +
+- **Quero divulgar / apresentar o TCF** → [docs/divulgacao-tcf.md](docs/divulgacao-tcf.md) (material de divulgação, estilo post)
+- **Quero ler o paper** → drafts v0.5: [docs/archive/article_v05/](docs/archive/article_v05/) (paper v0.7 pendente)
+- **Quero ver como evoluiu** → [CHANGELOG.md](CHANGELOG.md) +
   [docs/workbench/](docs/workbench/)
 
 ---
 
-## License
+## Licença
 
-MIT. See [LICENSE](LICENSE).
+MIT. Veja [LICENSE](LICENSE).
 
 ## Acknowledgements
 

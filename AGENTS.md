@@ -80,8 +80,8 @@ Strata) — mudança pequena não exige.
 
 ## 1. O projeto em 1 parágrafo
 
-**TCF** (Tabular Compact Format) — formato **`#TCF.8` default** (ADR-0032; pacote 0.8.0
-em curso). Compressão de strings tabulares, **textual e inspecionável** (não compete com
+**TCF** (Tabular Compact Format) — formato **`#TCF.8` default** (ADR-0032; pacote
+`0.8.1` no PyPI). Compressão de strings tabulares, **textual e inspecionável** (não compete com
 gzip/brotli/zstd). Pipeline canonical delta-aware (M10 baseline, ADR-0011):
 
 - **Pré-pass** — `analyze_column` (features) + `detect_cadence` (ADR-0008) + `detect_min_len` (ADR-0010)
@@ -348,5 +348,5 @@ O ticket é **dispositivo**; checkpoint e memória são ponteiros **probatórios
 (Wohlin 2012) — base do checklist §4 · **Ecological validity** (Brunswik 1956) — separar
 dataset de design (realista) de dataset de stress (artificial).
 
-Doc-mãe cross-projeto: [`../Methodologies/README.md`](../Methodologies/README.md), com o
-Strata em [`recipe/knowledge-architecture.md`](../Methodologies/recipe/knowledge-architecture.md).
+Doc-mãe cross-projeto (fora deste repo): `Methodologies/README.md`, com o Strata em
+`Methodologies/recipe/knowledge-architecture.md`.

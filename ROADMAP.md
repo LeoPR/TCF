@@ -10,7 +10,7 @@
 > obrigatório pra qualquer mudança em HCC / pre-pass / prune; nada de weld de natureza/lossy
 > sem medir o **incremento** em ≥2 datasets reais (anti-incidente 2026-05-21).
 
-## Estado — formato `#TCF.8` default (ADR-0032); pacote 0.8.0 em curso
+## Estado — formato `#TCF.8` default (ADR-0032); pacote `0.8.1` publicado
 
 > **PONTE 2026-07-09 (ADR-0032)**: `#TCF.8M` virou o formato DEFAULT do multi-col; legado `#TCF.6/.7`
 > CORTADO de `src/tcf` (git-as-compat); byte-sizes em HEX; nomes com separador escapados; discriminador

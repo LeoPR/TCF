@@ -41,7 +41,7 @@ Two related tables in one hub:
 ### empresas — 100,000 rows (CNPJ, `nature='cnpj'`)
 | Column | Type | Notes |
 |--------|------|-------|
-| cnpj | string (pk) | Masked `NN.NNN.NNN/NNNN-DD`, valid mod-11; branch `/0001` (matriz) ~90% |
+| cnpj | string (pk) | Masked `AA.AAA.AAA/AAAA-DD`, valid mod-11; branch `/0001` (matriz) ~90% |
 | razao_social | string | Shared suffixes (Ltda/ME/EIRELI/S.A./EPP) |
 | municipio_id | int | 7-digit IBGE code; soft ref into `ibge-municipios.id` |
 | uf_sigla | string | UF code denormalized from ibge |

@@ -30,5 +30,5 @@ Regra de tier: se vale pra qualquer projeto → escopo-usuário. Se é conhecime
 do TCF partilhado via git → `AGENTS.md`/ADR. Não duplicar entre os dois.
 
 Memórias de incidente citadas em `AGENTS.md` (caminhos locais desta máquina):
-[`feedback_discoverability_falha_EXP_012`](../../../.claude/projects/c--Users-leona-OneDrive-Documents-Projects-Acad-micos-TCF/memory/feedback_discoverability_falha_EXP_012.md) ·
-[`project_reorg_separation_of_concerns`](../../../.claude/projects/c--Users-leona-OneDrive-Documents-Projects-Acad-micos-TCF/memory/project_reorg_separation_of_concerns.md)
+`feedback_discoverability_falha_EXP_012` · `project_reorg_separation_of_concerns`
+(em `~/.claude/projects/<slug>/memory/` — fora do repo, por isso não são links).

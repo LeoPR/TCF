@@ -626,7 +626,7 @@ Track A "LLM reads and computes" + Track B "LLM generates SQL"): 7 commercial mo
 It used the **levels engine** (`EncodeConfig(level=N)`) in [`old/tcf/`](old/tcf/).
 See [`old/tcf/LEVELS-REVIEW.md`](old/tcf/LEVELS-REVIEW.md) for the L0–L3 semantics.
 
-- **Harness** (runners, llm_eval, scripts): [`llm-benchmark/`](llm-benchmark/)
+- **Harness** (runners, llm_eval, scripts): [`old/llm-benchmark/`](old/llm-benchmark/)
 - **Findings catalog** F-Q01..Q38: [`docs/findings/`](docs/findings/)
   + [`docs/FINDINGS_SUMMARY.md`](docs/FINDINGS_SUMMARY.md)
 - **Manual / paper v0.5**: [`docs/archive/manual_v05/`](docs/archive/manual_v05/)
@@ -645,7 +645,7 @@ TCF/
 ├── old/tcf/                 ← v0.5 engine (levels L0–L3), frozen-historical (see LEVELS-REVIEW.md)
 ├── scripts/                 ← Shaper (stratified sampling), CSV→SQLite, setup_* datasets
 ├── experiments/lab/         ← v0.8 labs (dirty + clean): compositional compression
-├── llm-benchmark/           ← LLM benchmark v0.5 (harness: runners + llm_eval), accessory
+├── old/llm-benchmark/       ← LLM benchmark v0.5 (harness: runners + llm_eval), accessory
 ├── tests/                   ← pytest suite (v0.8)
 ├── datasets/                ← canonical metadata + samples (real data on Z:)
 ├── tickets/                 ← markdown planning (YAML frontmatter)
@@ -682,7 +682,7 @@ The encoder is the main tool; support helpers (NOT TCF-core):
 
 > Pre-1.0: **library-only** (no CLI; see `pyproject.toml`).
 > The LLM benchmark v0.5 (CommercialClient, M-series runners) lives in
-> [`llm-benchmark/`](llm-benchmark/), with reproduction instructions in its own README.
+> [`old/llm-benchmark/`](old/llm-benchmark/), with reproduction instructions in its own README.
 
 ---
 
@@ -690,7 +690,7 @@ The encoder is the main tool; support helpers (NOT TCF-core):
 
 - **I want to use TCF in my pipeline** → v0.8 API: `from tcf import encode, decode` ([src/tcf/](src/tcf/)); see [getting started](docs/tutorials/getting-started.md) and [how-to guides](docs/how-to/).
 - **I want to read the findings** → [docs/findings/](docs/findings/) (v0.5 LLM, historical)
-- **I want to run the LLM benchmark** → [llm-benchmark/](llm-benchmark/) (accessory v0.5)
+- **I want to run the LLM benchmark** → [old/llm-benchmark/](old/llm-benchmark/) (accessory v0.5)
 - **I want to understand the architecture** → [docs/theory/](docs/theory/)
 - **I want to see the roadmap** → [ROADMAP.md](ROADMAP.md) (tiers: pre-1.0 / 2.0 / research); granular detail in [roadmap-hipoteses.md](experiments/lab/dirty/notas/2026-05/roadmap-hipoteses.md)
 - **I want SQL-like query paths without full materialization** → [`tcf.view`](docs/reference/lazy-view.md) (`count`/`sum`/`where`/group-by touching only what is needed where the column mode permits)

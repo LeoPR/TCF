@@ -335,7 +335,7 @@ Restrições:
 - `None` e' **preservado**: volta como `None` pelo slot nulo pre-alocado (`0`), NAO como `""`.
   Verificavel: `decode(encode(["x", None, "y"])) == ["x", None, "y"]`
 
-Implementação: [`src/tcf/multi.py`](../../src/tcf/multi.py). ADR: [0004](../adr/0004-multi-column-header-compacto.md), [0013](../adr/0013-multi-column-canonical-api.md), [0014](../adr/0014-unified-api-side-outputs.md).
+Implementação: [`src/tcf/multi/`](../../src/tcf/multi/). ADR: [0004](../adr/0004-multi-column-header-compacto.md), [0013](../adr/0013-multi-column-canonical-api.md), [0014](../adr/0014-unified-api-side-outputs.md).
 
 ## API mínima
 
