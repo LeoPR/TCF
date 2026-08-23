@@ -23,11 +23,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # `actions/setup-python` (e nao `uv python install`) porque este job usa
+      # `uv pip install --system`: o `--system` precisa de um Python NO PATH, e
+      # o `uv python install` baixa o interpretador sem coloca-lo la'. Mesmo
+      # arranjo do ci.yml, que e' o caminho ja' exercitado.
       - name: Install uv
         uses: astral-sh/setup-uv@v5
 
       - name: Set up Python
-        run: uv python install 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
 
       # A TAG E' O CAMINHO QUE PUBLICA — a barra aqui nao pode ser menor que a do
       # push. O ci.yml roda em push/PR para main e NAO dispara em tag, entao tudo
@@ -45,7 +51,10 @@ jobs:
         run: |
           TAG="${GITHUB_REF_NAME#v}"
           PROJ=$(python -c "import tomllib,pathlib;print(tomllib.loads(pathlib.Path('pyproject.toml').read_text())['project']['version'])")
-          PKG=$(python -c "import tcf;print(tcf.__version__)")
+          # `cd /tmp` de proposito: o import tem de vir do PACOTE INSTALADO, nao
+          # do ./src da arvore. Sao a mesma coisa aqui (install -e), mas depender
+          # disso mascararia um pacote instalado errado.
+          PKG=$(cd /tmp && python -c "import tcf;print(tcf.__version__)")
           echo "tag=$TAG  pyproject=$PROJ  tcf.__version__=$PKG"
           test "$TAG" = "$PROJ" || { echo "::error::tag v$TAG != pyproject $PROJ"; exit 1; }
           test "$TAG" = "$PKG"  || { echo "::error::tag v$TAG != tcf.__version__ $PKG"; exit 1; }
@@ -53,14 +62,14 @@ jobs:
       - name: Suite completa
         env:
           PYTHONHASHSEED: '0'
-        run: uv run pytest -q
+        run: pytest -q
 
       - name: Gates byte-canonical (D1-D9 + D17a + REAL-WORLD)
         env:
           PYTHONHASHSEED: '0'
         run: |
-          uv run pytest tests/test_regression_v1_baseline.py \
-                        tests/test_real_world_snapshots.py -v --tb=short
+          pytest tests/test_regression_v1_baseline.py \
+                 tests/test_real_world_snapshots.py -v --tb=short
 
       # WHEEL UNIVERSAL, DE PROPOSITO (decisao de release, nao de codigo).
       # O hook de build compila o acelerador Cython quando ha' compilador — o que
