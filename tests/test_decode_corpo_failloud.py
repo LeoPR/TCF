@@ -97,3 +97,64 @@ class TestByteNeutro:
         assert decode("ab\n^1\n") == ["ab", "ab"]
         assert decode("ab\ncd\n^2\n") == ["ab", "cd", "cd"]
         assert decode("ab\ncd\n^1\n") == ["ab", "cd", "ab"]
+
+
+class TestContadorRLEForaDoCanonico:
+    """Weld 2026-08-23 (lab 2026-08-23-1420-reprova-rle-contador-zero): o parse do
+    `*N|` aceitava contador 0, negativo e grafias com sinal — linha sumindo ou
+    fantasma SEM erro (13/21 wires adulterados decodavam com dado errado). O
+    encoder so' emite N >= 2 em digitos ASCII (runs iniciam em 2), entao todo o
+    espaco rejeitado aqui e' INEMITIVEL — byte-neutro por construcao."""
+
+    @pytest.mark.parametrize("wire,trecho", [
+        ("ab\n*0|cd\n",    "fora do canonico"),      # linha declarada 0x: sumia calada
+        ("ab\n*1|cd\n",    "fora do canonico"),      # N=1 inemitivel (encoder usa linha nua)
+        ("ab\n*-3|cd\n",   "fora do canonico"),      # negativo: 0 copias E burlava o teto
+        ("ab\n*+4|cd\n",   "fora do canonico"),      # sinal: int() cru aceitava
+        ("ab\n*\u0664|cd\n", "contador RLE"),        # digito unicode (int() aceita; grafia nao)
+        ("ab\n*0+1|5\n",   "contador RLE invalido"), # seq-RLE: emitia 1 linha fantasma (template)
+        ("ab\n*1+1|5\n",   "contador RLE invalido"), # seq-RLE N=1 idem
+    ])
+    def test_contador_rejeitado(self, wire, trecho):
+        with pytest.raises(ValueError, match=trecho):
+            decode(wire)
+
+    def test_rle_legitimo_intacto(self):
+        """O canonico (N >= 2) segue decodando — e RT de dado com runs reais."""
+        assert decode("ab\n*2|cd\n") == ["ab", "cd", "cd"]
+        vals = ["x"] * 5 + ["y"] * 3
+        assert decode(encode(vals)) == vals
+
+
+class TestWireConcatenadoFailLoud:
+    """Weld 2026-08-23 (lab 2026-08-23-1400-reprova-concat-corrompe): concatenar
+    dois wires validos corrompia CALADO — as refs do segundo resolviam na tabela
+    acumulada do primeiro (129/288 valores errados, 0 excecoes). A gramatica do
+    corpo agora rejeita linha-header. Falso-positivo zero em corpo tcf:
+    `_escape_lit` escapa runs de digito em literal, entao VALOR '#TCF.8...'
+    nunca aparece bare (corpo raw e' verbatim e nao passa por este parser —
+    limite documentado)."""
+
+    def test_concat_dois_wires_stamp(self):
+        w1 = encode(["ana", "bob", "ana", "bob", "carla"])
+        w2 = encode(["rio", "sp", "rio", "bh", "sp"])
+        with pytest.raises(ValueError, match="concatenad"):
+            decode(w1 + w2)
+
+    def test_concat_com_lf_extra(self):
+        w1 = encode(["ana", "bob", "ana"])
+        w2 = encode(["rio", "sp", "rio"])
+        with pytest.raises(ValueError, match="concatenad"):
+            decode(w1 + "\n" + w2)
+
+    def test_header_bare_no_corpo(self):
+        """A regra e' da GRAMATICA do corpo, nao da rota: qualquer '#TCF.<digito>'
+        em linha de corpo tcf e' juncao, nunca dado (dado legitimo sai escapado)."""
+        with pytest.raises(ValueError, match="concatenad"):
+            decode("ab\ncd\n#TCF.8M@17\nef\n")
+
+    def test_valor_que_imita_header_roundtrip(self):
+        """CONTRA-PROVA do falso-positivo: valor literal '#TCF.8...' viaja escapado
+        e o RT segue inteiro apos o guard."""
+        vals = ["#TCF.8Mpedido", "comum", "#TCF.8Mpedido", "#TCF.9zz"]
+        assert decode(encode(vals)) == vals

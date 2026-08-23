@@ -99,9 +99,13 @@ class TestExpandSeqMarker:
             "\\125.\\114.\\71.\\3",
         ]
 
-    def test_count_zero_returns_template_only(self):
-        out = expand_seq_marker("*1+1|\\5")
-        assert out == ["\\5"]
+    def test_count_fora_do_canonico_devolve_none(self):
+        """Weld 2026-08-23 (lab reprova-rle-contador-zero): N < 2 e' INEMITIVEL
+        (runs iniciam em 2) e o comportamento antigo — devolver o template como
+        linha unica — era o fantasma literal: 1 linha que o contador declara nao
+        existir. Agora None => a linha cai no parse core, que falha ALTO."""
+        assert expand_seq_marker("*1+1|\\5") is None
+        assert expand_seq_marker("*0+1|\\5") is None
 
 
 class TestCompactBodyMarkerEmit:

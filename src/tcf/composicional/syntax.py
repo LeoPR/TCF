@@ -919,15 +919,42 @@ class M8AVirtualRefsSyntax(Syntax):
             # REMOVIDO. Byte-NEUTRO: o encoder atual nunca emite bracket estrutural
             # (gates D1-D9/D17a/real-world verdes sem re-pin comprovam).
             linha = raw
+            # FAIL-LOUD de wire CONCATENADO: a gramatica do corpo nao tem regra de
+            # header, e as tabelas de refs (frags/nos_decl) nascem UMA vez por decode
+            # — um segundo `#TCF.<d>` no corpo faria as refs do wire seguinte
+            # resolverem contra a tabela acumulada do primeiro (corrupcao SILENCIOSA,
+            # 129/288 valores no lab 2026-08-23-1400). Falso-positivo zero em corpo
+            # tcf: `_escape_lit` escapa todo run de digitos em literal, entao um
+            # VALOR '#TCF.8...' nunca aparece bare aqui. Corpo raw ('!') e' verbatim
+            # e NAO passa por este parser — la' a juncao segue indetectavel (limite
+            # registrado em multi/core.py). Cortar um wire e' seguro; concatenar nao.
+            if linha[:5] == "#TCF." and linha[5:6].isdigit():
+                raise ValueError(
+                    f"header {linha.split(chr(10))[0][:24]!r} no meio do corpo — "
+                    f"wires concatenados? Concatenar wires prontos corrompe as "
+                    f"referencias; decode cada um e re-encode o conjunto"
+                )
             if linha.startswith("*") and "|" in linha:
                 bar = linha.find("|")
+                head = linha[1:bar]
                 try:
-                    count = int(linha[1:bar])
+                    count = int(head)
                 except ValueError:
                     raise ValueError(
-                        f"contador RLE invalido: {linha[1:bar]!r} (esperado inteiro "
+                        f"contador RLE invalido: {head!r} (esperado inteiro "
                         f"decimal em '*N|') — corpo nao-canonico"
                     ) from None
+                # Faixa e grafia: o encoder so' emite N >= 2 em digitos ASCII
+                # (runs iniciam em 2; gates pinam count>1), entao `*0|`, `*1|`,
+                # negativo, `*+N|` e digito unicode sao INEMITIVEIS — aceitar
+                # significava linha sumindo ou fantasma sem erro (lab
+                # 2026-08-23-1420: 13/21 adulterados decodavam com dado errado).
+                if count < 2 or not (head.isascii() and head.isdigit()):
+                    raise ValueError(
+                        f"contador RLE fora do canonico: {head!r} (o encoder "
+                        f"emite '*N|' apenas com N >= 2 em digitos ASCII) — "
+                        f"corpo nao-canonico"
+                    )
                 resto = linha[bar + 1 :]
             else:
                 count = 1

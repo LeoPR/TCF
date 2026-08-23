@@ -529,6 +529,13 @@ def expand_seq_marker(linha: str) -> list[str] | None:
         count = int(head[:plus_pos])
     except ValueError:
         return None
+    # Contador fora do canonico (encoder emite runs so' com N >= 2; grafia so'
+    # digito ASCII): devolve None e a linha cai no parse core, que falha ALTO
+    # com a mensagem canonica. Sem isto, `*0+1|` emitia o template ANTES do
+    # laco (out=[template]) — 1 linha que o contador declara nao existir
+    # (fantasma literal; lab 2026-08-23-1420).
+    if count < 2 or not (head[:plus_pos].isascii() and head[:plus_pos].isdigit()):
+        return None
     delta_str = head[plus_pos:]
 
     # ADR-0016: multi-delta format `+d1,d2,d3,d4`

@@ -661,7 +661,8 @@ def _decode_multi_impl(
     if len(set(counts.values())) > 1:
         raise ValueError(
             f"colunas com n_rows divergentes {counts} — blob corrompido/"
-            f"truncado (T-QA-8 BUG-05)"
+            f"truncado, ou wires concatenados (a ultima coluna absorve o "
+            f"excedente; T-QA-8 BUG-05)"
         )
 
     return result, nature_ids
