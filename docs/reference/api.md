@@ -7,7 +7,8 @@ que o dev usa". Contrato de tipos vive nos testes (`tests/test_multi_col_rt.py`,
 
 ```python
 from tcf import encode, decode, view, SideOutputs, PipelineConfig, build_schema
-from tcf import SPEC_CPF, SPEC_CNPJ, SPEC_IP, TemplatedCheckedSpec, TemplatedPaddedSpec
+from tcf import SPEC_CPF, SPEC_CNPJ, SPEC_IP, SPEC_DATA_ISO, SPEC_INT_PAD, SPEC_REGISTRY
+from tcf import TemplatedCheckedSpec, TemplatedPaddedSpec
 ```
 
 | símbolo | papel |
@@ -18,7 +19,7 @@ from tcf import SPEC_CPF, SPEC_CNPJ, SPEC_IP, TemplatedCheckedSpec, TemplatedPad
 | **`SideOutputs`** | telemetria opt-in (`encode(x, side_outputs=so)`). |
 | **`PipelineConfig`** | toggles do pipeline flat (`encode(x, layers=cfg)`). |
 | **`build_schema` · `TableSchema` · `ColumnSchema`** | schema per-tabela. |
-| **specs** (`SPEC_CPF/CNPJ/IP`, `TemplatedCheckedSpec`, `TemplatedPaddedSpec`) | naturezas opt-in. Os specs mais novos ficam em `tcf.natures`, não no topo: `SPEC_DATA_ISO` e `SPEC_INT_PAD`. O **`SPEC_CNPJ` é alfanumérico** (IN RFB 2.229/2024) e cobre também o numérico, que compacta em 7 chars byte-idênticos ao wire histórico — não há spec numérico separado ([ADR-0044](../adr/0044-cnpj-um-so-alfanumerico.md)). |
+| **specs** (`SPEC_CPF/CNPJ/IP`, `TemplatedCheckedSpec`, `TemplatedPaddedSpec`) | naturezas opt-in. Os 5 do registry são públicos (`SPEC_REGISTRY` mapeia nome→spec). O **`SPEC_CNPJ` é alfanumérico** (IN RFB 2.229/2024) e cobre também o numérico, que compacta em 7 chars byte-idênticos ao wire histórico — não há spec numérico separado ([ADR-0044](../adr/0044-cnpj-um-so-alfanumerico.md)). |
 
 > **Não existe `encode_hierarchical` público** (Passo 2, 2026-07-23). O hierárquico `#TCF.8H` é
 > alcançado por `encode()` roteando entrada aninhada — simétrico ao `decode`. A capacidade/wire é a
@@ -51,12 +52,6 @@ escalar solto ou `{}` vai pro `.8H`. `None` é preservado em **todas** as rotas 
 
 #### Os três modos da tag `b`
 
-> **CORRIGIDO 2026-08-16** (auditoria de sincronização docs×código). Esta seção dizia que o
-> denso era "bool **sem null** por construção" e que "com null a coluna usa o modo core".
-> Isso valeu até 2026-07-31: o **`b2` ternário** ([ADR-0037](../adr/0037-denso-b2-ternario-dominio-implicito.md))
-> passou a cobrir bool-com-null, e o **`bB` lazytype** ([ADR-0039](../adr/0039-lazytype-bool-cabeca-congelada-extras.md))
-> a união bool+str que antes era fail-loud.
-
 | modo | domínio | quando |
 |---|---|---|
 | `b1` | `{false, true}` — 1 bit/símbolo | bool **sem** null; compete no FLOOR |
@@ -81,11 +76,6 @@ fail-loud (viraram **representáveis**); `encode([1,2,3])` deixou de virar singl
 `"1","2","3"` e passou a **preservar o tipo**; coluna com `None`/int deixou de ser stringificada;
 tuple/bytes no lugar de lista viram fail-loud de tipo (eram convertidos calados).
 
-> **CORRIGIDO 2026-08-17** (verificação adversarial do sync 2026-08-16). Este parágrafo dizia que
-> as três primeiras mudanças mandavam a entrada pro **`.8H`**. **Três de quatro metades eram
-> falsas** — elas ficaram no **single-col**, e a tabela de dispatch 45 linhas ACIMA já dizia o
-> certo. O parágrafo é de antes das rotas tipadas (`b`/`n`) existirem. Medido:
-
 | entrada | wire real | rota |
 |---|---|---|
 | `encode([])` | `'#TCF.8\n'` (7 B) | single-col flat — **não** `.8H`, **não** `#D0` |
@@ -100,8 +90,10 @@ O tipo é preservado nos sete casos (round-trip validado); o que muda é **por q
 
 ## kwargs de `encode` por rota
 
-- **`side_outputs`**, **`schema`** ({path→spec}): valem em **todas** as rotas (flat multi e `.8H`).
-- **`nature`** (spec único): só **single-col flat** (`list[str]`).
+- **`side_outputs`**, **`schema`**: valem em **todas** as rotas. O `schema` é o parâmetro
+  **único** de spec ([ADR-0047](../adr/0047-schema-parametro-unico-de-spec.md)) — aceita
+  `"cpf"` (nome do registry), objeto spec, ou `{coluna: spec}` com chave `str` (nome) ou
+  `int` (posição). É incremental: sem ele, toda coluna é string semântica.
 - **`parallel`, `layers`, `fallback`, `min_header`, `min_len`, `sort_by`, `name`, `stamp`, `drop_names`**:
   só **flat**. Passados com entrada `.8H` → **fail-loud** (nunca ignorados calados).
 

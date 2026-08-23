@@ -42,6 +42,30 @@ não conflitam. A prosa aponta; o teste mede.
 | `experiments/lab/{dirty,clean}/` | Labs. `dirty/` aninha macros por `<YYYY-MM>/<YYYY-MM-DD>/` (§6); `dirty/notas/` = diário, checkpoints, registries (`roadmap-hipoteses.md`) + notas por mês. ⚠️ **`dirty/` e `archive/` NÃO são versionados** (desde 2026-08-22): existem no disco, fora do git. Ver a fronteira abaixo. |
 | `datasets/` | `synthetic/` = CSVs D1-D17 no repo. `canonical/` = só metadata+README (dado real em Z:). |
 
+### Doc de leitura NÃO é changelog (owner, 3ª repetição — 2026-08-23)
+
+> *"No documento de superfície apenas tem a correção e fim, não a explicação dele. Esses
+> documentos, a rigor, não existem como publicação formal, logo eles não são erratas de nada
+> anterior."*
+
+Um doc de **entrega** (`docs/algorithms`, `docs/how-to`, `docs/reference`, `docs/tutorials`,
+READMEs) diz **o que vale**. Ponto. Ele nunca carrega:
+
+- `CORRIGIDO <data>` / `ERRATA` / `ATUALIZADO <data>` — nem em bloco de citação
+- *"esta seção dizia X"*, *"antes era Y"*, *"os números aqui eram os de <data>"*
+- a narrativa de como se chegou na versão atual
+
+**Onde isso vive**: mensagem de commit (o porquê da mudança), `CHANGELOG.md` (o que mudou
+entre versões), ADR (a decisão e seu racional — e ADR **é** traço, fica). Se a correção
+mereceu explicação longa, ela é um ADR ou uma nota de lab, não um bloco no meio do manual.
+
+**O que FICA no doc de leitura**: o conteúdo vigente, e ponteiro de **autoridade** (`ADR-NNNN`)
+quando o leitor precisa do porquê. Ponteiro ≠ narrativa.
+
+Mesma regra que vale para comentário de código (§ acima): **o traço é o git; a superfície
+carrega só o presente**. Strata §3 — a superfície decai ativamente, e aplicar *append-only* a
+ela é o erro que faz a leitura apodrecer.
+
 ### Fronteira do que é publicado (owner, 2026-08-22)
 
 O repositório é **público**. O que ele publica é a **lógica** e a **evidência que sustenta as

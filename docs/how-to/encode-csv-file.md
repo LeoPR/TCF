@@ -164,11 +164,6 @@ assert data == recovered  # '' preservado
 
 ### Restrições em nomes de coluna
 
-> **CORRIGIDO 2026-08-16** (auditoria de sincronização docs×código). Esta seção afirmava que
-> `,` e `=` eram **proibidos** em nome de coluna. Eles não são: o meta os **escapa**. Quem
-> seguisse a versão antiga sanitizaria nomes legítimos sem necessidade, perdendo o cabeçalho
-> original do CSV.
-
 Há **um único caractere proibido**: `\n`, que é o separador de linha do próprio meta e por isso
 não tem como ser representado dentro dele.
 

@@ -104,14 +104,6 @@ coluna = `[<pre>]<size>[=<nome>][:<id>]`:
   embutido segue erro de corrupcao. Antes da ADR-0046 o `''` era transformado em anonima (com warning) e
   decodava `'0'` — o unico caso em que o TCF alterava o dado.
 
-> **CORRIGIDO 2026-08-20** (F6/DOC-03). Esta seção ensinava **três** coisas falsas, todas
-> medidas: (1) o registry tinha "cpf/cnpj/ip" quando tem **5** desde os welds de `dt`
-> (2026-08-08) e `ipad` (2026-08-14); (2) id desconhecido dava "cru + warning" quando é
-> **`ValueError`** — verificável: `decode('#TCF.8 :xyz\n…')` levanta *"nature-id desconhecido
-> … registry core fechado"*; (3) o exemplo `@a=uf,1e=nome` era **auto-contraditório** — trazia
-> size na última coluna e o comentário dizia "última sem size", e ainda perdia o `@` da
-> segunda coluna. O real é `#TCF.8M@1b=uf,@nome`.
-
 Exemplos (body na(s) linha(s) seguinte(s)):
 
     #TCF.8M7=doc:cnpj,x          <- multi: 2 cols, doc(size 0x7) com nature cnpj, x (ultima, sem size)
@@ -538,11 +530,6 @@ supersede o "frozen" do ADR-0017): aditiva, sem compat rígida entre minors de d
 
 **Single-column (M10 baseline, ADR-0011)**:
 - D1-D9 sintéticos: **1545 bytes** em 2981 raw = 51.8% ratio (RT 9/9; inclui o header default)
-> **CORRIGIDO 2026-08-16** (auditoria de sincronizacao docs×codigo). Os numeros acima eram os
-> pins de 2026-07-05. Gate vigente: **D1-D9=1545 B · D17a=300 B · real-world=89430 B**. As
-> eras, pra ler commits antigos: D1-D9 `1523 → 1586` (ADR-0034 header default) `→ 1545`
-> (ADR-0035 polaridade); real-world `89616 → 89637 → 89430`; D17a `307 → 303 → 300`.
-
 - Cadeia byte-canônica de checkpoints: M9 → M10 → M11 → M12 → M13 → M14
   → M14+Pacote1+Multi+API+Natures+MultiDelta+v1
 - Adult Census + TPC-H 57 colunas: **-11.73% weighted** vs M9 puro

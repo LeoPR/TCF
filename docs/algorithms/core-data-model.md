@@ -14,12 +14,6 @@ pinados em `tests/test_core_rt.py`, `tests/test_regression_v1_baseline.py`,
 `tests/test_multi_col_rt.py` e `tests/test_real_world_snapshots.py`; **os testes são a
 régua**, não este texto).
 
-> **CORRIGIDO 2026-08-16** (auditoria de sincronização docs×código). Os três números aqui
-> eram os de 2026-07-05 (1523/303/89616) — mortos há três re-pins. Quem portasse mirando
-> neles falharia o gate sem entender por quê. As eras, pra leitura de commits antigos:
-> D1-D9 `1523 → 1586` (+63 = 9 × 7 B de header, [ADR-0034](../adr/0034-header-default-100-porcento-single-col.md))
-> `→ 1545` (−41, delimitador de polaridade, [ADR-0035](../adr/0035-delimitador-de-polaridade-single-col.md));
-> real-world `89616 → 89637 → 89430`; D17a `307 → 303 → 300` (V2-B + weld hex). Pra isso o port reimplementa só o **CORE** (estruturas + transformações
 determinísticas). Tudo que é Python-only (paralelismo, trace de debug, lazy view)
 fica de fora sem afetar bytes. Este doc separa os dois e define cada estrutura
 com precisão de assinatura.

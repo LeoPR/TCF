@@ -51,11 +51,6 @@ path.write_bytes(content.encode("utf-8"))
 
 ### 3. O LF final e' TERMINADOR, nao convencao POSIX
 
-> ⚠️ **CORRIGIDO 2026-08-21** (lab [`0400-lf-final-do-wire`](../../experiments/lab/dirty/2026-08/2026-08-21/2026-08-21-0400-lf-final-do-wire/)).
-> Este parágrafo dizia: *"O último byte do arquivo PODE ser `\n` (separador da última linha,
-> estilo POSIX), mas isso é **opcional**. Decoder deve aceitar com ou sem."* **Está errado, e
-> seguir isso ao portar o formato quebra o decode.**
-
 O LF final **não é** enchimento de arquivo: é o **terminador do último valor**, num formato em
 que o LF **separa valores**. Prova de uma linha:
 
@@ -149,12 +144,6 @@ Bytes reportados ja' contam brackets (4 bytes/dataset) mas NAO CRLF
 
 ## Decoder
 
-> ⚠️ **CORRIGIDO 2026-08-16** (auditoria de sincronização docs×código). O texto abaixo
-> descrevia um skip que **foi REMOVIDO em 2026-07-17** (`BUG-BRACKET-CELL-LOSS`, aprovação do
-> owner): ele **engolia célula calado** — uma coluna com o valor `"["` ou `"]"` perdia o dado
-> no decode. Seguir a versão antiga ao portar o formato **reintroduz perda silenciosa de
-> dado**, e por isso esta é a correção de maior severidade da auditoria.
-
 O decoder **não faz nada** com a linha: nem skip, nem strip.
 
 ```python
@@ -175,12 +164,6 @@ Verificável nos três: `decode(encode(["a ", " b", "c"]))` devolve `['a ', ' b'
 `decode(encode(["a", "", "b"]))` devolve `['a', '', 'b']` ·
 `decode(encode(["a", "]", "b", "["]))` devolve `['a', ']', 'b', '[']`.
 Implementação em `src/tcf/composicional/syntax.py:910-925`.
-
-> **CORRIGIDO 2026-08-17.** A revisão de 2026-08-16 tirou o skip de `[`/`]` deste bloco e
-> **deixou o `linha = raw.strip()`** — reintroduzindo, na própria correção, a segunda das três
-> perdas. Um port seguindo aquele bloco devolvia `['a', 'b', 'c']` para o wire `'#TCF.8\na \n b\nc\n'`,
-> e transformava `"  "` (só espaços) em `""`. As três não-operações agora aparecem juntas
-> justamente porque separá-las foi o que permitiu perder uma.
 
 A decisão **principal** do [ADR-0006](../adr/0006-empty-string-decode-fix.md) — linha vazia
 decoda como string vazia — **continua vigente**; o que caiu foi só a cláusula do skip de
