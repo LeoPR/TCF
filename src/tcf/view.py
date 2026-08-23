@@ -43,6 +43,19 @@ def _idx_at(stream: bytes, off: int, width: int) -> int:
     return k
 
 
+def _valida_where_value(value, pred) -> None:
+    """Os valores decodados sao SEMPRE str (nulo = None): comparar com int/float
+    nunca casa e respondia 0 linhas CALADO — `where('qtd', 10)` parecia filtro
+    vazio, era bug de tipo do chamador (lab 2026-08-23-1410, G6). `None` casa
+    nulo; com `pred=`, `value` e' ignorado."""
+    if pred is None and value is not None and not isinstance(value, str):
+        raise TypeError(
+            f"view.where: value deve ser str (os valores decodados sao str; "
+            f"None casa nulo); got {type(value).__name__} ({value!r}) — "
+            f"compare com str, ex. where(col, {str(value)!r})"
+        )
+
+
 class LazyTCF:
     """View lazy sobre um blob TCF multi-coluna. Nada é descomprimido no __init__."""
 
@@ -117,9 +130,30 @@ class LazyTCF:
     def columns(self) -> list[str]:
         return list(self._order)
 
+    def _resolve_col(self, col) -> str:
+        """int = POSICAO, str = NOME — a MESMA regra e faixa do `schema=`
+        (ADR-0047; espelha encoder.py: 0 <= pos < n, sem negativo; bool excluido
+        como em natures.resolve_schema). A view e' a terceira porta publica que
+        recebe coluna — as tres falam a mesma lingua. Desambiguacao identica ao
+        schema=: coluna CHAMADA '2' e' achada por str '2' (nome); int 2 e' a
+        posicao 2."""
+        if isinstance(col, bool) or not isinstance(col, (int, str)):
+            raise TypeError(
+                f"view: coluna deve ser str (nome) ou int (posicao); "
+                f"got {type(col).__name__} ({col!r})"
+            )
+        if isinstance(col, int):
+            if not 0 <= col < len(self._order):
+                raise ValueError(
+                    f"view: posicao {col} fora do range — o blob tem "
+                    f"{len(self._order)} coluna(s) ({self._order})"
+                )
+            return self._order[col]
+        return col
+
     def column_bytes(self, name: str) -> int:
         """Tamanho do corpo (comprimido) da coluna, sem decodificar."""
-        return len(self._body[name])
+        return len(self._body[self._resolve_col(name)])
 
     @property
     def total_bytes(self) -> int:
@@ -163,6 +197,7 @@ class LazyTCF:
 
     # ---- decode de UMA coluna, sob demanda (cache + tracking) ----
     def _col(self, name: str) -> list[str]:
+        name = self._resolve_col(name)
         if name not in self._mode:
             raise KeyError(f"coluna inexistente: {name!r} (tem: {self._order})")
         if name not in self._cache:
@@ -262,6 +297,7 @@ class LazyTCF:
         """Contagem por grupo (`{valor: n}`) SEM expandir a coluna, quando ela é
         dicionário (`@`): tallia o stream de índices + decodifica só os únicos.
         Demais modos: fallback (decode + Counter). É a 'agregação sem expandir'."""
+        col = self._resolve_col(col)
         if self._mode[col] == "dict":
             unicas, width, stream = self._dict_parts(col)
             tally = Counter()
@@ -353,6 +389,8 @@ class LazyTCF:
 
     # ---- filtro: descomprime SÓ a coluna do filtro, devolve view restrita ----
     def where(self, col: str, value=None, *, pred: Callable[[str], bool] | None = None) -> "Filtered":
+        col = self._resolve_col(col)
+        _valida_where_value(value, pred)
         if self._mode[col] == "dict":           # L4: varre o stream, sem decodar os N valores
             width, stream, ids = self._dict_target_ids(col, value, pred)
             idx = [i for i, off in enumerate(range(0, len(stream), width))
@@ -367,7 +405,15 @@ class LazyTCF:
 
     # ---- linhas alinhadas (decodifica só as colunas pedidas) ----
     def select(self, cols: list[str] | None = None, idx: list[int] | None = None) -> list[dict]:
-        cols = cols or self._order
+        # `is not None`, nao truthiness: `select(0)` (posicao 0) era engolido pelo
+        # `or` e devolvia TODAS as colunas, calado (lab 2026-08-23-1410). Escalar
+        # (str|int) e' sobrecarga de 1 coluna, como no schema=; int resolve pra
+        # NOME via _resolve_col, e as chaves do dict de saida sao sempre nomes.
+        if cols is None:
+            cols = list(self._order)
+        elif isinstance(cols, (str, int)):
+            cols = [cols]
+        cols = [self._resolve_col(c) for c in cols]
         decoded = {c: self._col(c) for c in cols}
         rng = idx if idx is not None else range(self.nrows)
         return [{c: decoded[c][i] for c in cols} for i in rng]
@@ -413,6 +459,8 @@ class Filtered:
     def where(self, col: str, value=None, *, pred=None) -> "Filtered":
         """Encadeia filtro (AND): restringe os índices atuais."""
         p = self._p
+        col = p._resolve_col(col)
+        _valida_where_value(value, pred)
         if p._mode[col] == "dict":              # L4: lê só as posições já filtradas no stream
             width, stream, ids = p._dict_target_ids(col, value, pred)
             idx = [i for i in self.indices if _idx_at(stream, i * width, width) in ids]

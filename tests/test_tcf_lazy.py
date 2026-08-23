@@ -304,3 +304,50 @@ def test_venda_isolada_toca_fracao(blob):
     rep = v.report()
     assert set(v.touched) == {"cidade", "valor"}
     assert rep["pct"] < 100.0
+
+
+# ---- Weld 2026-08-23 (lab reprova-where-posicional): int = POSICAO nas 3 portas ----
+# A view era a unica porta publica que NAO resolvia int (ADR-0047 cobre
+# encode/decode); e select(0) era engolido por truthiness (todas as colunas,
+# calado) e value int no where respondia 0 calado (valores decodados sao str).
+
+class TestColunaPosicionalNaView:
+    @pytest.fixture
+    def vb(self):
+        return view(encode({
+            "cidade": ["SP", "RJ", "SP", "BH", "SP", "RJ"],
+            "qtd": ["10", "5", "10", "7", "3", "10"],
+        }))
+
+    def test_int_resolve_posicao_igual_ao_nome(self, vb):
+        assert vb.where(0, "SP").count() == vb.where("cidade", "SP").count() == 3
+        assert vb.sum(1) == vb.sum("qtd") == 45.0
+        assert vb.group_count(0) == vb.group_count("cidade")
+        assert vb.column_bytes(1) == vb.column_bytes("qtd")
+        f = vb.where(0, "SP")
+        assert f.where(1, "10").count() == 2          # Filtered.where idem
+
+    def test_select_escalar_e_posicao_zero(self, vb):
+        """`select(0)` era a calada real: `cols or self._order` engolia o 0 e
+        devolvia TODAS as colunas. Agora escalar = sobrecarga de 1 coluna (como
+        no schema=), e as chaves de saida sao sempre NOMES."""
+        so_cidade = vb.select(0)
+        assert so_cidade == vb.select("cidade") == vb.select(["cidade"])
+        assert list(so_cidade[0]) == ["cidade"]
+        assert len(so_cidade) == 6
+
+    def test_posicao_fora_do_range_e_bool_erram(self, vb):
+        with pytest.raises(ValueError, match="fora do range"):
+            vb.where(9, "SP")
+        with pytest.raises(TypeError, match="str \(nome\) ou int"):
+            vb.where(True, "SP")
+        with pytest.raises(ValueError, match="fora do range"):
+            vb.where(-1, "SP")                        # sem negativo, como no schema=
+
+    def test_value_nao_str_erra_alto(self, vb):
+        """`where('qtd', 10)` respondia 0 CALADO (10 != '10'). Agora ensina."""
+        with pytest.raises(TypeError, match="value deve ser str"):
+            vb.where("qtd", 10)
+        with pytest.raises(TypeError, match="value deve ser str"):
+            vb.where("qtd", "10").where("cidade", 5)  # Filtered.where idem
+        assert vb.where("qtd", "10").count() == 3     # a grafia certa segue
