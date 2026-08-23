@@ -122,7 +122,8 @@ Ratio: 69,0% da codificação comum; o custo do cabeçalho já está incluído n
 
 ## Single-column: CNPJ
 
-Coluna com CNPJ formatado `NN.NNN.NNN/NNNN-DD`.
+Coluna com CNPJ formatado `AA.AAA.AAA/AAAA-DD` (corpo alfanumérico `[0-9A-Z]`,
+IN RFB 2.229/2024; os 2 dígitos verificadores seguem numéricos).
 
 ```python
 from tcf import encode, decode, SPEC_CNPJ

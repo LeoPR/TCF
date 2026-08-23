@@ -235,8 +235,14 @@ Filters already implemented ([ADR-0015](docs/adr/0015-natures-templated-checked-
 | filter | format | what decode reconstructs |
 |---|---|---|
 | `SPEC_CPF`  | `NNN.NNN.NNN-DD`     | punctuation + 2 check digits (mod-11) |
-| `SPEC_CNPJ` | `NN.NNN.NNN/NNNN-DD` | punctuation + 2 check digits (mod-11) |
+| `SPEC_CNPJ` | `AA.AAA.AAA/AAAA-DD` | punctuation + 2 check digits (mod-11) |
 | `SPEC_IP`   | IPv4 `N.N.N.N`      | dots + canonical octets (normalizes to make subnet repetitions visible) |
+
+`A` = alphanumeric `[0-9A-Z]`, `N` = digit, `D` = check digit. **The CNPJ body is
+alphanumeric** since IN RFB 2.229/2024 (in force from Jul/2026): the 12 body positions
+accept `0-9A-Z`, only the 2 check digits stay numeric. A fully numeric CNPJ is a *case*
+of the alphanumeric one — it still encodes to the same 7 chars as before, and `decode`
+tells the two apart by length.
 
 The same filter mechanism works for **numbers**: `SPEC_IP` above is already numeric (octets);
 numeric sequences and IDs with cadence the difference-based pipeline captures on its own

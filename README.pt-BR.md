@@ -241,8 +241,14 @@ Filtros já implementados ([ADR-0015](docs/adr/0015-natures-templated-checked-we
 | filtro | formato | o que o decode reconstrói |
 |---|---|---|
 | `SPEC_CPF`  | `NNN.NNN.NNN-DD`     | pontuação + 2 díg. verificadores (mod-11) |
-| `SPEC_CNPJ` | `NN.NNN.NNN/NNNN-DD` | pontuação + 2 díg. verificadores (mod-11) |
+| `SPEC_CNPJ` | `AA.AAA.AAA/AAAA-DD` | pontuação + 2 díg. verificadores (mod-11) |
 | `SPEC_IP`   | IPv4 `N.N.N.N`      | pontos + octetos canônicos (padroniza para facilitar repetições em subnets) |
+
+`A` = alfanumérico `[0-9A-Z]`, `N` = dígito, `D` = dígito verificador. **O corpo do CNPJ
+é alfanumérico** desde a IN RFB 2.229/2024 (vigente desde jul/2026): as 12 posições do
+corpo aceitam `0-9A-Z`, só os 2 verificadores seguem numéricos. Um CNPJ todo numérico é
+um *caso* do alfanumérico — continua gravando nos mesmos 7 chars de antes, e o `decode`
+distingue os dois pelo comprimento.
 
 O mesmo mecanismo de filtro vale para **números**: o `SPEC_IP` acima já é numérico (octetos);
 sequências e IDs numéricos com cadência o pipeline de diferenças captura sozinho (`*N+delta|`);

@@ -603,13 +603,24 @@ class TestDataIsoSpec:
 
     def test_guard_de_reemissao_e_load_bearing(self):
         """`fromisoformat` aceita mais do que emite desde a 3.11 — o guard e' o que
-        impede duas grafias de colapsarem no mesmo ordinal."""
+        impede duas grafias de colapsarem no mesmo ordinal.
+
+        A forma BASICA da ISO 8601 (`20191204`, sem hifens) so' e' aceita pelo
+        parser a partir da 3.11; na 3.10 ela levanta ValueError. O guard tem de
+        recusar a grafia nao-canonica NAS DUAS — o que muda entre versoes e' por
+        onde ela e' recusada, nao o resultado. O teste afirma o RESULTADO (vira
+        literal e volta byte-identica) e so' checa o parser onde ele aceita.
+        """
         import datetime as dt
+        import sys
 
         from tcf.natures import SPEC_DATA_ISO as S
 
-        # o parser aceita, mas a grafia nao e' a canonica -> tem de virar literal
-        assert dt.date.fromisoformat("20191204") == dt.date(2019, 12, 4)
+        if sys.version_info >= (3, 11):
+            # o parser aceita, mas a grafia nao e' a canonica -> o guard barra
+            assert dt.date.fromisoformat("20191204") == dt.date(2019, 12, 4)
+
+        # o que importa vale em toda a matriz suportada:
         assert S.classify_value("20191204") != "compressible"
         payload, _ = S.encode_value("20191204")
         assert S.decode_value(payload) == "20191204"
