@@ -78,9 +78,10 @@ class TestPublicAPISurface:
             assert hasattr(tcf, name), f"tcf.__all__ lista '{name}' mas nao existe"
 
     def test_version_pre_1_0(self):
-        # Pré-1.0 (ADR-0024): pacote em 0.x, minor acompanha o formato.
-        # #TCF.8 default (ADR-0032) -> minor 0.8.0 (ADR-0028 regra 1). PyPI publica no go do owner.
-        assert tcf.__version__ == "0.8.0"
+        # Pré-1.0 (ADR-0024): pacote em 0.x, minor acompanha o formato
+        # (#TCF.8 -> 0.8.x, ADR-0032/0028); patch e' livre pra fixes sem
+        # mudanca de emissao. PyPI publica no go do owner.
+        assert tcf.__version__ == "0.8.1"
 
     # CONGELAMENTO DO .8 ("terminar o .8 com as formalidades e
     # congelar parametros, header e corpo"). Este pin e' o "congelar PARAMETROS"

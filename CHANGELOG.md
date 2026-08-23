@@ -18,12 +18,34 @@ internos (sem PyPI). Date em parenteses = consolidacao do milestone.
 
 ---
 
-## 0.8.0 (pré-1.0, em preparação) — `#TCF.8` default
+## 0.8.1 (2026-08-23) — fail-loud: wire concatenado, contador RLE, view posicional
+
+Três comportamentos silenciosos eliminados do decode/view — cada um re-provado em lab
+dedicado com verificação adversarial independente antes do fix. **Zero mudança de emissão**:
+o encode está intocado e o wire é byte-idêntico ao 0.8.0 (gates verdes sem re-pin).
+
+- **`decode` rejeita header no meio do corpo**: concatenar dois wires prontos corrompia
+  **calado** (as refs do segundo resolviam na tabela acumulada do primeiro; na pior variante
+  até `n_rows` batia). Agora `ValueError` nomeando a causa — cortar um wire é seguro,
+  concatenar exige decode + re-encode. Falso-positivo zero em corpo tcf (literais escapam
+  dígitos); **limite**: corpo raw é verbatim e a junção lá segue indetectável.
+- **Contador RLE exige `N >= 2` em dígitos ASCII**: `*0|`, `*1|`, negativo e grafias com
+  sinal eram aceitos — linha sumindo ou fantasma sem erro (no seq-RLE, `*0+1|` emitia o
+  template: 1 linha que o contador declara não existir). Todo o espaço rejeitado é
+  inemissível pelo encoder.
+- **`view`: `int` = POSIÇÃO em toda a superfície** — a mesma regra e faixa do `schema=`
+  (ADR-0047: `str` = nome, `int` = posição, `0 <= pos < n`, bool excluído), na terceira
+  porta pública que faltava. Junto: `select(0)` não é mais engolido por truthiness (escalar
+  = sobrecarga de 1 coluna; `select([])` passa a significar *nenhuma* coluna) e `where` com
+  `value` não-`str` levanta `TypeError` ensinante (respondia 0 linhas calado; valores
+  decodados são `str`, `None` casa nulo).
+
+## 0.8.0 (2026-08-23) — `#TCF.8` default
 
 **Mudança de formato**: `#TCF.8` vira o formato **DEFAULT** de emissão
 ([ADR-0032](docs/adr/0032-tcf8-default-format.md); minor acompanha o formato, ADR-0028). O ciclo
-`0.7.2` (lazy+poda) foi **absorvido** neste release (sem release intermediário). PyPI publica no go
-explícito do owner (`T-DIST-RELEASE-0.8.0`); a última versão publicada segue `0.7.1` até lá.
+`0.7.2` (lazy+poda) foi **absorvido** neste release (sem release intermediário). Publicado no
+PyPI (`tcf-format`) em 2026-08-23 via Trusted Publishing, tag `v0.8.0`.
 
 ### Formato e rotas
 

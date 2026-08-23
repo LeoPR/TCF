@@ -4,7 +4,7 @@ Referência da camada de consulta somente leitura [`tcf.view`](../../src/tcf/vie
 blob TCF multi-coluna e responde consultas (`count/sum/min/max/avg`, `where`, group-by),
 **descomprimindo só o necessário**. Lê `#TCF.8M`; os filtros registrados no cabeçalho são
 reaplicados quando a coluna é lida, e colunas anônimas continuam posicionais. `#TCF.6` e `#TCF.7`
-não são aceitos no pacote `0.8.0` (compatibilidade histórica via git). A consulta não muda
+não são aceitos no pacote `0.8` (compatibilidade histórica via git). A consulta não muda
 `encode`, `decode` nem o formato.
 
 ```python
@@ -36,10 +36,14 @@ v.where("cidade", "SP").sum("valor") # toca só cidade + valor
 `view()` oferece caminhos de consulta que lembram uma execução SQL, mas não
 interpreta uma string SQL nem tenta reproduzir todas as semânticas de um banco:
 
+Coluna, em toda a superfície da view: `str` = **nome**, `int` = **posição** — a mesma regra
+do `schema=` ([ADR-0047](../adr/0047-schema-parametro-unico-de-spec.md): `0 <= pos < n`, sem
+negativo; coluna *chamada* `"2"` é achada pelo `str`, a posição pelo `int`).
+
 | capacidade | API | observação |
 |---|---|---|
-| projeção | `select(cols)` | materializa apenas as colunas pedidas |
-| filtro | `where(col, value=...)` ou `where(col, pred=...)` | igualdade/predicado; encadeamento é AND |
+| projeção | `select(cols)` | materializa apenas as colunas pedidas; escalar (`str`/`int`) = 1 coluna; `[]` = nenhuma |
+| filtro | `where(col, value=...)` ou `where(col, pred=...)` | igualdade/predicado; encadeamento é AND; `value` é `str` (`None` casa nulo — outro tipo é `TypeError`: os valores decodados são sempre `str`) |
 | agregação | `count`, `sum`, `min`, `max`, `avg` | valores vazios são ignorados nos agregadores numéricos |
 | agrupamento | `group_count(col)` | caminho estrutural em `@dict`; fallback nos demais modos |
 | layout agrupado | `group_ranges`, `agg_by` | experimental; requer ordem contígua de `sort_by` |

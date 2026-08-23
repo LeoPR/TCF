@@ -6,7 +6,7 @@
 [![CI](https://github.com/LeoPR/TCF/actions/workflows/ci.yml/badge.svg)](https://github.com/LeoPR/TCF/actions/workflows/ci.yml)
 ![Python](https://img.shields.io/badge/python-3.10+-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
-![Version](https://img.shields.io/badge/version-0.8.0%20(pre--1.0)-orange)
+![Version](https://img.shields.io/badge/version-0.8.1%20(pre--1.0)-orange)
 ![Format](https://img.shields.io/badge/format-%23TCF.8%20default-blue)
 
 > **What if you could transmit the same table with far fewer bytes,
@@ -375,7 +375,7 @@ The low-card dictionary (V2-B) and the structural split are already in the defau
   Round-trip is always lossless (`decode(encode(x)) == x`).
 - Default **0.8 / `#TCF.8M`**: fallback, dictionary, structural split, hexadecimal inline meta,
   escaping and header-authoritative filter IDs, see the section above. Legacy `.6/.7` are recovered through git.
-- Test suite: **1348 passed, 3 skipped** in the current local full run; run `pytest` for the number in your environment.
+- Test suite: **1364 passed, 3 skipped** in the current local full run; run `pytest` for the number in your environment.
   Byte baselines = regression guards, re-pinnable on an intentional change ([ADR-0024](docs/adr/0024-pre-1.0-versioning-git-as-compat.md)).
 - Changes: [`CHANGELOG.md`](CHANGELOG.md).
   M0-M14 history: [`experiments/lab/dirty/notas/2026-05/historia-dirty-lab.md`](experiments/lab/dirty/notas/2026-05/historia-dirty-lab.md).
@@ -585,7 +585,7 @@ assert decode(blob) == tabela        # lossless round-trip
 For CPF/CNPJ/IP there are opt-in *natures* (ADR-0015, `encode(column, schema=SPEC_CPF)`)
 that regenerate the check digit on decode.
 
-Pre-1.0 (ADR-0024): the package is at `0.8.0` — the *minor* tracks the format
+Pre-1.0 (ADR-0024): the package is at `0.8.1` — the *minor* tracks the format
 (`#TCF.8`) and the *patch* is a release counter, decoupled from behavior.
 
 ## First-time setup (dev)

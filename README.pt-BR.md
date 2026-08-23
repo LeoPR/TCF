@@ -9,7 +9,7 @@
 [![CI](https://github.com/LeoPR/TCF/actions/workflows/ci.yml/badge.svg)](https://github.com/LeoPR/TCF/actions/workflows/ci.yml)
 ![Python](https://img.shields.io/badge/python-3.10+-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
-![Version](https://img.shields.io/badge/version-0.8.0%20(pré--1.0)-orange)
+![Version](https://img.shields.io/badge/version-0.8.1%20(pré--1.0)-orange)
 ![Format](https://img.shields.io/badge/format-%23TCF.8%20default-blue)
 
 > **E se desse pra transmitir a mesma tabela com bem menos bytes,
@@ -379,7 +379,7 @@ O dicionário low-card (V2-B) e o split estrutural já estão no default; a comp
 - Default **0.8 / `#TCF.8M`**: fallback, dicionário, split estrutural, meta hexadecimal inline,
   escaping e identificadores de filtros autorizados pelo cabeçalho; veja a seção acima. Os legados `.6/.7`
   são recuperados via git.
-- Suíte: **1348 passed, 3 skipped** na execução local completa atual; rode `pytest` para o número do seu ambiente.
+- Suíte: **1364 passed, 3 skipped** na execução local completa atual; rode `pytest` para o número do seu ambiente.
   Baselines de byte = guardas de regressão, re-pináveis em mudança intencional ([ADR-0024](docs/adr/0024-pre-1.0-versioning-git-as-compat.md)).
 - Mudanças: [`CHANGELOG.md`](CHANGELOG.md).
   História M0-M14: [`experiments/lab/dirty/notas/2026-05/historia-dirty-lab.md`](experiments/lab/dirty/notas/2026-05/historia-dirty-lab.md).
@@ -590,7 +590,7 @@ assert decode(blob) == tabela        # round-trip lossless
 Para CPF/CNPJ/IP há *natures* opt-in (ADR-0015, `encode(coluna, schema=SPEC_CPF)`)
 que regeneram o dígito verificador no decode.
 
-Pré-1.0 (ADR-0024): o pacote está em `0.8.0` — o *minor* acompanha o formato
+Pré-1.0 (ADR-0024): o pacote está em `0.8.1` — o *minor* acompanha o formato
 (`#TCF.8`) e o *patch* é contador de release, desacoplado do comportamento.
 
 ## First-time setup (dev)
