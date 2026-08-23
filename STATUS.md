@@ -15,6 +15,24 @@
 > Detalhe + classificação das 17 checagens do bN:
 > [`escala-de-verificacao-e-fechamento-do-bn`](experiments/lab/dirty/notas/2026-08/2026-08-07-escala-de-verificacao-e-fechamento-do-bn.md).
 
+> **⛑ 2026-08-23 — DESFRAGMENTACAO (Strata §5) + 3 direcoes registradas.** O owner apontou:
+> *"se registrou uma regra que ja' deveria estar usando muitas vezes, provavelmente a mesma coisa
+> esta' registrada de formas diferentes pro mesmo fim"*. **Medido, e a causa era pior**: (a) eu
+> citei "§ acima" pra uma regra que NAO EXISTIA no AGENTS — referencia pendurada; (b) as DUAS
+> regras mais repetidas (portao anti-orfao, "pedido 10+ vezes"; Shaper obrigatorio) **nao estavam
+> no guia canonico** — so' na memoria de USUARIO, que e' cross-projeto e nao e' norma do time, e
+> por isso eu as perdia. **Correcao**: `AGENTS.md` §0 "As invariantes" no topo, I1-I6, uma voz
+> cada, com ⟳ nas repetidas; o resto do arquivo virou PONTEIRO (13 refs); referencias relativas
+> 1 -> 0. As 4 memorias que duplicavam autoridade agora APONTAM pro AGENTS (elas guardam o
+> *porque* e o incidente; o guia guarda a regra). **3 direcoes novas registradas**:
+> [manual formal](tickets/T-DOC-MANUAL-FORMAL.md) (padrao polars/pandas),
+> [lab didatico ponta-a-ponta](tickets/T-LAB-DIDATICO-PONTA-A-PONTA.md) (fecha o buraco de NAO
+> haver exemplo cliente/servidor) e [HTTP QUERY](tickets/T-HTTP-QUERY-E-VIEW.md) — **apurado: e'
+> RFC 10008 desde jun/2026, nao mais draft**; corpo na requisicao + safe/idempotente + resposta
+> CACHEAVEL com o corpo na chave, que e' o envelope que faltava pro `view()`.
+> + O owner autorizou as pastas no Windows: o `E902` do ruff **zerou** (eram 39).
+
+
 > **⛑ 2026-08-23 — BASE MEDIDA PRO `.9`: o byte ja' esta' la', o relogio nao colhe.**
 > Janela de massa pos-release + modelo de tempo-ate-o-dado-chegar (pergunta do owner: *"se mesmo
 > o encode sendo lento ele compensasse"*). **PENHASCO DE ENCODE**: `lineitem` 60k = **475 s**,
