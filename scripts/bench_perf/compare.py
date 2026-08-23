@@ -210,21 +210,21 @@ def main(argv=None) -> int:
     print(f"fator_calibrador (maquina .9/.8) = {r['fator_calibrador']}")
     print(f"veredictos: {r['contagem']}")
     if r["contagem"]["protocolo-desigual"]:
-        pd = [l for l in r["linhas"] if l["verdict"] == "protocolo-desigual"][:3]
+        pd = [ln for ln in r["linhas"] if ln["verdict"] == "protocolo-desigual"][:3]
         print(f"  protocolo-desigual ({r['contagem']['protocolo-desigual']}): "
-              + ", ".join(f"{l['case_id'][:24]}(tier {l['tier_base']}!={l['tier_cand']} "
-                          f"n {l['n_base']}!={l['n_cand']})" for l in pd))
+              + ", ".join(f"{ln['case_id'][:24]}(tier {ln['tier_base']}!={ln['tier_cand']} "
+                          f"n {ln['n_base']}!={ln['n_cand']})" for ln in pd))
     if r["so_no_baseline"]:
         print(f"  so' no baseline ({len(r['so_no_baseline'])}): {r['so_no_baseline'][:3]}...")
     if r["so_no_candidato"]:
         print(f"  so' no candidato ({len(r['so_no_candidato'])}): {r['so_no_candidato'][:3]}...")
-    comparaveis = [l for l in r["linhas"] if "delta_pct" in l]
-    melhores = [l for l in comparaveis if l["verdict"] == "MELHOR"][:5]
-    piores = [l for l in comparaveis if l["verdict"] == "PIOR"][-5:]
-    for l in melhores:
-        print(f"  MELHOR {l['delta_pct']:+6.1f}% (lim {l['limiar_pct']}%)  {l['case_id'][:50]}")
-    for l in piores:
-        print(f"  PIOR   {l['delta_pct']:+6.1f}% (lim {l['limiar_pct']}%)  {l['case_id'][:50]}")
+    comparaveis = [ln for ln in r["linhas"] if "delta_pct" in ln]
+    melhores = [ln for ln in comparaveis if ln["verdict"] == "MELHOR"][:5]
+    piores = [ln for ln in comparaveis if ln["verdict"] == "PIOR"][-5:]
+    for ln in melhores:
+        print(f"  MELHOR {ln['delta_pct']:+6.1f}% (lim {ln['limiar_pct']}%)  {ln['case_id'][:50]}")
+    for ln in piores:
+        print(f"  PIOR   {ln['delta_pct']:+6.1f}% (lim {ln['limiar_pct']}%)  {ln['case_id'][:50]}")
 
     if args.autoteste:
         # auto-teste: mesmo arquivo -> matriz igual, fator 1.0, zero PIOR/MELHOR/protocolo,

@@ -136,14 +136,18 @@ def demo2_cnpj_real():
 def _cnpj_dv_ok(v: str) -> bool:
     d = [int(c) for c in v if c.isdigit()]
     def dv(ds, ws):
-        s = sum(x * w for x, w in zip(ds, ws)); r = s % 11
+        s = sum(x * w for x, w in zip(ds, ws))
+        r = s % 11
         return 0 if r < 2 else 11 - r
-    w1 = [5,4,3,2,9,8,7,6,5,4,3,2]; w2 = [6,5,4,3,2,9,8,7,6,5,4,3,2]
+    w1 = [5,4,3,2,9,8,7,6,5,4,3,2]
+    w2 = [6,5,4,3,2,9,8,7,6,5,4,3,2]
     return d[12] == dv(d[:12], w1) and d[13] == dv(d[:12] + [d[12]], w2)
 
 
 def _shuffled(xs):
-    ys = list(xs); random.Random(20260712).shuffle(ys); return ys
+    ys = list(xs)
+    random.Random(20260712).shuffle(ys)
+    return ys
 
 
 # ===========================================================================

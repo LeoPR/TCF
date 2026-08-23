@@ -74,30 +74,73 @@ grafo; [T-EXP-H-GDICT-01](tickets/T-EXP-H-GDICT-01.md)). Poda S1-S3 feita.
 
 ---
 
-## Ciclo `.9` — otimização (aberto 2026-08-23, com base medida)
+## Ciclo `.9` — aberto 2026-08-23, com base medida
 
-O `.8` está **publicado e funcionando** (`tcf-format 0.8.0` no PyPI). O `.9` é
-otimização — e agora tem **de onde partir**, não intuição:
+O `.8` está **publicado e funcionando** (`tcf-format 0.8.0` no PyPI). O `.9` não é só
+performance: são **três eixos**, e o que os une é que agora há **medição de onde partir**,
+não intuição.
 
-- **O eixo quente é CARDINALIDADE**, não linhas×colunas: `lineitem` 60k custa 475 s; `adult`
-  49k custa 3,3 s.
-- **Encode é o alvo, decode não**: razão de 10× a ~800× a favor do decode. Na topologia real
-  (1 encode : N decodes, servidor central) isso conta a favor — e o bench 1:1 não mostra.
-- **Os bytes já estão lá**: `tcf+brotli` é o menor no fio (2,3% do JSON, metade do
-  `json+brotli`). O que falta é tempo pra colhê-los: break-even em 1,2–36 Mbps hoje.
-- **Modo de compressão rápida nunca foi testado** — hoje só existe o mais caro.
+### O que a medição já estabeleceu
 
-O `.9` tem **dois eixos** (direção do owner, 2026-08-23) — o segundo não é performance:
+| achado | número | consequência |
+|---|---|---|
+| o eixo quente é **cardinalidade**, não volume | `lineitem` 60k = 475 s · `adult` 49k = 3,3 s (**143×**) | otimizar por cardinalidade, não por linhas×colunas |
+| **encode** é o alvo; decode não | razão de **10× a ~800×** | e a topologia 1 encode : N decodes conta a favor |
+| os **bytes já estão lá** | `tcf+brotli` = 2,3% do JSON (metade do `json+brotli`) | falta tempo pra colhê-los |
+| break-even hoje | **1,2 a 36 Mbps** | linear no custo de CPU: encode 10× → ~360 Mbps |
+| borda superior | 500 mil linhas = 53 min de CPU, 1,2 GB, sem terminar | o alvo é volume pequeno; isto é a borda |
 
-| eixo | ticket |
+Base: labs [`0100`](experiments/lab/dirty/2026-08/2026-08-23/2026-08-23-0100-janela-massa-pos-release/)
+e [`0300`](experiments/lab/dirty/2026-08/2026-08-23/2026-08-23-0300-tempo-ate-o-dado-chegar/).
+
+### Eixo 1 — desempenho, bordas e modos
+
+Ticket-mestre: [`T-PERF-BORDAS-E-MODOS-09`](tickets/T-PERF-BORDAS-E-MODOS-09.md).
+
+- **modos de compressão** (o eixo nunca testado): rápido — *"praticamente só busca e
+  repetição"* — · normal · máximo. Pista concreta: `T-BUDGET-DE-BUSCA` mostra que o único
+  freio é um contador **fixo de 99, já saturado**.
+- **bench na topologia real** 1 encode : N decodes (o 1:1 subestima)
+- **tabela de bordas por eixo**, com cardinalidade separada
+- fechar o **F3-3** (paralelismo byte-idêntico + combos) que a janela de massa não alcançou
+
+### Eixo 2 — armazenamento e ecossistema
+
+**O trilho já existe** — não abrir ticket paralelo (**I7**):
+
+| registro | o que já decidiu |
 |---|---|
-| desempenho, bordas e modos de compressão | [T-PERF-BORDAS-E-MODOS-09](tickets/T-PERF-BORDAS-E-MODOS-09.md) |
-| **armazenamento e ecossistema** — HDFS/Parquet, composição de compressão, leitura com índice | o trilho **já existe**: `O-FMT-20` (registro-'0'/schema-declare para **append** e conversão a parquet, com **index sidecar `.tcfx`**) e **H-QUERY-04** (design de índices feito em 2026-06-17). Ver [`futuras-otimizacoes-formato.md`](experiments/lab/dirty/notas/2026-05/futuras-otimizacoes-formato.md) e a linha H-QUERY-04 no Tier 1 |
+| **`O-FMT-20`** ([registry](experiments/lab/dirty/notas/2026-05/futuras-otimizacoes-formato.md)) | registro-'0'/schema-declare para **append**, conversão a **parquet** e **index sidecar `.tcfx`** |
+| **`H-QUERY-04`** (Tier 1 abaixo) | design de índices: *derivável > {in-file inerte / sidecar `.tcfx`} > formato*; escolha **por perfil de uso** — transmissão sem índice, at-rest index-on-arrival |
+| lab `2026-07-13-0156` | composição de compressão **já medida**: em texto livre denso o codec binário sozinho vence e o TCF por baixo **piora (−41%)**; em tabela estruturada vence e compõe. **Quem decide é a estrutura, não o container** |
 
-Um formato que não roda onde o dado vive é formato de laboratório. E há achado prévio que
-corta nos dois sentidos: em **coluna densa de texto livre** o codec binário sozinho vence e o
-TCF por baixo **piora** (até −41%); em **tabela estruturada** o TCF vence sozinho (−72% vs CSV)
-e ainda compõe. **Quem decide é a estrutura, não o container.**
+Novidade a investigar: [`T-HTTP-QUERY-E-VIEW`](tickets/T-HTTP-QUERY-E-VIEW.md) — **QUERY virou
+RFC 10008** (jun/2026): corpo na requisição, safe/idempotente e **resposta cacheável com o
+corpo na chave**. É o envelope que faltava para o `view()`, e conversa direto com at-rest.
+
+### Eixo 3 — limpeza e simplificação (o `.9` clássico)
+
+| item | onde |
+|---|---|
+| consolidação do core (C1 rename M8A→HCC, C2 achatar decode) | `T-CODE-CORE-CONSOLIDATE` — declarado "abertura do ciclo pós-release" |
+| descapar V2-B formas B/C | `T-CODE-DESCAPAR-V2B` |
+| quoting/escaping além do backslash interim | `T-FMT-QUOTING-STUDY` · `T-FMT-ESCAPE-COMBINATORIAL-STUDY` |
+| assinatura de contrato (`drop_names`, `sort_by`) | `T-FMT-CONTRACT-SIGNATURE` |
+| perfis de uso / calibração dos vértices | `T-STUDY-USE-PROFILES` |
+| perfis macro (`fast=true`) | `T-PERFIS-MACRO` — casa com os modos do eixo 1 |
+| dívida de lint dos acessórios (158, `scripts/` e `shaper/`) | — |
+
+### Decisões do owner ainda abertas
+
+- as **3 caladas verificadas** — `concat` corrompe · `where` posicional responde errado ·
+  `*0|` aceito — `.8` ou `.9`? (a do `view` custa uma linha)
+- **ruff-format em massa** (68 arquivos): aplicar como commit isolado, ou remover o hook
+- o **`uv.lock`** que entrou no commit da limpeza de comentários
+
+### Fora do `.9`
+
+`2.0` — streaming, sinks, lossy, `T-OBAT-NOS-PROXIMIDADE`. `1.0` — congelar formato e API,
+port para Rust.
 
 ## Tier 1 — PRÉ-1.0 (organizável agora)
 

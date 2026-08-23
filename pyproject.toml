@@ -89,6 +89,16 @@ extend-exclude = [
 # ampliar e' decisao deliberada, nao efeito colateral de `uv lock --upgrade`.
 select = ["E4", "E7", "E9", "F"]
 
+[tool.ruff.lint.per-file-ignores]
+# Runners do gadget LLM (acessorio historico v0.5, fora do wheel): o
+# `sys.path.insert(...)` TEM de rodar antes de importar tcf/tests/data_sources —
+# o E402 ali e' a estrutura correta, nao descuido. E701/F841/E731 sao estilo em
+# codigo que a suite nao cobre: divida DECLARADA, nao invisivel.
+"src/llm_query/*.py" = ["E402", "E701", "F841", "E731"]
+"src/llm_query/**/*.py" = ["E402", "E701", "F841", "E731"]
+# Labs e experimentos: registro probatorio, nao codigo mantido.
+"experiments/**" = ["E402", "E741", "E702", "E701", "F841", "E731"]
+
 [tool.pytest.ini_options]
 cache_dir = "Z:\\caches\\pytest"
 testpaths = ["tests"]

@@ -1,5 +1,20 @@
 # Tickets — TCF (formato #TCF.8 default, ADR-0032)
 
+> ## Antes de abrir ticket de DIREÇÃO, consulte os dois registries
+>
+> Eles guardam o que já foi pensado e **não** são tickets — por isso somem da leitura e a
+> ideia acaba re-registrada como se fosse nova (aconteceu em 2026-08-23 com armazenamento:
+> `O-FMT-20` e `H-QUERY-04` já cobriam, com o princípio decidido).
+>
+> | registry | o que guarda |
+> |---|---|
+> | [`roadmap-hipoteses.md`](../experiments/lab/dirty/notas/2026-05/roadmap-hipoteses.md) | **hipóteses `H-*`** por pacote: o que foi testado, confirmado, refutado ou adiado |
+> | [`futuras-otimizacoes-formato.md`](../experiments/lab/dirty/notas/2026-05/futuras-otimizacoes-formato.md) | **otimizações `O-FMT-*`** de formato: registradas com o enquadramento do owner |
+>
+> Regra: ideia de direção → procure nos dois **primeiro**. Se já existe, **estenda** o
+> registro; não abra ticket paralelo (Strata §5 — autoridade única).
+
+
 Tickets de planejamento + acompanhamento do projeto. Cada ticket tem
 status (`open` / `in-progress` / `closed`), criterios de aceite, e
 referencias a commits que o resolveram.

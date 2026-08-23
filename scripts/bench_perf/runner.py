@@ -213,7 +213,9 @@ def _run_concorrencia(case: dict, rec: dict, vet: dict, smoke: bool) -> dict:
     # RT gate (com o parallel pedido) — sem RT, nenhum numero
     blob = encode(piv, parallel=workers) if workers > 1 else encode(piv)
     if decode(blob) != piv:
-        rec["status"] = "rt-quebrado"; rec["motivo"] = "RT sob parallel falhou"; return rec
+        rec["status"] = "rt-quebrado"
+        rec["motivo"] = "RT sob parallel falhou"
+        return rec
     rec["rt_ok"] = True
     rec["bytes"] = len(blob.encode("utf-8"))
     rec["workload"] = SY.descrever(piv)
@@ -231,7 +233,8 @@ def _run_concorrencia(case: dict, rec: dict, vet: dict, smoke: bool) -> dict:
     if workers > 1:
         rec["encode"] = P.medir(lambda: encode(piv, parallel=workers))
         rec["encode_serial_ref"] = P.medir(lambda: encode(piv))
-        eb = rec["encode"]["point_ns"]; sb = rec["encode_serial_ref"]["point_ns"]
+        eb = rec["encode"]["point_ns"]
+        sb = rec["encode_serial_ref"]["point_ns"]
         rec["speedup_interno"] = round(sb / eb, 3) if eb else None
     else:
         rec["encode"] = P.medir(lambda: encode(piv))
@@ -282,13 +285,16 @@ def _run_candidate(case: dict, rec: dict, smoke: bool) -> dict:
     rec["bytes"], rec["bytes_no_candidates"] = len(bt.encode()), len(bf.encode())
     rec["workload"] = SY.descrever(piv)
     if not rec["rt_ok"]:
-        rec["status"] = "rt-quebrado"; rec["motivo"] = "RT falhou (fallback T/F)"; return rec
+        rec["status"] = "rt-quebrado"
+        rec["motivo"] = "RT falhou (fallback T/F)"
+        return rec
     rec["encode"] = P.medir(lambda: encode(piv))                   # com candidatos (default)
     rec["encode_no_candidates"] = P.medir(lambda: encode(piv, fallback=False))
     et, ef = rec["encode"]["point_ns"], rec["encode_no_candidates"]["point_ns"]
     rec["candidate_overhead"] = round(et / ef, 3) if ef else None  # >1 = perdedores custam tempo
     rec["bytes_ganho_candidatos"] = rec["bytes_no_candidates"] - rec["bytes"]  # >0 = valeram bytes
-    rec["status"] = "ok"; return rec
+    rec["status"] = "ok"
+    return rec
 
 
 def _run_column(case: dict, rec: dict, smoke: bool) -> dict:
@@ -306,10 +312,12 @@ def _run_column(case: dict, rec: dict, smoke: bool) -> dict:
     rec["bytes"] = len(blob.encode())
     rec["coluna"], rec["n_valores"], rec["n_unicos"] = name, len(col), len(set(col))
     if not rec["rt_ok"]:
-        rec["status"] = "rt-quebrado"; return rec
+        rec["status"] = "rt-quebrado"
+        return rec
     rec["encode"] = P.medir(lambda: encode(col))
     rec["decode"] = P.medir(lambda: decode(blob))
-    rec["status"] = "ok"; return rec
+    rec["status"] = "ok"
+    return rec
 
 
 def _worker_pure_encode(payload):
@@ -348,7 +356,8 @@ def _run_accel(case: dict, rec: dict, smoke: bool) -> dict:
     rec["bytes"] = len(blob.encode())
     rec["cython_ativo"] = bool(getattr(M, "_detect_compositions_accelerated", False))
     if not rec["rt_ok"]:
-        rec["status"] = "rt-quebrado"; return rec
+        rec["status"] = "rt-quebrado"
+        return rec
     rec["encode"] = P.medir(lambda: encode(piv))                  # cython (in-process)
     from concurrent.futures import ProcessPoolExecutor
     with ProcessPoolExecutor(max_workers=1) as ex:
@@ -359,7 +368,8 @@ def _run_accel(case: dict, rec: dict, smoke: bool) -> dict:
     rec["speedup_cython"] = round(pure_min / cm, 3) if cm else None
     if not rec["cython_ativo"]:
         rec["motivo"] = "cython nao carregado — speedup ~1 (ambos puros)"
-    rec["status"] = "ok"; return rec
+    rec["status"] = "ok"
+    return rec
 
 
 _ENVELOPE_FONTES = {"sentinela", "sondas"}   # B0: infra do run, nao celula de dado
@@ -414,13 +424,16 @@ def run_case(case: dict, order_index: int, smoke: bool) -> dict:
             rec["status"] = "ok"
             return rec
         except V.ClasseRejeitada as ex:
-            rec["status"] = "rejeitado"; rec["gate"], rec["motivo"] = ex.gate, ex.motivo
+            rec["status"] = "rejeitado"
+            rec["gate"], rec["motivo"] = ex.gate, ex.motivo
             return rec
         except _Pendente as ex:
-            rec["status"] = "pendente"; rec["motivo"] = str(ex)
+            rec["status"] = "pendente"
+            rec["motivo"] = str(ex)
             return rec
         except Exception as ex:
-            rec["status"] = "erro"; rec["motivo"] = f"{type(ex).__name__}: {str(ex)[:200]}"
+            rec["status"] = "erro"
+            rec["motivo"] = f"{type(ex).__name__}: {str(ex)[:200]}"
             return rec
 
     if cam not in CAMINHOS:
@@ -431,29 +444,37 @@ def run_case(case: dict, order_index: int, smoke: bool) -> dict:
     if vet["concorrencia"]["internal"] != "serial" or vet["concorrencia"]["test"] != "t1" \
             or vet["granularidade"] == "process-tree":
         if vet["accel"] != "cython" or vet["compressao"] != "none":
-            rec["status"] = "pendente"; rec["motivo"] = "concorrencia + accel/compressao pendente"
+            rec["status"] = "pendente"
+            rec["motivo"] = "concorrencia + accel/compressao pendente"
             return rec
         try:
             return _run_concorrencia(case, rec, vet, smoke)
         except Exception as e:
-            rec["status"] = "erro"; rec["motivo"] = f"{type(e).__name__}: {str(e)[:200]}"
+            rec["status"] = "erro"
+            rec["motivo"] = f"{type(e).__name__}: {str(e)[:200]}"
             return rec
 
     if vet["granularidade"] == "candidate":
         try:
             return _run_candidate(case, rec, smoke)
         except Exception as e:
-            rec["status"] = "erro"; rec["motivo"] = f"{type(e).__name__}: {str(e)[:200]}"; return rec
+            rec["status"] = "erro"
+            rec["motivo"] = f"{type(e).__name__}: {str(e)[:200]}"
+            return rec
     if vet["granularidade"] == "column":
         try:
             return _run_column(case, rec, smoke)
         except Exception as e:
-            rec["status"] = "erro"; rec["motivo"] = f"{type(e).__name__}: {str(e)[:200]}"; return rec
+            rec["status"] = "erro"
+            rec["motivo"] = f"{type(e).__name__}: {str(e)[:200]}"
+            return rec
     if vet["accel"] == "pure":
         try:
             return _run_accel(case, rec, smoke)
         except Exception as e:
-            rec["status"] = "erro"; rec["motivo"] = f"{type(e).__name__}: {str(e)[:200]}"; return rec
+            rec["status"] = "erro"
+            rec["motivo"] = f"{type(e).__name__}: {str(e)[:200]}"
+            return rec
 
     # LAYER (B3): perfil por camada do encode tcf-flat, FORA do src/tcf (layers.py),
     # com gate de bytes identicos. So' faz sentido no caminho plano.

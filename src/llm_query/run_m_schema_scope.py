@@ -279,11 +279,11 @@ def print_summary(manifest_path: Path) -> None:
     models = sorted(set(r["model"] for r in records))
 
     print("  Per (model x schema_level):")
-    print(f"  {'Model':<22}" + "  ".join(f"{l:<14}" for l in levels))
+    print(f"  {'Model':<22}" + "  ".join(f"{ln:<14}" for ln in levels))
     for m in models:
         row = f"  {m:<22}"
-        for l in levels:
-            oks = by_ms.get((m, l), [])
+        for ln in levels:
+            oks = by_ms.get((m, ln), [])
             if oks:
                 row += f"  {sum(oks)}/{len(oks)} ({sum(oks)/len(oks)*100:.0f}%)    "
             else:
@@ -291,11 +291,11 @@ def print_summary(manifest_path: Path) -> None:
         print(row)
 
     print("\n  Per (schema_level x question):")
-    print(f"  {'Question':<22}" + "  ".join(f"{l:<14}" for l in levels))
+    print(f"  {'Question':<22}" + "  ".join(f"{ln:<14}" for ln in levels))
     for q in questions:
         row = f"  {q:<22}"
-        for l in levels:
-            oks = by_sl_q.get((l, q), [])
+        for ln in levels:
+            oks = by_sl_q.get((ln, q), [])
             if oks:
                 row += f"  {sum(oks)}/{len(oks)} ({sum(oks)/len(oks)*100:.0f}%)    "
             else:
@@ -305,10 +305,10 @@ def print_summary(manifest_path: Path) -> None:
     if multi_nl:
         print("\n  Per (schema_level x naturalness):")
         print(f"  {'Level':<10}" + "  ".join(f"{nl:<14}" for nl in nls))
-        for l in levels:
-            row = f"  {l:<10}"
+        for ln in levels:
+            row = f"  {ln:<10}"
             for nl in nls:
-                oks = by_sl_nl.get((l, nl), [])
+                oks = by_sl_nl.get((ln, nl), [])
                 if oks:
                     row += f"  {sum(oks)}/{len(oks)} ({sum(oks)/len(oks)*100:.0f}%)    "
                 else:

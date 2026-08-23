@@ -452,7 +452,7 @@ def print_summary(manifest_path: Path) -> None:
     if not manifest_path.exists():
         print("[M1] No records.")
         return
-    records = [json.loads(l) for l in manifest_path.read_text(encoding="utf-8").splitlines() if l.strip()]
+    records = [json.loads(ln) for ln in manifest_path.read_text(encoding="utf-8").splitlines() if ln.strip()]
     if not records:
         print("[M1] Empty manifest.")
         return

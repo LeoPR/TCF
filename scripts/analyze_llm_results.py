@@ -362,7 +362,7 @@ def main():
     if not RESULTS_PATH.exists():
         sys.exit(f"Results file not found: {RESULTS_PATH}")
 
-    entries = [json.loads(l) for l in RESULTS_PATH.read_text(encoding="utf-8").splitlines() if l.strip()]
+    entries = [json.loads(ln) for ln in RESULTS_PATH.read_text(encoding="utf-8").splitlines() if ln.strip()]
     print(f"[analyze] loaded {len(entries)} entries from {RESULTS_PATH}", file=sys.stderr)
 
     analysis = analyze(entries, context_limit=args.context_limit)

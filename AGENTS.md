@@ -61,6 +61,17 @@ nenhum: nem em prosa, nem em tabela, nem em commit.
 E toda mudança passa nos gates byte-canônicos — os dois, D1-D9/D17a **e**
 `test_real_world_snapshots.py` (§4 explica por que o mini-suite não basta).
 
+### I7 Antes de registrar DIREÇÃO, varra os registries
+
+Ideia de rumo (otimização, formato, integração) vai primeiro aos dois registries:
+`roadmap-hipoteses.md` (hipóteses `H-*`) e `futuras-otimizacoes-formato.md` (`O-FMT-*`), em
+`experiments/lab/dirty/notas/2026-05/`. Se já existe, **estenda** o registro — não abra ticket
+paralelo, que vira segunda autoridade sobre o mesmo fato (Strata §5).
+
+> Aconteceu em 2026-08-23: abri ticket de armazenamento que `O-FMT-20` (sidecar `.tcfx`,
+> append, parquet) e `H-QUERY-04` (design de índices, com o princípio *derivável > sidecar >
+> formato* já decidido) cobriam desde julho/junho. Revertido.
+
 ### I6 Antes de mudança grande, reconferir o L0 do Strata
 
 Format change, weld em `src/tcf`, ADR novo aceito, release, reorg de docs: passada rápida

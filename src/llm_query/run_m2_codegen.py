@@ -217,7 +217,7 @@ def run_scale_invariance(manifest_m2_path: Path, scales: list[int]) -> None:
         print("No M2 manifest to source SQLs from.")
         return
 
-    records = [json.loads(l) for l in manifest_m2_path.read_text(encoding="utf-8").splitlines() if l.strip()]
+    records = [json.loads(ln) for ln in manifest_m2_path.read_text(encoding="utf-8").splitlines() if ln.strip()]
     # Take only records that succeeded (ok=True) at n=100 — they have valid SQL
     valid = [r for r in records if r["ok"] and r.get("n_orders") == 100]
     print(f"  Found {len(valid)} valid SQLs from M2 to test at larger scales")
@@ -254,7 +254,7 @@ def print_summary(manifest_path: Path) -> None:
     if not manifest_path.exists():
         print("[M2] No records.")
         return
-    records = [json.loads(l) for l in manifest_path.read_text(encoding="utf-8").splitlines() if l.strip()]
+    records = [json.loads(ln) for ln in manifest_path.read_text(encoding="utf-8").splitlines() if ln.strip()]
     if not records:
         print("[M2] Empty manifest.")
         return

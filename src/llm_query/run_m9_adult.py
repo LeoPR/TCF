@@ -372,11 +372,11 @@ def print_summary(manifest_path: Path) -> None:
 
     if multi_level:
         print("  Per (model x naturalness):")
-        print(f"  {'Model':<25}" + "  ".join(f"{l:<14}" for l in levels))
+        print(f"  {'Model':<25}" + "  ".join(f"{ln:<14}" for ln in levels))
         for m in models:
             row = f"  {m:<25}"
-            for l in levels:
-                oks = by_ml.get((m, l), [])
+            for ln in levels:
+                oks = by_ml.get((m, ln), [])
                 if oks:
                     row += f"  {sum(oks)}/{len(oks)} ({sum(oks)/len(oks)*100:.0f}%)    "
                 else:
@@ -384,11 +384,11 @@ def print_summary(manifest_path: Path) -> None:
             print(row)
 
         print("\n  Per (naturalness x question):")
-        print(f"  {'Question':<25}" + "  ".join(f"{l:<14}" for l in levels))
+        print(f"  {'Question':<25}" + "  ".join(f"{ln:<14}" for ln in levels))
         for q in questions:
             row = f"  {q:<25}"
-            for l in levels:
-                oks = by_lq.get((l, q), [])
+            for ln in levels:
+                oks = by_lq.get((ln, q), [])
                 if oks:
                     row += f"  {sum(oks)}/{len(oks)} ({sum(oks)/len(oks)*100:.0f}%)    "
                 else:

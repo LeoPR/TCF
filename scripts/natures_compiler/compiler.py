@@ -73,9 +73,11 @@ def _tokens(template: str):
             j = i
             while j < len(template) and template[j] in "ND":
                 j += 1
-            toks.append(("d", j - i)); i = j
+            toks.append(("d", j - i))
+            i = j
         else:
-            toks.append(("l", template[i])); i += 1
+            toks.append(("l", template[i]))
+            i += 1
     return toks
 
 
@@ -93,7 +95,8 @@ def _make_formatter(toks):
         out, pos = [], 0
         for kind, v in toks:
             if kind == "d":
-                out.append(s[pos:pos + v]); pos += v
+                out.append(s[pos:pos + v])
+                pos += v
             else:
                 out.append(v)
         return "".join(out)
@@ -112,7 +115,8 @@ def compile_spec(dsl: dict):
     if algo == "none":
         if "padding_slots" not in dsl or "separator" not in dsl:
             raise ValueError("check_algorithm: none requer 'padding_slots' + 'separator'")
-        slots = tuple(dsl["padding_slots"]); sep = dsl["separator"]
+        slots = tuple(dsl["padding_slots"])
+        sep = dsl["separator"]
         body = dsl.get("body_length")
         if body is not None and sum(slots) != body:
             raise ValueError(f"sum(padding_slots)={sum(slots)} != body_length={body}")

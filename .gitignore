@@ -146,6 +146,19 @@ legacy-snapshots/
 # Estas regras vem por ULTIMO de proposito: as excecoes `!experiments/lab/dirty/...`
 # mais acima (outputs/inputs de lab) deixam de ter efeito — o diretorio inteiro
 # esta' fora agora. Ficam onde estao como registro de quando o dirty era publicado.
-experiments/lab/dirty/
+# O git nao reentra em diretorio excluido: pra abrir excecao e' preciso
+# des-excluir o CAMINHO nivel a nivel, e so' entao permitir os arquivos.
+# A fronteira e' por FUNCAO, nao por pasta: os REGISTRIES de direcao
+# (roadmap-hipoteses, futuras-otimizacoes-formato, historia-dirty-lab) sao
+# insumo do time e alimentam o proximo ciclo — separar por pasta tirou 2.008
+# linhas deles do repo. Diario e notas por sessao seguem FORA.
+experiments/lab/dirty/*
+!experiments/lab/dirty/notas/
+experiments/lab/dirty/notas/*
+!experiments/lab/dirty/notas/2026-05/
+experiments/lab/dirty/notas/2026-05/*
+!experiments/lab/dirty/notas/2026-05/roadmap-hipoteses.md
+!experiments/lab/dirty/notas/2026-05/futuras-otimizacoes-formato.md
+!experiments/lab/dirty/notas/2026-05/historia-dirty-lab.md
 experiments/lab/archive/
 .claude/
