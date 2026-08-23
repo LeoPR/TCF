@@ -15,6 +15,26 @@
 > Detalhe + classificação das 17 checagens do bN:
 > [`escala-de-verificacao-e-fechamento-do-bn`](experiments/lab/dirty/notas/2026-08/2026-08-07-escala-de-verificacao-e-fechamento-do-bn.md).
 
+> **⛑ 2026-08-23 — BASE MEDIDA PRO `.9`: o byte ja' esta' la', o relogio nao colhe.**
+> Janela de massa pos-release + modelo de tempo-ate-o-dado-chegar (pergunta do owner: *"se mesmo
+> o encode sendo lento ele compensasse"*). **PENHASCO DE ENCODE**: `lineitem` 60k = **475 s**,
+> `adult` 49k = **3,3 s** — 143x, mesma ordem de linhas. Nao e' volume, e' **CARDINALIDADE**
+> (confirma a probatoria de 08-20). **ASSIMETRIA**: decode 0,05-0,81 s em tudo; razao
+> encode/decode de **10x a ~800x**. **BORDA ACHADA**: 500 mil linhas = 53 min de CPU e 1,2 GB
+> sem terminar. **BYTES SE SUSTENTAM**: `tcf+brotli` e' o menor no fio — 2,3% do JSON no adult
+> contra 4,5% do `json+brotli` (metade). **MAS o break-even e' 1,2-36 Mbps**: abaixo de rede
+> comum, entao hoje o brotli-sobre-JSON vence no relogio. O break-even e' LINEAR no custo de CPU
+> — encode 10x mais rapido = ~360 Mbps = vence em 4G/banda larga. RT validado em 100% das
+> celulas. **DELIMITACOES DO OWNER que enquadram tudo isso**: (1) `.9` nao aconteceu — e' base,
+> nao conclusao; (2) o alvo e' volume PEQUENO, o bench busca a BORDA; (3) a topologia e'
+> multi-cliente **1 encode : N decodes**, que um bench 1:1 nao representa — e a assimetria
+> medida e' exatamente o que ela aproveita; (4) **modo de compressao RAPIDA nunca foi testado**
+> (hoje so' existe o mais caro). Ticket-mestre do ciclo:
+> [`T-PERF-BORDAS-E-MODOS-09`](tickets/T-PERF-BORDAS-E-MODOS-09.md). Labs
+> [`0100`](experiments/lab/dirty/2026-08/2026-08-23/2026-08-23-0100-janela-massa-pos-release/) e
+> [`0300`](experiments/lab/dirty/2026-08/2026-08-23/2026-08-23-0300-tempo-ate-o-dado-chegar/).
+
+
 > **⛑ 2026-08-22 — README dedicado pro PyPI + a distincao TIPO FORTE x SPEC.** O
 > `pyproject` mandava o README do repo (692 linhas) como long-description: **58 links
 > RELATIVOS e 1 imagem local**, que no PyPI (pagina UNICA, sem arvore de repo) quebram

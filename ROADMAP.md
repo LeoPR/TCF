@@ -74,6 +74,21 @@ grafo; [T-EXP-H-GDICT-01](tickets/T-EXP-H-GDICT-01.md)). Poda S1-S3 feita.
 
 ---
 
+## Ciclo `.9` — otimização (aberto 2026-08-23, com base medida)
+
+O `.8` está **publicado e funcionando** (`tcf-format 0.8.0` no PyPI). O `.9` é
+otimização — e agora tem **de onde partir**, não intuição:
+
+- **O eixo quente é CARDINALIDADE**, não linhas×colunas: `lineitem` 60k custa 475 s; `adult`
+  49k custa 3,3 s.
+- **Encode é o alvo, decode não**: razão de 10× a ~800× a favor do decode. Na topologia real
+  (1 encode : N decodes, servidor central) isso conta a favor — e o bench 1:1 não mostra.
+- **Os bytes já estão lá**: `tcf+brotli` é o menor no fio (2,3% do JSON, metade do
+  `json+brotli`). O que falta é tempo pra colhê-los: break-even em 1,2–36 Mbps hoje.
+- **Modo de compressão rápida nunca foi testado** — hoje só existe o mais caro.
+
+Ticket-mestre: [T-PERF-BORDAS-E-MODOS-09](tickets/T-PERF-BORDAS-E-MODOS-09.md).
+
 ## Tier 1 — PRÉ-1.0 (organizável agora)
 
 Tudo opt-in / gadget / knob; impacto no núcleo nenhum/leve (ou atrás de GATE).
