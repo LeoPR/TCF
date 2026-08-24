@@ -67,6 +67,7 @@ mensagem que manda usar `decode()`.
 | filtro | `where(col, value=...)` ou `where(col, pred=...)` | igualdade/predicado; encadeamento é AND; `value` é `str` (`None` casa nulo, outro tipo é `TypeError`: os valores decodados são sempre `str`) |
 | agregação | `count`, `sum`, `min`, `max`, `avg` | valores vazios são ignorados nos agregadores numéricos |
 | agrupamento | `group_count(col)` | caminho estrutural em `@dict`; fallback nos demais modos |
+| soma por grupo | `group_sum(por, col)` | o `GROUP BY x SUM(y)`; materializa só as duas colunas |
 | layout agrupado | `group_ranges`, `agg_by` | experimental; requer ordem contígua de `sort_by` |
 | alinhamento | índices posicionais | a linha `i` de cada coluna é a mesma linha |
 

@@ -429,6 +429,31 @@ class LazyTCF:
             return dict(tally)
         return dict(Counter(self._col(col)))
 
+    def group_sum(self, por: str, col: str) -> dict:
+        """Soma `col` agrupando por `por`: o `GROUP BY x SUM(y)` do TCF.
+
+        Materializa as DUAS colunas e nada mais, então numa tabela larga a conta sai
+        sem tocar o resto do blob. Vazio e nulo ficam de fora da soma, como em
+        `sum()`; um grupo em que todos os valores são nulos soma `0.0`, porque o
+        grupo existe (diferente de não existir).
+
+        Diferente de `agg_by`, que é mais barato mas exige a tabela já ordenada pela
+        chave (`encode(..., sort_by=)`): aqui a ordem não importa.
+        """
+        por, col = self._resolve_col(por), self._resolve_col(col)
+        chaves, valores = self._col(por), self._col(col)
+        if len(chaves) != len(valores):
+            raise ValueError(
+                f"colunas com n_rows divergentes: {por!r}={len(chaves)} vs "
+                f"{col!r}={len(valores)}")
+        out: dict = {}
+        for chave, v in zip(chaves, valores):
+            acc = out.setdefault(chave, 0.0)
+            if v == "" or v is None:
+                continue
+            out[chave] = acc + float(v)
+        return out
+
     # ---- L4: filtro assistido por índice de dicionário (sem decodar tudo) ----
     def _dict_target_ids(self, col: str, value, pred):
         """Para uma coluna `@`: (width, stream, set de ids dos únicos que casam).

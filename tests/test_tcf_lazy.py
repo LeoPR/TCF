@@ -455,3 +455,42 @@ class TestAgregadorPorTipo:
     def test_nao_numerico_erra_como_python(self):
         with pytest.raises(ValueError, match="could not convert"):
             view(encode(["a", "b"])).sum(0)
+
+
+class TestMultiColTipada:
+    """Tabela com uma coluna de texto e uma numerica: a consulta inteira, nos 2 tipos."""
+
+    @pytest.fixture(params=["tipado", "texto"])
+    def v(self, request):
+        valores = [10, 20, 30, 40, 50]
+        if request.param == "texto":
+            valores = [str(x) for x in valores]
+        return view(encode({"cidade": ["SP", "RJ", "SP", "MG", "SP"],
+                            "valor": valores}))
+
+    def test_agregadores(self, v):
+        assert v.count() == 5
+        assert v.sum("valor") == 150.0
+        assert v.avg("valor") == 30.0
+        assert (v.min("valor"), v.max("valor")) == (10.0, 50.0)
+
+    def test_grupo(self, v):
+        assert v.group_count("cidade") == {"SP": 3, "RJ": 1, "MG": 1}
+        assert v.group_sum("cidade", "valor") == {"SP": 90.0, "RJ": 20.0, "MG": 40.0}
+
+    def test_filtro(self, v):
+        f = v.where("cidade", "SP")
+        assert f.count() == 3
+        assert f.sum("valor") == 90.0
+        assert [linha["cidade"] for linha in f.select()] == ["SP", "SP", "SP"]
+
+    def test_group_sum_com_nulo(self):
+        """Nulo fora da soma, mas o grupo existe: `B` soma 0.0, nao some."""
+        v = view(encode({"c": ["A", "B", "A"], "n": [10, None, 5]}))
+        assert v.group_sum("c", "n") == {"A": 15.0, "B": 0.0}
+
+    def test_group_sum_toca_so_as_duas_colunas(self):
+        v = view(encode({"c": ["A", "B", "A"], "n": [1, 2, 3],
+                         "obs": ["x" * 50, "y" * 50, "z" * 50]}))
+        v.group_sum("c", "n")
+        assert sorted(v.touched) == ["c", "n"]        # `obs` nem decodou
