@@ -494,3 +494,44 @@ class TestMultiColTipada:
                          "obs": ["x" * 50, "y" * 50, "z" * 50]}))
         v.group_sum("c", "n")
         assert sorted(v.touched) == ["c", "n"]        # `obs` nem decodou
+
+
+class TestCaminhoRapidoConcordaComOLento:
+    """O filtro por dicionario (`@`) compara os K UNICOS; o comum decoda as N linhas.
+
+    Latente: os unicos saem do dicionario em TEXTO, e o caminho rapido comparava
+    sem reverter o tipo. `where("ativo", True)` respondia ZERO numa coluna booleana
+    em modo `@`, porque comparava `True` com `"true"`, e o `group_count` devolvia a
+    chave `'true'` em vez de `True`. Os dois caminhos discordavam conforme o modo
+    da coluna, que o usuario nem escolhe.
+    """
+
+    @pytest.fixture
+    def tabela(self):
+        n = 600      # grande o bastante pra coluna low-card virar `@dict`
+        return {"b": [i % 3 == 0 for i in range(n)],
+                "c": [f"c{i % 7}" for i in range(n)],
+                "n": [i % 5 for i in range(n)]}
+
+    def test_where_bool_no_modo_dict(self, tabela):
+        v = view(encode(tabela))
+        assert v._mode["b"] == "dict"                  # o caminho rapido esta' ativo
+        esperado = sum(1 for x in tabela["b"] if x)
+        assert v.where("b", True).count() == esperado
+        assert v.where("b", False).count() == len(tabela["b"]) - esperado
+
+    def test_where_int_no_modo_dict(self, tabela):
+        v = view(encode(tabela))
+        assert v.where("n", 3).count() == sum(1 for x in tabela["n"] if x == 3)
+
+    def test_group_count_devolve_tipo_nativo(self, tabela):
+        from collections import Counter
+        v = view(encode(tabela))
+        assert v.group_count("b") == dict(Counter(tabela["b"]))     # True/False, nao 'true'
+        assert v.group_count("n") == dict(Counter(tabela["n"]))
+
+    def test_grupo_bate_com_select(self, tabela):
+        """A chave do grupo tem que ser a MESMA coisa que o `select` devolve."""
+        v = view(encode(tabela))
+        do_select = {linha["b"] for linha in v.select(["b"])}
+        assert set(v.group_count("b")) == do_select

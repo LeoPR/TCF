@@ -87,6 +87,12 @@ def _esc_name(name: str) -> str:
     s = "".join(out)
     if s[:1] and s[:1] in "!@%":  # prefixo de modo no inicio colidiria (last-col bare)
         s = "\\" + s
+    if s[-1:] in _TAGS:
+        # Nome que TERMINA em tag de tipo colidiria na ultima coluna bare: sem o
+        # escape, o token `!N` seria ao mesmo tempo "coluna chamada N" e "coluna
+        # anonima de tipo N". Mesma razao do prefixo de modo acima, no outro extremo
+        # do token. Custa 1 byte, e so' em nome que termina assim.
+        s = s[:-1] + "\\" + s[-1]
     return s
 
 
@@ -137,7 +143,7 @@ def _rsplit1_unesc(s: str, sep: str):
     return None if last < 0 else (s[:last], s[last + 1 :])
 
 
-_ESC_OK = ",=:\\!@%"  # whitelist canonica: o encoder SO' escapa estes chars
+_ESC_OK = ",=:\\!@%NB"  # whitelist canonica: o encoder SO' escapa estes chars
 # (_NAME_SEP em qualquer posicao + prefixo de modo !@%)
 
 
@@ -229,6 +235,24 @@ def _parse_meta(meta_str: str) -> list[tuple[int | None, str | None, str, str | 
     """
     tokens = _split_unesc(meta_str, ",")  # ',' escapado no nome fica intacto
     n_cols = len(tokens)
+    # `drop_names` (coluna anonima, ADR-0029) e' DEDUZIVEL do meta: nenhum token tem
+    # '=' e a ULTIMA e' so' o prefixo de modo (nao ha' nome a omitir). Sem isso, a
+    # ultima coluna anonima TIPADA seria lida como coluna de NOME '3N', e o tipo se
+    # perderia calado. `\z` (nome vazio, ADR-0046) nao confunde: e' token nao-vazio.
+    # Com `drop_names` NENHUM token tem '=', porque nao ha' nome a declarar. Numa
+    # tabela nomeada o `min_header` omite o '=' SO' da ultima coluna, entao a partir
+    # de 2 colunas os dois casos se separam sozinhos. Com 1 coluna a distincao e' o
+    # token vazio: `!` e' anonima, `!nome` e' nomeada.
+    sem_nome = all(len(_split_unesc(tk, "=", 1)) == 1 for tk in tokens)
+    # Com 1 coluna anonima o token e' so' o prefixo (`!`) ou o prefixo mais a tag
+    # (`!N`): nao ha' size, porque o corpo vai ate' EOF. Um nome de UMA letra
+    # maiuscula que por acaso seja `N` ou `B` fica indistinguivel, e a saida e' a
+    # mesma de sempre: o encoder nao emite essa forma (nome sai com size, `!3N=N`),
+    # entao so' wire escrito a mao cai aqui.
+    _bare = tokens[0].lstrip("!@%") if tokens else ""
+    drop_names_hint = sem_nome and (
+        n_cols >= 2 or (n_cols == 1 and (_bare == "" or _bare in _TAGS))
+    )
     pairs: list[tuple[int | None, str | None, str, str | None]] = []
     for i, p in enumerate(tokens):
         if p.startswith("!"):
@@ -272,8 +296,19 @@ def _parse_meta(meta_str: str) -> list[tuple[int | None, str | None, str, str | 
         elif i == n_cols - 1:
             # ultima coluna SEM '=': min_header (corpo ate' EOF). p = nome; token
             # cru '' = anonima posicional (drop_names); `\z` = nome VAZIO (ADR-0046).
-            size = None
-            name = _unesc_name_strict(p) if p else None
+            #
+            # Com `drop_names` NAO ha' nome, entao o token e' `<size><TAG>` e a tag
+            # precisa sair ANTES do `_hex_size`. Sem este ramo, `!3N` virava a coluna
+            # de NOME '3N' e o tipo se perdia calado: o decode devolvia string.
+            if drop_names_hint and p and p[-1:] in _TAGS:
+                tipo = _TIPO_DA_TAG[p[-1]]
+                p = p[:-1]        # sobra o size, ou '' na anonima de 1 coluna
+            if drop_names_hint:
+                size = _hex_size(p) if p else None
+                name = None
+            else:
+                size = None
+                name = _unesc_name_strict(p) if p else None
         else:
             # nao-ultima SEM '=' -> coluna ANONIMA: p = '<size>' (so' drop_names)
             if p[-1:] in _TAGS:
@@ -487,14 +522,19 @@ def _encode_multi(
             suf = f":{ids[name]}" if name in ids else ""
             tag = col_types.get(name, "")     # '' = texto, o default
             ultima_bare = (min_header or drop_names) and i == last_i
-            if tag and ultima_bare:
+            if tag and ultima_bare and not (drop_names and last_i == 0):
                 # sem size nao ha' onde ancorar a tag: a coluna tipada PAGA o size.
                 # Mesmo trade que o `.8H` ja' faz ("coluna tipada sempre emite
                 # :size+tag"). Custa 3 a 6 B, uma vez por tabela.
+                #
+                # EXCECAO: tabela ANONIMA de UMA coluna. Ali `!3N` seria ambiguo com
+                # uma coluna CHAMADA '3N' (com 1 token nao ha' vizinho que denuncie a
+                # forma anonima), entao ela segue bare e a tag vai pro fim: `!N`. O
+                # size nao faz falta, o corpo vai ate' EOF.
                 ultima_bare = False
             if drop_names:
                 parts.append(
-                    f"{pre}{suf}" if ultima_bare
+                    f"{pre}{tag}{suf}" if ultima_bare
                     else f"{pre}{_sz(len(body))}{tag}{suf}"
                 )
             elif ultima_bare:

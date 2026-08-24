@@ -22,7 +22,7 @@ from pathlib import Path
 
 import pytest
 
-from tcf import encode, decode
+from tcf import encode, decode, view
 from tcf.side_outputs import SideOutputs
 
 # #TCF.8M e' o UNICO multi-col vivo (ADR-0032). Legado #TCF.6/.7 cortado de src/tcf
@@ -618,3 +618,37 @@ class TestTagDeTipoNoMeta:
         for ruim in ("1B", "0x5", "+5", "-5", "5_0", " 5", "05"):
             with pytest.raises(ValueError, match="size"):
                 _hex_size(ruim)
+
+
+class TestTagEColunaAnonima:
+    """A tag de tipo convive com `drop_names` e com nome que TERMINA na tag.
+
+    Latente achado ao fechar o view: com `drop_names` a ultima coluna tipada saia
+    `!3N` e o decode a lia como coluna de NOME '3N', devolvendo string. O tipo se
+    perdia calado, e o `view` reportava a coluna errada.
+    """
+
+    def test_anonima_tipada(self):
+        w = encode({"n": [1, 2]}, drop_names=True)
+        assert decode(w) == {"0": [1, 2]}          # posicional, e INT
+        assert view(w).columns == ["0"]
+
+    def test_anonima_varias_colunas(self):
+        t = {"a": ["x", "y"], "n": [1, 2], "b": [True, False]}
+        w = encode(t, drop_names=True)
+        assert decode(w) == {"0": ["x", "y"], "1": [1, 2], "2": [True, False]}
+
+    @pytest.mark.parametrize("nome", ["N", "B", "3N", "colunaN", "xB"])
+    def test_nome_terminando_em_tag(self, nome):
+        """`!N` seria ao mesmo tempo o nome 'N' e a anonima de tipo N: o nome escapa."""
+        for valores in (["x", "y"], [1, 2]):
+            t = {nome: valores}
+            assert decode(encode(t)) == t
+
+    def test_nome_e_anonima_nao_colidem(self):
+        """As duas formas que colidiam agora sao distinguiveis no wire."""
+        nomeada = encode({"N": ["x", "y"]})
+        anonima = encode({"n": [1, 2]}, drop_names=True)
+        assert nomeada.splitlines()[0] != anonima.splitlines()[0]
+        assert decode(nomeada) == {"N": ["x", "y"]}
+        assert decode(anonima) == {"0": [1, 2]}

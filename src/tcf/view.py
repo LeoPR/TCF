@@ -425,6 +425,14 @@ class LazyTCF:
         col = self._resolve_col(col)
         if self._mode[col] == "dict":
             unicas, width, stream = self._dict_parts(col)
+            # `_dict_parts` já reverte a NATURE; o TIPO é o que faltava. Sem ele o
+            # grupo vinha com a grafia crua (`'true'` em vez de `True`) e a chave do
+            # resultado não batia com a que o `select` devolve.
+            stype = self._stype.get(col)
+            if stype and stype != "s":
+                from tcf.hierarchical import _dec_scalar
+                unicas = [None if u is None or u == "" else _dec_scalar(u, stype)
+                          for u in unicas]
             tally = Counter()
             for off in range(0, len(stream), width):
                 tally[unicas[_idx_at(stream, off, width)]] += 1
@@ -459,8 +467,20 @@ class LazyTCF:
     # ---- L4: filtro assistido por índice de dicionário (sem decodar tudo) ----
     def _dict_target_ids(self, col: str, value, pred):
         """Para uma coluna `@`: (width, stream, set de ids dos únicos que casam).
-        Avalia value/pred sobre os K únicos (não sobre as N linhas)."""
+
+        Avalia value/pred sobre os K únicos, não sobre as N linhas: é o caminho
+        rápido do filtro. Os únicos saem do dicionário em TEXTO, então o tipo e a
+        nature precisam ser revertidos aqui também, senão a comparação é feita
+        contra a grafia crua: `where("ativo", True)` respondia **zero** numa coluna
+        booleana em modo `@`, porque comparava `True` com `"true"`. O caminho lento
+        (`_col`) já revertia, então os dois discordavam conforme o modo da coluna.
+        """
         unicas, width, stream = self._dict_parts(col)
+        stype = self._stype.get(col)
+        if stype and stype != "s":
+            from tcf.hierarchical import _dec_scalar
+            unicas = [None if u is None or u == "" else _dec_scalar(u, stype)
+                      for u in unicas]
         if pred is not None:
             ids = {i for i, u in enumerate(unicas) if pred(u)}
         else:
