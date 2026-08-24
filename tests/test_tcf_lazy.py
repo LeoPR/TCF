@@ -344,14 +344,19 @@ class TestColunaPosicionalNaView:
         with pytest.raises(ValueError, match="fora do range"):
             vb.where(-1, "SP")                        # sem negativo, como no schema=
 
-    def test_value_de_outro_tipo_erra_alto(self, vb):
+    def test_value_de_outro_tipo_e_convertido(self, vb):
         """`where('qtd', 10)` numa coluna de TEXTO respondia 0 CALADO (10 != '10').
-        Agora o erro diz o tipo da coluna e sugere a comparacao certa."""
-        with pytest.raises(TypeError, match="coluna é str e o valor é int"):
-            vb.where("qtd", 10)
-        with pytest.raises(TypeError, match="coluna é str e o valor é int"):
-            vb.where("qtd", "10").where("cidade", 5)  # Filtered.where idem
-        assert vb.where("qtd", "10").count() == 3     # a grafia certa segue
+        Agora o valor e' LIDO no tipo da coluna, com aviso: modo soft (default)."""
+        with pytest.warns(UserWarning, match="foi lido como"):
+            assert vb.where("qtd", 10).count() == 3
+        assert vb.where("qtd", "10").count() == 3     # tipo certo: sem cast, sem aviso
+        assert vb.coercoes                            # a conversao fica registrada
+
+    def test_modo_strict_exige_o_tipo_da_coluna(self, vb):
+        """`.strict()` troca a conversao automatica por erro, pra codigo rigido."""
+        with pytest.raises(TypeError, match="STRICT"):
+            vb.strict().where("qtd", 10)
+        assert vb.where("qtd", "10").count() == 3     # o tipo certo passa igual
 
 
 # ---- Weld 2026-08-23: view() sobre `.8H` que e' TABELA RETANGULAR ----
@@ -378,14 +383,22 @@ class TestViewSobreTabelaTipada:
         assert vt.where("ativo", True).count() == 3
         assert vt.where("cidade", "SP").sum("valor") == 320.0
 
-    def test_tipo_trocado_erra_alto_nos_dois_sentidos(self, vt):
-        """Numa coluna `n` o texto nunca casaria, e vice-versa. Antes: 0 calado."""
-        with pytest.raises(TypeError, match="coluna é int/float e o valor é str"):
-            vt.where("valor", "120")
-        with pytest.raises(TypeError, match="coluna é str e o valor é int"):
-            vt.where("cidade", 5)
-        with pytest.raises(TypeError, match="coluna é bool"):
-            vt.where("ativo", 1)          # bool e' subclasse de int: 1 nao e' True
+    def test_tipo_trocado_e_lido_no_tipo_da_coluna(self, vt):
+        """O arquivo e' texto: `where(col, "120")` numa coluna `n` e' intencao clara.
+        O valor e' convertido (1 cast, no lado barato) e a conversao fica registrada."""
+        with pytest.warns(UserWarning):
+            assert vt.where("valor", "120").count() == 2
+        with pytest.warns(UserWarning):
+            assert vt.where("cidade", 5).count() == 0      # convertido pra '5': nao ha'
+        with pytest.warns(UserWarning):
+            assert vt.where("ativo", 1).count() == 3       # 1 lido como True
+
+    def test_o_que_nao_tem_leitura_possivel_erra(self, vt):
+        """Converter e' ler a intencao, nao adivinhar: 'banana' nao e' bool."""
+        with pytest.raises(TypeError, match="não tem leitura possível"):
+            vt.where("ativo", "banana")
+        with pytest.raises(TypeError, match="não tem leitura possível"):
+            vt.where("valor", "dez")
 
     def test_paridade_com_decode(self, vt):
         """O que a view serve e' o que o decode devolve, valor e TIPO."""
@@ -535,3 +548,83 @@ class TestCaminhoRapidoConcordaComOLento:
         v = view(encode(tabela))
         do_select = {linha["b"] for linha in v.select(["b"])}
         assert set(v.group_count("b")) == do_select
+
+
+class TestContratoSoftEStrict:
+    """O arquivo e' texto, entao o tipo e' leitura: `where` LE o valor no tipo da
+    coluna (soft, default) e `.strict()` exige o tipo exato (higiene de codigo).
+
+    Mercado, pra referencia: Polars e DuckDB erram por padrao (DuckDB apertou na
+    0.10, removendo o cast implicito pra VARCHAR); pandas converte calado e e'
+    citado como armadilha. Aqui o rigor existe, mas e' opt-in.
+    """
+
+    @pytest.fixture
+    def hard(self):
+        return view(encode({"b": [True, False, True], "n": [1, 2, 3]}))
+
+    @pytest.fixture
+    def soft(self):
+        return view(encode({"b": ["true", "false", "true"], "n": ["1", "2", "3"]}))
+
+    def test_le_nos_dois_sentidos(self, hard, soft):
+        with pytest.warns(UserWarning):
+            assert hard.where("b", "true").count() == 2      # texto -> bool
+        with pytest.warns(UserWarning):
+            assert hard.where("n", "1").count() == 1         # texto -> numero
+        with pytest.warns(UserWarning):
+            assert soft.where("b", True).count() == 2        # bool -> texto
+        with pytest.warns(UserWarning):
+            assert soft.where("n", 1).count() == 1           # numero -> texto
+
+    def test_tipo_certo_nao_avisa_nem_converte(self, hard):
+        import warnings
+        with warnings.catch_warnings():
+            warnings.simplefilter("error")                   # qualquer aviso falha
+            assert hard.where("b", True).count() == 2
+            assert hard.where("n", 1).count() == 1
+        assert hard.coercoes == []
+
+    def test_cast_e_do_lado_barato(self):
+        """Converte UM valor, nunca as N linhas: o custo nao cresce com a tabela."""
+        import importlib
+        # `import tcf.view as mod` pega a FUNCAO `view` (o __init__ reexporta ela
+        # com o mesmo nome do modulo), nao o modulo.
+        mod = importlib.import_module("tcf.view")
+        orig, chamadas = mod._converte, []
+        mod._converte = lambda v, s: (chamadas.append(1), orig(v, s))[1]
+        try:
+            v = view(encode({"b": [i % 3 == 0 for i in range(5000)]}))
+            with pytest.warns(UserWarning):
+                v.where("b", "true").count()
+            assert len(chamadas) == 1                        # 1 cast, 5000 linhas
+        finally:
+            mod._converte = orig
+
+    @pytest.mark.parametrize("grafia,esperado", [
+        ("true", True), ("TRUE", True), ("1", True), ("yes", True), ("sim", True),
+        ("false", False), ("0", False), ("no", False), (" True ", True),
+    ])
+    def test_grafias_de_bool(self, hard, grafia, esperado):
+        """Lista FECHADA, como o PostgreSQL. String nao-vazia virar True por
+        truthiness e' a armadilha do pandas, e nao acontece aqui."""
+        with pytest.warns(UserWarning):
+            n = hard.where("b", grafia).count()
+        assert n == (2 if esperado else 1)
+
+    def test_nao_adivinha(self, hard):
+        for lixo in ("banana", "sim/nao"):
+            with pytest.raises(TypeError, match="não tem leitura possível"):
+                hard.where("b", lixo)
+
+    def test_strict_e_opt_in_e_encadeavel(self, hard):
+        assert hard.strict() is hard                          # devolve a propria view
+        with pytest.raises(TypeError, match="STRICT"):
+            hard.where("b", "true")
+        assert hard.where("b", True).count() == 2             # tipo certo passa igual
+
+    def test_telemetria_registra_o_que_converteu(self, hard):
+        with pytest.warns(UserWarning):
+            hard.where("b", "true").count()
+        assert len(hard.coercoes) == 1
+        assert "foi lido como True" in hard.coercoes[0]

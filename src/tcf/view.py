@@ -49,28 +49,73 @@ _PY_DO_TIPO = {"n": (int, float), "b": (bool,), "s": (str,)}
 _NOME_DO_TIPO = {"n": "int/float", "b": "bool", "s": "str"}
 
 
-def _valida_where_value(value, pred, stype: str = "s") -> None:
-    """O valor comparado tem de ser do tipo DA COLUNA, que o header declara.
+def _coage_where_value(value, pred, stype: str = "s", strict: bool = False):
+    """Ajusta o valor do filtro ao tipo DA COLUNA. Devolve (valor, aviso|None).
 
-    Numa coluna `n`, `where(col, 120)` é a forma natural e `where(col, "120")`
-    nunca casaria: os valores voltam `int`. Numa coluna de texto vale o inverso.
-    Nos dois casos o erro é alto: comparar tipo trocado respondia 0 linhas
-    CALADO, que parece filtro vazio e é bug do chamador (lab 2026-08-23-1410 G6).
+    O arquivo é sempre texto: o tipo é uma leitura que o header declara, então
+    comparar `where(col, "true")` numa coluna booleana é uma intenção clara, não
+    um erro. No modo **soft** (o default) o valor é convertido e um aviso registra
+    o que foi feito; no **strict** (`view(...).strict()`) vira erro, para quem quer
+    o código rígido. É a mesma escolha que Polars e DuckDB fazem por padrão, com o
+    strict virado do avesso: aqui a conveniência é o default e o rigor é opt-in.
+
+    O cast é do lado BARATO: converte o UM valor do filtro, nunca as N linhas da
+    coluna. Se o tipo já bate, não há cast nenhum.
+
     `None` casa nulo em qualquer coluna; com `pred=`, `value` é ignorado.
     """
     if pred is not None or value is None:
-        return
+        return value, None
     aceitos = _PY_DO_TIPO.get(stype, (str,))
     # bool é subclasse de int: numa coluna `n`, `True` não é 1.
     if isinstance(value, aceitos) and not (stype == "n" and isinstance(value, bool)):
-        return
-    sugestao = {"n": "where(col, 120)", "b": "where(col, True)",
-                "s": f"where(col, {str(value)!r})"}[stype]
-    raise TypeError(
-        f"view.where: esta coluna é {_NOME_DO_TIPO.get(stype, 'str')} e o valor é "
-        f"{type(value).__name__} ({value!r}), então a comparação nunca casaria. "
-        f"Compare com o tipo da coluna, ex. {sugestao}"
+        return value, None                       # tipo bate: zero cast
+
+    de, para = type(value).__name__, _NOME_DO_TIPO.get(stype, "str")
+    convertido, ok = _converte(value, stype)
+    if not ok:
+        raise TypeError(
+            f"view.where: esta coluna é {para} e o valor é {de} ({value!r}), que não "
+            f"tem leitura possível nesse tipo."
+        )
+    if strict:
+        raise TypeError(
+            f"view.where: esta coluna é {para} e o valor é {de} ({value!r}). "
+            f"A view está em modo STRICT, então a conversão não é automática: "
+            f"passe {convertido!r}, ou use a view sem `.strict()`."
+        )
+    return convertido, (
+        f"coluna {para}: o valor {value!r} ({de}) foi lido como {convertido!r}"
     )
+
+
+def _converte(value, stype: str):
+    """(valor_no_tipo_da_coluna, deu_certo). Nunca levanta."""
+    try:
+        if stype == "b":
+            if isinstance(value, str):
+                s = value.strip().lower()
+                # a mesma grafia que o TCF emite, mais as formas que qualquer um
+                # escreveria. Fora dessa lista NAO se adivinha: string nao-vazia
+                # virar True por truthiness e' a armadilha classica do pandas.
+                if s in ("true", "1", "t", "yes", "sim"):
+                    return True, True
+                if s in ("false", "0", "f", "no", "nao", "não"):
+                    return False, True
+                return None, False
+            if isinstance(value, int):
+                return bool(value), True
+            return None, False
+        if stype == "n":
+            if isinstance(value, bool):
+                return None, False               # `True` nao e' 1 numa coluna n
+            return (float(value) if "." in str(value) or "e" in str(value).lower()
+                    else int(value)), True
+        # coluna de TEXTO: a grafia e' a que o encode usaria (`_to_str`)
+        from tcf.multi.core import _to_str
+        return _to_str(value), True
+    except (TypeError, ValueError):
+        return None, False
 
 
 class LazyTCF:
@@ -85,6 +130,8 @@ class LazyTCF:
         self._order: list[str] = []
         self._stype: dict[str, str] = {}       # name -> 's'|'n'|'b' (tipo do dado; `.8H`)
         self._emask: dict[str, bytes] = {}     # name -> mascara de nulo (`.8H`), sob demanda
+        self._strict = False                   # modo duro: cast tem de ser explicito
+        self.coercoes: list[str] = []          # telemetria: o que foi convertido, e como
         self.touched: list[str] = []           # colunas que foram descomprimidas
         self._parse(blob)
 
@@ -235,6 +282,29 @@ class LazyTCF:
         if cursor != len(raw):
             raise ValueError(
                 f"bytes excedentes: {len(raw) - cursor}B após a última coluna")
+
+    def strict(self) -> "LazyTCF":
+        """Liga o modo DURO: o valor do filtro tem de vir no tipo da coluna.
+
+        O default é soft, porque o arquivo é texto e a intenção de
+        `where(col, "true")` numa coluna booleana é clara. Em código que se quer
+        rígido (revisão, CI, conformidade), `.strict()` transforma a conversão
+        automática em erro, com a mensagem dizendo o valor que ele esperava.
+
+        Devolve a própria view, então encadeia: `view(blob).strict().where(...)`.
+        """
+        self._strict = True
+        return self
+
+    def _coage(self, col: str, value, pred):
+        """Ajusta o valor ao tipo da coluna e registra a conversão, se houve."""
+        import warnings
+        value, aviso = _coage_where_value(
+            value, pred, self._stype.get(col, "s"), self._strict)
+        if aviso:
+            self.coercoes.append(f"{col}: {aviso}")
+            warnings.warn(f"view.where em {aviso}", stacklevel=3)
+        return value
 
     # ---- introspecção barata (só header) ----
     @property
@@ -563,7 +633,7 @@ class LazyTCF:
     # ---- filtro: descomprime SÓ a coluna do filtro, devolve view restrita ----
     def where(self, col: str, value=None, *, pred: Callable[[str], bool] | None = None) -> "Filtered":
         col = self._resolve_col(col)
-        _valida_where_value(value, pred, self._stype.get(col, "s"))
+        value = self._coage(col, value, pred)
         if self._mode[col] == "dict":           # L4: varre o stream, sem decodar os N valores
             width, stream, ids = self._dict_target_ids(col, value, pred)
             idx = [i for i, off in enumerate(range(0, len(stream), width))
@@ -633,7 +703,7 @@ class Filtered:
         """Encadeia filtro (AND): restringe os índices atuais."""
         p = self._p
         col = p._resolve_col(col)
-        _valida_where_value(value, pred, p._stype.get(col, "s"))
+        value = p._coage(col, value, pred)
         if p._mode[col] == "dict":              # L4: lê só as posições já filtradas no stream
             width, stream, ids = p._dict_target_ids(col, value, pred)
             idx = [i for i in self.indices if _idx_at(stream, i * width, width) in ids]

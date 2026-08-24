@@ -40,9 +40,9 @@ Coluna, em toda a superfície da view: `str` = **nome**, `int` = **posição**. 
 do `schema=` ([ADR-0047](../adr/0047-schema-parametro-unico-de-spec.md): `0 <= pos < n`, sem
 negativo; coluna *chamada* `"2"` é achada pelo `str`, a posição pelo `int`).
 
-**Tipo do dado**: a view lê tanto o `#TCF.8M` quanto o `#TCF.8H` que é tabela retangular, e
-uma tabela vai para o `.8H` assim que tem coluna tipada (`int`, `float`, `bool`) ou um `None`.
-Os valores voltam no tipo em que entraram, e a comparação usa esse tipo:
+**Tipo do dado**: a tabela declara o tipo de cada coluna no header (uma letra: `N` número,
+`B` bool, ausente = texto), e os valores voltam no tipo em que entraram. A view lê também o
+`#TCF.8H` que é tabela retangular, a rota de `encode(list[dict])`:
 
 ```python
 v = view(encode({"cidade": ["SP", "SP", "RJ"], "valor": [120, 80, 200]}))
@@ -50,13 +50,43 @@ v.where("valor", 120).count()      # 1: compare com int, que é o tipo da coluna
 v.sum("valor")                     # 400.0
 ```
 
-Comparar com o tipo trocado levanta `TypeError` dizendo qual é o tipo da coluna: antes, uma
-comparação impossível respondia **zero linhas em silêncio**.
+### Comparar: soft por padrão, strict quando você quiser
+
+O arquivo é sempre texto, e o tipo é a leitura que o header declara. Então
+`where(col, "true")` numa coluna booleana é uma intenção clara, não um erro: o **valor do
+filtro** é lido no tipo da coluna, e a conversão fica registrada.
+
+```python
+v.where("ativo", "true")     # coluna bool: 'true' é lido como True, com aviso
+v.where("ativo", True)       # tipo certo: nenhuma conversão, nenhum aviso
+v.coercoes                   # o que foi convertido nesta view, e como
+```
+
+O cast é sempre do **lado barato**: converte o único valor do filtro, nunca as N linhas da
+coluna. Numa tabela de 5 000 linhas, uma conversão.
+
+As grafias de bool são uma **lista fechada** (`true/1/t/yes/sim` e `false/0/f/no/não`,
+ignorando caixa e espaços), no espírito do PostgreSQL. String não-vazia **não** vira `True`
+por truthiness, que é a armadilha clássica de `astype(bool)` no pandas. O que não tem
+leitura possível (`"banana"` numa coluna bool) levanta `TypeError`: converter é ler a
+intenção, não adivinhar.
+
+Para código que se quer rígido, `.strict()` troca a conversão automática por erro:
+
+```python
+v = view(blob).strict()
+v.where("ativo", "true")     # TypeError: a view está em modo STRICT
+v.where("ativo", True)       # passa igual
+```
+
+É a política de Polars e DuckDB (que apertou na 0.10, removendo o cast implícito para
+`VARCHAR`), com o padrão invertido: aqui a conveniência é o default e o rigor é opt-in,
+porque no TCF o texto é o meio, não um descuido do usuário.
 
 Uma diferença que vale saber: no `.8H` cada coluna usa o pipeline core, sem a competição
 `min(tcf, raw, dict, split)` do `.8M`. O blob fica maior, e `group_count` cai em fallback
-porque não há modo dicionário nessa rota. A laziness continua de pé (medido: uma consulta de
-duas colunas em 2000 linhas materializa 9,4% do blob; um `count()`, 4,5%).
+porque não há modo dicionário nessa rota. A laziness continua de pé nas duas (medido: uma
+consulta de duas colunas em 2 000 linhas materializa 9,4% do blob; um `count()`, 4,5%).
 
 Fora de alcance: aninhado, ragged e campo opcional não são tabela, e a view recusa com uma
 mensagem que manda usar `decode()`.
@@ -64,7 +94,7 @@ mensagem que manda usar `decode()`.
 | capacidade | API | observação |
 |---|---|---|
 | projeção | `select(cols)` | materializa apenas as colunas pedidas; escalar (`str`/`int`) = 1 coluna; `[]` = nenhuma |
-| filtro | `where(col, value=...)` ou `where(col, pred=...)` | igualdade/predicado; encadeamento é AND; `value` é `str` (`None` casa nulo, outro tipo é `TypeError`: os valores decodados são sempre `str`) |
+| filtro | `where(col, value=...)` ou `where(col, pred=...)` | igualdade/predicado; encadeamento é AND; `value` é lido no tipo da coluna (soft), ou exigido nele com `.strict()`; `None` casa nulo |
 | agregação | `count`, `sum`, `min`, `max`, `avg` | valores vazios são ignorados nos agregadores numéricos |
 | agrupamento | `group_count(col)` | caminho estrutural em `@dict`; fallback nos demais modos |
 | soma por grupo | `group_sum(por, col)` | o `GROUP BY x SUM(y)`; materializa só as duas colunas |
