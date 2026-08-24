@@ -103,6 +103,29 @@ class LazyTCF:
         if line1.startswith(MAGIC_HIER):
             self._parse_hier(raw, line1, nl1)
             return
+        # SINGLE-COL: `#TCF.8` (texto), `#TCF.8n` (número), `#TCF.8b` (bool). É uma
+        # tabela de uma coluna só, e o view não tinha razão pra recusá-la: `count`,
+        # `sum` e `where` valem igual. O nome da coluna é `0`, como em qualquer
+        # coluna anônima (ADR-0029).
+        if line1.startswith(b"#TCF.8") and not line1.startswith(MAGIC_MULTI_V3):
+            # SINGLE-COL: `#TCF.8` (texto), `#TCF.8n`, `#TCF.8b`, `#TCF.8 nome:spec`.
+            # Uma coluna só também é tabela, e o view não tinha razão pra recusá-la:
+            # `count`, `sum` e `where` valem igual. Aqui não há laziness a preservar,
+            # o blob INTEIRO é a coluna, então o decode oficial é a fonte: ele já
+            # trata as sub-formas (bool denso em bits, float, spec no header) que
+            # reimplementar aqui só faria divergir. Nome da coluna: `0`, como qualquer
+            # anônima (ADR-0029).
+            from tcf.decoder import decode as _decode_blob
+            nome = "0"
+            self._mode[nome] = "tcf"
+            self._body[nome] = raw[nl1 + 1:]
+            self._order.append(nome)
+            self._cache[nome] = _decode_blob(blob)
+            self.touched.append(nome)
+            primeiro = next((v for v in self._cache[nome] if v is not None), None)
+            self._stype[nome] = {bool: "b", int: "n", float: "n"}.get(
+                type(primeiro), "s")
+            return
         # #TCF.8M = UNICO multi-col vivo (ADR-0032). Legado #TCF.6/#TCF.7 cortado —
         # fail-loud. Meta INLINE na linha do shebang.
         if not line1.startswith(MAGIC_MULTI_V3):

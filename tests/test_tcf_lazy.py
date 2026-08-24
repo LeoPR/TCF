@@ -423,7 +423,12 @@ class TestViewSobreTabelaTipada:
         with pytest.raises(ValueError, match=trecho):
             view(encode(dado))
 
-    def test_single_col_tipado_nao_e_tabela(self):
-        """`[1,2,3]` sai `#TCF.8n`, que e' UMA coluna: o view e' multi-col."""
-        with pytest.raises(ValueError, match="multi-col"):
-            view(encode([1, 2, 3]))
+    def test_single_col_tambem_e_consultavel(self):
+        """Uma coluna so' tambem e' tabela: o view recusava `[1,2,3]` E `['1','2','3']`,
+        sem razao. `sum` responde igual nos dois; cada um devolve o SEU tipo."""
+        vi, vs = view(encode([1, 2, 3])), view(encode(["1", "2", "3"]))
+        assert vi.sum(0) == vs.sum(0) == 6.0
+        assert vi.count() == vs.count() == 3
+        assert vi.select() == [{"0": 1}, {"0": 2}, {"0": 3}]      # int
+        assert vs.select() == [{"0": "1"}, {"0": "2"}, {"0": "3"}]  # str
+        assert view(encode([True, False])).where(0, True).count() == 1
