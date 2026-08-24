@@ -174,14 +174,43 @@ def _unesc_name_strict(s: str) -> str:
     return "".join(out)
 
 
+_HEX = "0123456789abcdef"
+
+# TAG DE TIPO por coluna, logo DEPOIS do size (`!aN=valor`). Duas tags bastam:
+# string e' o default (sem tag) e int-vs-float se deduz do valor, como o `.8H`
+# ja' faz. MAIUSCULA porque o size e' hex minusculo canonico: fora do alfabeto
+# hex, a tag e' inequivoca e nenhum wire ja' emitido pode ser mal-lido.
+_TAG_DO_TIPO = {int: "N", float: "N", bool: "B"}
+_TIPO_DA_TAG = {"N": "n", "B": "b"}      # -> a grafia interna, a mesma do `.8H`
+_TAGS = frozenset(_TIPO_DA_TAG)
+
+
 def _hex_size(s: str) -> int:
-    """Size hex do meta -> int, com erro CLARO em corrupcao (fail-loud)."""
-    try:
-        return int(s, 16)
-    except ValueError:
+    """Size hex CANONICO do meta -> int, com erro CLARO em corrupcao (fail-loud).
+
+    Canonico = o que `format(n, 'x')` emite: minusculo, sem zero a esquerda, sem
+    sinal, sem '0x', sem separador, sem espaco. E' a MESMA regra que a familia .8
+    ja' aplica no bN de dominio (`dominio_bn.py`) e no `#TCF.8bB` (`decoder.py`),
+    pela mesma razao: duas grafias para o mesmo valor quebram a canonicidade do
+    wire, e um blob que so' UM lado aceita nao e' um formato.
+
+    O `int(s, 16)` cru aceitava `0x5`, `+5`, `-5` (size NEGATIVO), `5_0`, espaco
+    em volta e digito nao-ASCII. Varredura dos 3632 `.tcf` do repo: 662 slots de
+    size reais, ZERO fora do canonico, entao apertar nao recusa nada que o TCF
+    tenha emitido. De quebra, deixa `A`-`F` livres como alfabeto de TAG DE TIPO.
+    """
+    if not s or any(c not in _HEX for c in s):
         raise ValueError(
-            f"meta corrompido: size hex invalido {s!r} no meta do #TCF.8M"
-        ) from None
+            f"meta corrompido: size hex invalido {s!r} no meta do #TCF.8M "
+            f"(canonico: minusculo, sem sinal, sem '0x', sem zero a esquerda)"
+        )
+    n = int(s, 16)
+    if f"{n:x}" != s:                       # grafia MINIMA: '05' nao e' '5'
+        raise ValueError(
+            f"meta corrompido: size nao-canonico {s!r} no meta do #TCF.8M "
+            f"(canonico: {n:x})"
+        )
+    return n
 
 
 def _parse_meta(meta_str: str) -> list[tuple[int | None, str | None, str, str | None]]:
@@ -220,6 +249,13 @@ def _parse_meta(meta_str: str) -> list[tuple[int | None, str | None, str, str | 
         if r is not None:
             p, nat_id = r
         eq = _split_unesc(p, "=", 1)  # primeiro '=' NAO-escapado
+        tipo = None
+        if len(eq) == 2 and eq[0][-1:] in _TAGS:
+            # `<size><TAG>=<nome>`: a tag e' MAIUSCULA e o size e' hex minusculo,
+            # entao ela nunca se confunde com o size nem com o nome (que vem
+            # depois do '='). Sem tag = coluna de texto, o default.
+            tipo = _TIPO_DA_TAG[eq[0][-1]]
+            eq[0] = eq[0][:-1]
         if len(eq) == 2:
             # '<size>=<nome>' — nomeada. Nome des-escapado (nomes com ,/=/:/! etc).
             size_str, name = eq
@@ -240,9 +276,12 @@ def _parse_meta(meta_str: str) -> list[tuple[int | None, str | None, str, str | 
             name = _unesc_name_strict(p) if p else None
         else:
             # nao-ultima SEM '=' -> coluna ANONIMA: p = '<size>' (so' drop_names)
+            if p[-1:] in _TAGS:
+                tipo = _TIPO_DA_TAG[p[-1]]
+                p = p[:-1]
             size = _hex_size(p)
             name = None
-        pairs.append((size, name, mode, nat_id))
+        pairs.append((size, name, mode, nat_id, tipo))
     return pairs
 
 
@@ -265,7 +304,7 @@ def _nomes_resolvidos(pairs) -> list[str]:
     outro (sai `\\z`, ADR-0046) e `drop_names` torna TODAS posicionais e distintas. Logo o
     guard so' alcanca wire ESTRANGEIRO/corrompido, e e' deduzido de graca como os outros.
     """
-    nomes = [n if n is not None else str(i) for i, (_s, n, _m, _x) in enumerate(pairs)]
+    nomes = [n if n is not None else str(i) for i, (_s, n, _m, _x, _t) in enumerate(pairs)]
     if len(set(nomes)) != len(nomes):
         vistos: set[str] = set()
         repetidos: list[str] = []
@@ -367,6 +406,16 @@ def _encode_multi(
     table_str: dict[str, list[str]] = {
         name: _stringify_checked(values, name) for name, values in table.items()
     }
+    # TIPO por coluna: o primitivo do dado ja' e' uma declaracao, e o header e' o
+    # unico lugar onde ela cabe. Nao se deduz do corpo: `["1","2"]` e `[1,2]` geram
+    # bytes IGUAIS, e sem a tag o decode nao teria como distinguir. String e' o
+    # default (tag ausente), entao a tabela de texto continua com o mesmo header.
+    col_types: dict[str, str] = {}
+    for name, values in table.items():
+        primeiro = next((v for v in values if v is not None), None)
+        tag = _TAG_DO_TIPO.get(type(primeiro))
+        if tag:
+            col_types[name] = tag
 
     # Dispatch paralelo se solicitado E vale a pena (>= 2 cols).
     # parallel=1 -> SERIAL por DEDUCAO (BUG-10c, lote 3): 1 worker produz os
@@ -436,14 +485,22 @@ def _encode_multi(
         for i, (name, body, mode) in enumerate(bodies):
             pre = {"raw": "!", "dict": "@", "split": "%"}.get(mode, "")
             suf = f":{ids[name]}" if name in ids else ""
+            tag = col_types.get(name, "")     # '' = texto, o default
+            ultima_bare = (min_header or drop_names) and i == last_i
+            if tag and ultima_bare:
+                # sem size nao ha' onde ancorar a tag: a coluna tipada PAGA o size.
+                # Mesmo trade que o `.8H` ja' faz ("coluna tipada sempre emite
+                # :size+tag"). Custa 3 a 6 B, uma vez por tabela.
+                ultima_bare = False
             if drop_names:
                 parts.append(
-                    f"{pre}{suf}" if i == last_i else f"{pre}{_sz(len(body))}{suf}"
+                    f"{pre}{suf}" if ultima_bare
+                    else f"{pre}{_sz(len(body))}{tag}{suf}"
                 )
-            elif min_header and i == last_i:
+            elif ultima_bare:
                 parts.append(f"{pre}{_esc_name(name)}{suf}")
             else:
-                parts.append(f"{pre}{_sz(len(body))}={_esc_name(name)}{suf}")
+                parts.append(f"{pre}{_sz(len(body))}{tag}={_esc_name(name)}{suf}")
         header = MAGIC_MULTI_V3 + ",".join(parts).encode("utf-8") + b"\n"
         return header + b"".join(body for _, body, _ in bodies)
 
@@ -625,7 +682,7 @@ def _decode_multi_impl(
     # Anonima -> nome POSICIONAL (ADR-0029) + guard de colisao, em FONTE UNICA com a
     # view (`_nomes_resolvidos`) — 4o cheque deduzido de graca do BUG-05.
     nomes = _nomes_resolvidos(pairs)
-    for i, (size, name, mode, nat_id) in enumerate(pairs):
+    for i, (size, name, mode, nat_id, tipo) in enumerate(pairs):
         col = nomes[i]
         if size is None:
             body_bytes = raw[cursor:]  # ate' EOF (ultima coluna)
@@ -648,6 +705,13 @@ def _decode_multi_impl(
             result[col] = _decode_column(body_bytes.decode("utf-8"))
         if nat_id is not None:
             nature_ids[col] = nat_id
+        if tipo is not None:
+            # o header declarou o tipo: devolve o VALOR, nao a grafia. `_dec_scalar`
+            # e' o mesmo do `.8H`, entao as duas rotas concordam por construcao
+            # (int vs float sai do proprio valor; nulo continua nulo).
+            from tcf.hierarchical import _dec_scalar
+            result[col] = [None if v is None or v == "" else _dec_scalar(v, tipo)
+                           for v in result[col]]
         cursor += len(body_bytes)
 
     if cursor != len(raw):
@@ -678,9 +742,18 @@ def _decode_multi(tcf_text: str) -> dict[str, list[str]]:
 
 
 def _to_str(v) -> str:
-    """Stringify uniforme. NULL/None -> '' (ADR-0013)."""
+    """Stringify uniforme. NULL/None -> '' (ADR-0013).
+
+    `bool` sai `true`/`false`, nao `True`/`False`: e' a grafia que o `.8H` ja'
+    emite e que o `_dec_scalar` le'. Uma segunda grafia pro mesmo valor quebraria
+    a canonicidade do wire, e as duas rotas divergiriam no round-trip.
+    """
     if v is None:
         return ""
+    if v is True:
+        return "true"
+    if v is False:
+        return "false"
     return str(v)
 
 
@@ -732,4 +805,10 @@ def _fallback_safe(values: list[str]) -> bool:
     restringe alem do que ja' e' assumido; apenas evita escolher raw onde
     seria lossy.)
     """
+    # `None` (nulo) nao e' string e nao tem quebra a checar. Alem disso o modo raw
+    # achataria o nulo numa linha vazia, perdendo a distincao entre `None` e `""`:
+    # coluna com nulo nao concorre em raw, e quem atende e' o candidato tcf, que
+    # tem slot proprio pro nulo.
+    if any(v is None for v in values):
+        return False
     return not any("\n" in v for v in values)

@@ -151,7 +151,7 @@ class LazyTCF:
         # nas chaves colididas (T-META-COLISAO-NOME-POSICIONAL).
         _pares = _parse_meta(meta)
         _nomes = _nomes_resolvidos(_pares)
-        for i, (size, name, mode, nat_id) in enumerate(_pares):
+        for i, (size, name, mode, nat_id, tipo) in enumerate(_pares):
             name = _nomes[i]
             body = raw[cursor:] if size is None else raw[cursor:cursor + size]
             # BUG-05 (paridade estrutural com o decode): size do header vs bytes
@@ -168,6 +168,8 @@ class LazyTCF:
             self._order.append(name)
             if nat_id is not None:
                 self._nature[name] = nat_id
+            if tipo is not None:
+                self._stype[name] = tipo
             cursor += len(body)
         if cursor != len(raw):
             raise ValueError(

@@ -532,13 +532,16 @@ class TestEdgeCases:
         with pytest.raises(ValueError, match="separador de linha"):
             encode({"a\nb": ["1", "2"]})
 
-    def test_coluna_com_none_vira_8h_tipado(self):
-        # CONTRATO ATUALIZADO (Passo 2, type-coherent): coluna com valor NAO-str (None/int/bool)
-        # deixa de ser stringificada no multi-col flat e vira `.8H` TIPADO — o None e' PRESERVADO
-        # (nao vira ''). Elimina o deslize de perda-de-tipo silenciosa. (Coluna all-str segue flat.)
+    def test_coluna_com_none_fica_no_8m(self):
+        # A tabela RETANGULAR fica no `.8M` mesmo com `None` ou com coluna tipada: o
+        # tipo viaja como tag de 1 byte no meta e o nulo pelo slot 0 do core. Antes ela
+        # ia pro `.8H`, que nao roda o `min(tcf,raw,dict,split)` e cobrava ate' +43,6%
+        # de bytes. O `None` segue PRESERVADO (nao vira '').
         table = {"a": ["x", None, "y"]}
-        assert encode(table).startswith("#TCF.8H")
+        assert encode(table).startswith("#TCF.8M")
         assert decode(encode(table)) == {"a": ["x", None, "y"]}   # None PRESERVADO
+        # o que E' aninhado continua no `.8H`
+        assert encode([{"a": {"b": 1}}]).startswith("#TCF.8H")
 
     def test_decode_legacy_magic_raises(self):
         # #TCF.6/.7 CORTADOS (ADR-0032) -> fail-loud com dica de git
@@ -563,3 +566,55 @@ class TestEdgeCases:
 
 # Aliases v0.6 encode_table/decode_table APOSENTADOS 2026-06-24
 # (T-CODE-LEGACY-PRUNE-PRE-07). Testes de deprecation removidos junto.
+
+
+class TestTagDeTipoNoMeta:
+    """A tabela retangular TIPADA fica no `.8M`, e o tipo custa 1 byte de header.
+
+    Antes, uma coluna `int` ou um `None` mandavam a tabela inteira pro `.8H`, que nao
+    roda o `min(tcf,raw,dict,split)`: medido, +43,6% de bytes no adult-census.
+    """
+
+    def test_uma_letra_no_meta(self):
+        t = {"a": ["x", "y"], "n": [1, 2], "z": ["p", "q"]}
+        texto = {"a": ["x", "y"], "n": ["1", "2"], "z": ["p", "q"]}
+        w, w_txt = encode(t), encode(texto)
+        assert w.startswith("#TCF.8M")
+        assert len(w) - len(w_txt) == 1          # so' a tag
+        assert "N=n" in w.splitlines()[0]
+
+    @pytest.mark.parametrize("tabela", [
+        {"a": ["x", "y"], "n": [1, 2], "z": ["p", "q"]},          # int
+        {"a": ["x", "y"], "f": [1.5, 2.5], "z": ["p", "q"]},      # float
+        {"a": ["x", "y"], "b": [True, False], "z": ["p", "q"]},   # bool
+        {"a": ["x", "y"], "n": [1, None], "z": ["p", "q"]},       # tipado com nulo
+        {"a": ["x", None], "z": ["p", "q"]},                      # texto com nulo
+        {"n": [1, 2]},                                            # unica coluna, tipada
+        {"a": ["x", "y"], "n": [10, 20]},                         # tipada e ULTIMA
+    ])
+    def test_round_trip_preserva_tipo(self, tabela):
+        assert decode(encode(tabela)) == tabela
+
+    def test_tabela_de_texto_nao_muda(self):
+        """Sem coluna tipada, o header sai igual ao de antes: a tag e' opt-in do dado."""
+        t = {"a": ["x", "y"], "z": ["p", "q"]}
+        assert encode(t).splitlines()[0] == "#TCF.8M!3=a,!z"
+
+    def test_bool_usa_a_grafia_do_8h(self):
+        """`true`/`false`, nao `True`/`False`: duas grafias quebrariam a canonicidade."""
+        corpo = encode({"a": ["x", "y"], "b": [True, False], "z": ["p", "q"]})
+        assert "true" in corpo and "True" not in corpo
+
+    def test_aninhado_continua_no_8h(self):
+        """O `.8H` segue dono do que E' aninhado: dict na celula, ragged, 0-linha."""
+        assert encode([{"a": {"b": 1}}]).startswith("#TCF.8H")
+        assert encode([{"a": 1}, {"b": 2}]).startswith("#TCF.8H")
+        assert encode({"a": []}).startswith("#TCF.8H")
+
+    def test_size_hex_canonico(self):
+        """A tag so' e' inequivoca porque o size e' hex minusculo canonico."""
+        from tcf.multi.core import _hex_size
+        assert _hex_size("1b") == 27
+        for ruim in ("1B", "0x5", "+5", "-5", "5_0", " 5", "05"):
+            with pytest.raises(ValueError, match="size"):
+                _hex_size(ruim)

@@ -96,6 +96,13 @@ coluna = `[<pre>]<size>[=<nome>][:<id>]`:
   `format(n,'x')` (minusculo, sem `0x`, sem zero a esquerda). Colisao-livre com os separadores. Decimal
   so' via comando de inspecao (nao e' formato armazenado).
 - **prefixo de modo** `!`=raw (V2-A) · `@`=dict (V2-B) · `%`=split (V2-C), antes do size.
+- **tag de tipo** logo APÓS o size: `N` número, `B` bool. Ausente = texto, o default.
+  O tipo primitivo do dado é uma declaração que não se deduz do corpo (`["1","2"]` e
+  `[1,2]` geram os mesmos bytes), então ele viaja no header, e custa **1 byte**. Maiúscula
+  porque o size é hex minúsculo canônico: fora do alfabeto hex, a tag é inequívoca.
+  `int` e `float` compartilham `N`, como no `.8H`: a distinção sai do próprio valor.
+  A última coluna, que normalmente omite o size (`min_header`), passa a emiti-lo quando
+  é tipada, porque sem size não há onde ancorar a tag.
 - **sufixo `:id`** = nature (ADR-0027). O registry core tem **5**: `cpf` · `cnpj` · `ip` ·
   `dt` (data ISO) · `ipad` (int-pad). Resolve via dict fixo core-only pelo **`wire_id`**
   (ADR-0041, `name` e' plano do CODIGO e nunca viaja). **Id desconhecido e' FAIL-LOUD**

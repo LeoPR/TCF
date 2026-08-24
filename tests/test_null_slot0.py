@@ -120,10 +120,11 @@ class TestEncodeEmiteNull:
         assert decode(encode([1, None, 3])) == [1, None, 3]
         assert decode(encode([True, None])) == [True, None]
 
-    def test_multi_col_com_null_ainda_no_8h(self):
-        """LACUNA conhecida: a rota aberta e' a do single-col; multi-col c/ null segue no .8H."""
-        assert encode({"a": ["x", None]}).startswith("#TCF.8H")
-        assert decode(encode({"a": ["x", None]})) == {"a": ["x", None]}
+    def test_multi_col_com_null_no_8m(self):
+        """A lacuna fechou: multi-col com null fica no `.8M`, usando o slot 0 do core."""
+        w = encode({"a": ["x", None]})
+        assert w.startswith("#TCF.8M")
+        assert decode(w) == {"a": ["x", None]}
 
 
 class TestByteNeutroSemNull:

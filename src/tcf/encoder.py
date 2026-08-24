@@ -138,7 +138,15 @@ def _tabela_flat(data) -> bool:
     tamanhos = {len(v) for v in vals}
     if len(tamanhos) != 1 or 0 in tamanhos:              # ragged OU 0-linhas -> .8H
         return False                                     # (0-linha: `{"a":[]}` = objeto c/ array vazio)
-    return all(isinstance(x, str) for v in vals for x in v)
+    # Coluna TIPADA (int/float/bool) e `None` NAO tiram mais a tabela do `.8M`: o tipo
+    # viaja como tag de 1 byte no meta (`!8N=valor`), e o nulo pelo slot 0 do core. Antes
+    # bastava um int pra tabela inteira cair no `.8H`, que nao roda o
+    # `min(tcf,raw,dict,split)`: medido, +43,6% de bytes no adult-census. O `.8H` continua
+    # dono do que E' aninhado: dict/list dentro da celula, ragged, 0-linha.
+    return all(
+        x is None or isinstance(x, (str, int, float, bool))
+        for v in vals for x in v
+    )
 
 
 # kwargs SO'-flat (default) -> em rota .8H, se != default = fail-loud (nunca ignorar calado,

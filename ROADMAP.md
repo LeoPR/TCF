@@ -85,9 +85,11 @@ corpo na chave**. É o envelope que faltava para o `view()`, e conversa direto c
   (levanta `HierarchicalError` com qualquer coluna tipada) e os knobs do multi-col.
   A `view` já lê as duas rotas (`BUG-VIEW-RECUSA-COLUNA-TIPADA`, fechado), então o que
   falta é o **byte** e o `schema=`. Muda o formato, então pede ADR, e implica reservar
-  `n`/`b` no namespace de nature. Detalhe que já custou uma tentativa: a tag não cabe
-  depois do size (`@1b=age` parseia como size 27, porque `b` é dígito hex); a única
-  posição livre é o slot `:id`.
+  um id por tipo. Sobre a POSIÇÃO da tag: o que colide depois do size é o alfabeto
+  **hex** (`@1b=age` vira size 27, e `@1B=age` também, porque o parser aceita
+  maiúscula), não a posição em si. Com símbolo fora do hex ela é utilizável. O
+  espaço globalmente livre são as maiúsculas fora de `A-F`, `H` e `M`. Atenção:
+  `B` e `C` já são discriminadores (bN de domínio, ADR-0036).
 
 - **bN-dense no FLOOR, COMO entrar**: (a) ligado por padrão, com re-pin de D17a e
   real-world registrado em ADR, ou (b) atrás de flag desligada (`fallback_bn=False`).

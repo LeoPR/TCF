@@ -112,6 +112,11 @@ caso sintético de 500 linhas. Junto vão o `schema=` (levanta `HierarchicalErro
 coluna for tipada) e os knobs do multi-col.
 
 A correção dessa causa é a **opção B** (o `.8M` ganha tag de tipo por coluna), que muda o
-formato e é decisão do owner, registrada no `ROADMAP` para antes do `.9`. Detalhe técnico
-que já custou uma tentativa: a tag **não** pode vir depois do size, porque `b` é dígito
-hexadecimal válido e `@1b=age` parseia como size 27. A única posição livre é o slot `:id`.
+formato e é decisão do owner, registrada no `ROADMAP` para antes do `.9`.
+
+Sobre a posição da tag, uma correção do que este ticket dizia antes: eu havia escrito que
+"a tag não cabe depois do size, a única posição livre é o slot `:id`". Isso generalizava de
+**um símbolo** para **a posição**. O que colide ali é o alfabeto **hex**: `@1b=age` vira size
+27 porque `b` é dígito hex, e `@1B=age` também, porque o parser aceita maiúscula. Com um
+símbolo fora do hex a posição volta ao jogo. A triagem de símbolos (2026-08-24) mediu as
+grafias e o espaço livre.
