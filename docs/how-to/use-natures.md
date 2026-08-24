@@ -1,5 +1,5 @@
 ---
-title: How to: Como usar naturezas (CPF/CNPJ/IP)
+title: "How to: Como usar naturezas (CPF/CNPJ/IP)"
 type: how-to
 status: active
 tags: [natures, pre-tx, compressão, cpf, cnpj, cnpj-alfa, ip, adr-0015, adr-0042]

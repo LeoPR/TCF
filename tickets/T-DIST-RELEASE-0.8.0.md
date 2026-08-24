@@ -1,9 +1,9 @@
 ---
 title: T-DIST-RELEASE-0.8.0, Release do pacote 0.8.0 (#TCF.8 default, ADR-0032)
-status: open
+status: closed
 priority: P2
 created: 2026-06-21
-updated: 2026-07-12
+updated: 2026-08-23
 blocked-by: [T-REL-08-CLOSEOUT]
 related:
   - docs/adr/0032-tcf8-default-format.md
@@ -98,3 +98,17 @@ pacote `0.8.0`) ficam pro cross-dict, fora deste ticket.
 - **2026-07-12 (revisão por ROI)**: a frase "só resta o go" fica histórica. F1/F2 produziram
   evidência nova e a revisão encontrou BUG-14 no domínio aceito; F3/F4/F6 e os gates de artefato
   continuam antes de C3. Fonte única da ordem: T-REL-08-CLOSEOUT.
+
+## Fechamento
+
+`closed-done` em 2026-08-23. O release saiu: `tcf-format 0.8.0` e, na sequência, `0.8.1`,
+ambos no PyPI por Trusted Publishing (sem token), tags `v0.8.0` e `v0.8.1`. O workflow
+confere `v<project.version>` contra `tcf.__version__` e contra a tag, roda a suíte e os
+gates byte-canônicos, confere que a wheel saiu universal e faz smoke em venv limpo.
+Evidência: as duas tags, as entradas 0.8.0 e 0.8.1 do [CHANGELOG](../CHANGELOG.md) e os
+runs do `release.yml`.
+
+**Sobra registrada**: a matriz de wheels por plataforma (estratégia Cython) NÃO foi feita,
+por decisão: a wheel é `py3-none-any` e o acelerador compila opcionalmente na ponta
+(`TCF_SKIP_ACCEL=1` no build). Se um dia a matriz for necessária, ela é trabalho novo, não
+sobra deste ticket.

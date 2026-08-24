@@ -1,7 +1,7 @@
 # br-identidades (canonical dataset): SYNTHETIC / declared bias
 
 > **SYNTHETIC, built-to-test.** Metadata + 100-row samples tracked in git.
-> Full data (600k rows) + SQLite hub live in `Z:/tcf-data/` (gitignored,
+> Full data (600k rows) + SQLite hub live in `<data_root>/` (gitignored,
 > regenerable). Contains **no PII**.
 
 ## What this is: and what it is NOT
@@ -81,7 +81,7 @@ python scripts/csv_to_sqlite.py br-identidades
 import sqlite3
 from tcf import encode, decode, SPEC_CPF
 
-con = sqlite3.connect("Z:/tcf-data/interim/br-identidades.db")
+con = sqlite3.connect("<data_root>/interim/br-identidades.db")
 cpfs = [r[0] for r in con.execute("select cpf from pessoas limit 1000")]
 text = encode(cpfs, nature=SPEC_CPF)
 assert decode(text) == cpfs   # header #TCF.8 autoritativo; lossless

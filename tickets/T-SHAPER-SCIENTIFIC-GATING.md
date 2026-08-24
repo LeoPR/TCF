@@ -30,7 +30,7 @@ Achado especifico do agente de validacao estatistica:
 > sao logadas e descartadas. Type I global: tests verdes dao falsa
 > confianca."
 
-Filosofia do owner (registrada [2026-05-30](C:/Users/leona/.claude/projects/.../memory/feedback_tools_need_statistical_validation.md)):
+Filosofia do owner (registrada `feedback_tools_need_statistical_validation` (memória do agente, fora do repo)):
 
 > "Tools cientificos auxiliares (shaper, samplers, gadgets) precisam de
 > aprovacao cientifica/estatistica formal antes de uso em experimentos

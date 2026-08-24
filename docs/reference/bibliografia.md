@@ -1,13 +1,10 @@
 # Bibliografia: fundamentos de literatura do TCF (compressão colunar / lazy / DSL)
 
-**Tipo**: reference (Diataxis). **Construída**: 2026-06-27 via survey multi-workstream +
-**verify anti-alucinação** (cada citação checada na web; 24 recomendadas, **24 verificadas reais,
-0 rejeitadas**). Organiza a literatura pelos [5 workstreams](../../experiments/lab/dirty/notas/2026-06/2026-06-27-0310-resegmentacao-workstreams.md).
+**Tipo**: reference (Diátaxis). Cada citação abaixo foi conferida contra a fonte publicada.
 
-> **Estado**: NÃO há PDFs baixados pra esses temas (os PDFs em `Z:/caches/corpus/pdf2md/` são
-> corpus do pdf2md: Transformer/BERT, sem relação). **Este doc É a biblioteca** (lista curada +
-> alvo de download). Antes desta varredura o repo só citava 2 destes (Roaring, FOR): a literatura
-> de column-store/compressão estava sub-referenciada.
+> **O que este documento é**: a lista curada da literatura que sustenta as escolhas do TCF,
+> organizada por tema. Não há PDFs no repositório: cada entrada traz DOI ou identificador
+> para você buscar na fonte.
 
 ## Fundacionais (cross-cutting W1+W2+W3; baixar primeiro)
 - **Abadi, Madden, Ferreira (2006)**: *Integrating Compression and Execution in Column-Oriented

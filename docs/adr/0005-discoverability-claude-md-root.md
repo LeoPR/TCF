@@ -16,7 +16,7 @@
 
 Em 2026-05-18, durante sessao Claude Code, foi proposta a criacao
 de novo dataset / download externo quando havia infra completa em
-`scripts/dataset_reader.py` + `scripts/shaper/` + `Z:/tcf-data/`.
+`scripts/dataset_reader.py` + `scripts/shaper/` + `<data_root>/`.
 
 Falha de **discoverability**. Causa raiz analisada: projeto **nao tem
 `CLAUDE.md` no root** (scope project, via git). Toda memoria do
@@ -69,7 +69,7 @@ ANTES de propor download/recriar/sintetizar:
 2. `Glob datasets/**`
 3. `Grep` por termos relacionados
 4. `Read STATUS.md`, `MAP.md`, `CLAUDE.md`
-5. Checar `Z:/tcf-data/`
+5. Checar `<data_root>/`
 
 ## Pros and Cons of the Options
 

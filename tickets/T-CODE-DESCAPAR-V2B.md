@@ -72,7 +72,7 @@ Descapar (deixar o dict entrar no `min()` p/ high-card) vale o custo de compute?
   (31 passed; D1-D9=1523B, D17a=303B, RW=89616B **inalterados**: são single-col/low-card) + suíte
   completa **456 passed, 2 skipped, 1 xfailed** (config CI), **nenhum re-pin necessário**. Byte-safe
   (o `min(tcf,raw,v2b,split)` nunca regride). Nota em ADR-0025. Ganho real (−5% br-empresas/receita)
-  nos hubs Z: (requires_data, medido no prototype).
+  nos hubs locais (requires_data, medido no prototype).
 
 ## B/C: DEFERIDOS (investigar depois com calma; owner 2026-07-02)
 

@@ -159,9 +159,9 @@ Cross-link: [`algorithms/TCF-format.md`](algorithms/TCF-format.md) secao Version
   (dia/borda/mensal/datetime/ms/us/ns/tz)
 - **D16a-c**: IDs numericos sequenciais (3-digit, 4-digit, prefixados)
 - **D17a**: multi-column mixed (4 cols)
-- **Canonical**: datasets reais em `Z:/tcf-data/interim/*.db`
+- **Canonical**: datasets reais em `<data_root>/interim/*.db`
   (adult-census, tpch-sf001)
-- **Hub SQLite**: formato unificado de canonical datasets em Z:/
+- **Hub SQLite**: formato unificado de canonical datasets, fora do repo
 
 ## Labs
 

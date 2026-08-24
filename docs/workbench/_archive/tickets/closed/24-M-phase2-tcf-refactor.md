@@ -1,5 +1,5 @@
 ---
-title: META — Fase 2: Refatorar TCF encoder + testar com dados canonicos
+title: "META — Fase 2: Refatorar TCF encoder + testar com dados canonicos"
 type: meta
 status: IN_PROGRESS
 priority: 23

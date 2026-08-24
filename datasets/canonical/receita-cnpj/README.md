@@ -1,7 +1,7 @@
 # receita-cnpj (canonical dataset): REAL CNPJ (non-PII)
 
 > Metadata + samples tracked in git. Full data (200k rows) + SQLite hub live
-> in `Z:/tcf-data/` (gitignored, regenerable). **Real company data, non-PII.**
+> in `<data_root>/` (gitignored, regenerable). **Real company data, non-PII.**
 
 ## What this is
 

@@ -42,7 +42,7 @@ generalizacao?
 ## Plano
 
 1. **ANTES de propor download**: rodar checklist discoverability (CLAUDE.md):
-   `Glob scripts/setup_*.py`, checar `Z:/tcf-data/external/` por slice ja'
+   `Glob scripts/setup_*.py`, checar `<data_root>/external/` por slice ja'
    baixado, confirmar que nao existe outro dataset CNPJ no repo.
 2. **Fonte**: Receita Federal Dados Publicos CNPJ
    (https://dadosabertos.rfb.gov.br/CNPJ/). Base completa ~60M
@@ -53,7 +53,7 @@ generalizacao?
    municipio (codigo), cnae (codigo), situacao_cadastral (low-card).
 4. **setup_receita_cnpj.py** seguindo padrao `setup_*.py`: download (ou
    apontar pra arquivo local), parse, monta CNPJ formatado, escreve CSV em
-   `Z:/external/`, metadata + README leve em git, sample 100 linhas, e
+   `<data_root>/external/`, metadata + README leve em git, sample 100 linhas, e
    **fixture frozen de 2000 CNPJs** em `datasets/samples/` pro gate
    real-world (analogo a test_real_world_snapshots.py, hoje nao existe
    fixture BR de check-digit).
@@ -94,7 +94,7 @@ generalizacao?
 
 ### 2026-06-02: script criado + logica provada; download bloqueado por rede
 
-Checklist discoverability OK (nenhum dado CNPJ em repo nem em Z:). Layout
+Checklist discoverability OK (nenhum dado CNPJ em repo nem no hub local). Layout
 confirmado de fonte oficial (okfn-brasil/receita startdb.sql): arquivo
 **Estabelecimentos** = 30 colunas, `;`-separado, **sem header**, encoding
 **ISO-8859-1 (Latin-1)**, em 10 partes (Estabelecimentos0..9.zip, ~290MB

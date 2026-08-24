@@ -47,8 +47,8 @@ python scripts/csv_to_sqlite.py
 ```
 
 Saida:
-- Raw: `Z:/tcf-data/external/online-retail/online_retail.csv` (~45MB)
-- SQLite: `Z:/tcf-data/interim/online-retail.db`
+- Raw: `<data_root>/external/online-retail/online_retail.csv` (~45MB)
+- SQLite: `<data_root>/interim/online-retail.db`
 - Sample git: `datasets/samples/online-retail/online-retail-sample.csv`
 
 ## Notas

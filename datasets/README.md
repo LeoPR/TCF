@@ -3,7 +3,7 @@
 Esta pasta contem **metadados, amostras pequenas e documentacao** dos
 datasets canonicos usados no projeto TCF.
 
-**Os dados reais nao vivem aqui.** Eles ficam em `Z:\tcf-data\` (ou onde
+**Os dados reais nao vivem aqui.** Eles ficam em `<data_root>/` (ou onde
 voce configurar em `config/storage.json`). Ver
 [docs/archive/theory_architecture_v05/storage.md](../docs/archive/theory_architecture_v05/storage.md) para a
 estrategia de 3 camadas.
@@ -30,7 +30,7 @@ tables, meta = load_dataset("synthetic:retail_sales", n_orders=100, seed=42)
 
 Fluxo:
 - `canonical:*` → `scripts/shaper/` (com `fk_preserving` strategy) →
-  `scripts/dataset_reader.py` → `Z:/tcf-data/interim/*.db`
+  `scripts/dataset_reader.py` → `<data_root>/interim/*.db`
 - `synthetic:*` → `tests/fixtures/synthetic_v2.py` ou `synthetic_domains.py`
 
 Detalhes completos em
@@ -85,8 +85,8 @@ python scripts/_paths.py
 
 # 3. Download dos datasets (tickets 04 e 05)
 pip install -e ".[datasets]"  # instala duckdb, sklearn, pandas
-python scripts/setup_tpch.py  # ~10MB para Z:\tcf-data\external\tpch-sf001\
-python scripts/setup_adult.py # ~5MB para Z:\tcf-data\external\adult-census\
+python scripts/setup_tpch.py  # ~10MB para <data_root>/external\tpch-sf001\
+python scripts/setup_adult.py # ~5MB para <data_root>/external\adult-census\
 ```
 
 ## Datasets disponiveis

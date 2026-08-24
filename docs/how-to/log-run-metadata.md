@@ -1,5 +1,5 @@
 ---
-title: How to: Logar metadata de run em manifest.jsonl
+title: "How to: Logar metadata de run em manifest.jsonl"
 type: how-to
 status: active
 tags: [reprodutibilidade, manifest, git-sha, experiment]

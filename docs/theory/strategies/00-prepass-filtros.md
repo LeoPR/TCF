@@ -1,5 +1,5 @@
 ---
-title: CAMADA 0, Pre-pass: Column Feature Analysis, Cadence Detection, Min-Len Auto-detection
+title: "CAMADA 0, Pre-pass: Column Feature Analysis, Cadence Detection, Min-Len Auto-detection"
 type: reference
 parent: strategies-map
 subsystem: prepass-filtros

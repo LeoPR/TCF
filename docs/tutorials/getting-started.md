@@ -1,5 +1,5 @@
 ---
-title: Getting Started: TCF
+title: "Getting Started: TCF"
 type: tutorial
 status: active
 tags: [tutorial, beginner, compression]
@@ -19,8 +19,14 @@ You will encode a simple dataset (a list of strings with repetitive patterns), e
 
 ## Prerequisites
 
-- Python 3.10 or later
-- TCF installed with development dependencies:
+Python 3.10 or later, and the package:
+
+```bash
+pip install tcf-format
+```
+
+That is enough for everything in this tutorial. If you plan to change TCF itself, or to run
+the test suite and the labs, install from a clone instead:
 
 ```bash
 git clone https://github.com/LeoPR/TCF.git && cd TCF

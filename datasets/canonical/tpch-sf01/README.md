@@ -1,7 +1,7 @@
 # tpch-sf01 (canonical dataset)
 
 > Metadata + small samples tracked in git. Full data lives in
-> `Z:/tcf-data/external/tpch-sf01/` + hub in `Z:/tcf-data/interim/tpch-sf01.db`
+> `<data_root>/external/tpch-sf01/` + hub in `<data_root>/interim/tpch-sf01.db`
 > (see `config/storage.json`). Neither is committed.
 
 TPC-H benchmark at **Scale Factor 0.1** (~10× the sibling `tpch-sf001`,

@@ -41,7 +41,7 @@ This:
 3. Exports each of the 8 tables to CSV under
    `$TCF_DATA_ROOT/external/tpch-sf001/`
 
-`$TCF_DATA_ROOT` defaults to `Z:/tcf-data/`. Configure via
+`$TCF_DATA_ROOT` defaults to `<data_root>/`. Configure via
 `config/storage.json`.
 
 ## Build SQLite

@@ -49,7 +49,7 @@ trailing whitespace, and writes to:
 $TCF_DATA_ROOT/external/adult-census/adult.csv
 ```
 
-`$TCF_DATA_ROOT` defaults to `Z:/tcf-data/` on Windows; configurable via
+`$TCF_DATA_ROOT` defaults to `<data_root>/` on Windows; configurable via
 `config/storage.json`. See
 [../../../docs/archive/theory_architecture_v05/storage.md](../../../docs/archive/theory_architecture_v05/storage.md).
 

@@ -9,7 +9,7 @@ blocked-by: []
 related:
   - datasets/samples/tpch-sf001/   (faltam part-sample.csv / partsupp-sample.csv)
   - datasets/samples/tpch-sf01/
-  - scripts/dataset_reader.py       (le hub SQLite ja' em Z:)
+  - scripts/dataset_reader.py       (le hub SQLite local)
   - scripts/setup_tpch.py
 ---
 
@@ -26,7 +26,7 @@ git-tracked (testes, snapshots, leitura read-only).
 
 ## Plano
 
-1. Confirmar que o hub `Z:/tcf-data/interim/tpch-sf001.db` (e sf01) tem
+1. Confirmar que o hub `<data_root>/interim/tpch-sf001.db` (e sf01) tem
    part/partsupp (ja' confirmado: partsupp 8000/80000 rows).
 2. Via `scripts/dataset_reader.py`, ler part e partsupp e emitir
    `part-sample.csv` (100 rows) + `partsupp-sample.csv` (100 rows) em

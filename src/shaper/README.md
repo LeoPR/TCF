@@ -70,7 +70,7 @@ scripts/shaper/
 Principio do owner: um tool cientifico nao pode ser usado em experimentos
 TCF so' porque "corta dados", precisa **confirmacao estatistica** de que
 preserva o que claima. Gate em [`tests/test_shaper_scientific.py`](../../tests/test_shaper_scientific.py)
-(requer hubs SQLite em Z:; skip se ausente). Claims **validados** (10 testes):
+(requer hubs SQLite locais; skip se ausente). Claims **validados** (10 testes):
 
 | Strategy | Claim validado | Como (estatistico) |
 |---|---|---|

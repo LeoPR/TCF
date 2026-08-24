@@ -106,11 +106,11 @@ não conflitam. A prosa aponta; o teste mede.
 | `src/tcf/` | **CANONICAL: não modificar sem aprovação explícita.** Inclui `_core/detect.pyx` (acelerador Cython opcional; manter `.pyx` e fallback puro byte-equivalentes). |
 | `src/shaper/`, `src/llm_query/` | **Gadgets auxiliares** (não-core): sob `src/` mas **fora do wheel/sdist**. Importam helpers que ficam em `scripts/`. |
 | `scripts/` | Tooling de suporte: `dataset_reader`, `_paths`, `setup_*`, `benchmark_*` (formato/compressão), `schema_gadget/`, `index.py`. Não é TCF-core. |
-| `Z:/tcf-data/` | Dados grandes via `config/storage.json`; hubs SQLite em `interim/`. **Nunca baixar externo se já existe aqui.** |
+| `<data_root>/` | Dados grandes via `config/storage.json`; hubs SQLite em `interim/`. **Nunca baixar externo se já existe aqui.** |
 | `old/` | **Congelado-histórico**: `old/tcf` (motor v0.5) · `old/llm-benchmark` (Linha-A refutada). Não modificar, não importar. |
 | `docs/adr/` | Decisões numeradas. `docs/findings/` = catálogo v0.5 (**histórico**; findings novos vão em `docs/theory/` ou ADR). |
 | `experiments/lab/{dirty,clean}/` | Labs. `dirty/` aninha macros por `<YYYY-MM>/<YYYY-MM-DD>/` (§6); `dirty/notas/` = diário, checkpoints, registries (`roadmap-hipoteses.md`) + notas por mês. ⚠️ **`dirty/` e `archive/` NÃO são versionados** (desde 2026-08-22): existem no disco, fora do git. Ver a fronteira abaixo. |
-| `datasets/` | `synthetic/` = CSVs D1-D17 no repo. `canonical/` = só metadata+README (dado real em Z:). |
+| `datasets/` | `synthetic/` = CSVs D1-D17 no repo. `canonical/` = só metadata+README (dado real fora do repo). |
 
 ### Fronteira do que é publicado (owner, 2026-08-22)
 
@@ -137,7 +137,7 @@ ADR imutável.
 
 **Propor download / recriar infra / sintetizar dataset**, nesta ordem:
 `Glob scripts/**/*.py` → `Glob datasets/**` → `Grep` (dataset, reader, loader, fetch,
-sampler, shaper) → `STATUS.md` → `MAP.md` → checar `Z:/tcf-data/`.
+sampler, shaper) → `STATUS.md` → `MAP.md` → checar `<data_root>/`.
 **Sintoma de falha**: dizer *"vou baixar X"* / *"vou criar Y do zero"* sem ter feito as
 buscas. **PARE imediatamente.** (Incidente motivador: EXP-012.)
 
@@ -317,7 +317,7 @@ lê diretiva, hipótese e registro no mesmo plano e erra.
 ## 7. NUNCA
 
 - Modificar `src/tcf/` sem aprovação explícita (I5)
-- Baixar dados externos quando a infra `Z:/tcf-data/` já existe
+- Baixar dados externos quando a infra `<data_root>/` já existe
 - Push pra GitHub / pra `main` sem solicitação explícita
 - Commit com `Co-Authored-By:`
 - Superlativos ("incrível", "muito melhor", "campeão", "vencedor", "descoberta", "surpreendente")

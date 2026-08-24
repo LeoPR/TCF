@@ -220,7 +220,7 @@ O spec é outra camada: uma hipótese sobre a **forma** de um texto.
 | quem afirma | a **sua linguagem**: o valor já é um bool | o **TCF**, como hipótese: *"tem a forma de um CPF"* |
 | o que volta | o mesmo valor, no mesmo tipo (`True`, não `"True"`) | a **string original**, byte a byte |
 | se não casa | não se aplica, o tipo é fato | cai para literal, **sem falhar e sem perder** |
-| o que ganha | o tipo preservado, e bits (1–2 por bool) | bytes no fio |
+| o que ganha | o tipo preservado, e bits (1-2 por bool) | bytes no fio |
 
 Ou seja: o spec é uma **hipótese de compressão sobre a forma**, não uma afirmação sobre a
 identidade do dado. É opt-in por valor e **nunca-pior**: compete com o pipeline comum e só vence
@@ -389,7 +389,7 @@ O dicionário low-card (V2-B) e o split estrutural já estão no default; a comp
 - Default **0.8 / `#TCF.8M`**: fallback, dicionário, split estrutural, meta hexadecimal inline,
   escaping e identificadores de filtros autorizados pelo cabeçalho; veja a seção acima. Os legados `.6/.7`
   são recuperados via git.
-- Suíte: **1364 passed, 3 skipped** na execução local completa atual; rode `pytest` para o número do seu ambiente.
+- Suíte: **1366 passed, 1 skipped** na execução local completa atual; rode `pytest` para o número do seu ambiente.
   Baselines de byte = guardas de regressão, re-pináveis em mudança intencional ([ADR-0024](docs/adr/0024-pre-1.0-versioning-git-as-compat.md)).
 - Mudanças: [`CHANGELOG.md`](CHANGELOG.md).
   História M0-M14: [`experiments/lab/dirty/notas/2026-05/historia-dirty-lab.md`](experiments/lab/dirty/notas/2026-05/historia-dirty-lab.md).
@@ -664,7 +664,7 @@ TCF/
 ├── experiments/lab/         ← labs v0.8 (dirty + clean): compressao composicional
 ├── old/llm-benchmark/       ← benchmark LLM v0.5 (harness: runners + llm_eval), acessorio
 ├── tests/                   ← pytest suite (v0.8)
-├── datasets/                ← canonical metadata + samples (dados reais em Z:)
+├── datasets/                ← canonical metadata + samples (dados reais fora do repo)
 ├── tickets/                 ← planejamento markdown (YAML frontmatter)
 ├── docs/
 │   ├── algorithms/          ← specs canonicos v0.8 (OBAT, HCC, TCF-format) [reference]
@@ -674,7 +674,7 @@ TCF/
 │   ├── findings/            ← catalogo cientifico v0.5 LLM (F-Q01..Q38) [historico]
 │   ├── workbench/           ← dev timeline, research notes (partes em _archive/)
 │   └── archive/             ← material v0.5/v0.1 congelado (manual_v05, article_v05, etc.)
-├── config/                  ← storage.json (aponta Z:), api_keys (gitignored)
+├── config/                  ← storage.json (aponta a raiz de dados), api_keys (gitignored)
 ├── README.md                ← you are here
 └── CHANGELOG.md             ← release history
 ```

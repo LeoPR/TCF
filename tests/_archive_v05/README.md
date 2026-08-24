@@ -18,7 +18,7 @@ norecursedirs`).
 | Arquivo | Origem | Por que arquivado |
 |---|---|---|
 | `test_compression_benchmark.py` | v0.5 | importa `encode_columns` (removido) |
-| `test_encode_canonical.py` | v0.5 | importa `encode_columns`, `EncodeConfig`, depende Z:/SQLite |
+| `test_encode_canonical.py` | v0.5 | importa `encode_columns`, `EncodeConfig`, depende <data_root>/interim/ |
 | `test_encode_decode.py` | v0.5 | importa `EncodeConfig` (removido) |
 | `test_p01_p02_p03.py` | v0.5 LLM Phase 1 | importa `llm_eval.*`, depende `data/` dir |
 | `test_timing.py` | v0.5 | importa `tcf.timing` (modulo removido) |
@@ -30,4 +30,4 @@ tests pra repo dedicado. Ate' la' ficam aqui.
 
 Tests CI-friendly novos pra v0.6+ canonical vivem em `tests/`:
 - `test_core_rt.py` — round-trip basicos sem deps externos
-- `test_shaper.py` — integration (requires SQLite Z:/, skipado em CI)
+- `test_shaper.py` — integration (requer o hub SQLite local, skipado em CI)

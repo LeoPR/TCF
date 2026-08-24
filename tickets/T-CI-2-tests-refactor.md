@@ -21,7 +21,7 @@ T-CI-1 Fase 1 (workflow CI lint apenas) identificou que `tests/`
 nao podia rodar em CI:
 - 4 arquivos com imports v0.5 broken (encode_columns, EncodeConfig,
   tcf.timing, removidos em v0.6)
-- 2 arquivos dependentes de SQLite Z:/tcf-data
+- 2 arquivos dependentes de SQLite <data_root>/
 - 1 arquivo com fixtures missing
 
 Refactor necessario antes do job `test` no CI.
@@ -60,7 +60,7 @@ Pytest config: auto-marca tests em `test_shaper` com `requires_data`
 testpaths = ["tests"]
 norecursedirs = ["_archive_v05", "fixtures"]
 markers = [
-    "requires_data: tests that need SQLite hubs in Z:/tcf-data/ (skipped in CI)",
+    "requires_data: tests that need SQLite hubs in <data_root>/ (skipped in CI)",
 ]
 ```
 
@@ -96,7 +96,7 @@ test:
 30 passed, 50 deselected, 1 xfailed in 0.53s
 ```
 
-Tests deselected sao do `test_shaper.py` (precisa SQLite Z:/).
+Tests deselected sao do `test_shaper.py` (precisa do hub SQLite local).
 
 ## Criterio de aceite
 
@@ -111,7 +111,7 @@ Tests deselected sao do `test_shaper.py` (precisa SQLite Z:/).
 ### 2026-05-23: execucao + fechamento
 
 Refactor completo em uma rodada. CI agora roda lint + test em 3 versoes
-Python. Tests dataset-dependentes (Z:/SQLite) ficam disponiveis pra
+Python. Tests dataset-dependentes (<data_root>/interim/) ficam disponiveis pra
 rodar local mas pulam em CI via marker.
 
 Aprendizado: solucao "marker + archive + new minimal suite" foi mais

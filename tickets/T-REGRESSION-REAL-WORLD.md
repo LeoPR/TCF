@@ -39,7 +39,7 @@ de que sintetico/mini-suite NAO basta.
   online-retail nao tem bytes congelados. Sao usados em benchmarks
   (`experiments/lab/dirty/`) mas nao em testes.
 - **Infra existe**: `scripts/dataset_reader.py` le canonicos do hub SQLite
-  em `Z:/tcf-data/interim/`.
+  em `<data_root>/interim/`.
 
 ## Plano
 
@@ -119,6 +119,6 @@ desbloqueado (abrir H-PERF-06-v2-T01).
 - Bloqueia: H-PERF-06-v2-T01 (welding de #15) e qualquer outro prune
   algoritmico futuro
 - Motivado por: Fase A workflow (wf_668f0e90-8ee, 2026-05-30)
-- Filosofia: [feedback-validacao-e-dados](C:/Users/leona/.claude/projects/.../memory/feedback_validacao_e_dados.md),
+- Filosofia: `feedback_validacao_e_dados` (memória do agente, fora do repo),
   [checklist 5-perguntas em CLAUDE.md](../CLAUDE.md)
 - Custo estimado: 1 sessao (Fase 1+2+3); Fase 4 depende de #15

@@ -35,9 +35,9 @@ problemas que impedem CI direto:
    - test_encode_decode.py
    - test_timing.py
 
-2. **Dependencias externas (Z:/tcf-data SQLite)**:
+2. **Dependencias externas (<data_root>/ SQLite)**:
    - test_encode_canonical.py
-   - test_shaper.py (73 passing local + 1 fail, mas precisa Z:)
+   - test_shaper.py (73 passing local + 1 fail, mas precisa do hub local)
 
 3. **Fixtures missing**:
    - test_p01_p02_p03.py (12 FileNotFoundError)

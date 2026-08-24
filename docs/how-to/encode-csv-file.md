@@ -1,5 +1,5 @@
 ---
-title: How to: Encodar um arquivo CSV
+title: "How to: Encodar um arquivo CSV"
 type: how-to
 status: active
 tags: [csv, compression, io, encode, decode, round-trip]

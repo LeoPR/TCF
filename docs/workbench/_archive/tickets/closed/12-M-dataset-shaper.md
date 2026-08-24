@@ -1,5 +1,5 @@
 ---
-title: META — Fase 1.5: Dataset Shaper (sampler multidimensional)
+title: "META — Fase 1.5: Dataset Shaper (sampler multidimensional)"
 type: meta
 status: IN_PROGRESS
 priority: 11

@@ -1,9 +1,9 @@
 ---
 title: T-REL-08-CLOSEOUT, ordem por ROI para fechar o núcleo 0.8
-status: open
+status: closed
 priority: P1
 created: 2026-07-10
-updated: 2026-07-12
+updated: 2026-08-23
 blocked-by: []
 related:
   - tickets/T-QA-8-material-comprobatorio.md
@@ -139,7 +139,7 @@ posterior; nao abre uma nova frente de execucao em massa.
 A execucao populacional pode ser feita **depois** de F6, do rebuild/smoke clean-room e do closeout
 do pacote, sem reabrir o escopo do `.8`. Ela deve ser registrada como uma atividade separada:
 
-1. **Gate de reentrada**: commit/tag do candidato, ambiente registrado, hubs em `Z:/tcf-data/`,
+1. **Gate de reentrada**: commit/tag do candidato, ambiente registrado, hubs em `<data_root>/`,
   sem dados externos novos e sem alterações em `src/tcf` durante a rodada.
 2. **Passo de integridade**: `decode(encode(x)) == x`, byte-determinismo serial/paralelo, pins e
   ausência de corrupção em cada dataset; falha interrompe a rodada.
@@ -246,3 +246,14 @@ design pós-F3).
 - [ ] Fronteira do Passo 3 respeitada: nada dessa tabela entra no .8 sem decisão nova do owner.
 - [ ] Ao publicar (2g): este ticket fecha `closed-done` e o que sobrar de F5/otimização vira
   ticket próprio do ciclo seguinte.
+
+## Fechamento
+
+`closed-done` em 2026-08-23, na publicação do 2g (tag `v0.8.0` por Trusted Publishing) e do
+patch `0.8.1` que fechou os três comportamentos silenciosos (wire concatenado, contador RLE
+fora do canônico, `view` posicional), cada um re-provado em lab com verificação adversarial
+antes do fix.
+
+**Sobra registrada**: o que restava de F5 (janela condicional de otimização, default
+NO-ACTION) segue como material do ciclo `.9`, descrito em [`../ROADMAP.md`](../ROADMAP.md);
+não fica pendurado aqui.

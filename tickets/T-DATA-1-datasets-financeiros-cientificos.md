@@ -37,8 +37,8 @@ canonicos:
 Padrao similar a `setup_adult.py` / `setup_tpch.py`:
 
 1. **Scripts setup**: `scripts/setup_{name}.py`, baixa dataset, escreve
-   CSV em `Z:/tcf-data/external/{name}/`, gera SQLite hub em
-   `Z:/tcf-data/interim/{name}.db` via `csv_to_sqlite.py`
+   CSV em `<data_root>/external/{name}/`, gera SQLite hub em
+   `<data_root>/interim/{name}.db` via `csv_to_sqlite.py`
 2. **Metadata + READMEs**: `datasets/canonical/{name}/`:
    - `metadata.json` (schema, source, license, row counts)
    - `README.md` (descricao, columns, casos de uso)
@@ -54,7 +54,7 @@ Padrao similar a `setup_adult.py` / `setup_tpch.py`:
 - Documentacao em STATUS.md
 
 **Download dos datasets adiado pra owner** (1-50MB cada, requer
-internet + Z:/tcf-data/ writable).
+internet + <data_root>/ writable).
 
 ## Datasets
 
@@ -110,7 +110,7 @@ internet + Z:/tcf-data/ writable).
    sklearn fetch_openml primeiro (mais estavel), fallback requests UCI.
 2. **Datasets requerem auth (Kaggle)**: NAO usar Kaggle nesta lista
    (todos UCI/OpenML, sem auth).
-3. **Tamanho Online Retail (~45MB)**: cabe em Z:/tcf-data/external/
+3. **Tamanho Online Retail (~45MB)**: cabe em <data_root>/external/
    facilmente.
 4. **Encoding**: Online Retail UCI tem char encoding inconsistente
    (Latin-1 em alguns), scripts precisam tratar.
@@ -144,7 +144,7 @@ hipoteses #5/#8 com dados reais financeiros/cientificos.
 
 Os 3 datasets foram baixados e o setup canonical rodado (commits
 2026-06-01..02): `datasets/canonical/{online-retail,beijing-pm25,wine-quality}/`
-com metadata + README; raw em `Z:/tcf-data/external/`. Os 3 ja' alimentaram
+com metadata + README; raw em `<data_root>/external/`. Os 3 ja' alimentaram
 a auditoria de naturezas (lab `2026-05-27-naturezas-reais-uci`, base do
 [ADR-0018](../docs/adr/0018-v2-format-roadmap.md): wine/beijing/online-retail
 sao a evidencia do ponto cego de baixa-cardinalidade + lossy).

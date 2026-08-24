@@ -4,8 +4,9 @@ Local onde algoritmos e sintaxes do TCF sao iterados, validados e
 comparados. **Esta pasta nao faz parte do TCF instalavel**, e'
 instrumento de pesquisa.
 
-> **Verdade canonica atual**: `dirty/notas/historia-dirty-lab.md`
-> (narrativa M0-M11 do algoritmo TCF-CORE + Compactacao composicional).
+> **Estado do projeto**: [`STATUS.md`](../../STATUS.md). A narrativa de como o algoritmo
+> chegou aqui vive em
+> [`dirty/notas/2026-05/historia-dirty-lab.md`](dirty/notas/2026-05/historia-dirty-lab.md).
 
 ## Filosofia
 
@@ -17,7 +18,7 @@ Lab (experiments/lab/) = iteracao do algoritmo + comparacao com
                           Documenta tudo.
 ```
 
-Quem instala `pip install tcf` **nao** tem este lab. E' intencional.
+Quem instala `pip install tcf-format` **nao** tem este lab. E' intencional.
 
 ## Estrutura
 

@@ -8,9 +8,9 @@ blocked-by: []
 related:
   - tickets/T-CLEAN-2-strata-defrag.md
   - tickets/T-CLEAN-3-org-defrag-pre-0.8.md
-  - C:/Users/leona/OneDrive/Documents/Projects/Acadêmicos/Methodologies/recipe/knowledge-architecture.md
-  - C:/Users/leona/.claude/projects/c--Users-leona-OneDrive-Documents-Projects-Acad-micos-TCF/memory/reference_strata_knowledge_architecture_review.md
-  - C:/Users/leona/.claude/projects/c--Users-leona-OneDrive-Documents-Projects-Acad-micos-TCF/memory/feedback_strata_l0_check_before_big_changes.md
+  - `knowledge-architecture.md` (fora deste repo)
+  - `reference_strata_knowledge_architecture_review.md` (memória do agente, fora do repo)
+  - `feedback_strata_l0_check_before_big_changes.md` (memória do agente, fora do repo)
 ---
 
 # META-STRATA-GOVERNANCE: governança do método Strata (TCF)

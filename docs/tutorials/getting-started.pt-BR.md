@@ -1,5 +1,5 @@
 ---
-title: Getting Started: TCF
+title: "Getting Started: TCF"
 type: tutorial
 status: active
 tags: [tutorial, beginner, compression]
@@ -22,8 +22,14 @@ Você vai codificar um conjunto de dados simples (lista de strings com padrões 
 
 ## Pré-requisitos
 
-- Python 3.10 ou superior
-- Ter instalado TCF com dependências de desenvolvimento:
+Python 3.10 ou superior, e o pacote:
+
+```bash
+pip install tcf-format
+```
+
+Isso basta para tudo neste tutorial. Se você pretende mexer no próprio TCF, ou rodar a
+suíte de testes e os labs, instale a partir de um clone:
 
 ```bash
 git clone https://github.com/LeoPR/TCF.git && cd TCF

@@ -50,8 +50,8 @@ python scripts/csv_to_sqlite.py
 ```
 
 Saida:
-- Raw: `Z:/tcf-data/external/wine-quality/wine.csv` (~100KB)
-- SQLite: `Z:/tcf-data/interim/wine-quality.db`
+- Raw: `<data_root>/external/wine-quality/wine.csv` (~100KB)
+- SQLite: `<data_root>/interim/wine-quality.db`
 - Sample git: `datasets/samples/wine-quality/wine-sample.csv` (100 rows)
 
 ## Conexoes

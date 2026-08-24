@@ -10,73 +10,19 @@
 > obrigatório pra qualquer mudança em HCC / pre-pass / prune; nada de weld de natureza/lossy
 > sem medir o **incremento** em ≥2 datasets reais (anti-incidente 2026-05-21).
 
-## Estado: formato `#TCF.8` default (ADR-0032); pacote `0.8.1` publicado
+## Estado
 
-> **PONTE 2026-07-09 (ADR-0032)**: `#TCF.8M` virou o formato DEFAULT do multi-col; legado `#TCF.6/.7`
-> CORTADO de `src/tcf` (git-as-compat); byte-sizes em HEX; nomes com separador escapados; discriminador
-> `H` reservado (ADR-0031). Pacote vai a `0.8.0` (ADR-0028 aceito), com o ciclo lazy+poda **absorvido**
-> (sem `0.7.2` separado); PyPI segura em 0.7.1 ate' publicar completo. Os blocos datados abaixo que dizem
-> "0.7 default / 0.7.2 antes / cross-dict paga o bump / ADR-0027 proposed" sao HISTORICOS: leia nesta chave.
->
-> **PONTE 2026-07-10 (T-QA-8)**: antes de publicar, o caminho vigente e' o
-> [T-QA-8 material comprobatorio](tickets/T-QA-8-material-comprobatorio.md): controle → sinteticos →
-> publicos com telemetria/dicts/paralelismo; bugs achados no planejamento REGISTRADOS la' (§3, fix em
-> F0 sob aprovacao); a publicacao (T-DIST C3) vira a fase F6 do plano.
->
-> **PONTE 2026-07-13 (reescopo .8 = feature-complete "1.0", decisão do owner)**: o `.8` deixa de ser
-> "release mínimo, features → .9" e passa a ser **o 1.0 com tudo que funciona**. `.9` fica **só**
-> limpeza/perf/paralelismo/memória/simplificação/bug-fix-de-borda. Auditoria dos 26 tickets abertos
-> (workflow 2026-07-13) achou que a **superfície tabular-plana já está feature-complete**: 0 features
-> prontas e que pagam o gate sobraram pra puxar. As DUAS expansões de capacidade que entram no `.8`
-> (decisão do owner): **(1) hierarquia TCF.8H** (weld do codec EXP-015 sob **gate de CAPACIDADE**:
-> RT-exato em JSON aninhado real + non-regressão no snapshot real-world + aprovação `src/tcf`; **não**
-> ≥15% de compressão, que é gate de otimização) e **(2) congelar os contratos de borda JSON**
-> (null vs vazio, tipos escalares, registros ragged, `\n`-em-valor), de "pré-1.0" para **decidir agora**.
-> O que continua fora: `parked-no-pay` (number-nature, bN, V2-RLE, specs BR sem dado: não puxar, viola o
-> gate), `.9` (perf/limpeza), 2.0 (streaming/sinks/lossy). Tickets: hierarquia weld
-> [T-CODE-TCF8H-WELD](tickets/T-CODE-TCF8H-WELD.md); contratos [T-API-BOUNDARY-CONTRACTS](tickets/T-API-BOUNDARY-CONTRACTS.md)
-> (regate pré-1.0 → `.8`). Guia de ordem atualizado em [T-REL-08-CLOSEOUT](tickets/T-REL-08-CLOSEOUT.md).
+Formato `#TCF.8` default ([ADR-0032](docs/adr/0032-tcf8-default-format.md)); pacote
+`0.8.1` publicado no PyPI (`tcf-format`), tag `v0.8.1`.
 
-Bytes-core welded: **V2-A** fallback (ADR-0022, `!`), **V2-B** dicionário (ADR-0025, `@`,
-13.9% weighted), **split estrutural** (ADR-0026, `%`, 19.39% weighted), **header mínimo**
-(ADR-0023), **sort_by** (O-FMT-02). Natures CPF/CNPJ/IP (ADR-0015). Formato default `#TCF.8` (ADR-0032).
-Pacote publicado no PyPI = `tcf-format 0.7.1` (0.8.0 no go do owner). D1-D9=1523 B (single-col intacto),
-D17a=300 B (#TCF.8M, re-pin ADR-0032; contagem de testes vive na suíte).
-
----
-
-## Ciclo 0.7.2 (lazy + poda) · Marco 0.8.0 reservado pro #TCF.8
-
-> **Versionamento (ADR-0028)**: minor = formato (`0.N` = `#TCF.N`); entrega sem mudar o formato move
-> o **release/patch**. Logo o ciclo do lazy + poda (formato `#TCF.7` inalterado) = **release `0.7.2`**.
-> O **`0.8.0` fica reservado pro `#TCF.8`**. Termos: [vocabulary §Versionamento](docs/vocabulary.md).
-> **PONTE (2026-07-08, reconciliação; ver STATUS.md)**: a carga "cross-dict" do 0.8.0 foi SUPERADA: o
-> gate geral do H-GDICT **falhou** (2026-06-27: 1/5 ≥15%, nicho estreito; pivô = H-DICT-HIGHCARD). O
-> `0.8.0` = **release da família self-describing `#TCF.8` JÁ welded** (natures + discriminador + anônimas
-> + lazy): ato administrativo, go do owner. Os parágrafos datados abaixo que dizem "0.8.0 = cross-dict"
-> são históricos, leia nesta chave.
-
-**Release `0.7.2` (formato #TCF.7, em curso)**: lazy básico endurecido shipado (`tcf.view`) + poda de
-legado pré-0.7 (T-CODE-LEGACY-PRUNE-PRE-07). **Plano em etapas (A lazy / C release)**:
-[`v08-plano-etapas.md`](experiments/lab/dirty/notas/2026-06/v08-plano-etapas.md) (HISTÓRICO/encerrado 2026-07-09:
-A feito, B gate-falhou, C absorvido no 0.8.0, ADR-0032).
-
-**Marco `0.8.0` = `#TCF.8` (futuro)**: cross-dict (H-GDICT, B2/B3) paga o bump de formato com ganho
-medido; **F2/spec-dict/filtros por carona** no mesmo ciclo `#TCF.8`. **Defere também**: H-QUERY-04
-avançado, H-INTRA, V2-RLE nicho.
-
-**Progresso (2026-06-24)**: **Workstream A COMPLETO** (A1-A5: lazy promovido `src/tcf/view.py` +
-reference Diátaxis). **B1 cross-dict caracterizado: PAGA em same-domain-refs** (−19.3% textual no
-grafo; [T-EXP-H-GDICT-01](tickets/T-EXP-H-GDICT-01.md)). Poda S1-S3 feita.
-**DECISÃO de escopo (owner 2026-06-24)**: ciclo **`0.7.2`** = lazy (A) + poda + release (C);
-**cross-dict #TCF.8 = `0.8.0`** (B2/B3 + filtros/spec-dict por carona). Próximo: fechar o **release
-0.7.2** (workstream C): publicar exige go explícito do owner (PyPI segura no 0.7.1).
-
----
+Os números byte-canônicos vivem nos testes que os medem
+([`test_regression_v1_baseline.py`](tests/test_regression_v1_baseline.py) e
+[`test_real_world_snapshots.py`](tests/test_real_world_snapshots.py)), não nesta página.
+O que mudou em cada versão está no [CHANGELOG](CHANGELOG.md).
 
 ## Ciclo `.9`: aberto 2026-08-23, com base medida
 
-O `.8` está **publicado e funcionando** (`tcf-format 0.8.0` no PyPI). O `.9` não é só
+O `.8` está **publicado e funcionando** (`tcf-format 0.8.1` no PyPI). O `.9` não é só
 performance: são **três eixos**, e o que os une é que agora há **medição de onde partir**,
 não intuição.
 
@@ -132,10 +78,21 @@ corpo na chave**. É o envelope que faltava para o `view()`, e conversa direto c
 
 ### Decisões do owner ainda abertas
 
-- as **3 caladas verificadas**: `concat` corrompe · `where` posicional responde errado ·
-  `*0|` aceito. `.8` ou `.9`? (a do `view` custa uma linha)
+- **bN-dense no FLOOR, COMO entrar**: (a) ligado por padrão, com re-pin de D17a e
+  real-world registrado em ADR, ou (b) atrás de flag desligada (`fallback_bn=False`).
+  Plano pronto, escopo `.8M`, marcador `#` já reservado no registry, nunca-pior por
+  construção (entra no `min()`). Medido: tabela real 1,86x menor, mas o ganho encolhe sob
+  gzip e some com N pequeno. Nada em `src/tcf` foi tocado. Labs `2026-07-23-1857` (v2) e
+  `-1832`.
 - **ruff-format em massa** (68 arquivos): aplicar como commit isolado, ou remover o hook
 - o **`uv.lock`** que entrou no commit da limpeza de comentários
+
+### Registrado, sem casa própria ainda
+
+- **Track 2 L01-L05**: estudos de camada de algoritmo (token-level, detecção de slot,
+  marcadores tipados, balanceamento de árvore, pré-filtro). Adiados explicitamente.
+- **Gate forte do CNPJ**: a nature é confirmada-empírica com **uma** fonte real; subir a
+  confiança pede N >= 5 fontes distintas. Só se houver interesse em fortalecer a claim.
 
 ### Fora do `.9`
 

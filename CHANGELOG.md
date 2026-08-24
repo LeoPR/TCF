@@ -1,20 +1,23 @@
 # Changelog
 
-History of TCF condensed into logical versions. For commit-level detail
-see `git log`. For per-experiment timeline (v0.5) see
-[`docs/workbench/_archive/DEVELOPMENT.md`](docs/workbench/_archive/DEVELOPMENT.md);
-for v0.6 (atual) ver
+History of TCF condensed into logical versions. For commit-level detail see `git log`.
+
+The project is **pre-1.0**. The package version is `0.<format>.<release>`: the minor tracks
+the format number (`#TCF.8` today), and there is **no compatibility guarantee between
+pre-1.0 versions**: an older format is reproduced by checking out the tag that emitted it,
+not by carrying compatibility code ([ADR-0024](docs/adr/0024-pre-1.0-versioning-git-as-compat.md),
+[ADR-0028](docs/adr/0028-pre-1.0-versioning-minor-format-coupling-release-cadence.md)).
+Semver starts when the format freezes at 1.0.
+
+Entries below are dated and append-only: this is where the chronology lives, so the reference
+documentation does not have to carry it. Headings that read "STABLE" or "frozen format" are
+internal milestones of their moment, not contracts. Date in parentheses = when the milestone
+was consolidated.
+
+Lab narratives, kept outside the package: v0.5 per-experiment timeline in
+[`docs/workbench/_archive/DEVELOPMENT.md`](docs/workbench/_archive/DEVELOPMENT.md); the
+compositional cycle in
 [`experiments/lab/dirty/notas/2026-05/historia-dirty-lab.md`](experiments/lab/dirty/notas/2026-05/historia-dirty-lab.md).
-
-A partir de v1.0.0 o versionamento e' **semver** com format `#TCF.6`
-congelado (ADR-0017). Versoes anteriores marcavam milestones logicos
-internos (sem PyPI). Date em parenteses = consolidacao do milestone.
-
-> **Reframe 2026-06-14 (ADR-0024)**: o projeto e' **pré-1.0**. O rotulo
-> "1.0.0 STABLE / format congelado" abaixo deve ser lido como um milestone
-> interno, NAO um contrato de compat. Os minors do formato (`#TCF.4/.5/.6/.7`)
-> sao iteracoes de dev rumo a um 1.0 solido; git reproduz versoes antigas. O
-> pacote voltou pra `0.7.0`.
 
 ---
 
@@ -339,7 +342,7 @@ ScoringConfig dataclass added with `string_match=lenient` default
 
 `scripts/setup_adult.py` and `setup_tpch.py` for reproducible canonical
 ingestion. `scripts/csv_to_sqlite.py` builds SQLite hubs in
-`Z:/tcf-data/interim/`. Stratification metrics inline (TVD/JSD/Hellinger/
+`<data_root>/interim/`. Stratification metrics inline (TVD/JSD/Hellinger/
 Wilson CI).
 
 Findings:

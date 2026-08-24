@@ -51,8 +51,8 @@ python scripts/csv_to_sqlite.py
 ```
 
 Saida:
-- Raw: `Z:/tcf-data/external/beijing-pm25/beijing_pm25.csv` (~2MB)
-- SQLite: `Z:/tcf-data/interim/beijing-pm25.db`
+- Raw: `<data_root>/external/beijing-pm25/beijing_pm25.csv` (~2MB)
+- SQLite: `<data_root>/interim/beijing-pm25.db`
 - Sample git: `datasets/samples/beijing-pm25/beijing-pm25-sample.csv`
 
 ## Conexoes

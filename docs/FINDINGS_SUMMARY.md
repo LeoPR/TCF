@@ -11,17 +11,17 @@ source: docs/archive/theory_methodology_v05/F-findings.md (arquivada)
 > [`algorithms/TCF-format.md`](algorithms/TCF-format.md).
 >
 > **Reorg (2026-06-02)**: o harness que gerou estes achados esta' em
-> [`../llm-benchmark/`](../llm-benchmark/). Este sumario (catalogo) fica em
+> [`../llm-benchmark/`](../old/llm-benchmark/). Este sumario (catalogo) fica em
 > `docs/` por decisao da Fase 6 (research compendium acoplado a docs/).
 
 # TCF: Achados principais (Phase 1, resumo paper-ready)
 
 Este documento concentra os **achados de alto impacto** que serão o núcleo
 do paper. Não é exaustivo: o catálogo completo está em
-[F-findings.md](methodology/F-findings.md).
+[F-findings.md](archive/theory_methodology_v05/F-findings.md).
 
 O projeto tem **duas linhas de pesquisa** (ver
-[research-lines/README.md](research-lines/README.md)):
+[research-lines/README.md](archive/theory_research_lines_v05/README.md)):
 - **Linha A**: LLM lê TCF diretamente e calcula a resposta
 - **Linha B**: TCF como schema carrier, LLM gera SQL, SQLite executa
 
@@ -69,7 +69,7 @@ o número global esconde **decomposição dramática**:
 **Evidência:** F-Q12 antigo (synthetic), F-Q28 novo (canonical Adult, 63
 combos, 3 modelos × 7 questions × 3 seeds).
 
-**Referência:** F-Q12 + F-Q28 em [F-findings.md](methodology/F-findings.md)
+**Referência:** F-Q12 + F-Q28 em [F-findings.md](archive/theory_methodology_v05/F-findings.md)
 
 ### Achados secundários da Linha A
 
@@ -95,7 +95,7 @@ a consulta com precisão exata, sem erros aritméticos.
 
 **Evidência:** M1-M3, 3 domínios, 3 modelos, 5 seeds.
 
-**Referência:** F-Q6 a F-Q9, F-Q16 em [F-findings.md](methodology/F-findings.md)
+**Referência:** F-Q6 a F-Q9, F-Q16 em [F-findings.md](archive/theory_methodology_v05/F-findings.md)
 
 ---
 

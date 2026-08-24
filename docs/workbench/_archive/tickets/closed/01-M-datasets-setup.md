@@ -1,5 +1,5 @@
 ---
-title: META — Fase 1: Setup de Datasets Canonicos
+title: "META — Fase 1: Setup de Datasets Canonicos"
 type: meta
 status: DONE
 priority: 1

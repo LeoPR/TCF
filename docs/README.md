@@ -85,6 +85,7 @@ TCF usa nomes de pasta proprios em vez dos rotulos canonicos
 | Pasta TCF | Diataxis | Foco |
 |---|---|---|
 | [`tutorials/`](tutorials/) | **Tutorial** | Onboarding mao-na-massa ([getting-started](tutorials/getting-started.md)) |
+| [`reference/`](reference/) | **Reference** | Contrato da superfície pública: [api](reference/api.md), [knobs do encode](reference/encode-knobs.md), [view lazy](reference/lazy-view.md), [equivalência JSON](reference/json-equivalence.md) |
 | [`algorithms/`](algorithms/) | **Reference** | Especificacao canonica (OBAT, HCC, TCF-format) |
 | [`theory/`](theory/) | **Explanation** | Fundamentos teoricos, perspectiva tripartite |
 | [`how-to/`](how-to/) | **How-to** | Receitas: [encodar CSV](how-to/encode-csv-file.md), [naturezas](how-to/use-natures.md), [inspecionar compressao](how-to/inspect-compression.md) + dev (audit, log) |

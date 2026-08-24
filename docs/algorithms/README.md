@@ -1,56 +1,49 @@
-# Algoritmos do TCF: documentação técnica
+<!-- l10n: doc_id=algorithms-index · lang=en · canonical -->
+# TCF algorithms
 
-Documentação oficial dos algoritmos canônicos do TCF v0.7. Cada
-arquivo explica:
-- **O que é** o algoritmo (linguagem natural)
-- **Como funciona** (sub-linguagem matemática)
-- **Por que tem esse nome** (etimologia das siglas)
-- **Diferencial vs literatura** (citações de trabalhos relacionados)
-- **Onde se encaixa** no pipeline do TCF
+Specifications of the canonical algorithms. Each document explains **what** the algorithm is
+in plain language, **how** it works, **where** the name comes from, **how it compares** to the
+literature, and **where it sits** in the pipeline.
 
-## Pipeline TCF
+## The pipeline
 
+```mermaid
+flowchart TB
+    IN["a list of strings<br/>(one column of tabular data)"]
+    OBAT["OBAT, layer 1: tokenization<br/>Online Bidirectional Affix Tokenizer"]
+    HCC["HCC, layer 2: compaction<br/>Hierarchical Compositional Coding"]
+    OUT["TCF text<br/>LF only, no structural brackets"]
+
+    IN --> OBAT
+    OBAT -->|root tokens| HCC
+    HCC -->|column body| OUT
 ```
-Lista de strings (uma coluna de dados tabulares)
-       ↓
-   OBAT (camada 1: tokenização)        ← Online Bidirectional Affix Tokenizer
-       ↓ tokens raiz
-   HCC (camada 2: compactação)          ← Hierarchical Compositional Coding
-       ↓ texto TCF
-   Arquivo TCF (LF only, sem brackets)
-```
 
-## Documentos
+## Documents
 
-| Algoritmo | Camada | Codnome origem | Documento |
-|---|---|---|---|
-| **OBAT**: Online Bidirectional Affix Tokenizer | 1 (tokenização) | `alg16` | [OBAT.md](OBAT.md) |
-| **HCC**: Hierarchical Compositional Coding | 2 (compactação) | `M8.A` | [HCC.md](HCC.md) |
-| **TCF**: Tabular Compact Format | formato | (projeto) | [TCF-format.md](TCF-format.md) |
+| algorithm | layer | document |
+|---|---|---|
+| **OBAT**: Online Bidirectional Affix Tokenizer | 1, tokenization | [OBAT.md](OBAT.md) |
+| **HCC**: Hierarchical Compositional Coding | 2, compaction | [HCC.md](HCC.md) |
+| **TCF**: Tabular Compact Format | the format | [TCF-format.md](TCF-format.md) |
 
-> **Bilíngue (2026-07-01)**: cada um destes 3 docs é um par EN/PT. O `X.md` é um **roteador**
-> (seletor de idioma) → `X.en.md` (inglês, canônico) · `X.pt-BR.md` (português). Os links a `X.md`
-> continuam válidos (caem no roteador). Método: [documentação multilíngue](../../README.md) (fonte canônica).
+Each of the three is a bilingual pair: `X.md` is a **router** (language picker) pointing to
+`X.en.md` (English, canonical) and `X.pt-BR.md` (Portuguese). Links to `X.md` stay valid.
 
-**Reference transversal** (não é um algoritmo, mas mapeia as estruturas que
-fluem entre as camadas):
+**Cross-cutting reference**, not an algorithm but the map of what flows between the layers:
 
-| Doc | Para quê |
+| document | for what |
 |---|---|
-| [core-data-model.md](core-data-model.md) | estruturas in-memory (tokens/pieces/aliases/IDs) + fronteira CORE↔HOST, **mapa pro port C/Rust** |
+| [core-data-model.md](core-data-model.md) | in-memory structures (tokens, pieces, aliases, IDs) and the CORE/HOST boundary: the map for a C/Rust port |
+| [output-convention.md](output-convention.md) | what a `.tcf` file is on disk: line endings, final LF, encoding |
 
-## Codnomes vs nomes oficiais
+## Codenames
 
-Os codnomes (`alg16`, `M8.A`) foram usados durante o desenvolvimento
-experimental no dirty lab. Permanecem documentados em
-`experiments/lab/dirty/notas/2026-05/historia-dirty-lab.md` como identificadores
-de **origem experimental**. Os nomes oficiais (OBAT, HCC) são usados
-no código, docs públicas e referências externas.
+`alg16` (OBAT) and `M8.A` (HCC) were the working names during experimental development. Code,
+public documentation and external references use the official names; the codenames survive only
+in the lab narrative, as markers of experimental origin.
 
-## Veja também
+## See also
 
-- `../../experiments/lab/dirty/notas/2026-05/historia-dirty-lab.md`:
-  narrativa M0-M14 do desenvolvimento
-- `../../experiments/lab/dirty/notas/2026-05/roadmap-hipoteses.md`: direções
-  futuras
-- `../../src/tcf/`: implementação canônica
+- [`../reference/api.md`](../reference/api.md): the public surface contract *(Portuguese)*
+- [`../../src/tcf/`](../../src/tcf/): the canonical implementation

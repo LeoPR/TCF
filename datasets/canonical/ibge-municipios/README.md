@@ -1,7 +1,7 @@
 # ibge-municipios (canonical dataset)
 
 > Metadata + 100-row sample tracked in git. Full data lives in
-> `Z:/tcf-data/external/ibge-municipios/` (see `config/storage.json`).
+> `<data_root>/external/ibge-municipios/` (see `config/storage.json`).
 
 ## Source
 

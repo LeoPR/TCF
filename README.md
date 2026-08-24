@@ -218,7 +218,7 @@ A spec is a different layer: a hypothesis about the **shape** of a text.
 | who asserts it | **your language**: the value already is a bool | **TCF**, as a hypothesis: *"has the shape of a CPF"* |
 | what comes back | the same value, same type (`True`, not `"True"`) | the **original string**, byte for byte |
 | when it does not match | not applicable, the type is a fact | falls back to literal: **no failure, no loss** |
-| what you gain | the type preserved, plus bits (1–2 per bool) | bytes on the wire |
+| what you gain | the type preserved, plus bits (1-2 per bool) | bytes on the wire |
 
 So a spec is a **compression hypothesis about the form**, not a claim about the data's identity.
 It is opt-in per value and **never-worse**: it competes with the ordinary pipeline and only wins
@@ -298,6 +298,10 @@ Two honest details:
 > [`T-SPEC-STATUS-08`](tickets/T-SPEC-STATUS-08.md).
 
 ## Getting started (1 minute)
+
+```bash
+pip install tcf-format
+```
 
 ```python
 from tcf import encode, decode
@@ -386,7 +390,7 @@ The low-card dictionary (V2-B) and the structural split are already in the defau
   Round-trip is always lossless (`decode(encode(x)) == x`).
 - Default **0.8 / `#TCF.8M`**: fallback, dictionary, structural split, hexadecimal inline meta,
   escaping and header-authoritative filter IDs, see the section above. Legacy `.6/.7` are recovered through git.
-- Test suite: **1364 passed, 3 skipped** in the current local full run; run `pytest` for the number in your environment.
+- Test suite: **1366 passed, 1 skipped** in the current local full run; run `pytest` for the number in your environment.
   Byte baselines = regression guards, re-pinnable on an intentional change ([ADR-0024](docs/adr/0024-pre-1.0-versioning-git-as-compat.md)).
 - Changes: [`CHANGELOG.md`](CHANGELOG.md).
   M0-M14 history: [`experiments/lab/dirty/notas/2026-05/historia-dirty-lab.md`](experiments/lab/dirty/notas/2026-05/historia-dirty-lab.md).
@@ -631,7 +635,7 @@ repository" badge on the repo page automatically.
 ## LLM Benchmark v0.5 (accessory, parallel project)
 
 > This section summarizes the **v0.5** cycle (a columnar format for LLM consumption).
-> It is **not** the TCF v0.7 algorithm above. All the material lives separately.
+> It is **not** the TCF core algorithm above. All the material lives separately.
 
 The v0.5 cycle measured LLM comprehension of tables (CSV/JSON/TOON/TCF,
 Track A "LLM reads and computes" + Track B "LLM generates SQL"): 7 commercial models
@@ -645,7 +649,7 @@ See [`old/tcf/LEVELS-REVIEW.md`](old/tcf/LEVELS-REVIEW.md) for the L0–L3 seman
 - **Manual / paper v0.5**: [`docs/archive/manual_v05/`](docs/archive/manual_v05/)
   + [`docs/archive/article_v05/`](docs/archive/article_v05/)
 
-A spin-off candidate (`tcf-llm-tools`) for the future. It could re-validate against v0.7
+A spin-off candidate (`tcf-llm-tools`) for the future. It could re-validate against the current core
 if Phase 2 is revived.
 
 ---
@@ -660,7 +664,7 @@ TCF/
 ├── experiments/lab/         ← v0.8 labs (dirty + clean): compositional compression
 ├── old/llm-benchmark/       ← LLM benchmark v0.5 (harness: runners + llm_eval), accessory
 ├── tests/                   ← pytest suite (v0.8)
-├── datasets/                ← canonical metadata + samples (real data on Z:)
+├── datasets/                ← canonical metadata + samples (real data outside the repo)
 ├── tickets/                 ← markdown planning (YAML frontmatter)
 ├── docs/
 │   ├── algorithms/          ← canonical v0.8 specs (OBAT, HCC, TCF-format) [reference]
@@ -670,7 +674,7 @@ TCF/
 │   ├── findings/            ← v0.5 LLM scientific catalog (F-Q01..Q38) [historical]
 │   ├── workbench/           ← dev timeline, research notes (parts in _archive/)
 │   └── archive/             ← frozen v0.5/v0.1 material (manual_v05, article_v05, etc.)
-├── config/                  ← storage.json (points to Z:), api_keys (gitignored)
+├── config/                  ← storage.json (points to the data root), api_keys (gitignored)
 ├── README.md                ← you are here
 └── CHANGELOG.md             ← release history
 ```
@@ -701,14 +705,14 @@ The encoder is the main tool; support helpers (NOT TCF-core):
 
 ## Where to go next
 
-- **I want to use TCF in my pipeline** → v0.8 API: `from tcf import encode, decode` ([src/tcf/](src/tcf/)); see [getting started](docs/tutorials/getting-started.md) and [how-to guides](docs/how-to/).
+- **I want to use TCF in my pipeline** → `from tcf import encode, decode`; the public surface contract is [docs/reference/api.md](docs/reference/api.md) *(Portuguese)*. Start at [getting started](docs/tutorials/getting-started.md), then the [how-to guides](docs/how-to/).
 - **I want to read the findings** → [docs/findings/](docs/findings/) (v0.5 LLM, historical)
 - **I want to run the LLM benchmark** → [old/llm-benchmark/](old/llm-benchmark/) (accessory v0.5)
 - **I want to understand the architecture** → [docs/theory/](docs/theory/)
-- **I want to see the roadmap** → [ROADMAP.md](ROADMAP.md) (tiers: pre-1.0 / 2.0 / research); granular detail in [roadmap-hipoteses.md](experiments/lab/dirty/notas/2026-05/roadmap-hipoteses.md)
-- **I want SQL-like query paths without full materialization** → [`tcf.view`](docs/reference/lazy-view.md) (`count`/`sum`/`where`/group-by touching only what is needed where the column mode permits)
-- **I want to share / pitch TCF** → [docs/divulgacao-tcf.md](docs/divulgacao-tcf.md) (outreach material, post style)
-- **I want to read the paper** → v0.5 drafts: [docs/archive/article_v05/](docs/archive/article_v05/) (v0.7 paper pending)
+- **I want to see the roadmap** → [ROADMAP.md](ROADMAP.md) *(Portuguese)*: tiers pre-1.0 / 2.0 / research; granular detail in [roadmap-hipoteses.md](experiments/lab/dirty/notas/2026-05/roadmap-hipoteses.md)
+- **I want SQL-like query paths without full materialization** → [`tcf.view`](docs/reference/lazy-view.md) *(Portuguese)*: `count`/`sum`/`where`/group-by touching only what is needed, where the column mode permits
+- **I want to share / pitch TCF** → [docs/divulgacao-tcf.md](docs/divulgacao-tcf.md) *(Portuguese)*: outreach material, post style
+- **I want to read the paper** → v0.5 drafts: [docs/archive/article_v05/](docs/archive/article_v05/) (paper pending)
 - **I want to see how it evolved** → [CHANGELOG.md](CHANGELOG.md) +
   [docs/workbench/](docs/workbench/)
 

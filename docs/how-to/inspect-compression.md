@@ -1,5 +1,5 @@
 ---
-title: How to: Como inspecionar a compressão (SideOutputs + schema)
+title: "How to: Como inspecionar a compressão (SideOutputs + schema)"
 type: how-to
 status: active
 tags: [debug, inspecção, features, compressão, schema]

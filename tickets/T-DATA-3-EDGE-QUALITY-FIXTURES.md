@@ -39,7 +39,7 @@ existem, este plano so' executa quando eles entrarem.
   (Myers / DeMillo mutation / Beizer BVA / Rahm&Do / Miller fuzzing) + stats
   ISO/IEC 25012. **Vies declarado** no README. NUNCA usar pra
   `confirmada-empirica`.
-- **Armazenamento**: corrompido grande -> `Z:/tcf-data/processed/` ou
+- **Armazenamento**: corrompido grande -> `<data_root>/processed/` ou
   `datasets/synthetic/edge/` (gitignored onde grande); so' referencia leve +
   manifesto versionados (espelha convencao canonical).
 
@@ -103,7 +103,7 @@ existem, este plano so' executa quando eles entrarem.
 3. **Baselines ja' com markers reais**: adult ('?') e beijing ('NA') ja' tem
    missing markers, pra completude usar ibge (8 cols non-null, baseline 1.0).
 4. **Onde versionar**: fixtures minusculos (n<=10, estilo D-series) talvez
-   git-tracked; copias corrompidas grandes de TPC-H = regeneravel-only em Z:.
+   git-tracked; copias corrompidas grandes de TPC-H = regeneravel-only no hub local.
    Decisao do owner.
 
 ## Conexoes

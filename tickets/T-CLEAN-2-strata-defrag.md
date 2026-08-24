@@ -8,7 +8,7 @@ blocked-by: []
 related:
   - experiments/lab/dirty/notas/2026-06/hquery01-decode-dag-indices-design.md
   - docs/adr/0024-pre-1.0-versioning-git-as-compat.md
-  - C:/Users/leona/OneDrive/Documents/Projects/Acadêmicos/Methodologies/recipe/knowledge-architecture.md
+  - `knowledge-architecture.md` (fora deste repo)
 ---
 
 # T-CLEAN-2-strata-defrag: Defragmentação da biblioteca de conhecimento

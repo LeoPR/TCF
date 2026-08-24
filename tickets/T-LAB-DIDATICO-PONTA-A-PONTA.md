@@ -35,7 +35,7 @@ servidor também responde TCF) nunca foi demonstrada, só modelada.
 
 | etapa | o que mostra | apoio que já existe |
 |---|---|---|
-| 1. **coletar** | de onde vem o dado bruto (CSV, dump, API) | hubs em `Z:/tcf-data`, `scripts/dataset_reader.py` |
+| 1. **coletar** | de onde vem o dado bruto (CSV, dump, API) | hubs em `<data_root>/`, `scripts/dataset_reader.py` |
 | 2. **organizar** | o que é "dataset OK": colunas, tipos, nulos, ragged | `src/shaper/` (I3), `build_schema` |
 | 3. **schema** | declarar specs por coluna; incremental | ADR-0047, `schema=` |
 | 4. **encode** | o wire, e por que ele ficou daquele tamanho | `SideOutputs` (telemetria opt-in) |

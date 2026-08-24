@@ -1,4 +1,4 @@
-# docs/theory: Teoria + hipóteses do TCF v0.6
+# docs/theory: teoria e hipóteses do TCF
 
 > **Reset 2026-05-17**: o conteudo anterior de `docs/theory/`
 > (architecture, components, methodology, research-lines) descrevia

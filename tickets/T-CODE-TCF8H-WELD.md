@@ -189,7 +189,7 @@ separado do P1; `xfail` em `test_core_rt.py`; fix toca HCC core (aprovação + g
 **[probatório, planejado]** Owner: *"depois precisamos de um teste em massa disso, nem que o esquema
 hierárquico venha do shaper montando pra gente nosso dataset de teste."* O fuzz sintético (2120) já cobre
 a forma; falta **dado REAL em massa**. Plano ancorado:
-- **Fonte**: hub `Z:/tcf-data/interim/tpch-sf001.db` (e `tpch-sf01.db` p/ escala). FK real dá cadeia
+- **Fonte**: hub `<data_root>/interim/tpch-sf001.db` (e `tpch-sf01.db` p/ escala). FK real dá cadeia
   pai→filho: `customer` (c_custkey) ← `orders` (o_custkey) ← `lineitem` (l_orderkey). Cadeia 1:N em 2 níveis.
 - **Bridge**: o shaper ACHATA (join.py); aqui é o INVERSO, usar modo `normalized` + metadata de FK pra pegar
   as tabelas separadas e **aninhar** (group filhos sob o pai pela FK) → documentos hierárquicos reais.

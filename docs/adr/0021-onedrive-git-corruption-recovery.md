@@ -7,7 +7,7 @@
 
 ## Context
 
-O repositório TCF vive em `C:\Users\leona\OneDrive\Documents\Projects\Acadêmicos\TCF`
+O repositório TCF vive em uma pasta sincronizada pelo OneDrive
 — **dentro de uma pasta sincronizada pelo OneDrive**. Em 2026-06-03, ao
 retomar o trabalho, o `import tcf` carregava a API v0.2 antiga e a suíte
 quebrava na coleta.
@@ -38,7 +38,7 @@ Nada foi perdido — toda a história e o código v0.6 estavam recuperáveis.
 ## Recuperação (executada 2026-06-03)
 
 1. **Backup** completo antes de qualquer ação destrutiva:
-   `Z:\tcf-backups\2026-06-03-onedrive-incident\` = cópia do `.git` +
+   `<backup_root>/2026-06-03-onedrive-incident\` = cópia do `.git` +
    `git bundle --all` (19.9 MB) + alvo registrado.
 2. **`git reset --hard 81eee60`** — `main` de volta ao commit mais recente
    real (STATUS sync, filho da Fase 7 `bb02cff`). Verificado: `81eee60` é
@@ -91,6 +91,6 @@ intensos. Detecção rápida no início de sessão: `git log -1` + procurar
 ## Links
 
 - Nota cross-projeto (raiz Documents): `NOTA-onedrive-git-observacao.md`
-- Backup: `Z:\tcf-backups\2026-06-03-onedrive-incident\`
+- Backup: `<backup_root>/2026-06-03-onedrive-incident\`
 - Commit de recuperação base: `81eee60` (HEAD real restaurado)
 - Commit de limpeza: `06d4dc1`

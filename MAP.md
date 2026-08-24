@@ -35,7 +35,7 @@ TCF/
 ├── src/shaper/ .......... GADGET auxiliar (nao-core): sampler multidim. (movido de scripts/, 2026-07-19)
 │
 ├── scripts/ .............. FERRAMENTAS DE SUPORTE (nao e' TCF-CORE)
-│   ├── dataset_reader.py . le SQLite hubs em Z: (usado pelo shaper via sys.path)
+│   ├── dataset_reader.py . le os hubs SQLite (usado pelo shaper via sys.path)
 │   ├── _paths.py ......... resolve storage via config
 │   ├── setup_adult.py, setup_tpch.py
 │   ├── benchmark_*.py
@@ -43,12 +43,12 @@ TCF/
 │
 ├── datasets/
 │   ├── synthetic/ ........ CSVs pequenos no repo (D1-D17)
-│   └── canonical/ ........ metadata only (dados em Z:)
+│   └── canonical/ ........ metadata only (dados fora do repo)
 │
 ├── config/
-│   └── storage.json ...... aponta pra Z:/tcf-data/
+│   └── storage.json ...... aponta pra <data_root>/
 │
-├── Z:/tcf-data/ .......... DADOS GRANDES (fora do repo)
+├── <data_root>/ .......... DADOS GRANDES (fora do repo)
 │   └── interim/{adult-census,tpch-sf001}.db
 │
 ├── docs/                  # mapeamento Diataxis local (ver ADR-0012)
@@ -143,7 +143,7 @@ TCF/
 | **Fechar TODOS os tipos no `.8`** (correção de critério do owner, 2026-08-14) | `experiments/lab/dirty/notas/2026-08/2026-08-14-0430-fechar-todos-os-tipos-no-08.md`: **um tipo não fecha porque compensa, fecha porque foi verificado**. Eu recomendara float p/ o `.9` e hora p/ o fim, por ROI de bytes, repetindo o erro que o owner já corrigira. A tabela de estado dos 7 tipos por 7 eixos, e a peculiaridade estrutural que só apareceu agora: há **duas famílias de spec** (sobre tipo nativo × sobre string), e fechar float/hora/datetime é o teste de se o fluxo é um só |
 | **Float: avaliação** (30 colunas reais, 2026-08-14) | `experiments/lab/dirty/notas/2026-08/2026-08-14-0400-avaliacao-float.md`. **Não precisou de literatura**: o corpus já tem as variações (float com `1.`, casas variadas, entre 0 e 1, formatados) **+1 não prevista** (precisão suja de médias, que **quebra a escala**). Agregado **8,0%**, melhor caso 1,16×, outra ordem de grandeza contra int e data. E o **`IntPadSpec` não é reaproveitável** aqui. Fica para o `.9` |
 | **Spec de HORA (sem data): avaliação** (2026-08-14) | `experiments/lab/dirty/notas/2026-08/2026-08-14-0330-avaliacao-spec-de-hora.md`. **Não se justifica agora**: 1,03× no único dado real, e hora pura não existe no corpus. Hora é **cíclica** (volta a zero), diferente do ordinal absoluto da data. O caso real é datetime, e ali o **split estrutural que já existe** dá **7,13×** (61.856 → 8.675 B), batendo epoch (2,30×) e separar à mão (3,52×). Reforça o `T-SPLIT-SINGLE-COL` |
-| **Os gatilhos do int em corpus REAL** (39 colunas de `Z:`, 2026-08-14) | `experiments/lab/dirty/2026-08/2026-08-14/2026-08-14-0112-gatilhos-int-em-corpus-real/`: fecha a lacuna dos três labs sintéticos. Agregado **11,2% menor**; o **PAD é o que vale** (mediana **1,72×**, zero empates), o **B94 é marginal** (1,14×, 33 vitórias de ≤1 B) e o **`min_len` não ganha em nenhuma**: este corpus não tem timestamps. **Meus gatilhos estão mal calibrados** (o do B94 disparou 2× e ele venceu 28×), o que reprova a auto-detecção proposta. Viés declarado: 25/39 são TPC-H |
+| **Os gatilhos do int em corpus REAL** (39 colunas do corpus real, 2026-08-14) | `experiments/lab/dirty/2026-08/2026-08-14/2026-08-14-0112-gatilhos-int-em-corpus-real/`: fecha a lacuna dos três labs sintéticos. Agregado **11,2% menor**; o **PAD é o que vale** (mediana **1,72×**, zero empates), o **B94 é marginal** (1,14×, 33 vitórias de ≤1 B) e o **`min_len` não ganha em nenhuma**: este corpus não tem timestamps. **Meus gatilhos estão mal calibrados** (o do B94 disparou 2× e ele venceu 28×), o que reprova a auto-detecção proposta. Viés declarado: 25/39 são TPC-H |
 | **O OFFPAD detalhado, e o int embutido no date** (2026-08-14) | `experiments/lab/dirty/notas/2026-08/2026-08-14-0210-offpad-detalhado-e-o-int-no-date.md`. A observação do owner resolve o dilema: o `data-iso` **é** um offset com base **convencionada** (a época), e o seq-RLE é um offset com **âncora emitida**: as duas fazem a informação viajar. O OFFPAD era a única que não. **E é dispensável**: onde ganhava, ou o PAD dá o mesmo, ou só ajustar `min_len` resolve melhor **sem spec** (epoch 40→27 B). A decisão A/B/C desapareceu |
 | **Conformidade de fluxo por tipo** (lab, 2026-08-14) | `experiments/lab/dirty/2026-08/2026-08-14/2026-08-14-0032-conformidade-de-fluxo-por-tipo/`. **O fluxo é conforme**: int, float e str são idênticos nos 5 regimes (muda a tag, não o mecanismo); o **bool diverge só no denso**, com razão escrita no código. RT preserva tipo em **12/12**. Falta 1 peça (spec na rota tipada) e sobra 1 assimetria (`nature_per_col` silencioso em tipado, recusado em string). **3 correções do próprio instrumento** antes de valer |
 | **Tipos como FLUXO, não como ramo** (ciclo de análise, 2026-08-14) | `experiments/lab/dirty/notas/2026-08/2026-08-14-0100-tipos-como-fluxo-nao-como-ramo.md`: a generalização que o owner pede **já está feita** (`_tipo_single_col` devolve `(tag, render)`; cada tipo é uma linha). Os 3 planos dele mapeados: **core não vê tipo**, a API é onde está o buraco, o wire declara. O bool não tem rota própria: tem **um candidato a mais** no mesmo `min()`, e o int já herda **5 de 7** algoritmos. Triagem `.8` estrutura × `.9` atalho |

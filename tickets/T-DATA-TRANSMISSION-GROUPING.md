@@ -13,7 +13,7 @@ related:
   - experiments/lab/dirty/2026-07/2026-07-05/2026-07-05-t1-ndjson-brotli/result.md
   - experiments/lab/dirty/notas/2026-06/transmissao-api-onde-tcf-importa.md
   - scripts/shaper/request.py
-  - C:/Users/leona/.claude/projects/c--Users-leona-OneDrive-Documents-Projects-Acad-micos-TCF/memory/project_dataset_coverage_map.md
+  - `project_dataset_coverage_map.md` (memória do agente, fora do repo)
 ---
 
 > **ENCERRADO (2026-07-10, T-REL-08-CLOSEOUT Passo 1c)**: a entrega É a matriz, completada em

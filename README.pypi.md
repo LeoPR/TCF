@@ -62,9 +62,9 @@ Rio de Janeiro
 Basic
 ^1
 111.111.111-11
-111.111.111-11
 222.222.222-22
 333.333.333-33
+444.444.444-44
 ```
 
 `*3|Sao Paulo` means *"Sao Paulo, 3×"*. `^1` means *"same as line 1"*. In the e-mail
@@ -80,7 +80,9 @@ On real multi-column data (9 Adult + TPC-H tables, 136k rows): **−33% weighted
 
 Against `gzip`/`brotli`/`zstd` the comparison is a different category. They are
 **opaque**: answering any question means inflating everything first. TCF composes with
-them, and with volume `tcf+brotli` beats `csv+brotli` (Adult 3k: **21.8 KB** vs 30.4 KB).
+them, and the gain shows up **with volume**: `tcf+brotli` beats `csv+brotli` on Adult 3k
+(**21.8 KB** vs 30.4 KB). On tiny payloads the header dominates and the composition
+loses, so measure your own case before assuming it.
 
 ## Query without decompressing
 
@@ -98,7 +100,7 @@ assert v.sum("amount") == 750
 assert v.where("city", "Sao Paulo").sum("amount") == 470   # only city + amount
 ```
 
-On a real table (online-retail, 5000×8), answering *"how much did user X buy"* touches
+On a real table (online-retail, 5000×8), answering *"how many items did user X buy"* touches
 **7.9% of the blob**; `count()` touches 0.2%, against the 100% a `decode()` costs. An
 opaque compressor cannot do this.
 
@@ -132,7 +134,7 @@ A spec is **not a type**. The difference matters:
 | who asserts it | **your language**: the value already is a bool | **TCF**, as a hypothesis: *"has the shape of a CPF"* |
 | what comes back | the same value, same type (`True`, not `"True"`) | the **original string**, byte for byte |
 | when it does not match | not applicable, the type is a fact | falls back to literal, **no failure, no loss** |
-| what you gain | the type preserved, plus bits (1–2 per bool) | bytes on the wire |
+| what you gain | the type preserved, plus bits (1-2 per bool) | bytes on the wire |
 
 A spec exploits **redundancy that the shape guarantees**: a CPF has 11 digits, a fixed
 mask and two check digits that are *derivable*, so the mask does not travel, the check
