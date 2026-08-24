@@ -83,20 +83,22 @@ Basic
 0r(LU
 ```
 
-A coluna `cpf` não tem repetição a fatorar, então o pipeline padrão a guarda crua (`!cpf`). O filtro
-*nature* `cpf` remove a pontuação e o dígito verificador, guarda os 9 dígitos úteis em uma base compacta
-e os recompõe no `decode`. Se o resultado for menor, o cabeçalho registra `:cpf`; cada valor cai de
-14 caracteres para 5 (`%g$.u` = `111.111.111-11`).
+A coluna `cpf` não tem repetição a fatorar, então o pipeline padrão a guarda crua (`!cpf`).
+
+Aí entra o filtro *nature* `cpf`. Ele remove a pontuação e o dígito verificador, guarda os 9
+dígitos úteis em uma base compacta e os recompõe no `decode`. Se o resultado for menor, o
+cabeçalho registra `:cpf`. Cada valor cai de 14 caracteres para 5 (`%g$.u` = `111.111.111-11`).
 
 **Como ler:**
 
 - Linha 1, a assinatura e o meta inline: `#TCF.8M` é o formato 0.8, multi-coluna;
   os tamanhos estão em hexadecimal.
-- O meta (`tamanho=nome`) usa `!` para raw, `@` para dicionário e `%` para split estrutural
-  quando esses candidatos vencem. O `!` marca uma coluna guardada **crua** (quando o raw fica menor que o TCF).
-  A última (`cpf`) não leva tamanho (vai até o fim) e mostra `!cpf:cpf`: `!` indica que o corpo foi
-  mantido cru pelo pipeline geral, e `:cpf` identifica o filtro aplicado (então o `decode` reverte
-  sem receber esse filtro).
+- O meta (`tamanho=nome`) usa `!` para raw, `@` para dicionário e `%` para split estrutural,
+  quando esses candidatos vencem. O `!` marca uma coluna guardada **crua**, ou seja, quando o
+  raw fica menor que o TCF.
+- A última coluna (`cpf`) não leva tamanho, porque vai até o fim, e mostra `!cpf:cpf`. O `!`
+  indica que o corpo foi mantido cru pelo pipeline geral; o `:cpf` identifica o filtro aplicado,
+  e é por isso que o `decode` reverte sem receber esse filtro.
 - Os corpos vêm concatenados, **delimitados por tamanho, não por quebra de linha**.
   Por isso a coluna crua `nome` (`…Diego Rocha`) emenda direto no e-mail (`an*a*…`).
 - No corpo: `*3|Sao Paulo` é *"Sao Paulo, 3×"* (repetição).
@@ -104,12 +106,14 @@ e os recompõe no `decode`. Se o resultado for menor, o cabeçalho registra `:cp
 - Na coluna de **e-mail** o TCF vai mais fundo (prefixo único + domínio comum referenciado).
   É onde mais economiza, e onde o texto fica mais denso.
 - A *nature* **`cpf`** é opt-in via `schema={"cpf": SPEC_CPF}` (ver os dois blocos acima).
-  (São placeholders de dígitos repetidos: passam no cálculo do CPF, mas a Receita nunca os emite,
-  fakes seguros. Ver "Filtros por natureza" abaixo.)
+  Os CPFs do exemplo são placeholders de dígitos repetidos: passam no cálculo do CPF, mas a
+  Receita nunca os emite, então são fakes seguros. Ver "Filtros por natureza" abaixo.
 
-**E os mesmos registros aninhados**: o JSON que sua API de fato envia. Desde a 0.8, o `#TCF.8H` faz
-round-trip do **dataset que sua linguagem constrói a partir do JSON**: objetos/arrays aninhados,
-`null`, e `true`/`false`/números tipados. Ele lê o *dataset* (dict / list / escalar), nunca o texto JSON.
+**E os mesmos registros aninhados**: o JSON que sua API de fato envia.
+
+Desde a 0.8, o `#TCF.8H` faz round-trip do **dataset que sua linguagem constrói a partir do
+JSON**: objetos/arrays aninhados, `null`, e `true`/`false`/números tipados. Ele lê o *dataset*
+(dict / list / escalar), nunca o texto JSON.
 
 **JSON** *(184 B)*:
 
@@ -118,9 +122,10 @@ round-trip do **dataset que sua linguagem constrói a partir do JSON**: objetos/
   {"nome":"Bruno Lima","cpf":"999.999.999-99","ativo":false,"fones":["21 99888-7766"]} ]
 ```
 
-**TCF + nature CPF** *(144 B, saída real do `encode`; entrada aninhada roteia pro `#TCF.8H`)*: o objeto é *fatiado em colunas*
-(uma por campo), então os nomes de campo são escritos **uma vez** no header, não por registro; a mesma
-nature `cpf` opt-in da tabela plana também vale aqui:
+**TCF + nature CPF** *(144 B, saída real do `encode`)*: entrada aninhada roteia pro `#TCF.8H`.
+
+O objeto é *fatiado em colunas*, uma por campo. Assim os nomes de campo aparecem **uma vez** no
+header, não em cada registro, e a mesma nature `cpf` opt-in da tabela plana também vale aqui:
 
 ```
 #TCF.8Hnome:21,cpf:12:cpf,ativo:11b,fones#:6[
@@ -153,7 +158,9 @@ de `"null"`), registros ragged, qualquer valor na raiz. Mapa completo e a fronte
 
 JSON repete a estrutura inteira.
 CSV repete os valores.
-O **TCF fatora o que se repete**, referencia o resto e **mantém cru o que é único** (sem inflar), continuando **texto ASCII que você abre e lê**.
+O **TCF fatora o que se repete**, referencia o resto e **mantém cru o que é único**, sem inflar.
+
+E o resultado continua **texto ASCII que você abre e lê**.
 
 Mas quanto mais fundo ele fatora (veja o e-mail), mais denso o texto fica.
 *Legível não quer dizer óbvio à primeira vista.*
@@ -164,47 +171,65 @@ Em tabelas grandes a diferença cresce: ver [Resultados](#resultados).
 
 Um formato **textual** e **sem perdas** (`decode(encode(x)) == x`) para tabelas de strings.
 
-Comprime parecido com um zip/gzip, mas com uma diferença: o resultado **continua texto ASCII que você abre e inspeciona**, sem descomprimir.
-Não fica tão óbvio quanto o original (quanto mais o TCF fatora, mais denso o texto), mas nunca vira um blob opaco.
+Comprime parecido com um zip/gzip, com uma diferença: o resultado **continua texto ASCII que você
+abre e inspeciona**, sem descomprimir. Não fica tão óbvio quanto o original, porque quanto mais o
+TCF fatora, mais denso o texto. Mas nunca vira um blob opaco.
+
 Cada coluna passa por um pipeline próprio.
 
 É essa a faixa que o TCF ocupa: **compacto como um compressor, inspecionável como texto**.
-(Precisa de ratio máximo? Dá pra rodar gzip/brotli por cima: eles se compõem.)
+
+Precisa de ratio máximo? Rode gzip/brotli por cima: eles se compõem.
 
 ## Como ele faz isso: OBAT + HCC
 
 Duas camadas, explicadas pelo propósito (specs: [`docs/algorithms/`](docs/algorithms/)).
 
 **OBAT** (Online Bidirectional Affix Tokenizer) *acha o que as strings têm em comum.*
-Para cada valor, procura o maior prefixo **e** sufixo compartilhado com os anteriores (domínios de e-mail, raízes de URL, códigos da mesma família).
-Escreve o trecho uma vez e referencia o resto.
+Para cada valor, ele procura o maior prefixo **e** sufixo compartilhado com os anteriores.
+São domínios de e-mail, raízes de URL, códigos da mesma família. Escreve o trecho uma vez e
+referencia o resto.
 
-É um **front-coding bidirecional**: generaliza o front-coding clássico de dicionários de strings (Witten et al.; HTFC/RPDac, Brisaboa et al.).
-O "bidirecional" é o que captura o **sufixo** comum (`@acme.com.br`), não só o prefixo.
+É um **front-coding bidirecional**: generaliza o front-coding clássico de dicionários de strings
+(Witten et al.; HTFC/RPDac, Brisaboa et al.). O "bidirecional" é o que captura o **sufixo** comum
+(`@acme.com.br`), não só o prefixo.
 
-A busca por afixos é da família das **árvores de prefixo/sufixo**: tries, **Patricia/radix tree** (Morrison 1968), suffix trees.
-Na prática o OBAT acelera essa busca com um **índice de trigramas**, que derruba o custo de O(N²) ingênuo para ~O(N^1.42) (sub-quadrático, quase-linear).
-*(Trocar o índice por uma Patricia trie é candidato futuro: [exploração](docs/theory/patricia-trie-exploration.md).)*
+A busca por afixos é da família das **árvores de prefixo/sufixo**: tries, **Patricia/radix tree**
+(Morrison 1968), suffix trees. Na prática o OBAT acelera essa busca com um **índice de trigramas**,
+que derruba o custo de O(N²) ingênuo para ~O(N^1.42), sub-quadrático e quase-linear.
+
+> Trocar o índice por uma Patricia trie é candidato futuro:
+> [exploração](docs/theory/patricia-trie-exploration.md).
 
 **HCC** (Hierarchical Compositional Coding) *decide o que vale a pena nomear e agrupa repetições.*
-Pega os tokens do OBAT, fatora composições recorrentes em **referências nomeadas reutilizáveis** (operador `~`) e colapsa repetições consecutivas, inclusive sequências quase-iguais, tipo IDs que só mudam no fim.
+Ele pega os tokens do OBAT e fatora composições recorrentes em **referências nomeadas
+reutilizáveis**. Quem cria essas referências é o operador `~`. Também colapsa repetições
+consecutivas, inclusive sequências quase-iguais, tipo IDs que só mudam no fim.
 
-Como referência aponta para referência, o resultado é um **grafo acíclico de fragmentos**: na prática uma *gramática* / straight-line program do conteúdo.
-É o espírito do **Re-Pair** (Larsson & Moffat 1999) e do **Sequitur** (Nevill-Manning & Witten 1997), mas operando sobre os **tokens** do OBAT (não sobre bytes) e com operadores próprios (`~` cria nó nomeado, `,` só concatena).
+Como referência aponta para referência, o resultado é um **grafo acíclico de fragmentos**: na
+prática, uma *gramática* / straight-line program do conteúdo.
+
+É o espírito do **Re-Pair** (Larsson & Moffat 1999) e do **Sequitur** (Nevill-Manning & Witten
+1997). A diferença está em dois pontos: o TCF opera sobre os **tokens** do OBAT, não sobre bytes,
+e usa operadores próprios, onde `~` cria nó nomeado e `,` só concatena.
 
 É o que mantém a saída pequena **e** inspecionável: os grupos de repetição `*N|...` ficam à vista.
 
 **Velocidade.**
-O lado caro é o **encode** (a busca de afixos do OBAT), trazido a quase-linear pelo índice de trigramas (mais o acelerador Cython opcional).
-O **decode** é uma **passada linear única**: só expande as referências (lookups O(1)) e os grupos de repetição, sem nenhuma busca.
-Rápido e previsível.
+O lado caro é o **encode**, por causa da busca de afixos do OBAT. O índice de trigramas traz esse
+custo a quase-linear, e o acelerador Cython opcional ajuda mais.
+
+O **decode** é uma **passada linear única**: expande as referências, com lookups O(1), e os
+grupos de repetição, sem nenhuma busca. Rápido e previsível.
 
 ## Filtros por natureza (opt-in)
 
-**Um spec não é um tipo, e a diferença é o ponto.** São duas afirmações separadas: o *wire*
-é sempre texto, e o **dado volta no tipo em que entrou**. String volta byte a byte; `True` e
-`3.14` voltam **bool** e **float**, não a grafia `"True"`. O TCF lê o tipo na entrada, marca
-no header (`#TCF.8b`, `#TCF.8n`) e reconstrói o **valor**, não o texto que o representava:
+**Um spec não é um tipo, e a diferença é o ponto.** São duas afirmações separadas: o *wire* é
+sempre texto, e o **dado volta no tipo em que entrou**.
+
+String volta byte a byte. Já `True` e `3.14` voltam **bool** e **float**, não a grafia `"True"`.
+O TCF lê o tipo na entrada, marca no header (`#TCF.8b`, `#TCF.8n`) e reconstrói o **valor**, não
+o texto que o representava:
 
 ```python
 from tcf import encode, decode
@@ -223,10 +248,13 @@ O spec é outra camada: uma hipótese sobre a **forma** de um texto.
 | o que ganha | o tipo preservado, e bits (1-2 por bool) | bytes no fio |
 
 Ou seja: o spec é uma **hipótese de compressão sobre a forma**, não uma afirmação sobre a
-identidade do dado. É opt-in por valor e **nunca-pior**: compete com o pipeline comum e só vence
-se encolher; valor que não casa a forma vira literal na mesma coluna. E é **auto-descritivo**:
-quando vence, o header carrega o id (`:cpf`) e o `decode` reverte sozinho, sem receber nada.
-O TCF nunca valida semântica: ele não checa se um CPF *existe*.
+identidade do dado.
+
+Ele é opt-in por valor e **nunca-pior**: compete com o pipeline comum e só vence se encolher.
+Valor que não casa a forma vira literal na mesma coluna.
+
+E é **auto-descritivo**: quando vence, o header carrega o id (`:cpf`) e o `decode` reverte
+sozinho, sem receber nada. O TCF nunca valida semântica: ele não checa se um CPF *existe*.
 
 Alguns valores têm uma estrutura fixa que o compressor genérico não aproveita. Para esses casos, o TCF
 oferece um filtro opt-in chamado *nature*: ele guarda apenas a parte necessária e reconstrói o valor
@@ -240,10 +268,13 @@ calculados a partir deles. O filtro:
   e **descarta o verificador**;
 - **decode** **recalcula** o verificador (mod-11) e reinsere a pontuação: reconstrução **exata**.
 
-Essa opção é uma candidata, não uma transformação obrigatória. Para cada coluna, o TCF compara o blob
-completo, incluindo o cabeçalho que identifica o filtro. Se o resultado ficar maior, mantém a codificação
-comum e não grava `:id`. Nos testes, isso fez diferença para CNPJ: o filtro reduziu colunas sintéticas,
-mas aumentou uma tabela real ordenada. Os casos medidos estão em
+Essa opção é uma candidata, não uma transformação obrigatória.
+
+Para cada coluna, o TCF compara o blob completo, incluindo o cabeçalho que identifica o filtro.
+Se o resultado ficar maior, mantém a codificação comum e não grava `:id`.
+
+Nos testes, isso fez diferença para CNPJ: o filtro reduziu colunas sintéticas, mas aumentou uma
+tabela real ordenada. Os casos medidos estão em
 [`T-SPEC-STATUS-08`](tickets/T-SPEC-STATUS-08.md).
 
 Filtros já implementados ([ADR-0015](docs/adr/0015-natures-templated-checked-weld.md)):
@@ -254,16 +285,18 @@ Filtros já implementados ([ADR-0015](docs/adr/0015-natures-templated-checked-we
 | `SPEC_CNPJ` | `AA.AAA.AAA/AAAA-DD` | pontuação + 2 díg. verificadores (mod-11) |
 | `SPEC_IP`   | IPv4 `N.N.N.N`      | pontos + octetos canônicos (padroniza para facilitar repetições em subnets) |
 
-`A` = alfanumérico `[0-9A-Z]`, `N` = dígito, `D` = dígito verificador. **O corpo do CNPJ
-é alfanumérico** desde a IN RFB 2.229/2024 (vigente desde jul/2026): as 12 posições do
-corpo aceitam `0-9A-Z`, só os 2 verificadores seguem numéricos. Um CNPJ todo numérico é
-um *caso* do alfanumérico: continua gravando nos mesmos 7 chars de antes, e o `decode`
-distingue os dois pelo comprimento.
+`A` = alfanumérico `[0-9A-Z]`, `N` = dígito, `D` = dígito verificador.
 
-O mesmo mecanismo de filtro vale para **números**: o `SPEC_IP` acima já é numérico (octetos);
-sequências e IDs numéricos com cadência o pipeline de diferenças captura sozinho (`*N+delta|`);
-e specs de **decimal / monetário / precisão** estão no roadmap
-(cruzam a linha lossy → 2.0).
+**O corpo do CNPJ é alfanumérico** desde a IN RFB 2.229/2024, vigente desde jul/2026: as 12
+posições do corpo aceitam `0-9A-Z`, e só os 2 verificadores seguem numéricos.
+
+Um CNPJ todo numérico é um *caso* do alfanumérico. Ele continua gravando nos mesmos 7 chars de
+antes, e o `decode` distingue os dois pelo comprimento.
+
+O mesmo mecanismo de filtro vale para **números**. O `SPEC_IP` acima já é numérico, nos octetos.
+
+Sequências e IDs numéricos com cadência o pipeline de diferenças captura sozinho (`*N+delta|`).
+E specs de **decimal / monetário / precisão** estão no roadmap, porque cruzam a linha lossy → 2.0.
 
 ```python
 from tcf import encode, decode
@@ -287,7 +320,7 @@ assert decode(blob) == cpfs            # decode lê `:cpf` do header, sem passar
 # da coluna cpf então carrega `:cpf` (ex.: `#TCF.8M!15=nome,!cpf:cpf`).
 ```
 
-Dois detalhes honestos:
+Três detalhes honestos:
 
 - São **opt-in e auto-descritivas quando vencem**: single-column leva `#TCF.8 nome:id`; multi-column
   leva `:id` no meta inline. O `decode(blob)` reconhece automaticamente os filtros oficiais `cpf`, `cnpj` e `ip`.
@@ -335,26 +368,27 @@ Guias praticos: [`docs/how-to/`](docs/how-to/).
 ## Formato 0.8 (default): onde os bytes vão
 
 O `encode` multi-coluna sai em **0.8 / `#TCF.8M`** por default ([ADR-0032](docs/adr/0032-tcf8-default-format.md)).
-Quatro coisas, todas automáticas (sem flag), cada coluna escolhendo a menor representação:
+Cinco coisas, todas automáticas (sem flag), cada coluna escolhendo a menor representação:
 
 - **Fallback por coluna.**
   Guarda a coluna em raw quando o raw fica menor que o TCF ("nunca pior que raw").
-  Marcada com `!` no meta ([ADR-0022](docs/adr/0022-v2a-fallback-identity-weld.md)).
+  Marcada com `!` no meta: [ADR-0022](docs/adr/0022-v2a-fallback-identity-weld.md).
 - **Dicionário low-card.**
   Coluna com poucos valores distintos vira tabela de únicos + índices compactos,
   em vez de um ref por linha.
-  Marcada com `@` no meta ([ADR-0025](docs/adr/0025-v2b-dictionary-categorical-weld.md)).
+  Marcada com `@` no meta: [ADR-0025](docs/adr/0025-v2b-dictionary-categorical-weld.md).
 - **Split estrutural.**
-  Valor estruturado (decimal, data, datetime, CPF) com template uniforme vira
-  campos separados (o template guardado uma vez), e cada campo low-card cai no dicionário.
-  Marcada com `%` no meta ([ADR-0026](docs/adr/0026-structural-split-weld.md)).
+  Valor estruturado (decimal, data, datetime, CPF) com template uniforme vira campos separados,
+  com o template guardado uma vez, e cada campo low-card cai no dicionário.
+  Marcada com `%` no meta: [ADR-0026](docs/adr/0026-structural-split-weld.md).
 - **Header mínimo.**
-  O flag `M` na assinatura já declara que vêm colunas, então o meta é inline, os tamanhos ficam em
-  hexadecimal, separadores de nomes são escapados e a última coluna não leva tamanho
-  ([ADR-0023](docs/adr/0023-v2-minimal-header-weld.md)).
+  O flag `M` na assinatura já declara que vêm colunas. Então o meta é inline, os tamanhos ficam
+  em hexadecimal, separadores de nomes são escapados e a última coluna não leva tamanho:
+  [ADR-0023](docs/adr/0023-v2-minimal-header-weld.md).
 - **Filtros para valores estruturados.**
-  CPF/CNPJ/IP são candidatos opt-in. O encoder compara cada opção com a codificação comum usando o
-  blob completo; se a versão filtrada não ficar menor, a coluna original permanece e nenhum `:id` é emitido.
+  CPF/CNPJ/IP são candidatos opt-in. O encoder compara cada opção com a codificação comum usando
+  o blob completo, e se a versão filtrada não ficar menor a coluna original permanece, sem emitir
+  nenhum `:id`.
 
 ```python
 text = encode(table)        # 0.8 / #TCF.8M, é o default, sem flags
@@ -370,19 +404,24 @@ text = encode(table, sort_by="cidade")                  # ordena linhas pela col
 > 5-15% com chave low-card). É **order-free**: o `decode` devolve a ordem
 > ordenada, não a original. Use só quando a ordem das linhas não importa.
 
-No cadastro de 5 colunas do topo, a saída default `#TCF.8M` dá **242 B**
-(meta `!2c=nome,2a=email,1c=cidade,14=plano,!cpf`). Isso vem dos candidatos de fallback e do header
-inline mínimo: a coluna `cpf` cai para **raw** (`!cpf`) em vez de inflar; os tamanhos são hexadecimais
-e a última coluna não leva tamanho. O ganho é proporcionalmente maior em **payloads pequenos**.
+No cadastro de 5 colunas do topo, a saída default `#TCF.8M` dá **242 B**, com o meta
+`!2c=nome,2a=email,1c=cidade,14=plano,!cpf`.
 
-Pré-1.0, o encoder só escreve o formato mais novo; blobs antigos são reproduzidos via `git checkout`
-([ADR-0024](docs/adr/0024-pre-1.0-versioning-git-as-compat.md)).
-O dicionário low-card (V2-B) e o split estrutural já estão no default; a compressão lossy fica no [roadmap](docs/adr/0018-v2-format-roadmap.md).
+Isso vem dos candidatos de fallback e do header inline mínimo. A coluna `cpf` cai para **raw**
+(`!cpf`) em vez de inflar, os tamanhos são hexadecimais e a última coluna não leva tamanho.
+O ganho é proporcionalmente maior em **payloads pequenos**.
+
+Pré-1.0, o encoder só escreve o formato mais novo. Blobs antigos são reproduzidos via
+`git checkout`: [ADR-0024](docs/adr/0024-pre-1.0-versioning-git-as-compat.md).
+
+O dicionário low-card (V2-B) e o split estrutural já estão no default. A compressão lossy fica no
+[roadmap](docs/adr/0018-v2-format-roadmap.md).
 
 ## Estado (pré-1.0)
 
 - **Pré-1.0** ([ADR-0024](docs/adr/0024-pre-1.0-versioning-git-as-compat.md)).
-  O minor atual do formato (`#TCF.8`) é uma iteração de desenvolvimento rumo a um **1.0 sólido**, sem compat rígida entre minors (git reproduz versões antigas).
+  O minor atual do formato (`#TCF.8`) é uma iteração de desenvolvimento rumo a um **1.0 sólido**.
+  Não há compat rígida entre minors, já que o git reproduz versões antigas.
   v2.0 fica pra depois.
 - Implementação canônica em [`src/tcf/`](src/tcf/).
   Round-trip sempre lossless (`decode(encode(x)) == x`).
@@ -411,12 +450,18 @@ Nos 15 datasets sintéticos do [EXP-008](experiments/lab/clean/EXP-008-compressa
 
 ~36% menor que CSV e ~42% menor que JSON, continuando legível.
 
-Núcleo pinado em testes: D1-D9 = **1545 B** (51.8% do raw, single-col); D17a multi-col = **300 B** (`#TCF.8M`, meta hexadecimal inline).
+Núcleo pinado em testes: D1-D9 = **1545 B**, 51.8% do raw em single-col; D17a multi-col =
+**300 B** no `#TCF.8M`, com meta hexadecimal inline.
+
 Real-world multi-coluna (9 tabelas Adult + TPC-H, 136k linhas): **−33.02% weighted** vs CSV raw.
 
 **E contra gzip / brotli / zstd?**
-Outra categoria: são compressores binários *opacos* (precisa descomprimir pra ler qualquer coisa;
-e, decisivo, **não dá pra usar `view()`**: qualquer query exige inflar o payload inteiro antes).
+Outra categoria. São compressores binários *opacos*: para ler qualquer coisa é preciso
+descomprimir tudo antes.
+
+E o `view()` não funciona sobre eles, o que é decisivo: qualquer consulta exige inflar o payload
+inteiro.
+
 No **cadastro acima**, sob compressão HTTP (`Content-Encoding`, nível máximo):
 
 | formato | cru | gzip | br | zstd |
@@ -425,37 +470,65 @@ No **cadastro acima**, sob compressão HTTP (`Content-Encoding`, nível máximo)
 | JSONL | 449 | **205** | 194 | 194 |
 | TCF   | **242** | 206 | **185** | **193** |
 
-Contra os formatos que uma API de fato transmite (JSON e seu primo de streaming/bulk JSONL), o TCF é o
-menor **cru** e segue competitivo depois de comprimido (menor sob `br`/`zstd`; a um byte do JSONL sob
-`gzip`), continuando legível e consultável por `view()`. (Um formato *tabular* compacto como o CSV, que
-normalmente não é payload de API, é ainda menor e passa o TCF neste tamanho minúsculo depois de
-comprimido: CSV 277 cru, e CSV+br 162 < TCF+br 185; essa diferença fecha e inverte com volume, ver
-abaixo.) O TCF **troca um pouco de ratio por legibilidade** e **se compõe** com esses compressores: a
-vantagem em *ratio* aparece com volume, enquanto *inspecionabilidade e descompressão seletiva* (`view()`)
-valem em qualquer tamanho. O `gzip` ainda carrega bytes fixos de moldura por mensagem; `br`/`zstd`,
-quase nada. Em payload minúsculo isso conta.
-(Os números usam os compressores no **nível máximo**, melhor caso pra eles; numa API simples a
-compressão às vezes nem está ligada, e quando está usa nível baixo por default: nginx gzip `1`,
-brotli `6`. Ver [notas dos compressores](experiments/lab/clean/EXP-008-compressao-comparada/notes/classificacao-compressores.md).)
+Entre os formatos que uma API de fato transmite, o TCF é o menor **cru**: 242 B, contra 449
+do JSONL e 596 do JSON. Comprimido, ele segue competitivo. Vence sob `br` e `zstd`, e fica
+um byte atrás do JSONL sob `gzip`, sem deixar de ser legível e consultável por `view()`.
+
+O CSV é menor ainda: 277 B cru, e neste tamanho minúsculo ele passa o TCF depois de
+comprimido, 162 B contra 185 B sob brotli.
+
+Duas ressalvas honestas. CSV raramente é payload de API. E essa diferença fecha e inverte com
+volume, como a seção seguinte mostra.
+
+A troca é explícita: **um pouco de ratio por legibilidade**. Note que o TCF **se compõe** com
+esses compressores, em vez de disputar com eles.
+
+A vantagem em *ratio* aparece com volume. Inspecionar, e consultar seletivamente com `view()`,
+valem em qualquer tamanho.
+
+Há uma diferença que só conta em payload pequeno. O `gzip` carrega bytes fixos de moldura em
+cada mensagem, enquanto `br` e `zstd` quase não carregam.
+
+> Os números acima usam os compressores no **nível máximo**, o melhor caso para eles. Numa API
+> simples a compressão às vezes nem está ligada, e quando está usa nível baixo por default:
+> nginx gzip `1`, brotli `6`. Ver
+> [notas dos compressores](experiments/lab/clean/EXP-008-compressao-comparada/notes/classificacao-compressores.md).
 
 No agregado de 15 datasets sintéticos **single-column** (EXP-008, onde os welds multi-col do 0.7
 não se aplicam) a mesma história: `csv+brotli` = 1742 B contra `tcf+brotli` = 2116 B. Tabelas
 completas: [reports do EXP-008](experiments/lab/clean/EXP-008-compressao-comparada/reports/).
 
-**Atenção de escala: o cadastro acima é minúsculo (4 linhas).** Em **multi-coluna real**
-(milhares de linhas) o quadro **inverte**: o **TCF cheio + brotli vence o CSV + brotli**;
-ex.: Adult com 3 000 linhas, `tcf-0.8+brotli` = **21,8 KB** vs `csv+brotli` = 30,4 KB (−28%).
-E quanto **mais** TCF, **menor** o resultado pós-brotli (medido em 4 datasets reais:
-[`2026-06-16-staged-and-ordering-brotli/`](experiments/lab/dirty/old/refuted/2026-06-16-staged-and-ordering-brotli/)).
-Em payload minúsculo a moldura domina e não há o que fatorar; **a vantagem do TCF aparece com volume**.
+**Atenção de escala**: o cadastro acima é minúsculo, são 4 linhas.
 
-O mesmo padrão vale para a família de compressores do **Parquet** (snappy, lz4, zstd), não só os de
-**HTTP** (gzip, brotli, zstd): numa **coluna free-text densa única** o compressor binário sozinho vence
-e pôr o TCF por baixo *em geral atrapalha* (até −41%: a reescrita em referências do TCF perturba o
-modelo de entropia dele; algumas células ficam quase neutras e uma, lz4 em retail-description, chega a
-ajudar +7%); numa **tabela multi-coluna estruturada** o TCF vence sozinho (−72% vs CSV) **e** compõe
-(`tcf+brotli` −30% vs `brotli(raw)`). **A estrutura, não o container, decide.** Medido com contra-prova
-de RT em [`2026-07-13-0156-compressores-http-parquet/`](experiments/lab/dirty/2026-07/2026-07-13/2026-07-13-0156-compressores-http-parquet/result.md).
+Em **multi-coluna real**, com milhares de linhas, o quadro **inverte**: o **TCF cheio + brotli
+vence o CSV + brotli**.
+
+Veja o Adult com 3 000 linhas: `tcf-0.8+brotli` = **21,8 KB** contra `csv+brotli` = 30,4 KB,
+ou −28%.
+
+E quanto **mais** TCF, **menor** o resultado pós-brotli. Isso foi medido em 4 datasets reais:
+[`2026-06-16-staged-and-ordering-brotli/`](experiments/lab/dirty/old/refuted/2026-06-16-staged-and-ordering-brotli/).
+
+Em payload minúsculo a moldura domina e não há o que fatorar. **A vantagem do TCF aparece com
+volume.**
+
+O mesmo padrão vale para os compressores do **Parquet** (snappy, lz4, zstd), não só os de
+**HTTP**. O que decide não é o container: é a estrutura do dado.
+
+Numa **coluna única de texto livre e denso**, o compressor binário vence sozinho. Pôr o TCF por
+baixo em geral atrapalha, e a perda chega a −41%: a reescrita em referências do TCF perturba o
+modelo de entropia do compressor.
+
+Nem tudo é assim. Algumas células ficam quase neutras, e uma delas, `lz4` em retail-description,
+chega a ganhar 7%.
+
+Numa **tabela multi-coluna estruturada** a conta se inverte. O TCF vence sozinho: −72% contra o
+CSV.
+
+E ele ainda compõe: `tcf+brotli` fica 30% abaixo de `brotli` sobre o dado cru.
+
+Medido com contra-prova de round-trip em
+[`2026-07-13-0156-compressores-http-parquet/`](experiments/lab/dirty/2026-07/2026-07-13/2026-07-13-0156-compressores-http-parquet/result.md).
 
 ## Pra onde vai a 1.0: consultar quase sem descomprimir
 
@@ -469,20 +542,25 @@ A saída textual já carrega dicas que valem como metadados:
 - `*N+delta|template` descreve uma **progressão** (ex.: IDs sequenciais) sem listar
   cada valor.
 
-Ou seja, dá pra **contar elementos, agrupar e até somar** lendo os marcadores, materializando
-só o pedaço necessário. Um compressor binário (gzip/brotli) por cima faria o oposto: você teria
-que **alocar memória e descomprimir tudo** pra só então varrer os dados. É essa a faixa que a
-1.0 quer firmar: **compacto e ao mesmo tempo consultável**, não um blob opaco. Os filtros por
-natureza (CPF/CNPJ/IP e, no roadmap, numéricos) entram aqui: dão estrutura semântica explícita
-sem perder a legibilidade (ainda em evolução, ver acima).
+Ou seja, dá pra **contar elementos, agrupar e até somar** lendo os marcadores, materializando só
+o pedaço necessário. Um compressor binário por cima, gzip ou brotli, faria o oposto: você teria
+que **alocar memória e descomprimir tudo** pra só então varrer os dados.
+
+É essa a faixa que a 1.0 quer firmar: **compacto e ao mesmo tempo consultável**, não um blob
+opaco.
+
+Os filtros por natureza entram aqui, com CPF/CNPJ/IP hoje e numéricos no roadmap: eles dão
+estrutura semântica explícita sem perder a legibilidade. Ainda estão em evolução, veja acima.
 
 ### `view()`: caminhos de consulta SQL-like com descompressão seletiva *(API read-only do core)*
 
-Uma API *lazy* sobre o blob: conecta **sem descomprimir**, e só materializa a coluna
-(e as linhas) que o agregador precisa. Filtrar por algo descomprime **só** o que tem relação.
-Ela é SQL-like em capacidade, não um parser SQL: oferece projeção, filtros, encadeamento AND,
-agregadores e agrupamentos como métodos Python. Não implementa joins, NULL SQL, ORDER/LIMIT ou
-um planejador geral.
+Uma API *lazy* sobre o blob: conecta **sem descomprimir** e só materializa a coluna (e as linhas)
+que o agregador precisa. Filtrar por algo descomprime **só** o que tem relação.
+
+Ela é SQL-like em capacidade, não um parser SQL. Oferece projeção, filtros, encadeamento AND,
+agregadores e agrupamentos como métodos Python.
+
+Não implementa joins, NULL SQL, ORDER/LIMIT ou um planejador geral.
 
 ```python
 from tcf import encode
@@ -507,27 +585,37 @@ v.where("cidade", "Sao Paulo").sum("valor")     # 470      toca: cidade, valor
 ```
 *(Saída real do PoC: a tabela acima faz `encode` para um blob de 183 B e volta exata no round-trip.)*
 
-O `toca:` é o ponto (saída real): a soma filtrada materializou **só** `cidade` +
-`valor`; `cliente` e `plano` nunca foram descomprimidos. Um `decode()` (ou um gzip/brotli
-por cima) materializaria as 4 colunas **inteiras** antes de qualquer conta. Agregadores:
-`count`, `sum`, `min`, `max`, `avg` + `where`; **L3–L5 já implementados**: contar/agrupar
-**sem expandir** (via dicionário/raw; o `*N|` do modo-tcf é entrelaçado, **não separável**),
-filtro pelo índice do dicionário, e group-by por **layout ordenado** (`sort_by`).
+O `toca:` é o ponto (saída real). A soma filtrada materializou **só** `cidade` + `valor`;
+`cliente` e `plano` nunca foram descomprimidos.
 
-Em dados reais (online-retail, 5 000 × 8), responder *"quantos itens o usuário X comprou"*
-(`where(CustomerID=X).sum("Quantity")`) **materializa 7,9% do blob** (`count()` toca 0,2%)
-contra 100% de um `decode()`. Memória e latência baixas caem direto da estrutura. É uma
-API read-only do core e lê o `#TCF.8M` atual.
+Um `decode()` materializaria as 4 colunas **inteiras** antes de qualquer conta, e um gzip/brotli
+por cima faria o mesmo.
 
-Superfície atual: `count`, `sum`, `min`, `max`, `avg`, `where`, `select`, `group_count` e,
-experimentalmente, `group_ranges`/`agg_by` em layouts ordenados. Colunas `@dict`/raw podem ser
-consultadas estruturalmente; uma coluna `tcf` entrelaçada pode exigir materialização completa.
-O contrato detalhado está em [`docs/reference/lazy-view.md`](docs/reference/lazy-view.md).
+Agregadores: `count`, `sum`, `min`, `max`, `avg` + `where`.
 
-**Fim a fim: transmita o texto compacto e consulte na chegada.** Como o blob fica pequeno **e**
-continua texto, o produtor faz `encode` uma vez e envia como corpo HTTP normal; o consumidor roda
-`view()` e só descomprime as colunas que a pergunta toca: nada mais é expandido pra responder um
-`count()` ou um agregado filtrado.
+Os **L3–L5 já estão implementados**: contar/agrupar **sem expandir**, via dicionário ou raw;
+filtro pelo índice do dicionário; e group-by por **layout ordenado** (`sort_by`). Vale a
+ressalva: o `*N|` do modo-tcf é entrelaçado, **não separável**.
+
+Em dados reais (online-retail, 5 000 × 8), responder *"quantos itens o usuário X comprou"* com
+`where(CustomerID=X).sum("Quantity")` **materializa 7,9% do blob**, contra 100% de um `decode()`.
+Um `count()` toca 0,2%. Memória e latência baixas caem direto da estrutura.
+
+É uma API read-only do core e lê o `#TCF.8M` atual.
+
+Superfície atual: `count`, `sum`, `min`, `max`, `avg`, `where`, `select`, `group_count` e, em
+caráter experimental, `group_ranges`/`agg_by` em layouts ordenados.
+
+Colunas `@dict`/raw podem ser consultadas estruturalmente. Já uma coluna `tcf` entrelaçada pode
+exigir materialização completa. O contrato detalhado está em
+[`docs/reference/lazy-view.md`](docs/reference/lazy-view.md).
+
+**Fim a fim: transmita o texto compacto e consulte na chegada.** O blob fica pequeno **e**
+continua texto.
+
+O produtor faz `encode` uma vez e envia como corpo HTTP normal. O consumidor roda `view()` e só
+descomprime as colunas que a pergunta toca: nada mais é expandido pra responder um `count()` ou
+um agregado filtrado.
 
 ```mermaid
 flowchart TB
@@ -552,13 +640,16 @@ payload **inteiro** antes, e é aí que a memória também vai.
 
 ![Memória: view() vs decode completo (mesmo blob, uma query, dois consumos)](docs/img/view-memory.svg)
 
-Medido com contra-prova de round-trip (throughput de tempo + picos de `tracemalloc`) em
-[`2026-07-13-0156-compressores-http-parquet/`](experiments/lab/dirty/2026-07/2026-07-13/2026-07-13-0156-compressores-http-parquet/result.md):
-responder `where(Country).sum(Quantity)` no online-retail (100×8) tem pico de **10,4 KB** pelo `view()`
-contra **45,2 KB** por um decode completo, **≈4,3× menos** (cadastro 2000×5: 3,95×). O throughput de
-descompressão é alto em todo codec (gzip ~60, zstd ~130, lz4 ~850 MB/s), mas um compressor o paga sobre
-**100%** do payload; o `view()` paga sobre a fração tocada (**6,3%** aqui). O ganho de latência não é
-descomprimir *mais rápido*, é descomprimir **menos**.
+Medido com contra-prova de round-trip, com throughput de tempo e picos de `tracemalloc`, em
+[`2026-07-13-0156-compressores-http-parquet/`](experiments/lab/dirty/2026-07/2026-07-13/2026-07-13-0156-compressores-http-parquet/result.md).
+
+Responder `where(Country).sum(Quantity)` no online-retail (100×8) tem pico de **10,4 KB** pelo
+`view()` contra **45,2 KB** por um decode completo, **≈4,3× menos**. No cadastro 2000×5 a razão é
+3,95×.
+
+O throughput de descompressão é alto em todo codec (gzip ~60, zstd ~130, lz4 ~850 MB/s), mas um
+compressor o paga sobre **100%** do payload. O `view()` paga sobre a fração tocada, **6,3%** aqui.
+O ganho de latência não é descomprimir *mais rápido*, é descomprimir **menos**.
 
 ## Roadmap 2.0
 
@@ -566,9 +657,10 @@ Depois de uma 1.0 sólida (registrado, **não** implementado; ver
 [ADR-0018](docs/adr/0018-v2-format-roadmap.md)):
 
 - **Agregados sem perda mesmo sendo lossy por linha**: somas/médias exatas no agregado ao
-  arredondar com resíduo (ex.: parcelamento, `valor = soma(parcelas)`) e *drop* de coluna
-  derivável (`total = base + imposto`). Cruza a linha lossless → decisão explícita + GATE
-  (Pacote 10, [`loss-taxonomia.md`](experiments/lab/dirty/notas/2026-06/loss-taxonomia.md)).
+  arredondar com resíduo, como no parcelamento em que `valor = soma(parcelas)`, e *drop* de
+  coluna derivável, como `total = base + imposto`. Isso cruza a linha lossless, então exige
+  decisão explícita + GATE; ver Pacote 10,
+  [`loss-taxonomia.md`](experiments/lab/dirty/notas/2026-06/loss-taxonomia.md).
 - **Streaming / baixa latência (V2-J)** e **disco zero-copy / column-pruning (V2-K)**:
   transmitir e ler por pedaço, sem buffer-over-buffer.
 - **Camada binária interna (V2-L)**: empacotar o corpo em bytes mantendo header textual e
@@ -637,9 +729,10 @@ repository" na pagina do repo automaticamente.
 > Esta secao resume o ciclo **v0.5** (formato columnar para consumo por LLMs).
 > NAO e' o algoritmo TCF v0.7 acima. Todo o material vive separado.
 
-O ciclo v0.5 mediu compreensao de tabelas por LLMs (CSV/JSON/TOON/TCF,
-Linha A "LLM le e computa" + Linha B "LLM gera SQL"): 7 modelos comerciais
-+ 13 locais, 2 datasets, 2256 registros, 38 findings.
+O ciclo v0.5 mediu compreensao de tabelas por LLMs em CSV/JSON/TOON/TCF, com a Linha A
+"LLM le e computa" e a Linha B "LLM gera SQL". Foram 7 modelos comerciais + 13 locais,
+2 datasets, 2256 registros, 38 findings.
+
 Usava o **motor de niveis** (`EncodeConfig(level=N)`) em [`old/tcf/`](old/tcf/).
 Ver [`old/tcf/LEVELS-REVIEW.md`](old/tcf/LEVELS-REVIEW.md) para a semantica L0–L3.
 
