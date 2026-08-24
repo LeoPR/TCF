@@ -40,6 +40,27 @@ Coluna, em toda a superfície da view: `str` = **nome**, `int` = **posição**. 
 do `schema=` ([ADR-0047](../adr/0047-schema-parametro-unico-de-spec.md): `0 <= pos < n`, sem
 negativo; coluna *chamada* `"2"` é achada pelo `str`, a posição pelo `int`).
 
+**Tipo do dado**: a view lê tanto o `#TCF.8M` quanto o `#TCF.8H` que é tabela retangular, e
+uma tabela vai para o `.8H` assim que tem coluna tipada (`int`, `float`, `bool`) ou um `None`.
+Os valores voltam no tipo em que entraram, e a comparação usa esse tipo:
+
+```python
+v = view(encode({"cidade": ["SP", "SP", "RJ"], "valor": [120, 80, 200]}))
+v.where("valor", 120).count()      # 1: compare com int, que é o tipo da coluna
+v.sum("valor")                     # 400.0
+```
+
+Comparar com o tipo trocado levanta `TypeError` dizendo qual é o tipo da coluna: antes, uma
+comparação impossível respondia **zero linhas em silêncio**.
+
+Uma diferença que vale saber: no `.8H` cada coluna usa o pipeline core, sem a competição
+`min(tcf, raw, dict, split)` do `.8M`. O blob fica maior, e `group_count` cai em fallback
+porque não há modo dicionário nessa rota. A laziness continua de pé (medido: uma consulta de
+duas colunas em 2000 linhas materializa 9,4% do blob; um `count()`, 4,5%).
+
+Fora de alcance: aninhado, ragged e campo opcional não são tabela, e a view recusa com uma
+mensagem que manda usar `decode()`.
+
 | capacidade | API | observação |
 |---|---|---|
 | projeção | `select(cols)` | materializa apenas as colunas pedidas; escalar (`str`/`int`) = 1 coluna; `[]` = nenhuma |

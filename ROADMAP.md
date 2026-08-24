@@ -78,6 +78,17 @@ corpo na chave**. É o envelope que faltava para o `view()`, e conversa direto c
 
 ### Decisões do owner ainda abertas
 
+- **Tag de tipo por coluna no `.8M`** (decidir antes do `.9`). Hoje **uma** coluna tipada
+  (`int`, `bool`, `float`) ou um `None` tira a tabela retangular do `.8M` e a manda para o
+  `.8H`, onde não roda a competição `min(tcf, raw, dict, split)`. Custo medido: **+43,6%**
+  de bytes no adult-census, **+55,6%** num sintético de 500 linhas. Junto vão o `schema=`
+  (levanta `HierarchicalError` com qualquer coluna tipada) e os knobs do multi-col.
+  A `view` já lê as duas rotas (`BUG-VIEW-RECUSA-COLUNA-TIPADA`, fechado), então o que
+  falta é o **byte** e o `schema=`. Muda o formato, então pede ADR, e implica reservar
+  `n`/`b` no namespace de nature. Detalhe que já custou uma tentativa: a tag não cabe
+  depois do size (`@1b=age` parseia como size 27, porque `b` é dígito hex); a única
+  posição livre é o slot `:id`.
+
 - **bN-dense no FLOOR, COMO entrar**: (a) ligado por padrão, com re-pin de D17a e
   real-world registrado em ADR, ou (b) atrás de flag desligada (`fallback_bn=False`).
   Plano pronto, escopo `.8M`, marcador `#` já reservado no registry, nunca-pior por

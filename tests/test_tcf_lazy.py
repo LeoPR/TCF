@@ -344,10 +344,86 @@ class TestColunaPosicionalNaView:
         with pytest.raises(ValueError, match="fora do range"):
             vb.where(-1, "SP")                        # sem negativo, como no schema=
 
-    def test_value_nao_str_erra_alto(self, vb):
-        """`where('qtd', 10)` respondia 0 CALADO (10 != '10'). Agora ensina."""
-        with pytest.raises(TypeError, match="value deve ser str"):
+    def test_value_de_outro_tipo_erra_alto(self, vb):
+        """`where('qtd', 10)` numa coluna de TEXTO respondia 0 CALADO (10 != '10').
+        Agora o erro diz o tipo da coluna e sugere a comparacao certa."""
+        with pytest.raises(TypeError, match="coluna é str e o valor é int"):
             vb.where("qtd", 10)
-        with pytest.raises(TypeError, match="value deve ser str"):
+        with pytest.raises(TypeError, match="coluna é str e o valor é int"):
             vb.where("qtd", "10").where("cidade", 5)  # Filtered.where idem
         assert vb.where("qtd", "10").count() == 3     # a grafia certa segue
+
+
+# ---- Weld 2026-08-23: view() sobre `.8H` que e' TABELA RETANGULAR ----
+# Uma coluna tipada (ou um None) tira o dict do `.8M`, e o view recusava a tabela
+# inteira: `BUG-VIEW-RECUSA-COLUNA-TIPADA`. O tipo primitivo ja' e' um spec, so' que
+# implicito, e ja' viaja no header; aqui o view passa a ler o que esta' declarado.
+
+class TestViewSobreTabelaTipada:
+    @pytest.fixture
+    def vt(self):
+        return view(encode({
+            "cidade": ["SP", "SP", "RJ", "SP"],
+            "valor":  [120, 80, 200, 120],
+            "ativo":  [True, False, True, True],
+        }))
+
+    def test_tipo_volta_nativo(self, vt):
+        linha = vt.select()[0]
+        assert linha == {"cidade": "SP", "valor": 120, "ativo": True}
+        assert isinstance(linha["valor"], int) and isinstance(linha["ativo"], bool)
+
+    def test_consulta_com_valor_nativo(self, vt):
+        assert vt.where("valor", 120).count() == 2
+        assert vt.where("ativo", True).count() == 3
+        assert vt.where("cidade", "SP").sum("valor") == 320.0
+
+    def test_tipo_trocado_erra_alto_nos_dois_sentidos(self, vt):
+        """Numa coluna `n` o texto nunca casaria, e vice-versa. Antes: 0 calado."""
+        with pytest.raises(TypeError, match="coluna é int/float e o valor é str"):
+            vt.where("valor", "120")
+        with pytest.raises(TypeError, match="coluna é str e o valor é int"):
+            vt.where("cidade", 5)
+        with pytest.raises(TypeError, match="coluna é bool"):
+            vt.where("ativo", 1)          # bool e' subclasse de int: 1 nao e' True
+
+    def test_paridade_com_decode(self, vt):
+        """O que a view serve e' o que o decode devolve, valor e TIPO."""
+        blob = encode({"cidade": ["SP", "SP", "RJ", "SP"],
+                       "valor": [120, 80, 200, 120],
+                       "ativo": [True, False, True, True]})
+        esperado = decode(blob)
+        servido = {c: [linha[c] for linha in vt.select()] for c in vt.columns}
+        assert servido == esperado
+
+    def test_laziness_preservada(self, vt):
+        """A razao de ser do view: a pergunta materializa uma FRACAO do blob."""
+        vt.where("cidade", "SP").count()
+        assert vt.touched == ["cidade"]              # `valor`/`ativo` nem decodaram
+        assert vt.materialized_bytes < vt.total_bytes
+
+    def test_null_em_coluna_de_texto(self):
+        """Um `None` tambem tirava a tabela do `.8M`, sem tipo nenhum envolvido."""
+        v = view(encode({"a": ["x", None, "z"], "b": ["1", "2", "3"]}))
+        assert v.select() == [{"a": "x", "b": "1"}, {"a": None, "b": "2"},
+                              {"a": "z", "b": "3"}]
+
+    def test_dataset_de_registros(self):
+        """A outra forma retangular: `encode(list[dict])`."""
+        v = view(encode([{"n": "ana", "v": 1}, {"n": "bob", "v": 2}]))
+        assert v.columns == ["n", "v"]
+        assert v.where("v", 2).select() == [{"n": "bob", "v": 2}]
+
+    @pytest.mark.parametrize("dado,trecho", [
+        ([{"a": {"b": 1}}],           "retangular"),   # aninhado
+        ([{"a": 1}, {"b": 2}],        "retangular"),   # ragged: campo opcional
+        (42,                          "TABELA"),       # escalar solto na raiz
+    ])
+    def test_o_que_nao_e_tabela_erra_com_dica(self, dado, trecho):
+        with pytest.raises(ValueError, match=trecho):
+            view(encode(dado))
+
+    def test_single_col_tipado_nao_e_tabela(self):
+        """`[1,2,3]` sai `#TCF.8n`, que e' UMA coluna: o view e' multi-col."""
+        with pytest.raises(ValueError, match="multi-col"):
+            view(encode([1, 2, 3]))

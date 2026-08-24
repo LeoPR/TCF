@@ -34,6 +34,8 @@ from tcf.multi import (
 from tcf.multi.core import _nomes_resolvidos
 from tcf.decoder import _decode_column
 
+MAGIC_HIER = b"#TCF.8H"      # tabela retangular tambem chega por aqui
+
 
 def _idx_at(stream: bytes, off: int, width: int) -> int:
     """Decoda UM índice base-94 do stream V2-B na posição de byte `off`."""
@@ -43,17 +45,32 @@ def _idx_at(stream: bytes, off: int, width: int) -> int:
     return k
 
 
-def _valida_where_value(value, pred) -> None:
-    """Os valores decodados sao SEMPRE str (nulo = None): comparar com int/float
-    nunca casa e respondia 0 linhas CALADO — `where('qtd', 10)` parecia filtro
-    vazio, era bug de tipo do chamador (lab 2026-08-23-1410, G6). `None` casa
-    nulo; com `pred=`, `value` e' ignorado."""
-    if pred is None and value is not None and not isinstance(value, str):
-        raise TypeError(
-            f"view.where: value deve ser str (os valores decodados sao str; "
-            f"None casa nulo); got {type(value).__name__} ({value!r}) — "
-            f"compare com str, ex. where(col, {str(value)!r})"
-        )
+_PY_DO_TIPO = {"n": (int, float), "b": (bool,), "s": (str,)}
+_NOME_DO_TIPO = {"n": "int/float", "b": "bool", "s": "str"}
+
+
+def _valida_where_value(value, pred, stype: str = "s") -> None:
+    """O valor comparado tem de ser do tipo DA COLUNA, que o header declara.
+
+    Numa coluna `n`, `where(col, 120)` é a forma natural e `where(col, "120")`
+    nunca casaria: os valores voltam `int`. Numa coluna de texto vale o inverso.
+    Nos dois casos o erro é alto: comparar tipo trocado respondia 0 linhas
+    CALADO, que parece filtro vazio e é bug do chamador (lab 2026-08-23-1410 G6).
+    `None` casa nulo em qualquer coluna; com `pred=`, `value` é ignorado.
+    """
+    if pred is not None or value is None:
+        return
+    aceitos = _PY_DO_TIPO.get(stype, (str,))
+    # bool é subclasse de int: numa coluna `n`, `True` não é 1.
+    if isinstance(value, aceitos) and not (stype == "n" and isinstance(value, bool)):
+        return
+    sugestao = {"n": "where(col, 120)", "b": "where(col, True)",
+                "s": f"where(col, {str(value)!r})"}[stype]
+    raise TypeError(
+        f"view.where: esta coluna é {_NOME_DO_TIPO.get(stype, 'str')} e o valor é "
+        f"{type(value).__name__} ({value!r}), então a comparação nunca casaria. "
+        f"Compare com o tipo da coluna, ex. {sugestao}"
+    )
 
 
 class LazyTCF:
@@ -66,6 +83,8 @@ class LazyTCF:
         self._cache: dict[str, list[str]] = {}  # name -> valores (sob demanda)
         self._dict_cache: dict[str, tuple] = {}  # A3-O2: (unicas,width,stream) parseado do @dict
         self._order: list[str] = []
+        self._stype: dict[str, str] = {}       # name -> 's'|'n'|'b' (tipo do dado; `.8H`)
+        self._emask: dict[str, bytes] = {}     # name -> mascara de nulo (`.8H`), sob demanda
         self.touched: list[str] = []           # colunas que foram descomprimidas
         self._parse(blob)
 
@@ -76,6 +95,14 @@ class LazyTCF:
         if nl1 == -1:
             raise ValueError("blob inválido: sem shebang")
         line1 = raw[:nl1]
+        # `#TCF.8H` que É TABELA RETANGULAR: uma coluna tipada (int/bool/float) ou um
+        # `None` tiram o dict do `.8M`, e sem este ramo o view recusava a tabela inteira.
+        # O tipo primitivo do dado já é um spec, só que implícito: ele viaja no header
+        # (`valor#:3[]:14n`) do mesmo jeito que o `:id` de nature. Aqui o view lê o que
+        # já está declarado. Aninhado, ragged e opcional seguem fora: ali não há tabela.
+        if line1.startswith(MAGIC_HIER):
+            self._parse_hier(raw, line1, nl1)
+            return
         # #TCF.8M = UNICO multi-col vivo (ADR-0032). Legado #TCF.6/#TCF.7 cortado —
         # fail-loud. Meta INLINE na linha do shebang.
         if not line1.startswith(MAGIC_MULTI_V3):
@@ -124,6 +151,65 @@ class LazyTCF:
                 f"bytes excedentes: {len(raw) - cursor}B apos a ultima coluna "
                 f"(header declara menos que o blob contem; T-QA-8 BUG-05)"
             )
+
+    # ---- `.8H` que é tabela retangular: mesmas estruturas, outra gramática ----
+    def _parse_hier(self, raw: bytes, line1: bytes, nl1: int) -> None:
+        """Preenche `_mode`/`_body`/`_order`/`_nature`/`_stype` a partir do `.8H`.
+
+        Depois daqui o resto da classe não sabe (nem precisa saber) de qual rota o blob
+        veio: `where`, `sum`, `select` e `group_count` funcionam sem uma linha a mais.
+
+        O corpo de cada coluna no `.8H` é o core puro, então o modo é sempre `tcf`: a
+        competição `min(tcf, raw, dict, split)` do `.8M` não roda nesta rota. É por isso
+        que `group_count` cai em fallback aqui, e o blob é maior.
+        """
+        from tcf.hierarchical import MAGIC as _MAGIC_H
+        from tcf.hierarchical import _parse_meta as _parse_meta_h
+
+        resto = line1[len(_MAGIC_H.encode()):].decode("utf-8")
+        if resto.startswith("#O"):          # encode(dict): campo = array de escalares
+            forma, meta = "objeto", resto[2:]
+        elif resto.startswith("#"):         # #D/#E/#V: escalar solto, vazio, array cru
+            raise ValueError(
+                f"`view()` precisa de uma TABELA: este `.8H` tem raiz {resto[:2]!r}, "
+                f"que não é tabela. Use `decode()`.")
+        else:                                # encode(list[dict]): dataset de registros
+            forma, meta = "dataset", resto
+
+        schema, ordem, naturezas = _parse_meta_h(meta)
+        esperado = "arr_scalars" if forma == "objeto" else "scalar"
+        for kind, nome, mascarado, _kids, elem_null, stype in schema:
+            # `mascarado` é campo OPCIONAL (existe em uns registros e não em outros):
+            # isso é ragged, não tabela. `elem_null` é outra coisa: a coluna existe em
+            # todas as linhas e algumas valem `None`. Aí ainda é tabela, e o nulo vem
+            # numa coluna de máscara ao lado dos dados densos.
+            if kind != esperado or mascarado:
+                motivo = "opcional (ragged)" if mascarado else "aninhada"
+                raise ValueError(
+                    f"`view()` precisa de uma tabela retangular: a coluna {nome!r} é "
+                    f"{motivo}. Use `decode()` para este blob.")
+            self._stype[nome] = stype
+
+        cursor = nl1 + 1
+        for caminho, kind, size in ordem:
+            nome = caminho[0]
+            corpo = raw[cursor:] if size is None else raw[cursor:cursor + size]
+            if size is not None and len(corpo) != size:
+                raise ValueError(
+                    f"body truncado: coluna {nome!r} declara {size}B no header, "
+                    f"restam {len(corpo)}B no blob")
+            if kind == "emask":            # onde estão os nulos desta coluna
+                self._emask[nome] = corpo
+            elif kind != "count":          # `count` é o comprimento do array, não dado
+                self._mode[nome] = "tcf"
+                self._body[nome] = corpo
+                self._order.append(nome)
+                if nome in naturezas:
+                    self._nature[nome] = naturezas[nome]
+            cursor += len(corpo)
+        if cursor != len(raw):
+            raise ValueError(
+                f"bytes excedentes: {len(raw) - cursor}B após a última coluna")
 
     # ---- introspecção barata (só header) ----
     @property
@@ -211,10 +297,24 @@ class LazyTCF:
                 vals = _decode_struct_split(body)
             else:
                 vals = _decode_column(body.decode("utf-8"))
+            # Nulo (`.8H`): os valores vem DENSOS e a posicao do `None` mora numa
+            # coluna de mascara ao lado. Reidrata antes de tudo, senao a nature e o
+            # tipo cairiam no valor errado e o alinhamento de linha quebraria.
+            if name in self._emask:
+                marcas = _decode_column(self._emask[name].decode("utf-8"))
+                densos = iter(vals)
+                vals = [next(densos) if m == "." else None for m in marcas]
             # Nature self-describing (#TCF.8, ADR-0027): reverte LAZY — so' ao
             # materializar a coluna consultada, preservando a laziness (colunas nao
             # tocadas nem decodam o body). Fonte unica com o caminho L4: `_reverte_nature`.
             vals = self._reverte_nature(name, vals)
+            # Tipo primitivo (`.8H`): a mesma reversao lazy, um nivel abaixo. O header
+            # declarou `n`/`b`, entao a coluna volta int/float/bool, nao a grafia. Fonte
+            # unica com o decode: `_dec_scalar`.
+            stype = self._stype.get(name)
+            if stype and stype != "s":
+                from tcf.hierarchical import _dec_scalar
+                vals = [None if v is None else _dec_scalar(v, stype) for v in vals]
             # BUG-13d (lote 4): cross-check de n_rows INCREMENTAL — compara com
             # qualquer coluna JA' materializada (ints, custo zero, laziness
             # intacta). Fecha o buraco da view em blob EOF-truncado sem exigir
@@ -390,7 +490,7 @@ class LazyTCF:
     # ---- filtro: descomprime SÓ a coluna do filtro, devolve view restrita ----
     def where(self, col: str, value=None, *, pred: Callable[[str], bool] | None = None) -> "Filtered":
         col = self._resolve_col(col)
-        _valida_where_value(value, pred)
+        _valida_where_value(value, pred, self._stype.get(col, "s"))
         if self._mode[col] == "dict":           # L4: varre o stream, sem decodar os N valores
             width, stream, ids = self._dict_target_ids(col, value, pred)
             idx = [i for i, off in enumerate(range(0, len(stream), width))
@@ -460,7 +560,7 @@ class Filtered:
         """Encadeia filtro (AND): restringe os índices atuais."""
         p = self._p
         col = p._resolve_col(col)
-        _valida_where_value(value, pred)
+        _valida_where_value(value, pred, p._stype.get(col, "s"))
         if p._mode[col] == "dict":              # L4: lê só as posições já filtradas no stream
             width, stream, ids = p._dict_target_ids(col, value, pred)
             idx = [i for i in self.indices if _idx_at(stream, i * width, width) in ids]
