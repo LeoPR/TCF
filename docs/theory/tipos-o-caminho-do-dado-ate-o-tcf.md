@@ -20,35 +20,20 @@ componente que tinha outra prioridade.
 
 ## O caminho completo
 
-```
-  ┌── ARMAZENAMENTO ─────────────────────────────────────────────────────────┐
-  │  SQL DATE (binário)   Parquet int32   CSV texto   JSON string   log linha │
-  └──────────┬───────────────────────────────────────────────────────────────┘
-             │  ① o driver decide o que entrega: objeto nativo ou texto?
-             ▼
-  ┌── LINGUAGEM ─────────────────────────────────────────────────────────────┐
-  │  date · datetime · Decimal · str · o tipo do runtime                      │
-  └──────────┬───────────────────────────────────────────────────────────────┘
-             │  ② a serialização escolhe a GRAFIA — e aqui entra locale
-             ▼
-  ┌── TRANSPORTE ────────────────────────────────────────────────────────────┐
-  │  JSON · CSV · JSONL · Parquet · fila · corpo HTTP                          │
-  └──────────┬───────────────────────────────────────────────────────────────┘
-             │  ③ o parse do outro lado devolve string (quase sempre)
-             ▼
-  ┌── DATASET (+ schema) ────────────────────────────────────────────────────┐
-  │  list[str] · dict[str, list[str]] · e a DECLARAÇÃO opcional do spec        │
-  └──────────┬───────────────────────────────────────────────────────────────┘
-             │  ④ ⇽ é AQUI que o TCF começa a poder fazer alguma coisa
-             ▼
-  ┌── TCF ───────────────────────────────────────────────────────────────────┐
-  │  pré-tx (nature) → core (OBAT + HCC + bN) → wire                          │
-  └──────────┬───────────────────────────────────────────────────────────────┘
-             │  ⑤ decode devolve exatamente o que entrou
-             ▼
-  ┌── CONSUMIDOR ────────────────────────────────────────────────────────────┐
-  │  e quase sempre mais UMA tradução, pro formato que ele precisa            │
-  └──────────────────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TB
+    ARM["ARMAZENAMENTO<br/>SQL DATE (binário) · Parquet int32 · CSV texto · JSON string · log linha"]
+    LNG["LINGUAGEM<br/>date · datetime · Decimal · str · o tipo do runtime"]
+    TRA["TRANSPORTE<br/>JSON · CSV · JSONL · Parquet · fila · corpo HTTP"]
+    DAT["DATASET (+ schema)<br/>list[str] · dict[str, list[str]] · e a DECLARAÇÃO opcional do spec"]
+    TCF["TCF<br/>pré-tx (nature) → core (OBAT + HCC + bN) → wire"]
+    CON["CONSUMIDOR<br/>e quase sempre mais UMA tradução, pro formato que ele precisa"]
+
+    ARM -->|"① o driver decide o que entrega: objeto nativo ou texto?"| LNG
+    LNG -->|"② a serialização escolhe a GRAFIA, e aqui entra locale"| TRA
+    TRA -->|"③ o parse do outro lado devolve string (quase sempre)"| DAT
+    DAT -->|"④ é AQUI que o TCF começa a poder fazer alguma coisa"| TCF
+    TCF -->|"⑤ decode devolve exatamente o que entrou"| CON
 ```
 
 ## Onde a data é reescrita, fronteira por fronteira

@@ -40,29 +40,18 @@ da plataforma: reimplementa do jeito idiomático (threads, sem threads, o que fo
 
 ## Fluxo e estruturas (single-column)
 
-```
-strings (list[str], 1 coluna)
-   │
-   │ dedup preservando 1ª ocorrência → unicas (list[str]); linhas = strings originais
-   ▼
-OBAT.processar(unicas, min_len) ──► tokens_por_string : list[list[Token]]
-   ▼
-_tokenize_pieces(linhas, unicas, tokens_por_string)
-        ──► pieces_per_line : list[ list[Piece] | None ]
-            line_meta       : list[(count:int, eid:int, is_rep:bool)]
-            atom_count      : int
-   ▼
-_detect_compositions(...) ──► alias_to_sub : dict[alias_temp:int → sub:tuple[int,...]]
-   ▼
-_emit_body(pieces_per_line, line_meta, alias_to_sub)
-        ──► body          : list[str]   (uma string por linha lógica)
-            prov_to_final : dict[atom_prov_id → final_id]
-            alias_to_final: dict[alias_temp  → final_id]
-            ref_seqs      : list[list[int]]   (refs por linha, p/ trace)
-   ▼
-seq-RLE compact_body(body) ──► body' com `*N+delta|template`
-   ▼
-"\n".join(body') + "\n"   → corpo TCF textual
+```mermaid
+flowchart TB
+    IN["strings (list[str], 1 coluna)"]
+    DD["dedup preservando 1ª ocorrência<br/>unicas: list[str] · linhas = strings originais"]
+    OB["OBAT.processar(unicas, min_len)<br/>tokens_por_string: list[list[Token]]"]
+    TP["_tokenize_pieces(linhas, unicas, tokens_por_string)<br/>pieces_per_line: list[list[Piece] | None]<br/>line_meta: list[(count:int, eid:int, is_rep:bool)]<br/>atom_count: int"]
+    DC["_detect_compositions(...)<br/>alias_to_sub: dict[alias_temp:int → sub:tuple[int,...]]"]
+    EB["_emit_body(pieces_per_line, line_meta, alias_to_sub)<br/>body: list[str], uma string por linha lógica<br/>prov_to_final: dict[atom_prov_id → final_id]<br/>alias_to_final: dict[alias_temp → final_id]<br/>ref_seqs: list[list[int]], refs por linha, p/ trace"]
+    RL["seq-RLE compact_body(body)<br/>body' com *N+delta|template"]
+    OUT["join com LF + LF final<br/>corpo TCF textual"]
+
+    IN --> DD --> OB --> TP --> DC --> EB --> RL --> OUT
 ```
 
 ### 1. `Token` (saída do OBAT): `core/online.py`

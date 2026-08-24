@@ -20,7 +20,7 @@ from tcf import encode, decode, PipelineConfig
 
 ROOT = Path(__file__).resolve().parent.parent
 DATASETS = ROOT / "datasets" / "synthetic"
-LAB_DATA = ROOT / "experiments" / "lab" / "dirty" / "2026-05-24-cpf-templated-checked" / "data"
+LAB_DATA = ROOT / "experiments" / "lab" / "dirty" / "old" / "welded" / "2026-05-24-cpf-templated-checked" / "data"
 
 
 def _load_d17a() -> dict[str, list[str]]:

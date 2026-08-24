@@ -14,7 +14,7 @@ from tcf import encode, decode, SPEC_IP
 
 
 ROOT = Path(__file__).resolve().parent.parent
-LAB_DATA = ROOT / "experiments" / "lab" / "dirty" / "2026-05-24-cpf-templated-checked" / "data"
+LAB_DATA = ROOT / "experiments" / "lab" / "dirty" / "old" / "welded" / "2026-05-24-cpf-templated-checked" / "data"
 
 
 class TestSpecIP:

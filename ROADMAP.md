@@ -139,8 +139,13 @@ corpo na chave**. É o envelope que faltava para o `view()`, e conversa direto c
 
 ### Fora do `.9`
 
-`2.0`: streaming, sinks, lossy, `T-OBAT-NOS-PROXIMIDADE`. `1.0`: congelar formato e API,
-port para Rust.
+`2.0`: streaming, sinks, lossy, `T-OBAT-NOS-PROXIMIDADE`.
+
+`1.0` (direcao do owner, reafirmada 2026-08-23): congelar **tudo** de uma vez na virada,
+formato, API, e cada decisao implicita que hoje e' detalhe de implementacao (ordem de
+dicts implicitos inclusive). Ate' o ultimo segundo antes da chave virar, NADA e'
+compativel: pre-1.0 nao carrega compatibilidade nenhuma, e o proprio `.8` pode ficar
+obsoleto e ser limpo. Port para Rust fecha o ciclo.
 
 ## Tier 1: PRÉ-1.0 (organizável agora)
 
