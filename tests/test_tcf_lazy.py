@@ -432,3 +432,26 @@ class TestViewSobreTabelaTipada:
         assert vi.select() == [{"0": 1}, {"0": 2}, {"0": 3}]      # int
         assert vs.select() == [{"0": "1"}, {"0": "2"}, {"0": "3"}]  # str
         assert view(encode([True, False])).where(0, True).count() == 1
+
+
+class TestAgregadorPorTipo:
+    """O `sum` responde nos dois tipos, e se comporta como o Python faria."""
+
+    @pytest.mark.parametrize("dado,esperado", [
+        ([1, 2, 3],            6.0),   # numero na fonte: garantido
+        (["1", "2", "3"],      6.0),   # texto numerico: converte, como float("1")
+        ([1.5, 2.5],           4.0),
+        ([True, False, True],  2.0),   # bool soma como no Python
+        ([1, None, 3],         4.0),   # nulo NAO entra na conta (nao e' zero)
+        (["1", None, "3"],     4.0),
+    ])
+    def test_sum(self, dado, esperado):
+        assert view(encode(dado)).sum(0) == esperado
+
+    def test_media_ignora_nulo(self):
+        """Se o nulo contasse como zero, a media de [1,None,3] daria 1.33."""
+        assert view(encode([1, None, 3])).avg(0) == 2.0
+
+    def test_nao_numerico_erra_como_python(self):
+        with pytest.raises(ValueError, match="could not convert"):
+            view(encode(["a", "b"])).sum(0)

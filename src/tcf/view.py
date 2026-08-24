@@ -447,7 +447,10 @@ class LazyTCF:
         out = []
         for i in rng:
             s = vals[i]
-            if s == "":
+            # vazio e NULO não entram na conta: `None` é ausência de valor, não zero.
+            # É a mesma escolha de qualquer agregador de coluna (SQL, pandas), e sem
+            # ela um único nulo derrubava a soma da coluna inteira com TypeError.
+            if s == "" or s is None:
                 continue
             out.append(float(s))   # ValueError em não-numérico = intencional
         return out
