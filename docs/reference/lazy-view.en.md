@@ -16,12 +16,77 @@ anonymous column
 ([ADR-0029](../adr/0029-version-format-identification-semi-implicit.md)). `#TCF.6` and
 `#TCF.7` are not accepted in the `0.8` package (historical compatibility through git).
 
+## The whole surface on four rows
+
+One table small enough to read, every operation on it, and the real output of each. The
+rest of this page is the contract behind these lines.
+
 ```python
 from tcf import encode, view
 
-blob = encode({"cidade": ["SP", "SP", "RJ"], "valor": ["120", "80", "200"]})
-v = view(blob)                       # connects: decompresses NOTHING
-v.where("cidade", "SP").sum("valor") # touches only cidade + valor
+table = {"uf":    ["SP", "SP", "RJ", "MG"],
+         "valor": [  10,   20,   30,   40],
+         "ativo": [True, False, True, True]}
+
+blob = encode(table)          # 70 bytes
+```
+
+That blob, line by line:
+
+```
+#TCF.8M!b=uf,aN=valor,11B=ativo   header: name, mode and size per column.
+                                  `N` and `B` are the type tags, one byte each.
+SP                                body of `uf`: raw mode, one line per value
+SP
+RJ
+MG*4+10|\10                       body of `valor`: core mode. `*4+10|` is a counter:
+                                  4 rows, step 10, starting at 10
+true                              body of `ativo`
+false
+*2|^1                             `*2|` repeats twice; `^1` refers back to `true`
+```
+
+Now the queries. Watch `report()["pct"]`, the fraction of the blob materialized so far:
+
+```python
+v = view(blob)                        # connects: decompresses NOTHING
+
+v.columns                             # ['uf', 'valor', 'ativo']    pct: 0.0
+v.count()                             # 4                           pct: 0.0
+v.distinct("uf")                      # ['SP', 'RJ', 'MG']          pct: 28.9
+v.n_unique("uf")                      # 3                           pct: 28.9
+v.sum("valor")                        # 100.0                       pct: 55.3
+```
+
+`columns` and `count` read only the structure, so nothing is materialized. `distinct`
+brings in `uf`, `sum` brings in `valor`, and `ativo` is never touched.
+
+Filtering and grouping, on a fresh view each time:
+
+```python
+v.where("uf", "SP").count()           # 2
+v.where("uf", "SP").sum("valor")      # 30.0
+v.group_count("uf")                   # {'SP': 2, 'RJ': 1, 'MG': 1}
+v.group_sum("uf", "valor")            # {'SP': 30.0, 'RJ': 30.0, 'MG': 40.0}
+v.select("uf")                        # [{'uf': 'SP'}, {'uf': 'SP'}, ...]
+```
+
+Values come back in the type they went in as, so you compare with that type:
+
+```python
+v.where("valor", 30).count()          # 1   int, because the column is `N`
+v.where("ativo", True).count()        # 3   bool, because the column is `B`
+```
+
+And the filter value is read in the column's type, with the conversion recorded:
+
+```python
+v.where("ativo", "true").count()      # 3, plus a UserWarning:
+                                      # "bool column: the value 'true' (str) was read as True"
+
+view(blob).strict().where("ativo", "true")
+# TypeError: this column is bool and the value is str ('true'). The view is in
+#            STRICT mode, so the conversion is not automatic: pass True.
 ```
 
 > **Stability**: the L1–L4 surface (below) is **stable**. `group_ranges`/`agg_by` (L5) are
@@ -95,10 +160,16 @@ above: the protection against truthiness holds for text and does not hold for nu
 For code that wants to be strict, `.strict()` turns automatic conversion into an error:
 
 ```python
-v = view(blob).strict()
-v.where("ativo", "true")     # TypeError: the view is in STRICT mode
-v.where("ativo", True)       # passes as usual
+blob = encode({"ativo": [True, False, True], "n": [1, 2, 3]})
+
+view(blob).where("ativo", "true").count()            # 2, with a warning
+view(blob).strict().where("ativo", "true")           # TypeError
+view(blob).strict().where("ativo", True).count()     # 2, no warning
 ```
+
+`.strict()` applies to the whole view and is one-way: there is no `.soft()` back. It only
+affects `where` (and the chained `where` on `Filtered`); `select`, `sum` and the `group_*`
+family ignore the flag, because none of them takes a user value to convert.
 
 It is the policy of Polars and DuckDB (which tightened in 0.10, removing the implicit cast
 to `VARCHAR`), with the default inverted: here convenience is the default and rigour is

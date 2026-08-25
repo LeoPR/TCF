@@ -18,12 +18,77 @@ coluna anônima ([ADR-0029](../adr/0029-version-format-identification-semi-impli
 `#TCF.6` e
 `#TCF.7` não são aceitos no pacote `0.8` (compatibilidade histórica via git).
 
+## A superfície inteira em quatro linhas
+
+Uma tabela pequena o bastante para ler, todas as operações sobre ela, e a saída real de
+cada uma. O resto desta página é o contrato por trás dessas linhas.
+
 ```python
 from tcf import encode, view
 
-blob = encode({"cidade": ["SP", "SP", "RJ"], "valor": ["120", "80", "200"]})
-v = view(blob)                       # conecta: NÃO descomprime nada
-v.where("cidade", "SP").sum("valor") # toca só cidade + valor
+tabela = {"uf":    ["SP", "SP", "RJ", "MG"],
+          "valor": [  10,   20,   30,   40],
+          "ativo": [True, False, True, True]}
+
+blob = encode(tabela)         # 70 bytes
+```
+
+Esse blob, linha a linha:
+
+```
+#TCF.8M!b=uf,aN=valor,11B=ativo   header: nome, modo e tamanho por coluna.
+                                  `N` e `B` são as tags de tipo, um byte cada.
+SP                                corpo de `uf`: modo raw, uma linha por valor
+SP
+RJ
+MG*4+10|\10                       corpo de `valor`: modo core. `*4+10|` é um contador:
+                                  4 linhas, passo 10, começando em 10
+true                              corpo de `ativo`
+false
+*2|^1                             `*2|` repete duas vezes; `^1` referencia o `true`
+```
+
+Agora as consultas. Repare no `report()["pct"]`, a fração do blob já materializada:
+
+```python
+v = view(blob)                        # conecta: NÃO descomprime nada
+
+v.columns                             # ['uf', 'valor', 'ativo']    pct: 0.0
+v.count()                             # 4                           pct: 0.0
+v.distinct("uf")                      # ['SP', 'RJ', 'MG']          pct: 28.9
+v.n_unique("uf")                      # 3                           pct: 28.9
+v.sum("valor")                        # 100.0                       pct: 55.3
+```
+
+`columns` e `count` leem só a estrutura, então nada é materializado. O `distinct` traz o
+`uf`, o `sum` traz o `valor`, e o `ativo` nunca é tocado.
+
+Filtrar e agrupar, cada um numa view nova:
+
+```python
+v.where("uf", "SP").count()           # 2
+v.where("uf", "SP").sum("valor")      # 30.0
+v.group_count("uf")                   # {'SP': 2, 'RJ': 1, 'MG': 1}
+v.group_sum("uf", "valor")            # {'SP': 30.0, 'RJ': 30.0, 'MG': 40.0}
+v.select("uf")                        # [{'uf': 'SP'}, {'uf': 'SP'}, ...]
+```
+
+Os valores voltam no tipo em que entraram, então a comparação é nesse tipo:
+
+```python
+v.where("valor", 30).count()          # 1   int, porque a coluna é `N`
+v.where("ativo", True).count()        # 3   bool, porque a coluna é `B`
+```
+
+E o valor do filtro é lido no tipo da coluna, com a conversão registrada:
+
+```python
+v.where("ativo", "true").count()      # 3, mais um UserWarning:
+                                      # "coluna bool: o valor 'true' (str) foi lido como True"
+
+view(blob).strict().where("ativo", "true")
+# TypeError: esta coluna é bool e o valor é str ('true'). A view está em modo
+#            STRICT, então a conversão não é automática: passe True.
 ```
 
 > **Estabilidade**: a superfície L1–L4 (abaixo) é **estável**. `group_ranges`/`agg_by`
@@ -96,10 +161,16 @@ a proteção contra truthiness vale para texto e não vale para número.
 Para código que se quer rígido, `.strict()` troca a conversão automática por erro:
 
 ```python
-v = view(blob).strict()
-v.where("ativo", "true")     # TypeError: a view está em modo STRICT
-v.where("ativo", True)       # passa igual
+blob = encode({"ativo": [True, False, True], "n": [1, 2, 3]})
+
+view(blob).where("ativo", "true").count()            # 2, com aviso
+view(blob).strict().where("ativo", "true")           # TypeError
+view(blob).strict().where("ativo", True).count()     # 2, sem aviso
 ```
+
+O `.strict()` vale para a view inteira e é mão única: não existe `.soft()` de volta. Ele
+afeta só o `where` (e o `where` encadeado do `Filtered`); `select`, `sum` e a família
+`group_*` ignoram a flag, porque nenhum deles recebe valor do usuário para converter.
 
 É a política de Polars e DuckDB (que apertou na 0.10, removendo o cast implícito para
 `VARCHAR`), com o padrão invertido: aqui a conveniência é o default e o rigor é opt-in,
