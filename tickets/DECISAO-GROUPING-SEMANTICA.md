@@ -30,8 +30,8 @@ Diretriz do dono do projeto (2026-08-25):
 |---|---|---|---|---|
 | nulo na chave forma grupo? | sim | **nao** (`dropna=True`) | sim | **sim, DECIDIDO** |
 | string vazia forma grupo? | sim | sim | sim | **sim** |
-| grupo sem valor: `sum` | `NULL` | `0` | `null` | **`0.0`** |
-| grupo sem valor: `min`/`max`/`avg` | `NULL` | `NaN` | `null` | **`None`** |
+| grupo sem valor: `sum` | `NULL` | `0` | `null` | **`0.0`, DECIDIDO** |
+| grupo sem valor: `min`/`max`/`avg` | `NULL` | `NaN` | `null` | **`None`, DECIDIDO** |
 | ordem das chaves no resultado | indefinida | ordenada | aparicao | **aparicao** |
 | valor nao-numerico na soma | erro | erro ou `NaN` | erro | **levanta `ValueError`** |
 | chave sai em que tipo | o da coluna | o da coluna | o da coluna | **o da coluna** |
@@ -74,6 +74,54 @@ sumiria e o usuario ficaria sem saida.
 
 Pinado em `tests/test_tcf_lazy.py::TestNuloNaChaveDeGrupo`.
 
+## DECIDIDO em 2026-08-25: `sum` da' 0.0 por MATEMATICA, e o resto e' convencao de fora
+
+> *"sou a favor de manter 0.0 por matematica, qualquer coisa fora disso e' convensao de
+> programacao e pode ser feita fora. basta convencionar isso [...] vamos seguir a logica e
+> a matematica e apenas documentar comportamento."*
+
+A soma do conjunto vazio e' zero, e isso nao e' escolha: e' definicao. Ja' o menor de
+nenhum valor nao existe, e devolver `0.0` ali inventaria um numero que a coluna nao contem.
+Nao ha' incoerencia entre as duas respostas; ha' duas perguntas diferentes.
+
+### O que a exploracao mediu antes da decisao
+
+Sete formas de "sem valor aproveitavel" (todos nulos, todos vazios, nulo e vazio
+misturados, uma linha so' nula, todos os grupos vazios, mais dois CONTROLES com zero
+legitimo). As sete respondem igual, e os controles confirmam que **zero nao e' tratado
+como vazio**: `[0, 0]` da' `min` 0.0, e `[0, None]` tambem.
+
+O argumento de que o `0.0` esconderia informacao foi testado e e' **parcialmente
+verdadeiro**: `group_sum` nao distingue `[0, 0]` de `[None, None]`, as duas dao 0.0. Mas a
+informacao nao se perde, so' esta' noutra operacao: `group_min` devolve 0.0 no primeiro e
+`None` no segundo, e `group_count` mostra que o grupo existe nos dois. Precisar de uma
+segunda chamada nao e' o mesmo que perder o dado.
+
+### O que a decisao produziu
+
+`docs/how-to/mimetizar-pandas-sql-polars.md`: a linha de codigo que obtem o comportamento
+de cada ferramenta, partindo do default do TCF. Cinco receitas, cada uma verificada por
+execucao contra o que a ferramenta de origem devolveria
+(`2026-08-25-0500-grupo-sem-valor/2-receitas.py`).
+
+## Preocupacao registrada pelo dono do projeto (2026-08-25)
+
+> *"se eu precisar criar um flag para uma situacao ambigua, em que podem ter duas solucoes
+> certas, se as duas terao caminhos otimizados para responder direto, ao inves de passar
+> por um modo e depois fazer um filtro pos-leitura."*
+
+E' o ponto que decide se uma flag futura vale a pena. Hoje as receitas passam por dois
+caminhos: o filtro monta os indices, e a agregacao roda em cima deles. Uma flag que apenas
+embrulhasse essa mesma sequencia seria acucar; uma flag que valesse a pena precisa de um
+caminho proprio que responda numa passada.
+
+Isso NAO e' trabalho do `.8`: a funcionalidade veio primeiro, como decidido. Fica
+registrado como `H-QUERY-04e` no `roadmap-hipoteses.md`, junto com a pergunta de se
+`where(...).group_count()` e `group_count` com filtro embutido sao complementares ou
+fundiveis.
+
+O criterio, quando a hora chegar: **uma flag so' entra com caminho otimizado atras dela**.
+
 ## O que fica em aberto
 
 1. **`sum` de grupo vazio: `0.0` ou `None`?** Hoje `0.0` (pandas). O SQL daria `NULL`.
@@ -88,7 +136,9 @@ Pinado em `tests/test_tcf_lazy.py::TestNuloNaChaveDeGrupo`.
 ## Criterio de aceite
 
 - [x] Linha 1 (nulo na chave) confirmada: forma grupo, sem flag. Razao escrita acima.
-- [ ] As demais linhas da matriz confirmadas ou alteradas, com a razao escrita.
+- [x] Linhas 3 e 4 (grupo sem valor) confirmadas: `sum` da' 0.0 por matematica,
+      `min`/`max`/`avg` dao `None` porque nao ha' resposta. Razao escrita acima.
+- [ ] Linha 5 (ordem das chaves) confirmada ou alterada.
 - [ ] O que divergir do mercado fica documentado como divergencia deliberada, nao como
       omissao.
 - [ ] Sem re-pin de gate byte-canonico (a rota e' read-only).

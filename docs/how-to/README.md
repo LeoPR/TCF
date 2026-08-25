@@ -16,6 +16,7 @@ repository and these are on the translation list; the code in them is language-n
 | [Use natures (CPF/CNPJ/IP)](use-natures.md) *(Portuguese)* | one column has a known shape: how do I opt into the spec, and how do I know it paid off? |
 | [Feed dates to TCF](normalizar-data-antes-do-tcf.md) *(Portuguese)* | my dates come in several spellings: what do I normalize before encoding, and what does the format do by itself? |
 | [Inspect the compression](inspect-compression.md) *(Portuguese)* | why did this column come out that size? Which candidate won? |
+| [Match pandas, SQL or polars](mimetizar-pandas-sql-polars.md) *(Portuguese)* | grouping answers differently from the tool I know: which line of code gets me the behaviour I expect? |
 
 ## Working on the project
 

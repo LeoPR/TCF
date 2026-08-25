@@ -134,9 +134,15 @@ não sobre as N linhas, então a alternativa explícita não custa mais caro: me
 avaliações para 600 linhas.
 
 Um grupo sem nenhum valor aproveitável (todos nulos ou vazios) soma `0.0`, porque a soma
-do conjunto vazio é zero. Mas `min`, `max` e `avg` devolvem `None` ali, porque não há
-resposta: devolver `0.0` inventaria um valor que a coluna não contém. O grupo aparece nos
-dois casos, em vez de sumir, para não esconder que a chave estava lá.
+do conjunto vazio é zero, e isso é definição e não convenção. Mas `min`, `max` e `avg`
+devolvem `None` ali, porque não há resposta: o menor de nenhum valor não existe, e
+devolver `0.0` inventaria um número que a coluna não contém. O grupo aparece nos dois
+casos, em vez de sumir, para não esconder que a chave estava lá.
+
+O `group_sum` sozinho não distingue um grupo que somou zero de verdade de um sem valores,
+mas a informação não se perde: `group_min` devolve `0.0` no primeiro e `None` no segundo.
+Para obter o `NULL` do SQL, e o comportamento das outras ferramentas em geral, veja
+[como mimetizar pandas, SQL e polars](../how-to/mimetizar-pandas-sql-polars.md).
 
 ### Filtrar e agrupar (`where(...).group_*`)
 
