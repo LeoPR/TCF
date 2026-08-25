@@ -79,6 +79,23 @@ v.where("uf", "SP").where("plano", "Premium").sum("valor")
 filtro). Vazios são ignorados; valor não-numérico levanta, de propósito, para não
 silenciar dado sujo.
 
+### Quais valores existem nessa coluna? (`distinct`, `n_unique`)
+
+O `SELECT DISTINCT` e o `COUNT(DISTINCT col)`. Numa coluna dicionário saem da tabelinha
+de únicos, que o corpo já carrega pronta, em O(K):
+
+```python
+v.distinct("uf")      # ['SP', 'RJ', 'MG'], na ordem de aparição
+v.n_unique("uf")      # 3
+```
+
+Os dois custam coisas diferentes, e vale saber: `n_unique` só precisa do **tamanho** da
+tabelinha, então não constrói valor nenhum e `report()` fica em zero. `distinct` constrói
+os K únicos, porque é isso que ele devolve. Os K, não os N: numa coluna de 600 linhas com
+3 valores distintos, três.
+
+Aceitam lista de colunas e funcionam depois de um `where`, como o resto da família.
+
 ### Quantos por valor? (`group_count`)
 
 | modo | custo |

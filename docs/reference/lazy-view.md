@@ -116,6 +116,7 @@ mensagem que manda usar `decode()`.
 | projeção | `select(cols)` | materializa apenas as colunas pedidas; escalar (`str`/`int`) = 1 coluna; `[]` = nenhuma |
 | filtro | `where(col, value=...)` ou `where(col, pred=...)` | igualdade/predicado; encadeamento é AND; `value` é lido no tipo da coluna (soft), ou exigido nele com `.strict()`; `None` casa nulo |
 | agregação | `count`, `sum`, `min`, `max`, `avg` | vazio e nulo são ignorados nos agregadores numéricos |
+| valores distintos | `distinct(col)` · `n_unique(col)` | o `SELECT DISTINCT` e o `COUNT(DISTINCT)`; em `@dict` saem da tabelinha de únicos, em O(K) |
 | agrupamento | `group_count(col)` | caminho estrutural em `@dict` sem filtro; fallback nos demais casos |
 | agregação por grupo | `group_sum`, `group_min`, `group_max`, `group_avg` `(por, col)` | o `GROUP BY x AGG(y)`; materializa só as colunas envolvidas |
 | agrupar por várias colunas | `group_*(["a","b"], col)` | o `GROUP BY a, b`: a chave é a tupla dos valores |
@@ -165,6 +166,8 @@ opcional) ou é de um formato legado.
 | `max(col, idx=None)` | `float` | máximo; idem |
 | `avg(col, idx=None)` | `float` | média; idem |
 | `group_count(col)` | `dict` | `{valor: n}` **sem expandir** a coluna quando ela é dicionário (`@`) e não há filtro; senão fallback (decode + Counter). A chave sai no **tipo da coluna**, então numa coluna `N` as chaves são `int`/`float` e numa `B` são `bool`, não `str` |
+| `distinct(col)` | `list` | valores distintos, na ordem de aparição; em `@dict` sai da tabelinha (constrói os K, não os N) |
+| `n_unique(col)` | `int` | quantos distintos; em `@dict` é o tamanho da tabelinha, sem construir valor |
 | `group_sum(por, col)` | `dict` | soma por grupo; grupo sem valor aproveitável dá `0.0` |
 | `group_min/max/avg(por, col)` | `dict` | idem; grupo sem valor aproveitável dá `None`, porque não há resposta (devolver `0.0` inventaria um valor que a coluna não contém) |
 
@@ -200,6 +203,7 @@ Resultado de `where()`. Opera só nas linhas que casaram (alinhadas).
 | `count()` | nº de linhas filtradas |
 | `sum/min/max/avg(col)` | agrega `col` nas linhas filtradas |
 | `select(cols=None)` | linhas filtradas como dicts |
+| `distinct(col)` · `n_unique(col)` | distintos **nas linhas filtradas** |
 | `group_count(col)` · `group_sum/min/max/avg(por, col)` | agrega **nas linhas filtradas**: o `WHERE ... GROUP BY` |
 | `where(col, value=None, *, pred=None)` | **encadeia** (AND): restringe os índices atuais |
 
