@@ -609,10 +609,18 @@ class LazyTCF:
         cheapest = min(self._body, key=lambda n: len(self._body[n]))
         return len(self._col(cheapest))
 
-    def group_count(self, col: str) -> dict[str, int]:
-        """Contagem por grupo (`{valor: n}`) SEM expandir a coluna, quando ela é
-        dicionário (`@`): tallia o stream de índices + decodifica só os únicos.
-        Demais modos: fallback (decode + Counter). É a 'agregação sem expandir'."""
+    def group_count(self, col, idx=None) -> dict:
+        """Contagem por grupo (`{valor: n}`).
+
+        Numa coluna dicionário (`@`) sem filtro, o caminho é estrutural: tallia o
+        stream de índices e decodifica só os K únicos, sem expandir as N linhas. Nos
+        demais modos, e sempre que há filtro ou mais de uma coluna de agrupamento,
+        cai no fallback de materializar e contar.
+
+        `col` aceita uma coluna ou uma lista; com lista a chave é a tupla dos valores.
+        """
+        if isinstance(col, (list, tuple)) or idx is not None:
+            return dict(Counter(self._chaves_de_grupo(col, idx)))
         col = self._resolve_col(col)
         if self._mode[col] == "dict":
             unicas, width, stream = self._dict_parts(col)
@@ -630,30 +638,101 @@ class LazyTCF:
             return dict(tally)
         return dict(Counter(self._col(col)))
 
-    def group_sum(self, por: str, col: str) -> dict:
+    def _chaves_de_grupo(self, por, idx=None):
+        """A chave de cada linha, para `por` simples ou lista de colunas.
+
+        Com uma coluna a chave é o valor; com várias é a tupla dos valores, que é o
+        `GROUP BY a, b` do SQL. Uma coluna só continua devolvendo o valor cru, e não
+        uma tupla de um elemento, porque a chave é o que o usuário vê no resultado.
+        """
+        if isinstance(por, (list, tuple)):
+            cols = [self._resolve_col(c) for c in por]
+            if not cols:
+                raise ValueError("group by sem coluna: passe ao menos uma")
+            colunas = [self._col(c) for c in cols]
+            n = len(colunas[0])
+            for c, vals in zip(cols, colunas):
+                if len(vals) != n:
+                    raise ValueError(
+                        f"colunas com n_rows divergentes: {cols[0]!r}={n} vs "
+                        f"{c!r}={len(vals)}")
+            linhas = range(n) if idx is None else idx
+            return [tuple(vals[i] for vals in colunas) for i in linhas]
+        col = self._resolve_col(por)
+        vals = self._col(col)
+        return vals if idx is None else [vals[i] for i in idx]
+
+    def _group_agg(self, por, col, op: str, idx=None) -> dict:
+        """Motor único de `group_sum/min/max/avg`: um laço, uma regra de nulo.
+
+        O contrato de valor é o mesmo dos agregadores simples: vazio e nulo ficam de
+        fora da conta, e não-numérico levanta. A diferença está no grupo sem nenhum
+        valor aproveitável: para `sum` ele vale `0.0`, porque o grupo existe mesmo que
+        a soma seja vazia; para `min`/`max`/`avg` não há resposta, e o grupo sai como
+        `None` em vez de sumir. Sumir esconderia que a chave estava lá.
+        """
+        chaves = self._chaves_de_grupo(por, idx)
+        cnome = self._resolve_col(col)
+        valores = self._col(cnome)
+        if idx is not None:
+            valores = [valores[i] for i in idx]
+        if len(chaves) != len(valores):
+            raise ValueError(
+                f"colunas com n_rows divergentes: chave={len(chaves)} vs "
+                f"{cnome!r}={len(valores)}")
+
+        acumulado: dict = {}
+        for chave, v in zip(chaves, valores):
+            baldes = acumulado.setdefault(chave, [])
+            if v == "" or v is None:
+                continue
+            baldes.append(float(v))   # ValueError em não-numérico, como em `sum()`
+
+        out: dict = {}
+        for chave, nums in acumulado.items():
+            if op == "sum":
+                out[chave] = sum(nums) if nums else 0.0
+            elif not nums:
+                out[chave] = None
+            elif op == "min":
+                out[chave] = min(nums)
+            elif op == "max":
+                out[chave] = max(nums)
+            elif op == "avg":
+                out[chave] = sum(nums) / len(nums)
+            else:
+                raise ValueError(
+                    f"operação de grupo desconhecida: {op!r} "
+                    f"(use sum, min, max ou avg)")
+        return out
+
+    def group_sum(self, por, col: str, idx=None) -> dict:
         """Soma `col` agrupando por `por`: o `GROUP BY x SUM(y)` do TCF.
 
-        Materializa as DUAS colunas e nada mais, então numa tabela larga a conta sai
-        sem tocar o resto do blob. Vazio e nulo ficam de fora da soma, como em
-        `sum()`; um grupo em que todos os valores são nulos soma `0.0`, porque o
-        grupo existe (diferente de não existir).
+        Materializa as colunas envolvidas e nada mais, então numa tabela larga a conta
+        sai sem tocar o resto do blob. Vazio e nulo ficam de fora da soma, como em
+        `sum()`; um grupo em que todos os valores são nulos soma `0.0`, porque o grupo
+        existe (diferente de não existir).
+
+        `por` aceita uma coluna ou uma lista, e com lista a chave é a tupla dos
+        valores, que é o `GROUP BY a, b`.
 
         Diferente de `agg_by`, que é mais barato mas exige a tabela já ordenada pela
         chave (`encode(..., sort_by=)`): aqui a ordem não importa.
         """
-        por, col = self._resolve_col(por), self._resolve_col(col)
-        chaves, valores = self._col(por), self._col(col)
-        if len(chaves) != len(valores):
-            raise ValueError(
-                f"colunas com n_rows divergentes: {por!r}={len(chaves)} vs "
-                f"{col!r}={len(valores)}")
-        out: dict = {}
-        for chave, v in zip(chaves, valores):
-            acc = out.setdefault(chave, 0.0)
-            if v == "" or v is None:
-                continue
-            out[chave] = acc + float(v)
-        return out
+        return self._group_agg(por, col, "sum", idx)
+
+    def group_min(self, por, col: str, idx=None) -> dict:
+        """Menor valor de `col` por grupo. Grupo sem valor aproveitável sai `None`."""
+        return self._group_agg(por, col, "min", idx)
+
+    def group_max(self, por, col: str, idx=None) -> dict:
+        """Maior valor de `col` por grupo. Grupo sem valor aproveitável sai `None`."""
+        return self._group_agg(por, col, "max", idx)
+
+    def group_avg(self, por, col: str, idx=None) -> dict:
+        """Média de `col` por grupo. Grupo sem valor aproveitável sai `None`."""
+        return self._group_agg(por, col, "avg", idx)
 
     # ---- L4: filtro assistido por índice de dicionário (sem decodar tudo) ----
     def _dict_target_ids(self, col: str, value, pred):
@@ -840,6 +919,27 @@ class Filtered:
 
     def avg(self, col: str) -> float:
         return self._p.avg(col, self.indices)
+
+    # ---- agrupamento sobre as linhas filtradas: o `WHERE ... GROUP BY` ----
+    # Sem isto, filtrar e agrupar era a única combinação básica de SQL que a view não
+    # fazia: `where(...)` devolvia um `Filtered` que só sabia agregar o conjunto todo.
+    # Cada um repassa os índices já filtrados, então a conta roda nas linhas que
+    # casaram e a chave continua sendo a mesma que o `group_*` da view devolve.
+
+    def group_count(self, col) -> dict:
+        return self._p.group_count(col, self.indices)
+
+    def group_sum(self, por, col: str) -> dict:
+        return self._p.group_sum(por, col, self.indices)
+
+    def group_min(self, por, col: str) -> dict:
+        return self._p.group_min(por, col, self.indices)
+
+    def group_max(self, por, col: str) -> dict:
+        return self._p.group_max(por, col, self.indices)
+
+    def group_avg(self, por, col: str) -> dict:
+        return self._p.group_avg(por, col, self.indices)
 
     def select(self, cols: list[str] | None = None) -> list[dict]:
         return self._p.select(cols, self.indices)

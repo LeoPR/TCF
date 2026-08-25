@@ -91,13 +91,29 @@ silenciar dado sujo.
 No dicionário a contagem por grupo sai de contar os índices do stream, sem expandir as
 linhas. Nos demais modos cai em decodificar a coluna e contar.
 
-### Soma por grupo? (`group_sum`)
+### Soma, mínimo, máximo, média por grupo? (`group_sum`, `group_min`, `group_max`, `group_avg`)
 
-**Custo: 52% a 97%, o mais caro da superfície.** Ele materializa as duas colunas
-inteiras e cruza linha a linha, sem usar a estrutura de nenhuma das duas.
+**Custo: 52% a 97%, o mais caro da superfície.** Materializa as colunas envolvidas e
+cruza linha a linha, sem usar a estrutura de nenhuma delas.
 
 ```python
-v.group_sum("uf", "valor")     # {'SP': 200.0, 'RJ': 200.0}
+v.group_sum("uf", "valor")            # {'SP': 200.0, 'RJ': 200.0}
+v.group_avg("uf", "valor")            # média por grupo
+v.group_sum(["uf", "plano"], "valor") # GROUP BY uf, plano: a chave vira tupla
+```
+
+Um grupo sem nenhum valor aproveitável (todos nulos ou vazios) soma `0.0`, porque a soma
+do conjunto vazio é zero. Mas `min`, `max` e `avg` devolvem `None` ali, porque não há
+resposta: devolver `0.0` inventaria um valor que a coluna não contém. O grupo aparece nos
+dois casos, em vez de sumir, para não esconder que a chave estava lá.
+
+### Filtrar e agrupar (`where(...).group_*`)
+
+O `WHERE … GROUP BY`. A agregação roda nas linhas que casaram:
+
+```python
+v.where("plano", "A").group_sum("uf", "valor")
+v.where("plano", "A").group_count("uf")
 ```
 
 ### As linhas em si (`select`)
@@ -122,8 +138,10 @@ achada pelo `str`; a posição 2, pelo `int`.
 
 **Não escreve.** Nenhuma operação altera o blob.
 
-**Não é SQL.** Não há parser, joins, `OR`, `ORDER BY`, `LIMIT`, expressões calculadas ou
-plano multi-tabela. O que existe são caminhos de consulta que lembram SQL.
+**Não é SQL.** Não há parser, joins, `ORDER BY`, `LIMIT`, expressões calculadas ou plano
+multi-tabela. O que existe são caminhos de consulta que lembram SQL. `OR` não existe
+**entre** colunas, porque encadear `where` é sempre AND, mas dentro de uma coluna o
+predicado expressa OR: `where("uf", pred=lambda x: x in ("SP", "RJ"))`.
 
 **Não lê o que não é tabela.** Aninhado, ragged e campo opcional não são tabela
 retangular, e a view recusa com uma mensagem que manda usar `decode()`. Vale um aviso: no
@@ -142,7 +160,7 @@ completo, com o que foi **refutado**, está nos labs de 2026-08-24.
 
 | oportunidade | onde | situação |
 |---|---|---|
-| `group_sum` pela estrutura do dicionário | cruzar os dois streams de índices sem materializar valor | medido em protótipo: 71,8% menos bytes |
+| `group_*` pela estrutura, sem materializar | cruzar os streams de índices das duas colunas sem materializar valor | protótipo medido: 71,8% menos bytes; não soldado |
 | `sum`/`min`/`max`/`avg` sobre dicionário | somar os K únicos ponderados pela frequência | medido: 99,6% menos bytes; `min`/`max` são exatos por construção |
 | responder "existe?" sem montar a lista de índices | exige um `Filtered` preguiçoso | não implementado |
 

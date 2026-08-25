@@ -892,3 +892,120 @@ class TestWhereCurtoCircuitoDominio:
             pytest.skip("regime: a coluna constante não caiu em @dict")
         assert v.where("c", "SP").count() == n
         assert view(blob).where("c", "RJ").count() == 0
+
+
+class TestGrouping:
+    """A superfície de agrupamento, fechada.
+
+    Antes existiam só `group_count` e `group_sum`, e nenhum dos dois depois de um
+    filtro: `where(...).group_count(...)`, que é o `WHERE ... GROUP BY` mais básico do
+    SQL, levantava `AttributeError`.
+
+    As decisões de semântica, que cada ferramenta resolve de um jeito, e o que o TCF
+    escolheu (levantado em `experiments/lab/.../2026-08-25-0100-grouping-semantica/`):
+
+    | questão | SQL | pandas | polars | TCF |
+    |---|---|---|---|---|
+    | nulo na chave forma grupo? | sim | não (`dropna=True`) | sim | **sim** |
+    | grupo sem valor: `sum` | NULL | 0 | null | **0.0** |
+    | ordem das chaves | indefinida | ordenada | aparição | **aparição** |
+    | valor não-numérico | erro | erro/NaN | erro | **levanta** |
+
+    Diversidade completa: 3159 agregações, 10 formas de chave × 8 de valor × 5
+    tamanhos, cada uma contra a mesma conta feita em Python puro.
+    """
+
+    @pytest.fixture
+    def tab(self):
+        return {"uf": ["SP", "SP", "RJ", "RJ", "MG"],
+                "plano": ["A", "B", "A", "B", "A"],
+                "v": [10, 20, 30, 40, 50]}
+
+    def test_as_quatro_agregacoes(self, tab):
+        v = view(encode(tab))
+        assert v.group_sum("uf", "v") == {"SP": 30.0, "RJ": 70.0, "MG": 50.0}
+        assert view(encode(tab)).group_min("uf", "v") == {"SP": 10.0, "RJ": 30.0,
+                                                          "MG": 50.0}
+        assert view(encode(tab)).group_max("uf", "v") == {"SP": 20.0, "RJ": 40.0,
+                                                          "MG": 50.0}
+        assert view(encode(tab)).group_avg("uf", "v") == {"SP": 15.0, "RJ": 35.0,
+                                                          "MG": 50.0}
+
+    def test_group_by_duas_colunas(self, tab):
+        """`GROUP BY a, b`: a chave vira a tupla dos valores."""
+        assert view(encode(tab)).group_count(["uf", "plano"]) == {
+            ("SP", "A"): 1, ("SP", "B"): 1, ("RJ", "A"): 1, ("RJ", "B"): 1,
+            ("MG", "A"): 1}
+        assert view(encode(tab)).group_sum(["uf", "plano"], "v") == {
+            ("SP", "A"): 10.0, ("SP", "B"): 20.0, ("RJ", "A"): 30.0,
+            ("RJ", "B"): 40.0, ("MG", "A"): 50.0}
+
+    def test_where_mais_group_by(self, tab):
+        """A combinação que faltava inteira."""
+        f = view(encode(tab)).where("plano", "A")
+        assert f.group_count("uf") == {"SP": 1, "RJ": 1, "MG": 1}
+        assert f.group_sum("uf", "v") == {"SP": 10.0, "RJ": 30.0, "MG": 50.0}
+        assert f.group_min("uf", "v") == {"SP": 10.0, "RJ": 30.0, "MG": 50.0}
+        assert f.group_max("uf", "v") == {"SP": 10.0, "RJ": 30.0, "MG": 50.0}
+        assert f.group_avg("uf", "v") == {"SP": 10.0, "RJ": 30.0, "MG": 50.0}
+
+    def test_grupo_sem_valor_aproveitavel(self):
+        """`sum` dá 0.0 porque o grupo existe; `min`/`max`/`avg` dão `None`.
+
+        Sumir com o grupo esconderia que a chave estava lá. Devolver 0.0 num `min`
+        seria inventar um valor que não existe na coluna.
+        """
+        blob = encode({"g": ["a", "a", "b", "b"], "v": [1, 2, None, None]})
+        assert view(blob).group_sum("g", "v") == {"a": 3.0, "b": 0.0}
+        assert view(blob).group_min("g", "v") == {"a": 1.0, "b": None}
+        assert view(blob).group_max("g", "v") == {"a": 2.0, "b": None}
+        assert view(blob).group_avg("g", "v") == {"a": 1.5, "b": None}
+        assert view(blob).group_count("g") == {"a": 2, "b": 2}   # o grupo existe
+
+    def test_nulo_na_chave_forma_grupo(self):
+        """Como SQL, e diferente do pandas, que descarta por padrão."""
+        blob = encode({"g": ["a", None, "a", "b", None], "v": [1, 2, 3, 4, 5]})
+        assert view(blob).group_count("g") == {"a": 2, None: 2, "b": 1}
+        assert view(blob).group_sum("g", "v") == {"a": 4.0, None: 7.0, "b": 4.0}
+
+    def test_vazio_na_chave_e_um_grupo(self):
+        blob = encode({"g": ["a", "", "a", "b", ""], "v": [1, 2, 3, 4, 5]})
+        assert view(blob).group_count("g") == {"a": 2, "": 2, "b": 1}
+
+    def test_chave_sai_no_tipo_da_coluna(self):
+        blob = encode({"g": [1, 1, 2, 2], "v": [10, 20, 30, 40]})
+        assert view(blob).group_sum("g", "v") == {1: 30.0, 2: 70.0}
+        b2 = encode({"g": [True, False, True], "v": [1, 2, 3]})
+        assert view(b2).group_count("g") == {True: 2, False: 1}
+
+    def test_valor_nao_numerico_levanta(self):
+        blob = encode({"g": ["a", "a", "b"], "v": ["1", "x", "3"]})
+        for op in ("group_sum", "group_min", "group_max", "group_avg"):
+            with pytest.raises(ValueError):
+                getattr(view(blob), op)("g", "v")
+
+    def test_operacao_desconhecida_diz_quais_existem(self):
+        v = view(encode({"g": ["a"], "v": [1]}))
+        with pytest.raises(ValueError, match="use sum, min, max ou avg"):
+            v._group_agg("g", "v", "mediana")
+
+    def test_group_by_sem_coluna_levanta(self):
+        v = view(encode({"g": ["a"], "v": [1]}))
+        with pytest.raises(ValueError, match="ao menos uma"):
+            v.group_count([])
+
+    def test_bate_com_a_conta_feita_na_mao(self):
+        """A prova que vale: comparar com o mesmo cálculo sobre o decode."""
+        import random
+        r = random.Random(20260825)
+        tab = {"g": [r.choice(["a", "b", "c"]) for _ in range(400)],
+               "v": [r.randint(1, 100) for _ in range(400)]}
+        blob = encode(tab)
+        t = decode(blob)
+        baldes = {}
+        for k, x in zip(t["g"], t["v"]):
+            baldes.setdefault(k, []).append(float(x))
+        assert view(blob).group_sum("g", "v") == {k: sum(n) for k, n in baldes.items()}
+        assert view(blob).group_min("g", "v") == {k: min(n) for k, n in baldes.items()}
+        assert view(blob).group_max("g", "v") == {k: max(n) for k, n in baldes.items()}
+        assert view(blob).group_count("g") == {k: len(n) for k, n in baldes.items()}
