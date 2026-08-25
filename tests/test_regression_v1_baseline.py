@@ -81,7 +81,7 @@ class TestPublicAPISurface:
         # Pré-1.0 (ADR-0024): pacote em 0.x, minor acompanha o formato
         # (#TCF.8 -> 0.8.x, ADR-0032/0028); patch e' livre pra fixes sem
         # mudanca de emissao. PyPI publica no go do owner.
-        assert tcf.__version__ == "0.8.1"
+        assert tcf.__version__ == "0.8.2"
 
     # CONGELAMENTO DO .8 ("terminar o .8 com as formalidades e
     # congelar parametros, header e corpo"). Este pin e' o "congelar PARAMETROS"

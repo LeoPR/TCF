@@ -21,7 +21,7 @@ compositional cycle in
 
 ---
 
-## Unreleased: the view learns to read the structure
+## 0.8.2 (2026-08-25): the view learns to read the structure
 
 Ten welds on top of 0.8.1, all in the read-only query layer except one, which does change
 what the encoder emits.
@@ -73,6 +73,25 @@ because they do not; and the group shows up either way instead of vanishing.
 dictionary column both come off the unique table the body already carries, in O(K). They
 cost different things and the docs say so: `n_unique` only needs its size and builds no
 value at all, while `distinct` builds the K uniques, because that is what it returns.
+
+**`None` no longer blows up the encoder.** A null anywhere in a column raised a raw
+`TypeError` from three layers below `encode`, with no column or row named, whenever the
+first value formed a digit template with 2+ fields. The `%split` candidate now declines
+columns with nulls, the same refusal for the same reason the raw candidate already made:
+the mode has nowhere to represent a null, and the tcf candidate, which has a proper null
+slot, serves those columns. Measured before welding: across 6 strong-template shapes x 4
+null fractions, the serving mode already beats the ceiling of a null-tolerant split in all
+24 combinations, so declining costs zero bytes and no wire changes.
+
+**Grouping semantics are now decisions, not defaults.** A null key forms a group and there
+is deliberately no `dropna` flag: dropping the null is a filter, and
+`where(col, pred=lambda x: x is not None)` already does it while keeping the discard
+visible (on a dictionary column the predicate runs over the K uniques, so the explicit
+form costs no more). A group with no usable value sums to `0.0` because the empty sum has
+a mathematical answer, while `min`/`max`/`avg` return `None` there because they do not.
+A new how-to (`docs/how-to/mimetizar-pandas-sql-polars.md`) gives the one-line recipe for
+matching pandas, SQL or polars behaviour, each recipe verified by execution against what
+the original tool would return.
 
 **`where` now reads the filter value in the column's type** (soft by default, with a
 warning and a record in `v.coercoes`), replacing the `TypeError` that 0.8.1 raised. A

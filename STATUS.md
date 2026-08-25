@@ -15,6 +15,7 @@ no [`CHANGELOG.md`](CHANGELOG.md), nos [ADRs](docs/adr/README.md) e no diário
 | | |
 |---|---|
 | **publicado** | `tcf-format 0.8.1` no PyPI (23/08, via Trusted Publishing) · tag `v0.8.1` |
+| **preparado** | `0.8.2` no repo (CHANGELOG, versão, gates re-pinados); publicação pendente de go do owner |
 | **formato** | `#TCF.8` default: `.8M` multi-col · `.8H` hierárquico · rota tipada · single-col |
 | **ciclo aberto** | **`.9`**: otimização **e** integração com armazenamento |
 | **números vivos** | nos TESTES, não aqui: `pytest -q` |

@@ -199,7 +199,7 @@ completo, com o que foi **refutado**, está nos labs de 2026-08-24.
 |---|---|---|
 | `group_*` pela estrutura, sem materializar | cruzar os streams de índices das duas colunas sem materializar valor | protótipo medido: 71,8% menos bytes; não soldado |
 | `sum`/`min`/`max`/`avg` sobre dicionário | somar os K únicos ponderados pela frequência | medido: 99,6% menos bytes; `min`/`max` são exatos por construção |
-| responder "existe?" sem montar a lista de índices | exige um `Filtered` preguiçoso | não implementado |
+| responder "existe?" sem montar a lista de índices | exige adiar a construção dos índices dentro do resultado do `where` | não implementado |
 
 E o que **não** é possível, por razão estrutural e não por falta de trabalho:
 
