@@ -252,68 +252,92 @@ shows the same number as a `select`, which builds the N rows. Use `touched` to s
 columns a query reached; for the fine-grained cost of each path, the per-operation
 measurements are in [`view-usos.md`](view-usos.md). Refining this is recorded for `.9`.
 
-## Cost depends on the column's mode
+## Where it wins, and by how much
 
-A column in `tcf` mode (interleaved OBAT+HCC) makes `group_count` and aggregation fall back
-to decoding the whole column, because its references are resolved in sequence. The clean
-structural gain lives in `@dict` and raw.
+There is no single "wins / does not win": there are degrees, and the degree depends on the
+mode the column was compressed into, on how wide the table is, and on which call you make.
+The scale, cheapest first:
 
-`fallback=True` in `encode` (the 0.8 default) puts low-cardinality columns in `@dict`
-automatically, which is what enables the structural paths. See
-[encode-knobs.md](encode-knobs.md).
+| degree | what it does | values built |
+|---|---|---|
+| **header** | answers without opening the body | 0 |
+| **K uniques** | builds only the distinct values | K |
+| **K + compact** | builds the K, then walks the index stream **without expanding it** | K |
+| **one column** | builds the N rows of one column | N |
+| **several columns** | one column per call in the chain | N x touched |
 
-In `.8H` every column uses the core pipeline, without the `min(tcf, raw, dict, split)`
-competition of `.8M`: the blob comes out 38.3% larger on the same 2,000-row by 5-column
-table, and `group_count` falls back. Laziness holds in both, and `count()` costs 0.0% there
-too.
+The "K + compact" row is the one that is easy to miss. On a dictionary column a `where`
+walks all N positions of the stream, but each position is a fixed-width index, not a value:
+it reads the compact form and never expands it. Reading everything is not the same as
+materializing everything.
 
-## Where it wins, and where it merely works
+### By operation and mode
 
-Two different advantages get confused if you do not separate them:
+Measured at n=2000:
 
-- **Between columns**: the view never touches the columns a question does not ask for.
-  This holds in every mode, and it grows with the width of the table.
-- **Within the column**: the view answers without materializing even the queried column,
-  reading the body's structure instead. This only happens where the structure allows it.
+| operation | `@dict` | dense (`b`/`B`/`C`) | `%split` | core |
+|---|---|---|---|---|
+| `count`, `nrows` | K + compact | **header** | one column | one column |
+| `n_unique` | **K uniques** | one column | one column | one column |
+| `distinct` | **K uniques** | one column | one column | one column |
+| `where` | **K + compact** | one column | one column | one column |
+| `group_count` | **K + compact** | one column | one column | one column |
+| `sum`/`min`/`max`/`avg` | one column | one column | one column | one column |
+| `group_sum` and family | two columns | two columns | two columns | two columns |
+| `select(col)` | one column | one column | one column | one column |
 
-The second one is what separates a real win from "it works". If the queried column is
-materialized in full, what is left is a post-decode filter over that column, and the saving
-comes only from the columns that were not touched.
+`count` on a dense route comes straight out of the header: the row count is written there
+in hex, so it reads 11 or 12 bytes and stops.
 
-Measured at n=2000, three columns. "structure" means the operation built **fewer values
-than there are rows**:
+Which mode a column lands in is the encoder's decision, not yours, and it is made on bytes
+alone. `fallback=True` (the 0.8 default) is what puts low-cardinality columns in `@dict`,
+and therefore what enables the whole `@dict` column of the table above; see
+[encode-knobs.md](encode-knobs.md). In `.8H` every column uses the core pipeline without
+that competition, so the blob comes out 38.3% larger on the same 2,000-row by 5-column
+table and nothing lands in `@dict`.
 
-| operation | `@dict` | `%split` | core |
-|---|---|---|---|
-| `count`, `nrows` | structure | structure | structure |
-| `n_unique`, `distinct` | **structure** | materializes | materializes |
-| `where` (equality or predicate) | **structure** | materializes | materializes |
-| `group_count` | **structure** | materializes | materializes |
-| `group_sum` and family | materializes | materializes | materializes |
-| `sum`/`min`/`max`/`avg` | materializes | materializes | materializes |
-| `select` | materializes | materializes | materializes |
+### How wide the table is changes the answer
 
-So, plainly:
+`select` of one column always builds N values, but what matters is the fraction of the
+table that is:
 
-**`count` is the only one that always wins.** Every mode declares the row count somewhere
-in the structure.
+| columns in the table | `select("c")` | `select()` |
+|---:|---:|---:|
+| 2 | 50.1% | 100% |
+| 5 | 20.0% | 100% |
+| 10 | 10.0% | 100% |
+| 20 | **5.0%** | 100% |
 
-**Five operations win only on a dictionary column**: `n_unique`, `distinct`, `where`,
-`group_count`. There the body carries a table of K uniques and a stream of indices, so the
-question is answered over the K, not the N. On the other modes the same call materializes
-the column, and behaves like a post-decode filter.
+So calling `select` "materializes" is only half true. It materializes **one** column, and
+on a wide table that is most of the saving there is.
 
-**The aggregators and `select` always materialize the column**, in every mode, and that is
-not a flaw for `select`: returning the values *is* the work. For `sum` and the `group_*`
-family it is a real limit, and the prototype that would remove it on dictionaries is
-measured but not welded (see [`view-usos.md`](view-usos.md)).
+### Chaining does not reduce what comes after it
 
-What this means in practice: a table with one low-cardinality column and several wide ones
-is the shape the view was built for. A table of one high-cardinality column is the shape
-where `view()` and `decode()` cost nearly the same, and the honest thing is to say so.
+This is the honest limit, and it is worth stating plainly because the intuition says
+otherwise. Filtering first and aggregating after does **not** make the aggregation cheaper:
 
-This is a `.8` picture. The prototypes that would move `group_*` and the aggregators into
-the "structure" column are measured and recorded for `.9`.
+```
+where(f, "sim").count()             2000 values built
+where(f, "sim").sum("v")            4000
+where(f, "sim").group_count("g")    4000
+where(f, "sim").group_sum("g", "v") 6000
+```
+
+Those numbers are identical whether the filter keeps 1% or 100% of the rows. The filter
+cuts the rows **after** the column has been materialized, not before. Making the filter
+narrow the work downstream requires reading only the filtered positions, which the
+dictionary's fixed-width stream would allow; it is measured and recorded for `.9`
+(`H-QUERY-04f`).
+
+### The short version
+
+A table with one low-cardinality column and several wide ones is the shape the view was
+built for: the filtering column answers from the structure, and the rest is never touched.
+A table of one high-cardinality column is the shape where `view()` and `decode()` cost
+nearly the same, and the honest thing is to say so.
+
+This is a `.8` picture. The prototypes that would move `group_*` and the aggregators up the
+scale are measured and recorded for `.9`.
 
 ## Sorted layout · **experimental**
 

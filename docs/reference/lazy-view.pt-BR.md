@@ -252,69 +252,91 @@ mesmo número de um `select`, que constrói as N linhas. Use `touched` para ver 
 colunas uma consulta alcançou; para o custo fino de cada caminho, as medições por operação
 estão em [`view-usos.md`](view-usos.md). O ajuste está registrado para o `.9`.
 
-## O custo depende do modo da coluna
+## Onde ela ganha, e o quanto
 
-Uma coluna em modo `tcf` (OBAT+HCC entrelaçados) faz `group_count` e agregação caírem em
-decodificar a coluna inteira, porque suas referências são resolvidas em sequência. O ganho
-estrutural limpo vive em `@dict` e raw.
+Não existe um "ganha / não ganha": existem graus, e o grau depende do modo em que a coluna
+foi comprimida, de quão larga é a tabela, e de qual chamada você faz. A escala, do mais
+barato ao mais caro:
 
-`fallback=True` no `encode` (o default do 0.8) põe colunas de baixa cardinalidade em
-`@dict` automaticamente, que é o que habilita os caminhos estruturais. Ver
-[encode-knobs.md](encode-knobs.md).
+| grau | o que faz | valores construídos |
+|---|---|---|
+| **header** | responde sem abrir o corpo | 0 |
+| **K únicos** | constrói só os valores distintos | K |
+| **K + compacto** | constrói os K e percorre o stream de índices **sem expandir** | K |
+| **uma coluna** | constrói as N linhas de uma coluna | N |
+| **várias colunas** | uma coluna por chamada no encadeamento | N x tocadas |
 
-No `.8H` cada coluna usa o pipeline core, sem a competição `min(tcf, raw, dict, split)` do
-`.8M`: o blob fica 38,3% maior na mesma tabela de 2 000 linhas por 5 colunas, e
-`group_count` cai em fallback. A laziness continua de pé nas duas, e o `count()` custa 0,0%
-também ali.
+A linha "K + compacto" é a que passa despercebida. Numa coluna dicionário um `where`
+percorre as N posições do stream, mas cada posição é um índice de largura fixa, não um
+valor: ele lê a forma compacta e nunca a expande. Ler tudo não é o mesmo que materializar
+tudo.
 
-## Onde ela ganha, e onde ela apenas funciona
+### Por operação e modo
 
-Duas vantagens diferentes se confundem se não forem separadas:
+Medido em n=2000:
 
-- **Entre colunas**: a view nunca toca as colunas que a pergunta não pede. Isso vale em
-  todo modo, e cresce com a largura da tabela.
-- **Dentro da coluna**: a view responde sem materializar nem a coluna consultada, lendo a
-  estrutura do corpo. Isso só acontece onde a estrutura permite.
+| operação | `@dict` | denso (`b`/`B`/`C`) | `%split` | core |
+|---|---|---|---|---|
+| `count`, `nrows` | K + compacto | **header** | uma coluna | uma coluna |
+| `n_unique` | **K únicos** | uma coluna | uma coluna | uma coluna |
+| `distinct` | **K únicos** | uma coluna | uma coluna | uma coluna |
+| `where` | **K + compacto** | uma coluna | uma coluna | uma coluna |
+| `group_count` | **K + compacto** | uma coluna | uma coluna | uma coluna |
+| `sum`/`min`/`max`/`avg` | uma coluna | uma coluna | uma coluna | uma coluna |
+| `group_sum` e família | duas colunas | duas colunas | duas colunas | duas colunas |
+| `select(col)` | uma coluna | uma coluna | uma coluna | uma coluna |
 
-A segunda é o que separa um ganho real de "funciona". Se a coluna consultada é
-materializada inteira, o que sobra é um filtro pós-decode sobre ela, e a economia vem só
-das colunas que não foram tocadas.
+O `count` numa rota densa sai direto do header: a contagem de linhas está escrita ali em
+hex, então ele lê 11 ou 12 bytes e para.
 
-Medido em n=2000, três colunas. "estrutura" significa que a operação construiu **menos
-valores do que há linhas**:
+Em que modo cada coluna cai é decisão do encoder, não sua, e ela é tomada só por bytes. O
+`fallback=True` (o default do 0.8) é o que põe colunas de baixa cardinalidade em `@dict`, e
+portanto o que habilita a coluna `@dict` inteira da tabela acima; ver
+[encode-knobs.md](encode-knobs.md). No `.8H` cada coluna usa o pipeline core sem essa
+competição, então o blob fica 38,3% maior na mesma tabela de 2 000 linhas por 5 colunas e
+nada cai em `@dict`.
 
-| operação | `@dict` | `%split` | core |
-|---|---|---|---|
-| `count`, `nrows` | estrutura | estrutura | estrutura |
-| `n_unique`, `distinct` | **estrutura** | materializa | materializa |
-| `where` (igualdade ou predicado) | **estrutura** | materializa | materializa |
-| `group_count` | **estrutura** | materializa | materializa |
-| `group_sum` e família | materializa | materializa | materializa |
-| `sum`/`min`/`max`/`avg` | materializa | materializa | materializa |
-| `select` | materializa | materializa | materializa |
+### A largura da tabela muda a resposta
 
-Em palavras:
+O `select` de uma coluna constrói sempre N valores, mas o que importa é a fração da tabela
+que isso representa:
 
-**`count` é a única que ganha sempre.** Todo modo declara a contagem de linhas em algum
-lugar da estrutura.
+| colunas na tabela | `select("c")` | `select()` |
+|---:|---:|---:|
+| 2 | 50,1% | 100% |
+| 5 | 20,0% | 100% |
+| 10 | 10,0% | 100% |
+| 20 | **5,0%** | 100% |
 
-**Cinco operações ganham só em coluna dicionário**: `n_unique`, `distinct`, `where`,
-`group_count`. Ali o corpo carrega uma tabela de K únicos e um stream de índices, então a
-pergunta é respondida sobre os K, não sobre os N. Nos outros modos a mesma chamada
-materializa a coluna, e se comporta como um filtro pós-decode.
+Então chamar o `select` de "materializa" é meia verdade. Ele materializa **uma** coluna, e
+numa tabela larga é aí que está quase toda a economia.
 
-**Os agregadores e o `select` sempre materializam a coluna**, em todo modo, e para o
-`select` isso não é defeito: devolver os valores *é* o trabalho. Para o `sum` e a família
-`group_*` é um limite real, e o protótipo que o removeria em dicionários está medido mas
-não soldado (ver [`view-usos.md`](view-usos.md)).
+### O encadeamento não reduz o que vem depois
 
-O que isso significa na prática: uma tabela com uma coluna de baixa cardinalidade e várias
-largas é o formato para o qual a view foi feita. Uma tabela de uma coluna só, de alta
-cardinalidade, é o formato em que `view()` e `decode()` custam quase o mesmo, e o honesto é
-dizer isso.
+Este é o limite honesto, e vale dizer com todas as letras porque a intuição diz o
+contrário. Filtrar antes e agregar depois **não** deixa a agregação mais barata:
 
-Este é o retrato do `.8`. Os protótipos que moveriam `group_*` e os agregadores para a
-coluna "estrutura" estão medidos e registrados para o `.9`.
+```
+where(f, "sim").count()             2000 valores construídos
+where(f, "sim").sum("v")            4000
+where(f, "sim").group_count("g")    4000
+where(f, "sim").group_sum("g", "v") 6000
+```
+
+Esses números são idênticos quer o filtro guarde 1% ou 100% das linhas. O filtro corta as
+linhas **depois** de a coluna ter sido materializada, não antes. Fazer o filtro estreitar o
+trabalho a jusante exige ler só as posições filtradas, coisa que o stream de largura fixa
+do dicionário permitiria; está medido e registrado para o `.9` (`H-QUERY-04f`).
+
+### A versão curta
+
+Uma tabela com uma coluna de baixa cardinalidade e várias largas é o formato para o qual a
+view foi feita: a coluna do filtro responde pela estrutura, e o resto nunca é tocado. Uma
+tabela de uma coluna só, de alta cardinalidade, é o formato em que `view()` e `decode()`
+custam quase o mesmo, e o honesto é dizer isso.
+
+Este é o retrato do `.8`. Os protótipos que subiriam `group_*` e os agregadores na escala
+estão medidos e registrados para o `.9`.
 
 ## Layout ordenado · **experimental**
 
