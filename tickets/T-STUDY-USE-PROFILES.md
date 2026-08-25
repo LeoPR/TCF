@@ -90,9 +90,75 @@ latência ANTES de cravar formato"*.
 Proposta: **P1 e P3 primeiro** (baratos, e P1 usa o bench que já existe). São eles que dizem
 se P2/P4/P5 valem o esforço. Decisão de ordem é do owner.
 
+## P6 (novo, 2026-08-25): a CONSULTA é um quarto eixo, e ela conflita com os outros
+
+Direção do owner:
+
+> *"o TCF trabalha em modos, logo ele tem modos de velocidade, memória, latência,
+> compressão, e também pode ter para agrupamento. São intenções, é claro, e não tem uma
+> chave definitiva que exclua tudo. Com o cobertor curto, se uma opção sacrificar outra,
+> pode ser que basta a gente criar uma chave [...] A busca é sempre um win-win total, mas
+> infelizmente pode não ocorrer."*
+
+A ADR-0002 fixou três vértices (compressão, memória, latência) e rejeitou a opção
+"trade-off por flag". Mas ela é de 2026-05-17 e trata do **encode**: a latência ali é a de
+quem escreve o wire. A camada de **consulta** não existia, e ela tem um custo próprio que
+o encoder decide sem saber.
+
+### O que foi medido (2026-08-25)
+
+O encoder escolhe o modo de cada coluna pelo **menor wire**, um critério só. Mas o modo
+escolhido também decide o custo de consultar aquela coluna, e os dois perfis não são
+graus da mesma coisa:
+
+| controle (n=2000) | modo | bytes | posições visitadas | valores construídos |
+|---|---|---:|---:|---:|
+| k2-curto | `@dict` | 3258 | 2000 | **2** |
+| | core | 7250 | **0** | 2000 |
+| k50-curto | `@dict` | 3264 | 2000 | **50** |
+| | core | 8710 | **0** | 2000 |
+| k1000-curto | `@dict` | 5285 | 2000 | **1000** |
+| | core | 6175 | **0** | 2000 |
+
+O `@dict` constrói K valores e **varre N posições**; o core não varre nada e constrói os N
+valores. Conforme K se aproxima de N, o dicionário perde a vantagem de memória e continua
+pagando a varredura.
+
+Lab: `experiments/lab/dirty/2026-08/2026-08-25/2026-08-25-0200-cobertor-curto/`.
+
+### O que isso sugere, e o que ainda não foi medido
+
+Nos nove controles testados, quando o dicionário vence ele vence **folgado** (14% a 62% de
+bytes), então **não se achou ainda o caso de conflito real**: o encoder não está
+economizando 1% de bytes e cobrando 60x na consulta. O cobertor pode não estar tão curto
+quanto se temia.
+
+O que falta medir antes de propor qualquer chave:
+
+- [ ] **Existe a zona de empate?** Uma coluna em que `@dict` e core ficam a menos de 5% de
+      distância em bytes, e os perfis de consulta divergem muito. Se ela não existir em dado
+      realista, não há chave a criar.
+- [ ] **O custo de varrer N posições em Python vs construir N valores**, em unidade
+      comparável. Hoje só se sabe que são coisas diferentes, não qual dói mais e a partir
+      de que n.
+- [ ] **`sort_by` é o caso já conhecido de conflito** (habilita `group_ranges`/`agg_by`,
+      reordena as linhas, muda os bytes). Ele é o precedente: uma chave que declara
+      intenção, com custo assumido e documentado.
+
+### A pergunta de desenho, para depois da medição
+
+Se a zona de empate existir, a chave não precisa ser um nível global (`L0..L9`, que a
+ADR-0002 rejeitou por bons motivos). Pode ser uma **intenção declarada** que só desempata
+onde há empate, do tipo `encode(..., para="consulta")`, mantendo o win-win onde ele existe
+e escolhendo lado só onde o cobertor é curto de fato.
+
+Isso preserva o espírito da ADR-0002 (nada de sacrificar um vértice por ganho em outro) e
+resolve o caso que ela não previu (o vértice de consulta, que só apareceu com o `view`).
+
 ## Critérios de aceite
 
 - [ ] P1 medido, com o mesmo rigor dos labs (§RT, evidência em disco, mix declarado)
 - [ ] P3 respondido: mapa de onde o single-pass vale hoje
 - [ ] Decisão registrada: a ADR-0002 se mantém, ou entra ADR de supersede
+- [ ] P6: a zona de empate existe em dado realista? Se não, não há chave a criar
 - [ ] Se supersede: a ADR nova cita ADR-0025/0026 e resolve a fronteira core × orquestração
