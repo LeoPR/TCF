@@ -23,6 +23,7 @@ de dicionário, dicas no header) são hooks documentados pra depois — ver NOTA
 """
 from __future__ import annotations
 
+import re
 from collections import Counter
 from collections.abc import Callable
 
@@ -43,6 +44,68 @@ def _idx_at(stream: bytes, off: int, width: int) -> int:
     for ch in stream[off:off + width]:
         k = k * _V2B_BASE + (ch - 0x21)
     return k
+
+
+# ---- COUNT sem materializar valor ------------------------------------------------
+# Contar linhas nunca precisa dos valores, só da estrutura, e a estrutura já diz.
+# São três leituras, escolhidas pelo modo da coluna:
+#
+#   DECLARADO  as rotas densas (`b`/`B`/`C`, com ou sem tag de tipo) escrevem `n` no
+#              cabeçalho, em hex. Lê o cabeçalho e para, sem abrir o corpo.
+#   SOMADO     o corpo core traz contadores (`*N|`, `*N+d|`, `*N~d|`) que declaram
+#              quantas linhas cada um vale. Percorre as linhas somando.
+#   SEPARADOR  o corpo raw é uma linha por valor: conta os `\n`. É o caso particular
+#              do SOMADO em que nenhuma linha tem contador.
+#
+# Nenhuma das três constrói um objeto de valor. Escolher a leitura errada não levanta,
+# devolve um número errado, então cada uma é conferida contra `decode()` em
+# `tests/test_tcf_lazy.py::TestCountSemMaterializar` (341 combinações de tipo,
+# cardinalidade, tamanho e forma no lab de origem).
+# Levantamento: experiments/lab/dirty/2026-08/2026-08-24/2026-08-24-0600-count-minimo/
+_RE_BN_CAB = re.compile(rb"^#TCF\.8[nbs]?[BCb][1-8][0-9a-f]+$")
+_RE_CONTADOR = re.compile(rb"^\*(\d+)([+~]\d+)?\|")
+
+
+def _n_declarado(cabecalho: bytes):
+    """O `n` escrito no cabeçalho das rotas densas, ou None se a rota não declara.
+
+    A grafia é canônica por imposição do próprio decodificador (`dominio_bn.py`
+    levanta se `f"{n:x}" != nhex`: hex minúsculo, sem zero à esquerda, sem `0x`,
+    sem sinal), então ler daqui não cria uma segunda interpretação do wire.
+    """
+    if not _RE_BN_CAB.match(cabecalho):
+        return None
+    # depois de `#TCF.8`: um char opcional de tipo, a letra de rota, a largura, o n
+    resto = cabecalho[len(b"#TCF.8"):]
+    if resto[:1] in (b"n", b"b", b"s") and len(resto) > 1 and resto[1:2] in b"BCb":
+        resto = resto[1:]
+    return int(resto[2:], 16)
+
+
+def _n_somado(corpo: bytes) -> int:
+    """Soma os contadores declarados de um corpo core.
+
+    Cada linha ou abre com um contador (`*N|`, valendo N linhas) ou é uma linha
+    solta (valendo 1). O aninhamento `*N+d|*M|` vale N*M, e tratá-lo como N é o
+    único erro que este caminho comete se implementado ingenuamente.
+    """
+    # Tira UM `\n` final, o terminador do wire, e não todos: `rstrip` comeria também
+    # uma última linha legitimamente vazia. Em `b"a\n\n"` (os valores `"a"` e `""`)
+    # o `rstrip` deixava `b"a"` e a contagem saía 1 em vez de 2.
+    if corpo.endswith(b"\n"):
+        corpo = corpo[:-1]
+    if not corpo:
+        return 0
+    total = 0
+    for linha in corpo.split(b"\n"):
+        m = _RE_CONTADOR.match(linha)
+        if not m:
+            total += 1
+            continue
+        n = int(m.group(1))
+        aninhado = _RE_CONTADOR.match(linha[m.end():])
+        total += n * int(aninhado.group(1)) if aninhado else n
+    return total
 
 
 _PY_DO_TIPO = {"n": (int, float), "b": (bool,), "s": (str,)}
@@ -157,21 +220,27 @@ class LazyTCF:
         if line1.startswith(b"#TCF.8") and not line1.startswith(MAGIC_MULTI_V3):
             # SINGLE-COL: `#TCF.8` (texto), `#TCF.8n`, `#TCF.8b`, `#TCF.8 nome:spec`.
             # Uma coluna só também é tabela, e o view não tinha razão pra recusá-la:
-            # `count`, `sum` e `where` valem igual. Aqui não há laziness a preservar,
-            # o blob INTEIRO é a coluna, então o decode oficial é a fonte: ele já
-            # trata as sub-formas (bool denso em bits, float, spec no header) que
-            # reimplementar aqui só faria divergir. Nome da coluna: `0`, como qualquer
-            # anônima (ADR-0029).
-            from tcf.decoder import decode as _decode_blob
+            # `count`, `sum` e `where` valem igual. O decode oficial é a fonte dos
+            # VALORES, porque ele já trata as sub-formas (bool denso em bits, float,
+            # spec no header) que reimplementar aqui só faria divergir. Nome da
+            # coluna: `0`, como qualquer anônima (ADR-0029).
+            #
+            # O que este ramo NÃO faz mais é chamar esse decode na ABERTURA. Havia
+            # aqui um comentário afirmando que "não há laziness a preservar, o blob
+            # INTEIRO é a coluna", e a premissa é falsa: o blob ser a coluna não
+            # obriga a lê-lo antes de perguntarem. Quem só queria `columns`, `nrows`
+            # ou o tipo pagava o decode completo (medido: 100% do wire em 9 regimes,
+            # lab 2026-08-24-0400). O corpo agora espera o 1º pedido de VALOR.
             nome = "0"
-            self._mode[nome] = "tcf"
+            self._mode[nome] = "blob"    # o wire inteiro é a coluna; `_col` resolve
+            self._blob_single = blob
             self._body[nome] = raw[nl1 + 1:]
             self._order.append(nome)
-            self._cache[nome] = _decode_blob(blob)
-            self.touched.append(nome)
-            primeiro = next((v for v in self._cache[nome] if v is not None), None)
-            self._stype[nome] = {bool: "b", int: "n", float: "n"}.get(
-                type(primeiro), "s")
+            # O tipo está DECLARADO no char de índice 6 (`n` número, `b` bool, ausente
+            # texto), a mesma tag de 1 byte do `.8M`. Deduzi-lo do primeiro valor JÁ
+            # DECODIFICADO custava o blob inteiro para saber algo que estava escrito.
+            disc = line1[6:7]
+            self._stype[nome] = {b"n": "n", b"b": "b"}.get(disc, "s")
             return
         # #TCF.8M = UNICO multi-col vivo (ADR-0032). Legado #TCF.6/#TCF.7 cortado —
         # fail-loud. Meta INLINE na linha do shebang.
@@ -390,6 +459,12 @@ class LazyTCF:
                 vals = _decode_v2b(body)
             elif mode == "split":
                 vals = _decode_struct_split(body)
+            elif mode == "blob":
+                # single-col: o wire inteiro é a coluna, e o decode oficial resolve
+                # as sub-formas. É AQUI que ele roda, no 1º pedido de valor, não na
+                # abertura da view.
+                from tcf.decoder import decode as _decode_blob
+                vals = _decode_blob(self._blob_single)
             else:
                 vals = _decode_column(body.decode("utf-8"))
             # Nulo (`.8H`): os valores vem DENSOS e a posicao do `None` mora numa
@@ -406,8 +481,11 @@ class LazyTCF:
             # Tipo primitivo (`.8H`): a mesma reversao lazy, um nivel abaixo. O header
             # declarou `n`/`b`, entao a coluna volta int/float/bool, nao a grafia. Fonte
             # unica com o decode: `_dec_scalar`.
+            # O modo `blob` fica de fora: ali quem produziu os valores foi o
+            # `decode()` oficial do single-col, que JÁ devolve no tipo declarado.
+            # Castar de novo aplicaria `_dec_scalar` sobre um `int`, que levanta.
             stype = self._stype.get(name)
-            if stype and stype != "s":
+            if stype and stype != "s" and mode != "blob":
                 from tcf.hierarchical import _dec_scalar
                 vals = [None if v is None else _dec_scalar(v, stype) for v in vals]
             # BUG-13d (lote 4): cross-check de n_rows INCREMENTAL — compara com
@@ -428,10 +506,18 @@ class LazyTCF:
         return self._cache[name]
 
     # ---- L3: estrutura (dict/raw) — contar/agrupar SEM expandir as N linhas ----
-    def _dict_parts(self, name: str):
+    def _dict_parts(self, name: str, marcar: bool = True):
         """Parseia um corpo V2-B (`@`): (unicas, width, stream). Decodifica só a
         tabelinha de únicos (K valores), nunca as N linhas. A3-O2: cacheado por
-        coluna — ops dict repetidas (group_count + where) não re-decodam a tabela."""
+        coluna — ops dict repetidas (group_count + where) não re-decodam a tabela.
+
+        `marcar=False` para quem só quer a FORMA (o tamanho do stream e a largura),
+        não os valores: `touched` alimenta `materialized_bytes`, que soma o corpo
+        INTEIRO da coluna, então marcar por causa de uma tabelinha de K faria um
+        `count()` reportar 94,1% de materialização tendo construído 2 valores.
+        Nenhum dos dois números é exato (o certo seriam os bytes da tabelinha), e o
+        ajuste fino de `materialized_bytes` fica para a revisão do `.9`.
+        """
         cached = self._dict_cache.get(name)
         if cached is not None:
             return cached
@@ -444,7 +530,7 @@ class LazyTCF:
         # contra o VALOR. Reverter aqui — nos K unicos, nao nas N linhas — mantem a
         # laziness intacta e fecha a divergencia com `_col` (fonte unica).
         unicas = self._reverte_nature(name, unicas)
-        if name not in self.touched:
+        if marcar and name not in self.touched:
             self.touched.append(name)
         stream = body[start + ntable:]
         width = _v2b_width(len(unicas))
@@ -459,32 +545,57 @@ class LazyTCF:
         return parts
 
     def _structural_count(self, name: str):
-        """Linhas SEM decodificar valores: dict (tamanho do stream) / raw
-        (nº de '\\n'). None se o modo exige decode (tcf/split)."""
+        """Linhas SEM materializar valor nenhum. None se a estrutura não disser.
+
+        Uma leitura por modo, da mais barata para a menos:
+
+        - `blob` (single-col): o `n` DECLARADO no cabeçalho das rotas densas; se a
+          rota não declara, os contadores SOMADOS do corpo.
+        - `raw`: uma linha por valor, conta os `\\n`.
+        - `dict`: `len(stream) // width`. A largura depende de K, e K sai da
+          tabelinha, que custa O(K) e não O(N). Deduzir K contando `\\n` na tabela
+          seria mais barato e **erra**: a tabelinha termina em `\\n` e o corpo raw
+          não, então K sai maior em um. No cruzamento K=94 a largura pula de 1 para
+          2 e a contagem sai pela metade, com resto zero, ou seja, um guard de
+          divisibilidade não pega. Medido no lab 2026-08-24-0600.
+        - `tcf` (core no `.8M`): os contadores somados.
+        - `split`: a estrutura não diz; devolve None e o chamador decide.
+        """
         mode = self._mode[name]
-        if mode == "dict":
-            _, width, stream = self._dict_parts(name)
-            return len(stream) // width
+        if mode == "blob":
+            cabecalho = self._blob_single.split("\n", 1)[0].encode("utf-8")
+            n = _n_declarado(cabecalho)
+            return n if n is not None else _n_somado(self._body[name])
         if mode == "raw":
-            if name not in self.touched:
-                self.touched.append(name)
+            # Sem marcar `touched`: contar `\n` não constrói valor, e `touched`
+            # alimenta `materialized_bytes`. Marcar aqui fazia um `count()` puro
+            # reportar 94,1% de materialização com o cache vazio, ou seja, o
+            # relatório que existe pra medir a laziness mentia sobre ela.
             return self._body[name].count(b"\n") + 1
+        if mode == "dict":
+            _, width, stream = self._dict_parts(name, marcar=False)
+            return len(stream) // width
+        if mode == "tcf":
+            return _n_somado(self._body[name])
         return None
 
     @property
     def nrows(self) -> int:
-        """Número de linhas, pelo CAMINHO mais curto (A3-O1):
-        1) raw → conta `\\n` (ZERO decode); 2) dict → 1 decode da tabela;
-        3) fallback → decodifica a coluna tcf/split mais barata."""
-        for name in self._order:                 # O1: raw primeiro (custo zero)
-            if self._mode[name] == "raw":
-                if name not in self.touched:
-                    self.touched.append(name)
-                return self._body[name].count(b"\n") + 1
-        for name in self._order:                 # senão dict (1 decode de tabela)
-            sc = self._structural_count(name)
-            if sc is not None:
-                return sc
+        """Número de linhas, pelo caminho mais curto que a estrutura oferecer.
+
+        Todas as colunas têm o mesmo número de linhas, então basta UMA, e a ordem de
+        preferência é por custo: o cabeçalho que já declara, depois o `raw` que só
+        conta separadores, depois o `dict` que lê uma tabelinha de K, depois os
+        contadores do core. Só o `split` não diz nada, e aí decodifica a coluna mais
+        barata, que era o comportamento antigo para todos os modos.
+        """
+        for modo in ("blob", "raw", "dict", "tcf"):
+            for name in self._order:
+                if self._mode[name] != modo:
+                    continue
+                sc = self._structural_count(name)
+                if sc is not None:
+                    return sc
         cheapest = min(self._body, key=lambda n: len(self._body[n]))
         return len(self._col(cheapest))
 

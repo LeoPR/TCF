@@ -118,7 +118,7 @@ Conecta a um blob TCF multi-coluna. `ValueError` se o blob não for multi-coluna
 | membro | retorno | nota |
 |---|---|---|
 | `columns` | `list[str]` | nomes na ordem do header |
-| `nrows` | `int` | nº de linhas pelo caminho mais curto (raw=conta `\n`, 0 decode; senão dict; senão coluna mais barata) |
+| `nrows` | `int` | nº de linhas pelo caminho mais curto: `n` declarado no cabeçalho → raw (conta `\n`) → dict (`len(stream)//width`) → contadores do core. Nenhum materializa valor |
 | `column_bytes(name)` | `int` | tamanho do corpo **comprimido** da coluna (sem decodificar) |
 | `total_bytes` | `int` | soma dos corpos |
 | `materialized_bytes` | `int` | bytes já descomprimidos (corpos tocados) |

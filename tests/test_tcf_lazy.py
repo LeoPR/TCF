@@ -154,12 +154,24 @@ def test_filtro_por_predicado(blob):
     assert f.count() == 4
 
 
-def test_seletividade_count_toca_uma_coluna(blob):
+def test_seletividade_count_nao_materializa(blob):
+    """`count()` responde pela ESTRUTURA, sem construir valor nenhum.
+
+    Re-pin de 2026-08-24. Antes este teste afirmava `len(touched) == 1`, porque o
+    caminho do `nrows` marcava a coluna como tocada ao contar os `\\n` do corpo raw.
+    Contar separadores não materializa valor, e `touched` alimenta
+    `materialized_bytes`: o efeito era um `count()` puro reportar 94,1% de
+    materialização com o cache vazio, ou seja, o relatório que existe para medir a
+    laziness mentia sobre ela. A afirmação nova é mais forte que a antiga.
+    """
     v = view(blob)
-    v.count()
+    assert v.count() == 6
     rep = v.report()
-    assert len(rep["touched"]) == 1          # count toca só a coluna mais barata
+    assert rep["touched"] == []
+    assert rep["materialized_bytes"] == 0
+    assert rep["pct"] == 0.0
     assert rep["n_cols"] == 4
+    assert v._cache == {}                    # nenhuma coluna virou lista de valores
 
 
 def test_seletividade_filtro_agrega_duas(blob):
@@ -628,3 +640,103 @@ class TestContratoSoftEStrict:
             hard.where("b", "true").count()
         assert len(hard.coercoes) == 1
         assert "foi lido como True" in hard.coercoes[0]
+
+
+class TestCountSemMaterializar:
+    """`count()` responde pela ESTRUTURA, em toda rota.
+
+    Contar linhas nunca precisa dos valores. O dispatch escolhe, por modo de coluna,
+    entre o `n` DECLARADO no cabeçalho das rotas densas, os contadores SOMADOS do
+    corpo core, os SEPARADORES do corpo raw e a forma do stream no dicionário.
+
+    Escolher a leitura errada não levanta: devolve um número errado. Por isso todo
+    caso aqui confere contra `decode()`, que é a verdade.
+
+    Levantamento e casos mínimos anotados:
+    `experiments/lab/dirty/2026-08/2026-08-24/2026-08-24-0600-count-minimo/`.
+    """
+
+    @pytest.mark.parametrize("rotulo,dado", [
+        ("core-texto", ["ab", "cd", "ef"]),
+        ("core-rle", ["SP"] * 3),
+        ("core-sequencia", [1, 2, 3]),
+        ("bn-dominio", ["SP", "RJ"] * 3),
+        ("bool-denso", [True, False, True]),
+        ("uma-linha", ["so-uma"]),
+        ("com-nulo", ["a", None, "c"]),
+        ("com-vazio", ["a", "", "c"]),
+        ("so-vazios", ["", "", ""]),
+        ("unicode", ["São", "Ceará", "日本"]),
+        ("separador-no-valor", ["a,b", "c=d", "e:f"]),
+        ("alta-cardinalidade", [f"{i}-{i * 7919}" for i in range(6)]),
+        ("float", [1.5, 2.25, -0.75]),
+        ("K-na-fronteira-94", [f"v{i % 94}" for i in range(200)]),
+        ("K-na-fronteira-95", [f"v{i % 95}" for i in range(200)]),
+    ])
+    def test_single_col_bate_com_decode(self, rotulo, dado):
+        blob = encode(dado)
+        assert view(blob).count() == len(decode(blob))
+
+    def test_single_col_nao_decodifica_na_abertura(self):
+        """Abrir uma view não pode custar o decode do blob.
+
+        Regressão de 2026-08-24: o ramo single-col chamava `decode()` no `__init__` e
+        guardava a lista no cache, então `view(blob)` já materializava 100% do wire
+        antes de qualquer pergunta. O comentário no código chegava a justificar isso
+        com "não há laziness a preservar", o que é falso: o blob ser a coluna não
+        obriga a lê-lo antes de perguntarem.
+        """
+        v = view(encode([f"v{i % 5}" for i in range(500)]))
+        assert v._cache == {}
+        assert v.touched == []
+        assert v.count() == 500
+        assert v._cache == {}                 # nem o count materializou
+        assert v.select(0)                    # aqui sim, e só aqui
+        assert v._cache != {}
+
+    def test_tipo_vem_do_header_sem_decodificar(self):
+        """A tag de tipo está no char de índice 6, e ler dali é de graça."""
+        for dado, esperado in ((["ab"], "s"), ([1, 2], "n"), ([True, False], "b")):
+            v = view(encode(dado))
+            assert v._stype["0"] == esperado
+            assert v._cache == {}             # o tipo não custou o corpo
+
+    def test_count_nao_marca_materializacao(self):
+        """`touched`/`materialized_bytes` medem o que virou VALOR, não o que foi lido."""
+        blob = encode({"uf": ["SP", "RJ"] * 50, "livre": [str(i) for i in range(100)]})
+        v = view(blob)
+        assert v.count() == 100
+        assert v.report()["materialized_bytes"] == 0
+        assert v.report()["pct"] == 0.0
+
+    @pytest.mark.parametrize("tab", [
+        {"uf": ["SP", "RJ"] * 4, "n": [1, 2] * 4},                 # dict + raw
+        {"a": ["p", "q", "r"], "b": ["x", "y", "z"]},              # raw
+        {"c": ["Z"] * 20, "s": list(range(20)),
+         "b": [i % 3 == 0 for i in range(20)]},                    # core + bool
+    ])
+    def test_multi_col_bate_com_decode(self, tab):
+        blob = encode(tab)
+        esperado = len(next(iter(decode(blob).values())))
+        assert view(blob).count() == esperado
+
+    def test_count_filtrado_bate_com_a_lista(self):
+        """`where(...).count()` conta as linhas que casaram, não as que existem."""
+        tab = {"uf": [["SP", "RJ", "MG"][i % 3] for i in range(90)],
+               "v": list(range(90))}
+        v = view(encode(tab))
+        assert v.where("uf", "SP").count() == 30
+        assert v.where("uf", "SP").where("v", pred=lambda x: x < 45).count() == 15
+        assert v.where("uf", "ZZ").count() == 0
+
+    def test_contador_aninhado_nao_conta_pela_metade(self):
+        """`*N+d|*M|` vale N*M. Tratá-lo como N é o único erro que o SOMADO comete.
+
+        Sem um caso que produza o aninhamento, o atalho passaria no resto da suíte e
+        erraria por um fator em produção.
+        """
+        for dado in ([i // 4 for i in range(400)],           # patamares repetidos
+                     [i % 7 for i in range(700)],            # ciclo curto
+                     sorted([i % 20 for i in range(600)])):  # blocos ordenados
+            blob = encode(dado)
+            assert view(blob).count() == len(decode(blob)), blob[:40]
