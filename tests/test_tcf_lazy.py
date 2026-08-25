@@ -1009,3 +1009,90 @@ class TestGrouping:
         assert view(blob).group_min("g", "v") == {k: min(n) for k, n in baldes.items()}
         assert view(blob).group_max("g", "v") == {k: max(n) for k, n in baldes.items()}
         assert view(blob).group_count("g") == {k: len(n) for k, n in baldes.items()}
+
+
+class TestDistinct:
+    """`SELECT DISTINCT` e `COUNT(DISTINCT col)`, que saem de graça no `@dict`.
+
+    O corpo `@` já carrega a tabela dos K valores distintos, então `distinct` sai dela
+    em O(K), sem varrer as N linhas nem construí-las, e `n_unique` é o tamanho dela.
+
+    Duas premissas foram verificadas antes, porque errar aqui responderia um valor que
+    a coluna não contém:
+
+    1. **Não há único "morto"** na tabelinha, isto é, entrada sem nenhuma linha
+       apontando para ela. Medido em 22 colunas de formas variadas, incluindo as
+       fronteiras K=93/94/95 onde a largura do índice muda.
+    2. **A tabelinha guarda a grafia CRUA** do payload (`'true'`, `'0'`), então o tipo
+       precisa ser revertido. Sem isso, `distinct` devolveria chaves que não batem com
+       as do `select` nem com as do `group_count`, e em silêncio.
+    """
+
+    def test_dict_sai_da_tabelinha(self):
+        """Os dois saem da tabelinha, mas custam coisas diferentes.
+
+        `n_unique` só precisa do TAMANHO dela, então não constrói valor nenhum e o
+        relatório fica em zero. `distinct` constrói os K únicos, porque é isso que ele
+        devolve, e por isso marca a coluna como tocada. Os K, não os N: a coluna tem
+        600 linhas e 3 valores distintos.
+        """
+        blob = encode({"uf": [["SP", "RJ", "MG"][i % 3] for i in range(600)],
+                       "x": [str(i) for i in range(600)]})
+        v = view(blob)
+        assert v._mode["uf"] == "dict", "o regime mudou: a coluna não caiu em @dict"
+
+        so_conta = view(blob)
+        assert so_conta.n_unique("uf") == 3
+        assert so_conta.report()["materialized_bytes"] == 0
+
+        assert v.distinct("uf") == ["SP", "RJ", "MG"]
+        assert v._cache == {}, "distinct não pode materializar as 600 linhas"
+
+    @pytest.mark.parametrize("dado,esperado", [
+        ([i % 2 == 0 for i in range(600)], [True, False]),
+        ([i % 4 for i in range(600)], [0, 1, 2, 3]),
+        ([["SP", "RJ"][i % 2] for i in range(600)], ["SP", "RJ"]),
+    ])
+    def test_tipo_revertido(self, dado, esperado):
+        """A chave sai no tipo da coluna, igual ao `select` e ao `group_count`."""
+        blob = encode({"c": dado, "x": [str(i) for i in range(len(dado))]})
+        assert view(blob).distinct("c") == esperado
+        assert view(blob).distinct("c") == list(dict.fromkeys(decode(blob)["c"]))
+
+    @pytest.mark.parametrize("dado", [
+        ["a", "b", "c"],                                  # todos distintos
+        ["z"] * 50,                                       # um só
+        ["a", "", "b", ""],                               # vazio é um valor
+        ["São Paulo", "Ceará", "日本"],                    # unicode
+        [f"{i}-{i * 7919}" for i in range(50)],           # alta cardinalidade
+        [f"v{i % 94}" for i in range(300)],               # fronteira da largura
+        [f"v{i % 95}" for i in range(300)],
+    ])
+    def test_bate_com_o_decode_em_todo_modo(self, dado):
+        blob = encode({"c": dado, "x": [str(i) for i in range(len(dado))]})
+        esperado = list(dict.fromkeys(decode(blob)["c"]))
+        assert view(blob).distinct("c") == esperado
+        assert view(blob).n_unique("c") == len(esperado)
+
+    def test_nulo_e_um_valor_distinto(self):
+        blob = encode({"c": ["a", None, "b", None], "x": ["1", "2", "3", "4"]})
+        assert view(blob).distinct("c") == ["a", None, "b"]
+        assert view(blob).n_unique("c") == 3
+
+    def test_com_filtro(self):
+        blob = encode({"uf": ["SP", "RJ", "SP", "MG"], "p": ["A", "B", "A", "A"],
+                       "q": [1, 2, 3, 4]})
+        f = view(blob).where("p", "A")
+        assert f.distinct("uf") == ["SP", "MG"]
+        assert f.n_unique("uf") == 2
+
+    def test_por_duas_colunas(self):
+        blob = encode({"uf": ["SP", "RJ", "SP", "MG"], "p": ["A", "B", "A", "A"],
+                       "q": [1, 2, 3, 4]})
+        assert view(blob).distinct(["uf", "p"]) == [("SP", "A"), ("RJ", "B"),
+                                                    ("MG", "A")]
+        assert view(blob).n_unique(["uf", "p"]) == 3
+
+    def test_ordem_e_de_aparicao(self):
+        blob = encode({"c": ["z", "a", "m", "a", "z"], "x": ["1", "2", "3", "4", "5"]})
+        assert view(blob).distinct("c") == ["z", "a", "m"]
