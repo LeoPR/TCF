@@ -28,7 +28,7 @@ Diretriz do dono do projeto (2026-08-25):
 
 | questao | SQL | pandas | polars | **TCF hoje** |
 |---|---|---|---|---|
-| nulo na chave forma grupo? | sim | **nao** (`dropna=True`) | sim | **sim** |
+| nulo na chave forma grupo? | sim | **nao** (`dropna=True`) | sim | **sim, DECIDIDO** |
 | string vazia forma grupo? | sim | sim | sim | **sim** |
 | grupo sem valor: `sum` | `NULL` | `0` | `null` | **`0.0`** |
 | grupo sem valor: `min`/`max`/`avg` | `NULL` | `NaN` | `null` | **`None`** |
@@ -50,6 +50,30 @@ que a chave estava la'.
 **Ordem de aparicao.** Cai de graca do dicionario do Python e da' um resultado
 deterministico para o mesmo blob, o que a ordenacao do pandas tambem daria, mas sem custo.
 
+## DECIDIDO em 2026-08-25: nulo forma grupo, e nao ha' flag `dropna`
+
+Palavras do dono do projeto:
+
+> *"manter e' bom, e criar um dropna e' simples ja' que bastaria colocar um filtro, logo
+> ja' tem solucao, e criar um flag torna ate' confortavel mas e' uma forma de esconder o
+> filtro por uma semantica diferente."*
+
+O argumento fecha os tres eixos de uma vez:
+
+- **ja' tem solucao**: `where(col, pred=lambda x: x is not None).group_count(col)` produz
+  exatamente o que o `dropna=True` do pandas produziria. Conferido contra a conta feita a'
+  mao;
+- **e' mais honesto**: o filtro escrito deixa a' vista o que esta' sendo jogado fora, e uma
+  flag esconderia o descarte atras de uma palavra;
+- **nao custa mais caro**: numa coluna dicionario o predicado roda sobre os K unicos, nao
+  sobre as N linhas. Medido: 3 avaliacoes para 600 linhas.
+
+O que precisa continuar valendo para a decisao se sustentar, e por isso virou teste: o
+`None` tem de CHEGAR ao predicado. Se ele fosse filtrado antes, a alternativa explicita
+sumiria e o usuario ficaria sem saida.
+
+Pinado em `tests/test_tcf_lazy.py::TestNuloNaChaveDeGrupo`.
+
 ## O que fica em aberto
 
 1. **`sum` de grupo vazio: `0.0` ou `None`?** Hoje `0.0` (pandas). O SQL daria `NULL`.
@@ -63,7 +87,8 @@ deterministico para o mesmo blob, o que a ordenacao do pandas tambem daria, mas 
 
 ## Criterio de aceite
 
-- [ ] Cada linha da matriz confirmada ou alterada, com a razao escrita.
+- [x] Linha 1 (nulo na chave) confirmada: forma grupo, sem flag. Razao escrita acima.
+- [ ] As demais linhas da matriz confirmadas ou alteradas, com a razao escrita.
 - [ ] O que divergir do mercado fica documentado como divergencia deliberada, nao como
       omissao.
 - [ ] Sem re-pin de gate byte-canonico (a rota e' read-only).

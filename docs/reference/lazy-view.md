@@ -173,7 +173,10 @@ opcional) ou é de um formato legado.
 
 Em todos, `por` aceita uma coluna ou uma lista, e com lista a chave é a tupla dos valores.
 Nulo e string vazia **formam grupo** (como SQL e polars, diferente do default do pandas,
-que descarta); a ordem das chaves é a de aparição. As divergências de semântica com o
+que descarta); a ordem das chaves é a de aparição. Não há flag `dropna`: descartar o nulo
+é um filtro, e `where(col, pred=lambda x: x is not None)` já faz, deixando à vista o que
+foi jogado fora. Em coluna dicionário esse predicado roda sobre os K únicos, então a forma
+explícita não custa mais caro. As divergências de semântica com o
 mercado estão levantadas em
 [`DECISAO-GROUPING-SEMANTICA`](../../tickets/DECISAO-GROUPING-SEMANTICA.md).
 

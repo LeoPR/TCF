@@ -1096,3 +1096,64 @@ class TestDistinct:
     def test_ordem_e_de_aparicao(self):
         blob = encode({"c": ["z", "a", "m", "a", "z"], "x": ["1", "2", "3", "4", "5"]})
         assert view(blob).distinct("c") == ["z", "a", "m"]
+
+
+class TestNuloNaChaveDeGrupo:
+    """Nulo na chave **forma grupo**, e não há flag `dropna`.
+
+    Decisão do dono do projeto (2026-08-25), com o argumento que a fecha:
+
+    > *"manter é bom, e criar um dropna é simples já que bastaria colocar um filtro,
+    > logo já tem solução, e criar um flag torna até confortável mas é uma forma de
+    > esconder o filtro por uma semântica diferente."*
+
+    Formar grupo é o que SQL e polars fazem; o pandas descarta por padrão
+    (`dropna=True`), e descartar em silêncio faz `group_sum` perder linhas sem que o
+    resultado mostre. Quem quiser o comportamento do pandas escreve o filtro, e aí ele
+    está à vista de quem lê o código.
+
+    Estes testes existem para que a alternativa continue funcionando: se o filtro
+    parasse de ver o nulo, a decisão de não ter a flag deixaria o usuário sem saída.
+    """
+
+    @pytest.fixture
+    def tab(self):
+        return {"g": ["a", None, "a", "b", None, "c"], "v": [1, 2, 3, 4, 5, 6]}
+
+    def test_nulo_forma_grupo(self, tab):
+        blob = encode(tab)
+        assert view(blob).group_count("g") == {"a": 2, None: 2, "b": 1, "c": 1}
+        assert view(blob).group_sum("g", "v") == {"a": 4.0, None: 7.0, "b": 4.0,
+                                                  "c": 6.0}
+
+    def test_o_filtro_faz_o_papel_do_dropna(self, tab):
+        blob = encode(tab)
+        sem_nulo = view(blob).where("g", pred=lambda x: x is not None)
+        assert sem_nulo.group_count("g") == {"a": 2, "b": 1, "c": 1}
+        assert sem_nulo.group_sum("g", "v") == {"a": 4.0, "b": 4.0, "c": 6.0}
+
+    def test_o_predicado_recebe_o_nulo(self, tab):
+        """Se o `None` não chegasse ao predicado, não haveria como filtrá-lo."""
+        blob = encode(tab)
+        vistos = []
+        view(blob).where("g", pred=lambda x: vistos.append(x) or True)
+        assert None in vistos
+
+    def test_no_dict_o_filtro_roda_nos_K_unicos(self):
+        """O `dropna` por filtro não custa uma passada pelas N linhas."""
+        n = 600
+        blob = encode({"g": [[None, "a", "b"][i % 3] for i in range(n)],
+                       "v": list(range(n))})
+        v = view(blob)
+        assert v._mode["g"] == "dict", "o regime mudou: a chave não caiu em @dict"
+        chamadas = []
+        r = view(blob).where(
+            "g", pred=lambda x: chamadas.append(x) or (x is not None)
+        ).group_count("g")
+        assert r == {"a": 200, "b": 200}
+        assert len(chamadas) == 3, "o predicado deve ver os K únicos, não as N linhas"
+
+    def test_where_por_valor_None_casa_o_nulo(self, tab):
+        """O caminho inverso: pedir só as linhas nulas."""
+        blob = encode(tab)
+        assert view(blob).where("g", None).count() == 2

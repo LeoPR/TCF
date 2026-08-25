@@ -119,6 +119,20 @@ v.group_avg("uf", "valor")            # média por grupo
 v.group_sum(["uf", "plano"], "valor") # GROUP BY uf, plano: a chave vira tupla
 ```
 
+**Nulo na chave forma grupo**, como em SQL e polars. O pandas descarta por padrão
+(`dropna=True`), e não há uma flag equivalente aqui de propósito: descartar o nulo é um
+filtro, e o filtro já existe.
+
+```python
+v.group_count("uf")                                        # o nulo aparece
+v.where("uf", pred=lambda x: x is not None).group_count("uf")   # o "dropna"
+```
+
+Escrever o filtro deixa à vista o que está sendo jogado fora, e uma flag esconderia isso
+atrás de uma semântica. Numa coluna dicionário o predicado ainda roda sobre os K únicos,
+não sobre as N linhas, então a alternativa explícita não custa mais caro: medido, três
+avaliações para 600 linhas.
+
 Um grupo sem nenhum valor aproveitável (todos nulos ou vazios) soma `0.0`, porque a soma
 do conjunto vazio é zero. Mas `min`, `max` e `avg` devolvem `None` ali, porque não há
 resposta: devolver `0.0` inventaria um valor que a coluna não contém. O grupo aparece nos
