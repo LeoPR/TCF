@@ -267,6 +267,55 @@ No `.8H` cada coluna usa o pipeline core, sem a competição `min(tcf, raw, dict
 `group_count` cai em fallback. A laziness continua de pé nas duas, e o `count()` custa 0,0%
 também ali.
 
+## Onde ela ganha, e onde ela apenas funciona
+
+Duas vantagens diferentes se confundem se não forem separadas:
+
+- **Entre colunas**: a view nunca toca as colunas que a pergunta não pede. Isso vale em
+  todo modo, e cresce com a largura da tabela.
+- **Dentro da coluna**: a view responde sem materializar nem a coluna consultada, lendo a
+  estrutura do corpo. Isso só acontece onde a estrutura permite.
+
+A segunda é o que separa um ganho real de "funciona". Se a coluna consultada é
+materializada inteira, o que sobra é um filtro pós-decode sobre ela, e a economia vem só
+das colunas que não foram tocadas.
+
+Medido em n=2000, três colunas. "estrutura" significa que a operação construiu **menos
+valores do que há linhas**:
+
+| operação | `@dict` | `%split` | core |
+|---|---|---|---|
+| `count`, `nrows` | estrutura | estrutura | estrutura |
+| `n_unique`, `distinct` | **estrutura** | materializa | materializa |
+| `where` (igualdade ou predicado) | **estrutura** | materializa | materializa |
+| `group_count` | **estrutura** | materializa | materializa |
+| `group_sum` e família | materializa | materializa | materializa |
+| `sum`/`min`/`max`/`avg` | materializa | materializa | materializa |
+| `select` | materializa | materializa | materializa |
+
+Em palavras:
+
+**`count` é a única que ganha sempre.** Todo modo declara a contagem de linhas em algum
+lugar da estrutura.
+
+**Cinco operações ganham só em coluna dicionário**: `n_unique`, `distinct`, `where`,
+`group_count`. Ali o corpo carrega uma tabela de K únicos e um stream de índices, então a
+pergunta é respondida sobre os K, não sobre os N. Nos outros modos a mesma chamada
+materializa a coluna, e se comporta como um filtro pós-decode.
+
+**Os agregadores e o `select` sempre materializam a coluna**, em todo modo, e para o
+`select` isso não é defeito: devolver os valores *é* o trabalho. Para o `sum` e a família
+`group_*` é um limite real, e o protótipo que o removeria em dicionários está medido mas
+não soldado (ver [`view-usos.md`](view-usos.md)).
+
+O que isso significa na prática: uma tabela com uma coluna de baixa cardinalidade e várias
+largas é o formato para o qual a view foi feita. Uma tabela de uma coluna só, de alta
+cardinalidade, é o formato em que `view()` e `decode()` custam quase o mesmo, e o honesto é
+dizer isso.
+
+Este é o retrato do `.8`. Os protótipos que moveriam `group_*` e os agregadores para a
+coluna "estrutura" estão medidos e registrados para o `.9`.
+
 ## Layout ordenado · **experimental**
 
 Para um blob **já ordenado** por uma chave (`encode(table, sort_by=chave)`), onde os grupos

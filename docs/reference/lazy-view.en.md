@@ -267,6 +267,54 @@ competition of `.8M`: the blob comes out 38.3% larger on the same 2,000-row by 5
 table, and `group_count` falls back. Laziness holds in both, and `count()` costs 0.0% there
 too.
 
+## Where it wins, and where it merely works
+
+Two different advantages get confused if you do not separate them:
+
+- **Between columns**: the view never touches the columns a question does not ask for.
+  This holds in every mode, and it grows with the width of the table.
+- **Within the column**: the view answers without materializing even the queried column,
+  reading the body's structure instead. This only happens where the structure allows it.
+
+The second one is what separates a real win from "it works". If the queried column is
+materialized in full, what is left is a post-decode filter over that column, and the saving
+comes only from the columns that were not touched.
+
+Measured at n=2000, three columns. "structure" means the operation built **fewer values
+than there are rows**:
+
+| operation | `@dict` | `%split` | core |
+|---|---|---|---|
+| `count`, `nrows` | structure | structure | structure |
+| `n_unique`, `distinct` | **structure** | materializes | materializes |
+| `where` (equality or predicate) | **structure** | materializes | materializes |
+| `group_count` | **structure** | materializes | materializes |
+| `group_sum` and family | materializes | materializes | materializes |
+| `sum`/`min`/`max`/`avg` | materializes | materializes | materializes |
+| `select` | materializes | materializes | materializes |
+
+So, plainly:
+
+**`count` is the only one that always wins.** Every mode declares the row count somewhere
+in the structure.
+
+**Five operations win only on a dictionary column**: `n_unique`, `distinct`, `where`,
+`group_count`. There the body carries a table of K uniques and a stream of indices, so the
+question is answered over the K, not the N. On the other modes the same call materializes
+the column, and behaves like a post-decode filter.
+
+**The aggregators and `select` always materialize the column**, in every mode, and that is
+not a flaw for `select`: returning the values *is* the work. For `sum` and the `group_*`
+family it is a real limit, and the prototype that would remove it on dictionaries is
+measured but not welded (see [`view-usos.md`](view-usos.md)).
+
+What this means in practice: a table with one low-cardinality column and several wide ones
+is the shape the view was built for. A table of one high-cardinality column is the shape
+where `view()` and `decode()` cost nearly the same, and the honest thing is to say so.
+
+This is a `.8` picture. The prototypes that would move `group_*` and the aggregators into
+the "structure" column are measured and recorded for `.9`.
+
 ## Sorted layout · **experimental**
 
 For a blob **already sorted** by a key (`encode(table, sort_by=key)`), where the groups end
