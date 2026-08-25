@@ -59,11 +59,26 @@ for any date or datetime column, which made `view` report 63 rows out of 1000 an
 `select()` return the table truncated with no error; and the fast filter path agreed with
 the slow one only on text columns.
 
+**The grouping surface is complete.** `where(...).group_count(...)`, the most basic
+`WHERE ... GROUP BY` in SQL, used to raise `AttributeError`: the filtered result knew how
+to aggregate the whole set but not how to group it. Added along with `group_min`,
+`group_max`, `group_avg` (only `count` and `sum` existed) and grouping by several columns,
+where the key becomes the tuple of values. Where the market disagrees with itself, the
+choices are documented rather than assumed: a null key **forms a group** (as in SQL and
+polars, unlike pandas' default, which drops it); a group with no usable value sums to
+`0.0`, because the empty sum has an answer, while `min`/`max`/`avg` return `None` there,
+because they do not; and the group shows up either way instead of vanishing.
+
+**`distinct` and `n_unique`**, the `SELECT DISTINCT` and `COUNT(DISTINCT col)`. In a
+dictionary column both come off the unique table the body already carries, in O(K). They
+cost different things and the docs say so: `n_unique` only needs its size and builds no
+value at all, while `distinct` builds the K uniques, because that is what it returns.
+
 **`where` now reads the filter value in the column's type** (soft by default, with a
 warning and a record in `v.coercoes`), replacing the `TypeError` that 0.8.1 raised. A
 `.strict()` opt-in keeps the old rigour.
 
-Test suite 1252 → 1471. Byte-canonical gates green throughout, with a deliberate re-pin
+Test suite 1252 → 1497. Byte-canonical gates green throughout, with a deliberate re-pin
 only where the typed route changed emission.
 
 ---

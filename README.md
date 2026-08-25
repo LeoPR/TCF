@@ -612,7 +612,10 @@ a format version**: it reads `#TCF.8M`, `#TCF.8H` when rectangular, and the sing
 route.
 
 The current query-like surface: `count`, `sum`, `min`, `max`, `avg`, `where`, `select`,
-`group_count`, plus experimental `group_ranges`/`agg_by` for sorted layouts.
+`distinct`, `n_unique`, and the grouping family (`group_count`, `group_sum`, `group_min`,
+`group_max`, `group_avg`), which also runs after a filter, so `where(...).group_sum(...)` is
+the `WHERE ... GROUP BY`. Grouping keys accept a list of columns. Plus experimental
+`group_ranges`/`agg_by` for sorted layouts.
 
 Dictionary and raw columns can be scanned structurally, while an interleaved `tcf` column may
 require full materialization. The detailed contracts live in

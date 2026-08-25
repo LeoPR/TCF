@@ -602,10 +602,14 @@ Em dados reais (online-retail, 5 000 × 8), responder *"quantos itens o usuário
 Um `count()` não materializa nada: a contagem de linhas está declarada na estrutura,
 então sai sem construir um único valor. Memória e latência baixas caem direto da estrutura.
 
-É uma API read-only do core e lê o `#TCF.8M` atual.
+É uma API read-only do core, e lê o `#TCF.8M`, o `#TCF.8H` quando é retangular e a rota de
+coluna única.
 
-Superfície atual: `count`, `sum`, `min`, `max`, `avg`, `where`, `select`, `group_count` e, em
-caráter experimental, `group_ranges`/`agg_by` em layouts ordenados.
+Superfície atual: `count`, `sum`, `min`, `max`, `avg`, `where`, `select`, `distinct`,
+`n_unique` e a família de agrupamento (`group_count`, `group_sum`, `group_min`, `group_max`,
+`group_avg`), que também roda depois de um filtro: `where(...).group_sum(...)` é o
+`WHERE ... GROUP BY`. A chave de agrupamento aceita lista de colunas. Em caráter
+experimental, `group_ranges`/`agg_by` em layouts ordenados.
 
 Colunas `@dict`/raw podem ser consultadas estruturalmente. Já uma coluna `tcf` entrelaçada pode
 exigir materialização completa. O contrato detalhado está em
