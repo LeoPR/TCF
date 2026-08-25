@@ -676,7 +676,33 @@ class LazyTCF:
             ids = {i for i, u in enumerate(unicas) if pred(u)}
         else:
             ids = {i for i, u in enumerate(unicas) if u == value}
-        return width, stream, ids
+        return width, stream, ids, len(unicas)
+
+    @staticmethod
+    def _idx_do_dict(width: int, stream: bytes, ids: set, k: int) -> list:
+        """Índices das linhas que casaram, num corpo `@`.
+
+        A tabela de únicos é a lista FECHADA dos valores que a coluna contém, então
+        ela responde os dois extremos antes de o stream ser tocado:
+
+        - **nenhum** único casou: nenhuma linha pode casar, porque toda linha aponta
+          para algum único. A resposta é `[]` sem ler um byte do stream.
+        - **todos** os únicos casaram: toda linha casa, e a resposta é
+          `range(n_linhas)`, com `n_linhas = len(stream) // width`.
+
+        Antes os dois extremos varriam o stream inteiro decodificando índice por
+        índice para chegar na mesma resposta: numa coluna de 2000 linhas, filtrar por
+        um valor inexistente visitava 2000 posições para devolver lista vazia.
+
+        No caso do meio a varredura continua, porque aí a resposta depende mesmo de
+        quais linhas apontam para quê.
+        """
+        if not ids:
+            return []
+        if len(ids) == k:
+            return list(range(len(stream) // width))
+        return [i for i, off in enumerate(range(0, len(stream), width))
+                if _idx_at(stream, off, width) in ids]
 
     # ---- numérico (contrato: ignora vazios; erra em não-numérico) ----
     def _floats(self, col: str, idx: list[int] | None) -> list[float]:
@@ -756,10 +782,8 @@ class LazyTCF:
         col = self._resolve_col(col)
         value = self._coage(col, value, pred)
         if self._mode[col] == "dict":           # L4: varre o stream, sem decodar os N valores
-            width, stream, ids = self._dict_target_ids(col, value, pred)
-            idx = [i for i, off in enumerate(range(0, len(stream), width))
-                   if _idx_at(stream, off, width) in ids]
-            return Filtered(self, idx)
+            width, stream, ids, k = self._dict_target_ids(col, value, pred)
+            return Filtered(self, self._idx_do_dict(width, stream, ids, k))
         vals = self._col(col)
         if pred is not None:
             idx = [i for i, v in enumerate(vals) if pred(v)]
@@ -826,7 +850,14 @@ class Filtered:
         col = p._resolve_col(col)
         value = p._coage(col, value, pred)
         if p._mode[col] == "dict":              # L4: lê só as posições já filtradas no stream
-            width, stream, ids = p._dict_target_ids(col, value, pred)
+            width, stream, ids, k = p._dict_target_ids(col, value, pred)
+            # Os mesmos dois extremos do `where` de entrada, agora sobre os índices já
+            # filtrados: nenhum único casou, nada sobrevive ao AND; todos casaram, o
+            # filtro não restringe nada e os índices atuais passam inteiros.
+            if not ids:
+                return Filtered(p, [])
+            if len(ids) == k:
+                return Filtered(p, list(self.indices))
             idx = [i for i in self.indices if _idx_at(stream, i * width, width) in ids]
             return Filtered(p, idx)
         vals = p._col(col)

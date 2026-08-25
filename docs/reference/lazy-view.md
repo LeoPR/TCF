@@ -143,6 +143,13 @@ Filtra por igualdade (`value`) ou predicado (`pred`), descomprimindo **só a col
 filtro**. Em coluna dicionário (`@`) varre o stream de índices sem decodificar os N
 valores (avalia `value`/`pred` sobre os K únicos). Devolve [`Filtered`](#filtered).
 
+Nessa coluna, os dois extremos nem chegam a varrer o stream. A tabela de únicos é a
+lista fechada do que a coluna contém e toda linha aponta para algum único, então:
+quando **nenhum** único casa, nenhuma linha pode casar e a resposta é `[]`; quando
+**todos** casam, toda linha casa e a resposta é `range(n)`. Filtrar por um valor que a
+coluna não tem passou de varrer as N posições para não ler o stream. O caso do meio
+continua varrendo, porque aí a resposta depende de quais linhas apontam para quê.
+
 ## `LazyTCF.select(cols=None, idx=None) -> list[dict]` · estável
 
 Linhas alinhadas como dicts; decodifica só as colunas pedidas (`cols=None` = todas).

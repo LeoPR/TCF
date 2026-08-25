@@ -802,3 +802,93 @@ class TestContadorMultiDelta:
         assert _contador_declarado("*3|SP") == 3          # RLE simples
         assert _contador_declarado("*12~5,2|x") == 12     # periódico
         assert _contador_declarado("valor comum") == 0    # não é marcador
+
+
+class TestWhereCurtoCircuitoDominio:
+    """A tabela de únicos do `@dict` responde os dois extremos sem varrer o stream.
+
+    O corpo `@` guarda os K valores distintos e um stream de N índices. A tabela é a
+    lista FECHADA do que a coluna contém, então:
+
+    - nenhum único casou: nenhuma linha pode casar, porque toda linha aponta para
+      algum único. Resposta `[]`, sem ler o stream.
+    - todos casaram: toda linha casa. Resposta `range(len(stream) // width)`.
+
+    Antes os dois extremos varriam o stream inteiro decodificando índice por índice
+    para chegar na mesma resposta. Medido: filtrar por valor inexistente numa coluna
+    de 2000 linhas visitava 2000 posições para devolver lista vazia.
+
+    Errar aqui não levanta, devolve o conjunto errado de linhas, então cada caso
+    confere os ÍNDICES um a um contra a lista decodificada, não só a contagem.
+    Diversidade completa (1358 filtros, 5 modos):
+    `experiments/lab/dirty/2026-08/2026-08-24/2026-08-24-0700-where-minimo/`.
+    """
+
+    @pytest.fixture
+    def tab(self):
+        n = 300
+        return {"c": [["SP", "RJ", "MG"][i % 3] for i in range(n)],
+                "x": [str(i) for i in range(n)]}
+
+    def test_valor_inexistente_devolve_vazio(self, tab):
+        v = view(encode(tab))
+        assert v._mode["c"] == "dict", "o regime mudou: a coluna não caiu em @dict"
+        f = v.where("c", "ZZ")
+        assert f.count() == 0
+        assert f.indices == []
+        assert f.select() == []
+
+    def test_predicado_que_aceita_tudo_devolve_todas(self, tab):
+        blob = encode(tab)
+        v = view(blob)
+        f = v.where("c", pred=lambda x: True)
+        assert f.count() == 300
+        assert f.indices == list(range(300))
+        assert [r["c"] for r in f.select("c")] == decode(blob)["c"]
+
+    def test_predicado_que_recusa_tudo_devolve_vazio(self, tab):
+        f = view(encode(tab)).where("c", pred=lambda x: False)
+        assert f.count() == 0
+        assert f.indices == []
+
+    def test_caso_do_meio_continua_varrendo_e_acertando(self, tab):
+        blob = encode(tab)
+        esperado = [i for i, x in enumerate(decode(blob)["c"]) if x == "SP"]
+        f = view(blob).where("c", "SP")
+        assert f.indices == esperado
+        assert f.count() == len(esperado)
+
+    def test_encadeado_respeita_os_extremos(self, tab):
+        blob = encode(tab)
+        base = view(blob).where("c", "SP")
+        n = base.count()
+        # nenhum único casa: o AND zera
+        assert base.where("c", "ZZ").count() == 0
+        # todos casam: o AND não restringe
+        assert base.where("c", pred=lambda x: True).count() == n
+        assert base.where("c", pred=lambda x: True).indices == base.indices
+
+    def test_predicado_que_levanta_propaga(self, tab):
+        """O atalho avalia o predicado nos K únicos, então um erro do usuário sai de
+        lá e não de dentro de uma varredura de N linhas. Levantar é o certo."""
+        with pytest.raises(TypeError):
+            view(encode(tab)).where("c", pred=lambda x: x + 1)
+
+    def test_valor_que_e_substring_de_outro(self):
+        """Comparação é por valor, não por conteúdo de bytes: `'a'` não casa `'ab'`."""
+        n = 300
+        blob = encode({"c": [["a", "ab", "abc"][i % 3] for i in range(n)],
+                       "x": [str(i) for i in range(n)]})
+        for alvo in ("a", "ab", "abc"):
+            esperado = [i for i, x in enumerate(decode(blob)["c"]) if x == alvo]
+            assert view(blob).where("c", alvo).indices == esperado, alvo
+
+    def test_coluna_de_um_unico_valor(self):
+        """K=1: filtrar pelo único é o extremo 'todos casam'; por outro, o extremo vazio."""
+        n = 300
+        blob = encode({"c": ["SP"] * n, "x": [str(i) for i in range(n)]})
+        v = view(blob)
+        if v._mode["c"] != "dict":
+            pytest.skip("regime: a coluna constante não caiu em @dict")
+        assert v.where("c", "SP").count() == n
+        assert view(blob).where("c", "RJ").count() == 0
