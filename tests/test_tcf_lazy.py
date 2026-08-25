@@ -740,3 +740,65 @@ class TestCountSemMaterializar:
                      sorted([i % 20 for i in range(600)])):  # blocos ordenados
             blob = encode(dado)
             assert view(blob).count() == len(decode(blob)), blob[:40]
+
+
+import datetime as _dt  # noqa: E402
+
+_BASE = _dt.date(2025, 1, 1)
+_TS = _dt.datetime(2025, 1, 1)
+_CASOS_MULTI_DELTA = [
+    ("data-iso-diaria",
+     [(_BASE + _dt.timedelta(days=i)).isoformat() for i in range(1000)]),
+    ("data-iso-salteada",
+     [(_BASE + _dt.timedelta(days=i * 3)).isoformat() for i in range(500)]),
+    ("data-iso-repetida",
+     [(_BASE + _dt.timedelta(days=i // 5)).isoformat() for i in range(500)]),
+    ("timestamp-horario",
+     [(_TS + _dt.timedelta(hours=i)).isoformat() for i in range(500)]),
+    ("timestamp-minuto",
+     [(_TS + _dt.timedelta(minutes=i)).isoformat() for i in range(300)]),
+]
+
+
+class TestContadorMultiDelta:
+    r"""REGRESSÃO: o contador multi-delta `*29+0,1|` truncava a tabela em silêncio.
+
+    O weld do count nasceu com um regex próprio (`^\*(\d+)([+~]\d+)?\|`) que casa o
+    delta único mas **não** casa o multi-delta, que o encoder emite em qualquer coluna
+    de data ou datetime. Sequência de inteiros não dispara esse marcador, e a
+    diversidade da primeira rodada só tinha inteiros: por isso passou.
+
+    O dano não era só um número errado. `select()` itera `range(self.nrows)`, então a
+    tabela voltava com 63 das 1000 linhas, **sem erro nenhum**.
+
+    A correção é fonte única: quem lê o contador agora é `_contador_declarado`, de
+    `composicional/hcc_seqrle.py`, que lê os dígitos até o `|` e portanto vale para
+    toda grafia do marcador. Duas grafias do mesmo marcador com dois leitores era a
+    causa raiz, e é a classe de bug que o T-CODE-CORE-CONSOLIDATE registra.
+    """
+
+    @pytest.mark.parametrize("rotulo,dado", _CASOS_MULTI_DELTA)
+    def test_conta_e_nao_trunca(self, rotulo, dado):
+        blob = encode({"c": dado})
+        v = view(blob)
+        assert v.count() == len(dado), f"{rotulo}: count truncou"
+        assert v.nrows == len(dado), f"{rotulo}: nrows truncou"
+        # o que de fato dói: a tabela voltando incompleta e sem erro
+        assert len(view(blob).select()) == len(dado), f"{rotulo}: select truncou"
+        assert view(blob).select("c")[-1]["c"] == dado[-1], "última linha perdida"
+
+    def test_single_col_tambem(self):
+        import datetime as dt
+        dado = [(dt.date(2025, 1, 1) + dt.timedelta(days=i)).isoformat()
+                for i in range(1000)]
+        blob = encode(dado)
+        assert view(blob).count() == len(decode(blob))
+
+    def test_leitor_e_o_canonico(self):
+        """Não reimplementar o leitor: usar o que já existe evita a divergência."""
+        from tcf.composicional.hcc_seqrle import _contador_declarado
+        assert _contador_declarado("*29+0,1|x") == 29     # multi-delta
+        assert _contador_declarado("*7+1|v") == 7         # delta único
+        assert _contador_declarado("*3|SP") == 3          # RLE simples
+        assert _contador_declarado("*12~5,2|x") == 12     # periódico
+        assert _contador_declarado("valor comum") == 0    # não é marcador

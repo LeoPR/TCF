@@ -63,7 +63,6 @@ def _idx_at(stream: bytes, off: int, width: int) -> int:
 # cardinalidade, tamanho e forma no lab de origem).
 # Levantamento: experiments/lab/dirty/2026-08/2026-08-24/2026-08-24-0600-count-minimo/
 _RE_BN_CAB = re.compile(rb"^#TCF\.8[nbs]?[BCb][1-8][0-9a-f]+$")
-_RE_CONTADOR = re.compile(rb"^\*(\d+)([+~]\d+)?\|")
 
 
 def _n_declarado(cabecalho: bytes):
@@ -86,9 +85,18 @@ def _n_somado(corpo: bytes) -> int:
     """Soma os contadores declarados de um corpo core.
 
     Cada linha ou abre com um contador (`*N|`, valendo N linhas) ou é uma linha
-    solta (valendo 1). O aninhamento `*N+d|*M|` vale N*M, e tratá-lo como N é o
-    único erro que este caminho comete se implementado ingenuamente.
+    solta (valendo 1). O aninhamento `*N+d|*M|` vale N*M.
+
+    Quem lê o contador é `_contador_declarado`, de `composicional/hcc_seqrle.py`, e
+    é de propósito: a primeira versão daqui usava um regex próprio,
+    `^\\*(\\d+)([+~]\\d+)?\\|`, que **não casa o multi-delta** `*29+0,1|` emitido em
+    qualquer coluna de data ou datetime. O efeito era mudo e grave: numa coluna de
+    1000 datas ISO o `view` respondia 63, e como `select` itera `range(self.nrows)`,
+    a tabela voltava truncada sem erro nenhum. Duas grafias do mesmo marcador, dois
+    leitores, e o mais novo estava errado. Fonte única resolve a classe inteira.
     """
+    from tcf.composicional.hcc_seqrle import _contador_declarado
+
     # Tira UM `\n` final, o terminador do wire, e não todos: `rstrip` comeria também
     # uma última linha legitimamente vazia. Em `b"a\n\n"` (os valores `"a"` e `""`)
     # o `rstrip` deixava `b"a"` e a contagem saía 1 em vez de 2.
@@ -97,14 +105,16 @@ def _n_somado(corpo: bytes) -> int:
     if not corpo:
         return 0
     total = 0
-    for linha in corpo.split(b"\n"):
-        m = _RE_CONTADOR.match(linha)
-        if not m:
+    for bruta in corpo.split(b"\n"):
+        linha = bruta.decode("utf-8", "surrogateescape")
+        n = _contador_declarado(linha)
+        if not n:
             total += 1
             continue
-        n = int(m.group(1))
-        aninhado = _RE_CONTADOR.match(linha[m.end():])
-        total += n * int(aninhado.group(1)) if aninhado else n
+        # aninhado `*N+d|*M|`: o segundo contador multiplica o primeiro
+        resto = linha[linha.find("|") + 1:]
+        m = _contador_declarado(resto)
+        total += n * m if m else n
     return total
 
 
