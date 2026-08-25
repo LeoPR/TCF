@@ -1,11 +1,17 @@
 # Referência: `tcf.view` (consulta sob demanda)
 
 Referência da camada de consulta somente leitura [`tcf.view`](../../src/tcf/view.py): conecta a um
-blob TCF multi-coluna e responde consultas (`count/sum/min/max/avg`, `where`, group-by),
-**descomprimindo só o necessário**. Lê `#TCF.8M`; os filtros registrados no cabeçalho são
-reaplicados quando a coluna é lida, e colunas anônimas continuam posicionais. `#TCF.6` e `#TCF.7`
-não são aceitos no pacote `0.8` (compatibilidade histórica via git). A consulta não muda
+blob TCF e responde consultas (`count/sum/min/max/avg`, `where`, group-by),
+**descomprimindo só o necessário**. Os filtros registrados no cabeçalho são reaplicados
+quando a coluna é lida, e colunas anônimas continuam posicionais. A consulta não muda
 `encode`, `decode` nem o formato.
+
+**O que ela lê**: `#TCF.8M` (multi-coluna), `#TCF.8H` quando é tabela retangular, e a
+rota de coluna única em todas as suas formas (`#TCF.8`, `#TCF.8n`, `#TCF.8b`, `#TCF.8bB`,
+`#TCF.8 :spec`, e as densas `B`/`C`). Na coluna única o nome é `"0"`, como em qualquer
+coluna anônima ([ADR-0029](../adr/0029-version-format-identification-semi-implicit.md)).
+`#TCF.6` e
+`#TCF.7` não são aceitos no pacote `0.8` (compatibilidade histórica via git).
 
 ```python
 from tcf import encode, view
@@ -27,8 +33,10 @@ v.where("cidade", "SP").sum("valor") # toca só cidade + valor
   `where()` devolve os índices das linhas que casaram; agregação/`select` em **qualquer
   outra** coluna usam os mesmos índices. É assim que "a linha de uma coluna é a mesma
   linha na outra".
-- **Contrato numérico** (`sum/min/max/avg`): **ignora** valores vazios (`""`); valor
-  não-numérico levanta `ValueError` (intencional: não silencia dado sujo).
+- **Contrato numérico** (`sum/min/max/avg`): **ignora** vazio (`""`) e nulo (`None`);
+  valor não-numérico levanta `ValueError` (intencional: não silencia dado sujo). Sem
+  nenhum valor numérico, `min`/`max`/`avg` levantam e `sum` devolve `0`, que é o `sum([])`
+  do Python e portanto um `int`, não um `float`.
 - **Só leitura**: nenhuma operação muda o blob.
 
 ## Consulta SQL-like, sem SQL
@@ -41,14 +49,18 @@ do `schema=` ([ADR-0047](../adr/0047-schema-parametro-unico-de-spec.md): `0 <= p
 negativo; coluna *chamada* `"2"` é achada pelo `str`, a posição pelo `int`).
 
 **Tipo do dado**: a tabela declara o tipo de cada coluna no header (uma letra: `N` número,
-`B` bool, ausente = texto), e os valores voltam no tipo em que entraram. A view lê também o
-`#TCF.8H` que é tabela retangular, a rota de `encode(list[dict])`:
+`B` bool, ausente = texto), e os valores voltam no tipo em que entraram:
 
 ```python
 v = view(encode({"cidade": ["SP", "SP", "RJ"], "valor": [120, 80, 200]}))
+# shebang: '#TCF.8M!8=cidade,!aN=valor'  (multi-col, com a tag de tipo na 2ª coluna)
 v.where("valor", 120).count()      # 1: compare com int, que é o tipo da coluna
 v.sum("valor")                     # 400.0
 ```
+
+Uma coluna tipada **não** tira a tabela do `.8M`: o tipo custa a tag de 1 byte no header.
+O `#TCF.8H` é outra rota, a de `encode(list[dict])`, e a view também a lê quando ela é
+retangular.
 
 ### Comparar: soft por padrão, strict quando você quiser
 
@@ -65,11 +77,16 @@ v.coercoes                   # o que foi convertido nesta view, e como
 O cast é sempre do **lado barato**: converte o único valor do filtro, nunca as N linhas da
 coluna. Numa tabela de 5 000 linhas, uma conversão.
 
-As grafias de bool são uma **lista fechada** (`true/1/t/yes/sim` e `false/0/f/no/não`,
-ignorando caixa e espaços), no espírito do PostgreSQL. String não-vazia **não** vira `True`
-por truthiness, que é a armadilha clássica de `astype(bool)` no pandas. O que não tem
-leitura possível (`"banana"` numa coluna bool) levanta `TypeError`: converter é ler a
-intenção, não adivinhar.
+As grafias de bool em **texto** são uma lista fechada (`true/1/t/yes/sim` e
+`false/0/f/no/nao/não`, ignorando caixa e espaços), no espírito do PostgreSQL. String
+não-vazia **não** vira `True` por truthiness, que é a armadilha clássica de
+`astype(bool)` no pandas, e o que não tem leitura possível (`"banana"` numa coluna bool)
+levanta `TypeError`: converter é ler a intenção, não adivinhar.
+
+Um `int` numa coluna bool é outra história, e vale saber: ele passa por `bool(value)`,
+então `0` é `False` e **qualquer outro inteiro** é `True`, incluindo `5` e `-1`. É a
+regra do Python, não a do PostgreSQL, e é uma inconsistência com o parágrafo acima:
+a proteção contra truthiness vale para texto e não vale para número.
 
 Para código que se quer rígido, `.strict()` troca a conversão automática por erro:
 
@@ -84,9 +101,12 @@ v.where("ativo", True)       # passa igual
 porque no TCF o texto é o meio, não um descuido do usuário.
 
 Uma diferença que vale saber: no `.8H` cada coluna usa o pipeline core, sem a competição
-`min(tcf, raw, dict, split)` do `.8M`. O blob fica maior, e `group_count` cai em fallback
-porque não há modo dicionário nessa rota. A laziness continua de pé nas duas (medido: uma
-consulta de duas colunas em 2 000 linhas materializa 9,4% do blob; um `count()`, 4,5%).
+`min(tcf, raw, dict, split)` do `.8M`. O blob fica **38,3% maior** na mesma tabela de
+2 000 linhas por 5 colunas, e `group_count` cai em fallback porque não há modo dicionário
+nessa rota. A laziness continua de pé nas duas, e o `count()` custa 0,0% também ali.
+
+O custo de cada operação, por modo de coluna, está medido em
+[`view-usos.md`](view-usos.md).
 
 Fora de alcance: aninhado, ragged e campo opcional não são tabela, e a view recusa com uma
 mensagem que manda usar `decode()`.
@@ -95,33 +115,40 @@ mensagem que manda usar `decode()`.
 |---|---|---|
 | projeção | `select(cols)` | materializa apenas as colunas pedidas; escalar (`str`/`int`) = 1 coluna; `[]` = nenhuma |
 | filtro | `where(col, value=...)` ou `where(col, pred=...)` | igualdade/predicado; encadeamento é AND; `value` é lido no tipo da coluna (soft), ou exigido nele com `.strict()`; `None` casa nulo |
-| agregação | `count`, `sum`, `min`, `max`, `avg` | valores vazios são ignorados nos agregadores numéricos |
+| agregação | `count`, `sum`, `min`, `max`, `avg` | vazio e nulo são ignorados nos agregadores numéricos |
 | agrupamento | `group_count(col)` | caminho estrutural em `@dict`; fallback nos demais modos |
 | soma por grupo | `group_sum(por, col)` | o `GROUP BY x SUM(y)`; materializa só as duas colunas |
 | layout agrupado | `group_ranges`, `agg_by` | experimental; requer ordem contígua de `sort_by` |
 | alinhamento | índices posicionais | a linha `i` de cada coluna é a mesma linha |
 
-Não há parser SQL, joins, `OR`, `NULL` SQL, `ORDER BY`, `LIMIT`, expressões
-calculadas ou plano multi-tabela. Uma coluna em modo `tcf` pode exigir
-materialização completa porque suas referências são entrelaçadas; o relatório
-`touched`/`materialized_bytes` deve ser usado para observar esse custo. A
-evolução de `QueryPlan`/`execute()` e índices locais pertence ao trabalho
-posterior de query, não ao formato `.8`.
+Não há parser SQL, joins, `ORDER BY`, `LIMIT`, expressões calculadas ou plano
+multi-tabela. `OR` não existe **entre** colunas (o encadeamento de `where` é sempre AND),
+mas `pred=` expressa OR dentro de uma coluna:
+`where("uf", pred=lambda x: x in ("SP", "RJ"))`.
+
+Uma coluna em modo `tcf` pode exigir materialização completa porque suas referências são
+entrelaçadas. Para ver quais colunas uma consulta alcançou, use `touched`; para o custo
+fino de cada caminho, as medições por operação estão em [`view-usos.md`](view-usos.md),
+porque `materialized_bytes` é grosso demais para isso (ver a nota na tabela abaixo).
+
+A evolução de `QueryPlan`/`execute()` e índices locais pertence ao trabalho posterior de
+query, não ao formato `.8`.
 
 ## `view(blob) -> LazyTCF`  · estável
 
-Conecta a um blob TCF multi-coluna. `ValueError` se o blob não for multi-coluna
-(`#TCF.6 M` / `#TCF.7 M`).
+Conecta a um blob TCF. Aceita multi-coluna, tabela retangular e coluna única; `ValueError`
+com mensagem que manda usar `decode()` quando o blob não é tabela (aninhado, ragged, campo
+opcional) ou é de um formato legado.
 
 ## `LazyTCF`: introspecção (barata, só header) · estável
 
 | membro | retorno | nota |
 |---|---|---|
 | `columns` | `list[str]` | nomes na ordem do header |
-| `nrows` | `int` | nº de linhas pelo caminho mais curto: `n` declarado no cabeçalho → raw (conta `\n`) → dict (`len(stream)//width`) → contadores do core. Nenhum materializa valor |
+| `nrows` | `int` | nº de linhas pelo caminho mais curto: `n` declarado no cabeçalho → raw (conta `\n`) → dict (`len(stream)//width`) → contadores do core. Nenhum desses materializa valor. O modo `split` não declara contagem: se **toda** coluna da tabela for `split`, cai em decodificar a menor (medido: 49,7% numa tabela de 2 colunas) |
 | `column_bytes(name)` | `int` | tamanho do corpo **comprimido** da coluna (sem decodificar) |
 | `total_bytes` | `int` | soma dos corpos |
-| `materialized_bytes` | `int` | bytes já descomprimidos (corpos tocados) |
+| `materialized_bytes` | `int` | soma dos corpos das colunas em `touched`. **Grosso de propósito**: conta o corpo INTEIRO da coluna assim que ela é tocada, então um `where` em `@dict`, que constrói só os K únicos, aparece com o mesmo número de um `select`, que constrói as N linhas. Serve para ver QUAIS colunas a consulta alcançou, não o custo fino de cada caminho. O ajuste está registrado para o `.9` |
 | `report()` | `dict` | `{total_bytes, materialized_bytes, pct, touched, n_cols}` (seletividade) |
 
 ## `LazyTCF`: agregadores · estável
@@ -131,11 +158,11 @@ Conecta a um blob TCF multi-coluna. `ValueError` se o blob não for multi-coluna
 | método | retorno | contrato |
 |---|---|---|
 | `count(idx=None)` | `int` | nº de linhas (ou do filtro) |
-| `sum(col, idx=None)` | `float` | soma; ignora vazios |
+| `sum(col, idx=None)` | `float` | soma; ignora vazio e nulo. Sem nenhum numérico devolve `0` (`int`, o `sum([])` do Python) |
 | `min(col, idx=None)` | `float` | mínimo; `ValueError` se sem numéricos |
 | `max(col, idx=None)` | `float` | máximo; idem |
 | `avg(col, idx=None)` | `float` | média; idem |
-| `group_count(col)` | `dict[str,int]` | `{valor: n}` **sem expandir** a coluna quando ela é dicionário (`@`); senão fallback (decode + Counter) |
+| `group_count(col)` | `dict` | `{valor: n}` **sem expandir** a coluna quando ela é dicionário (`@`); senão fallback (decode + Counter). A chave sai no **tipo da coluna**, então numa coluna `N` as chaves são `int`/`float` e numa `B` são `bool`, não `str` |
 
 ## `LazyTCF.where(col, value=None, *, pred=None) -> Filtered` · estável
 
@@ -199,7 +226,7 @@ v = view(blob)
 v.count()                                  # 6
 v.group_count("cidade")                    # {'SP': 4, 'RJ': 2}
 v.where("cidade", "SP").sum("valor")       # 470.0
-v.report()                                 # {... 'pct': 55.6, 'touched': ['valor','cidade'], ...}
+v.report()                                 # {... 'pct': 55.6, 'touched': ['cidade','valor'], ...}
 ```
 
 `report()['pct']` mostra a fração do blob materializada, a "venda" do lazy: a query

@@ -21,6 +21,53 @@ compositional cycle in
 
 ---
 
+## Unreleased: the view learns to read the structure
+
+Ten welds on top of 0.8.1, all in the read-only query layer except one, which does change
+what the encoder emits.
+
+**Format change (emission)**: a typed column no longer pushes the whole table out of
+`#TCF.8M` into `#TCF.8H`. The type now travels as a one-byte tag in the meta, so
+`encode({"uf": [...], "qtd": [1, 2, 3]})` stays multi-column and keeps the
+`min(tcf, raw, dict, split)` competition. Measured cost of the type: **+1 byte** when the
+typed column sits anywhere but last, **+3** when it is last (the tag brings back the size
+that `min_header` was omitting; the minimal wire would be +1, and that header optimisation
+is not done).
+
+**The view reads everything that is a table**: `#TCF.8M`, `#TCF.8H` when rectangular, and
+the single-column route in all its forms. Until now a single `int` or `bool` column made
+`view()` refuse the table outright.
+
+**`count()` stopped materialising anything**, in every mode. Counting rows never needs the
+values, and the structure already states them: dense routes write `n` in the header as hex;
+the core body carries counters (`*N|`) declaring how many rows each one stands for; the raw
+body is one line per value; the dictionary is `len(stream) // width`. `report()` reflects
+it: after a plain `count()`, `materialized_bytes` is 0. The one exception is a table where
+*every* column is `split`, which declares no count anywhere.
+
+**`view(blob)` no longer decodes on open** in the single-column route. It used to call
+`decode()` in `__init__`, so connecting to a blob already materialised 100% of the wire
+before any question was asked.
+
+**`where` answers the two extremes without scanning**: in a dictionary column, when no
+unique matches the answer is empty, and when all match it is every row. The unique table is
+the closed list of what the column holds, so it settles both ends by itself.
+
+**Two silent bugs fixed**, both of the same class (two spellings of one marker, two
+readers): the new counter reader missed the multi-delta `*29+0,1|` that the encoder emits
+for any date or datetime column, which made `view` report 63 rows out of 1000 and, worse,
+`select()` return the table truncated with no error; and the fast filter path agreed with
+the slow one only on text columns.
+
+**`where` now reads the filter value in the column's type** (soft by default, with a
+warning and a record in `v.coercoes`), replacing the `TypeError` that 0.8.1 raised. A
+`.strict()` opt-in keeps the old rigour.
+
+Test suite 1252 → 1471. Byte-canonical gates green throughout, with a deliberate re-pin
+only where the typed route changed emission.
+
+---
+
 ## 0.8.1 (2026-08-23): fail-loud: wire concatenado, contador RLE, view posicional
 
 Três comportamentos silenciosos eliminados do decode/view, cada um re-provado em lab

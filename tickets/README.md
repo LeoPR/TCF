@@ -185,6 +185,7 @@ Referência da metodologia subjacente: oficina
 | [T-EXP-H-PERF-05d](T-EXP-H-PERF-05d.md) | Counter incremental em HCC _detect_compositions | closed |
 | [BUG-VIEW-RECUSA-COLUNA-TIPADA](BUG-VIEW-RECUSA-COLUNA-TIPADA.md) | uma coluna `int`/`bool` tirava a tabela inteira do `view()` | **closed 2026-08-23** |
 | [BUG-ENCODE-PRIMEIRO-VALOR-NULO](BUG-ENCODE-PRIMEIRO-VALOR-NULO.md) | `None` na PRIMEIRA linha estoura o encode multi-col com `TypeError` cru | open |
+| [DECISAO-VIEW-BOOL-TRUTHINESS](DECISAO-VIEW-BOOL-TRUTHINESS.md) | `int` numa coluna bool passa por truthiness, e a doc promete o contrário | open |
 | [T-FMT-CONTRACT-SIGNATURE](T-FMT-CONTRACT-SIGNATURE.md) | assinatura de contrato para os knobs que não reconstroem a entrada (drop_names, sort_by) | open |
 | [T-FMT-ESCAPE-COMBINATORIAL-STUDY](T-FMT-ESCAPE-COMBINATORIAL-STUDY.md) | reestudar o escape (combinatório + estratégias de outros mecanismos) | open |
 | [T-QA-8-material-comprobatorio](T-QA-8-material-comprobatorio.md) | material comprobatório do #TCF.8/0.8.0 (controle → sintéticos → públicos) com telemetria, dicts | open |

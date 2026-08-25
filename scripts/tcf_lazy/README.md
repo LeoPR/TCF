@@ -45,7 +45,7 @@ v.report()                                     # {materialized_bytes, total_byte
 
 ## Estado
 **Funcional L1–L5** (filtro + agregação + alinhamento + contar/agrupar sem expandir + filtro
-pelo índice do dicionário + group-by por layout ordenado). `tests/test_tcf_lazy.py` (27 testes).
+pelo índice do dicionário + group-by por layout ordenado). `tests/test_tcf_lazy.py` (124 testes).
 **Achado L3 (verificado)**: agregar `*N|` direto no modo-tcf não é separável (OBAT+HCC entrelaçam
 valor com refs), o ganho estrutural limpo vive no dicionário (`@`)/raw. **L5 trade-off**: o layout
 ordenado ajuda/atrapalha a compressão conforme o dataset/chave; o ganho de latência da query é

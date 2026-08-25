@@ -576,7 +576,7 @@ table = {
 
 blob = encode(table)                            # 183 B de texto ASCII: é isto que se armazena/transmite
 v = view(blob)                                  # conecta, não descomprime nada
-v.count()                                       # 6        toca: valor (coluna mais barata)
+v.count()                                       # 6        não toca coluna nenhuma
 v.sum("valor")                                  # 750      toca: valor
 v.avg("valor")                                  # 125
 v.max("valor"), v.min("valor")                  # 200, 80
@@ -599,7 +599,8 @@ ressalva: o `*N|` do modo-tcf é entrelaçado, **não separável**.
 
 Em dados reais (online-retail, 5 000 × 8), responder *"quantos itens o usuário X comprou"* com
 `where(CustomerID=X).sum("Quantity")` **materializa 7,9% do blob**, contra 100% de um `decode()`.
-Um `count()` toca 0,2%. Memória e latência baixas caem direto da estrutura.
+Um `count()` não materializa nada: a contagem de linhas está declarada na estrutura,
+então sai sem construir um único valor. Memória e latência baixas caem direto da estrutura.
 
 É uma API read-only do core e lê o `#TCF.8M` atual.
 
@@ -626,7 +627,7 @@ flowchart TB
     B -->|"corpo HTTP<br/>(gzip/brotli opcional, por cima)"| C
     subgraph Consumidor
         direction TB
-        C["view(blob)<br/>conecta, não descomprime nada"] -->|"count()"| D["coluna mais barata<br/>(só as linhas)"]
+        C["view(blob)<br/>conecta, não descomprime nada"] -->|"count()"| D["o cabeçalho<br/>(nenhuma coluna lida)"]
         C -->|"where(cidade=SP).sum(valor)"| E["materializa só<br/>cidade + valor"]
         C -->|"decode(blob)"| F[tabela inteira<br/>todas as colunas]
     end

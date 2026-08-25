@@ -95,13 +95,14 @@ sales = {
     "amount":   ["120", "100", "170", "200", "80", "80"],
 }
 v = view(encode(sales))                        # connects, decompresses nothing
-assert v.count() == 6                          # touches the cheapest column
+assert v.count() == 6                          # answered from the structure, no column read
 assert v.sum("amount") == 750
 assert v.where("city", "Sao Paulo").sum("amount") == 470   # only city + amount
 ```
 
 On a real table (online-retail, 5000×8), answering *"how many items did user X buy"* touches
-**7.9% of the blob**; `count()` touches 0.2%, against the 100% a `decode()` costs. An
+**7.9% of the blob**; `count()` materializes nothing at all, against the 100% a `decode()`
+costs. An
 opaque compressor cannot do this.
 
 ## Specs: semantic type, string result

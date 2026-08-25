@@ -15,7 +15,7 @@ from tcf import TemplatedCheckedSpec, TemplatedPaddedSpec
 |---|---|
 | **`encode(data, **kwargs)`** | dataset → wire `str`. **Porta única de encode**; rota por TIPO (tabela abaixo). |
 | **`decode(str)`** | wire → dataset. Auto-rota pelo magic (`#TCF.8M`/`#TCF.8H`/`#TCF.8`/órfão). |
-| **`view(...)` · `LazyTCF` · `Filtered`** | consulta lazy read-only (só `#TCF.8M`; ver [`lazy-view.md`](lazy-view.md)). |
+| **`view(...)` · `LazyTCF` · `Filtered`** | consulta lazy read-only: `#TCF.8M`, `#TCF.8H` retangular e a rota de coluna única (ver [`lazy-view.md`](lazy-view.md) e [`view-usos.md`](view-usos.md)). |
 | **`SideOutputs`** | telemetria opt-in (`encode(x, side_outputs=so)`). |
 | **`PipelineConfig`** | toggles do pipeline flat (`encode(x, layers=cfg)`). |
 | **`build_schema` · `TableSchema` · `ColumnSchema`** | schema per-tabela. |

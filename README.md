@@ -580,7 +580,7 @@ table = {
 
 blob = encode(table)                           # 183 B of ASCII text: this is what you store/transmit
 v = view(blob)                                 # connects, decompresses nothing
-v.count()                                      # 6        touches: valor (cheapest column)
+v.count()                                      # 6        touches no column at all
 v.sum("valor")                                 # 750      touches: valor
 v.avg("valor")                                 # 125
 v.max("valor"), v.min("valor")                 # 200, 80
@@ -604,10 +604,12 @@ count and group **without expanding**, filtering through the dictionary index, a
 
 On real data (online-retail, 5,000 × 8), answering *"how many items did user X buy"* with
 `where(CustomerID=X).sum("Quantity")` **materializes 7.9% of the blob**, against 100% for a
-`decode()`. A `count()` touches 0.2%.
+`decode()`. A `count()` materializes **nothing at all**: the row count is declared in the
+structure, so it is read without building a single value.
 
 Low memory and latency fall straight out of that structure. And it is a **read-only core API, not
-a format version**: it reads the current `#TCF.8M`.
+a format version**: it reads `#TCF.8M`, `#TCF.8H` when rectangular, and the single-column
+route.
 
 The current query-like surface: `count`, `sum`, `min`, `max`, `avg`, `where`, `select`,
 `group_count`, plus experimental `group_ranges`/`agg_by` for sorted layouts.
@@ -631,7 +633,7 @@ flowchart TB
     B -->|"HTTP body<br/>(gzip/brotli optional, on top)"| C
     subgraph Consumer
         direction TB
-        C["view(blob)<br/>connects, decompresses nothing"] -->|"count()"| D["cheapest column<br/>(rows only)"]
+        C["view(blob)<br/>connects, decompresses nothing"] -->|"count()"| D["the header<br/>(no column read)"]
         C -->|"where(cidade=SP).sum(valor)"| E["materializes only<br/>cidade + valor"]
         C -->|"decode(blob)"| F[full table<br/>all columns]
     end
