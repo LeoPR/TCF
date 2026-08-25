@@ -145,6 +145,27 @@ O que falta medir antes de propor qualquer chave:
       reordena as linhas, muda os bytes). Ele é o precedente: uma chave que declara
       intenção, com custo assumido e documentado.
 
+### Reforco de 2026-08-25: o remapeamento entre colunas depende do modo
+
+Uma medicao nova torna o P6 mais concreto. A hipotese do owner era que, numa consulta
+ordenada, so' a coluna ordenada pagaria o preco e as outras poderiam ser "puladas" por
+mapeamento logico. Ela se sustenta, mas **so' quando as outras colunas caem em dict ou
+denso**:
+
+| modo | acesso a' linha i | medido |
+|---|---|---|
+| `@dict` | O(1), `offset = i * width` | 5 posicoes de 2000, **0 bytes decodificados** |
+| denso | O(1), `offset = i * w bits` | por construcao |
+| `raw` | O(i), achar o i-esimo LF | nao medido |
+| `core` | **impossivel**, refs resolvidas em sequencia | ler 1 posicao construiu 2000 valores |
+
+Isso liga o P6 a uma consequencia pratica: a escolha de modo do encoder decide se a
+consulta ordenada e' barata ou nao, e essa escolha hoje e' feita so' por bytes. Uma tabela
+em que 3 colunas caem em dict e 1 em core tem 3 colunas "pulaveis" e uma que obriga a
+materializar tudo.
+
+Registrado como `H-QUERY-04f`.
+
 ### A pergunta de desenho, para depois da medição
 
 Se a zona de empate existir, a chave não precisa ser um nível global (`L0..L9`, que a
