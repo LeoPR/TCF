@@ -121,6 +121,7 @@ TCF/
 | **V2-RLE-STREAM** (follow-up V2-B) | `experiments/lab/dirty/old/refuted/2026-06-19-v2rle-stream-caracterizacao/result.md` + registry Pacote 11-bis |
 | **Lazy/queryable view** (descomprimir o minimo) | `src/tcf/view.py` (`from tcf import view`; A4) · **o que da' pra perguntar, com o custo medido de cada operacao**: `docs/reference/view-usos.md` · reference de API `docs/reference/lazy-view.md` · design 0.9 `experiments/lab/dirty/notas/2026-06/hquery01-decode-dag-indices-design.md` |
 | Knobs de encode + view (reference) | `docs/reference/encode-knobs.md`, `docs/reference/lazy-view.md` |
+| **Divulgacao**: post pronto pro LinkedIn (versao longa e curta, numeros conferidos, e as notas do que foi evitado de proposito) | `docs/divulgacao/linkedin-0.8.2.md` |
 | **Obter no TCF o comportamento de pandas/SQL/polars** (agrupamento: nulo na chave, grupo sem valor, ordem) | `docs/how-to/mimetizar-pandas-sql-polars.md`: 5 receitas, cada uma verificada por execucao contra a ferramenta de origem |
 | **TCF ↔ JSON: equivalências** (o que traduz, o que faz a mais, a fronteira) | `docs/reference/json-equivalence.md` (semente do manual; wires confirmados por execução) |
 | **Família bN: bits densos de domínio** (wire `#TCF.8B`/`C`, marcador `=`, slot nulo, quando ativa, integridade b64, canonicidade) | `docs/reference/familia-bn-bits.md` (**manual preliminar**; wires medidos) · contraprova `experiments/lab/clean/EXP-016-bn-familia-bits/` (72 casos, 0 falhas) · ADR-0035/0036 |

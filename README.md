@@ -567,33 +567,42 @@ chaining, aggregates and group operations are exposed as Python methods.
 It does not implement joins, SQL parsing, NULL semantics, ordering/limit or a general query planner.
 
 ```python
-from tcf import encode
-from tcf import view                            # public API since 0.8
+from tcf import encode, view                    # public API since 0.8
 
 # a small sales table: loaded from a CSV, a DB dump, wherever
 table = {
     "cliente": ["Ana Souza", "Bruno Lima", "Carla Nunes", "Diego Rocha", "Eva Martins", "Ana Souza"],
     "cidade":  ["Sao Paulo", "Sao Paulo", "Sao Paulo", "Rio de Janeiro", "Sao Paulo", "Rio de Janeiro"],
     "plano":   ["Premium",   "Premium",   "Basic",     "Premium",        "Basic",     "Premium"],
-    "valor":   ["120",       "100",       "170",       "200",            "80",        "80"],
+    "valor":   [        120,          100,         170,              200,        80,               80],
 }
 
-blob = encode(table)                           # 183 B of ASCII text: this is what you store/transmit
+blob = encode(table)                           # 187 B of ASCII text: this is what you store/transmit
 v = view(blob)                                 # connects, decompresses nothing
+
 v.count()                                      # 6        touches no column at all
-v.sum("valor")                                 # 750      touches: valor
-v.avg("valor")                                 # 125
-v.max("valor"), v.min("valor")                 # 200, 80
-v.where("cidade", "Sao Paulo").count()         # 4        touches: cidade
-v.where("cidade", "Sao Paulo").sum("valor")    # 470      touches: cidade, valor
+v.distinct("cidade")                           # ['Sao Paulo', 'Rio de Janeiro']
+v.n_unique("cliente")                          # 5
+v.sum("valor")                                 # 750.0    touches: valor
+v.where("cidade", "Sao Paulo").sum("valor")    # 470.0    touches: cidade, valor
+v.group_sum("cidade", "valor")                 # {'Sao Paulo': 470.0, 'Rio de Janeiro': 280.0}
+v.group_count("plano")                         # {'Premium': 4, 'Basic': 2}
 ```
-*Real PoC output: the table above `encode`s to a 183 B blob and round-trips exactly.*
+*Real output: the table above `encode`s to a 187 B blob and round-trips exactly, with `valor`
+coming back as `int`.*
 
-The `touches:` line is the point. In that real PoC output, the filtered sum materialized **only**
-`cidade` + `valor`, and `cliente` and `plano` were never decompressed.
-
-A `decode()`, or a gzip/brotli on top, would materialize all 4 columns **entirely** before any
+The `touches:` line is the point. The filtered sum materialized **only** `cidade` + `valor`
+(`report()` says 39.9% of the blob), and `cliente` and `plano` were never decompressed. A
+`decode()`, or a gzip/brotli on top, would materialize all 4 columns **entirely** before any
 computation.
+
+Not every question is equally cheap, and the reference is explicit about which is which.
+`count` reads the row count from the structure and builds nothing. On a dictionary column,
+`where`, `distinct` and `group_count` answer over the K distinct values rather than the N
+rows, walking the index stream **without expanding it**. The aggregators and `select` do
+materialize the column they read. So the gain is largest on a wide table filtered by a
+low-cardinality column, and near zero on a single high-cardinality column, which the docs
+say out loud instead of hiding.
 
 Aggregators: `count`, `sum`, `min`, `max`, `avg` + `where`. **L3–L5 already implemented**:
 count and group **without expanding**, filtering through the dictionary index, and group-by via a

@@ -563,30 +563,40 @@ agregadores e agrupamentos como métodos Python.
 Não implementa joins, NULL SQL, ORDER/LIMIT ou um planejador geral.
 
 ```python
-from tcf import encode
-from tcf import view                             # API publica desde a 0.8
+from tcf import encode, view                     # API pública desde a 0.8
 
 # um cadastro pequeno de vendas: carregado de um CSV, dump de banco, onde for
-table = {
+tabela = {
     "cliente": ["Ana Souza", "Bruno Lima", "Carla Nunes", "Diego Rocha", "Eva Martins", "Ana Souza"],
     "cidade":  ["Sao Paulo", "Sao Paulo", "Sao Paulo", "Rio de Janeiro", "Sao Paulo", "Rio de Janeiro"],
     "plano":   ["Premium",   "Premium",   "Basic",     "Premium",        "Basic",     "Premium"],
-    "valor":   ["120",       "100",       "170",       "200",            "80",        "80"],
+    "valor":   [        120,          100,         170,              200,        80,               80],
 }
 
-blob = encode(table)                            # 183 B de texto ASCII: é isto que se armazena/transmite
+blob = encode(tabela)                           # 187 B de texto ASCII: é isto que se armazena/transmite
 v = view(blob)                                  # conecta, não descomprime nada
-v.count()                                       # 6        não toca coluna nenhuma
-v.sum("valor")                                  # 750      toca: valor
-v.avg("valor")                                  # 125
-v.max("valor"), v.min("valor")                  # 200, 80
-v.where("cidade", "Sao Paulo").count()          # 4        toca: cidade
-v.where("cidade", "Sao Paulo").sum("valor")     # 470      toca: cidade, valor
-```
-*(Saída real do PoC: a tabela acima faz `encode` para um blob de 183 B e volta exata no round-trip.)*
 
-O `toca:` é o ponto (saída real). A soma filtrada materializou **só** `cidade` + `valor`;
-`cliente` e `plano` nunca foram descomprimidos.
+v.count()                                       # 6        não toca coluna nenhuma
+v.distinct("cidade")                            # ['Sao Paulo', 'Rio de Janeiro']
+v.n_unique("cliente")                           # 5
+v.sum("valor")                                  # 750.0    toca: valor
+v.where("cidade", "Sao Paulo").sum("valor")     # 470.0    toca: cidade, valor
+v.group_sum("cidade", "valor")                  # {'Sao Paulo': 470.0, 'Rio de Janeiro': 280.0}
+v.group_count("plano")                          # {'Premium': 4, 'Basic': 2}
+```
+*(Saída real: a tabela acima faz `encode` para um blob de 187 B e volta exata no round-trip,
+com `valor` voltando como `int`.)*
+
+O `toca:` é o ponto (saída real). A soma filtrada materializou **só** `cidade` + `valor`
+(o `report()` diz 39,9% do blob); `cliente` e `plano` nunca foram descomprimidos.
+
+Nem toda pergunta custa o mesmo, e a referência é explícita sobre qual é qual. O `count` lê a
+contagem de linhas da estrutura e não constrói nada. Numa coluna dicionário, `where`,
+`distinct` e `group_count` respondem sobre os K valores distintos em vez das N linhas,
+percorrendo o stream de índices **sem expandi-lo**. Já os agregadores e o `select`
+materializam a coluna que leem. Então o ganho é maior numa tabela larga filtrada por uma
+coluna de baixa cardinalidade, e quase nulo numa coluna única de alta cardinalidade, o que a
+documentação diz em voz alta em vez de esconder.
 
 Um `decode()` materializaria as 4 colunas **inteiras** antes de qualquer conta, e um gzip/brotli
 por cima faria o mesmo.

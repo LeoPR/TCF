@@ -91,19 +91,27 @@ from tcf import encode, view
 
 sales = {
     "customer": ["Ana", "Bruno", "Carla", "Diego", "Eva", "Ana"],
-    "city":     ["Sao Paulo", "Sao Paulo", "Sao Paulo", "Rio", "Sao Paulo", "Rio"],
-    "amount":   ["120", "100", "170", "200", "80", "80"],
+    "city":     [ "SP",    "SP",    "SP",    "RJ",  "SP",  "RJ"],
+    "amount":   [  120,     100,     170,     200,    80,    80],
 }
-v = view(encode(sales))                        # connects, decompresses nothing
-assert v.count() == 6                          # answered from the structure, no column read
-assert v.sum("amount") == 750
-assert v.where("city", "Sao Paulo").sum("amount") == 470   # only city + amount
+v = view(encode(sales))                    # connects, decompresses nothing
+
+v.count()                                  # 6, read from the structure
+v.distinct("city")                         # ['SP', 'RJ']
+v.sum("amount")                            # 750.0
+v.where("city", "SP").sum("amount")        # 470.0, touching only city + amount
+v.group_sum("city", "amount")              # {'SP': 470.0, 'RJ': 280.0}
 ```
 
-On a real table (online-retail, 5000×8), answering *"how many items did user X buy"* touches
-**7.9% of the blob**; `count()` materializes nothing at all, against the 100% a `decode()`
-costs. An
-opaque compressor cannot do this.
+Values come back in the type they went in as, and the filter compares in that type.
+
+Not every question is equally cheap, and the docs say which is which. `count` reads the row
+count from the structure and materializes nothing. On a dictionary column, `where`,
+`distinct` and `group_count` answer over the K distinct values instead of the N rows, and
+walk the index stream **without expanding it**. The aggregators and `select` do materialize
+the column they read, so on a single high-cardinality column `view()` and `decode()` cost
+nearly the same. The gain is real where the shape allows it, and stated plainly where it
+does not.
 
 ## Specs: semantic type, string result
 
