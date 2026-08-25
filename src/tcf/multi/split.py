@@ -29,6 +29,23 @@ def _struct_split_encode(values: list[str], *, cfg: PipelineConfig,
 
     if len(values) < 2:
         return None
+    # Nulo: o corpo do split é template mais campos de dígito, e não tem onde guardar
+    # a distinção entre `None` e a ausência do campo. Coluna com nulo não concorre
+    # aqui, e quem a atende é o candidato tcf, que tem slot próprio pro nulo. É a
+    # mesma recusa, pela mesma razão, que `_fallback_safe` já faz no modo raw.
+    #
+    # Sem esta guarda o `re.split` recebia `None` e levantava `TypeError` cru, três
+    # camadas abaixo do `encode`, sem dizer coluna nem linha. E não era só a primeira
+    # linha: qualquer posição derrubava, desde que o primeiro valor formasse um
+    # template com 2+ campos. Com template mais fraco a função já retornava antes e o
+    # nulo passava, o que fazia o defeito parecer posicional.
+    #
+    # Desistir aqui não custa bytes: medido em 6 formas de template forte (IP, data,
+    # CPF, telefone, coordenada, versão) x 4 frações de nulo, o modo que atende a
+    # coluna já é MENOR que o teto de um split tolerante a nulo, nas 24 combinações.
+    # Lab: experiments/lab/dirty/2026-08/2026-08-25/2026-08-25-0400-split-e-nulo/
+    if any(v is None for v in values):
+        return None
     toks0 = _DIGITS.split(values[0])
     nf = len(toks0) // 2
     if nf < 2:

@@ -184,7 +184,7 @@ Referência da metodologia subjacente: oficina
 | [T-EXP-H-DA-09c-d-e](T-EXP-H-DA-09c-d-e.md) | Refinos detect_cadence (threshold/multivariada/adaptativo) | closed |
 | [T-EXP-H-PERF-05d](T-EXP-H-PERF-05d.md) | Counter incremental em HCC _detect_compositions | closed |
 | [BUG-VIEW-RECUSA-COLUNA-TIPADA](BUG-VIEW-RECUSA-COLUNA-TIPADA.md) | uma coluna `int`/`bool` tirava a tabela inteira do `view()` | **closed 2026-08-23** |
-| [BUG-ENCODE-PRIMEIRO-VALOR-NULO](BUG-ENCODE-PRIMEIRO-VALOR-NULO.md) | `None` na PRIMEIRA linha estoura o encode multi-col com `TypeError` cru | open |
+| [BUG-ENCODE-PRIMEIRO-VALOR-NULO](BUG-ENCODE-PRIMEIRO-VALOR-NULO.md) | `None` numa coluna estourava o encode com `TypeError` cru (o gatilho não era a posição, era o template) | **closed 2026-08-25** |
 | [DECISAO-VIEW-BOOL-TRUTHINESS](DECISAO-VIEW-BOOL-TRUTHINESS.md) | `int` numa coluna bool passa por truthiness, e a doc promete o contrário | open |
 | [DECISAO-GROUPING-SEMANTICA](DECISAO-GROUPING-SEMANTICA.md) | onde o agrupamento diverge de SQL/pandas/polars: levantado, a confirmar | open |
 | [T-FMT-CONTRACT-SIGNATURE](T-FMT-CONTRACT-SIGNATURE.md) | assinatura de contrato para os knobs que não reconstroem a entrada (drop_names, sort_by) | open |

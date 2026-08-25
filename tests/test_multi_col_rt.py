@@ -652,3 +652,62 @@ class TestTagEColunaAnonima:
         assert nomeada.splitlines()[0] != anonima.splitlines()[0]
         assert decode(nomeada) == {"N": ["x", "y"]}
         assert decode(anonima) == {"0": [1, 2]}
+
+
+class TestSplitRecusaNulo:
+    """REGRESSÃO: `None` numa coluna estourava o encode com `TypeError` cru.
+
+    O candidato `%split` guarda template mais campos de dígito, e não tem onde
+    representar nulo. Faltava a guarda que os outros candidatos já têm: o
+    `_fallback_safe` recusa nulo no modo raw pela mesma razão, e explica no comentário
+    que o raw achataria o nulo numa linha vazia, perdendo a distinção entre `None` e
+    `""`. Quem atende essa coluna é o candidato tcf, que tem slot próprio.
+
+    O defeito PARECIA posicional (só a primeira linha), e não era: qualquer posição
+    derrubava, desde que o primeiro valor formasse um template com 2 ou mais campos de
+    dígito. Com template mais fraco a função retornava antes e o nulo passava, o que
+    escondia o alcance real.
+
+    Desistir do candidato não custa bytes: medido em 6 formas de template forte por 4
+    frações de nulo, o modo que atende a coluna já é menor que o teto de um split
+    tolerante, nas 24 combinações.
+    Lab: `experiments/lab/dirty/2026-08/2026-08-25/2026-08-25-0400-split-e-nulo/`.
+    """
+
+    @pytest.mark.parametrize("rotulo,tab", [
+        ("nulo-na-primeira", {"g": ["a", "b"], "v": [None, "a1b2"]}),
+        ("nulo-no-meio", {"g": ["a", "b", "c"], "v": ["a1b2", None, "c3d4"]}),
+        ("nulo-no-fim", {"g": ["a", "b"], "v": ["a1b2", None]}),
+        ("coluna-toda-nula", {"g": ["a", "b"], "v": [None, None]}),
+        ("nulo-com-template-forte",
+         {"g": ["x"] * 50,
+          "v": [f"10.0.{i}.{i}" if i % 5 else None for i in range(50)]}),
+        ("grupo-todo-nulo", {"g": ["a", "a", "b", "b"], "v": [None, None, "1", "2"]}),
+        ("nulo-e-vazio", {"g": ["a", "b", "c"], "v": [None, "", "1a2b"]}),
+    ])
+    def test_encoda_e_faz_roundtrip(self, rotulo, tab):
+        blob = encode(tab)
+        assert decode(blob) == tab, rotulo
+
+    def test_single_col_com_nulo_e_template(self):
+        dado = [None, "a1b2", "c3d4"]
+        assert decode(encode(dado)) == dado
+
+    def test_split_recusa_direto(self):
+        """A guarda é no candidato, não no chamador: ele devolve `None`, não levanta."""
+        from tcf.multi.split import _struct_split_encode
+        from tcf.pipeline import PipelineConfig
+        cfg = PipelineConfig()
+        assert _struct_split_encode([None, "a1b2", "c3d4"], cfg=cfg, min_len=None) is None
+        assert _struct_split_encode(["a1b2", None, "c3d4"], cfg=cfg, min_len=None) is None
+        # sem nulo continua concorrendo
+        assert _struct_split_encode(["10.0.1.2", "10.0.3.4", "10.0.5.6"] * 20,
+                                    cfg=cfg, min_len=None) is not None
+
+    def test_a_coluna_sem_nulo_nao_muda(self):
+        """A guarda não pode tirar o split de quem não tem nulo."""
+        from tcf.view import view
+        col = [f"10.0.{i % 256}.{(i * 7) % 256}" for i in range(600)]
+        blob = encode({"c": col, "x": [str(i) for i in range(600)]})
+        assert view(blob)._mode["c"] == "split"
+        assert decode(blob)["c"] == col
