@@ -617,6 +617,12 @@ The current query-like surface: `count`, `sum`, `min`, `max`, `avg`, `where`, `s
 the `WHERE ... GROUP BY`. Grouping keys accept a list of columns. Plus experimental
 `group_ranges`/`agg_by` for sorted layouts.
 
+Grouping has decisions with no single right answer, and this one follows the mathematics: a
+null key **forms a group**, and a group with no usable value sums to `0.0` while `min`/`max`/
+`avg` return `None` there. If you expect what pandas, SQL or polars would answer,
+[the matching guide](docs/how-to/mimetizar-pandas-sql-polars.md) gives the one-liner for each,
+every recipe verified by execution.
+
 Dictionary and raw columns can be scanned structurally, while an interleaved `tcf` column may
 require full materialization. The detailed contracts live in
 [`docs/reference/lazy-view.md`](docs/reference/lazy-view.md).

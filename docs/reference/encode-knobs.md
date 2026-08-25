@@ -55,7 +55,7 @@ Reordena as linhas pela coluna-chave antes de encodar, agrupando valores similar
 - **Order-free**: o `decode` retorna a ordem **ordenada**, **não** a original (a ordem original
   **não** é recuperável). Use só quando a ordem não importa, **nunca** numa transmissão que precise
   preservar ordem.
-- Habilita o layout de baixa latência do gadget lazy (`group_ranges`/`agg_by` por slice).
+- Habilita o layout de baixa latência de [`view()`](lazy-view.md) (`group_ranges`/`agg_by` por slice), que são **experimentais** e exigem os grupos contíguos.
 - `ValueError` se a coluna não existe ou se as colunas têm tamanhos diferentes.
 
 ## Knobs relacionados (não-byte)

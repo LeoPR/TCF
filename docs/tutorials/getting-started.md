@@ -255,8 +255,11 @@ assert v.where("cidade", "SP").sum("valor") == 30.0
 print(v.report()["touched"])
 ```
 
-The detailed contract and limits of the query-like surface are in
-[`docs/reference/lazy-view.md`](../reference/lazy-view.md).
+Where to go from here: [`view-usos.md`](../reference/view-usos.md) lists what you can ask
+and what each question costs, [`lazy-view.md`](../reference/lazy-view.md) has the API contract
+and its limits, and [the matching guide](../how-to/mimetizar-pandas-sql-polars.md) shows the
+one-liner that reproduces pandas, SQL or polars behaviour when grouping answers differently
+from the tool you already know.
 
 ## Next steps
 

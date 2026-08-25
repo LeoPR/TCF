@@ -611,6 +611,12 @@ Superfície atual: `count`, `sum`, `min`, `max`, `avg`, `where`, `select`, `dist
 `WHERE ... GROUP BY`. A chave de agrupamento aceita lista de colunas. Em caráter
 experimental, `group_ranges`/`agg_by` em layouts ordenados.
 
+Agrupar tem decisões sem resposta única, e aqui elas seguem a matemática: chave nula
+**forma grupo**, e um grupo sem valor aproveitável soma `0.0`, enquanto `min`/`max`/`avg`
+devolvem `None` ali. Se você espera o que o pandas, o SQL ou o polars responderiam,
+[o guia de equivalências](docs/how-to/mimetizar-pandas-sql-polars.md) traz a linha de código
+de cada um, com toda receita verificada por execução.
+
 Colunas `@dict`/raw podem ser consultadas estruturalmente. Já uma coluna `tcf` entrelaçada pode
 exigir materialização completa. O contrato detalhado está em
 [`docs/reference/lazy-view.md`](docs/reference/lazy-view.md).

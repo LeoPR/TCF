@@ -258,8 +258,11 @@ assert v.where("cidade", "SP").sum("valor") == 30.0
 print(v.report()["touched"])
 ```
 
-O contrato e os limites da superfície query-like estão em
-[`docs/reference/lazy-view.md`](../reference/lazy-view.md).
+Por onde seguir: [`view-usos.md`](../reference/view-usos.md) lista o que dá para perguntar
+e quanto cada pergunta custa, [`lazy-view.md`](../reference/lazy-view.md) traz o contrato da API
+e seus limites, e [o guia de equivalências](../how-to/mimetizar-pandas-sql-polars.md) dá a linha
+que reproduz o comportamento de pandas, SQL ou polars quando o agrupamento responde diferente da
+ferramenta que você já conhece.
 
 ## Próximos passos
 
