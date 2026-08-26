@@ -13,16 +13,31 @@
 ## Estado
 
 Formato `#TCF.8` default ([ADR-0032](docs/adr/0032-tcf8-default-format.md)); pacote
-`0.8.1` publicado no PyPI (`tcf-format`), tag `v0.8.1`.
+`0.8.2` publicado no PyPI (`tcf-format`), tag `v0.8.2`.
 
 Os números byte-canônicos vivem nos testes que os medem
 ([`test_regression_v1_baseline.py`](tests/test_regression_v1_baseline.py) e
 [`test_real_world_snapshots.py`](tests/test_real_world_snapshots.py)), não nesta página.
 O que mudou em cada versão está no [CHANGELOG](CHANGELOG.md).
 
+### Correção aberta em `0.8.x`
+
+[`BUG-VIEW-UMA-STRING-VAZIA`](tickets/BUG-VIEW-UMA-STRING-VAZIA.md) é P1: na rota core,
+uma única string vazia é contada como zero e `select()` trunca a linha. Corrigir antes de
+ampliar a superfície da `view`; `src/tcf` continua sob aprovação explícita.
+
+[`BUG-ENCODE-VAZIO-EM-COLUNA-TIPADA`](tickets/BUG-ENCODE-VAZIO-EM-COLUNA-TIPADA.md) é P1 do
+mesmo tema, um nível abaixo: `""` misturada com número ou bool passa pelo `encode` e volta
+como nulo, e em `[1,"a"]` ou `[True,1]` o `encode` emite um wire que o próprio `decode` não
+lê. Round-trip lossy e silencioso, presente na `0.8.2`. A soma determina metade do contrato: `""` não é número, então o `decode`
+não pode trocar não-número por ausência. A outra metade é a regra do owner, avaliada e
+recomendada: **sem tipo declarado, coluna mista cai para texto** (o que já acontece quando o
+primeiro valor é string, e preserva todos os valores); **com tipo ou spec declarado, o tipo
+manda** e o não-membro vira nulo, o que hoje não acontece porque a spec é descartada calada.
+
 ## Ciclo `.9`: aberto 2026-08-23, com base medida
 
-O `.8` está **publicado e funcionando** (`tcf-format 0.8.1` no PyPI). O `.9` não é só
+O `.8` está **publicado e funcionando** (`tcf-format 0.8.2` no PyPI). O `.9` não é só
 performance: são **três eixos**, e o que os une é que agora há **medição de onde partir**,
 não intuição.
 
@@ -63,6 +78,19 @@ Ticket-mestre: [`T-PERF-BORDAS-E-MODOS-09`](tickets/T-PERF-BORDAS-E-MODOS-09.md)
 Novidade a investigar: [`T-HTTP-QUERY-E-VIEW`](tickets/T-HTTP-QUERY-E-VIEW.md), **QUERY virou
 RFC 10008** (jun/2026): corpo na requisição, safe/idempotente e **resposta cacheável com o
 corpo na chave**. É o envelope que faltava para o `view()`, e conversa direto com at-rest.
+
+Execução de H-QUERY-06/07: [`T-CODE-VIEW-SUBTCF-RECORTE`](tickets/T-CODE-VIEW-SUBTCF-RECORTE.md),
+alvo `.9`. A viabilidade está provada para `.8M`; a API pública depende dos contratos de
+índice, projeção e canonicidade, mais fallback correto para single-column e `.8H`.
+
+**Princípio transversal da `view`**: oportunista no custo, determinística na resposta.
+Cada pergunta e cada blob derivado devem usar a menor evidência suficiente já disponível
+no wire, em ordem local: header → estrutura compacta → K únicos/índices → posições e
+colunas pedidas → materialização. Se a estrutura não prova a resposta, faz fallback sem
+mudar a semântica. O `.8` fecha correções e contratos óbvios; fusão, pushdown posicional e
+novas rotas de sub-TCF vão para lab/`.9`. Owners:
+[`DECISAO-GROUPING-SEMANTICA`](tickets/DECISAO-GROUPING-SEMANTICA.md) e
+[`T-CODE-VIEW-SUBTCF-RECORTE`](tickets/T-CODE-VIEW-SUBTCF-RECORTE.md).
 
 ### Eixo 3: limpeza e simplificação (o `.9` clássico)
 

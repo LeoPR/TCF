@@ -1,4 +1,4 @@
-<!-- l10n: doc_id=view-usos · lang=pt-BR · source_lang=en · translation_of=view-usos.en.md · synced=2026-08-25 -->
+<!-- l10n: doc_id=view-usos · lang=pt-BR · source_lang=en · translation_of=view-usos.en.md · synced=2026-08-26 -->
 [English](view-usos.en.md) · **Português**
 
 > Tradução de [`view-usos.en.md`](view-usos.en.md). Se houver divergência, o original em inglês prevalece.
@@ -14,9 +14,15 @@ medido em n=1000 e conferido contra `decode()` célula a célula.
 
 ## A ideia em uma linha
 
-O header do TCF já diz, por coluna, o nome, o modo e o tamanho. Dá para fatiar o corpo
-sem decodificar nada, e descomprimir só a coluna que a pergunta toca. Quando o modo da
-coluna é dicionário, dá para ir além: responder pela estrutura, sem tocar os valores.
+O header do TCF já diz, por coluna, o nome, o modo e o tamanho. A `view` usa essa informação
+de forma oportunista: responde pelo header ou pela estrutura compacta quando isso basta, e
+só então avança para índices, posições selecionadas, uma coluna inteira ou o fallback de
+correção. No modo dicionário, muitas respostas saem dos K únicos e do stream de índices sem
+construir os N valores.
+
+A rota muda o custo, não o significado. Todo atalho precisa concordar com a resposta
+materializada; um atalho ainda não provado vai para lab em vez de ser adivinhado. A regra
+completa está na [referência de API](lazy-view.pt-BR.md#princípio-oportunista-no-custo).
 
 ```python
 from tcf import encode, view
@@ -38,6 +44,22 @@ linha por valor; e no dicionário o número é `len(stream) // width`.
 
 Nesses casos nenhum objeto de valor é construído, e depois de um `count()` puro
 `report()["materialized_bytes"]` é 0.
+
+`count` é cardinalidade de linhas, não contagem de payloads não vazios. Uma string vazia é
+um valor real e ocupa uma linha:
+
+```python
+v = view(encode(["", "a", ""]))
+v.count()                  # 3
+v.where(0, "").count()     # 2
+v.n_unique(0)              # 2: "" e "a"
+```
+
+O caso-limite `view(encode([""])).count() == 1` é o contrato semântico. A implementação
+atual viola esse contrato e está registrado em
+[`BUG-VIEW-UMA-STRING-VAZIA`](../../tickets/BUG-VIEW-UMA-STRING-VAZIA.md). A distinção
+entre contar linhas, valores não nulos e strings vazias em TCF, NumPy, pandas, Polars e
+SQL está em [`mimetizar-pandas-sql-polars.md`](../how-to/mimetizar-pandas-sql-polars.md).
 
 **A exceção é o modo `split`**, que não declara a contagem em lugar nenhum. Basta a
 tabela ter **uma** coluna em outro modo para o `count` sair barato, porque todas as
@@ -200,11 +222,17 @@ uma versão anterior.
 Isto não é promessa de release, é o mapa do que foi medido como possível. O registro
 completo, com o que foi **refutado**, está nos labs de 2026-08-24.
 
-| oportunidade | onde | situação |
-|---|---|---|
-| `group_*` pela estrutura, sem materializar | cruzar os streams de índices das duas colunas sem materializar valor | protótipo medido: 71,8% menos bytes; não soldado |
-| `sum`/`min`/`max`/`avg` sobre dicionário | somar os K únicos ponderados pela frequência | medido: 99,6% menos bytes; `min`/`max` são exatos por construção |
-| responder "existe?" sem montar a lista de índices | exige adiar a construção dos índices dentro do resultado do `where` | não implementado |
+Os caminhos óbvios já fechados na superfície atual são introspecção pelo header, contagem
+estrutural de linhas, `distinct`/`n_unique`/`group_count` por dicionário, extremos de filtro
+sem-casa/todos-casam e pruning de colunas. Em `0.8.x`, o trabalho óbvio restante é de
+correção, como a contagem de uma única string vazia, não um novo planejador de consultas.
+
+| oportunidade | como | evidência | classificação |
+|---|---|---|---|
+| `group_*` pela estrutura, sem materializar | cruzar os streams de índices das duas colunas sem construir valor de linha | protótipo medido: 71,8% menos bytes | otimização direta do `.9`; preservar semântica de nulo/vazio |
+| `sum`/`min`/`max`/`avg` sobre dicionário | agregar os K únicos ponderados pela frequência | medido: 99,6% menos bytes; `min`/`max` são exatos por construção | candidato direto do `.9`; casos filtrados e tipados ainda são gate |
+| responder “existe?” sem montar a lista de índices | adiar a construção dos índices dentro do resultado do `where` | não implementado | desenho de resultado latente; lab antes da API |
+| emitir um TCF filho filtrado/projetado | recortar corpos raw, dicionário e split; fallback no core | mecanismo `.8M` e oráculo diferencial provados | API `.9`; [`T-CODE-VIEW-SUBTCF-RECORTE`](../../tickets/T-CODE-VIEW-SUBTCF-RECORTE.md) |
 
 E o que **não** é possível, por razão estrutural e não por falta de trabalho:
 

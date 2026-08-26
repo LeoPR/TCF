@@ -13,10 +13,15 @@ against `decode()` cell by cell.
 
 ## The idea in one line
 
-The TCF header already states, per column, the name, the mode and the size. You can slice
-the body without decoding anything, and decompress only the column the question touches.
-When the column's mode is dictionary, you can go further: answer from the structure,
-without touching the values.
+The TCF header already states, per column, the name, the mode and the size. The view uses
+that information opportunistically: it answers from the header or compact structure when
+that is sufficient, and only then advances to indices, selected positions, a full column
+or a correctness fallback. In dictionary mode it can often answer from K uniques and the
+index stream without building the N values.
+
+The route changes cost, not meaning. Every shortcut must agree with the materialized
+answer; an unproven shortcut is deferred to a lab rather than guessed. The complete rule is
+in the [API reference](lazy-view.md#governing-principle-opportunistic-in-cost).
 
 ```python
 from tcf import encode, view
@@ -38,6 +43,22 @@ body is one line per value; and in the dictionary the number is `len(stream) // 
 
 In those cases no value object is built, and after a plain `count()`,
 `report()["materialized_bytes"]` is 0.
+
+`count` is row cardinality, not a count of non-empty payloads. An empty string is a real
+value and occupies one row:
+
+```python
+v = view(encode(["", "a", ""]))
+v.count()                  # 3
+v.where(0, "").count()     # 2
+v.n_unique(0)              # 2: "" and "a"
+```
+
+The boundary case `view(encode([""])).count() == 1` is the semantic contract. The current
+implementation violates that contract and is tracked in
+[`BUG-VIEW-UMA-STRING-VAZIA`](../../tickets/BUG-VIEW-UMA-STRING-VAZIA.md). The distinction
+between counting rows, non-null values and empty strings across TCF, NumPy, pandas, Polars
+and SQL is shown in [`mimetizar-pandas-sql-polars.md`](../how-to/mimetizar-pandas-sql-polars.md).
 
 **The exception is `split` mode**, which declares the count nowhere. One column in another
 mode is enough for `count` to stay cheap, because every column has the same number of rows
@@ -201,11 +222,17 @@ version.
 This is not a release promise, it is the map of what has been measured as possible. The full
 record, including what was **refuted**, lives in the labs of 2026-08-24.
 
-| opportunity | how | status |
-|---|---|---|
-| `group_*` from the structure, without materializing | cross the two columns' index streams without materializing any value | prototype measured: 71.8% fewer bytes; not welded |
-| `sum`/`min`/`max`/`avg` over a dictionary | sum the K uniques weighted by frequency | measured: 99.6% fewer bytes; `min`/`max` are exact by construction |
-| answering "does any row match?" without building the index list | requires deferring index construction inside the `where` result | not implemented |
+The obvious paths already closed in the current surface are header introspection, structural
+row count, dictionary `distinct`/`n_unique`/`group_count`, no-match/all-match filter
+extremes, and column pruning. In `0.8.x`, the remaining obvious work is correctness such as
+the single-empty-string count, not a new query planner.
+
+| opportunity | how | evidence | classification |
+|---|---|---|---|
+| `group_*` from the structure, without materializing | cross the two columns' index streams without building any row value | prototype measured: 71.8% fewer bytes | direct `.9` optimization; preserve null/empty semantics |
+| `sum`/`min`/`max`/`avg` over a dictionary | aggregate the K uniques weighted by frequency | measured: 99.6% fewer bytes; `min`/`max` are exact by construction | direct `.9` candidate; filtered and typed cases still gate it |
+| answering "does any row match?" without building the index list | defer index construction inside the `where` result | not implemented | latent-result design; lab before API |
+| emit a filtered/projected child TCF | slice raw, dictionary and split bodies; fallback for core | `.8M` mechanism and differential oracle proven | `.9` API; [`T-CODE-VIEW-SUBTCF-RECORTE`](../../tickets/T-CODE-VIEW-SUBTCF-RECORTE.md) |
 
 And what is **not** possible, for structural reasons rather than for lack of work:
 

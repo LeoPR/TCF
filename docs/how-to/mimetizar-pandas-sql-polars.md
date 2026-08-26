@@ -5,8 +5,13 @@ Agrupar tem decisões que não têm resposta única, e cada ferramenta escolheu 
 de fora, o que é uma escolha deliberada: convenção de programação se faz em uma linha
 depois, e ela fica visível para quem lê o código.
 
-Esta página traz essa linha, pronta, para cada caso. Toda receita aqui é verificada por
-execução contra o que a ferramenta de origem devolveria; nenhuma é aproximação.
+Esta página traz essa linha, pronta, para cada caso. As receitas TCF com resultado concreto
+são verificadas por execução contra o que a ferramenta de origem devolveria; a tabela
+comparativa de contagem abaixo é um mapa de semântica entre APIs, não um benchmark.
+
+As equivalências abaixo são de **semântica da pergunta**, não de nome de método. “Contar
+posições”, “contar valores presentes” e “contar strings vazias” são perguntas diferentes,
+e cada biblioteca oferece operadores distintos para elas.
 
 A tabela dos exemplos, com as três divergências de uma vez (chave nula, grupo sem valor
 aproveitável, chaves fora de ordem):
@@ -17,6 +22,52 @@ from tcf import encode, view
 blob = encode({"g": ["z", None, "a", "z", "m", None, "a"],
                "v": [ 10,  20,  None, 30,  50,  60,  None]})
 v = lambda: view(blob)
+```
+
+## Elemento vazio não é ausência
+
+Uma string vazia é um valor presente. Ela ocupa uma posição, pode ser distinta e pode ser
+alvo de igualdade. `None`/`NULL` é ausência; o fato de não haver payload útil não apaga a
+linha. Para a `view`, a contagem de linhas é a cardinalidade da tabela:
+
+```python
+vazio = view(encode(["", "a", ""]))
+
+vazio.count()                  # 3: conta posições, inclusive ""
+vazio.where(0, "").count()     # 2: conta as strings vazias
+vazio.n_unique(0)              # 2: "" e "a"
+```
+
+O caso-limite de uma única posição vazia está registrado em
+[`BUG-VIEW-UMA-STRING-VAZIA`](../../tickets/BUG-VIEW-UMA-STRING-VAZIA.md): o contrato é
+`count() == 1`, mesmo que a implementação ainda precise ser corrigida nessa borda.
+
+### A mesma pergunta em outras ferramentas
+
+Não há um `count` universal. Estes operadores mostram como escrever a mesma intenção:
+
+| pergunta | TCF | NumPy | pandas | Polars | SQL |
+|---|---|---|---|---|---|
+| todas as posições/linhas | `view(blob).count()` | `a.size` | `s.size` | `s.len()` | `COUNT(*)` |
+| valores não ausentes | `v().where("x", pred=lambda x: x is not None).count()` | `np.ma.count(np.ma.array(a, mask=missing_mask))` | `s.count()` | `s.count()` | `COUNT(x)` |
+| strings vazias | `v().where("x", "").count()` | `np.count_nonzero(a == "")` | `(s == "").sum()` | `(s == "").sum()` | `SUM(CASE WHEN x = '' THEN 1 ELSE 0 END)` |
+
+Nos exemplos externos, pense em `a`, `s` e `x` como a mesma coluna contendo `""`, `"a"`
+e, quando aplicável, `None`/`NULL`. Em particular:
+
+- NumPy não escolhe sozinho uma semântica de missing: `size` conta slots, enquanto
+    `count_nonzero(a)` conta valores truthy. Para strings vazias, compare explicitamente com
+    `""`.
+- pandas e Polars contam `""` como valor não nulo. O que eles removem por padrão nessa
+    operação é `None`/`NULL`, não a string vazia.
+- SQL separa `COUNT(*)` (linhas) de `COUNT(x)` (valores não nulos). Como `""` não é `NULL`,
+    `COUNT(x)` também o conta. Para declarar que vazio textual deve ser missing, use
+    `COUNT(NULLIF(x, ''))`.
+
+No TCF, para obter essa última convenção, escreva-a no predicado:
+
+```python
+v().where("x", pred=lambda x: x is not None and x != "").count()
 ```
 
 ## O default do TCF
@@ -79,16 +130,20 @@ vazios:
 ## `COUNT(col)` do SQL, que pula `NULL`
 
 O `group_count` do TCF conta **linhas** do grupo, como o `COUNT(*)`. O `COUNT(col)` do SQL
-conta só as linhas em que aquela coluna não é nula, e mantém o grupo com zero:
+conta só as linhas em que aquela coluna não é nula, **mas conta `""`**, e mantém o grupo
+com zero:
 
 ```python
-por_grupo = v().where("v", pred=lambda x: x is not None and x != "").group_count("g")
+por_grupo = v().where("v", pred=lambda x: x is not None).group_count("g")
 {k: por_grupo.get(k, 0) for k in v().group_count("g")}
 # {'z': 2, None: 2, 'a': 0, 'm': 1}
 ```
 
 O segundo passo reintroduz com zero os grupos que o filtro removeu, que é o que faz a
-diferença entre "o grupo não tem valores" e "o grupo não existe".
+diferença entre "o grupo não tem valores" e "o grupo não existe". Se a política desejada
+for a de `COUNT(NULLIF(v, ''))`, acrescente `and x != ""` ao predicado; isso é uma escolha
+explícita de tratar a string vazia como ausência, não o comportamento matemático de
+`count()`.
 
 ## Por que não há flags para isso
 

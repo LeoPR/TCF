@@ -9,6 +9,28 @@ each question needs. It is read only: nothing here changes the blob, `encode` or
 You call `view()` once and then call methods on what it returns. Filtering returns another
 object with the same methods, so filters chain.
 
+## Governing principle: opportunistic in cost
+
+The `view` seeks the **most complete answer from the least sufficient evidence** already
+present in the wire. It starts with the cheapest safe source for that question:
+
+1. header declarations;
+2. compact structure such as counters, separators and sizes;
+3. the K-value dictionary table and its fixed-width index stream;
+4. only the requested columns and filtered positions;
+5. a full column;
+6. full materialization, only as a correctness fallback.
+
+This is opportunism in **execution**, not in meaning. A structural path and a fallback
+must return the same answer; changing a compression mode may change the cost, never the
+semantics of empty values, nulls, groups or aggregates. If the structure cannot prove an
+answer safely, the view decodes rather than guesses.
+
+“Least” means the cheapest path currently demonstrated to be sufficient, not an unproven
+claim of global optimality. Obvious structural paths and correctness fixes can close in
+the current surface. Fusion, positional pushdown and new compact paths belong in a lab and
+the `.9` optimization cycle when their lower cost still needs to be demonstrated.
+
 **What it reads**: `#TCF.8M` (multi-column), `#TCF.8H` when it is a rectangular table, and
 the single-column route in all of its forms (`#TCF.8`, `#TCF.8n`, `#TCF.8b`, `#TCF.8bB`,
 `#TCF.8 :spec`, and the dense `B`/`C`). In a single column the name is `"0"`, as in any
@@ -87,6 +109,13 @@ Everything here comes from the header, at no cost.
 count. The one exception is a table where **every** column is `split`, which declares no
 count anywhere; there it decodes the smallest column (measured: 49.7% on a two-column
 table).
+
+`count` is row cardinality, not a count of non-empty payloads. An empty string is one
+present element; `None`/`NULL` is a separate missing-value convention. The cross-tool
+recipes for counting rows, non-null values and empty strings are in
+[`mimetizar-pandas-sql-polars.md`](../how-to/mimetizar-pandas-sql-polars.md). The single
+empty-string boundary remains tracked in
+[`BUG-VIEW-UMA-STRING-VAZIA`](../../tickets/BUG-VIEW-UMA-STRING-VAZIA.md).
 
 ## Filtering
 
@@ -261,6 +290,7 @@ The scale, cheapest first:
 | degree | what it does | values built |
 |---|---|---|
 | **header** | answers without opening the body | 0 |
+| **compact structure** | counts separators, fixed-width indices or core markers without rebuilding values | 0 |
 | **K uniques** | builds only the distinct values | K |
 | **K + compact** | builds the K, then walks the index stream **without expanding it** | K |
 | **one column** | builds the N rows of one column | N |
@@ -277,7 +307,7 @@ Measured at n=2000:
 
 | operation | `@dict` | dense (`b`/`B`/`C`) | `%split` | core |
 |---|---|---|---|---|
-| `count`, `nrows` | K + compact | **header** | one column | one column |
+| `count`, `nrows` | **compact structure** | **header** | one column | **compact structure** |
 | `n_unique` | **K uniques** | one column | one column | one column |
 | `distinct` | **K uniques** | one column | one column | one column |
 | `where` | **K + compact** | one column | one column | one column |
@@ -287,7 +317,14 @@ Measured at n=2000:
 | `select(col)` | one column | one column | one column | one column |
 
 `count` on a dense route comes straight out of the header: the row count is written there
-in hex, so it reads 11 or 12 bytes and stops.
+in hex, so it reads 11 or 12 bytes and stops. In core mode it sums the counters and loose
+lines in the compact body; it does not rebuild the column. Only an all-`split` table lacks
+a structural count and decodes its smallest column.
+
+**Known correctness limit:** a core body containing exactly one empty string is currently
+counted as zero, which also truncates `select()`. This is tracked in
+[`BUG-VIEW-UMA-STRING-VAZIA`](../../tickets/BUG-VIEW-UMA-STRING-VAZIA.md); use `decode()`
+for that shape until it is fixed.
 
 Which mode a column lands in is the encoder's decision, not yours, and it is made on bytes
 alone. `fallback=True` (the 0.8 default) is what puts low-cardinality columns in `@dict`,

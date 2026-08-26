@@ -1,4 +1,4 @@
-<!-- l10n: doc_id=lazy-view · lang=pt-BR · source_lang=en · translation_of=lazy-view.en.md · synced=2026-08-25 -->
+<!-- l10n: doc_id=lazy-view · lang=pt-BR · source_lang=en · translation_of=lazy-view.en.md · synced=2026-08-26 -->
 [English](lazy-view.en.md) · **Português**
 
 > Tradução de [`lazy-view.en.md`](lazy-view.en.md). Se houver divergência, o original em inglês prevalece.
@@ -10,6 +10,28 @@ cada pergunta precisa. É somente leitura: nada aqui muda o blob, o `encode` ou 
 
 Você chama `view()` uma vez e depois chama métodos no que ele devolve. Filtrar devolve
 outro objeto com os mesmos métodos, então os filtros encadeiam.
+
+## Princípio: oportunista no custo
+
+A `view` busca a **resposta mais completa pela menor evidência suficiente** que já existe
+no wire. Ela começa pela fonte segura mais barata para cada pergunta:
+
+1. declarações do header;
+2. estrutura compacta, como contadores, separadores e tamanhos;
+3. a tabelinha de K valores e o stream de índices de largura fixa;
+4. apenas as colunas pedidas e as posições filtradas;
+5. uma coluna inteira;
+6. materialização completa, somente como fallback de correção.
+
+O oportunismo é de **execução**, não de significado. Um caminho estrutural e um fallback
+precisam devolver a mesma resposta; trocar o modo de compressão pode mudar o custo, nunca a
+semântica de vazios, nulos, grupos ou agregados. Se a estrutura não consegue provar uma
+resposta com segurança, a `view` decodifica em vez de adivinhar.
+
+“Menor” significa o caminho mais barato já demonstrado como suficiente, não uma afirmação
+sem prova de ótimo global. Caminhos estruturais óbvios e correções podem fechar na
+superfície atual. Fusão, pushdown posicional e novas rotas compactas ficam para lab e para
+o ciclo de otimização do `.9` quando o custo menor ainda precisa ser demonstrado.
 
 **O que ela lê**: `#TCF.8M` (multi-coluna), `#TCF.8H` quando é tabela retangular, e a rota
 de coluna única em todas as suas formas (`#TCF.8`, `#TCF.8n`, `#TCF.8b`, `#TCF.8bB`,
@@ -87,6 +109,13 @@ Tudo aqui sai do header, sem custo.
 O `count` nunca materializa valor, em nenhum modo: a estrutura já declara a contagem. A
 única exceção é uma tabela em que **toda** coluna é `split`, que não declara contagem em
 lugar nenhum; ali ele decodifica a menor (medido: 49,7% numa tabela de 2 colunas).
+
+`count` é cardinalidade de linhas, não contagem de payloads não vazios. Uma string vazia é
+um elemento presente; `None`/`NULL` é outra convenção, de ausência. As receitas comparativas
+para contar linhas, valores não nulos e strings vazias estão em
+[`mimetizar-pandas-sql-polars.md`](../how-to/mimetizar-pandas-sql-polars.md). O caso-limite
+de uma única string vazia continua registrado em
+[`BUG-VIEW-UMA-STRING-VAZIA`](../../tickets/BUG-VIEW-UMA-STRING-VAZIA.md).
 
 ## Filtrar
 
@@ -261,6 +290,7 @@ barato ao mais caro:
 | grau | o que faz | valores construídos |
 |---|---|---|
 | **header** | responde sem abrir o corpo | 0 |
+| **estrutura compacta** | conta separadores, índices de largura fixa ou marcadores core sem reconstruir valores | 0 |
 | **K únicos** | constrói só os valores distintos | K |
 | **K + compacto** | constrói os K e percorre o stream de índices **sem expandir** | K |
 | **uma coluna** | constrói as N linhas de uma coluna | N |
@@ -277,7 +307,7 @@ Medido em n=2000:
 
 | operação | `@dict` | denso (`b`/`B`/`C`) | `%split` | core |
 |---|---|---|---|---|
-| `count`, `nrows` | K + compacto | **header** | uma coluna | uma coluna |
+| `count`, `nrows` | **estrutura compacta** | **header** | uma coluna | **estrutura compacta** |
 | `n_unique` | **K únicos** | uma coluna | uma coluna | uma coluna |
 | `distinct` | **K únicos** | uma coluna | uma coluna | uma coluna |
 | `where` | **K + compacto** | uma coluna | uma coluna | uma coluna |
@@ -287,7 +317,14 @@ Medido em n=2000:
 | `select(col)` | uma coluna | uma coluna | uma coluna | uma coluna |
 
 O `count` numa rota densa sai direto do header: a contagem de linhas está escrita ali em
-hex, então ele lê 11 ou 12 bytes e para.
+hex, então ele lê 11 ou 12 bytes e para. No modo core, soma os contadores e as linhas
+soltas do corpo compacto; não reconstrói a coluna. Só uma tabela inteira em `split` não
+tem contagem estrutural e decodifica a menor coluna.
+
+**Limite de correção conhecido:** um corpo core com exatamente uma string vazia é contado
+como zero, o que também trunca o `select()`. O caso está registrado em
+[`BUG-VIEW-UMA-STRING-VAZIA`](../../tickets/BUG-VIEW-UMA-STRING-VAZIA.md); use `decode()`
+para esse formato de dado até a correção.
 
 Em que modo cada coluna cai é decisão do encoder, não sua, e ela é tomada só por bytes. O
 `fallback=True` (o default do 0.8) é o que põe colunas de baixa cardinalidade em `@dict`, e
