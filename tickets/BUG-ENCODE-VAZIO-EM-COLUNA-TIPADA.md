@@ -5,7 +5,7 @@ priority: P1
 severity: R0 (round-trip lossy e silencioso na API pública)
 created: 2026-08-26
 updated: 2026-08-26
-gate: correção em src/tcf só com aprovação explícita do owner (I5). Metade do contrato é determinada (a soma não inventa; sem tipo declarado, mista vira texto); a outra metade, coerção sob tipo declarado, tem 3 perguntas a medir
+gate: correção em src/tcf só com aprovação explícita do owner (I5). Contrato FECHADO em 2026-08-26: sem tipo declarado, mista vira texto; com tipo, não-membro vira nulo; preenchimento fica fora; modo estrito levanta
 blocked-by: []
 related:
   - src/tcf/multi/core.py
@@ -17,7 +17,7 @@ related:
 
 # BUG-ENCODE-VAZIO-EM-COLUNA-TIPADA
 
-**[probatório → avaliação de regra]** Uma coluna que mistura `""` com números ou booleanos passa pelo
+**[probatório → execução]** Uma coluna que mistura `""` com números ou booleanos passa pelo
 `encode` sem reclamar e **não volta igual**. A perda é silenciosa, atinge a `0.8.2`
 publicada, e viola o invariante mais duro do projeto: ou o round-trip devolve o mesmo dado,
 ou falha alto.
@@ -168,33 +168,17 @@ tinha sido adivinhada. O que se perdia antes era o **valor**, que ele tinha decl
 passar o dado. A troca é boa, e o `encode` deixa de ser injetivo em entrada mista, o que
 precisa estar escrito na página do formato.
 
-### O outro lado: com tipo declarado, o tipo manda
+### O outro lado: com tipo declarado
 
-Aqui a proposta muda o comportamento de hoje, e vale medir antes:
+Hoje uma spec que não serve a todos os valores é **silenciosamente descartada**:
 
 ```python
 encode({"d": ["2025-01-01", "2025-01-02"]}, schema={"d": "data-iso"})  # aplica: '!d:dt'
-encode({"d": ["2025-01-01", "xx"]},         schema={"d": "data-iso"})  # ignora: '!d', texto puro
+encode({"d": ["2025-01-01", "xx"]},         schema={"d": "data-iso"})  # ignora: '!d', texto
 ```
 
-Hoje uma spec que não serve é **silenciosamente descartada**. Isso é lossless, e é calado:
-o chamador pede um tipo, não recebe, e não fica sabendo.
-
-A regra proposta, forçar o não-membro a nulo, é a convenção de coerção da área
-(`pd.to_numeric(errors="coerce")`, `cast(strict=False)` do Polars) e é matematicamente
-defensável: um tipo declarado é uma **restrição de domínio**, e valor fora do domínio não
-tem representação nele; virar ausência é a leitura natural. Declarar o tipo é o ato
-deliberado que autoriza a perda.
-
-As três perguntas que essa metade abre, e que eu não responderia sem medir:
-
-1. **Membro é por valor ou por tipo de Python?** Numa coluna declarada numérica, `"12"`
-   denota um número. Coagir isso a nulo seria perda gratuita; aceitar exige dizer que a
-   pertinência se decide pelo valor.
-2. **Silencioso ou avisado?** Coerção que apaga dado sem dizer nada é a classe de defeito
-   que este ticket combate. O mínimo é contar quantas células foram coagidas.
-3. **A rota single-column acompanha?** Ela hoje levanta `MISTOS`, e a regra 1 pede texto.
-   Alinhar é o certo, mas mexe no `.8H` e amplia o raio da correção.
+Lossless e mudo: o chamador pede um tipo, não recebe, e não fica sabendo. O contrato que
+substitui isso está decidido mais abaixo, na §"A linha do tipo declarado".
 
 ## O ciclo das variações (2026-08-26)
 
@@ -237,20 +221,55 @@ novo.
 | `["1", "2"]` | continua texto | nada declarado, nada adivinhado |
 | `[1, 1.5]` | numérica | mesmo domínio, não é mista |
 | spec que serve a todos | aplicada | caso feliz |
-| spec que não serve a algum | **dado mantido, spec descartada, com aviso** | ver a tensão abaixo |
+| spec que não serve a algum | **não-membro vira nulo, com aviso**; nunca zero nem `False` | nulo é o único cast que não muda resposta |
+| preenchimento (zero, `False`, default) | fora do `encode` | é decisão de leitura, e precisa de rastro |
+| modo estrito | levanta em vez de coagir, sob flag | integridade em CI e depuração |
 | soma com não-número | `ValueError` | não-número não soma |
 | soma de conjunto vazio | `0.0` | identidade aditiva |
 
-### A única linha que ainda é sua
+### A linha do tipo declarado: decidida em 2026-08-26
 
-Para a spec que não serve, as duas orientações apontam para lados diferentes, e prefiro
-dizer isso a escolher calado. *"Spec força não-membro a nulo"* é a convenção do pandas
-(`errors="coerce"`) e do Polars (`strict=False`). *"O TCF não é um ETL"* vai contra, porque
-**coagir para nulo é transformar dado**, que é o que um ETL faz.
+Eu tinha levantado uma tensão entre *"spec força não-membro a nulo"* e *"o TCF não é um
+ETL"*. O owner a resolveu:
 
-Pela segunda, que é a mais forte, o coerente é manter o dado, descartar a declaração que não
-se sustenta e avisar. Quem quiser coerção pede por ela, com nome próprio, e aí é um ato
-explícito de transformação, não efeito colateral de declarar um tipo.
+> *"o TCF não é ETL de fato, mas dar dados sujos obriga o TCF a transformar o dado de
+> qualquer forma, e não tem saída (...) cada tipo pode ter algum fallback que ignora os
+> outros tipos misturados."*
+
+Procede, e desfaz a objeção. O `encode` **já transforma**: stringifica, escolhe modo,
+rebaixa tipo. Recusar-se a escolher a transformação não faz o TCF parar de transformar, só
+faz a transformação ser acidental em vez de projetada, que é exatamente o defeito deste
+ticket. "Não é ETL" quer dizer **não repara dado**, não "nunca converte".
+
+**Mas nem todo cast serve, e a aritmética separa.** Medido em
+[`2-fallback-por-tipo.py`](../experiments/lab/dirty/2026-08/2026-08-26/2026-08-26-0100-entrada-suja-variacoes/):
+
+| coluna com 7 válidas e 3 sujas | count | sum | avg | min | max |
+|---|---:|---:|---:|---:|---:|
+| **a verdade** | 7 | 93 | 13,29 | 11 | 16 |
+| sujas → **nulo** | 7 | 93 | 13,29 | 11 | 16 |
+| sujas → **zero** | 10 | 93 | **9,3** | **0** | 16 |
+
+Nulo não estraga nada; zero estraga três das cinco. E a armadilha é fina: **a soma não
+muda**, e é o número que se confere primeiro. Em booleano, coagir para `False` infla o grupo
+`False` com dado que nunca foi `False`.
+
+A razão é a que o contrato do agrupamento já fixou: **ausência não participa de agregação;
+zero e `False` são valores, e participam**. Então o cast do não-membro é **nulo**, sempre.
+Zero, `False` e afins não somem do mapa: viram **preenchimento**, decisão de quem consome,
+com nome próprio (`fillna`, `fill_null`, `COALESCE`) e rastro visível.
+
+### O modo estrito
+
+> *"ele poderia até dar warning ou erro em alguns casos estritos (...) isso ajuda a depurar
+> caso um dataset acabe sendo construído por algum erro anterior."*
+
+De acordo, e o vocabulário já existe no repo: `LazyTCF.strict()` faz isso do lado da leitura,
+justificado no próprio código como *"código que se quer rígido (revisão, CI, conformidade)"*.
+O estrito do `encode` é a mesma ideia na outra ponta e deve levar o mesmo nome.
+
+Nomenclatura a evitar: **`encode(fallback=...)` já existe** e significa candidatos de modo
+por coluna (ADR-0022/0025/0026). O botão novo precisa de outro nome.
 
 ## Alcance
 
@@ -269,9 +288,10 @@ explícito de transformação, não efeito colateral de declarar um tipo.
 - [ ] Coluna mista **sem tipo declarado** vira texto, sempre, independente de qual valor
       aparece primeiro; `decode` devolve todos os valores, nenhum vira nulo.
 - [ ] `decode` deixa de converter `""` em `None` numa coluna cuja tag foi **inferida**.
-- [ ] Com tipo ou spec declarado, o contrato de não-membro está decidido e documentado
-      (coagir a nulo, com as três perguntas da avaliação respondidas), e deixa de ser
-      "descarta a spec em silêncio".
+- [ ] Com tipo ou spec declarado, o não-membro vira **nulo** e sai aviso; nunca zero nem
+      `False`, e a spec deixa de ser descartada em silêncio.
+- [ ] Existe modo estrito que levanta em vez de coagir, com nome que não colida com o
+      `fallback=` já existente do `encode`.
 - [ ] A rota single-column e a multi-column concordam sobre coluna mista.
 - [ ] `decode` e `view` param de discordar sobre o mesmo wire.
 - [ ] `sum` sobre coluna com não-número levanta `ValueError`, e não `HierarchicalError`,
