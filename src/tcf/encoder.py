@@ -136,17 +136,50 @@ def _tabela_flat(data) -> bool:
     if not all(isinstance(v, list) for v in vals):
         return False
     tamanhos = {len(v) for v in vals}
-    if len(tamanhos) != 1 or 0 in tamanhos:              # ragged OU 0-linhas -> .8H
-        return False                                     # (0-linha: `{"a":[]}` = objeto c/ array vazio)
+    if len(tamanhos) != 1:                               # ragged -> .8H
+        return False
+    # ZERO linhas fica no `.8M` (2026-08-26). Antes caia no `.8H` porque o corpo de uma
+    # coluna vazia colidia com o de UMA linha vazia: os dois eram 0 byte, e nao havia de
+    # onde deduzir a diferenca. O slot `@` (V2-B) desfaz a colisao sem tocar o formato,
+    # porque o row-count dele sai de `len(stream) // width`, e nao de contar `\n`: stream
+    # vazio e' zero, sem ambiguidade. Medido: `{"v": []}` cai de 18 B (.8H) pra 12 B, e
+    # some a anomalia de tirar a ultima linha e o wire CRESCER. Ver
+    # `experiments/lab/dirty/2026-08/2026-08-26/2026-08-26-0400-uma-coluna-e-o-vazio/`.
     # Coluna TIPADA (int/float/bool) e `None` NAO tiram mais a tabela do `.8M`: o tipo
     # viaja como tag de 1 byte no meta (`!8N=valor`), e o nulo pelo slot 0 do core. Antes
     # bastava um int pra tabela inteira cair no `.8H`, que nao roda o
     # `min(tcf,raw,dict,split)`: medido, +43,6% de bytes no adult-census. O `.8H` continua
-    # dono do que E' aninhado: dict/list dentro da celula, ragged, 0-linha.
-    return all(
+    # dono do que E' aninhado: dict/list dentro da celula e ragged. O 0-linha
+    # RETANGULAR saiu dessa lista em 2026-08-26 (ver o comentario acima).
+    if not all(
         x is None or isinstance(x, (str, int, float, bool))
         for v in vals for x in v
-    )
+    ):
+        return False
+    # HOMOGENEIDADE POR COLUNA, com o MESMO juiz do `.8H` (2026-08-27, onda 0).
+    #
+    # O `.8M` decidia o tipo da coluna pela PRIMEIRA celula e nunca conferia o resto. Numa
+    # coluna mista isso nao dava erro: dava dado errado. Medido em 300 pares de tipos, 30
+    # perdas CALADAS (`[1,""]` volta `[1,None]`, `["a",1]` volta `["a","1"]`, `[1,"1"]`
+    # volta `[1,1]`) e 18 wires que o proprio `decode` nao le'. E a ORDEM das celulas
+    # decidia qual dos dois danos acontecia.
+    #
+    # As outras duas familias ja' recusavam esse dado: o single-col por `_tipo_single_col`
+    # (que tambem devolve None e deixa o `.8H` levantar) e o `.8H` por `_scalar_type`. A
+    # correcao aqui e' so' PARAR DE REIVINDICAR a tabela: quem levanta continua sendo o
+    # `.8H`, com a mesma mensagem que ele ja' dava, entao as tres portas passam a recusar o
+    # mesmo conjunto pela mesma frase, por construcao e nao por coincidencia.
+    #
+    # `_scalar_type` tambem carrega o teste de finitude, o que fecha `NaN`/`Infinity`: eles
+    # ficam fora do JSON (RFC 8259), o single e o `.8H` ja' recusavam, e o `.8M` gravava
+    # `#TCF.8M!3N=c\nnan`, um wire morto.
+    from tcf.hierarchical import HierarchicalError, _scalar_type
+    for v in vals:
+        try:
+            _scalar_type([x for x in v if x is not None])
+        except HierarchicalError:
+            return False                                 # -> .8H -> fail-loud com a frase dele
+    return True
 
 
 # kwargs SO'-flat (default) -> em rota .8H, se != default = fail-loud (nunca ignorar calado,
@@ -247,9 +280,9 @@ def encode(
     Rota por TIPO de entrada, simetrico ao `decode` (que rota pelo magic). Contrato
     completo em `docs/reference/api.md`. Resumo:
       - `list[str]` (todos str, >=1)       -> single-col flat `#TCF.8` (header por DEFAULT)
-      - `dict[str, list[str]]` retangular >=1 linha -> multi-col `#TCF.8M`
+      - `dict[str, list[str]]` retangular (inclusive 0 linhas) -> multi-col `#TCF.8M`
       - `list[bool|str|None]` misto (>=1 bool E >=1 str) -> lazy bool `#TCF.8bB` (ADR-0039)
-      - list[dict] / objeto / escalar / `[]` / `{}` / tipado / ragged / 0-linha
+      - list[dict] / objeto / escalar / `{}` / tipado / ragged
                                             -> hierarquico `#TCF.8H` (rota interna)
       - tipo nao-JSON (bytes/tuple/func) ou array de tipos mistos -> FAIL-LOUD
 
@@ -344,7 +377,8 @@ def encode(
         TypeError: data nao-list/dict; coluna str/bytes (envolva em [...]);
             layers nao-PipelineConfig; parallel de tipo invalido.
         ValueError: valor com `\\n`/`\\r` embutido (quebra o modelo de linha ->
-            corromperia o RT); 0 linhas (BUG-03); (multi) table vazia, lengths
+            corromperia o RT); spec declarada em coluna de 0 linhas; (multi) table
+            vazia, lengths
             divergentes, nome com `\\n`, colisao posicional de nome '';
             parallel negativo; name= sem nature; natures cruzados (BUG-10g).
             Nomes com `,`/`=`/`:`/`\\` sao ACEITOS (escapados no meta, M2).

@@ -76,6 +76,16 @@ def _decode_v2b(body_bytes: bytes) -> list[str]:
     from tcf.decoder import _decode_column
 
     nl = body_bytes.find(b"\n")
+    if nl == -1:
+        # Sem o LF que separa `ntable` da tabelinha nao ha' slot: `int(b"")` daria um
+        # `invalid literal for int()` cru, que nao diz TCF, nem coluna, nem slot. O
+        # gatilho mais comum e' perder o LF final, e o slot de 0 linhas (`0\n`) e' o
+        # menor wire que existe, logo o mais exposto. Mesmo padrao dos tres guards
+        # abaixo (T-QA-8 BUG-13e).
+        raise ValueError(
+            f"slot V2-B corrompido: falta o LF que separa o tamanho da tabelinha "
+            f"(corpo de {len(body_bytes)}B, comeca com {body_bytes[:8]!r}; T-QA-8 BUG-13e)"
+        )
     ntable = int(body_bytes[:nl])
     start = nl + 1
     if start + ntable > len(body_bytes):

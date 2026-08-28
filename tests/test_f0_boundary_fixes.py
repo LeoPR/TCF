@@ -349,12 +349,44 @@ class TestBug03ZeroRows:
         assert encode([]) == "#TCF.8\n"
         assert decode(encode([])) == []
 
-    def test_dict_colunas_vazias_vira_8h(self):
-        # CONTRATO ATUALIZADO (Passo 2): dict com TODAS as colunas vazias (0 linhas) deixa de
-        # ser fail-loud e vira `.8H` OBJETO (campo = array vazio; o count `\0` E' coluna). O
-        # flat 0-linha (irrepresentavel) so' se aplica a tabela COM ao menos 1 linha.
-        assert encode({"a": [], "b": []}).startswith("#TCF.8H#O")
+    def test_dict_colunas_vazias_vira_8m(self):
+        # CONTRATO ATUALIZADO (2026-08-26): dict com TODAS as colunas vazias fica no
+        # `.8M`, com corpo `@` de tabelinha vazia, que diz ZERO sem ambiguidade. Era
+        # `.8H` OBJETO, que custava 30 B contra 19 B aqui. A anomalia que isso apaga:
+        # antes, TIRAR a ultima linha de uma tabela fazia o wire CRESCER.
+        assert encode({"a": [], "b": []}) == "#TCF.8M@2=a,@b\n0\n0\n"
         assert decode(encode({"a": [], "b": []})) == {"a": [], "b": []}
+        assert encode({"v": []}) == "#TCF.8M@v\n0\n"
+        assert decode(encode({"v": []})) == {"v": []}
+
+    def test_zero_linhas_nao_colide_com_uma_linha_vazia(self):
+        """O par que motivou o BUG-03, agora com grafias distintas."""
+        assert encode({"a": []}) == "#TCF.8M@a\n0\n"        # zero linhas
+        assert encode({"a": [""]}) == "#TCF.8M!a\n"         # UMA linha vazia
+        assert decode(encode({"a": []})) == {"a": []}
+        assert decode(encode({"a": [""]})) == {"a": [""]}
+
+    def test_zero_linhas_ignora_fallback_false(self):
+        """`fallback=False` nao desliga o corpo `@` do vazio.
+
+        Sem essa imposicao o `min()` escolheria o raw, que com 0 linhas tem corpo de
+        ZERO byte e decodifica como UMA linha vazia: perda silenciosa de dado. Nenhum
+        knob de bytes pode comprar isso.
+        """
+        for kw in ({}, {"fallback": False}, {"drop_names": True}, {"min_header": False}):
+            wire = encode({"v": []}, **kw)
+            esperado = {"0": []} if kw.get("drop_names") else {"v": []}
+            assert decode(wire) == esperado, (kw, wire)
+
+    def test_zero_linhas_com_spec_declarada_falha_alto(self):
+        """Spec numa coluna sem valor nao tem o que transformar: fail-loud, nao silencio."""
+        with pytest.raises(ValueError, match="0 linhas"):
+            encode({"v": []}, schema={"v": "cpf"})
+
+    def test_zero_linhas_ragged_continua_no_8h(self):
+        """So' o RETANGULAR de 0 linhas mudou; ragged e dict sem coluna seguem `.8H`."""
+        assert encode({"a": [], "b": ["x"]}).startswith("#TCF.8H")
+        assert encode({}) == "#TCF.8H#E\n"
 
     def test_single_empty_string_still_ok(self):
         # 1 linha vazia é DADO legítimo — não confundir com 0 linhas
@@ -823,3 +855,140 @@ class TestNomeVazioPreservadoADR0046:
         v = view(encode({"": ["1", "2"], "b": ["3", "4"]}))
         assert v.columns == ["", "b"]
         assert v.select([""]) == [{"": "1"}, {"": "2"}]
+
+
+class TestPortaoHomogeneidadeMultiCol:
+    """As TRES portas recusam o mesmo conjunto, pela mesma frase (onda 0, 2026-08-27).
+
+    Antes, o `.8M` decidia o tipo da coluna pela PRIMEIRA celula e nunca conferia o
+    resto. Numa coluna mista isso nao dava erro, dava DADO ERRADO: medido em 300 pares
+    de tipos, 30 perdas caladas e 18 wires que o proprio `decode` nao le'. E a ORDEM
+    das celulas decidia qual dos dois danos acontecia.
+
+    O single-col (`_tipo_single_col`) e o `.8H` (`_scalar_type`) ja' recusavam. A
+    correcao foi o `.8M` parar de REIVINDICAR a tabela: quem levanta continua sendo o
+    `.8H`, com a frase que ele ja' dava, entao a paridade e' por construcao.
+    """
+
+    MISTAS = [
+        [1, ""],            # o caso que abriu o ticket: o "" virava None
+        ["", 1],            # a ordem trocada: o 1 virava "1"
+        [1, "a"],
+        ["a", 1],
+        [1, "1"],           # colisao valor/grafia: os dois viravam 1
+        ["1", 1],
+        [True, 1],          # bool nao e' numero, mesmo sendo int em Python
+        [1, True],
+        [1.5, ""],
+    ]                       # bool+str NAO entra aqui: tem rota propria, ver o teste abaixo
+
+    @pytest.mark.parametrize("valores", MISTAS)
+    def test_coluna_mista_recusada_nas_tres_portas(self, valores):
+        for entrada in (valores,                             # single-col
+                        {"c": valores},                      # multi-col
+                        [{"c": v} for v in valores]):        # hierarquico
+            with pytest.raises(Exception, match="MISTOS"):
+                encode(entrada)
+
+    @pytest.mark.parametrize("valor", [float("nan"), float("inf"), float("-inf")])
+    def test_nan_e_infinito_recusados_nas_tres_portas(self, valor):
+        """RFC 8259: ficam fora do JSON. O `.8M` gravava `#TCF.8M!3N=c\nnan`, wire morto."""
+        for entrada in ([valor], {"c": [valor]}, [{"c": valor}]):
+            with pytest.raises(Exception, match="RFC 8259"):
+                encode(entrada)
+
+    @pytest.mark.parametrize("valores", [[True, "true"], [True, "x"], ["x", True],
+                                        [True, ""], ["", True]])
+    def test_uniao_bool_str_e_a_divergencia_QUE_SOBRA(self, valores):
+        """bool+str: o single faz RT pela rota lazy `#TCF.8bB`; multi e hier recusam.
+
+        Esta e' a unica linha da matriz em que as tres portas ainda discordam, e o lado
+        divergente e' o PERMISSIVO E LOSSLESS, que e' o bom lado: o single nao perde nada
+        (ADR-0039). Uniformizar exige DECIDIR se a uniao e' capacidade do formato ou
+        defeito de modelagem, e a decisao e' do owner. Ate' la', o teste registra o estado
+        em vez de esconde-lo.
+        """
+        assert decode(encode(valores)) == valores          # single: lossless
+        for entrada in ({"c": valores}, [{"c": v} for v in valores]):
+            with pytest.raises(Exception, match="MISTOS"):
+                encode(entrada)
+
+    HOMOGENEAS = [
+        ([1, 2, 3], "int puro"),
+        ([1, 2.5], "int e float sao o MESMO dominio numerico"),
+        ([True, False], "bool puro"),
+        (["a", "b"], "str puro"),
+        ([1, None, 3], "nulo nao define tipo: ele tem slot proprio"),
+        (["a", None], "idem em texto"),
+        ([None, None], "coluna so'-nula e' texto por default"),
+        (["a", "", "b"], "vazio e' um valor de texto, nao uma mistura"),
+    ]
+
+    @pytest.mark.parametrize("valores,motivo", HOMOGENEAS)
+    def test_coluna_homogenea_continua_passando(self, valores, motivo):
+        """O portao nao pode ficar apertado demais: nulo e int+float NAO sao mistura."""
+        assert decode(encode(valores)) == valores, motivo
+        assert decode(encode({"c": valores})) == {"c": valores}, motivo
+
+    def test_a_ordem_das_celulas_deixou_de_decidir(self):
+        """`['a',1]` perdia dado e `[1,'a']` gerava wire morto. Agora os dois recusam."""
+        for a, b in [(1, ""), (1, "a"), (1, "1"), (True, 1)]:
+            with pytest.raises(Exception, match="MISTOS"):
+                encode({"c": [a, b]})
+            with pytest.raises(Exception, match="MISTOS"):
+                encode({"c": [b, a]})
+
+    def test_mistura_no_fim_de_coluna_longa_tambem_e_pega(self):
+        """A conferencia e' da COLUNA inteira, nao da primeira celula."""
+        with pytest.raises(Exception, match="MISTOS"):
+            encode({"c": list(range(500)) + [""]})
+        with pytest.raises(Exception, match="MISTOS"):
+            encode({"a": ["x"] * 500, "b": list(range(499)) + ["fim"]})
+
+
+class TestNatureAntesDoCast:
+    """Coluna com NATURE e TIPO: a nature vem antes do cast (onda 1, 2026-08-27).
+
+    Era wire MORTO: o corpo guarda a grafia transformada pela nature (`01` num int com
+    spec de padding) e o cast rodava sobre ela, dando `corpo number invalido '01'`. O
+    `encode` aceitava e so' o leitor descobria, possivelmente noutra maquina.
+
+    Alcancavel pelo caminho documentado, com coluna HOMOGENEA: nenhum abuso do usuario.
+    """
+
+    @staticmethod
+    def _spec_largura_2():
+        from tcf.natures import SPEC_REGISTRY
+
+        return type(SPEC_REGISTRY["int-pad"])(largura=2)
+
+    @pytest.mark.parametrize("n", [5, 11, 12, 20, 60])
+    def test_int_com_spec_de_padding_faz_rt(self, n):
+        """n>=11 e' onde o spec vence o FLOOR e o `:id` sai no header."""
+        spec = self._spec_largura_2()
+        d = {"c": list(range(1, n + 1))}
+        wire = encode(d, schema={"c": spec})
+        assert decode(wire) == d
+        assert all(isinstance(x, int) for x in decode(wire)["c"]), "o tipo tem de voltar"
+
+    def test_o_id_sai_no_header_quando_o_spec_vence(self):
+        wire = encode({"c": list(range(1, 21))}, schema={"c": self._spec_largura_2()})
+        assert ":ipad" in wire.splitlines()[0]
+        assert "N" in wire.splitlines()[0], "a tag de tipo continua no meta"
+
+    def test_coluna_sem_nature_segue_castando_no_mesmo_lugar(self):
+        """Contra-prova: o adiamento e' SO' pra quem tem nature."""
+        for d in ({"c": [1, 2, 3]}, {"c": [True, False]}, {"c": [1.5, 2.5]},
+                  {"c": [1, None, 3]}, {"a": ["x", "y"], "b": [1, 2]}):
+            assert decode(encode(d)) == d
+
+    def test_wrapper_interno_recusa_o_que_nao_sabe_resolver(self):
+        """`_decode_multi` nao aplica nature: com cast adiado ele tem de falhar alto.
+
+        Sem isso a coluna voltaria como a grafia da nature, calada.
+        """
+        from tcf.multi.core import _decode_multi
+
+        wire = encode({"c": list(range(1, 21))}, schema={"c": self._spec_largura_2()})
+        with pytest.raises(ValueError, match="nature E tipo"):
+            _decode_multi(wire)

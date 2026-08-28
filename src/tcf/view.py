@@ -97,13 +97,22 @@ def _n_somado(corpo: bytes) -> int:
     """
     from tcf.composicional.hcc_seqrle import _contador_declarado
 
-    # Tira UM `\n` final, o terminador do wire, e não todos: `rstrip` comeria também
-    # uma última linha legitimamente vazia. Em `b"a\n\n"` (os valores `"a"` e `""`)
-    # o `rstrip` deixava `b"a"` e a contagem saía 1 em vez de 2.
-    if corpo.endswith(b"\n"):
-        corpo = corpo[:-1]
+    # A ordem destas três linhas é o contrato, e ela já foi errada duas vezes.
+    #
+    # Corpo AUSENTE (`b""`) é zero linha. Corpo `b"\n"` é UMA linha, vazia. Os dois viram
+    # `b""` depois de tirar o terminador, então a distinção tem de ser feita ANTES: por
+    # isso o `if not corpo` de cima, e não só o de baixo. Sem ele, `view(encode([""]))`
+    # contava 0 sobre uma tabela que o `decode` lê com uma linha, e `select()` devolvia
+    # `[]` porque itera `range(nrows)`.
+    #
+    # E tirar UM `\n`, não todos: `rstrip` comeria também uma última linha legitimamente
+    # vazia, e em `b"a\n\n"` (os valores `"a"` e `""`) a contagem saía 1 em vez de 2.
     if not corpo:
-        return 0
+        return 0                       # corpo ausente: nenhuma linha
+    if corpo.endswith(b"\n"):
+        corpo = corpo[:-1]             # o terminador do wire, e só ele
+    if not corpo:
+        return 1                       # sobrou nada: era UMA linha vazia
     total = 0
     for bruta in corpo.split(b"\n"):
         linha = bruta.decode("utf-8", "surrogateescape")
@@ -203,6 +212,7 @@ class LazyTCF:
         self._order: list[str] = []
         self._stype: dict[str, str] = {}       # name -> 's'|'n'|'b' (tipo do dado; `.8H`)
         self._emask: dict[str, bytes] = {}     # name -> mascara de nulo (`.8H`), sob demanda
+        self._e_hier = False                   # rota `.8H`: as folhas vem ESCAPADAS
         self._strict = False                   # modo duro: cast tem de ser explicito
         self.coercoes: list[str] = []          # telemetria: o que foi convertido, e como
         self.touched: list[str] = []           # colunas que foram descomprimidas
@@ -221,6 +231,7 @@ class LazyTCF:
         # (`valor#:3[]:14n`) do mesmo jeito que o `:id` de nature. Aqui o view lê o que
         # já está declarado. Aninhado, ragged e opcional seguem fora: ali não há tabela.
         if line1.startswith(MAGIC_HIER):
+            self._e_hier = True
             self._parse_hier(raw, line1, nl1)
             return
         # SINGLE-COL: `#TCF.8` (texto), `#TCF.8n` (número), `#TCF.8b` (bool). É uma
@@ -498,6 +509,18 @@ class LazyTCF:
             if stype and stype != "s" and mode != "blob":
                 from tcf.hierarchical import _dec_scalar
                 vals = [None if v is None else _dec_scalar(v, stype) for v in vals]
+            elif self._e_hier:
+                # DES-ESCAPA a folha do `.8H` (2026-08-27, onda 2). O `.8H` escapa `\` e
+                # LF/CR nas folhas (`_esc_leaf`), e o `decode` desfaz isso; a `view` nao
+                # desfazia, entao TODA coluna de texto voltava escapada: `c:	mp` virava
+                # `c:\tmp`, o `where` pelo valor real respondia 0, e o `group_count`
+                # inventava chave. Atinge caminho de Windows, regex e JSON serializado.
+                #
+                # So' o ramo de string precisa: `_dec_scalar` ja' chama `_unesc_leaf`
+                # dentro dele para as colunas tipadas, e as rotas `.8M`/single-col nao
+                # escapam folha nenhuma (elas proibem LF no valor, em vez de escapar).
+                from tcf.hierarchical import _unesc_leaf
+                vals = [None if v is None else _unesc_leaf(v) for v in vals]
             # BUG-13d (lote 4): cross-check de n_rows INCREMENTAL — compara com
             # qualquer coluna JA' materializada (ints, custo zero, laziness
             # intacta). Fecha o buraco da view em blob EOF-truncado sem exigir
@@ -533,9 +556,21 @@ class LazyTCF:
             return cached
         body = self._body[name]
         nl = body.find(b"\n")
+        if nl == -1:
+            raise ValueError(
+                f"slot V2-B corrompido na coluna {name!r}: falta o LF que separa o "
+                f"tamanho da tabelinha (T-QA-8 BUG-13e)"
+            )
         ntable = int(body[:nl])
         start = nl + 1
-        unicas = _decode_column(body[start:start + ntable].decode("utf-8"))
+        # Tabelinha de ZERO byte e' zero valor distinto, e nao um valor vazio. Sem esta
+        # linha, `_decode_column("")` devolve `['']` (a mesma ambiguidade de corpo vazio
+        # do `BUG-VIEW-UMA-STRING-VAZIA`, um nivel abaixo), e como `distinct`/`n_unique`
+        # respondem DIRETO da tabelinha, eles inventariam um elemento numa coluna sem
+        # nenhuma linha. O `decode` escapava por acidente, porque o stream vazio nao faz
+        # o laco rodar. Ver `tickets/BUG-VIEW-COLUNA-VAZIA-UNICO-FANTASMA.md`.
+        unicas = ([] if ntable == 0
+                  else _decode_column(body[start:start + ntable].decode("utf-8")))
         # A tabelinha guarda o PAYLOAD; quem consulta (where L4, group_count) compara
         # contra o VALOR. Reverter aqui — nos K unicos, nao nas N linhas — mantem a
         # laziness intacta e fecha a divergencia com `_col` (fonte unica).

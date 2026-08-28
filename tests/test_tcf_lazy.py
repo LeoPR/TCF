@@ -1157,3 +1157,108 @@ class TestNuloNaChaveDeGrupo:
         """O caminho inverso: pedir só as linhas nulas."""
         blob = encode(tab)
         assert view(blob).where("g", None).count() == 2
+
+
+class TestViewDesfazEscapeDoHierarquico:
+    """A `view` do `.8H` des-escapa a folha, como o `decode` (onda 2, 2026-08-27).
+
+    O `.8H` escapa `\` e LF/CR nas folhas (`_esc_leaf`). O `decode` desfazia; a `view`
+    nao, entao TODA coluna de texto voltava escapada. `c:\tmp` virava `c:\\tmp`, o
+    `where` pelo valor real respondia 0 e o `group_count` inventava chave. Atinge caminho
+    de Windows, regex, LaTeX e JSON serializado, que sao dados banais.
+
+    Nao precisa de wire escrito a mao: o `encode` publico produz isso com dado normal.
+    """
+
+    VALORES = ["c:\tmp", "a\rb", "a\nb", "re\d+", '{"k": "v\n"}', "sem escape"]
+
+    @pytest.mark.parametrize("valor", VALORES)
+    def test_view_concorda_com_decode(self, valor):
+        wire = encode([{"a": valor}, {"a": "outro"}])
+        assert view(wire).select()[0]["a"] == decode(wire)[0]["a"] == valor
+
+    @pytest.mark.parametrize("valor", VALORES)
+    def test_where_encontra_pelo_valor_real(self, valor):
+        wire = encode([{"a": valor}, {"a": "outro"}])
+        assert view(wire).where("a", valor).count() == 1
+
+    def test_group_count_nao_inventa_chave(self):
+        wire = encode([{"a": "c:\tmp"}, {"a": "c:\tmp"}, {"a": "x"}])
+        assert view(wire).group_count("a") == {"c:\tmp": 2, "x": 1}
+        assert view(wire).distinct("a") == ["c:\tmp", "x"]
+
+    def test_as_outras_rotas_nao_regridem(self):
+        """Contra-prova: `.8M` e single-col NAO escapam folha, e nao podem ser tocados.
+
+        Elas proibem LF no valor em vez de escapar, entao um des-escape ali comeria
+        barras legitimas do dado.
+        """
+        for valor in ["c:\tmp", "re\d+", "\\servidor\share"]:
+            multi = encode({"a": [valor, "outro"]})
+            assert view(multi).select()[0]["a"] == decode(multi)["a"][0] == valor
+            single = encode([valor, "outro"])
+            assert view(single).select()[0]["0"] == decode(single)[0] == valor
+
+
+class TestContagemDeUmaLinhaVazia:
+    """`view.count()` bate com `len(decode())` tambem quando a unica linha e' vazia.
+
+    `_n_somado` tirava o `
+` terminal e SO' depois perguntava se o corpo era vazio,
+    colapsando duas coisas distintas: corpo AUSENTE (zero linha) e corpo `b"
+"` (UMA
+    linha vazia). O `select()` ia junto, porque itera `range(nrows)`.
+
+    Sintoma colateral: `nrows` dependia de QUAL coluna vinha primeiro, porque ele para na
+    primeira que da' contagem estrutural.
+    """
+
+    @pytest.mark.parametrize("dado,kw", [
+        ([""], {}),
+        (["", ""], {}),
+        (["a", ""], {}),
+        (["", "a"], {}),
+        ([], {}),
+        ({"a": [""]}, {}),
+        ({"a": [""]}, {"fallback": False}),
+        ({"a": [""], "b": ["x"]}, {"fallback": False}),
+        ({"a": ["x"], "b": [""]}, {"fallback": False}),
+        ({"a": ["ig"] * 6}, {}),
+        ({"a": []}, {}),
+    ])
+    def test_count_bate_com_decode(self, dado, kw):
+        wire = encode(dado, **kw)
+        volta = decode(wire)
+        n = len(volta) if isinstance(volta, list) else len(next(iter(volta.values()), []))
+        assert view(wire).count() == n
+        assert len(view(wire).select()) == n
+
+    def test_a_ordem_das_colunas_nao_muda_a_contagem(self):
+        """Mesma tabela, colunas trocadas: `nrows` tem de ser o mesmo."""
+        a = view(encode({"a": [""], "b": ["x"]}, fallback=False)).nrows
+        b = view(encode({"a": ["x"], "b": [""]}, fallback=False)).nrows
+        assert a == b == 1
+
+
+class TestContarValoresPresentesVsPosicoes:
+    """As duas receitas de contagem do contrato, pinadas (2026-08-27).
+
+    O contrato de `BUG-VIEW-UMA-STRING-VAZIA` diz: `count()` conta POSICOES (o `COUNT(*)`),
+    e quem quer contar VALORES PRESENTES escreve o filtro. Sao perguntas diferentes, e a
+    diferenca so' aparece quando a coluna tem `""` e `None` juntos.
+    """
+
+    TABELA = {"x": ["a", "", None, "b"]}
+
+    def test_count_conta_posicoes(self):
+        assert view(encode(self.TABELA)).count() == 4
+
+    def test_valores_presentes_exclui_so_o_nulo(self):
+        """O `COUNT(col)` do SQL: pula `NULL` e CONTA a string vazia."""
+        v = view(encode(self.TABELA))
+        assert v.where("x", pred=lambda x: x is not None).count() == 3
+
+    def test_missing_textual_e_uma_convencao_A_MAIS(self):
+        """`COUNT(NULLIF(col, ''))`: tratar `""` como ausência é escolha explícita."""
+        v = view(encode(self.TABELA))
+        assert v.where("x", pred=lambda x: x is not None and x != "").count() == 2

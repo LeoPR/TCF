@@ -606,10 +606,15 @@ class TestTagDeTipoNoMeta:
         assert "true" in corpo and "True" not in corpo
 
     def test_aninhado_continua_no_8h(self):
-        """O `.8H` segue dono do que E' aninhado: dict na celula, ragged, 0-linha."""
+        """O `.8H` segue dono do que E' aninhado: dict na celula e ragged.
+
+        O 0-linha RETANGULAR saiu desta lista em 2026-08-26: ele ganhou grafia propria
+        no `.8M` (corpo `@` com tabelinha vazia). O ragged continua aqui.
+        """
         assert encode([{"a": {"b": 1}}]).startswith("#TCF.8H")
         assert encode([{"a": 1}, {"b": 2}]).startswith("#TCF.8H")
-        assert encode({"a": []}).startswith("#TCF.8H")
+        assert encode({"a": [], "b": ["x"]}).startswith("#TCF.8H")
+        assert encode({"a": []}) == "#TCF.8M@a\n0\n"
 
     def test_size_hex_canonico(self):
         """A tag so' e' inequivoca porque o size e' hex minusculo canonico."""

@@ -216,7 +216,24 @@ def decode(
     if disc8 == "M":
         from tcf.multi import _decode_multi_impl
 
-        result, header_ids = _decode_multi_impl(tcf_text)
+        result, header_ids, casts_adiados = _decode_multi_impl(tcf_text)
+
+        def _aplica_casts_adiados():
+            """Cast das colunas que tem NATURE e TIPO, DEPOIS de desfeita a nature.
+
+            O corpo dessas colunas guarda a grafia transformada (`01` num int com spec de
+            padding). Castar antes de desfazer a nature le' isso como numero e levanta,
+            que era o wire morto da onda 1 (2026-08-27).
+            """
+            if not casts_adiados:
+                return
+            from tcf.hierarchical import _dec_scalar
+
+            for _col, _tipo in casts_adiados.items():
+                result[_col] = [
+                    None if v is None or v == "" else _dec_scalar(v, _tipo)
+                    for v in result[_col]
+                ]
         # SOBRECARGA escalar, simetrica ao encode: wire multi
         # de UMA coluna aceita schema="id"/objeto. Em 2+ colunas o escalar era
         # aceito e SILENCIOSAMENTE nao usado (a classe calada que este projeto
@@ -264,6 +281,7 @@ def decode(
                 header_resolved.add(name)
         # Colunas sem :id continuam definitivamente originais; o parâmetro
         # out-of-band não pode inferir uma nature perdida pelo FLOOR.
+        _aplica_casts_adiados()
         return result
 
     # SINGLE + SPEC: '#TCF.8 [nome]:spec' (disc espaco). Retorna LIST.

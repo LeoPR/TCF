@@ -29,7 +29,8 @@ Contratos de fronteira (T-FMT-NAME-ESCAPING M2 + T-QA-8 F0):
   backslash no meta (aceitos); so' `\\n` e' proibido (separador de linha).
 - Nome '' = nome VAZIO, emitido como `\\z` no meta (ADR-0046, espelho do `.8H`) e
   preservado no decode. Coluna ANONIMA (posicional) so' via `drop_names`.
-- Todas colunas devem ter mesmo numero de valores (>= 1; 0 linhas = erro).
+- Todas colunas devem ter mesmo numero de valores (0 inclusive: a tabela de 0 linhas
+  sai com corpo `@` de tabelinha vazia, que diz zero sem ambiguidade).
 - NULL/None convertido pra '' (empty string); coluna deve ser LISTA (str/bytes
   = erro que ensina).
 """
@@ -414,14 +415,20 @@ def _encode_multi(
     lengths = {col: len(vals) for col, vals in table.items()}
     if len(set(lengths.values())) > 1:
         raise ValueError(f"colunas com lengths diferentes: {lengths}")
-    if next(iter(lengths.values())) == 0:
-        # BUG-03 (T-QA-8 F0 lote 2): 0 linhas colide com 1-linha-vazia (body de
-        # 0 bytes nos dois casos; nada de onde deduzir) -> fail-loud. Registro-'0'
-        # declarando schema fica pro trilho append/parquet/tcfx (registrado).
-        raise ValueError(
-            "tabela com 0 linhas: nao representavel (colide com 1 linha vazia — "
-            "o formato nao grava row-count); ver T-QA-8 BUG-03"
-        )
+    n_linhas = next(iter(lengths.values()))
+    if n_linhas == 0 and nature_specs:
+        # Uma spec declarada numa coluna de ZERO linhas nao tem valor pra transformar, e
+        # nao pode vencer o FLOOR por construcao (original e transformado tem o mesmo
+        # tamanho, e o `:id` so' soma bytes). Deixar passar seria descartar em silencio o
+        # que o chamador declarou, que e' a classe de defeito do T-NATURE-IGNORADA-CALADA.
+        # Antes de 2026-08-26 esta entrada nem chegava aqui: ela caia no `.8H`, que ja'
+        # levantava. Fail-loud CONTINUA, so' muda o ponto e a mensagem.
+        alvo = sorted(set(nature_specs) & set(table))
+        if alvo:
+            raise ValueError(
+                f"schema/nature declarado em coluna(s) de 0 linhas {alvo}: nao ha' valor "
+                f"pra transformar, e aplicar calado esconderia a declaracao"
+            )
 
     for col_name in table.keys():
         # #TCF.8M default (ADR-0032): separadores do meta (,/=/:) + '\' + prefixo de
@@ -456,7 +463,7 @@ def _encode_multi(
     # parallel=1 -> SERIAL por DEDUCAO (BUG-10c, lote 3): 1 worker produz os
     # MESMOS bytes por construcao — economiza o spawn do pool inteiro.
     # CUIDADO: True == 1 em Python — o isinstance(bool) preserva parallel=True.
-    use_parallel = len(table_str) >= 2 and (
+    use_parallel = len(table_str) >= 2 and n_linhas > 0 and (
         parallel is True
         or (
             not isinstance(parallel, bool)
@@ -561,7 +568,16 @@ def _encode_multi(
         return bb, bm
 
     for name, tcf_bytes in col_bodies_bytes:
-        best_body, best_mode = _best_of(table_str[name], tcf_bytes)
+        if n_linhas == 0:
+            # ZERO linhas tem UMA grafia so', e ela nao sai do `min()`: o candidato raw
+            # de 0 linhas e' um corpo de ZERO byte, que decodifica como UMA linha vazia,
+            # e ele ganharia o min() por ser o menor. O corpo `@` de tabelinha vazia
+            # (`0\n`) e' o unico que diz zero sem ambiguidade, entao ele e' imposto, e
+            # `fallback=False` nao o desliga: desligar produziria wire que perde o dado
+            # em silencio, e nenhum knob de bytes pode comprar isso.
+            best_body, best_mode = b"0\n", "dict"
+        else:
+            best_body, best_mode = _best_of(table_str[name], tcf_bytes)
 
         spec = nature_specs.get(name) if nature_specs else None
         if spec is not None:
@@ -662,14 +678,21 @@ def _encode_multi(
 
 def _decode_multi_impl(
     tcf_text: str,
-) -> tuple[dict[str, list[str]], dict[str, str]]:
+) -> tuple[dict[str, list[str]], dict[str, str], dict[str, str]]:
     """Parse + decode multi-col, SEM aplicar natures.
 
-    Retorna (result, nature_ids), onde nature_ids = {col_name -> nature-id
-    STRING} extraido do sufixo ':id' do meta-line (#TCF.8, ADR-0027); vazio pra
-    #TCF.6/7. A APLICACAO da nature (resolve + decode_value) fica no `decode()`
-    publico, que resolve a precedencia header-vs-usuario. Mantem multi/core
-    agnostico de nature (so' PARSEIA a tag, nao depende de tcf.natures).
+    Retorna (result, nature_ids, casts_adiados).
+
+    `nature_ids` = {col_name -> nature-id STRING} extraido do sufixo ':id' do meta-line
+    (#TCF.8, ADR-0027); vazio pra #TCF.6/7. A APLICACAO da nature (resolve +
+    decode_value) fica no `decode()` publico, que resolve a precedencia
+    header-vs-usuario. Mantem multi/core agnostico de nature (so' PARSEIA a tag, nao
+    depende de tcf.natures).
+
+    `casts_adiados` = {col_name -> tag de tipo} das colunas que tem NATURE **e** TIPO.
+    Nelas o corpo guarda a grafia transformada pela nature, entao castar antes de
+    desfaze-la le' `01` como numero e levanta. O chamador aplica `_dec_scalar` DEPOIS do
+    `decode_value`. Coluna sem nature segue castada aqui mesmo, como sempre.
 
     Aceita SO' #TCF.8M (ADR-0032; legado #TCF.6/.7 cortado -> fail-loud no decode()
     publico). Meta INLINE: `!` = raw (V2-A), `@` = dict (V2-B), `%` = split; sufixo
@@ -719,6 +742,7 @@ def _decode_multi_impl(
     # completude na chegada) registrado no ticket.
     result: dict[str, list[str]] = {}
     nature_ids: dict[str, str] = {}
+    casts_adiados: dict[str, str] = {}
     # Anonima -> nome POSICIONAL (ADR-0029) + guard de colisao, em FONTE UNICA com a
     # view (`_nomes_resolvidos`) — 4o cheque deduzido de graca do BUG-05.
     nomes = _nomes_resolvidos(pairs)
@@ -746,12 +770,25 @@ def _decode_multi_impl(
         if nat_id is not None:
             nature_ids[col] = nat_id
         if tipo is not None:
-            # o header declarou o tipo: devolve o VALOR, nao a grafia. `_dec_scalar`
-            # e' o mesmo do `.8H`, entao as duas rotas concordam por construcao
-            # (int vs float sai do proprio valor; nulo continua nulo).
-            from tcf.hierarchical import _dec_scalar
-            result[col] = [None if v is None or v == "" else _dec_scalar(v, tipo)
-                           for v in result[col]]
+            if nat_id is not None:
+                # NATURE ANTES DO CAST (2026-08-27, onda 1). A ordem estava invertida e
+                # produzia WIRE MORTO: numa coluna numerica com spec de padding, o corpo
+                # guarda a grafia TRANSFORMADA (`01`), e o cast rodava sobre ela, dando
+                # `corpo number invalido '01'`. O `encode` aceitava, e so' o leitor
+                # descobria, possivelmente noutra maquina.
+                #
+                # A aplicacao da nature mora no `decode()` publico, que e' quem resolve a
+                # precedencia header-vs-usuario, e este modulo continua agnostico de
+                # nature. Entao o cast desta coluna e' ADIADO e devolvido ao chamador,
+                # que o aplica depois do `decode_value`.
+                casts_adiados[col] = tipo
+            else:
+                # o header declarou o tipo: devolve o VALOR, nao a grafia. `_dec_scalar`
+                # e' o mesmo do `.8H`, entao as duas rotas concordam por construcao
+                # (int vs float sai do proprio valor; nulo continua nulo).
+                from tcf.hierarchical import _dec_scalar
+                result[col] = [None if v is None or v == "" else _dec_scalar(v, tipo)
+                               for v in result[col]]
         cursor += len(body_bytes)
 
     if cursor != len(raw):
@@ -769,7 +806,7 @@ def _decode_multi_impl(
             f"excedente; T-QA-8 BUG-05)"
         )
 
-    return result, nature_ids
+    return result, nature_ids, casts_adiados
 
 
 def _decode_multi(tcf_text: str) -> dict[str, list[str]]:
@@ -777,7 +814,16 @@ def _decode_multi(tcf_text: str) -> dict[str, list[str]]:
     aplicadas). Usado por `split.py` na recursao de sub-tabela (que nunca tem
     nature) e re-exportado. `decode()` usa `_decode_multi_impl` pra aplicar as
     natures do header com a precedencia correta."""
-    result, _ = _decode_multi_impl(tcf_text)
+    result, _ids, casts_adiados = _decode_multi_impl(tcf_text)
+    if casts_adiados:
+        # Este wrapper NAO aplica nature, entao um cast adiado ficaria pendente pra
+        # sempre e a coluna voltaria como grafia da nature. A sub-tabela do `split` nunca
+        # tem nature (por isso o wrapper existe), mas quem chamar isto por fora com um
+        # wire que tenha `:id` + tag de tipo receberia dado errado em silencio.
+        raise ValueError(
+            f"wire com nature E tipo nas colunas {sorted(casts_adiados)}: use `decode()`, "
+            f"que resolve a nature antes do cast (este wrapper nao aplica nature)"
+        )
     return result
 
 

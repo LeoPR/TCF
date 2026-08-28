@@ -23,8 +23,8 @@ API publica unificada (ADR-0014):
     # ... etc
 
 `encode` e `decode` sao a PORTA UNICA do dev (Passo 2, API unica). Encoder rota por
-TIPO: flat puro (`list[str]` / `dict[str,list[str]]` retangular >=1 linha) fica flat;
-aninhado/tipado/vazio (list[dict], objeto, escalar, `[]`/`{}`, ragged/0-linha) vai pro
+TIPO: flat puro (`list[str]` / `dict[str,list[str]]` retangular, 0 linhas inclusive)
+fica flat; aninhado/tipado (list[dict], objeto, escalar, `{}`, ragged) vai pro
 `#TCF.8H` — simetrico ao decoder, que rota pela assinatura (`#TCF.8M` -> multi;
 `#TCF.8H` -> hierarquico; `#TCF.8 ...`/`#TCF.8\\n` -> single spec/stamp; sem magic ->
 single orfao). Legado `.6/.7` e versao desconhecida -> ValueError (fail-loud).
