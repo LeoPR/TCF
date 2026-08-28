@@ -1,18 +1,22 @@
 ---
 title: "BUG-ENCODE-VAZIO-EM-COLUNA-TIPADA: coluna mista perde valor, e em dois casos emite wire que não decodifica"
-status: open
+status: closed-fixed
 priority: P1
 severity: R0 (round-trip lossy e silencioso na API pública)
 created: 2026-08-26
-updated: 2026-08-26
-gate: correção em src/tcf só com aprovação explícita do owner (I5). Contrato FECHADO em 2026-08-26: sem tipo declarado, mista vira texto; com tipo, não-membro vira nulo; preenchimento fica fora; modo estrito levanta
+updated: 2026-08-28
+gate: "solda autorizada pelo owner em 2026-08-27 (onda 0 da auditoria de consistência); a política coerciva foi RETIRADA, não implementada"
 blocked-by: []
-related:
-  - src/tcf/multi/core.py
-  - src/tcf/hierarchical.py
-  - src/tcf/view.py
-  - docs/how-to/mimetizar-pandas-sql-polars.md
-  - tickets/BUG-VIEW-UMA-STRING-VAZIA.md
+related: [
+      src/tcf/multi/core.py,
+      src/tcf/hierarchical.py,
+      src/tcf/view.py,
+      docs/how-to/mimetizar-pandas-sql-polars.md,
+      tickets/BUG-VIEW-UMA-STRING-VAZIA.md,
+      experiments/lab/dirty/notas/2026-08/2026-08-26-1944-revisao-fechamento-08-view-encode.md,
+      experiments/lab/dirty/notas/2026-08/2026-08-27-consistencia-tres-familias.md,
+      experiments/lab/dirty/2026-08/2026-08-28/2026-08-28-0100-portao-de-homogeneidade/,
+]
 ---
 
 # BUG-ENCODE-VAZIO-EM-COLUNA-TIPADA
@@ -130,7 +134,13 @@ contrato escrito promete `0.0`. `group_sum` já devolve `0.0`. Matematicamente �
 número; para quem consome, é outro tipo. Vale alinhar junto, e não precisa de decisão:
 o contrato já está escrito.
 
-## A regra do encode: sem tipo, cai para texto; com tipo, o tipo manda
+## Proposta sob inspeção: sem tipo, cai para texto; com tipo, o tipo manda
+
+> **Status: SUPERADA em 2026-08-28, e preservada por causa do racional.** Esta proposta não
+> foi implementada. Medida caso a caso na onda 0, ela cobre sete dos nove defeitos e mente
+> nos outros dois, por isso a decisão foi o fail-loud que `api.md` já publicava. O que segue
+> é o raciocínio como estava escrito; a conclusão está em *"A decisão, e por que não foi a
+> que o ticket propunha"*, mais abaixo.
 
 Direção do owner (2026-08-26):
 
@@ -168,17 +178,59 @@ tinha sido adivinhada. O que se perdia antes era o **valor**, que ele tinha decl
 passar o dado. A troca é boa, e o `encode` deixa de ser injetivo em entrada mista, o que
 precisa estar escrito na página do formato.
 
-### O outro lado: com tipo declarado
+### O outro lado: com tipo declarado (CORRIGIDO em 2026-08-26)
 
-Hoje uma spec que não serve a todos os valores é **silenciosamente descartada**:
+> **Eu tinha escrito que "uma spec que não serve é silenciosamente descartada", e generalizei
+> de uma fixture de dois valores. Está errado.** Naquele caso a spec não foi descartada por
+> causa do alienígena: ela perdeu a **competição de bytes**, que é outra coisa, e o dado
+> voltou exato de qualquer jeito.
 
-```python
-encode({"d": ["2025-01-01", "2025-01-02"]}, schema={"d": "data-iso"})  # aplica: '!d:dt'
-encode({"d": ["2025-01-01", "xx"]},         schema={"d": "data-iso"})  # ignora: '!d', texto
-```
+Medido com uma coluna de 80 datas, onde a spec paga:
 
-Lossless e mudo: o chamador pede um tipo, não recebe, e não fica sabendo. O contrato que
-substitui isso está decidido mais abaixo, na §"A linha do tipo declarado".
+| coluna | spec aplicada | bytes | round-trip |
+|---|---|---:|---|
+| 80 datas válidas | **sim** (`v:dt`) | 229 | exato |
+| 79 datas + `"nao-e-data"` | **sim** (`v:dt`) | 320 | **exato** |
+| 79 datas + `""` | **sim** (`v:dt`) | 310 | **exato** |
+| 79 datas + `None` | **sim** (`v:dt`) | 285 | **exato** |
+
+A spec **continua aplicada** e o valor que não casa volta **literal**. É exatamente o que o
+owner lembrava do CPF, e o que a nota de 2026-08-08 já registrava para a origem soft:
+*"tenta, e o que não casar vira literal"*, com escape de um byte.
+
+**Consequência direta: a proposta de coagir o não-membro para nulo está retirada.** Ela
+substituiria um comportamento que já é lossless por um que perde dado, e quebraria o pino de
+round-trip das natures. O achado A3 da revisão está certo, e por uma razão mais forte do que
+a que eu tinha escrito: não é só que coagir *seria* lossy, é que o caminho lossless **já
+existe e funciona**.
+
+### O enquadramento que faltava: hard e soft
+
+O owner apontou o vocabulário que o projeto já tem
+([nota de 2026-08-08](../experiments/lab/dirty/notas/2026-08/2026-08-08-origem-hard-e-soft-modelo-vs-implementado.md)):
+
+| origem | o que é | o que acontece com o alienígena |
+|---|---|---|
+| **hard** | o dado chega já tipado (`int`, `bool`, `float`) | o TCF não revalida; o conjunto aceito é o dos escalares JSON |
+| **soft** | string com um tipo **declarado** por spec | tenta; o que não casa vira **literal**, sem drama |
+
+Com isso, as três situações se separam, e cada uma tem um dono diferente:
+
+1. **soft**, tudo string, com ou sem spec: já resolvido e lossless. Nada a fazer.
+2. **hard misto**, `int` e `str` na mesma coluna (`[1, ""]`, `[1, "1"]`, `[True, 1]`): a
+   entrada declarou dois tipos numa coluna só. É onde mora o defeito, e onde
+   `docs/reference/api.md` já promete fail-loud.
+3. **coerção prescritiva**, "force esta coluna a int, e o inválido vira nulo ou zero": não
+   existe hoje, e é o `schema` prescritivo que a revisão manda desenhar no `.9`.
+
+**O ponto que ainda precisa de você** está na linha 2. A sua regra diz que sem spec o
+implícito cai para string, o que resolveria `[1, "1"]` como `["1", "1"]`. O modelo hard diz
+o contrário: se entrou `int`, volta `int`, e o TCF não converte origem hard. E `api.md`
+promete fail-loud para union fora de bool+str.
+
+As duas leituras são defensáveis, e a diferença é sobre o que uma coluna hard-mista
+significa: *"o dev misturou, então trate como texto"* ou *"o dev misturou, então o dado está
+errado e eu aviso"*. A segunda é a que o formato já publicou.
 
 ## O ciclo das variações (2026-08-26)
 
@@ -211,11 +263,12 @@ E **nenhuma das 17 emite aviso**, que é a peça que a premissa do owner exige. 
 `warnings.warn` já é usado em `view.py` e `composicional/syntax.py`, então não é mecanismo
 novo.
 
-### A tabela fixada
+### A tabela proposta
 
 | variação | comportamento | por quê |
 |---|---|---|
-| coluna mista, sem tipo declarado | **texto**, com aviso | preserva todo valor |
+| coluna mista de tipos disjuntos, sem tipo declarado | texto, com aviso | preserva os valores |
+| coluna mista com colisão valor/grafia (`[1, "1"]`) | **falha alto** | nenhuma regra recupera a distinção perdida |
 | `""` em coluna mista | `""`, nunca `None` | vazio não é ausência |
 | `None` | continua `None` | ausência é ausência |
 | `["1", "2"]` | continua texto | nada declarado, nada adivinhado |
@@ -227,16 +280,15 @@ novo.
 | soma com não-número | `ValueError` | não-número não soma |
 | soma de conjunto vazio | `0.0` | identidade aditiva |
 
-### A linha do tipo declarado: decidida em 2026-08-26
+### A proposta para o tipo declarado
 
-Eu tinha levantado uma tensão entre *"spec força não-membro a nulo"* e *"o TCF não é um
-ETL"*. O owner a resolveu:
+A proposta parte da seguinte orientação do owner:
 
 > *"o TCF não é ETL de fato, mas dar dados sujos obriga o TCF a transformar o dado de
 > qualquer forma, e não tem saída (...) cada tipo pode ter algum fallback que ignora os
 > outros tipos misturados."*
 
-Procede, e desfaz a objeção. O `encode` **já transforma**: stringifica, escolhe modo,
+Essa orientação sustenta o racional proposto. O `encode` **já transforma**: stringifica, escolhe modo,
 rebaixa tipo. Recusar-se a escolher a transformação não faz o TCF parar de transformar, só
 faz a transformação ser acidental em vez de projetada, que é exatamente o defeito deste
 ticket. "Não é ETL" quer dizer **não repara dado**, não "nunca converte".
@@ -255,7 +307,8 @@ muda**, e é o número que se confere primeiro. Em booleano, coagir para `False`
 `False` com dado que nunca foi `False`.
 
 A razão é a que o contrato do agrupamento já fixou: **ausência não participa de agregação;
-zero e `False` são valores, e participam**. Então o cast do não-membro é **nulo**, sempre.
+zero e `False` são valores, e participam**. Nessa proposta, o cast do não-membro seria
+**nulo**.
 Zero, `False` e afins não somem do mapa: viram **preenchimento**, decisão de quem consome,
 com nome próprio (`fillna`, `fill_null`, `COALESCE`) e rastro visível.
 
@@ -274,35 +327,102 @@ por coluna (ADR-0022/0025/0026). O botão novo precisa de outro nome.
 ## Alcance
 
 - **Publicado**: presente na `0.8.2` no PyPI.
-- **Fixture do how-to**: a página
-  [`mimetizar-pandas-sql-polars.md`](../docs/how-to/mimetizar-pandas-sql-polars.md) usa
-  `"v": [10, 5, None, 20, "", 7, None]`, que cai exatamente neste caso. Por isso as receitas
-  de `COUNT(col)` da página **levantam** ao rodar, e `select("v")` e `sum("v")` também. Não
-  é efeito da revisão de 2026-08-26: a fixture já era essa, e as duas versões da receita, a
-  antiga e a corrigida, quebram igual. A página precisa de uma fixture que rode, e a troca
-  entra junto da correção.
+- **Fixture do how-to**: a fixture vigente de
+      [`mimetizar-pandas-sql-polars.md`](../docs/how-to/mimetizar-pandas-sql-polars.md) não
+      mistura `""` com número. Ela não reproduz este bug; qualquer fixture mista futura precisa
+      passar pelo gate de round-trip antes de sustentar uma receita.
 - **Gates byte-canônicos**: intactos (33 verdes). Nenhuma fixture de gate mistura tipos.
 
-## Critério de aceite
+## A decisão, e por que não foi a que o ticket propunha
 
-- [ ] Coluna mista **sem tipo declarado** vira texto, sempre, independente de qual valor
-      aparece primeiro; `decode` devolve todos os valores, nenhum vira nulo.
-- [ ] `decode` deixa de converter `""` em `None` numa coluna cuja tag foi **inferida**.
-- [ ] Com tipo ou spec declarado, o não-membro vira **nulo** e sai aviso; nunca zero nem
-      `False`, e a spec deixa de ser descartada em silêncio.
-- [ ] Existe modo estrito que levanta em vez de coagir, com nome que não colida com o
-      `fallback=` já existente do `encode`.
-- [ ] A rota single-column e a multi-column concordam sobre coluna mista.
-- [ ] `decode` e `view` param de discordar sobre o mesmo wire.
-- [ ] `sum` sobre coluna com não-número levanta `ValueError`, e não `HierarchicalError`,
-      igualando `[1, ""]` a `["a", "b"]`.
-- [ ] `sum` de conjunto vazio devolve `0.0`, como o contrato escrito e como o `group_sum`.
-- [ ] Cobrir `[1, ""]`, `["", 1]`, `[True, ""]`, `[1.5, ""]`, `["a", ""]` (que deve
-      continuar passando) e a mesma coluna em posição não inicial numa tabela larga.
-- [ ] Fixture do how-to trocada por uma que rode, e as receitas da página reverificadas por
-      execução.
-- [ ] Suíte completa e gates verdes; sem re-pin de bytes, porque nenhum wire válido muda.
+O ciclo das variações recomendava **fallback para texto**. O lab da onda 0
+([`2026-08-28-0100-portao-de-homogeneidade`](../experiments/lab/dirty/2026-08/2026-08-28/2026-08-28-0100-portao-de-homogeneidade/))
+mediu os nove casos um a um e mostrou que essa regra **cobre sete dos nove**. Os dois que
+sobram são os que nenhum rebaixamento alcança:
+
+| par | o que o `decode` devolvia | por que texto não resolve |
+|---|---|---|
+| `[1, "1"]` | `[1, 1]` | as duas células escrevem a mesma coisa no wire; depois disso nada diz qual era `int` |
+| `[True, "true"]` | `[True, True]` | idem |
+
+Não são perdas de anotação de tipo: são **dois valores colapsados num só**. O ticket
+previa a colisão de grafia como classe, mas não tinha medido que ela já acontece no
+`decode` de hoje. Uma regra que resolve sete de nove e mente nos outros dois é pior do que
+recusar, porque a mentira fica dentro do caminho feliz.
+
+Então valeu a recomendação conservadora da revisão crítica, e ela é a que **`api.md` já
+publicava**: *"array de tipos mistos (union) fora da união bool+str → fail-loud"*. O `.8M`
+era a única das três famílias que não cumpria o contrato escrito. A correção não mudou o
+contrato; alinhou a implementação a ele.
+
+## O que foi soldado (2026-08-27, onda 0)
+
+`_tabela_flat` ([`encoder.py`](../src/tcf/encoder.py)), o portão do `.8M`, passou a chamar
+`_scalar_type` de [`hierarchical.py`](../src/tcf/hierarchical.py) por coluna antes de
+aceitar a tabela. O juiz de homogeneidade passou a ser **um só** para as três famílias, em
+vez de existir no `.8H` e faltar no `.8M`. Coluna mista cai para o `.8H`, que levanta com
+a mesma frase.
+
+Custo em bytes: **zero**. Nenhum wire válido muda, e os 33 gates byte-canônicos
+continuam verdes sem re-pin.
+
+## Critérios de aceite
+
+- [x] Coluna mista **sem tipo declarado** deixa de emitir wire, independente de qual valor
+      aparece primeiro. ~~Vira texto~~: **retirado**, medido que texto perde `[1, "1"]` e
+      `[True, "true"]` do mesmo jeito.
+- [x] `decode` não converte mais `""` em `None` por tag inferida: o wire que fazia isso
+      deixou de ser emitível.
+- [x] ~~Com tipo ou spec declarado, o não-membro vira **nulo**.~~ **Retirado em 2026-08-26:**
+      medido que a spec continua aplicada e o não-membro volta **literal**, com round-trip
+      exato. Coagir substituiria um caminho lossless que já funciona.
+- [x] A rota single-column, a multi-column e a hierárquica concordam sobre coluna mista,
+      **com a exceção conhecida** da união bool+str, registrada abaixo.
+- [x] Cobrir `[1, ""]`, `["", 1]`, `[True, ""]`, `[1.5, ""]` e `["a", ""]` (que continua
+      passando), mais a mistura em posição não inicial de coluna longa, NaN/Inf, e a ordem
+      das células deixando de decidir. Em
+      `tests/test_f0_boundary_fixes.py::TestPortaoHomogeneidadeMultiCol`.
+- [x] A fixture do how-to passa por round-trip e tem as receitas verificadas por execução.
+- [x] Suíte completa (1580) e 33 gates verdes; sem re-pin de bytes.
+- [x] Lab de evidência em disco (I2), com o antes vindo do `git HEAD` e não da memória.
+- [x] ~~`sum` sobre coluna com não-número levanta `ValueError`, igualando `[1, ""]` a
+      `["a", "b"]`.~~ **Retirado em 2026-08-26 (achado A5, conferido):** numa coluna de
+      texto, `sum(["1", "", "2"])` devolve **3.0**, ou seja `""` já é *pulado* na agregação,
+      como o nulo. O que restava do item some sozinho: `[1, ""]` deixou de existir como wire.
+- [x] ~~`sum` de conjunto vazio devolve `0.0`, como o contrato escrito.~~ **Retirado em
+      2026-08-27:** conferido por execução que o contrato escrito **não** promete isso. A
+      página do `lazy-view` documenta `0` (int) no agregador **escalar**, e `0.0` na família
+      **`group_*`**, com escopo explícito nas duas linhas. O código honra os dois. Este item
+      nasceu de uma leitura errada da própria doc.
+
+## Modo estrito: a pergunta se inverteu
+
+O ticket pedia um modo estrito que levantasse em vez de coagir. Com fail-loud como
+**default**, o estrito é o comportamento normal, e o botão que faria sentido é o oposto: um
+modo tolerante, que aceite coluna mista rebaixando para texto e avisando.
+
+Ele não entra no `.8`, por duas razões medidas: rebaixar não recupera `[1, "1"]` nem
+`[True, "true"]`, e o nome `fallback=` já está tomado por candidatos de modo por coluna
+(ADR-0022/0025/0026). Fica como desenho do `.9`, junto com o `schema` prescritivo de
+[`T-API-SCHEMA-PRESCRITIVO`](T-API-SCHEMA-PRESCRITIVO.md).
+
+## O que sobrou, e onde foi parar
+
+| resto | onde |
+|---|---|
+| união **bool+str**: o `.8` aceita e faz round-trip (`#TCF.8bB`), o `.8M` e o `.8H` recusam | decisão de dono, `.9`. Pinada em `TestPortaoHomogeneidadeMultiCol::test_uniao_bool_str_e_a_divergencia_QUE_SOBRA` |
+| `decode` e `view` discordando sobre o mesmo wire | só sobrevive em wire **não emitível** (escrito à mão ou corrompido). Ex.: `'#TCF.8M1B=v
+
+'`, onde `decode` devolve `[None]` e a `view` levanta |
+| modo tolerante no `encode` | `.9`, com nome que não colida com o `fallback=` existente |
 
 ## Estado
 
-Repro confirmado em `v0.8.2`. Nenhuma alteração em `src/tcf/` foi feita nesta auditoria.
+**FECHADO em 2026-08-28.** O R0 acabou: nas três famílias, coluna mista levanta, nenhuma
+perde valor calada e nenhuma emite wire que o próprio `decode` não lê. Das 39 rotas medidas,
+9 estavam erradas e as 9 viraram recusa; os 14 round-trips corretos ficaram idênticos, o que
+é o que separa consistência de "recusar tudo".
+
+A `0.8.2` publicada no PyPI **contém o defeito**. A correção sai na próxima, e é mudança de
+comportamento visível: entrada que antes passava calada agora levanta. Isso é o pretendido,
+e a `0.8.2` é marcador de desenvolvimento (ADR-0024), não compromisso de compatibilidade.

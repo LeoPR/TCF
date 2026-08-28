@@ -7,15 +7,17 @@ updated: 2026-08-26
 target: ".9; nova API, não patch de 0.8.2"
 gate: contrato do owner e aprovação explícita antes de tocar src/tcf (I5)
 blocked-by: []
-related:
-  - experiments/lab/dirty/notas/2026-05/roadmap-hipoteses.md
-  - experiments/lab/dirty/notas/2026-08/2026-08-25-subtcf-por-recorte-viabilidade.md
-  - experiments/lab/dirty/notas/2026-08/2026-08-25-recorte-estudo-de-implementacao.md
-  - experiments/lab/dirty/2026-08/2026-08-25/2026-08-25-1200-mecanismo-do-recorte/
-  - src/tcf/view.py
-  - docs/reference/lazy-view.md
-  - tickets/T-HTTP-QUERY-E-VIEW.md
-   - tickets/DECISAO-GROUPING-SEMANTICA.md
+related: [
+   experiments/lab/dirty/notas/2026-05/roadmap-hipoteses.md,
+   experiments/lab/dirty/notas/2026-08/2026-08-25-subtcf-por-recorte-viabilidade.md,
+   experiments/lab/dirty/notas/2026-08/2026-08-25-recorte-estudo-de-implementacao.md,
+   experiments/lab/dirty/2026-08/2026-08-25/2026-08-25-1200-mecanismo-do-recorte/,
+   src/tcf/view.py,
+   docs/reference/lazy-view.md,
+   tickets/T-HTTP-QUERY-E-VIEW.md,
+   tickets/DECISAO-GROUPING-SEMANTICA.md,
+   experiments/lab/dirty/notas/2026-08/2026-08-26-1944-revisao-fechamento-08-view-encode.md,
+]
 ---
 
 # T-CODE-VIEW-SUBTCF-RECORTE

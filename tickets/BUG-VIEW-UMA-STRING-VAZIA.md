@@ -1,10 +1,10 @@
 ---
 title: "BUG-VIEW-UMA-STRING-VAZIA: count e select truncam uma linha vazia"
-status: open
+status: closed-fixed
 priority: P1
 severity: R0 (resposta errada e silenciosa na API pública)
 created: 2026-08-26
-updated: 2026-08-26
+updated: 2026-08-27
 gate: correção em src/tcf só com aprovação explícita do owner (I5)
 blocked-by: []
 related:
@@ -12,6 +12,7 @@ related:
   - tests/test_tcf_lazy.py
   - docs/reference/lazy-view.md
   - tickets/DECISAO-GROUPING-SEMANTICA.md
+  - experiments/lab/dirty/notas/2026-08/2026-08-26-1944-revisao-fechamento-08-view-encode.md
 ---
 
 # BUG-VIEW-UMA-STRING-VAZIA
@@ -30,7 +31,7 @@ abre uma escolha nova sobre o que “vazio” deve significar.
 | `""` | string presente, portanto **um elemento**: entra em `count`, `nrows`, `distinct` e em `where(col, "")` |
 | `[]` | sequência sem elementos: cardinalidade zero |
 | `None`/`NULL` | valor ausente; a linha continua existindo para a contagem de linhas, mas uma contagem de valores presentes deve filtrá-lo explicitamente |
-| conjunto numérico sem valores aproveitáveis | `sum = 0.0`; `min`/`max`/`avg = None`, pois não há extremo ou média definida |
+| conjunto numérico sem valores aproveitáveis | depende da FAMÍLIA, e as duas estão documentadas: no agregador **escalar**, `min`/`max`/`avg` levantam `ValueError` e `sum` devolve `0`, que é o `sum([])` do Python; na família **`group_*`**, o grupo aparece com `sum = 0.0` e `min`/`max`/`avg = None`, porque ali o grupo existe mesmo sem valor |
 
 Assim, `count()` da `view` é contagem de linhas/posições, equivalente a `COUNT(*)`, e não
 contagem de strings não vazias. Para contar apenas valores presentes, a receita é um filtro
@@ -100,16 +101,48 @@ barato para zero linhas e uma string vazia.
 
 ## Critério de aceite
 
-- [ ] `view(encode([""])).count() == 1` e `select()` devolve a única linha.
+- [x] `view(encode([""])).count() == 1` e `select()` devolve a única linha.
 - [ ] `view("#TCF.8\n")` continua representando zero linhas; não criar linha fantasma.
-- [ ] Multi-coluna `fallback=False` não trunca quando a primeira coluna é `[""]`.
-- [ ] A mesma tabela com a coluna vazia em outra posição também permanece correta.
-- [ ] Cobrir `[""]`, `["", ""]`, `["a", ""]` e `["", "a"]` contra `decode()`.
-- [ ] `count` não exclui `""`; uma receita de valores presentes exclui apenas `None`, e
+- [x] Multi-coluna `fallback=False` não trunca quando a primeira coluna é `[""]`.
+- [x] A mesma tabela com a coluna vazia em outra posição também permanece correta.
+- [x] Cobrir `[""]`, `["", ""]`, `["a", ""]` e `["", "a"]` contra `decode()`.
+- [x] `count` não exclui `""`; uma receita de valores presentes exclui apenas `None`, e
   uma receita de missing vazio explicita também `x != ""`.
-- [ ] `tests/test_tcf_lazy.py` e a suíte completa verdes; nenhum re-pin de bytes (rota
-      read-only, `encode` intocado).
+- [x] `tests/test_tcf_lazy.py` e a suíte completa verdes. A correção é read-only e não
+      re-pina byte nenhum por si; o único re-pin da árvore
+      (`tests/test_multi_col_rt.py`, `encode({"a": []})`) vem da solda de 0-linha de
+      2026-08-26, que é outra mudança.
 
 ## Estado
 
-Repro confirmado em `v0.8.2`. Nenhuma alteração em `src/tcf/` foi feita nesta auditoria.
+**FECHADO em 2026-08-27.** A correção é a ordem de três linhas em `view.py::_n_somado`:
+perguntar se o corpo está AUSENTE **antes** de tirar o `
+` terminal. Sem isso, corpo
+`b""` (zero linha) e corpo `b"
+"` (uma linha vazia) viravam o mesmo estado, e o
+`select()` ia junto porque itera `range(nrows)`.
+
+Evidência: [`2026-08-27-0100-contagem-de-linhas`](../experiments/lab/dirty/2026-08/2026-08-27/2026-08-27-0100-contagem-de-linhas/),
+onze casos mínimos, 8 de 11 antes e **11 de 11** depois, com `inputs/` e `outputs/` em
+disco. Testes: `TestContagemDeUmaLinhaVazia` (11 casos mais a ordem das colunas) e
+`TestContarValoresPresentesVsPosicoes` (as duas receitas de contagem do contrato), ambos
+em `tests/test_tcf_lazy.py`. Verificação adversarial independente: 900 wires do `encode`
+sobre `{"", "a", "bb", "x"}`, 1 a 3 colunas, 0 a 7 linhas, conferindo `nrows`, `distinct`,
+`n_unique` e `select` contra o `decode`, **zero falhas**.
+
+Duas correções de TEXTO entraram junto, e a primeira importa mais que o defeito:
+
+1. **a tabela de contrato semântico afirmava um contrato falso.** Ela dizia `sum = 0.0` e
+   `min`/`max`/`avg = None` para conjunto sem valores aproveitáveis, sem distinguir
+   família. Medido: no agregador **escalar** os três extremos **levantam** `ValueError` e
+   `sum` devolve `0` (int); o `None` e o `0.0` valem na família **`group_*`**. A doc
+   (`docs/reference/lazy-view.pt-BR.md`) já dizia isso certo, com escopo explícito, nas
+   duas linhas. Quem estava errado era este ticket, e fechá-lo sem corrigir congelaria a
+   frase falsa;
+2. o `mimetizar-pandas-sql-polars.md` dizia que o contrato valia *"mesmo que a
+   implementação ainda precise ser corrigida nessa borda"*, ressalva que deixou de valer.
+
+Fica de fora, e é outro ticket: coluna vazia **aninhada**, que o `decode` lê e a `view`
+recusa, em [`BUG-VIEW-COLUNA-VAZIA-UNICO-FANTASMA`](BUG-VIEW-COLUNA-VAZIA-UNICO-FANTASMA.md).
+O parecer de fechamento relacionado confirmou a classificação como correção local de
+`0.8.x`, sem mudança de wire.

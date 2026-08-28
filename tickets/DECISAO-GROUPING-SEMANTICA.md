@@ -11,6 +11,7 @@ related:
   - src/tcf/view.py
   - docs/reference/view-usos.md
   - docs/how-to/mimetizar-pandas-sql-polars.md
+  - experiments/lab/dirty/notas/2026-08/2026-08-26-1944-revisao-fechamento-08-view-encode.md
 ---
 
 # DECISAO-GROUPING-SEMANTICA
@@ -52,7 +53,7 @@ O contrato minimo segue quatro regras:
 |---|---|---|---|---|
 | nulo na chave forma grupo? | sim | **nao** (`dropna=True`) | sim | **sim, DECIDIDO** |
 | string vazia forma grupo? | sim | sim | sim | **sim, DECIDIDO** |
-| grupo sem valor: `sum` | `NULL` | `0` | `null` | **`0.0`, DECIDIDO** |
+| grupo sem valor: `sum` | `NULL` | `0` | `0` | **`0.0`, DECIDIDO** |
 | grupo sem valor: `min`/`max`/`avg` | `NULL` | `NaN` | `null` | **`None`, DECIDIDO** |
 | ordem das chaves no resultado | indefinida | ordenada | aparicao | **aparicao, DECIDIDO** |
 | valor nao-numerico na soma | erro | erro ou `NaN` | erro | **levanta `ValueError`, DECIDIDO** |
@@ -132,7 +133,7 @@ segunda chamada nao e' o mesmo que perder o dado.
 
 `docs/how-to/mimetizar-pandas-sql-polars.md`: a linha de codigo que obtem o comportamento
 de cada ferramenta, partindo do default do TCF. Cinco receitas, cada uma verificada por
-execucao contra o que a ferramenta de origem devolveria
+execucao contra um oraculo manual em Python que materializa a semantica documentada
 (`2026-08-25-0500-grupo-sem-valor/2-receitas.py`).
 
 ## Convencoes de outras ferramentas
@@ -141,6 +142,12 @@ NumPy, pandas, Polars e SQL sao referencias de interoperabilidade, nao autoridad
 default. O guia `docs/how-to/mimetizar-pandas-sql-polars.md` mostra, por exemplo, como obter
 `dropna=True`, `COUNT(col)`, `COUNT(NULLIF(col, ''))`, ordenacao de chaves e `NULL` no lugar
 da soma vazia.
+
+Na soma vazia, a
+[referencia oficial de `Expr.sum`](https://docs.pola.rs/api/python/stable/reference/expressions/api/polars.Expr.sum.html)
+fixa `0` quando nao ha valores nao nulos; portanto o default do TCF coincide com ele nesse
+eixo. O lab local nao importa as bibliotecas externas: ele valida as receitas contra
+oraculos manuais, nao contra uma execucao dessas bibliotecas.
 
 A preferencia e' pelo menor adaptador visivel depois da `view`: filtro, ordenacao ou
 transformacao do resultado. Uma flag so' passa a ser melhor quando a convencao for comum e
