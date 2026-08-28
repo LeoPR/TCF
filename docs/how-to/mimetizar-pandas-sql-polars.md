@@ -40,7 +40,7 @@ vazio.n_unique(0)              # 2: "" e "a"
 
 O caso-limite de uma única posição vazia está registrado em
 [`BUG-VIEW-UMA-STRING-VAZIA`](../../tickets/BUG-VIEW-UMA-STRING-VAZIA.md): o contrato é
-`count() == 1`, mesmo que a implementação ainda precise ser corrigida nessa borda.
+`count() == 1`, e é o que a implementação faz desde a correção de 2026-08-27.
 
 ### A mesma pergunta em outras ferramentas
 

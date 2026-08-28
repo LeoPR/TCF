@@ -28,6 +28,29 @@ de exports em `tests/test_regression_v1_baseline.py`. Mudar exige re-pin deliber
 O ciclo está descrito em [`ROADMAP.md`](ROADMAP.md) (três eixos: desempenho e bordas, armazenamento e ecossistema, limpeza). Fila de tickets em
 [`tickets/README.md`](tickets/README.md).
 
+### Cauda do `.8`: a auditoria de consistência (2026-08-27/28)
+
+As três famílias de wire foram medidas em cinco eixos e discordavam em quase toda borda
+([nota](experiments/lab/dirty/notas/2026-08/2026-08-27-consistencia-tres-familias.md)).
+Quatro ondas soldadas, com evidência em disco e sem re-pin de bytes:
+
+| onda | o que mudou | ticket |
+|---|---|---|
+| 0 | o `.8M` passou a usar o **mesmo juiz de homogeneidade** do `.8H` (`_scalar_type`) antes de aceitar a tabela | [`BUG-ENCODE-VAZIO-EM-COLUNA-TIPADA`](tickets/BUG-ENCODE-VAZIO-EM-COLUNA-TIPADA.md) closed |
+| 1 | `decode_value` antes de `_dec_scalar` no `.8M`: a nature deixa de ser atropelada pelo cast | (junto da onda 0) |
+| 2 | `_unesc_leaf` no ramo string da `view` do `.8H` | (junto da onda 0) |
+| 3 | `_n_somado` pergunta se o corpo é **ausente** antes de tirar o terminador | [`BUG-VIEW-UMA-STRING-VAZIA`](tickets/BUG-VIEW-UMA-STRING-VAZIA.md) closed |
+
+O que ficou aberto tem ticket: `None` denso no `.8H` recusado pela `view`
+([P1](tickets/BUG-VIEW-NULO-NO-HIERARQUICO.md)), `#O` não retangular
+([P2](tickets/BUG-VIEW-OBJETO-NAO-RETANGULAR.md)), órfão sem magic
+([P3](tickets/BUG-VIEW-ORFAO-SEM-MAGIC.md)) e a coluna vazia aninhada
+([P2](tickets/BUG-VIEW-COLUNA-VAZIA-UNICO-FANTASMA.md)). A união **bool+str**, que só o
+single-col tem, é decisão de formato do `.9`.
+
+**A `0.8.2` publicada contém os defeitos das ondas 0 a 3.** A correção muda comportamento
+visível: entrada mista que passava calada agora levanta.
+
 ## Onde achar o quê
 
 | pergunta | fonte |

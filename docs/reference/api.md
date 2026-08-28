@@ -31,10 +31,18 @@ from tcf import TemplatedCheckedSpec, TemplatedPaddedSpec
 |---|---|---|
 | `list[str \| None]` (str e/ou null), ≥1 item | single-col flat | `#TCF.8` (7 B, **default**; ADR-0034) |
 | `list[bool \| None]` · `list[int \| float \| None]` | single-col **tipada** | `#TCF.8b` · `#TCF.8n` |
-| `dict[str, list[str]]` retangular, **≥1 linha** | multi-col flat | `#TCF.8M` |
-| `list[dict]` (dataset) · `dict` com valor escalar/aninhado · dict **ragged** ou **0-linha** · escalar solto · `[]` · `{}` · `list`/coluna **tipada** (item não-str) | hierárquico | `#TCF.8H` (`#D`/`#E`/`#O`/`#V`) |
+| `dict[str, list[str]]` retangular, **0 linhas inclusive** | multi-col flat | `#TCF.8M` |
+| `list[dict]` (dataset) · `dict` com valor escalar/aninhado · dict **ragged** · escalar solto · `[]` · `{}` · `list`/coluna **tipada** (item não-str) | hierárquico | `#TCF.8H` (`#D`/`#E`/`#O`/`#V`) |
 | `list[bool \| str \| None]` com **≥1 bool E ≥1 str** | single-col **lazytype** | `#TCF.8bB` (ADR-0039) |
 | tipo não-JSON (bytes, tuple, função, objeto custom) ou **array de tipos mistos** (union) **fora** da união bool+str | **fail-loud** | nenhum (ensina a converter/separar) |
+
+> **Tabela de 0 linhas (2026-08-26).** `{"v": []}` sai em `#TCF.8M@v` + `0` (12 B), e não
+> mais em `#TCF.8H` (18 B). O corpo `@` conta linhas por `len(stream) // width`, e não por
+> separador, então stream vazio diz **zero** sem colidir com *uma linha vazia* (que sai no
+> modo `!`, com corpo de zero byte). Antes disso, tirar a última linha fazia o wire **crescer**.
+> O `.8H` continua dono do **ragged** e do `{}`. Uma spec declarada numa coluna de 0 linhas
+> continua **fail-loud**: não há valor a transformar, e aplicar calado esconderia a
+> declaração.
 
 **Regra**: uma **coluna plana de um tipo só** fica no single-col, string (implícita, sem tag),
 bool (`b`) ou número (`n`); `None` convive com qualquer uma delas (slot 0). Aninhado, misto,
@@ -69,6 +77,12 @@ encode([True, "abc", False]).splitlines()[0]        # '#TCF.8bB23'
 O `bB` é o **único** candidato que preserva o tipo na união, e por isso emite direto, sem
 passar pelo `min()`. As demais uniões escalares (`int+str`, `bool+int`, …) seguem fail-loud.
 
+> **A união bool+str é do single-col, e só dele (2026-08-27).** `{"v": [True, "x"]}` e
+> `[{"v": True}, {"v": "x"}]` **levantam**: o `.8M` e o `.8H` não têm esse discriminador e
+> recusam toda coluna de tipos mistos, pelo mesmo juiz. Estender a união às outras duas
+> famílias, ou removê-la do single-col, é decisão de formato do `.9`
+> ([`BUG-ENCODE-VAZIO-EM-COLUNA-TIPADA`](../../tickets/BUG-ENCODE-VAZIO-EM-COLUNA-TIPADA.md)).
+
 **NaN/±Inf ficam fora** (RFC 8259) nas duas pontas: o encoder recusa e o decode também.
 
 **Contrato pré-1.0**: `encode([])`/`encode({})` são **representáveis**; `encode([1,2,3])`
@@ -95,6 +109,11 @@ O tipo é preservado nos sete casos (round-trip validado); o que muda é **por q
   `int` (posição). É incremental: sem ele, toda coluna é string semântica.
 - **`parallel`, `layers`, `fallback`, `min_header`, `min_len`, `sort_by`, `name`, `stamp`, `drop_names`**:
   só **flat**. Passados com entrada `.8H` → **fail-loud** (nunca ignorados calados).
+  - **Exceção declarada, tabela de 0 linhas**: ela agora é flat (`.8M`), então esses kwargs
+    são aceitos. Quase todos são inertes sobre uma tabela sem corpo. O `fallback=False` é o
+    caso com efeito: ele **não** desliga o corpo `@` do vazio, porque o candidato `raw` de 0
+    linhas tem corpo de zero byte e volta como *uma linha vazia*. É desobediência
+    deliberada: nenhum knob de bytes compra perda de dado.
 
 ### `stamp`: o header do single-col
 

@@ -20,20 +20,29 @@ Os números byte-canônicos vivem nos testes que os medem
 [`test_real_world_snapshots.py`](tests/test_real_world_snapshots.py)), não nesta página.
 O que mudou em cada versão está no [CHANGELOG](CHANGELOG.md).
 
-### Correção aberta em `0.8.x`
+### Cauda do `0.8.x`: o que fechou, e o que ficou
 
-[`BUG-VIEW-UMA-STRING-VAZIA`](tickets/BUG-VIEW-UMA-STRING-VAZIA.md) é P1: na rota core,
-uma única string vazia é contada como zero e `select()` trunca a linha. Corrigir antes de
-ampliar a superfície da `view`; `src/tcf` continua sob aprovação explícita.
+A auditoria de consistência das três famílias de wire (2026-08-27) soldou quatro ondas, e
+com elas fecharam os dois P1 do tema *vazio não é ausente*:
 
-[`BUG-ENCODE-VAZIO-EM-COLUNA-TIPADA`](tickets/BUG-ENCODE-VAZIO-EM-COLUNA-TIPADA.md) é P1 do
-mesmo tema, um nível abaixo: `""` misturada com número ou bool passa pelo `encode` e volta
-como nulo, e em `[1,"a"]` ou `[True,1]` o `encode` emite um wire que o próprio `decode` não
-lê. Round-trip lossy e silencioso, presente na `0.8.2`. A soma determina metade do contrato: `""` não é número, então o `decode`
-não pode trocar não-número por ausência. A outra metade é a regra do owner, avaliada e
-recomendada: **sem tipo declarado, coluna mista cai para texto** (o que já acontece quando o
-primeiro valor é string, e preserva todos os valores); **com tipo ou spec declarado, o tipo
-manda** e o não-membro vira nulo, o que hoje não acontece porque a spec é descartada calada.
+- [`BUG-VIEW-UMA-STRING-VAZIA`](tickets/BUG-VIEW-UMA-STRING-VAZIA.md): uma única string
+  vazia era contada como zero e o `select()` truncava a linha. A correção é a ordem de três
+  linhas em `_n_somado`;
+- [`BUG-ENCODE-VAZIO-EM-COLUNA-TIPADA`](tickets/BUG-ENCODE-VAZIO-EM-COLUNA-TIPADA.md):
+  coluna mista perdia valor no `encode`/`decode` e, em dois casos, colapsava dois valores
+  num só. O `.8M` passou a usar o mesmo juiz de homogeneidade do `.8H`, e as três famílias
+  recusam, que é o que `api.md` já publicava. A política coerciva foi **retirada**: medida
+  caso a caso, ela cobre sete dos nove defeitos e mente nos outros dois.
+
+Continuam abertos, todos na camada read-only e todos com o `decode` correto:
+[`BUG-VIEW-NULO-NO-HIERARQUICO`](tickets/BUG-VIEW-NULO-NO-HIERARQUICO.md) (P1, 19,3% da
+família `.8H`), [`BUG-VIEW-OBJETO-NAO-RETANGULAR`](tickets/BUG-VIEW-OBJETO-NAO-RETANGULAR.md)
+(P2), [`BUG-VIEW-COLUNA-VAZIA-UNICO-FANTASMA`](tickets/BUG-VIEW-COLUNA-VAZIA-UNICO-FANTASMA.md)
+(P2) e [`BUG-VIEW-ORFAO-SEM-MAGIC`](tickets/BUG-VIEW-ORFAO-SEM-MAGIC.md) (P3). `src/tcf`
+continua sob aprovação explícita.
+
+A união **bool+str**, que só o single-col tem, e o modo tolerante do `encode` são decisões
+de formato do `.9`, não restos de bug.
 
 ## Ciclo `.9`: aberto 2026-08-23, com base medida
 

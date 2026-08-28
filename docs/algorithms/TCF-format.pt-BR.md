@@ -319,7 +319,7 @@ Wire do multi-col: `#TCF.8M` + meta inline (colunas `[<pre>]<size>[=<nome>][:<id
 | `list[bool]` | `#TCF.8b<modo><n>` | `encode([True,False]*12)` sai `#TCF.8b118` |
 | bool + str na mesma lista | `#TCF.8bB<n>`, lazytype ([ADR-0039](../adr/0039-lazytype-bool-cabeca-congelada-extras.md)) | `encode([True,"abc",False])` sai `#TCF.8bB23` |
 | lista de cardinalidade baixa | `#TCF.8B<w><n>`, bN de dominio ([ADR-0036](../adr/0036-bn-de-dominio-cardinalidade-baixa.md)) | `encode(["0","1"]*100)` sai `#TCF.8B1c8` |
-| aninhado, vazio ou ragged | `#TCF.8H<tree-meta>` ([ADR-0033](../adr/0033-hierarchical-codec-weld.md)) | `encode([{"a":1}])` sai `#TCF.8Ha:3n`; `encode({})` sai `#TCF.8H#E` |
+| aninhado ou ragged (o dict retangular de 0 linhas fica no `.8M`, com corpo `@` de tabelinha vazia) | `#TCF.8H<tree-meta>` ([ADR-0033](../adr/0033-hierarchical-codec-weld.md)) | `encode([{"a":1}])` sai `#TCF.8Ha:3n`; `encode({})` sai `#TCF.8H#E` |
 
 ### Decode (espelho)
 
