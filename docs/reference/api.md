@@ -101,6 +101,38 @@ stringificada; `tuple`/`bytes` no lugar de lista dão **fail-loud** de tipo.
 
 O tipo é preservado nos sete casos (round-trip validado); o que muda é **por qual rota**.
 
+### Coluna de tipos mistos
+
+> **Post-it (2026-08-29).** Registro para rastreio, a elaborar. O comportamento abaixo é
+> medido; a redação didática fica para uma passada própria.
+
+O TCF pede **uma coluna, um tipo**, e é assim que ele consegue guardar o tipo no header em
+vez de repeti-lo em cada célula. Coluna misturada é anomalia de origem, e o lugar de
+resolvê-la é a fonte do dado.
+
+Ainda assim uma união aparece, e o formato tem uma resposta por família:
+
+| entrada | o que acontece |
+|---|---|
+| `encode([True, "x"])` | emite `#TCF.8bB` e **preserva os dois tipos**, com um aviso de coluna mista |
+| `encode({"v": [True, "x"]})` | **fail-loud**: `tipos escalares MISTOS` |
+| `encode([{"v": True}, {"v": "x"}])` | **fail-loud**, a mesma mensagem |
+| qualquer outra união escalar (`int+str`, `bool+int`, …) | **fail-loud** nas três |
+
+A capacidade da primeira linha existe por um motivo estreito, e ele está em
+[ADR-0039](../adr/0039-lazytype-bool-cabeca-congelada-extras.md): o domínio do booleano é
+fechado e conhecido (`null`, `false`, `true`), então ele cabe numa cabeça implícita que
+nunca viaja no wire, e as strings ficam ao lado como extras declarados. Um `int` não tem
+domínio fechado, e é por isso que a união com ele não tem rota.
+
+O aviso da primeira linha existe porque a mesma coluna passa ou não passa conforme a forma
+de entrada, e quem escreve o código merece saber disso antes de descobrir na outra ponta.
+
+Para consultar uma coluna dessas, os quatro modos estão em
+[`lazy-view.md`](lazy-view.md#a-coluna-de-união-e-os-quatro-modos-de-perguntar). Para
+comparar com o que outras ferramentas fazem,
+[`mimetizar-pandas-sql-polars.md`](../how-to/mimetizar-pandas-sql-polars.md).
+
 ## kwargs de `encode` por rota
 
 - **`side_outputs`**, **`schema`**: valem em **todas** as rotas. O `schema` é o parâmetro

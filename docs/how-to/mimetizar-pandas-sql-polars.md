@@ -159,6 +159,61 @@ caminhos é trabalho de otimização do `.9`, registrada como `H-QUERY-04e`. A e
 hoje é por clareza; a de amanhã pode ser por caminho curto, e aí a flag entra com um
 caminho otimizado atrás dela, não como açúcar sobre o mesmo trabalho.
 
+## Uma coluna que mistura booleano e texto
+
+> **Post-it (2026-08-29).** Registro para rastreio, a elaborar. As receitas TCF abaixo são
+> verificadas por execução; a coluna comparativa com outras ferramentas está **pendente**,
+> porque este ambiente não tem pandas nem polars instalados e a página não afirma o que não
+> mediu.
+
+Acontece com dado que veio de planilha, de formulário ou de junção de fontes: a mesma
+coluna traz `True` de um lado e `"sim"` do outro. O TCF preserva os dois e avisa que a
+coluna está misturada, e a `view` deixa você perguntar pelos dois lados separadamente, que
+é justamente o que serve para enxergar o estrago antes de limpá-lo.
+
+```python
+from tcf import encode, view
+
+col = ["sim", True, "SIM", False, None, "talvez"]
+v = view(encode(col))          # o encode avisa: coluna de tipos MISTOS
+
+v.distinct("0")
+# ['sim', True, 'SIM', False, None, 'talvez']
+```
+
+Quatro perguntas diferentes, quatro respostas:
+
+```python
+v.where("0", True).select()                    # o booleano, só ele
+# [{'0': True}]
+
+v.where("0", "sim").select()                   # a string, exatamente como está
+# [{'0': 'sim'}]
+
+deriva = ("true", "1", "t", "yes", "sim")
+v.where("0", pred=lambda x: x is True or (
+    isinstance(x, str) and x.strip().lower() in deriva)).select()
+# [{'0': 'sim'}, {'0': True}, {'0': 'SIM'}]     tudo que denota verdadeiro
+
+v.where("0", None).select()                    # os ausentes
+# [{'0': None}]
+```
+
+A terceira é a que responde "quantos dos meus registros dizem sim, escrito de qualquer
+jeito?", que é a pergunta que se faz quando o dado ainda não foi limpo. Ela usa `pred=`,
+que recebe o valor como o `decode` o devolve, sem conversão no caminho.
+
+A lista `deriva` é sua, não do TCF: quem conhece a origem do dado sabe se `"S"`, `"y"` ou
+`"1"` contam. Deixá-la no seu código é o que torna visível, na revisão, qual convenção você
+adotou.
+
+Para limpar depois de enxergar, a conversão é uma linha de Python antes do `encode`:
+
+```python
+limpo = [x if isinstance(x, bool) else (x.strip().lower() in deriva)
+         for x in col if x is not None]
+```
+
 ## Verificação
 
 As receitas desta página são geradas e conferidas por
