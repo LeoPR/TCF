@@ -64,11 +64,23 @@ MAGIC = "#TCF.8H"
 
 # P5/union RATIFICADO fora do `.8` (levantamento 2026-07-17: union real ~0 em dado tabular;
 # Parquet — ref. colunar — também recusa union nativo). O `.8H` é shredded-schema-fixo: uma coluna
-# tem UM tipo. Tipo-misto no mesmo slot = union, a fronteira declarada. Mensagem ENSINA a saída
-# acionável — inclusive o fallback-pra-string (o TCF faz RT de QUALQUER string).
-_P5_HINT = ("union/tipo-misto no mesmo slot está fora do #TCF.8H (fronteira declarada, ratificada "
-            "2026-07-17) — separe por tipo, OU converta a coluna toda para string (o TCF faz "
-            "round-trip de qualquer string)")
+# tem UM tipo. Tipo-misto no mesmo slot = union, a fronteira declarada.
+#
+# A mensagem NÃO nomeia família: esta constante é compartilhada por três `raise` de três
+# rotas diferentes (escalar, estrutural, elemento de array), e quem chama com uma lista ou
+# um dict nunca invocou o `.8H`, que ali é fallback interno. Nomear qualquer uma estaria
+# errado para parte dos chamadores.
+#
+# E ela diz o que cada saída PERDE, porque as duas perdem coisas diferentes e o usuário
+# escolhe errado sem isso: separar preserva o tipo mas embaralha a ordem quando os tipos
+# vêm intercalados; converter preserva a ordem mas apaga o tipo, e funde valores que só
+# diferiam nele (`1` e `"1"` viram `"1"`).
+_P5_HINT = ("uma coluna do TCF tem UM tipo. Duas saídas, e elas NÃO são equivalentes: "
+            "(1) SEPARAR por tipo preserva valor e tipo, mas guarde também a posição de "
+            "cada um, senão a ordem original não volta; (2) CONVERTER a coluna toda para "
+            "string preserva a ordem e faz round-trip da coluna CONVERTIDA, não da "
+            "original: o tipo se perde, e valores que só diferiam nele FUNDEM "
+            "(`1` e `\"1\"` viram `\"1\"`)")
 
 
 class HierarchicalError(ValueError):
@@ -165,23 +177,33 @@ def _kind_of(v):
 
 # ---- P2: sub-tipo escalar por-COLUNA (tag no meta) ----
 # stype: 's'=string(default) · 'n'=number(int/float, json) · 'b'=bool(true/false)
-def _scalar_type(values: list) -> str:
-    """Deduz o tipo da coluna dos valores Python NÃO-nulos. Misto (str+num etc.) = fail-loud (P5)."""
-    ts = set()
+def _scalar_type(values: list, name: str | None = None) -> str:
+    """Deduz o tipo da coluna dos valores Python NÃO-nulos. Misto (str+num etc.) = fail-loud (P5).
+
+    `name` entra só na MENSAGEM de erro: 86% dos fail-loud do pacote nomeiam o dado que
+    causou o problema, e este não nomeava nada. Não há índice na mensagem de propósito:
+    `values` chega SEM os nulos, então qualquer índice contado aqui não é o da coluna que
+    o chamador escreveu. O valor, esse, é sempre o certo.
+    """
+    ts = {}
     for v in values:
         if isinstance(v, bool):            # bool ANTES de int (bool ⊂ int em Python)
-            ts.add("b")
+            ts.setdefault("b", v)
         elif isinstance(v, (int, float)):
             if isinstance(v, float) and not math.isfinite(v):
                 raise HierarchicalError("NaN/Infinity fora do JSON (RFC 8259) — não é P2")
-            ts.add("n")
+            ts.setdefault("n", v)
         elif isinstance(v, str):
-            ts.add("s")
+            ts.setdefault("s", v)
         else:
             raise HierarchicalError(f"valor escalar de tipo não suportado: {type(v).__name__}")
     if len(ts) > 1:
-        raise HierarchicalError(f"tipos escalares MISTOS {ts} numa coluna — {_P5_HINT}")
-    return ts.pop() if ts else "s"         # coluna vazia/all-null → string default
+        _NOME = {"b": "bool", "n": "number", "s": "string"}
+        _onde = f"coluna {name!r}: " if name else ""
+        _achados = ", ".join(f"{_NOME[t]} (ex.: {v!r})" for t, v in sorted(ts.items()))
+        raise HierarchicalError(
+            f"{_onde}tipos escalares MISTOS, {_achados}. {_P5_HINT}")
+    return next(iter(ts)) if ts else "s"   # coluna vazia/all-null → string default
 
 
 def _esc_leaf(s: str) -> str:
@@ -316,8 +338,8 @@ def _field_node(name, present: list, optional: bool, depth: int = 0):
         elems = [e for arr in present_nn for e in arr]
         return _array_node(name, masked, elems, depth + 1)
     if e_null_denso:
-        return ("scalar", name, False, None, True, _scalar_type(present_nn))
-    return ("scalar", name, masked, None, False, _scalar_type(present_nn))              # P2: tipo do campo
+        return ("scalar", name, False, None, True, _scalar_type(present_nn, name))
+    return ("scalar", name, masked, None, False, _scalar_type(present_nn, name))        # P2: tipo do campo
 
 
 _MAX_DEPTH = 128         # cap de profundidade estrutural TOTAL — objetos E arrays, encode E parse
@@ -354,7 +376,8 @@ def _array_node(name, masked, elems, depth=0):
                 "(colidiria com array de escalares no wire)"
             )
         return ("arr_objects", name, masked, kids, elem_null, "s")
-    return ("arr_scalars", name, masked, None, elem_null, _scalar_type(elems_nn))  # vazio/all-null aqui
+    return ("arr_scalars", name, masked, None, elem_null,
+            _scalar_type(elems_nn, name))                                     # vazio/all-null aqui
 
 
 def _sfx(lvl: int) -> str:

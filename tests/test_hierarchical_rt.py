@@ -647,8 +647,10 @@ def test_p2_tipo_misto_str_num_fail_loud():
 
 
 def test_p5_union_fronteira_ratificada_mensagem_ensina():
-    """P5/union RATIFICADO fora do `.8`. A mensagem de fail-loud ENSINA as duas
-    saídas: separar por tipo OU converter a coluna toda p/ string (o fallback que o owner apontou).
+    """P5/union RATIFICADO fora do `.8`. A mensagem de fail-loud ensina as duas saídas
+    E o que cada uma PERDE, porque elas não são equivalentes (2026-08-29): separar
+    preserva o tipo mas embaralha a ordem quando os tipos vêm intercalados; converter
+    preserva a ordem mas apaga o tipo e funde valores que só diferiam nele.
     Cobre os 3 lugares: escalar-em-array, escalar-entre-registros, estrutural."""
     casos = [
         [{"v": [1, "a"]}],            # escalar misto em array
@@ -657,10 +659,28 @@ def test_p5_union_fronteira_ratificada_mensagem_ensina():
         [{"x": 5}, {"x": [1, 2]}],    # estrutural: scalar + array entre registros
     ]
     for docs in casos:
-        with pytest.raises(HierarchicalError, match="union") as ei:
+        with pytest.raises(HierarchicalError, match="MISTOS|mistos") as ei:
             encode(docs)
         msg = str(ei.value)
-        assert "string" in msg, f"mensagem deve ensinar o fallback-pra-string: {msg!r}"
+        assert "SEPARAR" in msg and "CONVERTER" in msg, f"as duas saídas: {msg!r}"
+        assert "ordem original não volta" in msg, f"o que separar perde: {msg!r}"
+        assert "FUNDEM" in msg, f"o que converter perde: {msg!r}"
+        # e não culpa uma família que o chamador pode não ter invocado
+        assert "#TCF.8H" not in msg, f"nomeia família indevidamente: {msg!r}"
+
+
+def test_p5_mensagem_nomeia_a_coluna_e_o_valor():
+    """86% dos fail-loud do pacote nomeiam o dado ofensor; este não nomeava nada."""
+    with pytest.raises(HierarchicalError) as ei:
+        encode({"preco": [1, "sob consulta"]})
+    msg = str(ei.value)
+    assert "'preco'" in msg                              # a coluna
+    assert "number (ex.: 1)" in msg                      # o valor de cada lado
+    assert "string (ex.: 'sob consulta')" in msg
+    # coluna sem nome (lista solta) não inventa nome nenhum
+    with pytest.raises(HierarchicalError) as ei2:
+        encode([1, "x"])
+    assert "coluna '" not in str(ei2.value)
 
 
 def test_p5_workaround_string_realmente_funciona():
