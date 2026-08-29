@@ -62,7 +62,7 @@ roadmap-hipoteses). Anotado, não resolvido.
 | **chave opcional / ragged** | P1 | `#TCF.8Ha:8n,b?:4:3n` (máscara 3-estados) | ✅ |
 | **number (int/float)** | P2 | `#TCF.8Hn:4n` (tag `n`, `json.dumps/loads`) | ✅ |
 | **`true`/`false`** | P2 | `#TCF.8Hok:5b` (tag `b`) | ✅ |
-| **`null` em campo** (≠ ausente ≠ `"null"`) | P3a | `#TCF.8Ha?:3:0,b:3n` (máscara `0`=None) | ✅ |
+| **`null` em campo** (≠ ausente ≠ `"null"`) | P3a | `#TCF.8Ha?0:3:0,b:3n` (coluna **densa** com nulos: element-mask 2-estados `?0:`, `0`=None; campo **opcional** com nulos segue a máscara 3-estados `?:`, desde 2026-08-28) | ✅ |
 | **`null` em elemento de array** | P3b | `#TCF.8Hv#:3?:8[]:8n` (element-mask) | ✅ |
 | **array-em-array** (profundidade arbitrária) | P4a | `#TCF.8Hm#:3[#:8[]:8n` (count recursivo) | ✅ |
 | **raiz = objeto único** | P4b | `#TCF.8H#Oa:3n` | ✅ |

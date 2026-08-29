@@ -320,6 +320,7 @@ Wire do multi-col: `#TCF.8M` + meta inline (colunas `[<pre>]<size>[=<nome>][:<id
 | bool + str na mesma lista | `#TCF.8bB<n>`, lazytype ([ADR-0039](../adr/0039-lazytype-bool-cabeca-congelada-extras.md)) | `encode([True,"abc",False])` sai `#TCF.8bB23` |
 | lista de cardinalidade baixa | `#TCF.8B<w><n>`, bN de dominio ([ADR-0036](../adr/0036-bn-de-dominio-cardinalidade-baixa.md)) | `encode(["0","1"]*100)` sai `#TCF.8B1c8` |
 | aninhado ou ragged (o dict retangular de 0 linhas fica no `.8M`, com corpo `@` de tabelinha vazia) | `#TCF.8H<tree-meta>` ([ADR-0033](../adr/0033-hierarchical-codec-weld.md)) | `encode([{"a":1}])` sai `#TCF.8Ha:3n`; `encode({})` sai `#TCF.8H#E` |
+| folha **escalar** densa com nulos no dataset (chave em todas as linhas, algum `None`, valor escalar) | `#TCF.8H` com `nome?0:<size>`: element-mask 2-estados (`.`/`0`) antes do dado; `nome?:<size>` fica para campo **opcional** (máscara 3-estados, com `-`) **e** para objeto/array com `None` (`[{"a":{"k":1}},{"a":None}]` sai `a?:5{k:3n`, e a `view` o recusa como opcional). Desde 2026-08-28; é o que deixa a `view` distinguir tabela-com-nulos de ragged pelo header | `encode([{"a":"x"},{"a":None}])` sai `#TCF.8Ha?0:5`; ragged `[{"a":1},{"b":2}]` segue `#TCF.8Ha?:4:3n,b?:4:3n` |
 
 ### Decode (espelho)
 

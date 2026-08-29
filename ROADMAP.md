@@ -34,15 +34,20 @@ com elas fecharam os dois P1 do tema *vazio não é ausente*:
   recusam, que é o que `api.md` já publicava. A política coerciva foi **retirada**: medida
   caso a caso, ela cobre sete dos nove defeitos e mente nos outros dois.
 
-Continuam abertos, todos na camada read-only e todos com o `decode` correto:
-[`BUG-VIEW-NULO-NO-HIERARQUICO`](tickets/BUG-VIEW-NULO-NO-HIERARQUICO.md) (P1, 19,3% da
-família `.8H`), [`BUG-VIEW-OBJETO-NAO-RETANGULAR`](tickets/BUG-VIEW-OBJETO-NAO-RETANGULAR.md)
-(P2), [`BUG-VIEW-COLUNA-VAZIA-UNICO-FANTASMA`](tickets/BUG-VIEW-COLUNA-VAZIA-UNICO-FANTASMA.md)
-(P2) e [`BUG-VIEW-ORFAO-SEM-MAGIC`](tickets/BUG-VIEW-ORFAO-SEM-MAGIC.md) (P3). `src/tcf`
-continua sob aprovação explícita.
+Em 2026-08-28 fecharam os quatro da camada read-only, todos com o `decode` já correto:
+[`BUG-VIEW-NULO-NO-HIERARQUICO`](tickets/BUG-VIEW-NULO-NO-HIERARQUICO.md) (a única solda que
+muda wire: `?0:` para coluna densa-com-nulos no `.8H`),
+[`BUG-VIEW-OBJETO-NAO-RETANGULAR`](tickets/BUG-VIEW-OBJETO-NAO-RETANGULAR.md),
+[`BUG-VIEW-COLUNA-VAZIA-UNICO-FANTASMA`](tickets/BUG-VIEW-COLUNA-VAZIA-UNICO-FANTASMA.md) e
+[`BUG-VIEW-ORFAO-SEM-MAGIC`](tickets/BUG-VIEW-ORFAO-SEM-MAGIC.md), mais três divergências sem
+ticket (#12 aviso sobre wire morto, #14b chave não-str, #15 telemetria do `.8H`). Nenhum
+bug da auditoria de consistência continua aberto sem decisão de dono.
 
-A união **bool+str**, que só o single-col tem, e o modo tolerante do `encode` são decisões
-de formato do `.9`, não restos de bug.
+O que resta são **seis decisões**, não restos de bug, cada uma colidindo com um contrato
+ratificado e cada uma com evidência medida em
+[`2026-08-28-decisoes-de-dono-cauda-do-8.md`](experiments/lab/dirty/notas/2026-08/2026-08-28-decisoes-de-dono-cauda-do-8.md):
+união bool+str, LF/CR, FLOOR do spec, spec em coluna tipada, kwargs engolidos no flat de
+string e `decode(schema=)` ignorado. `src/tcf` continua sob aprovação explícita.
 
 ## Ciclo `.9`: aberto 2026-08-23, com base medida
 

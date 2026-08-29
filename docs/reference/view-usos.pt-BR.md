@@ -208,10 +208,9 @@ multi-tabela. O que existe são caminhos de consulta que lembram SQL. `OR` não 
 predicado expressa OR: `where("uf", pred=lambda x: x in ("SP", "RJ"))`.
 
 **Não lê o que não é tabela.** Aninhado, ragged e campo opcional não são tabela
-retangular, e a view recusa com uma mensagem que manda usar `decode()`. Vale um aviso: no
-`#TCF.8H`, um `None` explícito marca a coluna como opcional, então
-`encode([{"a": 1}, {"a": None}])` produz um blob que a view recusa, apesar de a coluna
-existir em todas as linhas.
+retangular, e a view recusa com uma mensagem que manda usar `decode()`. Nulo não é
+ausência: `encode([{"a": 1}, {"a": None}])` é tabela (a coluna existe em todas as linhas)
+e a view a lê, desde 2026-08-28, com as mesmas respostas da tabela equivalente em `.8M`.
 
 **Não lê formato legado.** `#TCF.6` e `#TCF.7` foram cortados
 ([ADR-0032](../adr/0032-tcf8-default-format.md)); para blobs antigos, `git checkout` de

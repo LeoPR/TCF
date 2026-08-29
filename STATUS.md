@@ -41,15 +41,24 @@ Quatro ondas soldadas, com evidência em disco e sem re-pin de bytes:
 | 2 | `_unesc_leaf` no ramo string da `view` do `.8H` | (junto da onda 0) |
 | 3 | `_n_somado` pergunta se o corpo é **ausente** antes de tirar o terminador | [`BUG-VIEW-UMA-STRING-VAZIA`](tickets/BUG-VIEW-UMA-STRING-VAZIA.md) closed |
 
-O que ficou aberto tem ticket: `None` denso no `.8H` recusado pela `view`
-([P1](tickets/BUG-VIEW-NULO-NO-HIERARQUICO.md)), `#O` não retangular
-([P2](tickets/BUG-VIEW-OBJETO-NAO-RETANGULAR.md)), órfão sem magic
-([P3](tickets/BUG-VIEW-ORFAO-SEM-MAGIC.md)) e a coluna vazia aninhada
-([P2](tickets/BUG-VIEW-COLUNA-VAZIA-UNICO-FANTASMA.md)). A união **bool+str**, que só o
-single-col tem, é decisão de formato do `.9`.
+Em 2026-08-28 entraram as ondas 5 a 7, com evidência em
+[`2026-08-28-0200-cauda-das-divergencias`](experiments/lab/dirty/2026-08/2026-08-28/2026-08-28-0200-cauda-das-divergencias/):
 
-**A `0.8.2` publicada contém os defeitos das ondas 0 a 3.** A correção muda comportamento
-visível: entrada mista que passava calada agora levanta.
+| onda | o que mudou | ticket |
+|---|---|---|
+| 5 | `view`: `#O` desigual recusado na abertura; órfão sem magic aceito (paridade com o `decode`); corpo ausente é zero linha; aviso no primeiro `nrows` quando as contagens estruturais divergem | [#7](tickets/BUG-VIEW-OBJETO-NAO-RETANGULAR.md), [#13](tickets/BUG-VIEW-ORFAO-SEM-MAGIC.md), [fantasma](tickets/BUG-VIEW-COLUNA-VAZIA-UNICO-FANTASMA.md) closed |
+| 6 | chave não-str cai no `.8H` (erro tipado por construção); `.8H` ganha a telemetria de spec das outras duas e avisa no descarte por valor | (sem ticket: #14b, #15) |
+| 7 | **muda wire**: coluna escalar densa-com-nulos no `.8H` declara `?0:` (emask 2-estados) em vez de `?:`; a `view` passa a consultar tabela com nulos; +1 byte de header por coluna assim; 2 pinos de navegação re-pinados, zero nos gates | [#6](tickets/BUG-VIEW-NULO-NO-HIERARQUICO.md) closed |
+
+Ficaram **seis decisões de dono**, cada uma colidindo com um contrato ratificado, com
+evidência medida em
+[`2026-08-28-decisoes-de-dono-cauda-do-8.md`](experiments/lab/dirty/notas/2026-08/2026-08-28-decisoes-de-dono-cauda-do-8.md):
+união bool+str, LF/CR, FLOOR do spec, spec em coluna tipada (a seta da auditoria estava
+invertida), kwargs engolidos no flat de string e `decode(schema=)` ignorado.
+
+**A `0.8.2` publicada contém os defeitos das ondas 0 a 7.** A correção muda comportamento
+visível: entrada mista que passava calada agora levanta, e o wire do `.8H` com nulo denso
+mudou de grafia.
 
 ## Onde achar o quê
 

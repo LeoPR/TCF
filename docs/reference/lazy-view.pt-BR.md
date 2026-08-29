@@ -35,8 +35,9 @@ o ciclo de otimização do `.9` quando o custo menor ainda precisa ser demonstra
 
 **O que ela lê**: `#TCF.8M` (multi-coluna), `#TCF.8H` quando é tabela retangular, e a rota
 de coluna única em todas as suas formas (`#TCF.8`, `#TCF.8n`, `#TCF.8b`, `#TCF.8bB`,
-`#TCF.8 :spec`, e as densas `B`/`C`). Na coluna única o nome é `"0"`, como em qualquer
-coluna anônima ([ADR-0029](../adr/0029-version-format-identification-semi-implicit.md)).
+`#TCF.8 :spec`, e as densas `B`/`C`), mais o wire **órfão** sem magic (`stamp=False`), lido
+como o `decode` o lê. Na coluna única o nome é `"0"`, como em qualquer coluna anônima
+([ADR-0029](../adr/0029-version-format-identification-semi-implicit.md)).
 `#TCF.6` e `#TCF.7` não são aceitos no pacote `0.8` (compatibilidade histórica via git).
 
 ## A superfície inteira em quatro linhas
@@ -269,9 +270,12 @@ dentro de uma coluna o predicado expressa OR:
 `where("uf", pred=lambda x: x in ("SP", "RJ"))`.
 
 Não lê o que não é tabela. Aninhado, ragged e campo opcional fazem a view recusar com uma
-mensagem que manda usar `decode()`. Um aviso: no `#TCF.8H` um `None` explícito marca a
-coluna como opcional, então `encode([{"a": 1}, {"a": None}])` produz um blob que a view
-recusa, apesar de a coluna existir em todas as linhas.
+mensagem que manda usar `decode()`; um `dict` de colunas de comprimentos diferentes
+(`#TCF.8H#O`) é recusado na abertura pela mesma frase. Nulo **não** é ausência: desde
+2026-08-28, `encode([{"a": 1}, {"a": None}])` produz um blob (`#TCF.8Ha?0:...`) que a view
+lê como tabela, e `select`, `where("a", None)` e `group_count` respondem o mesmo que a
+tabela equivalente em `.8M`. Wire sem magic (`stamp=False`) também é lido, espelhando o
+`decode`: uma coluna `"0"` de strings.
 
 ## Como ler o `report()`
 

@@ -1,10 +1,10 @@
 ---
 title: "BUG-VIEW-COLUNA-VAZIA-UNICO-FANTASMA: distinct e n_unique inventam um elemento em coluna de 0 linhas"
-status: open
+status: closed-fixed
 priority: P2
 severity: "R1 (resposta errada e silenciosa na API pública, em entrada de borda)"
 created: 2026-08-26
-updated: 2026-08-26
+updated: 2026-08-28
 gate: "correção em src/tcf só com aprovação explícita do owner (I5)"
 blocked-by: []
 related: [
@@ -107,17 +107,35 @@ de todos os chamadores; a primeira é local e imediata.
 
 ## Critério de aceite
 
-- [ ] `view(encode({"a": []})).distinct("a") == []` e `n_unique("a") == 0`.
-- [ ] `distinct("a")` e `distinct(["a"])` concordam.
-- [ ] O docstring de `_dict_parts` volta a descrever o que o código faz.
-- [ ] Teste de propriedade: para todo wire do corpus, `view(w).nrows == len(decode(w)[c])` e
+- [x] `view(encode({"a": []})).distinct("a") == []` e `n_unique("a") == 0`.
+- [x] `distinct("a")` e `distinct(["a"])` concordam.
+- [x] O docstring de `_dict_parts` volta a descrever o que o código faz.
+- [ ] Teste de propriedade: para todo wire do corpus, `view(w).nrows == len(decode(w)[c])` e (não feito como teste de corpus; coberto pelos casos mínimos das duas rotas e pela verificação adversarial de 2026-08-28)
       `set(view(w).distinct(c)) == set(decode(w)[c])`. Este invariante pega este defeito, o
       do `_n_somado` e o do ragged de uma vez.
-- [ ] Coluna vazia **aninhada** decide entre responder ou levantar, e o faz igual nas duas
+- [x] Coluna vazia **aninhada** decide entre responder ou levantar, e o faz igual nas duas
       rotas.
-- [ ] Suíte completa e gates verdes; nenhuma mudança de wire.
+- [x] Suíte completa e gates verdes; nenhuma mudança de wire.
 
 ## Estado
 
-Repro confirmado no working tree de 2026-08-26, depois da solda que moveu o 0-linha
-retangular para o `.8M`. Nenhuma alteração em `src/tcf/` foi feita para este ticket.
+**FECHADO em 2026-08-28.** Em duas partes, e a primeira já tinha acontecido:
+
+1. **rota `.8M`** (o repro principal): fechou na onda 3 (2026-08-27), quando `_dict_parts`
+   passou a tratar `ntable == 0` como `unicas = []`, sem pino próprio até agora;
+2. **rota `.8H`** (o caso irmão, corpo `b""` em mode `tcf`): fechou na onda 5, com uma
+   linha em `_col`: corpo AUSENTE é zero linha, o mesmo contrato de `_n_somado` e do
+   `ntable == 0`. O corpo `b"
+"` continua no funil, porque é UMA linha vazia. O guard vale
+   só para o mode `tcf`; no mode `raw` do `.8M`, corpo `b""` é uma string vazia por contrato.
+
+Com a solda do `#O` não retangular (mesma onda), o `encode` público deixou de emitir o wire
+que exercitava a rota `.8H` (`{"a": ["x"], "v": []}` é recusado na abertura como não
+retangular), então o pino é um wire à mão com counts 0 e 0, validado pelo `decode`.
+
+A coluna vazia **aninhada** continua recusada como "aninhada", igual nas duas formas de
+entrada; é consistente e não é contagem.
+
+Evidência: [`2026-08-28-0200-cauda-das-divergencias`](../experiments/lab/dirty/2026-08/2026-08-28/2026-08-28-0200-cauda-das-divergencias/),
+caso `fantasma-0-linhas`. Testes: `TestColunaVaziaSemFantasma` (`test_tcf_lazy.py`), com a
+contra-prova de que uma linha vazia continua UM valor nas duas grafias.

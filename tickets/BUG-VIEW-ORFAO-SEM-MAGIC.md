@@ -1,6 +1,6 @@
 ---
 title: "BUG-VIEW-ORFAO-SEM-MAGIC: a view recusa o wire sem magic que o decode lê, e culpa um legado irrelevante"
-status: open
+status: closed-fixed
 priority: P3
 severity: "R2 (paridade quebrada em rota documentada, mais mensagem que aponta para a causa errada)"
 created: 2026-08-28
@@ -63,11 +63,27 @@ legado que o usuário não usou.
 
 ## Critérios de aceite
 
-- [ ] `view(encode(["a", "b"], stamp=False))` responde o mesmo que o `decode` para o mesmo
+- [x] `view(encode(["a", "b"], stamp=False))` responde o mesmo que o `decode` para o mesmo
       wire, **ou** recusa com mensagem que nomeia a causa real (`stamp=False` / ausência de
       magic) e não cita `#TCF.6`/`#TCF.7`.
-- [ ] O caso legado de verdade (wire `#TCF.6`/`#TCF.7`) continua com a mensagem que cita
+- [x] O caso legado de verdade (wire `#TCF.6`/`#TCF.7`) continua com a mensagem que cita
       ADR-0032, que ali está certa.
-- [ ] Os nove wires do corpus de paridade são conferidos por execução.
-- [ ] Lab de evidência em disco (I2), no padrão canônico.
-- [ ] Suíte completa e gates verdes; sem re-pin.
+- [ ] Os nove wires do corpus de paridade são conferidos por execução. (o corpus de paridade da auditoria vivia no scratchpad de um agente e não foi reproduzido; substituído pelo lab, pelas formas parametrizadas nos testes e pela verificação adversarial de 2026-08-28)
+- [x] Lab de evidência em disco (I2), no padrão canônico.
+- [x] Suíte completa e gates verdes; sem re-pin.
+
+## Estado
+
+**FECHADO em 2026-08-28 (onda 5).** A saída foi implementar o ramo órfão na `view`, não
+só corrigir a mensagem. Custou ~15 linhas porque o mode `blob` já delega os valores ao
+`decode` oficial (paridade por construção) e `_n_somado` já conta corpo com RLE (contar LF
+erraria em `*3|x`). O critério de família é o mesmo do `decode`: `#TCF.` seguido de dígito
+é versionada; qualquer outra coisa é dado órfão. O legado de verdade (`#TCF.6`, `#TCF.7`)
+continua com a mensagem que cita ADR-0032; magic sem LF continua "sem shebang".
+
+Mudança de comportamento visível: texto arbitrário sem magic agora **constrói** uma view
+(como o `decode` já o lia como órfão); o erro, se houver, sai na materialização.
+
+Evidência: [`2026-08-28-0200-cauda-das-divergencias`](../experiments/lab/dirty/2026-08/2026-08-28/2026-08-28-0200-cauda-das-divergencias/), caso `orfao-sem-magic`.
+Testes: `TestViewOrfaoSemMagic` (`test_tcf_lazy.py`): paridade em seis formas (RLE,
+quase-magic escapado, `#TCF.x` sem dígito), contagem sem materializar, legado recusado.

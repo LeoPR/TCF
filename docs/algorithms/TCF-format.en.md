@@ -311,6 +311,7 @@ Multi-col wire: `#TCF.8M` + inline meta (columns `[<pre>]<size>[=<name>][:<id>]`
 | bool + str in the same list | `#TCF.8bB<n>`, lazytype ([ADR-0039](../adr/0039-lazytype-bool-cabeca-congelada-extras.md)) | `encode([True,"abc",False])` gives `#TCF.8bB23` |
 | low-cardinality list | `#TCF.8B<w><n>`, domain bN ([ADR-0036](../adr/0036-bn-de-dominio-cardinalidade-baixa.md)) | `encode(["0","1"]*100)` gives `#TCF.8B1c8` |
 | nested or ragged (a rectangular 0-row dict stays in `.8M`, with an empty-table `@` body) | `#TCF.8H<tree-meta>` ([ADR-0033](../adr/0033-hierarchical-codec-weld.md)) | `encode([{"a":1}])` gives `#TCF.8Ha:3n`; `encode({})` gives `#TCF.8H#E` |
+| dense **scalar** leaf with nulls in a dataset (key in every row, some `None`, scalar value) | `#TCF.8H` with `name?0:<size>`: a 2-state element-mask (`.`/`0`) before the data; `name?:<size>` stays for an **optional** field (3-state mask, with `-`) **and** for an object/array holding `None` (`[{"a":{"k":1}},{"a":None}]` gives `a?:5{k:3n`, and the `view` refuses it as optional). Since 2026-08-28; it is what lets the `view` tell table-with-nulls from ragged by the header alone | `encode([{"a":"x"},{"a":None}])` gives `#TCF.8Ha?0:5`; ragged `[{"a":1},{"b":2}]` still gives `#TCF.8Ha?:4:3n,b?:4:3n` |
 
 ### Decode (mirror)
 

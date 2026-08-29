@@ -1,6 +1,6 @@
 ---
 title: "BUG-VIEW-NULO-NO-HIERARQUICO: um None numa coluna densa tira a tabela inteira do view()"
-status: open
+status: closed-fixed
 priority: P1
 severity: "R1 (recusa indevida na API pública; o dado está íntegro e o decode lê)"
 created: 2026-08-28
@@ -90,15 +90,42 @@ de compatibilidade.
 
 ## Critérios de aceite
 
-- [ ] `view(encode([{"a": "x"}, {"a": None}]))` responde, e `select()` devolve o mesmo que
+- [x] `view(encode([{"a": "x"}, {"a": None}]))` responde, e `select()` devolve o mesmo que
       o `decode`.
-- [ ] Chave **ausente** de verdade (`[{"a": 1}, {"b": 2}]`) continua sendo recusada pela
+- [x] Chave **ausente** de verdade (`[{"a": 1}, {"b": 2}]`) continua sendo recusada pela
       `view` como ragged, com a mensagem atual. A correção separa os dois casos; não pode
       passar a aceitar ragged.
-- [ ] A `.8H` e a `.8M` respondem a mesma coisa para a mesma tabela lógica com nulos, em
+- [x] A `.8H` e a `.8M` respondem a mesma coisa para a mesma tabela lógica com nulos, em
       `select`, `count`, `distinct` e `group_count`.
-- [ ] Os 29 wires do corpus de paridade passam a ser consultáveis, e o número é conferido
+- [ ] Os 29 wires do corpus de paridade passam a ser consultáveis, e o número é conferido (o corpus de paridade da auditoria vivia no scratchpad de um agente e não foi reproduzido; substituído pelo lab, pelas formas parametrizadas nos testes e pela verificação adversarial de 2026-08-28)
       por execução, não estimado.
-- [ ] Lab de evidência em disco (I2) com o antes e o depois, no padrão canônico.
-- [ ] Baselines re-pinados com a razão registrada, e o CHANGELOG anotando a mudança de wire.
-- [ ] Suíte completa verde.
+- [x] Lab de evidência em disco (I2) com o antes e o depois, no padrão canônico.
+- [x] Baselines re-pinados com a razão registrada (`test_hierarchical_control_synthetics.py`,
+      `c05` e `c12`). O CHANGELOG é append-only e ganha a entrada no `release-prep` da
+      próxima versão, como nas anteriores; a mudança de wire está registrada aqui, no
+      STATUS e em `docs/algorithms/TCF-format.*.md`.
+- [x] Suíte completa verde.
+
+## Estado
+
+**FECHADO em 2026-08-28 (onda 7 da auditoria de consistência).** A saída foi a opção A do
+ticket: o `encode` de dataset passou a emitir, para coluna **escalar densa-com-nulos**, a
+grafia `nome?0:<size>` com uma element-mask de dois estados (`.`/`0`), a mesma que os arrays
+já usavam; `?:<size>` puro ficou reservado ao campo **opcional** (mask de três estados, com
+`-`). A `view` distingue os dois pelo header, sem ler corpo, e `_structural_count` conta
+pela emask (sem isso o `select` devolvia 1 de 2 linhas: o corpo denso é menor que a tabela).
+
+Custo: +1 byte de header por coluna assim, corpo idêntico. Wire velho com `?` continua
+legível; leitor velho sobre wire novo falha alto; `?0` fora de folha escalar é erro tipado.
+Re-pin: `c05` 842→843 e `c12` 1453→1454 em `test_hierarchical_control_synthetics.py`, os
+únicos sintéticos com nulo denso; zero re-pin nos gates byte-canônicos (nenhuma fixture em
+rota `.8H` com nulo). CHANGELOG entra no `release-prep` da próxima versão, como sempre.
+
+Havia uma opção C sem mudança de wire (a `view` decodificar a máscara e aceitar quando não
+há `-`); foi descartada conscientemente porque materializa controle do tamanho do dado na
+abertura, contra o gate só-por-header que a `view` declara e mede.
+
+Evidência: [`2026-08-28-0200-cauda-das-divergencias`](../experiments/lab/dirty/2026-08/2026-08-28/2026-08-28-0200-cauda-das-divergencias/), caso `nulo-denso-8H` mais os
+controles `ctl-sem-nulo`, `ctl-ragged` e `ctl-nulo-8M`, byte-idênticos. Testes:
+`TestNuloDensoNoHierarquico` (`test_tcf_lazy.py`) e o bloco `#6` em `test_hierarchical_rt.py`
+(grafia, RT em seis formas, wire velho legível, parse fechado, contra-provas byte-exatas).

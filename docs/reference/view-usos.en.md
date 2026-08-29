@@ -208,10 +208,10 @@ column the predicate expresses OR:
 `where("uf", pred=lambda x: x in ("SP", "RJ"))`.
 
 **It does not read what is not a table.** Nested, ragged and optional fields are not a
-rectangular table, and the view refuses with a message telling you to use `decode()`. One
-warning is worth stating: in `#TCF.8H` an explicit `None` marks the column as optional, so
-`encode([{"a": 1}, {"a": None}])` produces a blob the view refuses, even though the column
-is present in every row.
+rectangular table, and the view refuses with a message telling you to use `decode()`. Null
+is not absence: `encode([{"a": 1}, {"a": None}])` is a table (the column exists in every
+row) and the view reads it, since 2026-08-28, with the same answers as the equivalent
+`.8M` table.
 
 **It does not read legacy formats.** `#TCF.6` and `#TCF.7` were cut
 ([ADR-0032](../adr/0032-tcf8-default-format.md)); for older blobs, `git checkout` an earlier

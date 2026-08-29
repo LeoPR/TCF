@@ -33,8 +33,9 @@ the `.9` optimization cycle when their lower cost still needs to be demonstrated
 
 **What it reads**: `#TCF.8M` (multi-column), `#TCF.8H` when it is a rectangular table, and
 the single-column route in all of its forms (`#TCF.8`, `#TCF.8n`, `#TCF.8b`, `#TCF.8bB`,
-`#TCF.8 :spec`, and the dense `B`/`C`). In a single column the name is `"0"`, as in any
-anonymous column
+`#TCF.8 :spec`, and the dense `B`/`C`), plus the **orphan** wire without magic
+(`stamp=False`), read the way `decode` reads it. In a single column the name is `"0"`, as
+in any anonymous column
 ([ADR-0029](../adr/0029-version-format-identification-semi-implicit.md)). `#TCF.6` and
 `#TCF.7` are not accepted in the `0.8` package (historical compatibility through git).
 
@@ -269,9 +270,12 @@ chaining `where` is always AND, but within one column the predicate expresses OR
 `where("uf", pred=lambda x: x in ("SP", "RJ"))`.
 
 It does not read what is not a table. Nested, ragged and optional fields make the view
-refuse with a message telling you to use `decode()`. One warning: in `#TCF.8H` an explicit
-`None` marks the column as optional, so `encode([{"a": 1}, {"a": None}])` produces a blob
-the view refuses, even though the column is present in every row.
+refuse with a message telling you to use `decode()`; a `dict` of columns with different
+lengths (`#TCF.8H#O`) is refused at opening with the same sentence. Null is **not**
+absence: since 2026-08-28, `encode([{"a": 1}, {"a": None}])` produces a blob
+(`#TCF.8Ha?0:...`) the view reads as a table, and `select`, `where("a", None)` and
+`group_count` answer the same as the equivalent `.8M` table. A wire without magic
+(`stamp=False`) is read too, mirroring `decode`: one column `"0"` of strings.
 
 ## Reading `report()`
 
