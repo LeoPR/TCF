@@ -821,6 +821,27 @@ def encode(
             min_header=min_header, min_len=min_len, sort_by=sort_by, name=name,
             stamp=stamp, drop_names=drop_names,
         )
+        # A coluna tem tipos MISTURADOS, e isso e' anomalia de origem, nao capacidade
+        # pedida: o TCF preserva os dois tipos aqui (rota lazy, ADR-0039) mas as outras
+        # duas familias RECUSAM a mesma coluna, entao o mesmo dado passa ou nao passa
+        # conforme a forma de entrada. Avisar e' o que o formato deve ao chamador; quem
+        # quer o silencio higieniza na fonte, que e' onde o problema nasce.
+        import warnings
+        # O `None` e' membro legitimo da uniao e NAO e' booleano: soma-lo aos bools
+        # mentia na contagem e, pior, fazia dois perfis diferentes gerarem o MESMO
+        # texto, que o `__warningregistry__` do Python deduplica por (mensagem, local).
+        # A segunda coluna mista ficava CALADA.
+        _n_bool = sum(1 for x in data if type(x) is bool)
+        _n_str = sum(1 for x in data if type(x) is str)
+        _n_nulo = sum(1 for x in data if x is None)
+        _nulos = f", {_n_nulo} nulo(s)" if _n_nulo else ""
+        warnings.warn(
+            f"coluna de tipos MISTOS (bool e str): {_n_bool} booleano(s) e "
+            f"{_n_str} string(s){_nulos} na mesma coluna. O round-trip e' exato pela "
+            f"rota lazy `#TCF.8bB` (single-col), mas a MESMA coluna e' recusada como "
+            f"`dict` (`#TCF.8M`) e como dataset (`#TCF.8H`). Separe por tipo na origem, "
+            f"ou converta a coluna toda para string.",
+            UserWarning, stacklevel=2)
         return _lazy
     # ROTA HIERARQUICA .8H (dispatch type-coherent, Passo 2, API unica): tudo que NAO e'
     # flat puro — lista vazia/tipada/list[dict], dict objeto/ragged/tipado, escalar solto,

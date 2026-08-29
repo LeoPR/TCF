@@ -347,6 +347,7 @@ class TestDensoHexN:
             decode(nao_canonico)
 
 
+@pytest.mark.filterwarnings("ignore:coluna de tipos MISTOS")  # a rota, nao o aviso (pinado em test_tcf_lazy)
 class TestLazyBool:
     """Lazy bool `#TCF.8bB<w><n>`(ADR-0039).
 

@@ -352,7 +352,7 @@ class TestColunaPosicionalNaView:
     def test_posicao_fora_do_range_e_bool_erram(self, vb):
         with pytest.raises(ValueError, match="fora do range"):
             vb.where(9, "SP")
-        with pytest.raises(TypeError, match="str \(nome\) ou int"):
+        with pytest.raises(TypeError, match=r"str \(nome\) ou int"):
             vb.where(True, "SP")
         with pytest.raises(ValueError, match="fora do range"):
             vb.where(-1, "SP")                        # sem negativo, como no schema=
@@ -1163,7 +1163,8 @@ class TestNuloNaChaveDeGrupo:
 class TestViewDesfazEscapeDoHierarquico:
     """A `view` do `.8H` des-escapa a folha, como o `decode` (onda 2, 2026-08-27).
 
-    O `.8H` escapa `\` e LF/CR nas folhas (`_esc_leaf`). O `decode` desfazia; a `view`
+    O `.8H` escapa a barra invertida e LF/CR nas folhas (`_esc_leaf`). O `decode`
+    desfazia; a `view`
     nao, entao TODA coluna de texto voltava escapada. `c:\tmp` virava `c:\\tmp`, o
     `where` pelo valor real respondia 0 e o `group_count` inventava chave. Atinge caminho
     de Windows, regex, LaTeX e JSON serializado, que sao dados banais.
@@ -1171,7 +1172,7 @@ class TestViewDesfazEscapeDoHierarquico:
     Nao precisa de wire escrito a mao: o `encode` publico produz isso com dado normal.
     """
 
-    VALORES = ["c:\tmp", "a\rb", "a\nb", "re\d+", '{"k": "v\n"}', "sem escape"]
+    VALORES = ["c:\tmp", "a\rb", "a\nb", r"re\d+", '{"k": "v\n"}', "sem escape"]
 
     @pytest.mark.parametrize("valor", VALORES)
     def test_view_concorda_com_decode(self, valor):
@@ -1194,7 +1195,7 @@ class TestViewDesfazEscapeDoHierarquico:
         Elas proibem LF no valor em vez de escapar, entao um des-escape ali comeria
         barras legitimas do dado.
         """
-        for valor in ["c:\tmp", "re\d+", "\\servidor\share"]:
+        for valor in ["c:\tmp", r"re\d+", "\\servidor" + "\\share"]:
             multi = encode({"a": [valor, "outro"]})
             assert view(multi).select()[0]["a"] == decode(multi)["a"][0] == valor
             single = encode([valor, "outro"])
@@ -1596,3 +1597,119 @@ class TestNuloDensoParidadeTipada:
         assert sorted(h.distinct("a"), key=repr) == sorted(m.distinct("a"), key=repr)
         assert h.n_unique("a") == m.n_unique("a")
         assert h.where("a", None).count() == m.where("a", None).count()
+
+
+class TestUniaoBoolStr:
+    """A coluna de UNIÃO bool+str (`#TCF.8bB`, ADR-0039): o filtro alcança os dois lados,
+    e o encode avisa que a coluna é mista.
+
+    O defeito que isto fecha: a view lia o char de índice 6 (`b`) e declarava a coluna
+    bool PURA, ignorando o `B` do índice 7 que diz união. O `where` então coagia o valor
+    do filtro para bool, e os extras string ficavam inalcançáveis, embora `distinct`,
+    `select` e `group_count` os mostrassem. Oito formas medidas, todas erradas.
+
+    Os quatro modos de consulta, e como se pede cada um:
+      HARD             `where(col, True)`            o objeto bool
+      LITERAL          `where(col, "true")`          a string, como ela está
+      SEMÂNTICO        `where(col, pred=...)`        o bool E as grafias que o denotam
+      CAIXA-INSENSÍVEL `where(col, pred=...lower())` idem, ignorando caixa
+    """
+
+    COL = [True, "true", "True", "TRUE", "1", " ?", False, "false", ""]
+
+    @pytest.fixture
+    def v(self):
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            return view(encode(list(self.COL)))
+
+    @pytest.mark.parametrize("alvo", ["true", "True", "TRUE", "1", " ?", "false", ""])
+    def test_literal_alcanca_a_string(self, v, alvo):
+        assert [r["0"] for r in v.where("0", alvo).select()] == [alvo]
+
+    @pytest.mark.parametrize("alvo", [True, False])
+    def test_hard_alcanca_o_bool(self, v, alvo):
+        assert [r["0"] for r in v.where("0", alvo).select()] == [alvo]
+
+    def test_semantico_pelo_pred(self):
+        deriv = ("true", "1", "t", "yes", "sim")
+        sem = lambda x: x is True or (isinstance(x, str) and x.strip().lower() in deriv)  # noqa: E731
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            v = view(encode(list(self.COL)))
+        assert [r["0"] for r in v.where("0", pred=sem).select()] == [
+            True, "true", "True", "TRUE", "1"]
+
+    def test_caixa_insensivel_pelo_pred(self, v):
+        ci = lambda x: isinstance(x, str) and x.lower() == "true"  # noqa: E731
+        assert [r["0"] for r in v.where("0", pred=ci).select()] == ["true", "True", "TRUE"]
+
+    def test_nulo_continua_casando(self):
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            v = view(encode([True, "x", None]))
+        assert [r["0"] for r in v.where("0", None).select()] == [None]
+
+    @pytest.mark.parametrize("col,alvo,esperado", [
+        ([True, False], "true", [True]),      # coluna bool PURA: aqui o cast é o certo
+        ([True, False], "1", [True]),
+        ([True, False], True, [True]),
+        (["a", "b"], "a", ["a"]),             # texto puro
+        ([1, 2], "1", [1]),                   # numérica: o cast também vale
+    ])
+    def test_contraprova_coluna_homogenea_continua_coagindo(self, col, alvo, esperado):
+        # o aviso de COERÇÃO aqui é o certo e é de propósito: na coluna homogênea o
+        # valor do filtro é convertido, e a view registra isso.
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            v = view(encode(col))
+            assert [r["0"] for r in v.where("0", alvo).select()] == esperado
+
+    def test_encode_avisa_que_a_coluna_e_mista(self):
+        with pytest.warns(UserWarning, match="tipos MISTOS"):
+            w = encode([True, "x"])
+        assert w.split("\n", 1)[0] == "#TCF.8bB22"       # o wire NÃO muda
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            assert decode(encode([True, "x"])) == [True, "x"]
+
+    @pytest.mark.parametrize("col", [
+        [True, False], ["a", "b"], [1, 2], [True, None], ["a", None], [1.5, 2.5],
+    ])
+    def test_contraprova_coluna_homogenea_nao_avisa(self, col):
+        with warnings.catch_warnings():
+            warnings.simplefilter("error")               # qualquer aviso vira erro
+            encode(col)
+
+    @pytest.mark.parametrize("col,esperado", [
+        ([True, "x"],                    "1 booleano(s) e 1 string(s) na"),
+        ([True, False, "x"],             "2 booleano(s) e 1 string(s) na"),
+        ([True, "x", None],              "1 booleano(s) e 1 string(s), 1 nulo(s)"),
+        ([None, None, None, True, "x"],  "1 booleano(s) e 1 string(s), 3 nulo(s)"),
+        ([True, "a", "b", "c"],          "1 booleano(s) e 3 string(s) na"),
+    ])
+    def test_a_contagem_do_aviso_nao_soma_nulo_aos_bools(self, col, esperado):
+        # o `None` é membro legítimo da união e NÃO é booleano. Somá-lo mentia na
+        # contagem e fazia perfis diferentes gerarem o MESMO texto, que o
+        # `__warningregistry__` deduplica: a segunda coluna mista ficava calada.
+        with pytest.warns(UserWarning, match="tipos MISTOS") as rec:
+            encode(col)
+        assert esperado in str(rec[0].message)
+
+    def test_perfis_diferentes_nao_colidem_no_registry(self):
+        # com o filtro REAL do Python (default, que deduplica por mensagem+local),
+        # duas colunas mistas de perfis diferentes têm de emitir DOIS avisos
+        with warnings.catch_warnings(record=True) as wl:
+            warnings.simplefilter("default")
+            encode([True, False, "x"])       # 2 bool, 1 str
+            encode([True, "y", None])        # 1 bool, 1 str, 1 nulo
+        assert len(wl) == 2
+
+    def test_strict_segue_valendo_para_os_outros_tipos_na_uniao(self):
+        # o str deixou de ser coagido, mas o int continua sendo: o strict o recusa
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            v = view(encode([True, "x"])).strict()
+        assert [r["0"] for r in v.where("0", "x").select()] == ["x"]   # str: passa
+        with pytest.raises(TypeError, match="STRICT"):
+            v.where("0", 1)                                            # int: recusa

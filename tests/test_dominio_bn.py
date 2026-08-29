@@ -218,6 +218,7 @@ class TestNadaDepoisDosBits:
         assert decode(w.rstrip("\n") + "\n") == dados
 
 
+@pytest.mark.filterwarnings("ignore:coluna de tipos MISTOS")  # a rota, nao o aviso (pinado em test_tcf_lazy)
 class TestPayloadB64Canonico:
     """`T-BN-B64-VALIDATE` — lab `2026-08-06-2104` (9 sondas x 5 rotas, 45 celulas).
 

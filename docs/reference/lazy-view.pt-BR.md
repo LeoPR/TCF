@@ -262,6 +262,32 @@ Um `int` numa coluna bool é outra história: ele passa por `bool(value)`, entã
 não a do PostgreSQL, e é uma inconsistência com o parágrafo acima: a proteção contra
 truthiness vale para texto e não vale para número.
 
+### A coluna de UNIÃO, e os quatro modos de perguntar
+
+Numa coluna que mistura bool e string (`#TCF.8bB`, [ADR-0039](../adr/0039-lazytype-bool-cabeca-congelada-extras.md))
+a string **não** é a grafia de um bool: ela é um valor da coluna, tão legítimo quanto o
+booleano ao lado. Por isso o cast acima não se aplica ali, e um valor `str` no filtro é
+comparado como está, no soft e no strict.
+
+Sobre a coluna `[True, "true", "True", "TRUE", "1", " ?", False]`:
+
+| o que você quer | como pede | devolve |
+|---|---|---|
+| o **booleano** | `where(col, True)` | `[True]` |
+| a **string**, como ela está | `where(col, "true")` | `["true"]` |
+| tudo que **denota** o booleano | `where(col, pred=lambda x: x is True or (isinstance(x, str) and x.strip().lower() in ("true", "1", "t", "yes", "sim")))` | `[True, "true", "True", "TRUE", "1"]` |
+| ignorando a **caixa** | `where(col, pred=lambda x: isinstance(x, str) and x.lower() == "true")` | `["true", "True", "TRUE"]` |
+
+O `pred=` não passa pela coerção: ele vê o valor como o `decode` o devolve. É por isso que
+os dois modos de baixo não precisam de sintaxe nova.
+
+O `strict()` continua valendo para os outros tipos da mesma coluna: `strict().where(col, 1)`
+levanta, porque `int` ainda é convertido.
+
+> Até 2026-08-29 o filtro por string nessa coluna devolvia a linha do **booleano**, e os
+> extras ficavam inalcançáveis embora `distinct` e `select` os mostrassem. A `view` lia só
+> o `b` do índice 6 do header e ignorava o `B` do índice 7, que é o marcador da união.
+
 ## O que ela não faz
 
 Não é SQL. Não há parser, joins, `ORDER BY`, `LIMIT`, expressões calculadas ou plano

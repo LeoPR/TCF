@@ -215,6 +215,7 @@ class LazyTCF:
         self._emask: dict[str, bytes] = {}     # name -> mascara de nulo (`.8H`), sob demanda
         self._e_hier = False                   # rota `.8H`: as folhas vem ESCAPADAS
         self._orfao = False                    # wire sem magic (`stamp=False`)
+        self._uniao: set[str] = set()          # colunas de UNIÃO bool+str (`#TCF.8bB`)
         self._n_checado = False                # cross-check de n_rows ja avisou?
         self._strict = False                   # modo duro: cast tem de ser explicito
         self.coercoes: list[str] = []          # telemetria: o que foi convertido, e como
@@ -266,6 +267,13 @@ class LazyTCF:
             # DECODIFICADO custava o blob inteiro para saber algo que estava escrito.
             disc = line1[6:7]
             self._stype[nome] = {b"n": "n", b"b": "b"}.get(disc, "s")
+            # `#TCF.8bB` (ADR-0039): o `b` do índice 6 é o tipo da CABEÇA, e o `B` do
+            # índice 7 diz que a coluna é UNIÃO bool+str. Ler só o índice 6 declarava a
+            # coluna bool PURA, e aí o `where` coagia o valor do filtro para bool: os
+            # extras string ficavam inalcançáveis, embora `distinct` e `select` os
+            # mostrassem. Medido em 8 formas, todas erradas.
+            if disc == b"b" and line1[7:8] == b"B":
+                self._uniao.add(nome)
             return
         # #TCF.8M = UNICO multi-col vivo (ADR-0032). Legado #TCF.6/#TCF.7 cortado —
         # fail-loud. Meta INLINE na linha do shebang.
@@ -429,13 +437,25 @@ class LazyTCF:
         rígido (revisão, CI, conformidade), `.strict()` transforma a conversão
         automática em erro, com a mensagem dizendo o valor que ele esperava.
 
+        **Coluna de UNIÃO** (`#TCF.8bB`, bool e str juntos): um valor `str` não é
+        convertido nem no soft nem no strict, porque ali a string é um valor legítimo
+        da coluna e não a grafia de um bool. O strict segue valendo para os outros
+        tipos na mesma coluna: `strict().where(col, 1)` continua levantando.
+
         Devolve a própria view, então encadeia: `view(blob).strict().where(...)`.
         """
         self._strict = True
         return self
 
     def _coage(self, col: str, value, pred):
-        """Ajusta o valor ao tipo da coluna e registra a conversão, se houve."""
+        """Ajusta o valor ao tipo da coluna e registra a conversão, se houve.
+
+        Numa coluna de UNIÃO (`#TCF.8bB`) um valor `str` NÃO se coage: ali a string é um
+        valor legítimo da coluna, não a grafia de um bool. Quem quer o conjunto semântico
+        (o bool E as grafias que o denotam) pede com `pred=`, que não passa por aqui.
+        """
+        if col in self._uniao and isinstance(value, str):
+            return value
         import warnings
         value, aviso = _coage_where_value(
             value, pred, self._stype.get(col, "s"), self._strict)

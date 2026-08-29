@@ -860,6 +860,7 @@ class TestNomeVazioPreservadoADR0046:
         assert v.select([""]) == [{"": "1"}, {"": "2"}]
 
 
+@pytest.mark.filterwarnings("ignore:coluna de tipos MISTOS")  # a rota, nao o aviso (pinado em test_tcf_lazy)
 class TestPortaoHomogeneidadeMultiCol:
     """As TRES portas recusam o mesmo conjunto, pela mesma frase (onda 0, 2026-08-27).
 
