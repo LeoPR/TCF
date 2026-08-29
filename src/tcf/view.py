@@ -1,6 +1,7 @@
 """tcf.view — view lazy/consultável sobre um blob TCF: descomprime só o suficiente pra responder.
 
-Camada READ-ONLY do TCF (parte do pacote desde A4; lê SÓ `#TCF.8M` — legado
+Camada READ-ONLY do TCF (parte do pacote desde A4; lê `#TCF.8M`, `#TCF.8H` quando é
+tabela retangular, a coluna única em todas as formas e o órfão sem magic; legado
 `#TCF.6/.7` cortado, ADR-0032; NÃO muda encode/decode/formato). Meta inline +
 natures (revertidas LAZY ao materializar a coluna) + colunas anônimas (nome =
 ordem). Parse do meta = fonte única `_parse_meta` (paridade com o decode por
@@ -213,6 +214,8 @@ class LazyTCF:
         self._stype: dict[str, str] = {}       # name -> 's'|'n'|'b' (tipo do dado; `.8H`)
         self._emask: dict[str, bytes] = {}     # name -> mascara de nulo (`.8H`), sob demanda
         self._e_hier = False                   # rota `.8H`: as folhas vem ESCAPADAS
+        self._orfao = False                    # wire sem magic (`stamp=False`)
+        self._n_checado = False                # cross-check de n_rows ja avisou?
         self._strict = False                   # modo duro: cast tem de ser explicito
         self.coercoes: list[str] = []          # telemetria: o que foi convertido, e como
         self.touched: list[str] = []           # colunas que foram descomprimidas
@@ -222,9 +225,10 @@ class LazyTCF:
     def _parse(self, blob: str) -> None:
         raw = blob.encode("utf-8")
         nl1 = raw.find(b"\n")
-        if nl1 == -1:
+        line1 = raw if nl1 == -1 else raw[:nl1]
+        if nl1 == -1 and line1.startswith(b"#TCF."):
+            # magic truncada sem o LF do shebang: corrupção, não órfão
             raise ValueError("blob inválido: sem shebang")
-        line1 = raw[:nl1]
         # `#TCF.8H` que É TABELA RETANGULAR: uma coluna tipada (int/bool/float) ou um
         # `None` tiram o dict do `.8M`, e sem este ramo o view recusava a tabela inteira.
         # O tipo primitivo do dado já é um spec, só que implícito: ele viaja no header
@@ -266,9 +270,24 @@ class LazyTCF:
         # #TCF.8M = UNICO multi-col vivo (ADR-0032). Legado #TCF.6/#TCF.7 cortado —
         # fail-loud. Meta INLINE na linha do shebang.
         if not line1.startswith(MAGIC_MULTI_V3):
-            raise ValueError(
-                f"não é #TCF.8M multi-col (legado #TCF.6/#TCF.7 cortado, ADR-0032; "
-                f"git checkout <pre-0.8> pra ler): {line1[:16]!r}")
+            if line1[:5] == b"#TCF." and line1[5:6].isdigit():
+                # família versionada de verdade (o MESMO critério do decoder:
+                # '#TCF.' + dígito). Só ela é legado; o resto é dado órfão.
+                raise ValueError(
+                    f"não é #TCF.8M multi-col (legado #TCF.6/#TCF.7 cortado, ADR-0032; "
+                    f"git checkout <pre-0.8> pra ler): {line1[:16]!r}")
+            # ÓRFÃO (`stamp=False`): wire sem magic, que o `decode` lê como coluna
+            # única de strings (rota documentada em decoder.py). A view espelha:
+            # mode `blob` delega os VALORES ao decode oficial, paridade por
+            # construção. tickets/BUG-VIEW-ORFAO-SEM-MAGIC.md
+            nome = "0"
+            self._orfao = True
+            self._mode[nome] = "blob"
+            self._blob_single = blob
+            self._body[nome] = raw
+            self._order.append(nome)
+            self._stype[nome] = "s"      # órfão não tem onde declarar tipo
+            return
         meta = line1[len(MAGIC_MULTI_V3):].decode("utf-8")   # inline
         cursor = nl1 + 1
         # BUG-08 fold (lote 3, paridade com _decode_multi_impl): meta vazio SEM
@@ -353,6 +372,7 @@ class LazyTCF:
             self._stype[nome] = stype
 
         cursor = nl1 + 1
+        n_ref = ref = None                 # retangularidade do `#O`, lida dos counts
         for caminho, kind, size in ordem:
             nome = caminho[0]
             corpo = raw[cursor:] if size is None else raw[cursor:cursor + size]
@@ -362,12 +382,40 @@ class LazyTCF:
                     f"restam {len(corpo)}B no blob")
             if kind == "emask":            # onde estão os nulos desta coluna
                 self._emask[nome] = corpo
-            elif kind != "count":          # `count` é o comprimento do array, não dado
+            elif kind == "count":
+                # `count` é o comprimento do array, não dado; no `#O` ele é o juiz da
+                # retangularidade: counts diferentes = a tabela não existe. Recusar AQUI
+                # mata os dois defeitos (nrows sobre tabela inexistente e a acusação
+                # falsa de corrupção num blob íntegro que o `decode` lê sem reclamar).
+                # tickets/BUG-VIEW-OBJETO-NAO-RETANGULAR.md
+                # O MESMO parse estrito do decode (`_count`: dígitos ASCII, sem sinal,
+                # sem espaço); `int()` aceitava '+1', ' 3', '-1' e estourava cru no
+                # slot nulo. E o count de um `#O` tem UMA entrada: mais que isso é
+                # frame adulterado, que o decode também recusa.
+                from tcf.hierarchical import _count as _count_h
+                entradas = _decode_column(corpo.decode("utf-8"))
+                if len(entradas) != 1:
+                    raise ValueError(
+                        f"`#O`: coluna de count de {nome!r} com {len(entradas)} "
+                        f"entrada(s), esperava 1 — blob adulterado?")
+                n = _count_h(entradas[0], (nome,))
+                if n_ref is None:
+                    n_ref, ref = n, nome
+                elif n != n_ref:
+                    raise ValueError(
+                        f"`view()` precisa de uma tabela retangular: a coluna "
+                        f"{nome!r} tem {n} linha(s) e {ref!r} tem {n_ref}. "
+                        f"Use `decode()` para este blob.")
+            else:
                 self._mode[nome] = "tcf"
                 self._body[nome] = corpo
                 self._order.append(nome)
-                if nome in naturezas:
-                    self._nature[nome] = naturezas[nome]
+                # `_parse_meta` devolve as natures por `(path, kind)`, não por nome;
+                # comparar `nome` nunca casava, `_nature` ficava vazia no `.8H` e a
+                # view servia o PAYLOAD cru do spec como se fosse o dado (pré-existente,
+                # achado na verificação de 2026-08-28).
+                if (caminho, kind) in naturezas:
+                    self._nature[nome] = naturezas[(caminho, kind)]
             cursor += len(corpo)
         if cursor != len(raw):
             raise ValueError(
@@ -472,6 +520,7 @@ class LazyTCF:
         if name not in self._mode:
             raise KeyError(f"coluna inexistente: {name!r} (tem: {self._order})")
         if name not in self._cache:
+            self._avisa_n_divergente()       # 1ª materialização também avisa (#12)
             mode, body = self._mode[name], self._body[name]
             if mode == "raw":
                 # fonte única com o decode (dedup C0 D3 — paridade por construção)
@@ -487,14 +536,39 @@ class LazyTCF:
                 from tcf.decoder import decode as _decode_blob
                 vals = _decode_blob(self._blob_single)
             else:
-                vals = _decode_column(body.decode("utf-8"))
+                # Corpo AUSENTE é ZERO linha, não uma linha vazia: o mesmo contrato
+                # de `_n_somado` e do `ntable == 0` em `_dict_parts`.
+                # `_decode_column("")` devolve `[""]` (o único fantasma que restava,
+                # no `.8H`); o corpo `b"\n"` continua no funil: é UMA linha vazia.
+                # tickets/BUG-VIEW-COLUNA-VAZIA-UNICO-FANTASMA.md
+                vals = [] if not body else _decode_column(body.decode("utf-8"))
             # Nulo (`.8H`): os valores vem DENSOS e a posicao do `None` mora numa
             # coluna de mascara ao lado. Reidrata antes de tudo, senao a nature e o
             # tipo cairiam no valor errado e o alinhamento de linha quebraria.
             if name in self._emask:
-                marcas = _decode_column(self._emask[name].decode("utf-8"))
+                em = self._emask[name]
+                marcas = [] if not em else _decode_column(em.decode("utf-8"))
                 densos = iter(vals)
-                vals = [next(densos) if m == "." else None for m in marcas]
+                fim = object()
+                out = []
+                for m in marcas:                 # espelho do `_read_object`: fail-loud
+                    if m == ".":
+                        v = next(densos, fim)
+                        if v is fim:
+                            raise ValueError(
+                                f"coluna {name!r}: a máscara de nulos declara mais "
+                                f"valores presentes do que o corpo tem — blob "
+                                f"truncado/corrompido")
+                        out.append(v)
+                    elif m == "0":
+                        out.append(None)
+                    else:
+                        raise ValueError(f"máscara de nulos inválida {m!r} em {name!r}")
+                if next(densos, fim) is not fim:
+                    raise ValueError(
+                        f"coluna {name!r}: corpo com mais valores do que a máscara de "
+                        f"nulos declara — blob adulterado?")
+                vals = out
             # Nature self-describing (#TCF.8, ADR-0027): reverte LAZY — so' ao
             # materializar a coluna consultada, preservando a laziness (colunas nao
             # tocadas nem decodam o body). Fonte unica com o caminho L4: `_reverte_nature`.
@@ -509,7 +583,10 @@ class LazyTCF:
             if stype and stype != "s" and mode != "blob":
                 from tcf.hierarchical import _dec_scalar
                 vals = [None if v is None else _dec_scalar(v, stype) for v in vals]
-            elif self._e_hier:
+            elif self._e_hier and name not in self._nature:
+                # (coluna com nature fica de fora: o `_reverte_nature` acima já devolveu
+                # o valor ORIGINAL, como o decode faz; des-escapar de novo corromperia
+                # um `\` legítimo.)
                 # DES-ESCAPA a folha do `.8H` (2026-08-27, onda 2). O `.8H` escapa `\` e
                 # LF/CR nas folhas (`_esc_leaf`), e o `decode` desfaz isso; a `view` nao
                 # desfazia, entao TODA coluna de texto voltava escapada: `c:	mp` virava
@@ -551,8 +628,14 @@ class LazyTCF:
         Nenhum dos dois números é exato (o certo seriam os bytes da tabelinha), e o
         ajuste fino de `materialized_bytes` fica para a revisão do `.9`.
         """
+        if marcar:
+            self._avisa_n_divergente()       # caminho L4 (where/group_count) também avisa (#12)
         cached = self._dict_cache.get(name)
         if cached is not None:
+            # `touched` também no acerto de cache: quem parseou antes pode ter sido o
+            # cross-check (`marcar=False`), e sem isto a coluna sumia do relatório.
+            if marcar and name not in self.touched:
+                self.touched.append(name)
             return cached
         body = self._body[name]
         nl = body.find(b"\n")
@@ -608,6 +691,11 @@ class LazyTCF:
         """
         mode = self._mode[name]
         if mode == "blob":
+            if self._orfao:
+                # sem magic não há cabeçalho: a 1ª linha é DADO. `decode("")`
+                # devolve `[""]` (uma linha vazia), daí o guard do corpo vazio.
+                corpo = self._body[name]
+                return 1 if not corpo else _n_somado(corpo)
             cabecalho = self._blob_single.split("\n", 1)[0].encode("utf-8")
             n = _n_declarado(cabecalho)
             return n if n is not None else _n_somado(self._body[name])
@@ -621,8 +709,39 @@ class LazyTCF:
             _, width, stream = self._dict_parts(name, marcar=False)
             return len(stream) // width
         if mode == "tcf":
+            if name in self._emask:
+                # coluna com nulos (`.8H`): o corpo é DENSO (só os presentes) e a
+                # máscara tem uma marca POR LINHA; contar o corpo subcontava.
+                return _n_somado(self._emask[name])
             return _n_somado(self._body[name])
         return None
+
+    def _avisa_n_divergente(self) -> None:
+        """Cross-check BARATO de n_rows: compara as contagens estruturais de todas as
+        colunas que declaram uma, sem materializar valor nenhum. AVISO, não erro: a
+        laziness sem cross-check global é escolha documentada (BUG-05); o que deixa de
+        existir é o número CALADO sobre wire que um `decode()` completo recusaria.
+        `split` não declara contagem e fica de fora (limite já registrado no BUG-05)."""
+        if self._n_checado:
+            return
+        self._n_checado = True
+        counts: dict[str, object] = {}
+        for name in self._order:
+            try:
+                sc = self._structural_count(name)
+            except ValueError as e:        # slot dict/split corrompido: evidência aqui,
+                counts[name] = f"slot corrompido ({e})"   # o erro real sobe no acesso
+                continue
+            if sc is not None:
+                counts[name] = sc
+        if len(set(counts.values())) > 1:
+            import warnings
+            warnings.warn(
+                f"view: colunas com n_rows estruturais divergentes {counts} — blob "
+                f"truncado/corrompido; um decode() completo deste blob recusaria. "
+                f"A view segue lazy e responde pela leitura mais barata; valide com "
+                f"decode() (T-QA-8 BUG-05).",
+                UserWarning, stacklevel=4)
 
     @property
     def nrows(self) -> int:
@@ -634,6 +753,7 @@ class LazyTCF:
         contadores do core. Só o `split` não diz nada, e aí decodifica a coluna mais
         barata, que era o comportamento antigo para todos os modos.
         """
+        self._avisa_n_divergente()
         for modo in ("blob", "raw", "dict", "tcf"):
             for name in self._order:
                 if self._mode[name] != modo:

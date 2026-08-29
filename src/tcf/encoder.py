@@ -132,6 +132,10 @@ def _tabela_flat(data) -> bool:
     Precedencia flat (parecer 2340 §2): dict[str,list[str]] retangular preserva compat/bytes."""
     if not (isinstance(data, dict) and data):
         return False
+    if not all(isinstance(k, str) for k in data):
+        # chave nao-str -> .8H -> HierarchicalError tipado (D_json), por construcao;
+        # antes caia num TypeError cru dentro do meta do .8M
+        return False
     vals = list(data.values())
     if not all(isinstance(v, list) for v in vals):
         return False

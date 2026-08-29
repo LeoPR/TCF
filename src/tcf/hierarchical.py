@@ -22,9 +22,14 @@ Wire (ADR-0031, sem-espaço, LF-only):
     name{...}            objeto 1:1 (inline, mesmo bloco)
     name#:csize[...]     array de objetos (bloco filho; #csize = coluna de counts)
     name#:csize[]:asize  array de escalares (coluna name = elementos; #csize = counts)
-    name?:msize...       campo MASCARADO (P1 presença + P3a null): #msize = coluna-MÁSCARA,
-                         vem ANTES das colunas do campo. Alfabeto '.'=presente(valor não-nulo)
-                         '-'=ausente (P1) '0'=null (P3a). Corpo denso: só instâncias '.'.
+    name?:msize...       campo OPCIONAL (P1 presença, e P3a null quando opcional): #msize =
+                         coluna-MÁSCARA, vem ANTES das colunas do campo. Alfabeto
+                         '.'=presente(valor não-nulo) '-'=ausente (P1) '0'=null (P3a).
+                         Corpo denso: só instâncias '.'.
+    name?0:emsize:size   folha ESCALAR densa-com-nulos (2026-08-28): chave em TODAS as
+                         linhas, algum null. #emsize = element-mask 2-estados ('.'/'0', SEM
+                         '-'), antes do dado. Só folha escalar: objeto/array com null
+                         seguem '?:msize'. É o que separa tabela-com-nulos de ragged.
     name#:csize?:emsize[...]  array com ELEMENTOS mascarados (P3b): #emsize = element-mask
                          (2-estados '.'=valor '0'=null, SEM '-' — a posição existe via count),
                          entre count e '['. Ordem: count → emask → elementos densos.
@@ -268,7 +273,9 @@ def _derive_schema(records: list, depth: int = 0) -> list:
     keys = []                                    # união preservando ordem de aparição
     for r in records:
         for k in r:
-            if k not in keys:
+            if not isinstance(k, str):
+                _esc_name(k)                     # o erro TIPADO da chave (D_json), ANTES de
+            if k not in keys:                    # qualquer join/split de telemetria ou schema
                 keys.append(k)
     nodes = []
     for k in keys:
@@ -286,8 +293,17 @@ def _field_node(name, present: list, optional: bool, depth: int = 0):
     has_null = "null" in kinds
     non_null = kinds - {"null"}
     masked = optional or has_null                    # def-mask cobre AUSENTE ('-') e NULL ('0')
+    # ESCALAR denso-com-nulos (2026-08-28, divergência #6): nulo não é ausência. A
+    # chave presente em TODAS as linhas com algum `None` ganha a element-mask
+    # 2-estados ('.'/'0'), a MESMA dos arrays, em vez da mask 3-estados de campo
+    # opcional. É o que separa "tabela retangular com nulos" (consultável) de
+    # "ragged" (não-tabela) sem ler o corpo. Campo OPCIONAL segue com a mask
+    # 3-estados de sempre, nulos inclusos. tickets/BUG-VIEW-NULO-NO-HIERARQUICO.md
+    e_null_denso = (not optional) and has_null
     present_nn = [v for v in present if v is not None]
     if not non_null:                                 # só-null-quando-presente → escalar vazio
+        if e_null_denso:
+            return ("scalar", name, False, None, True, "s")
         return ("scalar", name, masked, None, False, "s")
     if len(non_null) > 1:
         raise HierarchicalError(
@@ -299,6 +315,8 @@ def _field_node(name, present: list, optional: bool, depth: int = 0):
     if kind == "array":
         elems = [e for arr in present_nn for e in arr]
         return _array_node(name, masked, elems, depth + 1)
+    if e_null_denso:
+        return ("scalar", name, False, None, True, _scalar_type(present_nn))
     return ("scalar", name, masked, None, False, _scalar_type(present_nn))              # P2: tipo do campo
 
 
@@ -354,6 +372,8 @@ def _leaves(schema: list, prefix=()):
         if masked:
             out.append((p, "mask"))
         if kind == "scalar":
+            if elem_null:                            # denso-com-nulos: emask ANTES do dado
+                out.append((p, "emask"))
             out.append((p, "scalar"))
         elif kind == "object":
             out += _leaves(kids, p)
@@ -479,18 +499,32 @@ def _encode_dataset(records: list, side_outputs=None, nature_per_col=None) -> st
                     f"spec aplica só a strings")
             nat_spec[(path, "scalar")] = spec
 
-    def _body(key):
+    def _body(key, child=None):
         """Body da coluna: nature (comprime + reusa codec flat) OU pipeline .8H normal."""
         if key in nat_spec and cols[key]:
             spec = nat_spec[key]
             raw = [_unesc_leaf(x) for x in cols[key]]          # recupera valor original (des-escapa)
             try:
-                fw = _encode_col(raw, schema=spec, stamp=False)  # '#TCF.8 :id\n<body>' (reusa flat)
-            except ValueError:                                 # spec não representa o valor (ex: LF
+                fw = _encode_col(raw, schema=spec, stamp=False,  # '#TCF.8 :id\n<body>' (reusa flat)
+                                 side_outputs=child)             # telemetria; bytes IDÊNTICOS (ADR-0014)
+            except ValueError as ex:                           # spec não representa o valor (ex: LF
                 nat_id.pop(key, None)                          # no raw, que o flat não carrega) → piso
                 # SÓ ValueError: o `except Exception` daqui engoliu o TypeError do corte
                 # do nature= e o spec sumia CALADO — a classe exata de bug
                 # que o fail-loud do projeto existe pra impedir.
+                # O DESCARTE avisa (não depende do opt-in de telemetria): o chamador
+                # declarou o spec e a coluna sai sem ele. Piso por FLOOR (abaixo) NÃO
+                # avisa: paridade com .8/.8M, que ali só contam used=False.
+                import warnings
+                warnings.warn(
+                    f"schema: spec {spec.name!r} descartado na coluna "
+                    f"{'/'.join(key[0])!r} do .8H: valor nao representavel no codec "
+                    f"flat ({ex}); coluna emitida sem nature", UserWarning, stacklevel=2)
+                if child is not None:
+                    child.nature_apply = {"val": {
+                        "spec": spec.name, "total": len(cols[key]), "compressible": 0,
+                        "apply_rate": 0.0, "by_status": {}, "used": False,
+                        "dropped": str(ex)}}
                 return _encode_col(cols[key], stamp=False)     # body ESCAPADO (idêntico ao caminho normal)
             hdr, _sep, body = fw.partition("\n")
             marker = "#TCF.8 :"
@@ -509,14 +543,23 @@ def _encode_dataset(records: list, side_outputs=None, nature_per_col=None) -> st
         bodies = {key: _body(key) for key in order}
     else:                                            # E3: canal de efeito colateral (aditivo;
         from tcf.side_outputs import SideOutputs     # bytes IDÊNTICOS com ou sem side_outputs)
-        bodies, per_col = {}, {}
+        bodies, per_col, nat_acc = {}, {}, {}
         for key in order:
             child = SideOutputs()
-            bodies[key] = _body(key)                 # nature-aware (bytes idênticos ao caminho normal)
+            bodies[key] = _body(key, child)          # nature-aware (bytes idênticos ao caminho normal)
             if key not in nat_spec and cols[key]:    # telemetria L1 só nas colunas sem nature
                 _encode_col(cols[key], side_outputs=child, stamp=False)
+            elif key in nat_spec and child.nature_apply:
+                # a telemetria que as OUTRAS famílias já dão (#15 da auditoria):
+                # stats do spec por coluna, com `used` = a verdade do meta.
+                stats = child.nature_apply["val"]
+                stats["used"] = key in nat_id
+                nat_acc["/".join(key[0])] = stats
+                child.nature_apply = None            # não duplicar no per_col
             per_col["/".join(key[0]) + ":" + key[1]] = child
         side_outputs.per_col = per_col
+        if nat_acc:
+            side_outputs.nature_apply = nat_acc
         ctrl = sum(1 for _p, k in order
                    if k == "mask" or k.startswith(("count", "emask")))
         side_outputs.hier_info = {
@@ -549,6 +592,9 @@ def _emit_row(obj: dict, children: list, prefix: tuple, cols: dict):
             continue
         v = obj[name]
         if v is None:                                              # NULL (P3a): máscara '0', sem corpo
+            if kind == "scalar" and elem_null:                     # denso-com-nulos: emask 2-estados
+                cols[(p, "emask")].append("0")
+                continue
             if not masked:                                         # derive marca masked se há null — guarda
                 raise HierarchicalError(f"null inesperado em {p}")
             cols[(p, "mask")].append("0")
@@ -558,6 +604,8 @@ def _emit_row(obj: dict, children: list, prefix: tuple, cols: dict):
         if kind == "scalar":
             if isinstance(v, (dict, list)):
                 raise HierarchicalError(f"tipo divergente em {p}: esperava escalar, veio {type(v).__name__}")
+            if elem_null:
+                cols[(p, "emask")].append(".")                     # presente na coluna densa
             cols[(p, "scalar")].append(_enc_scalar(v, stype))      # P2: str/number(json)/bool
         elif kind == "object":
             _emit_row(v, kids, p, cols)                            # inline (1:1); valida dict dentro
@@ -627,6 +675,8 @@ def _build_meta(schema: list, bodies: dict, order: list, nat_id=None) -> str:
             if masked:
                 head += "?" + csz(p, "mask")                       # '?:msize' (controle: nunca omite)
             if kind == "scalar":
+                if elem_null:                                      # denso-com-nulos: '?0:emsize'
+                    head += "?0" + csz(p, "emask")                 # (o '0' é o char de nulo da máscara)
                 parts.append(f"{head}{dsz(p, 'scalar', stype)}")   # P2: tag n/b após size (ou string)
             elif kind == "object":
                 parts.append(f"{head}{{{emit(kids, p)}}}")
@@ -792,15 +842,24 @@ def _parse_meta(meta: str):
                 raise HierarchicalError(f"campo duplicado {name!r} no header")
             seen.add(name)
             p = prefix + (name,)
-            masked = False
-            if i < n and meta[i] == "?":                  # campo MASCARADO (ausente '-' e/ou null '0')
-                masked = True
+            masked = e_null = False
+            if i < n and meta[i] == "?":
                 i += 1
-                order.append((p, "mask", msize()))
+                if i < n and meta[i] == "0":              # '?0': ESCALAR denso-com-nulos
+                    i += 1                                # (emask 2-estados; só folha escalar)
+                    e_null = True
+                    order.append((p, "emask", msize()))
+                else:                                     # '?': campo OPCIONAL (mask 3-estados)
+                    masked = True
+                    order.append((p, "mask", msize()))
             if i < n and meta[i] == "#":                  # array (recursivo por nível — P4a)
+                if e_null:                                # parse FECHADO: '?0' fora de folha escalar
+                    raise HierarchicalError(f"'?0' (emask escalar) em campo array {name!r}")
                 a = parse_array(p, 0, depth + 1)
                 nodes.append((a[0], name, masked, a[3], a[4], a[5]))
             elif i < n and meta[i] == "{":               # objeto 1:1
+                if e_null:
+                    raise HierarchicalError(f"'?0' (emask escalar) em campo objeto {name!r}")
                 i += 1
                 kids = seq("}", p, depth + 1)
                 if i < n and meta[i] == "}":
@@ -811,9 +870,9 @@ def _parse_meta(meta: str):
                 nid = snat()                              # nature id opcional (':id' após size)
                 if nid is not None:
                     nat_cols[(p, "scalar")] = nid
-                    nodes.append(("scalar", name, masked, None, False, "s"))
+                    nodes.append(("scalar", name, masked, None, e_null, "s"))
                 else:
-                    nodes.append(("scalar", name, masked, None, False, stag()))
+                    nodes.append(("scalar", name, masked, None, e_null, stag()))
         return nodes
 
     return seq(None, ()), order, nat_cols
@@ -956,6 +1015,13 @@ def _read_object(children: list, prefix: tuple, cols: dict, cur: dict) -> dict:
             if m != ".":
                 raise HierarchicalError(f"máscara inválida {m!r} em {p}")
         if kind == "scalar":
+            if elem_null:                                   # denso-com-nulos: emask 2-estados
+                m = _take(cols, cur, (p, "emask"))
+                if m == "0":
+                    obj[name] = None
+                    continue
+                if m != ".":                                # espelho exato do _read_array
+                    raise HierarchicalError(f"element-mask inválida {m!r} em {p}")
             obj[name] = _dec_scalar(_take(cols, cur, (p, "scalar")), stype)   # P2: str/number/bool
         elif kind == "object":
             obj[name] = _read_object(kids, p, cols, cur)

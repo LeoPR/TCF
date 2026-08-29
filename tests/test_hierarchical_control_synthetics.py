@@ -33,19 +33,24 @@ from fixtures.control_synthetics_h import (
 # ADR-0024: o seq-RLE ganhou FLOOR (so' compacta se ENCOLHER). 6 casos
 # DIMINUIRAM (c02/c03/c06/c07/c09/c12) porque em trechos sem cadencia o marcador `*N+d|`
 # custava mais que as linhas cruas. Melhora pura -- nenhum pino subiu.
+# RE-PIN 2026-08-28 (divergencia #6 da auditoria de consistencia, ADR-0024): coluna
+# ESCALAR densa-com-nulos passou a declarar '?0:' (emask 2-estados) em vez de '?:'
+# (mask 3-estados de campo opcional). +1 byte de META por coluna assim, controle e
+# folhas byte-identicos: c05 842->843 e c12 1453->1454, os UNICOS dois casos com nulo
+# denso. Motivo: a view distinguir tabela-com-nulos (consultavel) de ragged pelo header.
 PINS = {
     "c01-uniforme":          (798,  30,   0,  768, 0),
     "c02-telemetria-array":  (3132, 26,   8, 3098, 1),
     "c03-telemetria-split":  (2830, 43,   0, 2787, 0),
     "c04-ragged":            (685,  31,  78,  576, 1),
-    "c05-null-campo":        (842,  33,  90,  719, 1),
+    "c05-null-campo":        (843,  34,  90,  719, 1),
     "c06-null-elemento":     (1420, 40, 407,  973, 2),
     "c07-arrays-vazios":     (465,  25, 199,  241, 1),
     "c08-matriz":            (646,  27,  14,  605, 2),
     "c09-espinha":           (3218, 57, 237, 2924, 1),
     "c10-tipos-cadenciados": (1317, 34,   0, 1283, 0),
     "c11-categorico":        (1688, 21,   0, 1667, 0),
-    "c12-compose-total":     (1453, 75, 434,  944, 5),
+    "c12-compose-total":     (1454, 76, 434,  944, 5),
 }
 
 _CASES = gen_cases()

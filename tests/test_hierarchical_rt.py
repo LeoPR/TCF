@@ -869,10 +869,13 @@ def test_hier_nature_preserva_escape_no_piso():
 
 def test_hier_nature_valor_com_LF_degrada_pra_plain():
     # LF no valor não é representável no codec flat da nature ⇒ degrada p/ coluna .8H
-    # (que carrega LF via escape). RT intacto, sem :id no meta.
+    # (que carrega LF via escape). RT intacto, sem :id no meta. Desde 2026-08-28 o
+    # descarte AVISA (#15 da auditoria de consistência): o chamador declarou o spec
+    # e a coluna sai sem ele; silêncio aqui era spec sumindo calado.
     from tcf.natures import SPEC_CPF
     dados = [{"cpf": "a\nb"}, {"cpf": "c\nd"}]
-    com = encode(dados, schema={"cpf": SPEC_CPF})
+    with pytest.warns(UserWarning, match="descartado"):
+        com = encode(dados, schema={"cpf": SPEC_CPF})
     assert decode(com) == dados
     assert ":cpf" not in com.split("\n", 1)[0]
 
@@ -887,3 +890,75 @@ def test_hier_nature_path_invalido_fail_loud(path, motivo):
     dados = [{"ativo": True, "doc": {"x": "1"}, "nome": "Ana"}]
     with pytest.raises(HierarchicalError, match=motivo):
         encode(dados, schema={path: SPEC_CPF})
+
+
+
+# ---------------------------------------------------------------------------
+# Divergência #6 (2026-08-28): escalar denso-com-nulos ganha a emask 2-estados
+# ---------------------------------------------------------------------------
+
+
+def test_grafia_emask_escalar_denso_com_nulo():
+    # `?0:` = "chave presente em TODAS as linhas, com nulos"; `?:` segue sendo opcional
+    assert encode([{"a": "x"}, {"a": None}]).startswith("#TCF.8Ha?0:")
+    assert encode([{"a": 1}, {"b": 2}]).startswith("#TCF.8Ha?:")
+
+
+@pytest.mark.parametrize("dado", [
+    [{"a": "x"}, {"a": None}],
+    [{"a": None}],                                   # só nulo, denso: emask toda '0', corpo vazio
+    [{"a": 1.5}, {"a": None}, {"a": 2}],
+    [{"a": True}, {"a": None}],
+    [{"a": {"k": None}}, {"a": {"k": "v"}}],         # aninhado: o mesmo modelo, uma folha abaixo
+    [{"a": "x", "b": None}, {"a": None, "b": "y"}],
+])
+def test_denso_com_nulo_faz_rt(dado):
+    assert decode(encode(dado)) == dado
+
+
+def test_wire_velho_com_mask_3_estados_continua_legivel():
+    # leitura tolerante: a grafia `?` sem '-' no corpo era o que o encoder emitia até
+    # 2026-08-28 para este dado; só o ENCODE mudou de grafia (canonicidade preservada)
+    velho = "#TCF.8Hx?:5\n.\n\\0\nA\n"
+    assert decode(velho) == [{"x": "A"}, {"x": None}]
+
+
+@pytest.mark.parametrize("w", [
+    "#TCF.8Ha?0:3#:3[]:3\n.\n\\1\nx\n",              # '?0' em campo array
+    "#TCF.8Ha?0:3{k\n.\nx\n",                        # '?0' em campo objeto
+])
+def test_emask_escalar_fora_de_folha_escalar_e_corrupcao(w):
+    with pytest.raises(HierarchicalError, match=r"\?0"):
+        decode(w)
+
+
+def test_emask_escalar_com_char_invalido_fail_loud():
+    w = "#TCF.8Ha?0:2\n-\nx\n"                       # '-' não existe na emask 2-estados
+    with pytest.raises(HierarchicalError, match="element-mask"):
+        decode(w)
+
+
+def test_contraprova_ragged_e_sem_nulo_byte_identicos():
+    assert encode([{"a": 1}, {"b": 2}]) == "#TCF.8Ha?:4:3n,b?:4:3n\n.\n-\n\\1\n-\n.\n\\2\n"
+    assert encode([{"a": "x"}, {"a": "y"}]) == "#TCF.8Ha\nx\ny\n"
+
+
+def test_emask_escalar_em_array_de_objetos_e_com_spec():
+    # a mesma grafia uma folha abaixo (array de objetos) e ao lado de um `:id` de nature
+    d = [{"arr": [{"k": None}, {"k": 1}]}, {"arr": [{"k": 2}]}]
+    w = encode(d)
+    assert "k?0:" in w.split("\n", 1)[0]
+    assert decode(w) == d
+    ips = ["203.47.211.94", "178.54.193.67", "191.86.245.32", "159.203.74.89",
+           "187.109.33.46", "203.107.198.245"]
+    d2 = [{"c": v if i else None} for i, v in enumerate(ips)]
+    w2 = encode(d2, schema={"c": "ip"})
+    assert w2.split("\n", 1)[0].startswith("#TCF.8Hc?0:") and ":ip" in w2.split("\n", 1)[0]
+    assert decode(w2) == d2
+
+
+def test_chave_tuple_deixa_de_virar_coluna_calada():
+    # antes: `{(): ['a']}` virava coluna '0' e `{('x',): ['a']}` virava 'x', sem aviso
+    for k in ((), ("x",)):
+        with pytest.raises(HierarchicalError, match="chave de objeto deve ser str"):
+            encode({k: ["a"]})

@@ -748,7 +748,10 @@ class TestLote4ViewIncremental:
     def test_view_incremental_nrows_check(self):
         blob = encode({"a": ["xx", "yy"], "b": ["pp", "qq"]})
         v = view(blob[:-4])  # última col (EOF) truncada: parse lazy passa
-        assert v._col("a") == ["xx", "yy"]
+        # desde 2026-08-28 a 1ª materialização também emite o aviso estrutural (#12):
+        # as contagens das colunas já divergem antes de qualquer valor ser construído
+        with pytest.warns(UserWarning, match="n_rows estruturais divergentes"):
+            assert v._col("a") == ["xx", "yy"]
         with pytest.raises(ValueError, match="diverg|n_rows"):
             v._col("b")  # materializa 1 row vs 2 -> incremental pega
 
@@ -992,3 +995,25 @@ class TestNatureAntesDoCast:
         wire = encode({"c": list(range(1, 21))}, schema={"c": self._spec_largura_2()})
         with pytest.raises(ValueError, match="nature E tipo"):
             _decode_multi(wire)
+
+
+class TestChaveNaoStrMesmaPorta:
+    """#14(b) da auditoria de consistência (2026-08-28): `{1: ["x"]}` morria num
+    TypeError CRU dentro do meta do `.8M` ("argument of type 'int' is not iterable"),
+    enquanto `{1: {"a": ["x"]}}` recebia o erro tipado do `.8H` que ensina. O portão
+    do `.8M` agora para de reivindicar dict com chave não-str, e a mensagem sai UMA,
+    por construção, não por cópia."""
+
+    @pytest.mark.parametrize("k", [1, True, None])
+    def test_chave_nao_str_recebe_o_erro_tipado(self, k):
+        from tcf.hierarchical import HierarchicalError
+        with pytest.raises(HierarchicalError, match="chave de objeto deve ser str"):
+            encode({k: ["x"]})
+
+    def test_rota_8h_inalterada(self):
+        from tcf.hierarchical import HierarchicalError
+        with pytest.raises(HierarchicalError, match="chave de objeto deve ser str"):
+            encode({1: {"a": ["x"]}})
+
+    def test_contraprova_chave_str_numerica_continua_8M(self):
+        assert encode({"1": ["x"]}) == "#TCF.8M!1\nx"

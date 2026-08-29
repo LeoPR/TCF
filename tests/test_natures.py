@@ -1384,3 +1384,54 @@ class TestCnpjAlfanumerico:
                     alfabeto="ABCDEFGHIJKL")
         with pytest.raises(ValueError, match="insuficiente"):
             replace(SPEC_CNPJ, name="x3", wire_id="x3", encoded_length=7)
+
+
+
+class TestHierNatureTelemetria:
+    """#15 da auditoria de consistência (2026-08-28): o `.8H` era a única família onde
+    um spec descartado era invisível (`nature_apply` sempre `None`, zero aviso). Agora
+    tem a MESMA telemetria de `.8`/`.8M`, e o descarte por valor não representável
+    (LF) AVISA. Descarte por FLOOR não avisa: paridade com as outras duas, que ali
+    só contam `used=False`. Bytes idênticos com ou sem `side_outputs` (ADR-0014)."""
+
+    IPS = ["203.47.211.94", "178.54.193.67", "191.86.245.32", "159.203.74.89",
+           "187.109.33.46", "203.107.198.245"]
+
+    def test_spec_que_vence_e_contado(self):
+        import warnings
+        from tcf.side_outputs import SideOutputs
+        ds = [{"c": v} for v in self.IPS[:5]]
+        so = SideOutputs()
+        with warnings.catch_warnings():
+            warnings.simplefilter("error")
+            w = encode(ds, schema={"c": "ip"}, side_outputs=so)
+        assert ":ip" in w.split("\n", 1)[0]
+        assert so.nature_apply["c"]["used"] is True
+        assert so.nature_apply["c"]["total"] == 5
+        assert encode(ds, schema={"c": "ip"}) == w      # byte-neutro
+
+    def test_spec_derrubado_por_lf_avisa_e_conta(self):
+        from tcf.side_outputs import SideOutputs
+        suja = list(self.IPS)
+        suja[1] = "x\n5"                                 # o .8H aceita LF; o codec flat não
+        ds = [{"c": v} for v in suja]
+        so = SideOutputs()
+        with pytest.warns(UserWarning, match="descartado"):
+            w = encode(ds, schema={"c": "ip"}, side_outputs=so)
+        assert ":ip" not in w.split("\n", 1)[0]
+        assert so.nature_apply["c"]["used"] is False
+        assert "dropped" in so.nature_apply["c"]
+        assert decode(w) == ds                           # lossless intacto
+        with pytest.warns(UserWarning, match="descartado"):
+            assert encode(ds, schema={"c": "ip"}) == w   # avisa TAMBÉM sem side_outputs
+
+    def test_descarte_por_floor_conta_sem_avisar(self):
+        import warnings
+        from tcf.side_outputs import SideOutputs
+        ds = [{"doc": c} for c in ["52998224725", "15350946056", "11144477735"]]
+        so = SideOutputs()
+        with warnings.catch_warnings():
+            warnings.simplefilter("error")
+            w = encode(ds, schema={"doc": "cpf"}, side_outputs=so)
+        assert ":cpf" not in w.split("\n", 1)[0]
+        assert so.nature_apply["doc"]["used"] is False
