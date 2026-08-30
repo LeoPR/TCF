@@ -9,7 +9,7 @@
 [![CI](https://github.com/LeoPR/TCF/actions/workflows/ci.yml/badge.svg)](https://github.com/LeoPR/TCF/actions/workflows/ci.yml)
 ![Python](https://img.shields.io/badge/python-3.10+-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
-![Version](https://img.shields.io/badge/version-0.8.2%20(pré--1.0)-orange)
+![Version](https://img.shields.io/badge/version-0.8.3%20(pré--1.0)-orange)
 ![Format](https://img.shields.io/badge/format-%23TCF.8%20default-blue)
 
 > **E se desse pra transmitir a mesma tabela com bem menos bytes,
@@ -715,7 +715,7 @@ assert decode(blob) == tabela        # round-trip lossless
 Para CPF/CNPJ/IP há *natures* opt-in (ADR-0015, `encode(coluna, schema=SPEC_CPF)`)
 que regeneram o dígito verificador no decode.
 
-Pré-1.0 (ADR-0024): o pacote está em `0.8.2`; o *minor* acompanha o formato
+Pré-1.0 (ADR-0024): o pacote está em `0.8.3`; o *minor* acompanha o formato
 (`#TCF.8`) e o *patch* é contador de release, desacoplado do comportamento.
 
 ## First-time setup (dev)

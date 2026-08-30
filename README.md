@@ -6,7 +6,7 @@
 [![CI](https://github.com/LeoPR/TCF/actions/workflows/ci.yml/badge.svg)](https://github.com/LeoPR/TCF/actions/workflows/ci.yml)
 ![Python](https://img.shields.io/badge/python-3.10+-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
-![Version](https://img.shields.io/badge/version-0.8.2%20(pre--1.0)-orange)
+![Version](https://img.shields.io/badge/version-0.8.3%20(pre--1.0)-orange)
 ![Format](https://img.shields.io/badge/format-%23TCF.8%20default-blue)
 
 > **What if you could transmit the same table with far fewer bytes,
@@ -721,7 +721,7 @@ assert decode(blob) == tabela        # lossless round-trip
 For CPF/CNPJ/IP there are opt-in *natures* that regenerate the check digit on decode. Pass one
 with `encode(column, schema=SPEC_CPF)`; see ADR-0015.
 
-Pre-1.0 (ADR-0024): the package is at `0.8.2`. The *minor* tracks the format
+Pre-1.0 (ADR-0024): the package is at `0.8.3`. The *minor* tracks the format
 (`#TCF.8`) and the *patch* is a release counter, decoupled from behavior.
 
 ## First-time setup (dev)

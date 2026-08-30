@@ -1,6 +1,6 @@
 # TCF · Tabular Compact Format
 
-![Version](https://img.shields.io/badge/version-0.8.2%20(pre--1.0)-orange)
+![Version](https://img.shields.io/badge/version-0.8.3%20(pre--1.0)-orange)
 ![Format](https://img.shields.io/badge/format-%23TCF.8%20default-blue)
 ![Python](https://img.shields.io/badge/python-3.10+-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)

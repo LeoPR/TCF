@@ -21,6 +21,66 @@ compositional cycle in
 
 ---
 
+## 0.8.3 (2026-08-29): the three families answer the same question the same way
+
+An audit measured the three wire families (`#TCF.8`, `#TCF.8M`, `#TCF.8H`) along five axes
+and found them agreeing on clean, homogeneous data and disagreeing on almost every edge.
+This release closes that gap: seven welds, six bug tickets, and one change to what the
+encoder emits.
+
+**Read this first if you already have data on disk.** A `.8H` column that is *dense with
+nulls* (the key present in every row, some values `None`) now declares `?0:` instead of
+`?:`. Version 0.8.3 reads every wire 0.8.2 wrote; version 0.8.2 does **not** read this one,
+and fails loudly rather than reading it wrong. Nothing else about the wire changed, and the
+byte-canonical gates are untouched.
+
+**Mixed-type columns stop losing data silently.** A column mixing `int` and `str` used to
+pass through `#TCF.8M` and come back wrong: `[1, ""]` returned `[1, None]`, `[1, "1"]`
+collapsed both values into one, and `[1, "a"]` produced a wire the decoder itself could not
+read. The multi-column gate now uses the same homogeneity judge as `#TCF.8H`, so all three
+families refuse the same column, which is what the API reference already promised. Nine of
+thirty-nine routes changed verdict; the fourteen that round-tripped correctly are byte-identical.
+
+**Null is not absence, in the hierarchical family too.** `encode([{"a": "x"}, {"a": None}])`
+is a rectangular table, and the view refused it as ragged: the header spelled "key missing"
+and "key present, value null" the same way. The dense-with-nulls scalar column now carries
+a two-state element mask, the same one arrays already used, so the view can tell a table
+with nulls from a ragged one by the header alone. This is the emission change above.
+
+**The union column can be filtered on both sides.** In `#TCF.8bB` (bool and str together)
+the view read the tag at index 6 and declared the column pure bool, ignoring the `B` at
+index 7 that marks the union. Filtering by a string returned the boolean's row, or nothing,
+or raised. Four ways to ask are now available, and three of them already worked:
+`where(col, True)` for the boolean, `where(col, "true")` for the string as it is, and
+`pred=` for the semantic and case-insensitive sets.
+
+**A mixed column now says so.** The union route emitted the wire silently, while the same
+column is refused as a `dict` and as a dataset: the same data passed or not depending on
+how it was written. It warns now, counting each type.
+
+**Four more places where the view answered about a table that does not exist**: a `#O` with
+columns of different lengths was accepted and then accused an intact blob of being corrupt;
+a magic-less wire (`stamp=False`) was refused though `decode` reads it; a zero-row column
+invented a `''`; and a truncated wire got a silent row count where a full `decode` would
+refuse. The last one now warns instead of going quiet.
+
+**Errors that teach.** The mixed-type message named a family the caller never invoked,
+cited a date (none of the other 210 messages in the package do), and named neither the
+column nor the value (182 of 211 do). It now names both and, more importantly, says what
+each of the two ways out costs: separating by type preserves the type but scrambles the
+order when types are interleaved, and converting to string preserves the order but erases
+the type and merges values that differed only by it. A non-`str` dict key stops raising a
+raw `TypeError` and gets the typed error the hierarchical route already had.
+
+**Also**: the `.8H` gained the spec telemetry the other two families already had, and warns
+when a spec is dropped because a value cannot be represented; the view undoes leaf escaping
+in `.8H`, so text columns holding a backslash or CR are read as the data, not as the escape.
+
+Suite: 1693 tests. Byte-canonical gates: 33, unchanged. Two navigation pins re-pinned
+(`c05` 842→843, `c12` 1453→1454), both `.8H` synthetics with a dense-with-nulls column.
+
+---
+
 ## 0.8.2 (2026-08-25): the view learns to read the structure
 
 Ten welds on top of 0.8.1, all in the read-only query layer except one, which does change

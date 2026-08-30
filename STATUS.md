@@ -15,6 +15,7 @@ no [`CHANGELOG.md`](CHANGELOG.md), nos [ADRs](docs/adr/README.md) e no diário
 | | |
 |---|---|
 | **publicado** | `tcf-format 0.8.2` no PyPI (25/08, via Trusted Publishing) · tag `v0.8.2` |
+| **preparado** | `0.8.3` no repo (versão, CHANGELOG e índices); tag e push aguardam go do owner |
 | **formato** | `#TCF.8` default: `.8M` multi-col · `.8H` hierárquico · rota tipada · single-col |
 | **ciclo aberto** | **`.9`**: otimização **e** integração com armazenamento |
 | **números vivos** | nos TESTES, não aqui: `pytest -q` |
@@ -56,9 +57,14 @@ evidência medida em
 união bool+str, LF/CR, FLOOR do spec, spec em coluna tipada (a seta da auditoria estava
 invertida), kwargs engolidos no flat de string e `decode(schema=)` ignorado.
 
-**A `0.8.2` publicada contém os defeitos das ondas 0 a 7.** A correção muda comportamento
-visível: entrada mista que passava calada agora levanta, e o wire do `.8H` com nulo denso
-mudou de grafia.
+**A `0.8.2` publicada contém os defeitos das ondas 0 a 7**, e a `0.8.3` preparada os
+corrige. A atualização muda comportamento visível: entrada mista que passava calada agora
+levanta, e o wire do `.8H` com nulo denso mudou de grafia.
+
+Compatibilidade, medida nos dois sentidos: a `0.8.3` lê **tudo** que a `0.8.2` emitiu; a
+`0.8.2` **não** lê o `.8H` denso-com-nulos da `0.8.3`, e falha alto em vez de ler errado.
+ADR-0024: minors pré-1.0 não carregam garantia entre si, e o leitor antigo recusar é o
+comportamento certo diante de grafia que ele não conhece.
 
 ## Onde achar o quê
 
