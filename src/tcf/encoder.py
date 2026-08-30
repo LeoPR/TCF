@@ -239,7 +239,12 @@ def _encode_lazy_bool(data, side: SideOutputs | None = None) -> "str | None":
         if type(x) is str and x not in vistos:
             vistos.add(x)
             extras.append(x)
-    if any("\n" in e for e in extras):
+    # QUEBRA DE LINHA no extra: o wire e' LF-only (AGENTS §wire, output-convention), e o
+    # dominio do `bB` grava o extra LITERAL, uma linha por valor. O check era so' de LF, e
+    # o CR passava: `encode([True, "a\rb"])` gravava o byte 0d cru no wire, com round-trip
+    # exato mas fora da convencao canonica. As rotas irmas ja' recusavam CR (single e
+    # multi) ou o escapavam (`.8H`); esta era a unica porta aberta.
+    if any("\n" in e or "\r" in e for e in extras):
         return None
     import base64
 

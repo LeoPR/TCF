@@ -11,6 +11,8 @@ related:
   - docs/reference/lazy-view.pt-BR.md
   - docs/how-to/mimetizar-pandas-sql-polars.md
   - docs/adr/0039-lazytype-bool-cabeca-congelada-extras.md
+      - tickets/T-QA-083-REVALIDACAO.md
+      - experiments/lab/dirty/2026-08/2026-08-29/2026-08-29-2320-revalidacao-083-evidencia/
 ---
 
 # T-DOC-TIPOS-MISTOS
@@ -39,9 +41,18 @@ resultado de cada uma conferido por execução, como as receitas TCF já são.
 - [ ] A coluna comparativa da página de mímica preenchida, com cada resultado obtido por
       execução da ferramenta de origem, não de memória.
 - [ ] As três seções reescritas com intenção didática: hoje elas registram, não ensinam.
+- [ ] Nenhuma página viva conserva `Post-it`, data de correção ou narrativa “até 0.8.3”; carrega
+      somente o comportamento vigente, conforme I1.
 - [ ] Um exemplo por modo de consulta que mostre a **pergunta** que aquele modo responde.
 - [ ] Nenhuma das três referencia o dirty lab: o lab é histórico, a documentação carrega o
       presente.
+
+## Evidência pós-fix
+
+O lab de revalidação executa a mesma coluna bool+str nas três famílias e grava input, wire,
+round-trip e recusas. Também varre as três páginas deste ticket e materializa cinco ocorrências
+dirigidas de cronologia/Post-it em `outputs/superficie.observacao.json`. Isso sustenta o critério
+I1 acima; o texto final não deve citar o lab, apenas cumprir o contrato que ele verificou.
 
 ## Um resto que apareceu junto
 

@@ -199,7 +199,10 @@ def _scalar_type(values: list, name: str | None = None) -> str:
             raise HierarchicalError(f"valor escalar de tipo não suportado: {type(v).__name__}")
     if len(ts) > 1:
         _NOME = {"b": "bool", "n": "number", "s": "string"}
-        _onde = f"coluna {name!r}: " if name else ""
+        # `is not None`, não truthiness: `""` é nome de coluna VÁLIDO (ADR-0046), e tratá-lo
+        # como ausência tirava a identidade do diagnóstico justamente na borda. Quem não tem
+        # coluna nenhuma (lista solta) chega aqui com `None`, posto pelo envelope da raiz.
+        _onde = f"coluna {name!r}: " if name is not None else ""
         _achados = ", ".join(f"{_NOME[t]} (ex.: {v!r})" for t, v in sorted(ts.items()))
         raise HierarchicalError(
             f"{_onde}tipos escalares MISTOS, {_achados}. {_P5_HINT}")
@@ -279,7 +282,7 @@ def _dec_scalar(s: str, stype: str):
     return _unesc_leaf(s)                  # string: desfaz o escape de `\`/LF (estrito)
 
 
-def _derive_schema(records: list, depth: int = 0) -> list:
+def _derive_schema(records: list, depth: int = 0, anon: bool = False) -> list:
     """Schema robusto: união de chaves (ordem de 1ª aparição), presença por campo, e
     validação de TIPO HONESTA — campo com tipos ESTRUTURAIS mistos (scalar/object/array)
     ou `null` é fail-loud (fora da classe; P2 tipos / P3 null), NUNCA str()-engolido.
@@ -303,14 +306,25 @@ def _derive_schema(records: list, depth: int = 0) -> list:
     for k in keys:
         present = [r[k] for r in records if k in r]
         optional = len(present) < len(records)   # deduzido do dado (como todo o header)
-        nodes.append(_field_node(k, present, optional, depth))
+        # `rotulo` é o nome PARA MENSAGEM DE ERRO, e nem sempre é o nome do campo: a raiz
+        # não-dict é embrulhada em `[{"": data}]` (envelope `#V`), então uma lista solta
+        # chega aqui com a chave `""` igualzinho a `{"": [...]}`, que é coluna de nome
+        # vazio LEGÍTIMA (ADR-0046). Só o chamador sabe a diferença, e é ele que a passa.
+        rotulo = None if (anon and depth == 0 and k == "") else k
+        nodes.append(_field_node(k, present, optional, depth, rotulo))
     return nodes
 
 
-def _field_node(name, present: list, optional: bool, depth: int = 0):
+def _field_node(name, present: list, optional: bool, depth: int = 0, rotulo=...):
     """P3a: null em CAMPO (máscara '0'). P3b: null em ELEMENTO de array (element-mask 2-estados,
     flag `elem_null`). kind vem dos NÃO-nulos; all-null → escalar vazio. Tipos mistos = fail-loud.
-    nó: (kind, name, masked, kids, elem_null)."""
+    nó: (kind, name, masked, kids, elem_null).
+
+    `rotulo` é o nome usado na MENSAGEM de erro; `...` significa "o próprio name". O envelope
+    da raiz não-dict passa `None`, para a lista solta não ganhar uma coluna que ela não tem.
+    """
+    if rotulo is ...:
+        rotulo = name
     kinds = {_kind_of(v) for v in present}
     has_null = "null" in kinds
     non_null = kinds - {"null"}
@@ -336,10 +350,10 @@ def _field_node(name, present: list, optional: bool, depth: int = 0):
         return ("object", name, masked, _derive_schema(present_nn, depth + 1), False, "s")
     if kind == "array":
         elems = [e for arr in present_nn for e in arr]
-        return _array_node(name, masked, elems, depth + 1)
+        return _array_node(name, masked, elems, depth + 1, rotulo)
     if e_null_denso:
-        return ("scalar", name, False, None, True, _scalar_type(present_nn, name))
-    return ("scalar", name, masked, None, False, _scalar_type(present_nn, name))        # P2: tipo do campo
+        return ("scalar", name, False, None, True, _scalar_type(present_nn, rotulo))
+    return ("scalar", name, masked, None, False, _scalar_type(present_nn, rotulo))        # P2: tipo do campo
 
 
 _MAX_DEPTH = 128         # cap de profundidade estrutural TOTAL — objetos E arrays, encode E parse
@@ -348,7 +362,7 @@ _MAX_ARRAY_DEPTH = _MAX_DEPTH   # alias histórico (P4a); auditoria do escape un
 # por-array (RecursionError cru a ~331 com o limite nunca disparando). Um contador TOTAL fecha os 3.
 
 
-def _array_node(name, masked, elems, depth=0):
+def _array_node(name, masked, elems, depth=0, rotulo=...):
     """Nó de ARRAY com spec de ELEMENTO recursiva (P4a): elemento ∈ {scalar, object, array}.
     Elemento-array → kind 'arr_arrays', cujo `kids` é o nó ANÔNIMO (name='') do nível interno —
     o count recursivo: cada nível de aninhamento tem sua própria coluna de counts (+emask).
@@ -377,7 +391,7 @@ def _array_node(name, masked, elems, depth=0):
             )
         return ("arr_objects", name, masked, kids, elem_null, "s")
     return ("arr_scalars", name, masked, None, elem_null,
-            _scalar_type(elems_nn, name))                                     # vazio/all-null aqui
+            _scalar_type(elems_nn, name if rotulo is ... else rotulo))                                     # vazio/all-null aqui
 
 
 def _sfx(lvl: int) -> str:
@@ -463,7 +477,8 @@ def _encode_root(data, so, nat=None) -> str:
         if any(isinstance(r, dict) for r in data):                   # misto dict+valor
             raise HierarchicalError(
                 "raiz lista MISTA (objetos e valores) — fora da classe (P5 union)")
-        return _encode_dataset([{"": data}], _mark(so, "V"), nat).replace(MAGIC, MAGIC + "#V", 1)
+        return _encode_dataset([{"": data}], _mark(so, "V"), nat,
+                           anon=True).replace(MAGIC, MAGIC + "#V", 1)
     if isinstance(data, dict):
         if data:
             return _encode_dataset([data], _mark(so, "O"), nat).replace(MAGIC, MAGIC + "#O", 1)
@@ -471,7 +486,8 @@ def _encode_root(data, so, nat=None) -> str:
         if so is not None:
             so.hier_info.update(n_records=1, n_cols=0, cols={"controle": 0, "dado": 0}, fields=[])
         return MAGIC + "#E\n"                                        # {} = definição
-    return _encode_dataset([{"": data}], _mark(so, "V"), nat).replace(MAGIC, MAGIC + "#V", 1)
+    return _encode_dataset([{"": data}], _mark(so, "V"), nat,
+                           anon=True).replace(MAGIC, MAGIC + "#V", 1)
 
 
 def _scalar_leaf_specs(schema, prefix=()):
@@ -487,8 +503,9 @@ def _scalar_leaf_specs(schema, prefix=()):
     return out
 
 
-def _encode_dataset(records: list, side_outputs=None, nature_per_col=None) -> str:
-    schema = _derive_schema(records)
+def _encode_dataset(records: list, side_outputs=None, nature_per_col=None,
+                    anon: bool = False) -> str:
+    schema = _derive_schema(records, anon=anon)
     order = _leaves(schema)
     if not order:                                # nenhuma coluna -> nº de registros irrepresentável
         # BORDA CONTAGEM-VAZIO (problema B): os registros TÊM campos, mas

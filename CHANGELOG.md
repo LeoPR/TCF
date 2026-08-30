@@ -21,18 +21,48 @@ compositional cycle in
 
 ---
 
-## 0.8.3 (2026-08-29): the three families answer the same question the same way
+## 0.8.3 (2026-08-29): the edges stop disagreeing across families
+
+> **Errata (2026-08-29, after publication).** Three claims in this entry were wider than the
+> evidence, and are corrected below with the measurement that settles each one. The text is
+> corrected in place rather than appended to, because a reader deciding whether to upgrade
+> reads the entry, not its footnotes; what the errata preserves is the fact that they were
+> wrong. (1) The title promised that the three families answer alike, which overstates: the
+> bool+str union is still accepted by the single-column route and refused by `.8M` and
+> `.8H`, by decision, not by oversight. (2) The entry said one emission change and *nothing
+> else*; there are **two**. (3) It said 0.8.3 reads every 0.8.2 wire, which holds for
+> `decode` and not for `view`. Raised by the owner in `T-DOC-RELEASE-083-SUPERFICIE`.
 
 An audit measured the three wire families (`#TCF.8`, `#TCF.8M`, `#TCF.8H`) along five axes
 and found them agreeing on clean, homogeneous data and disagreeing on almost every edge.
-This release closes that gap: seven welds, six bug tickets, and one change to what the
-encoder emits.
+This release closes that gap on the edges: seven welds, six bug tickets, and two changes to
+what the encoder emits. It does not make the three families equivalent in capability, and
+does not try to: the bool+str union stays a single-column capability
+([ADR-0039](docs/adr/0039-lazytype-bool-cabeca-congelada-extras.md)).
 
-**Read this first if you already have data on disk.** A `.8H` column that is *dense with
-nulls* (the key present in every row, some values `None`) now declares `?0:` instead of
-`?:`. Version 0.8.3 reads every wire 0.8.2 wrote; version 0.8.2 does **not** read this one,
-and fails loudly rather than reading it wrong. Nothing else about the wire changed, and the
-byte-canonical gates are untouched.
+**Read this first if you already have data on disk.** Two emission changes, both measured:
+
+| input | 0.8.2 | 0.8.3 |
+|---|---|---|
+| `.8H` column dense with nulls (key in every row, some `None`) | `#TCF.8Ha?:5`, 19 B | `#TCF.8Ha?0:5`, 20 B |
+| `{"v": []}` (named column, zero rows) | `#TCF.8H#Ov#:3[`, 18 B | `#TCF.8M@v`, 12 B |
+
+Both round-trip exactly in both versions, so neither is a regression; they are changes in
+which wire the encoder chooses. The byte-canonical gates are untouched.
+
+Compatibility, stated per surface because the two surfaces differ:
+
+| | `decode` | `view` |
+|---|---|---|
+| 0.8.3 reading a 0.8.2 wire | reads the eight cases measured, including the dense-with-nulls one | **refuses** the dense-with-nulls one, as 0.8.2's own view did |
+| 0.8.2 reading a 0.8.3 wire | **refuses** the dense-with-nulls one, failing loudly rather than reading it wrong | same |
+
+The `view` line is the point of the change: the old spelling could not tell "key missing"
+from "key present, value null" by the header, so the view refused the whole table. 0.8.3
+fixes that going forward, not retroactively, because the information is not in the old wire.
+
+These four cells are what was measured, on eight representative wires. They are not a claim
+about every wire the two versions can produce.
 
 **Mixed-type columns stop losing data silently.** A column mixing `int` and `str` used to
 pass through `#TCF.8M` and come back wrong: `[1, ""]` returned `[1, None]`, `[1, "1"]`

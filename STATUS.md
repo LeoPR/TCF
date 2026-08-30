@@ -14,8 +14,7 @@ no [`CHANGELOG.md`](CHANGELOG.md), nos [ADRs](docs/adr/README.md) e no diário
 
 | | |
 |---|---|
-| **publicado** | `tcf-format 0.8.2` no PyPI (25/08, via Trusted Publishing) · tag `v0.8.2` |
-| **preparado** | `0.8.3` no repo (versão, CHANGELOG e índices); tag e push aguardam go do owner |
+| **publicado** | `tcf-format 0.8.3` no PyPI (29/08, via Trusted Publishing) · tag `v0.8.3` |
 | **formato** | `#TCF.8` default: `.8M` multi-col · `.8H` hierárquico · rota tipada · single-col |
 | **ciclo aberto** | **`.9`**: otimização **e** integração com armazenamento |
 | **números vivos** | nos TESTES, não aqui: `pytest -q` |
@@ -57,14 +56,15 @@ evidência medida em
 união bool+str, LF/CR, FLOOR do spec, spec em coluna tipada (a seta da auditoria estava
 invertida), kwargs engolidos no flat de string e `decode(schema=)` ignorado.
 
-**A `0.8.2` publicada contém os defeitos das ondas 0 a 7**, e a `0.8.3` preparada os
-corrige. A atualização muda comportamento visível: entrada mista que passava calada agora
-levanta, e o wire do `.8H` com nulo denso mudou de grafia.
+As ondas 0 a 7 saíram na **`0.8.3`** (29/08). A atualização muda comportamento visível:
+entrada mista que passava calada agora levanta, e há **duas** mudanças de emissão, o `.8H`
+com nulo denso (`?:` → `?0:`) e o `{"v": []}` (`.8H#O` de 18 B → `.8M@` de 12 B).
 
-Compatibilidade, medida nos dois sentidos: a `0.8.3` lê **tudo** que a `0.8.2` emitiu; a
-`0.8.2` **não** lê o `.8H` denso-com-nulos da `0.8.3`, e falha alto em vez de ler errado.
-ADR-0024: minors pré-1.0 não carregam garantia entre si, e o leitor antigo recusar é o
-comportamento certo diante de grafia que ele não conhece.
+Compatibilidade, medida **por superfície**, porque as duas diferem: no `decode`, a `0.8.3`
+lê os oito wires medidos da `0.8.2` e a `0.8.2` recusa o denso-com-nulos da `0.8.3`; na
+`view`, o denso-com-nulos da `0.8.2` é recusado pelas **duas** versões, porque a informação
+que falta não está naquele wire. ADR-0024: minors pré-1.0 não carregam garantia entre si, e
+o leitor antigo recusar é o comportamento certo diante de grafia que ele não conhece.
 
 ## Onde achar o quê
 
@@ -103,7 +103,7 @@ estrutural, polaridade, bN de domínio, seq-RLE. Round-trip é o contrato: **ou 
 byte, ou falha alto**. Sem dependências de runtime.
 
 Formato vigente `#TCF.8` ([ADR-0032](docs/adr/0032-tcf8-default-format.md)); pacote
-`tcf-format 0.8.2`. Pré-1.0 ([ADR-0024](docs/adr/0024-pre-1.0-versioning-git-as-compat.md)): os
+`tcf-format 0.8.3`. Pré-1.0 ([ADR-0024](docs/adr/0024-pre-1.0-versioning-git-as-compat.md)): os
 minors são iterações de desenvolvimento, **sem compatibilidade rígida entre eles**: versão
 antiga se recupera pelo git. O congelamento definitivo é ato do 1.0.
 

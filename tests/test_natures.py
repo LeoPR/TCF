@@ -1331,7 +1331,7 @@ class TestCnpjAlfanumerico:
 
     # --- ADR-0045: bordas -------------------------------------------------
     def test_lf_final_nao_e_mais_engolido(self):
-        """O `$` da regex casava ANTES de um LF final; o filtro de simbolos
+        r"""O `$` da regex casava ANTES de um LF final; o filtro de simbolos
         descartava o LF e o valor voltava SEM ele — RT quebrado, silencioso.
         Trocado por `\Z`. Atingia CPF, CNPJ e IP nao-padded; `data-iso` escapava
         por checar o comprimento."""

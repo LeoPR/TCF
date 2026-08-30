@@ -13,8 +13,8 @@
 ## Estado
 
 Formato `#TCF.8` default ([ADR-0032](docs/adr/0032-tcf8-default-format.md)); pacote
-`0.8.2` publicado no PyPI (`tcf-format`), tag `v0.8.2`. A `0.8.3` está **preparada no
-repo**, com a revisão de consistência das três famílias; a tag e o push aguardam o go.
+`0.8.3` publicado no PyPI (`tcf-format`), tag `v0.8.3`, com a revisão que alinhou as bordas
+das três famílias.
 
 Os números byte-canônicos vivem nos testes que os medem
 ([`test_regression_v1_baseline.py`](tests/test_regression_v1_baseline.py) e
@@ -52,7 +52,7 @@ string e `decode(schema=)` ignorado. `src/tcf` continua sob aprovação explíci
 
 ## Ciclo `.9`: aberto 2026-08-23, com base medida
 
-O `.8` está **publicado e funcionando** (`tcf-format 0.8.2` no PyPI). O `.9` não é só
+O `.8` está **publicado e funcionando** (`tcf-format 0.8.3` no PyPI). O `.9` não é só
 performance: são **três eixos**, e o que os une é que agora há **medição de onde partir**,
 não intuição.
 

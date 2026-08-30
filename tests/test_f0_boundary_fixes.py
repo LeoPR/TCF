@@ -1,4 +1,4 @@
-"""T-QA-8 F0 lote 1 — repros pinados dos BUG-01/02/07 (red->green).
+r"""T-QA-8 F0 lote 1 — repros pinados dos BUG-01/02/07 (red->green).
 
 Decisões do owner:
 - BUG-01: nome de coluna '' é um NOME VAZIO — sai no meta como `\z` (ADR-0046) e volta
@@ -17,6 +17,7 @@ import warnings
 import pytest
 
 from tcf import decode, encode, view
+from tcf.hierarchical import HierarchicalError
 from tcf.side_outputs import SideOutputs
 
 # Colunas de controle com modo PREVISÍVEL no min(tcf, raw, dict, split):
@@ -802,7 +803,7 @@ class TestLote4InternalInvariants:
 
 
 class TestNomeVazioPreservadoADR0046:
-    """Fecha o BUG-CHAVE-VAZIA-POSICIONAL — o único caso em que o TCF ALTERAVA o dado.
+    r"""Fecha o BUG-CHAVE-VAZIA-POSICIONAL — o único caso em que o TCF ALTERAVA o dado.
 
     A causa era uma COLISÃO de grafia: `encode({"": [...]})` produzia o MESMO wire que
     `encode({"x": [...]}, drop_names=True)`. O `.8H` já resolvia com o sentinela `\z`
@@ -1018,3 +1019,78 @@ class TestChaveNaoStrMesmaPorta:
 
     def test_contraprova_chave_str_numerica_continua_8M(self):
         assert encode({"1": ["x"]}) == "#TCF.8M!1\nx"
+
+
+class TestBBSemCRCru:
+    """BUG-BB-CR-CRU: o wire é LF-only, e a rota `#TCF.8bB` gravava o byte 0d cru quando
+    um extra continha CR. O guard testava `"\n" in e` e não `"\r"`; as rotas irmãs já
+    recusavam CR (single, multi) ou o escapavam (`.8H`), então era a única porta aberta.
+    Round-trip era exato: o defeito é de canonicidade, não de perda de dado."""
+
+    def test_cr_no_extra_nao_emite_byte_cru(self):
+        with pytest.raises(ValueError):                  # cai no .8H, que fail-loud na união
+            encode([True, "a\rb"])
+
+    @pytest.mark.parametrize("quebra", ["\r", "\n", "\r\n", "a\rb\nc"])
+    def test_qualquer_quebra_no_extra_recusa(self, quebra):
+        with pytest.raises(ValueError):
+            encode([True, f"x{quebra}y"])
+
+    def test_nenhum_wire_bB_carrega_CR_ou_LF_cru(self):
+        # varredura: o corpo do `bB` grava o extra literal, uma linha por valor
+        for extra in ["x", "", " ", "a b", "\t", "é", "\\", "=", "*", "~", "|", "#TCF.8"]:
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore")
+                w = encode([True, extra, False])
+            b = w.encode("utf-8")
+            assert b"\r" not in b, f"CR cru com extra {extra!r}: {w!r}"
+            assert b.count(b"\n") == w.count("\n")       # só os LF de framing
+
+    def test_contraprova_as_outras_familias_nao_mudam(self):
+        with pytest.raises(ValueError, match="quebra de linha"):
+            encode(["a\rb"])                             # single-col string
+        with pytest.raises(ValueError, match="quebra de linha"):
+            encode({"v": ["a\rb"]})                      # multi-col
+        d = [{"v": "a\rb"}]                              # hierárquico: escapa, não grava cru
+        w = encode(d)
+        assert b"\r" not in w.encode("utf-8") and decode(w) == d
+
+    def test_contraprova_extra_sem_quebra_segue_exato(self):
+        for d in ([True, "x"], [True, "a", False, "b"], [True, ""], [True, "N/A", None]):
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore")
+                w = encode(d)
+            assert w.split("\n", 1)[0].startswith("#TCF.8bB")
+            assert decode(w) == d
+
+
+class TestMensagemNomeiaColunaDeNomeVazio:
+    """BUG-MENSAGEM-COLUNA-VAZIA-MISTA: `""` é nome de coluna válido (ADR-0046), e o
+    fail-loud o tratava como ausência de nome, porque o prefixo usava truthiness.
+
+    A correção precisa distinguir dois casos que chegavam iguais: a raiz não-dict é
+    embrulhada em `[{"": data}]` (envelope `#V`), então uma lista solta chega com a mesma
+    chave `""` de um `{"": [...]}` legítimo. Quem sabe a diferença é o `_encode_root`, e
+    agora é ele que a informa."""
+
+    def test_nome_vazio_aparece_no_diagnostico(self):
+        with pytest.raises(HierarchicalError) as ei:
+            encode({"": [1, "x"]})
+        assert str(ei.value).startswith("coluna '':")
+
+    def test_lista_anonima_nao_inventa_coluna(self):
+        for entrada in ([1, "x"], [1, "a", 2], [True, 1]):
+            with pytest.raises(HierarchicalError) as ei:
+                encode(entrada)
+            assert not str(ei.value).startswith("coluna"), str(ei.value)[:60]
+
+    def test_coluna_nomeada_inalterada(self):
+        with pytest.raises(HierarchicalError) as ei:
+            encode({"v": [1, "x"]})
+        assert str(ei.value).startswith("coluna 'v':")
+
+    @pytest.mark.parametrize("dado", [
+        {"": [1, 2]}, {"": ["a", "b"]}, [{"": 1}, {"": 2}], {"": [1, 2], "v": [3, 4]},
+    ])
+    def test_contraprova_nome_vazio_homogeneo_faz_rt(self, dado):
+        assert decode(encode(dado)) == dado

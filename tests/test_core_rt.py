@@ -428,7 +428,7 @@ class TestRTEdges:
 
 
 class TestBug15CaretLeadingLiteral:
-    """BUG-15 (achado 2026-07-12 pelo RT counter-proof do lab spec-camadas): um
+    r"""BUG-15 (achado 2026-07-12 pelo RT counter-proof do lab spec-camadas): um
     literal começando com '^' (marcador de ref do HCC) quebrava o RT em modo
     tcf/dict — o decode lia a linha como '^eid' (crash em não-dígito, corrupção
     SILENCIOSA em dígito). O '*'-líder já era escapado (`\*`); o '^'-líder não.
