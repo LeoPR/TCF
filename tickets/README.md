@@ -15,6 +15,10 @@
 > registro; não abra ticket paralelo (Strata §5, autoridade única).
 
 
+> **Procurando o ESTADO de um ticket?** [`ESTADO.md`](ESTADO.md) lista todos por situação
+> (bloqueado, em curso, aberto, fechado, parado), gerado do frontmatter. Esta página é outra
+> coisa: a curadoria por TEMA, com o histórico de cada linha de trabalho.
+
 Tickets de planejamento + acompanhamento do projeto. Cada ticket tem
 status (`open` / `in-progress` / `closed`), criterios de aceite, e
 referencias a commits que o resolveram.

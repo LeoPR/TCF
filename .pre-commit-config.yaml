@@ -60,3 +60,12 @@ repos:
         language: system
         always_run: true
         pass_filenames: false
+
+      # `tickets/ESTADO.md` e' GERADO do frontmatter. So' denuncia, nao regrava: quem
+      # mudou o `status:` de um ticket roda o script e ve' o indice no mesmo commit.
+      - id: ticket-index
+        name: tickets/ESTADO.md em dia com o frontmatter
+        entry: python scripts/ticket_index.py --check
+        language: system
+        files: '^tickets/.*\.md$'
+        pass_filenames: false

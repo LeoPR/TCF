@@ -71,7 +71,8 @@ TCF/
 │           ├── welded/ ... pos-canonical welded em src/tcf/
 │           └── refuted/ .. pos-canonical refutados/insufficient-gain
 │
-└── tickets/, tests/
+└── tickets/  .. ESTADO.md = situação de cada um (gerado); README.md = curadoria por tema
+    tests/
 ```
 
 ## "Quero fazer X": onde olhar
