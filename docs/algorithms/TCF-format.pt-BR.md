@@ -548,7 +548,7 @@ para LLMs lerem tabelas (Sui 2024 review).
 - O TCF comprime **estrutura de coluna**, não legibilidade por LLM: as duas
   coisas se cruzam, mas o critério de projeto aqui é byte e roundtrip.
 - O estudo de leitura por LLM que o projeto conduziu está em
-  [`docs/findings/`](../findings/) (Q01-Q38) e é **acessório** ao core.
+  [`docs/archive/findings/`](../archive/findings/) (Q01-Q38) e é **acessório** ao core.
 
 ## Diferenciais agregados
 

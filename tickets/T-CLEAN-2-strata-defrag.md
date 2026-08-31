@@ -58,7 +58,7 @@ localizada**, sem reorganização estrutural.
       (o quê/quando/porquê/sob que autoridade), a consolidação ficou pela metade sem a lápide.
 - [ ] **DB-4 [§2]** `MAP.md` refresh: adicionar pontos de entrada novos (`docs/reference/` novo,
       `ROADMAP.md`, design notes recentes, labs 2026-06); marcar superseded onde aplicável.
-- [ ] **DB-5 [§1/§2]** `docs/workbench/_archive/tickets/open/` tem tickets **"open" dentro de um
+- [ ] **DB-5 [§1/§2]** `docs/archive/workbench/_archive/tickets/open/` tem tickets **"open" dentro de um
       archive** (contradição §1). Consolidar vivos sob `tickets/`; archive só `closed`/`frozen`.
 - [ ] **DB-6 [§3-bis]** ADRs por **NOTA** (corpo imutável, não editar): ADR-0017 relabel
       "v1.0 frozen" → pré-1.0 (ADR-0024 supersede). *(ADR-0027 já tem a nota "owner escolheu (A)".)*
@@ -77,7 +77,7 @@ localizada**, sem reorganização estrutural.
       (o quê/quando/porquê/autoridade).
 - [x] **DB-4** `MAP.md` refresh: + `docs/reference/bibliografia.md`, `arquitetura-share-header-lazy.md`,
       labs 2026-06-27/07-01; `multi.py`→`multi/`; ponteiro registry-ativo vs homônimo histórico.
-- [x] **DB-5** `docs/workbench/_archive/tickets/README.md`: **tombstone no topo** (snapshot histórico v0.4;
+- [x] **DB-5** `docs/archive/workbench/_archive/tickets/README.md`: **tombstone no topo** (snapshot histórico v0.4;
       "open/" NÃO são vivos; vivos em `/tickets/`). Resolve a contradição §1 sem mover/deletar.
 - [x] **DB-6** ADR-0017: **NOTA** "v1.0 frozen → pré-1.0 (superseded ADR-0024/0028)" + tag `magic-number`.
 - [x] **DB-7** `notas/roadmap-hipoteses.md`: H-PERF-06 (aberta→REFRAMED→welded ADR-0019/0020) + H-QUERY-01

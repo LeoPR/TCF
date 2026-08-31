@@ -59,17 +59,11 @@ as direções futuras registradas.
 
 → [`../CONTRIBUTING.md`](../CONTRIBUTING.md): para quem vai mexer no TCF, e não usá-lo.
 
-## Material histórico v0.5 (acessório)
+## O que veio antes
 
-→ [`findings/`](findings/): **Phase 1 do LLM benchmark** (Q01-Q38), material histórico
-válido. Pode informar uma Phase 2, se ressuscitada.
-
-→ [`FINDINGS_SUMMARY.md`](FINDINGS_SUMMARY.md): o resumo paper-ready da Phase 1.
-
-→ [`workbench/`](workbench/): research-notes e contexto de desenvolvimento (parcialmente
-v0.6, parcialmente v0.5).
-
-→ [`archive/`](archive/), material arquivado:
+Tudo o que é anterior ao formato vigente mora num lugar só, [`archive/`](archive/), e sai da
+busca do dia a dia. Ele guarda o motor antigo, o harness do benchmark de LLM, o catálogo de
+achados daquele ciclo, as research-notes e o material congelado:
 - `manual_v05/`: manual de uso v0.5 (`encode_rows`, `level=2`, etc.)
 - `article_v05/`: drafts de paper v0.5
 - `theory_components_v05/`: componentes v0.4 (TCF Core, LLM Interface, DB Extractor)
@@ -92,7 +86,7 @@ O TCF usa nomes de pasta próprios em vez dos rótulos canônicos da
 | [`how-to/`](how-to/) | **How-to** |
 | [`reference/`](reference/) e [`algorithms/`](algorithms/) | **Reference** |
 | [`theory/`](theory/) | **Explanation** (não existe `explanation/`, e isso é deliberado) |
-| [`adr/`](adr/), [`findings/`](findings/), [`vocabulary.md`](vocabulary.md) | (extra) |
+| [`adr/`](adr/), [`findings/`](archive/findings/), [`vocabulary.md`](vocabulary.md) | (extra) |
 
 A convenção local será preservada: renomear quebraria muitos links em ADRs, READMEs e
 notas. Para entrar, use a tabela dos capítulos acima.

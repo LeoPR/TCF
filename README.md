@@ -719,12 +719,12 @@ The v0.5 cycle measured LLM comprehension of tables in CSV/JSON/TOON/TCF, across
 and computes" and Track B "LLM generates SQL". It covered 7 commercial models + 13 local,
 2 datasets, 2256 records and 38 findings.
 
-It used the **levels engine**, `EncodeConfig(level=N)`, in [`old/tcf/`](old/tcf/). See
-[`old/tcf/LEVELS-REVIEW.md`](old/tcf/LEVELS-REVIEW.md) for the L0–L3 semantics.
+It used the **levels engine**, `EncodeConfig(level=N)`, in [`docs/archive/old/tcf/`](docs/archive/old/tcf/). See
+[`docs/archive/old/tcf/LEVELS-REVIEW.md`](docs/archive/old/tcf/LEVELS-REVIEW.md) for the L0–L3 semantics.
 
-- **Harness** (runners, llm_eval, scripts): [`old/llm-benchmark/`](old/llm-benchmark/)
-- **Findings catalog** F-Q01..Q38: [`docs/findings/`](docs/findings/)
-  + [`docs/FINDINGS_SUMMARY.md`](docs/FINDINGS_SUMMARY.md)
+- **Harness** (runners, llm_eval, scripts): [`docs/archive/old/llm-benchmark/`](docs/archive/old/llm-benchmark/)
+- **Findings catalog** F-Q01..Q38: [`docs/archive/findings/`](docs/archive/findings/)
+  + [`docs/archive/FINDINGS_SUMMARY.md`](docs/archive/FINDINGS_SUMMARY.md)
 - **Manual / paper v0.5**: [`docs/archive/manual_v05/`](docs/archive/manual_v05/)
   + [`docs/archive/article_v05/`](docs/archive/article_v05/)
 
@@ -738,8 +738,8 @@ if Phase 2 is revived.
 - **I want to use TCF in my pipeline** → `from tcf import encode, decode`; the public
   surface contract is [docs/reference/api.md](docs/reference/api.md) *(Portuguese)*. Start at
   [getting started](docs/tutorials/getting-started.md), then the [how-to guides](docs/how-to/).
-- **I want to read the findings** → [docs/findings/](docs/findings/) (v0.5 LLM, historical)
-- **I want to run the LLM benchmark** → [old/llm-benchmark/](old/llm-benchmark/) (accessory v0.5)
+- **I want to read the findings** → [docs/archive/findings/](docs/archive/findings/) (v0.5 LLM, historical)
+- **I want to run the LLM benchmark** → [old/llm-benchmark/](docs/archive/old/llm-benchmark/) (accessory v0.5)
 - **I want to understand the architecture** → [docs/theory/](docs/theory/)
 - **I want to see the roadmap** → [ROADMAP.md](ROADMAP.md) *(Portuguese)*: tiers pre-1.0 /
   2.0 / research; granular detail in
@@ -752,7 +752,7 @@ if Phase 2 is revived.
 - **I want to read the paper** → v0.5 drafts:
   [docs/archive/article_v05/](docs/archive/article_v05/) (paper pending)
 - **I want to see how it evolved** → [CHANGELOG.md](CHANGELOG.md) +
-  [docs/workbench/](docs/workbench/)
+  [docs/archive/workbench/](docs/archive/workbench/)
 - **I want to work on TCF itself** → [CONTRIBUTING.md](CONTRIBUTING.md): dev setup,
   repository layout and the tools that ship with the repo
 

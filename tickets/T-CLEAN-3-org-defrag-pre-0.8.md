@@ -30,7 +30,7 @@ A ordem de autoridade é o **histórico de commits, do agora pra trás**. Ao arr
 2. **3 categorias a distinguir** (o motivo da arrumação):
    - **(a) antigo mas desenvolvido AGORA** → VIVO (manter; no máximo re-indexar/re-datar).
    - **(b) antigo obsoleto que RECUPERAMOS e arrumamos** → VIVO (atualizado; NÃO arquivar).
-   - **(c) genuinamente antigo e obsoleto** → arquivar (mover pra `old/`/tombstone), **nunca deletar**.
+   - **(c) genuinamente antigo e obsoleto** → arquivar (mover pra `docs/archive/old/`/tombstone), **nunca deletar**.
 3. **Nunca reescrever/reordenar** conteúdo que codifica uma decisão válida na época. **Anotar (bridge),
    não sobrescrever**; **arquivar, não deletar**.
 4. **Cross-ref**: cada mudança aponta o commit/ADR que a justifica (rastreabilidade recuperável).
@@ -54,7 +54,7 @@ A ordem de autoridade é o **histórico de commits, do agora pra trás**. Ao arr
   `dict-referencia-hipoteses`, `roadmap-hipoteses`, `tcf8-estrutura-plano`, `tcf8-vista-o-que-falta`,
   `v08-plano-etapas`, `welding-plan`): a maioria é VIVA-anotada (categoria b, bridged nesta sessão);
   `v08-plano-etapas` tem nome stale (ROADMAP já marca) + é referenciada por ROADMAP/STATUS → classificar.
-- Não-verificado (2º nível, se pagar): `docs/archive/` (182 arq) + `docs/workbench/` (186 arq);
+- Não-verificado (2º nível, se pagar): `docs/archive/` (182 arq) + `docs/archive/workbench/` (186 arq);
   `INDEX.md` auto-gerado com `Updated: ?` (rodar `scripts/index.py`?).
 
 ## Caminho-feliz (tiers: do óbvio/sem-colisão ao ambíguo/git-comparação)
@@ -68,7 +68,7 @@ A ordem de autoridade é o **histórico de commits, do agora pra trás**. Ao arr
   intocados); a pasta era dir vazio NÃO-rastreado pelo git (resíduo local do move) → removida
   localmente, zero impacto no git.
 - [x] **T1-c** `INDEX.md` regenerado via `scripts/index.py` (verificado com `--check` + diff inspecionado
-  antes): remove entradas com paths QUEBRADOS (labs já movidos pra `old/welded/`, o script pula `old/`
+  antes): remove entradas com paths QUEBRADOS (labs já movidos pra `old/welded/`, o script pula `docs/archive/old/`
   por design) + lista os labs novos da semana como candidatos a frontmatter. Artefato DERIVADO
   alcançando a realidade; versão antiga recuperável no git.
 

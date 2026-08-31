@@ -717,12 +717,12 @@ O ciclo v0.5 mediu compreensao de tabelas por LLMs em CSV/JSON/TOON/TCF, com a L
 "LLM le e computa" e a Linha B "LLM gera SQL". Foram 7 modelos comerciais + 13 locais,
 2 datasets, 2256 registros, 38 findings.
 
-Usava o **motor de niveis** (`EncodeConfig(level=N)`) em [`old/tcf/`](old/tcf/).
-Ver [`old/tcf/LEVELS-REVIEW.md`](old/tcf/LEVELS-REVIEW.md) para a semantica L0–L3.
+Usava o **motor de niveis** (`EncodeConfig(level=N)`) em [`docs/archive/old/tcf/`](docs/archive/old/tcf/).
+Ver [`docs/archive/old/tcf/LEVELS-REVIEW.md`](docs/archive/old/tcf/LEVELS-REVIEW.md) para a semantica L0–L3.
 
-- **Harness** (runners, llm_eval, scripts): [`old/llm-benchmark/`](old/llm-benchmark/)
-- **Catalogo de achados** F-Q01..Q38: [`docs/findings/`](docs/findings/)
-  + [`docs/FINDINGS_SUMMARY.md`](docs/FINDINGS_SUMMARY.md)
+- **Harness** (runners, llm_eval, scripts): [`docs/archive/old/llm-benchmark/`](docs/archive/old/llm-benchmark/)
+- **Catalogo de achados** F-Q01..Q38: [`docs/archive/findings/`](docs/archive/findings/)
+  + [`docs/archive/FINDINGS_SUMMARY.md`](docs/archive/FINDINGS_SUMMARY.md)
 - **Manual / paper v0.5**: [`docs/archive/manual_v05/`](docs/archive/manual_v05/)
   + [`docs/archive/article_v05/`](docs/archive/article_v05/)
 
@@ -734,15 +734,15 @@ se Phase 2 for revivida.
 ## Por onde seguir
 
 - **Quero usar TCF no pipeline** → API v0.8: `from tcf import encode, decode` ([src/tcf/](src/tcf/)); veja o [tutorial](docs/tutorials/getting-started.pt-BR.md) e os [guias](docs/how-to/).
-- **Quero ler os achados** → [docs/findings/](docs/findings/) (LLM v0.5, historico)
-- **Quero rodar o benchmark LLM** → [old/llm-benchmark/](old/llm-benchmark/) (acessorio v0.5)
+- **Quero ler os achados** → [docs/archive/findings/](docs/archive/findings/) (LLM v0.5, historico)
+- **Quero rodar o benchmark LLM** → [old/llm-benchmark/](docs/archive/old/llm-benchmark/) (acessorio v0.5)
 - **Quero entender a arquitetura** → [docs/theory/](docs/theory/)
 - **Quero ver o roadmap** → [ROADMAP.md](ROADMAP.md) (tiers: pré-1.0 / 2.0 / pesquisa); detalhe granular em [roadmap-hipoteses.md](experiments/lab/dirty/notas/2026-05/roadmap-hipoteses.md)
 - **Quero caminhos de consulta SQL-like sem materializar tudo** → [`tcf.view`](docs/reference/lazy-view.md) (`count`/`sum`/`where`/group-by, quando o modo da coluna permite)
 - **Quero divulgar / apresentar o TCF** → [docs/divulgacao-tcf.md](docs/divulgacao-tcf.md) (material de divulgação, estilo post)
 - **Quero ler o paper** → drafts v0.5: [docs/archive/article_v05/](docs/archive/article_v05/) (paper v0.7 pendente)
 - **Quero ver como evoluiu** → [CHANGELOG.md](CHANGELOG.md) +
-  [docs/workbench/](docs/workbench/)
+  [docs/archive/workbench/](docs/archive/workbench/)
 - **Quero mexer no próprio TCF** → [CONTRIBUTING.pt-BR.md](CONTRIBUTING.pt-BR.md): setup de
   desenvolvimento, layout do repositório e as ferramentas que vêm no repo
 

@@ -169,7 +169,7 @@ de varios tamanhos. Identificar quando TCF e' melhor.
 ### 12. LLM comprehension (Phase 2 prep)
 
 **Status**: Phase 1 fechado em
-[[../../docs/findings/]] (43% LLMs sobre TCF). Phase 2 em prep.
+[[../../docs/archive/findings/]] (43% LLMs sobre TCF). Phase 2 em prep.
 
 **O que**: re-medir LLM compreensao do TCF apos M8 vira protótipo
 estavel. Avaliar se a nova syntax e' compreendida.

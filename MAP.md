@@ -208,14 +208,14 @@ TCF/
 - `docs/archive/`: v0.5 OBSOLETO. **Nao use.**
 - `experiments/lab/dirty/old/`: labs historicos antigos. **Nao use** salvo
   pra entender historia.
-- `old/tcf/`: motor v0.5 (niveis L0–L3), **congelado-historico**. Existe
+- `docs/archive/old/tcf/`: motor v0.5 (niveis L0–L3), **congelado-historico**. Existe
   definitivamente; `src/tcf/` (canonical `#TCF.8`/v0.8, ADR-0032) tem acoplamento ZERO com ele.
   Semantica dos niveis revista em
-  [`old/tcf/LEVELS-REVIEW.md`](old/tcf/LEVELS-REVIEW.md). **Nao use** salvo historia.
+  [`docs/archive/old/tcf/LEVELS-REVIEW.md`](docs/archive/old/tcf/LEVELS-REVIEW.md). **Nao use** salvo historia.
 - `src/llm_query/`: **gadget** geracao de QUERY por LLM (Linha-B: LLM gera SQL/
   polars/pandas, runner executa). Produto vivo do antigo `llm-benchmark/` (dissolvido
   2026-07-19). **Nao e' TCF-core** (fora do wheel). v0.6-quebrado hoje (API v0.5).
-- `old/llm-benchmark/`: Linha-A (data-into-LLM, refutada) + mortos + benchmark_*,
+- `docs/archive/old/llm-benchmark/`: Linha-A (data-into-LLM, refutada) + mortos + benchmark_*,
   **congelado-historico**. Era `llm-benchmark/` (era `experiments/eval/`).
 
 ## Entradas de lab atualmente ativas

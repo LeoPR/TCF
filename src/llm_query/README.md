@@ -1,11 +1,24 @@
 ---
 title: llm_query — geração de query de consulta por LLM (gadget)
-status: v0.6-broken
+status: a-redesenhar
 tags: [gadget, llm, sql, query-gen, nao-core]
-updated: 2026-07-19
+updated: 2026-08-31
 ---
 
 # llm_query
+
+> **Decisão do owner, 2026-08-31**: este gadget **fica** e **será redesenhado**. O foco
+> declarado é passar uma consulta a uma LLM e receber de volta uma query SQL que a satisfaça.
+> O trabalho volta **entre o `.9` e o `1.0`**, depois de o TCF sossegar, e ele **casa com o
+> lado de schema**: é o perfilador que produz o schema que a LLM precisa para escrever a
+> query. Se vira projeto próprio ou segue como auxiliar ainda não está decidido, e
+> provavelmente é uma decisão só para os dois.
+>
+> O código de hoje **não roda** (`from tcf import EncodeConfig` levanta `ImportError`, porque
+> é API de uma era anterior) e não tem teste vivo. Isso é ponto de partida de trabalho
+> declarado, não resíduo: redesenhar sai mais barato que reparar, e por isso o reparo não
+> deve ser tentado. Direção registrada no Pacote 16 do
+> [registry de hipóteses](../../experiments/lab/dirty/notas/2026-05/roadmap-hipoteses.md).
 
 Gadget auxiliar (**NÃO** TCF-core; fora do wheel/sdist, dev-only sob `src/`).
 Produto vivo extraído do antigo harness `llm-benchmark/` (dissolvido 2026-07-19).
@@ -18,12 +31,12 @@ schema/pergunta de negócio + payload TCF, a LLM **produz uma query executável*
 **executa** contra SQLite/DataFrame e **pontua** comparando valores.
 
 Distinto da "Linha A" (jogar dados na LLM para ela *deduzir* a resposta) —
-refutada na literatura e arquivada em [`old/llm-benchmark/`](../../old/llm-benchmark/).
+refutada na literatura e arquivada em [`docs/archive/old/llm-benchmark/`](../../docs/archive/old/llm-benchmark/).
 
 ## Estado
 
 **v0.6-QUEBRADO hoje.** Os runners foram escritos contra a API v0.5 do TCF
-(importam `EncodeConfig`, que não existe em `tcf` v0.6 — só em `old/tcf/`).
+(importam `EncodeConfig`, que não existe em `tcf` v0.6 — só em `docs/archive/old/tcf/`).
 Revivê-los para rodar = port de API v0.6 (ticket `T-RECOVER-LLM-SCHEMA-MODE`,
 follow-up .9). O move de 2026-07-19 apenas **relocou** o produto; não portou.
 

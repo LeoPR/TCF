@@ -31,7 +31,7 @@ Total READMEs sem frontmatter: 75
 
 | Path | Title | Status | Tags | Updated |
 |---|---|---|---|---|
-| [docs\findings](./docs/findings/README.md) | (sem title) | HISTORIC (Phase 1 LLM benchmark, ciclo v0.5) |  | ? |
+| [docs\findings](./docs/archive/findings/README.md) | (sem title) | HISTORIC (Phase 1 LLM benchmark, ciclo v0.5) |  | ? |
 
 ## Type: `untyped`
 
@@ -45,7 +45,7 @@ Total READMEs sem frontmatter: 75
 - `docs/adr/README.md`
 - `docs/algorithms/README.md`
 - `docs/theory/README.md`
-- `docs/workbench/README.md`
+- `docs/archive/workbench/README.md`
 - `experiments/lab/clean/EXP-001-csv-baseline/README.md`
 - `experiments/lab/clean/EXP-002-tcf-baseline/README.md`
 - `experiments/lab/clean/EXP-003a-calibration/README.md`

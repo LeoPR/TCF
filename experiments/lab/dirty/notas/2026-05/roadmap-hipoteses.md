@@ -629,6 +629,28 @@ lab `2026-08-17-0400` (+23,0%, 100% explicado pelo candidato unico). Sao DUAS ro
 mesmo gap, slot de modo na folha (a que eu propus) vs combinador de grupo (a do owner), e a
 medicao mostra que **nao competem**: uma abre candidatos, a outra muda a estrutura da folha.
 
+## Pacote 16: LLM gera a query, e o schema casa com ela (registrado 2026-08-31)
+
+Origem: owner 2026-08-31, ao decidir o destino dos acessorios. O `src/llm_query/` NAO sai da
+superficie: ele **sera' redesenhado**, e o foco declarado e' *"passar alguma consulta pra
+alguma LLM e ela devolver uma query SQL que satisfaca"*. O retorno a ele fica **entre o `.9` e
+o `1.0`**, depois de o TCF sossegar.
+
+Duas coisas ainda NAO decididas, e as duas estao registradas como abertas de proposito:
+se ele vira **projeto proprio** ou segue como auxiliar, e o mesmo para o lado de schema. O
+owner disse que os dois **casam**, entao a decisao provavelmente e' uma so' para os dois.
+
+| ID | Hipotese | Status | Onde testar |
+|---|---|---|---|
+| H-LLMQ-01 | O par natural do gerador de query e' o **perfilador de schema**, nao o formato: a LLM precisa do SCHEMA para escrever SQL que satisfaca, e e' o perfilador que produz schema. Se isso se confirmar, o spin-off e' UM (schema + query), nao dois | aberta | o proprio redesenho; a fronteira ja' esta' desenhada no estudo de 2026-08-31 (o profiler propoe schema declarado, alguem aprova) |
+| H-LLMQ-02 | O TCF entra nesse fluxo como **payload**, e nao como participante: a LLM le' schema e pergunta, e o executor roda a query contra o dado. Se for isso, o acoplamento com `src/tcf` e' de uma direcao so' e o spin-off nao arrasta o core | aberta | medir no redesenho: quantas chamadas do llm_query tocam `tcf` de fato |
+| H-LLMQ-03 | O estado atual e' inservivel como base: `from tcf import EncodeConfig` levanta `ImportError` (API de era anterior), e nao ha' teste vivo. Redesenhar sai mais barato que reparar | **confirmada-conceitual** (medido 2026-08-31: import quebrado, 0 testes vivos) | o reparo nao foi tentado, e nao deve ser: o owner ja' declarou redesenho |
+
+**Fica na superficie ate' la'**, por decisao explicita do owner. E' a excecao consciente ao I1
+neste ciclo: o codigo esta' quebrado e sem teste, mas ele e' o ponto de partida de um trabalho
+declarado, e nao residuo. Isso e' diferente do resto do material pre-`.8`, que foi consolidado
+em `docs/archive/` no mesmo dia.
+
 ## Pacote 14: SORT: o maior ganho medido, e o que ele custa (registrado 2026-08-20)
 
 Origem: owner 2026-08-20, ao rever a assinatura de contrato do `sort_by`. O sort e' um caso

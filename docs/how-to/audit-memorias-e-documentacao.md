@@ -95,7 +95,7 @@ Abrir `~/.claude/projects/*/memory/MEMORY.md`:
 Verificar:
 - `docs/archive/`: v0.5; marcacao "NAO USAR" presente?
 - `experiments/lab/dirty/old/`: historicos; marcacao presente?
-- `old/tcf/` (se existir): motor v0.5 obsoleto; marcacao?
+- `docs/archive/old/tcf/` (se existir): motor v0.5 obsoleto; marcacao?
 
 ## Passo 10: Sintese da auditoria
 

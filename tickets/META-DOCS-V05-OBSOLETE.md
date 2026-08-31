@@ -16,7 +16,7 @@ Executado em 2 commits:
 
 Acceptance criteria atendidos:
 1. ✓ v0.5 EXCLUSIVO em `docs/archive/*_v05/`
-2. ✓ `docs/findings/` + `FINDINGS_SUMMARY.md` com notice v0.5 historic
+2. ✓ `docs/archive/findings/` + `FINDINGS_SUMMARY.md` com notice v0.5 historic
 3. ✓ `docs/theory/README.md` reconectando a v0.6 + lista pendencias
    (multi-coluna, tipos de dados, pre-tx, storage)
 4. ✓ Hub `docs/README.md` reescrito para v0.6
@@ -92,7 +92,7 @@ Apos T-DOC-3 a T-DOC-6, `docs/theory/` ficara vazio. Decidir:
 Sugiro (b), placeholder pra v0.6 theory crescer (multi-coluna,
 pre-tx, etc.).
 
-### T-DOC-8: `docs/findings/` + `docs/FINDINGS_SUMMARY.md` → notice
+### T-DOC-8: `docs/archive/findings/` + `docs/archive/FINDINGS_SUMMARY.md` → notice
 
 Phase 1 LLM findings (Q01-Q38) sao **historicos validos**. Manter
 no lugar, adicionar notice no topo de cada arquivo dizendo:
@@ -102,7 +102,7 @@ Acao: Edit cabecalho de cada arquivo + FINDINGS_SUMMARY.md
 
 ### T-DOC-9: `docs/README.md` hub → atualizar
 
-Refletir nova realidade: docs/algorithms/ + docs/findings/ + archive/
+Refletir nova realidade: docs/algorithms/ + docs/archive/findings/ + archive/
 v0.5. Remover ponteiros pra theory/manual/article/ (movidos pra
 archive).
 
@@ -118,7 +118,7 @@ Acao: Edit README.md raiz se necessario
 ## Acceptance
 
 1. v0.5 EXCLUSIVO em `docs/archive/*_v05/`
-2. `docs/findings/` mantido com notice v0.5
+2. `docs/archive/findings/` mantido com notice v0.5
 3. Hub `docs/README.md` reflete v0.6 atual
 4. Nenhum link quebrado no README raiz
 5. Todos commits pushados antes de proximo passo

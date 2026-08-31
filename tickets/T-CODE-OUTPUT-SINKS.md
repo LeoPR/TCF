@@ -9,7 +9,7 @@ related:
   - docs/adr/0014-unified-api-side-outputs.md
   - tickets/T-CODE-ENCODER-MANAGER.md
   - experiments/lab/dirty/notas/2026-05/futuras-otimizacoes-formato.md
-  - docs/workbench/_archive/tickets/frozen/E-http-protocol.md
+  - docs/archive/workbench/_archive/tickets/frozen/E-http-protocol.md
 ---
 
 # T-CODE-OUTPUT-SINKS: Sinks pluggable
@@ -126,7 +126,7 @@ top-level continuam, mas internamente chamam sinks.
 - [ADR-0014](../docs/adr/0014-unified-api-side-outputs.md): SideOutputs
 - [O-FMT-08 streaming](../experiments/lab/dirty/notas/2026-05/futuras-otimizacoes-formato.md)
 - [O-FMT-13 per-channel](../experiments/lab/dirty/notas/2026-05/futuras-otimizacoes-formato.md)
-- [E-http-protocol frozen](../docs/workbench/_archive/tickets/frozen/E-http-protocol.md)
+- [E-http-protocol frozen](../docs/archive/workbench/_archive/tickets/frozen/E-http-protocol.md)
 - [scripts/writers/](../scripts/writers/): refatorar
 
 ## Updates datados

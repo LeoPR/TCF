@@ -204,7 +204,7 @@ Roundtrip lossless **obrigatório** em todos.
 - [`../old/2026-05-09-delta-datas/`](../../old/2026-05-09-delta-datas/):
   lab arquivado sobre delta em datas (re-verificar antes de
   citar)
-- [`../../../docs/workbench/_archive/tickets/open/23-P-numeric-precision.md`](../../../docs/workbench/_archive/tickets/open/23-P-numeric-precision.md):
+- [`../../../docs/archive/workbench/_archive/tickets/open/23-P-numeric-precision.md`](../../../docs/archive/workbench/_archive/tickets/open/23-P-numeric-precision.md):
   ticket arquivado sobre tratamento numérico
 - [exp 17](../../2026-05-11-17-familias-variadas/conclusoes.md):
   onde ficou claro que CPF e UUID precisam de outra abordagem

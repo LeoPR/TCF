@@ -32,11 +32,14 @@ Vale para **código, documentação e índices**, sem exceção:
   novela de como se chegou lá, não.
 
 **O que NÃO se apaga** (é traço, não superfície): `docs/adr/` (ADR aceito nunca é editado;
-vigência vai no Status do índice), `docs/archive/`, `docs/findings/`, labs em
-`experiments/`, `CHANGELOG.md`, e o histórico do git.
+vigência vai no Status do índice), `docs/archive/` (que desde 2026-08-31 concentra TODO o
+material anterior ao formato vigente), labs em `experiments/`, `CHANGELOG.md`, e o histórico
+do git.
 
 **Não se apaga, mas se ARQUIVA por era** (owner, 2026-08-31): material de uma era fechada
-vai para `docs/archive/era-<N>/` por `git mv`, com os ponteiros da superfície reescritos.
+vai para `docs/archive/` por `git mv`, com os ponteiros da superfície reescritos. O destino
+final do próprio `archive/` está declarado e ainda não executado: sumir, deixando a memória
+nos ADRs (a parte teórica) mais o apontamento para a versão histórica no git.
 Não é perda, é dar um lugar único e datado, que é o que faz a busca ficar rápida sem
 quebrar os ponteiros que vivem dentro de ADR imutável. Ver **I8**.
 
@@ -145,8 +148,8 @@ não conflitam. A prosa aponta; o teste mede.
 | `src/shaper/`, `src/llm_query/` | **Gadgets auxiliares** (não-core): sob `src/` mas **fora do wheel/sdist**. Importam helpers que ficam em `scripts/`. |
 | `scripts/` | Tooling de suporte: `dataset_reader`, `_paths`, `setup_*`, `benchmark_*` (formato/compressão), `schema_gadget/`, `index.py`. Não é TCF-core. |
 | `<data_root>/` | Dados grandes via `config/storage.json`; hubs SQLite em `interim/`. **Nunca baixar externo se já existe aqui.** |
-| `old/` | **Congelado-histórico**: `old/tcf` (motor v0.5) · `old/llm-benchmark` (Linha-A refutada). Não modificar, não importar. |
-| `docs/adr/` | Decisões numeradas. `docs/findings/` = catálogo v0.5 (**histórico**; findings novos vão em `docs/theory/` ou ADR). |
+| `docs/archive/old/` | **Congelado-histórico**: `docs/archive/old/tcf` (motor v0.5) · `docs/archive/old/llm-benchmark` (Linha-A refutada). Não modificar, não importar. |
+| `docs/adr/` | Decisões numeradas. `docs/archive/findings/` = catálogo v0.5 (**histórico**; findings novos vão em `docs/theory/` ou ADR). |
 | `experiments/lab/{dirty,clean}/` | Labs. `dirty/` aninha macros por `<YYYY-MM>/<YYYY-MM-DD>/` (§6); `dirty/notas/` = diário, checkpoints, registries (`roadmap-hipoteses.md`) + notas por mês. ⚠️ **`dirty/` e `archive/` NÃO são versionados** (desde 2026-08-22): existem no disco, fora do git. Ver a fronteira abaixo. |
 | `datasets/` | `synthetic/` = CSVs D1-D17 no repo. `canonical/` = só metadata+README (dado real fora do repo). |
 
@@ -168,7 +171,7 @@ imutáveis). Esses ponteiros continuam válidos *localmente* e no histórico; pa
 GitHub de hoje, apontam para fora da árvore. É trade-off aceito: a alternativa seria reescrever
 ADR imutável.
 
-⚠️ Existem **4 `schema.py`** no repo (`src/tcf` core · `old/tcf` · `src/shaper/strategies` ·
+⚠️ Existem **4 `schema.py`** no repo (`src/tcf` core · `docs/archive/old/tcf` · `src/shaper/strategies` ·
 `docs/archive`). **Nunca editar "todos os schema.py" por basename.**
 
 ## 3. Antes de agir: checklist obrigatório
@@ -289,7 +292,7 @@ achou que 17 dos 20 EXP-* eram invisíveis ao git e só 2 gravavam contra-prova)
 **Labs dirty**: nome `YYYY-MM-DD-HHMM-descricao/` (dia+hora; só o dia não ordena),
 **aninhados por data** (nesting 2026-07-22, evita a `dirty/` flat com 60+ macros):
 `experiments/lab/dirty/<YYYY-MM>/<YYYY-MM-DD>/<YYYY-MM-DD-HHMM-descricao>/`. Sub-exps
-`NN-descricao/` dentro. `old/` tem layout próprio (welded/refuted/…), **não** aninhado por data.
+`NN-descricao/` dentro. `docs/archive/old/` tem layout próprio (welded/refuted/…), **não** aninhado por data.
 **Notas** (`dirty/notas/`): agrupadas por **mês do 1º commit** (`<YYYY-MM>/`); `diario/` e
 `checkpoints/` ficam fora do agrupamento. Duas naturezas de nota:
 *registry/referência vivo* = **nome-nu estável** (ex. `roadmap-hipoteses.md`,

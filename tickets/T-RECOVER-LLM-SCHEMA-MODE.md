@@ -8,7 +8,7 @@ blocked-by: []
 related:
   - tickets/T-RECOVER-SCHEMA-MULTI-TABLE.md  (gadget irmao, coleta schema/stats)
   - src/tcf/side_outputs.py  (framework efeito colateral consumido em paralelo)
-  - docs/findings/  (Phase 1 LLM Q01-Q38 historic v0.5: infra reutilizavel)
+  - docs/archive/findings/  (Phase 1 LLM Q01-Q38 historic v0.5: infra reutilizavel)
 ---
 
 # T-RECOVER-LLM-SCHEMA-MODE: Gadget LLM auxiliar
@@ -92,7 +92,7 @@ pra extrair stats sem custo adicional. Especialmente uteis pro prompt LLM:
 
 ## Estado atual
 
-- **Existe (em old/tcf/ + docs/findings/)**: Phase 1 LLM benchmark Q01-Q38,
+- **Existe (em docs/archive/old/tcf/ + docs/archive/findings/)**: Phase 1 LLM benchmark Q01-Q38,
   qualified models, Ollama client. Marcado historic, funcional.
 - **Existe**: `pip install -e ".[eval]"` (requests pra Ollama, extra
   opcional)
@@ -132,7 +132,7 @@ pra extrair stats sem custo adicional. Especialmente uteis pro prompt LLM:
 - **NAO toca** src/tcf/
 - **Paralelo** ao schema gadget (T-RECOVER-SCHEMA-MULTI-TABLE): pode
   consumir output dele OU fazer propria coleta
-- Reuso de infra v0.5 (old/tcf + docs/findings) respeitando: NUNCA
+- Reuso de infra v0.5 (old/tcf + docs/archive/findings) respeitando: NUNCA
   importar de old/tcf em src/tcf
 - TCF e' agnostico de origem: recebe qualquer dict[str, list[str]]
 

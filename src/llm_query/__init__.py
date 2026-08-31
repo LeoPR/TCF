@@ -5,7 +5,7 @@ schema/pergunta de negocio + payload TCF, a LLM PRODUZ uma query executavel
 (SQL principalmente; tambem codigo polars/pandas em run_m5) que o runner executa
 e pontua. Isto e' a "Linha B" (query-gen) — distinta da "Linha A" (jogar dados
 na LLM pra deduzir), que a literatura ja' refutou e foi arquivada em
-`old/llm-benchmark/` (2026-07-19).
+`docs/archive/old/llm-benchmark/` (2026-07-19).
 
 NAO faz parte do pacote `tcf-format` (fica fora do wheel/sdist; dev-only sob src/).
 Consome `tcf` (encode/EncodeConfig), `scripts/dataset_reader`, `tests/fixtures`.

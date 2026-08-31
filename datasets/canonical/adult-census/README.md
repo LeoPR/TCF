@@ -1,7 +1,7 @@
 # Adult Census Income: UCI ML Repository
 
 Single-table canonical dataset used in TCF M-series experiments
-(F-Q25..F-Q32 in [docs/findings/](../../../docs/findings/)).
+(F-Q25..F-Q32 in [docs/archive/findings/](../../../docs/archive/findings/)).
 
 ## Source
 

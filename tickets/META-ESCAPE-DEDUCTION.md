@@ -26,7 +26,7 @@ contextos especificos.
 
 Origem: identificado em **2026-05-17** ao inspecionar body fork da
 tentativa M2 (D11a-h tem 7-10 backslashes/linha cada). Antecedente em
-ticket v0.5 frozen (`docs/workbench/_archive/tickets/open/S-supressao-implicita-marcadores.md`).
+ticket v0.5 frozen (`docs/archive/workbench/_archive/tickets/open/S-supressao-implicita-marcadores.md`).
 
 Prova de conceito antiga: **sub-exp 11 do T01** (15.7% ganho nos 8
 datasets D11a-h), MAS **assume 1 lit piece por linha**: invalido em

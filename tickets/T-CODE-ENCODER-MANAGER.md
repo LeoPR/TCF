@@ -7,8 +7,8 @@ updated: 2026-06-15
 blocked-by: []
 related:
   - docs/adr/0014-unified-api-side-outputs.md
-  - docs/workbench/research-notes/_archive/2026-05-05-v04-design-recap.md
-  - docs/workbench/_archive/tickets/frozen/H-streaming-encoder.md
+  - docs/archive/workbench/research-notes/_archive/2026-05-05-v04-design-recap.md
+  - docs/archive/workbench/_archive/tickets/frozen/H-streaming-encoder.md
   - experiments/lab/dirty/notas/2026-05/futuras-otimizacoes-formato.md
 ---
 
@@ -119,10 +119,10 @@ Pre-requisito: chunks autocontidos (cada chunk = TCF mini-arquivo).
 
 - [ADR-0014](../docs/adr/0014-unified-api-side-outputs.md): fachada
   preparada pra dispatch paralelo
-- [v04-design-recap D13](../docs/workbench/research-notes/_archive/2026-05-05-v04-design-recap.md)
+- [v04-design-recap D13](../docs/archive/workbench/research-notes/_archive/2026-05-05-v04-design-recap.md)
 - [O-FMT-08 streaming](../experiments/lab/dirty/notas/2026-05/futuras-otimizacoes-formato.md)
 - [O-FMT-13 per-channel](../experiments/lab/dirty/notas/2026-05/futuras-otimizacoes-formato.md)
-- [H-streaming-encoder.md frozen](../docs/workbench/_archive/tickets/frozen/H-streaming-encoder.md)
+- [H-streaming-encoder.md frozen](../docs/archive/workbench/_archive/tickets/frozen/H-streaming-encoder.md)
 - [T-CODE-OUTPUT-SINKS](T-CODE-OUTPUT-SINKS.md): sub-pacote sinks
 - [T-CODE-PLAN-CONTRACT](T-CODE-PLAN-CONTRACT.md): dataclass Plan
 

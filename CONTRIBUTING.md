@@ -34,10 +34,10 @@ Configured hooks (see [`.pre-commit-config.yaml`](.pre-commit-config.yaml)):
 ```
 TCF/
 ├── src/tcf/                 ← CANONICAL v0.8 API (OBAT+HCC, encode/decode/view, #TCF.8)
-├── old/tcf/                 ← v0.5 engine (levels L0–L3), frozen-historical (see LEVELS-REVIEW.md)
+├── docs/archive/old/tcf/                 ← v0.5 engine (levels L0–L3), frozen-historical (see LEVELS-REVIEW.md)
 ├── scripts/                 ← Shaper (stratified sampling), CSV→SQLite, setup_* datasets
 ├── experiments/lab/         ← v0.8 labs (dirty + clean): compositional compression
-├── old/llm-benchmark/       ← LLM benchmark v0.5 (harness: runners + llm_eval), accessory
+├── docs/archive/old/llm-benchmark/       ← LLM benchmark v0.5 (harness: runners + llm_eval), accessory
 ├── tests/                   ← pytest suite (v0.8)
 ├── datasets/                ← canonical metadata + samples (real data outside the repo)
 ├── tickets/                 ← markdown planning (YAML frontmatter)
@@ -66,7 +66,7 @@ The encoder is the main tool; support helpers (NOT TCF-core):
 
 - **Shaper** (`src/shaper/`): stratified, FK-preserving sampling framework.
   Standalone-able as a separate library; see
-  [shaper-as-standalone-tool note](docs/workbench/research-notes/_archive/2026-04-25-shaper-as-standalone-tool.md)
+  [shaper-as-standalone-tool note](docs/archive/workbench/research-notes/_archive/2026-04-25-shaper-as-standalone-tool.md)
 - **DatasetReader** (`scripts/dataset_reader.py`): uniform interface
   over SQLite hubs (rows, columns, query, column_stats)
 - **setup_\*.py** (`scripts/`): download/generation of the canonical datasets
@@ -74,6 +74,6 @@ The encoder is the main tool; support helpers (NOT TCF-core):
 
 > Pre-1.0: **library-only** (no CLI; see `pyproject.toml`).
 > The LLM benchmark v0.5 (CommercialClient, M-series runners) lives in
-> [`old/llm-benchmark/`](old/llm-benchmark/), with reproduction instructions in its own README.
+> [`docs/archive/old/llm-benchmark/`](docs/archive/old/llm-benchmark/), with reproduction instructions in its own README.
 
 ---

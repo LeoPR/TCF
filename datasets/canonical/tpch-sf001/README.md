@@ -87,7 +87,7 @@ wordings (F-Q33-F-Q38):
 For wordings like *"the most expensive item"*, **N0 (schema-aware,
 mentioning `ps_supplycost`) is mandatory**. N2/N3 wordings drop to
 0% accuracy across all commercial top models. See
-[../../../docs/findings/05-schema-scope-Q37-Q38.md](../../../docs/findings/05-schema-scope-Q37-Q38.md).
+[../../../docs/archive/findings/05-schema-scope-Q37-Q38.md](../../../docs/archive/findings/05-schema-scope-Q37-Q38.md).
 
 ## Memorization caveat
 

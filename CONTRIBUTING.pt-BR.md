@@ -34,10 +34,10 @@ Hooks configurados (ver [`.pre-commit-config.yaml`](.pre-commit-config.yaml)):
 ```
 TCF/
 ├── src/tcf/                 ← API CANÔNICA v0.8 (OBAT+HCC, encode/decode/view, #TCF.8)
-├── old/tcf/                 ← motor v0.5 (niveis L0–L3), congelado-historico (ver LEVELS-REVIEW.md)
+├── docs/archive/old/tcf/                 ← motor v0.5 (niveis L0–L3), congelado-historico (ver LEVELS-REVIEW.md)
 ├── scripts/                 ← Shaper (stratified sampling), CSV→SQLite, setup_* datasets
 ├── experiments/lab/         ← labs v0.8 (dirty + clean): compressao composicional
-├── old/llm-benchmark/       ← benchmark LLM v0.5 (harness: runners + llm_eval), acessorio
+├── docs/archive/old/llm-benchmark/       ← benchmark LLM v0.5 (harness: runners + llm_eval), acessorio
 ├── tests/                   ← pytest suite (v0.8)
 ├── datasets/                ← canonical metadata + samples (dados reais fora do repo)
 ├── tickets/                 ← planejamento markdown (YAML frontmatter)
@@ -66,7 +66,7 @@ O encoder e' a ferramenta principal; auxiliares de suporte (NAO TCF-core):
 
 - **Shaper** (`src/shaper/`): stratified, FK-preserving sampling framework.
   Standalone-able as a separate library; see
-  [shaper-as-standalone-tool note](docs/workbench/research-notes/_archive/2026-04-25-shaper-as-standalone-tool.md)
+  [shaper-as-standalone-tool note](docs/archive/workbench/research-notes/_archive/2026-04-25-shaper-as-standalone-tool.md)
 - **DatasetReader** (`scripts/dataset_reader.py`): uniform interface
   over SQLite hubs (rows, columns, query, column_stats)
 - **setup_\*.py** (`scripts/`): download/geracao dos datasets canonicos
@@ -74,6 +74,6 @@ O encoder e' a ferramenta principal; auxiliares de suporte (NAO TCF-core):
 
 > Pré-1.0: **library-only** (sem CLI; ver `pyproject.toml`).
 > O benchmark LLM v0.5 (CommercialClient, M-series runners) vive em
-> [`old/llm-benchmark/`](old/llm-benchmark/), com instrucoes de reproducao no README de la'.
+> [`docs/archive/old/llm-benchmark/`](docs/archive/old/llm-benchmark/), com instrucoes de reproducao no README de la'.
 
 ---

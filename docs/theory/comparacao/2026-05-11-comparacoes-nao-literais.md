@@ -13,7 +13,7 @@ Status: **fora do foco do ciclo atual**; nota arquivada para retomada futura.
    `00-conceito.md`, `01-dataset.md`, `02-formas-delta.md`,
    `03-aplicado.md`, `04-conclusoes.md`)
 
-2. [`docs/workbench/_archive/tickets/open/23-P-numeric-precision.md`](../../../docs/workbench/_archive/tickets/open/23-P-numeric-precision.md):
+2. [`docs/archive/workbench/_archive/tickets/open/23-P-numeric-precision.md`](../../../docs/archive/workbench/_archive/tickets/open/23-P-numeric-precision.md):
    ticket sobre tratamento numérico com perda controlada (2 camadas:
    Shaper pré-encoding + TCF core)
 
@@ -72,7 +72,7 @@ decimais, arredondamento controlado, ULP comparison.
 **Onde encaixa**: similar ao item 1, **fora de compressão
 lossless**. Encaixa em:
 - **Shaper** (pré-encoding) com perda controlada: ticket
-  arquivado [`23-P-numeric-precision`](../../../docs/workbench/_archive/tickets/open/23-P-numeric-precision.md)
+  arquivado [`23-P-numeric-precision`](../../../docs/archive/workbench/_archive/tickets/open/23-P-numeric-precision.md)
   já discutia isto em ciclos anteriores
 - Modo **lossy opt-in** declarado no header (qualquer dado lossy
   precisa marcação explícita; o decoder não pode reconstruir
@@ -159,7 +159,7 @@ firme, como camada superior ou como pré-transformações opt-in.
    antes da entrada no encoder; o encoder vê a coluna
    transformada como qualquer outra coluna de strings.
 
-4. **Ticket arquivado** [`23-P-numeric-precision`](../../../docs/workbench/_archive/tickets/open/23-P-numeric-precision.md)
+4. **Ticket arquivado** [`23-P-numeric-precision`](../../../docs/archive/workbench/_archive/tickets/open/23-P-numeric-precision.md)
    trata especificamente da camada lossy numérica. Bom ponto de
    partida quando esse tema voltar.
 

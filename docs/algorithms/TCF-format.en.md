@@ -541,7 +541,7 @@ for LLMs to read tables (Sui 2024 review).
 - TCF compresses **column structure**, not LLM readability: the two do cross
   paths, but the design criterion here is bytes and roundtrip.
 - The LLM-reading study the project ran lives in
-  [`docs/findings/`](../findings/) (Q01-Q38) and is **accessory** to the core.
+  [`docs/archive/findings/`](../archive/findings/) (Q01-Q38) and is **accessory** to the core.
 
 ## Aggregated differentiators
 
