@@ -114,9 +114,9 @@ lugar nenhum; ali ele decodifica a menor (medido: 49,7% numa tabela de 2 colunas
 `count` é cardinalidade de linhas, não contagem de payloads não vazios. Uma string vazia é
 um elemento presente; `None`/`NULL` é outra convenção, de ausência. As receitas comparativas
 para contar linhas, valores não nulos e strings vazias estão em
-[`mimetizar-pandas-sql-polars.md`](../how-to/mimetizar-pandas-sql-polars.md). O caso-limite
-de uma única string vazia continua registrado em
-[`BUG-VIEW-UMA-STRING-VAZIA`](../../tickets/BUG-VIEW-UMA-STRING-VAZIA.md).
+[`mimetizar-pandas-sql-polars.md`](../how-to/mimetizar-pandas-sql-polars.md). Uma coluna de
+uma única string vazia é uma linha: `view(encode([""])).count()` dá `1`, e o `select()`
+devolve `[{"0": ""}]`.
 
 ## Filtrar
 
@@ -230,6 +230,7 @@ O arquivo é sempre texto, e o tipo é a leitura que o header declara. Então
 `where(col, "true")` numa coluna booleana é uma intenção clara, não um erro: o valor do
 filtro é lido no tipo da coluna, e a conversão fica registrada em `v.coercoes`.
 
+<!-- doctest: raises -->
 ```python
 blob = encode({"ativo": [True, False, True], "n": [1, 2, 3]})
 
@@ -303,6 +304,12 @@ lê como tabela, e `select`, `where("a", None)` e `group_count` respondem o mesm
 tabela equivalente em `.8M`. Wire sem magic (`stamp=False`) também é lido, espelhando o
 `decode`: uma coluna `"0"` de strings.
 
+> **Por que a distinção existe, e como se pergunta por cada caso**: uma célula pode estar em
+> três situações (tem valor, existe e é nulo, não existe), e a tabela só tem duas. A teoria,
+> o vocabulário com fonte e os defaults propostos estão em
+> [`docs/theory/tres-blocos/`](../theory/tres-blocos/INDEX.md). Nada de lá está implementado:
+> esta página descreve o que a view faz hoje.
+
 ## Como ler o `report()`
 
 O `materialized_bytes` é **grosso de propósito**: conta o corpo inteiro de uma coluna assim
@@ -351,10 +358,8 @@ hex, então ele lê 11 ou 12 bytes e para. No modo core, soma os contadores e as
 soltas do corpo compacto; não reconstrói a coluna. Só uma tabela inteira em `split` não
 tem contagem estrutural e decodifica a menor coluna.
 
-**Limite de correção conhecido:** um corpo core com exatamente uma string vazia é contado
-como zero, o que também trunca o `select()`. O caso está registrado em
-[`BUG-VIEW-UMA-STRING-VAZIA`](../../tickets/BUG-VIEW-UMA-STRING-VAZIA.md); use `decode()`
-para esse formato de dado até a correção.
+A contagem estrutural inclui as linhas vazias. Um corpo core de uma única string vazia
+conta como uma linha, e o `select()` a devolve.
 
 Em que modo cada coluna cai é decisão do encoder, não sua, e ela é tomada só por bytes. O
 `fallback=True` (o default do 0.8) é o que põe colunas de baixa cardinalidade em `@dict`, e

@@ -4,15 +4,19 @@ Referência dos parâmetros opt-in de [`tcf.encode`](../../src/tcf/encoder.py). 
 produz o formato **0.8 / `#TCF.8M`** sem perdas; os parâmetros abaixo só mudam bytes/layout
 **quando passados explicitamente**.
 
+<!-- doctest: skip -->
 ```python
 from tcf import encode
 encode(data, *, schema=None, side_outputs=None, parallel=False,
-       layers=None, fallback=True, min_header=True, min_len=None, sort_by=None)
+       layers=None, fallback=True, min_header=True, min_len=None, sort_by=None,
+       name=None, stamp=None, drop_names=False)
 ```
 
-Aplicam-se a **multi-coluna** (`dict[str, list[str]]`); para single-col (`list[str]`) são
-ignorados, exceto `min_len` e `nature`. Output é sempre UTF-8, LF only. `decode(encode(x)) == x`
-(exceto `sort_by`, ver abaixo).
+Aplicam-se a **multi-coluna** (`dict[str, list[str]]`). Para single-col (`list[str]`) valem
+`schema`, `min_len`, `stamp` e `name` (este só junto de `schema`, porque ele rotula o header
+`#TCF.8 nome:spec`; sem `schema` a chamada levanta em vez de ignorar calado). Os demais são
+ignorados. Output é sempre UTF-8, LF only. `decode(encode(x)) == x` (exceto `sort_by`, ver
+abaixo).
 
 > **Previstos, ainda não implementados** (`.9`): `bn_modo` (`"B"` stream, default de hoje,
 > vs `"C"` lote, `T-BN-LOTE`) e os **perfis macro** (`stream`/`lote`/`rapido`/`memoria`/
@@ -29,6 +33,9 @@ ignorados, exceto `min_len` e `nature`. Output é sempre UTF-8, LF only. `decode
 | `min_header` | bool | `True` | header mínimo (meta inline, tamanhos hex, última coluna sem size) | economiza bytes de header |
 | `min_len` | int\|None | `None` (auto) | override do `min_len` do OBAT (afixos com `length < min_len` viram literal) | muda bytes só quando passado |
 | `sort_by` | str\|None | `None` | reordena as **linhas** pela coluna nomeada antes de encodar | **trade-off** (ver nota), **order-free** |
+| `drop_names` | bool | `False` | tira os nomes das colunas do header; a **ordem** passa a ser o contrato | economiza o header dos nomes (medido: 39 → 31 B em 2 colunas); o `decode` devolve `'0'`, `'1'`, ... |
+| `stamp` | bool\|None | `None` | emite ou não a magic `#TCF.8` | só tem efeito em **single-col**: `False` tira a magic. Em multi-col a magic é estrutural e o knob não muda o wire |
+| `name` | str\|None | `None` | rótulo do header em single-col **com** `schema` (`#TCF.8 nome:spec`) | soma o tamanho do rótulo; sem `schema` a chamada **levanta**, em vez de ignorar calado |
 
 ### `fallback` (default `True`)
 Cada coluna é encodada por todos os modos disponíveis e fica com o menor: **tcf** (OBAT+HCC),

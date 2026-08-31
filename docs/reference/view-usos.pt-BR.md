@@ -27,10 +27,14 @@ completa está na [referência de API](lazy-view.pt-BR.md#princípio-oportunista
 ```python
 from tcf import encode, view
 
-blob = encode({"uf": ["SP", "SP", "RJ"], "valor": [120, 80, 200]})
+table = {"uf":    ["SP", "SP", "RJ", "MG", None],
+         "plano": [ "A",  "B",  "A",  "A",  "B"],
+         "valor": [ 100,   80,  200,   50,   30]}
+
+blob = encode(table)                   # 71 bytes
 v = view(blob)                         # conecta: não descomprime nada
-v.count()                              # 3, sem materializar valor nenhum
-v.where("uf", "SP").sum("valor")       # 200.0, tocando só uf e valor
+v.count()                              # 5, sem materializar valor nenhum
+v.where("uf", "SP").sum("valor")       # 180.0, tocando só uf e valor
 ```
 
 ## As perguntas, da mais barata para a mais cara
@@ -49,15 +53,14 @@ Nesses casos nenhum objeto de valor é construído, e depois de um `count()` pur
 um valor real e ocupa uma linha:
 
 ```python
-v = view(encode(["", "a", ""]))
-v.count()                  # 3
-v.where(0, "").count()     # 2
-v.n_unique(0)              # 2: "" e "a"
+vazio = view(encode(["", "a", ""]))    # coluna própria, não a tabela acima
+vazio.count()                  # 3
+vazio.where(0, "").count()     # 2
+vazio.n_unique(0)              # 2: "" e "a"
 ```
 
-O caso-limite `view(encode([""])).count() == 1` é o contrato semântico. A implementação
-atual viola esse contrato e está registrado em
-[`BUG-VIEW-UMA-STRING-VAZIA`](../../tickets/BUG-VIEW-UMA-STRING-VAZIA.md). A distinção
+O caso-limite `view(encode([""])).count() == 1` é o contrato semântico, e é o que a
+implementação faz. A distinção
 entre contar linhas, valores não nulos e strings vazias em TCF, NumPy, pandas, Polars e
 SQL está em [`mimetizar-pandas-sql-polars.md`](../how-to/mimetizar-pandas-sql-polars.md).
 
@@ -97,7 +100,7 @@ O filtro aceita igualdade (`where(col, valor)`) ou predicado
 (`where(col, pred=lambda x: ...)`), e encadear é AND:
 
 ```python
-v.where("uf", "SP").where("plano", "Premium").sum("valor")
+v.where("uf", "SP").where("plano", "A").sum("valor")   # 100.0
 ```
 
 ### Qual o total, o mínimo, o máximo? (`sum`, `min`, `max`, `avg`)
@@ -112,8 +115,8 @@ O `SELECT DISTINCT` e o `COUNT(DISTINCT col)`. Numa coluna dicionário saem da t
 de únicos, que o corpo já carrega pronta, em O(K):
 
 ```python
-v.distinct("uf")      # ['SP', 'RJ', 'MG'], na ordem de aparição
-v.n_unique("uf")      # 3
+v.distinct("uf")      # ['SP', 'RJ', 'MG', None], na ordem de aparição
+v.n_unique("uf")      # 4
 ```
 
 Os dois custam coisas diferentes, e vale saber: `n_unique` só precisa do **tamanho** da
@@ -141,8 +144,8 @@ linhas. Nos demais modos cai em decodificar a coluna e contar.
 cruza linha a linha, sem usar a estrutura de nenhuma delas.
 
 ```python
-v.group_sum("uf", "valor")            # {'SP': 200.0, 'RJ': 200.0}
-v.group_avg("uf", "valor")            # média por grupo
+v.group_sum("uf", "valor")            # {'SP': 180.0, 'RJ': 200.0, 'MG': 50.0, None: 30.0}
+v.group_avg("uf", "valor")            # {'SP': 90.0, 'RJ': 200.0, 'MG': 50.0, None: 30.0}
 v.group_sum(["uf", "plano"], "valor") # GROUP BY uf, plano: a chave vira tupla
 ```
 
@@ -151,8 +154,8 @@ v.group_sum(["uf", "plano"], "valor") # GROUP BY uf, plano: a chave vira tupla
 filtro, e o filtro já existe.
 
 ```python
-v.group_count("uf")                                        # o nulo aparece
-v.where("uf", pred=lambda x: x is not None).group_count("uf")   # o "dropna"
+v.group_count("uf")                     # {'SP': 2, 'RJ': 1, 'MG': 1, None: 1}
+v.where("uf", pred=lambda x: x is not None).group_count("uf")   # o "dropna", sem o None
 ```
 
 Escrever o filtro deixa à vista o que está sendo jogado fora, e uma flag esconderia isso
@@ -176,8 +179,8 @@ Para obter o `NULL` do SQL, e o comportamento das outras ferramentas em geral, v
 O `WHERE … GROUP BY`. A agregação roda nas linhas que casaram:
 
 ```python
-v.where("plano", "A").group_sum("uf", "valor")
-v.where("plano", "A").group_count("uf")
+v.where("plano", "A").group_sum("uf", "valor")   # {'SP': 100.0, 'RJ': 200.0, 'MG': 50.0}
+v.where("plano", "A").group_count("uf")         # {'SP': 1, 'RJ': 1, 'MG': 1}
 ```
 
 ### As linhas em si (`select`)

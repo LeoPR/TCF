@@ -30,13 +30,13 @@ dataset possível. O objetivo é uma **escala de níveis**, e o `.8` contrata s�
 
 | Nível | O que é | Estado |
 |---|---|---|
-| **N1: imitar a jsonlib** | entender todo dataset **possível pro json** e, perante o resto, **comportar-se como um consumidor json** (o que a lib não round-trip`a, o TCF recusa igual). É o **contrato do `.8`**. | **contratado** |
+| **N1: imitar a jsonlib** | entender todo dataset **possível pro json** e, perante o resto, **comportar-se como um consumidor json** (o que a lib não faz round-trip, o TCF recusa igual). É o **contrato do `.8`**. | **contratado** |
 | **N2: além da borda** | o que a lib json *não* faz mas o TCF poderia, tipando: `"NaN"`/`"Infinity"` como valor tipado, um RFC teórico completo, `int > 2^53` exato (§3). | registrado, pós-`.8` |
 | **N3: dataset complexo** | formato de dataset rico e completo (N:N/grafo, tipos ricos), "faria qualquer coisa" (§5). | registrado, 1.0/2.0 |
 
-Corolário do N1 (o que o gate mede): a **classe** é o que a jsonlib **round-trip`a**, não o que só o
+Corolário do N1 (o que o gate mede): a **classe** é o que a jsonlib **faz round-trip**, não o que só o
 Python permissivo *aceita*. `NaN`/`Infinity`/chave-não-string **saem** (JSON inválido; `loads(dumps)≠x`).
-`int > 2^53` **fica** (a jsonlib round-trip`a) mas leva **ressalva de interop** (I-JSON; um parser
+`int > 2^53` **fica** (a jsonlib faz round-trip) mas leva **ressalva de interop** (I-JSON; um parser
 int64/double de outra linguagem perde precisão). A ressalva é **sinal, não recusa** (isso é N2).
 
 **Teto (owner, 2026-07-21): o TCF nunca gera JSON, gera um DATASET.** Só emitimos um dataset na
@@ -46,7 +46,7 @@ deixar um **dataset POSSÍVEL de RFC-JSON**, e as libs que se encarreguem de ser
 melhor json-que-funciona-na-linguagem (N1) já é o alvo útil e obrigatório do `.8`.
 
 **Questão aberta: clareza/warning** (`H-JSON-CLARITY-WARN-01`, sem solução): ser *mais capaz* que o
-json não gera clareza sozinho. Se o TCF deixa um dataset que uma libjson popular não round-trip`a
+json não gera clareza sozinho. Se o TCF deixa um dataset que uma libjson popular não faz round-trip
 (int gigante, ou N2/N3) **sem avisar**, confunde. JSON é popularíssimo. Falta um mecanismo de
 **comunicação** (warning apontando pra manual/RFC, ou "extrapolamos a limitação"). O `ijson_flags`
 (`scripts/bench_perf/pivot.py`) é semente; o mecanismo pleno é **pós-`.8`, indefinido** (registrado no

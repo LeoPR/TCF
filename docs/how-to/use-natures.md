@@ -91,9 +91,8 @@ reconheço essa forma" e este diz outra coisa, **acionável**: *o dado está cer
 montante é que está sujo*. Os bytes emitidos são os mesmos (literal): muda só a telemetria,
 que você lê em `SideOutputs.nature_apply.by_status`.
 
-A fonte mais comum de borda é ler arquivo com `for line in f:` sem `.strip()`: o `
-` vem
-dentro do valor.
+A fonte mais comum de borda é ler arquivo com `for line in f:` sem `.strip()`: o
+caractere de quebra de linha vem dentro do valor.
 
 ### Comparação com e sem *nature*
 

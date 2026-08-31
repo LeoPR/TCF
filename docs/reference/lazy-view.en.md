@@ -114,9 +114,9 @@ table).
 `count` is row cardinality, not a count of non-empty payloads. An empty string is one
 present element; `None`/`NULL` is a separate missing-value convention. The cross-tool
 recipes for counting rows, non-null values and empty strings are in
-[`mimetizar-pandas-sql-polars.md`](../how-to/mimetizar-pandas-sql-polars.md). The single
-empty-string boundary remains tracked in
-[`BUG-VIEW-UMA-STRING-VAZIA`](../../tickets/BUG-VIEW-UMA-STRING-VAZIA.md).
+[`mimetizar-pandas-sql-polars.md`](../how-to/mimetizar-pandas-sql-polars.md). A column of a
+single empty string is one row: `view(encode([""])).count()` is `1`, and `select()` returns
+`[{"0": ""}]`.
 
 ## Filtering
 
@@ -230,6 +230,7 @@ The file is always text, and the type is the reading the header declares. So
 `where(col, "true")` on a boolean column is a clear intent, not an error: the filter value
 is read in the column's type, and the conversion is recorded in `v.coercoes`.
 
+<!-- doctest: raises -->
 ```python
 blob = encode({"ativo": [True, False, True], "n": [1, 2, 3]})
 
@@ -303,6 +304,12 @@ absence: since 2026-08-28, `encode([{"a": 1}, {"a": None}])` produces a blob
 `group_count` answer the same as the equivalent `.8M` table. A wire without magic
 (`stamp=False`) is read too, mirroring `decode`: one column `"0"` of strings.
 
+> **Why the distinction exists, and how each case is asked for**: a cell can be in three
+> situations (has a value, exists and is null, does not exist), and a table only has two. The
+> theory, the sourced vocabulary and the proposed defaults live in
+> [`docs/theory/tres-blocos/`](../theory/tres-blocos/INDEX.md). None of it is implemented:
+> this page describes what the view does today.
+
 ## Reading `report()`
 
 `materialized_bytes` is **coarse on purpose**: it counts the whole body of a column as soon
@@ -351,10 +358,8 @@ in hex, so it reads 11 or 12 bytes and stops. In core mode it sums the counters 
 lines in the compact body; it does not rebuild the column. Only an all-`split` table lacks
 a structural count and decodes its smallest column.
 
-**Known correctness limit:** a core body containing exactly one empty string is currently
-counted as zero, which also truncates `select()`. This is tracked in
-[`BUG-VIEW-UMA-STRING-VAZIA`](../../tickets/BUG-VIEW-UMA-STRING-VAZIA.md); use `decode()`
-for that shape until it is fixed.
+The structural count includes empty lines. A core body of a single empty string counts as
+one row, and `select()` returns it.
 
 Which mode a column lands in is the encoder's decision, not yours, and it is made on bytes
 alone. `fallback=True` (the 0.8 default) is what puts low-cardinality columns in `@dict`,

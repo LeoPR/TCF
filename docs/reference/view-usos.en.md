@@ -26,10 +26,14 @@ in the [API reference](lazy-view.md#governing-principle-opportunistic-in-cost).
 ```python
 from tcf import encode, view
 
-blob = encode({"uf": ["SP", "SP", "RJ"], "valor": [120, 80, 200]})
+table = {"uf":    ["SP", "SP", "RJ", "MG", None],
+         "plano": [ "A",  "B",  "A",  "A",  "B"],
+         "valor": [ 100,   80,  200,   50,   30]}
+
+blob = encode(table)                   # 71 bytes
 v = view(blob)                         # connects: decompresses nothing
-v.count()                              # 3, materializing no value at all
-v.where("uf", "SP").sum("valor")       # 200.0, touching only uf and valor
+v.count()                              # 5, materializing no value at all
+v.where("uf", "SP").sum("valor")       # 180.0, touching only uf and valor
 ```
 
 ## The questions, cheapest first
@@ -48,15 +52,14 @@ In those cases no value object is built, and after a plain `count()`,
 value and occupies one row:
 
 ```python
-v = view(encode(["", "a", ""]))
-v.count()                  # 3
-v.where(0, "").count()     # 2
-v.n_unique(0)              # 2: "" and "a"
+vazio = view(encode(["", "a", ""]))    # a column of its own, not the table above
+vazio.count()                  # 3
+vazio.where(0, "").count()     # 2
+vazio.n_unique(0)              # 2: "" and "a"
 ```
 
-The boundary case `view(encode([""])).count() == 1` is the semantic contract. The current
-implementation violates that contract and is tracked in
-[`BUG-VIEW-UMA-STRING-VAZIA`](../../tickets/BUG-VIEW-UMA-STRING-VAZIA.md). The distinction
+The boundary case `view(encode([""])).count() == 1` is the semantic contract, and it is
+what the implementation does. The distinction
 between counting rows, non-null values and empty strings across TCF, NumPy, pandas, Polars
 and SQL is shown in [`mimetizar-pandas-sql-polars.md`](../how-to/mimetizar-pandas-sql-polars.md).
 
@@ -96,7 +99,7 @@ The filter takes equality (`where(col, value)`) or a predicate
 (`where(col, pred=lambda x: ...)`), and chaining is AND:
 
 ```python
-v.where("uf", "SP").where("plano", "Premium").sum("valor")
+v.where("uf", "SP").where("plano", "A").sum("valor")   # 100.0
 ```
 
 ### What is the total, the minimum, the maximum? (`sum`, `min`, `max`, `avg`)
@@ -111,8 +114,8 @@ not silenced.
 unique table the body already carries, in O(K):
 
 ```python
-v.distinct("uf")      # ['SP', 'RJ', 'MG'], in order of appearance
-v.n_unique("uf")      # 3
+v.distinct("uf")      # ['SP', 'RJ', 'MG', None], in order of appearance
+v.n_unique("uf")      # 4
 ```
 
 The two cost different things, and it is worth knowing: `n_unique` only needs the **size**
@@ -140,8 +143,8 @@ expanding the rows. In the other modes it falls back to decoding the column and 
 involved and crosses them row by row, without using the structure of either.
 
 ```python
-v.group_sum("uf", "valor")            # {'SP': 200.0, 'RJ': 200.0}
-v.group_avg("uf", "valor")            # average per group
+v.group_sum("uf", "valor")            # {'SP': 180.0, 'RJ': 200.0, 'MG': 50.0, None: 30.0}
+v.group_avg("uf", "valor")            # {'SP': 90.0, 'RJ': 200.0, 'MG': 50.0, None: 30.0}
 v.group_sum(["uf", "plano"], "valor") # GROUP BY uf, plano: the key becomes a tuple
 ```
 
@@ -150,8 +153,8 @@ v.group_sum(["uf", "plano"], "valor") # GROUP BY uf, plano: the key becomes a tu
 filter, and the filter already exists.
 
 ```python
-v.group_count("uf")                                        # the null shows up
-v.where("uf", pred=lambda x: x is not None).group_count("uf")   # the "dropna"
+v.group_count("uf")                     # {'SP': 2, 'RJ': 1, 'MG': 1, None: 1}
+v.where("uf", pred=lambda x: x is not None).group_count("uf")   # the "dropna", without None
 ```
 
 Writing the filter keeps what is being thrown away in plain sight, and a flag would hide
@@ -175,8 +178,8 @@ for the second. To get SQL's `NULL`, and the behaviour of the other tools in gen
 The `WHERE … GROUP BY`. The aggregation runs on the rows that matched:
 
 ```python
-v.where("plano", "A").group_sum("uf", "valor")
-v.where("plano", "A").group_count("uf")
+v.where("plano", "A").group_sum("uf", "valor")   # {'SP': 100.0, 'RJ': 200.0, 'MG': 50.0}
+v.where("plano", "A").group_count("uf")         # {'SP': 1, 'RJ': 1, 'MG': 1}
 ```
 
 ### The rows themselves (`select`)

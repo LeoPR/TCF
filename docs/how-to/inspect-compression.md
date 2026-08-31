@@ -283,25 +283,41 @@ Por que uma coluna comprimiu mal? Busque padrões nos campos de
 - `cardinality ≈ 1.0` (muitas/todas strings únicas)
 - `n_unicas ≈ n_rows`
 - `cadence_detected = False`
-- `body_bytes` grande (próximo de `avg_len * n_rows`)
+- `body_bytes` da ordem de `avg_len * n_rows`, e não de uma fração dele
 
 **Interpretação:**
 
-Cada string aparece poucas vezes (ou uma só). TCF não consegue explorar
-repetição. OBAT nem HCC conseguem comprimir bem.
+Cada string aparece poucas vezes (ou uma só) **e não tem estrutura comum**. Sem repetição e
+sem afixo compartilhado, nem o OBAT nem o HCC têm o que explorar.
 
 **Exemplo:**
 
 ```python
+import hashlib
 from tcf import build_schema
 
-data = [f"user{i}" for i in range(100)]  # 100 strings únicas
-schema = build_schema(data)
+data = [hashlib.sha1(str(i).encode()).hexdigest()[:12] for i in range(100)]
+col = build_schema(data).columns["val"]
 
-col = schema.columns["val"]
-print(f"cardinality: {col.cardinality}")  # ~1.0
-print(f"body_bytes: {col.body_bytes}")     # ~280 (pior caso)
+print(col.cardinality)        # 1.0
+print(col.cadence_detected)   # False
+print(col.body_bytes)         # 1615, com avg_len 12.0 em 100 linhas
 ```
+
+**O contra-exemplo que ensina mais:** cardinalidade alta **não basta**. Estas 100 strings
+também são todas únicas, e mesmo assim comprimem:
+
+```python
+data = [f"user{i}" for i in range(100)]
+col = build_schema(data).columns["val"]
+
+print(col.cardinality)        # 1.0, igual ao caso acima
+print(col.cadence_detected)   # True: '1-uniform-length-high-lcp-lcs'
+print(col.body_bytes)         # 28
+```
+
+O prefixo `user` e o sufixo numérico dão ao OBAT o que agarrar. O sinal que decide este
+padrão é o `cadence_detected = False`, não a cardinalidade.
 
 ### Padrão 2: Baixa cardinalidade, alta repetição
 
