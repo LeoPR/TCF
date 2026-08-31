@@ -31,6 +31,7 @@ Format designed for:
 > [ADR-0028](../adr/0028-pre-1.0-versioning-minor-format-coupling-release-cadence.md)), distinguish:
 > - **(A) FORMAT version**: the **format signature / magic number** `#TCF.N` (canonical term;
 >   **not** "shebang", which is `#!`, analogous to `%PDF-1.7`; see [vocabulary.md](../vocabulary.md)).
+<!-- legado-ok: a spec documenta o erro NOMEADO que o decoder levanta hoje; a mensagem vem do codigo -->
 >   On-disk contract; only changes with a format change. Today `#TCF.8` (default, ADR-0032); `#TCF.6/.7`
 >   cut from `src/tcf` (git-as-compat: recover the era to read/compare).
 > - **(B) Encoder generation**: internal development milestone (the `M10` that shows up in the pipeline
@@ -51,9 +52,11 @@ TCF distinguishes the **FORMAT version** (signature `#TCF.N`, axis A) from the *
 | Signature | What decode does |
 |---|---|
 | `#TCF.8` | **current format** (multi-col + single-col self-describing): encode emits it, decode reads it |
+<!-- legado-ok: a spec documenta o erro NOMEADO que o decoder levanta hoje; a mensagem vem do codigo -->
 | `#TCF.7` / `#TCF.6` | **named legacy error**, carrying the `git checkout` hint for reading/comparing that era (git-as-compat, [ADR-0024](../adr/0024-pre-1.0-versioning-git-as-compat.md)) |
 | any other `#TCF.<N>` | unknown-version error |
 
+<!-- legado-ok: a spec documenta o erro NOMEADO que o decoder levanta hoje; a mensagem vem do codigo -->
 Verifiable (the messages come from the code, in Portuguese): `decode('#TCF.6M ...')` raises
 *"formato legado ... nao suportado no 0.8"*; `decode('#TCF.5M ...')` raises
 *"blob #TCF.5: versao desconhecida deste decoder"*.
@@ -62,6 +65,7 @@ Verifiable (the messages come from the code, in Portuguese): `decode('#TCF.6M ..
 emits `#TCF.8M`; flat single-col emits **`#TCF.8`** by DEFAULT (7 B). The orphan (body with no
 signature) is the explicit ESCAPE `stamp=False`
 ([ADR-0034](../adr/0034-header-default-100-porcento-single-col.md); ADR-0029 layer 1 /
+<!-- legado-ok: a spec documenta o erro NOMEADO que o decoder levanta hoje; a mensagem vem do codigo -->
 [ADR-0030](../adr/0030-freeze-single-col-body-at-1.0.md) freeze). Legacy `#TCF.6`/`#TCF.7` is
 fail-loud on decode, with a git hint. Self-describing: natures (ADR-0027) + hex + escaping travel in
 the header.
@@ -288,6 +292,7 @@ flowchart TB
 ```
 
 Multi-col wire: `#TCF.8M` + inline meta (columns `[<pre>]<size>[=<name>][:<id>]` separated by `,`) +
+<!-- legado-ok: a spec documenta o erro NOMEADO que o decoder levanta hoje; a mensagem vem do codigo -->
 `\n` + `<body1><body2><body3>...` concatenated. The encoder has no route to `#TCF.6`/`#TCF.7`.
 
 **Body markers** (what HCC emits; a port needs all of them):

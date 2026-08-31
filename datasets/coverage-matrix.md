@@ -9,7 +9,13 @@ de forma consistente para os cenários de transmissão? **(Q2)** o shaper dimens
 Cada célula é lastreada por **medição real** (não estimativa): bytes brotli-q11 + RT, do
 [nested-tcf-study](../experiments/lab/dirty/2026-07/2026-07-05/2026-07-05-nested-tcf-study/) (harness `nested_bench.py`
 + `trace_experiment.py`, saída bruta em `trace_output.txt`) e do [T1](../experiments/lab/dirty/2026-07/2026-07-05/2026-07-05-t1-ndjson-brotli/result.md).
-A prosa aponta; o número vem do harness. `py -3` + `tcf 0.7.1` + `brotli 1.2.0`.
+A prosa aponta; o número vem do harness. `py -3` + `tcf 0.8.3` + `brotli 1.2.0`.
+
+> **Re-medido em 2026-08-31.** As cinco amostras de entrada→saída foram re-executadas
+> contra o `src/tcf` atual, com os mesmos harnesses e os mesmos datasets. Mudou mais
+> que o rótulo do formato: no forecast o `yhat` passou de raw para split, e todos os
+> tamanhos mudaram. As linhas da matriz acima são da rodada original e ainda não
+> foram re-executadas.
 
 ---
 
@@ -90,44 +96,56 @@ aqui vai o essencial. Todos com **RT=True**.
 ### (1) upload-small: config/instrução multi-camada `(path, value)`, TCF ✗
 ```
 entrada:  model=seasonal-cumulative · options.{cumulate,reset,horizon,freq,tz,fill_gaps} · window.{start,end}
-saída:    #TCF.7 M / 83=path,!value / model / options.*cumulate / 2reset / 2horizon / 2f*req ...
+saída:    #TCF.8M53=path,!value / model / options.*cumulate / 2reset / 2horizon / 2f*req ...
           OBAT fatora o prefixo "options." (P(2,8)+L('reset')); sem cadência, sem seq-RLE.
-bytes:    169B br  (vs raw-JSON 140B br)  →  PERDE — payload <200B, moldura > ganho.
+bytes:    204B raw · 165B brotli-q11, de ~218B TSV-in.
+veredito: PERDE. No mesmo regime, o sweep dá nested-TCF em 127,5% do raw-JSON com n=3
+          assets (260B contra 204B br): payload pequeno, a moldura custa mais que o ganho.
 ```
 
 ### (2) upload-batch: array `series` (n=20), TCF ✓ em escala
 ```
 entrada:  {asset:ASSET_SYN_0001.., variable:cumulative_metric, unit:unit_a, weight:1.0} × 20
-saída:    #TCF.7 M / 46=asset,22=variable,11=unit,weight
+saída:    #TCF.8M2e=asset,16=variable,b=unit,weight
           ASSET_SYN_\00*\0*\1  ← seq-RLE do id cadenciado (asset seq_rle_runs=2)
           *20|cumulative_metric / *20|unit_a / *20|\1.\0   ← colunas constantes → 1 linha RLE cada
-bytes:    n=20 134B ; n=500 nested-TCF 283B vs raw-JSON 1033B (27%)  →  VENCE em batch.
+bytes:    n=20: 131B raw · 126B brotli-q11, de ~879B TSV-in.
+veredito: VENCE em batch, e a vantagem cresce com n: no sweep, o nested-TCF vai de 112,8%
+          do raw-JSON em n=20 para 27,1% em n=500 (280B contra 1033B br).
 ```
 
 ### (3) download-bulk: adult[:200] (low-card largo), TCF ✓ forte
 ```
 entrada:  15 col × 200 (age·workclass·education·occupation·race·sex·native-country·class…)
-saída:    #TCF.7 M / @440=age,@263=workclass,!1365=fnlwgt,@325=education,...  ← dict-coded low-card
-          236 / *2+13|\25 / *2+16|\28 ...  ← seq-RLE nos deltas de age
-bytes:    2354B br  de ~21.6KB TSV  (T1: −20–28% vs NDJSON+brotli)  →  VENCE.
+saída:    #TCF.8M@18c=age,@107=workclass,!555=fnlwgt,@145=education,@fc=education-num,
+          @117=marital-status,@193=occupation,@fa=relationship,@103=race,@d6=sex,...
+          ← as colunas low-card caem em @dict; fnlwgt, quase-única, cai em raw (!).
+bytes:    5274B raw · 2296B brotli-q11, de ~21619B TSV-in.
+veredito: VENCE. A comparação contra NDJSON+brotli está no
+          [T1](../experiments/lab/dirty/2026-07/2026-07-05/2026-07-05-t1-ndjson-brotli/result.md),
+          que não foi re-executado nesta rodada.
 ```
 
 ### (4) download-cadenced: forecast block ds/yhat (24pts), TCF ✓✓
 ```
 entrada:  {ds:2026-07-05T00:37.., yhat:53.0..} × 24
-saída:    #TCF.7 M / %109=ds,!yhat
+saída:    #TCF.8M%69=ds,%yhat
           *24|\2026 / *24|\07 / *24|\05 / *24+1|\00 / *11|\37 / *12|\38   ← cadência do ds
-          (ds cadence=1-uniform-length-high-lcp-lcs, seq_rle_runs=3 ; yhat raw)
-bytes:    24pts 181B br ; 744pts nested-TCF 990B = 71.9% do JSON-colunar (−28%)  →  VENCE o steelman.
+          (ds cadence=1-uniform-length-high-lcp-lcs ; yhat também em %split, não mais em raw)
+bytes:    24pts: 271B raw · 185B brotli-q11, de ~559B TSV-in.
+veredito: VENCE o steelman em escala: com 744 pontos o nested-TCF dá 975B br, 70,8% do
+          JSON-colunar e 48,2% do raw-JSON.
 ```
 
 ### (5) download-narrow-high-card: pessoas[:200] (CPF/nome/email), TCF marginal (LIMITE)
 ```
 entrada:  6 col × 200 (cpf·nome·municipio_id·uf_sigla·data_cadastro·email)
-saída:    #TCF.7 M / !2999=cpf,2604=nome,!1599=municipio_id,@275=uf_sigla,%943=data_cadastro,email
-          cpf/municipio_id/email → RAW (!): quase-únicos, sem redundância estrutural.
-          uf_sigla → @dict (low-card) ; data_cadastro → %split (estrutura de data).
-bytes:    5598B br  de 16.2KB TSV  →  ganho MODESTO (compressão pior que adult apesar de menos bytes de entrada).
+saída:    #TCF.8M%bac=cpf,a2c=nome,!63f=municipio_id,@113=uf_sigla,%390=data_cadastro,email
+          municipio_id → RAW (!): quase-único, sem redundância estrutural.
+          uf_sigla → @dict (low-card) ; cpf e data_cadastro → %split (estrutura conhecida).
+bytes:    11831B raw · 5591B brotli-q11, de ~16220B TSV-in.
+veredito: ganho MODESTO. Comprime pior que o adult apesar de menos bytes de entrada, porque
+          a redundância aqui é estrutural, não de repetição de valor.
 ```
 
 ### (6) nested-response: envelope + bloco TCF (o "TCF aninhado"), TCF ✓ se conteúdo bulk/cadenced

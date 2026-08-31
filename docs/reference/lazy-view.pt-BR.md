@@ -17,8 +17,8 @@ outro objeto com os mesmos métodos, então os filtros encadeiam.
 todas as suas formas (`#TCF.8`, `#TCF.8n`, `#TCF.8b`, `#TCF.8bB`, `#TCF.8 :spec`, e as
 densas `B`/`C`), mais o wire **órfão** sem magic (`stamp=False`), lido como o `decode` o lê.
 Na coluna única o nome é `"0"`, como em qualquer coluna anônima
-([ADR-0029](../adr/0029-version-format-identification-semi-implicit.md)).
-`#TCF.6` e `#TCF.7` não são aceitos no pacote `0.8` (compatibilidade histórica via git).
+([ADR-0029](../adr/0029-version-format-identification-semi-implicit.md)). Wires escritos por
+formatos anteriores não são aceitos: para ler um, o caminho é o release que o escreveu.
 
 > **Por que ela é barata**: a view responde pela menor evidência suficiente que já está no
 > wire, do header até a materialização completa, e um caminho estrutural sempre tem de

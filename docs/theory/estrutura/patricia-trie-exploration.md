@@ -79,6 +79,7 @@ Attempted hash(s[mid]) to reduce bucket size for dates. Sub-exp 01 profiled: mid
 *source*: file:experiments\lab\dirty\old\refuted\2026-05-20-obat-perf-phase2-trigram-middle\README.md + file:STATUS.md lines 321, 390
 
 **v2.0 roadmap (ADR-0018) and Patricia placement**
+<!-- legado-ok: estudo datado de 2026-05-27; a frase registra o que era verdade na data -->
 ADR-0018 (2026-05-27) registers v2.0 candidates: V2-A (fallback identity, lossless), V2-B (dictionary encoding, lossless), V2-C (lossy precision), V2-D (strip redundant suffix). None explicitly mention Patricia, but context: v1.0 frozen (ADR-0017, #TCF.6). ADR-0009 (hash trigram) is v1.0 workhorse. Patricia placement: as v2.0 infrastructure for OBAT if (1) v2.0 opens, (2) hash-based perf stalls, (3) byte-canonical issues resurface. Probabilistic: low priority unless v2-specific needs dictate.
 *source*: file:docs\adr\0018-v2-format-roadmap.md + file:docs\adr\0017-format-spec-v1-frozen.md
 

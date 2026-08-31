@@ -214,15 +214,13 @@ do mesmo compilador). Ressalva: o DSL vale como **infra/DX/explicabilidade**, n�
   Publisher de `tcf-format`. [`.github/workflows/release.yml`](.github/workflows/release.yml)
 - ✅ **CW-2 Reference dos knobs** (`fallback`/`min_header`/`min_len`/`sort_by` + trade-offs medidos).
   [`docs/reference/encode-knobs.md`](docs/reference/encode-knobs.md)
-- ✅ **CW-3 Higiene de comentário CI**: `D17a 322B` → **303B** (322B = `#TCF.6` legado).
+- ✅ **CW-3 Higiene de comentário CI**: baseline do `D17a` corrigida.
   [`.github/workflows/ci.yml`](.github/workflows/ci.yml)
 
 **Tier B, toca `src/tcf`, exige aprovação (NÃO são cheap-wins puros):**
-- ✅ **CW-4 FEITO** (owner OK, 2026-06-19): docstrings stale alinhados em `src/tcf`,
-  `__init__.py` "#TCF.6 default" → **#TCF.7 default** (era erro); `D17a=322B` → 303B/§5-ponteiro em
-  `__init__.py`/`encoder.py`/`syntax.py`/`detect.pyx`; `natures/__init__.py` aponta ADR-0027 (F2
-  parado); `syntax_base.py` dropa "v0.6". **Só docstring/comentário, zero código** (diff verificado);
-  suíte 379 passed, byte-canonical intacto.
+- ✅ **CW-4 FEITO** (owner OK, 2026-06-19): docstrings stale alinhados em `src/tcf`, e a
+  baseline do `D17a` corrigida junto. **Só docstring/comentário, zero código** (diff
+  verificado); suíte 379 passed, byte-canonical intacto.
 - ~~**CW-5** "Higiene de header compacto" (O-FMT-11, byte-precise)~~, **FECHADO/subsumido**
   (verificado 2026-06-19): as reduções concretas já estão welded: O-FMT-16 (dispensa prefixo `# `)
   + O-FMT-15 (última coluna sem size) via `min_header` (ADR-0023); escaping via name-guard (ADR-0026);

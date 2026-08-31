@@ -51,7 +51,7 @@ Prefixos no tamanho de coluna do meta INLINE (`#TCF.8M!8=id,@16=cat,nome`, sem `
 - Nome com separador (`,`/`=`/`:`/`\`/prefixo `!@%`): **escapado com backslash** (T-FMT-NAME-ESCAPING)
 - `<size>` (sem `=<name>`, nao-ultima): coluna ANONIMA (`drop_names`); nome = posicao
 - `\z` (como nome INTEIRO): nome VAZIO `''` (ADR-0046; mesma grafia do `.8H`, ADR-0033). Distinto de ANONIMA: e' um nome, e volta `''` no decode. Inemitivel por dado (literal `\z` sai `\\z`)
-- **byte-size em HEX** (T-FMT-HEADER-BASE-HEX, ADR-0032 §3). *(o modo legado `#TCF.6` com prefixo `# ` +
+- **byte-size em HEX** (T-FMT-HEADER-BASE-HEX, ADR-0032 §3). *(o modo com prefixo `# ` +
   sizes decimais foi CORTADO de src/tcf, ADR-0032 §4.)*
 
 ## Primitiva: referencia por indice (dicionario indexado)
@@ -90,8 +90,8 @@ que motivou o cross-dict/H-REF-02).
   `<?xml`, ou binárias `GZ`=`1F 8B`, `MZ`, `PK`). É o que `file`/libmagic usam pra inferir o
   **mimetype** (`application/x-tcf`). "shebang" na prosa antiga = uso histórico impreciso (ADR-0001).
 - **Versao de FORMATO**: a versão codificada na assinatura `#TCF.N` (acima). Contrato on-disk; so'
-  muda com mudanca de formato. Hoje: **`#TCF.8` (default**, ADR-0032); `#TCF.6`/`#TCF.7` CORTADOS de
-  `src/tcf` (git-as-compat, nao mais lidos no codigo vivo). Eixo A.
+  muda com mudanca de formato. Hoje: **`#TCF.8`** (default, ADR-0032). Formatos anteriores
+  sairam do codigo vivo; ler um blob antigo passa pelo release que o escreveu. Eixo A.
 - **Geracao do encoder**: marco interno do algoritmo (`M8A` -> `M9` -> `M10`).
   Bytes diferentes DENTRO da mesma familia de formato. NAO e' versao publica; nota
   historica. Eixo B.
@@ -113,6 +113,7 @@ gate geral do cross-dict falhou 2026-06-27; o payload do bump e' o `.8`-default,
 | Use | Nao use |
 |---|---|
 | "versao de formato `#TCF.N`" | "versao 0.N" pra falar do formato on-disk |
+<!-- legado-ok: esta tabela E' a lista de formas a NAO usar; nomear a forma morta e' a funcao dela -->
 | "`#TCF.8` = formato default (0.8.0)" | "#TCF.7 default" / "0.7.2 separado" (absorvido no 0.8.0) |
 | "minor 0.8.0 = #TCF.8 (default, ADR-0032)" | "0.8.0 = cross-dict" (gate falhou; payload = .8-default) |
 | "geracao do encoder M9/M10 (interno)" | "versao M10" como se fosse versao publica |

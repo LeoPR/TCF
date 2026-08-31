@@ -15,8 +15,8 @@ object with the same methods, so filters chain.
 route in all of its forms (`#TCF.8`, `#TCF.8n`, `#TCF.8b`, `#TCF.8bB`, `#TCF.8 :spec`, and
 the dense `B`/`C`), plus the **orphan** wire without magic (`stamp=False`), read the way
 `decode` reads it. In a single column the name is `"0"`, as in any anonymous column
-([ADR-0029](../adr/0029-version-format-identification-semi-implicit.md)). `#TCF.6` and
-`#TCF.7` are not accepted in the `0.8` package (historical compatibility through git).
+([ADR-0029](../adr/0029-version-format-identification-semi-implicit.md)). Wires written by
+earlier formats are not accepted: reading one means checking out the release that wrote it.
 
 > **Why it is cheap**: the view answers from the least sufficient evidence already in the
 > wire, from the header down to full materialization, and a structural path must always

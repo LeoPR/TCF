@@ -164,6 +164,7 @@ sub_first_line[sub] = first line index onde sub aparece como candidato. alias_fi
 **Status Canonical & Welding**:
 - Código base intocado desde 2026-05-16 em dirty lab
 - Welded src/tcf 2026-05-17, Bug fixes: ADR-0006, ADR-0007, ADR-0015, ADR-0016
+<!-- legado-ok: auditoria datada de 2026-05-27; a frase registra o inventario da data -->
 - Format frozen v1.0 via ADR-0017: #TCF.6 imutável até v2.0; D1-D9=1523B, D17a=322B
 
 **Caracteres Especiais Completo**:

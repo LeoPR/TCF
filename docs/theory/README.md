@@ -177,13 +177,13 @@ antigo se encontra aqui:
 
 ## Conceitos pendentes para reconectar
 
-Identificados pelo user em 2026-05-17 (todos cobertos em
-[perspectiva-triplice-e-pre-tx.md](desempenho/perspectiva-triplice-e-pre-tx.md)):
+Levantados pelo owner em 2026-05-17, todos cobertos em
+[perspectiva-triplice-e-pre-tx.md](desempenho/perspectiva-triplice-e-pre-tx.md). Dos quatro,
+**multi-coluna** e **tipos de dado no pre-filtro** (CPF, IP, datas calculaveis) ja' estao
+soldados; seguem abertos:
 
-1. **Multi-coluna**: ~~TCF v0.6 atual e' single-column~~ → **welded em 0.7** (ADR-0011/0004; `#TCF.7 M`).
-2. **Tipos de dados pre-filtro**: CPF, IP, datas calculaveis (ADR-0015, welded 0.7).
-3. **Perspectiva triplice**: compressao + memoria + latencia.
-4. **Slot pattern online**: resolve `17,??,5` em D9.
+1. **Perspectiva triplice**: compressao + memoria + latencia.
+2. **Slot pattern online**: resolve `17,??,5` em D9.
 
 ## Material historico v0.5
 
