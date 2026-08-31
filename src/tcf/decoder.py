@@ -56,7 +56,8 @@ from tcf.composicional.hcc_seqrle import HCCSeqRLE
 # ''=single version-stamp (#TCF.8, magic-number p/ file), 'H'=hierarquico VIVO
 # (codec soldado, ADR-0033 — NAO e' mais reservado/fail-loud), 'b'/'n'/'s'=single-col
 # TIPADO (bool/numero/string-explicita). Legado #TCF.6/#TCF.7 CORTADO (git-as-compat).
-_V8_MAGIC = "#TCF.8"  # base do #TCF.8; o disc (char no indice 6) decide
+from tcf.wire import MAGIC_BASE
+_V8_MAGIC = MAGIC_BASE  # a era vigente (tcf.wire); o disc (char no indice 6) decide
 
 
 def _resolve_header_spec(nature_id: str, supplied, *, where: str):

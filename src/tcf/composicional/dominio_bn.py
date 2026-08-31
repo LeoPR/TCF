@@ -55,7 +55,8 @@ import math
 
 from tcf.bitpack import pack_w, unpack_w
 
-MAGIC = "#TCF.8"
+from tcf.wire import MAGIC_BASE
+MAGIC = MAGIC_BASE
 BS = chr(92)
 
 #: Discriminadores. `B` = dominio primeiro (streaming); `C` = dominio por ultimo (lote).

@@ -35,10 +35,48 @@ Vale para **código, documentação e índices**, sem exceção:
 vigência vai no Status do índice), `docs/archive/`, `docs/findings/`, labs em
 `experiments/`, `CHANGELOG.md`, e o histórico do git.
 
+**Não se apaga, mas se ARQUIVA por era** (owner, 2026-08-31): material de uma era fechada
+vai para `docs/archive/era-<N>/` por `git mv`, com os ponteiros da superfície reescritos.
+Não é perda, é dar um lugar único e datado, que é o que faz a busca ficar rápida sem
+quebrar os ponteiros que vivem dentro de ADR imutável. Ver **I8**.
+
 > Strata §3: o traço é *append-only*; a **superfície decai ativamente**. Aplicar
 > *append-only* à superfície é o erro que faz a leitura apodrecer sob o peso do que já não
 > vale. Apagar da superfície com autorização **não** é edição furtiva: o commit é o
 > tombstone.
+
+### I8 A era do wire tem prazo escrito: janela N-1, e o registro tem 2 linhas
+
+Corolário do I1 aplicado ao **formato**, com mecanismo. A era do wire vive em
+[`src/tcf/wire.py`](src/tcf/wire.py), e só ali: no máximo **duas** eras, a vigente e a
+anterior com **data de sunset escrita no commit que promoveu a sucessora**.
+
+**Esquecer tem três níveis, e eles não acontecem juntos:**
+
+| nível | quando | o quê |
+|---|---|---|
+| parar de **servir** | no dia da virada, janela zero | emissão e decode da era anterior saem do `src`, com fail-loud nomeando o caminho de volta |
+| parar de **citar** | na data de sunset | a superfície deixa de nomear a era. É este nível que dá velocidade de busca |
+| apagar do **disco** | na data de sunset | só o regenerável: fixtures, blobs de lab, snapshots |
+
+**A janela não custa código legado vivo.** O comparativo migratório entre duas eras roda com
+a era anterior instalada do PyPI (`pip install tcf-format==0.N.*`) ou pela tag do git, em
+ambiente à parte. É por isso que "parar de servir" não é perder o dado, e é o que torna o
+esquecimento barato.
+
+**Dois eixos.** A era do WIRE é o contrato on-disk; a versão do PACOTE é o que o PyPI guarda
+para sempre, e é ela o leitor da era morta (a separação que o Apache Arrow faz entre Format
+Version e Library Version). O minor do pacote acompanha o formato (ADR-0028).
+
+O que sustenta, sem depender de alguém lembrar:
+[`test_wire_eras.py`](tests/test_wire_eras.py) (limite de duas eras, e a catraca que impede
+a grafia solta de crescer) e
+[`test_superficie_sem_versao_morta.py`](tests/test_superficie_sem_versao_morta.py) (a janela,
+com o relógio no commit do `HEAD` para a história não ficar vermelha retroativamente).
+
+> Precedente: a regra número 1 do Kubernetes é *a versão antiga não se edita, ela para de ser
+> servida*. Esta invariante é **pré-1.0** e morre no 1.0, quando a base instalada deixar de
+> ser desprezível.
 
 ### I2 ⟳ Lab sem evidência em disco é lab NÃO FEITO
 

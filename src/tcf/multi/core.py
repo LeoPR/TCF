@@ -48,10 +48,11 @@ from tcf.multi.split import _decode_struct_split, _struct_split_encode
 from tcf.pipeline import DEFAULT_PIPELINE, PipelineConfig
 from tcf.side_outputs import SideOutputs
 
-MAGIC_MULTI_V3 = b"#TCF.8M"  # multi-col DEFAULT (ADR-0032). Discriminador de 1 char:
+from tcf.wire import MAGIC_BASE_B, MAGIC_MULTI_B
+MAGIC_MULTI_V3 = MAGIC_MULTI_B  # multi-col DEFAULT (ADR-0032). Discriminador de 1 char:
 # 'M' logo apos #TCF.8 (SEM espaco); meta INLINE na linha
 # do shebang ('#TCF.8M<meta>\n'). Legado #TCF.6/.7 cortado.
-MAGIC_SINGLE_V3 = b"#TCF.8"  # single-col self-describing (SEM flag M -> single,
+MAGIC_SINGLE_V3 = MAGIC_BASE_B  # single-col self-describing (SEM flag M -> single,
 # decode retorna list). Header numa linha: '#TCF.8 [nome]:spec'
 # (espaco = single+spec) ou '#TCF.8' (newline = version-stamp).
 # Opt-in. ADR-0027/0029.

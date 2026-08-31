@@ -36,7 +36,8 @@ from tcf.multi import (
 from tcf.multi.core import _nomes_resolvidos
 from tcf.decoder import _decode_column
 
-MAGIC_HIER = b"#TCF.8H"      # tabela retangular tambem chega por aqui
+from tcf.wire import MAGIC_HIER_B
+MAGIC_HIER = MAGIC_HIER_B    # tabela retangular tambem chega por aqui
 
 
 def _idx_at(stream: bytes, off: int, width: int) -> int:

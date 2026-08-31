@@ -60,7 +60,8 @@ import math
 from tcf.decoder import decode as _decode_col   # L1: decode de 1 coluna (body órfão)
 from tcf.encoder import encode as _encode_col    # L1: encode de 1 coluna (lista -> body)
 
-MAGIC = "#TCF.8H"
+from tcf.wire import MAGIC_HIER_STR
+MAGIC = MAGIC_HIER_STR
 
 # P5/union RATIFICADO fora do `.8` (levantamento 2026-07-17: union real ~0 em dado tabular;
 # Parquet — ref. colunar — também recusa union nativo). O `.8H` é shredded-schema-fixo: uma coluna
