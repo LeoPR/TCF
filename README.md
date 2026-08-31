@@ -12,6 +12,63 @@
 > **What if you could transmit the same table with far fewer bytes,
 > without turning it into a binary blob nobody can open and read anymore?**
 
+**Documentation**: [the manual](docs/README.md) · [short guide](README.pypi.md) · [step-by-step tutorial](docs/tutorials/getting-started.md)
+
+## What TCF is
+
+A **textual**, **lossless** format (`decode(encode(x)) == x`) for tables of strings.
+
+It compresses somewhat like a zip/gzip, with one difference: the result **stays ASCII text that you
+open and inspect**, without decompressing. Each column goes through its own pipeline.
+
+The more TCF factors, the denser that text gets, so it reads less obviously than the original. It
+never turns into an opaque blob, though.
+
+That is the niche TCF occupies: **compact like a compressor, inspectable like text**.
+
+Need maximum ratio? You can run gzip/brotli on top: they compose.
+
+## Getting started (1 minute)
+
+```bash
+pip install tcf-format        # or: uv pip install tcf-format
+```
+
+The **distribution** is called `tcf-format`; the **importable package** is `tcf`, with no
+runtime dependencies.
+
+```python
+from tcf import encode, decode
+
+# Single-column: a list of strings
+text = encode(["joao@gmail.com", "maria@gmail.com", "pedro@gmail.com"])
+assert decode(text) == ["joao@gmail.com", "maria@gmail.com", "pedro@gmail.com"]
+
+# Multi-column: a dict of columns
+table = {
+    "id":    ["1", "2", "3"],
+    "email": ["joao@gmail.com", "maria@gmail.com", "pedro@gmail.com"],
+}
+text = encode(table)
+assert decode(text) == table  # lossless round-trip
+
+```
+
+`encode` dispatches by type (list → single-column, dict → multi-column).
+`decode` routes by the format signature.
+
+Pre-1.0 (ADR-0024): the package is at `0.8.3`. The *minor* tracks the format
+(`#TCF.8`) and the *patch* is a release counter, decoupled from behavior.
+
+Structured values (CPF, CNPJ, IP) have opt-in *natures* that shrink the column further:
+see [Nature filters](#nature-filters-opt-in).
+
+
+Step-by-step tutorial: [`docs/tutorials/getting-started.md`](docs/tutorials/getting-started.md).
+Practical guides: [`docs/how-to/`](docs/how-to/).
+
+## Why it is smaller: the same data in three formats
+
 A small record set, in three formats (real bytes, real output):
 
 **JSON** *(596 B)*: repeats every field name on every row.
@@ -166,20 +223,6 @@ But the deeper it factors (look at the email), the denser the text gets.
 
 On large tables the gap grows: see [Results](#results).
 
-## What TCF is
-
-A **textual**, **lossless** format (`decode(encode(x)) == x`) for tables of strings.
-
-It compresses somewhat like a zip/gzip, with one difference: the result **stays ASCII text that you
-open and inspect**, without decompressing. Each column goes through its own pipeline.
-
-The more TCF factors, the denser that text gets, so it reads less obviously than the original. It
-never turns into an opaque blob, though.
-
-That is the niche TCF occupies: **compact like a compressor, inspectable like text**.
-
-Need maximum ratio? You can run gzip/brotli on top: they compose.
-
 ## How it does it: OBAT + HCC
 
 Two layers, explained by purpose. The specs live in [`docs/algorithms/`](docs/algorithms/).
@@ -199,7 +242,7 @@ The affix search belongs to the **prefix/suffix tree** family: tries, **Patricia
 which drops the naive O(N²) cost to ~O(N^1.42), sub-quadratic and near-linear.
 
 Swapping the index for a Patricia trie is a future candidate:
-[exploration](docs/theory/patricia-trie-exploration.md).
+[exploration](docs/theory/estrutura/patricia-trie-exploration.md).
 
 **HCC** (Hierarchical Compositional Coding) *decides what is worth naming and groups repetitions*.
 
@@ -335,42 +378,6 @@ Three honest details:
 > explored in a separate lab. They are not canonical `.8` specs yet; see the measured decision in
 > [`T-SPEC-STATUS-08`](tickets/T-SPEC-STATUS-08.md).
 
-## Getting started (1 minute)
-
-```bash
-pip install tcf-format
-```
-
-```python
-from tcf import encode, decode
-
-# Single-column: a list of strings
-text = encode(["joao@gmail.com", "maria@gmail.com", "pedro@gmail.com"])
-assert decode(text) == ["joao@gmail.com", "maria@gmail.com", "pedro@gmail.com"]
-
-# Multi-column: a dict of columns
-table = {
-    "id":    ["1", "2", "3"],
-    "email": ["joao@gmail.com", "maria@gmail.com", "pedro@gmail.com"],
-}
-text = encode(table)
-assert decode(text) == table  # lossless round-trip
-
-# Optional filter for structured values: CPF/CNPJ/IP.
-# The header records the filter when it produces the smaller result, so decode
-# does not need to receive it.
-from tcf import SPEC_CPF
-cpfs = ["111.111.111-11", "222.222.222-22", "333.333.333-33"]  # repeated digits: mod-11-valid, never issued (safe fakes)
-text = encode(cpfs, schema=SPEC_CPF)
-assert decode(text) == cpfs
-```
-
-`encode` dispatches by type (list → single-column, dict → multi-column).
-`decode` routes by the format signature.
-
-Step-by-step tutorial: [`docs/tutorials/getting-started.md`](docs/tutorials/getting-started.md).
-Practical guides: [`docs/how-to/`](docs/how-to/).
-
 ## Format 0.8 (default): where the bytes go
 
 Multi-column `encode` emits **0.8 / `#TCF.8M`** by default, see
@@ -404,7 +411,7 @@ text = encode(table)        # 0.8 / #TCF.8M, the default, no flags
 text = encode(table, fallback=False, min_header=False)  # only TCF candidates, verbose meta
 text = encode(table, min_header=False)                  # #TCF.8M with all sizes
 text = encode(table, min_len=5)                         # override OBAT's min_len (default: auto)
-text = encode(table, sort_by="cidade")                  # sorts rows by the column (order-free, +compression)
+text = encode(table, sort_by="email")                   # sorts rows by the column (order-free, +compression)
 ```
 
 > `sort_by` reorders the rows by the column (groups similar ones → fewer bytes,
@@ -696,54 +703,6 @@ After a solid 1.0 (registered, **not** implemented, see
 - **More specs** (templated/checksummed/numeric), gain limits, local query indexes and
   **intra-value repetition** (factoring `111.` inside a CPF), target `.9`/pre-1.0 with gates.
 
-## Install
-
-```bash
-pip install tcf-format        # or: uv pip install tcf-format
-```
-
-The **distribution** is called `tcf-format`; the **importable package** is `tcf` (with no
-runtime dependencies):
-
-```python
-from tcf import encode, decode
-
-tabela = {
-    "nome": ["ana", "bruno", "carla"],
-    # example CPFs with repeated digits: invalid by convention (rejected by any
-    # validator; the tax office never issues them). They do not map to real people.
-    "cpf":  ["111.111.111-11", "222.222.222-22", "333.333.333-33"],
-}
-blob = encode(tabela)
-assert decode(blob) == tabela        # lossless round-trip
-```
-
-For CPF/CNPJ/IP there are opt-in *natures* that regenerate the check digit on decode. Pass one
-with `encode(column, schema=SPEC_CPF)`; see ADR-0015.
-
-Pre-1.0 (ADR-0024): the package is at `0.8.3`. The *minor* tracks the format
-(`#TCF.8`) and the *patch* is a release counter, decoupled from behavior.
-
-## First-time setup (dev)
-
-```bash
-# Clone + install dev deps
-git clone https://github.com/LeoPR/TCF.git && cd TCF
-pip install -e ".[dev]"
-
-# (recommended) install pre-commit hooks
-pre-commit install
-
-# Run hooks on all files (optional, baseline)
-pre-commit run --all-files
-```
-
-Configured hooks (see [`.pre-commit-config.yaml`](.pre-commit-config.yaml)):
-- `ruff` lint + format
-- `detect-secrets` (scan)
-- basics: trailing-whitespace, end-of-file-fixer, check-merge-conflict, check-added-large-files
-- custom: blocks cache dirs (`__pycache__/`, `.pytest_cache/`, etc.) accidentally staged
-
 ## How to cite
 
 See [`CITATION.cff`](CITATION.cff). GitHub renders a "Cite this
@@ -774,55 +733,6 @@ if Phase 2 is revived.
 
 ---
 
-## Repository layout
-
-```
-TCF/
-├── src/tcf/                 ← CANONICAL v0.8 API (OBAT+HCC, encode/decode/view, #TCF.8)
-├── old/tcf/                 ← v0.5 engine (levels L0–L3), frozen-historical (see LEVELS-REVIEW.md)
-├── scripts/                 ← Shaper (stratified sampling), CSV→SQLite, setup_* datasets
-├── experiments/lab/         ← v0.8 labs (dirty + clean): compositional compression
-├── old/llm-benchmark/       ← LLM benchmark v0.5 (harness: runners + llm_eval), accessory
-├── tests/                   ← pytest suite (v0.8)
-├── datasets/                ← canonical metadata + samples (real data outside the repo)
-├── tickets/                 ← markdown planning (YAML frontmatter)
-├── docs/
-│   ├── algorithms/          ← canonical v0.8 specs (OBAT, HCC, TCF-format) [reference]
-│   ├── adr/                 ← numbered, immutable decisions
-│   ├── theory/              ← theoretical foundations [explanation]
-│   ├── how-to/, tutorials/  ← Diataxis
-│   ├── findings/            ← v0.5 LLM scientific catalog (F-Q01..Q38) [historical]
-│   ├── workbench/           ← dev timeline, research notes (parts in _archive/)
-│   └── archive/             ← frozen v0.5/v0.1 material (manual_v05, article_v05, etc.)
-├── config/                  ← storage.json (points to the data root), api_keys (gitignored)
-├── README.md                ← you are here
-└── CHANGELOG.md             ← release history
-```
-
-> For the detailed map, see [MAP.md](MAP.md). The `docs/manual/`
-> and `docs/article/` directories do NOT exist; the corresponding v0.5 material is in
-> `docs/archive/manual_v05/` and `docs/archive/article_v05/`.
-
----
-
-## Tools shipped (v0.8)
-
-The encoder is the main tool; support helpers (NOT TCF-core):
-
-- **Shaper** (`src/shaper/`): stratified, FK-preserving sampling framework.
-  Standalone-able as a separate library; see
-  [shaper-as-standalone-tool note](docs/workbench/research-notes/_archive/2026-04-25-shaper-as-standalone-tool.md)
-- **DatasetReader** (`scripts/dataset_reader.py`): uniform interface
-  over SQLite hubs (rows, columns, query, column_stats)
-- **setup_\*.py** (`scripts/`): download/generation of the canonical datasets
-  (Adult, TPC-H, IBGE, CNPJ, etc.); see [datasets/README.md](datasets/README.md)
-
-> Pre-1.0: **library-only** (no CLI; see `pyproject.toml`).
-> The LLM benchmark v0.5 (CommercialClient, M-series runners) lives in
-> [`old/llm-benchmark/`](old/llm-benchmark/), with reproduction instructions in its own README.
-
----
-
 ## Where to go next
 
 - **I want to use TCF in my pipeline** → `from tcf import encode, decode`; the public
@@ -843,6 +753,8 @@ The encoder is the main tool; support helpers (NOT TCF-core):
   [docs/archive/article_v05/](docs/archive/article_v05/) (paper pending)
 - **I want to see how it evolved** → [CHANGELOG.md](CHANGELOG.md) +
   [docs/workbench/](docs/workbench/)
+- **I want to work on TCF itself** → [CONTRIBUTING.md](CONTRIBUTING.md): dev setup,
+  repository layout and the tools that ship with the repo
 
 ---
 

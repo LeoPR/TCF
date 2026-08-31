@@ -15,6 +15,63 @@
 > **E se desse pra transmitir a mesma tabela com bem menos bytes,
 > sem virar um arquivo binário que ninguém mais consegue abrir e ler?**
 
+**Documentação**: [o manual](docs/README.md) · [guia curto](README.pypi.md) · [tutorial passo-a-passo](docs/tutorials/getting-started.pt-BR.md)
+
+## O que é o TCF
+
+Um formato **textual** e **sem perdas** (`decode(encode(x)) == x`) para tabelas de strings.
+
+Comprime parecido com um zip/gzip, com uma diferença: o resultado **continua texto ASCII que você
+abre e inspeciona**, sem descomprimir. Não fica tão óbvio quanto o original, porque quanto mais o
+TCF fatora, mais denso o texto. Mas nunca vira um blob opaco.
+
+Cada coluna passa por um pipeline próprio.
+
+É essa a faixa que o TCF ocupa: **compacto como um compressor, inspecionável como texto**.
+
+Precisa de ratio máximo? Rode gzip/brotli por cima: eles se compõem.
+
+## Getting started (1 minuto)
+
+```bash
+pip install tcf-format        # ou: uv pip install tcf-format
+```
+
+A **distribuição** chama-se `tcf-format`; o **pacote importável** é `tcf`, sem dependências
+de runtime.
+
+```python
+from tcf import encode, decode
+
+# Single-column: lista de strings
+text = encode(["joao@gmail.com", "maria@gmail.com", "pedro@gmail.com"])
+assert decode(text) == ["joao@gmail.com", "maria@gmail.com", "pedro@gmail.com"]
+
+# Multi-column: dict de colunas
+table = {
+    "id":    ["1", "2", "3"],
+    "email": ["joao@gmail.com", "maria@gmail.com", "pedro@gmail.com"],
+}
+text = encode(table)
+assert decode(text) == table  # round-trip lossless
+
+```
+
+`encode` dispatcha por tipo (list → single-column, dict → multi-column).
+`decode` roteia pela assinatura de formato.
+
+Pré-1.0 (ADR-0024): o pacote está em `0.8.3`; o *minor* acompanha o formato
+(`#TCF.8`) e o *patch* é contador de release, desacoplado do comportamento.
+
+Valores estruturados (CPF, CNPJ, IP) têm *natures* opt-in que encolhem mais a coluna:
+ver [Filtros por natureza](#filtros-por-natureza-opt-in).
+
+
+Tutorial passo-a-passo: [`docs/tutorials/getting-started.md`](docs/tutorials/getting-started.md).
+Guias praticos: [`docs/how-to/`](docs/how-to/).
+
+## Por que ele é menor: o mesmo dado em três formatos
+
 Um cadastro pequeno, nos três formatos (bytes reais, saída de verdade):
 
 **JSON** *(596 B)*: repete o nome de cada campo em toda linha.
@@ -167,20 +224,6 @@ Mas quanto mais fundo ele fatora (veja o e-mail), mais denso o texto fica.
 
 Em tabelas grandes a diferença cresce: ver [Resultados](#resultados).
 
-## O que é o TCF
-
-Um formato **textual** e **sem perdas** (`decode(encode(x)) == x`) para tabelas de strings.
-
-Comprime parecido com um zip/gzip, com uma diferença: o resultado **continua texto ASCII que você
-abre e inspeciona**, sem descomprimir. Não fica tão óbvio quanto o original, porque quanto mais o
-TCF fatora, mais denso o texto. Mas nunca vira um blob opaco.
-
-Cada coluna passa por um pipeline próprio.
-
-É essa a faixa que o TCF ocupa: **compacto como um compressor, inspecionável como texto**.
-
-Precisa de ratio máximo? Rode gzip/brotli por cima: eles se compõem.
-
 ## Como ele faz isso: OBAT + HCC
 
 Duas camadas, explicadas pelo propósito (specs: [`docs/algorithms/`](docs/algorithms/)).
@@ -199,7 +242,7 @@ A busca por afixos é da família das **árvores de prefixo/sufixo**: tries, **P
 que derruba o custo de O(N²) ingênuo para ~O(N^1.42), sub-quadrático e quase-linear.
 
 > Trocar o índice por uma Patricia trie é candidato futuro:
-> [exploração](docs/theory/patricia-trie-exploration.md).
+> [exploração](docs/theory/estrutura/patricia-trie-exploration.md).
 
 **HCC** (Hierarchical Compositional Coding) *decide o que vale a pena nomear e agrupa repetições.*
 Ele pega os tokens do OBAT e fatora composições recorrentes em **referências nomeadas
@@ -333,38 +376,6 @@ Três detalhes honestos:
 > genéricos foram medidos fora do core. Nenhum é spec canônico do `.8` ainda; veja a matriz em
 > [`T-SPEC-STATUS-08`](tickets/T-SPEC-STATUS-08.md).
 
-## Getting started (1 minuto)
-
-```python
-from tcf import encode, decode
-
-# Single-column: lista de strings
-text = encode(["joao@gmail.com", "maria@gmail.com", "pedro@gmail.com"])
-assert decode(text) == ["joao@gmail.com", "maria@gmail.com", "pedro@gmail.com"]
-
-# Multi-column: dict de colunas
-table = {
-    "id":    ["1", "2", "3"],
-    "email": ["joao@gmail.com", "maria@gmail.com", "pedro@gmail.com"],
-}
-text = encode(table)
-assert decode(text) == table  # round-trip lossless
-
-# Filtro opcional para valores estruturados: CPF/CNPJ/IP.
-# O cabeçalho registra o filtro quando ele produz o menor resultado, então o
-# decode não precisa recebê-lo.
-from tcf import SPEC_CPF
-cpfs = ["111.111.111-11", "222.222.222-22", "333.333.333-33"]  # dígitos repetidos: mod-11-válidos, nunca emitidos (fakes seguros)
-text = encode(cpfs, schema=SPEC_CPF)
-assert decode(text) == cpfs
-```
-
-`encode` dispatcha por tipo (list → single-column, dict → multi-column).
-`decode` roteia pela assinatura de formato.
-
-Tutorial passo-a-passo: [`docs/tutorials/getting-started.md`](docs/tutorials/getting-started.md).
-Guias praticos: [`docs/how-to/`](docs/how-to/).
-
 ## Formato 0.8 (default): onde os bytes vão
 
 O `encode` multi-coluna sai em **0.8 / `#TCF.8M`** por default ([ADR-0032](docs/adr/0032-tcf8-default-format.md)).
@@ -397,7 +408,7 @@ text = encode(table)        # 0.8 / #TCF.8M, é o default, sem flags
 text = encode(table, fallback=False, min_header=False)  # só candidatos TCF, meta verboso
 text = encode(table, min_header=False)                  # #TCF.8M com todos os tamanhos
 text = encode(table, min_len=5)                         # override do min_len do OBAT (default: auto)
-text = encode(table, sort_by="cidade")                  # ordena linhas pela coluna (order-free, +compressão)
+text = encode(table, sort_by="email")                   # ordena linhas pela coluna (order-free, +compressão)
 ```
 
 > `sort_by` reordena as linhas pela coluna (agrupa similares → menos bytes,
@@ -690,54 +701,6 @@ Depois de uma 1.0 sólida (registrado, **não** implementado; ver
 - **Mais specs** (templated/checksummed/numéricos), limites de ganho, índices locais e
   **repetição intra-valor**: pesquisa `.9`/pré-1.0, com gate real-world.
 
-## Install
-
-```bash
-pip install tcf-format        # ou: uv pip install tcf-format
-```
-
-A **distribuição** chama-se `tcf-format`; o **pacote importável** é `tcf` (sem
-dependências de runtime):
-
-```python
-from tcf import encode, decode
-
-tabela = {
-    "nome": ["ana", "bruno", "carla"],
-    # CPFs de exemplo com digitos repetidos: invalidos por convencao (rejeitados
-    # por qualquer validador; a Receita nunca os emite). Nao correspondem a pessoas reais.
-    "cpf":  ["111.111.111-11", "222.222.222-22", "333.333.333-33"],
-}
-blob = encode(tabela)
-assert decode(blob) == tabela        # round-trip lossless
-```
-
-Para CPF/CNPJ/IP há *natures* opt-in (ADR-0015, `encode(coluna, schema=SPEC_CPF)`)
-que regeneram o dígito verificador no decode.
-
-Pré-1.0 (ADR-0024): o pacote está em `0.8.3`; o *minor* acompanha o formato
-(`#TCF.8`) e o *patch* é contador de release, desacoplado do comportamento.
-
-## First-time setup (dev)
-
-```bash
-# Clone + install dev deps
-git clone https://github.com/LeoPR/TCF.git && cd TCF
-pip install -e ".[dev]"
-
-# (recomendado) instalar pre-commit hooks
-pre-commit install
-
-# Rodar hooks em todos arquivos (opcional, baseline)
-pre-commit run --all-files
-```
-
-Hooks configurados (ver [`.pre-commit-config.yaml`](.pre-commit-config.yaml)):
-- `ruff` lint + format
-- `detect-secrets` (scan)
-- basicos: trailing-whitespace, end-of-file-fixer, check-merge-conflict, check-added-large-files
-- custom: bloqueia cache dirs (`__pycache__/`, `.pytest_cache/`, etc.) acidentalmente staged
-
 ## How to cite
 
 Ver [`CITATION.cff`](CITATION.cff). GitHub renderiza badge "Cite this
@@ -768,55 +731,6 @@ se Phase 2 for revivida.
 
 ---
 
-## Repository layout
-
-```
-TCF/
-├── src/tcf/                 ← API CANÔNICA v0.8 (OBAT+HCC, encode/decode/view, #TCF.8)
-├── old/tcf/                 ← motor v0.5 (niveis L0–L3), congelado-historico (ver LEVELS-REVIEW.md)
-├── scripts/                 ← Shaper (stratified sampling), CSV→SQLite, setup_* datasets
-├── experiments/lab/         ← labs v0.8 (dirty + clean): compressao composicional
-├── old/llm-benchmark/       ← benchmark LLM v0.5 (harness: runners + llm_eval), acessorio
-├── tests/                   ← pytest suite (v0.8)
-├── datasets/                ← canonical metadata + samples (dados reais fora do repo)
-├── tickets/                 ← planejamento markdown (YAML frontmatter)
-├── docs/
-│   ├── algorithms/          ← specs canonicos v0.8 (OBAT, HCC, TCF-format) [reference]
-│   ├── adr/                 ← decisoes numeradas, imutaveis
-│   ├── theory/              ← fundamentos teoricos [explanation]
-│   ├── how-to/, tutorials/  ← Diataxis
-│   ├── findings/            ← catalogo cientifico v0.5 LLM (F-Q01..Q38) [historico]
-│   ├── workbench/           ← dev timeline, research notes (partes em _archive/)
-│   └── archive/             ← material v0.5/v0.1 congelado (manual_v05, article_v05, etc.)
-├── config/                  ← storage.json (aponta a raiz de dados), api_keys (gitignored)
-├── README.md                ← you are here
-└── CHANGELOG.md             ← release history
-```
-
-> Para o mapa detalhado, ver [MAP.md](MAP.md). Os diretorios `docs/manual/`
-> e `docs/article/` NAO existem; o material v0.5 correspondente esta em
-> `docs/archive/manual_v05/` e `docs/archive/article_v05/`.
-
----
-
-## Ferramentas entregues (v0.8)
-
-O encoder e' a ferramenta principal; auxiliares de suporte (NAO TCF-core):
-
-- **Shaper** (`src/shaper/`): stratified, FK-preserving sampling framework.
-  Standalone-able as a separate library; see
-  [shaper-as-standalone-tool note](docs/workbench/research-notes/_archive/2026-04-25-shaper-as-standalone-tool.md)
-- **DatasetReader** (`scripts/dataset_reader.py`): uniform interface
-  over SQLite hubs (rows, columns, query, column_stats)
-- **setup_\*.py** (`scripts/`): download/geracao dos datasets canonicos
-  (Adult, TPC-H, IBGE, CNPJ, etc.); ver [datasets/README.md](datasets/README.md)
-
-> Pré-1.0: **library-only** (sem CLI; ver `pyproject.toml`).
-> O benchmark LLM v0.5 (CommercialClient, M-series runners) vive em
-> [`old/llm-benchmark/`](old/llm-benchmark/), com instrucoes de reproducao no README de la'.
-
----
-
 ## Por onde seguir
 
 - **Quero usar TCF no pipeline** → API v0.8: `from tcf import encode, decode` ([src/tcf/](src/tcf/)); veja o [tutorial](docs/tutorials/getting-started.pt-BR.md) e os [guias](docs/how-to/).
@@ -829,6 +743,8 @@ O encoder e' a ferramenta principal; auxiliares de suporte (NAO TCF-core):
 - **Quero ler o paper** → drafts v0.5: [docs/archive/article_v05/](docs/archive/article_v05/) (paper v0.7 pendente)
 - **Quero ver como evoluiu** → [CHANGELOG.md](CHANGELOG.md) +
   [docs/workbench/](docs/workbench/)
+- **Quero mexer no próprio TCF** → [CONTRIBUTING.pt-BR.md](CONTRIBUTING.pt-BR.md): setup de
+  desenvolvimento, layout do repositório e as ferramentas que vêm no repo
 
 ---
 
