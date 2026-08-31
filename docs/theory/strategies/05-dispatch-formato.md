@@ -17,9 +17,9 @@ subsystem: dispatch-formato
 | **Dispatch Strategy (encode)** | decision-point | [src/tcf/encoder.py:53-114](../../../src/tcf/encoder.py) | data type check, nature/nature_per_col specs (optional), layers (PipelineConfig), parallel flag | encode() called with any data |
 | **Dispatch Strategy (decode)** | decision-point | [src/tcf/decoder.py:52-91](../../../src/tcf/decoder.py) | _MULTI_MAGIC_STR = '#TCF.6 M' | decode() called with TCF text |
 | **Single-Column Encode Pipeline (M10 Canonical)** | estrategia | [src/tcf/encoder.py:117-178](../../../src/tcf/encoder.py) | cfg.pre_pass (bool, default True), cfg.obat_shape_preserve (bool, default True), cfg.hcc_seq_rle (bo | dispatch determines list[str] input OR _encode_multi calls for each column |
-| **Multi-Column Encode Router** | estrategia | [src/tcf/multi.py:40-111](../../../src/tcf/multi.py) | parallel: False (serial default), True (os.cpu_count workers), int N >= 1 (N workers); cfg: Pipeline | encode() called with dict[str, list[str]] |
-| **Parallel Encoding Strategy (Work-Stealing)** | estrategia | [src/tcf/multi.py:131-182](../../../src/tcf/multi.py) | n_workers computed from parallel flag; heuristic: sum(len(v) for v in col) per column | parallel=True\|int and len(dict) >= 2 in _encode_multi |
-| **Multi-Column Decode Router** | estrategia | [src/tcf/multi.py:195-234](../../../src/tcf/multi.py) | none (pure parser) | decode() detects #TCF.6 M prefix |
+| **Multi-Column Encode Router** | estrategia | [src/tcf/multi/:40-111](../../../src/tcf/multi/) | parallel: False (serial default), True (os.cpu_count workers), int N >= 1 (N workers); cfg: Pipeline | encode() called with dict[str, list[str]] |
+| **Parallel Encoding Strategy (Work-Stealing)** | estrategia | [src/tcf/multi/:131-182](../../../src/tcf/multi/) | n_workers computed from parallel flag; heuristic: sum(len(v) for v in col) per column | parallel=True\|int and len(dict) >= 2 in _encode_multi |
+| **Multi-Column Decode Router** | estrategia | [src/tcf/multi/:195-234](../../../src/tcf/multi/) | none (pure parser) | decode() detects #TCF.6 M prefix |
 | **Nature Pre-Transform Filter (CAMADA 0, opt-in)** | filtro | [src/tcf/encoder.py:97-99 (list), 103-109 (dict)](../../../src/tcf/encoder.py) | nature: TemplatedCheckedSpec \| None (list); nature_per_col: dict[str, TemplatedCheckedSpec] \| None | nature/nature_per_col params provided to encode() |
 | **Pre-Pass Cadence Detection (Regra 1 + 2)** | heuristica | [src/tcf/auto_cadence.py:28-96](../../../src/tcf/auto_cadence.py) | n_sample=5 (default, tunable), threshold=0.7 (LCP+LCS ratio), numeric_card_threshold=0.5 | cfg.pre_pass=True in _encode_column |
 | **Min-Len Auto-Detection (Heuristic v3)** | heuristica | [src/tcf/auto_min_len.py:25-68](../../../src/tcf/auto_min_len.py) | n_threshold=100 (gating), avg_len, cardinality, is_numeric from ColumnFeatures | cfg.pre_pass=True in _encode_column |
@@ -32,8 +32,8 @@ subsystem: dispatch-formato
 | **PipelineConfig Toggle obat_shape_preserve** | threshold | [src/tcf/pipeline.py:35-60](../../../src/tcf/pipeline.py) | obat_shape_preserve: bool = True | cfg in _encode_column OBAT dispatch (line 149-156) |
 | **PipelineConfig Toggle hcc_seq_rle** | threshold | [src/tcf/pipeline.py:35-60](../../../src/tcf/pipeline.py) | hcc_seq_rle: bool = True | cfg in _encode_column HCC dispatch (line 159-162) |
 | **Side Outputs Capture Container** | marcador | [src/tcf/side_outputs.py:27-51](../../../src/tcf/side_outputs.py) | all fields initialized to None/empty | side_outputs param provided to encode() |
-| **Format Marker: Shebang** | marcador | [src/tcf/multi.py:36, src/tcf/decoder.py:49](../../../src/tcf/multi.py) | MAGIC_MULTI = b'#TCF.6 M', checked via startswith() | Every multi-col encode, every decode dispatcher |
-| **Format Marker: Meta Line** | marcador | [src/tcf/multi.py:36-37, 95-96](../../../src/tcf/multi.py) | META_PREFIX = b'# ', format: 'size1=name1,size2=name2,...', validators: no ',' or '=' in names | Every multi-col encode output, every multi-col decode parse |
+| **Format Marker: Shebang** | marcador | [src/tcf/multi/:36, src/tcf/decoder.py:49](../../../src/tcf/multi/) | MAGIC_MULTI = b'#TCF.6 M', checked via startswith() | Every multi-col encode, every decode dispatcher |
+| **Format Marker: Meta Line** | marcador | [src/tcf/multi/:36-37, 95-96](../../../src/tcf/multi/) | META_PREFIX = b'# ', format: 'size1=name1,size2=name2,...', validators: no ',' or '=' in names | Every multi-col encode output, every multi-col decode parse |
 | **Format Marker: RLE Count Prefix** | marcador | [src/tcf/composicional/syntax.py:462-465, 747-751](../../../src/tcf/composicional/syntax.py) | N: count as int, separator: '\|' | M8A _emit_body or _decode when count > 1 |
 | **Format Marker: Seq-RLE Near-Identical (M10)** | marcador | [src/tcf/composicional/hcc_seqrle.py:202-210](../../../src/tcf/composicional/hcc_seqrle.py) | N: count, delta: int \| list[int], template: first line of run | cfg.hcc_seq_rle=True after HCC body generation |
 | **Format Marker: Atomic Reference Ranges (M1.E)** | token-type | [src/tcf/composicional/syntax.py:91-101](../../../src/tcf/composicional/syntax.py) | consecutive threshold=3, separator: '..' for range, ',' between units | M1.E composition chain emission, _emit_refs_range |
@@ -53,13 +53,13 @@ Routing via shebang prefix check. If tcf_text.startswith('#TCF.6 M'), calls _dec
 **`Single-Column Encode Pipeline (M10 Canonical)`** (estrategia, [src/tcf/encoder.py:117-178](../../../src/tcf/encoder.py))
 Core unit _encode_column orchestrates CAMADA 1-3: (1) Pre-pass: analyze_column + detect_cadence (rules 1-2 ADR-0008) + detect_min_len (heur v3 ADR-0010) IF cfg.pre_pass=True, else cadence=False, min_len=3 default; (2) OBAT tokenization: processar_with_hint(prefer_shape_consistency=True) if cadence detected AND cfg.obat_shape_preserve=True, else canonical processar; (3) HCC: HCCSeqRLE (M10) if cfg.hcc_seq_rle=True else M8AVirtualRefsSyntax (M9). Side outputs captured per-column into provided SideOutputs container.
 
-**`Multi-Column Encode Router`** (estrategia, [src/tcf/multi.py:40-111](../../../src/tcf/multi.py))
+**`Multi-Column Encode Router`** (estrategia, [src/tcf/multi/:40-111](../../../src/tcf/multi/))
 Orchestrates dict->TCF serialization: validates (non-empty, uniform row counts, no ',' or '=' in col names), stringifies all values (NULL->'' per ADR-0013), chooses serial vs parallel dispatch based on parallel flag + column count (>= 2), encodes each column to body bytes, builds meta line '# size1=name1,size2=name2,...', outputs magic + meta + byte-precise concat.
 
-**`Parallel Encoding Strategy (Work-Stealing)`** (estrategia, [src/tcf/multi.py:131-182](../../../src/tcf/multi.py))
+**`Parallel Encoding Strategy (Work-Stealing)`** (estrategia, [src/tcf/multi/:131-182](../../../src/tcf/multi/))
 Fase 1b (2026-05-24): Orders columns by workload descending (sum bytes per col as proxy), submits to ProcessPoolExecutor via as_completed (dynamic work-stealing), reorders results by original dict order for byte-identical output. Enabled only if parallel=True/int AND len(table) >= 2 (overhead rule). Serial fallback for 1-col or parallel=False.
 
-**`Multi-Column Decode Router`** (estrategia, [src/tcf/multi.py:195-234](../../../src/tcf/multi.py))
+**`Multi-Column Decode Router`** (estrategia, [src/tcf/multi/:195-234](../../../src/tcf/multi/))
 Parses shebang + meta line (finds 2 newlines, validates MAGIC_MULTI + META_PREFIX), splits meta into (size, name) pairs, byte-precise slices body, decodes each via _decode_column, assembles dict result. No reordering needed (serial decode preserves order).
 
 **`Nature Pre-Transform Filter (CAMADA 0, opt-in)`** (filtro, [src/tcf/encoder.py:97-99 (list), 103-109 (dict)](../../../src/tcf/encoder.py))
@@ -98,10 +98,10 @@ Boolean toggle (default True). When True, uses HCCSeqRLE (M10 with seq-RLE post-
 **`Side Outputs Capture Container`** (marcador, [src/tcf/side_outputs.py:27-51](../../../src/tcf/side_outputs.py))
 Optional reciprocal container (dataclass, all fields Optional). Per-column: column_features, cadence_detected, cadence_info, min_len, obat_log, obat_used_hint, hcc_trace, hcc_rede, seq_rle_runs, body_bytes. Multi-col: multi_info (n_rows, n_cols, total_bytes, header_bytes, body_bytes, parallel_workers), per_col dict. Populated only if side_outputs= provided (overhead=0 if None, logs discarded). Enables consumption by schema_builder, EncodeManager, debug tools.
 
-**`Format Marker: Shebang`** (marcador, [src/tcf/multi.py:36, src/tcf/decoder.py:49](../../../src/tcf/multi.py))
+**`Format Marker: Shebang`** (marcador, [src/tcf/multi/:36, src/tcf/decoder.py:49](../../../src/tcf/multi/))
 Multi-column magic: '#TCF.6 M' (8 bytes) followed by newline. Dispatches decoder to multi-col path. Single-column has NO shebang (body puro). Exact string comparison startswith() in decode dispatcher.
 
-**`Format Marker: Meta Line`** (marcador, [src/tcf/multi.py:36-37, 95-96](../../../src/tcf/multi.py))
+**`Format Marker: Meta Line`** (marcador, [src/tcf/multi/:36-37, 95-96](../../../src/tcf/multi/))
 Second line: '# size1=name1,size2=name2,...' (space after '#', CSV-like col descriptor). Parsed by splitting on ',', then each pair on '=' (size is byte count as int, name is col name). Names cannot contain ',' or '='. Enables byte-precise body slicing on decode.
 
 **`Format Marker: RLE Count Prefix`** (marcador, [src/tcf/composicional/syntax.py:462-465, 747-751](../../../src/tcf/composicional/syntax.py))

@@ -8,7 +8,7 @@ blocked-by: []
 related:
   - tests/test_regression_v1_baseline.py  (mini-suite atual, D1-D9 + D17a)
   - experiments/lab/dirty/old/welded/2026-05-27-h-perf-06-v2-fase-a/  (workflow que expos a lacuna)
-  - docs/theory/h-perf-06-exploration.md  (alvo: validar prune antes de weldar)
+  - docs/theory/desempenho/h-perf-06-exploration.md  (alvo: validar prune antes de weldar)
 ---
 
 # T-REGRESSION-REAL-WORLD: Real-world regression gate

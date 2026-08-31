@@ -171,7 +171,7 @@ Python · Java · Go · Rust/chrono · `Temporal.PlainDate` · TOML · `xs:date`
 As exceções que exigem ação na ponta: **Oracle**, **.NET** (a cultura muda a ordem dos
 campos), **JS `Date`** (o fuso muda o valor), e **JSON/CSV/YAML**, que não têm default.
 
-Detalhe operacional em [`docs/how-to/normalizar-data-antes-do-tcf.md`](../how-to/normalizar-data-antes-do-tcf.md).
+Detalhe operacional em [`docs/how-to/normalizar-data-antes-do-tcf.md`](../../how-to/normalizar-data-antes-do-tcf.md).
 
 ### E o formato compacto `YYYYMMDD`?: avaliação independente do TCF
 

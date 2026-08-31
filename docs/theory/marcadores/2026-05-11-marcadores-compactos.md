@@ -135,6 +135,6 @@ Cabe num exp dedicado quando o algoritmo estiver fechado.
 
 - [`custo-de-marcadores.md`](2026-05-11-custo-de-marcadores.md):
   teoria por trás da métrica de unidades
-- [`comparacoes-nao-literais.md`](2026-05-11-comparacoes-nao-literais.md):
+- [`comparacoes-nao-literais.md`](../comparacao/2026-05-11-comparacoes-nao-literais.md):
   outras camadas (delta, lossy) que podem entrar antes ou
   depois do encoder

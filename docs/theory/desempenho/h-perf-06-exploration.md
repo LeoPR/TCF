@@ -44,7 +44,7 @@ A inflacao "29M calls" provavelmente veio de:
 
 ## O real bottleneck: HCC `_detect_compositions`
 
-Lines 246-251 de [composicional/syntax.py](../../src/tcf/composicional/syntax.py):
+Lines 246-251 de [composicional/syntax.py](../../../src/tcf/composicional/syntax.py):
 gera **todas** as sub-tuplas O(L^2) candidatas por iteracao, em loop com
 Counter.update. Com 8 cols x 20k rows + ~1-3 refs por celula, conta gigante.
 
@@ -222,9 +222,9 @@ HCC, lcp/lcs ja' otimizadas seriam bonus +0.5%.
 
 ## Conexoes
 
-- [ADR-0018](../adr/0018-v2-format-roadmap.md) V2-J streaming naturalmente
+- [ADR-0018](../../adr/0018-v2-format-roadmap.md) V2-J streaming naturalmente
   bypassa HCC bottleneck, alternativa estrutural a otimizar batch atual.
-- [docs/theory/strategies-map.md](strategies-map.md): mapa completo das
+- [docs/theory/strategies/strategies-map.md](../strategies/strategies-map.md): mapa completo das
   estrategias (HCC detector e' subsistema 3).
-- [docs/theory/patricia-trie-exploration.md](patricia-trie-exploration.md):
+- [docs/theory/estrutura/patricia-trie-exploration.md](../estrutura/patricia-trie-exploration.md):
   outro estudo, ortogonal (indice OBAT, nao HCC).

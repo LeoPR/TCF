@@ -33,7 +33,7 @@ matizar a conclusao:
 > corpo TCF de tamanho variavel, ainda custa O(k) uma vez. Regime honesto: **O(k) uma vez +
 > O(1) por celula**, e a propriedade esta' no FORMATO, nao no codigo (nao ha' acessor).
 > Levantamento e ressalvas:
-> [`2026-08-07-descompressao-o1-levantamento-e-onde-o-bn-cai`](../../experiments/lab/dirty/notas/2026-08/2026-08-07-descompressao-o1-levantamento-e-onde-o-bn-cai.md).
+> [`2026-08-07-descompressao-o1-levantamento-e-onde-o-bn-cai`](../../../experiments/lab/dirty/notas/2026-08/2026-08-07-descompressao-o1-levantamento-e-onde-o-bn-cai.md).
 
 ## Diferencas algebricas conhecidas (M2.A vs M4.C1' vs M4.C1 v1)
 
@@ -76,7 +76,7 @@ matizar a conclusao:
    (sem preambulo), a diff cai de `2+2*len(N)` para `len(N)` por
    alias. **Conclusao M5 enviesada.** Ver
    [[../../2026-05-14-M5-pilha-M2A-M4C1p/]] e
-   [`marcadores-multiplo-proposito.md`](marcadores-multiplo-proposito.md).
+   [`marcadores-multiplo-proposito.md`](../marcadores/marcadores-multiplo-proposito.md).
 
 2. **"M2.A fora do prototipo"**: vale em bytes (ate' agora). Em
    vetores nao-byte, M2.A pode ainda ter nicho (batch decode com

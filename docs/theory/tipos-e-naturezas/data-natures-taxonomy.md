@@ -1,6 +1,6 @@
 # Taxonomia das naturezas dos dados: pre-tx por comportamento
 
-**Status**: rascunho 2026-05-15 (criado junto com plano-mestre [META-TYPE-ENCODERS](../../tickets/META-TYPE-ENCODERS.md)). Evoluira conforme macros dirty descobrirem necessidade de refinar/dividir/unir categorias.
+**Status**: rascunho 2026-05-15 (criado junto com plano-mestre [META-TYPE-ENCODERS](../../../tickets/META-TYPE-ENCODERS.md)). Evoluira conforme macros dirty descobrirem necessidade de refinar/dividir/unir categorias.
 
 ## Tese
 
@@ -169,7 +169,7 @@ D1-D15 cobrem maioria; gap atual:
 
 ## Conexoes
 
-- [`../../tickets/META-TYPE-ENCODERS.md`](../../tickets/META-TYPE-ENCODERS.md): plano-mestre
-- [`perspectiva-triplice-e-pre-tx.md`](perspectiva-triplice-e-pre-tx.md): analise das 3 estrategias
-- [`../algorithms/OBAT.md`](../algorithms/OBAT.md): OBAT tokenizer (camada 1, abaixo do pre-tx)
-- [`../algorithms/HCC.md`](../algorithms/HCC.md): HCC composicional (camada 2)
+- [`../../tickets/META-TYPE-ENCODERS.md`](../../../tickets/META-TYPE-ENCODERS.md): plano-mestre
+- [`perspectiva-triplice-e-pre-tx.md`](../desempenho/perspectiva-triplice-e-pre-tx.md): analise das 3 estrategias
+- [`../algorithms/OBAT.md`](../../algorithms/OBAT.md): OBAT tokenizer (camada 1, abaixo do pre-tx)
+- [`../algorithms/HCC.md`](../../algorithms/HCC.md): HCC composicional (camada 2)

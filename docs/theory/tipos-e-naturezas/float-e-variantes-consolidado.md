@@ -62,7 +62,7 @@ Confundir os dois é o erro que trava a conversa. `0.333333333333 → 1/3~12` e 
 
 **A escala com exceções resolve as duas**, e não precisa de mecanismo novo: o núcleo já tem
 exceção por-valor soldada, `MARKER_LITERAL = '_'` nas quatro natures, e
-[`int_pad.py:73-74`](../../src/tcf/natures/int_pad.py#L73-L74) (`length_wrong`) **é literalmente
+[`int_pad.py:73-74`](../../../src/tcf/natures/int_pad.py#L73-L74) (`length_wrong`) **é literalmente
 o patching do ALP**. Falta a grafia econômica da exceção, não o mecanismo.
 
 **Três disciplinas que a medição impôs** (todas nasceram de defeito meu, pego pelo próprio lab):

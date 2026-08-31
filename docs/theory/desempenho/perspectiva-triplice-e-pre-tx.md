@@ -163,7 +163,7 @@ detectar template-com-slot e' algoritmico mas tratavel.
 ### Conexao com nota `no-funcional-marca-e-troca.md`
 
 A nota
-[`no-funcional-marca-e-troca.md`](no-funcional-marca-e-troca.md)
+[`no-funcional-marca-e-troca.md`](../estrutura/no-funcional-marca-e-troca.md)
 ja' discute sintaxe (`no19=17,?=9,5` etc.) e custo algebrico para
 slot pattern. Esta nota agora SUBSUMES aquela em escopo, slot
 detection deveria ser **online** (durante encode), nao apenas
@@ -234,10 +234,10 @@ podem inflacionar.
 
 ## Conexoes
 
-- [`roadmap-hipoteses.md`](roadmap-hipoteses.md): lista geral de hipoteses
-- [`comparacao-modular-camadas.md`](comparacao-modular-camadas.md): pre-tx layers (extends Estrategia 1)
-- [`no-funcional-marca-e-troca.md`](no-funcional-marca-e-troca.md): slot pattern (subsumido por Estrategia 3)
-- [`2026-05-11-tipos-com-estrutura.md`](2026-05-11-tipos-com-estrutura.md): tipos estruturados (precursor Estrategia 1.A)
+- [`roadmap-hipoteses.md`](../roadmap-hipoteses.md): lista geral de hipoteses
+- [`comparacao-modular-camadas.md`](../comparacao/comparacao-modular-camadas.md): pre-tx layers (extends Estrategia 1)
+- [`no-funcional-marca-e-troca.md`](../estrutura/no-funcional-marca-e-troca.md): slot pattern (subsumido por Estrategia 3)
+- [`2026-05-11-tipos-com-estrutura.md`](../tipos-e-naturezas/2026-05-11-tipos-com-estrutura.md): tipos estruturados (precursor Estrategia 1.A)
 - [`vetores-de-comparacao-alem-de-bytes.md`](vetores-de-comparacao-alem-de-bytes.md): vetores alem de bytes (precursor perspectiva triplice)
 - `../algorithms/OBAT.md`: camada 1 atual
 - `../algorithms/HCC.md`: camada 2 atual

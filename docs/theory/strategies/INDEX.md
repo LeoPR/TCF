@@ -7,7 +7,7 @@ type: reference
 
 > Mapa de estrategias TCF v1.0 segmentado por subsistema pra facilitar
 > analise/codificacao/compilacao independente. Origem unificada (1
-> arquivo): [../strategies-map.md](../strategies-map.md) (preservado).
+> arquivo): [strategies-map.md](strategies-map.md) (preservado).
 
 ## Camadas do pipeline
 

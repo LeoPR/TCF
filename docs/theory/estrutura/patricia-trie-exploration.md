@@ -48,7 +48,7 @@ Cache-friendly alternative to suffix tree: SA[i] = starting position of i-th lex
 
 **TCF/OBAT current state: hash trigram index (ADR-0009, welded 2026-05-19)**
 Indexes: prefix_index[s[:3]] → list[ids], suffix_index[s[-3:]] → list[ids]. Per-string: O(1) lookup → bucket; O(B) iteration where B = bucket size. Global: O(N*L) build (iterate all strings, hash). Properties: (1) k=3 hardcoded == min_len=3 (no false negatives); (2) buckets ordered by insertion (id ascending) preserves tie-break; (3) empirical 5.4x speedup in lineitem 5k, alpha O(N^1.75) → O(N^1.42). Risk: datas with popular prefix (199/200/202) cause large buckets (2x speedup only). H-PERF-04 attempted middle trigram but byte-canonical diverged (ordering differences in Counter).
-*fonte*: [`docs/adr/0009-obat-trigram-index-optimization.md`](../adr/0009-obat-trigram-index-optimization.md) e [`src/tcf/core/online.py`](../../src/tcf/core/online.py), linhas 97-226
+*fonte*: [`docs/adr/0009-obat-trigram-index-optimization.md`](../../adr/0009-obat-trigram-index-optimization.md) e [`src/tcf/core/online.py`](../../../src/tcf/core/online.py), linhas 97-226
 
 **Query types Patricia/GST resolves that trigram hash does not**
 (1) Longest Common Substring across N strings: traversal to deepest internal node = O(N) total comparisons (tree does the work upfront in build). Hash requires O(B) bucket scan per query. (2) All prefixes of arbitrary length: tree traversal explores all paths, hash only checks k=3 fixed. (3) Longest Common Extension (LCE) queries: given position p1 in S1, p2 in S2, return max overlap, GST+LCA answers in O(log N) after O(sum Li) build. (4) Range queries (substrings in positions [a,b]): suffix array + RMQ handles efficiently. Hash trigram cannot.

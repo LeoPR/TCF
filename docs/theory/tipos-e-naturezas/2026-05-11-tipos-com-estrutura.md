@@ -78,7 +78,7 @@ Reduções possíveis:
 - **Componentes têm range fixo**: ano 4 dígitos, mês 1-12, dia 1-31,
   etc.
 - **Delta encoding** se ordenados: ver
-  [`comparacoes-nao-literais.md`](2026-05-11-comparacoes-nao-literais.md)
+  [`comparacoes-nao-literais.md`](../comparacao/2026-05-11-comparacoes-nao-literais.md)
 - Em casos de mesmo dia: só horário muda (8-10 chars → 4 chars)
 
 ### Códigos estruturados (PED-2026-00001 etc.)
@@ -145,7 +145,7 @@ Custos:
 
 Modo de composição mais limpo: **tipos especiais como
 pré-transformação por coluna**, similar a delta encoding (ver
-[`comparacoes-nao-literais.md`](2026-05-11-comparacoes-nao-literais.md)).
+[`comparacoes-nao-literais.md`](../comparacao/2026-05-11-comparacoes-nao-literais.md)).
 
 ```
 Coluna bruta (CPFs)
@@ -173,7 +173,7 @@ Pré-condições para abrir experimento de tipos especiais:
 - Comportamento mapeado em escala (exp 18 próximo)
 - Variantes algorítmicas exploradas (exps 19, 20, 21)
 - Marcadores compactos investigados (ver
-  [`marcadores-compactos.md`](2026-05-11-marcadores-compactos.md))
+  [`marcadores-compactos.md`](../marcadores/2026-05-11-marcadores-compactos.md))
 
 Tipos especiais entram **depois** porque:
 
@@ -197,14 +197,14 @@ Roundtrip lossless **obrigatório** em todos.
 
 ## Arquivos relacionados
 
-- [`comparacoes-nao-literais.md`](2026-05-11-comparacoes-nao-literais.md):
+- [`comparacoes-nao-literais.md`](../comparacao/2026-05-11-comparacoes-nao-literais.md):
   delta encoding como pré-transformação (mesma camada)
-- [`marcadores-compactos.md`](2026-05-11-marcadores-compactos.md):
+- [`marcadores-compactos.md`](../marcadores/2026-05-11-marcadores-compactos.md):
   sintaxe compacta (camada de serialização, ortogonal a tipos)
-- [`../old/2026-05-09-delta-datas/`](../old/2026-05-09-delta-datas/):
+- [`../old/2026-05-09-delta-datas/`](../../old/2026-05-09-delta-datas/):
   lab arquivado sobre delta em datas (re-verificar antes de
   citar)
 - [`../../../docs/workbench/_archive/tickets/open/23-P-numeric-precision.md`](../../../docs/workbench/_archive/tickets/open/23-P-numeric-precision.md):
   ticket arquivado sobre tratamento numérico
-- [exp 17](../2026-05-11-17-familias-variadas/conclusoes.md):
+- [exp 17](../../2026-05-11-17-familias-variadas/conclusoes.md):
   onde ficou claro que CPF e UUID precisam de outra abordagem

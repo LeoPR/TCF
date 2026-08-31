@@ -105,7 +105,7 @@ Se ganho confirmado e RT 100%:
 
 - [Reflexao naturezas numericas](../experiments/lab/dirty/notas/2026-05/naturezas-numericas-2026-05-23.md)
 - [META-TYPE-ENCODERS T03](META-TYPE-ENCODERS.md)
-- [Taxonomia natureza enumerated](../docs/theory/data-natures-taxonomy.md)
+- [Taxonomia natureza enumerated](../docs/theory/tipos-e-naturezas/data-natures-taxonomy.md)
 - [ADR-0011 Pacote 1 canonical](../docs/adr/0011-pacote1-weld-canonical.md)
 
 ## Updates datados

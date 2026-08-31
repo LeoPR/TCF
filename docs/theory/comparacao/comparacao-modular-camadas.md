@@ -8,8 +8,8 @@ poderia ser modular em multiplas camadas. Tambem pediu nome formal
 para o alg16 ("ele parece ter ficado muito resistente e bem
 consolidado").
 **Conecta com**: [`2026-05-11-comparacoes-nao-literais.md`](2026-05-11-comparacoes-nao-literais.md)
-(delta/aproximacao), [`2026-05-11-tipos-com-estrutura.md`](2026-05-11-tipos-com-estrutura.md)
-(estruturais), [`quebra-de-linha-como-marcador.md`](quebra-de-linha-como-marcador.md)
+(delta/aproximacao), [`2026-05-11-tipos-com-estrutura.md`](../tipos-e-naturezas/2026-05-11-tipos-com-estrutura.md)
+(estruturais), [`quebra-de-linha-como-marcador.md`](../marcadores/quebra-de-linha-como-marcador.md)
 (marcadores como dimensao opcional).
 **Status**: registrada como direcao arquitetural. **Nao acionavel
 imediatamente**, fica como guia pra protótipo e macros futuros.
@@ -17,7 +17,7 @@ imediatamente**, fica como guia pra protótipo e macros futuros.
 ## Nome formal para o alg16
 
 O algoritmo cristalizado em
-[`M0-fase-exploratoria-inicial/2026-05-11-16-online-cleanup/online.py`](../M0-fase-exploratoria-inicial/2026-05-11-16-online-cleanup/online.py)
+[`M0-fase-exploratoria-inicial/2026-05-11-16-online-cleanup/online.py`](../../M0-fase-exploratoria-inicial/2026-05-11-16-online-cleanup/online.py)
 (e copiado em M1/M2/M3/M4) ficou estavel e resistente a varios
 ataques empiricos (M1 a M4). Vale dar nome formal para citar como
 componente do TCF.

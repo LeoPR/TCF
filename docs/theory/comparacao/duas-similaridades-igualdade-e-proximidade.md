@@ -7,12 +7,12 @@ similaridades e depois fazer os encaixes (…) se elas forem realmente similares
 próximas como deltas, também poderiam gerar nós (…) em parte temos um algoritmo cego no
 núcleo que pega os pedaços sem julgar a semântica, só olha string (…) essa é uma
 oportunidade de apenas olhar a estrutura pra ver se tem algum encaixe melhor nesse fluxo"*
-**Evidência**: lab [`2026-08-09-1943-fluxo-igualdade-x-proximidade`](../../experiments/lab/dirty/2026-08/2026-08-09/2026-08-09-1943-fluxo-igualdade-x-proximidade/result.md)
+**Evidência**: lab [`2026-08-09-1943-fluxo-igualdade-x-proximidade`](../../../experiments/lab/dirty/2026-08/2026-08-09/2026-08-09-1943-fluxo-igualdade-x-proximidade/result.md)
 **Conecta com**: [`comparacao-modular-camadas.md`](comparacao-modular-camadas.md) ·
 [`2026-05-11-comparacoes-nao-literais.md`](2026-05-11-comparacoes-nao-literais.md)
 (delta/aproximação, a intuição original) ·
-[`patricia-trie-exploration.md`](patricia-trie-exploration.md) (H-TH-02) ·
-[`tipos-o-caminho-do-dado-ate-o-tcf.md`](tipos-o-caminho-do-dado-ate-o-tcf.md)
+[`patricia-trie-exploration.md`](../estrutura/patricia-trie-exploration.md) (H-TH-02) ·
+[`tipos-o-caminho-do-dado-ate-o-tcf.md`](../tipos-e-naturezas/tipos-o-caminho-do-dado-ate-o-tcf.md)
 **Status**: análise estrutural registrada. **Não acionável sem decisão do owner**, todo
 o conteúdo é `.9` (otimização), não `.8` (completude).
 
@@ -96,7 +96,7 @@ ISO ele degenera:
 Todo `2026-…` cai em `202`: o índice vira lista e "achar o melhor pedaço" volta a ser O(n)
 por string. A `H-PERF-04` foi adiada com a nota *"hash tradicional não preserva
 byte-canonical em datas com prefixo popular; solução precisaria Patricia trie"*, e o
-estudo de viabilidade existe ([`patricia-trie-exploration.md`](patricia-trie-exploration.md),
+estudo de viabilidade existe ([`patricia-trie-exploration.md`](../estrutura/patricia-trie-exploration.md),
 H-TH-02, registrada como candidata v2.0 em ADR-0018).
 
 ## 5. O espaço de decisão

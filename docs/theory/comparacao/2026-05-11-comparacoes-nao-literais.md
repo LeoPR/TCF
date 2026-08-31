@@ -8,7 +8,7 @@ Status: **fora do foco do ciclo atual**; nota arquivada para retomada futura.
 
 ## Arquivos a revisar quando o tema voltar
 
-1. [`experiments/lab/dirty/old/2026-05-09-delta-datas/`](../old/2026-05-09-delta-datas/):
+1. [`experiments/lab/dirty/old/2026-05-09-delta-datas/`](../../old/2026-05-09-delta-datas/):
    laboratório completo sobre delta encoding em datas (5 documentos:
    `00-conceito.md`, `01-dataset.md`, `02-formas-delta.md`,
    `03-aplicado.md`, `04-conclusoes.md`)
@@ -91,7 +91,7 @@ Algoritmos: delta encoding (inteiro/data/timestamp), delta-of-delta
 entrar em compressão sem violar roundtrip.
 
 **Já foi explorado em ciclo anterior** (laboratório arquivado em
-[`dirty/old/2026-05-09-delta-datas/`](../old/2026-05-09-delta-datas/)).
+[`dirty/old/2026-05-09-delta-datas/`](../../old/2026-05-09-delta-datas/)).
 As conclusões daquela mesa registraram:
 
 - Delta é **pré-transformação**, não substitui RLE/dict

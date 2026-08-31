@@ -89,7 +89,7 @@ pra demais. Ambicao multi-track + comprometimento prematuro com
 - D10-D15 (tipos ERP/CRM variety) ficam parados: TCF v0.6 atual nao consegue normalizar formato.
 
 Estratégias 1.A (pre-tx por tipo) e 3.B (slot detection online) do
-[roadmap perspectiva-triplice](../docs/theory/perspectiva-triplice-e-pre-tx.md) respondem essa lacuna.
+[roadmap perspectiva-triplice](../docs/theory/desempenho/perspectiva-triplice-e-pre-tx.md) respondem essa lacuna.
 
 ## Principio metodologico
 
@@ -182,7 +182,7 @@ Antes disso, `src/tcf/` fica intocado (canonical desde welding M14).
 | 7 | **Lossy-recoverable** | Aproximado com erro controlado registrado | round + delta error | geo coords com precisao, floats com tolerancia | (nao presente em D1-D15 atual) |
 | 8 | **High-entropy** | Sem redundancia exploravel | passthrough (don't encode) | UUID random, hash, base64 random, criptografado | D4 caos parcial, D14 UUID random, D15 base64 random |
 
-Taxonomia formal em [`docs/theory/data-natures-taxonomy.md`](../docs/theory/data-natures-taxonomy.md) (a criar).
+Taxonomia formal em [`docs/theory/tipos-e-naturezas/data-natures-taxonomy.md`](../docs/theory/tipos-e-naturezas/data-natures-taxonomy.md) (a criar).
 
 ### Composicao de naturezas
 
@@ -581,7 +581,7 @@ Quando hipoteses se confirmarem em dirty, abrir:
 2. [x] Realinhamento 2026-05-15 (foco unico em uma natureza)
 3. [x] Dirty lab `2026-05-15-naturezas-e-camada/` criado
 4. [x] `experiments/lab/clean/EXP-009-pre-tx-natureza/README.md` (stub, abre quando primeira natureza fechar)
-5. [x] `docs/theory/data-natures-taxonomy.md` (taxonomia formal de referencia)
+5. [x] `docs/theory/tipos-e-naturezas/data-natures-taxonomy.md` (taxonomia formal de referencia)
 6. [x] **T01 incremental** explorado em dirty (13 sub-exps), concluido
    que multi-pass viola vertice triplice; abordagem absorvida em
    **Pacote 1 Delta-aware** (welded em EXP-010, 2026-05-17)
@@ -595,6 +595,6 @@ Quando hipoteses se confirmarem em dirty, abrir:
 ## Conexoes
 
 - Memoria: [feedback-exp-format-for-comparative](../memory/feedback_exp_format_for_comparative.md), [project-teoria-comparacao-modular](../memory/project_teoria_comparacao_modular.md)
-- Roadmap: [docs/theory/perspectiva-triplice-e-pre-tx.md](../docs/theory/perspectiva-triplice-e-pre-tx.md)
+- Roadmap: [docs/theory/desempenho/perspectiva-triplice-e-pre-tx.md](../docs/theory/desempenho/perspectiva-triplice-e-pre-tx.md)
 - EXP-008: [reports](../experiments/lab/clean/EXP-008-compressao-comparada/reports/) (motivacao)
 - Dirty antigo: [historia M0-M14](../experiments/lab/dirty/notas/2026-05/historia-dirty-lab.md) (analogo metodologico)

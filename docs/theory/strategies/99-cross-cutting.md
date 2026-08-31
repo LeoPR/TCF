@@ -163,5 +163,5 @@ parent: strategies-map
 - **Pra entender uma decisao do encoder**: cruze a tabela de estrategias pelo file:line.
 - **Pra ver thresholds existentes**: tabela 'knobs' no fim.
 
-Para o roteiro v2.0 fundamentado: ver [ADR-0018](../adr/0018-v2-format-roadmap.md).
-Para o formato em si: ver [TCF-format.md](../algorithms/TCF-format.md).
+Para o roteiro v2.0 fundamentado: ver [ADR-0018](../../adr/0018-v2-format-roadmap.md).
+Para o formato em si: ver [TCF-format.md](../../algorithms/TCF-format.md).

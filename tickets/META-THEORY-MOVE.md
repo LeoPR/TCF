@@ -14,7 +14,7 @@
 - 1 → `docs/algorithms/output-convention.md` (spec)
 
 Nova nota criada:
-- `docs/theory/perspectiva-triplice-e-pre-tx.md`: sintese atual
+- `docs/theory/desempenho/perspectiva-triplice-e-pre-tx.md`: sintese atual
   das 3 estrategias (multi-col+tipos; manager shared; slot online)
   avaliadas contra perspectiva triplice (compressao+memoria+latencia)
 

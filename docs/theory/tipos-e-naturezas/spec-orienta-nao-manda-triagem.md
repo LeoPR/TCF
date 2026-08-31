@@ -10,7 +10,7 @@ pra usar o ano ou o mês ou o dia com delta, e se não der, fallback' (…) o co
 comportamentos para deixar default; ter o mecanismo pra situações hipotéticas, por
 sintético"*
 **Evidência**: EXP-017 (clean, 27 casos + caçada adversarial de 4 lentes) ·
-labs dirty `1853`/`2228`/`1943` · [`duas-similaridades`](duas-similaridades-igualdade-e-proximidade.md)
+labs dirty `1853`/`2228`/`1943` · [`duas-similaridades`](../comparacao/duas-similaridades-igualdade-e-proximidade.md)
 **Conecta com**: `T-SPEC-PARSE-X-ALVO` · `T-NATURE-CANDIDATO-BN` · ADR-0040 ·
 [`tipos-o-caminho-do-dado-ate-o-tcf.md`](tipos-o-caminho-do-dado-ate-o-tcf.md)
 

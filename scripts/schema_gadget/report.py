@@ -160,7 +160,7 @@ def _to_markdown(tables, quality, fks, dates, counts, pks) -> str:
     lines.append("---")
     lines.append("_Fora do escopo (não verificado): null/empty count, drift no "
                  "tail (além do sample), range numérico, encoding. Ver "
-                 "docs/theory/schema-gadget-design.md._")
+                 "docs/theory/estrutura/schema-gadget-design.md._")
     return "\n".join(lines)
 
 

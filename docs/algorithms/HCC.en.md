@@ -212,5 +212,5 @@ Experimental origin:
 - [TCF-format](TCF-format.md): positioning of the format
 - `experiments/lab/dirty/notas/2026-05/historia-dirty-lab.md`: narrative of the
   development (codename M8.A)
-- [no-funcional-marca-e-troca](../theory/no-funcional-marca-e-troca.md):
+- [no-funcional-marca-e-troca](../theory/estrutura/no-funcional-marca-e-troca.md):
   future direction: extension of HCC with a variable slot
