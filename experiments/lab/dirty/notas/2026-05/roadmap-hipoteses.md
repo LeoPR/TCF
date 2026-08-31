@@ -654,6 +654,15 @@ E' o **maior ganho de byte medido na sessao inteira**. Tambem medido (2026-08-20
 | H-14-03 | **Sort ESPECULATIVO combinatorio** (testar varias ordenacoes e escolher a menor) so' faz sentido em **compressao offline** ou num **modo MAX** | aberta | e' um PERFIL DE EMISSAO (`T-STUDY-USE-PROFILES` P4), nao um default |
 | H-14-04 | **Estatistica de coluna por AMOSTRA** (como os bancos fazem) permite *chutar* a distribuicao e decidir se ordenar compensa, sem varrer tudo | aberta | o `SideOutputs`/`build_schema` JA' produz features de coluna; conecta com o "prefetch orientado" do H-13-03 |
 | H-14-05 | O ganho do sort depende do VOLUME: em poucos dados pode compensar mesmo com o custo; em volume o custo domina | aberta | owner: *"se forem poucos dados poderia dar vantagem"*; medir a curva |
+| H-14-06 | **O `sort_by` sem funcao compressiva nao deveria existir como knob** (owner 2026-08-31): ordenar por ordenar e' fazivel ANTES ou DEPOIS do TCF, com as ferramentas que o usuario ja' tem. Fazer no meio do encode cobra o contrato de ordem (classe CONTRATO, o wire fica byte-identico ao integro) e nao devolve nada em troca. Criterio proposto: durante o encode, o sort so' se justifica se **comprimir**, ou se **habilitar algo que fora dele e' impossivel** (ver H-14-07) | aberta | e' criterio de ADMISSAO do knob, nao hipotese de medicao; decide junto com `T-FMT-CONTRACT-SIGNATURE` |
+| H-14-07 | **Sort como orientacao previa para AGREGACAO EM STREAM** (owner 2026-08-31): inverte o H-14-01. O sort mata o streaming do PRODUTOR, e por isso pode habilitar o do CONSUMIDOR: com a chave agrupada, cada grupo **fecha** no instante em que a chave muda, entao o agregado parcial sai **em ordem de conclusao**, sem esperar o blob terminar. O ganho aqui nao e' byte, e' **latencia do primeiro resultado**, que e' vertice proprio no ADR-0002 | aberta | `group_ranges(key)` (view.py:1050) ja' devolve `{valor: (inicio, fim)}` e ja' se apoia na contiguidade; conecta com H-QUERY-02 (agregar runs sem expandir) e com o sort por BLOCO do H-14-02, que daria fechamento por janela |
+
+**Reafirmado 2026-08-31** (owner): a escolha da coluna e' do **CONJUNTO**, nao da coluna
+isolada, ou seja "qual chave da' mais vantagem no dataset todo". Isso ja' esta' coberto por
+H-14-03 (especulativo combinatorio) e H-14-04 (estatistica por amostra), e a reafirmacao
+sobe a prioridade das duas: o que falta nas duas e' o **preditor**, que e' exatamente o que o
+H-ORDER-FREE-01 apontou como bloqueio ("achar a melhor chave exige re-encodar muitas vezes =
+custo combinatorio proibitivo; precisa heuristica/preditor, nao forca bruta").
 
 **Nota de tensao**: o D4a nao preserva a ordem das linhas, e' lossless como CONJUNTO, nao
 como sequencia. Isso o coloca na classe CONTRATO (ver `T-FMT-CONTRACT-SIGNATURE`), e a
