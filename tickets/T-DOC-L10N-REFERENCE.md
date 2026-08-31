@@ -8,7 +8,7 @@ target: "antes da publicacao 1.0; parcial entregue no 0.8.2"
 blocked-by: []
 related:
   - docs/reference/lazy-view.md
-  - docs/reference/view-usos.md
+  - docs/how-to/consultar-sem-decodificar.md
   - docs/algorithms/HCC.md
 ---
 

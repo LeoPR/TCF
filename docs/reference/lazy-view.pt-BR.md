@@ -11,34 +11,19 @@ cada pergunta precisa. É somente leitura: nada aqui muda o blob, o `encode` ou 
 Você chama `view()` uma vez e depois chama métodos no que ele devolve. Filtrar devolve
 outro objeto com os mesmos métodos, então os filtros encadeiam.
 
-## Princípio: oportunista no custo
+## O que ela lê
 
-A `view` busca a **resposta mais completa pela menor evidência suficiente** que já existe
-no wire. Ela começa pela fonte segura mais barata para cada pergunta:
-
-1. declarações do header;
-2. estrutura compacta, como contadores, separadores e tamanhos;
-3. a tabelinha de K valores e o stream de índices de largura fixa;
-4. apenas as colunas pedidas e as posições filtradas;
-5. uma coluna inteira;
-6. materialização completa, somente como fallback de correção.
-
-O oportunismo é de **execução**, não de significado. Um caminho estrutural e um fallback
-precisam devolver a mesma resposta; trocar o modo de compressão pode mudar o custo, nunca a
-semântica de vazios, nulos, grupos ou agregados. Se a estrutura não consegue provar uma
-resposta com segurança, a `view` decodifica em vez de adivinhar.
-
-“Menor” significa o caminho mais barato já demonstrado como suficiente, não uma afirmação
-sem prova de ótimo global. Caminhos estruturais óbvios e correções podem fechar na
-superfície atual. Fusão, pushdown posicional e novas rotas compactas ficam para lab e para
-o ciclo de otimização do `.9` quando o custo menor ainda precisa ser demonstrado.
-
-**O que ela lê**: `#TCF.8M` (multi-coluna), `#TCF.8H` quando é tabela retangular, e a rota
-de coluna única em todas as suas formas (`#TCF.8`, `#TCF.8n`, `#TCF.8b`, `#TCF.8bB`,
-`#TCF.8 :spec`, e as densas `B`/`C`), mais o wire **órfão** sem magic (`stamp=False`), lido
-como o `decode` o lê. Na coluna única o nome é `"0"`, como em qualquer coluna anônima
+`#TCF.8M` (multi-coluna), `#TCF.8H` quando é tabela retangular, e a rota de coluna única em
+todas as suas formas (`#TCF.8`, `#TCF.8n`, `#TCF.8b`, `#TCF.8bB`, `#TCF.8 :spec`, e as
+densas `B`/`C`), mais o wire **órfão** sem magic (`stamp=False`), lido como o `decode` o lê.
+Na coluna única o nome é `"0"`, como em qualquer coluna anônima
 ([ADR-0029](../adr/0029-version-format-identification-semi-implicit.md)).
 `#TCF.6` e `#TCF.7` não são aceitos no pacote `0.8` (compatibilidade histórica via git).
+
+> **Por que ela é barata**: a view responde pela menor evidência suficiente que já está no
+> wire, do header até a materialização completa, e um caminho estrutural sempre tem de
+> concordar com o fallback. O princípio, e o que "menor" promete e não promete, está em
+> [`custo-da-consulta.md`](../theory/conceitos/custo-da-consulta.md).
 
 ## A superfície inteira em quatro linhas
 
@@ -316,99 +301,13 @@ O `materialized_bytes` é **grosso de propósito**: conta o corpo inteiro de uma
 que ela é tocada. Então um `where` num dicionário, que constrói só os K únicos, mostra o
 mesmo número de um `select`, que constrói as N linhas. Use `touched` para ver *quais*
 colunas uma consulta alcançou; para o custo fino de cada caminho, as medições por operação
-estão em [`view-usos.md`](view-usos.md). O ajuste está registrado para o `.9`.
+estão em [`consultar-sem-decodificar.md`](../how-to/consultar-sem-decodificar.md). O ajuste está registrado para o `.9`.
 
-## Onde ela ganha, e o quanto
+## Onde ela ganha
 
-Não existe um "ganha / não ganha": existem graus, e o grau depende do modo em que a coluna
-foi comprimida, de quão larga é a tabela, e de qual chamada você faz. A escala, do mais
-barato ao mais caro:
-
-| grau | o que faz | valores construídos |
-|---|---|---|
-| **header** | responde sem abrir o corpo | 0 |
-| **estrutura compacta** | conta separadores, índices de largura fixa ou marcadores core sem reconstruir valores | 0 |
-| **K únicos** | constrói só os valores distintos | K |
-| **K + compacto** | constrói os K e percorre o stream de índices **sem expandir** | K |
-| **uma coluna** | constrói as N linhas de uma coluna | N |
-| **várias colunas** | uma coluna por chamada no encadeamento | N x tocadas |
-
-A linha "K + compacto" é a que passa despercebida. Numa coluna dicionário um `where`
-percorre as N posições do stream, mas cada posição é um índice de largura fixa, não um
-valor: ele lê a forma compacta e nunca a expande. Ler tudo não é o mesmo que materializar
-tudo.
-
-### Por operação e modo
-
-Medido em n=2000:
-
-| operação | `@dict` | denso (`b`/`B`/`C`) | `%split` | core |
-|---|---|---|---|---|
-| `count`, `nrows` | **estrutura compacta** | **header** | uma coluna | **estrutura compacta** |
-| `n_unique` | **K únicos** | uma coluna | uma coluna | uma coluna |
-| `distinct` | **K únicos** | uma coluna | uma coluna | uma coluna |
-| `where` | **K + compacto** | uma coluna | uma coluna | uma coluna |
-| `group_count` | **K + compacto** | uma coluna | uma coluna | uma coluna |
-| `sum`/`min`/`max`/`avg` | uma coluna | uma coluna | uma coluna | uma coluna |
-| `group_sum` e família | duas colunas | duas colunas | duas colunas | duas colunas |
-| `select(col)` | uma coluna | uma coluna | uma coluna | uma coluna |
-
-O `count` numa rota densa sai direto do header: a contagem de linhas está escrita ali em
-hex, então ele lê 11 ou 12 bytes e para. No modo core, soma os contadores e as linhas
-soltas do corpo compacto; não reconstrói a coluna. Só uma tabela inteira em `split` não
-tem contagem estrutural e decodifica a menor coluna.
-
-A contagem estrutural inclui as linhas vazias. Um corpo core de uma única string vazia
-conta como uma linha, e o `select()` a devolve.
-
-Em que modo cada coluna cai é decisão do encoder, não sua, e ela é tomada só por bytes. O
-`fallback=True` (o default do 0.8) é o que põe colunas de baixa cardinalidade em `@dict`, e
-portanto o que habilita a coluna `@dict` inteira da tabela acima; ver
-[encode-knobs.md](encode-knobs.md). No `.8H` cada coluna usa o pipeline core sem essa
-competição, então o blob fica 38,3% maior na mesma tabela de 2 000 linhas por 5 colunas e
-nada cai em `@dict`.
-
-### A largura da tabela muda a resposta
-
-O `select` de uma coluna constrói sempre N valores, mas o que importa é a fração da tabela
-que isso representa:
-
-| colunas na tabela | `select("c")` | `select()` |
-|---:|---:|---:|
-| 2 | 50,1% | 100% |
-| 5 | 20,0% | 100% |
-| 10 | 10,0% | 100% |
-| 20 | **5,0%** | 100% |
-
-Então chamar o `select` de "materializa" é meia verdade. Ele materializa **uma** coluna, e
-numa tabela larga é aí que está quase toda a economia.
-
-### O encadeamento não reduz o que vem depois
-
-Este é o limite honesto, e vale dizer com todas as letras porque a intuição diz o
-contrário. Filtrar antes e agregar depois **não** deixa a agregação mais barata:
-
-```
-where(f, "sim").count()             2000 valores construídos
-where(f, "sim").sum("v")            4000
-where(f, "sim").group_count("g")    4000
-where(f, "sim").group_sum("g", "v") 6000
-```
-
-Esses números são idênticos quer o filtro guarde 1% ou 100% das linhas. O filtro corta as
-linhas **depois** de a coluna ter sido materializada, não antes. Fazer o filtro estreitar o
-trabalho a jusante exige ler só as posições filtradas, coisa que o stream de largura fixa
-do dicionário permitiria; está medido e registrado para o `.9` (`H-QUERY-04f`).
-
-### A versão curta
-
-Uma tabela com uma coluna de baixa cardinalidade e várias largas é o formato para o qual a
-view foi feita: a coluna do filtro responde pela estrutura, e o resto nunca é tocado. Uma
-tabela de uma coluna só, de alta cardinalidade, é o formato em que `view()` e `decode()`
-custam quase o mesmo, e o honesto é dizer isso.
-
-Este é o retrato do `.8`. Os protótipos que subiriam `group_*` e os agregadores na escala
-estão medidos e registrados para o `.9`.
+O custo medido por operação e por modo de coluna, como a largura da tabela muda a resposta, e
+por que o encadeamento não reduz o que vem depois:
+[`onde-a-view-ganha.md`](../theory/desempenho/onde-a-view-ganha.md).
 
 ## Layout ordenado · **experimental**
 
@@ -444,7 +343,7 @@ Compat: `from tcf_lazy import view` (shim) ainda funciona, re-exportando daqui.
 
 ## Ver também
 
-- O que dá para perguntar, com o custo medido de cada pergunta: [`view-usos.md`](view-usos.md)
+- O que dá para perguntar, com o custo medido de cada pergunta: [`consultar-sem-decodificar.md`](../how-to/consultar-sem-decodificar.md)
 - Obter o comportamento de pandas, SQL ou polars: [`../how-to/mimetizar-pandas-sql-polars.md`](../how-to/mimetizar-pandas-sql-polars.md)
 - Knobs do encode (`fallback`/`sort_by`): [encode-knobs.md](encode-knobs.md)
 - Formato (modos `!`/`@`/`%`): [../algorithms/TCF-format.md](../algorithms/TCF-format.md)

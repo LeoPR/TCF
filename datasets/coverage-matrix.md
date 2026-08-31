@@ -140,7 +140,7 @@ bytes:      744pts nested-TCF 990B vs JSON-colunar 1377B (−28%); envelope cust
 ```
 
 ### (6b) lazy-query, não re-medido aqui; ver [lazy-query](../experiments/lab/dirty/old/welded/2026-06-16-lazy-query/result.md) (query toca até 7,9% do blob; o `count()` passou a não materializar nada, ver
-[view-usos](../docs/reference/view-usos.md)).
+[view-usos](../docs/how-to/consultar-sem-decodificar.md)).
 
 ---
 

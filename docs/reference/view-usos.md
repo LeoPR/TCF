@@ -1,8 +1,11 @@
-<!-- l10n: doc_id=view-usos · router · en=view-usos.en.md · pt-BR=view-usos.pt-BR.md -->
-# What you can ask a TCF blob · O que dá para perguntar a um blob TCF
+<!-- l10n: doc_id=view-usos · stub -->
+# Moved · Mudou de lugar
 
-**[English](view-usos.en.md)** · **[Português](view-usos.pt-BR.md)**
+The by-question guide moved to the how-to quadrant, where it belongs:
+[`../how-to/consultar-sem-decodificar.md`](../how-to/consultar-sem-decodificar.md).
 
-> Bilingual document: pick a language above. · Documento bilíngue: escolha o idioma acima.
-> (Links to `view-usos.md` land here by design, so cross-references stay stable; the content
-> lives in the language files above.)
+O guia por pergunta foi para o quadrante how-to, que é o lugar dele:
+[`../how-to/consultar-sem-decodificar.md`](../how-to/consultar-sem-decodificar.md).
+
+The contract of each call stays here, in one place only:
+[`lazy-view.md`](lazy-view.md). · O contrato de cada chamada fica aqui, num lugar só.

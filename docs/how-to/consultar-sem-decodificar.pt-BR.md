@@ -1,13 +1,13 @@
-<!-- l10n: doc_id=view-usos · lang=pt-BR · source_lang=en · translation_of=view-usos.en.md · synced=2026-08-26 -->
-[English](view-usos.en.md) · **Português**
+<!-- l10n: doc_id=consultar-sem-decodificar · lang=pt-BR · source_lang=en -->
+[English](consultar-sem-decodificar.en.md) · **Português**
 
-> Tradução de [`view-usos.en.md`](view-usos.en.md). Se houver divergência, o original em inglês prevalece.
+> Tradução de [`consultar-sem-decodificar.en.md`](consultar-sem-decodificar.en.md). Se houver divergência, o original em inglês prevalece.
 
 # O que dá para perguntar a um blob TCF
 
 Mapa de uso de [`tcf.view`](../../src/tcf/view.py): as perguntas que ele responde, o que
 cada uma custa, e onde estão os limites. A referência de API está em
-[`lazy-view.md`](lazy-view.md); aqui o recorte é por **pergunta**, não por método.
+[`lazy-view.md`](../reference/lazy-view.md); aqui o recorte é por **pergunta**, não por método.
 
 Todo número desta página vem de `experiments/lab/.../2026-08-24-0800-view-capacidades/`,
 medido em n=1000 e conferido contra `decode()` célula a célula.
@@ -22,7 +22,7 @@ construir os N valores.
 
 A rota muda o custo, não o significado. Todo atalho precisa concordar com a resposta
 materializada; um atalho ainda não provado vai para lab em vez de ser adivinhado. A regra
-completa está na [referência de API](lazy-view.pt-BR.md#princípio-oportunista-no-custo).
+completa está na [referência de API](../reference/lazy-view.pt-BR.md#princípio-oportunista-no-custo).
 
 ```python
 from tcf import encode, view
@@ -195,29 +195,11 @@ v.select(["uf", "valor"])      # duas
 v.select()                     # todas, equivalente a decode()
 ```
 
-## Como escolher a coluna
+## O contrato
 
-Em toda a superfície: `str` é **nome**, `int` é **posição**. A mesma regra do `schema=`
-([ADR-0047](../adr/0047-schema-parametro-unico-de-spec.md)). Uma coluna *chamada* `"2"` é
-achada pelo `str`; a posição 2, pelo `int`.
-
-## O que o view não faz
-
-**Não escreve.** Nenhuma operação altera o blob.
-
-**Não é SQL.** Não há parser, joins, `ORDER BY`, `LIMIT`, expressões calculadas ou plano
-multi-tabela. O que existe são caminhos de consulta que lembram SQL. `OR` não existe
-**entre** colunas, porque encadear `where` é sempre AND, mas dentro de uma coluna o
-predicado expressa OR: `where("uf", pred=lambda x: x in ("SP", "RJ"))`.
-
-**Não lê o que não é tabela.** Aninhado, ragged e campo opcional não são tabela
-retangular, e a view recusa com uma mensagem que manda usar `decode()`. Nulo não é
-ausência: `encode([{"a": 1}, {"a": None}])` é tabela (a coluna existe em todas as linhas)
-e a view a lê, desde 2026-08-28, com as mesmas respostas da tabela equivalente em `.8M`.
-
-**Não lê formato legado.** `#TCF.6` e `#TCF.7` foram cortados
-([ADR-0032](../adr/0032-tcf8-default-format.md)); para blobs antigos, `git checkout` de
-uma versão anterior.
+Esta página é sobre **qual pergunta fazer**. O contrato de cada chamada, como nomear uma
+coluna, o que a view recusa a ler e o que é estável vivem num lugar só:
+[`../reference/lazy-view.md`](../reference/lazy-view.md).
 
 ## O que a estrutura permitiria, e ainda não existe
 
@@ -246,14 +228,8 @@ E o que **não** é possível, por razão estrutural e não por falta de trabalh
 - **`min`/`max` no bit-pack denso.** O domínio é ordenado por primeira aparição, não por
   valor.
 
-## Estabilidade
-
-A superfície L1 a L4 (introspecção, agregadores, `where`, `select`) é **estável**.
-`group_ranges` e `agg_by` são **experimentais** e podem evoluir no `.9`; os dois exigem a
-tabela já ordenada por `sort_by` e levantam se ela não estiver.
-
 ## Conexões
 
-- Referência de API: [`lazy-view.md`](lazy-view.md)
-- Knobs do encode (`fallback`, `sort_by`): [`encode-knobs.md`](encode-knobs.md)
+- Referência de API: [`lazy-view.md`](../reference/lazy-view.md)
+- Knobs do encode (`fallback`, `sort_by`): [`encode-knobs.md`](../reference/encode-knobs.md)
 - Formato e modos: [`../algorithms/TCF-format.md`](../algorithms/TCF-format.md)

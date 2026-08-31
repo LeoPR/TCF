@@ -9,7 +9,7 @@ gate: fechado; otimizacoes futuras pertencem a H-QUERY-04, nao reabrem a semanti
 blocked-by: []
 related:
   - src/tcf/view.py
-  - docs/reference/view-usos.md
+  - docs/how-to/consultar-sem-decodificar.md
   - docs/how-to/mimetizar-pandas-sql-polars.md
   - experiments/lab/dirty/notas/2026-08/2026-08-26-1944-revisao-fechamento-08-view-encode.md
 ---

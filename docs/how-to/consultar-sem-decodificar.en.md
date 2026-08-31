@@ -1,10 +1,10 @@
-<!-- l10n: doc_id=view-usos · lang=en · canonical -->
-**English** · [Português](view-usos.pt-BR.md)
+<!-- l10n: doc_id=consultar-sem-decodificar · lang=en · canonical -->
+**English** · [Português](consultar-sem-decodificar.pt-BR.md)
 
 # What you can ask a TCF blob
 
 Usage map for [`tcf.view`](../../src/tcf/view.py): the questions it answers, what each one
-costs, and where the limits are. The API reference is in [`lazy-view.md`](lazy-view.md);
+costs, and where the limits are. The API reference is in [`lazy-view.md`](../reference/lazy-view.md);
 here the cut is by **question**, not by method.
 
 Every number on this page comes from
@@ -21,7 +21,7 @@ index stream without building the N values.
 
 The route changes cost, not meaning. Every shortcut must agree with the materialized
 answer; an unproven shortcut is deferred to a lab rather than guessed. The complete rule is
-in the [API reference](lazy-view.md#governing-principle-opportunistic-in-cost).
+in the [API reference](../reference/lazy-view.md#governing-principle-opportunistic-in-cost).
 
 ```python
 from tcf import encode, view
@@ -194,31 +194,11 @@ v.select(["uf", "valor"])      # two
 v.select()                     # all of them, equivalent to decode()
 ```
 
-## How to name a column
+## The contract
 
-Across the whole surface: `str` is a **name**, `int` is a **position**. Same rule as
-`schema=` ([ADR-0047](../adr/0047-schema-parametro-unico-de-spec.md)). A column *called*
-`"2"` is found by the `str`; position 2, by the `int`.
-
-## What the view does not do
-
-**It does not write.** No operation changes the blob.
-
-**It is not SQL.** There is no parser, no joins, no `ORDER BY`, no `LIMIT`, no computed
-expressions and no multi-table plan. What exists are query paths that resemble SQL. `OR`
-does not exist **between** columns, because chaining `where` is always AND, but within one
-column the predicate expresses OR:
-`where("uf", pred=lambda x: x in ("SP", "RJ"))`.
-
-**It does not read what is not a table.** Nested, ragged and optional fields are not a
-rectangular table, and the view refuses with a message telling you to use `decode()`. Null
-is not absence: `encode([{"a": 1}, {"a": None}])` is a table (the column exists in every
-row) and the view reads it, since 2026-08-28, with the same answers as the equivalent
-`.8M` table.
-
-**It does not read legacy formats.** `#TCF.6` and `#TCF.7` were cut
-([ADR-0032](../adr/0032-tcf8-default-format.md)); for older blobs, `git checkout` an earlier
-version.
+This page is about **which question to ask**. The contract of each call, how to name a
+column, what the view refuses to read and what is stable lives in one place only:
+[`../reference/lazy-view.md`](../reference/lazy-view.md).
 
 ## What the structure would allow, and does not yet do
 
@@ -247,14 +227,8 @@ And what is **not** possible, for structural reasons rather than for lack of wor
 - **`min`/`max` in the dense bit-pack.** The domain is ordered by first appearance, not by
   value.
 
-## Stability
-
-The L1 to L4 surface (introspection, aggregators, `where`, `select`) is **stable**.
-`group_ranges` and `agg_by` are **experimental** and may evolve in `.9`; both require the
-table already sorted by `sort_by` and raise if it is not.
-
 ## See also
 
-- API reference: [`lazy-view.md`](lazy-view.md)
-- Encode knobs (`fallback`, `sort_by`): [`encode-knobs.md`](encode-knobs.md)
+- API reference: [`lazy-view.md`](../reference/lazy-view.md)
+- Encode knobs (`fallback`, `sort_by`): [`encode-knobs.md`](../reference/encode-knobs.md)
 - Format and modes: [`../algorithms/TCF-format.md`](../algorithms/TCF-format.md)

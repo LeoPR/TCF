@@ -225,5 +225,5 @@ aqui se aquele script passar.
 ## Conexões
 
 - Referência de API: [`../reference/lazy-view.md`](../reference/lazy-view.md)
-- O que dá para perguntar, com o custo: [`../reference/view-usos.md`](../reference/view-usos.md)
+- O que dá para perguntar, com o custo: [`consultar-sem-decodificar.md`](consultar-sem-decodificar.md)
 - A matriz completa de divergências: [`DECISAO-GROUPING-SEMANTICA`](../../tickets/DECISAO-GROUPING-SEMANTICA.md)

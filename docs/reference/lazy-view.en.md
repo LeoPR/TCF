@@ -9,35 +9,19 @@ each question needs. It is read only: nothing here changes the blob, `encode` or
 You call `view()` once and then call methods on what it returns. Filtering returns another
 object with the same methods, so filters chain.
 
-## Governing principle: opportunistic in cost
+## What it reads
 
-The `view` seeks the **most complete answer from the least sufficient evidence** already
-present in the wire. It starts with the cheapest safe source for that question:
-
-1. header declarations;
-2. compact structure such as counters, separators and sizes;
-3. the K-value dictionary table and its fixed-width index stream;
-4. only the requested columns and filtered positions;
-5. a full column;
-6. full materialization, only as a correctness fallback.
-
-This is opportunism in **execution**, not in meaning. A structural path and a fallback
-must return the same answer; changing a compression mode may change the cost, never the
-semantics of empty values, nulls, groups or aggregates. If the structure cannot prove an
-answer safely, the view decodes rather than guesses.
-
-“Least” means the cheapest path currently demonstrated to be sufficient, not an unproven
-claim of global optimality. Obvious structural paths and correctness fixes can close in
-the current surface. Fusion, positional pushdown and new compact paths belong in a lab and
-the `.9` optimization cycle when their lower cost still needs to be demonstrated.
-
-**What it reads**: `#TCF.8M` (multi-column), `#TCF.8H` when it is a rectangular table, and
-the single-column route in all of its forms (`#TCF.8`, `#TCF.8n`, `#TCF.8b`, `#TCF.8bB`,
-`#TCF.8 :spec`, and the dense `B`/`C`), plus the **orphan** wire without magic
-(`stamp=False`), read the way `decode` reads it. In a single column the name is `"0"`, as
-in any anonymous column
+`#TCF.8M` (multi-column), `#TCF.8H` when it is a rectangular table, and the single-column
+route in all of its forms (`#TCF.8`, `#TCF.8n`, `#TCF.8b`, `#TCF.8bB`, `#TCF.8 :spec`, and
+the dense `B`/`C`), plus the **orphan** wire without magic (`stamp=False`), read the way
+`decode` reads it. In a single column the name is `"0"`, as in any anonymous column
 ([ADR-0029](../adr/0029-version-format-identification-semi-implicit.md)). `#TCF.6` and
 `#TCF.7` are not accepted in the `0.8` package (historical compatibility through git).
+
+> **Why it is cheap**: the view answers from the least sufficient evidence already in the
+> wire, from the header down to full materialization, and a structural path must always
+> agree with the fallback. The principle, and what "least" does and does not promise, is in
+> [`custo-da-consulta.md`](../theory/conceitos/custo-da-consulta.md) *(Portuguese)*.
 
 ## The whole surface on four rows
 
@@ -316,100 +300,13 @@ absence: since 2026-08-28, `encode([{"a": 1}, {"a": None}])` produces a blob
 as the column is touched. So a `where` on a dictionary, which builds only the K uniques,
 shows the same number as a `select`, which builds the N rows. Use `touched` to see *which*
 columns a query reached; for the fine-grained cost of each path, the per-operation
-measurements are in [`view-usos.md`](view-usos.md). Refining this is recorded for `.9`.
+measurements are in [`consultar-sem-decodificar.md`](../how-to/consultar-sem-decodificar.md). Refining this is recorded for `.9`.
 
-## Where it wins, and by how much
+## Where it wins
 
-There is no single "wins / does not win": there are degrees, and the degree depends on the
-mode the column was compressed into, on how wide the table is, and on which call you make.
-The scale, cheapest first:
-
-| degree | what it does | values built |
-|---|---|---|
-| **header** | answers without opening the body | 0 |
-| **compact structure** | counts separators, fixed-width indices or core markers without rebuilding values | 0 |
-| **K uniques** | builds only the distinct values | K |
-| **K + compact** | builds the K, then walks the index stream **without expanding it** | K |
-| **one column** | builds the N rows of one column | N |
-| **several columns** | one column per call in the chain | N x touched |
-
-The "K + compact" row is the one that is easy to miss. On a dictionary column a `where`
-walks all N positions of the stream, but each position is a fixed-width index, not a value:
-it reads the compact form and never expands it. Reading everything is not the same as
-materializing everything.
-
-### By operation and mode
-
-Measured at n=2000:
-
-| operation | `@dict` | dense (`b`/`B`/`C`) | `%split` | core |
-|---|---|---|---|---|
-| `count`, `nrows` | **compact structure** | **header** | one column | **compact structure** |
-| `n_unique` | **K uniques** | one column | one column | one column |
-| `distinct` | **K uniques** | one column | one column | one column |
-| `where` | **K + compact** | one column | one column | one column |
-| `group_count` | **K + compact** | one column | one column | one column |
-| `sum`/`min`/`max`/`avg` | one column | one column | one column | one column |
-| `group_sum` and family | two columns | two columns | two columns | two columns |
-| `select(col)` | one column | one column | one column | one column |
-
-`count` on a dense route comes straight out of the header: the row count is written there
-in hex, so it reads 11 or 12 bytes and stops. In core mode it sums the counters and loose
-lines in the compact body; it does not rebuild the column. Only an all-`split` table lacks
-a structural count and decodes its smallest column.
-
-The structural count includes empty lines. A core body of a single empty string counts as
-one row, and `select()` returns it.
-
-Which mode a column lands in is the encoder's decision, not yours, and it is made on bytes
-alone. `fallback=True` (the 0.8 default) is what puts low-cardinality columns in `@dict`,
-and therefore what enables the whole `@dict` column of the table above; see
-[encode-knobs.md](encode-knobs.md). In `.8H` every column uses the core pipeline without
-that competition, so the blob comes out 38.3% larger on the same 2,000-row by 5-column
-table and nothing lands in `@dict`.
-
-### How wide the table is changes the answer
-
-`select` of one column always builds N values, but what matters is the fraction of the
-table that is:
-
-| columns in the table | `select("c")` | `select()` |
-|---:|---:|---:|
-| 2 | 50.1% | 100% |
-| 5 | 20.0% | 100% |
-| 10 | 10.0% | 100% |
-| 20 | **5.0%** | 100% |
-
-So calling `select` "materializes" is only half true. It materializes **one** column, and
-on a wide table that is most of the saving there is.
-
-### Chaining does not reduce what comes after it
-
-This is the honest limit, and it is worth stating plainly because the intuition says
-otherwise. Filtering first and aggregating after does **not** make the aggregation cheaper:
-
-```
-where(f, "sim").count()             2000 values built
-where(f, "sim").sum("v")            4000
-where(f, "sim").group_count("g")    4000
-where(f, "sim").group_sum("g", "v") 6000
-```
-
-Those numbers are identical whether the filter keeps 1% or 100% of the rows. The filter
-cuts the rows **after** the column has been materialized, not before. Making the filter
-narrow the work downstream requires reading only the filtered positions, which the
-dictionary's fixed-width stream would allow; it is measured and recorded for `.9`
-(`H-QUERY-04f`).
-
-### The short version
-
-A table with one low-cardinality column and several wide ones is the shape the view was
-built for: the filtering column answers from the structure, and the rest is never touched.
-A table of one high-cardinality column is the shape where `view()` and `decode()` cost
-nearly the same, and the honest thing is to say so.
-
-This is a `.8` picture. The prototypes that would move `group_*` and the aggregators up the
-scale are measured and recorded for `.9`.
+Measured cost per operation and per column mode, how the table width changes the answer, and
+why chaining does not reduce what comes after it:
+[`onde-a-view-ganha.md`](../theory/desempenho/onde-a-view-ganha.md) *(Portuguese)*.
 
 ## Sorted layout · **experimental**
 
@@ -445,7 +342,7 @@ Compat: `from tcf_lazy import view` (shim) still works, re-exporting from here.
 
 ## See also
 
-- What you can ask, with the measured cost of each question: [`view-usos.md`](view-usos.md)
+- What you can ask, with the measured cost of each question: [`consultar-sem-decodificar.md`](../how-to/consultar-sem-decodificar.md)
 - Matching pandas, SQL or polars: [`../how-to/mimetizar-pandas-sql-polars.md`](../how-to/mimetizar-pandas-sql-polars.md)
 - Encode knobs (`fallback`/`sort_by`): [encode-knobs.md](encode-knobs.md)
 - Format (modes `!`/`@`/`%`): [../algorithms/TCF-format.md](../algorithms/TCF-format.md)
