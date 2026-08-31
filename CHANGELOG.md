@@ -15,7 +15,7 @@ internal milestones of their moment, not contracts. Date in parentheses = when t
 was consolidated.
 
 Lab narratives, kept outside the package: v0.5 per-experiment timeline in
-[`docs/workbench/_archive/DEVELOPMENT.md`](docs/workbench/_archive/DEVELOPMENT.md); the
+[`docs/archive/workbench/_archive/DEVELOPMENT.md`](docs/archive/workbench/_archive/DEVELOPMENT.md); the
 compositional cycle in
 [`experiments/lab/dirty/notas/2026-05/historia-dirty-lab.md`](experiments/lab/dirty/notas/2026-05/historia-dirty-lab.md).
 
