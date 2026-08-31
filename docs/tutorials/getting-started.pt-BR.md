@@ -116,6 +116,7 @@ Iguais?   True
 
 A propriedade de **round-trip lossless** é garantida por TCF: qualquer dado codificado pode ser recuperado exatamente (ver [ADR-0024](../adr/0024-pre-1.0-versioning-git-as-compat.md), projeto pré-1.0).
 
+<!-- doctest: skip -->
 ```python
 assert decode(encode(x)) == x  # sempre verdade
 ```

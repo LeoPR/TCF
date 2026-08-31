@@ -13,10 +13,26 @@ Comprimir um arquivo CSV com TCF e recuperar os dados originais intactos. Fluxo:
 
 ## Pré-requisitos
 
-- TCF instalado: `pip install -e ".[dev]"` (Python ≥3.10)
+- TCF instalado: `pip install tcf-format` (Python ≥3.10)
 - Arquivo CSV com cabeçalho (primeira linha = nomes de coluna)
 
 ## Passo 1: Ler CSV em um dict
+
+Esta página roda de ponta a ponta. Se você ainda não tem um CSV à mão, crie o dos exemplos:
+
+```python
+from pathlib import Path
+
+Path('dados.csv').write_text(
+    "\n".join([
+        "id,nome,email",
+        "1,Alice,alice@example.com",
+        "2,Bob,bob@example.com",
+        "3,Charlie,charlie@example.com",
+    ]) + "\n",
+    encoding='utf-8',
+)
+```
 
 Usar `csv.DictReader` da stdlib para converter linhas CSV em dicionário `{coluna: [valor1, valor2, ...]}`:
 
@@ -109,7 +125,7 @@ import csv
 from tcf import encode, decode
 
 # 1. Ler CSV
-with open('vendas.csv', 'r', encoding='utf-8') as f:
+with open('dados.csv', 'r', encoding='utf-8') as f:
     reader = csv.DictReader(f)
     data = {}
     for row in reader:
@@ -122,15 +138,15 @@ print(f"Lidos: {len(data['id'])} linhas, {len(data)} colunas")
 
 # 2. Encode e salvar
 tcf_text = encode(data)
-with open('vendas.tcf', 'w', encoding='utf-8') as f:
+with open('dados.tcf', 'w', encoding='utf-8') as f:
     f.write(tcf_text)
 
-csv_size = len(open('vendas.csv', 'rb').read())
-tcf_size = len(open('vendas.tcf', 'rb').read())
+csv_size = len(open('dados.csv', 'rb').read())
+tcf_size = len(open('dados.tcf', 'rb').read())
 print(f"Compressão: {csv_size} → {tcf_size} bytes ({100*tcf_size/csv_size:.1f}%)")
 
 # 3. Decodificar
-with open('vendas.tcf', 'r', encoding='utf-8') as f:
+with open('dados.tcf', 'r', encoding='utf-8') as f:
     recovered = decode(f.read())
 
 # 4. Verificar
@@ -167,6 +183,7 @@ assert data == recovered  # '' preservado
 Há **um único caractere proibido**: `\n`, que é o separador de linha do próprio meta e por isso
 não tem como ser representado dentro dele.
 
+<!-- doctest: raises -->
 ```python
 encode({'a\nb': ['1', '2']})
 # ValueError: col name nao pode conter '\n' (separador de linha do meta)

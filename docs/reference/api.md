@@ -207,6 +207,7 @@ sai `#TCF.8b` (**single-col tipado**, não `.8H`); só `{"a": ["x", None]}` vai 
   Estourar é **fail-loud** (um warning sairia depois da alocação, tarde demais); a mensagem
   nomeia o parâmetro a subir.
 
+  <!-- doctest: skip -->
   ```python
   decode(wire)                          # teto default
   decode(wire, max_length=50_000_000)   # afrouxa

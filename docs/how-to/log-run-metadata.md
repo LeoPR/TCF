@@ -26,6 +26,7 @@ identico por sorte? Helper criado em
 
 ## Uso minimo
 
+<!-- doctest: skip -->
 ```python
 import json
 import sys

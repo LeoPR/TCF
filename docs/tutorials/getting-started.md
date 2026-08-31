@@ -113,6 +113,7 @@ Equal?    True
 
 The **lossless round-trip** property is guaranteed by TCF: any encoded data can be recovered exactly (see [ADR-0024](../adr/0024-pre-1.0-versioning-git-as-compat.md), pre-1.0 project).
 
+<!-- doctest: skip -->
 ```python
 assert decode(encode(x)) == x  # always true
 ```

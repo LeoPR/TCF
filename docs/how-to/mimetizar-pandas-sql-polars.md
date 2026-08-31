@@ -66,6 +66,7 @@ e, quando aplicável, `None`/`NULL`. Em particular:
 
 No TCF, para obter essa última convenção, escreva-a no predicado:
 
+<!-- doctest: skip -->
 ```python
 v().where("x", pred=lambda x: x is not None and x != "").count()
 ```
