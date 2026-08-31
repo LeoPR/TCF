@@ -14,9 +14,12 @@ resultado comprimido continua sendo texto que você abre e lê.
 1. **[Tutorial: getting started](tutorials/getting-started.md)** ([pt-BR](tutorials/getting-started.pt-BR.md)).
    Cinco passos, do `pip install` até consultar sem descomprimir. É a porta de entrada.
 2. **[Guia curto](../README.pypi.md)**, se você só quer o `encode`/`decode` em uma tela.
-3. **[As receitas](how-to/)**, quando você já sabe usar e tem uma tarefa: encodar um CSV,
-   ligar as naturezas, inspecionar a compressão, obter o comportamento de pandas, SQL ou polars.
-4. **[A referência](reference/)**, para consultar o contrato de uma chamada específica.
+3. **[Os conceitos](theory/conceitos/INDEX.md)**, quando você quer entender o que viu sair:
+   como ler um `.tcf` a olho, o que é uma nature, e por que a consulta é barata.
+4. **[As receitas](how-to/)**, quando você já sabe usar e tem uma tarefa: encodar um CSV,
+   ligar as naturezas, inspecionar a compressão, consultar sem descomprimir, obter o
+   comportamento de pandas, SQL ou polars.
+5. **[A referência](reference/)**, para consultar o contrato de uma chamada específica.
 
 Em uma tela, o mínimo:
 
@@ -34,8 +37,9 @@ v = view(text)              # consulta sem descomprimir
 |---|---|
 | [`tutorials/`](tutorials/) | *nunca usei o TCF*: o primeiro contato, em linha reta |
 | [`how-to/`](how-to/) | *tenho uma tarefa*: uma receita por pergunta, com o custo medido |
-| [`reference/`](reference/) | *qual é o contrato desta chamada*: [api](reference/api.md), [knobs do encode](reference/encode-knobs.md), [view lazy](reference/lazy-view.md), [equivalência com JSON](reference/json-equivalence.md), [família bN](reference/familia-bn-bits.md) |
+| [`reference/`](reference/) | *qual é o contrato desta chamada*: [api](reference/api.md), [knobs do encode](reference/encode-knobs.md), [view lazy](reference/lazy-view.md), [SideOutputs](reference/side-outputs.md), [equivalência com JSON](reference/json-equivalence.md), [família bN](reference/familia-bn-bits.md) |
 | [`algorithms/`](algorithms/) | *como o formato é por dentro*: [OBAT](algorithms/OBAT.md) (camada 1), [HCC](algorithms/HCC.md) (camada 2), [o formato](algorithms/TCF-format.md) |
+| [`theory/conceitos/`](theory/conceitos/INDEX.md) | *o que é isso que eu estou vendo*: o degrau entre o tutorial e a especificação |
 | [`theory/`](theory/) | *por que é assim*: os fundamentos, agrupados por assunto |
 | [`adr/`](adr/) | *quem decidiu, e com que argumento*: as decisões arquiteturais |
 | [`vocabulary.md`](vocabulary.md) | *que palavra usar*: o vocabulário controlado |

@@ -26,8 +26,9 @@ a historia M0-M14 do dirty lab.
 
 | pasta | o assunto | notas |
 |---|---|---|
+| [`conceitos/`](conceitos/) | o degrau entre o tutorial e a especificacao: o que o `0.8` **faz** | 4 |
 | [`comparacao/`](comparacao/) | o que o nucleo compara, e como | 3 |
-| [`desempenho/`](desempenho/) | os vetores alem de bytes: memoria, latencia, nucleo compilado | 3 |
+| [`desempenho/`](desempenho/) | os vetores alem de bytes: memoria, latencia, nucleo compilado | 4 |
 | [`estrutura/`](estrutura/) | padroes estruturais e estudos de estrutura de dados | 3 |
 | [`marcadores/`](marcadores/) | a sintaxe e o custo dos marcadores no wire | 4 |
 | [`strategies/`](strategies/) | o mapa de estrategias v1.0, segmentado por subsistema | 9 |
@@ -38,6 +39,19 @@ Na raiz ficam so' este indice e [`roadmap-hipoteses.md`](roadmap-hipoteses.md), 
 das hipoteses futuras ordenadas por proximidade.
 
 ---
+
+## conceitos/
+
+O degrau que faltava entre o tutorial e a especificacao de 624 linhas. Diferente do resto
+desta pasta, aqui e' o **presente**: descreve o que o `0.8` faz, nao hipotese.
+
+- [INDEX.md](conceitos/INDEX.md): o mapa, com a ordem sugerida
+- [o-wire-em-uma-pagina.md](conceitos/o-wire-em-uma-pagina.md): como ler um `.tcf` a olho,
+  do cabecalho aos marcadores `*N|` e `^N`, com wires gerados por execucao
+- [spec-nao-e-tipo.md](conceitos/spec-nao-e-tipo.md): a nature e' filtro semantico com
+  resultado `str`, e' **candidata** e nao ordem, e o header registra a que venceu
+- [custo-da-consulta.md](conceitos/custo-da-consulta.md): o principio oportunista, e o que
+  "menor evidencia suficiente" promete e nao promete
 
 ## comparacao/
 
@@ -63,6 +77,9 @@ Compressao nao e' o unico eixo, e este grupo guarda os outros.
   critica das 3 estrategias de evolucao. Ancorado no [ADR-0002](../adr/0002-vertice-triplice-restricao.md)
 - [vetores-de-comparacao-alem-de-bytes.md](desempenho/vetores-de-comparacao-alem-de-bytes.md):
   velocidade, memoria, streaming, latencia
+- [onde-a-view-ganha.md](desempenho/onde-a-view-ganha.md):
+  o custo medido da `view` por operacao e por modo de coluna, e por que o encadeamento nao
+  reduz o que vem depois. Estava dentro da reference, e nao e' contrato: e' medicao
 - [h-perf-06-exploration.md](desempenho/h-perf-06-exploration.md):
   estudo do nucleo compilado (Cython, Rust). A hipotese original foi **desconfirmada** por
   profiling real: o gargalo e' o `_detect_compositions` do HCC, nao o lcp/lcs
