@@ -123,40 +123,10 @@ assert decode(encode(x)) == x  # sempre verdade
 
 ## Passo 3: Medir a compressão
 
-Vamos quantificar o ganho. Comparamos o tamanho bruto (newline-delimited) com o tamanho TCF:
+Vamos quantificar o ganho. Comparamos o tamanho bruto (newline-delimited) com o tamanho
+TCF, começando por um dado que se repete, que é do que a compressão precisa:
 
-```python
-from tcf import encode
 
-data = ["abc", "abcd", "abcde"]
-text = encode(data)
-
-# Calcular tamanho bruto (newline-delimited)
-raw_bytes = sum(len(s) + 1 for s in data)  # cada string + 1 newline
-tcf_bytes = len(text.encode('utf-8'))
-
-print(f"Raw (newline-delimited): {raw_bytes} bytes")
-print(f"TCF encoded:              {tcf_bytes} bytes")
-print(f"Taxa de compressão:       {tcf_bytes/raw_bytes*100:.1f}%")
-print(f"Economia:                 {raw_bytes - tcf_bytes} bytes")
-```
-
-Saída esperada:
-
-```
-Raw (newline-delimited): 15 bytes
-TCF encoded:              19 bytes
-Taxa de compressão:       126.7%
-Economia:                 -4 bytes
-```
-
-**Aqui o TCF cresceu, e esse é o resultado honesto.** Em 15 bytes de entrada, o carimbo
-de versão de 7 bytes custa mais do que o core economiza. Compressão precisa de
-*repetição para explorar*, e três strings curtas não fornecem isso. Abaixo, com dados que
-de fato se repetem, o sinal se inverte. Um formato que só mostrasse o caso favorável
-estaria fazendo propaganda, não documentação.
-
-Agora vamos ampliar o exemplo com mais dados reais (lista de emails com padrões repetitivos):
 
 ```python
 from tcf import encode
@@ -192,6 +162,41 @@ Economia:                 29 bytes (29.0%)
 ```
 
 Com dados que compartilham prefixos e sufixos comuns, TCF reduz o tamanho. As duas camadas (OBAT + HCC) detectam e exploram esses padrões automaticamente.
+
+### E quando ele não encolhe
+
+A mesma medição em três strings curtas sem nada em comum:
+
+```python
+from tcf import encode
+
+data = ["abc", "abcd", "abcde"]
+text = encode(data)
+
+# Calcular tamanho bruto (newline-delimited)
+raw_bytes = sum(len(s) + 1 for s in data)  # cada string + 1 newline
+tcf_bytes = len(text.encode('utf-8'))
+
+print(f"Raw (newline-delimited): {raw_bytes} bytes")
+print(f"TCF encoded:              {tcf_bytes} bytes")
+print(f"Taxa de compressão:       {tcf_bytes/raw_bytes*100:.1f}%")
+print(f"Economia:                 {raw_bytes - tcf_bytes} bytes")
+```
+
+Saída esperada:
+
+```
+Raw (newline-delimited): 15 bytes
+TCF encoded:              19 bytes
+Taxa de compressão:       126.7%
+Economia:                 -4 bytes
+```
+
+**Aqui o TCF cresceu, e esse é o resultado honesto.** Em 15 bytes de entrada, o carimbo
+de versão de 7 bytes custa mais do que o core economiza. Compressão precisa de
+*repetição para explorar*, e três strings curtas não fornecem isso. Os emails acima, que de
+fato se repetem, são onde o sinal se inverte. Um formato que só mostrasse o caso favorável
+estaria fazendo propaganda, não documentação.
 
 ## Passo 4: Trabalhar com tabelas multi-coluna
 
@@ -259,7 +264,7 @@ assert v.where("cidade", "SP").sum("valor") == 30.0
 print(v.report()["touched"])
 ```
 
-Por onde seguir: [`view-usos.md`](../reference/view-usos.md) lista o que dá para perguntar
+Por onde seguir: [`consultar-sem-decodificar.md`](../how-to/consultar-sem-decodificar.md) lista o que dá para perguntar
 e quanto cada pergunta custa, [`lazy-view.md`](../reference/lazy-view.md) traz o contrato da API
 e seus limites, e [o guia de equivalências](../how-to/mimetizar-pandas-sql-polars.md) dá a linha
 que reproduz o comportamento de pandas, SQL ou polars quando o agrupamento responde diferente da
@@ -277,7 +282,10 @@ Você cobriu os fundamentos:
 ### Explorar mais
 
 - **[How-to guides](../how-to/)**, receitas práticas: [encodar um CSV](../how-to/encode-csv-file.md), [usar naturezas (CPF/CNPJ/IP)](../how-to/use-natures.md), [inspecionar a compressão](../how-to/inspect-compression.md).
-- **[Formato TCF](../algorithms/TCF-format.md)**: especificação do formato, pipeline e API de referência.
+- **[Conceitos](../theory/conceitos/INDEX.md)**: como ler um `.tcf` a olho, o que é uma nature
+  e por que o `decode` não precisa dela, e por que a consulta é barata. É o degrau entre este
+  tutorial e a especificação.
+- **[Formato TCF](../algorithms/TCF-format.md)**: a especificação do formato, completa.
 - **[Algoritmos](../algorithms/)**: OBAT (Online Bidirectional Affix Tokenizer) e HCC (Hierarchical Compositional Coding).
 
 ### Benchmarks e validação

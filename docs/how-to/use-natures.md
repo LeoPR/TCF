@@ -12,16 +12,11 @@ updated: 2026-05-27
 Uma *nature* é um filtro opt-in para valores com formato conhecido, como CPF, CNPJ e IP. Ela pode
 remover uma parte previsível do valor e reconstruir o original no `decode`.
 
-## Contrato do formato 0.8
-
-Cada filtro é apenas uma candidata: o TCF compara o **blob serializado completo**, incluindo
-cabeçalho, tamanhos e o identificador do filtro. Se a versão filtrada ficar maior, a coluna original
-permanece e o identificador não é emitido. Para `cpf`, `cnpj` e `ip`, o cabeçalho do `#TCF.8` registra
-o filtro usado, e `decode(blob)` o reconhece sozinho. Um filtro customizado também pode ser usado,
-mas o `decode` precisa receber um filtro com o mesmo nome registrado no cabeçalho.
-
-Este guia mostra como comprimir colunas com estrutura conhecida (CPF, CNPJ e endereços IP)
-aproveitando dígitos verificadores e formatos fixos.
+> **A nature é candidata, não ordem.** O encoder compara o blob completo com e sem o
+> filtro e fica com o menor, então pedir uma nature não garante que ela entre. O
+> cabeçalho registra a que foi usada, e por isso o `decode` não precisa recebê-la. O
+> porquê disso está em
+> [`spec não é tipo`](../theory/conceitos/spec-nao-e-tipo.md).
 
 ## Quando usar
 

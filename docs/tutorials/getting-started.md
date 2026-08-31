@@ -120,40 +120,10 @@ assert decode(encode(x)) == x  # always true
 
 ## Step 3: Measure the compression
 
-Let's quantify the gain. We compare the raw size (newline-delimited) with the TCF size:
+Let's quantify the gain. We compare the raw size (newline-delimited) with the TCF size,
+starting with data that repeats, which is what compression needs:
 
-```python
-from tcf import encode
 
-data = ["abc", "abcd", "abcde"]
-text = encode(data)
-
-# Compute raw size (newline-delimited)
-raw_bytes = sum(len(s) + 1 for s in data)  # each string + 1 newline
-tcf_bytes = len(text.encode('utf-8'))
-
-print(f"Raw (newline-delimited): {raw_bytes} bytes")
-print(f"TCF encoded:              {tcf_bytes} bytes")
-print(f"Compression ratio:        {tcf_bytes/raw_bytes*100:.1f}%")
-print(f"Savings:                  {raw_bytes - tcf_bytes} bytes")
-```
-
-Expected output:
-
-```
-Raw (newline-delimited): 15 bytes
-TCF encoded:              19 bytes
-Compression ratio:        126.7%
-Savings:                  -4 bytes
-```
-
-**TCF grew here, and that is the honest result.** On 15 bytes of input, the 7-byte
-version stamp costs more than the core saves. Compression needs *repetition to exploit*,
-and three short strings do not supply it. Below, with data that actually repeats, the
-sign flips. A format that only ever showed you its favorable case would be advertising,
-not documentation.
-
-Now let's scale the example with more realistic data (a list of emails with repetitive patterns):
 
 ```python
 from tcf import encode
@@ -189,6 +159,41 @@ Savings:                  29 bytes (29.0%)
 ```
 
 With data that shares common prefixes and suffixes, TCF shrinks the size. The two layers (OBAT + HCC) detect and exploit these patterns automatically.
+
+### And when it does not shrink
+
+The same measurement on three short strings with nothing in common:
+
+```python
+from tcf import encode
+
+data = ["abc", "abcd", "abcde"]
+text = encode(data)
+
+# Compute raw size (newline-delimited)
+raw_bytes = sum(len(s) + 1 for s in data)  # each string + 1 newline
+tcf_bytes = len(text.encode('utf-8'))
+
+print(f"Raw (newline-delimited): {raw_bytes} bytes")
+print(f"TCF encoded:              {tcf_bytes} bytes")
+print(f"Compression ratio:        {tcf_bytes/raw_bytes*100:.1f}%")
+print(f"Savings:                  {raw_bytes - tcf_bytes} bytes")
+```
+
+Expected output:
+
+```
+Raw (newline-delimited): 15 bytes
+TCF encoded:              19 bytes
+Compression ratio:        126.7%
+Savings:                  -4 bytes
+```
+
+**TCF grew here, and that is the honest result.** On 15 bytes of input, the 7-byte
+version stamp costs more than the core saves. Compression needs *repetition to exploit*,
+and three short strings do not supply it. The emails above, which do repeat, are where the
+sign flips. A format that only ever showed you its favorable case would be advertising,
+not documentation.
 
 ## Step 4: Work with multi-column tables
 
@@ -256,7 +261,7 @@ assert v.where("cidade", "SP").sum("valor") == 30.0
 print(v.report()["touched"])
 ```
 
-Where to go from here: [`view-usos.md`](../reference/view-usos.md) lists what you can ask
+Where to go from here: [`consultar-sem-decodificar.md`](../how-to/consultar-sem-decodificar.md) lists what you can ask
 and what each question costs, [`lazy-view.md`](../reference/lazy-view.md) has the API contract
 and its limits, and [the matching guide](../how-to/mimetizar-pandas-sql-polars.md) shows the
 one-liner that reproduces pandas, SQL or polars behaviour when grouping answers differently
@@ -274,7 +279,10 @@ You covered the fundamentals:
 ### Explore more
 
 - **[How-to guides](../how-to/)**, practical recipes: [encode a CSV](../how-to/encode-csv-file.md), [use natures (CPF/CNPJ/IP)](../how-to/use-natures.md), [inspect the compression](../how-to/inspect-compression.md).
-- **[TCF format](../algorithms/TCF-format.md)**: format specification, pipeline and reference API.
+- **[Concepts](../theory/conceitos/INDEX.md)** *(Portuguese)*: how to read a `.tcf` by eye, what
+  a nature is and why `decode` does not need it, and why the query is cheap. This is the step
+  between this tutorial and the specification.
+- **[TCF format](../algorithms/TCF-format.md)**: the format specification, in full.
 - **[Algorithms](../algorithms/)**: OBAT (Online Bidirectional Affix Tokenizer) and HCC (Hierarchical Compositional Coding).
 
 ### Benchmarks and validation
