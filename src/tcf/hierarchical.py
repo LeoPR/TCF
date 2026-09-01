@@ -948,6 +948,17 @@ def decode_hierarchical(tcf_text: str):
     `#V` nunca escapa (canonicidade verificada fail-loud). Dataset → list[dict], como sempre."""
     if not tcf_text.startswith(MAGIC):
         raise HierarchicalError(f"magic inesperado (esperava {MAGIC})")
+    if "\r" in tcf_text:
+        # O encoder NUNCA emite CR cru: ele escapa, e o round-trip de `\r` no valor e no nome
+        # e' exato (verificado). Logo um CR cru aqui so' pode ter vindo de fora, e o caso real
+        # e' transporte que reescreve LF como CRLF. Sem este guard o blob voltava com o `\r`
+        # DENTRO do dado (`[{'a\r': 'x\r'}]`), corrupcao indistinguivel de valor legitimo e
+        # sem um aviso. Recusar nao custa capacidade: nenhum wire que o TCF escreve tem CR.
+        raise HierarchicalError(
+            "CR cru no wire: o formato e' LF-only e o encoder escapa o `\\r`, entao este blob "
+            "foi reescrito no caminho (tipicamente transporte convertendo LF em CRLF). "
+            "Transfira em modo binario, ou remova os CR antes de decodificar."
+        )
     resto = tcf_text[len(MAGIC):]
     if resto.startswith("#"):                        # P4b: raiz discriminada (posição era fail-loud)
         kind = resto[1:2]

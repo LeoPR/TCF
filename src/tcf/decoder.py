@@ -49,6 +49,8 @@ Invariante `decode(encode(x)) == x` guardado por `tests/test_core_rt.py`
 
 from __future__ import annotations
 
+import warnings
+
 from tcf.composicional.hcc_seqrle import HCCSeqRLE
 
 # #TCF.8 = formato VIVO/DEFAULT (ADR-0032). O char logo apos '#TCF.8' discrimina:
@@ -58,6 +60,44 @@ from tcf.composicional.hcc_seqrle import HCCSeqRLE
 # TIPADO (bool/numero/string-explicita). Legado #TCF.6/#TCF.7 CORTADO (git-as-compat).
 from tcf.wire import MAGIC_BASE
 _V8_MAGIC = MAGIC_BASE  # a era vigente (tcf.wire); o disc (char no indice 6) decide
+
+
+def _avisa_schema_ignorado(per_col, colunas: list, usadas: set, *, where: str) -> None:
+    """Avisa quando um `schema=` do decode não teve como ser usado.
+
+    O header é AUTORITATIVO: quem decide se uma nature foi aplicada é o `:id` que o encoder
+    escreveu, e o `schema=` do decode só serve para resolver um id que o registry core não
+    conhece (ADR-0041). A consequência é que uma declaração pode não encostar em nada, e até
+    2026-08-31 isso acontecia **calado**: `decode(w, schema={'zzz': 'cpf'})` sobre um wire
+    `:ip` devolvia a tabela intacta sem uma palavra, enquanto a MESMA declaração no encode é
+    erro duro (`T-NATURE-IGNORADA-CALADA`).
+
+    Aqui é warning e não erro, de propósito: a decisão registrada em 2026-07-17 manteve a
+    tolerância do decode, e o fato novo é só a medição do silêncio, não um dano.
+
+    E avisa de UM caso só: a chave **não nomeia coluna nenhuma** do wire. Chave que nomeia
+    uma coluna sem `:id` fica calada de propósito, porque ali o silêncio é a resposta certa:
+    coluna sem `:id` é definitivamente original (pós-FLOOR), não aplicar é o comportamento
+    deliberado que impediu uma corrupção silenciosa em 2026-07-12, e passar o spec
+    defensivamente sem saber quais colunas mantiveram a nature é uso legítimo. Avisar ali
+    dispararia em resposta correta, que é a receita para a pessoa aprender a filtrar os avisos
+    do TCF e perder o canal para o que importa.
+    """
+    if not per_col:
+        return
+    nomes = set(colunas)
+    posicoes = range(len(colunas))
+    orfas = [c for c in per_col
+             if (c not in posicoes if isinstance(c, int) else c not in nomes)]
+    if not orfas:
+        return
+    warnings.warn(
+        f"{where}: {sorted(map(str, orfas))} não nomeia(m) coluna deste wire "
+        f"(colunas: {colunas}), então a declaração foi ignorada. O header é autoritativo: "
+        f"o `schema=` do decode só resolve id fora do registry core.",
+        UserWarning,
+        stacklevel=3,
+    )
 
 
 def _resolve_header_spec(nature_id: str, supplied, *, where: str):
@@ -282,6 +322,8 @@ def decode(
                 header_resolved.add(name)
         # Colunas sem :id continuam definitivamente originais; o parâmetro
         # out-of-band não pode inferir uma nature perdida pelo FLOOR.
+        _avisa_schema_ignorado(nature_per_col, list(result), header_resolved,
+                               where="decode(schema=) multi-col")
         _aplica_casts_adiados()
         return result
 

@@ -1027,7 +1027,10 @@ class LazyTCF:
         return len(idx) if idx is not None else self.nrows
 
     def sum(self, col: str, idx: list[int] | None = None) -> float:
-        return sum(self._floats(col, idx))
+        # `sum([])` devolve `int` 0, e a assinatura promete `float`: numa seleção vazia o tipo
+        # do retorno mudava sozinho, e o `group_sum` já prometia `0.0` para o grupo sem valor.
+        # O `0.0` inicial fixa o tipo sem tocar em nenhum resultado não vazio.
+        return sum(self._floats(col, idx), 0.0)
 
     def min(self, col: str, idx: list[int] | None = None) -> float:
         f = self._floats(col, idx)

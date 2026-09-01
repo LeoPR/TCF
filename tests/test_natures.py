@@ -1435,3 +1435,52 @@ class TestHierNatureTelemetria:
             w = encode(ds, schema={"doc": "cpf"}, side_outputs=so)
         assert ":cpf" not in w.split("\n", 1)[0]
         assert so.nature_apply["doc"]["used"] is False
+
+
+class TestDecodeSchemaIgnoradoAvisa:
+    """`decode(schema=)` com chave que não nomeia coluna deixa de passar calado.
+
+    O header é autoritativo: o `:id` que o encoder escreveu decide se a nature foi aplicada, e
+    o `schema=` do decode só serve para resolver um id que o registry core não conhece
+    (ADR-0041). Até 2026-08-31 uma declaração podia não encostar em nada **sem uma palavra**,
+    enquanto a mesma declaração no encode é erro duro (`T-NATURE-IGNORADA-CALADA`).
+
+    É warning e não erro por decisão registrada em 2026-07-17, que manteve a tolerância do
+    decode. E avisa de um caso só, o que indica erro de quem chama.
+    """
+
+    def _wire(self):
+        from tcf import SPEC_IP
+        return encode({"ip": ["10.0.0.1", "10.0.0.2"], "x": ["a", "b"]},
+                      schema={"ip": SPEC_IP})
+
+    def test_chave_que_nao_nomeia_coluna_avisa(self):
+        w = self._wire()
+        for chave in ("zzz", 9):
+            with pytest.warns(UserWarning, match="não nomeia"):
+                assert decode(w, schema={chave: "cpf"}) == decode(w)
+
+    def test_chave_de_coluna_sem_id_fica_calada(self):
+        """Silêncio deliberado: coluna sem `:id` é definitivamente original.
+
+        Não aplicar ali é o comportamento que impediu uma corrupção silenciosa em 2026-07-12,
+        e passar o spec defensivamente sem saber quais colunas mantiveram a nature é uso
+        legítimo. Avisar dispararia em resposta CERTA, e um aviso que sempre dispara é um
+        aviso que a pessoa aprende a filtrar.
+        """
+        import warnings as _w
+        from tcf import SPEC_IP
+        w = self._wire()
+        for schema in ({"x": "cpf"}, {"ip": SPEC_IP}, {0: "cpf"}):
+            with _w.catch_warnings(record=True) as capturados:
+                _w.simplefilter("always")
+                assert decode(w, schema=schema) == decode(w)
+            assert not [c for c in capturados if "não nomeia" in str(c.message)]
+
+    def test_sem_schema_nao_avisa(self):
+        import warnings as _w
+        w = self._wire()
+        with _w.catch_warnings(record=True) as capturados:
+            _w.simplefilter("always")
+            decode(w)
+        assert not capturados

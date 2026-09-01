@@ -434,10 +434,15 @@ def _encode_multi(
     for col_name in table.keys():
         # #TCF.8M default (ADR-0032): separadores do meta (,/=/:) + '\' + prefixo de
         # modo (!@%) inicial sao ESCAPADOS no nome (_esc_name, T-FMT-NAME-ESCAPING, M2).
-        # So' '\n' fica proibido: e' o separador de linha do meta (irrepresentavel).
-        if "\n" in col_name:
+        # LF e CR ficam proibidos. O LF e' o separador de linha do meta (irrepresentavel); o
+        # CR viajava CRU no wire (medido: `encode({'c\r': [...]})` emitia o byte 0d dentro do
+        # meta), fora da convencao LF-only do formato. As rotas irmas ja' recusavam ou
+        # escapavam, e esta era a ultima porta aberta depois do BUG-BB-CR-CRU.
+        if "\n" in col_name or "\r" in col_name:
+            qual = "\\n" if "\n" in col_name else "\\r"
             raise ValueError(
-                f"col name nao pode conter '\\n' (separador de linha do meta): {col_name!r}"
+                f"col name nao pode conter '{qual}' (o wire e' LF-only, e o LF separa o "
+                f"meta): {col_name!r}"
             )
 
     # Nome VAZIO '' e' um NOME como outro — sai no meta como `\z` (ADR-0046) e volta ''.

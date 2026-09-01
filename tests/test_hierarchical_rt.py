@@ -982,3 +982,29 @@ def test_chave_tuple_deixa_de_virar_coluna_calada():
     for k in ((), ("x",)):
         with pytest.raises(HierarchicalError, match="chave de objeto deve ser str"):
             encode({k: ["a"]})
+
+
+def test_cr_cru_no_wire_e_recusado_em_vez_de_virar_dado():
+    """CRLF de transporte deixava de corromper em silêncio e passa a falhar alto.
+
+    O encoder do `.8H` NUNCA emite CR cru: ele escapa, e o round-trip de `\r` no valor e no
+    nome é exato. Logo um CR cru no wire só pode ter vindo de fora, e o caso real é transporte
+    reescrevendo LF como CRLF. Antes deste guard o blob voltava com o `\r` **dentro do dado**
+    (`[{'a\r': 'x\r'}]`), corrupção indistinguível de valor legítimo e sem um aviso.
+
+    Fechado em 2026-08-31, junto com a mesma porta no nome de coluna do `.8M`. A rota `bB`
+    já tinha sido fechada antes (BUG-BB-CR-CRU).
+    """
+    d = [{"a": "x"}, {"a": "y"}]
+    w = encode(d)
+    assert "\r" not in w                      # o encoder não emite CR
+    assert decode(w) == d
+
+    with pytest.raises(HierarchicalError, match="CR cru no wire"):
+        decode(w.replace("\n", "\r\n"))       # o que o transporte faz
+
+    # e o `\r` como DADO continua viajando exato, escapado
+    for d2 in ([{"a": "x\rz"}], [{"a\rb": "x"}], [{"a": ["p\rq", "r"]}]):
+        w2 = encode(d2)
+        assert "\r" not in w2
+        assert decode(w2) == d2

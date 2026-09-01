@@ -527,10 +527,20 @@ class TestEdgeCases:
         # T-FMT-NAME-ESCAPING (M2): nomes com ,/=/:/!@%/\\ escapados via backslash -> RT
         assert decode(encode(table)) == table
 
-    def test_col_name_with_newline_raises(self):
-        # '\n' e' o separador de linha do meta -> irrepresentavel (unico rejeitado)
-        with pytest.raises(ValueError, match="separador de linha"):
-            encode({"a\nb": ["1", "2"]})
+    def test_col_name_with_newline_or_cr_raises(self):
+        """LF e CR sao os dois unicos caracteres proibidos no nome de coluna.
+
+        O LF sempre foi: e' o separador de linha do meta, irrepresentavel. O CR entrou em
+        2026-08-31: ele nao era barrado e viajava CRU no wire (`encode({'c\\r': [...]})`
+        emitia o byte 0d dentro do meta), fora da convencao LF-only do formato. Todo o resto
+        passa, inclusive os que tem significado estrutural, porque sao escapados.
+        """
+        for nome in ("a\nb", "a\rb"):
+            with pytest.raises(ValueError, match="col name nao pode conter"):
+                encode({nome: ["1", "2"]})
+        # e o que e' legitimo continua entrando
+        for nome in ("a b", "a,b", "a=b", ""):
+            assert decode(encode({nome: ["1", "2"]})) == {nome: ["1", "2"]}
 
     def test_coluna_com_none_fica_no_8m(self):
         # A tabela RETANGULAR fica no `.8M` mesmo com `None` ou com coluna tipada: o
