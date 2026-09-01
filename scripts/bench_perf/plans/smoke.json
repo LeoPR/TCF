@@ -5,7 +5,7 @@
  "intencao": "validacao-do-instrumento",
  "campanha": false,
  "descricao": "Toda a matriz em escala minima (o runner forca R<=100 com --smoke). ZERO valor probatorio de performance — so' valida que o instrumento roda ponta a ponta. process-tree e tcf-8h+compressao ficam opcionais.",
- "pin_cases_sha256": "de10e05252cb5463ee6a303c8c8105ee289bda4c86b23630d20ae9ac8f761432",
+ "pin_cases_sha256": "98f1e4774b79ff17f1abc8e1d9215819acfdb4d06b7f4033402feb386485f7b6",
  "incluir": [
   {"bloco": ["B0", "B1", "B2", "B3", "B4", "B5", "B6", "B7", "B8"]}
  ],

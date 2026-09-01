@@ -5,7 +5,7 @@
  "intencao": "referencia-recorrente-comparavel",
  "campanha": false,
  "descricao": "Nucleo barato e representativo: caminhos, escala moderada, camadas, compressao, .8H, typed, candidate/column, accel. Curto o bastante p/ ficar sob o piso de ruido. Exclui B4 (concorrencia cara), o extremo R6e5 e process-tree — esses vao pra campanha.",
- "pin_cases_sha256": "de10e05252cb5463ee6a303c8c8105ee289bda4c86b23630d20ae9ac8f761432",
+ "pin_cases_sha256": "98f1e4774b79ff17f1abc8e1d9215819acfdb4d06b7f4033402feb386485f7b6",
  "incluir": [
   {"bloco": ["B1", "B2", "B3", "B5", "B6", "B7", "B8"]}
  ],

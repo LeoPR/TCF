@@ -86,3 +86,35 @@ python -m bench_perf.compare --self <run>.jsonl    # auto-teste: tudo IGUAL, fat
 `calibradores` (C1/C2/C3) · `drift` · `plano` (id/sha/intenção) · `contagem` · `nota_adjudicacao`.
 Compat: `_adj()` no comparador lê `run-v2` antigo (`status='termicamente-reprovado'` → validade
 `completo` + térmico `suspeito`).
+
+## Incidente 2026-09-01: o pin do plano quebrou por uma quebra de linha
+
+O `--probative` abortou com `plano 'nucleo' e' pra outra matriz (pin de10e05252cb !=
+98f1e4774b79)`, e a causa não foi a matriz. O commit `af6852f7` (2026-08-22) tocou
+`cases.json` para **acrescentar o LF final**, coisa do hook `end-of-file-fixer` do
+pre-commit, e o pin dos três planos não acompanhou. O diff inteiro é `\ No newline at end of
+file` virando newline: **a matriz é idêntica**, caso por caso.
+
+Consequência: de 2026-08-22 até 2026-09-01 os três planos ficaram **inexecutáveis em modo
+probatório**, e ninguém percebeu porque ninguém rodou. A `0.8.4` foi publicada com o
+instrumento de baseline parado, e o baseline que existia (`perf-nucleo-2026-08-20`) ficou
+**anterior a 40 commits de `src/tcf`**, incluindo a release inteira.
+
+Consertado re-pinando os três para `98f1e4774b79`, com o diff acima como justificativa: não é
+re-pin de conveniência, é reconhecimento de que o conteúdo não mudou.
+
+### O que isso ensina sobre o desenho do pin
+
+O `pin_cases_sha256` hasheia os **bytes do arquivo**, então qualquer toque de formatação o
+quebra, e o primeiro a quebrá-lo foi um hook do próprio repositório. Hashear o **conteúdo
+canonizado** (parse do JSON, `sort_keys`, separadores fixos) seria robusto a isso sem perder
+nada: o que se quer garantir é que a matriz de casos é a mesma, não que o arquivo tem os
+mesmos bytes.
+
+**Não foi feito**, e de propósito: mudar a base do hash invalidaria a comparação com o
+baseline de 2026-08-20, que registra o valor antigo. Se e quando o `.9` decidir trocar, o
+movimento certo é trocar junto com um baseline novo, não isoladamente.
+
+Fica também a lição de processo: um instrumento que ninguém roda não avisa que quebrou. Vale
+o `smoke` entrar na cadência recorrente, mesmo que barato e sem valor de medição, só para o
+plano provar que ainda carrega.
