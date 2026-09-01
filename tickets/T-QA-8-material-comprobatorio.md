@@ -3,7 +3,7 @@ title: T-QA-8, material comprobatório do #TCF.8/0.8.0 (controle → sintéticos
 status: open
 priority: P1
 created: 2026-07-10
-updated: 2026-07-12
+updated: 2026-09-01
 blocked-by: []
 related:
   - docs/adr/0032-tcf8-default-format.md
@@ -72,6 +72,34 @@ Fonte do levantamento: workflow de 10 agentes (6 inventário + 4 sweep adversari
   Só existem DOIS readers: `decode()` e `view()` (view cobre SÓ `#TCF.8M`; library-only, sem CLI).
   Matriz modo×teste tem furos: escaping×view sem teste, hex sem teste direto de parse, fail-loud só
   testado com 'H', drop_names+última-anônima sem teste, parallel×natures/sort_by sem byte-identidade.
+  >
+  > **Atualizado 2026-09-01 (0.8.4)**: os dois números deste bullet envelheceram, cada um pelo
+  > seu motivo. A contagem de kwargs estava CERTA quando foi escrita: em `34e9655b` (2026-07-12)
+  > o `encode` tinha 12 keyword-only. A [ADR-0047](../docs/adr/0047-schema-parametro-unico-de-spec.md)
+  > fundiu `nature=` e `nature_per_col=` num `schema=` só, e hoje `inspect.signature(tcf.encode)`
+  > devolve **12 parâmetros dos quais 1 é o `data` posicional**, ou seja **11 kwargs**: `schema`,
+  > `side_outputs`, `parallel`, `layers`, `fallback`, `min_header`, `min_len`, `sort_by`, `name`,
+  > `stamp` e `drop_names`.
+  >
+  > Os readers continuam sendo dois, `decode()` e `view()`, e continua sem CLI. O que caiu foi a
+  > afirmação entre parênteses: a `view` não cobre mais só o `#TCF.8M`. Verificado por execução
+  > em 0.8.4, ela abre
+  > o single-col `#TCF.8` (`['a','b','c']`, coluna `0`), o mesmo single-col SEM magic
+  > (`stamp=False`, o órfão), o single-col TIPADO (`#TCF.8n` de `[1,2,3]`, `#TCF.8b` de bool,
+  > `#TCF.8bB` da união bool+str e a forma com spec no header, `schema='data-iso'`), o `#TCF.8M`,
+  > o `#TCF.8R` da [ADR-0049](../docs/adr/0049-marcador-r-a-forma-da-entrada-e-metadado.md), que
+  > ela normaliza para multi na abertura, e o `#TCF.8H` **quando ele é tabela retangular**.
+  >
+  > Esse último caso ficou estreito depois da ADR-0049. O retangular plano virou `.8R`, então o
+  > `.8H` retangular é hoje só o que a canonização recusa e mesmo assim é tabela, por exemplo
+  > uma lista de registros cuja única chave carrega um LF no meio do nome.
+  >
+  > O que a `view` recusa é o `.8H` que não é tabela, e a mensagem diz qual dos três casos é.
+  > Ragged (`[{'a':'1','b':'2'},{'a':'3'}]`): "`view()` precisa de uma tabela retangular: a coluna
+  > 'b' é opcional (ragged). Use `decode()` para este blob." Aninhado, e o array na célula cai
+  > aqui também (`[{'a':{'x':'1'}}]` e `[{'a':['1','2']}]`): a mesma frase com "a coluna 'a' é
+  > aninhada". Raiz que não é tabela (`[['1','2'],['3','4']]`, wire `#TCF.8H#V`): "`view()`
+  > precisa de uma TABELA: este `.8H` tem raiz '#V', que não é tabela. Use `decode()`."
 - **Natures/CPF**: spec CPF valida o DV DE VERDADE (mod-11); DV inválido → status `check_invalid` →
   **fallback literal `_<valor>`** (repro: 3 valores DV-válido=33B/apply_rate=1.0 vs DV-inválido=72B/
   apply_rate=0.0; RT 100% nos dois). Consequência dura pra regra de anonimização (ver §2).
@@ -396,6 +424,26 @@ owner: "SE identificar algum bug sem querer, registre apenas pra arrumarmos depo
   (c) MEDIR a porção serial pós-pool (fase de candidatos V2-A/B/split), % Amdahl documentada;
   (d) combos sem cobertura: parallel × natures_per_col × sort_by × drop_names (byte-identidade);
   (e) registrar limitações honestas: decode serial, Cython sem nogil (3.13t re-ativa GIL), IPC spawn.
+
+> **Atualizado 2026-09-01 (0.8.4)**: o eixo `natures_per_col` do item (d) não existe mais. A
+> [ADR-0047](../docs/adr/0047-schema-parametro-unico-de-spec.md) trocou `nature=` e
+> `nature_per_col=` por um `schema=` único, e hoje `encode(..., nature_per_col={})` levanta
+> `TypeError: encode() got an unexpected keyword argument 'nature_per_col'`, o mesmo para
+> `natures_per_col=` e para `nature=`. O combo continua válido, com o nome novo:
+> **parallel × `schema` × `sort_by` × `drop_names`**.
+>
+> A mesma troca aposenta o item (g) do BUG-10 no §3, que pinava o `ValueError` cruzado entre
+> `nature=`+dict e `nature_per_col=`+list: os dois kwargs sumiram, então o cruzamento não tem
+> mais como acontecer. O `schema=` escalar pôs a regra no lugar simétrico, verificado por
+> execução nas duas grafias: uma coluna aplica (`{'d': [...]}` e `[{'d': ...}]` vão os dois pro
+> wire com `:dt` no header), duas ou mais levantam nas duas com a mesma frase ("schema escalar
+> ('id'/objeto) aplica a single-col (list) ou tabela de UMA coluna; com 2+ colunas use
+> schema={coluna: spec}").
+>
+> Cuidado ao reprogramar o (d): o `sort_by` deixou de ser ordem garantida. A
+> [ADR-0050](../docs/adr/0050-sort-by-vira-candidato-o-floor-decide.md) fez dele um CANDIDATO,
+> o encoder emite as duas versões e fica com a menor, então um teste de byte-identidade tem de
+> comparar parallel contra serial, nunca contra "a versão ordenada".
 - [~] **F3-4** br-identidades (600k, DV-válido seed 20260601): natures em volume, apply_rate==1.0,
   medição efêmera (§2.3), CPF/CNPJ/IP nos 3 codepaths (spec, fallback, misto).
 

@@ -1715,3 +1715,157 @@ class TestUniaoBoolStr:
         assert [r["0"] for r in v.where("0", "x").select()] == ["x"]   # str: passa
         with pytest.raises(TypeError, match="STRICT"):
             v.where("0", 1)                                            # int: recusa
+
+
+# ===========================================================================
+# A view concorda CONSIGO MESMA? (lab 2026-09-01-0441)
+#
+# A view tem muitos caminhos para a mesma pergunta, e eles nao sao equivalentes
+# por construcao: `group_count` tem atalho estrutural no `@dict` e fallback nos
+# outros modos, `agg_by` prefere o layout contiguo e cai no order-free, `where`
+# varre o stream de indices num modo e materializa nos outros. Cada bifurcacao e'
+# uma chance de duas respostas para uma pergunta so'.
+#
+# A VERDADE aqui e' `decode(wire)` mais Python puro. O lab varreu 7 tabelas x 2
+# grafias x 3 modos de coluna e achou ZERO divergencia nos agregadores; estes
+# testes sao o subconjunto que fica de gate permanente.
+# ===========================================================================
+
+
+def _num(v):
+    """A regra de valor que a view declara: vazio e nulo ficam de fora da conta."""
+    if v is None or v == "":
+        return None
+    try:
+        return float(v)
+    except (TypeError, ValueError):
+        return None
+
+
+_TABELAS_CONSISTENCIA = {
+    "lowcard": {"k": [["SP", "RJ", "MG", "BA"][i % 4] for i in range(60)],
+                "v": [float(i % 7) for i in range(60)]},
+    "highcard": {"k": [f"id{i:05d}" for i in range(60)],
+                 "v": [float(i) for i in range(60)]},
+    "com-nulo": {"k": [["SP", "RJ"][i % 2] for i in range(60)],
+                 "v": [None if i % 5 == 0 else float(i % 7) for i in range(60)]},
+    "com-vazio": {"k": [["SP", "RJ"][i % 2] for i in range(60)],
+                  "v": ["" if i % 6 == 0 else str(i % 7) for i in range(60)]},
+    "estruturado": {"k": [["SP", "RJ"][i % 2] for i in range(60)],
+                    "v": [f"{i % 9}.{i % 5:02d}" for i in range(60)]},
+    "tipado": {"k": [i % 3 for i in range(60)],
+               "v": [i % 2 == 0 for i in range(60)]},
+}
+
+
+def _linhas(wire):
+    d = decode(wire)
+    if isinstance(d, list):
+        return d
+    n = len(next(iter(d.values())))
+    return [{c: d[c][i] for c in d} for i in range(n)]
+
+
+@pytest.mark.parametrize("nome", sorted(_TABELAS_CONSISTENCIA))
+@pytest.mark.parametrize("grafia", ["colunas", "registros"])
+class TestViewConcordaComODecode:
+    """Todo caminho da view contra a mesma pergunta feita no `decode`."""
+
+    def _wire(self, nome, grafia):
+        cols = _TABELAS_CONSISTENCIA[nome]
+        if grafia == "colunas":
+            return encode(cols)
+        n = len(next(iter(cols.values())))
+        return encode([{k: cols[k][i] for k in cols} for i in range(n)])
+
+    def test_agregadores_simples(self, nome, grafia):
+        w = self._wire(nome, grafia)
+        v, linhas = view(w), _linhas(self._wire(nome, grafia))
+        assert v.nrows == len(linhas)
+        for c in linhas[0]:
+            vals = [r[c] for r in linhas]
+            assert v.distinct(c) == list(dict.fromkeys(vals))
+            assert v.n_unique(c) == len(set(vals))
+            nums = [x for x in map(_num, vals) if x is not None]
+            if nums:
+                assert v.sum(c) == pytest.approx(sum(nums))
+                assert v.min(c) == pytest.approx(min(nums))
+                assert v.max(c) == pytest.approx(max(nums))
+                assert v.avg(c) == pytest.approx(sum(nums) / len(nums))
+
+    def test_filtro_bate_com_o_decode_filtrado(self, nome, grafia):
+        w = self._wire(nome, grafia)
+        v, linhas = view(w), _linhas(self._wire(nome, grafia))
+        for alvo in list(dict.fromkeys(r["k"] for r in linhas))[:2]:
+            esperado = [r for r in linhas if r["k"] == alvo]
+            f = v.where("k", alvo)
+            assert f.count() == len(esperado)
+            nums = [x for x in (_num(r["v"]) for r in esperado) if x is not None]
+            if nums:
+                assert f.sum("v") == pytest.approx(sum(nums))
+
+    def test_os_caminhos_de_grupo_concordam(self, nome, grafia):
+        """`group_*`, `agg_by` e o group-by em Python puro dao a mesma coisa."""
+        w = self._wire(nome, grafia)
+        v, linhas = view(w), _linhas(self._wire(nome, grafia))
+        grupos = {}
+        for r in linhas:
+            grupos.setdefault(r["k"], []).append(r["v"])
+        assert v.group_count("k") == {k: len(x) for k, x in grupos.items()}
+        esp_sum, esp_min = {}, {}
+        for k, vs in grupos.items():
+            nums = [x for x in map(_num, vs) if x is not None]
+            esp_sum[k] = sum(nums) if nums else 0.0
+            esp_min[k] = min(nums) if nums else None
+        assert v.group_sum("k", "v") == esp_sum
+        assert v.group_min("k", "v") == esp_min
+        # o caminho por layout e o order-free tem de dar a MESMA coisa, sempre
+        assert v.agg_by("k", "v", "sum") == v.group_sum("k", "v")
+        assert v.agg_by("k") == v.group_count("k")
+
+    def test_idx_explicito_bate_com_o_filtro_equivalente(self, nome, grafia):
+        w = self._wire(nome, grafia)
+        v, linhas = view(w), _linhas(self._wire(nome, grafia))
+        alvo = linhas[0]["k"]
+        idx = [i for i, r in enumerate(linhas) if r["k"] == alvo]
+        nums = [x for x in (_num(linhas[i]["v"]) for i in idx) if x is not None]
+        if nums:
+            assert v.sum("v", idx) == pytest.approx(v.where("k", alvo).sum("v"))
+
+
+class TestContratoDeConjuntoVazio:
+    """O agregador simples e o de grupo respondem DIFERENTE ao conjunto vazio, e e' de proposito.
+
+    O `group_min` devolve `None` porque ali ha' uma CHAVE a preservar: sumir com o grupo
+    esconderia que ele existia. O `min` simples nao tem chave nenhuma pra preservar, e
+    devolver `None` faria a conta de quem somasse o resultado quebrar mais adiante, longe
+    da causa. Sao perguntas diferentes com respostas diferentes, e o que faltava era a
+    mensagem dizer isso.
+    """
+
+    T = {"k": ["X"] * 10 + ["Y"] * 10,
+         "v": [None] * 10 + [float(i) for i in range(10)]}
+
+    def test_sum_concorda_nas_duas_superficies(self):
+        v = view(encode(self.T))
+        assert v.group_sum("k", "v")["X"] == 0.0
+        assert v.where("k", "X").sum("v") == 0.0      # o `sum` NAO diverge
+
+    def test_min_max_avg_divergem_de_proposito(self):
+        v = view(encode(self.T))
+        assert v.group_min("k", "v")["X"] is None
+        assert v.group_max("k", "v")["X"] is None
+        assert v.group_avg("k", "v")["X"] is None
+        for op in ("min", "max", "avg"):
+            with pytest.raises(ValueError):
+                getattr(v.where("k", "X"), op)("v")
+
+    def test_a_mensagem_separa_as_duas_causas(self):
+        """Uma mensagem so' cobria "filtro vazio" e "valores todos nulos"."""
+        v = view(encode(self.T))
+        with pytest.raises(ValueError, match="linha.s. selecionadas"):
+            v.where("k", "X").min("v")        # casou 10 linhas, todas nulas
+        with pytest.raises(ValueError, match="sele..o est. vazia"):
+            v.where("k", "ZZZ").min("v")      # nao casou nada
+        with pytest.raises(ValueError, match="group_min"):
+            v.where("k", "X").avg("v")        # e aponta o caminho que nao levanta

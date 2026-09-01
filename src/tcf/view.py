@@ -1052,6 +1052,31 @@ class LazyTCF:
             out.append(float(s))   # ValueError em não-numérico = intencional
         return out
 
+    def _sem_valores(self, col: str, idx: list[int] | None) -> ValueError:
+        """A mensagem de `min`/`max`/`avg` sobre conjunto vazio, dizendo QUAL vazio.
+
+        Uma mensagem só cobria duas causas diferentes, e o chamador não tinha como
+        separá-las: um filtro que não casou linha nenhuma e um filtro que casou linhas
+        cujos valores são todos nulos ou vazios. A primeira é problema da seleção, a
+        segunda é do dado, e o conserto de cada uma é outro.
+
+        Diz também onde está a resposta que NÃO levanta: `group_min` e companhia devolvem
+        `None` para o grupo sem valor, porque ali há uma chave a preservar. Aqui não há,
+        e devolver `None` faria a conta de quem somasse o resultado quebrar mais adiante.
+        """
+        n = len(idx) if idx is not None else self.nrows
+        if n == 0:
+            causa = ("a seleção está vazia: nenhuma linha casou o filtro, então não há "
+                     "sobre o que calcular")
+        else:
+            causa = (f"as {n} linha(s) selecionadas têm {col!r} vazio ou nulo, e vazio e "
+                     f"nulo ficam de fora da conta")
+        return ValueError(
+            f"sem valores numéricos em {col!r}: {causa}. Use `count()` para conferir a "
+            f"seleção, ou `group_min`/`group_max`/`group_avg`, que devolvem `None` no "
+            f"grupo sem valor em vez de levantar."
+        )
+
     # ---- agregadores ----
     def count(self, idx: list[int] | None = None) -> int:
         return len(idx) if idx is not None else self.nrows
@@ -1065,19 +1090,19 @@ class LazyTCF:
     def min(self, col: str, idx: list[int] | None = None) -> float:
         f = self._floats(col, idx)
         if not f:
-            raise ValueError(f"sem valores numéricos em {col!r}")
+            raise self._sem_valores(col, idx)
         return min(f)
 
     def max(self, col: str, idx: list[int] | None = None) -> float:
         f = self._floats(col, idx)
         if not f:
-            raise ValueError(f"sem valores numéricos em {col!r}")
+            raise self._sem_valores(col, idx)
         return max(f)
 
     def avg(self, col: str, idx: list[int] | None = None) -> float:
         f = self._floats(col, idx)
         if not f:
-            raise ValueError(f"sem valores numéricos em {col!r}")
+            raise self._sem_valores(col, idx)
         return sum(f) / len(f)
 
     # ---- L5: layout p/ baixa latência — grupos contíguos (requer sort_by) ----

@@ -3,7 +3,7 @@ title: T-CODE-TCF8H-JSON-PARITY, o que falta pra fechar "hierarquia" (paridade J
 status: open
 priority: P1
 created: 2026-07-15
-updated: 2026-07-17
+updated: 2026-09-01
 gate: capability (paridade JSON), não ≥15%
 blocked-by: []
 related:
@@ -150,6 +150,27 @@ realista, não sintético). O weld atual (ADR-0033) cobre a ESPINHA; faltam os c
 | ⭐ TCF **mais seguro** que o json (medido 2026-07-17) | `NaN`/`Infinity` (json emite, **inválido RFC 8259**, `allow_nan` default; NaN quebra RT) · `tuple`→`list` (json perde tipo) · chave não-str (json **emite duplicata**) · lone surrogate (json faz RT mas não é UTF-8 transmissível), `.8H` fail-loud nos 4 | NÃO afrouxar: estrito é feature. Evoluir por REPRESENTAÇÃO ([[H-HIER-SCALAR-01]]), não por tolerância |
 | **ordem de chaves por-registro em ragged** | ⚠️ semântica preservada; ORDEM vira a do schema (chave que estreia tarde volta ao fim), achado 2026-07-17 da suíte de controle, pinado em `test_hierarchical_control_synthetics.py` | decisão de contrato (S6/P4b): schema-order canônica OU por-registro; contrato S0 preserva por-registro ([T-API-BOUNDARY-CONTRACTS](T-API-BOUNDARY-CONTRACTS.md)) |
 
+**Atualizado 2026-09-01 (0.8.4)**: a linha do `[]` "array de objetos/escalares" precisa de
+recorte. O subconjunto **retangular e plano, com célula escalar**, saiu do `.8H`: a
+[ADR-0049](../docs/adr/0049-marcador-r-a-forma-da-entrada-e-metadado.md) o canoniza em colunas
+e o emite como `#TCF.8R`, um wire MULTI com a forma de origem registrada no discriminador do
+índice 6. Verificado por execução: `encode([{'uf':'SP','n':'1'},{'uf':'RJ','n':'2'}])` abre em
+`#TCF.8R!5=uf,!n`, o `decode` remonta a lista de dicionários e a `view` abre com as colunas
+`['uf', 'n']`.
+
+Isso não é detalhe de roteamento, porque **array de objetos planos é a forma de JSON que as
+pessoas realmente transmitem**: resposta de API, linha de log, catálogo. É justamente ela que
+deixou de exercitar o codec hierárquico. A tabela acima continua descrevendo bem a
+CAPACIDADE, o construto é coberto e o round-trip é exato; ela não descreve mais a ROTA.
+
+Continua no `.8H` o que a canonização recusa: ragged, aninhado, array na célula, chave não-`str`,
+e nome ou valor com `\n` ou `\r`. Essa última guarda é deliberada, porque o flat é LF-only: sem
+ela o roteamento TIRARIA uma capacidade que a entrada já tinha. A lista vazia continua em
+`#TCF.8`.
+
+O ticket de paridade, portanto, passa a medir o `.8H` num recorte mais estreito do que o de
+2026-07-17. Quem for reexecutar a suíte precisa saber disso antes de ler os placares.
+
 Fonte da taxonomia: [hierarquia-inventario-hipoteses.md](../experiments/lab/dirty/notas/2026-07/hierarquia-inventario-hipoteses.md)
 (presença→repetição→normalização, SETTLED). Tipos = camada ortogonal (item 11 do inventário).
 
@@ -173,8 +194,10 @@ adversariais (a lição do escape: testar nome/valor/borda, não só o caminho f
    nível (gramática `#:c?:e[...]` recursiva, inspecionada/aprovada pelo owner); estudo lab
    2026-07-16-0213 (gate 12/12 + fuzz 4000) + weld com suíte 748; null-entre-arrays = P3b∘P4a firmado.
    Preocupação do owner ("colunas com buracos"/reuso entre níveis) → H-REPLEVEL-FLAT-VS-PORNIVEL-01 (`.9`).
-5. **P4b · Raiz generalizada** (array no topo, objeto/escalar/null na raiz), contrato público e
-   envelope/discriminador explícito; preservar ordem e tipo-raiz exatamente.
+5. ~~**P4b · Raiz generalizada** (array no topo, objeto/escalar/null na raiz)~~ **✅ WELDED
+   2026-07-17** (`cccf1bb`, `#D`/`#E`/`#O`/`#V`; J1 do funil, banner acima). O que segue é o texto
+   do levantamento, preservado como estava: contrato público e envelope/discriminador explícito;
+   preservar ordem e tipo-raiz exatamente.
    **LEVANTAMENTO 2026-07-16** → [notas/p4b-levantamento.md](../experiments/lab/dirty/notas/2026-07/p4b-levantamento.md).
    Medido: **14/14 formas de raiz fail-loud hoje** (0 wire, 0 corrupção silenciosa, funcionalidade
    ausente e declarada, não dívida escondida). **Ambiguidade byte-confirmada**: `encode([{"a":"1"}])`
@@ -186,6 +209,33 @@ adversariais (a lição do escape: testar nome/valor/borda, não só o caminho f
    (C) raiz não-objeto. Recomendação: **P4b = A + C**; B fica no ticket de vazios.
    **Nada decidido**: 5 decisões abertas do owner em §5 do levantamento (escopo no `.8`; separar B;
    discriminador (1) char sempre presente vs (2) só quando ≠ dataset; contrato de API; terminologia).
+
+   **Atualizado 2026-09-01 (0.8.4)**: este item nunca recebeu o tachado dos itens 1 a 4, embora o
+   banner do próprio ticket já dissesse "P4b raiz generalizada welded" desde 2026-07-17. O ticket
+   se contradizia, e o tachado vai agora. As "14/14 formas de raiz fail-loud" acima descrevem o
+   core de `2e0b222`, não o de hoje: em 0.8.4, dez formas de raiz medidas (`42`, `""`, `None`,
+   `{}`, `[]`, `[[1,2],[3]]`, `{"a":"1"}`, `[1,2,3]`, `[{}]`, `[{},{}]`) fazem round-trip com o
+   TIPO de raiz exato, nenhuma levanta.
+
+   A decisão (3) do §5 do levantamento foi respondida pelo caminho (2), o discriminador só
+   aparece quando a raiz NÃO é o dataset: `[{"a":"1"}]` com chave comum não carrega marca alguma,
+   enquanto `{"a":"1"}` sai `#TCF.8H#Oa`, o vazio sai `#TCF.8H#E`, o array cru sai `#TCF.8H#V` e
+   o dataset sem colunas sai `#TCF.8H#D1`. As decisões (1), (2), (4) e (5) não estão respondidas
+   por este ticket e quem quiser conferi-las tem de ler o weld, não este parágrafo.
+
+   A **ambiguidade byte-confirmada** citada acima também caiu, por dois motivos empilhados.
+   Verificado em 0.8.4: `encode([{"a":"1"}])` abre em `#TCF.8R!a` e `encode({"a":"1"})` abre em
+   `#TCF.8H#Oa`; os dois wires são DIFERENTES e cada `decode` devolve o tipo de raiz exato. O
+   primeiro motivo é o `#O`, o discriminador de raiz deste próprio weld P4b, que sozinho já
+   resolvia: num caso que continua nas duas pontas dentro do `.8H` (chave com LF no nome), a
+   lista sai `#TCF.8Ha...` e o objeto sai `#TCF.8H#Oa...`, mesma diferença. O segundo veio depois
+   e é a [ADR-0049](../docs/adr/0049-marcador-r-a-forma-da-entrada-e-metadado.md), que tira a
+   lista retangular do `.8H` inteiro e a manda para `#TCF.8R`.
+
+   O raciocínio do levantamento continua correto, e é ele que vale guardar: raiz sintética SEM
+   discriminador é provadamente lossy. O que envelheceu foi o exemplo, porque o discriminador
+   passou a existir.
+
 6. **P5 · Array polimórfico** (union), a fronteira; pode ficar por último ou virar fail-loud honesto.
 7. **Congelar contratos de borda**: `\n`-em-valor + gramática-de-nome (escaping) →
    [T-API-BOUNDARY-CONTRACTS](T-API-BOUNDARY-CONTRACTS.md), antes do freeze pré-1.0.
@@ -213,6 +263,10 @@ e responde ao "ligações diversas" recorrente do owner. Hoje N:N é **inexpress
 
 - [x] P1 presença, P3 null e P2 tipos weldados incrementalmente com gates próprios.
 - [ ] P4a estrutura e P4b raiz decididos/weldados separadamente, com non-regressão e adversarial.
+  - **Proposta 2026-09-01 (0.8.4), não aplicada**: marcar este item como `[x]`. P4a está
+    welded desde 2026-07-16 e P4b desde 2026-07-17 (`cccf1bb`), cada um com gate próprio,
+    e é o que os banners do topo já registram. Fica como proposta porque quem fecha
+    critério de aceite é o owner.
 - [ ] Metadata P2 rejeita tag desconhecida após size sem reinterpretar como novo campo.
 - [ ] Suíte de paridade: RT de um corpus de JSONs reais de transmissão (API, logs, catálogos):
   fração in-class vs fronteira reportada (fundamentar no JSON que as pessoas usam).

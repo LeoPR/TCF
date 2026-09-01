@@ -3,11 +3,12 @@ title: T-STUDY-USE-PROFILES, perfis de uso (transmissão × armazenamento) e a c
 status: open
 priority: P3
 created: 2026-08-20
-updated: 2026-08-20
+updated: 2026-09-01
 target: ".9 / pré-1.0 (estudo; nenhuma mudança no .8)"
 blocked-by: []
 related:
   - docs/adr/0002-vertice-triplice-restricao.md
+  - docs/adr/0050-sort-by-vira-candidato-o-floor-decide.md
   - tickets/T-REL-08-CLOSEOUT.md
   - tickets/T-CODE-PARALLEL-BUDGET.md
   - experiments/lab/dirty/notas/diario/2026-08-20.md
@@ -144,6 +145,35 @@ O que falta medir antes de propor qualquer chave:
 - [ ] **`sort_by` é o caso já conhecido de conflito** (habilita `group_ranges`/`agg_by`,
       reordena as linhas, muda os bytes). Ele é o precedente: uma chave que declara
       intenção, com custo assumido e documentado.
+
+**Atualizado 2026-09-01 (0.8.4)**: as três afirmações entre parênteses no item do `sort_by`
+caíram. A [ADR-0050](../docs/adr/0050-sort-by-vira-candidato-o-floor-decide.md) transformou o
+kwarg em **candidato**: o encoder monta as duas versões, a ordenada e a de entrada, e emite a
+menor. Ele não promete mais ordenar.
+
+Medido em 0.8.4 com 60 linhas, chave `k0..k5` cíclica e seis companheiras sequenciais
+(`str(1000 + i + c * 100)`), o FLOOR recusa a ordenação:
+
+| tabela (60 linhas) | sem `sort_by` | com `sort_by` | o que o encoder fez |
+|---|---:|---:|---|
+| 6 companheiras independentes da chave | 295 B | 295 B | recusou; wire byte-idêntico |
+| 3 companheiras função da chave | 355 B | 127 B | ordenou; −64,2% |
+
+Na primeira linha da tabela o `decode` devolve a chave na ordem de entrada
+(`k0, k1, k2, k3, k4, k5, k0, k1, ...`), o `group_ranges('chave')` levanta `ValueError`, e o
+`agg_by('chave')` responde `{'k0': 10, ...}`, o mesmo que o `group_count`. Não habilitou o
+layout, não reordenou e não mexeu num byte.
+
+O precedente não morreu, mudou de natureza, e a natureza nova serve melhor ao P6. O que o
+`sort_by` demonstra hoje é um knob que declara **intenção** e deixa o encoder decidir se ela
+paga, porque só o encoder tem as duas versões na mão. É a mesma forma de chave desenhada na
+seção seguinte (`encode(..., para="consulta")`), com a vantagem de já mostrar que a decisão
+sai barata quando o critério de desempate é o próprio wire.
+
+O conflito real continua de pé, e ficou mais nítido. O `group_ranges` segue estrito, e nenhum
+kwarg garante hoje o layout que ele exige: a mensagem de erro nova manda ordenar as linhas na
+origem, fora do TCF. O eixo de consulta perdeu a única chave que o atendia, o que **reforça** a
+pergunta do P6 em vez de respondê-la.
 
 ### Reforco de 2026-08-25: o remapeamento entre colunas depende do modo
 

@@ -3,7 +3,7 @@ title: T-CODE-TCF8H-WELD, weld do codec hierárquico #TCF.8H no src/tcf (feature
 status: open
 priority: P1
 created: 2026-07-13
-updated: 2026-07-13
+updated: 2026-09-01
 gate: capability
 blocked-by: []
 related:
@@ -18,6 +18,18 @@ related:
 ---
 
 # T-CODE-TCF8H-WELD: promover o codec hierárquico para o core
+
+> **PROPOSTA DE STATUS 2026-09-01 (0.8.4), não aplicada.** O frontmatter diz `status: open`
+> desde 2026-07-13, mas o [ADR-0033](../docs/adr/0033-hierarchical-codec-weld.md) declara o codec
+> welded em 2026-07-14, as fases W0 a W5 estão todas marcadas feitas, e o `#TCF.8H` é rota viva do
+> `encode`/`decode` em 0.8.4 (verificado por execução: `encode([{'a':'1','b':'2'},{'a':'3'}])` sai
+> `#TCF.8Ha:6,b?:4` e faz round-trip). O status proposto é **`closed-welded`**, o mesmo vocabulário
+> que o T-FMT-HEADER-BASE-HEX já usa.
+>
+> Fica como proposta, não como fechamento: quem fecha ticket é o owner, e sobra um critério de
+> aceite aberto no fim da página (teste em massa via Shaper), embora a própria seção dele registre
+> "FEITO 2026-07-14/15" pelos labs de massa e amostra honesta. Essa contradição é a segunda coisa
+> a decidir junto com o status.
 
 **[dispositivo→exec]** Decisão do owner (2026-07-13, reescopo `.8` = feature-complete "1.0"): a
 **hierarquia / DatasetH (`#TCF.8H`)** entra no `.8` como a expansão de capacidade do 1.0.
@@ -114,6 +126,32 @@ otimizações, deixado pro fim), lab `2026-07-14-2043`. Próximos INCREMENTOS de
 - [x] **W0: contrato do DatasetH**: `records = list[dict]` source-agnostic (JSON é adapter, não contrato).
   Folhas string; `{}` 1:1; `[]` 1:N; classe coberta = schema uniforme. `null`/tipos/ragged/N-raízes/N:N =
   fail-loud (fronteira registrada no ADR-0033). FEITO (labs + ADR-0033).
+
+  > **Atualizado 2026-09-01 (0.8.4)**: a primeira frase do W0 é exatamente a definição que a
+  > [ADR-0049](../docs/adr/0049-marcador-r-a-forma-da-entrada-e-metadado.md) desfez. "`records =
+  > list[dict]` source-agnostic" dizia que a GRAFIA da entrada elegia a família, e era esse o
+  > defeito: a mesma tabela escrita como `list[dict]` custava mais do que escrita como
+  > `dict[str, list]`, porque o `.8H` emite só a rota `tcf`, sem a competição
+  > `min(tcf, raw, dict, split)` do `.8M`.
+  >
+  > O critério de hoje não é mais a grafia sozinha, é **"veio como lista de dicionários E não é
+  > retangular plana com célula escalar"**. O que é retangular e plano é canonizado em colunas,
+  > vai pela rota do `.8M` e sai com o discriminador `R`. Verificado por execução em 0.8.4:
+  > `encode([{'uf':'SP','n':'1'},{'uf':'RJ','n':'2'}])` abre em `#TCF.8R!5=uf,!n`, e o `decode`
+  > remonta a lista de dicionários.
+  >
+  > O contrato do DatasetH em si não mudou de conteúdo, mudou de FRONTEIRA. Ele continua sendo a
+  > casa do hierárquico de verdade, e continua recebendo o que o flat não sabe transportar:
+  > ragged, aninhado, array na célula, e nome ou valor com `\n` ou `\r`, que fazem round-trip
+  > exato porque o `.8H` escapa na própria camada. A chave não-`str` também é roteada para cá, e
+  > é aqui que ela recebe o fail-loud tipado da classe D_json. Verificado:
+  > `encode([{'a':'1','b':'2'},{'a':'3'}])` continua em `#TCF.8Ha:6,b?:4`, e
+  > `encode([{'a\rb':'1'},{'a\rb':'2'}])` em `#TCF.8Ha\rb`. A lista vazia continua em `#TCF.8`.
+  >
+  > Vale registrar por que o texto antigo fica: "source-agnostic" era a leitura correta em
+  > 2026-07-13, quando a alternativa era o `.8H` não existir. O erro só apareceu depois, quando
+  > passaram a existir duas rotas capazes de carregar a mesma tabela e o preço delas divergiu.
+
 - [x] **W1: pesquisa de adaptadores**: DatasetH sem JSON provado (records nativos); labs cobriram o
   caminho. FEITO.
 - [x] **W2: codec externo**: shredding em blocos + `#count` (labs `2026-07-14-0111`); ideia extraída, não

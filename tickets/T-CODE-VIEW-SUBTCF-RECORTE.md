@@ -3,11 +3,12 @@ title: "T-CODE-VIEW-SUBTCF-RECORTE: promover H-QUERY-06 a saída TCF da view"
 status: open
 priority: P2
 created: 2026-08-26
-updated: 2026-08-26
+updated: 2026-09-01
 target: ".9; nova API, não patch de 0.8.2"
 gate: contrato do owner e aprovação explícita antes de tocar src/tcf (I5)
 blocked-by: []
 related: [
+   docs/adr/0049-marcador-r-a-forma-da-entrada-e-metadado.md,
    experiments/lab/dirty/notas/2026-05/roadmap-hipoteses.md,
    experiments/lab/dirty/notas/2026-08/2026-08-25-subtcf-por-recorte-viabilidade.md,
    experiments/lab/dirty/notas/2026-08/2026-08-25-recorte-estudo-de-implementacao.md,
@@ -123,6 +124,45 @@ o número de linhas. A ordem de `cols` deve seguir a mesma regra de `select`.
 Nenhuma dessas decisões muda o wire emitido pelo `encode`. Marcar o filho no formato para
 indicar que é derivado não é necessário e só deve ser considerado com evidência nova.
 
+### Atualizado 2026-09-01 (0.8.4): entra o `#TCF.8R`, e com ele uma pergunta de desenho
+
+A cobertura de formato do item 4, e o critério de aceite abaixo, foram escritos quando
+`list[dict]` retangular caía no `.8H`. Desde a
+[ADR-0049](../docs/adr/0049-marcador-r-a-forma-da-entrada-e-metadado.md), soldada na 0.8.4, ela
+não cai mais: retangular e plana vira `#TCF.8R`, que é o corpo do `.8M` com outro discriminador
+no índice 6. Verificado na 0.8.4: `encode([{'id': '1', 'regiao': 'norte', 'valor': '10'}, ...])`
+emite `#TCF.8R!7=id,13=regiao,valor`, e os mesmos dados escritos como `dict[str, list]` dão
+65 B nos dois casos, iguais em tudo fora do caractere 6 (`M` contra `R`).
+
+Isso move o alvo do ticket, porque o `.8R` é hoje onde cai a maior parte da entrada em
+registros. Continuam no `.8H` o ragged, o aninhado, o array na célula e o valor com `\n`; a
+chave não-str levanta; e `[]` continua `#TCF.8`.
+
+A `view` já abre `.8R`, sem nada de novo (verificado na 0.8.4): `view(blob)` devolve um
+`LazyTCF`, e `count`, `select`, `distinct`, `n_unique`, `group_count` e `where` respondem igual
+ao `.8M`. O que ainda não existe é o terminal deste ticket. `Filtered.to_tcf` e `LazyTCF.slice`
+não estão em `src/tcf` na 0.8.4, então o ticket segue com objeto inteiro.
+
+**A pergunta de desenho, registrada e não decidida: o recorte de um `.8R` deve sair `.8R` ou
+`.8M`?** Ela não é cosmética, porque o que este ticket desenha é justamente qual wire o RECORTE
+emite:
+
+- o filho `.8R` preserva a forma de lista que o `decode` remonta. O filho `.8M` devolve
+  `dict[str, list]`, e quem chama `decode(filho)` recebe outra coisa que `decode(pai)`;
+- para a `view` os dois são equivalentes. No recorte medido (linhas 0 e 2, colunas `id` e
+  `valor`) os dois filhos têm 28 B, diferem só no índice 6, e `view(filho).select()` devolve o
+  mesmo resultado nos dois;
+- as duas rotas do protótipo puxam para lados opostos. O oráculo `decode` + `encode` devolve
+  `.8R` sozinho, porque `decode` de um `.8R` já entrega `list[dict]`. A cirurgia sobre o corpo
+  multi devolve `.8M`, porque é o corpo do `.8M` que ela recorta. Sem decisão escrita, quem
+  decide o tipo do filho é a rota que calhou de rodar, que é a classe de silêncio que este
+  ticket existe para fechar.
+
+Uma borda ganha material novo nessa leitura. O `cols=[]`, que no `.8M` só sabia emitir
+`#TCF.8M\n` (recusado por `decode` e por `view`), tem representação na forma de registros:
+`encode([{}, {}])` emite `#TCF.8H#D2\n` e volta `[{}, {}]`, preservando o número de linhas.
+Não decide nada sozinho, mas é evidência para o item da projeção vazia.
+
 ## Critério de aceite
 
 - [ ] Contrato público decidido para índices negativos, fora da faixa, repetidos e fora de ordem.
@@ -137,6 +177,10 @@ indicar que é derivado não é necessário e só deve ser considerado com evid�
 - [ ] Documentação separa “sem encode das N linhas” de “zero encode”: podar `@dict`
       recodifica K; fallback recodifica a tabela.
 - [ ] Suíte completa verde; `src/tcf/` só após aprovação explícita.
+- [ ] (2026-09-01) `#TCF.8R` produz filho correto, ainda que por fallback. O item acima que
+      diz `.8H` retangular passa a valer para o hierárquico que sobrou, não para o retangular.
+- [ ] (2026-09-01) Decidido por escrito se o filho de um `.8R` sai `.8R` ou `.8M`, e o teste
+      diferencial passa a checar o discriminador do filho, não só o conteúdo.
 
 ## Classificação de release
 
