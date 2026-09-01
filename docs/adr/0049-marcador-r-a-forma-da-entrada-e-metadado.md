@@ -89,7 +89,7 @@ de dentro do problema; ela não conserta o problema do aninhado, e isso é delib
 ## Consequências
 
 **Um wire `#TCF.8R` não é lido por nenhuma versão anterior.** Pré-1.0 esse é o regime declarado
-(git-as-compat, [ADR-0024](0024-versionamento-pre-1-0-git-as-compat.md)), então não é bloqueio,
+(git-as-compat, [ADR-0024](0024-pre-1.0-versioning-git-as-compat.md)), então não é bloqueio,
 mas é fato que precisa estar escrito.
 
 **A detecção custa 4,4% do que o encode já custa** (12,5 ms contra 285,4 ms em 10.000 × 3), e

@@ -459,7 +459,7 @@ compression stays on the [roadmap](docs/adr/0018-v2-format-roadmap.md).
   Round-trip is always lossless (`decode(encode(x)) == x`).
 - Default **0.8 / `#TCF.8M`**: fallback, dictionary, structural split, hexadecimal inline meta,
   escaping and header-authoritative filter IDs, see the section above. Legacy `.6/.7` are recovered through git.
-- Test suite: **1930 passed, 3 skipped** in the current local full run; run `pytest` for the
+- Test suite: **2000 passed, 3 skipped** in the current local full run; run `pytest` for the
   number in your environment. Byte baselines = regression guards, re-pinnable on an intentional
   change, see [ADR-0024](docs/adr/0024-pre-1.0-versioning-git-as-compat.md).
 - Changes: [`CHANGELOG.md`](CHANGELOG.md).

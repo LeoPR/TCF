@@ -23,7 +23,47 @@ compositional cycle in
 
 ## 0.8.4 (2026-09-01): the spelling of the input stops choosing the arsenal
 
+> **Read this first if you already have data on disk, or a consumer you do not upgrade
+> together with the producer.** Compatibility differs **by surface**, not by package, and
+> stating it by package is the mistake this changelog already had to publish an errata for
+> one release ago. Measured against `tcf-format==0.8.3` installed from PyPI:
+>
+> | | `decode` | `view` |
+> |---|---|---|
+> | **0.8.4 reading a 0.8.3 wire** | reads all of them | reads them; refuses only what 0.8.3 also refused |
+> | **0.8.3 reading a 0.8.4 `#TCF.8R` wire** | **refuses, loudly** (`discriminador 'R' desconhecido`) | **answers, and is wrong, in silence** |
+>
+> That bottom-right cell is the one that costs you. A 0.8.3 `view` opens a `#TCF.8R` blob as
+> if it were single-column: on a 100-row table it reports `columns == ['0']` and
+> `nrows == 17`, raises nothing and warns nothing. It cannot be fixed from here, because the
+> code that misreads is already published; the only defence is knowing.
+>
+> **Who is exposed**: every flat rectangular `list[dict]`, which is the whole records route,
+> not an edge. If a 0.8.3 consumer uses `view()`, upgrade it before, or at the same time as,
+> the producer. A 0.8.3 consumer that uses `decode()` is safe: it fails loudly.
+
 Two welds, both about the encoder deciding instead of the caller guessing.
+
+### What breaks
+
+Calls that worked on 0.8.3 and now raise. All of them are the same shape: something that was
+accepted and silently ignored is now refused, so the fix in your code is to drop the argument.
+
+| call | now | why |
+|---|---|---|
+| `encode(list_of_str, fallback=False \| min_header=False \| drop_names=True \| parallel=True)` | `ValueError` | the `encode` docstring already declared all four multi-col, and they moved zero bytes on a single column. Passing the **default** value still works, because that asks for nothing |
+| `encode(list_of_str, sort_by=...)` | `ValueError` | a list of one column has no named column to sort by |
+| `encode({"col\r": [...]})` and any column name carrying `\r` | `ValueError` | the wire is LF-only and the LF separates the meta; 0.8.3 emitted a raw CR inside the meta |
+| `encode([True, "a\rb"])`, a bool+str union with `\r` in the string | raises | same cause, in the union route |
+| a `.8H` blob rewritten in transit (LF turned into CRLF) | raises | 0.8.3 decoded it with the `\r` **inside the data**, which is corruption that looks like a value |
+| `decode(w, schema={key_that_names_no_column: ...})` | emits `UserWarning` | it was silent. Suites running with `-W error` will see this as a failure |
+| `view(...).where(no_match).sum(col)` | returns `0.0`, not `0` | the signature promised `float` and `group_sum` already returned `0.0` |
+
+And one change of promise rather than of API: **a blob asked for with `sort_by` may come back
+in the original order.** 0.8.3 stated in writing that the decode returns the sorted order;
+0.8.4 sorts only when sorting shrinks the wire. Consequently `view.group_ranges` can now
+refuse a blob that it used to accept, and `view.agg_by` falls back on its own so it never
+raises for that reason.
 
 ### `#TCF.8R`: a flat rectangular `list[dict]` is a table, not a tree ([ADR-0049](docs/adr/0049-marcador-r-a-forma-da-entrada-e-metadado.md))
 
@@ -105,8 +145,10 @@ What it did find was in the messages and in the surface:
   the slice deliberately, because filtering breaks the contiguity it requires and both ends of
   its ranges would be ambiguous.
 - `schema=` scalar now treats a record list as the table it is: one column applies in either
-  spelling, two or more raise in either. It used to raise as a dict and **discard the spec in
-  silence** as records.
+  spelling, two or more raise in either. On 0.8.3 a record list refused it in **both** cases,
+  with the generic not-flat message, so what changed is that one column now **works**; the
+  silent discard this entry first described was a state of the tree during 0.8.4's own
+  development, never a published behaviour.
 - **The single-column route stops swallowing multi-column knobs.** `fallback`, `min_header`,
   `drop_names` and `parallel` now raise on a `list[str]`, joining `sort_by` and `name`. The
   `encode` docstring already declared all four multi-col, the `.8H` route already refused

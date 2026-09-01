@@ -50,14 +50,14 @@ Cinco fecharam: união bool+str ([ADR-0048](docs/adr/0048-uniao-bool-str-e-capac
 LF/CR, `decode(schema=)` ignorado, spec em coluna tipada, e metade dos kwargs engolidos
 (`sort_by` e `name` passaram a levantar, [ADR-0050](docs/adr/0050-sort-by-vira-candidato-o-floor-decide.md)).
 
-A sexta fechou em 2026-09-01: `fallback`, `min_header`, `drop_names` e `parallel`
+A quinta fechou em 2026-09-01: `fallback`, `min_header`, `drop_names` e `parallel`
 passaram a levantar na rota `list[str]`, juntando-se ao `sort_by` e ao `name`. A própria
 docstring do `encode` já os declarava multi-col, e a medição confirmou: nenhum deles mexe um
 byte ali, em seis corpora. O `min_len` **não** entrou na recusa, e essa é a parte que corrige
 o registro anterior: ele nunca foi no-op, é o único da lista que funciona no single-col, e
 recusá-lo tiraria capacidade real (46 B para 23 B numa coluna de IDs).
 
-A sexta e última fechou em 2026-09-01, e o veredito foi diferente do esperado: das três
+A sexta e última fechou no mesmo dia, e o veredito foi diferente do esperado: das três
 contabilidades do **FLOOR do spec**, só uma era defeito. O single compara contra um baseline
 polarizado e com bN e está **certo**, porque a gramática torna polaridade e `:spec`
 mutuamente exclusivos e o candidato não pode receber esse arsenal; comparar o melhor emitível

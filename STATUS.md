@@ -64,8 +64,7 @@ Evidência original em
 | FLOOR do spec | **fechada**: as três contabilidades reproduzem, e só uma era defeito. O **single** compara contra um baseline polarizado e com bN, e está certo: a gramática torna polaridade e `:spec` mutuamente exclusivos, então o candidato não pode receber esse arsenal e comparar o melhor emitível de cada lado é o FLOOR correto. O **multi** já era a conta justa. O **hier** cobrava 11 B de um header que não emite, e passou a cobrar `:<size>:<id>`, o pior caso real: 3 flips em colunas de data curta, 443 B no conjunto medido, 0 violações do nunca-pior, sem re-pin de gate |
 | kwargs engolidos no flat de string | **fechada**: `sort_by` e `name` já levantavam ([ADR-0050](docs/adr/0050-sort-by-vira-candidato-o-floor-decide.md)), e `fallback`, `min_header`, `drop_names` e `parallel` passaram a levantar também, porque a própria docstring do `encode` os declara multi-col e eles não mexem um byte no single-col (medido em 6 corpora). O `min_len` **ficou**, e a correção importa: ele não era no-op, é o único da lista que funciona ali (46 B para 23 B numa coluna de IDs, 363 B para 56 B em únicos longos) |
 
-O que resta, portanto, é um item e meio: os cinco kwargs no-op, e reconfirmar o FLOOR do spec
-antes de arquivar. `src/tcf` continua sob aprovação explícita.
+**Nenhuma das seis continua aberta.** `src/tcf` continua sob aprovação explícita.
 
 As ondas 0 a 7 saíram na **`0.8.3`** (29/08). A atualização muda comportamento visível:
 entrada mista que passava calada agora levanta, e há **duas** mudanças de emissão, o `.8H`
