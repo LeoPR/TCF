@@ -1,0 +1,107 @@
+===============================================================================
+  EXP-019: consistencia da 0.8.4 em 8 amostras reais estratificadas
+===============================================================================
+
+  amostra            linhas  cols  estratos      TVD
+  adult-census          800    15        16   0.0031
+  online-retail         800     8        38   0.0206
+  ibge-municipios       800     8        27   0.0054
+  br-identidades        800     6        27   0.0048
+  tpch-orders           800     9         3   0.0006
+  tpch-lineitem         800    16         3   0.0003
+  receita-cnpj          800     8         5   0.0017
+  wine-quality          800    13         7   0.0018
+
+===============================================================================
+  G1 round-trip · G2 dominancia · G3 equivalencia das grafias
+===============================================================================
+
+  amostra            .8H (antes)   .8R (hoje)     ganho   RT  DOM  EQV
+  adult-census           26705 B      15937 B    -40.3%   ok   ok   ok
+  online-retail          52271 B      37892 B    -27.5%   ok   ok   ok
+  ibge-municipios        27529 B      26406 B     -4.1%   ok   ok   ok
+  br-identidades         55120 B      45273 B    -17.9%   ok   ok   ok
+  tpch-orders            70744 B      61366 B    -13.3%   ok   ok   ok
+  tpch-lineitem          77865 B      50376 B    -35.3%   ok   ok   ok
+  receita-cnpj           42783 B      33496 B    -21.7%   ok   ok   ok
+  wine-quality           37846 B      20203 B    -46.6%   ok   ok   ok
+
+  Somando as 8: 390863 B no `.8H` contra 290949 B no `.8R`, -25.6%.
+
+===============================================================================
+  G4: o FLOOR do `sort_by` e' nunca-pior, em TODA coluna-chave
+===============================================================================
+
+  amostra            chaves  ordenou  melhor ganho  pior saldo
+  adult-census           12        8        -685 B         0 B
+  online-retail           1        0           0 B         0 B
+  ibge-municipios         4        2        -288 B         0 B
+  br-identidades          1        0           0 B         0 B
+  tpch-orders             2        1        -707 B         0 B
+  tpch-lineitem           7        5        -671 B         0 B
+  receita-cnpj            3        2        -604 B         0 B
+  wine-quality            2        0           0 B         0 B
+
+  `pior saldo` = 0 em toda linha e' o portao: com o FLOOR, pedir `sort_by` nunca cobra.
+  `ordenou` conta em quantas chaves a ordenacao de fato VENCEU e foi emitida.
+
+===============================================================================
+  G5: a view concorda com o decode, e os dois caminhos de group-by concordam
+===============================================================================
+
+  amostra            select==decode  pares agg/group   iguais
+  adult-census                   ok               12       12
+  online-retail                  ok                2        2
+  ibge-municipios                ok                8        8
+  br-identidades                 ok                2        2
+  tpch-orders                    ok                4        4
+  tpch-lineitem                  ok               12       12
+  receita-cnpj                   ok                0        0
+  wine-quality                   ok                4        4
+
+===============================================================================
+  G6: a fronteira do `.8H` continua de pe'
+===============================================================================
+
+  amostra             ragged  aninhado  LF valor  CR valor  LF nome
+  adult-census            ok        ok        ok        ok       ok
+  online-retail           ok        ok        ok        ok       ok
+  ibge-municipios         ok        ok        ok        ok       ok
+  br-identidades          ok        ok        ok        ok       ok
+  tpch-orders             ok        ok        ok        ok       ok
+  tpch-lineitem           ok        ok        ok        ok       ok
+  receita-cnpj            ok        ok        ok        ok       ok
+  wine-quality            ok        ok        ok        ok       ok
+
+  Estas cinco formas TEM de continuar no `.8H`, e nao por gosto: o hierarquico escapa
+  folhas e nomes, o flat os recusa. Rotear qualquer uma tiraria uma capacidade que a
+  entrada ja' tinha, trocando um round-trip que funciona por um erro.
+
+===============================================================================
+  G7: `group_count` estrutural bate com contar o decode
+===============================================================================
+
+  amostra            chaves   batem  modo @dict  us/chamada
+  adult-census            8       8           6        791
+  online-retail           1       1           0       2861
+  ibge-municipios         4       4           0       1612
+  br-identidades          1       1           0       1544
+  tpch-orders             2       2           1        720
+  tpch-lineitem           7       7           5        390
+  receita-cnpj            3       3           1       1063
+  wine-quality            2       2           0       2108
+
+===============================================================================
+  VEREDITO
+===============================================================================
+     PASSA  G1_round_trip
+     PASSA  G2_dominancia
+     PASSA  G3_equivalencia
+     PASSA  G4_floor_nunca_pior
+     PASSA  G5_paridade_view
+     PASSA  G6_fronteira
+     PASSA  G7_group_count
+
+  7 portoes, 7 passam.
+
+  evidencia: inputs/ · intermediates/ (traces do Shaper) · outputs/ (24 wires) · resultado.json

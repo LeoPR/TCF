@@ -239,11 +239,49 @@ assert result == table
 - **O schema é INCREMENTAL**: por default toda coluna é string semântico; o schema muda
   **um ou mais**: colunas sem entrada usam a codificação comum (sem filtro), e
   `schema={}` / `{col: None}` são byte-idênticos a não passar nada
-- **Sobrecarga**: quando o alvo é inequívoco (`list`, ou tabela de **UMA** coluna), a forma
-  escalar basta (`schema="cpf"`), sem cerimônia de dict; com 2+ colunas o dict é exigido
-  (qual coluna é informação necessária)
+- **Sobrecarga**: quando o alvo é inequívoco (`list`, ou tabela de **UMA** coluna em
+  qualquer grafia), a forma escalar basta (`schema="cpf"`), sem cerimônia de dict; com 2+
+  colunas o dict é exigido nas duas grafias (qual coluna é informação necessária)
 - Cada coluna codifica e decodifica independentemente
 - O round-trip sem perdas é preservado mesmo com fallback em alguns valores
+
+### A sobrecarga é simétrica nas duas grafias
+
+Um dicionário de colunas e uma lista de registros são a mesma tabela escrita de dois jeitos
+([ADR-0049](../adr/0049-marcador-r-a-forma-da-entrada-e-metadado.md)), então a regra do
+`schema=` escalar não pode depender de qual delas você usou. Com uma coluna só, o alvo é
+inequívoco e o filtro é aplicado nas duas:
+
+```python
+from tcf import encode, SPEC_CPF
+
+cpfs = ['111.444.777-35', '529.982.247-25', '111.444.777-35']
+
+print(encode(cpfs, schema=SPEC_CPF).splitlines()[0])                        # #TCF.8 :cpf
+print(encode({'cpf': cpfs}, schema=SPEC_CPF).splitlines()[0])               # #TCF.8Mcpf:cpf
+print(encode([{'cpf': c} for c in cpfs], schema=SPEC_CPF).splitlines()[0])  # #TCF.8Rcpf:cpf
+```
+
+Com duas colunas ou mais o alvo deixa de ser óbvio, e aí levanta, também nas duas, com a
+mesma mensagem:
+
+<!-- doctest: raises -->
+```python
+encode({'cpf': cpfs, 'id': ['1', '2', '3']}, schema=SPEC_CPF)
+# ValueError: schema escalar ('id'/objeto) aplica a single-col (list) ou tabela de UMA
+# coluna; com 2+ colunas use schema={coluna: spec}, porque qual coluna e' informacao
+# necessaria (T-QA-8 BUG-10g). Vale igual para dict de colunas e para lista de registros:
+# as duas sao a mesma tabela.
+```
+
+<!-- doctest: raises -->
+```python
+encode([{'cpf': c, 'id': str(i)} for i, c in enumerate(cpfs)], schema=SPEC_CPF)
+```
+
+> Até 2026-09-01 a lista de registros **descartava o spec calado**: o `encode` aceitava o
+> argumento, não aplicava o filtro e não avisava. A regra passou a ser a mesma nas duas
+> grafias, aplicar com uma coluna e levantar com 2+.
 
 ### Exemplo com fallback em multi-column
 

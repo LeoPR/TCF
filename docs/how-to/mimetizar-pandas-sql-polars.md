@@ -215,12 +215,105 @@ limpo = [x if isinstance(x, bool) else (x.strip().lower() in deriva)
          for x in col if x is not None]
 ```
 
+## Um DataFrame entra por `to_dict('records')`
+
+O `encode` não lê DataFrame, e não precisa: a ponte é o método que o próprio pandas oferece
+para sair dele em Python puro.
+
+<!-- doctest: skip -->
+```python
+registros = df.to_dict('records')      # [{'uf': 'SP', 'v': 10}, ...]
+```
+
+Uma lista de dicionários retangular e plana é reconhecida como a tabela que ela é. Ela segue
+pelo mesmo caminho do dicionário de colunas, com o mesmo corpo, e o que muda no wire é um
+caractere só: o discriminador de família sai `R` em vez de `M`, para registrar a grafia da
+entrada ([ADR-0049](../adr/0049-marcador-r-a-forma-da-entrada-e-metadado.md)).
+
+```python
+from tcf import encode, decode, view
+
+registros = [{"uf": "SP", "v": 10}, {"uf": "RJ", "v": 20}, {"uf": "SP", "v": 30}]
+blob_registros = encode(registros)
+
+print(blob_registros.splitlines()[0])      # #TCF.8R!8=uf,!8N=v
+print(len(blob_registros.encode()))        # 35, o mesmo do dict de colunas equivalente
+
+view(blob_registros).group_sum("uf", "v")  # {'SP': 40.0, 'RJ': 20.0}
+```
+
+Esse `R` é o que faz o `decode` devolver linhas em vez de colunas, então a volta ao pandas
+também é direta, com `pd.DataFrame(decode(blob))`.
+
+```python
+assert decode(blob_registros) == registros
+```
+
+O que não é retangular continua no `#TCF.8H`, como antes: linhas com chaves diferentes, valor
+aninhado, lista dentro da célula.
+
+## O `sort_by` autoriza, ele não manda
+
+`sort_values` no pandas e `ORDER BY` no SQL são ordens: a saída sai ordenada, e o custo disso
+é problema de quem pediu. O `sort_by` do TCF parece o mesmo kwarg e não é. Ele é uma
+**autorização**: você abre mão da ordem das linhas, e o encoder ordena apenas se isso encolher
+o blob ([ADR-0050](../adr/0050-sort-by-vira-candidato-o-floor-decide.md)).
+
+Quando as companheiras são função da chave, ordenar agrupa todas as colunas de uma vez, e a
+autorização é aceita:
+
+```python
+ufs = ["SP", "BA", "MG", "SP", "RJ", "BA", "SP", "MG", "RJ", "BA"] * 6
+regiao = {"SP": "Sudeste", "RJ": "Sudeste", "MG": "Sudeste", "BA": "Nordeste"}
+ddd = {"SP": "11", "RJ": "21", "MG": "31", "BA": "71"}
+
+correlacionada = {"uf": ufs,
+                  "regiao": [regiao[u] for u in ufs],
+                  "ddd": [ddd[u] for u in ufs]}
+
+print(len(encode(correlacionada).encode()))                   # 261
+print(len(encode(correlacionada, sort_by="uf").encode()))     # 107, menos 59,0%
+```
+
+Quando elas não são, a permutação desarruma o que já estava agrupado, e o encoder recusa. O
+wire volta byte a byte igual ao de quem não pediu nada, e as linhas voltam na ordem de entrada:
+
+```python
+independente = {"uf": ufs,
+                "dia": [f"2026-08-{1 + i // 4:02d}" for i in range(60)],
+                "turno": ["manha"] * 20 + ["tarde"] * 20 + ["noite"] * 20}
+
+sem = encode(independente)
+com = encode(independente, sort_by="uf")
+
+print(len(sem.encode()), len(com.encode()))   # 186 186
+assert sem == com                             # a autorização não foi usada
+assert decode(com)["uf"] == ufs               # a ordem de entrada, intacta
+```
+
+Obedecer custaria 55 bytes, 29,6% a mais, e é isso que o encoder poupa ao recusar:
+
+```python
+ordem = sorted(range(60), key=lambda i: ufs[i])
+obedecido = encode({c: [coluna[i] for i in ordem] for c, coluna in independente.items()})
+
+print(len(obedecido.encode()))                # 241
+```
+
+A consequência prática cabe numa frase: não use `sort_by` para obter saída ordenada. Se o que
+você quer é a ordem, ordene a lista antes de encodar, porque aí ela é o dado. O `sort_by` serve
+para dizer que a ordem não importa, e quem decide o resto é o encoder.
+
 ## Verificação
 
 As receitas desta página são geradas e conferidas por
 `experiments/lab/dirty/2026-08/2026-08-25/2026-08-25-0500-grupo-sem-valor/2-receitas.py`,
 que compara cada uma com o resultado calculado à mão em Python puro. Uma receita só entra
 aqui se aquele script passar.
+
+As duas seções de ponte com o pandas, `to_dict('records')` e `sort_by`, ficam de fora desse
+script: os bytes delas saem do próprio `encode`, e os blocos rodam em
+`tests/test_docs_snippets.py`.
 
 ## Conexões
 

@@ -1,0 +1,315 @@
+{
+ "adult-census": [
+  {
+   "age": 26,
+   "workclass": "Local-gov",
+   "fnlwgt": 391074,
+   "education": "10th",
+   "education-num": 6,
+   "marital-status": "Never-married",
+   "occupation": "Handlers-cleaners",
+   "relationship": "Own-child",
+   "race": "Black",
+   "sex": "Male",
+   "capital-gain": 0,
+   "capital-loss": 0,
+   "hours-per-week": 40,
+   "native-country": "United-States",
+   "class": "<=50K"
+  },
+  {
+   "age": 62,
+   "workclass": "Private",
+   "fnlwgt": 360032,
+   "education": "10th",
+   "education-num": 6,
+   "marital-status": "Divorced",
+   "occupation": "Sales",
+   "relationship": "Not-in-family",
+   "race": "White",
+   "sex": "Female",
+   "capital-gain": 0,
+   "capital-loss": 0,
+   "hours-per-week": 35,
+   "native-country": "United-States",
+   "class": "<=50K"
+  },
+  {
+   "age": 37,
+   "workclass": "Private",
+   "fnlwgt": 202662,
+   "education": "10th",
+   "education-num": 6,
+   "marital-status": "Divorced",
+   "occupation": "Transport-moving",
+   "relationship": "Unmarried",
+   "race": "White",
+   "sex": "Male",
+   "capital-gain": 0,
+   "capital-loss": 0,
+   "hours-per-week": 40,
+   "native-country": "United-States",
+   "class": "<=50K"
+  }
+ ],
+ "online-retail": [
+  {
+   "InvoiceNo": "543989",
+   "StockCode": "22842",
+   "Description": "BISCUIT TIN VINTAGE RED",
+   "Quantity": 12,
+   "InvoiceDate": "2011-02-15 09:52:00",
+   "UnitPrice": 5.95,
+   "CustomerID": 12415.0,
+   "Country": "Australia"
+  },
+  {
+   "InvoiceNo": "542887",
+   "StockCode": "20724",
+   "Description": "RED RETROSPOT CHARLOTTE BAG",
+   "Quantity": 30,
+   "InvoiceDate": "2011-02-01 13:10:00",
+   "UnitPrice": 0.85,
+   "CustomerID": 12373.0,
+   "Country": "Austria"
+  },
+  {
+   "InvoiceNo": "552449",
+   "StockCode": "85040A",
+   "Description": "S/4 PINK FLOWER CANDLES IN BOWL",
+   "Quantity": 12,
+   "InvoiceDate": "2011-05-09 13:49:00",
+   "UnitPrice": 1.65,
+   "CustomerID": 12355.0,
+   "Country": "Bahrain"
+  }
+ ],
+ "ibge-municipios": [
+  {
+   "id": 1200013,
+   "municipio": "Acrelândia",
+   "microrregiao": "Rio Branco",
+   "mesorregiao": "Vale do Acre",
+   "uf_sigla": "AC",
+   "uf_nome": "Acre",
+   "regiao_sigla": "N",
+   "regiao_nome": "Norte"
+  },
+  {
+   "id": 1200138,
+   "municipio": "Bujari",
+   "microrregiao": "Rio Branco",
+   "mesorregiao": "Vale do Acre",
+   "uf_sigla": "AC",
+   "uf_nome": "Acre",
+   "regiao_sigla": "N",
+   "regiao_nome": "Norte"
+  },
+  {
+   "id": 1200708,
+   "municipio": "Xapuri",
+   "microrregiao": "Brasiléia",
+   "mesorregiao": "Vale do Acre",
+   "uf_sigla": "AC",
+   "uf_nome": "Acre",
+   "regiao_sigla": "N",
+   "regiao_nome": "Norte"
+  }
+ ],
+ "br-identidades": [
+  {
+   "cpf": "930.424.247-90",
+   "nome": "Patrícia Ferreira",
+   "municipio_id": 1200450,
+   "uf_sigla": "AC",
+   "data_cadastro": "2017-03-05",
+   "email": "patricia.ferreira@bol.com.br"
+  },
+  {
+   "cpf": "588.089.491-68",
+   "nome": "Rodrigo Carvalho Pereira",
+   "municipio_id": 1200450,
+   "uf_sigla": "AC",
+   "data_cadastro": "2016-10-09",
+   "email": "rodrigo.carvalho.pereira@hotmail.com"
+  },
+  {
+   "cpf": "438.555.367-08",
+   "nome": "João Lima",
+   "municipio_id": 1200807,
+   "uf_sigla": "AC",
+   "data_cadastro": "2021-01-09",
+   "email": "joao.lima@yahoo.com.br"
+  }
+ ],
+ "tpch-orders": [
+  {
+   "o_orderkey": 37,
+   "o_custkey": 862,
+   "o_orderstatus": "F",
+   "o_totalprice": 131896.49,
+   "o_orderdate": "1992-06-03",
+   "o_orderpriority": "3-MEDIUM",
+   "o_clerk": "Clerk#000000456",
+   "o_shippriority": 0,
+   "o_comment": "aggle carefully. fluffily ironic packages integrate slyly blit"
+  },
+  {
+   "o_orderkey": 132,
+   "o_custkey": 265,
+   "o_orderstatus": "F",
+   "o_totalprice": 133485.89,
+   "o_orderdate": "1993-06-11",
+   "o_orderpriority": "3-MEDIUM",
+   "o_clerk": "Clerk#000000488",
+   "o_shippriority": 0,
+   "o_comment": "posits. bold pains wake quickly regular requests. unusual, quick ideas be"
+  },
+  {
+   "o_orderkey": 196,
+   "o_custkey": 649,
+   "o_orderstatus": "F",
+   "o_totalprice": 38660.64,
+   "o_orderdate": "1993-03-17",
+   "o_orderpriority": "2-HIGH",
+   "o_clerk": "Clerk#000000988",
+   "o_shippriority": 0,
+   "o_comment": "es. pending theodolites hinder quickly"
+  }
+ ],
+ "tpch-lineitem": [
+  {
+   "l_orderkey": 358,
+   "l_partkey": 1900,
+   "l_suppkey": 30,
+   "l_linenumber": 2,
+   "l_quantity": 32.0,
+   "l_extendedprice": 57660.8,
+   "l_discount": 0.05,
+   "l_tax": 0.08,
+   "l_returnflag": "A",
+   "l_linestatus": "F",
+   "l_shipdate": "1993-10-18",
+   "l_commitdate": "1993-12-12",
+   "l_receiptdate": "1993-10-31",
+   "l_shipinstruct": "NONE",
+   "l_shipmode": "TRUCK",
+   "l_comment": "y regular excuses integrate spe"
+  },
+  {
+   "l_orderkey": 773,
+   "l_partkey": 1501,
+   "l_suppkey": 22,
+   "l_linenumber": 3,
+   "l_quantity": 39.0,
+   "l_extendedprice": 54697.5,
+   "l_discount": 0.06,
+   "l_tax": 0.05,
+   "l_returnflag": "A",
+   "l_linestatus": "F",
+   "l_shipdate": "1994-01-04",
+   "l_commitdate": "1993-12-23",
+   "l_receiptdate": "1994-01-26",
+   "l_shipinstruct": "DELIVER IN PERSON",
+   "l_shipmode": "FOB",
+   "l_comment": "y multiplie"
+  },
+  {
+   "l_orderkey": 1604,
+   "l_partkey": 1133,
+   "l_suppkey": 70,
+   "l_linenumber": 3,
+   "l_quantity": 19.0,
+   "l_extendedprice": 19648.47,
+   "l_discount": 0.09,
+   "l_tax": 0.07,
+   "l_returnflag": "A",
+   "l_linestatus": "F",
+   "l_shipdate": "1993-10-15",
+   "l_commitdate": "1993-10-04",
+   "l_receiptdate": "1993-11-09",
+   "l_shipinstruct": "COLLECT COD",
+   "l_shipmode": "RAIL",
+   "l_comment": "olites afte"
+  }
+ ],
+ "receita-cnpj": [
+  {
+   "cnpj": "00.541.756/0001-48",
+   "matriz_filial": "1",
+   "nome_fantasia": null,
+   "situacao": "01",
+   "data_inicio": "19950309",
+   "cnae_principal": "9521500",
+   "uf": "RJ",
+   "municipio_cod": "6001"
+  },
+  {
+   "cnpj": "66.617.670/0001-60",
+   "matriz_filial": "1",
+   "nome_fantasia": null,
+   "situacao": "02",
+   "data_inicio": "20260505",
+   "cnae_principal": "4723700",
+   "uf": "MG",
+   "municipio_cod": "4751"
+  },
+  {
+   "cnpj": "66.619.597/0001-65",
+   "matriz_filial": "1",
+   "nome_fantasia": null,
+   "situacao": "02",
+   "data_inicio": "20260505",
+   "cnae_principal": "8599699",
+   "uf": "SP",
+   "municipio_cod": "6477"
+  }
+ ],
+ "wine-quality": [
+  {
+   "fixed_acidity": 11.6,
+   "volatile_acidity": 0.58,
+   "citric_acid": 0.66,
+   "residual_sugar": 2.2,
+   "chlorides": 0.074,
+   "free_sulfur_dioxide": 10.0,
+   "total_sulfur_dioxide": 47.0,
+   "density": 1.0008,
+   "pH": 3.25,
+   "sulphates": 0.57,
+   "alcohol": 9.0,
+   "quality": 3,
+   "variant": "red"
+  },
+  {
+   "fixed_acidity": 10.4,
+   "volatile_acidity": 0.44,
+   "citric_acid": 0.42,
+   "residual_sugar": 1.5,
+   "chlorides": 0.145,
+   "free_sulfur_dioxide": 34.0,
+   "total_sulfur_dioxide": 48.0,
+   "density": 0.99832,
+   "pH": 3.38,
+   "sulphates": 0.86,
+   "alcohol": 9.9,
+   "quality": 3,
+   "variant": "red"
+  },
+  {
+   "fixed_acidity": 6.7,
+   "volatile_acidity": 0.25,
+   "citric_acid": 0.26,
+   "residual_sugar": 1.55,
+   "chlorides": 0.041,
+   "free_sulfur_dioxide": 118.5,
+   "total_sulfur_dioxide": 216.0,
+   "density": 0.9949,
+   "pH": 3.55,
+   "sulphates": 0.63,
+   "alcohol": 9.4,
+   "quality": 3,
+   "variant": "white"
+  }
+ ]
+}

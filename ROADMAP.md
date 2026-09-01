@@ -14,7 +14,7 @@
 
 Formato `#TCF.8` default ([ADR-0032](docs/adr/0032-tcf8-default-format.md)); pacote
 `0.8.3` publicado no PyPI (`tcf-format`), tag `v0.8.3`, com a revisão que alinhou as bordas
-das três famílias.
+das três famílias. O repo já está na `0.8.4`, sem tag e sem publicação.
 
 Os números byte-canônicos vivem nos testes que os medem
 ([`test_regression_v1_baseline.py`](tests/test_regression_v1_baseline.py) e
@@ -44,11 +44,18 @@ muda wire: `?0:` para coluna densa-com-nulos no `.8H`),
 ticket (#12 aviso sobre wire morto, #14b chave não-str, #15 telemetria do `.8H`). Nenhum
 bug da auditoria de consistência continua aberto sem decisão de dono.
 
-O que resta são **seis decisões**, não restos de bug, cada uma colidindo com um contrato
-ratificado e cada uma com evidência medida em
-[`2026-08-28-decisoes-de-dono-cauda-do-8.md`](experiments/lab/dirty/notas/2026-08/2026-08-28-decisoes-de-dono-cauda-do-8.md):
-união bool+str, LF/CR, FLOOR do spec, spec em coluna tipada, kwargs engolidos no flat de
-string e `decode(schema=)` ignorado. `src/tcf` continua sob aprovação explícita.
+Eram **seis decisões**, não restos de bug, cada uma colidindo com um contrato ratificado
+([evidência](experiments/lab/dirty/notas/2026-08/2026-08-28-decisoes-de-dono-cauda-do-8.md)).
+Cinco fecharam: união bool+str ([ADR-0048](docs/adr/0048-uniao-bool-str-e-capacidade-da-familia-single.md)),
+LF/CR, `decode(schema=)` ignorado, spec em coluna tipada, e metade dos kwargs engolidos
+(`sort_by` e `name` passaram a levantar, [ADR-0050](docs/adr/0050-sort-by-vira-candidato-o-floor-decide.md)).
+
+Restam duas pontas. Os outros cinco kwargs (`fallback`, `min_len`, `min_header`,
+`drop_names`, `parallel`) continuam **no-op calado** na rota `list[str]`, medido em corpus
+onde deveriam ter efeito. E o **FLOOR do spec** não foi decidido porque a premissa dele não
+reproduz: 0 violações em 69 medições no lab `2026-08-31-0230`, então o que existe é
+divergência de decisão entre famílias, não quebra do nunca-pior. `src/tcf` continua sob
+aprovação explícita.
 
 ## Ciclo `.9`: aberto 2026-08-23, com base medida
 
@@ -193,11 +200,14 @@ L5 **layout p/ baixa latência** (organizar pra uma query-alvo tocar o mínimo; 
 **L3, L4 e L5 já feitos** no gadget. L3/L4 (via dict/raw): `nrows`/`group_count`/`where`
 contam/agrupam/filtram **sem expandir as N linhas**, varrendo o stream do dicionário
 (`where(workclass='Private')` em 5k toca ~5% do blob, sem cachear a coluna). L5 (`group_ranges`/
-`agg_by`): com `sort_by=key` os grupos ficam contíguos → group-by por slice (o "qtd por usuário"
-= `agg_by('CustomerID','Quantity','sum')`, verificado). Achados: (1) agregar `*N|` direto no
-modo-tcf não é separável (OBAT+HCC entrelaçados): o ganho limpo vive no dicionário/raw; (2) o
-layout L5 é **trade-off de compressão** (adult `sort_by=education` −10%; online-retail `sort_by=
-CustomerID` +2,3%); o ganho de **latência da query** é sempre presente.
+`agg_by`): quando a chave sai contígua, o group-by vira slice (o "qtd por usuário"
+= `agg_by('CustomerID','Quantity','sum')`, verificado), e o `agg_by` cai no caminho
+order-free quando ela não sai, então nunca levanta por layout. Achados: (1) agregar `*N|`
+direto no modo-tcf não é separável (OBAT+HCC entrelaçados): o ganho limpo vive no
+dicionário/raw; (2) o `sort_by` deixou de ser trade-off de bytes no
+[ADR-0050](docs/adr/0050-sort-by-vira-candidato-o-floor-decide.md): ele virou **candidato**,
+o encoder emite as duas versões e fica com a menor, e por isso pedir o layout nunca custa
+bytes e também não garante que ele saia (o `group_ranges` continua estrito, de propósito).
 
 **Filtros modulares (H-NAT-MARK-02, ideia do owner)**: `natures/` vira **pasta de plugins**,
 cada filtro um módulo spec auto-contido (regex + transform + id), com um registry que descobre

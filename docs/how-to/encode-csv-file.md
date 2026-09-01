@@ -59,6 +59,51 @@ data_dict = {
 }
 ```
 
+### O atalho: as linhas do `DictReader` entram como estão
+
+O laço acima transpõe linhas em colunas, e desde a
+[ADR-0049](../adr/0049-marcador-r-a-forma-da-entrada-e-metadado.md) ele deixou de ser
+obrigatório. Uma lista de dicionários retangular e plana é reconhecida como a tabela que ela
+é, então a saída do `DictReader` entra direto no `encode`:
+
+```python
+import csv
+
+with open('dados.csv', 'r', encoding='utf-8') as f:
+    linhas = list(csv.DictReader(f))
+```
+
+O wire é o mesmo, byte por byte, salvo um caractere: o discriminador de família, que sai `R`
+em vez de `M` para registrar a grafia da entrada.
+
+```python
+from tcf import encode
+
+por_colunas = encode(data_dict)
+por_linhas = encode(linhas)
+
+print(len(por_colunas.encode('utf-8')), len(por_linhas.encode('utf-8')))
+# 85 85
+
+print(por_colunas.splitlines()[0])   # #TCF.8M!5=id,!11=nome,email
+print(por_linhas.splitlines()[0])    # #TCF.8R!5=id,!11=nome,email
+
+assert por_colunas.split('\n', 1)[1] == por_linhas.split('\n', 1)[1]   # corpo idêntico
+```
+
+Esse caractere decide a forma da volta. O `decode` de um `#TCF.8R` devolve as linhas como elas
+entraram, uma lista de dicionários, e não um dicionário de colunas:
+
+```python
+from tcf import decode
+
+assert decode(por_linhas) == linhas
+assert decode(por_colunas) == data_dict
+```
+
+As duas rotas seguem válidas, e a escolha é de quem escreve o código. Quem já pensa em colunas
+fica com o dicionário; quem lê o CSV linha a linha guarda as linhas.
+
 ## Passo 2: Encodar e salvar como .tcf
 
 Chamar `encode(dict)` e escrever resultado em arquivo `.tcf`:
@@ -180,13 +225,20 @@ assert data == recovered  # '' preservado
 
 ### Restrições em nomes de coluna
 
-Há **um único caractere proibido**: `\n`, que é o separador de linha do próprio meta e por isso
-não tem como ser representado dentro dele.
+São **dois os caracteres proibidos**, `\n` e `\r`, e o motivo é o mesmo nos dois casos: o wire
+é LF-only, o LF separa o meta, e não há como representar dentro do meta o caractere que o
+delimita.
 
 <!-- doctest: raises -->
 ```python
 encode({'a\nb': ['1', '2']})
-# ValueError: col name nao pode conter '\n' (separador de linha do meta)
+# ValueError: col name nao pode conter '\n' (o wire e' LF-only, e o LF separa o meta): 'a\nb'
+```
+
+<!-- doctest: raises -->
+```python
+encode({'a\rb': ['1', '2']})
+# ValueError: col name nao pode conter '\r' (o wire e' LF-only, e o LF separa o meta): 'a\rb'
 ```
 
 Todo o resto passa. Os caracteres que têm significado estrutural no meta, `,` (separador de
@@ -229,6 +281,35 @@ Coluna **anônima** (nome posicional `'0'`, `'1'`, …) existe só quando você 
 > `'0'`, o único caso em que o TCF alterava o dado
 > ([`BUG-CHAVE-VAZIA-POSICIONAL`](../../tickets/BUG-CHAVE-VAZIA-POSICIONAL.md)). A causa era
 > uma colisão de grafia com `drop_names`; a ADR-0046 portou o sentinela `\z` do `.8H`.
+
+### Quebra de linha dentro de um valor
+
+A proibição vale igual para o **valor**, com mensagem própria, e aqui ela pesa mais do que
+parece: a RFC 4180 manda CRLF entre registros e permite CRLF **dentro** de um campo entre
+aspas. O `csv.DictReader` resolve o terminador de registro sozinho, então o que chega ao
+`encode` é o CRLF de dentro da célula.
+
+<!-- doctest: raises -->
+```python
+encode({'obs': ['linha um\r\nlinha dois', 'ok']})
+# ValueError: valor com quebra de linha (\n) nao e' representavel no TCF (LF delimita
+# linhas): coluna 'obs', indice 0: 'linha um\r\nlinha dois'
+```
+
+A rota de registros não recusa esse dado. A quebra de linha tira a tabela do retangular
+canônico, ela cai no `#TCF.8H`, que escapa nomes e folhas, e o round-trip continua exato:
+
+```python
+import csv, io
+
+bruto = 'id,obs\r\n1,"linha um\r\nlinha dois"\r\n2,ok\r\n'
+linhas_crlf = list(csv.DictReader(io.StringIO(bruto, newline='')))
+
+wire = encode(linhas_crlf)
+print(wire.splitlines()[0])          # #TCF.8Hid:6,obs
+
+assert decode(wire) == linhas_crlf
+```
 
 ### Encodings de arquivo
 

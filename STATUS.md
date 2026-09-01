@@ -15,6 +15,7 @@ no [`CHANGELOG.md`](CHANGELOG.md), nos [ADRs](docs/adr/README.md) e no diário
 | | |
 |---|---|
 | **publicado** | `tcf-format 0.8.3` no PyPI (29/08, via Trusted Publishing) · tag `v0.8.3` |
+| **em repo** | `0.8.4` no `pyproject.toml` e em `src/tcf/__init__.py`, sem tag e ainda não publicada |
 | **formato** | `#TCF.8` default: `.8M` multi-col · `.8R` registros (ADR-0049) · `.8H` hierárquico · rota tipada · single-col |
 | **ciclo aberto** | **`.9`**: otimização **e** integração com armazenamento |
 | **números vivos** | nos TESTES, não aqui: `pytest -q` |
@@ -50,11 +51,21 @@ Em 2026-08-28 entraram as ondas 5 a 7, com evidência em
 | 6 | chave não-str cai no `.8H` (erro tipado por construção); `.8H` ganha a telemetria de spec das outras duas e avisa no descarte por valor | (sem ticket: #14b, #15) |
 | 7 | **muda wire**: coluna escalar densa-com-nulos no `.8H` declara `?0:` (emask 2-estados) em vez de `?:`; a `view` passa a consultar tabela com nulos; +1 byte de header por coluna assim; 2 pinos de navegação re-pinados, zero nos gates | [#6](tickets/BUG-VIEW-NULO-NO-HIERARQUICO.md) closed |
 
-Ficaram **seis decisões de dono**, cada uma colidindo com um contrato ratificado, com
-evidência medida em
+Das **seis decisões de dono** que a auditoria deixou, cinco fecharam e uma ficou pela metade.
+Evidência original em
 [`2026-08-28-decisoes-de-dono-cauda-do-8.md`](experiments/lab/dirty/notas/2026-08/2026-08-28-decisoes-de-dono-cauda-do-8.md):
-união bool+str, LF/CR, FLOOR do spec, spec em coluna tipada (a seta da auditoria estava
-invertida), kwargs engolidos no flat de string e `decode(schema=)` ignorado.
+
+| decisão | onde parou |
+|---|---|
+| união bool+str | **fechada**, [ADR-0048](docs/adr/0048-uniao-bool-str-e-capacidade-da-familia-single.md): a assimetria é capacidade da família single, e é deliberada |
+| LF/CR | **fechada**: as duas pontas recusam CR, no nome de coluna do `.8M` e no wire do `.8H` |
+| `decode(schema=)` ignorado | **fechada**: o aviso existe e é estreito, só dispara em chave que não nomeia coluna alguma |
+| spec em coluna tipada | **fechada**: a tabela com coluna tipada aceita `schema=` nas duas grafias (`#TCF.8M13N=n,@c` e `#TCF.8R13N=n,@c`, medidos) |
+| FLOOR do spec | **premissa derrubada**, não decidida: a divergência relatada não reproduz (0 violações em 69 medições, lab `2026-08-31-0230`). O que existe é divergência de decisão entre famílias, não quebra do nunca-pior |
+| kwargs engolidos no flat de string | **metade**: `sort_by` e `name` passaram a levantar ([ADR-0050](docs/adr/0050-sort-by-vira-candidato-o-floor-decide.md)); `fallback`, `min_len`, `min_header`, `drop_names` e `parallel` continuam **no-op calado** na rota `list[str]`, medido em corpus onde deveriam ter efeito |
+
+O que resta, portanto, é um item e meio: os cinco kwargs no-op, e reconfirmar o FLOOR do spec
+antes de arquivar. `src/tcf` continua sob aprovação explícita.
 
 As ondas 0 a 7 saíram na **`0.8.3`** (29/08). A atualização muda comportamento visível:
 entrada mista que passava calada agora levanta, e há **duas** mudanças de emissão, o `.8H`
@@ -103,7 +114,7 @@ estrutural, polaridade, bN de domínio, seq-RLE. Round-trip é o contrato: **ou 
 byte, ou falha alto**. Sem dependências de runtime.
 
 Formato vigente `#TCF.8` ([ADR-0032](docs/adr/0032-tcf8-default-format.md)); pacote
-`tcf-format 0.8.3`. Pré-1.0 ([ADR-0024](docs/adr/0024-pre-1.0-versioning-git-as-compat.md)): os
+`tcf-format` na `0.8.4` em repo, `0.8.3` no PyPI. Pré-1.0 ([ADR-0024](docs/adr/0024-pre-1.0-versioning-git-as-compat.md)): os
 minors são iterações de desenvolvimento, **sem compatibilidade rígida entre eles**: versão
 antiga se recupera pelo git. O congelamento definitivo é ato do 1.0.
 
@@ -132,8 +143,8 @@ Detalhe do formato: [`docs/algorithms/TCF-format.en.md`](docs/algorithms/TCF-for
 
 ### Core TCF (D1-D9): controle algoritmo
 Padroes estruturais (afixos, wrappers). Cobertos pelo TCF-CORE
-canonical. Total 2981 raw -> 1523 TCF (51.1%, baseline M10/ADR-0011 pinado
-em test_regression_v1_baseline.py; 1615B era M9 antigo). Referenciados em
+canonical. Total 2981 raw -> 1545 TCF (51.8%, pinado em
+test_regression_v1_baseline.py, re-pinavel por ADR-0024). Referenciados em
 EXP-007/008.
 
 ### ERP/CRM tipos (D10-D15): variety (stress de tipos, nao guia)

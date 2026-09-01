@@ -473,19 +473,26 @@ def encode(
     # exatamente o que os canais internos ja' faziam.
     nature = None
     nature_per_col = None
+    _alvo_e_tabela = False   # schema escalar apontado a uma tabela de 2+ colunas
     if schema is not None:
         from tcf.natures import resolve_schema
 
         _kind, _resolved = resolve_schema(schema, where="encode(schema=)")
         if _kind == "single":
-            if isinstance(data, dict) and len(data) == 1:
+            # A tabela ALVO da sobrecarga, seja qual for a grafia. Uma lista de registros
+            # retangular e' tabela do mesmo jeito que o dict de colunas (ADR-0049), e antes
+            # de 2026-09-01 ela caia no `else` abaixo e o spec era DESCARTADO CALADO: a
+            # mesma chamada levantava como dict e passava em branco como registros.
+            _tabela_alvo = data if isinstance(data, dict) else _registros_flat(data)
+            if _tabela_alvo is not None and len(_tabela_alvo) == 1:
                 # SOBRECARGA: alvo INEQUIVOCO — tabela de UMA
                 # coluna aceita a forma escalar, sem cerimonia de dict. Com 2+
                 # colunas o escalar segue erro ensinante (qual coluna? informacao
                 # genuinamente necessaria).
-                nature_per_col = {next(iter(data)): _resolved}
+                nature_per_col = {next(iter(_tabela_alvo)): _resolved}
             else:
                 nature = _resolved
+                _alvo_e_tabela = _tabela_alvo is not None
         elif isinstance(data, dict):
             _cols = list(data)
             _out: dict = {}
@@ -512,11 +519,12 @@ def encode(
                     "usa schema='id' (escalar)"
                 )
             nature_per_col = _resolved
-    if isinstance(data, dict) and nature is not None:
+    if nature is not None and _alvo_e_tabela:
         raise ValueError(
             "schema escalar ('id'/objeto) aplica a single-col (list) ou tabela "
-            "de UMA coluna; com 2+ colunas use schema={coluna: spec} — qual "
-            "coluna e' informacao necessaria (T-QA-8 BUG-10g)"
+            "de UMA coluna; com 2+ colunas use schema={coluna: spec}, porque qual "
+            "coluna e' informacao necessaria (T-QA-8 BUG-10g). Vale igual para dict "
+            "de colunas e para lista de registros: as duas sao a mesma tabela."
         )
     if (
         isinstance(data, list)

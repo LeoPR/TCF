@@ -1,4 +1,4 @@
-<!-- l10n: doc_id=lazy-view · lang=pt-BR · source_lang=en · translation_of=lazy-view.en.md · synced=2026-08-26 -->
+<!-- l10n: doc_id=lazy-view · lang=pt-BR · source_lang=en · translation_of=lazy-view.en.md · synced=2026-09-01 -->
 [English](lazy-view.en.md) · **Português**
 
 > Tradução de [`lazy-view.en.md`](lazy-view.en.md). Se houver divergência, o original em inglês prevalece.
@@ -315,24 +315,47 @@ por que o encadeamento não reduz o que vem depois:
 
 ## Layout ordenado · **experimental**
 
-Para um blob **já ordenado** por uma chave (`encode(table, sort_by=chave)`), onde os grupos
-ficam contíguos. Os dois podem evoluir no H-QUERY-04 (0.9).
-
-```python
-blob = encode({"cliente": ["Ana","Bruno","Ana","Bruno"],
-               "qtd": ["1","2","3","4"]}, sort_by="cliente")
-view(blob).agg_by("cliente", "qtd", "sum")     # {'Ana': 4.0, 'Bruno': 6.0}
-```
+Duas chamadas para uma chave cujos grupos estão **contíguos** no blob. Elas podem evoluir no
+H-QUERY-04 (0.9).
 
 | chamada | devolve | nota |
 |---|---|---|
 | `group_ranges(chave)` | `dict[str,(ini,fim)]` | intervalos contíguos por grupo; `ValueError` se a coluna não está agrupada |
-| `agg_by(chave, col=None, op="count")` | `dict` | group-by por slice; `op` ∈ `count/sum/min/max/avg` |
+| `agg_by(chave, col=None, op="count")` | `dict` | group-by por slice quando os grupos estão contíguos, e pelo caminho order-free quando não estão; `op` ∈ `count/sum/min/max/avg` |
 
-A pré-condição é **contiguidade**, não o `sort_by` em si: uma tabela que por acaso está
-contígua funciona sem ter sido ordenada. E o `sort_by` reordena as linhas, então o `decode`
-devolve a tabela na ordem do blob. Trade-off documentado em
-[encode-knobs.md](encode-knobs.md).
+A pré-condição é **contiguidade**, não o `sort_by`: uma tabela que por acaso já está contígua
+funciona sem nunca ter sido ordenada. O caminho inverso é que deixou de valer. Desde o
+[ADR-0050](../adr/0050-sort-by-vira-candidato-o-floor-decide.md) a ordenação é um
+**candidato**: o encoder emite as duas versões e fica com a menor, então pedir `sort_by` não
+garante o layout. O exemplo abaixo é exatamente esse caso.
+
+```python
+from tcf import decode
+
+blob = encode({"cliente": ["Ana","Bruno","Ana","Bruno"],
+               "qtd": ["1","2","3","4"]}, sort_by="cliente")
+
+decode(blob)["cliente"]                        # ['Ana', 'Bruno', 'Ana', 'Bruno']
+view(blob).agg_by("cliente", "qtd", "sum")     # {'Ana': 4.0, 'Bruno': 6.0}
+```
+
+Ordenar essa tabela não encolheria o wire (46 bytes dos dois jeitos), então o encoder não
+ordenou, e a tabela volta na ordem de entrada. O `agg_by` responde o mesmo de qualquer forma:
+quando a chave não está contígua ele cai no caminho order-free sozinho, e **nunca levanta por
+causa do layout**. Isso não custa nada, porque o caminho por intervalos, medido, não é mais
+barato que o order-free.
+
+O `group_ranges` continua **estrito de propósito**. Ele é o inspetor de layout, e a pergunta
+"esta coluna está agrupada?" precisa de resposta honesta, então sobre o mesmo blob a resposta
+certa é levantar:
+
+<!-- doctest: raises -->
+```python
+view(blob).group_ranges("cliente")     # ValueError: a coluna não está agrupada
+```
+
+Quem precisa do layout de verdade ordena as linhas na origem, antes de encodar. O trade-off
+do `sort_by` está em [encode-knobs.md](encode-knobs.md).
 
 ## Estabilidade
 

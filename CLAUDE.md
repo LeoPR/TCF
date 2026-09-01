@@ -10,7 +10,8 @@
 
 1. [`AGENTS.md`](AGENTS.md): guia canônico (regras). **Comece pela §0: as invariantes**,
    I1 superfície carrega só o presente · I2 lab sem evidência em disco não existe ·
-   I3 massa usa o Shaper · I4 §RT · I5 `src/tcf` só com aprovação · I6 L0 antes de mudança grande
+   I3 massa usa o Shaper · I4 §RT · I5 `src/tcf` só com aprovação · I6 L0 antes de mudança
+   grande · I7 varrer os registries antes de registrar direção · I8 a era do wire tem janela N-1
 2. [`STATUS.md`](STATUS.md): estado vigente
 3. [`MAP.md`](MAP.md): onde fica o quê
 4. [`README.md`](README.md): overview pra humano

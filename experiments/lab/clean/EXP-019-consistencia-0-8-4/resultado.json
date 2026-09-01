@@ -1,0 +1,180 @@
+{
+ "versao": "0.8.4",
+ "amostras": {
+  "adult-census": {
+   "linhas": 800,
+   "colunas": 15,
+   "estrato": "education",
+   "n_estratos": 16,
+   "tvd": "0.0031",
+   "bytes_8h": 26705,
+   "bytes_8r": 15937,
+   "rt": true,
+   "dominancia": true,
+   "equivalencia": true,
+   "header_8r": "#TCF.8R@41cN=age,@362=workclass,!153dN=fnlwgt,c7=education,7"
+  },
+  "online-retail": {
+   "linhas": 800,
+   "colunas": 8,
+   "estrato": "Country",
+   "n_estratos": 38,
+   "tvd": "0.0206",
+   "bytes_8h": 52271,
+   "bytes_8r": 37892,
+   "rt": true,
+   "dominancia": true,
+   "equivalencia": true,
+   "header_8r": "#TCF.8R15cb=InvoiceNo,!1313=StockCode,3b5e=Description,@3e1N"
+  },
+  "ibge-municipios": {
+   "linhas": 800,
+   "colunas": 8,
+   "estrato": "uf_sigla",
+   "n_estratos": 27,
+   "tvd": "0.0054",
+   "bytes_8h": 27529,
+   "bytes_8r": 26406,
+   "rt": true,
+   "dominancia": true,
+   "equivalencia": true,
+   "header_8r": "#TCF.8R18e7N=id,24e4=municipio,@1841=microrregiao,@d51=mesor"
+  },
+  "br-identidades": {
+   "linhas": 800,
+   "colunas": 6,
+   "estrato": "uf_sigla",
+   "n_estratos": 27,
+   "tvd": "0.0048",
+   "bytes_8h": 55120,
+   "bytes_8r": 45273,
+   "rt": true,
+   "dominancia": true,
+   "equivalencia": true,
+   "header_8r": "#TCF.8R%2d84=cpf,27bf=nome,!18ffN=municipio_id,b5=uf_sigla,%"
+  },
+  "tpch-orders": {
+   "linhas": 800,
+   "colunas": 9,
+   "estrato": "o_orderstatus",
+   "n_estratos": 3,
+   "tvd": "0.0006",
+   "bytes_8h": 70744,
+   "bytes_8r": 61366,
+   "rt": true,
+   "dominancia": true,
+   "equivalencia": true,
+   "header_8r": "#TCF.8R!1228N=o_orderkey,!d47N=o_custkey,14=o_orderstatus,%1"
+  },
+  "tpch-lineitem": {
+   "linhas": 800,
+   "colunas": 16,
+   "estrato": "l_returnflag",
+   "n_estratos": 3,
+   "tvd": "0.0003",
+   "bytes_8h": 77865,
+   "bytes_8r": 50376,
+   "rt": true,
+   "dominancia": true,
+   "equivalencia": true,
+   "header_8r": "#TCF.8R!1228N=l_orderkey,!de7N=l_partkey,@7ccN=l_suppkey,@33"
+  },
+  "receita-cnpj": {
+   "linhas": 800,
+   "colunas": 8,
+   "estrato": "situacao",
+   "n_estratos": 5,
+   "tvd": "0.0017",
+   "bytes_8h": 42783,
+   "bytes_8r": 33496,
+   "rt": true,
+   "dominancia": true,
+   "equivalencia": true,
+   "header_8r": "#TCF.8R%25fe=cnpj,173=matriz_filial,1e44=nome_fantasia,26=si"
+  },
+  "wine-quality": {
+   "linhas": 800,
+   "colunas": 13,
+   "estrato": "quality",
+   "n_estratos": 7,
+   "tvd": "0.0018",
+   "bytes_8h": 37846,
+   "bytes_8r": 20203,
+   "rt": true,
+   "dominancia": true,
+   "equivalencia": true,
+   "header_8r": "#TCF.8R@504N=fixed_acidity,%4e0N=volatile_acidity,%47bN=citr"
+  }
+ },
+ "portoes": {
+  "G1_round_trip": true,
+  "G2_dominancia": true,
+  "G3_equivalencia": true,
+  "bytes_8h_total": 390863,
+  "bytes_8r_total": 290949,
+  "G4_floor_nunca_pior": true,
+  "G5_paridade_view": true,
+  "G6_fronteira": true,
+  "G7_group_count": true
+ },
+ "G4_detalhe": {
+  "adult-census": {
+   "n_chaves": 12,
+   "ordenou": 8,
+   "melhor_ganho_bytes": -685,
+   "pior_saldo_bytes": 0,
+   "base_bytes": 15937
+  },
+  "online-retail": {
+   "n_chaves": 1,
+   "ordenou": 0,
+   "melhor_ganho_bytes": 0,
+   "pior_saldo_bytes": 0,
+   "base_bytes": 37892
+  },
+  "ibge-municipios": {
+   "n_chaves": 4,
+   "ordenou": 2,
+   "melhor_ganho_bytes": -288,
+   "pior_saldo_bytes": 0,
+   "base_bytes": 26406
+  },
+  "br-identidades": {
+   "n_chaves": 1,
+   "ordenou": 0,
+   "melhor_ganho_bytes": 0,
+   "pior_saldo_bytes": 0,
+   "base_bytes": 45273
+  },
+  "tpch-orders": {
+   "n_chaves": 2,
+   "ordenou": 1,
+   "melhor_ganho_bytes": -707,
+   "pior_saldo_bytes": 0,
+   "base_bytes": 61366
+  },
+  "tpch-lineitem": {
+   "n_chaves": 7,
+   "ordenou": 5,
+   "melhor_ganho_bytes": -671,
+   "pior_saldo_bytes": 0,
+   "base_bytes": 50376
+  },
+  "receita-cnpj": {
+   "n_chaves": 3,
+   "ordenou": 2,
+   "melhor_ganho_bytes": -604,
+   "pior_saldo_bytes": 0,
+   "base_bytes": 33496
+  },
+  "wine-quality": {
+   "n_chaves": 2,
+   "ordenou": 0,
+   "melhor_ganho_bytes": 0,
+   "pior_saldo_bytes": 0,
+   "base_bytes": 20203
+  }
+ },
+ "falhas": [],
+ "veredito": "consistente"
+}

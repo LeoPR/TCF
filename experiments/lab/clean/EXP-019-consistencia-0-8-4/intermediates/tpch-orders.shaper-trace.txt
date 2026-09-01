@@ -1,0 +1,18 @@
+request: ShapeRequest(dataset=tpch-sf001, volume=800, schema=['orders'], stratify=o_orderstatus, seed=42)
+opened: tpch-sf001 (8 tables)
+loaded: region (5 rows)
+loaded: nation (25 rows)
+loaded: supplier (100 rows)
+loaded: customer (1,500 rows)
+loaded: part (2,000 rows)
+loaded: partsupp (8,000 rows)
+loaded: orders (15,000 rows)
+loaded: lineitem (60,175 rows)
+schema: custom tables ['orders']
+schema: removed tables: ['customer', 'lineitem', 'nation', 'part', 'partsupp', 'region', 'supplier']
+join: normalized (tables stay separate)
+stratify: orders by 'o_orderstatus' PROPORTIONAL (3 groups, 800/15000): F:390/7304, O:391/7333, P:19/363
+stratify_metrics: TVD=0.0006, JSD=0.0000, Hellinger=0.0011, chi2_p=0.996, n_pop=15000, n_sample=800, n_groups=3
+METRICS_JSON: {"stratify_by": "o_orderstatus", "table": "orders", "tvd": 0.0006, "jsd": 0.0, "hellinger": 0.0011, "chi2_pvalue": 0.9964, "chi2_warn_low_n": false, "n_pop": 15000, "n_sample": 800, "n_groups": 3, "groups": {"F": {"pop_count": 7304, "pop_prop": 0.48693333333333333, "sample_count": 390, "sample_prop": 0.4875, "wilson_ci": [0.453, 0.5221], "diff_pp": 0.06}, "O": {"pop_count": 7333, "pop_prop": 0.48886666666666667, "sample_count": 391, "sample_prop": 0.48875, "wilson_ci": [0.4542, 0.5234], "diff_pp": -0.01}, "P": {"pop_count": 363, "pop_prop": 0.0242, "sample_count": 19, "sample_prop": 0.02375, "wilson_ci": [0.0153, 0.0368], "diff_pp": -0.04}}}
+volume: orders -> 800 rows (all, volume >= total)
+ordering: natural (no change)

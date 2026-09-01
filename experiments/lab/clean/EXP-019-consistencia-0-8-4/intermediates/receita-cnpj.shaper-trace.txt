@@ -1,0 +1,10 @@
+request: ShapeRequest(dataset=receita-cnpj, volume=800, schema=['estabelecimentos'], stratify=situacao, seed=42)
+opened: receita-cnpj (1 tables)
+loaded: estabelecimentos (200,000 rows)
+schema: custom tables ['estabelecimentos']
+join: normalized (tables stay separate)
+stratify: estabelecimentos by 'situacao' PROPORTIONAL (5 groups, 800/200000): 01:1/330, 02:160/40085, 03:5/1316, 04:148/37099, 08:486/121170
+stratify_metrics: TVD=0.0017, JSD=0.0000, Hellinger=0.0041, chi2_p=0.999* (low N warning), n_pop=200000, n_sample=800, n_groups=5
+METRICS_JSON: {"stratify_by": "situacao", "table": "estabelecimentos", "tvd": 0.0017, "jsd": 0.0, "hellinger": 0.0041, "chi2_pvalue": 0.9989, "chi2_warn_low_n": true, "n_pop": 200000, "n_sample": 800, "n_groups": 5, "groups": {"01": {"pop_count": 330, "pop_prop": 0.00165, "sample_count": 1, "sample_prop": 0.00125, "wilson_ci": [0.0002, 0.007], "diff_pp": -0.04}, "02": {"pop_count": 40085, "pop_prop": 0.200425, "sample_count": 160, "sample_prop": 0.2, "wilson_ci": [0.1737, 0.2291], "diff_pp": -0.04}, "03": {"pop_count": 1316, "pop_prop": 0.00658, "sample_count": 5, "sample_prop": 0.00625, "wilson_ci": [0.0027, 0.0145], "diff_pp": -0.03}, "04": {"pop_count": 37099, "pop_prop": 0.185495, "sample_count": 148, "sample_prop": 0.185, "wilson_ci": [0.1596, 0.2134], "diff_pp": -0.05}, "08": {"pop_count": 121170, "pop_prop": 0.60585, "sample_count": 486, "sample_prop": 0.6075, "wilson_ci": [0.5732, 0.6408], "diff_pp": 0.17}}}
+volume: estabelecimentos -> 800 rows (all, volume >= total)
+ordering: natural (no change)

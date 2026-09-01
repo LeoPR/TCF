@@ -246,6 +246,50 @@ Notice the structure of the multi-column TCF text:
 
 TCF guarantees that the shape of the table (column names, order) is preserved exactly.
 
+### The same table, written as records
+
+A dict of columns is one way to spell a table. The other one is a list of records, and it is
+usually the shape you already have in hand: `csv.DictReader`, `json.load` on an API response, a
+database cursor and `df.to_dict('records')` all produce it. `encode` takes that directly:
+
+```python
+from tcf import encode, decode
+
+rows = [
+    {"id": "1", "name": "Alice"},
+    {"id": "2", "name": "Bob"},
+    {"id": "3", "name": "Charlie"},
+]
+
+wire = encode(rows)
+cols = encode({"id": ["1", "2", "3"], "name": ["Alice", "Bob", "Charlie"]})
+
+print("TCF text:     ", repr(wire))
+print("Decoded:      ", decode(wire))
+print("Round-trip OK?", decode(wire) == rows)
+print("Same body?    ", wire[7:] == cols[7:], "| header:", cols[:7], "->", wire[:7])
+```
+
+Expected output:
+
+```
+TCF text:      '#TCF.8R!5=id,!name\n1\n2\n3Alice\nBob\nCharlie'
+Decoded:       [{'id': '1', 'name': 'Alice'}, {'id': '2', 'name': 'Bob'}, {'id': '3', 'name': 'Charlie'}]
+Round-trip OK? True
+Same body?     True | header: #TCF.8M -> #TCF.8R
+```
+
+Two things to read there. The header says `#TCF.8R`, where `R` stands for **records**, and
+`decode` gives the list of dicts back, not the column dict. And everything after the header is
+byte for byte the body of the table above: the only difference in the whole wire is the seventh
+character, `M` for columns and `R` for records. The shape you wrote is metadata, not another
+format ([ADR-0049](../adr/0049-marcador-r-a-forma-da-entrada-e-metadado.md)).
+
+The `R` route asks for a rectangular and flat table: the same keys in every record, and a scalar
+in every cell. Records that are ragged, nested, or that carry an array in a cell go to
+`#TCF.8H`, the hierarchical family, and round-trip there just the same. The full sieve is in
+[`api.md`](../reference/api.md).
+
 ## Step 5: Query the table without fully materializing it
 
 The read-only `view()` API provides SQL-like paths as Python methods. It is not a SQL parser, but it
@@ -271,7 +315,8 @@ from the tool you already know.
 
 You covered the fundamentals:
 
-1. **encode(data)** turns a list or dict into TCF text.
+1. **encode(data)** turns a list of strings, a dict of columns or a list of records
+   into TCF text.
 2. **decode(text)** recovers the original data exactly.
 3. TCF compacts by exploiting prefixes, suffixes and compositional patterns.
 4. The round-trip is guaranteed lossless.

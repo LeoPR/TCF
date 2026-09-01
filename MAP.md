@@ -23,7 +23,7 @@ TCF/
 │   ├── column_features.py  ColumnFeatures + analyze_column (H-DA-11c)
 │   ├── encoder.py, decoder.py .... API publica (pipeline delta-aware)
 │   ├── hierarchical.py .......... codec #TCF.8H (shredding blocos+counts; L2/L3; reusa L1): WELD 2026-07-14
-│   ├── multi/ ................... encode/decode multi-coluna (core.py + dict_v2b.py; #TCF.8M default)
+│   ├── multi/ ................... encode/decode multi-coluna (core.py + dict_v2b.py; #TCF.8M default, #TCF.8R registros ADR-0049)
 │   ├── schema.py ................. build_schema per-tabela (CORE)
 │   ├── side_outputs.py ........... SideOutputs (efeito colateral opt-in)
 │   ├── tipos_internos.py ......... FONTE ÚNICA das tabelas congeladas de slots (bool: 0=null,1=false,2=true; ADR-0037/0038)
@@ -197,7 +197,7 @@ TCF/
 | Continuar um sub-experimento | `experiments/lab/dirty/<YYYY-MM>/<YYYY-MM-DD>/<lab>/<sub-exp>/README.md` |
 | Comparar EXP-010 ao baseline | `experiments/lab/clean/EXP-010-*/report.md` |
 | Format do .tcf | `docs/algorithms/TCF-format.md` |
-| Convencao de header | `docs/algorithms/TCF-format.{pt-BR,en}.md` (#TCF.8 default: carimbo em 100% do single-col, ADR-0034; discriminador de **9 valores**: `\n M H` espaço `b n s B C`, com `s`/`C` decode-only; hex, escaping) + ADRs (0029/0031/0032/0033/0034/0036) + **registry de chars** `experiments/lab/dirty/notas/2026-07/tcf8-header-char-registry.md` |
+| Convencao de header | `docs/algorithms/TCF-format.{pt-BR,en}.md` (#TCF.8 default: carimbo em 100% do single-col, ADR-0034; discriminador de **10 valores**: `\n M R H` espaço `b n s B C`, com `s`/`C` decode-only; hex, escaping) + ADRs (0029/0031/0032/0033/0034/0036/0049) + **registry de chars** `experiments/lab/dirty/notas/2026-07/tcf8-header-char-registry.md` |
 | Welding pra src/tcf | `experiments/lab/dirty/notas/2026-05/welding-plan.md` |
 | Ideias futuras de formato | `experiments/lab/dirty/notas/2026-05/futuras-otimizacoes-formato.md` |
 | Adicionar novo lab | `experiments/lab/dirty/<YYYY-MM>/<YYYY-MM-DD>/<YYYY-MM-DD-HHMM-name>/` (conv. §Naming AGENTS.md) |

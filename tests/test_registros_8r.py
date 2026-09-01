@@ -179,3 +179,49 @@ def test_o_8r_de_zero_linhas():
     """Borda: lista vazia NAO e' registros (nao ha' chave), e segue no single-col vazio."""
     assert encode([]) == "#TCF.8\n"
     assert decode(encode([])) == []
+
+
+# ------------------------------------------------- simetria com o dict de colunas
+
+def test_schema_escalar_trata_registros_como_a_tabela_que_eles_sao():
+    """As duas grafias da mesma tabela respondem igual ao `schema=` escalar.
+
+    Ate' 2026-09-01 nao respondiam: como dict de 2+ colunas a chamada LEVANTAVA, e como
+    lista de registros ela passava em branco e o spec era DESCARTADO CALADO. Como o
+    ADR-0049 tornou a lista de registros uma tabela de primeira classe, a assimetria virou
+    contradicao: a mesma pergunta, feita de dois jeitos, tinha duas respostas.
+    """
+    cpfs = ["111.444.777-35", "529.982.247-25"] * 3
+
+    # UMA coluna: a sobrecarga vale, e o spec APLICA nas duas grafias
+    w_regs = encode([{"c": v} for v in cpfs], schema="cpf")
+    w_cols = encode({"c": cpfs}, schema="cpf")
+    assert ":cpf" in w_regs.split("\n", 1)[0], "o spec foi descartado calado em registros"
+    assert _b(w_regs) == _b(w_cols)
+    assert _b(w_regs) < _b(encode([{"c": v} for v in cpfs]))   # e ele PAGA
+
+    # 2+ colunas: as duas recusam, e ensinando a mesma coisa
+    regs2 = [{"c": v, "x": "1"} for v in cpfs]
+    for entrada in (regs2, {"c": cpfs, "x": ["1"] * 6}):
+        with pytest.raises(ValueError, match="schema escalar"):
+            encode(entrada, schema="cpf")
+
+
+def test_group_ranges_nao_manda_repetir_o_que_ja_foi_feito():
+    """A mensagem do erro tinha de mudar junto com o ADR-0050.
+
+    Ela dizia "use encode(table, sort_by=...)", conselho que o FLOOR tornou nao confiavel:
+    o erro dispara sobre blobs que JA' foram encodados com `sort_by` e que o encoder
+    decidiu nao ordenar. Mandar repetir o que acabou de ser feito deixa quem le' em laco.
+    """
+    t = {"k": [["a", "b", "c"][i % 3] for i in range(60)],
+         "d": [f"2026-{1 + i // 28:02d}-{1 + i % 28:02d}" for i in range(60)],
+         "v": [str(i) for i in range(60)]}
+    w = encode(t, sort_by="k")
+    assert decode(w)["k"] != sorted(decode(w)["k"]), "o FLOOR deveria ter recusado ordenar"
+    with pytest.raises(ValueError) as e:
+        view(w).group_ranges("k")
+    msg = str(e.value)
+    assert "group_count/group_sum/agg_by" in msg      # diz o que FAZER
+    assert "NÃO garante" in msg                        # e desfaz o conselho velho
+    assert view(w).agg_by("k", "v", "sum") == view(w).group_sum("k", "v")

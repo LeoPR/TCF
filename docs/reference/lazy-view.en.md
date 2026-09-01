@@ -314,24 +314,46 @@ why chaining does not reduce what comes after it:
 
 ## Sorted layout · **experimental**
 
-For a blob **already sorted** by a key (`encode(table, sort_by=key)`), where the groups end
-up contiguous. These two may evolve in H-QUERY-04 (0.9).
-
-```python
-blob = encode({"cliente": ["Ana","Bruno","Ana","Bruno"],
-               "qtd": ["1","2","3","4"]}, sort_by="cliente")
-view(blob).agg_by("cliente", "qtd", "sum")     # {'Ana': 4.0, 'Bruno': 6.0}
-```
+Two calls for a key whose groups sit **contiguous** in the blob. They may evolve in
+H-QUERY-04 (0.9).
 
 | call | returns | note |
 |---|---|---|
 | `group_ranges(key)` | `dict[str,(start,end)]` | contiguous ranges per group; `ValueError` if the column is not grouped |
-| `agg_by(key, col=None, op="count")` | `dict` | group-by by slice; `op` ∈ `count/sum/min/max/avg` |
+| `agg_by(key, col=None, op="count")` | `dict` | group-by by slice when the groups are contiguous, and by the order-free path when they are not; `op` ∈ `count/sum/min/max/avg` |
 
 The precondition is **contiguity**, not `sort_by` itself: a table that happens to be
-contiguous works without having been sorted. And `sort_by` reorders the rows, so `decode`
-returns the table in the blob's order. Trade-off documented in
-[encode-knobs.md](encode-knobs.md).
+contiguous works without ever having been sorted. What stopped holding is the other
+direction. Since [ADR-0050](../adr/0050-sort-by-vira-candidato-o-floor-decide.md) *(Portuguese)*
+sorting is a **candidate**: the encoder emits both versions and keeps the smaller one, so
+asking for `sort_by` does not guarantee the layout. The example below is exactly that case.
+
+```python
+from tcf import decode
+
+blob = encode({"cliente": ["Ana","Bruno","Ana","Bruno"],
+               "qtd": ["1","2","3","4"]}, sort_by="cliente")
+
+decode(blob)["cliente"]                        # ['Ana', 'Bruno', 'Ana', 'Bruno']
+view(blob).agg_by("cliente", "qtd", "sum")     # {'Ana': 4.0, 'Bruno': 6.0}
+```
+
+Sorting this table would not shrink the wire (46 bytes either way), so the encoder did not
+sort, and the table comes back in input order. `agg_by` answers the same regardless: when the
+key is not contiguous it falls to the order-free path on its own, and it **never raises over
+layout**. That costs nothing, because the range path, measured, is no cheaper than the
+order-free one.
+
+`group_ranges` stays **strict on purpose**. It is the layout inspector, and the question "is
+this column grouped?" needs an honest answer, so on the same blob raising is the right one:
+
+<!-- doctest: raises -->
+```python
+view(blob).group_ranges("cliente")     # ValueError: the column is not grouped
+```
+
+Anyone who really needs the layout sorts the rows at the source, before encoding. The
+`sort_by` trade-off is in [encode-knobs.md](encode-knobs.md).
 
 ## Stability
 

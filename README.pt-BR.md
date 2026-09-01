@@ -9,7 +9,7 @@
 [![CI](https://github.com/LeoPR/TCF/actions/workflows/ci.yml/badge.svg)](https://github.com/LeoPR/TCF/actions/workflows/ci.yml)
 ![Python](https://img.shields.io/badge/python-3.10+-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
-![Version](https://img.shields.io/badge/version-0.8.3%20(pré--1.0)-orange)
+![Version](https://img.shields.io/badge/version-0.8.4%20(pré--1.0)-orange)
 ![Format](https://img.shields.io/badge/format-%23TCF.8%20default-blue)
 
 > **E se desse pra transmitir a mesma tabela com bem menos bytes,
@@ -57,10 +57,12 @@ assert decode(text) == table  # round-trip lossless
 
 ```
 
-`encode` dispatcha por tipo (list → single-column, dict → multi-column).
-`decode` roteia pela assinatura de formato.
+`encode` dispatcha pela **forma** da entrada. Lista de valores vira uma coluna, dict de
+colunas vira tabela, e lista de registros planos vira essa mesma tabela, com a forma de
+registro anotada no header para o `decode` devolver a lista. O `decode` roteia pela
+assinatura de formato.
 
-Pré-1.0 (ADR-0024): o pacote está em `0.8.3`; o *minor* acompanha o formato
+Pré-1.0 (ADR-0024): o pacote está em `0.8.4`; o *minor* acompanha o formato
 (`#TCF.8`) e o *patch* é contador de release, desacoplado do comportamento.
 
 Valores estruturados (CPF, CNPJ, IP) têm *natures* opt-in que encolhem mais a coluna:
@@ -401,6 +403,13 @@ Cinco coisas, todas automáticas (sem flag), cada coluna escolhendo a menor repr
   o blob completo, e se a versão filtrada não ficar menor a coluna original permanece, sem emitir
   nenhum `:id`.
 
+Uma **lista de registros planos** segue a mesma rota. A `list[dict]` retangular é canonizada
+em colunas e sai como `#TCF.8R`, que é o wire do `#TCF.8M` com o discriminador trocado, para
+o `decode` saber que tem de remontar a lista de dicionários. Ver
+[ADR-0049](docs/adr/0049-marcador-r-a-forma-da-entrada-e-metadado.md). A entrada que a
+canonização recusa fica no `#TCF.8H`: registro ragged, aninhamento, array na célula, chave
+que não é string, ou quebra de linha dentro de um nome ou de um valor.
+
 ```python
 text = encode(table)        # 0.8 / #TCF.8M, é o default, sem flags
 
@@ -446,7 +455,7 @@ O dicionário low-card (V2-B) e o split estrutural já estão no default. A comp
 - Default **0.8 / `#TCF.8M`**: fallback, dicionário, split estrutural, meta hexadecimal inline,
   escaping e identificadores de filtros autorizados pelo cabeçalho; veja a seção acima. Os legados `.6/.7`
   são recuperados via git.
-- Suíte: **1366 passed, 1 skipped** na execução local completa atual; rode `pytest` para o número do seu ambiente.
+- Suíte: **1930 passed, 3 skipped** na execução local completa atual; rode `pytest` para o número do seu ambiente.
   Baselines de byte = guardas de regressão, re-pináveis em mudança intencional ([ADR-0024](docs/adr/0024-pre-1.0-versioning-git-as-compat.md)).
 - Mudanças: [`CHANGELOG.md`](CHANGELOG.md).
   História M0-M14: [`experiments/lab/dirty/notas/2026-05/historia-dirty-lab.md`](experiments/lab/dirty/notas/2026-05/historia-dirty-lab.md).
@@ -638,7 +647,9 @@ Superfície atual: `count`, `sum`, `min`, `max`, `avg`, `where`, `select`, `dist
 `n_unique` e a família de agrupamento (`group_count`, `group_sum`, `group_min`, `group_max`,
 `group_avg`), que também roda depois de um filtro: `where(...).group_sum(...)` é o
 `WHERE ... GROUP BY`. A chave de agrupamento aceita lista de colunas. Em caráter
-experimental, `group_ranges`/`agg_by` em layouts ordenados.
+experimental, `group_ranges` e `agg_by`. O `group_ranges` é o inspetor de layout, então
+continua estrito e levanta quando a chave não está contígua; o `agg_by` responde de todo
+jeito, caindo no caminho order-free.
 
 Agrupar tem decisões sem resposta única, e aqui elas seguem a matemática: chave nula
 **forma grupo**, e um grupo sem valor aproveitável soma `0.0`, enquanto `min`/`max`/`avg`

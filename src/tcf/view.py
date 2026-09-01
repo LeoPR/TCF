@@ -1094,9 +1094,17 @@ class LazyTCF:
             while j < n and vals[j] == v:
                 j += 1
             if v in ranges:
+                # O conselho aqui era "use encode(table, sort_by=...)", e o ADR-0050 o
+                # tornou enganoso: com o FLOOR o `sort_by` só ordena quando isso encolhe o
+                # wire, então este erro dispara sobre blobs que JÁ foram encodados com ele.
+                # Mandar repetir o que já foi feito deixa quem lê em laço, sem saída.
                 raise ValueError(
-                    f"coluna {key!r} não está agrupada (valor {v!r} reaparece); "
-                    f"use encode(table, sort_by={key!r}) pro layout L5"
+                    f"coluna {key!r} não está agrupada (valor {v!r} reaparece), então não há "
+                    f"layout L5 neste blob. Use group_count/group_sum/agg_by, que respondem "
+                    f"o mesmo sem exigir ordem. Passar encode(table, sort_by={key!r}) NÃO "
+                    f"garante o layout: desde o ADR-0050 a ordenação é um candidato, e o "
+                    f"encoder só a emite quando ela encolhe o wire. Para garantir, ordene as "
+                    f"linhas na origem antes de encodar."
                 )
             ranges[v] = (i, j)
             i = j

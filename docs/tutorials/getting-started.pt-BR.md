@@ -249,6 +249,50 @@ Observe a estrutura do texto TCF multi-coluna:
 
 TCF garante que a forma da tabela (nomes de colunas, ordem) é preservada exatamente.
 
+### A mesma tabela, escrita como registros
+
+Um dict de colunas é um jeito de escrever a tabela. O outro é uma lista de registros, e em geral
+é a forma que você já tem na mão, porque é o que `csv.DictReader`, `json.load` de uma resposta de
+API, um cursor de banco e `df.to_dict('records')` entregam. O `encode` aceita direto:
+
+```python
+from tcf import encode, decode
+
+rows = [
+    {"id": "1", "name": "Alice"},
+    {"id": "2", "name": "Bob"},
+    {"id": "3", "name": "Charlie"},
+]
+
+wire = encode(rows)
+cols = encode({"id": ["1", "2", "3"], "name": ["Alice", "Bob", "Charlie"]})
+
+print("Texto TCF:    ", repr(wire))
+print("Decodificado: ", decode(wire))
+print("Round-trip OK?", decode(wire) == rows)
+print("Mesmo corpo?  ", wire[7:] == cols[7:], "| header:", cols[:7], "->", wire[:7])
+```
+
+Saída esperada:
+
+```
+Texto TCF:     '#TCF.8R!5=id,!name\n1\n2\n3Alice\nBob\nCharlie'
+Decodificado:  [{'id': '1', 'name': 'Alice'}, {'id': '2', 'name': 'Bob'}, {'id': '3', 'name': 'Charlie'}]
+Round-trip OK? True
+Mesmo corpo?   True | header: #TCF.8M -> #TCF.8R
+```
+
+Duas coisas para ler aí. O header diz `#TCF.8R`, onde o `R` é de **registros**, e o `decode`
+devolve a lista de dicts, não o dict de colunas. E tudo depois do header é byte a byte o corpo da
+tabela acima: a única diferença no wire inteiro é o sétimo caractere, `M` para colunas e `R` para
+registros. A forma que você escreveu é metadado, não outro formato
+([ADR-0049](../adr/0049-marcador-r-a-forma-da-entrada-e-metadado.md)).
+
+A rota `R` pede uma tabela retangular e plana: as mesmas chaves em todo registro, e um escalar em
+cada célula. Registros ragged, aninhados, ou que carregam um array na célula vão para o
+`#TCF.8H`, a família hierárquica, e fazem round-trip lá do mesmo jeito. A peneira completa está
+em [`api.md`](../reference/api.md).
+
 ## Passo 5: Consultar a tabela sem materializar tudo
 
 A API read-only `view()` oferece caminhos de consulta SQL-like como métodos Python. Ela não é um
@@ -274,7 +318,8 @@ ferramenta que você já conhece.
 
 Você cobriu os fundamentos:
 
-1. **encode(data)** transforma lista ou dict em texto TCF.
+1. **encode(data)** transforma lista de strings, dict de colunas ou lista de registros
+   em texto TCF.
 2. **decode(text)** recupera exatamente os dados originais.
 3. TCF compacta explorando prefixos, sufixos e padrões composicionais.
 4. Round-trip é garantido lossless.

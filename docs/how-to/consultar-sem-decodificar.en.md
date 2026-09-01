@@ -24,7 +24,7 @@ answer; an unproven shortcut is deferred to a lab rather than guessed. The compl
 in the [API reference](../reference/lazy-view.md#governing-principle-opportunistic-in-cost).
 
 ```python
-from tcf import encode, view
+from tcf import decode, encode, view
 
 table = {"uf":    ["SP", "SP", "RJ", "MG", None],
          "plano": [ "A",  "B",  "A",  "A",  "B"],
@@ -35,6 +35,23 @@ v = view(blob)                         # connects: decompresses nothing
 v.count()                              # 5, materializing no value at all
 v.where("uf", "SP").sum("valor")       # 180.0, touching only uf and valor
 ```
+
+The same table written as a **list of records** opens the same way. Since
+[ADR-0049](../adr/0049-marcador-r-a-forma-da-entrada-e-metadado.md) *(Portuguese)* a flat
+rectangular `list[dict]` comes out as `#TCF.8R`, the multi wire with the discriminator
+swapped, so everything on this page holds over it without changing a line:
+
+```python
+registros = [{"uf": u, "plano": p, "valor": val}
+             for u, p, val in zip(table["uf"], table["plano"], table["valor"])]
+
+rb = encode(registros)                 # 71 bytes, the same as the blob above
+rv = view(rb)
+rv.columns                             # ['uf', 'plano', 'valor']
+rv.where("uf", "SP").sum("valor")      # 180.0
+```
+
+The one difference is in `select()`, and it shows up in that section.
 
 ## The questions, cheapest first
 
@@ -182,6 +199,35 @@ v.where("plano", "A").group_sum("uf", "valor")   # {'SP': 100.0, 'RJ': 200.0, 'M
 v.where("plano", "A").group_count("uf")         # {'SP': 1, 'RJ': 1, 'MG': 1}
 ```
 
+### Grouping over a contiguous layout? (`agg_by`, `group_ranges`)
+
+**Cost: the same as the `group_*` family.** These are the two **experimental** calls on the
+surface, and the one trap in 0.8.4 that returns an exception in production lives here.
+
+`agg_by` is the group-by that uses the ranges when the groups are contiguous and falls to the
+order-free path when they are not. It **never raises over layout**, so you can call it without
+knowing how the blob came out:
+
+```python
+v.agg_by("plano", "valor", "sum")      # {'A': 350.0, 'B': 110.0}
+v.agg_by("plano")                      # {'A': 3, 'B': 2}: op="count" is the default
+```
+
+`group_ranges` is the **layout inspector**, and it stays strict on purpose: it answers "is
+this column grouped?", and for a column that is not, the honest answer is to raise. Over this
+page's table it raises, because `plano` alternates:
+
+<!-- doctest: raises -->
+```python
+v.group_ranges("plano")                # ValueError: 'plano' is not grouped
+```
+
+Asking for `encode(table, sort_by="plano")` does **not** fix it. Since
+[ADR-0050](../adr/0050-sort-by-vira-candidato-o-floor-decide.md) *(Portuguese)* sorting is a
+candidate: the encoder emits both versions and keeps the smaller one, so the blob can come
+back in input order. Anyone who needs the ranges sorts the rows at the source, before
+encoding.
+
 ### The rows themselves (`select`)
 
 **Cost: proportional to what you ask for,** and here that is not waste: `select` returns
@@ -192,6 +238,16 @@ comparison: in the dictionary, `select` of one column costs 49.1% and of all of 
 v.select("uf")                 # only the uf column
 v.select(["uf", "valor"])      # two
 v.select()                     # all of them, equivalent to decode()
+```
+
+"Equivalent" means different things depending on the input's shape. On a records blob a bare
+`select()` is **literally** `decode()`: the same `list[dict]`, comparable with `==`. On a
+`.8M` the two are not equal, and should not be: there `decode()` returns the dict of columns
+that went in, and `select()` returns aligned rows.
+
+```python
+rv.select() == decode(rb)      # True: records in, records out
+v.select() == decode(blob)     # False: the .8M comes back as a dict of columns
 ```
 
 ## The contract

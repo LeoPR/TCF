@@ -6,7 +6,7 @@
 [![CI](https://github.com/LeoPR/TCF/actions/workflows/ci.yml/badge.svg)](https://github.com/LeoPR/TCF/actions/workflows/ci.yml)
 ![Python](https://img.shields.io/badge/python-3.10+-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
-![Version](https://img.shields.io/badge/version-0.8.3%20(pre--1.0)-orange)
+![Version](https://img.shields.io/badge/version-0.8.4%20(pre--1.0)-orange)
 ![Format](https://img.shields.io/badge/format-%23TCF.8%20default-blue)
 
 > **What if you could transmit the same table with far fewer bytes,
@@ -54,10 +54,12 @@ assert decode(text) == table  # lossless round-trip
 
 ```
 
-`encode` dispatches by type (list → single-column, dict → multi-column).
-`decode` routes by the format signature.
+`encode` dispatches on the **shape** of the input. A list of values becomes a single
+column, a dict of columns becomes a table, and a list of flat records becomes that same
+table, with the record form noted in the header so `decode` hands the list back. `decode`
+itself routes by the format signature.
 
-Pre-1.0 (ADR-0024): the package is at `0.8.3`. The *minor* tracks the format
+Pre-1.0 (ADR-0024): the package is at `0.8.4`. The *minor* tracks the format
 (`#TCF.8`) and the *patch* is a release counter, decoupled from behavior.
 
 Structured values (CPF, CNPJ, IP) have opt-in *natures* that shrink the column further:
@@ -404,6 +406,13 @@ each column choosing the smallest representation:
   column encoding, using the complete blob. If the filtered version is not smaller, it keeps the
   original column and emits no `:id`.
 
+A **list of flat records** takes the same route. A rectangular `list[dict]` is canonicalized
+into columns and comes out as `#TCF.8R`, the very `#TCF.8M` wire with the discriminator
+swapped, so `decode` knows to hand the list of dicts back. See
+[ADR-0049](docs/adr/0049-marcador-r-a-forma-da-entrada-e-metadado.md). An input the
+canonicalization refuses stays in `#TCF.8H`: a ragged record, nesting, an array in a cell,
+a key that is not a string, or a line break inside a name or a value.
+
 ```python
 text = encode(table)        # 0.8 / #TCF.8M, the default, no flags
 
@@ -450,7 +459,7 @@ compression stays on the [roadmap](docs/adr/0018-v2-format-roadmap.md).
   Round-trip is always lossless (`decode(encode(x)) == x`).
 - Default **0.8 / `#TCF.8M`**: fallback, dictionary, structural split, hexadecimal inline meta,
   escaping and header-authoritative filter IDs, see the section above. Legacy `.6/.7` are recovered through git.
-- Test suite: **1366 passed, 1 skipped** in the current local full run; run `pytest` for the
+- Test suite: **1930 passed, 3 skipped** in the current local full run; run `pytest` for the
   number in your environment. Byte baselines = regression guards, re-pinnable on an intentional
   change, see [ADR-0024](docs/adr/0024-pre-1.0-versioning-git-as-compat.md).
 - Changes: [`CHANGELOG.md`](CHANGELOG.md).
@@ -639,7 +648,9 @@ The current query-like surface: `count`, `sum`, `min`, `max`, `avg`, `where`, `s
 `distinct`, `n_unique`, and the grouping family (`group_count`, `group_sum`, `group_min`,
 `group_max`, `group_avg`), which also runs after a filter, so `where(...).group_sum(...)` is
 the `WHERE ... GROUP BY`. Grouping keys accept a list of columns. Plus experimental
-`group_ranges`/`agg_by` for sorted layouts.
+`group_ranges` and `agg_by`. `group_ranges` is the layout inspector, so it stays strict and
+raises when the key is not contiguous; `agg_by` answers either way, falling back to the
+order-free path.
 
 Grouping has decisions with no single right answer, and this one follows the mathematics: a
 null key **forms a group**, and a group with no usable value sums to `0.0` while `min`/`max`/

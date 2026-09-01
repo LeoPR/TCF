@@ -1,0 +1,10 @@
+request: ShapeRequest(dataset=wine-quality, volume=800, schema=['wine'], stratify=quality, seed=42)
+opened: wine-quality (1 tables)
+loaded: wine (6,497 rows)
+schema: custom tables ['wine']
+join: normalized (tables stay separate)
+stratify: wine by 'quality' PROPORTIONAL (7 groups, 800/6497): 3:4/30, 4:27/216, 5:263/2138, 6:348/2836, 7:133/1079, 8:24/193, 9:1/5
+stratify_metrics: TVD=0.0018, JSD=0.0001, Hellinger=0.0059, chi2_p=1.000* (low N warning), n_pop=6497, n_sample=800, n_groups=7
+METRICS_JSON: {"stratify_by": "quality", "table": "wine", "tvd": 0.0018, "jsd": 0.0001, "hellinger": 0.0059, "chi2_pvalue": 0.9996, "chi2_warn_low_n": true, "n_pop": 6497, "n_sample": 800, "n_groups": 7, "groups": {"3": {"pop_count": 30, "pop_prop": 0.0046175157765122364, "sample_count": 4, "sample_prop": 0.005, "wilson_ci": [0.0019, 0.0128], "diff_pp": 0.04}, "4": {"pop_count": 216, "pop_prop": 0.0332461135908881, "sample_count": 27, "sample_prop": 0.03375, "wilson_ci": [0.0233, 0.0487], "diff_pp": 0.05}, "5": {"pop_count": 2138, "pop_prop": 0.32907495767277206, "sample_count": 263, "sample_prop": 0.32875, "wilson_ci": [0.2971, 0.3621], "diff_pp": -0.03}, "6": {"pop_count": 2836, "pop_prop": 0.43650915807295676, "sample_count": 348, "sample_prop": 0.435, "wilson_ci": [0.401, 0.4696], "diff_pp": -0.15}, "7": {"pop_count": 1079, "pop_prop": 0.1660766507618901, "sample_count": 133, "sample_prop": 0.16625, "wilson_ci": [0.1421, 0.1936], "diff_pp": 0.02}, "8": {"pop_count": 193, "pop_prop": 0.02970601816222872, "sample_count": 24, "sample_prop": 0.03, "wilson_ci": [0.0202, 0.0443], "diff_pp": 0.03}, "9": {"pop_count": 5, "pop_prop": 0.0007695859627520394, "sample_count": 1, "sample_prop": 0.00125, "wilson_ci": [0.0002, 0.007], "diff_pp": 0.05}}}
+volume: wine -> 800 rows (all, volume >= total)
+ordering: natural (no change)

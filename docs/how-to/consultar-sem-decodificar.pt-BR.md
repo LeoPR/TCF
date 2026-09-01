@@ -25,7 +25,7 @@ materializada; um atalho ainda não provado vai para lab em vez de ser adivinhad
 completa está na [referência de API](../reference/lazy-view.pt-BR.md#princípio-oportunista-no-custo).
 
 ```python
-from tcf import encode, view
+from tcf import decode, encode, view
 
 table = {"uf":    ["SP", "SP", "RJ", "MG", None],
          "plano": [ "A",  "B",  "A",  "A",  "B"],
@@ -36,6 +36,23 @@ v = view(blob)                         # conecta: não descomprime nada
 v.count()                              # 5, sem materializar valor nenhum
 v.where("uf", "SP").sum("valor")       # 180.0, tocando só uf e valor
 ```
+
+A mesma tabela escrita como **lista de registros** abre igual. Desde o
+[ADR-0049](../adr/0049-marcador-r-a-forma-da-entrada-e-metadado.md) uma `list[dict]`
+retangular e plana sai em `#TCF.8R`, que é o wire multi com o discriminador trocado, então
+tudo desta página vale sobre ela sem mudar uma linha:
+
+```python
+registros = [{"uf": u, "plano": p, "valor": val}
+             for u, p, val in zip(table["uf"], table["plano"], table["valor"])]
+
+rb = encode(registros)                 # 71 bytes, os mesmos do blob acima
+rv = view(rb)
+rv.columns                             # ['uf', 'plano', 'valor']
+rv.where("uf", "SP").sum("valor")      # 180.0
+```
+
+A única diferença está no `select()`, e ela aparece na seção dele.
 
 ## As perguntas, da mais barata para a mais cara
 
@@ -183,6 +200,34 @@ v.where("plano", "A").group_sum("uf", "valor")   # {'SP': 100.0, 'RJ': 200.0, 'M
 v.where("plano", "A").group_count("uf")         # {'SP': 1, 'RJ': 1, 'MG': 1}
 ```
 
+### Agrupar sobre um layout contíguo? (`agg_by`, `group_ranges`)
+
+**Custo: o mesmo da família `group_*`.** São as duas chamadas **experimentais** desta
+superfície, e a única armadilha da 0.8.4 que devolve exceção em produção mora aqui.
+
+O `agg_by` é o group-by que usa os intervalos quando os grupos estão contíguos e cai no
+caminho order-free quando não estão. Ele **nunca levanta por causa do layout**, então dá para
+chamá-lo sem saber como o blob ficou:
+
+```python
+v.agg_by("plano", "valor", "sum")      # {'A': 350.0, 'B': 110.0}
+v.agg_by("plano")                      # {'A': 3, 'B': 2}: op="count" é o default
+```
+
+O `group_ranges` é o **inspetor de layout**, e continua estrito de propósito: ele responde
+"esta coluna está agrupada?", e a resposta honesta para quem não está é levantar. Sobre a
+tabela desta página ele levanta, porque `plano` alterna:
+
+<!-- doctest: raises -->
+```python
+v.group_ranges("plano")                # ValueError: 'plano' não está agrupada
+```
+
+Pedir `encode(table, sort_by="plano")` **não** conserta isso. Desde o
+[ADR-0050](../adr/0050-sort-by-vira-candidato-o-floor-decide.md) a ordenação é um candidato:
+o encoder emite as duas versões e fica com a menor, então o blob pode voltar na ordem de
+entrada. Quem precisa dos intervalos ordena as linhas na origem, antes de encodar.
+
 ### As linhas em si (`select`)
 
 **Custo: proporcional ao que se pede,** e aqui isso não é desperdício: `select` devolve
@@ -193,6 +238,16 @@ comparação: no dicionário, `select` de uma coluna custa 49,1% e de todas cust
 v.select("uf")                 # só a coluna uf
 v.select(["uf", "valor"])      # duas
 v.select()                     # todas, equivalente a decode()
+```
+
+"Equivalente" quer dizer coisas diferentes conforme a forma de origem. Num blob de registros
+o `select()` sem argumento é **literalmente** o `decode()`: a mesma `list[dict]`, comparável
+com `==`. Num `.8M` os dois não são iguais, e nem deveriam ser: ali o `decode()` devolve o
+dict de colunas que entrou, e o `select()` devolve linhas alinhadas.
+
+```python
+rv.select() == decode(rb)      # True: registros entram, registros voltam
+v.select() == decode(blob)     # False: o .8M volta como dict de colunas
 ```
 
 ## O contrato
