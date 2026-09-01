@@ -116,6 +116,30 @@ v.where("uf", None)                              # None matches null
 `where` returns an object with the same query methods, restricted to the rows that matched.
 You can count, aggregate, group, project or filter again on it.
 
+**The slice exposes the view's surface, with one exception.** Since 0.8.4 it also answers
+`columns`, `nrows`, `agg_by`, `strict()` and the whole telemetry (`total_bytes`,
+`column_bytes`, `materialized_bytes`, `report()`), which used to live only on the parent
+view. Telemetry is the one that matters most here, because the filter **is** the query, and
+what you want afterwards is how much it cost:
+
+```python
+v = view(blob)
+v.materialized_bytes                 # 0: nothing opened yet
+f = v.where("uf", "SP")
+f.materialized_bytes                 # what the filter had to open
+f.sum("valor")
+f.report()                           # {total_bytes, materialized_bytes, pct, touched, n_cols}
+```
+
+This is not convenience: `view(blob).where(...).sum(...)` keeps the view nowhere, so without
+telemetry on the slice the question had nobody to answer it.
+
+The exception is `group_ranges`, which is **not** on the slice, and the absence is a
+decision. It returns `{value: (start, end)}`, and on a slice both ends would be ambiguous:
+position in the filtered list, or in the blob? Filtering also breaks the contiguity it
+requires, so the honest answer would be to raise in almost every case. Layout is inspected
+on the blob, before filtering.
+
 It decompresses **only the filter's column**. On a dictionary column it compares against
 the K unique values and scans a stream of indices, without decoding the N rows, and the two
 extremes never even scan: when no unique matches the answer is empty, and when all match

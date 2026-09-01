@@ -1205,7 +1205,20 @@ class LazyTCF:
 
 
 class Filtered:
-    """Resultado de `where()`: agrega/seleciona só nas linhas que casaram (alinhadas)."""
+    """Resultado de `where()`: agrega/seleciona só nas linhas que casaram (alinhadas).
+
+    A superfície é a mesma da `LazyTCF`, com uma exceção declarada (`group_ranges`, logo
+    abaixo). Até 2026-09-01 faltavam nove métodos aqui, e a ausência era acidente e não
+    decisão: quem filtrava perdia `columns`, `agg_by` e **toda a telemetria**, e tinha de
+    voltar à view de origem para perguntá-los. Voltar nem sempre é possível, porque
+    `view(blob).where(...).sum(...)` não guarda a view em lugar nenhum.
+
+    A telemetria é o caso mais forte, e era o que eu tinha julgado dispensável. Ela mede
+    **quanto da consulta custou**, e é depois de filtrar que essa pergunta importa: o
+    `where` é a consulta, e `materialized_bytes` diz quanto do blob ela precisou abrir para
+    responder. Os números são os do blob de origem, porque é ele que está sendo lido, e o
+    `touched` acumula através do filtro.
+    """
 
     def __init__(self, parent: LazyTCF, idx: list[int]):
         self._p = parent
@@ -1213,6 +1226,44 @@ class Filtered:
 
     def count(self) -> int:
         return len(self.indices)
+
+    # ---- forma do recorte ----
+    @property
+    def columns(self) -> list[str]:
+        """As colunas do recorte, que são as do blob: `where` filtra LINHA, não coluna."""
+        return self._p.columns
+
+    @property
+    def nrows(self) -> int:
+        """Linhas do recorte, igual ao `count()`.
+
+        Existe pela simetria com a `LazyTCF`, onde `nrows` e `count()` também coincidem.
+        Fazê-lo devolver as linhas do blob de origem seria a armadilha: quem pergunta
+        `nrows` a um recorte quer saber o tamanho do recorte.
+        """
+        return len(self.indices)
+
+    # ---- telemetria: quanto esta consulta custou ----
+    @property
+    def total_bytes(self) -> int:
+        """O blob inteiro, comprimido. É o denominador da conta de custo."""
+        return self._p.total_bytes
+
+    def column_bytes(self, name: str) -> int:
+        return self._p.column_bytes(name)
+
+    @property
+    def materialized_bytes(self) -> int:
+        """Bytes já descomprimidos para responder, o filtro incluso."""
+        return self._p.materialized_bytes
+
+    def report(self) -> dict:
+        return self._p.report()
+
+    def strict(self) -> "Filtered":
+        """Liga o modo duro no blob de origem e devolve o recorte, para encadear."""
+        self._p.strict()
+        return self
 
     def sum(self, col: str) -> float:
         return self._p.sum(col, self.indices)
@@ -1252,6 +1303,26 @@ class Filtered:
 
     def group_avg(self, por, col: str) -> dict:
         return self._p.group_avg(por, col, self.indices)
+
+    def agg_by(self, key: str, col: str | None = None, op: str = "count") -> dict:
+        """O group-by do recorte, sempre pelo caminho order-free.
+
+        Na `LazyTCF` o `agg_by` tenta primeiro o layout contíguo e cai no order-free
+        quando a chave não está agrupada. Aqui ele **não tenta**, e não é economia de
+        código: filtrar linhas destrói a contiguidade por construção, então o caminho por
+        intervalos não teria o que aproveitar. O resultado é o mesmo do `group_*`, e a
+        medição que fundamenta isso está no ADR-0050 (o caminho por intervalos não é mais
+        barato que o order-free).
+        """
+        if op == "count":
+            return self._p.group_count(key, self.indices)
+        return self._p._group_agg(key, col, op, self.indices)
+
+    # `group_ranges` NÃO existe aqui, e a ausência é decisão. Ele devolve `{valor:
+    # (início, fim)}`, e num recorte as duas pontas seriam ambíguas: posição na lista
+    # filtrada ou no blob de origem? Pior, filtrar quebra a contiguidade que ele exige,
+    # então a resposta honesta seria levantar em quase todo caso. Quem quer inspecionar
+    # layout inspeciona o blob, na view de origem, antes de filtrar.
 
     def select(self, cols: list[str] | None = None) -> list[dict]:
         return self._p.select(cols, self.indices)

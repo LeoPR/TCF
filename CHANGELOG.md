@@ -79,6 +79,35 @@ without giving up any gain. Cost: one extra encode, only when `sort_by` is passe
   was removed; the `str(value)` sort key (`'10'` before `'2'`) is documented rather than
   changed, because any total order groups equally well and order stopped being a promise.
 
+### The query surface agrees with itself
+
+A consistency matrix ran every view path against `decode` plus plain Python, over 7 tables ×
+2 spellings × 3 column modes. The aggregators, the filters, their composition and the two
+group-by paths came out **identical everywhere**, and that is now a permanent gate rather
+than a lab finding (`TestViewConcordaComODecode`, 48 parametrised cases).
+
+What it did find was in the messages and in the surface:
+
+- `min`/`max`/`avg` **raise** on an empty selection while `group_min`/`group_max`/`group_avg`
+  return `None` for a group with no usable value. The divergence stays, because the two are
+  different questions: the group has a **key to preserve**, the plain aggregator has none,
+  and returning `None` there would break the caller's arithmetic far from the cause. The
+  message now says which of the two empties happened (nothing matched the filter, or the
+  matched rows are all null) and points at the path that does not raise.
+- `view.group_ranges` used to advise `use encode(table, sort_by=...)`, advice this same
+  release made unreliable: it fires on blobs that were **already** encoded with `sort_by` and
+  that the FLOOR chose not to sort. It now says what to do instead.
+- **`Filtered` gained nine methods**: `columns`, `nrows`, `agg_by`, `strict()` and the whole
+  telemetry (`total_bytes`, `column_bytes`, `materialized_bytes`, `report()`). The absence was
+  an accident, not a decision, and telemetry is the one that mattered: the filter **is** the
+  query, so "how much did this cost" is a question about the slice, and
+  `view(blob).where(...).sum(...)` keeps the view nowhere to ask it. `group_ranges` stays off
+  the slice deliberately, because filtering breaks the contiguity it requires and both ends of
+  its ranges would be ambiguous.
+- `schema=` scalar now treats a record list as the table it is: one column applies in either
+  spelling, two or more raise in either. It used to raise as a dict and **discard the spec in
+  silence** as records.
+
 ---
 
 ## 0.8.3 (2026-08-29): the edges stop disagreeing across families

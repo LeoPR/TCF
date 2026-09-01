@@ -1869,3 +1869,61 @@ class TestContratoDeConjuntoVazio:
             v.where("k", "ZZZ").min("v")      # nao casou nada
         with pytest.raises(ValueError, match="group_min"):
             v.where("k", "X").avg("v")        # e aponta o caminho que nao levanta
+
+
+class TestSuperficieDoFiltered:
+    """O recorte oferece o que a view oferece, com UMA ausencia declarada.
+
+    Ate' 2026-09-01 faltavam nove metodos no `Filtered`, e a ausencia era acidente:
+    quem filtrava perdia `columns`, `agg_by` e toda a telemetria, e tinha de voltar
+    a' view de origem. Voltar nem sempre da': `view(b).where(...).sum(...)` nao guarda
+    a view em lugar nenhum.
+    """
+
+    T = {"uf": [["SP", "RJ", "MG"][i % 3] for i in range(60)],
+         "v": [float(i) for i in range(60)],
+         "x": [str(i % 7) for i in range(60)]}
+
+    def _f(self):
+        return view(encode(self.T)).where("uf", "SP")
+
+    def test_a_unica_ausencia_e_o_group_ranges(self):
+        """Se alguem acrescentar metodo publico na view, este teste cobra o par."""
+        pub = lambda c: {m for m in dir(c) if not m.startswith("_")}   # noqa: E731
+        from tcf.view import Filtered, LazyTCF
+        assert pub(LazyTCF) - pub(Filtered) == {"group_ranges"}
+        assert not pub(Filtered) - pub(LazyTCF)
+
+    def test_group_ranges_fica_de_fora_de_proposito(self):
+        """Filtrar quebra a contiguidade que ele exige, e as pontas ficariam ambiguas."""
+        assert not hasattr(self._f(), "group_ranges")
+
+    def test_columns_e_nrows_falam_do_recorte(self):
+        f = self._f()
+        assert f.columns == ["uf", "v", "x"]        # filtrar linha nao mexe em coluna
+        assert f.nrows == f.count() == 20           # e `nrows` e' o TAMANHO DO RECORTE
+
+    def test_agg_by_no_recorte_bate_com_os_group(self):
+        f = self._f()
+        assert f.agg_by("x", "v", "sum") == f.group_sum("x", "v")
+        assert f.agg_by("x") == f.group_count("x")
+        assert f.agg_by("x", "v", "min") == f.group_min("x", "v")
+
+    def test_telemetria_mede_a_consulta_e_nao_o_blob_inteiro(self):
+        """O ponto da telemetria no recorte: quanto ESTA pergunta custou."""
+        v = view(encode(self.T))
+        assert v.materialized_bytes == 0            # nada aberto ainda
+        f = v.where("uf", "SP")
+        parcial = f.materialized_bytes
+        assert 0 < parcial <= f.total_bytes         # o filtro abriu o que precisou
+        f.sum("v")
+        assert f.materialized_bytes > parcial       # e a agregacao abriu mais
+        r = f.report()
+        assert r["total_bytes"] == f.total_bytes and "v" in r["touched"]
+        assert f.column_bytes("v") == v.column_bytes("v")
+
+    def test_strict_encadeia_a_partir_do_recorte(self):
+        f = self._f().strict()
+        from tcf.view import Filtered
+        assert isinstance(f, Filtered)              # devolve o RECORTE, nao a view
+        assert f.count() == 20

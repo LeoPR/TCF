@@ -117,6 +117,30 @@ v.where("uf", None)                              # None casa nulo
 O `where` devolve um objeto com os mesmos métodos de consulta, restrito às linhas que
 casaram. Você pode contar, agregar, agrupar, projetar ou filtrar de novo sobre ele.
 
+**A superfície do recorte é a da view, com uma exceção.** Desde a 0.8.4 ele também
+responde `columns`, `nrows`, `agg_by`, `strict()` e a telemetria inteira (`total_bytes`,
+`column_bytes`, `materialized_bytes`, `report()`), que antes só existiam na view de origem.
+A telemetria é o caso que mais importa aqui, porque o filtro **é** a consulta, e o que se
+quer saber depois dele é quanto ela custou:
+
+```python
+v = view(blob)
+v.materialized_bytes                 # 0: nada foi aberto ainda
+f = v.where("uf", "SP")
+f.materialized_bytes                 # o que o filtro precisou abrir
+f.sum("valor")
+f.report()                           # {total_bytes, materialized_bytes, pct, touched, n_cols}
+```
+
+Isso não é conveniência: `view(blob).where(...).sum(...)` não guarda a view em lugar nenhum,
+então sem a telemetria no recorte a pergunta ficava sem quem responder.
+
+A exceção é o `group_ranges`, que **não** existe no recorte, e a ausência é decisão. Ele
+devolve `{valor: (início, fim)}`, e num recorte as duas pontas seriam ambíguas: posição na
+lista filtrada ou no blob? Além disso filtrar quebra a contiguidade que ele exige, então a
+resposta honesta seria levantar em quase todo caso. Layout se inspeciona no blob, antes de
+filtrar.
+
 Ele descomprime **só a coluna do filtro**. Numa coluna dicionário compara contra os K
 valores únicos e varre um stream de índices, sem decodificar as N linhas, e os dois
 extremos nem chegam a varrer: quando nenhum único casa a resposta é vazia, e quando todos
