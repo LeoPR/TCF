@@ -5,7 +5,7 @@
 **Contexto de origem**: discussao no macro M4 (desfragmentacao da
 arvore), durante analise de buffer/refragmentacao. User levantou
 visao mais profunda sobre a natureza do arquivo de entrada.
-**Conecta com**: [`../2026-05-13-M4-desfragmentacao-arvore/notas/buffer-e-refragmentacao.md`](../../2026-05-13-M4-desfragmentacao-arvore/notas/buffer-e-refragmentacao.md)
+**Conecta com**: `../2026-05-13-M4-desfragmentacao-arvore/notas/buffer-e-refragmentacao.md`
 (buffer e chunking), [`../README.md`](../README.md) (camadas de custo).
 **Status**: registrada para revisita futura, nao ha' acao imediata.
 

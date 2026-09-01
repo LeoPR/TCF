@@ -17,7 +17,7 @@ imediatamente**, fica como guia pra protótipo e macros futuros.
 ## Nome formal para o alg16
 
 O algoritmo cristalizado em
-[`M0-fase-exploratoria-inicial/2026-05-11-16-online-cleanup/online.py`](../../M0-fase-exploratoria-inicial/2026-05-11-16-online-cleanup/online.py)
+`M0-fase-exploratoria-inicial/2026-05-11-16-online-cleanup/online.py`
 (e copiado em M1/M2/M3/M4) ficou estavel e resistente a varios
 ataques empiricos (M1 a M4). Vale dar nome formal para citar como
 componente do TCF.

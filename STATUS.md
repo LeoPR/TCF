@@ -66,7 +66,7 @@ ele não pré-verifica, mas devolve `NULL`. E3 fica no `.8` porque falhar CORRET
 custa zero no caminho feliz.
 
 Detalhe + classificação das 17 checagens do bN:
-[`escala-de-verificacao-e-fechamento-do-bn`](experiments/lab/dirty/notas/2026-08/2026-08-07-escala-de-verificacao-e-fechamento-do-bn.md).
+`escala-de-verificacao-e-fechamento-do-bn`.
 
 ## TCF em um parágrafo
 

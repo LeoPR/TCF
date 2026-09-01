@@ -33,7 +33,7 @@ matizar a conclusao:
 > corpo TCF de tamanho variavel, ainda custa O(k) uma vez. Regime honesto: **O(k) uma vez +
 > O(1) por celula**, e a propriedade esta' no FORMATO, nao no codigo (nao ha' acessor).
 > Levantamento e ressalvas:
-> [`2026-08-07-descompressao-o1-levantamento-e-onde-o-bn-cai`](../../../experiments/lab/dirty/notas/2026-08/2026-08-07-descompressao-o1-levantamento-e-onde-o-bn-cai.md).
+> `2026-08-07-descompressao-o1-levantamento-e-onde-o-bn-cai`.
 
 ## Diferencas algebricas conhecidas (M2.A vs M4.C1' vs M4.C1 v1)
 

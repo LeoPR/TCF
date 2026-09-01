@@ -535,9 +535,6 @@ do not apply) the same story: `csv+brotli` = 1742 B against `tcf+brotli` = 2116 
 On **real multi-column** data, thousands of rows, the picture **flips**: **full TCF + brotli beats
 CSV + brotli**. Adult with 3,000 rows, `tcf-0.8+brotli` = **21.8 KB** vs `csv+brotli` = 30.4 KB (−28%).
 
-And the **more** TCF, the **smaller** the post-brotli result, measured on 4 real datasets in
-[`2026-06-16-staged-and-ordering-brotli/`](experiments/lab/dirty/old/refuted/2026-06-16-staged-and-ordering-brotli/).
-
 On a tiny payload the framing dominates and there is nothing to factor. **TCF's advantage shows up
 with volume**.
 
@@ -553,8 +550,9 @@ A few cells come out roughly neutral. One of them, `lz4` on retail-description, 
 On a **structured multi-column table** the arithmetic flips. TCF wins on its own, −72% against CSV,
 and it still composes, with `tcf+brotli` landing 30% below `brotli` over the raw data.
 
-Measured with round-trip counter-proof in
-[`2026-07-13-0156-compressores-http-parquet/`](experiments/lab/dirty/2026-07/2026-07-13/2026-07-13-0156-compressores-http-parquet/result.md).
+Measured with round-trip counter-proof. The lab is local and not versioned: the dirty lab
+lives outside git, so the numbers here are the record, and the theory behind them is that
+**structure decides, not the container**.
 
 ## Where 1.0 is headed: querying almost without decompressing
 
@@ -692,7 +690,7 @@ An opaque compressor cannot do this. To answer *any* question you must `gunzip`/
 ![Memory: view() vs full decode (same blob, one query, two footprints)](docs/img/view-memory.svg)
 
 Measured with round-trip counter-proof, timing throughput plus `tracemalloc` peaks, in
-[`2026-07-13-0156-compressores-http-parquet/`](experiments/lab/dirty/2026-07/2026-07-13/2026-07-13-0156-compressores-http-parquet/result.md).
+`2026-07-13-0156-compressores-http-parquet/`.
 
 Answering `where(Country).sum(Quantity)` on online-retail (100×8) peaks at **10.4 KB**
 through `view()`, versus **45.2 KB** through a full decode: **≈4.3× less**. For
@@ -713,7 +711,7 @@ After a solid 1.0 (registered, **not** implemented, see
   rounding with a residual, say installments where `valor = sum(installments)`, and *dropping* a
   derivable column such as `total = base + tax`. Crossing the lossless line needs an explicit
   decision plus a GATE, see Package 10 in
-  [`loss-taxonomia.md`](experiments/lab/dirty/notas/2026-06/loss-taxonomia.md).
+  `loss-taxonomia.md`.
 - **Streaming / low latency (V2-J)** and **zero-copy disk / column-pruning (V2-K)**:
   transmit and read in chunks, without buffer-over-buffer.
 - **Internal binary layer (V2-L)**: pack the body into bytes while keeping the textual header and

@@ -46,7 +46,7 @@ ticket (#12 aviso sobre wire morto, #14b chave não-str, #15 telemetria do `.8H`
 bug da auditoria de consistência continua aberto sem decisão de dono.
 
 Eram **seis decisões**, não restos de bug, cada uma colidindo com um contrato ratificado
-([evidência](experiments/lab/dirty/notas/2026-08/2026-08-28-decisoes-de-dono-cauda-do-8.md)).
+(`evidência`).
 Cinco fecharam: união bool+str ([ADR-0048](docs/adr/0048-uniao-bool-str-e-capacidade-da-familia-single.md)),
 LF/CR, `decode(schema=)` ignorado, spec em coluna tipada, e metade dos kwargs engolidos
 (`sort_by` e `name` passaram a levantar, [ADR-0050](docs/adr/0050-sort-by-vira-candidato-o-floor-decide.md)).
@@ -84,8 +84,8 @@ não intuição.
 | break-even hoje | **1,2 a 36 Mbps** | linear no custo de CPU: encode 10× → ~360 Mbps |
 | borda superior | 500 mil linhas = 53 min de CPU, 1,2 GB, sem terminar | o alvo é volume pequeno; isto é a borda |
 
-Base: labs [`0100`](experiments/lab/dirty/2026-08/2026-08-23/2026-08-23-0100-janela-massa-pos-release/)
-e [`0300`](experiments/lab/dirty/2026-08/2026-08-23/2026-08-23-0300-tempo-ate-o-dado-chegar/).
+Base: labs `0100`
+e `0300`.
 
 ### Eixo 1: desempenho, bordas e modos
 
@@ -190,13 +190,13 @@ Tudo opt-in / gadget / knob; impacto no núcleo nenhum/leve (ou atrás de GATE).
 
 | id | item | custo | impacto núcleo | nota |
 |---|---|---|---|---|
-| **H-QUERY-01** | Lazy/queryable `view()`: descompressão seletiva por coluna/linha (`count/sum/min/max/avg` + `where`) | M | leve (aditivo read-only) | **PROMOVIDO PRO CORE** (A4, 2026-06-21): `src/tcf/view.py`, `from tcf import view`; shim em [`scripts/tcf_lazy/`](scripts/tcf_lazy/). L1–L5 funcional (pruning, dimensões, contar/agrupar/filtrar sem expandir, group-by por layout). Lê `#TCF.8` (default, ADR-0032), não muda encode/decode/formato. Tese central da 1.0. PoC: [`2026-06-16-lazy-query/`](experiments/lab/dirty/old/welded/2026-06-16-lazy-query/). |
-| **H-QUERY-04** | Expansão (design 2026-06-17): **decode-como-DAG**, decode parametrizado (`execute()` pushdown), **índices escondidos** pra grouping | M | nenhum (gadget) | **DESIGN FEITO** ([nota](experiments/lab/dirty/notas/2026-06/hquery01-decode-dag-indices-design.md)). Princípio: índices = **derivável > {in-file inerte / sidecar `.tcfx`} > formato**, nunca in-blob por default; decisão de índice **por perfil de uso** (transmissão = sem índice; at-rest = index-on-arrival). Unificação **não-dura** (fazer cada→otimizar→fatorar o comum, não monólito); paralelismo por coluna. Plano fases A/B/C + transversal, barato no gadget. Limite duro: coluna `tcf` é entrelaçada → fallback total (o lazy vive em `@dict`/raw). |
+| **H-QUERY-01** | Lazy/queryable `view()`: descompressão seletiva por coluna/linha (`count/sum/min/max/avg` + `where`) | M | leve (aditivo read-only) | **PROMOVIDO PRO CORE** (A4, 2026-06-21): `src/tcf/view.py`, `from tcf import view`; shim em [`scripts/tcf_lazy/`](scripts/tcf_lazy/). L1–L5 funcional (pruning, dimensões, contar/agrupar/filtrar sem expandir, group-by por layout). Lê `#TCF.8` (default, ADR-0032), não muda encode/decode/formato. Tese central da 1.0. PoC: `2026-06-16-lazy-query/`. |
+| **H-QUERY-04** | Expansão (design 2026-06-17): **decode-como-DAG**, decode parametrizado (`execute()` pushdown), **índices escondidos** pra grouping | M | nenhum (gadget) | **DESIGN FEITO** (`nota`). Princípio: índices = **derivável > {in-file inerte / sidecar `.tcfx`} > formato**, nunca in-blob por default; decisão de índice **por perfil de uso** (transmissão = sem índice; at-rest = index-on-arrival). Unificação **não-dura** (fazer cada→otimizar→fatorar o comum, não monólito); paralelismo por coluna. Plano fases A/B/C + transversal, barato no gadget. Limite duro: coluna `tcf` é entrelaçada → fallback total (o lazy vive em `@dict`/raw). |
 | LAZY-QUERY-RUNS (=L3) | agregar/contar grupos sem expandir a coluna | - | nenhum | **FEITO via dicionário/raw** (`group_count`/`nrows`). **Achado**: o `*N|` do modo-tcf é entrelaçado (OBAT+HCC, refs entre linhas), **não separável**; o ganho limpo vive no dict/raw. |
-| **FILTRO-NUMERO** | Filtro/nature básico de **número** (além de CPF/CNPJ/IP) | S | leve | **CARACTERIZADO → PARK** ([`2026-06-16-number-nature-caracterizacao/`](experiments/lab/dirty/old/refuted/2026-06-16-number-nature-caracterizacao/)): **weighted na tabela NÃO atinge ≥15% em 2+** (adult 14,5%, receita 7,1%, tpch 3,4%, beijing 1,3%) e **some sob brotli** (≤6%). Ganho per-coluna (fnlwgt −41%) dilui na tabela. dict/seq-RLE/split já cobrem. Reabrir só como **nature opt-in estrita** se houver caso de transporte cru integer-heavy. Variantes (padded-int / scaled-decimal-lossy) → Pacote 10/v2.0. |
+| **FILTRO-NUMERO** | Filtro/nature básico de **número** (além de CPF/CNPJ/IP) | S | leve | **CARACTERIZADO → PARK** (`2026-06-16-number-nature-caracterizacao/`): **weighted na tabela NÃO atinge ≥15% em 2+** (adult 14,5%, receita 7,1%, tpch 3,4%, beijing 1,3%) e **some sob brotli** (≤6%). Ganho per-coluna (fnlwgt −41%) dilui na tabela. dict/seq-RLE/split já cobrem. Reabrir só como **nature opt-in estrita** se houver caso de transporte cru integer-heavy. Variantes (padded-int / scaled-decimal-lossy) → Pacote 10/v2.0. |
 | FILTROS-POPULARES | CEP, telefone, MAC, data-BR + clássicos-BR (PIS/renavam/título/CNH...), barato-primeiro | S | nenhum (CEP/PIS/renavam/título/CNH) ou máquina nova (telefone/RG/placa) | **ALVO .9** (owner 2026-07-12, Opção A do [T-SPEC-STATUS-08](tickets/T-SPEC-STATUS-08.md)): a máquina JÁ cobre 5/7 por construtor (`check_fn` é param livre); o gargalo é DADO: nenhum hub tem a coluna e o gerador só faz cpf/cnpj. Weld só com ganho ≥15% em 2+ reais; **F4 mediu que nem CNPJ é ganho de tabela garantido em real** (piora receita +7339B, split→raw). Pré-reqs: anonimizador §2.3 + gerador estendido (não existem). Um por vez, com dataset real. |
 | **H-NAT-MARK-01** | Marcador de nature **auto-descritivo** no header (o SPEC viaja com o TCF) | M | leve | **SHIPADO no `.8` p/ natures core** (verificado 2026-07-13): o `#TCF.8M…:cpf` / `#TCF.8 :cpf` carrega o `:id` no header e o `decode` reverte **sem spec out-of-band** (header autoritativo; RT True). Veio de carona com o FLOOR nature-compete. Resolução **core-only** (CPF/CNPJ/IP); id desconhecido → exige spec out-of-band coincidente (ver [T-API-BOUNDARY-CONTRACTS](tickets/T-API-BOUNDARY-CONTRACTS.md)). ADR-0027 (`proposed`) fica como registro do design; o **registry carregável de terceiros** segue aberto (`.9`/pré-1.0). Substitui o antigo "DESIGN FEITO → PARADO em (A)". |
-| V2-RLE-STREAM | RLE no stream de índices do V2-B (follow-up do 0.7) | S | nenhum | **CLOSED p/ geral; NICHO textual-puro ABERTO (decisão do owner)** (caracterizado 2026-06-19, [lab](experiments/lab/dirty/old/refuted/2026-06-19-v2rle-stream-caracterizacao/result.md)). Geral: +1,19% weighted/7 reais, 0/7 ≥15%, −1,39% sob brotli. **Nicho** (payload minúsculo, low-card texto **skewed**, ordem natural, textual-puro): situacao +55%, workclass +22% (2 reais ≥15% no nicho). Achado: **clusterizado flipa p/ tcf-`*N|`** (overlap); stream-RLE só ganha em runs curtos+skewed. Weld = #TCF.8+GATE. Decisão do owner se o nicho "transmissão minúscula" justifica. Registro: [roadmap-hipoteses Pacote 11-bis](experiments/lab/dirty/notas/2026-05/roadmap-hipoteses.md) (H-V2RLE-01/02); família RLE: [estudo](experiments/lab/dirty/notas/2026-06/rle-familia-estudo.md). |
+| V2-RLE-STREAM | RLE no stream de índices do V2-B (follow-up do 0.7) | S | nenhum | **CLOSED p/ geral; NICHO textual-puro ABERTO (decisão do owner)** (caracterizado 2026-06-19, `lab`). Geral: +1,19% weighted/7 reais, 0/7 ≥15%, −1,39% sob brotli. **Nicho** (payload minúsculo, low-card texto **skewed**, ordem natural, textual-puro): situacao +55%, workclass +22% (2 reais ≥15% no nicho). Achado: **clusterizado flipa p/ tcf-`*N|`** (overlap); stream-RLE só ganha em runs curtos+skewed. Weld = #TCF.8+GATE. Decisão do owner se o nicho "transmissão minúscula" justifica. Registro: [roadmap-hipoteses Pacote 11-bis](experiments/lab/dirty/notas/2026-05/roadmap-hipoteses.md) (H-V2RLE-01/02); família RLE: `estudo`. |
 | H-INTRA-01/02/03 | Repetição **intra-valor** (fatorar `111.` dentro de um valor) | M | **médio** | Pacote 11 / O-FMT-17, alvo 0.8. Decidir engine (OBAT×HCC), **medir net** com escape de dígito e **overlap** com nature/split. GATE obrigatório, *não atropelar*. |
 | **OMIT-CONTRACT** | Contrato de omissão do formato (deduzir / convenção-default / declarar + fail-loud) | S | nenhum (contrato) | **AVALIAR ANTES DE FECHAR O 1.0** (owner 2026-07-07): [T-FMT-OMIT-OR-DECLARE](tickets/T-FMT-OMIT-OR-DECLARE.md): 4 categorias, invariantes fail-loud + proveniência; generaliza o eixo versão do ADR-0029. |
 | V2B-DESCAPAR-B/C | Descapar V2-B além da forma A: forma B (+skip cadence-aware) e C (sem cap) | M | **médio** (toca min() por coluna) | **ALVO .9** (T-REL-08-CLOSEOUT Passo 1b, 2026-07-10): forma A (cap 8192) welded no .8 (`a201c1e`); estudo/medições das formas B/C vivem em [T-CODE-DESCAPAR-V2B](tickets/T-CODE-DESCAPAR-V2B.md) (closed-parcial). Gate real-world obrigatório. |
@@ -224,7 +224,7 @@ bytes e também não garante que ele saia (o `group_ranges` continua estrito, de
 cada filtro um módulo spec auto-contido (regex + transform + id), com um registry que descobre
 os de terceiros (drop-in), pra outros desenvolverem os seus. **A API/pasta não é versão** (output
 idêntico); só o *spec viajar no header* pra auto-decode por terceiros **é versão (0.8)** = H-NAT-MARK-01.
-**Plano completo (DSL textual → "compilador" → registry → header)**: [`filtros-dsl-plano.md`](experiments/lab/dirty/notas/2026-06/filtros-dsl-plano.md).
+**Plano completo (DSL textual → "compilador" → registry → header)**: `filtros-dsl-plano.md`.
 As natures já são paramétricas (`TemplatedCheckedSpec`/`TemplatedPaddedSpec` = dados + `check_fn`), então o
 compilador é um gerador de instâncias (1:1). Fluxo faseado: **F1 ✅ FEITO** (`scripts/natures_compiler/`,
 DSL flat→spec, round-trip obrigatório, **9 testes, zero src/tcf**; regenera CPF/CNPJ/IP do DSL == à mão;
@@ -257,7 +257,7 @@ do mesmo compilador). Ressalva: o DSL vale como **infra/DX/explicabilidade**, n�
 
 **Parked:**
 - ~~**O-FMT-12**: auto-detect CSV + `encode_file()`~~, **PARK** (owner 2026-06-16): leitura-de-input
-  é fora-do-core por design; `encode(dict)`+`DictReader` bastam (0 bytes). [levantamento](experiments/lab/dirty/notas/2026-06/ofmt12-encode-file-levantamento.md)
+  é fora-do-core por design; `encode(dict)`+`DictReader` bastam (0 bytes). `levantamento`
 
 ### Plano dos filtros (sem atropelar)
 Ordem barata-primeiro: **(1)** `FILTRO-NUMERO`, **caracterizado 2026-06-16**: nicho restrito
@@ -271,7 +271,7 @@ que faz o decode reconhecer a nature sozinho. Critério de weld por candidato: *
 
 ## Tier 2: 2.0 (depois de uma 1.0 sólida)
 
-- **Lossy** (Pacote 10, [`loss-taxonomia.md`](experiments/lab/dirty/notas/2026-06/loss-taxonomia.md)); 0.7 fica lossless-puro:
+- **Lossy** (Pacote 10, `loss-taxonomia.md`); 0.7 fica lossless-puro:
   - `H-LOSS-00` meta-camada de **contrato** (pré-requisito de toda perda).
   - `H-LOSS-02` **cross-coluna / DERIVED-DROP** (`valor = soma(parcelas)`): maior teto, owner prioriza.
   - `H-LOSS-01` resíduo-redistribuído (perda por-linha, **soma exata** no agregado). PoC OK.
@@ -318,7 +318,7 @@ Consomem `SideOutputs`, **nunca arrumam dados**. Podem andar juntas ou separadas
 
 ## Notas de pesquisa (medidas, 2026-06-16)
 
-- **TCF + brotli são complementares em ESCALA** ([`2026-06-16-staged-and-ordering-brotli/`](experiments/lab/dirty/old/refuted/2026-06-16-staged-and-ordering-brotli/)):
+- **TCF + brotli são complementares em ESCALA** (`2026-06-16-staged-and-ordering-brotli/`):
   em multi-coluna real (3k linhas, 4 datasets), `tcf-0.7+brotli` **vence** `csv+brotli`
   (Adult −28%), e **quanto mais TCF, menor o pós-brotli**. Refuta "menos TCF ajuda o brotli";
   TCF cheio é o melhor pré-processo. (O cadastro minúsculo do README vendia o contrário:
@@ -327,7 +327,7 @@ Consomem `SideOutputs`, **nunca arrumam dados**. Podem andar juntas ou separadas
   TCF+brotli em 3/4 datasets. Ganho ≤5%. Lever pequeno; se welder auto-`sort_by`, considerar o
   modo (com/sem compressão a jusante). Baixa prioridade (2.0).
 - **Guia de transmissão por API: onde o TCF importa** (pesquisa 2026-06-21,
-  [`transmissao-api-onde-tcf-importa.md`](experiments/lab/dirty/notas/2026-06/transmissao-api-onde-tcf-importa.md)):
+  `transmissao-api-onde-tcf-importa.md`):
   honesto: a prática é JSON pequeno+gzip/brotli (TCF não ajuda na maioria); o nicho do TCF é
   **~5-15%** (batch/export tabular **grande+repetitivo** como pré-processo do brotli; lazy/consulta
   seletiva). **Teste decisivo PENDENTE**: `TCF+brotli` **vs `NDJSON+brotli`** (só comparamos com

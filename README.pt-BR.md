@@ -533,9 +533,6 @@ vence o CSV + brotli**.
 Veja o Adult com 3 000 linhas: `tcf-0.8+brotli` = **21,8 KB** contra `csv+brotli` = 30,4 KB,
 ou −28%.
 
-E quanto **mais** TCF, **menor** o resultado pós-brotli. Isso foi medido em 4 datasets reais:
-[`2026-06-16-staged-and-ordering-brotli/`](experiments/lab/dirty/old/refuted/2026-06-16-staged-and-ordering-brotli/).
-
 Em payload minúsculo a moldura domina e não há o que fatorar. **A vantagem do TCF aparece com
 volume.**
 
@@ -554,8 +551,9 @@ CSV.
 
 E ele ainda compõe: `tcf+brotli` fica 30% abaixo de `brotli` sobre o dado cru.
 
-Medido com contra-prova de round-trip em
-[`2026-07-13-0156-compressores-http-parquet/`](experiments/lab/dirty/2026-07/2026-07-13/2026-07-13-0156-compressores-http-parquet/result.md).
+Medido com contra-prova de round-trip. O lab é local e não versionado: o dirty lab vive
+fora do git, então os números acima são o registro, e a teoria por trás deles é que
+**quem decide é a estrutura, não o container**.
 
 ## Pra onde vai a 1.0: consultar quase sem descomprimir
 
@@ -692,7 +690,7 @@ payload **inteiro** antes, e é aí que a memória também vai.
 ![Memória: view() vs decode completo (mesmo blob, uma query, dois consumos)](docs/img/view-memory.svg)
 
 Medido com contra-prova de round-trip, com throughput de tempo e picos de `tracemalloc`, em
-[`2026-07-13-0156-compressores-http-parquet/`](experiments/lab/dirty/2026-07/2026-07-13/2026-07-13-0156-compressores-http-parquet/result.md).
+`2026-07-13-0156-compressores-http-parquet/`.
 
 Responder `where(Country).sum(Quantity)` no online-retail (100×8) tem pico de **10,4 KB** pelo
 `view()` contra **45,2 KB** por um decode completo, **≈4,3× menos**. No cadastro 2000×5 a razão é
@@ -711,7 +709,7 @@ Depois de uma 1.0 sólida (registrado, **não** implementado; ver
   arredondar com resíduo, como no parcelamento em que `valor = soma(parcelas)`, e *drop* de
   coluna derivável, como `total = base + imposto`. Isso cruza a linha lossless, então exige
   decisão explícita + GATE; ver Pacote 10,
-  [`loss-taxonomia.md`](experiments/lab/dirty/notas/2026-06/loss-taxonomia.md).
+  `loss-taxonomia.md`.
 - **Streaming / baixa latência (V2-J)** e **disco zero-copy / column-pruning (V2-K)**:
   transmitir e ler por pedaço, sem buffer-over-buffer.
 - **Camada binária interna (V2-L)**: empacotar o corpo em bytes mantendo header textual e

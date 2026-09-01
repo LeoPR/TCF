@@ -59,7 +59,7 @@ Prefixos no tamanho de coluna do meta INLINE (`#TCF.8M!8=id,@16=cat,nome`, sem `
 > Consolidacao 2026-07-08 (audit de primitivas, Cluster 1): varios mecanismos com
 > nomes diferentes sao a MESMA primitiva: **"guardar cada valor distinto UMA vez e
 > referenciar por indice"**, variando so' em (granularidade, escopo, radix, lugar).
-> Detalhe + hipoteses: [`dict-referencia-hipoteses.md`](../experiments/lab/dirty/notas/2026-06/dict-referencia-hipoteses.md) (H-REF).
+> Detalhe + hipoteses: `dict-referencia-hipoteses.md` (H-REF).
 
 | instancia | granularidade | escopo | radix do indice | lugar |
 |---|---|---|---|---|
@@ -68,7 +68,7 @@ Prefixos no tamanho de coluna do meta INLINE (`#TCF.8M!8=id,@16=cat,nome`, sem `
 | ref-stream `*N\|^k` | corrente de `^N` em RLE | per-coluna | decimal em RLE | body |
 | `@dict` (V2-B, welded) | coluna categorica | per-coluna | base-94 (sem escape) | tabela separada |
 | `&<G>` cross-dict (H-GDICT, prototipo) | grupo de colunas | cross-coluna | base-94 (namespace/grupo) | header |
-| bN `b1/b2/b4` (research, H-TYPE-02; nomenclatura owner 2026-07-08: b1/b2/b4 = largura FISICA, `b3` = trio b2+null, `b5-b7` = reservados, `B` = bool dict-interno; [char-registry §Eixo 2](../experiments/lab/dirty/notas/2026-07/tcf8-header-char-registry.md)) | coluna low-card | per-coluna | **w bits** (1/2/4; w=8 = 1 byte, regime do @dict, fora da familia, F3) | body binario (V2-L) |
+| bN `b1/b2/b4` (research, H-TYPE-02; nomenclatura owner 2026-07-08: b1/b2/b4 = largura FISICA, `b3` = trio b2+null, `b5-b7` = reservados, `B` = bool dict-interno; `char-registry §Eixo 2`) | coluna low-card | per-coluna | **w bits** (1/2/4; w=8 = 1 byte, regime do @dict, fora da familia, F3) | body binario (V2-L) |
 
 Consequencias praticas: (1) `^N` JA' e' um dict-index, nao criar mecanismo "novo" de
 referencia sem posicionar nos 4 eixos acima (anti-drift); (2) os modos por-coluna

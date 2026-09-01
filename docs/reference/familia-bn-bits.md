@@ -56,7 +56,7 @@ O `C` é **1 byte menor** que o `B` e mesmo assim o default é o `B`. Não é in
 | `B` (default) | +1 | **2,1–7,0%** |
 | `C` (declarado) | −1 | **100%** |
 
-Medido no [lab 2026-08-07-2055](../../experiments/lab/dirty/2026-08/2026-08-07/2026-08-07-2055-vetores-ortogonais-por-mecanismo/).
+Medido no `lab 2026-08-07-2055`.
 O `B` é o default porque transmissão é o caso comum; o `C` serve quem lê o arquivo inteiro
 em disco. O **opt-in de emissão** do `C` é o `T-BN-LOTE` (`.9`); o decode já o aceita hoje.
 
@@ -132,7 +132,7 @@ qualquer domínio:
 A grafia é **injetiva por construção**: `None` → `0`; qualquer valor que *seria* grafado `0`
 ou que já comece com `\` recebe um `\` na frente. Sem isso, `"0"` e `None` colidiriam; e
 colidiam, silenciosamente, até a auditoria de 2026-07-28
-([incidente](../../experiments/lab/dirty/notas/2026-07/2026-07-31-incidente-bn-4-bugs-e-a-analise-critica.md)).
+(`incidente`).
 
 ## Quando o bN ativa
 
@@ -187,12 +187,12 @@ Toda leitura de bN valida o payload com **três checagens**, e nenhuma subsome a
 
 As duas primeiras são praticamente de graça; a segunda é a única que protege **valor**, não
 só forma. O custo medido das três somadas é **0,17–0,58% do decode**
-([lab 2026-08-06-2250](../../experiments/lab/dirty/2026-08/2026-08-06/2026-08-06-2250-b64-custo-x-protecao/))
+(`lab 2026-08-06-2250`)
 , por isso ficam **sempre ligadas**, em vez de virarem knob.
 
 Wire não-canônico **falha alto**. A exceção é a classe de tolerância já ratificada: tolerar
 só quando o valor recuperado é *provadamente* o mesmo, e ainda assim com warning
-([política](../../experiments/lab/dirty/notas/2026-08/2026-08-06-2329-tolerancia-vs-erro-politica-de-wire-nao-canonico.md)).
+(`política`).
 
 ## Canonicidade: o que o decoder recusa
 

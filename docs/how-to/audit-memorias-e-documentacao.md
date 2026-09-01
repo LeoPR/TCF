@@ -11,7 +11,7 @@ updated: 2026-05-18
 
 Recipe pra revisao periodica (sugerido: a cada 60-90 dias OU quando
 notar drift). Objetivo: evitar reincidir o
-[incidente 2026-05-18](../../experiments/lab/dirty/notas/checkpoints/2026-05-18-pausa-para-organizar-documentacao.md)
+`incidente 2026-05-18`
 (perder visibilidade do que ja' existe).
 
 ## Passo 1: Re-gerar INDEX.md e revisar

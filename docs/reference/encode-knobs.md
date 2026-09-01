@@ -36,7 +36,7 @@ ressalva (ver abaixo).
 > `compacto`/`auto`, `T-PERFIS-MACRO`). A ideia dos perfis é declarar a **intenção** em vez do
 > mecanismo, porque um knob por mecanismo não escala. `PipelineConfig` já é o precedente de
 > agrupador. Esboço:
-> [`2026-08-07-flags-modo-bn-e-perfis-macro`](../../experiments/lab/dirty/notas/2026-08/2026-08-07-flags-modo-bn-e-perfis-macro.md).
+> `2026-08-07-flags-modo-bn-e-perfis-macro`.
 
 ## Knobs de bytes / layout
 

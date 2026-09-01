@@ -91,7 +91,7 @@ suficiente para não ser removível.
 | tipado bool | **não** | ok | `ValueError` |
 | tipado int/misto | sim | tolera com warning | `ValueError` |
 
-> **REFINADO 2026-08-21** (lab [`0500`](../../experiments/lab/dirty/2026-08/2026-08-21/2026-08-21-0500-lf-final-tem-funcao/)):
+> **REFINADO 2026-08-21** (lab `0500`):
 > dizer que o LF é "load-bearing" é impreciso. Ele **é 100% recuperável**: dropar o último byte
 > e recolocá-lo na recepção devolve o objeto original em 55/55 wires testados. O que impede
 > dropá-lo não é ele carregar informação; é que **o magic não determina a convenção** (`#TCF.8M`

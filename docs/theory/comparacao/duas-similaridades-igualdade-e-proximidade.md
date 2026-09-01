@@ -7,7 +7,7 @@ similaridades e depois fazer os encaixes (…) se elas forem realmente similares
 próximas como deltas, também poderiam gerar nós (…) em parte temos um algoritmo cego no
 núcleo que pega os pedaços sem julgar a semântica, só olha string (…) essa é uma
 oportunidade de apenas olhar a estrutura pra ver se tem algum encaixe melhor nesse fluxo"*
-**Evidência**: lab [`2026-08-09-1943-fluxo-igualdade-x-proximidade`](../../../experiments/lab/dirty/2026-08/2026-08-09/2026-08-09-1943-fluxo-igualdade-x-proximidade/result.md)
+**Evidência**: lab `2026-08-09-1943-fluxo-igualdade-x-proximidade`
 **Conecta com**: [`comparacao-modular-camadas.md`](comparacao-modular-camadas.md) ·
 [`2026-05-11-comparacoes-nao-literais.md`](2026-05-11-comparacoes-nao-literais.md)
 (delta/aproximação, a intuição original) ·

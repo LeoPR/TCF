@@ -178,7 +178,7 @@ convenção comum a seguir.
 [JSON Schema 2020-12](https://json-schema.org/draft/2020-12/draft-bhutton-json-schema-validation-01)
 
 Os números de compressão vêm dos labs
-[`2026-08-07-2311`](../../experiments/lab/dirty/2026-08/2026-08-07/2026-08-07-2311-datas-exploracao/) ·
-[`2026-08-08-0016`](../../experiments/lab/dirty/2026-08/2026-08-08/2026-08-08-0016-data-lazy-iso/) ·
-[`2026-08-08-0235`](../../experiments/lab/dirty/2026-08/2026-08-08/2026-08-08-0235-data-alvos-e-declaracao/) ·
-[`2026-08-08-1854`](../../experiments/lab/dirty/2026-08/2026-08-08/2026-08-08-1854-custo-da-ambiguidade/).
+`2026-08-07-2311` ·
+`2026-08-08-0016` ·
+`2026-08-08-0235` ·
+`2026-08-08-1854`.

@@ -5,7 +5,7 @@
 > O pipeline descrito e' o de M10 (canonical 0.7.1); verifique `STATUS.md` para o estado vivo.
 > Categoria Diataxis: **Explanation** (entender como funciona, alem da reference).
 >
-> Fonte completa (extracao bruta): [STRATEGIES-MAP-EXTRACTED](../../../experiments/lab/dirty/notas/2026-05/STRATEGIES-MAP-EXTRACTED.md).
+> Fonte completa (extracao bruta): `STRATEGIES-MAP-EXTRACTED`.
 
 Pipeline canonical TCF v1.0:
 
@@ -762,7 +762,7 @@ ROUND-TRIP GUARANTEES:
 | **analyze_column, ColumnFeatures pre-pass (O(N))** | heuristica | [src/tcf/column_features.py:51-84](../../../src/tcf/column_features.py) | values: list[str], sample_size=20 (default). n_rows = len(values); n_unicas = len(set(values)); avg_ | sempre em _encode_column() (encoder.py:139), antes de detect_cadence/detect_min_ |
 | **detect_cadence_from_features, Regra 1 + Regra 2** | heuristica | [src/tcf/auto_cadence.py:28-96](../../../src/tcf/auto_cadence.py) | features: ColumnFeatures, strings_unicas: list[str], n_sample=5 (primeiras N pra análise), threshold | em _encode_column() linha 141 (encoder.py), após analyze_column() |
 | **detect_min_len_from_features, Decision tree shallow (heurística v3)** | heuristica | [src/tcf/auto_min_len.py:25-68](../../../src/tcf/auto_min_len.py) | features: ColumnFeatures, n_threshold=100 (gating). avg_len = features.avg_len; card = features.card | em _encode_column() linha 142 (encoder.py), após detect_cadence() output recebid |
-| **Protocol NatureSpec, Polimorfismo sem isinstance** | helper | [src/tcf/natures/ (init define protocol implícito)](../../src/tcf/natures/ (init define protocol implícito)) | nenhum, define contrato de interface, não implementação concreta | sempre, em toda integração com nature param |
+| **Protocol NatureSpec, Polimorfismo sem isinstance** | helper | `src/tcf/natures/` (o `__init__` define o protocol implícito) | nenhum, define contrato de interface, não implementação concreta | sempre, em toda integração com nature param |
 
 ### Detalhamento
 
@@ -820,7 +820,7 @@ Detecta estrutura cadencial (wrapper+counter ou numeric high-card) pra ativar OB
 **`detect_min_len_from_features — Decision tree shallow (heurística v3)`** (heuristica, [src/tcf/auto_min_len.py:25-68](../../../src/tcf/auto_min_len.py))
 Decision tree pra min_len ótimo (enum {3,4,5,6}), captura 99.5% oracle real-world. Gating: n_rows < 100 -> 3 (preserva M9 baseline 1615B exato). Senão: card<0.2 -> 3; avg>=25 -> 6; avg>=8 && card>=0.4 -> 6; avg>=5 && is_numeric && card>=0.8 -> 6; avg>=12 && card>=0.7 -> 5; avg>=3 && card>=0.2 -> 4; else -> 3. Exemplos: D-CPF (baixa card) -> 3; D-datas-mundiais (avg=10, card=0.8) -> 6; D-ID-seq (avg=5, is_num=true, card=0.95) -> 6.
 
-**`Protocol NatureSpec — Polimorfismo sem isinstance`** (helper, [src/tcf/natures/ (init define protocol implícito)](../../src/tcf/natures/ (init define protocol implícito)))
+**`Protocol NatureSpec — Polimorfismo sem isinstance`** (helper, `src/tcf/natures/`, onde o `__init__` define o protocol implícito)
 Estratégia de design: toda spec (TemplatedCheckedSpec, TemplatedPaddedSpec, futuras) implementa o mesmo Protocol: name:str, encode_value(v)->tuple(str,str), decode_value(payload)->str, classify_value(v)->str. Encoder/decoder são polimorfo (genéricos), **zero isinstance(spec, TemplatedCheckedSpec)** em qualquer lugar (confirmado linha 20 encoder.py comentário). Permite adicionar specs novas (Luhn, IBAN, MAC, CEP) sem mudar API publica nem core pipeline. Refactoring 2026-05-24: converteu encode_value/decode_value/classify_value de standalone functions (backward compat mantido) para **methods no spec** (@dataclass frozen, immutable).
 
 ### Notas

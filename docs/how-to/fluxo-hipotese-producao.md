@@ -253,4 +253,4 @@ Em codigo (comentarios):
 - [vocabulary.md](../vocabulary.md): termos
 - [audit-memorias-e-documentacao.md](audit-memorias-e-documentacao.md): manutencao
 - [ADR-0005](../adr/0005-discoverability-claude-md-root.md): discoverability
-- [welding-plan.md](../../experiments/lab/dirty/notas/2026-05/welding-plan.md): exemplo de processo de welding
+- `welding-plan.md`: exemplo de processo de welding

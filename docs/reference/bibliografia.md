@@ -95,7 +95,7 @@
 Os demais são reforço. Roaring e FOR já estavam citados (não precisa re-introduzir).
 
 ## Cross-links
-[re-segmentação 5 workstreams](../../experiments/lab/dirty/notas/2026-06/2026-06-27-0310-resegmentacao-workstreams.md),
-[dict-referencia-hipoteses](../../experiments/lab/dirty/notas/2026-06/dict-referencia-hipoteses.md) (W1),
-[filtros-dsl-plano](../../experiments/lab/dirty/notas/2026-06/filtros-dsl-plano.md) (W4/F5),
+`re-segmentação 5 workstreams`,
+`dict-referencia-hipoteses` (W1),
+`filtros-dsl-plano` (W4/F5),
 ADR-0016 (seq-RLE), ADR-0018 (V2-L/V2-J/V2-K), ADR-0025 (V2-B).

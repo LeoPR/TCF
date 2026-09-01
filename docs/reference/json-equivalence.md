@@ -8,7 +8,7 @@
 > **Escopo**: o TCF **não lê texto JSON**: ele lê o **dataset** (dict/array/escalar) que a
 > linguagem constrói ao parsear a fonte. São **dois contratos independentes**: o da lib json
 > (`texto → dataset → texto`) e o do TCF (`dataset → .tcf → dataset`). Ver
-> [dataset-json-dois-contratos](../../experiments/lab/dirty/notas/2026-07/dataset-json-dois-contratos.md).
+> `dataset-json-dois-contratos`.
 
 ## 1. A classe D_json (o que o TCF traduz de JSON)
 
@@ -128,10 +128,10 @@ Arrow/Parquet: colunar-shredded não preserva ordem por-registro); ECMA-404 diz 
 ## 5. Evolução além do JSON (registrado, não `.8`)
 
 O JSON é o **alvo prático** (o que as pessoas transmitem), não o teto. O funil J0→J1→J2/L/G
-([funil-fechamento-json-language](../../experiments/lab/dirty/notas/2026-07/2026-07-17-0124-funil-fechamento-json-language.md))
+(`funil-fechamento-json-language`)
 separa uso (fechado) de completude (registrada). Fronteiras para 1.0/2.0: **union tipado**
 (dense-union à Arrow, desenho em
-[p5-union-levantamento](../../experiments/lab/dirty/notas/2026-07/p5-union-levantamento.md) §4);
+`p5-union-levantamento` §4);
 **N:N/grafo/shared-ref** (o que `list[dict]` não representa, a capacidade exclusiva pós-paridade);
 tipos ricos (Decimal/datetime tipados).
 

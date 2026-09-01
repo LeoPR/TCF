@@ -399,4 +399,4 @@ Compat: `from tcf_lazy import view` (shim) ainda funciona, re-exportando daqui.
 - Knobs do encode (`fallback`/`sort_by`): [encode-knobs.md](encode-knobs.md)
 - Formato (modos `!`/`@`/`%`): [../algorithms/TCF-format.md](../algorithms/TCF-format.md)
 - Implementação: [`src/tcf/view.py`](../../src/tcf/view.py)
-- Design da expansão 0.9 (decode-DAG, índices): [`hquery01-decode-dag-indices-design.md`](../../experiments/lab/dirty/notas/2026-06/hquery01-decode-dag-indices-design.md)
+- Design da expansão 0.9 (decode-DAG, índices): `hquery01-decode-dag-indices-design.md`
