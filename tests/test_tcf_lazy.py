@@ -885,14 +885,18 @@ class TestWhereCurtoCircuitoDominio:
             assert view(blob).where("c", alvo).indices == esperado, alvo
 
     def test_coluna_de_um_unico_valor(self):
-        """K=1: filtrar pelo único é o extremo 'todos casam'; por outro, o extremo vazio."""
+        """K=1: filtrar pelo único é o extremo 'todos casam'; por outro, o extremo vazio.
+
+        O guard aqui pulava o teste quando a coluna constante não caísse em `@dict`, e era
+        estreito demais: a propriedade vale em TODO regime, e prendê-la a um deles fazia o
+        caso K=1 ficar invisível justo quando o regime mudasse, que é quando ele serviria.
+        Hoje a coluna constante de 300 linhas cai em `tcf`, então o teste nunca rodava.
+        """
         n = 300
         blob = encode({"c": ["SP"] * n, "x": [str(i) for i in range(n)]})
         v = view(blob)
-        if v._mode["c"] != "dict":
-            pytest.skip("regime: a coluna constante não caiu em @dict")
-        assert v.where("c", "SP").count() == n
-        assert view(blob).where("c", "RJ").count() == 0
+        assert v.where("c", "SP").count() == n     # todos casam
+        assert view(blob).where("c", "RJ").count() == 0   # nenhum casa
 
 
 class TestGrouping:

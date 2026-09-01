@@ -14,8 +14,7 @@ no [`CHANGELOG.md`](CHANGELOG.md), nos [ADRs](docs/adr/README.md) e no diário
 
 | | |
 |---|---|
-| **publicado** | `tcf-format 0.8.3` no PyPI (29/08, via Trusted Publishing) · tag `v0.8.3` |
-| **em repo** | `0.8.4` no `pyproject.toml` e em `src/tcf/__init__.py`, sem tag e ainda não publicada |
+| **publicado** | `tcf-format 0.8.4` no PyPI (01/09, via Trusted Publishing) · tag `v0.8.4` |
 | **formato** | `#TCF.8` default: `.8M` multi-col · `.8R` registros (ADR-0049) · `.8H` hierárquico · rota tipada · single-col |
 | **ciclo aberto** | **`.9`**: otimização **e** integração com armazenamento |
 | **números vivos** | nos TESTES, não aqui: `pytest -q` |
@@ -29,52 +28,18 @@ de exports em `tests/test_regression_v1_baseline.py`. Mudar exige re-pin deliber
 O ciclo está descrito em [`ROADMAP.md`](ROADMAP.md) (três eixos: desempenho e bordas, armazenamento e ecossistema, limpeza). Fila de tickets em
 [`tickets/README.md`](tickets/README.md).
 
-### Cauda do `.8`: a auditoria de consistência (2026-08-27/28)
+### Cauda do `.8`: fechada
 
-As três famílias de wire foram medidas em cinco eixos e discordavam em quase toda borda
-([nota](experiments/lab/dirty/notas/2026-08/2026-08-27-consistencia-tres-familias.md)).
-Quatro ondas soldadas, com evidência em disco e sem re-pin de bytes:
+A auditoria de consistência das três famílias (2026-08-27/28) mediu `#TCF.8`, `#TCF.8M` e
+`#TCF.8H` em cinco eixos, soldou sete ondas e deixou **seis decisões de dono**. As seis
+fecharam, a última em 2026-09-01. Nenhum item da cauda continua aberto.
 
-| onda | o que mudou | ticket |
-|---|---|---|
-| 0 | o `.8M` passou a usar o **mesmo juiz de homogeneidade** do `.8H` (`_scalar_type`) antes de aceitar a tabela | [`BUG-ENCODE-VAZIO-EM-COLUNA-TIPADA`](tickets/BUG-ENCODE-VAZIO-EM-COLUNA-TIPADA.md) closed |
-| 1 | `decode_value` antes de `_dec_scalar` no `.8M`: a nature deixa de ser atropelada pelo cast | (junto da onda 0) |
-| 2 | `_unesc_leaf` no ramo string da `view` do `.8H` | (junto da onda 0) |
-| 3 | `_n_somado` pergunta se o corpo é **ausente** antes de tirar o terminador | [`BUG-VIEW-UMA-STRING-VAZIA`](tickets/BUG-VIEW-UMA-STRING-VAZIA.md) closed |
+Onde cada coisa vive, porque não é aqui: a narrativa por versão está no
+[`CHANGELOG.md`](CHANGELOG.md), o porquê de cada decisão nos [ADRs](docs/adr/README.md)
+(0048 a 0050 são os desta cauda), e os defeitos em [`tickets/`](tickets/README.md), todos
+fechados. Este arquivo carrega o presente, e o presente é que não há dívida da cauda do `.8`.
 
-Em 2026-08-28 entraram as ondas 5 a 7, com evidência em
-[`2026-08-28-0200-cauda-das-divergencias`](experiments/lab/dirty/2026-08/2026-08-28/2026-08-28-0200-cauda-das-divergencias/):
-
-| onda | o que mudou | ticket |
-|---|---|---|
-| 5 | `view`: `#O` desigual recusado na abertura; órfão sem magic aceito (paridade com o `decode`); corpo ausente é zero linha; aviso no primeiro `nrows` quando as contagens estruturais divergem | [#7](tickets/BUG-VIEW-OBJETO-NAO-RETANGULAR.md), [#13](tickets/BUG-VIEW-ORFAO-SEM-MAGIC.md), [fantasma](tickets/BUG-VIEW-COLUNA-VAZIA-UNICO-FANTASMA.md) closed |
-| 6 | chave não-str cai no `.8H` (erro tipado por construção); `.8H` ganha a telemetria de spec das outras duas e avisa no descarte por valor | (sem ticket: #14b, #15) |
-| 7 | **muda wire**: coluna escalar densa-com-nulos no `.8H` declara `?0:` (emask 2-estados) em vez de `?:`; a `view` passa a consultar tabela com nulos; +1 byte de header por coluna assim; 2 pinos de navegação re-pinados, zero nos gates | [#6](tickets/BUG-VIEW-NULO-NO-HIERARQUICO.md) closed |
-
-Das **seis decisões de dono** que a auditoria deixou, cinco fecharam e uma ficou pela metade.
-Evidência original em
-[`2026-08-28-decisoes-de-dono-cauda-do-8.md`](experiments/lab/dirty/notas/2026-08/2026-08-28-decisoes-de-dono-cauda-do-8.md):
-
-| decisão | onde parou |
-|---|---|
-| união bool+str | **fechada**, [ADR-0048](docs/adr/0048-uniao-bool-str-e-capacidade-da-familia-single.md): a assimetria é capacidade da família single, e é deliberada |
-| LF/CR | **fechada**: as duas pontas recusam CR, no nome de coluna do `.8M` e no wire do `.8H` |
-| `decode(schema=)` ignorado | **fechada**: o aviso existe e é estreito, só dispara em chave que não nomeia coluna alguma |
-| spec em coluna tipada | **fechada**: a tabela com coluna tipada aceita `schema=` nas duas grafias (`#TCF.8M13N=n,@c` e `#TCF.8R13N=n,@c`, medidos) |
-| FLOOR do spec | **fechada**: as três contabilidades reproduzem, e só uma era defeito. O **single** compara contra um baseline polarizado e com bN, e está certo: a gramática torna polaridade e `:spec` mutuamente exclusivos, então o candidato não pode receber esse arsenal e comparar o melhor emitível de cada lado é o FLOOR correto. O **multi** já era a conta justa. O **hier** cobrava 11 B de um header que não emite, e passou a cobrar `:<size>:<id>`, o pior caso real: 3 flips em colunas de data curta, 443 B no conjunto medido, 0 violações do nunca-pior, sem re-pin de gate |
-| kwargs engolidos no flat de string | **fechada**: `sort_by` e `name` já levantavam ([ADR-0050](docs/adr/0050-sort-by-vira-candidato-o-floor-decide.md)), e `fallback`, `min_header`, `drop_names` e `parallel` passaram a levantar também, porque a própria docstring do `encode` os declara multi-col e eles não mexem um byte no single-col (medido em 6 corpora). O `min_len` **ficou**, e a correção importa: ele não era no-op, é o único da lista que funciona ali (46 B para 23 B numa coluna de IDs, 363 B para 56 B em únicos longos) |
-
-**Nenhuma das seis continua aberta.** `src/tcf` continua sob aprovação explícita.
-
-As ondas 0 a 7 saíram na **`0.8.3`** (29/08). A atualização muda comportamento visível:
-entrada mista que passava calada agora levanta, e há **duas** mudanças de emissão, o `.8H`
-com nulo denso (`?:` → `?0:`) e o `{"v": []}` (`.8H#O` de 18 B → `.8M@` de 12 B).
-
-Compatibilidade, medida **por superfície**, porque as duas diferem: no `decode`, a `0.8.3`
-lê os oito wires medidos da `0.8.2` e a `0.8.2` recusa o denso-com-nulos da `0.8.3`; na
-`view`, o denso-com-nulos da `0.8.2` é recusado pelas **duas** versões, porque a informação
-que falta não está naquele wire. ADR-0024: minors pré-1.0 não carregam garantia entre si, e
-o leitor antigo recusar é o comportamento certo diante de grafia que ele não conhece.
+`src/tcf` continua sob aprovação explícita.
 
 ## Onde achar o quê
 
@@ -113,7 +78,7 @@ estrutural, polaridade, bN de domínio, seq-RLE. Round-trip é o contrato: **ou 
 byte, ou falha alto**. Sem dependências de runtime.
 
 Formato vigente `#TCF.8` ([ADR-0032](docs/adr/0032-tcf8-default-format.md)); pacote
-`tcf-format` na `0.8.4` em repo, `0.8.3` no PyPI. Pré-1.0 ([ADR-0024](docs/adr/0024-pre-1.0-versioning-git-as-compat.md)): os
+`tcf-format` na `0.8.4`, publicada. Pré-1.0 ([ADR-0024](docs/adr/0024-pre-1.0-versioning-git-as-compat.md)): os
 minors são iterações de desenvolvimento, **sem compatibilidade rígida entre eles**: versão
 antiga se recupera pelo git. O congelamento definitivo é ato do 1.0.
 

@@ -24,7 +24,6 @@ vários trechos descrevem código que não existe mais, de propósito.
 
 from __future__ import annotations
 
-import os
 import re
 import sys
 from pathlib import Path
