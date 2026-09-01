@@ -1,13 +1,13 @@
 cff-version: 1.2.0
-title: "TCF — Tabular Compact Format"
+title: "TCF: Tabular Compact Format"
 message: "If you use this software, please cite it using these metadata."
 type: software
 authors:
   - given-names: Leonardo
     family-names: Marques Souza
     email: leonardo.marques.souza@gmail.com
-version: "0.7.1"
-date-released: "2026-06-15"
+version: "0.8.4"
+date-released: "2026-09-01"
 repository-code: "https://github.com/LeoPR/TCF"
 license: MIT
 abstract: >
@@ -16,16 +16,20 @@ abstract: >
   Bidirectional Affix Tokenizer) tokenizes via LCP+LCS matching against
   previous strings; HCC (Hierarchical Compositional Coding) provides
   compositional compaction with `~`/`,` operators and auto-naming.
-  Pre-1.0 (ADR-0024): format minors (#TCF.4/.5/.6/.7) are development
-  iterations toward a solid 1.0, without rigid cross-version compatibility
-  (git reproduces older versions). Delta-aware pipeline (auto-cadence
-  detection, shape-preserving OBAT hint, HCC seq-RLE near-identical
-  detection, auto-detect min_len), multi-column support, optional nature
-  specs (CPF/CNPJ/IP). Validated byte-canonical
-  in 9 synthetic datasets (D1-D9, 1523B; D17a multi-col 322B INVARIANT)
-  and real-world (Adult Census + TPC-H 9 tables, -33.02% weighted; plus
-  UCI wine-quality/Beijing-PM2.5/Online-Retail). Benchmarked against
-  csv/jsonl + gzip/brotli/zstd: TCF wins 7/9 datasets.
+  Pre-1.0 (ADR-0024): format minors are development iterations toward a
+  solid 1.0, without rigid cross-version compatibility, since git reproduces
+  older versions. The current wire is #TCF.8, with four families selected by
+  the shape of the input: single-column, multi-column, records (#TCF.8R, a
+  flat rectangular list of dictionaries) and hierarchical. Delta-aware
+  pipeline (auto-cadence detection, shape-preserving OBAT hint, HCC seq-RLE
+  near-identical detection, auto-detect min_len), a never-worse per-column
+  candidate floor (core, raw, dictionary, structural split, domain-bN), and
+  optional semantic specs (CPF/CNPJ/IP/ISO date/zero-padded integer). A
+  read-only lazy view answers counts, filters and group-by without
+  decompressing the whole blob. Validated byte-canonical in 9 synthetic
+  datasets (D1-D9) and real-world (Adult Census + TPC-H 9 tables, -33.02%
+  weighted; plus UCI wine-quality/Beijing-PM2.5/Online-Retail). Benchmarked
+  against csv/jsonl + gzip/brotli/zstd: TCF wins 7/9 datasets.
 keywords:
   - tabular-data
   - compression
