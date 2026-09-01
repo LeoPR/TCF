@@ -68,11 +68,57 @@ atrás de ADRs cuja premissa o código já superou (o padrão que apareceu 3× n
 
 | # | pergunta | por quê |
 |---|---|---|
-| **P1** | Qual a assimetria encode/decode **medida hoje**? (o encode paga `min()` de 4 candidatos; o decode fatia por size) | é a tese central do perfil de transmissão, e **nunca foi medida** |
+| **P1** | Qual a assimetria encode/decode **medida hoje**? (o encode paga `min()` de 4 candidatos; o decode fatia por size) | é a tese central do perfil de transmissão. **MEDIDA em 2026-09-01**, ver a nota abaixo: de 3,6× a 1.060×, conforme a forma do dado |
 | **P2** | O que muda entre "1 encode / 1 decode" e "1 encode / N decodes"? | decide se encode caro se paga |
 | **P3** | A fronteira da ADR-0002 hoje: **onde** o single-pass ainda vale e onde já não vale? | precede qualquer supersede |
 | **P4** | Perfis de *emissão* (um formato, esforço variável) resolvem sem virar `L0..L9`? | preserva a decisão da ADR-0002 |
 | **P5** | O que o Parquet/HDFS resolve que o `.tcfx` sidecar precisaria resolver? | já triado em `T-REL-08:113` como `.9`/2.0 |
+
+## Atualizado 2026-09-01 (0.8.4): o P1 foi medido, e o eixo de cenário ganhou uma direção
+
+### P1, medido
+
+Encode contra decode, melhor de sete, no código da 0.8.4 sem otimização:
+
+| dado | encode | decode | razão |
+|---|---:|---:|---:|
+| categórico de baixa cardinalidade, 2.000 linhas | 55,0 ms | 13,3 ms | 4,1× |
+| IDs zero-padded, 5.000 linhas | 135,4 ms | 37,2 ms | 3,6× |
+| tabela mista, 2.000 linhas | 142,9 ms | 16,5 ms | 8,7× |
+| adult-census real, 3.000 × 15 | 366 ms | 18,1 ms | **20,3×** |
+| texto livre repetitivo, 2.000 linhas | 5.914 ms | 5,6 ms | **1.060×** |
+
+Em vazão, no caso real: **8.194 linhas/s** encodando contra **165.947 linhas/s** decodificando.
+
+A tese do perfil de transmissão se sustenta, e a razão **não é constante**: ela varia duas
+ordens de grandeza com a forma do dado, então "a assimetria do TCF" é uma faixa, não um número.
+Quem calibrar por situação precisa medir a situação.
+
+### A direção que faltava no cenário 1
+
+O contexto acima descreve **um** sentido: muitos clients comprimindo, um servidor central
+descomprimindo. O owner acrescentou o inverso (2026-09-01), e ele tem veredito diferente:
+
+| topologia | quem paga o encode | quem paga o decode | leitura |
+|---|---|---|---|
+| **A. cliente encoda, servidor consome** (upload, telemetria, sync) | cada cliente, 1×, em CPU ociosa | o servidor, N× | o caro é **distribuído e paralelo por construção**, o barato é o concentrado. É o melhor caso, e é o que a assimetria foi desenhada para servir |
+| **B1. servidor encoda o MESMO payload para N clientes** (catálogo, feed, config) | o servidor, 1× | cada cliente, 1× | o encode **amortiza sobre N**, e melhora quanto maior o N. Cada cliente ainda economiza banda e parsing |
+| **B2. servidor encoda payload ÚNICO por requisição** (resposta personalizada) | o servidor, a cada requisição | um cliente, 1× | é **1:1**, e os 366 ms entram no caminho da requisição. Só paga se a rede for o gargalo, ou seja abaixo do break-even de 1,2 a 36 Mbps |
+| **C. disco e armazenamento** | 1× na escrita | N× nas leituras | topologicamente igual ao B1, mas o **concorrente muda**: Parquet e ORC são colunares **com índice**, e ganham em acesso aleatório e predicate pushdown. Não medido: é o P5 |
+
+**A distinção que decide não é "cliente ou servidor", é cacheável ou personalizado.** O B1 e o
+B2 estão do mesmo lado do fio e em lados opostos da conta, e agrupá-los como "o servidor
+enviando" esconde exatamente a variável que importa.
+
+### O que isto NÃO autoriza
+
+O TCF **não é ETL**, e medir em massa serve para ter noção de ordem de grandeza, não para
+decidir. Os números de volume que existem (o `lineitem` de 60k em 475 s, as 500 mil linhas que
+não terminam) descrevem uma **borda**, não o alvo. Usá-los como veredito geral seria tão errado
+quanto usar o caso favorável.
+
+E nada disso mexe na [ADR-0002](../docs/adr/0002-vertice-triplice-restricao.md): continuam
+sendo material para uma decisão, não a decisão.
 
 ## O que este ticket NÃO é
 

@@ -84,12 +84,23 @@ vantagem aparece com linhas.
 
 ## O que isso implica para quem usa
 
-Se o seu dado é escrito uma vez e lido muitas, e tem forma de tabela, a assimetria trabalha a
-seu favor e o `view()` colhe o que o encode plantou. Se é escrito muitas vezes e lido uma, ou
-se é texto livre denso, o TCF está pagando um preço que não vai recuperar.
+A pergunta não é *"o TCF é rápido?"*, é **quem paga o encode e quantas vezes**. O TCF não é
+ferramenta de ETL, e medir em massa serve para ordem de grandeza, não para decidir: a decisão é
+por topologia.
 
-O eixo do `.9` é justamente reduzir o lado caro: o encode é o alvo, e a medição já diz por onde
-começar, porque o gargalo é **cardinalidade**, não volume.
+| topologia | leitura |
+|---|---|
+| **cliente encoda, servidor consome** (upload, telemetria, sync) | o lado caro fica **distribuído** por muitos clientes, um encode cada, em CPU ociosa; o barato fica no servidor, que decodifica N vezes. É o melhor caso, e é o que a assimetria foi desenhada para servir |
+| **servidor encoda o mesmo payload para N clientes** (catálogo, feed, config) | o encode **amortiza sobre N**, e melhora quanto maior o N |
+| **servidor encoda payload único por requisição** | é **1 para 1**, e o encode entra no caminho da requisição. Só paga se a rede for o gargalo |
+| **disco e armazenamento** | escreve uma vez, lê muitas, o que é favorável; mas o concorrente deixa de ser CSV e passa a ser Parquet e ORC, que são colunares **com índice**. Ainda não medido |
+
+A distinção que decide **não é "cliente ou servidor"**: é **cacheável ou personalizado**. Os dois
+casos de servidor estão do mesmo lado do fio e em lados opostos da conta.
+
+O eixo do `.9` é reduzir o lado caro: o encode é o alvo, e a medição já diz por onde começar,
+porque o gargalo é **cardinalidade**, não volume. Até lá, nenhum número de encode desta página
+deve ser lido como definitivo.
 
 ## Ver também
 
