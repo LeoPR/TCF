@@ -126,6 +126,45 @@ def _tipo_single_col(data):
     return None
 
 
+def _registros_flat(data):
+    """`list[dict]` RETANGULAR e PLANA -> as colunas dela; qualquer outra coisa -> `None`.
+
+    A forma da entrada e' METADADO, nao rota (ADR-0049): `[{v: d}, {v: d}]` e `{v: [d, d]}`
+    sao a mesma tabela e devem comprimir igual. Sem esta canonizacao a lista de dicionarios
+    caia no `.8H`, que emite so' a rota `tcf`, sem o `min(tcf, raw, dict, split)` do `.8M`.
+    Medido: ate' +430% na mesma coluna, so' por causa da grafia.
+
+    Recusa (e deixa seguir pro `.8H`, que e' a rota certa pra elas) tudo que nao e' tabela:
+    ragged, aninhado, array na celula, chave nao-str e lista vazia. A recusa e' uma passada
+    so', e as varreduras que ela faz sao as mesmas que o encoder faria depois.
+
+    Recusa TAMBEM quem tem `\\n` ou `\\r` em nome ou valor, e isso NAO e' detalhe: o `.8H`
+    escapa folhas e nomes, o `.8M` os recusa (o wire e' LF-only e o LF separa o meta). Sem
+    esta guarda o roteamento TIRARIA uma capacidade que a entrada ja' tinha, trocando um
+    round-trip que funciona por um `ValueError`, que e' a pior classe de regressao.
+    """
+    if not (isinstance(data, list) and data):
+        return None
+    if not all(type(r) is dict for r in data):
+        return None
+    chaves = list(data[0])
+    if not chaves or not all(isinstance(k, str) for k in chaves):
+        return None
+    if any("\n" in k or "\r" in k for k in chaves):
+        return None                                      # nome com quebra -> .8H escapa
+    # Mesmas chaves NA MESMA ORDEM: a ordem das colunas do wire e' a de entrada, e um
+    # dicionario com as chaves trocadas de lugar descreveria outra tabela.
+    if any(list(r) != chaves for r in data[1:]):
+        return None
+    for r in data:
+        for v in r.values():
+            if isinstance(v, (dict, list)):
+                return None                              # aninhado -> .8H
+            if isinstance(v, str) and ("\n" in v or "\r" in v):
+                return None                              # folha com quebra -> .8H escapa
+    return {k: [r[k] for r in data] for k in chaves}
+
+
 def _tabela_flat(data) -> bool:
     """dict multi-col FLAT: nao-vazio, todos os valores sao list[str] de MESMO tamanho
     (tabela retangular). dict com valor escalar/aninhado, colunas tipadas ou ragged -> .8H.
@@ -371,12 +410,29 @@ def encode(
             por coluna; comportamento inalterado). int >= 1 aplica o mesmo
             min_len a TODAS as colunas (tuning manual). Muda os bytes — so'
             quando passado explicitamente.
-        sort_by: (multi-col, O-FMT-02) reordena as LINHAS pela coluna nomeada
-            antes de encodar, agrupando valores similares -> mais compressao
-            (5-15% em dados com chave low-card). **Order-free**: o decode
-            retorna a ordem ORDENADA, NAO a original (a ordem original NAO e'
-            recuperavel — use so' quando a ordem nao importa). Default None ->
-            sem reordenar (ordem preservada). Ignorado pra list.
+        sort_by: (multi-col, O-FMT-02) AUTORIZA reordenar as LINHAS pela coluna
+            nomeada antes de encodar, agrupando valores iguais. **Order-free**:
+            o decode devolve o mesmo MULTISET de linhas, e a ordem original NAO
+            e' recuperavel, entao use so' quando a ordem nao importa.
+
+            Desde 2026-09-01 (H-14-08) a ordenacao e' um CANDIDATO, nao uma
+            ordem: o encoder emite os dois e fica com o MENOR, entao passar
+            `sort_by` nunca faz o wire crescer. Isso importa porque ordenar
+            agrupa os iguais da CHAVE e desarruma todas as outras colunas:
+            medido, -43,0% quando as companheiras sao funcao da chave e +52,1%
+            quando sao independentes dela. Consequencia: um wire pedido com
+            `sort_by` pode voltar na ordem original, se ordenar nao tiver
+            ajudado, e `view.group_ranges` (que exige contiguidade) pode recusa-lo
+            e o `view.agg_by` cai no caminho order-free sozinho.
+
+            A chave de ordenacao e' `str(valor)`, lexicografica: `'10'` vem antes
+            de `'2'`, e um `None` compara como a string `'None'`. Nao ha' plano de
+            mudar isso, porque a ordenacao aqui existe pra AGRUPAR iguais, e
+            qualquer ordem total agrupa igualmente bem; a ordem em si deixou de
+            ser promessa quando o contrato virou order-free.
+
+            Default None -> sem reordenar (ordem preservada). Em lista de uma
+            coluna e' RECUSADO (ate' 2026-09-01 era ignorado calado).
 
     Returns:
         Texto TCF (str, sempre UTF-8, LF only). **Output byte-identico
@@ -509,6 +565,17 @@ def encode(
         # `_stringify_checked` valida \n/\r (BUG-06); a conversao e' no-op aqui (all-str).
         from tcf.multi.core import _stringify_checked, MAGIC_SINGLE_V3
 
+        if sort_by is not None:
+            # Ate' 2026-09-01 esta rota IGNORAVA o `sort_by`, calada, e o silencio estava
+            # pinado em teste. As outras quatro rotas o recusam alto. O buraco existia
+            # porque uma lista de uma coluna nao tem coluna NOMEADA pra ordenar, e ignorar
+            # parecia inofensivo: nao e'. Quem passou o kwarg pediu uma coisa e recebeu
+            # outra, sem sinal, que e' a classe de falha que este formato mais combate.
+            raise ValueError(
+                f"sort_by={sort_by!r} nao vale em lista de uma coluna: nao ha' coluna "
+                f"nomeada pra ordenar. Ordene a lista voce mesmo (`sorted(...)`), ou passe "
+                f"a tabela como dict de colunas se ela tiver mais de uma."
+            )
         data = _stringify_checked(data)
         magic = MAGIC_SINGLE_V3.decode("utf-8")  # "#TCF.8"
         if nature is not None:
@@ -762,9 +829,29 @@ def encode(
         if nature is not None and side_outputs is not None:
             side_outputs.nature_apply["val"]["used"] = _venc is candidatos[-1]
         return _venc
+    # FORMA REGISTROS -> `#TCF.8R` (ADR-0049). A grafia da entrada e' METADADO, nao rota:
+    # canoniza `list[dict]` retangular nas colunas dela e segue pela rota `.8M`, trocando
+    # so' o discriminador na saida. Custa ZERO byte (o `R` ocupa o slot do `M`) e nao pode
+    # piorar, porque `corpo(.8M) = min(tcf, raw, dict, split) <= corpo(.8H) = tcf`.
+    _colunas_de_registros = _registros_flat(data)
+    if _colunas_de_registros is not None:
+        if sort_by is not None:
+            # NAO liberado junto com a solda, e de proposito. O `sort_by` e' order-free:
+            # ele devolveria a lista do usuario REORDENADA. Em colunas isso ja' e' o
+            # contrato; numa lista de registros a ordem e' a unidade que o chamador ve', e
+            # trocar um erro alto por um reordenamento calado e' exatamente o silencio que
+            # este formato recusa. Se for liberado um dia, e' com aviso proprio.
+            raise ValueError(
+                "sort_by nao vale em lista de registros: ele e' order-free e devolveria a "
+                "lista REORDENADA, silenciosamente. Passe a tabela como dict de colunas "
+                "(`{col: [...]}`), onde a troca de ordem e' o contrato declarado, ou "
+                "ordene a lista voce mesmo antes de encodar."
+            )
+        data = _colunas_de_registros
     if _tabela_flat(data):
         from tcf.multi import _encode_multi
 
+        _dados_ordenados = None
         if sort_by is not None:
             # O-FMT-02: reordena linhas pela coluna-chave (order-free). E' so'
             # um pre-encode transform; output e' TCF normal, decode retorna a
@@ -773,14 +860,21 @@ def encode(
                 raise ValueError(
                     f"sort_by: coluna '{sort_by}' inexistente; colunas: {list(data)}"
                 )
-            if len({len(v) for v in data.values()}) > 1:
-                raise ValueError(
-                    "sort_by requer colunas de mesmo tamanho: "
-                    f"{ {c: len(v) for c, v in data.items()} }"
-                )
+            # Havia aqui um `raise` para colunas de tamanhos diferentes, e ele era CODIGO
+            # MORTO: este bloco so' roda dentro de `_tabela_flat(data)`, que ja' recusa
+            # tabela ragged antes (`len(tamanhos) != 1 -> False`, acima). Um dict ragged
+            # nunca chegava nesta linha: ele cai na rota `.8H`, que rejeita o kwarg com a
+            # mensagem generica de kwargs so'-flat. Removido em 2026-09-01.
             key_col = data[sort_by]
             order = sorted(range(len(key_col)), key=lambda i: str(key_col[i]))
-            data = {c: [v[i] for i in order] for c, v in data.items()}
+            # FLOOR do sort (H-14-08, 2026-09-01): a ordenacao vira CANDIDATO em vez de
+            # ordem. O contrato do `sort_by` JA' e' order-free, entao passa-lo AUTORIZA o
+            # encoder a reordenar; nada o obriga a reordenar quando isso PIORA. E piora com
+            # frequencia: a permutacao da chave agrupa os iguais dela e desarruma todas as
+            # outras colunas, medido em +52,1% numa tabela de 6 colunas independentes (e em
+            # -43,0% quando elas sao funcao da chave, que e' o outro extremo). Aqui os dois
+            # sao encodados e sai o menor, do mesmo jeito que o `.8M` ja' faz por coluna.
+            _dados_ordenados = {c: [v[i] for i in order] for c, v in data.items()}
         # FLOOR: a nature NAO e' mais
         # pre-transformacao FORCADA — os SPECS descem pro _encode_multi, que a faz
         # COMPETIR no min() por coluna (encoda original vs nature-transformada, fica
@@ -804,17 +898,34 @@ def encode(
             if nature_per_col
             else None
         )
-        return _encode_multi(
-            data,
-            side_outputs=side_outputs,
-            parallel=parallel,
-            cfg=cfg,
-            fallback=fallback,
-            min_header=min_header,
-            min_len=min_len,
-            nature_specs=nature_specs,
-            drop_names=drop_names,
-        )
+        def _emite(_tab):
+            return _encode_multi(
+                _tab,
+                side_outputs=side_outputs,
+                parallel=parallel,
+                cfg=cfg,
+                fallback=fallback,
+                min_header=min_header,
+                min_len=min_len,
+                nature_specs=nature_specs,
+                drop_names=drop_names,
+            )
+
+        _wire = _emite(data)
+        if _dados_ordenados is not None:
+            _ord = _emite(_dados_ordenados)
+            if len(_ord.encode("utf-8")) < len(_wire.encode("utf-8")):
+                _wire = _ord
+        if _colunas_de_registros is not None:
+            # A troca do discriminador (ADR-0049). O corpo e o meta sao os do `.8M`; o `R`
+            # so' registra a forma de origem, e por ocupar o mesmo slot nao soma byte.
+            from tcf.wire import DISC_RECORDS, MAGIC_BASE, MAGIC_MULTI
+
+            assert _wire.startswith(MAGIC_MULTI), (
+                f"rota de registros nao emitiu multi: {_wire[:12]!r}"
+            )
+            return MAGIC_BASE + DISC_RECORDS + _wire[len(MAGIC_MULTI):]
+        return _wire
     # ROTA LAZY BOOL .8bB (ADR-0039): uniao bool+str(+null) — hoje cai no `.8H` e
     # fail-loud; o lazy e' o unico candidato que preserva o tipo. kwargs so'-flat
     # rejeitados ANTES de emitir (mesmo contrato do tipado/.8H); se o lazy NAO se

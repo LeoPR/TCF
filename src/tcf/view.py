@@ -36,7 +36,7 @@ from tcf.multi import (
 from tcf.multi.core import _nomes_resolvidos
 from tcf.decoder import _decode_column
 
-from tcf.wire import MAGIC_HIER_B
+from tcf.wire import MAGIC_HIER_B, MAGIC_RECORDS_B
 MAGIC_HIER = MAGIC_HIER_B    # tabela retangular tambem chega por aqui
 
 
@@ -226,6 +226,13 @@ class LazyTCF:
     # ---- parse do header (barato; sem decodificar corpos) ----
     def _parse(self, blob: str) -> None:
         raw = blob.encode("utf-8")
+        if raw.startswith(MAGIC_RECORDS_B):
+            # `#TCF.8R` (ADR-0049) é um wire MULTI com a forma de origem registrada no
+            # discriminador. Para a view a forma de origem não muda nada: o que ela serve
+            # são COLUNAS, que é o que o corpo guarda. Normalizar aqui evita que o dispatch
+            # abaixo o tome por single-col (ele não começa com `#TCF.8M`) e o leia errado.
+            raw = MAGIC_MULTI_V3 + raw[len(MAGIC_RECORDS_B):]
+            blob = raw.decode("utf-8")
         nl1 = raw.find(b"\n")
         line1 = raw if nl1 == -1 else raw[:nl1]
         if nl1 == -1 and line1.startswith(b"#TCF."):
@@ -856,9 +863,27 @@ class LazyTCF:
                 from tcf.hierarchical import _dec_scalar
                 unicas = [None if u is None or u == "" else _dec_scalar(u, stype)
                           for u in unicas]
-            tally = Counter()
-            for off in range(0, len(stream), width):
-                tally[unicas[_idx_at(stream, off, width)]] += 1
+            # Contagem sobre o stream de índices, e o custo aqui é o do LAÇO, não o da
+            # leitura. Havia um `_idx_at` por LINHA, e `_idx_at` é uma função Python com
+            # um laço dentro: N chamadas para responder uma pergunta que tem K respostas.
+            # Medido antes da troca: 10,7 ms contra 1,6 ms do caminho que materializa, num
+            # blob de 20.000 linhas, ou seja o caminho "estrutural" lia menos e demorava
+            # 6,5x mais. Agora o `Counter` conta em C e o `_idx_at` roda K vezes, uma por
+            # índice distinto, em vez de N.
+            if width == 1:
+                bruto = Counter(stream)          # bytes: itera em C, sem lista intermediária
+                pares = ((b - 0x21, n) for b, n in bruto.items())
+            else:
+                bruto = Counter(
+                    stream[off:off + width] for off in range(0, len(stream), width))
+                pares = ((_idx_at(p, 0, width), n) for p, n in bruto.items())
+            # A soma por VALOR, e não a atribuição: dois índices distintos podem virar o
+            # mesmo valor depois do cast de tipo (`"1"` e `"01"` são únicos diferentes na
+            # tabelinha e ambos viram `1` num `int`). Uma comprehension sobrescreveria uma
+            # das contagens em vez de somá-las.
+            tally: Counter = Counter()
+            for idx, n in pares:
+                tally[unicas[idx]] += n
             return dict(tally)
         return dict(Counter(self._col(col)))
 
@@ -941,8 +966,13 @@ class LazyTCF:
         `por` aceita uma coluna ou uma lista, e com lista a chave é a tupla dos
         valores, que é o `GROUP BY a, b`.
 
-        Diferente de `agg_by`, que é mais barato mas exige a tabela já ordenada pela
-        chave (`encode(..., sort_by=)`): aqui a ordem não importa.
+        Diferente de `agg_by`, que prefere o layout contíguo quando ele existe: aqui a
+        ordem não importa nunca. Esta é a rota a usar por padrão.
+
+        A afirmação de que o `agg_by` seria "mais barato" esteve aqui e **foi medida e não
+        se confirmou** (2026-09-01): os dois materializam as mesmas colunas, decodificam as
+        mesmas linhas e devolvem o mesmo resultado, e o caminho por intervalos saiu 3,6%
+        mais lento. O que o layout contíguo compra é forma, não trabalho.
         """
         return self._group_agg(por, col, "sum", idx)
 
@@ -1077,7 +1107,23 @@ class LazyTCF:
         `op='count'` (default) usa só os intervalos; `sum/min/max/avg` agregam `col`
         em cada intervalo (a coluna é decodificada UMA vez; cada grupo = um slice).
         É o 'qtd por usuário': `agg_by('usuario', 'qtd', 'sum')`."""
-        ranges = self.group_ranges(key)
+        try:
+            ranges = self.group_ranges(key)
+        except ValueError:
+            # A chave não está contígua, e isso deixou de ser erro aqui (2026-09-01). Duas
+            # razões, e a segunda é a que obriga. A primeira: medido, o caminho por
+            # intervalos não é mais barato que o order-free (mesmas colunas
+            # materializadas, mesmas linhas decodificadas, 3,6% mais lento), então exigir
+            # contiguidade cobrava sem entregar. A segunda: com o FLOOR do `sort_by`
+            # (H-14-08) o encoder emite ordenado só quando isso encolhe, então um blob
+            # pedido com `sort_by` pode legitimamente chegar fora de ordem, e `agg_by`
+            # levantar aí seria imprevisível para quem não escolheu o layout.
+            #
+            # O `group_ranges` continua estrito de propósito: ele é o inspetor de LAYOUT,
+            # e a pergunta "esta coluna está agrupada?" precisa de uma resposta honesta.
+            if op == "count":
+                return self.group_count(key)
+            return self._group_agg(key, col, op)
         if op == "count":
             return {v: e - s for v, (s, e) in ranges.items()}
         fn = {"sum": self.sum, "min": self.min, "max": self.max, "avg": self.avg}[op]

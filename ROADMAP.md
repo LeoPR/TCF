@@ -121,11 +121,17 @@ novas rotas de sub-TCF vão para lab/`.9`. Owners:
 
 ### Decisões do owner ainda abertas
 
-- **Tag de tipo por coluna no `.8M`** (decidir antes do `.9`). Hoje **uma** coluna tipada
-  (`int`, `bool`, `float`) ou um `None` tira a tabela retangular do `.8M` e a manda para o
-  `.8H`, onde não roda a competição `min(tcf, raw, dict, split)`. Custo medido: **+43,6%**
-  de bytes no adult-census, **+55,6%** num sintético de 500 linhas. Junto vão o `schema=`
-  (levanta `HierarchicalError` com qualquer coluna tipada) e os knobs do multi-col.
+- ~~**Tag de tipo por coluna no `.8M`**~~ **FECHADA** em duas etapas, e nada resta dela. A
+  premissa era que uma coluna tipada (`int`, `bool`, `float`) ou um `None` tirava a tabela
+  retangular do `.8M` e a mandava para o `.8H`, onde a competição `min(tcf, raw, dict, split)`
+  não roda. Custava **+43,6%** no adult-census e **+55,6%** num sintético de 500 linhas.
+
+  O lado `dict` caiu em 2026-08-26: o tipo passou a viajar como tag de 1 byte no meta
+  (`!8N=valor`) e o nulo pelo slot 0 do core, então coluna tipada deixou de tirar a tabela do
+  `.8M`. O lado `list[dict]` caiu com o **ADR-0049**: a tabela retangular escrita como lista de
+  registros roteia para o `#TCF.8R`, que é o corpo do `.8M`. Com os dois, não sobra entrada
+  retangular que a tipagem empurre para o `.8H`, e o `schema=` funciona nas duas grafias.
+  O que continua no `.8H` é o que de fato é hierárquico: ragged, aninhado e array na célula.
   A `view` já lê as duas rotas (`BUG-VIEW-RECUSA-COLUNA-TIPADA`, fechado), então o que
   falta é o **byte** e o `schema=`. Muda o formato, então pede ADR, e implica reservar
   um id por tipo. Sobre a POSIÇÃO da tag: o que colide depois do size é o alfabeto

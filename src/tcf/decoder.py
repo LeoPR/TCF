@@ -58,7 +58,7 @@ from tcf.composicional.hcc_seqrle import HCCSeqRLE
 # ''=single version-stamp (#TCF.8, magic-number p/ file), 'H'=hierarquico VIVO
 # (codec soldado, ADR-0033 — NAO e' mais reservado/fail-loud), 'b'/'n'/'s'=single-col
 # TIPADO (bool/numero/string-explicita). Legado #TCF.6/#TCF.7 CORTADO (git-as-compat).
-from tcf.wire import MAGIC_BASE
+from tcf.wire import DISC_RECORDS, MAGIC_BASE
 _V8_MAGIC = MAGIC_BASE  # a era vigente (tcf.wire); o disc (char no indice 6) decide
 
 
@@ -215,7 +215,7 @@ def decode(
     # (forma `min_header`), entao `#TCF.8Mobs.` separava ('Mobs', '.') e a coluna decodava
     # como `obs` — RT quebrado CALADO em 48/64 nomes (.8M) e 38/64 (.8H), 0 warnings.
     # Custo em bytes: ZERO (nada muda no que o encode emite).
-    if _ver == "8" and line1[6:7] not in ("M", "H"):
+    if _ver == "8" and line1[6:7] not in ("M", "H", DISC_RECORDS):
         _tag, _sufixo = _separa_sufixo_polaridade(line1[6:])
         if _sufixo:
             from tcf.composicional.polaridade import despolariza
@@ -250,13 +250,20 @@ def decode(
         )
     # FAIL-LOUD (ADR-0032 §6): discriminador reservado/desconhecido apos '#TCF.8' NAO
     # pode degradar pra decode orfao silencioso (corrompe).
-    if disc8 is not None and disc8 not in ("M", " ", ""):
+    if disc8 is not None and disc8 not in ("M", DISC_RECORDS, " ", ""):
         raise ValueError(f"#TCF.8: discriminador {disc8!r} desconhecido — nao decodavel.")
 
-    # MULTI: #TCF.8M (disc 'M', meta inline).
-    if disc8 == "M":
+    # MULTI: #TCF.8M (disc 'M', meta inline) e REGISTROS: #TCF.8R (disc 'R', ADR-0049).
+    # O `R` tem o MESMO corpo e o MESMO meta do multi: ele so' registra que a entrada veio
+    # como `list[dict]`, entao o caminho e' um so' e a remontagem acontece no fim.
+    if disc8 in ("M", DISC_RECORDS):
         from tcf.multi import _decode_multi_impl
 
+        if disc8 == DISC_RECORDS:
+            # O parser multi confere o proprio magic, e ele exige `#TCF.8M` com razao: ele
+            # decodifica MULTI. A forma de origem e' assunto desta camada, entao a troca do
+            # discriminador se desfaz aqui, e o `multi/core.py` segue sem saber do `R`.
+            tcf_text = MAGIC_BASE + "M" + tcf_text[len(MAGIC_BASE) + 1:]
         result, header_ids, casts_adiados = _decode_multi_impl(tcf_text)
 
         def _aplica_casts_adiados():
@@ -325,6 +332,14 @@ def decode(
         _avisa_schema_ignorado(nature_per_col, list(result), header_resolved,
                                where="decode(schema=) multi-col")
         _aplica_casts_adiados()
+        if disc8 == DISC_RECORDS:
+            # REMONTA a forma de origem (ADR-0049). O wire guarda colunas; a entrada era
+            # uma lista de dicionarios, e e' nela que o `decode` devolve. As colunas do
+            # `.8R` sao retangulares por construcao (a canonizacao so' aceita tabela), e a
+            # ORDEM das chaves e' a de emissao, que e' a da entrada.
+            _nomes = list(result)
+            _n = len(result[_nomes[0]]) if _nomes else 0
+            return [{k: result[k][i] for k in _nomes} for i in range(_n)]
         return result
 
     # SINGLE + SPEC: '#TCF.8 [nome]:spec' (disc espaco). Retorna LIST.

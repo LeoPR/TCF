@@ -11,7 +11,9 @@ object with the same methods, so filters chain.
 
 ## What it reads
 
-`#TCF.8M` (multi-column), `#TCF.8H` when it is a rectangular table, and the single-column
+`#TCF.8M` (multi-column), `#TCF.8R` (records: the flat rectangular `list[dict]`, which since
+[ADR-0049](../adr/0049-marcador-r-a-forma-da-entrada-e-metadado.md) is a multi wire with the
+discriminator swapped), `#TCF.8H` when it is a rectangular table, and the single-column
 route in all of its forms (`#TCF.8`, `#TCF.8n`, `#TCF.8b`, `#TCF.8bB`, `#TCF.8 :spec`, and
 the dense `B`/`C`), plus the **orphan** wire without magic (`stamp=False`), read the way
 `decode` reads it. In a single column the name is `"0"`, as in any anonymous column
@@ -283,10 +285,12 @@ chaining `where` is always AND, but within one column the predicate expresses OR
 It does not read what is not a table. Nested, ragged and optional fields make the view
 refuse with a message telling you to use `decode()`; a `dict` of columns with different
 lengths (`#TCF.8H#O`) is refused at opening with the same sentence. Null is **not**
-absence: since 2026-08-28, `encode([{"a": 1}, {"a": None}])` produces a blob
-(`#TCF.8Ha?0:...`) the view reads as a table, and `select`, `where("a", None)` and
-`group_count` answer the same as the equivalent `.8M` table. A wire without magic
-(`stamp=False`) is read too, mirroring `decode`: one column `"0"` of strings.
+absence: `encode([{"a": 1}, {"a": None}])` produces a blob (`#TCF.8R5N=a...`) the view
+reads as a table, and `select`, `where("a", None)` and `group_count` answer the same as
+the equivalent `.8M` table, because since
+[ADR-0049](../adr/0049-marcador-r-a-forma-da-entrada-e-metadado.md) that is the route it
+takes. A wire without magic (`stamp=False`) is read too, mirroring `decode`: one column
+`"0"` of strings.
 
 > **Why the distinction exists, and how each case is asked for**: a cell can be in three
 > situations (has a value, exists and is null, does not exist), and a table only has two. The

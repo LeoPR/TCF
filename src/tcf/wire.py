@@ -64,6 +64,15 @@ class Era(NamedTuple):
         """A assinatura hierárquica: `#TCF.8H`."""
         return f"{self.base}H"
 
+    @property
+    def records(self) -> str:
+        """A assinatura da forma **registros**: `#TCF.8R` (ADR-0049).
+
+        Mesmo corpo e mesmo meta do `multi`: o `R` só registra que a entrada veio como
+        `list[dict]`, para o decode remontar na forma em que chegou.
+        """
+        return f"{self.base}R"
+
 
 # A vigente primeiro. No máximo duas linhas, e o teste garante.
 WIRE_ERAS: tuple[Era, ...] = (
@@ -78,10 +87,19 @@ ERA_EM_SUNSET: Era | None = WIRE_ERAS[1] if len(WIRE_ERAS) > 1 else None
 MAGIC_BASE: str = ERA_ATUAL.base
 MAGIC_MULTI: str = ERA_ATUAL.multi
 MAGIC_HIER_STR: str = ERA_ATUAL.hier
+MAGIC_RECORDS: str = ERA_ATUAL.records
 
 MAGIC_BASE_B: bytes = MAGIC_BASE.encode("ascii")
 MAGIC_MULTI_B: bytes = MAGIC_MULTI.encode("ascii")
 MAGIC_HIER_B: bytes = MAGIC_HIER_STR.encode("ascii")
+MAGIC_RECORDS_B: bytes = MAGIC_RECORDS.encode("ascii")
+
+DISC_RECORDS: str = "R"
+"""O discriminador da forma registros, no índice 6 (ADR-0049).
+
+Vale como constante porque três módulos precisam concordar sobre ele: o `encoder` que o
+emite, o `decoder` que o roteia e o `view` que o normaliza para o caminho multi.
+"""
 
 
 def e_da_era_atual(blob: str | bytes) -> bool:

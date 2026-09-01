@@ -1,8 +1,9 @@
 # TCF ↔ JSON: quasi-equivalências (referência)
 
-> **Semente do manual.** Registro consolidado do que o `#TCF.8H` traduz de/para JSON, o que faz a
+> **Semente do manual.** Registro consolidado do que o TCF traduz de/para JSON, o que faz a
 > MAIS, e a fronteira declarada. Todos os wires abaixo foram **confirmados por execução**
-> (`encode` → `.tcf` → `decode`, RT: entrada aninhada roteia pro `#TCF.8H`). Estado: 2026-07-23, suíte 861 passed.
+> (`encode` → `.tcf` → `decode`, RT: entrada aninhada roteia pro `#TCF.8H`; a lista de registros
+> retangular e plana roteia pro `#TCF.8R`, [ADR-0049](../adr/0049-marcador-r-a-forma-da-entrada-e-metadado.md)). Estado: 2026-07-23, suíte 861 passed.
 >
 > **Escopo**: o TCF **não lê texto JSON**: ele lê o **dataset** (dict/array/escalar) que a
 > linguagem constrói ao parsear a fonte. São **dois contratos independentes**: o da lib json
@@ -52,17 +53,17 @@ json não gera clareza sozinho. Se o TCF deixa um dataset que uma libjson popula
 (`scripts/bench_perf/pivot.py`) é semente; o mecanismo pleno é **pós-`.8`, indefinido** (registrado no
 roadmap-hipoteses). Anotado, não resolvido.
 
-## 2. Tabela de equivalência (construto JSON → `.8H`)
+## 2. Tabela de equivalência (construto JSON → wire)
 
-| construto JSON | incremento | wire `.8H` (exemplo) | RT |
+| construto JSON | incremento | wire (exemplo) | RT |
 |---|---|---|:--:|
-| objeto `{}` (1:1) | espinha | `#TCF.8Ha:3n,nome` | ✅ |
+| objeto `{}` (1:1) | espinha | `#TCF.8R!1N=a,!nome` | ✅ |
 | aninhamento arbitrário | espinha | `#TCF.8Ha{b#:3[]:8n` | ✅ |
 | array de objetos (1:N) | espinha | `#TCF.8Hitens#:3[n:8n` | ✅ |
 | **chave opcional / ragged** | P1 | `#TCF.8Ha:8n,b?:4:3n` (máscara 3-estados) | ✅ |
-| **number (int/float)** | P2 | `#TCF.8Hn:4n` (tag `n`, `json.dumps/loads`) | ✅ |
-| **`true`/`false`** | P2 | `#TCF.8Hok:5b` (tag `b`) | ✅ |
-| **`null` em campo** (≠ ausente ≠ `"null"`) | P3a | `#TCF.8Ha?0:3:0,b:3n` (coluna **densa** com nulos: element-mask 2-estados `?0:`, `0`=None; campo **opcional** com nulos segue a máscara 3-estados `?:`, desde 2026-08-28) | ✅ |
+| **number (int/float)** | P2 | `#TCF.8R!2N=n` (tag `N`, `json.dumps/loads`) | ✅ |
+| **`true`/`false`** | P2 | `#TCF.8R!4B=ok` (tag `B`) | ✅ |
+| **`null` em campo** (≠ ausente ≠ `"null"`) | P3a | `#TCF.8R2=a,!1N=b` (coluna **densa** com nulos: rota flat, e no corpo a linha inteira igual a `0` é o slot 0 reservado, ou seja `None`; campo **opcional** com nulos é ragged, fica no `#TCF.8H` e segue a máscara 3-estados `?:`, desde 2026-08-28) | ✅ |
 | **`null` em elemento de array** | P3b | `#TCF.8Hv#:3?:8[]:8n` (element-mask) | ✅ |
 | **array-em-array** (profundidade arbitrária) | P4a | `#TCF.8Hm#:3[#:8[]:8n` (count recursivo) | ✅ |
 | **raiz = objeto único** | P4b | `#TCF.8H#Oa:3n` | ✅ |
@@ -77,7 +78,7 @@ roadmap-hipoteses). Anotado, não resolvido.
 
 ## 3. O que o TCF faz A MAIS que o JSON de interoperabilidade
 
-- **⊃ I-JSON em inteiros**: `int > 2^53` faz RT no TCF (`#TCF.8Ha:18n`); a RFC 7493 (I-JSON) os
+- **⊃ I-JSON em inteiros**: `int > 2^53` faz RT no TCF (`#TCF.8R!10N=a`); a RFC 7493 (I-JSON) os
   **proíbe** (§2.2, faixa segura IEEE 754). O TCF preserva o inteiro exato.
 - **É mais SEGURO que o `json.dumps` do Python** em 4 pontos (o TCF fail-louda onde o json perde
   calado, ver §4): NaN/Infinity, tuple→list, chave não-str (o json **fabrica duplicata**), lone

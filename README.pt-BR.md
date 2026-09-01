@@ -168,7 +168,7 @@ cabeçalho registra `:cpf`. Cada valor cai de 14 caracteres para 5 (`%g$.u` = `1
 
 **E os mesmos registros aninhados**: o JSON que sua API de fato envia.
 
-Desde a 0.8, o `#TCF.8H` faz round-trip do **dataset que sua linguagem constrói a partir do
+Desde a 0.8, o TCF faz round-trip do **dataset que sua linguagem constrói a partir do
 JSON**: objetos/arrays aninhados, `null`, e `true`/`false`/números tipados. Ele lê o *dataset*
 (dict / list / escalar), nunca o texto JSON.
 
@@ -408,12 +408,19 @@ text = encode(table)        # 0.8 / #TCF.8M, é o default, sem flags
 text = encode(table, fallback=False, min_header=False)  # só candidatos TCF, meta verboso
 text = encode(table, min_header=False)                  # #TCF.8M com todos os tamanhos
 text = encode(table, min_len=5)                         # override do min_len do OBAT (default: auto)
-text = encode(table, sort_by="email")                   # ordena linhas pela coluna (order-free, +compressão)
+text = encode(table, sort_by="email")                   # AUTORIZA ordenar por essa coluna (order-free)
 ```
 
-> `sort_by` reordena as linhas pela coluna (agrupa similares → menos bytes,
-> 5-15% com chave low-card). É **order-free**: o `decode` devolve a ordem
-> ordenada, não a original. Use só quando a ordem das linhas não importa.
+> `sort_by` **autoriza** reordenar as linhas pela coluna, e agrupar iguais pode
+> render menos bytes. É **order-free**: o `decode` devolve o mesmo conjunto de
+> linhas, e a ordem original não volta. Use só quando a ordem não importa.
+>
+> Desde a 0.8.4 a ordenação é um **candidato**, não uma ordem: o encoder emite as
+> duas versões e fica com a menor, então passar `sort_by` nunca faz o wire crescer.
+> Importa porque ordenar agrupa os iguais da chave e desarruma as outras colunas:
+> medido, −43,0% quando elas são função da chave e +52,1% quando são
+> independentes dela. Consequência prática: o resultado pode voltar na ordem
+> original, se ordenar não tiver ajudado.
 
 No cadastro de 5 colunas do topo, a saída default `#TCF.8M` dá **242 B**, com o meta
 `!2c=nome,2a=email,1c=cidade,14=plano,!cpf`.
@@ -615,16 +622,17 @@ por cima faria o mesmo.
 Agregadores: `count`, `sum`, `min`, `max`, `avg` + `where`.
 
 Os **L3–L5 já estão implementados**: contar/agrupar **sem expandir**, via dicionário ou raw;
-filtro pelo índice do dicionário; e group-by por **layout ordenado** (`sort_by`). Vale a
-ressalva: o `*N|` do modo-tcf é entrelaçado, **não separável**.
+filtro pelo índice do dicionário; e group-by, que aproveita o layout ordenado quando ele
+existe e cai no caminho order-free quando não existe. Vale a ressalva: o `*N|` do modo-tcf
+é entrelaçado, **não separável**.
 
 Em dados reais (online-retail, 5 000 × 8), responder *"quantos itens o usuário X comprou"* com
 `where(CustomerID=X).sum("Quantity")` **materializa 7,9% do blob**, contra 100% de um `decode()`.
 Um `count()` não materializa nada: a contagem de linhas está declarada na estrutura,
 então sai sem construir um único valor. Memória e latência baixas caem direto da estrutura.
 
-É uma API read-only do core, e lê o `#TCF.8M`, o `#TCF.8H` quando é retangular e a rota de
-coluna única.
+É uma API read-only do core, e lê o `#TCF.8M`, o `#TCF.8R` (registros), o `#TCF.8H` quando é
+retangular e a rota de coluna única.
 
 Superfície atual: `count`, `sum`, `min`, `max`, `avg`, `where`, `select`, `distinct`,
 `n_unique` e a família de agrupamento (`group_count`, `group_sum`, `group_min`, `group_max`,

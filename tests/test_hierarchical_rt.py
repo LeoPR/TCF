@@ -8,7 +8,7 @@ pelos test_core_rt / test_regression_v1_baseline / test_real_world_snapshots).
 import pytest
 
 from tcf import decode, encode
-from tcf.hierarchical import HierarchicalError
+from tcf.hierarchical import HierarchicalError, _encode_hierarchical
 
 
 CLASSICOS = {
@@ -448,7 +448,7 @@ def test_folha_com_escape_invalido_fail_loud():
     Camadas (medido): o L1 tem escape PRÓPRIO e já consome `\\X` -> `X` (leniência dele,
     pré-existente). Para o nosso `_unesc_leaf` VER um `\\q`, o wire precisa trazer `\\\\q`.
     """
-    blob = encode([{"a": "x"}])
+    blob = _encode_hierarchical([{"a": "x"}])   # ADR-0049: sujeito e' o .8H
     hostil = blob.replace("\nx\n", "\n\\\\q\n")          # wire `\\q` -> L1 entrega `\q` a nós
     with pytest.raises(HierarchicalError, match="escape invalido|dangling"):
         decode(hostil)
@@ -456,7 +456,7 @@ def test_folha_com_escape_invalido_fail_loud():
 
 def test_folha_escape_dangling_fail_loud():
     """`\\` sozinho no fim da folha (inemitível: o encoder sempre dobra)."""
-    blob = encode([{"a": "x"}])
+    blob = _encode_hierarchical([{"a": "x"}])   # ADR-0049: sujeito e' o .8H
     hostil = blob.replace("\nx\n", "\n\\\\\\\\\\\\\n")   # wire `\\\\\\` -> L1 entrega `\\\` (ímpar)
     with pytest.raises(HierarchicalError, match="dangling|escape invalido"):
         decode(hostil)
@@ -825,7 +825,7 @@ def test_nome_duplicado_fail_loud():
 def test_corpo_perdido_e_bytes_apendados_fail_loud():
     with pytest.raises(HierarchicalError, match="frame vazio"):
         decode("#TCF.8Hx\n")                            # corpo inteiro perdido
-    blob = encode([{"x": 30}])             # typed → all-sized
+    blob = _encode_hierarchical([{"x": 30}])             # typed → all-sized
     with pytest.raises(HierarchicalError, match="não referenciados"):
         decode(blob + "LIXO")                           # bytes apendados
 
@@ -920,7 +920,7 @@ def test_hier_nature_path_invalido_fail_loud(path, motivo):
 
 def test_grafia_emask_escalar_denso_com_nulo():
     # `?0:` = "chave presente em TODAS as linhas, com nulos"; `?:` segue sendo opcional
-    assert encode([{"a": "x"}, {"a": None}]).startswith("#TCF.8Ha?0:")
+    assert _encode_hierarchical([{"a": "x"}, {"a": None}]).startswith("#TCF.8Ha?0:")
     assert encode([{"a": 1}, {"b": 2}]).startswith("#TCF.8Ha?:")
 
 
@@ -960,7 +960,9 @@ def test_emask_escalar_com_char_invalido_fail_loud():
 
 def test_contraprova_ragged_e_sem_nulo_byte_identicos():
     assert encode([{"a": 1}, {"b": 2}]) == "#TCF.8Ha?:4:3n,b?:4:3n\n.\n-\n\\1\n-\n.\n\\2\n"
-    assert encode([{"a": "x"}, {"a": "y"}]) == "#TCF.8Ha\nx\ny\n"
+    assert _encode_hierarchical([{"a": "x"}, {"a": "y"}]) == "#TCF.8Ha\nx\ny\n"
+    # ADR-0049: pela rota pública o retangular vai pro `#TCF.8R`, e sai menor.
+    assert encode([{"a": "x"}, {"a": "y"}]) == "#TCF.8R!a\nx\ny"
 
 
 def test_emask_escalar_em_array_de_objetos_e_com_spec():
@@ -972,9 +974,18 @@ def test_emask_escalar_em_array_de_objetos_e_com_spec():
     ips = ["203.47.211.94", "178.54.193.67", "191.86.245.32", "159.203.74.89",
            "187.109.33.46", "203.107.198.245"]
     d2 = [{"c": v if i else None} for i, v in enumerate(ips)]
-    w2 = encode(d2, schema={"c": "ip"})
+    # ADR-0049: a grafia `?0:` é do `.8H`, e a rota pública mandou esta tabela pro `.8R`.
+    # O `.8H` continua sendo o sujeito aqui; a rota nova é conferida logo abaixo.
+    from tcf.natures import SPEC_REGISTRY
+
+    w2 = _encode_hierarchical(d2, nature_per_col={"c": SPEC_REGISTRY["ip"]})
     assert w2.split("\n", 1)[0].startswith("#TCF.8Hc?0:") and ":ip" in w2.split("\n", 1)[0]
     assert decode(w2) == d2
+    # e o spec sobrevive ao roteamento: a decisão de aplicar é a mesma, e o wire é menor
+    w3 = encode(d2, schema={"c": "ip"})
+    assert w3.startswith("#TCF.8R") and ":ip" in w3.split("\n", 1)[0]
+    assert decode(w3) == d2
+    assert len(w3.encode("utf-8")) < len(w2.encode("utf-8"))
 
 
 def test_chave_tuple_deixa_de_virar_coluna_calada():
@@ -996,7 +1007,7 @@ def test_cr_cru_no_wire_e_recusado_em_vez_de_virar_dado():
     já tinha sido fechada antes (BUG-BB-CR-CRU).
     """
     d = [{"a": "x"}, {"a": "y"}]
-    w = encode(d)
+    w = _encode_hierarchical(d)   # ADR-0049: o .8H e' o sujeito
     assert "\r" not in w                      # o encoder não emite CR
     assert decode(w) == d
 

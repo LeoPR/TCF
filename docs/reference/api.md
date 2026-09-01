@@ -14,8 +14,8 @@ from tcf import TemplatedCheckedSpec, TemplatedPaddedSpec
 | símbolo | papel |
 |---|---|
 | **`encode(data, **kwargs)`** | dataset → wire `str`. **Porta única de encode**; rota por TIPO (tabela abaixo). |
-| **`decode(str)`** | wire → dataset. Auto-rota pelo magic (`#TCF.8M`/`#TCF.8H`/`#TCF.8`/órfão). |
-| **`view(...)` · `LazyTCF` · `Filtered`** | consulta lazy read-only: `#TCF.8M`, `#TCF.8H` retangular (nulo denso incluso), a rota de coluna única e o órfão (ver [`lazy-view.md`](lazy-view.md) e [`consultar-sem-decodificar.md`](../how-to/consultar-sem-decodificar.md)). |
+| **`decode(str)`** | wire → dataset. Auto-rota pelo magic (`#TCF.8M`/`#TCF.8R`/`#TCF.8H`/`#TCF.8`/órfão). |
+| **`view(...)` · `LazyTCF` · `Filtered`** | consulta lazy read-only: `#TCF.8M`, `#TCF.8R`, `#TCF.8H` retangular (nulo denso incluso), a rota de coluna única e o órfão (ver [`lazy-view.md`](lazy-view.md) e [`consultar-sem-decodificar.md`](../how-to/consultar-sem-decodificar.md)). |
 | **`SideOutputs`** | telemetria opt-in (`encode(x, side_outputs=so)`). |
 | **`PipelineConfig`** | toggles do pipeline flat (`encode(x, layers=cfg)`). |
 | **`build_schema` · `TableSchema` · `ColumnSchema`** | schema per-tabela. |
@@ -32,7 +32,8 @@ from tcf import TemplatedCheckedSpec, TemplatedPaddedSpec
 | `list[str \| None]` (str e/ou null), ≥1 item | single-col flat | `#TCF.8` (7 B, **default**; ADR-0034) |
 | `list[bool \| None]` · `list[int \| float \| None]` | single-col **tipada** | `#TCF.8b` · `#TCF.8n` |
 | `dict[str, list[str]]` retangular, **0 linhas inclusive** | multi-col flat | `#TCF.8M` |
-| `list[dict]` (dataset) · `dict` com valor escalar/aninhado · dict **ragged** · escalar solto · `[]` · `{}` · `list`/coluna **tipada** (item não-str) | hierárquico | `#TCF.8H` (`#D`/`#E`/`#O`/`#V`) |
+| `list[dict]` **retangular e plana**: mesmas chaves na mesma ordem, célula escalar, sem `\n`/`\r` em nome ou valor | multi-col flat, com a **forma de origem** registrada no header | `#TCF.8R` ([ADR-0049](../adr/0049-marcador-r-a-forma-da-entrada-e-metadado.md)) |
+| `list[dict]` **fora dessa peneira** (ragged, aninhada, array na célula, chave não-`str`, `\n`/`\r` em nome ou valor) · `dict` com valor escalar/aninhado · dict **ragged** · escalar solto · `[]` · `{}` · `list`/coluna **tipada** (item não-str) | hierárquico | `#TCF.8H` (`#D`/`#E`/`#O`/`#V`) |
 | `list[bool \| str \| None]` com **≥1 bool E ≥1 str** | single-col **lazytype** | `#TCF.8bB` (ADR-0039) |
 | tipo não-JSON (bytes, tuple, função, objeto custom) ou **array de tipos mistos** (union) **fora** da união bool+str | **fail-loud** | nenhum (ensina a converter/separar) |
 
@@ -146,6 +147,13 @@ comparar com o que outras ferramentas fazem,
     caso com efeito: ele **não** desliga o corpo `@` do vazio, porque o candidato `raw` de 0
     linhas tem corpo de zero byte e volta como *uma linha vazia*. É desobediência
     deliberada: nenhum knob de bytes compra perda de dado.
+  - **Exceção declarada, lista de registros retangular**: ela também virou flat (`.8R`,
+    [ADR-0049](../adr/0049-marcador-r-a-forma-da-entrada-e-metadado.md)), então `layers`,
+    `min_len`, `stamp`, `parallel`, `fallback`, `min_header` e `drop_names` **passaram a ser
+    aceitos** sobre `[{'uf': 'SP'}, {'uf': 'RJ'}]`, onde antes levantavam. Dois seguem
+    **recusados**, cada um com a mensagem que já tinha: o `sort_by`, porque é order-free e
+    devolveria a lista do usuário reordenada em silêncio (liberá-lo é decisão própria, com
+    aviso próprio), e o `name`, que só tem efeito em single-col com schema escalar.
 
 ### `stamp`: o header do single-col
 

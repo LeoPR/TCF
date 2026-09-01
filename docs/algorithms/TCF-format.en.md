@@ -62,7 +62,10 @@ Verifiable (the messages come from the code, in Portuguese): `decode('#TCF.6M ..
 *"blob #TCF.5: versao desconhecida deste decoder"*.
 
 **`#TCF.8` is the DEFAULT format** ([ADR-0032](../adr/0032-tcf8-default-format.md)): every multi-col
-emits `#TCF.8M`; flat single-col emits **`#TCF.8`** by DEFAULT (7 B). The orphan (body with no
+emits `#TCF.8M`, except a flat rectangular `list[dict]`, which emits the same wire with the
+discriminator swapped for `R`
+([ADR-0049](../adr/0049-marcador-r-a-forma-da-entrada-e-metadado.md)); flat single-col emits
+**`#TCF.8`** by DEFAULT (7 B). The orphan (body with no
 signature) is the explicit ESCAPE `stamp=False`
 ([ADR-0034](../adr/0034-header-default-100-porcento-single-col.md); ADR-0029 layer 1 /
 <!-- legado-ok: a spec documenta o erro NOMEADO que o decoder levanta hoje; a mensagem vem do codigo -->
@@ -71,8 +74,9 @@ fail-loud on decode, with a git hint. Self-describing: natures (ADR-0027) + hex 
 the header.
 
 **1-char discriminator** ([ADR-0029](../adr/0029-version-format-identification-semi-implicit.md) +
-[ADR-0031](../adr/0031-hierarchical-discriminator-H.md) + [ADR-0033](../adr/0033-hierarchical-codec-weld.md)):
-the character right after `#TCF.8` decides the structure. **9 values**, plus the punctuation range
+[ADR-0031](../adr/0031-hierarchical-discriminator-H.md) + [ADR-0033](../adr/0033-hierarchical-codec-weld.md)
++ [ADR-0049](../adr/0049-marcador-r-a-forma-da-entrada-e-metadado.md)):
+the character right after `#TCF.8` decides the structure. **10 values**, plus the punctuation range
 consumed by the polarity pre-pass ([ADR-0035](../adr/0035-delimitador-de-polaridade-single-col.md)):
 
 | after `#TCF.8` | type | header |
@@ -81,6 +85,7 @@ consumed by the polarity pre-pass ([ADR-0035](../adr/0035-delimitador-de-polarid
 | `\n` | single version-stamp, **the default** | `#TCF.8` (magic number for `file`/libmagic) |
 | `M` | flat multi-col | `#TCF.8M<meta>` (meta INLINE on the signature line) |
 | `H` | hierarchical multi-col (specialization of `M`), [ADR-0033](../adr/0033-hierarchical-codec-weld.md) | `#TCF.8H<tree-meta>` |
+| `R` | records: a flat rectangular `list[dict]`, canonized into columns and sent down the `M` route, [ADR-0049](../adr/0049-marcador-r-a-forma-da-entrada-e-metadado.md) | `#TCF.8R<meta>` (the `M` meta, byte for byte) |
 | ` ` (space) | single + spec | `#TCF.8 [name]:spec` (name optional, label only) |
 | `b` / `n` / `s` | typed single-col (bool / number / string) | `#TCF.8<tag>[<mode><n-hex>]`; the `n` tag emits the short form `#TCF.8n`. The three modes of the `b` tag: [`api.md`](../reference/api.md) |
 | `B` / `C` | domain bN (domain first / domain last), ADR-0036 | `#TCF.8B<w><n>` |
@@ -88,7 +93,7 @@ consumed by the polarity pre-pass ([ADR-0035](../adr/0035-delimitador-de-polarid
 A discriminator outside the set above is **fail-loud** on decode (it never degrades to orphan). A
 punctuation suffix on the signature line is the **polarity delimiter**
 ([ADR-0035](../adr/0035-delimitador-de-polaridade-single-col.md)), stripped by a pre-pass before
-dispatch. It does not act on `M`/`H`. The same elected char marks, in the BODY, the literal ↔
+dispatch. It does not act on `M`/`H`/`R`. The same elected char marks, in the BODY, the literal ↔
 reference switch: it costs 1 byte per TRANSITION, not per occurrence, and comes from the complement
 of the column alphabet (punctuation range only).
 
@@ -315,8 +320,9 @@ Multi-col wire: `#TCF.8M` + inline meta (columns `[<pre>]<size>[=<name>][:<id>]`
 | `list[bool]` | `#TCF.8b<mode><n>` | `encode([True,False]*12)` gives `#TCF.8b118` |
 | bool + str in the same list | `#TCF.8bB<n>`, lazytype ([ADR-0039](../adr/0039-lazytype-bool-cabeca-congelada-extras.md)) | `encode([True,"abc",False])` gives `#TCF.8bB23` |
 | low-cardinality list | `#TCF.8B<w><n>`, domain bN ([ADR-0036](../adr/0036-bn-de-dominio-cardinalidade-baixa.md)) | `encode(["0","1"]*100)` gives `#TCF.8B1c8` |
-| nested or ragged (a rectangular 0-row dict stays in `.8M`, with an empty-table `@` body) | `#TCF.8H<tree-meta>` ([ADR-0033](../adr/0033-hierarchical-codec-weld.md)) | `encode([{"a":1}])` gives `#TCF.8Ha:3n`; `encode({})` gives `#TCF.8H#E` |
-| dense **scalar** leaf with nulls in a dataset (key in every row, some `None`, scalar value) | `#TCF.8H` with `name?0:<size>`: a 2-state element-mask (`.`/`0`) before the data; `name?:<size>` stays for an **optional** field (3-state mask, with `-`) **and** for an object/array holding `None` (`[{"a":{"k":1}},{"a":None}]` gives `a?:5{k:3n`, and the `view` refuses it as optional). Since 2026-08-28; it is what lets the `view` tell table-with-nulls from ragged by the header alone | `encode([{"a":"x"},{"a":None}])` gives `#TCF.8Ha?0:5`; ragged `[{"a":1},{"b":2}]` still gives `#TCF.8Ha?:4:3n,b?:4:3n` |
+| flat rectangular `list[dict]` (same keys in the same order, scalar cells, no `\n`/`\r` in a name or a value) | `#TCF.8R<meta>` ([ADR-0049](../adr/0049-marcador-r-a-forma-da-entrada-e-metadado.md)) | `encode([{"uf":"SP"},{"uf":"RJ"}])` gives `#TCF.8R!uf` |
+| nested or ragged (a rectangular 0-row dict stays in `.8M`, with an empty-table `@` body) | `#TCF.8H<tree-meta>` ([ADR-0033](../adr/0033-hierarchical-codec-weld.md)) | `encode([{"a":{"k":1}}])` gives `#TCF.8Ha{k:3n`; `encode({})` gives `#TCF.8H#E` |
+| dense **scalar** leaf with nulls in a dataset that stays hierarchical (key in every row, some `None`, scalar value) | `#TCF.8H` with `name?0:<size>`: a 2-state element-mask (`.`/`0`) before the data; `name?:<size>` stays for an **optional** field (3-state mask, with `-`) **and** for an object/array holding `None` (`[{"a":{"k":1}},{"a":None}]` gives `a?:5{k:3n`, and the `view` refuses it as optional). Since 2026-08-28; it is what lets the `view` tell table-with-nulls from ragged by the header alone | `encode([{"b":{"k":1},"a":"x"},{"b":{"k":2},"a":None}])` gives `#TCF.8Hb{k:6n},a?0:5`; ragged `[{"a":1},{"b":2}]` still gives `#TCF.8Ha?:4:3n,b?:4:3n` |
 
 ### Decode (mirror)
 
@@ -326,11 +332,12 @@ flowchart TB
     VER{"version read after #TCF."}
     LEG["ValueError: legacy format, with a git checkout hint"]
     UNK["ValueError: version unknown to this decoder"]
-    DISC{"discriminator: 1 char after #TCF.8<br/>ADR-0029, ADR-0031, ADR-0033"}
+    DISC{"discriminator: 1 char after #TCF.8<br/>ADR-0029, ADR-0031, ADR-0033, ADR-0049"}
     HIER["decode_hierarchical: nested structure"]
     TIP["typed single-col: cast bool / number / string"]
     BNN["domain bN: unpacks the domain (ADR-0036)"]
     MULTI["_decode_multi: dict"]
+    REC["records: reads R as M, then rebuilds the list[dict] (ADR-0049)"]
     COL["_decode_column: list"]
     FAIL["ValueError: unknown discriminator"]
 
@@ -342,13 +349,15 @@ flowchart TB
     DISC -->|b, n, s| TIP
     DISC -->|B, C| BNN
     DISC -->|M| MULTI
+    DISC -->|R| REC
     DISC -->|empty or space| COL
     DISC -->|outside the set| FAIL
     TIP --> COL
     BNN --> COL
+    REC --> MULTI
 ```
 
-The order is the real dispatch order: version, polarity pre-pass (which does not act on `M`/`H`),
+The order is the real dispatch order: version, polarity pre-pass (which does not act on `M`/`H`/`R`),
 then the discriminator. Self-describing: the signature identifies the format and the decoder
 dispatches on its own, so the caller does not need to know whether the output comes back as a `list`
 or a `dict`.

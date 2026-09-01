@@ -1496,7 +1496,9 @@ class TestViewRevertNatureNoHierarquico:
     def test_nature_com_nulo_denso(self):
         d = [{"c": v if i else None} for i, v in enumerate(self.IPS)]
         w = encode(d, schema={"c": "ip"})
-        assert w.split("\n", 1)[0].startswith("#TCF.8Hc?0:")
+        # ADR-0049: tabela retangular saiu do `.8H` e vai pro `#TCF.8R`. O que este teste
+        # mede é a paridade view/decode sob nature com nulo denso, e ela vale na rota nova.
+        assert w.split("\n", 1)[0].startswith("#TCF.8Rc:ip")
         assert view(w).select() == decode(w) == d
 
     def test_paridade_vale_tambem_quando_o_spec_perde_o_floor(self):

@@ -14,7 +14,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "tcf-format"
-version = "0.8.3"
+version = "0.8.4"
 description = "TCF (Tabular Compact Format): lossless compression of tabular text, built on OBAT (Online Bidirectional Affix Tokenizer) and HCC (Hierarchical Compositional Coding)"
 # README dedicado: o do repo tem 58 links RELATIVOS + 1 imagem local, que no PyPI
 # (pagina unica, sem arvore) quebram todos. Ver docs/how-to ou o repo pro completo.

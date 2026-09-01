@@ -21,6 +21,7 @@ import json
 import pytest
 
 from tcf import decode, encode
+from tcf.hierarchical import _encode_hierarchical
 
 from fixtures.control_synthetics_h import (
     KEY_ORDER_EXPECTED_BACK,
@@ -56,9 +57,26 @@ PINS = {
 _CASES = gen_cases()
 
 
+# Os 5 casos que sao TABELA RETANGULAR e que o ADR-0049 passou a rotear pro `#TCF.8R`.
+# Eles nunca foram hierarquicos: eram tabelas planas que caiam no `.8H` porque era pra la'
+# que uma lista de dicionarios ia. Continuam aqui, e continuam pinando a navegacao do `.8H`,
+# porque o SUJEITO desta suite e' o fluxo `.8H` e nao a rota que o `encode` publico escolhe.
+ROTEADOS_PRO_R = {
+    "c01-uniforme": 436,
+    "c03-telemetria-split": 1495,
+    "c05-null-campo": 537,
+    "c10-tipos-cadenciados": 423,
+    "c11-categorico": 664,
+}
+
+
 @pytest.fixture(scope="module")
 def wires():
-    """Encoda cada caso 1x por sessao de teste (RT validado aqui mesmo)."""
+    """A rota PUBLICA de cada caso, 1x por sessao (RT validado aqui mesmo).
+
+    Depois do ADR-0049 nem todo caso sai em `.8H` por aqui: os retangulares saem em
+    `#TCF.8R`. Este fixture e' o gate de ROUND-TRIP da rota que o usuario de fato pega.
+    """
     out = {}
     for key, (_desc, _mec, docs) in _CASES.items():
         wire = encode(docs)
@@ -67,28 +85,65 @@ def wires():
     return out
 
 
+@pytest.fixture(scope="module")
+def wires_h():
+    """O wire `.8H` de cada caso, que e' o SUJEITO dos pinos de navegacao.
+
+    Chama o encoder hierarquico direto porque a rota publica deixou de mandar os casos
+    retangulares pra ca' (ADR-0049). Sem isso os pinos perderiam o objeto que medem: o
+    `decompose` separa meta/controle/folhas, buckets que so' existem no `.8H`.
+    """
+    out = {}
+    for key, (_desc, _mec, docs) in _CASES.items():
+        wire = _encode_hierarchical(docs)
+        assert decode(wire) == docs, f"RT .8H falhou em {key}"
+        out[key] = wire
+    return out
+
+
+def test_retangulares_agora_roteiam_pro_r_e_encolhem(wires):
+    """ADR-0049: os casos que sao TABELA saem do `.8H` e ganham o `min()` por coluna.
+
+    Pina os dois lados da mudanca. Os retangulares mudam de familia e encolhem; os
+    genuinamente hierarquicos (aninhado, ragged, array) ficam BYTE-IDENTICOS ao que ja'
+    emitiam, que e' a prova de que a solda nao vazou pra fora do seu escopo.
+    """
+    for key, esperado in ROTEADOS_PRO_R.items():
+        assert wires[key].startswith("#TCF.8R"), f"{key} deveria rotear pro .8R"
+        assert len(wires[key].encode("utf-8")) == esperado, (
+            f"{key}: {len(wires[key].encode('utf-8'))} B, pino {esperado} B (ADR-0024)")
+        assert len(wires[key].encode("utf-8")) < PINS[key][0], (
+            f"{key}: rotear deveria encolher, e nao encolheu")
+    for key in PINS:
+        if key in ROTEADOS_PRO_R:
+            continue
+        assert wires[key].startswith("#TCF.8H"), f"{key} deveria continuar no .8H"
+        assert len(wires[key].encode("utf-8")) == PINS[key][0], (
+            f"{key}: caso hierarquico mudou de tamanho, a solda vazou")
+
+
 @pytest.mark.parametrize("key", list(PINS))
-def test_navegacao_pinada(wires, key):
+def test_navegacao_pinada(wires_h, key):
     """Buckets byte-exatos por caso — o pino de comportamento do fluxo."""
-    d = decompose(wires[key])
+    d = decompose(wires_h[key])
     got = (d["total"], d["meta"], d["controle"], d["folhas"], d["n_cols_controle"])
     assert got == PINS[key], (
         f"{key}: navegacao mudou {PINS[key]} -> {got}. Se a mudanca de representacao "
         f"foi CONSCIENTE, re-pinar com investigacao (ADR-0024); senao, regressao de fluxo.")
 
 
-def test_uniforme_nao_paga_controle(wires):
+def test_uniforme_nao_paga_controle(wires_h):
     """Principio 'nao expandir o obvio': campo sempre-presente/nunca-null nao tem mask."""
-    assert decompose(wires["c01-uniforme"])["n_cols_controle"] == 0
+    assert decompose(wires_h["c01-uniforme"])["n_cols_controle"] == 0
 
 
-def test_counts_uniformes_colapsam(wires):
+def test_counts_uniformes_colapsam(wires_h):
     """Fan-out fixo: a coluna de count de 200 instancias colapsa em poucos bytes (RLE)."""
-    cols = {(p, k): b for p, k, b in decompose(wires["c02-telemetria-array"])["cols"]}
+    cols = {(p, k): b for p, k, b in decompose(wires_h["c02-telemetria-array"])["cols"]}
     assert cols[("v", "count")] <= 10   # medido 8 B para 200 instancias
 
 
-def test_par_fanout_split(wires):
+def test_par_fanout_split(wires_h):
     """H-HIER-FANOUT-SPLIT-01, par de controle: MESMOS dados, array vs campos irmaos.
 
     Com serie realista (random-walk) o split ganha ~9.5%; com folhas de baixa
@@ -96,18 +151,18 @@ def test_par_fanout_split(wires):
     em folhas no caso constante). O pino aqui e' o SINAL (split < array), nao o
     tamanho do ganho.
     """
-    array = decompose(wires["c02-telemetria-array"])["total"]
-    split = decompose(wires["c03-telemetria-split"])["total"]
+    array = decompose(wires_h["c02-telemetria-array"])["total"]
+    split = decompose(wires_h["c03-telemetria-split"])["total"]
     assert split < array
 
 
-def test_sintoma_emask_densa(wires):
+def test_sintoma_emask_densa(wires_h):
     """H-HIER-EMASK-SPARSE-01: null esparso em elemento liga emask O(total-elementos).
 
     Pino do SINTOMA (controle >= 25% do wire) — se um dia a emask ficar
     por-instancia/esparsa, este teste avisa para re-pinar PINS junto.
     """
-    d = decompose(wires["c06-null-elemento"])
+    d = decompose(wires_h["c06-null-elemento"])
     assert d["controle"] * 4 >= d["total"]
 
 

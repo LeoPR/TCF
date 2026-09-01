@@ -185,7 +185,7 @@ class TestPolaridadeComeNome:
         }
         for dado in (cols, [dict(zip(cols, t)) for t in zip(*cols.values())]):
             line1 = encode(dado).split("\n", 1)[0]
-            assert line1[6:7] in ("M", "H"), "pré-condição: rota M/H"
+            assert line1[6:7] in ("M", "H", "R"), "pré-condição: rota M/H"
             assert _sep(line1[6:]) == ("", ""), "encode NÃO deve polarizar M/H"
 
 

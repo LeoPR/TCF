@@ -21,6 +21,66 @@ compositional cycle in
 
 ---
 
+## 0.8.4 (2026-09-01): the spelling of the input stops choosing the arsenal
+
+Two welds, both about the encoder deciding instead of the caller guessing.
+
+### `#TCF.8R`: a flat rectangular `list[dict]` is a table, not a tree ([ADR-0049](docs/adr/0049-marcador-r-a-forma-da-entrada-e-metadado.md))
+
+The same table written three ways used to cost three prices. A column of 50 booleans cost
+30 B as `list[str]`, 68 B as `dict[1 col]` and **159 B** as `list[dict]`, because the
+spelling of the input picked the route, and the route picked the techniques: `.8H` emits
+only the `tcf` candidate, while `.8M` emits `min(tcf, raw, dict, split)`.
+
+A flat rectangular `list[dict]` (same keys in the same order, scalar cells, no `\n` or `\r`
+in a name or a value) is now canonized into columns and travels the `.8M` route. One byte
+changes: the family discriminator at index 6, which comes out `R` instead of `M`. `decode`
+reads it and rebuilds the list of dicts; `view` opens it as the table it is.
+
+- **It cannot get worse**, by construction rather than by measurement:
+  `body(.8M) = min(tcf, raw, dict, split) <= body(.8H) = tcf`. Six adversarial cases built to
+  inflate the `.8M` meta produced zero regressions.
+- **The marker costs zero bytes**: the one-character slot already existed.
+- Measured on the project's own hierarchical control synthetics: the five rectangular cases
+  fell **36% to 68%** (7476 B to 3555 B in total), and the seven genuinely hierarchical ones
+  are **byte for byte** what they were.
+- Still `.8H`: ragged, nested, array in a cell, non-`str` key, and anything carrying `\n` or
+  `\r` in a name or a value, because escaping leaves is a `.8H` capability and routing those
+  would have taken it away. `[]` is still `#TCF.8`.
+- Seven kwargs that used to raise on records now work (`layers`, `min_len`, `stamp`,
+  `parallel`, `fallback`, `min_header`, `drop_names`). `sort_by` and `name` still refuse.
+- A `#TCF.8R` wire is **not readable by earlier releases**. Pre-1.0 that is the declared
+  regime ([ADR-0024](docs/adr/0024-pre-1.0-versioning-git-as-compat.md)).
+
+### `sort_by` becomes a candidate, not an order ([ADR-0050](docs/adr/0050-sort-by-vira-candidato-o-floor-decide.md))
+
+Sorting groups the key and scrambles every other column at the same time, so it pays or costs
+depending entirely on the data: **-43.0%** when the companion columns are a function of the
+key, **+52.1%** when they are independent of it, on a six-column table. The caller had to
+guess, and could not know without encoding both.
+
+Passing `sort_by` already meant giving up row order, so the encoder was already authorized to
+reorder. It is now also free not to. Both versions are encoded and the smaller one is emitted,
+which makes the kwarg **never worse**: across seven measured cases it avoids 734 B of loss
+without giving up any gain. Cost: one extra encode, only when `sort_by` is passed.
+
+- `view.agg_by` now falls back to the order-free path when the key is not contiguous, so it
+  never raises because of a layout the caller did not choose. `view.group_ranges` stays strict
+  on purpose: it is the layout inspector.
+- The claim that `agg_by` was "cheaper" than `group_sum` **was measured and did not hold**:
+  same columns materialized, same rows decoded, same result, and the contiguous path came out
+  3.6% slower. The docstring is corrected.
+- `group_count` over a dictionary column was calling a Python-level index decoder once per
+  **row**; it now counts in C and decodes once per **distinct index**. On 20,000 rows that is
+  10.7 ms to 1.4 ms, and the structural path went from 6.5x slower than materializing to
+  faster than it, while still building no N-sized list.
+- Four surface defects of the same kwarg, fixed or documented: it was **silently ignored** on
+  `list[str]` (and the silence was pinned in a test) and now refuses; an unreachable `raise`
+  was removed; the `str(value)` sort key (`'10'` before `'2'`) is documented rather than
+  changed, because any total order groups equally well and order stopped being a promise.
+
+---
+
 ## 0.8.3 (2026-08-29): the edges stop disagreeing across families
 
 > **Errata (2026-08-29, after publication).** Three claims in this entry were wider than the

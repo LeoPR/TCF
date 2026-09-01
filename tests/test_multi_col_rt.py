@@ -305,21 +305,53 @@ class TestExplicitControls:
 # ---------------------------------------------------------------------------
 
 class TestSortBy:
-    """`sort_by="col"` reordena as linhas pela chave antes de encodar (O-FMT-02).
-    Order-free: decode retorna a ordem ORDENADA (original nao recuperavel).
+    """`sort_by="col"` AUTORIZA reordenar as linhas pela chave (O-FMT-02, H-14-08).
+
+    Order-free: o decode devolve o mesmo MULTISET de linhas, e a ordem original nao e'
+    recuperavel. Desde 2026-09-01 a ordenacao e' um CANDIDATO e nao uma ordem: o encoder
+    emite os dois e fica com o menor, entao o wire nunca cresce por causa do `sort_by`.
     Default None = sem reordenar (inalterado)."""
 
     def test_default_none_unchanged(self):
         t = {"a": ["1", "2", "3"], "b": ["x", "y", "z"]}
         assert encode(t) == encode(t, sort_by=None)
 
-    def test_reorders_and_preserves_rows(self):
+    def test_preserva_o_multiset_de_linhas(self):
+        """O contrato de verdade: o CONJUNTO de linhas volta, a ordem nao e' promessa."""
         t = {"cidade": ["SP", "RJ", "SP", "MG", "RJ", "SP"],
              "valor":  ["1", "2", "3", "4", "5", "6"]}
         dec = decode(encode(t, sort_by="cidade"))
-        assert dec["cidade"] == sorted(dec["cidade"])            # chave ordenada
         assert sorted(zip(t["cidade"], t["valor"])) == \
-               sorted(zip(dec["cidade"], dec["valor"]))          # mesmo multiset
+               sorted(zip(dec["cidade"], dec["valor"]))
+
+    def test_nunca_pior_que_nao_passar(self):
+        """O FLOOR (H-14-08): passar `sort_by` nao pode fazer o wire CRESCER.
+
+        Antes podia, e muito: a permutacao da chave agrupa os iguais dela e desarruma as
+        outras colunas. Medido em +52,1% numa tabela de 6 colunas independentes da chave.
+        """
+        casos = [
+            # companheiras INDEPENDENTES: ordenar piorava
+            {"uf": [["SP", "RJ", "MG"][i % 3] for i in range(60)],
+             "d": [f"2026-{1 + i // 28:02d}-{1 + i % 28:02d}" for i in range(60)],
+             "v": [str(i) for i in range(60)]},
+            # companheiras FUNCAO da chave: ordenar paga
+            {"uf": [["SP", "RJ", "MG"][i % 3] for i in range(60)],
+             "reg": [["SE", "SE", "SE"][i % 3] for i in range(60)]},
+            {"k": ["a"], "v": ["1"]},                       # uma linha
+        ]
+        for t in casos:
+            com = len(encode(t, sort_by=list(t)[0]).encode("utf-8"))
+            sem = len(encode(t).encode("utf-8"))
+            assert com <= sem, f"sort_by cresceu o wire: {com} B > {sem} B em {list(t)}"
+
+    def test_quando_ordena_o_decode_vem_agrupado(self):
+        """Quando a ordenacao VENCE o FLOOR, a chave volta agrupada, e e' o layout L5."""
+        t = {"k": [["a", "b", "c"][i % 3] for i in range(120)],
+             "v": [["x", "y", "z"][i % 3] for i in range(120)]}   # v e' funcao de k
+        w = encode(t, sort_by="k")
+        assert len(w.encode("utf-8")) < len(encode(t).encode("utf-8"))
+        assert decode(w)["k"] == sorted(decode(w)["k"])
 
     def test_sort_can_shrink(self):
         n = 120
@@ -336,10 +368,13 @@ class TestSortBy:
         with pytest.raises(ValueError):
             encode({"a": ["1", "2"], "b": ["x"]}, sort_by="a")
 
-    def test_ignored_for_list(self):
-        # list nao tem colunas -> sort_by ignorado, ordem original preservada
-        text = encode(["c", "a", "b"], sort_by="whatever")
-        assert decode(text) == ["c", "a", "b"]
+    def test_recusado_em_lista_de_uma_coluna(self):
+        """Ate' 2026-09-01 esta rota IGNORAVA o kwarg, calada, e o silencio estava PINADO
+        aqui. As outras quatro rotas o recusam alto; esta era o furo na regra "nunca
+        ignorar calado". Quem passa `sort_by` numa lista pediu uma coisa e recebia outra."""
+        with pytest.raises(ValueError, match="lista de uma coluna"):
+            encode(["c", "a", "b"], sort_by="whatever")
+        assert decode(encode(["c", "a", "b"])) == ["c", "a", "b"]   # sem o kwarg, intacto
 
 
 # ---------------------------------------------------------------------------

@@ -168,7 +168,7 @@ useful digits in a compact form, then rebuilds the original value on `decode`. T
 
 **And now the same records, nested**: the JSON your API actually sends.
 
-Since 0.8, `#TCF.8H` round-trips the **dataset your language builds from JSON**, meaning nested
+Since 0.8, TCF round-trips the **dataset your language builds from JSON**, meaning nested
 objects/arrays, `null`, and typed `true`/`false`/numbers. It reads the *dataset* (dict / list /
 scalar), never the JSON text.
 
@@ -411,12 +411,20 @@ text = encode(table)        # 0.8 / #TCF.8M, the default, no flags
 text = encode(table, fallback=False, min_header=False)  # only TCF candidates, verbose meta
 text = encode(table, min_header=False)                  # #TCF.8M with all sizes
 text = encode(table, min_len=5)                         # override OBAT's min_len (default: auto)
-text = encode(table, sort_by="email")                   # sorts rows by the column (order-free, +compression)
+text = encode(table, sort_by="email")                   # ALLOWS sorting rows by that column (order-free)
 ```
 
-> `sort_by` reorders the rows by the column (groups similar ones → fewer bytes,
-> 5-15% with a low-card key). It is **order-free**: `decode` returns the sorted
-> order, not the original. Use it only when row order does not matter.
+> `sort_by` **allows** reordering the rows by that column, and grouping equal
+> values may buy fewer bytes. It is **order-free**: `decode` returns the same set
+> of rows, and the original order does not come back. Use it only when row order
+> does not matter.
+>
+> Since 0.8.4 the sort is a **candidate**, not an order: the encoder emits both
+> versions and keeps the smaller one, so passing `sort_by` never grows the wire.
+> That matters because sorting groups the key and scrambles every other column:
+> measured, −43.0% when the companion columns are a function of the key, and
+> +52.1% when they are independent of it. In practice the result may come back in
+> the original order, when sorting did not help.
 
 For the 5-column record set at the top, the default `#TCF.8M` output is **242 B**, with meta
 `!2c=nome,2a=email,1c=cidade,14=plano,!cpf`.
@@ -612,8 +620,8 @@ low-cardinality column, and near zero on a single high-cardinality column, which
 say out loud instead of hiding.
 
 Aggregators: `count`, `sum`, `min`, `max`, `avg` + `where`. **L3–L5 already implemented**:
-count and group **without expanding**, filtering through the dictionary index, and group-by via a
-**sorted layout** (`sort_by`).
+count and group **without expanding**, filtering through the dictionary index, and group-by, which
+uses the sorted layout when it exists and falls back to the order-free path when it does not.
 
 > Count and group without expanding work through dictionary/raw columns. The `*N|` of tcf-mode is
 > interleaved, **not separable**.
@@ -624,8 +632,8 @@ On real data (online-retail, 5,000 × 8), answering *"how many items did user X 
 structure, so it is read without building a single value.
 
 Low memory and latency fall straight out of that structure. And it is a **read-only core API, not
-a format version**: it reads `#TCF.8M`, `#TCF.8H` when rectangular, and the single-column
-route.
+a format version**: it reads `#TCF.8M`, `#TCF.8R` (records), `#TCF.8H` when rectangular, and the
+single-column route.
 
 The current query-like surface: `count`, `sum`, `min`, `max`, `avg`, `where`, `select`,
 `distinct`, `n_unique`, and the grouping family (`group_count`, `group_sum`, `group_min`,

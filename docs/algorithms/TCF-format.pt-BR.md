@@ -64,7 +64,9 @@ Verificavel: `decode('#TCF.6M ...')` levanta *"formato legado ... nao suportado 
 `decode('#TCF.5M ...')` levanta *"blob #TCF.5: versao desconhecida deste decoder"*.
 
 **`#TCF.8` e' o formato DEFAULT** ([ADR-0032](../adr/0032-tcf8-default-format.md)): todo multi-col
-emite `#TCF.8M`; single-col plano emite **`#TCF.8`** por DEFAULT (7 B). O orfao (body sem
+emite `#TCF.8M`, e a `list[dict]` retangular e plana emite `#TCF.8R`, o mesmo wire com o
+discriminador trocado ([ADR-0049](../adr/0049-marcador-r-a-forma-da-entrada-e-metadado.md));
+single-col plano emite **`#TCF.8`** por DEFAULT (7 B). O orfao (body sem
 assinatura) e' o ESCAPE explicito `stamp=False`
 ([ADR-0034](../adr/0034-header-default-100-porcento-single-col.md); ADR-0029 camada 1 /
 <!-- legado-ok: a spec documenta o erro NOMEADO que o decoder levanta hoje; a mensagem vem do codigo -->
@@ -74,7 +76,7 @@ no header.
 
 **1-char discriminator** ([ADR-0029](../adr/0029-version-format-identification-semi-implicit.md) +
 [ADR-0031](../adr/0031-hierarchical-discriminator-H.md) + [ADR-0033](../adr/0033-hierarchical-codec-weld.md)):
-o caractere logo apos `#TCF.8` decide a estrutura. **9 valores**, mais a faixa de pontuacao
+o caractere logo apos `#TCF.8` decide a estrutura. **10 valores**, mais a faixa de pontuacao
 consumida pelo pre-passe de polaridade ([ADR-0035](../adr/0035-delimitador-de-polaridade-single-col.md)):
 
 | apos `#TCF.8` | tipo | header |
@@ -82,6 +84,7 @@ consumida pelo pre-passe de polaridade ([ADR-0035](../adr/0035-delimitador-de-po
 | *(nada, body direto)* | single-col orfao, **ESCAPE explicito** (`stamp=False`): transmissao/container tipo parquet, onde a versao ja' viaja fora. **NAO e' o default** ([ADR-0034](../adr/0034-header-default-100-porcento-single-col.md)) | - |
 | `\n` | single version-stamp, **o default** | `#TCF.8` (magic number p/ `file`/libmagic) |
 | `M` | multi-col plano | `#TCF.8M<meta>` (meta INLINE na linha de assinatura) |
+| `R` | registros: a `list[dict]` retangular e plana, wire de `M` com o discriminador trocado, [ADR-0049](../adr/0049-marcador-r-a-forma-da-entrada-e-metadado.md) | `#TCF.8R<meta>` |
 | `H` | multi-col hierarquico (especializacao de `M`), [ADR-0033](../adr/0033-hierarchical-codec-weld.md) | `#TCF.8H<tree-meta>` |
 | ` ` (espaco) | single + spec | `#TCF.8 [nome]:spec` (nome opcional, so' rotulo) |
 | `b` / `n` / `s` | single-col tipado (bool / numero / string) | `#TCF.8<tag>[<modo><n-hex>]`; a tag `n` emite a forma curta `#TCF.8n`. Os tres modos da tag `b`: [`api.md`](../reference/api.md) |
@@ -90,7 +93,7 @@ consumida pelo pre-passe de polaridade ([ADR-0035](../adr/0035-delimitador-de-po
 Discriminador fora do conjunto acima -> **fail-loud** no decode (nunca degrada pra orfao). Um
 sufixo de pontuacao na linha de assinatura e' o **delimitador de polaridade**
 ([ADR-0035](../adr/0035-delimitador-de-polaridade-single-col.md)), retirado por um pre-passe antes
-do dispatch. Ele NAO age em `M`/`H`. O mesmo char eleito marca no CORPO a troca literal ↔
+do dispatch. Ele NAO age em `M`/`H`/`R`. O mesmo char eleito marca no CORPO a troca literal ↔
 referencia: custa 1 byte por TRANSICAO, nao por ocorrencia, e sai do complemento do alfabeto da
 coluna (faixa so' de pontuacao).
 
@@ -324,8 +327,9 @@ Wire do multi-col: `#TCF.8M` + meta inline (colunas `[<pre>]<size>[=<nome>][:<id
 | `list[bool]` | `#TCF.8b<modo><n>` | `encode([True,False]*12)` sai `#TCF.8b118` |
 | bool + str na mesma lista | `#TCF.8bB<n>`, lazytype ([ADR-0039](../adr/0039-lazytype-bool-cabeca-congelada-extras.md)) | `encode([True,"abc",False])` sai `#TCF.8bB23` |
 | lista de cardinalidade baixa | `#TCF.8B<w><n>`, bN de dominio ([ADR-0036](../adr/0036-bn-de-dominio-cardinalidade-baixa.md)) | `encode(["0","1"]*100)` sai `#TCF.8B1c8` |
-| aninhado ou ragged (o dict retangular de 0 linhas fica no `.8M`, com corpo `@` de tabelinha vazia) | `#TCF.8H<tree-meta>` ([ADR-0033](../adr/0033-hierarchical-codec-weld.md)) | `encode([{"a":1}])` sai `#TCF.8Ha:3n`; `encode({})` sai `#TCF.8H#E` |
-| folha **escalar** densa com nulos no dataset (chave em todas as linhas, algum `None`, valor escalar) | `#TCF.8H` com `nome?0:<size>`: element-mask 2-estados (`.`/`0`) antes do dado; `nome?:<size>` fica para campo **opcional** (máscara 3-estados, com `-`) **e** para objeto/array com `None` (`[{"a":{"k":1}},{"a":None}]` sai `a?:5{k:3n`, e a `view` o recusa como opcional). Desde 2026-08-28; é o que deixa a `view` distinguir tabela-com-nulos de ragged pelo header | `encode([{"a":"x"},{"a":None}])` sai `#TCF.8Ha?0:5`; ragged `[{"a":1},{"b":2}]` segue `#TCF.8Ha?:4:3n,b?:4:3n` |
+| `list[dict]` retangular e plana | `#TCF.8R<meta>` ([ADR-0049](../adr/0049-marcador-r-a-forma-da-entrada-e-metadado.md)) | `encode([{"uf":"SP"},{"uf":"RJ"}])` sai `#TCF.8R!uf` |
+| aninhado ou ragged (o dict retangular de 0 linhas fica no `.8M`, com corpo `@` de tabelinha vazia) | `#TCF.8H<tree-meta>` ([ADR-0033](../adr/0033-hierarchical-codec-weld.md)) | `encode([{"a":{"k":1}}])` sai `#TCF.8Ha{k:3n`; `encode({})` sai `#TCF.8H#E` |
+| folha **escalar** densa com nulos no dataset (chave em todas as linhas, algum `None`, valor escalar), no que FICA no `.8H`: o retangular plano saiu pro `#TCF.8R` ([ADR-0049](../adr/0049-marcador-r-a-forma-da-entrada-e-metadado.md)) | `#TCF.8H` com `nome?0:<size>`: element-mask 2-estados (`.`/`0`) antes do dado; `nome?:<size>` fica para campo **opcional** (máscara 3-estados, com `-`) **e** para objeto/array com `None` (`[{"a":{"k":1}},{"a":None}]` sai `a?:5{k:3n`, e a `view` o recusa como opcional). Desde 2026-08-28; é o que deixa a `view` distinguir tabela-com-nulos de ragged pelo header | `encode([{"a":{"k":"x"}},{"a":{"k":None}}])` sai `#TCF.8Ha{k?0:5`; ragged `[{"a":1},{"b":2}]` segue `#TCF.8Ha?:4:3n,b?:4:3n` |
 
 ### Decode (espelho)
 
@@ -340,6 +344,7 @@ flowchart TB
     TIP["single-col tipado: cast bool / numero / string"]
     BNN["bN de dominio: desempacota o dominio (ADR-0036)"]
     MULTI["_decode_multi: dict"]
+    REG["_decode_multi + remonta a lista de dicionarios (ADR-0049)"]
     COL["_decode_column: list"]
     FAIL["ValueError: discriminador desconhecido"]
 
@@ -351,6 +356,7 @@ flowchart TB
     DISC -->|b, n, s| TIP
     DISC -->|B, C| BNN
     DISC -->|M| MULTI
+    DISC -->|R| REG
     DISC -->|vazio ou espaco| COL
     DISC -->|fora do conjunto| FAIL
     TIP --> COL

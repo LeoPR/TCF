@@ -306,14 +306,16 @@ Detalhe canônico + gabarito: `experiments/lab/dirty/notas/2026-07/dirty-lab-con
 
 - Magic `#TCF.<minor>`: **`#TCF.8` = default** (ADR-0032). `.6`/`.7` = legado cortado
   de `src/tcf` (git-as-compat). Major 0 omite o "0".
-- **Discriminador de 1 char** após `#TCF.8` (ADR-0029/0031/0033/0036/0037/0039), **9 valores**:
-  `\n` = version-stamp · `M` = multi-col (meta inline) · `H` = hierárquico (**soldado**,
-  ADR-0033; não é mais reservado) · espaço = single+spec · `b`/`n`/`s` = single-col **tipado**
-  (bool / número / string-explícita) · `B`/`C` = **bN de domínio** (ADR-0036: `B` domínio-primeiro,
-  `C` domínio-por-último). Fora desses 9 → **fail-loud**.
+- **Discriminador de 1 char** após `#TCF.8` (ADR-0029/0031/0033/0036/0037/0039/0049), **10
+  valores**: `\n` = version-stamp · `M` = multi-col (meta inline) · `R` = **registros**
+  (ADR-0049: corpo e meta do `.8M`, e o `R` só registra que a entrada veio como `list[dict]`
+  retangular, para o `decode` remontar) · `H` = hierárquico (**soldado**, ADR-0033; não é mais
+  reservado) · espaço = single+spec · `b`/`n`/`s` = single-col **tipado** (bool / número /
+  string-explícita) · `B`/`C` = **bN de domínio** (ADR-0036: `B` domínio-primeiro, `C`
+  domínio-por-último). Fora desses 10 → **fail-loud**.
   - **Assimetria emite × decoda**: `s` e `C` **decodam mas o encoder nunca os emite** (o `s` perde
     pra forma implícita sem tag; o `C` é ~1 B menor mas não streama, então só o `B` sai por default
-    (ADR-0036)). Os outros 7 são emitidos.
+    (ADR-0036)). Os outros 8 são emitidos.
   - Sob a tag `b`, o **índice 7** carrega o modo: `b1` denso (bool sem null) · `b2` ternário
     (bool com null, ADR-0037) · `bB` lazytype (união `{bool, str, None}`, ADR-0039) · **`b` puro**
     (sem char no índice 7) quando o denso perde o `min()`.

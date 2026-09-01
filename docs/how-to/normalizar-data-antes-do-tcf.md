@@ -115,8 +115,13 @@ derrubou o ganho de **−93,7% para −5,5%**.
 A mesma coluna de datas espalhadas, ordenada, comprimiu **8,4×** melhor. É o maior efeito
 isolado que medimos fora da escolha de grafia.
 
-> Cuidado: o TCF tem `sort_by`, mas o decode devolve a ordem **ordenada**. A original não
-> volta. Só use quando a ordem for irrelevante.
+> Cuidado: o TCF tem `sort_by`, mas ele é **order-free**: o decode devolve o mesmo conjunto de
+> linhas, e a ordem original não volta. Só use quando a ordem for irrelevante.
+>
+> E ele não garante que vai ordenar. Desde a 0.8.4 a ordenação é um candidato, e o encoder só
+> a emite quando ela encolhe o wire, o que numa tabela de várias colunas independentes da chave
+> frequentemente não acontece. Se você quer a coluna de datas ordenada para ganhar os 8,4× desta
+> página, ordene os dados **antes** de encodar, em vez de contar com o kwarg.
 
 ### 3. Prefira o passo regular, se você controla a geração
 

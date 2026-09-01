@@ -99,9 +99,14 @@ A `view` abre single-col, multi-col e hierárquico **denso**, inclusive com nulo
 `decode()`. Consequência prática, e ela é medida, não estimada:
 
 ```
-[{'a':1}, {'a':None}]        -> #TCF.8Ha?0:5:3n        a view ABRE
+[{'a':1}, {'a':None}]        -> #TCF.8R5N=a            a view ABRE
 [{'a':1,'b':2}, {'a':3}]     -> #TCF.8Ha:6n,b?:4:3n    a view RECUSA (ragged)
 ```
+
+A primeira entrada é retangular e plana, e desde o
+[ADR-0049](../../adr/0049-marcador-r-a-forma-da-entrada-e-metadado.md) sai pelo `.8R`, um wire
+multi com o discriminador trocado. O hierárquico denso continua no `.8H`, e a `view` o abre
+igual.
 
 Em todo blob que a `view` abre hoje, `A` é vazio, e as respostas sobre `A` são as do caso
 total: `A = ∅` e `~A = [n]`. Isso é a resposta certa para uma coluna sem buraco, e é o

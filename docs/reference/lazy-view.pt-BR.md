@@ -13,7 +13,9 @@ outro objeto com os mesmos métodos, então os filtros encadeiam.
 
 ## O que ela lê
 
-`#TCF.8M` (multi-coluna), `#TCF.8H` quando é tabela retangular, e a rota de coluna única em
+`#TCF.8M` (multi-coluna), `#TCF.8R` (registros: a `list[dict]` retangular e plana, que desde o
+[ADR-0049](../adr/0049-marcador-r-a-forma-da-entrada-e-metadado.md) é um wire multi com o
+discriminador trocado), `#TCF.8H` quando é tabela retangular, e a rota de coluna única em
 todas as suas formas (`#TCF.8`, `#TCF.8n`, `#TCF.8b`, `#TCF.8bB`, `#TCF.8 :spec`, e as
 densas `B`/`C`), mais o wire **órfão** sem magic (`stamp=False`), lido como o `decode` o lê.
 Na coluna única o nome é `"0"`, como em qualquer coluna anônima
@@ -283,11 +285,13 @@ dentro de uma coluna o predicado expressa OR:
 
 Não lê o que não é tabela. Aninhado, ragged e campo opcional fazem a view recusar com uma
 mensagem que manda usar `decode()`; um `dict` de colunas de comprimentos diferentes
-(`#TCF.8H#O`) é recusado na abertura pela mesma frase. Nulo **não** é ausência: desde
-2026-08-28, `encode([{"a": 1}, {"a": None}])` produz um blob (`#TCF.8Ha?0:...`) que a view
-lê como tabela, e `select`, `where("a", None)` e `group_count` respondem o mesmo que a
-tabela equivalente em `.8M`. Wire sem magic (`stamp=False`) também é lido, espelhando o
-`decode`: uma coluna `"0"` de strings.
+(`#TCF.8H#O`) é recusado na abertura pela mesma frase. Nulo **não** é ausência:
+`encode([{"a": 1}, {"a": None}])` produz um blob (`#TCF.8R5N=a...`) que a view lê como
+tabela, e `select`, `where("a", None)` e `group_count` respondem o mesmo que a tabela
+equivalente em `.8M`, porque desde o
+[ADR-0049](../adr/0049-marcador-r-a-forma-da-entrada-e-metadado.md) é por ali que ele passa.
+Wire sem magic (`stamp=False`) também é lido, espelhando o `decode`: uma coluna `"0"` de
+strings.
 
 > **Por que a distinção existe, e como se pergunta por cada caso**: uma célula pode estar em
 > três situações (tem valor, existe e é nulo, não existe), e a tabela só tem duas. A teoria,

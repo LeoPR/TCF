@@ -15,7 +15,7 @@ no [`CHANGELOG.md`](CHANGELOG.md), nos [ADRs](docs/adr/README.md) e no diário
 | | |
 |---|---|
 | **publicado** | `tcf-format 0.8.3` no PyPI (29/08, via Trusted Publishing) · tag `v0.8.3` |
-| **formato** | `#TCF.8` default: `.8M` multi-col · `.8H` hierárquico · rota tipada · single-col |
+| **formato** | `#TCF.8` default: `.8M` multi-col · `.8R` registros (ADR-0049) · `.8H` hierárquico · rota tipada · single-col |
 | **ciclo aberto** | **`.9`**: otimização **e** integração com armazenamento |
 | **números vivos** | nos TESTES, não aqui: `pytest -q` |
 | **gates** | `test_regression_v1_baseline.py` (D1-D9, D17a) + `test_real_world_snapshots.py`, os dois obrigatórios (§4) |
