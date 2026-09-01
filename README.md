@@ -487,11 +487,20 @@ in `#TCF.8M` with inline hexadecimal meta.
 
 Real-world multi-column (9 Adult + TPC-H tables, 136k rows): **−33.02% weighted** vs raw CSV.
 
-**And against gzip / brotli / zstd?** A different category. Those are *opaque* binary compressors:
-to read anything at all, you must first decompress everything.
+**And against gzip / brotli / zstd?** Not a competitor: a **layer underneath**. In transmission
+`Content-Encoding` is negotiated by the transport and is **invisible to your code**. You do not
+choose it against TCF, and you rarely see it at all: by the time your handler reads the body, it
+has already been inflated. So the honest question is not *"TCF or brotli"*, it is *what does my
+process hold and parse once the channel has done its invisible work*.
 
-`view()` does not work on them either, and that is the decisive part: any query means inflating the
-whole payload.
+Where the compressor becomes a **visible** decision is at rest, in blocks on disk. There the
+compressed blob is the thing you own, and opacity has a price you pay yourself: to read anything
+at all you inflate everything, and `view()` cannot help, because there is nothing to read until
+the whole payload exists again.
+
+None of this makes the channel free. It spends memory and CPU to inflate, on every request; the
+bill is just paid one layer down, where your code does not see it. It is part of the total, not
+outside it.
 
 On the **record set above**, under HTTP compression (`Content-Encoding`, max level):
 
@@ -569,8 +578,9 @@ The textual output already carries hints that work as metadata:
 In other words, you can **count elements, group, and even sum** by reading the markers,
 materializing only the piece you need.
 
-A binary compressor on top, gzip or brotli, would do the opposite. You would have to **allocate
-memory and decompress everything** just to then scan the data.
+A compressed block on disk does the opposite. To scan it you **allocate memory and inflate
+everything** first, and only then start reading. The same holds for a channel-inflated body: the
+channel hands your process the whole payload, and from there the cost is yours.
 
 That is the niche 1.0 wants to lock in: **compact and at the same time queryable**, not an opaque
 blob.
@@ -684,8 +694,10 @@ flowchart TB
 The same blob serves three access levels off one transmission: a cheap `count()`, a selective
 filtered aggregate, or a full `decode()`. The caller picks how much to pay.
 
-An opaque compressor cannot do this. To answer *any* question you must `gunzip`/`unbrotli` the
-**whole** payload first, which is also where the memory goes.
+A compressed block cannot do this. To answer *any* question you inflate the **whole** payload
+first, which is also where the memory goes. Over HTTP the inflating happens below you, so the
+saving `view()` offers is not against the channel: it is against everything your process does
+**after** the channel is done, which is the part the channel never touches.
 
 ![Memory: view() vs full decode (same blob, one query, two footprints)](docs/img/view-memory.svg)
 

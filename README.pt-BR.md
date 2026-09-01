@@ -483,11 +483,19 @@ Núcleo pinado em testes: D1-D9 = **1545 B**, 51.8% do raw em single-col; D17a m
 Real-world multi-coluna (9 tabelas Adult + TPC-H, 136k linhas): **−33.02% weighted** vs CSV raw.
 
 **E contra gzip / brotli / zstd?**
-Outra categoria. São compressores binários *opacos*: para ler qualquer coisa é preciso
-descomprimir tudo antes.
+Não são concorrentes: são uma **camada por baixo**. Em transmissão o `Content-Encoding` é
+negociado pelo transporte e é **invisível para o seu código**. Você não o escolhe contra o TCF, e
+quase nunca o vê: quando o seu handler lê o corpo, ele já veio inflado. Então a pergunta honesta
+não é *"TCF ou brotli"*, é *o que o meu processo segura e analisa depois que o canal fez o
+trabalho invisível dele*.
 
-E o `view()` não funciona sobre eles, o que é decisivo: qualquer consulta exige inflar o payload
-inteiro.
+Onde o compressor vira decisão **visível** é em repouso, em blocos no disco. Ali o blob comprimido
+é o que você tem na mão, e a opacidade cobra de você: para ler qualquer coisa infla tudo, e o
+`view()` não ajuda, porque não há o que ler até o payload inteiro existir de novo.
+
+Nada disso torna o canal de graça. Ele gasta memória e CPU para inflar, a cada requisição; a conta
+só é paga uma camada abaixo, onde o seu código não a vê. Ela faz parte do total, não fica fora
+dele.
 
 No **cadastro acima**, sob compressão HTTP (`Content-Encoding`, nível máximo):
 
@@ -568,7 +576,7 @@ A saída textual já carrega dicas que valem como metadados:
   cada valor.
 
 Ou seja, dá pra **contar elementos, agrupar e até somar** lendo os marcadores, materializando só
-o pedaço necessário. Um compressor binário por cima, gzip ou brotli, faria o oposto: você teria
+o pedaço necessário. Um bloco comprimido no disco faz o oposto: você teria
 que **alocar memória e descomprimir tudo** pra só então varrer os dados.
 
 É essa a faixa que a 1.0 quer firmar: **compacto e ao mesmo tempo consultável**, não um blob
@@ -684,8 +692,10 @@ flowchart TB
 O mesmo blob serve três níveis de acesso a partir de uma transmissão: um `count()` barato, um
 agregado filtrado seletivo, ou um `decode()` completo: quem chama escolhe quanto paga.
 
-Um compressor opaco não faz isso: pra responder *qualquer* pergunta é preciso `gunzip`/`unbrotli` o
-payload **inteiro** antes, e é aí que a memória também vai.
+Um bloco comprimido não faz isso: pra responder *qualquer* pergunta é preciso inflar o
+payload **inteiro** antes, e é aí que a memória também vai. Sobre HTTP quem infla é a camada de
+baixo, então a economia do `view()` não é contra o canal: é contra tudo o que o seu processo faz
+**depois** que o canal terminou, que é justamente a parte em que o canal não mexe.
 
 ![Memória: view() vs decode completo (mesmo blob, uma query, dois consumos)](docs/img/view-memory.svg)
 
