@@ -4,7 +4,7 @@ status: open
 priority: P1
 created: 2026-07-12
 updated: 2026-09-01
-gate: "estudo (alimenta decisao, sem ciclo proprio) (triagem 2026-09-01)"
+gate: ".8 (cobertura de dataset; o proprio ticket diz "fechar 0.8") (re-triagem 2026-09-01)"
 blocked-by: []
 related:
   - tickets/T-SPEC-STATUS-08.md

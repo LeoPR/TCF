@@ -4,7 +4,7 @@ status: in-progress (revisao cadastral 2026-07-12; conjunto canonico atual prese
 priority: P1
 created: 2026-07-12
 updated: 2026-09-01
-gate: "estudo (alimenta decisao, sem ciclo proprio) (triagem 2026-09-01)"
+gate: ".8 (pre-requisito do teste em massa, por texto do proprio ticket) (re-triagem 2026-09-01)"
 blocked-by: []
 related:
   - tickets/T-QA-8-material-comprobatorio.md

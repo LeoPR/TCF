@@ -4,7 +4,7 @@ status: open
 priority: P3
 created: 2026-07-15
 updated: 2026-09-01
-gate: ".9 (formato e ferramental) (triagem 2026-09-01)"
+gate: ".8 SE BARATO (ferramenta do teste em massa do .8H); senao .9 (re-triagem 2026-09-01)"
 target: até 1.0 (ferramental; não bloqueia .8)
 blocked-by: []
 related:

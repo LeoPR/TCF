@@ -4,7 +4,7 @@ status: open
 priority: P3
 created: 2026-07-10
 updated: 2026-09-01
-gate: ".9 (formato e ferramental) (triagem 2026-09-01)"
+gate: ".8 SE BARATO (conformidade do meta); senao .9 (re-triagem 2026-09-01)"
 blocked-by: []
 related:
   - tickets/T-QA-8-material-comprobatorio.md
