@@ -3,7 +3,8 @@ title: T-DOC-3, Terminologia: "shebang" → assinatura de formato / magic number
 status: open-errata-reminder
 priority: P3
 created: 2026-07-01
-updated: 2026-07-01
+updated: 2026-09-01
+gate: "documentacao (continuo, sem ciclo) (triagem 2026-09-01)"
 related:
   - docs/vocabulary.md
   - docs/adr/0001-tcf-format-shebang.md

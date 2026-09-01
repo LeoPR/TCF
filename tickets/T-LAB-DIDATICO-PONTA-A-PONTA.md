@@ -3,7 +3,8 @@ title: T-LAB-DIDATICO-PONTA-A-PONTA, micro-lab do fluxo real (coleta → dataset
 status: open
 priority: P2
 created: 2026-08-23
-updated: 2026-08-23
+updated: 2026-09-01
+gate: "documentacao (continuo, sem ciclo) (triagem 2026-09-01)"
 target: "pós-0.8.0, demonstração executável; provavelmente experiments/lab/clean/"
 blocked-by: []
 related:

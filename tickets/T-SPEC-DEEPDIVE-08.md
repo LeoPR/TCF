@@ -3,7 +3,8 @@ title: T-SPEC-DEEPDIVE-08, investigação de fundo dos specs (o que comprime, CN
 status: open
 priority: P1
 created: 2026-07-12
-updated: 2026-07-12
+updated: 2026-09-01
+gate: "estudo (alimenta decisao, sem ciclo proprio) (triagem 2026-09-01)"
 blocked-by: []
 related:
   - tickets/T-SPEC-STATUS-08.md

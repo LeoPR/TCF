@@ -16,44 +16,44 @@
 
 | ticket | estado | mexido | assunto |
 |---|---|---|---|
-| [T-SPEC-STATUS-08](T-SPEC-STATUS-08.md) | `P1` in-progress (revisao cadastral 2026-07-12; conjunto canonico atual preservado) | 2026-07-12 | status dos specs (2 abordagens) antes do teste em massa; decisão do que fecha no .8 |
-| [T-STUDY-DATASETH-COMPLETE-SEMANTICS](T-STUDY-DATASETH-COMPLETE-SEMANTICS.md) | `P1` in-progress | 2026-07-16 | fechar semântica hierárquica antes do wire |
-| [T-STUDY-HIERARCHY-LINK-ALGEBRA](T-STUDY-HIERARCHY-LINK-ALGEBRA.md) | `P1` in-progress | 2026-07-16 | equivalência dos portadores de vínculo |
+| [T-SPEC-STATUS-08](T-SPEC-STATUS-08.md) | `P1` in-progress (revisao cadastral 2026-07-12; conjunto canonico atual preservado) | 2026-09-01 | status dos specs (2 abordagens) antes do teste em massa; decisão do que fecha no .8 |
+| [T-STUDY-DATASETH-COMPLETE-SEMANTICS](T-STUDY-DATASETH-COMPLETE-SEMANTICS.md) | `P1` in-progress | 2026-09-01 | fechar semântica hierárquica antes do wire |
+| [T-STUDY-HIERARCHY-LINK-ALGEBRA](T-STUDY-HIERARCHY-LINK-ALGEBRA.md) | `P1` in-progress | 2026-09-01 | equivalência dos portadores de vínculo |
 
 ## Abertos (30)
 
 | ticket | estado | mexido | assunto |
 |---|---|---|---|
-| [T-CODE-CORE-CONSOLIDATE](T-CODE-CORE-CONSOLIDATE.md) | `P1` open | 2026-07-12 | fonte única de lógica, menos funções, naming HCC (adeus M8A) |
+| [T-CODE-CORE-CONSOLIDATE](T-CODE-CORE-CONSOLIDATE.md) | `P1` open | 2026-09-01 | fonte única de lógica, menos funções, naming HCC (adeus M8A) |
 | [T-CODE-TCF8H-JSON-PARITY](T-CODE-TCF8H-JSON-PARITY.md) | `P1` open | 2026-09-01 | o que falta pra fechar "hierarquia" (paridade JSON) + 1 capacidade exclusiva |
 | [T-CODE-TCF8H-WELD](T-CODE-TCF8H-WELD.md) | `P1` open | 2026-09-01 | weld do codec hierárquico #TCF.8H no src/tcf (feature do .8) |
-| [T-PERF-BORDAS-E-MODOS-09](T-PERF-BORDAS-E-MODOS-09.md) | `P1` open | 2026-08-23 | as bordas do TCF e os modos de compressão (rápido × maior); o alvo do .9 |
+| [T-PERF-BORDAS-E-MODOS-09](T-PERF-BORDAS-E-MODOS-09.md) | `P1` open | 2026-09-01 | as bordas do TCF e os modos de compressão (rápido × maior); o alvo do .9 |
 | [T-QA-8-material-comprobatorio](T-QA-8-material-comprobatorio.md) | `P1` open | 2026-09-01 | T-QA-8, material comprobatório do #TCF.8/0.8.0 (controle → sintéticos → públicos) com telemetria |
-| [T-SPEC-DEEPDIVE-08](T-SPEC-DEEPDIVE-08.md) | `P1` open | 2026-07-12 | investigação de fundo dos specs (o que comprime, CNPJ além do básico, compilador/un-weld); plano |
-| [T-API-SCHEMA-PRESCRITIVO](T-API-SCHEMA-PRESCRITIVO.md) | `P2` open | 2026-08-22 | o objeto Schema (forma longa do `schema=`) como portador do contrato |
-| [T-CODE-PARALLEL-BUDGET](T-CODE-PARALLEL-BUDGET.md) | `P2` open | 2026-07-10 | flag de controle de paralelismo e uso de CPU (budget do host) |
+| [T-SPEC-DEEPDIVE-08](T-SPEC-DEEPDIVE-08.md) | `P1` open | 2026-09-01 | investigação de fundo dos specs (o que comprime, CNPJ além do básico, compilador/un-weld); plano |
+| [T-API-SCHEMA-PRESCRITIVO](T-API-SCHEMA-PRESCRITIVO.md) | `P2` open | 2026-09-01 | o objeto Schema (forma longa do `schema=`) como portador do contrato |
+| [T-CODE-PARALLEL-BUDGET](T-CODE-PARALLEL-BUDGET.md) | `P2` open | 2026-09-01 | flag de controle de paralelismo e uso de CPU (budget do host) |
 | [T-CODE-VIEW-SUBTCF-RECORTE](T-CODE-VIEW-SUBTCF-RECORTE.md) | `P2` open | 2026-09-01 | promover H-QUERY-06 a saída TCF da view |
-| [T-DOC-MANUAL-FORMAL](T-DOC-MANUAL-FORMAL.md) | `P2` open | 2026-08-23 | manual didático no padrão das ferramentas de dados (índice, quickstart, entradas por tipo) |
-| [T-DOC-RELEASE-083-SUPERFICIE](T-DOC-RELEASE-083-SUPERFICIE.md) | `P2` open | 2026-08-29 | reconciliar changelog, status e roadmap com a publicação |
-| [T-FLOW-ENCODE-STRATEGIES-TELEMETRY](T-FLOW-ENCODE-STRATEGIES-TELEMETRY.md) | `P2` open | 2026-07-05 | Estratégias de encode (speed/mem) + telemetria sugestiva de ordem |
+| [T-DOC-MANUAL-FORMAL](T-DOC-MANUAL-FORMAL.md) | `P2` open | 2026-09-01 | manual didático no padrão das ferramentas de dados (índice, quickstart, entradas por tipo) |
+| [T-DOC-RELEASE-083-SUPERFICIE](T-DOC-RELEASE-083-SUPERFICIE.md) | `P2` open | 2026-09-01 | reconciliar changelog, status e roadmap com a publicação |
+| [T-FLOW-ENCODE-STRATEGIES-TELEMETRY](T-FLOW-ENCODE-STRATEGIES-TELEMETRY.md) | `P2` open | 2026-09-01 | Estratégias de encode (speed/mem) + telemetria sugestiva de ordem |
 | [T-FMT-CONTRACT-SIGNATURE](T-FMT-CONTRACT-SIGNATURE.md) | `P2` open | 2026-09-01 | assinatura de contrato para os knobs que não reconstroem a entrada (drop_names, sort_by) |
 | [T-FMT-OMIT-OR-DECLARE](T-FMT-OMIT-OR-DECLARE.md) | `P2` open | 2026-07-08 | Contrato de omissão (deduzível / convenção-default / declaração-obrigatória), AVALIAR pré-1.0 |
-| [T-HTTP-QUERY-E-VIEW](T-HTTP-QUERY-E-VIEW.md) | `P2` open | 2026-08-23 | o método HTTP QUERY (RFC 10008) como transporte natural do view()/lazy |
-| [T-LAB-DIDATICO-PONTA-A-PONTA](T-LAB-DIDATICO-PONTA-A-PONTA.md) | `P2` open | 2026-08-23 | micro-lab do fluxo real (coleta → dataset → schema → encode → cliente/servidor → disponibilizar) |
-| [T-OPT-INFERENCE](T-OPT-INFERENCE.md) | `P2` open | 2026-07-08 | base HEX dos sizes |
-| [T-STUDY-HIERARCHICAL-TCF](T-STUDY-HIERARCHICAL-TCF.md) | `P2` open | 2026-07-16 | TCF para estrutura hierárquica completa |
-| [T-TYPED-SINGLECOL-MODE-HEURISTIC](T-TYPED-SINGLECOL-MODE-HEURISTIC.md) | `P2` open | 2026-07-24 | single-col tipado + modos de corpo (heurística p/ .9) |
+| [T-HTTP-QUERY-E-VIEW](T-HTTP-QUERY-E-VIEW.md) | `P2` open | 2026-09-01 | o método HTTP QUERY (RFC 10008) como transporte natural do view()/lazy |
+| [T-LAB-DIDATICO-PONTA-A-PONTA](T-LAB-DIDATICO-PONTA-A-PONTA.md) | `P2` open | 2026-09-01 | micro-lab do fluxo real (coleta → dataset → schema → encode → cliente/servidor → disponibilizar) |
+| [T-OPT-INFERENCE](T-OPT-INFERENCE.md) | `P2` open | 2026-09-01 | base HEX dos sizes |
+| [T-STUDY-HIERARCHICAL-TCF](T-STUDY-HIERARCHICAL-TCF.md) | `P2` open | 2026-09-01 | TCF para estrutura hierárquica completa |
+| [T-TYPED-SINGLECOL-MODE-HEURISTIC](T-TYPED-SINGLECOL-MODE-HEURISTIC.md) | `P2` open | 2026-09-01 | single-col tipado + modos de corpo (heurística p/ .9) |
 | [DECISAO-VIEW-BOOL-TRUTHINESS](DECISAO-VIEW-BOOL-TRUTHINESS.md) | `P3` open | 2026-08-24 | int numa coluna bool passa por truthiness, e a doc promete o contrario |
-| [META-STRATA-GOVERNANCE](META-STRATA-GOVERNANCE.md) | `P3` open | 2026-06-18 | atividades recorrentes de governança do método Strata |
-| [T-DOC-3-shebang-terminology](T-DOC-3-shebang-terminology.md) | `P3` open-errata-reminder | 2026-07-01 | "shebang" → assinatura de formato / magic number |
-| [T-DOC-L10N-REFERENCE](T-DOC-L10N-REFERENCE.md) | `P3` open | 2026-08-25 | os 5 documentos restantes de docs/reference/ em dois idiomas |
-| [T-DOC-TIPOS-MISTOS](T-DOC-TIPOS-MISTOS.md) | `P3` open | 2026-08-29 | elaborar a documentação do comportamento de tipos mistos (hoje em post-it) |
+| [META-STRATA-GOVERNANCE](META-STRATA-GOVERNANCE.md) | `P3` open | 2026-09-01 | atividades recorrentes de governança do método Strata |
+| [T-DOC-3-shebang-terminology](T-DOC-3-shebang-terminology.md) | `P3` open-errata-reminder | 2026-09-01 | "shebang" → assinatura de formato / magic number |
+| [T-DOC-L10N-REFERENCE](T-DOC-L10N-REFERENCE.md) | `P3` open | 2026-09-01 | os 5 documentos restantes de docs/reference/ em dois idiomas |
+| [T-DOC-TIPOS-MISTOS](T-DOC-TIPOS-MISTOS.md) | `P3` open | 2026-09-01 | elaborar a documentação do comportamento de tipos mistos (hoje em post-it) |
 | [T-FMT-ESCAPE-COMBINATORIAL-STUDY](T-FMT-ESCAPE-COMBINATORIAL-STUDY.md) | `P3` open | 2026-07-15 | reestudar o escape (combinatório + estratégias de outros mecanismos) |
-| [T-FMT-META-STRICT](T-FMT-META-STRICT.md) | `P3` open | 2026-07-12 | o que já fecha por dedução vs o que exige redundância (checksum) |
+| [T-FMT-META-STRICT](T-FMT-META-STRICT.md) | `P3` open | 2026-09-01 | o que já fecha por dedução vs o que exige redundância (checksum) |
 | [T-FMT-QUOTING-STUDY](T-FMT-QUOTING-STUDY.md) | `P3` open | 2026-07-10 | estudo de quoting/escaping de nomes além do backslash interim (filho de T-FMT-NAME-ESCAPING) |
-| [T-SHAPER-NESTED-OUTPUT](T-SHAPER-NESTED-OUTPUT.md) | `P3` open | 2026-07-15 | saída HIERÁRQUICA nativa no Shaper (aninhar via FK, inverso do flat) |
+| [T-SHAPER-NESTED-OUTPUT](T-SHAPER-NESTED-OUTPUT.md) | `P3` open | 2026-09-01 | saída HIERÁRQUICA nativa no Shaper (aninhar via FK, inverso do flat) |
 | [T-STUDY-USE-PROFILES](T-STUDY-USE-PROFILES.md) | `P3` open | 2026-09-01 | perfis de uso (transmissão × armazenamento) e a calibração dos vértices |
-| [T-TOOL-TCF-FIX-CORRUPTION](T-TOOL-TCF-FIX-CORRUPTION.md) | `P3` open | 2026-07-10 | reparador de .tcf com algum grau de corrupção (ideia, pensar depois) |
+| [T-TOOL-TCF-FIX-CORRUPTION](T-TOOL-TCF-FIX-CORRUPTION.md) | `P3` open | 2026-09-01 | reparador de .tcf com algum grau de corrupção (ideia, pensar depois) |
 
 ## Fechados (64)
 

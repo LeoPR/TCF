@@ -3,7 +3,8 @@ title: "T-DOC-TIPOS-MISTOS: elaborar a documentação do comportamento de tipos 
 status: open
 priority: P3
 created: 2026-08-29
-updated: 2026-08-29
+updated: 2026-09-01
+gate: "documentacao (continuo, sem ciclo) (triagem 2026-09-01)"
 target: "pré-1.0, didático; o comportamento já está soldado e medido, falta a redação"
 blocked-by: []
 related:

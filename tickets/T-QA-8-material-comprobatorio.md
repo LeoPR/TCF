@@ -4,6 +4,7 @@ status: open
 priority: P1
 created: 2026-07-10
 updated: 2026-09-01
+gate: ".8 (dossie da versao); o que sobra vai pro .9, ver a nota de 2026-09-01"
 blocked-by: []
 related:
   - docs/adr/0032-tcf8-default-format.md
@@ -16,6 +17,42 @@ related:
   - scripts/dataset_reader.py
 ---
 
+
+## Atualizado 2026-09-01: os itens abertos, verificados um a um
+
+O `.8` publicou cinco releases desde a última passada deste dossiê, e vários itens foram
+resolvidos pelo caminho sem o checkbox ser marcado. Conferidos agora, rodando:
+
+| item | verdito | como |
+|---|---|---|
+| **DOC-01** [alta] | **feito** | o badge do `README.md` diz `0.8.4` e não há `#TCF.7` em lugar nenhum; a página foi reescrita várias vezes desde então |
+| **DOC-03** [média] | **feito** | o exemplo `@a=uf,1e=nome` não existe mais em `TCF-format.pt-BR.md` nem no `.en.md`. O real hoje é `#TCF.8M!8=uf,!nome`, com a última coluna sem size, que era exatamente a regra que o exemplo contradizia |
+| **DOC-04** [baixa] | **feito** | `pyproject.toml` tem `[project.urls]` e classifiers; a 0.8.4 ainda ganhou o `py.typed` que o classifier `Typing :: Typed` prometia e nenhuma wheel entregava |
+| **DOC-05** [baixa] | **parcial** | o item principal está resolvido: `scripts/benchmark_compression.py` não tem resíduo da API v0.5 e faz parse. Os sub-itens menores (warmup do `benchmark_parallel`, `row_count` nos `metadata.json`, a linha do `T-FMT-NAME-ESCAPING` no índice) não foram reconferidos |
+| **BUG-12** [alta] | **não reproduz, e não fecha** | ver abaixo |
+
+### BUG-12: o que a medição diz, e o que ela não diz
+
+Fuzz de flip de **um dígito hexadecimal** no meta, 750 casos: 4 tabelas × 2 modos de header ×
+cada posição hex × cada dígito alternativo, com 8 s de timeout por caso, cada um em processo
+separado. **Nenhum travou.** 500 levantaram `ValueError` e 250 decodificaram (a maioria destes
+por o dígito trocado cair num NOME de coluna, não num size, o que renomeia a coluna e não
+corrompe dado).
+
+Isso **não prova que o bug foi corrigido**. O ticket descreve uma condição específica de
+fronteira deslocada, e um fuzz de dígito único pode simplesmente não alcançá-la. O que a
+medição sustenta é mais modesto e ainda assim útil: a forma trivialmente alcançável do
+não-terminar não está aí.
+
+**Proposta, não aplicada**: mover o BUG-12 para o `.9` em vez de fechá-lo ou de deixá-lo
+segurando o `.8`. Três razões. Ele é **pré-existente** e o próprio ticket o registra como não
+sendo regressão do `.8`. O conserto **toca o core HCC** e exige aprovação explícita mais os
+gates byte-canônico e real-world completos, que é escopo de ciclo e não de fechamento. E ele
+**não reproduz** no ataque mais óbvio, então segurar uma versão inteira por ele seria pagar
+caro por um risco que não se consegue demonstrar.
+
+O que ele merece no `.9` é um guard de terminação no decode, que é barato e vale por si:
+qualquer laço de parse deve provar progresso, independentemente deste bug existir ou não.
 # T-QA-8: material comprobatório do #TCF.8/0.8.0
 
 > **⚑ ERRATA 2026-07-22** ([parecer 2340](../experiments/lab/dirty/notas/2026-07/2026-07-22-2340-revisao-fechamento-08-ordem-foco.md)):

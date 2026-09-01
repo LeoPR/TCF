@@ -3,7 +3,8 @@ title: T-PERF-BORDAS-E-MODOS-09, as bordas do TCF e os modos de compressão (rá
 status: open
 priority: P1
 created: 2026-08-23
-updated: 2026-08-23
+updated: 2026-09-01
+gate: ".9 (desempenho e limpeza) (triagem 2026-09-01)"
 target: ".9 (otimização), este é o ticket-mestre do ciclo"
 blocked-by: []
 related:

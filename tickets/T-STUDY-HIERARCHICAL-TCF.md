@@ -3,7 +3,8 @@ title: T-STUDY-HIERARCHICAL-TCF, TCF para estrutura hierárquica completa
 status: open
 priority: P2
 created: 2026-07-05
-updated: 2026-07-16
+updated: 2026-09-01
+gate: "estudo (alimenta decisao, sem ciclo proprio) (triagem 2026-09-01)"
 blocked-by: []
 related:
   - experiments/lab/dirty/notas/2026-07/estudo-tcf-hierarquico-mapa.md

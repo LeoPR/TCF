@@ -3,7 +3,8 @@ title: T-CODE-PARALLEL-BUDGET, flag de controle de paralelismo e uso de CPU (bud
 status: open
 priority: P2
 created: 2026-07-10
-updated: 2026-07-10
+updated: 2026-09-01
+gate: ".9 (desempenho e limpeza) (triagem 2026-09-01)"
 blocked-by: []
 related:
   - tickets/T-QA-8-material-comprobatorio.md

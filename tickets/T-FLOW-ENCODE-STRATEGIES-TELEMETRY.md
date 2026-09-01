@@ -3,7 +3,8 @@ title: T-FLOW-ENCODE-STRATEGIES-TELEMETRY, Estratégias de encode (speed/mem) + 
 status: open
 priority: P2
 created: 2026-07-05
-updated: 2026-07-05
+updated: 2026-09-01
+gate: ".9 (desempenho e limpeza) (triagem 2026-09-01)"
 blocked-by: []
 related:
   - tickets/T-FMT-TCF8H-HEADER.md

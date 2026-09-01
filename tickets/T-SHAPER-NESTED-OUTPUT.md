@@ -3,7 +3,8 @@ title: T-SHAPER-NESTED-OUTPUT, saída HIERÁRQUICA nativa no Shaper (aninhar via
 status: open
 priority: P3
 created: 2026-07-15
-updated: 2026-07-15
+updated: 2026-09-01
+gate: ".9 (formato e ferramental) (triagem 2026-09-01)"
 target: até 1.0 (ferramental; não bloqueia .8)
 blocked-by: []
 related:

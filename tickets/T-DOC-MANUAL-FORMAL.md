@@ -3,7 +3,8 @@ title: T-DOC-MANUAL-FORMAL, manual didático no padrão das ferramentas de dados
 status: open
 priority: P2
 created: 2026-08-23
-updated: 2026-08-23
+updated: 2026-09-01
+gate: "documentacao (continuo, sem ciclo) (triagem 2026-09-01)"
 target: "pós-0.8.0, documentação de entrega; não muda código"
 blocked-by: []
 related:

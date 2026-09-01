@@ -3,7 +3,8 @@ title: T-SPEC-STATUS-08, status dos specs (2 abordagens) antes do teste em massa
 status: in-progress (revisao cadastral 2026-07-12; conjunto canonico atual preservado)
 priority: P1
 created: 2026-07-12
-updated: 2026-07-12
+updated: 2026-09-01
+gate: "estudo (alimenta decisao, sem ciclo proprio) (triagem 2026-09-01)"
 blocked-by: []
 related:
   - tickets/T-QA-8-material-comprobatorio.md

@@ -3,7 +3,8 @@ title: T-OPT-INFERENCE, Otimizações por INFERÊNCIA (valor deduzido, não escr
 status: open
 priority: P2
 created: 2026-07-05
-updated: 2026-07-08
+updated: 2026-09-01
+gate: ".9 (formato e ferramental) (triagem 2026-09-01)"
 blocked-by: []
 related:
   - tickets/T-FMT-TCF8H-HEADER.md

@@ -3,7 +3,8 @@ title: T-STUDY-DATASETH-COMPLETE-SEMANTICS, fechar semântica hierárquica antes
 status: in-progress
 priority: P1
 created: 2026-07-16
-updated: 2026-07-16
+updated: 2026-09-01
+gate: "estudo (alimenta decisao, sem ciclo proprio) (triagem 2026-09-01)"
 blocked-by: []
 related:
   - tickets/T-STUDY-HIERARCHICAL-TCF.md

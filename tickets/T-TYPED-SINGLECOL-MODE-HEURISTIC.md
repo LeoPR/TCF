@@ -3,7 +3,8 @@ title: T-TYPED-SINGLECOL-MODE-HEURISTIC, single-col tipado + modos de corpo (heu
 status: open
 priority: P2
 created: 2026-07-24
-updated: 2026-07-24
+updated: 2026-09-01
+gate: ".9 (desempenho e limpeza) (triagem 2026-09-01)"
 blocked-by: []
 related:
   - experiments/lab/dirty/notas/2026-07/2026-07-24-0100-camada-explicita-vs-implicita-fecha-cicloA.md

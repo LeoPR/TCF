@@ -4,6 +4,7 @@ status: open
 priority: P3
 created: 2026-08-20
 updated: 2026-09-01
+gate: "estudo (alimenta decisao, sem ciclo proprio) (triagem 2026-09-01)"
 target: ".9 / pré-1.0 (estudo; nenhuma mudança no .8)"
 blocked-by: []
 related:

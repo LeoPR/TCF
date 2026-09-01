@@ -3,7 +3,8 @@ title: T-CODE-CORE-CONSOLIDATE, simplificar o core: fonte única de lógica, men
 status: open
 priority: P1
 created: 2026-07-12
-updated: 2026-07-12
+updated: 2026-09-01
+gate: ".9 (desempenho e limpeza) (triagem 2026-09-01)"
 blocked-by: []
 related:
   - tickets/T-REL-08-CLOSEOUT.md

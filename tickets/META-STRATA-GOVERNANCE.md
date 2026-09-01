@@ -3,7 +3,8 @@ title: META-STRATA-GOVERNANCE, atividades recorrentes de governança do método 
 status: open
 priority: P3
 created: 2026-06-18
-updated: 2026-06-18
+updated: 2026-09-01
+gate: "meta (metodo, sem ciclo) (triagem 2026-09-01)"
 blocked-by: []
 related:
   - tickets/T-CLEAN-2-strata-defrag.md

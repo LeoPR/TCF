@@ -3,7 +3,8 @@ title: T-HTTP-QUERY-E-VIEW, o método HTTP QUERY (RFC 10008) como transporte nat
 status: open
 priority: P2
 created: 2026-08-23
-updated: 2026-08-23
+updated: 2026-09-01
+gate: ".9 (armazenamento e ecossistema) (triagem 2026-09-01)"
 target: "pesquisa/prova-de-conceito, não muda o formato; candidato ao lab didático"
 blocked-by: []
 related:

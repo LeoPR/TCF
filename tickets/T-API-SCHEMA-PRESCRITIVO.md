@@ -3,7 +3,8 @@ title: T-API-SCHEMA-PRESCRITIVO, o objeto Schema (forma longa do `schema=`) como
 status: open
 priority: P2
 created: 2026-08-22
-updated: 2026-08-22
+updated: 2026-09-01
+gate: ".9 (formato e ferramental) (triagem 2026-09-01)"
 target: "pré-1.0 (aditivo sobre o schema= do ADR-0047; nada muda no wire)"
 blocked-by: []
 related:

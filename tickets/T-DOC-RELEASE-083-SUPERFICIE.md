@@ -4,7 +4,8 @@ type: task
 status: open
 priority: P2
 created: 2026-08-29
-updated: 2026-08-29
+updated: 2026-09-01
+gate: "documentacao (continuo, sem ciclo) (triagem 2026-09-01)"
 blocked-by: []
 related:
   - CHANGELOG.md

@@ -79,10 +79,17 @@ não intuição.
 | achado | número | consequência |
 |---|---|---|
 | o eixo quente é **cardinalidade**, não volume | `lineitem` 60k = 475 s · `adult` 49k = 3,3 s (**143×**) | otimizar por cardinalidade, não por linhas×colunas |
-| **encode** é o alvo; decode não | razão de **10× a ~800×** | e a topologia 1 encode : N decodes conta a favor |
+| **encode** é o alvo; decode não | razão de **3,6× a 1.060×** (remedido 2026-09-01 na 0.8.4; 20,3× no caso real de 3.000 × 15) | a razão **não é constante**: varia duas ordens de grandeza com a forma do dado, então é uma faixa e não um número |
 | os **bytes já estão lá** | `tcf+brotli` = 2,3% do JSON (metade do `json+brotli`) | falta tempo pra colhê-los |
-| break-even hoje | **1,2 a 36 Mbps** | linear no custo de CPU: encode 10× → ~360 Mbps |
+| break-even hoje | **1,2 a 36 Mbps** | linear no custo de CPU: encode 10× → ~360 Mbps. Mas o break-even **não é um número por projeto, é um por topologia**: quem paga o encode e quantas vezes muda a conta inteira (`T-STUDY-USE-PROFILES`, nota de 2026-09-01) |
 | borda superior | 500 mil linhas = 53 min de CPU, 1,2 GB, sem terminar | o alvo é volume pequeno; isto é a borda |
+
+> **O TCF não é ETL.** Os números de volume acima descrevem uma **borda**, não o alvo, e
+> servem para ordem de grandeza e não para decidir. A decisão é por topologia: cliente
+> encodando e servidor consumindo distribui o lado caro; servidor encodando payload único o
+> concentra no caminho da requisição; e no disco o concorrente deixa de ser CSV e passa a ser
+> Parquet, que ainda não foi medido. A tabela por topologia está em
+> [`a-assimetria-encode-decode.md`](docs/theory/conceitos/a-assimetria-encode-decode.md).
 
 Base: labs `0100`
 e `0300`.

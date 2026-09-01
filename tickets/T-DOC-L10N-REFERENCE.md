@@ -3,7 +3,8 @@ title: "T-DOC-L10N-REFERENCE: os 5 documentos restantes de docs/reference/ em do
 status: open
 priority: P3
 created: 2026-08-25
-updated: 2026-08-25
+updated: 2026-09-01
+gate: "documentacao (continuo, sem ciclo) (triagem 2026-09-01)"
 target: "antes da publicacao 1.0; parcial entregue no 0.8.2"
 blocked-by: []
 related:
