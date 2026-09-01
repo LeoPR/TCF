@@ -496,6 +496,44 @@ header pro lazy) que nao e' so' bytes. Tudo #TCF.8 + GATE. Ordem: H-REF-03 -> H-
 > NAO-MEDIDO + passivo forward-compat duro. Timing: depois do #TCF.8 chegar via B2 cross-dict
 > (que tem ganho medido), por carona. Eixo VELOCIDADE (valor limpo->encode rapido) = lacuna real.
 
+> **O MECANISMO do tier B1, registrado pelo owner em 2026-08-31 (alvo 2.0)**: uma classe TCF
+> **multi-instancia** que ACUMULA entre transmissoes. Hoje o tier B1 esta' registrado como
+> "onde o dict mora"; falta o objeto que o segura. A ideia: em vez de cada transmissao
+> descobrir o dicionario do zero, uma sessao acumula blocos e dicionarios e os REUSA entre
+> varias transmissoes que compartilham a mesma classe.
+>
+> O argumento do owner: *"via de regra, boa parte de transmissoes formatadas compartilham
+> muitos dados comuns com frequencia, e eles nao precisariam ser descobertos toda hora por
+> sessao"*. E' a mesma economia que o `@dict` faz DENTRO de um blob, aplicada ENTRE blobs.
+>
+> O que isso muda em relacao ao B1 como esta' escrito: o B1 fala do tier (o dict mora fora do
+> blob); isto fala do CICLO DE VIDA (quem guarda, por quanto tempo, e como as duas pontas
+> concordam sobre qual dicionario esta' em uso). As duas pontas terem de concordar e' o
+> problema dificil, e e' o que empurra pro 2.0: um blob que depende de estado externo deixa de
+> ser auto-contido, que e' invariante do `.8` (ADR-0034, e a direcao "contrato externalizado"
+> de 2026-07-16 ja' discute o preco disso com assinatura fail-loud).
+>
+> **A MAGNITUDE, corrigida pelo owner (2026-09-01)**: nao e' acumulo DENTRO de uma sessao, e'
+> buffer/cache ENTRE sessoes diferentes. O argumento: *"o universo de conversas, provavelmente,
+> seriam os mesmos, poderiamos ter containers por assunto ou contrato"*. Ou seja o dicionario
+> nao pertence a uma conexao: pertence a um ASSUNTO, e sobrevive a ela.
+>
+> Isso REPOSICIONA o item no espectro dos 3 tiers acima, em vez de so' aumenta-lo. Ele nao e' o
+> B1 (dict compartilhado dentro de um escopo de transmissao) nem o H-CODEBOOK (dict universal
+> por tipo notorio, "roubado" de fora): e' um tier INTERMEDIARIO, um dict de escopo NOMEADO
+> (assunto/contrato) que persiste entre sessoes. A diferenca para o H-CODEBOOK e' que este
+> APRENDE do trafego e serve um dominio especifico, enquanto o codebook nao aprende nada e serve
+> tipos conhecidos de antemao.
+>
+> As perguntas que isso abre, nenhuma respondida: quem NOMEIA o container e como as duas pontas
+> concordam no nome; o que acontece quando um lado tem o container e o outro nao (o fail-loud da
+> direcao "contrato externalizado" e' o candidato natural); invalidacao e versao do container
+> (um dict que muda enquanto blobs antigos ainda o referenciam); e se o ganho paga, porque dict
+> compartilhado so' rende quando o trafego do assunto de fato repete, e isso se responde com
+> corpus, nao com sintetico.
+
+> Sem lab e sem medicao. Registrado para avaliar, nao para fazer.
+
 ---
 
 ## Pacote 12: Lazy/queryable view (registrado 2026-06-16, alvo pre-1.0)
@@ -676,8 +714,15 @@ E' o **maior ganho de byte medido na sessao inteira**. Tambem medido (2026-08-20
 | H-14-03 | **Sort ESPECULATIVO combinatorio** (testar varias ordenacoes e escolher a menor) so' faz sentido em **compressao offline** ou num **modo MAX** | aberta | e' um PERFIL DE EMISSAO (`T-STUDY-USE-PROFILES` P4), nao um default |
 | H-14-04 | **Estatistica de coluna por AMOSTRA** (como os bancos fazem) permite *chutar* a distribuicao e decidir se ordenar compensa, sem varrer tudo | aberta | o `SideOutputs`/`build_schema` JA' produz features de coluna; conecta com o "prefetch orientado" do H-13-03 |
 | H-14-05 | O ganho do sort depende do VOLUME: em poucos dados pode compensar mesmo com o custo; em volume o custo domina | aberta | owner: *"se forem poucos dados poderia dar vantagem"*; medir a curva |
-| H-14-06 | **O `sort_by` sem funcao compressiva nao deveria existir como knob** (owner 2026-08-31): ordenar por ordenar e' fazivel ANTES ou DEPOIS do TCF, com as ferramentas que o usuario ja' tem. Fazer no meio do encode cobra o contrato de ordem (classe CONTRATO, o wire fica byte-identico ao integro) e nao devolve nada em troca. Criterio proposto: durante o encode, o sort so' se justifica se **comprimir**, ou se **habilitar algo que fora dele e' impossivel** (ver H-14-07) | aberta | e' criterio de ADMISSAO do knob, nao hipotese de medicao; decide junto com `T-FMT-CONTRACT-SIGNATURE` |
-| H-14-07 | **Sort como orientacao previa para AGREGACAO EM STREAM** (owner 2026-08-31): inverte o H-14-01. O sort mata o streaming do PRODUTOR, e por isso pode habilitar o do CONSUMIDOR: com a chave agrupada, cada grupo **fecha** no instante em que a chave muda, entao o agregado parcial sai **em ordem de conclusao**, sem esperar o blob terminar. O ganho aqui nao e' byte, e' **latencia do primeiro resultado**, que e' vertice proprio no ADR-0002 | aberta | `group_ranges(key)` (view.py:1050) ja' devolve `{valor: (inicio, fim)}` e ja' se apoia na contiguidade; conecta com H-QUERY-02 (agregar runs sem expandir) e com o sort por BLOCO do H-14-02, que daria fechamento por janela |
+| H-14-06 | **O `sort_by` sem funcao compressiva nao deveria existir como knob** (owner 2026-08-31): ordenar por ordenar e' fazivel ANTES ou DEPOIS do TCF, com as ferramentas que o usuario ja' tem. Fazer no meio do encode cobra o contrato de ordem (classe CONTRATO, o wire fica byte-identico ao integro) e nao devolve nada em troca. Criterio proposto: durante o encode, o sort so' se justifica se **comprimir**, ou se **habilitar algo que fora dele e' impossivel** (ver H-14-07) | **respondida 2026-09-01** ([lab](../../2026-09/2026-09-01/2026-09-01-0010-sort-by-o-que-ele-compra/)): o criterio foi APLICADO e o knob PASSA pela primeira metade. Ele COMPRIME, e muito, quando as companheiras correlacionam com a chave (-43,0% em 3 colunas todas funcao da chave; -18,4% com uma coluna independente junto). E perde muito quando nao correlacionam (+52,1% em 6 colunas independentes; o saldo vira negativo ja' na 2a coluna). Ou seja NAO e' estetico, e' dependente do dado. A cauda medida e' bem maior que os +-2-15% escritos em `docs/reference/encode-knobs.md:57`, que descrevem o miolo (corpus real: `adult` -10%, `online-retail` +2,3%). O que sobra do criterio nao e' expulsar o knob, e' tirar a adivinhacao do usuario: ver H-14-08 |
+| H-14-07 | **Sort como orientacao previa para AGREGACAO EM STREAM** (owner 2026-08-31): inverte o H-14-01. O sort mata o streaming do PRODUTOR, e por isso pode habilitar o do CONSUMIDOR: com a chave agrupada, cada grupo **fecha** no instante em que a chave muda, entao o agregado parcial sai **em ordem de conclusao**, sem esperar o blob terminar. O ganho aqui nao e' byte, e' **latencia do primeiro resultado**, que e' vertice proprio no ADR-0002 | **premissa NAO se sustenta na view de hoje** (2026-09-01, [lab](../../2026-09/2026-09-01/2026-09-01-0010-sort-by-o-que-ele-compra/)): o `group_ranges` comeca com `_col(key)`, que MATERIALIZA a coluna inteira no cache. A view e' lazy por COLUNA, nao por LINHA, entao nao ha' stream para a contiguidade habilitar. Medido: `agg_by` (exige ordenado) e `group_sum` (order-free, ja' na API publica) devolvem o MESMO resultado, materializam as MESMAS colunas, decodificam as MESMAS 120 linhas, e o que exige ordenacao e' **3,6% mais lento**. A docstring do `group_sum` (view.py:952) afirma que o `agg_by` e' "mais barato": isso nao aparece na medicao e precisa de correcao. A hipotese so' volta a ser testavel com um leitor que corra por LINHA, que e' trabalho de `.9`. E quando ele existir o sort provavelmente nao e' o caminho: o `@dict` ja' carrega a pertinencia de grupo posicionalmente, e o [lab 2026-08-24-0500](../../2026-08/2026-08-24/2026-08-24-0500-lazy-oportunista/) ja' fez `group_sum` cruzando os dois streams de indices sem materializar nada e SEM ordenar, -71,8% |
+| H-14-08 | **O FLOOR decide o sort, nao o usuario** (2026-09-01): ao passar `sort_by` o usuario JA' abriu mao da ordem das linhas, entao o encoder ja' esta' AUTORIZADO a reordenar e nada o obriga a reordenar quando isso piora. Tratar a ordenacao como mais um CANDIDATO (do jeito que o `.8M` ja' trata tcf/raw/`@`/`%`): encoda os dois, emite o menor. Vira **nunca-pior** por construcao, e o kwarg passa de "reordene por esta coluna" para "voce PODE reordenar por esta coluna se ajudar" | **medida, nao soldada** ([lab](../../2026-09/2026-09-01/2026-09-01-0010-sort-by-o-que-ele-compra/)): nos 7 casos do lab evitaria **734 B de perda** e nao perderia ganho nenhum, porque o menor dos dois nunca e' pior que qualquer um deles. Custo: um encode a mais, e so' quando o `sort_by` e' pedido | exige aprovacao I5 + ADR (o `sort_by` nao tem ADR proprio, ao contrario de todos os vizinhos do ciclo de solda: 0022, 0023, 0025, 0026). Supersede a parte "combinatoria" do H-14-03 no caso de UMA chave declarada: aqui nao ha' busca, sao dois candidatos |
+
+**Defeitos de superficie do `sort_by`, levantados na varredura de 2026-09-01** (nenhum e' hipotese, sao fatos do codigo, e cabem no `T-FMT-CONTRACT-SIGNATURE`):
+- em `list[str]` o kwarg e' **ignorado calado** e isso esta' PINADO em teste (`tests/test_multi_col_rt.py:339`), enquanto as outras 4 rotas recusam com fail-loud;
+- o `ValueError` de colunas de tamanhos diferentes (`encoder.py:776-780`) e' **inalcancavel**: `_tabela_flat` ja' recusa ragged antes (`encoder.py:142-144`);
+- a chave de ordenacao e' `str(valor)`, entao `10` vem antes de `2`, e `None` vira a string `"None"` e colide com uma string literal `"None"` na mesma coluna;
+- custo de mexer: nenhum teste pina BYTE e nenhum baseline depende dele; virar no-op quebra 7 casos (4 sao o L5 em `test_tcf_lazy.py`), remover o parametro sobe pra ~17 em 5 arquivos.
 
 **Reafirmado 2026-08-31** (owner): a escolha da coluna e' do **CONJUNTO**, nao da coluna
 isolada, ou seja "qual chave da' mais vantagem no dataset todo". Isso ja' esta' coberto por
