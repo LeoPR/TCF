@@ -35,13 +35,25 @@ table = {
 blob = encode(table)
 assert decode(blob) == table         # round-trip is always exact
 
+# Records: the shape csv.DictReader, json.load and df.to_dict("records") hand you.
+# Same table, so the same body: only the family character differs (M -> R).
+rows = [dict(zip(table, v)) for v in zip(*table.values())]
+assert encode(rows)[7:] == blob[7:]  # 106 B either way, byte for byte
+assert decode(encode(rows)) == rows  # and it comes back as rows, not columns
+
 # Nested (the JSON your API sends): routes to #TCF.8H through the same door
 orders = [{"customer": "Ana", "items": [{"sku": "A1", "qty": 2}], "active": True}]
 assert decode(encode(orders)) == orders
 ```
 
-One door: `encode()` routes by the **type of the input**, `decode()` by the format
-signature. Round-trip is always lossless: it either preserves or fails loud.
+One door: `encode()` routes by the **shape of the input**, `decode()` by the format
+signature. Round-trip is always lossless: it either preserves or fails loud, and each shape
+comes back as the shape it went in.
+
+New in 0.8.4: a flat rectangular list of records is a **table**, not a tree. It used to route
+to the hierarchical family, which has no per-column candidate layer, and paid up to 430% more
+than the same data written as columns. Now it compresses identically, marked `#TCF.8R`. Ragged
+rows, nested values and arrays in a cell stay hierarchical, where they belong.
 
 ## What the wire looks like
 

@@ -117,15 +117,23 @@ path = "hatch_build.py"
 # sdist enxuto: so' o necessario pra buildar/instalar (pacote + hook + metadata).
 # Exclui experiments/, old/ (v0.5 legado), docs/, datasets/ etc. (~18MB) do
 # dist publicavel. `exclude` tem precedencia sobre o default VCS do hatchling.
+#
+# Os padroes sao ANCORADOS com `/` de proposito. Sem a barra o hatchling os trata como
+# padrao estilo gitignore, que casa em QUALQUER profundidade: `"README.md"` levava tambem
+# os nove `datasets/canonical/*/README.md` (o `exclude = ["/datasets"]` nao segurava, porque
+# o `.gitignore` tem uma negacao explicita pra eles), mais `src/llm_query/README.md` e
+# `src/shaper/README.md`. Onze arquivos alheios no dist publicado, e o mesmo mecanismo levou
+# um `Z:\caches\pytest/README.md` fantasma pro sdist da 0.8.3, porque o CI roda a suite antes
+# do build e o cache_dir vira diretorio literal no ubuntu.
 [tool.hatch.build.targets.sdist]
 include = [
-    "src/tcf",
-    "hatch_build.py",
-    "pyproject.toml",
-    "README.md",
-    "LICENSE",
-    "CHANGELOG.md",
-    "CITATION.cff",
+    "/src/tcf",
+    "/hatch_build.py",
+    "/pyproject.toml",
+    "/README.md",
+    "/LICENSE",
+    "/CHANGELOG.md",
+    "/CITATION.cff",
 ]
 exclude = [
     "/experiments",
