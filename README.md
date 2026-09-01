@@ -475,12 +475,12 @@ compression stays on the [roadmap](docs/adr/0018-v2-format-roadmap.md).
 **With no compressor at all, TCF is the most compact _text_ format in the set.**
 Across the 15 synthetic datasets in [EXP-008](experiments/lab/clean/EXP-008-compressao-comparada/):
 
-| format (plain text, no compressor) | bytes |
-|---|---:|
-| **TCF** | **3131** |
-| CSV | 4872 |
-| JSON | 5409 |
-| JSONL | 7001 |
+| format (plain text, no compressor) | bytes | |
+|---|---:|---|
+| **TCF** | **3131** | `█████████············` |
+| CSV | 4872 | `███████████████······` |
+| JSON | 5409 | `████████████████·····` |
+| JSONL | 7001 | `█████████████████████` |
 
 ~36% smaller than CSV and ~42% smaller than JSON, while staying readable.
 
@@ -514,8 +514,11 @@ On the **record set above**, under HTTP compression (`Content-Encoding`, max lev
 | format | raw | gzip | br | zstd |
 |---|---:|---:|---:|---:|
 | JSON  | 451 | 206 | 195 | 197 |
-| JSONL | 449 | **205** | 194 | 194 |
-| TCF   | **242** | 206 | **185** | **193** |
+| JSONL | 449 | **205** 🥇 | 194 | 194 |
+| TCF   | **242** 🥇 | 206 | **185** 🥇 | **193** 🥇 |
+
+> Under `gzip` the three tie inside 1 B. The difference that exists is in the **raw**
+> column, and that is the column your process actually holds and parses.
 
 Among the formats an API actually sends, TCF is the smallest **raw**: 242 B, against 449 for
 JSONL and 451 for JSON, both measured compact. Compressed, it stays competitive. It wins under

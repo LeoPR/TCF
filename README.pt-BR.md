@@ -470,12 +470,12 @@ O dicionário low-card (V2-B) e o split estrutural já estão no default. A comp
 **Sem nenhum compressor, o TCF é o formato de _texto_ mais compacto do conjunto.**
 Nos 15 datasets sintéticos do [EXP-008](experiments/lab/clean/EXP-008-compressao-comparada/):
 
-| formato (texto puro, sem compressor) | bytes |
-|---|---:|
-| **TCF** | **3131** |
-| CSV | 4872 |
-| JSON | 5409 |
-| JSONL | 7001 |
+| formato (texto puro, sem compressor) | bytes | |
+|---|---:|---|
+| **TCF** | **3131** | `█████████············` |
+| CSV | 4872 | `███████████████······` |
+| JSON | 5409 | `████████████████·····` |
+| JSONL | 7001 | `█████████████████████` |
 
 ~36% menor que CSV e ~42% menor que JSON, continuando legível.
 
@@ -509,8 +509,11 @@ No **cadastro acima**, sob compressão HTTP (`Content-Encoding`, nível máximo)
 | formato | cru | gzip | br | zstd |
 |---|---:|---:|---:|---:|
 | JSON  | 451 | 206 | 195 | 197 |
-| JSONL | 449 | **205** | 194 | 194 |
-| TCF   | **242** | 206 | **185** | **193** |
+| JSONL | 449 | **205** 🥇 | 194 | 194 |
+| TCF   | **242** 🥇 | 206 | **185** 🥇 | **193** 🥇 |
+
+> Sob `gzip` os três empatam dentro de 1 B. A diferença que existe está na coluna do
+> **cru**, e essa é a coluna que o seu processo de fato segura e faz parse.
 
 Entre os formatos que uma API de fato transmite, o TCF é o menor **cru**: 242 B, contra 449
 do JSONL e 451 do JSON, os dois medidos compactos. Comprimido, ele segue competitivo. Vence
