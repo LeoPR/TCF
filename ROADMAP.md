@@ -57,9 +57,14 @@ byte ali, em seis corpora. O `min_len` **não** entrou na recusa, e essa é a pa
 o registro anterior: ele nunca foi no-op, é o único da lista que funciona no single-col, e
 recusá-lo tiraria capacidade real (46 B para 23 B numa coluna de IDs).
 
-Resta uma ponta: o **FLOOR do spec** não foi decidido porque a premissa dele não reproduz,
-0 violações em 69 medições no lab `2026-08-31-0230`, então o que existe é divergência de
-decisão entre famílias e não quebra do nunca-pior. `src/tcf` continua sob aprovação
+A sexta e última fechou em 2026-09-01, e o veredito foi diferente do esperado: das três
+contabilidades do **FLOOR do spec**, só uma era defeito. O single compara contra um baseline
+polarizado e com bN e está **certo**, porque a gramática torna polaridade e `:spec`
+mutuamente exclusivos e o candidato não pode receber esse arsenal; comparar o melhor emitível
+de cada lado é o que um FLOOR deve fazer. O multi já era a conta justa. O hier cobrava 11 B
+de um header que não emite, e passou a cobrar `:<size>:<id>`, o pior caso real.
+
+**Nenhuma decisão de dono da cauda do `.8` continua aberta.** `src/tcf` segue sob aprovação
 explícita.
 
 ## Ciclo `.9`: aberto 2026-08-23, com base medida

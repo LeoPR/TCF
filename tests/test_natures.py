@@ -1484,3 +1484,68 @@ class TestDecodeSchemaIgnoradoAvisa:
             _w.simplefilter("always")
             decode(w)
         assert not capturados
+
+
+class TestFloorDoSpecNoHier:
+    """O `.8H` decidia o spec cobrando um header que ele nao emite (fechado 2026-09-01).
+
+    Ele delega a decisao ao flat com `stamp=False`, e nesse modo o flat compara
+    `'#TCF.8 :id\\n' + corpo_nat` contra o corpo cru. O header de 11 B e' jogado fora na
+    linha seguinte: o que este container emite e' o `:id` dentro do meta da coluna. O
+    candidato levava um handicap que nao correspondia a byte emitido nenhum, e perdia
+    disputas apertadas, tipicamente em coluna de data curta.
+
+    O conserto tem uma armadilha, e este teste guarda os dois lados dela. Cobrar so' o
+    `:id` under-estima: uma coluna SEM nature pode omitir o tamanho (corpo ate' o fim) e
+    COM nature tem de declara-lo, entao o meta `#TCF.8Hc` (8 B) vira `#TCF.8Hc:32:dt`
+    (14 B). Cobrando 3 B o wire crescia de 46 B pra 47 B, ou seja o FLOOR deixava de ser
+    nunca-pior. A conta emitida cobra `:<size>:<id>`, o pior caso REAL.
+    """
+
+    CASOS = {
+        "data-N10": ([f"2026-01-{d:02d}" for d in range(1, 11)], "data-iso"),
+        "data-N11": ([f"2026-01-{d:02d}" for d in range(1, 12)], "data-iso"),
+        "data-N13": ([f"2026-01-{d:02d}" for d in range(1, 14)], "data-iso"),
+        "data-N30": ([f"2026-01-{d:02d}" for d in range(1, 31)], "data-iso"),
+        "data-N60": ([f"2026-{1 + i // 28:02d}-{1 + i % 28:02d}" for i in range(60)],
+                     "data-iso"),
+        "ip-5": (["203.47.211.94", "178.54.193.67", "191.86.245.32",
+                  "159.203.74.89", "187.109.33.46"], "ip"),
+        "ip-40": ([f"10.{i % 7}.{i % 13}.{i % 251}" for i in range(40)], "ip"),
+        "cpf-20": (["111.444.777-35", "529.982.247-25"] * 10, "cpf"),
+        "cpf-40": ([f"111.444.777-{i % 90 + 10}" for i in range(40)], "cpf"),
+        "cnpj-6": (["11.222.333/0001-81", "45.723.174/0001-10"] * 3, "cnpj"),
+        "intpad-40": ([f"{i:06d}" for i in range(40)], "int-pad"),
+    }
+
+    @pytest.mark.parametrize("nome", sorted(CASOS))
+    def test_nunca_pior_e_round_trip(self, nome):
+        """A invariante que sustenta todo candidato do projeto, pinada por caso."""
+        from tcf.hierarchical import _encode_hierarchical
+        vals, sid = self.CASOS[nome]
+        regs = [{"c": v} for v in vals]
+        com = _encode_hierarchical(regs, nature_per_col={"c": SPEC_REGISTRY[sid]})
+        sem = _encode_hierarchical(regs)
+        assert len(com.encode("utf-8")) <= len(sem.encode("utf-8")), (
+            f"{nome}: o spec fez o wire CRESCER, {len(com.encode())} B contra "
+            f"{len(sem.encode())} B. O FLOOR deixou de ser nunca-pior.")
+        assert decode(com) == regs
+
+    def test_o_caso_que_a_conta_errada_quebrava(self):
+        """`data-N10` e' a fronteira: com o preco errado ele aplicava e crescia 1 B."""
+        from tcf.hierarchical import _encode_hierarchical
+        regs = [{"c": f"2026-01-{d:02d}"} for d in range(1, 11)]
+        com = _encode_hierarchical(regs, nature_per_col={"c": SPEC_REGISTRY["data-iso"]})
+        assert ":dt" not in com.split("\n", 1)[0]     # descarta, e esta' certo
+        assert len(com.encode("utf-8")) == len(_encode_hierarchical(regs).encode("utf-8"))
+
+    def test_o_handicap_de_header_deixou_de_descartar_spec_que_paga(self):
+        """N=11 a N=30: o spec PAGA e antes era descartado pelos 11 B de header fantasma."""
+        from tcf.hierarchical import _encode_hierarchical
+        for n in (11, 13, 30):
+            regs = [{"c": f"2026-01-{d:02d}"} for d in range(1, n + 1)]
+            com = _encode_hierarchical(regs, nature_per_col={"c": SPEC_REGISTRY["data-iso"]})
+            sem = _encode_hierarchical(regs)
+            assert ":dt" in com.split("\n", 1)[0], f"N={n}: o spec deveria ter vencido"
+            assert len(com.encode("utf-8")) < len(sem.encode("utf-8"))
+            assert decode(com) == regs

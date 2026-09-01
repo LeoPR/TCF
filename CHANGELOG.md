@@ -115,6 +115,25 @@ What it did find was in the messages and in the surface:
   no-op and it is not, it is the one knob of the group that works on a single column
   (46 B to 23 B on a column of IDs, 363 B to 56 B on long unique values). Refusing it would
   have removed a real capability, which is what testing one corpus instead of six nearly did.
+- **The `.8H` stops pricing the spec against a header it never emits.** It delegated the
+  decision to the flat encoder, which compares `'#TCF.8 :id\n' + body` against the bare body,
+  charging the candidate an 11-byte header this container discards on the very next line. The
+  price it actually pays is the `:id` inside the column meta. Fixed to charge
+  `:<size>:<id>`, the real worst case, which flips three short date columns from discard to
+  apply and saves 443 B across the twelve measured columns, with zero never-worse violations
+  and no gate re-pin.
+
+  The conservative pricing is deliberate. Charging only the `:id` under-estimates, because a
+  column without a nature may omit its size while one with a nature must declare it: the meta
+  `#TCF.8Hc` (8 B) becomes `#TCF.8Hc:32:dt` (14 B), and a wire grew from 46 B to 47 B in
+  testing. Erring toward emitting less nature costs bytes; erring the other way breaks
+  never-worse, which is the invariant every candidate in this format rests on.
+
+  The other two accountings were examined and are **correct**. The single-column route
+  compares against a baseline carrying polarity and domain-bN, and that is not unfairness: the
+  grammar makes a polarity suffix and a `:spec` mutually exclusive in the same header slot, so
+  the candidate cannot carry that arsenal at all. Comparing the best *emittable* wire on each
+  side is precisely what a FLOOR does. The multi route was already the fair one.
 
 ---
 

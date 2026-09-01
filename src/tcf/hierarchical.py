@@ -569,11 +569,45 @@ def _encode_dataset(records: list, side_outputs=None, nature_per_col=None,
                 return _encode_col(cols[key], stamp=False)     # body ESCAPADO (idêntico ao caminho normal)
             hdr, _sep, body = fw.partition("\n")
             marker = "#TCF.8 :"
-            if not hdr.startswith(marker):                     # nature não venceu (piso: raw menor)
-                nat_id.pop(key, None)                          # sem :id no meta
-                return _encode_col(cols[key], stamp=False)     # body ESCAPADO (idêntico ao caminho normal)
-            nat_id[key] = hdr[len(marker):]                    # id auto-descritivo (registry no decode)
-            return body
+            if hdr.startswith(marker):
+                # O flat escolheu a nature cobrando um header de 11 B. Aqui o preço é
+                # menor, então o que venceu lá vence aqui com folga.
+                nat_id[key] = hdr[len(marker):]                # id auto-descritivo (registry no decode)
+                return body
+            # O flat DESCARTOU, e a conta dele não é a nossa: ele compara
+            # `'#TCF.8 :id\n' + body` (11 B de header para o `data-iso`) contra o corpo
+            # cru, e este container não emite header nenhum por coluna. O que se paga aqui
+            # é o `:id` dentro do meta, 3 a 5 B. Deixar a decisão como veio significa
+            # descartar spec que PAGA: medido, 4 flips em 12 colunas, todas de data curta,
+            # onde a margem é menor que o handicap de 8 B.
+            #
+            # Refaz a conta ao preço deste container. A comparação é entre as duas grafias
+            # que ele de fato emitiria: o corpo escapado (sem nature) contra o corpo da
+            # nature, que sai do valor des-escapado porque é sobre ele que o spec opera.
+            #
+            # O preço NÃO é só o `:id`. Uma coluna que declara nature também declara o
+            # tamanho, e a que não declara nature pode omiti-lo (corpo até o fim). Então
+            # aplicar o spec pode custar `:<size>:<id>`, e não só `:<id>`. Cobrar só o `:id`
+            # quebrou o nunca-pior num caso medido (`#TCF.8Hc` de 8 B virava
+            # `#TCF.8Hc:32:dt` de 14 B, e o wire crescia de 46 B para 47 B).
+            #
+            # Cobra-se o PIOR caso, ou seja `:<size>:<id>`, e de propósito: quando a coluna
+            # já declararia o tamanho, isto sobre-estima em alguns bytes e o spec perde uma
+            # disputa apertada que ganharia. Errar para o lado de emitir MENOS nature é
+            # aceitável; errar para o outro lado quebra a invariante que sustenta todo
+            # candidato novo do projeto. A conta exata exige decidir onde o meta é montado,
+            # e isso é refatoração do `.8H`, não desta linha.
+            from tcf.natures.templated_checked import encode_value
+
+            corpo_orig = _encode_col(cols[key], stamp=False)   # ESCAPADO, o que se emitiria
+            corpo_nat = _encode_col([encode_value(spec, v)[0] for v in raw], stamp=False)
+            n_nat = len(corpo_nat.encode("utf-8"))
+            custo_meta = len(f":{n_nat}:{spec.wire_id}".encode("utf-8"))
+            if n_nat + custo_meta < len(corpo_orig.encode("utf-8")):
+                nat_id[key] = spec.wire_id
+                return corpo_nat
+            nat_id.pop(key, None)                              # sem :id no meta
+            return corpo_orig
         # stamp=False: uso INTERNO do encode como compressor de COLUNA. O header `#TCF.8` e'
         # do ARQUIVO, nao de cada coluna aninhada — o container .8H ja' carrega o contrato
         # (mesmo caso de escape do parquet/transmissao, ADR-0034).
