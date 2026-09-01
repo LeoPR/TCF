@@ -114,3 +114,33 @@ caber em tempo praticável.
 ## Não fazer agora
 
 Otimizar. Este ticket **registra a base e o plano**; o `.9` executa.
+
+---
+
+## Pista aberta em 2026-09-01: o `.8H` pode ter andado para trás, e o controle é que diz
+
+Ao estabelecer a base da `0.8.4` (`perf-nucleo-2026-09-01`), a comparação contra a rodada de
+20/08 separou as famílias em direções opostas. Os caminhos de **referência** são `csv`/`json`
+da stdlib, código idêntico entre as duas rodadas, então servem de controle: eles andaram
+**−17,1%** em conjunto, o que mede o viés da normalização pelo calibrador, não ganho de
+código. Contra esse controle, o `tcf-flat` fica em torno de **+16%** e o `tcf-8h` em torno de
+**+47%**.
+
+**Não é medição.** O `compare` recusou o par fail-closed (matriz e plano re-pinados em
+`e46ef37a`), as duas rodadas estão termicamente suspeitas, e o desconto do controle é
+aritmética sobre medianas. O que justifica registrar é o padrão: duas famílias em direções
+opostas, separadas muito além do piso de ruído de 6,8%.
+
+O que fazer quando este ciclo abrir, nesta ordem:
+
+1. **Medir os dois lados no mesmo pino**, mesma máquina e mesma sessão térmica: `nucleo` sobre
+   a tag `v0.8.4` e sobre o candidato. Só aí o `compare` aceita e o veredito vale. Sem isso,
+   qualquer número daqui é conversa.
+2. **Se confirmar**, o suspeito de primeira parada é o caminho `.8H`, que foi o que mais mexeu
+   na janela (`R` soldado, FLOOR do spec corrigido cobrando `:<size>:<id>`), e não o
+   `tcf-flat`.
+3. **Se não confirmar**, o resultado ainda vale: fecha a dúvida e valida o método do controle
+   por caminho de referência, que hoje só tem uma aplicação.
+
+Detalhe e tabela por família em
+[`perf-baseline/README.md`](../experiments/results/evidencia-0.8/perf-baseline/README.md).

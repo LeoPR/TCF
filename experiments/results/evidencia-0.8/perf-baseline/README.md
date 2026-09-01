@@ -100,3 +100,52 @@ pelos caminhos de referência, que já estão no plano.
 na mesma rodada (a máquina cancela por construção): a razão **caiu em 25 de 26**
 workloads, mediana **−17,5%**. Posição do `.8`: encode custa **10× a 59×** o `json.dumps`
 e emite **12% dos bytes** dele (mediana).
+
+---
+
+## Rodada de 2026-09-01: a base da `0.8.4`, e por que ela substitui a de 20/08
+
+`perf-nucleo-2026-09-01.jsonl`, plano `nucleo`, `--probative`, 106 casos, 103 comparáveis
+(os 3 pendentes são os opcionais de sempre), `status=completo`, termicamente suspeito
+(`ratio_max=1,213`, `noise_floor_cv=0,068`), árvore limpa em `e46ef37a`.
+
+**Esta passa a ser a baseline do `.9`.** A instrução acima, de usar a de 20/08, está
+**superada**: aquela rodada é anterior a 40 commits de `src/tcf`, a `0.8.4` inteira incluída,
+e portanto media uma árvore que nunca foi release. Some-se que os planos foram re-pinados em
+`e46ef37a` (o `cases.json` ganhou um LF do pre-commit em 22/08 e ninguém re-pinou), então o
+`compare` **recusa fail-closed** o par 20/08 × 01/09: matriz e plano diferem. A recusa está
+certa, e é por isso que a comparação abaixo é `--dev`, ou seja, **não é evidência**.
+
+### O que o par 20/08 × 01/09 sugere, com o controle na frente
+
+Os caminhos de **referência** (`csv-ref`, `json-ref-*`) são `csv`/`json` da stdlib: o código
+deles **não mudou** entre as duas rodadas. Qualquer movimento neles é máquina, não TCF. É o
+controle que a revisão de 20/08 já mandava usar, porque os calibradores não representam o
+workload.
+
+| família | n | mediana | leitura |
+|---|---:|---:|---|
+| `json-ref-str` | 26 | −17,6% | controle |
+| `csv-ref` | 6 | −17,2% | controle |
+| `json-ref-nested` | 6 | −12,2% | controle |
+| `json-ref-typed` | 1 | −9,7% | controle |
+| **referência, agregada** | **39** | **−17,1%** | **o viés da normalização** |
+| `tcf-flat` | 51 | −1,6% | |
+| `tcf-8h` | 7 | +29,9% | |
+
+O controle inteiro andou junto, cerca de −17%, com código idêntico: o fator do calibrador
+(1,2951) **sobre-corrigiu**. Descontado o controle, o `tcf-flat` fica em torno de +16% e o
+`tcf-8h` em torno de +47% em relação a ele.
+
+**Isso não é uma medição, é uma pista.** A comparação é fail-closed recusada, as duas rodadas
+estão termicamente suspeitas, e o desconto do controle é aritmética sobre medianas, não um
+modelo. O que sustenta olhar de novo é o **padrão**: as duas famílias se movem em direções
+opostas, e a separação é grande demais para o piso de ruído de 6,8%.
+
+Não foi investigado, e de propósito: pela régua de versão, o `.8` só otimiza se for barato, e
+perseguir o caminho `.8H` é trabalho de algoritmo. Registrado como pista em
+[`T-PERF-BORDAS-E-MODOS-09`](../../../../tickets/T-PERF-BORDAS-E-MODOS-09.md).
+
+O jeito honesto de fechar a pista, quando o `.9` abrir, é **medir os dois lados no mesmo
+pino**: rodar o `nucleo` re-pinado sobre a tag `v0.8.4` e sobre o candidato, na mesma máquina
+e na mesma sessão térmica. Aí o `compare` aceita, e o veredito vale.
