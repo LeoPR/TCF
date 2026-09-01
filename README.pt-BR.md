@@ -506,11 +506,11 @@ dele.
 
 No **cadastro acima**, sob compressão HTTP (`Content-Encoding`, nível máximo):
 
-| formato | cru | gzip | br | zstd |
-|---|---:|---:|---:|---:|
-| JSON  | 451 | 206 | 195 | 197 |
-| JSONL | 449 | **205** 🥇 | 194 | 194 |
-| TCF   | **242** 🥇 | 206 | **185** 🥇 | **193** 🥇 |
+| formato | cru | gzip | br | zstd | melhor em |
+|---|---:|---:|---:|---:|---|
+| JSON  | 451 | 206 | 195 | 197 | — |
+| JSONL | 449 | **205** | 194 | 194 | gzip ✅ |
+| TCF   | **242** | 206 | **185** | **193** | cru · br · zstd ✅ |
 
 > Sob `gzip` os três empatam dentro de 1 B. A diferença que existe está na coluna do
 > **cru**, e essa é a coluna que o seu processo de fato segura e faz parse.

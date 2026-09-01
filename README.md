@@ -511,11 +511,11 @@ outside it.
 
 On the **record set above**, under HTTP compression (`Content-Encoding`, max level):
 
-| format | raw | gzip | br | zstd |
-|---|---:|---:|---:|---:|
-| JSON  | 451 | 206 | 195 | 197 |
-| JSONL | 449 | **205** 🥇 | 194 | 194 |
-| TCF   | **242** 🥇 | 206 | **185** 🥇 | **193** 🥇 |
+| format | raw | gzip | br | zstd | best in |
+|---|---:|---:|---:|---:|---|
+| JSON  | 451 | 206 | 195 | 197 | — |
+| JSONL | 449 | **205** | 194 | 194 | gzip ✅ |
+| TCF   | **242** | 206 | **185** | **193** | raw · br · zstd ✅ |
 
 > Under `gzip` the three tie inside 1 B. The difference that exists is in the **raw**
 > column, and that is the column your process actually holds and parses.
