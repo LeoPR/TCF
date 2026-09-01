@@ -20,12 +20,14 @@ registra direção e estudo; aqui é o presente.
 | [O wire em uma página](o-wire-em-uma-pagina.md) | *o que é esse texto que saiu do `encode`?* Cabeçalho, coluna, modo, e os marcadores `*N\|` e `^N` |
 | [Spec não é tipo](spec-nao-e-tipo.md) | *o que é uma nature, e por que eu não passo ela no `decode`?* |
 | [O custo da consulta](custo-da-consulta.md) | *por que a `view` responde barato, e o que "barato" quer dizer* |
+| [A assimetria: o encode paga, o decode colhe](a-assimetria-encode-decode.md) | *por que escrever custa de 4× a 1.060× mais que ler, e onde essa troca NÃO vale* |
 
 ## A ordem sugerida
 
-Na ordem da tabela. O wire vem primeiro porque as outras duas se apoiam nele: a spec é uma
-reescrita do valor **antes** de o wire ser montado, e o custo da consulta é uma consequência
-de o cabeçalho declarar o que declara.
+Na ordem da tabela. O wire vem primeiro porque as três seguintes se apoiam nele: a spec é uma
+reescrita do valor **antes** de o wire ser montado, o custo da consulta é uma consequência de o
+cabeçalho declarar o que declara, e a assimetria explica por que esse cabeçalho é caro de
+escrever e barato de ler.
 
 ## Onde continuar
 
