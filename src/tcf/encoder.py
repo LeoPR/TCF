@@ -584,6 +584,31 @@ def encode(
                 f"nomeada pra ordenar. Ordene a lista voce mesmo (`sorted(...)`), ou passe "
                 f"a tabela como dict de colunas se ela tiver mais de uma."
             )
+        # O resto da lista, fechado no mesmo movimento (cauda do `.8`). Os quatro sao
+        # declarados "(multi-col)" na propria docstring do `encode`, e medido: nao mexem
+        # UM BYTE em nenhum de seis corpora nesta rota. Aceita-los calado era o ultimo
+        # buraco da regra "nunca ignorar calado", e nem era decisao: a rota `.8H`, a
+        # tipada e a vazia ja' os recusavam, com esta mesma mensagem.
+        #
+        # O `min_len` NAO entra aqui, e a distincao e' o ponto: ele nao se diz multi-col e
+        # de fato FUNCIONA no single-col (medido, 46 B -> 23 B numa coluna de IDs e
+        # 363 B -> 56 B em unicos longos). Recusa-lo seria tirar uma capacidade real.
+        _so_multi = {"parallel": parallel, "fallback": fallback,
+                     "min_header": min_header, "drop_names": drop_names}
+        _passados = [k for k, v in _so_multi.items() if v != _KWARGS_FLAT_DEFAULT[k]]
+        if _passados:
+            # As grafias vem do registro da era (`tcf.wire`), nao de literal: a catraca
+            # de `test_wire_eras.py` existe exatamente pra isso, e pegou esta mensagem.
+            from tcf.wire import MAGIC_MULTI, MAGIC_RECORDS
+
+            raise ValueError(
+                f"kwargs {_passados} so' valem em tabela de VARIAS colunas "
+                f"(`{MAGIC_MULTI}`/`{MAGIC_RECORDS}`): eles escolhem candidato POR "
+                f"COLUNA, escrevem o meta por "
+                f"coluna, omitem NOMES de coluna ou paralelizam ENTRE colunas, e uma "
+                f"lista de uma coluna nao tem nada disso. Passe a tabela como dict de "
+                f"colunas, ou tire o kwarg. O `min_len` vale aqui e continua valendo."
+            )
         data = _stringify_checked(data)
         magic = MAGIC_SINGLE_V3.decode("utf-8")  # "#TCF.8"
         if nature is not None:

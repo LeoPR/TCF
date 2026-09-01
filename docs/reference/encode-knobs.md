@@ -16,12 +16,20 @@ Aplicam-se a **multi-coluna** (`dict[str, list[str]]`). Uma `list[dict]` retangu
 a mesma tabela escrita de outro jeito, e desde o
 [ADR-0049](../adr/0049-marcador-r-a-forma-da-entrada-e-metadado.md) ela sai em **`#TCF.8R`**,
 o wire multi com o discriminador trocado: os knobs de coluna valem lá igual, com duas
-exceções que **levantam**, `sort_by` e `name`. Para single-col (`list[str]`) valem `schema`,
-`min_len`, `stamp` e `name` (este só junto de `schema`, porque ele rotula o header
-`#TCF.8 nome:spec`; sem `schema` a chamada levanta em vez de ignorar calado). Os demais são
-ignorados ali, menos o `sort_by`, que levanta: não há coluna nomeada para ordenar. A matriz
-completa de quem vale em que entrada está em [api.md](api.md). Output é sempre UTF-8, LF
-only. `decode(encode(x)) == x`, com o `sort_by` como única ressalva (ver abaixo).
+exceções que **levantam**, `sort_by` e `name`.
+
+Para single-col (`list[str]`) valem `schema`, `min_len`, `stamp` e `name` (este só junto de
+`schema`, porque ele rotula o header `#TCF.8 nome:spec`). **Todos os outros levantam**, e
+desde 2026-09-01 nenhum é ignorado calado: `fallback`, `min_header`, `drop_names` e
+`parallel` escolhem candidato por coluna, escrevem o meta por coluna, omitem nomes de coluna
+ou paralelizam entre colunas, e uma lista de uma coluna não tem nada disso; o `sort_by` não
+tem coluna nomeada para ordenar; o `name` sem `schema` não tem header para rotular.
+
+O `min_len` é o único do grupo que **funciona** no single-col, e por isso é o único que
+continua aceito: numa coluna de IDs zero-padded ele leva 46 B a 23 B, e em valores únicos
+longos 363 B a 56 B. A matriz completa de quem vale em que entrada está em [api.md](api.md).
+Output é sempre UTF-8, LF only. `decode(encode(x)) == x`, com o `sort_by` como única
+ressalva (ver abaixo).
 
 > **Previstos, ainda não implementados** (`.9`): `bn_modo` (`"B"` stream, default de hoje,
 > vs `"C"` lote, `T-BN-LOTE`) e os **perfis macro** (`stream`/`lote`/`rapido`/`memoria`/

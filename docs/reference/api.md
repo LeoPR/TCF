@@ -142,6 +142,12 @@ comparar com o que outras ferramentas fazem,
   `int` (posição). É incremental: sem ele, toda coluna é string semântica.
 - **`parallel`, `layers`, `fallback`, `min_header`, `min_len`, `sort_by`, `name`, `stamp`, `drop_names`**:
   só **flat**. Passados com entrada `.8H` → **fail-loud** (nunca ignorados calados).
+  - **E dentro do flat, o single-col é mais estreito que o multi.** Numa `list[str]` valem
+    `schema`, `min_len`, `stamp` e `name` (este só com `schema`); `fallback`, `min_header`,
+    `drop_names`, `parallel` e `sort_by` **levantam**, porque falam de várias colunas, de
+    nomes de coluna ou de ordem entre linhas, e ali não há nenhum dos três. Fechado em
+    2026-09-01: os quatro primeiros eram aceitos e ignorados calados, o último buraco da
+    regra. O `min_len` fica porque **funciona** ali (46 B → 23 B numa coluna de IDs).
   - **Exceção declarada, tabela de 0 linhas**: ela agora é flat (`.8M`), então esses kwargs
     são aceitos. Quase todos são inertes sobre uma tabela sem corpo. O `fallback=False` é o
     caso com efeito: ele **não** desliga o corpo `@` do vazio, porque o candidato `raw` de 0

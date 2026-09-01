@@ -107,6 +107,14 @@ What it did find was in the messages and in the surface:
 - `schema=` scalar now treats a record list as the table it is: one column applies in either
   spelling, two or more raise in either. It used to raise as a dict and **discard the spec in
   silence** as records.
+- **The single-column route stops swallowing multi-column knobs.** `fallback`, `min_header`,
+  `drop_names` and `parallel` now raise on a `list[str]`, joining `sort_by` and `name`. The
+  `encode` docstring already declared all four multi-col, the `.8H` route already refused
+  them, and measurement across six corpora confirmed they move zero bytes there. **`min_len`
+  does not join them**, and that correction matters more than the fix: it was listed as a
+  no-op and it is not, it is the one knob of the group that works on a single column
+  (46 B to 23 B on a column of IDs, 363 B to 56 B on long unique values). Refusing it would
+  have removed a real capability, which is what testing one corpus instead of six nearly did.
 
 ---
 

@@ -279,10 +279,22 @@ class TestExplicitControls:
             for mh in (True, False):
                 assert decode(encode(t, fallback=fb, min_header=mh)) == t
 
-    def test_single_col_ignores_knobs(self):
-        text = encode(["abc", "abcd"], fallback=False, min_header=False)
+    def test_single_col_recusa_os_knobs_de_varias_colunas(self):
+        """Eram IGNORADOS calados, e a docstring do `encode` já os declarava multi-col.
+
+        Medido em seis corpora antes de fechar: `fallback`, `min_header`, `drop_names` e
+        `parallel` não mexem um byte nesta rota. O `min_len` mexe, e por isso continua
+        aceito: recusá-lo tiraria capacidade real (46 B para 23 B numa coluna de IDs).
+        """
+        for kw in ({"fallback": False}, {"min_header": False}, {"drop_names": True}):
+            with pytest.raises(ValueError, match="VARIAS colunas"):
+                encode(["abc", "abcd"], **kw)
+        text = encode(["abc", "abcd"])
         assert text.startswith("#TCF.8\n")   # version-stamp, nao o multi '#TCF.8M'
         assert decode(text) == ["abc", "abcd"]
+        # o `min_len` segue valendo no single-col, e é o que separa os dois casos
+        ids = [f"{i:08d}" for i in range(40)]
+        assert len(encode(ids, min_len=8).encode()) < len(encode(ids).encode())
 
     # --- min_len override (Segment 2) em multi-col ---
 

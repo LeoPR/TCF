@@ -665,9 +665,18 @@ class TestLote3FreezeAssimetrias:
         w = encode(["a", "b"])
         assert decode(w, schema={"z": None}) == decode(w) == ["a", "b"]
 
-    def test_parallel_true_em_single_col_serial_silencioso(self):
-        # single-col não tem pool: parallel=True é serial silencioso (byte-idêntico).
-        assert encode(["a", "b"], parallel=True) == encode(["a", "b"])
+    def test_parallel_true_em_single_col_agora_recusa(self):
+        """O silêncio estava PINADO aqui, e virou o defeito que este teste protegia.
+
+        `parallel` paraleliza o encode ENTRE colunas, e uma lista de uma coluna não tem
+        entre. Ser "serial silencioso" significava que quem pedia paralelismo recebia
+        outra coisa sem sinal, na única rota que ainda fazia isso: a `.8H`, a tipada e a
+        vazia já recusavam. Fechado em 2026-09-01, junto com `fallback`, `min_header` e
+        `drop_names`, que estavam no mesmo buraco.
+        """
+        with pytest.raises(ValueError, match="VARIAS colunas"):
+            encode(["a", "b"], parallel=True)
+        assert encode(["a", "b"], parallel=False) == encode(["a", "b"])   # default, intacto
 
 
 class TestLote3MetaStrict:

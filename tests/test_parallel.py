@@ -5,7 +5,7 @@ Valida:
 - D17a INVARIANT preservado em modo parallel (pin vivo em test_regression_v1_baseline)
 - RT OK em parallel
 - SideOutputs capturado per-col
-- single-col list ignora parallel (no-op)
+- single-col list RECUSA parallel (nao ha' entre-colunas; fechado 2026-09-01)
 - dict 1-col threshold filtra (parallel_workers=0)
 - N workers explicito respeitado
 - parallel=True / parallel=N / parallel=False / parallel=0
@@ -19,6 +19,8 @@ from __future__ import annotations
 
 import csv
 from pathlib import Path
+
+import pytest
 
 
 from tcf import encode, decode, SideOutputs
@@ -105,9 +107,17 @@ class TestParallelSideOutputs:
 
 
 class TestParallelEdgeCases:
-    def test_single_col_list_ignores_parallel(self):
-        text = encode(["a", "b", "c"], parallel=True)
-        assert decode(text) == ["a", "b", "c"]
+    def test_single_col_list_recusa_parallel(self):
+        """Uma lista de uma coluna não tem ENTRE colunas para paralelizar (2026-09-01).
+
+        Era serial silencioso: quem pedia paralelismo recebia outra coisa sem sinal. O
+        `dict` de UMA coluna continua aceitando, e a diferença é real: ali existe a
+        estrutura multi, e o que não vale a pena é o pool (ver o teste seguinte, que pina
+        `parallel_workers == 0`).
+        """
+        with pytest.raises(ValueError, match="VARIAS colunas"):
+            encode(["a", "b", "c"], parallel=True)
+        assert decode(encode(["a", "b", "c"])) == ["a", "b", "c"]
 
     def test_dict_1col_does_not_parallelize(self):
         side = SideOutputs()

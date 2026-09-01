@@ -62,7 +62,7 @@ Evidência original em
 | `decode(schema=)` ignorado | **fechada**: o aviso existe e é estreito, só dispara em chave que não nomeia coluna alguma |
 | spec em coluna tipada | **fechada**: a tabela com coluna tipada aceita `schema=` nas duas grafias (`#TCF.8M13N=n,@c` e `#TCF.8R13N=n,@c`, medidos) |
 | FLOOR do spec | **premissa derrubada**, não decidida: a divergência relatada não reproduz (0 violações em 69 medições, lab `2026-08-31-0230`). O que existe é divergência de decisão entre famílias, não quebra do nunca-pior |
-| kwargs engolidos no flat de string | **metade**: `sort_by` e `name` passaram a levantar ([ADR-0050](docs/adr/0050-sort-by-vira-candidato-o-floor-decide.md)); `fallback`, `min_len`, `min_header`, `drop_names` e `parallel` continuam **no-op calado** na rota `list[str]`, medido em corpus onde deveriam ter efeito |
+| kwargs engolidos no flat de string | **fechada**: `sort_by` e `name` já levantavam ([ADR-0050](docs/adr/0050-sort-by-vira-candidato-o-floor-decide.md)), e `fallback`, `min_header`, `drop_names` e `parallel` passaram a levantar também, porque a própria docstring do `encode` os declara multi-col e eles não mexem um byte no single-col (medido em 6 corpora). O `min_len` **ficou**, e a correção importa: ele não era no-op, é o único da lista que funciona ali (46 B para 23 B numa coluna de IDs, 363 B para 56 B em únicos longos) |
 
 O que resta, portanto, é um item e meio: os cinco kwargs no-op, e reconfirmar o FLOOR do spec
 antes de arquivar. `src/tcf` continua sob aprovação explícita.
