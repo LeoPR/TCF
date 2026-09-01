@@ -73,7 +73,9 @@ Practical guides: [`docs/how-to/`](docs/how-to/).
 
 A small record set, in three formats (real bytes, real output):
 
-**JSON** *(596 B)*: repeats every field name on every row.
+**JSON** *(451 B)*: repeats every field name on every row. Measured **compact**
+(`separators=(',', ':')`), the same footing as the CSV and JSONL below; indented here only so
+you can read it.
 
 ```json
 [ { "nome": "Ana Souza",  "email": "ana@acme.com.br",
@@ -482,6 +484,11 @@ Across the 15 synthetic datasets in [EXP-008](experiments/lab/clean/EXP-008-comp
 
 ~36% smaller than CSV and ~42% smaller than JSON, while staying readable.
 
+> One caveat on the JSON and JSONL rows: EXP-008 renders them with Python's **default**
+> `json.dumps` spacing, not compact, so both are larger than they need to be and the ~42%
+> figure is an **upper bound**. The record-set table further down is measured compact and is
+> the fair one to quote. Re-running EXP-008 compact is pending, not done.
+
 Pinned in the test suite: D1-D9 = **1545 B**, 51.8% of raw, single-col; D17a multi-col = **300 B**,
 in `#TCF.8M` with inline hexadecimal meta.
 
@@ -506,14 +513,14 @@ On the **record set above**, under HTTP compression (`Content-Encoding`, max lev
 
 | format | raw | gzip | br | zstd |
 |---|---:|---:|---:|---:|
-| JSON  | 596 | 218 | 212 | 211 |
+| JSON  | 451 | 206 | 195 | 197 |
 | JSONL | 449 | **205** | 194 | 194 |
 | TCF   | **242** | 206 | **185** | **193** |
 
 Among the formats an API actually sends, TCF is the smallest **raw**: 242 B, against 449 for
-JSONL and 596 for JSON. Compressed, it stays competitive. It wins under `br` and `zstd`, and
-lands within a byte of JSONL under `gzip`, all while staying readable and queryable through
-`view()`.
+JSONL and 451 for JSON, both measured compact. Compressed, it stays competitive. It wins under
+`br` and `zstd`, ties JSON under `gzip` and lands within a byte of JSONL, all while staying
+readable and queryable through `view()`.
 
 CSV is smaller still: 277 B raw, and at this tiny size it edges TCF once compressed, 162 B
 against 185 B under brotli.

@@ -88,6 +88,8 @@ at first glance.**
 
 Across the 15 synthetic datasets, **with no compressor at all**, TCF is the most compact
 text of the set: **3131 B** vs CSV 4872 · JSON 5409 · JSONL 7001 (~36% smaller than CSV).
+The JSON and JSONL figures use Python's default `json.dumps` spacing, not compact, so the
+margin over them is an upper bound.
 On real multi-column data (9 Adult + TPC-H tables, 136k rows): **−33% weighted** vs raw CSV.
 
 Against `gzip`/`brotli`/`zstd` the comparison is a different category. They are

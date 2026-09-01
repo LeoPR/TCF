@@ -76,7 +76,9 @@ Guias praticos: [`docs/how-to/`](docs/how-to/).
 
 Um cadastro pequeno, nos três formatos (bytes reais, saída de verdade):
 
-**JSON** *(596 B)*: repete o nome de cada campo em toda linha.
+**JSON** *(451 B)*: repete o nome de cada campo em toda linha. Medido **compacto**
+(`separators=(',', ':')`), no mesmo pé do CSV e do JSONL abaixo; indentado aqui só para você
+conseguir ler.
 
 ```json
 [ { "nome": "Ana Souza",  "email": "ana@acme.com.br",
@@ -477,6 +479,11 @@ Nos 15 datasets sintéticos do [EXP-008](experiments/lab/clean/EXP-008-compressa
 
 ~36% menor que CSV e ~42% menor que JSON, continuando legível.
 
+> Uma ressalva sobre as linhas de JSON e JSONL: o EXP-008 as gera com o espaçamento
+> **padrão** do `json.dumps`, não compacto, então as duas saem maiores do que precisavam e o
+> número de ~42% é um **teto**. A tabela do cadastro, mais abaixo, é medida compacta e é a
+> justa de citar. Re-rodar o EXP-008 compacto está pendente, não feito.
+
 Núcleo pinado em testes: D1-D9 = **1545 B**, 51.8% do raw em single-col; D17a multi-col =
 **300 B** no `#TCF.8M`, com meta hexadecimal inline.
 
@@ -501,13 +508,14 @@ No **cadastro acima**, sob compressão HTTP (`Content-Encoding`, nível máximo)
 
 | formato | cru | gzip | br | zstd |
 |---|---:|---:|---:|---:|
-| JSON  | 596 | 218 | 212 | 211 |
+| JSON  | 451 | 206 | 195 | 197 |
 | JSONL | 449 | **205** | 194 | 194 |
 | TCF   | **242** | 206 | **185** | **193** |
 
 Entre os formatos que uma API de fato transmite, o TCF é o menor **cru**: 242 B, contra 449
-do JSONL e 596 do JSON. Comprimido, ele segue competitivo. Vence sob `br` e `zstd`, e fica
-um byte atrás do JSONL sob `gzip`, sem deixar de ser legível e consultável por `view()`.
+do JSONL e 451 do JSON, os dois medidos compactos. Comprimido, ele segue competitivo. Vence
+sob `br` e `zstd`, empata com o JSON sob `gzip` e fica um byte atrás do JSONL, sem deixar de
+ser legível e consultável por `view()`.
 
 O CSV é menor ainda: 277 B cru, e neste tamanho minúsculo ele passa o TCF depois de
 comprimido, 162 B contra 185 B sob brotli.

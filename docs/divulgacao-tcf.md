@@ -13,10 +13,10 @@ binário que ninguém mais abre e lê?** 🧩
 É isso que o **TCF (Tabular Compact Format)** faz: compressão de tabelas de strings que
 **continua texto ASCII inspecionável**.
 
-Um cadastro pequeno, nos três formatos (bytes reais):
+Um cadastro pequeno, nos três formatos (bytes reais, os três medidos compactos):
 
 ```
-JSON  596 B   →   CSV  277 B   →   TCF  244 B
+JSON  451 B   →   CSV  277 B   →   TCF  244 B
 ```
 
 O TCF fatora o que se repete e referencia o resto, e o resultado **você ainda abre e lê**.
