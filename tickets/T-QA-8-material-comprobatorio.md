@@ -4,7 +4,7 @@ status: open
 priority: P1
 created: 2026-07-10
 updated: 2026-09-01
-gate: ".8 (dossie da versao); o que sobra vai pro .9, ver a nota de 2026-09-01"
+gate: ".8 (dossie da versao); levantamento dos restos em 2026-09-02, §Levantamento"
 blocked-by: []
 related:
   - docs/adr/0032-tcf8-default-format.md
@@ -187,6 +187,85 @@ Fonte do levantamento: workflow de 10 agentes (6 inventário + 4 sweep adversari
 7. **Gates intocados**: D1-D9=1523B, D17a=300B, real-world=89616B são régua, não alvo, o material
    compara, não re-pina. Stress (D10/13/14) apresentado SEPARADO de design-realista.
 8. gzip/brotli/zstd aparecem como sinal qualitativo de composição (TCF+br), nunca como gate.
+
+## Levantamento 2026-09-02: os 20 itens abertos, verificados um a um
+
+Este ticket é o **único** dos 27 abertos com gate `.8`, então o que sobra aqui é literalmente o
+que separa a versão de fechada. Verifiquei os 20 itens contra o repositório, rodando. Três
+grupos saem daqui: o que já está feito e só não foi marcado, o que é decisão sua, e **um
+critério que não está cumprido**.
+
+### A. Feito, provado, só falta marcar (11 itens)
+
+| item | prova |
+|---|---|
+| **DOC-01** / **F6-1a** | as onze marcas da era 0.7 que o item lista têm **zero** ocorrência nos dois READMEs: `0.7.1`, `#TCF.7`, `TCF.6`, `379 passed`, `244B`, `303`, `322`, `Format 0.7`, `tcf_lazy`, `does not compress`. O badge diz `0.8.4` |
+| **DOC-03** / **F6-1c** | `@a=uf,1e=nome` não existe mais em `TCF-format.pt-BR.md` nem no `.en.md` |
+| **DOC-04** / **F6-1d** | `pyproject.toml` tem `[project.urls]` (4 links) e os classifiers, `Typing :: Typed` incluso, com o `py.typed` que a 0.8.4 passou a entregar |
+| **F6-1b** | DOC-02 já estava feito; a suíte fecha 2005 passed / 2 skipped |
+| **F6-1f** | o `CHANGELOG.md` tem entrada própria para `0.8.0` a `0.8.4` |
+| **F6-2** | a wheel foi reconstruída e passou smoke em venv limpo nas quatro famílias |
+| **F6-3** | publicado: `tcf-format 0.8.4` no PyPI e as tags `v0.8.0` a `v0.8.4` no repo |
+| **§5 "sem promessa que não entrega"** | é o DOC-01 acima, e ele fecha |
+
+O `F6-3` é o mais eloquente: o ticket que segura o `.8` lista a **publicação** como pendente,
+e a versão está no PyPI desde ontem.
+
+### B. Decisão sua, não trabalho pendente (2 itens)
+
+- **F0-3**: `psutil` como extra de bench (`[bench]`) ou stdlib-only. A recomendação escrita no
+  próprio item é stdlib-only nesta rodada, e nada desde então a contradisse.
+- **F0-4**: metade virou moot com o DOC-05 (o `benchmark_compression.py` já parseia, e o
+  `run.log` saiu do git em 22/08). Não sobra ação, sobra confirmar que não sobra.
+
+### C. Fora do ciclo (1 item)
+
+- **F5-1**: triagem de candidatos de performance. É trabalho de algoritmo, então `.9`, e o
+  destino natural é o [`T-PERF-BORDAS-E-MODOS-09`](T-PERF-BORDAS-E-MODOS-09.md), que já é o
+  ticket-mestre do ciclo.
+
+### D. Critério NÃO cumprido, e sem gate que o pegue (1 item)
+
+> **§5: "Regra CPF cumprida: nenhum artefato publicado contém CPF DV-válido (nem em `.tcf`)."**
+
+Varri os **1818 arquivos versionados** e o critério **falha**: 265 CPFs com dígito verificador
+válido, em 25 arquivos, descontados os de dígito repetido (`111.111.111-11` e afins, que são
+sentinelas e não colidem com pessoa). Os maiores focos:
+
+| arquivos | ocorrências |
+|---|---:|
+| `datasets/samples/br-identidades/pessoas-sample.csv` | 100 |
+| `tests/test_natures.py` | 61 |
+| `datasets/samples/br-identidades/empresas-sample.csv` | 32 |
+| `docs/how-to/use-natures.md` | 21 |
+| outros 21 arquivos | 51 |
+
+Três agravantes, e é por isso que isto não é detalhe:
+
+1. **`src/tcf/natures/__init__.py` tem um.** Esse arquivo **embarca na wheel**, então o número
+   está publicado no PyPI, não só no GitHub.
+2. **Os dois READMEs têm um** (`123.456.789-09`), e o README é a long-description da wheel.
+3. **Não existe gate.** O critério é cumprido por convenção, e convenção não pega regressão. É
+   exatamente a classe de falha do incidente do pin do `bench_perf`: o que ninguém verifica não
+   avisa quando quebra.
+
+Vale a distinção honesta: esses números são **sintéticos**, não vazamento de base real. Mas a
+regra que você escreveu não fala de origem, fala de DV válido, e a razão de ser dela é
+justamente que um DV válido pode coincidir com o CPF de alguém.
+
+O conserto é barato e é `.8` de cheio, conformidade: trocar o corpo dos números por um que
+**falhe** o DV, mantendo o formato e o comprimento (nenhuma medição muda, porque o tamanho em
+bytes é idêntico), e amarrar um teste que varre os arquivos versionados e falha vermelho se um
+DV válido voltar. O varredor já existe e roda em poucos segundos sobre os 1818 arquivos.
+
+Um cuidado ao executar: os `.jsonl` de baseline em `perf-baseline/` também aparecem na lista, e
+**esses não devem ser editados**, porque são evidência gravada de rodada. O certo ali é
+registrar a exceção no gate, não reescrever o artefato.
+
+### O que fecha o `.8`, então
+
+Marcar o grupo A, confirmar os dois do grupo B, mandar o F5-1 para o `.9`, e resolver o grupo D.
+Só o D é trabalho de verdade, e é trabalho de uma sessão.
 
 ## §3: REGISTRO DE BUGS (achados no planejamento; arrumar em F0, NÃO agora)
 
