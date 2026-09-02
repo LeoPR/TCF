@@ -1,9 +1,9 @@
 ---
 title: T-SPEC-STATUS-08, status dos specs (2 abordagens) antes do teste em massa; decisão do que fecha no .8
-status: in-progress (revisao cadastral 2026-07-12; conjunto canonico atual preservado)
+status: closed-decided
 priority: P1
 created: 2026-07-12
-updated: 2026-09-01
+updated: 2026-09-02
 gate: ".8 (pre-requisito do teste em massa, por texto do proprio ticket) (re-triagem 2026-09-01)"
 blocked-by: []
 related:
@@ -170,6 +170,10 @@ escolher entre:
 
 ## Pré-requisitos que QUALQUER spec novo com DV precisa (registrados)
 
+- **Gabarito de estudo**: o CPF cobriu 10 eixos (máscara, DV-derivável, corpo→base-N, contra-provas,
+  fallback per-value, heurística de aplicação, stats, progressão de datasets, generalização,
+  self-describing) — é o checklist de qualquer spec novo. Cross-ref:
+  [T-SPEC-DEEPDIVE-08](T-SPEC-DEEPDIVE-08.md) §1.
 - **Anonimizador** (§2.3): re-invalidar DV `(dv+1)%10` pra publicar exemplo, NÃO existe, criar em
   `scripts/`. Vale pra CPF/PIS/título/CNH/renavam/CNS.
 - **Gerador sintético** estendido: `setup_br_identidades.py` só faz cpf/cnpj, sem `_gen_cep/
@@ -182,6 +186,10 @@ escolher entre:
 - [x] Owner escolheu **A** (2026-07-12): `.8` só com CPF/CNPJ welded; nenhum spec novo foi welded
   nesta revisao cadastral. `DateSpec` ISO ficou como candidato condicional separado.
 - [x] Clássicos (b)/(c) registrados aqui + cross-ref na linha FILTROS-POPULARES do ROADMAP → `.9`.
-- [ ] **F6**: caveat obrigatório "nature CNPJ piora a tabela em dado real (F4: +7339B, split→raw);
-  nenhum clássico é ganho de tabela garantido" no README/docs.
+- [x] **F6**: caveat "nature CNPJ piora a tabela em dado real (F4: +7339B, split→raw); nenhum
+  clássico é ganho de tabela garantido" — presente no [README.md](../README.md) ("Nature filters":
+  o filtro reduziu colunas sintéticas mas aumentou tabela real ordenada, com ponteiro pra cá) +
+  scope note dos clássicos. Sob a ressalva da errata 2026-07-22: o caveat é medido, não conclusão
+  fechada (revisão estrutural do spec = trabalho pré-`.9`).
 - [ ] `.9` (quando abrir): anonimizador §2.3 + gerador estendido ANTES de qualquer spec novo com DV.
+  Item de `.9`, não gate do `.8` — fica registrado aqui como hand-off.

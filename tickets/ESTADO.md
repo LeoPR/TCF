@@ -12,24 +12,20 @@
 | [T-CODE-OUTPUT-SINKS](T-CODE-OUTPUT-SINKS.md) | `P2` deferred | 2026-06-15 | Interface Sink pluggable · **bloqueado por** T-CODE-ENCODER-MANAGER |
 | [T-DATA-3-EDGE-QUALITY-FIXTURES](T-DATA-3-EDGE-QUALITY-FIXTURES.md) | `P3` deferred | 2026-06-01 | Plano de dados de borda/defeituosos para os gadgets de qualidade/schema (planejamento, NAO imple · **bloqueado por** T-RECOVER-SCHEMA-MULTI-TABLE |
 
-## Em curso (3)
+## Em curso (2)
 
 | ticket | estado | mexido | assunto |
 |---|---|---|---|
-| [T-SPEC-STATUS-08](T-SPEC-STATUS-08.md) | `P1` in-progress (revisao cadastral 2026-07-12; conjunto canonico atual preservado) | 2026-09-01 | status dos specs (2 abordagens) antes do teste em massa; decisão do que fecha no .8 |
 | [T-STUDY-DATASETH-COMPLETE-SEMANTICS](T-STUDY-DATASETH-COMPLETE-SEMANTICS.md) | `P1` in-progress | 2026-09-01 | fechar semântica hierárquica antes do wire |
 | [T-STUDY-HIERARCHY-LINK-ALGEBRA](T-STUDY-HIERARCHY-LINK-ALGEBRA.md) | `P1` in-progress | 2026-09-01 | equivalência dos portadores de vínculo |
 
-## Abertos (30)
+## Abertos (27)
 
 | ticket | estado | mexido | assunto |
 |---|---|---|---|
 | [T-CODE-CORE-CONSOLIDATE](T-CODE-CORE-CONSOLIDATE.md) | `P1` open | 2026-09-01 | fonte única de lógica, menos funções, naming HCC (adeus M8A) |
-| [T-CODE-TCF8H-JSON-PARITY](T-CODE-TCF8H-JSON-PARITY.md) | `P1` open | 2026-09-01 | o que falta pra fechar "hierarquia" (paridade JSON) + 1 capacidade exclusiva |
-| [T-CODE-TCF8H-WELD](T-CODE-TCF8H-WELD.md) | `P1` open | 2026-09-01 | weld do codec hierárquico #TCF.8H no src/tcf (feature do .8) |
 | [T-PERF-BORDAS-E-MODOS-09](T-PERF-BORDAS-E-MODOS-09.md) | `P1` open | 2026-09-01 | as bordas do TCF e os modos de compressão (rápido × maior); o alvo do .9 |
 | [T-QA-8-material-comprobatorio](T-QA-8-material-comprobatorio.md) | `P1` open | 2026-09-01 | T-QA-8, material comprobatório do #TCF.8/0.8.0 (controle → sintéticos → públicos) com telemetria |
-| [T-SPEC-DEEPDIVE-08](T-SPEC-DEEPDIVE-08.md) | `P1` open | 2026-09-01 | investigação de fundo dos specs (o que comprime, CNPJ além do básico, compilador/un-weld); plano |
 | [T-API-SCHEMA-PRESCRITIVO](T-API-SCHEMA-PRESCRITIVO.md) | `P2` open | 2026-09-01 | o objeto Schema (forma longa do `schema=`) como portador do contrato |
 | [T-CODE-PARALLEL-BUDGET](T-CODE-PARALLEL-BUDGET.md) | `P2` open | 2026-09-01 | flag de controle de paralelismo e uso de CPU (budget do host) |
 | [T-CODE-VIEW-SUBTCF-RECORTE](T-CODE-VIEW-SUBTCF-RECORTE.md) | `P2` open | 2026-09-01 | promover H-QUERY-06 a saída TCF da view |
@@ -49,13 +45,13 @@
 | [T-DOC-L10N-REFERENCE](T-DOC-L10N-REFERENCE.md) | `P3` open | 2026-09-01 | os 5 documentos restantes de docs/reference/ em dois idiomas |
 | [T-DOC-TIPOS-MISTOS](T-DOC-TIPOS-MISTOS.md) | `P3` open | 2026-09-01 | elaborar a documentação do comportamento de tipos mistos (hoje em post-it) |
 | [T-FMT-ESCAPE-COMBINATORIAL-STUDY](T-FMT-ESCAPE-COMBINATORIAL-STUDY.md) | `P3` open | 2026-07-15 | reestudar o escape (combinatório + estratégias de outros mecanismos) |
-| [T-FMT-META-STRICT](T-FMT-META-STRICT.md) | `P3` open | 2026-09-01 | o que já fecha por dedução vs o que exige redundância (checksum) |
+| [T-FMT-META-STRICT](T-FMT-META-STRICT.md) | `P3` open | 2026-09-02 | o que já fecha por dedução vs o que exige redundância (checksum) |
 | [T-FMT-QUOTING-STUDY](T-FMT-QUOTING-STUDY.md) | `P3` open | 2026-07-10 | estudo de quoting/escaping de nomes além do backslash interim (filho de T-FMT-NAME-ESCAPING) |
-| [T-SHAPER-NESTED-OUTPUT](T-SHAPER-NESTED-OUTPUT.md) | `P3` open | 2026-09-01 | saída HIERÁRQUICA nativa no Shaper (aninhar via FK, inverso do flat) |
+| [T-SHAPER-NESTED-OUTPUT](T-SHAPER-NESTED-OUTPUT.md) | `P3` open | 2026-09-02 | saída HIERÁRQUICA nativa no Shaper (aninhar via FK, inverso do flat) |
 | [T-STUDY-USE-PROFILES](T-STUDY-USE-PROFILES.md) | `P3` open | 2026-09-01 | perfis de uso (transmissão × armazenamento) e a calibração dos vértices |
 | [T-TOOL-TCF-FIX-CORRUPTION](T-TOOL-TCF-FIX-CORRUPTION.md) | `P3` open | 2026-09-01 | reparador de .tcf com algum grau de corrupção (ideia, pensar depois) |
 
-## Fechados (64)
+## Fechados (68)
 
 | ticket | estado | mexido | assunto |
 |---|---|---|---|
@@ -71,6 +67,8 @@
 | [T-CODE-LAZY-VIEW-PROMOTE](T-CODE-LAZY-VIEW-PROMOTE.md) | `P1` closed | 2026-06-21 | Promover lazy view do gadget pro core (tcf.view) |
 | [T-CODE-PACOTE1-WELD-CANONICAL](T-CODE-PACOTE1-WELD-CANONICAL.md) | `P1` closed | 2026-05-22 | Welding canonical Pacote 1 (delta-aware) em src/tcf |
 | [T-CODE-RT-EDGES](T-CODE-RT-EDGES.md) | `P1` closed-fixed | 2026-07-05 | 2 violações de RT em bordas (seq-RLE trailing-space + \n embutido) |
+| [T-CODE-TCF8H-JSON-PARITY](T-CODE-TCF8H-JSON-PARITY.md) | `P1` closed | 2026-09-02 | o que falta pra fechar "hierarquia" (paridade JSON) + 1 capacidade exclusiva |
+| [T-CODE-TCF8H-WELD](T-CODE-TCF8H-WELD.md) | `P1` closed-welded | 2026-09-02 | weld do codec hierárquico #TCF.8H no src/tcf (feature do .8) |
 | [T-DOC-LAZY-REFERENCE](T-DOC-LAZY-REFERENCE.md) | `P1` closed | 2026-06-21 | Reference Diátaxis da API tcf.view (A5 do plano 0.8) · **bloqueado por** T-CODE-LAZY-VIEW-PROMOTE |
 | [T-EXP-DATASETH-S0-S3](T-EXP-DATASETH-S0-S3.md) | `P1` closed | 2026-07-16 | corpus, oráculo, IR e álgebra de vínculos |
 | [T-EXP-MULTI-COL-SCALING](T-EXP-MULTI-COL-SCALING.md) | `P1` closed-welded-canonical | 2026-05-23 | Port multi-column pra canonical M10 + real-world |
@@ -82,6 +80,8 @@
 | [T-REL-08-CLOSEOUT](T-REL-08-CLOSEOUT.md) | `P1` closed | 2026-08-23 | ordem por ROI para fechar o núcleo 0.8 |
 | [T-REVAL-H-DA-01-06-10](T-REVAL-H-DA-01-06-10.md) | `P1` closed | 2026-05-21 | Revalidacao categoria B (Pacote 1 hipoteses confirmada-empirica nao testadas em real-world) |
 | [T-SHAPER-SCIENTIFIC-GATING](T-SHAPER-SCIENTIFIC-GATING.md) | `P1` closed-done | 2026-05-30 | Gate cientifico de uso do shaper (tests estatisticos assertados) |
+| [T-SPEC-DEEPDIVE-08](T-SPEC-DEEPDIVE-08.md) | `P1` closed-decided | 2026-09-02 | investigação de fundo dos specs (o que comprime, CNPJ além do básico, compilador/un-weld); plano |
+| [T-SPEC-STATUS-08](T-SPEC-STATUS-08.md) | `P1` closed-decided | 2026-09-02 | status dos specs (2 abordagens) antes do teste em massa; decisão do que fecha no .8 |
 | [BUG-BB-CR-CRU](BUG-BB-CR-CRU.md) | `P2` closed-fixed | 2026-08-30 | a união bool+str emite CR cru em wire LF-only |
 | [BUG-CHAVE-VAZIA-POSICIONAL](BUG-CHAVE-VAZIA-POSICIONAL.md) | `P2` closed | 2026-08-21 | [...]} volta {"0": [...]}, único caso onde o TCF ALTERA |
 | [BUG-VIEW-COLUNA-VAZIA-UNICO-FANTASMA](BUG-VIEW-COLUNA-VAZIA-UNICO-FANTASMA.md) | `P2` closed-fixed | 2026-08-28 | distinct e n_unique inventam um elemento em coluna de 0 linhas |

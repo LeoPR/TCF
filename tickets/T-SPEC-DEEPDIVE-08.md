@@ -1,9 +1,9 @@
 ---
 title: T-SPEC-DEEPDIVE-08, investigação de fundo dos specs (o que comprime, CNPJ além do básico, compilador/un-weld); plano 0.8 + pré-1.0
-status: open
+status: closed-decided
 priority: P1
 created: 2026-07-12
-updated: 2026-09-01
+updated: 2026-09-02
 gate: ".8 (cobertura de dataset; o proprio ticket diz "fechar 0.8") (re-triagem 2026-09-01)"
 blocked-by: []
 related:
@@ -215,6 +215,11 @@ alfabeto MARKER-SAFE base-62 (a nature real usa BASE94 com `^`, que dispara o BU
 
 - [x] Owner decidiu e o item §5.1 foi implementado no `.8`: nature-compete multi e single pelo
   blob serializado completo, com regressões de custo de header cobertas.
-- [ ] F6 herda o caveat definitivo (§0) + a nota do compilador-é-data-driven (§4).
-- [ ] Direções CNPJ (§2) e mapa (§3) registrados no ROADMAP `.9`/pré-1.0 com cross-ref.
-- [ ] CPF-model (§1, 10 eixos) vira o gabarito de qualquer spec novo (cross-ref no T-SPEC-STATUS-08).
+- [x] F6 herda o caveat definitivo (§0) + a nota do compilador-é-data-driven (§4) — README
+  ("Nature filters": CNPJ reduziu sintético e aumentou tabela real, never-worse) + ROADMAP
+  (plano DSL→compilador→registry, F1/F1.5 feitos).
+- [x] Direções CNPJ (§2) e mapa (§3) registrados no ROADMAP `.9`/pré-1.0 com cross-ref:
+  linha **NATURE-DELTA / FIELD-SPLIT** (CEILING, ~2× medido com RT) + FILTROS-POPULARES
+  atualizada (FLOOR resolveu a regressão F4).
+- [x] CPF-model (§1, 10 eixos) é o gabarito de qualquer spec novo — cross-ref registrado no
+  T-SPEC-STATUS-08 (pré-requisitos).

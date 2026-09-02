@@ -1,9 +1,9 @@
 ---
 title: T-CODE-TCF8H-JSON-PARITY, o que falta pra fechar "hierarquia" (paridade JSON) + 1 capacidade exclusiva
-status: open
+status: closed
 priority: P1
 created: 2026-07-15
-updated: 2026-09-01
+updated: 2026-09-02
 gate: capability (paridade JSON), não ≥15%
 blocked-by: []
 related:
@@ -262,13 +262,18 @@ e responde ao "ligações diversas" recorrente do owner. Hoje N:N é **inexpress
 ## Critério de aceite
 
 - [x] P1 presença, P3 null e P2 tipos weldados incrementalmente com gates próprios.
-- [ ] P4a estrutura e P4b raiz decididos/weldados separadamente, com non-regressão e adversarial.
-  - **Proposta 2026-09-01 (0.8.4), não aplicada**: marcar este item como `[x]`. P4a está
+- [x] P4a estrutura e P4b raiz decididos/weldados separadamente, com non-regressão e adversarial.
+  - **Proposta 2026-09-01 (0.8.4) — aplicada 2026-09-02 (owner).** P4a está
     welded desde 2026-07-16 e P4b desde 2026-07-17 (`cccf1bb`), cada um com gate próprio,
-    e é o que os banners do topo já registram. Fica como proposta porque quem fecha
-    critério de aceite é o owner.
-- [ ] Metadata P2 rejeita tag desconhecida após size sem reinterpretar como novo campo.
-- [ ] Suíte de paridade: RT de um corpus de JSONs reais de transmissão (API, logs, catálogos):
-  fração in-class vs fronteira reportada (fundamentar no JSON que as pessoas usam).
-- [ ] Contratos de borda (`\n`, nome) congelados antes do freeze pré-1.0.
-- [ ] Capacidade exclusiva (shared-ref/grafo) prototipada em lab e decidida (weld ou research-track).
+    e é o que os banners do topo já registram.
+- [x] Metadata P2 rejeita tag desconhecida após size sem reinterpretar como novo campo.
+  Hardening fechado 2026-07-16 (revisão do owner): `stag()` rejeita char não-n/b/delimitador
+  após size (`x:<size>x` era `[]` calado → `HierarchicalError`); teste
+  `test_p2_tag_desconhecida_fail_loud`.
+- [x] Suíte de paridade: RT de JSON real com fração in-class reportada — receita-cnpj em população
+  inteira (51.536 raízes / 200.000 estab., RT byte-exato, J0/P1/P3a) + placar do lab
+  `2026-07-17-0140` (paridade 14, `LACUNAS = {}`); pinos em `tests/test_json_flow_parity.py`.
+- [x] Contratos de borda (`\n`, nome) congelados: escape D_json welded 2026-07-17; chave repetida e
+  ordem-de-chaves decididas no [T-API-BOUNDARY-CONTRACTS](T-API-BOUNDARY-CONTRACTS.md) (closed).
+- [x] Capacidade exclusiva (shared-ref/grafo) decidida: **research-track / 1.0** (diário 2026-07-17:
+  N:N/grafo é além do JSON, pós-paridade). Protótipo é escopo do research-track, não do `.8`.

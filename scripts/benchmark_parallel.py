@@ -17,6 +17,7 @@ Defaults: customer (1500x8) e orders (15000x9) — rapido. Lineitem
 from __future__ import annotations
 
 import argparse
+import statistics
 import sys
 import time
 from pathlib import Path
@@ -36,23 +37,35 @@ def stringify_table(cols: dict) -> dict[str, list[str]]:
     }
 
 
-def bench_table(dataset: str, table: str, n_workers: int) -> dict:
+def bench_table(dataset: str, table: str, n_workers: int, runs: int = 3) -> dict:
     with DatasetReader(dataset) as r:
         cols_raw = r.columns(table, limit=None)
     cols = stringify_table(cols_raw)
     n_rows = len(next(iter(cols.values())))
     n_cols = len(cols)
 
-    # Serial baseline
-    t0 = time.perf_counter()
-    text_serial = encode(cols)
-    t_serial = time.perf_counter() - t0
+    # Warmup (descartado): aquece imports/pool antes de medir.
+    encode(cols)
+    encode(cols, parallel=n_workers)
+
+    # Serial baseline: mediana de `runs` rodadas.
+    ts_serial = []
+    text_serial = None
+    for _ in range(runs):
+        t0 = time.perf_counter()
+        text_serial = encode(cols)
+        ts_serial.append(time.perf_counter() - t0)
+    t_serial = statistics.median(ts_serial)
     bytes_serial = len(text_serial.encode("utf-8"))
 
-    # Parallel
-    t0 = time.perf_counter()
-    text_parallel = encode(cols, parallel=n_workers)
-    t_parallel = time.perf_counter() - t0
+    # Parallel: mediana de `runs` rodadas.
+    ts_parallel = []
+    text_parallel = None
+    for _ in range(runs):
+        t0 = time.perf_counter()
+        text_parallel = encode(cols, parallel=n_workers)
+        ts_parallel.append(time.perf_counter() - t0)
+    t_parallel = statistics.median(ts_parallel)
     bytes_parallel = len(text_parallel.encode("utf-8"))
 
     return {
@@ -77,6 +90,9 @@ def main():
                          "Default: customer + orders")
     ap.add_argument("--workers", type=int, default=4,
                     help="N workers (default: 4)")
+    ap.add_argument("--runs", type=int, default=3,
+                    help="Rodadas por configuracao; reporta a MEDIANA, "
+                         "com 1 warmup descartado antes (default: 3)")
     args = ap.parse_args()
 
     if args.table:
@@ -87,7 +103,8 @@ def main():
             ("tpch-sf001", "orders"),
         ]
 
-    print(f"=== Benchmark parallel encoder (workers={args.workers}) ===\n")
+    print(f"=== Benchmark parallel encoder (workers={args.workers}, "
+          f"mediana de {args.runs} runs + 1 warmup) ===\n")
     print(f"{'dataset/table':25s} {'rows':>6} {'cols':>4} "
           f"{'serial(s)':>10} {'parallel(s)':>12} {'speedup':>8} "
           f"{'bytes':>8} {'identical':>10}")
@@ -96,7 +113,7 @@ def main():
     results = []
     for dataset, table in tasks:
         try:
-            res = bench_table(dataset, table, args.workers)
+            res = bench_table(dataset, table, args.workers, runs=args.runs)
             results.append(res)
             print(f"{dataset+'/'+table:25s} "
                   f"{res['n_rows']:>6} {res['n_cols']:>4} "

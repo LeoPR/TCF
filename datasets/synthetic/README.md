@@ -58,6 +58,13 @@ aspecto especifico** da natureza pra controle fino.
 | D11c-datas-mensal.csv | Datas YYYY-MM-DD, fatura mensal dia 5 por 13 meses | 13 | 156 | Cadencia mensal realistic, testa escala `+1M` | [T01-incremental sub 03](../../experiments/lab/dirty/old/welded/2026-05-15-naturezas-e-camada/pre-tx/T01-incremental-base-delta/03-cadencia-mensal-D11c/) |
 | D11d-datetime-min.csv | Datetime YYYY-MM-DD HH:MM:SS, heartbeat top-of-minute | 13 | 264 | Granularity=second, cadencia minuto, testa escala `+1m` | [T01-incremental sub 06](../../experiments/lab/dirty/old/welded/2026-05-15-naturezas-e-camada/pre-tx/T01-incremental-base-delta/06-staged-granularity-second/) |
 | D11e-datetime-mensal.csv | Datetime YYYY-MM-DD HH:MM:SS, fatura mensal dia 5 às 9h | 13 | 264 | Granularity=second, cadencia mensal, demo escala `+1M` em datetime (ganho 57% C vs B) | [T01-incremental sub 07](../../experiments/lab/dirty/old/welded/2026-05-15-naturezas-e-camada/pre-tx/T01-incremental-base-delta/07-cadencia-mensal-datetime-D11e/) |
+| D11f-datetime-ms.csv | Datetime com milissegundos, cadencia de 1s | 13 | 316 | Precisao ms (`.000` → `.001`) | — |
+| D11g-datetime-us.csv | Datetime com microssegundos, cadencia de 1ms | 13 | 355 | Precisao us (`.000000` → `.001000`) | — |
+| D11h-datetime-ns.csv | Datetime com nanossegundos, cadencia de 1us | 13 | 394 | Precisao ns (`.000000000` → `.000001000`) | — |
+| D11i-datas-mensal-com-correcao.csv | Datas mensais dia 1, com correcao | 7 | 81 | Cadencia mensal curta | — |
+| D11j-datetime-tz-Z.csv | Datetime com sufixo `Z` (UTC), cadencia de 1min | 13 | 277 | Timezone `Z` fixo | — |
+| D11k-datetime-tz-offset.csv | Datetime com offset `-03:00` fixo | 13 | 342 | Timezone offset fixo | — |
+| D11m-datetime-tz-variavel.csv | Datetime com offsets variados | 6 | 160 | Timezone offset variavel | — |
 | D16a-ids-3digits.csv | IDs sequenciais "100".."112" | 13 | 65 | Numeric ID, cardinality 3 com transicao 9→10 | [obat-delta-aware sub 05](../../experiments/lab/dirty/2026-05-17-OBAT-delta-aware/05-numeric-ids-h-da-06/) |
 | D16b-ids-4digits.csv | IDs sequenciais "1000".."1012" | 13 | 62 | Numeric ID, cardinality 4 uniforme | [obat-delta-aware sub 05](../../experiments/lab/dirty/2026-05-17-OBAT-delta-aware/05-numeric-ids-h-da-06/) |
 | D16c-ids-prefixados.csv | IDs "USR-100".."USR-112" | 13 | 70 | Numeric ID com prefix string + transicao | [obat-delta-aware sub 05](../../experiments/lab/dirty/2026-05-17-OBAT-delta-aware/05-numeric-ids-h-da-06/) |

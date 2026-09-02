@@ -28,10 +28,22 @@ resolvidos pelo caminho sem o checkbox ser marcado. Conferidos agora, rodando:
 | **DOC-01** [alta] | **feito** | o badge do `README.md` diz `0.8.4` e não há `#TCF.7` em lugar nenhum; a página foi reescrita várias vezes desde então |
 | **DOC-03** [média] | **feito** | o exemplo `@a=uf,1e=nome` não existe mais em `TCF-format.pt-BR.md` nem no `.en.md`. O real hoje é `#TCF.8M!8=uf,!nome`, com a última coluna sem size, que era exatamente a regra que o exemplo contradizia |
 | **DOC-04** [baixa] | **feito** | `pyproject.toml` tem `[project.urls]` e classifiers; a 0.8.4 ainda ganhou o `py.typed` que o classifier `Typing :: Typed` prometia e nenhuma wheel entregava |
-| **DOC-05** [baixa] | **parcial** | o item principal está resolvido: `scripts/benchmark_compression.py` não tem resíduo da API v0.5 e faz parse. Os sub-itens menores (warmup do `benchmark_parallel`, `row_count` nos `metadata.json`, a linha do `T-FMT-NAME-ESCAPING` no índice) não foram reconferidos |
-| **BUG-12** [alta] | **não reproduz, e não fecha** | ver abaixo |
+| **DOC-05** [baixa] | **feito (2026-09-02)** | o item principal estava resolvido (`scripts/benchmark_compression.py` sem resíduo v0.5). Sub-itens reconferidos: `benchmark_parallel.py` ganhou warmup descartado + mediana de N runs (`--runs`); `metadata.json` dos canônicos já tinham `row_counts`; a linha do `T-FMT-NAME-ESCAPING` no índice já dizia CLOSED-PARCIAL; tabelas do `datasets/synthetic/README.md` cobriam até D11e — incluídas as linhas D11f–D11m. O `run.log` untracked virou moot: `dirty/` é fora-do-git por decisão de 2026-08-22 |
+| **BUG-12** [alta] | **corrigido (2026-07-24), provado 2026-09-02** | ver abaixo |
 
 ### BUG-12: o que a medição diz, e o que ela não diz
+
+> **RESOLVIDO 2026-09-02 — o bug foi corrigido pelo weld `25ad29eb` (guard de progresso no
+> `_parse_decl`, 2026-07-24), 14 dias após o registro, sem o checkbox ser atualizado.** Prova
+> antes/depois: a mutação exata do registro pendura o código pré-guard (`1c77b678`; stack em
+> `_parse_decl` dentro de `_decode_column`, como descrito abaixo) e levanta `ValueError` em
+> ~3 ms já no commit do guard e no HEAD; corpus dirigido de 165 fronteiras deslocadas:
+> PRE = 145 `ValueError` + 19 `KeyError` cru + 1 hang · HEAD = 165/165 `ValueError`. O
+> residual "`*N|` sem teto" do próprio weld foi fechado no mesmo dia pelo `max_length`
+> (`95ab69dc`). Lab: `experiments/lab/dirty/2026-09/2026-09-02/2026-09-02-0102-bug12-existe-ou-obsoleto/`.
+> A "proposta, não aplicada" abaixo fica **superseded**: partia de "não reproduz, talvez não
+> exista"; a prova mostrou "existiu, está corrigido". Higiene que sobra pro `.9` (barata,
+> opcional): varredura formal de "todo laço de parse prova progresso".
 
 Fuzz de flip de **um dígito hexadecimal** no meta, 750 casos: 4 tabelas × 2 modos de header ×
 cada posição hex × cada dígito alternativo, com 8 s de timeout por caso, cada um em processo
@@ -279,8 +291,12 @@ owner: "SE identificar algum bug sem querer, registre apenas pra arrumarmos depo
   pego pelo fecho/n_rows do lote 2 (medido); o residual geometricamente-consistente é
   indistinguível por construção → **checksum** no trilho tcfx/O-FMT-20. Vínculos e decisões
   restantes → [T-FMT-META-STRICT](T-FMT-META-STRICT.md).
-- [ ] **BUG-12 [alta]** *(registrado 2026-07-10 pela verificação do lote 2: PRÉ-existente, NÃO é
-  regressão; NÃO fixado)* **DoS por não-terminação no decode HCC sob header corrompido**: 1 flip de
+- [x] **BUG-12 [alta]** *(registrado 2026-07-10 pela verificação do lote 2: PRÉ-existente, NÃO é
+  regressão)* **CORRIGIDO pelo weld `25ad29eb` (2026-07-24), provado por antes/depois em
+  2026-09-02** — lab `experiments/lab/dirty/2026-09/2026-09-02/2026-09-02-0102-bug12-existe-ou-obsoleto/`:
+  a mutação abaixo pendura o código pré-guard e vira `ValueError` em ~3 ms desde o commit do
+  guard; 165 fronteiras deslocadas sem nenhum hang no HEAD. Registro original: **DoS por
+  não-terminação no decode HCC sob header corrompido**: 1 flip de
   hex-digit num size (`52=b`→`12=b`) desloca a fronteira das colunas e a fatia deslocada gira em
   `composicional/syntax.py:718` (`_parse_decl`, >1000s CPU medidos) DENTRO de `_decode_column`:
   antes do cross-check n_rows alcançar. Pior modo de falha (nem loud, nem errado: nunca retorna).
@@ -346,12 +362,11 @@ owner: "SE identificar algum bug sem querer, registre apenas pra arrumarmos depo
   `#TCF.8M@14=uf,!nome`. Conferir o .en.md no mesmo ponto.
 - [ ] **DOC-04 [baixa]** `pyproject.toml`: wheel 0.8.0 sem `[project.urls]` e sem classifiers
   (página PyPI sem link pro repo/changelog); readme apontado é o stale do DOC-01.
-- [ ] **DOC-05 [baixa]** satélites: `scripts/benchmark_compression.py` QUEBRADO (API v0.5) sem rótulo
-  (CLAUDE.md só marca o llm_accuracy); `benchmark_parallel.py` 1 run sem mediana/warmup;
-  `datasets/synthetic/README.md` título "D1-D15" e faltam D11f-m nas tabelas; `metadata.json` dos
-  canônicos sem row_count; `tickets/README.md:64` row do T-FMT-NAME-ESCAPING diz OPEN mas o interim
-  backslash foi WELDED (M2, `58f7dee`), resta só o estudo CSV-quoting (re-rotular parcial);
-  `experiments/lab/dirty/2026-07/2026-07-08/2026-07-08-2355-f3-bn-seletivo/run.log` untracked (sujeira de lab).
+- [x] **DOC-05 [baixa]** satélites — **feito 2026-09-02**: `benchmark_compression.py` já parseava
+  sem resíduo v0.5; `benchmark_parallel.py` ganhou warmup + mediana (`--runs`); tabelas do
+  `datasets/synthetic/README.md` completadas (D11f–D11m; título já dizia D1–D17); `metadata.json`
+  dos canônicos já tinham `row_counts`; a row do T-FMT-NAME-ESCAPING já estava CLOSED-PARCIAL;
+  o `run.log` untracked virou moot (dirty/ fora do git desde 2026-08-22).
 
 ## §4: FASES (microtarefas na ordem; cada fase fecha antes da seguinte)
 
@@ -537,8 +552,9 @@ owner: "SE identificar algum bug sem querer, registre apenas pra arrumarmos depo
   contradiz a regra (última-sem-size mostrando size); corrigir com o output real.
 - [ ] **F6-1d: pyproject.toml (DOC-04)**: adicionar `[project.urls]` (repo/changelog/homepage) +
   trove classifiers; conferir que o readme apontado é o corrigido.
-- [ ] **F6-1e: satélites (DOC-05)**: rotular `benchmark_compression.py` quebrado-v0.5; errata
-  T-DOC-3 (shebang→magic) de carona; `datasets/synthetic/README.md` (D1-D15→D17a).
+- [x] **F6-1e: satélites (DOC-05)**: **feito 2026-09-02** (ver tabela §3): benchmark_compression
+  já parseava; benchmark_parallel com warmup+mediana; synthetic README D11f–m; row_counts e a
+  row NAME-ESCAPING já estavam certos. A errata T-DOC-3 (shebang→magic) fica com a fase F6.
 - [ ] **F6-1f: CHANGELOG.md**: conferir a entrada 0.8.0 (já criada em M5) + anexar os fixes F0
   (lotes 1-4) e o C0 (dedup) como itens do 0.8.0.
 - [ ] **F6-2** Re-build wheel + clean-room smoke (protocolo pré-verificado 2026-07-09, T-DIST):

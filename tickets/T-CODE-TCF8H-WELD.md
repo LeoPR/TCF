@@ -1,9 +1,9 @@
 ---
 title: T-CODE-TCF8H-WELD, weld do codec hierárquico #TCF.8H no src/tcf (feature do .8)
-status: open
+status: closed-welded
 priority: P1
 created: 2026-07-13
-updated: 2026-09-01
+updated: 2026-09-02
 gate: capability
 blocked-by: []
 related:
@@ -19,17 +19,15 @@ related:
 
 # T-CODE-TCF8H-WELD: promover o codec hierárquico para o core
 
-> **PROPOSTA DE STATUS 2026-09-01 (0.8.4), não aplicada.** O frontmatter diz `status: open`
-> desde 2026-07-13, mas o [ADR-0033](../docs/adr/0033-hierarchical-codec-weld.md) declara o codec
-> welded em 2026-07-14, as fases W0 a W5 estão todas marcadas feitas, e o `#TCF.8H` é rota viva do
-> `encode`/`decode` em 0.8.4 (verificado por execução: `encode([{'a':'1','b':'2'},{'a':'3'}])` sai
-> `#TCF.8Ha:6,b?:4` e faz round-trip). O status proposto é **`closed-welded`**, o mesmo vocabulário
+> **PROPOSTA DE STATUS 2026-09-01 (0.8.4) — APLICADA 2026-09-02 (owner).** O frontmatter dizia
+> `status: open` desde 2026-07-13, mas o [ADR-0033](../docs/adr/0033-hierarchical-codec-weld.md)
+> declara o codec welded em 2026-07-14, as fases W0 a W5 estão todas marcadas feitas, e o `#TCF.8H`
+> é rota viva do `encode`/`decode` em 0.8.4. Status agora **`closed-welded`**, o mesmo vocabulário
 > que o T-FMT-HEADER-BASE-HEX já usa.
 >
-> Fica como proposta, não como fechamento: quem fecha ticket é o owner, e sobra um critério de
-> aceite aberto no fim da página (teste em massa via Shaper), embora a própria seção dele registre
-> "FEITO 2026-07-14/15" pelos labs de massa e amostra honesta. Essa contradição é a segunda coisa
-> a decidir junto com o status.
+> O critério de aceite aberto (teste em massa via Shaper) estava resolvido pelo próprio ticket: a
+> seção dele registra "FEITO 2026-07-14/15" pelos labs de massa (`2026-07-14-2231`) e amostra
+> honesta 18/18 (`2026-07-14-2336`). Checkbox virado abaixo.
 
 **[dispositivo→exec]** Decisão do owner (2026-07-13, reescopo `.8` = feature-complete "1.0"): a
 **hierarquia / DatasetH (`#TCF.8H`)** entra no `.8` como a expansão de capacidade do 1.0.
@@ -245,7 +243,7 @@ a forma; falta **dado REAL em massa**. Plano ancorado:
 
 - [x] DatasetH definido e independente de JSON (`records=list[dict]`); segunda origem (records nativos) comprova.
 - [x] `decode(encode(dataset_h)) == dataset_h`, com fixtures (clássicos + fuzz seedado) committadas e RT/non-regressão pinados.
-- [~] `src/tcf` **revisão apresentada** arquivo-a-arquivo; flat byte-idêntico ✅. Aprovação final = owner (cauteloso em mexer agora).
-- [~] Fronteira de tipos/bordas: classe coberta decidida + fail-loud registrado (ADR-0033). `null`/tipos/ragged = próximos incrementos (cruzam T-API-BOUNDARY-CONTRACTS), deixados pro FIM.
+- [x] `src/tcf` **revisão apresentada** arquivo-a-arquivo; flat byte-idêntico ✅. Aprovação final do owner registrada em 2026-07-15 (W5: "APROVADO arquivo-a-arquivo pelo owner 2026-07-15").
+- [x] Fronteira de tipos/bordas: classe coberta decidida + fail-loud registrado (ADR-0033). `null`/tipos/ragged foram incrementados no [T-CODE-TCF8H-JSON-PARITY](T-CODE-TCF8H-JSON-PARITY.md) (P1/P3 welded; D_json fechou com `LACUNAS = {}`).
 - [x] ADR de weld: **ADR-0033** (a gramática do meta-árvore consolidada; consome T-FMT-TCF8H-HEADER).
-- [ ] **Teste em massa via shaper** (dado real TPC-H aninhado): planejado acima, próximo passo.
+- [x] **Teste em massa via shaper** (dado real TPC-H aninhado): **FEITO 2026-07-14/15** — labs `2026-07-14-2231` (massa TPC-H aninhado, RT byte-exato em volume) e `2026-07-14-2336` (amostra honesta 18/18 estratos); aninhamento à mão, capacidade nativa do Shaper fica no [T-SHAPER-NESTED-OUTPUT](T-SHAPER-NESTED-OUTPUT.md).

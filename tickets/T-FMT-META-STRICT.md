@@ -3,8 +3,8 @@ title: T-FMT-META-STRICT, decode estrito do meta: o que já fecha por dedução 
 status: open
 priority: P3
 created: 2026-07-10
-updated: 2026-09-01
-gate: ".8 SE BARATO (conformidade do meta); senao .9 (re-triagem 2026-09-01)"
+updated: 2026-09-02
+gate: "pre-1.0/.9 (re-triagem 2026-09-02: residuais sao checksum=trilho tcfx, item 6 marginal, KeyError cru exige aprovacao src/tcf; nada barato resta pro .8)"
 blocked-by: []
 related:
   - tickets/T-QA-8-material-comprobatorio.md
@@ -50,15 +50,18 @@ de armazenamento (tcfx/O-FMT-20), não ao wire-format mínimo.
    split ntmpl bound; `_dict_parts` da view em paridade.
 6. **Posição do escape de prefixo**: whitelist atual aceita `\!`/`\@`/`\%` em QUALQUER posição
    (encoder só emite no início), endurecer é opcional, ganho marginal.
-7. **BUG-12** (hang HCC decode sob header corrompido) tem lote PRÓPRIO (toca o CORE), mas o
-   guard de progresso é da mesma família: "todo parse válido avança". Destino vigente: 0.8.1,
-   depois do fechamento do núcleo `.8` (T-REL-08, decisão do owner 2026-07-12).
+7. **BUG-12** (hang HCC decode sob header corrompido): **CORRIGIDO** — o guard de progresso
+   desta mesma família ("todo parse válido avança") já existia desde o weld `25ad29eb`
+   (2026-07-24); prova antes/depois 2026-09-02 no lab
+   `experiments/lab/dirty/2026-09/2026-09-02/2026-09-02-0102-bug12-existe-ou-obsoleto/`.
+   (O "destino vigente: 0.8.1" que este item registrava estava vencido — T-QA-8 §3.)
 8. **Orçamento defensivo de expansão**: counts RLE/seq-RLE, ranges e cadeias composicionais de
    blob não-canônico podem solicitar saída desproporcional antes de qualquer cross-check final.
-   Registrar limites/contabilidade (`max_rows`, bytes/frags ou contrato equivalente) antes do 1.0,
-   mas **não inserir limite arbitrário no wire-format durante o closeout `.8`**: o encoder pode
-   produzir runs legítimos grandes. Quando abrir implementação, desmembrar ticket próprio com
-   contrato de API + testes de count zero/negativo/gigante, range inválido e expansão acumulada.
+   **Parcialmente respondido**: o teto `max_length` (default `syntax.MAX_LENGTH_PADRAO`, 10M,
+   weld `95ab69dc`) protege todas as rotas de decode (`decoder.py`), fechando o caso `*N|`
+   gigante (medido no lab 2026-09-02-0102: `*999999999|x` → ValueError em ~2 ms). O que falta
+   pro contrato completo: contabilidade de expansão ACUMULADA (bytes/frags além de um único
+   count) e testes de count zero/negativo/range inválido — ticket próprio pré-1.0.
 
 ## Achado 2026-07-16: KeyError cru no decode flat de blob estrangeiro (CORPO, não meta)
 
@@ -75,8 +78,12 @@ de ref fora do range de nodes → erro tipado, "não-emitível pelo encoder" com
 ## Critério de aceite
 
 - [x] Itens 3-5 executados (lote 4, 2026-07-10; red→green, decode-only, 590 passed).
-- [ ] Checksum (itens 1-2) especificado no trilho tcfx/O-FMT-20, NÃO no wire-format mínimo.
-- [ ] Item 6 decidir pós-material; BUG-12 em lote 0.8.1; item 8 vira ticket próprio pré-1.0.
+- [x] Checksum (itens 1-2) fora do wire-format mínimo — doutrina registrada no registry O-FMT-20
+  (`futuras-otimizacoes-formato.md`: truncamento/checksum é trabalho do transporte; sizes
+  explícitos poderiam virar integrity-check opt-in no trilho tcfx).
+- [ ] Item 6 decidir pós-material; ~~BUG-12 em lote 0.8.1~~ (**corrigido por `25ad29eb`, prova
+  antes/depois 2026-09-02**); item 8: teto `max_length` welded (`95ab69dc`), expansão acumulada
+  vira ticket próprio pré-1.0.
 - [ ] Toda regra nova = "não-emitível pelo encoder" comprovado (dedução do cânone, nunca heurística).
 - [ ] Achado 2026-07-16 (KeyError cru em ref inexistente de blob estrangeiro) re-tipado quando o
       owner aprovar mexer no decode flat.

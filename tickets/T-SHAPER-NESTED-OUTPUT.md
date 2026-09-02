@@ -3,9 +3,9 @@ title: T-SHAPER-NESTED-OUTPUT, saída HIERÁRQUICA nativa no Shaper (aninhar via
 status: open
 priority: P3
 created: 2026-07-15
-updated: 2026-09-01
-gate: ".8 SE BARATO (ferramenta do teste em massa do .8H); senao .9 (re-triagem 2026-09-01)"
-target: até 1.0 (ferramental; não bloqueia .8)
+updated: 2026-09-02
+gate: ".9 (re-triagem 2026-09-02: NAO barato — estrategia nova + gating estatistico + testes; e o teste em massa do .8H ja aconteceu com aninhamento a mao, labs 2231/2336)"
+target: .9 (ferramental; não bloqueia .8)
 blocked-by: []
 related:
   - scripts/shaper/strategies/join.py
