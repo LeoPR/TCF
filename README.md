@@ -786,7 +786,7 @@ if Phase 2 is revived.
 - **I want SQL-like query paths without full materialization** →
   [`tcf.view`](docs/reference/lazy-view.md) *(Portuguese)*: `count`/`sum`/`where`/group-by touching
   only what is needed, where the column mode permits
-- **I want to share / pitch TCF** → [docs/divulgacao-tcf.md](docs/divulgacao-tcf.md)
+- **I want to share / pitch TCF** → [docs/divulgacao/](docs/divulgacao/) (outreach material, with the editorial rules in its README)
   *(Portuguese)*: outreach material, post style
 - **I want to read the paper** → v0.5 drafts:
   [docs/archive/article_v05/](docs/archive/article_v05/) (paper pending)

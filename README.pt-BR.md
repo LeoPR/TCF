@@ -777,7 +777,7 @@ se Phase 2 for revivida.
 - **Quero entender a arquitetura** → [docs/theory/](docs/theory/)
 - **Quero ver o roadmap** → [ROADMAP.md](ROADMAP.md) (tiers: pré-1.0 / 2.0 / pesquisa); detalhe granular em [roadmap-hipoteses.md](experiments/lab/dirty/notas/2026-05/roadmap-hipoteses.md)
 - **Quero caminhos de consulta SQL-like sem materializar tudo** → [`tcf.view`](docs/reference/lazy-view.md) (`count`/`sum`/`where`/group-by, quando o modo da coluna permite)
-- **Quero divulgar / apresentar o TCF** → [docs/divulgacao-tcf.md](docs/divulgacao-tcf.md) (material de divulgação, estilo post)
+- **Quero divulgar / apresentar o TCF** → [docs/divulgacao/](docs/divulgacao/) (material de divulgação, com as regras editoriais no README da pasta)
 - **Quero ler o paper** → drafts v0.5: [docs/archive/article_v05/](docs/archive/article_v05/) (paper v0.7 pendente)
 - **Quero ver como evoluiu** → [CHANGELOG.md](CHANGELOG.md) +
   [docs/archive/workbench/](docs/archive/workbench/)
