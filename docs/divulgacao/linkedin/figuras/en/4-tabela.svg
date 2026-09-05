@@ -1,5 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="430" viewBox="0 0 1000 430">
-  <rect width="1000" height="430" fill="#fbfaf8"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="439" viewBox="0 0 1000 439">
+  <rect width="1000" height="439" fill="#fbfaf8"/>
   <text x="60" y="62" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="32" fill="#1a1a1a" font-weight="600" text-anchor="start" xml:space="preserve">Under channel compression, maximum level</text>
   <text x="60" y="118" font-family="ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', monospace" font-size="21" fill="#6b6b6b" font-weight="600" text-anchor="start" xml:space="preserve"></text>
   <text x="380" y="118" font-family="ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', monospace" font-size="21" fill="#6b6b6b" font-weight="600" text-anchor="start" xml:space="preserve">raw</text>

@@ -126,29 +126,48 @@ def esc(s: str) -> str:
 
 
 class Svg:
-    def __init__(self, w: int, h: int):
-        self.w, self.h, self.p = w, h, []
-        self.p.append(f'<rect width="{w}" height="{h}" fill="{FUNDO}"/>')
+    """Tela de desenho que ACOMPANHA o conteudo.
+
+    A altura passada e' um piso, nao um teto: cada primitiva registra ate' onde
+    desceu, e o `grava` fecha a tela abaixo do ponto mais baixo mais uma margem. Foi
+    o que faltou quando a figura do wire cresceu e passou a cortar a ultima linha.
+    """
+
+    MARGEM = 34
+
+    def __init__(self, w: int, h: int, fixa: bool = False):
+        self.w, self.h, self.p, self.fixa = w, h, [], fixa
+        self.fundo = len(self.p)
+        self.p.append(None)                       # reservado: o fundo so' cabe no fim
+        self.fim = 0
+
+    def _desceu(self, y: float) -> None:
+        self.fim = max(self.fim, y)
 
     def txt(self, x, y, s, size=16, fill=TINTA, mono=False, bold=False, anchor="start"):
         peso = ' font-weight="600"' if bold else ""
         fam = MONO if mono else SANS
+        self._desceu(y + size * 0.3)
         self.p.append(f'<text x="{x}" y="{y}" font-family="{fam}" font-size="{size}" '
                       f'fill="{fill}"{peso} text-anchor="{anchor}" '
                       f'xml:space="preserve">{esc(s)}</text>')
 
     def rect(self, x, y, w, h, fill, r=3):
+        self._desceu(y + h)
         self.p.append(f'<rect x="{x}" y="{y}" width="{w}" height="{h}" rx="{r}" fill="{fill}"/>')
 
     def linha(self, x1, y1, x2, y2, cor=BARRA, larg=1):
+        self._desceu(max(y1, y2))
         self.p.append(f'<line x1="{x1}" y1="{y1}" x2="{x2}" y2="{y2}" '
                       f'stroke="{cor}" stroke-width="{larg}"/>')
 
     def grava(self, destino: Path) -> None:
+        h = self.h if self.fixa else max(self.h, int(self.fim + self.MARGEM))
+        self.p[self.fundo] = f'<rect width="{self.w}" height="{h}" fill="{FUNDO}"/>'
         corpo = "\n  ".join(self.p)
         destino.write_text(
-            f'<svg xmlns="http://www.w3.org/2000/svg" width="{self.w}" height="{self.h}" '
-            f'viewBox="0 0 {self.w} {self.h}">\n  {corpo}\n</svg>\n', encoding="utf-8")
+            f'<svg xmlns="http://www.w3.org/2000/svg" width="{self.w}" height="{h}" '
+            f'viewBox="0 0 {self.w} {h}">\n  {corpo}\n</svg>\n', encoding="utf-8")
 
 
 def medidos() -> dict:
@@ -193,14 +212,16 @@ def canais(texto: str) -> dict:
 
 
 def capa(lang: str, d: dict) -> Svg:
-    s = Svg(1200, 628)                                  # 1.91:1, o quadro do LinkedIn
+    # altura FIXA: aqui a proporcao 1.91:1 e' requisito do quadro do LinkedIn, e uma
+    # tela que cresce com o conteudo faria o canal cortar ou preencher a diferenca.
+    s = Svg(1200, 628, fixa=True)
     s.txt(80, 250, "TCF", 120, ACENTO, bold=True)
     s.txt(80, 300, "Tabular Compact Format", 30, FRACO)
     s.txt(80, 380, T[lang]["capa_sub"], 34, TINTA, bold=True)
     s.linha(80, 420, 1120, 420)
     s.txt(80, 470, T[lang]["capa_pe"], 22, FRACO, mono=True)
     for i, ln in enumerate(d["wire"].splitlines()[:4]):
-        s.txt(80, 520 + i * 24, ln[:70], 17, BARRA, mono=True)
+        s.txt(80, 512 + i * 22, ln[:70], 16, BARRA, mono=True)
     return s
 
 
