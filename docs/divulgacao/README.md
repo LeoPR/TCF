@@ -38,8 +38,20 @@ O que já existe:
 
 | Arquivo | O que é |
 |---|---|
+| [`2026-09-04-fonte-0.8.4.md`](2026-09-04-fonte-0.8.4.md) | **a fonte vigente**. Todo texto de canal deriva dela |
+| [`linkedin-post.md`](linkedin-post.md) | a peça curta, para o feed. Cerca de 3.000 caracteres |
+| [`linkedin-artigo.md`](linkedin-artigo.md) | o artigo longo, com as medições e os limites |
 | [`pitch-curto.md`](pitch-curto.md) | o pitch de um parágrafo, com o `JSON → CSV → TCF` em bytes reais |
 | [`2026-08-25-linkedin-0.8.2.md`](2026-08-25-linkedin-0.8.2.md) | o post da `0.8.2`, versão longa e curta. Registro datado, **não se reescreve** |
+
+Todo número dos textos acima é reproduzido por um comando só:
+
+```
+python scripts/verifica_divulgacao.py
+```
+
+Ele codifica, **valida o roundtrip**, e só então imprime o tamanho. Se um roundtrip falhar, ele
+sai com erro e o número não pode ser publicado.
 
 ## Limites de cada canal
 
