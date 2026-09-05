@@ -18,16 +18,21 @@ first.
 | Path | What it is |
 |---|---|
 | [`2026-09-04-lancamento.md`](2026-09-04-lancamento.md) / [`2026-09-04-release.en.md`](2026-09-04-release.en.md) | the current news source (PT / EN) |
-| [`linkedin/`](linkedin/) | LinkedIn: `post.*` (short), `artigo.*` (long technical), `page.md` (illustrated) and the figures |
+| [`linkedin/post.*`](linkedin/) | the short feed piece, one per language |
+| [`linkedin/artigo.*`](linkedin/) | the article, one per language, **ready to paste** |
+| [`linkedin/figuras/<language>/`](linkedin/figuras/) | the five figures, one folder per language |
+
+Two texts per language and nothing else. LinkedIn has two areas: the feed post, with a hard
+character limit, and the article, which takes long text but in a narrow column. Each file
+serves one of them.
 
 It sits under `docs/` because **outreach documents are documents**. A second hierarchy at the
 repository root would make the reader choose between two places to look for the same thing.
 
-**To publish the article**, use `linkedin/artigo-linkedin.en.md`, which is the same article
-generated without the two things the LinkedIn editor cannot do: inline code and tables. The table
-becomes the `4-tabela` image, extracted from the article itself so the numbers cannot diverge,
-and the file carries the paste-by-paste instructions at the top plus `[IMAGEM: ...]` markers at
-the exact point each figure goes. Do not edit that file: edit the article and run the script.
+**The article comes out ready to paste.** The LinkedIn editor does not render tables and its
+column is narrow, so the article has no table: where one would go, it calls the `4-tabela` figure,
+built from the same numbers so text and image cannot diverge. The code blocks are narrow for the
+same reason. Paste the text and upload the figures where it calls them.
 
 The figures live in `linkedin/figuras/<language>/`, one subfolder per language so the channel
 directory does not mix text with binaries. `scripts/make_divulgacao_figuras.py` generates them
@@ -46,10 +51,6 @@ There are five per language, numbered in reading order: `0-capa` is the 1.91:1 h
 `1-formatos` compares the four formats, `2-wire` annotates the real output, `3-view` shows what a
 query materializes, and `4-tabela` is the compression table the editor will not render.
 
-**The text stays outside the images**, in `linkedin/pagina.md` and `linkedin/page.md`, which is
-the page assembled with the figures linked. That way the text stays editable and the images can
-be reordered or used on their own, instead of being baked into pixels.
-
 Here Portuguese is the canonical language, unlike the rest of the project, because the audience
 these texts address reads Portuguese first. English is the translation.
 
@@ -61,8 +62,10 @@ these texts address reads Portuguese first. English is the translation.
   inviting. Context before jargon, density without a lecturing tone, and an ending that closes
   rather than stops. Hashtags at the end and without accents, because an accented hashtag breaks
   LinkedIn search.
-- **LinkedIn article** (`linkedin/artigo.*`): long form, with headings and tables rendering, good
-  for the version that carries the numbers. Ends with the repository link.
+- **LinkedIn article** (`linkedin/artigo.*`): long form, with headings rendering, good for the
+  version that carries the numbers. **Tables do not render and the column is narrow**, so no
+  tables and no wide lines: what would be a table becomes a figure. Ends with the repository
+  link.
 
 ## Before publishing
 

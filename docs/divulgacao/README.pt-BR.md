@@ -17,16 +17,21 @@ A regra que mantém os dois alinhados: nenhum texto de canal muda sem a fonte da
 | Caminho | O que é |
 |---|---|
 | [`2026-09-04-lancamento.md`](2026-09-04-lancamento.md) / [`2026-09-04-release.en.md`](2026-09-04-release.en.md) | a fonte de notícia atual (PT / EN) |
-| [`linkedin/`](linkedin/) | LinkedIn: `post.*` (curto), `artigo.*` (longo técnico), `pagina.md` (ilustrada) e as figuras |
+| [`linkedin/post.*`](linkedin/) | a peça curta do feed, uma por língua |
+| [`linkedin/artigo.*`](linkedin/) | o artigo, uma por língua, **já pronto para colar** |
+| [`linkedin/figuras/<língua>/`](linkedin/figuras/) | as cinco figuras, uma pasta por língua |
+
+São dois textos por língua e nada além disso. O LinkedIn tem duas áreas, o post do feed, com
+limite duro de caracteres, e o artigo, que aceita texto longo mas numa coluna estreita. Cada
+arquivo atende uma delas.
 
 Fica sob `docs/` porque **documento de divulgação é documento**. Uma segunda hierarquia na raiz
 faria o leitor escolher entre dois lugares para procurar a mesma coisa.
 
-**Para publicar o artigo**, use `linkedin/artigo-linkedin.pt-BR.md`, que é o mesmo artigo gerado
-sem as duas coisas que o editor do LinkedIn não faz: crase no meio da frase e tabela. A tabela
-vira a imagem `4-tabela`, extraída do próprio artigo para os números não divergirem, e o arquivo
-traz no topo o passo a passo da colagem e os marcadores `[IMAGEM: ...]` no ponto exato onde cada
-figura entra. Não edite esse arquivo: edite o artigo e rode o script.
+**O artigo já sai pronto para colar.** O editor do LinkedIn não renderiza tabela e a coluna é
+estreita, então o artigo não tem tabela: onde ela caberia, ele chama a figura `4-tabela`, que sai
+dos mesmos números para texto e imagem não divergirem. Os blocos de código também são estreitos
+por isso. Cole o texto e suba as figuras onde ele as chama.
 
 As figuras ficam em `linkedin/figuras/<língua>/`, uma subpasta por língua para o diretório do
 canal não misturar texto com binário. O `scripts/make_divulgacao_figuras.py` gera todas, e
@@ -44,10 +49,6 @@ São cinco por língua, numeradas na ordem de leitura: `0-capa` é o quadro 1.91
 `1-formatos` compara os quatro formatos, `2-wire` anota a saída real, `3-view` mostra o que uma
 consulta materializa, e `4-tabela` é a tabela de compressão que o editor não renderiza.
 
-**O texto fica fora das imagens**, em `linkedin/pagina.md` e `linkedin/page.md`, que é a página
-montada com as figuras vinculadas. Assim o texto é editável e as imagens podem ser reordenadas
-ou usadas soltas, em vez de estarem gravadas nos pixels.
-
 Aqui o português é a língua canônica, ao contrário do resto do projeto, porque o público a que
 estes textos se dirigem lê português primeiro. O inglês é a tradução.
 
@@ -58,8 +59,10 @@ estes textos se dirigem lê português primeiro. O inglês é a tradução.
   é largo, e uma primeira frase que só fala com quem já conhece compressão filtra em vez de
   convidar. Contexto antes de jargão, densidade sem tom professoral, e um fecho que fecha em vez
   de parar. Hashtags no fim e sem acento, porque hashtag acentuada quebra a busca do LinkedIn.
-- **Artigo do LinkedIn** (`linkedin/artigo.*`): formato longo, com títulos e tabelas
-  renderizando, bom para a versão que carrega os números. Termina com o link do repositório.
+- **Artigo do LinkedIn** (`linkedin/artigo.*`): formato longo, com títulos renderizando, bom
+  para a versão que carrega os números. **Tabela não renderiza e a coluna é estreita**, então
+  nada de tabela e nada de linha larga: o que seria tabela vira figura. Termina com o link do
+  repositório.
 
 ## Antes de publicar
 

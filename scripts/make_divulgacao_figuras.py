@@ -1,27 +1,24 @@
-"""make_divulgacao_figuras.py: gera as figuras e a versao-de-colar do material de divulgacao.
+"""make_divulgacao_figuras.py: gera as figuras do material de divulgacao.
 
-Duas saidas, de `docs/divulgacao/linkedin/`:
+Gera `docs/divulgacao/linkedin/figuras/<lingua>/`.
 
-1. **As figuras**, em `figuras/<lingua>/`. Nenhuma e' ilustracao: os bytes sao medidos aqui,
-   com roundtrip validado antes, e o wire desenhado e' o que o `encode` devolve de fato.
-   Saem em **SVG**, que e' texto e da' pra editar. PNG so' se `cairosvg` estiver instalado,
-   e o script avisa em vez de falhar quando nao esta.
+Nenhuma figura e' ilustracao: os bytes sao medidos aqui, com roundtrip validado antes
+(aborta se falhar), o wire desenhado e' o que o `encode` devolve de fato, e as colunas
+materializadas da figura 3 saem do `view.report()`.
 
-2. **`artigo-linkedin.<lingua>.md`**, gerado de `artigo.<lingua>.md` sem as duas coisas que o
-   editor de artigos do LinkedIn nao faz: crase no meio da frase e tabela. A tabela vira a
-   figura `4-tabela`, tirada do proprio artigo pros numeros nao divergirem, e o arquivo traz
-   no topo o passo a passo da colagem.
+Saem em **SVG**, que e' texto, o repo versiona e o GitHub renderiza. PNG so' se `cairosvg`
+estiver instalado, e o script avisa em vez de falhar quando nao esta.
+
+A `4-tabela` existe porque o editor de artigos do LinkedIn nao renderiza tabela: o artigo
+chama a figura no lugar dela, pros numeros nao divergirem entre texto e imagem.
 
     python scripts/make_divulgacao_figuras.py
-
-Nao edite `artigo-linkedin.*`: edite o artigo e rode isto de novo.
 """
 
 from __future__ import annotations
 
 import gzip
 import json
-import re
 import sys
 from pathlib import Path
 
@@ -281,76 +278,6 @@ def para_png(svg: Path) -> bool:
     return True
 
 
-CERCA = re.compile(r"^```")
-
-
-def gera_colar(lang: str) -> None:
-    """`artigo.<lang>.md` -> `artigo-linkedin.<lang>.md`, sem crase e sem tabela."""
-    origem = CANAL / f"artigo.{lang}.md"
-    if not origem.is_file():
-        print(f"  (sem {origem.name}, pulei a versao de colar)")
-        return
-    linhas = origem.read_text(encoding="utf-8").splitlines()
-
-    # o cabecalho de instrucoes e o preambulo do arquivo saem; comeca no primeiro '# '
-    ini = next(i for i, l in enumerate(linhas) if l.startswith("# "))
-    titulo = linhas[ini][2:].strip()
-    corpo, dentro, i = [], False, ini + 1
-    while i < len(linhas):
-        l = linhas[i]
-        if CERCA.match(l):
-            dentro = not dentro
-            corpo.append(l)
-            i += 1
-            continue
-        if not dentro and l.lstrip().startswith("|"):        # tabela -> figura
-            while i < len(linhas) and linhas[i].lstrip().startswith("|"):
-                i += 1
-            corpo.append("[IMAGEM: 4-tabela.png "
-                         "| legenda: a mesma tabela sob compressao de canal]")
-            continue
-        if not dentro:
-            l = re.sub(r"`([^`]+)`", r"\1", l)               # crase some
-        corpo.append(l)
-        i += 1
-
-    texto = "\n".join(corpo).strip()
-    for marca, fig in (("## O mesmo dado em tr", "1-formatos"),
-                       ("## Consultar quase sem", "3-view")):
-        p = texto.find(marca)
-        if p >= 0:
-            fim = texto.find("\n", p) + 1
-            texto = texto[:fim] + f"\n[IMAGEM: {fig}.png]\n" + texto[fim:]
-
-    cabecalho = f"""<!-- Versao do artigo preparada para o editor de artigos do LinkedIn.
-     Gerada por scripts/make_divulgacao_figuras.py a partir de artigo.{lang}.md.
-     Nao edite este arquivo: edite o artigo e rode o script.
-
-     O que mudou em relacao ao original:
-       - as crases sairam, porque o editor nao tem codigo embutido na frase;
-       - a tabela virou imagem, porque o editor nao faz tabela.
-
-     Como colar:
-       1. Capa: figuras/{lang}/0-capa.png, no quadro do topo (e' 1.91:1).
-       2. Titulo: a primeira linha abaixo, no campo Titulo.
-       3. Corpo: cole como texto simples e aplique o formato pelos botoes.
-          Cada linha "## " vira Estilo -> titulo.
-       4. Onde aparecer [IMAGEM: ...], use o botao de imagem, suba o arquivo de
-          figuras/{lang}/ e escreva a legenda indicada. Depois apague a linha do marcador.
--->
-
-=== TITULO (cole no campo Titulo) ===
-
-{titulo}
-
-=== CORPO (cole abaixo) ===
-
-"""
-    destino = CANAL / f"artigo-linkedin.{lang}.md"
-    destino.write_text(cabecalho + texto + "\n", encoding="utf-8", newline="\n")
-    print(f"  {destino.relative_to(RAIZ).as_posix()}")
-
-
 def main() -> int:
     d = medidos()
     print(f"roundtrip validado; wire {len(d['wire'].encode())} B, "
@@ -365,7 +292,6 @@ def main() -> int:
             fn(lang, d).grava(alvo)
             png = para_png(alvo)
             print(f"  {alvo.relative_to(RAIZ).as_posix()}")
-        gera_colar(lang)
     if png is False:
         print("\nSVG so': `cairosvg` nao esta' instalado, entao nao gerei PNG. O LinkedIn "
               "pede PNG pra subir;\nconverta os SVG (qualquer navegador ou editor abre) ou "

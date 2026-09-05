@@ -5,7 +5,9 @@
 *Technical article, derived from the repository README. Every number here already lives in a
 test or in a dated report of the project, and the code blocks on this page run in the suite.*
 
-Source: [`../2026-09-04-release.en.md`](../2026-09-04-release.en.md).
+Source: [`../2026-09-04-release.en.md`](../2026-09-04-release.en.md). The figures are in
+[`figuras/en/`](figuras/en/); upload `0-capa` to the header frame and the others where the text
+calls them.
 
 ---
 
@@ -30,6 +32,8 @@ Four people, five fields, every format measured compact.
 **CSV**, 277 bytes: drops the names, one line per record.
 
 **TCF**, 242 bytes: what repeats becomes a reference, what is unique stays raw.
+
+![Proportional bars comparing JSON, JSONL, CSV and TCF in real bytes](figuras/en/1-formatos.svg)
 
 ```python
 from tcf import decode, encode
@@ -123,27 +127,26 @@ column, and the rows, that the aggregator needs.
 from tcf import encode, view
 
 table = {
-    "cliente": ["Ana Souza", "Bruno Lima", "Carla Nunes",
-                "Diego Rocha", "Eva Martins", "Ana Souza"],
-    "cidade":  ["Sao Paulo", "Sao Paulo", "Sao Paulo",
-                "Rio de Janeiro", "Sao Paulo", "Rio de Janeiro"],
-    "plano":   ["Premium", "Premium", "Basic", "Premium", "Basic", "Premium"],
-    "valor":   [120, 100, 170, 200, 80, 80],
+    "cliente": ["Ana", "Bruno", "Carla", "Diego", "Eva", "Ana"],
+    "cidade": ["SP", "SP", "SP", "RJ", "SP", "RJ"],
+    "plano": ["Premium", "Premium", "Basic",
+              "Premium", "Basic", "Premium"],
+    "valor": [120, 100, 170, 200, 80, 80],
 }
 
-blob = encode(table)                            # 187 B of ASCII text
-v = view(blob)                                  # connects, decompresses nothing
+blob = encode(table)
+v = view(blob)              # connects, decompresses nothing
 
-v.count()                                       # 6, touches no column at all
-v.distinct("cidade")                            # ['Sao Paulo', 'Rio de Janeiro']
-v.sum("valor")                                  # 750.0, touches: valor
-v.where("cidade", "Sao Paulo").sum("valor")     # 470.0, touches: cidade, valor
-v.group_sum("cidade", "valor")                  # {'Sao Paulo': 470.0, 'Rio de Janeiro': 280.0}
-v.group_count("plano")                          # {'Premium': 4, 'Basic': 2}
+v.count()                   # 6, touches no column at all
+v.sum("valor")              # 750.0, touches: valor
+v.group_count("plano")      # {'Premium': 4, 'Basic': 2}
+v.where("cidade", "SP").sum("valor")     # 470.0
 ```
 
-The filtered sum materialized only `cidade` and `valor`, 39.9% of the blob. `cliente` and
-`plano` were never decompressed.
+The filtered sum materializes only `cidade` and `valor`. The other two columns are never
+decompressed, and `view.report()` says how much of the blob was read.
+
+![The columns a query materializes, and the ones never touched](figuras/en/3-view.svg)
 
 ## The numbers on larger sets
 
@@ -167,12 +170,7 @@ holds and parses once the channel has done its invisible work**.
 
 On the four-record set, under channel compression at maximum level:
 
-| format | raw | gzip | br | zstd |
-|---|---:|---:|---:|---:|
-| JSON | 451 | 206 | 195 | 197 |
-| JSONL | 449 | 205 | 194 | 194 |
-| CSV | 277 | 177 | 162 | 165 |
-| **TCF** | **242** | 206 | **185** | **193** |
+![Channel compression table: JSON, JSONL, CSV and TCF](figuras/en/4-tabela.svg)
 
 Under `gzip` the three API formats tie within 1 byte. TCF wins raw, under `br` and under
 `zstd`. And CSV, which is rarely an API payload and has no `view`, is smaller once compressed
