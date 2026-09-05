@@ -3,8 +3,9 @@
 *Artigo técnico. Cada número aqui tem um comando que o reproduz no repositório, e nenhum foi
 escrito sem o roundtrip fechar antes. Onde a biblioteca não ajuda, o texto diz que não ajuda.*
 
-Fonte: [`2026-09-04-fonte-0.8.4.md`](2026-09-04-fonte-0.8.4.md). Reproduz com
-`python scripts/verifica_divulgacao.py`.
+Fonte: [`2026-09-04-fonte-0.8.4.md`](2026-09-04-fonte-0.8.4.md), onde cada número aponta para
+o teste ou o relatório datado que já era dono dele. Os blocos de código desta página rodam na
+suíte do projeto.
 
 ---
 
@@ -46,15 +47,25 @@ coluna, contar um valor, ou filtrar uma linha antes de o payload inteiro voltar 
 ```python
 from tcf import encode, view
 
-wire = encode(tabela)           # 242 B
-v = view(wire)                  # nada foi decodificado ainda
+tabela = {
+    "nome":   ["Ana Souza", "Bruno Lima", "Carla Nunes", "Diego Rocha"],
+    "email":  ["ana@acme.com.br", "bruno@acme.com.br",
+               "carla@acme.com.br", "diego@acme.com.br"],
+    "cidade": ["Sao Paulo", "Sao Paulo", "Sao Paulo", "Rio de Janeiro"],
+    "plano":  ["Premium", "Premium", "Basic", "Premium"],
+    "cpf":    ["111.111.111-11", "222.222.222-22",
+               "333.333.333-33", "444.444.444-44"],
+}
 
-v.columns                       # ['nome', 'email', 'cidade', 'plano', 'cpf']
-v.nrows                         # 4
-v.distinct('cidade')            # ['Rio de Janeiro', 'Sao Paulo']
-v.group_count('plano')          # {'Premium': 3, 'Basic': 1}
-v.where('plano', 'Premium')     # 3 linhas, sem materializar as outras
-v.column_bytes('cpf')           # 59 B de 193 B
+wire = encode(tabela)               # 242 B
+v = view(wire)                      # nada foi decodificado ainda
+
+v.columns                           # ['nome', 'email', 'cidade', 'plano', 'cpf']
+v.nrows                             # 4
+v.distinct("cidade")                # ['Rio de Janeiro', 'Sao Paulo']
+v.group_count("plano")              # {'Premium': 3, 'Basic': 1}
+v.where("plano", "Premium")         # 3 linhas, sem materializar as outras
+v.column_bytes("cpf")               # 59 B de 193 B
 ```
 
 Nenhuma dessas chamadas decodifica a tabela inteira. A última é a que costuma surpreender quem

@@ -44,14 +44,19 @@ O que já existe:
 | [`pitch-curto.md`](pitch-curto.md) | o pitch de um parágrafo, com o `JSON → CSV → TCF` em bytes reais |
 | [`2026-08-25-linkedin-0.8.2.md`](2026-08-25-linkedin-0.8.2.md) | o post da `0.8.2`, versão longa e curta. Registro datado, **não se reescreve** |
 
-Todo número dos textos acima é reproduzido por um comando só:
+**Nenhum número destes textos tem instrumento próprio, e isso é deliberado.** Cada um continua
+pertencendo a quem já era dono dele: os tamanhos canônicos ao
+`tests/test_regression_v1_baseline.py`, que pina byte a byte e roda o roundtrip da §RT; os
+ganhos em dado real ao relatório datado do EXP-019; os tempos ao baseline pinado do
+`scripts/bench_perf`. Um script de divulgação medindo o mesmo criaria uma segunda verdade para
+divergir da primeira, e seria mais um instrumento que ninguém roda.
 
-```
-python scripts/verifica_divulgacao.py
-```
+O que a divulgação acrescenta é que **os exemplos rodam**. A fonte vigente e o artigo estão no
+`PAGINAS_DIDATICAS` do `tests/test_docs_snippets.py`, junto com o README e a referência, e a
+fonte carrega as próprias asserções de tamanho. Um número que ficar velho quebra a suíte.
 
-Ele codifica, **valida o roundtrip**, e só então imprime o tamanho. Se um roundtrip falhar, ele
-sai com erro e o número não pode ser publicado.
+Os registros datados ficam **fora** desse gate de propósito. Eles não se reescrevem, então não
+podem ser consertados quando a API mudar.
 
 ## Limites de cada canal
 

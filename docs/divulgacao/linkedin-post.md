@@ -1,7 +1,7 @@
 # Post curto para o LinkedIn (a peça de leitura rápida)
 
-> Pronto para publicar. Todo número foi medido com roundtrip validado e é reproduzível por
-> `python scripts/verifica_divulgacao.py`.
+> Pronto para publicar. Nenhum número aqui é novo: todos vêm da fonte, que por sua vez aponta
+> para o teste ou o relatório datado que já era dono de cada um.
 > Fonte: [`2026-09-04-fonte-0.8.4.md`](2026-09-04-fonte-0.8.4.md).
 >
 > **O que este texto é:** o resumo que leva ao artigo e ao repositório. Objetivo e
@@ -14,6 +14,10 @@
 >
 > **Os blocos de código são a saída real do `encode`**, não ilustração. Como o wire do TCF é
 > texto legível, aqui a "figura" pode ser o próprio dado.
+>
+> Ao contrário da fonte e do artigo, **esta página fica fora do `test_docs_snippets.py`**. O
+> motivo é o orçamento de caracteres do feed: declarar a tabela de entrada para o bloco rodar
+> sozinho estouraria os 3.000. Os mesmos exemplos rodam na suíte pelas outras duas páginas.
 
 ---
 
@@ -55,6 +59,7 @@ infla tudo.
 
 É aí que a diferença aparece. Sobre um TCF dá para perguntar sem descomprimir:
 
+<!-- doctest: skip -->
 ```python
 v = view(wire)
 v.distinct('cidade')        # ['Rio de Janeiro', 'Sao Paulo']

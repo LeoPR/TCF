@@ -41,6 +41,12 @@ PAGINAS_DIDATICAS = [
     "docs/tutorials",
     "docs/how-to",
     "docs/reference",
+    # Divulgacao: so' os textos VIGENTES. Os registros datados (`<data>-*.md`) ficam
+    # de fora de proposito, porque nao se reescrevem, entao nao podem ser consertados
+    # quando a API mudar. O premissa desses textos e' que nada neles e' ilustracao, e
+    # e' este gate que a sustenta.
+    "docs/divulgacao/2026-09-04-fonte-0.8.4.md",
+    "docs/divulgacao/linkedin-artigo.md",
 ]
 
 CERCA = re.compile(r"^(?P<indent> *)```(?P<lang>[A-Za-z0-9+-]*)\s*$")
