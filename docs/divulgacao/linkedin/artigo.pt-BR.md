@@ -96,6 +96,22 @@ valor, procura o maior prefixo **e** sufixo compartilhado com os anteriores: dom
 raízes de URL, códigos da mesma família. Escreve o trecho uma vez e referencia o resto. É um
 front-coding bidirecional, e o "bidirecional" é o que captura o sufixo comum, não só o prefixo.
 
+Achar o maior afixo comum entre strings é um problema com família própria: **árvores de prefixo
+e sufixo**, das tries à **Patricia/radix tree** (Morrison, 1968) e às suffix trees. A comparação
+ingênua de cada valor com todos os anteriores é quadrática, e num dataset de verdade isso não
+fecha.
+
+O que roda hoje não é uma árvore, é um **índice de trigramas**: em vez de comparar contra todo o
+histórico, ele usa trechos de três caracteres para achar os poucos candidatos que podem ter
+afixo em comum. Mediu 5,4× de ganho e leva o custo de O(N²) para cerca de **O(N^1,42)**,
+sub-quadrático.
+
+A Patricia trie ficou registrada como candidata para depois do 1.0, e não é modéstia: um estudo
+de viabilidade comparou as duas e a decisão foi **manter o trigrama**. Uma Patricia dá
+travessia determinística e ordenação alfabética de graça, e cobra em localidade de cache,
+porque os ponteiros espalham onde a tabela hash concentra. Trocar exigiria refazer os gates
+byte-canônicos, já que a estrutura muda qual afixo é escolhido quando há empate.
+
 **HCC** (Hierarchical Compositional Coding) decide o que vale a pena nomear e agrupa
 repetições. Pega os tokens do OBAT e fatora composições recorrentes em referências nomeadas
 reutilizáveis. Também colapsa repetições consecutivas, inclusive sequências quase iguais, tipo
@@ -108,6 +124,63 @@ bytes.
 Cada coluna passa por um pipeline próprio, e para cada uma o codificador gera as candidatas e
 grava a **menor**: `min(tcf, cru, dicionário, split)`. O resultado é nunca pior por construção.
 Não é preciso testar para descobrir se o formato inchou o seu dado, porque ele não pode inchar.
+
+## As três formas de repetição
+
+O HCC colapsa repetição, e isso é mais do que "o mesmo valor N vezes". São três formas, e as
+duas últimas são as que aparecem em dado de sistema.
+
+**Linhas idênticas adjacentes**, o marcador `*N|`. É o que aparece na coluna de cidade do
+exemplo lá em cima:
+
+```
+["Sao Paulo"] * 5 + ["Rio de Janeiro"]
+
+#TCF.8
+*5|Sao Paulo
+Rio de Janeiro
+```
+
+São 64 bytes virando 35.
+
+**Sequência com passo constante**, `*N+delta|`. É o caso de ID incremental, de numeração de
+pedido, de qualquer coluna que ande de tanto em tanto:
+
+```python
+from tcf import decode, encode
+
+ids = [str(i) for i in range(100, 160, 5)]
+wire = encode(ids)                  # 12 valores
+assert decode(wire) == ids
+```
+
+O wire inteiro é isto:
+
+```
+#TCF.8
+*12+5|\100
+```
+
+47 bytes viram 18, e nenhum dos doze valores está escrito. Estão o primeiro, o passo e a
+contagem, e o `decode` refaz o resto.
+
+**Sequência periódica**, `*N~d1,d2,...|`, quando o passo cicla em vez de ser constante:
+
+```
+[0, 3, 10, 13, 20, 23, 30, 33, ...]
+
+#TCF.8!!
+0
+3
+*14~3,7|10
+```
+
+O ciclo `3,7` é pago uma vez e vale para as catorze linhas seguintes.
+
+E é aqui que a legibilidade deixa de ser conforto e vira capacidade. `*5|Sao Paulo` **já é uma
+contagem**: saber quantas linhas têm aquele valor é ler o `5`, não expandir cinco strings.
+`*12+5|` **já é uma progressão**, então dá para responder sobre mínimo, máximo e soma sem
+materializar a coluna. É essa propriedade que a próxima seção usa.
 
 ## Filtros por natureza, quando o dado tem forma fixa
 

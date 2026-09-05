@@ -162,6 +162,19 @@ Isso decide onde o formato compensa, e a topologia importa mais do que cliente c
 servidor. Se o dado é **cacheável**, você paga o encode uma vez e distribui muitas. Se é
 **personalizado por requisição**, você paga o encode toda vez, e aí a conta muda.
 
+### 8. A repetição tem três formas, e duas delas não são óbvias
+
+O `*N|` colapsa linhas idênticas adjacentes, e é o que a maioria espera de um RLE. As outras
+duas são as que aparecem em dado de sistema.
+
+O `*N+delta|` cobre sequência com passo constante: `[100, 105, ... 155]` sai como
+`*12+5|\100`, 47 B virando 18, com nenhum dos doze valores escrito. E o `*N~d1,d2,...|` cobre
+sequência periódica, quando o passo cicla: o ciclo é pago uma vez e vale para o run inteiro.
+
+Isso importa além do byte, porque um `*N|` **já é uma contagem** e um `*N+delta|` **já é uma
+progressão**. É o que deixa a `view` responder sobre contagem, mínimo e máximo sem materializar
+a coluna.
+
 ## Onde isto se aplica hoje
 
 **O `.8` fechou funcionalidade, não desempenho.** As quatro famílias de wire estão soldadas e

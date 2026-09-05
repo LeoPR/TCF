@@ -97,6 +97,21 @@ domains, URL roots, codes from the same family. It writes the fragment once and 
 rest. It is bidirectional front-coding, and the "bidirectional" is what captures the shared
 suffix, not only the prefix.
 
+Finding the longest shared affix between strings is a problem with a family of its own: **prefix
+and suffix trees**, from tries to the **Patricia/radix tree** (Morrison, 1968) and suffix trees.
+Comparing each value against every earlier one is quadratic, and on real data that does not
+close.
+
+What runs today is not a tree, it is a **trigram index**: instead of comparing against the whole
+history, it uses three-character fragments to find the few candidates that can share an affix.
+It measured a 5.4x speedup and takes the cost from O(N²) to about **O(N^1.42)**, sub-quadratic.
+
+The Patricia trie is on file as a candidate for after 1.0, and that is not modesty: a
+feasibility study compared the two and the decision was to **keep the trigram index**. A
+Patricia gives deterministic traversal and alphabetical ordering for free, and charges for it in
+cache locality, because its pointers scatter where a hash table concentrates. Swapping would
+also mean redoing the byte-canonical gates, since the structure changes which affix wins a tie.
+
 **HCC** (Hierarchical Compositional Coding) decides what is worth naming and groups repetition.
 It takes OBAT's tokens and factors recurring compositions into reusable named references. It
 also collapses consecutive repeats, including near-identical sequences such as IDs that only
@@ -108,6 +123,63 @@ fragments, in the spirit of Re-Pair and Sequitur, operating on tokens rather tha
 Each column runs its own pipeline, and for each one the encoder generates the candidates and
 writes the **smallest**: `min(tcf, raw, dictionary, split)`. The result is never worse by
 construction. You do not need to test whether the format inflated your data, because it cannot.
+
+## The three shapes of repetition
+
+HCC collapses repetition, and that is more than "the same value N times". There are three
+shapes, and the last two are the ones that show up in system data.
+
+**Identical adjacent rows**, the `*N|` marker. It is what appears in the cidade column of the
+example above:
+
+```
+["Sao Paulo"] * 5 + ["Rio de Janeiro"]
+
+#TCF.8
+*5|Sao Paulo
+Rio de Janeiro
+```
+
+64 bytes become 35.
+
+**A sequence with a constant step**, `*N+delta|`. This is the case of incremental IDs, order
+numbering, any column that walks by a fixed amount:
+
+```python
+from tcf import decode, encode
+
+ids = [str(i) for i in range(100, 160, 5)]
+wire = encode(ids)                  # 12 values
+assert decode(wire) == ids
+```
+
+The entire wire is this:
+
+```
+#TCF.8
+*12+5|\100
+```
+
+47 bytes become 18, and none of the twelve values is written down. The first value, the step and
+the count are, and `decode` rebuilds the rest.
+
+**A periodic sequence**, `*N~d1,d2,...|`, when the step cycles instead of staying constant:
+
+```
+[0, 3, 10, 13, 20, 23, 30, 33, ...]
+
+#TCF.8!!
+0
+3
+*14~3,7|10
+```
+
+The `3,7` cycle is paid once and covers the fourteen rows that follow.
+
+And this is where readability stops being comfort and becomes capability. `*5|Sao Paulo` **is
+already a count**: knowing how many rows carry that value means reading the `5`, not expanding
+five strings. `*12+5|` **is already a progression**, so minimum, maximum and sum can be answered
+without materializing the column. That property is what the next section uses.
 
 ## Nature filters, when the data has a fixed shape
 
