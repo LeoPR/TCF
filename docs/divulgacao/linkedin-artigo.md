@@ -1,51 +1,36 @@
-# Comprimir uma tabela e ainda conseguir perguntar coisas a ela
+# TCF: comprimir tabelas sem virar um blob que ninguém abre
 
-*Artigo técnico. Cada número aqui tem um comando que o reproduz no repositório, e nenhum foi
-escrito sem o roundtrip fechar antes. Onde a biblioteca não ajuda, o texto diz que não ajuda.*
+*Artigo técnico, derivado do README do repositório. Cada número aqui já vive num teste ou num
+relatório datado do projeto, e os blocos de código desta página rodam na suíte.*
 
-Fonte: [`2026-09-04-fonte-0.8.4.md`](2026-09-04-fonte-0.8.4.md), onde cada número aponta para
-o teste ou o relatório datado que já era dono dele. Os blocos de código desta página rodam na
-suíte do projeto.
+Fonte: [`2026-09-04-fonte-0.8.4.md`](2026-09-04-fonte-0.8.4.md).
 
 ---
 
-Quando dois sistemas trocam uma tabela, o formato mais usado repete o nome de cada campo em
-toda linha. É uma escolha que faz sentido, porque cada registro fica autônomo e legível
-sozinho, e é também a razão de o payload crescer com a redundância em vez de crescer com a
-informação.
+Para um sistema, uma tabela é texto que precisa ser guardado e transmitido. Os formatos mais
+usados para isso têm um custo que não se vê de cara: o JSON repete o nome de cada campo em toda
+linha, o CSV não repete nada mas também não aproveita nada, e o gzip resolve o tamanho
+transformando tudo num bloco opaco, que você só consegue ler depois de descomprimir inteiro.
 
-Num cadastro de quatro pessoas e cinco campos, o JSON compacto dá 451 bytes e o CSV dá 277. A
-diferença de 174 bytes é quase inteiramente nome de campo repetido.
+O TCF (Tabular Compact Format) ocupa a faixa entre esses dois mundos. Ele comprime parecido com
+um gzip, com uma diferença: o resultado **continua texto ASCII que você abre e inspeciona**,
+sem descomprimir. Não fica tão óbvio quanto o original, porque quanto mais ele fatora, mais
+denso o texto. Mas nunca vira um blob opaco.
 
-O TCF ocupa uma faixa entre os dois e o compressor binário. Ele fatora o que se repete,
-referencia o resto, e o resultado continua sendo texto ASCII que você abre e lê. O mesmo
-cadastro dá 242 bytes.
+É um formato sem perdas: `decode(encode(x)) == x`, sempre.
 
-Este texto trata de três coisas: por que a comparação com gzip costuma ser mal colocada, o que
-o formato garante sobre tamanho antes de você chamar, e onde ele não compensa.
+## O mesmo dado em três formatos
 
-## A comparação com gzip está no lugar errado, e isso tem consequência prática
+Um cadastro de quatro pessoas e cinco campos, com todos os formatos medidos compactos.
 
-A objeção que aparece primeiro é "e por que não só ligar o gzip?". Ela merece medição em vez
-de defesa, e a medição tem duas partes.
+**JSON**, 451 bytes: repete o nome de cada campo em toda linha.
 
-**Em transmissão, o compressor é invisível.** O `Content-Encoding` é negociado pelo transporte,
-não pelo seu código. Quando o seu handler lê o corpo, ele já foi inflado, e você raramente
-chega a ver que houve compressão. Não existe escolher TCF contra brotli nessa camada, porque
-os dois nem aparecem no mesmo ponto do fluxo. A pergunta que sobra é outra: **o que o meu
-processo segura e faz parse depois que o canal terminou o trabalho invisível dele.**
+**CSV**, 277 bytes: joga os nomes fora, uma linha por registro.
 
-Isso não torna o canal grátis. Ele gasta memória e CPU para inflar, a cada requisição, e a
-conta só é paga uma camada abaixo. É parte do total, não algo fora dele.
-
-**Em disco, o compressor vira decisão visível, e aí ele cobra opacidade.** O blob comprimido é
-a coisa que você tem, e para ler qualquer parte dele você infla o todo. Não existe ler uma
-coluna, contar um valor, ou filtrar uma linha antes de o payload inteiro voltar a existir.
-
-## O que muda quando o comprimido continua legível
+**TCF**, 242 bytes: o que se repete vira referência, e o que é único fica cru.
 
 ```python
-from tcf import encode, view
+from tcf import decode, encode
 
 tabela = {
     "nome":   ["Ana Souza", "Bruno Lima", "Carla Nunes", "Diego Rocha"],
@@ -57,22 +42,12 @@ tabela = {
                "333.333.333-33", "444.444.444-44"],
 }
 
-wire = encode(tabela)               # 242 B
-v = view(wire)                      # nada foi decodificado ainda
-
-v.columns                           # ['nome', 'email', 'cidade', 'plano', 'cpf']
-v.nrows                             # 4
-v.distinct("cidade")                # ['Rio de Janeiro', 'Sao Paulo']
-v.group_count("plano")              # {'Premium': 3, 'Basic': 1}
-v.where("plano", "Premium")         # 3 linhas, sem materializar as outras
-v.column_bytes("cpf")               # 59 B de 193 B
+wire = encode(tabela)
+assert decode(wire) == tabela
+assert len(wire.encode("utf-8")) == 242
 ```
 
-Nenhuma dessas chamadas decodifica a tabela inteira. A última é a que costuma surpreender quem
-está dimensionando: dá para perguntar quanto cada coluna está custando, dentro do próprio
-artefato, sem desmontar nada.
-
-E o wire é o dado. Não é um dump hexadecimal, é isto:
+E o wire é isto, saída real do `encode`:
 
 ```
 #TCF.8M!2c=nome,2a=email,1c=cidade,14=plano,!cpf
@@ -94,119 +69,136 @@ Basic
 444.444.444-44
 ```
 
-Os nomes das colunas aparecem uma vez, no cabeçalho, e não uma vez por linha. No corpo,
-`*3|Sao Paulo` é RLE: o valor se repete em três linhas adjacentes e é escrito uma vez. E `^1`
-é referência de linha: em vez de gravar `Premium` pela terceira vez, aponta para a ocorrência
-anterior. A coluna de e-mail usa composição por afixos, que é o mecanismo do tokenizador e
-está descrito na [spec do formato](../algorithms/TCF-format.pt-BR.md).
+Os nomes das colunas aparecem uma vez, no cabeçalho. `*3|Sao Paulo` diz que há três linhas
+iguais ali, escritas uma vez. `^1` diz "igual à linha 1". O domínio `@acme.com.br` foi escrito
+uma vez e referenciado nos outros três e-mails.
 
-Nada disso é decoração. É o mesmo dado, e ele volta idêntico.
+## Como ele faz isso: duas camadas
 
-## O contrato de tamanho, que é avaliável antes da chamada
+**OBAT** (Online Bidirectional Affix Tokenizer) acha o que as strings têm em comum. Para cada
+valor, procura o maior prefixo **e** sufixo compartilhado com os anteriores: domínios de e-mail,
+raízes de URL, códigos da mesma família. Escreve o trecho uma vez e referencia o resto. É um
+front-coding bidirecional, e o "bidirecional" é o que captura o sufixo comum, não só o prefixo.
 
-A biblioteca faz uma afirmação verificável, e não uma promessa de marketing.
+**HCC** (Hierarchical Compositional Coding) decide o que vale a pena nomear e agrupa
+repetições. Pega os tokens do OBAT e fatora composições recorrentes em referências nomeadas
+reutilizáveis. Também colapsa repetições consecutivas, inclusive sequências quase iguais, tipo
+IDs que só mudam no fim. Como referência aponta para referência, o resultado é um grafo
+acíclico de fragmentos, no espírito do Re-Pair e do Sequitur, operando sobre tokens em vez de
+bytes.
 
-> Para cada coluna, o codificador gera as candidatas e grava a **menor**:
-> `min(tcf, cru, dicionário, split)`. O resultado é **nunca pior por construção**.
+Cada coluna passa por um pipeline próprio, e para cada uma o codificador gera as candidatas e
+grava a **menor**: `min(tcf, cru, dicionário, split)`. O resultado é nunca pior por construção.
+Não é preciso testar para descobrir se o formato inchou o seu dado, porque ele não pode inchar.
 
-O que faz disso um contrato é a segunda metade. Não é "costuma ser menor", é uma propriedade
-da estrutura do codificador: ele não tem como emitir a candidata pior, porque escolhe pelo
-mínimo. O pior caso é empatar com a representação crua, e o custo do empate é o cabeçalho.
+## Filtros por natureza, quando o dado tem forma fixa
 
-Na prática isso muda quanto custa experimentar. Não é preciso rodar um piloto para descobrir
-se o formato inchou o seu dado, porque ele não pode inchar.
+Alguns valores têm uma estrutura que o compressor genérico não aproveita. Um CPF
+`123.456.789-09` tem nove dígitos úteis: a pontuação é fixa, e os dois dígitos finais são
+calculados a partir dos outros. O filtro opt-in guarda só os nove, e o `decode` recalcula o
+verificador e reinsere a pontuação. Reconstrução exata.
 
-O `sort_by` mostra a regra funcionando quando algo novo entra. Ordenar a tabela por uma chave
-ajuda quando as outras colunas são função dela, e atrapalha quando são independentes, porque a
-permutação agrupa os iguais da chave e desarruma todo o resto. Medido numa tabela de 60 linhas:
-**−43,0%** no primeiro caso e **+52,1%** no segundo.
+Quatro CPFs em coluna única: 69 bytes sem o filtro, 39 com ele, −43%. Existem filtros para CPF,
+CNPJ e IPv4, e todos são **nunca-pior**: competem com o pipeline comum e só vencem se
+encolherem. Valor que não casa a forma vira literal na mesma coluna, sem quebrar o roundtrip.
 
-A solução não foi escolher um lado. O `sort_by` deixou de ordenar e passou a **propor** uma
-ordenação, e o FLOOR decide se ela entra. Nos sete casos medidos, isso evita 734 bytes de
-perda, e o usuário não precisa saber em qual dos dois regimes o dado dele está.
+Um detalhe que importa: um filtro não é um tipo. O TCF nunca valida semântica, não checa se um
+CPF existe. É uma hipótese sobre a **forma** do texto, e a string volta byte a byte.
 
-## Como o contrato é verificado
+## Consultar quase sem descomprimir
 
-Três mecanismos, e nenhum deles é a suíte passando.
+Um bloco gzip no disco faz você alocar memória e descomprimir tudo para só então varrer os
+dados. A estrutura do TCF funciona como índice: `*N|` já é uma contagem pronta, `^1` já é
+dedup visível. Dá para contar, agrupar e somar lendo os marcadores, materializando só o pedaço
+necessário.
 
-**A regra §RT**, que é de processo e não de código. Está escrita como invariante no guia do
-projeto: `decode(encode(x)) == x` vem antes de qualquer número, e sem roundtrip o número não
-entra em prosa, nem em tabela, nem em commit. Todo tamanho deste artigo passou por ela, e o
-script que os reproduz sai com erro se um roundtrip falhar.
+A `view()` é a API sobre isso. Conecta sem descomprimir e só materializa a coluna e as linhas
+que o agregador precisa.
 
-**Os gates byte-canônicos**, que fixam a saída esperada de conjuntos conhecidos e falham
-vermelho se um único byte mudar. É o que impede uma otimização de alterar o wire sem ninguém
-perceber.
+```python
+from tcf import encode, view
 
-**O baseline de performance pinado**, com a matriz de casos travada por hash. Ele se recusa a
-comparar duas rodadas quando a matriz ou o plano diferem, em vez de casar o que não casa. Isso
-custou caro uma vez, e de um jeito instrutivo: um hook do próprio repositório acrescentou uma
-quebra de linha no arquivo de casos, o hash mudou, e os três planos ficaram dez dias
-inexecutáveis sem ninguém notar, porque ninguém rodou. Um instrumento que ninguém roda não
-avisa que quebrou.
+tabela = {
+    "cliente": ["Ana Souza", "Bruno Lima", "Carla Nunes",
+                "Diego Rocha", "Eva Martins", "Ana Souza"],
+    "cidade":  ["Sao Paulo", "Sao Paulo", "Sao Paulo",
+                "Rio de Janeiro", "Sao Paulo", "Rio de Janeiro"],
+    "plano":   ["Premium", "Premium", "Basic", "Premium", "Basic", "Premium"],
+    "valor":   [120, 100, 170, 200, 80, 80],
+}
 
-## Escrever é caro, ler é barato, e isso decide onde usar
+blob = encode(tabela)                           # 187 B de texto ASCII
+v = view(blob)                                  # conecta, não descomprime nada
 
-O trabalho está concentrado no `encode`. O `decode` é leitura quase sem laço, e a `view` é
-menos ainda, porque acessa por aritmética em vez de percorrer.
+v.count()                                       # 6, não toca coluna nenhuma
+v.distinct("cidade")                            # ['Sao Paulo', 'Rio de Janeiro']
+v.sum("valor")                                  # 750.0, toca: valor
+v.where("cidade", "Sao Paulo").sum("valor")     # 470.0, toca: cidade, valor
+v.group_sum("cidade", "valor")                  # {'Sao Paulo': 470.0, 'Rio de Janeiro': 280.0}
+v.group_count("plano")                          # {'Premium': 4, 'Basic': 2}
+```
 
-Numa tabela de 3000 por 15 com baixa cardinalidade, o encode leva 934,6 ms e o decode 83,7 ms,
-uma razão de 11,2×. A razão **não é constante**: medida sobre a 0.8.4, ela varia de 3,6× a
-1.060× conforme a forma do dado, então o honesto é dizer que é uma faixa de duas ordens de
-grandeza, e não um número.
-
-Isso importa mais do que parece, porque a decisão não é cliente contra servidor, é a topologia
-do dado. Se o dado é **cacheável**, você paga o encode uma vez e distribui muitas, e a
-assimetria trabalha a seu favor. Se ele é **personalizado por requisição**, você paga o encode
-toda vez, e a conta muda de sinal.
+A soma filtrada materializou só `cidade` e `valor`, 39,9% do blob. `cliente` e `plano` nunca
+foram descomprimidos.
 
 ## Os números em conjunto maior
 
-O cadastro de quatro registros é bom para explicar e ruim para dimensionar. Em conjuntos
-reais:
+Nos 15 datasets sintéticos do EXP-008, sem nenhum compressor, o TCF é o formato de texto mais
+compacto do conjunto: 3131 bytes contra 4872 do CSV, cerca de 36% menor.
 
-Nos 8 datasets do EXP-019, o conjunto caiu de 390.863 para 290.949 bytes, ou **−25,6%**, com a
-faixa indo de −4,1% a −46,6% conforme o dado. Em multi-coluna real, 9 tabelas do Adult e do
-TPC-H somando 136 mil linhas, são **−33,02% ponderado** contra o CSV cru.
+Em multi-coluna real, 9 tabelas do Adult e do TPC-H somando 136 mil linhas, são **−33,02%
+ponderado** contra o CSV cru. E nos 8 datasets reais do EXP-019, o conjunto caiu de 390.863
+para 290.949 bytes, **−25,6%**, com a faixa indo de −4,1% a −46,6% conforme o dado.
 
-E o formato lê estrutura aninhada desde a 0.8. Ele consome o **dataset** que a sua linguagem
-monta a partir do JSON, não o texto do JSON, então objeto aninhado, lista, `null` e
-`true`/`false` tipados voltam byte a byte. Dois registros com uma lista dentro: 184 bytes em
-JSON compacto contra 144 no TCF.
+O formato lê estrutura aninhada desde a 0.8. Ele consome o dataset que a sua linguagem monta a
+partir do JSON, então objeto aninhado, lista, `null` e booleanos tipados voltam byte a byte.
+Dois registros com uma lista dentro: 184 bytes em JSON compacto, 144 no TCF com o filtro de
+CPF.
 
-## Onde isto não se aplica hoje
+## E contra gzip, brotli, zstd?
 
-**Sob `gzip`, o TCF não ganha.** No cadastro pequeno os três formatos empatam dentro de 1 byte:
-206, 205 e 206. Onde ele ganha é cru, sob `br` e sob `zstd`.
+Não é concorrente, é uma camada por baixo. Em transmissão, o `Content-Encoding` é negociado
+pelo transporte e é invisível ao seu código: quando o handler lê o corpo, ele já foi inflado.
+A pergunta honesta não é "TCF ou brotli", é **o que o meu processo segura e faz parse depois
+que o canal fez o trabalho invisível dele**.
 
-**No tamanho minúsculo, o CSV passa.** 162 bytes contra 185 sob brotli. Vale a ressalva de que
-CSV raramente é payload de API e de que ele não tem `view`, mas o número é o número.
+No cadastro de quatro registros, sob compressão de canal em nível máximo:
 
-**A otimização de algoritmo ainda não aconteceu.** O ciclo atual fechou funcionalidade, com as
-quatro famílias de wire soldadas e publicadas. O ciclo seguinte é o de desempenho, então os
-tempos acima são de código não otimizado. Eles estão pinados justamente para haver contra o
-que comparar depois.
+| formato | cru | gzip | br | zstd |
+|---|---:|---:|---:|---:|
+| JSON | 451 | 206 | 195 | 197 |
+| JSONL | 449 | 205 | 194 | 194 |
+| CSV | 277 | 177 | 162 | 165 |
+| **TCF** | **242** | 206 | **185** | **193** |
 
-**Comparação com formato de armazenamento não foi feita.** Parquet, ORC e afins ocupam um lugar
-diferente, e medir contra eles exige um desenho próprio que ainda não existe. Dizer qualquer
-coisa sobre isso agora seria chute.
+Sob `gzip` os três formatos de API empatam dentro de 1 byte. O TCF ganha cru, sob `br` e sob
+`zstd`. E o CSV, que raramente é payload de API e não tem `view`, é menor depois de comprimido
+neste tamanho minúsculo.
 
-**É pré-1.0.** O dígito do meio ainda pode mexer no que sai, e cada mudança entra no changelog
-com a medição atrás.
+## Onde isto se aplica hoje
 
-Vale uma última: cada número desta página é medido, o que não é o mesmo que provado. É razoável
-supor que exista um caso desfavorável que eu ainda não medi.
+**É pré-1.0**, na 0.8.4. O ciclo atual fechou funcionalidade: quatro famílias de wire
+soldadas e publicadas. O ciclo seguinte é o de otimização de algoritmo, e ainda não começou.
+
+**Escrever é caro, ler é barato.** O trabalho está no `encode`, na busca de afixos. O `decode`
+é uma passada linear única, com lookups O(1) e sem busca. Isso decide onde o formato compensa:
+dado cacheável paga o encode uma vez e distribui muitas; dado personalizado por requisição paga
+toda vez.
+
+**Sob `gzip`, o TCF não ganha.** No tamanho minúsculo, o CSV passa.
+
+**Comparação com Parquet e formatos de armazenamento não foi feita.** Ocupam um lugar diferente
+e merecem medição própria.
 
 ## Prático
 
-Python 3.10 ou mais novo, zero dependências, MIT, pré-1.0. A superfície pública são 18 nomes, e
-a suíte tem 2005 testes passando.
+Python 3.10 ou mais novo, zero dependências de runtime, MIT.
 
 ```
 pip install tcf-format
 ```
 
-O código, as medições e a documentação do que não funciona estão abertos.
+O código, as medições e a documentação do que não funciona estão abertos:
 
 https://github.com/LeoPR/TCF
 
