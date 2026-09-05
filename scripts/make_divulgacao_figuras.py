@@ -19,6 +19,9 @@ from __future__ import annotations
 
 import gzip
 import json
+import re
+import shutil
+import subprocess
 import sys
 from pathlib import Path
 
@@ -400,20 +403,56 @@ FIGURAS = (("0-capa", capa), ("1-formatos", fig_formatos),
            ("5-pipeline", fig_pipeline))
 
 
-def para_png(svg: Path) -> bool:
-    try:
-        import cairosvg
-    except ImportError:
+ESCALA_PNG = 2                       # o LinkedIn reamostra; 1x sai sujo depois disso
+
+NAVEGADORES = (
+    r"C:/Program Files/Google/Chrome/Application/chrome.exe",
+    r"C:/Program Files (x86)/Google/Chrome/Application/chrome.exe",
+    r"C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe",
+    r"C:/Program Files/Microsoft/Edge/Application/msedge.exe",
+    "/usr/bin/google-chrome",
+    "/usr/bin/chromium",
+)
+
+DIMENSAO = re.compile(r'<svg[^>]*width="(\d+)"[^>]*height="(\d+)"')
+
+
+def _navegador() -> str | None:
+    for caminho in NAVEGADORES:
+        if Path(caminho).is_file():
+            return caminho
+    return shutil.which("chrome") or shutil.which("chromium") or shutil.which("msedge")
+
+
+def para_png(svg: Path, navegador: str | None) -> bool:
+    """Renderiza o SVG num navegador headless e grava o PNG ao lado.
+
+    Preferido a `cairosvg` porque nao instala nada: o navegador ja' esta' na maquina, e
+    `cairosvg` arrastaria a cadeia nativa do cairo so' pra este uso.
+    """
+    if not navegador:
         return False
-    cairosvg.svg2png(url=str(svg), write_to=str(svg.with_suffix(".png")))
-    return True
+    m = DIMENSAO.search(svg.read_text(encoding="utf-8"))
+    if not m:
+        return False
+    w, h = int(m.group(1)), int(m.group(2))
+    png = svg.with_suffix(".png")
+    png.unlink(missing_ok=True)
+    subprocess.run(
+        [navegador, "--headless=new", "--disable-gpu", "--hide-scrollbars",
+         f"--force-device-scale-factor={ESCALA_PNG}", f"--window-size={w},{h}",
+         f"--screenshot={png}", svg.resolve().as_uri()],
+        capture_output=True, timeout=90,
+    )
+    return png.is_file()
 
 
 def main() -> int:
     d = medidos()
     print(f"roundtrip validado; wire {len(d['wire'].encode())} B, "
           f"blob de vendas {len(d['blob'].encode())} B\n")
-    png = None
+    navegador = _navegador()
+    faltou = []
     for lang in LINGUAS:
         print(f"[{lang}]")
         pasta = CANAL / "figuras" / lang
@@ -421,12 +460,15 @@ def main() -> int:
         for nome, fn in FIGURAS:
             alvo = pasta / f"{nome}.svg"
             fn(lang, d).grava(alvo)
-            png = para_png(alvo)
-            print(f"  {alvo.relative_to(RAIZ).as_posix()}")
-    if png is False:
-        print("\nSVG so': `cairosvg` nao esta' instalado, entao nao gerei PNG. O LinkedIn "
-              "pede PNG pra subir;\nconverta os SVG (qualquer navegador ou editor abre) ou "
-              "instale cairosvg no venv.")
+            marca = "svg+png" if para_png(alvo, navegador) else "svg"
+            if marca == "svg":
+                faltou.append(alvo.name)
+            print(f"  {alvo.relative_to(RAIZ).as_posix():<52} {marca}")
+    if faltou:
+        print(f"\nSem PNG em {len(faltou)} figura(s): nao achei Chrome nem Edge. O LinkedIn "
+              "nao aceita SVG,\nentao converta antes de publicar.")
+    else:
+        print(f"\nPNG em {ESCALA_PNG}x ao lado de cada SVG, prontos pra subir.")
     return 0
 
 

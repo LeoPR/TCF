@@ -2,9 +2,26 @@
 
 # `docs/divulgacao/`: material para apresentar o TCF
 
-Peças para mostrar o projeto publicamente. É material de apoio, não é a documentação da
-biblioteca, que fica nas pastas irmãs desta. Não publica medição nova: todo número vem de um
-documento datado do repositório, e cada um nomeia onde é reproduzido.
+Esta pasta reúne textos e figuras para apresentar o projeto fora do repositório. A
+documentação de uso fica nas pastas irmãs. As peças adaptam evidências existentes:
+cada medição deve conservar sua fonte, base de comparação e escopo.
+
+## Público e finalidade
+
+Os textos compartilham fatos, não uma redação única. A organização deve responder à
+pergunta que traz o leitor a cada lugar:
+
+| superfície | necessidade do leitor | prioridade editorial |
+|---|---|---|
+| [README do GitHub](../../README.pt-BR.md) | entender, avaliar ou contribuir para o projeto | proposta, início rápido, formato, evidências, limites e navegação técnica |
+| [página do PyPI](../../README.pypi.md) | instalar a biblioteca e usá-la em Python | versão mínima, nome de instalação/importação, exemplos completos, contratos e compatibilidade; links absolutos |
+| artigo do LinkedIn | compreender uma ideia sem conhecer o projeto | contexto, exemplo, explicação, utilidade e conclusão; introduzir termos antes de depender deles |
+| post do LinkedIn | decidir se vale abrir o artigo | uma ideia central, exemplo curto, ressalva relevante e convite à leitura |
+| fonte de divulgação | verificar o que pode ser afirmado | fatos, proveniência, exemplos testáveis e limites; sem linguagem de chamada |
+
+O artigo pode desenvolver um argumento; o README deve facilitar a consulta e a avaliação.
+O post não precisa reproduzir o catálogo de funcionalidades, e a página do PyPI não precisa
+repetir a explicação interna do algoritmo.
 
 ## Como está organizado
 
@@ -18,63 +35,67 @@ A regra que mantém os dois alinhados: nenhum texto de canal muda sem a fonte da
 |---|---|
 | [`2026-09-04-lancamento.md`](2026-09-04-lancamento.md) / [`2026-09-04-release.en.md`](2026-09-04-release.en.md) | a fonte de notícia atual (PT / EN) |
 | [`linkedin/post.*`](linkedin/) | a peça curta do feed, uma por língua |
-| [`linkedin/artigo.*`](linkedin/) | o artigo, uma por língua, **já pronto para colar** |
-| [`linkedin/figuras/<língua>/`](linkedin/figuras/) | as cinco figuras, uma pasta por língua |
+| [`linkedin/artigo.*`](linkedin/) | o artigo, um por língua, com notas de publicação separadas |
+| [`linkedin/figuras/<língua>/`](linkedin/figuras/) | as figuras, uma pasta por língua |
 
-São dois textos por língua e nada além disso. O LinkedIn tem duas áreas, o post do feed, com
-limite duro de caracteres, e o artigo, que aceita texto longo mas numa coluna estreita. Cada
-arquivo atende uma delas.
+Há dois textos por língua: chamada para o feed e artigo longo. As notas no início de cada
+arquivo são instruções para publicação e não fazem parte do texto destinado ao leitor.
 
 Fica sob `docs/` porque **documento de divulgação é documento**. Uma segunda hierarquia na raiz
 faria o leitor escolher entre dois lugares para procurar a mesma coisa.
 
-**O artigo já sai pronto para colar.** O editor do LinkedIn não renderiza tabela e a coluna é
-estreita, então o artigo não tem tabela: onde ela caberia, ele chama a figura `4-tabela`, que sai
-dos mesmos números para texto e imagem não divergirem. Os blocos de código também são estreitos
-por isso. Cole o texto e suba as figuras onde ele as chama.
+O artigo usa figuras para as comparações tabulares e blocos de código curtos para facilitar
+a leitura em coluna estreita. Ao publicar, aplique títulos, links e blocos no editor,
+insira as imagens indicadas e confira a prévia. Colar Markdown não dispensa essa conferência.
 
 As figuras ficam em `linkedin/figuras/<língua>/`, uma subpasta por língua para o diretório do
 canal não misturar texto com binário. O `scripts/make_divulgacao_figuras.py` gera todas, e
 rodá-lo regenera tudo. Elas obedecem à mesma regra dos números do texto: existe um comando que
 as reproduz.
 
-Elas saem em **SVG**, que é texto e dá para editar. O PNG que o LinkedIn pede sai junto só se
-`cairosvg` estiver instalado, e o script avisa em vez de falhar quando não está.
+Saem em **SVG e PNG** lado a lado. O SVG é texto, o repositório versiona e o GitHub renderiza;
+o PNG é o que se sobe, porque **o LinkedIn não aceita SVG**.
 
-Nenhuma é ilustração. As barras são bytes medidos com o roundtrip validado antes, o wire
-desenhado é o que o `encode` devolve de fato, e as colunas materializadas da figura 3 saem do
-`view.report()`.
+A conversão usa o Chrome ou o Edge da própria máquina, em modo headless, e por isso não instala
+nada. Sai em 2× de propósito: o LinkedIn reamostra a imagem para baixo, e texto fino em 1×
+fica sujo depois disso. Sem navegador, o script avisa quais figuras ficaram sem PNG em vez de
+falhar.
 
-São cinco por língua, numeradas na ordem de leitura: `0-capa` é o quadro 1.91:1 do topo,
-`1-formatos` compara os quatro formatos, `2-wire` anota a saída real, `3-view` mostra o que uma
-consulta materializa, e `4-tabela` é a tabela de compressão que o editor não renderiza.
+As figuras de resultados usam evidência executável: as barras representam bytes medidos
+após round-trip, o texto codificado vem de `encode` e a figura de consultas usa
+`view.report()`. Isso não elimina a necessidade de revisar legendas e conclusões.
+
+São seis SVGs por língua: `0-capa` é a capa 1.91:1; `1-formatos` compara os formatos;
+`2-wire` anota a saída; `3-view` mostra as colunas consultadas; `4-tabela` compara a
+compressão externa; `5-pipeline` apresenta as etapas de codificação. Use apenas as figuras
+citadas na peça, não necessariamente todo o conjunto.
 
 Aqui o português é a língua canônica, ao contrário do resto do projeto, porque o público a que
 estes textos se dirigem lê português primeiro. O inglês é a tradução.
 
 ## Limites de cada canal
 
-- **Post do LinkedIn** (`linkedin/post.*`): cerca de 3.000 caracteres, e só as duas ou três
-  primeiras linhas aparecem antes do "ver mais". Essas linhas não podem conter jargão: o público
-  é largo, e uma primeira frase que só fala com quem já conhece compressão filtra em vez de
-  convidar. Contexto antes de jargão, densidade sem tom professoral, e um fecho que fecha em vez
-  de parar. Hashtags no fim e sem acento, porque hashtag acentuada quebra a busca do LinkedIn.
-- **Artigo do LinkedIn** (`linkedin/artigo.*`): formato longo, com títulos renderizando, bom
-  para a versão que carrega os números. **Tabela não renderiza e a coluna é estreita**, então
-  nada de tabela e nada de linha larga: o que seria tabela vira figura. Termina com o link do
-  repositório.
+- **Post do LinkedIn** (`linkedin/post.*`): orçamento de até 3.000 caracteres no corpo,
+  incluindo links e hashtags. Reserve margem para o URL definitivo. A abertura deve fazer
+  sentido isoladamente na prévia, cujo corte varia com a interface. Use texto simples,
+  contexto antes do jargão e hashtags ao final; as grafias sem acento são uma convenção editorial.
+- **Artigo do LinkedIn** (`linkedin/artigo.*`): texto longo, com desenvolvimento do argumento
+  e transições entre seções. Use figuras em vez de tabelas largas e explique os exemplos
+  antes de extrair conclusões. Termine com os limites e o caminho para experimentar o projeto.
 
 ## Antes de publicar
 
-**Nenhum número destes textos tem instrumento próprio, e isso é deliberado.** Cada um continua
-pertencendo a quem já era dono dele: os tamanhos canônicos ao `tests/test_regression_v1_baseline.py`,
-que pina byte a byte e roda o roundtrip da §RT; os ganhos em dado real ao relatório datado do
-EXP-019; os tempos ao baseline pinado do `scripts/bench_perf`. Um script de divulgação medindo o
-mesmo criaria uma segunda verdade para divergir da primeira.
+Verifique cada número na fonte indicada. Os
+[baselines](../../tests/test_regression_v1_baseline.py) protegem saídas canônicas; o
+[EXP-019](../../experiments/lab/clean/EXP-019-consistencia-0-8-4/report.md) compara duas
+representações internas do TCF, não TCF contra CSV; os
+[instrumentos de desempenho](../../scripts/bench_perf/) tratam de tempo e memória.
 
-O que a divulgação acrescenta é que **os exemplos rodam**. A fonte vigente e os artigos estão no
-`PAGINAS_DIDATICAS` do `tests/test_docs_snippets.py`, junto com o README e a referência, e a
-fonte carrega as próprias asserções de tamanho. Um número que ficar velho quebra a suíte.
+A fonte vigente e os artigos participam dos
+[testes de exemplos](../../tests/test_docs_snippets.py). Eles executam os blocos Python
+e suas asserções, mas não verificam automaticamente todos os números da prosa, as
+imagens ou a apresentação no LinkedIn. Confira também links, legendas, orçamento do post
+e a substituição do marcador pelo URL publicado.
 
 **O que estes textos evitam de propósito:**
 
@@ -84,7 +105,8 @@ fonte carrega as próprias asserções de tamanho. Um número que ficar velho qu
   aqui fica no `CHANGELOG.md`, nas ADR e nos labs datados, que é onde alguém procura de
   propósito. A razão é do leitor: quem chega agora nunca viu a versão antiga.
 
-**Não suavize a seção de limites.** Ela é curta, é verdadeira, e é a parte que dá credibilidade
-ao resto. Aqui ela inclui o que não favorece o projeto: sob `gzip` os formatos empatam dentro de
-1 B, o CSV passa o TCF depois de comprimido no tamanho minúsculo, a otimização de algoritmo é o
-ciclo seguinte e ainda não aconteceu, e a comparação com Parquet não foi feita.
+**Preserve as ressalvas junto das afirmações.** O empate sob gzip e a vantagem do CSV
+comprimido pertencem ao cadastro pequeno, não a todos os dados. Custos de codificação,
+compatibilidade pré-1.0 e ausência de comparação com formatos de armazenamento não devem
+sumir ao encurtar a peça. Consulte o [estado vigente](../../STATUS.md) para descrever o
+trabalho em curso.

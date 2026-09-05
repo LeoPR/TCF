@@ -1,39 +1,54 @@
 **English** · [Português](artigo.pt-BR.md)
 
-# TCF: compressing tables without turning them into a blob nobody can open
+# TCF: reducing repetitive data without hiding its structure
 
-*Technical article, derived from the repository README. Every number here already lives in a
-test or in a dated report of the project, and the code blocks on this page run in the suite.*
-
-Source: [`../2026-09-04-release.en.md`](../2026-09-04-release.en.md). The figures are in
-[`figuras/en/`](figuras/en/); upload `0-capa` to the header frame and the others where the text
-calls them.
+> **Publishing note, not part of the article.** This text is for LinkedIn Articles;
+> the short introduction is in [post.en.md](post.en.md).
+> Technical source: [release document](../2026-09-04-release.en.md).
+> Use `0-capa` from [figuras/en/](figuras/en/) as the cover and the other images where
+> indicated below. The Python examples run in the documentation test suite.
 
 ---
 
-To a system, a table is text that has to be stored and transmitted. The usual formats for that
-carry a cost you do not see at first: JSON repeats every field name on every row, CSV repeats
-nothing but also exploits nothing, and gzip solves the size by turning everything into an
-opaque block that you can only read after inflating it whole.
+Imagine a customer list: names, email addresses, cities and subscription plans. Many customers
+live in the same city, subscribe to the same plan or use email addresses with the same domain.
+Those repetitions are easy to spot in a table. The way the data is represented, however,
+does not always take advantage of what the records have in common.
 
-TCF (Tabular Compact Format) sits between those two worlds. It compresses much like gzip, with
-one difference: the result **stays ASCII text you can open and inspect**, without
-decompressing. It does not stay as obvious as the original, because the more TCF factors, the
-denser the text gets. But it never becomes an opaque blob.
+When that list needs to leave an application, whether as a file or a message to another
+system, it needs a representation. Two common choices are JSON and CSV. In JSON arranged
+as a list of objects, each record includes field names such as `city` and `plan`. In CSV
+with a header, those names appear once, but the values are still written on every row:
+a hundred customers in the same city means a hundred occurrences of its name.
 
-It is lossless: `decode(encode(x)) == x`, always.
+That repetition raises a question: **can we use less space while keeping some of the data's
+structure visible in the result?**
+
+TCF, short for *Tabular Compact Format*, explores that possibility. It replaces repetitions
+with references and groups while retaining a text representation that can be opened in an
+editor. Reading it requires learning a few markers, so it is not as immediately clear as
+the original table. Even so, values and patterns remain recognizable without reconstructing
+every record.
+
+There is one condition: no information can be lost. For supported inputs, encoding and then
+decoding must return the same data. That requirement lets us assess size reductions without
+confusing compression with discarding content.
 
 ## The same data in three formats
 
-Four people, five fields, every format measured compact.
+For a concrete example, consider four people with a name, email address, city, plan and CPF,
+a Brazilian individual taxpayer identifier. Three live in São Paulo, and all their email
+addresses end in `@acme.com.br`.
 
-**JSON**, 451 bytes: repeats every field name on every row.
-
-**CSV**, 277 bytes: drops the names, one line per record.
-
-**TCF**, 242 bytes: what repeats becomes a reference, what is unique stays raw.
+This data takes **451 bytes in compact JSON, 277 in CSV and 242 in TCF**, without an external
+compressor. These are measurements of this example, not a guaranteed ratio for every table.
+The figure also includes JSONL, which stores one JSON object per line.
 
 ![Proportional bars comparing JSON, JSONL, CSV and TCF in real bytes](figuras/en/1-formatos.svg)
+
+In Python, the table can be supplied as a dictionary of columns. `encode` produces the TCF
+text, and `decode` reconstructs the data. The example retains its Portuguese field names:
+`nome` means name, `cidade` means city, and `plano` means plan.
 
 ```python
 from tcf import decode, encode
@@ -50,162 +65,59 @@ table = {
 
 wire = encode(table)
 
-# the only guarantee that matters: the data comes back identical
 assert decode(wire) == table
 ```
 
-That is 242 bytes, and the line that matters is the last one: the round-trip closes, so
-nothing below cost any information.
+The last line checks that the reconstructed output equals the input. This is a *round-trip*
+check: the data makes the journey in both directions without changing.
 
-And the wire is this, real `encode` output:
+## What replaces the repetition
 
-```
-#TCF.8M!2c=nome,2a=email,1c=cidade,14=plano,!cpf
-Ana Souza
-Bruno Lima
-Carla Nunes
-Diego Rochaan*a*@acme.com.br
-brun*o3
-carl2,3
-dieg5,3
+In the city column, three consecutive occurrences of `Sao Paulo` can be represented by
+a single line:
+
+```text
 *3|Sao Paulo
-Rio de Janeiro
-*2|Premium
-Basic
-^1
-111.111.111-11
-222.222.222-22
-333.333.333-33
-444.444.444-44
 ```
 
-![The annotated wire, and what the CPF filter does to the column](figuras/en/2-wire.svg)
+The marker means "repeat this value three times." The information is still there; only
+the way it is written has changed. The emails offer another pattern: the `@acme.com.br`
+fragment is written once and referenced by the other values.
 
-Column names appear once, in the header. `*3|Sao Paulo` says there are three identical cidade
-rows, written once. `^1` says "same as row 1", which is how the fourth `plano` row becomes
-`Premium` again without being written out. And the domain `@acme.com.br` was written once and
-referenced by the other three e-mails.
+TCF combines two stages to find these opportunities. The first, called OBAT, looks for
+shared beginnings and endings, such as the email domain. The second, HCC, collects recurring
+fragments into reusable references and groups repetitions. Regular numeric sequences can
+also be described by a starting value, a step and a count instead of listing every item.
 
-The second half of the figure turns the CPF filter on: the column then stores 5 characters per
-value, and the wire drops from 242 to 210 bytes.
+Not every column offers savings. The encoder therefore compares the available representations
+and chooses the smallest for each column, including the option to store values without this
+compression. **This does not guarantee a file smaller than any JSON or CSV**: headers and
+other metadata also take space.
 
-## How it does that: two layers
+There are optional filters for known structures, including Brazilian CPF and CNPJ taxpayer
+identifiers and IPv4 addresses. For a CPF, fixed punctuation and check digits can be
+reconstructed when the value satisfies the filter's rules. Values that do not fit are
+preserved literally. This does not establish whether a CPF exists or belongs to anyone;
+it only takes advantage of the text's structure.
 
-**OBAT** (Online Bidirectional Affix Tokenizer) finds what the strings have in common. For each
-value it looks for the longest prefix **and** suffix shared with the previous ones: e-mail
-domains, URL roots, codes from the same family. It writes the fragment once and references the
-rest. It is bidirectional front-coding, and the "bidirectional" is what captures the shared
-suffix, not only the prefix.
+![Annotated TCF representation and comparison with the optional CPF filter](figuras/en/2-wire.svg)
 
-Finding the longest shared affix between strings is a problem with a family of its own: **prefix
-and suffix trees**, from tries to the **Patricia/radix tree** (Morrison, 1968) and suffix trees.
-Comparing each value against every earlier one is quadratic, and on real data that does not
-close.
+The figure shows the encoded customer list and the filter's effect on the CPF column.
+In this example, the total drops from 242 to 210 bytes while preserving the round-trip.
 
-What runs today is not a tree, it is a **trigram index**: instead of comparing against the whole
-history, it uses three-character fragments to find the few candidates that can share an affix.
-It measured a 5.4x speedup and takes the cost from O(N²) to about **O(N^1.42)**, sub-quadratic.
+## Why visible structure matters
 
-The Patricia trie is on file as a candidate for after 1.0, and that is not modesty: a
-feasibility study compared the two and the decision was to **keep the trigram index**. A
-Patricia gives deterministic traversal and alphabetical ordering for free, and charges for it in
-cache locality, because its pointers scatter where a hash table concentrates. Swapping would
-also mean redoing the byte-canonical gates, since the structure changes which affix wins a tie.
+So far, the benefit has been using less space. But a marker such as `*3|Sao Paulo` also
+states how many records that group represents. Reading that count does not require
+reconstructing three copies of the text. Certain sequences offer similar opportunities
+for numeric operations.
 
-**HCC** (Hierarchical Compositional Coding) decides what is worth naming and groups repetition.
-It takes OBAT's tokens and factors recurring compositions into reusable named references. It
-also collapses consecutive repeats, including near-identical sequences such as IDs that only
-change at the end. Since a reference points to a reference, the result is an acyclic graph of
-fragments, in the spirit of Re-Pair and Sequitur, operating on tokens rather than bytes.
+The `view()` function uses this property to query a TCF representation without reconstructing
+the entire output table. Depending on the query, the answer comes from metadata or markers;
+when those are insufficient, the necessary data is decoded.
 
-![One column's path: the candidates compete and FLOOR writes the smallest](figuras/en/5-pipeline.svg)
-
-Each column runs its own pipeline, and for each one the encoder generates the candidates and
-writes the **smallest**: `min(tcf, raw, dictionary, split)`. The result is never worse by
-construction. You do not need to test whether the format inflated your data, because it cannot.
-
-## The three shapes of repetition
-
-HCC collapses repetition, and that is more than "the same value N times". There are three
-shapes, and the last two are the ones that show up in system data.
-
-**Identical adjacent rows**, the `*N|` marker. It is what appears in the cidade column of the
-example above:
-
-```
-["Sao Paulo"] * 5 + ["Rio de Janeiro"]
-
-#TCF.8
-*5|Sao Paulo
-Rio de Janeiro
-```
-
-64 bytes become 35.
-
-**A sequence with a constant step**, `*N+delta|`. This is the case of incremental IDs, order
-numbering, any column that walks by a fixed amount:
-
-```python
-from tcf import decode, encode
-
-ids = [str(i) for i in range(100, 160, 5)]
-wire = encode(ids)                  # 12 values
-assert decode(wire) == ids
-```
-
-The entire wire is this:
-
-```
-#TCF.8
-*12+5|\100
-```
-
-47 bytes become 18, and none of the twelve values is written down. The first value, the step and
-the count are, and `decode` rebuilds the rest.
-
-**A periodic sequence**, `*N~d1,d2,...|`, when the step cycles instead of staying constant:
-
-```
-[0, 3, 10, 13, 20, 23, 30, 33, ...]
-
-#TCF.8!!
-0
-3
-*14~3,7|10
-```
-
-The `3,7` cycle is paid once and covers the fourteen rows that follow.
-
-And this is where readability stops being comfort and becomes capability. `*5|Sao Paulo` **is
-already a count**: knowing how many rows carry that value means reading the `5`, not expanding
-five strings. `*12+5|` **is already a progression**, so minimum, maximum and sum can be answered
-without materializing the column. That property is what the next section uses.
-
-## Nature filters, when the data has a fixed shape
-
-Some values carry a structure a generic compressor cannot exploit. A Brazilian CPF like
-`123.456.789-09` has nine useful digits: the punctuation is fixed, and the last two digits are
-computed from the others. The opt-in filter stores only the nine, and `decode` recomputes the
-check digits and reinserts the punctuation. Exact reconstruction.
-
-Four CPFs in a single column: 69 bytes without the filter, 39 with it, −43%. There are filters
-for CPF, CNPJ and IPv4, and all of them are **never-worse**: they compete with the ordinary
-pipeline and only win if they shrink it. A value that does not match the shape falls back to a
-literal in the same column, without breaking the round-trip.
-
-One detail that matters: a filter is not a type. TCF never validates semantics, and does not
-check whether a CPF exists. It is a hypothesis about the **shape** of the text, and the string
-comes back byte for byte.
-
-## Querying almost without decompressing
-
-A gzip block on disk makes you allocate memory and inflate everything before you can scan
-anything. TCF's structure works as an index: `*N|` is already a ready count, `^1` is already
-visible dedup. You can count, group and even sum by reading the markers, materializing only the
-part you need.
-
-`view()` is the API over that. It connects without decompressing and only materializes the
-column, and the rows, that the aggregator needs.
+Consider a table of customers and subscription amounts. We can count records, add amounts
+or filter by city. Here, `cliente` means customer and `valor` means amount:
 
 ```python
 from tcf import encode, view
@@ -219,71 +131,85 @@ table = {
 }
 
 blob = encode(table)
-v = view(blob)              # connects, decompresses nothing
+v = view(blob)
 
-v.count()                   # 6, touches no column at all
-v.sum("valor")              # 750.0, touches: valor
-v.group_count("plano")      # {'Premium': 4, 'Basic': 2}
-v.where("cidade", "SP").sum("valor")     # 470.0
+assert v.count() == 6
+assert v.sum("valor") == 750.0
+assert v.group_count("plano") == {"Premium": 4, "Basic": 2}
+assert v.where("cidade", "SP").sum("valor") == 470.0
 ```
 
-The filtered sum materializes only `cidade` and `valor`. The other two columns are never
-decompressed, and `view.report()` says how much of the blob was read.
+The last query needs only `cidade` and `valor`: one identifies the selected records, and
+the other supplies the amounts to add. There is no need to decode `cliente` or `plano`
+to answer that question.
 
 ![The columns a query materializes, and the ones never touched](figuras/en/3-view.svg)
 
-## The numbers on larger sets
+## What about traditional compressors?
 
-Across the 15 synthetic datasets of EXP-008, with no compressor at all, TCF is the most compact
-text format of the set: 3131 bytes against 4872 for CSV, about 36% smaller.
+Reducing repetition is also the job of tools such as gzip, brotli and zstd. The distinction
+is that they compress the bytes of a representation, while JSON, CSV and TCF define how
+data is represented. The choices can therefore be combined: TCF content can be compressed
+with gzip, just as JSON content can.
 
-On real multi-column data, 9 Adult and TPC-H tables totalling 136k rows, it is **−33.02%
-weighted** against raw CSV. And across the 8 real datasets of EXP-019 the set fell from 390,863
-to 290,949 bytes, **−25.6%**, ranging from −4.1% to −46.6% depending on the data.
+After that additional compression, the content must be decompressed before it can be
+interpreted. This can happen as a stream without keeping everything decompressed in memory.
+What gzip alone does not provide is a way to identify columns or count records based on
+the table's structure.
 
-The format reads nested structure as of 0.8. It consumes the dataset your language builds from
-JSON, so nested objects, arrays, `null` and typed booleans round-trip byte for byte. Two
-records with a list inside: 184 bytes in compact JSON, 144 in TCF with the CPF filter.
+TCF's value lies in what is available **without that additional layer**, or after it is
+removed: a compact representation with values, references and groups that the application
+can inspect and query.
 
-## And against gzip, brotli, zstd?
-
-Not a competitor, a layer underneath. In transmission `Content-Encoding` is negotiated by the
-transport and is invisible to your code: by the time your handler reads the body, it has
-already been inflated. The honest question is not "TCF or brotli", it is **what my process
-holds and parses once the channel has done its invisible work**.
-
-On the four-record set, under channel compression at maximum level:
+This difference in purpose does not remove the need to measure size. For the four-person
+example, with external compressors at their maximum levels, the results are:
 
 ![Channel compression table: JSON, JSONL, CSV and TCF](figuras/en/4-tabela.svg)
 
-Under `gzip` the three API formats tie within 1 byte. TCF wins raw, under `br` and under
-`zstd`. And CSV, which is rarely an API payload and has no `view`, is smaller once compressed
-at this tiny size.
+Under gzip, JSON, JSONL and TCF are nearly tied. With brotli or zstd, TCF is smaller than
+JSON and JSONL, but compressed CSV is the smallest of the four in this example. These
+results do not support claiming that TCF replaces traditional compressors or always uses
+less space.
 
-## Where this applies today
+## What the measurements tell us
 
-**It is pre-1.0**, at 0.8.4. The current cycle closed functionality: four wire families welded
-and published. The next cycle is algorithm optimization, and it has not started.
+Four records help explain the mechanism, but not how it behaves on other data.
+[EXP-019](../../../experiments/lab/clean/EXP-019-consistencia-0-8-4/) evaluated eight samples
+of 800 rows, including real and generated data. It compared two representations within TCF:
+one hierarchical, the other designed for tabular records. The total fell from 390,863 to
+290,949 bytes, a **25.6% reduction**, with verified round-trips. This percentage does not
+measure an advantage over CSV, JSON or gzip.
 
-**Writing is expensive, reading is cheap.** The work sits in `encode`, in the affix search.
-`decode` is a single linear pass, with O(1) lookups and no search. That decides where the
-format pays off: cacheable data pays the encode once and distributes many times, while data
-personalized per request pays it every time.
+Even within that comparison, reductions ranged from 4.1% to 46.6% per sample. The variation
+reinforces that savings depend on the patterns in the input. The experiment checks
+consistency on these samples, not performance at scale, and its gains should not be treated
+as a forecast for every application.
 
-**Under `gzip`, TCF does not win.** At tiny sizes, CSV beats it.
+Size is also only part of the decision. Searching for patterns concentrates work in encoding;
+reading tends to cost less than producing the representation. Data prepared once and reused
+across many reads is therefore a use case worth investigating. If every request requires
+encoding different data, that cost needs to be included in the evaluation.
 
-**Comparison against Parquet and storage formats has not been done.** They occupy a different
-place and deserve their own measurement.
+The project is at version 0.8.4, still before 1.0, without a strict compatibility guarantee
+between minor versions. The measurements presented here do not establish a comparison with
+Parquet or other storage formats either. Adoption requires measuring size, write and read
+times, and memory use with the application's own data and queries.
 
-## Practical
+## Trying it out
 
-Python 3.10 or newer, zero runtime dependencies, MIT.
+TCF starts from a simple observation: repetitions can carry useful information even when
+written compactly. Its purpose is not just to shrink a file, but to preserve structure
+that lets us understand and query parts of the data without reconstructing the whole set.
 
-```
+The library is open source under the MIT license, requires Python 3.10 or newer, and has
+no runtime dependencies. To try the example in this article:
+
+```sh
 pip install tcf-format
 ```
 
-The code, the measurements and the documentation of what does not work are open:
+The repository contains the code, documentation and measurements for evaluating the format
+in your own context:
 
 https://github.com/LeoPR/TCF
 

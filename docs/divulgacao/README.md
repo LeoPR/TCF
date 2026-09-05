@@ -2,9 +2,26 @@
 
 # `docs/divulgacao/`: material for presenting TCF
 
-Pieces for showing the project publicly. It is supporting material, not the library's
-documentation, which lives in the sibling folders. It publishes no new measurement: every number
-comes from a dated document in the repository, and each one names where it is reproduced.
+This folder contains text and figures for presenting the project outside the repository.
+Usage documentation lives in sibling folders. These pieces adapt existing evidence:
+every measurement must retain its source, comparison baseline and scope.
+
+## Audience and purpose
+
+The texts share facts, not one wording or structure. Each should answer the question that
+brings its reader to that surface:
+
+| surface | reader's need | editorial priority |
+|---|---|---|
+| [GitHub README](../../README.md) | understand, evaluate or contribute to the project | purpose, quick start, format, evidence, limits and technical navigation |
+| [PyPI page](../../README.pypi.md) | install the library and use it in Python | Python requirement, installation/import names, complete examples, contracts and compatibility; absolute links |
+| LinkedIn article | understand an idea without knowing the project | context, example, explanation, application and conclusion; introduce terms before relying on them |
+| LinkedIn post | decide whether to open the article | one central idea, a short example, a relevant caveat and an invitation to read |
+| outreach source | verify what can be claimed | facts, provenance, testable examples and limits; no promotional hook |
+
+An article can develop an argument; a README should support lookup and evaluation.
+A post need not reproduce the feature catalog, and the PyPI page need not repeat the
+algorithm's internal design.
 
 ## How it is organized
 
@@ -19,66 +36,68 @@ first.
 |---|---|
 | [`2026-09-04-lancamento.md`](2026-09-04-lancamento.md) / [`2026-09-04-release.en.md`](2026-09-04-release.en.md) | the current news source (PT / EN) |
 | [`linkedin/post.*`](linkedin/) | the short feed piece, one per language |
-| [`linkedin/artigo.*`](linkedin/) | the article, one per language, **ready to paste** |
-| [`linkedin/figuras/<language>/`](linkedin/figuras/) | the five figures, one folder per language |
+| [`linkedin/artigo.*`](linkedin/) | the article, one per language, with separate publishing notes |
+| [`linkedin/figuras/<language>/`](linkedin/figuras/) | figures, one folder per language |
 
-Two texts per language and nothing else. LinkedIn has two areas: the feed post, with a hard
-character limit, and the article, which takes long text but in a narrow column. Each file
-serves one of them.
+There are two texts per language: a feed introduction and a long-form article. Notes at the
+start of each file are publishing instructions, not part of the reader-facing text.
 
 It sits under `docs/` because **outreach documents are documents**. A second hierarchy at the
 repository root would make the reader choose between two places to look for the same thing.
 
-**The article comes out ready to paste.** The LinkedIn editor does not render tables and its
-column is narrow, so the article has no table: where one would go, it calls the `4-tabela` figure,
-built from the same numbers so text and image cannot diverge. The code blocks are narrow for the
-same reason. Paste the text and upload the figures where it calls them.
+The article uses figures for tabular comparisons and short code blocks for readability in
+a narrow column. When publishing, apply headings, links and code blocks in the editor,
+insert the indicated images and check the preview. Pasting Markdown does not replace
+that check.
 
 The figures live in `linkedin/figuras/<language>/`, one subfolder per language so the channel
 directory does not mix text with binaries. `scripts/make_divulgacao_figuras.py` generates them
 all, and running it regenerates everything. They obey the same rule as the numbers in the text:
 there is a command that reproduces them.
 
-They come out as **SVG**, which is text and can be edited. The PNG that LinkedIn wants is
-produced alongside only if `cairosvg` is installed, and the script warns instead of failing when
-it is not.
+They come out as **SVG and PNG** side by side. The SVG is text, the repository versions it and
+GitHub renders it; the PNG is what you upload, because **LinkedIn does not accept SVG**.
 
-None of them is an illustration. The bars are bytes measured with the round-trip validated
-first, the wire shown is what `encode` actually returns, and the materialized columns in figure 3
-come from `view.report()`.
+The conversion uses the machine's own Chrome or Edge in headless mode, so it installs nothing.
+It renders at 2× on purpose: LinkedIn downsamples the image, and thin text at 1× comes out dirty
+after that. With no browser available the script reports which figures have no PNG instead of
+failing.
 
-There are five per language, numbered in reading order: `0-capa` is the 1.91:1 header frame,
-`1-formatos` compares the four formats, `2-wire` annotates the real output, `3-view` shows what a
-query materializes, and `4-tabela` is the compression table the editor will not render.
+Result figures use executable evidence: bars represent sizes measured after round-trip
+validation, encoded text comes from `encode`, and the query figure uses `view.report()`.
+Captions and conclusions still need editorial review.
+
+There are six SVGs per language: `0-capa` is the 1.91:1 cover; `1-formatos` compares formats;
+`2-wire` annotates the output; `3-view` shows queried columns; `4-tabela` compares external
+compression; `5-pipeline` presents the encoding stages. Use the figures referenced by
+the piece, not necessarily the whole set.
 
 Here Portuguese is the canonical language, unlike the rest of the project, because the audience
 these texts address reads Portuguese first. English is the translation.
 
 ## Limits of each channel
 
-- **LinkedIn post** (`linkedin/post.*`): about 3,000 characters, and only the first two or three
-  lines appear before "see more". Those lines cannot contain jargon: the audience is broad, and a
-  first sentence that only speaks to people who already know compression filters instead of
-  inviting. Context before jargon, density without a lecturing tone, and an ending that closes
-  rather than stops. Hashtags at the end and without accents, because an accented hashtag breaks
-  LinkedIn search.
-- **LinkedIn article** (`linkedin/artigo.*`): long form, with headings rendering, good for the
-  version that carries the numbers. **Tables do not render and the column is narrow**, so no
-  tables and no wide lines: what would be a table becomes a figure. Ends with the repository
-  link.
+- **LinkedIn post** (`linkedin/post.*`): body budget of up to 3,000 characters, including
+  links and hashtags. Leave room for the final URL. The opening must make sense on its own
+  in the preview, whose cutoff varies by interface. Use plain text, context before jargon
+  and hashtags at the end; unaccented hashtags are an editorial convention.
+- **LinkedIn article** (`linkedin/artigo.*`): long form, developing an argument with
+  transitions between sections. Use figures instead of wide tables and explain examples
+  before drawing conclusions. Close with limits and a route to trying the project.
 
 ## Before publishing
 
-**None of the numbers in these texts has an instrument of its own, and that is deliberate.** Each
-one still belongs to whoever already owned it: the canonical sizes to
-`tests/test_regression_v1_baseline.py`, which pins them byte for byte and runs the §RT
-round-trip; the real-data gains to the dated EXP-019 report; the timings to the pinned baseline
-of `scripts/bench_perf`. An outreach script measuring the same thing would create a second truth
-to diverge from the first.
+Check every number against its named source. The
+[baselines](../../tests/test_regression_v1_baseline.py) protect canonical output;
+[EXP-019](../../experiments/lab/clean/EXP-019-consistencia-0-8-4/report.md) compares two
+internal TCF representations, not TCF against CSV; the
+[performance tools](../../scripts/bench_perf/) cover timing and memory.
 
-What outreach adds is that **the examples run**. The current source and the articles are in
-`PAGINAS_DIDATICAS` of `tests/test_docs_snippets.py`, alongside the README and the reference, and
-the source carries its own size assertions. A number that goes stale breaks the suite.
+The current source and articles participate in the
+[example tests](../../tests/test_docs_snippets.py). They execute Python blocks and their
+assertions, but do not automatically verify every number in prose, the images or the
+LinkedIn presentation. Also check links, captions, post length and replacement of the
+placeholder with the published URL.
 
 **What these texts avoid on purpose:**
 
@@ -88,7 +107,7 @@ the source carries its own size assertions. A number that goes stale breaks the 
   `CHANGELOG.md`, the ADRs and the dated labs, which is where someone looks on purpose. The
   reason is the reader's: whoever arrives now never saw the old version.
 
-**Do not soften the limits section.** It is short, it is true, and it is the part that gives the
-rest its credibility. Here it includes what does not favour the project: under `gzip` the formats
-tie within 1 B, CSV beats TCF once compressed at tiny sizes, algorithm optimization is the next
-cycle and has not happened, and the comparison against Parquet has not been done.
+**Keep caveats beside the claims they qualify.** The gzip tie and compressed CSV advantage
+belong to the small example, not all data. Encoding cost, pre-1.0 compatibility and the
+absence of a storage-format comparison must not disappear when a piece is shortened.
+Consult the [current status](../../STATUS.md) when describing work in progress.

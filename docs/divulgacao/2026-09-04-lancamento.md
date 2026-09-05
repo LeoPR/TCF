@@ -1,54 +1,53 @@
 **Português** · [English](2026-09-04-release.en.md)
 
-# TCF 0.8.4, fonte de notícia
+# TCF 0.8.4: referência para divulgação
 
 Documento datado que serve de fonte para os textos de canal desta pasta. Regra: nenhum texto
 de canal muda sem esta fonte mudar antes.
 
-Nada aqui é estimativa, e **os números não são reconferidos por um script próprio**. Eles vivem
-onde já viviam: os tamanhos canônicos em `tests/test_regression_v1_baseline.py`, que pina byte
-a byte e roda o roundtrip da regra §RT; os ganhos em dado real no relatório datado do
-[EXP-019](../../experiments/lab/clean/EXP-019-consistencia-0-8-4/); e os tempos no baseline
-pinado do `scripts/bench_perf`. Um segundo instrumento medindo o mesmo só criaria uma segunda
-verdade para divergir da primeira.
+Este documento reúne afirmações, exemplos e limites para adaptar aos canais. A evidência
+permanece nas fontes: [baselines canônicos](../../tests/test_regression_v1_baseline.py),
+[relatório do EXP-019](../../experiments/lab/clean/EXP-019-consistencia-0-8-4/report.md)
+e [instrumentos de desempenho](../../scripts/bench_perf/). Um resultado só deve ser
+reutilizado com sua base de comparação e seu escopo.
 
-O que esta página acrescenta é que **os blocos abaixo rodam**. Eles estão no
-`test_docs_snippets.py`, junto com os do README e da referência, então um exemplo que apodrecer
-falha na suíte.
+Os blocos Python desta página são executados pelo
+[teste de exemplos](../../tests/test_docs_snippets.py). Asserções verificam o que está
+explicitamente codificado; números em tabelas e prosa exigem conferência nas fontes.
 
 ## O que a biblioteca é
 
-Comprime texto tabular sem perda, e o resultado continua sendo texto que você abre e lê. Um
-dicionário de colunas entra, uma string sai, e ela volta idêntica. Não é banco, não é ETL, e
-não é formato binário.
+O TCF codifica dados tabulares e aninhados suportados em texto inspecionável, sem perdas.
+`encode()` produz uma string; `decode()` reconstrói os dados. A representação usa
+referências e agrupamentos, cuja leitura exige conhecer os marcadores. Não é banco de
+dados, ferramenta de ETL nem serializador de objetos Python arbitrários.
 
 `pip install tcf-format` · MIT · pré-1.0 · Python 3.10 ou mais novo · zero dependências.
 
-A superfície pública são 18 nomes. A suíte tem 2005 testes passando e 2 pulados.
+A superfície pública está documentada na [referência da API](../reference/api.md).
 
-## As manchetes, na ordem em que interessam a quem não conhece o projeto
+## Afirmações e evidências
 
-### 1. A pergunta que quase todo mundo faz está errada
+### 1. Representação e compressão são escolhas combináveis
 
-A pergunta é "TCF ou gzip?", e ela não se sustenta porque os dois não disputam o mesmo lugar.
+JSON, CSV e TCF representam dados; gzip, brotli e zstd comprimem os bytes dessa
+representação. São escolhas combináveis, não alternativas mutuamente exclusivas.
+Em HTTP, a compressão pode ser indicada por `Content-Encoding`, e muitas bibliotecas
+descomprimem o corpo antes de entregá-lo à aplicação. A pergunta inclui, portanto,
+**qual representação o processo recebe e interpreta depois da descompressão do canal**.
 
-Em transmissão, o `Content-Encoding` é negociado pelo transporte e é **invisível ao seu
-código**. Você não escolhe ele contra nada, e na maior parte das vezes nem vê: quando o seu
-handler lê o corpo, ele já foi inflado. Então a pergunta honesta não é "TCF ou brotli", é
-**o que o meu processo segura e faz parse depois que o canal já fez o trabalho invisível
-dele**.
+O custo dessa descompressão integra a avaliação de CPU e memória da aplicação, mesmo
+quando é administrado pela biblioteca HTTP.
 
-Isso não torna o canal grátis. Ele gasta memória e CPU para inflar, a cada requisição, e a
-conta só é paga uma camada abaixo, onde o seu código não enxerga. É parte do total, não algo
-fora dele.
+### 2. Estrutura inspecionável e consultas seletivas
 
-### 2. Onde o compressor vira decisão visível, ele cobra opacidade
+Um arquivo gzip não expõe os campos e valores como texto diretamente inspecionável.
+É preciso descomprimir para interpretá-los, mas isso pode ser feito em fluxo, sem manter
+o conteúdo inteiro descomprimido na memória. O gzip, por si só, não oferece acesso por
+coluna nem operações sobre os registros da tabela.
 
-Em disco, em bloco, o blob comprimido é a coisa que você tem. E aí aparece o preço que a
-transmissão escondia: **para ler qualquer coisa, você infla tudo**. Não existe ler uma coluna,
-contar um valor, ou filtrar uma linha antes de o payload inteiro voltar a existir.
-
-O TCF fica no meio: é comprimido e continua consultável.
+Sem uma camada externa de compressão, a representação TCF expõe estrutura que `view()`
+pode aproveitar. O exemplo abaixo verifica o round-trip e consultas sobre um cadastro:
 
 ```python
 from tcf import decode, encode, view
@@ -76,13 +75,13 @@ assert v.where("plano", "Premium").nrows == 3
 assert v.column_bytes("cpf") == 59         # dá para saber o custo por coluna
 ```
 
-Nenhuma dessas chamadas decodifica a tabela inteira. E as asserções não são enfeite: este
-bloco roda na suíte, então o `242` acima não pode ficar velho em silêncio.
+As consultas acima não exigem reconstruir a tabela inteira. O teste verifica suas
+respostas e o tamanho da representação; o custo depende da operação e do modo da coluna.
 
-### 3. Os números, no mesmo pé
+### 3. Comparação de tamanho e escopo das amostras
 
-Um cadastro de 4 registros e 5 colunas, com todos os formatos medidos **compactos**, que é a
-comparação justa:
+O cadastro tem quatro registros e cinco colunas. Os tamanhos estão em bytes, com
+JSON/JSONL compactos e compressores externos no nível máximo:
 
 | formato | cru | gzip | br | zstd |
 |---|---:|---:|---:|---:|
@@ -91,52 +90,50 @@ comparação justa:
 | CSV | 277 | 177 | **162** | **165** |
 | **TCF** | **242** | 206 | 185 | 193 |
 
-O TCF é o menor **cru** entre os formatos que uma API de fato transmite. Sob `gzip` os três
-empatam dentro de 1 B. E o CSV, que raramente é payload de API, é menor depois de comprimido
-neste tamanho minúsculo.
+Neste exemplo, o TCF é o menor sem compressor externo. Sob gzip, JSON, JSONL e TCF ficam
+a até um byte de distância; o CSV comprimido é menor que os três. O resultado não
+estabelece uma ordem de desempenho para outros dados ou níveis de compressão.
 
-Em conjuntos maiores a distância abre. Nos 8 datasets reais do
-[EXP-019](../../experiments/lab/clean/EXP-019-consistencia-0-8-4/), o conjunto caiu de
-390.863 B para 290.949 B, ou **−25,6%**, com a faixa indo de −4,1% a −46,6% conforme o dado.
-Em multi-coluna real, 9 tabelas do Adult e do TPC-H com 136 mil linhas, são **−33,02%
-ponderado** contra o CSV cru.
+O [EXP-019](../../experiments/lab/clean/EXP-019-consistencia-0-8-4/) compara duas
+representações do próprio TCF: a hierárquica (`.8H`) e a de registros tabulares (`.8R`).
+Nas oito amostras de 800 linhas, o total passou de 390.863 B para 290.949 B, ou **−25,6%**,
+com reduções de 4,1% a 46,6% por amostra e round-trips verificados. Não é uma comparação
+contra CSV, JSON ou gzip, nem um teste de escala; o corpus inclui dados reais e gerados.
 
-### 4. O mesmo dado aninhado, que é o JSON que a sua API manda
+### 4. Dados aninhados preservam estrutura e valores
 
-Desde a 0.8, o TCF lê o **dataset** que a sua linguagem monta a partir do JSON, e não o texto
-do JSON. Objeto aninhado, lista, `null`, e `true`/`false` tipados voltam byte a byte.
+O TCF lê a **estrutura de dados** que a linguagem monta a partir do JSON, e não o texto
+do JSON. O round-trip preserva os valores e a estrutura suportada, incluindo objetos
+aninhados, listas, `null` e booleanos; não preserva a formatação do documento JSON original.
 
 Dois registros com uma lista dentro: JSON compacto dá 184 B, o TCF dá 166 B, e com o filtro
 opcional de CPF dá **144 B**.
 
-O que ele faz é picar o objeto em colunas, uma por campo. Então o nome do campo é escrito
-**uma vez** no cabeçalho, e não uma vez por registro:
+O codificador decompõe o objeto em colunas por campo. O nome de cada campo aparece
+uma vez no cabeçalho. Um exemplo de cabeçalho hierárquico é:
 
 ```
 #TCF.8Hnome:21,cpf:38,ativo:11b,fones#:6[
 ```
 
-### 5. O contrato: nunca pior que a alternativa, e dá para saber antes
-
-A biblioteca faz uma afirmação verificável sobre tamanho, e não uma promessa.
+### 5. A escolha de candidatos tem um limite definido
 
 > Para cada coluna, o codificador gera as candidatas e grava a **menor**:
-> `min(tcf, cru, dicionário, split)`. O resultado é **nunca pior por construção**.
+> `min(tcf, cru, dicionário, split)`.
 
-Isso muda o que a decisão custa. Não é preciso testar para descobrir se o formato piorou o seu
-dado, porque a estrutura do codificador não permite que piore. O pior caso é empatar com a
-representação crua, e o custo do empate é o cabeçalho.
+Essa escolha limita o custo do corpo de cada coluna às alternativas avaliadas pelo
+codificador, incluindo a representação crua. Não garante que o arquivo completo seja
+menor que qualquer CSV ou JSON: cabeçalhos e metadados também ocupam espaço.
 
-O `sort_by` é o exemplo de como a regra se aplica quando algo novo entra. Ele não ordena, ele
-**propõe** uma ordenação, e o FLOOR decide se ela entra. A razão de não ordenar direto está
-medida: numa tabela de 60 linhas, ordenar por uma chave encolhe 43,0% quando as outras colunas
-são função dela, e **cresce 52,1%** quando são independentes, porque a permutação agrupa os
-iguais da chave e desarruma todo o resto. Nos sete casos medidos, deixar o FLOOR decidir evita
-734 B de perda.
+Com `sort_by`, a ordenação também é uma candidata: o codificador compara as versões e
+mantém a menor. A opção autoriza mudar a ordem das linhas, que deixa de fazer parte do
+contrato de reconstrução. Use-a somente quando essa ordem não importar. O
+[EXP-019](../../experiments/lab/clean/EXP-019-consistencia-0-8-4/report.md) registra as
+verificações dessa escolha nas amostras.
 
 ### 6. Como o contrato é verificado
 
-Três coisas, e nenhuma delas é a suíte passando.
+As verificações têm funções distintas:
 
 A **regra §RT**, que é de processo e não de código. Ela está escrita como invariante no guia do
 projeto, e diz que `decode(encode(x)) == x` vem antes de qualquer número: sem roundtrip, o
@@ -149,55 +146,43 @@ vermelho se um byte mudar. É o que impede uma otimização de mudar o wire sem 
 E o **baseline de performance pinado**, com a matriz de casos travada por hash. Ele recusa
 comparar duas rodadas se a matriz ou o plano diferirem, em vez de casar o que não casa.
 
-### 7. Escrever é caro, ler é barato, e isso é de propósito
+### 7. O custo depende de como os dados são reutilizados
 
-O trabalho está concentrado no `encode`. O `decode` é leitura quase sem laço, e a `view` é
-menos ainda, porque acessa por aritmética em vez de percorrer.
+O `encode` busca padrões; o `decode` reconstrói a representação escolhida sem repetir
+essa busca. A `view` pode evitar materialização desnecessária, mas também pode precisar
+decodificar colunas inteiras. Não há uma razão fixa de tempo entre essas operações.
 
-Na tabela de 3000 por 15 do verificador, encode e decode ficam em 934,6 ms contra 83,7 ms, uma
-razão de 11,2×. A razão **não é constante**: medida em 2026-09-01 sobre a 0.8.4, ela varia de
-3,6× a 1.060× conforme a forma do dado, então é uma faixa e não um número.
+Dados preparados uma vez para muitas leituras amortizam o custo de codificação. Dados
+personalizados a cada requisição repetem esse custo. Medições de desempenho devem
+identificar carga, versão, ambiente e instrumento, não apenas uma razão de velocidade.
 
-Isso decide onde o formato compensa, e a topologia importa mais do que cliente contra
-servidor. Se o dado é **cacheável**, você paga o encode uma vez e distribui muitas. Se é
-**personalizado por requisição**, você paga o encode toda vez, e aí a conta muda.
+### 8. Marcadores descrevem diferentes padrões
 
-### 8. A repetição tem três formas, e duas delas não são óbvias
+`*N|` representa valores idênticos consecutivos. `*N+delta|` representa uma sequência
+com passo constante; `*N~d1,d2,...|`, uma sequência com passos periódicos. O marcador
+`*12+5|\100`, por exemplo, descreve doze valores a partir de 100, com passo 5.
 
-O `*N|` colapsa linhas idênticas adjacentes, e é o que a maioria espera de um RLE. As outras
-duas são as que aparecem em dado de sistema.
+Esses marcadores expõem contagens e progressões, mas isso não garante que toda consulta
+opere sem expansão. Os caminhos implementados dependem do modo de coluna e estão
+documentados na [referência de consultas](../reference/lazy-view.md).
 
-O `*N+delta|` cobre sequência com passo constante: `[100, 105, ... 155]` sai como
-`*12+5|\100`, 47 B virando 18, com nenhum dos doze valores escrito. E o `*N~d1,d2,...|` cobre
-sequência periódica, quando o passo cicla: o ciclo é pago uma vez e vale para o run inteiro.
+## Limites a preservar nas adaptações
 
-Isso importa além do byte, porque um `*N|` **já é uma contagem** e um `*N+delta|` **já é uma
-progressão**. É o que deixa a `view` responder sobre contagem, mínimo e máximo sem materializar
-a coluna.
-
-## Onde isto se aplica hoje
-
-**O `.8` fechou funcionalidade, não desempenho.** As quatro famílias de wire estão soldadas e
-publicadas. O ciclo de otimização de algoritmo é o `.9`, e ele ainda não começou, então os
-números de tempo acima são de código não otimizado. Eles estão pinados justamente para o `.9`
-ter contra o que comparar.
-
-**Sob `gzip`, o TCF não ganha.** Os três formatos empatam dentro de 1 B no cadastro pequeno.
-Onde ele ganha é cru, sob `br` e sob `zstd`.
-
-**No tamanho minúsculo, o CSV passa.** 162 B contra 185 B sob brotli. Vale a ressalva de que
-CSV raramente é payload de API, e de que ele não tem `view`.
-
-**É pré-1.0.** O dígito do meio ainda pode mexer no que sai, e cada mudança entra no changelog
-com a medição atrás.
-
-**Comparação com formato de armazenamento ainda não foi feita.** Parquet, ORC e afins ocupam
-um lugar diferente e merecem medição própria, que não existe.
+- Os resultados de tamanho pertencem aos dados e configurações medidos. O cadastro pequeno
+    não demonstra desempenho em escala nem vantagem universal sobre compressores externos.
+- Codificação e consulta têm custos distintos; ambas precisam ser medidas no uso pretendido.
+- O pacote é pré-1.0, sem garantia rígida de compatibilidade entre versões menores.
+- As comparações desta página não avaliam Parquet, ORC ou outros formatos de armazenamento.
+- O trabalho em curso e as prioridades são mantidos em [STATUS.md](../../STATUS.md) e
+    [ROADMAP.md](../../ROADMAP.md), não inferidos a partir deste anúncio.
 
 ## Reprodução
 
-```
-pip install tcf-format
+Para instalar a biblioteca: `python -m pip install tcf-format`.
+Para executar os testes abaixo, use um checkout com o ambiente de desenvolvimento
+preparado conforme [CONTRIBUTING.pt-BR.md](../../CONTRIBUTING.pt-BR.md):
+
+```sh
 python -m pytest -q tests/test_docs_snippets.py       # os blocos desta página
 python -m pytest -q tests/test_regression_v1_baseline.py   # os bytes canônicos + §RT
 ```
@@ -209,4 +194,4 @@ python -m pytest -q tests/test_regression_v1_baseline.py   # os bytes canônicos
 - A assimetria entre escrever e ler: [`docs/theory/conceitos/a-assimetria-encode-decode.md`](../theory/conceitos/a-assimetria-encode-decode.md)
 - O wire em uma página: [`docs/theory/conceitos/o-wire-em-uma-pagina.md`](../theory/conceitos/o-wire-em-uma-pagina.md)
 - O custo da consulta: [`docs/theory/conceitos/custo-da-consulta.md`](../theory/conceitos/custo-da-consulta.md)
-- As medições em dado real: [`experiments/lab/clean/EXP-019-consistencia-0-8-4/`](../../experiments/lab/clean/EXP-019-consistencia-0-8-4/)
+- A comparação interna nas amostras: [EXP-019](../../experiments/lab/clean/EXP-019-consistencia-0-8-4/)

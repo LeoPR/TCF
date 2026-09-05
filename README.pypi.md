@@ -5,100 +5,66 @@
 ![Python](https://img.shields.io/badge/python-3.10+-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
-**Send the same table in far fewer bytes, without turning it into a binary blob
-nobody can open and read.**
+TCF is a Python library for lossless encoding of tabular and nested data into
+**inspectable text**. Repeated values and shared text fragments can be stored as groups
+or references. Use `encode()` to produce the representation, `decode()` to recover the
+data, and `view()` to query supported inputs without reconstructing the entire table.
 
-TCF compresses tabular and nested data into **inspectable ASCII text**: what repeats
-becomes a reference, what is unique stays as-is (no inflation). Zero runtime dependencies.
+Compression depends on the data. Headers and metadata have a cost, so a TCF value is not
+guaranteed to be smaller than its JSON or CSV equivalent.
+
+## Installation
+
+Requires **Python 3.10 or newer**, with **no runtime dependencies**.
 
 ```bash
-pip install tcf-format        # or: uv pip install tcf-format
+python -m pip install tcf-format
 ```
 
-> Distribution: `tcf-format` · importable package: `tcf`
+The distribution name is `tcf-format`; import it as `tcf`. With uv, use
+`uv pip install tcf-format`.
 
-## One minute
+## Encode and decode
+
+`encode()` returns a Python string. The input shape determines the representation:
+a list of values is a column, a dictionary of columns is a table, and a list of records
+is returned as records when decoded.
 
 ```python
 from tcf import encode, decode
 
-# Single-column: list of strings
 blob = encode(["ana@acme.com.br", "bruno@acme.com.br", "carla@acme.com.br"])
 assert decode(blob) == ["ana@acme.com.br", "bruno@acme.com.br", "carla@acme.com.br"]
 
-# Multi-column: dict of columns
 table = {
     "name": ["Ana Souza", "Bruno Lima", "Carla Nunes"],
     "city": ["Sao Paulo", "Sao Paulo", "Rio de Janeiro"],
     "plan": ["Premium",   "Premium",   "Basic"],
 }
 blob = encode(table)
-assert decode(blob) == table         # round-trip is always exact
+assert decode(blob) == table
 
-# Records: the shape csv.DictReader, json.load and df.to_dict("records") hand you.
-# Same table, so the same body: only the family character differs (M -> R).
-rows = [dict(zip(table, v)) for v in zip(*table.values())]
-assert encode(rows)[7:] == blob[7:]  # 106 B either way, byte for byte
-assert decode(encode(rows)) == rows  # and it comes back as rows, not columns
+rows = [{"name": "Ana", "city": "SP"}, {"name": "Bruno", "city": "SP"}]
+assert decode(encode(rows)) == rows
 
-# Nested (the JSON your API sends): routes to #TCF.8H through the same door
 orders = [{"customer": "Ana", "items": [{"sku": "A1", "qty": 2}], "active": True}]
 assert decode(encode(orders)) == orders
 ```
 
-One door: `encode()` routes by the **shape of the input**, `decode()` by the format
-signature. Round-trip is always lossless: it either preserves or fails loud, and each shape
-comes back as the shape it went in.
+These assertions check the round-trip contract for supported inputs. Nested objects,
+lists, numbers, booleans and `None` are handled as data, not as JSON source text: whitespace
+and formatting from a JSON document are not preserved. TCF is not a serializer for arbitrary
+Python objects. See the
+[supported mapping and limits](https://github.com/LeoPR/TCF/blob/main/docs/reference/json-equivalence.md).
 
-New in 0.8.4: a flat rectangular list of records is a **table**, not a tree. It used to route
-to the hierarchical family, which has no per-column candidate layer, and paid up to 430% more
-than the same data written as columns. Now it compresses identically, marked `#TCF.8R`. Ragged
-rows, nested values and arrays in a cell stay hierarchical, where they belong.
+The output contains markers such as `*3|Sao Paulo`, meaning three consecutive occurrences
+of that value. Shared fragments can become references. Inspectable text is not the same
+as a plain table: reading the encoded form requires understanding those markers.
 
-## What the wire looks like
+## Query selected columns
 
-Four records, actual `encode` output:
-
-```
-#TCF.8M!2c=name,2a=email,1c=city,14=plan,!cpf
-Ana Souza
-Bruno Lima
-Carla Nunes
-Diego Rochaan*a*@acme.com.br
-brun*o3
-carl2,3
-dieg5,3
-*3|Sao Paulo
-Rio de Janeiro
-*2|Premium
-Basic
-^1
-111.111.111-11
-222.222.222-22
-333.333.333-33
-444.444.444-44
-```
-
-`*3|Sao Paulo` means *"Sao Paulo, 3×"*. `^1` means *"same as line 1"*. In the e-mail
-column the unique prefix stays and the shared domain becomes a reference. That is where
-the biggest wins are, and where the text gets densest. **Readable does not mean obvious
-at first glance.**
-
-## Numbers
-
-Across the 15 synthetic datasets, **with no compressor at all**, TCF is the most compact
-text of the set: **3131 B** vs CSV 4872 · JSON 5409 · JSONL 7001 (~36% smaller than CSV).
-The JSON and JSONL figures use Python's default `json.dumps` spacing, not compact, so the
-margin over them is an upper bound.
-On real multi-column data (9 Adult + TPC-H tables, 136k rows): **−33% weighted** vs raw CSV.
-
-Against `gzip`/`brotli`/`zstd` the comparison is a different category. They are
-**opaque**: answering any question means inflating everything first. TCF composes with
-them, and the gain shows up **with volume**: `tcf+brotli` beats `csv+brotli` on Adult 3k
-(**21.8 KB** vs 30.4 KB). On tiny payloads the header dominates and the composition
-loses, so measure your own case before assuming it.
-
-## Query without decompressing
+`view()` provides read-only query methods over a TCF string. It can answer some questions
+from metadata or encoded structure; other operations decode the columns they need.
 
 ```python
 from tcf import encode, view
@@ -108,70 +74,47 @@ sales = {
     "city":     [ "SP",    "SP",    "SP",    "RJ",  "SP",  "RJ"],
     "amount":   [  120,     100,     170,     200,    80,    80],
 }
-v = view(encode(sales))                    # connects, decompresses nothing
+blob = encode(sales)
+assert decode(blob) == sales
+v = view(blob)
 
-v.count()                                  # 6, read from the structure
-v.distinct("city")                         # ['SP', 'RJ']
-v.sum("amount")                            # 750.0
-v.where("city", "SP").sum("amount")        # 470.0, touching only city + amount
-v.group_sum("city", "amount")              # {'SP': 470.0, 'RJ': 280.0}
+assert v.count() == 6
+assert set(v.distinct("city")) == {"SP", "RJ"}
+assert v.sum("amount") == 750.0
+assert v.where("city", "SP").sum("amount") == 470.0
+assert v.group_sum("city", "amount") == {"SP": 470.0, "RJ": 280.0}
 ```
 
-Values come back in the type they went in as, and the filter compares in that type.
+The filtered sum needs `city` and `amount`, not `customer`. This does not mean every query
+avoids decoding: the work depends on the column's encoding and the operation. A column
+with many distinct values may require full materialization. See the
+[query API and cost model](https://github.com/LeoPR/TCF/blob/main/docs/reference/lazy-view.md).
 
-Not every question is equally cheap, and the docs say which is which. `count` reads the row
-count from the structure and materializes nothing. On a dictionary column, `where`,
-`distinct` and `group_count` answer over the K distinct values instead of the N rows, and
-walk the index stream **without expanding it**. The aggregators and `select` do materialize
-the column they read, so on a single high-cardinality column `view()` and `decode()` cost
-nearly the same. The gain is real where the shape allows it, and stated plainly where it
-does not.
+## Optional filters for structured strings
 
-## Specs: semantic type, string result
-
-Two separate claims: the **wire** is always text, and the **data comes back in the type it
-went in as**. Strings return byte for byte; `True` and `3.14` return a **bool** and a
-**float**, not the spelling `"True"` (TCF marks the type in the header: `#TCF.8b`, `#TCF.8n`).
-
-```python
-from tcf import encode, decode
-
-assert decode(encode([True, False])) == [True, False]    # bool, not "True"
-```
-
-On top of that, *knowing the nature* of a text column unlocks compression far beyond what
-structure alone gives. That is what **specs** are for:
+The `schema` argument selects filters for known text patterns. For example, the `cpf`
+filter can reconstruct the fixed punctuation and check digits of a Brazilian taxpayer
+identifier, storing only the information needed to recover the original string:
 
 ```python
 from tcf import encode, decode
 
 cpfs = ["111.111.111-11", "222.222.222-22", "333.333.333-33", "444.444.444-44"]
-blob = encode(cpfs, schema="cpf")     # 69 B -> 39 B
-assert decode(blob) == cpfs           # the header says which spec to invert
+blob = encode(cpfs, schema="cpf")
+assert decode(blob) == cpfs
 ```
 
-A spec is **not a type**. The difference matters:
+The repeated-digit identifiers above are example placeholders. A filter is not identity
+validation and does not check whether a CPF exists. Values that do not satisfy the filter's
+rules are preserved literally. The filtered representation competes with the ordinary
+encoding and is used only when it is smaller, including its metadata.
 
-| | input type (`bool`, `int`, `float`) | semantic spec (`cpf`, `cnpj`, `ip`) |
-|---|---|---|
-| who asserts it | **your language**: the value already is a bool | **TCF**, as a hypothesis: *"has the shape of a CPF"* |
-| what comes back | the same value, same type (`True`, not `"True"`) | the **original string**, byte for byte |
-| when it does not match | not applicable, the type is a fact | falls back to literal, **no failure, no loss** |
-| what you gain | the type preserved, plus bits (1-2 per bool) | bytes on the wire |
+Built-in filters include `cpf`, `cnpj`, `ip`, `data-iso` and `int-pad`. The header records
+the selected built-in filter so `decode()` can reverse it without a `schema` argument.
+Filters do not change a string into another Python type.
 
-A spec exploits **redundancy that the shape guarantees**: a CPF has 11 digits, a fixed
-mask and two check digits that are *derivable*, so the mask does not travel, the check
-digits do not travel, and the body goes in a dense base. The result is still the string
-`"111.111.111-11"`.
-
-It is **opt-in per value and never-worse**: the spec competes with the regular pipeline
-and only wins if it shrinks; a value that does not match the shape becomes a literal in
-the same column. And it is **self-describing**: when it wins, the header carries the id
-(`:cpf`) and `decode` inverts it on its own, receiving nothing.
-
-The registry ships `cpf`, `cnpj` (alphanumeric, IN RFB 2.229/2024), `ip`, `data-iso` and
-`int-pad`; `schema` is **incremental**. Without it, every column is a semantic string
-and the pipeline decides by itself:
+For tables, specify filters by column name or index. Unspecified columns keep their
+input types and use the ordinary encoding:
 
 ```python
 from tcf import encode, decode
@@ -181,22 +124,29 @@ clients = {
     "created_at": ["2026-01-15", "2026-02-20"],
     "notes":      ["-", "-"],
 }
-blob = encode(clients, schema={"cnpj": "cnpj", "created_at": "data-iso"})  # by name
+blob = encode(clients, schema={"cnpj": "cnpj", "created_at": "data-iso"})
 assert encode(clients, schema={0: "cnpj"}) == encode(clients, schema={"cnpj": "cnpj"})
-assert decode(blob) == clients             # `notes` was never mentioned: stays a string
+assert decode(blob) == clients
 ```
 
-## What it is not
+## Evaluate before adopting
 
-Not a database, not object serialization, not a general-purpose binary compressor. It
-does not validate semantics (it does not check whether a CPF *exists*). Lossless
-round-trip is the contract; compression is the consequence.
+TCF is not a database or a general-purpose binary compressor. It can be combined with
+gzip, brotli or zstd, but the combined result is not guaranteed to be smaller than
+compressing JSON or CSV directly. External compression must be reversed before querying
+the TCF representation; decompression itself may be streamed.
 
-## Status: pre-1.0
+Encoding searches for patterns and may cost substantially more than decoding. Measure
+size, encoding time, query time and memory with your own workload, especially if each
+request produces new data. For comparisons and their experimental scope, see the
+[repository results](https://github.com/LeoPR/TCF#results).
 
-Format `#TCF.8`. Pre-1.0 minors are **development iterations** towards a solid 1.0:
-**there is no rigid compatibility between them**; old versions are recoverable through
-git. The definitive freeze is an act of 1.0.
+## Compatibility
+
+Version **0.8.4** uses format `#TCF.8`. The project is **pre-1.0**: compatibility between
+minor versions is not guaranteed. Pin the package version when persisting encoded data,
+and retain access to the matching reader when upgrading. Published packages and git tags
+provide access to older readers; the current decoder is not a universal legacy reader.
 
 ## Documentation
 
