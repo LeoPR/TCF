@@ -1,9 +1,30 @@
-# TCF: comprimir tabelas sem virar um blob que ninguém abre
+<!-- Versao do artigo preparada para o editor de artigos do LinkedIn.
+     Gerada por scripts/make_divulgacao_figuras.py a partir de artigo.pt-BR.md.
+     Nao edite este arquivo: edite o artigo e rode o script.
+
+     O que mudou em relacao ao original:
+       - as crases sairam, porque o editor nao tem codigo embutido na frase;
+       - a tabela virou imagem, porque o editor nao faz tabela.
+
+     Como colar:
+       1. Capa: figuras/pt-BR/0-capa.png, no quadro do topo (e' 1.91:1).
+       2. Titulo: a primeira linha abaixo, no campo Titulo.
+       3. Corpo: cole como texto simples e aplique o formato pelos botoes.
+          Cada linha "## " vira Estilo -> titulo.
+       4. Onde aparecer [IMAGEM: ...], use o botao de imagem, suba o arquivo de
+          figuras/pt-BR/ e escreva a legenda indicada. Depois apague a linha do marcador.
+-->
+
+=== TITULO (cole no campo Titulo) ===
+
+TCF: comprimir tabelas sem virar um blob que ninguém abre
+
+=== CORPO (cole abaixo) ===
 
 *Artigo técnico, derivado do README do repositório. Cada número aqui já vive num teste ou num
 relatório datado do projeto, e os blocos de código desta página rodam na suíte.*
 
-Fonte: [`2026-09-04-fonte-0.8.4.md`](2026-09-04-fonte-0.8.4.md).
+Fonte: [../2026-09-04-lancamento.md](../2026-09-04-lancamento.md).
 
 ---
 
@@ -17,9 +38,11 @@ um gzip, com uma diferença: o resultado **continua texto ASCII que você abre e
 sem descomprimir. Não fica tão óbvio quanto o original, porque quanto mais ele fatora, mais
 denso o texto. Mas nunca vira um blob opaco.
 
-É um formato sem perdas: `decode(encode(x)) == x`, sempre.
+É um formato sem perdas: decode(encode(x)) == x, sempre.
 
 ## O mesmo dado em três formatos
+
+[IMAGEM: 1-formatos.png]
 
 Um cadastro de quatro pessoas e cinco campos, com todos os formatos medidos compactos.
 
@@ -47,7 +70,7 @@ assert decode(wire) == tabela
 assert len(wire.encode("utf-8")) == 242
 ```
 
-E o wire é isto, saída real do `encode`:
+E o wire é isto, saída real do encode:
 
 ```
 #TCF.8M!2c=nome,2a=email,1c=cidade,14=plano,!cpf
@@ -69,8 +92,8 @@ Basic
 444.444.444-44
 ```
 
-Os nomes das colunas aparecem uma vez, no cabeçalho. `*3|Sao Paulo` diz que há três linhas
-iguais ali, escritas uma vez. `^1` diz "igual à linha 1". O domínio `@acme.com.br` foi escrito
+Os nomes das colunas aparecem uma vez, no cabeçalho. *3|Sao Paulo diz que há três linhas
+iguais ali, escritas uma vez. ^1 diz "igual à linha 1". O domínio @acme.com.br foi escrito
 uma vez e referenciado nos outros três e-mails.
 
 ## Como ele faz isso: duas camadas
@@ -88,14 +111,14 @@ acíclico de fragmentos, no espírito do Re-Pair e do Sequitur, operando sobre t
 bytes.
 
 Cada coluna passa por um pipeline próprio, e para cada uma o codificador gera as candidatas e
-grava a **menor**: `min(tcf, cru, dicionário, split)`. O resultado é nunca pior por construção.
+grava a **menor**: min(tcf, cru, dicionário, split). O resultado é nunca pior por construção.
 Não é preciso testar para descobrir se o formato inchou o seu dado, porque ele não pode inchar.
 
 ## Filtros por natureza, quando o dado tem forma fixa
 
 Alguns valores têm uma estrutura que o compressor genérico não aproveita. Um CPF
-`123.456.789-09` tem nove dígitos úteis: a pontuação é fixa, e os dois dígitos finais são
-calculados a partir dos outros. O filtro opt-in guarda só os nove, e o `decode` recalcula o
+123.456.789-09 tem nove dígitos úteis: a pontuação é fixa, e os dois dígitos finais são
+calculados a partir dos outros. O filtro opt-in guarda só os nove, e o decode recalcula o
 verificador e reinsere a pontuação. Reconstrução exata.
 
 Quatro CPFs em coluna única: 69 bytes sem o filtro, 39 com ele, −43%. Existem filtros para CPF,
@@ -107,12 +130,14 @@ CPF existe. É uma hipótese sobre a **forma** do texto, e a string volta byte a
 
 ## Consultar quase sem descomprimir
 
+[IMAGEM: 3-view.png]
+
 Um bloco gzip no disco faz você alocar memória e descomprimir tudo para só então varrer os
-dados. A estrutura do TCF funciona como índice: `*N|` já é uma contagem pronta, `^1` já é
+dados. A estrutura do TCF funciona como índice: *N| já é uma contagem pronta, ^1 já é
 dedup visível. Dá para contar, agrupar e somar lendo os marcadores, materializando só o pedaço
 necessário.
 
-A `view()` é a API sobre isso. Conecta sem descomprimir e só materializa a coluna e as linhas
+A view() é a API sobre isso. Conecta sem descomprimir e só materializa a coluna e as linhas
 que o agregador precisa.
 
 ```python
@@ -138,7 +163,7 @@ v.group_sum("cidade", "valor")                  # {'Sao Paulo': 470.0, 'Rio de J
 v.group_count("plano")                          # {'Premium': 4, 'Basic': 2}
 ```
 
-A soma filtrada materializou só `cidade` e `valor`, 39,9% do blob. `cliente` e `plano` nunca
+A soma filtrada materializou só cidade e valor, 39,9% do blob. cliente e plano nunca
 foram descomprimidos.
 
 ## Os números em conjunto maior
@@ -151,28 +176,23 @@ ponderado** contra o CSV cru. E nos 8 datasets reais do EXP-019, o conjunto caiu
 para 290.949 bytes, **−25,6%**, com a faixa indo de −4,1% a −46,6% conforme o dado.
 
 O formato lê estrutura aninhada desde a 0.8. Ele consome o dataset que a sua linguagem monta a
-partir do JSON, então objeto aninhado, lista, `null` e booleanos tipados voltam byte a byte.
+partir do JSON, então objeto aninhado, lista, null e booleanos tipados voltam byte a byte.
 Dois registros com uma lista dentro: 184 bytes em JSON compacto, 144 no TCF com o filtro de
 CPF.
 
 ## E contra gzip, brotli, zstd?
 
-Não é concorrente, é uma camada por baixo. Em transmissão, o `Content-Encoding` é negociado
+Não é concorrente, é uma camada por baixo. Em transmissão, o Content-Encoding é negociado
 pelo transporte e é invisível ao seu código: quando o handler lê o corpo, ele já foi inflado.
 A pergunta honesta não é "TCF ou brotli", é **o que o meu processo segura e faz parse depois
 que o canal fez o trabalho invisível dele**.
 
 No cadastro de quatro registros, sob compressão de canal em nível máximo:
 
-| formato | cru | gzip | br | zstd |
-|---|---:|---:|---:|---:|
-| JSON | 451 | 206 | 195 | 197 |
-| JSONL | 449 | 205 | 194 | 194 |
-| CSV | 277 | 177 | 162 | 165 |
-| **TCF** | **242** | 206 | **185** | **193** |
+[IMAGEM: 4-tabela.png | legenda: a mesma tabela sob compressao de canal]
 
-Sob `gzip` os três formatos de API empatam dentro de 1 byte. O TCF ganha cru, sob `br` e sob
-`zstd`. E o CSV, que raramente é payload de API e não tem `view`, é menor depois de comprimido
+Sob gzip os três formatos de API empatam dentro de 1 byte. O TCF ganha cru, sob br e sob
+zstd. E o CSV, que raramente é payload de API e não tem view, é menor depois de comprimido
 neste tamanho minúsculo.
 
 ## Onde isto se aplica hoje
@@ -180,12 +200,12 @@ neste tamanho minúsculo.
 **É pré-1.0**, na 0.8.4. O ciclo atual fechou funcionalidade: quatro famílias de wire
 soldadas e publicadas. O ciclo seguinte é o de otimização de algoritmo, e ainda não começou.
 
-**Escrever é caro, ler é barato.** O trabalho está no `encode`, na busca de afixos. O `decode`
+**Escrever é caro, ler é barato.** O trabalho está no encode, na busca de afixos. O decode
 é uma passada linear única, com lookups O(1) e sem busca. Isso decide onde o formato compensa:
 dado cacheável paga o encode uma vez e distribui muitas; dado personalizado por requisição paga
 toda vez.
 
-**Sob `gzip`, o TCF não ganha.** No tamanho minúsculo, o CSV passa.
+**Sob gzip, o TCF não ganha.** No tamanho minúsculo, o CSV passa.
 
 **Comparação com Parquet e formatos de armazenamento não foi feita.** Ocupam um lugar diferente
 e merecem medição própria.

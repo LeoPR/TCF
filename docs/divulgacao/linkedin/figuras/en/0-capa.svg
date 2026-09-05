@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="628" viewBox="0 0 1200 628">
+  <rect width="1200" height="628" fill="#fbfaf8"/>
+  <text x="80" y="250" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="120" fill="#0b6b52" font-weight="600" text-anchor="start" xml:space="preserve">TCF</text>
+  <text x="80" y="300" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="30" fill="#6b6b6b" text-anchor="start" xml:space="preserve">Tabular Compact Format</text>
+  <text x="80" y="380" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="34" fill="#1a1a1a" font-weight="600" text-anchor="start" xml:space="preserve">As small as a compressor, as readable as text</text>
+  <line x1="80" y1="420" x2="1120" y2="420" stroke="#d8d4cc" stroke-width="1"/>
+  <text x="80" y="470" font-family="ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', monospace" font-size="22" fill="#6b6b6b" text-anchor="start" xml:space="preserve">lossless · pre-1.0 · pip install tcf-format</text>
+  <text x="80" y="520" font-family="ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', monospace" font-size="17" fill="#d8d4cc" text-anchor="start" xml:space="preserve">#TCF.8M!2c=nome,2a=email,1c=cidade,14=plano,!cpf</text>
+  <text x="80" y="544" font-family="ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', monospace" font-size="17" fill="#d8d4cc" text-anchor="start" xml:space="preserve">Ana Souza</text>
+  <text x="80" y="568" font-family="ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', monospace" font-size="17" fill="#d8d4cc" text-anchor="start" xml:space="preserve">Bruno Lima</text>
+  <text x="80" y="592" font-family="ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', monospace" font-size="17" fill="#d8d4cc" text-anchor="start" xml:space="preserve">Carla Nunes</text>
+</svg>

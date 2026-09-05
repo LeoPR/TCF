@@ -45,8 +45,10 @@ PAGINAS_DIDATICAS = [
     # de fora de proposito, porque nao se reescrevem, entao nao podem ser consertados
     # quando a API mudar. O premissa desses textos e' que nada neles e' ilustracao, e
     # e' este gate que a sustenta.
-    "docs/divulgacao/2026-09-04-fonte-0.8.4.md",
-    "docs/divulgacao/linkedin-artigo.md",
+    "docs/divulgacao/2026-09-04-lancamento.md",
+    "docs/divulgacao/2026-09-04-release.en.md",
+    "docs/divulgacao/linkedin/artigo.pt-BR.md",
+    "docs/divulgacao/linkedin/artigo.en.md",
 ]
 
 CERCA = re.compile(r"^(?P<indent> *)```(?P<lang>[A-Za-z0-9+-]*)\s*$")

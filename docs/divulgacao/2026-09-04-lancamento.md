@@ -1,3 +1,5 @@
+**Português** · [English](2026-09-04-release.en.md)
+
 # TCF 0.8.4, fonte de notícia
 
 Documento datado que serve de fonte para os textos de canal desta pasta. Regra: nenhum texto

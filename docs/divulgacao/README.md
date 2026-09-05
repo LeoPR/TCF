@@ -1,110 +1,91 @@
-# `docs/divulgacao/`: material para apresentar o TCF
+[Português](README.pt-BR.md) · **English**
 
-Peças para mostrar o projeto publicamente. É material de apoio, não é a documentação da
-biblioteca, que fica nas pastas irmãs desta. Não publica medição nova: todo número vem de um
-documento datado do repositório, e cada um nomeia o comando que o reproduz.
+# `docs/divulgacao/`: material for presenting TCF
 
-## Por que aqui dentro, e não numa pasta própria na raiz
+Pieces for showing the project publicly. It is supporting material, not the library's
+documentation, which lives in the sibling folders. It publishes no new measurement: every number
+comes from a dated document in the repository, and each one names where it is reproduced.
 
-O molde desta pasta veio do `outreach/` do PatchCraft, que fica na raiz do repositório. Aqui a
-decisão foi outra, e ela é deliberada: **documento de divulgação é documento**, então mora na
-`docs/` junto com o resto. Uma segunda hierarquia de documentação na raiz faria o leitor
-escolher entre dois lugares para procurar a mesma coisa, e pasta demais atrapalha mais do que
-organiza.
+## How it is organized
 
-Pela mesma razão, o canal é **prefixo de nome de arquivo** e não subpasta. Se amanhã entrar um
-segundo canal, ele entra como `<canal>-post.md` ao lado, sem nível novo. A única subpasta
-prevista é `figuras/`, e ela existe só para não misturar binário com texto.
+The **root** holds the dated **news source**: one file per announcement, with the state, the
+headlines and the limits stated in full. The **subfolders** are the **channels**, and each gives
+that source the shape its medium accepts.
 
-## Como está organizado
+The rule that keeps the two aligned: no channel text changes without the dated source changing
+first.
 
-A separação que segura tudo é entre **fonte** e **canal**.
-
-A **fonte de notícia** é datada e canônica: um arquivo por anúncio, com o estado do projeto,
-as manchetes na ordem que interessa a quem nunca ouviu falar do TCF, e os limites ditos por
-inteiro. Os **textos de canal** são a mesma fonte no formato que cada meio aceita.
-
-A regra que mantém os dois alinhados: **nenhum texto de canal muda sem a fonte datada mudar
-antes.** E a fonte anterior não se reescreve, fica como registro do que foi dito naquele dia.
-
-| Padrão de nome | O que é |
+| Path | What it is |
 |---|---|
-| `<data>-<assunto>.md` | registro datado: fonte de notícia, ou um texto como foi publicado |
-| `<canal>-<peça>.md` | texto de canal, sempre o vigente |
-| `pitch-curto.md` | o resumo de um parágrafo, sem canal, para colar em qualquer lugar |
-| `figuras/` | só imagem, PNG para subir e SVG ao lado para editar |
+| [`2026-09-04-lancamento.md`](2026-09-04-lancamento.md) / [`2026-09-04-release.en.md`](2026-09-04-release.en.md) | the current news source (PT / EN) |
+| [`linkedin/`](linkedin/) | LinkedIn: `post.*` (short), `artigo.*` (long technical), `page.md` (illustrated) and the figures |
 
-O que já existe:
+It sits under `docs/` because **outreach documents are documents**. A second hierarchy at the
+repository root would make the reader choose between two places to look for the same thing.
 
-| Arquivo | O que é |
-|---|---|
-| [`2026-09-04-fonte-0.8.4.md`](2026-09-04-fonte-0.8.4.md) | **a fonte vigente**. Todo texto de canal deriva dela |
-| [`linkedin-post.md`](linkedin-post.md) | a peça curta, para o feed. Cerca de 3.000 caracteres |
-| [`linkedin-artigo.md`](linkedin-artigo.md) | o artigo longo, com as medições e os limites |
-| [`pitch-curto.md`](pitch-curto.md) | o pitch de um parágrafo, com o `JSON → CSV → TCF` em bytes reais |
-| [`2026-08-25-linkedin-0.8.2.md`](2026-08-25-linkedin-0.8.2.md) | o post da `0.8.2`, versão longa e curta. Registro datado, **não se reescreve** |
+**To publish the article**, use `linkedin/artigo-linkedin.en.md`, which is the same article
+generated without the two things the LinkedIn editor cannot do: inline code and tables. The table
+becomes the `4-tabela` image, extracted from the article itself so the numbers cannot diverge,
+and the file carries the paste-by-paste instructions at the top plus `[IMAGEM: ...]` markers at
+the exact point each figure goes. Do not edit that file: edit the article and run the script.
 
-**Nenhum número destes textos tem instrumento próprio, e isso é deliberado.** Cada um continua
-pertencendo a quem já era dono dele: os tamanhos canônicos ao
-`tests/test_regression_v1_baseline.py`, que pina byte a byte e roda o roundtrip da §RT; os
-ganhos em dado real ao relatório datado do EXP-019; os tempos ao baseline pinado do
-`scripts/bench_perf`. Um script de divulgação medindo o mesmo criaria uma segunda verdade para
-divergir da primeira, e seria mais um instrumento que ninguém roda.
+The figures live in `linkedin/figuras/<language>/`, one subfolder per language so the channel
+directory does not mix text with binaries. `scripts/make_divulgacao_figuras.py` generates them
+all, and running it regenerates everything. They obey the same rule as the numbers in the text:
+there is a command that reproduces them.
 
-O que a divulgação acrescenta é que **os exemplos rodam**. A fonte vigente e o artigo estão no
-`PAGINAS_DIDATICAS` do `tests/test_docs_snippets.py`, junto com o README e a referência, e a
-fonte carrega as próprias asserções de tamanho. Um número que ficar velho quebra a suíte.
+They come out as **SVG**, which is text and can be edited. The PNG that LinkedIn wants is
+produced alongside only if `cairosvg` is installed, and the script warns instead of failing when
+it is not.
 
-Os registros datados ficam **fora** desse gate de propósito. Eles não se reescrevem, então não
-podem ser consertados quando a API mudar.
+None of them is an illustration. The bars are bytes measured with the round-trip validated
+first, the wire shown is what `encode` actually returns, and the materialized columns in figure 3
+come from `view.report()`.
 
-## Limites de cada canal
+There are five per language, numbered in reading order: `0-capa` is the 1.91:1 header frame,
+`1-formatos` compares the four formats, `2-wire` annotates the real output, `3-view` shows what a
+query materializes, and `4-tabela` is the compression table the editor will not render.
 
-**Post do LinkedIn**: cerca de 3.000 caracteres, e só as duas ou três primeiras linhas
-aparecem antes do "ver mais". Essas linhas não podem ter jargão. O público é largo, e uma
-primeira frase que só fala com quem já conhece compressão filtra em vez de convidar. Contexto
-antes de jargão, densidade sem tom professoral, e um fecho que fecha em vez de parar. Hashtag
-no fim e sem acento, porque acento quebra a busca do LinkedIn.
+**The text stays outside the images**, in `linkedin/pagina.md` and `linkedin/page.md`, which is
+the page assembled with the figures linked. That way the text stays editable and the images can
+be reordered or used on their own, instead of being baked into pixels.
 
-**Artigo do LinkedIn**: formato longo, com título e tabela renderizando, que é onde os números
-cabem. Termina com o link do repositório.
+Here Portuguese is the canonical language, unlike the rest of the project, because the audience
+these texts address reads Portuguese first. English is the translation.
 
-Um detalhe do editor do LinkedIn que vale saber antes de escrever: ele não faz tabela e não faz
-código no meio da frase. Em vez de piorar o artigo para caber nele, o certo é manter o artigo
-bom e gerar dele uma versão para colar, com a tabela virando imagem.
+## Limits of each channel
 
-## As regras que fazem o texto valer
+- **LinkedIn post** (`linkedin/post.*`): about 3,000 characters, and only the first two or three
+  lines appear before "see more". Those lines cannot contain jargon: the audience is broad, and a
+  first sentence that only speaks to people who already know compression filters instead of
+  inviting. Context before jargon, density without a lecturing tone, and an ending that closes
+  rather than stops. Hashtags at the end and without accents, because an accented hashtag breaks
+  LinkedIn search.
+- **LinkedIn article** (`linkedin/artigo.*`): long form, with headings and tables rendering, good
+  for the version that carries the numbers. Ends with the repository link.
 
-**Todo número tem comando que reproduz.** Nada é estimativa, e nada é arredondado para soar
-melhor. Vale aqui a mesma regra §RT do resto do projeto: **não se reporta byte sem roundtrip
-validado**, nem em texto de divulgação.
+## Before publishing
 
-**Nada é ilustração.** Uma vantagem que o TCF tem sobre um projeto de imagem: o wire é texto
-legível, então a "figura" pode ser a saída real do `encode`, colada. Onde entrar imagem de
-verdade, ela sai de script que se roda de novo, não de desenho.
+**None of the numbers in these texts has an instrument of its own, and that is deliberate.** Each
+one still belongs to whoever already owned it: the canonical sizes to
+`tests/test_regression_v1_baseline.py`, which pins them byte for byte and runs the §RT
+round-trip; the real-data gains to the dated EXP-019 report; the timings to the pinned baseline
+of `scripts/bench_perf`. An outreach script measuring the same thing would create a second truth
+to diverge from the first.
 
-**A superfície carrega só o presente.** Estes textos dizem o que a biblioteca faz hoje. O
-caminho até aqui fica no `CHANGELOG.md`, nas ADR e nos labs datados, que é onde alguém procura
-de propósito. A razão é do leitor, não de coragem: quem chega agora nunca viu a versão antiga,
-e contar a correção só transmite que o projeto errou, antes de a pessoa saber para que ele
-serve.
+What outreach adds is that **the examples run**. The current source and the articles are in
+`PAGINAS_DIDATICAS` of `tests/test_docs_snippets.py`, alongside the README and the reference, and
+the source carries its own size assertions. A number that goes stale breaks the suite.
 
-**Sem superlativo.** O gancho é o problema do leitor, não a vantagem do projeto.
+**What these texts avoid on purpose:**
 
-**Não suavize a seção de limites.** Ela é curta, é verdadeira, e é a parte que dá credibilidade
-ao resto. No TCF ela inclui coisas que não favorecem o projeto e ficam mesmo assim: sob `gzip`
-os formatos empatam dentro de 1 B, o CSV passa o TCF depois de comprimido no tamanho minúsculo,
-e as otimizações de algoritmo são o ciclo seguinte e ainda não aconteceram.
+- superlatives. The hook is the reader's problem, not the project's advantage;
+- saying "smaller" without saying smaller than what, measured how, and on which data;
+- development history. These texts say what the library does today. The path here stays in
+  `CHANGELOG.md`, the ADRs and the dated labs, which is where someone looks on purpose. The
+  reason is the reader's: whoever arrives now never saw the old version.
 
-**O português é a língua canônica aqui**, ao contrário do resto do projeto. O público a que
-estes textos se dirigem lê português primeiro, e a tradução entra quando for publicar em
-inglês, não antes.
-
-## Antes de publicar
-
-Uma pendência **aberta** e que vale fechar antes de aumentar o número de pessoas olhando o
-repositório: o levantamento de 2026-09-02 encontrou 265 CPFs com dígito verificador válido em
-arquivos versionados, um deles em `src/tcf/natures/__init__.py`, que embarca na wheel. São
-números sintéticos e não vazamento, mas o critério do projeto fala de DV válido e não de
-origem. O verificador é `scripts/scan_cpf_dv.py`, e o registro está em
-[`T-QA-8`](../../tickets/T-QA-8-material-comprobatorio.md).
+**Do not soften the limits section.** It is short, it is true, and it is the part that gives the
+rest its credibility. Here it includes what does not favour the project: under `gzip` the formats
+tie within 1 B, CSV beats TCF once compressed at tiny sizes, algorithm optimization is the next
+cycle and has not happened, and the comparison against Parquet has not been done.

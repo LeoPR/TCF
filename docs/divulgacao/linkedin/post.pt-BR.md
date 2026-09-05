@@ -1,7 +1,17 @@
+**Português** · [English](post.en.md)
+
 # Resumo curto (reels / feed), apontando para o artigo e o repositório
 
-> Fonte: [`2026-09-04-fonte-0.8.4.md`](2026-09-04-fonte-0.8.4.md). Todo número vem do README.
-> Fora do gate de snippets por orçamento de caracteres; os mesmos exemplos rodam pelo artigo.
+> Fonte: [`../2026-09-04-lancamento.md`](../2026-09-04-lancamento.md). Todo número vem do
+> README. Fora do gate de snippets por orçamento de caracteres; os mesmos exemplos rodam pelo
+> artigo.
+>
+> **As três primeiras linhas** são as que aparecem antes do "ver mais", e não têm jargão de
+> propósito.
+>
+> **Figuras** em [`figuras/pt-BR/`](figuras/pt-BR/), geradas por
+> `python scripts/make_divulgacao_figuras.py`. Nada é ilustração: os bytes são medidos e o wire
+> desenhado é o que o `encode` devolve.
 
 ---
 
