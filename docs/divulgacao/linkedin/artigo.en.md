@@ -49,9 +49,13 @@ table = {
 }
 
 wire = encode(table)
+
+# the only guarantee that matters: the data comes back identical
 assert decode(wire) == table
-assert len(wire.encode("utf-8")) == 242
 ```
+
+That is 242 bytes, and the line that matters is the last one: the round-trip closes, so
+nothing below cost any information.
 
 And the wire is this, real `encode` output:
 
@@ -75,9 +79,15 @@ Basic
 444.444.444-44
 ```
 
-Column names appear once, in the header. `*3|Sao Paulo` says there are three identical rows
-there, written once. `^1` says "same as row 1". The domain `@acme.com.br` was written once and
+![The annotated wire, and what the CPF filter does to the column](figuras/en/2-wire.svg)
+
+Column names appear once, in the header. `*3|Sao Paulo` says there are three identical cidade
+rows, written once. `^1` says "same as row 1", which is how the fourth `plano` row becomes
+`Premium` again without being written out. And the domain `@acme.com.br` was written once and
 referenced by the other three e-mails.
+
+The second half of the figure turns the CPF filter on: the column then stores 5 characters per
+value, and the wire drops from 242 to 210 bytes.
 
 ## How it does that: two layers
 
@@ -92,6 +102,8 @@ It takes OBAT's tokens and factors recurring compositions into reusable named re
 also collapses consecutive repeats, including near-identical sequences such as IDs that only
 change at the end. Since a reference points to a reference, the result is an acyclic graph of
 fragments, in the spirit of Re-Pair and Sequitur, operating on tokens rather than bytes.
+
+![One column's path: the candidates compete and FLOOR writes the smallest](figuras/en/5-pipeline.svg)
 
 Each column runs its own pipeline, and for each one the encoder generates the candidates and
 writes the **smallest**: `min(tcf, raw, dictionary, split)`. The result is never worse by

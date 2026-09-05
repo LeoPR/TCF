@@ -49,9 +49,13 @@ tabela = {
 }
 
 wire = encode(tabela)
+
+# a única garantia que importa: o dado volta idêntico
 assert decode(wire) == tabela
-assert len(wire.encode("utf-8")) == 242
 ```
+
+São 242 bytes, e a linha que importa é a última: o roundtrip fecha, então nada do que vem
+abaixo custou informação.
 
 E o wire é isto, saída real do `encode`:
 
@@ -75,9 +79,15 @@ Basic
 444.444.444-44
 ```
 
+![O wire anotado, e o que o filtro de CPF faz com a coluna](figuras/pt-BR/2-wire.svg)
+
 Os nomes das colunas aparecem uma vez, no cabeçalho. `*3|Sao Paulo` diz que há três linhas
-iguais ali, escritas uma vez. `^1` diz "igual à linha 1". O domínio `@acme.com.br` foi escrito
+iguais de cidade, escritas uma vez. `^1` diz "igual à linha 1", que é como a quarta linha de
+`plano` volta a ser `Premium` sem ser escrita de novo. E o domínio `@acme.com.br` foi escrito
 uma vez e referenciado nos outros três e-mails.
+
+A segunda metade da figura liga o filtro de CPF: a coluna passa a guardar 5 caracteres por
+valor, e o wire cai de 242 para 210 bytes.
 
 ## Como ele faz isso: duas camadas
 
@@ -92,6 +102,8 @@ reutilizáveis. Também colapsa repetições consecutivas, inclusive sequências
 IDs que só mudam no fim. Como referência aponta para referência, o resultado é um grafo
 acíclico de fragmentos, no espírito do Re-Pair e do Sequitur, operando sobre tokens em vez de
 bytes.
+
+![O caminho de uma coluna: as candidatas competem e o FLOOR grava a menor](figuras/pt-BR/5-pipeline.svg)
 
 Cada coluna passa por um pipeline próprio, e para cada uma o codificador gera as candidatas e
 grava a **menor**: `min(tcf, cru, dicionário, split)`. O resultado é nunca pior por construção.

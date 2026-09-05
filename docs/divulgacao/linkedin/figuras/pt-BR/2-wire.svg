@@ -1,31 +1,55 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="720" viewBox="0 0 1000 720">
-  <rect width="1000" height="720" fill="#fbfaf8"/>
-  <text x="60" y="60" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="32" fill="#1a1a1a" font-weight="600" text-anchor="start" xml:space="preserve">O que o compressor deixa à vista</text>
-  <rect x="50" y="98" width="900" height="26" rx="2" fill="#eef4f1"/>
-  <text x="60" y="115" font-family="ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', monospace" font-size="17" fill="#0b6b52" text-anchor="start" xml:space="preserve">#TCF.8M!2c=nome,2a=email,1c=cidade,14=plano,!cpf</text>
-  <text x="940" y="115" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="15" fill="#6b6b6b" text-anchor="end" xml:space="preserve">◀ uma vez no cabeçalho, não por linha</text>
-  <text x="60" y="142" font-family="ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', monospace" font-size="17" fill="#1a1a1a" text-anchor="start" xml:space="preserve">Ana Souza</text>
-  <text x="60" y="169" font-family="ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', monospace" font-size="17" fill="#1a1a1a" text-anchor="start" xml:space="preserve">Bruno Lima</text>
-  <text x="60" y="196" font-family="ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', monospace" font-size="17" fill="#1a1a1a" text-anchor="start" xml:space="preserve">Carla Nunes</text>
-  <text x="60" y="223" font-family="ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', monospace" font-size="17" fill="#1a1a1a" text-anchor="start" xml:space="preserve">Diego Rochaan*a*@acme.com.br</text>
-  <text x="60" y="250" font-family="ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', monospace" font-size="17" fill="#1a1a1a" text-anchor="start" xml:space="preserve">brun*o3</text>
-  <text x="60" y="277" font-family="ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', monospace" font-size="17" fill="#1a1a1a" text-anchor="start" xml:space="preserve">carl2,3</text>
-  <rect x="50" y="287" width="900" height="26" rx="2" fill="#eef4f1"/>
-  <text x="60" y="304" font-family="ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', monospace" font-size="17" fill="#0b6b52" text-anchor="start" xml:space="preserve">dieg5,3</text>
-  <text x="940" y="304" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="15" fill="#6b6b6b" text-anchor="end" xml:space="preserve">◀ domínio escrito uma vez, referenciado</text>
-  <text x="60" y="331" font-family="ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', monospace" font-size="17" fill="#1a1a1a" text-anchor="start" xml:space="preserve">*3|Sao Paulo</text>
-  <text x="60" y="358" font-family="ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', monospace" font-size="17" fill="#1a1a1a" text-anchor="start" xml:space="preserve">Rio de Janeiro</text>
-  <text x="60" y="385" font-family="ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', monospace" font-size="17" fill="#1a1a1a" text-anchor="start" xml:space="preserve">*2|Premium</text>
-  <rect x="50" y="395" width="900" height="26" rx="2" fill="#eef4f1"/>
-  <text x="60" y="412" font-family="ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', monospace" font-size="17" fill="#0b6b52" text-anchor="start" xml:space="preserve">Basic</text>
-  <text x="940" y="412" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="15" fill="#6b6b6b" text-anchor="end" xml:space="preserve">◀ três linhas iguais, escritas uma vez</text>
-  <text x="60" y="439" font-family="ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', monospace" font-size="17" fill="#1a1a1a" text-anchor="start" xml:space="preserve">^1</text>
-  <text x="60" y="466" font-family="ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', monospace" font-size="17" fill="#1a1a1a" text-anchor="start" xml:space="preserve">111.111.111-11</text>
-  <text x="60" y="493" font-family="ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', monospace" font-size="17" fill="#1a1a1a" text-anchor="start" xml:space="preserve">222.222.222-22</text>
-  <rect x="50" y="503" width="900" height="26" rx="2" fill="#eef4f1"/>
-  <text x="60" y="520" font-family="ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', monospace" font-size="17" fill="#0b6b52" text-anchor="start" xml:space="preserve">333.333.333-33</text>
-  <text x="940" y="520" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="15" fill="#6b6b6b" text-anchor="end" xml:space="preserve">◀ igual à linha 1</text>
-  <text x="60" y="547" font-family="ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', monospace" font-size="17" fill="#1a1a1a" text-anchor="start" xml:space="preserve">444.444.444-44</text>
-  <line x1="60" y1="586" x2="940" y2="586" stroke="#d8d4cc" stroke-width="1"/>
-  <text x="60" y="619" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="18" fill="#6b6b6b" text-anchor="start" xml:space="preserve">Saída real do encode. É esta a string que se transmite.</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="1180" height="760" viewBox="0 0 1180 760">
+  <rect width="1180" height="760" fill="#fbfaf8"/>
+  <text x="60" y="62" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="32" fill="#1a1a1a" font-weight="600" text-anchor="start" xml:space="preserve">O que o compressor deixa à vista</text>
+  <rect x="50" y="100" width="1080" height="27" rx="3" fill="#eaf2ee"/>
+  <text x="505" y="118" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="15" fill="#0b6b52" text-anchor="start" xml:space="preserve">▶</text>
+  <text x="530" y="118" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="16" fill="#6b6b6b" text-anchor="start" xml:space="preserve">o cabeçalho: nomes e tamanhos das colunas, uma vez só</text>
+  <text x="60" y="118" font-family="ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', monospace" font-size="17" fill="#0b6b52" text-anchor="start" xml:space="preserve">#TCF.8M!2c=nome,2a=email,1c=cidade,14=plano,!cpf</text>
+  <text x="60" y="146" font-family="ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', monospace" font-size="17" fill="#1a1a1a" text-anchor="start" xml:space="preserve">Ana Souza</text>
+  <text x="60" y="174" font-family="ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', monospace" font-size="17" fill="#1a1a1a" text-anchor="start" xml:space="preserve">Bruno Lima</text>
+  <text x="60" y="202" font-family="ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', monospace" font-size="17" fill="#1a1a1a" text-anchor="start" xml:space="preserve">Carla Nunes</text>
+  <rect x="50" y="212" width="1080" height="27" rx="3" fill="#eaf2ee"/>
+  <text x="505" y="230" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="15" fill="#0b6b52" text-anchor="start" xml:space="preserve">▶</text>
+  <text x="530" y="230" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="16" fill="#6b6b6b" text-anchor="start" xml:space="preserve">o domínio @acme.com.br: escrito uma vez, referenciado depois</text>
+  <text x="60" y="230" font-family="ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', monospace" font-size="17" fill="#0b6b52" text-anchor="start" xml:space="preserve">Diego Rochaan*a*@acme.com.br</text>
+  <text x="60" y="258" font-family="ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', monospace" font-size="17" fill="#1a1a1a" text-anchor="start" xml:space="preserve">brun*o3</text>
+  <text x="60" y="286" font-family="ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', monospace" font-size="17" fill="#1a1a1a" text-anchor="start" xml:space="preserve">carl2,3</text>
+  <text x="60" y="314" font-family="ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', monospace" font-size="17" fill="#1a1a1a" text-anchor="start" xml:space="preserve">dieg5,3</text>
+  <rect x="50" y="324" width="1080" height="27" rx="3" fill="#eaf2ee"/>
+  <text x="505" y="342" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="15" fill="#0b6b52" text-anchor="start" xml:space="preserve">▶</text>
+  <text x="530" y="342" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="16" fill="#6b6b6b" text-anchor="start" xml:space="preserve">três linhas iguais de cidade: escritas uma vez</text>
+  <text x="60" y="342" font-family="ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', monospace" font-size="17" fill="#0b6b52" text-anchor="start" xml:space="preserve">*3|Sao Paulo</text>
+  <text x="60" y="370" font-family="ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', monospace" font-size="17" fill="#1a1a1a" text-anchor="start" xml:space="preserve">Rio de Janeiro</text>
+  <rect x="50" y="380" width="1080" height="27" rx="3" fill="#eaf2ee"/>
+  <text x="505" y="398" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="15" fill="#0b6b52" text-anchor="start" xml:space="preserve">▶</text>
+  <text x="530" y="398" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="16" fill="#6b6b6b" text-anchor="start" xml:space="preserve">duas linhas iguais de plano</text>
+  <text x="60" y="398" font-family="ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', monospace" font-size="17" fill="#0b6b52" text-anchor="start" xml:space="preserve">*2|Premium</text>
+  <text x="60" y="426" font-family="ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', monospace" font-size="17" fill="#1a1a1a" text-anchor="start" xml:space="preserve">Basic</text>
+  <rect x="50" y="436" width="1080" height="27" rx="3" fill="#eaf2ee"/>
+  <text x="505" y="454" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="15" fill="#0b6b52" text-anchor="start" xml:space="preserve">▶</text>
+  <text x="530" y="454" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="16" fill="#6b6b6b" text-anchor="start" xml:space="preserve">e a quarta aponta de volta pra primeira linha da coluna</text>
+  <text x="60" y="454" font-family="ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', monospace" font-size="17" fill="#0b6b52" text-anchor="start" xml:space="preserve">^1</text>
+  <text x="60" y="482" font-family="ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', monospace" font-size="17" fill="#1a1a1a" text-anchor="start" xml:space="preserve">111.111.111-11</text>
+  <text x="60" y="510" font-family="ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', monospace" font-size="17" fill="#1a1a1a" text-anchor="start" xml:space="preserve">222.222.222-22</text>
+  <text x="60" y="538" font-family="ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', monospace" font-size="17" fill="#1a1a1a" text-anchor="start" xml:space="preserve">333.333.333-33</text>
+  <text x="60" y="566" font-family="ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', monospace" font-size="17" fill="#1a1a1a" text-anchor="start" xml:space="preserve">444.444.444-44</text>
+  <line x1="60" y1="604" x2="1120" y2="604" stroke="#d8d4cc" stroke-width="1"/>
+  <text x="60" y="646" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="22" fill="#1a1a1a" font-weight="600" text-anchor="start" xml:space="preserve">Com o filtro cpf, a coluna de CPF vira código de 5 chars</text>
+  <text x="60" y="684" font-family="ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', monospace" font-size="17" fill="#6b6b6b" text-anchor="start" xml:space="preserve">111.111.111-11</text>
+  <text x="300" y="684" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="17" fill="#d8d4cc" text-anchor="start" xml:space="preserve">→</text>
+  <text x="345" y="684" font-family="ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', monospace" font-size="17" fill="#0b6b52" text-anchor="start" xml:space="preserve">%g$.u</text>
+  <text x="60" y="710" font-family="ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', monospace" font-size="17" fill="#6b6b6b" text-anchor="start" xml:space="preserve">222.222.222-22</text>
+  <text x="300" y="710" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="17" fill="#d8d4cc" text-anchor="start" xml:space="preserve">→</text>
+  <text x="345" y="710" font-family="ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', monospace" font-size="17" fill="#0b6b52" text-anchor="start" xml:space="preserve">)K%7l</text>
+  <text x="60" y="736" font-family="ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', monospace" font-size="17" fill="#6b6b6b" text-anchor="start" xml:space="preserve">333.333.333-33</text>
+  <text x="300" y="736" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="17" fill="#d8d4cc" text-anchor="start" xml:space="preserve">→</text>
+  <text x="345" y="736" font-family="ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', monospace" font-size="17" fill="#0b6b52" text-anchor="start" xml:space="preserve">.1&amp;Cc</text>
+  <text x="60" y="762" font-family="ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', monospace" font-size="17" fill="#6b6b6b" text-anchor="start" xml:space="preserve">444.444.444-44</text>
+  <text x="300" y="762" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="17" fill="#d8d4cc" text-anchor="start" xml:space="preserve">→</text>
+  <text x="345" y="762" font-family="ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', monospace" font-size="17" fill="#0b6b52" text-anchor="start" xml:space="preserve">0r(LU</text>
+  <text x="470" y="710" font-family="ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', monospace" font-size="26" fill="#6b6b6b" text-anchor="start" xml:space="preserve">242 B</text>
+  <text x="560" y="710" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="26" fill="#d8d4cc" text-anchor="start" xml:space="preserve">→</text>
+  <text x="600" y="710" font-family="ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', monospace" font-size="26" fill="#0b6b52" font-weight="600" text-anchor="start" xml:space="preserve">210 B</text>
+  <text x="60" y="812" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="18" fill="#6b6b6b" text-anchor="start" xml:space="preserve">9 dígitos úteis guardados; a máscara e os 2 verificadores o decode refaz.</text>
+  <text x="60" y="838" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="18" fill="#6b6b6b" text-anchor="start" xml:space="preserve">Saída real do encode. É esta a string que se transmite.</text>
 </svg>

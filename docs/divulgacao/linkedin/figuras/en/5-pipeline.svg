@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1180" height="620" viewBox="0 0 1180 620">
+  <rect width="1180" height="620" fill="#fbfaf8"/>
+  <text x="60" y="62" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="32" fill="#1a1a1a" font-weight="600" text-anchor="start" xml:space="preserve">The path of one column to the wire</text>
+  <rect x="60" y="275" width="130" height="64" rx="6" fill="#e8e5df"/>
+  <text x="125" y="314" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="19" fill="#1a1a1a" font-weight="600" text-anchor="middle" xml:space="preserve">one column</text>
+  <line x1="190" y1="307" x2="250" y2="156" stroke="#d8d4cc" stroke-width="2"/>
+  <rect x="250" y="130" width="470" height="52" rx="6" fill="#dfe9e5"/>
+  <text x="485" y="162" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="18" fill="#1a1a1a" text-anchor="middle" xml:space="preserve">OBAT
+finds shared prefix and suffix  →  HCC
+names what repeats</text>
+  <line x1="720" y1="156" x2="790" y2="307" stroke="#d8d4cc" stroke-width="2"/>
+  <line x1="190" y1="307" x2="250" y2="241" stroke="#d8d4cc" stroke-width="2"/>
+  <rect x="250" y="215" width="470" height="52" rx="6" fill="#f0e7da"/>
+  <text x="485" y="247" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="18" fill="#1a1a1a" text-anchor="middle" xml:space="preserve">nature filter: (cpf, cnpj, ip)</text>
+  <line x1="720" y1="241" x2="790" y2="307" stroke="#d8d4cc" stroke-width="2"/>
+  <line x1="190" y1="307" x2="250" y2="326" stroke="#d8d4cc" stroke-width="2"/>
+  <rect x="250" y="300" width="470" height="52" rx="6" fill="#e8e5df"/>
+  <text x="485" y="332" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="18" fill="#1a1a1a" text-anchor="middle" xml:space="preserve">the raw data, no transformation at all</text>
+  <line x1="720" y1="326" x2="790" y2="307" stroke="#d8d4cc" stroke-width="2"/>
+  <line x1="190" y1="307" x2="250" y2="411" stroke="#d8d4cc" stroke-width="2"/>
+  <rect x="250" y="385" width="470" height="52" rx="6" fill="#e8e5df"/>
+  <text x="485" y="417" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="18" fill="#1a1a1a" text-anchor="middle" xml:space="preserve">dictionary of unique values  ·  structural split</text>
+  <line x1="720" y1="411" x2="790" y2="307" stroke="#d8d4cc" stroke-width="2"/>
+  <text x="485" y="118" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="17" fill="#6b6b6b" text-anchor="middle" xml:space="preserve">the candidates</text>
+  <rect x="790" y="265" width="210" height="84" rx="6" fill="#0b6b52"/>
+  <text x="895" y="302" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="20" fill="#fbfaf8" font-weight="600" text-anchor="middle" xml:space="preserve">FLOOR</text>
+  <text x="895" y="326" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="16" fill="#fbfaf8" text-anchor="middle" xml:space="preserve">min(tcf, raw, dict, split)</text>
+  <line x1="1000" y1="307" x2="1111" y2="307" stroke="#d8d4cc" stroke-width="2"/>
+  <text x="1111" y="312" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13" fill="#d8d4cc" text-anchor="start" xml:space="preserve">▶</text>
+  <rect x="1020" y="275" width="100" height="64" rx="6" fill="#084f3d"/>
+  <text x="1070" y="314" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="19" fill="#fbfaf8" font-weight="600" text-anchor="middle" xml:space="preserve">the wire</text>
+  <line x1="60" y1="470" x2="1120" y2="470" stroke="#d8d4cc" stroke-width="1"/>
+  <text x="60" y="505" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="19" fill="#6b6b6b" text-anchor="start" xml:space="preserve">Each column decides on its own. FLOOR writes the smallest candidate: never worse.</text>
+  <text x="60" y="535" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="18" fill="#6b6b6b" text-anchor="start" xml:space="preserve">The worst case is tying with raw, and the tie costs the header.</text>
+</svg>

@@ -64,12 +64,26 @@ T = {
         "f4": "Sob compressão de canal, nível máximo",
         "f4_pe": "O TCF ganha cru, sob br e sob zstd. Sob gzip os três de API empatam.",
         "cru": "cru",
-        "toca": "materializado",
-        "intacto": "nunca descomprimido",
-        "leg": ("uma vez no cabeçalho, não por linha",
-                "três linhas iguais, escritas uma vez",
-                "igual à linha 1",
-                "domínio escrito uma vez, referenciado"),
+        "leg": ("o cabeçalho: nomes e tamanhos das colunas, uma vez só",
+                "o domínio @acme.com.br: escrito uma vez, referenciado depois",
+                "três linhas iguais de cidade: escritas uma vez",
+                "duas linhas iguais de plano",
+                "e a quarta aponta de volta pra primeira linha da coluna"),
+        "w_spec": "Com o filtro cpf, a coluna de CPF vira código de 5 chars",
+        "w_spec_pe": "9 dígitos úteis guardados; a máscara e os 2 verificadores o decode refaz.",
+        "v_intacto": "nunca descomprimidos",
+        "v_filtro": "materializado para filtrar",
+        "v_soma": "materializado e somado",
+        "v_lido": "do blob foi lido",
+        "p_tit": "O caminho de uma coluna até o wire",
+        "p_pe": "Cada coluna decide sozinha. O FLOOR grava a menor candidata: nunca pior.",
+        "p_cru": "o dado cru, sem transformacao nenhuma",
+        "p_outras": "dicionario de valores unicos  ·  split estrutural",
+        "p_pe2": "O pior caso e empatar com o cru, e o custo do empate e o cabecalho.",
+        "p": ("uma coluna", "OBAT\nacha prefixo e sufixo comuns",
+              "HCC\nnomeia o que se repete",
+              "filtro de natureza\n(cpf, cnpj, ip)", "as candidatas",
+              "FLOOR\nmin(tcf, cru, dict, split)", "o wire"),
     },
     "en": {
         "capa_sub": "As small as a compressor, as readable as text",
@@ -83,12 +97,26 @@ T = {
         "f4": "Under channel compression, maximum level",
         "f4_pe": "TCF wins raw, under br and zstd. Under gzip the three API formats tie.",
         "cru": "raw",
-        "toca": "materialized",
-        "intacto": "never decompressed",
-        "leg": ("once in the header, not per row",
-                "three identical rows, written once",
-                "same as row 1",
-                "domain written once, then referenced"),
+        "leg": ("the header: column names and sizes, written once",
+                "the @acme.com.br domain: written once, then referenced",
+                "three identical cidade rows: written once",
+                "two identical plano rows",
+                "and the fourth points back to row 1 of the column"),
+        "w_spec": "With the cpf filter, the CPF column becomes a 5-char code",
+        "w_spec_pe": "9 useful digits kept; decode rebuilds the mask and the 2 check digits.",
+        "v_intacto": "never decompressed",
+        "v_filtro": "materialized to filter",
+        "v_soma": "materialized and summed",
+        "v_lido": "of the blob was read",
+        "p_tit": "The path of one column to the wire",
+        "p_pe": "Each column decides on its own. FLOOR writes the smallest candidate: never worse.",
+        "p_cru": "the raw data, no transformation at all",
+        "p_outras": "dictionary of unique values  ·  structural split",
+        "p_pe2": "The worst case is tying with raw, and the tie costs the header.",
+        "p": ("one column", "OBAT\nfinds shared prefix and suffix",
+              "HCC\nnames what repeats",
+              "nature filter\n(cpf, cnpj, ip)", "the candidates",
+              "FLOOR\nmin(tcf, raw, dict, split)", "the wire"),
     },
 }
 
@@ -135,13 +163,17 @@ def medidos() -> dict:
     jsonl = "\n".join(json.dumps(r, separators=(",", ":"), ensure_ascii=False)
                       for r in registros)
 
+    wire_spec = encode(TABELA, schema={"cpf": "cpf"})
+    if decode(wire_spec) != TABELA:
+        raise SystemExit("ABORTA: roundtrip com o filtro cpf falhou.")
+
     blob = encode(VENDAS)
     if decode(blob) != VENDAS:
         raise SystemExit("ABORTA: roundtrip da tabela de vendas falhou.")
     v = view(blob)
     v.where("cidade", "Sao Paulo").sum("valor")
-    return {"wire": wire, "csv": csv, "json": js, "jsonl": jsonl,
-            "blob": blob, "report": v.report()}
+    return {"wire": wire, "wire_spec": wire_spec, "csv": csv, "json": js,
+            "jsonl": jsonl, "blob": blob, "report": v.report()}
 
 
 def canais(texto: str) -> dict:
@@ -196,46 +228,123 @@ def fig_formatos(lang: str, d: dict) -> Svg:
 
 
 def fig_wire(lang: str, d: dict) -> Svg:
+    """O wire real, anotado, e o que o filtro de natureza faz com a coluna de CPF."""
     tt = T[lang]
     ls = d["wire"].splitlines()
-    s = Svg(1000, 720)
-    s.txt(60, 60, tt["f2"], 32, TINTA, bold=True)
-    notas = {0: tt["leg"][0], 7: tt["leg"][3], 11: tt["leg"][1], 15: tt["leg"][2]}
-    y = 115
+    s = Svg(1180, 760)
+    s.txt(60, 62, tt["f2"], 32, TINTA, bold=True)
+
+    # as linhas que a legenda explica, na ordem em que aparecem no wire
+    notas = {0: tt["leg"][0], 4: tt["leg"][1], 8: tt["leg"][2],
+             10: tt["leg"][3], 12: tt["leg"][4]}
+    y = 118
     for i, ln in enumerate(ls):
-        realce = i in notas
-        if realce:
-            s.rect(50, y - 17, 900, 26, "#eef4f1", 2)
-        s.txt(60, y, ln, 17, ACENTO if realce else TINTA, mono=True)
-        if realce:
-            s.txt(940, y, "◀ " + notas[i], 15, FRACO, anchor="end")
-        y += 27
-    s.linha(60, y + 12, 940, y + 12)
-    s.txt(60, y + 45, tt["f2_pe"], 18, FRACO)
+        if i in notas:
+            s.rect(50, y - 18, 1080, 27, "#eaf2ee", 3)
+            s.txt(505, y, "▶", 15, ACENTO)
+            s.txt(530, y, notas[i], 16, FRACO)
+        s.txt(60, y, ln, 17, ACENTO if i in notas else TINTA, mono=True)
+        y += 28
+    s.linha(60, y + 10, 1120, y + 10)
+
+    # o antes e depois do filtro, na mesma figura: e' o argumento da natureza
+    y += 52
+    s.txt(60, y, tt["w_spec"], 22, TINTA, bold=True)
+    y += 38
+    antes = d["wire"].splitlines()[13:17]
+    depois = d["wire_spec"].splitlines()[13:17]
+    for k in range(4):
+        s.txt(60, y + k * 26, antes[k], 17, FRACO, mono=True)
+        s.txt(300, y + k * 26, "→", 17, BARRA)
+        s.txt(345, y + k * 26, depois[k], 17, ACENTO, mono=True)
+    s.txt(470, y + 26, f'{len(d["wire"].encode())} B', 26, FRACO, mono=True)
+    s.txt(560, y + 26, "→", 26, BARRA)
+    s.txt(600, y + 26, f'{len(d["wire_spec"].encode())} B', 26, ACENTO, mono=True,
+          bold=True)
+    s.txt(60, y + 128, tt["w_spec_pe"], 18, FRACO)
+    s.txt(60, y + 154, tt["f2_pe"], 18, FRACO)
     return s
 
 
 def fig_view(lang: str, d: dict) -> Svg:
+    """Por PAPEL, nao por coluna: as duas intocadas dividem um cartao so'."""
     tt = T[lang]
     r = d["report"]
-    s = Svg(1000, 420)
-    s.txt(60, 66, tt["f3"], 32, TINTA, bold=True)
-    s.txt(60, 108, 'view(blob).where("cidade", "Sao Paulo").sum("valor")', 20, FRACO,
+    s = Svg(1000, 400)
+    s.txt(60, 62, tt["f3"], 32, TINTA, bold=True)
+    s.txt(60, 102, 'view(blob).where("cidade", "Sao Paulo").sum("valor")', 20, FRACO,
           mono=True)
-    x, larg = 60, 205
-    for col in VENDAS:
-        tocado = col in r["touched"]
-        s.rect(x, 150, larg - 15, 92, ACENTO if tocado else BARRA)
-        s.txt(x + (larg - 15) // 2, 200, col, 22, FUNDO if tocado else FRACO,
-              mono=True, bold=True, anchor="middle")
-        s.txt(x + (larg - 15) // 2, 226, tt["toca"] if tocado else tt["intacto"],
-              14, FUNDO if tocado else FRACO, anchor="middle")
-        x += larg
-    s.txt(60, 300, f'{r["pct"]}%', 46, ACENTO, bold=True, mono=True)
-    s.txt(150, 300, f'{r["materialized_bytes"]} B / {r["total_bytes"]} B', 24, FRACO,
+
+    intocadas = [c for c in VENDAS if c not in r["touched"]]
+    cartoes = [(" · ".join(intocadas), tt["v_intacto"], BARRA, FRACO, 330),
+               ("cidade", tt["v_filtro"], ACENTO, FUNDO, 250),
+               ("valor", tt["v_soma"], "#084f3d", FUNDO, 250)]
+    x = 60
+    for titulo, papel, fundo, tinta, larg in cartoes:
+        s.rect(x, 140, larg, 86, fundo)
+        s.txt(x + larg // 2, 186, titulo, 22, tinta, mono=True, bold=True,
+              anchor="middle")
+        s.txt(x + larg // 2, 210, papel, 15, tinta, anchor="middle")
+        x += larg + 20
+
+    s.txt(60, 296, f'{r["pct"]}%', 44, ACENTO, bold=True, mono=True)
+    s.txt(230, 296, tt["v_lido"], 22, TINTA)
+    s.txt(230, 322, f'{r["materialized_bytes"]} B / {r["total_bytes"]} B', 18, FRACO,
           mono=True)
-    s.linha(60, 330, 940, 330)
-    s.txt(60, 364, tt["f3_pe"], 18, FRACO)
+    s.linha(60, 348, 940, 348)
+    s.txt(60, 380, tt["f3_pe"], 18, FRACO)
+    return s
+
+
+def fig_pipeline(lang: str, d: dict) -> Svg:
+    """A estrutura: a coluna abre em candidatas, o FLOOR grava a menor.
+
+    Nao e' fluxo linear, e desenhar linear mentiria: as quatro candidatas sao
+    calculadas e competem. E' isso que faz o `nunca pior` ser por construcao.
+    """
+    tt = T[lang]
+    entrada, obat, hcc, filtro, cand, floor, wire = tt["p"]
+    s = Svg(1180, 620)
+    s.txt(60, 62, tt["p_tit"], 32, TINTA, bold=True)
+
+    def caixa(x, y, w, h, rotulo, fundo, tinta, size=19):
+        s.rect(x, y, w, h, fundo, 6)
+        ls = rotulo.split("\n")
+        base = y + h // 2 - (len(ls) - 1) * 12 + 7
+        for k, ln in enumerate(ls):
+            s.txt(x + w // 2, base + k * 24, ln, size if k == 0 else size - 4,
+                  tinta, bold=(k == 0), anchor="middle")
+
+    def seta(x1, y, x2):
+        s.linha(x1, y, x2 - 9, y, BARRA, 2)
+        s.txt(x2 - 9, y + 5, "▶", 13, BARRA)
+
+    # a entrada
+    caixa(60, 275, 130, 64, entrada, "#e8e5df", TINTA)
+
+    # as quatro candidatas, cada uma numa faixa
+    faixas = [
+        (130, f"{obat}  →  {hcc}", "#dfe9e5"),
+        (215, filtro.replace("\n", ": "), "#f0e7da"),
+        (300, tt["p_cru"], "#e8e5df"),
+        (385, tt["p_outras"], "#e8e5df"),
+    ]
+    for y, rotulo, cor in faixas:
+        s.linha(190, 307, 250, y + 26, BARRA, 2)
+        s.rect(250, y, 470, 52, cor, 6)
+        s.txt(485, y + 32, rotulo, 18, TINTA, anchor="middle")
+        s.linha(720, y + 26, 790, 307, BARRA, 2)
+
+    s.txt(485, 118, cand, 17, FRACO, anchor="middle")
+
+    # o FLOOR e a saida
+    caixa(790, 265, 210, 84, floor, ACENTO, FUNDO, size=20)
+    seta(1000, 307, 1120)
+    caixa(1020, 275, 100, 64, wire, "#084f3d", FUNDO)
+
+    s.linha(60, 470, 1120, 470)
+    s.txt(60, 505, tt["p_pe"], 19, FRACO)
+    s.txt(60, 535, tt["p_pe2"], 18, FRACO)
     return s
 
 
@@ -266,7 +375,8 @@ def fig_tabela(lang: str, d: dict) -> Svg:
 
 
 FIGURAS = (("0-capa", capa), ("1-formatos", fig_formatos),
-           ("2-wire", fig_wire), ("3-view", fig_view), ("4-tabela", fig_tabela))
+           ("2-wire", fig_wire), ("3-view", fig_view), ("4-tabela", fig_tabela),
+           ("5-pipeline", fig_pipeline))
 
 
 def para_png(svg: Path) -> bool:
