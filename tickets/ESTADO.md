@@ -24,8 +24,8 @@
 | ticket | estado | mexido | assunto |
 |---|---|---|---|
 | [T-CODE-CORE-CONSOLIDATE](T-CODE-CORE-CONSOLIDATE.md) | `P1` open | 2026-09-01 | fonte única de lógica, menos funções, naming HCC (adeus M8A) |
-| [T-PERF-BORDAS-E-MODOS-09](T-PERF-BORDAS-E-MODOS-09.md) | `P1` open | 2026-09-01 | as bordas do TCF e os modos de compressão (rápido × maior); o alvo do .9 |
-| [T-QA-8-material-comprobatorio](T-QA-8-material-comprobatorio.md) | `P1` open | 2026-09-01 | T-QA-8, material comprobatório do #TCF.8/0.8.0 (controle → sintéticos → públicos) com telemetria |
+| [T-PERF-BORDAS-E-MODOS-09](T-PERF-BORDAS-E-MODOS-09.md) | `P1` open | 2026-09-07 | otimização multicamada, bordas e perfis; o alvo do .9 |
+| [T-QA-8-material-comprobatorio](T-QA-8-material-comprobatorio.md) | `P1` open | 2026-09-12 | T-QA-8, material comprobatório do #TCF.8/0.8.0 (controle → sintéticos → públicos) com telemetria |
 | [T-API-SCHEMA-PRESCRITIVO](T-API-SCHEMA-PRESCRITIVO.md) | `P2` open | 2026-09-01 | o objeto Schema (forma longa do `schema=`) como portador do contrato |
 | [T-CODE-PARALLEL-BUDGET](T-CODE-PARALLEL-BUDGET.md) | `P2` open | 2026-09-01 | flag de controle de paralelismo e uso de CPU (budget do host) |
 | [T-CODE-VIEW-SUBTCF-RECORTE](T-CODE-VIEW-SUBTCF-RECORTE.md) | `P2` open | 2026-09-01 | promover H-QUERY-06 a saída TCF da view |
@@ -45,7 +45,7 @@
 | [T-DOC-L10N-REFERENCE](T-DOC-L10N-REFERENCE.md) | `P3` open | 2026-09-01 | os 5 documentos restantes de docs/reference/ em dois idiomas |
 | [T-DOC-TIPOS-MISTOS](T-DOC-TIPOS-MISTOS.md) | `P3` open | 2026-09-01 | elaborar a documentação do comportamento de tipos mistos (hoje em post-it) |
 | [T-FMT-ESCAPE-COMBINATORIAL-STUDY](T-FMT-ESCAPE-COMBINATORIAL-STUDY.md) | `P3` open | 2026-07-15 | reestudar o escape (combinatório + estratégias de outros mecanismos) |
-| [T-FMT-META-STRICT](T-FMT-META-STRICT.md) | `P3` open | 2026-09-02 | o que já fecha por dedução vs o que exige redundância (checksum) |
+| [T-FMT-META-STRICT](T-FMT-META-STRICT.md) | `P3` open | 2026-09-07 | o que já fecha por dedução vs o que exige redundância (checksum) |
 | [T-FMT-QUOTING-STUDY](T-FMT-QUOTING-STUDY.md) | `P3` open | 2026-07-10 | estudo de quoting/escaping de nomes além do backslash interim (filho de T-FMT-NAME-ESCAPING) |
 | [T-SHAPER-NESTED-OUTPUT](T-SHAPER-NESTED-OUTPUT.md) | `P3` open | 2026-09-02 | saída HIERÁRQUICA nativa no Shaper (aninhar via FK, inverso do flat) |
 | [T-STUDY-USE-PROFILES](T-STUDY-USE-PROFILES.md) | `P3` open | 2026-09-01 | perfis de uso (transmissão × armazenamento) e a calibração dos vértices |

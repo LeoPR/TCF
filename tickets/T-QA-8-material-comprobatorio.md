@@ -3,7 +3,7 @@ title: T-QA-8, material comprobatório do #TCF.8/0.8.0 (controle → sintéticos
 status: open
 priority: P1
 created: 2026-07-10
-updated: 2026-09-01
+updated: 2026-09-12
 gate: ".8 (dossie da versao); levantamento dos restos em 2026-09-02, §Levantamento"
 blocked-by: []
 related:
@@ -266,6 +266,66 @@ registrar a exceção no gate, não reescrever o artefato.
 
 Marcar o grupo A, confirmar os dois do grupo B, mandar o F5-1 para o `.9`, e resolver o grupo D.
 Só o D é trabalho de verdade, e é trabalho de uma sessão.
+
+## Verificação 2026-09-12: o `.8` está fechado? Prova em partes
+
+**[probatório]** O owner declara o `.8` fechado (`T-REL-08-CLOSEOUT` `closed`, `0.8.4` publicada).
+Este ticket é o único ponto que ainda o aponta como aberto, então cada item aberto daqui é
+conferido contra o repo, uma parte por vez. **Registrar evidência não marca checkbox**: a marcação
+e o fechamento do ticket ficam para o owner, na parte 5. Diário:
+`experiments/lab/dirty/notas/diario/2026-09-12.md`.
+
+### Parte 1: o que ainda está aberto (feita)
+
+29 marcações não fechadas, nenhum commit neste ticket depois de 2026-09-02. Grupos, segundo o
+levantamento de 09-02 mais a conferência de hoje:
+
+| grupo | itens | situação |
+|---|---|---|
+| A | DOC-01, DOC-03, DOC-04, F6-1a/b/c/d/f, F6-2, F6-3 | conferido na parte 2 |
+| B | F0-3, F0-4 | F0-3 **já decidido**: `T-REL-08-CLOSEOUT:182` registra "F0-3 fechado stdlib-only"; F0-4 moot |
+| C | F5-1 | destino `.9` declarado (`T-PERF-BORDAS-E-MODOS-09`), que ainda não o cita |
+| D | regra do CPF (§5) | ainda falha: `123.456.789-09` em `src/tcf/natures/__init__.py:37` e nos dois READMEs; sem teste varredor. Tensão de regra: `tests/test_schema_param.py:21` diz "CPFs DV-válidos já presentes na suíte (nunca criar novos)", o §5 proíbe qualquer um em artefato publicado |
+| parciais `[~]` | BUG-11, BUG-13, F0-1, F3-3, F3-4, F4-2, F4-4 | sem veredito no levantamento de 09-02; parte 3 |
+| aceite | 7 caixas do §5 | sem veredito; parte 3 |
+
+### Parte 2: grupo A (feita)
+
+| item | prova conferida em 2026-09-12 | veredito |
+|---|---|---|
+| DOC-01 / F6-1a | zero ocorrências nos dois READMEs de `0.7.1`, `#TCF.7`, `TCF.6`, `244B`, `303`/`322`, `379 passed`, `Format 0.7`, `tcf_lazy`, `does not compress`, `legacy`, `forces`, `27B`, `target 0.8`; seção "Format 0.8 (default)" na linha 388; ressalva do CNPJ em dado real em `README.md:325` | feito |
+| DOC-03 / F6-1c | `@a=uf,1e=nome` com zero ocorrências em `TCF-format.pt-BR.md` e `.en.md` | feito |
+| DOC-04 / F6-1d | `pyproject.toml` com 4 `[project.urls]`, classifiers com `Typing :: Typed`; `src/tcf/py.typed` presente | feito |
+| F6-1b | menções a `#TCF.6/.7` em `decoder.py` descrevem o corte fail-loud; `is_v8` zero; `scripts/tcf_lazy` citado em `view.py:9` existe | feito |
+| F6-2 | `.github/workflows/release.yml:103-116`: venv limpo, `cd /tmp`, round-trip e versão igual à tag; `publish` com `needs: build`; run da `v0.8.4` em 2026-09-01 com `success` (actions/runs/33536702884); sem `dist/` local | feito |
+| F6-3 | tags `v0.8.0`..`v0.8.4`; PyPI lista 0.8.0..0.8.4, a 0.8.4 enviada em 2026-09-01T17:16 | feito |
+| F6-1f | seções 0.8.0..0.8.4 existem no CHANGELOG, mas **os fixes do F0 não estão listados**: BUG-01 e BUG-04 aparecem por outro caminho (ADR-0046, corte do legado); BUG-03, BUG-09, BUG-14, BUG-15 e BUG-16 não aparecem (dois eram corrupção silenciosa). O C0 é dedup interno, sem efeito observável, e não precisa entrar | **parcial, aguarda decisão** |
+
+**Decisão pendente (F6-1f).** Fato que restringe as opções: o topo do `CHANGELOG.md` declara
+"Entries below are dated and append-only". O item F6-1f foi escrito antes da publicação da 0.8.0,
+quando a entrada ainda era rascunho; publicada, ela não se reescreve. Opções:
+
+- (a) editar a entrada 0.8.0: **contraria a regra append-only** do próprio arquivo;
+- (b) aceitar o critério como absorvido pela narrativa da release, com ressalva registrada aqui:
+  as correções ficam só no git e neste ticket;
+- (c) **nova entrada datada, no topo**, registrando as correções que embarcaram na 0.8.0 sem
+  terem sido listadas (BUG-03, 09, 14, 15, 16). Respeita o append-only e leva ao histórico público
+  duas correções de corrupção silenciosa (BUG-14 e BUG-15). Cuidado de redação: o BUG-16 foi
+  descrito com `nature=`, que a própria 0.8.0 cortou em favor de `schema=`.
+
+**Correção ao levantamento de 09-02:** ele diz que a wheel passou smoke "nas quatro famílias". O
+smoke que protege a publicação faz round-trip de uma tabela `.8M` e confere a versão. Prova o F6-2
+como pedido; "quatro famílias" não tem registro em disco.
+
+### Fila do que falta (atualizar ao fim de cada parte)
+
+1. **Decisão do owner, F6-1f**: opção (a), (b) ou (c) acima; (a) contraria o append-only.
+2. **Parte 3**: os 7 parciais `[~]` (BUG-11, BUG-13, F0-1, F3-3, F3-4, F4-2, F4-4) e as 7 caixas do
+   §5, cada um feito, adiado para a `.9` com rótulo, ou pendente.
+3. **Grupo C**: levar o F5-1 ao `T-PERF-BORDAS-E-MODOS-09`.
+4. **Parte 4, grupo D**: qual versão da regra do CPF vale (§5 contra `test_schema_param.py:21`),
+   e o que isso exige. Se tocar `src/tcf`, aprovação (I5).
+5. **Parte 5, veredito**: marcar o que foi provado, e fechar o ticket se nada restar.
 
 ## §3: REGISTRO DE BUGS (achados no planejamento; arrumar em F0, NÃO agora)
 

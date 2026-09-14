@@ -79,7 +79,7 @@ não intuição.
 | achado | número | consequência |
 |---|---|---|
 | o eixo quente é **cardinalidade**, não volume | `lineitem` 60k = 475 s · `adult` 49k = 3,3 s (**143×**) | otimizar por cardinalidade, não por linhas×colunas |
-| **encode** é o alvo; decode não | razão de **3,6× a 1.060×** (remedido 2026-09-01 na 0.8.4; 20,3× no caso real de 3.000 × 15) | a razão **não é constante**: varia duas ordens de grandeza com a forma do dado, então é uma faixa e não um número |
+| **encode** é mais caro nos casos medidos | razão de **3,6× a 1.060×** (remedido 2026-09-01 na 0.8.4; 20,3× no caso real de 3.000 × 15) | priorizar pela carga e pela topologia; a assimetria não exclui decode ou consultas da otimização |
 | os **bytes já estão lá** | `tcf+brotli` = 2,3% do JSON (metade do `json+brotli`) | falta tempo pra colhê-los |
 | break-even hoje | **1,2 a 36 Mbps** | linear no custo de CPU: encode 10× → ~360 Mbps. Mas o break-even **não é um número por projeto, é um por topologia**: quem paga o encode e quantas vezes muda a conta inteira (`T-STUDY-USE-PROFILES`, nota de 2026-09-01) |
 | borda superior | 500 mil linhas = 53 min de CPU, 1,2 GB, sem terminar | o alvo é volume pequeno; isto é a borda |
@@ -97,6 +97,12 @@ e `0300`.
 ### Eixo 1: desempenho, bordas e modos
 
 Ticket-mestre: [`T-PERF-BORDAS-E-MODOS-09`](tickets/T-PERF-BORDAS-E-MODOS-09.md).
+
+**Otimização multicamada e multiobjetivo**: arquitetura → algoritmos → implementação na
+linguagem → compiladores/runtime → linguagens auxiliares. Cada camada admite melhorar,
+revisar ou substituir o caminho atual. Comparar memória, velocidade, CPU, latência e
+compressão; preferir ganhos no conjunto ou oferecer perfis para trocas medidas. Direção,
+critérios e limites de incorporação estão no ticket-mestre; nenhum backend está escolhido.
 
 - **modos de compressão** (o eixo nunca testado): rápido (*"praticamente só busca e
   repetição"*) · normal · máximo. Pista concreta: `T-BUDGET-DE-BUSCA` mostra que o único

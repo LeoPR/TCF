@@ -16,6 +16,11 @@ fechamento de pacote, decide-se ordem de exploracao isolada/combinada.
 
 ## Convencao de status
 
+Frente exploratória vinculada a H-PERF-06, H-PROFILE-01, H-ENCODE-DEADLINE-01 e H-13-03:
+[diagnóstico de desempenho](../../2026-09/2026-09-07/2026-09-07-0208-perf-diagnostico/README.md).
+Propostas locais e contra-provas nesse caderno; nenhum status dessas hipóteses é alterado
+por observação estática, e nenhuma tentativa foi promovida a clean.
+
 - `aberta`: identificada, ainda nao testada
 - `em-exp`: sub-exp ativo testando
 - `confirmada-empirica`: validada empiricamente em datasets

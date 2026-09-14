@@ -3,7 +3,7 @@ title: T-FMT-META-STRICT, decode estrito do meta: o que já fecha por dedução 
 status: open
 priority: P3
 created: 2026-07-10
-updated: 2026-09-02
+updated: 2026-09-07
 gate: "pre-1.0/.9 (re-triagem 2026-09-02: residuais sao checksum=trilho tcfx, item 6 marginal, KeyError cru exige aprovacao src/tcf; nada barato resta pro .8)"
 blocked-by: []
 related:
@@ -58,10 +58,56 @@ de armazenamento (tcfx/O-FMT-20), não ao wire-format mínimo.
 8. **Orçamento defensivo de expansão**: counts RLE/seq-RLE, ranges e cadeias composicionais de
    blob não-canônico podem solicitar saída desproporcional antes de qualquer cross-check final.
    **Parcialmente respondido**: o teto `max_length` (default `syntax.MAX_LENGTH_PADRAO`, 10M,
-   weld `95ab69dc`) protege todas as rotas de decode (`decoder.py`), fechando o caso `*N|`
-   gigante (medido no lab 2026-09-02-0102: `*999999999|x` → ValueError em ~2 ms). O que falta
+   weld `95ab69dc`) barra o caso `*N|` gigante no ensaio do lab 2026-09-02-0102. Isso não
+   comprova o encaminhamento do override em todas as famílias nem um teto total entre
+   colunas; a contra-prova do parâmetro público está abaixo. O que falta
    pro contrato completo: contabilidade de expansão ACUMULADA (bytes/frags além de um único
    count) e testes de count zero/negativo/range inválido — ticket próprio pré-1.0.
+
+## Alcance do override `max_length`
+
+**Probatório: comportamento reproduzido no código `.8.4`.** Referência de execução e
+ambiente em [T-PERF-BORDAS-E-MODOS-09](T-PERF-BORDAS-E-MODOS-09.md), seção de concordância.
+A [referência de API](../docs/reference/api.md) apresenta `max_length` como teto de elementos
+por coluna, sem delimitar o override a uma família. Com três valores e `max_length=1`,
+single-col levanta `ValueError`; `.8M`, `.8R` e `.8H` retornam os três valores.
+
+Em [decoder.py](../src/tcf/decoder.py), `decode` encaminha o argumento para os caminhos
+single-col, mas chama `decode_hierarchical(tcf_text)` e `_decode_multi_impl(tcf_text)`
+sem o override. A rota `R` usa o mesmo decoder multi. O teste
+`TestNaoAfetaWireLegitimo.test_multi_col_tambem_protegido`, em
+[test_decode_max_length.py](../tests/test_decode_max_length.py), verifica round-trip normal,
+não o efeito do parâmetro nessas rotas.
+
+Contra-prova mínima. As asserções registram a divergência, não definem o contrato desejado:
+
+```python
+from tcf import decode, encode
+
+values = ["alpha", "beta", "gamma"]
+single_wire = encode(values)
+assert decode(single_wire) == values
+try:
+   decode(single_wire, max_length=1)
+except ValueError as error:
+   assert "max_length" in str(error)
+else:
+   raise AssertionError("O single-col deveria aplicar o limite neste caso.")
+
+for data in (
+   {"value": values},
+   [{"value": value} for value in values],
+   {"payload": {"value": values}},
+):
+   wire = encode(data)
+   assert decode(wire) == data
+   assert decode(wire, max_length=1) == data
+```
+
+**Destino**: decidir e testar o alcance do parâmetro público antes de considerar essa parte
+da superfície alinhada. Não inferir desta sonda a ausência de toda proteção default nem
+ampliar automaticamente o escopo para hardening geral. Um teste cruzado de rotas deve
+exercitar o override e a regra de unidade escolhida; modificar `src/tcf` requer aprovação.
 
 ## Achado 2026-07-16: KeyError cru no decode flat de blob estrangeiro (CORPO, não meta)
 
@@ -87,3 +133,5 @@ de ref fora do range de nodes → erro tipado, "não-emitível pelo encoder" com
 - [ ] Toda regra nova = "não-emitível pelo encoder" comprovado (dedução do cânone, nunca heurística).
 - [ ] Achado 2026-07-16 (KeyError cru em ref inexistente de blob estrangeiro) re-tipado quando o
       owner aprovar mexer no decode flat.
+- [ ] Alcance do override `max_length` entre single-col, multi, registros e hierárquico
+   decidido, documentado e coberto por teste de limite, sem aceitar silêncio do parâmetro.

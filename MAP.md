@@ -82,6 +82,7 @@ TCF/
 | Entender o projeto | `STATUS.md` -> aqui (`MAP.md`) -> `docs/algorithms/TCF-format.md` |
 | **API pública do dev** (o que usar + dispatch de `encode`) | `docs/reference/api.md` (fonte única; `encode`/`decode` únicos; sem `encode_hierarchical`) |
 | Saber o estado atual | `STATUS.md` |
+| Investigar desempenho da `.9` | [Ticket-mestre](tickets/T-PERF-BORDAS-E-MODOS-09.md) e caderno dirty de diagnóstico em `experiments/lab/dirty/2026-09/2026-09-07/2026-09-07-0208-perf-diagnostico/` (local, fora do git; propostas e evidência exploratória) |
 | Ver historico do dia | `experiments/lab/dirty/notas/diario/YYYY-MM-DD.md` |
 | Retomar de uma pausa | `experiments/lab/dirty/notas/checkpoints/2026-07-12-revisao-roi-fechamento-08.md` (vigente) + diretório `checkpoints/` (histórico) |
 | Adicionar/usar dataset real | `scripts/dataset_reader.py` + `scripts/shaper/` |

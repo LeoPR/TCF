@@ -1,9 +1,9 @@
 ---
-title: T-PERF-BORDAS-E-MODOS-09, as bordas do TCF e os modos de compressão (rápido × maior); o alvo do .9
+title: T-PERF-BORDAS-E-MODOS-09, otimização multicamada, bordas e perfis; o alvo do .9
 status: open
 priority: P1
 created: 2026-08-23
-updated: 2026-09-01
+updated: 2026-09-07
 gate: ".9 (desempenho e limpeza) (triagem 2026-09-01)"
 target: ".9 (otimização), este é o ticket-mestre do ciclo"
 blocked-by: []
@@ -13,6 +13,8 @@ related:
   - tickets/T-STUDY-USE-PROFILES.md
   - tickets/T-API-SCHEMA-PRESCRITIVO.md
   - scripts/bench_perf/README.md
+  - experiments/lab/dirty/2026-09/2026-09-01/2026-09-01-1937-perf-8h-dois-lados-mesmo-pino/
+  - experiments/lab/dirty/2026-09/2026-09-07/2026-09-07-0208-perf-diagnostico/
   - docs/adr/0002-vertice-triplice-restricao.md
 ---
 
@@ -20,8 +22,81 @@ related:
 
 **[dispositivo → registro. Baseline medido; nada em `src/tcf` sem aprovação.]**
 
-Abre o ciclo `.9` com **base medida** em vez de intuição. Direção do owner (2026-08-23), ao ver
-os primeiros números de tempo-até-o-dado-chegar.
+Orienta o eixo de desempenho da `.9` com base medida. Otimizar inclui rever o trabalho
+realizado e seus caminhos, não somente acelerar a implementação atual.
+
+## Direção: arquitetura primeiro, otimização em todas as camadas
+
+**Direção do owner.** Investigar nesta ordem: **arquitetura e fluxo de dados → algoritmos
+e estruturas de dados → implementação na linguagem → compiladores/runtime → linguagens
+e bibliotecas auxiliares**. Em cada camada cabem reorganizar e melhorar o que existe,
+revisar alternativas para a mesma tarefa e substituir a estratégia por outro caminho que
+cumpra melhor o objetivo. A ordem vale por frente e admite retorno guiado pela medição;
+não exige encerrar toda a arquitetura do projeto antes de experimentar um algoritmo.
+
+Comparar **memória, velocidade, CPU, latência e compressão**, além dos custos pertinentes
+à carga. Medir encode, decode e consultas conforme a topologia; uma diferença de tempo
+entre encode e decode não exclui o mais barato da investigação. Preferir o caminho que
+melhore algum eixo sem piorar os demais no regime medido. Quando houver trocas, manter
+alternativas não dominadas e permitir seleção explícita por prioridade ou limite.
+Roteamento por características dos dados é candidato, com custo e fallback medidos.
+
+### Objetivo de uso e compromissos
+
+O alvo da `.9` é melhorar ao máximo os caminhos que já funcionam, tanto na eficiência
+algorítmica (crescimento do trabalho, estruturas e decisões) quanto na eficiência da
+implementação, incluindo execução compilada. Nenhuma dessas dimensões substitui a outra.
+Otimizar roteamentos inclui o custo de decidir: experimentar todos os caminhos para
+escolher o menor arquivo pode contrariar o perfil de baixa latência.
+
+A intenção de uso admite representações diferentes conforme a prioridade: filtros e
+agregações rápidos sobre a estrutura comprimida, maior compressão, menor latência ou
+menor memória. Uma representação mais compacta pode perder acesso seletivo; liberar
+resultados cedo pode exigir mais trabalho total; economizar memória pode exigir
+recomputação. Essas trocas são admissíveis quando explícitas e medidas no regime alvo.
+Não se presume que toda melhoria tenha uma perda, nem que um caminho ganhe em tudo.
+
+Streaming e estrutura naturalmente aproveitável como índice são objetivos de investigação,
+ligados a O-FMT-08 e H-QUERY-04, não capacidades prometidas para toda representação.
+Avaliar filtros e agregações por operação, seletividade, preparação e materialização,
+incluindo o custo de produzir e manter qualquer estrutura auxiliar.
+`O(1)` só pode descrever uma operação delimitada, com tamanho de entrada e preparação
+declarados: decode que materializa uma saída de tamanho S exige ao menos trabalho
+proporcional a S. Acesso a metadados ou agregado já disponível tem outro contrato.
+Buscar caminhos melhores por perfil não constitui prova de ótimo global.
+
+**Recorte da `.9`:** começar pela arquitetura e pelos caminhos existentes, comparar
+trabalho algorítmico e explorar melhorias de compilação de baixo custo e esforço.
+Entender plataforma, representação dos dados e backend antes de atribuir significado
+a tempos ou ciclos. A medição final continua necessária, mas não substitui essa análise.
+Mudanças caras de contrato, formato ou infraestrutura não entram automaticamente neste
+ciclo por serem objetivos desejáveis: encaminhar à avaliação para 2.0, sem implementá-las
+nem ampliar a rodada atual. Otimizações simples pertinentes à `.9` permanecem elegíveis.
+
+Diagnóstico exploratório do instrumento: [controle de chamadas aninhadas](../experiments/lab/dirty/2026-09/2026-09-07/2026-09-07-0208-perf-diagnostico/01-instrumento/README.md)
+(registro local). A cópia testada dos wrappers de `bench_perf.layers` não separou
+profundidades no controle. Não usar seus buckets para atribuir custo principal versus
+candidatos sem demonstrar mecanismo adicional; isso não invalida toda medição do harness.
+
+Não escolher Rust, Cython ou um port completo antes de justificar a estratégia e seu
+gargalo. Resultados de variantes encerradas continuam delimitados aos casos estudados;
+não vetam outras arquiteturas ou algoritmos. H-PERF-01 a 06 e H-TH-02 são os registros
+de investigação; H-PROFILE-01 rege os perfis. O-FMT-08 e O-FMT-20 conservam as frentes
+de streaming e armazenamento. O plano operacional local é `tcf9-performance-plano.md`,
+em `experiments/lab/dirty/notas/2026-09/`; este ticket conserva a direção e o aceite.
+
+### Investigação antes da arquitetura
+
+Literatura orientada por perguntas e diagnóstico experimental precedem a escolha do
+desenho. Controles de backend podem entrar cedo para distinguir trabalho algorítmico,
+custo de implementação e política de busca; isso não seleciona uma linguagem para o produto.
+
+Propostas preliminares, tentativas, erros, descarte e reformulação ficam no
+[caderno dirty de diagnóstico](../experiments/lab/dirty/2026-09/2026-09-07/2026-09-07-0208-perf-diagnostico/README.md)
+(reservado no disco, fora do git). Sua sonda estrutural não é benchmark nem ganho validado.
+Clean recebe apenas um candidato promissor sustentado por hipótese forte, contra-provas
+e testes representativos, adaptado às conclusões e sujeito à regressão rigorosa.
+Não se promove o conjunto de tentativas nem se incorpora automaticamente ao core.
 
 ## O enquadramento do owner: as quatro delimitações
 
@@ -104,6 +179,10 @@ caber em tempo praticável.
 
 ## Critério de aceite
 
+- [ ] Arquitetura e algoritmos avaliados por frente, com hipótese, alternativas e teste que possa refutá-las; justificar manter ou substituir o caminho
+- [ ] Implementação, compiladores/runtime e backends avaliados onde o custo justificar, sem linguagem escolhida por antecipação
+- [ ] Comparação reproduzível de memória, velocidade, CPU, latência e compressão; ganhos, perdas, ruído e limites declarados por regime
+- [ ] Caminho dominante identificado ou perfis não dominados caracterizados, com seleção explícita e custo do eventual roteamento
 - [ ] Modo rápido caracterizado: byte e tempo vs o modo atual, nos mesmos casos
 - [ ] Bench multi-cliente (1:N) com N ∈ {1, 10, 100, 1000}
 - [ ] Tabela de bordas por eixo, com o eixo cardinalidade separado
@@ -111,36 +190,123 @@ caber em tempo praticável.
 - [ ] F3-3 (paralelismo + combos) fechado
 - [ ] Nada de `src/tcf` sem aprovação; gates byte-canônicos verdes em toda mudança
 
-## Não fazer agora
+## Limite de execução
 
-Otimizar. Este ticket **registra a base e o plano**; o `.9` executa.
+Este ticket registra direção e critérios, não autoriza alteração do core. Aceleração
+transparente preserva os bytes; estratégia que melhore compressão emitindo bytes diferentes
+precisa de contrato e evidência próprios. Mudar default, pins, API ou gramática exige decisão
+explícita, sem dispensar os gates. Round-trip é obrigatório antes de reportar resultados.
+
+## Concordância da superfície `.8`
+
+**Probatório: diagnóstico inicial, não aceite da etapa 1 nem baseline de desempenho.**
+Antes de propor outra arquitetura, a execução e sua descrição precisam concordar.
+No recorte conferido, os testes passam, mas a superfície ainda contém divergências.
+
+### Referência examinada
+
+- Checkout `85ee26e17e045123d5f702108a5468f38622fe59`; `git diff --name-only v0.8.4 -- src/tcf pyproject.toml hatch_build.py`
+   sem diferenças. As alterações locais são documentais, não um candidato de implementação.
+- Interpretador selecionado no editor: `.venv/Scripts/python.exe`, Python `3.13.13`.
+   Import de `tcf` a partir de `src/tcf/__init__.py`, com `tcf.__version__ == "0.8.4"`.
+- Detector Cython ativo, módulo `tcf._core.detect`; equivalência com o fallback exercitada
+   pelos testes abaixo. Isso identifica o backend local, não a proveniência de um wheel do PyPI.
+- **Metadados instalados divergentes**: `importlib.metadata.version("tcf-format")` informa
+   `0.8.3`. O código importado corresponde à `.8.4`, mas este ambiente não certifica uma
+   instalação limpa do pacote `.8.4`. Nenhuma reinstalação foi feita nesta conferência.
+- Biblioteca sem `console_scripts` e sem `tcf.__main__`; o tooling de `scripts/` não é
+   um CLI público do pacote. A configuração de distribuição está em [pyproject.toml](../pyproject.toml).
+
+### Fluxo observado
+
+| porta | decisões do caminho vigente | fonte executável |
+|---|---|---|
+| `encode` | resolve schema e valida opções; trata single-col, vazio e tipos; reconhece registros retangulares e tabelas; delega o restante representável ao hierárquico, que também rejeita entradas fora do contrato | [encoder.py](../src/tcf/encoder.py): `encode`, `_tipo_single_col`, `_registros_flat`, `_tabela_flat` |
+| compressão por coluna | pré-pass/features, OBAT e HCC; a rota multi avalia seus candidatos por coluna; registros usam o mesmo caminho e registram a forma de origem com `R` | [encoder.py](../src/tcf/encoder.py): `_encode_column`; [multi/core.py](../src/tcf/multi/core.py): `_encode_multi` |
+| `decode` | valida a versão, trata polaridade e despacha pelo discriminador; `R` usa o decoder multi e remonta registros; tipos e naturezas são restaurados segundo a rota/header | [decoder.py](../src/tcf/decoder.py): `decode`, `_decode_typed`, `_decode_column` |
+| `view` | interpreta o envelope; consultas aproveitam estrutura quando suficiente e recorrem à materialização da coluna quando precisam de valores; hierárquico não-tabular é recusado | [view.py](../src/tcf/view.py): `LazyTCF._parse`, `_parse_hier`, `_col` |
+
+Este mapa descreve responsabilidades e decisões existentes. Não atribui custo às etapas
+nem recomenda mudanças de arquitetura.
+
+### Matriz de concordância
+
+| superfície | confronto com a execução | verificação e destino |
+|---|---|---|
+| exports, versão e assinaturas de `encode`/`decode` | conformes ao pin dos testes; isso não verifica a correção das anotações de retorno | [test_regression_v1_baseline.py](../tests/test_regression_v1_baseline.py), `TestPublicAPISurface` |
+| rotas descritas na referência de API | **divergência documental**: a tabela principal inclui `[]` na rota `.8H`; também restringe o multi a strings e envia tabelas tipadas/com nulo ao hierárquico. A execução emite single-col para `[]` e `.8M` para tabelas retangulares tipadas/com nulo | [api.md](../docs/reference/api.md), seções de dispatch e slot 0; reprodução abaixo. Corrigir a referência a partir dos contratos/testes vigentes |
+| ajuda do módulo e retorno de `decode` | **divergência na descrição do código**: a docstring do módulo ainda envia registros/tipados ao hierárquico; a anotação e o `Returns` de `decode` restringem o resultado a listas/tabelas de strings, embora haja números, registros e estruturas aninhadas | [__init__.py](../src/tcf/__init__.py) e [decoder.py](../src/tcf/decoder.py). Correção exige aprovação por estar em `src/tcf`, mesmo sem alterar execução |
+| `max_length` por rota | **inconsistência de contrato público**: o override é aplicado no single-col e não é encaminhado nas rotas multi, registros e hierárquica | [T-FMT-META-STRICT](T-FMT-META-STRICT.md), seção sobre alcance do override, com contra-prova. Não resolver apenas estreitando a promessa documental |
+| exemplos GitHub/PyPI, tutoriais e referências | os blocos executados passam, com avisos dos exemplos de tipos mistos/coerção; prosa, tabelas e resultados escritos como comentário não são todos verificados pelo runner | [test_docs_snippets.py](../tests/test_docs_snippets.py); conformidade dos exemplos não equivale a concordância documental completa |
+| registros, tipos JSON e consultas exercitadas | round-trips, fronteiras de registros e consultas cobertas pelos exemplos/testes passam | [test_registros_8r.py](../tests/test_registros_8r.py), [test_json_flow_parity.py](../tests/test_json_flow_parity.py). Não é cobertura de todos os kwargs cruzados com todas as rotas |
+
+Reprodução pequena das rotas em questão, sem benchmark nem medição de bytes:
+
+```python
+from tcf import decode, encode
+
+cases = [
+      ([], "#TCF.8\n"),
+      ({"v": ["abc", None]}, "#TCF.8M"),
+      ({"v": [1, 2]}, "#TCF.8M"),
+      ([{"v": 1}, {"v": 2}], "#TCF.8R"),
+      ({"item": {"v": "abc"}}, "#TCF.8H"),
+]
+for data, prefix in cases:
+      wire = encode(data)
+      assert decode(wire) == data
+      assert wire.startswith(prefix)
+```
+
+### Verificações e saída pendente
+
+Comandos executados no interpretador acima:
+
+```powershell
+& '.\.venv\Scripts\python.exe' -m pytest -q tests/test_regression_v1_baseline.py tests/test_docs_snippets.py
+& '.\.venv\Scripts\python.exe' -m pytest -q tests/test_registros_8r.py tests/test_json_flow_parity.py tests/test_decode_max_length.py tests/test_real_world_snapshots.py tests/test_pyx_byte_equivalence.py
+```
+
+Resultados: **78 passed, 4 warnings** e **173 passed, 1 skipped**, respectivamente.
+O caso skipped não é contado como cobertura. Os gates são do checkout; não foi executada
+campanha de desempenho, validação de wheel publicado ou matriz exaustiva de parâmetros.
+
+Para aceitar a referência antes da etapa 2: alinhar as descrições de rotas, encaminhar a
+correção da ajuda/anotações do core com aprovação, decidir o contrato do override no ticket
+existente e separar a verificação de código-fonte da verificação de instalação. Lacunas de
+opções por rota permanecem explícitas. Nenhuma hipótese de otimização foi escolhida.
 
 ---
 
-## Pista aberta em 2026-09-01: o `.8H` pode ter andado para trás, e o controle é que diz
+## O `.8H` não regrediu: a suspeita de 2026-09-01 está resolvida
 
-Ao estabelecer a base da `0.8.4` (`perf-nucleo-2026-09-01`), a comparação contra a rodada de
-20/08 separou as famílias em direções opostas. Os caminhos de **referência** são `csv`/`json`
-da stdlib, código idêntico entre as duas rodadas, então servem de controle: eles andaram
-**−17,1%** em conjunto, o que mede o viés da normalização pelo calibrador, não ganho de
-código. Contra esse controle, o `tcf-flat` fica em torno de **+16%** e o `tcf-8h` em torno de
-**+47%**.
+O lab [`2026-09-01-1937-perf-8h-dois-lados-mesmo-pino`](../experiments/lab/dirty/2026-09/2026-09-01/2026-09-01-1937-perf-8h-dois-lados-mesmo-pino/result.md)
+mediu os dois lados no mesmo pino, mesma máquina e mesma sessão térmica. A suspeita ampla
+não se confirma.
 
-**Não é medição.** O `compare` recusou o par fail-closed (matriz e plano re-pinados em
-`e46ef37a`), as duas rodadas estão termicamente suspeitas, e o desconto do controle é
-aritmética sobre medianas. O que justifica registrar é o padrão: duas famílias em direções
-opostas, separadas muito além do piso de ruído de 6,8%.
+O `+16%` e o `+47%` nunca foram leitura crua do comparador: eles já saíam **líquidos do
+controle de referência**, num par que o `compare` recusou fail-closed, entre árvores e
+sessões térmicas distintas. Naquela rodada o fator do calibrador era 1,2951 e sobre-corrigiu,
+puxando as referências da stdlib, de código idêntico nas duas árvores, para −17,1%.
 
-O que fazer quando este ciclo abrir, nesta ordem:
+Medidos os dois lados no mesmo pino, a razão `tcf ÷ referência` dentro da rodada, em que a
+máquina cancela por construção, dá `+3,2%` no flat com n=33 e `+4,0%` no `.8H` com n=8, e o
+decode anda para o outro lado. Tudo dentro do MDE de 7%.
 
-1. **Medir os dois lados no mesmo pino**, mesma máquina e mesma sessão térmica: `nucleo` sobre
-   a tag `v0.8.4` e sobre o candidato. Só aí o `compare` aceita e o veredito vale. Sem isso,
-   qualquer número daqui é conversa.
-2. **Se confirmar**, o suspeito de primeira parada é o caminho `.8H`, que foi o que mais mexeu
-   na janela (`R` soldado, FLOOR do spec corrigido cobrando `:<size>:<id>`), e não o
-   `tcf-flat`.
-3. **Se não confirmar**, o resultado ainda vale: fecha a dúvida e valida o método do controle
-   por caminho de referência, que hoje só tem uma aplicação.
+A explicação é tripla, e nenhuma parte dela responde sozinha: viés do calibrador, deriva
+térmica na cauda da rodada B, onde as células a partir da ordem 96 ficam indecidíveis, e a
+mudança intencional de rota do ADR-0049.
+
+**O achado real é uma célula, e ela é o ADR-0049 funcionando.** `tcf-8h|synth|flat-mixed|base`
+trocou de rota `#TCF.8H` para `#TCF.8R`: 212.177 bytes contra 308.417, decode de 111,6 ms
+contra 221,1 ms, encode de 667,1 ms contra 504,9 ms. Mais trabalho no encode, wire 31% menor,
+decode duas vezes mais rápido. **Essa célula hoje mede `.8R`**, e toda comparação futura
+precisa saber disso.
+
+O método que resolveu a dúvida fica valendo: normalizar pelos caminhos de referência dentro
+da rodada, em vez do fator do calibrador. É a higiene já proposta no
+[README do `bench_perf`](../scripts/bench_perf/README.md), e é pré-requisito de qualquer
+veredito deste ciclo enquanto o `compare.py` não a incorporar.
 
 Detalhe e tabela por família em
 [`perf-baseline/README.md`](../experiments/results/evidencia-0.8/perf-baseline/README.md).
