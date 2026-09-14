@@ -42,7 +42,7 @@ Registros numerados das decisoes arquiteturais do TCF. Inspirado em
 | [0012](0012-diataxis-naming-local.md) | Diataxis naming local (docs/algorithms, docs/theory) | accepted |
 | [0013](0013-multi-column-canonical-api.md) | Multi-column canonical API welded em src/tcf | **accepted** (welded; superseded by 0014) |
 | [0014](0014-unified-api-side-outputs.md) | API unificada `encode(list\|dict)` + SideOutputs recipiente | **accepted** (welded) |
-| [0015](0015-natures-templated-checked-weld.md) | TemplatedCheckedSpec welded canonical em src/tcf/natures | **accepted** (welded) |
+| [0015](0015-natures-templated-checked-weld.md) | TemplatedCheckedSpec welded canonical em src/tcf/natures | **accepted** (welded); o canal de API `nature=`/`nature_per_col=` foi cortado pela [ADR-0047](0047-schema-parametro-unico-de-spec.md) |
 | [0016](0016-hcc-multi-delta-seq-rle.md) | HCC seq-RLE multi-delta (Bug #2 sub-exp 14 fix) | **accepted** (welded) |
 | [0017](0017-format-spec-v1-frozen.md) | Format spec v1.0 frozen + versioning policy | accepted (parte "freeze" superseded por 0024, projeto e' pré-1.0) |
 | [0018](0018-v2-format-roadmap.md) | Roadmap de formato v2.0 (fallback identity, dicionario, lossy) | **accepted** (V2-A welded por 0022): o proprio ADR se declara assim; o indice era o ultimo lugar do repo que ainda dizia `proposed` |

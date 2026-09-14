@@ -13,7 +13,7 @@ related:
   - experiments/lab/dirty/2026-05-21-h-da-11-auto-min-len/
   - experiments/lab/dirty/notas/2026-05/roadmap-hipoteses.md
   - docs/adr/0010-auto-detect-min-len.md
-  - docs/adr/0008-detect-cadence-numeric-high-cardinality.md
+  - docs/adr/0008-detect-cadence-numeric-rule.md
 ---
 
 # T-EXP-H-DA-11: Auto-detect min_len por coluna
@@ -96,7 +96,7 @@ sinteticos, ou volumes Adult 100/500).
 
 - [Sub-exp H-DA-10 revalidacao](../experiments/lab/dirty/2026-05-21-revalidacao-categoria-B/03-h-da-10-min-len-realworld/result.md):
   origem dos dados (9.92% oracle)
-- [ADR-0008 detect_cadence](../docs/adr/0008-detect-cadence-numeric-high-cardinality.md):
+- [ADR-0008 detect_cadence](../docs/adr/0008-detect-cadence-numeric-rule.md):
   modelo de pre-pass heuristico similar (H-DA-09b-v2)
 - [Roadmap H-DA-11](../experiments/lab/dirty/notas/2026-05/roadmap-hipoteses.md)
 

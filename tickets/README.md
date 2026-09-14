@@ -151,7 +151,7 @@ referencias a commits que o resolveram.
 ## Convencao pra tickets novos (recomendacao 2026-05-21)
 
 Tickets futuros devem usar YAML frontmatter pra serem indexaveis
-por `scripts/index.py` e parseaveis por IA. Existentes (fechados)
+por `scripts/ticket_index.py` (que gera o `ESTADO.md`) e parseaveis por IA. Existentes (fechados)
 ficam como estao, imutabilidade.
 
 ```yaml

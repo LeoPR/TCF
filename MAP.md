@@ -32,7 +32,7 @@ TCF/
 │   ├── _core/detect.pyx .......... acelerador Cython opcional (ADR-0020)
 │   └── __init__.py
 │
-├── src/shaper/ .......... GADGET auxiliar (nao-core): sampler multidim. (movido de scripts/, 2026-07-19)
+├── src/shaper/ .......... GADGET auxiliar (nao-core): sampler multidim. (movido de scripts/, 2026-07-20)
 │
 ├── scripts/ .............. FERRAMENTAS DE SUPORTE (nao e' TCF-CORE)
 │   ├── dataset_reader.py . le os hubs SQLite (usado pelo shaper via sys.path)
@@ -56,10 +56,11 @@ TCF/
 │   ├── adr/ .............. Architecture Decision Records
 │   ├── theory/ ........... fundamentos teoricos [explanation]
 │   ├── how-to/ ........... guias tarefa
+│   ├── tutorials/ ........ passo a passo [tutorial]
+│   ├── reference/ ........ API, knobs e view [reference]
+│   ├── divulgacao/ ....... fonte de noticia datada + um diretorio por canal
 │   ├── vocabulary.md ..... termos controlados
-│   ├── findings/ ......... findings consolidados
-│   ├── workbench/ ........ research notes (algumas em _archive/)
-│   └── archive/ .......... v0.5 obsoleto (NAO USAR)
+│   └── archive/ .......... material anterior ao .8 (v0.5, findings/, workbench/): historico, NAO USAR
 │
 ├── experiments/lab/
 │   ├── clean/EXP-NNN-*/ .. prototypes consolidados
@@ -206,7 +207,7 @@ TCF/
 
 ## Pontos cegos (evitar confusao)
 
-- `docs/archive/`: v0.5 OBSOLETO. **Nao use.**
+- `docs/archive/`: material anterior ao `.8`, reunido num lugar so' em 2026-08-31 (v0.5, `findings/`, `workbench/` e afins). Historico: **nao use** como referencia viva.
 - `experiments/lab/dirty/old/`: labs historicos antigos. **Nao use** salvo
   pra entender historia.
 - `docs/archive/old/tcf/`: motor v0.5 (niveis L0–L3), **congelado-historico**. Existe
@@ -215,7 +216,7 @@ TCF/
   [`docs/archive/old/tcf/LEVELS-REVIEW.md`](docs/archive/old/tcf/LEVELS-REVIEW.md). **Nao use** salvo historia.
 - `src/llm_query/`: **gadget** geracao de QUERY por LLM (Linha-B: LLM gera SQL/
   polars/pandas, runner executa). Produto vivo do antigo `llm-benchmark/` (dissolvido
-  2026-07-19). **Nao e' TCF-core** (fora do wheel). v0.6-quebrado hoje (API v0.5).
+  2026-07-20). **Nao e' TCF-core** (fora do wheel). v0.6-quebrado hoje (API v0.5).
 - `docs/archive/old/llm-benchmark/`: Linha-A (data-into-LLM, refutada) + mortos + benchmark_*,
   **congelado-historico**. Era `llm-benchmark/` (era `experiments/eval/`).
 

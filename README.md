@@ -332,6 +332,8 @@ Filters already implemented ([ADR-0015](docs/adr/0015-natures-templated-checked-
 | `SPEC_CPF`  | `NNN.NNN.NNN-DD`     | punctuation + 2 check digits (mod-11) |
 | `SPEC_CNPJ` | `AA.AAA.AAA/AAAA-DD` | punctuation + 2 check digits (mod-11) |
 | `SPEC_IP`   | IPv4 `N.N.N.N`      | dots + canonical octets (normalizes to make subnet repetitions visible) |
+| `SPEC_DATA_ISO` | date `YYYY-MM-DD` | the ISO spelling, from a day ordinal that exposes daily progressions to the sequence RLE |
+| `SPEC_INT_PAD` | integers (`list[int]`) | the integers themselves; fixed-width zero padding keeps a progression under one marker when its digit count changes |
 
 `A` = alphanumeric `[0-9A-Z]`, `N` = digit, `D` = check digit.
 
@@ -375,7 +377,7 @@ Filter contracts:
 
 - Core natures are **opt-in and self-describing when they win**: single-column output carries
   `#TCF.8 name:id`; multi-column output carries `:id` in the inline meta. `decode(blob)` recognizes
-  the official `cpf`, `cnpj` and `ip` filters automatically.
+  the official `cpf`, `cnpj`, `ip`, `data-iso` and `int-pad` filters automatically.
 - A custom spec can also be used, but its decoder declaration must match the header ID exactly:
   `decode(blob, schema=custom_spec)` or `decode(blob, schema={"col": custom_spec})`.
 - A value that does not match (invalid check digit, masked format) falls back to **literal** (`_`) without

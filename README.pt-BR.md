@@ -335,6 +335,8 @@ Filtros já implementados ([ADR-0015](docs/adr/0015-natures-templated-checked-we
 | `SPEC_CPF`  | `NNN.NNN.NNN-DD`     | pontuação + 2 díg. verificadores (mod-11) |
 | `SPEC_CNPJ` | `AA.AAA.AAA/AAAA-DD` | pontuação + 2 díg. verificadores (mod-11) |
 | `SPEC_IP`   | IPv4 `N.N.N.N`      | pontos + octetos canônicos (padroniza para facilitar repetições em subnets) |
+| `SPEC_DATA_ISO` | data `AAAA-MM-DD` | a grafia ISO, a partir de um ordinal de dias que expõe a progressão diária ao RLE de sequência |
+| `SPEC_INT_PAD` | inteiros (`list[int]`) | os próprios inteiros; a largura fixa com zeros mantém sob um marcador a progressão cujo número de dígitos muda |
 
 `A` = alfanumérico `[0-9A-Z]`, `N` = dígito, `D` = dígito verificador.
 
@@ -375,7 +377,7 @@ assert decode(blob) == cpfs            # decode lê `:cpf` do header, sem passar
 Contratos dos filtros:
 
 - São **opt-in e auto-descritivas quando vencem**: single-column leva `#TCF.8 nome:id`; multi-column
-  leva `:id` no meta inline. O `decode(blob)` reconhece automaticamente os filtros oficiais `cpf`, `cnpj` e `ip`.
+  leva `:id` no meta inline. O `decode(blob)` reconhece automaticamente os filtros oficiais `cpf`, `cnpj`, `ip`, `data-iso` e `int-pad`.
 - Spec customizado pode ser usado, mas o decoder precisa receber um spec cujo `name` coincide
   exatamente com o ID do header.
 - Valor que não bate (verificador inválido, formato mascarado) cai em **literal** (`_`) sem

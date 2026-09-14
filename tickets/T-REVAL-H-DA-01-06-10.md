@@ -12,7 +12,7 @@ related:
   - experiments/lab/dirty/notas/2026-05/roadmap-hipoteses.md
   - experiments/lab/dirty/2026-05-17-OBAT-delta-aware/
   - experiments/lab/dirty/2026-05-21-revalidacao-categoria-B/
-  - docs/adr/0008-detect-cadence-numeric-high-cardinality.md
+  - docs/adr/0008-detect-cadence-numeric-rule.md
 ---
 
 # T-REVAL-H-DA-01-06-10: Revalidacao Categoria B (Pacote 1)
@@ -118,7 +118,7 @@ em D1-D9 + Adult-1k/5k + TPC-H region/customer/lineitem-5k).
   origem da categorizacao A/B/C
 - [Pacote 1 lab](../experiments/lab/dirty/2026-05-17-OBAT-delta-aware/):
   sub-exps 02, 05, 08 originais
-- [ADR-0008](../docs/adr/0008-detect-cadence-numeric-high-cardinality.md).
+- [ADR-0008](../docs/adr/0008-detect-cadence-numeric-rule.md).
   H-DA-09b-v2 welded (possivelmente subsume H-DA-06)
 - [META-ESCAPE-DEDUCTION](META-ESCAPE-DEDUCTION.md): incidente
   Pacote 2 que motivou esta revalidacao

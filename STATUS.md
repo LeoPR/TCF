@@ -6,7 +6,7 @@ no [`CHANGELOG.md`](CHANGELOG.md), nos [ADRs](docs/adr/README.md) e no diário
 (`experiments/lab/dirty/notas/diario/`).
 
 > Até 2026-08-23 este arquivo acumulava um bloco `⚑ SOLDADO <data>` por sessão, e nada saía:
-> 1083 das 1523 linhas eram histórico empilhado antes da primeira seção, o erro que a própria
+> 1083 das 1541 linhas eram histórico empilhado antes da primeira seção, o erro que a própria
 > I1 nomeia (*append-only* aplicado à superfície). Nada se perdeu: cada bloco corresponde a
 > commits, ADR e diário.
 
