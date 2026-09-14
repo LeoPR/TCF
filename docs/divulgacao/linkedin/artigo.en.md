@@ -34,21 +34,95 @@ There is one condition: no information can be lost. For supported inputs, encodi
 decoding must return the same data. That requirement lets us assess size reductions without
 confusing compression with discarding content.
 
-## The same data in three formats
+## The same data, in two common formats
 
 For a concrete example, consider four people with a name, email address, city, plan and CPF,
 a Brazilian individual taxpayer identifier. Three live in São Paulo, and all their email
-addresses end in `@acme.com.br`.
+addresses end in `@acme.com.br`. The example keeps its Portuguese field names: `nome` means
+name, `cidade` means city, and `plano` means plan.
 
-This data takes **451 bytes in compact JSON, 277 in CSV and 242 in TCF**, without an external
-compressor. These are measurements of this example, not a guaranteed ratio for every table.
-The figure also includes JSONL, which stores one JSON object per line.
+In JSON, every record repeats the name of every field:
+
+```json
+[
+  {
+    "nome": "Ana Souza",
+    "email": "ana@acme.com.br",
+    "cidade": "Sao Paulo",
+    "plano": "Premium",
+    "cpf": "111.111.111-11"
+  },
+  {
+    "nome": "Bruno Lima",
+    "email": "bruno@acme.com.br",
+    ...
+```
+
+In CSV, the names appear once, in the header, and each line carries only the values:
+
+```csv
+nome,email,cidade,plano,cpf
+Ana Souza,ana@acme.com.br,Sao Paulo,Premium,111.111.111-11
+Bruno Lima,bruno@acme.com.br,Sao Paulo,Premium,222.222.222-22
+Carla Nunes,carla@acme.com.br,Sao Paulo,Basic,333.333.333-33
+Diego Rocha,diego@acme.com.br,Rio de Janeiro,Premium,444.444.444-44
+```
+
+The whole list takes **451 bytes in compact JSON and 277 in CSV**. The JSON above is indented
+for reading; the measurement is of the compact form, without superfluous whitespace.
+
+CSV has already solved the repetition of field names. But it still writes `Sao Paulo` three
+times, `@acme.com.br` four times and `Premium` three times.
+
+## The same table, after TCF
+
+![Annotated TCF representation and comparison with the optional CPF filter](figuras/en/2-wire.svg)
+
+It is **242 bytes**, and the point is not only the number: it is still text you open and read.
+There is no binary dump, and no tool is needed to inspect it. The markers that appear there
+are the subject of the next section.
 
 ![Proportional bars comparing JSON, JSONL, CSV and TCF in real bytes](figuras/en/1-formatos.svg)
 
-In Python, the table can be supplied as a dictionary of columns. `encode` produces the TCF
-text, and `decode` reconstructs the data. The example retains its Portuguese field names:
-`nome` means name, `cidade` means city, and `plano` means plan.
+These are measurements of this example, not a guaranteed ratio for every table. The figure
+also includes JSONL, which stores one JSON object per line.
+
+## What replaces the repetition
+
+In the city column, three consecutive occurrences of `Sao Paulo` become a single line:
+
+```text
+*3|Sao Paulo
+```
+
+The marker means "repeat this value three times." The information is still there; only
+the way it is written has changed. The same happens in the plan column with `Premium`, and
+the fourth occurrence is written as `^1`, meaning "same as the first row of this column".
+
+The emails offer another pattern: the `@acme.com.br` fragment is written once and referenced
+by the other values.
+
+TCF combines two stages to find these opportunities. The first, called OBAT, looks for
+shared beginnings and endings, such as the email domain. The second, HCC, collects recurring
+fragments into reusable references and groups repetitions. Regular numeric sequences can
+also be described by a starting value, a step and a count instead of listing every item.
+
+Not every column offers savings. The encoder therefore compares the available representations
+and chooses the smallest for each column, including the option to store values without this
+compression. **This does not guarantee a file smaller than any JSON or CSV**: headers and
+other metadata also take space.
+
+There are optional filters for known structures, including Brazilian CPF and CNPJ taxpayer
+identifiers and IPv4 addresses. For a CPF, fixed punctuation and check digits can be
+reconstructed when the value satisfies the filter's rules. Values that do not fit are
+preserved literally. This does not establish whether a CPF exists or belongs to anyone;
+it only takes advantage of the text's structure. That is the second half of the figure above:
+with this filter, the total drops from 242 to 210 bytes while preserving the round-trip.
+
+## And in Python, how it is used
+
+The table goes in as a dictionary of columns. `encode` produces the TCF text, and `decode`
+reconstructs the data:
 
 ```python
 from tcf import decode, encode
@@ -70,40 +144,6 @@ assert decode(wire) == table
 
 The last line checks that the reconstructed output equals the input. This is a *round-trip*
 check: the data makes the journey in both directions without changing.
-
-## What replaces the repetition
-
-In the city column, three consecutive occurrences of `Sao Paulo` can be represented by
-a single line:
-
-```text
-*3|Sao Paulo
-```
-
-The marker means "repeat this value three times." The information is still there; only
-the way it is written has changed. The emails offer another pattern: the `@acme.com.br`
-fragment is written once and referenced by the other values.
-
-TCF combines two stages to find these opportunities. The first, called OBAT, looks for
-shared beginnings and endings, such as the email domain. The second, HCC, collects recurring
-fragments into reusable references and groups repetitions. Regular numeric sequences can
-also be described by a starting value, a step and a count instead of listing every item.
-
-Not every column offers savings. The encoder therefore compares the available representations
-and chooses the smallest for each column, including the option to store values without this
-compression. **This does not guarantee a file smaller than any JSON or CSV**: headers and
-other metadata also take space.
-
-There are optional filters for known structures, including Brazilian CPF and CNPJ taxpayer
-identifiers and IPv4 addresses. For a CPF, fixed punctuation and check digits can be
-reconstructed when the value satisfies the filter's rules. Values that do not fit are
-preserved literally. This does not establish whether a CPF exists or belongs to anyone;
-it only takes advantage of the text's structure.
-
-![Annotated TCF representation and comparison with the optional CPF filter](figuras/en/2-wire.svg)
-
-The figure shows the encoded customer list and the filter's effect on the CPF column.
-In this example, the total drops from 242 to 210 bytes while preserving the round-trip.
 
 ## Why visible structure matters
 

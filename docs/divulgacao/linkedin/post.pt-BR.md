@@ -38,7 +38,7 @@ O projeto é aberto, ainda pré-1.0, e requer Python 3.10 ou mais novo, sem depe
 execução. A licença é MIT.
 
 No artigo, explico o funcionamento, mostro as medições e discuto os limites:
-[link do artigo, preencher depois de publicar]
+https://www.linkedin.com/pulse/tcf-como-reduzir-dados-repetitivos-sem-esconder-sua-marques-de-souza-qqgnf/
 
 Código, documentação e exemplos:
 https://github.com/LeoPR/TCF

@@ -42,6 +42,11 @@ first.
 There are two texts per language: a feed introduction and a long-form article. Notes at the
 start of each file are publishing instructions, not part of the reader-facing text.
 
+**Published in September 2026**, the Portuguese article is at
+<https://www.linkedin.com/pulse/tcf-como-reduzir-dados-repetitivos-sem-esconder-sua-marques-de-souza-qqgnf/>.
+The Portuguese post already points to it. The English article has not been published yet,
+and the English post keeps the link placeholder until it is.
+
 It sits under `docs/` because **outreach documents are documents**. A second hierarchy at the
 repository root would make the reader choose between two places to look for the same thing.
 
@@ -55,8 +60,10 @@ directory does not mix text with binaries. `scripts/make_divulgacao_figuras.py` 
 all, and running it regenerates everything. They obey the same rule as the numbers in the text:
 there is a command that reproduces them.
 
-They come out as **SVG and PNG** side by side. The SVG is text, the repository versions it and
-GitHub renders it; the PNG is what you upload, because **LinkedIn does not accept SVG**.
+They come out as **SVG and PNG** side by side, with different roles. The SVG is the
+**source**: text, versioned, rendered by GitHub. The PNG is **derived and not in git**: it is
+what you upload, because **LinkedIn does not accept SVG**, and since the script regenerates it
+in seconds it does not need to travel with the repository.
 
 The conversion uses the machine's own Chrome or Edge in headless mode, so it installs nothing.
 It renders at 2× on purpose: LinkedIn downsamples the image, and thin text at 1× comes out dirty

@@ -41,6 +41,11 @@ A regra que mantém os dois alinhados: nenhum texto de canal muda sem a fonte da
 Há dois textos por língua: chamada para o feed e artigo longo. As notas no início de cada
 arquivo são instruções para publicação e não fazem parte do texto destinado ao leitor.
 
+**Publicado em setembro de 2026**, o artigo em português está em
+<https://www.linkedin.com/pulse/tcf-como-reduzir-dados-repetitivos-sem-esconder-sua-marques-de-souza-qqgnf/>.
+O post em português já aponta para ele. O artigo em inglês ainda não foi publicado, e o
+post em inglês guarda o marcador do link até isso acontecer.
+
 Fica sob `docs/` porque **documento de divulgação é documento**. Uma segunda hierarquia na raiz
 faria o leitor escolher entre dois lugares para procurar a mesma coisa.
 
@@ -53,8 +58,10 @@ canal não misturar texto com binário. O `scripts/make_divulgacao_figuras.py` g
 rodá-lo regenera tudo. Elas obedecem à mesma regra dos números do texto: existe um comando que
 as reproduz.
 
-Saem em **SVG e PNG** lado a lado. O SVG é texto, o repositório versiona e o GitHub renderiza;
-o PNG é o que se sobe, porque **o LinkedIn não aceita SVG**.
+Saem em **SVG e PNG** lado a lado, com papéis diferentes. O SVG é a **fonte**: texto,
+versionado, renderizado pelo GitHub. O PNG é **derivado e não entra no git**: é o que se sobe,
+porque **o LinkedIn não aceita SVG**, e como o script o regenera em segundos ele não precisa
+viajar com o repositório.
 
 A conversão usa o Chrome ou o Edge da própria máquina, em modo headless, e por isso não instala
 nada. Sai em 2× de propósito: o LinkedIn reamostra a imagem para baixo, e texto fino em 1×

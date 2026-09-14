@@ -162,3 +162,7 @@ experiments/lab/dirty/notas/2026-05/*
 !experiments/lab/dirty/notas/2026-05/historia-dirty-lab.md
 experiments/lab/archive/
 .claude/
+
+# figuras de divulgacao: o SVG e' a fonte e e' versionado; o PNG e' derivado
+# (scripts/make_divulgacao_figuras.py regenera) e nao entra no git
+docs/divulgacao/linkedin/figuras/**/*.png
