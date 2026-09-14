@@ -32,10 +32,12 @@ python -m bench_perf.runner --plan nucleo --out <run>.jsonl
 #   --only B1,B2    : sub-conjunto por bloco (sem plano)
 #   --resume        : continua um JSONL parcial (mesmo git+matriz)
 
-# COMPARAÇÃO (.9 vs .8) — na máquina do .9
-python -m bench_perf.compare <baseline-.8>.jsonl <candidato-.9>.jsonl
-#   normaliza pela razão dos calibradores (máquina), classifica cada delta como
-#   MELHOR/PIOR/IGUAL/RUIDO pelo maior entre MDE-do-tier e piso-de-ruído.
+# COMPARAÇÃO: os dois lados na mesma máquina e na mesma sessão térmica
+python -m bench_perf.compare <baseline>.jsonl <candidato>.jsonl
+#   veredito pela razão caso ÷ referência dentro de cada rodada (a máquina cancela);
+#   caso sem referência de mesma cauda sai `sem-referencia`; rodada sem referência
+#   usa o fator dos calibradores. Cada delta vira MELHOR/PIOR/IGUAL/RUIDO pelo maior
+#   entre os MDEs do caso e da referência e os pisos de ruído das duas rodadas.
 #   BLOQUEIA por: matriz/plano/intenção divergentes OU validade != completo.
 #   Térmico só avisa (--strict-thermal bloqueia). --dev rebaixa tudo p/ aviso.
 python -m bench_perf.compare --self <run>.jsonl    # auto-teste: tudo IGUAL, fator 1.0
@@ -43,36 +45,36 @@ python -m bench_perf.compare --self <run>.jsonl    # auto-teste: tudo IGUAL, fat
 
 ## Fluxo `.8` → `.9` (a razão do processo existir)
 
-1. `.8`: baseline versionado em [`evidencia-0.8/perf-baseline/`](../../experiments/results/evidencia-0.8/perf-baseline/).
-   Use **`perf-nucleo-2026-08-20.jsonl`** (rodada PROBATÓRIA, `6f04f3ae`); a de 22/07 é histórica.
-2. `.9`: rodar `--plan nucleo` na mesma máquina/estado → `perf-nucleo-<.9>.jsonl`.
-3. `compare.py baseline candidato` → veredito por célula. **Mesmo `plano_sha` + `intencao`** obrigatório
-   (o comparador recusa cadências diferentes). O achado do `.8` a bater: **o coeficiente por valor
-   ÚNICO** (~23 µs/único vs ~6 µs/célula) e o `free-text` em R≥1e5.
-   ~~o penhasco `cantoRC` (~75×)~~, **essa leitura foi REFUTADA em 2026-08-20**: o canto tem 80× as
-   células da base, custa 1,00–1,02× o custo unitário mediano e o modelo linear o prevê com resíduo
-   +0,2%. Não há penhasco ali. Ver [lab `2330`](../../experiments/lab/dirty/2026-08/2026-08-20/2026-08-20-2330-baseline-perf-08-probatoria/).
+1. **Os dois lados no mesmo pino.** Rodar `--plan nucleo --probative` sobre a tag `v0.8.4`, num
+   worktree, e sobre o candidato, na mesma máquina e na mesma sessão térmica. O snapshot da `0.8.4`
+   fica versionado em [`evidencia-0.8/perf-baseline/`](../../experiments/results/evidencia-0.8/perf-baseline/)
+   (`perf-nucleo-2026-09-01.jsonl`) como referência de ordem de grandeza.
+2. `compare.py <v0.8.4>.jsonl <candidato>.jsonl` dá o veredito por célula, com **mesmo `plano_sha`
+   e `intencao`**: o comparador recusa cadências diferentes.
+3. O que bater do `.8`: **o coeficiente por valor único** (~23 µs por único contra ~6 µs por
+   célula) e o `free-text` em R≥1e5. O canto R×C é linear: 80× as células da base, custo unitário
+   de 1,00 a 1,02× a mediana (lab `2026-08-20-2330`).
 
-### ⚠ Higiene pendente do comparador (2 itens, nenhum toca `src/tcf`)
+### Higiene pendente do comparador (não toca `src/tcf`)
 
-1. **`_adj` vs adjudicação**: `compare.py` interpreta só `runner_thermal_status`; consumir a
-   adjudicação vigente é pendência antiga (ver README do snapshot).
-2. **Os calibradores não representam o workload** (achado 2026-08-20). C1/C2/C3 são laços
-   apertados de aritmética/hash/alloc; o trabalho real é construção de string e dicionário, e
-   eles não escalam juntos. Medido entre 22/07 e 20/08: os calibradores dizem que a máquina fez
-   **0,830** do trabalho; os caminhos de **referência** (stdlib, código idêntico nas duas rodadas,
-   39 células) dizem **0,968**. O fator do calibrador **fabrica +16,6% de "regressão"** em cima de
-   todo caso, foi o que produziu um falso `37 PIOR × 8 MELHOR`.
-   **Conserto proposto**: normalizar pelos caminhos de referência, que **já estão no plano**,
-   ou, melhor ainda, reportar a razão `tcf ÷ referência` *dentro* de cada rodada, em que a máquina
-   cancela por construção e não há fator nenhum a estimar.
+- **`_adj` vs adjudicação**: `compare.py` interpreta só `runner_thermal_status`; consumir a
+  adjudicação vigente é pendência antiga (ver README do snapshot).
+
+### Por que a normalização é pela referência
+
+Os calibradores C1/C2/C3 são laços apertados de aritmética, hash e alocação, e o trabalho real é
+construção de string e dicionário: os dois não escalam juntos. Entre 22/07 e 20/08 os calibradores
+disseram que a máquina fez 0,830 do trabalho, e os caminhos de referência da stdlib, com código
+idêntico nas duas rodadas, disseram 0,968. O fator do calibrador fabricava +16,6% de regressão em
+todo caso. A razão caso ÷ referência tirada dentro de cada rodada não tem fator a estimar, e foi
+validada no lab `2026-09-01-1937`.
 
 ## Componentes
 
 | módulo | papel |
 |---|---|
 | `runner.py` | orquestra: manifest → calibradores → casos → resumo (`run.json`). `avaliar_rodada()` = decisão de status PURA (testável). |
-| `compare.py` | join por `case_id` + normalização por calibrador + veredito sinal-vs-ruído. `_adj()` lê validade/térmico robusto ao schema. |
+| `compare.py` | join por `case_id` + razão caso ÷ referência dentro da rodada (calibrador só sem referência) + veredito sinal-vs-ruído. `_adj()` lê validade/térmico robusto ao schema. |
 | `plans.py` + `plans/*.json` | cadências versionadas (predicado sobre `cases.json`, pinado por `cases_sha256`). Duas rodadas só comparam com mesmo plano+intenção. |
 | `cases.py` + `cases.json` | matriz-mestra congelada (132 células; regra R2, não editar por cadência). |
 | `calibrators.py` | C1/C2/C3 (aritmética/hash/alloc), normalização cross-máquina + sentinela de drift. |
@@ -87,34 +89,12 @@ python -m bench_perf.compare --self <run>.jsonl    # auto-teste: tudo IGUAL, fat
 Compat: `_adj()` no comparador lê `run-v2` antigo (`status='termicamente-reprovado'` → validade
 `completo` + térmico `suspeito`).
 
-## Incidente 2026-09-01: o pin do plano quebrou por uma quebra de linha
+## O pin da matriz
 
-O `--probative` abortou com `plano 'nucleo' e' pra outra matriz (pin de10e05252cb !=
-98f1e4774b79)`, e a causa não foi a matriz. O commit `af6852f7` (2026-08-22) tocou
-`cases.json` para **acrescentar o LF final**, coisa do hook `end-of-file-fixer` do
-pre-commit, e o pin dos três planos não acompanhou. O diff inteiro é `\ No newline at end of
-file` virando newline: **a matriz é idêntica**, caso por caso.
+Cada plano carrega `pin_cases_sha256`, o SHA-256 dos **bytes** de `cases.json`, e o `--probative`
+aborta quando o arquivo não bate com o pin. Qualquer mudança de bytes, inclusive formatação, pede
+re-pin dos três planos no mesmo commit. O teste de contrato confere o pin contra o próprio arquivo,
+e roda na suíte principal por `tests/test_bench_perf_contrato.py`.
 
-Consequência: de 2026-08-22 até 2026-09-01 os três planos ficaram **inexecutáveis em modo
-probatório**, e ninguém percebeu porque ninguém rodou. A `0.8.4` foi publicada com o
-instrumento de baseline parado, e o baseline que existia (`perf-nucleo-2026-08-20`) ficou
-**anterior a 40 commits de `src/tcf`**, incluindo a release inteira.
-
-Consertado re-pinando os três para `98f1e4774b79`, com o diff acima como justificativa: não é
-re-pin de conveniência, é reconhecimento de que o conteúdo não mudou.
-
-### O que isso ensina sobre o desenho do pin
-
-O `pin_cases_sha256` hasheia os **bytes do arquivo**, então qualquer toque de formatação o
-quebra, e o primeiro a quebrá-lo foi um hook do próprio repositório. Hashear o **conteúdo
-canonizado** (parse do JSON, `sort_keys`, separadores fixos) seria robusto a isso sem perder
-nada: o que se quer garantir é que a matriz de casos é a mesma, não que o arquivo tem os
-mesmos bytes.
-
-**Não foi feito**, e de propósito: mudar a base do hash invalidaria a comparação com o
-baseline de 2026-08-20, que registra o valor antigo. Se e quando o `.9` decidir trocar, o
-movimento certo é trocar junto com um baseline novo, não isoladamente.
-
-Fica também a lição de processo: um instrumento que ninguém roda não avisa que quebrou. Vale
-o `smoke` entrar na cadência recorrente, mesmo que barato e sem valor de medição, só para o
-plano provar que ainda carrega.
+Hashear o conteúdo canonizado da matriz (parse, `sort_keys`, separadores fixos) é a evolução
+prevista, e entra junto com uma baseline nova, para não invalidar a comparação com as existentes.

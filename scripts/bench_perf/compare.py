@@ -10,13 +10,17 @@ Tres salvaguardas contra concluir bobagem:
 1. JOIN POR case_id, nao por posicao. Coordenada igual = comparavel; ausente de
    um lado = reportado, nunca casado errado.
 
-2. NORMALIZACAO PELO CALIBRADOR. Cada rodada mede C1/C2/C3 (a propria maquina).
-   fator = mediana(C_.9 / C_.8). O tempo do .9 e' dividido pelo fator antes de
-   comparar — senao uma maquina 38% mais lenta (situacao real desta sessao) vira
-   "regressao" fantasma.
+2. NORMALIZACAO PELOS CAMINHOS DE REFERENCIA. Os caminhos csv/json da stdlib rodam na
+   mesma rodada, com codigo identico dos dois lados. Para cada caso, a razao
+   caso / referencia de mesma cauda do case_id e' tirada DENTRO de cada rodada, onde a
+   maquina cancela por construcao, e o veredito le o delta dessa razao (metodo do lab
+   2026-09-01-1937). Os calibradores C1/C2/C3 nao representam o workload: o fator
+   deles fabricou +16,6% de regressao falsa, e so' normaliza quando a rodada nao tem
+   referencia. Caso sem referencia pareada fica `sem-referencia`, nunca MELHOR/PIOR.
 
 3. SINAL vs RUIDO. Um delta so' e' REAL se passa do maior entre: o MDE do tier
-   daquele caso e o noise_floor_cv da rodada. Abaixo disso: veredito RUIDO, nunca
+   daquele caso e o noise_floor_cv da rodada; na normalizacao por referencia entram
+   tambem o MDE da referencia e o piso da rodada candidata. Abaixo disso: veredito RUIDO, nunca
    "ganho de 3%".
 
     python -m bench_perf.compare baseline.jsonl candidato.jsonl
@@ -54,6 +58,33 @@ def _fator_calibrador(res_a: dict, res_b: dict) -> float:
             if a and b:
                 razoes.append(b / a)
     return statistics.median(razoes) if razoes else 1.0
+
+
+#: caminhos da stdlib que rodam na mesma rodada, com codigo identico dos dois lados
+REFERENCIAS = ("csv-ref", "json-ref-str", "json-ref-typed", "json-ref-nested")
+
+
+def _caminho(cid: str) -> str:
+    return cid.split("|", 1)[0]
+
+
+def _deltas_por_referencia(cid: str, ra: dict, rb: dict, validos: set) -> list:
+    """(delta da razao caso / referencia, MDE da referencia), um por referencia de mesma cauda.
+
+    Dentro de cada rodada a razao cancela a maquina por construcao: se o lado B inflou
+    tudo, caso e referencia inflam juntos e a razao nao se move. Pareamento do lab
+    2026-09-01-1937: `<referencia>|<cauda do case_id>`."""
+    cauda = cid.split("|", 1)[1] if "|" in cid else ""
+    fora = []
+    for ref in REFERENCIAS:
+        rid = f"{ref}|{cauda}"
+        if rid not in validos:
+            continue
+        ta, tb = ra[cid]["encode"]["point_ns"], rb[cid]["encode"]["point_ns"]
+        fa, fb = ra[rid]["encode"]["point_ns"], rb[rid]["encode"]["point_ns"]
+        if ta and tb and fa and fb:
+            fora.append(((tb / fb) / (ta / fa) - 1.0, ra[rid]["encode"].get("mde_pct", 10.0)))
+    return fora
 
 
 def _limiar(rec_a: dict, res_a: dict) -> float:
@@ -118,11 +149,20 @@ def comparar(base: Path, cand: Path) -> dict:
     so_base = sorted(set(ra) - set(rb))
     so_cand = sorted(set(rb) - set(ra))
     linhas = []
-    contagem = {"MELHOR": 0, "PIOR": 0, "IGUAL": 0, "RUIDO": 0, "protocolo-desigual": 0, "n/a": 0}
-    for cid in sorted(set(ra) & set(rb)):
+    contagem = {"MELHOR": 0, "PIOR": 0, "IGUAL": 0, "RUIDO": 0, "protocolo-desigual": 0,
+                "n/a": 0, "controle": 0, "sem-referencia": 0}
+    comuns = sorted(set(ra) & set(rb))
+    validos = {cid for cid in comuns
+               if ra[cid].get("status") == "ok" and rb[cid].get("status") == "ok"
+               and ra[cid].get("encode") and rb[cid].get("encode")}
+    # REFERENCIA quando a rodada tem caminho de referencia valido dos dois lados; senao o
+    # fator do calibrador, que mantem comparaveis as matrizes sem referencia.
+    modo = "referencia" if any(_caminho(c) in REFERENCIAS for c in validos) else "calibrador"
+    deriva = []                                           # delta cru das referencias
+    for cid in comuns:
         a, b = ra[cid], rb[cid]
         ea, eb = a.get("encode"), b.get("encode")
-        if a.get("status") != "ok" or b.get("status") != "ok" or not ea or not eb:
+        if cid not in validos:
             contagem["n/a"] += 1
             continue
         if not _protocolo_igual(ea, eb):                  # tier/n divergem => nao compara
@@ -131,20 +171,42 @@ def comparar(base: Path, cand: Path) -> dict:
                            "tier_base": ea.get("tier"), "tier_cand": eb.get("tier"),
                            "n_base": ea.get("n"), "n_cand": eb.get("n")})
             continue
-        ta = ea["point_ns"]
-        tb = eb["point_ns"] / fator                       # normaliza a maquina do .9
-        delta = (tb - ta) / ta if ta else 0.0             # >0 = .9 mais lento
-        lim = _limiar(a, resa)
+        ta, tb = ea["point_ns"], eb["point_ns"]
+        delta_cal = (tb / fator - ta) / ta if ta else 0.0  # >0 = candidato mais lento
+        pares = []
+        if modo == "referencia":
+            if _caminho(cid) in REFERENCIAS:              # o controle nao recebe veredito
+                contagem["controle"] += 1
+                deriva.append((tb - ta) / ta if ta else 0.0)
+                continue
+            pares = _deltas_por_referencia(cid, ra, rb, validos)
+            if not pares:                                 # sem par de mesma cauda: indecidivel
+                contagem["sem-referencia"] += 1
+                linhas.append({"case_id": cid, "verdict": "sem-referencia",
+                               "delta_calibrador_pct": round(delta_cal * 100, 2)})
+                continue
+            delta = statistics.median([d for d, _ in pares])
+            # a razao depende do caso, da referencia e das duas rodadas: o limiar e' o maior
+            # entre os MDEs envolvidos e os pisos de ruido dos DOIS lados
+            lim = max(_limiar(a, resa), _limiar(a, resb), max(m for _, m in pares) / 100.0)
+        else:
+            delta = delta_cal
+            lim = _limiar(a, resa)
         if abs(delta) <= lim:
             verdict = "RUIDO" if abs(delta) > 0.005 else "IGUAL"
         else:
             verdict = "PIOR" if delta > 0 else "MELHOR"
         contagem[verdict] += 1
         linhas.append({"case_id": cid, "delta_pct": round(delta * 100, 2),
+                       "delta_calibrador_pct": round(delta_cal * 100, 2),
+                       "pares_referencia": len(pares),
                        "limiar_pct": round(lim * 100, 2), "verdict": verdict,
-                       "base_ns": ta, "cand_ns_norm": round(tb)})
+                       "base_ns": ta, "cand_ns_norm": round(tb / fator)})
     return {
         "fator_calibrador": round(fator, 4),
+        "normalizacao": modo,
+        "deriva_referencias_pct": (round(statistics.median(deriva) * 100, 2)
+                                   if deriva else None),
         "matriz_igual": matriz_igual,
         "matriz_sha": {"base": str(ma)[:12], "cand": str(mb)[:12]},
         "plano_igual": plano_igual, "intencao_igual": intencao_igual,
@@ -207,7 +269,14 @@ def main(argv=None) -> int:
         print(f"!! AVISO termico (first-order, nao bloqueia): {', '.join(suspeito)} "
               f"termicamente-suspeito — deltas pequenos podem ser ruido; use --strict-thermal p/ precisao.")
 
-    print(f"fator_calibrador (maquina .9/.8) = {r['fator_calibrador']}")
+    if r["normalizacao"] == "referencia":
+        deriva = r["deriva_referencias_pct"]
+        deriva_txt = "n/d" if deriva is None else f"{deriva:+.1f}%"
+        print(f"normalizacao: razao caso/referencia dentro da rodada (deriva das referencias "
+              f"{deriva_txt}; fator_calibrador {r['fator_calibrador']}, so' informativo)")
+    else:
+        print(f"normalizacao: calibrador, a rodada nao tem caminho de referencia "
+              f"(fator_calibrador = {r['fator_calibrador']})")
     print(f"veredictos: {r['contagem']}")
     if r["contagem"]["protocolo-desigual"]:
         pd = [ln for ln in r["linhas"] if ln["verdict"] == "protocolo-desigual"][:3]

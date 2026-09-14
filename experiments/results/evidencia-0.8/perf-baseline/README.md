@@ -33,8 +33,8 @@ A que faltava desde 22/07: `--probative` (fail-closed), árvore limpa, Cython pr
 > **⚠ Esta rodada é BASELINE PINADO do `.8`, e TEM DE SER REPETIDA depois das otimizações
 > do `.9`**, condição do owner ao autorizá-la: *"faz sentido fazer mesmo com as otimizações
 > que tem agora, elas serviriam como base para as otimizações futuras. só precisamos lembrar
-> de que temos que repeti-las."* Ao repetir: rodar os calibradores de novo e normalizar
-> antes de declarar qualquer ganho (mas ver a ressalva sobre o calibrador, adiante).
+> de que temos que repeti-las."* Ao repetir: medir a `v0.8.4` e o candidato no mesmo
+> pino, como em "Como comparar com o `.9`", abaixo.
 
 ## Arquivos
 
@@ -44,6 +44,8 @@ A que faltava desde 22/07: `--probative` (fail-closed), árvore limpa, Cython pr
 | `perf-nucleo-2026-07-22.run.json` | manifesto (git, cython, plataforma) + calibradores C1/C2/C3 + drift da run. |
 | **`perf-nucleo-2026-08-20.jsonl`** | **rodada PROBATÓRIA** (`--probative`, árvore limpa, `6f04f3ae`). Mesmo perfil: 106 registros, 103 ok, 0 obrigatório-falhou. |
 | **`perf-nucleo-2026-08-20.run.json`** | idem, schema `run-v3` (`status` e `runner_thermal_status` ortogonais). |
+| **`perf-nucleo-2026-09-01.jsonl`** | snapshot da **`0.8.4`** (`--probative`, árvore limpa, `e46ef37a`): 106 registros, 103 comparáveis. Referência de ordem de grandeza da release. |
+| **`perf-nucleo-2026-09-01.run.json`** | idem, schema `run-v3`. |
 | **`first-order-report-2026-08-20.txt`** | relatório da probatória. **§3 (slope) lê errado; ver ressalva abaixo.** |
 | `reproducibilidade-piloto.txt` | 7 invocações do bloco B1 (9 caminhos) → CV entre-runs mediano 3% (máx 5%). Prova a máquina como instrumento. |
 | `first-order-report.txt` | ordem de grandeza + pontos quentes + escala (rodada de 22/07). |
@@ -52,16 +54,23 @@ A que faltava desde 22/07: `--probative` (fail-closed), árvore limpa, Cython pr
 
 ## Como comparar com o `.9`
 
+Os dois lados rodam no mesmo pino: a tag `v0.8.4` num worktree e o candidato, na mesma máquina e
+na mesma sessão térmica.
+
 ```
-python -m bench_perf.runner --plan nucleo --out <run-09>.jsonl   # na máquina do .9
-python -m bench_perf.compare perf-nucleo-2026-08-20.jsonl <run-09>.jsonl
+python -m bench_perf.runner --plan nucleo --probative --out v084.jsonl        # no worktree da v0.8.4
+python -m bench_perf.runner --plan nucleo --probative --out candidato.jsonl
+python -m bench_perf.compare v084.jsonl candidato.jsonl
 ```
-> Use **`perf-nucleo-2026-08-20`** como baseline: é a rodada probatória e é a que
-> corresponde ao core welded do `.8`. A de 22/07 fica como referência histórica:
-> entre as duas o `src/tcf` mudou (258 commits, 34 no core).
-`compare.py` normaliza pela razão dos calibradores (máquina) antes de comparar, e
-classifica cada delta como RUÍDO vs real pelo maior entre MDE-do-tier e o piso de
-ruído, coerente com o ±~5% run-a-run medido aqui.
+
+O `compare.py` tira a razão caso ÷ referência dentro de cada rodada, com os caminhos da stdlib
+(`csv-ref`, `json-ref-*`) de mesma cauda de `case_id`, e o veredito lê o delta dessa razão: a
+máquina cancela por construção. Caso sem referência pareada sai `sem-referencia`. Cada delta vira
+RUÍDO ou real pelo maior entre os MDEs do caso e da referência e os pisos de ruído das duas
+rodadas.
+
+A rodada de 2026-09-01 é o snapshot versionado da `0.8.4`, para ordem de grandeza. Rodadas de
+sessões diferentes carregam deriva térmica e de máquina, e por isso o veredito vem do mesmo pino.
 
 ## Achado que ancora o `.9`
 
@@ -103,49 +112,14 @@ e emite **12% dos bytes** dele (mediana).
 
 ---
 
-## Rodada de 2026-09-01: a base da `0.8.4`, e por que ela substitui a de 20/08
+## Rodada de 2026-09-01: o snapshot da `0.8.4`
 
-`perf-nucleo-2026-09-01.jsonl`, plano `nucleo`, `--probative`, 106 casos, 103 comparáveis
-(os 3 pendentes são os opcionais de sempre), `status=completo`, termicamente suspeito
+`perf-nucleo-2026-09-01.jsonl`, plano `nucleo`, `--probative`, 106 casos, 103 comparáveis (os 3
+pendentes são os opcionais de sempre), `status=completo`, termicamente suspeito
 (`ratio_max=1,213`, `noise_floor_cv=0,068`), árvore limpa em `e46ef37a`.
 
-**Esta passa a ser a baseline do `.9`.** A instrução acima, de usar a de 20/08, está
-**superada**: aquela rodada é anterior a 40 commits de `src/tcf`, a `0.8.4` inteira incluída,
-e portanto media uma árvore que nunca foi release. Some-se que os planos foram re-pinados em
-`e46ef37a` (o `cases.json` ganhou um LF do pre-commit em 22/08 e ninguém re-pinou), então o
-`compare` **recusa fail-closed** o par 20/08 × 01/09: matriz e plano diferem. A recusa está
-certa, e é por isso que a comparação abaixo é `--dev`, ou seja, **não é evidência**.
-
-### O que o par 20/08 × 01/09 sugere, com o controle na frente
-
-Os caminhos de **referência** (`csv-ref`, `json-ref-*`) são `csv`/`json` da stdlib: o código
-deles **não mudou** entre as duas rodadas. Qualquer movimento neles é máquina, não TCF. É o
-controle que a revisão de 20/08 já mandava usar, porque os calibradores não representam o
-workload.
-
-| família | n | mediana | leitura |
-|---|---:|---:|---|
-| `json-ref-str` | 26 | −17,6% | controle |
-| `csv-ref` | 6 | −17,2% | controle |
-| `json-ref-nested` | 6 | −12,2% | controle |
-| `json-ref-typed` | 1 | −9,7% | controle |
-| **referência, agregada** | **39** | **−17,1%** | **o viés da normalização** |
-| `tcf-flat` | 51 | −1,6% | |
-| `tcf-8h` | 7 | +29,9% | |
-
-O controle inteiro andou junto, cerca de −17%, com código idêntico: o fator do calibrador
-(1,2951) **sobre-corrigiu**. Descontado o controle, o `tcf-flat` fica em torno de +16% e o
-`tcf-8h` em torno de +47% em relação a ele.
-
-**Isso não é uma medição, é uma pista.** A comparação é fail-closed recusada, as duas rodadas
-estão termicamente suspeitas, e o desconto do controle é aritmética sobre medianas, não um
-modelo. O que sustenta olhar de novo é o **padrão**: as duas famílias se movem em direções
-opostas, e a separação é grande demais para o piso de ruído de 6,8%.
-
-Não foi investigado, e de propósito: pela régua de versão, o `.8` só otimiza se for barato, e
-perseguir o caminho `.8H` é trabalho de algoritmo. Registrado como pista em
+Medida no mesmo pino contra a probatória de 20/08, a `0.8.4` não regrediu: a razão caso ÷
+referência ficou em `+3,2%` no flat e `+4,0%` no `.8H`, dentro do MDE de 7%. A célula
+`tcf-8h|synth|flat-mixed|base` passou a rotear para `#TCF.8R` (ADR-0049) e hoje mede o `.8R`: 31%
+menos bytes, decode duas vezes mais rápido, encode 32% mais caro. Detalhe no
 [`T-PERF-BORDAS-E-MODOS-09`](../../../../tickets/T-PERF-BORDAS-E-MODOS-09.md).
-
-O jeito honesto de fechar a pista, quando o `.9` abrir, é **medir os dois lados no mesmo
-pino**: rodar o `nucleo` re-pinado sobre a tag `v0.8.4` e sobre o candidato, na mesma máquina
-e na mesma sessão térmica. Aí o `compare` aceita, e o veredito vale.

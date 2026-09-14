@@ -3,7 +3,8 @@
 Cobrem as INVARIANTES que, se quebrarem, deixam concluir bobagem:
   - planos: selecao por predicado, opcional, hash canonico, pin, disjuncao nucleo/campanha;
   - avaliar_rodada: obrigatorio/opcional, rt-quebrado sempre invalida, termico reprova antes;
-  - comparador: recusa matriz/plano/intencao/status divergentes (fail-closed) e o autoteste.
+  - comparador: recusa matriz/plano/intencao/status divergentes (fail-closed) e o autoteste;
+    veredito pela razao caso/referencia dentro da rodada, calibrador so' sem referencia.
 
 Roda sem pytest:  python -m bench_perf.tests.test_contrato
 Tambem e' descoberto por pytest (funcoes test_*).
@@ -11,6 +12,7 @@ Tambem e' descoberto por pytest (funcoes test_*).
 
 from __future__ import annotations
 
+import hashlib
 import json
 import tempfile
 from pathlib import Path
@@ -21,7 +23,9 @@ from bench_perf.runner import avaliar_rodada
 
 AQUI = Path(__file__).resolve().parent
 CASES = json.loads((AQUI.parent / "cases.json").read_text(encoding="utf-8"))["casos"]
-PIN = "de10e05252cb5463ee6a303c8c8105ee289bda4c86b23630d20ae9ac8f761432"
+# O pin e' o SHA-256 dos BYTES do cases.json, que e' o que o runner confere. Derivado do
+# arquivo, o teste acusa pin velho no plano em vez de pedir uma constante a mais.
+PIN = hashlib.sha256((AQUI.parent / "cases.json").read_bytes()).hexdigest()
 
 
 # ------------------------------------------------------------------ planos ---
@@ -132,10 +136,10 @@ def _rec(cid, ns, tier="micro", n=31, status="ok"):
 
 
 def _run(cases_sha="AAA", plano_sha="P1", intencao="referencia-recorrente-comparavel",
-         status="completo", thermal="estavel"):
+         status="completo", thermal="estavel", piso=0.0):
     return {"status": status, "runner_thermal_status": thermal,
             "manifest": {"cases_sha256": cases_sha},
-            "calibradores": {"C1": {"point_ns": 100}}, "drift": {"noise_floor_cv": 0.0},
+            "calibradores": {"C1": {"point_ns": 100}}, "drift": {"noise_floor_cv": piso},
             "plano": {"id": "nucleo", "sha": plano_sha, "intencao": intencao, "campanha": False}}
 
 
@@ -236,6 +240,67 @@ def test_adj_compat_schema_antigo():
     # run-v3 novo: le os dois campos direto
     assert CMP._adj({"status": "completo", "runner_thermal_status": "termicamente-suspeito"}) \
         == ("completo", "termicamente-suspeito")
+
+
+def test_referencias_cobrem_os_caminhos_ref_da_matriz():
+    """Todo caminho de referencia da matriz esta' na lista que o comparador pareia."""
+    caminhos = {c["case_id"].split("|", 1)[0] for c in CASES}
+    refs = {c for c in caminhos if "-ref" in c}
+    assert refs and refs <= set(CMP.REFERENCIAS), refs
+
+
+def test_compare_referencia_cancela_a_maquina():
+    """Maquina 30% mais lenta no lado B: caso e referencia inflam juntos, a razao nao se
+    move. O fator do calibrador, igual nos dois lados, chamaria isso de PIOR."""
+    def corpo(d: Path):
+        a = _escreve(d, "a", [_rec("tcf-flat|x", 1000), _rec("csv-ref|x", 100)], _run())
+        b = _escreve(d, "b", [_rec("tcf-flat|x", 1300), _rec("csv-ref|x", 130)], _run())
+        r = CMP.comparar(a, b)
+        assert r["normalizacao"] == "referencia"
+        assert r["contagem"]["IGUAL"] == 1 and r["contagem"]["PIOR"] == 0
+        assert r["contagem"]["controle"] == 1
+    _com_tmp(corpo)
+
+
+def test_compare_referencia_detecta_regressao_do_caso():
+    def corpo(d: Path):
+        a = _escreve(d, "a", [_rec("tcf-flat|x", 1000), _rec("csv-ref|x", 100)], _run())
+        b = _escreve(d, "b", [_rec("tcf-flat|x", 1200), _rec("csv-ref|x", 100)], _run())
+        r = CMP.comparar(a, b)
+        assert r["contagem"]["PIOR"] == 1
+        linha = next(ln for ln in r["linhas"] if ln["case_id"] == "tcf-flat|x")
+        assert linha["pares_referencia"] == 1 and linha["delta_pct"] == 20.0
+    _com_tmp(corpo)
+
+
+def test_compare_sem_referencia_pareada_nao_vira_veredito():
+    """Com referencia na rodada, o caso sem par de mesma cauda fica indecidivel."""
+    def corpo(d: Path):
+        a = _escreve(d, "a", [_rec("tcf-flat|y", 1000), _rec("csv-ref|x", 100)], _run())
+        b = _escreve(d, "b", [_rec("tcf-flat|y", 2000), _rec("csv-ref|x", 100)], _run())
+        r = CMP.comparar(a, b)
+        assert r["contagem"]["sem-referencia"] == 1
+        assert r["contagem"]["PIOR"] == 0 and r["contagem"]["MELHOR"] == 0
+    _com_tmp(corpo)
+
+
+def test_compare_referencia_limiar_respeita_o_ruido_do_candidato():
+    """Candidato com piso de ruido de 10%: +8% na razao e' ruido, nao regressao."""
+    def corpo(d: Path):
+        a = _escreve(d, "a", [_rec("tcf-flat|x", 1000), _rec("csv-ref|x", 100)], _run())
+        b = _escreve(d, "b", [_rec("tcf-flat|x", 1080), _rec("csv-ref|x", 100)], _run(piso=0.10))
+        r = CMP.comparar(a, b)
+        assert r["contagem"]["PIOR"] == 0 and r["contagem"]["RUIDO"] == 1
+    _com_tmp(corpo)
+
+
+def test_compare_rodada_sem_referencia_usa_calibrador():
+    def corpo(d: Path):
+        a = _escreve(d, "a", [_rec("k1", 1000)], _run())
+        b = _escreve(d, "b", [_rec("k1", 1200)], _run())
+        r = CMP.comparar(a, b)
+        assert r["normalizacao"] == "calibrador" and r["contagem"]["PIOR"] == 1
+    _com_tmp(corpo)
 
 
 # ------------------------------------------------------------------- main ---

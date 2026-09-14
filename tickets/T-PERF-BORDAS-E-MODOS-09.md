@@ -304,9 +304,16 @@ decode duas vezes mais rápido. **Essa célula hoje mede `.8R`**, e toda compara
 precisa saber disso.
 
 O método que resolveu a dúvida fica valendo: normalizar pelos caminhos de referência dentro
-da rodada, em vez do fator do calibrador. É a higiene já proposta no
-[README do `bench_perf`](../scripts/bench_perf/README.md), e é pré-requisito de qualquer
-veredito deste ciclo enquanto o `compare.py` não a incorporar.
+da rodada, em vez do fator do calibrador. O `compare.py` a incorporou em 2026-09-14
+([README do `bench_perf`](../scripts/bench_perf/README.md)), e o veredito do comparador já sai
+dessa razão.
+
+Relidos com o comparador novo, os dois JSONL deste lab dão 5 células acima dos pisos de ruído das
+duas rodadas. Uma é a `flat-mixed` que passou a medir o `.8R`. As outras quatro são do `tcf-flat`
+em `flat-mixed`, nos pontos baixos dos eixos (`K0001`, `K001`, `R1e2` e `L8`), com `+11%` a
+`+20%`, e rodaram no início da rodada B, nas ordens 9 a 20, longe da cauda com deriva térmica.
+Não é veredito: são duas rodadas, a B termicamente suspeita, com a referência pareada 17 posições
+depois. Ficam como candidatas a remedição no passo 0.
 
 Detalhe e tabela por família em
 [`perf-baseline/README.md`](../experiments/results/evidencia-0.8/perf-baseline/README.md).
