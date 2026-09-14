@@ -3,7 +3,7 @@ title: T-CODE-PARALLEL-BUDGET, flag de controle de paralelismo e uso de CPU (bud
 status: open
 priority: P2
 created: 2026-07-10
-updated: 2026-09-01
+updated: 2026-09-14
 gate: ".9 (desempenho e limpeza) (triagem 2026-09-01)"
 blocked-by: []
 related:
@@ -39,6 +39,15 @@ do material comprobatório (que vai MEDIR o comportamento paralelo antes de expo
    ser UM conceito só pro host inteiro, não um knob por camada.
 4. Telemetria: `multi_info['parallel_workers']` já expõe o efetivo; o flag deve aparecer lá
    também (workers pedidos vs concedidos), zero-cost, filosofia SideOutputs.
+
+## Recebido do T-QA-8 (2026-09-14)
+
+O F3-3 do `T-QA-8` e o critério de paralelismo do §5 dele vieram para cá, porque são os números
+que a decisão de design abaixo espera. Estado de hoje: byte-identidade parallel==serial testada
+só em D17a; speedup histórico perto de 1,3× (IPC do spawn no Windows); porção serial depois do
+pool não medida; e sem cobertura os combos de `parallel` com `schema=` por coluna, `sort_by` e
+`drop_names`. As limitações já conhecidas continuam: decode serial, Cython sem `nogil`, e o
+3.13t reativando o GIL.
 
 ## Critérios de aceite
 

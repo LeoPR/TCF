@@ -3,7 +3,7 @@ title: T-PERF-BORDAS-E-MODOS-09, otimização multicamada, bordas e perfis; o al
 status: open
 priority: P1
 created: 2026-08-23
-updated: 2026-09-07
+updated: 2026-09-14
 gate: ".9 (desempenho e limpeza) (triagem 2026-09-01)"
 target: ".9 (otimização), este é o ticket-mestre do ciclo"
 blocked-by: []
@@ -310,3 +310,24 @@ veredito deste ciclo enquanto o `compare.py` não a incorporar.
 
 Detalhe e tabela por família em
 [`perf-baseline/README.md`](../experiments/results/evidencia-0.8/perf-baseline/README.md).
+
+---
+
+## Recebido do T-QA-8 (2026-09-14): o que o `.8` deixou para este ciclo
+
+O `T-QA-8` era o dossiê da `0.8.0`. Na verificação de fechamento, o que não foi feito e não é
+correção veio para cá, com o estado de hoje. Nenhum destes itens bloqueia o `.8`.
+
+- **F5-1, triagem de otimização com o dado das fases F2 a F4.** Os quatro candidatos registrados
+  na época: a porção serial depois do pool, `parallel=1` com saldo negativo, o custo incondicional
+  de `obat_log` e `hcc_trace`, e o V2-B com largura de 2 ou mais. Cada um vira sub-experimento ou
+  ticket próprio, com o gate de regressão real-world, e nenhum weld acontece dentro da triagem.
+- **F3-4, natures em volume.** A rodada com `br-identidades` (600k, seed 20260601) não foi
+  registrada; existem os controles pequenos em `evidencia-0.8/f2/e5` a `e7`.
+- **F4-2, os três hubs públicos.** `online-retail` está no gate real-world e no EXP-019;
+  `wine-quality` só no EXP-019, que compara `.8H` com `.8R`; `beijing-pm25` em nenhum. Falta a
+  matriz no formato do F4-3 para os três.
+- **F4-4, a tabela-mestra cross-fase**, com a nota Wohlin. Os `RESULT.md` por fase existem.
+
+O paralelismo (F3-3) foi para o [T-CODE-PARALLEL-BUDGET](T-CODE-PARALLEL-BUDGET.md), que já espera
+esses números para decidir o design.

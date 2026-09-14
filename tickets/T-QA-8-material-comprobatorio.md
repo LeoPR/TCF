@@ -3,7 +3,7 @@ title: T-QA-8, material comprobatório do #TCF.8/0.8.0 (controle → sintéticos
 status: open
 priority: P1
 created: 2026-07-10
-updated: 2026-09-12
+updated: 2026-09-14
 gate: ".8 (dossie da versao); levantamento dos restos em 2026-09-02, §Levantamento"
 blocked-by: []
 related:
@@ -317,15 +317,53 @@ quando a entrada ainda era rascunho; publicada, ela não se reescreve. Opções:
 smoke que protege a publicação faz round-trip de uma tabela `.8M` e confere a versão. Prova o F6-2
 como pedido; "quatro famílias" não tem registro em disco.
 
+### Parte 3: parciais e critérios de aceite (feita 2026-09-14)
+
+Cada item recebe um de três vereditos: feito, adiado para o `.9` com rótulo, ou pendente. Como o
+owner declarou o `.8` fechado (`T-REL-08-CLOSEOUT`), o que não foi feito e não é correção vai para
+o `.9` com destino nomeado, pela régua de versão.
+
+| item | prova conferida | veredito |
+|---|---|---|
+| BUG-11 | (b) fixado no lote 3; o resíduo (a) é flip geometricamente consistente, que só checksum pega | adiado com rótulo: [T-FMT-META-STRICT](T-FMT-META-STRICT.md) |
+| BUG-13 | (b), (d) e (e) fixados no lote 4; restam (a) e (c), também só checksum | adiado com rótulo: [T-FMT-META-STRICT](T-FMT-META-STRICT.md) |
+| F0-1 | lotes 1 a 4 executados; o BUG-12, que restava, foi corrigido pelo weld `25ad29eb` e provado em 09-02 | feito |
+| F3-3 | byte-identidade parallel==serial só em D17a; speedup histórico perto de 1,3× (IPC do spawn no Windows); porção serial não medida | adiado com rótulo: [T-CODE-PARALLEL-BUDGET](T-CODE-PARALLEL-BUDGET.md) |
+| F3-4 | a rodada com `br-identidades` (600k) não foi registrada; existem os controles pequenos `f2/e5` a `e7` | adiado com rótulo: [T-PERF-BORDAS-E-MODOS-09](T-PERF-BORDAS-E-MODOS-09.md) |
+| F4-2 | `online-retail` está no gate real-world e no EXP-019; `wine-quality` só no EXP-019; `beijing-pm25` em nenhum | adiado com rótulo: [T-PERF-BORDAS-E-MODOS-09](T-PERF-BORDAS-E-MODOS-09.md) |
+| F4-4 | os `RESULT.md` por fase existem; a tabela-mestra cross-fase e a nota Wohlin, não | adiado com rótulo: [T-PERF-BORDAS-E-MODOS-09](T-PERF-BORDAS-E-MODOS-09.md) |
+| §5 JSONL | schema `evidencia-0.8/v1`: `rt_ok` obrigatório para qualquer número, `seed` e kwargs de proveniência; 88 JSONL em `f2`, `f3` e `f4-minimo` | feito |
+| §5 dicts e natures | F2-6: um blob por mecanismo; 14 `.tcf` em `evidencia-0.8/f2` | feito |
+| §5 paralelismo | o mesmo estado do F3-3 | adiado com rótulo: [T-CODE-PARALLEL-BUDGET](T-CODE-PARALLEL-BUDGET.md) |
+| §5 telemetria | F0-3: camada de conceitos portável e sondas por plataforma com fallback `None`; F1-2: `SideOutputs` serializado; ressalvas do Windows no §1 e no §2 | feito |
+| §5 bugs do §3 | DOC-01, DOC-03 e DOC-04 feitos na parte 2; BUG-11 e BUG-13 com resíduo adiado com rótulo | feito, pelo texto do próprio critério |
+| §5 README | é o DOC-01, feito na parte 2 | feito |
+
+**Correção à nota do F4-2:** ela diz que os CSVs dos três hubs "já viram no gate real-world". Só o
+`online-retail` está em `tests/test_real_world_snapshots.py`.
+
+### Parte 4: grupo D, a regra do CPF (feita 2026-09-14)
+
+Decisão do owner em 2026-09-05: **"não existe pendência de CPF"**. A caixa do §5 é marcada como
+**dispensada pelo owner**, e não como cumprida: o registro da parte 1 sobre o `123.456.789-09`
+continua verdadeiro. Nada em `src/tcf` foi tocado.
+
+### Grupo C: F5-1 (feito 2026-09-14)
+
+O F5-1 foi para o [T-PERF-BORDAS-E-MODOS-09](T-PERF-BORDAS-E-MODOS-09.md), na seção "Recebido do
+T-QA-8", com os quatro candidatos e o gate de regressão real-world. O F3-4, o F4-2 e o F4-4 foram
+junto, e o F3-3 foi para o [T-CODE-PARALLEL-BUDGET](T-CODE-PARALLEL-BUDGET.md).
+
+### Parte 5: marcação (feita 2026-09-14, com autorização do owner)
+
+O owner autorizou em 2026-09-14 marcar o que as partes provaram. Cada caixa marcada carrega o
+veredito ao lado. **Fica aberto só o F6-1f**, que aguarda a decisão entre (a), (b) e (c) da parte
+2. Por isso o ticket não fecha ainda.
+
 ### Fila do que falta (atualizar ao fim de cada parte)
 
-1. **Decisão do owner, F6-1f**: opção (a), (b) ou (c) acima; (a) contraria o append-only.
-2. **Parte 3**: os 7 parciais `[~]` (BUG-11, BUG-13, F0-1, F3-3, F3-4, F4-2, F4-4) e as 7 caixas do
-   §5, cada um feito, adiado para a `.9` com rótulo, ou pendente.
-3. **Grupo C**: levar o F5-1 ao `T-PERF-BORDAS-E-MODOS-09`.
-4. **Parte 4, grupo D**: qual versão da regra do CPF vale (§5 contra `test_schema_param.py:21`),
-   e o que isso exige. Se tocar `src/tcf`, aprovação (I5).
-5. **Parte 5, veredito**: marcar o que foi provado, e fechar o ticket se nada restar.
+1. **Decisão do owner, F6-1f**: opção (a), (b) ou (c) da parte 2; a (a) contraria o append-only.
+2. **Fechar o ticket**, marcando o F6-1f conforme a decisão. Nada mais resta.
 
 ## §3: REGISTRO DE BUGS (achados no planejamento; arrumar em F0, NÃO agora)
 
@@ -424,7 +462,7 @@ owner: "SE identificar algum bug sem querer, registre apenas pra arrumarmos depo
   Nota da verificação: `parallel=-1`/`2.0` eram tolerados fora-de-contrato no HEAD, agora erro
   (intencional). Revisão profunda dos contratos (tipos anterior/próximo, diffs, specs) →
   T-API-BOUNDARY-CONTRACTS pré-1.0.
-- [~] **BUG-11 [média]**: **(b) FIXADO 2026-07-10 (lote 3)**: whitelist de escape `_ESC_OK =
+- [x] **BUG-11 [média]** *(parte 3: resíduo (a) ADIADO com rótulo → T-FMT-META-STRICT)*: **(b) FIXADO 2026-07-10 (lote 3)**: whitelist de escape `_ESC_OK =
   ",=:\\!@%"` no `_unesc_name_strict`, escape de char não-estrutural (não-emitível) → ValueError;
   dangling integrado no mesmo scan. **(a) coberto em 2 camadas**: o caso comum do `\` inserido é
   pego pelo fecho/n_rows do lote 2 (medido); o residual geometricamente-consistente é
@@ -441,7 +479,7 @@ owner: "SE identificar algum bug sem querer, registre apenas pra arrumarmos depo
   antes do cross-check n_rows alcançar. Pior modo de falha (nem loud, nem errado: nunca retorna).
   Fix futuro toca o CORE HCC (guard de terminação/progresso no decode) → aprovação + gate
   byte-canônico completo + real-world obrigatórios.
-- [~] **BUG-13 [média]**: **(b)(d)(e) FIXADOS 2026-07-10 (lote 4, "vamos fechar os A")**:
+- [x] **BUG-13 [média]** *(parte 3: resíduos (a) e (c) ADIADOS com rótulo → T-FMT-META-STRICT)*: **(b)(d)(e) FIXADOS 2026-07-10 (lote 4, "vamos fechar os A")**:
   (b) nature-id desconhecido → **ValueError** em decode (multi+single) E view. REVOGA o
   forward-compat de 2026-06-24 (2 testes re-pinados com rastreabilidade; pre-1.0 sem compat,
   ADR-0024); (d) **cross-check incremental na view**: `_col()` compara `len` com qualquer coluna
@@ -481,7 +519,7 @@ owner: "SE identificar algum bug sem querer, registre apenas pra arrumarmos depo
 
 ### Doc-drift 0.7→0.8 (bloqueia o "documento bem feito pro pip": corrigir em F6 com números medidos)
 
-- [ ] **DOC-01 [alta]** `README.md` (embarcado como long-description da wheel!): badges 0.7.1/#TCF.7;
+- [x] **DOC-01 [alta]** *(feito; parte 2)* `README.md` (embarcado como long-description da wheel!): badges 0.7.1/#TCF.7;
   exemplo-propaganda mostra `#TCF.7 M` decimal 244B, real 0.8: `#TCF.8M!2c=nome,...` hex **242B**
   (medido); "legacy #TCF.6 still read" (CORTADO); knob "forces legacy #TCF.6" (impossível);
   nature 27B → **39B** (header self-describing +12B que não existia); nega o marker self-describing
@@ -496,10 +534,10 @@ owner: "SE identificar algum bug sem querer, registre apenas pra arrumarmos depo
   07-02); `view.py` (lê SÓ #TCF.8M; parser único); `natures/__init__.py` (exemplo self-describing,
   decode sem spec); vars mortas `is_v8` removidas (lote 1); `tests/test_tcf_lazy.py`. **Nota**: tudo
   que depende de NÚMERO MEDIDO (README/exemplo/curvas) segue no F6/DOC-01.
-- [ ] **DOC-03 [média]** `docs/algorithms/TCF-format.pt-BR.md:94`: exemplo `@a=uf,1e=nome` mostra
+- [x] **DOC-03 [média]** *(feito; parte 2)* `docs/algorithms/TCF-format.pt-BR.md:94`: exemplo `@a=uf,1e=nome` mostra
   size na ÚLTIMA coluna contradizendo a própria regra (última sem size); equivalente real:
   `#TCF.8M@14=uf,!nome`. Conferir o .en.md no mesmo ponto.
-- [ ] **DOC-04 [baixa]** `pyproject.toml`: wheel 0.8.0 sem `[project.urls]` e sem classifiers
+- [x] **DOC-04 [baixa]** *(feito; parte 2)* `pyproject.toml`: wheel 0.8.0 sem `[project.urls]` e sem classifiers
   (página PyPI sem link pro repo/changelog); readme apontado é o stale do DOC-01.
 - [x] **DOC-05 [baixa]** satélites — **feito 2026-09-02**: `benchmark_compression.py` já parseava
   sem resíduo v0.5; `benchmark_parallel.py` ganhou warmup + mediana (`--runs`); tabelas do
@@ -511,7 +549,7 @@ owner: "SE identificar algum bug sem querer, registre apenas pra arrumarmos depo
 
 ### F0: Gate de entrada: decisões do owner + lote de fixes (pré-medição)
 
-- [~] **F0-1** Owner decide o lote de fix pré-medição (toca `src/tcf` → aprovação explícita).
+- [x] **F0-1** *(parte 3: feito; o BUG-12 que restava foi corrigido pelo weld `25ad29eb`)* Owner decide o lote de fix pré-medição (toca `src/tcf` → aprovação explícita).
   **LOTES 1-4 EXECUTADOS 2026-07-10** (BUG-01..11b + 13b/d/e + DOC-02; decisões de design do
   owner, ver §3; byte-neutro 122+189+103 casos; eficácia medida 1474 cortes). **Resta**: só
   **BUG-12** entre os achados originais (hang HCC sob blob corrompido) e os residuais-de-checksum
@@ -535,9 +573,9 @@ owner: "SE identificar algum bug sem querer, registre apenas pra arrumarmos depo
   - Workers do ProcessPool: inobserváveis via stdlib em QUALQUER OS → claims de paralelismo =
     wall-clock + byte-identidade + `parallel_workers` (conceito portável). psutil só como
     `[bench]` opcional se o F3 provar necessidade (go do owner).
-- [ ] **F0-3** Owner decide: psutil como optional-dependency de bench (`[bench]`) ou stdlib-only
+- [x] **F0-3** *(duplicata: decidido em 2026-07-10, stdlib-only e portável, no F0-3 acima)* Owner decide: psutil como optional-dependency de bench (`[bench]`) ou stdlib-only
   (recomendação: stdlib-only nesta rodada; psutil só se F3 mostrar necessidade).
-- [ ] **F0-4** Higiene mecânica sem-risco: rotular `benchmark_compression.py` como quebrado-v0.5
+- [x] **F0-4** *(sem objeto desde 2026-09-02: o script já parseia e o `run.log` ficou em dirty/, fora do git)* Higiene mecânica sem-risco: rotular `benchmark_compression.py` como quebrado-v0.5
   (comentário topo), decidir destino do `run.log` untracked (add ou ignore).
 
 ### F1: Harness de telemetria (fora de src/tcf; é a régua de TODAS as fases seguintes)
@@ -609,7 +647,7 @@ owner: "SE identificar algum bug sem querer, registre apenas pra arrumarmos depo
 - [x] **F3-2** Curva de escala com `tests/fixtures/synthetic_domains.py` parametrizado:
   n ∈ {20, 100, 1k, 10k, 100k} single e multi (fecha o buraco 20→2000 que não existia);
   bytes/linha, tempo/linha, memória vs n, onde o ganho TCF "liga" (README hoje afirma isso sem curva).
-- [~] **F3-3** Paralelismo (a verificação pedida pelo owner):
+- [x] **F3-3** *(parte 3: ADIADO p/ o `.9` com rótulo → T-CODE-PARALLEL-BUDGET)* Paralelismo (a verificação pedida pelo owner):
   (a) byte-identidade parallel==serial nos REAL-WORLD snapshots (hoje só D17a);
   (b) speedup vs workers {serial,2,4,8} em multi-col grande (tpch/adult via hub), mediana n≥9;
   (c) MEDIR a porção serial pós-pool (fase de candidatos V2-A/B/split), % Amdahl documentada;
@@ -635,7 +673,7 @@ owner: "SE identificar algum bug sem querer, registre apenas pra arrumarmos depo
 > [ADR-0050](../docs/adr/0050-sort-by-vira-candidato-o-floor-decide.md) fez dele um CANDIDATO,
 > o encoder emite as duas versões e fica com a menor, então um teste de byte-identidade tem de
 > comparar parallel contra serial, nunca contra "a versão ordenada".
-- [~] **F3-4** br-identidades (600k, DV-válido seed 20260601): natures em volume, apply_rate==1.0,
+- [x] **F3-4** *(parte 3: ADIADO p/ o `.9` com rótulo → T-PERF-BORDAS-E-MODOS-09)* br-identidades (600k, DV-válido seed 20260601): natures em volume, apply_rate==1.0,
   medição efêmera (§2.3), CPF/CNPJ/IP nos 3 codepaths (spec, fallback, misto).
 
 ### F4: Públicos (bench)
@@ -657,16 +695,16 @@ owner: "SE identificar algum bug sem querer, registre apenas pra arrumarmos depo
 - [x] **F4-1** hubs prontos medidos (adult 48842→5k, tpch-sf001 lineitem 60175→5k + customer FULL
   1500, ibge FULL 5571, br-identidades pessoas/empresas 5k, receita-cnpj 200k→5k). tpch-sf01 600k =
   janela dedicada.
-- [~] **F4-2** os 3 hubs faltantes (online-retail/beijing/wine): **não no mínimo**; janela
+- [x] **F4-2** *(parte 3: ADIADO p/ o `.9` com rótulo → T-PERF-BORDAS-E-MODOS-09)* os 3 hubs faltantes (online-retail/beijing/wine): **não no mínimo**; janela
   dedicada pós-release (os CSVs já viram no gate real-world via `datasets/samples/`).
 - [x] **F4-3** matriz medida (bytes total/header/body + RT + timing indicativo + zlib9 sinal);
   brotli fica pra venv com brotli (sonda registra ausência, F0-3).
-- [~] **F4-4** consolidação: RESULT.md por fase pronto; a tabela-mestra cross-fase + nota Wohlin
+- [x] **F4-4** *(parte 3: ADIADO p/ o `.9` com rótulo → T-PERF-BORDAS-E-MODOS-09)* consolidação: RESULT.md por fase pronto; a tabela-mestra cross-fase + nota Wohlin
   entra no F6 (junto do README).
 
 ### F5: Otimização extra (janela pós-evidência; SÓ o que a telemetria apontar)
 
-- [ ] **F5-1** Triagem dos candidatos COM dado das fases F2-F4 (esperados: porção serial pós-pool;
+- [x] **F5-1** *(MOVIDO p/ o `.9`: T-PERF-BORDAS-E-MODOS-09, seção "Recebido do T-QA-8")* Triagem dos candidatos COM dado das fases F2-F4 (esperados: porção serial pós-pool;
   parallel=1/negativo; custo do obat_log/hcc_trace incondicional; V2-B width≥2). Cada candidato
   vira sub-exp/ticket próprio com gate T-REGRESSION-REAL-WORLD. NENHUM weld dentro deste ticket.
 
@@ -676,7 +714,7 @@ owner: "SE identificar algum bug sem querer, registre apenas pra arrumarmos depo
 > doc-only + build (NÃO toca `src/tcf`); tudo com número MEDIDO do material (F2/F4), nada calculado.
 > Ordem e arquivos:
 
-- [ ] **F6-1a: README.md/README.pt-BR.md (o que embarca na wheel; DOC-01)**: substituir os números
+- [x] **F6-1a: README.md/README.pt-BR.md (o que embarca na wheel; DOC-01)** *(feito; parte 2)*: substituir os números
   da era 0.7 pelos medidos: exemplo-propaganda **244B→242B** (F2 c1); badges `0.7.1`→`0.8.0` e
   `#TCF.7`→`#TCF.8`; header do exemplo `#TCF.7 M` decimal → `#TCF.8M` hex; remover "legacy #TCF.6
   still read" e o knob "forces #TCF.6" (cortado); D17a 303/322→**300**; "379 passed"→número atual;
@@ -686,19 +724,19 @@ owner: "SE identificar algum bug sem querer, registre apenas pra arrumarmos depo
   **caveat obrigatório** = "nature CNPJ PIORA a tabela em dado real (F4: +7339B, split→raw); nenhum
   clássico é ganho de tabela garantido, o TCF já explora a estrutura inter-linha que a nature
   normalizaria". Tabela "Results" com os Δ vs CSV reais (adult 81%, ibge 68%, receita 62%).
-- [ ] **F6-1b: docstrings src/tcf**: DOC-02 já FEITO (lote 4); só re-conferir que nada regrediu.
-- [ ] **F6-1c: spec docs/algorithms/TCF-format.{pt-BR,en}.md (DOC-03)**: exemplo de header que
+- [x] **F6-1b: docstrings src/tcf** *(feito; parte 2)*: DOC-02 já FEITO (lote 4); só re-conferir que nada regrediu.
+- [x] **F6-1c: spec docs/algorithms/TCF-format.{pt-BR,en}.md (DOC-03)** *(feito; parte 2)*: exemplo de header que
   contradiz a regra (última-sem-size mostrando size); corrigir com o output real.
-- [ ] **F6-1d: pyproject.toml (DOC-04)**: adicionar `[project.urls]` (repo/changelog/homepage) +
+- [x] **F6-1d: pyproject.toml (DOC-04)** *(feito; parte 2)*: adicionar `[project.urls]` (repo/changelog/homepage) +
   trove classifiers; conferir que o readme apontado é o corrigido.
 - [x] **F6-1e: satélites (DOC-05)**: **feito 2026-09-02** (ver tabela §3): benchmark_compression
   já parseava; benchmark_parallel com warmup+mediana; synthetic README D11f–m; row_counts e a
   row NAME-ESCAPING já estavam certos. A errata T-DOC-3 (shebang→magic) fica com a fase F6.
-- [ ] **F6-1f: CHANGELOG.md**: conferir a entrada 0.8.0 (já criada em M5) + anexar os fixes F0
+- [ ] **F6-1f: CHANGELOG.md** *(parcial; aguarda a decisão (a), (b) ou (c) da parte 2)*: conferir a entrada 0.8.0 (já criada em M5) + anexar os fixes F0
   (lotes 1-4) e o C0 (dedup) como itens do 0.8.0.
-- [ ] **F6-2** Re-build wheel + clean-room smoke (protocolo pré-verificado 2026-07-09, T-DIST):
+- [x] **F6-2** *(feito; parte 2: smoke da release em venv limpo, run da v0.8.4 com success)* Re-build wheel + clean-room smoke (protocolo pré-verificado 2026-07-09, T-DIST):
   agora com F0/C0 + docs F6-1; limpar `dist/` (wheels 0.7.1 stale) antes.
-- [ ] **F6-3** Publicação = T-DIST C3 (tag v0.8.0 → Trusted Publishing), **go explícito do owner**.
+- [x] **F6-3** *(feito; parte 2: tags v0.8.0 a v0.8.4 e PyPI)* Publicação = T-DIST C3 (tag v0.8.0 → Trusted Publishing), **go explícito do owner**.
   Avaliar 0.8.0 vs 0.8.1 no CHANGELOG se F0/C0 mudaram comportamento observável (mudaram: fail-loud
   novos, decidir se é minor-note ou espera 0.8.1).
 
@@ -708,12 +746,12 @@ F6 herda dela o caveat definitivo da nature e qualquer decisão de spec pré-1.0
 
 ## §5: Critérios de aceite
 
-- [ ] Todo número do material rastreia a um artefato JSONL reproduzível (runner+seed) com RT validado.
-- [ ] Os 3 dicts welded + natures têm blob-exemplo inspecionável e medição própria; os de lab
+- [x] *(parte 3: feito)* Todo número do material rastreia a um artefato JSONL reproduzível (runner+seed) com RT validado.
+- [x] *(parte 3: feito, F2-6)* Os 3 dicts welded + natures têm blob-exemplo inspecionável e medição própria; os de lab
   documentados como research (sem claims de produto).
-- [ ] Paralelismo verificado: byte-identidade em real-world + curva de speedup + % serial medida +
+- [x] *(parte 3: ADIADO p/ o `.9` com rótulo → T-CODE-PARALLEL-BUDGET)* Paralelismo verificado: byte-identidade em real-world + curva de speedup + % serial medida +
   limitações registradas.
-- [ ] Telemetria em 2 famílias (SideOutputs + free) com as ressalvas Windows documentadas.
-- [ ] Regra CPF cumprida: nenhum artefato publicado contém CPF DV-válido (nem em `.tcf`).
-- [ ] Bugs do §3: todos ou fixados (F0, sob aprovação, red→green) ou explicitamente adiados com rótulo.
-- [ ] README/docstrings/spec sem promessa que a 0.8.0 não entrega (F6-1) ANTES do go de publicação.
+- [x] *(parte 3: feito)* Telemetria em 2 famílias (SideOutputs + free) com as ressalvas Windows documentadas.
+- [x] *(parte 4: DISPENSADA pelo owner em 2026-09-05, não cumprida)* Regra CPF cumprida: nenhum artefato publicado contém CPF DV-válido (nem em `.tcf`).
+- [x] *(parte 3: feito, com resíduos adiados com rótulo)* Bugs do §3: todos ou fixados (F0, sob aprovação, red→green) ou explicitamente adiados com rótulo.
+- [x] *(parte 2: feito)* README/docstrings/spec sem promessa que a 0.8.0 não entrega (F6-1) ANTES do go de publicação.

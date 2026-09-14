@@ -24,10 +24,10 @@
 | ticket | estado | mexido | assunto |
 |---|---|---|---|
 | [T-CODE-CORE-CONSOLIDATE](T-CODE-CORE-CONSOLIDATE.md) | `P1` open | 2026-09-01 | fonte única de lógica, menos funções, naming HCC (adeus M8A) |
-| [T-PERF-BORDAS-E-MODOS-09](T-PERF-BORDAS-E-MODOS-09.md) | `P1` open | 2026-09-07 | otimização multicamada, bordas e perfis; o alvo do .9 |
-| [T-QA-8-material-comprobatorio](T-QA-8-material-comprobatorio.md) | `P1` open | 2026-09-12 | T-QA-8, material comprobatório do #TCF.8/0.8.0 (controle → sintéticos → públicos) com telemetria |
+| [T-PERF-BORDAS-E-MODOS-09](T-PERF-BORDAS-E-MODOS-09.md) | `P1` open | 2026-09-14 | otimização multicamada, bordas e perfis; o alvo do .9 |
+| [T-QA-8-material-comprobatorio](T-QA-8-material-comprobatorio.md) | `P1` open | 2026-09-14 | T-QA-8, material comprobatório do #TCF.8/0.8.0 (controle → sintéticos → públicos) com telemetria |
 | [T-API-SCHEMA-PRESCRITIVO](T-API-SCHEMA-PRESCRITIVO.md) | `P2` open | 2026-09-01 | o objeto Schema (forma longa do `schema=`) como portador do contrato |
-| [T-CODE-PARALLEL-BUDGET](T-CODE-PARALLEL-BUDGET.md) | `P2` open | 2026-09-01 | flag de controle de paralelismo e uso de CPU (budget do host) |
+| [T-CODE-PARALLEL-BUDGET](T-CODE-PARALLEL-BUDGET.md) | `P2` open | 2026-09-14 | flag de controle de paralelismo e uso de CPU (budget do host) |
 | [T-CODE-VIEW-SUBTCF-RECORTE](T-CODE-VIEW-SUBTCF-RECORTE.md) | `P2` open | 2026-09-01 | promover H-QUERY-06 a saída TCF da view |
 | [T-DOC-MANUAL-FORMAL](T-DOC-MANUAL-FORMAL.md) | `P2` open | 2026-09-01 | manual didático no padrão das ferramentas de dados (índice, quickstart, entradas por tipo) |
 | [T-DOC-RELEASE-083-SUPERFICIE](T-DOC-RELEASE-083-SUPERFICIE.md) | `P2` open | 2026-09-01 | reconciliar changelog, status e roadmap com a publicação |
