@@ -23,6 +23,10 @@ Tres salvaguardas contra concluir bobagem:
    tambem o MDE da referencia e o piso da rodada candidata. Abaixo disso: veredito RUIDO, nunca
    "ganho de 3%".
 
+A adjudicacao da rodada mora no `nota_adjudicacao` do run.json e e' IMPRESSA, nao
+reinterpretada: o gate termico intra-run e' aviso, e quem adjudica a rodada e' o registro
+do snapshot.
+
     python -m bench_perf.compare baseline.jsonl candidato.jsonl
     python -m bench_perf.compare --self baseline.jsonl   # auto-teste: tudo IGUAL
 """
@@ -214,6 +218,8 @@ def comparar(base: Path, cand: Path) -> dict:
         "intencao": intencao,
         "validade": validade,          # dados: bloqueia se != completo
         "status_termico": termico,     # estabilidade: so' avisa (--strict-thermal bloqueia)
+        "adjudicacao": {"baseline": resa.get("nota_adjudicacao"),
+                        "candidato": resb.get("nota_adjudicacao")},
         "contagem": contagem,
         "so_no_baseline": so_base, "so_no_candidato": so_cand,
         "linhas": sorted(linhas, key=lambda x: x.get("delta_pct", 0)),
@@ -268,6 +274,11 @@ def main(argv=None) -> int:
     if suspeito and not args.strict_thermal:
         print(f"!! AVISO termico (first-order, nao bloqueia): {', '.join(suspeito)} "
               f"termicamente-suspeito — deltas pequenos podem ser ruido; use --strict-thermal p/ precisao.")
+
+    # A adjudicacao da rodada vem do run.json; o comparador a mostra e nao a reinterpreta.
+    for lado, nota in r["adjudicacao"].items():
+        if nota:
+            print(f"adjudicacao ({lado}): {str(nota)[:120]}")
 
     if r["normalizacao"] == "referencia":
         deriva = r["deriva_referencias_pct"]

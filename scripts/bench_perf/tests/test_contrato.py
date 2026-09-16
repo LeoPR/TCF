@@ -136,8 +136,9 @@ def _rec(cid, ns, tier="micro", n=31, status="ok"):
 
 
 def _run(cases_sha="AAA", plano_sha="P1", intencao="referencia-recorrente-comparavel",
-         status="completo", thermal="estavel", piso=0.0):
+         status="completo", thermal="estavel", piso=0.0, nota=None):
     return {"status": status, "runner_thermal_status": thermal,
+            "nota_adjudicacao": nota,
             "manifest": {"cases_sha256": cases_sha},
             "calibradores": {"C1": {"point_ns": 100}}, "drift": {"noise_floor_cv": piso},
             "plano": {"id": "nucleo", "sha": plano_sha, "intencao": intencao, "campanha": False}}
@@ -300,6 +301,17 @@ def test_compare_rodada_sem_referencia_usa_calibrador():
         b = _escreve(d, "b", [_rec("k1", 1200)], _run())
         r = CMP.comparar(a, b)
         assert r["normalizacao"] == "calibrador" and r["contagem"]["PIOR"] == 1
+    _com_tmp(corpo)
+
+
+def test_compare_expoe_a_adjudicacao_da_rodada():
+    """A adjudicacao vem do run.json e o comparador a entrega; o termico segue so' aviso."""
+    def corpo(d: Path):
+        a = _escreve(d, "a", [_rec("k1", 1000)], _run(nota="aceita first-order"))
+        b = _escreve(d, "b", [_rec("k1", 1000)], _run())
+        r = CMP.comparar(a, b)
+        assert r["adjudicacao"]["baseline"] == "aceita first-order"
+        assert r["adjudicacao"]["candidato"] is None
     _com_tmp(corpo)
 
 

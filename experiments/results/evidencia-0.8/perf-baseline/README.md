@@ -18,8 +18,8 @@ instrumento pro propósito declarado (ordem de grandeza + pontos quentes).
 > O `run.json` tem `status: termicamente-reprovado`, esse é o **`runner_thermal_status`**, um
 > gate binário **intra-run** que se mostrou inadequado pra esta pergunta e foi **REFUTADO**. Ele
 > fica preservado como proveniência do gate antigo; **não** é o status metodológico final. O
-> comparador (`bench_perf.compare`) ainda interpreta só esse campo, corrigi-lo p/ consumir a
-> adjudicação vigente é higiene pendente (bench_perf, não core; ver parecer 2340 §1).
+> comparador (`bench_perf.compare`) bloqueia pela validade dos dados, trata o térmico como
+> aviso e imprime a `nota_adjudicacao` da rodada (parecer 2340 §1).
 
 Estudo/leitura completa:
 [`../../../lab/dirty/notas/2026-07/2026-07-22-2207-baseline-perf-08-first-order.md`](../../../lab/dirty/notas/2026-07/2026-07-22-2207-baseline-perf-08-first-order.md).
@@ -102,8 +102,7 @@ Três leituras acima precisam de correção, e as três se verificam nas **duas*
 **E o calibrador super-corrige.** Os caminhos de referência são stdlib, código idêntico
 nas duas rodadas, e dizem que a máquina fez **0,968** do trabalho de 22/07; os
 calibradores dizem **0,830**. Discrepância de **+16,6%**, fabricada em cima de todo caso.
-Higiene pendente do comparador (a segunda, junto do `runner_thermal_status`): normalizar
-pelos caminhos de referência, que já estão no plano.
+É por isso que o comparador normaliza pelos caminhos de referência, e não pelo calibrador.
 
 **Comparação sem normalizador nenhum**: `tcf-flat` ÷ `json-ref-str` no mesmo workload e
 na mesma rodada (a máquina cancela por construção): a razão **caiu em 25 de 26**

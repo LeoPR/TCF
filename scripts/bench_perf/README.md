@@ -20,6 +20,9 @@ materializado) → SAÍDA (wire)**; carregar do disco é formalismo, medido à p
 > Decisão (parecer 2340 §1): o térmico é AVISO, não veredito. Um run `completo` +
 > `termicamente-suspeito` é **comparável** (a análise ENTRE-runs, piloto, é que adjudica a
 > reprodutibilidade, não o gate intra-run). Ver `experiments/results/evidencia-0.8/perf-baseline/`.
+>
+> O comparador bloqueia pelo primeiro campo, avisa no segundo e imprime a
+> `nota_adjudicacao` da rodada, em vez de reinterpretar o gate térmico.
 
 ## Como rodar
 
@@ -54,11 +57,6 @@ python -m bench_perf.compare --self <run>.jsonl    # auto-teste: tudo IGUAL, fat
 3. O que bater do `.8`: **o coeficiente por valor único** (~23 µs por único contra ~6 µs por
    célula) e o `free-text` em R≥1e5. O canto R×C é linear: 80× as células da base, custo unitário
    de 1,00 a 1,02× a mediana (lab `2026-08-20-2330`).
-
-### Higiene pendente do comparador (não toca `src/tcf`)
-
-- **`_adj` vs adjudicação**: `compare.py` interpreta só `runner_thermal_status`; consumir a
-  adjudicação vigente é pendência antiga (ver README do snapshot).
 
 ### Por que a normalização é pela referência
 

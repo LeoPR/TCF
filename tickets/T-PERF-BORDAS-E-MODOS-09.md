@@ -306,7 +306,13 @@ precisa saber disso.
 O método que resolveu a dúvida fica valendo: normalizar pelos caminhos de referência dentro
 da rodada, em vez do fator do calibrador. O `compare.py` a incorporou em 2026-09-14
 ([README do `bench_perf`](../scripts/bench_perf/README.md)), e o veredito do comparador já sai
-dessa razão.
+dessa razão. O comparador também imprime a `nota_adjudicacao` da rodada, o que encerra a
+higiene que estava registrada.
+
+Fica **uma decisão do instrumento**, para quando houver baseline nova: 31 das 106 células do
+`nucleo` não têm referência de mesma cauda e saem `sem-referencia`. Dar veredito a elas exige
+incluir referências na matriz, o que muda o `cases.json` e pede re-pin dos três planos. É o
+momento de trocar o pin para o hash do conteúdo canonizado, que hoje é dos bytes do arquivo.
 
 Relidos com o comparador novo, os dois JSONL deste lab dão 5 células acima dos pisos de ruído das
 duas rodadas. Uma é a `flat-mixed` que passou a medir o `.8R`. As outras quatro são do `tcf-flat`
