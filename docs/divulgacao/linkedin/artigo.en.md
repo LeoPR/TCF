@@ -17,9 +17,9 @@ does not always take advantage of what the records have in common.
 
 When that list needs to leave an application, whether as a file or a message to another
 system, it needs a representation. Two common choices are JSON and CSV. In JSON arranged
-as a list of objects, each record includes field names such as `city` and `plan`. In CSV
-with a header, those names appear once, but the values are still written on every row:
-a hundred customers in the same city means a hundred occurrences of its name.
+as a list of objects, every record carries the field names again. In CSV with a header,
+those names appear once, but the values are still written on every row: a hundred customers
+in the same city means a hundred occurrences of its name.
 
 That repetition raises a question: **can we use less space while keeping some of the data's
 structure visible in the result?**
@@ -89,14 +89,14 @@ also includes JSONL, which stores one JSON object per line.
 
 ## What replaces the repetition
 
-In the city column, three consecutive occurrences of `Sao Paulo` become a single line:
+In the `cidade` column, three consecutive occurrences of `Sao Paulo` become a single line:
 
 ```text
 *3|Sao Paulo
 ```
 
-The marker means "repeat this value three times." The information is still there; only
-the way it is written has changed. The same happens in the plan column with `Premium`, and
+The marker means "repeat this value three times". The information is still there, and only
+the way of writing it changed. The same happens in the `plano` column with `Premium`, where
 the fourth occurrence is written as `^1`, meaning "same as the first row of this column".
 
 The emails offer another pattern: the `@acme.com.br` fragment is written once and referenced
@@ -148,9 +148,9 @@ check: the data makes the journey in both directions without changing.
 ## Why visible structure matters
 
 So far, the benefit has been using less space. But a marker such as `*3|Sao Paulo` also
-states how many records that group represents. Reading that count does not require
-reconstructing three copies of the text. Certain sequences offer similar opportunities
-for numeric operations.
+states how many records that group represents, and reading that count does not require
+rebuilding the three copies of the text. The same principle lets certain sequences serve
+numeric operations.
 
 The `view()` function uses this property to query a TCF representation without reconstructing
 the entire output table. Depending on the query, the answer comes from metadata or markers;
