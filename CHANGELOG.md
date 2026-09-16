@@ -374,6 +374,22 @@ o encode está intocado e o wire é byte-idêntico ao 0.8.0 (gates verdes sem re
 
 ## 0.8.0 (2026-08-23): `#TCF.8` default
 
+> **Errata (2026-09-15, after publication).** This entry listed the format changes and left out
+> four round-trip defects that were fixed in this cycle and shipped here. All four existed in
+> `0.7.1`, the version published before this one, so a program that wrote data with `0.7.1` could
+> read back something other than what it wrote. Three of them never raised; the fourth raised on
+> most data and, on one shape, returned a different value in silence. (1) **Zero rows came back as
+> one empty row**: data with no rows encoded to the same bytes as a single empty value, so a count
+> came back one too high. (2) **A string passed where a column was expected split into characters**:
+> `{"a": "xyz"}` came back as `["x", "y", "z"]`, and `bytes` came back as numeric codes; today the
+> string round-trips whole and `bytes` fails loud. (3) **Values split at Unicode line separators**:
+> a value holding vertical tab, form feed, `U+0085`, `U+2028`, `U+2029` or `U+001C` to `U+001E`
+> came back split in two with the character gone, because the decoder used Python line splitting
+> where the format is LF-only. (4) **Text starting with `^` broke the round-trip**: the marker was
+> not escaped on write, so `decode` either raised or returned another value from the same column.
+> The fixes are in `0.8.0` and in every release after it, and the text below stays as published.
+> Raised by the owner in `T-QA-8`.
+
 **Mudança de formato**: `#TCF.8` vira o formato **DEFAULT** de emissão
 ([ADR-0032](docs/adr/0032-tcf8-default-format.md); minor acompanha o formato, ADR-0028). O ciclo
 `0.7.2` (lazy+poda) foi **absorvido** neste release (sem release intermediário). Publicado no

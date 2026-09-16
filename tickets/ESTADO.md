@@ -19,13 +19,12 @@
 | [T-STUDY-DATASETH-COMPLETE-SEMANTICS](T-STUDY-DATASETH-COMPLETE-SEMANTICS.md) | `P1` in-progress | 2026-09-01 | fechar semântica hierárquica antes do wire |
 | [T-STUDY-HIERARCHY-LINK-ALGEBRA](T-STUDY-HIERARCHY-LINK-ALGEBRA.md) | `P1` in-progress | 2026-09-01 | equivalência dos portadores de vínculo |
 
-## Abertos (27)
+## Abertos (26)
 
 | ticket | estado | mexido | assunto |
 |---|---|---|---|
 | [T-CODE-CORE-CONSOLIDATE](T-CODE-CORE-CONSOLIDATE.md) | `P1` open | 2026-09-01 | fonte única de lógica, menos funções, naming HCC (adeus M8A) |
 | [T-PERF-BORDAS-E-MODOS-09](T-PERF-BORDAS-E-MODOS-09.md) | `P1` open | 2026-09-14 | otimização multicamada, bordas e perfis; o alvo do .9 |
-| [T-QA-8-material-comprobatorio](T-QA-8-material-comprobatorio.md) | `P1` open | 2026-09-14 | T-QA-8, material comprobatório do #TCF.8/0.8.0 (controle → sintéticos → públicos) com telemetria |
 | [T-API-SCHEMA-PRESCRITIVO](T-API-SCHEMA-PRESCRITIVO.md) | `P2` open | 2026-09-01 | o objeto Schema (forma longa do `schema=`) como portador do contrato |
 | [T-CODE-PARALLEL-BUDGET](T-CODE-PARALLEL-BUDGET.md) | `P2` open | 2026-09-14 | flag de controle de paralelismo e uso de CPU (budget do host) |
 | [T-CODE-VIEW-SUBTCF-RECORTE](T-CODE-VIEW-SUBTCF-RECORTE.md) | `P2` open | 2026-09-01 | promover H-QUERY-06 a saída TCF da view |
@@ -51,7 +50,7 @@
 | [T-STUDY-USE-PROFILES](T-STUDY-USE-PROFILES.md) | `P3` open | 2026-09-01 | perfis de uso (transmissão × armazenamento) e a calibração dos vértices |
 | [T-TOOL-TCF-FIX-CORRUPTION](T-TOOL-TCF-FIX-CORRUPTION.md) | `P3` open | 2026-09-01 | reparador de .tcf com algum grau de corrupção (ideia, pensar depois) |
 
-## Fechados (68)
+## Fechados (69)
 
 | ticket | estado | mexido | assunto |
 |---|---|---|---|
@@ -76,6 +75,7 @@
 | [T-H-PERF-06-V2-T01-WELD-15](T-H-PERF-06-V2-T01-WELD-15.md) | `P1` closed-done | 2026-05-31 | T-H-PERF-06-V2-T01, Weld do candidato #15 (topK prune) em src/tcf |
 | [T-H-PERF-06-V2-T02-CYTHON](T-H-PERF-06-V2-T02-CYTHON.md) | `P1` closed-done | 2026-05-31 | T-H-PERF-06-V2-T02, Acelerador Cython opcional de _detect_compositions (Fase B) |
 | [T-QA-083-REVALIDACAO](T-QA-083-REVALIDACAO.md) | `P1` closed | 2026-08-29 | reavaliar a superfície 0.8.3 com evidência em disco |
+| [T-QA-8-material-comprobatorio](T-QA-8-material-comprobatorio.md) | `P1` closed | 2026-09-15 | T-QA-8, material comprobatório do #TCF.8/0.8.0 (controle → sintéticos → públicos) com telemetria |
 | [T-REGRESSION-REAL-WORLD](T-REGRESSION-REAL-WORLD.md) | `P1` closed-done | 2026-05-30 | Estender regression suite para amostras real-world (gate prune algoritmico) |
 | [T-REL-08-CLOSEOUT](T-REL-08-CLOSEOUT.md) | `P1` closed | 2026-08-23 | ordem por ROI para fechar o núcleo 0.8 |
 | [T-REVAL-H-DA-01-06-10](T-REVAL-H-DA-01-06-10.md) | `P1` closed | 2026-05-21 | Revalidacao categoria B (Pacote 1 hipoteses confirmada-empirica nao testadas em real-world) |

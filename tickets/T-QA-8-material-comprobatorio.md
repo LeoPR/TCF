@@ -1,9 +1,9 @@
 ---
 title: T-QA-8, material comprobatório do #TCF.8/0.8.0 (controle → sintéticos → públicos) com telemetria, dicts e paralelismo
-status: open
+status: closed
 priority: P1
 created: 2026-07-10
-updated: 2026-09-14
+updated: 2026-09-15
 gate: ".8 (dossie da versao); levantamento dos restos em 2026-09-02, §Levantamento"
 blocked-by: []
 related:
@@ -360,10 +360,29 @@ O owner autorizou em 2026-09-14 marcar o que as partes provaram. Cada caixa marc
 veredito ao lado. **Fica aberto só o F6-1f**, que aguarda a decisão entre (a), (b) e (c) da parte
 2. Por isso o ticket não fecha ainda.
 
-### Fila do que falta (atualizar ao fim de cada parte)
+### Parte 6: o F6-1f, decidido e aplicado (2026-09-15)
 
-1. **Decisão do owner, F6-1f**: opção (a), (b) ou (c) da parte 2; a (a) contraria o append-only.
-2. **Fechar o ticket**, marcando o F6-1f conforme a decisão. Nada mais resta.
+**Decisão do owner:** registrar as correções sem reescrever a entrada publicada. O caminho seguiu
+o precedente do próprio arquivo: a entrada da `0.8.3` abre com um bloco datado de errata e diz por
+que a correção entra no lugar em vez de virar apêndice, já que quem decide se atualiza lê a
+entrada, não as notas de rodapé. A entrada da `0.8.0` recebeu o mesmo tratamento, e o texto
+publicado dela continua inteiro abaixo do bloco.
+
+**Escopo, apurado rodando o código das tags:** entram BUG-03, BUG-09, BUG-14 e BUG-15, os quatro
+que existiram na `0.7.1` publicada. O BUG-16 fica de fora: o cabeçalho auto-descritivo nasceu
+depois da `0.7.1`, e a recusa durou um dia dentro da janela de desenvolvimento, então nenhuma
+versão publicada rodou com ele. Entrar no CHANGELOG seria história de desenvolvimento numa
+superfície pública.
+
+**Correção ao registro do §3:** a descrição do BUG-15 aponta `^12` como o caso de corrupção
+silenciosa. Rodando a árvore pré-fix, esse caso falha alto, porque o escape de dígito já
+transforma o valor. A corrupção silenciosa existe por outro mecanismo, reproduzido agora: quando o
+resto do valor depois do `^` já é um token declarado no corpo, a linha sai como `^<número>` e o
+decode a lê como referência a outra linha.
+
+### Fila do que falta
+
+Nada. Com o F6-1f aplicado, o ticket fecha, e o `.8` deixa de ter ticket aberto.
 
 ## §3: REGISTRO DE BUGS (achados no planejamento; arrumar em F0, NÃO agora)
 
@@ -732,7 +751,8 @@ owner: "SE identificar algum bug sem querer, registre apenas pra arrumarmos depo
 - [x] **F6-1e: satélites (DOC-05)**: **feito 2026-09-02** (ver tabela §3): benchmark_compression
   já parseava; benchmark_parallel com warmup+mediana; synthetic README D11f–m; row_counts e a
   row NAME-ESCAPING já estavam certos. A errata T-DOC-3 (shebang→magic) fica com a fase F6.
-- [ ] **F6-1f: CHANGELOG.md** *(parcial; aguarda a decisão (a), (b) ou (c) da parte 2)*: conferir a entrada 0.8.0 (já criada em M5) + anexar os fixes F0
+- [x] **F6-1f: CHANGELOG.md** *(feito 2026-09-15: errata datada no topo da entrada da 0.8.0,
+  pelo precedente da 0.8.3; o BUG-16 ficou fora, ver parte 6)*: conferir a entrada 0.8.0 (já criada em M5) + anexar os fixes F0
   (lotes 1-4) e o C0 (dedup) como itens do 0.8.0.
 - [x] **F6-2** *(feito; parte 2: smoke da release em venv limpo, run da v0.8.4 com success)* Re-build wheel + clean-room smoke (protocolo pré-verificado 2026-07-09, T-DIST):
   agora com F0/C0 + docs F6-1; limpar `dist/` (wheels 0.7.1 stale) antes.
