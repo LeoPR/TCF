@@ -25,7 +25,7 @@ cd scripts && python -m natures_compiler natures_compiler/examples/cpf.dsl
 from natures_compiler import compile_file
 from tcf import encode, decode
 spec = compile_file("natures_compiler/examples/cpf.dsl")   # valida round-trip
-decode(encode(cpfs, nature=spec), nature=spec)             # usa como qualquer nature
+decode(encode(cpfs, schema=spec), schema=spec)             # usa como qualquer nature
 ```
 
 ## O "compilador" (4 estágios)
