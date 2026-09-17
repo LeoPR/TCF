@@ -264,7 +264,7 @@ execucao**, medidas para float e hora no lab `2026-08-14-2350-float-hora-vertent
 |---|---|---|---|
 | **tabela + lazy** | `.8H` RT c/ tipo ✓; `view` ✗ | idem | **nenhuma coluna tipada tem caminho lazy**: o `view` so' abre `.8M` (strings); 5a divergencia da causa *single-col e' multi-col de UMA* |
 | **latencia (fatiar)** | bN **2,62x** · literal 1,11x | polaridade **0,96x** (fica MENOR) | o custo de fatiar depende da **CLASSE do vencedor**: o pulso deveria ser ciente dela |
-| **velocidade+memoria** (dev-run) | 13,5–133 µs/val | **154–218 µs/val (21x o int)**; pico **126x a entrada** | o caro nao e' o tipo, e' a **cardinalidade do texto**: evidencia p/ `T-BUDGET-DE-BUSCA` |
+| **velocidade+memoria** (dev-run) | 13,5–133 µs/val | **154–218 µs/val (21x o int)**; pico **126x a entrada** | o caro nao e' o tipo, e' a **cardinalidade do texto**: evidencia p/ o teto fixo de 99 da busca do HCC (`T-PERF-BORDAS-E-MODOS-09`, §1) |
 | **terminal × transporte** | +75% / **−176%** | +56% / −6% | **pos-gzip o sinal INVERTE nas 6 colunas**: o ganho e' terminal; declarar a leitura no fechamento |
 
 `int` e `data` tem os 5 eixos e nao as 4 vertentes, completar e' barato com o `run.py` do

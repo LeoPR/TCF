@@ -105,8 +105,9 @@ compressão; preferir ganhos no conjunto ou oferecer perfis para trocas medidas.
 critérios e limites de incorporação estão no ticket-mestre; nenhum backend está escolhido.
 
 - **modos de compressão** (o eixo nunca testado): rápido (*"praticamente só busca e
-  repetição"*) · normal · máximo. Pista concreta: `T-BUDGET-DE-BUSCA` mostra que o único
-  freio é um contador **fixo de 99, já saturado**.
+  repetição"*) · normal · máximo. Pista concreta: o único teto da busca do HCC é um contador
+  **fixo de 99, já saturado** em texto livre (H-PERF-05f do
+  [registry](experiments/lab/dirty/notas/2026-05/roadmap-hipoteses.md); detalhe no ticket-mestre).
 - **bench na topologia real** 1 encode : N decodes (o 1:1 subestima)
 - **tabela de bordas por eixo**, com cardinalidade separada
 - fechar o **F3-3** (paralelismo byte-idêntico + combos) que a janela de massa não alcançou, no
@@ -148,7 +149,7 @@ novas rotas de sub-TCF vão para lab/`.9`. Owners:
 | quoting/escaping além do backslash interim | `T-FMT-QUOTING-STUDY` · `T-FMT-ESCAPE-COMBINATORIAL-STUDY` |
 | assinatura de contrato (`drop_names`, `sort_by`) | `T-FMT-CONTRACT-SIGNATURE` |
 | perfis de uso / calibração dos vértices | `T-STUDY-USE-PROFILES` |
-| perfis macro (`fast=true`) | sem ticket próprio; registrado em `T-PERF-BORDAS-E-MODOS-09` e `T-API-SCHEMA-PRESCRITIVO` (casa com os modos do eixo 1) |
+| perfis macro (`fast=true`) | sem ticket próprio: hipótese `H-PROFILE-01` do [registry](experiments/lab/dirty/notas/2026-05/roadmap-hipoteses.md), citada em `T-PERF-BORDAS-E-MODOS-09` e `T-API-SCHEMA-PRESCRITIVO` (casa com os modos do eixo 1) |
 | dívida de lint dos acessórios (158, `scripts/` e `shaper/`) | - |
 
 ### Decisões do owner ainda abertas
@@ -172,7 +173,8 @@ novas rotas de sub-TCF vão para lab/`.9`. Owners:
   espaço globalmente livre são as maiúsculas fora de `A-F`, `H` e `M`. Atenção:
   `B` e `C` já são discriminadores (bN de domínio, ADR-0036).
 
-- **bN-dense no FLOOR, COMO entrar**: (a) ligado por padrão, com re-pin de D17a e
+- **bN-dense no FLOOR, COMO entrar** (o `T-BN-MULTICOL` citado no ADR-0036; hipótese H-TYPE-04
+  do registry): (a) ligado por padrão, com re-pin de D17a e
   real-world registrado em ADR, ou (b) atrás de flag desligada (`fallback_bn=False`).
   Plano pronto, escopo `.8M`, marcador `#` já reservado no registry, nunca-pior por
   construção (entra no `min()`). Medido: tabela real 1,86x menor, mas o ganho encolhe sob

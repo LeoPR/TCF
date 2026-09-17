@@ -32,8 +32,10 @@ Output é sempre UTF-8, LF only. `decode(encode(x)) == x`, com o `sort_by` como 
 ressalva (ver abaixo).
 
 > **Previstos, ainda não implementados** (`.9`): `bn_modo` (`"B"` stream, default de hoje,
-> vs `"C"` lote, `T-BN-LOTE`) e os **perfis macro** (`stream`/`lote`/`rapido`/`memoria`/
-> `compacto`/`auto`, `T-PERFIS-MACRO`). A ideia dos perfis é declarar a **intenção** em vez do
+> vs `"C"` lote, [`T-BN-LOTE`](../../tickets/T-BN-LOTE.md)) e os **perfis macro**
+> (`stream`/`lote`/`rapido`/`memoria`/`compacto`/`auto`, hipótese `H-PROFILE-01` do
+> [registry de hipóteses](../../experiments/lab/dirty/notas/2026-05/roadmap-hipoteses.md)). A
+> ideia dos perfis é declarar a **intenção** em vez do
 > mecanismo, porque um knob por mecanismo não escala. `PipelineConfig` já é o precedente de
 > agrupador. Esboço:
 > `2026-08-07-flags-modo-bn-e-perfis-macro`.

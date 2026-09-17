@@ -117,7 +117,7 @@ Foco: redutir bytes quando ha' cadencia regular detectavel
 | H-PERF-05c | Skip `_build_trace`/`_build_rede` (dead code em pipeline) | **CONFIRMADA empirica MARGINAL** (1.04x cumulativo com 05b) | mesmo sub-exp | Zero-risk. Ganho ~0.4s em lineitem 5k. Nao vale welding. |
 | H-PERF-05d | Counter incremental (re-conta so' partes afetadas) | **MEDIDO e FECHADO (measured-not-worth-weld)** 2026-06-24: incremental real ~1,2-1,7x pure-Python (NAO 4-5x, rebuild e' ~46% do encode, nao 92%), div +0,03-0,05% so' datetime, RT 100%. A "outra metade" (loop de candidatos) e' ~99% cheap-skip, cortavel so' com reescrita incremental substancial; ganho so' pure-Python (Cython ja' cobre ~2,67x). | `2026-06-24-h-perf-05d-recaracterizacao/` (re-carac) + `2026-05-22-...` (original) | Owner: retornos decrescentes -> nao vale tocar o core. Frente certa = port Cython, nao reescrita do algoritmo. |
 | H-PERF-05e | Cap K maximo de sub-tupla (K=4/6/8) | **refutada-parcial** | `2026-05-20-hcc-perf-optimization/03-prototipos-cap-K-iter/` | K=8/6 PIOREARAM tempo (overhead check). K=4 deu 1.11x com +0.05% loss. Marginal. |
-| H-PERF-05f | Cap iter_traces (50/30 vs 99) | **refutada (trade-off ruim)** | mesmo sub-exp | i=50: 1.37x/+3.44% bytes; i=30: 1.71x/+5.58% bytes. Viola regra invariante M9 ("zero loss"). |
+| H-PERF-05f | Cap iter_traces (50/30 vs 99) | **refutada (trade-off ruim)** | mesmo sub-exp | i=50: 1.37x/+3.44% bytes; i=30: 1.71x/+5.58% bytes. Viola regra invariante M9 ("zero loss"). **2026-08-13** (commit `ecec44f6`, registrado como `T-BUDGET-DE-BUSCA` numa tabela da STATUS, nunca virou arquivo): o 99 e' o unico teto da busca (`composicional/syntax.py:524`, espelho em `_core/detect.pyx:151`). A auditoria daquele dia (nota local `notas/2026-08/2026-08-13-1900-auditoria-streaming-do-nucleo.md`) mediu o teto nos dois sentidos; os numeros nao tem lab versionado e ficam la'. Uso: parametro natural do modo rapido (`T-PERF-BORDAS-E-MODOS-09` §1). |
 | H-PERF-06 | Cython/Rust port de `lcp_len`/`lcs_len` corta Python overhead | **REFRAMED → WELDED** (2026-07-01, DB-7): lcp/lcs descartado; o alvo virou o HCC `_detect_compositions` → **prune welded ADR-0019** + **Cython welded ADR-0020** (~2.67x). Gate compilado = T-CI-3. | ADR-0019/0020 + `src/tcf/_core/detect.pyx` | (era "aberta/lcp-lcs"; ver linha "H-PERF-06 REFRAMED" no fim) |
 | H-DA-09d | Heuristica multivariada (lengths + LCP+LCS + variance) | **adiada** 2026-05-23 (H-DA-09c refutada; heuristica atual bem calibrada) | nao testada | T-EXP-H-DA-09c-d-e adiou 09d/e |
 | H-DA-09e | Re-avaliar heuristica a cada N strings (adaptativo) | **adiada** 2026-05-23 (idem H-DA-09d) | nao testada | idem |
@@ -1111,6 +1111,11 @@ atualizar este rodape, reconciliado agora.
   explícita×deduzida ([[H-L3-OPT-BLOCK]], em tcf-camadas-arquitetura). **Requisito estrutural**: o
   código nasce **preparado pra AMBOS** (não hard-code), pra a medição em massa comparar. `aberta`,
   confiança: Baixa (ideia registrada, sem firmar). Não construir o parâmetro agora, preparar a estrutura.
+  **Nomes de perfil (2026-08-07, commit `ee807c09`)**: `stream`/`lote`/`rapido`/`memoria`/`compacto`/`auto`,
+  provisórios, registrados como `T-PERFIS-MACRO` numa tabela da STATUS e nunca como arquivo. `auto` tem de
+  ser o default e o comportamento de hoje, senão os baselines byte-exatos morrem; enquanto o `min()` decide
+  só por byte, perfil não tem em que mandar. Superfície prevista:
+  [`encode-knobs.md`](../../../../../docs/reference/encode-knobs.md).
 
 - **H-HIER-SCALAR-01** (escalares especiais no DatasetH, owner 2026-07-13): `null`, `NaN`, `+Infinity` e
   `-Infinity` pertencem ao domínio de folhas da estrutura hierárquica, não ao JSON. Há três alternativas
@@ -1327,6 +1332,9 @@ atualizar este rodape, reconciliado agora.
   quando o `.tcf` e' consumido diretamente, sem brotli/gzip/zstd depois, mesmo nicho ja' declarado pra
   V2-L (ADR-0018, "nao compete com gzip/brotli/zstd"). Falta avaliar se esse cenario e' representativo do
   uso pretendido do TCF antes de investir mais na familia bN. `aberta`, `confianca: Baixa`.
+  O `T-BN-GZIP` do ADR-0036 ("medir sob gzip") e' esta pergunta e nunca virou arquivo: sob brotli, o
+  H-TYPE-02 mediu o colapso do ganho; sob gzip, o estudo bN-dense do `.8M` (ROADMAP, decisoes do owner
+  ainda abertas) mediu que o ganho encolhe e some com N pequeno.
 - **H-TYPE-04** (bN como candidato do min() por-coluna, PROJETADA, owner 2026-07-07): bN encaixa como mais
   um candidato do `min(tcf,raw,v2b,split)` do multi-col (`multi/core.py:177-197`), reusando o mecanismo de
   marcador-de-modo por-coluna (novo char-PREFIXO ao lado de `!`/`@`/`%`, NAO sufixo `:`, que e' reservado

@@ -224,19 +224,19 @@ pontuação.
 
 ## O que ainda não está aqui
 
-Comportamento **conhecido e medido**, mas ainda não soldado; cada um é ticket aberto no
-[`STATUS.md`](../../STATUS.md):
+Comportamento **conhecido e medido**, mas ainda não soldado. Três itens têm ticket próprio; os
+outros dois moram numa hipótese ou decisão já registrada, indicada na linha:
 
 > `T-BN-TIPADO` **fechou em 2026-08-07**, é a seção [A forma TIPADA](#a-forma-tipada-tcf8nbwn)
 > acima. Era o único buraco de existência da família.
 
-| ticket | o que falta |
+| item | o que falta |
 |---|---|
-| `T-BN-LOTE` | o modo `C` é decodável mas nunca emitido |
-| `T-BN-LARGURA-VARIAVEL` | `w` é uniforme; larguras mistas não foram exploradas |
-| `T-BN-MULTICOL` | o bN só entra na rota single-col |
-| `T-BN-GZIP` | como o bN se comporta sob compressor externo |
-| `T-DENSO-PADDING` | os bits mortos do último byte |
+| [`T-BN-LOTE`](../../tickets/T-BN-LOTE.md) | o modo `C` é decodável mas nunca emitido |
+| [`T-BN-LARGURA-VARIAVEL`](../../tickets/T-BN-LARGURA-VARIAVEL.md) | `w` é uniforme; larguras mistas não foram exploradas |
+| `T-BN-MULTICOL` | o bN só entra na rota single-col; mora no [`ROADMAP.md`](../../ROADMAP.md), em *Decisões do owner ainda abertas* (bN-dense no FLOOR, escopo `.8M`) |
+| `T-BN-GZIP` | como o bN se comporta sob compressor externo; mora nas hipóteses H-TYPE-02 (medida: o ganho colapsa sob brotli) e H-TYPE-03 (aberta: o uso terminal é representativo?) do [registry](../../experiments/lab/dirty/notas/2026-05/roadmap-hipoteses.md) |
+| [`T-DENSO-PADDING`](../../tickets/T-DENSO-PADDING.md) | o padding `=` do base64 dos densos `b1` e `b2`, dedutível de `n` e `w` |
 
 **Não medido aqui:** frequência dos regimes em dado real. O EXP-016 é sintético por
 construção; ele mostra *que* comportamento existe, não *quanto* ele aparece.

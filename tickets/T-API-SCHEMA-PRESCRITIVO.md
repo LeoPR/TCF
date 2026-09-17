@@ -3,7 +3,7 @@ title: T-API-SCHEMA-PRESCRITIVO, o objeto Schema (forma longa do `schema=`) como
 status: open
 priority: P2
 created: 2026-08-22
-updated: 2026-09-01
+updated: 2026-09-16
 gate: ".9 (formato e ferramental) (triagem 2026-09-01)"
 target: "pré-1.0 (aditivo sobre o schema= do ADR-0047; nada muda no wire)"
 blocked-by: []
@@ -61,8 +61,9 @@ com `T-FMT-OMIT-OR-DECLARE` (deduzir/convencionar/declarar).
   fundo demais para a porta decidir "inequívoco" barato. Se um dia valer, a régua é a mesma:
   exatamente UMA folha scalar-string elegível.
 - **`fast=true` / perfis de agrupamento** (direção owner 2026-08-22, alvo `.9`): um parâmetro
-  que liga conjuntos de flags já trabalhados, já registrado como `T-PERFIS-MACRO`
-  (PENDENTES NOMEADOS na STATUS); o Schema é candidato natural a carregá-lo.
+  que liga conjuntos de flags já trabalhados, já registrado como a hipótese `H-PROFILE-01` do
+  [registry](../experiments/lab/dirty/notas/2026-05/roadmap-hipoteses.md); o Schema é candidato
+  natural a carregá-lo.
 
 ## O `stamp=False` e o cabecalho minimo (fechado 2026-08-22)
 

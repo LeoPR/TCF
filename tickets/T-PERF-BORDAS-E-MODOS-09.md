@@ -161,8 +161,12 @@ a caracterizar, cada uma com byte E tempo, sobre os mesmos casos:
 | **normal** | o de hoje | referência |
 | **máximo** | busca exaustiva, sem os cortes atuais (`budget` de 99, top-K) | teto do formato |
 
-O `T-BUDGET-DE-BUSCA` já registra que o único freio é um contador **fixo de 99, já saturado**:
-é o parâmetro natural do modo rápido. O `T-PERFIS-MACRO` (`fast=true`) é a superfície de API, e o
+O único teto da busca composicional do HCC é um contador **fixo de 99 iterações**
+(`src/tcf/composicional/syntax.py:524`, repetido no acelerador `src/tcf/_core/detect.pyx:151`),
+que o registro de 2026-08-13 deu como já saturado em texto livre: é o parâmetro natural do modo
+rápido. O teto está anotado no H-PERF-05f do
+[registry de hipóteses](../experiments/lab/dirty/notas/2026-05/roadmap-hipoteses.md). A
+superfície de API (`fast=true`, perfis macro) é a hipótese H-PROFILE-01 do mesmo registry, e o
 `T-API-SCHEMA-PRESCRITIVO` é onde ela deve morar.
 
 ### 2. Bench com a topologia REAL (1 encode : N decodes)

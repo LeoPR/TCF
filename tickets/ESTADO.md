@@ -19,13 +19,13 @@
 | [T-STUDY-DATASETH-COMPLETE-SEMANTICS](T-STUDY-DATASETH-COMPLETE-SEMANTICS.md) | `P1` in-progress | 2026-09-01 | fechar semântica hierárquica antes do wire |
 | [T-STUDY-HIERARCHY-LINK-ALGEBRA](T-STUDY-HIERARCHY-LINK-ALGEBRA.md) | `P1` in-progress | 2026-09-01 | equivalência dos portadores de vínculo |
 
-## Abertos (26)
+## Abertos (29)
 
 | ticket | estado | mexido | assunto |
 |---|---|---|---|
 | [T-CODE-CORE-CONSOLIDATE](T-CODE-CORE-CONSOLIDATE.md) | `P1` open | 2026-09-01 | fonte única de lógica, menos funções, naming HCC (adeus M8A) |
 | [T-PERF-BORDAS-E-MODOS-09](T-PERF-BORDAS-E-MODOS-09.md) | `P1` open | 2026-09-16 | otimização multicamada, bordas e perfis; o alvo do .9 |
-| [T-API-SCHEMA-PRESCRITIVO](T-API-SCHEMA-PRESCRITIVO.md) | `P2` open | 2026-09-01 | o objeto Schema (forma longa do `schema=`) como portador do contrato |
+| [T-API-SCHEMA-PRESCRITIVO](T-API-SCHEMA-PRESCRITIVO.md) | `P2` open | 2026-09-16 | o objeto Schema (forma longa do `schema=`) como portador do contrato |
 | [T-CODE-PARALLEL-BUDGET](T-CODE-PARALLEL-BUDGET.md) | `P2` open | 2026-09-14 | flag de controle de paralelismo e uso de CPU (budget do host) |
 | [T-CODE-VIEW-SUBTCF-RECORTE](T-CODE-VIEW-SUBTCF-RECORTE.md) | `P2` open | 2026-09-01 | promover H-QUERY-06 a saída TCF da view |
 | [T-DOC-MANUAL-FORMAL](T-DOC-MANUAL-FORMAL.md) | `P2` open | 2026-09-01 | manual didático no padrão das ferramentas de dados (índice, quickstart, entradas por tipo) |
@@ -49,6 +49,9 @@
 | [T-SHAPER-NESTED-OUTPUT](T-SHAPER-NESTED-OUTPUT.md) | `P3` open | 2026-09-02 | saída HIERÁRQUICA nativa no Shaper (aninhar via FK, inverso do flat) |
 | [T-STUDY-USE-PROFILES](T-STUDY-USE-PROFILES.md) | `P3` open | 2026-09-01 | perfis de uso (transmissão × armazenamento) e a calibração dos vértices |
 | [T-TOOL-TCF-FIX-CORRUPTION](T-TOOL-TCF-FIX-CORRUPTION.md) | `P3` open | 2026-09-01 | reparador de .tcf com algum grau de corrupção (ideia, pensar depois) |
+| [T-BN-LARGURA-VARIAVEL](T-BN-LARGURA-VARIAVEL.md) | open | 2026-09-16 | a largura do índice bN arredonda para o inteiro |
+| [T-BN-LOTE](T-BN-LOTE.md) | open | 2026-09-16 | opt-in de emissão do modo `C` do bN de domínio |
+| [T-DENSO-PADDING](T-DENSO-PADDING.md) | open | 2026-09-16 | o padding `=` do base64 nos densos `b1` e `b2` |
 
 ## Fechados (69)
 
@@ -147,4 +150,4 @@
 
 ---
 
-108 tickets no total.
+111 tickets no total.
