@@ -75,8 +75,14 @@ nem ampliar a rodada atual. Otimizações simples pertinentes à `.9` permanecem
 
 Diagnóstico exploratório do instrumento: [controle de chamadas aninhadas](../experiments/lab/dirty/2026-09/2026-09-07/2026-09-07-0208-perf-diagnostico/01-instrumento/README.md)
 (registro local). A cópia testada dos wrappers de `bench_perf.layers` não separou
-profundidades no controle. Não usar seus buckets para atribuir custo principal versus
-candidatos sem demonstrar mecanismo adicional; isso não invalida toda medição do harness.
+profundidades no controle. O [`07-aninhamento`](../experiments/lab/dirty/2026-09/2026-09-07/2026-09-07-0208-perf-diagnostico/07-aninhamento/result.md)
+(registro local, 2026-09-16) mostrou que isso não faz a soma contar tempo em dobro: no encode
+serial da `0.8.4`, nenhum dos sete pontos cronometrados roda dentro de outro, em 49 execuções de
+caso de 20 estruturas de chamada distintas, e a leitura estática dos imports não acha caminho para
+isso. O instrumento serve ao passo 0 para dizer quanto do encode serial está em cada camada. Ele
+não separa pipeline de candidato: cada bucket soma o que foi emitido e o que só foi avaliado, e
+comparar regimes exige registrar quais candidatos rodaram, porque o V2-B só roda com repetição e
+até 8.192 valores distintos. O docstring do `layers.py` passou a dizer isso.
 
 Não escolher Rust, Cython ou um port completo antes de justificar a estratégia e seu
 gargalo. Resultados de variantes encerradas continuam delimitados aos casos estudados;
