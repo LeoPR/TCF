@@ -380,7 +380,7 @@ lê diretiva, hipótese e registro no mesmo plano e erra.
 ## 8. Estado vigente
 
 **Não duplicado aqui** (evita deriva). Ritual de reentrada, nesta ordem:
-[`STATUS.md`](STATUS.md) → ticket de release vigente (`tickets/T-REL-08-CLOSEOUT.md`) →
+[`STATUS.md`](STATUS.md) → ticket-mestre do ciclo vigente (hoje `tickets/T-PERF-BORDAS-E-MODOS-09.md`) →
 checkpoint mais recente (`experiments/lab/dirty/notas/checkpoints/`) → último diário.
 O ticket é **dispositivo**; checkpoint e memória são ponteiros **probatórios**.
 
