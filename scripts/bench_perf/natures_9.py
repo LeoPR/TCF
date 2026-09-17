@@ -108,7 +108,7 @@ def colunas(validos: list[str], invalidos: list[str]) -> dict[str, list[str]]:
 
 def medir_caso(nature: str, codepath: str, col: list[str], *, com_camadas: bool) -> dict:
     spec = SPECS[nature]
-    kw = {"nature_per_col": {nature: spec}}
+    kw = {"schema": {nature: spec}}
     dados = {nature: col}
 
     blob = encode(dados, **kw)                       # RT e' gate: sem ele, nenhum numero

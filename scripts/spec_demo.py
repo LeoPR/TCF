@@ -38,9 +38,9 @@ def p(s=""):
 
 def col_bytes(values: list[str], spec=None) -> tuple[int, str]:
     """Bytes EMITIDOS + modo vencedor da coluna (via side_outputs.per_col, BUG-07).
-    spec=None → sem nature; spec → nature_per_col forçada (comportamento atual)."""
+    spec=None → sem nature; spec → schema={"c": spec} forçado (comportamento atual)."""
     side = SideOutputs()
-    kw = {"nature_per_col": {"c": spec}} if spec is not None else {}
+    kw = {"schema": {"c": spec}} if spec is not None else {}
     encode({"c": values}, side_outputs=side, **kw)
     pc = side.per_col["c"]
     return pc.emitted_bytes, pc.emitted_mode

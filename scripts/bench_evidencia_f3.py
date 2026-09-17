@@ -359,14 +359,14 @@ def f3_3_parallel() -> dict:
     }
     combos = [
         ("base", {"parallel": 4}),
-        ("natures_per_col", {"parallel": 4, "nature_per_col": {"cpf": SPEC_CPF}}),
+        ("natures_per_col", {"parallel": 4, "schema": {"cpf": SPEC_CPF}}),
         ("sort_by", {"parallel": 4, "sort_by": "cidade"}),
         ("drop_names", {"parallel": 4, "drop_names": True}),
         (
             "natures_sort_drop",
             {
                 "parallel": 4,
-                "nature_per_col": {"cpf": SPEC_CPF},
+                "schema": {"cpf": SPEC_CPF},
                 "sort_by": "cidade",
                 "drop_names": True,
             },
@@ -444,7 +444,7 @@ def f3_4_br_identidades() -> list[dict]:
             rec = case(
                 f"f3-4-brid-600k-{nature_name}-{label}",
                 {nature_name: col},
-                {"nature_per_col": {nature_name: spec}},
+                {"schema": {nature_name: spec}},
                 n=1,
                 warmup=0,
                 note=f"br-identidades 600k schema={nature_name} codepath={label}",

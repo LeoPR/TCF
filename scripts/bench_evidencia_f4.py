@@ -164,15 +164,15 @@ def main() -> int:
     case("br-pessoas-5k", "br-identidades", "pessoas", limit=SAMPLE, n=3,
          note="sintético DV-válido (declared-bias), SEM natures")
     case("br-pessoas-5k-natures", "br-identidades", "pessoas", limit=SAMPLE, n=3,
-         kw={"nature_per_col": {"cpf": SPEC_CPF}}, apply_rate_gate=1.0,
+         kw={"schema": {"cpf": SPEC_CPF}}, apply_rate_gate=1.0,
          note="idem + :cpf (delta natures em volume; §2.3 só contagens)")
     case("br-empresas-5k-natures", "br-identidades", "empresas", limit=SAMPLE, n=3,
-         kw={"nature_per_col": {"cnpj": SPEC_CNPJ}}, apply_rate_gate=1.0,
+         kw={"schema": {"cnpj": SPEC_CNPJ}}, apply_rate_gate=1.0,
          note="+ :cnpj sintético DV-válido")
     case("receita-5k", "receita-cnpj", "estabelecimentos", limit=SAMPLE, n=3,
          note="REAL non-PII, SEM natures")
     case("receita-5k-natures", "receita-cnpj", "estabelecimentos", limit=SAMPLE, n=3,
-         kw={"nature_per_col": {"cnpj": SPEC_CNPJ}},
+         kw={"schema": {"cnpj": SPEC_CNPJ}},
          note="+ :cnpj em dado REAL (fonte confirmada-empirica; apply_rate reportado, sem gate)")
 
     out = emit_result()
