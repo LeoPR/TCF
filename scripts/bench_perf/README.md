@@ -27,7 +27,7 @@ materializado) → SAÍDA (wire)**; carregar do disco é formalismo, medido à p
 ## Como rodar
 
 ```
-# BASELINE (.8) — cadência recorrente, pinada em cores ociosos p/ estabilidade
+# BASELINE (.8): cadência recorrente, pinada em cores ociosos p/ estabilidade
 python -m bench_perf.runner --plan nucleo --out <run>.jsonl
 #   --probative     : fail-closed (aborta se árvore suja / cython ausente; exit≠0 se dados != completo)
 #   --strict-thermal: com --probative, exige também estabilidade térmica
@@ -48,8 +48,10 @@ python -m bench_perf.compare --self <run>.jsonl    # auto-teste: tudo IGUAL, fat
 
 ## Fluxo `.8` → `.9` (a razão do processo existir)
 
-1. **Os dois lados no mesmo pino.** Rodar `--plan nucleo --probative` sobre a tag `v0.8.4`, num
-   worktree, e sobre o candidato, na mesma máquina e na mesma sessão térmica. O snapshot da `0.8.4`
+1. **Os dois lados no mesmo pino.** Rodar `--plan nucleo --probative` sobre o commit `e46ef37a`,
+   num worktree com o `.pyd` copiado, e sobre o candidato, na mesma máquina e na mesma sessão
+   térmica. É o `src/tcf` da `v0.8.4` com o pin consertado: na tag o runner aborta pelo pin. Os
+   comandos estão em "Como comparar com o `.9`", no README do snapshot. O snapshot da `0.8.4`
    fica versionado em [`evidencia-0.8/perf-baseline/`](../../experiments/results/evidencia-0.8/perf-baseline/)
    (`perf-nucleo-2026-09-01.jsonl`) como referência de ordem de grandeza.
 2. `compare.py <v0.8.4>.jsonl <candidato>.jsonl` dá o veredito por célula, com **mesmo `plano_sha`

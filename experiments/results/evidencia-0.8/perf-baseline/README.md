@@ -54,14 +54,29 @@ A que faltava desde 22/07: `--probative` (fail-closed), árvore limpa, Cython pr
 
 ## Como comparar com o `.9`
 
-Os dois lados rodam no mesmo pino: a tag `v0.8.4` num worktree e o candidato, na mesma máquina e
-na mesma sessão térmica.
+Os dois lados rodam no mesmo pino, na mesma máquina e na mesma sessão térmica.
+
+O lado `0.8.4` é o commit `e46ef37a`, e não a tag `v0.8.4`. Na tag, o pin dos planos não bate com
+o hash do `cases.json` da própria tag, e o runner aborta com código 4. O `e46ef37a` consertou o pin
+e tem o `src/tcf` idêntico ao da tag.
+
+Num worktree novo falta o acelerador compilado, que o git ignora, e sem ele o `--probative` aborta.
+Copiar o `.pyd` de `src/tcf/_core/` resolve e mantém a árvore limpa. Conferido em 2026-09-16 com o
+plano `smoke`: a tag aborta pelo pin, e o `e46ef37a` passa o pré-gate e completa.
 
 ```
-python -m bench_perf.runner --plan nucleo --probative --out v084.jsonl        # no worktree da v0.8.4
+git worktree add --detach ../tcf-084 e46ef37a
+cp src/tcf/_core/detect.*.pyd ../tcf-084/src/tcf/_core/
+cd ../tcf-084/scripts
+python -m bench_perf.runner --plan nucleo --probative --out v084.jsonl
+cd <candidato>/scripts
 python -m bench_perf.runner --plan nucleo --probative --out candidato.jsonl
 python -m bench_perf.compare v084.jsonl candidato.jsonl
 ```
+
+Isso vale enquanto a matriz for a do pin `98f1e477`. Se a decisão do instrumento registrada no
+ticket-mestre do `.9` mudar o `cases.json`, o lado `0.8.4` passa a ser um commit com o tooling novo
+e o `src/tcf` da tag. Sobrepor arquivos a um worktree antigo suja a árvore, e o `--probative` aborta.
 
 O `compare.py` tira a razão caso ÷ referência dentro de cada rodada, com os caminhos da stdlib
 (`csv-ref`, `json-ref-*`) de mesma cauda de `case_id`, e o veredito lê o delta dessa razão: a
