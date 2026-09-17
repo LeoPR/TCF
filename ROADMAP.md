@@ -109,7 +109,8 @@ critérios e limites de incorporação estão no ticket-mestre; nenhum backend e
   freio é um contador **fixo de 99, já saturado**.
 - **bench na topologia real** 1 encode : N decodes (o 1:1 subestima)
 - **tabela de bordas por eixo**, com cardinalidade separada
-- fechar o **F3-3** (paralelismo byte-idêntico + combos) que a janela de massa não alcançou
+- fechar o **F3-3** (paralelismo byte-idêntico + combos) que a janela de massa não alcançou, no
+  [`T-CODE-PARALLEL-BUDGET`](tickets/T-CODE-PARALLEL-BUDGET.md)
 
 ### Eixo 2: armazenamento e ecossistema
 

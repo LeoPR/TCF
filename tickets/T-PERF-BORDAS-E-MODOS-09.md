@@ -3,7 +3,7 @@ title: T-PERF-BORDAS-E-MODOS-09, otimização multicamada, bordas e perfis; o al
 status: open
 priority: P1
 created: 2026-08-23
-updated: 2026-09-14
+updated: 2026-09-16
 gate: ".9 (desempenho e limpeza) (triagem 2026-09-01)"
 target: ".9 (otimização), este é o ticket-mestre do ciclo"
 blocked-by: []
@@ -179,7 +179,8 @@ largura de valor. Entregar uma tabela de *"até aqui vai"*, que é o pedido lite
 ### 4. Fechar o que a janela de massa não cobriu
 
 Interrompida em `pessoas`: faltam **paralelismo byte-idêntico** fora do D17a e os combos
-(`parallel × sort_by × drop_names`), buraco F3-3 declarado no T-QA-8, , **specs em volume**,
+(`parallel × sort_by × drop_names`), buraco F3-3 declarado no T-QA-8 e hoje com o
+[T-CODE-PARALLEL-BUDGET](T-CODE-PARALLEL-BUDGET.md), **specs em volume**,
 **curva de dimensionamento** e **`.8H`/tipado em massa**. Rodar com teto de linhas (~100k) pra
 caber em tempo praticável.
 
@@ -193,7 +194,8 @@ caber em tempo praticável.
 - [ ] Bench multi-cliente (1:N) com N ∈ {1, 10, 100, 1000}
 - [ ] Tabela de bordas por eixo, com o eixo cardinalidade separado
 - [ ] Break-even recalculado pós-otimização (o número que decide se o formato paga no fio)
-- [ ] F3-3 (paralelismo + combos) fechado
+- [ ] Baseline de desempenho repetida depois das otimizações, condição do owner registrada em [`perf-baseline/README.md`](../experiments/results/evidencia-0.8/perf-baseline/README.md): a `0.8.4` e o candidato medidos na mesma máquina e na mesma sessão térmica, com a decisão do instrumento, registrada na seção do `.8H`, tomada antes da rodada
+- [ ] F3-3 (paralelismo + combos) fechado no [T-CODE-PARALLEL-BUDGET](T-CODE-PARALLEL-BUDGET.md), que recebeu o item do T-QA-8
 - [ ] Nada de `src/tcf` sem aprovação; gates byte-canônicos verdes em toda mudança
 
 ## Limite de execução
