@@ -68,7 +68,7 @@
 | [T-CODE-RT-EDGES](T-CODE-RT-EDGES.md) | `P1` closed-fixed | 2026-07-05 | 2 violações de RT em bordas (seq-RLE trailing-space + \n embutido) |
 | [T-CODE-TCF8H-JSON-PARITY](T-CODE-TCF8H-JSON-PARITY.md) | `P1` closed | 2026-09-02 | o que falta pra fechar "hierarquia" (paridade JSON) + 1 capacidade exclusiva |
 | [T-CODE-TCF8H-WELD](T-CODE-TCF8H-WELD.md) | `P1` closed-welded | 2026-09-02 | weld do codec hierárquico #TCF.8H no src/tcf (feature do .8) |
-| [T-DOC-LAZY-REFERENCE](T-DOC-LAZY-REFERENCE.md) | `P1` closed | 2026-06-21 | Reference Diátaxis da API tcf.view (A5 do plano 0.8) · **bloqueado por** T-CODE-LAZY-VIEW-PROMOTE |
+| [T-DOC-LAZY-REFERENCE](T-DOC-LAZY-REFERENCE.md) | `P1` closed | 2026-06-21 | Reference Diátaxis da API tcf.view (A5 do plano 0.8) |
 | [T-EXP-DATASETH-S0-S3](T-EXP-DATASETH-S0-S3.md) | `P1` closed | 2026-07-16 | corpus, oráculo, IR e álgebra de vínculos |
 | [T-EXP-MULTI-COL-SCALING](T-EXP-MULTI-COL-SCALING.md) | `P1` closed-welded-canonical | 2026-05-23 | Port multi-column pra canonical M10 + real-world |
 | [T-FMT-NAME-ESCAPING](T-FMT-NAME-ESCAPING.md) | `P1` closed-parcial (interim backslash = entrega do .8; estudo quoting -> filho T-FMT-QUOTING-STUDY, .9) | 2026-07-10 | Escape/quoting de nomes de coluna (e chaves de hierarquia) no meta do header |
@@ -99,7 +99,7 @@
 | [T-DATA-2-RECEITA-CNPJ](T-DATA-2-RECEITA-CNPJ.md) | `P2` closed-done | 2026-06-02 | Dataset real de CNPJ (Receita Federal open data) para gating ecologico das natures |
 | [T-DATA-TRANSMISSION-GROUPING](T-DATA-TRANSMISSION-GROUPING.md) | `P2` closed-done | 2026-07-10 | Agrupar datasets por cenário de transmissão (matriz 3-eixos) |
 | [T-DIST-PYPI-NAME](T-DIST-PYPI-NAME.md) | `P2` closed-done | 2026-06-16 | Capturar nome de distribuicao no PyPI |
-| [T-DIST-RELEASE-0.8.0](T-DIST-RELEASE-0.8.0.md) | `P2` closed | 2026-08-23 | Release do pacote 0.8.0 (#TCF.8 default, ADR-0032) · **bloqueado por** T-REL-08-CLOSEOUT |
+| [T-DIST-RELEASE-0.8.0](T-DIST-RELEASE-0.8.0.md) | `P2` closed | 2026-08-23 | Release do pacote 0.8.0 (#TCF.8 default, ADR-0032) |
 | [T-EXP-H-DA-11](T-EXP-H-DA-11.md) | `P2` closed | 2026-05-22 | Auto-detect min_len otimo por coluna |
 | [T-EXP-H-GDICT-01](T-EXP-H-GDICT-01.md) | `P2` closed-insufficient-generalization | 2026-07-01 | Caracterizar cross-dict / dicionário global (B1; B2/B3 → 0.9) |
 | [T-EXP-H-PERF-05d](T-EXP-H-PERF-05d.md) | `P2` closed | 2026-05-23 | Counter incremental em HCC _detect_compositions |

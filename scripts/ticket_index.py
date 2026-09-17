@@ -93,7 +93,9 @@ def _linha(t: dict) -> str:
         titulo = titulo.split(":", 1)[1].strip()
     if "," in titulo and titulo.startswith(t["arquivo"][:-3]):
         titulo = titulo.split(",", 1)[1].strip()
-    bloq = f" · **bloqueado por** {t['bloqueado_por']}" if t["bloqueado_por"] else ""
+    # fechado com `blocked-by` preenchido: o campo e' historico (ver FAMILIAS), nao impedimento
+    bloqueia = t["bloqueado_por"] and not t["status"].startswith("closed")
+    bloq = f" · **bloqueado por** {t['bloqueado_por']}" if bloqueia else ""
     prio = f"`{t['prio']}` " if t["prio"] else ""
     return (f"| [{t['arquivo'][:-3]}]({t['arquivo']}) | {prio}{t['status']} | "
             f"{t['atualizado']} | {titulo[:96]}{bloq} |")
