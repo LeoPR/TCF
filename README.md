@@ -419,7 +419,7 @@ into columns and comes out as `#TCF.8R`, the very `#TCF.8M` wire with the discri
 swapped, so `decode` knows to hand the list of dicts back. See
 [ADR-0049](docs/adr/0049-marcador-r-a-forma-da-entrada-e-metadado.md). An input the
 canonicalization refuses stays in `#TCF.8H`: a ragged record, nesting, an array in a cell,
-a key that is not a string, or a line break inside a name or a value.
+or a line break inside a name or a value. A key that is not a string raises an error.
 
 ```python
 text = encode(table)        # 0.8 / #TCF.8M, the default, no flags

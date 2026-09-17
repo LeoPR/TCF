@@ -417,8 +417,8 @@ Uma **lista de registros planos** segue a mesma rota. A `list[dict]` retangular 
 em colunas e sai como `#TCF.8R`, que é o wire do `#TCF.8M` com o discriminador trocado, para
 o `decode` saber que tem de remontar a lista de dicionários. Ver
 [ADR-0049](docs/adr/0049-marcador-r-a-forma-da-entrada-e-metadado.md). A entrada que a
-canonização recusa fica no `#TCF.8H`: registro ragged, aninhamento, array na célula, chave
-que não é string, ou quebra de linha dentro de um nome ou de um valor.
+canonização recusa fica no `#TCF.8H`: registro ragged, aninhamento, array na célula, ou
+quebra de linha dentro de um nome ou de um valor. Chave que não é string levanta erro.
 
 ```python
 text = encode(table)        # 0.8 / #TCF.8M, é o default, sem flags

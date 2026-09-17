@@ -29,13 +29,13 @@ from tcf import TemplatedCheckedSpec, TemplatedPaddedSpec
 
 | entrada | rota | wire |
 |---|---|---|
-| `list[str \| None]` (str e/ou null), ≥1 item | single-col flat | `#TCF.8` (7 B, **default**; ADR-0034) |
+| `list[str \| None]` (str e/ou null), **vazia inclusive** | single-col flat | `#TCF.8` (7 B, **default**; ADR-0034) |
 | `list[bool \| None]` · `list[int \| float \| None]` | single-col **tipada** | `#TCF.8b` · `#TCF.8n` |
-| `dict[str, list[str]]` retangular, **0 linhas inclusive** | multi-col flat | `#TCF.8M` |
+| `dict[str, list]` retangular, **0 linhas inclusive**, cada coluna de **um tipo escalar só** (str, bool ou número; `None` convive com qualquer um) | multi-col flat | `#TCF.8M` |
 | `list[dict]` **retangular e plana**: mesmas chaves na mesma ordem, célula escalar, sem `\n`/`\r` em nome ou valor | multi-col flat, com a **forma de origem** registrada no header | `#TCF.8R` ([ADR-0049](../adr/0049-marcador-r-a-forma-da-entrada-e-metadado.md)) |
-| `list[dict]` **fora dessa peneira** (ragged, aninhada, array na célula, chave não-`str`, `\n`/`\r` em nome ou valor) · `dict` com valor escalar/aninhado · dict **ragged** · escalar solto · `[]` · `{}` · `list`/coluna **tipada** (item não-str) | hierárquico | `#TCF.8H` (`#D`/`#E`/`#O`/`#V`) |
+| `list[dict]` **fora dessa peneira** (ragged, sem chave como `[{}]`, aninhada, array na célula, `\n`/`\r` em nome ou valor) · `dict` com valor escalar/aninhado · dict **ragged** · lista de listas · escalar solto · `{}` | hierárquico | `#TCF.8H` (`#D`/`#E`/`#O`/`#V`) |
 | `list[bool \| str \| None]` com **≥1 bool E ≥1 str** | single-col **lazytype** | `#TCF.8bB` (ADR-0039) |
-| tipo não-JSON (bytes, tuple, função, objeto custom) ou **array de tipos mistos** (union) **fora** da união bool+str | **fail-loud** | nenhum (ensina a converter/separar) |
+| tipo não-JSON (bytes, tuple, função, objeto custom) · chave de objeto não-`str` · **array de tipos mistos** (union) **fora** da união bool+str · `\n`/`\r` em valor de `list[str]` ou em valor ou nome de coluna de `dict` retangular | **fail-loud** | nenhum (ensina a converter/separar) |
 
 > **Tabela de 0 linhas (2026-08-26).** `{"v": []}` sai em `#TCF.8M@v` + `0` (12 B), e não
 > mais em `#TCF.8H` (18 B). O corpo `@` conta linhas por `len(stream) // width`, e não por
@@ -46,9 +46,10 @@ from tcf import TemplatedCheckedSpec, TemplatedPaddedSpec
 > declaração.
 
 **Regra**: uma **coluna plana de um tipo só** fica no single-col, string (implícita, sem tag),
-bool (`b`) ou número (`n`); `None` convive com qualquer uma delas (slot 0). Aninhado, misto,
-escalar solto ou `{}` vai pro `.8H`. `None` é preservado em **todas** as rotas (nunca vira
-`""`), o que elimina o deslize de stringificação silenciosa do pré-Passo-2.
+bool (`b`) ou número (`n`); `None` convive com qualquer uma delas (slot 0). Aninhado,
+escalar solto ou `{}` vai pro `.8H`; coluna mista levanta, salvo a união bool+str da lista
+(`.8bB`). `None` é preservado em **todas** as rotas (nunca vira `""`), o que elimina o
+deslize de stringificação silenciosa do pré-Passo-2.
 
 ### Tags de tipo do single-col
 
@@ -98,7 +99,7 @@ stringificada; `tuple`/`bytes` no lugar de lista dão **fail-loud** de tipo.
 | `encode([1, None])` | `'#TCF.8n…'` | single-col tipada |
 | `encode([True, None])` | `'#TCF.8b…'` | single-col tipada |
 | `encode(["x", None])` | `'#TCF.8…'` | single-col flat (slot 0 = null) |
-| `{"a": ["x", None]}` | `'#TCF.8H#Oa#:3?:5['` | `.8H`, o null só puxa pro `.8H` **dentro de um dict** |
+| `{"a": ["x", None]}` | `'#TCF.8Ma\nx\n0\n'` (13 B) | multi-col flat `.8M`, **não** `.8H`: o null ocupa o slot 0 da coluna |
 
 O tipo é preservado nos sete casos (round-trip validado); o que muda é **por qual rota**.
 
@@ -204,8 +205,8 @@ colunas com null (pior caso −4%, melhor −58%), e **0%** (byte-idêntico) em 
 
 `decode` de single-col pode devolver `list[str | None]`. Rota por tipo **inalterada**: o tipo é
 preservado em todos os casos; o que muda é por onde: `[1, None]` sai `#TCF.8n` e `[True, None]`
-sai `#TCF.8b` (**single-col tipado**, não `.8H`); só `{"a": ["x", None]}` vai pro `.8H`
-(`#TCF.8H#Oa#:3?:5[`). O null puxa pro hierárquico apenas **dentro de um dict**.
+sai `#TCF.8b` (**single-col tipado**, não `.8H`), e `{"a": ["x", None]}` sai `#TCF.8M`
+(`#TCF.8Ma`, multi-col flat). O null não puxa nenhuma dessas rotas para o hierárquico.
 
 ## kwargs de `decode`
 

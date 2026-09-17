@@ -69,7 +69,7 @@ roadmap-hipoteses). Anotado, não resolvido.
 | **raiz = objeto único** | P4b | `#TCF.8H#Oa:3n` | ✅ |
 | **raiz = array** | P4b | `#TCF.8H#V\z#:3[]:8n` (envelope) | ✅ |
 | **raiz = escalar / string / null** | P4b | `#TCF.8H#V\z:4n` · `#V\z?:3` | ✅ |
-| **raiz = `[]` / `[{}]` / `[{},{}]`** | P4b | `#TCF.8H#D0` · `#D1` · `#D2` | ✅ |
+| **raiz = `[]` / `[{}]` / `[{},{}]`** | P4b | `#TCF.8` (coluna única vazia) · `#TCF.8H#D1` · `#D2` | ✅ |
 | **raiz = `{}`** | P4b | `#TCF.8H#E` (definição) | ✅ |
 | string (unicode, separadores, `\t`, `\x00`) | espinha+escape | - (RT-exato) | ✅ |
 | **`\n`/`\r`/`\\` em valor** (multilinha) | escape D_json | folha escapada (L1 intocado) | ✅ |
