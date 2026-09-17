@@ -267,7 +267,9 @@ papel: ele carrega o candidato de weld **e** o gate de regressão.
 
 Fonte canônica: `experiments/lab/dirty/notas/2026-07/dirty-lab-convencoes.md`, **estendida aos
 labs clean em 2026-08-10** (`.../2026-08/2026-08-10-labs-rastreabilidade-convencao.md`, auditoria
-achou que 17 dos 20 EXP-* eram invisíveis ao git e só 2 gravavam contra-prova). Inegociável:
+achou que 17 dos 20 EXP-* eram invisíveis ao git e só 2 gravavam contra-prova). As duas notas e o
+gabarito dirty abaixo saíram do git em 2026-08-22, e quem clona lê só esta seção. Onde a nota ainda
+diz que a evidência do dirty é versionada, vale o `.gitignore`. Inegociável:
 
 - Pastas por estágio, numeração DENTRO: **`inputs/` + `intermediates/` + `outputs/`**
   (+ `README.md`, `result.md`, `run.py`, `datasets-provenance.md`).
@@ -279,8 +281,10 @@ achou que 17 dos 20 EXP-* eram invisíveis ao git e só 2 gravavam contra-prova)
   `inputs/<caso>.entrada.json` e `outputs/<caso>.roundtrip.json` na MESMA formatação: `diff`
   vazio é a prova, e o runner roda esse mesmo diff.
 - **O runner LIMPA `outputs/`/`intermediates/`** antes de gerar (órfão é indistinguível de
-  resultado) e **o lab entra no `.gitignore` com exceção nominal no mesmo commit**: sem isso
-  os artefatos não existem para quem revisa (`output*` na linha 49 engole tudo).
+  resultado) e **o lab clean entra no `.gitignore` com exceção nominal no mesmo commit**: sem
+  isso os artefatos não existem para quem revisa (`output*` na linha 49 engole `outputs/`, e
+  `*.tcf` na linha 71 engole o wire em qualquer estágio). O lab dirty não leva exceção: fica fora
+  do git desde 2026-08-22 (fronteira em §2).
 - **Nome curto e ESTÁVEL + `outputs/INDEX.md` GERADO** (nome → ideia → input → veredito → prova);
   o significado mora no índice, não no nome. Todo número publicado tem arquivo; número que veio
   de fora do runner leva a fonte atribuída no texto.
