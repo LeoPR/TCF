@@ -84,6 +84,21 @@ não separa pipeline de candidato: cada bucket soma o que foi emitido e o que s�
 comparar regimes exige registrar quais candidatos rodaram, porque o V2-B só roda com repetição e
 até 8.192 valores distintos. O docstring do `layers.py` passou a dizer isso.
 
+**O passo 0 respondeu onde o tempo está na `0.8.4`**, no
+[`08-perfil-0.8.4`](../experiments/lab/dirty/2026-09/2026-09-07/2026-09-07-0208-perf-diagnostico/08-perfil-0.8.4/result.md)
+(registro local, 2026-09-18). Nas amostras de 1.000 e 5.000 linhas de `lineitem` e `empresas`,
+o HCC fica com 52% a 77% das camadas e o OBAT com o resto; o pré-pass não passa de 1,5%. Dentro
+das duas camadas o custo é busca: o detector de composições é o maior item do HCC, com 48% a 63%
+do `tottime` no fallback, e `_melhor_pref`, em Python puro, é a maior função atribuível do
+acelerado. De 74% a 78% das chamadas do HCC acontecem dentro da avaliação de candidatos, contadas
+em chamadas e não em tempo. O acelerador economiza de 31% a 38% do encode. Wire byte-idêntico
+entre todas as rodadas e os dois backends, e round-trip em arquivo, nos 23 casos.
+
+Duas consequências valem para o ciclo. A fila começa pela busca, e a lacuna aberta é o
+**tempo** gasto em candidatos, que decide entre orçamento de busca e reencodes. E as células
+`flat-mixed` do `bench_perf` não representam essas amostras: nelas o detector quase não trabalha
+e o custo é emissão, então uma otimização da busca precisa de gate em amostra real, não só nelas.
+
 Não escolher Rust, Cython ou um port completo antes de justificar a estratégia e seu
 gargalo. Resultados de variantes encerradas continuam delimitados aos casos estudados;
 não vetam outras arquiteturas ou algoritmos. H-PERF-01 a 06 e H-TH-02 são os registros
@@ -333,7 +348,8 @@ duas rodadas. Uma é a `flat-mixed` que passou a medir o `.8R`. As outras quatro
 em `flat-mixed`, nos pontos baixos dos eixos (`K0001`, `K001`, `R1e2` e `L8`), com `+11%` a
 `+20%`, e rodaram no início da rodada B, nas ordens 9 a 20, longe da cauda com deriva térmica.
 Não é veredito: são duas rodadas, a B termicamente suspeita, com a referência pareada 17 posições
-depois. Ficam como candidatas a remedição no passo 0.
+depois. Seguem candidatas a remedição: o passo 0 mediu onde o tempo está e não as remediu,
+porque a pergunta delas é outra, regressão entre árvores.
 
 A tabela por família saiu do README do snapshot em 2026-09-14 (`32861ecf`); o detalhe fica em
 `outputs/razao-resumo.txt` do lab `1937`, e o fator 1,2951 se reproduz com `compare --dev` sobre
