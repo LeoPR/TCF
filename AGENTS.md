@@ -288,7 +288,7 @@ diz que a evidência do dirty é versionada, vale o `.gitignore`. Inegociável:
 - **Nome curto e ESTÁVEL + `outputs/INDEX.md` GERADO** (nome → ideia → input → veredito → prova);
   o significado mora no índice, não no nome. Todo número publicado tem arquivo; número que veio
   de fora do runner leva a fonte atribuída no texto.
-- Gabarito dirty: `experiments/lab/dirty/2026-07/2026-07-13/2026-07-13-2019-especiais-formatos-lado-a-lado/`.
+- Gabarito dirty: `experiments/lab/dirty/2026-09/2026-09-07/2026-09-07-0208-perf-diagnostico/07-aninhamento/`.
   Gabarito clean: `experiments/lab/clean/EXP-017-data-alvos-mensais/`.
 
 ### Naming e organização de pastas

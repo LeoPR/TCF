@@ -150,7 +150,7 @@ novas rotas de sub-TCF vão para lab/`.9`. Owners:
 | assinatura de contrato (`drop_names`, `sort_by`) | `T-FMT-CONTRACT-SIGNATURE` |
 | perfis de uso / calibração dos vértices | `T-STUDY-USE-PROFILES` |
 | perfis macro (`fast=true`) | sem ticket próprio: hipótese `H-PROFILE-01` do [registry](experiments/lab/dirty/notas/2026-05/roadmap-hipoteses.md), citada em `T-PERF-BORDAS-E-MODOS-09` e `T-API-SCHEMA-PRESCRITIVO` (casa com os modos do eixo 1) |
-| dívida de lint dos acessórios (158, `scripts/` e `shaper/`) | - |
+| dívida de lint declarada: os `per-file-ignores` de `src/llm_query/` no `pyproject.toml`; `src`, `tests` e `scripts` passam no `ruff check` | - |
 
 ### Decisões do owner ainda abertas
 
@@ -166,7 +166,8 @@ novas rotas de sub-TCF vão para lab/`.9`. Owners:
   retangular que a tipagem empurre para o `.8H`, e o `schema=` funciona nas duas grafias.
   O que continua no `.8H` é o que de fato é hierárquico: ragged, aninhado e array na célula.
   A `view` já lê as duas rotas (`BUG-VIEW-RECUSA-COLUNA-TIPADA`, fechado), então o que
-  falta é o **byte** e o `schema=`. Muda o formato, então pede ADR, e implica reservar
+  faltava era o **byte**, que já viaja no meta (`!3N=v`, `!aB=v`), e o `schema=`, que funciona nas duas
+  grafias. O desenho registrado pedia ADR e implicava reservar
   um id por tipo. Sobre a POSIÇÃO da tag: o que colide depois do size é o alfabeto
   **hex** (`@1b=age` vira size 27, e `@1B=age` também, porque o parser aceita
   maiúscula), não a posição em si. Com símbolo fora do hex ela é utilizável. O

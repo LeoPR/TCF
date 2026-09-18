@@ -85,7 +85,7 @@ TCF/
 | Saber o estado atual | `STATUS.md` |
 | Investigar desempenho da `.9` | [Ticket-mestre](tickets/T-PERF-BORDAS-E-MODOS-09.md) e caderno dirty de diagnóstico em `experiments/lab/dirty/2026-09/2026-09-07/2026-09-07-0208-perf-diagnostico/` (local, fora do git; propostas e evidência exploratória) |
 | Ver historico do dia | `experiments/lab/dirty/notas/diario/YYYY-MM-DD.md` |
-| Retomar de uma pausa | `experiments/lab/dirty/notas/checkpoints/2026-07-12-revisao-roi-fechamento-08.md` (vigente) + diretório `checkpoints/` (histórico) |
+| Retomar de uma pausa | ritual do `AGENTS.md` §8: `STATUS.md`, ticket-mestre do ciclo, checkpoint mais recente em `experiments/lab/dirty/notas/checkpoints/` (local) e último diário |
 | Adicionar/usar dataset real | `scripts/dataset_reader.py` + `src/shaper/` |
 | Adicionar dataset sintetico | `datasets/synthetic/` + `README.md` la |
 | Entender OBAT (tokenizer) | `docs/algorithms/OBAT.md` |
