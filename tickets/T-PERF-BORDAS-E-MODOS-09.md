@@ -3,7 +3,7 @@ title: T-PERF-BORDAS-E-MODOS-09, otimização multicamada, bordas e perfis; o al
 status: open
 priority: P1
 created: 2026-08-23
-updated: 2026-09-16
+updated: 2026-09-18
 gate: ".9 (desempenho e limpeza) (triagem 2026-09-01)"
 target: ".9 (otimização), este é o ticket-mestre do ciclo"
 blocked-by: []
@@ -138,7 +138,8 @@ validado em 6/6:
 probatória de 2026-08-20: **o eixo quente é CARDINALIDADE**, não linhas×colunas.
 
 **Borda superior achada**: `br-identidades/pessoas` (500 mil linhas) consumiu **53 min de CPU e
-1,2 GB** sem terminar, interrompido. Fica registrado como **limite prático do encode atual**.
+1,2 GB** sem terminar, interrompido. Fica registrado como **limite prático do encode atual**. Os
+dois números são anotação do README do lab `0100`; a saída bruta (`g1-parcial.log`) termina em `empresas`.
 
 **Bytes: o argumento se sustenta.** `tcf+brotli` é o menor no fio em todos os casos:
 `adult` **2,3%** do JSON contra 4,5% do `json+brotli` (metade); ibge 4,6% vs 6,6%;
@@ -303,7 +304,8 @@ puxando as referências da stdlib, de código idêntico nas duas árvores, para 
 
 Medidos os dois lados no mesmo pino, a razão `tcf ÷ referência` dentro da rodada, em que a
 máquina cancela por construção, dá `+3,2%` no flat com n=33 e `+4,0%` no `.8H` com n=8, e o
-decode anda para o outro lado. Tudo dentro do MDE de 7%.
+decode anda para o outro lado. Tudo abaixo do limiar de ruído que o comparador aplica a esse par
+(10,15%, o piso da rodada B).
 
 A explicação é tripla, e nenhuma parte dela responde sozinha: viés do calibrador, deriva
 térmica na cauda da rodada B, onde as células a partir da ordem 96 ficam indecidíveis, e a
@@ -333,7 +335,9 @@ em `flat-mixed`, nos pontos baixos dos eixos (`K0001`, `K001`, `R1e2` e `L8`), c
 Não é veredito: são duas rodadas, a B termicamente suspeita, com a referência pareada 17 posições
 depois. Ficam como candidatas a remedição no passo 0.
 
-Detalhe e tabela por família em
+A tabela por família saiu do README do snapshot em 2026-09-14 (`32861ecf`); o detalhe fica em
+`outputs/razao-resumo.txt` do lab `1937`, e o fator 1,2951 se reproduz com `compare --dev` sobre
+os JSONL de 20/08 e 01/09 do snapshot, em
 [`perf-baseline/README.md`](../experiments/results/evidencia-0.8/perf-baseline/README.md).
 
 ---
@@ -345,7 +349,9 @@ correção veio para cá, com o estado de hoje. Nenhum destes itens bloqueia o `
 
 - **F5-1, triagem de otimização com o dado das fases F2 a F4.** Os quatro candidatos registrados
   na época: a porção serial depois do pool, `parallel=1` com saldo negativo, o custo incondicional
-  de `obat_log` e `hcc_trace`, e o V2-B com largura de 2 ou mais. Cada um vira sub-experimento ou
+  de `obat_log` e `hcc_trace`, e o V2-B com largura de 2 ou mais. Na `0.8.4`, `parallel=1` já roda serial sem spawn (BUG-10c,
+  2026-07-10) e o `hcc_trace` é opt-in (`8575f98b`, 2026-08-13); o `obat_log` segue incondicional.
+  Cada candidato restante vira sub-experimento ou
   ticket próprio, com o gate de regressão real-world, e nenhum weld acontece dentro da triagem.
 - **F3-4, natures em volume.** A rodada com `br-identidades` (600k, seed 20260601) não foi
   registrada; existem os controles pequenos em `evidencia-0.8/f2/e5` a `e7`.
