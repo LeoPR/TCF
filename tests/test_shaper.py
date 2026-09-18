@@ -1,4 +1,4 @@
-"""Tests for the Dataset Shaper (scripts/shaper/).
+"""Tests for the Dataset Shaper (src/shaper/).
 
 These tests require the SQLite databases to exist in the configured
 data_root. Run `python scripts/csv_to_sqlite.py` first if needed.

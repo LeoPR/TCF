@@ -6,10 +6,10 @@ created: 2026-05-30
 updated: 2026-06-15
 blocked-by: []
 related:
-  - scripts/shaper/pipeline.py  (carga em memoria, except ImportError pass)
-  - scripts/shaper/strategies/join.py  (lstrip("lops_") bug latente)
-  - scripts/shaper/strategies/stratify.py  (proportional allocation duplicada)
-  - scripts/shaper/strategies/fk_preserving.py  (mesma duplicacao + sem teste)
+  - src/shaper/pipeline.py  (carga em memoria, except ImportError pass)
+  - src/shaper/strategies/join.py  (lstrip("lops_") bug latente)
+  - src/shaper/strategies/stratify.py  (proportional allocation duplicada)
+  - src/shaper/strategies/fk_preserving.py  (mesma duplicacao + sem teste)
   - T-SHAPER-SCIENTIFIC-GATING (ticket irmao; ataca claims, nao codigo)
 ---
 
@@ -24,7 +24,7 @@ related:
 > [assessment 2026-07-05](../experiments/lab/dirty/notas/2026-07/2026-07-05-1316-cobertura-datasets-shaper-assessment.md)
 > (gap **G2**) identificou que o tier **XL (>1M linhas)** dos cenários de transmissão é o único
 > descoberto na ponta grande, e o **A1 (filter-before-load) é exatamente o bloqueador**: o shaper
-> trava >100k porque carrega tudo antes de filtrar. A "escala >100k virar necessidade real" (gatilho
+> carrega o hub inteiro antes de filtrar, e o custo de memória cresce com o hub, não com a amostra. A "escala >100k virar necessidade real" (gatilho
 > do PARK acima) **aconteceu**: o eixo idealista-grande do owner + os cenários T2/T6 (cap Lambda
 > 6MB / >1M) exigem XL. **A2-A6 seguem PARK**; só **A1** volta pra fila, condicionado à priorização
 > do [T-DATA-EDGE-TRANSMISSION-PAYLOADS](T-DATA-TRANSMISSION-GROUPING.md) (decorrente). Não executar
@@ -69,7 +69,7 @@ T-SHAPER-SCIENTIFIC-GATING P1, mas tambem precisa cobertura unit:
 
 ### A3: `lstrip("lops_")` bug latente em join.py
 
-`scripts/shaper/strategies/join.py:76` faz:
+`src/shaper/strategies/join.py:75` faz:
 ```python
 fk_col.replace("_key", "").lstrip("lops_")
 ```
@@ -88,12 +88,12 @@ re.sub(r"^[lopsc]_", "", fk_col.replace("_key", ""))
 
 Mesmo algoritmo de alocacao proporcional (Neyman-style com min-1)
 implementado em DUAS copias:
-- `scripts/shaper/strategies/stratify.py` linhas 74-108
-- `scripts/shaper/strategies/fk_preserving.py` `_stratified_sample_indices` (~80 LOC)
+- `src/shaper/strategies/stratify.py` linhas 74-108
+- `src/shaper/strategies/fk_preserving.py` `_stratified_sample_indices` (~80 LOC)
 
 Risco: copias divergem se uma for editada. Fix: extrair para helper
-em `scripts/shaper/_stratify_metrics.py` ou novo
-`scripts/shaper/_proportional.py`.
+em `src/shaper/_stratify_metrics.py` ou novo
+`src/shaper/_proportional.py`.
 
 ### A6: Lazy-load de strategies e' fragil (descoberto 2026-05-31)
 
@@ -113,7 +113,8 @@ sensivel a estado pre-existente).
 
 ### A5: Trocar `except ImportError: pass` por re-raise
 
-`pipeline.py:64-67`:
+`pipeline.py:63-67` (paráfrase: o código é um laço sobre
+`__import__(f"shaper.strategies.{_mod}")` com `except ImportError: pass`):
 ```python
 try:
     from .strategies.foo import FooStrategy
@@ -170,7 +171,7 @@ Atacar na ordem (mais valor por hora):
 
 - **Irmao**: T-SHAPER-SCIENTIFIC-GATING (ataca claims/tests; este ataca
   codigo)
-- **Filosoficamente**: shaper e' [gadget auxiliar externo](../CLAUDE.md#filosofia-dos-gadgets-auxiliares),
+- **Filosoficamente**: shaper e' [gadget auxiliar externo](../AGENTS.md) (seção Escopo, "Filosofia dos gadgets"),
   nao TCF-CORE. Pero precisa funcionar bem porque alimenta experimentos.
 - **Origem**: auditoria 2026-05-30 (workflow paralelo)
 - **Custo estimado**: 1-2 sessoes total (A1+A3+A5 curtos; A4+A2 medios)

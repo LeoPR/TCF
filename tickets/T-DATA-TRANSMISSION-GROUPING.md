@@ -12,7 +12,7 @@ related:
   - experiments/lab/dirty/notas/2026-07/2026-07-05-1316-cobertura-datasets-shaper-assessment.md
   - experiments/lab/dirty/2026-07/2026-07-05/2026-07-05-t1-ndjson-brotli/result.md
   - experiments/lab/dirty/notas/2026-06/transmissao-api-onde-tcf-importa.md
-  - scripts/shaper/request.py
+  - src/shaper/request.py
   - `project_dataset_coverage_map.md` (memória do agente, fora do repo)
 ---
 
@@ -78,7 +78,7 @@ onde o T1 aponta valor (cadenced real, bordas µ e XL, nested). Confirma VEREDIT
 ## Cruzamento com o shaper (responde Q2 de graça)
 
 As colunas **tipo** e **qualidade/cardinalidade** da matriz **não têm lever** em
-[`ShapeRequest`](../scripts/shaper/request.py) (só volume/schema/join/order/stratify/compressibility/
+[`ShapeRequest`](../src/shaper/request.py) (só volume/schema/join/order/stratify/compressibility/
 fk). → o shaper dimensiona quantidade (linhas+arquitetura), não natureza. Gap visível sem rodar nada.
 
 ## Critério de aceite

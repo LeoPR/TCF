@@ -8,8 +8,8 @@ gate: ".9 (re-triagem 2026-09-02: NAO barato — estrategia nova + gating estati
 target: .9 (ferramental; não bloqueia .8)
 blocked-by: []
 related:
-  - scripts/shaper/strategies/join.py
-  - scripts/shaper/strategies/fk_preserving.py
+  - src/shaper/strategies/join.py
+  - src/shaper/strategies/fk_preserving.py
   - tickets/T-CODE-TCF8H-WELD.md
   - tickets/T-SHAPER-CODE-HARDENING.md
   - experiments/lab/dirty/2026-07/2026-07-14/2026-07-14-2231-hierarquia-massa-shaper-tpch/

@@ -7,7 +7,7 @@ closed: 2026-05-31
 blocked-by: []
 related:
   - tests/test_shaper.py
-  - scripts/shaper/strategies/stratify.py
+  - src/shaper/strategies/stratify.py
 ---
 
 # T-FIX-SHAPER-STRATIFY-TEST
@@ -29,7 +29,7 @@ Investigacao concluiu que e' **bug do teste, nao do algoritmo**:
 ## Estado atual
 
 Marcado `@pytest.mark.xfail(strict=False)` em 2026-05-27 com nota
-explicativa. Suite v1 fica verde. Tooling de suporte (`scripts/shaper/`),
+explicativa. Suite v1 fica verde. Tooling de suporte (`src/shaper/`),
 NAO faz parte do TCF-CORE, nao bloqueia v1.0.
 
 ## Plano (fix)

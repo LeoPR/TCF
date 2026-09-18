@@ -5,7 +5,7 @@ Valida os CLAIMS estatisticos do shaper — nao so' cardinalidade/presenca
 experimentos TCF que produzem evidencia empirica (principio do owner
 2026-05-31: tool cientifico precisa de aprovacao estatistica formal).
 
-Tooling de suporte (scripts/shaper/), NAO TCF-core. Requer hubs SQLite em
+Tooling de suporte (src/shaper/), NAO TCF-core. Requer hubs SQLite em
 Z:/tcf-data/interim/ (skip se ausente).
 
   P1  fk_preserving: integridade referencial (no orphans + no amplification)

@@ -6,8 +6,8 @@ created: 2026-05-30
 closed: 2026-05-31
 blocked-by: []
 related:
-  - scripts/shaper/_stratify_metrics.py  (TVD/JSD/chi^2/Wilson: infra existe, nao gated)
-  - scripts/shaper/strategies/  (6 strategies: volume, schema, join, order, stratify, fk_preserving)
+  - src/shaper/_stratify_metrics.py  (TVD/JSD/chi^2/Wilson: infra existe, nao gated)
+  - src/shaper/strategies/  (7 strategies: schema, join, compressibility, stratify, fk_preserving, volume, order)
   - tests/test_shaper.py  (50 tests; nenhum assert estatistico real)
   - feedback_tools_need_statistical_validation (memoria, principio 2026-05-30)
 ---
@@ -171,7 +171,7 @@ Tambem resolveu T-FIX-SHAPER-STRATIFY-TEST (xfail 50/50 -> teste correto ~67/33)
 - [x] P3 (`join` flat row count invariant)
 - [x] P4 (`volume` random marginal preservation, TVD por coluna)
 - [x] P5 (`SCHEMA_LEVELS` coerentes com topologia FK)
-- [x] Documentado em `scripts/shaper/README.md` (secao "Validacao cientifica")
+- [x] Documentado em `src/shaper/README.md` (secao "Validacao cientifica")
 - [x] Principio em memoria `feedback_tools_need_statistical_validation`
       (CLAUDE.md gadget-filosofia e' sobre gadgets externos alert-only,
       nao sobre o shaper tooling, gate documentado no README do shaper)

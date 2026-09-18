@@ -11,9 +11,9 @@ Extrai subconjuntos controlados de um hub SQLite de datasets canonicos
 (Adult Census, TPC-H, etc.) segundo dimensoes:
 
 - `volume`: tamanho da amostra (linhas)
-- `schema`: complexidade de schema (1-table, multi-table, etc.)
-- `join`: nivel de join (none, single, multi)
-- `order`: ordenacao (random, sorted, stratified)
+- `schema`: nivel nomeado (`minimal`, `core`, `chain`, `full`) ou lista de tabelas
+- `join_level`: apresentacao multi-tabela (`normalized`, `flat`)
+- `order`: ordenacao (`natural`, `random`, `sorted:<col>`, `reverse:<col>`)
 - `stratify`: distribuicao de classes
 - `compressibility`: nivel de redundancia controlada
 
@@ -49,7 +49,7 @@ for name, rows in result.tables.items():
 ## Componentes
 
 ```
-scripts/shaper/
+src/shaper/
   __init__.py         API publica (Shaper, ShapeRequest, ShapeResult)
   pipeline.py         orquestrador
   request.py          dataclass ShapeRequest
@@ -94,5 +94,5 @@ Nenhuma dependencia em `tcf` (modulo). Independente.
 - **T-SHAPER-CODE-HARDENING** (P2): escala (filter-before-load >100k linhas),
   fragilidade do lazy-load de strategies (importar 1 strategy antes do 1o
   apply silencia as outras), bug latente `lstrip("lops_")` em join.py,
-  dedup de alocacao proporcional. Nao bloqueia o uso atual (<=100k linhas).
+  dedup de alocacao proporcional. Nao bloqueia o uso atual: o hub `br-identidades` (600k linhas) carrega inteiro e entrega a amostra.
 - Manter `SCHEMA_LEVELS` + gate atualizados se o hub SQLite mudar (raro).

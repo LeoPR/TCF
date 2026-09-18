@@ -7,10 +7,11 @@ tables dict and appends to the trace.
 Order:
     1. schema_filter
     2. join_resolver
-    3. compressibility (future)
-    4. stratify (future)
-    5. volume_sampler
-    6. orderer
+    3. compressibility
+    4. stratify
+    5. fk_preserving (when active, volume_sampler skips)
+    6. volume_sampler
+    7. orderer
 
 Strategies are optional — if a request doesn't use a dimension,
 the corresponding strategy is a no-op.
@@ -37,7 +38,7 @@ StrategyFn = Callable[
 ]
 
 # Registry of strategies in execution order.
-# Each entry: (name, module_path, function_name)
+# Each entry: (name, None, fn), appended by register_strategy()
 # Strategies are imported lazily to keep startup fast.
 _STRATEGY_REGISTRY: list[tuple[str, str | None, StrategyFn | None]] = []
 

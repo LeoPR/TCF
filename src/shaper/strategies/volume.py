@@ -1,12 +1,12 @@
 """Volume strategy — sample N rows or a fraction from each table.
 
-- volume=100   → first 100 rows (after ordering)
+- volume=100   → 100 rows sampled at random, kept in natural order
 - volume=0.1   → 10% of rows
 - volume=None  → all rows (passthrough)
 - volume=0     → empty (with trace warning)
 
-Uses request.seed for reproducible random sampling when combined
-with order="random".
+Always samples with random.Random(request.seed), whatever the order.
+Runs before the orderer, and skips when fk_preserving is active.
 """
 
 from __future__ import annotations

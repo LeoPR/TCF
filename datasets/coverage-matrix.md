@@ -75,7 +75,7 @@ Legenda tier: **µ**<1KB · **S**~1k · **M**3-10k · **L**10-100k · **XL**>1M.
 
 | célula vazia | forma-tx | gap | severidade |
 |---|---|---|---|
-| **, nenhum, ** tier **XL** (>1M) real medido | qualquer | **G2** (shaper trava >100k; A1 reaberto) | ALTA |
+| **, nenhum, ** tier **XL** (>1M) real medido | qualquer | **G2** (o shaper carrega o hub inteiro antes de filtrar; A1 reaberto) | ALTA |
 | **, nenhum, ** download-cadenced **real** com timestamp ISO | download-cadenced | **G3** (beijing tem ts split-int; claim repousa em forecast † sintético) | ALTA |
 | **, nenhum, ** µ **real** (<1KB, página 20-100) | upload-small | **G2** (só medido ad-hoc/sintético) | ALTA |
 | **, nenhum, ** nested-response **real** (captura de API aninhada) | nested-response | novo, só sintético (este study) | MÉDIA |
@@ -165,7 +165,7 @@ bytes:      744pts nested-TCF 990B vs JSON-colunar 1377B (−28%); envelope cust
 ## Cruzamento com o shaper (responde Q2 de graça)
 
 A matriz tem colunas de **tipo**, **volume-tier** e **forma-tx**. O
-[`ShapeRequest`](../scripts/shaper/request.py) só tem lever para **volume** (linhas) e **arquitetura**
+[`ShapeRequest`](../src/shaper/request.py) só tem lever para **volume** (linhas) e **arquitetura**
 (schema/join/fk/order/stratify/compressibility). **Não** tem lever de **tipo**, **qualidade** nem
 **cardinalidade-a-N-fixo**. Logo:
 
