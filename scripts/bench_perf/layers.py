@@ -37,10 +37,10 @@ TRES LIMITES DUROS, declarados porque escondê-los invalidaria a leitura:
      49 execucoes de caso, de 20 estruturas de chamada distintas, com o `n_calls`
      daqui igual ao de um rastreador independente, e leitura estatica dos imports.
 
-Granularidade proibida: nunca envolver funcao chamada POR VALOR. Um wrapper +
-perf_counter_ns custa ~150-250 ns; por coluna (5 chamadas cronometradas, de 7
-wrappers) e' <1% de um encode
-tipico, mas por valor em 10k linhas seriam ~2,5 ms de instrumento puro.
+Granularidade proibida: nunca envolver funcao chamada POR VALOR. O custo do
+wrapper (dois perf_counter_ns e o acumulador) nao tem medicao gravada. Por coluna
+sao 5 chamadas cronometradas; por valor seriam 5 por linha, e em 10k linhas o
+instrumento passaria a pesar no proprio encode que mede.
 """
 
 from __future__ import annotations

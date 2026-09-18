@@ -28,7 +28,7 @@ reinterpretada: o gate termico intra-run e' aviso, e quem adjudica a rodada e' o
 do snapshot.
 
     python -m bench_perf.compare baseline.jsonl candidato.jsonl
-    python -m bench_perf.compare --self baseline.jsonl   # auto-teste: tudo IGUAL
+    python -m bench_perf.compare --self baseline.jsonl   # auto-teste: toda celula com veredito sai IGUAL
 """
 
 from __future__ import annotations
@@ -231,7 +231,7 @@ def main(argv=None) -> int:
     ap.add_argument("baseline")
     ap.add_argument("candidato", nargs="?")
     ap.add_argument("--self", dest="autoteste", action="store_true",
-                    help="auto-teste: baseline vs si mesmo -> tudo IGUAL, fator 1.0")
+                    help="auto-teste: baseline vs si mesmo -> toda celula com veredito IGUAL, fator 1.0")
     ap.add_argument("--dev", action="store_true",
                     help="rebaixa o fail-closed p/ aviso (desenvolvimento) — NAO use p/ evidencia")
     ap.add_argument("--strict-thermal", action="store_true",

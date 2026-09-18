@@ -27,11 +27,12 @@ materializado) → SAÍDA (wire)**; carregar do disco é formalismo, medido à p
 ## Como rodar
 
 ```
-# BASELINE (.8): cadência recorrente, pinada em cores ociosos p/ estabilidade
+# BASELINE (.8): cadência recorrente. Afinidade e prioridade são passo manual (feito em 22/07); o runner não aplica nem registra
 python -m bench_perf.runner --plan nucleo --out <run>.jsonl
 #   --probative     : fail-closed (aborta se árvore suja / cython ausente; exit≠0 se dados != completo)
 #   --strict-thermal: com --probative, exige também estabilidade térmica
 #   --plan {nucleo,campanha,smoke} : cadência (núcleo=barato recorrente; campanha=caro 1x; smoke=instrumento)
+#   --smoke         : escala mínima (R<=100; B4 em R=200); o plano smoke sem --smoke roda os 132 casos em escala cheia
 #   --only B1,B2    : sub-conjunto por bloco (sem plano)
 #   --resume        : continua um JSONL parcial (mesmo git+matriz)
 
@@ -43,7 +44,7 @@ python -m bench_perf.compare <baseline>.jsonl <candidato>.jsonl
 #   entre os MDEs do caso e da referência e os pisos de ruído das duas rodadas.
 #   BLOQUEIA por: matriz/plano/intenção divergentes OU validade != completo.
 #   Térmico só avisa (--strict-thermal bloqueia). --dev rebaixa tudo p/ aviso.
-python -m bench_perf.compare --self <run>.jsonl    # auto-teste: tudo IGUAL, fator 1.0
+python -m bench_perf.compare --self <run>.jsonl    # auto-teste: toda célula com veredito sai IGUAL, fator 1.0
 ```
 
 ## Fluxo `.8` → `.9` (a razão do processo existir)
@@ -91,9 +92,10 @@ Compat: `_adj()` no comparador lê `run-v2` antigo (`status='termicamente-reprov
 
 ## O pin da matriz
 
-Cada plano carrega `pin_cases_sha256`, o SHA-256 dos **bytes** de `cases.json`, e o `--probative`
-aborta quando o arquivo não bate com o pin. Qualquer mudança de bytes, inclusive formatação, pede
-re-pin dos três planos no mesmo commit. O teste de contrato confere o pin contra o próprio arquivo,
+Cada plano carrega `pin_cases_sha256`, o SHA-256 dos **bytes** de `cases.json`, e o runner com
+`--plan` aborta com código 4 quando o arquivo não bate com o pin, com ou sem `--probative`.
+Qualquer mudança de bytes, inclusive formatação, pede re-pin dos três planos no mesmo commit. O
+teste de contrato confere o pin do `nucleo` contra o próprio arquivo,
 e roda na suíte principal por `tests/test_bench_perf_contrato.py`.
 
 Hashear o conteúdo canonizado da matriz (parse, `sort_keys`, separadores fixos) é a evolução

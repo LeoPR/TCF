@@ -12,8 +12,8 @@ Disciplina herdada do harness de bytes: (1) RT e' gate — sem RT nao ha' numero
 erro e segue. Vetor nao-implementado ainda => status "pendente" com motivo,
 JAMAIS numero fingido.
 
-    python -m bench_perf.runner --smoke        # dry-run: toda celula em n=100
-    python -m bench_perf.runner                # baseline completo
+    python -m bench_perf.runner --smoke        # dry-run: R<=100 (celulas B4 em R=200)
+    python -m bench_perf.runner                # matriz inteira, sem plano (a baseline e' --plan nucleo)
     python -m bench_perf.runner --only B1,B2   # so' alguns blocos
 """
 
@@ -275,8 +275,10 @@ def _run_concorrencia(case: dict, rec: dict, vet: dict, smoke: bool) -> dict:
 # ----------------------------------------------------------------- candidate / column / accel (B3/B7)
 
 def _run_candidate(case: dict, rec: dict, smoke: bool) -> dict:
-    """Custo dos candidatos PERDEDORES do _best_of, via A/B fallback=True/False.
-    fallback=True (default) roda _v2b/_struct_split completos por coluna; False pula."""
+    """Custo da disputa de candidatos do _best_of, via A/B fallback=True/False.
+    fallback=True (default) roda _v2b/_struct_split completos por coluna; False pula.
+    Quando um candidato vence (bytes_ganho_candidatos > 0), o False emite outro wire, e a
+    razao compara dois programas, nao o custo dos perdedores."""
     from tcf import encode, decode
     piv = build_pivot(case, smoke)
     V.g1_retangular(piv)
@@ -291,7 +293,7 @@ def _run_candidate(case: dict, rec: dict, smoke: bool) -> dict:
     rec["encode"] = P.medir(lambda: encode(piv))                   # com candidatos (default)
     rec["encode_no_candidates"] = P.medir(lambda: encode(piv, fallback=False))
     et, ef = rec["encode"]["point_ns"], rec["encode_no_candidates"]["point_ns"]
-    rec["candidate_overhead"] = round(et / ef, 3) if ef else None  # >1 = perdedores custam tempo
+    rec["candidate_overhead"] = round(et / ef, 3) if ef else None  # >1 = a disputa custa tempo; so' e' custo de perdedor com bytes_ganho_candidatos == 0
     rec["bytes_ganho_candidatos"] = rec["bytes_no_candidates"] - rec["bytes"]  # >0 = valeram bytes
     rec["status"] = "ok"
     return rec
@@ -477,7 +479,7 @@ def run_case(case: dict, order_index: int, smoke: bool) -> dict:
             return rec
 
     # LAYER (B3): perfil por camada do encode tcf-flat, FORA do src/tcf (layers.py),
-    # com gate de bytes identicos. So' faz sentido no caminho plano.
+    # com bytes_identicos gravado em rec['layers'], sem mudar o status. So' faz sentido no caminho plano.
     if vet["granularidade"] == "layer":
         if cam != "tcf-flat":
             rec["status"] = "pendente"
@@ -606,7 +608,7 @@ def avaliar_rodada(por_id: dict[str, str], opcionais: "set[str] | None",
 
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description="Runner do baseline de performance")
-    ap.add_argument("--smoke", action="store_true", help="dry-run: toda celula em R<=100")
+    ap.add_argument("--smoke", action="store_true", help="dry-run: R<=100 (celulas B4 em R=200)")
     ap.add_argument("--only", help="blocos a rodar (ex: B1,B2)")
     ap.add_argument("--out", default=None)
     ap.add_argument("--stamp-utc", default=None, help="timestamp ISO (reprodutibilidade)")

@@ -35,7 +35,7 @@ from typing import Callable
 
 # ----------------------------------------------------------------- tiers
 # O custo de 1 operacao define quantas repeticoes cabem. Sem isto, o caso de
-# 600k (18 min/encode) exigiria 2h por celula na politica de orcamento fixo.
+# 600k multiplicaria o custo de cada encode pelo numero fixo de repeticoes.
 
 
 @dataclass(frozen=True)

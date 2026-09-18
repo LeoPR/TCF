@@ -15,9 +15,11 @@ Kalibera & Jones, *Rigorous Benchmarking in Reasonable Time* (ISMM 2013).
 (piloto B1×7, CV mediano 3%, máx 5%, `reproducibilidade-piloto.txt`) confirma a máquina como
 instrumento pro propósito declarado (ordem de grandeza + pontos quentes).
 
-> O `run.json` tem `status: termicamente-reprovado`, esse é o **`runner_thermal_status`**, um
-> gate binário **intra-run** que se mostrou inadequado pra esta pergunta e foi **REFUTADO**. Ele
-> fica preservado como proveniência do gate antigo; **não** é o status metodológico final. O
+> O `run.json` de 22/07 saiu com `status: termicamente-reprovado`, o **`runner_thermal_status`**
+> de um gate binário **intra-run** que se mostrou inadequado pra esta pergunta e foi **REFUTADO**.
+> Migrado para `run-v3` em 2026-07-23, o arquivo tem hoje `status: completo` e
+> `runner_thermal_status: termicamente-suspeito`, e o valor antigo fica na `nota_adjudicacao` como
+> proveniência; **não** é o status metodológico final. O
 > comparador (`bench_perf.compare`) bloqueia pela validade dos dados, trata o térmico como
 > aviso e imprime a `nota_adjudicacao` da rodada (parecer 2340 §1).
 
@@ -30,7 +32,8 @@ A que faltava desde 22/07: `--probative` (fail-closed), árvore limpa, Cython pr
 `status=completo`, 103/106 comparáveis, **0 obrigatório-falhou**, 0 envelope. Térmico:
 `termicamente-suspeito` (aviso, não bloqueia, vale a adjudicação acima).
 
-> **⚠ Esta rodada é BASELINE PINADO do `.8`, e TEM DE SER REPETIDA depois das otimizações
+> **⚠ Esta rodada foi a baseline probatória do `.8`, na matriz `de10e052`, que o `compare` não pareia
+> com o pin atual, e TEM DE SER REPETIDA depois das otimizações
 > do `.9`**, condição do owner ao autorizá-la: *"faz sentido fazer mesmo com as otimizações
 > que tem agora, elas serviriam como base para as otimizações futuras. só precisamos lembrar
 > de que temos que repeti-las."* Ao repetir: medir a `v0.8.4` e o candidato no mesmo
@@ -68,11 +71,15 @@ plano `smoke`: a tag aborta pelo pin, e o `e46ef37a` passa o pré-gate e complet
 git worktree add --detach ../tcf-084 e46ef37a
 cp src/tcf/_core/detect.*.pyd ../tcf-084/src/tcf/_core/
 cd ../tcf-084/scripts
-python -m bench_perf.runner --plan nucleo --probative --out v084.jsonl
+python -m bench_perf.runner --plan nucleo --probative --out <saida>/v084.jsonl
 cd <candidato>/scripts
-python -m bench_perf.runner --plan nucleo --probative --out candidato.jsonl
-python -m bench_perf.compare v084.jsonl candidato.jsonl
+python -m bench_perf.runner --plan nucleo --probative --out <saida>/candidato.jsonl
+python -m bench_perf.compare <saida>/v084.jsonl <saida>/candidato.jsonl
 ```
+
+`<saida>` é uma pasta existente fora das duas árvores. O `--out` relativo grava no `scripts/` de
+cada árvore, que o git não ignora: o `compare` não acha o arquivo do outro lado, e a árvore fica
+suja para uma nova rodada `--probative`.
 
 Isso vale enquanto a matriz for a do pin `98f1e477`. Se a decisão do instrumento registrada no
 ticket-mestre do `.9` mudar o `cases.json`, o lado `0.8.4` passa a ser um commit com o tooling novo
@@ -133,7 +140,7 @@ pendentes são os opcionais de sempre), `status=completo`, termicamente suspeito
 (`ratio_max=1,213`, `noise_floor_cv=0,068`), árvore limpa em `e46ef37a`.
 
 Medida no mesmo pino contra a probatória de 20/08, a `0.8.4` não regrediu: a razão caso ÷
-referência ficou em `+3,2%` no flat e `+4,0%` no `.8H`, dentro do MDE de 7%. A célula
+referência ficou em `+3,2%` no flat e `+4,0%` no `.8H`, abaixo do limiar de ruído que o `compare` aplica a esse par (10,15%). A célula
 `tcf-8h|synth|flat-mixed|base` passou a rotear para `#TCF.8R` (ADR-0049) e hoje mede o `.8R`: 31%
 menos bytes, decode duas vezes mais rápido, encode 32% mais caro. Detalhe no
 [`T-PERF-BORDAS-E-MODOS-09`](../../../../tickets/T-PERF-BORDAS-E-MODOS-09.md).
