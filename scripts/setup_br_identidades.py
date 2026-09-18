@@ -22,9 +22,9 @@ Identifiers are stored as STRINGS (leading zeros significant), all VALID and
 MASKED (happy data). Check digits are computed by TCF's OWN welded specs
 (src/tcf/natures), so every value satisfies classify_value()=='compressible'.
 
-NOTE on volume: pessoas=500000 exceeds the shaper's validated <=100k regime
-(T-SHAPER-CODE-HARDENING). Use this dataset via direct encode() on columns,
-NOT via shaper sampling.
+NOTE on volume: pessoas=500000 is past the <=100k regime the shaper tests
+cover, and the shaper loads every table before filtering (A1 in
+T-SHAPER-CODE-HARDENING). Mass tests still sample through the shaper (AGENTS I3).
 
 Usage (requires ibge-municipios already set up):
     python scripts/setup_ibge_municipios.py   # prerequisite (geography)
@@ -69,7 +69,7 @@ COLS_PESSOAS = {
     "data_cadastro": {"type": "date", "nullable": False,
                       "note": "ISO YYYY-MM-DD, 2010..2025, recency-weighted"},
     "email":         {"type": "string", "nullable": True,
-                      "note": "Derived from nome + domain pool; empty for ~8%"},
+                      "note": "Derived from nome + domain pool; NULL for ~8%"},
 }
 
 COLS_EMPRESAS = {
@@ -84,7 +84,7 @@ COLS_EMPRESAS = {
     "data_abertura": {"type": "date", "nullable": False,
                       "note": "ISO YYYY-MM-DD, 2005..2025"},
     "socio_cpf":     {"type": "string", "nullable": True,
-                      "note": "References pessoas.cpf for ~30% of rows (real FK); empty otherwise"},
+                      "note": "References pessoas.cpf for ~30% of rows (real FK); NULL otherwise"},
 }
 
 SCHEMA = {
@@ -290,9 +290,10 @@ def write_metadata(n_socio: int) -> None:
         "citation": "Synthetic, generated for TCF nature testing (ADR-0015).",
         "downloaded_via": "deterministic generation (Python stdlib random)",
         "shaper_note": (
-            "pessoas (500k) exceeds the shaper's validated <=100k regime "
-            "(T-SHAPER-CODE-HARDENING). Use direct encode() on columns, not "
-            "shaper sampling."
+            "pessoas (500k) is past the <=100k regime the shaper tests cover, "
+            "and the shaper loads every table before filtering (A1 in "
+            "T-SHAPER-CODE-HARDENING). Mass tests still sample through the "
+            "shaper (AGENTS.md I3)."
         ),
         "row_counts": {"pessoas": N_PESSOAS, "empresas": N_EMPRESAS},
         "socio_cpf_fk_rows": n_socio,

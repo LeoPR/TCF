@@ -41,7 +41,7 @@ Usage:
 
     # Stats (for quality reports)
     info = reader.column_stats("lineitem", "l_extendedprice")
-    # → {"type":"numeric", "count":60175, "min":904, "max":..., "mean":..., ...}
+    # → {"type":"float", "count":60175, "min":904.0, "max":..., "mean":..., ...}
 
     reader.close()
 
@@ -231,8 +231,8 @@ class DatasetReader:
             }
         mn, mx, avg, zeros, negs = row
 
-        # median and stdev: need sample. For small columns fetch all; for big
-        # columns sample to avoid loading millions of values.
+        # median and stdev: from the first 10,000 non-null rows (LIMIT without
+        # ORDER BY, not a random sample); sampled_for_median flags the cut.
         total_non_null = self.con.execute(
             f'SELECT COUNT(*) FROM "{table}" WHERE "{column}" IS NOT NULL'
         ).fetchone()[0]

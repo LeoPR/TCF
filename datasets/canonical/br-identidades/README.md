@@ -36,12 +36,12 @@ Two related tables in one hub:
 | municipio_id | int | 7-digit IBGE code; soft ref into `ibge-municipios.id` |
 | uf_sigla | string | UF code denormalized from ibge (27 values) |
 | data_cadastro | date | ISO `YYYY-MM-DD`, 2010–2025, recency-weighted |
-| email | string (nullable) | Derived from nome; empty for ~8% |
+| email | string (nullable) | Derived from nome; NULL for ~8% |
 
 ### empresas: 100,000 rows (CNPJ, `nature='cnpj'`)
 | Column | Type | Notes |
 |--------|------|-------|
-| cnpj | string (pk) | Masked `AA.AAA.AAA/AAAA-DD`, valid mod-11; branch `/0001` (matriz) ~90% |
+| cnpj | string (pk) | Masked `NN.NNN.NNN/NNNN-DD`, valid mod-11; branch `/0001` (matriz) ~90% |
 | razao_social | string | Shared suffixes (Ltda/ME/EIRELI/S.A./EPP) |
 | municipio_id | int | 7-digit IBGE code; soft ref into `ibge-municipios.id` |
 | uf_sigla | string | UF code denormalized from ibge |
@@ -63,9 +63,10 @@ not here.
 
 ## Volume note (shaper)
 
-`pessoas` (500k) **exceeds the shaper's validated ≤100k regime**
-(T-SHAPER-CODE-HARDENING). Use this dataset via **direct `encode()` on columns**,
-not shaper sampling.
+`pessoas` (500k) is past the ≤100k regime that the shaper tests cover, and the
+shaper loads every table before filtering (A1 in T-SHAPER-CODE-HARDENING), so a
+request for `empresas` also reads all of `pessoas`. That costs preparation time and
+memory. Mass tests still take their samples through the shaper (AGENTS.md I3).
 
 ## Reproduce
 

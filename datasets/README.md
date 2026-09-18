@@ -10,11 +10,13 @@ estrategia de 3 camadas.
 
 ## Como experimentos consomem estes datasets
 
-A partir de 2026-04-25, **TODO** acesso a dados em experimentos passa por
-um único ponto de entrada:
+Teste de massa tira a amostra pelo Shaper (`src/shaper/`, AGENTS.md I3). O `load_dataset` abaixo
+é do ramo LLM (`src/llm_query/data_sources.py`) e aplica o perfil do dataset: em `tpch-sf001` ele
+fixa `fact_table="partsupp"` com `fk_preserving`, e um pedido só de `lineitem` volta inteiro,
+porque o `fk_preserving` e o `volume` pulam.
 
 ```python
-from data_sources import load_dataset
+from llm_query.data_sources import load_dataset
 
 # Canonical via Shaper (FK-preserving sampling)
 tables, meta = load_dataset(
@@ -29,7 +31,7 @@ tables, meta = load_dataset("synthetic:retail_sales", n_orders=100, seed=42)
 ```
 
 Fluxo:
-- `canonical:*` → `scripts/shaper/` (com `fk_preserving` strategy) →
+- `canonical:*` → `src/shaper/` (com `fk_preserving` strategy) →
   `scripts/dataset_reader.py` → `<data_root>/interim/*.db`
 - `synthetic:*` → `tests/fixtures/synthetic_v2.py` ou `synthetic_domains.py`
 
@@ -42,7 +44,7 @@ Detalhes completos em
 datasets/
 ├── README.md                       (este arquivo)
 │
-├── canonical/                      metadata de datasets canonicos
+├── canonical/                      metadata de datasets canonicos (10; a arvore mostra 2)
 │   ├── tpch-sf001/
 │   │   ├── metadata.json           (schema, PK, FK, tipos)
 │   │   └── README.md               (origem, licenca, como baixar)
@@ -111,7 +113,7 @@ python scripts/setup_adult.py # ~5MB para <data_root>/external\adult-census\
 ### Backlog documentado
 
 Outros ~18 datasets foram considerados mas nao entraram na Fase 1.
-Ver [docs/research-notes/2026-04-10-canonical-datasets.md](../docs/research-notes/2026-04-10-canonical-datasets.md)
+Ver [docs/archive/workbench/research-notes/_archive/2026-04-10-canonical-datasets.md](../docs/archive/workbench/research-notes/_archive/2026-04-10-canonical-datasets.md)
 para a lista completa com origem, tamanhos e criterios de escolha.
 
 ## Por que esta separacao

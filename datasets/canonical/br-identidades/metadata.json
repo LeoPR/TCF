@@ -7,7 +7,7 @@
   "license": "Synthetic — no license restriction; contains no PII",
   "citation": "Synthetic, generated for TCF nature testing (ADR-0015).",
   "downloaded_via": "deterministic generation (Python stdlib random)",
-  "shaper_note": "pessoas (500k) exceeds the shaper's validated <=100k regime (T-SHAPER-CODE-HARDENING). Use direct encode() on columns, not shaper sampling.",
+  "shaper_note": "pessoas (500k) is past the <=100k regime the shaper tests cover, and the shaper loads every table before filtering (A1 in T-SHAPER-CODE-HARDENING). Mass tests still sample through the shaper (AGENTS.md I3).",
   "row_counts": {
     "pessoas": 500000,
     "empresas": 100000
@@ -52,7 +52,7 @@
         "email": {
           "type": "string",
           "nullable": true,
-          "note": "Derived from nome + domain pool; empty for ~8%"
+          "note": "Derived from nome + domain pool; NULL for ~8%"
         }
       }
     },
@@ -92,7 +92,7 @@
         "socio_cpf": {
           "type": "string",
           "nullable": true,
-          "note": "References pessoas.cpf for ~30% of rows (real FK); empty otherwise"
+          "note": "References pessoas.cpf for ~30% of rows (real FK); NULL otherwise"
         }
       }
     }

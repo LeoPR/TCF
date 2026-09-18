@@ -1,6 +1,6 @@
 {
   "_comment": "Copie este arquivo como 'storage.json' (gitignored) e ajuste os caminhos para seu ambiente local.",
-  "_documentation": "Ver docs/architecture/storage.md para explicacao completa das 3 camadas.",
+  "_documentation": "Ver docs/archive/theory_architecture_v05/storage.md para explicacao completa das 3 camadas.",
 
   "data_root": "Z:/tcf-data",
 

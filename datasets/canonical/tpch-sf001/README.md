@@ -6,8 +6,8 @@ Multi-table canonical dataset used in TCF M-series experiments
 ## Source
 
 - **Name**: TPC-H (Transaction Processing Council Benchmark H)
-- **Scale factor**: sf001 (~1 MB raw; ~17,000 rows on largest table
-  `lineitem` with our sampling)
+- **Scale factor**: sf001 (~11 MB of raw CSV; 60,175 rows on the largest
+  table, `lineitem`)
 - **Generator**: DuckDB `tpch` extension (no licensing for research)
 - **License**: TPC fair-use for benchmarking
 - **Spec**: https://www.tpc.org/tpch/
@@ -55,7 +55,7 @@ Creates `$TCF_DATA_ROOT/interim/tpch-sf001.db` with all PK/FK declared.
 ## Use in experiments
 
 ```python
-from llm_benchmark.eval.data_sources import load_dataset  # (v0.5 harness; movido p/ llm-benchmark/)
+from llm_query.data_sources import load_dataset  # lives in src/llm_query/; needs src/ on sys.path
 
 # 100-row sample on the partsupp fact, FK-preserving on supplier+part
 tables, meta = load_dataset(
