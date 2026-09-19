@@ -35,7 +35,7 @@
 | [T-FMT-OMIT-OR-DECLARE](T-FMT-OMIT-OR-DECLARE.md) | `P2` open | 2026-07-08 | Contrato de omissão (deduzível / convenção-default / declaração-obrigatória), AVALIAR pré-1.0 |
 | [T-HTTP-QUERY-E-VIEW](T-HTTP-QUERY-E-VIEW.md) | `P2` open | 2026-09-01 | o método HTTP QUERY (RFC 10008) como transporte natural do view()/lazy |
 | [T-LAB-DIDATICO-PONTA-A-PONTA](T-LAB-DIDATICO-PONTA-A-PONTA.md) | `P2` open | 2026-09-01 | micro-lab do fluxo real (coleta → dataset → schema → encode → cliente/servidor → disponibilizar) |
-| [T-OPT-INFERENCE](T-OPT-INFERENCE.md) | `P2` open | 2026-09-01 | base HEX dos sizes |
+| [T-OPT-INFERENCE](T-OPT-INFERENCE.md) | `P2` open | 2026-09-19 | base HEX dos sizes |
 | [T-STUDY-HIERARCHICAL-TCF](T-STUDY-HIERARCHICAL-TCF.md) | `P2` open | 2026-09-01 | TCF para estrutura hierárquica completa |
 | [T-TYPED-SINGLECOL-MODE-HEURISTIC](T-TYPED-SINGLECOL-MODE-HEURISTIC.md) | `P2` open | 2026-09-01 | single-col tipado + modos de corpo (heurística p/ .9) |
 | [DECISAO-VIEW-BOOL-TRUTHINESS](DECISAO-VIEW-BOOL-TRUTHINESS.md) | `P3` open | 2026-08-24 | int numa coluna bool passa por truthiness, e a doc promete o contrario |

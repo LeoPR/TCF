@@ -517,6 +517,48 @@ economia ≥1% do blob em so' 11/60 formas (tiny-wide; dezenas de bytes), ≥5% 
 e group por slice. + parser de header com 2 semanticas. **Nao vale**; se o alvo e' header menor, usar
 O-FMT-18 (base-94), que ganha o mesmo SEM perder nada.
 
+> **Releitura (2026-09-19), a pedido do owner, sobre wires reais da `0.8.4`.** A pergunta voltou
+> como "o header só precisa saber quantas linhas tem e deduz o resto: alguns bytes contra
+> computação e serialidade". Base: os 22 wires multi-coluna do lab local `08-perfil-0.8.4`
+> (RT validado; contas e scripts em `../2026-09/2026-09-19-header-por-linhas/`). O veredito se
+> mantém, e o argumento
+> decisivo muda de lugar.
+>
+> - **Economia medida.** Tirar os sizes hex das colunas não-últimas e pôr um contador de linhas
+>   em hex mais um separador rende de 0,001% a 2,564% do blob: 5 B num wire de 195 B, 70 B no
+>   maior caso absoluto (`lineitem` de 5.000 linhas, 16 colunas, 0,022%), 19 dos 22 wires abaixo de
+>   0,2%. No exemplo de cadastro do README, 10 B em 242 (4,1%); no exemplo `id`/`uf`, zero. A
+>   variável que manda não é N e sim o tamanho do blob depois da compressão: o wire de 195 B tem
+>   N=1.000. Onde o header pesa (`lineitem` de 200 linhas, 1,8% do blob), o peso está nos nomes
+>   (209 dos 263 B), não nos sizes (54 B). Refinamentos que a conta bruta não vê: cada coluna raw
+>   não-última exigiria um separador novo (menos 1 B cada), e os slots split carregam sizes hex
+>   próprios que também sairiam (40 B no `lineitem` de 5.000). A ordem de grandeza não muda.
+> - **A fronteira sem size não é "contar quebras de linha".** O corpo não tem uma linha de texto
+>   por linha da tabela. `tcf` colapsa runs em `*N|`: achar o fim exige varrer somando contadores,
+>   sem resolver refs. `raw` é join sem LF terminal (`core.py`, `_decode_raw_body`): o último valor
+>   cola no corpo seguinte, e a fronteira só existe com um separador novo por coluna raw. `dict`
+>   é auto-delimitado dado N (`<ntable>\n` mais N vezes a largura), ao custo de ler a tabelinha.
+>   `split` aninha um `#TCF.8M` inteiro, com sizes próprios. A tag de tipo (`N`, `B`) ancora no
+>   size, então coluna tipada exige gramática nova, não omissão. O `_decode_multi` e a `view`
+>   fatiam por size (o acesso O(1) por coluna é real e usado), e as checagens fail-loud de
+>   truncamento e excedente (BUG-05) se apoiam nele.
+> - **O que a refutação de 06/2026 superestimou.** Dois dos três custos que ela listou não são
+>   feature: o decode paralelo não existe em `src/tcf` (é possibilidade provada no lab local
+>   `2026-08-16-1530`, 7 threads byte-idênticas fatiando pelos sizes), e o group por slice roda
+>   sobre coluna já decodificada e não é mais barato que o order-free (ADR-0050). O que ela
+>   subestimou: os custos de gramática acima, e que o hex (T-FMT-HEADER-BASE-HEX, 2026-07-09) já
+>   encolheu a base da economia. A frase "usar O-FMT-18" logo acima é anterior a esse weld.
+> - **O que ainda vive da ideia.** (1) O degrau grátis já está soldado: a última coluna sem size
+>   (O-FMT-15). (2) Declarar N **além** dos sizes é o campo que o stream pede (O-FMT-23), e
+>   `min_header=False` já compra o perfil stream-ready por +4 B (lab `1530`). (3) Os bytes de
+>   tamanho que ainda são decimais ficam **dentro** dos slots: `<ntable>` do dict, `<ntmpl>` e `L:`
+>   do split (tier D do registro de bases, `bases-radix-usos-tcf.md`). No `lineitem` de 5.000
+>   somam 72 B contra 75 B de sizes no header, e passá-los para hex não custa serialidade nem
+>   toca a view. (4) A porta "modo pacote único / decode-all" segue registrada e depende de
+>   `H-PROFILE-01` ganhar entrada própria.
+> - **Ticket:** não abrir. A direção já tem nome (esta entrada) e dois julgamentos (06/2026 e
+>   08/2026); um ticket só apontaria para cá.
+
 ## Categoria 7: Registros profundos do F0/T-QA-8 (owner, 2026-07-10)
 
 > Origem: decisoes do owner ao aprovar os fixes de fronteira BUG-03/04/05/06

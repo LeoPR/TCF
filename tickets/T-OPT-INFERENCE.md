@@ -3,7 +3,7 @@ title: T-OPT-INFERENCE, Otimizações por INFERÊNCIA (valor deduzido, não escr
 status: open
 priority: P2
 created: 2026-07-05
-updated: 2026-09-01
+updated: 2026-09-19
 gate: ".9 (formato e ferramental) (triagem 2026-09-01)"
 blocked-by: []
 related:
@@ -116,6 +116,12 @@ compete com gzip/brotli/zstd). NÃO é welding candidate nesta forma. Ver
 ## Itens futuros (outras inferências)
 
 - Cardinalidade/kind/rows deduzidos (já no header via colchete: P5/P7).
+- Sizes das colunas deduzidos de um contador de linhas: é a O-FMT-19, refutada em 06/2026 e
+  relida sobre wires reais em 2026-09-19 (registry `futuras-otimizacoes-formato.md`): a
+  economia é de bytes por tabela, o corpo não é delimitado por linha em três dos quatro modos, e
+  a tag de tipo ancora no size. Só o degrau da última coluna sem size (O-FMT-15) sobreviveu; os
+  prefixos decimais dentro dos slots (tier D do registro de bases) são o alvo que resta sem
+  custo de serialidade.
 - Tipos deduzidos (str default; `:tipo` só quando diverge).
 - Nomes deduzidos/omitidos (drop_names) quando anônimo.
 - (a telemetria sugestiva de ORDEM vive em T-FLOW-ENCODE-STRATEGIES-TELEMETRY: é inferência de forma, não de valor.)
