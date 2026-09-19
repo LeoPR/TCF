@@ -110,10 +110,26 @@ aponta limitar a busca do vencedor, e a divergência desaparece quando o detecto
 puro. O maior desperdício isolado medido é uma coluna de texto livre que gasta 52,6 s dos 81,0 s
 do encode montando um corpo `tcf` que sai descartado, porque a coluna é emitida como `raw`.
 
-A escolha que resta não é de frente, é de técnica, e o critério é o contrato: dispensar o corpo
-`tcf` por um limite inferior exato alcança de 11% a 84% do encode e preserva o wire, mas exige o
-limite, que não existe, e reordenar o encoder; um orçamento de busca alcança o bloco partilhado
-inteiro e muda os tamanhos comparados, então é classe 2 e pede gate por I4.
+A escolha que resta não é de frente, é de técnica, e o critério é o contrato.
+
+**A técnica mais barata que preservaria o wire está refutada**, no
+[`10-limite-exato`](../experiments/lab/dirty/2026-09/2026-09-07/2026-09-07-0208-perf-diagnostico/10-limite-exato/result.md) (registro local, 2026-09-19). Simulando a decisão do `min()`
+sobre o encode real, com o vencedor reconstruído igual ao emitido em toda coluna: o limite
+inferior estrutural do slot do dicionário, calculado de `N` e `K`, dispensa de 0% a 0,03% do
+encode e custa de 0,4% a 12,9%. A refutação não depende do custo, e vale para a família
+`N × largura(K) + c` inteira: a força do limite é 0,96 mediana nas chamadas em que o dicionário
+vence e 0,27 nas em que perde, porque o fluxo de índices só domina o slot quando a cardinalidade
+é baixa, que é quando o candidato ganha.
+
+**O que sobrou depende de uma peça só, e ela aparece três vezes: um limite inferior barato do
+tamanho de um corpo `tcf`.** Com ela, dispensar o dicionário alcança de 12,8% a 47,8% do encode,
+desde que o split passe a ser avaliado antes; dispensar o próprio corpo `tcf` alcança de 17% a
+85%. Sem ela, o alcance é zero. É pergunta de algoritmo e de formato, não de medição. A
+reordenação que ela exige não é neutra em contrato: o `_best_of` desempata pela ordem, e há caso
+construído em que dicionário e split empatam em bytes e o modo emitido troca de `@` para `%`.
+
+As alternativas continuam mudando bytes: um orçamento de busca alcança o bloco partilhado inteiro
+e é classe 2, com gate por I4; prever o vencedor muda o wire quando erra.
 
 Não escolher Rust, Cython ou um port completo antes de justificar a estratégia e seu
 gargalo. Resultados de variantes encerradas continuam delimitados aos casos estudados;
