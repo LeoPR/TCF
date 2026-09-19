@@ -3,7 +3,7 @@ title: T-PERF-BORDAS-E-MODOS-09, otimização multicamada, bordas e perfis; o al
 status: open
 priority: P1
 created: 2026-08-23
-updated: 2026-09-18
+updated: 2026-09-19
 gate: ".9 (desempenho e limpeza) (triagem 2026-09-01)"
 target: ".9 (otimização), este é o ticket-mestre do ciclo"
 blocked-by: []
@@ -94,10 +94,26 @@ acelerado. De 74% a 78% das chamadas do HCC acontecem dentro da avaliação de c
 em chamadas e não em tempo. O acelerador economiza de 31% a 38% do encode. Wire byte-idêntico
 entre todas as rodadas e os dois backends, e round-trip em arquivo, nos 23 casos.
 
-Duas consequências valem para o ciclo. A fila começa pela busca, e a lacuna aberta é o
-**tempo** gasto em candidatos, que decide entre orçamento de busca e reencodes. E as células
-`flat-mixed` do `bench_perf` não representam essas amostras: nelas o detector quase não trabalha
-e o custo é emissão, então uma otimização da busca precisa de gate em amostra real, não só nelas.
+Duas consequências valem para o ciclo. A fila começa pela busca. E as células `flat-mixed` do
+`bench_perf` não representam essas amostras: nelas o detector quase não trabalha e o custo é
+emissão, então uma otimização da busca precisa de gate em amostra real, não só nelas.
+
+**O tempo gasto em candidatos está medido, e ele não escolhe entre as duas primeiras frentes da
+fila**, no [`09-tempo-dos-candidatos`](../experiments/lab/dirty/2026-09/2026-09-07/2026-09-07-0208-perf-diagnostico/09-tempo-dos-candidatos/result.md) (registro local, 2026-09-19). Cronometrando as
+camadas com o caminho de candidato como rótulo, em 16 casos e 44 subprocessos, com wire
+byte-idêntico ao do 08 e contagens cruzadas exatas com o rastreador dele: de 64% a 98% do encode
+acontece em candidatos que perdem o `min()` por coluna, e o maior bloco, de 40% a 93%, é a busca
+feita dentro desses perdedores, que tanto um orçamento de busca quanto evitar o candidato
+alcançam. Os territórios exclusivos de cada frente somam de 0,06 a 0,53 do encode, e as duas
+tabelas apontam frentes opostas com margem: `lineitem` aponta evitar candidatos, `empresas`
+aponta limitar a busca do vencedor, e a divergência desaparece quando o detector roda em Python
+puro. O maior desperdício isolado medido é uma coluna de texto livre que gasta 52,6 s dos 81,0 s
+do encode montando um corpo `tcf` que sai descartado, porque a coluna é emitida como `raw`.
+
+A escolha que resta não é de frente, é de técnica, e o critério é o contrato: dispensar o corpo
+`tcf` por um limite inferior exato alcança de 11% a 84% do encode e preserva o wire, mas exige o
+limite, que não existe, e reordenar o encoder; um orçamento de busca alcança o bloco partilhado
+inteiro e muda os tamanhos comparados, então é classe 2 e pede gate por I4.
 
 Não escolher Rust, Cython ou um port completo antes de justificar a estratégia e seu
 gargalo. Resultados de variantes encerradas continuam delimitados aos casos estudados;
