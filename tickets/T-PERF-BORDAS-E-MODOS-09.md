@@ -421,12 +421,23 @@ publicada da `0.8.4` ou por sonda direta, com round-trip conferido:
 | conta 1 encode : N decodes, forma aninhada, de N=1 a N=1000 | 23,0× cai só para 20,5× | idem |
 | piso de payload contra `json+brotli`, forma de pedidos | o TCF só passa a ganhar em 5 registros | sonda |
 | custo de `import tcf` | 232 ms a 286 ms | sonda |
-| piso por chamada, um registro, quente | 0,50 ms a 0,52 ms, contra 0,005 ms do `json.dumps` | sonda |
-| primeira chamada contra regime quente | razão de 4,9 a 5,2 | sonda |
+| piso por chamada do decode, um registro, quente | 0,16 ms a 0,33 ms (a sonda anterior dizia 0,50 ms a 0,52 ms, e era do encode) | lab `01-decode`, execução 2 |
+| primeira chamada de decode contra regime quente | **refutado**: razão de 0,65 a 1,48, mediana perto de 1, em dois instrumentos independentes. A sonda anterior dizia de 4,9 a 5,2 | lab `01-decode` e revisão independente |
 
-A leitura dura: **no vértice que o owner chama de uso regular, a frente de encode não é o que
-decide, o decode é**, porque a conta 1:N converge para a razão de decode, e na forma aninhada ela
-quase não amortiza. Nenhum dos três labs do `.9` mediu decode, e os três declaram isso.
+A leitura dura, **corrigida pela medição no regime alvo** ([`01-decode`](../experiments/lab/dirty/2026-09/2026-09-20/2026-09-20-0100-regime-alvo/01-decode/result.md), registro local,
+2026-09-20, execução 2 com o instrumento emendado): a conta 1:N converge mesmo para a razão de
+decode, mas a **velocidade** dessa convergência é o que decide, e ela é lenta. O encode manda no
+total até N passar da assimetria interna, que na forma de registro com dado real vale 3 em um
+registro, de 14 a 19 em vinte, de 24 a 32 em cem e de 84 a 147 em mil. Em N realista de uma API,
+de uma a poucas dezenas de leituras por payload, **o encode é a maior parte da conta**, e ele custa
+de 34× a 1.409× o `json.dumps`. O decode custa de 9× a 21× o `json.loads`, e é o limite para onde
+a conta tende.
+
+Duas coisas que essa medição fecha. A primeira: a conta **não cruza a régua em CPU para nenhum N**,
+porque o limite dela é maior que 1; o que o formato compra é byte, com o wire indo de 92% do JSON
+em um registro a 17% em mil. A segunda: a assimetria de 1,97× a 2,14× da baseline não vale aqui, e
+a diferença não é de tamanho, é de **dado**, dezesseis e seis colunas reais contra quatro colunas
+sintéticas com 10% de distintos, e de rota.
 
 **O instrumento não alcança o alvo.** A menor escala de toda a matriz do `bench_perf` é R=100, e só
 três células medem TCF nessa escala. O plano `smoke` se declara sem valor probatório. Nos labs, as
