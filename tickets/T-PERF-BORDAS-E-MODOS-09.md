@@ -397,9 +397,11 @@ amortização de cabeçalho: com R=200, `Country`, de 7 distintos, dá −78,9%;
 dá −51,1%; e `InvoiceNo`, cujos valores são contíguos e quase não se repetem entre transmissões, dá
 −6,6%. O ganho acompanha a repetição de vocabulário entre as transmissões.
 
-Três ressalvas: é teto, não ganho; o concatenado é de linhas, no plano do dado, e concatenar wires
-corrompe, o que já foi reprovado em lab; e o fechamento do `T-EXP-H-GDICT-01` continua correto no
-escopo dele, que é entre colunas do mesmo blob, e não se transfere para cá.
+Quatro ressalvas: é teto, não ganho; o concatenado é de linhas, no plano do dado, e concatenar
+wires corrompe, o que já foi reprovado em lab; o fechamento do `T-EXP-H-GDICT-01` continua correto
+no escopo dele, que é entre colunas do mesmo blob, e não se transfere para cá; e, a quarta, escrita
+depois de medir: **essa conta compara o TCF com o TCF**. O concorrente de fora nunca entrou nela, e
+quando ele entrou, no lab `02-piso-de-payload`, virou outra história, abaixo.
 
 **O que a evidência do `.9` sustenta sob esse enquadramento.** As medições que decidiram algo foram
 as de 1.000 e 5.000 linhas, com wires de 43 KB a 317 KB e encodes de 3,5 s a 23,0 s. Isso é arquivo,
@@ -419,7 +421,7 @@ publicada da `0.8.4` ou por sonda direta, com round-trip conferido:
 | (o JSON aqui é régua comparativa, não produto: no núcleo do TCF não existe JSON, e o que existe de fato são os datasets) | | owner, 2026-09-20 |
 | assimetria interna do TCF nessa forma | 1,97× a 2,14× | idem |
 | conta 1 encode : N decodes, forma aninhada, de N=1 a N=1000 | 23,0× cai só para 20,5× | idem |
-| piso de payload contra `json+brotli`, forma de pedidos | o TCF só passa a ganhar em 5 registros | sonda |
+| piso de payload contra a régua comprimida, seis projeções de dado real | de 1 a 500 registros conforme forma e compressor, e inexistente até mil em 7 de 42 combinações (a sonda anterior dizia 5 registros, de uma forma só) | lab `02-piso-de-payload`, execução 3 |
 | custo de `import tcf` | 232 ms a 286 ms | sonda |
 | piso por chamada do decode, um registro, quente | 0,16 ms a 0,33 ms (a sonda anterior dizia 0,50 ms a 0,52 ms, e era do encode) | lab `01-decode`, execução 2 |
 | primeira chamada de decode contra regime quente | **refutado**: razão de 0,65 a 1,48, mediana perto de 1, em dois instrumentos independentes. A sonda anterior dizia de 4,9 a 5,2 | lab `01-decode` e revisão independente |
@@ -444,6 +446,34 @@ três células medem TCF nessa escala. O plano `smoke` se declara sem valor prob
 amostras de 200 linhas rodaram como smoke, com voto desligado antes da medição. O recorte do
 `bench_perf` vai de entrada materializada a saída wire, com aquecimento descartado, o que apaga por
 contrato os três custos que mandam no alvo: import, primeira chamada e piso por chamada.
+
+**O piso de payload, medido no regime alvo** ([`02-piso-de-payload`](../experiments/lab/dirty/2026-09/2026-09-20/2026-09-20-0100-regime-alvo/02-piso-de-payload/result.md),
+registro local, 2026-09-20, execução 3 de 3). Seis projeções de duas fontes reais, dez tamanhos de
+1 a 1.000 registros, sete compressores, contra o concorrente **comprimido**, que é o que trafega
+de fato num fio HTTP. A execução 3 reproduziu a 2 byte a byte, em 1.320 células, com round-trip
+conferido dos dois lados em todo caso. Quatro coisas saem dali, e três delas apertam o ciclo:
+
+1. **O piso é superfície, não número.** Ele vai de 1 a 500 registros conforme forma e compressor, e
+   em 7 das 42 combinações não existe até mil, todas projeções de coluna única. Em 31 das 35 que
+   têm piso a razão cruza 1 e volta antes de assentar, então um tamanho isolado abaixo de 1 não
+   prova nada.
+2. **No tamanho alvo a economia é de dezenas de bytes.** Em vinte registros com `brotli-5`, que é o
+   nível de HTTP dinâmico, o wire economiza 124 B numa fonte e 25 B na outra, e com `brotli-11`
+   **custa 17 B a mais**. Com `gzip-6` a economia chega a 235 B. É a ordem de grandeza de um
+   cabeçalho HTTP, e é menor que o framing que o lab não mediu. Junto com o `01-decode`, a troca no
+   alvo fica explícita: 25 ms de encode por até algumas centenas de bytes.
+3. **A régua escolhida decide metade da conta.** O JSON na forma de registro repete as chaves em
+   toda linha, e uma API pode mandar colunar ou em linhas com cabeçalho separado. Contra essas, em
+   vinte registros, o TCF **empata ou fica atrás em todos os casos medidos**. Boa parte do ganho
+   contra a forma de registro é a repetição de chave dela, não redundância do dado. Toda citação de
+   razão contra JSON neste ticket herda essa ressalva.
+4. **O dicionário partilhado não é exclusividade do formato.** Medido como concorrente, com
+   `zstd-19` e cada lado treinando o seu dicionário de 16 KB em até 100 transmissões anteriores do
+   mesmo assunto: em vinte registros de `lineitem` o TCF faz 720 B contra 894 B da régua de
+   registro e 773 B da colunar; em `empresas` ele **perde** para a colunar, 522 B contra 512 B, e
+   em cem registros perde para as duas. Isso não derruba o vértice colaborativo, mas derruba a
+   premissa de que ele é uma saída que só o TCF tem: qualquer payload ganha dicionário treinado, e
+   o que decide é quanto vocabulário se repete entre transmissões, não o formato.
 
 **Consequência para o aceite.** Nenhum dos onze critérios exige medição no regime alvo, e nenhum
 nomeia piso de payload, custo fixo por chamada, latência ponta a ponta ou decode contra o
