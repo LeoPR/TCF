@@ -121,12 +121,19 @@ encode e custa de 0,4% a 12,9%. A refutação não depende do custo, e vale para
 vence e 0,27 nas em que perde, porque o fluxo de índices só domina o slot quando a cardinalidade
 é baixa, que é quando o candidato ganha.
 
-**O que sobrou depende de uma peça só, e ela aparece três vezes: um limite inferior barato do
-tamanho de um corpo `tcf`.** Com ela, dispensar o dicionário alcança de 12,8% a 47,8% do encode,
-desde que o split passe a ser avaliado antes; dispensar o próprio corpo `tcf` alcança de 17% a
-85%. Sem ela, o alcance é zero. É pergunta de algoritmo e de formato, não de medição. A
-reordenação que ela exige não é neutra em contrato: o `_best_of` desempata pela ordem, e há caso
-construído em que dicionário e split empatam em bytes e o modo emitido troca de `@` para `%`.
+**A peça que faltava não existe em forma barata, e o caminho que preserva o wire por construção
+está fechado.** O [estudo de 2026-09-19](../experiments/lab/dirty/notas/2026-09/2026-09-19-limite-do-corpo-tcf/README.md) (registro local) testou as duas famílias
+possíveis de limite inferior do corpo `tcf`. A das estatísticas que ignoram a ordem cai por
+construção: duas colunas com o mesmo `n`, o mesmo `k` e o mesmo conjunto de valores dão corpos de
+18 e de 59.998 bytes conforme a ordem, então qualquer limite dessas estatísticas fica preso ao
+menor deles. A que olha o arranjo, contando segmentos numa passada, tem força mediana de 0,141 e
+dispensaria o candidato `tcf` em 0 de 104 colunas.
+
+O motivo é geral: candidato perde por pouco, de 0,78 a 1,0 no dicionário e de 0,68 a 1,0 no
+`tcf`, então provar que ele perde sem calculá-lo exige um limite que capture quase todo o tamanho
+dele, e um limite assim custa quase o que custa a própria conta. Se algum dia ele aparecer, o
+alcance seria de 12,8% a 47,8% no dicionário e de 17% a 85% no `tcf`, e ainda seria preciso provar
+o desempate do `_best_of`, que hoje decide empate pela ordem.
 
 As alternativas continuam mudando bytes: um orçamento de busca alcança o bloco partilhado inteiro
 e é classe 2, com gate por I4; prever o vencedor muda o wire quando erra.
