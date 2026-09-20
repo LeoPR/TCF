@@ -11,6 +11,7 @@ related:
   - experiments/lab/dirty/2026-08/2026-08-23/2026-08-23-0300-tempo-ate-o-dado-chegar/
   - experiments/lab/dirty/2026-08/2026-08-23/2026-08-23-0100-janela-massa-pos-release/
   - tickets/T-STUDY-USE-PROFILES.md
+  - tickets/T-REL-08-CLOSEOUT.md
   - tickets/T-API-SCHEMA-PRESCRITIVO.md
   - scripts/bench_perf/README.md
   - experiments/lab/dirty/2026-09/2026-09-01/2026-09-01-1937-perf-8h-dois-lados-mesmo-pino/
@@ -342,6 +343,70 @@ Para aceitar a referência antes da etapa 2: encaminhar a
 correção da ajuda/anotações do core com aprovação, decidir o contrato do override no ticket
 existente e separar a verificação de código-fonte da verificação de instalação. Lacunas de
 opções por rota permanecem explícitas. Nenhuma hipótese de otimização foi escolhida.
+
+---
+
+## O regime alvo, e o que ele muda na evidência do ciclo (owner, 2026-09-19)
+
+**Direção do owner.** Massa é instrumento, não alvo: ela serve para ver se nada quebra, entender o
+comportamento e testar se a pequena escala representa a grande. O uso regular é transmissão de API,
+ou sincronismo de volumes pequenos, ou um arranjo colaborativo em que muitos emissores mandam coisa
+em comum de pontos diferentes e o framework integra um dicionário compartilhado. O vértice de massa
+existe e é o de armazenamento, tipo Parquet, e fica para experiência futura.
+
+**Vocabulário: isto se chama topologia aqui.** Os eixos de uso já estão tabelados em
+[`T-STUDY-USE-PROFILES`](T-STUDY-USE-PROFILES.md), com quatro linhas: A, cliente encoda e servidor
+consome; B1, servidor encoda o mesmo payload para N clientes; B2, servidor encoda payload único por
+requisição; C, disco e armazenamento. O "vértice" da ADR-0002 é outra coisa, a restrição entre
+compressão, memória e latência. E "massa é instrumento, não alvo" já está escrito lá, com estas
+palavras: medir em massa serve para ter noção de ordem de grandeza, não para decidir. O protocolo de
+verificação em massa também já existe, em `T-REL-08-CLOSEOUT`: gate de reentrada, integridade,
+custo e população. Nada disso é novo, e o `.9` não citou nenhum deles.
+
+**O que é novo: o vértice colaborativo.** Um dicionário povoado por muitos emissores independentes,
+em que o benefício de compressão é partilhado e o N-ésimo emissor paga menos, não existe no
+repositório. O que existe é diferente: `H-CODEBOOK-01` é tabela externa pré-acordada e estática, e
+`H-GDICT-01` é dicionário global entre colunas de um artefato. O novo implica **estado entre
+payloads**, que o wire auto-contido não tem, e é uma quinta linha da tabela de topologia: não é um
+encode servindo N decodes, são N encodes correlacionados.
+
+**O que a evidência do `.9` sustenta sob esse enquadramento.** As medições que decidiram algo foram
+as de 1.000 e 5.000 linhas, com wires de 43 KB a 317 KB e encodes de 3,5 s a 23,0 s. Isso é arquivo,
+não payload de API. Sobrevive o que não depende de escala: os fatos estruturais do encoder, a
+refutação da família de limites (que se apoia em onde o limite é forte, não no tamanho), a queda das
+estatísticas que ignoram a ordem, e os achados de instrumento. Não sobrevivem como critério de
+escolha as frações por camada e os territórios `P`, `Sp` e `Sv`: nas amostras medidas o que cai fora
+do pipeline por coluna vale de 0,3% a 1,9% do tempo, e na única célula com wire de tamanho de API,
+195 bytes, esse mesmo resto vale 61,7%.
+
+**Três números que o ciclo não tinha, e que mudam a decisão.** Todos calculados da baseline
+publicada da `0.8.4` ou por sonda direta, com round-trip conferido:
+
+| medida | valor | fonte |
+|---|---|---|
+| decode do TCF contra `json.loads`, forma aninhada, que é a de payload de API | 15,8× a 20,5× | `perf-nucleo-2026-09-01.jsonl`, mesma rodada |
+| assimetria interna do TCF nessa forma | 1,97× a 2,14× | idem |
+| conta 1 encode : N decodes, forma aninhada, de N=1 a N=1000 | 23,0× cai só para 20,5× | idem |
+| piso de payload contra `json+brotli`, forma de pedidos | o TCF só passa a ganhar em 5 registros | sonda |
+| custo de `import tcf` | 232 ms a 286 ms | sonda |
+| piso por chamada, um registro, quente | 0,50 ms a 0,52 ms, contra 0,005 ms do `json.dumps` | sonda |
+| primeira chamada contra regime quente | razão de 4,9 a 5,2 | sonda |
+
+A leitura dura: **no vértice que o owner chama de uso regular, a frente de encode não é o que
+decide, o decode é**, porque a conta 1:N converge para a razão de decode, e na forma aninhada ela
+quase não amortiza. Nenhum dos três labs do `.9` mediu decode, e os três declaram isso.
+
+**O instrumento não alcança o alvo.** A menor escala de toda a matriz do `bench_perf` é R=100, e só
+três células medem TCF nessa escala. O plano `smoke` se declara sem valor probatório. Nos labs, as
+amostras de 200 linhas rodaram como smoke, com voto desligado antes da medição. O recorte do
+`bench_perf` vai de entrada materializada a saída wire, com aquecimento descartado, o que apaga por
+contrato os três custos que mandam no alvo: import, primeira chamada e piso por chamada.
+
+**Consequência para o aceite.** Nenhum dos onze critérios exige medição no regime alvo, e nenhum
+nomeia piso de payload, custo fixo por chamada, latência ponta a ponta ou decode contra o
+concorrente. A tabela da base medida, de 1.500 a 100.000 linhas, é fotografia de borda. Os itens de
+massa do ciclo passam a ser rotulados como verificação, pelo protocolo que já existe, e não como
+entrega de objetivo.
 
 ---
 
