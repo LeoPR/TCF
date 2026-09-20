@@ -454,9 +454,10 @@ de fato num fio HTTP. A execução 3 reproduziu a 2 byte a byte, em 1.320 célul
 conferido dos dois lados em todo caso. Quatro coisas saem dali, e três delas apertam o ciclo:
 
 1. **O piso é superfície, não número.** Ele vai de 1 a 500 registros conforme forma e compressor, e
-   em 7 das 42 combinações não existe até mil, todas projeções de coluna única. Em 31 das 35 que
-   têm piso a razão cruza 1 e volta antes de assentar, então um tamanho isolado abaixo de 1 não
-   prova nada.
+   em 7 das 42 combinações não existe até mil, todas projeções de coluna única. A aproximação não é
+   monótona: a razão sobe em algum passo em 35 das 42 combinações, e em 13 o wire ganha num tamanho
+   e devolve o ganho num maior. Um tamanho isolado abaixo de 1 não prova piso, que é o vício da
+   sonda que esta medida substitui.
 2. **No tamanho alvo a economia é de dezenas de bytes.** Em vinte registros com `brotli-5`, que é o
    nível de HTTP dinâmico, o wire economiza 124 B numa fonte e 25 B na outra, e com `brotli-11`
    **custa 17 B a mais**. Com `gzip-6` a economia chega a 235 B. É a ordem de grandeza de um
