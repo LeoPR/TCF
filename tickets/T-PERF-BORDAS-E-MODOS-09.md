@@ -3,7 +3,7 @@ title: T-PERF-BORDAS-E-MODOS-09, otimização multicamada, bordas e perfis; o al
 status: open
 priority: P1
 created: 2026-08-23
-updated: 2026-09-19
+updated: 2026-09-20
 gate: ".9 (desempenho e limpeza) (triagem 2026-09-01)"
 target: ".9 (otimização), este é o ticket-mestre do ciclo"
 blocked-by: []
@@ -363,12 +363,43 @@ palavras: medir em massa serve para ter noção de ordem de grandeza, não para 
 verificação em massa também já existe, em `T-REL-08-CLOSEOUT`: gate de reentrada, integridade,
 custo e população. Nada disso é novo, e o `.9` não citou nenhum deles.
 
-**O que é novo: o vértice colaborativo.** Um dicionário povoado por muitos emissores independentes,
-em que o benefício de compressão é partilhado e o N-ésimo emissor paga menos, não existe no
-repositório. O que existe é diferente: `H-CODEBOOK-01` é tabela externa pré-acordada e estática, e
-`H-GDICT-01` é dicionário global entre colunas de um artefato. O novo implica **estado entre
-payloads**, que o wire auto-contido não tem, e é uma quinta linha da tabela de topologia: não é um
-encode servindo N decodes, são N encodes correlacionados.
+**O vértice colaborativo já está registrado, e o que mudou hoje é a categoria dele.** Ele está na
+nota de hipóteses, escrito pelo owner em 2026-08-31 e com a magnitude corrigida por ele em
+2026-09-01: não é acúmulo dentro de uma sessão, é buffer entre sessões, com containers por assunto
+ou contrato, e o dicionário pertence ao assunto, não à conexão. A nota o posiciona como tier
+intermediário, distinto do `H-CODEBOOK-01`, que é tabela externa pré-acordada e não aprende, e do
+`H-GDICT-01`, que é dicionário entre colunas de um mesmo artefato. O status lá é "sem lab e sem
+medição, registrado para avaliar, não para fazer", e alvo 2.0.
+
+O que a fala de hoje muda: ele deixou de ser ideia para avaliar e passou a ser um dos regimes de
+uso declarados, ao lado da transmissão de API e do sincronismo pequeno. Regime de uso é critério de
+aceite. Ele não aparece neste ticket, nem no plano do `.9`, nem no ROADMAP, que só registra o primo
+intra-blob; o único lugar onde ele vive é a nota de hipóteses, que é dirty. O que o bloqueia
+continua sendo contrato, não byte: quem nomeia o container, como as duas pontas concordam no nome,
+o que acontece quando um lado o tem e o outro não, e invalidação e versão. Um blob que depende de
+estado externo deixa de ser auto-contido, que é invariante da família `.8`.
+
+**E o teto dele foi medido agora, pela primeira vez, no regime alvo.** Modelo: K transmissões
+pequenas do mesmo assunto, com R linhas cada; soma dos encodes independentes contra o encode do
+concatenado, que é limite inferior de qualquer esquema com dicionário partilhado, porque um esquema
+real ainda paga moldura por blob. Duas fontes reais, 4.000 linhas cada:
+
+| fonte | R=20 | R=50 | R=200 |
+|---|---:|---:|---:|
+| `adult-census`, 7 colunas categóricas | −76,1% | −61,2% | −31,5% |
+| `online-retail`, `StockCode`, `Description` e `Country` | −55,2% | −51,0% | −45,9% |
+
+O ganho **cresce quando o payload encolhe**, que é a direção do regime alvo, e o teto do
+intra-blob, medido em 2026-07-01, ia no sentido oposto, de +5,7% a +48,1%. O motivo é que o
+concorrente é outro: entre blobs cada transmissão paga a própria tabela de únicos do zero, e o
+`min()` por coluna continua livre dos dois lados da conta. Um controle isola que não é só
+amortização de cabeçalho: com R=200, `Country`, de 7 distintos, dá −78,9%; `Description`, de 1.475,
+dá −51,1%; e `InvoiceNo`, cujos valores são contíguos e quase não se repetem entre transmissões, dá
+−6,6%. O ganho acompanha a repetição de vocabulário entre as transmissões.
+
+Três ressalvas: é teto, não ganho; o concatenado é de linhas, no plano do dado, e concatenar wires
+corrompe, o que já foi reprovado em lab; e o fechamento do `T-EXP-H-GDICT-01` continua correto no
+escopo dele, que é entre colunas do mesmo blob, e não se transfere para cá.
 
 **O que a evidência do `.9` sustenta sob esse enquadramento.** As medições que decidiram algo foram
 as de 1.000 e 5.000 linhas, com wires de 43 KB a 317 KB e encodes de 3,5 s a 23,0 s. Isso é arquivo,
@@ -385,6 +416,7 @@ publicada da `0.8.4` ou por sonda direta, com round-trip conferido:
 | medida | valor | fonte |
 |---|---|---|
 | decode do TCF contra `json.loads`, forma aninhada, que é a de payload de API | 15,8× a 20,5× | `perf-nucleo-2026-09-01.jsonl`, mesma rodada |
+| (o JSON aqui é régua comparativa, não produto: no núcleo do TCF não existe JSON, e o que existe de fato são os datasets) | | owner, 2026-09-20 |
 | assimetria interna do TCF nessa forma | 1,97× a 2,14× | idem |
 | conta 1 encode : N decodes, forma aninhada, de N=1 a N=1000 | 23,0× cai só para 20,5× | idem |
 | piso de payload contra `json+brotli`, forma de pedidos | o TCF só passa a ganhar em 5 registros | sonda |
