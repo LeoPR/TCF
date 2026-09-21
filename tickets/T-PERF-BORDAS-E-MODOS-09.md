@@ -660,8 +660,44 @@ duas rodadas. Uma é a `flat-mixed` que passou a medir o `.8R`. As outras quatro
 em `flat-mixed`, nos pontos baixos dos eixos (`K0001`, `K001`, `R1e2` e `L8`), com `+11%` a
 `+20%`, e rodaram no início da rodada B, nas ordens 9 a 20, longe da cauda com deriva térmica.
 Não é veredito: são duas rodadas, a B termicamente suspeita, com a referência pareada 17 posições
-depois. Seguem candidatas a remedição: o passo 0 mediu onde o tempo está e não as remediu,
-porque a pergunta delas é outra, regressão entre árvores.
+depois. ~~Seguem candidatas a remedição~~ **Decidido em 2026-09-21: NÃO remedir**, e a decisão tem
+medida atrás dela.
+
+Três fatos que estavam em disco e ninguém tinha lido juntos. **São cinco rodadas, não duas**: três
+baselines mais os dois lados do lab. **Duas delas são a mesma árvore**, a baseline de 2026-08-20 e
+o lado A, as duas em `6f04f3ae`, o que dá um controle de variação sem mudança de código: entre elas
+a razão anda de 1,4% a 8,6%. E **a árvore do lado B é a de hoje**, porque
+`git log 42d4d4ec..HEAD -- src/tcf` dá zero commits, enquanto entre o lado A e o lado B são 43.
+
+O terceiro fato tornou a pergunta testável de um lado só, sem checkout de árvore antiga. O lab
+`2026-09-21-0300-quatro-celulas` mediu as oito células, caso e referência **adjacentes**, três
+rodadas, com round-trip verde e o mesmo wire em todas:
+
+| ponto | amplitude entre rodadas, hoje | sinal A→B | hoje contra o lado A | hoje contra o lado B |
+|---|---:|---:|---:|---:|
+| `K0001` | 33,3% | 19,7% | **−1,3%** | −17,5% |
+| `K001` | 13,2% | 12,9% | **−6,2%** | −17,0% |
+| `R1e2` | 35,6% | 12,8% | **−11,0%** | −21,2% |
+| `L8` | 6,6% | 11,1% | **−6,3%** | −15,6% |
+
+**A amplitude entre rodadas da mesma árvore cobre o sinal em três das quatro**, e em `K0001` e
+`R1e2` é quase o triplo dele. E, em quatro de quatro, **a árvore do lado B medida hoje fica mais
+perto do lado A do que do lado B**: a razão que o lado B registrou não se reproduz na própria
+árvore dele.
+
+A explicação é a que este parágrafo já suspeitava: a referência 17 posições depois do caso deixa a
+deriva da rodada entrar inteira na razão. Medindo caso e referência lado a lado, a diferença some.
+O `+11%` a `+20%` era distância dentro da rodada, não entre as árvores.
+
+Isso **não** prova que não houve regressão: prova que estes dados não decidem, e uma regressão
+menor que a dispersão seguiria invisível. A resposta definitiva vem da baseline nova que o aceite
+já exige, agora com o comparador corrigido.
+
+**E fica um achado de instrumento, que vale mais que o caso**: as razões medidas com o par
+adjacente ficaram abaixo de todas as cinco rodadas históricas, nas quatro células. O runner ordena
+os casos **sem garantir que a referência de mesma cauda rode ao lado**, e enquanto isso não mudar,
+toda razão caso/referência carrega um pedaço de deriva. Direção para o instrumento, sem trabalho
+aberto.
 
 A tabela por família saiu do README do snapshot em 2026-09-14 (`32861ecf`); o detalhe fica em
 `outputs/razao-resumo.txt` do lab `1937`, e o fator 1,2951 se reproduz com `compare --dev` sobre
