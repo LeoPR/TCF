@@ -535,12 +535,34 @@ O lab **não mede a primeira chamada com `parallel` ligado**, que é para onde o
 não prova nada sobre `pickle` dos workers nem sobre a suíte. Ele não propõe a mudança: mexer em
 `src/tcf` é I5, e a decisão é do owner.
 
+**O envelope HTTP, medido** ([`05-framing-http`](../experiments/lab/dirty/2026-09/2026-09-20/2026-09-20-0100-regime-alvo/05-framing-http/result.md),
+registro local, 2026-09-20, execução 1 de 3). Servidor da biblioteca padrão e cliente de socket
+cru dos dois lados, contando o que trafega na camada de aplicação. 24 células, round-trip (I4)
+verde em todas, tamanho determinístico em todas.
+
+1. **O envelope é constante entre os dois formatos.** A diferença entre os dois cabeçalhos é
+   exatamente o media type mais os dígitos do `Content-Length`, com resíduo zero nas dezesseis
+   comparações. O framing **não muda o sinal** da economia medida no lab 02.
+2. **Mas ele dilui.** Uma resposta custa 147 a 174 B de cabeçalho no perfil mínimo e 315 a 342 B
+   no realista, mais 164 a 171 B de requisição. Contra a régua de registro, em vinte registros,
+   isso é **1,46 vez** a economia com `gzip`, **1,54** com `zstd` e **2,74** com `brotli`.
+   Contra a régua colunar, ou não há economia, ou o envelope vale **11,8 vezes** ela.
+3. **Contra a régua colunar a resposta inteira do TCF é maior**, com `gzip` e com `brotli`.
+4. **O repositório não declara media type**, só a extensão `.tcf` (ADR-0001, ADR-0029). O lab
+   escolheu `application/vnd.tcf` para poder medir, e declara que é escolha dele. São 3 B a mais
+   que `application/json`, e é a única parte do envelope onde a escolha do projeto muda a conta.
+
+Limite que desfavorece esta leitura, e por isso precisa vir junto: é **HTTP/1.1 sem HPACK**. Com
+cabeçalho comprimido o envelope encolhe e a economia do corpo pesa relativamente mais. O que foi
+medido é o caso mais favorável à tese de que o framing domina.
+
 **A conta do regime alvo, agora fechada nos três labs.** Num processo frio que atende uma
 requisição de vinte registros: 290 ms de partida, 26 ms de encode, menos de 2 ms de decode, e um
 ganho no fio de 25 a 235 bytes contra JSON comprimido, ou nada contra uma régua que não repete
-as chaves. **A fila de otimização deste ciclo mira o encode, que são 6% dessa conta.** Isso não
-fecha o formato contra o regime alvo, fecha contra este recorte: um processo por requisição, um
-payload por processo, e uma régua escolhida pelo concorrente.
+as chaves, e um envelope HTTP de 315 a 342 bytes carregando esse ganho. **A fila de otimização
+deste ciclo mira o encode, que são 6% dessa conta.** Isso não fecha o formato contra o regime
+alvo, fecha contra este recorte: um processo por requisição, um payload por processo, e uma
+régua escolhida pelo concorrente.
 
 **Consequência para o aceite.** Nenhum dos onze critérios exige medição no regime alvo, e nenhum
 nomeia piso de payload, custo fixo por chamada, latência ponta a ponta ou decode contra o
