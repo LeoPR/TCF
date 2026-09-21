@@ -3,7 +3,7 @@ title: T-STUDY-USE-PROFILES, perfis de uso (transmissão × armazenamento) e a c
 status: open
 priority: P3
 created: 2026-08-20
-updated: 2026-09-01
+updated: 2026-09-21
 gate: "estudo (alimenta decisao, sem ciclo proprio) (triagem 2026-09-01)"
 target: ".9 / pré-1.0 (estudo; nenhuma mudança no .8)"
 blocked-by: []
@@ -12,6 +12,7 @@ related:
   - docs/adr/0050-sort-by-vira-candidato-o-floor-decide.md
   - tickets/T-REL-08-CLOSEOUT.md
   - tickets/T-CODE-PARALLEL-BUDGET.md
+  - tickets/T-PERF-BORDAS-E-MODOS-09.md
   - experiments/lab/dirty/notas/diario/2026-08-20.md
   - experiments/lab/dirty/notas/2026-07/contrato-externalizado-e-aceleradores.md
 ---
@@ -106,10 +107,21 @@ descomprimindo. O owner acrescentou o inverso (2026-09-01), e ele tem veredito d
 | **B1. servidor encoda o MESMO payload para N clientes** (catálogo, feed, config) | o servidor, 1× | cada cliente, 1× | o encode **amortiza sobre N**, e melhora quanto maior o N. Cada cliente ainda economiza banda e parsing |
 | **B2. servidor encoda payload ÚNICO por requisição** (resposta personalizada) | o servidor, a cada requisição | um cliente, 1× | é **1:1**, e os 366 ms entram no caminho da requisição. Só paga se a rede for o gargalo, ou seja abaixo do break-even de 1,2 a 36 Mbps |
 | **C. disco e armazenamento** | 1× na escrita | N× nas leituras | topologicamente igual ao B1, mas o **concorrente muda**: Parquet e ORC são colunares **com índice**, e ganham em acesso aleatório e predicate pushdown. Não medido: é o P5 |
+| **D. colaborativo: muitos emissores, dicionário por assunto** (arranjo em que o dicionário persiste ENTRE sessões e pertence ao assunto, não à conexão) | cada emissor, 1×, como no A | quem consome, e o dicionário serve todas as transmissões daquele assunto | o ganho **cresce quando o payload encolhe**, que é a direção do regime alvo, e é o oposto do primo intra-blob. **Teto medido** em 2026-09-20: de −76,1% a −31,5% conforme o tamanho da transmissão, contra encodes independentes. **Mas o teto não é exclusivo do formato**: o concorrente de uso geral também treina dicionário, e medido com um de cada lado o TCF ganha em parte dos casos e perde em outra. O que decide é quanto vocabulário se repete entre transmissões. Números e ressalvas em [`T-PERF-BORDAS-E-MODOS-09`](T-PERF-BORDAS-E-MODOS-09.md) |
 
 **A distinção que decide não é "cliente ou servidor", é cacheável ou personalizado.** O B1 e o
 B2 estão do mesmo lado do fio e em lados opostos da conta, e agrupá-los como "o servidor
 enviando" esconde exatamente a variável que importa.
+
+**A linha D entrou em 2026-09-21**, por decisão do owner registrada em 2026-09-19, e ela é de
+outra natureza que as quatro primeiras: A, B1, B2 e C descrevem quem paga o quê num arranjo que
+já existe; D descreve um arranjo que **não existe**, e cujo bloqueio é de contrato, não de byte.
+Quem nomeia o container, como as duas pontas concordam no nome, o que acontece quando um lado o
+tem e o outro não, e invalidação e versão continuam todos em aberto. Um blob que depende de
+estado externo deixa de ser auto-contido, que é invariante da família `.8`. O registro completo,
+com as perguntas, é do owner e está em
+[`roadmap-hipoteses.md`](../experiments/lab/dirty/notas/2026-05/roadmap-hipoteses.md),
+Pacote 11-quater, onde ele nasceu como mecanismo do tier B1. **Registrar não é autorizar**: nenhum trabalho abre por causa desta linha.
 
 ### O que isto NÃO autoriza
 

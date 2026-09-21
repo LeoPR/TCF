@@ -299,6 +299,7 @@ que faz o decode reconhecer a nature sozinho. Critério de weld por candidato: *
 - Infra de streaming: output-sinks + encoder-manager Fases 2-4 + plan-contract + per-channel headers (pré-req de V2-J).
 - Perf residual: counter incremental HCC (H-PERF-05d, divergência byte-canonical em datetime); Patricia trie como índice OBAT.
 - Bundles de menor prioridade: ordenação avançada (O-FMT-01/03/04), **cross-column dict** + type-aware (O-FMT-06/07 = **[H-GDICT-01](experiments/lab/dirty/notas/2026-05/roadmap-hipoteses.md)**, "dicionário global no header", ideia do owner 2026-06-19; distinta do V2-RLE-STREAM) + header desacoplável (O-FMT-14).
+- **Dicionário de assunto, ENTRE blobs** (vértice colaborativo, ideia do owner 2026-08-31, magnitude corrigida por ele 2026-09-01; quinta linha da tabela de topologia em [T-STUDY-USE-PROFILES](tickets/T-STUDY-USE-PROFILES.md) desde 2026-09-21). Tier intermediário entre o `H-GDICT-01` acima, que é **dentro** de um blob, e o `H-CODEBOOK-01`, que é tabela externa pré-acordada e **não aprende**: este aprende do tráfego e serve um assunto. Teto medido 2026-09-20, de −76,1% a −31,5%, **crescendo quando o payload encolhe**; a ressalva medida no mesmo dia é que o concorrente de uso geral também treina dicionário, então o teto não é exclusivo do formato. **Bloqueio é contrato, não byte** (nome do container, concordância entre as pontas, invalidação, e o auto-contido da `.8`). Sem lab, sem trabalho aberto.
 - Suporte: fixtures de dados edge (T-DATA-3) pro schema gadget; shaper hardening (>100k).
 
 ---

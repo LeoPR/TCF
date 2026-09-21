@@ -538,6 +538,23 @@ header pro lazy) que nao e' so' bytes. Tudo #TCF.8 + GATE. Ordem: H-REF-03 -> H-
 > corpus, nao com sintetico.
 
 > Sem lab e sem medicao. Registrado para avaliar, nao para fazer.
+>
+> **ADENDO 2026-09-21 (nao e' do owner; e' registro do que foi medido depois).** O paragrafo
+> acima segue valendo como registro da ideia. Duas coisas mudaram de estado em 2026-09-20:
+>
+> 1. **O teto foi medido**, pela primeira vez: soma dos encodes independentes contra o encode
+>    do concatenado, que e' limite inferior de qualquer esquema com dicionario partilhado. Em
+>    duas fontes reais, de −76,1% a −31,5% conforme o tamanho da transmissao, e o ganho CRESCE
+>    quando o payload encolhe, o oposto do primo intra-blob. E' teto, nao ganho: um esquema real
+>    ainda paga moldura por blob.
+> 2. **O teto nao e' exclusivo do formato**, e isto responde em parte a ultima pergunta acima
+>    ("se o ganho paga"). O concorrente de uso geral tambem treina dicionario: medido com um de
+>    cada lado, o TCF ganha em parte dos casos e perde em outra. O que decide e' quanto
+>    vocabulario se repete entre transmissoes, nao o formato. Logo a pergunta do corpus, que o
+>    owner ja' tinha escrito, e' mesmo a decisiva.
+>
+> Numeros, gates e ressalvas em `T-PERF-BORDAS-E-MODOS-09`. Segue sem lab proprio e sem
+> trabalho aberto; o que mudou foi a categoria, de ideia para regime de uso declarado.
 
 ---
 

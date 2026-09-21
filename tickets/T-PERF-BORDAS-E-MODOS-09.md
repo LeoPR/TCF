@@ -373,8 +373,12 @@ medição, registrado para avaliar, não para fazer", e alvo 2.0.
 
 O que a fala de hoje muda: ele deixou de ser ideia para avaliar e passou a ser um dos regimes de
 uso declarados, ao lado da transmissão de API e do sincronismo pequeno. Regime de uso é critério de
-aceite. Ele não aparece neste ticket, nem no plano do `.9`, nem no ROADMAP, que só registra o primo
-intra-blob; o único lugar onde ele vive é a nota de hipóteses, que é dirty. O que o bloqueia
+aceite. ~~Ele não aparece neste ticket, nem no plano do `.9`, nem no ROADMAP, que só registra o primo
+intra-blob; o único lugar onde ele vive é a nota de hipóteses, que é dirty.~~ **Promovido em
+2026-09-21**: virou a quinta linha da tabela de topologia em `T-STUDY-USE-PROFILES`, ganhou
+casa no Tier 2 do `ROADMAP`, e a nota do owner recebeu um adendo com o teto medido e a ressalva
+do concorrente. A nota, aliás, **já era versionada**: ela mora sob `dirty/` por caminho, mas
+está em git. Registrar não abriu trabalho nenhum. O que o bloqueia
 continua sendo contrato, não byte: quem nomeia o container, como as duas pontas concordam no nome,
 o que acontece quando um lado o tem e o outro não, e invalidação e versão. Um blob que depende de
 estado externo deixa de ser auto-contido, que é invariante da família `.8`.
