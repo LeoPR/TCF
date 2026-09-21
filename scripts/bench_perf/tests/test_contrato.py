@@ -19,13 +19,16 @@ from pathlib import Path
 
 from bench_perf import plans as PL
 from bench_perf import compare as CMP
+from bench_perf.manifest import sha_conteudo
 from bench_perf.runner import avaliar_rodada
 
 AQUI = Path(__file__).resolve().parent
-CASES = json.loads((AQUI.parent / "cases.json").read_text(encoding="utf-8"))["casos"]
-# O pin e' o SHA-256 dos BYTES do cases.json, que e' o que o runner confere. Derivado do
-# arquivo, o teste acusa pin velho no plano em vez de pedir uma constante a mais.
-PIN = hashlib.sha256((AQUI.parent / "cases.json").read_bytes()).hexdigest()
+CASES_PATH = AQUI.parent / "cases.json"
+CASES = json.loads(CASES_PATH.read_text(encoding="utf-8"))["casos"]
+# O pin e' o SHA-256 do CONTEUDO CANONIZADO do cases.json (2026-09-20), que e' o que o runner
+# confere. Derivado do arquivo, o teste acusa pin velho no plano em vez de pedir uma constante
+# a mais.
+PIN = sha_conteudo(CASES_PATH)
 
 
 # ------------------------------------------------------------------ planos ---
@@ -283,6 +286,88 @@ def test_compare_sem_referencia_pareada_nao_vira_veredito():
         assert r["contagem"]["sem-referencia"] == 1
         assert r["contagem"]["PIOR"] == 0 and r["contagem"]["MELHOR"] == 0
     _com_tmp(corpo)
+
+
+def test_pin_por_conteudo_ignora_formatacao_e_pega_mudanca_real():
+    """O pin responde "mudou algum CASO?", nao "mudou um byte do arquivo?"."""
+    def corpo(d: Path):
+        doc = json.loads(CASES_PATH.read_text(encoding="utf-8"))
+        a = d / "a.json"
+        a.write_text(json.dumps(doc, ensure_ascii=False, indent=1), encoding="utf-8")
+        b = d / "b.json"   # mesma matriz, outra formatacao e outra ordem de chave
+        b.write_text(json.dumps(doc, ensure_ascii=False, indent=4, sort_keys=True),
+                     encoding="utf-8")
+        assert sha_conteudo(a) == sha_conteudo(b), "reindentar nao pode invalidar o plano"
+        assert hashlib.sha256(a.read_bytes()).hexdigest() != \
+            hashlib.sha256(b.read_bytes()).hexdigest(), "o teste precisa de bytes diferentes"
+        doc2 = json.loads(json.dumps(doc))
+        doc2["casos"][0]["vectors"]["escala"]["R"] += 1     # mudanca REAL de um caso
+        c = d / "c.json"
+        c.write_text(json.dumps(doc2, ensure_ascii=False, indent=1), encoding="utf-8")
+        assert sha_conteudo(c) != sha_conteudo(a), "mudar um caso TEM que quebrar o pin"
+    _com_tmp(corpo)
+
+
+def test_bytes_divergentes_invalida_como_rt_quebrado():
+    """Saida do instrumentado != limpo, ou cython != puro, e' correcao, nao desempenho."""
+    por_id = {"a": "ok", "b": "bytes-divergentes"}
+    av = avaliar_rodada(por_id, None, 2, False)
+    assert av["status"] == "parcial", "bytes-divergentes tem que derrubar 'completo'"
+    assert av["rt_q"] == 1, "tem que contar junto com rt-quebrado, que e' o retorno fail-closed"
+
+
+def test_compare_recua_para_dados_quando_a_cauda_nao_bate():
+    """A cauda carrega campos que so' existem na rota TCF (knobs, granularidade, accel), e
+    nenhuma referencia da stdlib os tem. Sem cauda identica, pareia por fonte/forma/escala/
+    compressao. O estrito vem primeiro: o recuo so' cobre quem ficaria sem veredito."""
+    caso = "tcf-flat|synth|flat-mixed|base|layer|serial+t1|min_len=3|none|cython"
+    ref = "json-ref-str|synth|flat-mixed|base|call|serial+t1|-|none|cython"
+
+    def corpo(d: Path):
+        a = _escreve(d, "a", [_rec(caso, 1000), _rec(ref, 100)], _run())
+        b = _escreve(d, "b", [_rec(caso, 1200), _rec(ref, 100)], _run())
+        r = CMP.comparar(a, b)
+        assert r["contagem"]["sem-referencia"] == 0, "o recuo tem que dar veredito"
+        assert r["contagem"]["PIOR"] == 1
+        assert r["pareamento_por_dados"] == 1
+        linha = next(ln for ln in r["linhas"] if ln["case_id"] == caso)
+        assert linha["pareamento"] == "dados" and linha["delta_pct"] == 20.0
+    _com_tmp(corpo)
+
+
+def test_compare_estrito_tem_precedencia_sobre_o_recuo():
+    """Havendo cauda identica, o veredito sai dela e nada muda em relacao ao que ja' existia."""
+    caso = "tcf-flat|synth|flat-mixed|base|call|serial+t1|-|none|cython"
+    estrita = "csv-ref|synth|flat-mixed|base|call|serial+t1|-|none|cython"
+    larga = "json-ref-str|synth|flat-mixed|base|layer|serial+t1|-|none|cython"
+
+    def corpo(d: Path):
+        # a referencia LARGA dobra de tempo; se ela entrasse na conta, o veredito mudaria
+        a = _escreve(d, "a", [_rec(caso, 1000), _rec(estrita, 100), _rec(larga, 100)], _run())
+        b = _escreve(d, "b", [_rec(caso, 1000), _rec(estrita, 100), _rec(larga, 200)], _run())
+        r = CMP.comparar(a, b)
+        linha = next(ln for ln in r["linhas"] if ln["case_id"] == caso)
+        assert linha["pareamento"] == "cauda"
+        assert r["pareamento_por_dados"] == 0
+        assert linha["verdict"] == "IGUAL" and linha["pares_referencia"] == 1
+    _com_tmp(corpo)
+
+
+def test_matriz_tem_celula_no_regime_alvo():
+    """O regime alvo declarado no ticket e' payload de API. A matriz parava em R=100."""
+    escalas = {c["vectors"]["escala"].get("R") for c in CASES}
+    assert min(escalas) <= 20, f"menor R da matriz: {min(escalas)}"
+    alvo = [c["case_id"] for c in CASES if c["vectors"]["escala"].get("R") == 20]
+    caminhos = {cid.split("|", 1)[0] for cid in alvo}
+    assert "tcf-flat" in caminhos and "tcf-8h" in caminhos, caminhos
+    assert any("-ref" in c for c in caminhos), "sem referencia, a celula nao vira veredito"
+    # e a referencia tem que parear pela cauda ESTRITA, nao pelo recuo
+    ids = {c["case_id"] for c in CASES}
+    for cid in alvo:
+        if "-ref" in cid.split("|", 1)[0]:
+            continue
+        cauda = cid.split("|", 1)[1]
+        assert any(f"{r}|{cauda}" in ids for r in CMP.REFERENCIAS), cid
 
 
 def test_compare_referencia_limiar_respeita_o_ruido_do_candidato():

@@ -604,10 +604,52 @@ da rodada, em vez do fator do calibrador. O `compare.py` a incorporou em 2026-09
 dessa razão. O comparador também imprime a `nota_adjudicacao` da rodada, o que encerra a
 higiene que estava registrada.
 
-Fica **uma decisão do instrumento**, para quando houver baseline nova: 31 das 106 células do
+~~Fica **uma decisão do instrumento**, para quando houver baseline nova: 31 das 106 células do
 `nucleo` não têm referência de mesma cauda e saem `sem-referencia`. Dar veredito a elas exige
 incluir referências na matriz, o que muda o `cases.json` e pede re-pin dos três planos. É o
-momento de trocar o pin para o hash do conteúdo canonizado, que hoje é dos bytes do arquivo.
+momento de trocar o pin para o hash do conteúdo canonizado, que hoje é dos bytes do arquivo.~~
+
+**Feito em 2026-09-20, fechado em 2026-09-21**, com o lote inteiro num commit, e com uma
+correção ao que estava escrito acima. O detalhe está no [README do `bench_perf`](../scripts/bench_perf/README.md).
+
+1. **Células reais.** `build_pivot` monta `adult-real` e `lineitem-real` do hub pelo
+   `dataset_reader`, primeiras R linhas, tudo string, e entraram quatro células: TCF e régua
+   sobre o mesmo dado real, em cada fonte, pareadas pela cauda estrita. Hub ausente vira
+   **pendente**, não erro, para o instrumento seguir rodando onde os dados não estão. Todo pivô
+   materializado grava `dado_sha256`: sem pin do dado, célula de amostra real não é
+   reprodutível. O `C` declarado na matriz virou **gate**: dataset com outra forma derruba a
+   célula em vez de medir calado em cima de outra coisa.
+
+   O sufixo `-real` não é enfeite, e achá-lo custou uma volta. `adult-20k` e `lineitem-20k` são,
+   desde sempre, presets **sintéticos** que aproximam a forma daqueles datasets (`_MC_PRESETS`,
+   bloco B4 de concorrência). Eu tinha ensinado o carregador a ler o hub com esses mesmos nomes,
+   o que dava dois significados a um nome só. Fonte real agora tem nome próprio.
+2. **Referências pareadas, e aqui o registro acima estava errado.** Ele dizia que dar veredito às
+   31 exigia incluir referências na matriz. Exigia, para duas delas. As outras 29 não precisavam
+   de célula nenhuma: elas ficavam órfãs porque o pareamento exigia **cauda idêntica**, e a cauda
+   carrega `knobs`, `granularidade` e `accel`, que só existem na rota TCF. Cumprir aquilo ao pé
+   da letra teria criado referências JSON com `min_len=3` e granularidade `layer`, que não
+   querem dizer nada. O comparador passou a **recuar** para fonte, forma, escala e compressão,
+   com a escala lida dos parâmetros (`R`, `C`, `L`, `K`) e não do rótulo, porque `C8` e
+   `C8-col0` a `C8-col7` são o mesmo pivô. O estrito tem precedência, então **nenhum veredito
+   existente muda**. As duas que faltavam de verdade, `free-text` em `R1e3` e `R1e5`, entraram.
+   Contando só as células de dado, que excluem as de envelope, o `nucleo` foi de **31 para
+   zero**. A `campanha` segue com 16 sem referência, e elas são as de concorrência do B4: o
+   dado delas é sintético com 15 ou 16 colunas, e a matriz não tem régua dessa forma. Fica
+   registrado em vez de resolvido com uma régua que mediria outra coisa. Cada linha do
+   comparador agora diz por qual pareamento saiu.
+3. **`bytes_identicos` virou gate.** Era gravado e ignorado, nos dois pontos onde existe: perfil
+   por camada (instrumentado contra limpo) e aceleração (cython contra puro, ADR-0020). Agora a
+   célula sai `bytes-divergentes`, que conta junto com `rt-quebrado`, derruba o `completo` e faz
+   o runner sair diferente de zero.
+4. **Pin por conteúdo canonizado.** Reindentar o `cases.json` deixa de invalidar os três planos;
+   mudar um caso continua invalidando. O `manifest` grava os dois hashes, e o de bytes fica para
+   rastrear rodadas anteriores à troca.
+
+E o quarto item da seção do regime alvo entrou junto: a matriz tinha `R=100` como menor escala, e
+agora tem `R2e1` (R=20) no eixo R com a referência de mesma cauda, mais a rota de registro
+(`.8R`) em `R2e1` e `R1e2`, que só existia em `R=10000`. A matriz foi de 132 para 142 células, os
+três planos foram re-pinados no mesmo commit, e os testes de contrato passaram de 26 para 31.
 
 Relidos com o comparador novo, os dois JSONL deste lab dão 5 células acima dos pisos de ruído das
 duas rodadas. Uma é a `flat-mixed` que passou a medir o `.8R`. As outras quatro são do `tcf-flat`

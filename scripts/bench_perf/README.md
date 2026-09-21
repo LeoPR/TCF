@@ -39,7 +39,8 @@ python -m bench_perf.runner --plan nucleo --out <run>.jsonl
 # COMPARAÇÃO: os dois lados na mesma máquina e na mesma sessão térmica
 python -m bench_perf.compare <baseline>.jsonl <candidato>.jsonl
 #   veredito pela razão caso ÷ referência dentro de cada rodada (a máquina cancela);
-#   caso sem referência de mesma cauda sai `sem-referencia`; rodada sem referência
+#   pareia primeiro pela cauda idêntica, depois recua para fonte/forma/escala/compressão
+#   (`pareamento` em cada linha, `pareamento_por_dados` no resumo); rodada sem referência
 #   usa o fator dos calibradores. Cada delta vira MELHOR/PIOR/IGUAL/RUIDO pelo maior
 #   entre os MDEs do caso e da referência e os pisos de ruído das duas rodadas.
 #   BLOQUEIA por: matriz/plano/intenção divergentes OU validade != completo.
@@ -77,7 +78,7 @@ validada no lab `2026-09-01-1937`.
 | `runner.py` | orquestra: manifest → calibradores → casos → resumo (`run.json`). `avaliar_rodada()` = decisão de status PURA (testável). |
 | `compare.py` | join por `case_id` + razão caso ÷ referência dentro da rodada (calibrador só sem referência) + veredito sinal-vs-ruído. `_adj()` lê validade/térmico robusto ao schema. |
 | `plans.py` + `plans/*.json` | cadências versionadas (predicado sobre `cases.json`, pinado por `cases_sha256`). Duas rodadas só comparam com mesmo plano+intenção. |
-| `cases.py` + `cases.json` | matriz-mestra congelada (132 células; regra R2, não editar por cadência). |
+| `cases.py` + `cases.json` | matriz-mestra congelada (142 células; regra R2, não editar por cadência). |
 | `calibrators.py` | C1/C2/C3 (aritmética/hash/alloc), normalização cross-máquina + sentinela de drift. |
 | `probes.py` | medição (samples_ns, tiers, MDE, CV). `synth.py` = gerador determinístico. |
 | `pivot.py` · `layers.py` · `compress.py` · `crosscompat.py` · `manifest.py` · `natures_9.py` | gates (G1/G2/…), atribuição por-camada, níveis de compressão, alertas cross-compat, freeze, naturezas. |
@@ -92,11 +93,48 @@ Compat: `_adj()` no comparador lê `run-v2` antigo (`status='termicamente-reprov
 
 ## O pin da matriz
 
-Cada plano carrega `pin_cases_sha256`, o SHA-256 dos **bytes** de `cases.json`, e o runner com
-`--plan` aborta com código 4 quando o arquivo não bate com o pin, com ou sem `--probative`.
-Qualquer mudança de bytes, inclusive formatação, pede re-pin dos três planos no mesmo commit. O
-teste de contrato confere o pin do `nucleo` contra o próprio arquivo,
-e roda na suíte principal por `tests/test_bench_perf_contrato.py`.
+Cada plano carrega `pin_cases_sha256`, o SHA-256 do **conteúdo canonizado** de `cases.json`
+(parse, `sort_keys`, separadores fixos), e o runner com `--plan` aborta com código 4 quando o
+arquivo não bate com o pin, com ou sem `--probative`. Mudar um **caso** pede re-pin dos três
+planos no mesmo commit; reindentar ou reordenar chave, não. O teste de contrato confere o pin do
+`nucleo` contra o próprio arquivo, e roda na suíte principal por
+`tests/test_bench_perf_contrato.py`.
 
-Hashear o conteúdo canonizado da matriz (parse, `sort_keys`, separadores fixos) é a evolução
-prevista, e entra junto com uma baseline nova, para não invalidar a comparação com as existentes.
+O pin era dos **bytes** até 2026-09-20, e o `manifest` grava os dois: `cases_sha256` é o do
+conteúdo, e `cases_sha256_bytes` fica para rastrear as rodadas anteriores à troca. Rodada velha
+não compara com nova pelo `--plan`, porque a matriz mudou de verdade: ela ganhou as células do
+regime alvo.
+
+## O que mudou em 2026-09-20, e por quê
+
+Quatro mudanças num commit, todas do lote de decisões do owner registrado no
+[`T-PERF-BORDAS-E-MODOS-09`](../../tickets/T-PERF-BORDAS-E-MODOS-09.md):
+
+1. **Células reais.** `build_pivot` passou a montar `adult-real` e `lineitem-real` do hub, pelo
+   `dataset_reader`, com as primeiras R linhas e tudo em string, e a matriz ganhou quatro
+   células: TCF e régua sobre o mesmo dado real, em cada fonte. Hub ausente vira **pendente**,
+   não erro: o instrumento continua rodando em máquina sem os dados. Todo pivô materializado
+   grava `dado_sha256`, o pin do dado por conteúdo, porque uma célula de amostra real não é
+   reproduzível se o hub puder mudar embaixo dela. O `C` declarado é conferido contra o dataset.
+
+   **Cuidado com o nome:** `adult-20k` e `lineitem-20k` são presets **sintéticos** que aproximam
+   a forma daqueles datasets (`_MC_PRESETS`, bloco B4). Amostra real usa o sufixo `-real`, e os
+   dois conjuntos não se misturam.
+2. **Referências pareadas.** A cauda estrita deixava 31 das 106 células do `nucleo` sem
+   veredito, todas `tcf-flat`. A cauda carrega `knobs`, `granularidade` e `accel`, que só
+   existem na rota TCF, então exigi-la pediria referências JSON com `min_len=3` e granularidade
+   `layer`, que não querem dizer nada. O comparador passou a **recuar** para fonte, forma,
+   escala e compressão quando não há cauda idêntica, com a escala lida dos parâmetros
+   (`R`, `C`, `L`, `K`) e não do rótulo do ponto, porque `C8` e `C8-col0` a `C8-col7` são o
+   mesmo pivô. O estrito tem precedência, então nenhum veredito existente muda. Faltavam ainda
+   duas referências de verdade, `free-text` em `R1e3` e `R1e5`, e elas entraram na matriz.
+   O `nucleo` foi de 31 células sem referência para **zero**.
+3. **`bytes_identicos` como gate.** Ele era gravado e ignorado. Agora a célula sai
+   `bytes-divergentes`, que conta junto com `rt-quebrado`: derruba o `completo` e faz o runner
+   sair com código diferente de zero. Vale nos dois pontos onde existe: perfil por camada
+   (instrumentado contra limpo) e aceleração (cython contra puro, ADR-0020).
+4. **Pin por conteúdo**, descrito acima.
+
+As células do regime alvo entraram junto, porque a menor escala da matriz era `R=100` e o
+regime declarado no ticket é payload de API: `R2e1` (R=20) no eixo R com a referência de mesma
+cauda, e a rota de registro (`.8R`) em `R2e1` e `R1e2`, que antes só existia em `R=10000`.

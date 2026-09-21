@@ -2,15 +2,15 @@
  "schema": "perf-baseline-09/cases-v1",
  "seed": 20260721,
  "orcamento_celulas": 4000000,
- "n_casos": 132,
+ "n_casos": 142,
  "n_dedup": 2,
  "por_bloco": {
   "B0": 8,
-  "B1": 9,
-  "B2": 38,
+  "B1": 15,
+  "B2": 40,
   "B3": 18,
   "B4": 16,
-  "B5": 14,
+  "B5": 16,
   "B6": 18,
   "B7": 6,
   "B8": 7
@@ -473,6 +473,160 @@
     "accel": "cython"
    },
    "nota": "",
+   "blocos": [
+    "B1"
+   ]
+  },
+  {
+   "case_id": "json-ref-str|synth|free-text|R1e3|call|serial+t1|-|none|cython",
+   "fonte": "synth",
+   "vectors": {
+    "caminho": "json-ref-str",
+    "forma": "free-text",
+    "escala": {
+     "point_id": "R1e3",
+     "R": 1000,
+     "C": 4,
+     "L": 32,
+     "K": 0.1
+    },
+    "granularidade": "call",
+    "concorrencia": {
+     "internal": "serial",
+     "test": "t1"
+    },
+    "knobs": {},
+    "compressao": "none",
+    "accel": "cython"
+   },
+   "nota": "referencia de free-text em R1e3; a matriz so' tinha free-text em base",
+   "blocos": [
+    "B1"
+   ]
+  },
+  {
+   "case_id": "json-ref-str|synth|free-text|R1e5|call|serial+t1|-|none|cython",
+   "fonte": "synth",
+   "vectors": {
+    "caminho": "json-ref-str",
+    "forma": "free-text",
+    "escala": {
+     "point_id": "R1e5",
+     "R": 100000,
+     "C": 4,
+     "L": 32,
+     "K": 0.1
+    },
+    "granularidade": "call",
+    "concorrencia": {
+     "internal": "serial",
+     "test": "t1"
+    },
+    "knobs": {},
+    "compressao": "none",
+    "accel": "cython"
+   },
+   "nota": "referencia de free-text em R1e5; a matriz so' tinha free-text em base",
+   "blocos": [
+    "B1"
+   ]
+  },
+  {
+   "case_id": "tcf-flat|adult-real|flat-mixed|real2e4|call|serial+t1|-|none|cython",
+   "fonte": "adult-real",
+   "vectors": {
+    "caminho": "tcf-flat",
+    "forma": "flat-mixed",
+    "escala": {
+     "point_id": "real2e4",
+     "R": 20000,
+     "C": 15
+    },
+    "granularidade": "call",
+    "concorrencia": {
+     "internal": "serial",
+     "test": "t1"
+    },
+    "knobs": {},
+    "compressao": "none",
+    "accel": "cython"
+   },
+   "nota": "amostra real do hub; a escala declara R e o C do dataset, e o carregador confere. L e K nao se aplicam: dado real nao se fabrica",
+   "blocos": [
+    "B1"
+   ]
+  },
+  {
+   "case_id": "json-ref-str|adult-real|flat-mixed|real2e4|call|serial+t1|-|none|cython",
+   "fonte": "adult-real",
+   "vectors": {
+    "caminho": "json-ref-str",
+    "forma": "flat-mixed",
+    "escala": {
+     "point_id": "real2e4",
+     "R": 20000,
+     "C": 15
+    },
+    "granularidade": "call",
+    "concorrencia": {
+     "internal": "serial",
+     "test": "t1"
+    },
+    "knobs": {},
+    "compressao": "none",
+    "accel": "cython"
+   },
+   "nota": "amostra real do hub; a escala declara R e o C do dataset, e o carregador confere. L e K nao se aplicam: dado real nao se fabrica",
+   "blocos": [
+    "B1"
+   ]
+  },
+  {
+   "case_id": "tcf-flat|lineitem-real|flat-mixed|real2e4|call|serial+t1|-|none|cython",
+   "fonte": "lineitem-real",
+   "vectors": {
+    "caminho": "tcf-flat",
+    "forma": "flat-mixed",
+    "escala": {
+     "point_id": "real2e4",
+     "R": 20000,
+     "C": 16
+    },
+    "granularidade": "call",
+    "concorrencia": {
+     "internal": "serial",
+     "test": "t1"
+    },
+    "knobs": {},
+    "compressao": "none",
+    "accel": "cython"
+   },
+   "nota": "amostra real do hub; a escala declara R e o C do dataset, e o carregador confere. L e K nao se aplicam: dado real nao se fabrica",
+   "blocos": [
+    "B1"
+   ]
+  },
+  {
+   "case_id": "json-ref-str|lineitem-real|flat-mixed|real2e4|call|serial+t1|-|none|cython",
+   "fonte": "lineitem-real",
+   "vectors": {
+    "caminho": "json-ref-str",
+    "forma": "flat-mixed",
+    "escala": {
+     "point_id": "real2e4",
+     "R": 20000,
+     "C": 16
+    },
+    "granularidade": "call",
+    "concorrencia": {
+     "internal": "serial",
+     "test": "t1"
+    },
+    "knobs": {},
+    "compressao": "none",
+    "accel": "cython"
+   },
+   "nota": "amostra real do hub; a escala declara R e o C do dataset, e o carregador confere. L e K nao se aplicam: dado real nao se fabrica",
    "blocos": [
     "B1"
    ]
@@ -1445,6 +1599,60 @@
     "accel": "cython"
    },
    "nota": "",
+   "blocos": [
+    "B2"
+   ]
+  },
+  {
+   "case_id": "tcf-flat|synth|flat-mixed|R2e1|call|serial+t1|-|none|cython",
+   "fonte": "synth",
+   "vectors": {
+    "caminho": "tcf-flat",
+    "forma": "flat-mixed",
+    "escala": {
+     "point_id": "R2e1",
+     "R": 20,
+     "C": 4,
+     "L": 32,
+     "K": 0.1
+    },
+    "granularidade": "call",
+    "concorrencia": {
+     "internal": "serial",
+     "test": "t1"
+    },
+    "knobs": {},
+    "compressao": "none",
+    "accel": "cython"
+   },
+   "nota": "regime alvo: payload de API, dezenas de registros (o eixo R parava em 100)",
+   "blocos": [
+    "B2"
+   ]
+  },
+  {
+   "case_id": "json-ref-str|synth|flat-mixed|R2e1|call|serial+t1|-|none|cython",
+   "fonte": "synth",
+   "vectors": {
+    "caminho": "json-ref-str",
+    "forma": "flat-mixed",
+    "escala": {
+     "point_id": "R2e1",
+     "R": 20,
+     "C": 4,
+     "L": 32,
+     "K": 0.1
+    },
+    "granularidade": "call",
+    "concorrencia": {
+     "internal": "serial",
+     "test": "t1"
+    },
+    "knobs": {},
+    "compressao": "none",
+    "accel": "cython"
+   },
+   "nota": "referencia de mesma cauda do R2e1",
    "blocos": [
     "B2"
    ]
@@ -2749,6 +2957,60 @@
     "accel": "cython"
    },
    "nota": "isola o custo de TIPAR (e' do dado, nao do TCF)",
+   "blocos": [
+    "B5"
+   ]
+  },
+  {
+   "case_id": "tcf-8h|synth|flat-mixed|R2e1|call|serial+t1|-|none|cython",
+   "fonte": "synth",
+   "vectors": {
+    "caminho": "tcf-8h",
+    "forma": "flat-mixed",
+    "escala": {
+     "point_id": "R2e1",
+     "R": 20,
+     "C": 4,
+     "L": 32,
+     "K": 0.1
+    },
+    "granularidade": "call",
+    "concorrencia": {
+     "internal": "serial",
+     "test": "t1"
+    },
+    "knobs": {},
+    "compressao": "none",
+    "accel": "cython"
+   },
+   "nota": "rota de registro no regime alvo; a cauda pareia com json-ref-str|...|R2e1",
+   "blocos": [
+    "B5"
+   ]
+  },
+  {
+   "case_id": "tcf-8h|synth|flat-mixed|R1e2|call|serial+t1|-|none|cython",
+   "fonte": "synth",
+   "vectors": {
+    "caminho": "tcf-8h",
+    "forma": "flat-mixed",
+    "escala": {
+     "point_id": "R1e2",
+     "R": 100,
+     "C": 4,
+     "L": 32,
+     "K": 0.1
+    },
+    "granularidade": "call",
+    "concorrencia": {
+     "internal": "serial",
+     "test": "t1"
+    },
+    "knobs": {},
+    "compressao": "none",
+    "accel": "cython"
+   },
+   "nota": "rota de registro em R=100, o degrau entre o regime alvo e o R1e3",
    "blocos": [
     "B5"
    ]

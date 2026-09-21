@@ -32,6 +32,18 @@ def _sha256(p: Path) -> str:
     return hashlib.sha256(p.read_bytes()).hexdigest()
 
 
+def sha_conteudo(p: Path) -> str:
+    """Pin da matriz pelo CONTEUDO CANONIZADO, nao pelos bytes do arquivo.
+
+    O pin existe para dizer "o plano e' PRA ESTA matriz". Com hash de bytes, reindentar o
+    cases.json ou reordenar uma chave invalidava os tres planos sem que um unico caso tivesse
+    mudado. Canonizando (sort_keys + separadores compactos) o pin passa a responder a' pergunta
+    certa: mudou algum CASO? Formatacao deixa de mentir, e mudanca real continua quebrando."""
+    doc = json.loads(p.read_text(encoding="utf-8"))
+    canon = json.dumps(doc, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+    return hashlib.sha256(canon.encode("utf-8")).hexdigest()
+
+
 def _git(*args: str) -> str:
     try:
         return subprocess.run(["git", "-C", str(REPO), *args],
@@ -69,7 +81,9 @@ def gerar() -> dict:
         "schema": "perf-baseline-09/manifest-v1",
         "gerado_por": "bench_perf.manifest",
         "seed": cj.get("seed"),
-        "cases_sha256": _sha256(cases) if cases.exists() else None,
+        "cases_sha256": sha_conteudo(cases) if cases.exists() else None,
+        # o hash de bytes fica gravado para rastrear rodadas anteriores a' troca do pin
+        "cases_sha256_bytes": _sha256(cases) if cases.exists() else None,
         "n_casos": cj.get("n_casos"),
         "tcf_version": getattr(tcf, "__version__", "?"),
         "git": {

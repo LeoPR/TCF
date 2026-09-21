@@ -72,23 +72,65 @@ def _caminho(cid: str) -> str:
     return cid.split("|", 1)[0]
 
 
-def _deltas_por_referencia(cid: str, ra: dict, rb: dict, validos: set) -> list:
-    """(delta da razao caso / referencia, MDE da referencia), um por referencia de mesma cauda.
+#: campos do case_id, depois do caminho: os quatro primeiros e o setimo definem O DADO;
+#: granularidade, concorrencia, knobs e accel definem o INSTRUMENTO e a rota TCF.
+_I_FONTE, _I_FORMA, _I_ESCALA, _I_COMPRESSAO = 0, 1, 2, 6
 
-    Dentro de cada rodada a razao cancela a maquina por construcao: se o lado B inflou
-    tudo, caso e referencia inflam juntos e a razao nao se move. Pareamento do lab
-    2026-09-01-1937: `<referencia>|<cauda do case_id>`."""
-    cauda = cid.split("|", 1)[1] if "|" in cid else ""
+
+def _chave_de_dado(cid: str, rec: dict | None = None) -> tuple:
+    """A parte do caso que descreve o DADO medido, nao o instrumento.
+
+    Uma referencia da stdlib nao tem `min_len=3`, nem granularidade `layer`, nem `accel`
+    cython: exigir cauda identica pedia celulas de referencia que nao querem dizer nada.
+    Para cancelar a maquina, a referencia so' precisa ser a MESMA CARGA medida na mesma
+    rodada; a instrumentacao do caso e' igual dos dois lados e sai na razao de razoes.
+
+    Com o registro em maos, a escala vem dos PARAMETROS (R, C, L, K) e nao do rotulo do
+    ponto: `C8` e `C8-col0` a `C8-col7` sao o MESMO pivo de R=2000 C=8, e o rotulo so' diz
+    qual coluna a celula cronometra. Sem registro (ou sem `vectors`), cai no case_id."""
+    if rec:
+        vet = rec.get("vectors") or {}
+        esc = vet.get("escala") or {}
+        if vet.get("forma") and esc:
+            return ("p", rec.get("fonte"), vet.get("forma"), vet.get("compressao"),
+                    esc.get("R"), esc.get("C"), esc.get("L"), esc.get("K"))
+    p = cid.split("|")[1:]
+    if len(p) <= _I_COMPRESSAO:
+        return tuple(p)
+    return ("id", p[_I_FONTE], p[_I_FORMA], p[_I_ESCALA], p[_I_COMPRESSAO])
+
+
+def _pares(cid: str, rids: list, ra: dict, rb: dict) -> list:
     fora = []
-    for ref in REFERENCIAS:
-        rid = f"{ref}|{cauda}"
-        if rid not in validos:
-            continue
+    for rid in rids:
         ta, tb = ra[cid]["encode"]["point_ns"], rb[cid]["encode"]["point_ns"]
         fa, fb = ra[rid]["encode"]["point_ns"], rb[rid]["encode"]["point_ns"]
         if ta and tb and fa and fb:
             fora.append(((tb / fb) / (ta / fa) - 1.0, ra[rid]["encode"].get("mde_pct", 10.0)))
     return fora
+
+
+def _deltas_por_referencia(cid: str, ra: dict, rb: dict, validos: set) -> tuple[list, str]:
+    """(pares, modo). Cada par e' (delta da razao caso / referencia, MDE da referencia).
+
+    Dentro de cada rodada a razao cancela a maquina por construcao: se o lado B inflou
+    tudo, caso e referencia inflam juntos e a razao nao se move. Pareamento do lab
+    2026-09-01-1937: `<referencia>|<cauda do case_id>`, que e' o modo `cauda`.
+
+    RECUO por `dados` (2026-09-20): quando nao ha' cauda identica, pareia por fonte, forma,
+    escala e compressao. A cauda estrita deixava 31 das 106 celulas do `nucleo` sem veredito,
+    todas `tcf-flat`, porque a cauda carrega campos que so' existem na rota TCF. O estrito
+    vem primeiro e continua mandando, entao nenhum veredito ja' existente muda; o recuo so'
+    cobre quem nao tinha nenhum. O modo usado sai em cada linha."""
+    cauda = cid.split("|", 1)[1] if "|" in cid else ""
+    estritos = [f"{ref}|{cauda}" for ref in REFERENCIAS if f"{ref}|{cauda}" in validos]
+    fora = _pares(cid, estritos, ra, rb)
+    if fora:
+        return fora, "cauda"
+    alvo = _chave_de_dado(cid, ra.get(cid))
+    largos = sorted(v for v in validos
+                    if _caminho(v) in REFERENCIAS and _chave_de_dado(v, ra.get(v)) == alvo)
+    return _pares(cid, largos, ra, rb), "dados"
 
 
 def _limiar(rec_a: dict, res_a: dict) -> float:
@@ -163,6 +205,7 @@ def comparar(base: Path, cand: Path) -> dict:
     # fator do calibrador, que mantem comparaveis as matrizes sem referencia.
     modo = "referencia" if any(_caminho(c) in REFERENCIAS for c in validos) else "calibrador"
     deriva = []                                           # delta cru das referencias
+    por_dados = 0                                         # vereditos que sairam do recuo
     for cid in comuns:
         a, b = ra[cid], rb[cid]
         ea, eb = a.get("encode"), b.get("encode")
@@ -177,18 +220,20 @@ def comparar(base: Path, cand: Path) -> dict:
             continue
         ta, tb = ea["point_ns"], eb["point_ns"]
         delta_cal = (tb / fator - ta) / ta if ta else 0.0  # >0 = candidato mais lento
-        pares = []
+        pares, modo_par = [], None
         if modo == "referencia":
             if _caminho(cid) in REFERENCIAS:              # o controle nao recebe veredito
                 contagem["controle"] += 1
                 deriva.append((tb - ta) / ta if ta else 0.0)
                 continue
-            pares = _deltas_por_referencia(cid, ra, rb, validos)
+            pares, modo_par = _deltas_por_referencia(cid, ra, rb, validos)
             if not pares:                                 # sem par de mesma cauda: indecidivel
                 contagem["sem-referencia"] += 1
                 linhas.append({"case_id": cid, "verdict": "sem-referencia",
                                "delta_calibrador_pct": round(delta_cal * 100, 2)})
                 continue
+            if modo_par == "dados":
+                por_dados += 1
             delta = statistics.median([d for d, _ in pares])
             # a razao depende do caso, da referencia e das duas rodadas: o limiar e' o maior
             # entre os MDEs envolvidos e os pisos de ruido dos DOIS lados
@@ -203,12 +248,13 @@ def comparar(base: Path, cand: Path) -> dict:
         contagem[verdict] += 1
         linhas.append({"case_id": cid, "delta_pct": round(delta * 100, 2),
                        "delta_calibrador_pct": round(delta_cal * 100, 2),
-                       "pares_referencia": len(pares),
+                       "pares_referencia": len(pares), "pareamento": modo_par,
                        "limiar_pct": round(lim * 100, 2), "verdict": verdict,
                        "base_ns": ta, "cand_ns_norm": round(tb / fator)})
     return {
         "fator_calibrador": round(fator, 4),
         "normalizacao": modo,
+        "pareamento_por_dados": por_dados,   # vereditos que so' existem pelo recuo
         "deriva_referencias_pct": (round(statistics.median(deriva) * 100, 2)
                                    if deriva else None),
         "matriz_igual": matriz_igual,

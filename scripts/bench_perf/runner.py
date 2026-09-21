@@ -20,6 +20,7 @@ JAMAIS numero fingido.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import sys
 import time
@@ -52,15 +53,69 @@ def _escala(case: dict, smoke: bool) -> dict:
     return e
 
 
+#: fontes de AMOSTRA REAL: (dataset do hub, tabela). O recorte e' as primeiras R linhas na
+#: ordem do rowid, que e' deterministica; toda coluna vira string, porque o pivo e' de strings.
+#:
+#: O sufixo `-real` NAO e' enfeite: `adult-20k` e `lineitem-20k` sao presets SINTETICOS que
+#: aproximam a forma daqueles datasets (`_MC_PRESETS`, bloco B4). Reusar aqueles nomes daria
+#: dois significados a um nome so', sintetico no B4 e real aqui.
+FONTES_REAIS = {
+    "adult-real": ("adult-census", "adult"),
+    "lineitem-real": ("tpch-sf001", "lineitem"),
+}
+
+
+def _sha_pivot(piv: "V.Pivot") -> str:
+    """Pin do DADO materializado, por conteudo canonizado.
+
+    Sem isto, uma celula de amostra real nao e' reproduzivel: o hub pode mudar embaixo do
+    instrumento e duas rodadas mediriam coisas diferentes com o mesmo case_id. O sha vai no
+    registro, e o comparador (ou uma leitura humana) consegue dizer se o dado era o mesmo."""
+    canon = json.dumps({k: list(v) for k, v in piv.items()},
+                       ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+    return hashlib.sha256(canon.encode("utf-8")).hexdigest()
+
+
+def _pivot_real(fonte: str, R: int, C: int | None = None) -> "V.Pivot":
+    """Le as primeiras R linhas do hub. Falta de hub e' PENDENTE, nao erro: o instrumento
+    tem que rodar em maquina sem os dados, so' que sem estas celulas.
+
+    Da escala, amostra real honra o R e CONFERE o C: L e K descrevem como o gerador
+    sintetico fabrica o dado, e dado real nao se fabrica. C declarado que nao bate com o
+    dataset e' pendente, nao medicao silenciosa em cima de outra forma. A forma medida sai
+    em workload (n_cols, mean_value_len) e o pin dela em dado_sha256."""
+    try:
+        import dataset_reader as DR   # `scripts` ja' esta' no sys.path (topo do modulo)
+    except Exception as exc:
+        raise _Pendente(f"dataset_reader indisponivel: {exc}") from exc
+    nome, tabela = FONTES_REAIS[fonte]
+    try:
+        with DR.open_dataset(nome) as d:
+            cols = d.columns(tabela, limit=R)
+    except Exception as exc:
+        raise _Pendente(f"hub indisponivel para '{fonte}': {type(exc).__name__}") from exc
+    piv = {c: ["" if v is None else str(v) for v in vals] for c, vals in cols.items()}
+    alturas = {len(v) for v in piv.values()}
+    if len(alturas) != 1:
+        raise _Pendente(f"'{fonte}' nao veio retangular: alturas {sorted(alturas)}")
+    if C is not None and len(piv) != C:
+        raise _Pendente(f"'{fonte}' tem {len(piv)} colunas, e a matriz declara C={C}")
+    return piv
+
+
 def build_pivot(case: dict, smoke: bool) -> V.Pivot:
-    """Constroi o pivo do caso. synth e' o unico caminho hoje; real/pins ficam
-    pendentes (declarado, nao fingido)."""
+    """Constroi o pivo do caso: `synth` gerado, ou AMOSTRA REAL do hub. Os pins de
+    regressao e as sentinelas seguem pendentes (declarado, nao fingido)."""
     fonte = case["fonte"]
     e = _escala(case, smoke)
     forma = case["vectors"]["forma"]
     if fonte == "synth":
         return SY.synth_pivot(e.get("R", 100), e.get("C", 4), e.get("L", 32),
                               e.get("K", 0.1), forma, seed=SEED)
+    if fonte in FONTES_REAIS:
+        if forma != "flat-mixed":
+            raise _Pendente(f"amostra real so' na forma flat-mixed, nao '{forma}'")
+        return _pivot_real(fonte, e.get("R", 100), e.get("C"))
     raise _Pendente(f"fonte '{fonte}' ainda nao suportada pelo runner")
 
 
@@ -219,6 +274,7 @@ def _run_concorrencia(case: dict, rec: dict, vet: dict, smoke: bool) -> dict:
     rec["rt_ok"] = True
     rec["bytes"] = len(blob.encode("utf-8"))
     rec["workload"] = SY.descrever(piv)
+    rec["dado_sha256"] = _sha_pivot(piv)
     rec["concorrencia"] = {"internal_workers": workers, "test_procs": kproc, "n_cols": C}
 
     if vet["granularidade"] == "process-tree":
@@ -286,6 +342,7 @@ def _run_candidate(case: dict, rec: dict, smoke: bool) -> dict:
     rec["rt_ok"] = (decode(bt) == piv and decode(bf) == piv)
     rec["bytes"], rec["bytes_no_candidates"] = len(bt.encode()), len(bf.encode())
     rec["workload"] = SY.descrever(piv)
+    rec["dado_sha256"] = _sha_pivot(piv)
     if not rec["rt_ok"]:
         rec["status"] = "rt-quebrado"
         rec["motivo"] = "RT falhou (fallback T/F)"
@@ -370,6 +427,12 @@ def _run_accel(case: dict, rec: dict, smoke: bool) -> dict:
     rec["speedup_cython"] = round(pure_min / cm, 3) if cm else None
     if not rec["cython_ativo"]:
         rec["motivo"] = "cython nao carregado — speedup ~1 (ambos puros)"
+    if rec["accel_bytes_identicos"] is False:
+        # o ADR-0020 exige saida IDENTICA entre cython e puro. Divergiu: a celula nao e'
+        # medicao de desempenho, e' um bug de equivalencia. Antes isto so' ficava gravado.
+        rec["status"] = "bytes-divergentes"
+        rec["motivo"] = f"cython != puro: {pure_bytes} B contra {rec['bytes']} B"
+        return rec
     rec["status"] = "ok"
     return rec
 
@@ -494,9 +557,16 @@ def run_case(case: dict, order_index: int, smoke: bool) -> dict:
             rec["rt_ok"] = decode(blob) == pivot
             rec["bytes"] = len(blob.encode("utf-8"))
             rec["workload"] = SY.descrever(pivot)
+            rec["dado_sha256"] = _sha_pivot(pivot)
             rec["layers"] = {k: v for k, v in camadas.items() if not k.startswith("_")}
             rec["layers_total_ns"] = camadas.get("_total_camadas_ns")
             rec["encode"] = P.medir(lambda: encode(pivot))     # o tempo agregado do tier
+            if camadas.get("bytes_identicos") is False:
+                # perfil que muda o resultado nao e' perfil, e' outro programa (layers.py).
+                # Antes isto so' ficava gravado em rec['layers'] e a celula saia 'ok'.
+                rec["status"] = "bytes-divergentes"
+                rec["motivo"] = "o encode instrumentado nao bate com o limpo"
+                return rec
             rec["status"] = "ok" if rec["rt_ok"] else "rt-quebrado"
             return rec
         except Exception as e:
@@ -521,6 +591,7 @@ def run_case(case: dict, order_index: int, smoke: bool) -> dict:
         rec["rt_ok"] = rt_ok
         rec["bytes"] = len(wire.encode("utf-8")) if isinstance(wire, str) else len(wire)
         rec["workload"] = SY.descrever(pivot)
+        rec["dado_sha256"] = _sha_pivot(pivot)   # e' aqui que vivem as celulas de amostra real
         if not rt_ok:                                          # nenhum numero orfao
             rec["status"] = "rt-quebrado"
             rec["motivo"] = "desserial(serial(x)) != x"
@@ -594,7 +665,8 @@ def avaliar_rodada(por_id: dict[str, str], opcionais: "set[str] | None",
     if opcionais is not None:
         obrig_falhou = sum(1 for cid, st in por_id.items()
                            if cid not in opcionais and st not in ("ok", "envelope"))
-    rt_q = contagem.get("rt-quebrado", 0)
+    # bytes-divergentes e' correcao, igual a rt-quebrado: invalida a rodada, nao so' a celula
+    rt_q = contagem.get("rt-quebrado", 0) + contagem.get("bytes-divergentes", 0)
     err = contagem.get("erro", 0)
     tudo_registrado = n_registro >= n_casos_total
     sao = tudo_registrado and rt_q == 0 and err == 0 and obrig_falhou == 0
