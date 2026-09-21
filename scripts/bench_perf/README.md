@@ -105,6 +105,25 @@ conteúdo, e `cases_sha256_bytes` fica para rastrear as rodadas anteriores à tr
 não compara com nova pelo `--plan`, porque a matriz mudou de verdade: ela ganhou as células do
 regime alvo.
 
+## A ordem da rodada (2026-09-21)
+
+O runner ordena os casos com `ordenar_vizinho`, que **põe cada caso ao lado da referência que
+vai pareá-lo**, agrupando pela mesma chave que o comparador usa (fonte, forma, escala por
+parâmetros, compressão), com as referências na frente de cada grupo.
+
+O motivo é medido. A razão `caso ÷ referência` só cancela a máquina se os dois forem medidos
+perto no tempo. Na ordem do arquivo a referência pareada ficava a **17 posições de mediana**,
+109 no pior caso, e 57 das 72 células de dado do `nucleo` ficavam a mais de 5. Com a ordem
+nova a mediana é **1**, o pior caso é 13, e sobram 12 acima de 5. O lab
+`2026-09-21-0300-quatro-celulas` mostrou o tamanho do efeito: medindo o par adjacente, as
+razões de quatro células ficaram abaixo de **todas** as cinco rodadas históricas.
+
+A ordenação é determinística, não mede nada a mais e não tira nem duplica caso. O `run.json`
+grava `ordem: por-chave-de-dado-v1`; **rodada sem esse campo é da ordem antiga**, e tem outra
+estrutura de deriva. Comparar uma de cada lado é comparar uma razão limpa com uma suja, então
+a baseline nova mede os dois lados com a ordem nova, que é o que a condição do owner (mesma
+máquina, mesma sessão térmica) já exigia.
+
 ## O que mudou em 2026-09-20, e por quê
 
 Quatro mudanças num commit, todas do lote de decisões do owner registrado no

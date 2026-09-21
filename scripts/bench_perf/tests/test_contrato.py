@@ -20,7 +20,7 @@ from pathlib import Path
 from bench_perf import plans as PL
 from bench_perf import compare as CMP
 from bench_perf.manifest import sha_conteudo
-from bench_perf.runner import avaliar_rodada
+from bench_perf.runner import avaliar_rodada, ordenar_vizinho
 
 AQUI = Path(__file__).resolve().parent
 CASES_PATH = AQUI.parent / "cases.json"
@@ -351,6 +351,60 @@ def test_compare_estrito_tem_precedencia_sobre_o_recuo():
         assert r["pareamento_por_dados"] == 0
         assert linha["verdict"] == "IGUAL" and linha["pares_referencia"] == 1
     _com_tmp(corpo)
+
+
+def _distancias_ate_a_referencia(ordem):
+    """Para cada celula de DADO, quantas posicoes ate' a referencia que vai parea-la."""
+    pos = {c["case_id"]: i for i, c in enumerate(ordem)}
+    envelope = {"sentinela", "sondas"}
+
+    def eh_ref(c):
+        return CMP._caminho(c["case_id"]) in CMP.REFERENCIAS
+
+    def chave(c):
+        return CMP._chave_de_dado(c["case_id"], {"vectors": c["vectors"], "fonte": c["fonte"]})
+
+    por_cauda, por_dado = {}, {}
+    for c in ordem:
+        if eh_ref(c):
+            por_cauda.setdefault(c["case_id"].split("|", 1)[1], []).append(c["case_id"])
+            por_dado.setdefault(chave(c), []).append(c["case_id"])
+    fora = []
+    for c in ordem:
+        if eh_ref(c) or c["fonte"] in envelope or c["fonte"].startswith("pin-"):
+            continue
+        cands = por_cauda.get(c["case_id"].split("|", 1)[1]) or por_dado.get(chave(c)) or []
+        if cands:
+            fora.append(min(abs(pos[c["case_id"]] - pos[r]) for r in cands))
+    return fora
+
+
+def test_ordem_poe_a_referencia_ao_lado_do_caso():
+    """A razao caso/referencia so' cancela a maquina se os dois forem medidos perto no tempo.
+
+    Na ordem do arquivo a referencia ficava a 17 posicoes de mediana, e a deriva entre elas
+    entrava inteira na razao (lab 2026-09-21-0300). O teste fixa o ganho: sem a ordenacao a
+    mediana passa de 5; com ela, fica em 1 e nenhum caso passa de 20 posicoes."""
+    sel = PL.selecionar(PL.carregar("nucleo"), CASES)
+    antes = _distancias_ate_a_referencia(sel)
+    depois = _distancias_ate_a_referencia(ordenar_vizinho(list(sel)))
+    assert antes and depois and len(antes) == len(depois)
+    import statistics as _st
+    assert _st.median(antes) > 5, f"o problema que a ordem resolve sumiu: mediana {_st.median(antes)}"
+    assert _st.median(depois) <= 1, f"mediana depois da ordem: {_st.median(depois)}"
+    assert max(depois) <= 20, f"pior caso depois da ordem: {max(depois)}"
+
+
+def test_ordem_e_deterministica_e_nao_perde_caso():
+    """Ordem de rodada e' parte da reprodutibilidade: mesma entrada, mesma saida, mesmo conjunto."""
+    sel = PL.selecionar(PL.carregar("nucleo"), CASES)
+    a = [c["case_id"] for c in ordenar_vizinho(list(sel))]
+    b = [c["case_id"] for c in ordenar_vizinho(list(sel))]
+    assert a == b, "a ordenacao tem que ser deterministica"
+    assert sorted(a) == sorted(c["case_id"] for c in sel), "nao pode tirar nem duplicar caso"
+    # e ela tem que ser estavel: reordenar a entrada nao pode mudar o AGRUPAMENTO
+    invertida = [c["case_id"] for c in ordenar_vizinho(list(reversed(list(sel))))]
+    assert sorted(invertida) == sorted(a)
 
 
 def test_matriz_tem_celula_no_regime_alvo():

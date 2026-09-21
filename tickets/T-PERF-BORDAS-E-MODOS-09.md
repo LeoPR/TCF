@@ -694,10 +694,19 @@ menor que a dispersão seguiria invisível. A resposta definitiva vem da baselin
 já exige, agora com o comparador corrigido.
 
 **E fica um achado de instrumento, que vale mais que o caso**: as razões medidas com o par
-adjacente ficaram abaixo de todas as cinco rodadas históricas, nas quatro células. O runner ordena
-os casos **sem garantir que a referência de mesma cauda rode ao lado**, e enquanto isso não mudar,
-toda razão caso/referência carrega um pedaço de deriva. Direção para o instrumento, sem trabalho
-aberto.
+adjacente ficaram abaixo de todas as cinco rodadas históricas, nas quatro células. O runner
+ordenava os casos **sem garantir que a referência de mesma cauda rodasse ao lado**, e assim toda
+razão caso/referência carregava um pedaço de deriva.
+
+**Consertado em 2026-09-21**, com o antes e depois medido e o detalhe no
+[README do `bench_perf`](../scripts/bench_perf/README.md): a distância mediana entre um caso e a
+referência que o pareia caiu de **17 posições para 1**, o pior caso de 109 para 13, e as células
+a mais de 5 posições de 57 para 12, sobre as 72 células de dado do `nucleo`. A mediana de 17 que
+a medida achou é a mesma que este parágrafo tinha anotado a olho. A ordenação é determinística,
+não mede nada a mais e não tira nem duplica caso, e o `run.json` passou a gravar qual ordem
+produziu a rodada. **Rodada sem esse campo é da ordem antiga** e tem outra estrutura de deriva,
+então a baseline nova mede os dois lados com a ordem nova, que é o que a condição do owner já
+exigia.
 
 A tabela por família saiu do README do snapshot em 2026-09-14 (`32861ecf`); o detalhe fica em
 `outputs/razao-resumo.txt` do lab `1937`, e o fator 1,2951 se reproduz com `compare --dev` sobre

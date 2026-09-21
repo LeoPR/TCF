@@ -39,6 +39,7 @@ from bench_perf import calibrators as CAL                        # noqa: E402
 from bench_perf import manifest as MAN                           # noqa: E402
 from bench_perf import crosscompat as CC                         # noqa: E402
 from bench_perf import plans as PL                               # noqa: E402
+from bench_perf import compare as CMP                            # noqa: E402
 
 SAIDA = REPO / "experiments" / "results" / "perf-baseline"
 SENTINELA_CADA = 10
@@ -440,6 +441,41 @@ def _run_accel(case: dict, rec: dict, smoke: bool) -> dict:
 _ENVELOPE_FONTES = {"sentinela", "sondas"}   # B0: infra do run, nao celula de dado
 
 
+#: id da ordem, gravado no run.json. Rodada com ordem diferente tem estrutura de DERIVA
+#: diferente, e isso precisa estar declarado em quem le' dois JSONL lado a lado.
+ORDEM_ID = "por-chave-de-dado-v1"
+
+
+def ordenar_vizinho(casos: list[dict]) -> list[dict]:
+    """Poe cada caso ao lado da referencia que vai parea-lo.
+
+    O comparador normaliza pela razao `caso / referencia` DENTRO da rodada, e isso so' cancela a
+    maquina se os dois forem medidos perto no tempo. Na ordem do arquivo a referencia pareada
+    ficava a 17 posicoes de mediana (109 no pior caso), e a deriva entre as duas posicoes entrava
+    inteira na razao: foi o que o lab `2026-09-21-0300-quatro-celulas` mediu, com as razoes de par
+    adjacente caindo abaixo de todas as cinco rodadas historicas.
+
+    Agrupa pela MESMA chave que o comparador usa no pareamento (fonte, forma, escala por
+    parametros, compressao), com as referencias na frente de cada grupo. Mediana cai para 1,
+    maximo para 13. Deterministica: grupos na ordem da primeira aparicao, e dentro do grupo a
+    ordem original. Nao mede nada a mais, nao tira nem duplica caso."""
+    grupos: dict = {}
+    ordem: list = []
+    for c in casos:
+        k = CMP._chave_de_dado(c["case_id"], {"vectors": c["vectors"], "fonte": c["fonte"]})
+        if k not in grupos:
+            grupos[k] = []
+            ordem.append(k)
+        grupos[k].append(c)
+    fora: list[dict] = []
+    for k in ordem:
+        g = grupos[k]
+        refs = [c for c in g if CMP._caminho(c["case_id"]) in CMP.REFERENCIAS]
+        fora.extend(refs + [c for c in g if c not in refs])
+    assert len(fora) == len(casos), "a ordenacao nao pode tirar nem duplicar caso"
+    return fora
+
+
 def run_case(case: dict, order_index: int, smoke: bool) -> dict:
     cid = case["case_id"]
     vet = case["vectors"]
@@ -724,6 +760,10 @@ def main(argv=None) -> int:
         alvo = set(args.only.split(","))
         casos = [c for c in casos if set(c.get("blocos", [])) & alvo]
 
+    # ORDEM: cada caso ao lado da referencia que vai parea-lo (2026-09-21). Depois da
+    # selecao, porque o que importa e' a vizinhanca DENTRO da rodada que vai rodar.
+    casos = ordenar_vizinho(casos)
+
     # PRE-GATE PROBATORIO (parecer §3, fail-closed): uma rodada de evidencia so'
     # comeca de commit LIMPO e com o acelerador da distribuicao ATIVO. Aborta ANTES,
     # nao mede lixo. Fora de --probative, so' avisa (desenvolvimento).
@@ -824,6 +864,9 @@ def main(argv=None) -> int:
         # por ele (salvo --strict-thermal).
         "status": status, "runner_thermal_status": thermal,
         "stamp_utc": stamp,
+        # ORDEM da rodada: rodada com ordem diferente tem estrutura de DERIVA diferente,
+        # e quem le' dois JSONL lado a lado precisa saber disso. Ausente = ordem do arquivo.
+        "ordem": ORDEM_ID,
         "manifest": man, "calibradores": calib, "drift": d,
         "n_casos_total": len(casos), "n_com_registro": n_registro,
         "n_comparaveis_ok": n_comparavel, "n_envelope": n_envelope,
