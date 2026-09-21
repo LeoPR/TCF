@@ -251,10 +251,10 @@ caber em tempo praticável.
 - [ ] Comparação reproduzível de memória, velocidade, CPU, latência e compressão; ganhos, perdas, ruído e limites declarados por regime
 - [ ] Caminho dominante identificado ou perfis não dominados caracterizados, com seleção explícita e custo do eventual roteamento
 - [ ] Modo rápido caracterizado: byte e tempo vs o modo atual, nos mesmos casos
-- [ ] Bench multi-cliente (1:N) com N ∈ {1, 10, 100, 1000}
+- [ ] Bench multi-cliente (1:N) com N ∈ {1, 10, 100, 1000}. **Parcial**: o lab `01-decode` entregou a conta no tamanho alvo, com o limite de que ela não cruza a régua em CPU para nenhum N; falta a mesma conta nas escalas da matriz
 - [ ] Tabela de bordas por eixo, com o eixo cardinalidade separado
-- [ ] Break-even recalculado pós-otimização (o número que decide se o formato paga no fio)
-- [ ] Baseline de desempenho repetida depois das otimizações, condição do owner registrada em [`perf-baseline/README.md`](../experiments/results/evidencia-0.8/perf-baseline/README.md): a `0.8.4` e o candidato medidos na mesma máquina e na mesma sessão térmica, com a decisão do instrumento, registrada na seção do `.8H`, tomada antes da rodada
+- [ ] Break-even recalculado pós-otimização (o número que decide se o formato paga no fio). **Revisão 2026-09-21**: a fórmula em uso omite o `import`, que em processo de vida curta vale onze encodes, e o numerador encolhe de 5.233 B para 124 B quando os dois lados comprimem. Sai por topologia **e por vida de processo**, e as entradas do tamanho alvo já existem
+- [ ] Baseline de desempenho repetida depois das otimizações, condição do owner registrada em [`perf-baseline/README.md`](../experiments/results/evidencia-0.8/perf-baseline/README.md): a `0.8.4` e o candidato medidos na mesma máquina e na mesma sessão térmica, com a decisão do instrumento, registrada na seção do `.8H`, tomada antes da rodada (**a decisão foi tomada e implementada em 2026-09-21; este critério deixou de estar bloqueado por ela**)
 - [ ] F3-3 (paralelismo + combos) fechado no [T-CODE-PARALLEL-BUDGET](T-CODE-PARALLEL-BUDGET.md), que recebeu o item do T-QA-8
 - [ ] Nada de `src/tcf` sem aprovação; gates byte-canônicos verdes em toda mudança
 
