@@ -422,7 +422,7 @@ publicada da `0.8.4` ou por sonda direta, com round-trip conferido:
 | assimetria interna do TCF nessa forma | 1,97× a 2,14× | idem |
 | conta 1 encode : N decodes, forma aninhada, de N=1 a N=1000 | 23,0× cai só para 20,5× | idem |
 | piso de payload contra a régua comprimida, seis projeções de dado real | de 1 a 500 registros conforme forma e compressor, e inexistente até mil em 7 de 42 combinações (a sonda anterior dizia 5 registros, de uma forma só) | lab `02-piso-de-payload`, execução 3 |
-| custo de `import tcf` | 232 ms a 286 ms | sonda |
+| custo de `import tcf`, acima do interpretador vazio | 290,3 ms, com ruído de 2% e dois instrumentos concordando em 2,3% (a sonda anterior dizia 232 a 286 ms) | lab `03-custo-de-partida`, execução 2 |
 | piso por chamada do decode, um registro, quente | 0,16 ms a 0,33 ms (a sonda anterior dizia 0,50 ms a 0,52 ms, e era do encode) | lab `01-decode`, execução 2 |
 | primeira chamada de decode contra regime quente | **refutado**: razão de 0,65 a 1,48, mediana perto de 1, em dois instrumentos independentes. A sonda anterior dizia de 4,9 a 5,2 | lab `01-decode` e revisão independente |
 
@@ -475,6 +475,37 @@ conferido dos dois lados em todo caso. Quatro coisas saem dali, e três delas ap
    em cem registros perde para as duas. Isso não derruba o vértice colaborativo, mas derruba a
    premissa de que ele é uma saída que só o TCF tem: qualquer payload ganha dicionário treinado, e
    o que decide é quanto vocabulário se repete entre transmissões, não o formato.
+
+**O custo de partida, medido** ([`03-custo-de-partida`](../experiments/lab/dirty/2026-09/2026-09-20/2026-09-20-0100-regime-alvo/03-custo-de-partida/result.md),
+registro local, 2026-09-20, execução 2 de 3). Oito células, quinze processos frios cada, com o
+round-trip (I4) rodando dentro de cada processo. Ruído de 1,1% a 2,8%, e os dois instrumentos,
+relógio de processo e `-X importtime`, concordando em 2,3%.
+
+1. **Ligar o pacote custa 290,3 ms**, que é 6,2 vezes o `import json`. Num processo que nasce,
+   atende uma requisição de vinte registros e morre, o total do TCF é 2,84 vezes o do JSON, e
+   **68% desse total é o import**, contra 6% de encode.
+2. **Três quartos do import não são código do pacote.** Os 133 módulos que o `import tcf` traz
+   se dividem em 31 do pacote, com 69,6 ms, e 102 de fora, com 211,3 ms. As famílias mais caras
+   são a máquina de paralelismo, com `concurrent.futures`, `multiprocessing`, `socket` e
+   `pickle` somando cerca de 38 ms, e a de introspecção, com `inspect`, `ast`, `dis`, `tokenize`
+   e `textwrap` somando cerca de 19 ms. Um payload de vinte registros não usa nenhuma das duas.
+3. **A partida amortiza em onze encodes** de vinte registros. Worker de vida longa passa disso
+   na primeira fração de segundo; função sem servidor que atende uma invocação por processo
+   nunca chega lá, e para ela otimizar encode não muda o que o usuário sente.
+4. **Conferência cruzada de graça:** o encode frio deu 26,12 ms contra os 25,43 ms que o
+   `01-decode` mediu quente, com outro instrumento. Menos de 3% entre dois labs que não se
+   coordenaram.
+
+O lab mede e para: ele **não** diz que esses 211 ms são cortáveis. Módulo arrastado não é módulo
+inútil, e descobrir quanto disso é carregável sob demanda mexe em `src/tcf`, o que depende de
+aprovação (I5).
+
+**A conta do regime alvo, agora fechada nos três labs.** Num processo frio que atende uma
+requisição de vinte registros: 290 ms de partida, 26 ms de encode, menos de 2 ms de decode, e um
+ganho no fio de 25 a 235 bytes contra JSON comprimido, ou nada contra uma régua que não repete
+as chaves. **A fila de otimização deste ciclo mira o encode, que são 6% dessa conta.** Isso não
+fecha o formato contra o regime alvo, fecha contra este recorte: um processo por requisição, um
+payload por processo, e uma régua escolhida pelo concorrente.
 
 **Consequência para o aceite.** Nenhum dos onze critérios exige medição no regime alvo, e nenhum
 nomeia piso de payload, custo fixo por chamada, latência ponta a ponta ou decode contra o
