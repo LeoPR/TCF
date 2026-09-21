@@ -486,9 +486,11 @@ relógio de processo e `-X importtime`, concordando em 2,3%.
    **68% desse total é o import**, contra 6% de encode.
 2. **Três quartos do import não são código do pacote.** Os 133 módulos que o `import tcf` traz
    se dividem em 31 do pacote, com 69,6 ms, e 102 de fora, com 211,3 ms. As famílias mais caras
-   são a máquina de paralelismo, com `concurrent.futures`, `multiprocessing`, `socket` e
-   `pickle` somando cerca de 38 ms, e a de introspecção, com `inspect`, `ast`, `dis`, `tokenize`
-   e `textwrap` somando cerca de 19 ms. Um payload de vinte registros não usa nenhuma das duas.
+   são a máquina de paralelismo e a de introspecção. O lab somou a primeira por nome e chegou a
+   "cerca de 38 ms", que era **piso, não valor**: o `04-import-adiavel`, abaixo, mediu por
+   conjunto exclusivo e achou 107 ms. A de introspecção, com `inspect`, `ast`, `dis` e
+   `tokenize`, entra pelo `dataclasses` e soma 31 ms. Um payload de vinte registros não usa
+   nenhuma das duas.
 3. **A partida amortiza em onze encodes** de vinte registros. Worker de vida longa passa disso
    na primeira fração de segundo; função sem servidor que atende uma invocação por processo
    nunca chega lá, e para ela otimizar encode não muda o que o usuário sente.
@@ -504,6 +506,34 @@ transferir, e não foram conferidas em outra plataforma.
 O lab mede e para: ele **não** diz que esses 211 ms são cortáveis. Módulo arrastado não é módulo
 inútil, e descobrir quanto disso é carregável sob demanda mexe em `src/tcf`, o que depende de
 aprovação (I5).
+
+**Quanto da partida é adiável, medido sem tocar no pacote** ([`04-import-adiavel`](../experiments/lab/dirty/2026-09/2026-09-20/2026-09-20-0100-regime-alvo/04-import-adiavel/result.md),
+registro local, 2026-09-20, execução 2 de 3). Três instrumentos: um leitor de AST que classifica
+o uso de cada import externo do pacote, na carga ou só na chamada; o conjunto exclusivo de cada
+import direto, que é o que sairia da partida se só ele fosse adiado; e um contrafactual que
+planta um módulo falso em `sys.modules` antes do `import tcf`, mede pelo relógio de processo e
+roda o round-trip sob o stub, com gate de wire idêntico ao controle.
+
+1. **Metade do que o pacote arrasta entra por uma linha.** `src/tcf/multi/parallel.py:12` importa
+   `ProcessPoolExecutor` no topo do arquivo, os nomes só são usados dentro de
+   `_encode_columns_parallel`, e `parallel` tem padrão `False`. Essa linha traz **51 módulos que
+   nada mais no pacote pede**, entre eles `multiprocessing`, `socket`, `logging`, `threading`,
+   `subprocess` e `tempfile`: **107 ms** pelo conjunto exclusivo, **116 ms** pelo relógio de
+   processo, com os dois instrumentos a 8,6% um do outro. É 52% do arrastado e cerca de 40% do
+   import líquido.
+2. **Sob o stub nada muda no fio.** O pacote importa, o round-trip passa em dois payloads, o wire
+   sai com o mesmo SHA-256 do controle, e o stub nunca é chamado nem acessado no caminho.
+3. **O `json` é o contra-exemplo.** Com payload só de strings ele sai intocado; com as colunas
+   numéricas tipadas, o pacote chama `json.loads` e o stub dispara. Adiá-lo deslocaria 9 ms em
+   vez de tirar. Foi uma contra-prova acrescentada por emenda que achou isso: sem ela, o `json`
+   teria entrado na soma do adiável.
+4. **O resto não sai sem redesenho:** 33 ms estão presos a uso na carga, quase tudo pelo
+   `dataclasses`, decorador em dez arquivos, e 55 ms são base partilhada entre vários imports.
+5. **Há precedente no código:** o pacote já tem 9 imports externos dentro de função.
+
+O lab **não mede a primeira chamada com `parallel` ligado**, que é para onde os 107 ms iriam, e
+não prova nada sobre `pickle` dos workers nem sobre a suíte. Ele não propõe a mudança: mexer em
+`src/tcf` é I5, e a decisão é do owner.
 
 **A conta do regime alvo, agora fechada nos três labs.** Num processo frio que atende uma
 requisição de vinte registros: 290 ms de partida, 26 ms de encode, menos de 2 ms de decode, e um
