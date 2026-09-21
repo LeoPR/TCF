@@ -496,6 +496,11 @@ relógio de processo e `-X importtime`, concordando em 2,3%.
    `01-decode` mediu quente, com outro instrumento. Menos de 3% entre dois labs que não se
    coordenaram.
 
+Ressalva de plataforma, que o resultado omitiu e a revisão achou: tudo é **Windows 10, máquina
+única**, onde import custa várias vezes o que custa em Linux. Os milissegundos absolutos não
+transferem; as razões (6,2 vezes o `json`, um quarto contra três quartos, onze encodes) tendem a
+transferir, e não foram conferidas em outra plataforma.
+
 O lab mede e para: ele **não** diz que esses 211 ms são cortáveis. Módulo arrastado não é módulo
 inútil, e descobrir quanto disso é carregável sob demanda mexe em `src/tcf`, o que depende de
 aprovação (I5).
