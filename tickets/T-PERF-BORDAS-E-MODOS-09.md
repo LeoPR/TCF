@@ -253,7 +253,7 @@ caber em tempo praticável.
 - [ ] Modo rápido caracterizado: byte e tempo vs o modo atual, nos mesmos casos
 - [ ] Bench multi-cliente (1:N) com N ∈ {1, 10, 100, 1000}. **Parcial**: o lab `01-decode` entregou a conta no tamanho alvo, com o limite de que ela não cruza a régua em CPU para nenhum N; falta a mesma conta nas escalas da matriz
 - [ ] Tabela de bordas por eixo, com o eixo cardinalidade separado
-- [ ] Break-even recalculado pós-otimização (o número que decide se o formato paga no fio). **Revisão 2026-09-21**: a fórmula em uso omite o `import`, que em processo de vida curta vale onze encodes, e o numerador encolhe de 5.233 B para 124 B quando os dois lados comprimem. Sai por topologia **e por vida de processo**, e as entradas do tamanho alvo já existem
+- [x] Break-even recalculado, **pré-otimização**, por topologia e por vida de processo ([lab](../experiments/lab/dirty/2026-09/2026-09-21/2026-09-21-0500-break-even/result.md), 2026-09-21). A fórmula ganhou o `import` dos dois lados e o N da topologia; o envelope HTTP não entra, porque o lab 05 provou com resíduo zero que ele soma igual dos dois lados. O número pós-otimização fica pendente, mas a referência contra a qual ele vai ser lido existe
 - [ ] Baseline de desempenho repetida depois das otimizações, condição do owner registrada em [`perf-baseline/README.md`](../experiments/results/evidencia-0.8/perf-baseline/README.md): a `0.8.4` e o candidato medidos na mesma máquina e na mesma sessão térmica, com a decisão do instrumento, registrada na seção do `.8H`, tomada antes da rodada (**a decisão foi tomada e implementada em 2026-09-21; este critério deixou de estar bloqueado por ela**)
 - [ ] F3-3 (paralelismo + combos) fechado no [T-CODE-PARALLEL-BUDGET](T-CODE-PARALLEL-BUDGET.md), que recebeu o item do T-QA-8
 - [ ] Nada de `src/tcf` sem aprovação; gates byte-canônicos verdes em toda mudança
@@ -559,6 +559,34 @@ verde em todas, tamanho determinístico em todas.
 Limite que desfavorece esta leitura, e por isso precisa vir junto: é **HTTP/1.1 sem HPACK**. Com
 cabeçalho comprimido o envelope encolhe e a economia do corpo pesa relativamente mais. O que foi
 medido é o caso mais favorável à tese de que o framing domina.
+
+**O break-even, medido, e o que ele faz com a fila de otimização** ([lab](../experiments/lab/dirty/2026-09/2026-09-21/2026-09-21-0500-break-even/result.md),
+2026-09-21, execução 1 de 3). Modelo por payload, com o `import` dos dois lados e o N da
+topologia: `custo(F) = import/Pe + encode/N + bytes/B + import/Pd + decode`. Round-trip verde
+em todo caso, wire determinístico, e o `import` herdado do lab 03, declarado.
+
+1. **No tamanho alvo comprimido, o formato não paga no fio.** Das 48 combinações de régua, N e
+   vida de processo, **48 ficaram abaixo de 1 Mbps**, com máximo de **0,59**, que é abaixo do
+   degrau mais lento da escada. Em nenhuma banda, de 3G a datacenter, o TCF entrega o dado
+   antes. E em **24 das 48** ele perde em qualquer banda, porque manda mais bytes e gasta mais
+   CPU ao mesmo tempo: são todas as células da régua colunar.
+2. **Zerar o encode não muda isso.** Para o `B*` chegar ao 4G o `Δcpu` precisaria ser 0,0397
+   ms. Zerando o encode por completo sobram 1,53 ms em N=1 e 1,65 ms em N=1000. A conta não é
+   do encode.
+3. **Quem domina o `Δcpu` depende do N, e a virada é entre 10 e 100.** Em N=1 o encode
+   contribui 26,85 ms contra 1,66 do decode; em N=1000, 0,03 contra 1,66. Nas topologias A e
+   B2 a fila mira o lugar certo; na B1, que é o catálogo servido a muitos clientes, **o decode
+   manda e a fila não tem nenhuma frente de decode**.
+4. **O argumento de bytes sobrevive contra concorrente que não comprime.** Cru, vida longa,
+   N=1000, o `B*` vai de 24,9 a 66,1 Mbps, cobrindo 3G, 4G e parte de banda larga. O que
+   separa os dois quadros é a **compressão**, não o encode: o `brotli-5` leva a diferença de
+   bytes de 5.233 para 124 em vinte registros, quarenta e duas vezes menor, enquanto o `Δcpu`
+   quase não se move.
+
+Consequência para o eixo 1, e ela é direção, não veredito de encerramento: **a justificativa da
+fila de otimização precisa ser outra que não "paga no fio"**, porque no recorte medido ela não
+se sustenta nem com encode infinitamente rápido. CPU do servidor, custo de armazenamento e os
+vértices não medidos seguem abertos como justificativa.
 
 **A conta do regime alvo, agora fechada nos três labs.** Num processo frio que atende uma
 requisição de vinte registros: 290 ms de partida, 26 ms de encode, menos de 2 ms de decode, e um
