@@ -9,7 +9,7 @@
 [![CI](https://github.com/LeoPR/TCF/actions/workflows/ci.yml/badge.svg)](https://github.com/LeoPR/TCF/actions/workflows/ci.yml)
 ![Python](https://img.shields.io/badge/python-3.10+-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
-![Version](https://img.shields.io/badge/version-0.8.4%20(pré--1.0)-orange)
+![Version](https://img.shields.io/badge/version-0.8.5%20(pré--1.0)-orange)
 ![Format](https://img.shields.io/badge/format-%23TCF.8%20default-blue)
 
 **Codificação sem perdas de dados tabulares e aninhados em texto inspecionável, com uma
@@ -71,7 +71,7 @@ uma coluna; um dicionário de colunas vira tabela; uma lista de registros planos
 essa mesma tabela, com a forma da entrada anotada no cabeçalho para `decode` devolver
 a lista. O decodificador identifica a representação pela assinatura do formato.
 
-O pacote está na versão **0.8.4**, com o formato `#TCF.8`. É **pré-1.0**: não há garantia
+O pacote está na versão **0.8.5**, com o formato `#TCF.8`. É **pré-1.0**: não há garantia
 de compatibilidade entre versões menores. Fixe a versão ao persistir dados e mantenha
 acesso ao leitor correspondente ao atualizar. Veja a
 [política de versões](docs/adr/0024-pre-1.0-versioning-git-as-compat.md).

@@ -21,6 +21,57 @@ compositional cycle in
 
 ---
 
+## 0.8.5 (2026-11-07): digits from other scripts stop coming back as ASCII
+
+> **Read this first if you encoded data with 0.8.4 or earlier that contains decimal digits
+> from a script other than ASCII**: Arabic-Indic (`٠١٢`), Devanagari (`०१२`), fullwidth
+> (`０１２`) and the rest of Unicode's decimal digits. When such values formed a sequence,
+> and three were enough (`١٠٠٠`, `١٠٠١`, `١٠٠٢`), `encode` accepted them and `decode`
+> returned part of their digits as ASCII (`١٠٠2`), raising nothing. `view` answered with the
+> same wrong values.
+>
+> **Wires already written that way cannot be repaired by any version.** Neither 0.8.4 nor
+> 0.8.5 reconstructs them. Re-encode from the source data with 0.8.5.
+>
+> Measured against `tcf-format==0.8.4` installed from PyPI, on a 154-case probe and 3,000
+> fuzzed columns:
+>
+> | | `decode` |
+> |---|---|
+> | **0.8.5 reading a 0.8.4 wire** | reads everything 0.8.4 read correctly; the affected wires stay wrong (88 of 154, the same 88 that 0.8.4 itself got wrong) |
+> | **0.8.4 reading a 0.8.5 wire** | reads all of them (154 of 154, and 3,000 of 3,000) |
+>
+> So a producer can upgrade before its consumers: an old reader decodes what the new writer
+> emits, in every measured case.
+
+**What was affected.** All four routes (`list[str]`, a dict of columns, a list of records,
+nested data) and the `int-pad`, `ip` and `data-iso` natures, whose output goes through the
+same codec. Data whose digits are all ASCII was never affected, and its wire is byte-identical
+in 0.8.5: the byte-canonical gates (D1-D9, D17a, real-world) did not re-pin.
+
+**What changed.** The sequence run-length layer shifts a run of digits by rewriting it with
+`str(int)`, which is always ASCII, and it used `str.isdigit()` to find those runs, which
+accepts any Unicode digit. It now shifts only ASCII digit runs, on both the encoder and the
+decoder side. Any other digit stays literal, which every version reads correctly. The set of
+characters that triggered the defect grew with each Python release, because `isdigit()`
+follows the interpreter's Unicode database; the ASCII guard does not.
+
+**The same family, louder.** Under `schema="int-pad"`, values such as `²` or `①` passed
+`isdigit()` and then raised a raw `ValueError` from `int()`. They are now kept literal.
+
+**What it costs.** The affected columns compress less, because they are no longer compressed
+at the expense of the data.
+
+**Also in this release, with no behavior change.**
+[ADR-0051](docs/adr/0051-politica-de-versao-de-python.md) sets the Python support policy: the
+package floor follows the oldest CPython still supported upstream and moves only at a format
+minor. It rises to `>=3.11` at 0.9.0; this release still supports 3.10. CI now tests 3.10
+through 3.15, and the classifiers list 3.14 and 3.15.
+
+Ticket: [`BUG-SEQRLE-DIGITO-UNICODE`](tickets/BUG-SEQRLE-DIGITO-UNICODE.md).
+
+---
+
 ## 0.8.4 (2026-09-01): the spelling of the input stops choosing the arsenal
 
 > **Read this first if you already have data on disk, or a consumer you do not upgrade

@@ -82,14 +82,11 @@ class TestPublicAPISurface:
         # (#TCF.8 -> 0.8.x, ADR-0032/0028); patch e' livre pra fixes sem
         # mudanca de emissao. PyPI publica no go do owner.
         #
-        # 0.8.4 (2026-09-01): a grafia da entrada deixa de escolher o arsenal. O patch
-        # subiu com DUAS mudancas de emissao, e o minor NAO, porque o FORMATO continua
-        # `#TCF.8` e e' ele que governa o minor: o `R` do ADR-0049 e' um discriminador
-        # NOVO dentro da mesma era, do mesmo jeito que o `H` e o `B` foram, e o FLOOR do
-        # `sort_by` (ADR-0050) muda o que se escolhe emitir, nao a gramatica do wire.
-        # Os gates byte-canonicos (D1-D9, D17a, real-world) nao re-pinaram: nenhum deles
-        # usa lista de registros nem `sort_by`.
-        assert tcf.__version__ == "0.8.4"
+        # 0.8.5: patch de correcao (BUG-SEQRLE-DIGITO-UNICODE). O wire so' muda para a
+        # entrada que antes voltava corrompida, que deixa de ir ao seq-RLE e sai literal;
+        # a gramatica e' a mesma, entao o minor fica. Os gates byte-canonicos (D1-D9,
+        # D17a, real-world) nao re-pinaram.
+        assert tcf.__version__ == "0.8.5"
 
     # CONGELAMENTO DO .8 ("terminar o .8 com as formalidades e
     # congelar parametros, header e corpo"). Este pin e' o "congelar PARAMETROS"

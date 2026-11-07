@@ -13,7 +13,7 @@
 ## Estado
 
 Formato `#TCF.8` default ([ADR-0032](docs/adr/0032-tcf8-default-format.md)); pacote
-`0.8.4` publicado no PyPI (`tcf-format`), tag `v0.8.4`, com o roteamento que tirou a
+`0.8.5` publicado no PyPI (`tcf-format`), tag `v0.8.5`, com o roteamento que tirou a
 tabela retangular da família hierárquica ([ADR-0049](docs/adr/0049-marcador-r-a-forma-da-entrada-e-metadado.md))
 e o `sort_by` virando candidato ([ADR-0050](docs/adr/0050-sort-by-vira-candidato-o-floor-decide.md)).
 
@@ -70,7 +70,7 @@ explícita.
 
 ## Ciclo `.9`: aberto 2026-08-23, com base medida
 
-O `.8` está **publicado e funcionando** (`tcf-format 0.8.4` no PyPI). O `.9` não é só
+O `.8` está **publicado e funcionando** (`tcf-format 0.8.5` no PyPI). O `.9` não é só
 performance: são **três eixos**, e o que os une é que agora há **medição de onde partir**,
 não intuição.
 

@@ -6,7 +6,7 @@
 [![CI](https://github.com/LeoPR/TCF/actions/workflows/ci.yml/badge.svg)](https://github.com/LeoPR/TCF/actions/workflows/ci.yml)
 ![Python](https://img.shields.io/badge/python-3.10+-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
-![Version](https://img.shields.io/badge/version-0.8.4%20(pre--1.0)-orange)
+![Version](https://img.shields.io/badge/version-0.8.5%20(pre--1.0)-orange)
 ![Format](https://img.shields.io/badge/format-%23TCF.8%20default-blue)
 
 **Lossless encoding of tabular and nested data into inspectable text, with a Python API
@@ -66,7 +66,7 @@ column, a dict of columns becomes a table, and a list of flat records becomes th
 table, with the record form noted in the header so `decode` hands the list back. `decode`
 itself routes by the format signature.
 
-The package is **0.8.4**, using format `#TCF.8`. It is **pre-1.0**: minor versions do not
+The package is **0.8.5**, using format `#TCF.8`. It is **pre-1.0**: minor versions do not
 promise backward compatibility. Pin the package version for persisted data and retain the
 matching reader when upgrading. See [versioning](docs/adr/0024-pre-1.0-versioning-git-as-compat.md).
 

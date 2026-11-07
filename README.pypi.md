@@ -1,6 +1,6 @@
 # TCF · Tabular Compact Format
 
-![Version](https://img.shields.io/badge/version-0.8.4%20(pre--1.0)-orange)
+![Version](https://img.shields.io/badge/version-0.8.5%20(pre--1.0)-orange)
 ![Format](https://img.shields.io/badge/format-%23TCF.8%20default-blue)
 ![Python](https://img.shields.io/badge/python-3.10+-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
@@ -143,7 +143,7 @@ request produces new data. For comparisons and their experimental scope, see the
 
 ## Compatibility
 
-Version **0.8.4** uses format `#TCF.8`. The project is **pre-1.0**: compatibility between
+Version **0.8.5** uses format `#TCF.8`. The project is **pre-1.0**: compatibility between
 minor versions is not guaranteed. Pin the package version when persisting encoded data,
 and retain access to the matching reader when upgrading. Published packages and git tags
 provide access to older readers; the current decoder is not a universal legacy reader.
