@@ -508,6 +508,76 @@ class TestSeqRleRangeDotDotBug:
             assert decode(encode(col)) == col
 
 
+def _zeros_nd():
+    """O '0' de cada conjunto de digitos decimais (`Nd`) do banco Unicode do interpretador.
+
+    O Unicode garante os dez digitos de um conjunto `Nd` contiguos e em ordem, entao o zero
+    basta para gerar o conjunto. O banco muda a cada versao de Python, e o teste acompanha.
+    """
+    import sys
+    import unicodedata
+
+    return [
+        chr(cp)
+        for cp in range(sys.maxunicode + 1)
+        if unicodedata.category(chr(cp)) == "Nd" and unicodedata.decimal(chr(cp)) == 0
+    ]
+
+
+def _em_digitos(texto, zero):
+    return "".join(chr(ord(zero) + int(c)) if "0" <= c <= "9" else c for c in texto)
+
+
+class TestSeqRleDigitoUnicodeBug:
+    """BUG-SEQRLE-DIGITO-UNICODE: o seq-RLE so' desloca corridas de digito ASCII.
+
+    O deslocamento reescreve a corrida com `str(int)`, sempre ASCII; com `isdigit()` no
+    detector, `['١٠٠٠', '١٠٠١', '١٠٠٢']` voltava como `[..., '١٠٠2']`, em silencio, nas
+    quatro rotas. Lab: `experiments/lab/dirty/2026-11/2026-11-07/2026-11-07-0100-digito-unicode/`.
+    """
+
+    def test_repro_minimo(self):
+        col = ["١٠٠٠", "١٠٠١", "١٠٠٢"]
+        assert decode(encode(col)) == col
+
+    def test_quatro_rotas(self):
+        seq = [_em_digitos(str(1000 + i), "०") for i in range(20)]
+        assert decode(encode(seq)) == seq  # .8
+        tab = {"id": seq, "cod": [_em_digitos(f"A-{i}", "０") for i in range(20)]}
+        assert decode(encode(tab)) == tab  # .8M
+        regs = [{"id": v, "n": str(i)} for i, v in enumerate(seq)]
+        assert decode(encode(regs)) == regs  # .8R
+        anin = [{"a": {"n": v}} for v in seq]
+        assert decode(encode(anin)) == anin  # .8H
+
+    def test_todos_os_conjuntos_nd(self):
+        """Propriedade: todo conjunto `Nd` do interpretador, em sequencia de 3 e de 60."""
+        falhas = []
+        for zero in _zeros_nd():
+            for col in (
+                [_em_digitos(str(1000 + i), zero) for i in range(3)],
+                [_em_digitos(f"ITEM-{20 + i}-X{i:03d}", zero) for i in range(60)],
+            ):
+                if decode(encode(col)) != col:
+                    falhas.append(f"U+{ord(zero):04X}")
+                    break
+        assert not falhas, f"conjuntos Nd sem round-trip: {falhas}"
+
+    def test_ascii_continua_comprimindo(self):
+        """O guard nao desliga o seq-RLE do caso que ele existe para comprimir."""
+        col = [f"ITEM-{20 + i}-X{i:03d}" for i in range(60)]
+        w = encode(col)
+        assert decode(w) == col
+        import re
+
+        assert re.search(r"^\*[0-9]+\+1\|", w, re.M), w  # marcador seq-RLE `*N+1|`
+
+    def test_int_pad_digito_que_int_recusa(self):
+        """`isdigit()` aceita `²` e `①`, `int()` recusa: a nature cai em literal, sem excecao."""
+        for col in (["⁰⁰⁰⁰¹", "⁰⁰⁰¹²", "³"], ["⓪①", "②"], ["٠٠٠١٢", "١٢", "7"]):
+            assert decode(encode(col, schema="int-pad")) == col, col
+
+
 class TestBracketCellLossBug:
     """BUG-BRACKET-CELL-LOSS — **FIXADO 2026-07-17** (aprovação do owner; red→green).
 

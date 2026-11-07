@@ -59,17 +59,27 @@ def _contador_declarado(linha: str) -> int:
     return int(head[:i]) if i else 0
 
 
+def _digito_ascii(c: str) -> bool:
+    return "0" <= c <= "9"
+
+
 def find_escape_digit_runs(line: str) -> list[tuple[int, int]]:
-    """Retorna runs (start, end_exclusive) de chars digit apos escape."""
+    """Retorna runs (start, end_exclusive) de digitos ASCII apos escape.
+
+    So' ASCII: o deslocamento reescreve a corrida com `str(int)`, que sai sempre em
+    ASCII. `str.isdigit()` aceitaria `١٢` ou `１２`, e o decode devolveria `12` no
+    lugar (BUG-SEQRLE-DIGITO-UNICODE). Encoder e decoder chamam esta mesma funcao,
+    entao a regra vale igual dos dois lados.
+    """
     runs = []
     i = 0
     n = len(line)
     while i < n:
         if line[i] == "\\":
             i += 1
-            if i < n and line[i].isdigit():
+            if i < n and _digito_ascii(line[i]):
                 start = i
-                while i < n and line[i].isdigit():
+                while i < n and _digito_ascii(line[i]):
                     i += 1
                 runs.append((start, i))
         else:

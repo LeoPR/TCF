@@ -67,9 +67,11 @@ class IntPadSpec:
         """`'compressible'` ou o motivo. Mesmo vocabulario das outras natures."""
         if not v:
             return "empty_value"
-        if not v.isdigit():
+        if not (v.isascii() and v.isdigit()):
             # negativo, decimal, sinal, espaco, notacao cientifica — tudo literal.
             # Medido: offset p/ acomodar negativos PIORA (0,89x), entao nem se tenta.
+            # So' ASCII: `isdigit()` sozinho aceita `²` e `①`, que o `int()` abaixo
+            # recusa com excecao crua, e `١٢`, que o `int()` le' como 12.
             return "format_mismatch"
         if len(v) > self.largura:
             return "length_wrong"
@@ -89,8 +91,8 @@ class IntPadSpec:
     def decode_value(self, payload: str) -> str:
         if payload.startswith(MARKER_LITERAL):
             return payload[1:]
-        if not payload.isdigit():
-            # Fail-loud: o encoder canonico so' emite digitos ou literal marcado.
+        if not (payload.isascii() and payload.isdigit()):
+            # Fail-loud: o encoder canonico so' emite digitos ASCII ou literal marcado.
             raise ValueError(
                 f"nature {self.name} (header :{self.wire_id}): payload "
                 f"{payload[:16]!r} nao e' decimal nem literal marcado — corpo nao-canonico"
@@ -105,7 +107,7 @@ def int_pad_para(vals) -> "IntPadSpec | None":
     caso em que o pad é no-op e só custaria a tag). É o gatilho medido em corpus real:
     `gat_PAD` disparou 11/39 e acertou 9.
     """
-    puros = [v for v in vals if v is not None and str(v).isdigit()]
+    puros = [v for v in vals if v is not None and str(v).isascii() and str(v).isdigit()]
     if not puros:
         return None
     larguras = {len(str(v)) for v in puros}

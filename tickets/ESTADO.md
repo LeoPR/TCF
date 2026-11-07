@@ -47,19 +47,20 @@
 | [T-FMT-META-STRICT](T-FMT-META-STRICT.md) | `P3` open | 2026-09-07 | o que já fecha por dedução vs o que exige redundância (checksum) |
 | [T-FMT-QUOTING-STUDY](T-FMT-QUOTING-STUDY.md) | `P3` open | 2026-07-10 | estudo de quoting/escaping de nomes além do backslash interim (filho de T-FMT-NAME-ESCAPING) |
 | [T-SHAPER-NESTED-OUTPUT](T-SHAPER-NESTED-OUTPUT.md) | `P3` open | 2026-09-02 | saída HIERÁRQUICA nativa no Shaper (aninhar via FK, inverso do flat) |
-| [T-STUDY-USE-PROFILES](T-STUDY-USE-PROFILES.md) | `P3` open | 2026-09-01 | perfis de uso (transmissão × armazenamento) e a calibração dos vértices |
+| [T-STUDY-USE-PROFILES](T-STUDY-USE-PROFILES.md) | `P3` open | 2026-09-21 | perfis de uso (transmissão × armazenamento) e a calibração dos vértices |
 | [T-TOOL-TCF-FIX-CORRUPTION](T-TOOL-TCF-FIX-CORRUPTION.md) | `P3` open | 2026-09-01 | reparador de .tcf com algum grau de corrupção (ideia, pensar depois) |
 | [T-BN-LARGURA-VARIAVEL](T-BN-LARGURA-VARIAVEL.md) | open | 2026-09-16 | a largura do índice bN arredonda para o inteiro |
 | [T-BN-LOTE](T-BN-LOTE.md) | open | 2026-09-16 | opt-in de emissão do modo `C` do bN de domínio |
 | [T-DENSO-PADDING](T-DENSO-PADDING.md) | open | 2026-09-16 | o padding `=` do base64 nos densos `b1` e `b2` |
 
-## Fechados (69)
+## Fechados (70)
 
 | ticket | estado | mexido | assunto |
 |---|---|---|---|
 | [BUG-BRACKET-CELL-LOSS](BUG-BRACKET-CELL-LOSS.md) | `P1` closed | 2026-07-16 | célula string que é exatamente '[' ou ']' é PERDIDA silenciosamente |
 | [BUG-ENCODE-PRIMEIRO-VALOR-NULO](BUG-ENCODE-PRIMEIRO-VALOR-NULO.md) | `P1` closed | 2026-08-25 | `None` na primeira linha estoura o encode multi-col |
 | [BUG-ENCODE-VAZIO-EM-COLUNA-TIPADA](BUG-ENCODE-VAZIO-EM-COLUNA-TIPADA.md) | `P1` closed-fixed | 2026-08-28 | coluna mista perde valor, e em dois casos emite wire que não decodifica |
+| [BUG-SEQRLE-DIGITO-UNICODE](BUG-SEQRLE-DIGITO-UNICODE.md) | `P1` closed-fixed | 2026-11-07 | dígito decimal não-ASCII volta como ASCII, em silêncio, quando o seq-RLE desloca a corrida |
 | [BUG-SEQRLE-RANGE-EMPTY-B](BUG-SEQRLE-RANGE-EMPTY-B.md) | `P1` closed | 2026-07-15 | decode(encode(x)) crasha quando um afixo tem sufixo `..`/`...` |
 | [BUG-VIEW-NULO-NO-HIERARQUICO](BUG-VIEW-NULO-NO-HIERARQUICO.md) | `P1` closed-fixed | 2026-08-28 | um None numa coluna densa tira a tabela inteira do view() |
 | [BUG-VIEW-RECUSA-COLUNA-TIPADA](BUG-VIEW-RECUSA-COLUNA-TIPADA.md) | `P1` closed | 2026-08-23 | uma coluna int ou bool tira a tabela inteira do view() |
@@ -150,4 +151,4 @@
 
 ---
 
-111 tickets no total.
+112 tickets no total.
