@@ -77,7 +77,7 @@ jobs:
       # Python exato. Todo o resto (Windows, macOS, outros minors) cairia no sdist.
       # Publicar UMA wheel universal + o sdist e' o que o 0.7.1 ja' fazia
       # (`py3-none-any`) e mantem a instalacao previsivel em toda a matriz
-      # suportada (3.10-3.13). O acelerador continua best-effort na instalacao
+      # suportada (ADR-0051). O acelerador continua best-effort na instalacao
       # via sdist, e o fallback pure-Python e' byte-equivalente (ADR-0020,
       # guardado por tests/test_pyx_byte_equivalence.py no ci.yml).
       # Matriz de wheels compiladas (cibuildwheel) e' item do .9 —

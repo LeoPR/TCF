@@ -33,7 +33,8 @@ class CustomBuildHook(BuildHookInterface):
         # TCF_SKIP_ACCEL: nao compila NADA -> wheel `py3-none-any` (universal).
         # E' o modo do RELEASE: compilar aqui produziria uma wheel presa a um
         # (SO, minor do Python), e todo o resto da matriz cairia no sdist.
-        # Publicar universal + sdist mantem a instalacao previsivel em 3.10-3.13;
+        # Publicar universal + sdist mantem a instalacao previsivel em toda a
+        # matriz suportada (ADR-0051);
         # o acelerador segue best-effort na instalacao via sdist, e o fallback
         # pure-Python e' byte-equivalente (ADR-0020).
         # Precede o REQUIRE de proposito: se os dois vierem setados, o pedido
