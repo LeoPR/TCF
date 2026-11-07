@@ -304,24 +304,26 @@ def detect_periodic_runs(
         if d[i] is None:
             i += 1
             continue
-        fim = i                                     # fronteira da cadeia: UMA vez
+        fim = i  # fronteira da cadeia: UMA vez
         while fim < n - 1 and d[fim] is not None:
             fim += 1
         pos = i
         while pos < fim:
-            melhor = None                           # (economia, count, pad)
+            melhor = None  # (economia, count, pad)
             for p in range(max(2, mudanca[pos] + 1), min(MAX_PERIODO, fim - pos) + 1):
-                pad = d[pos:pos + p]
+                pad = d[pos : pos + p]
                 L = p
                 while pos + L < fim and d[pos + L] == pad[L % p]:
                     L += 1
-                if L < 2 * p:                       # dois ciclos completos
+                if L < 2 * p:  # dois ciclos completos
                     continue
                 count = L + 1
                 if not grafia_emissivel(pad, count):
-                    continue                        # nunca EMITIR grafia ambigua
+                    continue  # nunca EMITIR grafia ambigua
                 custo = len(marcador_periodico(count, pad, body_lines[pos])) + 1
-                economia = sum(len(body_lines[pos + k]) + 1 for k in range(count)) - custo
+                economia = (
+                    sum(len(body_lines[pos + k]) + 1 for k in range(count)) - custo
+                )
                 if economia > 0 and (melhor is None or economia > melhor[0]):
                     melhor = (economia, count, pad)
             if melhor is None:
@@ -435,16 +437,18 @@ def compact_body_periodico(
         if not pend:
             return
         # `pares` do fragmento e' a fatia exata do array global (mesmos pares adjacentes)
-        linhas_p, info_p = compact_body(pend, pares[pend_ini:pend_ini + len(pend) - 1])
+        linhas_p, info_p = compact_body(
+            pend, pares[pend_ini : pend_ini + len(pend) - 1]
+        )
         if sum(len(x) + 1 for x in linhas_p) > sum(len(x) + 1 for x in pend):
-            saida.extend(pend)                      # piso: nao piorar o fragmento
+            saida.extend(pend)  # piso: nao piorar o fragmento
             pend = []
             return
         saida.extend(linhas_p)
         for reg in info_p:
             r = dict(reg)
-            r["start_line"] += pend_ini             # reancora no corpo INTEIRO: sem isto
-            r["end_line"] += pend_ini               # a telemetria aponta linha errada
+            r["start_line"] += pend_ini  # reancora no corpo INTEIRO: sem isto
+            r["end_line"] += pend_ini  # a telemetria aponta linha errada
             info.append(r)
         pend = []
 
@@ -484,13 +488,13 @@ def expand_periodic_marker(linha: str) -> list[str] | None:
     if til <= 0 or not head[:til].isdigit():
         return None
     try:
-        pad = [int(x) for x in head[til + 1:].split(",")]
+        pad = [int(x) for x in head[til + 1 :].split(",")]
     except ValueError:
         return None
     count = int(head[:til])
     if not grafia_emissivel(pad, count):
         return None
-    template = linha[bar + 1:]
+    template = linha[bar + 1 :]
     out = [template]
     curr = template
     for k in range(1, count):
@@ -623,9 +627,7 @@ class HCCSeqRLE(M8AVirtualRefsSyntax):
         # Antes o info era fixado antes da decisao, e o `seq_rle_runs` reportava runs que
         # o wire nao tinha (ou zerava com o wire cheio de marcador). O canal e' publico:
         # `encoder.py` -> `SideOutputs.seq_rle_runs` -> `schema.seq_rle_runs_count`.
-        corpo, self._seq_info = min(
-            candidatos, key=lambda t: len(t[0].encode("utf-8"))
-        )
+        corpo, self._seq_info = min(candidatos, key=lambda t: len(t[0].encode("utf-8")))
         return corpo
 
     def decode(self, tcf_text, max_length=None):
@@ -653,7 +655,8 @@ class HCCSeqRLE(M8AVirtualRefsSyntax):
                 pedido = _contador_declarado(raw)
                 if pedido and len(expanded_lines) + pedido > limite:
                     raise ValueError(
-                        estouro_max_length(len(expanded_lines) + pedido, limite))
+                        estouro_max_length(len(expanded_lines) + pedido, limite)
+                    )
             expanded = expand_seq_marker(raw)
             if expanded is not None:
                 expanded_lines.extend(expanded)

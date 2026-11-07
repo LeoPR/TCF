@@ -59,7 +59,8 @@ class IntPadSpec:
             # 38 = maior largura decimal representável em 128 bits; acima disso a coluna
             # não é "inteiro tabular", é bignum, e o pad custaria mais do que informa.
             raise ValueError(
-                f"IntPadSpec.largura deve ser int em 1..38; got {self.largura!r}")
+                f"IntPadSpec.largura deve ser int em 1..38; got {self.largura!r}"
+            )
 
     # ── classificacao ────────────────────────────────────────────────────────
     def classify_value(self, v: str) -> str:
@@ -109,5 +110,5 @@ def int_pad_para(vals) -> "IntPadSpec | None":
         return None
     larguras = {len(str(v)) for v in puros}
     if len(larguras) < 2:
-        return None                     # largura ja' uniforme: padding nao muda nada
+        return None  # largura ja' uniforme: padding nao muda nada
     return IntPadSpec(largura=max(larguras))

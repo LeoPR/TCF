@@ -60,8 +60,10 @@ class TestRoundTripBasic:
         # legado ainda decoda `[]` (tolerante). Wire re-pinavel (ADR-0024).
         assert encode([]) == "#TCF.8\n"
         assert decode(encode([])) == []
-        assert decode("#TCF.8\n\n") == [""]        # fronteira: 1 LF de corpo = 1 elemento vazio
-        assert decode("#TCF.8H#D0\n") == []        # legado #D0 ainda tolerado
+        assert decode("#TCF.8\n\n") == [
+            ""
+        ]  # fronteira: 1 LF de corpo = 1 elemento vazio
+        assert decode("#TCF.8H#D0\n") == []  # legado #D0 ainda tolerado
 
     def test_o_LF_terminador_e_o_que_distingue_vazia_de_um_vazio(self):
         """POR QUE o corpo termina em LF — o fato irredutivel, em um par.
@@ -83,7 +85,7 @@ class TestRoundTripBasic:
         (e as duas voltas erradas) em `2026-08-21-0700-lf-a-resposta`.
         """
         assert encode([]) != encode([""])
-        assert encode([""]) == encode([]) + "\n"    # diferem em EXATAMENTE um LF
+        assert encode([""]) == encode([]) + "\n"  # diferem em EXATAMENTE um LF
         assert decode(encode([])) == [] and decode(encode([""])) == [""]
         # e a prova de que separador seria ambiguo: os dois dao o mesmo join
         assert "\n".join([]) == "\n".join([""]) == ""
@@ -435,11 +437,11 @@ class TestBug15CaretLeadingLiteral:
     Fix: escape simétrico do '^'-líder no emit (decode de-escapa via _parse_decl)."""
 
     def test_caret_literal_tcf_mode(self):
-        col = ["^abc"] * 30 + ["y"] * 30           # ganha tcf
+        col = ["^abc"] * 30 + ["y"] * 30  # ganha tcf
         assert decode(encode(col)) == col
 
     def test_caret_literal_dict_mode(self):
-        col = ["^ab", "^cd"] * 40                   # ganha dict (K=2)
+        col = ["^ab", "^cd"] * 40  # ganha dict (K=2)
         assert decode(encode(col)) == col
 
     def test_caret_digit_no_silent_corruption(self):
@@ -477,9 +479,16 @@ class TestSeqRleRangeDotDotBug:
 
     def test_matriz_caracterizacao_dotdot(self):
         """Variações do sufixo/posição do `..` (a matriz do critério de aceite)."""
-        for col in (["ETC", "ETC.."], ["ETC", "ETC...."], ["ETC", "ETC. . ."],
-                    ["a.b", "a.b..c"], ["x", "x..", "x...."], ["..", "...."],
-                    ["fim.", "fim.."], ["a", "a..b..c"]):
+        for col in (
+            ["ETC", "ETC.."],
+            ["ETC", "ETC...."],
+            ["ETC", "ETC. . ."],
+            ["a.b", "a.b..c"],
+            ["x", "x..", "x...."],
+            ["..", "...."],
+            ["fim.", "fim.."],
+            ["a", "a..b..c"],
+        ):
             assert decode(encode(col)) == col, col
 
     def test_range_legitimo_continua_funcionando(self):
@@ -490,10 +499,12 @@ class TestSeqRleRangeDotDotBug:
 
     def test_caracterizacao_nao_afeta_casos_vizinhos(self):
         # os casos SEM o gatilho continuam RT (garante que o fix futuro não precisa mexer nesses)
-        for col in (["ETC & TAL", "ETC & TAL."],      # 1 ponto: ok
-                    ["ETC & TAL", "..ETC & TAL"],     # prefixo, não sufixo: ok
-                    ["ETC & TAL..."],                  # valor único, sem afixo: ok
-                    ["casa", "casa123"]):              # afixo sem '..': ok
+        for col in (
+            ["ETC & TAL", "ETC & TAL."],  # 1 ponto: ok
+            ["ETC & TAL", "..ETC & TAL"],  # prefixo, não sufixo: ok
+            ["ETC & TAL..."],  # valor único, sem afixo: ok
+            ["casa", "casa123"],
+        ):  # afixo sem '..': ok
             assert decode(encode(col)) == col
 
 
@@ -514,13 +525,24 @@ class TestBracketCellLossBug:
 
     def test_matriz_caracterizacao_bracket(self):
         """Posições/combinações (a matriz do critério de aceite + ampliação da auditoria)."""
-        for col in (["["], ["]"], ["a", "]", "b"], ["[", "["], ["]", "[", "]"],
-                    ["[]"], ["[x]"], ["a[", "]b"], ["", "[", ""]):
+        for col in (
+            ["["],
+            ["]"],
+            ["a", "]", "b"],
+            ["[", "["],
+            ["]", "[", "]"],
+            ["[]"],
+            ["[x]"],
+            ["a[", "]b"],
+            ["", "[", ""],
+        ):
             assert decode(encode(col)) == col, col
 
     def test_bracket_wire_pinado(self):
         """Pino do wire novo (capacidade nova = pino novo; re-pinável, ADR-0024)."""
-        assert encode(["a", "]", "b"]) == "#TCF.8\na\n]\nb\n"  # header default (ADR-0034)
+        assert (
+            encode(["a", "]", "b"]) == "#TCF.8\na\n]\nb\n"
+        )  # header default (ADR-0034)
 
     def test_bracket_nao_isolado_ok(self):
         # '['/']' NÃO-isolado (parte de string maior) ou '{'/'}' seguem RT (isola o gatilho)
